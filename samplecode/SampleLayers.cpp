@@ -22,7 +22,6 @@
 #include "SkTime.h"
 #include "SkTypeface.h"
 #include "SkUtils.h"
-#include "SkKey.h"
 #include "SkDrawFilter.h"
 #include "SkClipOpPriv.h"
 
@@ -199,11 +198,6 @@ protected:
 
     bool onClick(Click* click) override {
         return this->INHERITED::onClick(click);
-    }
-
-    virtual bool handleKey(SkKey) {
-        this->inval(nullptr);
-        return true;
     }
 
 private:

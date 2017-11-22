@@ -23,7 +23,6 @@
 #include "SkTextBox.h"
 #include "SkOSFile.h"
 #include "SkStream.h"
-#include "SkKey.h"
 
 extern void skia_set_text_gamma(float blackGamma, float whiteGamma);
 

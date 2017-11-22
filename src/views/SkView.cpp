@@ -7,7 +7,6 @@
 
 #include "SkView.h"
 #include "SkCanvas.h"
-#include "SkDOM.h"
 
 static inline uint32_t SkSetClearShift(uint32_t bits, bool cond, unsigned shift) {
     SkASSERT((int)cond == 0 || (int)cond == 1);
@@ -292,54 +291,9 @@ void SkView::onFocusChange(bool gainFocusP) {
 SkView::Click::Click(SkView* target) {
     SkASSERT(target);
     fTargetID = target->getSinkID();
-    fType = nullptr;
-    fWeOwnTheType = false;
-    fOwner = nullptr;
 }
 
-SkView::Click::~Click() {
-    this->resetType();
-}
-
-void SkView::Click::resetType() {
-    if (fWeOwnTheType) {
-        sk_free(fType);
-        fWeOwnTheType = false;
-    }
-    fType = nullptr;
-}
-
-bool SkView::Click::isType(const char type[]) const {
-    const char* t = fType;
-
-    if (type == t) {
-        return true;
-    }
-    if (type == nullptr) {
-        type = "";
-    }
-    if (t == nullptr) {
-        t = "";
-    }
-    return !strcmp(t, type);
-}
-
-void SkView::Click::setType(const char type[]) {
-    this->resetType();
-    fType = (char*)type;
-}
-
-void SkView::Click::copyType(const char type[]) {
-    if (fType != type) {
-        this->resetType();
-        if (type) {
-            size_t len = strlen(type) + 1;
-            fType = (char*)sk_malloc_throw(len);
-            memcpy(fType, type, len);
-            fWeOwnTheType = true;
-        }
-    }
-}
+SkView::Click::~Click() {}
 
 SkView::Click* SkView::findClickHandler(SkScalar x, SkScalar y, unsigned modi) {
     if (x < 0 || y < 0 || x >= fWidth || y >= fHeight) {
@@ -607,64 +561,11 @@ bool SkView::globalToLocal(SkScalar x, SkScalar y, SkPoint* local) const {
 
 //////////////////////////////////////////////////////////////////
 
-/*    Even if the subclass overrides onInflate, they should always be
-    sure to call the inherited method, so that we get called.
-*/
-void SkView::onInflate(const SkDOM& dom, const SkDOM::Node* node) {
-    SkScalar x, y;
-
-    x = this->locX();
-    y = this->locY();
-    (void)dom.findScalar(node, "x", &x);
-    (void)dom.findScalar(node, "y", &y);
-    this->setLoc(x, y);
-
-    x = this->width();
-    y = this->height();
-    (void)dom.findScalar(node, "width", &x);
-    (void)dom.findScalar(node, "height", &y);
-    this->setSize(x, y);
-
-    // inflate the flags
-
-    static const char* gFlagNames[] = {
-        "visible", "enabled", "focusable", "flexH", "flexV"
-    };
-    SkASSERT(SK_ARRAY_COUNT(gFlagNames) == kFlagShiftCount);
-
-    bool     b;
-    uint32_t flags = this->getFlags();
-    for (unsigned i = 0; i < SK_ARRAY_COUNT(gFlagNames); i++) {
-        if (dom.findBool(node, gFlagNames[i], &b)) {
-            flags = SkSetClearShift(flags, b, i);
-        }
-    }
-    this->setFlags(flags);
-}
-
-void SkView::inflate(const SkDOM& dom, const SkDOM::Node* node) {
-    this->onInflate(dom, node);
-}
-
-//////////////////////////////////////////////////////////////////
-
 SkView* SkView::sendEventToParents(const SkEvent& evt) {
     SkView* parent = fParent;
 
     while (parent) {
         if (parent->doEvent(evt)) {
-            return parent;
-        }
-        parent = parent->fParent;
-    }
-    return nullptr;
-}
-
-SkView* SkView::sendQueryToParents(SkEvent* evt) {
-    SkView* parent = fParent;
-
-    while (parent) {
-        if (parent->doQuery(evt)) {
             return parent;
         }
         parent = parent->fParent;
@@ -725,56 +626,6 @@ void SkView::validate() const {
         bool prevNull = nullptr == fNextSibling;
         SkASSERT(nextNull == prevNull);
     }
-}
-
-static inline void show_if_nonzero(const char name[], SkScalar value) {
-    if (value) {
-        SkDebugf("%s=\"%g\"", name, value/65536.);
-    }
-}
-
-static void tab(int level) {
-    for (int i = 0; i < level; i++) {
-        SkDebugf("    ");
-    }
-}
-
-static void dumpview(const SkView* view, int level, bool recurse) {
-    tab(level);
-
-    SkDebugf("<view");
-    show_if_nonzero(" x", view->locX());
-    show_if_nonzero(" y", view->locY());
-    show_if_nonzero(" width", view->width());
-    show_if_nonzero(" height", view->height());
-
-    if (recurse) {
-        SkView::B2FIter    iter(view);
-        SkView*            child;
-        bool            noChildren = true;
-
-        while ((child = iter.next()) != nullptr) {
-            if (noChildren) {
-                SkDebugf(">\n");
-            }
-            noChildren = false;
-            dumpview(child, level + 1, true);
-        }
-
-        if (!noChildren) {
-            tab(level);
-            SkDebugf("</view>\n");
-        } else {
-            goto ONELINER;
-        }
-    } else {
-    ONELINER:
-        SkDebugf(" />\n");
-    }
-}
-
-void SkView::dump(bool recurse) const {
-    dumpview(this, 0, recurse);
 }
 
 #endif

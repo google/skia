@@ -17,8 +17,6 @@
 
 class SkCanvas;
 class SkLayerView;
-class SkDOM;
-struct SkDOMNode;
 
 /** \class SkView
 
@@ -142,11 +140,6 @@ public:
         Click(SkView* target);
         virtual ~Click();
 
-        const char* getType() const { return fType; }
-        bool        isType(const char type[]) const;
-        void        setType(const char type[]);     // does NOT make a copy of the string
-        void        copyType(const char type[]);    // makes a copy of the string
-
         enum State {
             kDown_State,
             kMoved_State,
@@ -155,16 +148,11 @@ public:
         SkPoint     fOrig, fPrev, fCurr;
         SkIPoint    fIOrig, fIPrev, fICurr;
         State       fState;
-        void*       fOwner;
         unsigned    fModifierKeys;
 
         SkMetaData  fMeta;
     private:
         SkEventSinkID   fTargetID;
-        char*           fType;
-        bool            fWeOwnTheType;
-
-        void resetType();
 
         friend class SkView;
     };
@@ -179,11 +167,6 @@ public:
         the event, null is returned.
      */
     SkView*     sendEventToParents(const SkEvent&);
-    /** Send the query to the view's parent, and its parent etc. until one of them
-        returns true from its onQuery call. This view is returned. If no parent handles
-        the query, null is returned.
-     */
-    SkView* sendQueryToParents(SkEvent*);
 
     //  View hierarchy management
 
@@ -250,12 +233,6 @@ public:
         SkView* fFirstChild, *fChild;
     };
 
-    /** Call this to initialize this view based on the specified XML node
-    */
-    void    inflate(const SkDOM& dom, const SkDOMNode* node);
-
-    SkDEBUGCODE(void dump(bool recurse) const;)
-
 protected:
     /** Override this to draw inside the view. Be sure to call the inherited version too */
     virtual void    onDraw(SkCanvas*);
@@ -289,11 +266,6 @@ protected:
         the pen/mouse.
     */
     virtual bool    onClick(Click*);
-    /** Override this to initialize your subclass from the XML node. Be sure to call the inherited version too */
-    virtual void    onInflate(const SkDOM& dom, const SkDOMNode* node);
-    /** Override this if you want to perform post initialization work based on the ID dictionary built
-        during XML parsing. Be sure to call the inherited version too.
-    */
 
 public:
 #ifdef SK_DEBUG
