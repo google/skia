@@ -7,9 +7,12 @@
 
 #include "SkTextBlobRunIterator.h"
 
-#include "SkValidatingReadBuffer.h"
+#include "SkSafeMath.h"
 #include "SkTypeface.h"
+#include "SkValidatingReadBuffer.h"
 #include "SkWriteBuffer.h"
+
+#include <limits>
 
 #if SK_SUPPORT_GPU
 #include "text/GrTextBlobCache.h"
@@ -187,19 +190,26 @@ public:
             : nullptr;
     }
 
-    static size_t StorageSize(int glyphCount, int textSize,
-                              SkTextBlob::GlyphPositioning positioning) {
+    static size_t StorageSize(uint32_t glyphCount, uint32_t textSize,
+                              SkTextBlob::GlyphPositioning positioning,
+                              SkSafeMath* safe) {
         static_assert(SkIsAlign4(sizeof(SkScalar)), "SkScalar size alignment");
+
+        auto glyphSize = safe->mul(glyphCount, sizeof(uint16_t)),
+               posSize = safe->mul(PosCount(glyphCount, positioning, safe), sizeof(SkScalar));
+
         // RunRecord object + (aligned) glyph buffer + position buffer
-        size_t size = sizeof(SkTextBlob::RunRecord)
-                      + SkAlign4(glyphCount* sizeof(uint16_t))
-                      + PosCount(glyphCount, positioning) * sizeof(SkScalar);
-        if (textSize > 0) {  // Extended run.
-            size += sizeof(uint32_t)
-                + sizeof(uint32_t) * glyphCount
-                + textSize;
+        auto size = sizeof(SkTextBlob::RunRecord);
+             size = safe->add(size, safe->alignUp(glyphSize, 4));
+             size = safe->add(size, posSize);
+
+        if (textSize) {  // Extended run.
+             size = safe->add(size, sizeof(uint32_t));
+             size = safe->add(size, safe->mul(glyphCount, sizeof(uint32_t)));
+             size = safe->add(size, textSize);
         }
-        return SkAlignPtr(size);
+
+        return safe->alignUp(size, sizeof(void*));
     }
 
     static const RunRecord* First(const SkTextBlob* blob) {
@@ -238,20 +248,27 @@ private:
     };
 
     static const RunRecord* NextUnchecked(const RunRecord* run) {
-        return reinterpret_cast<const RunRecord*>(
-                reinterpret_cast<const uint8_t*>(run)
-                + StorageSize(run->glyphCount(), run->textSize(), run->positioning()));
+        SkSafeMath safe;
+        auto res = reinterpret_cast<const RunRecord*>(
+                   reinterpret_cast<const uint8_t*>(run)
+                   + StorageSize(run->glyphCount(), run->textSize(), run->positioning(), &safe));
+        SkASSERT(safe);
+        return res;
     }
 
-    static size_t PosCount(int glyphCount,
-                           SkTextBlob::GlyphPositioning positioning) {
-        return glyphCount * ScalarsPerGlyph(positioning);
+    static size_t PosCount(uint32_t glyphCount,
+                           SkTextBlob::GlyphPositioning positioning,
+                           SkSafeMath* safe) {
+        return safe->mul(glyphCount, ScalarsPerGlyph(positioning));
     }
 
     uint32_t* textSizePtr() const {
         // textSize follows the position buffer.
         SkASSERT(isExtended());
-        return (uint32_t*)(&this->posBuffer()[PosCount(fCount, positioning())]);
+        SkSafeMath safe;
+        auto res = (uint32_t*)(&this->posBuffer()[PosCount(fCount, positioning(), &safe)]);
+        SkASSERT(safe);
+        return res;
     }
 
     void grow(uint32_t count) {
@@ -525,8 +542,10 @@ void SkTextBlobBuilder::updateDeferredBounds() {
 }
 
 void SkTextBlobBuilder::reserve(size_t size) {
+    SkSafeMath safe;
+
     // We don't currently pre-allocate, but maybe someday...
-    if (fStorageUsed + size <= fStorageSize) {
+    if (safe.add(fStorageUsed, size) <= fStorageSize && safe) {
         return;
     }
 
@@ -536,16 +555,18 @@ void SkTextBlobBuilder::reserve(size_t size) {
         SkASSERT(0 == fStorageUsed);
 
         // the first allocation also includes blob storage
-        fStorageUsed += sizeof(SkTextBlob);
+        fStorageUsed = sizeof(SkTextBlob);
     }
 
-    fStorageSize = fStorageUsed + size;
+    fStorageSize = safe.add(fStorageUsed, size);
+
     // FYI: This relies on everything we store being relocatable, particularly SkPaint.
-    fStorage.realloc(fStorageSize);
+    //      Also, this is counting on the underlying realloc to throw when passed max().
+    fStorage.realloc(safe ? fStorageSize : std::numeric_limits<size_t>::max());
 }
 
 bool SkTextBlobBuilder::mergeRun(const SkPaint &font, SkTextBlob::GlyphPositioning positioning,
-                                 int count, SkPoint offset) {
+                                 uint32_t count, SkPoint offset) {
     if (0 == fLastRun) {
         SkASSERT(0 == fRunCount);
         return false;
@@ -576,8 +597,14 @@ bool SkTextBlobBuilder::mergeRun(const SkPaint &font, SkTextBlob::GlyphPositioni
         return false;
     }
 
-    size_t sizeDelta = SkTextBlob::RunRecord::StorageSize(run->glyphCount() + count, 0, positioning) -
-                       SkTextBlob::RunRecord::StorageSize(run->glyphCount(), 0, positioning);
+    SkSafeMath safe;
+    size_t sizeDelta =
+        SkTextBlob::RunRecord::StorageSize(run->glyphCount() + count, 0, positioning, &safe) -
+        SkTextBlob::RunRecord::StorageSize(run->glyphCount()        , 0, positioning, &safe);
+    if (!safe) {
+        return false;
+    }
+
     this->reserve(sizeDelta);
 
     // reserve may have realloced
@@ -610,7 +637,13 @@ void SkTextBlobBuilder::allocInternal(const SkPaint &font,
     if (textSize != 0 || !this->mergeRun(font, positioning, count, offset)) {
         this->updateDeferredBounds();
 
-        size_t runSize = SkTextBlob::RunRecord::StorageSize(count, textSize, positioning);
+        SkSafeMath safe;
+        size_t runSize = SkTextBlob::RunRecord::StorageSize(count, textSize, positioning, &safe);
+        if (!safe) {
+            fCurrentRunBuffer = { nullptr, nullptr, nullptr, nullptr };
+            return;
+        }
+
         this->reserve(runSize);
 
         SkASSERT(fStorageUsed >= sizeof(SkTextBlob));
@@ -691,16 +724,18 @@ sk_sp<SkTextBlob> SkTextBlobBuilder::make() {
     SkDEBUGCODE(const_cast<SkTextBlob*>(blob)->fStorageSize = fStorageSize;)
 
     SkDEBUGCODE(
+        SkSafeMath safe;
         size_t validateSize = sizeof(SkTextBlob);
         for (const auto* run = SkTextBlob::RunRecord::First(blob); run;
              run = SkTextBlob::RunRecord::Next(run)) {
             validateSize += SkTextBlob::RunRecord::StorageSize(
-                    run->fCount, run->textSize(), run->positioning());
+                    run->fCount, run->textSize(), run->positioning(), &safe);
             run->validate(reinterpret_cast<const uint8_t*>(blob) + fStorageUsed);
             fRunCount--;
         }
         SkASSERT(validateSize == fStorageUsed);
         SkASSERT(fRunCount == 0);
+        SkASSERT(safe);
     )
 
     fStorageUsed = 0;
