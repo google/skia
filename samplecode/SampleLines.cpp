@@ -94,7 +94,6 @@ protected:
 
     SkView::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned) override {
         fAlpha = SkScalarRoundToInt(y);
-        this->inval(nullptr);
         return nullptr;
     }
 private:

@@ -13,7 +13,6 @@
 #include "SkColorFilter.h"
 #include "SkImage.h"
 #include "SkRandom.h"
-#include "SkSystemEventTypes.h"
 #include "SkTime.h"
 #include "SkTypeface.h"
 #include "Timer.h"

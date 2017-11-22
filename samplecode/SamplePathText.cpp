@@ -58,7 +58,6 @@ public:
         if (SampleCode::CharQ(*evt, &unichar)) {
             if (unichar == 'X') {
                 fDoClip = !fDoClip;
-                this->inval(nullptr);
                 return true;
             }
         }

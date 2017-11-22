@@ -100,15 +100,6 @@ protected:
         canvas->drawRect(r, paint);
     }
 
-    SkView::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned modi) override {
-        this->inval(nullptr);
-        return this->INHERITED::onFindClickHandler(x, y, modi);
-    }
-
-    bool onClick(Click* click)  override {
-        return this->INHERITED::onClick(click);
-    }
-
 private:
     typedef SampleView INHERITED;
 };

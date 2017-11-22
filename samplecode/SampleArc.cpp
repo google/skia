@@ -196,12 +196,6 @@ protected:
         return true;
     }
 
-    SkView::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned modi) override {
-     //   fSweep += SK_Scalar1;
-        this->inval(nullptr);
-        return this->INHERITED::onFindClickHandler(x, y, modi);
-    }
-
 private:
     SkScalar fSweep;
 

@@ -115,7 +115,6 @@ protected:
                     break;
             }
             if (handled) {
-                this->inval(nullptr);
                 return true;
             }
         }

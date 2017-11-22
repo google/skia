@@ -9,6 +9,7 @@
 
 #include "SkCanvas.h"
 #include "SkCommonFlags.h"
+#include "SkKey.h"
 #include "SkOSFile.h"
 #include "SkStream.h"
 

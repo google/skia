@@ -805,7 +805,6 @@ protected:
 
     virtual void onDrawContent(SkCanvas* canvas) {
         do_fuzz(canvas);
-        this->inval(0);
     }
 
 private:

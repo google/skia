@@ -94,7 +94,6 @@ private:
                     } else {
                         fTrail.push_back('X');
                     }
-                    this->inval(nullptr);
                 }
                 return true;
             case 'x':
@@ -104,7 +103,6 @@ private:
                     fTossedPaths.reset(fPaths.begin() + midpt, fPaths.count() - midpt);
                     fPaths.resize_back(midpt);
                     fTrail.push_back('x');
-                    this->inval(nullptr);
                 }
                 return true;
             case 'Z': {
@@ -117,7 +115,6 @@ private:
                         ch = fTrail.back();
                         fTrail.pop_back();
                     } while (ch != 'x');
-                    this->inval(nullptr);
                 }
                 return true;
             }

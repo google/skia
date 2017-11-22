@@ -212,7 +212,6 @@ protected:
                 default:
                     fText.appendUnichar(uni);
             }
-            this->inval(nullptr);
             return true;
         }
         return this->INHERITED::onQuery(evt);
@@ -697,7 +696,6 @@ protected:
         draw_button(canvas, fRRectButton);
         draw_button(canvas, fCircleButton);
         draw_button(canvas, fTextButton);
-        this->inval(nullptr);
     }
 
     class MyClick : public Click {
@@ -771,7 +769,6 @@ protected:
         if (index < (int) SK_ARRAY_COUNT(fPts)) {
             fPts[index].offset(SkIntToScalar(click->fICurr.fX - click->fIPrev.fX),
                                SkIntToScalar(click->fICurr.fY - click->fIPrev.fY));
-            this->inval(nullptr);
         } else if (index == (int) SK_ARRAY_COUNT(fPts) + 1) {
             fWeight = MapScreenYtoValue(click->fICurr.fY, fWeightControl, 0, 5);
         } else if (index == (int) SK_ARRAY_COUNT(fPts) + 2) {

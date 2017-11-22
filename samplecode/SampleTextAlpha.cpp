@@ -76,7 +76,6 @@ protected:
             y = 255;
         }
         fByte = y;
-        this->inval(nullptr);
         return true;
     }
 

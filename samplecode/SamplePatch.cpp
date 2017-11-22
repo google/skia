@@ -322,7 +322,6 @@ protected:
 
     bool onClick(Click* click) override {
         fPts[((PtClick*)click)->fIndex].set(click->fCurr.fX - DX, click->fCurr.fY - DY);
-        this->inval(nullptr);
         return true;
     }
 

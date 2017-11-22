@@ -171,7 +171,6 @@ protected:
                 break;
             }
         }
-        this->inval(nullptr);
         return nullptr;
     }
 

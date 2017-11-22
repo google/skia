@@ -43,27 +43,21 @@ class OverstrokeView : public SampleView {
             switch (uni) {
                 case ',':
                     fStroke += 1.0;
-                    this->inval(nullptr);
                     return true;
                 case '.':
                     fStroke -= 1.0;
-                    this->inval(nullptr);
                     return true;
                 case 'x':
                     fPathType = (fPathType + 1) % 4;
-                    this->inval(nullptr);
                     return true;
                 case 'c':
                     fClosePath = !fClosePath;
-                    this->inval(nullptr);
                     return true;
                 case 'f':
                     fDrawFillPath = !fDrawFillPath;
-                    this->inval(nullptr);
                     return true;
                 case 'D':
                     fDumpHex = !fDumpHex;
-                    this->inval(nullptr);
                     return true;
                 default:
                     break;

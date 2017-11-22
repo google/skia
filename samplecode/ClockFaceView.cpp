@@ -207,7 +207,6 @@ protected:
                 fInterp = 0;
                 fDx = -fDx;
             }
-            this->inval(nullptr);
         }
     }
 

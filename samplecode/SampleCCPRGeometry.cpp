@@ -60,7 +60,6 @@ private:
 
     void updateAndInval() {
         this->updateGpuData();
-        this->inval(nullptr);
     }
 
     void updateGpuData();

@@ -32,63 +32,35 @@ const int N_Modes = SK_ARRAY_COUNT(gModes);
 
 static SkRandom gRand;
 
-class PushButtonWig : public SkView {
+struct ModeButton {
     SkString fLabel;
     SkColor  fColor;
-    uint32_t fFast32;
+    SkRect   fRect;
 
 public:
-    PushButtonWig(const char label[], uint32_t fast) : fLabel(label) {
+    void init(const char label[], const SkRect& rect) {
+        fLabel = label;
+        fRect = rect;
         fColor = (gRand.nextU() & 0x7F7F7F7F) | SkColorSetARGB(0xFF, 0, 0, 0x80);
-        fFast32 = fast;
     }
 
-    void postWidgetEvent() {
-        SkEvent evt;
-        evt.setType("push-button");
-        evt.setFast32(fFast32);
-        evt.setString("label", fLabel.c_str());
-        this->sendEventToParents(evt);
-    }
-
-protected:
-    void onDraw(SkCanvas* canvas) override {
-        SkRect r;
-        this->getLocalBounds(&r);
+    void draw(SkCanvas* canvas) {
         SkPaint paint;
         paint.setAntiAlias(true);
         paint.setColor(fColor);
-        canvas->drawRoundRect(r, 8, 8, paint);
+        canvas->drawRoundRect(fRect, 8, 8, paint);
 
         paint.setColor(0xFFFFFFFF);
         paint.setTextSize(16);
         paint.setTextAlign(SkPaint::kCenter_Align);
         paint.setLCDRenderText(true);
-        canvas->drawString(fLabel, r.centerX(), r.fTop + 0.68f * r.height(), paint);
+        canvas->drawString(fLabel, fRect.centerX(), fRect.fTop + 0.68f * fRect.height(), paint);
     }
 
-    Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned modi) override {
-        return new Click(this);
-    }
-
-    bool onClick(Click* click) override {
-        SkRect target = SkRect::MakeXYWH(click->fCurr.x() - 1, click->fCurr.y() - 1, 3, 3);
-        SkRect r;
-        this->getLocalBounds(&r);
-        if (r.intersects(target)) {
-            fColor = SkColorSetA(fColor, 0x99);
-        } else {
-            fColor = SkColorSetA(fColor, 0xFF);
-        }
-        this->inval(nullptr);
-
-        if (click->fState == SkView::Click::kUp_State) {
-            this->postWidgetEvent();
-        }
-        return true;
+    bool hitTest(SkScalar x, SkScalar y) {
+        return fRect.intersects(x - 1, y - 1, x + 1, y + 1);
     }
 };
-
 
 class ModeDrawable : public SkDrawable {
 public:
@@ -136,6 +108,7 @@ class XferDemo : public SampleView {
     };
 
     SkRect        fModeRect[N_Modes];
+    ModeButton    fModeButtons[N_Modes];
     sk_sp<CircDrawable> fDrs[N];
     CircDrawable* fSelected;
 
@@ -143,12 +116,7 @@ class XferDemo : public SampleView {
         SkScalar x = 10;
         SkScalar y = 10;
         for (int i = 0; i < N_Modes; ++i) {
-            sk_sp<SkView> v(new PushButtonWig(SkBlendMode_Name(gModes[i]), (int)gModes[i]));
-            v->setSize(70, 25);
-            v->setLoc(x, y);
-            v->setVisibleP(true);
-            v->setEnabledP(true);
-            this->attachChildToFront(v.get());
+            fModeButtons[i].init(SkBlendMode_Name(gModes[i]), SkRect::MakeXYWH(x, y, 70, 25));
             fModeRect[i] = SkRect::MakeXYWH(x, y + 28, 70, 2);
             x += 80;
         }
@@ -168,17 +136,6 @@ public:
     }
 
 protected:
-    bool onEvent(const SkEvent& evt) override {
-        if (evt.isType("push-button")) {
-            if (fSelected) {
-                fSelected->fMode = (SkBlendMode)evt.getFast32();
-                this->inval(nullptr);
-            }
-            return true;
-        }
-        return this->INHERITED::onEvent(evt);
-    }
-
     bool onQuery(SkEvent* evt) override {
         if (SampleCode::TitleQ(*evt)) {
             SampleCode::TitleR(evt, "XferDemo");
@@ -188,6 +145,10 @@ protected:
     }
 
     void onDrawContent(SkCanvas* canvas) override {
+        for (int i = 0; i < N_Modes; ++i) {
+            fModeButtons[i].draw(canvas);
+        }
+
         SkPaint paint;
         if (fSelected) {
             for (int i = 0; i < N_Modes; ++i) {
@@ -206,6 +167,14 @@ protected:
     }
 
     SkView::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned) override {
+        // Check mode buttons first
+        for (int i = 0; i < N_Modes; ++i) {
+            if (fModeButtons[i].hitTest(x, y)) {
+                Click* click = new Click(this);
+                click->fMeta.setS32("mode", i);
+                return click;
+            }
+        }
         fSelected = nullptr;
         for (int i = N - 1; i >= 0; --i) {
             if (fDrs[i]->hitTest(x, y)) {
@@ -213,14 +182,19 @@ protected:
                 break;
             }
         }
-        this->inval(nullptr);
         return fSelected ? new Click(this) : nullptr;
     }
 
     bool onClick(Click* click) override {
-        fSelected->fLoc.fX += click->fCurr.fX - click->fPrev.fX;
-        fSelected->fLoc.fY += click->fCurr.fY - click->fPrev.fY;
-        this->inval(nullptr);
+        int32_t mode;
+        if (click->fMeta.findS32("mode", &mode)) {
+            if (fSelected && Click::kUp_State == click->fState) {
+                fSelected->fMode = gModes[mode];
+            }
+        } else {
+            fSelected->fLoc.fX += click->fCurr.fX - click->fPrev.fX;
+            fSelected->fLoc.fY += click->fCurr.fY - click->fPrev.fY;
+        }
         return true;
     }
 

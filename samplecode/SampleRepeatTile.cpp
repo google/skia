@@ -8,7 +8,6 @@
 #include "SkView.h"
 #include "SkCanvas.h"
 #include "SkShader.h"
-#include "SkKey.h"
 
 static void make_bitmap(SkBitmap* bm) {
     const int W = 100;
@@ -62,21 +61,6 @@ protected:
 //        canvas->scale(SK_Scalar1*2, SK_Scalar1);
         canvas->translate(SkIntToScalar(100), SkIntToScalar(100));
         canvas->drawPaint(paint);
-    }
-
-    SkView::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned modi) override {
-        this->inval(nullptr);
-
-        return this->INHERITED::onFindClickHandler(x, y, modi);
-    }
-
-    bool onClick(Click* click) override {
-        return this->INHERITED::onClick(click);
-    }
-
-    virtual bool handleKey(SkKey) {
-        this->inval(nullptr);
-        return true;
     }
 
 private:

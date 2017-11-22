@@ -151,8 +151,6 @@ protected:
         canvas->drawRect(SkRect::MakeXYWH(0, 0, 200, 24), paint);
         paint.setColor(SK_ColorWHITE);
         canvas->drawString(outString, 5, 15, paint);
-
-        this->inval(nullptr);
     }
 
 #if 0
