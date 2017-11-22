@@ -13,6 +13,7 @@
 #include "sk_app/Window.h"
 #include "gm.h"
 #include "SkAnimTimer.h"
+#include "SkExecutor.h"
 #include "SkJSONCPP.h"
 #include "SkTouchGesture.h"
 #include "Slide.h"
@@ -58,6 +59,10 @@ private:
 
     void changeZoomLevel(float delta);
     SkMatrix computeMatrix();
+
+    void resetExecutor() {
+        fExecutor = SkExecutor::MakeFIFOThreadPool(fThreadCnt == 0 ? fTileCnt : fThreadCnt);
+    }
 
     sk_app::Window*        fWindow;
 
@@ -112,6 +117,10 @@ private:
     SkTArray<std::function<void(void)>> fDeferredActions;
 
     Json::Value            fAllSlideNames; // cache all slide names for fast updateUIState
+
+    int fTileCnt;
+    int fThreadCnt;
+    std::unique_ptr<SkExecutor> fExecutor;
 };
 
 
