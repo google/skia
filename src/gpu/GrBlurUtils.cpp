@@ -296,7 +296,7 @@ void GrBlurUtils::drawPathWithMaskFilter(GrContext* context,
                           &grPaint)) {
         return;
     }
-    GrAA aa = GrBoolToAA(paint.isAntiAlias());
+    GrAA aa = GrAA(paint.isAntiAlias());
     SkMaskFilter* mf = paint.getMaskFilter();
     if (mf && !mf->asFragmentProcessor(nullptr)) {
         // The MaskFilter wasn't already handled in SkPaintToGrPaint
