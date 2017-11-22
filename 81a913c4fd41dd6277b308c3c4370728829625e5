@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "286d54cb_f463deb6",
+        "filename": "src/gpu/ccpr/GrCCPRGeometry.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-11-22T13:16:59Z",
+      "side": 1,
+      "message": "This API is different from how most of skia treats paths with *To() functions. Maybe these should all be addQuadratic, addCubic, etc. if they are not going to be relative to the previous point.\n\nOr actually after reading the cpp files, it seems like you don\u0027t have a choice on what the first point of all these arrays are (we assert it equals the previous point). Thus I don\u0027t see the need to adding the start point in any of these.",
+      "range": {
+        "startLine": 77,
+        "startChar": 22,
+        "endLine": 77,
+        "endChar": 44
+      },
+      "revId": "81a913c4fd41dd6277b308c3c4370728829625e5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
