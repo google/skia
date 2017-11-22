@@ -12,7 +12,6 @@
 #include "SkEvent.h"
 #include "SkKey.h"
 #include "SkView.h"
-#include "SkOSMenu.h"
 
 class GrContext;
 class SkAnimTimer;
@@ -113,8 +112,7 @@ private:
 class SampleView : public SkView {
 public:
     SampleView()
-        : fPipeState(SkOSMenu::kOffState)
-        , fBGColor(SK_ColorWHITE)
+        : fBGColor(SK_ColorWHITE)
         , fRepeatCount(1)
         , fHaveCalledOnceBeforeDraw(false)
     {}
@@ -123,19 +121,6 @@ public:
     bool animate(const SkAnimTimer& timer) { return this->onAnimate(timer); }
 
     static bool IsSampleView(SkView*);
-    static bool SetRepeatDraw(SkView*, int count);
-    static bool SetUsePipe(SkView*, SkOSMenu::TriState);
-
-    /**
-     *  Call this to request menu items from a SampleView.
-     *  Subclassing notes: A subclass of SampleView can overwrite this method
-     *  to add new items of various types to the menu and change its title.
-     *  The events attached to any new menu items must be handled in its onEvent
-     *  method. See SkOSMenu.h for helper functions.
-     */
-    virtual void requestMenu(SkOSMenu* menu) {}
-
-    virtual void onTileSizeChanged(const SkSize& tileSize) {}
 
 protected:
     virtual void onDrawBackground(SkCanvas*);
@@ -148,7 +133,6 @@ protected:
     virtual bool onQuery(SkEvent* evt);
     virtual void onDraw(SkCanvas*);
 
-    SkOSMenu::TriState fPipeState;
     SkColor fBGColor;
 
 private:

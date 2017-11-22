@@ -250,66 +250,6 @@ public:
         SkView* fFirstChild, *fChild;
     };
 
-    /** \class Artist
-
-        Install a subclass of this in a view (calling setArtist()), and then the
-        default implementation of that view's onDraw() will invoke this object
-        automatically.
-    */
-    class Artist : public SkRefCnt {
-    public:
-
-
-        void draw(SkView*, SkCanvas*);
-        void inflate(const SkDOM&, const SkDOMNode*);
-    protected:
-        virtual void onDraw(SkView*, SkCanvas*) = 0;
-        virtual void onInflate(const SkDOM&, const SkDOMNode*);
-    private:
-        typedef SkRefCnt INHERITED;
-    };
-    /** Return the artist attached to this view (or null). The artist's reference
-        count is not affected.
-    */
-    Artist* getArtist() const;
-    /** Attach the specified artist (or null) to the view, replacing any existing
-        artist. If the new artist is not null, its reference count is incremented.
-        The artist parameter is returned.
-    */
-    Artist* setArtist(Artist* artist);
-
-    /** \class Layout
-
-        Install a subclass of this in a view (calling setLayout()), and then the
-        default implementation of that view's onLayoutChildren() will invoke
-        this object automatically.
-    */
-    class Layout : public SkRefCnt {
-    public:
-
-
-        void layoutChildren(SkView* parent);
-        void inflate(const SkDOM&, const SkDOMNode*);
-    protected:
-        virtual void onLayoutChildren(SkView* parent) = 0;
-        virtual void onInflate(const SkDOM&, const SkDOMNode*);
-    private:
-        typedef SkRefCnt INHERITED;
-    };
-
-    /** Return the layout attached to this view (or null). The layout's reference
-        count is not affected.
-    */
-    Layout* getLayout() const;
-    /** Attach the specified layout (or null) to the view, replacing any existing
-        layout. If the new layout is not null, its reference count is incremented.
-        The layout parameter is returned.
-    */
-    Layout* setLayout(Layout*, bool invokeLayoutNow = true);
-    /** If a layout is attached to this view, call its layoutChildren() method
-    */
-    void    invokeLayout();
-
     /** Call this to initialize this view based on the specified XML node
     */
     void    inflate(const SkDOM& dom, const SkDOMNode* node);
