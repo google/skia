@@ -72,7 +72,8 @@ def RunSteps(api):
       api.run(api.step, 'GN', cmd=[gn, 'gen', out_dir])
 
     # Build Chrome.
-    api.run(api.step, 'Build Chrome', cmd=['ninja', '-C', out_dir, 'chrome'])
+    api.run(api.step, 'Build Chrome',
+            cmd=['ninja', '-C', out_dir, 'chromium_builder_perf'])
 
   # Clean up the output dir.
   output_dir = api.path['start_dir'].join('skp_output')
