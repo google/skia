@@ -113,7 +113,6 @@ protected:
     bool onClick(Click* click) override {
     //    fCurrX = click->fICurr.fX;
     //    fCurrY = click->fICurr.fY;
-        this->inval(nullptr);
         return true;
     }
 

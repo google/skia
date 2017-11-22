@@ -175,11 +175,11 @@ protected:
         SkUnichar uni;
         if (SampleCode::CharQ(*evt, &uni)) {
             switch (uni) {
-                case '1': fAngle.inc(-ANGLE_DELTA); this->inval(nullptr); return true;
-                case '2': fAngle.inc( ANGLE_DELTA); this->inval(nullptr); return true;
-                case '3': fScale.inc(-SCALE_DELTA); this->inval(nullptr); return true;
-                case '4': fScale.inc( SCALE_DELTA); this->inval(nullptr); return true;
-                case '5': fShowFatBits = !fShowFatBits; this->inval(nullptr); return true;
+                case '1': fAngle.inc(-ANGLE_DELTA); return true;
+                case '2': fAngle.inc( ANGLE_DELTA); return true;
+                case '3': fScale.inc(-SCALE_DELTA); return true;
+                case '4': fScale.inc( SCALE_DELTA); return true;
+                case '5': fShowFatBits = !fShowFatBits; return true;
                 default: break;
             }
         }
@@ -293,11 +293,6 @@ protected:
 
     bool onAnimate(const SkAnimTimer& timer) override {
         fCurrTime = timer.msec();
-        return true;
-    }
-
-    virtual bool handleKey(SkKey key) {
-        this->inval(nullptr);
         return true;
     }
 

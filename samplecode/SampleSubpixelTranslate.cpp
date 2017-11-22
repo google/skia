@@ -100,7 +100,6 @@ protected:
 
         fCurPos.fX += fHorizontalVelocity;
         fCurPos.fY += fVerticalVelocity;
-        this->inval(nullptr);
     }
 
 private:

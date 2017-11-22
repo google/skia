@@ -11,11 +11,6 @@
 #include "SkMetaData.h"
 #include "SkString.h"
 
-class SkDOM;
-struct SkDOMNode;
-
-#include "../private/SkLeanWindows.h"
-
 /** Unique 32bit id used to identify an instance of SkEventSink. When events are
     posted, they are posted to a specific sinkID. When it is time to dispatch the
     event, the sinkID is used to find the specific SkEventSink object. If it is found,
@@ -143,21 +138,12 @@ public:
     /** Return the underlying metadata object */
     const SkMetaData& getMetaData() const { return fMeta; }
 
-    /** Call this to initialize the event from the specified XML node */
-    void inflate(const SkDOM&, const SkDOMNode*);
-
-    SkDEBUGCODE(void dump(const char title[] = nullptr);)
-
     ///////////////////////////////////////////////////////////////////////////
 
 private:
     SkMetaData      fMeta;
     mutable char*   fType;  // may be characters with low bit set to know that it is not a pointer
     uint32_t        f32;
-
-    // these are for our implementation of the event queue
-    SkMSec          fTime;
-    SkEvent*        fNextEvent; // either in the delay or normal event queue
 
     void initialize(const char* type, size_t typeLen);
 };

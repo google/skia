@@ -143,19 +143,11 @@ protected:
 
         canvas->translate(SkIntToScalar(-275), SkIntToScalar(250));
         textPathMatrix(canvas);
-
-        if (REPEAT_COUNT > 1)
-            this->inval(nullptr);
     }
 
     SkView::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned modi) override {
         fHints += 1;
-        this->inval(nullptr);
         return this->INHERITED::onFindClickHandler(x, y, modi);
-    }
-
-    bool onClick(Click* click) override {
-        return this->INHERITED::onClick(click);
     }
 
 private:

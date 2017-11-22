@@ -379,7 +379,6 @@ public:
 
     void setStyle(FatBits::Style s) {
         fFB.setStyle(s);
-        this->inval(nullptr);
     }
 
 protected:
@@ -393,19 +392,15 @@ protected:
             switch (uni) {
                 case 'c':
                     fFB.setUseClip(!fFB.getUseClip());
-                    this->inval(nullptr);
                     return true;
                 case 'r':
                     fIsRect = !fIsRect;
-                    this->inval(nullptr);
                     return true;
                 case 'o':
                     fFB.toggleRectAsOval();
-                    this->inval(nullptr);
                     return true;
                 case 'x':
                     fFB.setGrid(!fFB.getGrid());
-                    this->inval(nullptr);
                     return true;
                 case 's':
                     if (FatBits::kStroke_Style == fFB.getStyle()) {
@@ -419,32 +414,25 @@ protected:
                         SkPaint::kButt_Cap, SkPaint::kRound_Cap, SkPaint::kSquare_Cap,
                     };
                     fFB.fStrokeCap = caps[(fFB.fStrokeCap + 1) % 3];
-                    this->inval(nullptr);
                     return true;
                 } break;
                 case 'a':
                     fFB.setAA(!fFB.getAA());
-                    this->inval(nullptr);
                     return true;
                 case 'w':
                     fFB.setShowSkeleton(!fFB.getShowSkeleton());
-                    this->inval(nullptr);
                     return true;
                 case 'g':
                     fFB.togglePixelColors();
-                    this->inval(nullptr);
                     return true;
                 case 't':
                     fFB.setTriangle(!fFB.getTriangle());
-                    this->inval(nullptr);
                     return true;
                 case '-':
                     fFB.fStrokeWidth -= 0.125f;
-                    this->inval(nullptr);
                     return true;
                 case '=':
                     fFB.fStrokeWidth += 0.125f;
-                    this->inval(nullptr);
                     return true;
             }
         }
@@ -503,7 +491,6 @@ protected:
             fPts[1].offset(dx, dy);
             fPts[2].offset(dx, dy);
         }
-        this->inval(nullptr);
         return true;
     }
 

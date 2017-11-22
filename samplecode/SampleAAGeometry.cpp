@@ -883,7 +883,6 @@ public:
 
     bool constructPath() {
         construct_path(fPath);
-        this->inval(nullptr);
         return true;
     }
 
@@ -909,7 +908,6 @@ public:
         PathUndo* next = fUndo->fNext;
         delete fUndo;
         fUndo = next;
-        this->inval(nullptr);
         return true;
     }
 
@@ -932,7 +930,6 @@ public:
 
     bool hideAll() {
         fHideAll ^= true;
-        this->inval(nullptr);
         return true;
     }
 
@@ -991,7 +988,6 @@ public:
         matrix.setScale(1.f / 1.5f, 1.f / 1.5f, bounds.centerX(), bounds.centerY());
         fPath.transform(matrix);
         validatePath();
-        this->inval(nullptr);
         return true;
     }
 
@@ -1007,7 +1003,6 @@ public:
         SkScalar offsetY = (this->height() - bounds.height()) / 2 - bounds.fTop;
         fPath.offset(offsetX, offsetY);
         validatePath();
-        this->inval(nullptr);
         return true;
     }
 
@@ -1017,7 +1012,6 @@ public:
         matrix.setScale(1.5f, 1.5f, bounds.centerX(), bounds.centerY());
         fPath.transform(matrix);
         validatePath();
-        this->inval(nullptr);
         return true;
     }
 
@@ -1038,7 +1032,6 @@ public:
 
     bool showLegend() {
         fShowLegend ^= true;
-        this->inval(nullptr);
         return true;
     }
 
@@ -1670,7 +1663,6 @@ public:
                         SkIntToScalar(click->fICurr.fY - click->fIPrev.fY));
                 set_path_pt(fActivePt, pt, &fPath);
                 validatePath();
-                this->inval(nullptr);
                 return true;
                 }
             case MyClick::kPathType:
@@ -1678,7 +1670,6 @@ public:
                 fPath.offset(SkIntToScalar(click->fICurr.fX - click->fIPrev.fX),
                         SkIntToScalar(click->fICurr.fY - click->fIPrev.fY));
                 validatePath();
-                this->inval(nullptr);
                 return true;
             case MyClick::kVerbType: {
                 fActiveVerb = myClick->verbHit();
@@ -1790,7 +1781,6 @@ public:
                 break;
         }
         setControlButtonsPos();
-        this->inval(nullptr);
         return true;
     }
 

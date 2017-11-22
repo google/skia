@@ -59,7 +59,6 @@ protected:
 
     SkView::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned) override {
         fAngle = x/width();
-        this->inval(nullptr);
         return nullptr;
     }
 private:

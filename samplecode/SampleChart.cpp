@@ -164,7 +164,6 @@ protected:
         }
 
         fShift += kShiftPerFrame;
-        this->inval(nullptr);
     }
 
 private:
