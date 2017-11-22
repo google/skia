@@ -86,7 +86,7 @@
         return features;
     }
 
-#elif defined(SK_CPU_ARM32) && __has_include(<sys/auxv.h>)
+#elif defined(SK_CPU_ARM32) && __has_include(<sys/auxv.h>) && __ANDROID_API__ >= 18
     // sys/auxv.h won't be present on NDK builds before API v21.
     #include <sys/auxv.h>
 
