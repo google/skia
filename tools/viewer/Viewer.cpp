@@ -36,6 +36,7 @@
 #include "SkSurface.h"
 #include "SkSwizzle.h"
 #include "SkTaskGroup.h"
+#include "SkThreadedBMPDevice.h"
 #include "SkTime.h"
 #include "SkVertices.h"
 
@@ -276,6 +277,8 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     , fColorSpaceTransferFn(g2Dot2_TransferFn)
     , fZoomLevel(0.0f)
     , fGestureDevice(GestureDevice::kNone)
+    , fTileCnt(0)
+    , fThreadCnt(0)
 {
     SkGraphics::Init();
 
@@ -421,7 +424,7 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
         this->setBackend(newBackend);
     });
 
-    fCommands.addCommand('A', "AAA", "Toggle analytic AA", [this]() {
+    fCommands.addCommand('A', "AA", "Toggle analytic AA", [this]() {
         if (!gSkUseAnalyticAA) {
             gSkUseAnalyticAA = true;
         } else if (!gSkForceAnalyticAA) {
@@ -432,7 +435,7 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
         this->updateTitle();
         fWindow->inval();
     });
-    fCommands.addCommand('D', "DAA", "Toggle delta AA", [this]() {
+    fCommands.addCommand('D', "AA", "Toggle delta AA", [this]() {
         if (!gSkUseDeltaAA) {
             gSkUseDeltaAA = true;
         } else if (!gSkForceDeltaAA) {
@@ -440,6 +443,41 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
         } else {
             gSkUseDeltaAA = gSkForceDeltaAA = false;
         }
+        this->updateTitle();
+        fWindow->inval();
+    });
+
+    fCommands.addCommand('+', "Threaded Backend", "Increase tile count", [this]() {
+        fTileCnt++;
+        if (fThreadCnt == 0) {
+            this->resetExecutor();
+        }
+        this->updateTitle();
+        fWindow->inval();
+    });
+    fCommands.addCommand('-', "Threaded Backend", "Decrease tile count", [this]() {
+        fTileCnt = SkTMax(0, fTileCnt - 1);
+        if (fThreadCnt == 0) {
+            this->resetExecutor();
+        }
+        this->updateTitle();
+        fWindow->inval();
+    });
+    fCommands.addCommand('>', "Threaded Backend", "Increase thread count", [this]() {
+        if (fTileCnt == 0) {
+            return;
+        }
+        fThreadCnt = (fThreadCnt + 1) % fTileCnt;
+        this->resetExecutor();
+        this->updateTitle();
+        fWindow->inval();
+    });
+    fCommands.addCommand('<', "Threaded Backend", "Decrease thread count", [this]() {
+        if (fTileCnt == 0) {
+            return;
+        }
+        fThreadCnt = (fThreadCnt + fTileCnt - 1) % fTileCnt;
+        this->resetExecutor();
         this->updateTitle();
         fWindow->inval();
     });
@@ -609,6 +647,13 @@ void Viewer::updateTitle() {
             title.append(" <FAAA>");
         } else {
             title.append(" <AAA>");
+        }
+    }
+
+    if (fTileCnt > 0) {
+        title.appendf(" T%d", fTileCnt);
+        if (fThreadCnt > 0) {
+            title.appendf("/%d", fThreadCnt);
         }
     }
 
@@ -825,6 +870,8 @@ void Viewer::drawSlide(SkCanvas* canvas) {
     // we need to render offscreen. We also need to render offscreen if we're in any raster mode,
     // because the window surface is actually GL.
     sk_sp<SkSurface> offscreenSurface = nullptr;
+    std::unique_ptr<SkThreadedBMPDevice> threadedDevice;
+    std::unique_ptr<SkCanvas> threadedCanvas;
     if (Window::kRaster_BackendType == fBackendType ||
         ColorMode::kColorManagedLinearF16 == fColorMode ||
         fShowZoomWindow ||
@@ -841,7 +888,17 @@ void Viewer::drawSlide(SkCanvas* canvas) {
                                              kPremul_SkAlphaType, std::move(offscreenColorSpace));
         offscreenSurface = Window::kRaster_BackendType == fBackendType ? SkSurface::MakeRaster(info)
                                                                        : canvas->makeSurface(info);
-        slideCanvas = offscreenSurface->getCanvas();
+        SkPixmap offscreenPixmap;
+        if (fTileCnt > 0 && offscreenSurface->peekPixels(&offscreenPixmap)) {
+            SkBitmap offscreenBitmap;
+            offscreenBitmap.installPixels(offscreenPixmap);
+            threadedDevice.reset(new SkThreadedBMPDevice(offscreenBitmap, fTileCnt,
+                                                         fThreadCnt, fExecutor.get()));
+            threadedCanvas.reset(new SkCanvas(threadedDevice.get()));
+            slideCanvas = threadedCanvas.get();
+        } else {
+            slideCanvas = offscreenSurface->getCanvas();
+        }
     }
 
     std::unique_ptr<SkCanvas> xformCanvas = nullptr;
