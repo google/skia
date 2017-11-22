@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "47330836_8f807a04",
+        "filename": "src/core/SkTextBlob.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 206,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-11-22T15:15:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "de3341ac_e39c6013",
+      "range": {
+        "startLine": 206,
+        "startChar": 36,
+        "endLine": 206,
+        "endChar": 41
+      },
+      "revId": "bfd63cdcf27cfb600bb7c9e521ef2880f6ed1798",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "48f24894_175df0c7",
         "filename": "src/core/SkTextBlob.cpp",
         "patchSetId": 2
@@ -190,6 +214,30 @@
     },
     {
       "key": {
+        "uuid": "f8e83008_65686eea",
+        "filename": "src/core/SkTextBlob.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 571,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-11-22T15:15:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9861a052_2e31875a",
+      "range": {
+        "startLine": 571,
+        "startChar": 0,
+        "endLine": 571,
+        "endChar": 79
+      },
+      "revId": "bfd63cdcf27cfb600bb7c9e521ef2880f6ed1798",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ec3b5453_48c739cf",
         "filename": "src/core/SkTextBlob.cpp",
         "patchSetId": 2
@@ -225,6 +273,30 @@
       "side": 1,
       "message": "I\u0027m not sure it can, if both counts are supposed to be positive ints?  But it\u0027s trivial to use safe math here also, will do.",
       "parentUuid": "ec3b5453_48c739cf",
+      "range": {
+        "startLine": 608,
+        "startChar": 43,
+        "endLine": 608,
+        "endChar": 68
+      },
+      "revId": "bfd63cdcf27cfb600bb7c9e521ef2880f6ed1798",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c109c4ee_df9c7189",
+        "filename": "src/core/SkTextBlob.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 608,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-11-22T15:15:56Z",
+      "side": 1,
+      "message": "Actually, there\u0027s an overflow check a couple of blocks up, so this should be safe.\n\nI was going to use safe.add() here, but since it converts to size_t and StorageSize takes a uint32_t I would rather not have to deal with that can of worms.",
+      "parentUuid": "ff1b5f50_165772ae",
       "range": {
         "startLine": 608,
         "startChar": 43,
