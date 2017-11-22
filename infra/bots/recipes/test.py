@@ -678,7 +678,7 @@ def dm_flags(api, bot):
     match.append('~GrDefaultPathRendererTest') #skia:7244
     match.append('~GrMSAAPathRendererTest') #skia:7244
 
-  if (('RadeonR9M470X' in bot or 'AMDHD7770' in bot) and 'ANGLE' in bot):
+  if (('RadeonR9M470X' in bot or 'RadeonHD7770' in bot) and 'ANGLE' in bot):
     # skia:7096
     match.append('~PinnedImageTest')
 
@@ -710,8 +710,7 @@ def dm_flags(api, bot):
 
   # These bots run out of memory running RAW codec tests. Do not run them in
   # parallel
-  if ('NexusPlayer' in bot or 'Nexus5' in bot or 'Nexus9' in bot
-      or 'Win8-MSVC-ShuttleB' in bot):
+  if 'NexusPlayer' in bot or 'Nexus5' in bot or 'Nexus9' in bot:
     args.append('--noRAW_threading')
 
   if 'FSAA' in bot:

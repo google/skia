@@ -279,7 +279,6 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 		} else {
 			if strings.Contains(parts["os"], "Win") {
 				gpu, ok := map[string]string{
-					"AMDHD7770":     "1002:683d-22.19.165.512",
 					"GT610":         "10de:104a-22.21.13.8205",
 					"GTX1070":       "10de:1ba1-23.21.13.8813",
 					"GTX660":        "10de:11c0-23.21.13.8813",
@@ -289,6 +288,7 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 					"IntelHD4600":   "8086:0412-20.19.15.4703",
 					"IntelIris540":  "8086:1926-21.20.16.4590",
 					"IntelIris6100": "8086:162b-20.19.15.4703",
+					"RadeonHD7770":  "1002:683d-22.19.165.512",
 					"RadeonR9M470X": "1002:6646-22.19.165.512",
 					"QuadroP400":    "10de:1cb3-22.21.13.8205",
 				}[parts["cpu_or_gpu_value"]]
