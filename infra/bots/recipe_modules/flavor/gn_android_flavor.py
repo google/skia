@@ -88,6 +88,10 @@ if 'cannot' in log:
 
 if model == 'Nexus10':
   available_freqs = [200000, 300000, 400000, 500000, 600000, 700000, 800000]
+elif model == 'Nexus7':
+  # Nexus7 claims to support 1300000, but only really allows 1200000
+  available_freqs = [51000, 102000, 204000, 340000, 475000, 640000, 760000,
+                     860000, 1000000, 1100000, 1200000]
 else:
   # Most devices give a list of their available frequencies.
   available_freqs = subprocess.check_output([ADB, 'shell', 'cat '
