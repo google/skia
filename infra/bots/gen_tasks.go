@@ -34,8 +34,11 @@ const (
 	ISOLATE_SKP_NAME     = "Housekeeper-PerCommit-IsolateSKP"
 	ISOLATE_SVG_NAME     = "Housekeeper-PerCommit-IsolateSVG"
 
-	DEFAULT_OS_DEBIAN = "Debian-9.1"
-	DEFAULT_OS_UBUNTU = "Ubuntu-14.04"
+	DEFAULT_OS_DEBIAN    = "Debian-9.1"
+	DEFAULT_OS_LINUX_GCE = "Debian-9.2"
+	DEFAULT_OS_MAC       = "Mac-10.12"
+	DEFAULT_OS_UBUNTU    = "Ubuntu-14.04"
+	DEFAULT_OS_WIN       = "Windows-2016Server-14393"
 
 	// Name prefix for upload jobs.
 	PREFIX_UPLOAD = "Upload"
@@ -102,7 +105,7 @@ func linuxGceDimensions() []string {
 		// Specify CPU to avoid running builds on bots with a more unique CPU.
 		"cpu:x86-64-Haswell_GCE",
 		"gpu:none",
-		fmt.Sprintf("os:%s", DEFAULT_OS_DEBIAN),
+		fmt.Sprintf("os:%s", DEFAULT_OS_LINUX_GCE),
 		fmt.Sprintf("pool:%s", CONFIG.Pool),
 	}
 }
@@ -184,13 +187,14 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 			"Chromecast": "Android",
 			"ChromeOS":   "ChromeOS",
 			"Debian9":    DEFAULT_OS_DEBIAN,
-			"Mac":        "Mac-10.12",
+			"Mac":        DEFAULT_OS_MAC,
 			"Ubuntu14":   DEFAULT_OS_UBUNTU,
 			"Ubuntu16":   "Ubuntu-16.10",
 			"Ubuntu17":   "Ubuntu-17.04",
-			"Win":        "Windows-2008ServerR2-SP1",
+			"Win":        DEFAULT_OS_WIN,
 			"Win10":      "Windows-10-15063",
 			"Win2k8":     "Windows-2008ServerR2-SP1",
+			"Win2016":    DEFAULT_OS_WIN,
 			"Win7":       "Windows-7-SP1",
 			"Win8":       "Windows-8.1-SP0",
 			"iOS":        "iOS-10.3.1",
@@ -269,6 +273,9 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 				glog.Fatalf("Entry %q not found in %q model mapping.", parts["model"], parts["cpu_or_gpu_value"])
 			}
 			d["cpu"] = cpu
+			if parts["model"] == "GCE" && d["os"] == DEFAULT_OS_DEBIAN {
+				d["os"] = DEFAULT_OS_LINUX_GCE
+			}
 		} else {
 			if strings.Contains(parts["os"], "Win") {
 				gpu, ok := map[string]string{
@@ -345,11 +352,11 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 		d["gpu"] = "none"
 		if d["os"] == DEFAULT_OS_DEBIAN {
 			return linuxGceDimensions()
-		} else if d["os"] == "Windows-2008ServerR2-SP1" {
-			// Windows builders.
+		} else if d["os"] == DEFAULT_OS_WIN {
+			// Windows CPU bots.
 			d["cpu"] = "x86-64-Haswell_GCE"
-		} else if d["os"] == "Mac-10.12" {
-			// Mac builders.
+		} else if d["os"] == DEFAULT_OS_MAC {
+			// Mac CPU bots.
 			d["cpu"] = "x86-64-E5-2697_v2"
 		}
 	}
