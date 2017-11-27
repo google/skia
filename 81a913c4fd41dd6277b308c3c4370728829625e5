@@ -69,6 +69,30 @@
       "revId": "81a913c4fd41dd6277b308c3c4370728829625e5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c8d93c72_46f775a7",
+        "filename": "src/gpu/ccpr/GrCCPRGeometry.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-11-27T17:27:24Z",
+      "side": 1,
+      "message": "I decided it\u0027s not a big deal. If we conclude later after careful benchmarking that making an intermediate array is a problem we can always come up with a solution at that point.",
+      "parentUuid": "8feef743_9629ae0e",
+      "range": {
+        "startLine": 77,
+        "startChar": 22,
+        "endLine": 77,
+        "endChar": 44
+      },
+      "revId": "81a913c4fd41dd6277b308c3c4370728829625e5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
