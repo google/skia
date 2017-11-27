@@ -14,8 +14,9 @@ import sys
 import tempfile
 
 # Arguments to the script:
-#  app              path to binary to package, e.g. out/Debug/dm
-app, = sys.argv[1:]
+#  pkg              path to application directory, e.g. out/Debug/dm.app
+#                   executable and plist should already be in this directory
+pkg, = sys.argv[1:]
 
 # Find the Google signing identity.
 identity = None
@@ -34,34 +35,17 @@ for p in glob.glob(os.path.join(os.environ['HOME'], 'Library', 'MobileDevice',
     mobileprovision = p
 assert mobileprovision
 
-out, app = os.path.split(app)
-
-pkg = os.path.join(out, app + '.app')
-if not os.path.exists(pkg):
-  os.mkdir(pkg)
-
-# The binary and .mobileprovision just get copied into the package.
-shutil.copy(os.path.join(out, app), pkg)
+# The .mobileprovision just gets copied into the package.
 shutil.copy(mobileprovision,
             os.path.join(pkg, 'embedded.mobileprovision'))
-
-# Write a minimal Info.plist to name the package and point at the binary.
-with open(os.path.join(pkg, 'Info.plist'), 'w') as f:
-  f.write('''
-<plist version="1.0">
-  <dict>
-    <key>CFBundleExecutable</key> <string>{app}</string>
-    <key>CFBundleIdentifier</key> <string>com.google.{app}</string>
-    <key>CFBundlePackageType</key> <string>APPL</string>
-  </dict>
-</plist>
-'''.format(app=app))
 
 # Extract the appliciation identitifer prefix from the .mobileprovision.
 m = re.search(r'''<key>ApplicationIdentifierPrefix</key>
 \t<array>
 \t<string>(.*)</string>''', open(mobileprovision).read(), re.MULTILINE)
 prefix = m.group(1)
+
+app, _ = os.path.splitext(os.path.basename(pkg))
 
 # Write a minimal entitlements file, then codesign.
 with tempfile.NamedTemporaryFile() as f:
