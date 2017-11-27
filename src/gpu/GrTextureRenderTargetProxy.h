@@ -29,13 +29,19 @@ private:
     GrTextureRenderTargetProxy(const GrCaps&, const GrSurfaceDesc&,
                                SkBackingFit, SkBudgeted, uint32_t flags);
 
+    // Lazy-callback version
+    GrTextureRenderTargetProxy(LazyInstantiateCallback&&, GrPixelConfig);
+
     // Wrapped version
     GrTextureRenderTargetProxy(sk_sp<GrSurface>, GrSurfaceOrigin);
 
     bool instantiate(GrResourceProvider*) override;
+
     sk_sp<GrSurface> createSurface(GrResourceProvider*) const override;
 
     size_t onUninstantiatedGpuMemorySize() const override;
+
+    SkDEBUGCODE(void validateLazyTexture(const GrTexture*) override;)
 };
 
 #ifdef SK_BUILD_FOR_WIN
