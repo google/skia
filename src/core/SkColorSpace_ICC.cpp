@@ -1294,7 +1294,8 @@ static inline bool is_close_to_d50(const SkMatrix44& matrix) {
 }
 
 static sk_sp<SkColorSpace> make_xyz(const ICCProfileHeader& header, ICCTag* tags, int tagCount,
-                                    const uint8_t* base, sk_sp<SkData> profileData) {
+                                    const uint8_t* base, sk_sp<SkData> profileData,
+                                    SkBlending blending) {
     if (kLAB_PCSSpace == header.fPCS) {
         return nullptr;
     }
@@ -1422,16 +1423,16 @@ static sk_sp<SkColorSpace> make_xyz(const ICCProfileHeader& header, ICCTag* tags
     }
 
     if (kNonStandard_SkGammaNamed == gammaNamed) {
-        return sk_sp<SkColorSpace>(new SkColorSpace_XYZ(gammaNamed,
-                                                        std::move(gammas),
-                                                        mat, std::move(profileData)));
+        return sk_sp<SkColorSpace>(new SkColorSpace_XYZ(gammaNamed, std::move(gammas), mat,
+                                                        std::move(profileData), blending));
     }
 
     return SkColorSpace_Base::MakeRGB(gammaNamed, mat);
 }
 
 static sk_sp<SkColorSpace> make_gray(const ICCProfileHeader& header, ICCTag* tags, int tagCount,
-                                     const uint8_t* base, sk_sp<SkData> profileData) {
+                                     const uint8_t* base, sk_sp<SkData> profileData,
+                                     SkBlending blending) {
     if (kLAB_PCSSpace == header.fPCS) {
         return nullptr;
     }
@@ -1467,14 +1468,13 @@ static sk_sp<SkColorSpace> make_gray(const ICCProfileHeader& header, ICCTag* tag
         gammas->fData[i] = data;
     }
 
-    return sk_sp<SkColorSpace>(new SkColorSpace_XYZ(kNonStandard_SkGammaNamed,
-                                                    std::move(gammas),
-                                                    toXYZD50, std::move(profileData)));
+    return sk_sp<SkColorSpace>(new SkColorSpace_XYZ(kNonStandard_SkGammaNamed, std::move(gammas),
+                                                    toXYZD50, std::move(profileData), blending));
 }
 
-static sk_sp<SkColorSpace> make_a2b(SkColorSpace::Type iccType,
-                                    const ICCProfileHeader& header, ICCTag* tags, int tagCount,
-                                    const uint8_t* base, sk_sp<SkData> profileData) {
+static sk_sp<SkColorSpace> make_a2b(SkColorSpace::Type iccType, const ICCProfileHeader& header,
+                                    ICCTag* tags, int tagCount, const uint8_t* base,
+                                    sk_sp<SkData> profileData, SkBlending blending) {
     const ICCTag* a2b0 = ICCTag::Find(tags, tagCount, kTAG_A2B0);
     if (a2b0) {
         const SkColorSpace_A2B::PCS pcs = kXYZ_PCSSpace == header.fPCS
@@ -1482,15 +1482,15 @@ static sk_sp<SkColorSpace> make_a2b(SkColorSpace::Type iccType,
                                         : SkColorSpace_A2B::PCS::kLAB;
         std::vector<SkColorSpace_A2B::Element> elements;
         if (load_a2b0(&elements, a2b0->addr(base), a2b0->fLength, pcs, iccType)) {
-            return sk_sp<SkColorSpace>(new SkColorSpace_A2B(iccType, std::move(elements),
-                                                            pcs, std::move(profileData)));
+            return sk_sp<SkColorSpace>(new SkColorSpace_A2B(iccType, std::move(elements), pcs,
+                                                            std::move(profileData), blending));
         }
     }
 
     return nullptr;
 }
 
-sk_sp<SkColorSpace> SkColorSpace::MakeICC(const void* input, size_t len) {
+sk_sp<SkColorSpace> SkColorSpace::MakeICC(const void* input, size_t len, SkBlending blending) {
     if (!input || len < kICCHeaderSize) {
         return_null("Data is null or not large enough to contain an ICC profile");
     }
@@ -1542,14 +1542,14 @@ sk_sp<SkColorSpace> SkColorSpace::MakeICC(const void* input, size_t len) {
     switch (header.fInputColorSpace) {
         case kRGB_ColorSpace: {
             sk_sp<SkColorSpace> colorSpace =
-                    make_xyz(header, tags.get(), tagCount, base, profileData);
+                    make_xyz(header, tags.get(), tagCount, base, profileData, blending);
             if (colorSpace) {
                 return colorSpace;
             }
             break;
         }
         case kGray_ColorSpace: {
-            return make_gray(header, tags.get(), tagCount, base, profileData);
+            return make_gray(header, tags.get(), tagCount, base, profileData, blending);
         }
         case kCMYK_ColorSpace:
             a2b_type = kCMYK_Type;
@@ -1558,5 +1558,5 @@ sk_sp<SkColorSpace> SkColorSpace::MakeICC(const void* input, size_t len) {
             return_null("ICC profile contains unsupported colorspace");
     }
 
-    return make_a2b(a2b_type, header, tags.get(), tagCount, base, profileData);
+    return make_a2b(a2b_type, header, tags.get(), tagCount, base, profileData, blending);
 }

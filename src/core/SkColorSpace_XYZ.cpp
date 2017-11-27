@@ -10,8 +10,9 @@
 #include "SkColorSpaceXform_Base.h"
 #include "SkOpts.h"
 
-SkColorSpace_XYZ::SkColorSpace_XYZ(SkGammaNamed gammaNamed, const SkMatrix44& toXYZD50)
-    : INHERITED(nullptr)
+SkColorSpace_XYZ::SkColorSpace_XYZ(SkGammaNamed gammaNamed, const SkMatrix44& toXYZD50,
+                                   SkBlending blending)
+    : INHERITED(nullptr, blending)
     , fGammaNamed(gammaNamed)
     , fGammas(nullptr)
     , fToXYZD50(toXYZD50)
@@ -20,8 +21,9 @@ SkColorSpace_XYZ::SkColorSpace_XYZ(SkGammaNamed gammaNamed, const SkMatrix44& to
 {}
 
 SkColorSpace_XYZ::SkColorSpace_XYZ(SkGammaNamed gammaNamed, sk_sp<SkGammas> gammas,
-                                   const SkMatrix44& toXYZD50, sk_sp<SkData> profileData)
-    : INHERITED(std::move(profileData))
+                                   const SkMatrix44& toXYZD50, sk_sp<SkData> profileData,
+                                   SkBlending blending)
+    : INHERITED(std::move(profileData), blending)
     , fGammaNamed(gammaNamed)
     , fGammas(std::move(gammas))
     , fToXYZD50(toXYZD50)
@@ -100,7 +102,8 @@ sk_sp<SkColorSpace> SkColorSpace_XYZ::makeColorSpin() const {
     SkMatrix44 spin(SkMatrix44::kUninitialized_Constructor);
     spin.set3x3(0, 1, 0, 0, 0, 1, 1, 0, 0);
     spin.postConcat(fToXYZD50);
-    return sk_sp<SkColorSpace>(new SkColorSpace_XYZ(fGammaNamed, fGammas, spin, fProfileData));
+    return sk_sp<SkColorSpace>(new SkColorSpace_XYZ(fGammaNamed, fGammas, spin, fProfileData,
+                                                    fBlending));
 }
 
 void SkColorSpace_XYZ::toDstGammaTables(const uint8_t* tables[3], sk_sp<SkData>* storage,

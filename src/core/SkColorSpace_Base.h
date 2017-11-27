@@ -166,6 +166,8 @@ public:
 
     virtual bool onIsCMYK() const { return false; }
 
+    SkBlending onGetBlending() const { return fBlending; }
+
     /**
      *  Returns a color space with the same gamut as this one, but with a linear gamma.
      *  For color spaces whose gamut can not be described in terms of XYZ D50, returns
@@ -197,7 +199,8 @@ public:
 
     virtual Type type() const = 0;
 
-    static sk_sp<SkColorSpace> MakeRGB(SkGammaNamed gammaNamed, const SkMatrix44& toXYZD50);
+    static sk_sp<SkColorSpace> MakeRGB(SkGammaNamed gammaNamed, const SkMatrix44& toXYZD50,
+                                       SkBlending blending);
 
     enum Named : uint8_t {
         kSRGB_Named,
@@ -206,13 +209,14 @@ public:
         kSRGB_NonLinearBlending_Named,
     };
 
-    static sk_sp<SkColorSpace> MakeNamed(Named);
+    static sk_sp<SkColorSpace> MakeNamed(Named, SkBlending);
 
 protected:
-    SkColorSpace_Base(sk_sp<SkData> profileData);
+    SkColorSpace_Base(sk_sp<SkData> profileData, SkBlending blending);
 
 private:
     sk_sp<SkData> fProfileData;
+    SkBlending fBlending;
 
     friend class SkColorSpace;
     friend class SkColorSpace_XYZ;

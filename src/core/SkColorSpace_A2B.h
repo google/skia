@@ -57,12 +57,12 @@ public:
     sk_sp<SkColorSpace> makeLinearGamma() const override {
         // TODO: Analyze the extrema of our projection into XYZ and use suitable primaries?
         // For now, just fall back to a default, because we don't have a good answer.
-        return SkColorSpace::MakeSRGBLinear();
+        return SkColorSpace::MakeSRGBLinear(this->getBlending());
     }
 
     sk_sp<SkColorSpace> makeSRGBGamma() const override {
         // See comment in makeLinearGamma
-        return SkColorSpace::MakeSRGB();
+        return SkColorSpace::MakeSRGB(this->getBlending());
     }
 
     Type type() const override { return Type::kA2B; }
@@ -164,7 +164,7 @@ public:
     SkColorSpace::Type iccType() const { return fICCType; }
 
     SkColorSpace_A2B(SkColorSpace::Type iccType, std::vector<Element> elements, PCS pcs,
-                     sk_sp<SkData> profileData);
+                     sk_sp<SkData> profileData, SkBlending blending);
 
 private:
     SkColorSpace::Type   fICCType;

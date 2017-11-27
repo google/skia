@@ -37,10 +37,10 @@ public:
 
     void toDstGammaTables(const uint8_t* tables[3], sk_sp<SkData>* storage, int numTables) const;
 
-    SkColorSpace_XYZ(SkGammaNamed gammaNamed, const SkMatrix44& toXYZ);
+    SkColorSpace_XYZ(SkGammaNamed gammaNamed, const SkMatrix44& toXYZ, SkBlending blending);
 
     SkColorSpace_XYZ(SkGammaNamed gammaNamed, sk_sp<SkGammas> gammas,
-                     const SkMatrix44& toXYZ, sk_sp<SkData> profileData);
+                     const SkMatrix44& toXYZ, sk_sp<SkData> profileData, SkBlending blending);
 
 private:
     const SkGammaNamed     fGammaNamed;

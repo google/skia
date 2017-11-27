@@ -8,8 +8,8 @@
 #include "SkColorSpace_A2B.h"
 
 SkColorSpace_A2B::SkColorSpace_A2B(SkColorSpace::Type iccType, std::vector<Element> elements,
-                                   PCS pcs, sk_sp<SkData> profileData)
-    : INHERITED(std::move(profileData))
+                                   PCS pcs, sk_sp<SkData> profileData, SkBlending blending)
+    : INHERITED(std::move(profileData), blending)
     , fICCType(iccType)
     , fElements(std::move(elements))
     , fPCS(pcs)

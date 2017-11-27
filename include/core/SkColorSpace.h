@@ -70,19 +70,32 @@ struct SK_API SkColorSpaceTransferFn {
     }
 };
 
+enum class SkBlending {
+    /**
+     *  Perform blending (including premultiplication) on values that are encoded with the transfer
+     *  function.
+     */
+    kAsEncoded,
+
+    /**
+     *  Perform blending (including premultiplication) on values that are linear.
+     */
+    kLinear,
+};
+
 class SK_API SkColorSpace : public SkRefCnt {
 public:
 
     /**
      *  Create the sRGB color space.
      */
-    static sk_sp<SkColorSpace> MakeSRGB();
+    static sk_sp<SkColorSpace> MakeSRGB(SkBlending blending);
 
     /**
      *  Colorspace with the sRGB primaries, but a linear (1.0) gamma. Commonly used for
      *  half-float surfaces, and high precision individual colors (gradient stops, etc...)
      */
-    static sk_sp<SkColorSpace> MakeSRGBLinear();
+    static sk_sp<SkColorSpace> MakeSRGBLinear(SkBlending blending);
 
     enum RenderTargetGamma : uint8_t {
         kLinear_RenderTargetGamma,
@@ -107,16 +120,20 @@ public:
      *  Transfer function can be specified as an enum or as the coefficients to an equation.
      *  Gamut can be specified as an enum or as the matrix transformation to XYZ D50.
      */
-    static sk_sp<SkColorSpace> MakeRGB(RenderTargetGamma gamma, Gamut gamut);
-    static sk_sp<SkColorSpace> MakeRGB(RenderTargetGamma gamma, const SkMatrix44& toXYZD50);
-    static sk_sp<SkColorSpace> MakeRGB(const SkColorSpaceTransferFn& coeffs, Gamut gamut);
+    static sk_sp<SkColorSpace> MakeRGB(RenderTargetGamma gamma, Gamut gamut,
+                                       SkBlending blending);
+    static sk_sp<SkColorSpace> MakeRGB(RenderTargetGamma gamma, const SkMatrix44& toXYZD50,
+                                       SkBlending blending);
+    static sk_sp<SkColorSpace> MakeRGB(const SkColorSpaceTransferFn& coeffs, Gamut gamut,
+                                       SkBlending blending);
     static sk_sp<SkColorSpace> MakeRGB(const SkColorSpaceTransferFn& coeffs,
-                                       const SkMatrix44& toXYZD50);
+                                       const SkMatrix44& toXYZD50,
+                                       SkBlending blending);
 
     /**
      *  Create an SkColorSpace from an ICC profile.
      */
-    static sk_sp<SkColorSpace> MakeICC(const void*, size_t);
+    static sk_sp<SkColorSpace> MakeICC(const void*, size_t, SkBlending);
 
     /**
      *  Types of colorspaces.
@@ -154,6 +171,8 @@ public:
      */
     bool toXYZD50(SkMatrix44* toXYZD50) const;
 
+    SkBlending getBlending() const;
+
     /**
      *  Returns true if the color space is sRGB.
      *  Returns false otherwise.
@@ -166,7 +185,7 @@ public:
      *  functions are similar (and it is sometimes useful to consider them together), this
      *  function checks for logical equality.
      */
-    bool isSRGB() const;
+    bool isSRGB(SkBlending blending) const;
 
     /**
      *  Returns nullptr on failure.  Fails when we fallback to serializing ICC data and
