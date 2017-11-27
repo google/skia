@@ -2,6 +2,52 @@
   "comments": [
     {
       "key": {
+        "uuid": "cb7c2bd0_637c4a4a",
+        "filename": "gn/codesign_ios.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-11-27T20:10:01Z",
+      "side": 1,
+      "message": "I think the typical Python idiom here is\n\n  app, _ \u003d os.path.splitext(...)",
+      "range": {
+        "startLine": 48,
+        "startChar": 5,
+        "endLine": 48,
+        "endChar": 8
+      },
+      "revId": "22ea5cff0e78a207e6c17c26a5bdd45a6b6eb662",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9fa624f1_4b46f0e7",
+        "filename": "gn/gen_plist_ios.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-11-27T20:10:01Z",
+      "side": 1,
+      "message": "Might want to update this?  Is it now out/Debug/gen/dm?  or out/Debug/dm.app/dm?",
+      "range": {
+        "startLine": 12,
+        "startChar": 52,
+        "endLine": 12,
+        "endChar": 64
+      },
+      "revId": "22ea5cff0e78a207e6c17c26a5bdd45a6b6eb662",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "18dd58d2_f3a21e07",
         "filename": "gn/gen_plist_ios.py",
         "patchSetId": 5
@@ -13,6 +59,30 @@
       "writtenOn": "2017-11-27T20:03:03Z",
       "side": 1,
       "message": "These keys are new -- they need to be there to run cleanly in the simulator. The numbers don\u0027t matter as we\u0027re not releasing our tools on the App Store.",
+      "range": {
+        "startLine": 22,
+        "startChar": 0,
+        "endLine": 23,
+        "endChar": 64
+      },
+      "revId": "22ea5cff0e78a207e6c17c26a5bdd45a6b6eb662",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e035ecf4_ae32f60b",
+        "filename": "gn/gen_plist_ios.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-11-27T20:10:01Z",
+      "side": 1,
+      "message": "¯\\_(ツ)_/¯",
+      "parentUuid": "18dd58d2_f3a21e07",
       "range": {
         "startLine": 22,
         "startChar": 0,
