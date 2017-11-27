@@ -907,13 +907,13 @@ enum <a href="#SkSurface_BackendHandleAccess">BackendHandleAccess</a> {
 
 <table>
   <tr>
-    <td><a name="SkSurface_kFlushRead_BackendHandleAccess"> <code><strong>SkSurface::kFlushRead_BackendHandleAccess </strong></code> </a></td><td>Caller may read from the back-end object.</td><td></td>
+    <td><a name="SkSurface_kFlushRead_BackendHandleAccess"> <code><strong>SkSurface::kFlushRead_BackendHandleAccess </strong></code> </a></td><td>0</td><td>Caller may read from the back-end object.</td>
   </tr>
   <tr>
-    <td><a name="SkSurface_kFlushWrite_BackendHandleAccess"> <code><strong>SkSurface::kFlushWrite_BackendHandleAccess </strong></code> </a></td><td>Caller may write to the back-end object.</td><td></td>
+    <td><a name="SkSurface_kFlushWrite_BackendHandleAccess"> <code><strong>SkSurface::kFlushWrite_BackendHandleAccess </strong></code> </a></td><td>1</td><td>Caller may write to the back-end object.</td>
   </tr>
   <tr>
-    <td><a name="SkSurface_kDiscardWrite_BackendHandleAccess"> <code><strong>SkSurface::kDiscardWrite_BackendHandleAccess </strong></code> </a></td><td>Caller must overwrite the entire back-end object.</td><td></td>
+    <td><a name="SkSurface_kDiscardWrite_BackendHandleAccess"> <code><strong>SkSurface::kDiscardWrite_BackendHandleAccess </strong></code> </a></td><td>2</td><td>Caller must overwrite the entire back-end object.</td>
   </tr>
 </table>
 
