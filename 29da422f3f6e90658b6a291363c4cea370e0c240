@@ -16,6 +16,47 @@
       "revId": "29da422f3f6e90658b6a291363c4cea370e0c240",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0e1744f6_4afd6267",
+        "filename": "src/gpu/GrRenderTargetOpList.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 259,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-11-27T17:19:39Z",
+      "side": 1,
+      "message": "I don\u0027t think GrTextureOpList needs this change, since its fRecordedOps are strictly GrOps, whereas GrRenterTargetOpList\u0027s fRecordedOps are a triplet of [GrOp, DstProxy, GrAppliedClip]:\n\nhttps://cs.chromium.org/chromium/src/third_party/skia/src/gpu/GrTextureOpList.h?q\u003dGrOp\u0026sq\u003dpackage:chromium\u0026l\u003d71",
+      "parentUuid": "f07a03c5_852df3e7",
+      "revId": "29da422f3f6e90658b6a291363c4cea370e0c240",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3daaa9dd_15a3bbe5",
+        "filename": "src/gpu/GrRenderTargetOpList.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 282,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-11-27T17:19:39Z",
+      "side": 1,
+      "message": "Do we need to gather the dst proxy?",
+      "range": {
+        "startLine": 282,
+        "startChar": 30,
+        "endLine": 282,
+        "endChar": 39
+      },
+      "revId": "29da422f3f6e90658b6a291363c4cea370e0c240",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
