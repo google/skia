@@ -131,7 +131,8 @@ private:
 
     bool                              fAbandoned;
     SkTArray<sk_sp<GrOpList>>         fOpLists;
-    SkSTArray<8, sk_sp<GrOpList>>     fOnFlushOpLists;
+    SkAutoSTArray<8, uint32_t>        fOnFlushOpListIds;
+    SkSTArray<8, sk_sp<GrOpList>>     fOnFlushNewOpLists;
 
     std::unique_ptr<GrAtlasTextContext> fAtlasTextContext;
 
