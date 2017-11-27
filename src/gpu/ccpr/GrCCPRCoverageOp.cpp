@@ -20,71 +20,67 @@
 using TriangleInstance = GrCCPRCoverageProcessor::TriangleInstance;
 using CurveInstance = GrCCPRCoverageProcessor::CurveInstance;
 
-/**
- * This is a view matrix that accumulates two bounding boxes as it maps points: device-space bounds
- * and "45 degree" device-space bounds (| 1 -1 | * devCoords).
- *                                      | 1  1 |
- */
-class AccumulatingViewMatrix {
-public:
-    AccumulatingViewMatrix(const SkMatrix& m, const SkPoint& initialPoint);
+void GrCCPRCoverageOpsBuilder::parsePath(const SkMatrix& m, const SkPath& path, SkRect* devBounds,
+                                         SkRect* devBounds45) {
+    const SkPoint* pts = SkPathPriv::PointData(path);
+    int numPts = path.countPoints();
+    SkASSERT(numPts + 1 <= fLocalDevPtsBuffer.count());
 
-    SkPoint transform(const SkPoint& pt);
-    void getAccumulatedBounds(SkRect* devBounds, SkRect* devBounds45) const;
+    if (!numPts) {
+        devBounds->setEmpty();
+        devBounds45->setEmpty();
+        this->parsePath(path, nullptr);
+        return;
+    }
 
-private:
-    Sk4f fX;
-    Sk4f fY;
-    Sk4f fT;
-
-    Sk4f fTopLeft;
-    Sk4f fBottomRight;
-};
-
-inline AccumulatingViewMatrix::AccumulatingViewMatrix(const SkMatrix& m,
-                                                      const SkPoint& initialPoint) {
-    // m45 transforms into 45 degree space in order to find the octagon's diagonals. We could
-    // use SK_ScalarRoot2Over2 if we wanted an orthonormal transform, but this is irrelevant as
-    // long as the shader uses the correct inverse when coming back to device space.
+    // m45 transforms path points into "45 degree" device space. A bounding box in this space gives
+    // the circumscribing octagon's diagonals. We could use SK_ScalarRoot2Over2, but an orthonormal
+    // transform is not necessary as long as the shader uses the correct inverse.
     SkMatrix m45;
     m45.setSinCos(1, 1);
     m45.preConcat(m);
 
-    fX = Sk4f(m.getScaleX(), m.getSkewY(), m45.getScaleX(), m45.getSkewY());
-    fY = Sk4f(m.getSkewX(), m.getScaleY(), m45.getSkewX(), m45.getScaleY());
-    fT = Sk4f(m.getTranslateX(), m.getTranslateY(), m45.getTranslateX(), m45.getTranslateY());
+    // X,Y,T are two parallel view matrices that accumulate two bounding boxes as they map points:
+    // device-space bounds and "45 degree" device-space bounds (| 1 -1 | * devCoords).
+    //                                                          | 1  1 |
+    Sk4f X = Sk4f(m.getScaleX(), m.getSkewY(), m45.getScaleX(), m45.getSkewY());
+    Sk4f Y = Sk4f(m.getSkewX(), m.getScaleY(), m45.getSkewX(), m45.getScaleY());
+    Sk4f T = Sk4f(m.getTranslateX(), m.getTranslateY(), m45.getTranslateX(), m45.getTranslateY());
 
-    Sk4f transformed = SkNx_fma(fY, Sk4f(initialPoint.y()), fT);
-    transformed = SkNx_fma(fX, Sk4f(initialPoint.x()), transformed);
-    fTopLeft = fBottomRight = transformed;
+    // Map the path's points to device space and accumulate bounding boxes.
+    Sk4f devPt = SkNx_fma(Y, Sk4f(pts[0].y()), T);
+    devPt = SkNx_fma(X, Sk4f(pts[0].x()), devPt);
+    Sk4f topLeft = devPt;
+    Sk4f bottomRight = devPt;
+
+    // Store all 4 values [dev.x, dev.y, dev45.x, dev45.y]. We are only interested in the first two,
+    // and will overwrite [dev45.x, dev45.y] with the next point. This is why the dst buffer must
+    // be at least one larger than the number of points.
+    devPt.store(&fLocalDevPtsBuffer[0]);
+
+    for (int i = 1; i < numPts; ++i) {
+        devPt = SkNx_fma(Y, Sk4f(pts[i].y()), T);
+        devPt = SkNx_fma(X, Sk4f(pts[i].x()), devPt);
+        topLeft = Sk4f::Min(topLeft, devPt);
+        bottomRight = Sk4f::Max(bottomRight, devPt);
+        devPt.store(&fLocalDevPtsBuffer[i]);
+    }
+
+    SkPoint topLeftPts[2], bottomRightPts[2];
+    topLeft.store(topLeftPts);
+    bottomRight.store(bottomRightPts);
+    devBounds->setLTRB(topLeftPts[0].x(), topLeftPts[0].y(),
+                       bottomRightPts[0].x(), bottomRightPts[0].y());
+    devBounds45->setLTRB(topLeftPts[1].x(), topLeftPts[1].y(),
+                         bottomRightPts[1].x(), bottomRightPts[1].y());
+
+    this->parsePath(path, fLocalDevPtsBuffer.get());
 }
 
-inline SkPoint AccumulatingViewMatrix::transform(const SkPoint& pt) {
-    Sk4f transformed = SkNx_fma(fY, Sk4f(pt.y()), fT);
-    transformed = SkNx_fma(fX, Sk4f(pt.x()), transformed);
-
-    fTopLeft = Sk4f::Min(fTopLeft, transformed);
-    fBottomRight = Sk4f::Max(fBottomRight, transformed);
-
-    // TODO: vst1_lane_f32? (Sk4f::storeLane?)
-    float data[4];
-    transformed.store(data);
-    return SkPoint::Make(data[0], data[1]);
-}
-
-inline void AccumulatingViewMatrix::getAccumulatedBounds(SkRect* devBounds,
-                                                         SkRect* devBounds45) const {
-    float topLeft[4], bottomRight[4];
-    fTopLeft.store(topLeft);
-    fBottomRight.store(bottomRight);
-    devBounds->setLTRB(topLeft[0], topLeft[1], bottomRight[0], bottomRight[1]);
-    devBounds45->setLTRB(topLeft[2], topLeft[3], bottomRight[2], bottomRight[3]);
-}
-
-void GrCCPRCoverageOpsBuilder::parsePath(const SkMatrix& viewMatrix, const SkPath& path,
-                                         SkRect* devBounds, SkRect* devBounds45) {
+void GrCCPRCoverageOpsBuilder::parsePath(const SkPath& path, const SkPoint* deviceSpacePts) {
     SkASSERT(!fParsingPath);
     SkDEBUGCODE(fParsingPath = true);
+    SkASSERT(path.isEmpty() || deviceSpacePts);
 
     fCurrPathPointsIdx = fGeometry.points().count();
     fCurrPathVerbsIdx = fGeometry.verbs().count();
@@ -93,22 +89,18 @@ void GrCCPRCoverageOpsBuilder::parsePath(const SkMatrix& viewMatrix, const SkPat
     fGeometry.beginPath();
 
     if (path.isEmpty()) {
-        devBounds->setEmpty();
-        devBounds45->setEmpty();
         return;
     }
 
-    const SkPoint* const pts = SkPathPriv::PointData(path);
     int ptsIdx = 0;
     bool insideContour = false;
-
-    AccumulatingViewMatrix m(viewMatrix, pts[0]);
 
     for (SkPath::Verb verb : SkPathPriv::Verbs(path)) {
         switch (verb) {
             case SkPath::kMove_Verb:
                 this->endContourIfNeeded(insideContour);
-                fGeometry.beginContour(m.transform(pts[ptsIdx++]));
+                fGeometry.beginContour(deviceSpacePts[ptsIdx]);
+                ++ptsIdx;
                 insideContour = true;
                 continue;
             case SkPath::kClose_Verb:
@@ -116,17 +108,16 @@ void GrCCPRCoverageOpsBuilder::parsePath(const SkMatrix& viewMatrix, const SkPat
                 insideContour = false;
                 continue;
             case SkPath::kLine_Verb:
-                fGeometry.lineTo(m.transform(pts[ptsIdx++]));
+                fGeometry.lineTo(deviceSpacePts[ptsIdx]);
+                ++ptsIdx;
                 continue;
             case SkPath::kQuad_Verb:
-                SkASSERT(ptsIdx >= 1); // SkPath should have inserted an implicit moveTo if needed.
-                fGeometry.quadraticTo(m.transform(pts[ptsIdx]), m.transform(pts[ptsIdx + 1]));
+                fGeometry.quadraticTo(deviceSpacePts[ptsIdx], deviceSpacePts[ptsIdx + 1]);
                 ptsIdx += 2;
                 continue;
             case SkPath::kCubic_Verb:
-                SkASSERT(ptsIdx >= 1); // SkPath should have inserted an implicit moveTo if needed.
-                fGeometry.cubicTo(m.transform(pts[ptsIdx]), m.transform(pts[ptsIdx + 1]),
-                                  m.transform(pts[ptsIdx + 2]));
+                fGeometry.cubicTo(deviceSpacePts[ptsIdx], deviceSpacePts[ptsIdx + 1],
+                                  deviceSpacePts[ptsIdx + 2]);
                 ptsIdx += 3;
                 continue;
             case SkPath::kConic_Verb:
@@ -137,7 +128,6 @@ void GrCCPRCoverageOpsBuilder::parsePath(const SkMatrix& viewMatrix, const SkPat
     }
 
     this->endContourIfNeeded(insideContour);
-    m.getAccumulatedBounds(devBounds, devBounds45);
 }
 
 void GrCCPRCoverageOpsBuilder::endContourIfNeeded(bool insideContour) {
