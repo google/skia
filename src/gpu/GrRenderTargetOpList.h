@@ -125,6 +125,7 @@ public:
 
     SkDEBUGCODE(int numOps() const override { return fRecordedOps.count(); })
     SkDEBUGCODE(int numClips() const override { return fNumClips; })
+    SkDEBUGCODE(void visitProxies_debugOnly(const GrOp::VisitProxyFunc&) const;)
 
 private:
     friend class GrRenderTargetContextPriv; // for stencil clip state. TODO: this is invasive
@@ -136,6 +137,18 @@ private:
                 fDstProxy = *dstProxy;
             }
         }
+        void visitProxies(const GrOp::VisitProxyFunc& f) const {
+            if (fOp) {
+                fOp->visitProxies(f);
+            }
+            if (fDstProxy.proxy()) {
+                f(fDstProxy.proxy());
+            }
+            if (fAppliedClip) {
+                fAppliedClip->visitProxies(f);
+            }
+        }
+
         std::unique_ptr<GrOp> fOp;
         DstProxy fDstProxy;
         GrAppliedClip* fAppliedClip;
