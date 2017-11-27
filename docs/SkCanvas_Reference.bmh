@@ -109,7 +109,7 @@ when no Surface is required, and some helpers implicitly create Raster_Surface.
 # drawLine                         # Draws line segment between two points.##
 # drawOval                         # Draws Oval using Clip, Matrix, and Paint. ##
 # drawPaint                        # Fills Clip with Paint. ##
-# drawPatch                        # Draws Coons patch. ##
+# drawPatch                        # Draws Coons_Patch. ##
 # drawPath                         # Draws Path using Clip, Matrix, and Paint. ##
 # drawPicture                      # Draws Picture using Clip and Matrix. ##
 # drawPoint                        # Draws point at (x, y) position. ##
@@ -168,11 +168,11 @@ when no Surface is required, and some helpers implicitly create Raster_Surface.
 
 # ------------------------------------------------------------------------------
 
-#Method static std::unique_ptr<SkCanvas> MakeRasterDirect(const SkImageInfo& info,
-        void* pixels, size_t rowBytes)
+#Method static std::unique_ptr<SkCanvas> MakeRasterDirect(const SkImageInfo& info, void* pixels,
+                                                          size_t rowBytes,
+                                                          const SkSurfaceProps* props = nullptr)
 
 Allocates raster Canvas that will draw directly into pixels.
-To access pixels after drawing, call flush() or peekPixels.
 
 Canvas is returned if all parameters are valid.
 Valid parameters include:
@@ -186,6 +186,8 @@ If rowBytes is greater than zero, it must be equal to or greater than
 info width times bytes required for Image_Color_Type.
 
 Pixel buffer size should be info height times computed rowBytes.
+Pixels are not initialized.
+To access pixels after drawing, call flush() or peekPixels.
 
 #Param info  width, height, Image_Color_Type, Image_Alpha_Type, Color_Space, of Raster_Surface;
              width, or height, or both, may be zero
@@ -193,6 +195,9 @@ Pixel buffer size should be info height times computed rowBytes.
 #Param pixels  pointer to destination pixels buffer
 ##
 #Param rowBytes  interval from one Surface row to the next, or zero
+##
+#Param props  LCD striping orientation and setting for device independent fonts;
+              may be nullptr
 ##
 
 #Return  Canvas if all parameters are valid; otherwise, nullptr ##
@@ -205,7 +210,7 @@ Pixel buffer size should be info height times computed rowBytes.
 void draw(SkCanvas* ) {
     SkImageInfo info = SkImageInfo::MakeN32Premul(3, 3);  // device aligned, 32 bpp, Premultiplied
     const size_t minRowBytes = info.minRowBytes();  // bytes used by one bitmap row
-    const size_t size = info.getSafeSize(minRowBytes);  // bytes used by all rows
+    const size_t size = info.computeMinByteSize();  // bytes used by all rows
     SkAutoTMalloc<SkPMColor> storage(size);  // allocate storage for pixels
     SkPMColor* pixels = storage.get();  // get pointer to allocated storage
     // create a SkCanvas backed by a raster device, and delete it when the
@@ -1003,10 +1008,10 @@ Canvas or Surface call may invalidate the pixmap values.
                     int srcX, int srcY)
 
 Copies Rect of pixels from Canvas into dstPixels. Matrix and Clip are
-ignored. Source Rect corners are (srcX, srcY) and
-(imageInfo().width(), imageInfo().height()).
+ignored. 
 
-Destination Rect corners are (0, 0) and (bitmap.width(), bitmap.height()).
+Source Rect corners are (srcX, srcY) and (imageInfo().width(), imageInfo().height()).
+Destination Rect corners are (0, 0) and (dstInfo.width(), dstInfo.height()).
 Copies each readable pixel intersecting both rectangles, without scaling,
 converting to dstInfo.colorType() and dstInfo.alphaType() if required.
 
@@ -1046,7 +1051,7 @@ Does not copy, and returns false if:
 #Description
     A black circle drawn on a blue background provides an image to copy.
     readPixels copies one quarter of the canvas into each of the four corners.
-    The Layer draws over the image.
+    The copied quarter circles overdraw the original circle.
 ##
     canvas->clear(SK_ColorBLUE);
     SkPaint paint;
@@ -1095,10 +1100,10 @@ Does not copy, and returns false if:
 #Method bool readPixels(const SkPixmap& pixmap, int srcX, int srcY)
 
 Copies Rect of pixels from Canvas into pixmap. Matrix and Clip are
-ignored. Source Rect corners are (srcX, srcY) and
-(imageInfo().width(), imageInfo().height()). 
+ignored.
 
-Destination Rect corners are (0, 0) and (bitmap.width(), bitmap.height()).
+Source Rect corners are (srcX, srcY) and (imageInfo().width(), imageInfo().height()).
+Destination Rect corners are (0, 0) and (pixmap.width(), pixmap.height()).
 Copies each readable pixel intersecting both rectangles, without scaling,
 converting to pixmap.colorType() and pixmap.alphaType() if required.
 
@@ -1158,9 +1163,9 @@ Does not copy, and returns false if:
 #Method bool readPixels(const SkBitmap& bitmap, int srcX, int srcY)
 
 Copies Rect of pixels from Canvas into bitmap. Matrix and Clip are
-ignored. Source Rect corners are (srcX, srcY) and
-(imageInfo().width(), imageInfo().height()). 
+ignored.
 
+Source Rect corners are (srcX, srcY) and (imageInfo().width(), imageInfo().height()).
 Destination Rect corners are (0, 0) and (bitmap.width(), bitmap.height()).
 Copies each readable pixel intersecting both rectangles, without scaling,
 converting to bitmap.colorType() and bitmap.alphaType() if required.
@@ -1583,7 +1588,7 @@ Canvas.
 #Height 128
 void draw(SkCanvas* canvas) {
     SkPaint paint, blur;
-    blur.setImageFilter(SkImageFilter::MakeBlur(3, 3, nullptr));
+    blur.setImageFilter(SkBlurImageFilter::Make(3, 3, nullptr));
     canvas->saveLayer(nullptr, &blur);
     SkRect rect = { 25, 25, 50, 50};
     canvas->drawRect(rect, paint);
@@ -1631,7 +1636,7 @@ Image_Filter blurs past edge of Layer so red rectangle is blurred on all sides.
 #Height 128
 void draw(SkCanvas* canvas) {
     SkPaint paint, blur;
-    blur.setImageFilter(SkImageFilter::MakeBlur(3, 3, nullptr));
+    blur.setImageFilter(SkBlurImageFilter::Make(3, 3, nullptr));
     canvas->saveLayer(SkRect::MakeWH(90, 90), &blur);
     SkRect rect = { 25, 25, 50, 50};
     canvas->drawRect(rect, paint);
@@ -1753,8 +1758,6 @@ Call restoreToCount with returned value to restore this and subsequent saves.
         kInitWithPrevious_SaveLayerFlag = 1 << 2,
         kDontClipToLayer_Legacy_SaveLayerFlag = kDontClipToLayer_PrivateSaveLayerFlag,
     };
-
-    typedef uint32_t SaveLayerFlags;
 ##
 
 SaveLayerFlags provides options that may be used in any combination in SaveLayerRec,
@@ -1809,6 +1812,10 @@ void draw(SkCanvas* canvas) {
 #SeeAlso save() restore() saveLayer saveLayerPreserveLCDTextRequests saveLayerAlpha SaveLayerRec
 
 #Enum ##
+
+#Typedef uint32_t SaveLayerFlags
+
+##
 
 #Struct SaveLayerRec
 
@@ -4421,7 +4428,7 @@ void draw(SkCanvas* canvas) {
 Draw Bitmap bitmap, with its top-left corner at (left, top),
 using Clip, Matrix, and optional Paint paint.
 
-If Paint paint is supplied, apply Color_Filter, Color_Alpha, Image_Filter,
+If Paint paint is not nullptr, apply Color_Filter, Color_Alpha, Image_Filter,
 Blend_Mode, and Draw_Looper. If bitmap is kAlpha_8_SkColorType, apply Shader.
 If paint contains Mask_Filter, generate mask from bitmap bounds.
 
@@ -5608,12 +5615,12 @@ void draw(SkCanvas* canvas) {
 #Method void drawPatch(const SkPoint cubics[12], const SkColor colors[4],
                    const SkPoint texCoords[4], SkBlendMode mode, const SkPaint& paint)
 
-Draws a Coons patch: the interpolation of four cubics with shared corners, 
+Draws a Coons_Patch: the interpolation of four cubics with shared corners, 
 associating a color, and optionally a texture coordinate, with each corner.
 
-The Coons patch uses Clip and Matrix, paint Shader, Color_Filter,
+Coons_Patch uses Clip and Matrix, paint Shader, Color_Filter,
 Color_Alpha, Image_Filter, and Blend_Mode. If Shader is provided it is treated
-as the Coons patch texture; Blend_Mode mode combines Color colors and Shader if
+as Coons_Patch texture; Blend_Mode mode combines Color colors and Shader if
 both are provided.
 
 Point array cubics specifies four Cubics starting at the top-left corner, 
@@ -5667,12 +5674,12 @@ void draw(SkCanvas* canvas) {
 #Method void drawPatch(const SkPoint cubics[12], const SkColor colors[4],
                    const SkPoint texCoords[4], const SkPaint& paint) 
 
-Draws Cubic Coons patch: the interpolation of four cubics with shared corners, 
+Draws Cubic Coons_Patch: the interpolation of four cubics with shared corners, 
 associating a color, and optionally a texture coordinate, with each corner.
 
-The Coons patch uses Clip and Matrix, paint Shader, Color_Filter,
+Coons_Patch uses Clip and Matrix, paint Shader, Color_Filter,
 Color_Alpha, Image_Filter, and Blend_Mode. If Shader is provided it is treated
-as the Coons patch texture; Blend_Mode mode combines Color colors and Shader if
+as Coons_Patch texture; Blend_Mode mode combines Color colors and Shader if
 both are provided.
 
 Point array cubics specifies four Cubics starting at the top-left corner, 

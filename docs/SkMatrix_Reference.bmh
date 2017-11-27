@@ -34,7 +34,7 @@ improve performance. Matrix is not thread safe unless getType is called first.
 #Legend ##
 # operator!=(const SkMatrix& a, const SkMatrix& b) # Returns true if members are unequal. ##
 # operator==(const SkMatrix& a, const SkMatrix& b) # Returns true if members are equal. ##
-# operator[](int index) const                      # Returns Matrix value. ##
+# operator[](int index)_const                      # Returns Matrix value. ##
 # operator[](int index)                            # Returns writable reference to Matrix value. ##
 #Table ##
 #Subtopic ##
@@ -614,7 +614,7 @@ degenerate forms that collapse to a line or point.
 
 Describes that the Matrix makes rendering with and without the matrix are 
 visually alike; a transformed circle remains a circle. Mathematically, this is
-referred to as similarity of a Euclidean space, or a similarity transformation.
+referred to as similarity of a Euclidean_Space, or a similarity transformation.
 
 Preserves right angles, keeping the arms of the angle equal lengths.
 
@@ -821,7 +821,7 @@ vertical translation
 
 # ------------------------------------------------------------------------------
 
-#Method SkScalar operator[](int index) const
+#Method SkScalar operator[](int index)_const
 
 Returns one matrix value. Asserts if index is out of range and SK_DEBUG is
 defined.
@@ -3412,7 +3412,7 @@ Matrix * src = |D E F| |y| = |Ax+By+Cz Dx+Ey+Fz Gx+Hy+Iz|
     canvas->translate(128, 128);
     SkMatrix matrix;
     matrix.setAll(15, 0, 0, 0, 15, 0, -0.08, 0.04, 1);
-    matrix.mapHomogeneousPoints(&src[0].fX, &src[0].fX, count);
+    matrix.mapHomogeneousPoints(src, src, count);
     debugster(src);
 ##
 

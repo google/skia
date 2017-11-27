@@ -1,19 +1,18 @@
 # external references that will be documented eventually ...
 #External
- DirectWrite TrueType Windows Linux Android iOS
+ DirectWrite TrueType Windows Linux Android iOS __ANDROID_API__
  FreeType FreeType-based Harfbuzz   
  Descenders Kerning Unhinted 
- LCD RGB
+ LCD RGB sRGB
  Unicode Unicode5 UTF-8 UTF-16 UTF-32 ASCII Unichar
  API
  CPU
- GPU GPU-backed OpenGL Vulkan
+ GPU GPU-backed OpenGL Vulkan I/O MSAA UV_Mapping Multi_Sample_Anti_Aliasing
  PDF XPS
  RFC
  NaN NaNs
- Bezier Coons Cartesian Euclidean
+ Bezier_Curve Coons_Patch Cartesian_Coordinate Euclidean_Distance Euclidean_Space
  C C++ Destructor Subclasses
- SaveLayerFlags # not external; need to add typedef support
  SkUserConfig  # not external, but still thinking about how markup refers to this
  SkXXX.h        # ditto
  SkXXX_Reference # ditto
@@ -26,6 +25,7 @@
  SK_SUPPORT_LEGACY_PAINT_TEXTDECORATION # ditto
  SK_BUILD_FOR_ANDROID_FRAMEWORK # ditto
  SK_IGNORE_TO_STRING #  ditto
+ SK_SUPPORT_GPU # ditto
 
 # FreeType related
 FT_LOAD_TARGET_LIGHT
@@ -50,6 +50,12 @@ FT_Load_Glyph
 #Topic Arc
 #Alias Arcs
 #Topic ##
+
+#Topic Backend_Semaphore
+#Class GrBackendSemaphore
+#Alias GrBackendSemaphores
+##
+##
 
 #Topic BBH_Factory
 #Class SkBBHFactory
@@ -81,7 +87,10 @@ FT_Load_Glyph
 ##
 
 #Topic Color
-    #Typedef SkColor
+    #Typedef uint32_t SkColor
+    #Typedef ##
+
+    #Typedef uint32_t SkPMColor
     #Typedef ##
 
     # fixme: defines, not methods, need new markup type
@@ -174,10 +183,21 @@ FT_Load_Glyph
 ##
 
 #Topic Data
+#Class SkData
+##
 ##
 
 #Topic Debugging
 #Method SK_API void SkDebugf(const char format[], ...)
+##
+##
+
+#Topic Deferred_Display_List
+#Class SkDeferredDisplayList
+##
+#Subtopic Recorder
+#Class SkDeferredDisplayListRecorder
+##
 ##
 ##
 
@@ -262,6 +282,9 @@ FT_Load_Glyph
 
 #Topic GPU_Context
 #Substitute GPU context
+#Subtopic Resource_Cache_Limits
+#Alias Resource_Cache_Limits
+##
 #Class GrContext
 #Method void flush()
 ##
@@ -279,95 +302,84 @@ FT_Load_Glyph
     ##
 ##
 
-#Topic Image
-    #Subtopic Alpha_Type
-    #Alias Alpha_Type
-        #Enum SkAlphaType
-            #Const kUnknown_SkAlphaType 0
-            ##
-            #Const kOpaque_SkAlphaType 1
-            ##
-            #Const kPremul_SkAlphaType 2
-            ##
-            #Const kUnpremul_SkAlphaType 3
-            ##
+#Topic Image_Alpha_Type
+#Alias Alpha_Type
+#Alias Alpha_Types
+    #Enum SkAlphaType
+        #Const kUnknown_SkAlphaType 0
         ##
-    #Subtopic ##
-    #Subtopic Color_Type
-    #Alias Color_Type
-    #Alias Color_Types
-        #Enum SkColorType
-            #Const kUnknown_SkColorType 0
-            ##
-            #Const kAlpha_8_SkColorType 1
-            ##
-            #Const kRGB_565_SkColorType 2
-            ##
-            #Const kARGB_4444_SkColorType 3
-            ##
-            #Const kRGBA_8888_SkColorType 4
-            ##
-            #Const kBGRA_8888_SkColorType 5
-            ##
-            #Const kIndex_8_SkColorType 6
-            ##
-            #Const kGray_8_SkColorType 7
-            ##
-            #Const kRGBA_F16_SkColorType 8
-            ##
-            #ToDo   this is a lie; need to not require values for consts ##
-            #Const kN32_SkColorType 4
-            ##
-        #Enum ##
-    #Subtopic ##
-    #Subtopic Info
-        #Struct SkImageInfo
-            #Method SkImageInfo()
-            ##
-            #Method static SkImageInfo MakeN32Premul(int width, int height, sk_sp<SkColorSpace> cs = nullptr)
-            ##
-            #Method SkImageInfo makeColorSpace(sk_sp<SkColorSpace> cs) const
-            ##
-            #Method size_t minRowBytes() const
-            ##
-            #Method bool isOpaque() const
-            ##
-            #Method int bytesPerPixel() const
-            ##
-            #Method int height() const
-            ##
-            #Method int width() const
-            ##
-            #Method SkColorType colorType() const
-            ##
-            #Method SkAlphaType alphaType() const
-            ##
-            #Method SkColorSpace* colorSpace() const
-            ##
-            #Method bool isOpaque() const
-            ##
-            #Method size_t minRowBytes() const
-            ##
-            #Method size_t computeByteSize(size_t rowBytes) const
-            ##
-            #Method void validate() const
-            ##
-        ## 
-    #Subtopic ##
-    #Class SkImage
-        #Method sk_sp<SkShader> makeShader(SkShader::TileMode, SkShader::TileMode,
-                                   const SkMatrix* localMatrix = nullptr) const
+        #Const kOpaque_SkAlphaType 1
         ##
-        #Method static sk_sp<SkImage> MakeRasterCopy(const SkPixmap&)
+        #Const kPremul_SkAlphaType 2
         ##
-        #Method bool readPixels(const SkPixmap& dst, int srcX, int srcY,
-                    CachingHint = kAllow_CachingHint) const
-        ##
-        #Method bool scalePixels(const SkPixmap& dst, SkFilterQuality, CachingHint = kAllow_CachingHint) const
-        ##
-        #Method bool peekPixels(SkPixmap* pixmap) const
+        #Const kUnpremul_SkAlphaType 3
         ##
     ##
+#Topic ##
+#Topic Image_Color_Type
+#Subtopic Native_Color_Type
+#Alias Native_Color_Type
+#Substitute native SkColorType
+##
+#Alias Color_Type
+#Alias Color_Types
+    #Enum SkColorType
+        #Const kUnknown_SkColorType 0
+        ##
+        #Const kAlpha_8_SkColorType 1
+        ##
+        #Const kRGB_565_SkColorType 2
+        ##
+        #Const kARGB_4444_SkColorType 3
+        ##
+        #Const kRGBA_8888_SkColorType 4
+        ##
+        #Const kBGRA_8888_SkColorType 5
+        ##
+        #Const kIndex_8_SkColorType 6
+        ##
+        #Const kGray_8_SkColorType 7
+        ##
+        #Const kRGBA_F16_SkColorType 8
+        ##
+        #ToDo   this is a lie; need to not require values for consts ##
+        #Const kN32_SkColorType 4
+        ##
+    #Enum ##
+#Topic ##
+#Topic Image_Info
+    #Struct SkImageInfo
+        #Method SkImageInfo()
+        ##
+        #Method static SkImageInfo MakeN32Premul(int width, int height, sk_sp<SkColorSpace> cs = nullptr)
+        ##
+        #Method SkImageInfo makeColorSpace(sk_sp<SkColorSpace> cs) const
+        ##
+        #Method size_t minRowBytes() const
+        ##
+        #Method bool isOpaque() const
+        ##
+        #Method int bytesPerPixel() const
+        ##
+        #Method int height() const
+        ##
+        #Method int width() const
+        ##
+        #Method SkColorType colorType() const
+        ##
+        #Method SkAlphaType alphaType() const
+        ##
+        #Method SkColorSpace* colorSpace() const
+        ##
+        #Method bool isOpaque() const
+        ##
+        #Method size_t minRowBytes() const
+        ##
+        #Method size_t computeByteSize(size_t rowBytes) const
+        ##
+        #Method void validate() const
+        ##
+    ## 
 #Topic ##
 
 #Topic Image_Filter
@@ -462,17 +474,18 @@ FT_Load_Glyph
 ##
 
 #Topic Mip_Map
+#Alias Mip_Maps
 ##
 
 #Topic Nine_Patch
 ##
 
 #Topic Number_Types
-    #Typedef SkGlyphID
+    #Typedef uint16_t SkGlyphID
     #Typedef ##
     #Topic Scalar
     #Alias Scalar
-    #Typedef SkScalar
+    #Typedef float SkScalar
     #Typedef ##
     ##
     #Const SK_MinS32FitsInFloat
@@ -502,9 +515,9 @@ FT_Load_Glyph
     #Const SK_MaxS32
     to be written
     ##
-    #Typedef SkUnichar
+    #Typedef int32_t SkUnichar
     #Typedef ##
-    #Typedef U8CPU
+    #Typedef unsigned U8CPU
     #Typedef ##
 #Topic ##
 
@@ -583,19 +596,17 @@ FT_Load_Glyph
 ##
 ##
 
+#Topic Pixel_Serializer
+#Class SkPixelSerializer
+##
+##
+
 #Enum SkPixelGeometry
 ##
 
-#Topic Point
-#Alias Points
-    #Struct SkPoint
-        #Method bool equalsWithinTolerance(const SkPoint& p) const
-        ##
-    #Struct ##
-    #Subtopic Array
-    #Substitute SkPoint arrays
-    #Subtopic ##
-#Topic ##
+# Topic Point_Array
+# Substitute SkPoint arrays
+# Topic ##
 
 #Topic Point3
 #Struct SkPoint3
@@ -647,6 +658,11 @@ FT_Load_Glyph
 #Class SkRegion
 ##
 #Topic ##
+
+#Topic Render_Target
+#Class GrRenderTarget
+##
+##
 
 #Topic Right_Side_Bearing
 ##
@@ -701,25 +717,12 @@ FT_Load_Glyph
 #Topic Supersampling
 ##
 
-#Topic Surface
-#Class SkSurface
-    #Method static sk_sp<SkSurface> MakeRasterDirect(const SkImageInfo&, void* pixels, size_t rowBytes,
-                                             const SkSurfaceProps* = nullptr)
-    ##
-    #Method bool readPixels(const SkPixmap& dst, int srcX, int srcY);
-    ##
-    #Method SkCanvas* getCanvas()
-    ##
-    #Method void flush()
-    ##
-    #Method void prepareForExternalIO()
-    ##
-    #Method sk_sp<SkSurface> makeSurface(const SkImageInfo&)
-    ##
-    #Method bool peekPixels(SkPixmap*)
-    ##
+#Topic Surface_Characterization
+#Class SkSurfaceCharacterization
 ##
-#Subtopic Properties
+##
+
+#Topic Surface_Properties
     #Class SkSurfaceProps
         #Topic Legacy_Font_Host
         #Enum InitType
@@ -728,7 +731,6 @@ FT_Load_Glyph
         ##
         #Topic ##
     ##
-##
 ##
 
 #Topic SVG
@@ -746,19 +748,46 @@ FT_Load_Glyph
 #Class ##
 #Topic ##
 
+#Topic Texture
+#Class GrBackendTexture
+##
+##
+
 #Topic Typeface
 #Class SkTypeface
 #Class ##
 #Topic ##
 
+#Topic Types
+    #Typedef intptr_t GrBackendObject
+    #Typedef ##
+
+    #Enum GrSurfaceOrigin
+    #Const kBottomLeft_GrSurfaceOrigin 0 
+    ##
+    #Const kTopLeft_GrSurfaceOrigin 1
+    ##
+    #Enum ##
+
+    #Subtopic Budgeted
+    #EnumClass SkBudgeted
+    #Const kNo 0
+    ##
+    #Const kYes 1
+    ##
+    #EnumClass ##
+    ##
+
+    #EnumClass GrSemaphoresSubmitted
+    #Const kNo 0
+    ##
+    #Const kYes 1
+    ##
+    #EnumClass ##
+#Topic ##
+
 #Topic Unpremultiply
 #Alias Unpremultiplied
-##
-
-#Topic Vector
-#Alias Vectors
-#Struct SkVector
-##
 ##
 
 #Topic Vertices
