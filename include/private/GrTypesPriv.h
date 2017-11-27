@@ -85,7 +85,7 @@ enum class GrFSAAType {
  * Not all drawing code paths support using mixed samples when available and instead use
  * coverage-based aa.
  */
-enum class GrAllowMixedSamples { kNo, kYes };
+enum class GrAllowMixedSamples : bool { kNo = false, kYes = true };
 
 GrAAType GrChooseAAType(GrAA, GrFSAAType, GrAllowMixedSamples, const GrCaps&);
 
@@ -94,8 +94,8 @@ GrAAType GrChooseAAType(GrAA, GrFSAAType, GrAllowMixedSamples, const GrCaps&);
  * range. This is important for blending - the latter category may require manual clamping.
  */
 enum class GrPixelConfigIsClamped : bool {
-    kNo,   // F16 or F32
-    kYes,  // Any UNORM type
+    kNo = false,   // F16 or F32
+    kYes = true,  // Any UNORM type
 };
 
 /**
