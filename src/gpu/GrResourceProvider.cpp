@@ -77,7 +77,7 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc, Sk
                                                    SkDestinationSurfaceColorMode mipColorMode) {
     ASSERT_SINGLE_OWNER
 
-    SkASSERT(mipLevelCount > 1);
+    SkASSERT(mipLevelCount > 0);
 
     if (this->isAbandoned()) {
         return nullptr;
