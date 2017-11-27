@@ -31,7 +31,7 @@ typedef int32_t             SkFixed;
 #define SK_FixedRoot2Over2  (0xB505)
 
 #define SkFixedToFloat(x)   ((x) * 1.52587890625e-5f)
-#define SkFloatToFixed(x)   ((SkFixed)((x) * SK_Fixed1))
+#define SkFloatToFixed(x)   sk_float_saturate2int((x) * SK_Fixed1)
 
 #ifdef SK_DEBUG
     static inline SkFixed SkFloatToFixed_Check(float x) {
