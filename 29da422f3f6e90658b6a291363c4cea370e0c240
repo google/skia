@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f07a03c5_852df3e7",
+        "filename": "src/gpu/GrRenderTargetOpList.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 259,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-11-27T16:28:48Z",
+      "side": 1,
+      "message": "Can you make a similar change to the GrTextureOpList?",
+      "revId": "29da422f3f6e90658b6a291363c4cea370e0c240",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
