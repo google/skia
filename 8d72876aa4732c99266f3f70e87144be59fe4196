@@ -53,6 +53,24 @@
     },
     {
       "key": {
+        "uuid": "98d0566b_c50da493",
+        "filename": "include/gpu/GrTypes.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 481,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-11-27T15:09:34Z",
+      "side": 1,
+      "message": "So looking back at the change I had tried many variations (https://skia-review.googlesource.com/c/skia/+/26160). From looking back at all the patches, it seems like I originally had this enum else where and was forward declaring it in some Sk* include files. When doing this I tried nothing, bool, and int and only int worked. Later, I moved the the enum here and just included GrTypes in the Sk* class. I only tried nothing and int here. Nothing failing but int worked. And by worked I mean running various chrome commit bots.\n\nSo we can try to use bool here since I don\u0027t think the combination of that and not forward declaring was ever tried.",
+      "parentUuid": "b2a8a2a6_df07b3ba",
+      "revId": "8d72876aa4732c99266f3f70e87144be59fe4196",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c76dd9b4_e9061147",
         "filename": "src/gpu/GrReducedClip.h",
         "patchSetId": 3
