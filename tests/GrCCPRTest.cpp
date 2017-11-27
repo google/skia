@@ -176,6 +176,30 @@ class GrCCPRTest_unregisterCulledOps : public CCPRTest {
 };
 DEF_CCPR_TEST(GrCCPRTest_unregisterCulledOps)
 
+class GrCCPRTest_parseEmptyPath : public CCPRTest {
+    void onRun(skiatest::Reporter* reporter, CCPRPathDrawer& ccpr) override {
+        REPORTER_ASSERT(reporter, SkPathPriv::TestingOnly_unique(fPath));
+
+        // Make a path large enough that ccpr chooses to crop it by the RT bounds, and ends up with
+        // an empty path.
+        SkPath largeOutsidePath;
+        largeOutsidePath.moveTo(-1e30f, -1e30f);
+        largeOutsidePath.lineTo(-1e30f, +1e30f);
+        largeOutsidePath.lineTo(-1e10f, +1e30f);
+        ccpr.drawPath(largeOutsidePath);
+
+        // Normally an empty path is culled before reaching ccpr, however we use a back door for
+        // testing so this path will make it.
+        SkPath emptyPath;
+        SkASSERT(emptyPath.isEmpty());
+        ccpr.drawPath(emptyPath);
+
+        // This is the test. It will exercise various internal asserts and verify we do not crash.
+        ccpr.flush();
+    }
+};
+DEF_CCPR_TEST(GrCCPRTest_parseEmptyPath)
+
 class CCPRRenderingTest {
 public:
     void run(skiatest::Reporter* reporter, GrContext* ctx) const {
