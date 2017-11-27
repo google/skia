@@ -666,6 +666,7 @@ Layout::Key Parser::layoutKey() {
 
 /* LAYOUT LPAREN IDENTIFIER (EQ INT_LITERAL)? (COMMA IDENTIFIER (EQ INT_LITERAL)?)* RPAREN */
 Layout Parser::layout() {
+    int flags = 0;
     int location = -1;
     int offset = -1;
     int binding = -1;
@@ -673,11 +674,7 @@ Layout Parser::layout() {
     int set = -1;
     int builtin = -1;
     int inputAttachmentIndex = -1;
-    bool originUpperLeft = false;
-    bool overrideCoverage = false;
-    bool blendSupportAllEquations = false;
     Layout::Format format = Layout::Format::kUnspecified;
-    bool pushConstant = false;
     Layout::Primitive primitive = Layout::kUnspecified_Primitive;
     int maxVertices = -1;
     int invocations = -1;
@@ -686,9 +683,9 @@ Layout Parser::layout() {
     Layout::Key key = Layout::kNo_Key;
     if (this->checkNext(Token::LAYOUT)) {
         if (!this->expect(Token::LPAREN, "'('")) {
-            return Layout(location, offset, binding, index, set, builtin, inputAttachmentIndex,
-                          originUpperLeft, overrideCoverage, blendSupportAllEquations, format,
-                          pushConstant, primitive, maxVertices, invocations, when, key, ctype);
+            return Layout(flags, location, offset, binding, index, set, builtin,
+                          inputAttachmentIndex, format, primitive, maxVertices, invocations, when,
+                          key, ctype);
         }
         for (;;) {
             Token t = this->nextToken();
@@ -719,16 +716,61 @@ Layout Parser::layout() {
                         inputAttachmentIndex = this->layoutInt();
                         break;
                     case LayoutToken::ORIGIN_UPPER_LEFT:
-                        originUpperLeft = true;
+                        flags |= Layout::kOriginUpperLeft_Flag;
                         break;
                     case LayoutToken::OVERRIDE_COVERAGE:
-                        overrideCoverage = true;
+                        flags |= Layout::kOverrideCoverage_Flag;
                         break;
                     case LayoutToken::BLEND_SUPPORT_ALL_EQUATIONS:
-                        blendSupportAllEquations = true;
+                        flags |= Layout::kBlendSupportAllEquations_Flag;
+                        break;
+                    case LayoutToken::BLEND_SUPPORT_MULTIPLY:
+                        flags |= Layout::kBlendSupportMultiply_Flag;
+                        break;
+                    case LayoutToken::BLEND_SUPPORT_SCREEN:
+                        flags |= Layout::kBlendSupportScreen_Flag;
+                        break;
+                    case LayoutToken::BLEND_SUPPORT_OVERLAY:
+                        flags |= Layout::kBlendSupportOverlay_Flag;
+                        break;
+                    case LayoutToken::BLEND_SUPPORT_DARKEN:
+                        flags |= Layout::kBlendSupportDarken_Flag;
+                        break;
+                    case LayoutToken::BLEND_SUPPORT_LIGHTEN:
+                        flags |= Layout::kBlendSupportLighten_Flag;
+                        break;
+                    case LayoutToken::BLEND_SUPPORT_COLORDODGE:
+                        flags |= Layout::kBlendSupportColorDodge_Flag;
+                        break;
+                    case LayoutToken::BLEND_SUPPORT_COLORBURN:
+                        flags |= Layout::kBlendSupportColorBurn_Flag;
+                        break;
+                    case LayoutToken::BLEND_SUPPORT_HARDLIGHT:
+                        flags |= Layout::kBlendSupportHardLight_Flag;
+                        break;
+                    case LayoutToken::BLEND_SUPPORT_SOFTLIGHT:
+                        flags |= Layout::kBlendSupportSoftLight_Flag;
+                        break;
+                    case LayoutToken::BLEND_SUPPORT_DIFFERENCE:
+                        flags |= Layout::kBlendSupportDifference_Flag;
+                        break;
+                    case LayoutToken::BLEND_SUPPORT_EXCLUSION:
+                        flags |= Layout::kBlendSupportExclusion_Flag;
+                        break;
+                    case LayoutToken::BLEND_SUPPORT_HSL_HUE:
+                        flags |= Layout::kBlendSupportHSLHue_Flag;
+                        break;
+                    case LayoutToken::BLEND_SUPPORT_HSL_SATURATION:
+                        flags |= Layout::kBlendSupportHSLSaturation_Flag;
+                        break;
+                    case LayoutToken::BLEND_SUPPORT_HSL_COLOR:
+                        flags |= Layout::kBlendSupportHSLColor_Flag;
+                        break;
+                    case LayoutToken::BLEND_SUPPORT_HSL_LUMINOSITY:
+                        flags |= Layout::kBlendSupportHSLLuminosity_Flag;
                         break;
                     case LayoutToken::PUSH_CONSTANT:
-                        pushConstant = true;
+                        flags |= Layout::kPushConstant_Flag;
                         break;
                     case LayoutToken::POINTS:
                         primitive = Layout::kPoints_Primitive;
@@ -766,8 +808,6 @@ Layout Parser::layout() {
                     case LayoutToken::CTYPE:
                         ctype = this->layoutIdentifier();
                         break;
-                    default:
-                        ASSERT(false);
                 }
             } else if (Layout::ReadFormat(this->text(t), &format)) {
                // AST::ReadFormat stored the result in 'format'.
@@ -782,9 +822,8 @@ Layout Parser::layout() {
             }
         }
     }
-    return Layout(location, offset, binding, index, set, builtin, inputAttachmentIndex,
-                  originUpperLeft, overrideCoverage, blendSupportAllEquations, format,
-                  pushConstant, primitive, maxVertices, invocations, when, key, ctype);
+    return Layout(flags, location, offset, binding, index, set, builtin, inputAttachmentIndex,
+                  format, primitive, maxVertices, invocations, when, key, ctype);
 }
 
 /* layout? (UNIFORM | CONST | IN | OUT | INOUT | LOWP | MEDIUMP | HIGHP | FLAT | NOPERSPECTIVE |
