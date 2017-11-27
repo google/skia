@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "23229f5a_12a175af",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 605,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-11-27T16:00:52Z",
+      "side": 1,
+      "message": "This would be a fun one to debug. :) Would it be simple enough to disallow return in vertex shaders?",
+      "revId": "e5244f15bbab2ecac5b43b5824920fe0f20cd451",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
