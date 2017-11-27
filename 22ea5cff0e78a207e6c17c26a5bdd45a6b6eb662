@@ -48,6 +48,29 @@
     },
     {
       "key": {
+        "uuid": "a243e52e_27597469",
+        "filename": "gn/gen_plist_ios.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2017-11-27T20:34:41Z",
+      "side": 1,
+      "message": "Nit: why not just \n\napp \u003d sys.argv[1]\n\nyou get an error either way if there is no argument ?",
+      "range": {
+        "startLine": 13,
+        "startChar": 0,
+        "endLine": 13,
+        "endChar": 19
+      },
+      "revId": "22ea5cff0e78a207e6c17c26a5bdd45a6b6eb662",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "18dd58d2_f3a21e07",
         "filename": "gn/gen_plist_ios.py",
         "patchSetId": 5
