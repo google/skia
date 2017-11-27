@@ -15,8 +15,8 @@ through this process and ease some of that annoyance.
 One-time Setup
 --------------
 
-To generate stage code you need Clang 4.0, objdump, and ccache.  It's best that
-Clang is exactly the same version we typically use (as of writing 4.0.0) and
+To generate stage code you need Clang 5.0, objdump, and ccache.  It's best that
+Clang is exactly the same version we typically use (as of writing 5.0.0) and
 you'll need objdump to be compiled with support for x86-64, ARMv7, and ARMv8.
 
 The easiest way to satisfy these contraints is to get your hands on a Mac and
@@ -32,7 +32,7 @@ Setting up GN
 
 With your tools installed, tell GN about them
 
-    skia_jumper_clang = path/to/clang-4.0
+    skia_jumper_clang = path/to/clang-5.0
     skia_jumper_objdump = path/to/gobjdump
     skia_jumper_ccache = path/to/ccache
 
