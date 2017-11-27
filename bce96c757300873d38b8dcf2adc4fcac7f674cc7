@@ -72,6 +72,24 @@
     },
     {
       "key": {
+        "uuid": "ee3f0f87_2f1ff7a0",
+        "filename": "src/gpu/GrDrawingManager.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-11-27T18:35:42Z",
+      "side": 1,
+      "message": "\u003e They became class members in https://skia-review.googlesource.com/c/skia/+/71182\n\nAh, right. We would have to pass them into executeOpLists.",
+      "parentUuid": "33cf9e87_c13ff3dd",
+      "revId": "bce96c757300873d38b8dcf2adc4fcac7f674cc7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ef9c9e1e_3638be13",
         "filename": "src/gpu/GrOnFlushResourceProvider.h",
         "patchSetId": 1
@@ -101,6 +119,24 @@
       "side": 1,
       "message": "I did run into needing this, but come to think of it it probably wasn\u0027t for this particular CL. Either way it\u0027s good practice since preFlush takes a non-reference GrDeferredUploadToken. Do you mind sneaking it in since we are editing this file anyway?",
       "parentUuid": "ef9c9e1e_3638be13",
+      "revId": "bce96c757300873d38b8dcf2adc4fcac7f674cc7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "655a6bf1_04c1afb3",
+        "filename": "src/gpu/GrOnFlushResourceProvider.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-11-27T18:35:42Z",
+      "side": 1,
+      "message": "sgtm",
+      "parentUuid": "a6b349c5_c075e730",
       "revId": "bce96c757300873d38b8dcf2adc4fcac7f674cc7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
