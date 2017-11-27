@@ -130,7 +130,8 @@ public:
 
     MaskType maskType() const { return fMaskType; }
 
-    void executeForTextTarget(SkAtlasTextTarget*, uint32_t color);
+    void finalizeForTextTarget(uint32_t color, const GrCaps&);
+    void executeForTextTarget(SkAtlasTextTarget*);
 
 private:
     // The minimum number of Geometry we will try to allocate.
