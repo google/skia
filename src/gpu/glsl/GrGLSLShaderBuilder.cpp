@@ -232,6 +232,7 @@ void GrGLSLShaderBuilder::appendDecls(const VarArray& vars, SkString* out) const
 void GrGLSLShaderBuilder::addLayoutQualifier(const char* param, InterfaceQualifier interface) {
     SkASSERT(fProgramBuilder->shaderCaps()->generation() >= k330_GrGLSLGeneration ||
              fProgramBuilder->shaderCaps()->mustEnableAdvBlendEqs());
+    SkDebugf("add layout qualifier: %s\n", param);
     fLayoutParams[interface].push_back() = param;
 }
 
