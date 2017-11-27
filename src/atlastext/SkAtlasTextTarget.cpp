@@ -17,6 +17,8 @@
 #include "ops/GrAtlasTextOp.h"
 #include "text/GrAtlasTextContext.h"
 
+static constexpr int kMaxBatchLookBack = 10;
+
 SkAtlasTextTarget::SkAtlasTextTarget(sk_sp<SkAtlasTextContext> context, int width, int height,
                                      void* handle)
         : fHandle(handle), fContext(std::move(context)), fWidth(width), fHeight(height) {}
@@ -60,11 +62,7 @@ private:
     uint32_t fColor;
     using SkAtlasTextTarget::fWidth;
     using SkAtlasTextTarget::fHeight;
-    struct RecordedOp {
-        std::unique_ptr<GrAtlasTextOp> fOp;
-        uint32_t fColor;
-    };
-    SkTArray<RecordedOp, true> fOps;
+    SkTArray<std::unique_ptr<GrAtlasTextOp>, true> fOps;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -88,7 +86,7 @@ void SkInternalAtlasTextTarget::drawText(const SkGlyphID glyphs[], const SkPoint
     paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
 
     // The atlas text context does munging of the paint color. We store the client's color here
-    // and the context will write it into the final vertices given to the client's renderer.
+    // and then overwrite the generated op's color when addDrawOp() is called.
     fColor = color;
 
     SkSurfaceProps props(SkSurfaceProps::kUseDistanceFieldFonts_Flag, kUnknown_SkPixelGeometry);
@@ -107,20 +105,38 @@ void SkInternalAtlasTextTarget::addDrawOp(const GrClip& clip, std::unique_ptr<Gr
     if (op->maskType() != GrAtlasTextOp::kGrayscaleDistanceField_MaskType) {
         return;
     }
-    // TODO: batch ops here.
+    const GrCaps& caps = *this->context()->internal().grContext()->caps();
+    op->finalizeForTextTarget(fColor, caps);
+    int n = SkTMin(kMaxBatchLookBack, fOps.count());
+    for (int i = 0; i < n; ++i) {
+        GrAtlasTextOp* other = fOps.fromBack(i).get();
+        if (other->combineIfPossible(op.get(), caps)) {
+            return;
+        }
+        if (GrRectsOverlap(op->bounds(), other->bounds())) {
+            break;
+        }
+    }
     op->visitProxies([](GrSurfaceProxy*) {});
-    fOps.emplace_back(RecordedOp{std::move(op), fColor});
+    fOps.emplace_back(std::move(op));
 }
 
 void SkInternalAtlasTextTarget::flush() {
     for (int i = 0; i < fOps.count(); ++i) {
-        fOps[i].fOp->executeForTextTarget(this, fOps[i].fColor);
+        fOps[i]->executeForTextTarget(this);
     }
     this->context()->internal().flush();
     fOps.reset();
 }
 
-void GrAtlasTextOp::executeForTextTarget(SkAtlasTextTarget* target, uint32_t color) {
+void GrAtlasTextOp::finalizeForTextTarget(uint32_t color, const GrCaps& caps) {
+    for (int i = 0; i < fGeoCount; ++i) {
+        fGeoData[i].fColor = color;
+    }
+    this->finalize(caps, nullptr /* applied clip */, GrPixelConfigIsClamped::kNo);
+}
+
+void GrAtlasTextOp::executeForTextTarget(SkAtlasTextTarget* target) {
     FlushInfo flushInfo;
     SkAutoGlyphCache glyphCache;
     auto& context = target->context()->internal();
@@ -128,7 +144,8 @@ void GrAtlasTextOp::executeForTextTarget(SkAtlasTextTarget* target, uint32_t col
     for (int i = 0; i < fGeoCount; ++i) {
         GrAtlasTextBlob::VertexRegenerator regenerator(
                 fGeoData[i].fBlob, fGeoData[i].fRun, fGeoData[i].fSubRun, fGeoData[i].fViewMatrix,
-                fGeoData[i].fX, fGeoData[i].fY, color, &context, atlasGlyphCache, &glyphCache);
+                fGeoData[i].fX, fGeoData[i].fY, fGeoData[i].fColor, &context, atlasGlyphCache,
+                &glyphCache);
         GrAtlasTextBlob::VertexRegenerator::Result result;
         do {
             result = regenerator.regenerate();
