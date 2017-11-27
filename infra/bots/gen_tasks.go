@@ -219,7 +219,7 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 				"AndroidOne":      {"sprout", "MOB30Q"},
 				"Chorizo":         {"chorizo", "1.24_82923"},
 				"GalaxyJ5":        {"j5xnlte", "MMB29M"},
-				"GalaxyS6":        {"zerofltetmo", "MMB29K"},
+				"GalaxyS6":        {"zerofltetmo", "NRD90M"},
 				"GalaxyS7_G930A":  {"heroqlteatt", "NRD90M_G930AUCS4BQC2"},
 				"GalaxyS7_G930FD": {"herolte", "NRD90M_G930FXXU1DQAS"},
 				"GalaxyTab3":      {"goyawifi", "JDQ39"},
