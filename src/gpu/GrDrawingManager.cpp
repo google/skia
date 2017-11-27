@@ -140,16 +140,14 @@ GrSemaphoresSubmitted GrDrawingManager::internalFlush(GrSurfaceProxy*,
 
     // Prepare any onFlush op lists (e.g. atlases).
     if (!fOnFlushCBObjects.empty()) {
-        // MDB TODO: pre-MDB '1' is the correct pre-allocated size. Post-MDB it will need
-        // to be larger.
-        SkAutoSTArray<1, uint32_t> opListIds(fOpLists.count());
+        fFlushingOpListIDs.reset(fOpLists.count());
         for (int i = 0; i < fOpLists.count(); ++i) {
-            opListIds[i] = fOpLists[i]->uniqueID();
+            fFlushingOpListIDs[i] = fOpLists[i]->uniqueID();
         }
         SkSTArray<4, sk_sp<GrRenderTargetContext>> renderTargetContexts;
         for (GrOnFlushCallbackObject* onFlushCBObject : fOnFlushCBObjects) {
             onFlushCBObject->preFlush(&onFlushProvider,
-                                      opListIds.get(), opListIds.count(),
+                                      fFlushingOpListIDs.begin(), fFlushingOpListIDs.count(),
                                       &renderTargetContexts);
             for (const sk_sp<GrRenderTargetContext>& rtc : renderTargetContexts) {
                 sk_sp<GrOpList> onFlushOpList = sk_ref_sp(rtc->getOpList());
@@ -158,7 +156,7 @@ GrSemaphoresSubmitted GrDrawingManager::internalFlush(GrSurfaceProxy*,
                 }
                 onFlushOpList->makeClosed(*fContext->caps());
                 onFlushOpList->prepare(&fFlushState);
-                fOnFlushOpLists.push_back(std::move(onFlushOpList));
+                fOnFlushCBOpLists.push_back(std::move(onFlushOpList));
             }
             renderTargetContexts.reset();
         }
@@ -204,8 +202,10 @@ GrSemaphoresSubmitted GrDrawingManager::internalFlush(GrSurfaceProxy*,
         fContext->getResourceCache()->notifyFlushOccurred(type);
     }
     for (GrOnFlushCallbackObject* onFlushCBObject : fOnFlushCBObjects) {
-        onFlushCBObject->postFlush(fFlushState.nextTokenToFlush());
+        onFlushCBObject->postFlush(fFlushState.nextTokenToFlush(), fFlushingOpListIDs.begin(),
+                                   fFlushingOpListIDs.count());
     }
+    fFlushingOpListIDs.reset();
     fFlushing = false;
 
     return result;
@@ -241,14 +241,14 @@ bool GrDrawingManager::executeOpLists(int startIndex, int stopIndex, GrOpFlushSt
     flushState->preExecuteDraws();
 
     // Execute the onFlush op lists first, if any.
-    for (sk_sp<GrOpList>& onFlushOpList : fOnFlushOpLists) {
+    for (sk_sp<GrOpList>& onFlushOpList : fOnFlushCBOpLists) {
         if (!onFlushOpList->execute(flushState)) {
             SkDebugf("WARNING: onFlushOpList failed to execute.\n");
         }
         SkASSERT(onFlushOpList->unique());
         onFlushOpList = nullptr;
     }
-    fOnFlushOpLists.reset();
+    fOnFlushCBOpLists.reset();
 
     // Execute the normal op lists.
     for (int i = startIndex; i < stopIndex; ++i) {

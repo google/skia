@@ -9,6 +9,7 @@
 #define GrOnFlushResourceProvider_DEFINED
 
 #include "GrTypes.h"
+#include "GrDeferredUpload.h"
 #include "GrOpFlushState.h"
 #include "GrResourceProvider.h"
 #include "SkRefCnt.h"
@@ -46,7 +47,8 @@ public:
      * Called once flushing is complete and all ops indicated by preFlush have been executed and
      * released. startTokenForNextFlush can be used to track resources used in the current flush.
      */
-    virtual void postFlush(GrDeferredUploadToken startTokenForNextFlush) {}
+    virtual void postFlush(GrDeferredUploadToken startTokenForNextFlush,
+                           const uint32_t* opListIDs, int numOpListIDs) {}
 
     /**
      * Tells the callback owner to hold onto this object when freeing GPU resources
