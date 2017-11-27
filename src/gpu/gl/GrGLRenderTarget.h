@@ -60,7 +60,7 @@ public:
         }
     }
 
-    GrBackendObject getRenderTargetHandle() const override { return fRTFBOID; }
+    GrBackendObject getRenderTargetHandle() const override { return (GrBackendObject)&fRTFBOID; }
 
     bool canAttemptStencilAttachment() const override;
 
