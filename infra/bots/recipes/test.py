@@ -322,6 +322,12 @@ def dm_flags(api, bot):
     blacklist('_ image gen_platf inc13.png')
     blacklist('_ image gen_platf inc14.png')
 
+    # These images fail after Mac 10.13.1 upgrade.
+    blacklist('_ image gen_platf incInterlaced.gif')
+    blacklist('_ image gen_platf inc1.gif')
+    blacklist('_ image gen_platf inc0.gif')
+    blacklist('_ image gen_platf butterfly.gif')
+
   # WIC fails on questionable bmps
   if 'Win' in bot:
     blacklist('_ image gen_platf pal8os2v2.bmp')
