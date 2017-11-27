@@ -574,6 +574,42 @@ std::unique_ptr<Block> IRGenerator::applyInvocationIDWorkaround(std::unique_ptr<
     return std::unique_ptr<Block>(new Block(-1, std::move(children)));
 }
 
+void IRGenerator::normalizeSkPosition(const Variable* skPerVertex, const Variable* rtAdjust,
+                                      Block* body) {
+    // sk_Position = float4(sk_Position.x * rtAdjust.x + sk_Position.z * rtAdjust.y,
+    //                      sk_Position.y * rtAdjust.z + sk_Position.z * rtAdjust.w,
+    //                      0,
+    //                      sk_Position.z);
+
+    #define REF(var) std::unique_ptr<Expression>(\
+                                  new VariableReference(-1, *var, VariableReference::kRead_RefKind))
+    #define POS std::unique_ptr<Expression>(new FieldAccess(REF(skPerVertex), 0,\
+                                                   FieldAccess::kAnonymousInterfaceBlock_OwnerKind))
+    #define ADJUST REF(rtAdjust)
+    #define SWIZZLE(expr, field) std::unique_ptr<Expression>(new Swizzle(fContext, expr, { field }))
+    #define OP(left, op, right) std::unique_ptr<Expression>(\
+                                   new BinaryExpression(-1, left, op, right, *fContext.fFloat_Type))
+    std::vector<std::unique_ptr<Expression>> children;
+    children.push_back(OP(OP(SWIZZLE(POS, 0), Token::STAR, SWIZZLE(ADJUST, 0)),
+                          Token::PLUS,
+                          OP(SWIZZLE(POS, 2), Token::STAR, SWIZZLE(ADJUST, 1))));
+    children.push_back(OP(OP(SWIZZLE(POS, 1), Token::STAR, SWIZZLE(ADJUST, 2)),
+                          Token::PLUS,
+                          OP(SWIZZLE(POS, 2), Token::STAR, SWIZZLE(ADJUST, 3))));
+    children.push_back(std::unique_ptr<Expression>(new IntLiteral(fContext, -1, 0)));
+    children.push_back(SWIZZLE(POS, 2));
+    std::unique_ptr<Expression> assignment =
+              OP(POS, Token::EQ, std::unique_ptr<Expression>(new Constructor(-1,
+                                                                             *fContext.fFloat4_Type,
+                                                                             std::move(children))));
+    // We simply add the normalization to the end of the vertex shader. Note that this will not be
+    // correct in the event that we have a return statement in the shader, but since none of our
+    // vertex shaders do this and there's no real reason to expect future ones to do so, this is
+    // probably good enough.
+    body->fStatements.insert(body->fStatements.end(),
+                        std::unique_ptr<Statement>(new ExpressionStatement(std::move(assignment))));
+}
+
 void IRGenerator::convertFunction(const ASTFunction& f) {
     const Type* returnType = this->convertType(*f.fReturnType);
     if (!returnType) {
@@ -690,7 +726,36 @@ void IRGenerator::convertFunction(const ASTFunction& f) {
         }
         // conservatively assume all user-defined functions have side effects
         ((Modifiers&) decl->fModifiers).fFlags |= Modifiers::kHasSideEffects_Flag;
-
+        if (Program::kVertex_Kind == fKind && f.fName == "main") {
+            const Variable* position = nullptr;
+            const Variable* rtAdjust = nullptr;
+            for (const auto& e : *fProgramElements) {
+                if (e->fKind == ProgramElement::kVar_Kind) {
+                    const VarDeclarations& decls = (const VarDeclarations&) *e;
+                    for (const auto& decl : decls.fVars) {
+                        const Variable* v = ((const VarDeclaration&) *decl).fVar;
+                        if (v->fName == Compiler::RTADJUST_NAME) {
+                            rtAdjust = v;
+                            break;
+                        }
+                    }
+                    if (rtAdjust && position) {
+                        break;
+                    }
+                } else if (e->fKind == ProgramElement::kInterfaceBlock_Kind) {
+                    const InterfaceBlock& ib = (const InterfaceBlock&) *e;
+                    if (ib.fVariable.fName == Compiler::PERVERTEX_NAME) {
+                        position = &ib.fVariable;
+                        if (rtAdjust) {
+                            break;
+                        }
+                    }
+                }
+            }
+            if (rtAdjust) {
+                this->normalizeSkPosition(position, rtAdjust, body.get());
+            }
+        }
         fProgramElements->push_back(std::unique_ptr<FunctionDefinition>(
                                         new FunctionDefinition(f.fOffset, *decl, std::move(body))));
     }
@@ -2020,10 +2085,12 @@ void IRGenerator::markWrittenTo(const Expression& expr, bool readWrite) {
     }
 }
 
-void IRGenerator::convertProgram(const char* text,
+void IRGenerator::convertProgram(Program::Kind kind,
+                                 const char* text,
                                  size_t length,
                                  SymbolTable& types,
                                  std::vector<std::unique_ptr<ProgramElement>>* out) {
+    fKind = kind;
     fProgramElements = out;
     Parser parser(text, length, types, fErrors);
     std::vector<std::unique_ptr<ASTDeclaration>> parsed = parser.file();

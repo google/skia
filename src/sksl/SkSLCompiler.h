@@ -45,6 +45,9 @@ class IRGenerator;
  */
 class Compiler : public ErrorReporter {
 public:
+    static constexpr const char* RTADJUST_NAME  = "sk_RTAdjust";
+    static constexpr const char* PERVERTEX_NAME = "sk_PerVertex";
+
     enum Flags {
         kNone_Flags = 0,
         // permits static if/switch statements to be used with non-constant tests. This is used when

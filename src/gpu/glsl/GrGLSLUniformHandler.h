@@ -51,7 +51,8 @@ public:
                                   int arrayCount,
                                   const char** outName = nullptr) {
         SkASSERT(!GrSLTypeIsCombinedSamplerType(type));
-        return this->internalAddUniformArray(visibility, type, precision, name, true, arrayCount,
+        bool mangle = strncmp(name, "sk_", 3);
+        return this->internalAddUniformArray(visibility, type, precision, name, mangle, arrayCount,
                                              outName);
     }
 
@@ -61,7 +62,8 @@ public:
                                   int arrayCount,
                                   const char** outName = nullptr) {
         SkASSERT(!GrSLTypeIsCombinedSamplerType(type));
-        return this->internalAddUniformArray(visibility, type, kDefault_GrSLPrecision, name, true,
+        bool mangle = strncmp(name, "sk_", 3);
+        return this->internalAddUniformArray(visibility, type, kDefault_GrSLPrecision, name, mangle,
                                              arrayCount, outName);
     }
 
