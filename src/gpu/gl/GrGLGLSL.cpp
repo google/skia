@@ -14,6 +14,7 @@ bool GrGLGetGLSLGeneration(const GrGLInterface* gl, GrGLSLGeneration* generation
     SkASSERT(generation);
     GrGLSLVersion ver = GrGLGetGLSLVersion(gl);
     if (GR_GLSL_INVALID_VER == ver) {
+            SkDebugf("false1");
         return false;
     }
     switch (gl->fStandard) {
@@ -34,6 +35,7 @@ bool GrGLGetGLSLGeneration(const GrGLInterface* gl, GrGLSLGeneration* generation
             } else {
                 *generation = k110_GrGLSLGeneration;
             }
+            SkDebugf("true1: %d", *generation);
             return true;
         case kGLES_GrGLStandard:
             SkASSERT(ver >= GR_GL_VER(1,00));
@@ -46,9 +48,11 @@ bool GrGLGetGLSLGeneration(const GrGLInterface* gl, GrGLSLGeneration* generation
             } else {
                 *generation = k110_GrGLSLGeneration;
             }
+            SkDebugf("true2: %d", *generation);
             return true;
         default:
             SK_ABORT("Unknown GL Standard");
+            SkDebugf("false2");
             return false;
     }
 }
