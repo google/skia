@@ -789,6 +789,15 @@ void GrGLCaps::initGLSL(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli
     GrGLStandard standard = ctxInfo.standard();
     GrGLVersion version = ctxInfo.version();
 
+    SkDebugf("Using GLES: %d\n", kGLES_GrGLStandard == standard);
+    SkDebugf("Using version: %d\n", version);
+    SkDebugf("is core: %d\n", fIsCoreProfile);
+    SkDebugf("2.0: %d\n", GR_GL_VER(2, 0));
+    SkDebugf("3.0: %d\n", GR_GL_VER(3, 0));
+    SkDebugf("3.1: %d\n", GR_GL_VER(3, 1));
+    SkDebugf("3.2: %d\n", GR_GL_VER(3, 2));
+    SkDebugf("4.0: %d\n", GR_GL_VER(4, 0));
+    SkDebugf("4.5: %d\n", GR_GL_VER(4, 5));
     /**************************************************************************
     * Caps specific to GrShaderCaps
     **************************************************************************/
