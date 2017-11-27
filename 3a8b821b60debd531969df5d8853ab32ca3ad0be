@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4c358856_994145d2",
+        "filename": "BUILD.gn",
+        "patchSetId": 4
+      },
+      "lineNbr": 996,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-11-27T17:26:34Z",
+      "side": 1,
+      "message": "Seems like a good place to me, fwiw.",
+      "range": {
+        "startLine": 996,
+        "startChar": 36,
+        "endLine": 996,
+        "endChar": 44
+      },
+      "revId": "3a8b821b60debd531969df5d8853ab32ca3ad0be",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6324fd73_b4d55f8d",
+        "filename": "BUILD.gn",
+        "patchSetId": 4
+      },
+      "lineNbr": 1043,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-11-27T17:26:34Z",
+      "side": 1,
+      "message": "I think we could add something like\n\n  group(app_name) {\n      deps \u003d [ \"${app_name}.app\" ]\n  }\n\n?",
+      "revId": "3a8b821b60debd531969df5d8853ab32ca3ad0be",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "400e4b75_75007d25",
+        "filename": "BUILD.gn",
+        "patchSetId": 4
+      },
+      "lineNbr": 1773,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-11-27T17:26:34Z",
+      "side": 1,
+      "message": "Might be nice to have the template swallow this on iOS?  Not sure.",
+      "revId": "3a8b821b60debd531969df5d8853ab32ca3ad0be",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
