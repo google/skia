@@ -16,6 +16,24 @@
       "revId": "6368e32edae4a726724a06453119bddf29da36f1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3bbae611_7aff2179",
+        "filename": "tools/gpu/GrTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-11-27T22:53:45Z",
+      "side": 0,
+      "message": "Okay this is definitely a fine and better short term fix. But we should definitely get on updating getRenderTargetHandle...",
+      "parentUuid": "b353f16c_4cc36b99",
+      "revId": "6368e32edae4a726724a06453119bddf29da36f1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
