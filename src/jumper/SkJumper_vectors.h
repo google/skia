@@ -52,6 +52,8 @@
     SI F   rcp   (F v)          { return 1.0f / v; }
     SI F   rsqrt (F v)          { return 1.0f / sqrtf(v); }
     SI F    sqrt_(F v)          { return sqrtf(v); }
+    SI F   first (F a, F b)     { return a; }
+    SI F   second(F a, F b)     { return b; }
     SI U32 round (F v, F scale) { return (uint32_t)(v*scale + 0.5f); }
     SI U16 pack(U32 v)          { return (U16)v; }
     SI U8  pack(U16 v)          { return  (U8)v; }

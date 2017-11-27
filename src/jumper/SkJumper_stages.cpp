@@ -1288,11 +1288,11 @@ SI F solve_2pt_conical_quadratic(const SkJumper_2PtConicalCtx* c, F x, F y, F (*
 }
 
 STAGE(xy_to_2pt_conical_quadratic_max, const SkJumper_2PtConicalCtx* ctx) {
-    r = solve_2pt_conical_quadratic(ctx, r, g, max);
+    r = solve_2pt_conical_quadratic(ctx, r, g, first);
 }
 
 STAGE(xy_to_2pt_conical_quadratic_min, const SkJumper_2PtConicalCtx* ctx) {
-    r = solve_2pt_conical_quadratic(ctx, r, g, min);
+    r = solve_2pt_conical_quadratic(ctx, r, g, second);
 }
 
 STAGE(xy_to_2pt_conical_linear, const SkJumper_2PtConicalCtx* c) {
