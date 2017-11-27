@@ -16,6 +16,24 @@
       "revId": "e5244f15bbab2ecac5b43b5824920fe0f20cd451",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ce9f380d_0a489484",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 605,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-11-27T16:14:02Z",
+      "side": 1,
+      "message": "I agree it would be hard to debug, but the problem isn\u0027t just here. I think a return almost anywhere in sksl will break everything- vertex or fragment. (I actually use returns sometimes for debugging..) Also this particular limitation has always existed for the normalization that used to happen in Ganesh.\n\nDo you think we need to work out a more general solution for returns, all throughout sksl?",
+      "parentUuid": "23229f5a_12a175af",
+      "revId": "e5244f15bbab2ecac5b43b5824920fe0f20cd451",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
