@@ -49,7 +49,6 @@ class GNChromecastFlavorUtils(gn_android_flavor.GNAndroidFlavorUtils):
     extra_cflags = [
       '-I%s' % gles_dir.join('include'),
       '-DMESA_EGL_NO_X11_HEADERS',
-      '-DEGL_NO_IMAGE_EXTERNAL',
       "-DSK_NO_COMMAND_BUFFER",
       # Avoid unused warning with yyunput
       '-Wno-error=unused-function',
