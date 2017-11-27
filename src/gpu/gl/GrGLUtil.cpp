@@ -234,11 +234,13 @@ GrGLSLVersion GrGLGetGLSLVersionFromString(const char* versionString) {
 
     int n = sscanf(versionString, "%d.%d", &major, &minor);
     if (2 == n) {
+        SkDebugf("version 1: %d, %d\n", major, minor);
         return GR_GLSL_VER(major, minor);
     }
 
     n = sscanf(versionString, "OpenGL ES GLSL ES %d.%d", &major, &minor);
     if (2 == n) {
+        SkDebugf("version 2: %d, %d\n", major, minor);
         return GR_GLSL_VER(major, minor);
     }
 
@@ -254,6 +256,7 @@ GrGLSLVersion GrGLGetGLSLVersionFromString(const char* versionString) {
 }
 
 GrGLVendor GrGLGetVendorFromString(const char* vendorString) {
+    SkDebugf("vender string: %s\n", vendorString);
     if (vendorString) {
         if (0 == strcmp(vendorString, "ARM")) {
             return kARM_GrGLVendor;
@@ -262,6 +265,7 @@ GrGLVendor GrGLGetVendorFromString(const char* vendorString) {
             return kImagination_GrGLVendor;
         }
         if (0 == strncmp(vendorString, "Intel ", 6) || 0 == strcmp(vendorString, "Intel")) {
+            SkDebugf("vendor is intel\n");
             return kIntel_GrGLVendor;
         }
         if (0 == strcmp(vendorString, "Qualcomm")) {
@@ -274,6 +278,7 @@ GrGLVendor GrGLGetVendorFromString(const char* vendorString) {
             return kATI_GrGLVendor;
         }
     }
+    SkDebugf("vendor is other\n");
     return kOther_GrGLVendor;
 }
 
@@ -285,6 +290,7 @@ static bool is_renderer_angle(const char* rendererString) {
 
 GrGLRenderer GrGLGetRendererFromString(const char* rendererString) {
     if (rendererString) {
+        SkDebugf("renderString is: %s\n", rendererString);
         if (0 == strcmp(rendererString, "NVIDIA Tegra 3")) {
             return kTegra3_GrGLRenderer;
         } else if (0 == strcmp(rendererString, "NVIDIA Tegra")) {
@@ -343,10 +349,13 @@ GrGLRenderer GrGLGetRendererFromString(const char* rendererString) {
             n = sscanf(rendererString, "Intel(R) HD Graphics %d", &intelNumber);
         }
         if (1 == n) {
+                SkDebugf("rendererstring intel base\n");
             if (intelNumber >= 4000 && intelNumber < 5000) {
+                SkDebugf("rendererstring intel 1\n");
                 return kIntel4xxx_GrGLRenderer;
             }
             if (intelNumber >= 6000 && intelNumber < 7000) {
+                SkDebugf("rendererstring intel 2\n");
                 return kIntel6xxx_GrGLRenderer;
             }
         }
@@ -383,6 +392,7 @@ GrGLRenderer GrGLGetRendererFromString(const char* rendererString) {
             return kANGLE_GrGLRenderer;
         }
     }
+    SkDebugf("rendererstring other\n");
     return kOther_GrGLRenderer;
 }
 
