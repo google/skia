@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1aebc50e_a860cd2d",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 210,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-11-27T16:52:21Z",
+      "side": 1,
+      "message": "Why ?",
+      "revId": "bce96c757300873d38b8dcf2adc4fcac7f674cc7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b37af58d_3873f44f",
+        "filename": "src/gpu/GrDrawingManager.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-11-27T16:52:21Z",
+      "side": 1,
+      "message": "I think this and \u0027fOnFlushOpLists\u0027 should have the same prefix. So either \u0027fOnFlushOpLists\u0027 or \u0027fFlushingOpLists\u0027.\n\nAlternatively, is there any reason not to have both of these on the stack?\n\nAlso, why not a plain SkSTArray ?",
+      "revId": "bce96c757300873d38b8dcf2adc4fcac7f674cc7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ef9c9e1e_3638be13",
+        "filename": "src/gpu/GrOnFlushResourceProvider.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-11-27T16:52:21Z",
+      "side": 1,
+      "message": "Do we now need this ?",
+      "revId": "bce96c757300873d38b8dcf2adc4fcac7f674cc7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
