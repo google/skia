@@ -67,9 +67,7 @@ void IncludeWriter::descriptionOut(const Definition* def) {
                 commentStart = prop->fContentStart;
                 commentLen = (int) (prop->fContentEnd - commentStart);
                 if (commentLen > 0) {
-                    if (Wrote::kNone != this->rewriteBlock(commentLen, commentStart, Phrase::kNo)) {
-                        this->lfcr();
-                    }
+                    this->writeBlockIndent(commentLen, commentStart);
                 }
                 commentStart = prop->fTerminator;
                 commentLen = (int) (def->fContentEnd - commentStart);
@@ -913,6 +911,9 @@ bool IncludeWriter::populate(Definition* def, ParentPair* prevPair, RootDefiniti
     const Definition* requireDense = nullptr;
     const Definition* startDef = nullptr;
     for (auto& child : def->fTokens) {
+        if (18 == child.fParentIndex) {
+            SkDebugf("");
+        }
         if (KeyWord::kOperator == child.fKeyWord && method &&
                 Definition::MethodType::kOperator == method->fMethodType) {
             eatOperator = true;
@@ -976,34 +977,40 @@ bool IncludeWriter::populate(Definition* def, ParentPair* prevPair, RootDefiniti
                     continue;
                 }
             }
-            if (Definition::Type::kBracket == child.fType && Bracket::kParen == child.fBracket) {
-                if (!clonedMethod) {
-                    if (inConstructor) {
-                        fContinuation = child.fContentStart;
-                    }
+            if (Definition::Type::kBracket == child.fType) {
+                if (Bracket::kAngle == child.fBracket) {
                     continue;
                 }
-                int alternate = 1;
-                ptrdiff_t childLen = child.fContentEnd - child.fContentStart;
-                SkASSERT(')' == child.fContentStart[childLen]);
-                ++childLen;
-                do {
-                    TextParser params(clonedMethod->fFileName, clonedMethod->fStart,
-                        clonedMethod->fContentStart, clonedMethod->fLineCount);
-                    params.skipToEndBracket('(');
-                    if (params.startsWith(child.fContentStart, childLen)) {
-                        this->methodOut(clonedMethod, child);
-                        break;
+                if (Bracket::kParen == child.fBracket) {
+                    if (!clonedMethod) {
+                        if (inConstructor) {
+                            fContinuation = child.fContentStart;
+                        }
+                        continue;
                     }
-                    ++alternate;
-                    string alternateMethod = methodName + '_' + to_string(alternate);
-                    clonedMethod = root->find(alternateMethod, RootDefinition::AllowParens::kNo);
-                } while (clonedMethod);
-                if (!clonedMethod) {
-                    return this->reportError<bool>("cloned method not found");
+                    int alternate = 1;
+                    ptrdiff_t childLen = child.fContentEnd - child.fContentStart;
+                    SkASSERT(')' == child.fContentStart[childLen]);
+                    ++childLen;
+                    do {
+                        TextParser params(clonedMethod->fFileName, clonedMethod->fStart,
+                            clonedMethod->fContentStart, clonedMethod->fLineCount);
+                        params.skipToEndBracket('(');
+                        if (params.startsWith(child.fContentStart, childLen)) {
+                            this->methodOut(clonedMethod, child);
+                            break;
+                        }
+                        ++alternate;
+                        string alternateMethod = methodName + '_' + to_string(alternate);
+                        clonedMethod = root->find(alternateMethod,
+                                RootDefinition::AllowParens::kNo);
+                    } while (clonedMethod);
+                    if (!clonedMethod) {
+                        return this->reportError<bool>("cloned method not found");
+                    }
+                    clonedMethod = nullptr;
+                    continue;
                 }
-                clonedMethod = nullptr;
-                continue;
             }
             if (Definition::Type::kWord == child.fType) {
                 if (clonedMethod) {
