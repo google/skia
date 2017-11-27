@@ -22,6 +22,30 @@
       "revId": "02cbfcacdd3d93fbaa70c5b57f6948daef194c37",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ef9a3192_c59525a9",
+        "filename": "src/core/SkScan.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-11-27T17:31:47Z",
+      "side": 1,
+      "message": "SkDraw::DrawDevPath relies on the exact signature to use it as a function pointer. Otherwise I would also like to just add \"bool forceDAA\u003dfalse\".",
+      "parentUuid": "4048b5f4_21cb83f2",
+      "range": {
+        "startLine": 75,
+        "startChar": 1,
+        "endLine": 77,
+        "endChar": 5
+      },
+      "revId": "02cbfcacdd3d93fbaa70c5b57f6948daef194c37",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
