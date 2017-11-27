@@ -251,7 +251,6 @@ GrGLuint EGLGLTestContext::eglImageToExternalTexture(GrEGLImage image) const {
     if (!this->gl()->hasExtension("GL_OES_EGL_image_external")) {
         return 0;
     }
-#ifndef EGL_NO_IMAGE_EXTERNAL
     typedef GrGLvoid (*EGLImageTargetTexture2DProc)(GrGLenum, GrGLeglImage);
 
     EGLImageTargetTexture2DProc glEGLImageTargetTexture2D =
@@ -260,27 +259,21 @@ GrGLuint EGLGLTestContext::eglImageToExternalTexture(GrEGLImage image) const {
         return 0;
     }
     GrGLuint texID;
-    // TODO(kjlubick): Migrate away from using the #define hackery by using the
-    // function pointers directly, e.g.
-    // this->gl()->fFunctions.fGenTextures(1, &texID);
-    glGenTextures(1, &texID);
+    GR_GL_CALL(this->gl(), GenTextures(1, &texID));
     if (!texID) {
         return 0;
     }
-    glBindTexture(GR_GL_TEXTURE_EXTERNAL, texID);
-    if (glGetError() != GR_GL_NO_ERROR) {
-        glDeleteTextures(1, &texID);
+    GR_GL_CALL_NOERRCHECK(this->gl(), BindTexture(GR_GL_TEXTURE_EXTERNAL, texID));
+    if (GR_GL_GET_ERROR(this->gl()) != GR_GL_NO_ERROR) {
+        GR_GL_CALL(this->gl(), DeleteTextures(1, &texID));
         return 0;
     }
     glEGLImageTargetTexture2D(GR_GL_TEXTURE_EXTERNAL, image);
-    if (glGetError() != GR_GL_NO_ERROR) {
-        glDeleteTextures(1, &texID);
+    if (GR_GL_GET_ERROR(this->gl()) != GR_GL_NO_ERROR) {
+        GR_GL_CALL(this->gl(), DeleteTextures(1, &texID));
         return 0;
     }
     return texID;
-#else
-    return 0;
-#endif //EGL_NO_IMAGE_EXTERNAL
 }
 
 std::unique_ptr<sk_gpu_test::GLTestContext> EGLGLTestContext::makeNew() const {
