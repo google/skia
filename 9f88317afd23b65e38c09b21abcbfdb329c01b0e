@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "ebc1bf7e_af5e6c29",
+        "filename": "src/gpu/GrResourceProvider.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-11-27T22:41:08Z",
+      "side": 1,
+      "message": "I\u0027ve uploaded the code (in arcofzorro.cpp) that is motivating all of this. It is pulled from fiddle that is trying to exercise the backend objects. Mainly it has to do with creating and initializing the objects that back the backend objects.",
+      "parentUuid": "0dafcf14_3f5d0609",
+      "range": {
+        "startLine": 80,
+        "startChar": 4,
+        "endLine": 80,
+        "endChar": 32
+      },
+      "revId": "9f88317afd23b65e38c09b21abcbfdb329c01b0e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "37b1602f_fa8d9a8b",
         "filename": "src/gpu/gl/GrGLRenderTarget.h",
         "patchSetId": 2
@@ -36,6 +60,30 @@
       "writtenOn": "2017-11-27T21:35:41Z",
       "side": 1,
       "message": "currently I think we say that the GrBackendObject \u003d\u003d FBOID, not the pointer to an FBOID.\n\nHowever, this should really be updated to return a GrGLFramebufferInfo* so it matches GrBackendRenderTarget. That will involve client updates though",
+      "range": {
+        "startLine": 63,
+        "startChar": 69,
+        "endLine": 63,
+        "endChar": 95
+      },
+      "revId": "9f88317afd23b65e38c09b21abcbfdb329c01b0e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "98e12027_2db7d601",
+        "filename": "src/gpu/gl/GrGLRenderTarget.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-11-27T22:41:08Z",
+      "side": 1,
+      "message": "I\u0027ve reverted this and updated CreateBackendRenderTarget to reflect the current world.",
+      "parentUuid": "37b1602f_fa8d9a8b",
       "range": {
         "startLine": 63,
         "startChar": 69,

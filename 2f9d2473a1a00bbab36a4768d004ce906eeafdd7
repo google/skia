@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9ec4aed6_8b77ed21",
+        "filename": "gm/arcofzorro.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-11-27T22:41:08Z",
+      "side": 1,
+      "message": "When mipmapping is disabled this is/was violating the assert in GrResourceProvider.",
+      "revId": "2f9d2473a1a00bbab36a4768d004ce906eeafdd7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "03ef7913_4f3dadb0",
+        "filename": "gm/arcofzorro.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 150,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-11-27T22:41:08Z",
+      "side": 1,
+      "message": "This is/was violating the assert in GrResourceProvider.",
+      "revId": "2f9d2473a1a00bbab36a4768d004ce906eeafdd7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

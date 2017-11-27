@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b353f16c_4cc36b99",
+        "filename": "tools/gpu/GrTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-11-27T22:41:08Z",
+      "side": 0,
+      "message": "This is/was anticipating the future world where getRenderTargetHandle returns a GrGLFramebufferInfo*. The problem can be resolved here or by having getRenderTargetHandle actually return a GrGLFramebufferInfo*.",
+      "revId": "6368e32edae4a726724a06453119bddf29da36f1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
