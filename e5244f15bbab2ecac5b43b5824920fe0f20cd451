@@ -34,6 +34,24 @@
       "revId": "e5244f15bbab2ecac5b43b5824920fe0f20cd451",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "53b29973_ee515cbd",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 605,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-11-27T16:48:03Z",
+      "side": 1,
+      "message": "Yep it\u0027s always been possible to return and escape the transformation ever since we were emitting GLSL straight to the driver\u0027s compiler. As we\u0027re making SKSL a \"real\" language and moving the translation from sksl\u0027isms to glsl/spirv from the builder code and into the compiler we have the opportunity to make things work more consistently and close some holes.\n\nWe don\u0027t have to solve this in this CL but it seems to me that we should strive to make it so that sksl can have a clear definition of sk_FragCoord that doesn\u0027t depend on whether there was a return. If we don\u0027t require return in our shaders then a simple to implement solution could be there is no return in the language (until we find a need for it). If that\u0027s not a simple solution then I\u0027d be happy to push closing this hole out into the future.",
+      "parentUuid": "ce9f380d_0a489484",
+      "revId": "e5244f15bbab2ecac5b43b5824920fe0f20cd451",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
