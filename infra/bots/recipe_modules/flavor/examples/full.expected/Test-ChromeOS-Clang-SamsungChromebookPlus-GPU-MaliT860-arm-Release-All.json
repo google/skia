@@ -20,7 +20,7 @@
       "[START_DIR]/skia/bin/gn",
       "gen",
       "[START_DIR]/out/Release",
-      "--args=cc=\"[START_DIR]/clang_linux/bin/clang\" cxx=\"[START_DIR]/clang_linux/bin/clang++\" extra_asmflags=[] extra_cflags=[\"-DMESA_EGL_NO_X11_HEADERS\", \"-DEGL_NO_IMAGE_EXTERNAL\", \"-I[START_DIR]/chromebook_x86_64_gles/include\"] extra_ldflags=[\"-L[START_DIR]/chromebook_x86_64_gles/lib\", \"-static-libstdc++\", \"-static-libgcc\", \"-fuse-ld=lld\"] is_debug=false skia_use_egl=true skia_use_fontconfig=false skia_use_system_freetype2=false target_cpu=\"None\""
+      "--args=cc=\"[START_DIR]/clang_linux/bin/clang\" cxx=\"[START_DIR]/clang_linux/bin/clang++\" extra_asmflags=[] extra_cflags=[\"-DMESA_EGL_NO_X11_HEADERS\", \"-I[START_DIR]/chromebook_x86_64_gles/include\"] extra_ldflags=[\"-L[START_DIR]/chromebook_x86_64_gles/lib\", \"-static-libstdc++\", \"-static-libgcc\", \"-fuse-ld=lld\"] is_debug=false skia_use_egl=true skia_use_fontconfig=false skia_use_system_freetype2=false target_cpu=\"None\""
     ],
     "cwd": "[START_DIR]/skia",
     "env": {

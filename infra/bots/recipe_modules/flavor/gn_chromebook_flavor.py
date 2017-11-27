@@ -120,7 +120,6 @@ class GNChromebookFlavorUtils(gn_flavor.GNFlavorUtils):
       extra_asmflags = []
       extra_cflags = [
         '-DMESA_EGL_NO_X11_HEADERS',
-        '-DEGL_NO_IMAGE_EXTERNAL',
         '-I%s' % gl_dir.join('include'),
       ]
       extra_ldflags = [
