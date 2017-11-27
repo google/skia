@@ -208,26 +208,20 @@ typedef intptr_t GrBackendContext;
 /**
  * Used to control antialiasing in draw calls.
  */
-enum class GrAA {
-    kYes,
-    kNo
+enum class GrAA : bool {
+    kNo = false,
+    kYes = true
 };
-
-static inline GrAA GrBoolToAA(bool aa) { return aa ? GrAA::kYes : GrAA::kNo; }
 
 ///////////////////////////////////////////////////////////////////////////////
 
 /**
  * Used to say whether a texture has mip levels allocated or not.
  */
-enum class GrMipMapped {
-    kYes,
-    kNo
+enum class GrMipMapped : bool {
+    kNo = false,
+    kYes = true
 };
-
-static inline GrMipMapped GrBoolToMipMapped(bool mipMapped) {
-    return mipMapped ? GrMipMapped::kYes : GrMipMapped::kNo;
-}
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -484,9 +478,10 @@ static const uint32_t kAll_GrBackendState = 0xffffffff;
 
 // Enum used as return value when flush with semaphores so the client knows whether the
 // semaphores were submitted to GPU or not.
+// Derived from int rather than bool due to weirdness with chromium bots (win_chromium_dbg_ng).
 enum class GrSemaphoresSubmitted : int {
-    kNo,
-    kYes,
+    kNo = 0,
+    kYes = 1
 };
 
 #endif
