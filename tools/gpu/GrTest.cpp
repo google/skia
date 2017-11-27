@@ -90,8 +90,9 @@ GrBackendRenderTarget CreateBackendRenderTarget(GrBackend backend, int width, in
         }
 #endif
         case kOpenGL_GrBackend: {
-            GrGLFramebufferInfo* glInfo = (GrGLFramebufferInfo*)(handle);
-            return GrBackendRenderTarget(width, height, sampleCnt, stencilBits, config, *glInfo);
+            GrGLFramebufferInfo glInfo;
+            glInfo.fFBOID = handle;
+            return GrBackendRenderTarget(width, height, sampleCnt, stencilBits, config, glInfo);
         }
         case kMock_GrBackend: // fall through
         default:
