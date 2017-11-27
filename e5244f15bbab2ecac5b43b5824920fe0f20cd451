@@ -52,6 +52,24 @@
       "revId": "e5244f15bbab2ecac5b43b5824920fe0f20cd451",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2f1a5f64_10bd38c1",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 605,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-11-27T16:51:04Z",
+      "side": 1,
+      "message": "I agree we should close the hole; I felt dirty writing that comment but wasn\u0027t sure how much work it was worth to fix it. It shouldn\u0027t be *that* bad to fix for real, let me take a swing at it.\n\nChris, if you run into other issues like this with return breaking things, please let me know. It shouldn\u0027t be doing that.",
+      "parentUuid": "53b29973_ee515cbd",
+      "revId": "e5244f15bbab2ecac5b43b5824920fe0f20cd451",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
