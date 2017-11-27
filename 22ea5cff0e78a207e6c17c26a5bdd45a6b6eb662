@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "18dd58d2_f3a21e07",
+        "filename": "gn/gen_plist_ios.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-11-27T20:03:03Z",
+      "side": 1,
+      "message": "These keys are new -- they need to be there to run cleanly in the simulator. The numbers don\u0027t matter as we\u0027re not releasing our tools on the App Store.",
+      "range": {
+        "startLine": 22,
+        "startChar": 0,
+        "endLine": 23,
+        "endChar": 64
+      },
+      "revId": "22ea5cff0e78a207e6c17c26a5bdd45a6b6eb662",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
