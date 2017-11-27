@@ -110,7 +110,7 @@ is useful to position one or more Bitmaps within a shared pixel array.
 # getPixels            # Returns address of pixels. ##
 # getSubset            # Returns bounds offset by origin. ##
 # hasHardwareMipMap    # Returns Mip_Map support present; Android only. ##
-# height               # Returns pixel row count. ##
+# height()             # Returns pixel row count. ##
 # info()               # Returns Image_Info. ##
 # installMaskPixels    # Creates Pixel_Ref from Mask. ##
 # installPixels        # Creates Pixel_Ref, with optional release function. ##
@@ -477,7 +477,7 @@ width: 56 height: 56 color: BGRA_8888 alpha: Opaque
 
 #Method int width() const
 
-Returns pixel count in each pixel row. Should be equal or less than:
+Returns pixel count in each row. Should be equal or less than:
 
 #Formula
 rowBytes() / info().bytesPerPixel()
@@ -1385,7 +1385,6 @@ Color_Space values, rowBytes of zero is treated as imageInfo.minRowBytes.
 Calls reset() and returns false if:
 #List
 # rowBytes exceeds 31 bits ##
-# imageInfo.width() times imageInfo.bytesPerPixel exceeds 31 bits ##
 # imageInfo.width() is negative ##
 # imageInfo.height() is negative ##
 # rowBytes is positive and less than imageInfo.width() times imageInfo.bytesPerPixel ##
@@ -1446,8 +1445,7 @@ Sets Image_Info to info following the rules in setInfo and allocates pixel
 memory. If flags is kZeroPixels_AllocFlag, memory is zeroed. 
 
 Returns false and calls reset() if Image_Info could not be set, or memory could
-not be allocated, or memory size exceeds 31 bits, or memory could not optionally
-be zeroed.
+not be allocated, or memory could not optionally be zeroed.
 
 On most platforms, allocating pixel memory may succeed even though there is
 not sufficient memory to hold pixels; allocation does not take place
@@ -1464,25 +1462,15 @@ eraseColor(SK_ColorTRANSPARENT).
 #Return  true if pixels allocation is successful ##
 
 #Example
-#Description 
-For width of 100,000, height of 100,000, and 4 bytes per pixel, Pixel_Ref
-requires 40,000,000,000 bytes of storage. Allocator implemented 
-internally by SkMallocPixelRef::MakeZeroed limits the maximum memory allowed;
-the allocation must fit in 31 bits.
-##
     SkBitmap bitmap;
-    int loop = 0;
-    while (++loop) {
-         SkDebugf("attempt %d\n", loop);
-         if (!bitmap.tryAllocPixelsFlags(SkImageInfo::MakeN32(100000, 100000, kOpaque_SkAlphaType), 
-                                         SkBitmap::kZeroPixels_AllocFlag)) {
-            SkDebugf("failed!\n");
-            break;
-         }
+    if (!bitmap.tryAllocPixelsFlags(SkImageInfo::MakeN32(10000, 10000, kOpaque_SkAlphaType), 
+                                    SkBitmap::kZeroPixels_AllocFlag)) {
+        SkDebugf("bitmap allocation failed!\n");
+    } else {
+        SkDebugf("bitmap allocation succeeded!\n");
     }
 #StdOut
-attempt 1
-failed!
+bitmap allocation succeeded!
 ##
 ##
 
@@ -1498,7 +1486,7 @@ Sets Image_Info to info following the rules in setInfo and allocates pixel
 memory. If flags is kZeroPixels_AllocFlag, memory is zeroed. 
 
 Aborts execution if Image_Info could not be set, or memory could
-not be allocated, or memory size exceeds 31 bits, or memory could not optionally
+not be allocated, or memory could not optionally
 be zeroed. Abort steps may be provided by the user at compile time by defining
 SK_ABORT.
 
@@ -1593,7 +1581,7 @@ memory. rowBytes must equal or exceed info.width() times info.bytesPerPixel(),
 or equal zero. Pass in zero for rowBytes to compute the minimum valid value.
 
 Aborts execution if Image_Info could not be set, or memory could
-not be allocated, or memory size exceeds 31 bits. Abort steps may be provided by
+not be allocated. Abort steps may be provided by
 the user at compile time by defining SK_ABORT.
 
 On most platforms, allocating pixel memory may succeed even though there is
@@ -1665,7 +1653,7 @@ Sets Image_Info to info following the rules in setInfo and allocates pixel
 memory. 
 
 Aborts execution if Image_Info could not be set, or memory could
-not be allocated, or memory size exceeds 31 bits. Abort steps may be provided by
+not be allocated. Abort steps may be provided by
 the user at compile time by defining SK_ABORT.
 
 On most platforms, allocating pixel memory may succeed even though there is
@@ -1695,7 +1683,7 @@ for (int y : { 0, 64, 128, 192 } ) {
 
 #Method bool SK_WARN_UNUSED_RESULT tryAllocN32Pixels(int width, int height, bool isOpaque = false)
 
-Sets Image_Info to width, height, and the native Color_Type; and allocates 
+Sets Image_Info to width, height, and Native_Color_Type; and allocates 
 pixel memory. If isOpaque is true, sets Image_Info to kOpaque_SkAlphaType;
 otherwise, sets to kPremul_SkAlphaType.
 
@@ -1704,8 +1692,8 @@ or height is negative.
 
 Returns false if allocation fails.
 
-Use to create Bitmap that matches native pixel arrangement on the platform,
-to draw without converting its pixel format.
+Use to create Bitmap that matches SkPMColor, the native pixel arrangement on
+the platform. Bitmap drawn to output device skips converting its pixel format.
 
 #Param width  pixel column count; must be zero or greater ##
 #Param height  pixel row count; must be zero or greater ##
@@ -1736,7 +1724,7 @@ to draw without converting its pixel format.
 
 #Method void allocN32Pixels(int width, int height, bool isOpaque = false)
 
-Sets Image_Info to width, height, and the native Color_Type; and allocates 
+Sets Image_Info to width, height, and the Native_Color_Type; and allocates 
 pixel memory. If isOpaque is true, sets Image_Info to kPremul_SkAlphaType;
 otherwise, sets to kOpaque_SkAlphaType.
 
@@ -1744,8 +1732,8 @@ Aborts if width exceeds 29 bits or is negative, or height is negative, or
 allocation fails. Abort steps may be provided by the user at compile time by
 defining SK_ABORT.
 
-Use to create Bitmap that matches native pixel arrangement on the platform,
-to draw without converting its pixel format.
+Use to create Bitmap that matches SkPMColor, the native pixel arrangement on
+the platform. Bitmap drawn to output device skips converting its pixel format.
 
 #Param width  pixel column count; must be zero or greater ##
 #Param height  pixel row count; must be zero or greater ##
@@ -2004,8 +1992,7 @@ of Bitmap and Pixel_Ref.
 Allocates pixel memory with HeapAllocator, and replaces existing Pixel_Ref.
 The allocation size is determined by Image_Info width, height, and Color_Type.
 
-Returns false if info().colorType is kUnknown_SkColorType, or allocation exceeds
-31 bits, or allocation fails.
+Returns false if info().colorType is kUnknown_SkColorType, or allocation fails.
 
 #Return  true if the allocation succeeds
 ##
@@ -2041,8 +2028,8 @@ Pixel_Ref with set1.
 Allocates pixel memory with HeapAllocator, and replaces existing Pixel_Ref.
 The allocation size is determined by Image_Info width, height, and Color_Type.
 
-Aborts if info().colorType is kUnknown_SkColorType, or allocation exceeds
-31 bits, or allocation fails. Abort steps may be provided by the user at compile
+Aborts if info().colorType is kUnknown_SkColorType, or allocation fails.
+Abort steps may be provided by the user at compile
 time by defining SK_ABORT.
 
 #Example
@@ -3400,17 +3387,17 @@ pixmap contents become invalid on any future change to Bitmap.
         }
     }
     #StdOut
-    ------
-    --xxx-
-    -x--x-
-    ----x-
-    ---xx-
-    --xx--
-    --x---
-    ------
-    --x---
-    --x---
-    ------
+------
+-xxx--
+x---x-
+----x-
+---x--
+--x---
+--x---
+------
+--x---
+--x---
+------
     #StdOut ##
 ##
 

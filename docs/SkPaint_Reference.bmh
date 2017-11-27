@@ -3109,7 +3109,8 @@ If Paint has no Path_Effect, the path geometry is unaltered when filled or strok
     #Example
     void draw(SkCanvas* canvas) {
         SkPaint paint1, paint2;
-        paint1.setPathEffect(SkArcToPathEffect::Make(10));
+        SkScalar intervals[] = {1, 2};
+        paint1.setPathEffect(SkDashPathEffect::Make(intervals, SK_ARRAY_COUNT(intervals), 10));
         SkDebugf("path effect unique: %s\n", paint1.getPathEffect()->unique() ? "true" : "false");
         paint2.setPathEffect(paint1.refPathEffect());
         SkDebugf("path effect unique: %s\n", paint1.getPathEffect()->unique() ? "true" : "false");
@@ -3476,7 +3477,7 @@ Mask_Filter and Rasterizer.
         SkRegion region;
         region.op( 10, 10, 50, 50, SkRegion::kUnion_Op);
         region.op( 10, 50, 90, 90, SkRegion::kUnion_Op);
-        paint.setImageFilter(SkImageFilter::MakeBlur(5.0f, 5.0f, nullptr));
+        paint.setImageFilter(SkBlurImageFilter::Make(5.0f, 5.0f, nullptr));
         canvas->drawRegion(region, paint);
         paint.setImageFilter(nullptr);
         paint.setMaskFilter(SkBlurMaskFilter::Make(kNormal_SkBlurStyle, 5));
@@ -3496,7 +3497,7 @@ Mask_Filter and Rasterizer.
         void draw(SkCanvas* canvas) {
            SkPaint paint;
            SkDebugf("nullptr %c= image filter\n", paint.getImageFilter() ? '!' : '=');
-           paint.setImageFilter(SkImageFilter::MakeBlur(kOuter_SkBlurStyle, 3, nullptr, nullptr));
+           paint.setImageFilter(SkBlurImageFilter::Make(kOuter_SkBlurStyle, 3, nullptr, nullptr));
            SkDebugf("nullptr %c= image filter\n", paint.getImageFilter() ? '!' : '=');
         }
 

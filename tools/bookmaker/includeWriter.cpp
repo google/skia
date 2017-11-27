@@ -8,6 +8,9 @@
 #include "bookmaker.h"
 
 void IncludeWriter::descriptionOut(const Definition* def) {
+    if ("SkPoint_length" == def->fFiddle) {
+        SkDebugf("");
+    }
     const char* commentStart = def->fContentStart;
     int commentLen = (int) (def->fContentEnd - commentStart);
     bool breakOut = false;
@@ -1024,6 +1027,9 @@ bool IncludeWriter::populate(Definition* def, ParentPair* prevPair, RootDefiniti
                     --continueEnd;
                 }
                 methodName += string(fContinuation, continueEnd - fContinuation);
+                if ("SkIPoint::operator+" == methodName) {
+                    SkDebugf("");
+                }
                 method = root->find(methodName, RootDefinition::AllowParens::kNo);
                 if (!method) {
                     fLineCount = child.fLineCount;
@@ -1080,6 +1086,9 @@ bool IncludeWriter::populate(Definition* def, ParentPair* prevPair, RootDefiniti
             startDef = &child;
             fStart = child.fContentStart;
             methodName = root->fName + "::" + child.fName;
+                if ("SkIPoint::operator+" == methodName) {
+                    SkDebugf("");
+                }
             inConstructor = root->fName == child.fName;
             fContinuation = child.fContentEnd;
             method = root->find(methodName, RootDefinition::AllowParens::kNo);
@@ -1103,7 +1112,6 @@ bool IncludeWriter::populate(Definition* def, ParentPair* prevPair, RootDefiniti
         }
         if (Definition::Type::kKeyWord == child.fType) {
             if (fIndentNext) {
-                SkDebugf("");
     // too soon
 #if 0  // makes struct Lattice indent when it oughtn't
                 if (KeyWord::kEnum == child.fKeyWord) {
@@ -1701,6 +1709,7 @@ IncludeWriter::Wrote IncludeWriter::rewriteBlock(int size, const char* data, Phr
             if (lastPrintable >= lastWrite) {
                 if (' ' == data[lastWrite]) {
                     this->writeSpace();
+                    lastWrite++;
                 }
                 this->writeBlock(lastPrintable - lastWrite + 1, &data[lastWrite]);
             }

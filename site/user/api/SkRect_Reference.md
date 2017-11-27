@@ -24,8 +24,8 @@ integer input cannot convert to <a href="undocumented#SkScalar">SkScalar</a> wit
 
 | description | function |
 | --- | ---  |
-| bool <a href="#SkRect_not_equal_operator">operator!=(const SkRect& a, const SkRect& b)</a> | Returns true if member bits are unequal. |
-| bool <a href="#SkRect_equal_operator">operator==(const SkRect& a, const SkRect& b)</a> | Returns true if member bits are equal. |
+| bool <a href="#SkRect_notequal_operator">operator!=(const SkRect& a, const SkRect& b)</a> | Returns true if members are unequal. |
+| bool <a href="#SkRect_equal_operator">operator==(const SkRect& a, const SkRect& b)</a> | Returns true if members are equal. |
 
 ## <a name="Member_Functions"></a> Member Functions
 
@@ -76,8 +76,8 @@ integer input cannot convert to <a href="undocumented#SkScalar">SkScalar</a> wit
 | <a href="#SkRect_roundIn">roundIn</a> | Sets members to nearest integer value towards opposite. |
 | <a href="#SkRect_roundOut">roundOut</a> | Sets members to nearest integer value away from opposite. |
 | <a href="#SkRect_set">set</a> | Sets to <a href="undocumented#SkScalar">SkScalar</a> input (<a href="#SkRect_left">left</a>, <a href="#SkRect_top">top</a>, <a href="#SkRect_right">right</a>, <a href="#SkRect_bottom">bottom</a>) and others. |
-| <a href="#SkRect_setBounds">setBounds</a> | Sets to upper and lower limits of <a href="undocumented#Point">Point</a> array. |
-| <a href="#SkRect_setBoundsCheck">setBoundsCheck</a> | Sets to upper and lower limits of <a href="undocumented#Point">Point</a> array. |
+| <a href="#SkRect_setBounds">setBounds</a> | Sets to upper and lower limits of <a href="SkPoint_Reference#Point">Point</a> array. |
+| <a href="#SkRect_setBoundsCheck">setBoundsCheck</a> | Sets to upper and lower limits of <a href="SkPoint_Reference#Point">Point</a> array. |
 | <a href="#SkRect_setEmpty">setEmpty</a> | Sets to (0, 0, 0, 0). |
 | <a href="#SkRect_setLTRB">setLTRB</a> | Sets to <a href="undocumented#SkScalar">SkScalar</a> input (<a href="#SkRect_left">left</a>, <a href="#SkRect_top">top</a>, <a href="#SkRect_right">right</a>, <a href="#SkRect_bottom">bottom</a>). |
 | <a href="#SkRect_setLargest">setLargest</a> | Sets to (<a href="undocumented#SK_ScalarMin">SK ScalarMin</a>, <a href="undocumented#SK_ScalarMin">SK ScalarMin</a>, <a href="undocumented#SK_ScalarMax">SK ScalarMax</a>, <a href="undocumented#SK_ScalarMax">SK ScalarMax</a>). |
@@ -85,7 +85,7 @@ integer input cannot convert to <a href="undocumented#SkScalar">SkScalar</a> wit
 | <a href="#SkRect_setWH">setWH</a> | Sets to <a href="undocumented#SkScalar">SkScalar</a> input (0, 0, <a href="#SkRect_width">width</a>, <a href="#SkRect_height">height</a>). |
 | <a href="#SkRect_setXYWH">setXYWH</a> | Sets to <a href="undocumented#SkScalar">SkScalar</a> input (<a href="#SkRect_x">x</a>, <a href="#SkRect_y">y</a>, <a href="#SkRect_width">width</a>, <a href="#SkRect_height">height</a>). |
 | <a href="#SkRect_sort">sort</a> | Orders sides from smaller to larger. |
-| <a href="#SkRect_toQuad">toQuad</a> | Returns four corners as <a href="undocumented#Point">Point</a>. |
+| <a href="#SkRect_toQuad">toQuad</a> | Returns four corners as <a href="SkPoint_Reference#Point">Point</a>. |
 | <a href="#SkRect_top">top</a> | Returns smaller bounds in <a href="#SkRect_y">y</a>, if sorted. |
 | <a href="#SkRect_width">width</a> | Returns span in <a href="#SkRect_x">x</a>. |
 | <a href="#SkRect_x">x</a> | Returns bounds <a href="#SkRect_left">left</a>. |
@@ -114,7 +114,7 @@ vertical values when sorted. When equal to or less than <a href="#SkRect_fTop">f
 <a name="SkRect_MakeEmpty"></a>
 ## MakeEmpty
 
-<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 static constexpr SkRect SK_WARN_UNUSED_RESULT MakeEmpty()
 </pre>
 
@@ -151,7 +151,7 @@ outset rect isEmpty: false
 <a name="SkRect_MakeLargest"></a>
 ## MakeLargest
 
-<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 static SkRect SK_WARN_UNUSED_RESULT MakeLargest()
 </pre>
 
@@ -188,7 +188,7 @@ outset a little more isFinite: false
 <a name="SkRect_MakeLargestS32"></a>
 ## MakeLargestS32
 
-<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 static SkRect SK_WARN_UNUSED_RESULT MakeLargestS32()
 </pre>
 
@@ -225,7 +225,7 @@ f_rect == r_rect
 <a name="SkRect_MakeWH"></a>
 ## MakeWH
 
-<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 static constexpr SkRect SK_WARN_UNUSED_RESULT MakeWH(SkScalar w, SkScalar h)
 </pre>
 
@@ -269,7 +269,7 @@ all equal
 <a name="SkRect_MakeIWH"></a>
 ## MakeIWH
 
-<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 static SkRect SK_WARN_UNUSED_RESULT MakeIWH(int w, int h)
 </pre>
 
@@ -314,7 +314,7 @@ i_rect width: 125000111 f_rect width:125000112
 <a name="SkRect_MakeSize"></a>
 ## MakeSize
 
-<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 static constexpr SkRect SK_WARN_UNUSED_RESULT MakeSize(const SkSize& size)
 </pre>
 
@@ -354,9 +354,8 @@ floor width: 25  height: 35
 <a name="SkRect_MakeLTRB"></a>
 ## MakeLTRB
 
-<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
-static constexpr SkRect SK_WARN_UNUSED_RESULT MakeLTRB(SkScalar l, SkScalar t,
-                                                       SkScalar r, SkScalar b)
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
+static constexpr SkRect SK_WARN_UNUSED_RESULT MakeLTRB(SkScalar l, SkScalar t, SkScalar r, SkScalar b)
 </pre>
 
 Returns constructed <a href="#Rect">Rect</a> <a href="#SkRect_set">set</a> to (<a href="#SkRect_MakeLTRB_l">l</a>, <a href="#SkRect_MakeLTRB_t">t</a>, <a href="#SkRect_MakeLTRB_r">r</a>, <a href="#SkRect_MakeLTRB_b">b</a>). Does not <a href="#SkRect_sort">sort</a> input; <a href="#Rect">Rect</a> may
@@ -401,9 +400,8 @@ rect: 5, 25, 15, 35  isEmpty: false
 <a name="SkRect_MakeXYWH"></a>
 ## MakeXYWH
 
-<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
-static constexpr SkRect SK_WARN_UNUSED_RESULT MakeXYWH(SkScalar x, SkScalar y,
-                                                       SkScalar w, SkScalar h)
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
+static constexpr SkRect SK_WARN_UNUSED_RESULT MakeXYWH(SkScalar x, SkScalar y, SkScalar w, SkScalar h)
 </pre>
 
 Returns constructed <a href="#Rect">Rect</a> <a href="#SkRect_set">set</a> to(<a href="#SkRect_x">x</a>, <a href="#SkRect_y">y</a>, <a href="#SkRect_x">x</a> + <a href="#SkRect_MakeXYWH_w">w</a>, <a href="#SkRect_y">y</a> + <a href="#SkRect_MakeXYWH_h">h</a>). 
@@ -449,7 +447,7 @@ rect: -10, 35, 5, 60  isEmpty: false
 <a name="SkRect_MakeFromIRect"></a>
 ## MakeFromIRect
 
-<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 static SkRect SK_WARN_UNUSED_RESULT MakeFromIRect(const SkIRect& irect)
 </pre>
 
@@ -475,7 +473,7 @@ integer rect</td>
 <a name="SkRect_Make"></a>
 ## Make
 
-<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 static SkRect Make(const SkISize& size)
 </pre>
 
@@ -511,7 +509,7 @@ rect1 == rect2
 
 ---
 
-<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 static SkRect SK_WARN_UNUSED_RESULT Make(const SkIRect& irect)
 </pre>
 
@@ -543,7 +541,7 @@ integer unsorted bounds</td>
 <a name="SkRect_isEmpty"></a>
 ## isEmpty
 
-<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 bool isEmpty() const
 </pre>
 
@@ -579,7 +577,7 @@ sorted: {20, 40, 20, 50} is empty
 <a name="SkRect_isSorted"></a>
 ## isSorted
 
-<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 bool isSorted() const
 </pre>
 
@@ -615,7 +613,7 @@ sorted: {20, 40, 20, 50} is sorted
 <a name="SkRect_isLargest"></a>
 ## isLargest
 
-<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 bool isLargest() const
 </pre>
 
@@ -650,7 +648,7 @@ large is finite: true
 <a name="SkRect_isFinite"></a>
 ## isFinite
 
-<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 bool isFinite() const
 </pre>
 
@@ -684,7 +682,7 @@ widest is finite: false
 <a name="SkRect_x"></a>
 ## x
 
-<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 SkScalar    x() const
 </pre>
 
@@ -717,7 +715,7 @@ sorted.fLeft: 10 sorted.x(): 10
 <a name="SkRect_y"></a>
 ## y
 
-<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 SkScalar    y() const
 </pre>
 
@@ -750,7 +748,7 @@ sorted.fTop: 5 sorted.y(): 5
 <a name="SkRect_left"></a>
 ## left
 
-<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 SkScalar    left() const
 </pre>
 
@@ -783,7 +781,7 @@ sorted.fLeft: 10 sorted.left(): 10
 <a name="SkRect_top"></a>
 ## top
 
-<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 SkScalar    top() const
 </pre>
 
@@ -816,7 +814,7 @@ sorted.fTop: 5 sorted.top(): 5
 <a name="SkRect_right"></a>
 ## right
 
-<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 SkScalar    right() const
 </pre>
 
@@ -849,7 +847,7 @@ sorted.fRight: 15 sorted.right(): 15
 <a name="SkRect_bottom"></a>
 ## bottom
 
-<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 SkScalar    bottom() const
 </pre>
 
@@ -882,11 +880,11 @@ sorted.fBottom: 25 sorted.bottom(): 25
 <a name="SkRect_width"></a>
 ## width
 
-<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 SkScalar    width() const
 </pre>
 
-Returns span on the x-axis. This does not check if <a href="#Rect">Rect</a> is sorted, or if
+Returns span on the <a href="#SkRect_x">x</a>-axis. This does not check if <a href="#Rect">Rect</a> is sorted, or if
 result fits in 32-bit float; result may be negative or infinity.
 
 ### Return Value
@@ -915,11 +913,11 @@ large width: 4294967296
 <a name="SkRect_height"></a>
 ## height
 
-<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 SkScalar    height() const
 </pre>
 
-Returns span on the y-axis. This does not check if <a href="SkIRect_Reference#IRect">IRect</a> is sorted, or if
+Returns span on the <a href="#SkRect_y">y</a>-axis. This does not check if <a href="SkIRect_Reference#IRect">IRect</a> is sorted, or if
 result fits in 32-bit float; result may be negative or infinity.
 
 ### Return Value
@@ -948,7 +946,7 @@ large height: 4294967296
 <a name="SkRect_centerX"></a>
 ## centerX
 
-<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 SkScalar    centerX() const
 </pre>
 
@@ -983,7 +981,7 @@ left: -41 right: -20 centerX: -30.5
 <a name="SkRect_centerY"></a>
 ## centerY
 
-<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 SkScalar    centerY() const
 </pre>
 
@@ -1015,7 +1013,7 @@ left: 2e+38 right: 3e+38 centerX: inf safe mid x: 2.5e+38
 <a name="SkRect_equal_operator"></a>
 ## operator==
 
-<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 bool operator==(const SkRect& a, const SkRect& b)
 </pre>
 
@@ -1055,28 +1053,28 @@ tests are equal
 
 ### See Also
 
-<a href="#SkRect_not_equal_operator">operator!=(const SkRect& a, const SkRect& b)</a>
+<a href="#SkRect_notequal_operator">operator!=(const SkRect& a, const SkRect& b)</a>
 
 ---
 
-<a name="SkRect_not_equal_operator"></a>
+<a name="SkRect_notequal_operator"></a>
 ## operator!=
 
-<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 bool operator!=(const SkRect& a, const SkRect& b)
 </pre>
 
-Returns true if any in <a href="#SkRect_not_equal_operator_a">a</a>: <a href="#SkRect_fLeft">fLeft</a>, <a href="#SkRect_fTop">fTop</a>, <a href="#SkRect_fRight">fRight</a>, and <a href="#SkRect_fBottom">fBottom</a>; does not   
-equal the corresponding members in <a href="#SkRect_not_equal_operator_b">b</a>.
+Returns true if any in <a href="#SkRect_notequal_operator_a">a</a>: <a href="#SkRect_fLeft">fLeft</a>, <a href="#SkRect_fTop">fTop</a>, <a href="#SkRect_fRight">fRight</a>, and <a href="#SkRect_fBottom">fBottom</a>; does not   
+equal the corresponding members in <a href="#SkRect_notequal_operator_b">b</a>.
 
-<a href="#SkRect_not_equal_operator_a">a</a> and <a href="#SkRect_not_equal_operator_b">b</a> are not equal if either contain <a href="undocumented#NaN">NaN</a>. <a href="#SkRect_not_equal_operator_a">a</a> and <a href="#SkRect_not_equal_operator_b">b</a> are equal if members
+<a href="#SkRect_notequal_operator_a">a</a> and <a href="#SkRect_notequal_operator_b">b</a> are not equal if either contain <a href="undocumented#NaN">NaN</a>. <a href="#SkRect_notequal_operator_a">a</a> and <a href="#SkRect_notequal_operator_b">b</a> are equal if members
 contain zeroes <a href="#SkRect_width">width</a> different signs.
 
 ### Parameters
 
-<table>  <tr>    <td><a name="SkRect_not_equal_operator_a"> <code><strong>a </strong></code> </a></td> <td>
+<table>  <tr>    <td><a name="SkRect_notequal_operator_a"> <code><strong>a </strong></code> </a></td> <td>
 <a href="#Rect">Rect</a> to compare</td>
-  </tr>  <tr>    <td><a name="SkRect_not_equal_operator_b"> <code><strong>b </strong></code> </a></td> <td>
+  </tr>  <tr>    <td><a name="SkRect_notequal_operator_b"> <code><strong>b </strong></code> </a></td> <td>
 <a href="#Rect">Rect</a> to compare</td>
   </tr>
 </table>
@@ -1106,12 +1104,12 @@ test with NaN is not equal to itself
 <a name="SkRect_toQuad"></a>
 ## toQuad
 
-<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 void toQuad(SkPoint quad[4]) const
 </pre>
 
-Returns four points in <a href="#SkRect_toQuad_quad">quad</a> that enclose <a href="#Rect">Rect</a> ordered as: top-left, top-right,
-bottom-right, bottom-left. 
+Returns four points in <a href="#SkRect_toQuad_quad">quad</a> that enclose <a href="#Rect">Rect</a> ordered as: <a href="#SkRect_top">top</a>-<a href="#SkRect_left">left</a>, <a href="#SkRect_top">top</a>-<a href="#SkRect_right">right</a>,
+<a href="#SkRect_bottom">bottom</a>-<a href="#SkRect_right">right</a>, <a href="#SkRect_bottom">bottom</a>-<a href="#SkRect_left">left</a>. 
 
 ### Parameters
 
@@ -1142,7 +1140,7 @@ corners: {1, 2} {3, 2} {3, 4} {1, 4}
 <a name="SkRect_setEmpty"></a>
 ## setEmpty
 
-<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 void setEmpty()
 </pre>
 
@@ -1174,7 +1172,7 @@ rect: {0, 0, 0, 0} is empty
 <a name="SkRect_set"></a>
 ## set
 
-<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 void set(const SkIRect& src)
 </pre>
 
@@ -1207,7 +1205,7 @@ f_rect: {3, 4, 1, 2}
 
 ---
 
-<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 void set(SkScalar left, SkScalar top, SkScalar right, SkScalar bottom)
 </pre>
 
@@ -1250,7 +1248,7 @@ rect2: {3, 4, 1, 2}
 <a name="SkRect_setLTRB"></a>
 ## setLTRB
 
-<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 void setLTRB(SkScalar left, SkScalar top, SkScalar right, SkScalar bottom)
 </pre>
 
@@ -1293,7 +1291,7 @@ rect2: {3, 4, 1, 2}
 <a name="SkRect_iset"></a>
 ## iset
 
-<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 void iset(int left, int top, int right, int bottom)
 </pre>
 
@@ -1337,7 +1335,7 @@ rect2: {3, 4, 1, 2}
 <a name="SkRect_isetWH"></a>
 ## isetWH
 
-<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 void isetWH(int width, int height)
 </pre>
 
@@ -1373,12 +1371,12 @@ rect2: {0, 0, 1, 2}
 
 ---
 
-<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 void set(const SkPoint pts[], int count)
 </pre>
 
-Sets to bounds of <a href="undocumented#Point">Point</a> array with <a href="#SkRect_set_3_count">count</a> entries. If <a href="#SkRect_set_3_count">count</a> is zero or smaller,
-or if <a href="undocumented#Point">Point</a> array <a href="#SkRect_contains">contains</a> an infinity or <a href="undocumented#NaN">NaN</a>, sets <a href="#Rect">Rect</a> to (0, 0, 0, 0).
+Sets to bounds of <a href="SkPoint_Reference#Point">Point</a> array with <a href="#SkRect_set_3_count">count</a> entries. If <a href="#SkRect_set_3_count">count</a> is zero or smaller,
+or if <a href="SkPoint_Reference#Point">Point</a> array <a href="#SkRect_contains">contains</a> an infinity or <a href="undocumented#NaN">NaN</a>, sets <a href="#Rect">Rect</a> to (0, 0, 0, 0).
 
 Result is either empty or sorted: <a href="#SkRect_fLeft">fLeft</a> is less than or equal to <a href="#SkRect_fRight">fRight</a>, and
 <a href="#SkRect_fTop">fTop</a> is less than or equal to <a href="#SkRect_fBottom">fBottom</a>.
@@ -1386,7 +1384,7 @@ Result is either empty or sorted: <a href="#SkRect_fLeft">fLeft</a> is less than
 ### Parameters
 
 <table>  <tr>    <td><a name="SkRect_set_3_pts"> <code><strong>pts </strong></code> </a></td> <td>
-<a href="undocumented#Point">Point</a> array</td>
+<a href="SkPoint_Reference#Point">Point</a> array</td>
   </tr>  <tr>    <td><a name="SkRect_set_3_count"> <code><strong>count </strong></code> </a></td> <td>
 entries in array</td>
   </tr>
@@ -1417,12 +1415,12 @@ added: nan, 8 count: 4 rect: 0, 0, 0, 0
 <a name="SkRect_setBounds"></a>
 ## setBounds
 
-<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 void setBounds(const SkPoint pts[], int count)
 </pre>
 
-Sets to bounds of <a href="undocumented#Point">Point</a> array with <a href="#SkRect_setBounds_count">count</a> entries. If <a href="#SkRect_setBounds_count">count</a> is zero or smaller,
-or if <a href="undocumented#Point">Point</a> array <a href="#SkRect_contains">contains</a> an infinity or <a href="undocumented#NaN">NaN</a>, sets to (0, 0, 0, 0).
+Sets to bounds of <a href="SkPoint_Reference#Point">Point</a> array with <a href="#SkRect_setBounds_count">count</a> entries. If <a href="#SkRect_setBounds_count">count</a> is zero or smaller,
+or if <a href="SkPoint_Reference#Point">Point</a> array <a href="#SkRect_contains">contains</a> an infinity or <a href="undocumented#NaN">NaN</a>, sets to (0, 0, 0, 0).
 
 Result is either empty or sorted: <a href="#SkRect_fLeft">fLeft</a> is less than or equal to <a href="#SkRect_fRight">fRight</a>, and
 <a href="#SkRect_fTop">fTop</a> is less than or equal to <a href="#SkRect_fBottom">fBottom</a>.
@@ -1430,7 +1428,7 @@ Result is either empty or sorted: <a href="#SkRect_fLeft">fLeft</a> is less than
 ### Parameters
 
 <table>  <tr>    <td><a name="SkRect_setBounds_pts"> <code><strong>pts </strong></code> </a></td> <td>
-<a href="undocumented#Point">Point</a> array</td>
+<a href="SkPoint_Reference#Point">Point</a> array</td>
   </tr>  <tr>    <td><a name="SkRect_setBounds_count"> <code><strong>count </strong></code> </a></td> <td>
 entries in array</td>
   </tr>
@@ -1461,12 +1459,12 @@ added: nan, 8 count: 4 rect: 0, 0, 0, 0
 <a name="SkRect_setBoundsCheck"></a>
 ## setBoundsCheck
 
-<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 bool setBoundsCheck(const SkPoint pts[], int count)
 </pre>
 
-Sets to bounds of <a href="undocumented#Point">Point</a> array with <a href="#SkRect_setBoundsCheck_count">count</a> entries. Returns false if <a href="#SkRect_setBoundsCheck_count">count</a> is
-zero or smaller, or if <a href="undocumented#Point">Point</a> array <a href="#SkRect_contains">contains</a> an infinity or <a href="undocumented#NaN">NaN</a>; in these cases
+Sets to bounds of <a href="SkPoint_Reference#Point">Point</a> array with <a href="#SkRect_setBoundsCheck_count">count</a> entries. Returns false if <a href="#SkRect_setBoundsCheck_count">count</a> is
+zero or smaller, or if <a href="SkPoint_Reference#Point">Point</a> array <a href="#SkRect_contains">contains</a> an infinity or <a href="undocumented#NaN">NaN</a>; in these cases
 sets <a href="#Rect">Rect</a> to (0, 0, 0, 0).
 
 Result is either empty or sorted: <a href="#SkRect_fLeft">fLeft</a> is less than or equal to <a href="#SkRect_fRight">fRight</a>, and
@@ -1475,7 +1473,7 @@ Result is either empty or sorted: <a href="#SkRect_fLeft">fLeft</a> is less than
 ### Parameters
 
 <table>  <tr>    <td><a name="SkRect_setBoundsCheck_pts"> <code><strong>pts </strong></code> </a></td> <td>
-<a href="undocumented#Point">Point</a> array</td>
+<a href="SkPoint_Reference#Point">Point</a> array</td>
   </tr>  <tr>    <td><a name="SkRect_setBoundsCheck_count"> <code><strong>count </strong></code> </a></td> <td>
 entries in array</td>
   </tr>
@@ -1483,7 +1481,7 @@ entries in array</td>
 
 ### Return Value
 
-true if all <a href="undocumented#Point">Point</a> values are finite
+true if all <a href="SkPoint_Reference#Point">Point</a> values are finite
 
 ### Example
 
@@ -1507,7 +1505,7 @@ added: nan, 8 count: 4 rect: 0, 0, 0, 0 success: false
 
 ---
 
-<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 void set(const SkPoint& p0, const SkPoint& p1)
 </pre>
 
@@ -1536,7 +1534,7 @@ corner to include</td>
 <a name="SkRect_setXYWH"></a>
 ## setXYWH
 
-<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 void setXYWH(SkScalar x, SkScalar y, SkScalar width, SkScalar height)
 </pre>
 
@@ -1579,7 +1577,7 @@ rect: -10, 35, 5, 60  isEmpty: false
 <a name="SkRect_setWH"></a>
 ## setWH
 
-<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 void setWH(SkScalar width, SkScalar height)
 </pre>
 
@@ -1617,7 +1615,7 @@ rect: -15, 0, 0, 25  isEmpty: false
 <a name="SkRect_setLargest"></a>
 ## setLargest
 
-<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 void setLargest()
 </pre>
 
@@ -1650,7 +1648,7 @@ outset a little more isFinite: false
 <a name="SkRect_setLargestInverted"></a>
 ## setLargestInverted
 
-<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 void setLargestInverted()
 </pre>
 
@@ -1681,7 +1679,7 @@ grown rect: 42, 24, 42, 24  isEmpty: true
 <a name="SkRect_makeOffset"></a>
 ## makeOffset
 
-<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 SkRect makeOffset(SkScalar dx, SkScalar dy) const
 </pre>
 
@@ -1727,7 +1725,7 @@ rect: 25, 82, 35, 92  isEmpty: false
 <a name="SkRect_makeInset"></a>
 ## makeInset
 
-<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 SkRect makeInset(SkScalar dx, SkScalar dy) const
 </pre>
 
@@ -1773,7 +1771,7 @@ rect: 25, 82, 5, 28  isEmpty: true
 <a name="SkRect_makeOutset"></a>
 ## makeOutset
 
-<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 SkRect makeOutset(SkScalar dx, SkScalar dy) const
 </pre>
 
@@ -1819,7 +1817,7 @@ rect: -5, 18, 35, 92  isEmpty: false
 <a name="SkRect_offset"></a>
 ## offset
 
-<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 void offset(SkScalar dx, SkScalar dy)
 </pre>
 
@@ -1857,7 +1855,7 @@ rect: 15, 27, 55, 86
 
 ---
 
-<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 void offset(const SkPoint& delta)
 </pre>
 
@@ -1897,7 +1895,7 @@ rect: 15, 27, 55, 86
 <a name="SkRect_offsetTo"></a>
 ## offsetTo
 
-<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 void offsetTo(SkScalar newX, SkScalar newY)
 </pre>
 
@@ -1934,7 +1932,7 @@ rect: 15, 27, 55, 86
 <a name="SkRect_inset"></a>
 ## inset
 
-<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 void inset(SkScalar dx, SkScalar dy)
 </pre>
 
@@ -1975,7 +1973,7 @@ rect: 15, 27, 45, 60
 <a name="SkRect_outset"></a>
 ## outset
 
-<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 void outset(SkScalar dx, SkScalar dy)
 </pre>
 
@@ -2027,7 +2025,7 @@ describes an area: <a href="#SkRect_fLeft">fLeft</a> is less than <a href="#SkRe
 <a name="SkRect_intersect"></a>
 ## intersect
 
-<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 bool intersect(const SkRect& r)
 </pre>
 
@@ -2067,7 +2065,7 @@ intersection: 30, 60, 50, 80
 
 ---
 
-<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 bool intersect(SkScalar left, SkScalar top, SkScalar right, SkScalar bottom)
 </pre>
 
@@ -2116,7 +2114,7 @@ intersection: 30, 60, 50, 80
 
 ---
 
-<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 bool SK_WARN_UNUSED_RESULT intersect(const SkRect& a, const SkRect& b)
 </pre>
 
@@ -2159,7 +2157,7 @@ intersection: 30, 60, 50, 80
 <a name="SkRect_intersects"></a>
 ## intersects
 
-<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 bool intersects(SkScalar left, SkScalar top, SkScalar right, SkScalar bottom) const
 </pre>
 
@@ -2204,7 +2202,7 @@ intersection
 
 ---
 
-<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 bool intersects(const SkRect& r) const
 </pre>
 
@@ -2243,7 +2241,7 @@ intersection
 <a name="SkRect_Intersects"></a>
 ## Intersects
 
-<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 static bool Intersects(const SkRect& a, const SkRect& b)
 </pre>
 
@@ -2284,7 +2282,7 @@ intersection
 <a name="SkRect_join"></a>
 ## join
 
-<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 void join(SkScalar left, SkScalar top, SkScalar right, SkScalar bottom)
 </pre>
 
@@ -2327,7 +2325,7 @@ join: 10, 20, 55, 65
 
 ---
 
-<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 void join(const SkRect& r)
 </pre>
 
@@ -2364,7 +2362,7 @@ join: 10, 20, 55, 65
 <a name="SkRect_joinNonEmptyArg"></a>
 ## joinNonEmptyArg
 
-<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 void joinNonEmptyArg(const SkRect& r)
 </pre>
 
@@ -2404,7 +2402,7 @@ sorted: 10, 0, 55, 100
 <a name="SkRect_joinPossiblyEmptyRect"></a>
 ## joinPossiblyEmptyRect
 
-<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 void joinPossiblyEmptyRect(const SkRect& r)
 </pre>
 
@@ -2441,7 +2439,7 @@ sorted: 10, 0, 55, 100
 <a name="SkRect_growToInclude"></a>
 ## growToInclude
 
-<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 void growToInclude(SkPoint pt)
 </pre>
 
@@ -2455,7 +2453,7 @@ If <a href="#Rect">Rect</a> is initialized with <a href="#SkRect_setLargestInver
 ### Parameters
 
 <table>  <tr>    <td><a name="SkRect_growToInclude_pt"> <code><strong>pt </strong></code> </a></td> <td>
-<a href="undocumented#Point">Point</a> to include</td>
+<a href="SkPoint_Reference#Point">Point</a> to include</td>
   </tr>
 </table>
 
@@ -2477,11 +2475,11 @@ rect: 42, 24, 42, 24  isEmpty: true
 
 ---
 
-<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 void growToInclude(const SkPoint pts[], int count)
 </pre>
 
-For each of <a href="#SkRect_growToInclude_2_count">count</a> <a href="undocumented#Point">Point</a> in <a href="#SkRect_growToInclude_2_pts">pts</a>, grows <a href="#Rect">Rect</a> to include (pt.fX, pt.fY), modifying
+For each of <a href="#SkRect_growToInclude_2_count">count</a> <a href="SkPoint_Reference#Point">Point</a> in <a href="#SkRect_growToInclude_2_pts">pts</a>, grows <a href="#Rect">Rect</a> to include (pt.fX, pt.fY), modifying
 it so that:
 <a href="#SkRect_fLeft">fLeft</a> <= pt.fX <= <a href="#SkRect_fRight">fRight</a> && <a href="#SkRect_fTop">fTop</a> <= pt.fY <= <a href="#SkRect_fBottom">fBottom</a>.
 
@@ -2491,7 +2489,7 @@ If <a href="#Rect">Rect</a> is initialized with <a href="#SkRect_setLargestInver
 ### Parameters
 
 <table>  <tr>    <td><a name="SkRect_growToInclude_2_pts"> <code><strong>pts </strong></code> </a></td> <td>
-<a href="undocumented#Point">Point</a> array</td>
+<a href="SkPoint_Reference#Point">Point</a> array</td>
   </tr>  <tr>    <td><a name="SkRect_growToInclude_2_count"> <code><strong>count </strong></code> </a></td> <td>
 number of points in array</td>
   </tr>
@@ -2515,16 +2513,16 @@ rect: 30, 50, 40, 60
 
 ---
 
-<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 void growToInclude(const SkPoint pts[], size_t stride, int count)
 </pre>
 
-For each of <a href="#SkRect_growToInclude_3_count">count</a> <a href="undocumented#Point">Point</a> in <a href="#SkRect_growToInclude_3_pts">pts</a>, grows <a href="#Rect">Rect</a> to include (pt.fX, pt.fY), modifying
+For each of <a href="#SkRect_growToInclude_3_count">count</a> <a href="SkPoint_Reference#Point">Point</a> in <a href="#SkRect_growToInclude_3_pts">pts</a>, grows <a href="#Rect">Rect</a> to include (pt.fX, pt.fY), modifying
 it so that:
 <a href="#SkRect_fLeft">fLeft</a> <= pt.fX <= <a href="#SkRect_fRight">fRight</a> && <a href="#SkRect_fTop">fTop</a> <= pt.fY <= <a href="#SkRect_fBottom">fBottom</a>. 
 
-<a href="undocumented#Point">Point</a> may be followed with other data in each array element. <a href="#SkRect_growToInclude_3_stride">stride</a> is number
-of bytes in element; the interval to skip to advance from one <a href="undocumented#Point">Point</a> to
+<a href="SkPoint_Reference#Point">Point</a> may be followed with other data in each array element. <a href="#SkRect_growToInclude_3_stride">stride</a> is number
+of bytes in element; the interval to skip to advance from one <a href="SkPoint_Reference#Point">Point</a> to
 the next.
 
 If <a href="#Rect">Rect</a> is initialized with <a href="#SkRect_setLargestInverted">setLargestInverted</a>, then <a href="#Rect">Rect</a> will contain bounds of
@@ -2533,7 +2531,7 @@ If <a href="#Rect">Rect</a> is initialized with <a href="#SkRect_setLargestInver
 ### Parameters
 
 <table>  <tr>    <td><a name="SkRect_growToInclude_3_pts"> <code><strong>pts </strong></code> </a></td> <td>
-array of elements beginning with <a href="undocumented#Point">Point</a></td>
+array of elements beginning with <a href="SkPoint_Reference#Point">Point</a></td>
   </tr>  <tr>    <td><a name="SkRect_growToInclude_3_stride"> <code><strong>stride </strong></code> </a></td> <td>
 size of <a href="#SkRect_growToInclude_3_pts">pts</a> elements in 32-bit words; zero or greater</td>
   </tr>  <tr>    <td><a name="SkRect_growToInclude_3_count"> <code><strong>count </strong></code> </a></td> <td>
@@ -2563,7 +2561,7 @@ rect: 30, 50, 40, 60
 <a name="SkRect_contains"></a>
 ## contains
 
-<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 bool contains(const SkRect& r) const
 </pre>
 
@@ -2603,7 +2601,7 @@ rect: (30, 50, 40, 60) does not contain (29, 59, 30, 60)
 
 ---
 
-<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 bool contains(const SkIRect& r) const
 </pre>
 
@@ -2648,7 +2646,7 @@ rect: (30, 50, 40, 60) does not contain (29, 59, 30, 60)
 <a name="SkRect_round"></a>
 ## round
 
-<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 void round(SkIRect* dst) const
 </pre>
 
@@ -2683,7 +2681,7 @@ round: 31, 51, 41, 61
 <a name="SkRect_roundOut"></a>
 ## roundOut
 
-<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 void roundOut(SkIRect* dst) const
 </pre>
 
@@ -2715,7 +2713,7 @@ round: 30, 50, 41, 61
 
 ---
 
-<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 void roundOut(SkRect* dst) const
 </pre>
 
@@ -2750,7 +2748,7 @@ round: 30, 50, 41, 61
 <a name="SkRect_roundIn"></a>
 ## roundIn
 
-<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 void roundIn(SkIRect* dst) const
 </pre>
 
@@ -2782,7 +2780,7 @@ round: 31, 51, 40, 60
 
 ---
 
-<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 SkIRect round() const
 </pre>
 
@@ -2811,7 +2809,7 @@ round: 31, 51, 41, 61
 
 ---
 
-<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 SkIRect roundOut() const
 </pre>
 
@@ -2843,7 +2841,7 @@ round: 30, 50, 41, 61
 <a name="SkRect_sort"></a>
 ## sort
 
-<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 void sort()
 </pre>
 
@@ -2873,7 +2871,7 @@ sorted: 20.5, 10.5, 30.5, 50.5
 <a name="SkRect_makeSorted"></a>
 ## makeSorted
 
-<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 SkRect makeSorted() const
 </pre>
 
@@ -2907,7 +2905,7 @@ sorted: 20.5, 10.5, 30.5, 50.5
 <a name="SkRect_asScalars"></a>
 ## asScalars
 
-<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 const SkScalar* asScalars() const
 </pre>
 
@@ -2939,7 +2937,7 @@ rect.asScalars() == &rect.fLeft
 <a name="SkRect_dump"></a>
 ## dump
 
-<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 void dump(bool asHex) const
 </pre>
 
@@ -2975,7 +2973,7 @@ SkBits2Float(0x42480000)  /* 50.000000 */);
 
 ---
 
-<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 void dump() const
 </pre>
 
@@ -3006,7 +3004,7 @@ rect is not equal to copy
 <a name="SkRect_dumpHex"></a>
 ## dumpHex
 
-<pre style="padding: 1em 1em 1em 1em;width: 50em; background-color: #f0f0f0">
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 void dumpHex() const
 </pre>
 

@@ -214,7 +214,7 @@ bool SpellCheck::check(Definition* def) {
                 method_name += "()";
             }
             string formattedStr = def->formatFunction();
-            if (!def->isClone()) {
+            if (!def->isClone() && Definition::MethodType::kOperator != def->fMethodType) {
                 this->wordCheck(method_name);
             }
             fTableState = TableState::kNone;
@@ -613,7 +613,9 @@ void SpellCheck::wordCheck(const string& str) {
         std::istringstream ss(str);
         string token;
         while (std::getline(ss, token, '_')) {
-            this->wordCheck(token);
+            if (token.length()) {
+                this->wordCheck(token);
+            }
         }
         return;
     }

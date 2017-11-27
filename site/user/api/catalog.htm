@@ -47,7 +47,7 @@
     "hash": "fe79a9c1ec350264eb9c7b2509dd3638",
     "file": "SkBitmap_Reference",
     "name": "SkBitmap::HeapAllocator::allocPixelRef",
-        "stdout": "pixel address = (nil)\\npixel address = 0x5642246ef670\\n"
+        "stdout": "pixel address = (nil)\\npixel address = 0x55f1363e3670\\n"
     },
         "SkBitmap_alphaType": {
     "code": "void draw(SkCanvas* canvas) {\n    const char* alphas[] = {\"Unknown\", \"Opaque\", \"Premul\", \"Unpremul\"};\n    SkPixmap pixmap(SkImageInfo::MakeA8(16, 32), nullptr, 64);\n    SkDebugf(\"alpha type: k\" \"%s\" \"_SkAlphaType\\n\", alphas[pixmap.alphaType()]);\n}",
@@ -84,18 +84,18 @@
     "name": "SkBitmap::computeByteSize",
         "stdout": "width:       1 height:       1 computeByteSize:             4\\nwidth:       1 height:    1000 computeByteSize:          4999\\nwidth:       1 height: 1000000 computeByteSize:       4999999\\nwidth:    1000 height:       1 computeByteSize:          4000\\nwidth:    1000 height:    1000 computeByteSize:       4999000\\nwidth:    1000 height: 1000000 computeByteSize:    4999999000\\nwidth: 1000000 height:       1 computeByteSize:       4000000\\nwidth: 1000000 height:    1000 computeByteSize:    4999000000\\nwidth: 1000000 height: 1000000 computeByteSize: 4999999000000\\n"
     },
-        "SkBitmap_copy_assignment_operator": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkBitmap original;\n    original.tryAllocPixels(SkImageInfo::Make(25, 35, kRGBA_8888_SkColorType, kOpaque_SkAlphaType));\n    SkDebugf(\"original has pixels before copy: %s\\n\", original.getPixels() ? \"true\" : \"false\");\n    SkBitmap copy = original;  \n    SkDebugf(\"original has pixels after copy: %s\\n\", original.getPixels() ? \"true\" : \"false\");\n    SkDebugf(\"copy has pixels: %s\\n\", copy.getPixels() ? \"true\" : \"false\");\n}\n",
-    "hash": "6366fa1b1b3df1bebbfa3ed1c5a43457",
-    "file": "SkBitmap_Reference",
-    "name": "SkBitmap::operator=(const SkBitmap& src)",
-        "stdout": "original has pixels before copy: true\\noriginal has pixels after copy: true\\ncopy has pixels: true\\n"
-    },
         "SkBitmap_copy_const_SkBitmap": {
     "code": "void draw(SkCanvas* canvas) {\n    SkBitmap original;\n    original.tryAllocPixels(SkImageInfo::Make(25, 35, kRGBA_8888_SkColorType, kOpaque_SkAlphaType));\n    SkDebugf(\"original has pixels before copy: %s\\n\", original.getPixels() ? \"true\" : \"false\");\n    SkBitmap copy(original);  \n    SkDebugf(\"original has pixels after copy: %s\\n\", original.getPixels() ? \"true\" : \"false\");\n    SkDebugf(\"copy has pixels: %s\\n\", copy.getPixels() ? \"true\" : \"false\");\n}\n",
     "hash": "dbf46a0b60324ec611cc18d86772e7b9",
     "file": "SkBitmap_Reference",
     "name": "SkBitmap::SkBitmap(const SkBitmap& src)",
+        "stdout": "original has pixels before copy: true\\noriginal has pixels after copy: true\\ncopy has pixels: true\\n"
+    },
+        "SkBitmap_copy_operator": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkBitmap original;\n    original.tryAllocPixels(SkImageInfo::Make(25, 35, kRGBA_8888_SkColorType, kOpaque_SkAlphaType));\n    SkDebugf(\"original has pixels before copy: %s\\n\", original.getPixels() ? \"true\" : \"false\");\n    SkBitmap copy = original;  \n    SkDebugf(\"original has pixels after copy: %s\\n\", original.getPixels() ? \"true\" : \"false\");\n    SkDebugf(\"copy has pixels: %s\\n\", copy.getPixels() ? \"true\" : \"false\");\n}\n",
+    "hash": "6366fa1b1b3df1bebbfa3ed1c5a43457",
+    "file": "SkBitmap_Reference",
+    "name": "SkBitmap::operator=(const SkBitmap& src)",
         "stdout": "original has pixels before copy: true\\noriginal has pixels after copy: true\\ncopy has pixels: true\\n"
     },
         "SkBitmap_dimensions": {
@@ -245,7 +245,7 @@
     "name": "SkBitmap::SkBitmap(SkBitmap&& src)",
         "stdout": "original has pixels before move: true\\noriginal has pixels after move: false\\ncopy has pixels: true\\n"
     },
-        "SkBitmap_move_assignment_operator": {
+        "SkBitmap_move_operator": {
     "code": "void draw(SkCanvas* canvas) {\n    SkBitmap original;\n    original.tryAllocPixels(SkImageInfo::Make(25, 35, kRGBA_8888_SkColorType, kOpaque_SkAlphaType));\n    SkDebugf(\"original has pixels before move: %s\\n\", original.getPixels() ? \"true\" : \"false\");\n    SkBitmap copy = std::move(original);  \n    SkDebugf(\"original has pixels after move: %s\\n\", original.getPixels() ? \"true\" : \"false\");\n    SkDebugf(\"copy has pixels: %s\\n\", copy.getPixels() ? \"true\" : \"false\");\n}\n",
     "hash": "5066583054077df5098bb1d2aa402149",
     "file": "SkBitmap_Reference",
@@ -257,7 +257,7 @@
     "hash": "0cc2c6a0dffa61a88711534bd3d43b40",
     "file": "SkBitmap_Reference",
     "name": "SkBitmap::peekPixels",
-        "stdout": "------\\n--xxx-\\n-x--x-\\n----x-\\n---xx-\\n--xx--\\n--x---\\n------\\n--x---\\n--x---\\n------\\n"
+        "stdout": "------\\n-xxx--\\nx---x-\\n----x-\\n---x--\\n--x---\\n--x---\\n------\\n--x---\\n--x---\\n------\\n"
     },
         "SkBitmap_pixelRef": {
     "code": "void draw(SkCanvas* canvas) {\n    SkBitmap subset;\n    source.extractSubset(&subset, SkIRect::MakeXYWH(32, 64, 128, 256));\n    SkDebugf(\"src ref %c= sub ref\\n\", source.pixelRef() == subset.pixelRef() ? '=' : '!');\n    SkDebugf(\"src pixels %c= sub pixels\\n\", source.getPixels() == subset.getPixels() ? '=' : '!');\n    SkDebugf(\"src addr %c= sub addr\\n\", source.getAddr(32, 64) == subset.getAddr(0, 0) ? '=' : '!');\n}",
@@ -337,11 +337,11 @@
         "stdout": "bitmap dimensions (6, 11)\\n"
     },
         "SkBitmap_tryAllocPixelsFlags": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkBitmap bitmap;\n    int loop = 0;\n    while (++loop) {\n         SkDebugf(\"attempt %d\\n\", loop);\n         if (!bitmap.tryAllocPixelsFlags(SkImageInfo::MakeN32(100000, 100000, kOpaque_SkAlphaType), \n                                         SkBitmap::kZeroPixels_AllocFlag)) {\n            SkDebugf(\"failed!\\n\");\n            break;\n         }\n    }\n}",
-    "hash": "01e11c52fe4a3dc7ee800ce8e925b973",
+    "code": "void draw(SkCanvas* canvas) {\n    SkBitmap bitmap;\n    if (!bitmap.tryAllocPixelsFlags(SkImageInfo::MakeN32(10000, 10000, kOpaque_SkAlphaType), \n                                    SkBitmap::kZeroPixels_AllocFlag)) {\n        SkDebugf(\"bitmap allocation failed!\\n\");\n    } else {\n        SkDebugf(\"bitmap allocation succeeded!\\n\");\n    }\n}",
+    "hash": "4fff5f5034ced615ad5a1d50c40aeff3",
     "file": "SkBitmap_Reference",
     "name": "SkBitmap::tryAllocPixelsFlags",
-        "stdout": "attempt 1\\nfailed!\\n"
+        "stdout": "bitmap allocation succeeded!\\n"
     },
         "SkBitmap_width": {
     "code": "void draw(SkCanvas* canvas) {\n    SkImageInfo info = SkImageInfo::MakeA8(16, 32);\n    SkBitmap bitmap;\n    bitmap.setInfo(info);\n    SkDebugf(\"bitmap width: %d  info width: %d\\n\", bitmap.width(), info.width());\n}",
@@ -351,8 +351,8 @@
         "stdout": "bitmap width: 16  info width: 16\\n"
     },
         "SkCanvas_MakeRasterDirect": {
-    "code": "void draw(SkCanvas* ) {\n    SkImageInfo info = SkImageInfo::MakeN32Premul(3, 3);  // device aligned, 32 bpp, Premultiplied\n    const size_t minRowBytes = info.minRowBytes();  // bytes used by one bitmap row\n    const size_t size = info.getSafeSize(minRowBytes);  // bytes used by all rows\n    SkAutoTMalloc<SkPMColor> storage(size);  // allocate storage for pixels\n    SkPMColor* pixels = storage.get();  // get pointer to allocated storage\n    // create a SkCanvas backed by a raster device, and delete it when the\n    // function goes out of scope.\n    std::unique_ptr<SkCanvas> canvas = SkCanvas::MakeRasterDirect(info, pixels, minRowBytes);\n    canvas->clear(SK_ColorWHITE);  // white is Unpremultiplied, in ARGB order\n    canvas->flush();  // ensure that pixels are cleared\n    SkPMColor pmWhite = pixels[0];  // the Premultiplied format may vary\n    SkPaint paint;  // by default, draws black\n    canvas->drawPoint(1, 1, paint);  // draw in the center\n    canvas->flush();  // ensure that point was drawn\n    for (int y = 0; y < info.height(); ++y) {\n        for (int x = 0; x < info.width(); ++x) {\n            SkDebugf(\"%c\", *pixels++ == pmWhite ? '-' : 'x');\n        }\n        SkDebugf(\"\\n\");\n    }\n}\n",
-    "hash": "11be884b8b4213a450b6dc43673bf807",
+    "code": "void draw(SkCanvas* ) {\n    SkImageInfo info = SkImageInfo::MakeN32Premul(3, 3);  // device aligned, 32 bpp, Premultiplied\n    const size_t minRowBytes = info.minRowBytes();  // bytes used by one bitmap row\n    const size_t size = info.computeMinByteSize();  // bytes used by all rows\n    SkAutoTMalloc<SkPMColor> storage(size);  // allocate storage for pixels\n    SkPMColor* pixels = storage.get();  // get pointer to allocated storage\n    // create a SkCanvas backed by a raster device, and delete it when the\n    // function goes out of scope.\n    std::unique_ptr<SkCanvas> canvas = SkCanvas::MakeRasterDirect(info, pixels, minRowBytes);\n    canvas->clear(SK_ColorWHITE);  // white is Unpremultiplied, in ARGB order\n    canvas->flush();  // ensure that pixels are cleared\n    SkPMColor pmWhite = pixels[0];  // the Premultiplied format may vary\n    SkPaint paint;  // by default, draws black\n    canvas->drawPoint(1, 1, paint);  // draw in the center\n    canvas->flush();  // ensure that point was drawn\n    for (int y = 0; y < info.height(); ++y) {\n        for (int x = 0; x < info.width(); ++x) {\n            SkDebugf(\"%c\", *pixels++ == pmWhite ? '-' : 'x');\n        }\n        SkDebugf(\"\\n\");\n    }\n}\n",
+    "hash": "525285073aae7e53eb8f454a398f880c",
     "file": "SkCanvas_Reference",
     "name": "SkCanvas::MakeRasterDirect",
         "stdout": "---\\n-x-\\n---\\n"
@@ -566,6 +566,97 @@
     "file": "SkCanvas_Reference",
     "name": "SkCanvas::restoreToCount",
         "stdout": "depth = 1\\ndepth = 3\\ndepth = 1\\n"
+    },
+        "SkIPoint16_Make": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkIPoint16 pt1 = {45, 66};\n    SkIPoint16 pt2 = SkIPoint16::Make(45, 66);\n    SkDebugf(\"pt1.fX %c= pt2.fX\\n\", pt1.fX == pt2.fX ? '=' : '!');\n    SkDebugf(\"pt1.fY %c= pt2.fY\\n\", pt1.fY == pt2.fY ? '=' : '!');\n}",
+    "hash": "d815ca04fbf22b5acec6f85b6351f362",
+    "file": "SkIPoint16_Reference",
+    "name": "SkIPoint16::Make",
+        "stdout": "pt1.fX == pt2.fX\\npt1.fY == pt2.fY\\n"
+    },
+        "SkIPoint16_set": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkIPoint16 pt1, pt2 = { SK_MinS16, SK_MaxS16 };\n    pt1.set(SK_MinS16, SK_MaxS16);\n    SkDebugf(\"pt1.fX %c= pt2.fX\\n\", pt1.fX == pt2.fX ? '=' : '!');\n    SkDebugf(\"pt1.fY %c= pt2.fY\\n\", pt1.fY == pt2.fY ? '=' : '!');\n}",
+    "hash": "abff78d3f2d97b1284ccb13d0c56b6c8",
+    "file": "SkIPoint16_Reference",
+    "name": "SkIPoint16::set()",
+        "stdout": "pt1.fX == pt2.fX\\npt1.fY == pt2.fY\\n"
+    },
+        "SkIPoint16_x": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkIPoint16 pt1 = {45, 66};\n    SkDebugf(\"pt1.fX %c= pt1.x()\\n\", pt1.fX == pt1.x() ? '=' : '!');\n}",
+    "hash": "f7fd3b3674f042869de3582ab793dbf7",
+    "file": "SkIPoint16_Reference",
+    "name": "SkIPoint16::x()",
+        "stdout": "pt1.fX == pt1.x()\\n"
+    },
+        "SkIPoint16_y": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkIPoint16 pt1 = {45, 66};\n    SkDebugf(\"pt1.fY %c= pt1.y()\\n\", pt1.fY == pt1.y() ? '=' : '!');\n}",
+    "hash": "3662cedaf1e9924a401f794902da3b1f",
+    "file": "SkIPoint16_Reference",
+    "name": "SkIPoint16::y()",
+        "stdout": "pt1.fY == pt1.y()\\n"
+    },
+        "SkIPoint_Make": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkIPoint pt1 = {45, 66};\n    SkIPoint pt2 = SkIPoint::Make(45, 66);\n    SkDebugf(\"pt1 %c= pt2\\n\", pt1 == pt2 ? '=' : '!');\n}",
+    "hash": "e5cf5159525bd3140f288a95fe641fae",
+    "file": "SkIPoint_Reference",
+    "name": "SkIPoint::Make",
+        "stdout": "pt1 == pt2\\n"
+    },
+        "SkIPoint_equal_operator": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkIPoint test[] = { {0, -0}, {-1, -2}, {SK_MaxS32, -1}, {SK_NaN32, -1} };\n    for (const SkIPoint& pt : test) {\n        SkDebugf(\"pt: %d, %d  %c= pt\\n\", pt.fX, pt.fY, pt == pt ? '=' : '!');\n    }\n}",
+    "hash": "37ffe2817d720f99e6c252332ce70460",
+    "file": "SkIPoint_Reference",
+    "name": "SkIPoint::operator==(const SkIPoint& a, const SkIPoint& b)",
+        "stdout": "pt: 0, 0  == pt\\npt: -1, -2  == pt\\npt: 2147483647, -1  == pt\\npt: -2147483648, -1  == pt\\n"
+    },
+        "SkIPoint_equals": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkIPoint test[] = { {0, -0}, {-1, -2}, {SK_MaxS32, -1}, {SK_NaN32, -1} };\n    for (const SkIPoint& pt : test) {\n        SkDebugf(\"pt: %d, %d  %c= pt\\n\", pt.fX, pt.fY, pt.equals(pt.fX, pt.fY) ? '=' : '!');\n    }\n}",
+    "hash": "64f575d36439d5b69aaed14ffeff1cc4",
+    "file": "SkIPoint_Reference",
+    "name": "SkIPoint::equals()",
+        "stdout": "pt: 0, 0  == pt\\npt: -1, -2  == pt\\npt: 2147483647, -1  == pt\\npt: -2147483648, -1  == pt\\n"
+    },
+        "SkIPoint_isZero": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkIPoint pt = { 0, -0};\n    SkDebugf(\"pt.isZero() == %s\\n\", pt.isZero() ? \"true\" : \"false\");\n}",
+    "hash": "658c1df611b4577cc7e0bb384e95737e",
+    "file": "SkIPoint_Reference",
+    "name": "SkIPoint::isZero",
+        "stdout": "pt.isZero() == true\\n"
+    },
+        "SkIPoint_minus_operator": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkIPoint test[] = { {0, -0}, {-1, -2},\n                       { SK_MaxS32, SK_MinS32 },\n                       { SK_NaN32, -SK_NaN32 } };\n    for (const SkIPoint& pt : test) {\n        SkIPoint negPt = -pt;\n        SkDebugf(\"pt: %d, %d  negate: %d, %d\\n\", pt.fX, pt.fY, negPt.fX, negPt.fY);\n    }\n}",
+    "hash": "d283e8876366349aedd85b65cadb3706",
+    "file": "SkIPoint_Reference",
+    "name": "SkIPoint::operator-()_const",
+        "stdout": "pt: 0, 0  negate: 0, 0\\npt: -1, -2  negate: 1, 2\\npt: 2147483647, -2147483647  negate: -2147483647, 2147483647\\npt: -2147483648, -2147483648  negate: -2147483648, -2147483648\\n"
+    },
+        "SkIPoint_notequal_operator": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkIPoint test[] = { {0, -0}, {-1, -2}, {SK_MaxS32, -1}, {SK_NaN32, -1} };\n    for (const SkIPoint& pt : test) {\n        SkDebugf(\"pt: %d, %d  %c= pt\\n\", pt.fX, pt.fY, pt != pt ? '!' : '=');\n    }\n}",
+    "hash": "dd89dc48dff69b53d99530b120f204bc",
+    "file": "SkIPoint_Reference",
+    "name": "SkIPoint::operator!=(const SkIPoint& a, const SkIPoint& b)",
+        "stdout": "pt: 0, 0  == pt\\npt: -1, -2  == pt\\npt: 2147483647, -1  == pt\\npt: -2147483648, -1  == pt\\n"
+    },
+        "SkIPoint_set": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkIPoint pt1, pt2 = { SK_MinS32, SK_MaxS32 };\n    pt1.set(SK_MinS32, SK_MaxS32);\n    SkDebugf(\"pt1 %c= pt2\\n\", pt1 == pt2 ? '=' : '!');\n}",
+    "hash": "165418b5718d79d8f1682a8a0ee32ba0",
+    "file": "SkIPoint_Reference",
+    "name": "SkIPoint::set()",
+        "stdout": "pt1 == pt2\\n"
+    },
+        "SkIPoint_x": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkIPoint pt1 = {45, 66};\n    SkDebugf(\"pt1.fX %c= pt1.x()\\n\", pt1.fX == pt1.x() ? '=' : '!');\n}",
+    "hash": "eed4185294f8a8216fc354e6ee6b2e3a",
+    "file": "SkIPoint_Reference",
+    "name": "SkIPoint::x()",
+        "stdout": "pt1.fX == pt1.x()\\n"
+    },
+        "SkIPoint_y": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkIPoint pt1 = {45, 66};\n    SkDebugf(\"pt1.fY %c= pt1.y()\\n\", pt1.fY == pt1.y() ? '=' : '!');\n}",
+    "hash": "35c41b8ba7cebf8c9a7a8494e610e14d",
+    "file": "SkIPoint_Reference",
+    "name": "SkIPoint::y()",
+        "stdout": "pt1.fY == pt1.y()\\n"
     },
         "SkIRect_EmptyIRect": {
     "code": "void draw(SkCanvas* canvas) {\n    const SkIRect& rect = SkIRect::EmptyIRect();\n    SkDebugf(\"rect: %d, %d, %d, %d\\n\", rect.fLeft, rect.fTop, rect.fRight, rect.fBottom);\n}",
@@ -812,7 +903,7 @@
     "name": "SkIRect::makeSorted",
         "stdout": "rect: 30, 50, 20, 10\\nsorted: 20, 10, 30, 50\\n"
     },
-        "SkIRect_not_equal_operator": {
+        "SkIRect_notequal_operator": {
     "code": "void draw(SkCanvas* canvas) {\n    SkIRect test = {2, 2, 0, 0};\n    SkIRect sorted = test.makeSorted();\n    SkDebugf(\"test %c= sorted\\n\", test != sorted ? '!' : '=');\n}",
     "hash": "6c4acd8aa203f632b7d85cae672abf4d",
     "file": "SkIRect_Reference",
@@ -972,6 +1063,20 @@
     "file": "SkMatrix_Reference",
     "name": "SkMatrix::TypeMask",
         "stdout": "after reset: kIdentity_Mask \\nafter postTranslate: kTranslate_Mask \\nafter postScale: kTranslate_Mask kScale_Mask \\nafter postScale: kTranslate_Mask kScale_Mask kAffine_Mask \\nafter setPolyToPoly: kTranslate_Mask kScale_Mask kAffine_Mask kPerspective_Mask\\n"
+    },
+        "SkMatrix_array1_operator": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkMatrix matrix;\n    matrix.setIdentity();\n    SkDebugf(\"with identity matrix: x = %g\\n\", matrix.mapXY(24, 42).fX);\n    SkScalar& skewRef = matrix[SkMatrix::kMSkewX];\n    skewRef = 0;\n    SkDebugf(\"after skew x mod:     x = %g\\n\", matrix.mapXY(24, 42).fX);\n    skewRef = 1;\n    SkDebugf(\"after 2nd skew x mod: x = %g\\n\", matrix.mapXY(24, 42).fX);\n    matrix.dirtyMatrixTypeCache();\n    SkDebugf(\"after dirty cache:    x = %g\\n\", matrix.mapXY(24, 42).fX);\n}",
+    "hash": "f4365ef332f51f7fd25040e0771ba9a2",
+    "file": "SkMatrix_Reference",
+    "name": "SkMatrix::operator[](int index)",
+        "stdout": "with identity matrix: x = 24\\nafter skew x mod:     x = 24\\nafter 2nd skew x mod: x = 24\\nafter dirty cache:    x = 66\\n"
+    },
+        "SkMatrix_array_operator": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkMatrix matrix;\n    matrix.setScale(42, 24);\n    SkDebugf(\"matrix[SkMatrix::kMScaleX] %c= 42\\n\", matrix[SkMatrix::kMScaleX] == 42 ? '=' : '!');\n    SkDebugf(\"matrix[SkMatrix::kMScaleY] %c= 24\\n\", matrix[SkMatrix::kMScaleY] == 24 ? '=' : '!');\n}",
+    "hash": "e8740493abdf0c6341762db9cee56b89",
+    "file": "SkMatrix_Reference",
+    "name": "SkMatrix::operator[](int index)_const",
+        "stdout": "matrix[SkMatrix::kMScaleX] == 42\\nmatrix[SkMatrix::kMScaleY] == 24\\n"
     },
         "SkMatrix_asAffine": {
     "code": "void draw(SkCanvas* canvas) {\n    SkMatrix matrix;\n    matrix.setAll(2, 3, 4, 5, 6, 7, 0, 0, 1);\n    SkScalar affine[6];\n    matrix.asAffine(affine);\n    const char* names[] = { \"ScaleX\", \"SkewY\", \"SkewX\", \"ScaleY\", \"TransX\", \"TransY\" };\n    for (int i = 0; i < 6; ++i) {\n        SkDebugf(\"%s: %g \", names[i], affine[i]);\n    }\n    SkDebugf(\"\\n\");\n}",
@@ -1134,7 +1239,7 @@
     "name": "SkMatrix::isTranslate",
         "stdout": "is translate: true\\nis translate: true\\nis translate: false\\nis translate: false\\n"
     },
-        "SkMatrix_not_equal_operator": {
+        "SkMatrix_notequal_operator": {
     "code": "void draw(SkCanvas* canvas) {\n    auto debugster = [](const char* prefix, const SkMatrix& a, const SkMatrix& b) -> void {\n        SkDebugf(\"%s: a %c= b a.cheapEqualTo(b): %s\\n\", prefix,\n                 a != b ? '!' : '=', a.cheapEqualTo(b) ? \"true\" : \"false\");\n    };\n    SkMatrix a, b;\n    a.setAll(1, 0, 0,   0, 1, 0,  1, 0, 1);\n    a.invert(&b);\n    debugster(\"identity\", a, b);\n}",
     "hash": "8a8fadf5fd294daa4ee152833cc0dc0e",
     "file": "SkMatrix_Reference",
@@ -1197,20 +1302,6 @@
     "name": "SkMatrix::setScaleTranslate",
         "stdout": "[  1.0000   0.0000   3.0000][  0.0000   2.0000   4.0000][  0.0000   0.0000   1.0000]\\n"
     },
-        "SkMatrix_subscript_operator": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkMatrix matrix;\n    matrix.setIdentity();\n    SkDebugf(\"with identity matrix: x = %g\\n\", matrix.mapXY(24, 42).fX);\n    SkScalar& skewRef = matrix[SkMatrix::kMSkewX];\n    skewRef = 0;\n    SkDebugf(\"after skew x mod:     x = %g\\n\", matrix.mapXY(24, 42).fX);\n    skewRef = 1;\n    SkDebugf(\"after 2nd skew x mod: x = %g\\n\", matrix.mapXY(24, 42).fX);\n    matrix.dirtyMatrixTypeCache();\n    SkDebugf(\"after dirty cache:    x = %g\\n\", matrix.mapXY(24, 42).fX);\n}",
-    "hash": "f4365ef332f51f7fd25040e0771ba9a2",
-    "file": "SkMatrix_Reference",
-    "name": "SkMatrix::operator[](int index)_2",
-        "stdout": "with identity matrix: x = 24\\nafter skew x mod:     x = 24\\nafter 2nd skew x mod: x = 24\\nafter dirty cache:    x = 66\\n"
-    },
-        "SkMatrix_subscript_operator_const": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkMatrix matrix;\n    matrix.setScale(42, 24);\n    SkDebugf(\"matrix[SkMatrix::kMScaleX] %c= 42\\n\", matrix[SkMatrix::kMScaleX] == 42 ? '=' : '!');\n    SkDebugf(\"matrix[SkMatrix::kMScaleY] %c= 24\\n\", matrix[SkMatrix::kMScaleY] == 24 ? '=' : '!');\n}",
-    "hash": "e8740493abdf0c6341762db9cee56b89",
-    "file": "SkMatrix_Reference",
-    "name": "SkMatrix::operator[](int index)",
-        "stdout": "matrix[SkMatrix::kMScaleX] == 42\\nmatrix[SkMatrix::kMScaleY] == 24\\n"
-    },
         "SkMatrix_toString": {
     "code": "void draw(SkCanvas* canvas) {\n    SkMatrix matrix;\n    matrix.setRotate(45);\n    SkString mStr, neStr;\n    matrix.toString(&mStr);\n    SkMatrix nearlyEqual;\n    nearlyEqual.setAll(0.7071f, -0.7071f, 0,   0.7071f, 0.7071f, 0,   0, 0, 1);\n    nearlyEqual.toString(&neStr);\n    SkDebugf(\"mStr  %s\\n\", mStr.c_str());\n    SkDebugf(\"neStr %s\\n\", neStr.c_str());\n    SkDebugf(\"matrix %c= nearlyEqual\\n\", matrix == nearlyEqual ? '=' : '!');\n}",
     "hash": "1d86e43958e42b8eaaa9b16df1baa4c8",
@@ -1232,19 +1323,19 @@
     "name": "SkPaint::containsText_2",
         "stdout": "0x01ff == has glyph\\n0x0000 != has glyph\\n0xffff == has glyph\\n"
     },
-        "SkPaint_copy_assignment_operator": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint1, paint2;\n    paint1.setColor(SK_ColorRED);\n    paint2 = paint1;\n    SkDebugf(\"SK_ColorRED %c= paint1.getColor()\\n\", SK_ColorRED == paint1.getColor() ? '=' : '!');\n    SkDebugf(\"SK_ColorRED %c= paint2.getColor()\\n\", SK_ColorRED == paint2.getColor() ? '=' : '!');\n}",
-    "hash": "b476a9088f80dece176ed577807d3992",
-    "file": "SkPaint_Reference",
-    "name": "SkPaint::operator=(const SkPaint& paint)",
-        "stdout": "SK_ColorRED == paint1.getColor()\\nSK_ColorRED == paint2.getColor()\\n"
-    },
         "SkPaint_copy_const_SkPaint": {
     "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint1;\n    paint1.setColor(SK_ColorRED);\n    SkPaint paint2(paint1);\n    paint2.setColor(SK_ColorBLUE);\n    SkDebugf(\"SK_ColorRED %c= paint1.getColor()\\n\", SK_ColorRED == paint1.getColor() ? '=' : '!');\n    SkDebugf(\"SK_ColorBLUE %c= paint2.getColor()\\n\", SK_ColorBLUE == paint2.getColor() ? '=' : '!');\n}",
     "hash": "b99971ad0ef243d617925289d963b62d",
     "file": "SkPaint_Reference",
     "name": "SkPaint::SkPaint(const SkPaint& paint)",
         "stdout": "SK_ColorRED == paint1.getColor()\\nSK_ColorBLUE == paint2.getColor()\\n"
+    },
+        "SkPaint_copy_operator": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint1, paint2;\n    paint1.setColor(SK_ColorRED);\n    paint2 = paint1;\n    SkDebugf(\"SK_ColorRED %c= paint1.getColor()\\n\", SK_ColorRED == paint1.getColor() ? '=' : '!');\n    SkDebugf(\"SK_ColorRED %c= paint2.getColor()\\n\", SK_ColorRED == paint2.getColor() ? '=' : '!');\n}",
+    "hash": "b476a9088f80dece176ed577807d3992",
+    "file": "SkPaint_Reference",
+    "name": "SkPaint::operator=(const SkPaint& paint)",
+        "stdout": "SK_ColorRED == paint1.getColor()\\nSK_ColorRED == paint2.getColor()\\n"
     },
         "SkPaint_countText": {
     "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    const uint8_t utf8[] = { 0x24, 0xC2, 0xA2, 0xE2, 0x82, 0xAC, 0xC2, 0xA5, 0xC2, 0xA3 };\n    SkDebugf(\"count = %d\\n\", paint.countText(utf8, sizeof(utf8)));\n}",
@@ -1345,8 +1436,8 @@
         "stdout": "SkPaint::kNormal_Hinting == paint.getHinting()\\n"
     },
         "SkPaint_getImageFilter": {
-    "code": "void draw(SkCanvas* canvas) {\n   SkPaint paint;\n   SkDebugf(\"nullptr %c= image filter\\n\", paint.getImageFilter() ? '!' : '=');\n   paint.setImageFilter(SkImageFilter::MakeBlur(kOuter_SkBlurStyle, 3, nullptr, nullptr));\n   SkDebugf(\"nullptr %c= image filter\\n\", paint.getImageFilter() ? '!' : '=');\n}\n",
-    "hash": "38788d42772641606e08c60d9dd418a2",
+    "code": "void draw(SkCanvas* canvas) {\n   SkPaint paint;\n   SkDebugf(\"nullptr %c= image filter\\n\", paint.getImageFilter() ? '!' : '=');\n   paint.setImageFilter(SkBlurImageFilter::Make(kOuter_SkBlurStyle, 3, nullptr, nullptr));\n   SkDebugf(\"nullptr %c= image filter\\n\", paint.getImageFilter() ? '!' : '=');\n}\n",
+    "hash": "7b8118ff57fcb84e6bc82380d155b62e",
     "file": "SkPaint_Reference",
     "name": "SkPaint::getImageFilter",
         "stdout": "nullptr == image filter\\nnullptr != image filter\\n"
@@ -1540,14 +1631,14 @@
     "name": "SkPaint::SkPaint(SkPaint&& paint)",
         "stdout": "path effect unique: true\\n"
     },
-        "SkPaint_move_assignment_operator": {
+        "SkPaint_move_operator": {
     "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint1, paint2;\n    paint1.setColor(SK_ColorRED);\n    paint2 = std::move(paint1);\n    SkDebugf(\"SK_ColorRED == paint2.getColor()\\n\", SK_ColorRED == paint2.getColor() ? '=' : '!');\n}",
     "hash": "9fb7459b097d713f5f1fe5675afe14f5",
     "file": "SkPaint_Reference",
     "name": "SkPaint::operator=(SkPaint&& paint)",
         "stdout": "SK_ColorRED == paint2.getColor()\\n"
     },
-        "SkPaint_not_equal_operator": {
+        "SkPaint_notequal_operator": {
     "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint1, paint2;\n    paint1.setColor(SK_ColorRED);\n    paint2.setColor(0xFFFF0000);\n    SkDebugf(\"paint1 %c= paint2\\n\", paint1 == paint2 ? '=' : '!');\n    SkDebugf(\"paint1 %c= paint2\\n\", paint1 != paint2 ? '!' : '=');\n}",
     "hash": "b6c8484b1187f555b435ad5369833be4",
     "file": "SkPaint_Reference",
@@ -1590,8 +1681,8 @@
         "stdout": "mask filter unique: true\\nmask filter unique: false\\n"
     },
         "SkPaint_refPathEffect": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint1, paint2;\n    paint1.setPathEffect(SkArcToPathEffect::Make(10));\n    SkDebugf(\"path effect unique: %s\\n\", paint1.getPathEffect()->unique() ? \"true\" : \"false\");\n    paint2.setPathEffect(paint1.refPathEffect());\n    SkDebugf(\"path effect unique: %s\\n\", paint1.getPathEffect()->unique() ? \"true\" : \"false\");\n}\n",
-    "hash": "c55c74f8f581870bd2c18f2f99765579",
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint1, paint2;\n    SkScalar intervals[] = {1, 2};\n    paint1.setPathEffect(SkDashPathEffect::Make(intervals, SK_ARRAY_COUNT(intervals), 10));\n    SkDebugf(\"path effect unique: %s\\n\", paint1.getPathEffect()->unique() ? \"true\" : \"false\");\n    paint2.setPathEffect(paint1.refPathEffect());\n    SkDebugf(\"path effect unique: %s\\n\", paint1.getPathEffect()->unique() ? \"true\" : \"false\");\n}\n",
+    "hash": "f56039b94c702c2704c8c5100e623aca",
     "file": "SkPaint_Reference",
     "name": "SkPaint::refPathEffect",
         "stdout": "path effect unique: true\\npath effect unique: false\\n"
@@ -1932,19 +2023,19 @@
     "name": "SkPath::computeTightBounds",
         "stdout": "empty bounds = 0, 0, 0, 0\\ncircle bounds = 25, 20, 75, 70\\nrotated circle bounds = 25, 20, 75, 70\\n"
     },
-        "SkPath_copy_assignment_operator": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkPath path1;\n    path1.addRect({10, 20, 30, 40});\n    SkPath path2 = path1;\n    const SkRect& b1 = path1.getBounds();\n    SkDebugf(\"path1 bounds = %g, %g, %g, %g\\n\", b1.fLeft, b1.fTop, b1.fRight, b1.fBottom);\n    const SkRect& b2 = path2.getBounds();\n    SkDebugf(\"path2 bounds = %g, %g, %g, %g\\n\", b2.fLeft, b2.fTop, b2.fRight, b2.fBottom);\n}",
-    "hash": "bba288f5f77fc8e37e89d2ec08e0ac60",
-    "file": "SkPath_Reference",
-    "name": "SkPath::operator=(const SkPath& path)",
-        "stdout": "path1 bounds = 10, 20, 30, 40\\npath2 bounds = 10, 20, 30, 40\\n"
-    },
         "SkPath_copy_const_SkPath": {
     "code": "void draw(SkCanvas* canvas) {\n    SkPath path;\n    path.lineTo(20, 20);\n    SkPath path2(path);\n    path2.close();\n    SkDebugf(\"path verbs: %d\\n\", path.countVerbs());\n    SkDebugf(\"path2 verbs: %d\\n\", path2.countVerbs());\n    path.reset();\n    SkDebugf(\"after reset\\n\" \"path verbs: %d\\n\", path.countVerbs());\n    SkDebugf(\"path2 verbs: %d\\n\", path2.countVerbs());\n}",
     "hash": "647312aacd946c8a6eabaca797140432",
     "file": "SkPath_Reference",
     "name": "SkPath::SkPath(const SkPath& path)",
         "stdout": "path verbs: 2\\npath2 verbs: 3\\nafter reset\\npath verbs: 0\\npath2 verbs: 3\\n"
+    },
+        "SkPath_copy_operator": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkPath path1;\n    path1.addRect({10, 20, 30, 40});\n    SkPath path2 = path1;\n    const SkRect& b1 = path1.getBounds();\n    SkDebugf(\"path1 bounds = %g, %g, %g, %g\\n\", b1.fLeft, b1.fTop, b1.fRight, b1.fBottom);\n    const SkRect& b2 = path2.getBounds();\n    SkDebugf(\"path2 bounds = %g, %g, %g, %g\\n\", b2.fLeft, b2.fTop, b2.fRight, b2.fBottom);\n}",
+    "hash": "bba288f5f77fc8e37e89d2ec08e0ac60",
+    "file": "SkPath_Reference",
+    "name": "SkPath::operator=(const SkPath& path)",
+        "stdout": "path1 bounds = 10, 20, 30, 40\\npath2 bounds = 10, 20, 30, 40\\n"
     },
         "SkPath_countPoints": {
     "code": "void draw(SkCanvas* canvas) {\n    auto debugster = [](const char* prefix, const SkPath& path) -> void {\n         SkDebugf(\"%s point count: %d\\n\", prefix, path.countPoints());\n    };\n    SkPath path;\n    debugster(\"empty\", path);\n    path.lineTo(0, 0);\n    debugster(\"zero line\", path);\n    path.rewind();\n    path.moveTo(10, 10);\n    path.lineTo(20, 20);\n    debugster(\"line\", path);\n    path.moveTo(20, 20);\n    debugster(\"second move\", path);\n}\n",
@@ -2135,7 +2226,7 @@
     "name": "SkPath::isVolatile",
         "stdout": "volatile by default is false\\n"
     },
-        "SkPath_not_equal_operator": {
+        "SkPath_notequal_operator": {
     "code": "void draw(SkCanvas* canvas) {\n    auto debugster = [](const char* prefix, const SkPath& a, const SkPath& b) -> void {\n                SkDebugf(\"%s one %c= two\\n\", prefix, a != b ? '!' : '=');\n    };\n    SkPath one;\n    SkPath two;\n    debugster(\"empty\", one, two);\n    one.addRect({10, 20, 30, 40});\n    two.addRect({10, 20, 30, 40});\n    debugster(\"addRect\", one, two);\n    one.setConvexity(SkPath::kConcave_Convexity);\n    debugster(\"setConvexity\", one, two);\n    SkDebugf(\"convexity %c=\\n\", one.getConvexity() == two.getConvexity() ? '=' : '!');\n}\n",
     "hash": "0c6870ba1cea85ce6da5abd489c23d83",
     "file": "SkPath_Reference",
@@ -2189,7 +2280,7 @@
     "hash": "bb761cd858e6d0ca05627262cd22ff5e",
     "file": "SkPath_Reference",
     "name": "SkPath::updateBoundsCache",
-        "stdout": "uncached avg: 0.199424 ms\\ncached avg: 0.193792 ms\\n"
+        "stdout": "uncached avg: 0.16768 ms\\ncached avg: 0.163072 ms\\n"
     },
         "SkPath_writeToMemory": {
     "code": "void draw(SkCanvas* canvas) {\n    SkPath path, copy;\n    path.lineTo(6.f / 7, 2.f / 3);\n    size_t size = path.writeToMemory(nullptr);\n    SkTDArray<char> storage;\n    storage.setCount(size);\n    path.writeToMemory(storage.begin());\n    copy.readFromMemory(storage.begin(), size);\n    SkDebugf(\"path is \" \"%s\" \"equal to copy\\n\", path == copy ? \"\" : \"not \");\n}\n",
@@ -2203,7 +2294,7 @@
     "hash": "17bcabaaee2dbb7beba562e9ca50b55e",
     "file": "SkPixmap_Reference",
     "name": "SkPixmap::addr()",
-        "stdout": "pixels address: 0x7fd2438f2010\\ninset address:  0x7fd243932210\\n"
+        "stdout": "pixels address: 0x7fe0b7478010\\ninset address:  0x7fe0b74b8210\\n"
     },
         "SkPixmap_addr16": {
     "code": "void draw(SkCanvas* canvas) {\n    const int w = 4;\n    const int h = 4;\n    uint16_t storage[w * h];\n    SkPixmap pixmap(SkImageInfo::Make(w, h, kARGB_4444_SkColorType, kPremul_SkAlphaType),\n                    storage, w * sizeof(storage[0]));\n    SkDebugf(\"pixmap.addr16() %c= storage\\n\",\n              pixmap.addr16()  == storage ? '=' : '!');\n}",
@@ -2429,6 +2520,104 @@
     "name": "SkPixmap::writable_addr_2",
         "stdout": "pixmap.writable_addr() == (void *)storage\\npixmap.getColor(0, 0) == 0x00000000\\npixmap.getColor(1, 2) == 0xFFFFFFFF\\n"
     },
+        "SkPoint_Make": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkPoint pt1 = {45, 66};\n    SkPoint pt2 = SkPoint::Make(45, 66);\n    SkVector v1 = {45, 66};\n    SkVector v2 = SkPoint::Make(45, 66);\n    SkDebugf(\"all %s\" \"equal\\n\", pt1 == pt2 && pt2 == v1 && v1 == v2 ? \"\" : \"not \");\n}",
+    "hash": "d266e70977847001f7c42f8a2513bee7",
+    "file": "SkPoint_Reference",
+    "name": "SkPoint::Make",
+        "stdout": "all equal\\n"
+    },
+        "SkPoint_equal_operator": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkPoint test[] = { {0, -0.f}, {-1, -2}, {SK_ScalarInfinity, 1}, {SK_ScalarNaN, -1} };\n    for (const SkPoint& pt : test) {\n        SkDebugf(\"pt: %g, %g  %c= pt\\n\", pt.fX, pt.fY, pt == pt ? '=' : '!');\n    }\n}",
+    "hash": "741f793334a48a35dadf4310d7ea52cb",
+    "file": "SkPoint_Reference",
+    "name": "SkPoint::operator==(const SkPoint& a, const SkPoint& b)",
+        "stdout": "pt: 0, -0  == pt\\npt: -1, -2  == pt\\npt: inf, 1  == pt\\npt: nan, -1  != pt\\n"
+    },
+        "SkPoint_equals": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkPoint test[] = { {0, -0.f}, {-1, -2}, {SK_ScalarInfinity, 1}, {SK_ScalarNaN, -1} };\n    for (const SkPoint& pt : test) {\n        SkDebugf(\"pt: %g, %g  %c= pt\\n\", pt.fX, pt.fY, pt.equals(pt.fX, pt.fY) ? '=' : '!');\n    }\n}",
+    "hash": "4cecb878c8b66beffda051f26c00f817",
+    "file": "SkPoint_Reference",
+    "name": "SkPoint::equals()",
+        "stdout": "pt: 0, -0  == pt\\npt: -1, -2  == pt\\npt: inf, 1  == pt\\npt: nan, -1  != pt\\n"
+    },
+        "SkPoint_isFinite": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkPoint test[] = { {0, -0.f}, {-1, -2}, {SK_ScalarInfinity, 1}, {SK_ScalarNaN, -1} };\n    for (const SkPoint& pt : test) {\n        SkDebugf(\"pt: %g, %g  finite: %s\\n\", pt.fX, pt.fY, pt.isFinite() ? \"true\" : \"false\");\n    }\n}",
+    "hash": "937cc166cc0e220f33fb82501141d0b3",
+    "file": "SkPoint_Reference",
+    "name": "SkPoint::isFinite",
+        "stdout": "pt: 0, -0  finite: true\\npt: -1, -2  finite: true\\npt: inf, 1  finite: false\\npt: nan, -1  finite: false\\n"
+    },
+        "SkPoint_isZero": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkPoint pt = { 0.f, -0.f};\n    SkDebugf(\"pt.fX=%c%g pt.fY=%c%g\\n\", std::signbit(pt.fX) ? '-' : '+', fabsf(pt.fX),\n                                        std::signbit(pt.fY) ? '-' : '+', fabsf(pt.fY));\n    SkDebugf(\"pt.isZero() == %s\\n\", pt.isZero() ? \"true\" : \"false\");\n}",
+    "hash": "81b9665110b88ef6bcbc20464aed7da1",
+    "file": "SkPoint_Reference",
+    "name": "SkPoint::isZero",
+        "stdout": "pt.fX=+0 pt.fY=-0\\npt.isZero() == true\\n"
+    },
+        "SkPoint_iset": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkPoint pt1, pt2 = { SK_MinS16, SK_MaxS16 };\n    pt1.iset(SK_MinS16, SK_MaxS16);\n    SkDebugf(\"pt1 %c= pt2\\n\", pt1 == pt2 ? '=' : '!');\n}",
+    "hash": "0d9e8ed734981b5b113f22c7bfde5357",
+    "file": "SkPoint_Reference",
+    "name": "SkPoint::iset()",
+        "stdout": "pt1 == pt2\\n"
+    },
+        "SkPoint_iset_2": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkIPoint iPt = { SK_MinS32, SK_MaxS32 };\n    SkPoint fPt;\n    fPt.iset(iPt);\n    SkDebugf(\"iPt: %d, %d\\n\", iPt.fX, iPt.fY);\n    SkDebugf(\"fPt: %g, %g\\n\", fPt.fX, fPt.fY);\n}",
+    "hash": "12b7164a769e232bb772f19c59600ee7",
+    "file": "SkPoint_Reference",
+    "name": "SkPoint::iset_2",
+        "stdout": "iPt: -2147483647, 2147483647\\nfPt: -2.14748e+09, 2.14748e+09\\n"
+    },
+        "SkPoint_minus_operator": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkPoint test[] = { {0.f, -0.f}, {-1, -2},\n                       { SK_ScalarInfinity, SK_ScalarNegativeInfinity },\n                       { SK_ScalarNaN, -SK_ScalarNaN } };\n    for (const SkPoint& pt : test) {\n        SkPoint negPt = -pt;\n        SkDebugf(\"pt: %g, %g  negate: %g, %g\\n\", pt.fX, pt.fY, negPt.fX, negPt.fY);\n    }\n}",
+    "hash": "9baf247cfcd8272c0ddf6ce93f676b37",
+    "file": "SkPoint_Reference",
+    "name": "SkPoint::operator-()_const",
+        "stdout": "pt: 0, -0  negate: -0, 0\\npt: -1, -2  negate: 1, 2\\npt: inf, -inf  negate: -inf, inf\\npt: nan, -nan  negate: -nan, nan\\n"
+    },
+        "SkPoint_negate": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkPoint test[] = { {0.f, -0.f}, {-1, -2},\n                       { SK_ScalarInfinity, SK_ScalarNegativeInfinity },\n                       { SK_ScalarNaN, -SK_ScalarNaN } };\n    for (const SkPoint& pt : test) {\n        SkPoint negPt = pt;\n        negPt.negate();\n        SkDebugf(\"pt: %g, %g  negate: %g, %g\\n\", pt.fX, pt.fY, negPt.fX, negPt.fY);\n    }\n}",
+    "hash": "312c0c8065ab5d0adfda80cccf2d11e6",
+    "file": "SkPoint_Reference",
+    "name": "SkPoint::negate()",
+        "stdout": "pt: 0, -0  negate: -0, 0\\npt: -1, -2  negate: 1, 2\\npt: inf, -inf  negate: -inf, inf\\npt: nan, -nan  negate: -nan, nan\\n"
+    },
+        "SkPoint_notequal_operator": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkPoint test[] = { {0, -0.f}, {-1, -2}, {SK_ScalarInfinity, 1}, {SK_ScalarNaN, -1} };\n    for (const SkPoint& pt : test) {\n        SkDebugf(\"pt: %g, %g  %c= pt\\n\", pt.fX, pt.fY, pt != pt ? '!' : '=');\n    }\n}",
+    "hash": "8fe8572685eaa617f25a5a6767a874dc",
+    "file": "SkPoint_Reference",
+    "name": "SkPoint::operator!=(const SkPoint& a, const SkPoint& b)",
+        "stdout": "pt: 0, -0  == pt\\npt: -1, -2  == pt\\npt: inf, 1  == pt\\npt: nan, -1  != pt\\n"
+    },
+        "SkPoint_set": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkPoint pt1, pt2 = { SK_ScalarPI, SK_ScalarSqrt2 };\n    pt1.set(SK_ScalarPI, SK_ScalarSqrt2);\n    SkDebugf(\"pt1 %c= pt2\\n\", pt1 == pt2 ? '=' : '!');\n}",
+    "hash": "d08d1e7dafcad4342d1619fdbb2f5781",
+    "file": "SkPoint_Reference",
+    "name": "SkPoint::set()",
+        "stdout": "pt1 == pt2\\n"
+    },
+        "SkPoint_setAbs": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkPoint test[] = { {0.f, -0.f}, {-1, -2},\n                       { SK_ScalarInfinity, SK_ScalarNegativeInfinity },\n                       { SK_ScalarNaN, -SK_ScalarNaN } };\n    for (const SkPoint& pt : test) {\n        SkPoint absPt;\n        absPt.setAbs(pt);\n        SkDebugf(\"pt: %g, %g  abs: %g, %g\\n\", pt.fX, pt.fY, absPt.fX, absPt.fY);\n    }\n}",
+    "hash": "7f70860e820b67a347cff03c00488426",
+    "file": "SkPoint_Reference",
+    "name": "SkPoint::setAbs",
+        "stdout": "pt: 0, -0  abs: 0, 0\\npt: -1, -2  abs: 1, 2\\npt: inf, -inf  abs: inf, inf\\npt: nan, -nan  abs: nan, nan\\n"
+    },
+        "SkPoint_x": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkPoint pt1 = {45, 66};\n    SkDebugf(\"pt1.fX %c= pt1.x()\\n\", pt1.fX == pt1.x() ? '=' : '!');\n}",
+    "hash": "9f3fe446b800ae1d940785d438634941",
+    "file": "SkPoint_Reference",
+    "name": "SkPoint::x()",
+        "stdout": "pt1.fX == pt1.x()\\n"
+    },
+        "SkPoint_y": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkPoint pt1 = {45, 66};\n    SkDebugf(\"pt1.fY %c= pt1.y()\\n\", pt1.fY == pt1.y() ? '=' : '!');\n}",
+    "hash": "4c962850c2dbea4d2325df469400680e",
+    "file": "SkPoint_Reference",
+    "name": "SkPoint::y()",
+        "stdout": "pt1.fY == pt1.y()\\n"
+    },
         "SkRect_Intersects": {
     "code": "void draw(SkCanvas* canvas) {\n    SkDebugf(\"%s intersection\", SkRect::Intersects({10, 40, 50, 80}, {30, 60, 70, 90}) ? \"\" : \"no \");\n}",
     "hash": "795061764b10c9e05efb466c9cb60644",
@@ -2595,7 +2784,7 @@
     "hash": "6dbf21017c60b76cae3379fd9101342a",
     "file": "SkRect_Reference",
     "name": "SkRect::growToInclude_3",
-        "stdout": "rect: -1.53059e-20, 0, 3.85186e-34, 4"
+        "stdout": "rect: 0, 0, 1.04934e+27, 4"
     },
         "SkRect_height": {
     "code": "void draw(SkCanvas* canvas) {\n    SkRect unsorted = { 15, 25, 10, 20 };\n    SkDebugf(\"unsorted height: %g\\n\", unsorted.height());\n    SkRect large = { 1, -2147483647.f, 2, 2147483644.f };\n    SkDebugf(\"large height: %.0f\\n\", large.height());\n}",
@@ -2751,7 +2940,7 @@
     "name": "SkRect::makeSorted",
         "stdout": "rect: 30.5, 50.5, 20.5, 10.5\\nsorted: 20.5, 10.5, 30.5, 50.5\\n"
     },
-        "SkRect_not_equal_operator": {
+        "SkRect_notequal_operator": {
     "code": "void draw(SkCanvas* canvas) {\n    SkRect test = {0, 0, 2, SK_ScalarNaN};\n    SkDebugf(\"test with NaN is %s\" \"equal to itself\\n\", test == test ? \"\" : \"not \");\n}",
     "hash": "286072f8c27ff15be9eb945fa38dc9f7",
     "file": "SkRect_Reference",
@@ -2960,6 +3149,83 @@
     "file": "SkRect_Reference",
     "name": "SkRect::y()",
         "stdout": "unsorted.fTop: 25 unsorted.y(): 25\\nsorted.fTop: 5 sorted.y(): 5\\n"
+    },
+        "SkSurface_MakeNull": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkDebugf(\"SkSurface::MakeNull(0, 0) %c= nullptr\\n\", SkSurface::MakeNull(0, 0) == nullptr ?\n             '=' : '!');\n    const int w = 37;\n    const int h = 1000;\n    auto surf = SkSurface::MakeNull(w, h);\n    auto nullCanvas = surf->getCanvas();\n    nullCanvas->drawPaint(SkPaint());   // does not crash, nothing draws\n    SkDebugf(\"surf->makeImageSnapshot() %c= nullptr\\n\", surf->makeImageSnapshot() == nullptr ?\n            '=' : '!');\n}",
+    "hash": "99a54b814ccab7d2b1143c88581649ff",
+    "file": "SkSurface_Reference",
+    "name": "SkSurface::MakeNull",
+        "stdout": "SkSurface::MakeNull(0, 0) == nullptr\\nsurf-\\u003emakeImageSnapshot() == nullptr\\n"
+    },
+        "SkSurface_MakeRaster": {
+    "code": "void draw(SkCanvas* ) {\n    SkImageInfo info = SkImageInfo::MakeN32Premul(3, 3);\n    const size_t rowBytes = 64;\n    sk_sp<SkSurface> surface(SkSurface::MakeRaster(info, rowBytes, nullptr));\n    SkCanvas* canvas = surface->getCanvas();\n    canvas->clear(SK_ColorWHITE);\n    SkPixmap pixmap;\n    if (surface->peekPixels(&pixmap)) {\n        const uint32_t* colorPtr = pixmap.addr32();\n        SkPMColor pmWhite = colorPtr[0];\n        SkPaint paint;\n        canvas->drawPoint(1, 1, paint);\n        canvas->flush();  // ensure that point was drawn\n        for (int y = 0; y < info.height(); ++y) {\n            for (int x = 0; x < info.width(); ++x) {\n                SkDebugf(\"%c\", colorPtr[x] == pmWhite ? '-' : 'x');\n            }\n            colorPtr += rowBytes / sizeof(colorPtr[0]);\n            SkDebugf(\"\\n\");\n        }\n    }\n}\n",
+    "hash": "a803910ada4f8733f0b62456afead55f",
+    "file": "SkSurface_Reference",
+    "name": "SkSurface::MakeRaster",
+        "stdout": "---\\n-x-\\n---\\n"
+    },
+        "SkSurface_MakeRasterDirect": {
+    "code": "void draw(SkCanvas* ) {\n    SkImageInfo info = SkImageInfo::MakeN32Premul(3, 3);\n    const size_t size = info.computeMinByteSize();\n    SkAutoTMalloc<SkPMColor> storage(size);\n    SkPMColor* pixels = storage.get();\n    sk_sp<SkSurface> surface(SkSurface::MakeRasterDirect(info, pixels, info.minRowBytes()));\n    SkCanvas* canvas = surface->getCanvas();\n    canvas->clear(SK_ColorWHITE);\n    SkPMColor pmWhite = pixels[0];\n    SkPaint paint;\n    canvas->drawPoint(1, 1, paint);\n    canvas->flush();  // ensure that point was drawn\n    for (int y = 0; y < info.height(); ++y) {\n        for (int x = 0; x < info.width(); ++x) {\n            SkDebugf(\"%c\", *pixels++ == pmWhite ? '-' : 'x');\n        }\n        SkDebugf(\"\\n\");\n    }\n}\n",
+    "hash": "3f5aeb870104187643197354a7f1d27a",
+    "file": "SkSurface_Reference",
+    "name": "SkSurface::MakeRasterDirect",
+        "stdout": "---\\n-x-\\n---\\n"
+    },
+        "SkSurface_MakeRasterDirectReleaseProc": {
+    "code": "static void release_direct_surface_storage(void* pixels, void* context) {\n    if (pixels == context) {\n        SkDebugf(\"expected release context\\n\");\n    }\n    sk_free(pixels);\n}\n\nvoid draw(SkCanvas* ) {\n    SkImageInfo info = SkImageInfo::MakeN32Premul(3, 3);\n    const size_t rowBytes = info.minRowBytes();\n    void* pixels = sk_malloc_throw(info.computeByteSize(rowBytes));\n    sk_sp<SkSurface> surface(SkSurface::MakeRasterDirectReleaseProc(info, pixels, rowBytes,\n            release_direct_surface_storage, pixels));\n    SkCanvas* canvas = surface->getCanvas();\n    canvas->clear(SK_ColorWHITE);\n    SkPMColor* colorPtr = (SkPMColor*) pixels;\n    SkPMColor pmWhite = colorPtr[0];\n    SkPaint paint;\n    canvas->drawPoint(1, 1, paint);\n    canvas->flush();  // ensure that point was drawn\n    for (int y = 0; y < info.height(); ++y) {\n        for (int x = 0; x < info.width(); ++x) {\n            SkDebugf(\"%c\", *colorPtr++ == pmWhite ? '-' : 'x');\n        }\n        SkDebugf(\"\\n\");\n    }\n}\n",
+    "hash": "8e6530b26ab4096a9a91cfaadda1c568",
+    "file": "SkSurface_Reference",
+    "name": "SkSurface::MakeRasterDirectReleaseProc",
+        "stdout": "---\\n-x-\\n---\\nexpected release context\\n"
+    },
+        "SkSurface_MakeRasterN32Premul": {
+    "code": "void draw(SkCanvas* ) {\n    sk_sp<SkSurface> surface(SkSurface::MakeRasterN32Premul(3, 3));\n    SkCanvas* canvas = surface->getCanvas();\n    canvas->clear(SK_ColorWHITE);\n    SkPixmap pixmap;\n    if (surface->peekPixels(&pixmap)) {\n        const uint32_t* colorPtr = pixmap.addr32();\n        SkPMColor pmWhite = colorPtr[0];\n        SkPaint paint;\n        canvas->drawPoint(1, 1, paint);\n        canvas->flush();  // ensure that point was drawn\n        for (int y = 0; y < surface->height(); ++y) {\n            for (int x = 0; x < surface->width(); ++x) {\n                SkDebugf(\"%c\", colorPtr[x] == pmWhite ? '-' : 'x');\n            }\n            colorPtr += surface->width();\n            SkDebugf(\"\\n\");\n        }\n    }\n}\n",
+    "hash": "b932a2bd68455fb0af2e7a1ed19e36b3",
+    "file": "SkSurface_Reference",
+    "name": "SkSurface::MakeRasterN32Premul",
+        "stdout": "---\\n-x-\\n---\\n"
+    },
+        "SkSurface_MakeRaster_2": {
+    "code": "void draw(SkCanvas* ) {\n    SkImageInfo info = SkImageInfo::MakeN32Premul(3, 3);\n    sk_sp<SkSurface> surface(SkSurface::MakeRaster(info));\n    SkCanvas* canvas = surface->getCanvas();\n    canvas->clear(SK_ColorWHITE);\n    SkPixmap pixmap;\n    if (surface->peekPixels(&pixmap)) {\n        const uint32_t* colorPtr = pixmap.addr32();\n        SkPMColor pmWhite = colorPtr[0];\n        SkPaint paint;\n        canvas->drawPoint(1, 1, paint);\n        canvas->flush();  // ensure that point was drawn\n        for (int y = 0; y < info.height(); ++y) {\n            for (int x = 0; x < info.width(); ++x) {\n                SkDebugf(\"%c\", colorPtr[x] == pmWhite ? '-' : 'x');\n            }\n            colorPtr += info.width();\n            SkDebugf(\"\\n\");\n        }\n    }\n}\n",
+    "hash": "c6197d204ef9e4ccfb583242651fb2a7",
+    "file": "SkSurface_Reference",
+    "name": "SkSurface::MakeRaster_2",
+        "stdout": "---\\n-x-\\n---\\n"
+    },
+        "SkSurface_generationID": {
+    "code": "void draw(SkCanvas* canvas) {\n    auto surface = SkSurface::MakeRasterN32Premul(1, 1);\n    for (int i = 0; i < 3; ++i) {\n        SkDebugf(\"surface generationID: %d\\n\", surface->generationID());\n        if (0 == i) {\n            surface->getCanvas()->drawColor(SK_ColorBLACK);\n        } else {\n            surface->notifyContentWillChange(SkSurface::kDiscard_ContentChangeMode);\n        }\n    }\n}",
+    "hash": "be9574c4a14f891e1abb4ec2b1e51d6c",
+    "file": "SkSurface_Reference",
+    "name": "SkSurface::generationID",
+        "stdout": "surface generationID: 1\\nsurface generationID: 2\\nsurface generationID: 3\\n"
+    },
+        "SkSurface_height": {
+    "code": "void draw(SkCanvas* canvas) {\n    const int width = 37;\n    const int height = 1000;\n    auto surf = SkSurface::MakeNull(width, height);\n    auto nullCanvas = surf->getCanvas();\n    SkDebugf(\"surface height=%d  canvas height=%d\\n\", surf->height(),\n             nullCanvas->getBaseLayerSize().fHeight);\n}",
+    "hash": "20571cc23e3146deaa09046b64cc0aef",
+    "file": "SkSurface_Reference",
+    "name": "SkSurface::height()",
+        "stdout": "surface height=1000  canvas height=1000\\n"
+    },
+        "SkSurface_notifyContentWillChange": {
+    "code": "void draw(SkCanvas* canvas) {\n    auto surface = SkSurface::MakeRasterN32Premul(1, 1);\n    for (int i = 0; i < 3; ++i) {\n        SkDebugf(\"surface generationID: %d\\n\", surface->generationID());\n        if (0 == i) {\n            surface->getCanvas()->drawColor(SK_ColorBLACK);\n        } else {\n            surface->notifyContentWillChange(SkSurface::kDiscard_ContentChangeMode);\n        }\n    }\n}",
+    "hash": "be9574c4a14f891e1abb4ec2b1e51d6c",
+    "file": "SkSurface_Reference",
+    "name": "SkSurface::notifyContentWillChange",
+        "stdout": "surface generationID: 1\\nsurface generationID: 2\\nsurface generationID: 3\\n"
+    },
+        "SkSurface_props": {
+    "code": "void draw(SkCanvas* canvas) {\n    const char* names[] = { \"Unknown\", \"RGB_H\", \"BGR_H\", \"RGB_V\", \"BGR_V\" };\n    sk_sp<SkSurface> surf(SkSurface::MakeRasterN32Premul(64, 64));\n    SkDebugf(\"surf.props(): k%s_SkPixelGeometry\\n\", names[surf->props().pixelGeometry()]);\n}",
+    "hash": "13cf9e7b2894ae6e98c1fd719040bf01",
+    "file": "SkSurface_Reference",
+    "name": "SkSurface::props()",
+        "stdout": "surf.props(): kRGB_H_SkPixelGeometry\\n"
+    },
+        "SkSurface_width": {
+    "code": "void draw(SkCanvas* canvas) {\n    const int width = 37;\n    const int height = 1000;\n    auto surf = SkSurface::MakeNull(width, height);\n    auto nullCanvas = surf->getCanvas();\n    SkDebugf(\"surface width=%d  canvas width=%d\\n\", surf->width(),\n             nullCanvas->getBaseLayerSize().fWidth);\n}",
+    "hash": "df066b56dd97c7c589fd2bb6a2539de8",
+    "file": "SkSurface_Reference",
+    "name": "SkSurface::width()",
+        "stdout": "surface width=37  canvas width=37\\n"
     }
     }
 
@@ -3068,18 +3334,18 @@
     "name": "Filter_Quality_Methods"
 },
     "Paint_Font_Metrics": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    paint.setTextSize(120);\n    SkPaint::FontMetrics fm;\n    SkScalar lineHeight = paint.getFontMetrics(&fm);\n    SkPoint pt = { 70, 180 };\n    canvas->drawString(\"M\", pt.fX, pt.fY, paint);\n    canvas->drawLine(pt.fX, pt.fY, pt.fX, pt.fY + fm.fTop, paint);\n    SkScalar ascent = pt.fY + fm.fAscent;\n    canvas->drawLine(pt.fX - 25, ascent, pt.fX - 25, ascent + lineHeight, paint);\n    canvas->drawLine(pt.fX - 50, pt.fY, pt.fX - 50, pt.fY + fm.fDescent, paint);\n    canvas->drawLine(pt.fX + 100, pt.fY, pt.fX + 100, pt.fY + fm.fAscent, paint);\n    canvas->drawLine(pt.fX + 125, pt.fY, pt.fX + 125, pt.fY - fm.fXHeight, paint);\n    canvas->drawLine(pt.fX + 150, pt.fY, pt.fX + 150, pt.fY - fm.fCapHeight, paint);\n    canvas->drawLine(pt.fX + 5, pt.fY, pt.fX + 5, pt.fY + fm.fBottom, paint);\n    SkScalar xmin = pt.fX + fm.fXMin;\n    canvas->drawLine(xmin, pt.fY + 60, xmin + fm.fMaxCharWidth, pt.fY + 60, paint);\n    canvas->drawLine(xmin, pt.fY - 145, pt.fX, pt.fY - 145, paint);\n    canvas->drawLine(pt.fX + fm.fXMax, pt.fY - 160, pt.fX, pt.fY - 160, paint);\n    SkScalar upos = pt.fY + fm.fUnderlinePosition;\n    canvas->drawLine(pt.fX + 25, upos, pt.fX + 130, upos, paint);\n    SkScalar urad = fm.fUnderlineThickness / 2;\n    canvas->drawLine(pt.fX + 130, upos - urad, pt.fX + 160, upos - urad, paint);\n    canvas->drawLine(pt.fX + 130, upos + urad, pt.fX + 160, upos + urad, paint);\n    paint.setTextSize(12);\n    canvas->drawString(\"x-min\",          pt.fX - 50, pt.fY - 148, paint);\n    canvas->drawString(\"x-max\",          pt.fX + 140, pt.fY - 150, paint);\n    canvas->drawString(\"max char width\", pt.fX + 120, pt.fY + 57, paint);\n    canvas->drawString(\"underline position\", pt.fX + 30, pt.fY + 22, paint);\n    canvas->drawString(\"underline thickness\", pt.fX + 162, pt.fY + 13, paint);\n    canvas->rotate(-90);\n    canvas->drawString(\"descent\",     -pt.fY - 30, pt.fX - 54,  paint);\n    canvas->drawString(\"line height\", -pt.fY,      pt.fX - 29,  paint);\n    canvas->drawString(\"top\",         -pt.fY + 30, pt.fX - 4,   paint);\n    canvas->drawString(\"ascent\",      -pt.fY,      pt.fX + 110, paint);\n    canvas->drawString(\"x-height\",    -pt.fY,      pt.fX + 135, paint);\n    canvas->drawString(\"cap-height\",  -pt.fY,      pt.fX + 160, paint);\n    canvas->drawString(\"bottom\",      -pt.fY - 50, pt.fX + 15,  paint);\n}\n",
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    paint.setTextSize(120);\n    SkPaint::FontMetrics fm;\n    SkScalar lineHeight = paint.getFontMetrics(&fm);\n    SkPoint pt = { 70, 180 };\n    canvas->drawString(\"M\", pt.fX, pt.fY, paint);\n    canvas->drawLine(pt.fX, pt.fY, pt.fX, pt.fY + fm.fTop, paint);\n    SkScalar ascent = pt.fY + fm.fAscent;\n    canvas->drawLine(pt.fX - 25, ascent, pt.fX - 25, ascent + lineHeight, paint);\n    canvas->drawLine(pt.fX - 50, pt.fY, pt.fX - 50, pt.fY + fm.fDescent, paint);\n    canvas->drawLine(pt.fX + 100, pt.fY, pt.fX + 100, pt.fY + fm.fAscent, paint);\n    canvas->drawLine(pt.fX + 125, pt.fY, pt.fX + 125, pt.fY - fm.fXHeight, paint);\n    canvas->drawLine(pt.fX + 150, pt.fY, pt.fX + 150, pt.fY - fm.fCapHeight, paint);\n    canvas->drawLine(pt.fX + 5, pt.fY, pt.fX + 5, pt.fY + fm.fBottom, paint);\n    SkScalar xmin = pt.fX + fm.fXMin;\n    canvas->drawLine(xmin, pt.fY + 60, xmin + fm.fMaxCharWidth, pt.fY + 60, paint);\n    canvas->drawLine(xmin, pt.fY - 145, pt.fX, pt.fY - 145, paint);\n    canvas->drawLine(pt.fX + fm.fXMax, pt.fY - 160, pt.fX, pt.fY - 160, paint);\n    SkScalar upos = pt.fY + fm.fUnderlinePosition;\n    canvas->drawLine(pt.fX + 25, upos, pt.fX + 160, upos, paint);\n    SkScalar ut = fm.fUnderlineThickness;\n    canvas->drawLine(pt.fX + 130, upos + ut, pt.fX + 160, upos + ut, paint);\n    paint.setTextSize(12);\n    canvas->drawString(\"x-min\",          pt.fX - 50, pt.fY - 148, paint);\n    canvas->drawString(\"x-max\",          pt.fX + 140, pt.fY - 150, paint);\n    canvas->drawString(\"max char width\", pt.fX + 120, pt.fY + 57, paint);\n    canvas->drawString(\"underline position\", pt.fX + 30, pt.fY + 22, paint);\n    canvas->drawString(\"underline thickness\", pt.fX + 162, pt.fY + 13, paint);\n    canvas->rotate(-90);\n    canvas->drawString(\"descent\",     -pt.fY - 30, pt.fX - 54,  paint);\n    canvas->drawString(\"line height\", -pt.fY,      pt.fX - 29,  paint);\n    canvas->drawString(\"top\",         -pt.fY + 30, pt.fX - 4,   paint);\n    canvas->drawString(\"ascent\",      -pt.fY,      pt.fX + 110, paint);\n    canvas->drawString(\"x-height\",    -pt.fY,      pt.fX + 135, paint);\n    canvas->drawString(\"cap-height\",  -pt.fY,      pt.fX + 160, paint);\n    canvas->drawString(\"bottom\",      -pt.fY - 50, pt.fX + 15,  paint);\n}\n",
     "width": 512,
     "height": 256,
-    "hash": "b5b76e0a15da0c3530071186a9006498",
+    "hash": "2bfa3783719fcd769af177a1b244e171",
     "file": "SkPaint_Reference",
     "name": "Font_Metrics"
 },
     "Paint_Image_Filter_Methods": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setStyle(SkPaint::kStroke_Style);\n    paint.setStrokeWidth(2);\n    SkRegion region;\n    region.op( 10, 10, 50, 50, SkRegion::kUnion_Op);\n    region.op( 10, 50, 90, 90, SkRegion::kUnion_Op);\n    paint.setImageFilter(SkImageFilter::MakeBlur(5.0f, 5.0f, nullptr));\n    canvas->drawRegion(region, paint);\n    paint.setImageFilter(nullptr);\n    paint.setMaskFilter(SkBlurMaskFilter::Make(kNormal_SkBlurStyle, 5));\n    canvas->translate(100, 100);\n    canvas->drawRegion(region, paint);\n}\n",
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setStyle(SkPaint::kStroke_Style);\n    paint.setStrokeWidth(2);\n    SkRegion region;\n    region.op( 10, 10, 50, 50, SkRegion::kUnion_Op);\n    region.op( 10, 50, 90, 90, SkRegion::kUnion_Op);\n    paint.setImageFilter(SkBlurImageFilter::Make(5.0f, 5.0f, nullptr));\n    canvas->drawRegion(region, paint);\n    paint.setImageFilter(nullptr);\n    paint.setMaskFilter(SkBlurMaskFilter::Make(kNormal_SkBlurStyle, 5));\n    canvas->translate(100, 100);\n    canvas->drawRegion(region, paint);\n}\n",
     "width": 256,
     "height": 256,
-    "hash": "88804938b49eb4f7c7f01ad52f4db0d8",
+    "hash": "0b2eec148d6397d6231e1fa0b3d1496d",
     "file": "SkPaint_Reference",
     "name": "Image_Filter_Methods"
 },
@@ -3204,10 +3470,10 @@
     "name": "Text_Skew_X"
 },
     "Paint_Typeface_Methods": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setTypeface(SkTypeface::MakeDefault(SkTypeface::kBold));\n    paint.setAntiAlias(true);\n    paint.setTextSize(36);\n    canvas->drawString(\"A Big Hello!\", 10, 40, paint);\n    paint.setTypeface(nullptr);\n    paint.setFakeBoldText(true);\n    canvas->drawString(\"A Big Hello!\", 10, 80, paint);\n}\n",
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setTypeface(SkTypeface::MakeFromName(nullptr, SkFontStyle()));\n    paint.setAntiAlias(true);\n    paint.setTextSize(36);\n    canvas->drawString(\"A Big Hello!\", 10, 40, paint);\n    paint.setTypeface(nullptr);\n    paint.setFakeBoldText(true);\n    canvas->drawString(\"A Big Hello!\", 10, 80, paint);\n}\n",
     "width": 256,
     "height": 100,
-    "hash": "c18b1696b8c1649bebf7eb1f8b89e0b0",
+    "hash": "1a7a5062725139760962582f599f1b97",
     "file": "SkPaint_Reference",
     "name": "Typeface_Methods"
 },
@@ -4308,10 +4574,10 @@
     "name": "SkCanvas::save()"
 },
     "SkCanvas_saveLayer": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint, blur;\n    blur.setImageFilter(SkImageFilter::MakeBlur(3, 3, nullptr));\n    canvas->saveLayer(nullptr, &blur);\n    SkRect rect = { 25, 25, 50, 50};\n    canvas->drawRect(rect, paint);\n    canvas->translate(50, 50);\n    paint.setColor(SK_ColorRED);\n    canvas->drawRect(rect, paint);\n    canvas->restore();\n}\n",
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint, blur;\n    blur.setImageFilter(SkBlurImageFilter::Make(3, 3, nullptr));\n    canvas->saveLayer(nullptr, &blur);\n    SkRect rect = { 25, 25, 50, 50};\n    canvas->drawRect(rect, paint);\n    canvas->translate(50, 50);\n    paint.setColor(SK_ColorRED);\n    canvas->drawRect(rect, paint);\n    canvas->restore();\n}\n",
     "width": 256,
     "height": 128,
-    "hash": "05f9b6fa6b5007aea89dfe66c306855d",
+    "hash": "1a025d6018f64140af2dc36acad59008",
     "file": "SkCanvas_Reference",
     "name": "SkCanvas::saveLayer"
 },
@@ -4332,10 +4598,10 @@
     "name": "SkCanvas::saveLayerPreserveLCDTextRequests"
 },
     "SkCanvas_saveLayer_2": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint, blur;\n    blur.setImageFilter(SkImageFilter::MakeBlur(3, 3, nullptr));\n    canvas->saveLayer(SkRect::MakeWH(90, 90), &blur);\n    SkRect rect = { 25, 25, 50, 50};\n    canvas->drawRect(rect, paint);\n    canvas->translate(50, 50);\n    paint.setColor(SK_ColorRED);\n    canvas->drawRect(rect, paint);\n    canvas->restore();\n}\n",
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint, blur;\n    blur.setImageFilter(SkBlurImageFilter::Make(3, 3, nullptr));\n    canvas->saveLayer(SkRect::MakeWH(90, 90), &blur);\n    SkRect rect = { 25, 25, 50, 50};\n    canvas->drawRect(rect, paint);\n    canvas->translate(50, 50);\n    paint.setColor(SK_ColorRED);\n    canvas->drawRect(rect, paint);\n    canvas->restore();\n}\n",
     "width": 256,
     "height": 128,
-    "hash": "812f3c8f8b93e8c7e55528c7a22887bf",
+    "hash": "5b59231feae0c09cb1ab6a292229d7a4",
     "file": "SkCanvas_Reference",
     "name": "SkCanvas::saveLayer_2"
 },
@@ -4394,6 +4660,462 @@
     "hash": "8b128e067881f9251357653692fa28da",
     "file": "SkCanvas_Reference",
     "name": "SkCanvas::writePixels_2"
+},
+    "SkIPoint_add_operator": {
+    "code": "void draw(SkCanvas* canvas) {\n    auto draw_lines = [=](const SkIPoint pts[], size_t count, SkPaint& paint) -> void {\n        for (size_t i = 0; i < count - 1; ++i) {\n            SkPoint p0, p1;\n            p0.iset(pts[i]);\n            p1.iset(pts[i + 1]);\n            canvas->drawLine(p0, p1, paint);\n        }\n    };\n    SkIPoint points[] = { { 3, 1 }, { 4, 2 }, { 5, 1 }, { 7, 3 } };\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    paint.setStyle(SkPaint::kStroke_Style);\n    canvas->scale(30, 15);\n    draw_lines(points, SK_ARRAY_COUNT(points), paint);\n    SkIPoint mod = {4, 1};\n    for (auto& point : points) {\n        point = point + mod;\n        mod.fX -= 1;\n        mod.fY += 1;\n    }\n    paint.setColor(SK_ColorRED);\n    draw_lines(points, SK_ARRAY_COUNT(points), paint);\n}",
+    "width": 256,
+    "height": 128,
+    "hash": "63f4cba971c6d8434595906f865b5a29",
+    "file": "SkIPoint_Reference",
+    "name": "SkIPoint::operator+(const SkIPoint& a, const SkIVector& b)"
+},
+    "SkIPoint_addto_operator": {
+    "code": "void draw(SkCanvas* canvas) {\n    auto draw_lines = [=](const SkIPoint pts[], size_t count, SkPaint& paint) -> void {\n        for (size_t i = 0; i < count - 1; ++i) {\n            SkPoint p0, p1;\n            p0.iset(pts[i]);\n            p1.iset(pts[i + 1]);\n            canvas->drawLine(p0, p1, paint);\n        }\n    };\n    SkIPoint points[] = { { 3, 1 }, { 4, 2 }, { 5, 1 }, { 7, 3 } };\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    paint.setStyle(SkPaint::kStroke_Style);\n    canvas->scale(30, 15);\n    draw_lines(points, SK_ARRAY_COUNT(points), paint);\n    points[1] += {1, 1};\n    points[2] += {-1, -1};\n    paint.setColor(SK_ColorRED);\n    draw_lines(points, SK_ARRAY_COUNT(points), paint);\n}",
+    "width": 256,
+    "height": 64,
+    "hash": "4eb2d95c9e9a66f05296e345bb68bd51",
+    "file": "SkIPoint_Reference",
+    "name": "SkIPoint::operator+=(const SkIVector& v)"
+},
+    "SkIPoint_subtract_operator": {
+    "code": "void draw(SkCanvas* canvas) {\n    auto draw_lines = [=](const SkIPoint pts[], size_t count, SkPaint& paint) -> void {\n        for (size_t i = 0; i < count - 1; ++i) {\n            SkPoint p0, p1;\n            p0.iset(pts[i]);\n            p1.iset(pts[i + 1]);\n            canvas->drawLine(p0, p1, paint);\n        }\n    };\n    SkIPoint points[] = { { 3, 1 }, { 4, 2 }, { 5, 1 }, { 7, 3 } };\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    paint.setStyle(SkPaint::kStroke_Style);\n    canvas->scale(30, 15);\n    draw_lines(points, SK_ARRAY_COUNT(points), paint);\n    points[1] += points[0] - points[3];\n    points[2] -= points[1] - points[0];\n    paint.setColor(SK_ColorRED);\n    draw_lines(points, SK_ARRAY_COUNT(points), paint);\n}",
+    "width": 256,
+    "height": 64,
+    "hash": "e626e26bf557857b824aa7d03f723e0f",
+    "file": "SkIPoint_Reference",
+    "name": "SkIPoint::operator-(const SkIPoint& a, const SkIPoint& b)"
+},
+    "SkIPoint_subtractfrom_operator": {
+    "code": "void draw(SkCanvas* canvas) {\n    auto draw_lines = [=](const SkIPoint pts[], size_t count, SkPaint& paint) -> void {\n        for (size_t i = 0; i < count - 1; ++i) {\n            SkPoint p0, p1;\n            p0.iset(pts[i]);\n            p1.iset(pts[i + 1]);\n            canvas->drawLine(p0, p1, paint);\n        }\n    };\n    SkIPoint points[] = { { 3, 1 }, { 4, 2 }, { 5, 1 }, { 7, 3 } };\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    paint.setStyle(SkPaint::kStroke_Style);\n    canvas->scale(30, 15);\n    draw_lines(points, SK_ARRAY_COUNT(points), paint);\n    points[1] -= {1, 1};\n    points[2] -= {-1, -1};\n    paint.setColor(SK_ColorRED);\n    draw_lines(points, SK_ARRAY_COUNT(points), paint);\n}",
+    "width": 256,
+    "height": 64,
+    "hash": "a01e533dc7ab34ed728dc4e7a5f1f0ee",
+    "file": "SkIPoint_Reference",
+    "name": "SkIPoint::operator-=(const SkIVector& v)"
+},
+    "SkImage_BitDepth": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkImage_Reference",
+    "name": "SkImage::BitDepth"
+},
+    "SkImage_CachingHint": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkImage_Reference",
+    "name": "SkImage::CachingHint"
+},
+    "SkImage_DeferredTextureImageUsageParams_DeferredTextureImageUsageParams": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkImage_Reference",
+    "name": "SkImage::DeferredTextureImageUsageParams::DeferredTextureImageUsageParams"
+},
+    "SkImage_LegacyBitmapMode": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkImage_Reference",
+    "name": "SkImage::LegacyBitmapMode"
+},
+    "SkImage_MakeBackendTextureFromSkImage": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkImage_Reference",
+    "name": "SkImage::MakeBackendTextureFromSkImage"
+},
+    "SkImage_MakeCrossContextFromEncoded": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkImage_Reference",
+    "name": "SkImage::MakeCrossContextFromEncoded"
+},
+    "SkImage_MakeFromAHardwareBuffer": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkImage_Reference",
+    "name": "SkImage::MakeFromAHardwareBuffer"
+},
+    "SkImage_MakeFromAHardwareBuffer_2": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkImage_Reference",
+    "name": "SkImage::MakeFromAHardwareBuffer_2"
+},
+    "SkImage_MakeFromAdoptedTexture": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkImage_Reference",
+    "name": "SkImage::MakeFromAdoptedTexture"
+},
+    "SkImage_MakeFromBitmap": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkImage_Reference",
+    "name": "SkImage::MakeFromBitmap"
+},
+    "SkImage_MakeFromDeferredTextureImageData": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkImage_Reference",
+    "name": "SkImage::MakeFromDeferredTextureImageData"
+},
+    "SkImage_MakeFromEncoded": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkImage_Reference",
+    "name": "SkImage::MakeFromEncoded"
+},
+    "SkImage_MakeFromGenerator": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkImage_Reference",
+    "name": "SkImage::MakeFromGenerator"
+},
+    "SkImage_MakeFromNV12TexturesCopy": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkImage_Reference",
+    "name": "SkImage::MakeFromNV12TexturesCopy"
+},
+    "SkImage_MakeFromPicture": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkImage_Reference",
+    "name": "SkImage::MakeFromPicture"
+},
+    "SkImage_MakeFromRaster": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkImage_Reference",
+    "name": "SkImage::MakeFromRaster"
+},
+    "SkImage_MakeFromTexture": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkImage_Reference",
+    "name": "SkImage::MakeFromTexture"
+},
+    "SkImage_MakeFromTexture_2": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkImage_Reference",
+    "name": "SkImage::MakeFromTexture_2"
+},
+    "SkImage_MakeFromYUVTexturesCopy": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkImage_Reference",
+    "name": "SkImage::MakeFromYUVTexturesCopy"
+},
+    "SkImage_MakeRasterCopy": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkImage_Reference",
+    "name": "SkImage::MakeRasterCopy"
+},
+    "SkImage_MakeRasterData": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkImage_Reference",
+    "name": "SkImage::MakeRasterData"
+},
+    "SkImage_alphaType": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkImage_Reference",
+    "name": "SkImage::alphaType"
+},
+    "SkImage_asLegacyBitmap": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkImage_Reference",
+    "name": "SkImage::asLegacyBitmap"
+},
+    "SkImage_bounds": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkImage_Reference",
+    "name": "SkImage::bounds()"
+},
+    "SkImage_colorSpace": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkImage_Reference",
+    "name": "SkImage::colorSpace"
+},
+    "SkImage_dimensions": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkImage_Reference",
+    "name": "SkImage::dimensions()"
+},
+    "SkImage_encodeToData": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkImage_Reference",
+    "name": "SkImage::encodeToData"
+},
+    "SkImage_encodeToData_2": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkImage_Reference",
+    "name": "SkImage::encodeToData_2"
+},
+    "SkImage_getDeferredTextureImageData": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkImage_Reference",
+    "name": "SkImage::getDeferredTextureImageData"
+},
+    "SkImage_getTexture": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkImage_Reference",
+    "name": "SkImage::getTexture"
+},
+    "SkImage_getTextureHandle": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkImage_Reference",
+    "name": "SkImage::getTextureHandle"
+},
+    "SkImage_height": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkImage_Reference",
+    "name": "SkImage::height()"
+},
+    "SkImage_isAlphaOnly": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkImage_Reference",
+    "name": "SkImage::isAlphaOnly"
+},
+    "SkImage_isLazyGenerated": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkImage_Reference",
+    "name": "SkImage::isLazyGenerated"
+},
+    "SkImage_isOpaque": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkImage_Reference",
+    "name": "SkImage::isOpaque"
+},
+    "SkImage_isTextureBacked": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkImage_Reference",
+    "name": "SkImage::isTextureBacked"
+},
+    "SkImage_isValid": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkImage_Reference",
+    "name": "SkImage::isValid"
+},
+    "SkImage_makeColorSpace": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkImage_Reference",
+    "name": "SkImage::makeColorSpace"
+},
+    "SkImage_makeNonTextureImage": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkImage_Reference",
+    "name": "SkImage::makeNonTextureImage"
+},
+    "SkImage_makeShader": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkImage_Reference",
+    "name": "SkImage::makeShader"
+},
+    "SkImage_makeShader_2": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkImage_Reference",
+    "name": "SkImage::makeShader_2"
+},
+    "SkImage_makeSubset": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkImage_Reference",
+    "name": "SkImage::makeSubset"
+},
+    "SkImage_makeTextureImage": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkImage_Reference",
+    "name": "SkImage::makeTextureImage"
+},
+    "SkImage_makeWithFilter": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkImage_Reference",
+    "name": "SkImage::makeWithFilter"
+},
+    "SkImage_peekPixels": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkImage_Reference",
+    "name": "SkImage::peekPixels"
+},
+    "SkImage_readPixels": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkImage_Reference",
+    "name": "SkImage::readPixels"
+},
+    "SkImage_readPixels_2": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkImage_Reference",
+    "name": "SkImage::readPixels_2"
+},
+    "SkImage_refColorSpace": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkImage_Reference",
+    "name": "SkImage::refColorSpace"
+},
+    "SkImage_refEncodedData": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkImage_Reference",
+    "name": "SkImage::refEncodedData"
+},
+    "SkImage_scalePixels": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkImage_Reference",
+    "name": "SkImage::scalePixels"
+},
+    "SkImage_toString": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkImage_Reference",
+    "name": "SkImage::toString"
+},
+    "SkImage_uniqueID": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkImage_Reference",
+    "name": "SkImage::uniqueID"
+},
+    "SkImage_width": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkImage_Reference",
+    "name": "SkImage::width()"
 },
     "SkMatrix_Concat": {
     "code": "void draw(SkCanvas* canvas) {\n    SkMatrix matrix, matrix2;\n    SkPoint bitmapBounds[4], perspect[4] = {{50, 10}, {180, 40}, {236, 176}, {10, 206}};\n    SkRect::Make(source.bounds()).toQuad(bitmapBounds);\n    matrix.setPolyToPoly(bitmapBounds, perspect, 4);\n    matrix2.setPolyToPoly(perspect, bitmapBounds, 4);\n    SkMatrix concat = SkMatrix::Concat(matrix, matrix2);\n    canvas->concat(concat);\n    canvas->drawBitmap(source, 0, 0);\n}",
@@ -4500,10 +5222,10 @@
     "name": "SkMatrix::isSimilarity"
 },
     "SkMatrix_mapHomogeneousPoints": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkPoint3 src[] = {{3, 3, 1}, {8, 2, 2}, {5, 0, 4}, {0, 1, 3},\n                      {3, 7, 1}, {8, 6, 2}, {5, 4, 4}, {0, 5, 3}};\n    int lines[] = { 0, 1, 1, 2, 2, 3, 3, 0, 4, 5, 5, 6, 6, 7, 7, 4, 0, 4, 1, 5, 2, 6, 3, 7 };\n    constexpr int count = SK_ARRAY_COUNT(src);\n    auto debugster = [=](SkPoint3 src[]) -> void {\n    for (size_t i = 0; i < SK_ARRAY_COUNT(lines); i += 2) {\n        const SkPoint3& s = src[lines[i]];\n        const SkPoint3& e = src[lines[i + 1]];\n        SkPaint paint;\n        paint.setARGB(77, 23, 99, 154);\n        canvas->drawLine(s.fX / s.fZ, s.fY / s.fZ, e.fX / e.fZ, e.fY / e.fZ, paint);\n    }\n    };\n    canvas->save();\n    canvas->translate(5, 5);\n    canvas->scale(15, 15);\n    debugster(src);\n    canvas->restore();\n    canvas->translate(128, 128);\n    SkMatrix matrix;\n    matrix.setAll(15, 0, 0, 0, 15, 0, -0.08, 0.04, 1);\n    matrix.mapHomogeneousPoints(&src[0].fX, &src[0].fX, count);\n    debugster(src);\n}",
+    "code": "void draw(SkCanvas* canvas) {\n    SkPoint3 src[] = {{3, 3, 1}, {8, 2, 2}, {5, 0, 4}, {0, 1, 3},\n                      {3, 7, 1}, {8, 6, 2}, {5, 4, 4}, {0, 5, 3}};\n    int lines[] = { 0, 1, 1, 2, 2, 3, 3, 0, 4, 5, 5, 6, 6, 7, 7, 4, 0, 4, 1, 5, 2, 6, 3, 7 };\n    constexpr int count = SK_ARRAY_COUNT(src);\n    auto debugster = [=](SkPoint3 src[]) -> void {\n    for (size_t i = 0; i < SK_ARRAY_COUNT(lines); i += 2) {\n        const SkPoint3& s = src[lines[i]];\n        const SkPoint3& e = src[lines[i + 1]];\n        SkPaint paint;\n        paint.setARGB(77, 23, 99, 154);\n        canvas->drawLine(s.fX / s.fZ, s.fY / s.fZ, e.fX / e.fZ, e.fY / e.fZ, paint);\n    }\n    };\n    canvas->save();\n    canvas->translate(5, 5);\n    canvas->scale(15, 15);\n    debugster(src);\n    canvas->restore();\n    canvas->translate(128, 128);\n    SkMatrix matrix;\n    matrix.setAll(15, 0, 0, 0, 15, 0, -0.08, 0.04, 1);\n    matrix.mapHomogeneousPoints(src, src, count);\n    debugster(src);\n}",
     "width": 256,
     "height": 256,
-    "hash": "0d8c7aa7249048f2b83d32cf13f88560",
+    "hash": "d56f93e4bc763c7ba4914321ed07a8b5",
     "file": "SkMatrix_Reference",
     "name": "SkMatrix::mapHomogeneousPoints"
 },
@@ -5810,6 +6532,334 @@
     "hash": "7822d78f5cacf5c04267cbbc6c6d0b80",
     "file": "SkPixmap_Reference",
     "name": "SkPixmap::writable_addrF16"
+},
+    "SkPoint_CrossProduct": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    SkVector vectors[][2] = {{{50, 2}, {-14, 20}}, {{0, 50}, {-50, 0}}, {{-20, 25}, {25, -20}},\n                             {{-20, -24}, {-24, -20}}};\n    SkPoint center[] = {{32, 32}, {160, 32}, {32, 160}, {160, 160}};\n    paint.setStrokeWidth(2);\n    for (size_t i = 0; i < 4; ++i) {\n        paint.setColor(SK_ColorRED);\n        canvas->drawLine(center[i], center[i] + vectors[i][0], paint);\n        paint.setColor(SK_ColorBLUE);\n        canvas->drawLine(center[i], center[i] + vectors[i][1], paint);\n        SkString str;\n        SkScalar cross = SkPoint::CrossProduct(vectors[i][1], vectors[i][0]);\n        str.printf(\"cross = %g\", cross);\n        paint.setColor(cross >= 0 ? SK_ColorRED : SK_ColorBLUE);\n        canvas->drawString(str, center[i].fX, center[i].fY, paint);\n    }\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "8b8a4cd8a29d22bb9c5e63b70357bd65",
+    "file": "SkPoint_Reference",
+    "name": "SkPoint::CrossProduct"
+},
+    "SkPoint_Distance": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    const SkPoint lines[][2] = {{{-10, -10}, {90, 30}}, {{0, 0}, {150, 30}}, {{10, 25}, {120, 150}}};\n    const SkPoint origin = {30, 160};\n    for (auto line : lines) {\n        SkPoint a = origin + line[0];\n        const SkPoint& b = line[1];\n        canvas->drawLine(a, b, paint);\n        SkAutoCanvasRestore acr(canvas, true);\n        SkScalar angle = SkScalarATan2((b.fY - a.fY), b.fX - a.fX);\n        canvas->rotate(angle * 180 / SK_ScalarPI, a.fX, a.fY);\n        SkString distance(\"distance = \");\n        distance.appendScalar(SkPoint::Distance(a, b));\n        canvas->drawString(distance, a.fX + 25, a.fY - 4, paint);\n    }\n}",
+    "width": 256,
+    "height": 192,
+    "hash": "9e0a2de2eb94dba4521d733e73f2bda5",
+    "file": "SkPoint_Reference",
+    "name": "SkPoint::Distance"
+},
+    "SkPoint_DotProduct": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    SkVector vectors[][2] = {{{50, 2}, {-14, 20}}, {{0, 50}, {-50, 0}}, {{-20, 25}, {25, -20}},\n                             {{-20, -24}, {-24, -20}}};\n    SkPoint center[] = {{32, 32}, {160, 32}, {32, 160}, {160, 160}};\n    paint.setStrokeWidth(2);\n    for (size_t i = 0; i < 4; ++i) {\n        canvas->drawLine(center[i], center[i] + vectors[i][0], paint);\n        canvas->drawLine(center[i], center[i] + vectors[i][1], paint);\n        SkString str;\n        str.printf(\"dot = %g\", SkPoint::DotProduct(vectors[i][0], vectors[i][1]));\n        canvas->drawString(str, center[i].fX, center[i].fY, paint);\n    }\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "496db0131a003162faba7d7f98b30340",
+    "file": "SkPoint_Reference",
+    "name": "SkPoint::DotProduct"
+},
+    "SkPoint_Length": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    const SkPoint points[] = { { 90, 30 }, { 120, 150 }, { 150, 30 }, { 210, 90 } };\n    const SkPoint origin = {30, 140};\n    for (auto point : points) {\n        canvas->drawLine(origin, point, paint);\n        SkAutoCanvasRestore acr(canvas, true);\n        SkScalar angle = SkScalarATan2((point.fY - origin.fY), point.fX - origin.fX);\n        canvas->rotate(angle * 180 / SK_ScalarPI, origin.fX, origin.fY);\n        SkString length(\"length = \");\n        length.appendScalar(SkPoint::Length(point.fX, point.fY));\n        canvas->drawString(length, origin.fX + 25, origin.fY - 4, paint);\n    }\n}",
+    "width": 256,
+    "height": 192,
+    "hash": "c98773d8b4509969d78cb8121e4b77f6",
+    "file": "SkPoint_Reference",
+    "name": "SkPoint::Length"
+},
+    "SkPoint_Normalize": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    const SkPoint lines[][2] = { {{  30, 110 }, { 190,  30 }},\n                                 {{  30, 220 }, { 120, 140 }}};\n    for (auto line : lines) {\n        canvas->drawLine(line[0], line[1], paint);\n        SkVector vector = line[1] - line[0];\n        SkScalar priorLength = SkPoint::Normalize(&vector);\n        SkVector rotate90 = { -vector.fY, vector.fX };\n        rotate90 *= 10.f;\n        canvas->drawLine(line[0] - rotate90, line[0] + rotate90, paint);\n        canvas->drawLine(line[1] - rotate90, line[1] + rotate90, paint);\n        SkString length(\"length = \");\n        length.appendScalar(priorLength);\n        canvas->drawString(length, line[0].fX + 25, line[0].fY - 4, paint);\n    }\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "60a08f3ce75374fc815384616d114df7",
+    "file": "SkPoint_Reference",
+    "name": "SkPoint::Normalize"
+},
+    "SkPoint_Offset": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    SkPoint points[] = { { 3, 1 }, { 4, 2 }, { 5, 1 }, { 7, 3 },\n                         { 6, 4 }, { 7, 5 }, { 5, 7 },\n                         { 4, 6 }, { 3, 7 }, { 1, 5 },\n                         { 2, 4 }, { 1, 3 }, { 3, 1 } };\n    canvas->scale(30, 15);\n    paint.setStyle(SkPaint::kStroke_Style);\n    canvas->drawPoints(SkCanvas::kPolygon_PointMode, SK_ARRAY_COUNT(points), points, paint);\n    SkPoint::Offset(points, SK_ARRAY_COUNT(points), { 1, 9 } );\n    canvas->drawPoints(SkCanvas::kPolygon_PointMode, SK_ARRAY_COUNT(points), points, paint);\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "f0f24726df78a5d797bcf311e694a0a3",
+    "file": "SkPoint_Reference",
+    "name": "SkPoint::Offset"
+},
+    "SkPoint_Offset_2": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    SkPoint points[] = { { 3, 1 }, { 4, 2 }, { 5, 1 }, { 7, 3 },\n                         { 6, 4 }, { 7, 5 }, { 5, 7 },\n                         { 4, 6 }, { 3, 7 }, { 1, 5 },\n                         { 2, 4 }, { 1, 3 }, { 3, 1 } };\n    canvas->scale(30, 15);\n    paint.setStyle(SkPaint::kStroke_Style);\n    canvas->drawPoints(SkCanvas::kPolygon_PointMode, SK_ARRAY_COUNT(points), points, paint);\n    SkPoint::Offset(points, SK_ARRAY_COUNT(points), 1, 9);\n    canvas->drawPoints(SkCanvas::kPolygon_PointMode, SK_ARRAY_COUNT(points), points, paint);\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "532849faa838de885b86d3ebffae3712",
+    "file": "SkPoint_Reference",
+    "name": "SkPoint::Offset_2"
+},
+    "SkPoint_add_operator": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    SkPoint points[] = { { 3, 1 }, { 4, 2 }, { 5, 1 }, { 7, 3 },\n                         { 6, 4 }, { 7, 5 }, { 5, 7 },\n                         { 4, 6 }, { 3, 7 }, { 1, 5 },\n                         { 2, 4 }, { 1, 3 }, { 3, 1 } };\n    canvas->scale(30, 15);\n    paint.setStyle(SkPaint::kStroke_Style);\n    canvas->drawPoints(SkCanvas::kPolygon_PointMode, SK_ARRAY_COUNT(points), points, paint);\n    SkVector mod = {1, 1};\n    for (auto& point : points) {\n        point = point + mod;\n        mod.fX *= 1.1f;\n        mod.fY += .2f;\n    }\n    paint.setColor(SK_ColorRED);\n    canvas->drawPoints(SkCanvas::kPolygon_PointMode, SK_ARRAY_COUNT(points), points, paint);\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "911a84253dfec4dabf94dbe3c71766f0",
+    "file": "SkPoint_Reference",
+    "name": "SkPoint::operator+(const SkPoint& a, const SkVector& b)"
+},
+    "SkPoint_addto_operator": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    SkPoint points[] = { { 3, 1 }, { 4, 2 }, { 5, 1 }, { 7, 3 },\n                         { 6, 4 }, { 7, 5 }, { 5, 7 },\n                         { 4, 6 }, { 3, 7 }, { 1, 5 },\n                         { 2, 4 }, { 1, 3 }, { 3, 1 } };\n    canvas->scale(30, 15);\n    paint.setStyle(SkPaint::kStroke_Style);\n    canvas->drawPoints(SkCanvas::kPolygon_PointMode, SK_ARRAY_COUNT(points), points, paint);\n    points[1] += {1, 1};\n    points[2] += {-1, -1};\n    paint.setColor(SK_ColorRED);\n    canvas->drawPoints(SkCanvas::kPolygon_PointMode, SK_ARRAY_COUNT(points), points, paint);\n}",
+    "width": 256,
+    "height": 128,
+    "hash": "8b4e79109e2381345258cb744881b20c",
+    "file": "SkPoint_Reference",
+    "name": "SkPoint::operator+=(const SkVector& v)"
+},
+    "SkPoint_cross": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    SkVector vectors[][2] = {{{50, 2}, {-14, 20}}, {{0, 50}, {-50, 0}}, {{-20, 25}, {25, -20}},\n                             {{-20, -24}, {-24, -20}}};\n    SkPoint center[] = {{32, 32}, {160, 32}, {32, 160}, {160, 160}};\n    paint.setStrokeWidth(2);\n    for (size_t i = 0; i < 4; ++i) {\n        paint.setColor(SK_ColorRED);\n        canvas->drawLine(center[i], center[i] + vectors[i][0], paint);\n        paint.setColor(SK_ColorBLUE);\n        canvas->drawLine(center[i], center[i] + vectors[i][1], paint);\n        SkString str;\n        SkScalar cross = vectors[i][0].cross(vectors[i][1]);\n        str.printf(\"cross = %g\", cross);\n        paint.setColor(cross >= 0 ? SK_ColorRED : SK_ColorBLUE);\n        canvas->drawString(str, center[i].fX, center[i].fY, paint);\n    }\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "0bc7b3997357e499817278b78bdfbf1d",
+    "file": "SkPoint_Reference",
+    "name": "SkPoint::cross()"
+},
+    "SkPoint_distanceToOrigin": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    const SkPoint points[] = { { 60, -110 }, { 90, 10 }, { 120, -110 }, { 180, -50 } };\n    const SkPoint origin = {0, 0};\n    canvas->translate(30, 140);\n    for (auto point : points) {\n        canvas->drawLine(origin, point, paint);\n        SkAutoCanvasRestore acr(canvas, true);\n        SkScalar angle = SkScalarATan2((point.fY - origin.fY), point.fX - origin.fX);\n        canvas->rotate(angle * 180 / SK_ScalarPI, origin.fX, origin.fY);\n        SkString distance(\"distance = \");\n        distance.appendScalar(point.distanceToOrigin());\n        canvas->drawString(distance, origin.fX + 25, origin.fY - 4, paint);\n    }\n}",
+    "width": 256,
+    "height": 192,
+    "hash": "812cf26d91b1cdcd2c6b9438a8172518",
+    "file": "SkPoint_Reference",
+    "name": "SkPoint::distanceToOrigin"
+},
+    "SkPoint_dot": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    SkVector vectors[][2] = {{{50, 2}, {-14, 20}}, {{0, 50}, {-50, 0}}, {{-20, 25}, {25, -20}},\n                             {{-20, -24}, {-24, -20}}};\n    SkPoint center[] = {{32, 32}, {160, 32}, {32, 160}, {160, 160}};\n    paint.setStrokeWidth(2);\n    for (size_t i = 0; i < 4; ++i) {\n        canvas->drawLine(center[i], center[i] + vectors[i][0], paint);\n        canvas->drawLine(center[i], center[i] + vectors[i][1], paint);\n        SkString str;\n        str.printf(\"dot = %g\", vectors[i][0].dot(vectors[i][1]));\n        canvas->drawString(str, center[i].fX, center[i].fY, paint);\n    }\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "56d01ccfedd71d3c504b09afa2875d38",
+    "file": "SkPoint_Reference",
+    "name": "SkPoint::dot()"
+},
+    "SkPoint_length": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    const SkPoint points[] = { { 90, 30 }, { 120, 150 }, { 150, 30 }, { 210, 90 } };\n    const SkPoint origin = {30, 140};\n    for (auto point : points) {\n        canvas->drawLine(origin, point, paint);\n        SkAutoCanvasRestore acr(canvas, true);\n        SkScalar angle = SkScalarATan2((point.fY - origin.fY), point.fX - origin.fX);\n        canvas->rotate(angle * 180 / SK_ScalarPI, origin.fX, origin.fY);\n        SkString length(\"length = \");\n        length.appendScalar(point.length());\n        canvas->drawString(length, origin.fX + 25, origin.fY - 4, paint);\n    }\n}",
+    "width": 256,
+    "height": 192,
+    "hash": "8363ab179447ee4b827679e20d3d81eb",
+    "file": "SkPoint_Reference",
+    "name": "SkPoint::length()"
+},
+    "SkPoint_multiply_operator": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    SkPoint points[] = { { 3, 1 }, { 4, 2 }, { 5, 1 }, { 7, 3 },\n                         { 6, 4 }, { 7, 5 }, { 5, 7 },\n                         { 4, 6 }, { 3, 7 }, { 1, 5 },\n                         { 2, 4 }, { 1, 3 }, { 3, 1 } };\n    canvas->scale(15, 10);\n    paint.setStyle(SkPaint::kStroke_Style);\n    canvas->drawPoints(SkCanvas::kPolygon_PointMode, SK_ARRAY_COUNT(points), points, paint);\n    for (auto& point : points) {\n        point = point * 1.5f;\n    }\n    paint.setColor(SK_ColorRED);\n    canvas->drawPoints(SkCanvas::kPolygon_PointMode, SK_ARRAY_COUNT(points), points, paint);\n}",
+    "width": 256,
+    "height": 128,
+    "hash": "35b3bc675779de043706ae4817ee950c",
+    "file": "SkPoint_Reference",
+    "name": "SkPoint::operator*(SkScalar scale)_const"
+},
+    "SkPoint_multiplyby_operator": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    SkPoint points[] = { { 3, 1 }, { 4, 2 }, { 5, 1 }, { 7, 3 },\n                         { 6, 4 }, { 7, 5 }, { 5, 7 },\n                         { 4, 6 }, { 3, 7 }, { 1, 5 },\n                         { 2, 4 }, { 1, 3 }, { 3, 1 } };\n    canvas->scale(15, 10);\n    paint.setStyle(SkPaint::kStroke_Style);\n    canvas->drawPoints(SkCanvas::kPolygon_PointMode, SK_ARRAY_COUNT(points), points, paint);\n    for (auto& point : points) {\n        point *= 2;\n    }\n    paint.setColor(SK_ColorRED);\n    canvas->drawPoints(SkCanvas::kPolygon_PointMode, SK_ARRAY_COUNT(points), points, paint);\n}",
+    "width": 256,
+    "height": 128,
+    "hash": "3ce3db36235d80dbac4d39504cf756da",
+    "file": "SkPoint_Reference",
+    "name": "SkPoint::operator*=(SkScalar scale)"
+},
+    "SkPoint_normalize": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    const SkPoint lines[][2] = { {{  30, 110 }, { 190,  30 }},\n                                 {{ 120, 140 }, {  30, 220 }}};\n    for (auto line : lines) {\n        canvas->drawLine(line[0], line[1], paint);\n        SkVector vector = line[1] - line[0];\n        if (vector.normalize()) {\n            SkVector rotate90 = { -vector.fY, vector.fX };\n            rotate90 *= 10.f;\n            canvas->drawLine(line[0] - rotate90, line[0] + rotate90, paint);\n            canvas->drawLine(line[1] - rotate90, line[1] + rotate90, paint);\n        }\n    }\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "d84fce292d86c7d9ef37ae2d179c03c7",
+    "file": "SkPoint_Reference",
+    "name": "SkPoint::normalize()"
+},
+    "SkPoint_offset": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    SkPoint points[] = { { 3, 1 }, { 4, 2 }, { 5, 1 }, { 7, 3 },\n                         { 6, 4 }, { 7, 5 }, { 5, 7 },\n                         { 4, 6 }, { 3, 7 }, { 1, 5 },\n                         { 2, 4 }, { 1, 3 }, { 3, 1 } };\n    canvas->scale(30, 15);\n    paint.setStyle(SkPaint::kStroke_Style);\n    canvas->drawPoints(SkCanvas::kPolygon_PointMode, SK_ARRAY_COUNT(points), points, paint);\n    points[1].offset(1, 1);\n    paint.setColor(SK_ColorRED);\n    canvas->drawPoints(SkCanvas::kPolygon_PointMode, SK_ARRAY_COUNT(points), points, paint);\n}",
+    "width": 256,
+    "height": 128,
+    "hash": "02750ceaa874f956e6e6544ef6b858ee",
+    "file": "SkPoint_Reference",
+    "name": "SkPoint::offset()"
+},
+    "SkPoint_scale": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    SkPoint point = {40, -15}, scaled;\n    SkPoint origin = {30, 110};\n    for (auto scale : {1, 2, 3, 5}) {\n        paint.setStrokeWidth(scale * 5);\n        paint.setARGB(0x7f, 0x9f, 0xbf, 0x33 * scale);\n        point.scale(scale, &scaled);\n        canvas->drawLine(origin, origin + scaled, paint);\n    }\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "972e4e230806281adb928e068bcd8551",
+    "file": "SkPoint_Reference",
+    "name": "SkPoint::scale()"
+},
+    "SkPoint_scale_2": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    SkPoint point = {40, -15};\n    SkPoint origin = {30, 110};\n    for (auto scale : {1, 2, 3, 5}) {\n        paint.setStrokeWidth(scale * 5);\n        paint.setARGB(0x7f, 0x9f, 0xbf, 0x33 * scale);\n        point.scale(scale);\n        canvas->drawLine(origin, origin + point, paint);\n    }\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "1060a4f27d8ef29519e6ac006ce90f2b",
+    "file": "SkPoint_Reference",
+    "name": "SkPoint::scale_2"
+},
+    "SkPoint_setLength": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    const SkPoint points[] = { { 60, -110 }, { 90, 10 }, { 120, -110 }, { 180, -50 } };\n    const SkPoint origin = {0, 0};\n    canvas->translate(30, 140);\n    for (auto point : points) {\n        paint.setStrokeWidth(1);\n        paint.setColor(SK_ColorBLACK);\n        canvas->drawLine(origin, point, paint);\n        SkVector normal = point;\n        normal.setLength(100);\n        paint.setStrokeWidth(10);\n        paint.setColor(0x3f45bf12);\n        canvas->drawLine(origin, normal, paint);\n    }\n}",
+    "width": 256,
+    "height": 160,
+    "hash": "cbe7db206ece825aa3b9b7c3256aeaf0",
+    "file": "SkPoint_Reference",
+    "name": "SkPoint::setLength"
+},
+    "SkPoint_setLength_2": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    const SkPoint points[] = { { 60, -110 }, { 90, 10 }, { 120, -110 }, { 180, -50 } };\n    const SkPoint origin = {0, 0};\n    canvas->translate(30, 140);\n    for (auto point : points) {\n        paint.setStrokeWidth(1);\n        paint.setColor(SK_ColorBLACK);\n        canvas->drawLine(origin, point, paint);\n        SkVector normal;\n        normal.setLength(point.fX, point.fY, 100);\n        paint.setStrokeWidth(10);\n        paint.setColor(0x3fbf4512);\n        canvas->drawLine(origin, normal, paint);\n    }\n}",
+    "width": 256,
+    "height": 160,
+    "hash": "3cc0662b6fbbee1fe3442a0acfece22c",
+    "file": "SkPoint_Reference",
+    "name": "SkPoint::setLength_2"
+},
+    "SkPoint_setNormalize": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    const SkPoint points[] = { { 60, -110 }, { 90, 10 }, { 120, -110 }, { 180, -50 } };\n    const SkPoint origin = {0, 0};\n    canvas->translate(30, 140);\n    for (auto point : points) {\n        paint.setStrokeWidth(1);\n        paint.setColor(SK_ColorBLACK);\n        canvas->drawLine(origin, point, paint);\n        SkVector normal;\n        normal.setNormalize(point.fX, point.fY);\n        normal *= 100;\n        paint.setStrokeWidth(10);\n        paint.setColor(0x3f4512bf);\n        canvas->drawLine(origin, normal, paint);\n    }\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "3e4f147d143a388802484bf0d26534c2",
+    "file": "SkPoint_Reference",
+    "name": "SkPoint::setNormalize"
+},
+    "SkPoint_subtract_operator": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    SkPoint points[] = { { 3, 1 }, { 4, 2 }, { 5, 1 }, { 7, 3 },\n                         { 6, 4 }, { 7, 5 }, { 5, 7 },\n                         { 4, 6 }, { 3, 7 }, { 1, 5 },\n                         { 2, 4 }, { 1, 3 }, { 3, 1 } };\n    canvas->scale(30, 15);\n    paint.setStyle(SkPaint::kStroke_Style);\n    canvas->drawPoints(SkCanvas::kPolygon_PointMode, SK_ARRAY_COUNT(points), points, paint);\n    points[1] += points[0] - points[2];\n    points[2] -= points[3] - points[5];\n    paint.setColor(SK_ColorRED);\n    canvas->drawPoints(SkCanvas::kPolygon_PointMode, SK_ARRAY_COUNT(points), points, paint);\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "b6c4943ecd0b2dccf9d220b8944009e0",
+    "file": "SkPoint_Reference",
+    "name": "SkPoint::operator-(const SkPoint& a, const SkPoint& b)"
+},
+    "SkPoint_subtractfrom_operator": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    SkPoint points[] = { { 3, 1 }, { 4, 2 }, { 5, 1 }, { 7, 3 },\n                         { 6, 4 }, { 7, 5 }, { 5, 7 },\n                         { 4, 6 }, { 3, 7 }, { 1, 5 },\n                         { 2, 4 }, { 1, 3 }, { 3, 1 } };\n    canvas->scale(30, 15);\n    paint.setStyle(SkPaint::kStroke_Style);\n    canvas->drawPoints(SkCanvas::kPolygon_PointMode, SK_ARRAY_COUNT(points), points, paint);\n    points[1] -= {1, 1};\n    points[2] -= {-1, -1};\n    paint.setColor(SK_ColorRED);\n    canvas->drawPoints(SkCanvas::kPolygon_PointMode, SK_ARRAY_COUNT(points), points, paint);\n}",
+    "width": 256,
+    "height": 128,
+    "hash": "86c0399704d8dff4091bf87b8d87d40b",
+    "file": "SkPoint_Reference",
+    "name": "SkPoint::operator-=(const SkVector& v)"
+},
+    "SkSurface_BackendHandleAccess": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setTextSize(32);\n    GrContext* context = canvas->getGrContext();\n    if (!context) {\n         canvas->drawString(\"GPU only!\", 20, 40, paint);\n         return;\n    }\n    sk_sp<SkSurface> gpuSurface = SkSurface::MakeRenderTarget(\n            context, SkBudgeted::kYes, SkImageInfo::MakeN32Premul(10, 10));\n    int y = 20;\n    SkString str;\n    paint.setTextSize(16);\n    for (auto access : { SkSurface::kFlushRead_BackendHandleAccess, \n                         SkSurface::kFlushWrite_BackendHandleAccess,\n                         SkSurface::kDiscardWrite_BackendHandleAccess } ) {\n        sk_sp<SkImage> image(gpuSurface->makeImageSnapshot());\n        str.printf(\"uniqueID=%d\", image->uniqueID());\n        canvas->drawString(str, 20, y += 20, paint);\n        GrBackendObject backendObject = gpuSurface->getTextureHandle(access);\n        str.printf(\"backendObject %c= 0\", backendObject != 0 ? '!' : '=');\n        canvas->drawString(str, 20, y += 20, paint);\n    }\n    sk_sp<SkImage> image(gpuSurface->makeImageSnapshot());\n    str.printf(\"final image uniqueID=%d\", image->uniqueID());\n    canvas->drawString(str, 20, y += 20, paint);\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "260a5ba014b00eeb5a74b3c6b8d31be4",
+    "file": "SkSurface_Reference",
+    "name": "SkSurface::BackendHandleAccess"
+},
+    "SkSurface_MakeRenderTarget": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setTextSize(32);\n    GrContext* context = canvas->getGrContext();\n    if (!context) {\n         canvas->drawString(\"GPU only!\", 20, 40, paint);\n         return;\n    }\n    SkImageInfo info = SkImageInfo::MakeN32(256, 64, kOpaque_SkAlphaType);\n    for (auto surfaceOrigin : { kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin } ) {\n        auto gpuSurface(SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, info, 0,\n               surfaceOrigin, nullptr));\n        auto surfaceCanvas = gpuSurface->getCanvas();\n        surfaceCanvas->clear(SK_ColorWHITE);\n        surfaceCanvas->drawString(\"GPU rocks!\", 20, 40, paint);\n        sk_sp<SkImage> image(gpuSurface->makeImageSnapshot());\n        canvas->drawImage(image, 0, 0);\n       canvas->translate(0, 128);\n    }\n}",
+    "width": 256,
+    "height": 64,
+    "hash": "67b6609471a3f1ed0f4b1657004cdecb",
+    "file": "SkSurface_Reference",
+    "name": "SkSurface::MakeRenderTarget"
+},
+    "SkSurface_MakeRenderTarget_2": {
+    "code": "void draw(SkCanvas* canvas) {\n    auto test_draw = [](SkCanvas* surfaceCanvas) -> void {\n        SkPaint paint;\n        paint.setAntiAlias(true);\n        paint.setLCDRenderText(true);\n        paint.setColor(0xFFBBBBBB);\n        surfaceCanvas->drawRect(SkRect::MakeWH(128, 64), paint);\n        paint.setColor(SK_ColorWHITE);\n        paint.setTextSize(32);\n        surfaceCanvas->drawString(\"Pest\", 0, 25, paint);\n    };\n    GrContext* context = canvas->getGrContext();\n    SkImageInfo info = SkImageInfo::MakeN32(128, 64, kOpaque_SkAlphaType);\n    SkAutoTMalloc<SkPMColor> storage(info.computeMinByteSize());\n    SkBitmap bitmap;\n    bitmap.installPixels(info, storage.get(), info.minRowBytes());\n    int y = 0;\n    for (auto geometry : { kRGB_H_SkPixelGeometry, kBGR_H_SkPixelGeometry,\n                           kRGB_V_SkPixelGeometry, kBGR_V_SkPixelGeometry } ) {\n        SkSurfaceProps props(0, geometry);\n        std::unique_ptr<SkCanvas> offscreen = SkCanvas::MakeRasterDirect(info, storage.get(),\n                info.minRowBytes(), &props);\n        sk_sp<SkSurface> surface = context ? SkSurface::MakeRenderTarget(\n                context, SkBudgeted::kNo, info, 0, &props) : SkSurface::MakeRaster(info, &props);\n        test_draw(surface->getCanvas());\n        surface->draw(canvas, 0, y, nullptr);\n        surface->draw(offscreen.get(), 0, 0, nullptr);\n        SkAutoCanvasRestore acr(canvas, true);\n        canvas->scale(8, 8);\n        canvas->drawBitmap(bitmap, 12, y / 8);\n        y += 64;\n    }\n}\n",
+    "width": 256,
+    "height": 256,
+    "hash": "4473daad1b11784a9869431af72c93e0",
+    "file": "SkSurface_Reference",
+    "name": "SkSurface::MakeRenderTarget_2"
+},
+    "SkSurface_MakeRenderTarget_3": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setTextSize(32);\n    GrContext* context = canvas->getGrContext();\n    if (!context) {\n         canvas->drawString(\"GPU only!\", 20, 40, paint);\n         return;\n    }\n    SkImageInfo info = SkImageInfo::MakeN32(256, 64, kOpaque_SkAlphaType);\n    auto gpuSurface(SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, info));\n    auto surfaceCanvas = gpuSurface->getCanvas();\n    surfaceCanvas->clear(SK_ColorWHITE);\n    surfaceCanvas->drawString(\"GPU rocks!\", 20, 40, paint);\n    sk_sp<SkImage> image(gpuSurface->makeImageSnapshot());\n    canvas->drawImage(image, 0, 0);\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "5c7629c15e9ac93f098335e72560fa2e",
+    "file": "SkSurface_Reference",
+    "name": "SkSurface::MakeRenderTarget_3"
+},
+    "SkSurface_characterize": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setTextSize(32);\n    GrContext* context = canvas->getGrContext();\n    if (!context) {\n         canvas->drawString(\"GPU only!\", 20, 40, paint);\n         return;\n    }\n    sk_sp<SkSurface> gpuSurface = SkSurface::MakeRenderTarget(\n            context, SkBudgeted::kYes, SkImageInfo::MakeN32Premul(64, 64));\n    SkSurfaceCharacterization characterization;\n    if (!gpuSurface->characterize(&characterization)) {\n         canvas->drawString(\"characterization unsupported\", 20, 40, paint);\n         return;\n    }\n    // start of threadable work \n    SkDeferredDisplayListRecorder recorder(characterization);\n    SkCanvas* subCanvas = recorder.getCanvas();\n    subCanvas->clear(SK_ColorGREEN);\n    std::unique_ptr<SkDeferredDisplayList> displayList = recorder.detach();\n    // end of threadable work\n    gpuSurface->draw(displayList.get());\n    sk_sp<SkImage> img = gpuSurface->makeImageSnapshot();\n    canvas->drawImage(std::move(img), 0, 0);\n}",
+    "width": 256,
+    "height": 64,
+    "hash": "3df4e2fc63483a3fa19589b5388080bc",
+    "file": "SkSurface_Reference",
+    "name": "SkSurface::characterize()"
+},
+    "SkSurface_draw": {
+    "code": "void draw(SkCanvas* canvas) {\n    sk_sp<SkSurface> big(SkSurface::MakeRasterN32Premul(64, 64));\n    sk_sp<SkSurface> lil(big->makeSurface(SkImageInfo::MakeN32(32, 32, kPremul_SkAlphaType)));\n    big->getCanvas()->clear(SK_ColorRED);\n    lil->getCanvas()->clear(SK_ColorBLACK);\n    lil->draw(big->getCanvas(), 16, 16, nullptr);\n    SkPixmap pixmap;\n    if (big->peekPixels(&pixmap)) {\n        SkBitmap bigBits;\n        bigBits.installPixels(pixmap);\n        canvas->drawBitmap(bigBits, 0, 0);\n    }\n}",
+    "width": 256,
+    "height": 64,
+    "hash": "0de693f4d8dd898a60be8cfba23952be",
+    "file": "SkSurface_Reference",
+    "name": "SkSurface::draw()"
+},
+    "SkSurface_draw_2": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setTextSize(16);\n    sk_sp<SkSurface> gpuSurface = SkSurface::MakeRasterN32Premul(64, 64);\n    SkSurfaceCharacterization characterization;\n    if (!gpuSurface->characterize(&characterization)) {\n         canvas->drawString(\"characterization unsupported\", 20, 40, paint);\n         return;\n    }\n    // start of threadable work \n    SkDeferredDisplayListRecorder recorder(characterization);\n    SkCanvas* subCanvas = recorder.getCanvas();\n    subCanvas->clear(SK_ColorGREEN);\n    std::unique_ptr<SkDeferredDisplayList> displayList = recorder.detach();\n    // end of threadable work\n    gpuSurface->draw(displayList.get());\n    sk_sp<SkImage> img = gpuSurface->makeImageSnapshot();\n    canvas->drawImage(std::move(img), 0, 0);\n}",
+    "width": 256,
+    "height": 64,
+    "hash": "3dfa7496268dfb2c7465cda5da39dfbd",
+    "file": "SkSurface_Reference",
+    "name": "SkSurface::draw_2"
+},
+    "SkSurface_getCanvas": {
+    "code": "void draw(SkCanvas* canvas) {\n    sk_sp<SkSurface> surface(SkSurface::MakeRasterN32Premul(64, 64));\n    SkCanvas* surfaceCanvas = surface->getCanvas();\n    surfaceCanvas->clear(SK_ColorBLUE);\n    SkPaint paint;\n    paint.setTextSize(40);\n    surfaceCanvas->drawString(\"\\xF0\\x9F\\x98\\x81\", 12, 45, paint);\n    surface->draw(canvas, 0, 0, nullptr);\n}",
+    "width": 256,
+    "height": 64,
+    "hash": "33d0c5ad5a4810e533ae1010e29f8b75",
+    "file": "SkSurface_Reference",
+    "name": "SkSurface::getCanvas"
+},
+    "SkSurface_getRenderTargetHandle": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setTextSize(32);\n    GrContext* context = canvas->getGrContext();\n    if (!context) {\n         canvas->drawString(\"GPU only!\", 20, 40, paint);\n         return;\n    }\n    sk_sp<SkSurface> gpuSurface = SkSurface::MakeRenderTarget(\n            context, SkBudgeted::kYes, SkImageInfo::MakeN32Premul(10, 10));\n    GrBackendObject backendObject;\n    if (gpuSurface->getRenderTargetHandle(&backendObject, \n            SkSurface::kFlushRead_BackendHandleAccess)) {\n        SkString str;\n        str.printf(\"backendObject=%d\", backendObject);\n        paint.setTextSize(16);\n        canvas->drawString(str, 20, 40, paint);\n    }\n}",
+    "width": 256,
+    "height": 64,
+    "hash": "16e848a4405ce08f8393bba13cc3b8bf",
+    "file": "SkSurface_Reference",
+    "name": "SkSurface::getRenderTargetHandle"
+},
+    "SkSurface_getTextureHandle": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setTextSize(32);\n    GrContext* context = canvas->getGrContext();\n    if (!context) {\n         canvas->drawString(\"GPU only!\", 20, 40, paint);\n         return;\n    }\n    sk_sp<SkSurface> gpuSurface = SkSurface::MakeRenderTarget(\n            context, SkBudgeted::kYes, SkImageInfo::MakeN32Premul(10, 10));\n    GrBackendObject backendObject = gpuSurface->getTextureHandle(\n            SkSurface::kFlushRead_BackendHandleAccess);\n    if (backendObject) {\n        SkString str;\n        str.printf(\"backendObject=%08x\", backendObject);\n        paint.setTextSize(16);\n        canvas->drawString(str, 20, 40, paint);\n    }\n}",
+    "width": 256,
+    "height": 64,
+    "hash": "4b5720038daaf65ba1ba546e678ddd6e",
+    "file": "SkSurface_Reference",
+    "name": "SkSurface::getTextureHandle"
+},
+    "SkSurface_makeImageSnapshot": {
+    "code": "void draw(SkCanvas* canvas) {\n    sk_sp<SkSurface> big(SkSurface::MakeRasterN32Premul(64, 64));\n    sk_sp<SkSurface> lil(big->makeSurface(SkImageInfo::MakeN32(32, 32, kPremul_SkAlphaType)));\n    big->getCanvas()->clear(SK_ColorRED);\n    lil->getCanvas()->clear(SK_ColorBLACK);\n    sk_sp<SkImage> early(big->makeImageSnapshot());\n    lil->draw(big->getCanvas(), 16, 16, nullptr);\n    sk_sp<SkImage> later(big->makeImageSnapshot());\n    canvas->drawImage(early, 0, 0);\n    canvas->drawImage(later, 128, 0);\n}",
+    "width": 256,
+    "height": 64,
+    "hash": "46f1fa0d95e590a64bed0140407ce5f7",
+    "file": "SkSurface_Reference",
+    "name": "SkSurface::makeImageSnapshot"
+},
+    "SkSurface_makeSurface": {
+    "code": "void draw(SkCanvas* canvas) {\n    sk_sp<SkSurface> big(SkSurface::MakeRasterN32Premul(64, 64));\n    sk_sp<SkSurface> lil(big->makeSurface(SkImageInfo::MakeN32(32, 32, kPremul_SkAlphaType)));\n    big->getCanvas()->clear(SK_ColorRED);\n    lil->getCanvas()->clear(SK_ColorBLACK);\n    SkPixmap pixmap;\n    if (big->peekPixels(&pixmap)) {\n        SkBitmap bigBits;\n        bigBits.installPixels(pixmap);\n        canvas->drawBitmap(bigBits, 0, 0);\n    }\n    if (lil->peekPixels(&pixmap)) {\n        SkBitmap lilBits;\n        lilBits.installPixels(pixmap);\n        canvas->drawBitmap(lilBits, 64, 64);\n    }\n}",
+    "width": 256,
+    "height": 96,
+    "hash": "a9889b519a26896b900da0444e423c61",
+    "file": "SkSurface_Reference",
+    "name": "SkSurface::makeSurface"
+},
+    "SkSurface_peekPixels": {
+    "code": "void draw(SkCanvas* canvas) {\n    sk_sp<SkSurface> surf(SkSurface::MakeRasterN32Premul(64, 64));\n    auto surfCanvas = surf->getCanvas();\n    surfCanvas->clear(SK_ColorRED);\n    SkPaint paint;\n    paint.setTextSize(40);\n    surfCanvas->drawString(\"&\", 16, 48, paint);\n    SkPixmap pixmap;\n    if (surf->peekPixels(&pixmap)) {\n        SkBitmap surfBits;\n        surfBits.installPixels(pixmap);\n        canvas->drawBitmap(surfBits, 0, 0);\n    }\n}",
+    "width": 256,
+    "height": 64,
+    "hash": "8c6184f22cfe068f021704cf92a147a1",
+    "file": "SkSurface_Reference",
+    "name": "SkSurface::peekPixels"
+},
+    "SkSurface_readPixels": {
+    "code": "void draw(SkCanvas* canvas) {\n    sk_sp<SkSurface> surf(SkSurface::MakeRasterN32Premul(64, 64));\n    auto surfCanvas = surf->getCanvas();\n    surfCanvas->clear(SK_ColorRED);\n    SkPaint paint;\n    paint.setTextSize(40);\n    surfCanvas->drawString(\"&\", 0, 32, paint);\n    std::vector<SkPMColor> storage;\n    storage.resize(surf->width() * surf->height());\n    SkPixmap pixmap(SkImageInfo::MakeN32Premul(32, 32), &storage.front(),\n                    surf->width() * sizeof(storage[0]));\n    if (surf->readPixels(pixmap, 0, 0)) {\n        SkBitmap surfBits;\n        surfBits.installPixels(pixmap);\n        canvas->drawBitmap(surfBits, 0, 0);\n    }\n}",
+    "width": 256,
+    "height": 32,
+    "hash": "9f454fb93bca6482598d198b4121f0a6",
+    "file": "SkSurface_Reference",
+    "name": "SkSurface::readPixels"
+},
+    "SkSurface_readPixels_2": {
+    "code": "void draw(SkCanvas* canvas) {\n    sk_sp<SkSurface> surf(SkSurface::MakeRasterN32Premul(64, 64));\n    auto surfCanvas = surf->getCanvas();\n    surfCanvas->clear(SK_ColorRED);\n    SkPaint paint;\n    surfCanvas->drawOval({4, 8, 58, 54}, paint);\n    SkImageInfo info = SkImageInfo::Make(64, 64, kBGRA_8888_SkColorType, kPremul_SkAlphaType);\n    sk_sp<SkData> data(SkData::MakeUninitialized(info.minRowBytes() * info.height()));\n    sk_bzero(data->writable_data(), info.minRowBytes() * info.height());\n    for (int x : { 32, -32 } ) {\n        for (int y : { 32, -32 } ) {\n            surf->readPixels(info, data->writable_data(), info.minRowBytes(), x, y);\n        } \n    }\n    sk_sp<SkImage> image = SkImage::MakeRasterData(info, data, info.minRowBytes());\n    canvas->drawImage(image, 0, 0);\n}",
+    "width": 256,
+    "height": 64,
+    "hash": "d141d6c662d201d191fb1eea26d014fd",
+    "file": "SkSurface_Reference",
+    "name": "SkSurface::readPixels_2"
+},
+    "SkSurface_readPixels_3": {
+    "code": "void draw(SkCanvas* canvas) {\n    sk_sp<SkSurface> surf(SkSurface::MakeRasterN32Premul(64, 64));\n    auto surfCanvas = surf->getCanvas();\n    surfCanvas->clear(SK_ColorGREEN);\n    SkPaint paint;\n    surfCanvas->drawOval({2, 10, 58, 54}, paint);\n    SkImageInfo info = SkImageInfo::Make(64, 64, kBGRA_8888_SkColorType, kPremul_SkAlphaType);\n    SkBitmap bitmap;\n    bitmap.setInfo(info);\n    bitmap.allocPixels();\n    for (int x : { 32, -32 } ) {\n        for (int y : { 32, -32 } ) {\n            surf->readPixels(bitmap, x, y);\n        } \n    }\n    canvas->drawBitmap(bitmap, 0, 0);\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "dcbd4af9151820f63de45a35f3a8d110",
+    "file": "SkSurface_Reference",
+    "name": "SkSurface::readPixels_3"
+},
+    "SkSurface_wait": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setTextSize(32);\n    GrContext* context = canvas->getGrContext();\n    if (!context) {\n         canvas->drawString(\"GPU only!\", 20, 40, paint);\n         return;\n    }\n    GrBackendSemaphore semaphore;\n    sk_sp<SkSurface> surface = SkSurface::MakeRenderTarget(\n            context, SkBudgeted::kYes, SkImageInfo::MakeN32Premul(64, 64));\n    surface->flushAndSignalSemaphores(1, &semaphore);\n    sk_sp<SkImage> image = surface->makeImageSnapshot();\n    GrBackendObject backendImage = image->getTextureHandle(false); // unused\n    SkASSERT(backendImage);\n    const SkImageInfo childImageInfo = SkImageInfo::Make(64, 64,\n              kRGBA_8888_SkColorType, kPremul_SkAlphaType);\n    sk_sp<SkSurface> childSurface(SkSurface::MakeRenderTarget(context, SkBudgeted::kNo,\n              childImageInfo, 0, kTopLeft_GrSurfaceOrigin, nullptr));\n    GrBackendTexture backendTexture;\n    sk_sp<SkImage> childImage = SkImage::MakeFromTexture(context,\n              backendTexture,   // undefined\n              kTopLeft_GrSurfaceOrigin, kPremul_SkAlphaType, nullptr);\n    SkCanvas* childCanvas = childSurface->getCanvas();\n    childCanvas->clear(SK_ColorRED);\n    childSurface->wait(1, &semaphore);\n    childCanvas->drawImage(childImage, 32, 0);\n    childSurface->draw(canvas, 0, 0, nullptr);\n}",
+    "width": 256,
+    "height": 64,
+    "hash": "c9033080af68efc0f270d748f1c0e011",
+    "file": "SkSurface_Reference",
+    "name": "SkSurface::wait()"
 }
     }
     var canvas

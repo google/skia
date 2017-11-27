@@ -185,8 +185,8 @@ makes them visible.
 #Class SkPath
 
 Paths contain geometry. Paths may be empty, or contain one or more Verbs that
-outline a figure. Path always starts with a move verb to a Cartesian
-coordinate, and may be followed by additional verbs that add lines or curves.
+outline a figure. Path always starts with a move verb to a Cartesian_Coordinate,
+and may be followed by additional verbs that add lines or curves.
 Adding a close verb makes the geometry into a continuous loop, a closed contour.
 Paths may contain any number of contours, each beginning with a move verb.
 
@@ -376,8 +376,8 @@ manage Contour, and terminate Path.
 ##
 #Const kCubic_Verb 4
     Adds Cubic from Last_Point, using two control Points, and end Point. 
-    Cubic is a third-order Bezier section within tangents from Last_Point to
-    first control Point, and from second control Point to end Point.
+    Cubic is a third-order Bezier_Curve section within tangents from Last_Point
+    to first control Point, and from second control Point to end Point.
 ##
 #Const kClose_Verb 5
     Closes Contour, connecting Last_Point to kMove_Verb Point.
@@ -1609,7 +1609,7 @@ line from (100,100) to (100.0001,100.0001) is not degenerate, exactly
 #StdOut ##
 ##
 
-#SeeAlso IsQuadDegenerate IsCubicDegenerate SkPoint::equalsWithinTolerance 
+#SeeAlso IsQuadDegenerate IsCubicDegenerate 
 ##
 
 # ------------------------------------------------------------------------------
@@ -1661,7 +1661,7 @@ quad (1100,1100), (1100,1100), (1100,1100) is degenerate, exactly
 #StdOut ##
 ##
 
-#SeeAlso IsLineDegenerate IsCubicDegenerate SkPoint::equalsWithinTolerance 
+#SeeAlso IsLineDegenerate IsCubicDegenerate 
 ##
 
 # ------------------------------------------------------------------------------
@@ -2858,7 +2858,7 @@ void draw(SkCanvas* canvas) {
 #Alias Cubic_Bezier
 #Alias Cubic_Beziers
 
-Cubic describes a Bezier curve segment described by a third-order polynomial. 
+Cubic describes a Bezier_Curve segment described by a third-order polynomial. 
 Cubic begins at a start Point, curving towards the first control Point;
 and curves from the end Point towards the second control Point.
 

@@ -30,8 +30,8 @@ integer input cannot convert to SkScalar without loss of precision.
 #Legend
 # description                                       # function ##
 #Legend ##
-# bool operator!=(const SkRect& a, const SkRect& b) # Returns true if member bits are unequal. ##
-# bool operator==(const SkRect& a, const SkRect& b) # Returns true if member bits are equal. ##
+# bool operator!=(const SkRect& a, const SkRect& b) # Returns true if members are unequal. ##
+# bool operator==(const SkRect& a, const SkRect& b) # Returns true if members are equal. ##
 #Table ##
 #Subtopic ##
 
