@@ -36,6 +36,23 @@
     },
     {
       "key": {
+        "uuid": "99a528af_6ee9e9ec",
+        "filename": "include/gpu/GrBackendSurface.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-11-27T16:51:32Z",
+      "side": 1,
+      "message": "Do we need this one? I\u0027m guessing there are two variants of the cons that takes config simply because we added the second one after clients were using the first.",
+      "revId": "0f9514bf73741db09fc962dac9c96c032658d6a5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "7fe60203_990cf926",
         "filename": "include/gpu/gl/GrGLTypes.h",
         "patchSetId": 3
