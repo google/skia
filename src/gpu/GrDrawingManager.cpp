@@ -140,16 +140,14 @@ GrSemaphoresSubmitted GrDrawingManager::internalFlush(GrSurfaceProxy*,
 
     // Prepare any onFlush op lists (e.g. atlases).
     if (!fOnFlushCBObjects.empty()) {
-        // MDB TODO: pre-MDB '1' is the correct pre-allocated size. Post-MDB it will need
-        // to be larger.
-        SkAutoSTArray<1, uint32_t> opListIds(fOpLists.count());
+        fOnFlushOpListIds.reset(fOpLists.count());
         for (int i = 0; i < fOpLists.count(); ++i) {
-            opListIds[i] = fOpLists[i]->uniqueID();
+            fOnFlushOpListIds[i] = fOpLists[i]->uniqueID();
         }
         SkSTArray<4, sk_sp<GrRenderTargetContext>> renderTargetContexts;
         for (GrOnFlushCallbackObject* onFlushCBObject : fOnFlushCBObjects) {
             onFlushCBObject->preFlush(&onFlushProvider,
-                                      opListIds.get(), opListIds.count(),
+                                      fOnFlushOpListIds.get(), fOnFlushOpListIds.count(),
                                       &renderTargetContexts);
             for (const sk_sp<GrRenderTargetContext>& rtc : renderTargetContexts) {
                 sk_sp<GrOpList> onFlushOpList = sk_ref_sp(rtc->getOpList());
@@ -204,8 +202,12 @@ GrSemaphoresSubmitted GrDrawingManager::internalFlush(GrSurfaceProxy*,
         fContext->getResourceCache()->notifyFlushOccurred(type);
     }
     for (GrOnFlushCallbackObject* onFlushCBObject : fOnFlushCBObjects) {
-        onFlushCBObject->postFlush(fFlushState.nextTokenToFlush());
+        onFlushCBObject->postFlush(fFlushState.nextTokenToFlush(), fOnFlushOpListIds.get(),
+                                   fOnFlushOpListIds.count());
     }
+    // No need to delete the fOnFlushOpListIds array. It will most likely require the same size next
+    // frame, and if not, it will be resized at that point. It's small. No need to delete it just to
+    // reallocate again next frame.
     fFlushing = false;
 
     return result;
