@@ -789,6 +789,15 @@ void GrGLCaps::initGLSL(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli
     GrGLStandard standard = ctxInfo.standard();
     GrGLVersion version = ctxInfo.version();
 
+    SkDebugf("Using GLES: %d\n", kGLES_GrGLStandard == standard);
+    SkDebugf("Using version: %d\n", version);
+    SkDebugf("is core: %d\n", fIsCoreProfile);
+    SkDebugf("2.0: %d\n", GR_GL_VER(2, 0));
+    SkDebugf("3.0: %d\n", GR_GL_VER(3, 0));
+    SkDebugf("3.1: %d\n", GR_GL_VER(3, 1));
+    SkDebugf("3.2: %d\n", GR_GL_VER(3, 2));
+    SkDebugf("4.0: %d\n", GR_GL_VER(4, 0));
+    SkDebugf("4.5: %d\n", GR_GL_VER(4, 5));
     /**************************************************************************
     * Caps specific to GrShaderCaps
     **************************************************************************/
@@ -1230,11 +1239,20 @@ void GrGLCaps::initBlendEqationSupport(const GrGLContextInfo& ctxInfo) {
         return;
     }
 
+    bool layoutQualifierSupport = false;
+    if ((kGL_GrGLStandard == fStandard && shaderCaps->generation() >= k140_GrGLSLGeneration)  ||
+        (kGLES_GrGLStandard == fStandard && shaderCaps->generation() >= k330_GrGLSLGeneration)) {
+        layoutQualifierSupport = true;
+    }
+
+
     if (ctxInfo.hasExtension("GL_NV_blend_equation_advanced_coherent")) {
         fBlendEquationSupport = kAdvancedCoherent_BlendEquationSupport;
         shaderCaps->fAdvBlendEqInteraction = GrShaderCaps::kAutomatic_AdvBlendEqInteraction;
-    } else if (ctxInfo.hasExtension("GL_KHR_blend_equation_advanced_coherent")) {
+    } else if (ctxInfo.hasExtension("GL_KHR_blend_equation_advanced_coherent") &&
+               layoutQualifierSupport) {
         fBlendEquationSupport = kAdvancedCoherent_BlendEquationSupport;
+        //shaderCaps->fAdvBlendEqInteraction = GrShaderCaps::kSpecificEnables_AdvBlendEqInteraction;
         shaderCaps->fAdvBlendEqInteraction = GrShaderCaps::kGeneralEnable_AdvBlendEqInteraction;
     } else if (kNVIDIA_GrGLDriver == ctxInfo.driver() &&
                ctxInfo.driverVersion() < GR_GL_DRIVER_VER(337,00)) {
@@ -1243,7 +1261,7 @@ void GrGLCaps::initBlendEqationSupport(const GrGLContextInfo& ctxInfo) {
     } else if (ctxInfo.hasExtension("GL_NV_blend_equation_advanced")) {
         fBlendEquationSupport = kAdvanced_BlendEquationSupport;
         shaderCaps->fAdvBlendEqInteraction = GrShaderCaps::kAutomatic_AdvBlendEqInteraction;
-    } else if (ctxInfo.hasExtension("GL_KHR_blend_equation_advanced")) {
+    } else if (ctxInfo.hasExtension("GL_KHR_blend_equation_advanced") && layoutQualifierSupport) {
         fBlendEquationSupport = kAdvanced_BlendEquationSupport;
         shaderCaps->fAdvBlendEqInteraction = GrShaderCaps::kGeneralEnable_AdvBlendEqInteraction;
         // TODO: Use kSpecificEnables_AdvBlendEqInteraction if "blend_support_all_equations" is
