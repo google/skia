@@ -46,6 +46,30 @@
       "revId": "02cbfcacdd3d93fbaa70c5b57f6948daef194c37",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dbff4385_976f4abc",
+        "filename": "src/core/SkScan.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-11-27T17:43:12Z",
+      "side": 1,
+      "message": "Ah, sgtm.",
+      "parentUuid": "ef9a3192_c59525a9",
+      "range": {
+        "startLine": 75,
+        "startChar": 1,
+        "endLine": 77,
+        "endChar": 5
+      },
+      "revId": "02cbfcacdd3d93fbaa70c5b57f6948daef194c37",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
