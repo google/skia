@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c57e3eca_ff808509",
+        "filename": "infra/bots/recipe_modules/flavor/ios_flavor.py",
+        "patchSetId": 9
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-11-27T22:32:17Z",
+      "side": 1,
+      "message": "Looks like we can just remove these lines entirely.  All we\u0027re doing now is calling the parent compile().",
+      "range": {
+        "startLine": 36,
+        "startChar": 2,
+        "endLine": 39,
+        "endChar": 64
+      },
+      "revId": "571c4abb3b41f00efe273bc6ab7da254429adbb1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "148e12a7_3e3015f8",
+        "filename": "site/user/build.md",
+        "patchSetId": 9
+      },
+      "lineNbr": 210,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-11-27T22:32:17Z",
+      "side": 1,
+      "message": "Might consider putting the parens around (and ... sign)?",
+      "range": {
+        "startLine": 210,
+        "startChar": 23,
+        "endLine": 210,
+        "endChar": 45
+      },
+      "revId": "571c4abb3b41f00efe273bc6ab7da254429adbb1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "67a75d4d_03faa289",
+        "filename": "site/user/build.md",
+        "patchSetId": 9
+      },
+      "lineNbr": 217,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-11-27T22:32:17Z",
+      "side": 1,
+      "message": "Yahoo!",
+      "revId": "571c4abb3b41f00efe273bc6ab7da254429adbb1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
