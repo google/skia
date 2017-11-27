@@ -2,6 +2,115 @@
   "comments": [
     {
       "key": {
+        "uuid": "b53ede99_e418ba5c",
+        "filename": "src/gpu/glsl/GrGLSLVertexGeoBuilder.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-11-27T17:08:51Z",
+      "side": 1,
+      "message": "I think this function should be renamed, since its new purpose is to only forward devPos and enforce snapping.",
+      "range": {
+        "startLine": 14,
+        "startChar": 29,
+        "endLine": 14,
+        "endChar": 53
+      },
+      "revId": "e5244f15bbab2ecac5b43b5824920fe0f20cd451",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fcfbee0d_4f7aac2c",
+        "filename": "src/gpu/glsl/GrGLSLVertexGeoBuilder.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-11-27T17:08:51Z",
+      "side": 1,
+      "message": "This argument can be removed, as well as GrGLSLPrimitiveProcessor::EmitArgs::fRTAdjustName",
+      "range": {
+        "startLine": 15,
+        "startChar": 66,
+        "endLine": 15,
+        "endChar": 78
+      },
+      "revId": "e5244f15bbab2ecac5b43b5824920fe0f20cd451",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "927769dd_59d14dbd",
+        "filename": "src/gpu/glsl/GrGLSLVertexGeoBuilder.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-11-27T17:08:51Z",
+      "side": 1,
+      "message": "(_posTmp, *0*, 1)?",
+      "range": {
+        "startLine": 26,
+        "startChar": 52,
+        "endLine": 26,
+        "endChar": 53
+      },
+      "revId": "e5244f15bbab2ecac5b43b5824920fe0f20cd451",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e24e7dcf_71af3041",
+        "filename": "src/gpu/glsl/GrGLSLVertexGeoBuilder.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-11-27T17:08:51Z",
+      "side": 1,
+      "message": "(x, y, *0*, 1)?\n\n(I can\u0027t wait for a (future) change that starts writing sk_Position directly from the GPs!)",
+      "range": {
+        "startLine": 32,
+        "startChar": 56,
+        "endLine": 32,
+        "endChar": 57
+      },
+      "revId": "e5244f15bbab2ecac5b43b5824920fe0f20cd451",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9a5974a7_c900927f",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 582,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-11-27T17:08:51Z",
+      "side": 1,
+      "message": "I think if we are going to make sk_Position a vec4 instead of vec3, then it should have the same convention as gl, where \u0027w\u0027 is the homogeneous coordinate and z\u003d0 is the (unused) depth value.",
+      "revId": "e5244f15bbab2ecac5b43b5824920fe0f20cd451",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "23229f5a_12a175af",
         "filename": "src/sksl/SkSLIRGenerator.cpp",
         "patchSetId": 3
@@ -67,6 +176,64 @@
       "side": 1,
       "message": "I agree we should close the hole; I felt dirty writing that comment but wasn\u0027t sure how much work it was worth to fix it. It shouldn\u0027t be *that* bad to fix for real, let me take a swing at it.\n\nChris, if you run into other issues like this with return breaking things, please let me know. It shouldn\u0027t be doing that.",
       "parentUuid": "53b29973_ee515cbd",
+      "revId": "e5244f15bbab2ecac5b43b5824920fe0f20cd451",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dd1e1cc2_bb5b381d",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 605,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-11-27T17:08:51Z",
+      "side": 1,
+      "message": "Agreed. I think disallowing return in a vertex shader sounds like a good solution, as long as we can still return in a fragment shader.\n\nReturning from a geometry shader is no problem, since the transform should just be injected whenever they call EmitVertex().\n\nRE: other issues with return, I was mostly referring to when an FP calls return - then sk_FragColor doesn\u0027t get set. In a GP you can actually set sk_FragColor and then return to skip your FPs (which I actually like for debugging purposes).",
+      "parentUuid": "2f1a5f64_10bd38c1",
+      "revId": "e5244f15bbab2ecac5b43b5824920fe0f20cd451",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f6676fdb_2379a839",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 729,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-11-27T17:08:51Z",
+      "side": 1,
+      "message": "How does this work for geometry shaders? (Where the vertex shader outputs device-space coords and the geometry shader normalizes them?)\n\nIn that case the transform should be injected every time they call EmitVertex().",
+      "range": {
+        "startLine": 729,
+        "startChar": 12,
+        "endLine": 729,
+        "endChar": 33
+      },
+      "revId": "e5244f15bbab2ecac5b43b5824920fe0f20cd451",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "042f5e9c_12465c9a",
+        "filename": "tests/SkSLGLSLTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1644,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-11-27T17:08:51Z",
+      "side": 1,
+      "message": "Can we add one more test with a geometry shader that normalizes the coordinate?",
       "revId": "e5244f15bbab2ecac5b43b5824920fe0f20cd451",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
