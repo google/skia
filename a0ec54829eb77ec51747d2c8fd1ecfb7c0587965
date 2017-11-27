@@ -22,6 +22,30 @@
       "revId": "a0ec54829eb77ec51747d2c8fd1ecfb7c0587965",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "14395888_c7d563b2",
+        "filename": "src/gpu/GrReducedClip.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-11-27T14:34:40Z",
+      "side": 0,
+      "message": "The plan is to make FPs be a linked list and to only ever hold a single (head) FP. So clipping would produce a FP which may link to additional FPs and then that would be inserted into a draws list of FPs.",
+      "parentUuid": "e5e72a8d_ffd4b441",
+      "range": {
+        "startLine": 57,
+        "startChar": 36,
+        "endLine": 57,
+        "endChar": 47
+      },
+      "revId": "a0ec54829eb77ec51747d2c8fd1ecfb7c0587965",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
