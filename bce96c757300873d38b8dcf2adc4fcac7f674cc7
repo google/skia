@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "f912b60c_01f03abc",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 210,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-11-27T18:06:11Z",
+      "side": 1,
+      "message": "I tried to make a better comment.",
+      "parentUuid": "1aebc50e_a860cd2d",
+      "revId": "bce96c757300873d38b8dcf2adc4fcac7f674cc7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b37af58d_3873f44f",
         "filename": "src/gpu/GrDrawingManager.h",
         "patchSetId": 1
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "33cf9e87_c13ff3dd",
+        "filename": "src/gpu/GrDrawingManager.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-11-27T18:06:11Z",
+      "side": 1,
+      "message": "\u003e I think this and \u0027fOnFlushOpLists\u0027 should have the same prefix. So either \u0027fOnFlushOpLists\u0027 or \u0027fFlushingOpLists\u0027.\n\nDone.\n\n\u003e Alternatively, is there any reason not to have both of these on the stack?\n\nThey became class members in https://skia-review.googlesource.com/c/skia/+/71182\n\n\u003e Also, why not a plain SkSTArray ?\n\nBecause we know exactly how big it needs to be at the time it\u0027s reset (Unlike fOnFlushNewOpLists)",
+      "parentUuid": "b37af58d_3873f44f",
+      "revId": "bce96c757300873d38b8dcf2adc4fcac7f674cc7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ef9c9e1e_3638be13",
         "filename": "src/gpu/GrOnFlushResourceProvider.h",
         "patchSetId": 1
@@ -47,6 +83,24 @@
       "writtenOn": "2017-11-27T16:52:21Z",
       "side": 1,
       "message": "Do we now need this ?",
+      "revId": "bce96c757300873d38b8dcf2adc4fcac7f674cc7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a6b349c5_c075e730",
+        "filename": "src/gpu/GrOnFlushResourceProvider.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-11-27T18:06:11Z",
+      "side": 1,
+      "message": "I did run into needing this, but come to think of it it probably wasn\u0027t for this particular CL. Either way it\u0027s good practice since preFlush takes a non-reference GrDeferredUploadToken. Do you mind sneaking it in since we are editing this file anyway?",
+      "parentUuid": "ef9c9e1e_3638be13",
       "revId": "bce96c757300873d38b8dcf2adc4fcac7f674cc7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
