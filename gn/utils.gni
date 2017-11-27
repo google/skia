@@ -36,7 +36,6 @@ skia_utils_sources = [
   "$_src/utils/SkCurveMeasure.h",
   "$_src/utils/SkDashPath.cpp",
   "$_src/utils/SkDashPathPriv.h",
-  "$_src/utils/SkDeferredCanvas.cpp",
   "$_src/utils/SkDumpCanvas.cpp",
   "$_src/utils/SkEventTracer.cpp",
   "$_src/utils/SkFloatUtils.h",
