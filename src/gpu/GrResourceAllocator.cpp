@@ -16,6 +16,7 @@
 #include "GrSurfaceProxy.h"
 #include "GrSurfaceProxyPriv.h"
 #include "GrTextureProxy.h"
+#include "GrTextureProxyPriv.h"
 
 void GrResourceAllocator::Interval::assign(sk_sp<GrSurface> s) {
     SkASSERT(!fAssignedSurface);
@@ -47,6 +48,11 @@ void GrResourceAllocator::addInterval(GrSurfaceProxy* proxy,
                                       unsigned int start, unsigned int end) {
     SkASSERT(start <= end);
     SkASSERT(!fAssigned);      // We shouldn't be adding any intervals after (or during) assignment
+
+    if (proxy->isPendingLazyInstantiation()) {
+        proxy->priv().doLazyInstantiation(fResourceProvider);
+        SkASSERT(!proxy->isPendingLazyInstantiation());
+    }
 
     if (Interval* intvl = fIntvlHash.find(proxy->uniqueID().asUInt())) {
         // Revise the interval for an existing use

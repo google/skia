@@ -64,6 +64,7 @@ sk_sp<GrSurface> GrSurfaceProxy::createSurfaceImpl(
                                                 int sampleCnt, bool needsStencil,
                                                 GrSurfaceFlags flags, GrMipMapped mipMapped,
                                                 SkDestinationSurfaceColorMode mipColorMode) const {
+    SkASSERT(!this->isPendingLazyInstantiation());
     SkASSERT(GrMipMapped::kNo == mipMapped);
     GrSurfaceDesc desc;
     desc.fFlags = flags;
@@ -96,6 +97,7 @@ sk_sp<GrSurface> GrSurfaceProxy::createSurfaceImpl(
 }
 
 void GrSurfaceProxy::assign(sk_sp<GrSurface> surface) {
+    SkASSERT(!this->isPendingLazyInstantiation());
     SkASSERT(!fTarget && surface);
     fTarget = surface.release();
     this->INHERITED::transferRefs();
@@ -111,6 +113,7 @@ bool GrSurfaceProxy::instantiateImpl(GrResourceProvider* resourceProvider, int s
                                      bool needsStencil, GrSurfaceFlags flags, GrMipMapped mipMapped,
                                      SkDestinationSurfaceColorMode mipColorMode,
                                      const GrUniqueKey* uniqueKey) {
+    SkASSERT(!this->isPendingLazyInstantiation());
     if (fTarget) {
         if (uniqueKey) {
             SkASSERT(fTarget->getUniqueKey() == *uniqueKey);
@@ -135,6 +138,7 @@ bool GrSurfaceProxy::instantiateImpl(GrResourceProvider* resourceProvider, int s
 }
 
 void GrSurfaceProxy::computeScratchKey(GrScratchKey* key) const {
+    SkASSERT(!this->isPendingLazyInstantiation());
     const GrRenderTargetProxy* rtp = this->asRenderTargetProxy();
     int sampleCount = 0;
     if (rtp) {
@@ -377,7 +381,15 @@ sk_sp<GrTextureProxy> GrSurfaceProxy::MakeWrappedBackend(GrContext* context,
     return GrSurfaceProxy::MakeWrapped(std::move(tex), origin);
 }
 
+sk_sp<GrTextureProxy> GrSurfaceProxy::MakeLazy(LazyInstantiateCallback&& callback,
+                                               Renderable renderable, GrPixelConfig config) {
+    return sk_sp<GrTextureProxy>(Renderable::kYes == renderable ?
+                                 new GrTextureRenderTargetProxy(std::move(callback), config) :
+                                 new GrTextureProxy(std::move(callback), config));
+}
+
 int GrSurfaceProxy::worstCaseWidth() const {
+    SkASSERT(!this->isPendingLazyInstantiation());
     if (fTarget) {
         return fTarget->width();
     }
@@ -389,6 +401,7 @@ int GrSurfaceProxy::worstCaseWidth() const {
 }
 
 int GrSurfaceProxy::worstCaseHeight() const {
+    SkASSERT(!this->isPendingLazyInstantiation());
     if (fTarget) {
         return fTarget->height();
     }
@@ -414,6 +427,7 @@ sk_sp<GrTextureProxy> GrSurfaceProxy::Copy(GrContext* context,
                                            GrMipMapped mipMapped,
                                            SkIRect srcRect,
                                            SkBudgeted budgeted) {
+    SkASSERT(!src->isPendingLazyInstantiation());
     if (!srcRect.intersect(SkIRect::MakeWH(src->width(), src->height()))) {
         return nullptr;
     }
@@ -442,12 +456,13 @@ sk_sp<GrTextureProxy> GrSurfaceProxy::Copy(GrContext* context,
 
 sk_sp<GrTextureProxy> GrSurfaceProxy::Copy(GrContext* context, GrSurfaceProxy* src,
                                            GrMipMapped mipMapped, SkBudgeted budgeted) {
+    SkASSERT(!src->isPendingLazyInstantiation());
     return Copy(context, src, mipMapped, SkIRect::MakeWH(src->width(), src->height()), budgeted);
 }
 
 sk_sp<GrSurfaceContext> GrSurfaceProxy::TestCopy(GrContext* context, const GrSurfaceDesc& dstDesc,
                                                  GrSurfaceProxy* srcProxy) {
-
+    SkASSERT(!srcProxy->isPendingLazyInstantiation());
     sk_sp<GrSurfaceContext> dstContext(context->contextPriv().makeDeferredSurfaceContext(
                                                                             dstDesc,
                                                                             GrMipMapped::kNo,
@@ -465,6 +480,7 @@ sk_sp<GrSurfaceContext> GrSurfaceProxy::TestCopy(GrContext* context, const GrSur
 }
 
 void GrSurfaceProxyPriv::exactify() {
+    SkASSERT(!fProxy->isPendingLazyInstantiation());
     if (this->isExact()) {
         return;
     }
@@ -489,5 +505,31 @@ void GrSurfaceProxyPriv::exactify() {
     // already been computed we want to leave it alone so that amount will be removed when
     // the special image goes away. If it hasn't been computed yet it might as well compute the
     // exact amount.
+}
+
+void GrSurfaceProxyPriv::doLazyInstantiation(GrResourceProvider* rp) {
+    SkASSERT(fProxy->fLazyInstantiateCallback);
+    SkASSERT(!fProxy->fTarget);
+
+    sk_sp<GrTexture> texture = fProxy->fLazyInstantiateCallback(rp, &fProxy->fOrigin);
+
+    // Indicate we are no longer pending lazy instantiation.
+    fProxy->fLazyInstantiateCallback = nullptr;
+
+    if (!texture) {
+        fProxy->fWidth = 0;
+        fProxy->fHeight = 0;
+        fProxy->fOrigin = kTopLeft_GrSurfaceOrigin;
+        return;
+    }
+
+    fProxy->fWidth = texture->width();
+    fProxy->fHeight = texture->height();
+
+    SkASSERT(texture->config() == fProxy->fConfig);
+    SkASSERT(kTopLeft_GrSurfaceOrigin == fProxy->fOrigin ||
+             kBottomLeft_GrSurfaceOrigin == fProxy->fOrigin);
+    SkDEBUGCODE(fProxy->validateLazyTexture(texture.get());)
+    this->assign(std::move(texture));
 }
 

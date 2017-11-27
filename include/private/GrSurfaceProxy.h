@@ -212,15 +212,36 @@ public:
 
     static sk_sp<GrTextureProxy> MakeWrappedBackend(GrContext*, GrBackendTexture&, GrSurfaceOrigin);
 
+    using LazyInstantiateCallback = std::function<sk_sp<GrTexture>(GrResourceProvider*,
+                                                                   GrSurfaceOrigin* outOrigin)>;
+
+    enum class Renderable : bool {
+        kNo = false,
+        kYes = true
+    };
+
+    /**
+     * Creates a texture proxy that will be instantiated by a user-supplied callback during flush.
+     * Mipmapping and MSAA are both disabled.
+     */
+    static sk_sp<GrTextureProxy> MakeLazy(LazyInstantiateCallback&& callback, Renderable,
+                                          GrPixelConfig);
+
+    GrPixelConfig config() const { return fConfig; }
+    int width() const { SkASSERT(!this->isPendingLazyInstantiation()); return fWidth; }
+    int height() const { SkASSERT(!this->isPendingLazyInstantiation()); return fHeight; }
+    int worstCaseWidth() const;
+    int worstCaseHeight() const;
     GrSurfaceOrigin origin() const {
+        SkASSERT(!this->isPendingLazyInstantiation());
         SkASSERT(kTopLeft_GrSurfaceOrigin == fOrigin || kBottomLeft_GrSurfaceOrigin == fOrigin);
         return fOrigin;
     }
-    int width() const { return fWidth; }
-    int height() const { return fHeight; }
-    int worstCaseWidth() const;
-    int worstCaseHeight() const;
-    GrPixelConfig config() const { return fConfig; }
+    SkBackingFit fit() const { return fFit; }
+
+    // If the client gave us a LazyInstantiateCallback (via MakeLazy), then we will invoke that
+    // callback during flush. fWidth, fHeight, and fOrigin will be undefined until that time.
+    bool isPendingLazyInstantiation() const { return SkToBool(fLazyInstantiateCallback); }
 
     class UniqueID {
     public:
@@ -230,7 +251,7 @@ public:
 
         // wrapped
         explicit UniqueID(const GrGpuResource::UniqueID& id) : fID(id.asUInt()) { }
-        // deferred
+        // deferred and lazy-callback
         UniqueID() : fID(GrGpuResource::CreateUniqueID()) { }
 
         uint32_t asUInt() const { return fID; }
@@ -281,7 +302,10 @@ public:
     /**
      * Helper that gets the width and height of the surface as a bounding rectangle.
      */
-    SkRect getBoundsRect() const { return SkRect::MakeIWH(this->width(), this->height()); }
+    SkRect getBoundsRect() const {
+        SkASSERT(!this->isPendingLazyInstantiation());
+        return SkRect::MakeIWH(this->width(), this->height());
+    }
 
     /**
      * @return the texture proxy associated with the surface proxy, may be NULL.
@@ -314,6 +338,7 @@ public:
      * @return the amount of GPU memory used in bytes
      */
     size_t gpuMemorySize() const {
+        SkASSERT(!this->isPendingLazyInstantiation());
         if (fTarget) {
             return fTarget->gpuMemorySize();
         }
@@ -363,6 +388,22 @@ protected:
         // Note: this ctor pulls a new uniqueID from the same pool at the GrGpuResources
     }
 
+    // Lazy-callback version
+    GrSurfaceProxy(LazyInstantiateCallback&& callback, GrPixelConfig config)
+            : fConfig(config)
+            , fWidth(-1) // Width, height, and origin will be initialized upon lazy instantiation.
+            , fHeight(-1)
+            , fOrigin(static_cast<GrSurfaceOrigin>(-1))
+            , fFit(SkBackingFit::kExact)
+            , fBudgeted(SkBudgeted::kNo)
+            , fFlags(0)
+            , fLazyInstantiateCallback(std::move(callback))
+            , fNeedsClear(0)
+            , fGpuMemorySize(kInvalidGpuMemorySize)
+            , fLastOpList(nullptr) {
+        // Note: the default fUniqueID ctor pulls its value from the same pool as the GrGpuResources
+    }
+
     // Wrapped version
     GrSurfaceProxy(sk_sp<GrSurface> surface, GrSurfaceOrigin origin, SkBackingFit fit);
 
@@ -392,23 +433,27 @@ protected:
                          GrSurfaceFlags flags, GrMipMapped mipMapped,
                          SkDestinationSurfaceColorMode mipColorMode, const GrUniqueKey*);
 
+private:
     // For wrapped resources, 'fConfig', 'fWidth', 'fHeight', and 'fOrigin; will always be filled in
     // from the wrapped resource.
     GrPixelConfig        fConfig;
     int                  fWidth;
     int                  fHeight;
     GrSurfaceOrigin      fOrigin;
-    SkBackingFit         fFit;      // always exact for wrapped resources
+    SkBackingFit         fFit;      // always exact for lazy-callback and wrapped resources
     mutable SkBudgeted   fBudgeted; // set from the backing resource for wrapped resources
+                                    // always kNo for lazy-callback resources
                                     // mutable bc of SkSurface/SkImage wishy-washiness
     const uint32_t       fFlags;
 
     const UniqueID       fUniqueID; // set from the backing resource for wrapped resources
 
+    LazyInstantiateCallback fLazyInstantiateCallback;
+    SkDEBUGCODE(virtual void validateLazyTexture(const GrTexture*) {})
+
     static const size_t kInvalidGpuMemorySize = ~static_cast<size_t>(0);
     SkDEBUGCODE(size_t getRawGpuMemorySize_debugOnly() const { return fGpuMemorySize; })
 
-private:
     virtual size_t onUninstantiatedGpuMemorySize() const = 0;
 
     bool                 fNeedsClear;
