@@ -213,9 +213,12 @@ void GrGLSLFragmentShaderBuilder::enableAdvancedBlendEquationIfNeeded(GrBlendEqu
 
     this->addFeature(1 << kBlendEquationAdvanced_GLSLPrivateFeature,
                      "GL_KHR_blend_equation_advanced");
+    SkDebugf("blend eq is: %d\n", equation);
     if (caps.mustEnableSpecificAdvBlendEqs()) {
+        SkDebugf("doing 1\n");
         this->addLayoutQualifier(specific_layout_qualifier_name(equation), kOut_InterfaceQualifier);
     } else {
+        SkDebugf("doing 2\n");
         this->addLayoutQualifier("blend_support_all_equations", kOut_InterfaceQualifier);
     }
 }
