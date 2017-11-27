@@ -56,7 +56,7 @@ void SkToSRGBColorFilter::onAppendStages(SkRasterPipeline* p,
 }
 
 sk_sp<SkColorFilter> SkToSRGBColorFilter::Make(sk_sp<SkColorSpace> srcColorSpace) {
-    if (srcColorSpace->isSRGB()) {
+    if (!srcColorSpace || srcColorSpace->isSRGB()) {
         return nullptr;
     } else {
         return sk_sp<SkColorFilter>(new SkToSRGBColorFilter(std::move(srcColorSpace)));
@@ -64,7 +64,9 @@ sk_sp<SkColorFilter> SkToSRGBColorFilter::Make(sk_sp<SkColorSpace> srcColorSpace
 }
 
 SkToSRGBColorFilter::SkToSRGBColorFilter(sk_sp<SkColorSpace> srcColorSpace)
-        : fSrcColorSpace(std::move(srcColorSpace)) {}
+        : fSrcColorSpace(std::move(srcColorSpace)) {
+    SkASSERT(fSrcColorSpace);
+}
 
 sk_sp<SkFlattenable> SkToSRGBColorFilter::CreateProc(SkReadBuffer& buffer) {
     auto data = buffer.readByteArrayAsData();
