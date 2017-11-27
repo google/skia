@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "25167ec8_d4ca4ae9",
+        "filename": "src/gpu/GrRenderTargetOpList.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-11-27T22:57:43Z",
+      "side": 1,
+      "message": "This is a problem when the dstProxy is the same surface a the render target. (No  blend equation Advanced, but texture barrier support.)\n\nWe hit an assert because an interval has already been added for this surface as a render Target, but not as a texture.",
+      "range": {
+        "startLine": 144,
+        "startChar": 21,
+        "endLine": 144,
+        "endChar": 30
+      },
+      "revId": "814e283782a4d9895d7828ccd94d59bbe0936f5e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
