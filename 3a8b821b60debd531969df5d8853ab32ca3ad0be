@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "9e7d7c3f_facf0f7a",
+        "filename": "BUILD.gn",
+        "patchSetId": 4
+      },
+      "lineNbr": 996,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-11-27T20:00:05Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "4c358856_994145d2",
+      "range": {
+        "startLine": 996,
+        "startChar": 36,
+        "endLine": 996,
+        "endChar": 44
+      },
+      "revId": "3a8b821b60debd531969df5d8853ab32ca3ad0be",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6324fd73_b4d55f8d",
         "filename": "BUILD.gn",
         "patchSetId": 4
@@ -42,6 +66,24 @@
     },
     {
       "key": {
+        "uuid": "e628f6f7_f7ba5493",
+        "filename": "BUILD.gn",
+        "patchSetId": 4
+      },
+      "lineNbr": 1043,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-11-27T20:00:05Z",
+      "side": 1,
+      "message": "It looks like doing \u0027create_bundle(\"$app_name\") {\u0027 and appending .app to the bundle_root_dir works.",
+      "parentUuid": "6324fd73_b4d55f8d",
+      "revId": "3a8b821b60debd531969df5d8853ab32ca3ad0be",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "400e4b75_75007d25",
         "filename": "BUILD.gn",
         "patchSetId": 4
@@ -53,6 +95,24 @@
       "writtenOn": "2017-11-27T17:26:34Z",
       "side": 1,
       "message": "Might be nice to have the template swallow this on iOS?  Not sure.",
+      "revId": "3a8b821b60debd531969df5d8853ab32ca3ad0be",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5018d030_65d95e56",
+        "filename": "BUILD.gn",
+        "patchSetId": 4
+      },
+      "lineNbr": 1773,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-11-27T20:00:05Z",
+      "side": 1,
+      "message": "I tricked the template into swallowing it by adding it to the list of variables not to forward.",
+      "parentUuid": "400e4b75_75007d25",
       "revId": "3a8b821b60debd531969df5d8853ab32ca3ad0be",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
