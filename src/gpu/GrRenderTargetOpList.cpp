@@ -60,6 +60,12 @@ void GrRenderTargetOpList::dump() const {
         }
     }
 }
+
+void GrRenderTargetOpList::visitProxies_debugOnly(const GrOp::VisitProxyFunc& f) const {
+    for (const RecordedOp& recordedOp : fRecordedOps) {
+        recordedOp.visitProxies(f);
+    }
+}
 #endif
 
 void GrRenderTargetOpList::onPrepare(GrOpFlushState* flushState) {
@@ -275,16 +281,7 @@ void GrRenderTargetOpList::gatherProxyIntervals(GrResourceAllocator* alloc) cons
         alloc->addInterval(p);
     };
     for (const RecordedOp& recordedOp : fRecordedOps) {
-        // only diffs from the GrTextureOpList version
-        if (recordedOp.fOp) {
-            recordedOp.fOp->visitProxies(gather);
-        }
-        if (recordedOp.fDstProxy.proxy()) {
-            gather(recordedOp.fDstProxy.proxy());
-        }
-        if (recordedOp.fAppliedClip) {
-            recordedOp.fAppliedClip->visitProxies(gather);
-        }
+        recordedOp.visitProxies(gather);
 
         // Even though the op may have been moved we still need to increment the op count to
         // keep all the math consistent.
