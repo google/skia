@@ -1839,13 +1839,13 @@ SpvId SPIRVCodeGenerator::writeConstructor(const Constructor& c, OutputStream& o
 
 SpvStorageClass_ get_storage_class(const Modifiers& modifiers) {
     if (modifiers.fFlags & Modifiers::kIn_Flag) {
-        ASSERT(!modifiers.fLayout.fPushConstant);
+        ASSERT(!(modifiers.fLayout.fFlags & Layout::kPushConstant_Flag));
         return SpvStorageClassInput;
     } else if (modifiers.fFlags & Modifiers::kOut_Flag) {
-        ASSERT(!modifiers.fLayout.fPushConstant);
+        ASSERT(!(modifiers.fLayout.fFlags & Layout::kPushConstant_Flag));
         return SpvStorageClassOutput;
     } else if (modifiers.fFlags & Modifiers::kUniform_Flag) {
-        if (modifiers.fLayout.fPushConstant) {
+        if (modifiers.fLayout.fFlags & Layout::kPushConstant_Flag) {
             return SpvStorageClassPushConstant;
         }
         return SpvStorageClassUniform;
@@ -2091,9 +2091,9 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, O
             fields.emplace_back(Modifiers(), SKSL_RTHEIGHT_NAME, fContext.fFloat_Type.get());
             StringFragment name("sksl_synthetic_uniforms");
             Type intfStruct(-1, name, fields);
-            Layout layout(-1, -1, 1, -1, -1, -1, -1, false, false, false,
-                          Layout::Format::kUnspecified, false, Layout::kUnspecified_Primitive, -1,
-                          -1, "", Layout::kNo_Key, StringFragment());
+            Layout layout(0, -1, -1, 1, -1, -1, -1, -1, Layout::Format::kUnspecified,
+                          Layout::kUnspecified_Primitive, -1, -1, "", Layout::kNo_Key,
+                          StringFragment());
             Variable* intfVar = new Variable(-1,
                                              Modifiers(layout, Modifiers::kUniform_Flag),
                                              name,
@@ -2858,7 +2858,9 @@ void SPIRVCodeGenerator::writeLayout(const Layout& layout, SpvId target, int mem
 
 SpvId SPIRVCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf) {
     bool isBuffer = (0 != (intf.fVariable.fModifiers.fFlags & Modifiers::kBuffer_Flag));
-    MemoryLayout layout = (intf.fVariable.fModifiers.fLayout.fPushConstant || isBuffer) ?
+    bool pushConstant = (0 != (intf.fVariable.fModifiers.fLayout.fFlags &
+                               Layout::kPushConstant_Flag));
+    MemoryLayout layout = (pushConstant || isBuffer) ?
                           MemoryLayout(MemoryLayout::k430_Standard) :
                           fDefaultLayout;
     SpvId result = this->nextId();
