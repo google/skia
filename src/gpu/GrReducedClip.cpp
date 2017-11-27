@@ -108,7 +108,7 @@ GrReducedClip::GrReducedClip(const SkClipStack& stack, const SkRect& queryBounds
     }
 
     if (SK_InvalidGenID != fAAClipRectGenID && // Is there an AA clip rect?
-        ClipResult::kNotClipped == this->addAnalyticFP(fAAClipRect, Invert::kNo, true)) {
+        ClipResult::kNotClipped == this->addAnalyticFP(fAAClipRect, Invert::kNo, GrAA::kYes)) {
         if (fMaskElements.isEmpty()) {
             // Use a replace since it is faster than intersect.
             fMaskElements.addToHead(fAAClipRect, SkMatrix::I(), kReplace_SkClipOp, true /*doAA*/);
@@ -485,10 +485,11 @@ GrReducedClip::ClipResult GrReducedClip::clipInsideElement(const Element* elemen
 
         case Element::DeviceSpaceType::kRRect:
             return this->addAnalyticFP(element->getDeviceSpaceRRect(), Invert::kNo,
-                                       element->isAA());
+                                       GrAA(element->isAA()));
 
         case Element::DeviceSpaceType::kPath:
-            return this->addAnalyticFP(element->getDeviceSpacePath(), Invert::kNo, element->isAA());
+            return this->addAnalyticFP(element->getDeviceSpacePath(), Invert::kNo,
+                                       GrAA(element->isAA()));
     }
 
     SK_ABORT("Unexpected DeviceSpaceType");
@@ -510,11 +511,12 @@ GrReducedClip::ClipResult GrReducedClip::clipOutsideElement(const Element* eleme
                 }
             }
             return this->addAnalyticFP(element->getDeviceSpaceRect(), Invert::kYes,
-                                       element->isAA());
+                                       GrAA(element->isAA()));
 
         case Element::DeviceSpaceType::kRRect: {
             const SkRRect& clipRRect = element->getDeviceSpaceRRect();
-            ClipResult clipResult = this->addAnalyticFP(clipRRect, Invert::kYes, element->isAA());
+            ClipResult clipResult = this->addAnalyticFP(clipRRect, Invert::kYes,
+                                                        GrAA(element->isAA()));
             if (fWindowRects.count() >= fMaxWindowRectangles) {
                 return clipResult;
             }
@@ -552,7 +554,7 @@ GrReducedClip::ClipResult GrReducedClip::clipOutsideElement(const Element* eleme
 
         case Element::DeviceSpaceType::kPath:
             return this->addAnalyticFP(element->getDeviceSpacePath(), Invert::kYes,
-                                       element->isAA());
+                                       GrAA(element->isAA()));
     }
 
     SK_ABORT("Unexpected DeviceSpaceType");
@@ -573,16 +575,17 @@ inline void GrReducedClip::addWindowRectangle(const SkRect& elementInteriorRect,
 
 template<typename T>
 inline GrReducedClip::ClipResult GrReducedClip::addAnalyticFP(const T& deviceSpaceShape,
-                                                              Invert invert, bool aa) {
+                                                              Invert invert, GrAA aa) {
     if (fAnalyticFPs.count() >= fMaxAnalyticFPs) {
         return ClipResult::kNotClipped;
     }
 
     GrClipEdgeType edgeType;
     if (Invert::kNo == invert) {
-        edgeType = aa ? GrClipEdgeType::kFillAA : GrClipEdgeType::kFillBW;
+        edgeType = (GrAA::kYes == aa) ? GrClipEdgeType::kFillAA : GrClipEdgeType::kFillBW;
     } else {
-        edgeType = aa ? GrClipEdgeType::kInverseFillAA : GrClipEdgeType::kInverseFillBW;
+        edgeType = (GrAA::kYes == aa) ? GrClipEdgeType::kInverseFillAA
+                                      : GrClipEdgeType::kInverseFillBW;
     }
 
     if (auto fp = make_analytic_clip_fp(edgeType, deviceSpaceShape)) {
@@ -624,7 +627,7 @@ static bool stencil_element(GrRenderTargetContext* rtc,
                             const GrUserStencilSettings* ss,
                             const SkMatrix& viewMatrix,
                             const SkClipStack::Element* element) {
-    GrAA aa = GrBoolToAA(element->isAA());
+    GrAA aa = GrAA(element->isAA());
     switch (element->getDeviceSpaceType()) {
         case SkClipStack::Element::DeviceSpaceType::kEmpty:
             SkDEBUGFAIL("Should never get here with an empty element.");
@@ -700,7 +703,7 @@ bool GrReducedClip::drawAlphaClipMask(GrRenderTargetContext* rtc) const {
     for (ElementList::Iter iter(fMaskElements); iter.get(); iter.next()) {
         const Element* element = iter.get();
         SkRegion::Op op = (SkRegion::Op)element->getOp();
-        GrAA aa = GrBoolToAA(element->isAA());
+        GrAA aa = GrAA(element->isAA());
         bool invert = element->isInverseFilled();
         if (invert || SkRegion::kIntersect_Op == op || SkRegion::kReverseDifference_Op == op) {
             // draw directly into the result with the stencil set to make the pixels affected

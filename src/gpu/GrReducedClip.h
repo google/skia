@@ -109,11 +109,11 @@ private:
     void addWindowRectangle(const SkRect& elementInteriorRect, bool elementIsAA);
 
     enum class Invert : bool {
-        kNo,
-        kYes
+        kNo = false,
+        kYes = true
     };
 
-    template<typename T> ClipResult addAnalyticFP(const T& deviceSpaceShape, Invert, bool aa);
+    template<typename T> ClipResult addAnalyticFP(const T& deviceSpaceShape, Invert, GrAA);
 
     void makeEmpty();
 

@@ -19,7 +19,7 @@ GrBackendTexture::GrBackendTexture(int width,
         : fWidth(width)
         , fHeight(height)
         , fConfig(GrVkFormatToPixelConfig(vkInfo.fFormat))
-        , fMipMapped(GrBoolToMipMapped(vkInfo.fLevelCount > 1))
+        , fMipMapped(GrMipMapped(vkInfo.fLevelCount > 1))
         , fBackend(kVulkan_GrBackend)
         , fVkInfo(vkInfo) {}
 #endif

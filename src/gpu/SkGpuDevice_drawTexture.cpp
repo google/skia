@@ -297,7 +297,7 @@ void SkGpuDevice::drawTextureProducerImpl(GrTextureProducer* producer,
                                      &grPaint)) {
         return;
     }
-    GrAA aa = GrBoolToAA(paint.isAntiAlias());
+    GrAA aa = GrAA(paint.isAntiAlias());
     if (canUseTextureCoordsAsLocalCoords) {
         fRenderTargetContext->fillRectToRect(this->clip(), std::move(grPaint), aa, viewMatrix,
                                              clippedDstRect, clippedSrcRect);
