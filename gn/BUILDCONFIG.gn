@@ -11,11 +11,14 @@ declare_args() {
   is_official_build = false
   is_component_build = false
   ndk = ""
+
+  # It's nice to keep ndk_api set to what Clank targets, but probably no big deal if we can't.
   if (target_cpu == "x86" || target_cpu == "mipsel" || target_cpu == "arm") {
-    ndk_api = 18
+    ndk_api = 16
   } else {
     ndk_api = 21
   }
+
   sanitize = ""
 
   ar = "ar"
