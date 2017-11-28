@@ -1,0 +1,208 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "349f7332_fba7fe64",
+        "filename": "include/private/GrRenderTargetProxy.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-11-28T15:10:23Z",
+      "side": 1,
+      "message": "No validateLazyTexture with an SkASSERT(0) ?",
+      "revId": "2e8052205f6f23e6c3aab420760024db475175cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b73aa897_b3db2d84",
+        "filename": "include/private/GrSurfaceProxy.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 240,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-11-28T15:10:23Z",
+      "side": 1,
+      "message": "Does \u0027fit\u0027 need to be exposed ?\n\nThere is a isExact call in GrSurfaceProxyPriv. It is a bit dodgy to expose it b.c. we don\u0027t want a lot of code written to peer inside the proxy and change behavior based on the fit.",
+      "revId": "2e8052205f6f23e6c3aab420760024db475175cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4693708c_bd82dc84",
+        "filename": "include/private/GrSurfaceProxy.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 396,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-11-28T15:10:23Z",
+      "side": 1,
+      "message": "What do you think about a kUnknown_GrSurfaceOrigin?",
+      "revId": "2e8052205f6f23e6c3aab420760024db475175cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2926d960_ebe48379",
+        "filename": "include/private/GrSurfaceProxy.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 398,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-11-28T15:10:23Z",
+      "side": 1,
+      "message": "Making all lazy proxies be unbudgeted could be problematic.",
+      "revId": "2e8052205f6f23e6c3aab420760024db475175cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "49c265af_19e7b37c",
+        "filename": "include/private/GrSurfaceProxy.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 399,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-11-28T15:10:23Z",
+      "side": 1,
+      "message": "The flags are for kNoPendingIO or kRequireGpuMemory. I can see disallowing kRequireGpuMemory but it seems like kNoPendingIO could be useful. That might allow lazy proxies actually be handled by the resource allocator.",
+      "revId": "2e8052205f6f23e6c3aab420760024db475175cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "94cc5715_213a1a95",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-11-28T15:10:23Z",
+      "side": 1,
+      "message": "What is this assert trying to say ?",
+      "revId": "2e8052205f6f23e6c3aab420760024db475175cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0298b50e_44571767",
+        "filename": "src/gpu/GrRenderTargetProxy.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-11-28T15:10:23Z",
+      "side": 1,
+      "message": "us isExact here ?",
+      "revId": "2e8052205f6f23e6c3aab420760024db475175cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "00a0c950_615e8c3c",
+        "filename": "src/gpu/GrSurfaceProxy.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 510,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-11-28T15:10:23Z",
+      "side": 1,
+      "message": "rp -\u003e resourceProvider ?",
+      "revId": "2e8052205f6f23e6c3aab420760024db475175cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ef880b80_067bc2f3",
+        "filename": "src/gpu/GrTextureProxy.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-11-28T15:10:23Z",
+      "side": 1,
+      "message": "use isExact ?",
+      "revId": "2e8052205f6f23e6c3aab420760024db475175cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b05ed94b_818bf4d5",
+        "filename": "tests/LazyProxyTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-11-28T15:10:23Z",
+      "side": 1,
+      "message": "GrSurfaceDesc has a default ctor",
+      "revId": "2e8052205f6f23e6c3aab420760024db475175cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2ce61c45_5af7ca4e",
+        "filename": "tests/LazyProxyTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-11-28T15:10:23Z",
+      "side": 1,
+      "message": "kRGBA8 ?",
+      "revId": "2e8052205f6f23e6c3aab420760024db475175cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5af657b5_4ba38b7f",
+        "filename": "tests/LazyProxyTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 169,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-11-28T15:10:23Z",
+      "side": 1,
+      "message": "Why not run it on real contexts and just bail if they don\u0027t support kAlpha_half ?",
+      "revId": "2e8052205f6f23e6c3aab420760024db475175cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
