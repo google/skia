@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ed6bee07_0c6e3e9b",
+        "filename": "src/core/SkCpu.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-11-28T18:54:53Z",
+      "side": 1,
+      "message": "I think we can just drop these changes for 64-bit ARM.  Isn\u0027t it a given that __ANDROID_API__ \u003e\u003d 21 when building for 64-bit ARM Android?\n\n(The same note about breaking non-Android platforms below applies here, but if we just undo this there\u0027s no issue.)",
+      "range": {
+        "startLine": 77,
+        "startChar": 59,
+        "endLine": 77,
+        "endChar": 83
+      },
+      "revId": "8437c95e0df1270347b62f9e1267375cd0c224fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fd4300f5_e24f2800",
+        "filename": "src/core/SkCpu.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-11-28T18:54:53Z",
+      "side": 1,
+      "message": "I think this will disable CPU detection on non-Android 32-bit ARM platforms.\n\nI think we\u0027re going to want something like,\n\n#elif defined(SK_CPU_ARM32) \u0026\u0026 __has_include(\u003csys/auxv.h\u003e) \u0026\u0026 \\\n   (!defined(__ANDROID_API__) || __ANDROID_API__ \u003e\u003d 18)",
+      "range": {
+        "startLine": 91,
+        "startChar": 59,
+        "endLine": 91,
+        "endChar": 83
+      },
+      "revId": "8437c95e0df1270347b62f9e1267375cd0c224fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
