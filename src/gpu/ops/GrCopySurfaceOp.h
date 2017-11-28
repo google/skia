@@ -22,7 +22,7 @@ public:
     const char* name() const override { return "CopySurface"; }
 
     void visitProxies(const VisitProxyFunc& func) const override {
-        func(fSrc.get());
+        func(fSrc.get() SkDEBUGCODE(, false));
     }
 
     SkString dumpInfo() const override {
