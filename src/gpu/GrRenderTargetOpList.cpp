@@ -274,11 +274,8 @@ void GrRenderTargetOpList::gatherProxyIntervals(GrResourceAllocator* alloc) cons
     auto gather = [ alloc ] (GrSurfaceProxy* p) {
         alloc->addInterval(p);
     };
-    for (int i = 0; i < fRecordedOps.count(); ++i) {
-        const GrOp* op = fRecordedOps[i].fOp.get(); // only diff from the GrTextureOpList version
-        if (op) {
-            op->visitProxies(gather);
-        }
+    for (const RecordedOp& recordedOp : fRecordedOps) {
+        recordedOp.visitProxies(gather); // only diff from the GrTextureOpList version
 
         // Even though the op may have been moved we still need to increment the op count to
         // keep all the math consistent.
@@ -370,8 +367,17 @@ void GrRenderTargetOpList::recordOp(std::unique_ptr<GrOp> op,
         clip = fClipAllocator.make<GrAppliedClip>(std::move(*clip));
         SkDEBUGCODE(fNumClips++;)
     }
-    fRecordedOps.emplace_back(std::move(op), clip, dstProxy);
-    fRecordedOps.back().fOp->wasRecorded(this);
+    RecordedOp& recordedOp = fRecordedOps.emplace_back(std::move(op), clip, dstProxy);
+#ifdef SK_DEBUG
+    GrSurfaceProxy* recordedDstProxy = recordedOp.fDstProxy.proxy();
+    if (recordedDstProxy && fTarget.get() == recordedDstProxy &&
+        (static_cast<GrSurfaceProxy*>(recordedDstProxy->asTextureProxy()) ==
+                     static_cast<GrSurfaceProxy*>(recordedDstProxy->asRenderTargetProxy()))) {
+        // Notify the resource allocator that is a direct read from the render target itself.
+        recordedDstProxy->priv().markAsDirectDstRead_debugOnly();
+    }
+#endif
+    recordedOp.fOp->wasRecorded(this);
 }
 
 void GrRenderTargetOpList::forwardCombine(const GrCaps& caps) {
