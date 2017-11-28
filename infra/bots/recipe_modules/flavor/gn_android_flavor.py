@@ -73,6 +73,8 @@ class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
   def _lock_cpu(self, target_percent):
     if self.m.vars.builder_cfg.get('model') in self.rootable_blacklist:
       return
+    if self.m.vars.internal_hardware_label:
+      return
     self.m.run(self.m.python.inline, 'Scale CPU to %f' % target_percent,
         program="""
 import os
