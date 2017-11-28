@@ -286,8 +286,6 @@ public:
     }
 
     SkISize getBaseLayerSize() const override { return fTarget->getBaseLayerSize(); }
-    SkRect onGetLocalClipBounds() const override { return fTarget->getLocalClipBounds(); }
-    SkIRect onGetDeviceClipBounds() const override { return fTarget->getDeviceClipBounds(); }
     bool isClipEmpty() const override { return fTarget->isClipEmpty(); }
     bool isClipRect() const override { return fTarget->isClipRect(); }
     bool onPeekPixels(SkPixmap* pixmap) override { return fTarget->peekPixels(pixmap); }
