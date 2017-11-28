@@ -154,6 +154,8 @@ void IRGenerator::start(const Program::Settings* settings) {
     this->pushSymbolTable();
     fInvocations = -1;
     fInputs.reset();
+    fSkPerVertex = nullptr;
+    fRTAdjust = nullptr;
 }
 
 void IRGenerator::finish() {
@@ -171,8 +173,26 @@ std::unique_ptr<Statement> IRGenerator::convertStatement(const ASTStatement& sta
             return this->convertBlock((ASTBlock&) statement);
         case ASTStatement::kVarDeclaration_Kind:
             return this->convertVarDeclarationStatement((ASTVarDeclarationStatement&) statement);
-        case ASTStatement::kExpression_Kind:
-            return this->convertExpressionStatement((ASTExpressionStatement&) statement);
+        case ASTStatement::kExpression_Kind: {
+            std::unique_ptr<Statement> result =
+                              this->convertExpressionStatement((ASTExpressionStatement&) statement);
+            if (fRTAdjust && Program::kGeometry_Kind == fKind) {
+                ASSERT(result->fKind == Statement::kExpression_Kind);
+                Expression& expr = *((ExpressionStatement&) *result).fExpression;
+                if (expr.fKind == Expression::kFunctionCall_Kind) {
+                    FunctionCall& fc = (FunctionCall&) expr;
+                    if (fc.fFunction.fBuiltin && fc.fFunction.fName == "EmitVertex") {
+                        std::vector<std::unique_ptr<Statement>> statements;
+                        statements.push_back(getNormalizeSkPositionCode());
+                        statements.push_back(std::move(result));
+                        return std::unique_ptr<Block>(new Block(statement.fOffset,
+                                                                std::move(statements),
+                                                                fSymbolTable));
+                    }
+                }
+            }
+            return std::move(result);
+        }
         case ASTStatement::kIf_Kind:
             return this->convertIf((ASTIfStatement&) statement);
         case ASTStatement::kFor_Kind:
@@ -257,6 +277,11 @@ std::unique_ptr<VarDeclarations> IRGenerator::convertVarDeclarations(const ASTVa
         }
         auto var = std::unique_ptr<Variable>(new Variable(decl.fOffset, decl.fModifiers,
                                                           varDecl.fName, *type, storage));
+        if ((decl.fModifiers.fFlags & Modifiers::kUniform_Flag) &&
+            var->fName == Compiler::RTADJUST_NAME) {
+            ASSERT(!fRTAdjust);
+            fRTAdjust = var.get();
+        }
         std::unique_ptr<Expression> value;
         if (varDecl.fValue) {
             value = this->convertExpression(*varDecl.fValue);
@@ -471,6 +496,10 @@ std::unique_ptr<Statement> IRGenerator::convertExpressionStatement(
 
 std::unique_ptr<Statement> IRGenerator::convertReturn(const ASTReturnStatement& r) {
     ASSERT(fCurrentFunction);
+    // early returns from a vertex main function will bypass the sk_Position normalization, so
+    // assert that we aren't doing that. It is of course possible to fix this by adding a
+    // normalization before each return, but it will probably never actually be necessary.
+    ASSERT(Program::kVertex_Kind != fKind || !fRTAdjust || "main" != fCurrentFunction->fName);
     if (r.fExpression) {
         std::unique_ptr<Expression> result = this->convertExpression(*r.fExpression);
         if (!result) {
@@ -572,6 +601,37 @@ std::unique_ptr<Block> IRGenerator::applyInvocationIDWorkaround(std::unique_ptr<
     std::vector<std::unique_ptr<Statement>> children;
     children.push_back(std::move(loop));
     return std::unique_ptr<Block>(new Block(-1, std::move(children)));
+}
+
+std::unique_ptr<Statement> IRGenerator::getNormalizeSkPositionCode() {
+    // sk_Position = float4(sk_Position.x * rtAdjust.x + sk_Position.z * rtAdjust.y,
+    //                      sk_Position.y * rtAdjust.z + sk_Position.z * rtAdjust.w,
+    //                      0,
+    //                      sk_Position.z);
+
+    ASSERT(fSkPerVertex && fRTAdjust);
+    #define REF(var) std::unique_ptr<Expression>(\
+                                  new VariableReference(-1, *var, VariableReference::kRead_RefKind))
+    #define POS std::unique_ptr<Expression>(new FieldAccess(REF(fSkPerVertex), 0,\
+                                                   FieldAccess::kAnonymousInterfaceBlock_OwnerKind))
+    #define ADJUST REF(fRTAdjust)
+    #define SWIZZLE(expr, field) std::unique_ptr<Expression>(new Swizzle(fContext, expr, { field }))
+    #define OP(left, op, right) std::unique_ptr<Expression>(\
+                                   new BinaryExpression(-1, left, op, right, *fContext.fFloat_Type))
+    std::vector<std::unique_ptr<Expression>> children;
+    children.push_back(OP(OP(SWIZZLE(POS, 0), Token::STAR, SWIZZLE(ADJUST, 0)),
+                          Token::PLUS,
+                          OP(SWIZZLE(POS, 2), Token::STAR, SWIZZLE(ADJUST, 1))));
+    children.push_back(OP(OP(SWIZZLE(POS, 1), Token::STAR, SWIZZLE(ADJUST, 2)),
+                          Token::PLUS,
+                          OP(SWIZZLE(POS, 2), Token::STAR, SWIZZLE(ADJUST, 3))));
+    children.push_back(std::unique_ptr<Expression>(new IntLiteral(fContext, -1, 0)));
+    children.push_back(SWIZZLE(POS, 2));
+    std::unique_ptr<Expression> result = OP(POS, Token::EQ,
+                                 std::unique_ptr<Expression>(new Constructor(-1,
+                                                                             *fContext.fFloat4_Type,
+                                                                             std::move(children))));
+    return std::unique_ptr<Statement>(new ExpressionStatement(std::move(result)));
 }
 
 void IRGenerator::convertFunction(const ASTFunction& f) {
@@ -690,7 +750,9 @@ void IRGenerator::convertFunction(const ASTFunction& f) {
         }
         // conservatively assume all user-defined functions have side effects
         ((Modifiers&) decl->fModifiers).fFlags |= Modifiers::kHasSideEffects_Flag;
-
+        if (Program::kVertex_Kind == fKind && f.fName == "main" && fRTAdjust) {
+            body->fStatements.insert(body->fStatements.end(), this->getNormalizeSkPositionCode());
+        }
         fProgramElements->push_back(std::unique_ptr<FunctionDefinition>(
                                         new FunctionDefinition(f.fOffset, *decl, std::move(body))));
     }
@@ -776,6 +838,10 @@ std::unique_ptr<InterfaceBlock> IRGenerator::convertInterfaceBlock(const ASTInte
             old->add(fields[i].fName, std::unique_ptr<Field>(new Field(intf.fOffset, *var,
                                                                        (int) i)));
         }
+    }
+    if (var->fName == Compiler::PERVERTEX_NAME) {
+        ASSERT(!fSkPerVertex);
+        fSkPerVertex = var;
     }
     return std::unique_ptr<InterfaceBlock>(new InterfaceBlock(intf.fOffset,
                                                               var,
@@ -2020,10 +2086,12 @@ void IRGenerator::markWrittenTo(const Expression& expr, bool readWrite) {
     }
 }
 
-void IRGenerator::convertProgram(const char* text,
+void IRGenerator::convertProgram(Program::Kind kind,
+                                 const char* text,
                                  size_t length,
                                  SymbolTable& types,
                                  std::vector<std::unique_ptr<ProgramElement>>* out) {
+    fKind = kind;
     fProgramElements = out;
     Parser parser(text, length, types, fErrors);
     std::vector<std::unique_ptr<ASTDeclaration>> parsed = parser.file();
