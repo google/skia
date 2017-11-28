@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "f9a699c8_50e2cfb1",
+        "filename": "src/ports/SkOSFile_ios.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-11-28T21:16:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "19b8ec26_30d3120e",
+      "range": {
+        "startLine": 19,
+        "startChar": 78,
+        "endLine": 19,
+        "endChar": 91
+      },
+      "revId": "54da93ebb37f79be420e2ace6cd3da887697393e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8e0f0288_1553fa3e",
         "filename": "src/ports/SkOSFile_posix.cpp",
         "patchSetId": 8
@@ -45,6 +69,30 @@
       "revId": "54da93ebb37f79be420e2ace6cd3da887697393e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cebf12ec_c2b54384",
+        "filename": "src/ports/SkOSFile_posix.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-11-28T21:16:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8e0f0288_1553fa3e",
+      "range": {
+        "startLine": 36,
+        "startChar": 10,
+        "endLine": 36,
+        "endChar": 12
+      },
+      "revId": "54da93ebb37f79be420e2ace6cd3da887697393e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
