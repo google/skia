@@ -11,9 +11,9 @@
 #include "GrContextPriv.h"
 #include "GrDeferredProxyUploader.h"
 #include "GrDrawingManager.h"
-#include "GrRenderTargetContextPriv.h"
 #include "GrFixedClip.h"
 #include "GrGpuResourcePriv.h"
+#include "GrRenderTargetContextPriv.h"
 #include "GrResourceProvider.h"
 #include "GrStencilAttachment.h"
 #include "GrSWMaskHelper.h"
@@ -190,6 +190,7 @@ bool GrClipStackClip::apply(GrContext* context, GrRenderTargetContext* renderTar
         return true;
     }
 
+    int maxWindowRectangles = renderTargetContext->priv().maxWindowRectangles();
     int maxAnalyticFPs = context->caps()->maxClipAnalyticFPs();
     if (GrFSAAType::kNone != renderTargetContext->fsaaType()) {
         // With mixed samples (non-msaa color buffer), any coverage info is lost from color once it
@@ -200,12 +201,17 @@ bool GrClipStackClip::apply(GrContext* context, GrRenderTargetContext* renderTar
         }
         SkASSERT(!context->caps()->avoidStencilBuffers()); // We disable MSAA when avoiding stencil.
     }
+    auto* ccpr = context->contextPriv().drawingManager()->getCoverageCountingPathRenderer();
 
-    GrReducedClip reducedClip(*fStack, devBounds, renderTargetContext->priv().maxWindowRectangles(),
-                              maxAnalyticFPs);
+    GrReducedClip reducedClip(*fStack, devBounds, maxWindowRectangles, maxAnalyticFPs, ccpr);
+    if (reducedClip.maskElements().isEmpty() &&
+        InitialState::kAllOut == reducedClip.initialState()) {
+        return false;
+    }
 
     if (reducedClip.hasScissor() && !GrClip::IsInsideClip(reducedClip.scissor(), devBounds)) {
         out->hardClip().addScissor(reducedClip.scissor(), bounds);
+        GrReducedClip reducedClip2(*fStack, devBounds, maxWindowRectangles, maxAnalyticFPs, ccpr);
     }
 
     if (!reducedClip.windowRectangles().empty()) {
@@ -213,14 +219,26 @@ bool GrClipStackClip::apply(GrContext* context, GrRenderTargetContext* renderTar
                                             GrWindowRectsState::Mode::kExclusive);
     }
 
-    if (std::unique_ptr<GrFragmentProcessor> clipFPs = reducedClip.detachAnalyticFPs()) {
+    if (!reducedClip.maskElements().isEmpty()) {
+        if (!this->applyClipMask(context, renderTargetContext, reducedClip, hasUserStencilSettings,
+                                 out)) {
+            return false;
+        }
+    }
+
+    // This must be looked up AFTER producing the clip mask (if any), because that step can cause a
+    // flush or otherwise change which opList our draw is going into.
+    uint32_t opListID = renderTargetContext->getOpList()->uniqueID();
+    if (auto clipFPs = reducedClip.finishAndDetachAnalyticFPs(opListID)) {
         out->addCoverageFP(std::move(clipFPs));
     }
 
-    if (reducedClip.maskElements().isEmpty()) {
-        return InitialState::kAllIn == reducedClip.initialState();
-    }
+    return true;
+}
 
+bool GrClipStackClip::applyClipMask(GrContext* context, GrRenderTargetContext* renderTargetContext,
+                                    const GrReducedClip& reducedClip, bool hasUserStencilSettings,
+                                    GrAppliedClip* out) const {
 #ifdef SK_DEBUG
     SkASSERT(reducedClip.hasScissor());
     SkIRect rtIBounds = SkIRect::MakeWH(renderTargetContext->width(),
