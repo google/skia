@@ -84,6 +84,30 @@
     },
     {
       "key": {
+        "uuid": "52abfc5f_3a168cfe",
+        "filename": "include/private/GrSurfaceProxy.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 225,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-11-28T19:51:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ce42d27a_4f1b401b",
+      "range": {
+        "startLine": 225,
+        "startChar": 36,
+        "endLine": 225,
+        "endChar": 44
+      },
+      "revId": "2e8052205f6f23e6c3aab420760024db475175cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b73aa897_b3db2d84",
         "filename": "include/private/GrSurfaceProxy.h",
         "patchSetId": 4
@@ -481,6 +505,24 @@
       "side": 1,
       "message": "My thoughts are just that a test intended solely to test things at the Ganesh level ought to use a mock contest rather than spending time in vendor drivers and on the GPU. But I\u0027m happy to change it if there are strong contrary opinions.",
       "parentUuid": "5af657b5_4ba38b7f",
+      "revId": "2e8052205f6f23e6c3aab420760024db475175cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "77839997_513b0c49",
+        "filename": "tests/LazyProxyTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 169,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-11-28T19:51:13Z",
+      "side": 1,
+      "message": "If we don\u0027t think driver variety is important and aren\u0027t drawing anything then I tend to agree.",
+      "parentUuid": "c0c26194_99950d01",
       "revId": "2e8052205f6f23e6c3aab420760024db475175cf",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
