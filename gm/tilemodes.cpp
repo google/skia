@@ -167,7 +167,6 @@ static sk_sp<SkShader> make_bm(SkShader::TileMode tx, SkShader::TileMode ty) {
 static sk_sp<SkShader> make_grad(SkShader::TileMode tx, SkShader::TileMode ty) {
     SkPoint pts[] = { { 0, 0 }, { SkIntToScalar(gWidth), SkIntToScalar(gHeight)} };
     SkPoint center = { SkIntToScalar(gWidth)/2, SkIntToScalar(gHeight)/2 };
-    SkScalar rad = SkIntToScalar(gWidth)/2;
     SkColor colors[] = { 0xFFFF0000, sk_tool_utils::color_to_565(0xFF0044FF) };
 
     int index = (int)ty;
@@ -175,7 +174,7 @@ static sk_sp<SkShader> make_grad(SkShader::TileMode tx, SkShader::TileMode ty) {
         case 0:
             return SkGradientShader::MakeLinear(pts, colors, nullptr, SK_ARRAY_COUNT(colors), tx);
         case 1:
-            return SkGradientShader::MakeRadial(center, rad, colors, nullptr, SK_ARRAY_COUNT(colors), tx);
+            return SkGradientShader::MakeLinear(pts, colors, nullptr, SK_ARRAY_COUNT(colors), tx);
         case 2:
             return SkGradientShader::MakeSweep(center.fX, center.fY, colors, nullptr,
                                                SK_ARRAY_COUNT(colors), tx, 135, 225, 0, nullptr);
