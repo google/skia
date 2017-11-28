@@ -134,12 +134,6 @@ size_t SkJsonWriteBuffer::writeStream(SkStream* stream, size_t length) {
     return 0;
 }
 
-void SkJsonWriteBuffer::writeBitmap(const SkBitmap& bitmap) {
-    Json::Value jsonBitmap;
-    SkDrawCommand::flatten(bitmap, &jsonBitmap, *fUrlDataManager);
-    this->append("bitmap", jsonBitmap);
-}
-
 void SkJsonWriteBuffer::writeImage(const SkImage* image) {
     Json::Value jsonImage;
     SkDrawCommand::flatten(*image, &jsonImage, *fUrlDataManager);
