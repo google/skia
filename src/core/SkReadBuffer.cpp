@@ -44,8 +44,15 @@ static uint32_t default_flags() {
     return flags;
 }
 
-// This has an empty constructor and destructor, and is thread-safe, so we can use a singleton.
-static SkImageDeserializer gDefaultImageDeserializer;
+static void setup_defaults(SkDeserialProcs* procs) {
+    if (procs->fImageProc == nullptr) {
+        procs->fImageProc = [](const void* data, size_t length, void* ctx) {
+            const SkIRect* subset = nullptr;
+            return SkImage::MakeFromEncoded(SkData::MakeWithCopy(data, length), subset);
+        };
+        procs->fImageCtx = nullptr;
+    }
+}
 
 SkReadBuffer::SkReadBuffer() {
     fFlags = default_flags();
@@ -57,10 +64,11 @@ SkReadBuffer::SkReadBuffer() {
 
     fFactoryArray = nullptr;
     fFactoryCount = 0;
-    fImageDeserializer = &gDefaultImageDeserializer;
 #ifdef DEBUG_NON_DETERMINISTIC_ASSERT
     fDecodedBitmapIndex = -1;
 #endif // DEBUG_NON_DETERMINISTIC_ASSERT
+
+    setup_defaults(&fProcs);
 }
 
 SkReadBuffer::SkReadBuffer(const void* data, size_t size) {
@@ -74,10 +82,11 @@ SkReadBuffer::SkReadBuffer(const void* data, size_t size) {
 
     fFactoryArray = nullptr;
     fFactoryCount = 0;
-    fImageDeserializer = &gDefaultImageDeserializer;
 #ifdef DEBUG_NON_DETERMINISTIC_ASSERT
     fDecodedBitmapIndex = -1;
 #endif // DEBUG_NON_DETERMINISTIC_ASSERT
+
+    setup_defaults(&fProcs);
 }
 
 SkReadBuffer::SkReadBuffer(SkStream* stream) {
@@ -93,18 +102,20 @@ SkReadBuffer::SkReadBuffer(SkStream* stream) {
 
     fFactoryArray = nullptr;
     fFactoryCount = 0;
-    fImageDeserializer = &gDefaultImageDeserializer;
 #ifdef DEBUG_NON_DETERMINISTIC_ASSERT
     fDecodedBitmapIndex = -1;
 #endif // DEBUG_NON_DETERMINISTIC_ASSERT
+
+    setup_defaults(&fProcs);
 }
 
 SkReadBuffer::~SkReadBuffer() {
     sk_free(fMemoryPtr);
 }
 
-void SkReadBuffer::setImageDeserializer(SkImageDeserializer* deserializer) {
-    fImageDeserializer = deserializer ? deserializer : &gDefaultImageDeserializer;
+void SkReadBuffer::setDeserialProcs(const SkDeserialProcs& procs) {
+    fProcs = procs;
+    setup_defaults(&fProcs);
 }
 
 bool SkReadBuffer::readBool() {

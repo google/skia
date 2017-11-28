@@ -13,8 +13,8 @@
 #include "SkImage.h"
 #include "SkPath.h"
 #include "SkPicture.h"
-#include "SkPixelSerializer.h"
 #include "SkRefCnt.h"
+#include "SkSerialProcs.h"
 #include "SkWriter32.h"
 #include "../private/SkTHash.h"
 
@@ -141,23 +141,16 @@ public:
     SkFactorySet* setFactoryRecorder(SkFactorySet*);
     SkRefCntSet* setTypefaceRecorder(SkRefCntSet*);
 
-    /**
-     * Set an SkPixelSerializer to store an encoded representation of pixels,
-     * e.g. SkBitmaps.
-     *
-     * TODO: Encode SkImage pixels as well.
-     */
-    void setPixelSerializer(sk_sp<SkPixelSerializer>);
-    SkPixelSerializer* getPixelSerializer() const { return fPixelSerializer.get(); }
+    void setSerialProcs(const SkSerialProcs& procs) { fProcs = procs; }
+    const SkSerialProcs& getSerialProcs() const { return fProcs; }
 
 private:
     const uint32_t fFlags;
     SkFactorySet* fFactorySet;
     SkWriter32 fWriter;
 
-    SkRefCntSet* fTFSet;
-
-    sk_sp<SkPixelSerializer> fPixelSerializer;
+    SkRefCntSet*    fTFSet;
+    SkSerialProcs   fProcs;
 
     // Only used if we do not have an fFactorySet
     SkTHashMap<SkString, uint32_t> fFlattenableDict;
