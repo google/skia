@@ -715,11 +715,7 @@ public:
             }
         }
 
-        ~Sk3DShaderContext() override {
-            if (fProxyContext) {
-                fProxyContext->~Context();
-            }
-        }
+        ~Sk3DShaderContext() override = default;
 
         void set3DMask(const SkMask* mask) override { fMask = mask; }
 
@@ -790,7 +786,7 @@ public:
     private:
         // Unowned.
         const SkMask* fMask;
-        // Memory is unowned, but we need to call the destructor.
+        // Memory is unowned.
         Context*      fProxyContext;
         SkPMColor     fPMColor;
 
