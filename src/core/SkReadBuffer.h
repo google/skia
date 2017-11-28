@@ -167,6 +167,10 @@ public:
 
     sk_sp<SkData> readByteArrayAsData() {
         size_t len = this->getArrayCount();
+        if (len > 1000000) {
+            fReader.skip(fReader.available());
+            return SkData::MakeEmpty();
+        }
         void* buffer = sk_malloc_throw(len);
         if (!this->readByteArray(buffer, len)) {
             sk_free(buffer);

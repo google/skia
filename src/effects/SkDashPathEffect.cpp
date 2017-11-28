@@ -367,6 +367,9 @@ void SkDashImpl::flatten(SkWriteBuffer& buffer) const {
 sk_sp<SkFlattenable> SkDashImpl::CreateProc(SkReadBuffer& buffer) {
     const SkScalar phase = buffer.readScalar();
     uint32_t count = buffer.getArrayCount();
+    if (count > 1000000) {
+        return nullptr;
+    }
     SkAutoSTArray<32, SkScalar> intervals(count);
     if (buffer.readScalarArray(intervals.get(), count)) {
         return SkDashPathEffect::Make(intervals.get(), SkToInt(count), phase);

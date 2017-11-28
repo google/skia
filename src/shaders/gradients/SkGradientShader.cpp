@@ -79,7 +79,10 @@ bool SkGradientShaderBase::DescriptorScope::unflatten(SkReadBuffer& buffer) {
     fGradFlags = (flags >> kGradFlagsShift_GSF) & kGradFlagsMask_GSF;
 
     fCount = buffer.getArrayCount();
-    if (fCount > kStorageCount) {
+    if (fCount > 1000000) {
+        return false;
+    }
+    else if (fCount > kStorageCount) {
         size_t allocSize = (sizeof(SkColor4f) + sizeof(SkScalar)) * fCount;
         fDynamicStorage.reset(allocSize);
         fColors = (SkColor4f*)fDynamicStorage.get();
