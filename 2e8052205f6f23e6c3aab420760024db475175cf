@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "10f4209b_c9d0fc77",
+        "filename": "include/private/GrRenderTargetProxy.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-11-28T19:47:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "349f7332_fba7fe64",
+      "revId": "2e8052205f6f23e6c3aab420760024db475175cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "71ae3ff4_ccad9a36",
         "filename": "include/private/GrSurfaceProxy.h",
         "patchSetId": 4
@@ -30,6 +48,30 @@
       "writtenOn": "2017-11-28T15:23:17Z",
       "side": 1,
       "message": "disallowed?",
+      "range": {
+        "startLine": 225,
+        "startChar": 36,
+        "endLine": 225,
+        "endChar": 44
+      },
+      "revId": "2e8052205f6f23e6c3aab420760024db475175cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ce42d27a_4f1b401b",
+        "filename": "include/private/GrSurfaceProxy.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 225,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-11-28T19:47:11Z",
+      "side": 1,
+      "message": "How about the new comment?",
+      "parentUuid": "71ae3ff4_ccad9a36",
       "range": {
         "startLine": 225,
         "startChar": 36,
@@ -59,6 +101,24 @@
     },
     {
       "key": {
+        "uuid": "cc70798b_58eb7230",
+        "filename": "include/private/GrSurfaceProxy.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 240,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-11-28T19:47:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b73aa897_b3db2d84",
+      "revId": "2e8052205f6f23e6c3aab420760024db475175cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4693708c_bd82dc84",
         "filename": "include/private/GrSurfaceProxy.h",
         "patchSetId": 4
@@ -73,6 +133,24 @@
       "revId": "2e8052205f6f23e6c3aab420760024db475175cf",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2744627c_da5fc9de",
+        "filename": "include/private/GrSurfaceProxy.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 396,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-11-28T19:47:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4693708c_bd82dc84",
+      "revId": "2e8052205f6f23e6c3aab420760024db475175cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -111,6 +189,24 @@
     },
     {
       "key": {
+        "uuid": "efe26191_971ff4ab",
+        "filename": "include/private/GrSurfaceProxy.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 398,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-11-28T19:47:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c3d57b3c_1aa95d23",
+      "revId": "2e8052205f6f23e6c3aab420760024db475175cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "49c265af_19e7b37c",
         "filename": "include/private/GrSurfaceProxy.h",
         "patchSetId": 4
@@ -128,6 +224,24 @@
     },
     {
       "key": {
+        "uuid": "a0b18541_f089406d",
+        "filename": "include/private/GrSurfaceProxy.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 399,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-11-28T19:47:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "49c265af_19e7b37c",
+      "revId": "2e8052205f6f23e6c3aab420760024db475175cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "94cc5715_213a1a95",
         "filename": "src/gpu/GrDrawingManager.cpp",
         "patchSetId": 4
@@ -139,6 +253,24 @@
       "writtenOn": "2017-11-28T15:10:23Z",
       "side": 1,
       "message": "What is this assert trying to say ?",
+      "revId": "2e8052205f6f23e6c3aab420760024db475175cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e03b4432_3c0a5c4b",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-11-28T19:47:11Z",
+      "side": 1,
+      "message": "\"Make sure this proxy (created in onFlush callback) isn\u0027t a deferred texture\"",
+      "parentUuid": "94cc5715_213a1a95",
       "revId": "2e8052205f6f23e6c3aab420760024db475175cf",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -162,6 +294,24 @@
     },
     {
       "key": {
+        "uuid": "b90c8331_0781439a",
+        "filename": "src/gpu/GrRenderTargetProxy.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-11-28T19:47:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0298b50e_44571767",
+      "revId": "2e8052205f6f23e6c3aab420760024db475175cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "00a0c950_615e8c3c",
         "filename": "src/gpu/GrSurfaceProxy.cpp",
         "patchSetId": 4
@@ -176,6 +326,24 @@
       "revId": "2e8052205f6f23e6c3aab420760024db475175cf",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6bda2926_c5785677",
+        "filename": "src/gpu/GrSurfaceProxy.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 510,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-11-28T19:47:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "00a0c950_615e8c3c",
+      "revId": "2e8052205f6f23e6c3aab420760024db475175cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -196,6 +364,24 @@
     },
     {
       "key": {
+        "uuid": "82928be8_98edcd8c",
+        "filename": "src/gpu/GrTextureProxy.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-11-28T19:47:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ef880b80_067bc2f3",
+      "revId": "2e8052205f6f23e6c3aab420760024db475175cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b05ed94b_818bf4d5",
         "filename": "tests/LazyProxyTest.cpp",
         "patchSetId": 4
@@ -210,6 +396,24 @@
       "revId": "2e8052205f6f23e6c3aab420760024db475175cf",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7d4ff0e1_e13ce611",
+        "filename": "tests/LazyProxyTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-11-28T19:47:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b05ed94b_818bf4d5",
+      "revId": "2e8052205f6f23e6c3aab420760024db475175cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -230,6 +434,24 @@
     },
     {
       "key": {
+        "uuid": "228c16d5_112db7d7",
+        "filename": "tests/LazyProxyTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-11-28T19:47:11Z",
+      "side": 1,
+      "message": "The test already uses 8888.. I just thought we could add another pixel config for variety.\n\nOr maybe we should test every pixel config?",
+      "parentUuid": "2ce61c45_5af7ca4e",
+      "revId": "2e8052205f6f23e6c3aab420760024db475175cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "5af657b5_4ba38b7f",
         "filename": "tests/LazyProxyTest.cpp",
         "patchSetId": 4
@@ -241,6 +463,24 @@
       "writtenOn": "2017-11-28T15:10:23Z",
       "side": 1,
       "message": "Why not run it on real contexts and just bail if they don\u0027t support kAlpha_half ?",
+      "revId": "2e8052205f6f23e6c3aab420760024db475175cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c0c26194_99950d01",
+        "filename": "tests/LazyProxyTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 169,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-11-28T19:47:11Z",
+      "side": 1,
+      "message": "My thoughts are just that a test intended solely to test things at the Ganesh level ought to use a mock contest rather than spending time in vendor drivers and on the GPU. But I\u0027m happy to change it if there are strong contrary opinions.",
+      "parentUuid": "5af657b5_4ba38b7f",
       "revId": "2e8052205f6f23e6c3aab420760024db475175cf",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
