@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cd349214_13eba603",
+        "filename": "include/gpu/GrBackendSurface.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-11-28T14:56:00Z",
+      "side": 1,
+      "message": "Say this is deprecated and that texture format is inferred from pixel config?",
+      "revId": "de9edc995d5f0cc2d56d92ba0f319e981afc0145",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3d0bfe83_3ce134a7",
+        "filename": "include/gpu/gl/GrGLTypes.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-11-28T14:56:00Z",
+      "side": 1,
+      "message": "GL calls these \"base internal formats\"",
+      "range": {
+        "startLine": 110,
+        "startChar": 41,
+        "endLine": 110,
+        "endChar": 60
+      },
+      "revId": "de9edc995d5f0cc2d56d92ba0f319e981afc0145",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
