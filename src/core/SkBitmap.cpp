@@ -679,6 +679,11 @@ bool SkBitmap::ReadRawPixels(SkReadBuffer* buffer, SkBitmap* bitmap) {
 
     // write_raw_pixels() always writes snug buffers with rowBytes == minRowBytes().
     size_t bytes = info.computeMinByteSize();
+#if defined(IS_FUZZING)
+    if (bytes > 1000000) {
+        return false;
+    }
+#endif
     if (!buffer->validate(bytes != 0)) {
         return false;
     }
