@@ -241,10 +241,10 @@ public:
                                          &GrResourceIOProcessor::numTextureSamplers,
                                          &GrResourceIOProcessor::textureSampler>;
 
-    void visitProxies(const std::function<void(GrSurfaceProxy*)>& func) {
+    void visitProxies(const std::function<void(GrSurfaceProxy* SkDEBUGCODE(, bool isDstProxy))>& func) {
         GrFragmentProcessor::TextureAccessIter iter(this);
         while (const GrResourceIOProcessor::TextureSampler* sampler = iter.next()) {
-            func(sampler->proxy());
+            func(sampler->proxy() SkDEBUGCODE(, false));
         }
     }
 

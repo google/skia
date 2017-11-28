@@ -125,7 +125,7 @@ public:
     }
     bool operator!=(const GrAppliedClip& that) const { return !(*this == that); }
 
-    void visitProxies(const std::function<void(GrSurfaceProxy*)>& func) const {
+    void visitProxies(const std::function<void(GrSurfaceProxy* SkDEBUGCODE(, bool isDstProxy))>& func) const {
         for (const std::unique_ptr<GrFragmentProcessor>& fp : fClipCoverageFPs) {
             if (fp) { // This might be called after detach.
                 fp->visitProxies(func);

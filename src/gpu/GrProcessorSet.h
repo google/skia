@@ -153,11 +153,11 @@ public:
 
     SkString dumpProcessors() const;
 
-    void visitProxies(const std::function<void(GrSurfaceProxy*)>& func) const {
+    void visitProxies(const std::function<void(GrSurfaceProxy* SkDEBUGCODE(, bool isDstProxy))>& func) const {
         for (int i = 0; i < this->numFragmentProcessors(); ++i) {
             GrFragmentProcessor::TextureAccessIter iter(this->fragmentProcessor(i));
             while (const GrResourceIOProcessor::TextureSampler* sampler = iter.next()) {
-                func(sampler->proxy());
+                func(sampler->proxy() SkDEBUGCODE(, false));
             }
         }
     }

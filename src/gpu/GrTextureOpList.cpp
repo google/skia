@@ -114,7 +114,7 @@ bool GrTextureOpList::copySurface(const GrCaps& caps,
         return false;
     }
 
-    auto addDependency = [ &caps, this ] (GrSurfaceProxy* p) {
+    auto addDependency = [ &caps, this ] (GrSurfaceProxy* p SkDEBUGCODE(, bool isDstProxy)) {
         this->addDependency(p, caps);
     };
     op->visitProxies(addDependency);
@@ -137,7 +137,7 @@ void GrTextureOpList::gatherProxyIntervals(GrResourceAllocator* alloc) const {
         alloc->incOps();
     }
 
-    auto gather = [ alloc ] (GrSurfaceProxy* p) {
+    auto gather = [ alloc ] (GrSurfaceProxy* p SkDEBUGCODE(, bool isDstProxy)) {
         alloc->addInterval(p);
     };
     for (int i = 0; i < fRecordedOps.count(); ++i) {
