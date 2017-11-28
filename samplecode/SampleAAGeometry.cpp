@@ -14,7 +14,382 @@
 // #include "SkPathOpsSimplifyAA.h"
 // #include "SkPathStroker.h"
 #include "SkPointPriv.h"
+#include "SkPathMeasure.h"
+#include "SkStrokeRec.h"
 #include "SkView.h"
+
+static inline bool degenerate_vector(const SkVector& v) {
+    return !SkPointPriv::CanNormalize(v.fX, v.fY);
+}
+
+enum {
+    kTangent_RecursiveLimit,
+    kCubic_RecursiveLimit,
+    kConic_RecursiveLimit,
+    kQuad_RecursiveLimit
+};
+
+static const int kRecursiveLimits[] = { 5*3, 26*3, 11*3, 11*3 }; // 3x limits seen in practice
+
+struct QuadConstruct {    // The state of the quad stroke under construction.
+    SkPoint fQuad[3];       // the stroked quad parallel to the original curve
+    SkPoint fTangentStart;  // a point tangent to fQuad[0]
+    SkPoint fTangentEnd;    // a point tangent to fQuad[2]
+    SkScalar fStartT;       // a segment of the original curve
+    SkScalar fMidT;         //              "
+    SkScalar fEndT;         //              "
+    bool fStartSet;         // state to share common points across structs
+    bool fEndSet;           //                     "
+    bool fOppositeTangents; // set if coincident tangents have opposite directions
+
+    // return false if start and end are too close to have a unique middle
+    bool init(SkScalar start, SkScalar end) {
+        fStartT = start;
+        fMidT = (start + end) * SK_ScalarHalf;
+        fEndT = end;
+        fStartSet = fEndSet = false;
+        return fStartT < fMidT && fMidT < fEndT;
+    }
+
+    bool initWithStart(QuadConstruct* parent) {
+        if (!init(parent->fStartT, parent->fMidT)) {
+            return false;
+        }
+        fQuad[0] = parent->fQuad[0];
+        fTangentStart = parent->fTangentStart;
+        fStartSet = true;
+        return true;
+    }
+
+    bool initWithEnd(QuadConstruct* parent) {
+        if (!init(parent->fMidT, parent->fEndT)) {
+            return false;
+        }
+        fQuad[2] = parent->fQuad[2];
+        fTangentEnd = parent->fTangentEnd;
+        fEndSet = true;
+        return true;
+   }
+};
+
+#define DEBUG_QUAD_STROKER 0
+#if DEBUG_QUAD_STROKER
+    /* Enable to show the decisions made in subdividing the curve -- helpful when the resulting
+        stroke has more than the optimal number of quadratics and lines */
+    #define STROKER_RESULT(resultType, depth, quadPts, format, ...) \
+            SkDebugf("[%d] %s " format "\n", depth, __FUNCTION__, __VA_ARGS__), \
+            SkDebugf("  " #resultType " t=(%g,%g)\n", quadPts->fStartT, quadPts->fEndT), \
+            resultType
+#else
+    #define STROKER_RESULT(resultType, depth, quadPts, format, ...) \
+            resultType
+#endif
+
+class PathStroker {
+public:
+    enum StrokeType {
+        kOuter_StrokeType = 1,      // use sign-opposite values later to flip perpendicular axis
+        kInner_StrokeType = -1
+    };
+
+    PathStroker(SkScalar radius, StrokeType strokeType)
+        : fRadius(radius)
+        , fInvResScale(1)
+        , fInvResScaleSquared(1)
+        , fStrokeType(strokeType)
+        , fRecursionDepth(0) {
+    }
+
+    bool quadStroke(const SkPoint quad[3], QuadConstruct* quadPts) {
+        ResultType resultType = this->compareQuadQuad(quad, quadPts);
+        if (kQuad_ResultType == resultType) {
+            const SkPoint* stroke = quadPts->fQuad;
+            SkPath* path = fStrokeType == kOuter_StrokeType ? &fOuter : &fInner;
+            if (path->isEmpty()) {
+                path->moveTo(stroke[0]);
+            }
+            path->quadTo(stroke[1], stroke[2]);
+            return true;
+        }
+        if (kDegenerate_ResultType == resultType) {
+            addDegenerateLine(quadPts);
+            return true;
+        }
+    #if QUAD_STROKE_APPROX_EXTENDED_DEBUGGING
+        SkDEBUGCODE(gMaxRecursion[kQuad_RecursiveLimit] = SkTMax(gMaxRecursion[kQuad_RecursiveLimit],
+                fRecursionDepth + 1));
+    #endif
+        if (++fRecursionDepth > kRecursiveLimits[kQuad_RecursiveLimit]) {
+            return false;  // just abort if projected quad isn't representable
+        }
+        QuadConstruct half;
+        (void) half.initWithStart(quadPts);
+        if (!this->quadStroke(quad, &half)) {
+            return false;
+        }
+        (void) half.initWithEnd(quadPts);
+        if (!this->quadStroke(quad, &half)) {
+            return false;
+        }
+        --fRecursionDepth;
+        return true;
+    }
+
+    const SkPath& inner() const { return fInner; }
+    const SkPath& outer() const { return fOuter; }
+
+private:
+    enum ResultType {
+        kSplit_ResultType,          // the caller should split the quad stroke in two
+        kDegenerate_ResultType,     // the caller should add a line
+        kQuad_ResultType,           // the caller should (continue to try to) add a quad stroke
+    };
+
+    enum IntersectRayType {
+        kCtrlPt_RayType,
+        kResultType_RayType,
+    };
+
+    void addDegenerateLine(const QuadConstruct* quadPts) {
+        const SkPoint* quad = quadPts->fQuad;
+        SkPath* path = fStrokeType == kOuter_StrokeType ? &fOuter : &fInner;
+        path->lineTo(quad[2].fX, quad[2].fY);
+    }
+
+    ResultType compareQuadQuad(const SkPoint quad[3], QuadConstruct* quadPts) {
+        // get the quadratic approximation of the stroke
+        if (!quadPts->fStartSet) {
+            SkPoint quadStartPt;
+            this->quadPerpRay(quad, quadPts->fStartT, &quadStartPt, &quadPts->fQuad[0],
+                    &quadPts->fTangentStart);
+            quadPts->fStartSet = true;
+        }
+        if (!quadPts->fEndSet) {
+            SkPoint quadEndPt;
+            this->quadPerpRay(quad, quadPts->fEndT, &quadEndPt, &quadPts->fQuad[2],
+                    &quadPts->fTangentEnd);
+            quadPts->fEndSet = true;
+        }
+        ResultType resultType = this->intersectRay(quadPts, kCtrlPt_RayType, fRecursionDepth);
+        if (resultType != kQuad_ResultType) {
+            return resultType;
+        }
+        // project a ray from the curve to the stroke
+        SkPoint ray[2];
+        this->quadPerpRay(quad, quadPts->fMidT, &ray[1], &ray[0], nullptr);
+        return this->strokeCloseEnough(quadPts->fQuad, ray, quadPts, fRecursionDepth);
+    }
+
+    static int intersect_quad_ray(const SkPoint line[2], const SkPoint quad[3], SkScalar roots[2]) {
+        SkVector vec = line[1] - line[0];
+        SkScalar r[3];
+        for (int n = 0; n < 3; ++n) {
+            r[n] = (quad[n].fY - line[0].fY) * vec.fX - (quad[n].fX - line[0].fX) * vec.fY;
+        }
+        SkScalar A = r[2];
+        SkScalar B = r[1];
+        SkScalar C = r[0];
+        A += C - 2 * B;  // A = a - 2*b + c
+        B -= C;  // B = -(b - c)
+        return SkFindUnitQuadRoots(A, 2 * B, C, roots);
+    }
+
+    ResultType intersectRay(QuadConstruct* quadPts,
+        IntersectRayType intersectRayType, int depth) const {
+        const SkPoint& start = quadPts->fQuad[0];
+        const SkPoint& end = quadPts->fQuad[2];
+        SkVector aLen = quadPts->fTangentStart - start;
+        SkVector bLen = quadPts->fTangentEnd - end;
+        /* Slopes match when denom goes to zero:
+                          axLen / ayLen ==                   bxLen / byLen
+        (ayLen * byLen) * axLen / ayLen == (ayLen * byLen) * bxLen / byLen
+                 byLen  * axLen         ==  ayLen          * bxLen
+                 byLen  * axLen         -   ayLen          * bxLen         ( == denom )
+         */
+        SkScalar denom = aLen.cross(bLen);
+        if (denom == 0 || !SkScalarIsFinite(denom)) {
+            quadPts->fOppositeTangents = aLen.dot(bLen) < 0;
+            return STROKER_RESULT(kDegenerate_ResultType, depth, quadPts, "denom == 0");
+        }
+        quadPts->fOppositeTangents = false;
+        SkVector ab0 = start - end;
+        SkScalar numerA = bLen.cross(ab0);
+        SkScalar numerB = aLen.cross(ab0);
+        if ((numerA >= 0) == (numerB >= 0)) { // if the control point is outside the quad ends
+            // if the perpendicular distances from the quad points to the opposite tangent line
+            // are small, a straight line is good enough
+            SkScalar dist1 = pt_to_line(start, end, quadPts->fTangentEnd);
+            SkScalar dist2 = pt_to_line(end, start, quadPts->fTangentStart);
+            if (SkTMax(dist1, dist2) <= fInvResScaleSquared) {
+                return STROKER_RESULT(kDegenerate_ResultType, depth, quadPts,
+                        "SkTMax(dist1=%g, dist2=%g) <= fInvResScaleSquared", dist1, dist2);
+            }
+            return STROKER_RESULT(kSplit_ResultType, depth, quadPts,
+                    "(numerA=%g >= 0) == (numerB=%g >= 0)", numerA, numerB);
+        }
+        // check to see if the denominator is teeny relative to the numerator
+        // if the offset by one will be lost, the ratio is too large
+        numerA /= denom;
+        bool validDivide = numerA > numerA - 1;
+        if (validDivide) {
+            if (kCtrlPt_RayType == intersectRayType) {
+                SkPoint* ctrlPt = &quadPts->fQuad[1];
+                // the intersection of the tangents need not be on the tangent segment
+                // so 0 <= numerA <= 1 is not necessarily true
+                ctrlPt->fX = start.fX * (1 - numerA) + quadPts->fTangentStart.fX * numerA;
+                ctrlPt->fY = start.fY * (1 - numerA) + quadPts->fTangentStart.fY * numerA;
+            }
+            return STROKER_RESULT(kQuad_ResultType, depth, quadPts,
+                    "(numerA=%g >= 0) != (numerB=%g >= 0)", numerA, numerB);
+        }
+        quadPts->fOppositeTangents = aLen.dot(bLen) < 0;
+        // if the lines are parallel, straight line is good enough
+        return STROKER_RESULT(kDegenerate_ResultType, depth, quadPts,
+                "SkScalarNearlyZero(denom=%g)", denom);
+    }
+
+    static bool points_within_dist(const SkPoint& nearPt, const SkPoint& farPt, SkScalar limit) {
+        return SkPointPriv::DistanceToSqd(nearPt, farPt) <= limit * limit;
+    }
+
+    static SkScalar pt_to_line(const SkPoint& pt, const SkPoint& lineStart, const SkPoint& lineEnd) {
+        SkVector dxy = lineEnd - lineStart;
+        if (degenerate_vector(dxy)) {
+            return SkPointPriv::DistanceToSqd(pt, lineStart);
+        }
+        SkVector ab0 = pt - lineStart;
+        SkScalar numer = dxy.dot(ab0);
+        SkScalar denom = dxy.dot(dxy);
+        SkScalar t = numer / denom;
+        SkPoint hit;
+        hit.fX = lineStart.fX * (1 - t) + lineEnd.fX * t;
+        hit.fY = lineStart.fY * (1 - t) + lineEnd.fY * t;
+        return SkPointPriv::DistanceToSqd(hit, pt);
+    }
+
+    bool ptInQuadBounds(const SkPoint quad[3], const SkPoint& pt) const {
+        SkScalar xMin = SkTMin(SkTMin(quad[0].fX, quad[1].fX), quad[2].fX);
+        if (pt.fX + fInvResScale < xMin) {
+            return false;
+        }
+        SkScalar xMax = SkTMax(SkTMax(quad[0].fX, quad[1].fX), quad[2].fX);
+        if (pt.fX - fInvResScale > xMax) {
+            return false;
+        }
+        SkScalar yMin = SkTMin(SkTMin(quad[0].fY, quad[1].fY), quad[2].fY);
+        if (pt.fY + fInvResScale < yMin) {
+            return false;
+        }
+        SkScalar yMax = SkTMax(SkTMax(quad[0].fY, quad[1].fY), quad[2].fY);
+        if (pt.fY - fInvResScale > yMax) {
+            return false;
+        }
+        return true;
+    }
+
+    void quadPerpRay(const SkPoint quad[3], SkScalar t, SkPoint* tPt, SkPoint* onPt,
+        SkPoint* tangent) const {
+        SkVector dxy;
+        SkEvalQuadAt(quad, t, tPt, &dxy);
+        if (dxy.fX == 0 && dxy.fY == 0) {
+            dxy = quad[2] - quad[0];
+        }
+        setRayPts(*tPt, &dxy, onPt, tangent);
+    }
+
+    void setRayPts(const SkPoint& tPt, SkVector* dxy, SkPoint* onPt,
+        SkPoint* tangent) const {
+        SkPoint oldDxy = *dxy;
+        if (!dxy->setLength(fRadius)) {  // consider moving double logic into SkPoint::setLength
+            double xx = oldDxy.fX;
+            double yy = oldDxy.fY;
+            double dscale = fRadius / sqrt(xx * xx + yy * yy);
+            dxy->fX = SkDoubleToScalar(xx * dscale);
+            dxy->fY = SkDoubleToScalar(yy * dscale);
+        }
+        SkScalar axisFlip = SkIntToScalar(fStrokeType);  // go opposite ways for outer, inner
+        onPt->fX = tPt.fX + axisFlip * dxy->fY;
+        onPt->fY = tPt.fY - axisFlip * dxy->fX;
+        if (tangent) {
+            tangent->fX = onPt->fX + dxy->fX;
+            tangent->fY = onPt->fY + dxy->fY;
+        }
+    }
+
+    static bool sharp_angle(const SkPoint quad[3]) {
+        SkVector smaller = quad[1] - quad[0];
+        SkVector larger = quad[1] - quad[2];
+        SkScalar smallerLen = SkPointPriv::LengthSqd(smaller);
+        SkScalar largerLen = SkPointPriv::LengthSqd(larger);
+        if (smallerLen > largerLen) {
+            SkTSwap(smaller, larger);
+            largerLen = smallerLen;
+        }
+        if (!smaller.setLength(largerLen)) {
+            return false;
+        }
+        SkScalar dot = smaller.dot(larger);
+        return dot > 0;
+    }
+
+    ResultType strokeCloseEnough(const SkPoint stroke[3],
+            const SkPoint ray[2], QuadConstruct* quadPts, int depth) const {
+        SkPoint strokeMid = SkEvalQuadAt(stroke, SK_ScalarHalf);
+        // measure the distance from the curve to the quad-stroke midpoint, compare to radius
+        if (points_within_dist(ray[0], strokeMid, fInvResScale)) {  // if the difference is small
+            if (sharp_angle(quadPts->fQuad)) {
+                return STROKER_RESULT(kSplit_ResultType, depth, quadPts,
+                        "sharp_angle (1) =%g,%g, %g,%g, %g,%g",
+                        quadPts->fQuad[0].fX, quadPts->fQuad[0].fY,
+                        quadPts->fQuad[1].fX, quadPts->fQuad[1].fY,
+                        quadPts->fQuad[2].fX, quadPts->fQuad[2].fY);
+            }
+            return STROKER_RESULT(kQuad_ResultType, depth, quadPts,
+                    "points_within_dist(ray[0]=%g,%g, strokeMid=%g,%g, fInvResScale=%g)",
+                    ray[0].fX, ray[0].fY, strokeMid.fX, strokeMid.fY, fInvResScale);
+        }
+        // measure the distance to quad's bounds (quick reject)
+            // an alternative : look for point in triangle
+        if (!ptInQuadBounds(stroke, ray[0])) {  // if far, subdivide
+            return STROKER_RESULT(kSplit_ResultType, depth, quadPts,
+                    "!pt_in_quad_bounds(stroke=(%g,%g %g,%g %g,%g), ray[0]=%g,%g)",
+                    stroke[0].fX, stroke[0].fY, stroke[1].fX, stroke[1].fY, stroke[2].fX, stroke[2].fY,
+                    ray[0].fX, ray[0].fY);
+        }
+        // measure the curve ray distance to the quad-stroke
+        SkScalar roots[2];
+        int rootCount = intersect_quad_ray(ray, stroke, roots);
+        if (rootCount != 1) {
+            return STROKER_RESULT(kSplit_ResultType, depth, quadPts,
+                    "rootCount=%d != 1", rootCount);
+        }
+        SkPoint quadPt = SkEvalQuadAt(stroke, roots[0]);
+        SkScalar error = fInvResScale * (SK_Scalar1 - SkScalarAbs(roots[0] - 0.5f) * 2);
+        if (points_within_dist(ray[0], quadPt, error)) {  // if the difference is small, we're done
+            if (sharp_angle(quadPts->fQuad)) {
+                return STROKER_RESULT(kSplit_ResultType, depth, quadPts,
+                        "sharp_angle (2) =%g,%g, %g,%g, %g,%g",
+                        quadPts->fQuad[0].fX, quadPts->fQuad[0].fY,
+                        quadPts->fQuad[1].fX, quadPts->fQuad[1].fY,
+                        quadPts->fQuad[2].fX, quadPts->fQuad[2].fY);
+            }
+            return STROKER_RESULT(kQuad_ResultType, depth, quadPts,
+                    "points_within_dist(ray[0]=%g,%g, quadPt=%g,%g, error=%g)",
+                    ray[0].fX, ray[0].fY, quadPt.fX, quadPt.fY, error);
+        }
+        // otherwise, subdivide
+        return STROKER_RESULT(kSplit_ResultType, depth, quadPts, "%s", "fall through");
+    }
+
+
+
+    SkPath  fInner, fOuter; // outer is our working answer, inner is temp
+    SkScalar fRadius;
+    SkScalar    fInvResScale;
+    SkScalar    fInvResScaleSquared;
+    StrokeType  fStrokeType;
+    int fRecursionDepth;
+};
 
 #if 0
 void SkStrokeSegment::dump() const {
@@ -486,7 +861,7 @@ static void construct_path(SkPath& path) {
 }
 
 struct ButtonPaints {
-    static const int kMaxStateCount = 3;
+    static const int kMaxStateCount = 4;
     SkPaint fDisabled;
     SkPaint fStates[kMaxStateCount];
     SkPaint fLabel;
@@ -789,6 +1164,7 @@ class AAGeometryView : public SampleView {
     SkPaint fLegendRightPaint;
     SkPaint fPointPaint;
     SkPaint fSkeletonPaint;
+    SkPaint fDebugSkeletonPaint;
     SkPaint fLightSkeletonPaint;
     SkPath fPath;
     ControlPaints fControlPaints;
@@ -811,12 +1187,21 @@ class AAGeometryView : public SampleView {
     Button fInOutButton;
     SkTArray<Stroke> fStrokes;
     PathUndo* fUndo;
+    SkPoint fPriorBisect;  // two deep stack to look for overlap before drawing
+    SkPoint fFirstBisect[2];
+    SkPoint fLastBisect[2];
+    SkPoint fLastPt;
+    SkScalar fBallInterval;
     int fActivePt;
     int fActiveVerb;
+    SkPath::Verb fFirstVerb;
+    SkPath::Verb fLastVerb;
     bool fHandlePathMove;
     bool fShowLegend;
     bool fHideAll;
     const int kHitToleranace = 25;
+    bool fLastBisectSet;
+    bool fPriorBisectSet;
 
 public:
 
@@ -833,11 +1218,12 @@ public:
         , fDeleteButton('x')
         , fFillButton('p')
         , fSkeletonButton('s')
-        , fFilterButton('f', 3)
+        , fFilterButton('f', 4)
         , fBisectButton('b')
         , fJoinButton('j')
         , fInOutButton('|')
         , fUndo(nullptr)
+        , fBallInterval(5)
         , fActivePt(-1)
         , fActiveVerb(-1)
         , fHandlePathMove(true)
@@ -853,6 +1239,8 @@ public:
         fPointPaint.setColor(0x99ee3300);
         fSkeletonPaint = strokePaint;
         fSkeletonPaint.setColor(SK_ColorRED);
+        fDebugSkeletonPaint = fSkeletonPaint;
+        fDebugSkeletonPaint.setColor(SK_ColorBLUE);
         fLightSkeletonPaint = fSkeletonPaint;
         fLightSkeletonPaint.setColor(0xFFFF7f7f);
         fActivePaint = strokePaint;
@@ -1043,27 +1431,66 @@ public:
     }
 
     void draw_bisect(SkCanvas* canvas, const SkVector& lastVector, const SkVector& vector,
-                const SkPoint& pt) {
+                const SkPoint& pt, SkPath::Verb verb, int counter) {
         SkVector lastV = lastVector;
         SkScalar lastLen = lastVector.length();
         SkVector nextV = vector;
         SkScalar nextLen = vector.length();
+        SkScalar hypLen;
         if (lastLen < nextLen) {
             lastV.setLength(nextLen);
+            hypLen = nextLen;
         } else {
             nextV.setLength(lastLen);
+            hypLen = lastLen;
         }
 
-        SkVector bisect = { (lastV.fX + nextV.fX) / 2, (lastV.fY + nextV.fY) / 2 };
-        bisect.setLength(fWidthControl.fValLo * 2);
-        if (fBisectButton.enabled()) {
-            canvas->drawLine(pt, pt + bisect, fSkeletonPaint);
-        }
+        SkVector bisect = { lastV.fX + nextV.fX, lastV.fY + nextV.fY };
+        SkVector angleOpp = lastV - nextV;
+        angleOpp.scale(0.5);
+        SkScalar oppLen = angleOpp.length();
+        SkScalar oppSin = oppLen / hypLen;
+        bisect.setLength(fWidthControl.fValLo * hypLen / oppLen);
         lastV.setLength(fWidthControl.fValLo);
+        nextV.setLength(fWidthControl.fValLo);
+        SkPoint bisectEnd = pt + bisect;
+        SkPoint bisectStart = pt - bisect;
+        if (fBisectButton.enabled()) {
+            if (SkPath::kLine_Verb == fLastVerb && SkPath::kLine_Verb == verb) {
+                canvas->drawLine(pt, bisectEnd, fSkeletonPaint);
+            }
+            if (fLastBisectSet) {
+                if (fPriorBisectSet) {
+                    // start here
+                    // need to skip fLastBisect[0] if prior verb is quad 
+                }
+                fPriorBisectSet = true;
+                fPriorBisect = fLastBisect[0];
+                 canvas->drawLine(fLastBisect[0], bisectEnd, fDebugSkeletonPaint);
+    //           SkDebugf("{{{%g,%g %g,%g}}} id=%d last=%s this=%s\n", bisectEnd.fX, bisectEnd.fY,
+    //                   fLastBisect[0].fX, fLastBisect[0].fY, counter, 
+    //                   SkPath::kLine_Verb == fLastVerb ? "line" : "quad",
+    //                   SkPath::kLine_Verb == verb ? "line" : "quad");
+            } else {
+                fFirstBisect[0] = bisectEnd;
+            }
+            fLastBisect[0] = bisectEnd;
+            if (SkPath::kLine_Verb == fLastVerb && SkPath::kLine_Verb == verb) {
+                canvas->drawLine(pt, bisectStart, fSkeletonPaint);
+            }
+            if (fLastBisectSet) {
+                if (SkPath::kLine_Verb == fLastVerb) {
+                    canvas->drawLine(bisectStart, fLastBisect[1], fSkeletonPaint);
+                }
+            } else {
+                fFirstBisect[1] = bisectStart;
+            }
+            fLastBisect[1] = bisectStart;
+            fLastBisectSet = true;
+        }
         if (fBisectButton.enabled()) {
             canvas->drawLine(pt, {pt.fX - lastV.fY, pt.fY + lastV.fX}, fSkeletonPaint);
         }
-        nextV.setLength(fWidthControl.fValLo);
         if (fBisectButton.enabled()) {
             canvas->drawLine(pt, {pt.fX + nextV.fY, pt.fY - nextV.fX}, fSkeletonPaint);
         }
@@ -1078,17 +1505,254 @@ public:
                 canvas->drawArc(oval, startAngle, 360 - (startAngle - endAngle), false,
                         fSkeletonPaint);
             }
+            if (SkPath::kLine_Verb != fLastVerb && SkPath::kLine_Verb == verb) {
+                canvas->drawLine(bisectStart.fX, bisectStart.fY,
+                    pt.fX - lastV.fY, pt.fY + lastV.fX, fSkeletonPaint);
+            }
+            if (SkPath::kLine_Verb != verb) {
+                canvas->drawLine(bisectStart.fX, bisectStart.fY,
+                    pt.fX + nextV.fY, pt.fY - nextV.fX, fSkeletonPaint);
+            }
+        }
+    }
+
+    SkScalar find_zero_crossing(SkPoint quad[3], SkScalar width, SkScalar min, SkScalar max) {
+        SkScalar mid = (min + max) / 2;
+        if (mid <= min) {
+            return min;
+        }
+        if (mid >= max) {
+            return max;
+        }
+        SkPoint pt;
+        SkVector tangent;
+        SkEvalQuadAt(quad, mid, &pt, &tangent);
+        tangent.setLength(width);
+        pt.fX += tangent.fY;
+        if (pt.fX < -.5f) {
+            return find_zero_crossing(quad, width, mid, max);
+        } else if (pt.fX > .5f) {
+            return find_zero_crossing(quad, width, min, mid);
+        } else {
+            return mid;
+        }
+    }
+
+    // returns t value where quad[adjIndex] is fWidthControl.fValLo from nextEnd
+    SkScalar adjust_quad(const SkPoint quad[3], int adjIndex, const SkPoint& nextEnd) {
+        SkVector priorTangent = quad[adjIndex] - nextEnd;
+        SkVector offset = { -priorTangent.fY, priorTangent.fX };
+        if (adjIndex) {
+            offset.negate();
+        }
+        offset.setLength(fWidthControl.fValLo);
+        SkPoint parallelRay[] = { nextEnd + offset, quad[adjIndex] + offset };
+        // rotate quad so ray is upright; translate quad so ray is on y-axis
+        SkScalar rayLength = priorTangent.length();
+        SkPoint uprightRay[] = { { 0, 0 }, { 0, rayLength } };
+        SkMatrix uprightMatrix;
+        uprightMatrix.setPolyToPoly(parallelRay, uprightRay, 2);
+        SkPoint uprightQuad[3];
+        uprightMatrix.mapPoints(uprightQuad, quad, 3);
+        SkScalar start = 0;
+        SkScalar end = 1;
+        int debugIterations = 4;
+        while ((uprightQuad[0].fX < 0) == (uprightQuad[2].fX < 0)) {
+            if (--debugIterations <= 0) {
+                SkASSERT(0);
+            }
+            SkPoint pieces[5];
+            SkChopQuadAtHalf(uprightQuad, pieces);
+            if (0 == adjIndex) {
+                memcpy(uprightQuad, &pieces[0], sizeof(uprightQuad));
+                end = (start + end) / 2;
+            } else {
+                SkASSERT(2 == adjIndex);
+                memcpy(uprightQuad, &pieces[2], sizeof(uprightQuad));
+                start = (start + end) / 2;
+            }
+        }
+        // search for t where perpendicular of length width ends on y-axis
+        bool swapped = false;
+        if (uprightQuad[0].fX > 0) {
+            SkTSwap(uprightQuad[0], uprightQuad[2]);
+            swapped = true;
+        }
+        SkScalar result = find_zero_crossing(uprightQuad, fWidthControl.fValLo, 0, 1);
+        if (swapped) {
+            result = 1 - result;
+        }
+        if (end < 1) {
+            result = start + (end - start) * result;
+        }
+        return result;
+    }
+
+    struct CurveData;
+
+    struct ContourData {
+        CurveData* fFirst;
+        CurveData* fLast;
+        int fPathIndex;  // index of first contour point within path (not sure if I need this)
+    };
+
+    enum class CurvePos {
+        kUnknown,
+        kFirst,
+        kMid,
+        kLast,
+    };
+
+    // one per non-degenerate curve
+    struct CurveData {
+        SkPoint fPts[4];
+        SkVector fTangents[2];
+        SkScalar fWeight;
+        int fPathIndex;  // index of fPts[0] within path (not sure if I need this)
+        SkPath::Verb fVerb;
+        CurvePos fPos;
+    };
+
+    // one per intersection of a pair of curves
+    struct SectData {
+        CurveData* fCurve[2];
+        SkPoint fL;   // mid angle formed by prev, next segs; length == stroke width; on the left
+        SkPoint fR;   // mid angle formed by prev, next segs; length == stroke width; on the right
+    };
+
+    SkTDArray<ContourData> fContourData;
+    SkTDArray<CurveData> fCurveData;
+    SkTDArray<SectData> fSectData; 
+
+    void set_point_array() {
+        int verbCount = fPath.countVerbs();
+        fCurveData.setCount(verbCount);
+        fSectData.setCount(verbCount);
+        SkPath::Iter iter(fPath, false);
+        int ptIndex = 0;
+        fContourData.reset();
+        ContourData* curContour = nullptr;
+        CurveData* curCurve = fCurveData.begin();
+        CurvePos curPos = CurvePos::kUnknown;
+        while ((curCurve->fVerb = iter.next(curCurve->fPts)) != SkPath::kDone_Verb) {
+            int ptCount = 3;
+            switch (curCurve->fVerb) {
+            case SkPath::kMove_Verb:
+                curPos = CurvePos::kFirst;
+                curContour = fContourData.append();
+                curContour->fFirst = curCurve;
+                break;
+            case SkPath::kClose_Verb:
+                if (curCurve == curContour->fFirst) {
+                    fContourData.pop();
+                    break;
+                }
+                curCurve[-1].fPos = CurvePos::kLast;
+                curContour->fLast = &curCurve[-1];
+                break;
+            case SkPath::kLine_Verb:
+                ptCount -= 1;
+            case SkPath::kQuad_Verb:
+            case SkPath::kConic_Verb:
+                ptCount -= 1;
+                curCurve->fWeight = iter.conicWeight();
+            case SkPath::kCubic_Verb: {
+                curCurve->fPos = curPos;
+                curPos = CurvePos::kMid;
+                curCurve->fPathIndex = ptIndex;
+                ptIndex += ptCount;
+                for (int index = 1; index <= ptCount; ++index) {
+                    curCurve->fTangents[0] = curCurve->fPts[index] - curCurve->fPts[0];
+                    if (!degenerate_vector(curCurve->fTangents[0])) {
+                        break;
+                    }
+                }
+                bool degenerate = !curCurve->fTangents[0].setLength(fWidthControl.fValLo);
+                if (SkPath::kLine_Verb == curCurve->fVerb) {
+                    curCurve->fTangents[1] = -curCurve->fTangents[0];
+                } else {
+                    for (int index = ptCount - 1; index >= 0; --index) {
+                        curCurve->fTangents[1] = curCurve->fPts[ptCount] - curCurve->fPts[index];
+                        if (!degenerate_vector(curCurve->fTangents[1])) {
+                            break;
+                        }
+                    }
+                    curCurve->fTangents[1].setLength(fWidthControl.fValLo);
+                }
+                if (!degenerate) {
+                    ++curCurve;
+                }
+                } break;
+            }
+        }
+        if (!fContourData.count()) {
+            return;
+        }
+        SectData* curSect = &fSectData[0];
+        for (curContour = fContourData.begin(); curContour != fContourData.end(); ++curContour) {
+            curCurve = curContour->fFirst;
+            SectData* firstSect = curSect;
+            do {
+                curSect->fCurve[0] = curCurve;
+                curSect->fL.set(SK_ScalarNaN, SK_ScalarNaN);  // don't know yet
+                curSect->fR.set(SK_ScalarNaN, SK_ScalarNaN);  // don't know yet
+                if (firstSect != curSect) {
+                    curSect[-1].fCurve[1] = curCurve;
+                }
+                if (curContour->fLast == curCurve) {
+                    break;
+                }
+                ++curSect;
+                ++curCurve;
+            } while (true);
+            curSect->fCurve[1] = curContour->fFirst;
+        }
+    }
+
+    void calc_bisects(SkCanvas* canvas, bool activeOnly) {
+        for (int ptIndex = 0; ptIndex < fSectData.count(); ++ptIndex) {
+            SectData* curPtData = &fSectData[ptIndex];
+            SkVector bisect;
+            const SkVector& lastV = curPtData->fCurve[0]->fTangents[1];
+            const SkVector& nextV = curPtData->fCurve[1]->fTangents[0];
+            bisect.set(lastV.fX + nextV.fX, lastV.fY + nextV.fY);
+            SkVector angleOpp = lastV - nextV;
+            SkScalar oppLen = angleOpp.length() / 2;
+            bisect.setLength(fWidthControl.fValLo * fWidthControl.fValLo / oppLen);
+            curPtData->fL = curPtData->fCurve[1]->fPts[0] + bisect;
+            curPtData->fR = curPtData->fCurve[1]->fPts[0] - bisect;
+            if (SkPath::kLine_Verb != curPtData->fCurve[0]->fVerb &&
+                    SkPath::kLine_Verb != curPtData->fCurve[1]->fVerb) {
+                // need to compute intersection of inner pair
+                SkASSERT(0);  // incomplete
+                continue;
+            }
+            SkScalar startT, endT;
+            SkPoint nextPoint, lastPoint;
+            if (SkPath::kLine_Verb != curPtData->fCurve[0]->fVerb) {
+                endT = adjust_quad(curPtData->fCurve[0]->fPts, 2, nextPoint);
+                continue;
+            }
+            if (SkPath::kLine_Verb != curPtData->fCurve[1]->fVerb) {
+                startT = adjust_quad(curPtData->fCurve[1]->fPts, 0, lastPoint);
+            }
         }
     }
 
     void draw_bisects(SkCanvas* canvas, bool activeOnly) {
         SkVector firstVector, lastVector, nextLast, vector;
-        SkPoint pts[4];
         SkPoint firstPt = { 0, 0 };  // init to avoid warning;
-        SkPath::Verb verb;
-        SkPath::Iter iter(fPath, true);
         bool foundFirst = false;
         int counter = -1;
+        int lastPointIndex = pointCount - 1;
+        while (lastPointIndex > 0 && fPath.getPoint(0) == fPath.getPoint(lastPointIndex)) {
+            --lastPointIndex;
+        }
+        int curPointIndex = 0;
+        fPriorBisectSet = false;
+        fLastBisectSet = false;
+        fLastVerb = SkPath::kLine_Verb;
+        iter.setPath(fPath, false);
         while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
             ++counter;
             if (activeOnly && counter != fActiveVerb && counter - 1 != fActiveVerb
@@ -1100,6 +1764,8 @@ public:
                 case SkPath::kLine_Verb:
                     nextLast = pts[0] - pts[1];
                     vector = pts[1] - pts[0];
+                    lastPointIndex += 1;
+                    curPointIndex += 1;
                     break;
                 case SkPath::kQuad_Verb: {
                     nextLast = pts[1] - pts[2];
@@ -1117,10 +1783,53 @@ public:
                     if (0 < t && t < 1) {
                         SkPoint maxPt = SkEvalQuadAt(pts, t);
                         SkVector tangent = SkEvalQuadTangentAt(pts, t);
-                        tangent.setLength(fWidthControl.fValLo * 2);
+                        tangent.setLength(fWidthControl.fValLo);
                         canvas->drawLine(maxPt, {maxPt.fX + tangent.fY, maxPt.fY - tangent.fX},
                                          fSkeletonPaint);
+                        canvas->drawLine(maxPt, {maxPt.fX - tangent.fY, maxPt.fY + tangent.fX},
+                                         fSkeletonPaint);
                     }
+                    for (PathStroker::StrokeType strokeType : { PathStroker::kInner_StrokeType,
+                            PathStroker::kOuter_StrokeType } ) {
+                        PathStroker pathStroker(fWidthControl.fValLo, strokeType);
+                        QuadConstruct quadConstruct;
+                        SkScalar startT;
+                        SkScalar endT;
+                        if (PathStroker::kInner_StrokeType == strokeType) {
+                            SkPoint lastPoint = fPath.getPoint(lastPointIndex);
+                            startT = adjust_quad(pts, 0, lastPoint);
+                            int nextPointIndex = curPointIndex + 3;
+                            SkASSERT(nextPointIndex <= pointCount);
+                            if (nextPointIndex == pointCount) {
+                                nextPointIndex = 0;
+                                while (nextPointIndex < lastPointIndex &&
+                                        fPath.getPoint(nextPointIndex) == pts[2]) {
+                                    ++nextPointIndex;
+                                }
+                            }
+                            SkPoint nextPoint = fPath.getPoint(nextPointIndex);
+                            endT = adjust_quad(pts, 2, nextPoint);
+                            if (startT > endT) {
+                                SkTSwap(startT, endT);
+                            }
+                        } else {
+                            startT = 0;
+                            endT = 1;
+                        }
+                        // get next tangent
+
+                        quadConstruct.init(startT, endT);
+                        pathStroker.quadStroke(pts, &quadConstruct);
+                        const SkPath& active = pathStroker.inner().isEmpty() ? pathStroker.outer() :
+                                pathStroker.inner();
+                        canvas->drawPath(active, fSkeletonPaint);
+                        if (startT > 0 && endT < 1) {
+                            SkPoint last = active.getPoint(active.countPoints() - 1);
+                            fLastBisect[0] = last;
+                            fLastBisectSet = true;
+                        }
+                    }
+                    lastPointIndex += 2;
                     } break;
                 case SkPath::kConic_Verb:
                     nextLast = pts[1] - pts[2];
@@ -1134,6 +1843,7 @@ public:
                     if (!fBisectButton.enabled()) {
                         break;
                     }
+                    lastPointIndex += 2;
                     // FIXME : need max curvature or equivalent here
                     break;
                 case SkPath::kCubic_Verb: {
@@ -1167,26 +1877,38 @@ public:
                         canvas->drawLine(maxPt, {maxPt.fX + tangent.fY, maxPt.fY - tangent.fX},
                                          fSkeletonPaint);
                     }
+                    lastPointIndex += 3;
                     } break;
                 case SkPath::kClose_Verb:
                     if (foundFirst) {
-                        draw_bisect(canvas, lastVector, firstVector, firstPt);
+                        draw_bisect(canvas, lastVector, firstVector, firstPt, fFirstVerb, counter);
+                        if (fLastBisectSet) {
+       //                     canvas->drawLine(fFirstBisect[0], fLastBisect[0], fSkeletonPaint);
+      //                      canvas->drawLine(fFirstBisect[1], fLastBisect[1], fSkeletonPaint);
+                        }
                         foundFirst = false;
                     }
                     break;
                 default:
                     break;
             }
+            SkASSERT(lastPointIndex <= pointCount);
+            if (lastPointIndex == pointCount) {
+                lastPointIndex = 0;
+            }
             if (SkPath::kLine_Verb <= verb && verb <= SkPath::kCubic_Verb) {
                 if (!foundFirst) {
                     firstPt = pts[0];
                     firstVector = vector;
+                    fFirstVerb = verb;
                     foundFirst = true;
                 } else {
-                    draw_bisect(canvas, lastVector, vector, pts[0]);
+                    draw_bisect(canvas, lastVector, vector, pts[0], verb, counter);
                 }
                 lastVector = nextLast;
             }
+            fLastPt = pts[0];
+            fLastVerb = verb;
         }
     }
 
@@ -1519,15 +2241,7 @@ public:
         }
     }
 
-    void onDrawContent(SkCanvas* canvas) override {
-#if 0
-        SkDEBUGCODE(SkDebugStrokeGlobals debugGlobals);
-        SkOpAA aaResult(fPath, fWidthControl.fValLo, fResControl.fValLo
-                SkDEBUGPARAMS(&debugGlobals));
-#endif
-        SkPath strokePath;
-//        aaResult.simplify(&strokePath);
-        canvas->drawPath(strokePath, fSkeletonPaint);
+    void draw_coverage(SkCanvas* canvas) {
         SkRect bounds = fPath.getBounds();
         SkScalar radius = fWidthControl.fValLo;
         int w = (int) (bounds.fRight + radius + 1);
@@ -1548,6 +2262,56 @@ public:
             canvas->drawBitmap(filteredMap, 0, 0, &fCoveragePaint);
         } else if (fFilterButton.enabled()) {
             canvas->drawBitmap(distMap, 0, 0, &fCoveragePaint);
+        }
+    }
+
+    void draw_ball(SkCanvas* canvas) {
+        // get dash positions along path
+        // for each color in gradient
+        // draw ball at the desired diameter and translucency to its own bitmap
+        // keep max value
+        // compute partial pixel coverage as well
+        SkPath fWidth;
+        fWidth.moveTo(0, .3f);
+        fWidth.lineTo(1, .3f);
+        fWidth.quadTo(1.5f, .6f, 2, .3f);
+        fWidth.quadTo(2.5f, .8f, 3, .4f);
+        fWidth.quadTo(3.5f, .9f, 4, .3f);
+        fWidth.lineTo(5, .3f);
+        SkPathMeasure measure(fPath, false);
+        SkPathMeasure wMeasure(fWidth, false);
+        SkScalar length = measure.getLength();
+        SkScalar wLength = wMeasure.getLength();
+        SkPaint paint(fCoveragePaint);
+        for (SkScalar interval = 0; interval < length; interval += fBallInterval) {
+            SkPoint position;
+            if (!measure.getPosTan(interval, &position, nullptr)) {
+                break;
+            }
+            SkPoint wPos;
+            wMeasure.getPosTan(interval * wLength / length, &wPos, nullptr);
+            int r = (int) (255 * interval * 4 / length) % 510;
+            if (r > 255) r = 510 - r;
+            int g = (int) (255 * wPos.fY * 6) % 510;
+            if (g > 255) g = 510 - g;
+            paint.setARGB(0xFF,  SkTMin(255, r), SkTMin(255, g), 0);
+            canvas->drawCircle(position, fWidthControl.fValLo * wPos.fY, paint);
+        }
+    }
+
+    void onDrawContent(SkCanvas* canvas) override {
+#if 0
+        SkDEBUGCODE(SkDebugStrokeGlobals debugGlobals);
+        SkOpAA aaResult(fPath, fWidthControl.fValLo, fResControl.fValLo
+                SkDEBUGPARAMS(&debugGlobals));
+#endif
+        SkPath strokePath;
+//        aaResult.simplify(&strokePath);
+        canvas->drawPath(strokePath, fSkeletonPaint);
+        if (fFilterButton.fState == 1 || fFillButton.fState == 2) {
+            draw_coverage(canvas);
+        } else if (fFilterButton.fState == 3) {
+            draw_ball(canvas);
         }
         if (fSkeletonButton.enabled()) {
             canvas->drawPath(fPath, fActiveVerb >= 0 ? fLightSkeletonPaint : fSkeletonPaint);
