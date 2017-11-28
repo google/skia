@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "60f01fcf_d3f445db",
+        "filename": "src/gpu/GrRenderTargetOpList.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 278,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-11-28T19:38:30Z",
+      "side": 1,
+      "message": "// comment ...\n\n// At this juncture we need to handle the destination read proxies different from all the rest because ...",
+      "revId": "00678da74c268638c43d252a4b4acaee335efb11",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "422b93e7_173d199d",
+        "filename": "src/gpu/GrRenderTargetOpList.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 153,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-11-28T19:38:30Z",
+      "side": 1,
+      "message": "// comment",
+      "revId": "00678da74c268638c43d252a4b4acaee335efb11",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
