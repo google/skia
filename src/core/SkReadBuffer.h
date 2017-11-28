@@ -178,7 +178,6 @@ public:
     // helpers to get info about arrays and binary data
     virtual uint32_t getArrayCount();
 
-    sk_sp<SkImage> readBitmapAsImage();
     sk_sp<SkImage> readImage();
     virtual sk_sp<SkTypeface> readTypeface();
 

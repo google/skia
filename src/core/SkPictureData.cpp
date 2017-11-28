@@ -492,10 +492,6 @@ static sk_sp<SkVertices> create_vertices_from_buffer(SkReadBuffer& buffer) {
     return data ? SkVertices::Decode(data->data(), data->size()) : nullptr;
 }
 
-static sk_sp<SkImage> create_bitmap_image_from_buffer(SkReadBuffer& buffer) {
-    return buffer.readBitmapAsImage();
-}
-
 static sk_sp<SkDrawable> create_drawable_from_buffer(SkReadBuffer& buffer) {
     return sk_sp<SkDrawable>((SkDrawable*)buffer.readFlattenable(SkFlattenable::kSkDrawable_Type));
 }
@@ -540,12 +536,6 @@ bool new_array_from_buffer(SkReadBuffer& buffer, uint32_t inCount,
 
 bool SkPictureData::parseBufferTag(SkReadBuffer& buffer, uint32_t tag, uint32_t size) {
     switch (tag) {
-        case SK_PICT_BITMAP_BUFFER_TAG:
-            if (!new_array_from_buffer(buffer, size, &fBitmapImageRefs, &fBitmapImageCount,
-                                       create_bitmap_image_from_buffer)) {
-                return false;
-            }
-            break;
         case SK_PICT_PAINT_BUFFER_TAG: {
             if (!buffer.validate(SkTFitsIn<int>(size))) {
                 return false;
