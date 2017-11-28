@@ -115,6 +115,11 @@ CHROMIUM_PAGE_SETS_TO_PREFIX = {
     'top_25_smooth.py': 'top25desk',
 }
 
+PAGE_SETS_TO_EXCLUSIONS = {
+    # See skbug.com/7348
+    'key_mobile_sites_smooth.py': '"(digg|worldjournal)"',
+}
+
 
 def remove_prefix(s, prefix):
   if s.startswith(prefix):
@@ -291,9 +296,11 @@ class SkPicturePlayback(object):
           '--page-set-base-dir=%s' % page_set_dir,
           '--skp-outdir=%s' % TMP_SKP_DIR,
           '--also-run-disabled-tests',
-          # See skbug.com/7348
-          '--story-filter-exclude="(digg|worldjournal)"',
       )
+
+      if PAGE_SETS_TO_EXCLUSIONS.get(page_set):
+        run_benchmark_cmd.append('--story-filter-exclude=' +
+                                 PAGE_SETS_TO_EXCLUSIONS[page_set])
 
       for _ in range(RETRY_RUN_MEASUREMENT_COUNT):
         try:
