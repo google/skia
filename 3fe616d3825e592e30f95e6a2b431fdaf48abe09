@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "426f6600_94306b1d",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 222,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-11-28T02:59:20Z",
+      "side": 1,
+      "message": "Do we need to add the extra build info on this device? I.e. NRD90M_G920TUVU5FQK1",
+      "range": {
+        "startLine": 222,
+        "startChar": 40,
+        "endLine": 222,
+        "endChar": 46
+      },
+      "revId": "3fe616d3825e592e30f95e6a2b431fdaf48abe09",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
