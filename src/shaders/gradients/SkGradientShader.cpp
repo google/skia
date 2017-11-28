@@ -1051,8 +1051,12 @@ void GrGradientEffect::GLSLProcessor::emitAnalyticalColor(GrGLSLFPFragmentBuilde
             fragBuilder->codeAppendf("half tiled_t = fract(%s);", t);
             break;
         case GrSamplerState::WrapMode::kMirrorRepeat:
+#if 0
             fragBuilder->codeAppendf("half t_1 = %s - 1.0;", t);
             fragBuilder->codeAppendf("half tiled_t = abs(t_1 - 2.0 * floor(t_1 * 0.5) - 1.0);");
+#else
+            fragBuilder->codeAppendf("half tiled_t = fract(%s);", t);
+#endif
             break;
     }
 
