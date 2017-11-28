@@ -22,35 +22,8 @@
 #endif
 
 #ifdef SK_BUILD_FOR_IOS
-#import <CoreFoundation/CoreFoundation.h>
-
-static FILE* ios_open_from_bundle(const char path[], const char* perm) {
-    // Get a reference to the main bundle
-    CFBundleRef mainBundle = CFBundleGetMainBundle();
-
-    // Get a reference to the file's URL
-    CFStringRef pathRef = CFStringCreateWithCString(nullptr, path, kCFStringEncodingUTF8);
-    CFURLRef imageURL = CFBundleCopyResourceURL(mainBundle, pathRef, nullptr, nullptr);
-    CFRelease(pathRef);
-    if (!imageURL) {
-        return nullptr;
-    }
-
-    // Convert the URL reference into a string reference
-    CFStringRef imagePath = CFURLCopyFileSystemPath(imageURL, kCFURLPOSIXPathStyle);
-    CFRelease(imageURL);
-
-    // Get the system encoding method
-    CFStringEncoding encodingMethod = CFStringGetSystemEncoding();
-
-    // Convert the string reference into a C string
-    const char *finalPath = CFStringGetCStringPtr(imagePath, encodingMethod);
-    FILE* fileHandle = fopen(finalPath, perm);
-    CFRelease(imagePath);
-    return fileHandle;
-}
+#include "SkOSFile_ios.h"
 #endif
-
 
 FILE* sk_fopen(const char path[], SkFILE_Flags flags) {
     char    perm[4];
@@ -71,7 +44,10 @@ FILE* sk_fopen(const char path[], SkFILE_Flags flags) {
 #ifdef SK_BUILD_FOR_IOS
     // if read-only, try to open from bundle first
     if (kRead_SkFILE_Flag == flags) {
-        file = ios_open_from_bundle(path, perm);
+        SkString bundlePath;
+        if (ios_get_path_in_bundle(path, &bundlePath)) {
+            file = fopen(bundlePath.c_str(), perm);
+        }
     }
     // otherwise just read from the Documents directory (default)
     if (!file) {
@@ -139,6 +115,14 @@ void sk_fclose(FILE* f) {
 
 bool sk_isdir(const char *path) {
     struct stat status;
+#ifdef SK_BUILD_FOR_IOS
+    SkString bundlePath;
+    if (ios_get_path_in_bundle(path, &bundlePath)) {
+        if (0 != stat(bundlePath.c_str(), &status)) {
+            return false;
+        }
+    }
+#endif
     if (0 != stat(path, &status)) {
         return false;
     }

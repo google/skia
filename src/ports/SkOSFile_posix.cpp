@@ -19,6 +19,10 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+#ifdef SK_BUILD_FOR_IOS
+#include "SkOSFile_ios.h"
+#endif
+
 bool sk_exists(const char *path, SkFILE_Flags flags) {
     int mode = F_OK;
     if (flags & kRead_SkFILE_Flag) {
@@ -27,6 +31,11 @@ bool sk_exists(const char *path, SkFILE_Flags flags) {
     if (flags & kWrite_SkFILE_Flag) {
         mode |= W_OK;
     }
+#ifdef SK_BUILD_FOR_IOS
+    if (kRead_SkFILE_Flag == flags && ios_get_path_in_bundle(path, nullptr)) {
+        return true;
+    }
+#endif
     return (0 == access(path, mode));
 }
 
@@ -138,9 +147,16 @@ void SkOSFile::Iter::reset(const char path[], const char suffix[]) {
         self.fDIR = nullptr;
     }
 
+#ifdef SK_BUILD_FOR_IOS
+    if (!ios_get_path_in_bundle(path, &self.fPath)) {
+        self.fPath.set(path);
+    }
+#else
     self.fPath.set(path);
+#endif
+
     if (path) {
-        self.fDIR = ::opendir(path);
+        self.fDIR = ::opendir(self.fPath.c_str());
         self.fSuffix.set(suffix);
     } else {
         self.fSuffix.reset();
