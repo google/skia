@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "19b8ec26_30d3120e",
+        "filename": "src/ports/SkOSFile_ios.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-11-28T20:57:24Z",
+      "side": 1,
+      "message": "maybe a note that this corresponds to {{bundle_resources_dir}}/data in GN?",
+      "range": {
+        "startLine": 19,
+        "startChar": 78,
+        "endLine": 19,
+        "endChar": 91
+      },
+      "revId": "54da93ebb37f79be420e2ace6cd3da887697393e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8e0f0288_1553fa3e",
+        "filename": "src/ports/SkOSFile_posix.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-11-28T20:57:24Z",
+      "side": 1,
+      "message": "might be easier to read this one if you swap to 0 \u003d\u003d access(path, mode) here, matching the #else case.",
+      "range": {
+        "startLine": 36,
+        "startChar": 10,
+        "endLine": 36,
+        "endChar": 12
+      },
+      "revId": "54da93ebb37f79be420e2ace6cd3da887697393e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
