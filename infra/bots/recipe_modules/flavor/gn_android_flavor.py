@@ -71,7 +71,8 @@ class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
                         'MotoG4', 'NVIDIA_Shield']
 
   def _lock_cpu(self, target_percent):
-    if self.m.vars.builder_cfg.get('model') in self.rootable_blacklist:
+    if (self.m.vars.builder_cfg.get('model') in self.rootable_blacklist or
+        self.m.vars.internal_hardware_label):
       return
     self.m.run(self.m.python.inline, 'Scale CPU to %f' % target_percent,
         program="""
