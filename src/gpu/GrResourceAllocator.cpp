@@ -7,6 +7,7 @@
 
 #include "GrResourceAllocator.h"
 
+#include "GrCaps.h"
 #include "GrGpuResourcePriv.h"
 #include "GrOpList.h"
 #include "GrRenderTargetProxy.h"
@@ -44,13 +45,21 @@ GrResourceAllocator::~GrResourceAllocator() {
 }
 
 void GrResourceAllocator::addInterval(GrSurfaceProxy* proxy,
-                                      unsigned int start, unsigned int end) {
+                                      unsigned int start, unsigned int end
+                                      SkDEBUGCODE(, bool isDstRead)) {
     SkASSERT(start <= end);
     SkASSERT(!fAssigned);      // We shouldn't be adding any intervals after (or during) assignment
 
     if (Interval* intvl = fIntvlHash.find(proxy->uniqueID().asUInt())) {
         // Revise the interval for an existing use
-        SkASSERT(intvl->end() <= start && intvl->end() <= end);
+#ifdef SK_DEBUG
+        if (isDstRead && fResourceProvider->caps()->textureBarrierSupport()) {
+            // With texture barriers all dst reads should occur w/in the existing interval
+            SkASSERT(intvl->start() <= start && intvl->end() >= end);
+        } else {
+            SkASSERT(intvl->end() <= start && intvl->end() <= end);
+        }
+#endif
         intvl->extendEnd(end);
         return;
     }

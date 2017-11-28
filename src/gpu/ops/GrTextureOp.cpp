@@ -250,7 +250,7 @@ public:
     void visitProxies(const VisitProxyFunc& func) const override {
         auto proxies = this->proxies();
         for (int i = 0; i < fProxyCnt; ++i) {
-            func(proxies[i]);
+            func(proxies[i] SkDEBUGCODE(, false));
         }
     }
 

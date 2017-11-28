@@ -68,7 +68,7 @@ public:
     bool onExecute(GrOpFlushState* flushState) override;
 
     uint32_t addOp(std::unique_ptr<GrOp> op, const GrCaps& caps) {
-        auto addDependency = [ &caps, this ] (GrSurfaceProxy* p) {
+        auto addDependency = [ &caps, this ] (GrSurfaceProxy* p SkDEBUGCODE(, bool isDstProxy)) {
             this->addDependency(p, caps);
         };
 
@@ -81,7 +81,7 @@ public:
 
     uint32_t addOp(std::unique_ptr<GrOp> op, const GrCaps& caps,
                    GrAppliedClip&& clip, const DstProxy& dstProxy) {
-        auto addDependency = [ &caps, this ] (GrSurfaceProxy* p) {
+        auto addDependency = [ &caps, this ] (GrSurfaceProxy* p, bool isDstproxy = false) {
             this->addDependency(p, caps);
         };
 
@@ -136,6 +136,18 @@ private:
                 fDstProxy = *dstProxy;
             }
         }
+        void visitProxies(const GrOp::VisitProxyFunc& func) const {
+            if (fOp) {
+                fOp->visitProxies(func);
+            }
+            if (fDstProxy.proxy()) {
+                func(fDstProxy.proxy() SkDEBUGCODE(, true));
+            }
+            if (fAppliedClip) {
+                fAppliedClip->visitProxies(func);
+            }
+        }
+
         std::unique_ptr<GrOp> fOp;
         DstProxy fDstProxy;
         GrAppliedClip* fAppliedClip;
