@@ -285,6 +285,7 @@ void Edge2PtConicalEffect::GLSLEdge2PtConicalProcessor::emitCode(EmitArgs& args)
                     args.fInputColor,
                     args.fTexSamplers);
     fragBuilder->codeAppend("\t}\n");
+    fragBuilder->codeAppendf("%s = clamp(%s, 0.0, 1.0);", args.fOutputColor, args.fInputColor);
 }
 
 void Edge2PtConicalEffect::GLSLEdge2PtConicalProcessor::onSetData(
