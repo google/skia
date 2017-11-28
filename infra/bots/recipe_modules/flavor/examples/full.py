@@ -194,3 +194,14 @@ def GenTests(api):
                      swarm_out_dir='[SWARM_OUT_DIR]') +
       api.step_data('Scale CPU to 0.600000', retcode=1)
   )
+
+  builder = 'Perf-Android-Clang-InternalBot-GPU-Secret-arm64-Debug-All-Android'
+  yield (
+      api.test('internal-hardware') +
+      api.properties(buildername=builder,
+                     repository='https://skia.googlesource.com/skia.git',
+                     revision='abc123',
+                     path_config='kitchen',
+                     swarm_out_dir='[SWARM_OUT_DIR]',
+                     internal_hardware_label=1)
+  )
