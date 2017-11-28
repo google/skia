@@ -64,7 +64,6 @@ public:
 // This tag specifies the size of the ReadBuffer, needed for the following tags
 #define SK_PICT_BUFFER_SIZE_TAG     SkSetFourByteTag('a', 'r', 'a', 'y')
 // these are all inside the ARRAYS tag
-#define SK_PICT_BITMAP_BUFFER_TAG   SkSetFourByteTag('b', 't', 'm', 'p')
 #define SK_PICT_PAINT_BUFFER_TAG    SkSetFourByteTag('p', 'n', 't', ' ')
 #define SK_PICT_PATH_BUFFER_TAG     SkSetFourByteTag('p', 't', 'h', ' ')
 #define SK_PICT_TEXTBLOB_BUFFER_TAG SkSetFourByteTag('b', 'l', 'o', 'b')

@@ -249,20 +249,9 @@ sk_sp<SkShader> SkMakeBitmapShader(const SkBitmap& src, SkShader::TileMode tmx,
                                tmx, tmy, localMatrix);
 }
 
-static sk_sp<SkFlattenable> SkBitmapProcShader_CreateProc(SkReadBuffer& buffer) {
-    SkMatrix lm;
-    buffer.readMatrix(&lm);
-    sk_sp<SkImage> image = buffer.readBitmapAsImage();
-    SkShader::TileMode mx = (SkShader::TileMode)buffer.readUInt();
-    SkShader::TileMode my = (SkShader::TileMode)buffer.readUInt();
-    return image ? image->makeShader(mx, my, &lm) : nullptr;
-}
-
 SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_START(SkShaderBase)
 SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkImageShader)
-SkFlattenable::Register("SkBitmapProcShader", SkBitmapProcShader_CreateProc, kSkShaderBase_Type);
 SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_END
-
 
 bool SkImageShader::onAppendStages(const StageRec& rec) const {
     SkRasterPipeline* p = rec.fPipeline;

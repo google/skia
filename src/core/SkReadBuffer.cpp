@@ -222,52 +222,6 @@ uint32_t SkReadBuffer::getArrayCount() {
     return *(uint32_t*)fReader.peek();
 }
 
-sk_sp<SkImage> SkReadBuffer::readBitmapAsImage() {
-    const int width = this->readInt();
-    const int height = this->readInt();
-
-    // The writer stored a boolean value to determine whether an SkBitmapHeap was used during
-    // writing. That feature is deprecated.
-    if (this->readBool()) {
-        this->readUInt(); // Bitmap index
-        this->readUInt(); // Bitmap generation ID
-        // Old unsupported SkBitmapHeap format.  No longer supported.
-    } else {
-        // The writer stored false, meaning the SkBitmap was not stored in an SkBitmapHeap.
-        const size_t length = this->readUInt();
-        if (length > 0) {
-#ifdef DEBUG_NON_DETERMINISTIC_ASSERT
-            fDecodedBitmapIndex++;
-#endif // DEBUG_NON_DETERMINISTIC_ASSERT
-            // A non-zero size means the SkBitmap was encoded. Read the data and pixel
-            // offset.
-            const void* data = this->skip(length);
-            const int32_t xOffset = this->readInt();
-            const int32_t yOffset = this->readInt();
-            SkIRect subset = SkIRect::MakeXYWH(xOffset, yOffset, width, height);
-            sk_sp<SkImage> image = fImageDeserializer->makeFromMemory(data, length, &subset);
-            if (image) {
-                return image;
-            }
-
-            // This bitmap was encoded when written, but we are unable to
-            // decode, possibly due to not having a decoder.  Even though we
-            // weren't able to decode the pixels, the readbuffer should still
-            // be intact, so we return true with an empty bitmap, so we don't
-            // force an abort of the larger deserialize.
-            return MakeEmptyImage(width, height);
-        } else {
-            SkBitmap bitmap;
-            if (SkBitmap::ReadRawPixels(this, &bitmap)) {
-                bitmap.setImmutable();
-                return SkImage::MakeFromBitmap(bitmap);
-            }
-        }
-    }
-    // Could not read the SkBitmap. Use a placeholder bitmap.
-    return nullptr;
-}
-
 sk_sp<SkImage> SkReadBuffer::readImage() {
     if (fInflator) {
         SkImage* img = fInflator->getImage(this->read32());
