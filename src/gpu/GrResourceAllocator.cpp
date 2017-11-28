@@ -7,6 +7,7 @@
 
 #include "GrResourceAllocator.h"
 
+#include "GrCaps.h"
 #include "GrGpuResourcePriv.h"
 #include "GrOpList.h"
 #include "GrRenderTargetProxy.h"
@@ -16,6 +17,7 @@
 #include "GrSurfaceProxy.h"
 #include "GrSurfaceProxyPriv.h"
 #include "GrTextureProxy.h"
+#include "GrTextureProxyPriv.h"
 
 void GrResourceAllocator::Interval::assign(sk_sp<GrSurface> s) {
     SkASSERT(!fAssignedSurface);
@@ -44,15 +46,24 @@ GrResourceAllocator::~GrResourceAllocator() {
 }
 
 void GrResourceAllocator::addInterval(GrSurfaceProxy* proxy,
-                                      unsigned int start, unsigned int end) {
+                                      unsigned int start, unsigned int end
+                                      SkDEBUGCODE(, IsDstRead isDstRead)) {
     SkASSERT(start <= end);
     SkASSERT(!fAssigned);      // We shouldn't be adding any intervals after (or during) assignment
+
+    if (proxy->isPendingLazyInstantiation()) {
+        proxy->priv().doLazyInstantiation(fResourceProvider);
+        SkASSERT(!proxy->isPendingLazyInstantiation());
+    }
 
     if (Interval* intvl = fIntvlHash.find(proxy->uniqueID().asUInt())) {
         // Revise the interval for an existing use
 #ifdef SK_DEBUG
-        if (proxy->priv().isDirectDstRead_debugOnly()) {
-            // Direct reads from the render target itself should occur w/in the existing interval
+        if (IsDstRead::kYes == isDstRead &&
+            fResourceProvider->caps()->textureBarrierSupport() &&
+            (static_cast<GrSurfaceProxy*>(proxy->asTextureProxy()) ==
+                     static_cast<GrSurfaceProxy*>(proxy->asRenderTargetProxy()))) {
+            // With texture barriers all dst reads should occur w/in the existing interval
             SkASSERT(intvl->start() <= start && intvl->end() >= end);
         } else {
             SkASSERT(intvl->end() <= start && intvl->end() <= end);

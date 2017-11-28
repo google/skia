@@ -68,14 +68,9 @@ public:
     // Don't. Just don't.
     void exactify();
 
-    static bool AttachStencilIfNeeded(GrResourceProvider*, GrSurface*, bool needsStencil);
+    void doLazyInstantiation(GrResourceProvider*);
 
-#ifdef SK_DEBUG
-    // These are used to notify the resource allocator when a proxy is a direct read from the render
-    // target itself (via text barrier). This information is necessary for certain assertions.
-    void markAsDirectDstRead_debugOnly() { fProxy->fIsDirectDstRead_debugOnly = true; }
-    bool isDirectDstRead_debugOnly() const { return fProxy->fIsDirectDstRead_debugOnly; }
-#endif
+    static bool AttachStencilIfNeeded(GrResourceProvider*, GrSurface*, bool needsStencil);
 
 private:
     explicit GrSurfaceProxyPriv(GrSurfaceProxy* proxy) : fProxy(proxy) {}
