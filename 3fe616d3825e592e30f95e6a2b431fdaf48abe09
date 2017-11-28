@@ -22,6 +22,53 @@
       "revId": "3fe616d3825e592e30f95e6a2b431fdaf48abe09",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a70236a8_e2e77986",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 222,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2017-11-28T12:41:25Z",
+      "side": 1,
+      "message": "If we learned anything from the S7, yes, we probably should to avoid subtle update bugs.  I\u0027ll have swarming reveal this part for the Galaxy.+ as well.",
+      "parentUuid": "426f6600_94306b1d",
+      "range": {
+        "startLine": 222,
+        "startChar": 40,
+        "endLine": 222,
+        "endChar": 46
+      },
+      "revId": "3fe616d3825e592e30f95e6a2b431fdaf48abe09",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5aff7a9f_ab8ca4cb",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 225,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2017-11-28T12:41:25Z",
+      "side": 1,
+      "message": "Please remove this entry - we decided not to test on it and I forgot to remove it when I cleaned these up.",
+      "range": {
+        "startLine": 225,
+        "startChar": 5,
+        "endLine": 225,
+        "endChar": 15
+      },
+      "revId": "3fe616d3825e592e30f95e6a2b431fdaf48abe09",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
