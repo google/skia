@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e3296ca7_adb8804c",
+        "filename": "src/core/SkThreadedBMPDevice.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-11-28T19:11:21Z",
+      "side": 1,
+      "message": "Change to workAdded",
+      "range": {
+        "startLine": 21,
+        "startChar": 17,
+        "endLine": 21,
+        "endChar": 23
+      },
+      "revId": "714d7eb3fd1ac66d6cc2affb52d83caffd1d44dd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "21cab88b_47c143c6",
+        "filename": "src/core/SkThreadedBMPDevice.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-11-28T19:11:21Z",
+      "side": 1,
+      "message": "Change to shutdown",
+      "range": {
+        "startLine": 24,
+        "startChar": 17,
+        "endLine": 24,
+        "endChar": 23
+      },
+      "revId": "714d7eb3fd1ac66d6cc2affb52d83caffd1d44dd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

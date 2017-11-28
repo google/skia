@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "582acdce_7f32e240",
+        "filename": "src/core/SkTaskGroup2D.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-11-28T19:11:21Z",
+      "side": 1,
+      "message": "Why doesn\u0027t next() just have this loop?",
+      "range": {
+        "startLine": 12,
+        "startChar": 0,
+        "endLine": 12,
+        "endChar": 39
+      },
+      "revId": "500fa224e16fff729b47ee879cd522ddd77a72e4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "56a13b4c_f3f12b2e",
+        "filename": "src/core/SkTaskGroup2D.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-11-28T19:11:21Z",
+      "side": 1,
+      "message": "Return an enum encoded for the idea of 1 or 2.\n\nkFinished and kOutOfWork?",
+      "range": {
+        "startLine": 48,
+        "startChar": 12,
+        "endLine": 48,
+        "endChar": 16
+      },
+      "revId": "500fa224e16fff729b47ee879cd522ddd77a72e4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1bd015cc_389e7fde",
+        "filename": "src/core/SkThreadedBMPDevice.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-11-28T19:11:21Z",
+      "side": 1,
+      "message": "Pull the function out as a local variable:\nauto draw2d \u003d [this](...",
+      "range": {
+        "startLine": 23,
+        "startChar": 39,
+        "endLine": 23,
+        "endChar": 40
+      },
+      "revId": "500fa224e16fff729b47ee879cd522ddd77a72e4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
