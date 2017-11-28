@@ -1025,7 +1025,7 @@ public:
 
         @return  bounds of clip in local coordinates
     */
-    SkRect getLocalClipBounds() const { return this->onGetLocalClipBounds(); }
+    SkRect getLocalClipBounds() const;
 
     /** Return bounds of clip, transformed by inverse of SkMatrix. If clip is empty,
         return false, and set bounds to SkRect::MakeEmpty, where all SkRect sides equal zero.
@@ -1037,7 +1037,7 @@ public:
         @return        true if clip bounds is not empty
     */
     bool getLocalClipBounds(SkRect* bounds) const {
-        *bounds = this->onGetLocalClipBounds();
+        *bounds = this->getLocalClipBounds();
         return !bounds->isEmpty();
     }
 
@@ -1048,7 +1048,7 @@ public:
 
         @return  bounds of clip in SkBaseDevice coordinates
     */
-    SkIRect getDeviceClipBounds() const { return this->onGetDeviceClipBounds(); }
+    SkIRect getDeviceClipBounds() const;
 
     /** Return SkIRect bounds of clip, unaffected by SkMatrix. If clip is empty,
         return false, and set bounds to SkRect::MakeEmpty, where all SkRect sides equal zero.
@@ -1059,7 +1059,7 @@ public:
         @return        true if clip bounds is not empty
     */
     bool getDeviceClipBounds(SkIRect* bounds) const {
-        *bounds = this->onGetDeviceClipBounds();
+        *bounds = this->getDeviceClipBounds();
         return !bounds->isEmpty();
     }
 
@@ -2470,10 +2470,6 @@ protected:
     virtual void didTranslate(SkScalar dx, SkScalar dy) {
         this->didConcat(SkMatrix::MakeTrans(dx, dy));
     }
-
-    virtual SkRect onGetLocalClipBounds() const;
-    virtual SkIRect onGetDeviceClipBounds() const;
-
 
     virtual void onDrawAnnotation(const SkRect& rect, const char key[], SkData* value);
     virtual void onDrawDRRect(const SkRRect& outer, const SkRRect& inner, const SkPaint& paint);
