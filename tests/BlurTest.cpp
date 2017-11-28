@@ -15,6 +15,8 @@
 #include "SkMath.h"
 #include "SkPaint.h"
 #include "SkPath.h"
+#include "SkPerlinNoiseShader.h"
+#include "SkSurface.h"
 #include "Test.h"
 
 #if SK_SUPPORT_GPU
@@ -649,6 +651,20 @@ DEF_TEST(BlurredRRectNinePatchComputation, reporter) {
 
     }
 
+}
+
+// https://crbugs.com/787712
+DEF_TEST(EmbossPerlinCrash, reporter) {
+    SkPaint p;
+
+    static constexpr SkEmbossMaskFilter::Light light = {
+        { 1, 1, 1 }, 0, 127, 127
+    };
+    p.setMaskFilter(SkEmbossMaskFilter::Make(1, light));
+    p.setShader(SkPerlinNoiseShader::MakeFractalNoise(1.0f, 1.0f, 2, 0.0f));
+
+    sk_sp<SkSurface> surface = SkSurface::MakeRasterN32Premul(100, 100);
+    surface->getCanvas()->drawPaint(p);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////
