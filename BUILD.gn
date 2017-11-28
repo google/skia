@@ -983,6 +983,20 @@ if (skia_enable_tools) {
         ]
       }
 
+      bundle_resources =
+          defined(invoker.bundle_ios_resources) && invoker.bundle_ios_resources
+      if (bundle_resources) {
+        bundle_data("${app_name}_bundle_resources") {
+          sources = [
+            "resources",
+          ]
+          outputs = [
+            # iOS reserves the folders 'Resources' and 'resources' so store one level deeper
+            "{{bundle_root_dir}}/data/resources",
+          ]
+        }
+      }
+
       executable("${app_name}_generate_executable") {
         forward_variables_from(invoker,
                                "*",
@@ -1022,6 +1036,9 @@ if (skia_enable_tools) {
           ":${app_name}_bundle_executable",
           ":${app_name}_bundle_info_plist",
         ]
+        if (bundle_resources) {
+          deps += [ ":${app_name}_bundle_resources" ]
+        }
 
         # should only code sign when running on a device, not the simulator
         if (target_cpu != "x64") {
@@ -1413,6 +1430,7 @@ if (skia_enable_tools) {
         "//third_party/jsoncpp",
         "//third_party/libpng",
       ]
+      bundle_ios_resources = true
     }
   }
 
@@ -1449,6 +1467,7 @@ if (skia_enable_tools) {
       ":tool_utils",
       "//third_party/jsoncpp",
     ]
+    bundle_ios_resources = true
   }
 
   test_app("skpinfo") {
@@ -1747,6 +1766,7 @@ if (skia_enable_tools) {
   if (skia_enable_gpu) {
     test_app("viewer") {
       is_shared_library = is_android
+      bundle_ios_resources = true
       sources = [
         "tools/viewer/GMSlide.cpp",
         "tools/viewer/ImageSlide.cpp",
