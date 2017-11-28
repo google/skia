@@ -306,6 +306,7 @@ gm_sources = [
   "$_gm/textblobtransforms.cpp",
   "$_gm/textblobuseaftergpufree.cpp",
   "$_gm/texteffects.cpp",
+  "$_gm/text_scale_skew.cpp",
   "$_gm/texturedomaineffect.cpp",
   "$_gm/thinconcavepaths.cpp",
   "$_gm/thinrects.cpp",
