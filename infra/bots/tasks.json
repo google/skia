@@ -2375,22 +2375,10 @@
         "Upload-Test-Ubuntu16-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Debug-All"
       ]
     },
-    "Test-Ubuntu16-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Debug-All-Coverage": {
-      "priority": 0.8,
-      "tasks": [
-        "Upload-Test-Ubuntu16-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Debug-All-Coverage"
-      ]
-    },
     "Test-Ubuntu16-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Debug-All-Vulkan": {
       "priority": 0.8,
       "tasks": [
         "Upload-Test-Ubuntu16-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Debug-All-Vulkan"
-      ]
-    },
-    "Test-Ubuntu16-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Debug-All-Vulkan_Coverage": {
-      "priority": 0.8,
-      "tasks": [
-        "Upload-Test-Ubuntu16-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Debug-All-Vulkan_Coverage"
       ]
     },
     "Test-Ubuntu16-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Release-All": {
@@ -2441,6 +2429,12 @@
         "Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-ASAN"
       ]
     },
+    "Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Coverage": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Coverage"
+      ]
+    },
     "Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-UBSAN_float_cast_overflow": {
       "priority": 0.8,
       "tasks": [
@@ -2451,6 +2445,12 @@
       "priority": 0.8,
       "tasks": [
         "Upload-Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Vulkan"
+      ]
+    },
+    "Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Vulkan_Coverage": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Vulkan_Coverage"
       ]
     },
     "Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-All": {
@@ -18887,115 +18887,6 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Test-Ubuntu16-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Debug-shard_00_01-Coverage": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:33"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:99"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:9"
-        },
-        {
-          "name": "skia/bots/linux_vulkan_intel_driver_debug",
-          "path": "linux_vulkan_intel_driver_debug",
-          "version": "version:4"
-        }
-      ],
-      "dependencies": [
-        "Build-Debian9-Clang-x86_64-Debug-Coverage",
-        "Housekeeper-PerCommit-BundleRecipes"
-      ],
-      "dimensions": [
-        "gpu:8086:5926",
-        "os:Ubuntu-16.10",
-        "pool:Skia"
-      ],
-      "execution_timeout_ns": 14400000000000,
-      "expiration_ns": 72000000000000,
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "test",
-        "repository=<(REPO)",
-        "buildername=Test-Ubuntu16-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Debug-shard_00_01-Coverage",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_repo=<(PATCH_REPO)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
-      ],
-      "io_timeout_ns": 2400000000000,
-      "isolate": "test_skia_bundled_unix.isolate",
-      "max_attempts": 1,
-      "priority": 0.8
-    },
-    "Test-Ubuntu16-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Debug-shard_00_01-Vulkan_Coverage": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:33"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:99"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:9"
-        },
-        {
-          "name": "skia/bots/linux_vulkan_sdk",
-          "path": "linux_vulkan_sdk",
-          "version": "version:0"
-        },
-        {
-          "name": "skia/bots/linux_vulkan_intel_driver_debug",
-          "path": "linux_vulkan_intel_driver_debug",
-          "version": "version:4"
-        }
-      ],
-      "dependencies": [
-        "Build-Debian9-Clang-x86_64-Debug-Vulkan_Coverage",
-        "Housekeeper-PerCommit-BundleRecipes"
-      ],
-      "dimensions": [
-        "gpu:8086:5926",
-        "os:Ubuntu-16.10",
-        "pool:Skia"
-      ],
-      "execution_timeout_ns": 14400000000000,
-      "expiration_ns": 72000000000000,
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "test",
-        "repository=<(REPO)",
-        "buildername=Test-Ubuntu16-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Debug-shard_00_01-Vulkan_Coverage",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_repo=<(PATCH_REPO)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
-      ],
-      "io_timeout_ns": 2400000000000,
-      "isolate": "test_skia_bundled_unix.isolate",
-      "max_attempts": 1,
-      "priority": 0.8
-    },
     "Test-Ubuntu16-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Release-All": {
       "cipd_packages": [
         {
@@ -19504,6 +19395,105 @@
         "test",
         "repository=<(REPO)",
         "buildername=Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Vulkan",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia_bundled_unix.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
+    "Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-shard_00_01-Coverage": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:33"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:99"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:9"
+        }
+      ],
+      "dependencies": [
+        "Build-Debian9-Clang-x86_64-Debug-Coverage",
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "gpu:10de:1cb3-384.59",
+        "os:Ubuntu-17.04",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "test",
+        "repository=<(REPO)",
+        "buildername=Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-shard_00_01-Coverage",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia_bundled_unix.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
+    "Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-shard_00_01-Vulkan_Coverage": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:33"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:99"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:9"
+        },
+        {
+          "name": "skia/bots/linux_vulkan_sdk",
+          "path": "linux_vulkan_sdk",
+          "version": "version:0"
+        }
+      ],
+      "dependencies": [
+        "Build-Debian9-Clang-x86_64-Debug-Vulkan_Coverage",
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "gpu:10de:1cb3-384.59",
+        "os:Ubuntu-17.04",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "test",
+        "repository=<(REPO)",
+        "buildername=Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-shard_00_01-Vulkan_Coverage",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -29064,41 +29054,6 @@
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
     },
-    "Upload-Test-Ubuntu16-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Debug-All-Coverage": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/clang_linux",
-          "path": "clang_linux",
-          "version": "version:10"
-        }
-      ],
-      "dependencies": [
-        "Test-Ubuntu16-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Debug-shard_00_01-Coverage",
-        "Build-Debian9-Clang-x86_64-Debug-Coverage"
-      ],
-      "dimensions": [
-        "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
-        "os:Debian-9.2",
-        "pool:Skia"
-      ],
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "upload_coverage_results",
-        "repository=<(REPO)",
-        "buildername=Test-Ubuntu16-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Debug-All-Coverage",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_repo=<(PATCH_REPO)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)",
-        "gs_bucket=skia-coverage"
-      ],
-      "isolate": "upload_coverage_results.isolate",
-      "priority": 0.8
-    },
     "Upload-Test-Ubuntu16-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Debug-All-Vulkan": {
       "dependencies": [
         "Test-Ubuntu16-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Debug-All-Vulkan"
@@ -29124,41 +29079,6 @@
         "gs_bucket=skia-infra-gm"
       ],
       "isolate": "upload_dm_results.isolate",
-      "priority": 0.8
-    },
-    "Upload-Test-Ubuntu16-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Debug-All-Vulkan_Coverage": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/clang_linux",
-          "path": "clang_linux",
-          "version": "version:10"
-        }
-      ],
-      "dependencies": [
-        "Test-Ubuntu16-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Debug-shard_00_01-Vulkan_Coverage",
-        "Build-Debian9-Clang-x86_64-Debug-Vulkan_Coverage"
-      ],
-      "dimensions": [
-        "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
-        "os:Debian-9.2",
-        "pool:Skia"
-      ],
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "upload_coverage_results",
-        "repository=<(REPO)",
-        "buildername=Test-Ubuntu16-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Debug-All-Vulkan_Coverage",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_repo=<(PATCH_REPO)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)",
-        "gs_bucket=skia-coverage"
-      ],
-      "isolate": "upload_coverage_results.isolate",
       "priority": 0.8
     },
     "Upload-Test-Ubuntu16-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Release-All": {
@@ -29350,6 +29270,41 @@
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
     },
+    "Upload-Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Coverage": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/clang_linux",
+          "path": "clang_linux",
+          "version": "version:10"
+        }
+      ],
+      "dependencies": [
+        "Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-shard_00_01-Coverage",
+        "Build-Debian9-Clang-x86_64-Debug-Coverage"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "os:Debian-9.2",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_coverage_results",
+        "repository=<(REPO)",
+        "buildername=Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Coverage",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-coverage"
+      ],
+      "isolate": "upload_coverage_results.isolate",
+      "priority": 0.8
+    },
     "Upload-Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Vulkan": {
       "dependencies": [
         "Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Vulkan"
@@ -29375,6 +29330,41 @@
         "gs_bucket=skia-infra-gm"
       ],
       "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Vulkan_Coverage": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/clang_linux",
+          "path": "clang_linux",
+          "version": "version:10"
+        }
+      ],
+      "dependencies": [
+        "Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-shard_00_01-Vulkan_Coverage",
+        "Build-Debian9-Clang-x86_64-Debug-Vulkan_Coverage"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "os:Debian-9.2",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_coverage_results",
+        "repository=<(REPO)",
+        "buildername=Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Vulkan_Coverage",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-coverage"
+      ],
+      "isolate": "upload_coverage_results.isolate",
       "priority": 0.8
     },
     "Upload-Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-All": {
