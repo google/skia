@@ -79,6 +79,7 @@ GrGLProgram* GrGLGpu::ProgramCache::refProgram(const GrGLGpu* gpu,
         return nullptr;
     }
     desc.finalize();
+#if 0
     std::unique_ptr<Entry>* entry = fMap.find(desc);
     if (!entry) {
         // Didn't find an origin-independent version, check with the specific origin
@@ -87,6 +88,9 @@ GrGLProgram* GrGLGpu::ProgramCache::refProgram(const GrGLGpu* gpu,
         desc.finalize();
         entry = fMap.find(desc);
     }
+#else
+    std::unique_ptr<Entry>* entry = nullptr;
+#endif
     if (!entry) {
         // We have a cache miss
 #ifdef PROGRAM_CACHE_STATS
