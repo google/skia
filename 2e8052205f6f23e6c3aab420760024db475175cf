@@ -19,6 +19,29 @@
     },
     {
       "key": {
+        "uuid": "71ae3ff4_ccad9a36",
+        "filename": "include/private/GrSurfaceProxy.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 225,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-11-28T15:23:17Z",
+      "side": 1,
+      "message": "disallowed?",
+      "range": {
+        "startLine": 225,
+        "startChar": 36,
+        "endLine": 225,
+        "endChar": 44
+      },
+      "revId": "2e8052205f6f23e6c3aab420760024db475175cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b73aa897_b3db2d84",
         "filename": "include/private/GrSurfaceProxy.h",
         "patchSetId": 4
@@ -64,6 +87,24 @@
       "writtenOn": "2017-11-28T15:10:23Z",
       "side": 1,
       "message": "Making all lazy proxies be unbudgeted could be problematic.",
+      "revId": "2e8052205f6f23e6c3aab420760024db475175cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c3d57b3c_1aa95d23",
+        "filename": "include/private/GrSurfaceProxy.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 398,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-11-28T15:23:17Z",
+      "side": 1,
+      "message": "Agreed, seems like this should be kYes.",
+      "parentUuid": "2926d960_ebe48379",
       "revId": "2e8052205f6f23e6c3aab420760024db475175cf",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
