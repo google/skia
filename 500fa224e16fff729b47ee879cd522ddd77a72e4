@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "b3c4bcc4_0cb86d76",
+        "filename": "src/core/SkTaskGroup2D.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-11-28T20:52:24Z",
+      "side": 1,
+      "message": "The loops is moved inside and the next is renamed as work.",
+      "parentUuid": "582acdce_7f32e240",
+      "range": {
+        "startLine": 12,
+        "startChar": 0,
+        "endLine": 12,
+        "endChar": 39
+      },
+      "revId": "500fa224e16fff729b47ee879cd522ddd77a72e4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "56a13b4c_f3f12b2e",
         "filename": "src/core/SkTaskGroup2D.h",
         "patchSetId": 6
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "2d61b488_069b9a1c",
+        "filename": "src/core/SkTaskGroup2D.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-11-28T20:52:24Z",
+      "side": 1,
+      "message": "We won\u0027t need this enum/bool as we moved the loop inside according to the next comment.",
+      "parentUuid": "56a13b4c_f3f12b2e",
+      "range": {
+        "startLine": 48,
+        "startChar": 12,
+        "endLine": 48,
+        "endChar": 16
+      },
+      "revId": "500fa224e16fff729b47ee879cd522ddd77a72e4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1bd015cc_389e7fde",
         "filename": "src/core/SkThreadedBMPDevice.cpp",
         "patchSetId": 6
@@ -68,6 +116,30 @@
       "revId": "500fa224e16fff729b47ee879cd522ddd77a72e4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0a5331fa_07a370a9",
+        "filename": "src/core/SkThreadedBMPDevice.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-11-28T20:52:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1bd015cc_389e7fde",
+      "range": {
+        "startLine": 23,
+        "startChar": 39,
+        "endLine": 23,
+        "endChar": 40
+      },
+      "revId": "500fa224e16fff729b47ee879cd522ddd77a72e4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
