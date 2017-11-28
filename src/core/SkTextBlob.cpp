@@ -604,7 +604,11 @@ bool SkTextBlobBuilder::mergeRun(const SkPaint &font, SkTextBlob::GlyphPositioni
     if (!safe) {
         return false;
     }
-
+#if defined(IS_FUZZING)
+    if (sizeDelta > 1000000) {
+        return false;
+    }
+#endif
     this->reserve(sizeDelta);
 
     // reserve may have realloced
@@ -639,6 +643,12 @@ void SkTextBlobBuilder::allocInternal(const SkPaint &font,
 
         SkSafeMath safe;
         size_t runSize = SkTextBlob::RunRecord::StorageSize(count, textSize, positioning, &safe);
+#if defined(IS_FUZZING)
+        if (runSize > 1000000) {
+            fCurrentRunBuffer = { nullptr, nullptr, nullptr, nullptr };
+            return;
+        }
+#endif
         if (!safe) {
             fCurrentRunBuffer = { nullptr, nullptr, nullptr, nullptr };
             return;
