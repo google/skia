@@ -45,7 +45,6 @@ public:
     void writeRegion(const SkRegion& region) override;
     void writePath(const SkPath& path) override;
     size_t writeStream(SkStream* stream, size_t length) override;
-    void writeBitmap(const SkBitmap& bitmap) override;
     void writeImage(const SkImage*) override;
     void writeTypeface(SkTypeface* typeface) override;
     void writePaint(const SkPaint& paint) override;

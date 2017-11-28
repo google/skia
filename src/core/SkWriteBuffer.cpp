@@ -137,38 +137,6 @@ static void write_encoded_bitmap(SkBinaryWriteBuffer* buffer, SkData* data,
     buffer->write32(origin.fY);
 }
 
-void SkBinaryWriteBuffer::writeBitmap(const SkBitmap& bitmap) {
-    // Record the width and height. This way if readBitmap fails a dummy bitmap can be drawn at the
-    // right size.
-    this->writeInt(bitmap.width());
-    this->writeInt(bitmap.height());
-
-    // Record information about the bitmap in one of two ways, in order of priority:
-    // 1. If there is a function for encoding bitmaps, use it to write an encoded version of the
-    //    bitmap. After writing a boolean value of false, signifying that a heap was not used, write
-    //    the size of the encoded data. A non-zero size signifies that encoded data was written.
-    // 2. Call SkBitmap::flatten. After writing a boolean value of false, signifying that a heap was
-    //    not used, write a zero to signify that the data was not encoded.
-
-    // Write a bool to indicate that we did not use an SkBitmapHeap. That feature is deprecated.
-    this->writeBool(false);
-
-    // see if the caller wants to manually encode
-    SkPixmap result;
-    if (fPixelSerializer && bitmap.peekPixels(&result)) {
-        sk_sp<SkData> data = fPixelSerializer->encodeToData(result);
-        if (data) {
-            // if we have to "encode" the bitmap, then we assume there is no
-            // offset to share, since we are effectively creating a new pixelref
-            write_encoded_bitmap(this, data.get(), SkIPoint::Make(0, 0));
-            return;
-        }
-    }
-
-    this->writeUInt(0); // signal raw pixels
-    SkBitmap::WriteRawPixels(this, bitmap);
-}
-
 void SkBinaryWriteBuffer::writeImage(const SkImage* image) {
     if (fDeduper) {
         this->write32(fDeduper->findOrDefineImage(const_cast<SkImage*>(image)));
