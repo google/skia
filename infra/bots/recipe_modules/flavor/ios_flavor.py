@@ -33,17 +33,6 @@ class iOSFlavorUtils(gn_flavor.GNFlavorUtils):
         svg_dir='svgs',
         tmp_dir='tmp')
 
-  def compile(self, unused_target, **kwargs):
-    """ Build Skia with GN and sign the iOS apps"""
-    # Use the generic compile sets.
-    super(iOSFlavorUtils, self).compile(unused_target, **kwargs)
-
-    # Sign the apps.
-    for app in ['dm', 'nanobench']:
-      self._py('package ' + app,
-              self.m.vars.skia_dir.join('gn', 'package_ios.py'),
-              args=[self.out_dir.join(app)], infra_step=True)
-
   def step(self, name, cmd, env=None, **kwargs):
     bundle_id = 'com.google.%s' % cmd[0]
     self.m.run(self.m.step, name,

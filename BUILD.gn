@@ -959,36 +959,116 @@ if (skia_enable_tools) {
   }
 
   template("test_app") {
-    if (defined(invoker.is_shared_library) && invoker.is_shared_library) {
-      shared_library("lib" + target_name) {
-        forward_variables_from(invoker, "*", [ "is_shared_library" ])
+    if (is_ios) {
+      app_name = target_name
+      gen_path = target_gen_dir
+
+      action("${app_name}_generate_info_plist") {
+        script = "//gn/gen_plist_ios.py"
+        outputs = [
+          "$gen_path/${app_name}_Info.plist",
+        ]
+        args = [ rebase_path("$gen_path/$app_name", root_build_dir) ]
+      }
+
+      bundle_data("${app_name}_bundle_info_plist") {
+        public_deps = [
+          ":${app_name}_generate_info_plist",
+        ]
+        sources = [
+          "$gen_path/${app_name}_Info.plist",
+        ]
+        outputs = [
+          "{{bundle_root_dir}}/Info.plist",
+        ]
+      }
+
+      executable("${app_name}_generate_executable") {
+        forward_variables_from(invoker,
+                               "*",
+                               [
+                                 "output_name",
+                                 "visibility",
+                                 "is_shared_library",
+                               ])
         configs += [ ":skia_private" ]
         testonly = true
+        output_name = rebase_path("$gen_path/$app_name", root_build_dir)
+      }
+
+      bundle_data("${app_name}_bundle_executable") {
+        public_deps = [
+          ":${app_name}_generate_executable",
+        ]
+        sources = [
+          "$gen_path/$app_name",
+        ]
+        outputs = [
+          "{{bundle_executable_dir}}/$app_name",
+        ]
+        testonly = true
+      }
+
+      create_bundle("$app_name") {
+        product_type = "com.apple.product-type.application"
+        testonly = true
+
+        bundle_root_dir = "${root_build_dir}/${target_name}.app"
+        bundle_resources_dir = bundle_root_dir
+        bundle_executable_dir = bundle_root_dir
+        bundle_plugins_dir = bundle_root_dir + "/Plugins"
+
+        deps = [
+          ":${app_name}_bundle_executable",
+          ":${app_name}_bundle_info_plist",
+        ]
+
+        # should only code sign when running on a device, not the simulator
+        if (target_cpu != "x64") {
+          code_signing_script = "//gn/codesign_ios.py"
+          code_signing_sources = [ "$target_gen_dir/$app_name" ]
+          code_signing_outputs = [
+            "$bundle_root_dir/_CodeSignature/CodeResources",
+            "$bundle_root_dir/embedded.mobileprovision",
+          ]
+          code_signing_args =
+              [ rebase_path("$bundle_root_dir", root_build_dir) ]
+        }
       }
     } else {
-      _executable = target_name
-      executable(_executable) {
-        forward_variables_from(invoker, "*", [ "is_shared_library" ])
-        configs += [ ":skia_private" ]
-        testonly = true
+      # !is_ios
+
+      if (defined(invoker.is_shared_library) && invoker.is_shared_library) {
+        shared_library("lib" + target_name) {
+          forward_variables_from(invoker, "*", [ "is_shared_library" ])
+          configs += [ ":skia_private" ]
+          testonly = true
+        }
+      } else {
+        _executable = target_name
+        executable(_executable) {
+          forward_variables_from(invoker, "*", [ "is_shared_library" ])
+          configs += [ ":skia_private" ]
+          testonly = true
+        }
       }
-    }
-    if (is_android && skia_android_serial != "" && defined(_executable)) {
-      action("push_" + target_name) {
-        script = "gn/push_to_android.py"
-        deps = [
-          ":" + _executable,
-        ]
-        _stamp = "$target_gen_dir/$_executable.pushed_$skia_android_serial"
-        outputs = [
-          _stamp,
-        ]
-        args = [
-          rebase_path("$root_build_dir/$_executable"),
-          skia_android_serial,
-          rebase_path(_stamp),
-        ]
-        testonly = true
+      if (is_android && skia_android_serial != "" && defined(_executable)) {
+        action("push_" + target_name) {
+          script = "gn/push_to_android.py"
+          deps = [
+            ":" + _executable,
+          ]
+          _stamp = "$target_gen_dir/$_executable.pushed_$skia_android_serial"
+          outputs = [
+            _stamp,
+          ]
+          args = [
+            rebase_path("$root_build_dir/$_executable"),
+            skia_android_serial,
+            rebase_path(_stamp),
+          ]
+          testonly = true
+        }
       }
     }
   }

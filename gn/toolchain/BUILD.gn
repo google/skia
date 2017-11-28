@@ -283,6 +283,18 @@ template("gcc_like_toolchain") {
       description = "copy {{source}} {{output}}"
     }
 
+    tool("copy_bundle_data") {
+      cp_py = rebase_path("../cp.py")
+      command = "$python $cp_py {{source}} {{output}}"
+      description = "copy_bundle_data {{source}} {{output}}"
+    }
+
+    # We don't currently have any xcasset files so make this a NOP
+    tool("compile_xcassets") {
+      command = "true"
+      description = "compile_xcassets {{output}}"
+    }
+
     toolchain_args = {
       current_cpu = invoker.cpu
       current_os = invoker.os
