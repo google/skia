@@ -207,16 +207,14 @@ This defaults to `target_cpu="arm64"`.  Choosing `x64` targets the iOS simulator
     bin/gn gen out/ios32  --args='target_os="ios" target_cpu="arm"'
     bin/gn gen out/iossim --args='target_os="ios" target_cpu="x64"'
 
-Googlers who want to sign and run iOS test binaries can do so by running something like
+This will also package (and for devices, sign) iOS test binaries. For the moment a
+Google provisioning profile is needed to sign.
 
-    python gn/package_ios.py out/Debug/dm
-    python gn/package_ios.py out/Release/nanobench
-
-These commands will create and sign `dm.app` or `nanobench.app` packages you
-can push to iOS devices registered for Google development.  `ios-deploy` makes
-installing and running these packages easy:
+For signed packages `ios-deploy` makes installing and running them on a device easy:
 
     ios-deploy -b out/Debug/dm.app -d --args "--match foo"
+
+Alternatively you can generate an Xcode project by passing `--ide=xcode` to `bin/gn gen`.
 
 If you find yourself missing a Google signing identity or provisioning profile,
 you'll want to have a read through go/appledev.
