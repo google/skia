@@ -179,6 +179,7 @@ def dm_flags(api, bot):
     # The following devices do not support glessrgb.
     if 'glessrgb' in configs:
       if ('IntelHD405'    in bot or
+          'IntelHD4400'   in bot or
           'IntelIris540'  in bot or
           'IntelIris640'  in bot or
           'IntelBayTrail' in bot or
