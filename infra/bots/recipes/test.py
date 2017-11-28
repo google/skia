@@ -704,6 +704,9 @@ def dm_flags(api, bot):
     args.append('--blacklist')
     args.extend(blacklisted)
 
+  match = []
+  mattach.append("ProcessorOptimizationValidationTest")
+
   if match:
     args.append('--match')
     args.extend(match)
