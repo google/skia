@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e8a93451_490b7bc9",
+        "filename": "infra/bots/ios_bin.isolate",
+        "patchSetId": 11
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-11-28T15:38:34Z",
+      "side": 0,
+      "message": "Just in case anyone else was confused why we delete package_ios.py here but didn\u0027t have to add the two new  *_ios.py scripts... this line is a relic from back when we did the packaging on the Test/Perf bot and not on the Build bots.  This line has been unnecessary since Stephan moved the packaging to the Build bots.",
+      "revId": "9f553932a4a4e986db323d8f4da2f78d9a729254",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
