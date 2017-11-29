@@ -158,9 +158,9 @@ void SkColorMatrixFilterRowMajor255::onAppendStages(SkRasterPipeline* p,
 
     if (!shaderIsOpaque) { p->append(SkRasterPipeline::unpremul); }
     if (           true) { p->append(SkRasterPipeline::matrix_4x5, fTranspose); }
-    if (!willStayOpaque) { p->append(SkRasterPipeline::premul); }
     if (    needsClamp0) { p->append(SkRasterPipeline::clamp_0); }
-    if (    needsClamp1) { p->append(SkRasterPipeline::clamp_a); }
+    if (    needsClamp1) { p->append(SkRasterPipeline::clamp_1); }
+    if (!willStayOpaque) { p->append(SkRasterPipeline::premul); }
 }
 
 sk_sp<SkColorFilter>
