@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8325cd1f_201d16c1",
+        "filename": "include/core/SkPath.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 1677,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-11-29T17:50:39Z",
+      "side": 1,
+      "message": "Just delete this ?",
+      "revId": "dee308d20edccccbe636c92619c8cc6dfe7f2fe2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5a4769f8_d7423564",
+        "filename": "src/core/SkPath.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 2169,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-11-29T17:50:39Z",
+      "side": 1,
+      "message": "path -\u003e the path ?",
+      "revId": "dee308d20edccccbe636c92619c8cc6dfe7f2fe2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
