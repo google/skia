@@ -16,6 +16,24 @@
       "revId": "bff19bed949a51fd31a07e6443204b2d46e595c7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bf2713cd_6bec2434",
+        "filename": "src/gpu/GrRenderTargetOpList.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 372,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-11-29T19:34:03Z",
+      "side": 0,
+      "message": "It didn\u0027t. Just a dependency confusion. The base patch was https://skia-review.googlesource.com/c/skia/+/76460, not master. (See the \"relation chain\" in the top right corner...)",
+      "parentUuid": "80ede7ef_60fd3337",
+      "revId": "bff19bed949a51fd31a07e6443204b2d46e595c7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }

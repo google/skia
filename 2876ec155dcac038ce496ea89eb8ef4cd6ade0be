@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "bbdbcb3e_1dba0f49",
+        "filename": "include/private/GrSurfaceProxy.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 423,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-11-29T19:34:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9aeb7479_10c2b936",
+      "revId": "2876ec155dcac038ce496ea89eb8ef4cd6ade0be",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0cdb5992_2ccd2b73",
         "filename": "src/gpu/GrRenderTargetOpList.cpp",
         "patchSetId": 10
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "db267436_7e6cde7f",
+        "filename": "src/gpu/GrRenderTargetOpList.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 285,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-11-29T19:34:03Z",
+      "side": 1,
+      "message": "N/A (dependency confusion).",
+      "parentUuid": "0cdb5992_2ccd2b73",
+      "revId": "2876ec155dcac038ce496ea89eb8ef4cd6ade0be",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b4150c11_175d0cb1",
         "filename": "src/gpu/GrResourceAllocator.cpp",
         "patchSetId": 10
@@ -47,6 +83,24 @@
       "writtenOn": "2017-11-29T12:54:27Z",
       "side": 1,
       "message": "You don\u0027t want to just bail here since these, currently, have to handle their own lifetimes?\n\nRegardless, this doesn\u0027t seem to be the right place to be instantiating them.",
+      "revId": "2876ec155dcac038ce496ea89eb8ef4cd6ade0be",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3d5dad0f_7fff2be8",
+        "filename": "src/gpu/GrResourceAllocator.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-11-29T19:34:03Z",
+      "side": 1,
+      "message": "Where were you thinking to do the instantiation?",
+      "parentUuid": "b4150c11_175d0cb1",
       "revId": "2876ec155dcac038ce496ea89eb8ef4cd6ade0be",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -70,6 +124,24 @@
     },
     {
       "key": {
+        "uuid": "dd7fa361_2b200b45",
+        "filename": "src/gpu/GrSurfaceProxy.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-11-29T19:34:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0b69e89e_50682977",
+      "revId": "2876ec155dcac038ce496ea89eb8ef4cd6ade0be",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4b5c6d31_28d39a7e",
         "filename": "src/gpu/GrSurfaceProxy.cpp",
         "patchSetId": 10
@@ -84,6 +156,24 @@
       "revId": "2876ec155dcac038ce496ea89eb8ef4cd6ade0be",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c08eda02_05dad49a",
+        "filename": "src/gpu/GrSurfaceProxy.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-11-29T19:34:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4b5c6d31_28d39a7e",
+      "revId": "2876ec155dcac038ce496ea89eb8ef4cd6ade0be",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
