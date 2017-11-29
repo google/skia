@@ -415,6 +415,10 @@ def dm_flags(api, bot):
   bad_serialize_gms.append('all_bitmap_configs')
   bad_serialize_gms.append('makecolorspace')
 
+  # This GM forces a path to be convex. That property doesn't survive
+  # serialization.
+  bad_serialize_gms.append('analytic_antialias_convex')
+
   for test in bad_serialize_gms:
     blacklist(['serialize-8888', 'gm', '_', test])
 
