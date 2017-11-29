@@ -415,10 +415,7 @@
   },
   {
     "cmd": [
-      "python",
-      "-u",
-      "RECIPE_PACKAGE_REPO[depot_tools]/gsutil.py",
-      "--",
+      "gsutil",
       "-m",
       "cp",
       "gs://cluster-telemetry/swarming/skps/100k/c37e844a6f8708-eee762104c75bd/1/*.skp",
@@ -433,7 +430,6 @@
       "gs://cluster-telemetry/swarming/skps/100k/c37e844a6f8708-eee762104c75bd/10/*.skp",
       "[CUSTOM_/_B_WORK]/skps/c37e844a6f8708-eee762104c75bd/100k/5/slave1"
     ],
-    "infra_step": true,
     "name": "gsutil cp"
   },
   {
@@ -495,10 +491,7 @@
   },
   {
     "cmd": [
-      "python",
-      "-u",
-      "RECIPE_PACKAGE_REPO[depot_tools]/gsutil.py",
-      "--",
+      "gsutil",
       "-m",
       "cp",
       "gs://cluster-telemetry/swarming/skps/100k/c37e844a6f8708-eee762104c75bd/11/*.skp",
@@ -513,7 +506,6 @@
       "gs://cluster-telemetry/swarming/skps/100k/c37e844a6f8708-eee762104c75bd/20/*.skp",
       "[CUSTOM_/_B_WORK]/skps/c37e844a6f8708-eee762104c75bd/100k/5/slave2"
     ],
-    "infra_step": true,
     "name": "gsutil cp (2)"
   },
   {
@@ -575,10 +567,7 @@
   },
   {
     "cmd": [
-      "python",
-      "-u",
-      "RECIPE_PACKAGE_REPO[depot_tools]/gsutil.py",
-      "--",
+      "gsutil",
       "-m",
       "cp",
       "gs://cluster-telemetry/swarming/skps/100k/c37e844a6f8708-eee762104c75bd/21/*.skp",
@@ -593,7 +582,6 @@
       "gs://cluster-telemetry/swarming/skps/100k/c37e844a6f8708-eee762104c75bd/30/*.skp",
       "[CUSTOM_/_B_WORK]/skps/c37e844a6f8708-eee762104c75bd/100k/5/slave3"
     ],
-    "infra_step": true,
     "name": "gsutil cp (3)"
   },
   {
@@ -655,10 +643,7 @@
   },
   {
     "cmd": [
-      "python",
-      "-u",
-      "RECIPE_PACKAGE_REPO[depot_tools]/gsutil.py",
-      "--",
+      "gsutil",
       "-m",
       "cp",
       "gs://cluster-telemetry/swarming/skps/100k/c37e844a6f8708-eee762104c75bd/31/*.skp",
@@ -673,7 +658,6 @@
       "gs://cluster-telemetry/swarming/skps/100k/c37e844a6f8708-eee762104c75bd/40/*.skp",
       "[CUSTOM_/_B_WORK]/skps/c37e844a6f8708-eee762104c75bd/100k/5/slave4"
     ],
-    "infra_step": true,
     "name": "gsutil cp (4)"
   },
   {
@@ -735,10 +719,7 @@
   },
   {
     "cmd": [
-      "python",
-      "-u",
-      "RECIPE_PACKAGE_REPO[depot_tools]/gsutil.py",
-      "--",
+      "gsutil",
       "-m",
       "cp",
       "gs://cluster-telemetry/swarming/skps/100k/c37e844a6f8708-eee762104c75bd/41/*.skp",
@@ -753,7 +734,6 @@
       "gs://cluster-telemetry/swarming/skps/100k/c37e844a6f8708-eee762104c75bd/50/*.skp",
       "[CUSTOM_/_B_WORK]/skps/c37e844a6f8708-eee762104c75bd/100k/5/slave5"
     ],
-    "infra_step": true,
     "name": "gsutil cp (5)"
   },
   {

@@ -590,7 +590,7 @@ func ctSKPs(b *specs.TasksCfgBuilder, name string) string {
 		CipdPackages: []*specs.CipdPackage{},
 		Dimensions: []string{
 			"pool:SkiaCT",
-			"os:Debian-9.1",
+			fmt.Sprintf("os:%s", DEFAULT_OS_LINUX_GCE),
 		},
 		ExecutionTimeout: 24 * time.Hour,
 		ExtraArgs: []string{

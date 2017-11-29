@@ -9063,7 +9063,7 @@
     "Perf-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Release-All-CT_BENCH_1k_SKPs": {
       "dimensions": [
         "pool:SkiaCT",
-        "os:Debian-9.1"
+        "os:Debian-9.2"
       ],
       "execution_timeout_ns": 86400000000000,
       "extra_args": [
@@ -9086,7 +9086,7 @@
     "Perf-Ubuntu14-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-CT_BENCH_1k_SKPs": {
       "dimensions": [
         "pool:SkiaCT",
-        "os:Debian-9.1"
+        "os:Debian-9.2"
       ],
       "execution_timeout_ns": 86400000000000,
       "extra_args": [
@@ -18476,7 +18476,7 @@
     "Test-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Debug-All-CT_DM_100k_SKPs": {
       "dimensions": [
         "pool:SkiaCT",
-        "os:Debian-9.1"
+        "os:Debian-9.2"
       ],
       "execution_timeout_ns": 86400000000000,
       "extra_args": [
@@ -18499,7 +18499,7 @@
     "Test-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Debug-All-CT_DM_1m_SKPs": {
       "dimensions": [
         "pool:SkiaCT",
-        "os:Debian-9.1"
+        "os:Debian-9.2"
       ],
       "execution_timeout_ns": 86400000000000,
       "extra_args": [
@@ -18522,7 +18522,7 @@
     "Test-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Debug-All-CT_IMG_DECODE_100k_SKPs": {
       "dimensions": [
         "pool:SkiaCT",
-        "os:Debian-9.1"
+        "os:Debian-9.2"
       ],
       "execution_timeout_ns": 86400000000000,
       "extra_args": [

@@ -8,6 +8,10 @@ from recipe_engine import recipe_api
 UPLOAD_ATTEMPTS = 5
 
 class GSUtilApi(recipe_api.RecipeApi):
+  def __call__(self, step_name, *args):
+    """Run gsutil with the given args."""
+    return self.m.step(step_name, cmd=['gsutil'] + list(args))
+
   def cp(self, name, src, dst, extra_args=None):
     """Attempt to upload or download files to/from Google Cloud Storage (GCS).
 
@@ -20,7 +24,7 @@ class GSUtilApi(recipe_api.RecipeApi):
 
     If the operation fails, it will be retried multiple times.
     """
-    cmd = ['gsutil', 'cp']
+    cmd = ['cp']
     if extra_args:
       cmd.extend(extra_args)
     cmd.extend([src, dst])
@@ -31,7 +35,7 @@ class GSUtilApi(recipe_api.RecipeApi):
       if i > 0:
         step_name += ' (attempt %d)' % (i+1)
       try:
-        self.m.step(step_name, cmd=cmd)
+        self(step_name, *cmd)
         break
       except self.m.step.StepFailure:
         if i == UPLOAD_ATTEMPTS - 1:

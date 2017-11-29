@@ -29,10 +29,7 @@
   },
   {
     "cmd": [
-      "python",
-      "-u",
-      "RECIPE_PACKAGE_REPO[depot_tools]/gsutil.py",
-      "--",
+      "gsutil",
       "-m",
       "cp",
       "gs://cluster-telemetry/swarming/skps/All/abc123/100/*.skp",
@@ -137,11 +134,10 @@
       "gs://cluster-telemetry/swarming/skps/All/abc123/199/*.skp",
       "[START_DIR]/skps/slave0"
     ],
-    "infra_step": true,
     "name": "gsutil cp",
     "~followup_annotations": [
       "step returned non-zero exit code: 1",
-      "@@@STEP_EXCEPTION@@@"
+      "@@@STEP_FAILURE@@@"
     ]
   },
   {
