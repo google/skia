@@ -38,7 +38,7 @@ protected:
     void flatten(SkWriteBuffer&) const override;
 
     void onAppendStages(SkRasterPipeline*, SkColorSpace*, SkArenaAlloc*,
-                        bool shaderIsOpaque) const override;
+                        SkAlphaType*) const override;
 
     sk_sp<SkColorFilter> onMakeColorSpace(SkColorSpaceXformer*) const override;
 

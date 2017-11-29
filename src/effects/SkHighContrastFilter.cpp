@@ -43,7 +43,7 @@ public:
     void onAppendStages(SkRasterPipeline* p,
                         SkColorSpace* dst,
                         SkArenaAlloc* scratch,
-                        bool shaderIsOpaque) const override;
+                        SkAlphaType*) const override;
 
     SK_TO_STRING_OVERRIDE()
 
@@ -63,8 +63,9 @@ private:
 void SkHighContrast_Filter::onAppendStages(SkRasterPipeline* p,
                                            SkColorSpace* dstCS,
                                            SkArenaAlloc* alloc,
-                                           bool shaderIsOpaque) const {
-    if (!shaderIsOpaque) {
+                                           SkAlphaType* alphaType) const {
+    if (*alphaType == kPremul_SkAlphaType) {
+        *alphaType =  kUnpremul_SkAlphaType;
         p->append(SkRasterPipeline::unpremul);
     }
 
@@ -127,10 +128,6 @@ void SkHighContrast_Filter::onAppendStages(SkRasterPipeline* p,
         p->append(SkRasterPipeline::parametric_r, sqrt);
         p->append(SkRasterPipeline::parametric_g, sqrt);
         p->append(SkRasterPipeline::parametric_b, sqrt);
-    }
-
-    if (!shaderIsOpaque) {
-        p->append(SkRasterPipeline::premul);
     }
 }
 

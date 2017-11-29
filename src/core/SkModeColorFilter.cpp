@@ -76,10 +76,14 @@ sk_sp<SkFlattenable> SkModeColorFilter::CreateProc(SkReadBuffer& buffer) {
 void SkModeColorFilter::onAppendStages(SkRasterPipeline* p,
                                        SkColorSpace* dst,
                                        SkArenaAlloc* scratch,
-                                       bool shaderIsOpaque) const {
+                                       SkAlphaType* alphaType) const {
+    if (*alphaType == kUnpremul_SkAlphaType) {
+        p->append(SkRasterPipeline::premul);
+    }
     p->append(SkRasterPipeline::move_src_dst);
     p->append_constant_color(scratch, SkPM4f_from_SkColor(fColor, dst));
     SkBlendMode_AppendStages(fMode, p);
+    *alphaType = kPremul_SkAlphaType;
 }
 
 sk_sp<SkColorFilter> SkModeColorFilter::onMakeColorSpace(SkColorSpaceXformer* xformer) const {

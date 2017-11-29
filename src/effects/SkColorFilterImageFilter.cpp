@@ -65,8 +65,10 @@ sk_sp<SkSpecialImage> SkColorFilterImageFilter::onFilterImage(SkSpecialImage* so
     SkIPoint inputOffset = SkIPoint::Make(0, 0);
     sk_sp<SkSpecialImage> input(this->filterInput(0, source, ctx, &inputOffset));
 
+    const bool affectsTransparentBlack = fColorFilter->affectsTransparentBlack();
+
     SkIRect inputBounds;
-    if (fColorFilter->affectsTransparentBlack()) {
+    if (affectsTransparentBlack) {
         // If the color filter affects transparent black, the bounds are the entire clip.
         inputBounds = ctx.clipBounds();
     } else if (!input) {
@@ -96,7 +98,7 @@ sk_sp<SkSpecialImage> SkColorFilterImageFilter::onFilterImage(SkSpecialImage* so
 
     // TODO: it may not be necessary to clear or drawPaint inside the input bounds
     // (see skbug.com/5075)
-    if (fColorFilter->affectsTransparentBlack()) {
+    if (affectsTransparentBlack) {
         // The subsequent input->draw() call may not fill the entire canvas. For filters which
         // affect transparent black, ensure that the filter is applied everywhere.
         paint.setColor(SK_ColorTRANSPARENT);
