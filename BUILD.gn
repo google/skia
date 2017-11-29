@@ -983,6 +983,37 @@ if (skia_enable_tools) {
         ]
       }
 
+      bundle_ios_data =
+          defined(invoker.bundle_ios_data) && invoker.bundle_ios_data
+
+      if (bundle_ios_data) {
+        has_skps =
+            "True" == exec_script("//gn/checkdir.py",
+                                  [ rebase_path("skps", root_build_dir) ],
+                                  "trim string")
+        bundle_data("${app_name}_bundle_resources") {
+          sources = [
+            "resources",
+          ]
+          outputs = [
+            # iOS reserves the folders 'Resources' and 'resources' so store one level deeper
+            "{{bundle_resources_dir}}/data/resources",
+          ]
+        }
+
+        if (has_skps) {
+          bundle_data("${app_name}_bundle_skps") {
+            sources = [
+              "skps",
+            ]
+            outputs = [
+              # Store in same folder as resources
+              "{{bundle_resources_dir}}/data/skps",
+            ]
+          }
+        }
+      }
+
       executable("${app_name}_generate_executable") {
         forward_variables_from(invoker,
                                "*",
@@ -1022,6 +1053,12 @@ if (skia_enable_tools) {
           ":${app_name}_bundle_executable",
           ":${app_name}_bundle_info_plist",
         ]
+        if (bundle_ios_data) {
+          deps += [ ":${app_name}_bundle_resources" ]
+          if (has_skps) {
+            deps += [ ":${app_name}_bundle_skps" ]
+          }
+        }
 
         # should only code sign when running on a device, not the simulator
         if (target_cpu != "x64") {
@@ -1747,6 +1784,9 @@ if (skia_enable_tools) {
   if (skia_enable_gpu) {
     test_app("viewer") {
       is_shared_library = is_android
+      if (is_ios) {
+        bundle_ios_data = true
+      }
       sources = [
         "tools/viewer/GMSlide.cpp",
         "tools/viewer/ImageSlide.cpp",
