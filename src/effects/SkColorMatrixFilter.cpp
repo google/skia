@@ -57,8 +57,8 @@ public:
         return fMatrixFilter->asColorMatrix(matrix);
     }
     void onAppendStages(SkRasterPipeline* p, SkColorSpace* cs, SkArenaAlloc* alloc,
-                        bool shaderIsOpaque) const override {
-        fMatrixFilter->appendStages(p, cs, alloc, shaderIsOpaque);
+                        SkAlphaType* alphaType) const override {
+        fMatrixFilter->appendStages(p, cs, alloc, alphaType);
     }
 
     // TODO: might want to remember we're a lighting color filter through serialization?

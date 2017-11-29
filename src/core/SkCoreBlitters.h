@@ -167,7 +167,7 @@ SkBlitter* SkCreateRasterPipelineBlitter(const SkPixmap&, const SkPaint&, const 
 // This factory never returns an SkNullBlitter.
 SkBlitter* SkCreateRasterPipelineBlitter(const SkPixmap&, const SkPaint&,
                                          const SkRasterPipeline& shaderPipeline,
-                                         bool shader_is_opaque,
+                                         SkAlphaType,
                                          SkArenaAlloc*);
 
 #endif

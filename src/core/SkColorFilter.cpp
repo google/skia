@@ -45,8 +45,8 @@ std::unique_ptr<GrFragmentProcessor> SkColorFilter::asFragmentProcessor(
 void SkColorFilter::appendStages(SkRasterPipeline* p,
                                  SkColorSpace* dstCS,
                                  SkArenaAlloc* alloc,
-                                 bool shaderIsOpaque) const {
-    this->onAppendStages(p, dstCS, alloc, shaderIsOpaque);
+                                 SkAlphaType* alphaType) const {
+    this->onAppendStages(p, dstCS, alloc, alphaType);
 }
 
 SkColor SkColorFilter::filterColor(SkColor c) const {
@@ -65,18 +65,24 @@ SkColor SkColorFilter::filterColor(SkColor c) const {
 
 #include "SkRasterPipeline.h"
 SkColor4f SkColorFilter::filterColor4f(const SkColor4f& c) const {
-    SkPM4f dst, src = c.premul();
+    SkAlphaType alphaType = c.fA == 1.0f ? kOpaque_SkAlphaType
+                                         : kUnpremul_SkAlphaType;
 
     SkSTArenaAlloc<128> alloc;
     SkRasterPipeline    pipeline(&alloc);
 
-    pipeline.append_constant_color(&alloc, src);
-    this->onAppendStages(&pipeline, nullptr, &alloc, c.fA == 1);
-    SkJumper_MemoryCtx dstPtr = { &dst, 0 };
+    pipeline.append_constant_color(&alloc, c.vec());
+    this->onAppendStages(&pipeline, nullptr, &alloc, &alphaType);
+
+    float dst[4];
+    SkJumper_MemoryCtx dstPtr = { dst, 0 };
     pipeline.append(SkRasterPipeline::store_f32, &dstPtr);
     pipeline.run(0,0, 1,1);
 
-    return dst.unpremul();
+    if (alphaType == kPremul_SkAlphaType) {
+        return SkPM4f{{dst[0],dst[1],dst[2],dst[3]}}.unpremul();
+    }
+    return SkColor4f{dst[0],dst[1],dst[2],dst[3]};
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -110,13 +116,9 @@ public:
 #endif
 
     void onAppendStages(SkRasterPipeline* p, SkColorSpace* dst, SkArenaAlloc* scratch,
-                        bool shaderIsOpaque) const override {
-        bool innerIsOpaque = shaderIsOpaque;
-        if (!(fInner->getFlags() & kAlphaUnchanged_Flag)) {
-            innerIsOpaque = false;
-        }
-        fInner->appendStages(p, dst, scratch, shaderIsOpaque);
-        fOuter->appendStages(p, dst, scratch, innerIsOpaque);
+                        SkAlphaType* alphaType) const override {
+        fInner->appendStages(p, dst, scratch, alphaType);
+        fOuter->appendStages(p, dst, scratch, alphaType);
     }
 
 #if SK_SUPPORT_GPU
@@ -235,8 +237,9 @@ public:
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkSRGBGammaColorFilter)
 
     void onAppendStages(SkRasterPipeline* p, SkColorSpace*, SkArenaAlloc* alloc,
-                        bool shaderIsOpaque) const override {
-        if (!shaderIsOpaque) {
+                        SkAlphaType* alphaType) const override {
+        if (*alphaType == kPremul_SkAlphaType) {
+            *alphaType =  kUnpremul_SkAlphaType;
             p->append(SkRasterPipeline::unpremul);
         }
         switch (fDir) {
@@ -244,10 +247,11 @@ public:
                 p->append(SkRasterPipeline::to_srgb);
                 break;
             case Direction::kSRGBToLinear:
-                p->append_from_srgb(shaderIsOpaque ? kOpaque_SkAlphaType : kUnpremul_SkAlphaType);
+                p->append_from_srgb(*alphaType);
                 break;
         }
-        if (!shaderIsOpaque) {
+        if (*alphaType == kUnpremul_SkAlphaType) {
+            *alphaType =  kPremul_SkAlphaType;
             p->append(SkRasterPipeline::premul);
         }
     }
