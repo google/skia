@@ -115,6 +115,11 @@ CHROMIUM_PAGE_SETS_TO_PREFIX = {
     'top_25_smooth.py': 'top25desk',
 }
 
+PAGE_SETS_TO_EXCLUSIONS = {
+    # See skbug.com/7348
+    'key_mobile_sites_smooth.py': '"(digg|worldjournal)"',
+}
+
 
 def remove_prefix(s, prefix):
   if s.startswith(prefix):
@@ -278,7 +283,7 @@ class SkPicturePlayback(object):
         # Get the webpages archive so that it can be replayed.
         self._DownloadWebpagesArchive(wpr_data_file, page_set_json_name)
 
-      run_benchmark_cmd = (
+      run_benchmark_cmd = [
           'PYTHONPATH=%s:%s:$PYTHONPATH' % (page_set_dir, self._catapult_dir),
           'DISPLAY=%s' % X11_DISPLAY,
           'timeout', '1800',
@@ -291,9 +296,11 @@ class SkPicturePlayback(object):
           '--page-set-base-dir=%s' % page_set_dir,
           '--skp-outdir=%s' % TMP_SKP_DIR,
           '--also-run-disabled-tests',
-          # See skbug.com/7348
-          '--story-filter-exclude="(digg|worldjournal)"',
-      )
+      ]
+
+      exclusions = PAGE_SETS_TO_EXCLUSIONS.get(os.path.basename(page_set))
+      if exclusions:
+        run_benchmark_cmd.append('--story-filter-exclude=' + exclusions)
 
       for _ in range(RETRY_RUN_MEASUREMENT_COUNT):
         try:
