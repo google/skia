@@ -197,6 +197,8 @@
       "abc123",
       "builder",
       "Test-Ubuntu16-Clang-NUCDE3815TYKHE-GPU-IntelBayTrail-x86_64-Debug-All",
+      "buildbucket_build_id",
+      "123454321",
       "swarming_bot_id",
       "skia-bot-123",
       "swarming_task_id",
