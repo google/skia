@@ -49,4 +49,4 @@ Swiping left and right will switch slides, pinch-zoom will zoom in and out, and 
 
 iOS
 ---
-The viewer is not yet fully supported on iOS, but can be used to display individual slides on a device by launching via `ios-deploy` with the `--match` or `--slide` command-line options.
+The viewer is not yet fully supported on iOS, but can be used to display individual slides on a device by launching via `ios-deploy` with the `--match` or `--slide` command-line options. The viewer will automatically bundle the `resources` directory in the top-level Skia directory, and will bundle an `skps` directory if also placed in the Skia directory.
