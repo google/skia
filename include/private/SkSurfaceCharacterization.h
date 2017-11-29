@@ -10,10 +10,13 @@
 
 #include "GrTypes.h"
 
-class SkSurface;
+class GrContextThreadSafeProxy;
 
-// This class captures all the pertinent data about an SkSurface required
-// to perform cpu-preprocessing for gpu-rendering.
+// A surface characterization contains all the information Ganesh requires to makes its internal
+// rendering decisions. When passed into a SkDeferredDisplayListRecorder it will copy the
+// data and pass it on to the SkDeferredDisplayList if/when it is created. Note that both of
+// those objects (the Recorder and the DisplayList) will take a ref on the
+// GrContextThreadSafeProxy object.
 class SkSurfaceCharacterization {
 public:
     SkSurfaceCharacterization()
@@ -24,31 +27,12 @@ public:
             , fSampleCnt(0) {
     }
 
-    void set(GrSurfaceOrigin origin,
-             int width, int height,
-             GrPixelConfig config,
-             int sampleCnt) {
-        fOrigin = origin;
-        fWidth = width;
-        fHeight = height;
-        fConfig = config;
-        fSampleCnt = sampleCnt;
-    }
-
-    GrSurfaceOrigin origin() const { return fOrigin; }
-    int width() const { return fWidth; }
-    int height() const { return fHeight; }
-    GrPixelConfig config() const { return fConfig; }
-    int sampleCount() const { return fSampleCnt; }
-
-private:
-    GrSurfaceOrigin fOrigin;
-    int             fWidth;
-    int             fHeight;
-    GrPixelConfig   fConfig;
-    int             fSampleCnt;
-    // TODO: need to include caps!
-    // Maybe use GrContextThreadSafeProxy (it has the caps & the unique Context ID already)
+    GrSurfaceOrigin                 fOrigin;
+    int                             fWidth;
+    int                             fHeight;
+    GrPixelConfig                   fConfig;
+    int                             fSampleCnt;
+    sk_sp<GrContextThreadSafeProxy> fContextInfo;
 };
 
 #endif

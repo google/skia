@@ -7,6 +7,8 @@
 
 #include "SkDeferredDisplayListRecorder.h"
 
+#include "GrContext.h"
+
 #include "SkCanvas.h" // TODO: remove
 #include "SkDeferredDisplayList.h"
 #include "SkSurface.h" // TODO: remove
@@ -18,8 +20,8 @@ SkDeferredDisplayListRecorder::SkDeferredDisplayListRecorder(
 
 SkCanvas* SkDeferredDisplayListRecorder::getCanvas() {
     if (!fSurface) {
-        SkImageInfo ii = SkImageInfo::MakeN32(fCharacterization.width(),
-                                              fCharacterization.height(),
+        SkImageInfo ii = SkImageInfo::MakeN32(fCharacterization.fWidth,
+                                              fCharacterization.fHeight,
                                               kOpaque_SkAlphaType);
 
         // Use raster right now to allow threading
