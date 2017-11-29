@@ -98,17 +98,16 @@ void SkInternalAtlasTextContext::flush() {
     for (const auto& upload : fASAPUploads) {
         upload(writePixelsFn);
     }
-    auto draw = fDraws.begin();
     auto inlineUpload = fInlineUploads.begin();
-    while (draw != fDraws.end()) {
-        while (inlineUpload != fInlineUploads.end() && inlineUpload->fToken == draw->fToken) {
+    for (const auto& draw : fDraws) {
+        while (inlineUpload != fInlineUploads.end() && inlineUpload->fToken == draw.fToken) {
             inlineUpload->fUpload(writePixelsFn);
             ++inlineUpload;
         }
-        auto vertices = reinterpret_cast<const SkAtlasTextRenderer::SDFVertex*>(draw->fVertexData);
-        fRenderer->drawSDFGlyphs(draw->fTargetHandle, fDistanceFieldAtlas.fTextureHandle, vertices,
-                                 draw->fGlyphCnt);
-        ++draw;
+        auto vertices = reinterpret_cast<const SkAtlasTextRenderer::SDFVertex*>(draw.fVertexData);
+        fRenderer->drawSDFGlyphs(draw.fTargetHandle, fDistanceFieldAtlas.fTextureHandle, vertices,
+                                 draw.fGlyphCnt);
+        this->flushToken();
     }
     fASAPUploads.reset();
     fInlineUploads.reset();
