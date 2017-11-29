@@ -230,6 +230,7 @@ extern "C" {
     TODO(load_u16_be) TODO(load_rgb_u16_be) TODO(store_u16_be)
     NOPE(load_tables_u16_be) NOPE(load_tables_rgb_u16_be) NOPE(load_tables)
     NOPE(load_rgba) NOPE(store_rgba)
+    TODO(scale_alpha)
     LOWP(scale_u8) LOWP(scale_565) LOWP(scale_1_float)
     LOWP( lerp_u8) LOWP( lerp_565) LOWP( lerp_1_float)
     LOWP(dstatop) LOWP(dstin) LOWP(dstout) LOWP(dstover)

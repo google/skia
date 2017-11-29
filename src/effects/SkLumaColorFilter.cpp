@@ -21,7 +21,7 @@
 void SkLumaColorFilter::onAppendStages(SkRasterPipeline* p,
                                        SkColorSpace* dst,
                                        SkArenaAlloc* scratch,
-                                       bool shaderIsOpaque) const {
+                                       SkAlphaType* alphaType) const {
     p->append(SkRasterPipeline::luminance_to_alpha);
 }
 

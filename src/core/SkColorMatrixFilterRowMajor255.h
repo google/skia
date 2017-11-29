@@ -36,7 +36,7 @@ protected:
 
 private:
     void onAppendStages(SkRasterPipeline*, SkColorSpace*, SkArenaAlloc*,
-                        bool shaderIsOpaque) const override;
+                        SkAlphaType*) const override;
 
     SkScalar        fMatrix[20];
     float           fTranspose[20]; // for Sk4s
