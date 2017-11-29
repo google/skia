@@ -20,15 +20,14 @@
 void SkToSRGBColorFilter::onAppendStages(SkRasterPipeline* p,
                                          SkColorSpace* /*dst color space*/,
                                          SkArenaAlloc* alloc,
-                                         bool shaderIsOpaque) const {
+                                         SkAlphaType* alphaType) const {
     // Step 1: Linearize by undoing the src transfer function.
     // Linear and sRGB will return true to isNumericalTransferFn(), so we check them first.
     SkColorSpaceTransferFn srcFn;
     if (fSrcColorSpace->gammaIsLinear()) {
         // Nothing to do.
     } else if (fSrcColorSpace->gammaCloseToSRGB()) {
-        p->append_from_srgb(shaderIsOpaque ? kOpaque_SkAlphaType
-                                           : kPremul_SkAlphaType);
+        p->append_from_srgb(*alphaType);
     } else if (fSrcColorSpace->isNumericalTransferFn(&srcFn)) {
         p->append(SkRasterPipeline::parametric_r, &srcFn);
         p->append(SkRasterPipeline::parametric_g, &srcFn);
