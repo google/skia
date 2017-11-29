@@ -16,6 +16,24 @@
       "revId": "6febabbdf5498f61fdfb42db5a6970ca49b75c0a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4701d243_6d97474f",
+        "filename": "gm/bitmapshader.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-11-29T21:08:35Z",
+      "side": 1,
+      "message": "Good idea. I also changed the bitmap mask a little bit so we can easily tell if we exceed the maxTextureSize or not.",
+      "parentUuid": "ac6cc42d_fb47703e",
+      "revId": "6febabbdf5498f61fdfb42db5a6970ca49b75c0a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
