@@ -136,6 +136,19 @@ private:
                 fDstProxy = *dstProxy;
             }
         }
+
+        void visitProxies(const GrOp::VisitProxyFunc& func) const {
+            if (fOp) {
+                fOp->visitProxies(func);
+            }
+            if (fDstProxy.proxy()) {
+                func(fDstProxy.proxy());
+            }
+            if (fAppliedClip) {
+                fAppliedClip->visitProxies(func);
+            }
+        }
+
         std::unique_ptr<GrOp> fOp;
         DstProxy fDstProxy;
         GrAppliedClip* fAppliedClip;
