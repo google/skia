@@ -105,6 +105,24 @@ private:
     typedef GM INHERITED;
 };
 
+DEF_SIMPLE_GM(hugebitmapshader, canvas, 100, 100) {
+    SkPaint paint;
+    SkBitmap bitmap;
+
+    const int kBitmapW = 1;
+    const int kBitmapH = 60000;
+    bitmap.setInfo(SkImageInfo::MakeA8(kBitmapW, kBitmapH), kBitmapW);
+    uint8_t pixels[kBitmapH];
+    memset(pixels, 0xff, sizeof(pixels));
+    bitmap.setPixels(pixels);
+
+    paint.setShader(SkShader::MakeBitmapShader(bitmap,
+             SkShader::kMirror_TileMode, SkShader::kMirror_TileMode));
+    paint.setColor(SK_ColorRED);  // all components in color affect shader
+    paint.setAntiAlias(true);
+    canvas->drawCircle(50, 50, 50, paint);
+}
+
 //////////////////////////////////////////////////////////////////////////////
 
 static GM* MyFactory(void*) { return new BitmapShaderGM; }
