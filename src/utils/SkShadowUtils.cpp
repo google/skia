@@ -48,7 +48,7 @@ public:
 protected:
     void flatten(SkWriteBuffer&) const override {}
     void onAppendStages(SkRasterPipeline* pipeline, SkColorSpace* dstCS, SkArenaAlloc* alloc,
-                        bool shaderIsOpaque) const override {
+                        SkAlphaType*) const override {
         pipeline->append(SkRasterPipeline::gauss_a_to_rgba);
     }
 private:

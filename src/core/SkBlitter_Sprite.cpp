@@ -137,8 +137,10 @@ public:
             p.append(SkRasterPipeline::scale_1_float, &fPaintColor.fA);
         }
 
-        bool is_opaque = fSource.isOpaque() && fPaintColor.fA == 1.0f;
-        fBlitter = SkCreateRasterPipelineBlitter(fDst, paint, p, is_opaque, fAlloc);
+        // TODO: support unpremul?
+        SkAlphaType alphaType = fSource.isOpaque() && fPaintColor.fA == 1.0f ? kOpaque_SkAlphaType
+                                                                             : kPremul_SkAlphaType;
+        fBlitter = SkCreateRasterPipelineBlitter(fDst, paint, p, alphaType, fAlloc);
     }
 
     void blitRect(int x, int y, int width, int height) override {
