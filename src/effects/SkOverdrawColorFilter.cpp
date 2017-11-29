@@ -15,7 +15,7 @@
 void SkOverdrawColorFilter::onAppendStages(SkRasterPipeline* p,
                                            SkColorSpace* dstCS,
                                            SkArenaAlloc* alloc,
-                                           bool shader_is_opaque) const {
+                                           SkAlphaType* alphaType) const {
     struct Ctx : public SkJumper_CallbackCtx {
         const SkPMColor* colors;
     };

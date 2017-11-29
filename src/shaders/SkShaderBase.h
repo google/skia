@@ -201,6 +201,7 @@ public:
         const SkPaint&      fPaint;
         const SkMatrix*     fLocalM;        // may be nullptr
         SkMatrix            fCTM;
+        SkAlphaType*        fAlphaType;     // Change if output of shader is not kPremul.
     };
 
     // If this returns false, then we draw nothing (do not fall back to shader context)

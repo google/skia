@@ -695,6 +695,17 @@ SI F alpha_coverage_from_rgb_coverage(F a, F da, F cr, F cg, F cb) {
                               , max(cr,cg,cb));
 }
 
+STAGE(scale_1_float_alpha, const float* c) {
+    a = a * *c;
+}
+STAGE(scale_u8_alpha, const SkJumper_MemoryCtx* ctx) {
+    auto ptr = ptr_at_xy<const uint8_t>(ctx, dx,dy);
+
+    auto c = from_byte(load<U8>(ptr,tail));
+
+    a = a * c;
+}
+
 STAGE(scale_1_float, const float* c) {
     r = r * *c;
     g = g * *c;
@@ -704,8 +715,7 @@ STAGE(scale_1_float, const float* c) {
 STAGE(scale_u8, const SkJumper_MemoryCtx* ctx) {
     auto ptr = ptr_at_xy<const uint8_t>(ctx, dx,dy);
 
-    auto scales = load<U8>(ptr, tail);
-    auto c = from_byte(scales);
+    auto c = from_byte(load<U8>(ptr,tail));
 
     r = r * c;
     g = g * c;
