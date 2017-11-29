@@ -70,6 +70,11 @@ public:
 
     static bool AttachStencilIfNeeded(GrResourceProvider*, GrSurface*, bool needsStencil);
 
+    // These are used to notify the resource allocator when a proxy is a direct read from the render
+    // target itself (via texture barrier). This information is necessary for certain assertions.
+    SkDEBUGCODE(void markAsDirectDstRead_debugOnly() { fProxy->fIsDirectDstRead = true; })
+    SkDEBUGCODE(bool isDirectDstRead_debugOnly() const { return fProxy->fIsDirectDstRead; })
+
 private:
     explicit GrSurfaceProxyPriv(GrSurfaceProxy* proxy) : fProxy(proxy) {}
     GrSurfaceProxyPriv(const GrSurfaceProxyPriv&) {} // unimpl
