@@ -1,0 +1,7 @@
+{
+  'variables': {
+    'command': [
+      '/bin/cp', '-rL', 'win_toolchain', '${ISOLATED_OUTDIR}',
+    ],
+  },
+}
