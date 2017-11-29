@@ -64,7 +64,7 @@ public:
      */
     virtual bool asComponentTable(SkBitmap* table) const;
 
-    void appendStages(SkRasterPipeline*, SkColorSpace*, SkArenaAlloc*, bool shaderIsOpaque) const;
+    void appendStages(SkRasterPipeline*, SkColorSpace*, SkArenaAlloc*, SkAlphaType*) const;
 
     enum Flags {
         /** If set the filter methods will not change the alpha channel of the colors.
@@ -166,7 +166,7 @@ private:
     virtual int privateComposedFilterCount() const { return 1; }
 
     virtual void onAppendStages(SkRasterPipeline*, SkColorSpace*, SkArenaAlloc*,
-                                bool shaderIsOpaque) const = 0;
+                                SkAlphaType*) const = 0;
 
     friend class SkColorSpaceXformer;
     friend class SkComposeColorFilter;

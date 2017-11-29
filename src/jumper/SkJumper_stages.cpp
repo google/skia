@@ -695,6 +695,10 @@ SI F alpha_coverage_from_rgb_coverage(F a, F da, F cr, F cg, F cb) {
                               , max(cr,cg,cb));
 }
 
+STAGE(scale_alpha, const float* c) {
+    a = a * *c;
+}
+
 STAGE(scale_1_float, const float* c) {
     r = r * *c;
     g = g * *c;
