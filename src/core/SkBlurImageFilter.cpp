@@ -65,11 +65,6 @@ private:
             SkIRect inputBounds, SkIRect dstBounds, const OutputProperties& outProps) const;
     #endif
 
-    sk_sp<SkSpecialImage> cpuFilter(
-            SkSpecialImage *source,
-            SkVector sigma, const sk_sp<SkSpecialImage> &input,
-            SkIRect inputBounds, SkIRect dstBounds) const;
-
     SkSize                      fSigma;
     SkBlurImageFilter::TileMode fTileMode;
 };
@@ -157,23 +152,6 @@ static GrTextureDomain::Mode to_texture_domain_mode(SkBlurImageFilter::TileMode 
     }
 }
 #endif
-
-static void get_box3_params(SkScalar s, int *kernelSize, int* kernelSize3, int *lowOffset,
-                            int *highOffset) {
-    float pi = SkScalarToFloat(SK_ScalarPI);
-    int d = static_cast<int>(floorf(SkScalarToFloat(s) * 3.0f * sqrtf(2.0f * pi) / 4.0f + 0.5f));
-    *kernelSize = d;
-    if (d % 2 == 1) {
-        *lowOffset = *highOffset = (d - 1) / 2;
-        *kernelSize3 = d;
-    } else {
-        *highOffset = d / 2;
-        *lowOffset = *highOffset - 1;
-        *kernelSize3 = d + 1;
-    }
-}
-
-#if !defined(SK_SUPPORT_LEGACY_BLUR_IMAGE)
 
 // This is defined by the SVG spec:
 // https://drafts.fxtf.org/filter-effects/#feGaussianBlurElement
@@ -415,9 +393,10 @@ static void blur_one_direction(Sk4u* buffer, int window,
     }
 }
 
-static sk_sp<SkSpecialImage> combined_pass_blur(
+// TODO: Implement CPU backend for different fTileMode.
+static sk_sp<SkSpecialImage> cpu_blur(
         SkVector sigma,
-        SkSpecialImage* source, const sk_sp<SkSpecialImage>& input,
+        SkSpecialImage *source, const sk_sp<SkSpecialImage> &input,
         SkIRect srcBounds, SkIRect dstBounds) {
     SkBitmap inputBM;
 
@@ -533,7 +512,6 @@ static sk_sp<SkSpecialImage> combined_pass_blur(
                                                           dstBounds.height()),
                                           dst, &source->props());
 }
-#endif
 
 sk_sp<SkSpecialImage> SkBlurImageFilterImpl::onFilterImage(SkSpecialImage* source,
                                                            const Context& ctx,
@@ -585,11 +563,7 @@ sk_sp<SkSpecialImage> SkBlurImageFilterImpl::onFilterImage(SkSpecialImage* sourc
         if (sigma.x() < kZeroWindow && sigma.y() < kZeroWindow) {
             result = input->makeSubset(inputBounds);
         } else {
-            #if defined(SK_SUPPORT_LEGACY_BLUR_IMAGE)
-                result = this->cpuFilter(source, sigma, input, inputBounds, dstBounds);
-            #else
-                result = combined_pass_blur(sigma, source, input, inputBounds, dstBounds);
-            #endif
+            result = cpu_blur(sigma, source, input, inputBounds, dstBounds);
         }
     }
 
@@ -658,87 +632,6 @@ sk_sp<SkSpecialImage> SkBlurImageFilterImpl::gpuFilter(
             &source->props());
 }
 #endif
-
-// TODO: Implement CPU backend for different fTileMode.
-sk_sp<SkSpecialImage> SkBlurImageFilterImpl::cpuFilter(
-        SkSpecialImage *source,
-        SkVector sigma, const sk_sp<SkSpecialImage> &input,
-        SkIRect inputBounds, SkIRect dstBounds) const
-{
-    int kernelSizeX, kernelSizeX3, lowOffsetX, highOffsetX;
-    int kernelSizeY, kernelSizeY3, lowOffsetY, highOffsetY;
-    get_box3_params(sigma.x(), &kernelSizeX, &kernelSizeX3, &lowOffsetX, &highOffsetX);
-    get_box3_params(sigma.y(), &kernelSizeY, &kernelSizeY3, &lowOffsetY, &highOffsetY);
-
-    SkBitmap inputBM;
-
-    if (!input->getROPixels(&inputBM) && inputBM.colorType() != kN32_SkColorType) {
-        return nullptr;
-    }
-
-    SkImageInfo info = SkImageInfo::Make(dstBounds.width(), dstBounds.height(),
-                                         inputBM.colorType(), inputBM.alphaType());
-
-    SkBitmap tmp, dst;
-    if (!tmp.tryAllocPixels(info) || !dst.tryAllocPixels(info)) {
-        return nullptr;
-    }
-
-    // Get ready to blur.
-    const SkPMColor* s = inputBM.getAddr32(inputBounds.x(), inputBounds.y());
-          SkPMColor* t = tmp.getAddr32(0, 0);
-          SkPMColor* d = dst.getAddr32(0, 0);
-
-    // Shift everything from being relative to the orignal input bounds to the destination bounds.
-    inputBounds.offset(-dstBounds.x(), -dstBounds.y());
-    dstBounds.offset(-dstBounds.x(), -dstBounds.y());
-
-    int w  = dstBounds.width(),
-        h  = dstBounds.height(),
-        sw = inputBM.rowBytesAsPixels();
-
-    SkIRect inputBoundsT = SkIRect::MakeLTRB(inputBounds.top(), inputBounds.left(),
-                                             inputBounds.bottom(), inputBounds.right());
-    SkIRect dstBoundsT = SkIRect::MakeWH(dstBounds.height(), dstBounds.width());
-
-    /**
-     *
-     * In order to make memory accesses cache-friendly, we reorder the passes to
-     * use contiguous memory reads wherever possible.
-     *
-     * For example, the 6 passes of the X-and-Y blur case are rewritten as
-     * follows. Instead of 3 passes in X and 3 passes in Y, we perform
-     * 2 passes in X, 1 pass in X transposed to Y on write, 2 passes in X,
-     * then 1 pass in X transposed to Y on write.
-     *
-     * +----+       +----+       +----+        +---+       +---+       +---+        +----+
-     * + AB + ----> | AB | ----> | AB | -----> | A | ----> | A | ----> | A | -----> | AB |
-     * +----+ blurX +----+ blurX +----+ blurXY | B | blurX | B | blurX | B | blurXY +----+
-     *                                         +---+       +---+       +---+
-     *
-     * In this way, two of the y-blurs become x-blurs applied to transposed
-     * images, and all memory reads are contiguous.
-     */
-    if (kernelSizeX > 0 && kernelSizeY > 0) {
-        SkOpts::box_blur_xx(s, sw,  inputBounds,  t, kernelSizeX,  lowOffsetX,  highOffsetX, w, h);
-        SkOpts::box_blur_xx(t,  w,  dstBounds,    d, kernelSizeX,  highOffsetX, lowOffsetX,  w, h);
-        SkOpts::box_blur_xy(d,  w,  dstBounds,    t, kernelSizeX3, highOffsetX, highOffsetX, w, h);
-        SkOpts::box_blur_xx(t,  h,  dstBoundsT,   d, kernelSizeY,  lowOffsetY,  highOffsetY, h, w);
-        SkOpts::box_blur_xx(d,  h,  dstBoundsT,   t, kernelSizeY,  highOffsetY, lowOffsetY,  h, w);
-        SkOpts::box_blur_xy(t,  h,  dstBoundsT,   d, kernelSizeY3, highOffsetY, highOffsetY, h, w);
-    } else if (kernelSizeX > 0) {
-        SkOpts::box_blur_xx(s, sw,  inputBounds,  d, kernelSizeX,  lowOffsetX,  highOffsetX, w, h);
-        SkOpts::box_blur_xx(d,  w,  dstBounds,    t, kernelSizeX,  highOffsetX, lowOffsetX,  w, h);
-        SkOpts::box_blur_xx(t,  w,  dstBounds,    d, kernelSizeX3, highOffsetX, highOffsetX, w, h);
-    } else if (kernelSizeY > 0) {
-        SkOpts::box_blur_yx(s, sw,  inputBoundsT, d, kernelSizeY,  lowOffsetY,  highOffsetY, h, w);
-        SkOpts::box_blur_xx(d,  h,  dstBoundsT,   t, kernelSizeY,  highOffsetY, lowOffsetY,  h, w);
-        SkOpts::box_blur_xy(t,  h,  dstBoundsT,   d, kernelSizeY3, highOffsetY, highOffsetY, h, w);
-    }
-
-    return SkSpecialImage::MakeFromRaster(SkIRect::MakeSize(dstBounds.size()),
-                                          dst, &source->props());
-}
 
 sk_sp<SkImageFilter> SkBlurImageFilterImpl::onMakeColorSpace(SkColorSpaceXformer* xformer)
 const {
