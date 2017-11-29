@@ -43,14 +43,21 @@ GrResourceAllocator::~GrResourceAllocator() {
 #endif
 }
 
-void GrResourceAllocator::addInterval(GrSurfaceProxy* proxy,
-                                      unsigned int start, unsigned int end) {
+void GrResourceAllocator::addInterval(GrSurfaceProxy* proxy, unsigned int start, unsigned int end
+                                      SkDEBUGCODE(, bool isDirectDstRead)) {
     SkASSERT(start <= end);
     SkASSERT(!fAssigned);      // We shouldn't be adding any intervals after (or during) assignment
 
     if (Interval* intvl = fIntvlHash.find(proxy->uniqueID().asUInt())) {
         // Revise the interval for an existing use
-        SkASSERT(intvl->end() <= start && intvl->end() <= end);
+#ifdef SK_DEBUG
+        if (isDirectDstRead) {
+            // Direct reads from the render target itself should occur w/in the existing interval
+            SkASSERT(intvl->start() <= start && intvl->end() >= end);
+        } else {
+            SkASSERT(intvl->end() <= start && intvl->end() <= end);
+        }
+#endif
         intvl->extendEnd(end);
         return;
     }
