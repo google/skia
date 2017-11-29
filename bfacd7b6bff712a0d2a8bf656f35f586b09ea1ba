@@ -1,0 +1,84 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bd3f62d8_e5de76de",
+        "filename": "include/core/SkSurfaceCharacterization.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-11-29T19:50:56Z",
+      "side": 1,
+      "message": "Doxygen style?",
+      "revId": "bfacd7b6bff712a0d2a8bf656f35f586b09ea1ba",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5c77be11_5db0c27d",
+        "filename": "include/core/SkSurfaceCharacterization.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-11-29T19:50:56Z",
+      "side": 1,
+      "message": "move versions?",
+      "range": {
+        "startLine": 29,
+        "startChar": 0,
+        "endLine": 31,
+        "endChar": 91
+      },
+      "revId": "bfacd7b6bff712a0d2a8bf656f35f586b09ea1ba",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "058e559e_2c208edc",
+        "filename": "include/core/SkSurfaceCharacterization.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-11-29T19:50:56Z",
+      "side": 1,
+      "message": "It seems like it might be more future proof to make it so that all members are private and this is constructed from a SkSurface (or similar) so that we can change the internals without affecting clients. (E.g. remove pixel config and replace with color type).",
+      "range": {
+        "startLine": 33,
+        "startChar": 3,
+        "endLine": 38,
+        "endChar": 49
+      },
+      "revId": "bfacd7b6bff712a0d2a8bf656f35f586b09ea1ba",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b2acebfd_2603a8c0",
+        "filename": "include/gpu/GrContext.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 424,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-11-29T19:50:56Z",
+      "side": 1,
+      "message": "const?",
+      "revId": "bfacd7b6bff712a0d2a8bf656f35f586b09ea1ba",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
