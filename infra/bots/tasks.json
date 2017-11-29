@@ -3080,12 +3080,8 @@
   },
   "tasks": {
     "Build-Debian9-Clang-arm-Debug-Android": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/android_ndk_linux",
-          "path": "android_ndk_linux",
-          "version": "version:10"
-        }
+      "dependencies": [
+        "Housekeeper-PerCommit-IsolateAndroidNDKLinux"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -3150,12 +3146,8 @@
       "priority": 0.8
     },
     "Build-Debian9-Clang-arm-Release-Android": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/android_ndk_linux",
-          "path": "android_ndk_linux",
-          "version": "version:10"
-        }
+      "dependencies": [
+        "Housekeeper-PerCommit-IsolateAndroidNDKLinux"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -3180,12 +3172,8 @@
       "priority": 0.8
     },
     "Build-Debian9-Clang-arm-Release-Android_API26": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/android_ndk_linux",
-          "path": "android_ndk_linux",
-          "version": "version:10"
-        }
+      "dependencies": [
+        "Housekeeper-PerCommit-IsolateAndroidNDKLinux"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -3250,12 +3238,8 @@
       "priority": 0.8
     },
     "Build-Debian9-Clang-arm64-Debug-Android": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/android_ndk_linux",
-          "path": "android_ndk_linux",
-          "version": "version:10"
-        }
+      "dependencies": [
+        "Housekeeper-PerCommit-IsolateAndroidNDKLinux"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -3280,12 +3264,8 @@
       "priority": 0.8
     },
     "Build-Debian9-Clang-arm64-Debug-Android_Vulkan": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/android_ndk_linux",
-          "path": "android_ndk_linux",
-          "version": "version:10"
-        }
+      "dependencies": [
+        "Housekeeper-PerCommit-IsolateAndroidNDKLinux"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -3310,12 +3290,8 @@
       "priority": 0.8
     },
     "Build-Debian9-Clang-arm64-Release-Android": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/android_ndk_linux",
-          "path": "android_ndk_linux",
-          "version": "version:10"
-        }
+      "dependencies": [
+        "Housekeeper-PerCommit-IsolateAndroidNDKLinux"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -3340,12 +3316,8 @@
       "priority": 0.8
     },
     "Build-Debian9-Clang-arm64-Release-Android_Vulkan": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/android_ndk_linux",
-          "path": "android_ndk_linux",
-          "version": "version:10"
-        }
+      "dependencies": [
+        "Housekeeper-PerCommit-IsolateAndroidNDKLinux"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -3370,12 +3342,8 @@
       "priority": 0.8
     },
     "Build-Debian9-Clang-mips64el-Debug-Android": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/android_ndk_linux",
-          "path": "android_ndk_linux",
-          "version": "version:10"
-        }
+      "dependencies": [
+        "Housekeeper-PerCommit-IsolateAndroidNDKLinux"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -3400,12 +3368,8 @@
       "priority": 0.8
     },
     "Build-Debian9-Clang-mips64el-Release-Android": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/android_ndk_linux",
-          "path": "android_ndk_linux",
-          "version": "version:10"
-        }
+      "dependencies": [
+        "Housekeeper-PerCommit-IsolateAndroidNDKLinux"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -3430,12 +3394,8 @@
       "priority": 0.8
     },
     "Build-Debian9-Clang-mipsel-Debug-Android": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/android_ndk_linux",
-          "path": "android_ndk_linux",
-          "version": "version:10"
-        }
+      "dependencies": [
+        "Housekeeper-PerCommit-IsolateAndroidNDKLinux"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -3460,12 +3420,8 @@
       "priority": 0.8
     },
     "Build-Debian9-Clang-mipsel-Release-Android": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/android_ndk_linux",
-          "path": "android_ndk_linux",
-          "version": "version:10"
-        }
+      "dependencies": [
+        "Housekeeper-PerCommit-IsolateAndroidNDKLinux"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -3490,12 +3446,8 @@
       "priority": 0.8
     },
     "Build-Debian9-Clang-x64-Debug-Android": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/android_ndk_linux",
-          "path": "android_ndk_linux",
-          "version": "version:10"
-        }
+      "dependencies": [
+        "Housekeeper-PerCommit-IsolateAndroidNDKLinux"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -3520,12 +3472,8 @@
       "priority": 0.8
     },
     "Build-Debian9-Clang-x64-Release-Android": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/android_ndk_linux",
-          "path": "android_ndk_linux",
-          "version": "version:10"
-        }
+      "dependencies": [
+        "Housekeeper-PerCommit-IsolateAndroidNDKLinux"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -3580,12 +3528,8 @@
       "priority": 0.8
     },
     "Build-Debian9-Clang-x86-Debug-Android": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/android_ndk_linux",
-          "path": "android_ndk_linux",
-          "version": "version:10"
-        }
+      "dependencies": [
+        "Housekeeper-PerCommit-IsolateAndroidNDKLinux"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -3610,12 +3554,8 @@
       "priority": 0.8
     },
     "Build-Debian9-Clang-x86-Debug-Android_Vulkan": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/android_ndk_linux",
-          "path": "android_ndk_linux",
-          "version": "version:10"
-        }
+      "dependencies": [
+        "Housekeeper-PerCommit-IsolateAndroidNDKLinux"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -3640,12 +3580,8 @@
       "priority": 0.8
     },
     "Build-Debian9-Clang-x86-Release-Android": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/android_ndk_linux",
-          "path": "android_ndk_linux",
-          "version": "version:10"
-        }
+      "dependencies": [
+        "Housekeeper-PerCommit-IsolateAndroidNDKLinux"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -3670,12 +3606,8 @@
       "priority": 0.8
     },
     "Build-Debian9-Clang-x86-Release-Android_Vulkan": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/android_ndk_linux",
-          "path": "android_ndk_linux",
-          "version": "version:10"
-        }
+      "dependencies": [
+        "Housekeeper-PerCommit-IsolateAndroidNDKLinux"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -4623,12 +4555,8 @@
       "priority": 0.8
     },
     "Build-Debian9-GCC-x86_64-Release-Flutter_Android": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/android_ndk_linux",
-          "path": "android_ndk_linux",
-          "version": "version:10"
-        }
+      "dependencies": [
+        "Housekeeper-PerCommit-IsolateAndroidNDKLinux"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -5083,15 +5011,13 @@
     "Build-Win-Clang-x86_64-Debug": {
       "cipd_packages": [
         {
-          "name": "skia/bots/win_toolchain",
-          "path": "t",
-          "version": "version:6"
-        },
-        {
           "name": "skia/bots/clang_win",
           "path": "clang_win",
           "version": "version:0"
         }
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-IsolateWinToolchain"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -5118,15 +5044,13 @@
     "Build-Win-Clang-x86_64-Debug-ANGLE": {
       "cipd_packages": [
         {
-          "name": "skia/bots/win_toolchain",
-          "path": "t",
-          "version": "version:6"
-        },
-        {
           "name": "skia/bots/clang_win",
           "path": "clang_win",
           "version": "version:0"
         }
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-IsolateWinToolchain"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -5153,20 +5077,14 @@
     "Build-Win-Clang-x86_64-Debug-Vulkan": {
       "cipd_packages": [
         {
-          "name": "skia/bots/win_toolchain",
-          "path": "t",
-          "version": "version:6"
-        },
-        {
           "name": "skia/bots/clang_win",
           "path": "clang_win",
           "version": "version:0"
-        },
-        {
-          "name": "skia/bots/win_vulkan_sdk",
-          "path": "win_vulkan_sdk",
-          "version": "version:2"
         }
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-IsolateWinToolchain",
+        "Housekeeper-PerCommit-IsolateWinVulkanSDK"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -5193,15 +5111,13 @@
     "Build-Win-Clang-x86_64-Release": {
       "cipd_packages": [
         {
-          "name": "skia/bots/win_toolchain",
-          "path": "t",
-          "version": "version:6"
-        },
-        {
           "name": "skia/bots/clang_win",
           "path": "clang_win",
           "version": "version:0"
         }
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-IsolateWinToolchain"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -5228,15 +5144,13 @@
     "Build-Win-Clang-x86_64-Release-ANGLE": {
       "cipd_packages": [
         {
-          "name": "skia/bots/win_toolchain",
-          "path": "t",
-          "version": "version:6"
-        },
-        {
           "name": "skia/bots/clang_win",
           "path": "clang_win",
           "version": "version:0"
         }
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-IsolateWinToolchain"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -5263,20 +5177,14 @@
     "Build-Win-Clang-x86_64-Release-Vulkan": {
       "cipd_packages": [
         {
-          "name": "skia/bots/win_toolchain",
-          "path": "t",
-          "version": "version:6"
-        },
-        {
           "name": "skia/bots/clang_win",
           "path": "clang_win",
           "version": "version:0"
-        },
-        {
-          "name": "skia/bots/win_vulkan_sdk",
-          "path": "win_vulkan_sdk",
-          "version": "version:2"
         }
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-IsolateWinToolchain",
+        "Housekeeper-PerCommit-IsolateWinVulkanSDK"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -5301,12 +5209,8 @@
       "priority": 0.8
     },
     "Build-Win-MSVC-x86-Debug": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/win_toolchain",
-          "path": "t",
-          "version": "version:6"
-        }
+      "dependencies": [
+        "Housekeeper-PerCommit-IsolateWinToolchain"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -5331,12 +5235,8 @@
       "priority": 0.8
     },
     "Build-Win-MSVC-x86-Debug-ANGLE": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/win_toolchain",
-          "path": "t",
-          "version": "version:6"
-        }
+      "dependencies": [
+        "Housekeeper-PerCommit-IsolateWinToolchain"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -5361,12 +5261,8 @@
       "priority": 0.8
     },
     "Build-Win-MSVC-x86-Debug-Exceptions": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/win_toolchain",
-          "path": "t",
-          "version": "version:6"
-        }
+      "dependencies": [
+        "Housekeeper-PerCommit-IsolateWinToolchain"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -5391,12 +5287,8 @@
       "priority": 0.8
     },
     "Build-Win-MSVC-x86-Release": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/win_toolchain",
-          "path": "t",
-          "version": "version:6"
-        }
+      "dependencies": [
+        "Housekeeper-PerCommit-IsolateWinToolchain"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -5421,12 +5313,8 @@
       "priority": 0.8
     },
     "Build-Win-MSVC-x86-Release-ANGLE": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/win_toolchain",
-          "path": "t",
-          "version": "version:6"
-        }
+      "dependencies": [
+        "Housekeeper-PerCommit-IsolateWinToolchain"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -5451,12 +5339,8 @@
       "priority": 0.8
     },
     "Build-Win-MSVC-x86_64-Debug": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/win_toolchain",
-          "path": "t",
-          "version": "version:6"
-        }
+      "dependencies": [
+        "Housekeeper-PerCommit-IsolateWinToolchain"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -5481,12 +5365,8 @@
       "priority": 0.8
     },
     "Build-Win-MSVC-x86_64-Debug-ANGLE": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/win_toolchain",
-          "path": "t",
-          "version": "version:6"
-        }
+      "dependencies": [
+        "Housekeeper-PerCommit-IsolateWinToolchain"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -5511,17 +5391,9 @@
       "priority": 0.8
     },
     "Build-Win-MSVC-x86_64-Debug-Vulkan": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/win_toolchain",
-          "path": "t",
-          "version": "version:6"
-        },
-        {
-          "name": "skia/bots/win_vulkan_sdk",
-          "path": "win_vulkan_sdk",
-          "version": "version:2"
-        }
+      "dependencies": [
+        "Housekeeper-PerCommit-IsolateWinToolchain",
+        "Housekeeper-PerCommit-IsolateWinVulkanSDK"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -5546,12 +5418,8 @@
       "priority": 0.8
     },
     "Build-Win-MSVC-x86_64-Release": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/win_toolchain",
-          "path": "t",
-          "version": "version:6"
-        }
+      "dependencies": [
+        "Housekeeper-PerCommit-IsolateWinToolchain"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -5576,12 +5444,8 @@
       "priority": 0.8
     },
     "Build-Win-MSVC-x86_64-Release-ANGLE": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/win_toolchain",
-          "path": "t",
-          "version": "version:6"
-        }
+      "dependencies": [
+        "Housekeeper-PerCommit-IsolateWinToolchain"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -5606,17 +5470,9 @@
       "priority": 0.8
     },
     "Build-Win-MSVC-x86_64-Release-Vulkan": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/win_toolchain",
-          "path": "t",
-          "version": "version:6"
-        },
-        {
-          "name": "skia/bots/win_vulkan_sdk",
-          "path": "win_vulkan_sdk",
-          "version": "version:2"
-        }
+      "dependencies": [
+        "Housekeeper-PerCommit-IsolateWinToolchain",
+        "Housekeeper-PerCommit-IsolateWinVulkanSDK"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -5876,6 +5732,23 @@
       "isolate": "infra_skia.isolate",
       "priority": 0.8
     },
+    "Housekeeper-PerCommit-IsolateAndroidNDKLinux": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/android_ndk_linux",
+          "path": "android_ndk_linux",
+          "version": "version:10"
+        }
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "os:Debian-9.2",
+        "pool:Skia"
+      ],
+      "isolate": "isolate_ndk_linux.isolate",
+      "priority": 0.7
+    },
     "Housekeeper-PerCommit-IsolateSKP": {
       "cipd_packages": [
         {
@@ -5925,6 +5798,40 @@
         "pool:Skia"
       ],
       "isolate": "isolate_skimage.isolate",
+      "priority": 0.7
+    },
+    "Housekeeper-PerCommit-IsolateWinToolchain": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/win_toolchain",
+          "path": "t",
+          "version": "version:6"
+        }
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "os:Debian-9.2",
+        "pool:Skia"
+      ],
+      "isolate": "isolate_win_toolchain.isolate",
+      "priority": 0.7
+    },
+    "Housekeeper-PerCommit-IsolateWinVulkanSDK": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/win_vulkan_sdk",
+          "path": "win_vulkan_sdk",
+          "version": "version:2"
+        }
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "os:Debian-9.2",
+        "pool:Skia"
+      ],
+      "isolate": "isolate_win_vulkan_sdk.isolate",
       "priority": 0.7
     },
     "Housekeeper-Weekly-RecreateSKPs": {

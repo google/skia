@@ -30,10 +30,13 @@ import (
 )
 
 const (
-	BUNDLE_RECIPES_NAME  = "Housekeeper-PerCommit-BundleRecipes"
-	ISOLATE_SKIMAGE_NAME = "Housekeeper-PerCommit-IsolateSkImage"
-	ISOLATE_SKP_NAME     = "Housekeeper-PerCommit-IsolateSKP"
-	ISOLATE_SVG_NAME     = "Housekeeper-PerCommit-IsolateSVG"
+	BUNDLE_RECIPES_NAME         = "Housekeeper-PerCommit-BundleRecipes"
+	ISOLATE_SKIMAGE_NAME        = "Housekeeper-PerCommit-IsolateSkImage"
+	ISOLATE_SKP_NAME            = "Housekeeper-PerCommit-IsolateSKP"
+	ISOLATE_SVG_NAME            = "Housekeeper-PerCommit-IsolateSVG"
+	ISOLATE_NDK_LINUX_NAME      = "Housekeeper-PerCommit-IsolateAndroidNDKLinux"
+	ISOLATE_WIN_TOOLCHAIN_NAME  = "Housekeeper-PerCommit-IsolateWinToolchain"
+	ISOLATE_WIN_VULKAN_SDK_NAME = "Housekeeper-PerCommit-IsolateWinVulkanSDK"
 
 	DEFAULT_OS_DEBIAN    = "Debian-9.1"
 	DEFAULT_OS_LINUX_GCE = "Debian-9.2"
@@ -418,6 +421,18 @@ var ISOLATE_ASSET_MAPPING = map[string]isolateAssetCfg{
 		isolateFile: "isolate_svg.isolate",
 		cipdPkg:     "svg",
 	},
+	ISOLATE_NDK_LINUX_NAME: {
+		isolateFile: "isolate_ndk_linux.isolate",
+		cipdPkg:     "android_ndk_linux",
+	},
+	ISOLATE_WIN_TOOLCHAIN_NAME: {
+		isolateFile: "isolate_win_toolchain.isolate",
+		cipdPkg:     "win_toolchain",
+	},
+	ISOLATE_WIN_VULKAN_SDK_NAME: {
+		isolateFile: "isolate_win_vulkan_sdk.isolate",
+		cipdPkg:     "win_vulkan_sdk",
+	},
 }
 
 // bundleRecipes generates the task to bundle and isolate the recipes.
@@ -462,6 +477,7 @@ func getIsolatedCIPDDeps(parts map[string]string) []string {
 func compile(b *specs.TasksCfgBuilder, name string, parts map[string]string) string {
 	// Collect the necessary CIPD packages.
 	pkgs := []*specs.CipdPackage{}
+	deps := []string{}
 
 	// Android bots require a toolchain.
 	if strings.Contains(name, "Android") {
@@ -472,7 +488,7 @@ func compile(b *specs.TasksCfgBuilder, name string, parts map[string]string) str
 			pkg.Path = "n"
 			pkgs = append(pkgs, pkg)
 		} else {
-			pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("android_ndk_linux"))
+			deps = append(deps, isolateCIPDAsset(b, ISOLATE_NDK_LINUX_NAME))
 		}
 	} else if strings.Contains(name, "Chromecast") {
 		pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("cast_toolchain"))
@@ -496,12 +512,12 @@ func compile(b *specs.TasksCfgBuilder, name string, parts map[string]string) str
 			pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("emscripten_sdk"))
 		}
 	} else if strings.Contains(name, "Win") {
-		pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("win_toolchain"))
+		deps = append(deps, isolateCIPDAsset(b, ISOLATE_WIN_TOOLCHAIN_NAME))
 		if strings.Contains(name, "Clang") {
 			pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("clang_win"))
 		}
 		if strings.Contains(name, "Vulkan") {
-			pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("win_vulkan_sdk"))
+			deps = append(deps, isolateCIPDAsset(b, ISOLATE_WIN_VULKAN_SDK_NAME))
 		}
 	}
 
@@ -511,6 +527,7 @@ func compile(b *specs.TasksCfgBuilder, name string, parts map[string]string) str
 	b.MustAddTask(name, &specs.TaskSpec{
 		CipdPackages: pkgs,
 		Dimensions:   dimensions,
+		Dependencies: deps,
 		ExtraArgs: []string{
 			"--workdir", "../../..", "compile",
 			fmt.Sprintf("repository=%s", specs.PLACEHOLDER_REPO),
