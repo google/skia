@@ -55,7 +55,7 @@ public:
 #endif
 
     static int SupportsMultitexture(const GrShaderCaps& caps) {
-        return caps.integerSupport() && !caps.disableImageMultitexturingSupport();
+        return caps.integerSupport() && caps.maxFragmentSamplers() > 1;
     }
 
     static sk_sp<GrGeometryProcessor> Make(sk_sp<GrTextureProxy> proxies[], int proxyCnt,
@@ -313,6 +313,8 @@ private:
         SkRect bounds;
         bounds.setBounds(draw.fQuad.points(), 4);
         this->setBounds(bounds, HasAABloat::kNo, IsZeroArea::kNo);
+        fMaxApproxDstPixelArea =
+                static_cast<size_t>(SkTMax(bounds.width(), 1.f) * SkTMax(bounds.height(), 1.f));
     }
 
     void onPrepareDraws(Target* target) override {
@@ -431,15 +433,18 @@ private:
 
     bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
         const auto* that = t->cast<TextureOp>();
+        const auto& shaderCaps = *caps.shaderCaps();
         if (!GrColorSpaceXform::Equals(fColorSpaceXform.get(), that->fColorSpaceXform.get())) {
             return false;
         }
         // Because of an issue where GrColorSpaceXform adds the same function every time it is used
         // in a texture lookup, we only allow multiple textures when there is no transform.
-        if (TextureGeometryProcessor::SupportsMultitexture(*caps.shaderCaps()) &&
-            !fColorSpaceXform) {
+        if (TextureGeometryProcessor::SupportsMultitexture(shaderCaps) && !fColorSpaceXform &&
+            fMaxApproxDstPixelArea <= shaderCaps.disableImageMultitexturingDstRectAreaThreshold() &&
+            that->fMaxApproxDstPixelArea <=
+                    shaderCaps.disableImageMultitexturingDstRectAreaThreshold()) {
             int map[kMaxTextures];
-            int numNewProxies = this->mergeProxies(that, map, *caps.shaderCaps());
+            int numNewProxies = this->mergeProxies(that, map, shaderCaps);
             if (numNewProxies < 0) {
                 return false;
             }
@@ -479,6 +484,7 @@ private:
             fDraws.push_back_n(that->fDraws.count(), that->fDraws.begin());
         }
         this->joinBounds(*that);
+        fMaxApproxDstPixelArea = SkTMax(that->fMaxApproxDstPixelArea, fMaxApproxDstPixelArea);
         return true;
     }
 
@@ -570,6 +576,7 @@ private:
     // Used to track whether fProxy is ref'ed or has a pending IO after finalize() is called.
     uint8_t fFinalized;
     uint8_t fAllowSRGBInputs;
+    size_t fMaxApproxDstPixelArea;
 
     typedef GrMeshDrawOp INHERITED;
 };
