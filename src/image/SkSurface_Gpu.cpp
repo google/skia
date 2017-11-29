@@ -162,18 +162,25 @@ bool SkSurface_Gpu::onWait(int numSemaphores, const GrBackendSemaphore* waitSema
 
 bool SkSurface_Gpu::onCharacterize(SkSurfaceCharacterization* data) const {
     GrRenderTargetContext* rtc = fDevice->accessRenderTargetContext();
+    GrContext* ctx = fDevice->context();
 
-    data->set(rtc->origin(), rtc->width(), rtc->height(), rtc->colorSpaceInfo().config(),
-              rtc->numColorSamples());
+    data->fOrigin      = rtc->origin();
+    data->fWidth       = rtc->width();
+    data->fHeight      = rtc->height();
+    data->fConfig      = rtc->colorSpaceInfo().config();
+    data->fSampleCnt   = rtc->numColorSamples();
+    data->fContextInfo = ctx->threadSafeProxy();
     return true;
 }
 
 bool SkSurface_Gpu::isCompatible(const SkSurfaceCharacterization& data) const {
     GrRenderTargetContext* rtc = fDevice->accessRenderTargetContext();
+    GrContext* ctx = fDevice->context();
 
-    return data.origin() == rtc->origin() && data.width() == rtc->width() &&
-           data.height() == rtc->height() && data.config() == rtc->colorSpaceInfo().config() &&
-           data.sampleCount() == rtc->numColorSamples();
+    return data.fOrigin == rtc->origin() && data.fWidth == rtc->width() &&
+           data.fHeight == rtc->height() && data.fConfig == rtc->colorSpaceInfo().config() &&
+           data.fSampleCnt == rtc->numColorSamples() &&
+           data.fContextInfo.get() && data.fContextInfo->matches(ctx);
 }
 
 void SkSurface_Gpu::onDraw(SkDeferredDisplayList* dl) {
