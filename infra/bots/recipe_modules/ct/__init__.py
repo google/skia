@@ -3,7 +3,7 @@
 # found in the LICENSE file.
 
 DEPS = [
-  'depot_tools/gsutil',
+  'gsutil',
   'recipe_engine/file',
   'recipe_engine/path',
   'recipe_engine/step',
