@@ -67,6 +67,10 @@ protected:
     // Deferred version
     GrTextureProxy(const GrSurfaceDesc& srcDesc, SkBackingFit, SkBudgeted,
                    const void* srcData, size_t srcRowBytes, uint32_t flags);
+
+    // Lazy-callback version
+    GrTextureProxy(LazyInstantiateCallback&&, GrPixelConfig);
+
     // Wrapped version
     GrTextureProxy(sk_sp<GrSurface>, GrSurfaceOrigin);
 
@@ -93,6 +97,8 @@ private:
     // Methods made available via GrTextureProxy::CacheAccess
     void setUniqueKey(GrResourceCache*, const GrUniqueKey&);
     void clearUniqueKey();
+
+    SkDEBUGCODE(void validateLazyTexture(const GrTexture*) override;)
 
     // For wrapped proxies the GrTexture pointer is stored in GrIORefProxy.
     // For deferred proxies that pointer will be filled in when we need to instantiate
