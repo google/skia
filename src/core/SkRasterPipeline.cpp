@@ -55,7 +55,8 @@ void SkRasterPipeline::extend(const SkRasterPipeline& src) {
 }
 
 void SkRasterPipeline::dump() const {
-    SkDebugf("SkRasterPipeline, %d stages (in reverse)\n", fNumStages);
+    SkDebugf("SkRasterPipeline, %d stages\n", fNumStages);
+    std::vector<const char*> stages;
     for (auto st = fStages; st; st = st->prev) {
         const char* name = "";
         switch (st->stage) {
@@ -63,6 +64,10 @@ void SkRasterPipeline::dump() const {
             SK_RASTER_PIPELINE_STAGES(M)
         #undef M
         }
+        stages.push_back(name);
+    }
+    std::reverse(stages.begin(), stages.end());
+    for (const char* name : stages) {
         SkDebugf("\t%s\n", name);
     }
     SkDebugf("\n");
