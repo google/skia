@@ -36,7 +36,7 @@ public:
     sk_sp<GrRenderTargetContext> SK_WARN_UNUSED_RESULT finalize(GrOnFlushResourceProvider*,
                                                                 std::unique_ptr<GrDrawOp> atlasOp);
 
-    sk_sp<GrTextureProxy> textureProxy() const { return fTextureProxy; }
+    GrTextureProxy* textureProxy() const { return fTextureProxy.get(); }
 
 private:
     class Node;
