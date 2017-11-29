@@ -102,7 +102,7 @@ public:
     };
 
     void onAppendStages(SkRasterPipeline* p, SkColorSpace*, SkArenaAlloc* alloc,
-                        bool shaderIsOpaque) const override {
+                        SkAlphaType* alphaType) const override {
         const uint8_t *r = gIdentityTable,
                       *g = gIdentityTable,
                       *b = gIdentityTable,
@@ -113,24 +113,23 @@ public:
         if (fFlags & kG_Flag) { g = ptr; ptr += 256; }
         if (fFlags & kB_Flag) { b = ptr;             }
 
-        // If our inputs are out of range, we'd attempt to read values outside our tables.
-        // We could finesse this with p->clamp_if_unclamped(kPremul_SkAlphaType) here, but
-        // this filter is already slow enough that I'd rather just be paranoid and safe.
-        p->append(SkRasterPipeline::clamp_0);
-        p->append(SkRasterPipeline::clamp_a);
-        p->set_clamped(true);
-
-        if (!shaderIsOpaque) {
+        if (*alphaType == kPremul_SkAlphaType) {
+            *alphaType =  kUnpremul_SkAlphaType;
             p->append(SkRasterPipeline::unpremul);
         }
+
+        // If our inputs are out of range, we'd attempt to read values outside our tables.
+        // We could finesse this but this filter is already slow enough that I'd rather
+        // just be paranoid and safe.
+        p->append(SkRasterPipeline::clamp_0);
+        p->append(SkRasterPipeline::clamp_1);
+        p->set_clamped(true);
 
         struct Tables { const uint8_t *r, *g, *b, *a; };
         p->append(SkRasterPipeline::byte_tables, alloc->make<Tables>(Tables{r,g,b,a}));
 
-        bool definitelyOpaque = shaderIsOpaque && a[0xff] == 0xff;
-        if (!definitelyOpaque) {
-            p->append(SkRasterPipeline::premul);
-        }
+        *alphaType = (*alphaType == kOpaque_SkAlphaType && a[0xff] == 0xff) ? kOpaque_SkAlphaType
+                                                                            : kUnpremul_SkAlphaType;
     }
 
 protected:

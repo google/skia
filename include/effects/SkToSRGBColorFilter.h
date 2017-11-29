@@ -33,7 +33,7 @@ private:
     void flatten(SkWriteBuffer&) const override;
     SkToSRGBColorFilter(sk_sp<SkColorSpace>);
     void onAppendStages(SkRasterPipeline*, SkColorSpace*, SkArenaAlloc*,
-                        bool shaderIsOpaque) const override;
+                        SkAlphaType*) const override;
 
     sk_sp<SkColorSpace> fSrcColorSpace;
 
