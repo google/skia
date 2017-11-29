@@ -192,6 +192,8 @@
       "abc123",
       "builder",
       "Test-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Release-All",
+      "buildbucket_build_id",
+      "123454321",
       "issue",
       "456789",
       "patchset",
