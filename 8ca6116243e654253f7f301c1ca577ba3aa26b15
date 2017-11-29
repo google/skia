@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "d4e1e262_5ba857d3",
+        "filename": "src/core/SkRasterPipelineBlitter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 279,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-11-29T19:53:40Z",
+      "side": 1,
+      "message": "Yeah, this is definitely the key tricky area in the entire CL.\n\nThis was the best way I could find to express what\u0027s going on clearly.  If you have a suggestion for a better way to write it I\u0027m totally game.",
+      "parentUuid": "21d4f8f2_4325e291",
+      "range": {
+        "startLine": 279,
+        "startChar": 8,
+        "endLine": 279,
+        "endChar": 45
+      },
+      "revId": "8ca6116243e654253f7f301c1ca577ba3aa26b15",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "eaa6f5e7_ccd53777",
         "filename": "src/effects/SkHighContrastFilter.cpp",
         "patchSetId": 2
@@ -36,6 +60,30 @@
       "writtenOn": "2017-11-29T19:28:33Z",
       "side": 1,
       "message": "This shows up often enough - maybe it\u0027s worth hoisting to AppendStages(), with an additional color filter flag (kRequiresPremulSrc or something)?  I guess we can look at that later.",
+      "range": {
+        "startLine": 67,
+        "startChar": 0,
+        "endLine": 70,
+        "endChar": 5
+      },
+      "revId": "8ca6116243e654253f7f301c1ca577ba3aa26b15",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "563967a0_9f11abc5",
+        "filename": "src/effects/SkHighContrastFilter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-11-29T19:53:40Z",
+      "side": 1,
+      "message": "I thought about this, but it turned out that enough color filters didn\u0027t care, and enough color filters actually want to transform the other way around (unpremul-\u003epremul) on entry, that it didn\u0027t seem like there was a good general answer other than letting the filters decide for themselves.",
+      "parentUuid": "eaa6f5e7_ccd53777",
       "range": {
         "startLine": 67,
         "startChar": 0,
