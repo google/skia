@@ -814,8 +814,9 @@ def test_steps(api):
 
   # Run DM.
   properties = [
-    'gitHash',      api.vars.got_revision,
-    'builder',      api.vars.builder_name,
+    'gitHash',              api.vars.got_revision,
+    'builder',              api.vars.builder_name,
+    'buildbucket_build_id', api.properties.get('buildbucket_build_id', ''),
   ]
   if api.vars.is_trybot:
     properties.extend([
@@ -963,6 +964,7 @@ def GenTests(api):
     test = (
       api.test(builder) +
       api.properties(buildername=builder,
+                     buildbucket_build_id='123454321',
                      revision='abc123',
                      path_config='kitchen',
                      swarm_out_dir='[SWARM_OUT_DIR]') +
@@ -1000,6 +1002,7 @@ def GenTests(api):
   yield (
     api.test('trybot') +
     api.properties(buildername=builder,
+                   buildbucket_build_id='123454321',
                    revision='abc123',
                    path_config='kitchen',
                    swarm_out_dir='[SWARM_OUT_DIR]') +
@@ -1025,6 +1028,7 @@ def GenTests(api):
   yield (
     api.test('failed_dm') +
     api.properties(buildername=builder,
+                   buildbucket_build_id='123454321',
                    revision='abc123',
                    path_config='kitchen',
                    swarm_out_dir='[SWARM_OUT_DIR]') +
@@ -1045,6 +1049,7 @@ def GenTests(api):
   yield (
     api.test('failed_get_hashes') +
     api.properties(buildername=builder,
+                   buildbucket_build_id='123454321',
                    revision='abc123',
                    path_config='kitchen',
                    swarm_out_dir='[SWARM_OUT_DIR]') +
@@ -1066,6 +1071,7 @@ def GenTests(api):
   yield (
     api.test('failed_push') +
     api.properties(buildername=builder,
+                   buildbucket_build_id='123454321',
                    revision='abc123',
                    path_config='kitchen',
                    swarm_out_dir='[SWARM_OUT_DIR]') +
@@ -1087,6 +1093,7 @@ def GenTests(api):
   yield (
     api.test('failed_pull') +
     api.properties(buildername=builder,
+                   buildbucket_build_id='123454321',
                    revision='abc123',
                    path_config='kitchen',
                    swarm_out_dir='[SWARM_OUT_DIR]') +
@@ -1108,6 +1115,7 @@ def GenTests(api):
   yield (
     api.test('internal_bot_1') +
     api.properties(buildername=builder,
+                   buildbucket_build_id='123454321',
                    revision='abc123',
                    path_config='kitchen',
                    swarm_out_dir='[SWARM_OUT_DIR]',
@@ -1127,6 +1135,7 @@ def GenTests(api):
   yield (
     api.test('internal_bot_2') +
     api.properties(buildername=builder,
+                   buildbucket_build_id='123454321',
                    revision='abc123',
                    path_config='kitchen',
                    swarm_out_dir='[SWARM_OUT_DIR]',
