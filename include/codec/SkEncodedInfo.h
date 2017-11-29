@@ -18,6 +18,7 @@ public:
     enum Alpha {
         kOpaque_Alpha,
         kUnpremul_Alpha,
+        kPremul_Alpha,
 
         // Each pixel is either fully opaque or fully transparent.
         // There is no difference between requesting kPremul or kUnpremul.
@@ -33,6 +34,8 @@ public:
      * Ex: kRGB images must also be kOpaque.
      */
     enum Color {
+        kAlpha_Color,
+
         // PNG, WBMP
         kGray_Color,
 
