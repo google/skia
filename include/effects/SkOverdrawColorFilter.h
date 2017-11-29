@@ -46,7 +46,8 @@ private:
         memcpy(fColors, colors, kNumColors * sizeof(SkPMColor));
     }
 
-    void onAppendStages(SkRasterPipeline*, SkColorSpace*, SkArenaAlloc*, bool) const override;
+    void onAppendStages(SkRasterPipeline*, SkColorSpace*, SkArenaAlloc*,
+                        SkAlphaType*) const override;
 
     SkPMColor fColors[kNumColors];
 

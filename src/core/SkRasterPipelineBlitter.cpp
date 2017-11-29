@@ -26,7 +26,7 @@ public:
     static SkBlitter* Create(const SkPixmap&, const SkPaint&, SkArenaAlloc*,
                              const SkRasterPipeline& shaderPipeline,
                              SkShaderBase::Context*,
-                             bool is_opaque, bool is_constant);
+                             SkAlphaType alphaType, bool is_constant);
 
     SkRasterPipelineBlitter(SkPixmap dst,
                             SkBlendMode blend,
@@ -48,14 +48,16 @@ public:
     void blitV     (int x, int y, int height, SkAlpha alpha)        override;
 
 private:
-    void append_load_dst(SkRasterPipeline*) const;
-    void append_store   (SkRasterPipeline*) const;
+    void append_load_dst(SkRasterPipeline*)               const;
+    void append_blend   (SkRasterPipeline*, SkAlphaType*) const;
+    void append_store   (SkRasterPipeline*, SkAlphaType)  const;
 
     // If we have an burst context, use it to fill our shader buffer.
     void burst_shade(int x, int y, int w);
 
     SkPixmap               fDst;
     SkBlendMode            fBlend;
+    SkAlphaType            fSrcAlphaType;
     SkArenaAlloc*          fAlloc;
     SkShaderBase::Context* fBurstCtx;
     SkRasterPipeline       fColorPipeline;
@@ -66,7 +68,7 @@ private:
 
     // We may be able to specialize blitH() or blitRect() into a memset.
     bool     fCanMemsetInBlitRect = false;
-    uint64_t fMemsetColor      = 0;     // Big enough for largest dst format, F16.
+    uint64_t fMemsetColor         = 0;     // Big enough for largest dst format, F16.
 
     // Built lazily on first use.
     std::function<void(size_t, size_t, size_t, size_t)> fBlitRect,
@@ -89,39 +91,51 @@ SkBlitter* SkCreateRasterPipelineBlitter(const SkPixmap& dst,
                                          const SkMatrix& ctm,
                                          SkArenaAlloc* alloc) {
     SkColorSpace* dstCS = dst.colorSpace();
-    SkPM4f paintColor = SkPM4f_from_SkColor(paint.getColor(), dstCS);
+    SkPM4f paintColor = SkPM4f_from_SkColor(paint.getColor(), dstCS);  // N.B. unpremul -> premul
     auto shader = as_SB(paint.getShader());
 
     SkRasterPipeline_<256> shaderPipeline;
     if (!shader) {
         // Having no shader makes things nice and easy... just use the paint color.
         shaderPipeline.append_constant_color(alloc, paintColor);
-        bool is_opaque    = paintColor.a() == 1.0f,
-             is_constant  = true;
+        SkAlphaType alphaType = paintColor.a() == 1.0f ? kOpaque_SkAlphaType
+                                                       : kPremul_SkAlphaType;
+        bool is_constant  = true;
         return SkRasterPipelineBlitter::Create(dst, paint, alloc,
                                                shaderPipeline, nullptr,
-                                               is_opaque, is_constant);
+                                               alphaType, is_constant);
     }
-
-    bool is_opaque    = shader->isOpaque() && paintColor.a() == 1.0f;
-    bool is_constant  = shader->isConstant();
 
     // Check whether the shader prefers to run in burst mode.
     if (auto* burstCtx = shader->makeBurstPipelineContext(
         SkShaderBase::ContextRec(paint, ctm, nullptr, SkShaderBase::ContextRec::kPM4f_DstType,
                                  dstCS), alloc)) {
+        // TODO: allow burst shaders to tell us their alphaType like we do in appendStages().
+        SkAlphaType alphaType = shader->isOpaque() && paintColor.a() == 1.0f ? kOpaque_SkAlphaType
+                                                                             : kPremul_SkAlphaType;
         return SkRasterPipelineBlitter::Create(dst, paint, alloc,
                                                shaderPipeline, burstCtx,
-                                               is_opaque, is_constant);
+                                               alphaType, shader->isConstant());
     }
 
-    if (shader->appendStages({&shaderPipeline, alloc, dstCS, paint, nullptr, ctm})) {
+    // It used to be that shaders always output premul, but now they can choose and tell us.
+    // Shaders that don't change alphaType will be interpreted as before, this default premul.
+    SkAlphaType alphaType = kPremul_SkAlphaType;
+
+    if (shader->appendStages({&shaderPipeline, alloc, dstCS, paint, nullptr, ctm, &alphaType})) {
         if (paintColor.a() != 1.0f) {
-            shaderPipeline.append(SkRasterPipeline::scale_1_float,
-                                  alloc->make<float>(paintColor.a()));
+            if (alphaType == kPremul_SkAlphaType) {
+                shaderPipeline.append(SkRasterPipeline::scale_1_float,
+                                      alloc->make<float>(paintColor.a()));
+                alphaType = kPremul_SkAlphaType;   // A no-op.  Just for symmetry.
+            } else /* unpremul or opaque */ {
+                shaderPipeline.append(SkRasterPipeline::scale_1_float_alpha,
+                                      alloc->make<float>(paintColor.a()));
+                alphaType = kUnpremul_SkAlphaType;
+            }
         }
         return SkRasterPipelineBlitter::Create(dst, paint, alloc, shaderPipeline, nullptr,
-                                               is_opaque, is_constant);
+                                               alphaType, shader->isConstant());
     }
 
     // The shader has opted out of drawing anything.
@@ -131,11 +145,11 @@ SkBlitter* SkCreateRasterPipelineBlitter(const SkPixmap& dst,
 SkBlitter* SkCreateRasterPipelineBlitter(const SkPixmap& dst,
                                          const SkPaint& paint,
                                          const SkRasterPipeline& shaderPipeline,
-                                         bool is_opaque,
+                                         SkAlphaType alphaType,
                                          SkArenaAlloc* alloc) {
     bool is_constant = false;  // If this were the case, it'd be better to just set a paint color.
     return SkRasterPipelineBlitter::Create(dst, paint, alloc, shaderPipeline, nullptr,
-                                           is_opaque, is_constant);
+                                           alphaType, is_constant);
 }
 
 SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
@@ -143,7 +157,7 @@ SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
                                            SkArenaAlloc* alloc,
                                            const SkRasterPipeline& shaderPipeline,
                                            SkShaderBase::Context* burstCtx,
-                                           bool is_opaque,
+                                           SkAlphaType alphaType,
                                            bool is_constant) {
     auto blitter = alloc->make<SkRasterPipelineBlitter>(dst,
                                                         paint.getBlendMode(),
@@ -164,8 +178,7 @@ SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
 
     // If there's a color filter it comes next.
     if (auto colorFilter = paint.getColorFilter()) {
-        colorFilter->appendStages(colorPipeline, dst.colorSpace(), alloc, is_opaque);
-        is_opaque = is_opaque && (colorFilter->getFlags() & SkColorFilter::kAlphaUnchanged_Flag);
+        colorFilter->appendStages(colorPipeline, dst.colorSpace(), alloc, &alphaType);
     }
 
     // Not all formats make sense to dither (think, F16).  We set their dither rate to zero.
@@ -196,11 +209,13 @@ SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
         colorPipeline->reset();
         colorPipeline->append_constant_color(alloc, constantColor);
 
-        is_opaque = constantColor.a() == 1.0f;
+        if (constantColor.a() == 1.0f) {
+            alphaType = kOpaque_SkAlphaType;
+        }
     }
 
     // We can strength-reduce SrcOver into Src when opaque.
-    if (is_opaque && blitter->fBlend == SkBlendMode::kSrcOver) {
+    if (alphaType == kOpaque_SkAlphaType && blitter->fBlend == SkBlendMode::kSrcOver) {
         blitter->fBlend = SkBlendMode::kSrc;
     }
 
@@ -212,12 +227,13 @@ SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
         SkRasterPipeline_<256> p;
         p.extend(*colorPipeline);
         blitter->fDstPtr = SkJumper_MemoryCtx{&blitter->fMemsetColor, 0};
-        blitter->append_store(&p);
+        blitter->append_store(&p, alphaType);
         p.run(0,0,1,1);
 
         blitter->fCanMemsetInBlitRect = true;
     }
 
+    blitter->fSrcAlphaType = alphaType;
     blitter->fDstPtr = SkJumper_MemoryCtx{
         blitter->fDst.writable_addr(),
         blitter->fDst.rowBytesAsPixels(),
@@ -240,15 +256,50 @@ void SkRasterPipelineBlitter::append_load_dst(SkRasterPipeline* p) const {
     if (fDst.info().gammaCloseToSRGB()) {
         p->append_from_srgb_dst(fDst.info().alphaType());
     }
-    if (fDst.info().alphaType() == kUnpremul_SkAlphaType) {
-        p->append(SkRasterPipeline::premul_dst);
-    }
+    // We don't change any premul state of dst yet, deferring that to append_blend(), if at all.
 }
 
-void SkRasterPipelineBlitter::append_store(SkRasterPipeline* p) const {
-    if (fDst.info().alphaType() == kUnpremul_SkAlphaType) {
+void SkRasterPipelineBlitter::append_blend(SkRasterPipeline* p, SkAlphaType* srcAlphaType) const {
+    SkAlphaType dstAlphaType = fDst.info().alphaType();
+
+    // Our main goals here are to handle all combinations of srcAlphaType and dstAlphaType
+    // somewhat sensibly, and to avoid premultiplying when not necessary.
+
+    // The most important thing is to allow unpremul sources to pass through to unpremul
+    // destinations unchanged when the blend mode is kSrc.
+    if (dstAlphaType == kUnpremul_SkAlphaType && fBlend == SkBlendMode::kSrc) {
+        if (*srcAlphaType == kPremul_SkAlphaType) {
+            *srcAlphaType =  kUnpremul_SkAlphaType;
+            p->append(SkRasterPipeline::unpremul);
+        }
+        return;
+    }
+
+    // For non-kSrc blend modes with unpremul destinations, we fall back to our classic premul path.
+    if (dstAlphaType == kUnpremul_SkAlphaType) {
+        dstAlphaType =  kPremul_SkAlphaType;
+        p->append(SkRasterPipeline::premul_dst);
+    }
+
+    // Now we're in our classic mode.  Just get everything premul and blend normally.
+    SkASSERT(dstAlphaType != kUnpremul_SkAlphaType);
+    if (*srcAlphaType == kUnpremul_SkAlphaType) {
+        p->append(SkRasterPipeline::premul);
+    }
+    SkBlendMode_AppendStages(fBlend, p);  // All blend modes are (pm,pm) -> pm.
+    *srcAlphaType = kPremul_SkAlphaType;
+}
+
+void SkRasterPipelineBlitter::append_store(SkRasterPipeline* p, SkAlphaType srcAlphaType) const {
+    // If the source alpha type doesn't match the destination, convert now.
+    SkAlphaType dstAlphaType = fDst.info().alphaType();
+    if (srcAlphaType == kPremul_SkAlphaType && dstAlphaType == kUnpremul_SkAlphaType) {
         p->append(SkRasterPipeline::unpremul);
     }
+    if (srcAlphaType == kUnpremul_SkAlphaType && dstAlphaType == kPremul_SkAlphaType) {
+        p->append(SkRasterPipeline::premul);
+    }
+
     if (fDst.info().gammaCloseToSRGB()) {
         p->append(SkRasterPipeline::to_srgb);
     }
@@ -259,7 +310,7 @@ void SkRasterPipelineBlitter::append_store(SkRasterPipeline* p) const {
     }
 
     if (fDst.info().colorType() != kRGBA_F16_SkColorType) {
-        p->clamp_if_unclamped(kPremul_SkAlphaType);
+        p->clamp_if_unclamped(dstAlphaType);
     }
 
     switch (fDst.info().colorType()) {
@@ -309,19 +360,21 @@ void SkRasterPipelineBlitter::blitRect(int x, int y, int w, int h) {
                 && (fDst.info().colorType() == kRGBA_8888_SkColorType ||
                     fDst.info().colorType() == kBGRA_8888_SkColorType)
                 && !fDst.colorSpace()
+                && fSrcAlphaType           != kUnpremul_SkAlphaType
                 && fDst.info().alphaType() != kUnpremul_SkAlphaType
                 && fDitherRate == 0.0f) {
-            p.clamp_if_unclamped(kPremul_SkAlphaType);
+            p.clamp_if_unclamped(fDst.info().alphaType());
             auto stage = fDst.info().colorType() == kRGBA_8888_SkColorType
                        ? SkRasterPipeline::srcover_rgba_8888
                        : SkRasterPipeline::srcover_bgra_8888;
             p.append(stage, &fDstPtr);
         } else {
+            SkAlphaType alphaType = fSrcAlphaType;
             if (fBlend != SkBlendMode::kSrc) {
                 this->append_load_dst(&p);
-                SkBlendMode_AppendStages(fBlend, &p);
+                this->append_blend(&p, &alphaType);
             }
-            this->append_store(&p);
+            this->append_store(&p, alphaType);
         }
         fBlitRect = p.compile();
     }
@@ -342,17 +395,20 @@ void SkRasterPipelineBlitter::blitAntiH(int x, int y, const SkAlpha aa[], const 
     if (!fBlitAntiH) {
         SkRasterPipeline p(fAlloc);
         p.extend(fColorPipeline);
+        SkAlphaType alphaType = fSrcAlphaType;
         if (SkBlendMode_ShouldPreScaleCoverage(fBlend, /*rgb_coverage=*/false)) {
-            p.append(SkRasterPipeline::scale_1_float, &fCurrentCoverage);
+            p.append(alphaType == kUnpremul_SkAlphaType ? SkRasterPipeline::scale_1_float_alpha
+                                                        : SkRasterPipeline::scale_1_float,
+                     &fCurrentCoverage);
             this->append_load_dst(&p);
-            SkBlendMode_AppendStages(fBlend, &p);
+            this->append_blend(&p, &alphaType);
         } else {
             this->append_load_dst(&p);
-            SkBlendMode_AppendStages(fBlend, &p);
+            this->append_blend(&p, &alphaType);
             p.append(SkRasterPipeline::lerp_1_float, &fCurrentCoverage);
         }
 
-        this->append_store(&p);
+        this->append_store(&p, alphaType);
         fBlitAntiH = p.compile();
     }
 
@@ -423,35 +479,39 @@ void SkRasterPipelineBlitter::blitMask(const SkMask& mask, const SkIRect& clip) 
 
 
     // Lazily build whichever pipeline we need, specialized for each mask format.
+    SkAlphaType alphaType = fSrcAlphaType;
     if (effectiveMaskFormat == SkMask::kA8_Format && !fBlitMaskA8) {
         SkRasterPipeline p(fAlloc);
         p.extend(fColorPipeline);
         if (SkBlendMode_ShouldPreScaleCoverage(fBlend, /*rgb_coverage=*/false)) {
-            p.append(SkRasterPipeline::scale_u8, &fMaskPtr);
+            p.append(alphaType == kUnpremul_SkAlphaType ? SkRasterPipeline::scale_u8_alpha
+                                                        : SkRasterPipeline::scale_u8,
+                     &fMaskPtr);
             this->append_load_dst(&p);
-            SkBlendMode_AppendStages(fBlend, &p);
+            this->append_blend(&p, &alphaType);
         } else {
             this->append_load_dst(&p);
-            SkBlendMode_AppendStages(fBlend, &p);
+            this->append_blend(&p, &alphaType);
             p.append(SkRasterPipeline::lerp_u8, &fMaskPtr);
         }
-        this->append_store(&p);
+        this->append_store(&p, alphaType);
         fBlitMaskA8 = p.compile();
     }
     if (effectiveMaskFormat == SkMask::kLCD16_Format && !fBlitMaskLCD16) {
         SkRasterPipeline p(fAlloc);
         p.extend(fColorPipeline);
         if (SkBlendMode_ShouldPreScaleCoverage(fBlend, /*rgb_coverage=*/true)) {
+            // TODO: no idea what to do yet if alphaType == kUnpremul
             // Somewhat unusually, scale_565 needs dst loaded first.
             this->append_load_dst(&p);
             p.append(SkRasterPipeline::scale_565, &fMaskPtr);
-            SkBlendMode_AppendStages(fBlend, &p);
+            this->append_blend(&p, &alphaType);
         } else {
             this->append_load_dst(&p);
-            SkBlendMode_AppendStages(fBlend, &p);
+            this->append_blend(&p, &alphaType);
             p.append(SkRasterPipeline::lerp_565, &fMaskPtr);
         }
-        this->append_store(&p);
+        this->append_store(&p, alphaType);
         fBlitMaskLCD16 = p.compile();
     }
 

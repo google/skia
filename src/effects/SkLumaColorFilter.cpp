@@ -21,8 +21,12 @@
 void SkLumaColorFilter::onAppendStages(SkRasterPipeline* p,
                                        SkColorSpace* dst,
                                        SkArenaAlloc* scratch,
-                                       bool shaderIsOpaque) const {
+                                       SkAlphaType* alphaType) const {
+    if (*alphaType == kUnpremul_SkAlphaType) {
+        p->append(SkRasterPipeline::premul);
+    }
     p->append(SkRasterPipeline::luminance_to_alpha);
+    *alphaType = kPremul_SkAlphaType;
 }
 
 sk_sp<SkColorFilter> SkLumaColorFilter::Make() {

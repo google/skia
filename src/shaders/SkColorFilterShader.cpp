@@ -43,7 +43,7 @@ bool SkColorFilterShader::onAppendStages(const StageRec& rec) const {
     if (!as_SB(fShader)->appendStages(rec)) {
         return false;
     }
-    fFilter->appendStages(rec.fPipeline, rec.fDstCS, rec.fAlloc, fShader->isOpaque());
+    fFilter->appendStages(rec.fPipeline, rec.fDstCS, rec.fAlloc, rec.fAlphaType);
     return true;
 }
 
