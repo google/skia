@@ -124,8 +124,17 @@ void SkOpBuilder::reset() {
    paths with union ops could be locally resolved and still improve over doing the
    ops one at a time. */
 bool SkOpBuilder::resolve(SkPath* result) {
-    SkPath original = *result;
     int count = fOps.count();
+    SkASSERT(count == fPathRefs.count());
+    if (count < 2) {
+        // Single path/op can only occur with union.
+        SkASSERT(count < 1 || fOps[0] == kUnion_SkPathOp);
+        *result = count < 1 ? SkPath() : fPathRefs[0];
+        reset();
+        return true;
+    }
+
+    SkPath original = *result;
     bool allUnion = true;
     SkPathPriv::FirstDirection firstDir = SkPathPriv::kUnknown_FirstDirection;
     for (int index = 0; index < count; ++index) {

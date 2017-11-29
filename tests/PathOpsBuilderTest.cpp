@@ -33,7 +33,7 @@ DEF_TEST(PathOpsBuilder, reporter) {
     SkPath::Direction dir;
     REPORTER_ASSERT(reporter, result.isRect(nullptr, &closed, &dir));
     REPORTER_ASSERT(reporter, closed);
-    REPORTER_ASSERT(reporter, dir == SkPath::kCCW_Direction);
+    REPORTER_ASSERT(reporter, dir == SkPath::kCW_Direction);
     int pixelDiff = comparePaths(reporter, __FUNCTION__, rectPath, result);
     REPORTER_ASSERT(reporter, pixelDiff == 0);
 
