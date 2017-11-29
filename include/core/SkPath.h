@@ -1665,16 +1665,16 @@ public:
 private:
     enum SerializationOffsets {
         kType_SerializationShift = 28,       // requires 4 bits
-        kDirection_SerializationShift = 26,  // requires 2 bits
+        kDirection_SerializationShift = 26,  // requires 2 bits, could be reused - ignored on read.
         kIsVolatile_SerializationShift = 25, // requires 1 bit
         // 1 free bit at 24
-        kConvexity_SerializationShift = 16,  // requires 8 bits
+        kConvexity_SerializationShift = 16,  // requires 8 bits, could be reused - ignored on read.
         kFillType_SerializationShift = 8,    // requires 8 bits
         // low-8-bits are version
     };
 
     enum SerializationVersions {
-        kPathPrivFirstDirection_Version = 1,
+        // kPathPrivFirstDirection_Version = 1,
         kPathPrivLastMoveToIndex_Version = 2,
         kPathPrivTypeEnumVersion = 3,
         kCurrent_Version = 3

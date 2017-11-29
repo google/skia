@@ -2529,11 +2529,17 @@ static void write_and_read_back(skiatest::Reporter* reporter,
 static void test_corrupt_flattening(skiatest::Reporter* reporter) {
     SkPath path;
     path.moveTo(1, 2);
-    path.lineTo(1, 2);
-    path.quadTo(1, 2, 3, 4);
-    path.conicTo(1, 2, 3, 4, 0.5f);
-    path.cubicTo(1, 2, 3, 4, 5, 6);
+    path.lineTo(3, 2);
+    path.quadTo(4, 2, 5, 4);
+    path.conicTo(5, 6, 3, 7, 0.5f);
+    path.cubicTo(2, 6, 2, 4, 4, 1);
     uint8_t buffer[1024];
+
+    // Make sure these properties are computed prior to serialization.
+    SkPathPriv::FirstDirection dir;
+    SkAssertResult(SkPathPriv::CheapComputeFirstDirection(path, &dir));
+    bool isConvex = path.isConvex();
+
     SkDEBUGCODE(size_t size =) path.writeToMemory(buffer);
     SkASSERT(size <= sizeof(buffer));
 
@@ -2587,6 +2593,31 @@ static void test_corrupt_flattening(skiatest::Reporter* reporter) {
     verbs[1] = 17;
     REPORTER_ASSERT(reporter, !path.readFromMemory(buffer, sizeof(buffer)));
     verbs[1] = save;
+
+    // kConvexity_SerializationShift defined privately in SkPath.h
+    static constexpr int32_t kConvexityMask = 0x7 << 16;
+    int32_t* packed = (int32_t*)buffer;
+    int32_t savedPacked = *packed;
+    SkPath::Convexity wrongConvexity =
+            isConvex ? SkPath::kConcave_Convexity : SkPath::kConvex_Convexity;
+    *packed = (savedPacked & ~kConvexityMask) | (wrongConvexity << 16);
+    REPORTER_ASSERT(reporter, path.readFromMemory(buffer, sizeof(buffer)));
+    // We should ignore the stored convexity and recompute from the deserialized data.
+    REPORTER_ASSERT(reporter, path.isConvex() == isConvex);
+    *packed = savedPacked;
+
+    // kDirection_SerializationShift defined privately in SkPath.h
+    static constexpr int32_t kDirectionMask = 0x3 << 26;
+    SkPathPriv::FirstDirection wrongDir = (dir == SkPathPriv::kCW_FirstDirection)
+                                                  ? SkPathPriv::kCCW_FirstDirection
+                                                  : SkPathPriv::kCW_FirstDirection;
+    *packed = (savedPacked & ~kDirectionMask) | (wrongDir << 26);
+    REPORTER_ASSERT(reporter, path.readFromMemory(buffer, sizeof(buffer)));
+    // We should ignore the stored direction and recompute from the deserialized data.
+    SkPathPriv::FirstDirection newDir;
+    SkAssertResult(SkPathPriv::CheapComputeFirstDirection(path, &newDir));
+    REPORTER_ASSERT(reporter, newDir == dir);
+    *packed = savedPacked;
 }
 
 static void test_flattening(skiatest::Reporter* reporter) {

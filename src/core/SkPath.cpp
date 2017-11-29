@@ -2165,7 +2165,13 @@ size_t SkPath::readFromMemory(const void* storage, size_t length) {
         return 0;
     }
 
-    fConvexity.store( (Convexity)((packed >> kConvexity_SerializationShift) & 0xFF) );
+    // These are written into the serialized data but we no longer use them in the deserialized
+    // path. If convexity is corrupted it may cause the GPU backend to make incorrect
+    // rendering choices, possibly crashing. We set them to unknown so that they'll be recomputed if
+    // requested.
+    fConvexity = kUnknown_Convexity;
+    fFirstDirection = SkPathPriv::kUnknown_FirstDirection;
+
     fFillType = fillType;
     fIsVolatile = (packed >> kIsVolatile_SerializationShift) & 0x1;
     SkPathRef* pathRef = SkPathRef::CreateFromBuffer(&buffer);
@@ -2176,26 +2182,6 @@ size_t SkPath::readFromMemory(const void* storage, size_t length) {
     fPathRef.reset(pathRef);
     SkDEBUGCODE(this->validate();)
     buffer.skipToAlign4();
-
-    // compatibility check
-    if (version < kPathPrivFirstDirection_Version) {
-        switch (dir) {  // old values
-            case 0:
-                fFirstDirection = SkPathPriv::kUnknown_FirstDirection;
-                break;
-            case 1:
-                fFirstDirection = SkPathPriv::kCW_FirstDirection;
-                break;
-            case 2:
-                fFirstDirection = SkPathPriv::kCCW_FirstDirection;
-                break;
-            default:
-                return 0;
-        }
-    } else {
-        fFirstDirection = dir;
-    }
-
     return buffer.pos();
 }
 
