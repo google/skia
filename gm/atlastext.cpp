@@ -112,6 +112,11 @@ private:
                         uint32_t color = random.nextU();
                         x = size + draw_string(fTarget.get(), text, x, y, color, typeface, size);
                         x = SkScalarCeilToScalar(x);
+                        // Flush periodically to test continued drawing after a flush. Using color
+                        // to avoid churning the RNG and having to rebaseline images.
+                        if (!(color & 0xf)) {
+                            fTarget->flush();
+                        }
                         if (x + 100 > kSize) {
                             x = 0;
                             y += SkScalarCeilToScalar(size + 3);
