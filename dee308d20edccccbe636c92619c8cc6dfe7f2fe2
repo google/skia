@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "7d59087d_5bf53b91",
+        "filename": "include/core/SkPath.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 1677,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-11-29T18:03:26Z",
+      "side": 1,
+      "message": "sgtm - I mainly wanted to make sure it wasn\u0027t unintentional.",
+      "parentUuid": "26e10388_ce180148",
+      "revId": "dee308d20edccccbe636c92619c8cc6dfe7f2fe2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "5a4769f8_d7423564",
         "filename": "src/core/SkPath.cpp",
         "patchSetId": 3
