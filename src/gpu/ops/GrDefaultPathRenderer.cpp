@@ -180,7 +180,7 @@ public:
         SkPath::Verb verb;
 
         SkPoint pts[4];
-        while ((verb = iter.next(pts, false)) != SkPath::kDone_Verb) {
+        while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
             if (SkPath::kMove_Verb == verb && !first) {
                 return true;
             }
