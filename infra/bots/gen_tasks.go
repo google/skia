@@ -591,10 +591,16 @@ func updateMetaConfig(b *specs.TasksCfgBuilder, name string) string {
 // generated chain of tasks, which the Job should add as a dependency.
 func ctSKPs(b *specs.TasksCfgBuilder, name string) string {
 	b.MustAddTask(name, &specs.TaskSpec{
-		CipdPackages: []*specs.CipdPackage{},
+		CipdPackages: []*specs.CipdPackage{
+			&specs.CipdPackage{
+				Name:    "infra/tools/luci/vpython/${platform}",
+				Path:    "cipd_bin_packages",
+				Version: "git_revision:25b0564a204da2bfd6346f26a59b9efb8cfc2212",
+			},
+		},
 		Dimensions: []string{
 			"pool:SkiaCT",
-			"os:Debian-9.1",
+			fmt.Sprintf("os:%s", DEFAULT_OS_LINUX_GCE),
 		},
 		ExecutionTimeout: 24 * time.Hour,
 		ExtraArgs: []string{

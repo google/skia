@@ -5,6 +5,9 @@
   'variables': {
     'command': [
       'python', 'recipes.py', '--package', '../config/recipes.cfg', 'run', '--timestamps',
+      '-set-env-abspath', 'VPYTHON_VIRTUALENV_ROOT=cache/vpython',
+      '-prefix-path-env', 'cipd_bin_packages',
+      '-prefix-path-env', 'cipd_bin_packages/bin',
     ],
     'files': [
       '../config/recipes.cfg',
