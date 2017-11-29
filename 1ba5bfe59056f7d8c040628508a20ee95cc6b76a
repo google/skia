@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa8f1afd_de291526",
+        "filename": "src/core/SkBlitter.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 718,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-11-29T13:09:49Z",
+      "side": 1,
+      "message": "Curious.. is this any different than not overriding the destructor at all?",
+      "revId": "1ba5bfe59056f7d8c040628508a20ee95cc6b76a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
