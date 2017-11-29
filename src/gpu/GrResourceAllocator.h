@@ -120,9 +120,8 @@ private:
         void setNext(Interval* next) { fNext = next; }
 
         void extendEnd(unsigned int newEnd) {
-            if (newEnd > fEnd) {
-                fEnd = newEnd;
-            }
+            SkASSERT(newEnd >= fEnd);
+            fEnd = newEnd;
         }
 
         void assign(sk_sp<GrSurface>);

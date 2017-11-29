@@ -1833,8 +1833,6 @@ bool GrRenderTargetContext::setupDstProxy(GrRenderTargetProxy* rtProxy, const Gr
             // will be responsible to detect this situation and request a texture barrier.
             dstProxy->setProxy(sk_ref_sp(texProxy));
             dstProxy->setOffset(0, 0);
-            // Notify the resource allocator that this will be a direct read from the render target.
-            SkDEBUGCODE(dstProxy->proxy()->priv().markAsDirectDstRead_debugOnly();)
             return true;
         }
     }
