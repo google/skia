@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "26e10388_ce180148",
+        "filename": "include/core/SkPath.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 1677,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-11-29T17:51:51Z",
+      "side": 1,
+      "message": "I thought it might be useful as documentation of what the previous versions were (?)",
+      "parentUuid": "8325cd1f_201d16c1",
+      "revId": "dee308d20edccccbe636c92619c8cc6dfe7f2fe2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "5a4769f8_d7423564",
         "filename": "src/core/SkPath.cpp",
         "patchSetId": 3
