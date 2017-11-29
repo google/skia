@@ -428,6 +428,10 @@ private:
     // This pointer is unreffed. OpLists own a ref on their surface proxies.
     GrOpList* fLastOpList;
 
+    // Notifies the resource allocator when a proxy is a direct read from the render target itself
+    // (via texture barrier). This information is necessary for certain assertions.
+    SkDEBUGCODE(bool fIsDirectDstRead = false;)
+
     typedef GrIORefProxy INHERITED;
 };
 

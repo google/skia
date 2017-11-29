@@ -50,7 +50,14 @@ void GrResourceAllocator::addInterval(GrSurfaceProxy* proxy,
 
     if (Interval* intvl = fIntvlHash.find(proxy->uniqueID().asUInt())) {
         // Revise the interval for an existing use
-        SkASSERT(intvl->end() <= start && intvl->end() <= end);
+#ifdef SK_DEBUG
+        if (proxy->priv().isDirectDstRead_debugOnly()) {
+            // Direct reads from the render target itself should occur w/in the existing interval
+            SkASSERT(intvl->start() <= start && intvl->end() >= end);
+        } else {
+            SkASSERT(intvl->end() <= start && intvl->end() <= end);
+        }
+#endif
         intvl->extendEnd(end);
         return;
     }
