@@ -11,6 +11,7 @@
 #include "SkColorSpace.h"
 #include "SkColorSpaceXform_Base.h"
 #include "SkData.h"
+#include "SkDumbCodec.h"
 #include "SkFrameHolder.h"
 #include "SkGifCodec.h"
 #include "SkHalf.h"
@@ -98,6 +99,10 @@ std::unique_ptr<SkCodec> SkCodec::MakeFromStream(std::unique_ptr<SkStream> strea
     } else
 #endif
     {
+        if (SkDumbCodec::IsDumb(buffer, bytesRead)) {
+            return SkDumbCodec::MakeFromStream(std::move(stream), outResult);
+        }
+
         for (DecoderProc proc : gDecoderProcs) {
             if (proc.IsFormat(buffer, bytesRead)) {
                 return proc.MakeFromStream(std::move(stream), outResult);

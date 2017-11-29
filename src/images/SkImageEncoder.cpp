@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "SkDumbCodec.h"
 #include "SkImageEncoderPriv.h"
 #include "SkJpegEncoder.h"
 #include "SkPngEncoder.h"
@@ -55,6 +56,8 @@ bool SkEncodeImage(SkWStream* dst, const SkPixmap& src,
                 opts.fUnpremulBehavior = SkTransferFunctionBehavior::kIgnore;
                 return SkWebpEncoder::Encode(dst, src, opts);
             }
+            case SkEncodedImageFormat::kDUMB:
+                return SkDumbCodec::Encode(dst, src);
             default:
                 return false;
         }

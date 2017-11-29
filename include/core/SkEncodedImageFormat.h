@@ -29,6 +29,8 @@ enum class SkEncodedImageFormat {
     kASTC,
     kDNG,
     kHEIF,
+
+    kDUMB,  // skia internal
 };
 
 #endif  // SkEncodedImageFormat_DEFINED

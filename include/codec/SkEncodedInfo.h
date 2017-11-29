@@ -18,6 +18,7 @@ public:
     enum Alpha {
         kOpaque_Alpha,
         kUnpremul_Alpha,
+        kPremul_Alpha,
 
         // Each pixel is either fully opaque or fully transparent.
         // There is no difference between requesting kPremul or kUnpremul.
@@ -33,6 +34,8 @@ public:
      * Ex: kRGB images must also be kOpaque.
      */
     enum Color {
+        kAlpha_Color,
+
         // PNG, WBMP
         kGray_Color,
 
@@ -71,6 +74,7 @@ public:
         SkASSERT(1 == bitsPerComponent ||
                  2 == bitsPerComponent ||
                  4 == bitsPerComponent ||
+                 5 == bitsPerComponent ||
                  8 == bitsPerComponent ||
                  16 == bitsPerComponent);
 
@@ -88,7 +92,7 @@ public:
             case kBGR_Color:
             case kBGRX_Color:
                 SkASSERT(kOpaque_Alpha == alpha);
-                SkASSERT(bitsPerComponent >= 8);
+                SkASSERT(bitsPerComponent == 5 || bitsPerComponent >= 8);
                 break;
             case kYUV_Color:
             case kInvertedCMYK_Color:

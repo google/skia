@@ -12,6 +12,9 @@ skia_core_sources = [
   "$_src/c/sk_surface.cpp",
   "$_src/c/sk_types_priv.h",
 
+  "$_src/codec/SkDumbCodec.cpp",
+  "$_src/codec/SkDumbCodec.h",
+
   "$_src/core/Sk4px.h",
   "$_src/core/SkAAClip.cpp",
   "$_src/core/SkAnnotation.cpp",
