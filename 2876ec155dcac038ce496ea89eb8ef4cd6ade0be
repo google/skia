@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9aeb7479_10c2b936",
+        "filename": "include/private/GrSurfaceProxy.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 423,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-11-29T12:54:27Z",
+      "side": 1,
+      "message": "This is fine by me but I was actually proposing adding it to the GrSurfaceOrigin enum.",
+      "revId": "2876ec155dcac038ce496ea89eb8ef4cd6ade0be",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0cdb5992_2ccd2b73",
+        "filename": "src/gpu/GrRenderTargetOpList.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 285,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-11-29T12:54:27Z",
+      "side": 1,
+      "message": "// comment here about the fDstProxy handling ?",
+      "revId": "2876ec155dcac038ce496ea89eb8ef4cd6ade0be",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b4150c11_175d0cb1",
+        "filename": "src/gpu/GrResourceAllocator.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-11-29T12:54:27Z",
+      "side": 1,
+      "message": "You don\u0027t want to just bail here since these, currently, have to handle their own lifetimes?\n\nRegardless, this doesn\u0027t seem to be the right place to be instantiating them.",
+      "revId": "2876ec155dcac038ce496ea89eb8ef4cd6ade0be",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0b69e89e_50682977",
+        "filename": "src/gpu/GrSurfaceProxy.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-11-29T12:54:27Z",
+      "side": 1,
+      "message": "Do we always want/need the lazy-callback proxies to be exact ?",
+      "revId": "2876ec155dcac038ce496ea89eb8ef4cd6ade0be",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4b5c6d31_28d39a7e",
+        "filename": "src/gpu/GrSurfaceProxy.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-11-29T12:54:27Z",
+      "side": 1,
+      "message": "Erp - do we really require gpu memory ?",
+      "revId": "2876ec155dcac038ce496ea89eb8ef4cd6ade0be",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
