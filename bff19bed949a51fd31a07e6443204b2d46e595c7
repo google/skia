@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cb69f319_7c19c653",
+        "filename": "src/gpu/GrRenderTargetOpList.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 372,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-11-29T13:07:14Z",
+      "side": 1,
+      "message": "Could this just go in GrRenderTargetContext::setupDstProxy?",
+      "revId": "bff19bed949a51fd31a07e6443204b2d46e595c7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4ca6f559_e5692d1b",
+        "filename": "src/gpu/GrRenderTargetOpList.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 154,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-11-29T13:07:14Z",
+      "side": 1,
+      "message": "This can probably go back to the old order",
+      "revId": "bff19bed949a51fd31a07e6443204b2d46e595c7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
