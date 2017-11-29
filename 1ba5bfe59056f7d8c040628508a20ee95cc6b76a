@@ -16,6 +16,24 @@
       "revId": "1ba5bfe59056f7d8c040628508a20ee95cc6b76a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "51abb6c5_abeb8c75",
+        "filename": "src/core/SkBlitter.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 718,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-11-29T14:30:20Z",
+      "side": 1,
+      "message": "I\u0027d say no, since the base class has a virtual destructor.\n\nI\u0027m not sure what the general rule/style is, we have these sprinkled around the code base.  On one hand they\u0027re redundant, but OTOH they may help if the class hierarchy changes in unexpected ways.",
+      "parentUuid": "fa8f1afd_de291526",
+      "revId": "1ba5bfe59056f7d8c040628508a20ee95cc6b76a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
