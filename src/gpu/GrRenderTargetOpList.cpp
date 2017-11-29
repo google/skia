@@ -60,6 +60,12 @@ void GrRenderTargetOpList::dump() const {
         }
     }
 }
+
+void GrRenderTargetOpList::visitProxies_debugOnly(const GrOp::VisitProxyFunc& func) const {
+    for (const RecordedOp& recordedOp : fRecordedOps) {
+        recordedOp.visitProxies(func);
+    }
+}
 #endif
 
 void GrRenderTargetOpList::onPrepare(GrOpFlushState* flushState) {
@@ -271,11 +277,15 @@ void GrRenderTargetOpList::gatherProxyIntervals(GrResourceAllocator* alloc) cons
         alloc->incOps();
     }
 
-    auto gather = [ alloc ] (GrSurfaceProxy* p) {
+    auto addInterval = [ alloc ] (GrSurfaceProxy* p) {
         alloc->addInterval(p);
     };
     for (const RecordedOp& recordedOp : fRecordedOps) {
-        recordedOp.visitProxies(gather); // only diff from the GrTextureOpList version
+        recordedOp.visitProxies(addInterval, RecordedOp::VisitDstProxy::kNo);
+        if (recordedOp.fDstProxy.proxy()) {
+            alloc->addInterval(recordedOp.fDstProxy.proxy()
+                               SkDEBUGCODE(, GrResourceAllocator::IsDstRead::kYes));
+        }
 
         // Even though the op may have been moved we still need to increment the op count to
         // keep all the math consistent.
@@ -367,17 +377,8 @@ void GrRenderTargetOpList::recordOp(std::unique_ptr<GrOp> op,
         clip = fClipAllocator.make<GrAppliedClip>(std::move(*clip));
         SkDEBUGCODE(fNumClips++;)
     }
-    RecordedOp& recordedOp = fRecordedOps.emplace_back(std::move(op), clip, dstProxy);
-#ifdef SK_DEBUG
-    GrSurfaceProxy* recordedDstProxy = recordedOp.fDstProxy.proxy();
-    if (recordedDstProxy && fTarget.get() == recordedDstProxy &&
-        (static_cast<GrSurfaceProxy*>(recordedDstProxy->asTextureProxy()) ==
-                     static_cast<GrSurfaceProxy*>(recordedDstProxy->asRenderTargetProxy()))) {
-        // Notify the resource allocator that is a direct read from the render target itself.
-        recordedDstProxy->priv().markAsDirectDstRead_debugOnly();
-    }
-#endif
-    recordedOp.fOp->wasRecorded(this);
+    fRecordedOps.emplace_back(std::move(op), clip, dstProxy);
+    fRecordedOps.back().fOp->wasRecorded(this);
 }
 
 void GrRenderTargetOpList::forwardCombine(const GrCaps& caps) {
