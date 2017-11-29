@@ -45,14 +45,23 @@ public:
     void incOps() { fNumOps++; }
     unsigned int numOps() const { return fNumOps; }
 
+#ifdef SK_DEBUG
+    enum class IsDstRead : bool {
+        kNo = false,
+        kYes = true
+    };
+#endif
+
     // Add a usage interval from 'start' to 'end' inclusive. This is usually used for renderTargets.
     // If an existing interval already exists it will be expanded to include the new range.
-    void addInterval(GrSurfaceProxy*, unsigned int start, unsigned int end);
+    void addInterval(GrSurfaceProxy*, unsigned int start, unsigned int end
+                     SkDEBUGCODE(, IsDstRead = IsDstRead::kNo));
 
     // Add an interval that spans just the current op. Usually this is for texture uses.
     // If an existing interval already exists it will be expanded to include the new operation.
-    void addInterval(GrSurfaceProxy* proxy) {
-        this->addInterval(proxy, fNumOps, fNumOps);
+    void addInterval(GrSurfaceProxy* proxy
+                     SkDEBUGCODE(, IsDstRead isDstRead = IsDstRead::kNo)) {
+        this->addInterval(proxy, fNumOps, fNumOps SkDEBUGCODE(, isDstRead));
     }
 
     // Returns true when the opLists from 'startIndex' to 'stopIndex' should be executed;

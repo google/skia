@@ -68,6 +68,8 @@ public:
     // Don't. Just don't.
     void exactify();
 
+    void doLazyInstantiation(GrResourceProvider*);
+
     static bool AttachStencilIfNeeded(GrResourceProvider*, GrSurface*, bool needsStencil);
 
     // These are used to notify the resource allocator when a proxy is a direct read from the render
