@@ -7,7 +7,7 @@
  Unicode Unicode5 UTF-8 UTF-16 UTF-32 ASCII Unichar
  API
  CPU
- GPU GPU-backed OpenGL Vulkan I/O MSAA UV_Mapping Multi_Sample_Anti_Aliasing
+ GPU GPU-backed OpenGL Vulkan I/O MSAA UV_Mapping Multi_Sample_Anti_Aliasing GPU_Share_Group
  PDF XPS
  RFC
  NaN NaNs

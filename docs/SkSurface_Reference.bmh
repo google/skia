@@ -625,6 +625,7 @@ Surface bottom-left corner is pinned to the origin.
 #Return Surface if all parameters are valid; otherwise, nullptr ##
 
 #Example
+#Platform cpu gpu
 #Description
 LCD text takes advantage of raster striping to improve resolution. Only one of
 the four combinations is correct, depending on whether the monitor's LCD is
@@ -644,23 +645,18 @@ void draw(SkCanvas* canvas) {
     };
     GrContext* context = canvas->getGrContext();
     SkImageInfo info = SkImageInfo::MakeN32(128, 64, kOpaque_SkAlphaType);
-    SkAutoTMalloc<SkPMColor> storage(info.computeMinByteSize());
-    SkBitmap bitmap;
-    bitmap.installPixels(info, storage.get(), info.minRowBytes());
     int y = 0;
     for (auto geometry : { kRGB_H_SkPixelGeometry, kBGR_H_SkPixelGeometry,
                            kRGB_V_SkPixelGeometry, kBGR_V_SkPixelGeometry } ) {
         SkSurfaceProps props(0, geometry);
-        std::unique_ptr<SkCanvas> offscreen = SkCanvas::MakeRasterDirect(info, storage.get(),
-                info.minRowBytes(), &props);
         sk_sp<SkSurface> surface = context ? SkSurface::MakeRenderTarget(
                 context, SkBudgeted::kNo, info, 0, &props) : SkSurface::MakeRaster(info, &props);
         test_draw(surface->getCanvas());
         surface->draw(canvas, 0, y, nullptr);
-        surface->draw(offscreen.get(), 0, 0, nullptr);
+        sk_sp<SkImage> image(surface->makeImageSnapshot());
         SkAutoCanvasRestore acr(canvas, true);
         canvas->scale(8, 8);
-        canvas->drawBitmap(bitmap, 12, y / 8);
+        canvas->drawImage(image, 12, y / 8);
         y += 64;
     }
 }
@@ -893,13 +889,13 @@ CAN WE DEPRECATE THIS?
     };
 ##
 
-#Const kFlushRead_BackendHandleAccess
+#Const kFlushRead_BackendHandleAccess 0
 Caller may read from the back-end object.
 ##
-#Const kFlushWrite_BackendHandleAccess
+#Const kFlushWrite_BackendHandleAccess 1
 Caller may write to the back-end object.
 ##
-#Const kDiscardWrite_BackendHandleAccess
+#Const kDiscardWrite_BackendHandleAccess 2
 Caller must overwrite the entire back-end object.
 ##
 
