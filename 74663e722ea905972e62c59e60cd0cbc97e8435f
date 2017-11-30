@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d0297678_1cabb789",
+        "filename": "gn/gn_to_bp.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-11-30T22:19:19Z",
+      "side": 1,
+      "message": "Might be nice to add a note about why.  Can we write comments in here?",
+      "revId": "74663e722ea905972e62c59e60cd0cbc97e8435f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
