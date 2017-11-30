@@ -13,6 +13,7 @@
 #include "GrResourceCache.h"
 #include "GrTexturePriv.h"
 
+// Deferred version
 GrTextureProxy::GrTextureProxy(const GrSurfaceDesc& srcDesc, SkBackingFit fit, SkBudgeted budgeted,
                                const void* srcData, size_t /*rowBytes*/, uint32_t flags)
         : INHERITED(srcDesc, fit, budgeted, flags)
@@ -23,6 +24,16 @@ GrTextureProxy::GrTextureProxy(const GrSurfaceDesc& srcDesc, SkBackingFit fit, S
     SkASSERT(!srcData);  // currently handled in Make()
 }
 
+// Lazy-callback version
+GrTextureProxy::GrTextureProxy(LazyInstantiateCallback&& callback, GrPixelConfig config)
+        : INHERITED(std::move(callback), config)
+        , fMipMapped(GrMipMapped::kNo)
+        , fMipColorMode(SkDestinationSurfaceColorMode::kLegacy)
+        , fCache(nullptr)
+        , fDeferredUploader(nullptr) {
+}
+
+// Wrapped version
 GrTextureProxy::GrTextureProxy(sk_sp<GrSurface> surf, GrSurfaceOrigin origin)
         : INHERITED(std::move(surf), origin, SkBackingFit::kExact)
         , fMipMapped(fTarget->asTexture()->texturePriv().mipMapped())
@@ -109,8 +120,8 @@ GrSamplerState::Filter GrTextureProxy::highestFilterMode() const {
 }
 
 size_t GrTextureProxy::onUninstantiatedGpuMemorySize() const {
-    return GrSurface::ComputeSize(fConfig, fWidth, fHeight, 1, this->mipMapped(),
-                                  SkBackingFit::kApprox == fFit);
+    return GrSurface::ComputeSize(this->config(), this->width(), this->height(), 1,
+                                  this->mipMapped(), !this->priv().isExact());
 }
 
 void GrTextureProxy::setUniqueKey(GrResourceCache* cache, const GrUniqueKey& key) {
@@ -130,4 +141,11 @@ void GrTextureProxy::clearUniqueKey() {
     fUniqueKey.reset();
     fCache = nullptr;
 }
+
+#ifdef SK_DEBUG
+void GrTextureProxy::validateLazyTexture(const GrTexture* texture) {
+    SkASSERT(!texture->asRenderTarget());
+    SkASSERT(GrMipMapped::kNo == this->mipMapped());
+}
+#endif
 

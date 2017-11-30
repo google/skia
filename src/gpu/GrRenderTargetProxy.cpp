@@ -34,12 +34,20 @@ GrRenderTargetProxy::GrRenderTargetProxy(const GrCaps& caps, const GrSurfaceDesc
     }
 }
 
+// Lazy-callback version
+GrRenderTargetProxy::GrRenderTargetProxy(LazyInstantiateCallback&& callback, GrPixelConfig config)
+        : INHERITED(std::move(callback), config)
+        , fSampleCnt(0)
+        , fNeedsStencil(false)
+        , fRenderTargetFlags(GrRenderTargetFlags::kNone) {
+}
+
 // Wrapped version
 GrRenderTargetProxy::GrRenderTargetProxy(sk_sp<GrSurface> surf, GrSurfaceOrigin origin)
-    : INHERITED(std::move(surf), origin, SkBackingFit::kExact)
-    , fSampleCnt(fTarget->asRenderTarget()->numStencilSamples())
-    , fNeedsStencil(false)
-    , fRenderTargetFlags(fTarget->asRenderTarget()->renderTargetPriv().flags()) {
+        : INHERITED(std::move(surf), origin, SkBackingFit::kExact)
+        , fSampleCnt(fTarget->asRenderTarget()->numStencilSamples())
+        , fNeedsStencil(false)
+        , fRenderTargetFlags(fTarget->asRenderTarget()->renderTargetPriv().flags()) {
 }
 
 int GrRenderTargetProxy::maxWindowRectangles(const GrCaps& caps) const {
@@ -85,8 +93,8 @@ size_t GrRenderTargetProxy::onUninstantiatedGpuMemorySize() const {
     int colorSamplesPerPixel = this->numColorSamples() + 1;
 
     // TODO: do we have enough information to improve this worst case estimate?
-    return GrSurface::ComputeSize(fConfig, fWidth, fHeight, colorSamplesPerPixel, GrMipMapped::kNo,
-                                  SkBackingFit::kApprox == fFit);
+    return GrSurface::ComputeSize(this->config(), this->width(), this->height(),
+                                  colorSamplesPerPixel, GrMipMapped::kNo, !this->priv().isExact());
 }
 
 bool GrRenderTargetProxy::refsWrappedObjects() const {

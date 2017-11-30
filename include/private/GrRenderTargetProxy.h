@@ -67,6 +67,9 @@ protected:
     GrRenderTargetProxy(const GrCaps&, const GrSurfaceDesc&,
                         SkBackingFit, SkBudgeted, uint32_t flags);
 
+    // Lazy-callback version
+    GrRenderTargetProxy(LazyInstantiateCallback&&, GrPixelConfig);
+
     // Wrapped version
     GrRenderTargetProxy(sk_sp<GrSurface>, GrSurfaceOrigin);
 
@@ -74,6 +77,7 @@ protected:
 
 private:
     size_t onUninstantiatedGpuMemorySize() const override;
+    SkDEBUGCODE(void validateLazyTexture(const GrTexture*) override { SkASSERT(0); })
 
     int                 fSampleCnt;
     bool                fNeedsStencil;
