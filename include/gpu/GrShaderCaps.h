@@ -196,7 +196,14 @@ public:
 
     int maxCombinedSamplers() const { return fMaxCombinedSamplers; }
 
-    bool disableImageMultitexturingSupport() const { return fDisableImageMultitexturing; }
+    /**
+     * In general using multiple texture units for image rendering seems to be a win at smaller
+     * sizes of dst rects and a loss at larger sizes. Dst rects above this pixel area threshold will
+     * not use multitexturing.
+     */
+    size_t disableImageMultitexturingDstRectAreaThreshold() const {
+        return fDisableImageMultitexturingDstRectAreaThreshold;
+    }
 
     /**
      * Given a texture's config, this determines what swizzle must be appended to accesses to the
@@ -245,7 +252,6 @@ private:
     bool fVertexIDSupport : 1;
     bool fFloatIs32Bits : 1;
     bool fHalfIs32Bits : 1;
-    bool fDisableImageMultitexturing : 1;
 
     // Used for specific driver bug work arounds
     bool fCanUseMinAndAbsTogether : 1;
@@ -276,6 +282,8 @@ private:
     int fMaxGeometrySamplers;
     int fMaxFragmentSamplers;
     int fMaxCombinedSamplers;
+
+    size_t fDisableImageMultitexturingDstRectAreaThreshold;
 
     AdvBlendEqInteraction fAdvBlendEqInteraction;
 
