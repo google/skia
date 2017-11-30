@@ -353,6 +353,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, repor
         std::random_device rd;
         seed = rd();
     }
+    seed = 0xf6ddbe2f;
     // If a non-deterministic bot fails this test, check the output to see what seed it used, then
     // hard-code that value here:
     SkRandom random(seed);
