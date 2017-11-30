@@ -406,3 +406,20 @@ DEF_TEST(SkNx_thenElse, r) {
     REPORTER_ASSERT(r, fslo[0] == 1);
     REPORTER_ASSERT(r, fslo[1] == -1);
 }
+
+DEF_TEST(Sk4f_Load2, r) {
+    float xy[8] = { 0,1,2,3,4,5,6,7 };
+
+    Sk4f x,y;
+    Sk4f::Load2(xy, &x,&y);
+
+    REPORTER_ASSERT(r, x[0] == 0);
+    REPORTER_ASSERT(r, x[1] == 2);
+    REPORTER_ASSERT(r, x[2] == 4);
+    REPORTER_ASSERT(r, x[3] == 6);
+
+    REPORTER_ASSERT(r, y[0] == 1);
+    REPORTER_ASSERT(r, y[1] == 3);
+    REPORTER_ASSERT(r, y[2] == 5);
+    REPORTER_ASSERT(r, y[3] == 7);
+}
