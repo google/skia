@@ -16,6 +16,24 @@
       "revId": "e1387906d302496592f7ab697e2a97dbdb0659fd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "515ed9d0_83d8624f",
+        "filename": "src/codec/SkJpegPriv.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-11-30T22:54:55Z",
+      "side": 1,
+      "message": "../../../src/codec/SkJpegCodec.cpp(192,48):  error: type \u0027JpegDecoderMgr\u0027 requires 16 bytes of alignment and the default allocator only guarantees 8 bytes [-Werror,-Wover-aligned]\n    std::unique_ptr\u003cJpegDecoderMgr\u003e decoderMgr(new JpegDecoderMgr(stream));\n                                               ^\nI like std::aligned_storage better, thanks for the tip.",
+      "parentUuid": "eb49d7c2_b81fff54",
+      "revId": "e1387906d302496592f7ab697e2a97dbdb0659fd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
