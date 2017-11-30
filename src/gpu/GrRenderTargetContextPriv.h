@@ -109,6 +109,7 @@ public:
     }
 
     uint32_t testingOnly_addDrawOp(std::unique_ptr<GrDrawOp>);
+    uint32_t testingOnly_addDrawOp(const GrClip&, std::unique_ptr<GrDrawOp>);
 
     bool refsWrappedObjects() const {
         return fRenderTargetContext->fRenderTargetProxy->refsWrappedObjects();

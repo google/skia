@@ -60,6 +60,12 @@ void GrRenderTargetOpList::dump() const {
         }
     }
 }
+
+void GrRenderTargetOpList::visitProxies_debugOnly(const GrOp::VisitProxyFunc& func) const {
+    for (const RecordedOp& recordedOp : fRecordedOps) {
+        recordedOp.visitProxies(func);
+    }
+}
 #endif
 
 void GrRenderTargetOpList::onPrepare(GrOpFlushState* flushState) {
