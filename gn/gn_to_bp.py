@@ -75,6 +75,9 @@ cc_library_static {
             srcs: [
                 $x86_srcs
             ],
+            cflags: [
+                "-Wno-over-aligned"
+            ],
         },
 
         x86_64: {
