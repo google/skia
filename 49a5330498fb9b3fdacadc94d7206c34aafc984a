@@ -22,6 +22,30 @@
       "revId": "49a5330498fb9b3fdacadc94d7206c34aafc984a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "757c1daf_7507e25e",
+        "filename": "src/opts/SkNx_sse.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-11-30T22:17:08Z",
+      "side": 1,
+      "message": "I\u0027m not sure I follow.  This casting the pointer into a float*.\n\nDo you mean why not just *x \u003d SkNx{ptr[0], ptr[2], ... } ?  If so, I\u0027ve just anecdotally found that Clang\u0027s better at generating code for this sort of thing in terms of contiguous loads and shuffles between vector registers.  It\u0027s possible that it\u0027d be just as good to write it the other way.  I didn\u0027t only out of habit.",
+      "parentUuid": "3b98eebc_93ea42ea",
+      "range": {
+        "startLine": 88,
+        "startChar": 8,
+        "endLine": 88,
+        "endChar": 12
+      },
+      "revId": "49a5330498fb9b3fdacadc94d7206c34aafc984a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
