@@ -39,7 +39,7 @@
 class SkXPSDevice : public SkClipStackDevice {
 public:
     SK_API SkXPSDevice(SkISize);
-    SK_API virtual ~SkXPSDevice();
+    SK_API ~SkXPSDevice() override;
 
     bool beginPortfolio(SkWStream* outputStream, IXpsOMObjectFactory*);
     /**
