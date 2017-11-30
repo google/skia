@@ -488,6 +488,11 @@ __attribute__((no_sanitize("float-cast-overflow")))
                 fDraws[i].fTextureIdx = map[fDraws[i].fTextureIdx];
             }
         } else {
+            // We can get here when one of the ops is already multitextured but the other cannot
+            // be because of the dst rect size.
+            if (fProxyCnt > 1 || that->fProxyCnt > 1) {
+                return false;
+            }
             if (fProxy0->uniqueID() != that->fProxy0->uniqueID() || fFilter0 != that->fFilter0) {
                 return false;
             }
@@ -580,13 +585,13 @@ __attribute__((no_sanitize("float-cast-overflow")))
         GrTextureProxy* fProxy0;
         GrTextureProxy** fProxyArray;
     };
+    size_t fMaxApproxDstPixelArea;
     // The next four members should pack.
     GrSamplerState::Filter fFilter0;
     uint8_t fProxyCnt;
     // Used to track whether fProxy is ref'ed or has a pending IO after finalize() is called.
     uint8_t fFinalized;
     uint8_t fAllowSRGBInputs;
-    size_t fMaxApproxDstPixelArea;
 
     typedef GrMeshDrawOp INHERITED;
 };
