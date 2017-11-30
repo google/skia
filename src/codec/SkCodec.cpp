@@ -175,6 +175,8 @@ bool SkCodec::conversionSupported(const SkImageInfo& dst, SkEncodedInfo::Color s
         case kGray_8_SkColorType:
             return SkEncodedInfo::kGray_Color == srcColor && srcIsOpaque &&
                    !needs_color_xform(dst, srcCS, false);
+        case kAlpha_8_SkColorType:
+            return true;
         default:
             return false;
     }
