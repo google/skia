@@ -214,7 +214,7 @@ void SkOSWindow::doPaint(void* ctx) {
         //       may be ignored by builds, and the only obviously safe option
         //       seems to be to copy the bitmap to a temporary (contiguous)
         //       buffer before passing to SetDIBitsToDevice().
-        SkASSERT(bitmap.width() * bitmap.bytesPerPixel() == bitmap.rowBytes());
+        SkASSERT((size_t)bitmap.width() * (size_t)bitmap.bytesPerPixel() == bitmap.rowBytes());
         int ret = SetDIBitsToDevice(hdc,
             0, 0,
             bitmap.width(), bitmap.height(),
