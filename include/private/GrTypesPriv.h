@@ -24,6 +24,8 @@ using GrStdSteadyClock = std::chrono::monotonic_clock;
 using GrStdSteadyClock = std::chrono::steady_clock;
 #endif
 
+static constexpr GrSurfaceOrigin kGrUnknownSurfaceOrigin = static_cast<GrSurfaceOrigin>(-1);
+
 /** This enum is used to specify the load operation to be used when an
  *  opList/GrGpuCommandBuffer begins execution.
  */

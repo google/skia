@@ -21,6 +21,8 @@
 #include "GrSurfaceProxyPriv.h"
 #include "GrTextureContext.h"
 #include "GrTextureOpList.h"
+#include "GrTextureProxy.h"
+#include "GrTextureProxyPriv.h"
 #include "SkSurface_Gpu.h"
 #include "SkTTopoSort.h"
 
@@ -150,10 +152,18 @@ GrSemaphoresSubmitted GrDrawingManager::internalFlush(GrSurfaceProxy*,
                                       fFlushingOpListIDs.begin(), fFlushingOpListIDs.count(),
                                       &renderTargetContexts);
             for (const sk_sp<GrRenderTargetContext>& rtc : renderTargetContexts) {
-                sk_sp<GrOpList> onFlushOpList = sk_ref_sp(rtc->getOpList());
+                sk_sp<GrRenderTargetOpList> onFlushOpList = sk_ref_sp(rtc->getRTOpList());
                 if (!onFlushOpList) {
                     continue;   // Odd - but not a big deal
                 }
+#ifdef SK_DEBUG
+                // OnFlush callbacks are already invoked during flush, and are therefore expected to
+                // handle resource allocation & usage on their own. (No deferred or lazy proxies!)
+                onFlushOpList->visitProxies_debugOnly([](GrSurfaceProxy* p) {
+                    SkASSERT(!p->asTextureProxy() || !p->asTextureProxy()->texPriv().isDeferred());
+                    SkASSERT(!p->isPendingLazyInstantiation());
+                });
+#endif
                 onFlushOpList->makeClosed(*fContext->caps());
                 onFlushOpList->prepare(&fFlushState);
                 fOnFlushCBOpLists.push_back(std::move(onFlushOpList));

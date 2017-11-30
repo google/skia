@@ -274,7 +274,13 @@ int GrResourceCache::countUniqueKeysWithTag(const char* tag) const {
 #define ASSERT_SINGLE_OWNER \
     SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(fRenderTargetContext->singleOwner());)
 
+
 uint32_t GrRenderTargetContextPriv::testingOnly_addDrawOp(std::unique_ptr<GrDrawOp> op) {
+    return this->testingOnly_addDrawOp(GrNoClip(), std::move(op));
+}
+
+uint32_t GrRenderTargetContextPriv::testingOnly_addDrawOp(const GrClip& clip,
+                                                          std::unique_ptr<GrDrawOp> op) {
     ASSERT_SINGLE_OWNER
     if (fRenderTargetContext->drawingManager()->wasAbandoned()) {
         return SK_InvalidUniqueID;
@@ -282,7 +288,7 @@ uint32_t GrRenderTargetContextPriv::testingOnly_addDrawOp(std::unique_ptr<GrDraw
     SkDEBUGCODE(fRenderTargetContext->validate());
     GR_AUDIT_TRAIL_AUTO_FRAME(fRenderTargetContext->fAuditTrail,
                               "GrRenderTargetContext::testingOnly_addDrawOp");
-    return fRenderTargetContext->addDrawOp(GrNoClip(), std::move(op));
+    return fRenderTargetContext->addDrawOp(clip, std::move(op));
 }
 
 #undef ASSERT_SINGLE_OWNER
