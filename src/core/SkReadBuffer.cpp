@@ -242,13 +242,9 @@ sk_sp<SkImage> SkReadBuffer::readImage() {
         return MakeEmptyImage(width, height);
     }
     if (encoded_size == 1) {
-        // We had to encode the image as raw pixels via SkBitmap.
-        (void)this->readUInt();  // Swallow that encoded_size == 1 sentinel.
-        SkBitmap bm;
-        if (SkBitmap::ReadRawPixels(this, &bm)) {
-            return SkImage::MakeFromBitmap(bm);
-        }
-        return MakeEmptyImage(width, height);
+        // legacy check (we stopped writing this for "raw" images Nov-2017)
+        this->validate(false);
+        return nullptr;
     }
 
     // The SkImage encoded itself.

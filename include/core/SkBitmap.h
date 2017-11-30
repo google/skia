@@ -1287,11 +1287,7 @@ private:
     void freePixels();
     void updatePixelsFromRef();
 
-    static void WriteRawPixels(SkWriteBuffer*, const SkBitmap&);
-    static bool ReadRawPixels(SkReadBuffer*, SkBitmap*);
-
-    friend class SkReadBuffer;        // unflatten, rawpixels
-    friend class SkBinaryWriteBuffer; // rawpixels
+    friend class SkReadBuffer;        // unflatten
 };
 
 ///////////////////////////////////////////////////////////////////////////////
