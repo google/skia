@@ -1,0 +1,234 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "57d3f387_00080dda",
+        "filename": "include/codec/SkEncodedInfo.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-11-30T14:30:56Z",
+      "side": 1,
+      "message": "I suppose this is for Alpha_8? Maybe add a comment here, explaining that there\u0027s actually *not* a color encoded?",
+      "range": {
+        "startLine": 37,
+        "startChar": 8,
+        "endLine": 37,
+        "endChar": 20
+      },
+      "revId": "7e27e34c075a9ce09c8cb97c81f1341df5854ea8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "eb48af73_1309e529",
+        "filename": "src/codec/SkCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-11-30T14:30:56Z",
+      "side": 1,
+      "message": "Not a huge deal, but maybe this should go last, as we\u0027re less likely to see this than true encoded images?\n\nAlso, you could add a line to gDecoderProcs instead of these three and be consistent with the others.",
+      "range": {
+        "startLine": 102,
+        "startChar": 12,
+        "endLine": 102,
+        "endChar": 50
+      },
+      "revId": "7e27e34c075a9ce09c8cb97c81f1341df5854ea8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8c70ef22_27aaa647",
+        "filename": "src/codec/SkDumbCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-11-30T14:30:56Z",
+      "side": 1,
+      "message": "Should these be constexpr?",
+      "range": {
+        "startLine": 13,
+        "startChar": 0,
+        "endLine": 13,
+        "endChar": 5
+      },
+      "revId": "7e27e34c075a9ce09c8cb97c81f1341df5854ea8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c498e75a_52c25874",
+        "filename": "src/codec/SkDumbCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-11-30T14:30:56Z",
+      "side": 1,
+      "message": "Why is this line necessary? Isn\u0027t this already set on line 25? (Unless someone gave us a bad info?)",
+      "range": {
+        "startLine": 36,
+        "startChar": 12,
+        "endLine": 36,
+        "endChar": 46
+      },
+      "revId": "7e27e34c075a9ce09c8cb97c81f1341df5854ea8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7f62cf7e_028298d6",
+        "filename": "src/codec/SkDumbCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-11-30T14:30:56Z",
+      "side": 1,
+      "message": "I just looked at the comments for SkEncodedInfo::Color, and it says:\n\n    /*\n     * We strive to make the number of components per pixel obvious through\n     * our naming conventions.\n     * Ex: kRGB has 3 components.  kRGBA has 4 components.\n     *\n     * This sometimes results in redundant Alpha and Color information.\n     * Ex: kRGB images must also be kOpaque.\n     */\n\nTo be consistent with the current convention, this should be kRGBX_Color. (That doesn\u0027t currently exist, because we haven\u0027t seen it in existing formats, but there is already a kBGRX.)\n\nIn practice, this would only matter internally if you had an SkSwizzler, which would think you only had three components instead of four.",
+      "range": {
+        "startLine": 44,
+        "startChar": 35,
+        "endLine": 44,
+        "endChar": 60
+      },
+      "revId": "7e27e34c075a9ce09c8cb97c81f1341df5854ea8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8988e8f5_67d86242",
+        "filename": "src/codec/SkDumbCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 215,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-11-30T14:30:56Z",
+      "side": 1,
+      "message": "Why not skip recording minRowBytes, given that it\u0027s redundant?",
+      "range": {
+        "startLine": 215,
+        "startChar": 8,
+        "endLine": 215,
+        "endChar": 37
+      },
+      "revId": "7e27e34c075a9ce09c8cb97c81f1341df5854ea8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "83759ba7_7ffb5fc2",
+        "filename": "src/codec/SkDumbCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 224,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-11-30T14:30:56Z",
+      "side": 1,
+      "message": "Even though we check for overflow, size could be a very large number. Android gets cranky when a malicious file can make us likely to run out of memory, so what we do in other places is call a version of malloc that won\u0027t throw and return null if malloc did. Since this is exposed publicly through SkCodec, should we follow the same pattern here?\n\nIf we just want to make Android happy, we can make BitmapFactory check for an SkDumbCodec and discard it, so users of the public API won\u0027t try to decode these, but we can still decode it internally.",
+      "range": {
+        "startLine": 224,
+        "startChar": 25,
+        "endLine": 224,
+        "endChar": 50
+      },
+      "revId": "7e27e34c075a9ce09c8cb97c81f1341df5854ea8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "51a96c32_0b23c3cb",
+        "filename": "src/codec/SkDumbCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 227,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-11-30T14:30:56Z",
+      "side": 1,
+      "message": "How could readSize be less than rowBytes?",
+      "range": {
+        "startLine": 227,
+        "startChar": 22,
+        "endLine": 227,
+        "endChar": 23
+      },
+      "revId": "7e27e34c075a9ce09c8cb97c81f1341df5854ea8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5b2be4b7_7e070701",
+        "filename": "src/codec/SkDumbCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 235,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-11-30T14:30:56Z",
+      "side": 1,
+      "message": "This assert seems unnecessary.",
+      "range": {
+        "startLine": 235,
+        "startChar": 4,
+        "endLine": 235,
+        "endChar": 28
+      },
+      "revId": "7e27e34c075a9ce09c8cb97c81f1341df5854ea8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e548a20b_a9d5926a",
+        "filename": "tests/DumbCodecTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-11-30T14:30:56Z",
+      "side": 1,
+      "message": "Remove this line? And add a separate test for Alpha_8?",
+      "range": {
+        "startLine": 22,
+        "startChar": 10,
+        "endLine": 22,
+        "endChar": 30
+      },
+      "revId": "7e27e34c075a9ce09c8cb97c81f1341df5854ea8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
