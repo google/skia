@@ -96,7 +96,6 @@ def nanobench_flags(api, bot):
     if 'glessrgb' in configs:
       if ('IntelHD405'    in bot or
           'IntelIris540'  in bot or
-          'IntelIris640'  in bot or
           'IntelBayTrail' in bot or
           'IntelHD2000'   in bot or
           'AndroidOne'    in bot or
@@ -161,8 +160,7 @@ def nanobench_flags(api, bot):
     match.append('~GLInstancedArraysBench') # skia:4714
   if 'IntelIris540' in bot and 'ANGLE' in bot:
     match.append('~tile_image_filter_tiled_64')  # skia:6082
-  if ('Vulkan' in bot and ('IntelIris540' in bot or 'IntelIris640' in bot) and
-      'Win' in bot):
+  if 'Vulkan' in bot and 'IntelIris540' in bot and 'Win' in bot:
     # skia:6398
     match.append('~GM_varied_text_clipped_lcd')
     match.append('~GM_varied_text_ignorable_clip_lcd')
