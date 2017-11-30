@@ -288,11 +288,6 @@ config("warnings") {
       "/wd4291",  # no matching operator delete found;
                   # memory will not be freed if initialization throws an exception
     ]
-    if (is_clang) {
-      # Shouldn't be necessary for local builds. With distributed builds, files may lose
-      # their case during copy, causing case-sensitivity mismatch on remote machines.
-      cflags += [ "-Wno-nonportable-include-path" ]
-    }
   } else {
     cflags += [
       "-Wall",
@@ -306,88 +301,92 @@ config("warnings") {
       "-Wno-maybe-uninitialized",
     ]
     cflags_cc += [ "-Wnon-virtual-dtor" ]
+  }
 
-    if (is_clang) {
-      cflags += [
-        "-Weverything",
-        "-Wno-unknown-warning-option",  # Let older Clangs ignore newer Clangs' warnings.
-      ]
+  if (is_clang) {
+    cflags += [
+      "-Weverything",
+      "-Wno-unknown-warning-option",  # Let older Clangs ignore newer Clangs' warnings.
+    ]
 
-      if (target_cpu == "arm" && is_ios) {
-        # Clang seems to think new/malloc will only be 4-byte aligned on 32-bit iOS.
-        # We're pretty sure it's actually 8-byte alignment.
-        cflags += [ "-Wno-over-aligned" ]
-      }
-
-      # TODO: fix after we're building with Clang 5
-      cflags += [
-        "-Wno-cast-qual",
-        "-Wno-unused-template",
-        "-Wno-zero-as-null-pointer-constant",
-      ]
-
-      cflags += [
-        "-Wno-cast-align",
-        "-Wno-conditional-uninitialized",
-        "-Wno-conversion",
-        "-Wno-disabled-macro-expansion",
-        "-Wno-documentation",
-        "-Wno-documentation-unknown-command",
-        "-Wno-double-promotion",
-        "-Wno-exit-time-destructors",  # TODO: OK outside libskia
-        "-Wno-float-conversion",
-        "-Wno-float-equal",
-        "-Wno-format-nonliteral",
-        "-Wno-global-constructors",  # TODO: OK outside libskia
-        "-Wno-gnu-zero-variadic-macro-arguments",
-        "-Wno-missing-prototypes",
-        "-Wno-missing-variable-declarations",
-        "-Wno-pedantic",
-        "-Wno-reserved-id-macro",
-        "-Wno-shadow",
-        "-Wno-shift-sign-overflow",
-        "-Wno-sign-conversion",
-        "-Wno-signed-enum-bitfield",
-        "-Wno-switch-enum",
-        "-Wno-undef",
-        "-Wno-unreachable-code",
-        "-Wno-unreachable-code-break",
-        "-Wno-unreachable-code-return",
-        "-Wno-unused-macros",
-        "-Wno-unused-member-function",
-      ]
-      cflags_cc += [
-        "-Wno-abstract-vbase-init",
-        "-Wno-weak-vtables",
-      ]
-
-      # We are unlikely to want to fix these.
-      cflags += [
-        "-Wno-covered-switch-default",
-        "-Wno-deprecated",
-        "-Wno-implicit-fallthrough",
-        "-Wno-missing-noreturn",
-        "-Wno-old-style-cast",
-        "-Wno-padded",
-      ]
-      cflags_cc += [
-        "-Wno-c++98-compat",
-        "-Wno-c++98-compat-pedantic",
-        "-Wno-undefined-func-template",
-      ]
-      cflags_objc += [
-        "-Wno-direct-ivar-access",
-        "-Wno-objc-interface-ivars",
-      ]
-      cflags_objcc += [
-        "-Wno-direct-ivar-access",
-        "-Wno-objcc-interface-ivars",
-      ]
+    if (target_cpu == "arm" && is_ios) {
+      # Clang seems to think new/malloc will only be 4-byte aligned on 32-bit iOS.
+      # We're pretty sure it's actually 8-byte alignment.
+      cflags += [ "-Wno-over-aligned" ]
     }
+
+    # Shouldn't be necessary for local builds. With distributed Windows builds, files may lose
+    # their case during copy, causing case-sensitivity mismatch on remote machines.
+    cflags += [
+      "-Wno-nonportable-include-path",
+      "-Wno-nonportable-system-include-path",
+    ]
+
+    # TODO: These would all be really great warnings to turn on.
+    cflags += [
+      "-Wno-cast-align",
+      "-Wno-cast-qual",
+      "-Wno-conditional-uninitialized",
+      "-Wno-conversion",
+      "-Wno-disabled-macro-expansion",
+      "-Wno-documentation",
+      "-Wno-documentation-unknown-command",
+      "-Wno-double-promotion",
+      "-Wno-exit-time-destructors",  # TODO: OK outside libskia
+      "-Wno-float-conversion",
+      "-Wno-float-equal",
+      "-Wno-format-nonliteral",
+      "-Wno-global-constructors",  # TODO: OK outside libskia
+      "-Wno-gnu-zero-variadic-macro-arguments",
+      "-Wno-missing-prototypes",
+      "-Wno-missing-variable-declarations",
+      "-Wno-pedantic",
+      "-Wno-reserved-id-macro",
+      "-Wno-shadow",
+      "-Wno-shift-sign-overflow",
+      "-Wno-sign-conversion",
+      "-Wno-signed-enum-bitfield",
+      "-Wno-switch-enum",
+      "-Wno-undef",
+      "-Wno-unreachable-code",
+      "-Wno-unreachable-code-break",
+      "-Wno-unreachable-code-return",
+      "-Wno-unused-macros",
+      "-Wno-unused-member-function",
+      "-Wno-unused-template",
+      "-Wno-zero-as-null-pointer-constant",
+    ]
+    cflags_cc += [
+      "-Wno-abstract-vbase-init",
+      "-Wno-weak-vtables",
+    ]
+
+    # We are unlikely to want to fix these.
+    cflags += [
+      "-Wno-covered-switch-default",
+      "-Wno-deprecated",
+      "-Wno-implicit-fallthrough",
+      "-Wno-missing-noreturn",
+      "-Wno-old-style-cast",
+      "-Wno-padded",
+    ]
+    cflags_cc += [
+      "-Wno-c++98-compat",
+      "-Wno-c++98-compat-pedantic",
+      "-Wno-undefined-func-template",
+    ]
+    cflags_objc += [
+      "-Wno-direct-ivar-access",
+      "-Wno-objc-interface-ivars",
+    ]
+    cflags_objcc += [
+      "-Wno-direct-ivar-access",
+      "-Wno-objcc-interface-ivars",
+    ]
   }
 }
 config("warnings_except_public_headers") {
-  if (!is_win) {
+  if (!is_win || is_clang) {
     cflags = [ "-Wno-unused-parameter" ]
   }
 }
