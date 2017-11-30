@@ -56,17 +56,17 @@ config("default") {
 
     _include_dirs = [
       #2017
-      "$windk/VC/Tools/MSVC/14.10.25017/include",
+      "$windk/VC/Tools/MSVC/14.11.25503/include",
 
       #2015
       "$windk/VC/include",
 
       # For local builds.
       # 2017
-      "$windk/../../../Windows Kits/10/Include/10.0.14393.0/shared",
-      "$windk/../../../Windows Kits/10/Include/10.0.14393.0/ucrt",
-      "$windk/../../../Windows Kits/10/Include/10.0.14393.0/um",
-      "$windk/../../../Windows Kits/10/Include/10.0.14393.0/winrt",
+      "$windk/../../../Windows Kits/10/Include/10.0.15063.0/shared",
+      "$windk/../../../Windows Kits/10/Include/10.0.15063.0/ucrt",
+      "$windk/../../../Windows Kits/10/Include/10.0.15063.0/um",
+      "$windk/../../../Windows Kits/10/Include/10.0.15063.0/winrt",
 
       # 2015
       "$windk/../Windows Kits/8.1/Include/shared",
@@ -75,10 +75,10 @@ config("default") {
       "$windk/../Windows Kits/8.1/Include/winrt",
 
       # For builds using win_toolchain asset.
-      "$windk/win_sdk/Include/10.0.14393.0/shared",
-      "$windk/win_sdk/Include/10.0.14393.0/ucrt",
-      "$windk/win_sdk/Include/10.0.14393.0/um",
-      "$windk/win_sdk/Include/10.0.14393.0/winrt",
+      "$windk/win_sdk/Include/10.0.15063.0/shared",
+      "$windk/win_sdk/Include/10.0.15063.0/ucrt",
+      "$windk/win_sdk/Include/10.0.15063.0/um",
+      "$windk/win_sdk/Include/10.0.15063.0/winrt",
     ]
     if (is_clang) {
       foreach(dir, _include_dirs) {
@@ -94,20 +94,20 @@ config("default") {
     lib_dirs = [
       # For local builds.
       # 2017
-      "$windk/../../../Windows Kits/10/Lib/10.0.14393.0/ucrt/$target_cpu",
-      "$windk/../../../Windows Kits/10/Lib/10.0.14393.0/um/$target_cpu",
+      "$windk/../../../Windows Kits/10/Lib/10.0.15063.0/ucrt/$target_cpu",
+      "$windk/../../../Windows Kits/10/Lib/10.0.15063.0/um/$target_cpu",
 
       #2015
       "$windk/../Windows Kits/10/Lib/10.0.10150.0/ucrt/$target_cpu",
       "$windk/../Windows Kits/8.1/Lib/winv6.3/um/$target_cpu",
 
       # For builds using win_toolchain asset.
-      "$windk/win_sdk/Lib/10.0.14393.0/ucrt/$target_cpu",
-      "$windk/win_sdk/Lib/10.0.14393.0/um/$target_cpu",
+      "$windk/win_sdk/Lib/10.0.15063.0/ucrt/$target_cpu",
+      "$windk/win_sdk/Lib/10.0.15063.0/um/$target_cpu",
     ]
 
     #2017
-    lib_dirs += [ "$windk/VC/Tools/MSVC/14.10.25017/lib/$target_cpu" ]
+    lib_dirs += [ "$windk/VC/Tools/MSVC/14.11.25503/lib/$target_cpu" ]
 
     #2015
     if (target_cpu == "x86") {
