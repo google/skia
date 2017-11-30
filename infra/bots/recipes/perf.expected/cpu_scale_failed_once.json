@@ -9,7 +9,7 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
@@ -26,7 +26,7 @@
       "/sdcard/revenge_of_the_skiabot/resources"
     ],
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
@@ -89,7 +89,7 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
@@ -108,7 +108,7 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
@@ -126,7 +126,7 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
@@ -144,7 +144,7 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
@@ -161,7 +161,7 @@
       "/sdcard/revenge_of_the_skiabot/skps"
     ],
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
@@ -196,7 +196,7 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
@@ -241,7 +241,7 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
@@ -260,7 +260,7 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
@@ -278,7 +278,7 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
@@ -296,7 +296,7 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
@@ -313,7 +313,7 @@
       "/sdcard/revenge_of_the_skiabot/images"
     ],
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
@@ -348,7 +348,7 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
@@ -393,7 +393,7 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
@@ -412,7 +412,7 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
@@ -430,7 +430,7 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
@@ -448,7 +448,7 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
@@ -465,7 +465,7 @@
       "/sdcard/revenge_of_the_skiabot/svgs"
     ],
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
@@ -500,49 +500,13 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
     },
     "infra_step": true,
     "name": "push [START_DIR]/tmp/SVG_VERSION /sdcard/revenge_of_the_skiabot/SVG_VERSION"
-  },
-  {
-    "cmd": [
-      "adb.1.0.35",
-      "shell",
-      "rm",
-      "-rf",
-      "/sdcard/revenge_of_the_skiabot/perf"
-    ],
-    "cwd": "[START_DIR]/skia",
-    "env": {
-      "BUILDTYPE": "Release",
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/out"
-    },
-    "infra_step": true,
-    "name": "rm /sdcard/revenge_of_the_skiabot/perf"
-  },
-  {
-    "cmd": [
-      "adb.1.0.35",
-      "shell",
-      "mkdir",
-      "-p",
-      "/sdcard/revenge_of_the_skiabot/perf"
-    ],
-    "cwd": "[START_DIR]/skia",
-    "env": {
-      "BUILDTYPE": "Release",
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/out"
-    },
-    "infra_step": true,
-    "name": "mkdir /sdcard/revenge_of_the_skiabot/perf"
   },
   {
     "cmd": [
@@ -578,17 +542,98 @@
       "-u",
       "\nimport os\nimport subprocess\nimport sys\nimport time\nADB = sys.argv[1]\nmodel = sys.argv[2]\ntarget_percent = float(sys.argv[3])\nlog = subprocess.check_output([ADB, 'root'])\n# check for message like 'adbd cannot run as root in production builds'\nif 'cannot' in log:\n  raise Exception('adb root failed')\n\nif model == 'Nexus10':\n  available_freqs = [200000, 300000, 400000, 500000, 600000, 700000, 800000]\nelif model == 'Nexus7':\n  # Nexus7 claims to support 1300000, but only really allows 1200000\n  available_freqs = [51000, 102000, 204000, 340000, 475000, 640000, 760000,\n                     860000, 1000000, 1100000, 1200000]\nelse:\n  # Most devices give a list of their available frequencies.\n  available_freqs = subprocess.check_output([ADB, 'shell', 'cat '\n      '/sys/devices/system/cpu/cpu0/cpufreq/scaling_available_frequencies'])\n\n  # Check for message like '/system/bin/sh: file not found'\n  if available_freqs and '/system/bin/sh' not in available_freqs:\n    available_freqs = sorted(\n        int(i) for i in available_freqs.strip().split())\n  else:\n    raise Exception('Could not get list of available frequencies: %s' %\n                    available_freqs)\n\nmaxfreq = available_freqs[-1]\ntarget = int(round(maxfreq * target_percent))\nfreq = maxfreq\nfor f in reversed(available_freqs):\n  if f <= target:\n    freq = f\n    break\n\nprint 'Setting frequency to %d' % freq\n\nsubprocess.check_output([ADB, 'shell', 'echo \"userspace\" > '\n    '/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor'])\n# If scaling_max_freq is lower than our attempted setting, it won't take.\nsubprocess.check_output([ADB, 'shell', 'echo %d > '\n    '/sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq' % freq])\nsubprocess.check_output([ADB, 'shell', 'echo %d > '\n    '/sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq' % freq])\nsubprocess.check_output([ADB, 'shell', 'echo %d > '\n    '/sys/devices/system/cpu/cpu0/cpufreq/scaling_setspeed' % freq])\ntime.sleep(5)\nactual_freq = subprocess.check_output([ADB, 'shell', 'cat '\n    '/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq']).strip()\nif actual_freq != str(freq):\n  raise Exception('(actual, expected) (%s, %d)'\n                  % (actual_freq, freq))\n",
       "adb.1.0.35",
-      "Nexus7",
+      "NexusPlayer",
       "0.6"
     ],
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
     },
     "infra_step": true,
     "name": "Scale CPU to 0.600000",
+    "timeout": 30,
+    "~followup_annotations": [
+      "step returned non-zero exit code: 1",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import os@@@",
+      "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
+      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
+      "@@@STEP_LOG_LINE@python.inline@import time@@@",
+      "@@@STEP_LOG_LINE@python.inline@ADB = sys.argv[1]@@@",
+      "@@@STEP_LOG_LINE@python.inline@model = sys.argv[2]@@@",
+      "@@@STEP_LOG_LINE@python.inline@target_percent = float(sys.argv[3])@@@",
+      "@@@STEP_LOG_LINE@python.inline@log = subprocess.check_output([ADB, 'root'])@@@",
+      "@@@STEP_LOG_LINE@python.inline@# check for message like 'adbd cannot run as root in production builds'@@@",
+      "@@@STEP_LOG_LINE@python.inline@if 'cannot' in log:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  raise Exception('adb root failed')@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@if model == 'Nexus10':@@@",
+      "@@@STEP_LOG_LINE@python.inline@  available_freqs = [200000, 300000, 400000, 500000, 600000, 700000, 800000]@@@",
+      "@@@STEP_LOG_LINE@python.inline@elif model == 'Nexus7':@@@",
+      "@@@STEP_LOG_LINE@python.inline@  # Nexus7 claims to support 1300000, but only really allows 1200000@@@",
+      "@@@STEP_LOG_LINE@python.inline@  available_freqs = [51000, 102000, 204000, 340000, 475000, 640000, 760000,@@@",
+      "@@@STEP_LOG_LINE@python.inline@                     860000, 1000000, 1100000, 1200000]@@@",
+      "@@@STEP_LOG_LINE@python.inline@else:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  # Most devices give a list of their available frequencies.@@@",
+      "@@@STEP_LOG_LINE@python.inline@  available_freqs = subprocess.check_output([ADB, 'shell', 'cat '@@@",
+      "@@@STEP_LOG_LINE@python.inline@      '/sys/devices/system/cpu/cpu0/cpufreq/scaling_available_frequencies'])@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@  # Check for message like '/system/bin/sh: file not found'@@@",
+      "@@@STEP_LOG_LINE@python.inline@  if available_freqs and '/system/bin/sh' not in available_freqs:@@@",
+      "@@@STEP_LOG_LINE@python.inline@    available_freqs = sorted(@@@",
+      "@@@STEP_LOG_LINE@python.inline@        int(i) for i in available_freqs.strip().split())@@@",
+      "@@@STEP_LOG_LINE@python.inline@  else:@@@",
+      "@@@STEP_LOG_LINE@python.inline@    raise Exception('Could not get list of available frequencies: %s' %@@@",
+      "@@@STEP_LOG_LINE@python.inline@                    available_freqs)@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@maxfreq = available_freqs[-1]@@@",
+      "@@@STEP_LOG_LINE@python.inline@target = int(round(maxfreq * target_percent))@@@",
+      "@@@STEP_LOG_LINE@python.inline@freq = maxfreq@@@",
+      "@@@STEP_LOG_LINE@python.inline@for f in reversed(available_freqs):@@@",
+      "@@@STEP_LOG_LINE@python.inline@  if f <= target:@@@",
+      "@@@STEP_LOG_LINE@python.inline@    freq = f@@@",
+      "@@@STEP_LOG_LINE@python.inline@    break@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@print 'Setting frequency to %d' % freq@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@subprocess.check_output([ADB, 'shell', 'echo \"userspace\" > '@@@",
+      "@@@STEP_LOG_LINE@python.inline@    '/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor'])@@@",
+      "@@@STEP_LOG_LINE@python.inline@# If scaling_max_freq is lower than our attempted setting, it won't take.@@@",
+      "@@@STEP_LOG_LINE@python.inline@subprocess.check_output([ADB, 'shell', 'echo %d > '@@@",
+      "@@@STEP_LOG_LINE@python.inline@    '/sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq' % freq])@@@",
+      "@@@STEP_LOG_LINE@python.inline@subprocess.check_output([ADB, 'shell', 'echo %d > '@@@",
+      "@@@STEP_LOG_LINE@python.inline@    '/sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq' % freq])@@@",
+      "@@@STEP_LOG_LINE@python.inline@subprocess.check_output([ADB, 'shell', 'echo %d > '@@@",
+      "@@@STEP_LOG_LINE@python.inline@    '/sys/devices/system/cpu/cpu0/cpufreq/scaling_setspeed' % freq])@@@",
+      "@@@STEP_LOG_LINE@python.inline@time.sleep(5)@@@",
+      "@@@STEP_LOG_LINE@python.inline@actual_freq = subprocess.check_output([ADB, 'shell', 'cat '@@@",
+      "@@@STEP_LOG_LINE@python.inline@    '/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq']).strip()@@@",
+      "@@@STEP_LOG_LINE@python.inline@if actual_freq != str(freq):@@@",
+      "@@@STEP_LOG_LINE@python.inline@  raise Exception('(actual, expected) (%s, %d)'@@@",
+      "@@@STEP_LOG_LINE@python.inline@                  % (actual_freq, freq))@@@",
+      "@@@STEP_LOG_END@python.inline@@@",
+      "@@@STEP_EXCEPTION@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport os\nimport subprocess\nimport sys\nimport time\nADB = sys.argv[1]\nmodel = sys.argv[2]\ntarget_percent = float(sys.argv[3])\nlog = subprocess.check_output([ADB, 'root'])\n# check for message like 'adbd cannot run as root in production builds'\nif 'cannot' in log:\n  raise Exception('adb root failed')\n\nif model == 'Nexus10':\n  available_freqs = [200000, 300000, 400000, 500000, 600000, 700000, 800000]\nelif model == 'Nexus7':\n  # Nexus7 claims to support 1300000, but only really allows 1200000\n  available_freqs = [51000, 102000, 204000, 340000, 475000, 640000, 760000,\n                     860000, 1000000, 1100000, 1200000]\nelse:\n  # Most devices give a list of their available frequencies.\n  available_freqs = subprocess.check_output([ADB, 'shell', 'cat '\n      '/sys/devices/system/cpu/cpu0/cpufreq/scaling_available_frequencies'])\n\n  # Check for message like '/system/bin/sh: file not found'\n  if available_freqs and '/system/bin/sh' not in available_freqs:\n    available_freqs = sorted(\n        int(i) for i in available_freqs.strip().split())\n  else:\n    raise Exception('Could not get list of available frequencies: %s' %\n                    available_freqs)\n\nmaxfreq = available_freqs[-1]\ntarget = int(round(maxfreq * target_percent))\nfreq = maxfreq\nfor f in reversed(available_freqs):\n  if f <= target:\n    freq = f\n    break\n\nprint 'Setting frequency to %d' % freq\n\nsubprocess.check_output([ADB, 'shell', 'echo \"userspace\" > '\n    '/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor'])\n# If scaling_max_freq is lower than our attempted setting, it won't take.\nsubprocess.check_output([ADB, 'shell', 'echo %d > '\n    '/sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq' % freq])\nsubprocess.check_output([ADB, 'shell', 'echo %d > '\n    '/sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq' % freq])\nsubprocess.check_output([ADB, 'shell', 'echo %d > '\n    '/sys/devices/system/cpu/cpu0/cpufreq/scaling_setspeed' % freq])\ntime.sleep(5)\nactual_freq = subprocess.check_output([ADB, 'shell', 'cat '\n    '/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq']).strip()\nif actual_freq != str(freq):\n  raise Exception('(actual, expected) (%s, %d)'\n                  % (actual_freq, freq))\n",
+      "adb.1.0.35",
+      "NexusPlayer",
+      "0.6"
+    ],
+    "env": {
+      "BUILDTYPE": "Debug",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[START_DIR]/out"
+    },
+    "infra_step": true,
+    "name": "Scale CPU to 0.600000 (attempt 2)",
     "timeout": 30,
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@@@@",
@@ -655,12 +700,12 @@
     "cmd": [
       "adb.1.0.35",
       "push",
-      "[START_DIR]/out/Release/nanobench",
+      "[START_DIR]/out/Debug/nanobench",
       "/data/local/tmp/"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
@@ -676,11 +721,11 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "set -x; /data/local/tmp/nanobench -i /sdcard/revenge_of_the_skiabot/resources --skps /sdcard/revenge_of_the_skiabot/skps --images /sdcard/revenge_of_the_skiabot/images/nanobench --svgs /sdcard/revenge_of_the_skiabot/svgs --pre_log --images --gpuStatsDump true --useThermalManager 1,1,10,1000 --scales 1.0 1.1 --nocpu --config gles --match ~blurroundrect ~patch_grid ~desk_carsvg ~inc0.gif ~inc1.gif ~incInterlaced.gif ~inc0.jpg ~incGray.jpg ~inc0.wbmp ~inc1.wbmp ~inc0.webp ~inc1.webp ~inc0.ico ~inc1.ico ~inc0.png ~inc1.png ~inc2.png ~inc12.png ~inc13.png ~inc14.png ~inc0.webp ~inc1.webp --outResultsFile /sdcard/revenge_of_the_skiabot/perf/nanobench_abc123_1337000001.json --properties gitHash abc123 swarming_bot_id skia-bot-123 swarming_task_id 123456 --key arch arm compiler Clang cpu_or_gpu GPU cpu_or_gpu_value Tegra3 extra_config Android model Nexus7 os Android; echo $? >/data/local/tmp/rc",
+      "set -x; /data/local/tmp/nanobench -i /sdcard/revenge_of_the_skiabot/resources --skps /sdcard/revenge_of_the_skiabot/skps --images /sdcard/revenge_of_the_skiabot/images/nanobench --svgs /sdcard/revenge_of_the_skiabot/svgs --pre_log --scales 1.0 1.1 --nogpu --config 8888 nonrendering f16 srgb --match ~blurroundrect ~patch_grid ~desk_carsvg ~inc0.gif ~inc1.gif ~incInterlaced.gif ~inc0.jpg ~incGray.jpg ~inc0.wbmp ~inc1.wbmp ~inc0.webp ~inc1.webp ~inc0.ico ~inc1.ico ~inc0.png ~inc1.png ~inc2.png ~inc12.png ~inc13.png ~inc14.png ~inc0.webp ~inc1.webp; echo $? >/data/local/tmp/rc",
       "[START_DIR]/tmp/nanobench.sh"
     ],
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
@@ -697,7 +742,7 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
@@ -713,7 +758,7 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
@@ -730,7 +775,7 @@
       "nanobench.sh"
     ],
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
@@ -756,43 +801,11 @@
     "cmd": [
       "python",
       "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "ensure-directory",
-      "--mode",
-      "0777",
-      "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-Android-Clang-Nexus7-GPU-Tegra3-arm-Release-All-Android"
-    ],
-    "infra_step": true,
-    "name": "makedirs perf_dir"
-  },
-  {
-    "cmd": [
-      "adb.1.0.35",
-      "pull",
-      "/sdcard/revenge_of_the_skiabot/perf",
-      "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-Android-Clang-Nexus7-GPU-Tegra3-arm-Release-All-Android/data"
-    ],
-    "cwd": "[START_DIR]/skia",
-    "env": {
-      "BUILDTYPE": "Release",
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/out"
-    },
-    "infra_step": true,
-    "name": "pull /sdcard/revenge_of_the_skiabot/perf [CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-Android-Clang-Nexus7-GPU-Tegra3-arm-Release-All-Android/data"
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
       "\nimport os\nimport subprocess\nimport sys\nout = sys.argv[1]\nlog = subprocess.check_output(['adb.1.0.35', 'logcat', '-d'])\nfor line in log.split('\\n'):\n  tokens = line.split()\n  if len(tokens) == 11 and tokens[-7] == 'F' and tokens[-3] == 'pc':\n    addr, path = tokens[-2:]\n    local = os.path.join(out, os.path.basename(path))\n    if os.path.exists(local):\n      sym = subprocess.check_output(['addr2line', '-Cfpe', local, addr])\n      line = line.replace(addr, addr + ' ' + sym.strip())\n  print line\n",
-      "[START_DIR]/out/Release"
+      "[START_DIR]/out/Debug"
     ],
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
@@ -826,7 +839,7 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"

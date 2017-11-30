@@ -74,11 +74,14 @@ class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
     if (self.m.vars.builder_cfg.get('model') in self.rootable_blacklist or
         self.m.vars.internal_hardware_label):
       return
-    self.m.run(self.m.python.inline, 'Scale CPU to %f' % target_percent,
+    self.m.run.with_retry(self.m.python.inline,
+        'Scale CPU to %f' % target_percent,
+        3, # attempts
         program="""
 import os
 import subprocess
 import sys
+import time
 ADB = sys.argv[1]
 model = sys.argv[2]
 target_percent = float(sys.argv[3])
@@ -122,9 +125,12 @@ subprocess.check_output([ADB, 'shell', 'echo "userspace" > '
 subprocess.check_output([ADB, 'shell', 'echo %d > '
     '/sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq' % freq])
 subprocess.check_output([ADB, 'shell', 'echo %d > '
+    '/sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq' % freq])
+subprocess.check_output([ADB, 'shell', 'echo %d > '
     '/sys/devices/system/cpu/cpu0/cpufreq/scaling_setspeed' % freq])
+time.sleep(5)
 actual_freq = subprocess.check_output([ADB, 'shell', 'cat '
-    '/sys/devices/system/cpu/cpu0/cpufreq/scaling_setspeed']).strip()
+    '/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq']).strip()
 if actual_freq != str(freq):
   raise Exception('(actual, expected) (%s, %d)'
                   % (actual_freq, freq))
