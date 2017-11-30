@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3b98eebc_93ea42ea",
+        "filename": "src/opts/SkNx_sse.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-11-30T17:19:52Z",
+      "side": 1,
+      "message": "Curious, why load into SkNx rather than just casting ptr to float*?",
+      "range": {
+        "startLine": 88,
+        "startChar": 8,
+        "endLine": 88,
+        "endChar": 12
+      },
+      "revId": "49a5330498fb9b3fdacadc94d7206c34aafc984a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
