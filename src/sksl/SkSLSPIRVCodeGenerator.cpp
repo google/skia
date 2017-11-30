@@ -67,8 +67,7 @@ void SPIRVCodeGenerator::setupIntrinsics() {
     fIntrinsicMap[String("inversesqrt")]   = ALL_GLSL(InverseSqrt);
     fIntrinsicMap[String("determinant")]   = ALL_GLSL(Determinant);
     fIntrinsicMap[String("matrixInverse")] = ALL_GLSL(MatrixInverse);
-    fIntrinsicMap[String("mod")]           = std::make_tuple(kSPIRV_IntrinsicKind, SpvOpFMod,
-                                                             SpvOpSMod, SpvOpUMod, SpvOpUndef);
+    fIntrinsicMap[String("mod")]           = SPECIAL(Mod);
     fIntrinsicMap[String("min")]           = BY_TYPE_GLSL(FMin, SMin, UMin);
     fIntrinsicMap[String("max")]           = BY_TYPE_GLSL(FMax, SMax, UMax);
     fIntrinsicMap[String("clamp")]         = BY_TYPE_GLSL(FClamp, SClamp, UClamp);
@@ -120,22 +119,22 @@ void SPIRVCodeGenerator::setupIntrinsics() {
                                                                 SpvOpINotEqual,
                                                                 SpvOpLogicalNotEqual);
     fIntrinsicMap[String("lessThan")]         = std::make_tuple(kSPIRV_IntrinsicKind,
-                                                                SpvOpSLessThan, SpvOpULessThan,
-                                                                SpvOpFOrdLessThan, SpvOpUndef);
+                                                                SpvOpFOrdLessThan, SpvOpSLessThan,
+                                                                SpvOpULessThan, SpvOpUndef);
     fIntrinsicMap[String("lessThanEqual")]    = std::make_tuple(kSPIRV_IntrinsicKind,
+                                                                SpvOpFOrdLessThanEqual,
                                                                 SpvOpSLessThanEqual,
                                                                 SpvOpULessThanEqual,
-                                                                SpvOpFOrdLessThanEqual,
                                                                 SpvOpUndef);
     fIntrinsicMap[String("greaterThan")]      = std::make_tuple(kSPIRV_IntrinsicKind,
+                                                                SpvOpFOrdGreaterThan,
                                                                 SpvOpSGreaterThan,
                                                                 SpvOpUGreaterThan,
-                                                                SpvOpFOrdGreaterThan,
                                                                 SpvOpUndef);
     fIntrinsicMap[String("greaterThanEqual")] = std::make_tuple(kSPIRV_IntrinsicKind,
+                                                                SpvOpFOrdGreaterThanEqual,
                                                                 SpvOpSGreaterThanEqual,
                                                                 SpvOpUGreaterThanEqual,
-                                                                SpvOpFOrdGreaterThanEqual,
                                                                 SpvOpUndef);
     fIntrinsicMap[String("EmitVertex")]       = ALL_SPIRV(EmitVertex);
     fIntrinsicMap[String("EndPrimitive")]     = ALL_SPIRV(EndPrimitive);
@@ -1438,6 +1437,41 @@ SpvId SPIRVCodeGenerator::writeSpecialIntrinsic(const FunctionCall& c, SpecialIn
                                        out);
             }
             break;
+        }
+        case kMod_SpecialIntrinsic: {
+            ASSERT(c.fArguments.size() == 2);
+            SpvId arg1 = this->writeExpression(*c.fArguments[0], out);
+            SpvId arg2 = this->writeExpression(*c.fArguments[1], out);
+            if (c.fArguments[0]->fType != c.fArguments[1]->fType) {
+                // we have mod(vector, scalar), but SPIR-V wants mod(vector, vector)
+                ASSERT(c.fArguments[0]->fType.componentType() == c.fArguments[1]->fType);
+                SpvId scalar = arg2;
+                const Type& type = c.fArguments[0]->fType;
+                arg2 = this->nextId();
+                this->writeOpCode(SpvOpCompositeConstruct, 3 + type.columns(), out);
+                this->writeWord(this->getType(type), out);
+                this->writeWord(arg2, out);
+                for (int i = 0; i < type.columns(); i++) {
+                    this->writeWord(scalar, out);
+                }
+            }
+            const Type& operandType = c.fArguments[0]->fType;
+            SpvOp_ op;
+            if (is_float(fContext, operandType)) {
+                op = SpvOpFMod;
+            } else if (is_signed(fContext, operandType)) {
+                op = SpvOpSMod;
+            } else if (is_unsigned(fContext, operandType)) {
+                op = SpvOpUMod;
+            } else {
+                ASSERT(false);
+                return 0;
+            }
+            this->writeOpCode(op, 5, out);
+            this->writeWord(this->getType(operandType), out);
+            this->writeWord(result, out);
+            this->writeWord(arg1, out);
+            this->writeWord(arg2, out);
         }
     }
     return result;
@@ -2795,7 +2829,11 @@ SpvId SPIRVCodeGenerator::writeFunction(const FunctionDefinition& f, OutputStrea
     write_stringstream(fVariableBuffer, out);
     write_stringstream(bodyBuffer, out);
     if (fCurrentBlock) {
-        this->writeInstruction(SpvOpReturn, out);
+        if (f.fDeclaration.fReturnType == *fContext.fVoid_Type) {
+            this->writeInstruction(SpvOpReturn, out);
+        } else {
+            this->writeInstruction(SpvOpUnreachable, out);
+        }
     }
     this->writeInstruction(SpvOpFunctionEnd, out);
     return result;
