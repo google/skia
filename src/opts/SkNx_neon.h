@@ -120,6 +120,12 @@ public:
     AI static SkNx Load(const void* ptr) { return vld1q_f32((const float*)ptr); }
     AI void store(void* ptr) const { vst1q_f32((float*)ptr, fVec); }
 
+    AI static void Load2(const void* ptr, SkNx* x, SkNx* y) {
+        float32x4x2_t xy = vld2q_f32((const float*) ptr);
+        *x = xy.val[0];
+        *y = xy.val[1];
+    }
+
     AI static void Load4(const void* ptr, SkNx* r, SkNx* g, SkNx* b, SkNx* a) {
         float32x4x4_t rgba = vld4q_f32((const float*) ptr);
         *r = rgba.val[0];
