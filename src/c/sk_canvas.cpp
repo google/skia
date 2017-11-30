@@ -278,6 +278,22 @@ void sk_canvas_draw_image_lattice(sk_canvas_t* ccanvas,
     AsCanvas(ccanvas)->drawImageLattice(AsImage(image), AsLattice(*lattice), AsRect(*dst), AsPaint(paint));
 }
 
+void sk_canvas_draw_bitmap_nine(sk_canvas_t* ccanvas, 
+                                   const sk_bitmap_t* bitmap, 
+                                   const sk_irect_t* center, 
+                                   const sk_rect_t* dst,
+                                   const sk_paint_t* paint) {
+    AsCanvas(ccanvas)->drawBitmapNine(AsBitmap(*bitmap), AsIRect(*center), AsRect(*dst), AsPaint(paint));
+}
+
+void sk_canvas_draw_image_nine(sk_canvas_t* ccanvas, 
+                                  const sk_image_t* image, 
+                                  const sk_irect_t* center, 
+                                  const sk_rect_t* dst,
+                                  const sk_paint_t* paint) {
+    AsCanvas(ccanvas)->drawImageNine(AsImage(image), AsIRect(*center), AsRect(*dst), AsPaint(paint));
+}
+
 void sk_canvas_draw_vertices(sk_canvas_t* ccanvas, sk_vertices_t* vertices, sk_blendmode_t mode, const sk_paint_t* paint) {
     AsCanvas(ccanvas)->drawVertices(AsVertices(vertices), (SkBlendMode)mode, AsPaint(*paint));
 }
