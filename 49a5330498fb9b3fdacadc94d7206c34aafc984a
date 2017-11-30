@@ -46,6 +46,30 @@
       "revId": "49a5330498fb9b3fdacadc94d7206c34aafc984a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "662e6e61_40073d50",
+        "filename": "src/opts/SkNx_sse.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-11-30T23:03:48Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "757c1daf_7507e25e",
+      "range": {
+        "startLine": 88,
+        "startChar": 8,
+        "endLine": 88,
+        "endChar": 12
+      },
+      "revId": "49a5330498fb9b3fdacadc94d7206c34aafc984a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
