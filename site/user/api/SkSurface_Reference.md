@@ -649,7 +649,7 @@ fonts; may be nullptr</td>
 
 ### Example
 
-<div><fiddle-embed name="4473daad1b11784a9869431af72c93e0"><div><a href="undocumented#LCD">LCD</a> text takes advantage of raster striping to improve resolution. Only one of
+<div><fiddle-embed name="640321e8ecfb3f9329f3bc6e1f02485f"gpu="true"cpu="true"><div><a href="undocumented#LCD">LCD</a> text takes advantage of raster striping to improve resolution. Only one of
 the four combinations is correct, depending on whether the monitor's <a href="undocumented#LCD">LCD</a> is
 horizontal or vertical, and whether the order of the stripes is red blue green
 or red green blue.</div></fiddle-embed></div>
@@ -907,13 +907,13 @@ enum <a href="#SkSurface_BackendHandleAccess">BackendHandleAccess</a> {
 
 <table>
   <tr>
-    <td><a name="SkSurface_kFlushRead_BackendHandleAccess"> <code><strong>SkSurface::kFlushRead_BackendHandleAccess </strong></code> </a></td><td>Caller may read from the back-end object.</td><td></td>
+    <td><a name="SkSurface_kFlushRead_BackendHandleAccess"> <code><strong>SkSurface::kFlushRead_BackendHandleAccess </strong></code> </a></td><td>0</td><td>Caller may read from the back-end object.</td>
   </tr>
   <tr>
-    <td><a name="SkSurface_kFlushWrite_BackendHandleAccess"> <code><strong>SkSurface::kFlushWrite_BackendHandleAccess </strong></code> </a></td><td>Caller may write to the back-end object.</td><td></td>
+    <td><a name="SkSurface_kFlushWrite_BackendHandleAccess"> <code><strong>SkSurface::kFlushWrite_BackendHandleAccess </strong></code> </a></td><td>1</td><td>Caller may write to the back-end object.</td>
   </tr>
   <tr>
-    <td><a name="SkSurface_kDiscardWrite_BackendHandleAccess"> <code><strong>SkSurface::kDiscardWrite_BackendHandleAccess </strong></code> </a></td><td>Caller must overwrite the entire back-end object.</td><td></td>
+    <td><a name="SkSurface_kDiscardWrite_BackendHandleAccess"> <code><strong>SkSurface::kDiscardWrite_BackendHandleAccess </strong></code> </a></td><td>2</td><td>Caller must overwrite the entire back-end object.</td>
   </tr>
 </table>
 
