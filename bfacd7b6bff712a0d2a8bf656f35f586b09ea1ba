@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "70ce83cd_2cb45243",
+        "filename": "include/core/SkSurfaceCharacterization.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-11-30T13:52:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bd3f62d8_e5de76de",
+      "revId": "bfacd7b6bff712a0d2a8bf656f35f586b09ea1ba",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5c77be11_5db0c27d",
         "filename": "include/core/SkSurfaceCharacterization.h",
         "patchSetId": 5
@@ -39,6 +57,30 @@
       "revId": "bfacd7b6bff712a0d2a8bf656f35f586b09ea1ba",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8713d2de_ac4d04f4",
+        "filename": "include/core/SkSurfaceCharacterization.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-11-30T13:52:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5c77be11_5db0c27d",
+      "range": {
+        "startLine": 29,
+        "startChar": 0,
+        "endLine": 31,
+        "endChar": 91
+      },
+      "revId": "bfacd7b6bff712a0d2a8bf656f35f586b09ea1ba",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -65,6 +107,30 @@
     },
     {
       "key": {
+        "uuid": "630208d0_3231a11a",
+        "filename": "include/core/SkSurfaceCharacterization.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-11-30T13:52:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "058e559e_2c208edc",
+      "range": {
+        "startLine": 33,
+        "startChar": 3,
+        "endLine": 38,
+        "endChar": 49
+      },
+      "revId": "bfacd7b6bff712a0d2a8bf656f35f586b09ea1ba",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b2acebfd_2603a8c0",
         "filename": "include/gpu/GrContext.h",
         "patchSetId": 5
@@ -79,6 +145,24 @@
       "revId": "bfacd7b6bff712a0d2a8bf656f35f586b09ea1ba",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5a9fc171_06b85be4",
+        "filename": "include/gpu/GrContext.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 424,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-11-30T13:52:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b2acebfd_2603a8c0",
+      "revId": "bfacd7b6bff712a0d2a8bf656f35f586b09ea1ba",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
