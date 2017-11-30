@@ -14,6 +14,7 @@
 #include "SkMath.h"
 #include "SkOpts.h"
 #include "SkPngCodec.h"
+#include "SkPngPriv.h"
 #include "SkPoint3.h"
 #include "SkSize.h"
 #include "SkStream.h"
@@ -935,7 +936,14 @@ void AutoCleanPng::infoCallback(size_t idatLength) {
         SkEncodedInfo encodedInfo = SkEncodedInfo::Make(color, alpha, bitDepth);
         SkImageInfo imageInfo = encodedInfo.makeImageInfo(origWidth, origHeight, colorSpace);
 
-        if (SkEncodedInfo::kOpaque_Alpha == alpha) {
+        if (encodedColorType == PNG_COLOR_TYPE_GRAY_ALPHA) {
+            png_color_8p sigBits;
+            if (png_get_sBIT(fPng_ptr, fInfo_ptr, &sigBits)) {
+                if (8 == sigBits->alpha && kGraySigBit_GrayAlphaIsJustAlpha == sigBits->gray) {
+                    imageInfo = imageInfo.makeColorType(kAlpha_8_SkColorType);
+                }
+            }
+        } else if (SkEncodedInfo::kOpaque_Alpha == alpha) {
             png_color_8p sigBits;
             if (png_get_sBIT(fPng_ptr, fInfo_ptr, &sigBits)) {
                 if (5 == sigBits->red && 6 == sigBits->green && 5 == sigBits->blue) {

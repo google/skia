@@ -15,6 +15,7 @@
 #include "SkStream.h"
 #include "SkString.h"
 #include "SkPngEncoder.h"
+#include "SkPngPriv.h"
 
 #include "png.h"
 
@@ -149,6 +150,12 @@ bool SkPngEncoderMgr::setHeader(const SkImageInfo& srcInfo, const SkPngEncoder::
             fPngBytesPerPixel = 3;
             SkASSERT(srcInfo.isOpaque());
             break;
+        case kAlpha_8_SkColorType:  // store as gray+alpha, but ignore gray
+            sigBit.gray = kGraySigBit_GrayAlphaIsJustAlpha;
+            sigBit.alpha = 8;
+            pngColorType = PNG_COLOR_TYPE_GRAY_ALPHA;
+            fPngBytesPerPixel = 2;
+            break;
         default:
             return false;
     }
@@ -254,6 +261,8 @@ static transform_scanline_proc choose_proc(const SkImageInfo& info,
                     SkASSERT(false);
                     return nullptr;
             }
+        case kAlpha_8_SkColorType:
+            return transform_scanline_A8_to_GrayAlpha;
         default:
             SkASSERT(false);
             return nullptr;

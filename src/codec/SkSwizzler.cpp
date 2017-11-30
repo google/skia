@@ -357,6 +357,16 @@ static void fast_swizzle_grayalpha_to_n32_premul(
     SkOpts::grayA_to_rgbA((uint32_t*) dst, src + offset, width);
 }
 
+static void swizzle_grayalpha_to_a8(void* dst, const uint8_t* src, int width, int bpp,
+                                    int deltaSrc, int offset, const SkPMColor[]) {
+    src += offset;
+    uint8_t* dst8 = (uint8_t*)dst;
+    for (int x = 0; x < width; ++x) {
+        dst8[x] = src[1];   // src[0] is gray, ignored
+        src += deltaSrc;
+    }
+}
+
 // kBGR
 
 static void swizzle_bgr_to_565(
@@ -905,6 +915,9 @@ SkSwizzler* SkSwizzler::CreateSwizzler(const SkEncodedInfo& encodedInfo,
                                 fastProc = &fast_swizzle_grayalpha_to_n32_unpremul;
                             }
                         }
+                        break;
+                    case kAlpha_8_SkColorType:
+                        proc = &swizzle_grayalpha_to_a8;
                         break;
                     default:
                         return nullptr;
