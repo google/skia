@@ -114,6 +114,8 @@ private:
         //    float b = -2.0 * (fCenterX1 * x + fRadius0 * fDiffRadius * z)
         fBTransform = this->getCoordTransform();
         SkMatrix& bMatrix = *fBTransform.accessMatrix();
+        SkDebugf("coordTransform\n");
+        bMatrix.dump();
         SkScalar r0dr = fRadius0 * fDiffRadius;
         bMatrix[SkMatrix::kMScaleX] = -2 * (fCenterX1 * bMatrix[SkMatrix::kMScaleX] +
                                             r0dr * bMatrix[SkMatrix::kMPersp0]);
@@ -121,6 +123,8 @@ private:
                                            r0dr * bMatrix[SkMatrix::kMPersp1]);
         bMatrix[SkMatrix::kMTransX] = -2 * (fCenterX1 * bMatrix[SkMatrix::kMTransX] +
                                             r0dr * bMatrix[SkMatrix::kMPersp2]);
+        SkDebugf("bVar\n");
+        bMatrix.dump();
         this->addCoordTransform(&fBTransform);
     }
 
@@ -204,6 +208,29 @@ std::unique_ptr<GrFragmentProcessor> Edge2PtConicalEffect::TestCreate(GrProcesso
     radius2 = radius1 + diffLen;
 
     RandomGradientParams params(d->fRandom);
+    SkDebugf("Circle 1: center: (%f, %f), radius: %f\n", center1.fX, center1.fY, radius1);
+    SkDebugf("Circle 2: center: (%f, %f), radius: %f\n", center2.fX, center2.fY, radius2);
+    SkDebugf("color count: %d\n", params.fColorCount);
+    SkDebugf("use color 4f: %d\n", params.fUseColors4f);
+    if (params.fUseColors4f) {
+        for (int i = 0; i < params.fColorCount; ++i) {
+            SkDebugf("color %d: %f, %f, %f, %f\n",
+                     i, params.fColors4f[i].fR, params.fColors4f[i].fG, params.fColors4f[i].fB, params.fColors4f[i].fA);
+        }
+    } else {
+        for (int i = 0; i < params.fColorCount; ++i) {
+            SkDebugf("color %d: 0x%08x\n", i, params.fColors[i]);
+        }
+    }
+    if (params.fStops) {
+        for (int i = 0; i < params.fColorCount; ++i) {
+            SkDebugf("stop %d: %f\n", params.fStops[i]);
+        }
+    } else {
+        SkDebugf("no stops\n");
+    }
+    SkDebugf("tilemode: %d\n", params.fTileMode);
+
     auto shader = params.fUseColors4f ?
         SkGradientShader::MakeTwoPointConical(center1, radius1, center2, radius2,
                                               params.fColors4f, params.fColorSpace, params.fStops,
@@ -272,6 +299,10 @@ void Edge2PtConicalEffect::GLSLEdge2PtConicalProcessor::emitCode(EmitArgs& args)
     fragBuilder->codeAppendf("\thalf %s = -(%s / %s);\n", tName.c_str(),
                            cName.c_str(), bVar.c_str());
 
+    
+    //fragBuilder->codeAppendf("%s = clamp(%s, 0.0, 1.0);", tName.c_str(), tName.c_str());
+
+#if 0
     // if r(t) > 0, then t will be the x coordinate
     fragBuilder->codeAppendf("\tif (%s * %s + %s > 0.0) {\n", tName.c_str(),
                            p2.c_str(), p0.c_str());
@@ -285,6 +316,8 @@ void Edge2PtConicalEffect::GLSLEdge2PtConicalProcessor::emitCode(EmitArgs& args)
                     args.fInputColor,
                     args.fTexSamplers);
     fragBuilder->codeAppend("\t}\n");
+#endif
+//    fragBuilder->codeAppendf("%s = clamp(%s, 0.0, 1.0);", args.fOutputColor, args.fOutputColor);
 }
 
 void Edge2PtConicalEffect::GLSLEdge2PtConicalProcessor::onSetData(
