@@ -18,7 +18,7 @@ class SkSurface; // TODO: remove
 
 /*
  * This class is intended to be used as:
- *   Get an SkSurfaceCharacterization from the ultimate intended gpu-backed destination SkSurface
+ *   Get an SkSurfaceCharacterization representing the intended gpu-backed destination SkSurface
  *   Create one of these (an SkDDLMaker) on the stack
  *   Get the canvas and render into it
  *   Snap off and hold on to an SkDeferredDisplayList
@@ -44,7 +44,7 @@ public:
     std::unique_ptr<SkDeferredDisplayList> detach();
 
 private:
-    SkSurfaceCharacterization fCharacterization;
+    const SkSurfaceCharacterization fCharacterization;
 
     sk_sp<SkSurface> fSurface; // temporary until we have a real implementation
 };
