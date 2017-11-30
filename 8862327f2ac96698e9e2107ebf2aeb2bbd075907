@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "8eb14eeb_c5de06f1",
+        "filename": "src/core/SkTaskGroup2D.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-11-30T17:18:25Z",
+      "side": 1,
+      "message": "This is to check that \"we\u0027re not supposed to add more work after the calling of finish\". The debug build will crash if it\u0027s violated while the release build may result in undefined behavior. I think that\u0027s reasonable?",
+      "parentUuid": "6dd30e8f_a4d903e2",
+      "range": {
+        "startLine": 17,
+        "startChar": 14,
+        "endLine": 17,
+        "endChar": 26
+      },
+      "revId": "8862327f2ac96698e9e2107ebf2aeb2bbd075907",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "466bd2f7_427e9459",
         "filename": "src/core/SkTaskGroup2D.cpp",
         "patchSetId": 7
@@ -45,6 +69,30 @@
       "revId": "8862327f2ac96698e9e2107ebf2aeb2bbd075907",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9d6e114c_81843701",
+        "filename": "src/core/SkTaskGroup2D.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-11-30T17:18:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "466bd2f7_427e9459",
+      "range": {
+        "startLine": 31,
+        "startChar": 27,
+        "endLine": 31,
+        "endChar": 72
+      },
+      "revId": "8862327f2ac96698e9e2107ebf2aeb2bbd075907",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "45744118_71329986",
+        "filename": "src/core/SkTaskGroup2D.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-11-30T17:18:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5b2bcb50_d7efaec8",
+      "range": {
+        "startLine": 54,
+        "startChar": 0,
+        "endLine": 54,
+        "endChar": 18
+      },
+      "revId": "8862327f2ac96698e9e2107ebf2aeb2bbd075907",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b592bf72_d9e4b62e",
         "filename": "src/core/SkTaskGroup2D.cpp",
         "patchSetId": 7
@@ -91,6 +163,30 @@
       "revId": "8862327f2ac96698e9e2107ebf2aeb2bbd075907",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1f9666be_fbd6e77b",
+        "filename": "src/core/SkTaskGroup2D.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-11-30T17:18:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b592bf72_d9e4b62e",
+      "range": {
+        "startLine": 65,
+        "startChar": 16,
+        "endLine": 65,
+        "endChar": 23
+      },
+      "revId": "8862327f2ac96698e9e2107ebf2aeb2bbd075907",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
