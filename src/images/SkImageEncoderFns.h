@@ -92,6 +92,18 @@ static inline void transform_scanline_565(char* SK_RESTRICT dst, const char* SK_
 }
 
 /**
+ * Transform from kAlpha_8_Config to 2-bytes-per-pixel GrayAlpha.
+ */
+static inline void transform_scanline_A8_to_GrayAlpha(char* SK_RESTRICT dst,
+                                                      const char* SK_RESTRICT src,
+                                                      int width, int, const SkPMColor*) {
+    for (int i = 0; i < width; i++) {
+        *dst++ = 0;         // gray (ignored)
+        *dst++ = *src++;    // alpha
+    }
+}
+
+/**
  * Transform from kRGBA_8888_SkColorType to 3-bytes-per-pixel RGB.
  * Alpha channel data is abandoned.
  */
