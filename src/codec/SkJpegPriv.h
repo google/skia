@@ -14,6 +14,7 @@
 #include <setjmp.h>
 // stdio is needed for jpeglib
 #include <stdio.h>
+#include <type_traits>
 
 extern "C" {
     #include "jpeglib.h"
@@ -30,7 +31,14 @@ static constexpr uint8_t kICCSig[] = {
  * Error handling struct
  */
 struct skjpeg_error_mgr : jpeg_error_mgr {
-    jmp_buf fJmpBuf;
+    static_assert(std::is_pod<jmp_buf>::value, "jmp_buf is not pod");
+    jmp_buf& fJmpBuf = *reinterpret_cast<jmp_buf*>(AlignUp(fJmpBufStorage, alignof(jmp_buf)));
+
+private:
+    static inline uintptr_t AlignUp(void* ptr, size_t align) {
+        return (reinterpret_cast<uintptr_t>(ptr) + align - 1) / align * align;
+    }
+    char fJmpBufStorage[sizeof(jmp_buf) + alignof(jmp_buf) - 1];
 };
 
 #endif
