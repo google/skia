@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "eb49d7c2_b81fff54",
+        "filename": "src/codec/SkJpegPriv.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-11-30T22:27:44Z",
+      "side": 1,
+      "message": "I\u0027m curious what the warning was here?  Something about fJmpBuf being under aligned?\n\nWas it something alignas() or std::aligned_storage could help fix?",
+      "revId": "e1387906d302496592f7ab697e2a97dbdb0659fd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
