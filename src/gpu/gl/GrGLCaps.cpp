@@ -358,6 +358,17 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     GR_GL_GetIntegerv(gli, GR_GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &maxSamplers);
     shaderCaps->fMaxCombinedSamplers = SkTMin<GrGLint>(kMaxSaneSamplers, maxSamplers);
 
+    // This is all *very* approximate.
+    switch (ctxInfo.vendor()) {
+        case kNVIDIA_GrGLVendor:
+            // We've seen a range from 100 x 100 (TegraK1, GTX660) up to 300 x 300 (GTX 1070)
+            // but it doesn't clearly align with Pascal vs Maxwell vs Kepler.
+            fShaderCaps->fDisableImageMultitexturingDstRectAreaThreshold = 150 * 150;
+            break;
+        default:
+            break;
+    }
+
     // SGX and Mali GPUs that are based on a tiled-deferred architecture that have trouble with
     // frequently changing VBOs. We've measured a performance increase using non-VBO vertex
     // data for dynamic content on these GPUs. Perhaps we should read the renderer string and
