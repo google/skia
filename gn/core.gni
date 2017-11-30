@@ -300,8 +300,6 @@ skia_core_sources = [
   "$_src/core/SkSRGB.cpp",
   "$_src/core/SkTaskGroup.cpp",
   "$_src/core/SkTaskGroup.h",
-  "$_src/core/SkTaskGroup2D.cpp",
-  "$_src/core/SkTaskGroup2D.h",
   "$_src/core/SkTDPQueue.h",
   "$_src/core/SkTDynamicHash.h",
   "$_src/core/SkTInternalLList.h",
