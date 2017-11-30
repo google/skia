@@ -1051,8 +1051,12 @@ void GrGradientEffect::GLSLProcessor::emitAnalyticalColor(GrGLSLFPFragmentBuilde
             fragBuilder->codeAppendf("half tiled_t = fract(%s);", t);
             break;
         case GrSamplerState::WrapMode::kMirrorRepeat:
+#if 1
             fragBuilder->codeAppendf("half t_1 = %s - 1.0;", t);
             fragBuilder->codeAppendf("half tiled_t = abs(t_1 - 2.0 * floor(t_1 * 0.5) - 1.0);");
+#else
+            fragBuilder->codeAppendf("half tiled_t = fract(%s);", t);
+#endif
             break;
     }
 
@@ -1091,7 +1095,10 @@ void GrGradientEffect::GLSLProcessor::emitAnalyticalColor(GrGLSLFPFragmentBuilde
             break;
     }
 
+//    fragBuilder->codeAppend("color_scale = clamp(color_scale, 0.0, 1.0)");
+//    fragBuilder->codeAppend("color_bias = clamp(color_bias, 0.0, 1.0)");
     fragBuilder->codeAppend("half4 colorTemp = tiled_t * color_scale + color_bias;");
+    fragBuilder->codeAppend("colorTemp = clamp(colorTemp, 0.0, 1.0);");
 
     // We could skip this step if all colors are known to be opaque. Two considerations:
     // The gradient SkShader reporting opaque is more restrictive than necessary in the two
