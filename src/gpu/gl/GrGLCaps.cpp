@@ -373,9 +373,16 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
                         std::numeric_limits<size_t>::max();
             }
             break;
+        case kATI_GrGLVendor:
+            // So far no AMD GPU shows a performance difference. A tie goes to disabling
+            // multitexturing.
+            fShaderCaps->fDisableImageMultitexturingDstRectAreaThreshold = 0;
+            SkDebugf("It's an ATI?!?\n");
+            break;
         default:
             break;
     }
+    SkASSERT(0);
 
     // SGX and Mali GPUs that are based on a tiled-deferred architecture that have trouble with
     // frequently changing VBOs. We've measured a performance increase using non-VBO vertex

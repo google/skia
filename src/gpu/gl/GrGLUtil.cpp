@@ -254,6 +254,7 @@ GrGLSLVersion GrGLGetGLSLVersionFromString(const char* versionString) {
 }
 
 GrGLVendor GrGLGetVendorFromString(const char* vendorString) {
+    SkDebugf("vendor string: %s\n", vendorString);
     if (vendorString) {
         if (0 == strcmp(vendorString, "ARM")) {
             return kARM_GrGLVendor;
