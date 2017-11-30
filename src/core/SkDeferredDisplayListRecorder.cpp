@@ -7,6 +7,8 @@
 
 #include "SkDeferredDisplayListRecorder.h"
 
+#include "GrContext.h"
+
 #include "SkCanvas.h" // TODO: remove
 #include "SkDeferredDisplayList.h"
 #include "SkSurface.h" // TODO: remove

@@ -51,6 +51,7 @@ protected:
     void onDraw(SkCanvas* canvas) override {
         canvas->clear(SK_ColorLTGRAY);
         this->drawText(canvas);
+#if SK_SUPPORT_GPU
         //  Debugging tool for GPU.
         static const bool kShowAtlas = false;
         if (kShowAtlas) {
@@ -59,6 +60,7 @@ protected:
                 canvas->drawImage(img, 0, 0);
             }
         }
+#endif
     }
 
 private:

@@ -420,6 +420,9 @@ private:
  * proxy does not access the 3D API (e.g. OpenGL) that backs the generating GrContext.
  */
 class GrContextThreadSafeProxy : public SkRefCnt {
+public:
+    bool matches(GrContext* context) const { return context->uniqueID() == fContextUniqueID; }
+
 private:
     GrContextThreadSafeProxy(sk_sp<const GrCaps> caps, uint32_t uniqueID)
         : fCaps(std::move(caps))
