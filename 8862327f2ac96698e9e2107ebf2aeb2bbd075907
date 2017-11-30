@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6dd30e8f_a4d903e2",
+        "filename": "src/core/SkTaskGroup2D.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-11-30T16:54:44Z",
+      "side": 1,
+      "message": "I think this will cause different behavior in debug v. release.",
+      "range": {
+        "startLine": 17,
+        "startChar": 14,
+        "endLine": 17,
+        "endChar": 26
+      },
+      "revId": "8862327f2ac96698e9e2107ebf2aeb2bbd075907",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "466bd2f7_427e9459",
+        "filename": "src/core/SkTaskGroup2D.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-11-30T16:54:44Z",
+      "side": 1,
+      "message": "Move this to the base class as a call like isFinishing(). When you have to specify a memory order, that is a sign that there are tricky invariants. Use here and below.",
+      "range": {
+        "startLine": 31,
+        "startChar": 27,
+        "endLine": 31,
+        "endChar": 72
+      },
+      "revId": "8862327f2ac96698e9e2107ebf2aeb2bbd075907",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5b2bcb50_d7efaec8",
+        "filename": "src/core/SkTaskGroup2D.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-11-30T16:54:44Z",
+      "side": 1,
+      "message": "Comment about loop invariants. Something like loop look for work while there is still work in the column. If that is right.",
+      "range": {
+        "startLine": 54,
+        "startChar": 0,
+        "endLine": 54,
+        "endChar": 18
+      },
+      "revId": "8862327f2ac96698e9e2107ebf2aeb2bbd075907",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b592bf72_d9e4b62e",
+        "filename": "src/core/SkTaskGroup2D.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-11-30T16:54:44Z",
+      "side": 1,
+      "message": "Can you explain this invariant? Can fIsFinishing ever go from true back to false?",
+      "range": {
+        "startLine": 65,
+        "startChar": 16,
+        "endLine": 65,
+        "endChar": 23
+      },
+      "revId": "8862327f2ac96698e9e2107ebf2aeb2bbd075907",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
