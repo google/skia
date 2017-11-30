@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4a2eb7c4_5ed7d6f8",
+        "filename": "src/codec/SkCodec.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-11-30T20:10:01Z",
+      "side": 1,
+      "message": "This tells us that we can convert any encoded source to alpha_8. Instead, we only want to do it if it matches the encoded info. We don\u0027t quite have this with the parameters, but we do have access to the source SkImageInfo:\n\n  return fSrcInfo.colorType() \u003d\u003d kAlpha_8_SkColorType;",
+      "range": {
+        "startLine": 178,
+        "startChar": 0,
+        "endLine": 179,
+        "endChar": 24
+      },
+      "revId": "df25718560bb2fc2e9f4e66bbbbeca0867380209",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "15514952_d1311541",
+        "filename": "src/codec/SkPngCodec.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 942,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-11-30T20:10:01Z",
+      "side": 1,
+      "message": "This is kind of funny. It\u0027s *possible* that someone else deliberately encoded a PNG this way. In that case, a client using the recommended color type will get something *slightly* different than what may have been intended. I think the only difference would be if they drew the resulting pixels with a paint that has a color - then it will be tinted by the color. That\u0027s probably fine (and if they want to avoid it they can just use a SK_ColorBLACK).",
+      "range": {
+        "startLine": 942,
+        "startChar": 16,
+        "endLine": 942,
+        "endChar": 95
+      },
+      "revId": "df25718560bb2fc2e9f4e66bbbbeca0867380209",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8fad0aab_122adb06",
+        "filename": "src/codec/SkSwizzler.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 361,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-11-30T20:10:01Z",
+      "side": 1,
+      "message": "If someone ever tried to sample this, we should respect the offset.\n\nuint8_t* dst8 \u003d (uint8_t*)dst + offset;",
+      "range": {
+        "startLine": 361,
+        "startChar": 50,
+        "endLine": 361,
+        "endChar": 60
+      },
+      "revId": "df25718560bb2fc2e9f4e66bbbbeca0867380209",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "592552ce_6ac23561",
+        "filename": "src/codec/SkSwizzler.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 920,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-11-30T20:10:01Z",
+      "side": 1,
+      "message": "No need to set fastProc. With a null fastProc, we\u0027ll still call proc.",
+      "range": {
+        "startLine": 920,
+        "startChar": 24,
+        "endLine": 920,
+        "endChar": 32
+      },
+      "revId": "df25718560bb2fc2e9f4e66bbbbeca0867380209",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e6db17e0_52551bc7",
+        "filename": "src/images/SkImageEncoderFns.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-11-30T20:10:01Z",
+      "side": 1,
+      "message": "Interestingly (?), standard viewers will see this as an all black image with alpha corresponding to the values we put in the alpha channel. That\u0027s probably want we would want, if we were to care.",
+      "range": {
+        "startLine": 101,
+        "startChar": 8,
+        "endLine": 101,
+        "endChar": 45
+      },
+      "revId": "df25718560bb2fc2e9f4e66bbbbeca0867380209",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "84c3b4b8_9f0f9d15",
+        "filename": "src/images/SkPngEncoder.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 153,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-11-30T20:10:01Z",
+      "side": 1,
+      "message": "1 sig bits",
+      "range": {
+        "startLine": 153,
+        "startChar": 77,
+        "endLine": 153,
+        "endChar": 78
+      },
+      "revId": "df25718560bb2fc2e9f4e66bbbbeca0867380209",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
