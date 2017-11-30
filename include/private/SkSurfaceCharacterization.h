@@ -11,8 +11,10 @@
 #include "GrTypes.h"
 
 #if SK_SUPPORT_GPU
+#include "SkSurfaceProps.h"
 
 class GrContextThreadSafeProxy;
+class SkColorSpace;
 
 /** \class SkSurfaceCharacterization
     A surface characterization contains all the information Ganesh requires to makes its internal
@@ -27,8 +29,9 @@ public:
             : fOrigin(kBottomLeft_GrSurfaceOrigin)
             , fWidth(0)
             , fHeight(0)
-            , fConfig(kRGBA_8888_GrPixelConfig)
-            , fSampleCnt(0) {
+            , fConfig(kUnknown_GrPixelConfig)
+            , fSampleCnt(0)
+            , fSurfaceProps(0, kUnknown_SkPixelGeometry) {
     }
 
     SkSurfaceCharacterization(SkSurfaceCharacterization&&) = default;
@@ -37,35 +40,44 @@ public:
     SkSurfaceCharacterization(const SkSurfaceCharacterization&) = default;
     SkSurfaceCharacterization& operator=(const SkSurfaceCharacterization& other) = default;
 
+    GrContextThreadSafeProxy* contextInfo() const { return fContextInfo.get(); }
     GrSurfaceOrigin origin() const { return fOrigin; }
     int width() const { return fWidth; }
     int height() const { return fHeight; }
     GrPixelConfig config() const { return fConfig; }
     int sampleCount() const { return fSampleCnt; }
-    GrContextThreadSafeProxy* contextInfo() const { return fContextInfo.get(); }
+    SkColorSpace* colorSpace() const { return fColorSpace.get(); }
+    sk_sp<SkColorSpace> refColorSpace() const { return fColorSpace; }
+    const SkSurfaceProps& surfaceProps()const { return fSurfaceProps; }
 
 private:
     friend class SkSurface_Gpu; // for 'set'
 
-    void set(GrSurfaceOrigin origin,
+    void set(sk_sp<GrContextThreadSafeProxy> contextInfo,
+             GrSurfaceOrigin origin,
              int width, int height,
              GrPixelConfig config,
              int sampleCnt,
-             sk_sp<GrContextThreadSafeProxy> contextInfo) {
+             sk_sp<SkColorSpace> colorSpace,
+             const SkSurfaceProps& surfaceProps) {
+        fContextInfo = contextInfo;
         fOrigin = origin;
         fWidth = width;
         fHeight = height;
         fConfig = config;
         fSampleCnt = sampleCnt;
-        fContextInfo = contextInfo;
+        fColorSpace = std::move(colorSpace);
+        fSurfaceProps = surfaceProps;
     }
 
+    sk_sp<GrContextThreadSafeProxy> fContextInfo;
     GrSurfaceOrigin                 fOrigin;
     int                             fWidth;
     int                             fHeight;
     GrPixelConfig                   fConfig;
     int                             fSampleCnt;
-    sk_sp<GrContextThreadSafeProxy> fContextInfo;
+    sk_sp<SkColorSpace>             fColorSpace;
+    SkSurfaceProps                  fSurfaceProps;
 };
 
 #else// !SK_SUPPORT_GPU

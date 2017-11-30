@@ -35,7 +35,7 @@ public:
     void draw(SkSurface*);
 
 private:
-    SkSurfaceCharacterization fCharacterization;
+    const SkSurfaceCharacterization fCharacterization;
 
     // TODO: actually store the GPU opLists
     sk_sp<SkImage> fImage;
