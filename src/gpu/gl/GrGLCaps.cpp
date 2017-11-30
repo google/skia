@@ -365,6 +365,14 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
             // but it doesn't clearly align with Pascal vs Maxwell vs Kepler.
             fShaderCaps->fDisableImageMultitexturingDstRectAreaThreshold = 150 * 150;
             break;
+        case kImagination_GrGLVendor:
+            // Two PowerVR Rogues, Nexus Player and Chromebook Cb5-312T (PowerVR GX6250), show that
+            // it is always a win to use multitexturing.
+            if (kPowerVRRogue_GrGLRenderer == ctxInfo.renderer()) {
+                fShaderCaps->fDisableImageMultitexturingDstRectAreaThreshold =
+                        std::numeric_limits<size_t>::max();
+            }
+            break;
         default:
             break;
     }
