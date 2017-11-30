@@ -84,6 +84,13 @@ public:
     AI static SkNx Load(const void* ptr) { return _mm_loadu_ps((const float*)ptr); }
     AI void store(void* ptr) const { _mm_storeu_ps((float*)ptr, fVec); }
 
+    AI static void Load2(const void* ptr, SkNx* x, SkNx* y) {
+        SkNx lo = SkNx::Load((const float*)ptr+0),
+             hi = SkNx::Load((const float*)ptr+4);
+        *x = SkNx{lo[0], lo[2], hi[0], hi[2]};
+        *y = SkNx{lo[1], lo[3], hi[1], hi[3]};
+    }
+
     AI static void Load4(const void* ptr, SkNx* r, SkNx* g, SkNx* b, SkNx* a) {
         __m128 v0 = _mm_loadu_ps(((float*)ptr) +  0),
                v1 = _mm_loadu_ps(((float*)ptr) +  4),
