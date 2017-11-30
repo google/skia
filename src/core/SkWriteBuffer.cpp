@@ -151,14 +151,6 @@ void SkBinaryWriteBuffer::writeImage(const SkImage* image) {
         write_encoded_bitmap(this, encoded.get(), SkIPoint::Make(0, 0));
         return;
     }
-
-    SkBitmap bm;
-    if (image->asLegacyBitmap(&bm, SkImage::kRO_LegacyBitmapMode)) {
-        this->writeUInt(1);  // signal raw pixels.
-        SkBitmap::WriteRawPixels(this, bm);
-        return;
-    }
-
     this->writeUInt(0); // signal no pixels (in place of the size of the encoded data)
 }
 
