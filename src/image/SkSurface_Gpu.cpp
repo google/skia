@@ -175,22 +175,24 @@ bool SkSurface_Gpu::isCompatible(const SkSurfaceCharacterization& data) const {
     GrRenderTargetContext* rtc = fDevice->accessRenderTargetContext();
     GrContext* ctx = fDevice->context();
 
-    return data.contextInfo() && data.contextInfo()->matches(ctx) &&
+    bool r = data.contextInfo() && data.contextInfo()->matches(ctx) &&
            data.origin() == rtc->origin() && data.width() == rtc->width() &&
            data.height() == rtc->height() && data.config() == rtc->colorSpaceInfo().config() &&
            data.sampleCount() == rtc->numColorSamples() &&
            SkColorSpace::Equals(data.colorSpace(), rtc->colorSpaceInfo().colorSpace()) &&
            data.surfaceProps() == rtc->surfaceProps();
+    SkASSERT(!r);
+    return r;
 }
 
-void SkSurface_Gpu::onDraw(SkDeferredDisplayList* dl) {
+bool SkSurface_Gpu::onDraw(SkDeferredDisplayList* dl) {
     if (!this->isCompatible(dl->characterization())) {
-        return;
+        return false;
     }
 
     // Ultimately need to pass opLists from the DeferredDisplayList on to the
     // SkGpuDevice's renderTargetContext.
-    dl->draw(this);
+    return dl->draw(this);
 }
 
 
