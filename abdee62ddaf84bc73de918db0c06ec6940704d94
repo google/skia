@@ -16,6 +16,24 @@
       "revId": "abdee62ddaf84bc73de918db0c06ec6940704d94",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e3aafad9_b34753b4",
+        "filename": "tools/gpu/atlastext/GLTestAtlasTextRenderer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-12-01T21:19:30Z",
+      "side": 1,
+      "message": "We dobut all the other failure modes are in this function. I thought about moving all of this code but I wasn\u0027t convinced it was an improvement as it meant duplicating member vars as local vars in the factory and then passing them through the constructor.",
+      "parentUuid": "880fbe7b_94da9fa6",
+      "revId": "abdee62ddaf84bc73de918db0c06ec6940704d94",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
