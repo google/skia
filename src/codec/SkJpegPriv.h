@@ -10,6 +10,7 @@
 #define SkJpegPriv_DEFINED
 
 #include "SkStream.h"
+#include "SkTArray.h"
 
 #include <setjmp.h>
 // stdio is needed for jpeglib
@@ -30,7 +31,23 @@ static constexpr uint8_t kICCSig[] = {
  * Error handling struct
  */
 struct skjpeg_error_mgr : jpeg_error_mgr {
-    jmp_buf fJmpBuf;
+    class AutoPushJmpBuf {
+    public:
+        AutoPushJmpBuf(skjpeg_error_mgr* mgr) : fMgr(mgr) {
+            fMgr->fJmpBufStack.push_back(&fJmpBuf);
+        }
+        ~AutoPushJmpBuf() {
+            SkASSERT(fMgr->fJmpBufStack.back() == &fJmpBuf);
+            fMgr->fJmpBufStack.pop_back();
+        }
+        operator jmp_buf&() { return fJmpBuf; }
+
+    private:
+        skjpeg_error_mgr* const fMgr;
+        jmp_buf fJmpBuf;
+    };
+
+    SkSTArray<4, jmp_buf*> fJmpBufStack;
 };
 
 #endif
