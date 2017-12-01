@@ -423,3 +423,17 @@ DEF_TEST(Sk4f_Load2, r) {
     REPORTER_ASSERT(r, y[2] == 5);
     REPORTER_ASSERT(r, y[3] == 7);
 }
+
+DEF_TEST(Sk2f_Store3, r) {
+    Sk2f p0{0, 3};
+    Sk2f p1{1, 4};
+    Sk2f p2{2, 5};
+    float dst[6];
+    Sk2f::Store3(dst, p0, p1, p2);
+    REPORTER_ASSERT(r, dst[0] == 0);
+    REPORTER_ASSERT(r, dst[1] == 1);
+    REPORTER_ASSERT(r, dst[2] == 2);
+    REPORTER_ASSERT(r, dst[3] == 3);
+    REPORTER_ASSERT(r, dst[4] == 4);
+    REPORTER_ASSERT(r, dst[5] == 5);
+}

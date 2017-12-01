@@ -29,6 +29,13 @@ public:
 
     AI void store(void* ptr) const { _mm_storel_pi((__m64*)ptr, fVec); }
 
+    AI static void Store3(void* dst, const SkNx& a, const SkNx& b, const SkNx& c) {
+        auto lo = _mm_setr_ps(a[0], b[0], c[0], a[1]),
+             hi = _mm_setr_ps(b[1], c[1],    0,    0);
+        _mm_storeu_ps((float*)dst, lo);
+        _mm_storel_pi(((__m64*)dst) + 2, hi);
+    }
+
     AI SkNx operator - () const { return _mm_xor_ps(_mm_set1_ps(-0.0f), fVec); }
 
     AI SkNx operator + (const SkNx& o) const { return _mm_add_ps(fVec, o.fVec); }
