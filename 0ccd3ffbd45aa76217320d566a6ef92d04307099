@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "bc827851_7377fa71",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-12-01T19:28:16Z",
+      "side": 1,
+      "message": "That makes sense to me conceptually, although I had never heard that before, and haven\u0027t been able to find anything suggesting it to be the case. Can you provide some details and/or links? (My understanding has been that the important part is where we call setjmp, rather than where jmp_buf is allocated.)\n\nIf jmp_buf must be stack-allocated, Chromium\u0027s JPEGImageDecoder has the same bug, AFAICT. (Its jmp_buf lives inside a struct which lives inside the JPEGImageReader class, which is allocated by new.)\n\nLikewise, libpng seems to store its jmp_buf on its png_ptr. Sometimes its local to that object (which is allocated with malloc), and sometimes it is malloc\u0027ed itself. (Some places internally it is on the stack.)",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 9,
+        "endChar": 38
+      },
+      "revId": "0ccd3ffbd45aa76217320d566a6ef92d04307099",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "bd9088a2_326eb534",
         "filename": "src/codec/SkJpegPriv.h",
         "patchSetId": 1
@@ -31,6 +54,24 @@
       "side": 1,
       "message": "libjpeg doesn\u0027t call longjmp. It\u0027s a Skia specific implementation for the error callback. Nesting is for cases like this:\n\nvoid SkDoSomething() {\n    AutoPushJmpBuf jmp(mgr);\n    if (!setjmp(jmp)) {\n        abort(\"SkDoSomething failed\");\n    }\n    ...\n\n    SkDoSomethingMoreSpecific();\n\n    ....\n}\n\nvoid SkDoSomethingMoreSpecific() {\n    AutoPushJmpBuf jmp(mgr);\n    if (!setjmp(jmp)) {\n        abort(\"SkDoSomethingMoreSpecific failed\");\n    }\n    ...\n}",
       "parentUuid": "bd9088a2_326eb534",
+      "revId": "0ccd3ffbd45aa76217320d566a6ef92d04307099",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a958e4af_018090c7",
+        "filename": "src/codec/SkJpegPriv.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-12-01T19:28:16Z",
+      "side": 1,
+      "message": "\u003e libjpeg doesn\u0027t call longjmp. It\u0027s a Skia specific implementation for the error callback. Nesting is for cases like this:\n\nThis is technically true, although if Skia did not call longjmp, I believe libjpeg would call exit(). (I know libpng does something similar.) longjmp is the recommended way to respond to an error.\n\n\u003e \n\u003e void SkDoSomething() {\n\u003e     AutoPushJmpBuf jmp(mgr);\n\u003e     if (!setjmp(jmp)) {\n\u003e         abort(\"SkDoSomething failed\");\n\u003e     }\n\u003e     ...\n\u003e \n\u003e     SkDoSomethingMoreSpecific();\n\u003e \n\u003e     ....\n\u003e }\n\u003e \n\u003e void SkDoSomethingMoreSpecific() {\n\u003e     AutoPushJmpBuf jmp(mgr);\n\u003e     if (!setjmp(jmp)) {\n\u003e         abort(\"SkDoSomethingMoreSpecific failed\");\n\u003e     }\n\u003e     ...\n\u003e }\n\nIndeed. I don\u0027t know whether we ever get into that situation, but without looking over the code again, I believe it\u0027s possible.\n\nI had thought that after calling SkDoSomethingMoreSpecific we would need to call setjmp again. I just read http://en.cppreference.com/w/cpp/utility/program/setjmp, and it seems to state that just using the original jmp_buf is good enough, although I\u0027m not confident in my understanding of the prose there.",
+      "parentUuid": "c584c851_5b67be73",
       "revId": "0ccd3ffbd45aa76217320d566a6ef92d04307099",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
