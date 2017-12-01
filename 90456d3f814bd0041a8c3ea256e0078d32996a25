@@ -22,6 +22,30 @@
       "revId": "90456d3f814bd0041a8c3ea256e0078d32996a25",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d00bd782_db2923f3",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-12-01T20:37:12Z",
+      "side": 1,
+      "message": "That may be a bug unless png_malloc_warn is 16-byte aligned...",
+      "parentUuid": "f899471a_f8b2be50",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 9,
+        "endChar": 41
+      },
+      "revId": "90456d3f814bd0041a8c3ea256e0078d32996a25",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
