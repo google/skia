@@ -19,8 +19,14 @@ public:
     GrClipEdgeType edgeType() const { return fEdgeType; }
     SkPoint center() const { return fCenter; }
     float radius() const { return fRadius; }
+
     static std::unique_ptr<GrFragmentProcessor> Make(GrClipEdgeType edgeType, SkPoint center,
                                                      float radius) {
+        // A radius below half causes the implicit insetting done by this processor to become
+        // inverted. We could handle this case by making the processor code more complicated.
+        if (radius < .5f) {
+            return nullptr;
+        }
         return std::unique_ptr<GrFragmentProcessor>(new GrCircleEffect(edgeType, center, radius));
     }
     GrCircleEffect(const GrCircleEffect& src);
