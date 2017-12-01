@@ -22,6 +22,36 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
           '--output-dir', self.m.vars.skia_out.join(self.m.vars.configuration),
           '--no-sync', '--make-output-dir'])
 
+  def _get_goma_json(self):
+    json_filename = 'goma-client-skia-swarming-bots-service-account.json'
+    json_key = 'jwt_service_account_goma-client'
+
+    # Ensure that the tmp_dir exists.
+    self.m.run.run_once(self.m.file.ensure_directory,
+                        'makedirs tmp_dir',
+                        self.m.vars.tmp_dir)
+
+    json_file = self.m.vars.tmp_dir.join(json_filename)
+    self.m.python.inline(
+        'download ' + json_filename,
+        """
+import os
+import sys
+import urllib2
+
+TOKEN_URL = ('http://metadata/computeMetadata/v1/project/attributes/'
+             '%s')
+
+req = urllib2.Request(TOKEN_URL, headers={'Metadata-Flavor': 'Google'})
+contents = urllib2.urlopen(req).read()
+
+with open(sys.argv[1], 'w') as f:
+  f.write(contents)
+""" % json_key,
+        args=[json_file],
+        infra_step=True)
+    return json_file
+
   def compile(self, unused_target):
     """Build Skia with GN."""
     compiler      = self.m.vars.builder_cfg.get('compiler',      '')
@@ -30,6 +60,7 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
     os            = self.m.vars.builder_cfg.get('os',            '')
     target_arch   = self.m.vars.builder_cfg.get('target_arch',   '')
 
+    goma_win_dir       = self.m.vars.slave_dir.join('goma_win', 'goma-win64')
     clang_linux        = str(self.m.vars.slave_dir.join('clang_linux'))
     emscripten_sdk     = str(self.m.vars.slave_dir.join('emscripten_sdk'))
     linux_vulkan_sdk   = str(self.m.vars.slave_dir.join('linux_vulkan_sdk'))
@@ -81,6 +112,8 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
       extra_ldflags.append('-L' + clang_linux + '/msan')
 
     args = {}
+    ninja_args = ['-k', '0', '-C', self.out_dir]
+    env = {}
 
     if configuration != 'Debug':
       args['is_debug'] = 'false'
@@ -116,6 +149,16 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
         args['skia_vulkan_sdk'] = '"%s"' % linux_vulkan_sdk
       if 'Win' in os:
         args['skia_vulkan_sdk'] = '"%s"' % win_vulkan_sdk
+    if 'Goma' in extra_config:
+      assert 'Win' in os
+      json_file = self._get_goma_json()
+      env['GOMA_SERVICE_ACCOUNT_JSON_FILE'] = json_file
+      with self.m.context(cwd=goma_win_dir, env=env):
+        self._py('update goma', 'goma_ctl.py', args=['update'])
+        self._py('start goma', 'goma_ctl.py', args=['ensure_start'])
+      args['use_goma'] = 'true'
+      args['goma_dir'] = '"%s"' % goma_win_dir
+      ninja_args.extend(['-j', '100'])
     if 'Metal' in extra_config:
       args['skia_use_metal'] = 'true'
     if 'CheckGeneratedFiles' in extra_config:
@@ -162,7 +205,6 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
 
     with self.m.context(cwd=self.m.vars.skia_dir):
       self._py('fetch-gn', self.m.vars.skia_dir.join('bin', 'fetch-gn'))
-      env = {}
       if 'CheckGeneratedFiles' in extra_config:
         env['PATH'] = '%s:%%(PATH)s' % self.m.vars.skia_dir.join('bin')
         self._py(
@@ -174,7 +216,7 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
 
       with self.m.env(env):
         self._run('gn gen', [gn, 'gen', self.out_dir, '--args=' + gn_args])
-        self._run('ninja', [ninja, '-k', '0', '-C', self.out_dir])
+        self._run('ninja', [ninja] + ninja_args)
 
   def copy_extra_build_products(self, swarming_out_dir):
     configuration = self.m.vars.builder_cfg.get('configuration', '')
