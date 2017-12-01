@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fce8793e_24944fb7",
+        "filename": "tools/skqp/gm_knowledge.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-12-01T18:33:26Z",
+      "side": 1,
+      "message": "are these error codes?  If so, but them in a header and make it clear what they are",
+      "range": {
+        "startLine": 62,
+        "startChar": 15,
+        "endLine": 62,
+        "endChar": 22
+      },
+      "revId": "f0936b49285d7192e1e9b2d9bb1c86cdb689dbee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
