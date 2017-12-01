@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "473d2274_94218dfa",
+        "filename": "tests/DeferredDisplayListTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-12-01T20:38:58Z",
+      "side": 1,
+      "message": "Is it worth testing that making a characterization fails from non gpu SkSurface\u0027s?",
+      "range": {
+        "startLine": 100,
+        "startChar": 8,
+        "endLine": 100,
+        "endChar": 44
+      },
+      "revId": "d01f8c1a543680c84d8178541f37242ec7504c69",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
