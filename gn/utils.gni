@@ -39,8 +39,6 @@ skia_utils_sources = [
   "$_src/utils/SkDumpCanvas.cpp",
   "$_src/utils/SkEventTracer.cpp",
   "$_src/utils/SkFloatUtils.h",
-  "$_src/utils/SkInsetConvexPolygon.cpp",
-  "$_src/utils/SkInsetConvexPolygon.h",
   "$_src/utils/SkInterpolator.cpp",
   "$_src/utils/SkJSONWriter.cpp",
   "$_src/utils/SkJSONWriter.h",
@@ -49,6 +47,8 @@ skia_utils_sources = [
   "$_src/utils/SkMultiPictureDocument.cpp",
   "$_src/utils/SkNWayCanvas.cpp",
   "$_src/utils/SkNullCanvas.cpp",
+  "$_src/utils/SkOffsetPolygon.cpp",
+  "$_src/utils/SkOffsetPolygon.h",
   "$_src/utils/SkOSPath.cpp",
   "$_src/utils/SkOSPath.h",
   "$_src/utils/SkPaintFilterCanvas.cpp",
@@ -85,5 +85,4 @@ skia_utils_sources = [
   "$_src/utils/win/SkTScopedComPtr.h",
   "$_src/utils/win/SkWGL.h",
   "$_src/utils/win/SkWGL_win.cpp",
-
 ]
