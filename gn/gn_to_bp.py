@@ -76,6 +76,10 @@ cc_library_static {
                 $x86_srcs
             ],
             cflags: [
+                // Clang seems to think new/malloc will only be 4-byte aligned
+                // on x86 Android. We're pretty sure it's actually 8-byte
+                // alignment. tests/OverAlignedTest.cpp has more information,
+                // and should fail if we're wrong.
                 "-Wno-over-aligned"
             ],
         },
