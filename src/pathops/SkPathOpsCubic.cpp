@@ -713,10 +713,7 @@ bool SkDCubic::toFloatPoints(SkPoint* pts) const {
     const double* dCubic = &fPts[0].fX;
     SkScalar* cubic = &pts[0].fX;
     for (int index = 0; index < kPointCount * 2; ++index) {
-        cubic[index] = SkDoubleToScalar(dCubic[index]);
-        if (SkScalarAbs(cubic[index]) < FLT_EPSILON_ORDERABLE_ERR) {
-            cubic[index] = 0;
-        }
+        *cubic++ = SkDoubleToScalar(*dCubic++);
     }
     return SkScalarsAreFinite(&pts->fX, kPointCount * 2);
 }
