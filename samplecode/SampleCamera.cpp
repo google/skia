@@ -14,10 +14,11 @@
 #include "SkEmbossMaskFilter.h"
 #include "SkGradientShader.h"
 #include "SkPath.h"
+#include "SkRandom.h"
 #include "SkRegion.h"
 #include "SkShader.h"
+#include "SkString.h"
 #include "SkUtils.h"
-#include "SkRandom.h"
 
 class CameraView : public SampleView {
     SkTArray<sk_sp<SkShader>> fShaders;

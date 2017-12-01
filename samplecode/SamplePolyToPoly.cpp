@@ -10,6 +10,7 @@
 #include "SkGraphics.h"
 #include "SkPath.h"
 #include "SkRandom.h"
+#include "SkString.h"
 #include "SkTime.h"
 
 class PolyToPolyView : public SampleView {
