@@ -60,6 +60,7 @@
 
 // SRC
 #include "SkUtils.h"
+#include "SkValidatingReadBuffer.h"
 
 #if SK_SUPPORT_GPU
 #include "GrContextFactory.h"
@@ -1760,6 +1761,22 @@ DEF_FUZZ(RasterN32Canvas, fuzz) {
     auto surface = SkSurface::MakeRasterN32Premul(kCanvasSize.width(), kCanvasSize.height());
     SkASSERT(surface && surface->getCanvas());
     fuzz_canvas(fuzz, surface->getCanvas());
+}
+
+DEF_FUZZ(RasterN32CanvasViaSerialization, fuzz) {
+    SkPictureRecorder recorder;
+    fuzz_canvas(fuzz, recorder.beginRecording(SkIntToScalar(kCanvasSize.width()),
+                                              SkIntToScalar(kCanvasSize.height())));
+    sk_sp<SkPicture> pic(recorder.finishRecordingAsPicture());
+    if (!pic) { fuzz->signalBug(); }
+    sk_sp<SkData> data = pic->serialize();
+    if (!data) { fuzz->signalBug(); }
+    SkValidatingReadBuffer vrb(data->data(), data->size());
+    auto deserialized = SkPicture::MakeFromBuffer(vrb);
+    if (!deserialized) { fuzz->signalBug(); }
+    auto surface = SkSurface::MakeRasterN32Premul(kCanvasSize.width(), kCanvasSize.height());
+    SkASSERT(surface && surface->getCanvas());
+    surface->getCanvas()->drawPicture(deserialized);
 }
 
 #if SK_SUPPORT_GPU
