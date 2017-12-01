@@ -437,6 +437,12 @@
         "Build-Win-Clang-x86_64-Debug-ANGLE"
       ]
     },
+    "Build-Win-Clang-x86_64-Debug-Goma": {
+      "priority": 0.8,
+      "tasks": [
+        "Build-Win-Clang-x86_64-Debug-Goma"
+      ]
+    },
     "Build-Win-Clang-x86_64-Debug-Vulkan": {
       "priority": 0.8,
       "tasks": [
@@ -5002,6 +5008,40 @@
       "isolate": "compile_skia.isolate",
       "priority": 0.8
     },
+    "Build-Win-Clang-x86_64-Debug-Goma": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/clang_win",
+          "path": "clang_win",
+          "version": "version:0"
+        }
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-IsolateWinToolchain",
+        "Housekeeper-PerCommit-IsolateWinGoma"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "os:Windows-2016Server-14393",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "compile",
+        "repository=<(REPO)",
+        "buildername=Build-Win-Clang-x86_64-Debug-Goma",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "compile_skia.isolate",
+      "priority": 0.8
+    },
     "Build-Win-Clang-x86_64-Debug-Vulkan": {
       "cipd_packages": [
         {
@@ -5726,6 +5766,23 @@
         "pool:Skia"
       ],
       "isolate": "isolate_skimage.isolate",
+      "priority": 0.7
+    },
+    "Housekeeper-PerCommit-IsolateWinGoma": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/goma_windows",
+          "path": "goma_windows",
+          "version": "version:0"
+        }
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "os:Debian-9.2",
+        "pool:Skia"
+      ],
+      "isolate": "isolate_goma_win.isolate",
       "priority": 0.7
     },
     "Housekeeper-PerCommit-IsolateWinToolchain": {
