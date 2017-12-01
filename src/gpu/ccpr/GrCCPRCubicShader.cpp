@@ -9,14 +9,6 @@
 
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 
-void GrCCPRCubicShader::appendInputPointFetch(const GrCCPRCoverageProcessor& proc,
-                                              GrGLSLShaderBuilder* s,
-                                              const TexelBufferHandle& pointsBuffer,
-                                              const char* pointId) const {
-    s->appendTexelFetch(pointsBuffer,
-                        SkStringPrintf("%s.x + %s", proc.instanceAttrib(), pointId).c_str());
-}
-
 void GrCCPRCubicShader::emitWind(GrGLSLShaderBuilder* s, const char* pts,
                                  const char* outputWind) const {
 

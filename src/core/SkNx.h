@@ -95,7 +95,7 @@ struct SkNx {
     AI static void Store3(void* vptr, const SkNx& a, const SkNx& b, const SkNx& c) {
         auto ptr = (char*)vptr;
         Half::Store3(ptr,                   a.fLo, b.fLo, c.fLo);
-        Half::Store3(ptr + 3*N/2*sizeof(T), a.fHi, b.fHi, c.fHi);
+        Half::Store3(ptr + 4*N/2*sizeof(T), a.fHi, b.fHi, c.fHi);
     }
 
     AI bool anyTrue() const { return fLo.anyTrue() || fHi.anyTrue(); }
