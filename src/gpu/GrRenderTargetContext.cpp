@@ -1224,6 +1224,28 @@ bool GrRenderTargetContext::drawFilledDRRect(const GrClip& clip,
         }
     }
 
+    SkTCopyOnFirstWrite<SkRRect> inner(origInner), outer(origOuter);
+
+    if (aa == GrAA::kYes && inner->isCircle() && outer->isCircle()) {
+        auto outerR = outer->width() / 2.f;
+        auto innerR = inner->width() / 2.f;
+        auto cx = outer->getBounds().fLeft + outerR;
+        auto cy = outer->getBounds().fTop + outerR;
+        if (SkScalarNearlyEqual(cx, inner->getBounds().fLeft + innerR) &&
+            SkScalarNearlyEqual(cy, inner->getBounds().fTop + innerR)) {
+            auto avgR = (innerR + outerR) / 2.f;
+            auto circleBounds = SkRect::MakeLTRB(cx - avgR, cy - avgR, cx + avgR, cy + avgR);
+            SkStrokeRec stroke(SkStrokeRec::kFill_InitStyle);
+            stroke.setStrokeStyle(outerR - innerR);
+            auto op = GrOvalOpFactory::MakeOvalOp(std::move(paint), viewMatrix, circleBounds,
+                                                  stroke, this->caps()->shaderCaps());
+            if (op) {
+                this->addDrawOp(clip, std::move(op));
+                return true;
+            }
+        }
+    }
+
     GrAAType aaType = this->chooseAAType(aa, GrAllowMixedSamples::kNo);
 
     GrClipEdgeType innerEdgeType, outerEdgeType;
@@ -1235,7 +1257,6 @@ bool GrRenderTargetContext::drawFilledDRRect(const GrClip& clip,
         outerEdgeType = GrClipEdgeType::kFillBW;
     }
 
-    SkTCopyOnFirstWrite<SkRRect> inner(origInner), outer(origOuter);
     SkMatrix inverseVM;
     if (!viewMatrix.isIdentity()) {
         if (!origInner.transform(viewMatrix, inner.writable())) {
