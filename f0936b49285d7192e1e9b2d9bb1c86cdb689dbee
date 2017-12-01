@@ -22,6 +22,30 @@
       "revId": "f0936b49285d7192e1e9b2d9bb1c86cdb689dbee",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7b1f10dd_1867c782",
+        "filename": "tools/skqp/gm_knowledge.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-12-01T22:10:58Z",
+      "side": 1,
+      "message": "Fixed.  I now return an error code.",
+      "parentUuid": "fce8793e_24944fb7",
+      "range": {
+        "startLine": 62,
+        "startChar": 15,
+        "endLine": 62,
+        "endChar": 22
+      },
+      "revId": "f0936b49285d7192e1e9b2d9bb1c86cdb689dbee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
