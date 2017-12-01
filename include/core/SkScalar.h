@@ -46,10 +46,21 @@ typedef float SkScalar;
 #define SkScalarTan(radians)        (float)sk_float_tan(radians)
 #define SkScalarASin(val)           (float)sk_float_asin(val)
 #define SkScalarACos(val)           (float)sk_float_acos(val)
-#define SkScalarATan2(y, x)         (float)sk_float_atan2(y,x)
 #define SkScalarExp(x)              (float)sk_float_exp(x)
 #define SkScalarLog(x)              (float)sk_float_log(x)
 #define SkScalarLog2(x)             (float)sk_float_log2(x)
+
+// define atan2 to special-case axis-aligned vectors
+// and return answers consistent with other trig
+static SkScalar SkScalarATan2(SkScalar y, SkScalar x) {
+    if (!x) {
+        return y < 0 ? SK_ScalarPI : y > 0 ? 0 : SK_ScalarNaN;
+    }
+    if (!y) {
+        return x < 0 ? SK_ScalarPI / 2 : -SK_ScalarPI / 2;
+    }
+    return (SkScalar) sk_float_atan2(y, x);
+}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 

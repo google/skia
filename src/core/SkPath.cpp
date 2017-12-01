@@ -1337,6 +1337,17 @@ void SkPath::arcTo(const SkRect& oval, SkScalar startAngle, SkScalar sweepAngle,
     }
 }
 
+static SkScalar xSkScalarATan2(SkScalar y, SkScalar x) {
+    SkScalar sys = sk_float_atan2(y, x);
+    if (!y) {
+        return x < 0 ? SK_ScalarPI : x > 0 ? 0 : SK_ScalarNaN;
+    }
+    if (!x) {
+        return y < 0 ? -SK_ScalarPI / 2 : SK_ScalarPI / 2;
+    }
+    return (SkScalar) sk_float_atan2(y, x);
+}
+
 // This converts the SVG arc to conics.
 // Partly adapted from Niko's code in kdelibs/kdecore/svgicons.
 // Then transcribed from webkit/chrome's SVGPathNormalizer::decomposeArcToCubic()
@@ -1406,8 +1417,8 @@ void SkPath::arcTo(SkScalar rx, SkScalar ry, SkScalar angle, SkPath::ArcSize arc
     centerPoint.offset(-delta.fY, delta.fX);
     unitPts[0] -= centerPoint;
     unitPts[1] -= centerPoint;
-    SkScalar theta1 = SkScalarATan2(unitPts[0].fY, unitPts[0].fX);
-    SkScalar theta2 = SkScalarATan2(unitPts[1].fY, unitPts[1].fX);
+    SkScalar theta1 = xSkScalarATan2(unitPts[0].fY, unitPts[0].fX);
+    SkScalar theta2 = xSkScalarATan2(unitPts[1].fY, unitPts[1].fX);
     SkScalar thetaArc = theta2 - theta1;
     if (thetaArc < 0 && !arcSweep) {  // arcSweep flipped from the original implementation
         thetaArc += SK_ScalarPI * 2;
@@ -1417,7 +1428,7 @@ void SkPath::arcTo(SkScalar rx, SkScalar ry, SkScalar angle, SkPath::ArcSize arc
     pointTransform.setRotate(angle);
     pointTransform.preScale(rx, ry);
 
-    int segments = SkScalarCeilToInt(SkScalarAbs(thetaArc / (SK_ScalarPI / 2)));
+    int segments = SkScalarCeilToInt(SkScalarAbs(thetaArc / (2 * SK_ScalarPI / 3)));
     SkScalar thetaWidth = thetaArc / segments;
     SkScalar t = SkScalarTan(0.5f * thetaWidth);
     if (!SkScalarIsFinite(t)) {
