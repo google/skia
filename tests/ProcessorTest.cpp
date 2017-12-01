@@ -353,6 +353,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, repor
         std::random_device rd;
         seed = rd();
     }
+    seed = 0xf6ddbe2f;
     // If a non-deterministic bot fails this test, check the output to see what seed it used, then
     // hard-code that value here:
     SkRandom random(seed);
@@ -434,8 +435,8 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, repor
                         if (!legalColorModulation && !legalAlphaModulation) {
                             ERRORF(reporter,
                                    "\"Modulating\" processor %s made color/alpha value larger. "
-                                   "Input: 0x%08x, Output: 0x%08x.",
-                                   clone->name(), input, output);
+                                   "Input: 0x%08x, Output: 0x%08x, pixel (%d, %d).",
+                                   clone->name(), input, output, x, y);
                             passing = false;
                         }
                     }
