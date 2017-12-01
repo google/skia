@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "e876a4b6_132bc42d",
+        "filename": "src/core/SkNx.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-12-01T20:08:55Z",
+      "side": 1,
+      "message": "3, I bet.",
+      "range": {
+        "startLine": 98,
+        "startChar": 27,
+        "endLine": 98,
+        "endChar": 28
+      },
+      "revId": "89bfd00d645e78ae41b318908662a04f345da026",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "a6105a4c_5f41f69d",
         "filename": "src/opts/SkNx_sse.h",
         "patchSetId": 1
@@ -13,6 +36,30 @@
       "writtenOn": "2017-12-01T19:45:58Z",
       "side": 1,
       "message": "Can this be done better?",
+      "range": {
+        "startLine": 33,
+        "startChar": 8,
+        "endLine": 38,
+        "endChar": 37
+      },
+      "revId": "89bfd00d645e78ae41b318908662a04f345da026",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c96ec762_fe8f9927",
+        "filename": "src/opts/SkNx_sse.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-12-01T20:08:55Z",
+      "side": 1,
+      "message": "I don\u0027t think there\u0027s a best way to do this.  This looks fine to me, as would\n\n        auto lo \u003d _mm_setr_ps(a[0], b[0], c[0], a[1]),\n             hi \u003d _mm_setr_ps(b[1], c[1],    0,    0);\n        _mm_storeu_ps((float*)dst, lo);\n        _mm_storel_pi((__m64*)dst, hi);\n\nor even just\n\n        float vals[] \u003d { a[0],b[0],c[0], a[1],b[1],c[1] };\n        memcpy(dst, vals, sizeof(vals));",
+      "parentUuid": "a6105a4c_5f41f69d",
       "range": {
         "startLine": 33,
         "startChar": 8,
