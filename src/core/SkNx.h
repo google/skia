@@ -92,6 +92,11 @@ struct SkNx {
         Half::Store4(ptr,                   a.fLo, b.fLo, c.fLo, d.fLo);
         Half::Store4(ptr + 4*N/2*sizeof(T), a.fHi, b.fHi, c.fHi, d.fHi);
     }
+    AI static void Store3(void* vptr, const SkNx& a, const SkNx& b, const SkNx& c) {
+        auto ptr = (char*)vptr;
+        Half::Store3(ptr,                   a.fLo, b.fLo, c.fLo);
+        Half::Store3(ptr + 3*N/2*sizeof(T), a.fHi, b.fHi, c.fHi);
+    }
 
     AI bool anyTrue() const { return fLo.anyTrue() || fHi.anyTrue(); }
     AI bool allTrue() const { return fLo.allTrue() && fHi.allTrue(); }
@@ -188,6 +193,12 @@ struct SkNx<1,T> {
         b.store(ptr + 1*sizeof(T));
         c.store(ptr + 2*sizeof(T));
         d.store(ptr + 3*sizeof(T));
+    }
+    AI static void Store3(void* vptr, const SkNx& a, const SkNx& b, const SkNx& c) {
+        auto ptr = (char*)vptr;
+        a.store(ptr + 0*sizeof(T));
+        b.store(ptr + 1*sizeof(T));
+        c.store(ptr + 2*sizeof(T));
     }
 
     AI bool anyTrue() const { return fVal != 0; }
