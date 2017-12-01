@@ -91,11 +91,3 @@ JpegDecoderMgr::~JpegDecoderMgr() {
         jpeg_destroy_decompress(&fDInfo);
     }
 }
-
-jmp_buf& JpegDecoderMgr::getJmpBuf() {
-    return fErrorMgr.fJmpBuf;
-}
-
-jpeg_decompress_struct* JpegDecoderMgr::dinfo() {
-    return &fDInfo;
-}
