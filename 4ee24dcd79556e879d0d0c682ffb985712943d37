@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "81e77506_eaa7a7dd",
+        "filename": "src/opts/SkNx_sse.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-12-01T20:32:22Z",
+      "side": 1,
+      "message": "Whoops.  Good catch.",
+      "range": {
+        "startLine": 36,
+        "startChar": 36,
+        "endLine": 36,
+        "endChar": 39
+      },
+      "revId": "4ee24dcd79556e879d0d0c682ffb985712943d37",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
