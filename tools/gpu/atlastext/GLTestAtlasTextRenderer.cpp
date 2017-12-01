@@ -10,6 +10,7 @@
 #include "SkBitmap.h"
 #include "TestAtlasTextRenderer.h"
 #include "gl/GrGLDefines.h"
+#include "gl/GrGLUtil.h"
 
 using sk_gpu_test::GLTestContext;
 
@@ -74,6 +75,32 @@ private:
 GLTestAtlasTextRenderer::GLTestAtlasTextRenderer(std::unique_ptr<GLTestContext> context)
         : fContext(std::move(context)) {
     auto restore = fContext->makeCurrentAndAutoRestore();
+
+    // First check whether the GL is supported so we can avoid spammy failures on systems
+    // where the GL simply doesn't work with this class.
+    const char* versionStr = reinterpret_cast<const char*>(callgl(GetString, GR_GL_VERSION));
+    auto version = GrGLGetVersionFromString(versionStr);
+    auto standard = GrGLGetStandardInUseFromString(versionStr);
+    switch (standard) {
+        case kNone_GrGLStandard:
+            return;
+        case kGLES_GrGLStandard:
+            if (version < GR_GL_VER(3, 0)) {
+                return;
+            }
+            break;
+        case kGL_GrGLStandard: {
+            if (version < GR_GL_VER(4, 3)) {
+                return;
+            }
+            GrGLint profileMask;
+            callgl(GetIntegerv, GR_GL_CONTEXT_PROFILE_MASK, &profileMask);
+            if (profileMask & GR_GL_CONTEXT_CORE_PROFILE_BIT) {
+                return;
+            }
+        }
+    }
+
     auto vs = callgl(CreateShader, GR_GL_VERTEX_SHADER);
     static constexpr char kGLVersionString[] = "#version 430 compatibility";
     static constexpr char kGLESVersionString[] = "#version 300 es";
