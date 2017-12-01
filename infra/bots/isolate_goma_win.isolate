@@ -1,0 +1,7 @@
+{
+  'variables': {
+    'command': [
+      '/bin/cp', '-rL', 'goma_windows', '${ISOLATED_OUTDIR}',
+    ],
+  },
+}
