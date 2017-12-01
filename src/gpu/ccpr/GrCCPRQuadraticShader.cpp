@@ -9,14 +9,6 @@
 
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 
-void GrCCPRQuadraticShader::appendInputPointFetch(const GrCCPRCoverageProcessor& proc,
-                                                  GrGLSLShaderBuilder* s,
-                                                  const TexelBufferHandle& pointsBuffer,
-                                                  const char* pointId) const {
-    s->appendTexelFetch(pointsBuffer,
-                        SkStringPrintf("%s.x + %s", proc.instanceAttrib(), pointId).c_str());
-}
-
 void GrCCPRQuadraticShader::emitWind(GrGLSLShaderBuilder* s, const char* pts,
                                      const char* outputWind) const {
     s->codeAppendf("float area_times_2 = determinant(float2x2(%s[1] - %s[0], %s[2] - %s[0]));",

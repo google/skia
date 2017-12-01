@@ -28,17 +28,9 @@ protected:
 
         // Vertex shader.
         GrGLSLVertexBuilder* v = args.fVertBuilder;
-        // The Intel GLSL compiler hits an internal assertion if we index the input attrib itself
-        // with sk_VertexID.
-        v->codeAppendf("int pointID = sk_VertexID;");
-        v->codeAppend ("float2 self = ");
-        fShader->appendInputPointFetch(proc, v, args.fTexelBuffers[0], "pointID");
-        v->codeAppend (".xy;");
-        v->codeAppendf("int packedoffset = %s[%i];",
-                       proc.fInstanceAttrib.fName, proc.atlasOffsetIdx());
-        v->codeAppend ("float2 atlasoffset = float2((packedoffset << 16) >> 16, "
-                                                   "packedoffset >> 16);");
-        v->codeAppend ("self += atlasoffset;");
+        v->codeAppendf("float2 self = float2(%s[sk_VertexID], %s[sk_VertexID]);",
+                       proc.getInstanceAttrib(InstanceAttribs::kX).fName,
+                       proc.getInstanceAttrib(InstanceAttribs::kY).fName);
         gpArgs->fPositionVar.set(kFloat2_GrSLType, "self");
 
         // Geometry shader.

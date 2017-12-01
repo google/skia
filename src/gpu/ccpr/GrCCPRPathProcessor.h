@@ -41,13 +41,13 @@ public:
     static constexpr int kNumInstanceAttribs = 1 + (int)InstanceAttribs::kColor;
 
     struct Instance {
-        SkRect                   fDevBounds;
-        SkRect                   fDevBounds45; // Bounding box in "| 1  -1 | * devCoords" space.
-                                               //                  | 1   1 |
-        std::array<float, 4>     fViewMatrix;  // {kScaleX, kSkewy, kSkewX, kScaleY}
-        std::array<float, 2>     fViewTranslate;
-        std::array<int16_t, 2>   fAtlasOffset;
-        uint32_t                 fColor;
+        SkRect fDevBounds;
+        SkRect fDevBounds45; // Bounding box in "| 1  -1 | * devCoords" space.
+                             //                  | 1   1 |
+        std::array<float, 4> fViewMatrix;  // {kScaleX, kSkewy, kSkewX, kScaleY}
+        std::array<float, 2> fViewTranslate;
+        std::array<int16_t, 2> fAtlasOffset;
+        uint32_t fColor;
 
         GR_STATIC_ASSERT(SK_SCALAR_IS_FLOAT);
     };
@@ -77,8 +77,8 @@ public:
     GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const override;
 
 private:
-    const SkPath::FillType   fFillType;
-    TextureSampler           fAtlasAccess;
+    const SkPath::FillType fFillType;
+    const TextureSampler fAtlasAccess;
 
     typedef GrGeometryProcessor INHERITED;
 };
