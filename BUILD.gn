@@ -1322,25 +1322,6 @@ if (skia_enable_tools) {
         "src/views/SkTouchGesture.cpp",
         "src/views/SkView.cpp",
       ]
-      libs = []
-      deps = []
-      if (is_linux) {
-        public_include_dirs += [ "src/views/unix" ]
-        sources += [ "src/views/unix/keysym2ucs.c" ]
-        libs += [
-          "GL",
-          "X11",
-        ]
-      } else if (is_mac) {
-        libs += [
-          "QuartzCore.framework",
-          "Cocoa.framework",
-          "Foundation.framework",
-        ]
-      }
-      if (skia_use_angle) {
-        deps += [ "//third_party/angle2" ]
-      }
     }
   }
 
@@ -1724,7 +1705,12 @@ if (skia_enable_tools) {
           "tools/sk_app/unix/GLWindowContext_unix.cpp",
           "tools/sk_app/unix/RasterWindowContext_unix.cpp",
           "tools/sk_app/unix/Window_unix.cpp",
+          "tools/sk_app/unix/keysym2ucs.c",
           "tools/sk_app/unix/main_unix.cpp",
+        ]
+        libs += [
+          "GL",
+          "X11",
         ]
       } else if (is_win) {
         sources += [
@@ -1742,6 +1728,11 @@ if (skia_enable_tools) {
           "tools/sk_app/mac/RasterWindowContext_mac.cpp",
           "tools/sk_app/mac/Window_mac.cpp",
           "tools/sk_app/mac/main_mac.cpp",
+        ]
+        libs += [
+          "QuartzCore.framework",
+          "Cocoa.framework",
+          "Foundation.framework",
         ]
       } else if (is_ios) {
         sources += [
