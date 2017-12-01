@@ -192,7 +192,8 @@ SkCodec::Result SkJpegCodec::ReadHeader(SkStream* stream, SkCodec** codecOut,
     std::unique_ptr<JpegDecoderMgr> decoderMgr(new JpegDecoderMgr(stream));
 
     // libjpeg errors will be caught and reported here
-    if (setjmp(decoderMgr->getJmpBuf())) {
+    skjpeg_error_mgr::AutoPushJmpBuf jmp(decoderMgr->errorMgr());
+    if (setjmp(jmp)) {
         return decoderMgr->returnFailure("ReadHeader", kInvalidInput);
     }
 
@@ -449,7 +450,8 @@ bool SkJpegCodec::setOutputColorSpace(const SkImageInfo& dstInfo) {
  * dimensions if possible
  */
 bool SkJpegCodec::onDimensionsSupported(const SkISize& size) {
-    if (setjmp(fDecoderMgr->getJmpBuf())) {
+    skjpeg_error_mgr::AutoPushJmpBuf jmp(fDecoderMgr->errorMgr());
+    if (setjmp(jmp)) {
         return fDecoderMgr->returnFalse("onDimensionsSupported");
     }
 
@@ -488,7 +490,8 @@ bool SkJpegCodec::onDimensionsSupported(const SkISize& size) {
 int SkJpegCodec::readRows(const SkImageInfo& dstInfo, void* dst, size_t rowBytes, int count,
                           const Options& opts) {
     // Set the jump location for libjpeg-turbo errors
-    if (setjmp(fDecoderMgr->getJmpBuf())) {
+    skjpeg_error_mgr::AutoPushJmpBuf jmp(fDecoderMgr->errorMgr());
+    if (setjmp(jmp)) {
         return 0;
     }
 
@@ -575,7 +578,8 @@ SkCodec::Result SkJpegCodec::onGetPixels(const SkImageInfo& dstInfo,
     jpeg_decompress_struct* dinfo = fDecoderMgr->dinfo();
 
     // Set the jump location for libjpeg errors
-    if (setjmp(fDecoderMgr->getJmpBuf())) {
+    skjpeg_error_mgr::AutoPushJmpBuf jmp(fDecoderMgr->errorMgr());
+    if (setjmp(jmp)) {
         return fDecoderMgr->returnFailure("setjmp", kInvalidInput);
     }
 
@@ -679,7 +683,8 @@ SkSampler* SkJpegCodec::getSampler(bool createIfNecessary) {
 SkCodec::Result SkJpegCodec::onStartScanlineDecode(const SkImageInfo& dstInfo,
         const Options& options) {
     // Set the jump location for libjpeg errors
-    if (setjmp(fDecoderMgr->getJmpBuf())) {
+    skjpeg_error_mgr::AutoPushJmpBuf jmp(fDecoderMgr->errorMgr());
+    if (setjmp(jmp)) {
         SkCodecPrintf("setjmp: Error from libjpeg\n");
         return kInvalidInput;
     }
@@ -755,7 +760,8 @@ int SkJpegCodec::onGetScanlines(void* dst, int count, size_t dstRowBytes) {
 
 bool SkJpegCodec::onSkipScanlines(int count) {
     // Set the jump location for libjpeg errors
-    if (setjmp(fDecoderMgr->getJmpBuf())) {
+    skjpeg_error_mgr::AutoPushJmpBuf jmp(fDecoderMgr->errorMgr());
+    if (setjmp(jmp)) {
         return fDecoderMgr->returnFalse("onSkipScanlines");
     }
 
@@ -852,7 +858,8 @@ SkCodec::Result SkJpegCodec::onGetYUV8Planes(const SkYUVSizeInfo& sizeInfo, void
     }
 
     // Set the jump location for libjpeg errors
-    if (setjmp(fDecoderMgr->getJmpBuf())) {
+    skjpeg_error_mgr::AutoPushJmpBuf jmp(fDecoderMgr->errorMgr());
+    if (setjmp(jmp)) {
         return fDecoderMgr->returnFailure("setjmp", kInvalidInput);
     }
 
