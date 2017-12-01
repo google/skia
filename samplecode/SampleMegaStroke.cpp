@@ -37,9 +37,7 @@ protected:
         if (SampleCode::CharQ(*evt, &uni)) {
            fClip.set(0, 0, 950, 600);
         }
-        SkString str;
-        evt->getType(&str);
-        if (str == SkString("SampleCode_Key_Event")) {
+        if (evt->isType("SampleCode_Key_Event")) {
            fClip.set(0, 0, 950, 600);
         }
         return this->INHERITED::onQuery(evt);
