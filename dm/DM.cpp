@@ -22,10 +22,11 @@
 #include "SkCommonFlagsGpuThreads.h"
 #include "SkCommonFlagsPathRenderer.h"
 #include "SkData.h"
-#include "SkDocument.h"
 #include "SkDebugfTracer.h"
+#include "SkDocument.h"
 #include "SkEventTracingPriv.h"
 #include "SkFontMgr.h"
+#include "SkFontMgrPriv.h"
 #include "SkGraphics.h"
 #include "SkHalf.h"
 #include "SkLeanWindows.h"
@@ -1298,9 +1299,6 @@ static sk_sp<SkTypeface> create_from_name(const char familyName[], SkFontStyle s
 #undef PORTABLE_FONT_PREFIX
 
 extern sk_sp<SkTypeface> (*gCreateTypefaceDelegate)(const char [], SkFontStyle );
-
-extern sk_sp<SkFontMgr> (*gSkFontMgr_DefaultFactory)();
-
 
 int main(int argc, char** argv) {
     SkCommandLineFlags::Parse(argc, argv);
