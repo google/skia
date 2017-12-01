@@ -979,6 +979,7 @@ void GrGradientEffect::GLSLProcessor::onSetData(const GrGLSLProgramDataManager& 
         case GrGradientEffect::InterpolationStrategy::kThreshold:
         case GrGradientEffect::InterpolationStrategy::kThresholdClamp0:
         case GrGradientEffect::InterpolationStrategy::kThresholdClamp1:
+            SkDebugf("threshold: %f\n", e.fThreshold);
             pdman.set1f(fThresholdUni, e.fThreshold);
             // fall through
         case GrGradientEffect::InterpolationStrategy::kSingle:
@@ -1051,8 +1052,28 @@ void GrGradientEffect::GLSLProcessor::emitAnalyticalColor(GrGLSLFPFragmentBuilde
             fragBuilder->codeAppendf("half tiled_t = fract(%s);", t);
             break;
         case GrSamplerState::WrapMode::kMirrorRepeat:
-            fragBuilder->codeAppendf("half t_1 = %s - 1.0;", t);
-            fragBuilder->codeAppendf("half tiled_t = abs(t_1 - 2.0 * floor(t_1 * 0.5) - 1.0);");
+#if 1
+            fragBuilder->codeAppendf("float t_1 = %s - 1.0;", t);
+            fragBuilder->codeAppendf("half tiled_t = abs((t_1 - (2.0 * ((t_1 *0.5) - fract(t_1 * 0.5))))-1);");
+            // tiled_t should be between 0 and 2 here;
+            fragBuilder->codeAppendf("if (tiled_t > 1.0) {");
+            fragBuilder->codeAppendf("  child = half4(5.1, 0.1, 0.1, 0.1);");
+            fragBuilder->codeAppendf("} else if (tiled_t < 0.0) {");
+            fragBuilder->codeAppendf("  child = half4(0.1, 5.1, 0.1, 0.1);");
+            fragBuilder->codeAppendf("} else {");
+            //fragBuilder->codeAppendf("tiled_t = abs(tiled_t);");
+
+            //fragBuilder->codeAppendf("float tiled_t = abs(t_1 - 2.0 * floor(t_1 * 0.5) - 1.0);");
+            //fragBuilder->codeAppendf("float floorTemp = t_1*0.5;");
+            //fragBuilder->codeAppendf("floorTemp = floorTemp - fract(floorTemp);");
+            //fragBuilder->codeAppendf("float tiled_t = abs(t_1 - 2.0 * floorTemp - 1.0);");
+            //fragBuilder->codeAppendf("float tiled_t = floorTemp;");
+            //fragBuilder->codeAppendf("float tiled_t = t_1 - 2.0 * floorTemp - 1.0;");
+            //fragBuilder->codeAppendf("float tiled_t = abs(mod(t_1, 2.0) - 1.0);");
+            //fragBuilder->codeAppendf("tiled_t = clamp(tiled_t, 0.0, 1.0);");
+#else
+            fragBuilder->codeAppendf("half tiled_t = fract(%s);", t);
+#endif
             break;
     }
 
@@ -1091,7 +1112,10 @@ void GrGradientEffect::GLSLProcessor::emitAnalyticalColor(GrGLSLFPFragmentBuilde
             break;
     }
 
+//    fragBuilder->codeAppend("color_scale = clamp(color_scale, 0.0, 1.0)");
+//    fragBuilder->codeAppend("color_bias = clamp(color_bias, 0.0, 1.0)");
     fragBuilder->codeAppend("half4 colorTemp = tiled_t * color_scale + color_bias;");
+//    fragBuilder->codeAppend("colorTemp = clamp(colorTemp, 0.0, 1.0);");
 
     // We could skip this step if all colors are known to be opaque. Two considerations:
     // The gradient SkShader reporting opaque is more restrictive than necessary in the two
@@ -1107,6 +1131,9 @@ void GrGradientEffect::GLSLProcessor::emitAnalyticalColor(GrGLSLFPFragmentBuilde
     fragBuilder->codeAppend("colorTemp = clamp(colorTemp, 0, colorTemp.a);");
 
     fragBuilder->codeAppendf("%s = %s * colorTemp;", outputColor, inputColor);
+    if (ge.fWrapMode == GrSamplerState::WrapMode::kMirrorRepeat) {
+        fragBuilder->codeAppendf("}");
+    }
 }
 
 void GrGradientEffect::GLSLProcessor::emitColor(GrGLSLFPFragmentBuilder* fragBuilder,
@@ -1157,6 +1184,9 @@ void GrGradientEffect::addInterval(const SkGradientShaderBase& shader, size_t id
     // dt can be 0 for clamp intervals => in this case we want a scale == 0
     const auto scale = SkScalarNearlyZero(dt) ? 0 : (c1 - c0) / dt,
                 bias = c0 - t0 * scale;
+
+    SkDebugf("scale: (%f, %f, %f, %f)\n", scale[0], scale[1], scale[2], scale[3]);
+    SkDebugf("bias: (%f, %f, %f, %f)\n", bias[0], bias[1], bias[2], bias[3]);
 
     // Intervals are stored as (scale, bias) tuples.
     SkASSERT(!(fIntervals.count() & 1));
