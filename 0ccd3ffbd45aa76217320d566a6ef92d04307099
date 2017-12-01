@@ -16,6 +16,47 @@
       "revId": "0ccd3ffbd45aa76217320d566a6ef92d04307099",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c584c851_5b67be73",
+        "filename": "src/codec/SkJpegPriv.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-12-01T19:14:55Z",
+      "side": 1,
+      "message": "libjpeg doesn\u0027t call longjmp. It\u0027s a Skia specific implementation for the error callback. Nesting is for cases like this:\n\nvoid SkDoSomething() {\n    AutoPushJmpBuf jmp(mgr);\n    if (!setjmp(jmp)) {\n        abort(\"SkDoSomething failed\");\n    }\n    ...\n\n    SkDoSomethingMoreSpecific();\n\n    ....\n}\n\nvoid SkDoSomethingMoreSpecific() {\n    AutoPushJmpBuf jmp(mgr);\n    if (!setjmp(jmp)) {\n        abort(\"SkDoSomethingMoreSpecific failed\");\n    }\n    ...\n}",
+      "parentUuid": "bd9088a2_326eb534",
+      "revId": "0ccd3ffbd45aa76217320d566a6ef92d04307099",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0b42d86f_284780e8",
+        "filename": "src/codec/SkJpegUtility.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-12-01T19:14:55Z",
+      "side": 1,
+      "message": "This is an error call back that skia supplies to libjpeg, where we call longjmp.",
+      "range": {
+        "startLine": 23,
+        "startChar": 4,
+        "endLine": 23,
+        "endChar": 11
+      },
+      "revId": "0ccd3ffbd45aa76217320d566a6ef92d04307099",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
