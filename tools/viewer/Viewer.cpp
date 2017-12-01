@@ -30,6 +30,7 @@
 #include "SkOnce.h"
 #include "SkOSFile.h"
 #include "SkOSPath.h"
+#include "SkPictureRecorder.h"
 #include "SkRandom.h"
 #include "SkScan.h"
 #include "SkStream.h"
@@ -265,6 +266,7 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     , fCumulativeMeasurementCount(0)
     , fDisplayStats(false)
     , fRefresh(false)
+    , fSaveToSKP(false)
     , fShowImGuiDebugWindow(false)
     , fShowSlidePicker(false)
     , fShowImGuiTestWindow(false)
@@ -479,6 +481,10 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
         fThreadCnt = (fThreadCnt + fTileCnt - 1) % fTileCnt;
         this->resetExecutor();
         this->updateTitle();
+        fWindow->inval();
+    });
+    fCommands.addCommand('K', "IO", "Save slide to SKP", [this]() {
+        fSaveToSKP = true;
         fWindow->inval();
     });
 
@@ -864,6 +870,23 @@ void Viewer::drawSlide(SkCanvas* canvas) {
         } else {
             cs = SkColorSpace::MakeRGB(transferFn, toXYZ);
         }
+    }
+
+    if (fSaveToSKP) {
+        SkPictureRecorder recorder;
+        SkCanvas* recorderCanvas = recorder.beginRecording(
+                SkRect::Make(fSlides[fCurrentSlide]->getDimensions()));
+        // In xform-canvas mode, record the transformed output
+        std::unique_ptr<SkCanvas> xformCanvas = nullptr;
+        if (ColorMode::kColorManagedSRGB8888_NonLinearBlending == fColorMode) {
+            xformCanvas = SkCreateColorSpaceXformCanvas(recorderCanvas, cs);
+            recorderCanvas = xformCanvas.get();
+        }
+        fSlides[fCurrentSlide]->draw(recorderCanvas);
+        sk_sp<SkPicture> picture(recorder.finishRecordingAsPicture());
+        SkFILEWStream stream("sample_app.skp");
+        picture->serialize(&stream);
+        fSaveToSKP = false;
     }
 
     // If we're in F16, or we're zooming, or we're in color correct 8888 and the gamut isn't sRGB,
