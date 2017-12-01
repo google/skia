@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "880fbe7b_94da9fa6",
+        "filename": "tools/gpu/atlastext/GLTestAtlasTextRenderer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-12-01T21:12:33Z",
+      "side": 1,
+      "message": "Do we not have a factory this could be done in rather than waiting until we\u0027re in the ctor?",
+      "revId": "abdee62ddaf84bc73de918db0c06ec6940704d94",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
