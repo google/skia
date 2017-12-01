@@ -1,0 +1,208 @@
+[
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "ensure-directory",
+      "--mode",
+      "0777",
+      "[START_DIR]/tmp"
+    ],
+    "infra_step": true,
+    "name": "makedirs tmp_dir"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport os\nimport sys\nimport urllib2\n\nTOKEN_URL = ('http://metadata/computeMetadata/v1/project/attributes/'\n             'jwt_service_account_goma-client')\n\nreq = urllib2.Request(TOKEN_URL, headers={'Metadata-Flavor': 'Google'})\ncontents = urllib2.urlopen(req).read()\n\nwith open(sys.argv[1], 'w') as f:\n  f.write(contents)\n",
+      "[START_DIR]/tmp/jwt_service_account_goma-client.json"
+    ],
+    "infra_step": true,
+    "name": "download jwt_service_account_goma-client.json",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import os@@@",
+      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
+      "@@@STEP_LOG_LINE@python.inline@import urllib2@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@TOKEN_URL = ('http://metadata/computeMetadata/v1/project/attributes/'@@@",
+      "@@@STEP_LOG_LINE@python.inline@             'jwt_service_account_goma-client')@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@req = urllib2.Request(TOKEN_URL, headers={'Metadata-Flavor': 'Google'})@@@",
+      "@@@STEP_LOG_LINE@python.inline@contents = urllib2.urlopen(req).read()@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@with open(sys.argv[1], 'w') as f:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  f.write(contents)@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "ensure-directory",
+      "--mode",
+      "0777",
+      "[START_DIR]/tmp/goma"
+    ],
+    "infra_step": true,
+    "name": "makedirs goma"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport os\nimport sys\nimport urllib2\n\nGOMA_CTL_URL = (\n  'https://clients5.google.com/cxx-compiler-service/download/goma_ctl.py')\n\nwith open(sys.argv[1], 'w') as f:\n  f.write(urllib2.urlopen(GOMA_CTL_URL).read())\n",
+      "[START_DIR]/tmp/goma/goma_ctl.py"
+    ],
+    "infra_step": true,
+    "name": "download goma_ctl.py",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import os@@@",
+      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
+      "@@@STEP_LOG_LINE@python.inline@import urllib2@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@GOMA_CTL_URL = (@@@",
+      "@@@STEP_LOG_LINE@python.inline@  'https://clients5.google.com/cxx-compiler-service/download/goma_ctl.py')@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@with open(sys.argv[1], 'w') as f:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  f.write(urllib2.urlopen(GOMA_CTL_URL).read())@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "goma_ctl.py",
+      "update"
+    ],
+    "cwd": "[START_DIR]/tmp/goma",
+    "env": {
+      "BUILDTYPE": "Release_x64",
+      "CHROME_HEADLESS": "1",
+      "GOMA_FALLBACK": "0",
+      "GOMA_HERMETIC": "error",
+      "GOMA_SERVICE_ACCOUNT_JSON_FILE": "[START_DIR]/tmp/jwt_service_account_goma-client.json",
+      "GOMA_USE_LOCAL": "0",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[CUSTOM_C:\\_B_WORK]/skia/out/Build-Win-Clang-x86_64-Release-Goma"
+    },
+    "infra_step": true,
+    "name": "update goma"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "goma_ctl.py",
+      "ensure_start"
+    ],
+    "cwd": "[START_DIR]/tmp/goma",
+    "env": {
+      "BUILDTYPE": "Release_x64",
+      "CHROME_HEADLESS": "1",
+      "GOMA_FALLBACK": "0",
+      "GOMA_HERMETIC": "error",
+      "GOMA_SERVICE_ACCOUNT_JSON_FILE": "[START_DIR]/tmp/jwt_service_account_goma-client.json",
+      "GOMA_USE_LOCAL": "0",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[CUSTOM_C:\\_B_WORK]/skia/out/Build-Win-Clang-x86_64-Release-Goma"
+    },
+    "infra_step": true,
+    "name": "start goma"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "[CUSTOM_C:\\_B_WORK]/skia/bin/fetch-gn"
+    ],
+    "cwd": "[CUSTOM_C:\\_B_WORK]/skia",
+    "env": {
+      "BUILDTYPE": "Release_x64",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[CUSTOM_C:\\_B_WORK]/skia/out/Build-Win-Clang-x86_64-Release-Goma"
+    },
+    "infra_step": true,
+    "name": "fetch-gn"
+  },
+  {
+    "cmd": [
+      "[CUSTOM_C:\\_B_WORK]/skia/bin/gn.exe",
+      "gen",
+      "[CUSTOM_C:\\_B_WORK]/skia/out/Build-Win-Clang-x86_64-Release-Goma/Release_x64",
+      "--args=cc=\"clang\" cc_wrapper=\"[START_DIR]/tmp/goma/gomacc\" clang_win=\"[START_DIR]/clang_win\" cxx=\"clang++\" is_debug=false target_cpu=\"x86_64\" windk=\"[START_DIR]/t/depot_tools/win_toolchain/vs_files/d3cb0e37bdd120ad0ac4650b674b09e81be45616\""
+    ],
+    "cwd": "[CUSTOM_C:\\_B_WORK]/skia",
+    "env": {
+      "BUILDTYPE": "Release_x64",
+      "CHROME_HEADLESS": "1",
+      "GOMA_FALLBACK": "0",
+      "GOMA_HERMETIC": "error",
+      "GOMA_SERVICE_ACCOUNT_JSON_FILE": "[START_DIR]/tmp/jwt_service_account_goma-client.json",
+      "GOMA_USE_LOCAL": "0",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[CUSTOM_C:\\_B_WORK]/skia/out/Build-Win-Clang-x86_64-Release-Goma"
+    },
+    "name": "gn gen"
+  },
+  {
+    "cmd": [
+      "ninja.exe",
+      "-k",
+      "0",
+      "-C",
+      "[CUSTOM_C:\\_B_WORK]/skia/out/Build-Win-Clang-x86_64-Release-Goma/Release_x64",
+      "-j",
+      "100"
+    ],
+    "cwd": "[CUSTOM_C:\\_B_WORK]/skia",
+    "env": {
+      "BUILDTYPE": "Release_x64",
+      "CHROME_HEADLESS": "1",
+      "GOMA_FALLBACK": "0",
+      "GOMA_HERMETIC": "error",
+      "GOMA_SERVICE_ACCOUNT_JSON_FILE": "[START_DIR]/tmp/jwt_service_account_goma-client.json",
+      "GOMA_USE_LOCAL": "0",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[CUSTOM_C:\\_B_WORK]/skia/out/Build-Win-Clang-x86_64-Release-Goma"
+    },
+    "name": "ninja"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "goma_ctl.py",
+      "stat"
+    ],
+    "cwd": "[START_DIR]/tmp/goma",
+    "env": {
+      "BUILDTYPE": "Release_x64",
+      "CHROME_HEADLESS": "1",
+      "GOMA_FALLBACK": "0",
+      "GOMA_HERMETIC": "error",
+      "GOMA_SERVICE_ACCOUNT_JSON_FILE": "[START_DIR]/tmp/jwt_service_account_goma-client.json",
+      "GOMA_USE_LOCAL": "0",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[CUSTOM_C:\\_B_WORK]/skia/out/Build-Win-Clang-x86_64-Release-Goma"
+    },
+    "infra_step": true,
+    "name": "goma stat"
+  },
+  {
+    "name": "$result",
+    "recipe_result": null,
+    "status_code": 0
+  }
+]
