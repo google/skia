@@ -5,12 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "SkInsetConvexPolygon.h"
+#include "SkOffsetPolygon.h"
 
 #include "SkPointPriv.h"
+#include "SkTArray.h"
 #include "SkTemplates.h"
+#include "SkTDPQueue.h"
 
-struct InsetSegment {
+struct OffsetSegment {
     SkPoint fP0;
     SkPoint fP1;
 };
@@ -95,7 +97,7 @@ bool SkOffsetSegment(const SkPoint& p0, const SkPoint& p1, SkScalar d0, SkScalar
 // Compute the intersection 'p' between segments s0 and s1, if any.
 // 's' is the parametric value for the intersection along 's0' & 't' is the same for 's1'.
 // Returns false if there is no intersection.
-static bool compute_intersection(const InsetSegment& s0, const InsetSegment& s1,
+static bool compute_intersection(const OffsetSegment& s0, const OffsetSegment& s1,
                                  SkPoint* p, SkScalar* s, SkScalar* t) {
     SkVector v0 = s0.fP1 - s0.fP0;
     SkVector v1 = s1.fP1 - s1.fP0;
@@ -188,10 +190,10 @@ bool SkInsetConvexPolygon(const SkPoint* inputPolygonVerts, int inputPolygonSize
 
     // set up
     struct EdgeData {
-        InsetSegment fInset;
-        SkPoint      fIntersection;
-        SkScalar     fTValue;
-        bool         fValid;
+        OffsetSegment fInset;
+        SkPoint       fIntersection;
+        SkScalar      fTValue;
+        bool          fValid;
     };
 
     SkAutoSTMalloc<64, EdgeData> edgeData(inputPolygonSize);
@@ -293,4 +295,198 @@ bool SkInsetConvexPolygon(const SkPoint* inputPolygonVerts, int inputPolygonSize
     }
 
     return (insetPolygon->count() >= 3 && is_convex(*insetPolygon));
+}
+
+
+static void compute_radial_steps(const SkVector& v1, const SkVector& v2, SkScalar r,
+                                 SkScalar* rotSin, SkScalar* rotCos, int* n) {
+    const SkScalar kRecipPixelsPerArcSegment = 0.25f;
+
+    SkScalar rCos = v1.dot(v2);
+    SkScalar rSin = v1.cross(v2);
+    SkScalar theta = SkScalarATan2(rSin, rCos);
+
+    int steps = SkScalarFloorToInt(SkScalarAbs(r*theta*kRecipPixelsPerArcSegment));
+
+    SkScalar dTheta = theta / steps;
+    *rotSin = SkScalarSinCos(dTheta, rotCos);
+    *n = steps;
+}
+
+static bool left(const SkPoint& p0, const SkPoint& p1) {
+    return p0.fX < p1.fX ||
+        (SkScalarNearlyEqual(p0.fX, p1.fX) && p0.fY < p1.fY);
+}
+
+// packed to fit into 16 bytes (one cache line)
+struct Vertex {
+    SkPoint  fPosition;
+    uint16_t fPrevIndex;   // indices for previous and next vertex
+    uint16_t fNextIndex;
+    uint32_t fFlags;
+};
+
+enum VertexFlags {
+    kPrevRight_VertexFlag = 0x1,
+    kNextRight_VertexFlag = 0x2,
+
+    kLeftLeftMask = 0x0,
+    kRightLeftMask = 0x1,
+    kLeftRightMask = 0x2,
+    kRightRightMask = 0x3,
+};
+
+struct QueueVertex {
+    static bool left(const QueueVertex& qv0, const QueueVertex& qv1) {
+        return ::left(qv0.fPosition, qv1.fPosition);
+    }
+    SkPoint  fPosition;
+    int32_t fUnsortedIndex;  // index of vertex in unsorted list
+};
+
+struct Edge {
+    static bool above(const Edge& e0, const Edge& e1) {  // true if e0 above e1
+        return false;
+    }
+    SkPoint  fPosition0;
+    SkPoint  fPosition1;
+    int32_t fIndex0;   // indices for previous and next vertex
+    int32_t fIndex1;
+};
+
+static void handle_intersection() {
+}
+
+static bool simplify_polygon(SkTDArray<SkPoint>* offsetPolygon) {
+    SkTDArray<Vertex> unsortedVertices;
+    SkTDPQueue <QueueVertex, QueueVertex::left> vertexQueue;
+    SkSTArray<1, Edge> sweepLine;
+    SkTDArray<int> contours;
+
+    //*** should generate this as part of SkOffsetPolygon rather than run through polygon twice?
+    int vertexCount = offsetPolygon->count();
+    int expectedIntersections = (vertexCount - 3)*(vertexCount - 3) / 2;
+    unsortedVertices.setReserve(vertexCount + expectedIntersections);
+    unsortedVertices.setCount(vertexCount);
+    sweepLine.reserve(vertexCount + expectedIntersections);
+    contours.setReserve(1 + expectedIntersections);
+    contours.setCount(1);
+    for (int i = 0; i < vertexCount; ++i) {
+        unsortedVertices[i].fPosition = (*offsetPolygon)[i];
+        unsortedVertices[i].fPrevIndex = (i - 1 + vertexCount) % vertexCount;
+        unsortedVertices[i].fNextIndex = (i + 1) % vertexCount;
+        unsortedVertices[i].fFlags = 0;
+        if (i > 0) {
+            if (left(unsortedVertices[i - 1].fPosition, unsortedVertices[i].fPosition)) {
+                unsortedVertices[i - 1].fFlags |= kNextRight_VertexFlag;
+            } else {
+                unsortedVertices[i].fFlags |= kPrevRight_VertexFlag;
+            }
+        }
+        vertexQueue.insert(QueueVertex{ (*offsetPolygon)[i], i });
+    }
+    if (left(unsortedVertices[vertexCount - 1].fPosition, unsortedVertices[0].fPosition)) {
+        unsortedVertices[vertexCount - 1].fFlags |= kNextRight_VertexFlag;
+    } else {
+        unsortedVertices[0].fFlags |= kPrevRight_VertexFlag;
+    }
+
+    // initialize contour list
+    contours[0] = 0;
+
+    // iterate through
+    while (vertexQueue.count() > 0) {
+        const QueueVertex& qv = vertexQueue.peek();
+        // if one edge to the left and one to the right, replace
+        // handle intersections
+
+        // if both edges are to the right, add
+        // handle intersections
+
+        // if both to the left, remove
+
+        vertexQueue.pop();
+    }
+
+    // remove any contours that have negative area
+
+    if (contours.count() != 1) {
+        return false;
+    }
+
+    // stuff the result back into the polygon
+
+    return true;
+}
+
+bool SkOffsetPolygon(const SkPoint* inputPolygonVerts, int inputPolygonSize,
+                     SkScalar offset, SkTDArray<SkPoint>* offsetPolygon) {
+    if (inputPolygonSize < 3) {
+        return false;
+    }
+
+    //*** use area computation to compute this instead
+    int winding = get_winding(inputPolygonVerts, inputPolygonSize);
+    if (0 == winding) {
+        return false;
+    }
+
+    SkAutoSTMalloc<64, OffsetSegment> offsets(inputPolygonSize);
+    for (int i = 0; i < inputPolygonSize; ++i) {
+        int j = (i + 1) % inputPolygonSize;
+        SkOffsetSegment(inputPolygonVerts[i], inputPolygonVerts[j],
+                        offset, offset, winding,
+                        &offsets[i].fP0, &offsets[i].fP1);
+    }
+
+    offsetPolygon->reset();
+    offsetPolygon->setReserve(inputPolygonSize);
+
+    int prevIndex = inputPolygonSize - 1;
+    int currIndex = 0;
+    int nextIndex = 1;
+    //    int insetVertexCount = inputPolygonSize;
+    //    int i = 0;
+    while (currIndex < inputPolygonSize) {
+        int side = compute_side(inputPolygonVerts[prevIndex],
+                                inputPolygonVerts[currIndex],
+                                inputPolygonVerts[nextIndex]);
+
+        if (side*winding*offset > 0) {
+            SkPoint intersection;
+            float s, t;
+            // pre-cull simple intersections
+            if (compute_intersection(offsets[prevIndex], offsets[currIndex],
+                                     &intersection, &s, &t)) {
+                *offsetPolygon->push() = intersection;
+            } else {
+                *offsetPolygon->push() = offsets[prevIndex].fP1;
+                *offsetPolygon->push() = inputPolygonVerts[currIndex];
+                *offsetPolygon->push() = offsets[currIndex].fP0;
+            }
+        } else {
+            *offsetPolygon->push() = offsets[prevIndex].fP1;
+            // add arc
+            SkVector prevNormal = offsets[prevIndex].fP1 - inputPolygonVerts[currIndex];
+            SkVector nextNormal = offsets[currIndex].fP0 - inputPolygonVerts[currIndex];
+            SkScalar rotSin, rotCos;
+            int numSteps;
+            compute_radial_steps(prevNormal, nextNormal, SkScalarAbs(offset),
+                                 &rotSin, &rotCos, &numSteps);
+            for (int i = 0; i < numSteps - 1; ++i) {
+                SkVector currNormal;
+                currNormal.fX = prevNormal.fX*rotCos - prevNormal.fY*rotSin;
+                currNormal.fY = prevNormal.fY*rotCos + prevNormal.fX*rotSin;
+                *offsetPolygon->push() = inputPolygonVerts[currIndex] + currNormal;
+                prevNormal = currNormal;
+            }
+            *offsetPolygon->push() = offsets[currIndex].fP0;
+        }
+
+        prevIndex = currIndex;
+        currIndex++;
+        nextIndex = (nextIndex + 1) % inputPolygonSize;
+    }
+
+    return true;
 }
