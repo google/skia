@@ -21,7 +21,7 @@ class SkColorSpace;
     rendering decisions. When passed into a SkDeferredDisplayListRecorder it will copy the
     data and pass it on to the SkDeferredDisplayList if/when it is created. Note that both of
     those objects (the Recorder and the DisplayList) will take a ref on the
-    GrContextThreadSafeProxy object.
+    GrContextThreadSafeProxy and SkColorSpace objects.
 */
 class SkSurfaceCharacterization {
 public:
