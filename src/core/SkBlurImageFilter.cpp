@@ -465,9 +465,10 @@ static sk_sp<SkSpecialImage> combined_pass_blur(
         auto intermediateWidth = srcW;
 
         if (windowW > 1) {
-            // For the horizontal blur, start part way down in anticipation of the vertical blur.
-            // If this is a horizontal only blur, then shift will be zero.
             auto shift = (srcBounds.top() - dstBounds.top());
+            // For the horizontal blur, start part way down in anticipation of the vertical blur.
+            // For a vertical sigma of zero shift should be zero. But, for small sigma,
+            // shift may be > 0 but the vertical window could be 1.
             intermediateSrc = static_cast<uint32_t *>(dst.getPixels())
                               + (shift > 0 ? shift * dst.rowBytesAsPixels() : 0);
             intermediateRowBytesAsPixels = dst.rowBytesAsPixels();
@@ -486,6 +487,16 @@ static sk_sp<SkSpecialImage> combined_pass_blur(
                     srcBounds.top(), srcBounds.bottom(), dstBounds.bottom(),
                     intermediateSrc, intermediateRowBytesAsPixels, 1, intermediateWidth,
                     static_cast<uint32_t *>(dst.getPixels()), dst.rowBytesAsPixels(), 1);
+        } else {
+            // This code is needed to account for the difference between border calculation of
+            // the GPU and CPU. Normally, a window of 1 would imply no border, but because the
+            // layout must be the same for CPU and GPU there can be a border.
+            for (int y = dstBounds.top(); y < srcBounds.top(); y++) {
+                sk_bzero(dst.getAddr32(0, y), dst.rowBytes());
+            }
+            for (int y = srcBounds.bottom(); y < dstBounds.bottom(); y++) {
+                sk_bzero(dst.getAddr32(0, y), dst.rowBytes());
+            }
         }
     }  else {
         // There is no blurring to do, but we still need to copy the source while accounting for the
