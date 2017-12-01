@@ -1000,6 +1000,13 @@ void GrGLCaps::initGLSL(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli
         shaderCaps->fMustForceNegatedAtanParamToFloat = true;
     }
 
+    // On some Intel GPUs there is an issue where the driver outputs bogus values in the shader
+    // when floor and abs are called on the same line. Thus we must execute an Op between them to
+    // make sure the compiler doesn't re-inline them even if we break the calls apart.
+    if (kIntel_GrGLVendor == ctxInfo.vendor()) {
+        shaderCaps->fMustDoOpBetweenFloorAndAbs = true;
+    }
+
     // On Adreno devices with framebuffer fetch support, there is a bug where they always return
     // the original dst color when reading the outColor even after being written to. By using a
     // local outColor we can work around this bug.

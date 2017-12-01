@@ -116,6 +116,11 @@ public:
     // Returns whether a device incorrectly implements atan(y,x) as atan(y/x)
     bool atan2ImplementedAsAtanYOverX() const { return fAtan2ImplementedAsAtanYOverX; }
 
+    // If this returns true some operation (could be a no op) must be called between floor and abs
+    // to make sure the driver compiler doesn't inline them together which can cause a driver bug in
+    // the shader.
+    bool mustDoOpBetweenFloorAndAbs() const { return fMustDoOpBetweenFloorAndAbs; }
+
     bool requiresLocalOutputColorForFBFetch() const { return fRequiresLocalOutputColorForFBFetch; }
 
     bool mustObfuscateUniformColor() const { return fMustObfuscateUniformColor; }
@@ -258,6 +263,7 @@ private:
     bool fCanUseFractForNegativeValues : 1;
     bool fMustForceNegatedAtanParamToFloat : 1;
     bool fAtan2ImplementedAsAtanYOverX : 1;
+    bool fMustDoOpBetweenFloorAndAbs : 1;
     bool fRequiresLocalOutputColorForFBFetch : 1;
     bool fMustObfuscateUniformColor : 1;
     bool fMustGuardDivisionEvenAfterExplicitZeroCheck : 1;

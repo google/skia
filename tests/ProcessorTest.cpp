@@ -434,8 +434,8 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, repor
                         if (!legalColorModulation && !legalAlphaModulation) {
                             ERRORF(reporter,
                                    "\"Modulating\" processor %s made color/alpha value larger. "
-                                   "Input: 0x%08x, Output: 0x%08x.",
-                                   clone->name(), input, output);
+                                   "Input: 0x%08x, Output: 0x%08x, pixel (%d, %d).",
+                                   clone->name(), input, output, x, y);
                             passing = false;
                         }
                     }
