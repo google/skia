@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "886f735f_8eac3444",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-12-01T20:16:28Z",
+      "side": 1,
+      "message": "This is an error that was detected by clang extended warnings on Windows. See:\n\nhttps://skia-review.googlesource.com/c/skia/+/67720\n\nAt least on Windows, jmp_buf requires 16 bytes of alignment, whereas the default allocator only guarantees 8.",
+      "parentUuid": "bc827851_7377fa71",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 9,
+        "endChar": 38
+      },
+      "revId": "0ccd3ffbd45aa76217320d566a6ef92d04307099",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "680e6a62_ed72f20e",
         "filename": "src/codec/SkJpegPriv.h",
         "patchSetId": 1
@@ -60,6 +84,30 @@
       "writtenOn": "2017-12-01T19:57:32Z",
       "side": 1,
       "message": "I was going to suggest that this be shareable with SkPngCodec, but I don\u0027t think it follows the same nested pattern that puts us at risk here.",
+      "range": {
+        "startLine": 34,
+        "startChar": 10,
+        "endLine": 34,
+        "endChar": 24
+      },
+      "revId": "0ccd3ffbd45aa76217320d566a6ef92d04307099",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8549bc83_66248ba0",
+        "filename": "src/codec/SkJpegPriv.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-12-01T20:16:28Z",
+      "side": 1,
+      "message": "If SkPngCodec puts it on the heap, then this is a bug. But I don\u0027t believe it does because otherwise I would have thought it would be caught by the new clang warnings.",
+      "parentUuid": "680e6a62_ed72f20e",
       "range": {
         "startLine": 34,
         "startChar": 10,
@@ -148,6 +196,48 @@
     },
     {
       "key": {
+        "uuid": "5c528f52_d9fe99b4",
+        "filename": "src/codec/SkJpegPriv.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-12-01T20:16:28Z",
+      "side": 1,
+      "message": "I don\u0027t believe this is a problem. The spec says nothing to suggest that future calls of setjmp invalidate past jmp_bufs.",
+      "parentUuid": "a958e4af_018090c7",
+      "revId": "0ccd3ffbd45aa76217320d566a6ef92d04307099",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7ec0e3ec_68b7026b",
+        "filename": "src/codec/SkJpegPriv.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-12-01T20:16:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5e8850e3_95ba1a24",
+      "range": {
+        "startLine": 50,
+        "startChar": 27,
+        "endLine": 50,
+        "endChar": 35
+      },
+      "revId": "0ccd3ffbd45aa76217320d566a6ef92d04307099",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0b42d86f_284780e8",
         "filename": "src/codec/SkJpegUtility.cpp",
         "patchSetId": 1
@@ -168,6 +258,30 @@
       "revId": "0ccd3ffbd45aa76217320d566a6ef92d04307099",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "361073c2_064be73b",
+        "filename": "src/codec/SkJpegUtility.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-12-01T20:16:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0b42d86f_284780e8",
+      "range": {
+        "startLine": 23,
+        "startChar": 4,
+        "endLine": 23,
+        "endChar": 11
+      },
+      "revId": "0ccd3ffbd45aa76217320d566a6ef92d04307099",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
