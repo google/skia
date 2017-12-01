@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a852b11_41169193",
+        "filename": "src/gpu/ccpr/GrCCPRCoverageProcessor.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 249,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-12-01T21:14:08Z",
+      "side": 1,
+      "message": "@mtklien: this is what Load2/Store3 were for.",
+      "range": {
+        "startLine": 249,
+        "startChar": 10,
+        "endLine": 249,
+        "endChar": 15
+      },
+      "revId": "f7fcc73354fcbb02493464599ea39aacc72bf907",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
