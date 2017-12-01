@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "57c6b4b3_3d4dd3da",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1247,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-12-01T18:57:27Z",
+      "side": 1,
+      "message": "This part is optional... it seemed like a decent idea since these batch while the below approach does not.",
+      "range": {
+        "startLine": 1229,
+        "startChar": 0,
+        "endLine": 1247,
+        "endChar": 5
+      },
+      "revId": "bb46c15ac452bac59c568312cb44f7ba76fb4c61",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
