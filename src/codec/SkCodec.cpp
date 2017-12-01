@@ -297,9 +297,7 @@ SkCodec::Result SkCodec::handleFrameIndex(const SkImageInfo& info, void* pixels,
         }
     }
 
-    FrameInfo frameInfo;
-    SkAssertResult(this->getFrameInfo(index, &frameInfo));
-    return this->initializeColorXform(info, frameInfo.fAlpha, options.fPremulBehavior)
+    return this->initializeColorXform(info, frame->reportedAlpha(), options.fPremulBehavior)
         ? kSuccess : kInvalidConversion;
 }
 
@@ -630,6 +628,10 @@ bool SkCodec::initializeColorXform(const SkImageInfo& dstInfo, SkEncodedInfo::Al
     if (!this->usesColorXform()) {
         return true;
     }
+    // FIXME: In SkWebpCodec, if a frame is blending with a prior frame, we don't need
+    // a colorXform to do a color correct premul, since the blend step will handle
+    // premultiplication. But there is no way to know whether we need to blend from
+    // inside this call.
     bool needsColorCorrectPremul = needs_premul(dstInfo.alphaType(), encodedAlpha) &&
                                    SkTransferFunctionBehavior::kRespect == premulBehavior;
     if (needs_color_xform(dstInfo, fSrcInfo.colorSpace(), needsColorCorrectPremul)) {

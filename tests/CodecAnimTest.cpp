@@ -67,9 +67,8 @@ static bool restore_previous(const SkCodec::FrameInfo& info) {
 }
 
 DEF_TEST(Codec_frames, r) {
-    #define kOpaque         SkEncodedInfo::kOpaque_Alpha
-    #define kUnpremul       SkEncodedInfo::kUnpremul_Alpha
-    #define kBinary         SkEncodedInfo::kBinary_Alpha
+    #define kOpaque         kOpaque_SkAlphaType
+    #define kUnpremul       kUnpremul_SkAlphaType
     #define kKeep           SkCodecAnimation::DisposalMethod::kKeep
     #define kRestoreBG      SkCodecAnimation::DisposalMethod::kRestoreBGColor
     #define kRestorePrev    SkCodecAnimation::DisposalMethod::kRestorePrevious
@@ -79,8 +78,8 @@ DEF_TEST(Codec_frames, r) {
         // One less than fFramecount, since the first frame is always
         // independent.
         std::vector<int>                              fRequiredFrames;
-        // Same, since the first frame should match getEncodedInfo
-        std::vector<SkEncodedInfo::Alpha>             fAlphas;
+        // Same, since the first frame should match getInfo
+        std::vector<SkAlphaType>                      fAlphas;
         // The size of this one should match fFrameCount for animated, empty
         // otherwise.
         std::vector<int>                              fDurations;
@@ -89,15 +88,15 @@ DEF_TEST(Codec_frames, r) {
     } gRecs[] = {
         { "required.gif", 7,
             { 0, 1, 2, 3, 4, 5 },
-            { kOpaque, kBinary, kBinary, kBinary, kBinary, kBinary },
+            { kOpaque, kUnpremul, kUnpremul, kUnpremul, kUnpremul, kUnpremul },
             { 100, 100, 100, 100, 100, 100, 100 },
             0,
             { kKeep, kRestoreBG, kKeep, kKeep, kKeep, kRestoreBG, kKeep } },
         { "alphabetAnim.gif", 13,
             { SkCodec::kNone, 0, 0, 0, 0, 5, 6, SkCodec::kNone,
               SkCodec::kNone, 9, 10, 11 },
-            { kBinary, kBinary, kBinary, kBinary, kBinary, kBinary,
-              kBinary, kBinary, kBinary, kBinary, kBinary, kBinary },
+            { kUnpremul, kUnpremul, kUnpremul, kUnpremul, kUnpremul, kUnpremul,
+              kUnpremul, kUnpremul, kUnpremul, kUnpremul, kUnpremul, kUnpremul },
             { 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100 },
             0,
             { kKeep, kRestorePrev, kRestorePrev, kRestorePrev, kRestorePrev,
@@ -116,8 +115,8 @@ DEF_TEST(Codec_frames, r) {
         { "randPixelsAnim.gif", 13,
             // required frames
             { 0, 1, 2, 3, 4, 3, 6, 7, 7, 7, 9, 9 },
-            { kBinary, kBinary, kBinary, kBinary, kBinary, kBinary,
-              kBinary, kBinary, kBinary, kBinary, kBinary, kBinary },
+            { kUnpremul, kUnpremul, kUnpremul, kUnpremul, kUnpremul, kUnpremul,
+              kUnpremul, kUnpremul, kUnpremul, kUnpremul, kUnpremul, kUnpremul },
             // durations
             { 0, 1000, 170, 40, 220, 7770, 90, 90, 90, 90, 90, 90, 90 },
             // repetition count
@@ -161,7 +160,6 @@ DEF_TEST(Codec_frames, r) {
     };
     #undef kOpaque
     #undef kUnpremul
-    #undef kBinary
     #undef kKeep
     #undef kRestorePrev
     #undef kRestoreBG
@@ -270,22 +268,20 @@ DEF_TEST(Codec_frames, r) {
                            rec.fName, i, rec.fDurations[i], frameInfo.fDuration);
                 }
 
-                auto to_string = [](SkEncodedInfo::Alpha alpha) {
+                auto to_string = [](SkAlphaType alpha) {
                     switch (alpha) {
-                        case SkEncodedInfo::kUnpremul_Alpha:
+                        case kUnpremul_SkAlphaType:
                             return "unpremul";
-                        case SkEncodedInfo::kOpaque_Alpha:
+                        case kOpaque_SkAlphaType:
                             return "opaque";
-                        case SkEncodedInfo::kBinary_Alpha:
-                            return "binary";
                         default:
                             SkASSERT(false);
                             return "unknown";
                     }
                 };
 
-                auto expectedAlpha = 0 == i ? codec->getEncodedInfo().alpha() : rec.fAlphas[i-1];
-                auto alpha = frameInfo.fAlpha;
+                auto expectedAlpha = 0 == i ? codec->getInfo().alphaType() : rec.fAlphas[i-1];
+                auto alpha = frameInfo.fAlphaType;
                 if (expectedAlpha != alpha) {
                     ERRORF(r, "%s's frame %i has wrong alpha type! expected: %s\tactual: %s",
                            rec.fName, i, to_string(expectedAlpha), to_string(alpha));
@@ -319,9 +315,7 @@ DEF_TEST(Codec_frames, r) {
             auto decode = [&](SkBitmap* bm, int index, int cachedIndex) {
                 auto decodeInfo = info;
                 if (index > 0) {
-                    auto alphaType = frameInfos[index].fAlpha == SkEncodedInfo::kOpaque_Alpha
-                        ? kOpaque_SkAlphaType : kPremul_SkAlphaType;
-                    decodeInfo = info.makeAlphaType(alphaType);
+                    decodeInfo = info.makeAlphaType(frameInfos[index].fAlphaType);
                 }
                 bm->allocPixels(decodeInfo);
                 if (cachedIndex != SkCodec::kNone) {

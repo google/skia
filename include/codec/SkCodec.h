@@ -169,8 +169,6 @@ public:
      */
     const SkImageInfo& getInfo() const { return fSrcInfo; }
 
-    const SkEncodedInfo& getEncodedInfo() const { return fEncodedInfo; }
-
     /**
      *  Returns the image orientation stored in the EXIF data.
      *  If there is no EXIF data, or if we cannot read the EXIF data, returns kTopLeft.
@@ -612,7 +610,7 @@ public:
          *  This is conservative; it will still return non-opaque if e.g. a
          *  color index-based frame has a color with alpha but does not use it.
          */
-        SkEncodedInfo::Alpha fAlpha;
+        SkAlphaType fAlphaType;
 
         /**
          *  How this frame should be modified before decoding the next one.
@@ -662,6 +660,8 @@ public:
     }
 
 protected:
+    const SkEncodedInfo& getEncodedInfo() const { return fEncodedInfo; }
+
     using XformFormat = SkColorSpaceXform::ColorFormat;
 
     SkCodec(int width,
@@ -924,5 +924,6 @@ private:
     friend class DM::CodecSrc;  // for fillIncompleteImage
     friend class SkSampledCodec;
     friend class SkIcoCodec;
+    friend class SkAndroidCodec; // for fEncodedInfo
 };
 #endif // SkCodec_DEFINED

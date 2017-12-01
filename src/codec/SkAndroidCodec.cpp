@@ -64,10 +64,6 @@ SkAndroidCodec::SkAndroidCodec(SkCodec* codec)
 
 SkAndroidCodec::~SkAndroidCodec() {}
 
-const SkEncodedInfo& SkAndroidCodec::getEncodedInfo() const {
-    return fCodec->getEncodedInfo();
-}
-
 std::unique_ptr<SkAndroidCodec> SkAndroidCodec::MakeFromStream(std::unique_ptr<SkStream> stream, SkPngChunkReader* chunkReader) {
     auto codec = SkCodec::MakeFromStream(std::move(stream), nullptr, chunkReader);
     if (nullptr == codec) {
@@ -112,7 +108,7 @@ std::unique_ptr<SkAndroidCodec> SkAndroidCodec::MakeFromData(sk_sp<SkData> data,
 }
 
 SkColorType SkAndroidCodec::computeOutputColorType(SkColorType requestedColorType) {
-    bool highPrecision = fCodec->getEncodedInfo().bitsPerComponent() > 8;
+    bool highPrecision = fCodec->fEncodedInfo.bitsPerComponent() > 8;
     switch (requestedColorType) {
         case kARGB_4444_SkColorType:
             return kN32_SkColorType;
