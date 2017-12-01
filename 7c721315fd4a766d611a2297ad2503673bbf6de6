@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "19f8f44b_96c19d56",
+        "filename": "include/core/SkSurface.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 365,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-12-01T13:20:39Z",
+      "side": 1,
+      "message": "If this is objectionable I could also call SkSurface_Gpu::isCompatible directly in the unit test.",
+      "revId": "7c721315fd4a766d611a2297ad2503673bbf6de6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
