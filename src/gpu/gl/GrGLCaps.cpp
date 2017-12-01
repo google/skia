@@ -770,6 +770,7 @@ bool is_float_fp32(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli, GrG
         ctxInfo.version() < GR_GL_VER(4,1) &&
         !ctxInfo.hasExtension("GL_ARB_ES2_compatibility")) {
         // We're on a desktop GL that doesn't have precision info. Assume they're all 32bit float.
+        SkDebugf("assuming 32 bit");
         return true;
     }
     // glGetShaderPrecisionFormat doesn't accept GL_GEOMETRY_SHADER as a shader type. Hopefully the
@@ -778,10 +779,13 @@ bool is_float_fp32(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli, GrG
         GrGLint range[2];
         GrGLint bits;
         GR_GL_GetShaderPrecisionFormat(gli, shader, precision, range, &bits);
+        SkDebugf("shader: %d, range0: %d, range1: %d, bits: %d\n", shader, range[0], range[1], bits);
         if (range[0] < 127 || range[1] < 127 || bits < 23) {
+            SkDebugf("not 32 bit");
             return false;
         }
     }
+    SkDebugf("is 32 bit");
     return true;
 }
 
