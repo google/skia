@@ -274,7 +274,7 @@ void Edge2PtConicalEffect::GLSLEdge2PtConicalProcessor::emitCode(EmitArgs& args)
 
     // if r(t) > 0, then t will be the x coordinate
     fragBuilder->codeAppendf("\tif (%s * %s + %s > 0.0) {\n", tName.c_str(),
-                           p2.c_str(), p0.c_str());
+                             p2.c_str(), p0.c_str());
     fragBuilder->codeAppend("\t");
     this->emitColor(fragBuilder,
                     uniformHandler,
