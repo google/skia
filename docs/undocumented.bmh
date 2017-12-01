@@ -3,11 +3,11 @@
  DirectWrite TrueType Windows Linux Android iOS __ANDROID_API__
  FreeType FreeType-based Harfbuzz   
  Descenders Kerning Unhinted 
- LCD RGB sRGB
+ LCD RGB sRGB YUV_ColorSpace
  Unicode Unicode5 UTF-8 UTF-16 UTF-32 ASCII Unichar
  API
  CPU
- GPU GPU-backed OpenGL Vulkan I/O MSAA UV_Mapping Multi_Sample_Anti_Aliasing
+ GPU GPU-backed OpenGL Vulkan I/O MSAA UV_Mapping Multi_Sample_Anti_Aliasing GPU_Share_Group
  PDF XPS
  RFC
  NaN NaNs
