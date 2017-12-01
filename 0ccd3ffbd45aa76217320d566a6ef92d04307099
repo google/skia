@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bd9088a2_326eb534",
+        "filename": "src/codec/SkJpegPriv.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-12-01T18:31:44Z",
+      "side": 1,
+      "message": "Does it make sense for us to have more than one of these set at a time?  That could only happen through Skia -\u003e libjpeg -\u003e Skia -\u003e libjpeg callbacks, right?",
+      "revId": "0ccd3ffbd45aa76217320d566a6ef92d04307099",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
