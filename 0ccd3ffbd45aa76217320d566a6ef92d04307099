@@ -25,6 +25,53 @@
     },
     {
       "key": {
+        "uuid": "c684ccbe_f12b7830",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-12-01T19:57:32Z",
+      "side": 1,
+      "message": "Ok, I think I misinterpreted \"should\" here (as \"must\"). You\u0027re saying that we\u0027re better off stack allocating it in this case? This seems to be the right way to do it.\n\nI\u0027d recommend rewriting this as:\n\n\"Always stack-allocate jmp_buf, and pop it at the end of a stack frame, so that longjmp never returns to a stack frame that has already exited.\"",
+      "parentUuid": "bc827851_7377fa71",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 9,
+        "endChar": 38
+      },
+      "revId": "0ccd3ffbd45aa76217320d566a6ef92d04307099",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "680e6a62_ed72f20e",
+        "filename": "src/codec/SkJpegPriv.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-12-01T19:57:32Z",
+      "side": 1,
+      "message": "I was going to suggest that this be shareable with SkPngCodec, but I don\u0027t think it follows the same nested pattern that puts us at risk here.",
+      "range": {
+        "startLine": 34,
+        "startChar": 10,
+        "endLine": 34,
+        "endChar": 24
+      },
+      "revId": "0ccd3ffbd45aa76217320d566a6ef92d04307099",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "bd9088a2_326eb534",
         "filename": "src/codec/SkJpegPriv.h",
         "patchSetId": 1
@@ -72,6 +119,29 @@
       "side": 1,
       "message": "\u003e libjpeg doesn\u0027t call longjmp. It\u0027s a Skia specific implementation for the error callback. Nesting is for cases like this:\n\nThis is technically true, although if Skia did not call longjmp, I believe libjpeg would call exit(). (I know libpng does something similar.) longjmp is the recommended way to respond to an error.\n\n\u003e \n\u003e void SkDoSomething() {\n\u003e     AutoPushJmpBuf jmp(mgr);\n\u003e     if (!setjmp(jmp)) {\n\u003e         abort(\"SkDoSomething failed\");\n\u003e     }\n\u003e     ...\n\u003e \n\u003e     SkDoSomethingMoreSpecific();\n\u003e \n\u003e     ....\n\u003e }\n\u003e \n\u003e void SkDoSomethingMoreSpecific() {\n\u003e     AutoPushJmpBuf jmp(mgr);\n\u003e     if (!setjmp(jmp)) {\n\u003e         abort(\"SkDoSomethingMoreSpecific failed\");\n\u003e     }\n\u003e     ...\n\u003e }\n\nIndeed. I don\u0027t know whether we ever get into that situation, but without looking over the code again, I believe it\u0027s possible.\n\nI had thought that after calling SkDoSomethingMoreSpecific we would need to call setjmp again. I just read http://en.cppreference.com/w/cpp/utility/program/setjmp, and it seems to state that just using the original jmp_buf is good enough, although I\u0027m not confident in my understanding of the prose there.",
       "parentUuid": "c584c851_5b67be73",
+      "revId": "0ccd3ffbd45aa76217320d566a6ef92d04307099",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5e8850e3_95ba1a24",
+        "filename": "src/codec/SkJpegPriv.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-12-01T19:57:32Z",
+      "side": 1,
+      "message": "nit: Maybe call this fJmpBufStack?",
+      "range": {
+        "startLine": 50,
+        "startChar": 27,
+        "endLine": 50,
+        "endChar": 35
+      },
       "revId": "0ccd3ffbd45aa76217320d566a6ef92d04307099",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
