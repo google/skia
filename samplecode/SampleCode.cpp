@@ -7,6 +7,7 @@
 
 #include "SampleCode.h"
 #include "SkCanvas.h"
+#include "SkString.h"
 
 #if SK_SUPPORT_GPU
 #   include "GrContext.h"
@@ -17,7 +18,7 @@ class GrContext;
 //////////////////////////////////////////////////////////////////////////////
 
 bool SampleCode::CharQ(const SkEvent& evt, SkUnichar* outUni) {
-    if (evt.isType(gCharEvtName, sizeof(gCharEvtName) - 1)) {
+    if (evt.isType(gCharEvtName)) {
         if (outUni) {
             *outUni = evt.getFast32();
         }
@@ -27,7 +28,7 @@ bool SampleCode::CharQ(const SkEvent& evt, SkUnichar* outUni) {
 }
 
 bool SampleCode::TitleQ(const SkEvent& evt) {
-    return evt.isType(gTitleEvtName, sizeof(gTitleEvtName) - 1);
+    return evt.isType(gTitleEvtName);
 }
 
 void SampleCode::TitleR(SkEvent* evt, const char title[]) {
