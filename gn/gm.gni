@@ -118,7 +118,6 @@ gm_sources = [
   "$_gm/drawregionmodes.cpp",
   "$_gm/dropshadowimagefilter.cpp",
   "$_gm/drrect.cpp",
-  "$_gm/drrect_small_inner.cpp",
   "$_gm/dstreadshuffle.cpp",
   "$_gm/emboss.cpp",
   "$_gm/emptypath.cpp",
