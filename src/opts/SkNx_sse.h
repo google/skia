@@ -30,10 +30,12 @@ public:
     AI void store(void* ptr) const { _mm_storel_pi((__m64*)ptr, fVec); }
 
     AI static void Store3(void* dst, const SkNx& a, const SkNx& b, const SkNx& c) {
-        auto lo = _mm_setr_ps(a[0], b[0], c[0], a[1]),
-             hi = _mm_setr_ps(b[1], c[1],    0,    0);
-        _mm_storeu_ps((float*)dst, lo);
-        _mm_storel_pi(((__m64*)dst) + 2, hi);
+        SkNx lo{a[0], b[0]};
+        SkNx mid{c[0], a[1]};
+        SkNx hi{b[1], c[1]};
+        lo.store(((float*) dst) + 0);
+        mid.store(((float*) dst) + 2);
+        hi.store(((float*) dst) + 4);
     }
 
     AI SkNx operator - () const { return _mm_xor_ps(_mm_set1_ps(-0.0f), fVec); }
