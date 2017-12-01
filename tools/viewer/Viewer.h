@@ -81,6 +81,8 @@ private:
     bool                   fDisplayStats;
     bool                   fRefresh; // whether to continuously refresh for measuring render time
 
+    bool                   fSaveToSKP;
+
     SkPaint                fImGuiFontPaint;
     SkPaint                fImGuiGamutPaint;
     bool                   fShowImGuiDebugWindow;
