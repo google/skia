@@ -179,19 +179,21 @@ protected:
     }
 
     bool onAnimate(const SkAnimTimer& timer) override {
-        SkScalar dt = (timer.msec() - fLastTick) * fTimeScale;
-        fLastTick = timer.msec();
+        // onAnimate may fire before the first draw.
+        if (fDom) {
+            SkScalar dt = (timer.msec() - fLastTick) * fTimeScale;
+            fLastTick = timer.msec();
 
-        fPaddle0.posTick(dt);
-        fPaddle1.posTick(dt);
-        fBall.posTick(dt);
+            fPaddle0.posTick(dt);
+            fPaddle1.posTick(dt);
+            fBall.posTick(dt);
 
-        this->enforceConstraints();
+            this->enforceConstraints();
 
-        fPaddle0.updateDom();
-        fPaddle1.updateDom();
-        fBall.updateDom();
-
+            fPaddle0.updateDom();
+            fPaddle1.updateDom();
+            fBall.updateDom();
+        }
         return true;
     }
 
