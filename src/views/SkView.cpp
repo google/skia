@@ -30,14 +30,6 @@ void SkView::setVisibleP(bool pred) {
     this->setFlags(SkSetClearShift(fFlags, pred, kVisible_Shift));
 }
 
-void SkView::setEnabledP(bool pred) {
-    this->setFlags(SkSetClearShift(fFlags, pred, kEnabled_Shift));
-}
-
-void SkView::setFocusableP(bool pred) {
-    this->setFlags(SkSetClearShift(fFlags, pred, kFocusable_Shift));
-}
-
 void SkView::setClipToBounds(bool pred) {
     this->setFlags(SkSetClearShift(fFlags, !pred, kNoClip_Shift));
 }
