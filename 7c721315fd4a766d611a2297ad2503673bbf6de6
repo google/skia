@@ -16,6 +16,24 @@
       "revId": "7c721315fd4a766d611a2297ad2503673bbf6de6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6778e00f_6723ef91",
+        "filename": "include/core/SkSurface.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 365,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-12-01T14:41:51Z",
+      "side": 1,
+      "message": "Seems fine to me.",
+      "parentUuid": "19f8f44b_96c19d56",
+      "revId": "7c721315fd4a766d611a2297ad2503673bbf6de6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
