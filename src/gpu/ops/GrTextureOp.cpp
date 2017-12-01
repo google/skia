@@ -323,7 +323,6 @@ __attribute__((no_sanitize("float-cast-overflow")))
         SkRect bounds;
         bounds.setBounds(draw.fQuad.points(), 4);
         this->setBounds(bounds, HasAABloat::kNo, IsZeroArea::kNo);
-
         fMaxApproxDstPixelArea = RectSizeAsSizeT(bounds);
     }
 
