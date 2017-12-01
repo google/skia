@@ -591,7 +591,6 @@ can reconstitute the paint at a later time.
         void writeRegion(const SkRegion& region) override {}
         void writePath(const SkPath& path) override {}
         size_t writeStream(SkStream* stream, size_t length) override { return 0; }
-        void writeBitmap(const SkBitmap& bitmap) override {}
         void writeImage(const SkImage*) override {}
         void writeTypeface(SkTypeface* typeface) override {}
         void writePaint(const SkPaint& paint) override {}
@@ -5093,10 +5092,12 @@ void draw(SkCanvas* canvas) {
     bounds describes a pair of lines parallel to the text advance.
     The return count is zero or a multiple of two, and is at most twice the number of Glyphs in
     the string. 
-    Uses Text_Encoding to decode text, Typeface to get the glyph paths,
+    Uses Typeface to get the glyph paths,
     and Text_Size, Fake_Bold, and Path_Effect to scale and modify the glyph paths.
     Uses run array and Text_Align to position intervals.
     
+    Text_Encoding must be set to SkPaint::kGlyphID_TextEncoding.
+
     Pass nullptr for intervals to determine the size of the interval array.
     
     intervals are cached to improve performance for multiple calls.
@@ -5111,6 +5112,7 @@ void draw(SkCanvas* canvas) {
     #Height 143
         void draw(SkCanvas* canvas) {
             SkPaint paint;
+            paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
             paint.setTextSize(120);
             SkPoint textPos = { 20, 110 };
             int len = 3;

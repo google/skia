@@ -4741,6 +4741,14 @@
     "file": "SkImage_Reference",
     "name": "SkImage::MakeCrossContextFromEncoded"
 },
+    "SkImage_MakeCrossContextFromPixmap": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkImage_Reference",
+    "name": "SkImage::MakeCrossContextFromPixmap"
+},
     "SkImage_MakeFromAHardwareBuffer": {
     "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
     "width": 256,
@@ -4774,10 +4782,10 @@
     "name": "SkImage::MakeFromBitmap"
 },
     "SkImage_MakeFromDeferredTextureImageData": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "code": "void draw(SkCanvas* canvas) {\n    GrContext* context = canvas->getGrContext();\n    if (!context) {\n        return;\n    }\n    sk_sp<GrContextThreadSafeProxy> proxy = context->threadSafeProxy();\n    SkImage::DeferredTextureImageUsageParams params = {SkMatrix::I(), kNone_SkFilterQuality, 0};\n    size_t size = image->getDeferredTextureImageData(*proxy, &params, 1, nullptr,\n            nullptr, kN32_SkColorType);\n    void* buffer = sk_malloc_throw(size);\n    if (image->getDeferredTextureImageData(*proxy, &params, 1, buffer, nullptr, kN32_SkColorType)) {\n        sk_sp<SkImage> newImage(\n            SkImage::MakeFromDeferredTextureImageData(context, buffer, SkBudgeted::kNo));\n        canvas->drawImage(newImage, 0, 0);\n    }\n}",
     "width": 256,
     "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
+    "hash": "493c3a7c12d9130532971b2a255d1652",
     "file": "SkImage_Reference",
     "name": "SkImage::MakeFromDeferredTextureImageData"
 },
@@ -6742,10 +6750,10 @@
     "name": "SkSurface::MakeRenderTarget"
 },
     "SkSurface_MakeRenderTarget_2": {
-    "code": "void draw(SkCanvas* canvas) {\n    auto test_draw = [](SkCanvas* surfaceCanvas) -> void {\n        SkPaint paint;\n        paint.setAntiAlias(true);\n        paint.setLCDRenderText(true);\n        paint.setColor(0xFFBBBBBB);\n        surfaceCanvas->drawRect(SkRect::MakeWH(128, 64), paint);\n        paint.setColor(SK_ColorWHITE);\n        paint.setTextSize(32);\n        surfaceCanvas->drawString(\"Pest\", 0, 25, paint);\n    };\n    GrContext* context = canvas->getGrContext();\n    SkImageInfo info = SkImageInfo::MakeN32(128, 64, kOpaque_SkAlphaType);\n    SkAutoTMalloc<SkPMColor> storage(info.computeMinByteSize());\n    SkBitmap bitmap;\n    bitmap.installPixels(info, storage.get(), info.minRowBytes());\n    int y = 0;\n    for (auto geometry : { kRGB_H_SkPixelGeometry, kBGR_H_SkPixelGeometry,\n                           kRGB_V_SkPixelGeometry, kBGR_V_SkPixelGeometry } ) {\n        SkSurfaceProps props(0, geometry);\n        std::unique_ptr<SkCanvas> offscreen = SkCanvas::MakeRasterDirect(info, storage.get(),\n                info.minRowBytes(), &props);\n        sk_sp<SkSurface> surface = context ? SkSurface::MakeRenderTarget(\n                context, SkBudgeted::kNo, info, 0, &props) : SkSurface::MakeRaster(info, &props);\n        test_draw(surface->getCanvas());\n        surface->draw(canvas, 0, y, nullptr);\n        surface->draw(offscreen.get(), 0, 0, nullptr);\n        SkAutoCanvasRestore acr(canvas, true);\n        canvas->scale(8, 8);\n        canvas->drawBitmap(bitmap, 12, y / 8);\n        y += 64;\n    }\n}\n",
+    "code": "void draw(SkCanvas* canvas) {\n    auto test_draw = [](SkCanvas* surfaceCanvas) -> void {\n        SkPaint paint;\n        paint.setAntiAlias(true);\n        paint.setLCDRenderText(true);\n        paint.setColor(0xFFBBBBBB);\n        surfaceCanvas->drawRect(SkRect::MakeWH(128, 64), paint);\n        paint.setColor(SK_ColorWHITE);\n        paint.setTextSize(32);\n        surfaceCanvas->drawString(\"Pest\", 0, 25, paint);\n    };\n    GrContext* context = canvas->getGrContext();\n    SkImageInfo info = SkImageInfo::MakeN32(128, 64, kOpaque_SkAlphaType);\n    int y = 0;\n    for (auto geometry : { kRGB_H_SkPixelGeometry, kBGR_H_SkPixelGeometry,\n                           kRGB_V_SkPixelGeometry, kBGR_V_SkPixelGeometry } ) {\n        SkSurfaceProps props(0, geometry);\n        sk_sp<SkSurface> surface = context ? SkSurface::MakeRenderTarget(\n                context, SkBudgeted::kNo, info, 0, &props) : SkSurface::MakeRaster(info, &props);\n        test_draw(surface->getCanvas());\n        surface->draw(canvas, 0, y, nullptr);\n        sk_sp<SkImage> image(surface->makeImageSnapshot());\n        SkAutoCanvasRestore acr(canvas, true);\n        canvas->scale(8, 8);\n        canvas->drawImage(image, 12, y / 8);\n        y += 64;\n    }\n}\n",
     "width": 256,
     "height": 256,
-    "hash": "4473daad1b11784a9869431af72c93e0",
+    "hash": "640321e8ecfb3f9329f3bc6e1f02485f",
     "file": "SkSurface_Reference",
     "name": "SkSurface::MakeRenderTarget_2"
 },

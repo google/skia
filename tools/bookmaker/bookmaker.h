@@ -1200,7 +1200,8 @@ public:
 , { "Return",      nullptr,      MarkType::kReturn,       R_Y, E_N, M(Method) }
 , { "",            nullptr,      MarkType::kRoot,         R_Y, E_N, 0 }
 , { "",            nullptr,      MarkType::kRow,          R_Y, E_N, M(Table) | M(List) }
-, { "SeeAlso",     nullptr,      MarkType::kSeeAlso,      R_Y, E_N, M_CSST | M_E | M(Method) }
+, { "SeeAlso",     nullptr,      MarkType::kSeeAlso,      R_Y, E_N,
+                                                             M_CSST | M_E | M(Method) | M(Typedef) }
 , { "StdOut",      nullptr,      MarkType::kStdOut,       R_N, E_N, M(Example) }
 , { "Struct",      &fClassMap,   MarkType::kStruct,       R_Y, E_O, M(Class) | M(Root) | M_ST }
 , { "Substitute",  nullptr,      MarkType::kSubstitute,   R_N, E_N, M_ST }

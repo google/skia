@@ -4938,6 +4938,8 @@ Draw <a href="undocumented#Text_Blob">Text Blob</a> <a href="#SkCanvas_drawTextB
 <a href="SkPaint_Reference#Font_Embedded_Bitmaps">Font Embedded Bitmaps</a>, <a href="SkPaint_Reference#Full_Hinting_Spacing">Full Hinting Spacing</a>, <a href="SkPaint_Reference#LCD_Text">LCD Text</a>, <a href="SkPaint_Reference#Linear_Text">Linear Text</a>,
 <a href="SkPaint_Reference#Subpixel_Text">Subpixel Text</a>, and <a href="#Vertical_Text">Paint Vertical Text</a>.
 
+<a href="#Text_Encoding">Paint Text Encoding</a> must be set to <a href="#SkPaint_kGlyphID_TextEncoding">SkPaint::kGlyphID TextEncoding</a>.
+
 Elements of <a href="#SkCanvas_drawTextBlob_paint">paint</a>: <a href="undocumented#Path_Effect">Path Effect</a>, <a href="undocumented#Rasterizer">Rasterizer</a>, <a href="undocumented#Mask_Filter">Mask Filter</a>, <a href="undocumented#Shader">Shader</a>, <a href="undocumented#Color_Filter">Color Filter</a>, 
 <a href="undocumented#Image_Filter">Image Filter</a>, and <a href="undocumented#Draw_Looper">Draw Looper</a>; apply to <a href="#SkCanvas_drawTextBlob_blob">blob</a>.
 
@@ -4956,7 +4958,7 @@ blend, color, stroking, and so on, used to draw</td>
 
 ### Example
 
-<div><fiddle-embed name="b8c0a748ed5c328f38e00f5f3d12e5e6"></fiddle-embed></div>
+<div><fiddle-embed name="2254beaa675e3b329dccddca4eeea735"></fiddle-embed></div>
 
 ### See Also
 
@@ -4976,6 +4978,8 @@ Draw <a href="undocumented#Text_Blob">Text Blob</a> <a href="#SkCanvas_drawTextB
 <a href="SkPaint_Reference#Font_Embedded_Bitmaps">Font Embedded Bitmaps</a>, <a href="SkPaint_Reference#Full_Hinting_Spacing">Full Hinting Spacing</a>, <a href="SkPaint_Reference#LCD_Text">LCD Text</a>, <a href="SkPaint_Reference#Linear_Text">Linear Text</a>,
 <a href="SkPaint_Reference#Subpixel_Text">Subpixel Text</a>, and <a href="#Vertical_Text">Paint Vertical Text</a>.
 
+<a href="#Text_Encoding">Paint Text Encoding</a> must be set to <a href="#SkPaint_kGlyphID_TextEncoding">SkPaint::kGlyphID TextEncoding</a>.
+
 Elements of <a href="#SkCanvas_drawTextBlob_2_paint">paint</a>: <a href="undocumented#Path_Effect">Path Effect</a>, <a href="undocumented#Rasterizer">Rasterizer</a>, <a href="undocumented#Mask_Filter">Mask Filter</a>, <a href="undocumented#Shader">Shader</a>, <a href="undocumented#Color_Filter">Color Filter</a>, 
 <a href="undocumented#Image_Filter">Image Filter</a>, and <a href="undocumented#Draw_Looper">Draw Looper</a>; apply to <a href="#SkCanvas_drawTextBlob_2_blob">blob</a>.
 
@@ -4994,7 +4998,7 @@ blend, color, stroking, and so on, used to draw</td>
 
 ### Example
 
-<div><fiddle-embed name="d313ad4726518f5d44f6433887bb7ce9"><div><a href="SkPaint_Reference#Paint">Paint</a> attributes unrelated to text, like color, have no effect on <a href="#SkCanvas_drawTextBlob_2_paint">paint</a> in allocated <a href="undocumented#Text_Blob">Text Blob</a>.
+<div><fiddle-embed name="d88b17d85fa68c56b3c1ad02b69068bf"><div><a href="SkPaint_Reference#Paint">Paint</a> attributes unrelated to text, like color, have no effect on <a href="#SkCanvas_drawTextBlob_2_paint">paint</a> in allocated <a href="undocumented#Text_Blob">Text Blob</a>.
 <a href="SkPaint_Reference#Paint">Paint</a> attributes related to text, like text size, have no effect on <a href="#SkCanvas_drawTextBlob_2_paint">paint</a> passed to <a href="#SkCanvas_drawTextBlob">drawTextBlob</a>.</div></fiddle-embed></div>
 
 ### See Also

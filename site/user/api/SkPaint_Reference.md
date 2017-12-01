@@ -615,7 +615,7 @@ can reconstitute the paint at a later time.
 
 ### Example
 
-<div><fiddle-embed name="670672b146b50eced4d3dd10c701e0a7">
+<div><fiddle-embed name="de31563f11e447dccc988108e9173d28">
 
 #### Example Output
 
@@ -5024,9 +5024,11 @@ Returns the number of <a href="#SkPaint_getTextBlobIntercepts_intervals">interva
 <a href="#SkPaint_getTextBlobIntercepts_bounds">bounds</a> describes a pair of lines parallel to the text advance.
 The return count is zero or a multiple of two, and is at most twice the number of <a href="#Glyph">Glyphs</a> in
 the string. 
-Uses <a href="#Text_Encoding">Text Encoding</a> to decode text, <a href="undocumented#Typeface">Typeface</a> to get the glyph paths,
+Uses <a href="undocumented#Typeface">Typeface</a> to get the glyph paths,
 and <a href="#Text_Size">Text Size</a>, <a href="#Fake_Bold">Fake Bold</a>, and <a href="undocumented#Path_Effect">Path Effect</a> to scale and modify the glyph paths.
 Uses run array and <a href="#Text_Align">Text Align</a> to position <a href="#SkPaint_getTextBlobIntercepts_intervals">intervals</a>.
+<a href="#Text_Encoding">Text Encoding</a> must be set to <a href="#SkPaint_kGlyphID_TextEncoding">SkPaint::kGlyphID TextEncoding</a>.
+
 Pass nullptr for <a href="#SkPaint_getTextBlobIntercepts_intervals">intervals</a> to determine the size of the interval array.
 <a href="#SkPaint_getTextBlobIntercepts_intervals">intervals</a> are cached to improve performance for multiple calls.
 
@@ -5047,7 +5049,7 @@ number of intersections; may be zero
 
 ### Example
 
-<div><fiddle-embed name="4961b05f4f26cf270ab4948a57876341"></fiddle-embed></div>
+<div><fiddle-embed name="71959a66b2290d70003887c0de339266"></fiddle-embed></div>
 
 ---
 
