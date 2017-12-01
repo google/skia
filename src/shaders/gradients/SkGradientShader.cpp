@@ -1052,7 +1052,14 @@ void GrGradientEffect::GLSLProcessor::emitAnalyticalColor(GrGLSLFPFragmentBuilde
             break;
         case GrSamplerState::WrapMode::kMirrorRepeat:
             fragBuilder->codeAppendf("half t_1 = %s - 1.0;", t);
-            fragBuilder->codeAppendf("half tiled_t = abs(t_1 - 2.0 * floor(t_1 * 0.5) - 1.0);");
+            fragBuilder->codeAppendf("half tiled_t = t_1 - 2.0 * floor(t_1 * 0.5) - 1.0;");
+            if (shaderCaps->mustDoOpBetweenFloorAndAbs()) {
+                // At this point the expected value of tiled_t should between -1 and 1, so this
+                // clamp has no effect other than to break up the floor and abs calls and make sure
+                // the compiler doesn't merge them back together.
+                fragBuilder->codeAppendf("tiled_t = clamp(tiled_t, -1.0, 1.0);");
+            }
+            fragBuilder->codeAppendf("tiled_t = abs(tiled_t);");
             break;
     }
 
