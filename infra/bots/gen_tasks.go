@@ -31,6 +31,7 @@ import (
 
 const (
 	BUNDLE_RECIPES_NAME         = "Housekeeper-PerCommit-BundleRecipes"
+	ISOLATE_GOMA_CTL_NAME       = "Housekeeper-PerCommit-IsolateGomaCtl"
 	ISOLATE_SKIMAGE_NAME        = "Housekeeper-PerCommit-IsolateSkImage"
 	ISOLATE_SKP_NAME            = "Housekeeper-PerCommit-IsolateSKP"
 	ISOLATE_SVG_NAME            = "Housekeeper-PerCommit-IsolateSVG"
@@ -407,6 +408,10 @@ type isolateAssetCfg struct {
 }
 
 var ISOLATE_ASSET_MAPPING = map[string]isolateAssetCfg{
+	ISOLATE_GOMA_CTL_NAME: {
+		isolateFile: "isolate_goma_ctl.isolate",
+		cipdPkg:     "goma_ctl",
+	},
 	ISOLATE_SKIMAGE_NAME: {
 		isolateFile: "isolate_skimage.isolate",
 		cipdPkg:     "skimage",
@@ -516,6 +521,9 @@ func compile(b *specs.TasksCfgBuilder, name string, parts map[string]string) str
 		}
 		if strings.Contains(name, "Vulkan") {
 			deps = append(deps, isolateCIPDAsset(b, ISOLATE_WIN_VULKAN_SDK_NAME))
+		}
+		if strings.Contains(name, "Goma") {
+			deps = append(deps, isolateCIPDAsset(b, ISOLATE_GOMA_CTL_NAME))
 		}
 	}
 
