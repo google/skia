@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7376402a_398bb04a",
+        "filename": "tools/sk_app/unix/keysym2ucs.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-12-01T14:40:03Z",
+      "side": 1,
+      "message": "Seems like the concept of license doesn\u0027t apply here.",
+      "range": {
+        "startLine": 32,
+        "startChar": 3,
+        "endLine": 32,
+        "endChar": 58
+      },
+      "revId": "224dd52cc1bdbaa043e4eb58b4eafc04b9d3f38d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
