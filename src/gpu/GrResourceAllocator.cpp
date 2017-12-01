@@ -51,7 +51,12 @@ void GrResourceAllocator::addInterval(GrSurfaceProxy* proxy, unsigned int start,
     if (Interval* intvl = fIntvlHash.find(proxy->uniqueID().asUInt())) {
         // Revise the interval for an existing use
 #ifdef SK_DEBUG
-        if (isDirectDstRead) {
+        if (0 == start && 0 == end) {
+            // This interval is for the initial upload to a deferred proxy. Due to the vagaries
+            // of how deferred proxies are collected they can appear as uploads multiple times in a
+            // single opLists' list and as uploads in several opLists.
+            SkASSERT(0 == intvl->start());
+        } else if (isDirectDstRead) {
             // Direct reads from the render target itself should occur w/in the existing interval
             SkASSERT(intvl->start() <= start && intvl->end() >= end);
         } else {

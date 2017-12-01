@@ -266,6 +266,16 @@ bool GrRenderTargetOpList::copySurface(const GrCaps& caps,
 void GrRenderTargetOpList::gatherProxyIntervals(GrResourceAllocator* alloc) const {
     unsigned int cur = alloc->numOps();
 
+    for (int i = 0; i < fDeferredProxies.count(); ++i) {
+        SkASSERT(!fDeferredProxies[i]->priv().isInstantiated());
+        // We give all the deferred proxies a write usage at the very start of flushing. This
+        // locks them out of being reused for the entire flush until they are read - and then
+        // they can be recycled. This is a bit unfortunate because a flush can proceed in waves
+        // with sub-flushes. The deferred proxies only need to be pinned from the start of
+        // the sub-flush in which they appear.
+        alloc->addInterval(fDeferredProxies[i], 0, 0);
+    }
+
     // Add the interval for all the writes to this opList's target
     if (fRecordedOps.count()) {
         alloc->addInterval(fTarget.get(), cur, cur+fRecordedOps.count()-1);

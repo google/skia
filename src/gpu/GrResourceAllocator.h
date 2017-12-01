@@ -174,7 +174,8 @@ private:
     IntervalList           fIntvlList;         // All the intervals sorted by increasing start
     IntervalList           fActiveIntvls;      // List of live intervals during assignment
                                                // (sorted by increasing end)
-    unsigned int           fNumOps = 0;
+    unsigned int           fNumOps = 1;        // op # 0 is reserved for uploads at the start
+                                               // of a flush
     SkTArray<unsigned int> fEndOfOpListOpIndices;
     int                    fCurOpListIndex = 0;
 
