@@ -120,6 +120,30 @@
     },
     {
       "key": {
+        "uuid": "d58121bf_ca2717d1",
+        "filename": "src/codec/SkJpegPriv.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-12-01T20:34:25Z",
+      "side": 1,
+      "message": "No, but libpng places it in a structure that was allocated with malloc. Maybe its structure ensures the proper alignment.",
+      "parentUuid": "8549bc83_66248ba0",
+      "range": {
+        "startLine": 34,
+        "startChar": 10,
+        "endLine": 34,
+        "endChar": 24
+      },
+      "revId": "0ccd3ffbd45aa76217320d566a6ef92d04307099",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "bd9088a2_326eb534",
         "filename": "src/codec/SkJpegPriv.h",
         "patchSetId": 1
@@ -235,6 +259,24 @@
       "revId": "0ccd3ffbd45aa76217320d566a6ef92d04307099",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "470527ff_d89b1ea9",
+        "filename": "src/codec/SkJpegPriv.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-12-01T20:34:25Z",
+      "side": 1,
+      "message": "Agreed. I played around locally to at least verify that my implementation doesn\u0027t depend on the new call to setjmp that I thought was required.",
+      "parentUuid": "5c528f52_d9fe99b4",
+      "revId": "0ccd3ffbd45aa76217320d566a6ef92d04307099",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     },
     {
       "key": {

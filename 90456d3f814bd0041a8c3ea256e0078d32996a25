@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f899471a_f8b2be50",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-12-01T20:34:25Z",
+      "side": 1,
+      "message": "I still don\u0027t think this is quite right. libpng does (almost) the same thing we were doing - its jmp_buf is in a struct [1] which is created with a call to malloc and then cast to its type[2]. (It also will sometimes allocate the jmp_buf directly from malloc, though only if you change a default setting.)\n\n[1] https://github.com/glennrp/libpng/blob/libpng16/pngstruct.h#L146\n[2] https://github.com/glennrp/libpng/blob/libpng16/png.c#L319",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 9,
+        "endChar": 41
+      },
+      "revId": "90456d3f814bd0041a8c3ea256e0078d32996a25",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
