@@ -215,6 +215,9 @@ bool SkOpEdgeBuilder::walk() {
                         if (!SkScalarsAreFinite(&pair[0].fX, SK_ARRAY_COUNT(pair) * 2)) {
                             return false;
                         }
+                        for (unsigned index = 0; index < SK_ARRAY_COUNT(pair); ++index) {
+                            force_small_to_zero(&pair[index]);
+                        }
                         SkPoint cStorage[2][2];
                         SkPath::Verb v1 = SkReduceOrder::Quad(&pair[0], cStorage[0]);
                         SkPath::Verb v2 = SkReduceOrder::Quad(&pair[2], cStorage[1]);
