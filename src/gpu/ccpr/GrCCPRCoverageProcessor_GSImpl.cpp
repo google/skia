@@ -28,17 +28,9 @@ protected:
 
         // Vertex shader.
         GrGLSLVertexBuilder* v = args.fVertBuilder;
-        // The Intel GLSL compiler hits an internal assertion if we index the input attrib itself
-        // with sk_VertexID.
-        v->codeAppendf("int pointID = sk_VertexID;");
-        v->codeAppend ("float2 self = ");
-        fShader->appendInputPointFetch(proc, v, args.fTexelBuffers[0], "pointID");
-        v->codeAppend (".xy;");
-        v->codeAppendf("int packedoffset = %s[%i];",
-                       proc.fInstanceAttrib.fName, proc.atlasOffsetIdx());
-        v->codeAppend ("float2 atlasoffset = float2((packedoffset << 16) >> 16, "
-                                                   "packedoffset >> 16);");
-        v->codeAppend ("self += atlasoffset;");
+        v->codeAppendf("float2 self = float2(%s[sk_VertexID], %s[sk_VertexID]);",
+                       proc.getInstanceAttrib(InstanceAttribs::kX).fName,
+                       proc.getInstanceAttrib(InstanceAttribs::kY).fName);
         gpArgs->fPositionVar.set(kFloat2_GrSLType, "self");
 
         // Geometry shader.
@@ -57,11 +49,11 @@ protected:
         using InputType = GrGLSLGeometryBuilder::InputType;
         using OutputType = GrGLSLGeometryBuilder::OutputType;
 
-        int numPts = fShader->getNumInputPoints();
-        SkASSERT(3 == numPts || 4 == numPts);
+        int numInputPoints = RenderPassNumInputPoints(proc.fRenderPass);
+        SkASSERT(3 == numInputPoints || 4 == numInputPoints);
 
-        g->codeAppendf("float%ix2 pts = float%ix2(", numPts, numPts);
-        for (int i = 0; i < numPts; ++i) {
+        g->codeAppendf("float%ix2 pts = float%ix2(", numInputPoints, numInputPoints);
+        for (int i = 0; i < numInputPoints; ++i) {
             g->codeAppend (i ? ", " : "");
             g->codeAppendf("sk_in[%i].sk_Position.xy", i);
         }
@@ -92,19 +84,16 @@ protected:
 
         Shader::GeometryVars vars;
         fShader->emitSetupCode(g, "pts", "sk_InvocationID", wind.c_str(), &vars);
-        int maxPoints = this->onEmitGeometryShader(g, wind, emitVertexFn.c_str(), vars);
-
-        int numInputPoints = fShader->getNumInputPoints();
-        SkASSERT(3 == numInputPoints || 4 == numInputPoints);
-        InputType inputType = (3 == numInputPoints) ? InputType::kTriangles
-                                                    : InputType::kLinesAdjacency;
-
+        int maxPoints = this->onEmitGeometryShader(g, wind, emitVertexFn.c_str(), vars,
+                                                   numInputPoints);
+        InputType inputType = (RenderPassIsCubic(proc.fRenderPass)) ? InputType::kLinesAdjacency
+                                                                    : InputType::kTriangles;
         g->configure(inputType, OutputType::kTriangleStrip, maxPoints, fShader->getNumSegments());
     }
 
     virtual int onEmitGeometryShader(GrGLSLGeometryBuilder*, const GrShaderVar& wind,
-                                     const char* emitVertexFn,
-                                     const Shader::GeometryVars&) const = 0;
+                                     const char* emitVertexFn, const Shader::GeometryVars&,
+                                     int numInputPoints) const = 0;
 
     virtual ~GSImpl() {}
 
@@ -118,14 +107,14 @@ public:
     GSHullImpl(std::unique_ptr<Shader> shader) : GSImpl(std::move(shader)) {}
 
     int onEmitGeometryShader(GrGLSLGeometryBuilder* g, const GrShaderVar& wind,
-                             const char* emitVertexFn,
-                             const Shader::GeometryVars& vars) const override {
+                             const char* emitVertexFn, const Shader::GeometryVars& vars,
+                             int numInputPoints) const override {
         int numSides = fShader->getNumSegments();
         SkASSERT(numSides >= 3);
 
         const char* hullPts = vars.fHullVars.fAlternatePoints;
         if (!hullPts) {
-            SkASSERT(fShader->getNumInputPoints() == numSides);
+            SkASSERT(numInputPoints == numSides);
             hullPts = "pts";
         }
 
@@ -200,8 +189,8 @@ public:
     GSEdgeImpl(std::unique_ptr<Shader> shader) : GSImpl(std::move(shader)) {}
 
     int onEmitGeometryShader(GrGLSLGeometryBuilder* g, const GrShaderVar& wind,
-                             const char* emitVertexFn,
-                             const Shader::GeometryVars&) const override {
+                             const char* emitVertexFn, const Shader::GeometryVars&,
+                             int numInputPoints) const override {
         int numSides = fShader->getNumSegments();
 
         g->codeAppendf("int nextidx = (sk_InvocationID + 1) %% %i;", numSides);
@@ -249,8 +238,8 @@ public:
     GSCornerImpl(std::unique_ptr<Shader> shader) : GSImpl(std::move(shader)) {}
 
     int onEmitGeometryShader(GrGLSLGeometryBuilder* g, const GrShaderVar& wind,
-                             const char* emitVertexFn,
-                             const Shader::GeometryVars& vars) const override {
+                             const char* emitVertexFn, const Shader::GeometryVars& vars,
+                             int numInputPoints) const override {
         const char* corner = vars.fCornerVars.fPoint;
         SkASSERT(corner);
 
