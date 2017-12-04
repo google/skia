@@ -7323,7 +7323,8 @@
       "dimensions": [
         "gpu:MaliT764",
         "os:ChromeOS",
-        "pool:Skia"
+        "pool:Skia",
+        "release_version:TODO"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -7356,7 +7357,8 @@
       "dimensions": [
         "gpu:MaliT764",
         "os:ChromeOS",
-        "pool:Skia"
+        "pool:Skia",
+        "release_version:TODO"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -7389,7 +7391,8 @@
       "dimensions": [
         "gpu:TegraK1",
         "os:ChromeOS",
-        "pool:Skia"
+        "pool:Skia",
+        "release_version:10172.0.0"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -7422,7 +7425,8 @@
       "dimensions": [
         "gpu:TegraK1",
         "os:ChromeOS",
-        "pool:Skia"
+        "pool:Skia",
+        "release_version:10172.0.0"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -7455,7 +7459,8 @@
       "dimensions": [
         "gpu:PowerVRGX6250",
         "os:ChromeOS",
-        "pool:Skia"
+        "pool:Skia",
+        "release_version:9592.71.0"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -7488,7 +7493,8 @@
       "dimensions": [
         "gpu:PowerVRGX6250",
         "os:ChromeOS",
-        "pool:Skia"
+        "pool:Skia",
+        "release_version:9592.71.0"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -7521,7 +7527,8 @@
       "dimensions": [
         "gpu:IntelHDGraphics615",
         "os:ChromeOS",
-        "pool:Skia"
+        "pool:Skia",
+        "release_version:10032.17.0"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -7554,7 +7561,8 @@
       "dimensions": [
         "gpu:IntelHDGraphics615",
         "os:ChromeOS",
-        "pool:Skia"
+        "pool:Skia",
+        "release_version:10032.17.0"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -7587,7 +7595,8 @@
       "dimensions": [
         "gpu:MaliT604",
         "os:ChromeOS",
-        "pool:Skia"
+        "pool:Skia",
+        "release_version:9901.12.0"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -7620,7 +7629,8 @@
       "dimensions": [
         "gpu:MaliT604",
         "os:ChromeOS",
-        "pool:Skia"
+        "pool:Skia",
+        "release_version:9901.12.0"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -7653,7 +7663,8 @@
       "dimensions": [
         "gpu:MaliT860",
         "os:ChromeOS",
-        "pool:Skia"
+        "pool:Skia",
+        "release_version:TODO"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -7686,7 +7697,8 @@
       "dimensions": [
         "gpu:MaliT860",
         "os:ChromeOS",
-        "pool:Skia"
+        "pool:Skia",
+        "release_version:TODO"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -15107,7 +15119,8 @@
       "dimensions": [
         "gpu:MaliT764",
         "os:ChromeOS",
-        "pool:Skia"
+        "pool:Skia",
+        "release_version:TODO"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -15141,7 +15154,8 @@
       "dimensions": [
         "gpu:MaliT764",
         "os:ChromeOS",
-        "pool:Skia"
+        "pool:Skia",
+        "release_version:TODO"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -15175,7 +15189,8 @@
       "dimensions": [
         "gpu:TegraK1",
         "os:ChromeOS",
-        "pool:Skia"
+        "pool:Skia",
+        "release_version:10172.0.0"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -15209,7 +15224,8 @@
       "dimensions": [
         "gpu:TegraK1",
         "os:ChromeOS",
-        "pool:Skia"
+        "pool:Skia",
+        "release_version:10172.0.0"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -15243,7 +15259,8 @@
       "dimensions": [
         "gpu:PowerVRGX6250",
         "os:ChromeOS",
-        "pool:Skia"
+        "pool:Skia",
+        "release_version:9592.71.0"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -15277,7 +15294,8 @@
       "dimensions": [
         "gpu:PowerVRGX6250",
         "os:ChromeOS",
-        "pool:Skia"
+        "pool:Skia",
+        "release_version:9592.71.0"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -15311,7 +15329,8 @@
       "dimensions": [
         "gpu:IntelHDGraphics615",
         "os:ChromeOS",
-        "pool:Skia"
+        "pool:Skia",
+        "release_version:10032.17.0"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -15345,7 +15364,8 @@
       "dimensions": [
         "gpu:IntelHDGraphics615",
         "os:ChromeOS",
-        "pool:Skia"
+        "pool:Skia",
+        "release_version:10032.17.0"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -15379,7 +15399,8 @@
       "dimensions": [
         "gpu:MaliT604",
         "os:ChromeOS",
-        "pool:Skia"
+        "pool:Skia",
+        "release_version:9901.12.0"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -15413,7 +15434,8 @@
       "dimensions": [
         "gpu:MaliT604",
         "os:ChromeOS",
-        "pool:Skia"
+        "pool:Skia",
+        "release_version:9901.12.0"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -15447,7 +15469,8 @@
       "dimensions": [
         "gpu:MaliT860",
         "os:ChromeOS",
-        "pool:Skia"
+        "pool:Skia",
+        "release_version:TODO"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -15481,7 +15504,8 @@
       "dimensions": [
         "gpu:MaliT860",
         "os:ChromeOS",
-        "pool:Skia"
+        "pool:Skia",
+        "release_version:TODO"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
