@@ -18,11 +18,6 @@ class GrCCPRTriangleShader : public GrCCPRCoverageProcessor::Shader {
 public:
     int getNumInputPoints() const final { return 3; }
     int getNumSegments() const final { return 3; } // 3 wedges, 3 edges, 3 corners.
-
-    void appendInputPointFetch(const GrCCPRCoverageProcessor&, GrGLSLShaderBuilder*,
-                               const TexelBufferHandle& pointsBuffer,
-                               const char* pointId) const final;
-
     void emitWind(GrGLSLShaderBuilder* s, const char* pts, const char* outputWind) const final;
 };
 
