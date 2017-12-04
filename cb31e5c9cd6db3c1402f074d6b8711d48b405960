@@ -22,6 +22,30 @@
       "revId": "cb31e5c9cd6db3c1402f074d6b8711d48b405960",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "942f4dfd_22edab93",
+        "filename": "samplecode/SamplePathText.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-12-04T16:19:49Z",
+      "side": 1,
+      "message": "Just a slight rearrangement so everything is clipped by the same SkPath. Previously, fClipPath ended up transformed into device space twice, with two different unique IDs.",
+      "parentUuid": "89e631c7_0509a4ae",
+      "range": {
+        "startLine": 70,
+        "startChar": 1,
+        "endLine": 76,
+        "endChar": 78
+      },
+      "revId": "cb31e5c9cd6db3c1402f074d6b8711d48b405960",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }

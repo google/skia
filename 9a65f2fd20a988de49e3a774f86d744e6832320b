@@ -22,6 +22,30 @@
       "revId": "9a65f2fd20a988de49e3a774f86d744e6832320b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "980d46a2_554386f8",
+        "filename": "src/gpu/ccpr/GrCoverageCountingPathRenderer.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 212,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-12-04T16:19:49Z",
+      "side": 1,
+      "message": "I also considered std::unordered_map but ultimately went with std::map for a couple of reasons, though I am still open to changing my mind:\n\n1- no iterators or references are invalidated. This is nice because it allows the FP to just take a pointer to its ClipPath and be done. With a hashmap it would have to know where to find the map itself, and then look up its ClipPath using the path\u0027s unique ID every time.\n\n2- speed iterating over the map itself. We iterate over this map 3 times during flush. I know a tree iterates quickly, but a hash table might have more overhead.\n\nRegardless, considering how much crunching we do on every verb of every clip path, and the work the rectanizer will do to place each clip path in the atlas, I\u0027d be surprised if the logN operations in std::map became an issue.",
+      "parentUuid": "db011f83_6d9cbf89",
+      "range": {
+        "startLine": 212,
+        "startChar": 8,
+        "endLine": 212,
+        "endChar": 16
+      },
+      "revId": "9a65f2fd20a988de49e3a774f86d744e6832320b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
