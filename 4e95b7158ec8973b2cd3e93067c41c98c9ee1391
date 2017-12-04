@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "96fbc82b_9efc71ce",
+        "filename": "include/private/SkEncodedInfo.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-12-04T21:34:54Z",
+      "side": 1,
+      "message": "This change is beautiful.",
+      "revId": "4e95b7158ec8973b2cd3e93067c41c98c9ee1391",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c9ed0045_2134fa02",
+        "filename": "include/private/SkEncodedInfo.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-12-04T21:34:54Z",
+      "side": 1,
+      "message": "Does it make a difference if we write this as fBitsPerComponent \u003e 8?  Is there anything that falls between 8 and 16 today?  I\u0027m wondering about formats like 10-10-10... we\u0027d probably want those in F16, right?",
+      "range": {
+        "startLine": 122,
+        "startChar": 16,
+        "endLine": 122,
+        "endChar": 39
+      },
+      "revId": "4e95b7158ec8973b2cd3e93067c41c98c9ee1391",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
