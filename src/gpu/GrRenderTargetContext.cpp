@@ -1226,7 +1226,9 @@ bool GrRenderTargetContext::drawFilledDRRect(const GrClip& clip,
 
     SkTCopyOnFirstWrite<SkRRect> inner(origInner), outer(origOuter);
 
-    if (aa == GrAA::kYes && inner->isCircle() && outer->isCircle()) {
+    GrAAType aaType = this->chooseAAType(aa, GrAllowMixedSamples::kNo);
+
+    if (GrAAType::kCoverage == aaType && inner->isCircle() && outer->isCircle()) {
         auto outerR = outer->width() / 2.f;
         auto innerR = inner->width() / 2.f;
         auto cx = outer->getBounds().fLeft + outerR;
@@ -1245,8 +1247,6 @@ bool GrRenderTargetContext::drawFilledDRRect(const GrClip& clip,
             }
         }
     }
-
-    GrAAType aaType = this->chooseAAType(aa, GrAllowMixedSamples::kNo);
 
     GrClipEdgeType innerEdgeType, outerEdgeType;
     if (GrAAType::kCoverage == aaType) {
