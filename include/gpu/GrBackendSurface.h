@@ -21,14 +21,24 @@ public:
     // Creates an invalid backend texture.
     GrBackendTexture() : fConfig(kUnknown_GrPixelConfig) {}
 
+    // GrGLTextureInfo::fFormat is ignored
+    // Deprecated: Should use version that does not take a GrPixelConfig instead
     GrBackendTexture(int width,
                      int height,
                      GrPixelConfig config,
                      const GrGLTextureInfo& glInfo);
 
+    // GrGLTextureInfo::fFormat is ignored
+    // Deprecated: Should use version that does not take a GrPixelConfig instead
     GrBackendTexture(int width,
                      int height,
                      GrPixelConfig config,
+                     GrMipMapped,
+                     const GrGLTextureInfo& glInfo);
+
+    // The GrGLTextureInfo must have a valid fFormat.
+    GrBackendTexture(int width,
+                     int height,
                      GrMipMapped,
                      const GrGLTextureInfo& glInfo);
 

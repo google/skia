@@ -535,6 +535,9 @@ sk_sp<GrTexture> GrGLGpu::onWrapBackendTexture(const GrBackendTexture& backendTe
     if (!check_backend_texture(backendTex, this->glCaps(), &idDesc)) {
         return nullptr;
     }
+    if (!idDesc.fInfo.fFormat) {
+        idDesc.fInfo.fFormat = this->glCaps().configSizedInternalFormat(backendTex.config());
+    }
     if (kBorrow_GrWrapOwnership == ownership) {
         idDesc.fOwnership = GrBackendObjectOwnership::kBorrowed;
     } else {
@@ -561,6 +564,9 @@ sk_sp<GrTexture> GrGLGpu::onWrapRenderableBackendTexture(const GrBackendTexture&
     GrGLTexture::IDDesc idDesc;
     if (!check_backend_texture(backendTex, this->glCaps(), &idDesc)) {
         return nullptr;
+    }
+    if (!idDesc.fInfo.fFormat) {
+        idDesc.fInfo.fFormat = this->glCaps().configSizedInternalFormat(backendTex.config());
     }
 
     // We don't support rendering to a EXTERNAL texture.
@@ -1663,6 +1669,7 @@ bool GrGLGpu::createTextureImpl(const GrSurfaceDesc& desc, GrGLTextureInfo* info
         GL_CALL(DeleteTextures(1, &(info->fID)));
         return false;
     }
+    info->fFormat = this->glCaps().configSizedInternalFormat(desc.fConfig);
     return true;
 }
 
