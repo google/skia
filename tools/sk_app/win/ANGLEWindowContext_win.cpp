@@ -48,8 +48,8 @@ protected:
 private:
     HWND fHWND;
     EGLDisplay fDisplay = EGL_NO_DISPLAY;
-    EGLContext fContext = EGL_NO_CONTEXT;
-    EGLSurface fSurface = EGL_NO_SURFACE;
+    EGLContext fEGLContext = EGL_NO_CONTEXT;
+    EGLSurface fEGLSurface = EGL_NO_SURFACE;
 
     typedef GLWindowContext INHERITED;
 };
@@ -101,17 +101,17 @@ sk_sp<const GrGLInterface> ANGLEGLWindowContext_win::onInitializeContext() {
     }
     // We currently only support ES3.
     const EGLint contextAttribs[] = {EGL_CONTEXT_CLIENT_VERSION, 3, EGL_NONE};
-    fContext = eglCreateContext(fDisplay, surfaceConfig, nullptr, contextAttribs);
-    if (EGL_NO_CONTEXT == fContext) {
+    fEGLContext = eglCreateContext(fDisplay, surfaceConfig, nullptr, contextAttribs);
+    if (EGL_NO_CONTEXT == fEGLContext) {
         SkDebugf("Could not create context!\n");
         return nullptr;
     }
-    fSurface = eglCreateWindowSurface(fDisplay, surfaceConfig, fHWND, nullptr);
-    if (EGL_NO_SURFACE == fSurface) {
+    fEGLSurface = eglCreateWindowSurface(fDisplay, surfaceConfig, fHWND, nullptr);
+    if (EGL_NO_SURFACE == fEGLSurface) {
         SkDebugf("Could not create surface!\n");
         return nullptr;
     }
-    if (!eglMakeCurrent(fDisplay, fSurface, fSurface, fContext)) {
+    if (!eglMakeCurrent(fDisplay, fEGLSurface, fEGLSurface, fEGLContext)) {
         SkDebugf("Could not make contxt current!\n");
         return nullptr;
     }
@@ -142,11 +142,11 @@ sk_sp<const GrGLInterface> ANGLEGLWindowContext_win::onInitializeContext() {
 
 void ANGLEGLWindowContext_win::onDestroyContext() {
     eglMakeCurrent(fDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
-    if (EGL_NO_CONTEXT != fContext) {
-        eglDestroyContext(fDisplay, fContext);
+    if (EGL_NO_CONTEXT != fEGLContext) {
+        eglDestroyContext(fDisplay, fEGLContext);
     }
-    if (EGL_NO_SURFACE != fSurface) {
-        eglDestroySurface(fDisplay, fSurface);
+    if (EGL_NO_SURFACE != fEGLSurface) {
+        eglDestroySurface(fDisplay, fEGLSurface);
     }
     if (EGL_NO_DISPLAY != fDisplay) {
         eglTerminate(fDisplay);
@@ -154,7 +154,7 @@ void ANGLEGLWindowContext_win::onDestroyContext() {
 }
 
 void ANGLEGLWindowContext_win::onSwapBuffers() {
-    if (!eglSwapBuffers(fDisplay, fSurface)) {
+    if (!eglSwapBuffers(fDisplay, fEGLSurface)) {
         SkDebugf("Could not complete eglSwapBuffers.\n");
     }
 }
