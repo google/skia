@@ -164,7 +164,12 @@ bool SkSurface_Gpu::onCharacterize(SkSurfaceCharacterization* data) const {
     GrRenderTargetContext* rtc = fDevice->accessRenderTargetContext();
     GrContext* ctx = fDevice->context();
 
-    data->set(ctx->threadSafeProxy(), rtc->origin(), rtc->width(), rtc->height(),
+    int maxResources;
+    size_t maxResourceBytes;
+    ctx->getResourceCacheLimits(&maxResources, &maxResourceBytes);
+
+    data->set(ctx->threadSafeProxy(), maxResources, maxResourceBytes,
+              rtc->origin(), rtc->width(), rtc->height(),
               rtc->colorSpaceInfo().config(), rtc->numColorSamples(),
               rtc->colorSpaceInfo().refColorSpace(), this->props());
 
