@@ -10021,7 +10021,8 @@
       "dimensions": [
         "gpu:10de:1cb3-384.59",
         "os:Ubuntu-17.04",
-        "pool:Skia"
+        "pool:Skia",
+        "valgrind:1"
       ],
       "execution_timeout_ns": 32400000000000,
       "expiration_ns": 172800000000000,
@@ -10073,7 +10074,8 @@
       "dimensions": [
         "gpu:10de:1cb3-384.59",
         "os:Ubuntu-17.04",
-        "pool:Skia"
+        "pool:Skia",
+        "valgrind:1"
       ],
       "execution_timeout_ns": 32400000000000,
       "expiration_ns": 172800000000000,
@@ -19355,7 +19357,8 @@
       "dimensions": [
         "gpu:10de:1cb3-384.59",
         "os:Ubuntu-17.04",
-        "pool:Skia"
+        "pool:Skia",
+        "valgrind:1"
       ],
       "execution_timeout_ns": 32400000000000,
       "expiration_ns": 172800000000000,
@@ -19408,7 +19411,8 @@
       "dimensions": [
         "gpu:10de:1cb3-384.59",
         "os:Ubuntu-17.04",
-        "pool:Skia"
+        "pool:Skia",
+        "valgrind:1"
       ],
       "execution_timeout_ns": 32400000000000,
       "expiration_ns": 172800000000000,
@@ -19461,7 +19465,8 @@
       "dimensions": [
         "gpu:10de:1cb3-384.59",
         "os:Ubuntu-17.04",
-        "pool:Skia"
+        "pool:Skia",
+        "valgrind:1"
       ],
       "execution_timeout_ns": 32400000000000,
       "expiration_ns": 172800000000000,
