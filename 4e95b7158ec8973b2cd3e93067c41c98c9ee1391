@@ -39,6 +39,30 @@
       "revId": "4e95b7158ec8973b2cd3e93067c41c98c9ee1391",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d8ca1a89_ee9ba23e",
+        "filename": "include/private/SkEncodedInfo.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-12-04T21:41:14Z",
+      "side": 1,
+      "message": "Today it doesn\u0027t make a difference, as no, there isn\u0027t anything between 8 and 16, but you\u0027re right, we might as well be forward thinking here.\n\nSwitched to \u003e 8",
+      "parentUuid": "c9ed0045_2134fa02",
+      "range": {
+        "startLine": 122,
+        "startChar": 16,
+        "endLine": 122,
+        "endChar": 39
+      },
+      "revId": "4e95b7158ec8973b2cd3e93067c41c98c9ee1391",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
