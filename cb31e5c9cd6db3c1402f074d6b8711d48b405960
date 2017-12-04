@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "89e631c7_0509a4ae",
+        "filename": "samplecode/SamplePathText.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-12-04T15:06:38Z",
+      "side": 1,
+      "message": "why this change?",
+      "range": {
+        "startLine": 70,
+        "startChar": 1,
+        "endLine": 76,
+        "endChar": 78
+      },
+      "revId": "cb31e5c9cd6db3c1402f074d6b8711d48b405960",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
