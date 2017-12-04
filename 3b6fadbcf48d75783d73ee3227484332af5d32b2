@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fae87474_68324260",
+        "filename": "src/core/SkDevice.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 232,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-12-04T20:30:33Z",
+      "side": 1,
+      "message": "comment that this is an optimization for a patch containing a single color",
+      "revId": "3b6fadbcf48d75783d73ee3227484332af5d32b2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "45e65065_07bc8433",
+        "filename": "src/core/SkDevice.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 237,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-12-04T20:30:33Z",
+      "side": 1,
+      "message": "comment that this is an optimization for a patch containing a single pixel",
+      "revId": "3b6fadbcf48d75783d73ee3227484332af5d32b2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f4e3cfe6_c4c555b9",
+        "filename": "src/core/SkDevice.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 239,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-12-04T20:30:33Z",
+      "side": 1,
+      "message": "no need for a variable just make this... || !paint.isSrcOver()) {",
+      "range": {
+        "startLine": 239,
+        "startChar": 26,
+        "endLine": 239,
+        "endChar": 33
+      },
+      "revId": "3b6fadbcf48d75783d73ee3227484332af5d32b2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
