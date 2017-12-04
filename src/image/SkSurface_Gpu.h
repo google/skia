@@ -31,7 +31,7 @@ public:
     bool onWait(int numSemaphores, const GrBackendSemaphore* waitSemaphores) override;
     bool onCharacterize(SkSurfaceCharacterization*) const override;
     bool isCompatible(const SkSurfaceCharacterization&) const;
-    bool onDraw(SkDeferredDisplayList*) override;
+    void onDraw(SkDeferredDisplayList*) override;
 
     SkGpuDevice* getDevice() { return fDevice.get(); }
 

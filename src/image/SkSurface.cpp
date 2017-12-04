@@ -213,7 +213,7 @@ bool SkSurface::characterize(SkSurfaceCharacterization* characterization) const 
     return asSB(const_cast<SkSurface*>(this))->onCharacterize(characterization);
 }
 
-bool SkSurface::draw(SkDeferredDisplayList* ddl) {
+void SkSurface::draw(SkDeferredDisplayList* ddl) {
     return asSB(this)->onDraw(ddl);
 }
 

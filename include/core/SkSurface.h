@@ -362,7 +362,7 @@ public:
      * The draw will be skipped if the characterization stored in the display list
      * isn't compatible with this surface.
      */
-    bool draw(SkDeferredDisplayList* deferredDisplayList);
+    void draw(SkDeferredDisplayList* deferredDisplayList);
 
 protected:
     SkSurface(int width, int height, const SkSurfaceProps* surfaceProps);

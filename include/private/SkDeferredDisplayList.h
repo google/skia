@@ -32,7 +32,7 @@ public:
     }
 
     // TODO: remove this. It is just scaffolding to get something up & running
-    bool draw(SkSurface*);
+    void draw(SkSurface*);
 
 private:
     const SkSurfaceCharacterization fCharacterization;
