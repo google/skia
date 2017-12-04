@@ -194,7 +194,7 @@ def nanobench_flags(api, bot):
   if 'Vulkan' in bot and 'NexusPlayer' in bot:
     match.append('~blendmode_') # skia:6691
   if 'ASAN' in bot and 'CPU' in bot:
-    # skia:4632
+    # floor2int_undef benches undefined behavior, so ASAN correctly complains.
     match.append('~^floor2int_undef$')
 
   # We do not need or want to benchmark the decodes of incomplete images.

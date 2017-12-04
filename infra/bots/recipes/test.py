@@ -559,7 +559,7 @@ def dm_flags(api, bot):
     args.extend(['--gpuThreads', '0'])
 
   if 'ASAN' in bot and 'CPU' in bot:
-    # skia:4632
+    # skia:7052
     for config in ['565', '8888', 'f16', 'srgb']:
       blacklist([config, 'gm', '_', 'clippedcubic2'])
     match.append('~^PathOpsCubicIntersection$')
