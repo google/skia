@@ -108,8 +108,8 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
       })
     if extra_config == 'NoGPU':
       args['skia_enable_gpu'] = 'false'
-    if extra_config == 'Shared':
-      args['is_component_build'] = 'true'
+    # if extra_config == 'Shared':
+    #  args['is_component_build'] = 'true'
     if 'Vulkan' in extra_config and not 'Android' in extra_config:
       args['skia_enable_vulkan_debug_layers'] = 'false'
       if self.m.vars.is_linux:
