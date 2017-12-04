@@ -18,7 +18,8 @@
 #define GL_CALL_RET(R, X) GR_GL_CALL_RET(gpu->glInterface(), R, X)
 
 // Print the source code for all shaders generated.
-static const bool c_PrintShaders{false};
+static const bool gPrintSKSL = false;
+static const bool gPrintGLSL = false;
 
 static void print_source_lines_with_numbers(const char* source,
                                             std::function<void(const char*)> println) {
@@ -47,6 +48,16 @@ static void print_glsl_line_by_line(const SkSL::String& glsl,
                                     }) {
     println("GLSL:");
     print_source_lines_with_numbers(glsl.c_str(), println);
+}
+
+void print_shader_banner(GrGLenum type) {
+    const char* typeName = "Unknown";
+    switch (type) {
+        case GR_GL_VERTEX_SHADER: typeName = "Vertex"; break;
+        case GR_GL_GEOMETRY_SHADER: typeName = "Geometry"; break;
+        case GR_GL_FRAGMENT_SHADER: typeName = "Fragment"; break;
+    }
+    SkDebugf("---- %s shader ----------------------------------------------------\n", typeName);
 }
 
 std::unique_ptr<SkSL::Program> GrSkSLtoGLSL(const GrGLContext& context, GrGLenum type,
@@ -90,6 +101,10 @@ std::unique_ptr<SkSL::Program> GrSkSLtoGLSL(const GrGLContext& context, GrGLenum
         SkDebugf("\nErrors:\n%s\n", compiler->errorText().c_str());
         SkDEBUGFAIL("SKSL compilation failed!\n");
         return nullptr;
+    }
+    if (gPrintSKSL) {
+        print_shader_banner(type);
+        print_sksl_line_by_line(skslStrings, lengths, count);
     }
     return program;
 }
@@ -142,14 +157,8 @@ GrGLuint GrGLCompileAndAttachShader(const GrGLContext& glCtx,
         }
     }
 
-    if (c_PrintShaders) {
-        const char* typeName = "Unknown";
-        switch (type) {
-            case GR_GL_VERTEX_SHADER: typeName = "Vertex"; break;
-            case GR_GL_GEOMETRY_SHADER: typeName = "Geometry"; break;
-            case GR_GL_FRAGMENT_SHADER: typeName = "Fragment"; break;
-        }
-        SkDebugf("---- %s shader ----------------------------------------------------\n", typeName);
+    if (gPrintGLSL) {
+        print_shader_banner(type);
         print_glsl_line_by_line(glsl);
     }
 
