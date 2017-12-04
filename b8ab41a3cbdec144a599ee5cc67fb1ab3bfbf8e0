@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f246dc5c_c0dfff35",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 1764,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-12-04T21:32:52Z",
+      "side": 1,
+      "message": "nit: This is now too specific. Maybe this whole line should be\n\n\"Optional settings per rectangular grid entry.\"\n\n?",
+      "range": {
+        "startLine": 1764,
+        "startChar": 56,
+        "endLine": 1764,
+        "endChar": 78
+      },
+      "revId": "b8ab41a3cbdec144a599ee5cc67fb1ab3bfbf8e0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a77155df_5459b84c",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 1771,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-12-04T21:32:52Z",
+      "side": 1,
+      "message": "Are these really flags? It looks like in ag/3308841 it\u0027s always one or the other. Logically it seems like it wouldn\u0027t make sense for it to be both, since I believe kTransparent means we don\u0027t have anything to draw at all.",
+      "range": {
+        "startLine": 1771,
+        "startChar": 12,
+        "endLine": 1771,
+        "endChar": 29
+      },
+      "revId": "b8ab41a3cbdec144a599ee5cc67fb1ab3bfbf8e0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1697e289_8c2e079e",
+        "filename": "src/core/SkDevice.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 232,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-12-04T21:32:52Z",
+      "side": 1,
+      "message": "nit: is a",
+      "range": {
+        "startLine": 232,
+        "startChar": 49,
+        "endLine": 232,
+        "endChar": 50
+      },
+      "revId": "b8ab41a3cbdec144a599ee5cc67fb1ab3bfbf8e0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "88412674_be506b13",
+        "filename": "src/core/SkLatticeIter.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-12-04T21:32:52Z",
+      "side": 1,
+      "message": "Add comments explaining this parameter?",
+      "range": {
+        "startLine": 35,
+        "startChar": 40,
+        "endLine": 35,
+        "endChar": 66
+      },
+      "revId": "b8ab41a3cbdec144a599ee5cc67fb1ab3bfbf8e0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
