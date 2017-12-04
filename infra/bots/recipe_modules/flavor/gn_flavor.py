@@ -132,9 +132,7 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
       })
 
     sanitize = ''
-    if extra_config == 'UBSAN_float_cast_overflow':
-      sanitize = 'float-cast-overflow'
-    elif 'SAN' in extra_config:
+    if 'SAN' in extra_config:
       sanitize = extra_config
     elif 'SafeStack' in extra_config:
       sanitize = 'safe-stack'
