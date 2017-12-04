@@ -22,6 +22,30 @@
       "revId": "6275fae350c54a4afa8eb04b43d0e1281c78b7dd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e0ab6ef8_6f1c96f4",
+        "filename": "src/core/SkNx.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-12-04T15:56:30Z",
+      "side": 1,
+      "message": "Ugh. Thank you for catching that. This must have been a merge error when I rebased on top of https://skia-review.googlesource.com/c/skia/+/79382",
+      "parentUuid": "6ff30f1f_38ed67b8",
+      "range": {
+        "startLine": 98,
+        "startChar": 27,
+        "endLine": 98,
+        "endChar": 28
+      },
+      "revId": "6275fae350c54a4afa8eb04b43d0e1281c78b7dd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }

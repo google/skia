@@ -16,6 +16,24 @@
       "revId": "10ed243e2ee7d733f73c9e5947ab5189fd6d46e3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3badffc2_16dceb0c",
+        "filename": "src/opts/SkNx_sse.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-12-04T15:56:30Z",
+      "side": 0,
+      "message": "ditto",
+      "parentUuid": "71898042_05d4a3df",
+      "revId": "10ed243e2ee7d733f73c9e5947ab5189fd6d46e3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
