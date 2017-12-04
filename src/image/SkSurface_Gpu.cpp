@@ -164,7 +164,12 @@ bool SkSurface_Gpu::onCharacterize(SkSurfaceCharacterization* data) const {
     GrRenderTargetContext* rtc = fDevice->accessRenderTargetContext();
     GrContext* ctx = fDevice->context();
 
-    data->set(ctx->threadSafeProxy(), rtc->origin(), rtc->width(), rtc->height(),
+    int maxResourceCount;
+    size_t maxResourceBytes;
+    ctx->getResourceCacheLimits(&maxResourceCount, &maxResourceBytes);
+
+    data->set(ctx->threadSafeProxy(), maxResourceCount, maxResourceBytes,
+              rtc->origin(), rtc->width(), rtc->height(),
               rtc->colorSpaceInfo().config(), rtc->fsaaType(), rtc->numStencilSamples(),
               rtc->colorSpaceInfo().refColorSpace(), this->props());
 
@@ -175,7 +180,15 @@ bool SkSurface_Gpu::isCompatible(const SkSurfaceCharacterization& data) const {
     GrRenderTargetContext* rtc = fDevice->accessRenderTargetContext();
     GrContext* ctx = fDevice->context();
 
+    // As long as the current state if the context allows for greater or equal resources,
+    // we allow the DDL to be replayed.
+    int maxResourceCount;
+    size_t maxResourceBytes;
+    ctx->getResourceCacheLimits(&maxResourceCount, &maxResourceBytes);
+
     return data.contextInfo() && data.contextInfo()->matches(ctx) &&
+           data.cacheMaxResourceCount() <= maxResourceCount &&
+           data.cacheMaxResourceBytes() <= maxResourceBytes &&
            data.origin() == rtc->origin() && data.width() == rtc->width() &&
            data.height() == rtc->height() && data.config() == rtc->colorSpaceInfo().config() &&
            data.fsaaType() == rtc->fsaaType() && data.stencilCount() == rtc->numStencilSamples() &&

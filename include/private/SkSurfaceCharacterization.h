@@ -27,7 +27,9 @@ class SkColorSpace;
 class SkSurfaceCharacterization {
 public:
     SkSurfaceCharacterization()
-            : fOrigin(kBottomLeft_GrSurfaceOrigin)
+            : fCacheMaxResourceCount(0)
+            , fCacheMaxResourceBytes(0)
+            , fOrigin(kBottomLeft_GrSurfaceOrigin)
             , fWidth(0)
             , fHeight(0)
             , fConfig(kUnknown_GrPixelConfig)
@@ -43,6 +45,9 @@ public:
     SkSurfaceCharacterization& operator=(const SkSurfaceCharacterization& other) = default;
 
     GrContextThreadSafeProxy* contextInfo() const { return fContextInfo.get(); }
+    int cacheMaxResourceCount() const { return fCacheMaxResourceCount; }
+    size_t cacheMaxResourceBytes() const { return fCacheMaxResourceBytes; }
+
     GrSurfaceOrigin origin() const { return fOrigin; }
     int width() const { return fWidth; }
     int height() const { return fHeight; }
@@ -57,6 +62,8 @@ private:
     friend class SkSurface_Gpu; // for 'set'
 
     void set(sk_sp<GrContextThreadSafeProxy> contextInfo,
+             int cacheMaxResourceCount,
+             size_t cacheMaxResourceBytes,
              GrSurfaceOrigin origin,
              int width, int height,
              GrPixelConfig config,
@@ -65,6 +72,9 @@ private:
              sk_sp<SkColorSpace> colorSpace,
              const SkSurfaceProps& surfaceProps) {
         fContextInfo = contextInfo;
+        fCacheMaxResourceCount = cacheMaxResourceCount;
+        fCacheMaxResourceBytes = cacheMaxResourceBytes;
+
         fOrigin = origin;
         fWidth = width;
         fHeight = height;
@@ -76,6 +86,9 @@ private:
     }
 
     sk_sp<GrContextThreadSafeProxy> fContextInfo;
+    int                             fCacheMaxResourceCount;
+    size_t                          fCacheMaxResourceBytes;
+
     GrSurfaceOrigin                 fOrigin;
     int                             fWidth;
     int                             fHeight;
