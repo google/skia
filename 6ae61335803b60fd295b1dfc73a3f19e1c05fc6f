@@ -57,6 +57,24 @@
       "revId": "6ae61335803b60fd295b1dfc73a3f19e1c05fc6f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f2da47ad_69327e85",
+        "filename": "infra/bots/recipes/test.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 561,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-12-04T15:45:55Z",
+      "side": 1,
+      "message": "SGTM.  Now that you\u0027ve put it that way, I think you\u0027re right that it\u0027s better to disable particular tests than let the warning-stifled methods leak out into other tests.",
+      "parentUuid": "c0f359cc_d63c7bbd",
+      "revId": "6ae61335803b60fd295b1dfc73a3f19e1c05fc6f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
