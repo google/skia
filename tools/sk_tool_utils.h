@@ -20,6 +20,7 @@
 class SkBitmap;
 class SkCanvas;
 class SkColorFilter;
+class SkImage;
 class SkPaint;
 class SkPath;
 class SkRRect;
@@ -79,8 +80,12 @@ namespace sk_tool_utils {
      *
      *  If the colorType is half-float, then maxDiff is interpreted as 0..255 --> 0..1
      */
-    bool equal_pixels(const SkPixmap&, const SkPixmap&, unsigned maxDiff = 0);
-    bool equal_pixels(const SkBitmap&, const SkBitmap&, unsigned maxDiff = 0);
+    bool equal_pixels(const SkPixmap&, const SkPixmap&, unsigned maxDiff = 0,
+                      bool respectColorSpaces = false);
+    bool equal_pixels(const SkBitmap&, const SkBitmap&, unsigned maxDiff = 0,
+                      bool respectColorSpaces = false);
+    bool equal_pixels(const SkImage* a, const SkImage* b, unsigned maxDiff,
+                      bool respectColorSpaces = false);
 
     // private to sk_tool_utils
     sk_sp<SkTypeface> create_font(const char* name, SkFontStyle);
