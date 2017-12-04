@@ -23,13 +23,7 @@
 
 class GrGLDistanceFieldA8TextGeoProc : public GrGLSLGeometryProcessor {
 public:
-    GrGLDistanceFieldA8TextGeoProc()
-            : fViewMatrix(SkMatrix::InvalidMatrix())
-    #ifdef SK_GAMMA_APPLY_TO_A8
-            , fDistanceAdjust(-1.0f)
-    #endif
-            , fAtlasSize({0,0}) {
-    }
+    GrGLDistanceFieldA8TextGeoProc() = default;
 
     void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override{
         const GrDistanceFieldA8TextGeoProc& dfTexEffect =
@@ -61,12 +55,21 @@ public:
         varyingHandler->addPassThroughAttribute(dfTexEffect.inColor(), args.fOutputColor);
 
         // Setup position
-        this->writeOutputPosition(vertBuilder,
-                                  uniformHandler,
-                                  gpArgs,
-                                  dfTexEffect.inPosition()->fName,
-                                  dfTexEffect.viewMatrix(),
-                                  &fViewMatrixUniform);
+        const char* type = nullptr;
+        switch (dfTexEffect.inPosition()->fType) {
+            case kFloat2_GrVertexAttribType:
+                type = "float2";
+                gpArgs->fPositionVar.set(kFloat2_GrSLType, "pos2");
+                break;
+            case kFloat3_GrVertexAttribType:
+                type = "float3";
+                gpArgs->fPositionVar.set(kFloat3_GrSLType, "pos3");
+                break;
+            default:
+                SK_ABORT("Unexpected position attribute type.");
+        }
+        vertBuilder->codeAppendf("%s %s = %s;", type, gpArgs->fPositionVar.c_str(),
+                                 dfTexEffect.inPosition()->fName);
 
         // emit transforms
         this->emitTransforms(vertBuilder,
@@ -183,13 +186,6 @@ public:
         }
 #endif
 
-        if (!dfa8gp.viewMatrix().isIdentity() && !fViewMatrix.cheapEqualTo(dfa8gp.viewMatrix())) {
-            fViewMatrix = dfa8gp.viewMatrix();
-            float viewMatrix[3 * 3];
-            GrGLSLGetMatrix<3>(viewMatrix, fViewMatrix);
-            pdman.setMatrix3f(fViewMatrixUniform, viewMatrix);
-        }
-
         SkASSERT(dfa8gp.numTextureSamplers() >= 1);
         GrTexture* atlas = dfa8gp.textureSampler(0).peekTexture();
         SkASSERT(atlas && SkIsPow2(atlas->width()) && SkIsPow2(atlas->height()));
@@ -207,19 +203,16 @@ public:
                               GrProcessorKeyBuilder* b) {
         const GrDistanceFieldA8TextGeoProc& dfTexEffect = gp.cast<GrDistanceFieldA8TextGeoProc>();
         uint32_t key = dfTexEffect.getFlags();
-        key |= ComputePosKey(dfTexEffect.viewMatrix()) << 16;
         b->add32(key);
         b->add32(dfTexEffect.numTextureSamplers());
     }
 
 private:
-    SkMatrix      fViewMatrix;
-    UniformHandle fViewMatrixUniform;
 #ifdef SK_GAMMA_APPLY_TO_A8
-    float         fDistanceAdjust;
+    float         fDistanceAdjust = -1.f;
     UniformHandle fDistanceAdjustUni;
 #endif
-    SkISize       fAtlasSize;
+    SkISize       fAtlasSize = {0, 0};
     UniformHandle fAtlasSizeInvUniform;
 
     typedef GrGLSLGeometryProcessor INHERITED;
@@ -229,7 +222,6 @@ private:
 
 GrDistanceFieldA8TextGeoProc::GrDistanceFieldA8TextGeoProc(
                                                  GrColor color,
-                                                 const SkMatrix& viewMatrix,
                                                  const sk_sp<GrTextureProxy> proxies[kMaxTextures],
                                                  const GrSamplerState& params,
 #ifdef SK_GAMMA_APPLY_TO_A8
@@ -239,7 +231,6 @@ GrDistanceFieldA8TextGeoProc::GrDistanceFieldA8TextGeoProc(
                                                  bool usesLocalCoords)
         : INHERITED(kGrDistanceFieldA8TextGeoProc_ClassID)
         , fColor(color)
-        , fViewMatrix(viewMatrix)
 #ifdef SK_GAMMA_APPLY_TO_A8
         , fDistanceAdjust(distanceAdjust)
 #endif
@@ -247,7 +238,11 @@ GrDistanceFieldA8TextGeoProc::GrDistanceFieldA8TextGeoProc(
         , fInColor(nullptr)
         , fUsesLocalCoords(usesLocalCoords) {
     SkASSERT(!(flags & ~kNonLCD_DistanceFieldEffectMask));
-    fInPosition = &this->addVertexAttrib("inPosition", kFloat2_GrVertexAttribType);
+    if (flags & kPerspective_DistanceFieldEffectFlag) {
+        fInPosition = &this->addVertexAttrib("inPosition", kFloat3_GrVertexAttribType);
+    } else {
+        fInPosition = &this->addVertexAttrib("inPosition", kFloat2_GrVertexAttribType);
+    }
     fInColor = &this->addVertexAttrib("inColor", kUByte4_norm_GrVertexAttribType);
     fInTextureCoords = &this->addVertexAttrib("inTextureCoords", kUShort2_GrVertexAttribType);
     for (int i = 0; i < kMaxTextures; ++i) {
@@ -306,7 +301,7 @@ sk_sp<GrGeometryProcessor> GrDistanceFieldA8TextGeoProc::TestCreate(GrProcessorT
     }
 
     return GrDistanceFieldA8TextGeoProc::Make(GrRandomColor(d->fRandom),
-                                              GrTest::TestMatrix(d->fRandom), proxies,
+                                              proxies,
                                               samplerState,
 #ifdef SK_GAMMA_APPLY_TO_A8
                                               d->fRandom->nextF(),
