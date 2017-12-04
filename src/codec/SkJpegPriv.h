@@ -15,6 +15,7 @@
 #include <setjmp.h>
 // stdio is needed for jpeglib
 #include <stdio.h>
+#include <type_traits>
 
 extern "C" {
     #include "jpeglib.h"
