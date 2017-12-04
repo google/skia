@@ -248,7 +248,7 @@ SkLatticeIter::SkLatticeIter(int w, int h, const SkIRect& c, const SkRect& dst) 
     fNumRectsToDraw = 9;
 }
 
-bool SkLatticeIter::next(SkRect* src, SkRect* dst) {
+bool SkLatticeIter::next(SkRect* src, SkRect* dst, bool* solidColor) {
     int currRect = fCurrX + fCurrY * (fSrcX.count() - 1);
     if (currRect == fNumRectsInLattice) {
         return false;
@@ -265,11 +265,15 @@ bool SkLatticeIter::next(SkRect* src, SkRect* dst) {
     }
 
     if (fFlags.count() > 0 && SkToBool(SkCanvas::Lattice::kTransparent_Flags & fFlags[currRect])) {
-        return this->next(src, dst);
+        return this->next(src, dst, solidColor);
     }
 
     src->set(fSrcX[x], fSrcY[y], fSrcX[x + 1], fSrcY[y + 1]);
     dst->set(fDstX[x], fDstY[y], fDstX[x + 1], fDstY[y + 1]);
+    if (solidColor) {
+        *solidColor = fFlags.count() > 0
+                   && SkToBool(SkCanvas::Lattice::kSolidColor_Flags & fFlags[currRect]);
+    }
     return true;
 }
 

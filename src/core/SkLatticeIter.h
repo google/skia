@@ -32,7 +32,7 @@ public:
     /**
      *  While it returns true, use src/dst to draw the image/bitmap
      */
-    bool next(SkRect* src, SkRect* dst);
+    bool next(SkRect* src, SkRect* dst, bool* solidColor = nullptr);
 
     /**
      *  Apply a matrix to the dst points.
