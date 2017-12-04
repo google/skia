@@ -9,6 +9,7 @@
 #define GrCCPRCoverageProcessor_DEFINED
 
 #include "GrGeometryProcessor.h"
+#include "SkNx.h"
 #include "glsl/GrGLSLGeometryProcessor.h"
 #include "glsl/GrGLSLVarying.h"
 
@@ -25,12 +26,9 @@ class GrGLSLShaderBuilder;
  * below). Once all of a path's primitives have been drawn, the render target contains a composite
  * coverage count that can then be used to draw the path (see GrCCPRPathProcessor).
  *
- * Caller provides the primitives' (x,y) input points in an fp32x2 (RG) texel buffer, and an
- * instance buffer with a single int32x4 attrib (for triangles) or int32x2 (for curves) defined
- * below. There are no vertex attribs.
- *
- * Draw calls are instanced, with one vertex per bezier point (3 for triangles). They use the
- * corresponding GrPrimitiveType as defined below.
+ * Draw calls are instanced. They use use the corresponding GrPrimitiveTypes as defined below.
+ * Caller fills out the primitives' atlas-space vertices and control points in instance arrays
+ * using the provided structs below. There are no vertex attribs.
  */
 class GrCCPRCoverageProcessor : public GrGeometryProcessor {
 public:
@@ -38,21 +36,25 @@ public:
     static constexpr GrPrimitiveType kQuadraticsGrPrimitiveType = GrPrimitiveType::kTriangles;
     static constexpr GrPrimitiveType kCubicsGrPrimitiveType = GrPrimitiveType::kLinesAdjacency;
 
-    struct TriangleInstance {
-        int32_t fPt0Idx;
-        int32_t fPt1Idx;
-        int32_t fPt2Idx;
-        int32_t fPackedAtlasOffset; // (offsetY << 16) | (offsetX & 0xffff)
+    enum class InstanceAttribs : int {
+        kX,
+        kY
     };
 
-    GR_STATIC_ASSERT(4 * 4 == sizeof(TriangleInstance));
+    struct TriangleInstance { // Also used by quadratics.
+        float fX[3];
+        float fY[3];
 
-    struct CurveInstance {
-        int32_t fPtsIdx;
-        int32_t fPackedAtlasOffset; // (offsetY << 16) | (offsetX & 0xffff)
+        void set(const SkPoint[3], const Sk2f& trans);
+        void set(const SkPoint&, const SkPoint&, const SkPoint&, const Sk2f& trans);
     };
 
-    GR_STATIC_ASSERT(2 * 4 == sizeof(CurveInstance));
+    struct CubicInstance {
+        float fX[4];
+        float fY[4];
+
+        void set(const SkPoint[4], float dx, float dy);
+    };
 
     /**
      * All primitive shapes (triangles and convex closed curve segments) require more than one
@@ -75,6 +77,10 @@ public:
         kSerpentineCorners,
         kLoopCorners
     };
+
+    static constexpr bool RenderPassIsCubic(RenderPass pass) {
+        return pass >= RenderPass::kSerpentineHulls && pass <= RenderPass::kLoopCorners;
+    }
 
     static const char* GetRenderPassName(RenderPass);
 
@@ -116,11 +122,6 @@ public:
         // Returns the number of independent geometric segments to generate for the render pass
         // (number of wedges for a hull, number of edges, or number of corners.)
         virtual int getNumSegments() const = 0;
-
-        // Appends an expression that fetches input point # "pointId" from the texel buffer.
-        virtual void appendInputPointFetch(const GrCCPRCoverageProcessor&, GrGLSLShaderBuilder*,
-                                           const TexelBufferHandle& pointsBuffer,
-                                           const char* pointId) const = 0;
 
         // Determines the winding direction of the primitive. The subclass must write a value of
         // either -1, 0, or +1 to "outputWind" (e.g. "sign(area)"). Fractional values are not valid.
@@ -194,13 +195,16 @@ public:
         GrGLSLGeoToFrag fWind{kHalf_GrSLType};
     };
 
-    GrCCPRCoverageProcessor(RenderPass, GrBuffer* pointsBuffer);
+    GrCCPRCoverageProcessor(RenderPass);
 
-    const char* instanceAttrib() const { return fInstanceAttrib.fName; }
     const char* name() const override { return GetRenderPassName(fRenderPass); }
     SkString dumpInfo() const override {
         return SkStringPrintf("%s\n%s", this->name(), this->INHERITED::dumpInfo().c_str());
     }
+    const Attribute& getInstanceAttrib(InstanceAttribs attribID) const {
+        return this->getAttrib((int)attribID);
+    }
+
     void getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
     GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const override;
 
@@ -221,18 +225,29 @@ private:
 
     static GrGLSLPrimitiveProcessor* CreateGSImpl(std::unique_ptr<Shader>);
 
-    int atlasOffsetIdx() const {
-        SkASSERT(kInt2_GrVertexAttribType == fInstanceAttrib.fType ||
-                 kInt4_GrVertexAttribType == fInstanceAttrib.fType);
-        return kInt4_GrVertexAttribType == fInstanceAttrib.fType ? 3 : 1;
-    }
-
-    const RenderPass    fRenderPass;
-    const Attribute&    fInstanceAttrib;
-    BufferAccess        fPointsBufferAccess;
-    SkDEBUGCODE(float   fDebugBloat = 0;)
+    const RenderPass fRenderPass;
+    SkDEBUGCODE(float fDebugBloat = 0;)
 
     typedef GrGeometryProcessor INHERITED;
 };
+
+inline void GrCCPRCoverageProcessor::TriangleInstance::set(const SkPoint p[3], const Sk2f& trans) {
+    this->set(p[0], p[1], p[2], trans);
+}
+
+inline void GrCCPRCoverageProcessor::TriangleInstance::set(const SkPoint& p0, const SkPoint& p1,
+                                                           const SkPoint& p2, const Sk2f& trans) {
+    Sk2f P0 = Sk2f::Load(&p0) + trans;
+    Sk2f P1 = Sk2f::Load(&p1) + trans;
+    Sk2f P2 = Sk2f::Load(&p2) + trans;
+    Sk2f::Store3(this, P0, P1, P2);
+}
+
+inline void GrCCPRCoverageProcessor::CubicInstance::set(const SkPoint p[4], float dx, float dy) {
+    Sk4f X,Y;
+    Sk4f::Load2(p, &X, &Y);
+    (X + dx).store(&fX);
+    (Y + dy).store(&fY);
+}
 
 #endif
