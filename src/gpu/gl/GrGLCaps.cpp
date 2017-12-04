@@ -373,6 +373,11 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
                         std::numeric_limits<size_t>::max();
             }
             break;
+        case kATI_GrGLVendor:
+            // So far no AMD GPU shows a performance difference. A tie goes to disabling
+            // multitexturing for simplicity's sake.
+            fShaderCaps->fDisableImageMultitexturingDstRectAreaThreshold = 0;
+            break;
         default:
             break;
     }
