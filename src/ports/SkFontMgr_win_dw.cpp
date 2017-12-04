@@ -911,7 +911,7 @@ sk_sp<SkTypeface> SkFontMgr_DirectWrite::onMakeFromStreamIndex(std::unique_ptr<S
             SkTScopedComPtr<IDWriteFontFace> fontFace;
             HRN(font->CreateFontFace(&fontFace));
 
-            UINT32 faceIndex = fontFace->GetIndex();
+            int faceIndex = fontFace->GetIndex();
             if (faceIndex == ttcIndex) {
                 return sk_sp<SkTypeface>(DWriteFontTypeface::Create(fFactory.get(),
                                                   fontFace.get(), font.get(), fontFamily.get(),

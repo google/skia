@@ -132,7 +132,8 @@ size_t sk_qread(FILE* file, void* buffer, size_t count, size_t offset) {
         return SIZE_MAX;
     }
 
-    OVERLAPPED overlapped = {0};
+    OVERLAPPED overlapped;
+    memset(&overlapped, 0, sizeof(overlapped));
     ULARGE_INTEGER winOffset;
     winOffset.QuadPart = offset;
     overlapped.Offset = winOffset.LowPart;
