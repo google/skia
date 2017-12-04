@@ -325,6 +325,28 @@ sk_sp<SkImage> SkImage::makeColorSpace(sk_sp<SkColorSpace> target,
     return as_IB(this)->onMakeColorSpace(std::move(target), targetColorType, premulBehavior);
 }
 
+sk_sp<SkImage> SkImage::makeRasterImage() const {
+    SkPixmap pm;
+    if (this->peekPixels(&pm)) {
+        return sk_ref_sp(const_cast<SkImage*>(this));
+    }
+
+    const SkImageInfo info = as_IB(this)->onImageInfo();
+    const size_t rowBytes = info.minRowBytes();
+    size_t size = info.computeByteSize(rowBytes);
+    if (SkImageInfo::ByteSizeOverflowed(size)) {
+        return nullptr;
+    }
+
+    sk_sp<SkData> data = SkData::MakeUninitialized(size);
+    pm = { info, data->writable_data(), info.minRowBytes() };
+    if (!this->readPixels(pm, 0, 0)) {
+        return nullptr;
+    }
+
+    return SkImage::MakeRasterData(info, std::move(data), rowBytes);
+}
+
 //////////////////////////////////////////////////////////////////////////////////////
 
 #if !SK_SUPPORT_GPU
