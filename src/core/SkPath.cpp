@@ -1337,6 +1337,18 @@ void SkPath::arcTo(const SkRect& oval, SkScalar startAngle, SkScalar sweepAngle,
     }
 }
 
+// track integral angle if trivial
+static SkScalar atan2_degrees(SkScalar y, SkScalar x, SkScalar* degrees) {
+    if (!y) {
+        *degrees = x < 0 ? 180 : x > 0 ? 0 : SK_ScalarNaN;
+    } else if (!x) {
+        *degrees = y < 0 ? -90 : 90;
+    } else {
+        *degrees = SK_ScalarNaN;  // no degree representation in general
+    }
+    return SkScalarATan2(y, x);
+}
+
 // This converts the SVG arc to conics.
 // Partly adapted from Niko's code in kdelibs/kdecore/svgicons.
 // Then transcribed from webkit/chrome's SVGPathNormalizer::decomposeArcToCubic()
@@ -1406,29 +1418,54 @@ void SkPath::arcTo(SkScalar rx, SkScalar ry, SkScalar angle, SkPath::ArcSize arc
     centerPoint.offset(-delta.fY, delta.fX);
     unitPts[0] -= centerPoint;
     unitPts[1] -= centerPoint;
-    SkScalar theta1 = SkScalarATan2(unitPts[0].fY, unitPts[0].fX);
-    SkScalar theta2 = SkScalarATan2(unitPts[1].fY, unitPts[1].fX);
+    /*
+    Computing the arc width introduces rounding errors that cause the arc to exceed
+    1/4 circle and cause integer anchored arcs to start outside their marks. A round
+    rect may lose convexity as a result. By tracking the angles outside of atan2 and
+    sin/cos, ensure that axis-aligned arcs are represented by axis-aligned conics.
+     */
+    SkScalar theta1_degrees, theta2_degrees;
+    SkScalar theta1 = atan2_degrees(unitPts[0].fY, unitPts[0].fX, &theta1_degrees);
+    SkScalar theta2 = atan2_degrees(unitPts[1].fY, unitPts[1].fX, &theta2_degrees);
     SkScalar thetaArc = theta2 - theta1;
+    SkScalar thetaArc_degrees = theta2_degrees - theta1_degrees;
     if (thetaArc < 0 && !arcSweep) {  // arcSweep flipped from the original implementation
         thetaArc += SK_ScalarPI * 2;
+        thetaArc_degrees += 360;
     } else if (thetaArc > 0 && arcSweep) {  // arcSweep flipped from the original implementation
         thetaArc -= SK_ScalarPI * 2;
+        thetaArc_degrees -= 360;
     }
     pointTransform.setRotate(angle);
     pointTransform.preScale(rx, ry);
 
-    int segments = SkScalarCeilToInt(SkScalarAbs(thetaArc / (SK_ScalarPI / 2)));
+    int segments = SkScalarCeilToInt(SkScalarAbs(
+            SkScalarIsFinite(thetaArc_degrees) ? thetaArc_degrees / 90 :
+            thetaArc / (SK_ScalarPI / 2)));
     SkScalar thetaWidth = thetaArc / segments;
-    SkScalar t = SkScalarTan(0.5f * thetaWidth);
+    SkScalar thetaWidth_degrees = thetaArc_degrees / segments;
+    SkASSERT(!SkScalarIsFinite(thetaArc_degrees) || -90 == thetaArc_degrees ||
+            0 == thetaArc_degrees || 90 == thetaArc_degrees);
+    SkScalar t = SkScalarIsFinite(thetaArc_degrees) ? thetaArc_degrees / 90 :
+            SkScalarTan(0.5f * thetaWidth);
     if (!SkScalarIsFinite(t)) {
         return;
     }
     SkScalar startTheta = theta1;
+    SkScalar startTheta_degrees = theta1_degrees;
     SkScalar w = SkScalarSqrt(SK_ScalarHalf + SkScalarCos(thetaWidth) * SK_ScalarHalf);
     for (int i = 0; i < segments; ++i) {
         SkScalar endTheta = startTheta + thetaWidth;
-        SkScalar cosEndTheta, sinEndTheta = SkScalarSinCos(endTheta, &cosEndTheta);
-
+        SkScalar endTheta_degrees = startTheta_degrees + thetaWidth_degrees;
+        SkScalar cosEndTheta, sinEndTheta;
+        if (SkScalarIsFinite(endTheta_degrees)) {
+            int quadrant = SkScalarRoundToInt(endTheta_degrees / 90) & 0x3;
+            const SkScalar sinAtQuadrant[] = {0, 1, 0, -1, 0};
+            sinEndTheta = sinAtQuadrant[quadrant];
+            cosEndTheta = sinAtQuadrant[quadrant + 1];
+        } else {
+            sinEndTheta = SkScalarSinCos(endTheta, &cosEndTheta);
+        }
         unitPts[1].set(cosEndTheta, sinEndTheta);
         unitPts[1] += centerPoint;
         unitPts[0] = unitPts[1];
@@ -1437,6 +1474,7 @@ void SkPath::arcTo(SkScalar rx, SkScalar ry, SkScalar angle, SkPath::ArcSize arc
         pointTransform.mapPoints(mapped, unitPts, (int) SK_ARRAY_COUNT(unitPts));
         this->conicTo(mapped[0], mapped[1], w);
         startTheta = endTheta;
+        startTheta_degrees = endTheta_degrees;
     }
 }
 

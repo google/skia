@@ -4915,3 +4915,25 @@ DEF_TEST(NonFinitePathIteration, reporter) {
 
     REPORTER_ASSERT(reporter, verbs == 0);
 }
+
+DEF_TEST(AndroidArc, reporter) {
+    const char aArc[] = "M50,0L92,0 A8,8,0,0 1 100,8 L100,92 A8,8,0,0 1 92,100 L8,100"
+        " A8,8,0,0 1 0,92 L 0,8 A8,8,0,0 1 8,0z";
+    SkPath aPath;
+    SkAssertResult(SkParsePath::FromSVGString(aArc, &aPath));
+    SkASSERT(aPath.isConvex());
+    for (SkScalar scale = 1; scale < 1000; scale *= 1.1f) {
+        SkPath scalePath = aPath;
+        SkMatrix matrix;
+        matrix.setScale(scale, scale);
+        scalePath.transform(matrix);
+        SkASSERT(scalePath.isConvex());
+    }
+    for (SkScalar scale = 1; scale < .001; scale /= 1.1f) {
+        SkPath scalePath = aPath;
+        SkMatrix matrix;
+        matrix.setScale(scale, scale);
+        scalePath.transform(matrix);
+        SkASSERT(scalePath.isConvex());
+    }
+}
