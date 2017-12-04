@@ -88,6 +88,9 @@ struct DashCircleVertex {
 static void calc_dash_scaling(SkScalar* parallelScale, SkScalar* perpScale,
                             const SkMatrix& viewMatrix, const SkPoint pts[2]) {
     SkVector vecSrc = pts[1] - pts[0];
+    if (pts[1] == pts[0]) {
+        vecSrc.set(1.0, 0.0);
+    }
     SkScalar magSrc = vecSrc.length();
     SkScalar invSrc = magSrc ? SkScalarInvert(magSrc) : 0;
     vecSrc.scale(invSrc);
@@ -107,6 +110,9 @@ static void calc_dash_scaling(SkScalar* parallelScale, SkScalar* perpScale,
 // Stores the rotation matrix in rotMatrix, and the mapped points in ptsRot
 static void align_to_x_axis(const SkPoint pts[2], SkMatrix* rotMatrix, SkPoint ptsRot[2] = nullptr) {
     SkVector vec = pts[1] - pts[0];
+    if (pts[1] == pts[0]) {
+        vec.set(1.0, 0.0);
+    }
     SkScalar mag = vec.length();
     SkScalar inv = mag ? SkScalarInvert(mag) : 0;
 
@@ -489,6 +495,17 @@ private:
                         lineDone = true;
                     }
                 }
+            }
+
+            if (draw.fPtsRot[0].fX == draw.fPtsRot[1].fX &&
+                (0 != endAdj || 0 == startAdj) &&
+                hasCap) {
+                // We adjusted the start and end rects to the same place at an on interval, and
+                // there is a cap on that interval. So we will still draw the stroked cap. We also
+                // need to check that we are not at then end of the line being drawn in which case
+                // we don't draw the cap segment, unless the end is also the start in which case we
+                // do.
+                lineDone = false;
             }
 
             if (startAdj != 0) {
