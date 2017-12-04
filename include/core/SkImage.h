@@ -384,6 +384,14 @@ public:
      * the pixels fails). Otherwise, it returns the original image.
      */
     sk_sp<SkImage> makeNonTextureImage() const;
+
+    /**
+     *  If this image is already backed by raster (i.e. peekPixels would succeed), then this just
+     *  returns itself. If not, this attempts to create a raster version of this image and returns
+     *  that, or nullptr if that fails.
+     */
+    sk_sp<SkImage> makeRasterImage() const;
+
     /**
      *  Apply a given image filter to this image, and return the filtered result.
      *
