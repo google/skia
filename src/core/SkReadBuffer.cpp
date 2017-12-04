@@ -44,8 +44,15 @@ static uint32_t default_flags() {
     return flags;
 }
 
-// This has an empty constructor and destructor, and is thread-safe, so we can use a singleton.
-static SkImageDeserializer gDefaultImageDeserializer;
+static void setup_defaults(SkDeserialProcs* procs) {
+    if (procs->fImageProc == nullptr) {
+        procs->fImageProc = [](const void* data, size_t length, void* ctx) {
+            const SkIRect* subset = nullptr;
+            return SkImage::MakeFromEncoded(SkData::MakeWithCopy(data, length), subset);
+        };
+        procs->fImageCtx = nullptr;
+    }
+}
 
 SkReadBuffer::SkReadBuffer() {
     fFlags = default_flags();
@@ -57,10 +64,11 @@ SkReadBuffer::SkReadBuffer() {
 
     fFactoryArray = nullptr;
     fFactoryCount = 0;
-    fImageDeserializer = &gDefaultImageDeserializer;
 #ifdef DEBUG_NON_DETERMINISTIC_ASSERT
     fDecodedBitmapIndex = -1;
 #endif // DEBUG_NON_DETERMINISTIC_ASSERT
+
+    setup_defaults(&fProcs);
 }
 
 SkReadBuffer::SkReadBuffer(const void* data, size_t size) {
@@ -74,10 +82,11 @@ SkReadBuffer::SkReadBuffer(const void* data, size_t size) {
 
     fFactoryArray = nullptr;
     fFactoryCount = 0;
-    fImageDeserializer = &gDefaultImageDeserializer;
 #ifdef DEBUG_NON_DETERMINISTIC_ASSERT
     fDecodedBitmapIndex = -1;
 #endif // DEBUG_NON_DETERMINISTIC_ASSERT
+
+    setup_defaults(&fProcs);
 }
 
 SkReadBuffer::SkReadBuffer(SkStream* stream) {
@@ -93,18 +102,20 @@ SkReadBuffer::SkReadBuffer(SkStream* stream) {
 
     fFactoryArray = nullptr;
     fFactoryCount = 0;
-    fImageDeserializer = &gDefaultImageDeserializer;
 #ifdef DEBUG_NON_DETERMINISTIC_ASSERT
     fDecodedBitmapIndex = -1;
 #endif // DEBUG_NON_DETERMINISTIC_ASSERT
+
+    setup_defaults(&fProcs);
 }
 
 SkReadBuffer::~SkReadBuffer() {
     sk_free(fMemoryPtr);
 }
 
-void SkReadBuffer::setImageDeserializer(SkImageDeserializer* deserializer) {
-    fImageDeserializer = deserializer ? deserializer : &gDefaultImageDeserializer;
+void SkReadBuffer::setDeserialProcs(const SkDeserialProcs& procs) {
+    fProcs = procs;
+    setup_defaults(&fProcs);
 }
 
 bool SkReadBuffer::readBool() {
@@ -129,6 +140,14 @@ uint32_t SkReadBuffer::readUInt() {
 
 int32_t SkReadBuffer::read32() {
     return fReader.readInt();
+}
+
+bool SkReadBuffer::readPad32(void* buffer, size_t bytes) {
+    if (!fReader.isAvailable(bytes)) {
+        return false;
+    }
+    fReader.read(buffer, bytes);
+    return true;
 }
 
 uint8_t SkReadBuffer::peekByte() {
@@ -235,10 +254,16 @@ sk_sp<SkImage> SkReadBuffer::readImage() {
         return nullptr;
     }
 
-    uint32_t encoded_size = this->getArrayCount();
+    /*
+     *  What follows is a 32bit encoded size.
+     *   0 : failure, nothing else to do
+     *  <0 : negative (int32_t) of a custom encoded blob using SerialProcs
+     *  >0 : standard encoded blob size (use MakeFromEncoded)
+     */
+
+    int32_t encoded_size = this->read32();
     if (encoded_size == 0) {
         // The image could not be encoded at serialization time - return an empty placeholder.
-        (void)this->readUInt();  // Swallow that encoded_size == 0 sentinel.
         return MakeEmptyImage(width, height);
     }
     if (encoded_size == 1) {
@@ -247,19 +272,29 @@ sk_sp<SkImage> SkReadBuffer::readImage() {
         return nullptr;
     }
 
-    // The SkImage encoded itself.
-    sk_sp<SkData> encoded(this->readByteArrayAsData());
-
-    int originX = this->read32();
-    int originY = this->read32();
+    size_t size = SkAbs32(encoded_size);
+    sk_sp<SkData> data = SkData::MakeUninitialized(size);
+    if (!this->readPad32(data->writable_data(), size)) {
+        return nullptr;
+    }
+    int32_t originX = this->read32();
+    int32_t originY = this->read32();
     if (originX < 0 || originY < 0) {
         this->validate(false);
         return nullptr;
     }
 
-    const SkIRect subset = SkIRect::MakeXYWH(originX, originY, width, height);
-
-    sk_sp<SkImage> image = fImageDeserializer->makeFromData(encoded.get(), &subset);
+    sk_sp<SkImage> image;
+    if (encoded_size < 0) {     // custom encoded, need serial proc
+        if (fProcs.fImageProc) {
+            image = fProcs.fImageProc(data->data(), data->size(), fProcs.fImageCtx);
+        }
+    } else {
+        SkIRect subset = SkIRect::MakeXYWH(originX, originY, width, height);
+        image = SkImage::MakeFromEncoded(std::move(data), &subset);
+    }
+    // Question: are we correct to return an "empty" image instead of nullptr, if the decoder
+    //           failed for some reason?
     return image ? image : MakeEmptyImage(width, height);
 }
 
