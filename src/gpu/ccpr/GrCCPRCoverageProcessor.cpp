@@ -13,30 +13,28 @@
 #include "ccpr/GrCCPRTriangleShader.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 
-static GrVertexAttribType instance_array_format(GrCCPRCoverageProcessor::RenderPass renderPass) {
-    switch (renderPass) {
-        case GrCCPRCoverageProcessor::RenderPass::kTriangleHulls:
-        case GrCCPRCoverageProcessor::RenderPass::kTriangleEdges:
-        case GrCCPRCoverageProcessor::RenderPass::kTriangleCorners:
-            return kInt4_GrVertexAttribType;
-        case GrCCPRCoverageProcessor::RenderPass::kQuadraticHulls:
-        case GrCCPRCoverageProcessor::RenderPass::kQuadraticCorners:
-        case GrCCPRCoverageProcessor::RenderPass::kSerpentineHulls:
-        case GrCCPRCoverageProcessor::RenderPass::kLoopHulls:
-        case GrCCPRCoverageProcessor::RenderPass::kSerpentineCorners:
-        case GrCCPRCoverageProcessor::RenderPass::kLoopCorners:
-            return kInt2_GrVertexAttribType;
-    }
-    SK_ABORT("Unexpected GrCCPRCoverageProcessor::RenderPass.");
-    return kInt4_GrVertexAttribType;
-}
-
-GrCCPRCoverageProcessor::GrCCPRCoverageProcessor(RenderPass renderPass, GrBuffer* pointsBuffer)
+GrCCPRCoverageProcessor::GrCCPRCoverageProcessor(RenderPass renderPass)
         : INHERITED(kGrCCPRCoverageProcessor_ClassID)
-        , fRenderPass(renderPass)
-        , fInstanceAttrib(this->addInstanceAttrib("instance", instance_array_format(fRenderPass))) {
-    fPointsBufferAccess.reset(kRG_float_GrPixelConfig, pointsBuffer, kVertex_GrShaderFlag);
-    this->addBufferAccess(&fPointsBufferAccess);
+        , fRenderPass(renderPass) {
+    if (RenderPassIsCubic(fRenderPass)) {
+        this->addInstanceAttrib("X", kFloat4_GrVertexAttribType);
+        this->addInstanceAttrib("Y", kFloat4_GrVertexAttribType);
+
+        SkASSERT(offsetof(CubicInstance, fX) ==
+                 this->getInstanceAttrib(InstanceAttribs::kX).fOffsetInRecord);
+        SkASSERT(offsetof(CubicInstance, fY) ==
+                 this->getInstanceAttrib(InstanceAttribs::kY).fOffsetInRecord);
+        SkASSERT(sizeof(CubicInstance) == this->getInstanceStride());
+    } else {
+        this->addInstanceAttrib("X", kFloat3_GrVertexAttribType);
+        this->addInstanceAttrib("Y", kFloat3_GrVertexAttribType);
+
+        SkASSERT(offsetof(TriangleInstance, fX) ==
+                 this->getInstanceAttrib(InstanceAttribs::kX).fOffsetInRecord);
+        SkASSERT(offsetof(TriangleInstance, fY) ==
+                 this->getInstanceAttrib(InstanceAttribs::kY).fOffsetInRecord);
+        SkASSERT(sizeof(TriangleInstance) == this->getInstanceStride());
+    }
 
     this->setWillUseGeoShader();
 }

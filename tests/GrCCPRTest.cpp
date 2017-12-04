@@ -120,10 +120,8 @@ public:
         mockOptions.fConfigOptions[kAlpha_half_GrPixelConfig].fRenderable[0] = true;
         mockOptions.fConfigOptions[kAlpha_half_GrPixelConfig].fTexturable = true;
         mockOptions.fGeometryShaderSupport = true;
-        mockOptions.fTexelBufferSupport = true;
         mockOptions.fIntegerSupport = true;
         mockOptions.fFlatInterpolationSupport = true;
-        mockOptions.fMaxVertexSamplers = 1;
 
         GrContextOptions ctxOptions;
         ctxOptions.fAllowPathMaskCaching = false;

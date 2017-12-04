@@ -10,14 +10,6 @@
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLVertexGeoBuilder.h"
 
-void GrCCPRTriangleShader::appendInputPointFetch(const GrCCPRCoverageProcessor& proc,
-                                                 GrGLSLShaderBuilder* s,
-                                                 const TexelBufferHandle& pointsBuffer,
-                                                 const char* pointId) const {
-    s->appendTexelFetch(pointsBuffer,
-                        SkStringPrintf("%s[%s]", proc.instanceAttrib(), pointId).c_str());
-}
-
 void GrCCPRTriangleShader::emitWind(GrGLSLShaderBuilder* s, const char* pts,
                                     const char* outputWind) const {
     s->codeAppendf("%s = sign(determinant(float2x2(%s[1] - %s[0], %s[2] - %s[0])));",

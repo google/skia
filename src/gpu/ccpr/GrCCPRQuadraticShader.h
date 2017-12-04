@@ -24,10 +24,6 @@ class GrCCPRQuadraticShader : public GrCCPRCoverageProcessor::Shader {
 protected:
     int getNumInputPoints() const final { return 3; }
 
-    void appendInputPointFetch(const GrCCPRCoverageProcessor&, GrGLSLShaderBuilder*,
-                               const TexelBufferHandle& pointsBuffer,
-                               const char* pointId) const override;
-
     void emitWind(GrGLSLShaderBuilder*, const char* pts, const char* outputWind) const final;
 
     void emitSetupCode(GrGLSLShaderBuilder*, const char* pts, const char* segmentId,

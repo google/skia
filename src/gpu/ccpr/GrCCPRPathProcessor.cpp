@@ -51,7 +51,9 @@ GR_DECLARE_STATIC_UNIQUE_KEY(gIndexBufferKey);
 GrCCPRPathProcessor::GrCCPRPathProcessor(GrResourceProvider* rp, sk_sp<GrTextureProxy> atlas,
                                          SkPath::FillType fillType, const GrShaderCaps& shaderCaps)
         : INHERITED(kGrCCPRPathProcessor_ClassID)
-        , fFillType(fillType) {
+        , fFillType(fillType)
+        , fAtlasAccess(std::move(atlas), GrSamplerState::Filter::kNearest,
+                       GrSamplerState::WrapMode::kClamp, kFragment_GrShaderFlag) {
     this->addInstanceAttrib("devbounds", kFloat4_GrVertexAttribType);
     this->addInstanceAttrib("devbounds45", kFloat4_GrVertexAttribType);
     this->addInstanceAttrib("view_matrix", kFloat4_GrVertexAttribType);
@@ -77,8 +79,6 @@ GrCCPRPathProcessor::GrCCPRPathProcessor(GrResourceProvider* rp, sk_sp<GrTexture
 
     this->addVertexAttrib("edge_norms", kFloat4_GrVertexAttribType);
 
-    fAtlasAccess.reset(std::move(atlas), GrSamplerState::Filter::kNearest,
-                       GrSamplerState::WrapMode::kClamp, kFragment_GrShaderFlag);
     fAtlasAccess.instantiate(rp);
     this->addTextureSampler(&fAtlasAccess);
 }
