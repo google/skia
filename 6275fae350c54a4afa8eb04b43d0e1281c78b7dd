@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6ff30f1f_38ed67b8",
+        "filename": "src/core/SkNx.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-12-04T14:25:36Z",
+      "side": 1,
+      "message": "Still think this wants to be 3, no?",
+      "range": {
+        "startLine": 98,
+        "startChar": 27,
+        "endLine": 98,
+        "endChar": 28
+      },
+      "revId": "6275fae350c54a4afa8eb04b43d0e1281c78b7dd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

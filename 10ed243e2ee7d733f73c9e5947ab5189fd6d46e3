@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "71898042_05d4a3df",
+        "filename": "src/opts/SkNx_sse.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-12-04T14:25:36Z",
+      "side": 0,
+      "message": "Thought we liked this way?  Either one looks fine to me.",
+      "revId": "10ed243e2ee7d733f73c9e5947ab5189fd6d46e3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
