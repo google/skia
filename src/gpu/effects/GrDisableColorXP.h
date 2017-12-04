@@ -13,9 +13,13 @@
 #include "SkRefCnt.h"
 
 // See the comment above GrXPFactory's definition about this warning suppression.
-#if defined(__GNUC__) || defined(__clang)
+#if defined(__GNUC__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wnon-virtual-dtor"
+#endif
+#if defined(__clang__)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnon-virtual-dtor"
 #endif
 class GrDisableColorXPFactory : public GrXPFactory {
 public:
@@ -42,8 +46,11 @@ private:
 
     typedef GrXPFactory INHERITED;
 };
-#if defined(__GNUC__) || defined(__clang)
+#if defined(__GNUC__)
 #pragma GCC diagnostic pop
+#endif
+#if defined(__clang__)
+#pragma clang diagnostic pop
 #endif
 
 inline const GrXPFactory* GrDisableColorXPFactory::Get() {

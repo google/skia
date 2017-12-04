@@ -62,7 +62,8 @@ static int main_common(HINSTANCE hInstance, int show, int argc, char**argv) {
 
     Application* app = Application::Create(argc, argv, (void*)hInstance);
 
-    MSG msg = { 0 };
+    MSG msg;
+    memset(&msg, 0, sizeof(msg));
 
     // Main message loop
     while (WM_QUIT != msg.message) {

@@ -23,7 +23,7 @@
 class SkDWriteFontFileStream : public SkStreamMemory {
 public:
     explicit SkDWriteFontFileStream(IDWriteFontFileStream* fontFileStream);
-    virtual ~SkDWriteFontFileStream();
+    ~SkDWriteFontFileStream() override;
 
     size_t read(void* buffer, size_t size) override;
     bool isAtEnd() const override;
