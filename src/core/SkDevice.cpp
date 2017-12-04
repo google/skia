@@ -223,8 +223,27 @@ void SkBaseDevice::drawImageLattice(const SkImage* image,
     SkLatticeIter iter(lattice, dst);
 
     SkRect srcR, dstR;
-    while (iter.next(&srcR, &dstR)) {
-        this->drawImageRect(image, &srcR, dstR, paint, SkCanvas::kStrict_SrcRectConstraint);
+    SkColor c;
+    bool solidColor = false;
+    const SkImageInfo info = SkImageInfo::Make(1, 1, kN32_SkColorType, kUnpremul_SkAlphaType);
+    const bool hasXfer = !paint.isSrcOver();
+
+    while (iter.next(&srcR, &dstR, &solidColor)) {
+        if (solidColor && image->readPixels(info, &c, 4, srcR.fLeft, srcR.fTop)) {
+            SkPaint paintCopy(paint);
+            int alpha = SkAlphaMul(SkColorGetA(c), SkAlpha255To256(paint.getAlpha()));
+            paintCopy.setColor(SkColorSetA(c, alpha));
+            this->drawRect(dstR, paintCopy);
+        } else if (srcR.width() <= 1.0f && srcR.height() <= 1.0f &&
+                   image->readPixels(info, &c, 4, srcR.fLeft, srcR.fTop)) {
+            if (0 != c || hasXfer) {
+                SkPaint paintCopy(paint);
+                paintCopy.setColor(c);
+                this->drawRect(dstR, paintCopy);
+            }
+        } else {
+            this->drawImageRect(image, &srcR, dstR, paint, SkCanvas::kStrict_SrcRectConstraint);
+        }
     }
 }
 

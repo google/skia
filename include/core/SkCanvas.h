@@ -1766,6 +1766,9 @@ public:
         enum Flags : uint8_t {
             /** Set to skip lattice rectangle by making it transparent. */
             kTransparent_Flags = 1 << 0,
+
+            /** The lattice rectangle is a solid color. */
+            kSolidColor_Flags = 1 << 1,
         };
 
         /** Array of x-coordinates that divide the bitmap vertically.
