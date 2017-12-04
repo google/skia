@@ -95,7 +95,7 @@ public:
     }
 
     virtual bool onCharacterize(SkSurfaceCharacterization*) const { return false; }
-    virtual bool onDraw(SkDeferredDisplayList*) { return false; }
+    virtual void onDraw(SkDeferredDisplayList*) { }
 
     inline SkCanvas* getCachedCanvas();
     inline sk_sp<SkImage> refCachedImage();
