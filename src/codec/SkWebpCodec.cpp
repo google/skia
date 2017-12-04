@@ -192,7 +192,8 @@ static WEBP_CSP_MODE webp_decode_mode(SkColorType dstCT, bool premultiply) {
 
 SkWebpCodec::Frame* SkWebpCodec::FrameHolder::appendNewFrame(bool hasAlpha) {
     const int i = this->size();
-    fFrames.emplace_back(i, hasAlpha);
+    fFrames.emplace_back(i, hasAlpha ? SkEncodedInfo::kUnpremul_Alpha
+                                     : SkEncodedInfo::kOpaque_Alpha);
     return &fFrames[i];
 }
 
@@ -300,8 +301,8 @@ bool SkWebpCodec::onGetFrameInfo(int i, FrameInfo* frameInfo) const {
         // libwebp only reports fully received frames for an
         // animated image.
         frameInfo->fFullyReceived = true;
-        frameInfo->fAlpha = frame->hasAlpha() ? SkEncodedInfo::kUnpremul_Alpha
-                                              : SkEncodedInfo::kOpaque_Alpha;
+        frameInfo->fAlphaType = frame->hasAlpha() ? kUnpremul_SkAlphaType
+                                                  : kOpaque_SkAlphaType;
         frameInfo->fDisposalMethod = frame->getDisposalMethod();
     }
 

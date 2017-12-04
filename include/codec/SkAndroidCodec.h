@@ -43,8 +43,6 @@ public:
 
     virtual ~SkAndroidCodec();
 
-    const SkEncodedInfo& getEncodedInfo() const;
-
     const SkImageInfo& getInfo() const { return fInfo; }
 
     /**

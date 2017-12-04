@@ -35,6 +35,7 @@ tests_sources = [
   "$_tests/CodecAnimTest.cpp",
   "$_tests/CodecExactReadTest.cpp",
   "$_tests/CodecPartialTest.cpp",
+  "$_tests/CodecRecommendedTypeTest.cpp",
   "$_tests/CodecTest.cpp",
   "$_tests/ColorFilterTest.cpp",
   "$_tests/ColorMatrixTest.cpp",
