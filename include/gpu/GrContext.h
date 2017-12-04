@@ -387,6 +387,7 @@ private:
     friend class GrContextPriv;
 
     GrContext(); // init must be called after the constructor.
+    GrContext(GrContextThreadSafeProxy*);
     bool init(GrBackend, GrBackendContext, const GrContextOptions& options);
     bool init(const GrContextOptions& options);
 
@@ -432,6 +433,7 @@ private:
     uint32_t            fContextUniqueID;
 
     friend class GrContext;
+    friend class GrContextPriv;
     friend class SkImage;
 
     typedef SkRefCnt INHERITED;
