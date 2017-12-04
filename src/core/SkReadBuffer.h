@@ -10,6 +10,7 @@
 
 #include "SkColorFilter.h"
 #include "SkData.h"
+#include "SkSerialProcs.h"
 #include "SkDrawLooper.h"
 #include "SkImageFilter.h"
 #include "SkMaskFilter.h"
@@ -24,7 +25,6 @@
 #include "SkTHash.h"
 #include "SkWriteBuffer.h"
 
-class SkBitmap;
 class SkImage;
 class SkInflator;
 
@@ -209,9 +209,7 @@ public:
         fCustomFactory.set(name, factory);
     }
 
-    // If nullptr is passed, then the default deserializer will be used
-    // which calls SkImage::MakeFromEncoded()
-    void setImageDeserializer(SkImageDeserializer* factory);
+    void setDeserialProcs(const SkDeserialProcs& procs);
 
     // Default impelementations don't check anything.
     virtual bool validate(bool isValid) { return isValid; }
@@ -274,8 +272,7 @@ private:
     // Only used if we do not have an fFactoryArray.
     SkTHashMap<SkString, SkFlattenable::Factory> fCustomFactory;
 
-    // We do not own this ptr, we just use it (guaranteed to never be null)
-    SkImageDeserializer* fImageDeserializer;
+    SkDeserialProcs fProcs;
 
 #ifdef DEBUG_NON_DETERMINISTIC_ASSERT
     // Debugging counter to keep track of how many bitmaps we
