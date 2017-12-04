@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7f00b2ed_2e1acfb4",
+        "filename": "gm/dashing.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 418,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-12-04T21:12:53Z",
+      "side": 1,
+      "message": "This now passes on GPU, but fails on raster",
+      "range": {
+        "startLine": 414,
+        "startChar": 8,
+        "endLine": 418,
+        "endChar": 41
+      },
+      "revId": "4cd84911a20b95170b4eecb244c64cd20c66d029",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "67453d2c_225bf3c7",
+        "filename": "gm/dashing.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 421,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-12-04T21:12:53Z",
+      "side": 1,
+      "message": "GPU falls back to raster for round caps with non-zero on intervals, so this fails for both cases.",
+      "range": {
+        "startLine": 420,
+        "startChar": 8,
+        "endLine": 421,
+        "endChar": 42
+      },
+      "revId": "4cd84911a20b95170b4eecb244c64cd20c66d029",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
