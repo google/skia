@@ -369,6 +369,7 @@ config("warnings") {
       "-Wno-missing-noreturn",
       "-Wno-old-style-cast",
       "-Wno-padded",
+      "-Wno-newline-eof",
     ]
     cflags_cc += [
       "-Wno-c++98-compat",
