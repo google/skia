@@ -46,6 +46,29 @@
       "revId": "6275fae350c54a4afa8eb04b43d0e1281c78b7dd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a3a5b27b_d90a0d5f",
+        "filename": "src/gpu/ccpr/GrCCPRCoverageOp.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 241,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-12-04T15:56:58Z",
+      "side": 1,
+      "message": "so I\u0027m trying to review the changes here, but I cannot figure out what was happening previously. Specifically it seems like we have two PrimitiveTallies, one for non scissored and one for scissored, but the summing of values for each seems dependent on the values in the other. Can you add a lot of comments to this code to explain what is happening.",
+      "range": {
+        "startLine": 224,
+        "startChar": 3,
+        "endLine": 241,
+        "endChar": 67
+      },
+      "revId": "6275fae350c54a4afa8eb04b43d0e1281c78b7dd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
