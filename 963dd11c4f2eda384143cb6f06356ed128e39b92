@@ -22,6 +22,30 @@
       "revId": "963dd11c4f2eda384143cb6f06356ed128e39b92",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c73b78e6_d586b0d6",
+        "filename": "infra/branch-config/cq.cfg",
+        "patchSetId": 1
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-12-04T14:37:20Z",
+      "side": 1,
+      "message": "I\u0027d hazard that the Debug-ASAN bot will cover a superset of what the Release bot does.",
+      "parentUuid": "30d7f0a1_67ea32e8",
+      "range": {
+        "startLine": 51,
+        "startChar": 24,
+        "endLine": 51,
+        "endChar": 82
+      },
+      "revId": "963dd11c4f2eda384143cb6f06356ed128e39b92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
