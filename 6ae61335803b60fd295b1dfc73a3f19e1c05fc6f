@@ -39,6 +39,24 @@
       "revId": "6ae61335803b60fd295b1dfc73a3f19e1c05fc6f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c0f359cc_d63c7bbd",
+        "filename": "infra/bots/recipes/test.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 561,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-12-04T15:04:12Z",
+      "side": 1,
+      "message": "So, we can discuss more, but my feeling is that blacklisting tests here is better than disabling the check in the code. If we disable the check, existing tests could regress and we wouldn\u0027t know. It\u0027s true that blacklisting these tests means that the other ASAN checks won\u0027t run, but my guess (with no real evidence) is that the code is covered by other tests -- these tests are just the ones where the numbers are big enough to trigger float-cast-overflow.",
+      "parentUuid": "34833bcc_491942c3",
+      "revId": "6ae61335803b60fd295b1dfc73a3f19e1c05fc6f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
