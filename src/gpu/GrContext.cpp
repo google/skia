@@ -1022,19 +1022,19 @@ bool GrContext::validPMUPMConversionExists() {
 
 //////////////////////////////////////////////////////////////////////////////
 
-void GrContext::getResourceCacheLimits(int* maxTextures, size_t* maxTextureBytes) const {
+void GrContext::getResourceCacheLimits(int* maxResources, size_t* maxResourceBytes) const {
     ASSERT_SINGLE_OWNER
-    if (maxTextures) {
-        *maxTextures = fResourceCache->getMaxResourceCount();
+    if (maxResources) {
+        *maxResources = fResourceCache->getMaxResourceCount();
     }
-    if (maxTextureBytes) {
-        *maxTextureBytes = fResourceCache->getMaxResourceBytes();
+    if (maxResourceBytes) {
+        *maxResourceBytes = fResourceCache->getMaxResourceBytes();
     }
 }
 
-void GrContext::setResourceCacheLimits(int maxTextures, size_t maxTextureBytes) {
+void GrContext::setResourceCacheLimits(int maxResources, size_t maxResourceBytes) {
     ASSERT_SINGLE_OWNER
-    fResourceCache->setLimits(maxTextures, maxTextureBytes);
+    fResourceCache->setLimits(maxResources, maxResourceBytes);
 }
 
 //////////////////////////////////////////////////////////////////////////////

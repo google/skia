@@ -137,6 +137,41 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(SkSurfaceCharacterization, reporter, ctxInfo) {
 
         REPORTER_ASSERT(reporter, !s->draw(ddl.get()));
     }
+
+    // Next test the compatibility of resource cache parameters
+    {
+        const SurfaceParameters params;
+        sk_sp<SkSurface> s = params.make(context);
+
+        int maxResourceCount;
+        size_t maxResourceBytes;
+        context->getResourceCacheLimits(&maxResourceCount, &maxResourceBytes);
+
+        context->setResourceCacheLimits(maxResourceCount/2, maxResourceBytes);
+        REPORTER_ASSERT(reporter, !s->draw(ddl.get()));
+
+        context->setResourceCacheLimits(maxResourceCount, maxResourceBytes/2);
+        REPORTER_ASSERT(reporter, !s->draw(ddl.get()));
+
+        // resource limits >= those at characterization time are accepted
+        context->setResourceCacheLimits(2*maxResourceCount, maxResourceBytes);
+        REPORTER_ASSERT(reporter, s->draw(ddl.get()));
+
+        context->setResourceCacheLimits(maxResourceCount, 2*maxResourceBytes);
+        REPORTER_ASSERT(reporter, s->draw(ddl.get()));
+
+        context->setResourceCacheLimits(maxResourceCount, maxResourceBytes);
+        REPORTER_ASSERT(reporter, s->draw(ddl.get()));
+    }
+
+    // Make sure non-GPU-backed surfaces fail characterization
+    {
+        SkImageInfo ii = SkImageInfo::MakeN32(64, 64, kOpaque_SkAlphaType);
+
+        sk_sp<SkSurface> rasterSurface = SkSurface::MakeRaster(ii);
+        SkSurfaceCharacterization c;
+        REPORTER_ASSERT(reporter, !rasterSurface->characterize(&c));
+    }
 }
 
 #endif
