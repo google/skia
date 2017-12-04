@@ -161,6 +161,7 @@ private:
     // This exists to reduce the number of shaders generated. It does some rounding of sampler
     // counts.
     static int NumSamplersToUse(int numRealProxies, const GrShaderCaps& caps) {
+        SkDebugf("%d %d %d\n", numRealProxies, kMaxTextures, caps.maxFragmentSamplers());
         SkASSERT(numRealProxies > 0 && numRealProxies <= kMaxTextures &&
                  numRealProxies <= caps.maxFragmentSamplers());
         if (1 == numRealProxies) {
