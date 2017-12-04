@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d159cbd5_1f784852",
+        "filename": "gn/BUILD.gn",
+        "patchSetId": 2
+      },
+      "lineNbr": 239,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-12-04T14:50:39Z",
+      "side": 1,
+      "message": "maybe shove it in here so it stays sorted?",
+      "range": {
+        "startLine": 239,
+        "startChar": 32,
+        "endLine": 239,
+        "endChar": 33
+      },
+      "revId": "6ae61335803b60fd295b1dfc73a3f19e1c05fc6f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "34833bcc_491942c3",
+        "filename": "infra/bots/recipes/test.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 561,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-12-04T14:50:39Z",
+      "side": 1,
+      "message": "Let\u0027s follow up this CL by tagging the code at issue with that don\u0027t-sanitize-me(float-cast-overflow) attribute, so that we can put testing back for all the other sanitizers?",
+      "revId": "6ae61335803b60fd295b1dfc73a3f19e1c05fc6f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
