@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "25e11f34_2539e31a",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 1764,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2017-12-05T22:25:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f246dc5c_c0dfff35",
+      "range": {
+        "startLine": 1764,
+        "startChar": 56,
+        "endLine": 1764,
+        "endChar": 78
+      },
+      "revId": "b8ab41a3cbdec144a599ee5cc67fb1ab3bfbf8e0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a77155df_5459b84c",
         "filename": "include/core/SkCanvas.h",
         "patchSetId": 2
@@ -45,6 +69,30 @@
       "revId": "b8ab41a3cbdec144a599ee5cc67fb1ab3bfbf8e0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b3f68434_8efb8a4d",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 1771,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2017-12-05T22:25:06Z",
+      "side": 1,
+      "message": "These are not flags indeed. I renamed the enum and changed the code to assume only one value is possible.",
+      "parentUuid": "a77155df_5459b84c",
+      "range": {
+        "startLine": 1771,
+        "startChar": 12,
+        "endLine": 1771,
+        "endChar": 29
+      },
+      "revId": "b8ab41a3cbdec144a599ee5cc67fb1ab3bfbf8e0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "767b32d9_9f7c6f8d",
+        "filename": "src/core/SkDevice.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 232,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2017-12-05T22:25:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1697e289_8c2e079e",
+      "range": {
+        "startLine": 232,
+        "startChar": 49,
+        "endLine": 232,
+        "endChar": 50
+      },
+      "revId": "b8ab41a3cbdec144a599ee5cc67fb1ab3bfbf8e0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "88412674_be506b13",
         "filename": "src/core/SkLatticeIter.h",
         "patchSetId": 2
@@ -91,6 +163,30 @@
       "revId": "b8ab41a3cbdec144a599ee5cc67fb1ab3bfbf8e0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7e2c0ade_bf192f38",
+        "filename": "src/core/SkLatticeIter.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2017-12-05T22:25:06Z",
+      "side": 1,
+      "message": "added comments",
+      "parentUuid": "88412674_be506b13",
+      "range": {
+        "startLine": 35,
+        "startChar": 40,
+        "endLine": 35,
+        "endChar": 66
+      },
+      "revId": "b8ab41a3cbdec144a599ee5cc67fb1ab3bfbf8e0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
