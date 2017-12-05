@@ -73,12 +73,6 @@ def getVariantOutDir(project, variant) {
     } else if (variant.name.startsWith("x86")) {
         variantPrefix = "x86"
         androidLibDir = "x86"
-    } else if (variant.name.startsWith("mipsel")) {
-        variantPrefix = "mipsel"
-        androidLibDir = "mips"
-    } else if (variant.name.startsWith("mips64el")) {
-        variantPrefix = "mips64el"
-        androidLibDir = "mips64"
     }
 
     String skiaOutDir = null

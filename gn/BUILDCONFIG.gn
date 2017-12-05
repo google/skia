@@ -13,7 +13,7 @@ declare_args() {
   ndk = ""
 
   # It's nice to keep ndk_api set to what Clank targets, but probably no big deal if we can't.
-  if (target_cpu == "x86" || target_cpu == "mipsel" || target_cpu == "arm") {
+  if (target_cpu == "x86" || target_cpu == "arm") {
     ndk_api = 16
   } else {
     ndk_api = 21
@@ -115,18 +115,6 @@ if (is_android) {
     ndk_stdlib = "armeabi-v7a"
     ndk_gccdir = ndk_target
     ndk_gdbserver = "prebuilt/android-arm/gdbserver/gdbserver"
-  } else if (target_cpu == "mips64el") {
-    ndk_target = "mips64el-linux-android"
-    ndk_platform = "android-${ndk_api}/arch-mips64"
-    ndk_stdlib = "mips64"
-    ndk_gccdir = ndk_target
-    ndk_gdbserver = "prebuilt/android-mips64/gdbserver/gdbserver"
-  } else if (target_cpu == "mipsel") {
-    ndk_target = "mipsel-linux-android"
-    ndk_platform = "android-${ndk_api}/arch-mips"
-    ndk_stdlib = "mips"
-    ndk_gccdir = ndk_target
-    ndk_gdbserver = "prebuilt/android-mips/gdbserver/gdbserver"
   } else if (target_cpu == "x64") {
     ndk_target = "x86_64-linux-android"
     ndk_platform = "android-${ndk_api}/arch-x86_64"
