@@ -44,10 +44,6 @@ declare_args() {
   skia_qt_path = getenv("QT_PATH")
   skia_compile_processors = false
   skia_lex = false
-
-  skia_jumper_clang = ""
-  skia_jumper_objdump = ""
-  skia_jumper_ccache = ""
 }
 declare_args() {
   skia_use_dng_sdk = !is_fuchsia && skia_use_libjpeg_turbo && skia_use_zlib
@@ -1920,30 +1916,5 @@ if (skia_enable_tools) {
         "$root_out_dir/gdbserver",
       ]
     }
-  }
-}
-
-if (skia_jumper_clang != "") {
-  action("regen_jumper") {
-    script = "src/jumper/build_stages.py"
-
-    inputs = [
-      "src/jumper/SkJumper_stages.cpp",
-      "src/jumper/SkJumper_stages_lowp.cpp",
-    ]
-
-    # GN insists its outputs should go somewhere underneath target_out_dir, so we trick it.
-    outputs = [
-      "$target_out_dir/" +
-          rebase_path("src/jumper/SkJumper_generated.S", target_out_dir),
-      "$target_out_dir/" +
-          rebase_path("src/jumper/SkJumper_generated_win.S", target_out_dir),
-    ]
-
-    args = [
-             skia_jumper_clang,
-             skia_jumper_objdump,
-             skia_jumper_ccache,
-           ] + rebase_path(inputs) + rebase_path(outputs)
   }
 }
