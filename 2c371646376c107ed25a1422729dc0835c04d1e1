@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "eed5fd54_a22eea76",
+        "filename": "include/core/SkWriteBuffer.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-12-05T16:24:12Z",
+      "side": 1,
+      "message": "It has a constructor",
+      "parentUuid": "b72b2abb_20f4dd2a",
+      "revId": "2c371646376c107ed25a1422729dc0835c04d1e1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "4e0531bd_6bbdd7b1",
         "filename": "src/core/SkWriteBuffer.cpp",
         "patchSetId": 8
@@ -48,6 +66,24 @@
       "writtenOn": "2017-12-05T16:22:28Z",
       "side": 1,
       "message": "leftover?",
+      "revId": "2c371646376c107ed25a1422729dc0835c04d1e1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9c337add_29fb4078",
+        "filename": "src/core/SkWriteBuffer.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 199,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-12-05T16:24:12Z",
+      "side": 1,
+      "message": "Doh!",
+      "parentUuid": "4e0531bd_6bbdd7b1",
       "revId": "2c371646376c107ed25a1422729dc0835c04d1e1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
