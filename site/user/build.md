@@ -83,12 +83,10 @@ can use one of these commands to fetch the NDK our bots use:
 When generating your GN build files, pass the path to your `ndk` and your
 desired `target_cpu`:
 
-    bin/gn gen out/arm      --args='ndk="/tmp/ndk" target_cpu="arm"'
-    bin/gn gen out/arm64    --args='ndk="/tmp/ndk" target_cpu="arm64"'
-    bin/gn gen out/mips64el --args='ndk="/tmp/ndk" target_cpu="mips64el"'
-    bin/gn gen out/mipsel   --args='ndk="/tmp/ndk" target_cpu="mipsel"'
-    bin/gn gen out/x64      --args='ndk="/tmp/ndk" target_cpu="x64"'
-    bin/gn gen out/x86      --args='ndk="/tmp/ndk" target_cpu="x86"'
+    bin/gn gen out/arm   --args='ndk="/tmp/ndk" target_cpu="arm"'
+    bin/gn gen out/arm64 --args='ndk="/tmp/ndk" target_cpu="arm64"'
+    bin/gn gen out/x64   --args='ndk="/tmp/ndk" target_cpu="x64"'
+    bin/gn gen out/x86   --args='ndk="/tmp/ndk" target_cpu="x86"'
 
 Other arguments like `is_debug` and `is_component_build` continue to work.
 Tweaking `ndk_api` gives you access to newer Android features like Vulkan.

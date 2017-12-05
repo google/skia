@@ -178,7 +178,7 @@ third_party("dng_sdk") {
     "../externals/dng_sdk/source/dng_xy_coord.h",
   ]
 
-  if (current_cpu == "x86" || current_cpu == "mipsel" || current_cpu == "arm") {
+  if (current_cpu == "x86" || current_cpu == "arm") {
     # DNG SDK uses __builtin_smulll_overflow() to detect 64x64 bit multiply overflow.
     # On some platforms, the compiler implements this with __mulodi4().
     # I can't quite figure out how to link that here, so instead here's a shim for
