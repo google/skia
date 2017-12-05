@@ -40,10 +40,6 @@ elif target_cpu == "x86":
   android_variant = "x86"
 elif target_cpu == "x64":
   android_variant = "x86_64"
-elif target_cpu == "mipsel":
-  android_variant = "mips"
-elif target_cpu == "mips64el":
-  android_variant = "mips64"
 else:
   sys.exit("unknown target_cpu")
 
