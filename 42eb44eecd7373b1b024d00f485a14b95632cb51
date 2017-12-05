@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bb3c0f95_a166f9b0",
+        "filename": "tests/StreamTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 307,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-12-05T19:27:17Z",
+      "side": 1,
+      "message": "This test looks to have been originally written to verify that SkFILEStream does *not* support peeking. As I understand it, your change makes it so that SkFILEStream *does* support peeking. This might be fine, but you\u0027ve modified the test so that it has a workaround to make the test pass. Why not either remove the test or update it to test that SkFILEStream does succeed at peeking?",
+      "range": {
+        "startLine": 307,
+        "startChar": 34,
+        "endLine": 307,
+        "endChar": 41
+      },
+      "revId": "42eb44eecd7373b1b024d00f485a14b95632cb51",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
