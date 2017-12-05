@@ -22,6 +22,8 @@ public:
         int rangeType;
         switch (dstConfig) {
             case kGray_8_GrPixelConfig:
+            case kGray_8_as_Lum_GrPixelConfig:
+            case kGray_8_as_Red_GrPixelConfig:
             case kRGBA_8888_GrPixelConfig:
             case kBGRA_8888_GrPixelConfig:
             case kSRGBA_8888_GrPixelConfig:
