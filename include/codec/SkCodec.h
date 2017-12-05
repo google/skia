@@ -9,11 +9,11 @@
 #define SkCodec_DEFINED
 
 #include "../private/SkTemplates.h"
-#include "../private/SkEncodedInfo.h"
 #include "SkCodecAnimation.h"
 #include "SkColor.h"
 #include "SkColorSpaceXform.h"
 #include "SkEncodedImageFormat.h"
+#include "SkEncodedInfo.h"
 #include "SkEncodedOrigin.h"
 #include "SkImageInfo.h"
 #include "SkPixmap.h"
@@ -168,6 +168,8 @@ public:
      *  Return the ImageInfo associated with this codec.
      */
     const SkImageInfo& getInfo() const { return fSrcInfo; }
+
+    const SkEncodedInfo& getEncodedInfo() const { return fEncodedInfo; }
 
     /**
      *  Returns the image orientation stored in the EXIF data.
@@ -610,7 +612,7 @@ public:
          *  This is conservative; it will still return non-opaque if e.g. a
          *  color index-based frame has a color with alpha but does not use it.
          */
-        SkAlphaType fAlphaType;
+        SkEncodedInfo::Alpha fAlpha;
 
         /**
          *  How this frame should be modified before decoding the next one.
@@ -660,8 +662,6 @@ public:
     }
 
 protected:
-    const SkEncodedInfo& getEncodedInfo() const { return fEncodedInfo; }
-
     using XformFormat = SkColorSpaceXform::ColorFormat;
 
     SkCodec(int width,
@@ -847,7 +847,7 @@ private:
      *
      *  Will be called for the appropriate frame, prior to initializing the colorXform.
      */
-    virtual bool conversionSupported(const SkImageInfo& dst, SkColorType srcColor,
+    virtual bool conversionSupported(const SkImageInfo& dst, SkEncodedInfo::Color srcColor,
                                      bool srcIsOpaque, const SkColorSpace* srcCS) const;
     /**
      *  Return whether these dimensions are supported as a scale.

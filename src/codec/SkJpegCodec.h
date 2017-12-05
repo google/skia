@@ -58,7 +58,7 @@ protected:
 
     bool onDimensionsSupported(const SkISize&) override;
 
-    bool conversionSupported(const SkImageInfo&, SkColorType, bool,
+    bool conversionSupported(const SkImageInfo&, SkEncodedInfo::Color, bool,
                              const SkColorSpace*) const override {
         // This class checks for conversion after creating colorXform.
         return true;

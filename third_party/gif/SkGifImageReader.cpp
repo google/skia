@@ -879,16 +879,15 @@ static bool restore_bg(const SkFrame& frame) {
     return frame.getDisposalMethod() == SkCodecAnimation::DisposalMethod::kRestoreBGColor;
 }
 
-SkEncodedInfo::Alpha SkGIFFrameContext::onReportedAlpha() const {
+bool SkGIFFrameContext::onReportsAlpha() const {
     // Note: We could correct these after decoding - i.e. some frames may turn out to be
     // independent and opaque if they do not use the transparent pixel, but that would require
     // checking whether each pixel used the transparent index.
-    return is_palette_index_valid(this->transparentPixel()) ? SkEncodedInfo::kBinary_Alpha
-                                                            : SkEncodedInfo::kOpaque_Alpha;
+    return is_palette_index_valid(this->transparentPixel());
 }
 
 void SkFrameHolder::setAlphaAndRequiredFrame(SkFrame* frame) {
-    const bool reportsAlpha = frame->reportedAlpha() != SkEncodedInfo::kOpaque_Alpha;
+    const bool reportsAlpha = frame->reportsAlpha();
     const auto screenRect = SkIRect::MakeWH(fScreenWidth, fScreenHeight);
     const auto frameRect = frame_rect_on_screen(frame->frameRect(), screenRect);
 

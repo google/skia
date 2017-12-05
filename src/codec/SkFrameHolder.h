@@ -40,14 +40,14 @@ public:
     int frameId() const { return fId; }
 
     /**
-     *  How this frame reports its alpha.
+     *  Whether this frame reports alpha.
      *
      *  This only considers the rectangle of this frame, and
      *  considers it to have alpha even if it is opaque once
      *  blended with the frame behind it.
      */
-    SkEncodedInfo::Alpha reportedAlpha() const {
-        return this->onReportedAlpha();
+    bool reportsAlpha() const {
+        return this->onReportsAlpha();
     }
 
     /**
@@ -130,7 +130,7 @@ public:
     }
 
 protected:
-    virtual SkEncodedInfo::Alpha onReportedAlpha() const = 0;
+    virtual bool onReportsAlpha() const = 0;
 
 private:
     static constexpr int kUninitialized = -2;
@@ -166,7 +166,7 @@ public:
 
     /**
      *  Compute the opacity and required frame, based on
-     *  the frame's reportedAlpha and how it blends
+     *  whether the frame reportsAlpha and how it blends
      *  with prior frames.
      */
     void setAlphaAndRequiredFrame(SkFrame*);
