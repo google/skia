@@ -514,7 +514,7 @@
       "shell",
       "rm",
       "-rf",
-      "/sdcard/revenge_of_the_skiabot/perf"
+      "/sdcard/revenge_of_the_skiabot/dm_out"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
@@ -524,7 +524,7 @@
       "SKIA_OUT": "[START_DIR]/out"
     },
     "infra_step": true,
-    "name": "rm /sdcard/revenge_of_the_skiabot/perf"
+    "name": "rm /sdcard/revenge_of_the_skiabot/dm_out"
   },
   {
     "cmd": [
@@ -532,7 +532,7 @@
       "shell",
       "mkdir",
       "-p",
-      "/sdcard/revenge_of_the_skiabot/perf"
+      "/sdcard/revenge_of_the_skiabot/dm_out"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
@@ -542,7 +542,88 @@
       "SKIA_OUT": "[START_DIR]/out"
     },
     "infra_step": true,
-    "name": "mkdir /sdcard/revenge_of_the_skiabot/perf"
+    "name": "mkdir /sdcard/revenge_of_the_skiabot/dm_out"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "ensure-directory",
+      "--mode",
+      "0777",
+      "[START_DIR]/tmp"
+    ],
+    "infra_step": true,
+    "name": "makedirs tmp_dir"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport contextlib\nimport math\nimport socket\nimport sys\nimport time\nimport urllib2\n\nHASHES_URL = 'https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt'\nRETRIES = 5\nTIMEOUT = 60\nWAIT_BASE = 15\n\nsocket.setdefaulttimeout(TIMEOUT)\nfor retry in range(RETRIES):\n  try:\n    with contextlib.closing(\n        urllib2.urlopen(HASHES_URL, timeout=TIMEOUT)) as w:\n      hashes = w.read()\n      with open(sys.argv[1], 'w') as f:\n        f.write(hashes)\n        break\n  except Exception as e:\n    print 'Failed to get uninteresting hashes from %s:' % HASHES_URL\n    print e\n    if retry == RETRIES:\n      raise\n    waittime = WAIT_BASE * math.pow(2, retry)\n    print 'Retry in %d seconds.' % waittime\n    time.sleep(waittime)\n",
+      "[START_DIR]/tmp/uninteresting_hashes.txt"
+    ],
+    "env": {
+      "BUILDTYPE": "Release",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[START_DIR]/out"
+    },
+    "infra_step": true,
+    "name": "get uninteresting hashes",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import contextlib@@@",
+      "@@@STEP_LOG_LINE@python.inline@import math@@@",
+      "@@@STEP_LOG_LINE@python.inline@import socket@@@",
+      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
+      "@@@STEP_LOG_LINE@python.inline@import time@@@",
+      "@@@STEP_LOG_LINE@python.inline@import urllib2@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@HASHES_URL = 'https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt'@@@",
+      "@@@STEP_LOG_LINE@python.inline@RETRIES = 5@@@",
+      "@@@STEP_LOG_LINE@python.inline@TIMEOUT = 60@@@",
+      "@@@STEP_LOG_LINE@python.inline@WAIT_BASE = 15@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@socket.setdefaulttimeout(TIMEOUT)@@@",
+      "@@@STEP_LOG_LINE@python.inline@for retry in range(RETRIES):@@@",
+      "@@@STEP_LOG_LINE@python.inline@  try:@@@",
+      "@@@STEP_LOG_LINE@python.inline@    with contextlib.closing(@@@",
+      "@@@STEP_LOG_LINE@python.inline@        urllib2.urlopen(HASHES_URL, timeout=TIMEOUT)) as w:@@@",
+      "@@@STEP_LOG_LINE@python.inline@      hashes = w.read()@@@",
+      "@@@STEP_LOG_LINE@python.inline@      with open(sys.argv[1], 'w') as f:@@@",
+      "@@@STEP_LOG_LINE@python.inline@        f.write(hashes)@@@",
+      "@@@STEP_LOG_LINE@python.inline@        break@@@",
+      "@@@STEP_LOG_LINE@python.inline@  except Exception as e:@@@",
+      "@@@STEP_LOG_LINE@python.inline@    print 'Failed to get uninteresting hashes from %s:' % HASHES_URL@@@",
+      "@@@STEP_LOG_LINE@python.inline@    print e@@@",
+      "@@@STEP_LOG_LINE@python.inline@    if retry == RETRIES:@@@",
+      "@@@STEP_LOG_LINE@python.inline@      raise@@@",
+      "@@@STEP_LOG_LINE@python.inline@    waittime = WAIT_BASE * math.pow(2, retry)@@@",
+      "@@@STEP_LOG_LINE@python.inline@    print 'Retry in %d seconds.' % waittime@@@",
+      "@@@STEP_LOG_LINE@python.inline@    time.sleep(waittime)@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "adb.1.0.35",
+      "push",
+      "[START_DIR]/tmp/uninteresting_hashes.txt",
+      "/sdcard/revenge_of_the_skiabot/uninteresting_hashes.txt"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "BUILDTYPE": "Release",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[START_DIR]/out"
+    },
+    "infra_step": true,
+    "name": "push [START_DIR]/tmp/uninteresting_hashes.txt /sdcard/revenge_of_the_skiabot/uninteresting_hashes.txt"
   },
   {
     "cmd": [
@@ -578,8 +659,8 @@
       "-u",
       "\nimport os\nimport subprocess\nimport sys\nimport time\nADB = sys.argv[1]\nmodel = sys.argv[2]\ntarget_percent = float(sys.argv[3])\nlog = subprocess.check_output([ADB, 'root'])\n# check for message like 'adbd cannot run as root in production builds'\nif 'cannot' in log:\n  raise Exception('adb root failed')\n\nif model == 'Nexus10':\n  # Nexus10 doesn't list available frequencies, but it does give a\n  # min and a max and seems to round to the nearest 100khz, so a\n  # subset of those available are here.\n  available_freqs = [200000, 400000, 600000, 800000, 1000000, 1200000,\n                     1400000, 1700000]\nelif model == 'Nexus7':\n  # Nexus7 claims to support 1300000, but only really allows 1200000\n  available_freqs = [51000, 102000, 204000, 340000, 475000, 640000, 760000,\n                     860000, 1000000, 1100000, 1200000]\nelse:\n  # Most devices give a list of their available frequencies.\n  available_freqs = subprocess.check_output([ADB, 'shell', 'cat '\n      '/sys/devices/system/cpu/cpu0/cpufreq/scaling_available_frequencies'])\n\n  # Check for message like '/system/bin/sh: file not found'\n  if available_freqs and '/system/bin/sh' not in available_freqs:\n    available_freqs = sorted(\n        int(i) for i in available_freqs.strip().split())\n  else:\n    raise Exception('Could not get list of available frequencies: %s' %\n                    available_freqs)\n\nmaxfreq = available_freqs[-1]\ntarget = int(round(maxfreq * target_percent))\nfreq = maxfreq\nfor f in reversed(available_freqs):\n  if f <= target:\n    freq = f\n    break\n\nprint 'Setting frequency to %d' % freq\n\nsubprocess.check_output([ADB, 'shell', 'echo \"userspace\" > '\n    '/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor'])\n# If scaling_max_freq is lower than our attempted setting, it won't take.\nsubprocess.check_output([ADB, 'shell', 'echo %d > '\n    '/sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq' % freq])\nsubprocess.check_output([ADB, 'shell', 'echo %d > '\n    '/sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq' % freq])\nsubprocess.check_output([ADB, 'shell', 'echo %d > '\n    '/sys/devices/system/cpu/cpu0/cpufreq/scaling_setspeed' % freq])\ntime.sleep(5)\nactual_freq = subprocess.check_output([ADB, 'shell', 'cat '\n    '/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq']).strip()\nif actual_freq != str(freq):\n  raise Exception('(actual, expected) (%s, %d)'\n                  % (actual_freq, freq))\n",
       "adb.1.0.35",
-      "Nexus10",
-      "0.6"
+      "Nexus7",
+      "1.0"
     ],
     "env": {
       "BUILDTYPE": "Release",
@@ -588,7 +669,7 @@
       "SKIA_OUT": "[START_DIR]/out"
     },
     "infra_step": true,
-    "name": "Scale CPU to 0.600000",
+    "name": "Scale CPU to 1.000000",
     "timeout": 30,
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@@@@",
@@ -659,7 +740,7 @@
     "cmd": [
       "adb.1.0.35",
       "push",
-      "[START_DIR]/out/Release/nanobench",
+      "[START_DIR]/out/Release/dm",
       "/data/local/tmp/"
     ],
     "cwd": "[START_DIR]/skia",
@@ -670,7 +751,7 @@
       "SKIA_OUT": "[START_DIR]/out"
     },
     "infra_step": true,
-    "name": "push nanobench"
+    "name": "push dm"
   },
   {
     "cmd": [
@@ -680,8 +761,8 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "set -x; /data/local/tmp/nanobench -i /sdcard/revenge_of_the_skiabot/resources --skps /sdcard/revenge_of_the_skiabot/skps --images /sdcard/revenge_of_the_skiabot/images/nanobench --svgs /sdcard/revenge_of_the_skiabot/svgs --pre_log --scales 1.0 1.1 --nogpu --config 8888 nonrendering --match ~blurroundrect ~patch_grid ~desk_carsvg ~inc0.gif ~inc1.gif ~incInterlaced.gif ~inc0.jpg ~incGray.jpg ~inc0.wbmp ~inc1.wbmp ~inc0.webp ~inc1.webp ~inc0.ico ~inc1.ico ~inc0.png ~inc1.png ~inc2.png ~inc12.png ~inc13.png ~inc14.png ~inc0.webp ~inc1.webp --outResultsFile /sdcard/revenge_of_the_skiabot/perf/nanobench_abc123_1337000001.json --properties gitHash abc123 swarming_bot_id skia-bot-123 swarming_task_id 123456 --key arch arm compiler Clang cpu_or_gpu CPU cpu_or_gpu_value Exynos5250 extra_config Android model Nexus10 os Android; echo $? >/data/local/tmp/rc",
-      "[START_DIR]/tmp/nanobench.sh"
+      "set -x; /data/local/tmp/dm --resourcePath /sdcard/revenge_of_the_skiabot/resources --skps /sdcard/revenge_of_the_skiabot/skps --images /sdcard/revenge_of_the_skiabot/images/dm --colorImages /sdcard/revenge_of_the_skiabot/images/colorspace --nameByHash --properties gitHash abc123 builder Test-Android-Clang-Nexus7-CPU-Tegra3-arm-Release-All-Android buildbucket_build_id 123454321 swarming_bot_id skia-bot-123 swarming_task_id 123456 --svgs /sdcard/revenge_of_the_skiabot/svgs --key arch arm compiler Clang configuration Release cpu_or_gpu CPU cpu_or_gpu_value Tegra3 extra_config Android model Nexus7 os Android --uninterestingHashesFile /sdcard/revenge_of_the_skiabot/uninteresting_hashes.txt --writePath /sdcard/revenge_of_the_skiabot/dm_out --dont_write pdf --nogpu --config 8888 srgb serialize-8888 tiles_rt-8888 pic-8888 --src tests gm image colorImage --blacklist _ test _ GrShape serialize-8888 gm _ bleed_image serialize-8888 gm _ c_gms serialize-8888 gm _ colortype serialize-8888 gm _ colortype_xfermodes serialize-8888 gm _ drawfilter serialize-8888 gm _ fontmgr_bounds_0.75_0 serialize-8888 gm _ fontmgr_bounds_1_-0.25 serialize-8888 gm _ fontmgr_bounds serialize-8888 gm _ fontmgr_match serialize-8888 gm _ fontmgr_iter serialize-8888 gm _ imagemasksubset serialize-8888 gm _ bitmapfilters serialize-8888 gm _ bitmapshaders serialize-8888 gm _ bleed serialize-8888 gm _ bleed_alpha_bmp serialize-8888 gm _ bleed_alpha_bmp_shader serialize-8888 gm _ convex_poly_clip serialize-8888 gm _ extractalpha serialize-8888 gm _ filterbitmap_checkerboard_32_32_g8 serialize-8888 gm _ filterbitmap_image_mandrill_64 serialize-8888 gm _ shadows serialize-8888 gm _ simpleaaclip_aaclip serialize-8888 gm _ composeshader_bitmap serialize-8888 gm _ scaled_tilemodes_npot serialize-8888 gm _ scaled_tilemodes serialize-8888 gm _ typefacerendering_pfaMac serialize-8888 gm _ parsedpaths serialize-8888 gm _ ImageGeneratorExternal_rect serialize-8888 gm _ ImageGeneratorExternal_shader serialize-8888 gm _ shadow_utils serialize-8888 gm _ all_bitmap_configs serialize-8888 gm _ makecolorspace serialize-8888 gm _ analytic_antialias_convex serialize-8888 gm _ bleed_alpha_image serialize-8888 gm _ bleed_alpha_image_shader serialize-8888 gm _ verylargebitmap serialize-8888 gm _ verylarge_picture_image pic-8888 gm _ drawfilter pic-8888 gm _ image-cacherator-from-picture serialize-8888 gm _ image-cacherator-from-picture pic-8888 gm _ image-cacherator-from-raster serialize-8888 gm _ image-cacherator-from-raster pic-8888 gm _ image-cacherator-from-ctable serialize-8888 gm _ image-cacherator-from-ctable pic-8888 gm _ gamut serialize-8888 gm _ gamut pic-8888 gm _ complexclip4_bw serialize-8888 gm _ complexclip4_bw pic-8888 gm _ complexclip4_aa serialize-8888 gm _ complexclip4_aa tiles_rt-8888 gm _ complexclip4_bw tiles_rt-8888 gm _ complexclip4_aa --nonativeFonts --verbose; echo $? >/data/local/tmp/rc",
+      "[START_DIR]/tmp/dm.sh"
     ],
     "env": {
       "BUILDTYPE": "Release",
@@ -690,13 +771,13 @@
       "SKIA_OUT": "[START_DIR]/out"
     },
     "infra_step": true,
-    "name": "write nanobench.sh"
+    "name": "write dm.sh"
   },
   {
     "cmd": [
       "adb.1.0.35",
       "push",
-      "[START_DIR]/tmp/nanobench.sh",
+      "[START_DIR]/tmp/dm.sh",
       "/data/local/tmp/"
     ],
     "cwd": "[START_DIR]/skia",
@@ -707,7 +788,7 @@
       "SKIA_OUT": "[START_DIR]/out"
     },
     "infra_step": true,
-    "name": "push nanobench.sh"
+    "name": "push dm.sh"
   },
   {
     "cmd": [
@@ -731,7 +812,7 @@
       "-u",
       "\nimport subprocess\nimport sys\nbin_dir = sys.argv[1]\nsh      = sys.argv[2]\nsubprocess.check_call(['adb.1.0.35', 'shell', 'sh', bin_dir + sh])\ntry:\n  sys.exit(int(subprocess.check_output(['adb.1.0.35', 'shell', 'cat',\n                                        bin_dir + 'rc'])))\nexcept ValueError:\n  print \"Couldn't read the return code.  Probably killed for OOM.\"\n  sys.exit(1)\n",
       "/data/local/tmp/",
-      "nanobench.sh"
+      "dm.sh"
     ],
     "env": {
       "BUILDTYPE": "Release",
@@ -739,7 +820,7 @@
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
     },
-    "name": "nanobench",
+    "name": "dm",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@@@@",
       "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
@@ -758,25 +839,10 @@
   },
   {
     "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "ensure-directory",
-      "--mode",
-      "0777",
-      "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-Android-Clang-Nexus10-CPU-Exynos5250-arm-Release-All-Android"
-    ],
-    "infra_step": true,
-    "name": "makedirs perf_dir"
-  },
-  {
-    "cmd": [
       "adb.1.0.35",
       "pull",
-      "/sdcard/revenge_of_the_skiabot/perf",
-      "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-Android-Clang-Nexus10-CPU-Exynos5250-arm-Release-All-Android/data"
+      "/sdcard/revenge_of_the_skiabot/dm_out",
+      "[CUSTOM_[SWARM_OUT_DIR]]/dm"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
@@ -786,7 +852,7 @@
       "SKIA_OUT": "[START_DIR]/out"
     },
     "infra_step": true,
-    "name": "pull /sdcard/revenge_of_the_skiabot/perf [CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-Android-Clang-Nexus10-CPU-Exynos5250-arm-Release-All-Android/data"
+    "name": "pull /sdcard/revenge_of_the_skiabot/dm_out [CUSTOM_[SWARM_OUT_DIR]]/dm"
   },
   {
     "cmd": [

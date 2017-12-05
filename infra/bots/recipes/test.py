@@ -911,6 +911,7 @@ TEST_BUILDERS = [
   'Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-All-Android_CCPR',
   'Test-Android-Clang-Nexus10-CPU-Exynos5250-arm-Release-All-Android',
   'Test-Android-Clang-Nexus5-GPU-Adreno330-arm-Release-All-Android',
+  'Test-Android-Clang-Nexus7-CPU-Tegra3-arm-Release-All-Android',
   'Test-Android-Clang-Nexus7-GPU-Tegra3-arm-Debug-All-Android',
   'Test-Android-Clang-NexusPlayer-CPU-Moorefield-x86-Release-All-Android',
   'Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-All-Android_Vulkan',
