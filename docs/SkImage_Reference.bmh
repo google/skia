@@ -56,15 +56,15 @@ are zero, then nullptr will be returned.
 # MakeRasterData                   # Creates Image from Image_Info and shared pixels. ##
 # alphaType                        # Returns Alpha_Type ##
 # asLegacyBitmap                   # Returns as raster Bitmap ##
-# bounds                           # ##
-# colorSpace                       # ##
-# dimensions                       # ##
-# encodeToData                     # ##
-# getDeferredTextureImageData      # ##
-# getTexture                       # ##
-# getTextureHandle                 # ##
-# height                           # ##
-# isAlphaOnly                      # ##
+# bounds()                         # Returns width() and height() as Rectangle. ##
+# colorSpace                       # Returns Color_Space. ##
+# dimensions()                     # Returns width() and height(). ##
+# encodeToData                     # Returns encoded Image as SkData. ##
+# getDeferredTextureImageData      # Copies Image to texture buffer. ##
+# getTexture                       # Deprecated. ##
+# getTextureHandle                 # Returns GPU reference to Image as texture. ##
+# height()                         # Returns pixel row count. ##
+# isAlphaOnly                      # Returns if pixels represent a transparency mask. ##
 # isLazyGenerated                  # ##
 # isOpaque                         # ##
 # isTextureBacked                  # ##
@@ -82,7 +82,7 @@ are zero, then nullptr will be returned.
 # scalePixels                      # ##
 # toString                         # ##
 # uniqueID                         # ##
-# width                            # ##
+# width()                          # Returns pixel column count. ##
 #Table ##
 #Subtopic ##
 
@@ -664,6 +664,8 @@ The new image takes a reference on the buffer.
 
 #Method int height() const
 
+Returns pixel row count.
+
 #Return incomplete ##
 
 #Example
@@ -678,13 +680,15 @@ The new image takes a reference on the buffer.
 
 #Method SkISize dimensions() const
 
-#Return incomplete ##
+Returns ISize { width(), height() }.
+
+#Return integral size of width() and height() ##
 
 #Example
 // incomplete
 ##
 
-#SeeAlso incomplete
+#SeeAlso height() width()
 
 #Method ##
 
@@ -692,7 +696,9 @@ The new image takes a reference on the buffer.
 
 #Method SkIRect bounds() const
 
-#Return incomplete ##
+Returns IRect { 0, 0, width(), height() }.
+
+#Return integral rectangle from origin to width() and height() ##
 
 #Example
 // incomplete
@@ -734,12 +740,15 @@ The new image takes a reference on the buffer.
 
 #Method SkColorSpace* colorSpace() const
 
-Returns Color_Space of Image. Color_Space may have been a parameter when
-Image was created, or may have been parsed from encoded data. Skia may not be
-able to draw image respecting returned Color_Space or draw into Surface with
-returned Color_Space.
+Returns Color_Space, the range of colors, associated with Image.  The
+reference count of Color_Space is unchanged. The returned Color_Space is
+immutable.
 
-#Return Color_Space Image was created with, or nullptr ##
+Color_Space returned was a parameter to an Image constructor,
+or was parsed from encoded data. Color_Space may be ignored when
+drawing Image, and when drawing into Surface constructed with Color_Space.
+
+#Return Color_Space in Image, or nullptr ##
 
 #Example
 // incomplete
@@ -767,9 +776,10 @@ returned Color_Space.
 
 #Method bool isAlphaOnly() const
 
-Returns true fi the image will be drawn as a mask, with no intrinsic color of its own.
+Returns true if Image pixels represent transparency only. If true, each pixel
+is packed in 8 bits as defined by kAlpha_8_SkColorType.
 
-#Return incomplete ##
+#Return true if pixels represent a transparency mask ##
 
 #Example
 // incomplete
@@ -855,18 +865,14 @@ On failure, return false and ignore the pixmap parameter.
 
 #Method GrTexture* getTexture() const
 
-DEPRECATED - 
+Deprecated.
+ 
+#Deprecated 
+##
+
 #Private
 currently used by Canvas2DLayerBridge in Chromium.
 ##
-
-#Return incomplete ##
-
-#Example
-// incomplete
-##
-
-#SeeAlso incomplete
 
 #Method ##
 
@@ -914,19 +920,39 @@ generator-backed images may be invalid for CPU and/or GPU.
 #Method GrBackendObject getTextureHandle(bool flushPendingGrContextIO,
                                      GrSurfaceOrigin* origin = nullptr) const
 
-Retrieves the back-end API handle of the texture. If flushPendingGrContextIO then the
-GrContext will issue to the back-end API any deferred I/O operations on the texture before
-returning.
-If 'origin' is supplied it will be filled in with the origin of the content drawn
-into the image.
+Retrieves the back-end API handle of texture. If flushPendingGrContextIO is true,
+complete deferred I/O operations.
 
-#Param flushPendingGrContextIO  incomplete ##
-#Param origin  incomplete ##
+If origin in not nullptr, copies location of content drawn into Image.
 
-#Return incomplete ##
+#Param flushPendingGrContextIO  flag to flush outstanding requests ##
+#Param origin  storage for one of: kTopLeft_GrSurfaceOrigin,
+               kBottomLeft_GrSurfaceOrigin; or nullptr 
+##
+
+#Return back-end API texture handle ##
 
 #Example
-// incomplete
+#Image 3
+#Platform gpu
+GrContext* context = canvas->getGrContext();
+if (!context) {
+   return;
+}
+SkPaint paint;
+paint.setAntiAlias(true);
+SkString str;
+int y = 0;
+for (auto origin : { kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin } ) {
+    sk_sp<SkImage> srcImage(SkImage::MakeFromTexture(context,
+            backEndTexture, origin, kPremul_SkAlphaType, nullptr));
+    GrSurfaceOrigin readBackOrigin;
+    GrBackendObject readBackHandle = srcImage->getTextureHandle(false, &readBackOrigin);
+    str.printf("readBackHandle: %x", readBackHandle);
+    canvas->drawString(str, 5, y += 20, paint);
+    str.printf("origin: k%s_GrSurfaceOrigin", readBackOrigin ? "BottomLeft" : "TopLeft");
+    canvas->drawString(str, 5, y += 20, paint);
+}
 ##
 
 #SeeAlso incomplete
@@ -1048,14 +1074,14 @@ filterQuality.
 
 #Method sk_sp<SkData> encodeToData(SkEncodedImageFormat encodedImageFormat, int quality) const
 
-Encode the image's pixels and return the result as SkData.
-If the image type cannot be encoded, or the requested encoder format is
-not supported, this will return nullptr.
+Encodes Image pixels, returning result as SkData.
+
+Returns nullptr if encoding fails, or encodedImageFormat is not supported.
 
 #Param encodedImageFormat  incomplete ##
 #Param quality  incomplete ##
 
-#Return incomplete ##
+#Return encoded Image, or nullptr ##
 
 #Example
 // incomplete
@@ -1228,40 +1254,38 @@ caller.
                             SkColorSpace* dstColorSpace = nullptr,
                             SkColorType dstColorType = kN32_SkColorType) const
 
-This method allows clients to capture the data necessary to turn a SkImage into a texture-
-backed image. If the original image is codec-backed this will decode into a format optimized
-for the context represented by the proxy. This method is thread safe with respect to the
-GrContext whence the proxy came. Clients allocate and manage the storage of the deferred
-texture data and control its lifetime. No cleanup is required, thus it is safe to simply free
-the memory out from under the data.
+Copies Image into buffer used to create a texture-backed Image. 
+If Image was created from encoded data, buffer contents is optimized to match
+contextThreadSafeProxy. 
 
-The same method is used both for getting the size necessary for uploading
-and retrieving texture data. The deferredTextureImageUsageParams array represents the set of
-draws over which to optimize the texture data prior to uploading.
+Copy operation is thread-safe with respect to contextThreadSafeProxy GrContext.
+Caller allocates and manages buffer, and may delete it at any time.
 
-When called with a null buffer this returns the size that the client must allocate in order
-to create deferred texture data for this image (or zero if this is an inappropriate
-candidate). The buffer allocated by the client should be 8 byte aligned.
-When buffer is not null this fills in the deferred texture data for this image in the
-provided buffer (assuming this is an appropriate candidate image and the buffer is
-appropriately aligned). Upon success the size written is returned, otherwise 0.
-dstColorSpace is the color space of the surface where this texture will ultimately be used.
-If the method determines that Mip_Maps are needed, this helps determine the correct strategy
-for building them (gamma-correct or not).
+Returns size of allocation if buffer is nullptr. Returns zero if Image cannot be
+copied. Call with nullptr to determine size of buffer to allocate, then call
+again to copy Image to buffer. Buffer must be aligned to 8-byte boundaries.
+Returns bytes written on successful copy.
 
-dstColorType is the color type of the surface where this texture will ultimately be used.
-This determines the format with which the image will be uploaded to the GPU. If dstColorType
-does not support color spaces (low bit depth types such as kARGB_4444_SkColorType), then dstColorSpace
-must be null.
+deferredTextureImageUsageParams array of size paramCnt describes set of
+draw calls used to optimize texture data before uploading.
 
-#Param contextThreadSafeProxy  incomplete ##
-#Param deferredTextureImageUsageParams  incomplete ##
-#Param paramCnt  incomplete ##
-#Param buffer  incomplete ##
-#Param dstColorSpace  incomplete ##
-#Param dstColorType  incomplete ##
+dstColorSpace is Color_Space of Surface where texture is drawn.
+dstColorSpace is used to build gamma-correct Mip_Map textures, if required by
+deferredTextureImageUsageParams.
 
-#Return incomplete ##
+dstColorType is Color_Type of Surface where texture is drawn; the
+format of texture uploaded to GPU. If dstColorType is a low bit-depth type
+(such as kARGB_4444_SkColorType) that does not support Color_Space,
+dstColorSpace must be nullptr.
+
+#Param contextThreadSafeProxy  GPU context of destination Surface ##
+#Param deferredTextureImageUsageParams  draw calls to be used ##
+#Param paramCnt  draw calls parameter count ##
+#Param buffer  storage for texture, or nullptr ##
+#Param dstColorSpace  Color_Space of Surface, or nullptr ##
+#Param dstColorType  Color_Type of Surface ##
+
+#Return buffer size, or zero if Image cannot be copied ##
 
 #Example
 // incomplete
