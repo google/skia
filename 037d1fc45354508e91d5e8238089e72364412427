@@ -16,6 +16,24 @@
       "revId": "037d1fc45354508e91d5e8238089e72364412427",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f7cadd38_eccda6c2",
+        "filename": "include/gpu/vk/GrVkDefines.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-12-05T14:18:45Z",
+      "side": 1,
+      "message": "what if we change this to:\n#if !defined(VK_NO_PROTOTYPES) \u0026\u0026 !defined(SK_USE_VULKAN_PROTOTYPES)\nand then you can define that in the SkUserConfig for chrome?",
+      "parentUuid": "c16dd70c_c8a47847",
+      "revId": "037d1fc45354508e91d5e8238089e72364412427",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
