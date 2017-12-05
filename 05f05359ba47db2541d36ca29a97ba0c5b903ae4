@@ -22,6 +22,30 @@
       "revId": "05f05359ba47db2541d36ca29a97ba0c5b903ae4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a8b07cea_fb786732",
+        "filename": "src/core/SkPath.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 1430,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2017-12-05T16:18:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3fa11d6b_aed3a753",
+      "range": {
+        "startLine": 1430,
+        "startChar": 8,
+        "endLine": 1430,
+        "endChar": 39
+      },
+      "revId": "05f05359ba47db2541d36ca29a97ba0c5b903ae4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
