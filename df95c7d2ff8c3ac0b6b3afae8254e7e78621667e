@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3dcbdaaa_854769f2",
+        "filename": "src/core/SkReadBuffer.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-12-05T15:40:25Z",
+      "side": 1,
+      "message": "We might want to just make this the actual default value of the struct?",
+      "range": {
+        "startLine": 49,
+        "startChar": 8,
+        "endLine": 53,
+        "endChar": 35
+      },
+      "revId": "df95c7d2ff8c3ac0b6b3afae8254e7e78621667e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cc63e665_85f2219a",
+        "filename": "src/core/SkReadBuffer.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 260,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-12-05T15:40:25Z",
+      "side": 1,
+      "message": "Remind me again why we need this distinction?  Can\u0027t we just say, everything is custom encoded by SerialProcs, and it\u0027s just the default uses MakeFromEncoded()?  What makes the MakeFromEncoded() path special now?",
+      "revId": "df95c7d2ff8c3ac0b6b3afae8254e7e78621667e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
