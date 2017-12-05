@@ -22,6 +22,30 @@
       "revId": "8013e0e76e6e87c2f038426bd9eacafe61fd18e9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fefdc0af_4b290921",
+        "filename": "src/core/SkStream.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-12-05T18:37:28Z",
+      "side": 1,
+      "message": "Okay,  take a look at the latest patcheset.",
+      "parentUuid": "2a785a6b_27072fc6",
+      "range": {
+        "startLine": 68,
+        "startChar": 21,
+        "endLine": 68,
+        "endChar": 25
+      },
+      "revId": "8013e0e76e6e87c2f038426bd9eacafe61fd18e9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
