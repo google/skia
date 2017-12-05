@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3fa11d6b_aed3a753",
+        "filename": "src/core/SkPath.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 1430,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-12-05T15:02:26Z",
+      "side": 1,
+      "message": "Is this the same as\n\nbool is_integral(SkScalar x) {\n    return x \u003d\u003d SkScalarFloorToScalar(x);\n}\n\nI\u0027m trying to see if we can make that check (a) easier to read, and (b) cheaper (assuming floor is cheaper than round, which may not be the case).",
+      "range": {
+        "startLine": 1430,
+        "startChar": 8,
+        "endLine": 1430,
+        "endChar": 39
+      },
+      "revId": "05f05359ba47db2541d36ca29a97ba0c5b903ae4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
