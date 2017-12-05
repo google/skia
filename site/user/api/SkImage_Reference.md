@@ -109,7 +109,7 @@ incomplete
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -152,7 +152,7 @@ copy of <a href="SkPixmap_Reference#Pixmap">Pixmap</a> pixels, or nullptr
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -193,7 +193,7 @@ size of pixel row or larger</td>
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -250,7 +250,7 @@ incomplete
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -289,7 +289,7 @@ created <a href="#Image">Image</a>, or nullptr
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -329,7 +329,7 @@ created <a href="#Image">Image</a>, or nullptr
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -365,7 +365,7 @@ created <a href="#Image">Image</a>, or nullptr
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -410,7 +410,7 @@ created <a href="#Image">Image</a>, or nullptr
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -459,7 +459,7 @@ created <a href="#Image">Image</a>, or nullptr
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -509,7 +509,7 @@ created <a href="#Image">Image</a>, or nullptr
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -561,7 +561,7 @@ created <a href="#Image">Image</a>, or nullptr
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -608,7 +608,7 @@ created <a href="#Image">Image</a>, or nullptr
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -654,7 +654,7 @@ incomplete
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -700,7 +700,7 @@ incomplete
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -729,7 +729,7 @@ enum <a href="#SkImage_BitDepth">BitDepth</a> {
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -772,7 +772,7 @@ incomplete
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -811,7 +811,7 @@ incomplete
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -845,7 +845,7 @@ incomplete
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -866,7 +866,7 @@ incomplete
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -887,7 +887,7 @@ incomplete
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -908,7 +908,7 @@ incomplete
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -929,7 +929,7 @@ incomplete
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -950,7 +950,7 @@ incomplete
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -971,7 +971,7 @@ incomplete
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -997,7 +997,7 @@ returned <a href="undocumented#Color_Space">Color Space</a>.
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -1018,7 +1018,7 @@ incomplete
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -1041,7 +1041,7 @@ incomplete
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -1062,7 +1062,7 @@ incomplete
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -1095,7 +1095,7 @@ incomplete
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -1122,7 +1122,7 @@ incomplete
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -1155,7 +1155,7 @@ incomplete
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -1178,7 +1178,7 @@ incomplete
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -1201,7 +1201,7 @@ incomplete
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -1236,7 +1236,7 @@ incomplete
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -1272,7 +1272,7 @@ incomplete
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -1305,7 +1305,7 @@ behavior is fine. Passing <a href="#SkImage_kDisallow_CachingHint">kDisallow Cac
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -1361,7 +1361,7 @@ incomplete
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -1392,7 +1392,7 @@ incomplete
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -1430,7 +1430,7 @@ incomplete
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -1464,7 +1464,7 @@ incomplete
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -1500,7 +1500,7 @@ incomplete
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -1526,7 +1526,7 @@ incomplete
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -1554,7 +1554,7 @@ incomplete
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -1587,7 +1587,7 @@ incomplete
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -1622,7 +1622,7 @@ incomplete
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -1646,7 +1646,7 @@ incomplete
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -1693,7 +1693,7 @@ incomplete
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -1760,7 +1760,7 @@ incomplete
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -1797,7 +1797,7 @@ incomplete
 
 ### Example
 
-<div><fiddle-embed name="493c3a7c12d9130532971b2a255d1652"gpu="true"></fiddle-embed></div>
+<div><fiddle-embed name=""gpu="true"></fiddle-embed></div>
 
 ### See Also
 
@@ -1849,7 +1849,7 @@ incomplete
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -1880,7 +1880,7 @@ Helper functions to convert to <a href="SkBitmap_Reference#SkBitmap">SkBitmap</a
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -1915,7 +1915,7 @@ true if <a href="SkBitmap_Reference#Bitmap">Bitmap</a> was created
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -1939,7 +1939,7 @@ incomplete
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -1982,7 +1982,7 @@ incomplete
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 

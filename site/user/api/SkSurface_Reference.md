@@ -92,7 +92,7 @@ may be nullptr</td>
 
 ### Example
 
-<div><fiddle-embed name="3f5aeb870104187643197354a7f1d27a">
+<div><fiddle-embed name="">
 
 #### Example Output
 
@@ -159,7 +159,7 @@ may be nullptr</td>
 
 ### Example
 
-<div><fiddle-embed name="8e6530b26ab4096a9a91cfaadda1c568">
+<div><fiddle-embed name="">
 
 #### Example Output
 
@@ -219,7 +219,7 @@ may be nullptr</td>
 
 ### Example
 
-<div><fiddle-embed name="a803910ada4f8733f0b62456afead55f">
+<div><fiddle-embed name="">
 
 #### Example Output
 
@@ -269,7 +269,7 @@ may be nullptr</td>
 
 ### Example
 
-<div><fiddle-embed name="c6197d204ef9e4ccfb583242651fb2a7"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -315,7 +315,7 @@ fonts; may be nullptr</td>
 
 ### Example
 
-<div><fiddle-embed name="b932a2bd68455fb0af2e7a1ed19e36b3">
+<div><fiddle-embed name="">
 
 #### Example Output
 
@@ -599,7 +599,7 @@ hint that <a href="#Surface">Surface</a> will host <a href="undocumented#Mip_Map
 
 ### Example
 
-<div><fiddle-embed name="67b6609471a3f1ed0f4b1657004cdecb"gpu="true"></fiddle-embed></div>
+<div><fiddle-embed name=""gpu="true"></fiddle-embed></div>
 
 ### See Also
 
@@ -649,7 +649,7 @@ fonts; may be nullptr</td>
 
 ### Example
 
-<div><fiddle-embed name="640321e8ecfb3f9329f3bc6e1f02485f"gpu="true"cpu="true"><div><a href="undocumented#LCD">LCD</a> text takes advantage of raster striping to improve resolution. Only one of
+<div><fiddle-embed name=""gpu="true"cpu="true"><div><a href="undocumented#LCD">LCD</a> text takes advantage of raster striping to improve resolution. Only one of
 the four combinations is correct, depending on whether the monitor's <a href="undocumented#LCD">LCD</a> is
 horizontal or vertical, and whether the order of the stripes is red blue green
 or red green blue.</div></fiddle-embed></div>
@@ -691,7 +691,7 @@ of <a href="undocumented#Raster_Surface">Raster Surface</a>; <a href="#SkSurface
 
 ### Example
 
-<div><fiddle-embed name="5c7629c15e9ac93f098335e72560fa2e"gpu="true"></fiddle-embed></div>
+<div><fiddle-embed name=""gpu="true"></fiddle-embed></div>
 
 ### See Also
 
@@ -724,7 +724,7 @@ one or greater</td>
 
 ### Example
 
-<div><fiddle-embed name="99a54b814ccab7d2b1143c88581649ff">
+<div><fiddle-embed name="">
 
 #### Example Output
 
@@ -756,7 +756,7 @@ number of pixel columns
 
 ### Example
 
-<div><fiddle-embed name="df066b56dd97c7c589fd2bb6a2539de8">
+<div><fiddle-embed name="">
 
 #### Example Output
 
@@ -787,7 +787,7 @@ number of pixel rows
 
 ### Example
 
-<div><fiddle-embed name="20571cc23e3146deaa09046b64cc0aef">
+<div><fiddle-embed name="">
 
 #### Example Output
 
@@ -820,7 +820,7 @@ unique content identifier
 
 ### Example
 
-<div><fiddle-embed name="be9574c4a14f891e1abb4ec2b1e51d6c">
+<div><fiddle-embed name="">
 
 #### Example Output
 
@@ -886,7 +886,7 @@ one of: <a href="#SkSurface_kDiscard_ContentChangeMode">kDiscard ContentChangeMo
 
 ### Example
 
-<div><fiddle-embed name="be9574c4a14f891e1abb4ec2b1e51d6c"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -919,7 +919,7 @@ enum <a href="#SkSurface_BackendHandleAccess">BackendHandleAccess</a> {
 
 ### Example
 
-<div><fiddle-embed name="260a5ba014b00eeb5a74b3c6b8d31be4"gpu="true"></fiddle-embed></div>
+<div><fiddle-embed name=""gpu="true"></fiddle-embed></div>
 
 ### See Also
 
@@ -954,7 +954,7 @@ one of:  <a href="#SkSurface_kFlushRead_BackendHandleAccess">kFlushRead BackendH
 
 ### Example
 
-<div><fiddle-embed name="4b5720038daaf65ba1ba546e678ddd6e"gpu="true"></fiddle-embed></div>
+<div><fiddle-embed name=""gpu="true"></fiddle-embed></div>
 
 ### See Also
 
@@ -996,7 +996,7 @@ true if <a href="#Surface">Surface</a> is backed by <a href="undocumented#GPU">G
 
 ### Example
 
-<div><fiddle-embed name="16e848a4405ce08f8393bba13cc3b8bf"gpu="true"></fiddle-embed></div>
+<div><fiddle-embed name=""gpu="true"></fiddle-embed></div>
 
 ### See Also
 
@@ -1021,7 +1021,7 @@ drawing <a href="SkCanvas_Reference#Canvas">Canvas</a> for <a href="#Surface">Su
 
 ### Example
 
-<div><fiddle-embed name="33d0c5ad5a4810e533ae1010e29f8b75"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -1057,7 +1057,7 @@ compatible <a href="#Surface">Surface</a> or nullptr
 
 ### Example
 
-<div><fiddle-embed name="a9889b519a26896b900da0444e423c61"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -1082,7 +1082,7 @@ are not captured. <a href="SkImage_Reference#Image">Image</a> allocation is acco
 
 ### Example
 
-<div><fiddle-embed name="46f1fa0d95e590a64bed0140407ce5f7"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -1118,7 +1118,7 @@ and so on; or nullptr</td>
 
 ### Example
 
-<div><fiddle-embed name="0de693f4d8dd898a60be8cfba23952be"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -1152,7 +1152,7 @@ true if <a href="#Surface">Surface</a> has direct access to pixels
 
 ### Example
 
-<div><fiddle-embed name="8c6184f22cfe068f021704cf92a147a1"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -1209,7 +1209,7 @@ true if pixels were copied
 
 ### Example
 
-<div><fiddle-embed name="9f454fb93bca6482598d198b4121f0a6"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -1267,7 +1267,7 @@ true if pixels were copied
 
 ### Example
 
-<div><fiddle-embed name="d141d6c662d201d191fb1eea26d014fd"><div>A black oval drawn on a red background provides an image to copy.
+<div><fiddle-embed name=""><div>A black oval drawn on a red background provides an image to copy.
 <a href="#SkSurface_readPixels">readPixels</a> copies one quarter of the <a href="#Surface">Surface</a> into each of the four corners.
 The copied quarter ovals overdraw the original oval.</div></fiddle-embed></div>
 
@@ -1324,7 +1324,7 @@ true if pixels were copied
 
 ### Example
 
-<div><fiddle-embed name="dcbd4af9151820f63de45a35f3a8d110"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -1347,7 +1347,7 @@ Returns <a href="#Properties">Surface Properties</a> for surface.
 
 ### Example
 
-<div><fiddle-embed name="13cf9e7b2894ae6e98c1fd719040bf01">
+<div><fiddle-embed name="">
 
 #### Example Output
 
@@ -1471,7 +1471,7 @@ true if <a href="undocumented#GPU">GPU</a> is waiting on semaphores
 
 ### Example
 
-<div><fiddle-embed name="c9033080af68efc0f270d748f1c0e011"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -1506,7 +1506,7 @@ true if supported
 
 ### Example
 
-<div><fiddle-embed name="3df4e2fc63483a3fa19589b5388080bc"gpu="true"></fiddle-embed></div>
+<div><fiddle-embed name=""gpu="true"></fiddle-embed></div>
 
 ### See Also
 
@@ -1531,7 +1531,7 @@ drawing commands</td>
 
 ### Example
 
-<div><fiddle-embed name="3dfa7496268dfb2c7465cda5da39dfbd"gpu="true"cpu="true"></fiddle-embed></div>
+<div><fiddle-embed name=""gpu="true"cpu="true"></fiddle-embed></div>
 
 ### See Also
 
