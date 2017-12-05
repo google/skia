@@ -9,14 +9,20 @@
 #ifndef SkWriteBuffer_DEFINED
 #define SkWriteBuffer_DEFINED
 
+#define SK_SUPPORT_LEGACY_SERIAL_BUFFER_OBJECTS
+
 #include "SkData.h"
 #include "SkImage.h"
 #include "SkPath.h"
 #include "SkPicture.h"
-#include "SkPixelSerializer.h"
 #include "SkRefCnt.h"
+#include "SkSerialProcs.h"
 #include "SkWriter32.h"
 #include "../private/SkTHash.h"
+
+#ifdef SK_SUPPORT_LEGACY_SERIAL_BUFFER_OBJECTS
+#include "SkPixelSerializer.h"
+#endif
 
 class SkBitmap;
 class SkDeduper;
@@ -102,6 +108,9 @@ public:
     void write(const void* buffer, size_t bytes) {
         fWriter.write(buffer, bytes);
     }
+    void writePad32(const void* buffer, size_t bytes) {
+        fWriter.writePad(buffer, bytes);
+    }
 
     void reset(void* storage = nullptr, size_t storageSize = 0) {
         fWriter.reset(storage, storageSize);
@@ -141,26 +150,26 @@ public:
     SkFactorySet* setFactoryRecorder(SkFactorySet*);
     SkRefCntSet* setTypefaceRecorder(SkRefCntSet*);
 
-    /**
-     * Set an SkPixelSerializer to store an encoded representation of pixels,
-     * e.g. SkBitmaps.
-     *
-     * TODO: Encode SkImage pixels as well.
-     */
+    void setSerialProcs(const SkSerialProcs& procs) { fProcs = procs; }
+
+#ifdef SK_SUPPORT_LEGACY_SERIAL_BUFFER_OBJECTS
     void setPixelSerializer(sk_sp<SkPixelSerializer>);
-    SkPixelSerializer* getPixelSerializer() const { return fPixelSerializer.get(); }
+#endif
 
 private:
     const uint32_t fFlags;
     SkFactorySet* fFactorySet;
     SkWriter32 fWriter;
 
-    SkRefCntSet* fTFSet;
-
-    sk_sp<SkPixelSerializer> fPixelSerializer;
+    SkRefCntSet*    fTFSet;
+    SkSerialProcs   fProcs;
 
     // Only used if we do not have an fFactorySet
     SkTHashMap<SkString, uint32_t> fFlattenableDict;
+
+#ifdef SK_SUPPORT_LEGACY_SERIAL_BUFFER_OBJECTS
+    sk_sp<SkPixelSerializer> fPS;
+#endif
 };
 
 #endif // SkWriteBuffer_DEFINED

@@ -16,8 +16,8 @@
 
 class SkData;
 class SkPictureRecord;
-class SkPixelSerializer;
 class SkReader32;
+struct SkSerialProcs;
 class SkStream;
 class SkWStream;
 class SkBBoxHierarchy;
@@ -79,13 +79,13 @@ public:
     // Does not affect ownership of SkStream.
     static SkPictureData* CreateFromStream(SkStream*,
                                            const SkPictInfo&,
-                                           SkImageDeserializer*,
+                                           const SkDeserialProcs&,
                                            SkTypefacePlayback*);
     static SkPictureData* CreateFromBuffer(SkReadBuffer&, const SkPictInfo&);
 
     virtual ~SkPictureData();
 
-    void serialize(SkWStream*, SkPixelSerializer*, SkRefCntSet*) const;
+    void serialize(SkWStream*, const SkSerialProcs&, SkRefCntSet*) const;
     void flatten(SkWriteBuffer&) const;
 
     bool containsBitmaps() const;
@@ -100,7 +100,7 @@ protected:
     explicit SkPictureData(const SkPictInfo& info);
 
     // Does not affect ownership of SkStream.
-    bool parseStream(SkStream*, SkImageDeserializer*, SkTypefacePlayback*);
+    bool parseStream(SkStream*, const SkDeserialProcs&, SkTypefacePlayback*);
     bool parseBuffer(SkReadBuffer& buffer);
 
 public:
@@ -172,7 +172,7 @@ private:
     // these help us with reading/writing
     // Does not affect ownership of SkStream.
     bool parseStreamTag(SkStream*, uint32_t tag, uint32_t size,
-                        SkImageDeserializer*, SkTypefacePlayback*);
+                        const SkDeserialProcs&, SkTypefacePlayback*);
     bool parseBufferTag(SkReadBuffer&, uint32_t tag, uint32_t size);
     void flattenToBuffer(SkWriteBuffer&) const;
 

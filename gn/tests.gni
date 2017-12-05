@@ -203,6 +203,7 @@ tests_sources = [
   "$_tests/ScalarTest.cpp",
   "$_tests/ScaleToSidesTest.cpp",
   "$_tests/SerializationTest.cpp",
+  "$_tests/SerialProcsTest.cpp",
   "$_tests/ShaderOpacityTest.cpp",
   "$_tests/ShaderTest.cpp",
   "$_tests/ShadowTest.cpp",

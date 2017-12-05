@@ -10,6 +10,7 @@
 
 #include "SkColorFilter.h"
 #include "SkData.h"
+#include "SkSerialProcs.h"
 #include "SkDrawLooper.h"
 #include "SkImageFilter.h"
 #include "SkMaskFilter.h"
@@ -24,7 +25,6 @@
 #include "SkTHash.h"
 #include "SkWriteBuffer.h"
 
-class SkBitmap;
 class SkImage;
 class SkInflator;
 
@@ -157,6 +157,9 @@ public:
     sk_sp<SkRasterizer> readRasterizer() { return this->readFlattenable<SkRasterizer>(); }
     sk_sp<SkShader> readShader() { return this->readFlattenable<SkShaderBase>(); }
 
+    // Reads SkAlign4(bytes), but will only copy bytes into the buffer.
+    virtual bool readPad32(void* buffer, size_t bytes);
+
     // binary data and arrays
     virtual bool readByteArray(void* value, size_t size);
     virtual bool readColorArray(SkColor* colors, size_t size);
@@ -178,6 +181,9 @@ public:
     // helpers to get info about arrays and binary data
     virtual uint32_t getArrayCount();
 
+    // If there is a real error (e.g. data is corrupted) this returns null. If the image cannot
+    // be created (e.g. it was not originally encoded) then this returns an image that doesn't
+    // draw.
     sk_sp<SkImage> readImage();
     virtual sk_sp<SkTypeface> readTypeface();
 
@@ -209,9 +215,11 @@ public:
         fCustomFactory.set(name, factory);
     }
 
-    // If nullptr is passed, then the default deserializer will be used
-    // which calls SkImage::MakeFromEncoded()
+    void setDeserialProcs(const SkDeserialProcs& procs);
+
+#ifdef SK_SUPPORT_LEGACY_SERIAL_BUFFER_OBJECTS
     void setImageDeserializer(SkImageDeserializer* factory);
+#endif
 
     // Default impelementations don't check anything.
     virtual bool validate(bool isValid) { return isValid; }
@@ -274,8 +282,7 @@ private:
     // Only used if we do not have an fFactoryArray.
     SkTHashMap<SkString, SkFlattenable::Factory> fCustomFactory;
 
-    // We do not own this ptr, we just use it (guaranteed to never be null)
-    SkImageDeserializer* fImageDeserializer;
+    SkDeserialProcs fProcs;
 
 #ifdef DEBUG_NON_DETERMINISTIC_ASSERT
     // Debugging counter to keep track of how many bitmaps we

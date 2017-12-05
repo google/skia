@@ -13,6 +13,7 @@
 #include "SkPathEffect.h"
 #include "SkPipeCanvas.h"
 #include "SkPipeFormat.h"
+#include "SkPixelSerializer.h"
 #include "SkRSXform.h"
 #include "SkRasterizer.h"
 #include "SkShader.h"
