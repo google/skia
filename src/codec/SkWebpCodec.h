@@ -58,22 +58,22 @@ private:
 
     class Frame : public SkFrame {
     public:
-        Frame(int i, SkEncodedInfo::Alpha alpha)
+        Frame(int i, bool alpha)
             : INHERITED(i)
-            , fReportedAlpha(alpha)
+            , fReportsAlpha(alpha)
         {}
         Frame(Frame&& other)
             : INHERITED(other.frameId())
-            , fReportedAlpha(other.fReportedAlpha)
+            , fReportsAlpha(other.fReportsAlpha)
         {}
 
     protected:
-        SkEncodedInfo::Alpha onReportedAlpha() const override {
-            return fReportedAlpha;
+        bool onReportsAlpha() const override {
+            return fReportsAlpha;
         }
 
     private:
-        const SkEncodedInfo::Alpha fReportedAlpha;
+        const bool fReportsAlpha;
 
         typedef SkFrame INHERITED;
     };

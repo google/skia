@@ -158,7 +158,7 @@ SkCodec::SkCodec(const SkEncodedInfo& info, const SkImageInfo& imageInfo,
 
 SkCodec::~SkCodec() {}
 
-bool SkCodec::conversionSupported(const SkImageInfo& dst, SkColorType srcColor,
+bool SkCodec::conversionSupported(const SkImageInfo& dst, SkEncodedInfo::Color srcColor,
                                   bool srcIsOpaque, const SkColorSpace* srcCS) const {
     if (!valid_alpha(dst.alphaType(), srcIsOpaque)) {
         return false;
@@ -173,7 +173,7 @@ bool SkCodec::conversionSupported(const SkImageInfo& dst, SkColorType srcColor,
         case kRGB_565_SkColorType:
             return srcIsOpaque;
         case kGray_8_SkColorType:
-            return kGray_8_SkColorType == srcColor && srcIsOpaque &&
+            return SkEncodedInfo::kGray_Color == srcColor && srcIsOpaque &&
                    !needs_color_xform(dst, srcCS, false);
         case kAlpha_8_SkColorType:
             // conceptually we can convert anything into alpha_8, but we haven't actually coded
@@ -224,7 +224,7 @@ SkCodec::Result SkCodec::handleFrameIndex(const SkImageInfo& info, void* pixels,
                                           const Options& options) {
     const int index = options.fFrameIndex;
     if (0 == index) {
-        if (!this->conversionSupported(info, fSrcInfo.colorType(), fEncodedInfo.opaque(),
+        if (!this->conversionSupported(info, fEncodedInfo.color(), fEncodedInfo.opaque(),
                                       fSrcInfo.colorSpace())
             || !this->initializeColorXform(info, fEncodedInfo.alpha(), options.fPremulBehavior))
         {
@@ -253,7 +253,7 @@ SkCodec::Result SkCodec::handleFrameIndex(const SkImageInfo& info, void* pixels,
     const auto* frame = frameHolder->getFrame(index);
     SkASSERT(frame);
 
-    if (!this->conversionSupported(info, fSrcInfo.colorType(), !frame->hasAlpha(),
+    if (!this->conversionSupported(info, fEncodedInfo.color(), !frame->hasAlpha(),
                                    fSrcInfo.colorSpace())) {
         return kInvalidConversion;
     }
@@ -297,7 +297,9 @@ SkCodec::Result SkCodec::handleFrameIndex(const SkImageInfo& info, void* pixels,
         }
     }
 
-    return this->initializeColorXform(info, frame->reportedAlpha(), options.fPremulBehavior)
+    FrameInfo frameInfo;
+    SkAssertResult(this->getFrameInfo(index, &frameInfo));
+    return this->initializeColorXform(info, frameInfo.fAlpha, options.fPremulBehavior)
         ? kSuccess : kInvalidConversion;
 }
 
@@ -628,10 +630,6 @@ bool SkCodec::initializeColorXform(const SkImageInfo& dstInfo, SkEncodedInfo::Al
     if (!this->usesColorXform()) {
         return true;
     }
-    // FIXME: In SkWebpCodec, if a frame is blending with a prior frame, we don't need
-    // a colorXform to do a color correct premul, since the blend step will handle
-    // premultiplication. But there is no way to know whether we need to blend from
-    // inside this call.
     bool needsColorCorrectPremul = needs_premul(dstInfo.alphaType(), encodedAlpha) &&
                                    SkTransferFunctionBehavior::kRespect == premulBehavior;
     if (needs_color_xform(dstInfo, fSrcInfo.colorSpace(), needsColorCorrectPremul)) {

@@ -247,7 +247,7 @@ public:
     SkGIFColorMap& localColorMap() { return m_localColorMap; }
 
 protected:
-    SkEncodedInfo::Alpha onReportedAlpha() const override;
+    bool onReportsAlpha() const override;
 
 private:
     int m_transparentPixel; // Index of transparent pixel. Value is kNotFound if there is no transparent pixel.
