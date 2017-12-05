@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c16dd70c_c8a47847",
+        "filename": "include/gpu/vk/GrVkDefines.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 7798
+      },
+      "writtenOn": "2017-12-05T07:36:32Z",
+      "side": 1,
+      "message": "Dear Greg,\nThere is a query on this.\nBy defining VK_NO_PROTOTYPES, we may not be able to directly use vkGetInstanceProcAddr, vkGetDeviceProcAddr outside Skia like below\nhttps://chromium-review.googlesource.com/c/chromium/src/+/649387/35/components/viz/common/gpu/vulkan_in_process_context_provider.cc#79\n\nShould we use something similar to sk_gpu_test::LoadVkLibraryAndGetProcAddrFuncs() even though \nvulkan library is linked ?\n\nThanks in advance.",
+      "revId": "037d1fc45354508e91d5e8238089e72364412427",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
