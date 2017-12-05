@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4fc909ca_d1d23815",
+        "filename": "tools/sk_tool_utils.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 555,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-12-05T15:07:27Z",
+      "side": 1,
+      "message": "no need to call get().\n\n        sk_sp\u003cSkImage\u003e imga \u003d a-\u003emakeRasterImage();\n        sk_sp\u003cSkImage\u003e imgb \u003d b-\u003emakeRasterImage();\n        SkPixmap pm0, pm1;\n        return imga-\u003epeekPixels(\u0026pm0) \u0026\u0026 imgb-\u003epeekPixels(\u0026pm1) \u0026\u0026\n               equal_pixels(pm0, pm1, maxDiff, respectColorSpaces);",
+      "revId": "2484660d1b5ee11c97cb04e1772cac2a39bcaa26",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
