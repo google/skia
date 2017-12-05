@@ -106,7 +106,8 @@ protected:
                         SkRRect rrect = fRRects[curRRect];
                         rrect.offset(SkIntToScalar(x), SkIntToScalar(y));
                         GrClipEdgeType edgeType = (GrClipEdgeType) et;
-                        auto fp = GrRRectEffect::Make(edgeType, rrect);
+                        const auto& caps = *renderTargetContext->caps()->shaderCaps();
+                        auto fp = GrRRectEffect::Make(edgeType, rrect, caps);
                         if (fp) {
                             GrPaint grPaint;
                             grPaint.setXPFactory(GrPorterDuffXPFactory::Get(SkBlendMode::kSrc));

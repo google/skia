@@ -20,7 +20,7 @@ uniform half4 circle;
                                                      float radius) {
         // A radius below half causes the implicit insetting done by this processor to become
         // inverted. We could handle this case by making the processor code more complicated.
-        if (radius < .5f) {
+        if (radius < .5f && GrProcessorEdgeTypeIsInverseFill(edgeType)) {
             return nullptr;
         }
         return std::unique_ptr<GrFragmentProcessor>(new GrCircleEffect(edgeType, center, radius));

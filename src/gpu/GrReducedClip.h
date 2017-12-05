@@ -25,7 +25,7 @@ public:
     using Element = SkClipStack::Element;
     using ElementList = SkTLList<SkClipStack::Element, 16>;
 
-    GrReducedClip(const SkClipStack&, const SkRect& queryBounds,
+    GrReducedClip(const SkClipStack&, const SkRect& queryBounds, const GrShaderCaps* caps,
                   int maxWindowRectangles = 0, int maxAnalyticFPs = 0);
 
     /**
@@ -117,6 +117,7 @@ private:
 
     void makeEmpty();
 
+    const GrShaderCaps* fCaps;
     const int fMaxWindowRectangles;
     const int fMaxAnalyticFPs;
     SkIRect fScissor;

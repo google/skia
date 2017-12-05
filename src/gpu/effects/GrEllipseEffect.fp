@@ -5,6 +5,10 @@
  * found in the LICENSE file.
  */
 
+@header {
+    #include "GrShaderCaps.h"
+}
+
 layout(key) in GrClipEdgeType edgeType;
 in float2 center;
 in float2 radii;
@@ -17,6 +21,17 @@ uniform float4 ellipse;
 
 bool useScale = !sk_Caps.floatIs32Bits;
 layout(when=useScale) uniform float2 scale;
+
+@make {
+    static std::unique_ptr<GrFragmentProcessor> Make(GrClipEdgeType edgeType, SkPoint center,
+                                                     SkPoint radii, const GrShaderCaps& caps) {
+        // Small radii produce bad results on devices without full float.
+        if (!caps.floatIs32Bits() && (radii.fX < 0.5f || radii.fY < 0.5f)) {
+            return nullptr;
+        }
+        return std::unique_ptr<GrFragmentProcessor>(new GrEllipseEffect(edgeType, center, radii));
+    }
+}
 
 @optimizationFlags { kCompatibleWithCoverageAsAlpha_OptimizationFlag }
 
@@ -101,5 +116,6 @@ void main() {
     do {
         et = (GrClipEdgeType) testData->fRandom->nextULessThan(kGrClipEdgeTypeCnt);
     } while (GrClipEdgeType::kHairlineAA == et);
-    return GrEllipseEffect::Make(et, center, SkPoint::Make(rx, ry));
+    return GrEllipseEffect::Make(et, center, SkPoint::Make(rx, ry),
+                                 *testData->caps()->shaderCaps());
 }

@@ -201,8 +201,9 @@ bool GrClipStackClip::apply(GrContext* context, GrRenderTargetContext* renderTar
         SkASSERT(!context->caps()->avoidStencilBuffers()); // We disable MSAA when avoiding stencil.
     }
 
-    GrReducedClip reducedClip(*fStack, devBounds, renderTargetContext->priv().maxWindowRectangles(),
-                              maxAnalyticFPs);
+    const auto* caps = context->caps()->shaderCaps();
+    GrReducedClip reducedClip(*fStack, devBounds, caps,
+                              renderTargetContext->priv().maxWindowRectangles(), maxAnalyticFPs);
 
     if (reducedClip.hasScissor() && !GrClip::IsInsideClip(reducedClip.scissor(), devBounds)) {
         out->hardClip().addScissor(reducedClip.scissor(), bounds);

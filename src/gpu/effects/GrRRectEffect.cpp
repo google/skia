@@ -122,7 +122,7 @@ std::unique_ptr<GrFragmentProcessor> CircularRRectEffect::TestCreate(GrProcessor
     do {
         GrClipEdgeType et =
                 (GrClipEdgeType)d->fRandom->nextULessThan(kGrClipEdgeTypeCnt);
-        fp = GrRRectEffect::Make(et, rrect);
+        fp = GrRRectEffect::Make(et, rrect, *d->caps()->shaderCaps());
     } while (nullptr == fp);
     return fp;
 }
@@ -473,7 +473,7 @@ std::unique_ptr<GrFragmentProcessor> EllipticalRRectEffect::TestCreate(GrProcess
     std::unique_ptr<GrFragmentProcessor> fp;
     do {
         GrClipEdgeType et = (GrClipEdgeType)d->fRandom->nextULessThan(kGrClipEdgeTypeCnt);
-        fp = GrRRectEffect::Make(et, rrect);
+        fp = GrRRectEffect::Make(et, rrect, *d->caps()->shaderCaps());
     } while (nullptr == fp);
     return fp;
 }
@@ -673,13 +673,14 @@ GrGLSLFragmentProcessor* EllipticalRRectEffect::onCreateGLSLInstance() const  {
 //////////////////////////////////////////////////////////////////////////////
 
 std::unique_ptr<GrFragmentProcessor> GrRRectEffect::Make(GrClipEdgeType edgeType,
-                                                         const SkRRect& rrect) {
+                                                         const SkRRect& rrect,
+                                                         const GrShaderCaps& caps) {
     if (rrect.isRect()) {
         return GrConvexPolyEffect::Make(edgeType, rrect.getBounds());
     }
 
     if (rrect.isOval()) {
-        return GrOvalEffect::Make(edgeType, rrect.getBounds());
+        return GrOvalEffect::Make(edgeType, rrect.getBounds(), caps);
     }
 
     if (rrect.isSimple()) {
