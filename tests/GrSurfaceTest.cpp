@@ -85,6 +85,8 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
         kAlpha_8_as_Alpha_GrPixelConfig,
         kAlpha_8_as_Red_GrPixelConfig,
         kGray_8_GrPixelConfig,
+        kGray_8_as_Lum_GrPixelConfig,
+        kGray_8_as_Red_GrPixelConfig,
         kRGB_565_GrPixelConfig,
         kRGBA_4444_GrPixelConfig,
         kRGBA_8888_GrPixelConfig,
