@@ -17,6 +17,7 @@ class SkBigPicture;
 class SkBitmap;
 class SkCanvas;
 class SkData;
+struct SkDeserialProcs;
 class SkImage;
 class SkImageDeserializer;
 class SkPath;
@@ -24,6 +25,7 @@ class SkPictureData;
 class SkPixelSerializer;
 class SkReadBuffer;
 class SkRefCntSet;
+struct SkSerialProcs;
 class SkStream;
 class SkTypefacePlayback;
 class SkWStream;
@@ -61,6 +63,10 @@ public:
     static sk_sp<SkPicture> MakeFromData(const void* data, size_t size,
                                          SkImageDeserializer* = nullptr);
     static sk_sp<SkPicture> MakeFromData(const SkData* data, SkImageDeserializer* = nullptr);
+
+    static sk_sp<SkPicture> MakeFromStream(SkStream*, const SkDeserialProcs& procs);
+    static sk_sp<SkPicture> MakeFromData(const SkData* data, const SkDeserialProcs& procs);
+    static sk_sp<SkPicture> MakeFromData(sk_sp<SkData> data, const SkDeserialProcs& procs);
 
     /**
      *  Recreate a picture that was serialized into a buffer. If the creation requires bitmap
@@ -111,6 +117,8 @@ public:
      *  customize how images reference by the picture are serialized/compressed.
      */
     sk_sp<SkData> serialize(SkPixelSerializer* = nullptr) const;
+
+    sk_sp<SkData> serialize(const SkSerialProcs&) const;
 
     /**
      *  Serialize to a stream. If non nullptr, pixel-serializer will be used to
@@ -169,8 +177,8 @@ private:
     friend class SkEmptyPicture;
     template <typename> friend class SkMiniPicture;
 
-    void serialize(SkWStream*, SkPixelSerializer*, SkRefCntSet* typefaces) const;
-    static sk_sp<SkPicture> MakeFromStream(SkStream*, SkImageDeserializer*, SkTypefacePlayback*);
+    void serialize(SkWStream*, const SkSerialProcs&, SkRefCntSet* typefaces) const;
+    static sk_sp<SkPicture> MakeFromStream(SkStream*, const SkDeserialProcs&, SkTypefacePlayback*);
     friend class SkPictureData;
 
     virtual int numSlowPaths() const = 0;
