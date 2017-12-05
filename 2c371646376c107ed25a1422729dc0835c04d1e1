@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "7980ce5a_1772a7db",
+        "filename": "include/core/SkWriteBuffer.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-12-05T16:23:50Z",
+      "side": 1,
+      "message": "I see SkSerialProcs initializing everything to nullptr.  Is that not what we want?",
+      "parentUuid": "b72b2abb_20f4dd2a",
+      "revId": "2c371646376c107ed25a1422729dc0835c04d1e1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "4e0531bd_6bbdd7b1",
         "filename": "src/core/SkWriteBuffer.cpp",
         "patchSetId": 8
