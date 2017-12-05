@@ -64,6 +64,15 @@ size_t SkStream::readPackedUInt() {
 
 //////////////////////////////////////////////////////////////////////////////////////
 
+size_t SkStreamSeekable::peek(void* buffer, size_t size) const {
+    SkStreamSeekable* stream = const_cast<SkStreamSeekable*>(this);
+    size_t r = stream->read(buffer, size);
+    stream->move(-SkTo<long>(r));
+    return r;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////
+
 SkWStream::~SkWStream()
 {
 }

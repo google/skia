@@ -166,6 +166,7 @@ public:
         return std::unique_ptr<SkStreamSeekable>(this->onDuplicate());
     }
 
+    size_t peek(void*, size_t) const override;
     bool hasPosition() const override { return true; }
     size_t getPosition() const override = 0;
     bool seek(size_t position) override = 0;
