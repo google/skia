@@ -32,9 +32,8 @@
  * take a rect in case the caller knows a bound on what is to be drawn through this clip.
  */
 GrReducedClip::GrReducedClip(const SkClipStack& stack, const SkRect& queryBounds,
-                             int maxWindowRectangles, int maxAnalyticFPs)
-        : fMaxWindowRectangles(maxWindowRectangles)
-        , fMaxAnalyticFPs(maxAnalyticFPs) {
+                             const GrShaderCaps* caps, int maxWindowRectangles, int maxAnalyticFPs)
+        : fCaps(caps), fMaxWindowRectangles(maxWindowRectangles), fMaxAnalyticFPs(maxAnalyticFPs) {
     SkASSERT(!queryBounds.isEmpty());
     SkASSERT(fMaxWindowRectangles <= GrWindowRectangles::kMaxWindows);
     fHasScissor = false;
@@ -588,7 +587,7 @@ inline GrReducedClip::ClipResult GrReducedClip::addAnalyticFP(const T& deviceSpa
                                       : GrClipEdgeType::kInverseFillBW;
     }
 
-    if (auto fp = make_analytic_clip_fp(edgeType, deviceSpaceShape)) {
+    if (auto fp = make_analytic_clip_fp(edgeType, deviceSpaceShape, *fCaps)) {
         fAnalyticFPs.push_back(std::move(fp));
         return ClipResult::kClipped;
     }
@@ -597,17 +596,20 @@ inline GrReducedClip::ClipResult GrReducedClip::addAnalyticFP(const T& deviceSpa
 }
 
 std::unique_ptr<GrFragmentProcessor> make_analytic_clip_fp(GrClipEdgeType edgeType,
-                                                           const SkRect& deviceSpaceRect) {
+                                                           const SkRect& deviceSpaceRect,
+                                                           const GrShaderCaps&) {
     return GrConvexPolyEffect::Make(edgeType, deviceSpaceRect);
 }
 
 std::unique_ptr<GrFragmentProcessor> make_analytic_clip_fp(GrClipEdgeType edgeType,
-                                                           const SkRRect& deviceSpaceRRect) {
-    return GrRRectEffect::Make(edgeType, deviceSpaceRRect);
+                                                           const SkRRect& deviceSpaceRRect,
+                                                           const GrShaderCaps& caps) {
+    return GrRRectEffect::Make(edgeType, deviceSpaceRRect, caps);
 }
 
 std::unique_ptr<GrFragmentProcessor> make_analytic_clip_fp(GrClipEdgeType edgeType,
-                                                           const SkPath& deviceSpacePath) {
+                                                           const SkPath& deviceSpacePath,
+                                                           const GrShaderCaps&) {
     return GrConvexPolyEffect::Make(edgeType, deviceSpacePath);
 }
 

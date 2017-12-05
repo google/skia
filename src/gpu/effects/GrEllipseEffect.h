@@ -12,15 +12,22 @@
 #define GrEllipseEffect_DEFINED
 #include "SkTypes.h"
 #if SK_SUPPORT_GPU
-#include "GrFragmentProcessor.h"
+
 #include "GrCoordTransform.h"
+#include "GrFragmentProcessor.h"
+#include "GrShaderCaps.h"
 class GrEllipseEffect : public GrFragmentProcessor {
 public:
     GrClipEdgeType edgeType() const { return fEdgeType; }
     SkPoint center() const { return fCenter; }
     SkPoint radii() const { return fRadii; }
+
     static std::unique_ptr<GrFragmentProcessor> Make(GrClipEdgeType edgeType, SkPoint center,
-                                                     SkPoint radii) {
+                                                     SkPoint radii, const GrShaderCaps& caps) {
+        // Small radii produce bad results on devices without full float.
+        if (!caps.floatIs32Bits() && (radii.fX < 0.5f || radii.fY < 0.5f)) {
+            return nullptr;
+        }
         return std::unique_ptr<GrFragmentProcessor>(new GrEllipseEffect(edgeType, center, radii));
     }
     GrEllipseEffect(const GrEllipseEffect& src);

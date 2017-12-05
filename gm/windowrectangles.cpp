@@ -181,7 +181,8 @@ void WindowRectanglesMaskGM::onCoverClipStack(const SkClipStack& stack, SkCanvas
         return;
     }
 
-    const GrReducedClip reducedClip(stack, SkRect::Make(kCoverRect), kNumWindows);
+    const GrReducedClip reducedClip(stack, SkRect::Make(kCoverRect), rtc->caps()->shaderCaps(),
+                                    kNumWindows);
 
     GrPaint paint;
     if (GrFSAAType::kNone == rtc->fsaaType()) {
