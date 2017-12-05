@@ -1276,13 +1276,14 @@ bool GrRenderTargetContext::drawFilledDRRect(const GrClip& clip,
         inverseVM.reset();
     }
 
+    const auto& caps = *this->caps()->shaderCaps();
     // TODO these need to be a geometry processors
-    std::unique_ptr<GrFragmentProcessor> innerEffect(GrRRectEffect::Make(innerEdgeType, *inner));
+    auto innerEffect = GrRRectEffect::Make(innerEdgeType, *inner, caps);
     if (!innerEffect) {
         return false;
     }
 
-    std::unique_ptr<GrFragmentProcessor> outerEffect(GrRRectEffect::Make(outerEdgeType, *outer));
+    auto outerEffect = GrRRectEffect::Make(outerEdgeType, *outer, caps);
     if (!outerEffect) {
         return false;
     }
