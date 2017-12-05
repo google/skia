@@ -84,7 +84,7 @@ namespace sk_tool_utils {
                       bool respectColorSpaces = false);
     bool equal_pixels(const SkBitmap&, const SkBitmap&, unsigned maxDiff = 0,
                       bool respectColorSpaces = false);
-    bool equal_pixels(const SkImage* a, const SkImage* b, unsigned maxDiff,
+    bool equal_pixels(const SkImage* a, const SkImage* b, unsigned maxDiff = 0,
                       bool respectColorSpaces = false);
 
     // private to sk_tool_utils

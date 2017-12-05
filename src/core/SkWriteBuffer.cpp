@@ -130,13 +130,6 @@ bool SkBinaryWriteBuffer::writeToStream(SkWStream* stream) {
     return fWriter.writeToStream(stream);
 }
 
-static void write_encoded_bitmap(SkBinaryWriteBuffer* buffer, SkData* data,
-                                 const SkIPoint& origin) {
-    buffer->writeDataAsByteArray(data);
-    buffer->write32(origin.fX);
-    buffer->write32(origin.fY);
-}
-
 void SkBinaryWriteBuffer::writeImage(const SkImage* image) {
     if (fDeduper) {
         this->write32(fDeduper->findOrDefineImage(const_cast<SkImage*>(image)));
@@ -146,12 +139,34 @@ void SkBinaryWriteBuffer::writeImage(const SkImage* image) {
     this->writeInt(image->width());
     this->writeInt(image->height());
 
-    sk_sp<SkData> encoded = image->encodeToData(this->getPixelSerializer());
-    if (encoded && encoded->size() > 0) {
-        write_encoded_bitmap(this, encoded.get(), SkIPoint::Make(0, 0));
-        return;
+    auto write_data = [this](sk_sp<SkData> data, int sign) {
+        if (data) {
+            size_t size = data->size();
+            if (size && sk_64_isS32(size)) {
+                this->write32(SkToS32(size) * sign);
+                this->writePad32(data->data(), size);    // does nothing if size == 0
+                this->write32(0);   // origin-x
+                this->write32(0);   // origin-y
+                return;
+            }
+        }
+        this->write32(0);   // no data or size too big
+    };
+
+    /*
+     *  What follows is a 32bit encoded size.
+     *   0 : failure, nothing else to do
+     *  <0 : negative (int32_t) of a custom encoded blob using SerialProcs
+     *  >0 : standard encoded blob size (use MakeFromEncoded)
+     */
+    if (fProcs.fImageProc) {
+        SkDynamicMemoryWStream stream;
+        if (fProcs.fImageProc(const_cast<SkImage*>(image), &stream, fProcs.fImageCtx)) {
+            write_data(stream.detachAsData(), -1);  // -1 signals custom encoder
+            return;
+        }
     }
-    this->writeUInt(0); // signal no pixels (in place of the size of the encoded data)
+    write_data(image->encodeToData(), 1);   // +1 signals standard encoder
 }
 
 void SkBinaryWriteBuffer::writeTypeface(SkTypeface* obj) {
@@ -179,10 +194,6 @@ SkFactorySet* SkBinaryWriteBuffer::setFactoryRecorder(SkFactorySet* rec) {
 SkRefCntSet* SkBinaryWriteBuffer::setTypefaceRecorder(SkRefCntSet* rec) {
     SkRefCnt_SafeAssign(fTFSet, rec);
     return rec;
-}
-
-void SkBinaryWriteBuffer::setPixelSerializer(sk_sp<SkPixelSerializer> serializer) {
-    fPixelSerializer = std::move(serializer);
 }
 
 void SkBinaryWriteBuffer::writeFlattenable(const SkFlattenable* flattenable) {
