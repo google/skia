@@ -9,10 +9,12 @@
 #include "SkImageDeserializer.h"
 #include "SkImageGenerator.h"
 #include "SkPicture.h"
+#include "SkPictureCommon.h"
 #include "SkPictureData.h"
 #include "SkPicturePlayback.h"
 #include "SkPictureRecord.h"
 #include "SkPictureRecorder.h"
+#include "SkSerialProcs.h"
 
 #if defined(SK_DISALLOW_CROSSPROCESS_PICTUREIMAGEFILTERS) || \
     defined(SK_ENABLE_PICTURE_IO_SECURITY_PRECAUTIONS)
@@ -129,7 +131,10 @@ sk_sp<SkPicture> SkPicture::Forwardport(const SkPictInfo& info,
 }
 
 sk_sp<SkPicture> SkPicture::MakeFromStream(SkStream* stream, SkImageDeserializer* factory) {
-    return MakeFromStream(stream, factory, nullptr);
+    SkDeserialProcs procs;
+    procs.fImageProc = ImageDeserializer_SkDeserialImageProc;
+    procs.fImageCtx  = factory;
+    return MakeFromStream(stream, procs, nullptr);
 }
 
 sk_sp<SkPicture> SkPicture::MakeFromStream(SkStream* stream) {
@@ -140,7 +145,7 @@ sk_sp<SkPicture> SkPicture::MakeFromStream(SkStream* stream) {
 sk_sp<SkPicture> SkPicture::MakeFromData(const void* data, size_t size,
                                          SkImageDeserializer* factory) {
     SkMemoryStream stream(data, size);
-    return MakeFromStream(&stream, factory, nullptr);
+    return MakeFromStream(&stream, factory);
 }
 
 sk_sp<SkPicture> SkPicture::MakeFromData(const SkData* data, SkImageDeserializer* factory) {
@@ -148,17 +153,33 @@ sk_sp<SkPicture> SkPicture::MakeFromData(const SkData* data, SkImageDeserializer
         return nullptr;
     }
     SkMemoryStream stream(data->data(), data->size());
-    return MakeFromStream(&stream, factory, nullptr);
+    return MakeFromStream(&stream, factory);
 }
 
-sk_sp<SkPicture> SkPicture::MakeFromStream(SkStream* stream, SkImageDeserializer* factory,
+sk_sp<SkPicture> SkPicture::MakeFromData(const SkData* data, const SkDeserialProcs& procs) {
+    if (!data) {
+        return nullptr;
+    }
+    SkMemoryStream stream(data->data(), data->size());
+    return MakeFromStream(&stream, procs, nullptr);
+}
+
+sk_sp<SkPicture> SkPicture::MakeFromData(sk_sp<SkData> data, const SkDeserialProcs& procs) {
+    return MakeFromData(data.get(), procs);
+}
+
+sk_sp<SkPicture> SkPicture::MakeFromStream(SkStream* stream, const SkDeserialProcs& procs) {
+    return MakeFromStream(stream, procs, nullptr);
+}
+
+sk_sp<SkPicture> SkPicture::MakeFromStream(SkStream* stream, const SkDeserialProcs& procs,
                                            SkTypefacePlayback* typefaces) {
     SkPictInfo info;
     if (!InternalOnly_StreamIsSKP(stream, &info) || !stream->readBool()) {
         return nullptr;
     }
     std::unique_ptr<SkPictureData> data(
-            SkPictureData::CreateFromStream(stream, info, factory, typefaces));
+            SkPictureData::CreateFromStream(stream, info, procs, typefaces));
     return Forwardport(info, data.get(), nullptr);
 }
 
@@ -181,17 +202,27 @@ SkPictureData* SkPicture::backport() const {
 }
 
 void SkPicture::serialize(SkWStream* stream, SkPixelSerializer* pixelSerializer) const {
-    this->serialize(stream, pixelSerializer, nullptr);
+    SkSerialProcs procs;
+    if (pixelSerializer) {
+        procs.fImageProc = PixelSerializer_SkSerialImageProc;
+        procs.fImageCtx  = pixelSerializer;
+    }
+    this->serialize(stream, procs, nullptr);
 }
 
 sk_sp<SkData> SkPicture::serialize(SkPixelSerializer* pixelSerializer) const {
     SkDynamicMemoryWStream stream;
-    this->serialize(&stream, pixelSerializer, nullptr);
+    this->serialize(&stream, pixelSerializer);
     return stream.detachAsData();
 }
 
-void SkPicture::serialize(SkWStream* stream,
-                          SkPixelSerializer* pixelSerializer,
+sk_sp<SkData> SkPicture::serialize(const SkSerialProcs& procs) const {
+    SkDynamicMemoryWStream stream;
+    this->serialize(&stream, procs, nullptr);
+    return stream.detachAsData();
+}
+
+void SkPicture::serialize(SkWStream* stream, const SkSerialProcs& procs,
                           SkRefCntSet* typefaceSet) const {
     SkPictInfo info = this->createHeader();
     std::unique_ptr<SkPictureData> data(this->backport());
@@ -199,7 +230,7 @@ void SkPicture::serialize(SkWStream* stream,
     stream->write(&info, sizeof(info));
     if (data) {
         stream->writeBool(true);
-        data->serialize(stream, pixelSerializer, typefaceSet);
+        data->serialize(stream, procs, typefaceSet);
     } else {
         stream->writeBool(false);
     }
@@ -239,3 +270,51 @@ void SkPicture::SetPictureIOSecurityPrecautionsEnabled_Dangerous(bool set) {
 bool SkPicture::PictureIOSecurityPrecautionsEnabled() {
     return g_AllPictureIOSecurityPrecautionsEnabled;
 }
+
+//////////////////////////////////////////////////////////////////////////////////////////////////
+
+bool PixelSerializer_SkSerialImageProc(SkImage* img, SkWStream* stream, void* ctx) {
+    SkASSERT(ctx);
+    sk_sp<SkData> enc = img->encodeToData(static_cast<SkPixelSerializer*>(ctx));
+    if (enc) {
+        stream->write(enc->data(), enc->size());
+        return true;
+    }
+    return false;
+}
+
+sk_sp<SkImage> ImageDeserializer_SkDeserialImageProc(const void* data, size_t length, void* ctx) {
+    SkASSERT(ctx);
+    SkImageDeserializer* imd = static_cast<SkImageDeserializer*>(ctx);
+    const SkIRect* subset = nullptr;
+    return imd->makeFromMemory(data, length, subset);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+#ifdef SK_SUPPORT_LEGACY_SERIAL_BUFFER_OBJECTS
+#include "SkReadBuffer.h"
+#include "SkWriteBuffer.h"
+
+void SkBinaryWriteBuffer::setPixelSerializer(sk_sp<SkPixelSerializer> ps) {
+    fPS = ps;
+    if (ps) {
+        fProcs.fImageProc = PixelSerializer_SkSerialImageProc;
+        fProcs.fImageCtx  = ps.get();
+    } else {
+        fProcs.fImageProc = nullptr;
+        fProcs.fImageCtx  = nullptr;
+    }
+}
+
+void SkReadBuffer::setImageDeserializer(SkImageDeserializer* factory) {
+    if (factory) {
+        fProcs.fImageProc = ImageDeserializer_SkDeserialImageProc;
+        fProcs.fImageCtx  = factory;
+    } else {
+        fProcs.fImageProc = nullptr;
+        fProcs.fImageCtx  = nullptr;
+    }
+}
+#endif
+
