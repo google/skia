@@ -102,7 +102,7 @@ public:
      */
     virtual GrRenderTargetOpList* asRenderTargetOpList() { return nullptr; }
 
-    int32_t uniqueID() const { return fUniqueID; }
+    uint32_t uniqueID() const { return fUniqueID; }
 
     /*
      * Dump out the GrOpList dependency DAG

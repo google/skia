@@ -28,6 +28,30 @@
 
 static constexpr int kCanvasSize = 100;
 
+class CCPRClip : public GrClip {
+public:
+    CCPRClip(GrCoverageCountingPathRenderer* ccpr, const SkPath& path) : fCCPR(ccpr), fPath(path) {}
+
+private:
+    bool apply(GrContext*, GrRenderTargetContext* rtc, bool, bool, GrAppliedClip* out,
+               SkRect* bounds) const override {
+        out->addCoverageFP(fCCPR->makeClipProcessor(rtc->priv().testingOnly_getOpListID(), fPath,
+                                                    SkIRect::MakeWH(rtc->width(), rtc->height()),
+                                                    rtc->width(), rtc->height()));
+        return true;
+    }
+    bool quickContains(const SkRect&) const final { return false; }
+    bool isRRect(const SkRect& rtBounds, SkRRect* rr, GrAA*) const final { return false; }
+    void getConservativeBounds(int width, int height, SkIRect* rect, bool* iior) const final {
+        rect->set(0, 0, width, height);
+        if (iior) {
+            *iior = false;
+        }
+    }
+    GrCoverageCountingPathRenderer* const fCCPR;
+    const SkPath fPath;
+};
+
 class CCPRPathDrawer {
 public:
     CCPRPathDrawer(GrContext* ctx, skiatest::Reporter* reporter)
@@ -64,6 +88,16 @@ public:
 
         fCCPR->drawPath({fCtx, std::move(paint), &GrUserStencilSettings::kUnused, fRTC.get(),
                          &noClip, &clipBounds, &matrix, &shape, GrAAType::kCoverage, false});
+    }
+
+    void clipFullscreenRect(SkPath clipPath, GrColor4f color = GrColor4f(0, 1, 0, 1)) {
+        SkASSERT(this->valid());
+
+        GrPaint paint;
+        paint.setColor4f(color);
+
+        fRTC->drawRect(CCPRClip(fCCPR, clipPath), std::move(paint), GrAA::kYes, SkMatrix::I(),
+                       SkRect::MakeIWH(kCanvasSize, kCanvasSize));
     }
 
     void flush() const {
@@ -137,6 +171,7 @@ class GrCCPRTest_cleanup : public CCPRTest {
         // Ensure paths get unreffed.
         for (int i = 0; i < 10; ++i) {
             ccpr.drawPath(fPath);
+            ccpr.clipFullscreenRect(fPath);
         }
         REPORTER_ASSERT(reporter, !SkPathPriv::TestingOnly_unique(fPath));
         ccpr.flush();
@@ -145,6 +180,7 @@ class GrCCPRTest_cleanup : public CCPRTest {
         // Ensure paths get unreffed when we delete the context without flushing.
         for (int i = 0; i < 10; ++i) {
             ccpr.drawPath(fPath);
+            ccpr.clipFullscreenRect(fPath);
         }
         ccpr.abandonGrContext();
         REPORTER_ASSERT(reporter, !SkPathPriv::TestingOnly_unique(fPath));
@@ -195,6 +231,18 @@ class GrCCPRTest_parseEmptyPath : public CCPRTest {
         ccpr.drawPath(emptyPath);
 
         // This is the test. It will exercise various internal asserts and verify we do not crash.
+        ccpr.flush();
+
+        // Now try again with clips.
+        ccpr.clipFullscreenRect(largeOutsidePath);
+        ccpr.clipFullscreenRect(emptyPath);
+        ccpr.flush();
+
+        // ... and both.
+        ccpr.drawPath(largeOutsidePath);
+        ccpr.clipFullscreenRect(largeOutsidePath);
+        ccpr.drawPath(emptyPath);
+        ccpr.clipFullscreenRect(emptyPath);
         ccpr.flush();
     }
 };

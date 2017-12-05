@@ -108,6 +108,7 @@ public:
         return fRenderTargetContext->fRenderTargetProxy->uniqueID();
     }
 
+    uint32_t testingOnly_getOpListID();
     uint32_t testingOnly_addDrawOp(std::unique_ptr<GrDrawOp>);
     uint32_t testingOnly_addDrawOp(const GrClip&, std::unique_ptr<GrDrawOp>);
 

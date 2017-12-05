@@ -359,6 +359,34 @@ DEF_SIMPLE_GM(bug339297, canvas, 640, 480) {
     canvas->drawPath(path, paint);
 }
 
+DEF_SIMPLE_GM(bug339297_as_clip, canvas, 640, 480) {
+    SkPath path;
+    path.moveTo(-469515, -10354890);
+    path.cubicTo(771919.62f, -10411179, 2013360.1f, -10243774, 3195542.8f, -9860664);
+    path.lineTo(3195550, -9860655);
+    path.lineTo(3195539, -9860652);
+    path.lineTo(3195539, -9860652);
+    path.lineTo(3195539, -9860652);
+    path.cubicTo(2013358.1f, -10243761, 771919.25f, -10411166, -469513.84f, -10354877);
+    path.lineTo(-469515, -10354890);
+    path.close();
+
+    canvas->translate(258, 10365663);
+
+    canvas->save();
+    canvas->clipPath(path, true);
+    canvas->clear(SK_ColorBLACK);
+    canvas->restore();
+
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    paint.setStyle(SkPaint::kFill_Style);
+    paint.setColor(SK_ColorRED);
+    paint.setStyle(SkPaint::kStroke_Style);
+    paint.setStrokeWidth(1);
+    canvas->drawPath(path, paint);
+}
+
 DEF_SIMPLE_GM(bug6987, canvas, 200, 200) {
     SkPaint paint;
     paint.setStyle(SkPaint::kStroke_Style);

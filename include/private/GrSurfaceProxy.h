@@ -49,6 +49,13 @@ public:
         this->didRemoveRefOrPendingIO();
     }
 
+#ifdef SK_DEBUG
+    bool isUnique_debugOnly() const { // For asserts.
+        SkASSERT(fRefCnt >= 0 && fPendingWrites >= 0 && fPendingReads >= 0);
+        return 1 == fRefCnt + fPendingWrites + fPendingReads;
+    }
+#endif
+
     void validate() const {
 #ifdef SK_DEBUG
         SkASSERT(fRefCnt >= 0);
