@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "f5a49e03_9acc9319",
+        "filename": "src/gpu/ccpr/GrCoverageCountingPathRenderer.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 247,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-12-05T16:36:24Z",
+      "side": 1,
+      "message": "I just didn\u0027t want to explicitly type the return type of this Lambda. If I change this to nullptr, I\u0027ll have to specify the return type as sk_sp\u003cGrTexture\u003e.\n\nDo you have a preference which way?",
+      "parentUuid": "3e863842_884d2db2",
+      "range": {
+        "startLine": 247,
+        "startChar": 12,
+        "endLine": 247,
+        "endChar": 38
+      },
+      "revId": "9a65f2fd20a988de49e3a774f86d744e6832320b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "db011f83_6d9cbf89",
         "filename": "src/gpu/ccpr/GrCoverageCountingPathRenderer.h",
         "patchSetId": 8
