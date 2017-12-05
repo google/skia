@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2a785a6b_27072fc6",
+        "filename": "src/core/SkStream.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-12-05T17:25:10Z",
+      "side": 1,
+      "message": "::read is not const, but peek is. SkMemoryStream uses const_cast to get around this. Now that I think about this some more, I *think* we didn\u0027t write a generic version because some streams might fail inside move() (but SkMemoryStream can guarantee that it will succeed and still be in a good state).",
+      "range": {
+        "startLine": 68,
+        "startChar": 21,
+        "endLine": 68,
+        "endChar": 25
+      },
+      "revId": "8013e0e76e6e87c2f038426bd9eacafe61fd18e9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
