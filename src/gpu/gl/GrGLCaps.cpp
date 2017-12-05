@@ -1940,26 +1940,29 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
         fConfigTable[kAlpha_8_GrPixelConfig] = alphaInfo;
     }
 
-    fConfigTable[kGray_8_GrPixelConfig].fFormats.fExternalType = GR_GL_UNSIGNED_BYTE;
-    fConfigTable[kGray_8_GrPixelConfig].fFormatType = kNormalizedFixedPoint_FormatType;
-    fConfigTable[kGray_8_GrPixelConfig].fFlags = ConfigInfo::kTextureable_Flag;
-    if (this->textureRedSupport()) {
-        fConfigTable[kGray_8_GrPixelConfig].fFormats.fBaseInternalFormat = GR_GL_RED;
-        fConfigTable[kGray_8_GrPixelConfig].fFormats.fSizedInternalFormat = GR_GL_R8;
-        fConfigTable[kGray_8_GrPixelConfig].fFormats.fExternalFormat[kOther_ExternalFormatUsage] =
-            GR_GL_RED;
-        fConfigTable[kGray_8_GrPixelConfig].fSwizzle = GrSwizzle::RRRA();
-        if (texelBufferSupport) {
-            fConfigTable[kGray_8_GrPixelConfig].fFlags |= ConfigInfo::kCanUseWithTexelBuffer_Flag;
-        }
-    } else {
-        fConfigTable[kGray_8_GrPixelConfig].fFormats.fBaseInternalFormat = GR_GL_LUMINANCE;
-        fConfigTable[kGray_8_GrPixelConfig].fFormats.fSizedInternalFormat = GR_GL_LUMINANCE8;
-        fConfigTable[kGray_8_GrPixelConfig].fFormats.fExternalFormat[kOther_ExternalFormatUsage] =
-            GR_GL_LUMINANCE;
-        fConfigTable[kGray_8_GrPixelConfig].fSwizzle = GrSwizzle::RGBA();
+    ConfigInfo& grayLumInfo = fConfigTable[kGray_8_as_Lum_GrPixelConfig];
+    grayLumInfo.fFormats.fExternalType = GR_GL_UNSIGNED_BYTE;
+    grayLumInfo.fFormatType = kNormalizedFixedPoint_FormatType;
+    grayLumInfo.fFormats.fBaseInternalFormat = GR_GL_LUMINANCE;
+    grayLumInfo.fFormats.fSizedInternalFormat = GR_GL_LUMINANCE8;
+    grayLumInfo.fFormats.fExternalFormat[kOther_ExternalFormatUsage] = GR_GL_LUMINANCE;
+    grayLumInfo.fSwizzle = GrSwizzle::RGBA();
+    if ((standard == kGL_GrGLStandard && version <= GR_GL_VER(3, 0)) ||
+        (standard == kGLES_GrGLStandard && version < GR_GL_VER(3, 0))) {
+        grayLumInfo.fFlags = ConfigInfo::kTextureable_Flag;
     }
-#if 0 // Leaving Gray8 as non-renderable, to keep things simple and match raster
+
+    ConfigInfo& grayRedInfo = fConfigTable[kGray_8_as_Red_GrPixelConfig];
+    grayRedInfo.fFormats.fExternalType = GR_GL_UNSIGNED_BYTE;
+    grayRedInfo.fFormatType = kNormalizedFixedPoint_FormatType;
+    grayRedInfo.fFormats.fBaseInternalFormat = GR_GL_RED;
+    grayRedInfo.fFormats.fSizedInternalFormat = GR_GL_R8;
+    grayRedInfo.fFormats.fExternalFormat[kOther_ExternalFormatUsage] = GR_GL_RED;
+    grayRedInfo.fSwizzle = GrSwizzle::RRRA();
+    grayRedInfo.fFlags = ConfigInfo::kTextureable_Flag;
+
+#if 0 // Leaving Gray8 as non-renderable, to keep things simple and match raster. Needs to be
+      // updated to support Gray8_as_Lum and Gray8_as_red if this is ever enabled.
     if (this->textureRedSupport() ||
         (kDesktop_ARB_MSFBOType == this->msFBOType() &&
          ctxInfo.renderer() != kOSMesa_GrGLRenderer)) {
@@ -1970,7 +1973,20 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
     }
 #endif
     if (texStorageSupported && !isCommandBufferES2) {
-        fConfigTable[kGray_8_GrPixelConfig].fFlags |= ConfigInfo::kCanUseTexStorage_Flag;
+        if (GrGLANGLEBackend::kOpenGL != ctxInfo.angleBackend()) {
+            grayLumInfo.fFlags |= ConfigInfo::kCanUseTexStorage_Flag;
+        }
+        grayRedInfo.fFlags |= ConfigInfo::kCanUseTexStorage_Flag;
+    }
+
+    if (this->textureRedSupport()) {
+        if (texelBufferSupport) {
+            grayRedInfo.fFlags |= ConfigInfo::kCanUseWithTexelBuffer_Flag;
+        }
+        fConfigTable[kGray_8_GrPixelConfig] = grayRedInfo;
+    } else {
+        grayRedInfo.fFlags = 0;
+        fConfigTable[kGray_8_GrPixelConfig] = grayLumInfo;
     }
 
     // Check for [half] floating point texture support

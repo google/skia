@@ -373,7 +373,9 @@ bool GrPixelConfigToColorType(GrPixelConfig config, SkColorType* ctOut) {
         case kAlpha_8_as_Red_GrPixelConfig:
             ct = kAlpha_8_SkColorType;
             break;
-        case kGray_8_GrPixelConfig:
+        case kGray_8_GrPixelConfig: // fall through
+        case kGray_8_as_Lum_GrPixelConfig: // fall through
+        case kGray_8_as_Red_GrPixelConfig:
             ct = kGray_8_SkColorType;
             break;
         case kRGB_565_GrPixelConfig:
