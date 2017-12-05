@@ -1272,13 +1272,13 @@ Json::Value SkDrawCommand::MakeJsonLattice(const SkCanvas::Lattice& lattice) {
         YDivs.append(Json::Value(lattice.fYDivs[i]));
     }
     result[SKDEBUGCANVAS_ATTRIBUTE_LATTICEYDIVS] = YDivs;
-    if (nullptr != lattice.fFlags) {
+    if (nullptr != lattice.fRectTypes) {
         Json::Value flags(Json::arrayValue);
         int flagCount = 0;
         for (int row = 0; row < lattice.fYCount+1; row++) {
             Json::Value flagsRow(Json::arrayValue);
             for (int column = 0; column < lattice.fXCount+1; column++) {
-                flagsRow.append(Json::Value(lattice.fFlags[flagCount++]));
+                flagsRow.append(Json::Value(lattice.fRectTypes[flagCount++]));
             }
             flags.append(flagsRow);
         }
