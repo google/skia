@@ -57,6 +57,17 @@ namespace SkOpts {
     static inline uint32_t hash(const void* data, size_t bytes, uint32_t seed=0) {
         return hash_fn(data, bytes, seed);
     }
+
+    // We can't always express the real type of the SkRasterPipeline stage functions here.
+    using StageFn = void(*)();
+    #define M(st) +1
+        extern StageFn stages     [SK_RASTER_PIPELINE_STAGES(M)];
+        extern StageFn stages_lowp[SK_RASTER_PIPELINE_STAGES(M)];
+    #undef M
+    extern void (*start_pipeline     )(size_t,size_t,size_t,size_t, void**);
+    extern void (*start_pipeline_lowp)(size_t,size_t,size_t,size_t, void**);
+    extern StageFn just_return,
+                   just_return_lowp;
 }
 
 #endif//SkOpts_DEFINED
