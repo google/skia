@@ -85,6 +85,8 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
         kAlpha_8_as_Alpha_GrPixelConfig,
         kAlpha_8_as_Red_GrPixelConfig,
         kGray_8_GrPixelConfig,
+        kGray_8_as_Lum_GrPixelConfig,
+        kGray_8_as_Red_GrPixelConfig,
         kRGB_565_GrPixelConfig,
         kRGBA_4444_GrPixelConfig,
         kRGBA_8888_GrPixelConfig,
@@ -122,6 +124,8 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
             desc.fSampleCnt = 0;
 
             sk_sp<GrSurface> tex = resourceProvider->createTexture(desc, SkBudgeted::kNo);
+            SkDebugf("config: %d, tex: %d, texturable: %d\n",
+                     desc.fConfig, SkToBool(tex.get()), caps->isConfigTexturable(desc.fConfig));
             REPORTER_ASSERT(reporter, SkToBool(tex.get()) == caps->isConfigTexturable(desc.fConfig));
 
             size_t rowBytes = desc.fWidth * GrBytesPerPixel(desc.fConfig);
