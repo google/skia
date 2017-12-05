@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "568d06bf_b382617c",
+        "filename": "infra/bots/recipe_modules/flavor/gn_android_flavor.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-12-05T21:37:00Z",
+      "side": 1,
+      "message": "We\u0027d get the same effect by deleting the line entirely right?  We reboot between runs?",
+      "revId": "4c6bde2a272f586a9da45cf1bd1627bfd1263ba2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
