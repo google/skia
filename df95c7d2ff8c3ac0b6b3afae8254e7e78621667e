@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "a22e54eb_05e33b4f",
+        "filename": "src/core/SkReadBuffer.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-12-05T16:14:41Z",
+      "side": 1,
+      "message": "This is defunct code : since I now track each blob to be either \"custom\" or built-in, I don\u0027t need a faux callback. Will remove this extra code.",
+      "parentUuid": "3dcbdaaa_854769f2",
+      "range": {
+        "startLine": 49,
+        "startChar": 8,
+        "endLine": 53,
+        "endChar": 35
+      },
+      "revId": "df95c7d2ff8c3ac0b6b3afae8254e7e78621667e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "cc63e665_85f2219a",
         "filename": "src/core/SkReadBuffer.cpp",
         "patchSetId": 6
@@ -36,6 +60,24 @@
       "writtenOn": "2017-12-05T15:40:25Z",
       "side": 1,
       "message": "Remind me again why we need this distinction?  Can\u0027t we just say, everything is custom encoded by SerialProcs, and it\u0027s just the default uses MakeFromEncoded()?  What makes the MakeFromEncoded() path special now?",
+      "revId": "df95c7d2ff8c3ac0b6b3afae8254e7e78621667e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b22d5ace_e170cca5",
+        "filename": "src/core/SkReadBuffer.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 260,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-12-05T16:14:41Z",
+      "side": 1,
+      "message": "The custom encoder can still return \"false\" when called, and this tells us to take our default action. This encoding tells us that; we can produce a stream that is interleaved with custom and default blobs.",
+      "parentUuid": "cc63e665_85f2219a",
       "revId": "df95c7d2ff8c3ac0b6b3afae8254e7e78621667e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
