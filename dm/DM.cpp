@@ -731,7 +731,7 @@ static void push_codec_srcs(Path path) {
         };
         for (const char* brdExt : brdExts) {
             if (0 == strcmp(brdExt, ext)) {
-                bool gray = codec->getEncodedInfo().color() == SkEncodedInfo::kGray_Color;
+                bool gray = codec->getInfo().colorType() == kGray_8_SkColorType;
                 push_brd_srcs(path, gray);
                 break;
             }

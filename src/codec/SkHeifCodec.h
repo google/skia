@@ -47,7 +47,7 @@ protected:
         return SkEncodedImageFormat::kHEIF;
     }
 
-    bool conversionSupported(const SkImageInfo&, SkEncodedInfo::Color, bool,
+    bool conversionSupported(const SkImageInfo&, SkColorType, bool,
                              const SkColorSpace*) const override {
         // This class checks for conversion after creating colorXform.
         return true;
