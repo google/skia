@@ -277,6 +277,15 @@ static void test_peeking_front_buffered_stream(skiatest::Reporter* r,
     }
 }
 
+namespace {
+struct StreamWrapper : public SkStream {
+    SkStream* fStream;
+    StreamWrapper(SkStream* s) : fStream(s) {}
+    size_t read(void* buffer, size_t size) override { return fStream->read(buffer, size); }
+    bool isAtEnd() const override { return fStream->isAtEnd(); }
+};
+}
+
 // This test uses file system operations that don't work out of the
 // box on iOS. It's likely that we don't need them on iOS. Ignoring for now.
 // TODO(stephana): Re-evaluate if we need this in the future.
@@ -293,8 +302,9 @@ DEF_TEST(StreamPeek, reporter) {
         return;
     }
     SkAutoMalloc storage(fileStream.getLength());
+    StreamWrapper wrapper(&fileStream);
     for (size_t i = 1; i < fileStream.getLength(); i++) {
-        REPORTER_ASSERT(reporter, fileStream.peek(storage.get(), i) == 0);
+        REPORTER_ASSERT(reporter, wrapper.peek(storage.get(), i) == 0);
     }
 
     // Now test some FrontBufferedStreams

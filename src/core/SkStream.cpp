@@ -64,6 +64,13 @@ size_t SkStream::readPackedUInt() {
 
 //////////////////////////////////////////////////////////////////////////////////////
 
+size_t SkStreamSeekable::peek(void* buffer, size_t size) const {
+    std::unique_ptr<SkStreamSeekable> forkStream = this->fork();
+    return forkStream ? forkStream->read(buffer, size) : 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////
+
 SkWStream::~SkWStream()
 {
 }
