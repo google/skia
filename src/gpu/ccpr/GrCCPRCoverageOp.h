@@ -64,6 +64,11 @@ public:
     //                                                                 | 1  1 |
     void parsePath(const SkMatrix&, const SkPath&, SkRect* devBounds, SkRect* devBounds45);
 
+    // Parses a device-space SkPath into a temporary staging area. The path will not yet be included
+    // in the next Op unless there is a matching call to saveParsedPath. The user must complement
+    // this with a following call to either saveParsedPath or discardParsedPath.
+    void parseDeviceSpacePath(const SkPath&);
+
     // Commits the currently-parsed path from staging to the next Op, and specifies whether the mask
     // should be rendered with a scissor clip in effect. Accepts an optional post-device-space
     // translate for placement in an atlas.

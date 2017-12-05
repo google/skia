@@ -296,6 +296,8 @@ skia_gpu_sources = [
   # coverage counting path renderer
   "$_src/gpu/ccpr/GrCCPRAtlas.cpp",
   "$_src/gpu/ccpr/GrCCPRAtlas.h",
+  "$_src/gpu/ccpr/GrCCPRClipProcessor.cpp",
+  "$_src/gpu/ccpr/GrCCPRClipProcessor.h",
   "$_src/gpu/ccpr/GrCCPRCoverageOp.cpp",
   "$_src/gpu/ccpr/GrCCPRCoverageOp.h",
   "$_src/gpu/ccpr/GrCCPRCoverageProcessor.cpp",

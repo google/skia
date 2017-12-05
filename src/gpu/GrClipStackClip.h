@@ -46,6 +46,9 @@ private:
                                     GrPathRenderer** prOut,
                                     bool needsStencil);
 
+    bool applyClipMask(GrContext*, GrRenderTargetContext*, const GrReducedClip&,
+                       bool hasUserStencilSettings, GrAppliedClip*) const;
+
     // Creates an alpha mask of the clip. The mask is a rasterization of elements through the
     // rect specified by clipSpaceIBounds.
     sk_sp<GrTextureProxy> createAlphaClipMask(GrContext*, const GrReducedClip&) const;

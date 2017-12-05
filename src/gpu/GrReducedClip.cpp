@@ -21,6 +21,8 @@
 #include "GrStyle.h"
 #include "GrUserStencilSettings.h"
 #include "SkClipOpPriv.h"
+#include "ccpr/GrCoverageCountingPathRenderer.h"
+#include "effects/GrAARectEffect.h"
 #include "effects/GrConvexPolyEffect.h"
 #include "effects/GrRRectEffect.h"
 
@@ -32,8 +34,12 @@
  * take a rect in case the caller knows a bound on what is to be drawn through this clip.
  */
 GrReducedClip::GrReducedClip(const SkClipStack& stack, const SkRect& queryBounds,
-                             const GrShaderCaps* caps, int maxWindowRectangles, int maxAnalyticFPs)
-        : fCaps(caps), fMaxWindowRectangles(maxWindowRectangles), fMaxAnalyticFPs(maxAnalyticFPs) {
+                             const GrShaderCaps* caps, int maxWindowRectangles, int maxAnalyticFPs,
+                             GrCoverageCountingPathRenderer* ccpr)
+        : fCaps(caps)
+        , fMaxWindowRectangles(maxWindowRectangles)
+        , fMaxAnalyticFPs(maxAnalyticFPs)
+        , fCCPR(fMaxAnalyticFPs ? ccpr : nullptr) {
     SkASSERT(!queryBounds.isEmpty());
     SkASSERT(fMaxWindowRectangles <= GrWindowRectangles::kMaxWindows);
     fHasScissor = false;
@@ -175,6 +181,12 @@ void GrReducedClip::walkStack(const SkClipStack& stack, const SkRect& queryBound
                     } else if (GrClip::IsOutsideClip(element->getBounds(), queryBounds)) {
                         initialTriState = InitialTriState::kAllOut;
                         skippable = true;
+                    } else if (!embiggens) {
+                        ClipResult result = this->clipInsideElement(element);
+                        if (ClipResult::kMadeEmpty == result) {
+                            return;
+                        }
+                        skippable = (ClipResult::kClipped == result);
                     }
                 } else {
                     if (element->contains(relaxedQueryBounds)) {
@@ -204,6 +216,12 @@ void GrReducedClip::walkStack(const SkClipStack& stack, const SkRect& queryBound
                         skippable = true;
                     } else if (GrClip::IsOutsideClip(element->getBounds(), queryBounds)) {
                         skippable = true;
+                    } else if (!embiggens) {
+                        ClipResult result = this->clipOutsideElement(element);
+                        if (ClipResult::kMadeEmpty == result) {
+                            return;
+                        }
+                        skippable = (ClipResult::kClipped == result);
                     }
                 } else {
                     if (element->contains(relaxedQueryBounds)) {
@@ -305,6 +323,15 @@ void GrReducedClip::walkStack(const SkClipStack& stack, const SkRect& queryBound
                     } else if (GrClip::IsOutsideClip(element->getBounds(), queryBounds)) {
                         initialTriState = InitialTriState::kAllIn;
                         skippable = true;
+                    } else if (!embiggens) {
+                        ClipResult result = this->clipOutsideElement(element);
+                        if (ClipResult::kMadeEmpty == result) {
+                            return;
+                        }
+                        if (ClipResult::kClipped == result) {
+                            initialTriState = InitialTriState::kAllIn;
+                            skippable = true;
+                        }
                     }
                 } else {
                     if (element->contains(relaxedQueryBounds)) {
@@ -466,6 +493,7 @@ GrReducedClip::ClipResult GrReducedClip::clipInsideElement(const Element* elemen
 
         case Element::DeviceSpaceType::kRect:
             SkASSERT(element->getBounds() == element->getDeviceSpaceRect());
+            SkASSERT(!element->isInverseFilled());
             if (element->isAA()) {
                 if (SK_InvalidGenID == fAAClipRectGenID) { // No AA clip rect yet?
                     fAAClipRect = element->getDeviceSpaceRect();
@@ -483,12 +511,13 @@ GrReducedClip::ClipResult GrReducedClip::clipInsideElement(const Element* elemen
             return ClipResult::kClipped;
 
         case Element::DeviceSpaceType::kRRect:
+            SkASSERT(!element->isInverseFilled());
             return this->addAnalyticFP(element->getDeviceSpaceRRect(), Invert::kNo,
                                        GrAA(element->isAA()));
 
         case Element::DeviceSpaceType::kPath:
-            return this->addAnalyticFP(element->getDeviceSpacePath(), Invert::kNo,
-                                       GrAA(element->isAA()));
+            return this->addAnalyticFP(element->getDeviceSpacePath(),
+                                       Invert(element->isInverseFilled()), GrAA(element->isAA()));
     }
 
     SK_ABORT("Unexpected DeviceSpaceType");
@@ -501,6 +530,7 @@ GrReducedClip::ClipResult GrReducedClip::clipOutsideElement(const Element* eleme
             return ClipResult::kMadeEmpty;
 
         case Element::DeviceSpaceType::kRect:
+            SkASSERT(!element->isInverseFilled());
             if (fWindowRects.count() < fMaxWindowRectangles) {
                 // Clip out the inside of every rect. We won't be able to entirely skip the AA ones,
                 // but it saves processing time.
@@ -513,6 +543,7 @@ GrReducedClip::ClipResult GrReducedClip::clipOutsideElement(const Element* eleme
                                        GrAA(element->isAA()));
 
         case Element::DeviceSpaceType::kRRect: {
+            SkASSERT(!element->isInverseFilled());
             const SkRRect& clipRRect = element->getDeviceSpaceRRect();
             ClipResult clipResult = this->addAnalyticFP(clipRRect, Invert::kYes,
                                                         GrAA(element->isAA()));
@@ -552,8 +583,8 @@ GrReducedClip::ClipResult GrReducedClip::clipOutsideElement(const Element* eleme
         }
 
         case Element::DeviceSpaceType::kPath:
-            return this->addAnalyticFP(element->getDeviceSpacePath(), Invert::kYes,
-                                       GrAA(element->isAA()));
+            return this->addAnalyticFP(element->getDeviceSpacePath(),
+                                       Invert(!element->isInverseFilled()), GrAA(element->isAA()));
     }
 
     SK_ABORT("Unexpected DeviceSpaceType");
@@ -572,45 +603,65 @@ inline void GrReducedClip::addWindowRectangle(const SkRect& elementInteriorRect,
     }
 }
 
-template<typename T>
-inline GrReducedClip::ClipResult GrReducedClip::addAnalyticFP(const T& deviceSpaceShape,
-                                                              Invert invert, GrAA aa) {
-    if (fAnalyticFPs.count() >= fMaxAnalyticFPs) {
+GrClipEdgeType GrReducedClip::GetClipEdgeType(Invert invert, GrAA aa) {
+    if (Invert::kNo == invert) {
+        return (GrAA::kYes == aa) ? GrClipEdgeType::kFillAA : GrClipEdgeType::kFillBW;
+    } else {
+        return (GrAA::kYes == aa) ? GrClipEdgeType::kInverseFillAA : GrClipEdgeType::kInverseFillBW;
+    }
+}
+
+GrReducedClip::ClipResult GrReducedClip::addAnalyticFP(const SkRect& deviceSpaceRect,
+                                                       Invert invert, GrAA aa) {
+    if (this->numAnalyticFPs() >= fMaxAnalyticFPs) {
         return ClipResult::kNotClipped;
     }
 
-    GrClipEdgeType edgeType;
-    if (Invert::kNo == invert) {
-        edgeType = (GrAA::kYes == aa) ? GrClipEdgeType::kFillAA : GrClipEdgeType::kFillBW;
-    } else {
-        edgeType = (GrAA::kYes == aa) ? GrClipEdgeType::kInverseFillAA
-                                      : GrClipEdgeType::kInverseFillBW;
+    fAnalyticFPs.push_back(GrAARectEffect::Make(GetClipEdgeType(invert, aa), deviceSpaceRect));
+    SkASSERT(fAnalyticFPs.back());
+
+    return ClipResult::kClipped;
+}
+
+GrReducedClip::ClipResult GrReducedClip::addAnalyticFP(const SkRRect& deviceSpaceRRect,
+                                                       Invert invert, GrAA aa) {
+    if (this->numAnalyticFPs() >= fMaxAnalyticFPs) {
+        return ClipResult::kNotClipped;
     }
 
-    if (auto fp = make_analytic_clip_fp(edgeType, deviceSpaceShape, *fCaps)) {
+    if (auto fp = GrRRectEffect::Make(GetClipEdgeType(invert, aa), deviceSpaceRRect, *fCaps)) {
         fAnalyticFPs.push_back(std::move(fp));
         return ClipResult::kClipped;
     }
 
+    SkPath deviceSpacePath;
+    deviceSpacePath.setIsVolatile(true);
+    deviceSpacePath.addRRect(deviceSpaceRRect);
+    return this->addAnalyticFP(deviceSpacePath, invert, aa);
+}
+
+GrReducedClip::ClipResult GrReducedClip::addAnalyticFP(const SkPath& deviceSpacePath,
+                                                       Invert invert, GrAA aa) {
+    if (this->numAnalyticFPs() >= fMaxAnalyticFPs) {
+        return ClipResult::kNotClipped;
+    }
+
+    if (auto fp = GrConvexPolyEffect::Make(GetClipEdgeType(invert, aa), deviceSpacePath)) {
+        fAnalyticFPs.push_back(std::move(fp));
+        return ClipResult::kClipped;
+    }
+
+    if (fCCPR && GrAA::kYes == aa && fCCPR->canMakeClipProcessor(deviceSpacePath)) {
+        // Set aside CCPR paths for later. We will create their clip FPs once we know the ID of the
+        // opList they will operate in.
+        SkPath& ccprClipPath = fCCPRClipPaths.push_back(deviceSpacePath);
+        if (Invert::kYes == invert) {
+            ccprClipPath.toggleInverseFillType();
+        }
+        return ClipResult::kClipped;
+    }
+
     return ClipResult::kNotClipped;
-}
-
-std::unique_ptr<GrFragmentProcessor> make_analytic_clip_fp(GrClipEdgeType edgeType,
-                                                           const SkRect& deviceSpaceRect,
-                                                           const GrShaderCaps&) {
-    return GrConvexPolyEffect::Make(edgeType, deviceSpaceRect);
-}
-
-std::unique_ptr<GrFragmentProcessor> make_analytic_clip_fp(GrClipEdgeType edgeType,
-                                                           const SkRRect& deviceSpaceRRect,
-                                                           const GrShaderCaps& caps) {
-    return GrRRectEffect::Make(edgeType, deviceSpaceRRect, caps);
-}
-
-std::unique_ptr<GrFragmentProcessor> make_analytic_clip_fp(GrClipEdgeType edgeType,
-                                                           const SkPath& deviceSpacePath,
-                                                           const GrShaderCaps&) {
-    return GrConvexPolyEffect::Make(edgeType, deviceSpacePath);
 }
 
 void GrReducedClip::makeEmpty() {
@@ -901,4 +952,23 @@ bool GrReducedClip::drawStencilClipMask(GrContext* context,
         }
     }
     return true;
+}
+
+std::unique_ptr<GrFragmentProcessor> GrReducedClip::finishAndDetachAnalyticFPs(uint32_t opListID,
+                                                                               int rtWidth,
+                                                                               int rtHeight) {
+    // Make sure finishAndDetachAnalyticFPs hasn't been called already.
+    SkDEBUGCODE(for (const auto& fp : fAnalyticFPs) { SkASSERT(fp); })
+
+    if (!fCCPRClipPaths.empty()) {
+        fAnalyticFPs.reserve(fAnalyticFPs.count() + fCCPRClipPaths.count());
+        for (const SkPath& ccprClipPath : fCCPRClipPaths) {
+            SkASSERT(fHasScissor);
+            auto fp = fCCPR->makeClipProcessor(opListID, ccprClipPath, fScissor, rtWidth, rtHeight);
+            fAnalyticFPs.push_back(std::move(fp));
+        }
+        fCCPRClipPaths.reset();
+    }
+
+    return GrFragmentProcessor::RunInSeries(fAnalyticFPs.begin(), fAnalyticFPs.count());
 }

@@ -14,6 +14,7 @@
 #include "SkTLList.h"
 
 class GrContext;
+class GrCoverageCountingPathRenderer;
 class GrRenderTargetContext;
 
 /**
@@ -26,7 +27,15 @@ public:
     using ElementList = SkTLList<SkClipStack::Element, 16>;
 
     GrReducedClip(const SkClipStack&, const SkRect& queryBounds, const GrShaderCaps* caps,
-                  int maxWindowRectangles = 0, int maxAnalyticFPs = 0);
+                  int maxWindowRectangles = 0, int maxAnalyticFPs = 0,
+                  GrCoverageCountingPathRenderer* = nullptr);
+
+    enum class InitialState : bool {
+        kAllIn,
+        kAllOut
+    };
+
+    InitialState initialState() const { return fInitialState; }
 
     /**
      * If hasScissor() is true, the clip mask is not valid outside this rect and the caller must
@@ -50,13 +59,6 @@ public:
      */
     const GrWindowRectangles& windowRectangles() const { return fWindowRects; }
 
-    int numAnalyticFPs() const { return fAnalyticFPs.count(); }
-
-    std::unique_ptr<GrFragmentProcessor> detachAnalyticFPs() {
-        SkDEBUGCODE(for (const auto& fp : fAnalyticFPs) { SkASSERT(fp); })
-        return GrFragmentProcessor::RunInSeries(fAnalyticFPs.begin(), fAnalyticFPs.count());
-    }
-
     /**
      * An ordered list of clip elements that could not be skipped or implemented by other means. If
      * nonempty, the caller must create an alpha and/or stencil mask for these elements and apply it
@@ -67,8 +69,10 @@ public:
     /**
      * If maskElements() are nonempty, uniquely identifies the region of the clip mask that falls
      * inside of scissor().
+     *
      * NOTE: since clip elements might fall outside the query bounds, different regions of the same
      * clip stack might have more or less restrictive IDs.
+     *
      * FIXME: this prevents us from reusing a sub-rect of a perfectly good mask when that rect has
      * been assigned a less restrictive ID.
      */
@@ -79,15 +83,22 @@ public:
      */
     bool maskRequiresAA() const { SkASSERT(!fMaskElements.isEmpty()); return fMaskRequiresAA; }
 
-    enum class InitialState : bool {
-        kAllIn,
-        kAllOut
-    };
-
-    InitialState initialState() const { return fInitialState; }
-
     bool drawAlphaClipMask(GrRenderTargetContext*) const;
     bool drawStencilClipMask(GrContext*, GrRenderTargetContext*) const;
+
+    int numAnalyticFPs() const { return fAnalyticFPs.count() + fCCPRClipPaths.count(); }
+
+    /**
+     * Called once the client knows the ID of the opList that the clip FPs will operate in. This
+     * method finishes any outstanding work that was waiting for the opList ID, then detaches and
+     * returns this class's list of FPs that complete the clip.
+     *
+     * NOTE: this must be called AFTER producing the clip mask (if any) because draw calls on
+     * the render target context, surface allocations, and even switching render targets (pre MDB)
+     * may cause flushes or otherwise change which opList the actual draw is going into.
+     */
+    std::unique_ptr<GrFragmentProcessor> finishAndDetachAnalyticFPs(uint32_t opListID, int rtWidth,
+                                                                    int rtHeight);
 
 private:
     void walkStack(const SkClipStack&, const SkRect& queryBounds);
@@ -98,11 +109,11 @@ private:
         kMadeEmpty
     };
 
-    // Clips the the given element's interior out of the final clip.
+    // Intersects the clip with the element's interior, regardless of inverse fill type.
     // NOTE: do not call for elements followed by ops that can grow the clip.
     ClipResult clipInsideElement(const Element*);
 
-    // Clips the the given element's exterior out of the final clip.
+    // Intersects the clip with the element's exterior, regardless of inverse fill type.
     // NOTE: do not call for elements followed by ops that can grow the clip.
     ClipResult clipOutsideElement(const Element*);
 
@@ -113,23 +124,29 @@ private:
         kYes = true
     };
 
-    template<typename T> ClipResult addAnalyticFP(const T& deviceSpaceShape, Invert, GrAA);
+    static GrClipEdgeType GetClipEdgeType(Invert, GrAA);
+    ClipResult addAnalyticFP(const SkRect& deviceSpaceRect, Invert, GrAA);
+    ClipResult addAnalyticFP(const SkRRect& deviceSpaceRRect, Invert, GrAA);
+    ClipResult addAnalyticFP(const SkPath& deviceSpacePath, Invert, GrAA);
 
     void makeEmpty();
 
     const GrShaderCaps* fCaps;
     const int fMaxWindowRectangles;
     const int fMaxAnalyticFPs;
+    GrCoverageCountingPathRenderer* const fCCPR;
+
+    InitialState fInitialState;
     SkIRect fScissor;
     bool fHasScissor;
     SkRect fAAClipRect;
     uint32_t fAAClipRectGenID; // GenID the mask will have if includes the AA clip rect.
     GrWindowRectangles fWindowRects;
-    SkSTArray<4, std::unique_ptr<GrFragmentProcessor>> fAnalyticFPs;
     ElementList fMaskElements;
     uint32_t fMaskGenID;
     bool fMaskRequiresAA;
-    InitialState fInitialState;
+    SkSTArray<4, std::unique_ptr<GrFragmentProcessor>> fAnalyticFPs;
+    SkSTArray<4, SkPath> fCCPRClipPaths; // Will convert to FPs once we have an opList ID for CCPR.
 };
 
 #endif

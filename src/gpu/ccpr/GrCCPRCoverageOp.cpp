@@ -77,6 +77,10 @@ void GrCCPRCoverageOpsBuilder::parsePath(const SkMatrix& m, const SkPath& path, 
     this->parsePath(path, fLocalDevPtsBuffer.get());
 }
 
+void GrCCPRCoverageOpsBuilder::parseDeviceSpacePath(const SkPath& deviceSpacePath) {
+    this->parsePath(deviceSpacePath, SkPathPriv::PointData(deviceSpacePath));
+}
+
 void GrCCPRCoverageOpsBuilder::parsePath(const SkPath& path, const SkPoint* deviceSpacePts) {
     SkASSERT(!fParsingPath);
     SkDEBUGCODE(fParsingPath = true);

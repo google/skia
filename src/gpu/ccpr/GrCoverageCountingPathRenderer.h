@@ -14,6 +14,7 @@
 #include "SkTInternalLList.h"
 #include "ccpr/GrCCPRAtlas.h"
 #include "ccpr/GrCCPRCoverageOp.h"
+#include "ccpr/GrCCPRPathProcessor.h"
 #include "ops/GrDrawOp.h"
 #include <map>
 
@@ -28,7 +29,7 @@ class GrCoverageCountingPathRenderer
     : public GrPathRenderer
     , public GrOnFlushCallbackObject {
 
-    struct RTPendingOps;
+    struct RTPendingPaths;
 
 public:
     static bool IsSupported(const GrCaps&);
@@ -36,22 +37,10 @@ public:
                                                                    bool drawCachablePaths);
 
     ~GrCoverageCountingPathRenderer() override {
-        // Ensure nothing exists that could have a dangling pointer back into this class.
-        SkASSERT(fRTPendingOpsMap.empty());
+        // Ensure no Ops exist that could have a dangling pointer back into this class.
+        SkASSERT(fRTPendingPathsMap.empty());
         SkASSERT(0 == fPendingDrawOpsCount);
     }
-
-    // GrPathRenderer overrides.
-    StencilSupport onGetStencilSupport(const GrShape&) const override {
-        return GrPathRenderer::kNoSupport_StencilSupport;
-    }
-    CanDrawPath onCanDrawPath(const CanDrawPathArgs& args) const override;
-    bool onDrawPath(const DrawPathArgs&) final;
-
-    // GrOnFlushCallbackObject overrides.
-    void preFlush(GrOnFlushResourceProvider*, const uint32_t* opListIDs, int numOpListIDs,
-                  SkTArray<sk_sp<GrRenderTargetContext>>* results) override;
-    void postFlush(GrDeferredUploadToken, const uint32_t* opListIDs, int numOpListIDs) override;
 
     // This is the Op that ultimately draws a path into its final destination, using the atlas we
     // generate at flush time.
@@ -63,38 +52,46 @@ public:
         DrawPathsOp(GrCoverageCountingPathRenderer*, const DrawPathArgs&, GrColor);
         ~DrawPathsOp() override;
 
-        const char* name() const override { return "GrCoverageCountingPathRenderer::DrawPathsOp"; }
+        struct SingleDraw  {
+            SkIRect fClipIBounds;
+            SkMatrix fMatrix;
+            SkPath fPath;
+            GrColor fColor;
+            SingleDraw* fNext = nullptr;
+        };
 
-        void visitProxies(const VisitProxyFunc& func) const override {
-            fProcessors.visitProxies(func);
+        const SingleDraw* head() const {
+            SkASSERT(fInstanceCount >= 1);
+            return &fHeadDraw;
         }
 
+        SkDEBUGCODE(int numSkippedInstances_debugOnly() const { return fNumSkippedInstances; })
+
         // GrDrawOp overrides.
+        const char* name() const override { return "GrCoverageCountingPathRenderer::DrawPathsOp"; }
         FixedFunctionFlags fixedFunctionFlags() const override { return FixedFunctionFlags::kNone; }
         RequiresDstTexture finalize(const GrCaps&, const GrAppliedClip*,
                                     GrPixelConfigIsClamped) override;
         void wasRecorded(GrRenderTargetOpList*) override;
         bool onCombineIfPossible(GrOp* other, const GrCaps& caps) override;
+        void visitProxies(const VisitProxyFunc& func) const override {
+            fProcessors.visitProxies(func);
+        }
         void onPrepare(GrOpFlushState*) override {}
         void onExecute(GrOpFlushState*) override;
 
+        int setupResources(GrOnFlushResourceProvider*, GrCCPRCoverageOpsBuilder*,
+                           GrCCPRPathProcessor::Instance* pathInstanceData, int pathInstanceIdx);
+
     private:
         SkPath::FillType getFillType() const {
-            SkASSERT(fDebugInstanceCount >= 1);
+            SkASSERT(fInstanceCount >= 1);
             return fHeadDraw.fPath.getFillType();
         }
 
-        struct SingleDraw  {
-            SkIRect       fClipIBounds;
-            SkMatrix      fMatrix;
-            SkPath        fPath;
-            GrColor       fColor;
-            SingleDraw*   fNext = nullptr;
-        };
-
         struct AtlasBatch {
-            const GrCCPRAtlas*   fAtlas;
-            int                  fEndInstanceIdx;
+            const GrCCPRAtlas* fAtlas;
+            int fEndInstanceIdx;
         };
 
         void addAtlasBatch(const GrCCPRAtlas* atlas, int endInstanceIdx) {
@@ -104,46 +101,130 @@ public:
             fAtlasBatches.push_back() = {atlas, endInstanceIdx};
         }
 
-        GrCoverageCountingPathRenderer* const   fCCPR;
-        const uint32_t                          fSRGBFlags;
-        GrProcessorSet                          fProcessors;
-        SingleDraw                              fHeadDraw;
-        SingleDraw*                             fTailDraw;
-        RTPendingOps*                           fOwningRTPendingOps;
-        int                                     fBaseInstance;
-        SkDEBUGCODE(int                         fDebugInstanceCount;)
-        SkDEBUGCODE(int                         fDebugSkippedInstances;)
-        SkSTArray<1, AtlasBatch, true>          fAtlasBatches;
-
-        friend class GrCoverageCountingPathRenderer;
+        GrCoverageCountingPathRenderer* const fCCPR;
+        const uint32_t fSRGBFlags;
+        GrProcessorSet fProcessors;
+        SingleDraw fHeadDraw;
+        SingleDraw* fTailDraw;
+        RTPendingPaths* fOwningRTPendingPaths;
+        int fBaseInstance;
+        SkDEBUGCODE(int fInstanceCount;)
+        SkDEBUGCODE(int fNumSkippedInstances;)
+        SkSTArray<1, AtlasBatch, true> fAtlasBatches;
 
         typedef GrDrawOp INHERITED;
     };
+
+    // GrPathRenderer overrides.
+    StencilSupport onGetStencilSupport(const GrShape&) const override {
+        return GrPathRenderer::kNoSupport_StencilSupport;
+    }
+    CanDrawPath onCanDrawPath(const CanDrawPathArgs& args) const override;
+    bool onDrawPath(const DrawPathArgs&) final;
+
+    // These are keyed by SkPath generation ID, and store which device-space paths are accessed and
+    // where by clip FPs in a given opList. A single ClipPath can be referenced by multiple FPs. At
+    // flush time their coverage count masks are packed into atlas(es) alongside normal DrawPathOps.
+    class ClipPath {
+    public:
+        ClipPath() = default;
+        ClipPath(const ClipPath&) = delete;
+
+        ~ClipPath() {
+            // Ensure no clip FPs exist with a dangling pointer back into this class.
+            SkASSERT(!fAtlasLazyProxy || fAtlasLazyProxy->isUnique_debugOnly());
+            // Ensure no lazy proxy callbacks exist with a dangling pointer back into this class.
+            SkASSERT(fHasAtlasTransform);
+        }
+
+        bool isUninitialized() const { return !fAtlasLazyProxy; }
+        void init(const SkPath& deviceSpacePath, const SkIRect& accessRect, int rtWidth,
+                  int rtHeight);
+        void addAccess(const SkIRect& accessRect) {
+            SkASSERT(!this->isUninitialized());
+            fAccessRect.join(accessRect);
+        }
+
+        GrTextureProxy* atlasLazyProxy() const {
+            SkASSERT(!this->isUninitialized());
+            return fAtlasLazyProxy.get();
+        }
+        const SkPath& deviceSpacePath() const {
+            SkASSERT(!this->isUninitialized());
+            return fDeviceSpacePath;
+        }
+        const SkIRect& pathDevIBounds() const {
+            SkASSERT(!this->isUninitialized());
+            return fPathDevIBounds;
+        }
+        void placePathInAtlas(GrCoverageCountingPathRenderer*, GrOnFlushResourceProvider*,
+                              GrCCPRCoverageOpsBuilder*);
+
+        const SkVector& atlasScale() const { SkASSERT(fHasAtlasTransform); return fAtlasScale; }
+        const SkVector& atlasTranslate() const {
+            SkASSERT(fHasAtlasTransform);
+            return fAtlasTranslate;
+        }
+
+    private:
+        sk_sp<GrTextureProxy> fAtlasLazyProxy;
+        SkPath fDeviceSpacePath;
+        SkIRect fPathDevIBounds;
+        SkIRect fAccessRect;
+
+        const GrCCPRAtlas* fAtlas = nullptr;
+        int16_t fAtlasOffsetX;
+        int16_t fAtlasOffsetY;
+        SkDEBUGCODE(bool fHasAtlas = false);
+
+        SkVector fAtlasScale;
+        SkVector fAtlasTranslate;
+        SkDEBUGCODE(bool fHasAtlasTransform = false);
+    };
+
+    bool canMakeClipProcessor(const SkPath& deviceSpacePath) const;
+
+    std::unique_ptr<GrFragmentProcessor> makeClipProcessor(uint32_t oplistID,
+                                                           const SkPath& deviceSpacePath,
+                                                           const SkIRect& accessRect,
+                                                           int rtWidth, int rtHeight);
+
+    // GrOnFlushCallbackObject overrides.
+    void preFlush(GrOnFlushResourceProvider*, const uint32_t* opListIDs, int numOpListIDs,
+                  SkTArray<sk_sp<GrRenderTargetContext>>* results) override;
+    void postFlush(GrDeferredUploadToken, const uint32_t* opListIDs, int numOpListIDs) override;
 
 private:
     GrCoverageCountingPathRenderer(bool drawCachablePaths)
             : fDrawCachablePaths(drawCachablePaths) {}
 
-    void setupPerFlushResources(GrOnFlushResourceProvider*, const uint32_t* opListIDs,
-                                int numOpListIDs, SkTArray<sk_sp<GrRenderTargetContext>>* results);
+    GrCCPRAtlas* placeParsedPathInAtlas(GrOnFlushResourceProvider*, const SkIRect& accessRect,
+                                        const SkIRect& pathIBounds, int16_t* atlasOffsetX,
+                                        int16_t* atlasOffsetY, GrCCPRCoverageOpsBuilder*);
 
-    struct RTPendingOps {
-        SkTInternalLList<DrawPathsOp>                 fOpList;
-        GrSTAllocator<256, DrawPathsOp::SingleDraw>   fDrawsAllocator;
+    struct RTPendingPaths {
+        ~RTPendingPaths() {
+            // Ensure all DrawPathsOps in this opList have been deleted.
+            SkASSERT(fDrawOps.isEmpty());
+        }
+
+        SkTInternalLList<DrawPathsOp> fDrawOps;
+        std::map<uint32_t, ClipPath> fClipPaths;
+        GrSTAllocator<256, DrawPathsOp::SingleDraw> fDrawsAllocator;
     };
 
-    // Map from render target ID to the individual render target's pending path ops.
-    std::map<uint32_t, RTPendingOps>   fRTPendingOpsMap;
-    SkDEBUGCODE(int                    fPendingDrawOpsCount = 0;)
+    // A map from render target ID to the individual render target's pending paths.
+    std::map<uint32_t, RTPendingPaths> fRTPendingPathsMap;
+    SkDEBUGCODE(int fPendingDrawOpsCount = 0;)
 
-    sk_sp<GrBuffer>                    fPerFlushIndexBuffer;
-    sk_sp<GrBuffer>                    fPerFlushVertexBuffer;
-    sk_sp<GrBuffer>                    fPerFlushInstanceBuffer;
-    GrSTAllocator<4, GrCCPRAtlas>      fPerFlushAtlases;
-    bool                               fPerFlushResourcesAreValid;
-    SkDEBUGCODE(bool                   fFlushing = false;)
+    sk_sp<GrBuffer> fPerFlushIndexBuffer;
+    sk_sp<GrBuffer> fPerFlushVertexBuffer;
+    sk_sp<GrBuffer> fPerFlushInstanceBuffer;
+    GrSTAllocator<4, GrCCPRAtlas> fPerFlushAtlases;
+    bool fPerFlushResourcesAreValid;
+    SkDEBUGCODE(bool fFlushing = false;)
 
-    const bool                         fDrawCachablePaths;
+    const bool fDrawCachablePaths;
 };
 
 #endif
