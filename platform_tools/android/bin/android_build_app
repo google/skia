@@ -50,9 +50,9 @@ else:
 # build the apk using gradle
 try:
     subprocess.check_call(['./apps/gradlew',
-      ':viewer:assemble' + android_variant + android_buildtype,
+      ':' + args.app_name + ':assemble' + android_variant + android_buildtype,
       '-papps/' + args.app_name,
-      '-P' + target_cpu + '.out.dir=' + args.output_dir,
+      '-P' + target_cpu + '.out.dir=' + os.path.abspath(args.output_dir),
       '--daemon'], cwd=os.path.join(os.path.dirname(__file__), ".."))
 except subprocess.CalledProcessError as error:
   print error
