@@ -156,6 +156,12 @@
         "Build-Debian9-Clang-x86_64-Release"
       ]
     },
+    "Build-Debian9-Clang-x86_64-Release-ANGLE": {
+      "priority": 0.8,
+      "tasks": [
+        "Build-Debian9-Clang-x86_64-Release-ANGLE"
+      ]
+    },
     "Build-Debian9-Clang-x86_64-Release-ASAN": {
       "priority": 0.8,
       "tasks": [
@@ -262,12 +268,6 @@
       "priority": 0.8,
       "tasks": [
         "Build-Debian9-GCC-x86_64-Release"
-      ]
-    },
-    "Build-Debian9-GCC-x86_64-Release-ANGLE": {
-      "priority": 0.8,
-      "tasks": [
-        "Build-Debian9-GCC-x86_64-Release-ANGLE"
       ]
     },
     "Build-Debian9-GCC-x86_64-Release-Flutter_Android": {
@@ -431,12 +431,6 @@
         "Build-Win-MSVC-x86-Debug"
       ]
     },
-    "Build-Win-MSVC-x86-Debug-ANGLE": {
-      "priority": 0.8,
-      "tasks": [
-        "Build-Win-MSVC-x86-Debug-ANGLE"
-      ]
-    },
     "Build-Win-MSVC-x86-Debug-Exceptions": {
       "priority": 0.8,
       "tasks": [
@@ -449,22 +443,10 @@
         "Build-Win-MSVC-x86-Release"
       ]
     },
-    "Build-Win-MSVC-x86-Release-ANGLE": {
-      "priority": 0.8,
-      "tasks": [
-        "Build-Win-MSVC-x86-Release-ANGLE"
-      ]
-    },
     "Build-Win-MSVC-x86_64-Debug": {
       "priority": 0.8,
       "tasks": [
         "Build-Win-MSVC-x86_64-Debug"
-      ]
-    },
-    "Build-Win-MSVC-x86_64-Debug-ANGLE": {
-      "priority": 0.8,
-      "tasks": [
-        "Build-Win-MSVC-x86_64-Debug-ANGLE"
       ]
     },
     "Build-Win-MSVC-x86_64-Debug-Vulkan": {
@@ -477,12 +459,6 @@
       "priority": 0.8,
       "tasks": [
         "Build-Win-MSVC-x86_64-Release"
-      ]
-    },
-    "Build-Win-MSVC-x86_64-Release-ANGLE": {
-      "priority": 0.8,
-      "tasks": [
-        "Build-Win-MSVC-x86_64-Release-ANGLE"
       ]
     },
     "Build-Win-MSVC-x86_64-Release-Vulkan": {
@@ -1509,12 +1485,6 @@
         "Perf-Win10-MSVC-Golo-GPU-QuadroP400-x86_64-Debug-All"
       ]
     },
-    "Perf-Win10-MSVC-Golo-GPU-QuadroP400-x86_64-Debug-All-ANGLE": {
-      "priority": 0.8,
-      "tasks": [
-        "Perf-Win10-MSVC-Golo-GPU-QuadroP400-x86_64-Debug-All-ANGLE"
-      ]
-    },
     "Perf-Win10-MSVC-Golo-GPU-QuadroP400-x86_64-Debug-All-Vulkan": {
       "priority": 0.8,
       "tasks": [
@@ -1525,12 +1495,6 @@
       "priority": 0.8,
       "tasks": [
         "Upload-Perf-Win10-MSVC-Golo-GPU-QuadroP400-x86_64-Release-All"
-      ]
-    },
-    "Perf-Win10-MSVC-Golo-GPU-QuadroP400-x86_64-Release-All-ANGLE": {
-      "priority": 0.8,
-      "tasks": [
-        "Upload-Perf-Win10-MSVC-Golo-GPU-QuadroP400-x86_64-Release-All-ANGLE"
       ]
     },
     "Perf-Win10-MSVC-Golo-GPU-QuadroP400-x86_64-Release-All-Vulkan": {
@@ -2711,12 +2675,6 @@
         "Upload-Test-Win10-MSVC-Golo-GPU-QuadroP400-x86_64-Debug-All"
       ]
     },
-    "Test-Win10-MSVC-Golo-GPU-QuadroP400-x86_64-Debug-All-ANGLE": {
-      "priority": 0.8,
-      "tasks": [
-        "Upload-Test-Win10-MSVC-Golo-GPU-QuadroP400-x86_64-Debug-All-ANGLE"
-      ]
-    },
     "Test-Win10-MSVC-Golo-GPU-QuadroP400-x86_64-Debug-All-Vulkan": {
       "priority": 0.8,
       "tasks": [
@@ -2727,12 +2685,6 @@
       "priority": 0.8,
       "tasks": [
         "Upload-Test-Win10-MSVC-Golo-GPU-QuadroP400-x86_64-Release-All"
-      ]
-    },
-    "Test-Win10-MSVC-Golo-GPU-QuadroP400-x86_64-Release-All-ANGLE": {
-      "priority": 0.8,
-      "tasks": [
-        "Upload-Test-Win10-MSVC-Golo-GPU-QuadroP400-x86_64-Release-All-ANGLE"
       ]
     },
     "Test-Win10-MSVC-Golo-GPU-QuadroP400-x86_64-Release-All-Vulkan": {
@@ -3686,6 +3638,36 @@
       "isolate": "compile_skia.isolate",
       "priority": 0.8
     },
+    "Build-Debian9-Clang-x86_64-Release-ANGLE": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/clang_linux",
+          "path": "clang_linux",
+          "version": "version:10"
+        }
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "os:Debian-9.2",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "compile",
+        "repository=<(REPO)",
+        "buildername=Build-Debian9-Clang-x86_64-Release-ANGLE",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "compile_skia.isolate",
+      "priority": 0.8
+    },
     "Build-Debian9-Clang-x86_64-Release-ASAN": {
       "cipd_packages": [
         {
@@ -4201,29 +4183,6 @@
         "compile",
         "repository=<(REPO)",
         "buildername=Build-Debian9-GCC-x86_64-Release",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_repo=<(PATCH_REPO)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
-      ],
-      "isolate": "compile_skia.isolate",
-      "priority": 0.8
-    },
-    "Build-Debian9-GCC-x86_64-Release-ANGLE": {
-      "dimensions": [
-        "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
-        "os:Debian-9.2",
-        "pool:Skia"
-      ],
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "compile",
-        "repository=<(REPO)",
-        "buildername=Build-Debian9-GCC-x86_64-Release-ANGLE",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -4914,32 +4873,6 @@
       "isolate": "compile_skia.isolate",
       "priority": 0.8
     },
-    "Build-Win-MSVC-x86-Debug-ANGLE": {
-      "dependencies": [
-        "Housekeeper-PerCommit-IsolateWinToolchain"
-      ],
-      "dimensions": [
-        "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
-        "os:Windows-2016Server-14393",
-        "pool:Skia"
-      ],
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "compile",
-        "repository=<(REPO)",
-        "buildername=Build-Win-MSVC-x86-Debug-ANGLE",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_repo=<(PATCH_REPO)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
-      ],
-      "isolate": "compile_skia.isolate",
-      "priority": 0.8
-    },
     "Build-Win-MSVC-x86-Debug-Exceptions": {
       "dependencies": [
         "Housekeeper-PerCommit-IsolateWinToolchain"
@@ -4992,32 +4925,6 @@
       "isolate": "compile_skia.isolate",
       "priority": 0.8
     },
-    "Build-Win-MSVC-x86-Release-ANGLE": {
-      "dependencies": [
-        "Housekeeper-PerCommit-IsolateWinToolchain"
-      ],
-      "dimensions": [
-        "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
-        "os:Windows-2016Server-14393",
-        "pool:Skia"
-      ],
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "compile",
-        "repository=<(REPO)",
-        "buildername=Build-Win-MSVC-x86-Release-ANGLE",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_repo=<(PATCH_REPO)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
-      ],
-      "isolate": "compile_skia.isolate",
-      "priority": 0.8
-    },
     "Build-Win-MSVC-x86_64-Debug": {
       "dependencies": [
         "Housekeeper-PerCommit-IsolateWinToolchain"
@@ -5034,32 +4941,6 @@
         "compile",
         "repository=<(REPO)",
         "buildername=Build-Win-MSVC-x86_64-Debug",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_repo=<(PATCH_REPO)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
-      ],
-      "isolate": "compile_skia.isolate",
-      "priority": 0.8
-    },
-    "Build-Win-MSVC-x86_64-Debug-ANGLE": {
-      "dependencies": [
-        "Housekeeper-PerCommit-IsolateWinToolchain"
-      ],
-      "dimensions": [
-        "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
-        "os:Windows-2016Server-14393",
-        "pool:Skia"
-      ],
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "compile",
-        "repository=<(REPO)",
-        "buildername=Build-Win-MSVC-x86_64-Debug-ANGLE",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -5113,32 +4994,6 @@
         "compile",
         "repository=<(REPO)",
         "buildername=Build-Win-MSVC-x86_64-Release",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_repo=<(PATCH_REPO)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
-      ],
-      "isolate": "compile_skia.isolate",
-      "priority": 0.8
-    },
-    "Build-Win-MSVC-x86_64-Release-ANGLE": {
-      "dependencies": [
-        "Housekeeper-PerCommit-IsolateWinToolchain"
-      ],
-      "dimensions": [
-        "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
-        "os:Windows-2016Server-14393",
-        "pool:Skia"
-      ],
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "compile",
-        "repository=<(REPO)",
-        "buildername=Build-Win-MSVC-x86_64-Release-ANGLE",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -12197,53 +12052,6 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Perf-Win10-MSVC-Golo-GPU-QuadroP400-x86_64-Debug-All-ANGLE": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:33"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:100"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:9"
-        }
-      ],
-      "dependencies": [
-        "Build-Win-MSVC-x86_64-Debug-ANGLE",
-        "Housekeeper-PerCommit-BundleRecipes"
-      ],
-      "dimensions": [
-        "gpu:10de:1cb3-22.21.13.8205",
-        "os:Windows-10-15063",
-        "pool:Skia"
-      ],
-      "execution_timeout_ns": 14400000000000,
-      "expiration_ns": 72000000000000,
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "perf",
-        "repository=<(REPO)",
-        "buildername=Perf-Win10-MSVC-Golo-GPU-QuadroP400-x86_64-Debug-All-ANGLE",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_repo=<(PATCH_REPO)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
-      ],
-      "io_timeout_ns": 2400000000000,
-      "isolate": "perf_skia_bundled_win.isolate",
-      "max_attempts": 1,
-      "priority": 0.8
-    },
     "Perf-Win10-MSVC-Golo-GPU-QuadroP400-x86_64-Debug-All-Vulkan": {
       "cipd_packages": [
         {
@@ -12326,53 +12134,6 @@
         "perf",
         "repository=<(REPO)",
         "buildername=Perf-Win10-MSVC-Golo-GPU-QuadroP400-x86_64-Release-All",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_repo=<(PATCH_REPO)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
-      ],
-      "io_timeout_ns": 2400000000000,
-      "isolate": "perf_skia_bundled_win.isolate",
-      "max_attempts": 1,
-      "priority": 0.8
-    },
-    "Perf-Win10-MSVC-Golo-GPU-QuadroP400-x86_64-Release-All-ANGLE": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:33"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:100"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:9"
-        }
-      ],
-      "dependencies": [
-        "Build-Win-MSVC-x86_64-Release-ANGLE",
-        "Housekeeper-PerCommit-BundleRecipes"
-      ],
-      "dimensions": [
-        "gpu:10de:1cb3-22.21.13.8205",
-        "os:Windows-10-15063",
-        "pool:Skia"
-      ],
-      "execution_timeout_ns": 14400000000000,
-      "expiration_ns": 72000000000000,
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "perf",
-        "repository=<(REPO)",
-        "buildername=Perf-Win10-MSVC-Golo-GPU-QuadroP400-x86_64-Release-All-ANGLE",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -21539,54 +21300,6 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Test-Win10-MSVC-Golo-GPU-QuadroP400-x86_64-Debug-All-ANGLE": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:33"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:100"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:9"
-        }
-      ],
-      "dependencies": [
-        "Build-Win-MSVC-x86_64-Debug-ANGLE",
-        "Housekeeper-PerCommit-BundleRecipes"
-      ],
-      "dimensions": [
-        "gpu:10de:1cb3-22.21.13.8205",
-        "os:Windows-10-15063",
-        "pool:Skia"
-      ],
-      "execution_timeout_ns": 14400000000000,
-      "expiration_ns": 72000000000000,
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "test",
-        "repository=<(REPO)",
-        "buildbucket_build_id=<(BUILDBUCKET_BUILD_ID)",
-        "buildername=Test-Win10-MSVC-Golo-GPU-QuadroP400-x86_64-Debug-All-ANGLE",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_repo=<(PATCH_REPO)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
-      ],
-      "io_timeout_ns": 2400000000000,
-      "isolate": "test_skia_bundled_win.isolate",
-      "max_attempts": 1,
-      "priority": 0.8
-    },
     "Test-Win10-MSVC-Golo-GPU-QuadroP400-x86_64-Debug-All-Vulkan": {
       "cipd_packages": [
         {
@@ -21671,54 +21384,6 @@
         "repository=<(REPO)",
         "buildbucket_build_id=<(BUILDBUCKET_BUILD_ID)",
         "buildername=Test-Win10-MSVC-Golo-GPU-QuadroP400-x86_64-Release-All",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_repo=<(PATCH_REPO)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
-      ],
-      "io_timeout_ns": 2400000000000,
-      "isolate": "test_skia_bundled_win.isolate",
-      "max_attempts": 1,
-      "priority": 0.8
-    },
-    "Test-Win10-MSVC-Golo-GPU-QuadroP400-x86_64-Release-All-ANGLE": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:33"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:100"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:9"
-        }
-      ],
-      "dependencies": [
-        "Build-Win-MSVC-x86_64-Release-ANGLE",
-        "Housekeeper-PerCommit-BundleRecipes"
-      ],
-      "dimensions": [
-        "gpu:10de:1cb3-22.21.13.8205",
-        "os:Windows-10-15063",
-        "pool:Skia"
-      ],
-      "execution_timeout_ns": 14400000000000,
-      "expiration_ns": 72000000000000,
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "test",
-        "repository=<(REPO)",
-        "buildbucket_build_id=<(BUILDBUCKET_BUILD_ID)",
-        "buildername=Test-Win10-MSVC-Golo-GPU-QuadroP400-x86_64-Release-All-ANGLE",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -25257,33 +24922,6 @@
         "upload_nano_results",
         "repository=<(REPO)",
         "buildername=Perf-Win10-MSVC-Golo-GPU-QuadroP400-x86_64-Release-All",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_repo=<(PATCH_REPO)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)",
-        "gs_bucket=skia-perf"
-      ],
-      "isolate": "upload_nano_results.isolate",
-      "priority": 0.8
-    },
-    "Upload-Perf-Win10-MSVC-Golo-GPU-QuadroP400-x86_64-Release-All-ANGLE": {
-      "dependencies": [
-        "Perf-Win10-MSVC-Golo-GPU-QuadroP400-x86_64-Release-All-ANGLE"
-      ],
-      "dimensions": [
-        "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
-        "os:Debian-9.2",
-        "pool:Skia"
-      ],
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "upload_nano_results",
-        "repository=<(REPO)",
-        "buildername=Perf-Win10-MSVC-Golo-GPU-QuadroP400-x86_64-Release-All-ANGLE",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -29704,33 +29342,6 @@
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
     },
-    "Upload-Test-Win10-MSVC-Golo-GPU-QuadroP400-x86_64-Debug-All-ANGLE": {
-      "dependencies": [
-        "Test-Win10-MSVC-Golo-GPU-QuadroP400-x86_64-Debug-All-ANGLE"
-      ],
-      "dimensions": [
-        "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
-        "os:Debian-9.2",
-        "pool:Skia"
-      ],
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "upload_dm_results",
-        "repository=<(REPO)",
-        "buildername=Test-Win10-MSVC-Golo-GPU-QuadroP400-x86_64-Debug-All-ANGLE",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_repo=<(PATCH_REPO)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)",
-        "gs_bucket=skia-infra-gm"
-      ],
-      "isolate": "upload_dm_results.isolate",
-      "priority": 0.8
-    },
     "Upload-Test-Win10-MSVC-Golo-GPU-QuadroP400-x86_64-Debug-All-Vulkan": {
       "dependencies": [
         "Test-Win10-MSVC-Golo-GPU-QuadroP400-x86_64-Debug-All-Vulkan"
@@ -29774,33 +29385,6 @@
         "upload_dm_results",
         "repository=<(REPO)",
         "buildername=Test-Win10-MSVC-Golo-GPU-QuadroP400-x86_64-Release-All",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_repo=<(PATCH_REPO)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)",
-        "gs_bucket=skia-infra-gm"
-      ],
-      "isolate": "upload_dm_results.isolate",
-      "priority": 0.8
-    },
-    "Upload-Test-Win10-MSVC-Golo-GPU-QuadroP400-x86_64-Release-All-ANGLE": {
-      "dependencies": [
-        "Test-Win10-MSVC-Golo-GPU-QuadroP400-x86_64-Release-All-ANGLE"
-      ],
-      "dimensions": [
-        "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
-        "os:Debian-9.2",
-        "pool:Skia"
-      ],
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "upload_dm_results",
-        "repository=<(REPO)",
-        "buildername=Test-Win10-MSVC-Golo-GPU-QuadroP400-x86_64-Release-All-ANGLE",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
