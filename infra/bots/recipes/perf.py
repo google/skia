@@ -34,7 +34,7 @@ def nanobench_flags(api, bot):
     args.append('--images')
     args.extend(['--gpuStatsDump', 'true'])
 
-  if 'Android' in bot and 'GPU' in bot:
+  if 'Android' in bot and 'GPU' in bot and 'Nexus5x' not in bot:
     args.extend(['--useThermalManager', '1,1,10,1000'])
 
   args.extend(['--scales', '1.0', '1.1'])
@@ -341,6 +341,7 @@ TEST_BUILDERS = [
    'Android_Vulkan'),
   'Perf-Android-Clang-Nexus10-CPU-Exynos5250-arm-Release-All-Android',
   'Perf-Android-Clang-Nexus5-GPU-Adreno330-arm-Debug-All-Android',
+  'Perf-Android-Clang-Nexus5x-GPU-Adreno418-arm64-Release-All-Android',
   'Perf-Android-Clang-Nexus7-GPU-Tegra3-arm-Release-All-Android',
   'Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-All-Android',
   'Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-All-Android_Vulkan',
