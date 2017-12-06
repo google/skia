@@ -479,6 +479,13 @@
         "Upload-Calmbench-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-All"
       ]
     },
+    "Housekeeper-Nightly-Bookmaker": {
+      "priority": 0.8,
+      "tasks": [
+        "Housekeeper-Nightly-Bookmaker"
+      ],
+      "trigger": "nightly"
+    },
     "Housekeeper-Nightly-RecreateSKPs_Canary": {
       "priority": 0.8,
       "tasks": [
@@ -5095,6 +5102,39 @@
         "patch_set=<(PATCHSET)"
       ],
       "isolate": "infra_skia.isolate",
+      "priority": 0.8
+    },
+    "Housekeeper-Nightly-Bookmaker": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/go",
+          "path": "go",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Debian9-GCC-x86_64-Release-Shared"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "os:Debian-9.2",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "bookmaker",
+        "repository=<(REPO)",
+        "buildername=Housekeeper-Nightly-Bookmaker",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "bookmaker_skia.isolate",
       "priority": 0.8
     },
     "Housekeeper-Nightly-RecreateSKPs_Canary": {
