@@ -62,6 +62,29 @@
       "revId": "697312aa756e9cf31856d6925d0c1e629a756442",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cdc18799_4fd461a9",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 1800,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-12-06T00:52:45Z",
+      "side": 1,
+      "message": "\u003d nullptr;\n\nThis will avoid having the client always have to set these optional fields even when they don\u0027t use them.  I would do the same for all the optional ptrs in this header.",
+      "range": {
+        "startLine": 1800,
+        "startChar": 29,
+        "endLine": 1800,
+        "endChar": 39
+      },
+      "revId": "697312aa756e9cf31856d6925d0c1e629a756442",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
