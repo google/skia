@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5b91bd04_03a2059f",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-12-06T16:13:47Z",
+      "side": 1,
+      "message": "You can do this in this CL. Just edit infra/bots/recipes/test.py and run \u0027make train\u0027 in infra/bots.\n\nThen you can also run the ASAN tryjob to verify the fix.",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 14,
+        "endChar": 22
+      },
+      "revId": "97b741c100ff5adcc052597fa8079c735512740b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
