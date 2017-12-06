@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2aa6b591_311810f3",
+        "filename": "BUILD.gn",
+        "patchSetId": 3
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-12-06T16:41:41Z",
+      "side": 1,
+      "message": "what should we do with this?\n\nAlso, we will probably need a gn var that can be used to defined SK_VULKAN_HEADER.",
+      "range": {
+        "startLine": 66,
+        "startChar": 0,
+        "endLine": 75,
+        "endChar": 1
+      },
+      "revId": "12a781fdeaadb375081276f713c078103583932d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
