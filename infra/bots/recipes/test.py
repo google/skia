@@ -603,9 +603,13 @@ def dm_flags(api, bot):
     # skia:7322
     blacklist(['vk', 'gm', '_', 'skbug_257'])
     match.append('~^ClearOp$')
+    match.append('~^CopySurface$')
+    match.append('~^ImageNewShader_GPU$')
     match.append('~^InitialTextureClear$')
+    match.append('~^PinnedImageTest$')
     match.append('~^ReadPixels_Gpu$')
     match.append('~^ReadPixels_Texture$')
+    match.append('~^SRGBReadWritePixels$')
     match.append('~^VkUploadPixelsTests$')
     match.append('~^WritePixelsNonTexture_Gpu$')
     match.append('~^WritePixels_Gpu$')
