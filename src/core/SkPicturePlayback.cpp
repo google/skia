@@ -351,8 +351,11 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
             lattice.fYCount = reader->readInt();
             lattice.fYDivs = (const int*) reader->skip(lattice.fYCount * sizeof(int32_t));
             int flagCount = reader->readInt();
-            lattice.fFlags = (0 == flagCount) ? nullptr : (const SkCanvas::Lattice::Flags*)
-                    reader->skip(SkAlign4(flagCount * sizeof(SkCanvas::Lattice::Flags)));
+            lattice.fRectTypes = (0 == flagCount) ? nullptr :
+                    (const SkCanvas::Lattice::RectType*)
+                    reader->skip(SkAlign4(flagCount * sizeof(SkCanvas::Lattice::RectType)));
+            lattice.fColors = (0 == flagCount) ? nullptr : (const SkColor*)
+                    reader->skip(SkAlign4(flagCount * sizeof(SkColor)));
             SkIRect src;
             reader->readIRect(&src);
             lattice.fBounds = &src;

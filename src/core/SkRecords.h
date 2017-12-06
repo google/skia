@@ -256,7 +256,8 @@ RECORD(DrawImageLattice, kDraw_Tag|kHasImage_Tag|kHasPaint_Tag,
         int yCount;
         PODArray<int> yDivs;
         int flagCount;
-        PODArray<SkCanvas::Lattice::Flags> flags;
+        PODArray<SkCanvas::Lattice::RectType> flags;
+        PODArray<SkColor> colors;
         SkIRect src;
         SkRect dst);
 RECORD(DrawImageRect, kDraw_Tag|kHasImage_Tag|kHasPaint_Tag,

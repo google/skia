@@ -124,7 +124,8 @@ protected:
         lattice.fXDivs = xDivs + 1;
         lattice.fYCount = 4;
         lattice.fYDivs = yDivs + 1;
-        lattice.fFlags = nullptr;
+        lattice.fRectTypes = nullptr;
+        lattice.fColors = nullptr;
 
         SkIRect bounds = SkIRect::MakeLTRB(padLeft, padTop,
                                            image->width() - padRight, image->height() - padBottom);
@@ -148,13 +149,26 @@ protected:
         lattice.fYDivs = yDivs;
 
         // Let's skip a few rects.
-        SkCanvas::Lattice::Flags flags[36];
-        sk_bzero(flags, 36 * sizeof(SkCanvas::Lattice::Flags));
-        flags[4] = SkCanvas::Lattice::kTransparent_Flags;
-        flags[9] = SkCanvas::Lattice::kTransparent_Flags;
-        flags[12] = SkCanvas::Lattice::kTransparent_Flags;
-        flags[19] = SkCanvas::Lattice::kTransparent_Flags;
-        lattice.fFlags = flags;
+        SkCanvas::Lattice::RectType flags[36];
+        sk_bzero(flags, 36 * sizeof(SkCanvas::Lattice::RectType));
+        flags[4] = SkCanvas::Lattice::kTransparent;
+        flags[9] = SkCanvas::Lattice::kTransparent;
+        flags[12] = SkCanvas::Lattice::kTransparent;
+        flags[19] = SkCanvas::Lattice::kTransparent;
+        flags[22] = SkCanvas::Lattice::kFixedColor;
+        flags[27] = SkCanvas::Lattice::kFixedColor;
+        flags[28] = SkCanvas::Lattice::kFixedColor;
+        lattice.fRectTypes = flags;
+
+        SkColor colors[36];
+        sk_bzero(colors, 36 * sizeof(SkColor));
+        // Provide hints about 3 solid color rects. These colors match
+        // what was already in the bitmap.
+        colors[22] = SkColorSetRGB(0x77, 0x37, 0xc7);
+        colors[27] = SkColorSetRGB(0xbf, 0x37, 0xc7);
+        colors[28] = SkColorSetRGB(0xff, 0x37, 0xc7);
+
+        lattice.fColors = colors;
 
         canvas->translate(400, 0);
         for (int iy = 0; iy < 2; ++iy) {
