@@ -133,6 +133,19 @@ if (is_android) {
   }
 }
 
+if (target_os == "win") {
+  if (msvc == 2017 && win_toolchain_version == "") {
+    win_toolchain_version = exec_script("//gn/highest_version_dir.py",
+                                        [ "$windk/VC/Tools/MSVC" ],
+                                        "trim string")
+  }
+  if (win_sdk_version == "") {
+    win_sdk_version = exec_script("//gn/highest_version_dir.py",
+                                  [ "$win_sdk/Include" ],
+                                  "trim string")
+  }
+}
+
 # A component is either a static or a shared library.
 template("component") {
   _component_mode = "static_library"
@@ -185,17 +198,6 @@ set_defaults("component") {
 }
 
 if (is_win) {
-  if (msvc == 2017 && win_toolchain_version == "") {
-    win_toolchain_version = exec_script("//gn/highest_version_dir.py",
-                                        [ "$windk/VC/Tools/MSVC" ],
-                                        "trim string")
-  }
-  if (win_sdk_version == "") {
-    win_sdk_version = exec_script("//gn/highest_version_dir.py",
-                                  [ "$win_sdk/Include" ],
-                                  "trim string")
-  }
-
   # Windows tool chain
   set_default_toolchain("//gn/toolchain:msvc")
   default_toolchain_name = "msvc"
