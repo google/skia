@@ -217,16 +217,15 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 			deviceInfo, ok := map[string][]string{
 				"AndroidOne":      {"sprout", "MOB30Q"},
 				"Chorizo":         {"chorizo", "1.24_82923"},
-				"GalaxyJ5":        {"j5xnlte", "MMB29M"},
 				"GalaxyS6":        {"zerofltetmo", "NRD90M_G920TUVU5FQK1"},
 				"GalaxyS7_G930A":  {"heroqlteatt", "NRD90M_G930AUCS4BQC2"},
 				"GalaxyS7_G930FD": {"herolte", "NRD90M_G930FXXU1DQAS"},
 				"MotoG4":          {"athene", "NPJ25.93-14"},
-				"NVIDIA_Shield":   {"foster", "NRD90M"},
-				"Nexus10":         {"manta", "LMY49J"},
-				"Nexus5":          {"hammerhead", "M4B30Z"},
+				"NVIDIA_Shield":   {"foster", "NRD90M_1915764_848"},
+				"Nexus10":         {"manta", "LMY49J_2640980"},
+				"Nexus5":          {"hammerhead", "M4B30Z_3437181"},
 				"Nexus5x":         {"bullhead", "OPR6.170623.023"},
-				"Nexus7":          {"grouper", "LMY47V"}, // 2012 Nexus 7
+				"Nexus7":          {"grouper", "LMY47V_1836172"}, // 2012 Nexus 7
 				"NexusPlayer":     {"fugu", "OPR6.170623.021"},
 				"Pixel":           {"sailfish", "OPR3.170623.008"},
 				"Pixel2XL":        {"taimen", "OPD1.170816.023"},
