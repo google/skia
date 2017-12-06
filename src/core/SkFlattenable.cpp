@@ -121,3 +121,26 @@ const char* SkFlattenable::FactoryToName(Factory fact) {
     }
     return nullptr;
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+sk_sp<SkData> SkFlattenable::serialize(const SkSerialProcs* procs) const {
+    SkBinaryWriteBuffer writer;
+    if (procs) {
+        writer.setSerialProcs(*procs);
+    }
+    writer.writeFlattenable(this);
+    size_t size = writer.bytesWritten();
+    auto data = SkData::MakeUninitialized(size);
+    writer.writeToMemory(data->writable_data());
+    return data;
+}
+
+sk_sp<SkFlattenable> SkFlattenable::Deserialize(SkFlattenable::Type type, const void* data,
+                                                size_t size, const SkDeserialProcs* procs) {
+    SkReadBuffer buffer(data, size);
+    if (procs) {
+        buffer.setDeserialProcs(*procs);
+    }
+    return sk_sp<SkFlattenable>(buffer.readFlattenable(type));
+}

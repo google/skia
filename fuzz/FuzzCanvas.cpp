@@ -52,6 +52,7 @@
 #include "SkPaintImageFilter.h"
 #include "SkPerlinNoiseShader.h"
 #include "SkPictureImageFilter.h"
+#include "SkReadBuffer.h"
 #include "SkRRectsGaussianEdgeMaskFilter.h"
 #include "SkTableColorFilter.h"
 #include "SkTextBlob.h"
@@ -60,7 +61,6 @@
 
 // SRC
 #include "SkUtils.h"
-#include "SkValidatingReadBuffer.h"
 
 #if SK_SUPPORT_GPU
 #include "GrContextFactory.h"
@@ -1771,8 +1771,8 @@ DEF_FUZZ(RasterN32CanvasViaSerialization, fuzz) {
     if (!pic) { fuzz->signalBug(); }
     sk_sp<SkData> data = pic->serialize();
     if (!data) { fuzz->signalBug(); }
-    SkValidatingReadBuffer vrb(data->data(), data->size());
-    auto deserialized = SkPicture::MakeFromBuffer(vrb);
+    SkReadBuffer rb(data->data(), data->size());
+    auto deserialized = SkPicture::MakeFromBuffer(rb);
     if (!deserialized) { fuzz->signalBug(); }
     auto surface = SkSurface::MakeRasterN32Premul(kCanvasSize.width(), kCanvasSize.height());
     SkASSERT(surface && surface->getCanvas());
