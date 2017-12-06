@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "57d85795_a994bdb4",
+        "filename": "gm/lattice.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-12-06T00:49:32Z",
+      "side": 1,
+      "message": "can you update the test to also set a few solid colors?",
+      "revId": "697312aa756e9cf31856d6925d0c1e629a756442",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7d0a2b60_2c750438",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 1766,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-12-06T00:49:32Z",
+      "side": 1,
+      "message": "RectType\n\nThe shorthand Rect is pretty much a defacto standard in Skia.",
+      "range": {
+        "startLine": 1766,
+        "startChar": 13,
+        "endLine": 1766,
+        "endChar": 26
+      },
+      "revId": "697312aa756e9cf31856d6925d0c1e629a756442",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "220cf69e_1aa1375c",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 1775,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-12-06T00:49:32Z",
+      "side": 1,
+      "message": "I would say this is a bit misleading as solid color implies that it is opaque when it is not.  Maybe Leon can think of a better name than this but I would think that something like kUseFixedColor is clearer.",
+      "range": {
+        "startLine": 1775,
+        "startChar": 12,
+        "endLine": 1775,
+        "endChar": 26
+      },
+      "revId": "697312aa756e9cf31856d6925d0c1e629a756442",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
