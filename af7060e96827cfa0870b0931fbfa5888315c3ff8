@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "30e48105_e50beff3",
+        "filename": "third_party/libjpeg-turbo/jconfig.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-12-06T21:33:16Z",
+      "side": 1,
+      "message": "This is a funny one. I tracked down the CL that added it: https://android-review.googlesource.com/#/c/platform/external/libjpeg-turbo/+/291407/ (I was on the CL, but never chimed in.)\n\nMatt first pushes back on the feature, since the major browsers do not support it. (There is a bug open for Chromium here: https://bugs.chromium.org/p/chromium/issues/detail?id\u003d669501. In addition to lack of support, Chromium doesn\u0027t support it because it does not support suspending sources.) But then he has a change of heart and approves it. The original CL description said \"there is no reason not to enable it\", which seems like a bad reason to enable to me...\n\nSo if we were to disable it in Android, that would be a regression from O, though it\u0027s not clear whether anyone would notice.",
+      "range": {
+        "startLine": 11,
+        "startChar": 3,
+        "endLine": 11,
+        "endChar": 62
+      },
+      "revId": "af7060e96827cfa0870b0931fbfa5888315c3ff8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
