@@ -53,4 +53,21 @@ private:
     typedef PictureCentricBench INHERITED;
 };
 
+class DeserializePictureBench : public Benchmark {
+public:
+    DeserializePictureBench(const char* name, sk_sp<SkData> encodedPicture);
+
+protected:
+    const char* onGetName() override;
+    bool isSuitableFor(Backend) override;
+    SkIPoint onGetSize() override;
+    void onDraw(int loops, SkCanvas*) override;
+
+private:
+    SkString      fName;
+    sk_sp<SkData> fEncodedPicture;
+
+    typedef Benchmark INHERITED;
+};
+
 #endif//RecordingBench_DEFINED
