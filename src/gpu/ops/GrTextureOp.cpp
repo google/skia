@@ -107,8 +107,7 @@ public:
                 this->emitTransforms(args.fVertBuilder,
                                      args.fVaryingHandler,
                                      args.fUniformHandler,
-                                     gpArgs->fPositionVar,
-                                     textureGP.fTextureCoords.fName,
+                                     textureGP.fTextureCoords.asShaderVar(),
                                      args.fFPCoordTransformHandler);
                 if (args.fShaderCaps->preferFlatInterpolation()) {
                     args.fVaryingHandler->addFlatPassThroughAttribute(&textureGP.fColors,

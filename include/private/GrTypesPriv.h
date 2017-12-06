@@ -231,6 +231,60 @@ static inline bool GrSLTypeIsFloatType(GrSLType type) {
     return false;
 }
 
+/** If the type represents a single value or vector return the vector length, else -1. */
+static inline int GrSLTypeVecLength(GrSLType type) {
+    switch (type) {
+        case kFloat_GrSLType:
+        case kHalf_GrSLType:
+        case kBool_GrSLType:
+        case kShort_GrSLType:
+        case kUShort_GrSLType:
+        case kInt_GrSLType:
+        case kUint_GrSLType:
+            return 1;
+
+        case kFloat2_GrSLType:
+        case kHalf2_GrSLType:
+        case kShort2_GrSLType:
+        case kUShort2_GrSLType:
+        case kInt2_GrSLType:
+        case kUint2_GrSLType:
+            return 2;
+
+        case kFloat3_GrSLType:
+        case kHalf3_GrSLType:
+        case kShort3_GrSLType:
+        case kUShort3_GrSLType:
+        case kInt3_GrSLType:
+            return 3;
+
+        case kFloat4_GrSLType:
+        case kHalf4_GrSLType:
+        case kShort4_GrSLType:
+        case kUShort4_GrSLType:
+        case kInt4_GrSLType:
+            return 4;
+
+        case kFloat2x2_GrSLType:
+        case kFloat3x3_GrSLType:
+        case kFloat4x4_GrSLType:
+        case kHalf2x2_GrSLType:
+        case kHalf3x3_GrSLType:
+        case kHalf4x4_GrSLType:
+        case kVoid_GrSLType:
+        case kTexture2DSampler_GrSLType:
+        case kITexture2DSampler_GrSLType:
+        case kTextureExternalSampler_GrSLType:
+        case kTexture2DRectSampler_GrSLType:
+        case kBufferSampler_GrSLType:
+        case kTexture2D_GrSLType:
+        case kSampler_GrSLType:
+            return -1;
+    }
+    SK_ABORT("Unexpected type");
+    return -1;
+}
+
 static inline bool GrSLTypeIs2DCombinedSamplerType(GrSLType type) {
     switch (type) {
         case kTexture2DSampler_GrSLType:

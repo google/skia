@@ -910,8 +910,7 @@ void GLDashingCircleEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     this->emitTransforms(vertBuilder,
                          varyingHandler,
                          uniformHandler,
-                         gpArgs->fPositionVar,
-                         dce.inPosition()->fName,
+                         dce.inPosition()->asShaderVar(),
                          dce.localMatrix(),
                          args.fFPCoordTransformHandler);
 
@@ -1114,8 +1113,7 @@ void GLDashingLineEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     this->emitTransforms(vertBuilder,
                          varyingHandler,
                          uniformHandler,
-                         gpArgs->fPositionVar,
-                         de.inPosition()->fName,
+                         de.inPosition()->asShaderVar(),
                          de.localMatrix(),
                          args.fFPCoordTransformHandler);
 

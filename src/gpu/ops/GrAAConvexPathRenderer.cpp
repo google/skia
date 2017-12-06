@@ -582,8 +582,7 @@ public:
             this->emitTransforms(vertBuilder,
                                  varyingHandler,
                                  uniformHandler,
-                                 gpArgs->fPositionVar,
-                                 qe.fInPosition->fName,
+                                 qe.fInPosition->asShaderVar(),
                                  qe.fLocalMatrix,
                                  args.fFPCoordTransformHandler);
 

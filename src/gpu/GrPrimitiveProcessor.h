@@ -45,7 +45,10 @@ public:
             kPerVertex,
             kPerInstance
         };
-
+        GrShaderVar asShaderVar() const {
+            return GrShaderVar(fName, GrVertexAttribTypeToSLType(fType),
+                               GrShaderVar::kIn_TypeModifier);
+        }
         const char*          fName;
         GrVertexAttribType   fType;
         int                  fOffsetInRecord;

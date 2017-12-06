@@ -172,7 +172,7 @@ void GLSLPathProcessor::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
                    proc.getInstanceAttrib(InstanceAttribs::kViewMatrix).fName,
                    proc.getInstanceAttrib(InstanceAttribs::kViewTranslate).fName);
 
-    this->emitTransforms(v, varyingHandler, uniHandler, gpArgs->fPositionVar, "pathcoord",
+    this->emitTransforms(v, varyingHandler, uniHandler, GrShaderVar("pathcoord", kFloat2_GrSLType),
                          args.fFPCoordTransformHandler);
 
     // Fragment shader.

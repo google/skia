@@ -406,7 +406,7 @@ void GLSLInstanceProcessor::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
                    GrGLSLTypeString(args.fShaderCaps, positionType), backend->outShapeCoords());
     gpArgs->fPositionVar.set(positionType, "deviceCoords");
 
-    this->emitTransforms(v, varyingHandler, uniHandler, gpArgs->fPositionVar, localCoords,
+    this->emitTransforms(v, varyingHandler, uniHandler, GrShaderVar(localCoords, kHalf2_GrSLType),
                          args.fFPCoordTransformHandler);
 }
 

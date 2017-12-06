@@ -144,8 +144,7 @@ private:
             this->emitTransforms(vertBuilder,
                                  varyingHandler,
                                  uniformHandler,
-                                 gpArgs->fPositionVar,
-                                 cgp.fInPosition->fName,
+                                 cgp.fInPosition->asShaderVar(),
                                  cgp.fLocalMatrix,
                                  args.fFPCoordTransformHandler);
 
@@ -293,8 +292,7 @@ private:
             this->emitTransforms(vertBuilder,
                                  varyingHandler,
                                  uniformHandler,
-                                 gpArgs->fPositionVar,
-                                 egp.fInPosition->fName,
+                                 egp.fInPosition->asShaderVar(),
                                  egp.fLocalMatrix,
                                  args.fFPCoordTransformHandler);
 
@@ -437,8 +435,7 @@ private:
             this->emitTransforms(vertBuilder,
                                  varyingHandler,
                                  uniformHandler,
-                                 gpArgs->fPositionVar,
-                                 diegp.fInPosition->fName,
+                                 diegp.fInPosition->asShaderVar(),
                                  args.fFPCoordTransformHandler);
 
             // for outer curve

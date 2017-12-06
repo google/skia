@@ -43,10 +43,12 @@ void GrGLSLGeometryProcessor::emitCode(EmitArgs& args) {
 void GrGLSLGeometryProcessor::emitTransforms(GrGLSLVertexBuilder* vb,
                                              GrGLSLVaryingHandler* varyingHandler,
                                              GrGLSLUniformHandler* uniformHandler,
-                                             const GrShaderVar& posVar,
-                                             const char* localCoords,
+                                             const GrShaderVar& localCoordsVar,
                                              const SkMatrix& localMatrix,
                                              FPCoordTransformHandler* handler) {
+    SkASSERT(GrSLTypeIsFloatType(localCoordsVar.getType()));
+    SkASSERT(2 == GrSLTypeVecLength(localCoordsVar.getType()));
+
     int i = 0;
     while (const GrCoordTransform* coordTransform = handler->nextCoordTransform()) {
         SkString strUniName;
@@ -75,9 +77,10 @@ void GrGLSLGeometryProcessor::emitTransforms(GrGLSLVertexBuilder* vb,
         handler->specifyCoordsForCurrCoordTransform(SkString(v.fsIn()), varyingType);
 
         if (kFloat2_GrSLType == varyingType) {
-            vb->codeAppendf("%s = (%s * float3(%s, 1)).xy;", v.vsOut(), uniName, localCoords);
+            vb->codeAppendf("%s = (%s * float3(%s, 1)).xy;", v.vsOut(), uniName,
+                            localCoordsVar.c_str());
         } else {
-            vb->codeAppendf("%s = %s * float3(%s, 1);", v.vsOut(), uniName, localCoords);
+            vb->codeAppendf("%s = %s * float3(%s, 1);", v.vsOut(), uniName, localCoordsVar.c_str());
         }
         ++i;
     }
