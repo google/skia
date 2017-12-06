@@ -8,7 +8,7 @@ import default_flavor
 import re
 import subprocess
 
-ADB_BINARY = 'adb.1.0.35'
+ADB_BINARY = 'adb' # assume adb 1.0.35 or newer
 
 """GN Android flavor utils, used for building Skia for Android with GN."""
 class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
@@ -132,12 +132,23 @@ subprocess.check_output([ADB, 'shell', 'echo 0 > '
     '/sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq'])
 subprocess.check_output([ADB, 'shell', 'echo %d > '
     '/sys/devices/system/cpu/cpu0/cpufreq/scaling_setspeed' % freq])
+if model == 'Nexus5x':
+  subprocess.check_output([ADB, 'shell', 'echo "userspace" > '
+      '/sys/devices/system/cpu/cpu4/cpufreq/scaling_governor'])
+  subprocess.check_output([ADB, 'shell', 'echo %d > '
+      '/sys/devices/system/cpu/cpu4/cpufreq/scaling_setspeed' % freq])
 time.sleep(5)
 actual_freq = subprocess.check_output([ADB, 'shell', 'cat '
     '/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq']).strip()
 if actual_freq != str(freq):
-  raise Exception('(actual, expected) (%s, %d)'
+  raise Exception('(actual, expected) on cpu0 (%s, %d)'
                   % (actual_freq, freq))
+if model == 'Nexus5x':
+  actual_freq = subprocess.check_output([ADB, 'shell', 'cat '
+      '/sys/devices/system/cpu/cpu4/cpufreq/scaling_cur_freq']).strip()
+  if actual_freq != str(freq):
+    raise Exception('(actual, expected) on cpu4 (%s, %d)'
+                    % (actual_freq, freq))
         """,
         args = [ADB_BINARY, self.m.vars.builder_cfg.get('model'),
                 str(target_percent)],
