@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "240c1e71_d2225e2e",
+        "filename": "gm/lattice.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2017-12-06T16:23:06Z",
+      "side": 1,
+      "message": "I was able to both add 3 solid colors and keep the existing gold image the same.",
+      "parentUuid": "eb17adf7_f5606a15",
+      "revId": "697312aa756e9cf31856d6925d0c1e629a756442",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7d0a2b60_2c750438",
         "filename": "include/core/SkCanvas.h",
         "patchSetId": 5
@@ -57,6 +75,30 @@
       "revId": "697312aa756e9cf31856d6925d0c1e629a756442",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d22ff1e7_ffa8b7f4",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 1766,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2017-12-06T16:23:06Z",
+      "side": 1,
+      "message": "renamed RectangleType to RectType",
+      "parentUuid": "7d0a2b60_2c750438",
+      "range": {
+        "startLine": 1766,
+        "startChar": 13,
+        "endLine": 1766,
+        "endChar": 26
+      },
+      "revId": "697312aa756e9cf31856d6925d0c1e629a756442",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -107,6 +149,30 @@
     },
     {
       "key": {
+        "uuid": "d68f3e39_484f2665",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 1775,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2017-12-06T16:23:06Z",
+      "side": 1,
+      "message": "renamed kUseSolidColor to kFixedColor",
+      "parentUuid": "ee2e7f00_95f27a29",
+      "range": {
+        "startLine": 1775,
+        "startChar": 12,
+        "endLine": 1775,
+        "endChar": 26
+      },
+      "revId": "697312aa756e9cf31856d6925d0c1e629a756442",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "cdc18799_4fd461a9",
         "filename": "include/core/SkCanvas.h",
         "patchSetId": 5
@@ -118,6 +184,30 @@
       "writtenOn": "2017-12-06T00:52:45Z",
       "side": 1,
       "message": "\u003d nullptr;\n\nThis will avoid having the client always have to set these optional fields even when they don\u0027t use them.  I would do the same for all the optional ptrs in this header.",
+      "range": {
+        "startLine": 1800,
+        "startChar": 29,
+        "endLine": 1800,
+        "endChar": 39
+      },
+      "revId": "697312aa756e9cf31856d6925d0c1e629a756442",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "73c3a9f2_62209aec",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 1800,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2017-12-06T16:23:06Z",
+      "side": 1,
+      "message": "I tried doing that change for \"Lattice\", but I get compiler errors.  fRectTypes, fBounds, fColor are \"const\" and the compiler expects these are set only once. I suggest to leave this change to keep the scope of this CL smaller.",
+      "parentUuid": "cdc18799_4fd461a9",
       "range": {
         "startLine": 1800,
         "startChar": 29,
