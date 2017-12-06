@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3ed38537_500abc01",
+        "filename": "gn/BUILDCONFIG.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-12-06T17:09:23Z",
+      "side": 1,
+      "message": "Maybe, \"whatever\"?",
+      "range": {
+        "startLine": 38,
+        "startChar": 29,
+        "endLine": 38,
+        "endChar": 41
+      },
+      "revId": "e7137755c6af4e7cff8671e4eec662f71a58d4de",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
