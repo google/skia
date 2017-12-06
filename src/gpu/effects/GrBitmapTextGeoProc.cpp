@@ -58,8 +58,7 @@ public:
         this->emitTransforms(vertBuilder,
                              varyingHandler,
                              uniformHandler,
-                             gpArgs->fPositionVar,
-                             btgp.inPosition()->fName,
+                             btgp.inPosition()->asShaderVar(),
                              btgp.localMatrix(),
                              args.fFPCoordTransformHandler);
 
