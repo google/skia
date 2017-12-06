@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "822dd4a6_1b3fbab2",
+        "filename": "DEPS",
+        "patchSetId": 1
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-12-06T21:55:19Z",
+      "side": 1,
+      "message": "FWIW, I think we\u0027d liked mirroring to googlesource.com so that our bots stay working when Github goes down, but I see we\u0027ve gotten a bit lax about that...",
+      "range": {
+        "startLine": 15,
+        "startChar": 51,
+        "endLine": 15,
+        "endChar": 61
+      },
+      "revId": "af7060e96827cfa0870b0931fbfa5888315c3ff8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "30e48105_e50beff3",
         "filename": "third_party/libjpeg-turbo/jconfig.h",
         "patchSetId": 1
