@@ -31,10 +31,14 @@ declare_args() {
 declare_args() {
   is_debug = !is_official_build
 
+  # win_toolchain_version is only relevant for MSVC 2017, but needs a valid value to prevent
+  # us from running our helper script on 2015 configurations.
   if (msvc == 2015) {
     windk = "C:/Program Files (x86)/Microsoft Visual Studio 14.0"
+    win_toolchain_version = "14.10.25017"
   } else {
     windk = "C:/Program Files (x86)/Microsoft Visual Studio/2017/Professional"
+    win_toolchain_version = ""
   }
 }
 
@@ -182,6 +186,12 @@ set_defaults("component") {
 }
 
 if (is_win) {
+  if (win_toolchain_version == "") {
+    win_toolchain_version = exec_script("//gn/highest_version_dir.py",
+                                        [ "$windk/VC/Tools/MSVC" ],
+                                        "trim string")
+  }
+
   # Windows tool chain
   set_default_toolchain("//gn/toolchain:msvc")
   default_toolchain_name = "msvc"

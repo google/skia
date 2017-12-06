@@ -56,7 +56,7 @@ config("default") {
 
     _include_dirs = [
       #2017
-      "$windk/VC/Tools/MSVC/14.10.25017/include",
+      "$windk/VC/Tools/MSVC/$win_toolchain_version/include",
 
       #2015
       "$windk/VC/include",
@@ -107,7 +107,8 @@ config("default") {
     ]
 
     #2017
-    lib_dirs += [ "$windk/VC/Tools/MSVC/14.10.25017/lib/$target_cpu" ]
+    lib_dirs +=
+        [ "$windk/VC/Tools/MSVC/$win_toolchain_version/lib/$target_cpu" ]
 
     #2015
     if (target_cpu == "x86") {
