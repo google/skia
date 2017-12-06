@@ -85,3 +85,30 @@ void PipingBench::onDraw(int loops, SkCanvas*) {
         stream.reset();
     }
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+#include "SkSerialProcs.h"
+
+DeserializePictureBench::DeserializePictureBench(const char* name, sk_sp<SkData> data)
+    : fName(name)
+    , fEncodedPicture(std::move(data))
+{}
+
+const char* DeserializePictureBench::onGetName() {
+    return fName.c_str();
+}
+
+bool DeserializePictureBench::isSuitableFor(Backend backend) {
+    return backend == kNonRendering_Backend;
+}
+
+SkIPoint DeserializePictureBench::onGetSize() {
+    return SkIPoint::Make(128, 128);
+}
+
+void DeserializePictureBench::onDraw(int loops, SkCanvas*) {
+    SkDeserialProcs procs;
+    for (int i = 0; i < loops; ++i) {
+        SkPicture::MakeFromData(fEncodedPicture, procs);
+    }
+}
