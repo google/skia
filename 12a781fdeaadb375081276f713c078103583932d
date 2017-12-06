@@ -22,6 +22,30 @@
       "revId": "12a781fdeaadb375081276f713c078103583932d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f7516280_d0627bcf",
+        "filename": "BUILD.gn",
+        "patchSetId": 3
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-12-06T19:28:33Z",
+      "side": 1,
+      "message": "Added gn arg\n\nOnce we get fuchsia using the new system we can hide this in a more private area. We will always need some version of this to find the header in the sdk for our tools",
+      "parentUuid": "2aa6b591_311810f3",
+      "range": {
+        "startLine": 66,
+        "startChar": 0,
+        "endLine": 75,
+        "endChar": 1
+      },
+      "revId": "12a781fdeaadb375081276f713c078103583932d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
