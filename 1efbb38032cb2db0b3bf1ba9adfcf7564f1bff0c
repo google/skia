@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c789d46c_d8d2f256",
+        "filename": "gm/lattice.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-12-06T16:38:55Z",
+      "side": 1,
+      "message": "\u003d 0x88FF00FF;\n\nuse the hex notation like make_image does.",
+      "revId": "1efbb38032cb2db0b3bf1ba9adfcf7564f1bff0c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1f627087_6ba20e82",
+        "filename": "src/core/SkDevice.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 227,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-12-06T16:38:55Z",
+      "side": 1,
+      "message": "isFixedColor\n\nif we are going to rename for clarity we should do it everywhere.",
+      "range": {
+        "startLine": 227,
+        "startChar": 9,
+        "endLine": 227,
+        "endChar": 21
+      },
+      "revId": "1efbb38032cb2db0b3bf1ba9adfcf7564f1bff0c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ac563f21_a7b5eb1e",
+        "filename": "src/core/SkLatticeIter.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-12-06T16:38:55Z",
+      "side": 1,
+      "message": "hasFixedColor and fixedColor",
+      "range": {
+        "startLine": 37,
+        "startChar": 46,
+        "endLine": 37,
+        "endChar": 58
+      },
+      "revId": "1efbb38032cb2db0b3bf1ba9adfcf7564f1bff0c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
