@@ -124,7 +124,8 @@ protected:
         lattice.fXDivs = xDivs + 1;
         lattice.fYCount = 4;
         lattice.fYDivs = yDivs + 1;
-        lattice.fFlags = nullptr;
+        lattice.fRectTypes = nullptr;
+        lattice.fColors = nullptr;
 
         SkIRect bounds = SkIRect::MakeLTRB(padLeft, padTop,
                                            image->width() - padRight, image->height() - padBottom);
@@ -140,6 +141,19 @@ protected:
             }
         }
 
+        // Provide hints about 3 solid color rects. These colors match
+        // what was already in the bitmap.
+        int fixedColorX[3] = {2, 4, 1};
+        int fixedColorY[3] = {1, 1, 2};
+        SkColor fixedColor[3] = {SK_ColorBLACK, SK_ColorBLACK, SK_ColorBLACK};
+        const SkImageInfo info = SkImageInfo::Make(1, 1, kBGRA_8888_SkColorType,
+                                                   kUnpremul_SkAlphaType);
+        for (int rectNum = 0; rectNum < 3; rectNum++) {
+            int srcX = xDivs[fixedColorX[rectNum]-1];
+            int srcY = yDivs[fixedColorY[rectNum]-1];
+            image->readPixels(info, &fixedColor[rectNum], 4, srcX, srcY);
+        }
+
         // Include the degenerate first div.  While normally the first patch is "scalable",
         // this will mean that the first non-degenerate patch is "fixed".
         lattice.fXCount = 5;
@@ -148,13 +162,26 @@ protected:
         lattice.fYDivs = yDivs;
 
         // Let's skip a few rects.
-        SkCanvas::Lattice::Flags flags[36];
-        sk_bzero(flags, 36 * sizeof(SkCanvas::Lattice::Flags));
-        flags[4] = SkCanvas::Lattice::kTransparent_Flags;
-        flags[9] = SkCanvas::Lattice::kTransparent_Flags;
-        flags[12] = SkCanvas::Lattice::kTransparent_Flags;
-        flags[19] = SkCanvas::Lattice::kTransparent_Flags;
-        lattice.fFlags = flags;
+        SkCanvas::Lattice::RectType flags[36];
+        sk_bzero(flags, 36 * sizeof(SkCanvas::Lattice::RectType));
+        flags[4] = SkCanvas::Lattice::kTransparent;
+        flags[9] = SkCanvas::Lattice::kTransparent;
+        flags[12] = SkCanvas::Lattice::kTransparent;
+        flags[19] = SkCanvas::Lattice::kTransparent;
+        for (int rectNum = 0; rectNum < 3; rectNum++) {
+            flags[fixedColorY[rectNum]*6 + fixedColorX[rectNum]]
+                   = SkCanvas::Lattice::kFixedColor;
+        }
+        lattice.fRectTypes = flags;
+
+        SkColor colors[36];
+        sk_bzero(colors, 36 * sizeof(SkColor));
+        for (int rectNum = 0; rectNum < 3; rectNum++) {
+            colors[fixedColorY[rectNum]*6 + fixedColorX[rectNum]]
+                   = fixedColor[rectNum];
+        }
+
+        lattice.fColors = colors;
 
         canvas->translate(400, 0);
         for (int iy = 0; iy < 2; ++iy) {

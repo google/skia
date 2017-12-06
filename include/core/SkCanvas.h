@@ -1760,12 +1760,19 @@ public:
     */
     struct Lattice {
 
-        /** \enum SkCanvas::Lattice::Flags
-            Optional setting per rectangular grid entry to make it transparent.
+        /** \enum SkCanvas::Lattice::RectType
+            Optional setting per rectangular grid entry.
         */
-        enum Flags : uint8_t {
+        enum RectType : uint8_t {
+            kDefault = 0,
+
             /** Set to skip lattice rectangle by making it transparent. */
-            kTransparent_Flags = 1 << 0,
+            kTransparent,
+
+            /** The lattice rectangle is a fixed color. The color value is stored
+                in fColors.
+            */
+            kFixedColor,
         };
 
         /** Array of x-coordinates that divide the bitmap vertically.
@@ -1784,13 +1791,13 @@ public:
         */
         const int*     fYDivs;
 
-        /** Optional array of flags, one per rectangular grid entry:
+        /** Optional array of rectangle types, one per rectangular grid entry:
             array length must be (fXCount + 1) * (fYCount + 1).
 
             Array entries correspond to the rectangular grid entries, ascending
             left to right and then top to bottom.
         */
-        const Flags*   fFlags;
+        const RectType* fRectTypes;
 
         /** Number of entries in fXDivs array; one less than the number of
             horizontal divisions.
@@ -1806,6 +1813,15 @@ public:
             If nullptr, source bounds is dimensions of SkBitmap or SkImage.
         */
         const SkIRect* fBounds;
+
+
+        /** Optional array of colors, one per rectangular grid entry:
+            array length must be (fXCount + 1) * (fYCount + 1).
+
+            Array entries correspond to the rectangular grid entries, ascending
+            left to right and then top to bottom.
+        */
+        const SkColor* fColors;
 
     };
 
