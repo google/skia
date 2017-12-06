@@ -34,9 +34,6 @@ def nanobench_flags(api, bot):
     args.append('--images')
     args.extend(['--gpuStatsDump', 'true'])
 
-  if 'Android' in bot and 'GPU' in bot and 'Nexus5x' not in bot:
-    args.extend(['--useThermalManager', '1,1,10,1000'])
-
   args.extend(['--scales', '1.0', '1.1'])
 
   if 'iOS' in bot:
