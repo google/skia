@@ -32,19 +32,17 @@ protected:
     void emitTransforms(GrGLSLVertexBuilder* vb,
                         GrGLSLVaryingHandler* varyingHandler,
                         GrGLSLUniformHandler* uniformHandler,
-                        const GrShaderVar& posVar,
-                        const char* localCoords,
+                        const GrShaderVar& localCoordsVar,
                         FPCoordTransformHandler* handler) {
-        this->emitTransforms(vb, varyingHandler, uniformHandler,
-                             posVar, localCoords, SkMatrix::I(), handler);
+        this->emitTransforms(vb, varyingHandler, uniformHandler, localCoordsVar, SkMatrix::I(),
+                             handler);
     }
 
     // Emit pre-transformed coords as a varying per coord-transform.
     void emitTransforms(GrGLSLVertexBuilder*,
                         GrGLSLVaryingHandler*,
                         GrGLSLUniformHandler*,
-                        const GrShaderVar& posVar,
-                        const char* localCoords,
+                        const GrShaderVar& localCoordsVar,
                         const SkMatrix& localMatrix,
                         FPCoordTransformHandler*);
 

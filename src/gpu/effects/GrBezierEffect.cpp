@@ -97,8 +97,7 @@ void GrGLConicEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     this->emitTransforms(vertBuilder,
                          varyingHandler,
                          uniformHandler,
-                         gpArgs->fPositionVar,
-                         gp.inPosition()->fName,
+                         gp.inPosition()->asShaderVar(),
                          gp.localMatrix(),
                          args.fFPCoordTransformHandler);
 
@@ -350,8 +349,7 @@ void GrGLQuadEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     this->emitTransforms(vertBuilder,
                          varyingHandler,
                          uniformHandler,
-                         gpArgs->fPositionVar,
-                         gp.inPosition()->fName,
+                         gp.inPosition()->asShaderVar(),
                          gp.localMatrix(),
                          args.fFPCoordTransformHandler);
 
@@ -578,10 +576,8 @@ void GrGLCubicEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     this->emitTransforms(vertBuilder,
                          varyingHandler,
                          uniformHandler,
-                         gpArgs->fPositionVar,
-                         gp.inPosition()->fName,
+                         gp.inPosition()->asShaderVar(),
                          args.fFPCoordTransformHandler);
-
 
     GrShaderVar edgeAlpha("edgeAlpha", kFloat_GrSLType, 0);
     GrShaderVar gF("gF", kFloat2_GrSLType, 0);
