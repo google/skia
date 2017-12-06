@@ -144,7 +144,6 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
       'target_cpu': target_arch,
       'target_os': 'ios' if 'iOS' in extra_config else '',
       'windk': win_toolchain if 'Win' in os else '',
-      'win_sdk': win_toolchain + '/win_sdk' if 'Win' in os else '',
     }.iteritems():
       if v:
         args[k] = '"%s"' % v
