@@ -364,6 +364,14 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 	return rv
 }
 
+// recipes returns the path to the "recipes" executable.
+func recipes(parts map[string]string) string {
+	if strings.Contains(parts["os"], "Win") {
+		return "recipe_bundle/recipes.bat"
+	}
+	return "recipe_bundle/recipes"
+}
+
 // relpath returns the relative path to the given file from the config file.
 func relpath(f string) string {
 	_, filename, _, _ := runtime.Caller(0)
@@ -383,14 +391,12 @@ func relpath(f string) string {
 func bundleRecipes(b *specs.TasksCfgBuilder) string {
 	b.MustAddTask(BUNDLE_RECIPES_NAME, &specs.TaskSpec{
 		CipdPackages: []*specs.CipdPackage{cipdGit1, cipdGit2},
-		Dimensions:   linuxGceDimensions(),
-		ExtraArgs: []string{
-			"--workdir", "../../..", "bundle_recipes",
-			fmt.Sprintf("buildername=%s", BUNDLE_RECIPES_NAME),
-			fmt.Sprintf("swarm_out_dir=%s", specs.PLACEHOLDER_ISOLATED_OUTDIR),
+		Command: []string{
+			"/bin/bash", "buildbot/infra/bots/bundle_recipes.sh", specs.PLACEHOLDER_ISOLATED_OUTDIR,
 		},
-		Isolate:  relpath("bundle_recipes.isolate"),
-		Priority: 0.7,
+		Dimensions: linuxGceDimensions(),
+		Isolate:    relpath("swarm_recipe.isolate"),
+		Priority:   0.7,
 	})
 	return BUNDLE_RECIPES_NAME
 }
@@ -403,45 +409,47 @@ func useBundledRecipes(parts map[string]string) bool {
 }
 
 type isolateAssetCfg struct {
-	isolateFile string
-	cipdPkg     string
+	cipdPkg string
+	path    string
 }
 
 var ISOLATE_ASSET_MAPPING = map[string]isolateAssetCfg{
 	ISOLATE_SKIMAGE_NAME: {
-		isolateFile: "isolate_skimage.isolate",
-		cipdPkg:     "skimage",
+		cipdPkg: "skimage",
+		path:    "skimage",
 	},
 	ISOLATE_SKP_NAME: {
-		isolateFile: "isolate_skp.isolate",
-		cipdPkg:     "skp",
+		cipdPkg: "skp",
+		path:    "skp",
 	},
 	ISOLATE_SVG_NAME: {
-		isolateFile: "isolate_svg.isolate",
-		cipdPkg:     "svg",
+		cipdPkg: "svg",
+		path:    "svg",
 	},
 	ISOLATE_NDK_LINUX_NAME: {
-		isolateFile: "isolate_ndk_linux.isolate",
-		cipdPkg:     "android_ndk_linux",
+		cipdPkg: "android_ndk_linux",
+		path:    "android_ndk_linux",
 	},
 	ISOLATE_WIN_TOOLCHAIN_NAME: {
-		isolateFile: "isolate_win_toolchain.isolate",
-		cipdPkg:     "win_toolchain",
+		cipdPkg: "win_toolchain",
+		path:    "t",
 	},
 	ISOLATE_WIN_VULKAN_SDK_NAME: {
-		isolateFile: "isolate_win_vulkan_sdk.isolate",
-		cipdPkg:     "win_vulkan_sdk",
+		cipdPkg: "win_vulkan_sdk",
+		path:    "win_vulkan_sdk",
 	},
 }
 
-// bundleRecipes generates the task to bundle and isolate the recipes.
+// isolateCIPDAsset generates a task to isolate the given CIPD asset.
 func isolateCIPDAsset(b *specs.TasksCfgBuilder, name string) string {
+	asset := ISOLATE_ASSET_MAPPING[name]
 	b.MustAddTask(name, &specs.TaskSpec{
 		CipdPackages: []*specs.CipdPackage{
-			b.MustGetCipdPackageFromAsset(ISOLATE_ASSET_MAPPING[name].cipdPkg),
+			b.MustGetCipdPackageFromAsset(asset.cipdPkg),
 		},
+		Command:    []string{"/bin/cp", "-rL", asset.path, "${ISOLATED_OUTDIR}"},
 		Dimensions: linuxGceDimensions(),
-		Isolate:    relpath(ISOLATE_ASSET_MAPPING[name].isolateFile),
+		Isolate:    "empty.isolate",
 		Priority:   0.7,
 	})
 	return name
@@ -476,7 +484,7 @@ func getIsolatedCIPDDeps(parts map[string]string) []string {
 func compile(b *specs.TasksCfgBuilder, name string, parts map[string]string) string {
 	// Collect the necessary CIPD packages.
 	pkgs := []*specs.CipdPackage{}
-	deps := []string{}
+	deps := []string{BUNDLE_RECIPES_NAME}
 
 	// Android bots require a toolchain.
 	if strings.Contains(name, "Android") {
@@ -525,9 +533,8 @@ func compile(b *specs.TasksCfgBuilder, name string, parts map[string]string) str
 	// Add the task.
 	b.MustAddTask(name, &specs.TaskSpec{
 		CipdPackages: pkgs,
-		Dimensions:   dimensions,
-		Dependencies: deps,
-		ExtraArgs: []string{
+		Command: []string{
+			recipes(parts), "run", "--timestamps",
 			"--workdir", "../../..", "compile",
 			fmt.Sprintf("repository=%s", specs.PLACEHOLDER_REPO),
 			fmt.Sprintf("buildername=%s", name),
@@ -538,8 +545,10 @@ func compile(b *specs.TasksCfgBuilder, name string, parts map[string]string) str
 			fmt.Sprintf("patch_issue=%s", specs.PLACEHOLDER_ISSUE),
 			fmt.Sprintf("patch_set=%s", specs.PLACEHOLDER_PATCHSET),
 		},
-		Isolate:  relpath("compile_skia.isolate"),
-		Priority: 0.8,
+		Dependencies: deps,
+		Dimensions:   dimensions,
+		Isolate:      relpath("swarm_recipe.isolate"),
+		Priority:     0.8,
 	})
 	// All compile tasks are runnable as their own Job. Assert that the Job
 	// is listed in JOBS.
@@ -552,12 +561,11 @@ func compile(b *specs.TasksCfgBuilder, name string, parts map[string]string) str
 // recreateSKPs generates a RecreateSKPs task. Returns the name of the last
 // task in the generated chain of tasks, which the Job should add as a
 // dependency.
-func recreateSKPs(b *specs.TasksCfgBuilder, name string) string {
+func recreateSKPs(b *specs.TasksCfgBuilder, name string, parts map[string]string) string {
 	b.MustAddTask(name, &specs.TaskSpec{
-		CipdPackages:     []*specs.CipdPackage{b.MustGetCipdPackageFromAsset("go")},
-		Dimensions:       linuxGceDimensions(),
-		ExecutionTimeout: 4 * time.Hour,
-		ExtraArgs: []string{
+		CipdPackages: []*specs.CipdPackage{b.MustGetCipdPackageFromAsset("go")},
+		Command: []string{
+			recipes(parts), "run", "--timestamps",
 			"--workdir", "../../..", "recreate_skps",
 			fmt.Sprintf("repository=%s", specs.PLACEHOLDER_REPO),
 			fmt.Sprintf("buildername=%s", name),
@@ -568,9 +576,12 @@ func recreateSKPs(b *specs.TasksCfgBuilder, name string) string {
 			fmt.Sprintf("patch_issue=%s", specs.PLACEHOLDER_ISSUE),
 			fmt.Sprintf("patch_set=%s", specs.PLACEHOLDER_PATCHSET),
 		},
-		IoTimeout: 40 * time.Minute,
-		Isolate:   relpath("compile_skia.isolate"),
-		Priority:  0.8,
+		Dependencies:     []string{BUNDLE_RECIPES_NAME},
+		Dimensions:       linuxGceDimensions(),
+		ExecutionTimeout: 4 * time.Hour,
+		IoTimeout:        40 * time.Minute,
+		Isolate:          relpath("swarm_recipe.isolate"),
+		Priority:         0.8,
 	})
 	return name
 }
@@ -578,11 +589,11 @@ func recreateSKPs(b *specs.TasksCfgBuilder, name string) string {
 // updateMetaConfig generates a UpdateMetaConfig task. Returns the name of the
 // last task in the generated chain of tasks, which the Job should add as a
 // dependency.
-func updateMetaConfig(b *specs.TasksCfgBuilder, name string) string {
+func updateMetaConfig(b *specs.TasksCfgBuilder, name string, parts map[string]string) string {
 	b.MustAddTask(name, &specs.TaskSpec{
 		CipdPackages: []*specs.CipdPackage{},
-		Dimensions:   linuxGceDimensions(),
-		ExtraArgs: []string{
+		Command: []string{
+			recipes(parts), "run", "--timestamps",
 			"--workdir", "../../..", "update_meta_config",
 			fmt.Sprintf("repository=%s", specs.PLACEHOLDER_REPO),
 			fmt.Sprintf("buildername=%s", name),
@@ -593,23 +604,21 @@ func updateMetaConfig(b *specs.TasksCfgBuilder, name string) string {
 			fmt.Sprintf("patch_issue=%s", specs.PLACEHOLDER_ISSUE),
 			fmt.Sprintf("patch_set=%s", specs.PLACEHOLDER_PATCHSET),
 		},
-		Isolate:  relpath("meta_config.isolate"),
-		Priority: 0.8,
+		Dependencies: []string{BUNDLE_RECIPES_NAME},
+		Dimensions:   linuxGceDimensions(),
+		Isolate:      relpath("swarm_recipe.isolate"),
+		Priority:     0.8,
 	})
 	return name
 }
 
 // ctSKPs generates a CT SKPs task. Returns the name of the last task in the
 // generated chain of tasks, which the Job should add as a dependency.
-func ctSKPs(b *specs.TasksCfgBuilder, name string) string {
+func ctSKPs(b *specs.TasksCfgBuilder, name string, parts map[string]string) string {
 	b.MustAddTask(name, &specs.TaskSpec{
 		CipdPackages: []*specs.CipdPackage{},
-		Dimensions: []string{
-			"pool:SkiaCT",
-			fmt.Sprintf("os:%s", DEFAULT_OS_LINUX_GCE),
-		},
-		ExecutionTimeout: 24 * time.Hour,
-		ExtraArgs: []string{
+		Command: []string{
+			recipes(parts), "run", "--timestamps",
 			"--workdir", "../../..", "ct_skps",
 			fmt.Sprintf("repository=%s", specs.PLACEHOLDER_REPO),
 			fmt.Sprintf("buildername=%s", name),
@@ -620,20 +629,26 @@ func ctSKPs(b *specs.TasksCfgBuilder, name string) string {
 			fmt.Sprintf("patch_issue=%s", specs.PLACEHOLDER_ISSUE),
 			fmt.Sprintf("patch_set=%s", specs.PLACEHOLDER_PATCHSET),
 		},
-		IoTimeout: time.Hour,
-		Isolate:   relpath("ct_skps_skia.isolate"),
-		Priority:  0.8,
+		Dependencies: []string{BUNDLE_RECIPES_NAME},
+		Dimensions: []string{
+			"pool:SkiaCT",
+			fmt.Sprintf("os:%s", DEFAULT_OS_LINUX_GCE),
+		},
+		ExecutionTimeout: 24 * time.Hour,
+		IoTimeout:        time.Hour,
+		Isolate:          relpath("skia_repo.isolate"),
+		Priority:         0.8,
 	})
 	return name
 }
 
 // checkGeneratedFiles verifies that no generated SKSL files have been edited
 // by hand.
-func checkGeneratedFiles(b *specs.TasksCfgBuilder, name string) string {
+func checkGeneratedFiles(b *specs.TasksCfgBuilder, name string, parts map[string]string) string {
 	b.MustAddTask(name, &specs.TaskSpec{
 		CipdPackages: []*specs.CipdPackage{},
-		Dimensions:   linuxGceDimensions(),
-		ExtraArgs: []string{
+		Command: []string{
+			recipes(parts), "run", "--timestamps",
 			"--workdir", "../../..", "check_generated_files",
 			fmt.Sprintf("repository=%s", specs.PLACEHOLDER_REPO),
 			fmt.Sprintf("buildername=%s", name),
@@ -644,20 +659,21 @@ func checkGeneratedFiles(b *specs.TasksCfgBuilder, name string) string {
 			fmt.Sprintf("patch_issue=%s", specs.PLACEHOLDER_ISSUE),
 			fmt.Sprintf("patch_set=%s", specs.PLACEHOLDER_PATCHSET),
 		},
-		Isolate:  relpath("compile_skia.isolate"),
-		Priority: 0.8,
+		Dependencies: []string{BUNDLE_RECIPES_NAME},
+		Dimensions:   linuxGceDimensions(),
+		Isolate:      relpath("swarm_recipe.isolate"),
+		Priority:     0.8,
 	})
 	return name
 }
 
 // housekeeper generates a Housekeeper task. Returns the name of the last task
 // in the generated chain of tasks, which the Job should add as a dependency.
-func housekeeper(b *specs.TasksCfgBuilder, name, compileTaskName string) string {
+func housekeeper(b *specs.TasksCfgBuilder, name, compileTaskName string, parts map[string]string) string {
 	b.MustAddTask(name, &specs.TaskSpec{
 		CipdPackages: []*specs.CipdPackage{b.MustGetCipdPackageFromAsset("go")},
-		Dependencies: []string{compileTaskName},
-		Dimensions:   linuxGceDimensions(),
-		ExtraArgs: []string{
+		Command: []string{
+			recipes(parts), "run", "--timestamps",
 			"--workdir", "../../..", "housekeeper",
 			fmt.Sprintf("repository=%s", specs.PLACEHOLDER_REPO),
 			fmt.Sprintf("buildername=%s", name),
@@ -668,19 +684,20 @@ func housekeeper(b *specs.TasksCfgBuilder, name, compileTaskName string) string 
 			fmt.Sprintf("patch_issue=%s", specs.PLACEHOLDER_ISSUE),
 			fmt.Sprintf("patch_set=%s", specs.PLACEHOLDER_PATCHSET),
 		},
-		Isolate:  relpath("housekeeper_skia.isolate"),
-		Priority: 0.8,
+		Dependencies: []string{compileTaskName, BUNDLE_RECIPES_NAME},
+		Dimensions:   linuxGceDimensions(),
+		Isolate:      relpath("swarm_recipe.isolate"),
+		Priority:     0.8,
 	})
 	return name
 }
 
 // infra generates an infra_tests task. Returns the name of the last task in the
 // generated chain of tasks, which the Job should add as a dependency.
-func infra(b *specs.TasksCfgBuilder, name string) string {
+func infra(b *specs.TasksCfgBuilder, name string, parts map[string]string) string {
 	b.MustAddTask(name, &specs.TaskSpec{
-		CipdPackages: []*specs.CipdPackage{b.MustGetCipdPackageFromAsset("go")},
-		Dimensions:   linuxGceDimensions(),
-		ExtraArgs: []string{
+		Command: []string{
+			recipes(parts), "run", "--timestamps",
 			"--workdir", "../../..", "infra",
 			fmt.Sprintf("repository=%s", specs.PLACEHOLDER_REPO),
 			fmt.Sprintf("buildername=%s", name),
@@ -691,8 +708,11 @@ func infra(b *specs.TasksCfgBuilder, name string) string {
 			fmt.Sprintf("patch_issue=%s", specs.PLACEHOLDER_ISSUE),
 			fmt.Sprintf("patch_set=%s", specs.PLACEHOLDER_PATCHSET),
 		},
-		Isolate:  relpath("infra_skia.isolate"),
-		Priority: 0.8,
+		CipdPackages: []*specs.CipdPackage{b.MustGetCipdPackageFromAsset("go")},
+		Dependencies: []string{BUNDLE_RECIPES_NAME},
+		Dimensions:   linuxGceDimensions(),
+		Isolate:      relpath("swarm_recipe.isolate"),
+		Priority:     0.8,
 	})
 	return name
 }
@@ -702,8 +722,8 @@ func infra(b *specs.TasksCfgBuilder, name string) string {
 func calmbench(b *specs.TasksCfgBuilder, name string, parts map[string]string) string {
 	s := &specs.TaskSpec{
 		CipdPackages: []*specs.CipdPackage{b.MustGetCipdPackageFromAsset("clang_linux")},
-		Dimensions:   swarmDimensions(parts),
-		ExtraArgs: []string{
+		Command: []string{
+			recipes(parts), "run", "--timestamps",
 			"--workdir", "../../..", "calmbench",
 			fmt.Sprintf("repository=%s", specs.PLACEHOLDER_REPO),
 			fmt.Sprintf("buildername=%s", name),
@@ -714,8 +734,9 @@ func calmbench(b *specs.TasksCfgBuilder, name string, parts map[string]string) s
 			fmt.Sprintf("patch_issue=%s", specs.PLACEHOLDER_ISSUE),
 			fmt.Sprintf("patch_set=%s", specs.PLACEHOLDER_PATCHSET),
 		},
-		Isolate:  relpath("infra_skia.isolate"),
-		Priority: 0.8,
+		Dimensions: swarmDimensions(parts),
+		Isolate:    relpath("swarm_recipe.isolate"),
+		Priority:   0.8,
 	}
 
 	s.Dependencies = append(s.Dependencies, ISOLATE_SKP_NAME, ISOLATE_SVG_NAME)
@@ -726,9 +747,8 @@ func calmbench(b *specs.TasksCfgBuilder, name string, parts map[string]string) s
 	if strings.Contains(name, "Release") && doUpload(name) {
 		uploadName := fmt.Sprintf("%s%s%s", PREFIX_UPLOAD, jobNameSchema.Sep, name)
 		b.MustAddTask(uploadName, &specs.TaskSpec{
-			Dependencies: []string{name},
-			Dimensions:   linuxGceDimensions(),
-			ExtraArgs: []string{
+			Command: []string{
+				recipes(parts), "run", "--timestamps",
 				"--workdir", "../../..", "upload_calmbench_results",
 				fmt.Sprintf("repository=%s", specs.PLACEHOLDER_REPO),
 				fmt.Sprintf("buildername=%s", name),
@@ -740,9 +760,10 @@ func calmbench(b *specs.TasksCfgBuilder, name string, parts map[string]string) s
 				fmt.Sprintf("patch_set=%s", specs.PLACEHOLDER_PATCHSET),
 				fmt.Sprintf("gs_bucket=%s", CONFIG.GsBucketCalm),
 			},
-			// We're using the same isolate as upload_nano_results
-			Isolate:  relpath("upload_nano_results.isolate"),
-			Priority: 0.8,
+			Dependencies: []string{name},
+			Dimensions:   linuxGceDimensions(),
+			Isolate:      relpath("swarm_recipe.isolate"),
+			Priority:     0.8,
 		})
 		return uploadName
 	}
@@ -768,12 +789,9 @@ func doUpload(name string) bool {
 // generated chain of tasks, which the Job should add as a dependency.
 func test(b *specs.TasksCfgBuilder, name string, parts map[string]string, compileTaskName string, pkgs []*specs.CipdPackage) string {
 	s := &specs.TaskSpec{
-		CipdPackages:     pkgs,
-		Dependencies:     []string{compileTaskName},
-		Dimensions:       swarmDimensions(parts),
-		ExecutionTimeout: 4 * time.Hour,
-		Expiration:       20 * time.Hour,
-		ExtraArgs: []string{
+		CipdPackages: pkgs,
+		Command: []string{
+			recipes(parts), "run", "--timestamps",
 			"--workdir", "../../..", "test",
 			fmt.Sprintf("repository=%s", specs.PLACEHOLDER_REPO),
 			fmt.Sprintf("buildbucket_build_id=%s", specs.PLACEHOLDER_BUILDBUCKET_BUILD_ID),
@@ -785,18 +803,14 @@ func test(b *specs.TasksCfgBuilder, name string, parts map[string]string, compil
 			fmt.Sprintf("patch_issue=%s", specs.PLACEHOLDER_ISSUE),
 			fmt.Sprintf("patch_set=%s", specs.PLACEHOLDER_PATCHSET),
 		},
-		IoTimeout:   40 * time.Minute,
-		Isolate:     relpath("test_skia.isolate"),
-		MaxAttempts: 1,
-		Priority:    0.8,
-	}
-	if useBundledRecipes(parts) {
-		s.Dependencies = append(s.Dependencies, BUNDLE_RECIPES_NAME)
-		if strings.Contains(parts["os"], "Win") {
-			s.Isolate = relpath("test_skia_bundled_win.isolate")
-		} else {
-			s.Isolate = relpath("test_skia_bundled_unix.isolate")
-		}
+		Dependencies:     []string{compileTaskName, BUNDLE_RECIPES_NAME},
+		Dimensions:       swarmDimensions(parts),
+		ExecutionTimeout: 4 * time.Hour,
+		Expiration:       20 * time.Hour,
+		IoTimeout:        40 * time.Minute,
+		Isolate:          relpath("test_skia_bundled.isolate"),
+		MaxAttempts:      1,
+		Priority:         0.8,
 	}
 	if deps := getIsolatedCIPDDeps(parts); len(deps) > 0 {
 		s.Dependencies = append(s.Dependencies, deps...)
@@ -824,9 +838,8 @@ func test(b *specs.TasksCfgBuilder, name string, parts map[string]string, compil
 	if doUpload(name) {
 		uploadName := fmt.Sprintf("%s%s%s", PREFIX_UPLOAD, jobNameSchema.Sep, name)
 		b.MustAddTask(uploadName, &specs.TaskSpec{
-			Dependencies: []string{name},
-			Dimensions:   linuxGceDimensions(),
-			ExtraArgs: []string{
+			Command: []string{
+				recipes(parts), "run", "--timestamps",
 				"--workdir", "../../..", "upload_dm_results",
 				fmt.Sprintf("repository=%s", specs.PLACEHOLDER_REPO),
 				fmt.Sprintf("buildername=%s", name),
@@ -838,8 +851,10 @@ func test(b *specs.TasksCfgBuilder, name string, parts map[string]string, compil
 				fmt.Sprintf("patch_set=%s", specs.PLACEHOLDER_PATCHSET),
 				fmt.Sprintf("gs_bucket=%s", CONFIG.GsBucketGm),
 			},
-			Isolate:  relpath("upload_dm_results.isolate"),
-			Priority: 0.8,
+			Dependencies: []string{name, BUNDLE_RECIPES_NAME},
+			Dimensions:   linuxGceDimensions(),
+			Isolate:      relpath("swarm_recipe.isolate"),
+			Priority:     0.8,
 		})
 		return uploadName
 	}
@@ -864,12 +879,9 @@ func coverage(b *specs.TasksCfgBuilder, name string, parts map[string]string, co
 	for i := 0; i < shards; i++ {
 		n := strings.Replace(name, tf, fmt.Sprintf("shard_%02d_%02d", i, shards), 1)
 		s := &specs.TaskSpec{
-			CipdPackages:     pkgs,
-			Dependencies:     []string{compileTaskName},
-			Dimensions:       swarmDimensions(parts),
-			ExecutionTimeout: 4 * time.Hour,
-			Expiration:       20 * time.Hour,
-			ExtraArgs: []string{
+			CipdPackages: pkgs,
+			Command: []string{
+				recipes(parts), "run", "--timestamps",
 				"--workdir", "../../..", "test",
 				fmt.Sprintf("repository=%s", specs.PLACEHOLDER_REPO),
 				fmt.Sprintf("buildername=%s", n),
@@ -880,18 +892,14 @@ func coverage(b *specs.TasksCfgBuilder, name string, parts map[string]string, co
 				fmt.Sprintf("patch_issue=%s", specs.PLACEHOLDER_ISSUE),
 				fmt.Sprintf("patch_set=%s", specs.PLACEHOLDER_PATCHSET),
 			},
-			IoTimeout:   40 * time.Minute,
-			Isolate:     relpath("test_skia.isolate"),
-			MaxAttempts: 1,
-			Priority:    0.8,
-		}
-		if useBundledRecipes(parts) {
-			s.Dependencies = append(s.Dependencies, BUNDLE_RECIPES_NAME)
-			if strings.Contains(parts["os"], "Win") {
-				s.Isolate = relpath("test_skia_bundled_win.isolate")
-			} else {
-				s.Isolate = relpath("test_skia_bundled_unix.isolate")
-			}
+			Dependencies:     []string{compileTaskName, BUNDLE_RECIPES_NAME},
+			Dimensions:       swarmDimensions(parts),
+			ExecutionTimeout: 4 * time.Hour,
+			Expiration:       20 * time.Hour,
+			IoTimeout:        40 * time.Minute,
+			Isolate:          relpath("test_skia_bundled.isolate"),
+			MaxAttempts:      1,
+			Priority:         0.8,
 		}
 		if deps := getIsolatedCIPDDeps(parts); len(deps) > 0 {
 			s.Dependencies = append(s.Dependencies, deps...)
@@ -926,7 +934,7 @@ func coverage(b *specs.TasksCfgBuilder, name string, parts map[string]string, co
 			fmt.Sprintf("patch_set=%s", specs.PLACEHOLDER_PATCHSET),
 			fmt.Sprintf("gs_bucket=%s", CONFIG.GsBucketCoverage),
 		},
-		Isolate:  relpath("upload_coverage_results.isolate"),
+		Isolate:  relpath("swarm_recipe.isolate"),
 		Priority: 0.8,
 	})
 	return uploadName
@@ -936,31 +944,15 @@ func coverage(b *specs.TasksCfgBuilder, name string, parts map[string]string, co
 // generated chain of tasks, which the Job should add as a dependency.
 func perf(b *specs.TasksCfgBuilder, name string, parts map[string]string, compileTaskName string, pkgs []*specs.CipdPackage) string {
 	recipe := "perf"
-	isolate := relpath("perf_skia.isolate")
+	isolate := relpath("perf_skia_bundled.isolate")
 	if strings.Contains(parts["extra_config"], "Skpbench") {
 		recipe = "skpbench"
-		isolate = relpath("skpbench_skia.isolate")
-		if useBundledRecipes(parts) {
-			if strings.Contains(parts["os"], "Win") {
-				isolate = relpath("skpbench_skia_bundled_win.isolate")
-			} else {
-				isolate = relpath("skpbench_skia_bundled_unix.isolate")
-			}
-		}
-	} else if useBundledRecipes(parts) {
-		if strings.Contains(parts["os"], "Win") {
-			isolate = relpath("perf_skia_bundled_win.isolate")
-		} else {
-			isolate = relpath("perf_skia_bundled_unix.isolate")
-		}
+		isolate = relpath("skpbench_skia_bundled.isolate")
 	}
 	s := &specs.TaskSpec{
-		CipdPackages:     pkgs,
-		Dependencies:     []string{compileTaskName},
-		Dimensions:       swarmDimensions(parts),
-		ExecutionTimeout: 4 * time.Hour,
-		Expiration:       20 * time.Hour,
-		ExtraArgs: []string{
+		CipdPackages: pkgs,
+		Command: []string{
+			recipes(parts), "run", "--timestamps",
 			"--workdir", "../../..", recipe,
 			fmt.Sprintf("repository=%s", specs.PLACEHOLDER_REPO),
 			fmt.Sprintf("buildername=%s", name),
@@ -971,13 +963,14 @@ func perf(b *specs.TasksCfgBuilder, name string, parts map[string]string, compil
 			fmt.Sprintf("patch_issue=%s", specs.PLACEHOLDER_ISSUE),
 			fmt.Sprintf("patch_set=%s", specs.PLACEHOLDER_PATCHSET),
 		},
-		IoTimeout:   40 * time.Minute,
-		Isolate:     isolate,
-		MaxAttempts: 1,
-		Priority:    0.8,
-	}
-	if useBundledRecipes(parts) {
-		s.Dependencies = append(s.Dependencies, BUNDLE_RECIPES_NAME)
+		Dependencies:     []string{compileTaskName, BUNDLE_RECIPES_NAME},
+		Dimensions:       swarmDimensions(parts),
+		ExecutionTimeout: 4 * time.Hour,
+		Expiration:       20 * time.Hour,
+		IoTimeout:        40 * time.Minute,
+		Isolate:          isolate,
+		MaxAttempts:      1,
+		Priority:         0.8,
 	}
 	if deps := getIsolatedCIPDDeps(parts); len(deps) > 0 {
 		s.Dependencies = append(s.Dependencies, deps...)
@@ -1005,9 +998,8 @@ func perf(b *specs.TasksCfgBuilder, name string, parts map[string]string, compil
 	if strings.Contains(name, "Release") && doUpload(name) {
 		uploadName := fmt.Sprintf("%s%s%s", PREFIX_UPLOAD, jobNameSchema.Sep, name)
 		b.MustAddTask(uploadName, &specs.TaskSpec{
-			Dependencies: []string{name},
-			Dimensions:   linuxGceDimensions(),
-			ExtraArgs: []string{
+			Command: []string{
+				recipes(parts), "run", "--timestamps",
 				"--workdir", "../../..", "upload_nano_results",
 				fmt.Sprintf("repository=%s", specs.PLACEHOLDER_REPO),
 				fmt.Sprintf("buildername=%s", name),
@@ -1019,8 +1011,10 @@ func perf(b *specs.TasksCfgBuilder, name string, parts map[string]string, compil
 				fmt.Sprintf("patch_set=%s", specs.PLACEHOLDER_PATCHSET),
 				fmt.Sprintf("gs_bucket=%s", CONFIG.GsBucketNano),
 			},
-			Isolate:  relpath("upload_nano_results.isolate"),
-			Priority: 0.8,
+			Dependencies: []string{name, BUNDLE_RECIPES_NAME},
+			Dimensions:   linuxGceDimensions(),
+			Isolate:      relpath("swarm_recipe.isolate"),
+			Priority:     0.8,
 		})
 		return uploadName
 	}
@@ -1048,22 +1042,22 @@ func process(b *specs.TasksCfgBuilder, name string) {
 
 	// RecreateSKPs.
 	if strings.Contains(name, "RecreateSKPs") {
-		deps = append(deps, recreateSKPs(b, name))
+		deps = append(deps, recreateSKPs(b, name, parts))
 	}
 
 	// UpdateMetaConfig bot.
 	if strings.Contains(name, "UpdateMetaConfig") {
-		deps = append(deps, updateMetaConfig(b, name))
+		deps = append(deps, updateMetaConfig(b, name, parts))
 	}
 
 	// CT bots.
 	if strings.Contains(name, "-CT_") {
-		deps = append(deps, ctSKPs(b, name))
+		deps = append(deps, ctSKPs(b, name, parts))
 	}
 
 	// Infra tests.
 	if name == "Housekeeper-PerCommit-InfraTests" {
-		deps = append(deps, infra(b, name))
+		deps = append(deps, infra(b, name, parts))
 	}
 
 	// Compile bots.
@@ -1096,10 +1090,10 @@ func process(b *specs.TasksCfgBuilder, name string) {
 
 	// Housekeepers.
 	if name == "Housekeeper-PerCommit" {
-		deps = append(deps, housekeeper(b, name, compileTaskName))
+		deps = append(deps, housekeeper(b, name, compileTaskName, parts))
 	}
 	if name == "Housekeeper-PerCommit-CheckGeneratedFiles" {
-		deps = append(deps, checkGeneratedFiles(b, name))
+		deps = append(deps, checkGeneratedFiles(b, name, parts))
 	}
 
 	// Common assets needed by the remaining bots.
