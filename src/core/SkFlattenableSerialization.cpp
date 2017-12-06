@@ -6,27 +6,19 @@
  */
 
 #include "SkFlattenableSerialization.h"
-
 #include "SkData.h"
-#include "SkValidatingReadBuffer.h"
-#include "SkWriteBuffer.h"
+#include "SkImageFilter.h"
 
 SkData* SkValidatingSerializeFlattenable(SkFlattenable* flattenable) {
-    SkBinaryWriteBuffer writer;
-    writer.writeFlattenable(flattenable);
-    size_t size = writer.bytesWritten();
-    auto data = SkData::MakeUninitialized(size);
-    writer.writeToMemory(data->writable_data());
-    return data.release();
+    return flattenable->serialize().release();
 }
 
 SkFlattenable* SkValidatingDeserializeFlattenable(const void* data, size_t size,
                                                   SkFlattenable::Type type) {
-    SkValidatingReadBuffer buffer(data, size);
-    return buffer.readFlattenable(type);
+    return SkFlattenable::Deserialize(type, data, size).release();
 }
 
 sk_sp<SkImageFilter> SkValidatingDeserializeImageFilter(const void* data, size_t size) {
-    return sk_sp<SkImageFilter>((SkImageFilter*)SkValidatingDeserializeFlattenable(
-                                data, size, SkImageFilter::GetFlattenableType()));
+    auto flat = SkFlattenable::Deserialize(SkFlattenable::kSkImageFilter_Type, data, size);
+    return sk_sp<SkImageFilter>(static_cast<SkImageFilter*>(flat.release()));
 }
