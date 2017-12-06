@@ -40,6 +40,7 @@ declare_args() {
   skia_enable_spirv_validation = is_skia_dev_build && is_debug
   skia_enable_tools = is_skia_dev_build
   skia_enable_vulkan_debug_layers = is_skia_dev_build && is_debug
+  skia_vulkan_header_shim = ""
   skia_vulkan_sdk = getenv("VULKAN_SDK")
   skia_qt_path = getenv("QT_PATH")
   skia_compile_processors = false
@@ -178,6 +179,9 @@ config("skia_private") {
   lib_dirs = []
   if (skia_enable_gpu) {
     include_dirs += [ "src/gpu" ]
+    if (skia_enable_tools && skia_use_vulkan) {
+      include_dirs += [ "tools/gpu/vk" ]
+    }
   }
   if (skia_use_angle) {
     defines += [ "SK_ANGLE" ]
@@ -580,6 +584,13 @@ optional("gpu") {
     sources += skia_vk_sources
     if (skia_enable_vulkan_debug_layers) {
       public_defines += [ "SK_ENABLE_VK_LAYERS" ]
+    }
+    if (skia_vulkan_header_shim != "") {
+      public_defines += [ "SK_VULKAN_HEADER=\"$skia_vulkan_header_shim\"" ]
+    } else {
+      if (skia_enable_tools) {
+        public_defines += [ "SK_VULKAN_HEADER=\"GrVulkanDefines.h\"" ]
+      }
     }
   }
   if (skia_enable_spirv_validation) {
