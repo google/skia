@@ -16,7 +16,7 @@
 // Bessel produces values as defined in "Scale-Space for Discrete Signals" by Tony Lindeberg
 class SkGaussFilter {
 public:
-    static constexpr int kGaussArrayMax = 5;
+    static constexpr int kGaussArrayMax = 6;
     enum class Type : bool {
         Gaussian,
         Bessel
