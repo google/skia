@@ -16,13 +16,13 @@
 #include "SkMallocPixelRef.h"
 #include "SkMatrixPriv.h"
 #include "SkOSFile.h"
+#include "SkReadBuffer.h"
 #include "SkPictureRecorder.h"
 #include "SkShaderBase.h"
 #include "SkTableColorFilter.h"
 #include "SkTemplates.h"
 #include "SkTypeface.h"
 #include "SkWriteBuffer.h"
-#include "SkValidatingReadBuffer.h"
 #include "SkXfermodeImageFilter.h"
 #include "sk_tool_utils.h"
 #include "Test.h"
@@ -49,7 +49,7 @@ template<typename T> struct SerializationUtils {
     static void Write(SkWriteBuffer& writer, const T* flattenable) {
         writer.writeFlattenable(flattenable);
     }
-    static void Read(SkValidatingReadBuffer& reader, T** flattenable) {
+    static void Read(SkReadBuffer& reader, T** flattenable) {
         *flattenable = (T*)reader.readFlattenable(T::GetFlattenableType());
     }
 };
@@ -58,7 +58,7 @@ template<> struct SerializationUtils<SkMatrix> {
     static void Write(SkWriteBuffer& writer, const SkMatrix* matrix) {
         writer.writeMatrix(*matrix);
     }
-    static void Read(SkValidatingReadBuffer& reader, SkMatrix* matrix) {
+    static void Read(SkReadBuffer& reader, SkMatrix* matrix) {
         reader.readMatrix(matrix);
     }
 };
@@ -67,7 +67,7 @@ template<> struct SerializationUtils<SkPath> {
     static void Write(SkWriteBuffer& writer, const SkPath* path) {
         writer.writePath(*path);
     }
-    static void Read(SkValidatingReadBuffer& reader, SkPath* path) {
+    static void Read(SkReadBuffer& reader, SkPath* path) {
         reader.readPath(path);
     }
 };
@@ -76,7 +76,7 @@ template<> struct SerializationUtils<SkRegion> {
     static void Write(SkWriteBuffer& writer, const SkRegion* region) {
         writer.writeRegion(*region);
     }
-    static void Read(SkValidatingReadBuffer& reader, SkRegion* region) {
+    static void Read(SkReadBuffer& reader, SkRegion* region) {
         reader.readRegion(region);
     }
 };
@@ -85,7 +85,7 @@ template<> struct SerializationUtils<SkString> {
     static void Write(SkWriteBuffer& writer, const SkString* string) {
         writer.writeString(string->c_str());
     }
-    static void Read(SkValidatingReadBuffer& reader, SkString* string) {
+    static void Read(SkReadBuffer& reader, SkString* string) {
         reader.readString(string);
     }
 };
@@ -94,7 +94,7 @@ template<> struct SerializationUtils<unsigned char> {
     static void Write(SkWriteBuffer& writer, unsigned char* data, uint32_t arraySize) {
         writer.writeByteArray(data, arraySize);
     }
-    static bool Read(SkValidatingReadBuffer& reader, unsigned char* data, uint32_t arraySize) {
+    static bool Read(SkReadBuffer& reader, unsigned char* data, uint32_t arraySize) {
         return reader.readByteArray(data, arraySize);
     }
 };
@@ -103,7 +103,7 @@ template<> struct SerializationUtils<SkColor> {
     static void Write(SkWriteBuffer& writer, SkColor* data, uint32_t arraySize) {
         writer.writeColorArray(data, arraySize);
     }
-    static bool Read(SkValidatingReadBuffer& reader, SkColor* data, uint32_t arraySize) {
+    static bool Read(SkReadBuffer& reader, SkColor* data, uint32_t arraySize) {
         return reader.readColorArray(data, arraySize);
     }
 };
@@ -112,7 +112,7 @@ template<> struct SerializationUtils<SkColor4f> {
     static void Write(SkWriteBuffer& writer, SkColor4f* data, uint32_t arraySize) {
         writer.writeColor4fArray(data, arraySize);
     }
-    static bool Read(SkValidatingReadBuffer& reader, SkColor4f* data, uint32_t arraySize) {
+    static bool Read(SkReadBuffer& reader, SkColor4f* data, uint32_t arraySize) {
         return reader.readColor4fArray(data, arraySize);
     }
 };
@@ -121,7 +121,7 @@ template<> struct SerializationUtils<int32_t> {
     static void Write(SkWriteBuffer& writer, int32_t* data, uint32_t arraySize) {
         writer.writeIntArray(data, arraySize);
     }
-    static bool Read(SkValidatingReadBuffer& reader, int32_t* data, uint32_t arraySize) {
+    static bool Read(SkReadBuffer& reader, int32_t* data, uint32_t arraySize) {
         return reader.readIntArray(data, arraySize);
     }
 };
@@ -130,7 +130,7 @@ template<> struct SerializationUtils<SkPoint> {
     static void Write(SkWriteBuffer& writer, SkPoint* data, uint32_t arraySize) {
         writer.writePointArray(data, arraySize);
     }
-    static bool Read(SkValidatingReadBuffer& reader, SkPoint* data, uint32_t arraySize) {
+    static bool Read(SkReadBuffer& reader, SkPoint* data, uint32_t arraySize) {
         return reader.readPointArray(data, arraySize);
     }
 };
@@ -139,7 +139,7 @@ template<> struct SerializationUtils<SkScalar> {
     static void Write(SkWriteBuffer& writer, SkScalar* data, uint32_t arraySize) {
         writer.writeScalarArray(data, arraySize);
     }
-    static bool Read(SkValidatingReadBuffer& reader, SkScalar* data, uint32_t arraySize) {
+    static bool Read(SkReadBuffer& reader, SkScalar* data, uint32_t arraySize) {
         return reader.readScalarArray(data, arraySize);
     }
 };
@@ -167,13 +167,13 @@ static void TestObjectSerializationNoAlign(T* testObj, skiatest::Reporter* repor
     SerializationTestUtils<T, testInvalid>::InvalidateData(dataWritten);
 
     // Make sure this fails when it should (test with smaller size, but still multiple of 4)
-    SkValidatingReadBuffer buffer(dataWritten, bytesWritten - 4);
+    SkReadBuffer buffer(dataWritten, bytesWritten - 4);
     T obj;
     SerializationUtils<T>::Read(buffer, &obj);
     REPORTER_ASSERT(reporter, !buffer.isValid());
 
     // Make sure this succeeds when it should
-    SkValidatingReadBuffer buffer2(dataWritten, bytesWritten);
+    SkReadBuffer buffer2(dataWritten, bytesWritten);
     size_t offsetBefore = buffer2.offset();
     T obj2;
     SerializationUtils<T>::Read(buffer2, &obj2);
@@ -204,14 +204,14 @@ static T* TestFlattenableSerialization(T* testObj, bool shouldSucceed,
     writer.writeToMemory(dataWritten);
 
     // Make sure this fails when it should (test with smaller size, but still multiple of 4)
-    SkValidatingReadBuffer buffer(dataWritten, bytesWritten - 4);
+    SkReadBuffer buffer(dataWritten, bytesWritten - 4);
     T* obj = nullptr;
     SerializationUtils<T>::Read(buffer, &obj);
     REPORTER_ASSERT(reporter, !buffer.isValid());
     REPORTER_ASSERT(reporter, nullptr == obj);
 
     // Make sure this succeeds when it should
-    SkValidatingReadBuffer buffer2(dataWritten, bytesWritten);
+    SkReadBuffer buffer2(dataWritten, bytesWritten);
     const unsigned char* peekBefore = static_cast<const unsigned char*>(buffer2.skip(0));
     T* obj2 = nullptr;
     SerializationUtils<T>::Read(buffer2, &obj2);
@@ -242,14 +242,14 @@ static void TestArraySerialization(T* data, skiatest::Reporter* reporter) {
     writer.writeToMemory(dataWritten);
 
     // Make sure this fails when it should
-    SkValidatingReadBuffer buffer(dataWritten, bytesWritten);
+    SkReadBuffer buffer(dataWritten, bytesWritten);
     T dataRead[kArraySize];
     bool success = SerializationUtils<T>::Read(buffer, dataRead, kArraySize / 2);
     // This should have failed, since the provided size was too small
     REPORTER_ASSERT(reporter, !success);
 
     // Make sure this succeeds when it should
-    SkValidatingReadBuffer buffer2(dataWritten, bytesWritten);
+    SkReadBuffer buffer2(dataWritten, bytesWritten);
     success = SerializationUtils<T>::Read(buffer2, dataRead, kArraySize);
     // This should have succeeded, since there are enough bytes to read this
     REPORTER_ASSERT(reporter, success);
@@ -548,7 +548,7 @@ DEF_TEST(Serialization, reporter) {
         writer.writeToMemory(static_cast<void*>(data.get()));
 
         // Deserialize picture
-        SkValidatingReadBuffer reader(static_cast<void*>(data.get()), size);
+        SkReadBuffer reader(static_cast<void*>(data.get()), size);
         sk_sp<SkPicture> readPict(SkPicture::MakeFromBuffer(reader));
         REPORTER_ASSERT(reporter, reader.isValid());
         REPORTER_ASSERT(reporter, readPict.get());

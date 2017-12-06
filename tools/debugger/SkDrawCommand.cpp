@@ -20,11 +20,11 @@
 #include "SkPaintDefaults.h"
 #include "SkPathEffect.h"
 #include "SkPicture.h"
+#include "SkReadBuffer.h"
 #include "SkTextBlob.h"
 #include "SkTextBlobRunIterator.h"
 #include "SkTHash.h"
 #include "SkTypeface.h"
-#include "SkValidatingReadBuffer.h"
 #include "SkWriteBuffer.h"
 #include "picture_utils.h"
 #include "SkClipOpPriv.h"
@@ -860,7 +860,7 @@ static SkFlattenable* load_flattenable(Json::Value jsonFlattenable,
     }
     const void* data;
     int size = decode_data(jsonFlattenable[SKDEBUGCANVAS_ATTRIBUTE_DATA], urlDataManager, &data);
-    SkValidatingReadBuffer buffer(data, size);
+    SkReadBuffer buffer(data, size);
     sk_sp<SkFlattenable> result = factory(buffer);
     if (!buffer.isValid()) {
         SkDebugf("invalid buffer loading flattenable\n");

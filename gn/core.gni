@@ -327,8 +327,6 @@ skia_core_sources = [
   "$_src/core/SkUnPreMultiply.cpp",
   "$_src/core/SkUtils.cpp",
   "$_src/core/SkUtils.h",
-  "$_src/core/SkValidatingReadBuffer.cpp",
-  "$_src/core/SkValidatingReadBuffer.h",
   "$_src/core/SkValidationUtils.h",
   "$_src/core/SkVertices.cpp",
   "$_src/core/SkVertState.cpp",

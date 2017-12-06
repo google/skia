@@ -10,10 +10,12 @@
 
 #include "SkRefCnt.h"
 
+class SkData;
 class SkReadBuffer;
 class SkWriteBuffer;
 
-class SkPrivateEffectInitializer;
+struct SkSerialProcs;
+struct SkDeserialProcs;
 
 /*
  *  Flattening is straight-forward:
@@ -113,8 +115,17 @@ public:
     /**
      *  Override this if your subclass needs to record data that it will need to recreate itself
      *  from its CreateProc (returned by getFactory()).
+     *
+     *  DEPRECATED public : will move to protected ... use serialize() instead
      */
     virtual void flatten(SkWriteBuffer&) const {}
+
+    //
+    // public ways to serialize / deserialize
+    //
+    sk_sp<SkData> serialize(const SkSerialProcs* = nullptr) const;
+    static sk_sp<SkFlattenable> Deserialize(Type, const void* data, size_t length,
+                                            const SkDeserialProcs* procs = nullptr);
 
 protected:
     class PrivateInitializer {
