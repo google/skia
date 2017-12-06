@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5dd86f0d_45097018",
+        "filename": "include/gpu/vk/GrVkDefines.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 7798
+      },
+      "writtenOn": "2017-12-06T08:45:11Z",
+      "side": 1,
+      "message": "Currently chromium uses xlib for vulkan linux environment.\nSince Skia has only xcb support, any suggestion how can this be handled ?",
+      "revId": "e46f3686a72e788fd5aec643e3b19862cfd0ded5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "55a1cdc4_c9ff49fd",
+        "filename": "include/gpu/vk/GrVkDefines.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 7798
+      },
+      "writtenOn": "2017-12-06T08:45:11Z",
+      "side": 1,
+      "message": "Should this be Ok ?",
+      "revId": "e46f3686a72e788fd5aec643e3b19862cfd0ded5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
