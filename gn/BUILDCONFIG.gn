@@ -35,6 +35,7 @@ declare_args() {
     windk = "C:/Program Files (x86)/Microsoft Visual Studio 14.0"
   } else {
     windk = "C:/Program Files (x86)/Microsoft Visual Studio/2017/Professional"
+    win_toolchain_version = ""
   }
 }
 
@@ -182,6 +183,12 @@ set_defaults("component") {
 }
 
 if (is_win) {
+  if (msvc == 2017 && win_toolchain_version == "") {
+    win_toolchain_version = exec_script("//gn/highest_version_dir.py",
+                                        [ "$windk/VC/Tools/MSVC" ],
+                                        "trim string")
+  }
+
   # Windows tool chain
   set_default_toolchain("//gn/toolchain:msvc")
   default_toolchain_name = "msvc"
