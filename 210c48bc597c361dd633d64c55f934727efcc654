@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "70010006_17f8b32c",
+        "filename": "fuzz/FuzzCanvas.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1774,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-12-06T20:58:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8a299b3f_5dea1aab",
+      "range": {
+        "startLine": 1774,
+        "startChar": 17,
+        "endLine": 1774,
+        "endChar": 20
+      },
+      "revId": "210c48bc597c361dd633d64c55f934727efcc654",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "dd283a1a_26ca647b",
         "filename": "src/core/SkReadBuffer.cpp",
         "patchSetId": 3
@@ -45,6 +69,30 @@
       "revId": "210c48bc597c361dd633d64c55f934727efcc654",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8ee2250e_76ecf569",
+        "filename": "src/core/SkReadBuffer.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 308,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-12-06T20:58:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "dd283a1a_26ca647b",
+      "range": {
+        "startLine": 306,
+        "startChar": 0,
+        "endLine": 308,
+        "endChar": 38
+      },
+      "revId": "210c48bc597c361dd633d64c55f934727efcc654",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "308091d4_34855123",
+        "filename": "src/core/SkReadBuffer.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 225,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-12-06T20:58:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "05a2cf0d_ed51d9fe",
+      "range": {
+        "startLine": 225,
+        "startChar": 12,
+        "endLine": 225,
+        "endChar": 19
+      },
+      "revId": "210c48bc597c361dd633d64c55f934727efcc654",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "09fe5eb4_7e0609cd",
         "filename": "src/core/SkTextBlob.cpp",
         "patchSetId": 3
@@ -88,6 +160,24 @@
     },
     {
       "key": {
+        "uuid": "78608b68_f0dada6d",
+        "filename": "src/core/SkTextBlob.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 898,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-12-06T20:58:31Z",
+      "side": 1,
+      "message": "Indeed. In a follow up I want to:\n1. remove this subclass (might be the only one)\n2. use the new deserialprocs struct",
+      "parentUuid": "09fe5eb4_7e0609cd",
+      "revId": "210c48bc597c361dd633d64c55f934727efcc654",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "7f628a43_727d754b",
         "filename": "src/core/SkValidatingReadBuffer.h",
         "patchSetId": 3
@@ -99,6 +189,30 @@
       "writtenOn": "2017-12-06T20:28:30Z",
       "side": 1,
       "message": "Can probably tidy up some of this too?",
+      "range": {
+        "startLine": 11,
+        "startChar": 0,
+        "endLine": 18,
+        "endChar": 15
+      },
+      "revId": "210c48bc597c361dd633d64c55f934727efcc654",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4001c496_dd7aa40a",
+        "filename": "src/core/SkValidatingReadBuffer.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-12-06T20:58:31Z",
+      "side": 1,
+      "message": "chrome *may* like the transitive includes (will update them soon)",
+      "parentUuid": "7f628a43_727d754b",
       "range": {
         "startLine": 11,
         "startChar": 0,
