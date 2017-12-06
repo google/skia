@@ -16,7 +16,6 @@ static void debug_out(int len, const char* data) {
 }
 
 bool ParserCommon::parseFile(const char* fileOrPath, const char* suffix) {
-//    this->reset();
     if (!sk_isdir(fileOrPath)) {
         if (!this->parseFromFile(fileOrPath)) {
             SkDebugf("failed to parse %s\n", fileOrPath);
@@ -39,9 +38,20 @@ bool ParserCommon::parseFile(const char* fileOrPath, const char* suffix) {
     return true;
 }
 
+bool ParserCommon::parseStatus(const char* statusFile, const char* suffix, StatusFilter filter) {
+    StatusIter iter(statusFile, suffix, filter);
+    for (SkString file; iter.next(&file); ) {
+        SkString p = SkOSPath::Join(iter.baseDir(), file.c_str());
+        const char* hunk = p.c_str();
+        if (!this->parseFromFile(hunk)) {
+            SkDebugf("failed to parse %s\n", hunk);
+            return false;
+        }
+    }
+    return true;
+}
 
 bool ParserCommon::parseSetup(const char* path) {
-//    this->reset();
     sk_sp<SkData> data = SkData::MakeFromFileName(path);
     if (nullptr == data.get()) {
         SkDebugf("%s missing\n", path);
@@ -210,3 +220,142 @@ void ParserCommon::writeString(const char* str) {
     fLinefeeds = 0;
     fMaxLF = 2;
 }
+
+StatusIter::StatusIter(const char* statusFile, const char* suffix, StatusFilter filter)
+    : fSuffix(suffix)
+    , fFilter(filter) {
+    if (!this->parseFromFile(statusFile)) {
+        return;
+    }
+}
+
+// FIXME: need to compare fBlockName against fFilter
+// need to compare fSuffix against next value returned
+bool StatusIter::next(SkString* str) {
+    if (this->eof()) {
+        return false;
+    }
+    char bracket = this->peek();
+    if ('"' == bracket) {
+        const char* valueLoc = fChar;
+        if (!this->skipToEndBracket("\"")) {
+            return false;
+        }
+        string value = string(valueLoc, fChar - valueLoc);
+        TextParser::next();
+        this->skipWhiteSpace();
+        bracket = this->peek();
+        if (',' == bracket) {
+            TextParser::next();
+            this->skipWhiteSpace();
+            return '"' == this->peek();
+        }
+        if (']' != bracket) {
+            return false;
+        }
+        do {
+            if (--fDepth < 0) {
+
+                return false;
+            }
+            // pop fBaseDir by a slash
+            size_t lastSlash = fBaseDir.find_last_of(SkOSPath::SEPARATOR);
+            if (string::npos == lastSlash || lastSlash == 0) {
+                return false;
+            }
+            fBaseDir = fBaseDir.substr(0, lastSlash);
+            if (SkOSPath::SEPARATOR == fBaseDir.back()) {
+                return false;
+            }
+            this->skipWhiteSpace();
+            if (',' == this->peek()) {
+                if (fDepth < 0) {
+                    start here;  // switch block name
+
+                }
+                if (fDepth >= 0) {
+                    if (!this->startDirectory()) {
+                        return false;
+                    }
+                    break;
+                }
+            }
+            if ('}' != this->peek()) {
+                return false;
+            }
+        } while (true);
+        this->next();  // skip comma
+    } 
+    return true;
+}
+
+bool StatusIter::parseFromFile(const char* path) {
+    if (!this->parseSetup(path)) {
+        return false;
+    }
+    if (this->eof()) {
+        return false;
+    }
+    if (!this->skipExact("{")) {
+        return false;
+    }
+    return this->startBlock();
+}
+
+bool StatusIter::startBlock() {
+    if (this->eof()) {
+        return false;
+    }
+    this->skipWhiteSpace();
+    if ('"' != TextParser::next()) {
+        return false;
+    }
+    const char* nameLoc = fChar;
+    if (!this->skipToEndBracket("\"")) {
+        return false;
+    }
+    fBlockName = string(nameLoc, fChar - nameLoc);
+    if (!this->skipExact("\": {")) {
+        return false;
+    }
+    return this->startDirectory();
+}
+
+bool StatusIter::startDirectory() {
+    // each nested name from here is a directory
+    fDepth = 0;
+    fBaseDir = "";
+    do {
+        this->skipWhiteSpace();
+        if ('"' != TextParser::next()) {
+            return false;
+        }
+        const char* dirLoc = fChar;
+        if (!this->skipToEndBracket("\"")) {
+            return false;
+        }
+        string dir(dirLoc, fChar - dirLoc);
+        if (fBaseDir.size()) {
+            SkString baseDir = SkOSPath::Join(fBaseDir.c_str(), dir.c_str());
+            fBaseDir = string(baseDir.c_str());
+        }
+        this->skipWhiteSpace();
+        char bracket = this->peek();
+        if ('{' == bracket) {
+            TextParser::next();
+            continue;
+        }
+        if ('[' != bracket) {
+            return false;
+        }
+        TextParser::next(); // either open-quote or ']' if last
+        return true;
+    } while (++fDepth);
+    return true;
+}
+
+void StatusIter::reset() {
+    ParserCommon::reset();
+}
+
+

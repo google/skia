@@ -49,12 +49,12 @@ are zero, then nullptr will be returned.
 | <a href="#SkImage_MakeRasterData">MakeRasterData</a> | Creates <a href="#Image">Image</a> from <a href="#Info">Image Info</a> and shared pixels. |
 | <a href="#SkImage_alphaType">alphaType</a> | Returns <a href="#Alpha_Type">Alpha Type</a> |
 | <a href="#SkImage_asLegacyBitmap">asLegacyBitmap</a> | Returns as raster <a href="SkBitmap_Reference#Bitmap">Bitmap</a> |
-| <a href="#SkImage_bounds">bounds</a> |  |
-| <a href="#SkImage_colorSpace">colorSpace</a> |  |
-| <a href="#SkImage_dimensions">dimensions</a> |  |
-| <a href="#SkImage_encodeToData">encodeToData</a> |  |
-| <a href="#SkImage_getDeferredTextureImageData">getDeferredTextureImageData</a> |  |
-| <a href="#SkImage_getTexture">getTexture</a> |  |
+| <a href="#SkImage_bounds">bounds</a> | Returns <a href="#SkImage_width">width</a> and <a href="#SkImage_height">height</a> as Rectangle. |
+| <a href="#SkImage_colorSpace">colorSpace</a> | Returns <a href="undocumented#Color_Space">Color Space</a>. |
+| <a href="#SkImage_dimensions">dimensions</a> | Returns <a href="#SkImage_width">width</a> and <a href="#SkImage_height">height</a>. |
+| <a href="#SkImage_encodeToData">encodeToData</a> | Returns encoded <a href="#Image">Image</a> as <a href="undocumented#SkData">SkData</a>. |
+| <a href="#SkImage_getDeferredTextureImageData">getDeferredTextureImageData</a> | Copies <a href="#Image">Image</a> to texture buffer. |
+| <a href="#SkImage_getTexture">getTexture</a> | Deprecated. |
 | <a href="#SkImage_getTextureHandle">getTextureHandle</a> |  |
 | <a href="#SkImage_height">height</a> |  |
 | <a href="#SkImage_isAlphaOnly">isAlphaOnly</a> |  |
@@ -902,9 +902,11 @@ incomplete
 SkISize dimensions() const
 </pre>
 
+Returns <a href="undocumented#ISize">ISize</a> { <a href="#SkImage_width">width</a>, <a href="#SkImage_height">height</a> }.
+
 ### Return Value
 
-incomplete
+integral size of <a href="#SkImage_width">width</a> and <a href="#SkImage_height">height</a>
 
 ### Example
 
@@ -912,7 +914,7 @@ incomplete
 
 ### See Also
 
-incomplete
+<a href="#SkImage_height">height</a> <a href="#SkImage_width">width</a>
 
 ---
 
@@ -923,9 +925,11 @@ incomplete
 SkIRect bounds() const
 </pre>
 
+Returns <a href="SkIRect_Reference#IRect">IRect</a> { 0, 0, <a href="#SkImage_width">width</a>, <a href="#SkImage_height">height</a> }.
+
 ### Return Value
 
-incomplete
+integral rectangle from origin to <a href="#SkImage_width">width</a> and <a href="#SkImage_height">height</a>
 
 ### Example
 
@@ -986,14 +990,17 @@ incomplete
 SkColorSpace* colorSpace() const
 </pre>
 
-Returns <a href="undocumented#Color_Space">Color Space</a> of <a href="#Image">Image</a>. <a href="undocumented#Color_Space">Color Space</a> may have been a parameter when
-<a href="#Image">Image</a> was created, or may have been parsed from encoded data. <a href="undocumented#Skia">Skia</a> may not be
-able to draw image respecting returned <a href="undocumented#Color_Space">Color Space</a> or draw into <a href="SkSurface_Reference#Surface">Surface</a> with
-returned <a href="undocumented#Color_Space">Color Space</a>.
+Returns <a href="undocumented#Color_Space">Color Space</a>, the range of colors, associated with <a href="#Image">Image</a>.  The
+reference count of <a href="undocumented#Color_Space">Color Space</a> is unchanged. The returned <a href="undocumented#Color_Space">Color Space</a> is
+immutable.
+
+<a href="undocumented#Color_Space">Color Space</a> returned was a parameter to an <a href="#Image">Image</a> constructor,
+or was parsed from encoded data. <a href="undocumented#Color_Space">Color Space</a> may be ignored when
+drawing <a href="#Image">Image</a>, and when drawing into <a href="SkSurface_Reference#Surface">Surface</a> constructed with <a href="undocumented#Color_Space">Color Space</a>.
 
 ### Return Value
 
-<a href="undocumented#Color_Space">Color Space</a> <a href="#Image">Image</a> was created with, or nullptr
+<a href="undocumented#Color_Space">Color Space</a> in <a href="#Image">Image</a>, or nullptr
 
 ### Example
 
@@ -1170,19 +1177,7 @@ incomplete
 GrTexture* getTexture() const
 </pre>
 
-DEPRECATED - 
-
-### Return Value
-
-incomplete
-
-### Example
-
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
-
-### See Also
-
-incomplete
+Deprecated.
 
 ---
 
@@ -1251,28 +1246,28 @@ incomplete
 GrBackendObject getTextureHandle(bool flushPendingGrContextIO, GrSurfaceOrigin* origin = nullptr) const
 </pre>
 
-Retrieves the back-end <a href="undocumented#API">API</a> handle of the texture. If <a href="#SkImage_getTextureHandle_flushPendingGrContextIO">flushPendingGrContextIO</a> then the
-<a href="undocumented#GrContext">GrContext</a> will issue to the back-end <a href="undocumented#API">API</a> any deferred <a href="undocumented#I">I</a>/<a href="undocumented#O">O</a> operations on the texture before
-returning.
-If '<a href="#SkImage_getTextureHandle_origin">origin</a>' is supplied it will be filled in with the <a href="#SkImage_getTextureHandle_origin">origin</a> of the content drawn
-into the image.
+Retrieves the back-end <a href="undocumented#API">API</a> handle of texture. If <a href="#SkImage_getTextureHandle_flushPendingGrContextIO">flushPendingGrContextIO</a> is true,
+complete deferred <a href="undocumented#I">I</a>/<a href="undocumented#O">O</a> operations.
+
+If <a href="#SkImage_getTextureHandle_origin">origin</a> in not nullptr, copies location of content drawn into <a href="#Image">Image</a>.
 
 ### Parameters
 
 <table>  <tr>    <td><a name="SkImage_getTextureHandle_flushPendingGrContextIO"> <code><strong>flushPendingGrContextIO </strong></code> </a></td> <td>
-incomplete</td>
+flag to flush outstanding requests</td>
   </tr>  <tr>    <td><a name="SkImage_getTextureHandle_origin"> <code><strong>origin </strong></code> </a></td> <td>
-incomplete</td>
+storage for one of: <a href="undocumented#GrSurfaceOrigin">kTopLeft GrSurfaceOrigin</a>,
+<a href="undocumented#GrSurfaceOrigin">kBottomLeft GrSurfaceOrigin</a>; or nullptr</td>
   </tr>
 </table>
 
 ### Return Value
 
-incomplete
+back-end <a href="undocumented#API">API</a> texture handle
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name="704b914d622fbff24d7a45647380459e"gpu="true"></fiddle-embed></div>
 
 ### See Also
 
@@ -1445,9 +1440,9 @@ incomplete
 sk_sp&lt;SkData&gt; encodeToData(SkEncodedImageFormat encodedImageFormat, int quality) const
 </pre>
 
-Encode the image's pixels and return the result as <a href="undocumented#SkData">SkData</a>.
-If the image type cannot be encoded, or the requested encoder format is
-not supported, this will return nullptr.
+Encodes <a href="#Image">Image</a> pixels, returning result as <a href="undocumented#SkData">SkData</a>.
+
+Returns nullptr if encoding fails, or <a href="#SkImage_encodeToData_encodedImageFormat">encodedImageFormat</a> is not supported.
 
 ### Parameters
 
@@ -1460,7 +1455,7 @@ incomplete</td>
 
 ### Return Value
 
-incomplete
+encoded <a href="#Image">Image</a>, or nullptr
 
 ### Example
 
@@ -1711,52 +1706,50 @@ size_t getDeferredTextureImageData(const GrContextThreadSafeProxy& contextThread
                  SkColorType dstColorType = kN32_SkColorType) const
 </pre>
 
-This method allows clients to capture the data necessary to turn a <a href="#SkImage">SkImage</a> into a texture-
-backed image. If the original image is codec-backed this will decode into a format optimized
-for the context represented by the proxy. This method is thread safe with respect to the
-<a href="undocumented#GrContext">GrContext</a> whence the proxy came. Clients allocate and manage the storage of the deferred
-texture data and control its lifetime. No cleanup is required, thus it is safe to simply free
-the memory out from under the data.
+Copies <a href="#Image">Image</a> into <a href="#SkImage_getDeferredTextureImageData_buffer">buffer</a> used to create a texture-backed <a href="#Image">Image</a>. 
+If <a href="#Image">Image</a> was created from encoded data, <a href="#SkImage_getDeferredTextureImageData_buffer">buffer</a> contents is optimized to match
+<a href="#SkImage_getDeferredTextureImageData_contextThreadSafeProxy">contextThreadSafeProxy</a>. 
 
-The same method is used both for getting the size necessary for uploading
-and retrieving texture data. The <a href="#SkImage_getDeferredTextureImageData_deferredTextureImageUsageParams">deferredTextureImageUsageParams</a> array represents the set of
-draws over which to optimize the texture data prior to uploading.
+Copy operation is thread-safe with respect to <a href="#SkImage_getDeferredTextureImageData_contextThreadSafeProxy">contextThreadSafeProxy</a> <a href="undocumented#GrContext">GrContext</a>.
+Caller allocates and manages <a href="#SkImage_getDeferredTextureImageData_buffer">buffer</a>, and may delete it at any time.
 
-When called with a null <a href="#SkImage_getDeferredTextureImageData_buffer">buffer</a> this returns the size that the client must allocate in order
-to create deferred texture data for this image (or zero if this is an inappropriate
-candidate). The <a href="#SkImage_getDeferredTextureImageData_buffer">buffer</a> allocated by the client should be 8 byte aligned.
-When <a href="#SkImage_getDeferredTextureImageData_buffer">buffer</a> is not null this fills in the deferred texture data for this image in the
-provided <a href="#SkImage_getDeferredTextureImageData_buffer">buffer</a> (assuming this is an appropriate candidate image and the <a href="#SkImage_getDeferredTextureImageData_buffer">buffer</a> is
-appropriately aligned). Upon success the size written is returned, otherwise 0.
-<a href="#SkImage_getDeferredTextureImageData_dstColorSpace">dstColorSpace</a> is the color space of the surface where this texture will ultimately be used.
-If the method determines that <a href="undocumented#Mip_Map">Mip Maps</a> are needed, this helps determine the correct strategy
-for building them (gamma-correct or not).
+Returns size of allocation if <a href="#SkImage_getDeferredTextureImageData_buffer">buffer</a> is nullptr. Returns zero if <a href="#Image">Image</a> cannot be
+copied. Call with nullptr to determine size of <a href="#SkImage_getDeferredTextureImageData_buffer">buffer</a> to allocate, then call
+again to copy <a href="#Image">Image</a> to <a href="#SkImage_getDeferredTextureImageData_buffer">buffer</a>. Buffer must be aligned to 8-byte boundaries.
+Returns bytes written on successful copy.
 
-<a href="#SkImage_getDeferredTextureImageData_dstColorType">dstColorType</a> is the color type of the surface where this texture will ultimately be used.
-This determines the format with which the image will be uploaded to the <a href="undocumented#GPU">GPU</a>. If <a href="#SkImage_getDeferredTextureImageData_dstColorType">dstColorType</a>
-does not support color spaces (low bit depth types such as <a href="undocumented#SkColorType">kARGB 4444 SkColorType</a>), then <a href="#SkImage_getDeferredTextureImageData_dstColorSpace">dstColorSpace</a>
-must be null.
+<a href="#SkImage_getDeferredTextureImageData_deferredTextureImageUsageParams">deferredTextureImageUsageParams</a> array of size <a href="#SkImage_getDeferredTextureImageData_paramCnt">paramCnt</a> describes set of
+draw calls used to optimize texture data before uploading.
+
+<a href="#SkImage_getDeferredTextureImageData_dstColorSpace">dstColorSpace</a> is <a href="undocumented#Color_Space">Color Space</a> of <a href="SkSurface_Reference#Surface">Surface</a> where texture is drawn.
+<a href="#SkImage_getDeferredTextureImageData_dstColorSpace">dstColorSpace</a> is used to build gamma-correct <a href="undocumented#Mip_Map">Mip Map</a> textures, if required by
+<a href="#SkImage_getDeferredTextureImageData_deferredTextureImageUsageParams">deferredTextureImageUsageParams</a>.
+
+<a href="#SkImage_getDeferredTextureImageData_dstColorType">dstColorType</a> is <a href="#Color_Type">Color Type</a> of <a href="SkSurface_Reference#Surface">Surface</a> where texture is drawn; the
+format of texture uploaded to <a href="undocumented#GPU">GPU</a>. If <a href="#SkImage_getDeferredTextureImageData_dstColorType">dstColorType</a> is a low bit-depth type
+(such as <a href="undocumented#SkColorType">kARGB 4444 SkColorType</a>) that does not support <a href="undocumented#Color_Space">Color Space</a>,
+<a href="#SkImage_getDeferredTextureImageData_dstColorSpace">dstColorSpace</a> must be nullptr.
 
 ### Parameters
 
 <table>  <tr>    <td><a name="SkImage_getDeferredTextureImageData_contextThreadSafeProxy"> <code><strong>contextThreadSafeProxy </strong></code> </a></td> <td>
-incomplete</td>
+<a href="undocumented#GPU">GPU</a> context of destination <a href="SkSurface_Reference#Surface">Surface</a></td>
   </tr>  <tr>    <td><a name="SkImage_getDeferredTextureImageData_deferredTextureImageUsageParams"> <code><strong>deferredTextureImageUsageParams </strong></code> </a></td> <td>
-incomplete</td>
+draw calls to be used</td>
   </tr>  <tr>    <td><a name="SkImage_getDeferredTextureImageData_paramCnt"> <code><strong>paramCnt </strong></code> </a></td> <td>
-incomplete</td>
+draw calls parameter count</td>
   </tr>  <tr>    <td><a name="SkImage_getDeferredTextureImageData_buffer"> <code><strong>buffer </strong></code> </a></td> <td>
-incomplete</td>
+storage for texture, or nullptr</td>
   </tr>  <tr>    <td><a name="SkImage_getDeferredTextureImageData_dstColorSpace"> <code><strong>dstColorSpace </strong></code> </a></td> <td>
-incomplete</td>
+<a href="undocumented#Color_Space">Color Space</a> of <a href="SkSurface_Reference#Surface">Surface</a>, or nullptr</td>
   </tr>  <tr>    <td><a name="SkImage_getDeferredTextureImageData_dstColorType"> <code><strong>dstColorType </strong></code> </a></td> <td>
-incomplete</td>
+<a href="#Color_Type">Color Type</a> of <a href="SkSurface_Reference#Surface">Surface</a></td>
   </tr>
 </table>
 
 ### Return Value
 
-incomplete
+<a href="#SkImage_getDeferredTextureImageData_buffer">buffer</a> size, or zero if <a href="#Image">Image</a> cannot be copied
 
 ### Example
 

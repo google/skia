@@ -269,6 +269,19 @@ bool MdOut::buildReferences(const char* fileOrPath, const char* outDir) {
     return true;
 }
 
+bool MdOut::buildStatus(const char* statusFile, const char* outDir) {
+    StatusIter iter(statusFile, ".bmh", StatusFilter::kInProgress);
+    for (SkString file; iter.next(&file); ) {
+        SkString p = SkOSPath::Join(iter.baseDir(), file.c_str());
+        const char* hunk = p.c_str();
+        if (!this->buildRefFromFile(hunk, outDir)) {
+            SkDebugf("failed to parse %s\n", hunk);
+            return false;
+        }
+    }
+    return true;
+}
+
 bool MdOut::buildRefFromFile(const char* name, const char* outDir) {
     fFileName = string(name);
     string filename(name);
