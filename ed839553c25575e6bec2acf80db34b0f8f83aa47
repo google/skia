@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2b604e96_3b10686c",
+        "filename": "BUILD.gn",
+        "patchSetId": 5
+      },
+      "lineNbr": 588,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-12-06T19:32:15Z",
+      "side": 1,
+      "message": "why not name this the same as the #define modulo caps, i.e. \"sk_vulkan_header\"?",
+      "range": {
+        "startLine": 588,
+        "startChar": 8,
+        "endLine": 588,
+        "endChar": 31
+      },
+      "revId": "ed839553c25575e6bec2acf80db34b0f8f83aa47",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "70b03e67_36cdf7e8",
+        "filename": "include/gpu/vk/GrVkDefines.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-12-06T19:32:15Z",
+      "side": 1,
+      "message": "Assuming this gets removed before landing.",
+      "range": {
+        "startLine": 17,
+        "startChar": 0,
+        "endLine": 17,
+        "endChar": 19
+      },
+      "revId": "ed839553c25575e6bec2acf80db34b0f8f83aa47",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
