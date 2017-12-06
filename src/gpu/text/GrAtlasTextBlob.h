@@ -169,13 +169,15 @@ public:
                      SkGlyphCache*, const SkGlyph& skGlyph,
                      SkScalar x, SkScalar y, SkScalar scale, bool treatAsBMP);
 
-    static size_t GetVertexStride(GrMaskFormat maskFormat) {
+    static size_t GetVertexStride(GrMaskFormat maskFormat, bool sdfPerspective) {
         switch (maskFormat) {
             case kA8_GrMaskFormat:
-                return kGrayTextVASize;
+                return sdfPerspective ? kGrayTextSDFPerspectiveVASize : kGrayTextVASize;
             case kARGB_GrMaskFormat:
+                SkASSERT(!sdfPerspective);
                 return kColorTextVASize;
             default:
+                SkASSERT(!sdfPerspective);
                 return kLCDTextVASize;
         }
     }
@@ -232,8 +234,9 @@ public:
     // position + local coord
     static const size_t kColorTextVASize = sizeof(SkPoint) + sizeof(SkIPoint16);
     static const size_t kGrayTextVASize = sizeof(SkPoint) + sizeof(GrColor) + sizeof(SkIPoint16);
+    static const size_t kGrayTextSDFPerspectiveVASize = 3 * sizeof(float) + sizeof(GrColor) + sizeof(SkIPoint16);
     static const size_t kLCDTextVASize = kGrayTextVASize;
-    static const size_t kMaxVASize = kGrayTextVASize;
+    static const size_t kMaxVASize = kGrayTextSDFPerspectiveVASize;
     static const int kVerticesPerGlyph = 4;
 
     static void AssertEqual(const GrAtlasTextBlob&, const GrAtlasTextBlob&);
@@ -419,7 +422,7 @@ private:
 
             // This function assumes the translation will be applied before it is called again
             void computeTranslation(const SkMatrix& viewMatrix, SkScalar x, SkScalar y,
-                                    SkScalar*transX, SkScalar* transY);
+                                    SkScalar* transX, SkScalar* transY);
 
             // df properties
             void setDrawAsDistanceFields() { fFlags |= kDrawAsSDF_Flag; }

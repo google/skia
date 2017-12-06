@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include <SkPoint3.h>
 #include "GrAtlasTextOp.h"
 
 #include "GrContext.h"
@@ -78,6 +79,7 @@ GrDrawOp::RequiresDstTexture GrAtlasTextOp::finalize(const GrCaps& caps,
 
 static void clip_quads(const SkIRect& clipRect, char* currVertex, const char* blobVertices,
                        size_t vertexStride, int glyphCount) {
+    // TODO: COMMENT ABOUT 3 COORD POSITIONS
     for (int i = 0; i < glyphCount; ++i) {
         const SkPoint* blobPositionLT = reinterpret_cast<const SkPoint*>(blobVertices);
         const SkPoint* blobPositionRB =
@@ -200,8 +202,10 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
     FlushInfo flushInfo;
     flushInfo.fPipeline =
             target->makePipeline(fSRGBFlags, std::move(fProcessors), target->detachAppliedClip());
+    bool dfPerspective = false;
     if (this->usesDistanceFields()) {
         flushInfo.fGeometryProcessor = this->setupDfProcessor();
+        dfPerspective = this->viewMatrix().hasPerspective();
     } else {
         flushInfo.fGeometryProcessor = GrBitmapTextGeoProc::Make(
             this->color(), proxies, GrSamplerState::ClampNearest(), maskFormat,
@@ -210,7 +214,8 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
 
     flushInfo.fGlyphsToFlush = 0;
     size_t vertexStride = flushInfo.fGeometryProcessor->getVertexStride();
-    SkASSERT(vertexStride == GrAtlasTextBlob::GetVertexStride(maskFormat));
+    SkDebugf("gp_size: %d vs %d\n", vertexStride, GrAtlasTextBlob::GetVertexStride(maskFormat, dfPerspective));
+    SkASSERT(vertexStride == GrAtlasTextBlob::GetVertexStride(maskFormat, dfPerspective));
 
     int glyphCount = this->numGlyphs();
     const GrBuffer* vertexBuffer;
@@ -244,6 +249,20 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
             } else {
                 clip_quads(args.fClipRect, currVertex, result.fFirstVertex, vertexStride,
                            result.fGlyphsRegenerated);
+            }
+            if (this->usesDistanceFields() && !args.fViewMatrix.isIdentity()) {
+                // We always do the distance field matrix transformation after copying rather
+                // than during vertex generation time in the blob.
+                if (this->viewMatrix().hasPerspective()) {
+                    for (int i = 0; i < result.fGlyphsRegenerated * kVerticesPerGlyph; ++i) {
+                        auto* pos3 = reinterpret_cast<SkPoint3*>(currVertex + i * vertexStride);
+                        SkASSERT(pos3->fZ == 1.f);
+                        this->viewMatrix().mapHomogeneousPoints(pos3, pos3, 1);
+                    }
+                } else {
+                    auto* pos = reinterpret_cast<SkPoint*>(currVertex);
+                    this->viewMatrix().mapPointsWithStride(pos, vertexStride, result.fGlyphsRegenerated * kVerticesPerGlyph);
+                }
             }
             flushInfo.fGlyphsToFlush += result.fGlyphsRegenerated;
             if (!result.fFinished) {
@@ -364,6 +383,7 @@ sk_sp<GrGeometryProcessor> GrAtlasTextOp::setupDfProcessor() const {
     // set up any flags
     uint32_t flags = viewMatrix.isSimilarity() ? kSimilarity_DistanceFieldEffectFlag : 0;
     flags |= viewMatrix.isScaleTranslate() ? kScaleOnly_DistanceFieldEffectFlag : 0;
+    flags |= viewMatrix.hasPerspective() ? kPerspective_DistanceFieldEffectFlag : 0;
     flags |= fUseGammaCorrectDistanceTable ? kGammaCorrect_DistanceFieldEffectFlag : 0;
     flags |= (kAliasedDistanceField_MaskType == fMaskType) ? kAliased_DistanceFieldEffectFlag : 0;
 
@@ -385,7 +405,7 @@ sk_sp<GrGeometryProcessor> GrAtlasTextOp::setupDfProcessor() const {
                 GrDistanceFieldLCDTextGeoProc::DistanceAdjust::Make(
                         redCorrection, greenCorrection, blueCorrection);
 
-        return GrDistanceFieldLCDTextGeoProc::Make(this->color(), viewMatrix, p,
+        return GrDistanceFieldLCDTextGeoProc::Make(this->color(), p,
                                                    GrSamplerState::ClampBilerp(), widthAdjust,
                                                    flags, this->usesLocalCoords());
     } else {
@@ -397,11 +417,11 @@ sk_sp<GrGeometryProcessor> GrAtlasTextOp::setupDfProcessor() const {
             correction = fDistanceAdjustTable->getAdjustment(lum >> kDistanceAdjustLumShift,
                                                              fUseGammaCorrectDistanceTable);
         }
-        return GrDistanceFieldA8TextGeoProc::Make(this->color(), viewMatrix, p,
+        return GrDistanceFieldA8TextGeoProc::Make(this->color(), p,
                                                   GrSamplerState::ClampBilerp(), correction, flags,
                                                   this->usesLocalCoords());
 #else
-        return GrDistanceFieldA8TextGeoProc::Make(this->color(), viewMatrix, p,
+        return GrDistanceFieldA8TextGeoProc::Make(this->color(), p,
                                                   GrSamplerState::ClampBilerp(), flags,
                                                   this->usesLocalCoords());
 #endif

@@ -175,12 +175,18 @@ protected:
             paint.setTextSize(SkIntToScalar(32));
             canvas->drawText(text, textLen, 745, 70, paint);
         }
+        // check skew + perspective
         {
             paint.setLCDRenderText(true);
             SkAutoCanvasRestore acr(canvas, true);
-            canvas->skew(0.5f, 0.0f);
+            SkMatrix m;
+            m.setSkew(0.5f, 0.0f);
+            m.setPerspX(0.0003f);
+            canvas->concat(m);
+            paint.setColor(SK_ColorRED);
             paint.setTextSize(SkIntToScalar(32));
             canvas->drawText(text, textLen, 580, 125, paint);
+            paint.setColor(SK_ColorBLACK);
         }
 
         // check color emoji
