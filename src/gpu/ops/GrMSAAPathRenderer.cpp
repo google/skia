@@ -149,8 +149,8 @@ public:
                                       qp.viewMatrix(), &fViewMatrixUniform);
 
             // emit transforms
-            this->emitTransforms(vsBuilder, varyingHandler, uniformHandler, gpArgs->fPositionVar,
-                                 qp.inPosition()->fName, SkMatrix::I(),
+            this->emitTransforms(vsBuilder, varyingHandler, uniformHandler,
+                                 qp.inPosition()->asShaderVar(), SkMatrix::I(),
                                  args.fFPCoordTransformHandler);
 
             GrGLSLPPFragmentBuilder* fsBuilder = args.fFragBuilder;

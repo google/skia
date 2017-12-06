@@ -72,8 +72,7 @@ public:
         this->emitTransforms(vertBuilder,
                              varyingHandler,
                              uniformHandler,
-                             gpArgs->fPositionVar,
-                             dfTexEffect.inPosition()->fName,
+                             dfTexEffect.inPosition()->asShaderVar(),
                              args.fFPCoordTransformHandler);
 
         // add varyings
@@ -365,8 +364,7 @@ public:
             this->emitTransforms(vertBuilder,
                                  varyingHandler,
                                  uniformHandler,
-                                 gpArgs->fPositionVar,
-                                 dfTexEffect.inPosition()->fName,
+                                 dfTexEffect.inPosition()->asShaderVar(),
                                  args.fFPCoordTransformHandler);
         } else {
             // Setup position
@@ -376,8 +374,7 @@ public:
             this->emitTransforms(vertBuilder,
                                  varyingHandler,
                                  uniformHandler,
-                                 gpArgs->fPositionVar,
-                                 dfTexEffect.inPosition()->fName,
+                                 dfTexEffect.inPosition()->asShaderVar(),
                                  dfTexEffect.matrix(),
                                  args.fFPCoordTransformHandler);
         }
@@ -633,8 +630,7 @@ public:
         this->emitTransforms(vertBuilder,
                              varyingHandler,
                              uniformHandler,
-                             gpArgs->fPositionVar,
-                             dfTexEffect.inPosition()->fName,
+                             dfTexEffect.inPosition()->asShaderVar(),
                              args.fFPCoordTransformHandler);
 
         // set up varyings

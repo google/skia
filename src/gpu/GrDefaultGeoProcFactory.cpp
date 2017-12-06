@@ -144,8 +144,7 @@ public:
                 this->emitTransforms(vertBuilder,
                                      varyingHandler,
                                      uniformHandler,
-                                     gpArgs->fPositionVar,
-                                     gp.inLocalCoords()->fName,
+                                     gp.inLocalCoords()->asShaderVar(),
                                      gp.localMatrix(),
                                      args.fFPCoordTransformHandler);
             } else {
@@ -153,8 +152,7 @@ public:
                 this->emitTransforms(vertBuilder,
                                      varyingHandler,
                                      uniformHandler,
-                                     gpArgs->fPositionVar,
-                                     gp.inPosition()->fName,
+                                     gp.inPosition()->asShaderVar(),
                                      gp.localMatrix(),
                                      args.fFPCoordTransformHandler);
             }
