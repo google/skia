@@ -22,6 +22,30 @@
       "revId": "e7137755c6af4e7cff8671e4eec662f71a58d4de",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3f9635e2_4cf38b41",
+        "filename": "gn/BUILDCONFIG.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-12-06T18:29:12Z",
+      "side": 1,
+      "message": "I added explicit msvc version checks eveywhere, so win_toolchain_version is no longer referenced in 2015 builds (and thus GN throws an error if you try to set it without msvc \u003d 2017).",
+      "parentUuid": "3ed38537_500abc01",
+      "range": {
+        "startLine": 38,
+        "startChar": 29,
+        "endLine": 38,
+        "endChar": 41
+      },
+      "revId": "e7137755c6af4e7cff8671e4eec662f71a58d4de",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
