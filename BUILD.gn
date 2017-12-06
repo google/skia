@@ -188,6 +188,12 @@ config("skia_private") {
   if (!is_official_build) {
     defines += [ "GR_TEST_UTILS=1" ]
   }
+  if (skia_enable_tools) {
+    if (skia_use_vulkan) {
+      include_dirs += [ "tools/gpu/vk" ]
+      defines += [ "SK_VULKAN_HEADER=\"GrVulkanDefines.h\"" ]
+    }
+  }
 }
 
 # Any code that's linked into Skia-the-library should use this config via += skia_library_configs.
