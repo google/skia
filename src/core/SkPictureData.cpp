@@ -448,7 +448,6 @@ bool SkPictureData::parseStreamTag(SkStream* stream,
                 return false;
             }
 
-            /* Should we use SkValidatingReadBuffer instead? */
             SkReadBuffer buffer(storage.get(), size);
             buffer.setFlags(pictInfoFlagsToReadBufferFlags(fInfo.fFlags));
             buffer.setVersion(fInfo.getVersion());

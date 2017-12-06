@@ -20,11 +20,11 @@
 #include "SkPaint.h"
 #include "SkPath.h"
 #include "SkPicture.h"
+#include "SkReadBuffer.h"
 #include "SkRegion.h"
 #include "SkStream.h"
 #include "SkSurface.h"
 #include "SkTextBlob.h"
-#include "SkValidatingReadBuffer.h"
 
 #if SK_SUPPORT_GPU
 #include "SkSLCompiler.h"
@@ -479,7 +479,7 @@ static void fuzz_color_deserialize(sk_sp<SkData> bytes) {
 
 static void fuzz_path_deserialize(sk_sp<SkData> bytes) {
     SkPath path;
-    SkValidatingReadBuffer buf(bytes->data(), bytes->size());
+    SkReadBuffer buf(bytes->data(), bytes->size());
     buf.readPath(&path);
     if (!buf.isValid()) {
         SkDebugf("[terminated] Couldn't deserialize SkPath.\n");
@@ -512,7 +512,7 @@ static void fuzz_region_deserialize(sk_sp<SkData> bytes) {
 }
 
 static void fuzz_textblob_deserialize(sk_sp<SkData> bytes) {
-    SkValidatingReadBuffer buf(bytes->data(), bytes->size());
+    SkReadBuffer buf(bytes->data(), bytes->size());
     auto tb = SkTextBlob::MakeFromBuffer(buf);
     if (!buf.isValid()) {
         SkDebugf("[terminated] Couldn't deserialize SkTextBlob.\n");

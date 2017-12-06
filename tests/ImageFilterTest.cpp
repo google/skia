@@ -1250,7 +1250,7 @@ DEF_TEST(ImageFilterCrossProcessPictureImageFilter, reporter) {
 
     // Check that, for now, SkPictureImageFilter does not serialize or
     // deserialize its contained picture when the filter is serialized
-    // cross-process. Do this by "laundering" it through SkValidatingReadBuffer.
+    // cross-process. Do this by "laundering" it through SkReadBuffer.
     sk_sp<SkData> data(SkValidatingSerializeFlattenable(imageFilter.get()));
     sk_sp<SkImageFilter> unflattenedFilter = SkValidatingDeserializeImageFilter(data->data(),
                                                                                 data->size());
