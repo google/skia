@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6a216b3f_440643c6",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 220,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-12-06T22:20:17Z",
+      "side": 0,
+      "message": "Removed long ago.",
+      "revId": "7f4dd6cc079f9a7389a3d962e4588a6e9383cfdd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}

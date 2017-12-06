@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "efd7282a_e845a0c1",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 218,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-12-06T22:20:17Z",
+      "side": 1,
+      "message": "Doesn\u0027t have a long build ID.",
+      "revId": "e078f002b3939c7a74352534da587acfaa1b2523",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "224fdba5_00a6997f",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 223,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-12-06T22:20:17Z",
+      "side": 1,
+      "message": "Doesn\u0027t have a long build ID.",
+      "revId": "e078f002b3939c7a74352534da587acfaa1b2523",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
