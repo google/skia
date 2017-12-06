@@ -313,6 +313,10 @@ DEF_BENCH( return new FilterBitmapBench(kN32_SkColorType, kOpaque_SkAlphaType, f
 DEF_BENCH( return new FilterBitmapBench(kN32_SkColorType, kOpaque_SkAlphaType, true, true, kScale_Flag | kBilerp_Flag); )
 DEF_BENCH( return new FilterBitmapBench(kN32_SkColorType, kOpaque_SkAlphaType, true, false, kScale_Flag | kBilerp_Flag); )
 
+// The following two cases test the performance regression of b/70172912 .
+DEF_BENCH( return new FilterBitmapBench(kRGB_565_SkColorType, kOpaque_SkAlphaType, false, false, kScale_Flag | kBilerp_Flag); )
+DEF_BENCH( return new BitmapBench(kRGB_565_SkColorType, kOpaque_SkAlphaType, false, false, true); )
+
 // scale rotate filter -> S32_opaque_D32_filter_DXDY_{SSE2,SSSE3}
 DEF_BENCH( return new FilterBitmapBench(kN32_SkColorType, kPremul_SkAlphaType, false, false, kScale_Flag | kRotate_Flag | kBilerp_Flag); )
 DEF_BENCH( return new FilterBitmapBench(kN32_SkColorType, kOpaque_SkAlphaType, false, false, kScale_Flag | kRotate_Flag | kBilerp_Flag); )
