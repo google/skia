@@ -64,6 +64,11 @@ bool SkImageShader::isOpaque() const {
 bool SkImageShader::IsRasterPipelineOnly(const SkMatrix& ctm, SkColorType ct, SkAlphaType at,
                                          SkShader::TileMode tx, SkShader::TileMode ty,
                                          const SkMatrix& localM) {
+    if (ct == kRGB_565_SkColorType) {
+        // This is an overkill for b/70172912 . We probably only need to disable raster pipeline
+        // when both the src and dst color types are 565.
+        return false;
+    }
     if (ct != kN32_SkColorType) {
         return true;
     }
