@@ -17,6 +17,9 @@
 
 class SkBitmap;
 
+typedef SkReadBuffer SkValidatingReadBuffer;
+
+#if 0
 class SkValidatingReadBuffer : public SkReadBuffer {
 public:
     SkValidatingReadBuffer(const void* data, size_t size);
@@ -77,9 +80,14 @@ private:
         return SkIsAlign4((uintptr_t)ptr);
     }
 
+    static bool IsPtrAlign4(const void* ptr) {
+        return SkIsAlign4((uintptr_t)ptr);
+    }
+
     bool fError;
 
     typedef SkReadBuffer INHERITED;
 };
+#endif
 
 #endif // SkValidatingReadBuffer_DEFINED
