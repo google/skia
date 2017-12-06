@@ -25,7 +25,7 @@
 #       define VK_USE_PLATFORM_MAGMA_KHR
 #     endif
 #   else
-#     if !defined(VK_USE_PLATFORM_XCB_KHR)
+#if !defined(VK_USE_PLATFORM_XCB_KHR) && !defined(SK_USE_VULKAN_PROTOTYPES)
 #        define VK_USE_PLATFORM_XCB_KHR
 #     endif
 #   endif
@@ -33,7 +33,8 @@
 
 // We create our own function table and never directly call any functions via vk*(). So no need to
 // include the prototype functions.
-#if !defined(VK_NO_PROTOTYPES) && !defined(SK_BUILD_FOR_ANDROID_FRAMEWORK)
+#if !defined(VK_NO_PROTOTYPES) && !defined(SK_BUILD_FOR_ANDROID_FRAMEWORK) && \
+        !defined(SK_USE_VULKAN_PROTOTYPES)
 #define VK_NO_PROTOTYPES
 #endif
 
