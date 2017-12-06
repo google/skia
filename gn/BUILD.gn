@@ -55,33 +55,17 @@ config("default") {
     ]
 
     if (msvc == 2015) {
-      _include_dirs = [
-        "$windk/VC/include",
-
-        # For local builds.
-        "$windk/../Windows Kits/8.1/Include/shared",
-        "$windk/../Windows Kits/10/Include/10.0.10150.0/ucrt",
-        "$windk/../Windows Kits/8.1/Include/um",
-        "$windk/../Windows Kits/8.1/Include/winrt",
-
-        # For builds using win_toolchain asset (currently 2015).
-        "$windk/win_sdk/Include/10.0.14393.0/shared",
-        "$windk/win_sdk/Include/10.0.14393.0/ucrt",
-        "$windk/win_sdk/Include/10.0.14393.0/um",
-        "$windk/win_sdk/Include/10.0.14393.0/winrt",
-      ]
-    } else {
-      # 2017
-      _include_dirs = [
-        "$windk/VC/Tools/MSVC/$win_toolchain_version/include",
-
-        # For local builds.
-        "$windk/../../../Windows Kits/10/Include/10.0.14393.0/shared",
-        "$windk/../../../Windows Kits/10/Include/10.0.14393.0/ucrt",
-        "$windk/../../../Windows Kits/10/Include/10.0.14393.0/um",
-        "$windk/../../../Windows Kits/10/Include/10.0.14393.0/winrt",
-      ]
+      _include_dirs = [ "$windk/VC/include" ]
+    } else {  # 2017
+      _include_dirs = [ "$windk/VC/Tools/MSVC/$win_toolchain_version/include" ]
     }
+    _include_dirs += [
+      "$win_sdk/Include/$win_sdk_version/shared",
+      "$win_sdk/Include/$win_sdk_version/ucrt",
+      "$win_sdk/Include/$win_sdk_version/um",
+      "$win_sdk/Include/$win_sdk_version/winrt",
+    ]
+
     if (is_clang) {
       foreach(dir, _include_dirs) {
         cflags += [
@@ -93,31 +77,19 @@ config("default") {
       include_dirs = _include_dirs
     }
 
+    lib_dirs = [
+      "$win_sdk/Lib/$win_sdk_version/ucrt/$target_cpu",
+      "$win_sdk/Lib/$win_sdk_version/um/$target_cpu",
+    ]
     if (msvc == 2015) {
-      lib_dirs = [
-        # For local builds.
-        "$windk/../Windows Kits/10/Lib/10.0.10150.0/ucrt/$target_cpu",
-        "$windk/../Windows Kits/8.1/Lib/winv6.3/um/$target_cpu",
-
-        # For builds using win_toolchain asset (currently 2015).
-        "$windk/win_sdk/Lib/10.0.14393.0/ucrt/$target_cpu",
-        "$windk/win_sdk/Lib/10.0.14393.0/um/$target_cpu",
-      ]
-
       if (target_cpu == "x86") {
         lib_dirs += [ "$windk/VC/lib" ]
       } else {
         lib_dirs += [ "$windk/VC/lib/amd64" ]
       }
-    } else {
-      # 2017
-      lib_dirs = [
-        "$windk/VC/Tools/MSVC/$win_toolchain_version/lib/$target_cpu",
-
-        # For local builds.
-        "$windk/../../../Windows Kits/10/Lib/10.0.14393.0/ucrt/$target_cpu",
-        "$windk/../../../Windows Kits/10/Lib/10.0.14393.0/um/$target_cpu",
-      ]
+    } else {  # 2017
+      lib_dirs +=
+          [ "$windk/VC/Tools/MSVC/$win_toolchain_version/lib/$target_cpu" ]
     }
   } else {
     cflags += [
