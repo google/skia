@@ -20,7 +20,7 @@
       "[START_DIR]/skia/bin/gn.exe",
       "gen",
       "[START_DIR]/out/Debug_x64",
-      "--args=windk=\"[START_DIR]/t/depot_tools/win_toolchain/vs_files/d3cb0e37bdd120ad0ac4650b674b09e81be45616\""
+      "--args=win_sdk=\"[START_DIR]/t/depot_tools/win_toolchain/vs_files/d3cb0e37bdd120ad0ac4650b674b09e81be45616/win_sdk\" windk=\"[START_DIR]/t/depot_tools/win_toolchain/vs_files/d3cb0e37bdd120ad0ac4650b674b09e81be45616\""
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
