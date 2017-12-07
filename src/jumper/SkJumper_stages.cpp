@@ -1502,3 +1502,73 @@ STAGE(gauss_a_to_rgba, Ctx::None) {
     g = a;
     b = a;
 }
+
+// tile v to [0,limit) according to given tiling mode.  (invLimit == 1 / limit, precomputed.)
+SI F tile(F v, SkJumper_ImageShaderCtx::TileMode tiling, F limit, F invLimit) {
+    switch (tiling) {
+        case SkJumper_ImageShaderCtx::TileMode::kClamp:
+            // Nothing to do here.  We're covered by the unconditional clamp below.
+            break;
+        case SkJumper_ImageShaderCtx::TileMode::kRepeat:
+            v =  v - floor_(v*invLimit)*limit;
+            break;
+        case SkJumper_ImageShaderCtx::TileMode::kMirror:
+            v = abs_( (v-limit) - (limit+limit)*floor_((v-limit)*(invLimit*0.5f)) - limit );
+            break;
+    }
+    F inclusive = bit_cast<F>( bit_cast<U32>(limit) - 1 );  // Exclusive -> inclusive.
+    return min(max(0, v), inclusive);
+}
+
+STAGE(bilerp_8888, SkJumper_ImageShaderCtx* ctx) {
+    // (cx,cy) are the center of our sample.
+    F cx = r,
+      cy = g;
+
+    // All sample points are at the same fractional offset (fx,fy).
+    // They're the 4 corners of a logical 1x1 pixel surrounding (x,y) at (0.5,0.5) offsets.
+    F fx = fract(cx + 0.5f),
+      fy = fract(cy + 0.5f);
+
+    // We'll accumulate the color of all four samples into {r,g,b,a} directly.
+    r = g = b = a = 0;
+
+    float offsets[] = {-0.5f,+0.5f};
+
+    for (float dy : offsets)
+    for (float dx : offsets) {
+        // (x,y) are the coordinates of this sample point.
+        F x = cx + dx,
+          y = cy + dy;
+
+        // Make sure we're tiled safely within the source image's bounds.
+        x = tile(x, ctx->tile_x, ctx->width,  ctx->inv_width);
+        y = tile(y, ctx->tile_y, ctx->height, ctx->inv_height);
+
+        // Go grab the sample points' colors!
+        auto ptr = (const uint32_t*)ctx->pixels;
+        U32 ix = trunc_(y)*ctx->stride + trunc_(x);
+        F sr,sg,sb,sa;
+        from_8888(gather(ptr, ix), &sr,&sg,&sb,&sa);
+
+        // Linearize if necessary.
+        if (ctx->is_srgb) {
+            sr = from_srgb(sr);
+            sg = from_srgb(sg);
+            sb = from_srgb(sb);
+        }
+
+        // In bilinear interpolation, the 4 pixels at +/- 0.5 offsets from the sample pixel center
+        // are combined in direct proportion to their area overlapping that logical query pixel.
+        // At positive offsets, the x-axis contribution to that rectangle is fx,
+        // or (1-fx) at negative x.  Same deal for y.
+        F sx = (dx > 0) ? fx : 1.0f - fx,
+          sy = (dy > 0) ? fy : 1.0f - fy,
+          area = sx * sy;
+
+        r += sr * area;
+        g += sg * area;
+        b += sb * area;
+        a += sa * area;
+    }
+}

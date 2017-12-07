@@ -133,4 +133,18 @@ struct SkJumper_ColorLookupTableCtx {
     int limits[4];
 };
 
+struct SkJumper_ImageShaderCtx {
+    enum TileMode : char { kClamp, kRepeat, kMirror };
+
+    const void* pixels;
+    int         stride;
+    float       width;
+    float       height;
+    float       inv_width;
+    float       inv_height;
+    TileMode    tile_x;
+    TileMode    tile_y;
+    bool        is_srgb;
+};
+
 #endif//SkJumper_DEFINED
