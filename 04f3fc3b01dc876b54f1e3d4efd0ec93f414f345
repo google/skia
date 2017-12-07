@@ -16,6 +16,24 @@
       "revId": "04f3fc3b01dc876b54f1e3d4efd0ec93f414f345",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e6b6bc64_199b4350",
+        "filename": "infra/bots/recipes/test.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 541,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-12-07T17:30:20Z",
+      "side": 1,
+      "message": "I did a \u0027git grep\u0027 and didn\u0027t feel that any applied. Also no ignores on Gold. I\u0027ll do a buganizer search.",
+      "parentUuid": "6bad192c_125207de",
+      "revId": "04f3fc3b01dc876b54f1e3d4efd0ec93f414f345",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
