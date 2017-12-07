@@ -194,6 +194,11 @@ config("default") {
   if (is_linux) {
     libs += [ "pthread" ]
   }
+  if (is_mac) {
+    # This has minor effects, like disabling SSE4.1 (otherwise guaranteed if you target 10.12+).
+    # It's not super important, but it's nice to track the same minimum target that Chrome does.
+    cflags += [ "-mmacosx-version-min=10.9" ]
+  }
 
   if (sanitize != "") {
     # You can either pass the sanitizers directly, e.g. "address,undefined",
