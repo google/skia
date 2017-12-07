@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "43b633c8_6b701b99",
+        "filename": "infra/bots/recipe_modules/flavor/gn_android_flavor.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2017-12-07T16:17:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "00d36fb1_e5358a95",
+      "range": {
+        "startLine": 11,
+        "startChar": 0,
+        "endLine": 11,
+        "endChar": 61
+      },
+      "revId": "cee2a7bcf3899eb1acda1db2e78d408fb5c59899",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ae8f66ee_d59b3ddf",
         "filename": "infra/bots/recipe_modules/flavor/gn_android_flavor.py",
         "patchSetId": 8
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "4796fbb9_418894b1",
+        "filename": "infra/bots/recipe_modules/flavor/gn_android_flavor.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 206,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2017-12-07T16:17:30Z",
+      "side": 1,
+      "message": "I knew I was forgetting something...",
+      "parentUuid": "ae8f66ee_d59b3ddf",
+      "range": {
+        "startLine": 206,
+        "startChar": 0,
+        "endLine": 206,
+        "endChar": 42
+      },
+      "revId": "cee2a7bcf3899eb1acda1db2e78d408fb5c59899",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "80eb1d15_20492710",
         "filename": "infra/bots/recipe_modules/flavor/gn_android_flavor.py",
         "patchSetId": 8
@@ -68,6 +116,30 @@
       "revId": "cee2a7bcf3899eb1acda1db2e78d408fb5c59899",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "eb188d5c_8802ea11",
+        "filename": "infra/bots/recipe_modules/flavor/gn_android_flavor.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 237,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2017-12-07T16:17:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "80eb1d15_20492710",
+      "range": {
+        "startLine": 237,
+        "startChar": 2,
+        "endLine": 237,
+        "endChar": 47
+      },
+      "revId": "cee2a7bcf3899eb1acda1db2e78d408fb5c59899",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
