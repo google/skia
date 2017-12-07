@@ -58,7 +58,7 @@ static inline float dot(const Sk2f& a, const Sk2f& b) {
 }
 
 static inline bool are_collinear(const Sk2f& p0, const Sk2f& p1, const Sk2f& p2) {
-    static constexpr float kFlatnessTolerance = 16; // 1/16 of a pixel.
+    static constexpr float kFlatnessTolerance = 4; // 1/4 of a pixel.
 
     // Area (times 2) of the triangle.
     Sk2f a = (p0 - p1) * SkNx_shuffle<1,0>(p1 - p2);
@@ -99,28 +99,17 @@ void GrCCPRGeometry::quadraticTo(const SkPoint& devP0, const SkPoint& devP1) {
     Sk2f p2 = Sk2f::Load(&devP1);
     fCurrFanPoint = devP1;
 
-    // Don't send curves to the GPU if we know they are flat (or just very small).
-    if (are_collinear(p0, p1, p2)) {
-        p2.store(&fPoints.push_back());
-        fVerbs.push_back(Verb::kLineTo);
-        return;
-    }
-
     this->appendMonotonicQuadratics(p0, p1, p2);
 }
 
 inline void GrCCPRGeometry::appendMonotonicQuadratics(const Sk2f& p0, const Sk2f& p1,
-                                                      const Sk2f& p2, bool allowChop) {
-    SkASSERT(fPoints.back() == SkPoint::Make(p0[0], p0[1]));
+                                                      const Sk2f& p2) {
     Sk2f tan0 = p1 - p0;
     Sk2f tan1 = p2 - p1;
 
     // This should almost always be this case for well-behaved curves in the real world.
-    if (!allowChop || is_convex_curve_monotonic(p0, tan0, p2, tan1)) {
-        p1.store(&fPoints.push_back());
-        p2.store(&fPoints.push_back());
-        fVerbs.push_back(Verb::kMonotonicQuadraticTo);
-        ++fCurrContourTallies.fQuadratics;
+    if (is_convex_curve_monotonic(p0, tan0, p2, tan1)) {
+        this->appendSingleMonotonicQuadratic(p0, p1, p2);
         return;
     }
 
@@ -148,12 +137,25 @@ inline void GrCCPRGeometry::appendMonotonicQuadratics(const Sk2f& p0, const Sk2f
     Sk2f p12 = SkNx_fma(t, tan1, p1);
     Sk2f p012 = lerp(p01, p12, t);
 
-    p01.store(&fPoints.push_back());
-    p012.store(&fPoints.push_back());
-    p12.store(&fPoints.push_back());
+    this->appendSingleMonotonicQuadratic(p0, p01, p012);
+    this->appendSingleMonotonicQuadratic(p012, p12, p2);
+}
+
+inline void GrCCPRGeometry::appendSingleMonotonicQuadratic(const Sk2f& p0, const Sk2f& p1,
+                                                           const Sk2f& p2) {
+    SkASSERT(fPoints.back() == SkPoint::Make(p0[0], p0[1]));
+
+    // Don't send curves to the GPU if we know they are nearly flat (or just very small).
+    if (are_collinear(p0, p1, p2)) {
+        p2.store(&fPoints.push_back());
+        fVerbs.push_back(Verb::kLineTo);
+        return;
+    }
+
+    p1.store(&fPoints.push_back());
     p2.store(&fPoints.push_back());
-    fVerbs.push_back_n(2, Verb::kMonotonicQuadraticTo);
-    fCurrContourTallies.fQuadratics += 2;
+    fVerbs.push_back(Verb::kMonotonicQuadraticTo);
+    ++fCurrContourTallies.fQuadratics;
 }
 
 using ExcludedTerm = GrPathUtils::ExcludedTerm;
@@ -295,7 +297,7 @@ void GrCCPRGeometry::cubicTo(const SkPoint& devP1, const SkPoint& devP2, const S
     Sk2f p3 = Sk2f::Load(&devP3);
     fCurrFanPoint = devP3;
 
-    // Don't crunch on the curve and inflate geometry if it is already flat (or just very small).
+    // Don't crunch on the curve and inflate geometry if it is nearly flat (or just very small).
     if (are_collinear(p0, p1, p2) &&
         are_collinear(p1, p2, p3) &&
         are_collinear(p0, (p1 + p2) * .5f, p3)) {
@@ -524,6 +526,15 @@ void GrCCPRGeometry::appendMonotonicCubics(const Sk2f& p0, const Sk2f& p1, const
     }
 
     SkASSERT(fPoints.back() == SkPoint::Make(p0[0], p0[1]));
+
+    // Don't send curves to the GPU if we know they are nearly flat (or just very small).
+    // Since the cubic segment is known to be convex at this point, our flatness check is simple.
+    if (are_collinear(p0, (p1 + p2) * .5f, p3)) {
+        p3.store(&fPoints.push_back());
+        fVerbs.push_back(Verb::kLineTo);
+        return;
+    }
+
     p1.store(&fPoints.push_back());
     p2.store(&fPoints.push_back());
     p3.store(&fPoints.push_back());
@@ -561,7 +572,11 @@ void GrCCPRGeometry::appendCubicApproximation(const Sk2f& p0, const Sk2f& p1, co
         return;
     }
 
-    this->appendMonotonicQuadratics(p0, c, p3, SkToBool(maxSubdivisions));
+    if (maxSubdivisions) {
+        this->appendMonotonicQuadratics(p0, c, p3);
+    } else {
+        this->appendSingleMonotonicQuadratic(p0, c, p3);
+    }
 }
 
 GrCCPRGeometry::PrimitiveTallies GrCCPRGeometry::endContour() {

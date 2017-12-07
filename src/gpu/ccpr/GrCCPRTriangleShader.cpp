@@ -10,12 +10,6 @@
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLVertexGeoBuilder.h"
 
-void GrCCPRTriangleShader::emitWind(GrGLSLShaderBuilder* s, const char* pts,
-                                    const char* outputWind) const {
-    s->codeAppendf("%s = sign(determinant(float2x2(%s[1] - %s[0], %s[2] - %s[0])));",
-                   outputWind, pts, pts, pts, pts);
-}
-
 GrCCPRTriangleHullShader::WindHandling
 GrCCPRTriangleHullShader::onEmitVaryings(GrGLSLVaryingHandler*, SkString* code,
                                          const char* /*position*/, const char* /*coverage*/,

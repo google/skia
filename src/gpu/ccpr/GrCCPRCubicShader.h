@@ -31,10 +31,6 @@ public:
 protected:
     GrCCPRCubicShader(CubicType cubicType) : fCubicType(cubicType) {}
 
-    int getNumInputPoints() const final { return 4; }
-
-    void emitWind(GrGLSLShaderBuilder*, const char* pts, const char* outputWind) const final;
-
     void emitSetupCode(GrGLSLShaderBuilder*, const char* pts, const char* segmentId,
                        const char* wind, GeometryVars*) const final;
 

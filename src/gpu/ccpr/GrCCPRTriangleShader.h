@@ -11,23 +11,13 @@
 #include "ccpr/GrCCPRCoverageProcessor.h"
 
 /**
- * This class renders the coverage of triangles. Triangles are rendered in three passes, as
- * described below.
- */
-class GrCCPRTriangleShader : public GrCCPRCoverageProcessor::Shader {
-public:
-    int getNumInputPoints() const final { return 3; }
-    int getNumSegments() const final { return 3; } // 3 wedges, 3 edges, 3 corners.
-    void emitWind(GrGLSLShaderBuilder* s, const char* pts, const char* outputWind) const final;
-};
-
-/**
  * Pass 1: Draw the triangle's conservative raster hull with a coverage of 1. (Conservative raster
  *         is drawn by considering 3 pixel size boxes, one centered at each vertex, and drawing the
  *         convex hull of those boxes.)
  */
-class GrCCPRTriangleHullShader : public GrCCPRTriangleShader {
+class GrCCPRTriangleHullShader : public GrCCPRCoverageProcessor::Shader {
     GeometryType getGeometryType() const override { return GeometryType::kHull; }
+    int getNumSegments() const final { return 3; }
 
     WindHandling onEmitVaryings(GrGLSLVaryingHandler*, SkString* code, const char* position,
                                 const char* coverage, const char* wind) override;
@@ -39,8 +29,9 @@ class GrCCPRTriangleHullShader : public GrCCPRTriangleShader {
  *         each edge (i.e. convex hull of two pixel-size boxes at the endpoints), interpolating from
  *         coverage=-1 on the outside edge to coverage=0 on the inside edge.
  */
-class GrCCPRTriangleEdgeShader : public GrCCPRTriangleShader {
+class GrCCPRTriangleEdgeShader : public GrCCPRCoverageProcessor::Shader {
     GeometryType getGeometryType() const override { return GeometryType::kEdges; }
+    int getNumSegments() const final { return 3; }
 
     WindHandling onEmitVaryings(GrGLSLVaryingHandler*, SkString* code, const char* position,
                                 const char* coverage, const char* wind) override;
@@ -54,8 +45,9 @@ class GrCCPRTriangleEdgeShader : public GrCCPRTriangleShader {
  *         done previously so that it takes into account the region that is outside both edges at
  *         the same time.
  */
-class GrCCPRTriangleCornerShader : public GrCCPRTriangleShader {
+class GrCCPRTriangleCornerShader : public GrCCPRCoverageProcessor::Shader {
     GeometryType getGeometryType() const override { return GeometryType::kCorners; }
+    int getNumSegments() const final { return 3; }
 
     void emitSetupCode(GrGLSLShaderBuilder*, const char* pts, const char* cornerId,
                        const char* wind, GeometryVars*) const override;

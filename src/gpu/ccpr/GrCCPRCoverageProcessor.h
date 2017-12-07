@@ -117,16 +117,10 @@ public:
         };
 
         virtual GeometryType getGeometryType() const = 0;
-        virtual int getNumInputPoints() const = 0;
 
         // Returns the number of independent geometric segments to generate for the render pass
         // (number of wedges for a hull, number of edges, or number of corners.)
         virtual int getNumSegments() const = 0;
-
-        // Determines the winding direction of the primitive. The subclass must write a value of
-        // either -1, 0, or +1 to "outputWind" (e.g. "sign(area)"). Fractional values are not valid.
-        virtual void emitWind(GrGLSLShaderBuilder*, const char* pts,
-                              const char* outputWind) const = 0;
 
         union GeometryVars {
             struct {
@@ -222,6 +216,10 @@ private:
     // Slightly undershoot a bloat radius of 0.5 so vertices that fall on integer boundaries don't
     // accidentally bleed into neighbor pixels.
     static constexpr float kAABloatRadius = 0.491111f;
+
+    int numInputPoints() const {
+        return RenderPassIsCubic(fRenderPass) ? 4 : 3;
+    }
 
     static GrGLSLPrimitiveProcessor* CreateGSImpl(std::unique_ptr<Shader>);
 

@@ -9,22 +9,6 @@
 
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 
-void GrCCPRQuadraticShader::emitWind(GrGLSLShaderBuilder* s, const char* pts,
-                                     const char* outputWind) const {
-    s->codeAppendf("float area_times_2 = determinant(float2x2(%s[1] - %s[0], %s[2] - %s[0]));",
-                                                     pts, pts, pts, pts);
-    // Drop curves that are nearly flat, in favor of the higher quality triangle antialiasing.
-    s->codeAppendf("if (2 * abs(area_times_2) < length(%s[2] - %s[0])) {", pts, pts);
-#ifndef SK_BUILD_FOR_MAC
-    s->codeAppend (    "return;");
-#else
-    // Returning from this geometry shader makes Mac very unhappy. Instead we make wind 0.
-    s->codeAppend (    "area_times_2 = 0;");
-#endif
-    s->codeAppend ("}");
-    s->codeAppendf("%s = sign(area_times_2);", outputWind);
-}
-
 void GrCCPRQuadraticShader::emitSetupCode(GrGLSLShaderBuilder* s, const char* pts,
                                           const char* segmentId, const char* wind,
                                           GeometryVars* vars) const {
