@@ -8,7 +8,6 @@
 #ifndef GrRenderTargetContext_DEFINED
 #define GrRenderTargetContext_DEFINED
 
-#include "../private/GrInstancedPipelineInfo.h"
 #include "../private/GrRenderTargetProxy.h"
 #include "GrColor.h"
 #include "GrContext.h"
@@ -453,7 +452,6 @@ private:
     // In MDB-mode the GrOpList can be closed by some other renderTargetContext that has picked
     // it up. For this reason, the GrOpList should only ever be accessed via 'getOpList'.
     sk_sp<GrRenderTargetOpList> fOpList;
-    GrInstancedPipelineInfo fInstancedPipelineInfo;
 
     SkSurfaceProps fSurfaceProps;
     bool fManagedOpList;

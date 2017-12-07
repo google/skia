@@ -48,10 +48,8 @@ def skpbench_steps(api):
 
   if 'Vulkan' in api.vars.builder_name:
     config = 'vk'
-  elif 'CCPR' in api.vars.builder_name:
-    config = 'gles'
   else:
-    config = 'gles,glesinst4'
+    config = 'gles'
 
   skpbench_args = [
         api.path.join(api.vars.android_bin_dir, 'skpbench'),

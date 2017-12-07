@@ -23,10 +23,6 @@ struct GrUserStencilSettings;
     additional data members or virtual methods. */
 class GrRenderTargetContextPriv {
 public:
-    gr_instanced::InstancedRendering* accessInstancedRendering() const {
-        return fRenderTargetContext->getRTOpList()->instancedRendering();
-    }
-
     // called to note the last clip drawn to the stencil buffer.
     // TODO: remove after clipping overhaul.
     void setLastClip(uint32_t clipStackGenID, const SkIRect& devClipBounds,
