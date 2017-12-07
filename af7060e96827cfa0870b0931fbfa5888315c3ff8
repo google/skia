@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "77d5091d_da156503",
+        "filename": "DEPS",
+        "patchSetId": 1
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-12-07T13:13:36Z",
+      "side": 1,
+      "message": "Does github go down often? And I forget, do the bots sync from scratch for each run?\n\nI don\u0027t have a strong preference here, but using the github repo has two advantages - it\u0027s easier for us, and it makes it more clear that we don\u0027t have our own fork.",
+      "parentUuid": "822dd4a6_1b3fbab2",
+      "range": {
+        "startLine": 15,
+        "startChar": 51,
+        "endLine": 15,
+        "endChar": 61
+      },
+      "revId": "af7060e96827cfa0870b0931fbfa5888315c3ff8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "30e48105_e50beff3",
         "filename": "third_party/libjpeg-turbo/jconfig.h",
         "patchSetId": 1
