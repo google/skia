@@ -36,7 +36,6 @@ class SkReadBuffer {
 public:
     SkReadBuffer();
     SkReadBuffer(const void* data, size_t size);
-    SkReadBuffer(SkStream* stream);
     virtual ~SkReadBuffer();
 
     virtual SkReadBuffer* clone(const void* data, size_t size) const {
@@ -276,6 +275,7 @@ protected:
 private:
     void setInvalid();
     bool readArray(void* value, size_t size, size_t elementSize);
+    void setMemory(const void*, size_t);
 
     uint32_t fFlags;
     int fVersion;
