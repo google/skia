@@ -141,6 +141,30 @@
       "revId": "97a5c3b2f8f708a9c9ed8ab0e49e2d900bf672ab",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5aebe851_c2546cb4",
+        "filename": "infra/bots/git_utils.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-12-07T19:37:13Z",
+      "side": 1,
+      "message": "Ack.  An alternative would be to do something like:\n\nwith git_utils.GitBranch(upload\u003dFalse, ...) as b:\n  call_bookmaker()\n  if subprocess.call([\u0027git\u0027, \u0027diff\u0027, \u0027--no-ext-diff\u0027):\n    b.commit_and_upload(True)",
+      "parentUuid": "23c0bd5b_4df34920",
+      "range": {
+        "startLine": 77,
+        "startChar": 13,
+        "endLine": 77,
+        "endChar": 15
+      },
+      "revId": "97a5c3b2f8f708a9c9ed8ab0e49e2d900bf672ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
