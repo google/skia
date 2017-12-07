@@ -185,15 +185,15 @@ private:
 };
 
 DEF_GPUTEST(GLSampleLocations, reporter, /* options */) {
-    GLTestSampleLocationsInterface testInterface;
-    sk_sp<GrContext> ctx(GrContext::MakeGL(&testInterface));
+    auto testInterface = sk_make_sp<GLTestSampleLocationsInterface>();
+    sk_sp<GrContext> ctx(GrContext::MakeGL(testInterface));
 
     // This test relies on at least 2 samples.
     int supportedSample = ctx->caps()->getSampleCount(2, kRGBA_8888_GrPixelConfig);
     if (supportedSample < 2) {
         return;
     }
-    test_sampleLocations(reporter, &testInterface, ctx.get());
+    test_sampleLocations(reporter, testInterface.get(), ctx.get());
 }
 
 #endif

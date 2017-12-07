@@ -192,7 +192,7 @@ int main(int argc, char** argv) {
     sk_sp<const GrGLInterface> interface(GrGLCreateNativeInterface());
 
     // setup contexts
-    sk_sp<GrContext> grContext(GrContext::MakeGL(interface.get()));
+    sk_sp<GrContext> grContext(GrContext::MakeGL(interface));
     SkASSERT(grContext);
 
     // Wrap the frame buffer object attached to the screen in a Skia render target so Skia can
