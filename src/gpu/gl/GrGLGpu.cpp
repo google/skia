@@ -199,25 +199,25 @@ sk_sp<GrGpu> GrGLGpu::Make(sk_sp<const GrGLInterface> interface, const GrContext
 #ifdef USE_NSIGHT
     const_cast<GrContextOptions&>(options).fSuppressPathRendering = true;
 #endif
-    GrGLContext* glContext = GrGLContext::Create(interface.get(), options);
-    if (glContext) {
-        return sk_sp<GrGpu>(new GrGLGpu(glContext, context));
+    auto glContext = GrGLContext::Make(std::move(interface), options);
+    if (!glContext) {
+        return nullptr;
     }
-    return nullptr;
+    return sk_sp<GrGpu>(new GrGLGpu(std::move(glContext), context));
 }
 
-GrGLGpu::GrGLGpu(GrGLContext* ctx, GrContext* context)
-    : GrGpu(context)
-    , fGLContext(ctx)
-    , fProgramCache(new ProgramCache(this))
-    , fHWProgramID(0)
-    , fTempSrcFBOID(0)
-    , fTempDstFBOID(0)
-    , fStencilClearFBOID(0)
-    , fHWMaxUsedBufferTextureUnit(-1)
-    , fHWMinSampleShading(0.0) {
-    SkASSERT(ctx);
-    fCaps.reset(SkRef(ctx->caps()));
+GrGLGpu::GrGLGpu(std::unique_ptr<GrGLContext> ctx, GrContext* context)
+        : GrGpu(context)
+        , fGLContext(std::move(ctx))
+        , fProgramCache(new ProgramCache(this))
+        , fHWProgramID(0)
+        , fTempSrcFBOID(0)
+        , fTempDstFBOID(0)
+        , fStencilClearFBOID(0)
+        , fHWMaxUsedBufferTextureUnit(-1)
+        , fHWMinSampleShading(0.0) {
+    SkASSERT(fGLContext);
+    fCaps = sk_ref_sp(fGLContext->caps());
 
     fHWBoundTextureUniqueIDs.reset(this->caps()->shaderCaps()->maxCombinedSamplers());
 
