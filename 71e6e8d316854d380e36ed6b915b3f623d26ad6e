@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5a6d8912_a4938c35",
+        "filename": "PRESUBMIT.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-12-07T16:15:28Z",
+      "side": 1,
+      "message": "Does this also affect autorollers into Skia?  ie. do we need to add angle-deps-roller@chromium.org to this list?",
+      "range": {
+        "startLine": 38,
+        "startChar": 0,
+        "endLine": 38,
+        "endChar": 16
+      },
+      "revId": "71e6e8d316854d380e36ed6b915b3f623d26ad6e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0500c224_1b8c55c8",
+        "filename": "PRESUBMIT.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 475,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-12-07T16:15:28Z",
+      "side": 1,
+      "message": ":(",
+      "range": {
+        "startLine": 474,
+        "startChar": 53,
+        "endLine": 475,
+        "endChar": 55
+      },
+      "revId": "71e6e8d316854d380e36ed6b915b3f623d26ad6e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
