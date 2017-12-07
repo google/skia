@@ -1,5 +1,5 @@
 usingBookmaker
-===
+===</table>
 
 # <a name="Bookmaker"></a> Bookmaker
 How to use the <a href="#Bookmaker">Bookmaker</a> utility.
