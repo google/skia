@@ -78,13 +78,6 @@ extern "C" {
 #if !SK_JUMPER_USE_ASSEMBLY
     // We'll just run baseline code.
 
-#elif defined(__arm__)
-    StartPipelineFn ASM(start_pipeline,vfp4);
-    StageFn ASM(just_return,vfp4);
-    #define M(st) StageFn ASM(st,vfp4);
-        SK_RASTER_PIPELINE_STAGES(M)
-    #undef M
-
 #elif defined(__x86_64__) || defined(_M_X64)
     StartPipelineFn ASM(start_pipeline,       skx),
                     ASM(start_pipeline,       hsw),
@@ -135,7 +128,6 @@ extern "C" {
     #undef M
 
 #if defined(JUMPER_HAS_NEON_LOWP)
-    // We also compile 8-bit stages on ARMv8 as a normal part of Skia when compiled with Clang.
     StartPipelineFn sk_start_pipeline_lowp;
     StageFn sk_just_return_lowp;
     #define M(st) StageFn sk_##st##_lowp;
@@ -294,17 +286,6 @@ static SkOnce gChooseEngineOnce;
 static SkJumper_Engine choose_engine() {
 #if !SK_JUMPER_USE_ASSEMBLY
     // We'll just run baseline code.
-
-#elif defined(__arm__)
-    if (1 && SkCpu::Supports(SkCpu::NEON|SkCpu::NEON_FMA|SkCpu::VFP_FP16)) {
-        return {
-        #define M(stage) ASM(stage, vfp4),
-            { SK_RASTER_PIPELINE_STAGES(M) },
-            M(start_pipeline)
-            M(just_return)
-        #undef M
-        };
-    }
 
 #elif defined(__x86_64__) || defined(_M_X64)
     #if !defined(_MSC_VER)  // No _skx stages for Windows yet.

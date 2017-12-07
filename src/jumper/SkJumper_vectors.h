@@ -10,6 +10,7 @@
 
 #include "SkJumper.h"
 #include "SkJumper_misc.h"
+#include <stdint.h>
 
 // This file contains vector types that SkJumper_stages.cpp uses to define stages.
 
