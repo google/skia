@@ -996,6 +996,11 @@ def GenTests(api):
     if 'Win' in builder:
       test += api.platform('win', 64)
 
+    if 'Android' in builder:
+      test += api.step_data(
+          'detect host adb',
+          stdout=api.raw_io.output('adb.1.0.35'))
+
     if 'Chromecast' in builder:
       test += api.step_data(
           'read chromecast ip',
@@ -1073,7 +1078,8 @@ def GenTests(api):
                                      'svg', 'VERSION'),
         api.path['start_dir'].join('tmp', 'uninteresting_hashes.txt')
     ) +
-    api.step_data('get uninteresting hashes', retcode=1)
+    api.step_data('get uninteresting hashes', retcode=1) +
+    api.step_data('detect host adb', stdout=api.raw_io.output('adb.1.0.35'))
   )
 
   builder = ('Test-Android-Clang-NexusPlayer-CPU-Moorefield-x86-'
@@ -1096,7 +1102,8 @@ def GenTests(api):
         api.path['start_dir'].join('tmp', 'uninteresting_hashes.txt')
     ) +
     api.step_data('push [START_DIR]/skia/resources/* '+
-                  '/sdcard/revenge_of_the_skiabot/resources', retcode=1)
+                  '/sdcard/revenge_of_the_skiabot/resources', retcode=1) +
+    api.step_data('detect host adb', stdout=api.raw_io.output('adb.1.0.35'))
   )
 
   builder = 'Test-Android-Clang-Nexus7-GPU-Tegra3-arm-Debug-All-Android'
@@ -1119,7 +1126,8 @@ def GenTests(api):
     ) +
     api.step_data('dm', retcode=1) +
     api.step_data('pull /sdcard/revenge_of_the_skiabot/dm_out '+
-                  '[CUSTOM_[SWARM_OUT_DIR]]/dm', retcode=1)
+                  '[CUSTOM_[SWARM_OUT_DIR]]/dm', retcode=1) +
+    api.step_data('detect host adb', stdout=api.raw_io.output('adb.1.0.35'))
   )
 
   yield (
@@ -1139,7 +1147,8 @@ def GenTests(api):
         api.path['start_dir'].join('skia', 'infra', 'bots', 'assets',
                                      'svg', 'VERSION'),
         api.path['start_dir'].join('tmp', 'uninteresting_hashes.txt')
-    )
+    ) +
+    api.step_data('detect host adb', stdout=api.raw_io.output('adb.1.0.35'))
   )
 
   yield (
@@ -1159,5 +1168,6 @@ def GenTests(api):
         api.path['start_dir'].join('skia', 'infra', 'bots', 'assets',
                                      'svg', 'VERSION'),
         api.path['start_dir'].join('tmp', 'uninteresting_hashes.txt')
-    )
+    ) +
+    api.step_data('detect host adb', stdout=api.raw_io.output('adb.1.0.35'))
   )

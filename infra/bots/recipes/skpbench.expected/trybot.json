@@ -16,6 +16,38 @@
   },
   {
     "cmd": [
+      "python",
+      "-u",
+      "\nimport subprocess\nimport sys\npossible_adb = sys.argv[1].split(',')\nfor p in possible_adb:\n  try:\n    ignore = subprocess.check_output([p, 'version'])\n    print p\n    sys.exit()\n  except Exception:\n    pass\nprint 'Not Found'",
+      "adb.1.0.35,/opt/infra-android/tools/adb"
+    ],
+    "env": {
+      "BUILDTYPE": "Release",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[START_DIR]/out"
+    },
+    "infra_step": true,
+    "name": "detect host adb",
+    "stdout": "/path/to/tmp/",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
+      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
+      "@@@STEP_LOG_LINE@python.inline@possible_adb = sys.argv[1].split(',')@@@",
+      "@@@STEP_LOG_LINE@python.inline@for p in possible_adb:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  try:@@@",
+      "@@@STEP_LOG_LINE@python.inline@    ignore = subprocess.check_output([p, 'version'])@@@",
+      "@@@STEP_LOG_LINE@python.inline@    print p@@@",
+      "@@@STEP_LOG_LINE@python.inline@    sys.exit()@@@",
+      "@@@STEP_LOG_LINE@python.inline@  except Exception:@@@",
+      "@@@STEP_LOG_LINE@python.inline@    pass@@@",
+      "@@@STEP_LOG_LINE@python.inline@print 'Not Found'@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
       "adb.1.0.35",
       "shell",
       "mkdir",
