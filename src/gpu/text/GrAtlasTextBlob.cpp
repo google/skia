@@ -96,7 +96,9 @@ void GrAtlasTextBlob::appendGlyph(int runIndex,
 
     run.fInitialized = true;
 
-    size_t vertexStride = GetVertexStride(format);
+    bool isSDFPerspective = subRun->drawAsDistanceFields() && fInitialViewMatrix.hasPerspective();
+
+    size_t vertexStride = GetVertexStride(format, isSDFPerspective);
 
     subRun->setMaskFormat(format);
 
@@ -105,7 +107,34 @@ void GrAtlasTextBlob::appendGlyph(int runIndex,
 
     intptr_t vertex = reinterpret_cast<intptr_t>(this->fVertices + subRun->vertexEndIndex());
 
-    if (kARGB_GrMaskFormat != glyph->fMaskFormat) {
+    if (isSDFPerspective) {
+        // V0
+        float* position = reinterpret_cast<float*>(vertex);
+        position[0] = positions.fLeft; position[1] = positions.fTop; position[2] = 1.f;
+        SkColor* colorPtr = reinterpret_cast<SkColor*>(vertex + 3 * sizeof(float));
+        *colorPtr = color;
+        vertex += vertexStride;
+
+        // V1
+        position = reinterpret_cast<float*>(vertex);
+        position[0] = positions.fLeft; position[1] = positions.fBottom; position[2] = 1.f;
+        colorPtr = reinterpret_cast<SkColor*>(vertex + 3 * sizeof(float));
+        *colorPtr = color;
+        vertex += vertexStride;
+
+        // V2
+        position = reinterpret_cast<float*>(vertex);
+        position[0] = positions.fRight; position[1] = positions.fTop; position[2] = 1.f;
+        colorPtr = reinterpret_cast<SkColor*>(vertex + 3 * sizeof(float));
+        *colorPtr = color;
+        vertex += vertexStride;
+
+        // V3
+        position = reinterpret_cast<float*>(vertex);
+        position[0] = positions.fRight; position[1] = positions.fBottom; position[2] = 1.f;
+        colorPtr = reinterpret_cast<SkColor*>(vertex + 3 * sizeof(float));
+        *colorPtr = color;
+    } else if (kARGB_GrMaskFormat != glyph->fMaskFormat) {
         // V0
         SkPoint* position = reinterpret_cast<SkPoint*>(vertex);
         position->set(positions.fLeft, positions.fTop);
@@ -185,6 +214,7 @@ bool GrAtlasTextBlob::mustRegenerate(const GrTextUtils::Paint& paint,
         return true;
     }
 
+    /** This could be relaxed for blobs with only distance field gylphs. */
     if (fInitialViewMatrix.hasPerspective() && !fInitialViewMatrix.cheapEqualTo(viewMatrix)) {
         return true;
     }
