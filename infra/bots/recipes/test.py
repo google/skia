@@ -918,9 +918,9 @@ TEST_BUILDERS = [
   'Test-Android-Clang-Nexus7-GPU-Tegra3-arm-Debug-All-Android',
   'Test-Android-Clang-NexusPlayer-CPU-Moorefield-x86-Release-All-Android',
   'Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-All-Android_Vulkan',
+  'Test-Android-Clang-Pixel-GPU-Adreno530-arm64-Debug-All-Android_CCPR',
+  'Test-Android-Clang-Pixel-GPU-Adreno530-arm64-Debug-All-Android_Vulkan',
   'Test-Android-Clang-PixelC-CPU-TegraX1-arm64-Debug-All-Android',
-  'Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Debug-All-Android_CCPR',
-  'Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Debug-All-Android_Vulkan',
   'Test-ChromeOS-Clang-ASUSChromebookFlipC100-GPU-MaliT764-arm-Debug-All',
   ('Test-ChromeOS-Clang-AcerChromebookR13Convertible-GPU-PowerVRGX6250-'
    'arm-Debug-All'),
