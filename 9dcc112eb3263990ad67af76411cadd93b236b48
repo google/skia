@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6bb51dd8_430c495a",
+        "filename": "infra/bots/assets/win_toolchain_2015/create.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-12-07T20:41:25Z",
+      "side": 1,
+      "message": "As discussed, do we want to remove this file, make it just return a \"don\u0027t do this\" error, or sync to a specific Chrome rev to obtain the toolchain as it was at that point in time?",
+      "revId": "9dcc112eb3263990ad67af76411cadd93b236b48",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "de108d87_f4a3c2da",
+        "filename": "infra/bots/recipe_modules/flavor/gn_flavor.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-12-07T20:41:25Z",
+      "side": 1,
+      "message": "This will fail for any added bots which use the 2015 toolchain, right?  Should we add a switch?",
+      "range": {
+        "startLine": 36,
+        "startChar": 0,
+        "endLine": 38,
+        "endChar": 50
+      },
+      "revId": "9dcc112eb3263990ad67af76411cadd93b236b48",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
