@@ -44,7 +44,6 @@ DEF_TEST(ParseConfigs_Gpu, reporter) {
     REPORTER_ASSERT(reporter, configs[0]->asConfigGpu()->getContextType()
                     == GrContextFactory::kGL_ContextType);
     REPORTER_ASSERT(reporter, configs[0]->asConfigGpu()->getUseNVPR() == false);
-    REPORTER_ASSERT(reporter, configs[0]->asConfigGpu()->getUseInstanced() == false);
     REPORTER_ASSERT(reporter, configs[0]->asConfigGpu()->getUseDIText() == false);
     REPORTER_ASSERT(reporter, configs[0]->asConfigGpu()->getSamples() == 0);
     REPORTER_ASSERT(reporter, configs[0]->asConfigGpu()->getColorType() == kRGBA_8888_SkColorType);
@@ -107,14 +106,6 @@ DEF_TEST(ParseConfigs_DefaultConfigs, reporter) {
         "glsrgb",
         "glmsaa4",
         "vk",
-        "glinst",
-        "glinst4",
-        "glinstdit4",
-        "glinst8",
-        "glinstdit8",
-        "glesinst",
-        "glesinst4",
-        "glesinstdit4",
         "glwide",
         "glnarrow",
         "glnostencils",
@@ -175,68 +166,35 @@ DEF_TEST(ParseConfigs_DefaultConfigs, reporter) {
     REPORTER_ASSERT(reporter, *config25XYZ == *srgbXYZ);
     REPORTER_ASSERT(reporter, configs[25]->asConfigGpu()->getColorType() == kRGBA_8888_SkColorType);
     REPORTER_ASSERT(reporter, configs[25]->asConfigGpu()->getColorSpace() == srgbColorSpace.get());
-    REPORTER_ASSERT(reporter, configs[40]->asConfigGpu()->getColorType() == kRGBA_F16_SkColorType);
-    REPORTER_ASSERT(reporter, configs[40]->asConfigGpu()->getColorSpace());
-    REPORTER_ASSERT(reporter, configs[40]->asConfigGpu()->getColorSpace()->gammaIsLinear());
+    REPORTER_ASSERT(reporter, configs[32]->asConfigGpu()->getColorType() == kRGBA_F16_SkColorType);
+    REPORTER_ASSERT(reporter, configs[32]->asConfigGpu()->getColorSpace());
+    REPORTER_ASSERT(reporter, configs[32]->asConfigGpu()->getColorSpace()->gammaIsLinear());
     const SkMatrix44* config41XYZ =
-            as_CSB(configs[40]->asConfigGpu()->getColorSpace())->toXYZD50();
+            as_CSB(configs[32]->asConfigGpu()->getColorSpace())->toXYZD50();
     SkASSERT(config41XYZ);
     REPORTER_ASSERT(reporter, *config41XYZ != *srgbXYZ);
-    REPORTER_ASSERT(reporter, configs[32]->asConfigGpu()->getContextType() ==
-                              GrContextFactory::kGL_ContextType);
-    REPORTER_ASSERT(reporter, configs[41]->asConfigGpu()->getColorType() == kRGBA_F16_SkColorType);
-    REPORTER_ASSERT(reporter, configs[41]->asConfigGpu()->getColorSpace());
-    REPORTER_ASSERT(reporter, configs[41]->asConfigGpu()->getColorSpace()->gammaIsLinear());
-    REPORTER_ASSERT(reporter, *as_CSB(configs[41]->asConfigGpu()->getColorSpace())->toXYZD50() !=
+    REPORTER_ASSERT(reporter, configs[33]->asConfigGpu()->getColorType() == kRGBA_F16_SkColorType);
+    REPORTER_ASSERT(reporter, configs[33]->asConfigGpu()->getColorSpace());
+    REPORTER_ASSERT(reporter, configs[33]->asConfigGpu()->getColorSpace()->gammaIsLinear());
+    REPORTER_ASSERT(reporter, *as_CSB(configs[33]->asConfigGpu()->getColorSpace())->toXYZD50() !=
                     *as_CSB(srgbColorSpace)->toXYZD50());
-    REPORTER_ASSERT(reporter, configs[42]->asConfigGpu()->getContextType() ==
-                              GrContextFactory::kGL_ContextType);
-    REPORTER_ASSERT(reporter, SkToBool(configs[42]->asConfigGpu()->getContextOverrides() &
-                              SkCommandLineConfigGpu::ContextOverrides::kAvoidStencilBuffers));
-    REPORTER_ASSERT(reporter, configs[43]->asConfigGpu()->getContextType() ==
-                              GrContextFactory::kMock_ContextType);
-    REPORTER_ASSERT(reporter, configs[32]->asConfigGpu()->getUseInstanced());
-    REPORTER_ASSERT(reporter, configs[33]->asConfigGpu()->getContextType() ==
-                              GrContextFactory::kGL_ContextType);
-    REPORTER_ASSERT(reporter, configs[33]->asConfigGpu()->getUseInstanced());
-    REPORTER_ASSERT(reporter, configs[33]->asConfigGpu()->getSamples() == 4);
     REPORTER_ASSERT(reporter, configs[34]->asConfigGpu()->getContextType() ==
                               GrContextFactory::kGL_ContextType);
-    REPORTER_ASSERT(reporter, configs[34]->asConfigGpu()->getUseInstanced());
-    REPORTER_ASSERT(reporter, configs[34]->asConfigGpu()->getUseDIText());
-    REPORTER_ASSERT(reporter, configs[34]->asConfigGpu()->getSamples() == 4);
+    REPORTER_ASSERT(reporter, SkToBool(configs[34]->asConfigGpu()->getContextOverrides() &
+                              SkCommandLineConfigGpu::ContextOverrides::kAvoidStencilBuffers));
     REPORTER_ASSERT(reporter, configs[35]->asConfigGpu()->getContextType() ==
-                              GrContextFactory::kGL_ContextType);
-    REPORTER_ASSERT(reporter, configs[35]->asConfigGpu()->getUseInstanced());
-    REPORTER_ASSERT(reporter, configs[35]->asConfigGpu()->getSamples() == 8);
-    REPORTER_ASSERT(reporter, configs[36]->asConfigGpu()->getContextType() ==
-                              GrContextFactory::kGL_ContextType);
-    REPORTER_ASSERT(reporter, configs[36]->asConfigGpu()->getUseInstanced());
-    REPORTER_ASSERT(reporter, configs[36]->asConfigGpu()->getUseDIText());
-    REPORTER_ASSERT(reporter, configs[36]->asConfigGpu()->getSamples() == 8);
-    REPORTER_ASSERT(reporter, configs[37]->asConfigGpu()->getContextType() ==
-                              GrContextFactory::kGLES_ContextType);
-    REPORTER_ASSERT(reporter, configs[37]->asConfigGpu()->getUseInstanced());
-    REPORTER_ASSERT(reporter, configs[38]->asConfigGpu()->getContextType() ==
-                              GrContextFactory::kGLES_ContextType);
-    REPORTER_ASSERT(reporter, configs[38]->asConfigGpu()->getUseInstanced());
-    REPORTER_ASSERT(reporter, configs[38]->asConfigGpu()->getSamples() == 4);
-    REPORTER_ASSERT(reporter, configs[39]->asConfigGpu()->getContextType() ==
-                              GrContextFactory::kGLES_ContextType);
-    REPORTER_ASSERT(reporter, configs[39]->asConfigGpu()->getUseInstanced());
-    REPORTER_ASSERT(reporter, configs[39]->asConfigGpu()->getUseDIText());
-    REPORTER_ASSERT(reporter, configs[39]->asConfigGpu()->getSamples() == 4);
+                              GrContextFactory::kMock_ContextType);
     REPORTER_ASSERT(reporter, configs[19]->asConfigGpu());
     REPORTER_ASSERT(reporter, configs[20]->asConfigGpu());
     REPORTER_ASSERT(reporter, configs[21]->asConfigGpu());
-    REPORTER_ASSERT(reporter, configs[45]->asConfigGpu()->getContextType() ==
+    REPORTER_ASSERT(reporter, configs[37]->asConfigGpu()->getContextType() ==
                               GrContextFactory::kGL_ContextType);
-    REPORTER_ASSERT(reporter, configs[45]->asConfigGpu()->getColorType() == kARGB_4444_SkColorType);
-    REPORTER_ASSERT(reporter, configs[45]->asConfigGpu()->getAlphaType() == kPremul_SkAlphaType);
-    REPORTER_ASSERT(reporter, configs[46]->asConfigGpu()->getContextType() ==
+    REPORTER_ASSERT(reporter, configs[37]->asConfigGpu()->getColorType() == kARGB_4444_SkColorType);
+    REPORTER_ASSERT(reporter, configs[37]->asConfigGpu()->getAlphaType() == kPremul_SkAlphaType);
+    REPORTER_ASSERT(reporter, configs[38]->asConfigGpu()->getContextType() ==
                               GrContextFactory::kGL_ContextType);
-    REPORTER_ASSERT(reporter, configs[46]->asConfigGpu()->getColorType() == kRGB_565_SkColorType);
-    REPORTER_ASSERT(reporter, configs[46]->asConfigGpu()->getAlphaType() == kOpaque_SkAlphaType);
+    REPORTER_ASSERT(reporter, configs[38]->asConfigGpu()->getColorType() == kRGB_565_SkColorType);
+    REPORTER_ASSERT(reporter, configs[38]->asConfigGpu()->getAlphaType() == kOpaque_SkAlphaType);
     REPORTER_ASSERT(reporter, !configs[22]->asConfigGpu());
     REPORTER_ASSERT(reporter, configs[26]->asConfigGpu());
     REPORTER_ASSERT(reporter, configs[27]->asConfigGpu());
@@ -251,8 +209,8 @@ DEF_TEST(ParseConfigs_DefaultConfigs, reporter) {
     REPORTER_ASSERT(reporter, configs[29]->asConfigGpu()->getColorSpace() == srgbColorSpace.get());
     REPORTER_ASSERT(reporter, configs[30]->asConfigGpu());
     REPORTER_ASSERT(reporter, configs[30]->asConfigGpu()->getSamples() == 4);
-    REPORTER_ASSERT(reporter, configs[47]->asConfigGpu());
-    REPORTER_ASSERT(reporter, configs[47]->asConfigGpu()->getTestThreading());
+    REPORTER_ASSERT(reporter, configs[39]->asConfigGpu());
+    REPORTER_ASSERT(reporter, configs[39]->asConfigGpu()->getTestThreading());
 #ifdef SK_VULKAN
     REPORTER_ASSERT(reporter, configs[31]->asConfigGpu());
 #endif

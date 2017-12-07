@@ -31,9 +31,6 @@ public:
      */
     void endFlush() override;
 
-    void abandonGpuResources() override {}
-    void freeGpuResources() override {}
-
     /**
      * Together these two functions flush all queued ops to GrGpuCommandBuffer. The return value
      * of executeOps() indicates whether any commands were actually issued to the GPU.

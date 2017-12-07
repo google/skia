@@ -100,13 +100,6 @@ def nanobench_flags(api, bot):
           'NexusPlayer'   in bot):
         configs.remove('glessrgb')
 
-    # Bench instanced rendering on a limited number of platforms
-    inst_config = gl_prefix + 'inst'
-    if 'PixelC' in bot or 'NVIDIA_Shield' in bot or 'MacMini7.1' in bot:
-      configs.append(inst_config)
-      if sample_count:
-        configs.append(inst_config + sample_count)
-
     if 'CommandBuffer' in bot:
       configs = ['commandbuffer']
     if 'Vulkan' in bot:

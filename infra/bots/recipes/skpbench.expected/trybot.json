@@ -213,7 +213,7 @@
       "--resultsfile",
       "[CUSTOM_[SWARM_OUT_DIR]]/table",
       "--config",
-      "gles,glesinst4",
+      "gles",
       "-v5",
       "/sdcard/revenge_of_the_skiabot/skps"
     ],
