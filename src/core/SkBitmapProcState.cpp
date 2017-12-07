@@ -20,6 +20,9 @@
 #if defined(SK_ARM_HAS_NEON)
 // These are defined in src/opts/SkBitmapProcState_arm_neon.cpp
 extern const SkBitmapProcState::SampleProc32 gSkBitmapProcStateSample32_neon[];
+extern void  S16_D16_filter_DX_neon(const SkBitmapProcState&, const uint32_t*, int, uint16_t*);
+extern void  Clamp_S16_D16_filter_DX_shaderproc_neon(const void *, int, int, uint16_t*, int);
+extern void  Repeat_S16_D16_filter_DX_shaderproc_neon(const void *, int, int, uint16_t*, int);
 #endif
 
 extern void Clamp_S32_opaque_D32_nofilter_DX_shaderproc(const void*, int, int, uint32_t*, int);
@@ -175,7 +178,8 @@ bool SkBitmapProcState::chooseProcs() {
 }
 
 bool SkBitmapProcState::chooseScanlineProcs(bool trivialMatrix, bool clampClamp) {
-    SkASSERT(fPixmap.colorType() == kN32_SkColorType);
+    SkASSERT(fPixmap.colorType() == kN32_SkColorType ||
+             fPixmap.colorType() == kRGB_565_SkColorType);
 
     fMatrixProc = this->chooseMatrixProc(trivialMatrix);
     // TODO(dominikg): SkASSERT(fMatrixProc) instead? chooseMatrixProc never returns nullptr.
@@ -183,16 +187,14 @@ bool SkBitmapProcState::chooseScanlineProcs(bool trivialMatrix, bool clampClamp)
         return false;
     }
 
-    const SkAlphaType at = fPixmap.alphaType();
-    if (kPremul_SkAlphaType != at && kOpaque_SkAlphaType != at) {
-        return false;
-    }
+    ///////////////////////////////////////////////////////////////////////
 
     // No need to do this if we're doing HQ sampling; if filter quality is
     // still set to HQ by the time we get here, then we must have installed
     // the shader procs above and can skip all this.
 
     if (fFilterQuality < kHigh_SkFilterQuality) {
+
         int index = 0;
         if (fAlphaScale < 256) {  // note: this distinction is not used for D16
             index |= 1;
@@ -202,6 +204,10 @@ bool SkBitmapProcState::chooseScanlineProcs(bool trivialMatrix, bool clampClamp)
         }
         if (fFilterQuality > kNone_SkFilterQuality) {
             index |= 4;
+        }
+
+        if (fPixmap.colorType() == kRGB_565_SkColorType) {
+            index |= 8;
         }
 
 #if !defined(SK_ARM_HAS_NEON)
@@ -214,6 +220,15 @@ bool SkBitmapProcState::chooseScanlineProcs(bool trivialMatrix, bool clampClamp)
             S32_alpha_D32_filter_DXDY,
             S32_opaque_D32_filter_DX,
             S32_alpha_D32_filter_DX,
+
+            S16_opaque_D32_nofilter_DXDY,
+            S16_alpha_D32_nofilter_DXDY,
+            S16_opaque_D32_nofilter_DX,
+            S16_alpha_D32_nofilter_DX,
+            S16_opaque_D32_filter_DXDY,
+            S16_alpha_D32_filter_DXDY,
+            S16_opaque_D32_filter_DX,
+            S16_alpha_D32_filter_DX,
         };
 #endif
 
