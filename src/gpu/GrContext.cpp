@@ -75,15 +75,15 @@ GrContext* GrContext::Create(GrBackend backend, GrBackendContext backendContext,
     return context.release();
 }
 
-sk_sp<GrContext> GrContext::MakeGL(const GrGLInterface* interface) {
+sk_sp<GrContext> GrContext::MakeGL(sk_sp<const GrGLInterface> interface) {
     GrContextOptions defaultOptions;
-    return MakeGL(interface, defaultOptions);
+    return MakeGL(std::move(interface), defaultOptions);
 }
 
-sk_sp<GrContext> GrContext::MakeGL(const GrGLInterface* interface,
+sk_sp<GrContext> GrContext::MakeGL(sk_sp<const GrGLInterface> interface,
                                    const GrContextOptions& options) {
     sk_sp<GrContext> context(new GrContext);
-    context->fGpu = GrGLGpu::Create(interface, options, context.get());
+    context->fGpu = GrGLGpu::Make(std::move(interface), options, context.get());
     if (!context->fGpu) {
         return nullptr;
     }
@@ -102,7 +102,7 @@ sk_sp<GrContext> GrContext::MakeMock(const GrMockOptions* mockOptions) {
 sk_sp<GrContext> GrContext::MakeMock(const GrMockOptions* mockOptions,
                                      const GrContextOptions& options) {
     sk_sp<GrContext> context(new GrContext);
-    context->fGpu = GrMockGpu::Create(mockOptions, options, context.get());
+    context->fGpu = GrMockGpu::Make(mockOptions, options, context.get());
     if (!context->fGpu) {
         return nullptr;
     }
@@ -114,15 +114,15 @@ sk_sp<GrContext> GrContext::MakeMock(const GrMockOptions* mockOptions,
 }
 
 #ifdef SK_VULKAN
-sk_sp<GrContext> GrContext::MakeVulkan(const GrVkBackendContext* backendContext) {
+sk_sp<GrContext> GrContext::MakeVulkan(sk_sp<const GrVkBackendContext> backendContext) {
     GrContextOptions defaultOptions;
-    return MakeVulkan(backendContext, defaultOptions);
+    return MakeVulkan(std::move(backendContext), defaultOptions);
 }
 
-sk_sp<GrContext> GrContext::MakeVulkan(const GrVkBackendContext* backendContext,
+sk_sp<GrContext> GrContext::MakeVulkan(sk_sp<const GrVkBackendContext> backendContext,
                                        const GrContextOptions& options) {
     sk_sp<GrContext> context(new GrContext);
-    context->fGpu = GrVkGpu::Create(backendContext, options, context.get());
+    context->fGpu = GrVkGpu::Make(std::move(backendContext), options, context.get());
     if (!context->fGpu) {
         return nullptr;
     }
@@ -142,7 +142,7 @@ sk_sp<GrContext> GrContext::MakeMetal(void* device, void* queue) {
 
 sk_sp<GrContext> GrContext::MakeMetal(void* device, void* queue, const GrContextOptions& options) {
     sk_sp<GrContext> context(new GrContext);
-    context->fGpu = GrMtlTrampoline::CreateGpu(context.get(), options, device, queue);
+    context->fGpu = GrMtlTrampoline::MakeGpu(context.get(), options, device, queue);
     if (!context->fGpu) {
         return nullptr;
     }
@@ -164,7 +164,6 @@ static int32_t next_id() {
 }
 
 GrContext::GrContext() : fUniqueID(next_id()) {
-    fGpu = nullptr;
     fCaps = nullptr;
     fResourceCache = nullptr;
     fResourceProvider = nullptr;
@@ -178,7 +177,7 @@ bool GrContext::init(GrBackend backend, GrBackendContext backendContext,
 
     fBackend = backend;
 
-    fGpu = GrGpu::Create(backend, backendContext, options, this);
+    fGpu = GrGpu::Make(backend, backendContext, options, this);
     if (!fGpu) {
         return false;
     }
@@ -189,7 +188,7 @@ bool GrContext::init(const GrContextOptions& options) {
     ASSERT_SINGLE_OWNER
     fCaps = SkRef(fGpu->caps());
     fResourceCache = new GrResourceCache(fCaps, fUniqueID);
-    fResourceProvider = new GrResourceProvider(fGpu, fResourceCache, &fSingleOwner);
+    fResourceProvider = new GrResourceProvider(fGpu.get(), fResourceCache, &fSingleOwner);
 
     fDisableGpuYUVConversion = options.fDisableGpuYUVConversion;
     fDidTestPMConversions = false;
@@ -261,7 +260,6 @@ GrContext::~GrContext() {
     delete fResourceCache;
     delete fAtlasGlyphCache;
 
-    fGpu->unref();
     fCaps->unref();
 }
 

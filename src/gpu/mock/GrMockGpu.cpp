@@ -24,18 +24,18 @@ int GrMockGpu::NextExternalTextureID() {
     return sk_atomic_dec(&gID) - 1;
 }
 
-GrGpu* GrMockGpu::Create(GrBackendContext backendContext, const GrContextOptions& contextOptions,
-                         GrContext* context) {
-    return Create(reinterpret_cast<const GrMockOptions*>(backendContext), contextOptions, context);
+sk_sp<GrGpu> GrMockGpu::Make(GrBackendContext backendContext,
+                             const GrContextOptions& contextOptions, GrContext* context) {
+    return Make(reinterpret_cast<const GrMockOptions*>(backendContext), contextOptions, context);
 }
 
-GrGpu* GrMockGpu::Create(const GrMockOptions* mockOptions, const GrContextOptions& contextOptions,
-                         GrContext* context) {
+sk_sp<GrGpu> GrMockGpu::Make(const GrMockOptions* mockOptions,
+                             const GrContextOptions& contextOptions, GrContext* context) {
     static const GrMockOptions kDefaultOptions = GrMockOptions();
     if (!mockOptions) {
         mockOptions = &kDefaultOptions;
     }
-    return new GrMockGpu(context, *mockOptions, contextOptions);
+    return sk_sp<GrGpu>(new GrMockGpu(context, *mockOptions, contextOptions));
 }
 
 

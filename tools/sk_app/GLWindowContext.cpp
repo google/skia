@@ -33,7 +33,7 @@ void GLWindowContext::initializeContext() {
     SkASSERT(!fContext);
 
     fBackendContext = this->onInitializeContext();
-    fContext = GrContext::MakeGL(fBackendContext.get(), fDisplayParams.fGrContextOptions);
+    fContext = GrContext::MakeGL(fBackendContext, fDisplayParams.fGrContextOptions);
     if (!fContext && fDisplayParams.fMSAASampleCount) {
         fDisplayParams.fMSAASampleCount /= 2;
         this->initializeContext();

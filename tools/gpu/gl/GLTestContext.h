@@ -27,7 +27,7 @@ public:
 
     bool isValid() const { return SkToBool(this->gl()); }
 
-    const GrGLInterface *gl() const { return fGL.get(); }
+    const GrGLInterface* gl() const { return fGL.get(); }
 
     /** Used for testing EGLImage integration. Take a GL_TEXTURE_2D and wraps it in an EGL Image */
     virtual GrEGLImage texture2DToEGLImage(GrGLuint /*texID*/) const { return nullptr; }

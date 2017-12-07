@@ -344,7 +344,7 @@ GrGLint GLTestContext::createTextureRectangle(int width, int height, GrGLenum in
 }
 
 sk_sp<GrContext> GLTestContext::makeGrContext(const GrContextOptions& options) {
-    return GrContext::MakeGL(fGL.get(), options);
+    return GrContext::MakeGL(fGL, options);
 }
 
 }  // namespace sk_gpu_test
