@@ -47,13 +47,14 @@ class GitBranch(object):
   created temporary branch upon exit.
   """
   def __init__(self, branch_name, commit_msg, upload=True, commit_queue=False,
-               delete_when_finished=True):
+               delete_when_finished=True, cc_list=None):
     self._branch_name = branch_name
     self._commit_msg = commit_msg
     self._upload = upload
     self._commit_queue = commit_queue
     self._patch_set = 0
     self._delete_when_finished = delete_when_finished
+    self._cc_list = cc_list
 
   def __enter__(self):
     subprocess.check_call(['git', 'reset', '--hard', 'HEAD'])
@@ -76,6 +77,8 @@ class GitBranch(object):
       upload_cmd.append('--use-commit-queue')
       # Need the --send-mail flag to publish the CL and remove WIP bit.
       upload_cmd.append('--send-mail')
+    if self._cc_list:
+      upload_cmd.extend(['--cc=%s' % ','.join(self._cc_list)])
     subprocess.check_call(upload_cmd)
     output = subprocess.check_output(['git', 'cl', 'issue']).rstrip()
     return re.match('^Issue number: (?P<issue>\d+) \((?P<issue_url>.+)\)$',
