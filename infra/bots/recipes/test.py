@@ -479,7 +479,7 @@ def dm_flags(api, bot):
     blacklist(['glmsaa8',   'image', 'gen_codec_gpu', 'abnormal.wbmp'])
     blacklist(['glesmsaa4', 'image', 'gen_codec_gpu', 'abnormal.wbmp'])
 
-  if 'Nexus5' in bot:
+  if 'Nexus5' in bot and 'GPU' in bot:
     # skia:5876
     blacklist(['_', 'gm', '_', 'encode-platform'])
 
