@@ -16,12 +16,14 @@ import tempfile
 # Arguments to the script:
 #  pkg              path to application directory, e.g. out/Debug/dm.app
 #                   executable and plist should already be in this directory
-pkg, = sys.argv[1:]
+#  identstr         search string (regex fragment) for code signing identity
+#  profile          name of provisioning profile
+pkg,identstr,profile = sys.argv[1:]
 
 # Find the Google signing identity.
 identity = None
 for line in subprocess.check_output(['security', 'find-identity']).split('\n'):
-  m = re.match(r'''.*\) (.*) ".*Google.*"''', line)
+  m = re.match(r'''.*\) (.*) "''' + identstr + '"', line)
   if m:
     identity = m.group(1)
 assert identity
@@ -31,7 +33,7 @@ mobileprovision = None
 for p in glob.glob(os.path.join(os.environ['HOME'], 'Library', 'MobileDevice',
                                 'Provisioning Profiles', '*.mobileprovision')):
   if re.search(r'''<key>Name</key>
-\t<string>Google Development</string>''', open(p).read(), re.MULTILINE):
+\t<string>''' + profile + r'''</string>''', open(p).read(), re.MULTILINE):
     mobileprovision = p
 assert mobileprovision
 

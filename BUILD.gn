@@ -62,6 +62,11 @@ declare_args() {
   } else {
     skia_use_vulkan = skia_vulkan_sdk != ""
   }
+
+  if (is_ios) {
+    skia_ios_identity = ".*Google.*"
+    skia_ios_profile = "Google Development"
+  }
 }
 declare_args() {
   skia_tools_vulkan_header_dir = ""
@@ -1083,8 +1088,11 @@ if (skia_enable_tools) {
             "$bundle_root_dir/_CodeSignature/CodeResources",
             "$bundle_root_dir/embedded.mobileprovision",
           ]
-          code_signing_args =
-              [ rebase_path("$bundle_root_dir", root_build_dir) ]
+          code_signing_args = [
+            rebase_path("$bundle_root_dir", root_build_dir),
+            skia_ios_identity,
+            skia_ios_profile,
+          ]
         }
       }
     } else {

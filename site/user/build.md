@@ -205,8 +205,12 @@ This defaults to `target_cpu="arm64"`.  Choosing `x64` targets the iOS simulator
     bin/gn gen out/ios32  --args='target_os="ios" target_cpu="arm"'
     bin/gn gen out/iossim --args='target_os="ios" target_cpu="x64"'
 
-This will also package (and for devices, sign) iOS test binaries. For the moment a
-Google provisioning profile is needed to sign.
+This will also package (and for devices, sign) iOS test binaries. This defaults to a
+Google signing identity and provisioning profile. To use a different one set `skia_ios_identity`
+to match your code signing identity and `skia_ios_profile` to the name of your provisioning
+profile, e.g. `skia_ios_identity=".*Jane Doe.*" skia_ios_profile="iPad Profile"`. A list of
+identities can be found by typing `security find-identity` on the command line. The name of the
+provisioning profile should be available on the Apple Developer site.
 
 For signed packages `ios-deploy` makes installing and running them on a device easy:
 
@@ -216,6 +220,10 @@ Alternatively you can generate an Xcode project by passing `--ide=xcode` to `bin
 
 If you find yourself missing a Google signing identity or provisioning profile,
 you'll want to have a read through go/appledev.
+
+Deploying to a device with an OS older than the current SDK doesn't currently work through Xcode,
+but can be done on the command line by setting the environment variable IPHONEOS_DEPLOYMENT_TARGET
+to the desired OS version.
 
 Windows
 -------
