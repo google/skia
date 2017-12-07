@@ -374,12 +374,26 @@ sk_sp<SkTypeface> SkReadBuffer::readTypeface() {
         return sk_ref_sp(fInflator->getTypeface(this->read32()));
     }
 
-    uint32_t index = this->readUInt();
-    if (0 == index || index > (unsigned)fTFCount) {
+    // Read 32 bits (signed)
+    //   0 -- failure
+    //  >0 -- index
+    //  <0 -- custom (serial procs) : negative size in bytes
+
+    int32_t index = this->readUInt();
+    if (index == 0) {
         return nullptr;
-    } else {
-        SkASSERT(fTFArray);
+    } else if (index > 0) {
+        if (index > fTFCount) {
+            return nullptr;
+        }
         return sk_ref_sp(fTFArray[index - 1]);
+    } else {    // custom
+        size_t size = -index;
+        const void* data = this->skip(size);
+        if (!data) {
+            return nullptr;
+        }
+        return fProcs.fTypefaceProc(data, size, fProcs.fTypefaceCtx);
     }
 }
 

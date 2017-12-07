@@ -175,11 +175,31 @@ void SkBinaryWriteBuffer::writeTypeface(SkTypeface* obj) {
         return;
     }
 
-    if (nullptr == obj || nullptr == fTFSet) {
+    // Write 32 bits (signed)
+    //   0 -- failure
+    //  >0 -- index
+    //  <0 -- custom (serial procs)
+
+    if (obj == nullptr) {
         fWriter.write32(0);
-    } else {
-        fWriter.write32(fTFSet->add(obj));
+    } else if (fProcs.fTypefaceProc) {
+        SkDynamicMemoryWStream stream;
+        if (fProcs.fTypefaceProc(obj, &stream, fProcs.fTypefaceCtx)) {
+            auto data = stream.detachAsData();
+            size_t size = data->size();
+            if (!sk_64_isS32(size)) {
+                size = 0;
+            }
+            int32_t ssize = SkToS32(size);
+            fWriter.write32(-ssize);    // negative to signal custom
+            if (size) {
+                this->writePad32(data->data(), size);
+            }
+            return;
+        }
+        // if the proc returned false, we fall through for std behavior
     }
+    fWriter.write32(fTFSet ? fTFSet->add(obj) : 0);
 }
 
 void SkBinaryWriteBuffer::writePaint(const SkPaint& paint) {
