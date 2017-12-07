@@ -133,4 +133,11 @@ struct SkJumper_ColorLookupTableCtx {
     int limits[4];
 };
 
+struct SkJumper_ClampImageShaderCtx {
+    const void* pixels;
+    int         stride;
+    float       width;
+    float       height;
+};
+
 #endif//SkJumper_DEFINED
