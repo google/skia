@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "95d67c01_35a6f531",
+        "filename": "gn/BUILDCONFIG.gn",
+        "patchSetId": 11
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-12-07T21:16:59Z",
+      "side": 1,
+      "message": "No, it seems fine with it.",
+      "parentUuid": "76dbf88f_760b379f",
+      "revId": "9dcc112eb3263990ad67af76411cadd93b236b48",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "a2e8fd67_2b65b3a3",
         "filename": "gn/BUILDCONFIG.gn",
         "patchSetId": 11
@@ -30,6 +48,24 @@
       "writtenOn": "2017-12-07T20:43:04Z",
       "side": 1,
       "message": "I think we can even print() here?",
+      "revId": "9dcc112eb3263990ad67af76411cadd93b236b48",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "acae818a_1b39aea0",
+        "filename": "gn/BUILDCONFIG.gn",
+        "patchSetId": 11
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-12-07T21:16:59Z",
+      "side": 1,
+      "message": "A failed assert prints the full line (including comments), so unless we want a more detailed message, I think this works pretty well?",
+      "parentUuid": "a2e8fd67_2b65b3a3",
       "revId": "9dcc112eb3263990ad67af76411cadd93b236b48",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "b919835e_7bdde328",
+        "filename": "infra/bots/assets/win_toolchain_2015/create.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-12-07T21:16:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6bb51dd8_430c495a",
+      "revId": "9dcc112eb3263990ad67af76411cadd93b236b48",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a65db7f_fd160116",
         "filename": "infra/bots/assets/win_toolchain_2015/create.py",
         "patchSetId": 11
@@ -67,6 +121,24 @@
       "revId": "9dcc112eb3263990ad67af76411cadd93b236b48",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b2c4ef7b_b6a245f9",
+        "filename": "infra/bots/assets/win_toolchain_2015/create.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-12-07T21:16:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a65db7f_fd160116",
+      "revId": "9dcc112eb3263990ad67af76411cadd93b236b48",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -105,6 +177,30 @@
       "side": 1,
       "message": "Yeah, we\u0027ll need to do that when we add back 2015 bots.  Should be fine for now.",
       "parentUuid": "de108d87_f4a3c2da",
+      "range": {
+        "startLine": 36,
+        "startChar": 0,
+        "endLine": 38,
+        "endChar": 50
+      },
+      "revId": "9dcc112eb3263990ad67af76411cadd93b236b48",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ad4cec83_b795b408",
+        "filename": "infra/bots/recipe_modules/flavor/gn_flavor.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-12-07T21:16:59Z",
+      "side": 1,
+      "message": "Yup. I\u0027m also not clear where the download happens - I saw many other references to the win_toolchain asset in infra scripts, and I wasn\u0027t sure what I\u0027d need to update to ensure that some/all bots actually pulled down the 2015 package.",
+      "parentUuid": "50f0b28a_610c356f",
       "range": {
         "startLine": 36,
         "startChar": 0,
