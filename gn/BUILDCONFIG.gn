@@ -25,20 +25,20 @@ declare_args() {
   cc = "cc"
   cxx = "c++"
 
-  msvc = 2015
   clang_win = ""
 }
 declare_args() {
   is_debug = !is_official_build
 
-  if (msvc == 2015) {
-    windk = "C:/Program Files (x86)/Microsoft Visual Studio 14.0"
-  } else {
-    windk = "C:/Program Files (x86)/Microsoft Visual Studio/2017/Professional"
-    win_toolchain_version = ""
-  }
   win_sdk = "C:/Program Files (x86)/Windows Kits/10"
   win_sdk_version = ""
+
+  # Default to MSVC 2017. If you want to build locally with MSVC 2015,
+  # point win_vc at something like:
+  # "C:/Program Files (x86)/Microsoft Visual Studio 14.0/VC"
+
+  win_vc = "C:/Program Files (x86)/Microsoft Visual Studio/2017/Professional/VC"
+  win_toolchain_version = ""
 }
 
 assert(!(is_debug && is_official_build))
@@ -133,10 +133,18 @@ if (is_android) {
   }
 }
 
+msvc = 2017
+if (target_os == "win") {
+  if ("True" !=
+      exec_script("//gn/checkdir.py", [ "$win_vc/Tools" ], "trim string")) {
+    msvc = 2015
+  }
+}
+
 if (target_os == "win") {
   if (msvc == 2017 && win_toolchain_version == "") {
     win_toolchain_version = exec_script("//gn/highest_version_dir.py",
-                                        [ "$windk/VC/Tools/MSVC" ],
+                                        [ "$win_vc/Tools/MSVC" ],
                                         "trim string")
   }
   if (win_sdk_version == "") {
