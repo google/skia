@@ -5364,7 +5364,7 @@
         {
           "name": "skia/bots/win_toolchain",
           "path": "t",
-          "version": "version:6"
+          "version": "version:7"
         }
       ],
       "dimensions": [

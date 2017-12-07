@@ -55,9 +55,9 @@ config("default") {
     ]
 
     if (msvc == 2015) {
-      _include_dirs = [ "$windk/VC/include" ]
+      _include_dirs = [ "$win_vc/include" ]
     } else {  # 2017
-      _include_dirs = [ "$windk/VC/Tools/MSVC/$win_toolchain_version/include" ]
+      _include_dirs = [ "$win_vc/Tools/MSVC/$win_toolchain_version/include" ]
     }
     _include_dirs += [
       "$win_sdk/Include/$win_sdk_version/shared",
@@ -83,13 +83,13 @@ config("default") {
     ]
     if (msvc == 2015) {
       if (target_cpu == "x86") {
-        lib_dirs += [ "$windk/VC/lib" ]
+        lib_dirs += [ "$win_vc/lib" ]
       } else {
-        lib_dirs += [ "$windk/VC/lib/amd64" ]
+        lib_dirs += [ "$win_vc/lib/amd64" ]
       }
     } else {  # 2017
       lib_dirs +=
-          [ "$windk/VC/Tools/MSVC/$win_toolchain_version/lib/$target_cpu" ]
+          [ "$win_vc/Tools/MSVC/$win_toolchain_version/lib/$target_cpu" ]
     }
   } else {
     cflags += [

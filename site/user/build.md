@@ -228,17 +228,21 @@ to the desired OS version.
 Windows
 -------
 
-Skia can build on Windows with Visual Studio 2015 Update 3, or Visual Studio
-2017 by setting `msvc = 2017` in GN.  No older versions are supported. The bots
-use a packaged 2015 toolchain, which Googlers can download like this:
+Skia can build on Windows with Visual Studio 2017 or Visual Studio 2015 Update 3.
+If GN is unable to locate either of those, it will print an error message. In that
+case, you can pass your `VC` path to GN via `win_vc`.
+
+The bots use a packaged 2017 toolchain, which Googlers can download like this:
 
     python infra/bots/assets/win_toolchain/download.py -t C:/toolchain
 
-If you pass that downloaded path to GN via `windk`, you can build using that
-toolchain instead of your own from Visual Studio.  This toolchain is the only
-way we support 32-bit builds with 2015, by also setting `target_cpu="x86"`.
-32-bit builds should work with the default 2017 install if you follow the
-directions GN prints to set up your environment.
+You can then pass the VC and SDK paths to GN by setting your GN args:
+
+    win_vc = "C:\toolchain\depot_tools\win_toolchain\vs_files\a9e1098bba66d2acccc377d5ee81265910f29272\VC"
+    win_sdk = "C:\toolchain\depot_tools\win_toolchain\vs_files\a9e1098bba66d2acccc377d5ee81265910f29272\win_sdk"
+
+This toolchain is the only way we support 32-bit builds, by also setting `target_cpu="x86"`.
+There is also a corresponding 2015 toolchain, downloaded via `infra/bots/assets/win_toolchain_2015`.
 
 ### Visual Studio Solutions
 

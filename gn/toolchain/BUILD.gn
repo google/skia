@@ -34,20 +34,16 @@ toolchain("msvc") {
   lib_dir_switch = "/LIBPATH:"
 
   if (msvc == 2015) {
-    bin = "$windk/VC/bin/amd64"
-    env_setup = ""
-    if (target_cpu == "x86") {
-      bin += "_x86"
-      env_setup = "cmd /c $windk/win_sdk/bin/SetEnv.cmd /x86 && "
-    }
+    bin = "$win_vc/bin/amd64"
   } else {
-    bin = "$windk/VC/Tools/MSVC/$win_toolchain_version/bin/HostX64/$target_cpu"
-    env_setup = ""
-    if (target_cpu == "x86") {
-      print("Be sure to run")
-      print("\"$windk/VC/Auxiliary/Build/vcvarsall.bat\" amd64_x86")
-      print("to set up your environment before running ninja.")
-    }
+    bin = "$win_vc/Tools/MSVC/$win_toolchain_version/bin/HostX64/$target_cpu"
+  }
+
+  env_setup = ""
+  if (target_cpu == "x86") {
+    # Toolchain asset includes a script that configures for x86 building.
+    # We don't support x86 builds with local MSVC installations.
+    env_setup = "cmd /c $win_sdk/bin/SetEnv.cmd /x86 && "
   }
 
   if (clang_win != "") {

@@ -25,20 +25,16 @@ declare_args() {
   cc = "cc"
   cxx = "c++"
 
-  msvc = 2015
+  win_sdk = "C:/Program Files (x86)/Windows Kits/10"
+  win_sdk_version = ""
+
+  win_vc = ""
+  win_toolchain_version = ""
+
   clang_win = ""
 }
 declare_args() {
   is_debug = !is_official_build
-
-  if (msvc == 2015) {
-    windk = "C:/Program Files (x86)/Microsoft Visual Studio 14.0"
-  } else {
-    windk = "C:/Program Files (x86)/Microsoft Visual Studio/2017/Professional"
-    win_toolchain_version = ""
-  }
-  win_sdk = "C:/Program Files (x86)/Windows Kits/10"
-  win_sdk_version = ""
 }
 
 assert(!(is_debug && is_official_build))
@@ -133,10 +129,42 @@ if (is_android) {
   }
 }
 
+msvc = ""
+if (target_os == "win") {
+  # By default we look for 2017, then 2015. If MSVC is installed in a non-default
+  # location, you can set win_vc to inform us where it is.
+  vc_2017_default =
+      "C:/Program Files (x86)/Microsoft Visual Studio/2017/Professional/VC"
+  vc_2015_default = "C:/Program Files (x86)/Microsoft Visual Studio 14.0/VC"
+
+  if (win_vc == "") {
+    if ("True" ==
+        exec_script("//gn/checkdir.py", [ "$vc_2017_default" ], "trim string")) {
+      win_vc = vc_2017_default
+      msvc = 2017
+    } else if ("True" == exec_script("//gn/checkdir.py",
+                                     [ "$vc_2015_default" ],
+                                     "trim string")) {
+      win_vc = vc_2015_default
+      msvc = 2015
+    }
+  }
+  assert(win_vc != "")  # Could not find VC installation. Set win_vc to your VC directory.
+
+  if (msvc == "") {
+    if ("True" ==
+        exec_script("//gn/checkdir.py", [ "$win_vc/Tools" ], "trim string")) {
+      msvc = 2017
+    } else {
+      msvc = 2015
+    }
+  }
+}
+
 if (target_os == "win") {
   if (msvc == 2017 && win_toolchain_version == "") {
     win_toolchain_version = exec_script("//gn/highest_version_dir.py",
-                                        [ "$windk/VC/Tools/MSVC" ],
+                                        [ "$win_vc/Tools/MSVC" ],
                                         "trim string")
   }
   if (win_sdk_version == "") {
