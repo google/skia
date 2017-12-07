@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f2543135_37deee43",
+        "filename": "src/jumper/SkJumper_vectors.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-12-07T20:10:11Z",
+      "side": 1,
+      "message": "Since all these have the same definition, let\u0027s just put them once inline in SkJumper_stages.cpp?",
+      "revId": "b73ef63e683997746c3c2d924306ca1e30e2878d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b76692fa_2eeb7d6b",
+        "filename": "src/shaders/gradients/SkTwoPointConicalGradient.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 215,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-12-07T20:10:11Z",
+      "side": 1,
+      "message": "Let\u0027s describe the connection between larger root and first/second?",
+      "revId": "b73ef63e683997746c3c2d924306ca1e30e2878d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
