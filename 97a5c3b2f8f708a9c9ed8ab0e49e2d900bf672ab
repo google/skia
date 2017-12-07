@@ -117,6 +117,30 @@
       "revId": "97a5c3b2f8f708a9c9ed8ab0e49e2d900bf672ab",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "23c0bd5b_4df34920",
+        "filename": "infra/bots/git_utils.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2017-12-07T19:32:34Z",
+      "side": 1,
+      "message": "I\u0027m going to send the caller for review to you soonish.\nThe gist is this:\nWe call a script to update markdown files but we are not sure if there are any changes. We cannot check later and avoid calling this because it is under a with:\n\nwith git_utils.GitLocalConfig(config_dict):                                 \n      with git_utils.GitBranch(branch_name\u003d\u0027update_md_files\u0027,                   \n                               commit_msg\u003dCOMMIT_MSG,                           \n                               commit_queue\u003dTrue,                               \n                               error_if_no_changes\u003dFalse,                       \n                               cc_list\u003dCC_LIST):\n          call_bookmaker()\n          subprocess.check_call([\u0027git\u0027, \u0027add\u0027, \u0027-u\u0027])",
+      "parentUuid": "ff972c37_a3c44e3a",
+      "range": {
+        "startLine": 77,
+        "startChar": 13,
+        "endLine": 77,
+        "endChar": 15
+      },
+      "revId": "97a5c3b2f8f708a9c9ed8ab0e49e2d900bf672ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
