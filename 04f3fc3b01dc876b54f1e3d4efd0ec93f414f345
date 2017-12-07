@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6bad192c_125207de",
+        "filename": "infra/bots/recipes/test.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 541,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-12-07T17:28:06Z",
+      "side": 1,
+      "message": "We might want to do a triage of mentions of Nexus 10.  I bet some apply to the Nexus 7 now.",
+      "revId": "04f3fc3b01dc876b54f1e3d4efd0ec93f414f345",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
