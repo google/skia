@@ -93,6 +93,30 @@
       "revId": "97a5c3b2f8f708a9c9ed8ab0e49e2d900bf672ab",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ff972c37_a3c44e3a",
+        "filename": "infra/bots/git_utils.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-12-07T19:28:54Z",
+      "side": 1,
+      "message": "Is there a context for this?  It seems to me that that if someone calls commit_and_upload, they probably expect that they\u0027ve made changes and would rather error out if there weren\u0027t any actual changes.",
+      "parentUuid": "90e50151_7af8b8f8",
+      "range": {
+        "startLine": 77,
+        "startChar": 13,
+        "endLine": 77,
+        "endChar": 15
+      },
+      "revId": "97a5c3b2f8f708a9c9ed8ab0e49e2d900bf672ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
