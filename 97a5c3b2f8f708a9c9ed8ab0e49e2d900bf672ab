@@ -45,6 +45,30 @@
       "revId": "97a5c3b2f8f708a9c9ed8ab0e49e2d900bf672ab",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "90e50151_7af8b8f8",
+        "filename": "infra/bots/git_utils.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2017-12-07T19:24:42Z",
+      "side": 1,
+      "message": "Changed to None.\nIt is useful here to differentiate between failing to upload because there were no changes and failing to upload for other reasons.\nIf there are no changes then returning right away with -1/None is the behavior the caller wants if they are not sure that there are any changes and they do not want an error.",
+      "parentUuid": "fa6e1fb9_67d79027",
+      "range": {
+        "startLine": 77,
+        "startChar": 13,
+        "endLine": 77,
+        "endChar": 15
+      },
+      "revId": "97a5c3b2f8f708a9c9ed8ab0e49e2d900bf672ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
