@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "60df4fef_db28b4ae",
+        "filename": "DEPS",
+        "patchSetId": 1
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-12-07T16:23:14Z",
+      "side": 1,
+      "message": "Occasionally Github goes down, yeah, but it\u0027s usually not for long.  The bots don\u0027t sync from scratch, but they do sync, and the affected bots will go purple if Github is down.  We all stop landing CLs for a while and they eventually sort themselves out.\n\nMost of the repos we have on skia.googlesource.com are automatic mirrors of other external repositories.   You can see the \"mirrored from\" line on them, e.g. https://skia.googlesource.com/third_party/fontconfig/.\n\nI think Derek can clear away the existing libjpeg-turbo repo and recreate it as a mirror of the Github repo if you like.  That\u0027ll be best of both worlds.",
+      "parentUuid": "77d5091d_da156503",
+      "range": {
+        "startLine": 15,
+        "startChar": 51,
+        "endLine": 15,
+        "endChar": 61
+      },
+      "revId": "af7060e96827cfa0870b0931fbfa5888315c3ff8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "30e48105_e50beff3",
         "filename": "third_party/libjpeg-turbo/jconfig.h",
         "patchSetId": 1
