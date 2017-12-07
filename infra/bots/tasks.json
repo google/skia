@@ -1797,6 +1797,36 @@
         "Upload-Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-All-Android_Vulkan"
       ]
     },
+    "Test-Android-Clang-Pixel-GPU-Adreno530-arm64-Debug-All-Android": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Android-Clang-Pixel-GPU-Adreno530-arm64-Debug-All-Android"
+      ]
+    },
+    "Test-Android-Clang-Pixel-GPU-Adreno530-arm64-Debug-All-Android_CCPR": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Android-Clang-Pixel-GPU-Adreno530-arm64-Debug-All-Android_CCPR"
+      ]
+    },
+    "Test-Android-Clang-Pixel-GPU-Adreno530-arm64-Debug-All-Android_Vulkan": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Android-Clang-Pixel-GPU-Adreno530-arm64-Debug-All-Android_Vulkan"
+      ]
+    },
+    "Test-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-All-Android": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-All-Android"
+      ]
+    },
+    "Test-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-All-Android_Vulkan": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-All-Android_Vulkan"
+      ]
+    },
     "Test-Android-Clang-Pixel2XL-GPU-Adreno540-arm64-Debug-All-Android": {
       "priority": 0.8,
       "tasks": [
@@ -1831,36 +1861,6 @@
       "priority": 0.8,
       "tasks": [
         "Upload-Test-Android-Clang-PixelC-CPU-TegraX1-arm64-Release-All-Android"
-      ]
-    },
-    "Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Debug-All-Android": {
-      "priority": 0.8,
-      "tasks": [
-        "Upload-Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Debug-All-Android"
-      ]
-    },
-    "Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Debug-All-Android_CCPR": {
-      "priority": 0.8,
-      "tasks": [
-        "Upload-Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Debug-All-Android_CCPR"
-      ]
-    },
-    "Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Debug-All-Android_Vulkan": {
-      "priority": 0.8,
-      "tasks": [
-        "Upload-Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Debug-All-Android_Vulkan"
-      ]
-    },
-    "Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Release-All-Android": {
-      "priority": 0.8,
-      "tasks": [
-        "Upload-Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Release-All-Android"
-      ]
-    },
-    "Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Release-All-Android_Vulkan": {
-      "priority": 0.8,
-      "tasks": [
-        "Upload-Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Release-All-Android_Vulkan"
       ]
     },
     "Test-ChromeOS-Clang-ASUSChromebookFlipC100-GPU-MaliT764-arm-Debug-All": {
@@ -14109,6 +14109,186 @@
       "max_attempts": 1,
       "priority": 0.8
     },
+    "Test-Android-Clang-Pixel-GPU-Adreno530-arm64-Debug-All-Android": {
+      "dependencies": [
+        "Build-Debian9-Clang-arm64-Debug-Android",
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
+      ],
+      "dimensions": [
+        "device_os:OPR3.170623.008",
+        "device_type:sailfish",
+        "os:Android",
+        "pool:Skia",
+        "python:2.7.9"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "test",
+        "repository=<(REPO)",
+        "buildbucket_build_id=<(BUILDBUCKET_BUILD_ID)",
+        "buildername=Test-Android-Clang-Pixel-GPU-Adreno530-arm64-Debug-All-Android",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia_bundled_unix.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
+    "Test-Android-Clang-Pixel-GPU-Adreno530-arm64-Debug-All-Android_CCPR": {
+      "dependencies": [
+        "Build-Debian9-Clang-arm64-Debug-Android",
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
+      ],
+      "dimensions": [
+        "device_os:OPR3.170623.008",
+        "device_type:sailfish",
+        "os:Android",
+        "pool:Skia",
+        "python:2.7.9"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "test",
+        "repository=<(REPO)",
+        "buildbucket_build_id=<(BUILDBUCKET_BUILD_ID)",
+        "buildername=Test-Android-Clang-Pixel-GPU-Adreno530-arm64-Debug-All-Android_CCPR",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia_bundled_unix.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
+    "Test-Android-Clang-Pixel-GPU-Adreno530-arm64-Debug-All-Android_Vulkan": {
+      "dependencies": [
+        "Build-Debian9-Clang-arm64-Debug-Android_Vulkan",
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
+      ],
+      "dimensions": [
+        "device_os:OPR3.170623.008",
+        "device_type:sailfish",
+        "os:Android",
+        "pool:Skia",
+        "python:2.7.9"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "test",
+        "repository=<(REPO)",
+        "buildbucket_build_id=<(BUILDBUCKET_BUILD_ID)",
+        "buildername=Test-Android-Clang-Pixel-GPU-Adreno530-arm64-Debug-All-Android_Vulkan",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia_bundled_unix.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
+    "Test-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-All-Android": {
+      "dependencies": [
+        "Build-Debian9-Clang-arm64-Release-Android",
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
+      ],
+      "dimensions": [
+        "device_os:OPR3.170623.008",
+        "device_type:sailfish",
+        "os:Android",
+        "pool:Skia",
+        "python:2.7.9"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "test",
+        "repository=<(REPO)",
+        "buildbucket_build_id=<(BUILDBUCKET_BUILD_ID)",
+        "buildername=Test-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-All-Android",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia_bundled_unix.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
+    "Test-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-All-Android_Vulkan": {
+      "dependencies": [
+        "Build-Debian9-Clang-arm64-Release-Android_Vulkan",
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
+      ],
+      "dimensions": [
+        "device_os:OPR3.170623.008",
+        "device_type:sailfish",
+        "os:Android",
+        "pool:Skia",
+        "python:2.7.9"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "test",
+        "repository=<(REPO)",
+        "buildbucket_build_id=<(BUILDBUCKET_BUILD_ID)",
+        "buildername=Test-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-All-Android_Vulkan",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia_bundled_unix.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
     "Test-Android-Clang-Pixel2XL-GPU-Adreno540-arm64-Debug-All-Android": {
       "dependencies": [
         "Build-Debian9-Clang-arm64-Debug-Android",
@@ -14313,186 +14493,6 @@
         "repository=<(REPO)",
         "buildbucket_build_id=<(BUILDBUCKET_BUILD_ID)",
         "buildername=Test-Android-Clang-PixelC-CPU-TegraX1-arm64-Release-All-Android",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_repo=<(PATCH_REPO)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
-      ],
-      "io_timeout_ns": 2400000000000,
-      "isolate": "test_skia_bundled_unix.isolate",
-      "max_attempts": 1,
-      "priority": 0.8
-    },
-    "Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Debug-All-Android": {
-      "dependencies": [
-        "Build-Debian9-Clang-arm64-Debug-Android",
-        "Housekeeper-PerCommit-BundleRecipes",
-        "Housekeeper-PerCommit-IsolateSKP",
-        "Housekeeper-PerCommit-IsolateSVG",
-        "Housekeeper-PerCommit-IsolateSkImage"
-      ],
-      "dimensions": [
-        "device_os:OPR3.170623.008",
-        "device_type:marlin",
-        "os:Android",
-        "pool:Skia",
-        "python:2.7.9"
-      ],
-      "execution_timeout_ns": 14400000000000,
-      "expiration_ns": 72000000000000,
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "test",
-        "repository=<(REPO)",
-        "buildbucket_build_id=<(BUILDBUCKET_BUILD_ID)",
-        "buildername=Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Debug-All-Android",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_repo=<(PATCH_REPO)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
-      ],
-      "io_timeout_ns": 2400000000000,
-      "isolate": "test_skia_bundled_unix.isolate",
-      "max_attempts": 1,
-      "priority": 0.8
-    },
-    "Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Debug-All-Android_CCPR": {
-      "dependencies": [
-        "Build-Debian9-Clang-arm64-Debug-Android",
-        "Housekeeper-PerCommit-BundleRecipes",
-        "Housekeeper-PerCommit-IsolateSKP",
-        "Housekeeper-PerCommit-IsolateSVG",
-        "Housekeeper-PerCommit-IsolateSkImage"
-      ],
-      "dimensions": [
-        "device_os:OPR3.170623.008",
-        "device_type:marlin",
-        "os:Android",
-        "pool:Skia",
-        "python:2.7.9"
-      ],
-      "execution_timeout_ns": 14400000000000,
-      "expiration_ns": 72000000000000,
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "test",
-        "repository=<(REPO)",
-        "buildbucket_build_id=<(BUILDBUCKET_BUILD_ID)",
-        "buildername=Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Debug-All-Android_CCPR",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_repo=<(PATCH_REPO)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
-      ],
-      "io_timeout_ns": 2400000000000,
-      "isolate": "test_skia_bundled_unix.isolate",
-      "max_attempts": 1,
-      "priority": 0.8
-    },
-    "Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Debug-All-Android_Vulkan": {
-      "dependencies": [
-        "Build-Debian9-Clang-arm64-Debug-Android_Vulkan",
-        "Housekeeper-PerCommit-BundleRecipes",
-        "Housekeeper-PerCommit-IsolateSKP",
-        "Housekeeper-PerCommit-IsolateSVG",
-        "Housekeeper-PerCommit-IsolateSkImage"
-      ],
-      "dimensions": [
-        "device_os:OPR3.170623.008",
-        "device_type:marlin",
-        "os:Android",
-        "pool:Skia",
-        "python:2.7.9"
-      ],
-      "execution_timeout_ns": 14400000000000,
-      "expiration_ns": 72000000000000,
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "test",
-        "repository=<(REPO)",
-        "buildbucket_build_id=<(BUILDBUCKET_BUILD_ID)",
-        "buildername=Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Debug-All-Android_Vulkan",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_repo=<(PATCH_REPO)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
-      ],
-      "io_timeout_ns": 2400000000000,
-      "isolate": "test_skia_bundled_unix.isolate",
-      "max_attempts": 1,
-      "priority": 0.8
-    },
-    "Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Release-All-Android": {
-      "dependencies": [
-        "Build-Debian9-Clang-arm64-Release-Android",
-        "Housekeeper-PerCommit-BundleRecipes",
-        "Housekeeper-PerCommit-IsolateSKP",
-        "Housekeeper-PerCommit-IsolateSVG",
-        "Housekeeper-PerCommit-IsolateSkImage"
-      ],
-      "dimensions": [
-        "device_os:OPR3.170623.008",
-        "device_type:marlin",
-        "os:Android",
-        "pool:Skia",
-        "python:2.7.9"
-      ],
-      "execution_timeout_ns": 14400000000000,
-      "expiration_ns": 72000000000000,
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "test",
-        "repository=<(REPO)",
-        "buildbucket_build_id=<(BUILDBUCKET_BUILD_ID)",
-        "buildername=Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Release-All-Android",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_repo=<(PATCH_REPO)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
-      ],
-      "io_timeout_ns": 2400000000000,
-      "isolate": "test_skia_bundled_unix.isolate",
-      "max_attempts": 1,
-      "priority": 0.8
-    },
-    "Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Release-All-Android_Vulkan": {
-      "dependencies": [
-        "Build-Debian9-Clang-arm64-Release-Android_Vulkan",
-        "Housekeeper-PerCommit-BundleRecipes",
-        "Housekeeper-PerCommit-IsolateSKP",
-        "Housekeeper-PerCommit-IsolateSVG",
-        "Housekeeper-PerCommit-IsolateSkImage"
-      ],
-      "dimensions": [
-        "device_os:OPR3.170623.008",
-        "device_type:marlin",
-        "os:Android",
-        "pool:Skia",
-        "python:2.7.9"
-      ],
-      "execution_timeout_ns": 14400000000000,
-      "expiration_ns": 72000000000000,
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "test",
-        "repository=<(REPO)",
-        "buildbucket_build_id=<(BUILDBUCKET_BUILD_ID)",
-        "buildername=Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Release-All-Android_Vulkan",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -26082,6 +26082,141 @@
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
     },
+    "Upload-Test-Android-Clang-Pixel-GPU-Adreno530-arm64-Debug-All-Android": {
+      "dependencies": [
+        "Test-Android-Clang-Pixel-GPU-Adreno530-arm64-Debug-All-Android"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "os:Debian-9.2",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Android-Clang-Pixel-GPU-Adreno530-arm64-Debug-All-Android",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-Android-Clang-Pixel-GPU-Adreno530-arm64-Debug-All-Android_CCPR": {
+      "dependencies": [
+        "Test-Android-Clang-Pixel-GPU-Adreno530-arm64-Debug-All-Android_CCPR"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "os:Debian-9.2",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Android-Clang-Pixel-GPU-Adreno530-arm64-Debug-All-Android_CCPR",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-Android-Clang-Pixel-GPU-Adreno530-arm64-Debug-All-Android_Vulkan": {
+      "dependencies": [
+        "Test-Android-Clang-Pixel-GPU-Adreno530-arm64-Debug-All-Android_Vulkan"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "os:Debian-9.2",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Android-Clang-Pixel-GPU-Adreno530-arm64-Debug-All-Android_Vulkan",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-All-Android": {
+      "dependencies": [
+        "Test-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-All-Android"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "os:Debian-9.2",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-All-Android",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-All-Android_Vulkan": {
+      "dependencies": [
+        "Test-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-All-Android_Vulkan"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "os:Debian-9.2",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-All-Android_Vulkan",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
     "Upload-Test-Android-Clang-Pixel2XL-GPU-Adreno540-arm64-Debug-All-Android": {
       "dependencies": [
         "Test-Android-Clang-Pixel2XL-GPU-Adreno540-arm64-Debug-All-Android"
@@ -26233,141 +26368,6 @@
         "upload_dm_results",
         "repository=<(REPO)",
         "buildername=Test-Android-Clang-PixelC-CPU-TegraX1-arm64-Release-All-Android",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_repo=<(PATCH_REPO)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)",
-        "gs_bucket=skia-infra-gm"
-      ],
-      "isolate": "upload_dm_results.isolate",
-      "priority": 0.8
-    },
-    "Upload-Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Debug-All-Android": {
-      "dependencies": [
-        "Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Debug-All-Android"
-      ],
-      "dimensions": [
-        "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
-        "os:Debian-9.2",
-        "pool:Skia"
-      ],
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "upload_dm_results",
-        "repository=<(REPO)",
-        "buildername=Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Debug-All-Android",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_repo=<(PATCH_REPO)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)",
-        "gs_bucket=skia-infra-gm"
-      ],
-      "isolate": "upload_dm_results.isolate",
-      "priority": 0.8
-    },
-    "Upload-Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Debug-All-Android_CCPR": {
-      "dependencies": [
-        "Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Debug-All-Android_CCPR"
-      ],
-      "dimensions": [
-        "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
-        "os:Debian-9.2",
-        "pool:Skia"
-      ],
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "upload_dm_results",
-        "repository=<(REPO)",
-        "buildername=Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Debug-All-Android_CCPR",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_repo=<(PATCH_REPO)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)",
-        "gs_bucket=skia-infra-gm"
-      ],
-      "isolate": "upload_dm_results.isolate",
-      "priority": 0.8
-    },
-    "Upload-Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Debug-All-Android_Vulkan": {
-      "dependencies": [
-        "Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Debug-All-Android_Vulkan"
-      ],
-      "dimensions": [
-        "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
-        "os:Debian-9.2",
-        "pool:Skia"
-      ],
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "upload_dm_results",
-        "repository=<(REPO)",
-        "buildername=Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Debug-All-Android_Vulkan",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_repo=<(PATCH_REPO)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)",
-        "gs_bucket=skia-infra-gm"
-      ],
-      "isolate": "upload_dm_results.isolate",
-      "priority": 0.8
-    },
-    "Upload-Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Release-All-Android": {
-      "dependencies": [
-        "Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Release-All-Android"
-      ],
-      "dimensions": [
-        "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
-        "os:Debian-9.2",
-        "pool:Skia"
-      ],
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "upload_dm_results",
-        "repository=<(REPO)",
-        "buildername=Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Release-All-Android",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_repo=<(PATCH_REPO)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)",
-        "gs_bucket=skia-infra-gm"
-      ],
-      "isolate": "upload_dm_results.isolate",
-      "priority": 0.8
-    },
-    "Upload-Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Release-All-Android_Vulkan": {
-      "dependencies": [
-        "Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Release-All-Android_Vulkan"
-      ],
-      "dimensions": [
-        "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
-        "os:Debian-9.2",
-        "pool:Skia"
-      ],
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "upload_dm_results",
-        "repository=<(REPO)",
-        "buildername=Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Release-All-Android_Vulkan",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
