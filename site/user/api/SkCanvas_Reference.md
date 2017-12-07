@@ -422,7 +422,7 @@ storage of <a href="undocumented#Raster_Surface">Raster Surface</a></td>
 
 ### Example
 
-<div><fiddle-embed name="dd92db963af190e849894038f39b598a"><div>The actual output depends on the installed fonts.</div>
+<div><fiddle-embed name="afbff18f867af962b20fa05ddb46a862"><div>The actual output depends on the installed fonts.</div>
 
 #### Example Output
 
