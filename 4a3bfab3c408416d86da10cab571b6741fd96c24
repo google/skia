@@ -34,6 +34,24 @@
       "revId": "4a3bfab3c408416d86da10cab571b6741fd96c24",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "21fe390d_4049fbc8",
+        "filename": "src/core/SkReadBuffer.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 372,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-12-07T17:47:55Z",
+      "side": 1,
+      "message": "good catch! done.",
+      "parentUuid": "e7986c7a_cb3ed739",
+      "revId": "4a3bfab3c408416d86da10cab571b6741fd96c24",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
