@@ -3,10 +3,8 @@
     'infrabots.isolate',
   ],
   'variables': {
-    'command': [
-      'python', 'recipes.py', '--package', '../config/recipes.cfg', 'run', '--timestamps',
-    ],
     'files': [
+      '../../../.gclient',
       '../config/recipes.cfg',
     ],
   },
