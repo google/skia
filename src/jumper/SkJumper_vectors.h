@@ -44,6 +44,8 @@
     using U16 = uint16_t;
     using U8  = uint8_t ;
 
+    SI F   first (F a, F b)     { return a; }
+    SI F   second(F a, F b)     { return b; }
     SI F   mad(F f, F m, F a)   { return f*m+a; }
     SI F   min(F a, F b)        { return fminf(a,b); }
     SI F   max(F a, F b)        { return fmaxf(a,b); }
@@ -105,6 +107,8 @@
     using U8  = V<uint8_t >;
 
     // We polyfill a few routines that Clang doesn't build into ext_vector_types.
+    SI F   first (F a, F b)                      { return a; }
+    SI F   second(F a, F b)                      { return b; }
     SI F   mad(F f, F m, F a)                    { return vfmaq_f32(a,f,m);        }
     SI F   min(F a, F b)                         { return vminq_f32(a,b);          }
     SI F   max(F a, F b)                         { return vmaxq_f32(a,b);          }
@@ -224,6 +228,8 @@
     #endif
     }
 
+    SI F   first (F a, F b)     { return a; }
+    SI F   second(F a, F b)     { return b; }
     SI F   min(F a, F b)        { return _mm256_min_ps(a,b);    }
     SI F   max(F a, F b)        { return _mm256_max_ps(a,b);    }
     SI F   abs_  (F v)          { return _mm256_and_ps(v, 0-v); }
@@ -430,6 +436,8 @@
     using U16 = V<uint16_t>;
     using U8  = V<uint8_t >;
 
+    SI F   first (F a, F b)    { return a; }
+    SI F   second(F a, F b)    { return b; }
     SI F   mad(F f, F m, F a)  { return f*m+a;              }
     SI F   min(F a, F b)       { return _mm_min_ps(a,b);    }
     SI F   max(F a, F b)       { return _mm_max_ps(a,b);    }
