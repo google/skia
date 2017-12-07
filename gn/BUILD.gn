@@ -194,6 +194,14 @@ config("default") {
   if (is_linux) {
     libs += [ "pthread" ]
   }
+  if (is_mac) {
+    # Disable linker warnings.  They're usually just annoyances like,
+    #   ld: warning: text-based stub file
+    #     /System/Library/Frameworks/foo.framework/foo.tbd and library file
+    #     /System/Library/Frameworks/foo.framework/foo are out of sync.
+    #     Falling back to library file for linking.
+    ldflags += [ "-Wl,-w" ]
+  }
 
   if (sanitize != "") {
     # You can either pass the sanitizers directly, e.g. "address,undefined",
