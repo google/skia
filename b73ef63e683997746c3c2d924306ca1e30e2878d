@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "e3403b7c_6270ad66",
+        "filename": "src/jumper/SkJumper_vectors.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-12-07T20:24:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f2543135_37deee43",
+      "revId": "b73ef63e683997746c3c2d924306ca1e30e2878d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b76692fa_2eeb7d6b",
         "filename": "src/shaders/gradients/SkTwoPointConicalGradient.cpp",
         "patchSetId": 3
@@ -33,6 +51,24 @@
       "revId": "b73ef63e683997746c3c2d924306ca1e30e2878d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "36376677_7a5be123",
+        "filename": "src/shaders/gradients/SkTwoPointConicalGradient.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 215,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-12-07T20:24:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b76692fa_2eeb7d6b",
+      "revId": "b73ef63e683997746c3c2d924306ca1e30e2878d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
