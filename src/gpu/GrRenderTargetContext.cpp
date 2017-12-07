@@ -31,7 +31,6 @@
 #include "SkShadowUtils.h"
 #include "SkSurfacePriv.h"
 #include "effects/GrRRectEffect.h"
-#include "instanced/InstancedRendering.h"
 #include "ops/GrAtlasTextOp.h"
 #include "ops/GrClearOp.h"
 #include "ops/GrClearStencilClipOp.h"
@@ -155,7 +154,6 @@ GrRenderTargetContext::GrRenderTargetContext(GrContext* context,
                            singleOwner)
         , fRenderTargetProxy(std::move(rtp))
         , fOpList(sk_ref_sp(fRenderTargetProxy->getLastRenderTargetOpList()))
-        , fInstancedPipelineInfo(fRenderTargetProxy.get())
         , fSurfaceProps(SkSurfacePropsCopyOrDefault(surfaceProps))
         , fManagedOpList(managedOpList) {
 #ifdef SK_DISABLE_EXPLICIT_GPU_RESOURCE_ALLOCATION
@@ -467,16 +465,6 @@ bool GrRenderTargetContext::drawFilledRect(const GrClip& clip,
         return true;
     }
 
-    if (GrCaps::InstancedSupport::kNone != fContext->caps()->instancedSupport() &&
-        (!ss || ss->isDisabled(false))) {
-        gr_instanced::OpAllocator* oa = this->drawingManager()->instancingAllocator();
-        std::unique_ptr<GrDrawOp> op = oa->recordRect(croppedRect, viewMatrix, std::move(paint),
-                                                      aa, fInstancedPipelineInfo);
-        if (op) {
-            this->addDrawOp(clip, std::move(op));
-            return true;
-        }
-    }
     GrAAType aaType = this->chooseAAType(aa, GrAllowMixedSamples::kNo);
     std::unique_ptr<GrDrawOp> op;
     if (GrAAType::kCoverage == aaType) {
@@ -734,16 +722,6 @@ void GrRenderTargetContext::fillRectToRect(const GrClip& clip,
 
     AutoCheckFlush acf(this->drawingManager());
 
-    if (GrCaps::InstancedSupport::kNone != fContext->caps()->instancedSupport()) {
-        gr_instanced::OpAllocator* oa = this->drawingManager()->instancingAllocator();
-        std::unique_ptr<GrDrawOp> op(oa->recordRect(croppedRect, viewMatrix, std::move(paint),
-                                                    croppedLocalRect, aa, fInstancedPipelineInfo));
-        if (op) {
-            this->addDrawOp(clip, std::move(op));
-            return;
-        }
-    }
-
     GrAAType aaType = this->chooseAAType(aa, GrAllowMixedSamples::kNo);
     if (GrAAType::kCoverage != aaType) {
         std::unique_ptr<GrDrawOp> op = GrRectOpFactory::MakeNonAAFillWithLocalRect(
@@ -832,16 +810,6 @@ void GrRenderTargetContext::fillRectWithLocalMatrix(const GrClip& clip,
     }
 
     AutoCheckFlush acf(this->drawingManager());
-
-    if (GrCaps::InstancedSupport::kNone != fContext->caps()->instancedSupport()) {
-        gr_instanced::OpAllocator* oa = this->drawingManager()->instancingAllocator();
-        std::unique_ptr<GrDrawOp> op(oa->recordRect(croppedRect, viewMatrix, std::move(paint),
-                                                    localMatrix, aa, fInstancedPipelineInfo));
-        if (op) {
-            this->addDrawOp(clip, std::move(op));
-            return;
-        }
-    }
 
     GrAAType aaType = this->chooseAAType(aa, GrAllowMixedSamples::kNo);
     if (GrAAType::kCoverage != aaType) {
@@ -948,17 +916,6 @@ void GrRenderTargetContext::drawRRect(const GrClip& origClip,
 
     AutoCheckFlush acf(this->drawingManager());
     const SkStrokeRec stroke = style.strokeRec();
-
-    if (GrCaps::InstancedSupport::kNone != fContext->caps()->instancedSupport() &&
-        stroke.isFillStyle()) {
-        gr_instanced::OpAllocator* oa = this->drawingManager()->instancingAllocator();
-        std::unique_ptr<GrDrawOp> op(
-                oa->recordRRect(rrect, viewMatrix, std::move(paint), aa, fInstancedPipelineInfo));
-        if (op) {
-            this->addDrawOp(*clip, std::move(op));
-            return;
-        }
-    }
 
     GrAAType aaType = this->chooseAAType(aa, GrAllowMixedSamples::kNo);
     if (GrAAType::kCoverage == aaType) {
@@ -1214,16 +1171,6 @@ bool GrRenderTargetContext::drawFilledDRRect(const GrClip& clip,
     SkASSERT(!origInner.isEmpty());
     SkASSERT(!origOuter.isEmpty());
 
-    if (GrCaps::InstancedSupport::kNone != fContext->caps()->instancedSupport()) {
-        gr_instanced::OpAllocator* oa = this->drawingManager()->instancingAllocator();
-        std::unique_ptr<GrDrawOp> op(oa->recordDRRect(
-                origOuter, origInner, viewMatrix, std::move(paint), aa, fInstancedPipelineInfo));
-        if (op) {
-            this->addDrawOp(clip, std::move(op));
-            return true;
-        }
-    }
-
     SkTCopyOnFirstWrite<SkRRect> inner(origInner), outer(origOuter);
 
     GrAAType aaType = this->chooseAAType(aa, GrAllowMixedSamples::kNo);
@@ -1385,17 +1332,6 @@ void GrRenderTargetContext::drawOval(const GrClip& clip,
 
     AutoCheckFlush acf(this->drawingManager());
     const SkStrokeRec& stroke = style.strokeRec();
-
-    if (GrCaps::InstancedSupport::kNone != fContext->caps()->instancedSupport() &&
-        stroke.isFillStyle()) {
-        gr_instanced::OpAllocator* oa = this->drawingManager()->instancingAllocator();
-        std::unique_ptr<GrDrawOp> op(
-                oa->recordOval(oval, viewMatrix, std::move(paint), aa, fInstancedPipelineInfo));
-        if (op) {
-            this->addDrawOp(clip, std::move(op));
-            return;
-        }
-    }
 
     GrAAType aaType = this->chooseAAType(aa, GrAllowMixedSamples::kNo);
     if (GrAAType::kCoverage == aaType) {

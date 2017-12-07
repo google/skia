@@ -245,9 +245,6 @@ ContextInfo GrContextFactory::getContextInfoInternal(ContextType type, ContextOv
     if (ContextOverrides::kDisableNVPR & overrides) {
         grOptions.fSuppressPathRendering = true;
     }
-    if (ContextOverrides::kUseInstanced & overrides) {
-        grOptions.fEnableInstancedRendering = true;
-    }
     if (ContextOverrides::kAllowSRGBWithoutDecodeControl & overrides) {
         grOptions.fRequireDecodeDisableForSRGB = false;
     }
@@ -264,11 +261,6 @@ ContextInfo GrContextFactory::getContextInfoInternal(ContextType type, ContextOv
     }
     if (ContextOverrides::kRequireNVPRSupport & overrides) {
         if (!grCtx->caps()->shaderCaps()->pathRenderingSupport()) {
-            return ContextInfo();
-        }
-    }
-    if (ContextOverrides::kUseInstanced & overrides) {
-        if (GrCaps::InstancedSupport::kNone == grCtx->caps()->instancedSupport()) {
             return ContextInfo();
         }
     }

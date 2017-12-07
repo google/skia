@@ -57,21 +57,6 @@ public:
 
     bool preferVRAMUseOverFlushes() const { return fPreferVRAMUseOverFlushes; }
 
-    /**
-     * Indicates the level of support for gr_instanced::* functionality. A higher level includes
-     * all functionality from the levels below it.
-     */
-    enum class InstancedSupport {
-        kNone,
-        kBasic,
-        kMultisampled,
-        kMixedSampled
-    };
-
-    InstancedSupport instancedSupport() const { return fInstancedSupport; }
-
-    bool avoidInstancedDrawsToFPTargets() const { return fAvoidInstancedDrawsToFPTargets; }
-
     bool blacklistCoverageCounting() const { return fBlacklistCoverageCounting; }
 
     bool avoidStencilBuffers() const { return fAvoidStencilBuffers; }
@@ -211,7 +196,6 @@ protected:
     bool fMustClearUploadedBufferData                : 1;
 
     // Driver workaround
-    bool fAvoidInstancedDrawsToFPTargets             : 1;
     bool fBlacklistCoverageCounting                  : 1;
     bool fAvoidStencilBuffers                        : 1;
 
@@ -224,8 +208,6 @@ protected:
 
     // Vulkan doesn't support this (yet) and some drivers have issues, too
     bool fCrossContextTextureSupport                 : 1;
-
-    InstancedSupport fInstancedSupport;
 
     BlendEquationSupport fBlendEquationSupport;
     uint32_t fAdvBlendEqBlacklist;

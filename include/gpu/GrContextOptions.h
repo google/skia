@@ -78,10 +78,6 @@ struct GrContextOptions {
         level and LOD control (ie desktop or ES3). */
     bool fDoManualMipmapping = false;
 
-    /** Enable instanced rendering as long as all required functionality is supported by the HW.
-        Instanced rendering is still experimental at this point and disabled by default. */
-    bool fEnableInstancedRendering = false;
-
     /**
      * Disables distance field rendering for paths. Distance field computation can be expensive,
      * and yields no benefit if a path is not rendered multiple times with different transforms.
