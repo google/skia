@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "035a00ce_3c493f86",
+        "filename": "PRESUBMIT.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2017-12-07T16:17:40Z",
+      "side": 1,
+      "message": "I don\u0027t think so because they only update DEPS. But if we find we run into any bot which is affected by post upload hooks then we should definitely add them here.",
+      "parentUuid": "5a6d8912_a4938c35",
+      "range": {
+        "startLine": 38,
+        "startChar": 0,
+        "endLine": 38,
+        "endChar": 16
+      },
+      "revId": "71e6e8d316854d380e36ed6b915b3f623d26ad6e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "0500c224_1b8c55c8",
         "filename": "PRESUBMIT.py",
         "patchSetId": 1
