@@ -94,6 +94,15 @@ sk_sp<GrContext> GrContext::MakeGL(sk_sp<const GrGLInterface> interface,
     return context;
 }
 
+sk_sp<GrContext> GrContext::MakeGL(const GrGLInterface* interface) {
+    return MakeGL(sk_ref_sp(interface));
+}
+
+sk_sp<GrContext> GrContext::MakeGL(const GrGLInterface* interface,
+                                   const GrContextOptions& options) {
+    return MakeGL(sk_ref_sp(interface), options);
+}
+
 sk_sp<GrContext> GrContext::MakeMock(const GrMockOptions* mockOptions) {
     GrContextOptions defaultOptions;
     return MakeMock(mockOptions, defaultOptions);
