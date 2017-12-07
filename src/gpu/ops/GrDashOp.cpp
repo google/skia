@@ -88,6 +88,9 @@ struct DashCircleVertex {
 static void calc_dash_scaling(SkScalar* parallelScale, SkScalar* perpScale,
                             const SkMatrix& viewMatrix, const SkPoint pts[2]) {
     SkVector vecSrc = pts[1] - pts[0];
+    if (pts[1] == pts[0]) {
+        vecSrc.set(1.0, 0.0);
+    }
     SkScalar magSrc = vecSrc.length();
     SkScalar invSrc = magSrc ? SkScalarInvert(magSrc) : 0;
     vecSrc.scale(invSrc);
@@ -107,6 +110,9 @@ static void calc_dash_scaling(SkScalar* parallelScale, SkScalar* perpScale,
 // Stores the rotation matrix in rotMatrix, and the mapped points in ptsRot
 static void align_to_x_axis(const SkPoint pts[2], SkMatrix* rotMatrix, SkPoint ptsRot[2] = nullptr) {
     SkVector vec = pts[1] - pts[0];
+    if (pts[1] == pts[0]) {
+        vec.set(1.0, 0.0);
+    }
     SkScalar mag = vec.length();
     SkScalar inv = mag ? SkScalarInvert(mag) : 0;
 
@@ -489,6 +495,19 @@ private:
                         lineDone = true;
                     }
                 }
+            }
+
+            if (draw.fPtsRot[0].fX == draw.fPtsRot[1].fX &&
+                (0 != endAdj || 0 == startAdj) &&
+                hasCap) {
+                // At this point the fPtsRot[0]/[1] represent the start and end of the inner rect of
+                // dashes that we want to draw. The only way they can be equal is if the on interval
+                // is zero (or an edge case if the end of line ends at a full off interval, but this
+                // is handled as well). Thus if the on interval is zero then we need to draw a cap
+                // at this position if the stroke has caps. The spec says we only draw this point if
+                // point lies between [start of line, end of line). Thus we check if we are at the
+                // end (but not the start), and if so we don't draw the cap.
+                lineDone = false;
             }
 
             if (startAdj != 0) {
