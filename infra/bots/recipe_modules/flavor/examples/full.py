@@ -121,74 +121,94 @@ def GenTests(api):
       test += api.step_data(
           'read chromecast ip',
           stdout=api.raw_io.output('192.168.1.2:5555'))
+    if 'Test-Android' in buildername or 'Perf-Android' in buildername:
+      test += api.step_data(
+          'detect host adb',
+          stdout=api.raw_io.output('adb.1.0.35'))
     yield test
 
   builder = 'Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Release-All'
   yield (
-      api.test('exceptions') +
-      api.properties(buildername=builder,
-                     repository='https://skia.googlesource.com/skia.git',
-                     revision='abc123',
-                     path_config='kitchen',
-                     swarm_out_dir='[SWARM_OUT_DIR]',
-                     is_testing_exceptions='True')
+    api.test('exceptions') +
+    api.properties(buildername=builder,
+                   repository='https://skia.googlesource.com/skia.git',
+                   revision='abc123',
+                   path_config='kitchen',
+                   swarm_out_dir='[SWARM_OUT_DIR]',
+                   is_testing_exceptions='True')
   )
 
   builder = 'Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-All-Android'
   yield (
-      api.test('failed_infra_step') +
-      api.properties(buildername=builder,
-                     repository='https://skia.googlesource.com/skia.git',
-                     revision='abc123',
-                     path_config='kitchen',
-                     swarm_out_dir='[SWARM_OUT_DIR]') +
-      api.step_data('dump log', retcode=1)
+    api.test('failed_infra_step') +
+    api.properties(buildername=builder,
+                   repository='https://skia.googlesource.com/skia.git',
+                   revision='abc123',
+                   path_config='kitchen',
+                   swarm_out_dir='[SWARM_OUT_DIR]') +
+    api.step_data('detect host adb', stdout=api.raw_io.output('adb.1.0.35')) +
+    api.step_data('dump log', retcode=1)
   )
 
   builder = 'Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-All-Android'
   yield (
-      api.test('failed_read_version') +
-      api.properties(buildername=builder,
-                     repository='https://skia.googlesource.com/skia.git',
-                     revision='abc123',
-                     path_config='kitchen',
-                     swarm_out_dir='[SWARM_OUT_DIR]') +
-      api.step_data('read /sdcard/revenge_of_the_skiabot/SK_IMAGE_VERSION',
-                    retcode=1)
+    api.test('failed_read_version') +
+    api.properties(buildername=builder,
+                   repository='https://skia.googlesource.com/skia.git',
+                   revision='abc123',
+                   path_config='kitchen',
+                   swarm_out_dir='[SWARM_OUT_DIR]') +
+    api.step_data('detect host adb', stdout=api.raw_io.output('adb.1.0.35')) +
+    api.step_data('read /sdcard/revenge_of_the_skiabot/SK_IMAGE_VERSION',
+                  retcode=1)
   )
 
   builder = 'Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-All-Android'
   yield (
-      api.test('retry_adb_command') +
-      api.properties(buildername=builder,
-                     repository='https://skia.googlesource.com/skia.git',
-                     revision='abc123',
-                     path_config='kitchen',
-                     swarm_out_dir='[SWARM_OUT_DIR]') +
-      api.step_data('mkdir /sdcard/revenge_of_the_skiabot/resources',
-                    retcode=1)
+    api.test('retry_adb_command') +
+    api.properties(buildername=builder,
+                   repository='https://skia.googlesource.com/skia.git',
+                   revision='abc123',
+                   path_config='kitchen',
+                   swarm_out_dir='[SWARM_OUT_DIR]') +
+    api.step_data('detect host adb', stdout=api.raw_io.output('adb.1.0.35')) +
+    api.step_data('mkdir /sdcard/revenge_of_the_skiabot/resources',
+                  retcode=1)
   )
 
   builder = 'Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-All-Android'
   fail_step_name = 'mkdir /sdcard/revenge_of_the_skiabot/resources'
   yield (
-      api.test('retry_adb_command_retries_exhausted') +
-      api.properties(buildername=builder,
-                     repository='https://skia.googlesource.com/skia.git',
-                     revision='abc123',
-                     path_config='kitchen',
-                     swarm_out_dir='[SWARM_OUT_DIR]') +
-      api.step_data(fail_step_name, retcode=1) +
-      api.step_data(fail_step_name + ' (attempt 2)', retcode=1) +
-      api.step_data(fail_step_name + ' (attempt 3)', retcode=1)
+    api.test('retry_adb_command_retries_exhausted') +
+    api.properties(buildername=builder,
+                   repository='https://skia.googlesource.com/skia.git',
+                   revision='abc123',
+                   path_config='kitchen',
+                   swarm_out_dir='[SWARM_OUT_DIR]') +
+    api.step_data('detect host adb', stdout=api.raw_io.output('adb.1.0.35')) +
+    api.step_data(fail_step_name, retcode=1) +
+    api.step_data(fail_step_name + ' (attempt 2)', retcode=1) +
+    api.step_data(fail_step_name + ' (attempt 3)', retcode=1)
   )
 
   yield (
-      api.test('cpu_scale_failed') +
-      api.properties(buildername=builder,
-                     repository='https://skia.googlesource.com/skia.git',
-                     revision='abc123',
-                     path_config='kitchen',
-                     swarm_out_dir='[SWARM_OUT_DIR]') +
-      api.step_data('Scale CPU to 0.600000', retcode=1)
+    api.test('cpu_scale_failed') +
+    api.properties(buildername=builder,
+                   repository='https://skia.googlesource.com/skia.git',
+                   revision='abc123',
+                   path_config='kitchen',
+                   swarm_out_dir='[SWARM_OUT_DIR]') +
+    api.step_data('detect host adb', stdout=api.raw_io.output('adb.1.0.35')) +
+    api.step_data('Scale CPU to 0.600000', retcode=1)
+  )
+
+  yield (
+    api.test('adb_not_found') +
+    api.properties(buildername=builder,
+                   repository='https://skia.googlesource.com/skia.git',
+                   revision='abc123',
+                   path_config='kitchen',
+                   swarm_out_dir='[SWARM_OUT_DIR]') +
+    api.step_data('detect host adb', stdout=api.raw_io.output('Not Found')) +
+    api.step_data('Adb not found', retcode=1)
   )

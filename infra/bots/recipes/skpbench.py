@@ -147,7 +147,8 @@ def GenTests(api):
       api.step_data('get swarming bot id',
           stdout=api.raw_io.output('skia-bot-123')) +
       api.step_data('get swarming task id',
-          stdout=api.raw_io.output('123456'))
+          stdout=api.raw_io.output('123456')) +
+      api.step_data('detect host adb', stdout=api.raw_io.output('adb.1.0.35'))
     )
 
     yield test
@@ -174,5 +175,6 @@ def GenTests(api):
         buildername=b,
         gerrit_project='skia',
         gerrit_url='https://skia-review.googlesource.com/',
-    )
+    ) +
+    api.step_data('detect host adb', stdout=api.raw_io.output('adb.1.0.35'))
   )
