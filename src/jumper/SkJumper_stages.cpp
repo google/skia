@@ -1502,3 +1502,10 @@ STAGE(gauss_a_to_rgba, Ctx::None) {
     g = a;
     b = a;
 }
+
+STAGE(bilerp_8888, SkJumper_BilerpCtx* ctx) {
+    r = 0.5f;
+    g = 0.0f;
+    b = 1.0f;
+    a = 1.0f;
+}

@@ -325,6 +325,8 @@ bool SkImageShader::onAppendStages(const StageRec& rec) const {
     limit_y->scale = pm.height();
     limit_y->invScale = 1.0f / pm.height();
 
+    bool is_srgb = rec.fDstCS && (!info.colorSpace() || info.gammaCloseToSRGB());
+
     auto append_tiling_and_gather = [&] {
         switch (fTileModeX) {
             case kClamp_TileMode:  /* The gather_xxx stage will clamp for us. */   break;
@@ -346,7 +348,7 @@ bool SkImageShader::onAppendStages(const StageRec& rec) const {
             case kRGBA_F16_SkColorType:  p->append(SkRasterPipeline::gather_f16,  gather); break;
             default: SkASSERT(false);
         }
-        if (rec.fDstCS && (!info.colorSpace() || info.gammaCloseToSRGB())) {
+        if (is_srgb) {
             p->append_from_srgb(info.alphaType());
         }
     };
@@ -364,8 +366,21 @@ bool SkImageShader::onAppendStages(const StageRec& rec) const {
         p->append(SkRasterPipeline::accumulate, sampler);
     };
 
-    if (quality == kNone_SkFilterQuality) {
+    // TODO: one bilerp_foo for each color type, replace the other kLow_SkFilterQuality case.
+    if (quality == kLow_SkFilterQuality && info.colorType() == kRGBA_8888_SkColorType) {
+        auto ctx = alloc->make<SkJumper_BilerpCtx>();
+        ctx->pixels    = pm.addr();
+        ctx->row_bytes = pm.rowBytes();
+        ctx->width     = pm.width();
+        ctx->height    = pm.height();
+        ctx->tile_x    = (SkJumper_BilerpCtx::TileMode)fTileModeX;
+        ctx->tile_y    = (SkJumper_BilerpCtx::TileMode)fTileModeY;
+        ctx->is_srgb   = is_srgb;
+        p->append(SkRasterPipeline::bilerp_8888, ctx);
+
+    } else if (quality == kNone_SkFilterQuality) {
         append_tiling_and_gather();
+
     } else if (quality == kLow_SkFilterQuality) {
         p->append(SkRasterPipeline::save_xy, sampler);
 
@@ -375,6 +390,7 @@ bool SkImageShader::onAppendStages(const StageRec& rec) const {
         sample(SkRasterPipeline::bilinear_px, SkRasterPipeline::bilinear_py);
 
         p->append(SkRasterPipeline::move_dst_src);
+
     } else {
         p->append(SkRasterPipeline::save_xy, sampler);
 
