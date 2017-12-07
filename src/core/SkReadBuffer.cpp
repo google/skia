@@ -196,14 +196,14 @@ void SkReadBuffer::readColor4f(SkColor4f* color) {
 }
 
 void SkReadBuffer::readPoint(SkPoint* point) {
-    point->fX = fReader.readScalar();
-    point->fY = fReader.readScalar();
+    point->fX = this->readScalar();
+    point->fY = this->readScalar();
 }
 
 void SkReadBuffer::readPoint3(SkPoint3* point) {
-    point->fX = fReader.readScalar();
-    point->fY = fReader.readScalar();
-    point->fZ = fReader.readScalar();
+    point->fX = this->readScalar();
+    point->fY = this->readScalar();
+    point->fZ = this->readScalar();
 }
 
 void SkReadBuffer::readMatrix(SkMatrix* matrix) {
@@ -417,7 +417,7 @@ SkFlattenable* SkReadBuffer::readFlattenable(SkFlattenable::Type ft) {
         } else {
             // Read the index.  We are guaranteed that the first byte
             // is zeroed, so we must shift down a byte.
-            uint32_t index = fReader.readU32() >> 8;
+            uint32_t index = this->read32() >> 8;
             if (!this->validate(index > 0)) {
                 return nullptr; // writer failed to give us the flattenable
             }
@@ -440,7 +440,7 @@ SkFlattenable* SkReadBuffer::readFlattenable(SkFlattenable::Type ft) {
     // if we get here, factory may still be null, but if that is the case, the
     // failure was ours, not the writer.
     sk_sp<SkFlattenable> obj;
-    uint32_t sizeRecorded = fReader.readU32();
+    uint32_t sizeRecorded = this->read32();
     if (factory) {
         size_t offset = fReader.offset();
         obj = (*factory)(*this);
