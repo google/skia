@@ -9,25 +9,6 @@
 
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 
-void GrCCPRCubicShader::emitWind(GrGLSLShaderBuilder* s, const char* pts,
-                                 const char* outputWind) const {
-
-    s->codeAppendf("float area_times_2 = determinant(float3x3(1, %s[0], "
-                                                             "1, %s[2], "
-                                                             "0, %s[3] - %s[1]));",
-                                                             pts, pts, pts, pts);
-    // Drop curves that are nearly flat. The KLM  math becomes unstable in this case.
-    s->codeAppendf("if (2 * abs(area_times_2) < length(%s[3] - %s[0])) {", pts, pts);
-#ifndef SK_BUILD_FOR_MAC
-    s->codeAppend (    "return;");
-#else
-    // Returning from this geometry shader makes Mac very unhappy. Instead we make wind 0.
-    s->codeAppend (    "area_times_2 = 0;");
-#endif
-    s->codeAppend ("}");
-    s->codeAppendf("%s = sign(area_times_2);", outputWind);
-}
-
 void GrCCPRCubicShader::emitSetupCode(GrGLSLShaderBuilder* s, const char* pts,
                                       const char* segmentId, const char* wind,
                                       GeometryVars* vars) const {

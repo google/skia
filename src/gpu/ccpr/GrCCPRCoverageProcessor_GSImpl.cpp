@@ -49,11 +49,11 @@ protected:
         using InputType = GrGLSLGeometryBuilder::InputType;
         using OutputType = GrGLSLGeometryBuilder::OutputType;
 
-        int numPts = fShader->getNumInputPoints();
-        SkASSERT(3 == numPts || 4 == numPts);
+        int numInputPoints = proc.numInputPoints();
+        SkASSERT(3 == numInputPoints || 4 == numInputPoints);
 
-        g->codeAppendf("float%ix2 pts = float%ix2(", numPts, numPts);
-        for (int i = 0; i < numPts; ++i) {
+        g->codeAppendf("float%ix2 pts = float%ix2(", numInputPoints, numInputPoints);
+        for (int i = 0; i < numInputPoints; ++i) {
             g->codeAppend (i ? ", " : "");
             g->codeAppendf("sk_in[%i].sk_Position.xy", i);
         }
@@ -61,7 +61,11 @@ protected:
 
         GrShaderVar wind("wind", kHalf_GrSLType);
         g->declareGlobal(wind);
-        fShader->emitWind(g, "pts", wind.c_str());
+        g->codeAppend ("float area_x2 = determinant(float2x2(pts[0] - pts[1], pts[0] - pts[2]));");
+        if (4 == numInputPoints) {
+            g->codeAppend ("area_x2 += determinant(float2x2(pts[0] - pts[2], pts[0] - pts[3]));");
+        }
+        g->codeAppendf("%s = sign(area_x2);", wind.c_str());
 
         SkString emitVertexFn;
         SkSTArray<2, GrShaderVar> emitArgs;
@@ -85,12 +89,8 @@ protected:
         Shader::GeometryVars vars;
         fShader->emitSetupCode(g, "pts", "sk_InvocationID", wind.c_str(), &vars);
         int maxPoints = this->onEmitGeometryShader(g, wind, emitVertexFn.c_str(), vars);
-
-        int numInputPoints = fShader->getNumInputPoints();
-        SkASSERT(3 == numInputPoints || 4 == numInputPoints);
         InputType inputType = (3 == numInputPoints) ? InputType::kTriangles
                                                     : InputType::kLinesAdjacency;
-
         g->configure(inputType, OutputType::kTriangleStrip, maxPoints, fShader->getNumSegments());
     }
 
@@ -117,7 +117,6 @@ public:
 
         const char* hullPts = vars.fHullVars.fAlternatePoints;
         if (!hullPts) {
-            SkASSERT(fShader->getNumInputPoints() == numSides);
             hullPts = "pts";
         }
 

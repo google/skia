@@ -93,8 +93,8 @@ public:
     PrimitiveTallies endContour(); // Returns the numbers of primitives needed to draw the contour.
 
 private:
-    inline void appendMonotonicQuadratics(const Sk2f& p0, const Sk2f& p1, const Sk2f& p2,
-                                          bool allowChop = true);
+    inline void appendMonotonicQuadratics(const Sk2f& p0, const Sk2f& p1, const Sk2f& p2);
+    inline void appendSingleMonotonicQuadratic(const Sk2f& p0, const Sk2f& p1, const Sk2f& p2);
 
     using AppendCubicFn = void(GrCCPRGeometry::*)(const Sk2f& p0, const Sk2f& p1,
                                                   const Sk2f& p2, const Sk2f& p3,
