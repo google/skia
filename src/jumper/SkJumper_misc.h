@@ -8,7 +8,7 @@
 #ifndef SkJumper_misc_DEFINED
 #define SkJumper_misc_DEFINED
 
-#include "SkJumper.h"  // for memcpy()
+#include <string.h>  // for memcpy()
 
 // Miscellany used by SkJumper_stages.cpp and SkJumper_vectors.h.
 

@@ -16,17 +16,10 @@
 
 #if defined(__ARM_NEON)
     #include <arm_neon.h>
-    #if defined(__arm__)
-        #define ABI __attribute__((pcs("aapcs-vfp")))
-    #else
-        #define ABI
-    #endif
 #elif defined(__SSE2__)
     #include <immintrin.h>
-    #define ABI
 #else
     #include <math.h>
-    #define ABI
 #endif
 
 #if !defined(JUMPER_IS_OFFLINE)
