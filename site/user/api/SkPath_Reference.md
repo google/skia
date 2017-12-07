@@ -1,5 +1,5 @@
 SkPath Reference
-===
+===</table>
 
 # <a name="Path"></a> Path
 <a href="#Path">Path</a> contains <a href="#Line">Lines</a> and <a href="#Curve">Curves</a> which can be stroked or filled. <a href="#Contour">Contour</a> is 
