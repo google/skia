@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "96e0273e_c6db6e72",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-12-07T19:17:43Z",
+      "side": 1,
+      "message": "Please indicate that this is an infra change.",
+      "range": {
+        "startLine": 7,
+        "startChar": 0,
+        "endLine": 7,
+        "endChar": 1
+      },
+      "revId": "97a5c3b2f8f708a9c9ed8ab0e49e2d900bf672ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fa6e1fb9_67d79027",
+        "filename": "infra/bots/git_utils.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-12-07T19:17:43Z",
+      "side": 1,
+      "message": "IMO this should be None, but I\u0027m also having trouble imagining when we would want this.  If we failed to upload because there were no changes, then we still failed to upload a CL.",
+      "range": {
+        "startLine": 77,
+        "startChar": 13,
+        "endLine": 77,
+        "endChar": 15
+      },
+      "revId": "97a5c3b2f8f708a9c9ed8ab0e49e2d900bf672ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
