@@ -40,6 +40,7 @@ declare_args() {
   skia_enable_spirv_validation = is_skia_dev_build && is_debug
   skia_enable_tools = is_skia_dev_build
   skia_enable_vulkan_debug_layers = is_skia_dev_build && is_debug
+  skia_vulkan_header = ""
   skia_vulkan_sdk = getenv("VULKAN_SDK")
   skia_qt_path = getenv("QT_PATH")
   skia_compile_processors = false
@@ -63,13 +64,13 @@ declare_args() {
   }
 }
 declare_args() {
-  skia_vulkan_headers = ""
+  skia_tools_vulkan_header_dir = ""
   if (skia_use_vulkan) {
     # When buliding on Android we get the header via the NDK so no need for any extra path.
     if (is_fuchsia) {
-      skia_vulkan_headers = "$fuchsia_vulkan_sdk/include"
+      skia_tools_vulkan_header_dir = "$fuchsia_vulkan_sdk/include"
     } else if (is_linux || is_win) {
-      skia_vulkan_headers = "$skia_vulkan_sdk/include"
+      skia_tools_vulkan_header_dir = "$skia_vulkan_sdk/include"
     }
   }
 }
@@ -114,8 +115,8 @@ if (skia_use_metal) {
 # Skia public API, generally provided by :skia.
 config("skia_public") {
   include_dirs = skia_public_includes
-  if (skia_vulkan_headers != "") {
-    include_dirs += [ skia_vulkan_headers ]
+  if (skia_tools_vulkan_header_dir != "") {
+    include_dirs += [ skia_tools_vulkan_header_dir ]
   }
   defines = []
   if (is_component_build) {
@@ -178,6 +179,9 @@ config("skia_private") {
   lib_dirs = []
   if (skia_enable_gpu) {
     include_dirs += [ "src/gpu" ]
+    if (is_skia_dev_build && skia_use_vulkan) {
+      include_dirs += [ "tools/gpu/vk" ]
+    }
   }
   if (skia_use_angle) {
     defines += [ "SK_ANGLE" ]
@@ -581,6 +585,13 @@ optional("gpu") {
     if (skia_enable_vulkan_debug_layers) {
       public_defines += [ "SK_ENABLE_VK_LAYERS" ]
     }
+    if (skia_vulkan_header != "") {
+      public_defines += [ "SK_VULKAN_HEADER=\"$skia_vulkan_header\"" ]
+    } else {
+      if (is_skia_dev_build) {
+        public_defines += [ "SK_VULKAN_HEADER=\"GrVulkanDefines.h\"" ]
+      }
+    }
   }
   if (skia_enable_spirv_validation) {
     deps += [ "//third_party/spirv-tools" ]
@@ -887,6 +898,10 @@ if (skia_enable_tools) {
 
   config("skia.h_config") {
     include_dirs = [ "$target_gen_dir" ]
+    if (skia_use_vulkan) {
+      # So we can get the header which includes vulkan
+      include_dirs += [ "tools/gpu/vk" ]
+    }
   }
   action("skia.h") {
     public_configs = [ ":skia.h_config" ]
