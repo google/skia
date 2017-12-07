@@ -475,7 +475,7 @@ def PostUploadHook(cl, change, output_api):
     # due to PostUploadHooks) invalidates the CQ+2 vote from the
     # "--use-commit-queue" flag to "git cl upload".
     if cl.GetIssueOwner() in AUTO_COMMIT_BOTS:
-      return
+      return results
 
     original_description_lines, footers = cl.GetDescriptionFooters()
     new_description_lines = list(original_description_lines)
