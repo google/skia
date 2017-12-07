@@ -211,8 +211,10 @@ Regenerator::Result Regenerator::doRegen() {
         }
     }
 
+    bool isPerspectiveDistanceField =
+            fSubRun->drawAsDistanceFields() && fViewMatrix.hasPerspective();
     Result result;
-    auto vertexStride = GetVertexStride(fSubRun->maskFormat());
+    auto vertexStride = GetVertexStride(fSubRun->maskFormat(), isPerspectiveDistanceField);
     char* currVertex = fBlob->fVertices + fSubRun->vertexStartIndex() +
                        fCurrGlyph * kVerticesPerGlyph * vertexStride;
     result.fFirstVertex = currVertex;
@@ -300,7 +302,8 @@ Regenerator::Result Regenerator::regenerate() {
             return this->doRegen<false, true, true, true>();
         case kNoRegen: {
             Result result;
-            auto vertexStride = GetVertexStride(fSubRun->maskFormat());
+            bool isSDFPerspective = fSubRun->drawAsDistanceFields() && fViewMatrix.hasPerspective();
+            auto vertexStride = GetVertexStride(fSubRun->maskFormat(), isSDFPerspective);
             result.fGlyphsRegenerated = fSubRun->glyphCount() - fCurrGlyph;
             result.fFirstVertex = fBlob->fVertices + fSubRun->vertexStartIndex() +
                                   fCurrGlyph * kVerticesPerGlyph * vertexStride;
