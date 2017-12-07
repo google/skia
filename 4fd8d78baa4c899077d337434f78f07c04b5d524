@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "df009f51_fa86cd00",
+        "filename": "src/gpu/ops/GrDashOp.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 505,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-12-07T19:16:38Z",
+      "side": 1,
+      "message": "then -\u003e the",
+      "revId": "4fd8d78baa4c899077d337434f78f07c04b5d524",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
