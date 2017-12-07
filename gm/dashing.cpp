@@ -332,7 +332,7 @@ protected:
         return SkString("dashing4");
     }
 
-    SkISize onISize() { return SkISize::Make(640, 1050); }
+    SkISize onISize() { return SkISize::Make(640, 1100); }
 
     virtual void onDraw(SkCanvas* canvas) {
         constexpr struct {
@@ -409,6 +409,16 @@ protected:
         canvas->translate(0, SkIntToScalar(50));
         paint.setStrokeCap(SkPaint::kSquare_Cap);
         drawline(canvas, 0, 30, paint);
+
+        // Test we draw the cap when the line length is zero.
+        canvas->translate(0, SkIntToScalar(50));
+        paint.setStrokeCap(SkPaint::kRound_Cap);
+        paint.setColor(0xFF000000);
+        paint.setStrokeWidth(11);
+        drawline(canvas, 0, 30, paint, 0);
+
+        canvas->translate(SkIntToScalar(100), 0);
+        drawline(canvas, 1, 30, paint, 0);
     }
 };
 
