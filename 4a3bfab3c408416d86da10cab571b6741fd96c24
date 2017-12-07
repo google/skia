@@ -52,6 +52,23 @@
       "revId": "4a3bfab3c408416d86da10cab571b6741fd96c24",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "32effa57_2892b734",
+        "filename": "src/core/SkReadBuffer.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 386,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-12-07T17:49:57Z",
+      "side": 1,
+      "message": "Can we fold this conditional into the branch above?\n\nLooks like orig approach (index \u003d\u003d 0 || index \u003e fTFCount) would work.",
+      "revId": "4a3bfab3c408416d86da10cab571b6741fd96c24",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
