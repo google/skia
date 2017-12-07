@@ -76,6 +76,12 @@ static inline U8CPU Filter_8(unsigned x, unsigned y,
     return result >> 8;
 }
 
+/*****************************************************************************
+ *
+ *  D32 functions
+ *
+ */
+
 // SRC == 8888
 
 #define FILTER_PROC(x, y, a, b, c, d, dst)   NAME_WRAP(Filter_32_opaque)(x, y, a, b, c, d, dst)
@@ -97,6 +103,39 @@ static inline U8CPU Filter_8(unsigned x, unsigned y,
                                 SkASSERT(state.fAlphaScale < 256)
 #define PREAMBLE(state)         unsigned alphaScale = state.fAlphaScale
 #define RETURNDST(src)          SkAlphaMulQ(src, alphaScale)
+#define SRC_TO_FILTER(src)      src
+#include "SkBitmapProcState_sample.h"
+
+// SRC == 565
+
+#undef FILTER_PROC
+#define FILTER_PROC(x, y, a, b, c, d, dst) \
+    do {                                                        \
+        uint32_t tmp = Filter_565_Expanded(x, y, a, b, c, d);   \
+        *(dst) = SkExpanded_565_To_PMColor(tmp);                \
+    } while (0)
+
+#define MAKENAME(suffix)        NAME_WRAP(S16_opaque_D32 ## suffix)
+#define SRCTYPE                 uint16_t
+#define CHECKSTATE(state)       SkASSERT(kRGB_565_SkColorType == state.fPixmap.colorType()); \
+                                SkASSERT(state.fAlphaScale == 256)
+#define RETURNDST(src)          SkPixel16ToPixel32(src)
+#define SRC_TO_FILTER(src)      src
+#include "SkBitmapProcState_sample.h"
+
+#undef FILTER_PROC
+#define FILTER_PROC(x, y, a, b, c, d, dst) \
+    do {                                                                    \
+        uint32_t tmp = Filter_565_Expanded(x, y, a, b, c, d);               \
+        *(dst) = SkAlphaMulQ(SkExpanded_565_To_PMColor(tmp), alphaScale);   \
+    } while (0)
+
+#define MAKENAME(suffix)        NAME_WRAP(S16_alpha_D32 ## suffix)
+#define SRCTYPE                 uint16_t
+#define CHECKSTATE(state)       SkASSERT(kRGB_565_SkColorType == state.fPixmap.colorType()); \
+                                SkASSERT(state.fAlphaScale < 256)
+#define PREAMBLE(state)         unsigned alphaScale = state.fAlphaScale
+#define RETURNDST(src)          SkAlphaMulQ(SkPixel16ToPixel32(src), alphaScale)
 #define SRC_TO_FILTER(src)      src
 #include "SkBitmapProcState_sample.h"
 
