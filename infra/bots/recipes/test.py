@@ -59,6 +59,10 @@ def dm_flags(api, bot):
   if '-x86-' in bot and not 'NexusPlayer' in bot:
     args.extend(['--threads', '4'])
 
+  # Nexus7 runs out of memory due to having 4 cores and only 1G RAM.
+  if 'CPU' in bot and 'Nexus7' in bot:
+    args.extend(['--threads', '3'])
+
   if 'Chromecast' in bot:
     args.extend(['--threads', '0'])
 
@@ -915,6 +919,7 @@ TEST_BUILDERS = [
   'Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-All-Android_CCPR',
   'Test-Android-Clang-Nexus10-CPU-Exynos5250-arm-Release-All-Android',
   'Test-Android-Clang-Nexus5-GPU-Adreno330-arm-Release-All-Android',
+  'Test-Android-Clang-Nexus7-CPU-Tegra3-arm-Release-All-Android',
   'Test-Android-Clang-Nexus7-GPU-Tegra3-arm-Debug-All-Android',
   'Test-Android-Clang-NexusPlayer-CPU-Moorefield-x86-Release-All-Android',
   'Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-All-Android_Vulkan',

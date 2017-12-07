@@ -336,9 +336,9 @@ def RunSteps(api):
 TEST_BUILDERS = [
   ('Perf-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-All-'
    'Android_Vulkan'),
-  'Perf-Android-Clang-Nexus10-CPU-Exynos5250-arm-Release-All-Android',
   'Perf-Android-Clang-Nexus5-GPU-Adreno330-arm-Debug-All-Android',
   'Perf-Android-Clang-Nexus5x-GPU-Adreno418-arm64-Release-All-Android',
+  'Perf-Android-Clang-Nexus7-CPU-Tegra3-arm-Release-All-Android',
   'Perf-Android-Clang-Nexus7-GPU-Tegra3-arm-Release-All-Android',
   'Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-All-Android',
   'Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-All-Android_Vulkan',
