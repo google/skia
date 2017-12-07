@@ -210,6 +210,30 @@
       "revId": "9dcc112eb3263990ad67af76411cadd93b236b48",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e2bcadfa_03356ba4",
+        "filename": "infra/bots/recipe_modules/flavor/gn_flavor.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-12-07T21:45:27Z",
+      "side": 1,
+      "message": "It\u0027s basically just that...\n\n   - where the test depends on win_toolchain, we\u0027ll conditionally depend on win_toolchain_2015\n   - and in the same conditions, here point into the correct subdirectory.",
+      "parentUuid": "ad4cec83_b795b408",
+      "range": {
+        "startLine": 36,
+        "startChar": 0,
+        "endLine": 38,
+        "endChar": 50
+      },
+      "revId": "9dcc112eb3263990ad67af76411cadd93b236b48",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
