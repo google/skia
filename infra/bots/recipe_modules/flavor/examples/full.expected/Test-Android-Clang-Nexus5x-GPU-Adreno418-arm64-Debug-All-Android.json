@@ -50,7 +50,7 @@
   },
   {
     "cmd": [
-      "/usr/bin/adb.1.0.35",
+      "/opt/infra-android/tools/adb",
       "push",
       "file.txt",
       "file.txt"
@@ -95,7 +95,7 @@
   },
   {
     "cmd": [
-      "/usr/bin/adb.1.0.35",
+      "/opt/infra-android/tools/adb",
       "shell",
       "rm",
       "-rf",
@@ -113,7 +113,7 @@
   },
   {
     "cmd": [
-      "/usr/bin/adb.1.0.35",
+      "/opt/infra-android/tools/adb",
       "shell",
       "mkdir",
       "-p",
@@ -131,7 +131,7 @@
   },
   {
     "cmd": [
-      "/usr/bin/adb.1.0.35",
+      "/opt/infra-android/tools/adb",
       "shell",
       "mkdir",
       "-p",
@@ -151,7 +151,7 @@
     "cmd": [
       "python",
       "-u",
-      "\nimport os\nimport subprocess\nimport sys\nhost   = sys.argv[1]\ndevice = sys.argv[2]\nfor d, _, fs in os.walk(host):\n  p = os.path.relpath(d, host)\n  if p != '.' and p.startswith('.'):\n    continue\n  for f in fs:\n    print os.path.join(p,f)\n    subprocess.check_call(['/usr/bin/adb.1.0.35', 'push',\n                           os.path.realpath(os.path.join(host, p, f)),\n                           os.path.join(device, p, f)])\n",
+      "\nimport os\nimport subprocess\nimport sys\nhost   = sys.argv[1]\ndevice = sys.argv[2]\nfor d, _, fs in os.walk(host):\n  p = os.path.relpath(d, host)\n  if p != '.' and p.startswith('.'):\n    continue\n  for f in fs:\n    print os.path.join(p,f)\n    subprocess.check_call(['/opt/infra-android/tools/adb', 'push',\n                           os.path.realpath(os.path.join(host, p, f)),\n                           os.path.join(device, p, f)])\n",
       "[START_DIR]/skia/resources",
       "/sdcard/revenge_of_the_skiabot/resources"
     ],
@@ -176,7 +176,7 @@
       "@@@STEP_LOG_LINE@python.inline@    continue@@@",
       "@@@STEP_LOG_LINE@python.inline@  for f in fs:@@@",
       "@@@STEP_LOG_LINE@python.inline@    print os.path.join(p,f)@@@",
-      "@@@STEP_LOG_LINE@python.inline@    subprocess.check_call(['/usr/bin/adb.1.0.35', 'push',@@@",
+      "@@@STEP_LOG_LINE@python.inline@    subprocess.check_call(['/opt/infra-android/tools/adb', 'push',@@@",
       "@@@STEP_LOG_LINE@python.inline@                           os.path.realpath(os.path.join(host, p, f)),@@@",
       "@@@STEP_LOG_LINE@python.inline@                           os.path.join(device, p, f)])@@@",
       "@@@STEP_LOG_END@python.inline@@@"
@@ -212,7 +212,7 @@
   },
   {
     "cmd": [
-      "/usr/bin/adb.1.0.35",
+      "/opt/infra-android/tools/adb",
       "shell",
       "cat",
       "/sdcard/revenge_of_the_skiabot/SKP_VERSION"
@@ -230,7 +230,7 @@
   },
   {
     "cmd": [
-      "/usr/bin/adb.1.0.35",
+      "/opt/infra-android/tools/adb",
       "shell",
       "rm",
       "-f",
@@ -248,7 +248,7 @@
   },
   {
     "cmd": [
-      "/usr/bin/adb.1.0.35",
+      "/opt/infra-android/tools/adb",
       "shell",
       "rm",
       "-rf",
@@ -266,7 +266,7 @@
   },
   {
     "cmd": [
-      "/usr/bin/adb.1.0.35",
+      "/opt/infra-android/tools/adb",
       "shell",
       "mkdir",
       "-p",
@@ -286,7 +286,7 @@
     "cmd": [
       "python",
       "-u",
-      "\nimport os\nimport subprocess\nimport sys\nhost   = sys.argv[1]\ndevice = sys.argv[2]\nfor d, _, fs in os.walk(host):\n  p = os.path.relpath(d, host)\n  if p != '.' and p.startswith('.'):\n    continue\n  for f in fs:\n    print os.path.join(p,f)\n    subprocess.check_call(['/usr/bin/adb.1.0.35', 'push',\n                           os.path.realpath(os.path.join(host, p, f)),\n                           os.path.join(device, p, f)])\n",
+      "\nimport os\nimport subprocess\nimport sys\nhost   = sys.argv[1]\ndevice = sys.argv[2]\nfor d, _, fs in os.walk(host):\n  p = os.path.relpath(d, host)\n  if p != '.' and p.startswith('.'):\n    continue\n  for f in fs:\n    print os.path.join(p,f)\n    subprocess.check_call(['/opt/infra-android/tools/adb', 'push',\n                           os.path.realpath(os.path.join(host, p, f)),\n                           os.path.join(device, p, f)])\n",
       "[START_DIR]/skp",
       "/sdcard/revenge_of_the_skiabot/skps"
     ],
@@ -311,7 +311,7 @@
       "@@@STEP_LOG_LINE@python.inline@    continue@@@",
       "@@@STEP_LOG_LINE@python.inline@  for f in fs:@@@",
       "@@@STEP_LOG_LINE@python.inline@    print os.path.join(p,f)@@@",
-      "@@@STEP_LOG_LINE@python.inline@    subprocess.check_call(['/usr/bin/adb.1.0.35', 'push',@@@",
+      "@@@STEP_LOG_LINE@python.inline@    subprocess.check_call(['/opt/infra-android/tools/adb', 'push',@@@",
       "@@@STEP_LOG_LINE@python.inline@                           os.path.realpath(os.path.join(host, p, f)),@@@",
       "@@@STEP_LOG_LINE@python.inline@                           os.path.join(device, p, f)])@@@",
       "@@@STEP_LOG_END@python.inline@@@"
@@ -319,7 +319,7 @@
   },
   {
     "cmd": [
-      "/usr/bin/adb.1.0.35",
+      "/opt/infra-android/tools/adb",
       "push",
       "[START_DIR]/tmp/SKP_VERSION",
       "/sdcard/revenge_of_the_skiabot/SKP_VERSION"
@@ -364,7 +364,7 @@
   },
   {
     "cmd": [
-      "/usr/bin/adb.1.0.35",
+      "/opt/infra-android/tools/adb",
       "shell",
       "cat",
       "/sdcard/revenge_of_the_skiabot/SK_IMAGE_VERSION"
@@ -382,7 +382,7 @@
   },
   {
     "cmd": [
-      "/usr/bin/adb.1.0.35",
+      "/opt/infra-android/tools/adb",
       "shell",
       "rm",
       "-f",
@@ -400,7 +400,7 @@
   },
   {
     "cmd": [
-      "/usr/bin/adb.1.0.35",
+      "/opt/infra-android/tools/adb",
       "shell",
       "rm",
       "-rf",
@@ -418,7 +418,7 @@
   },
   {
     "cmd": [
-      "/usr/bin/adb.1.0.35",
+      "/opt/infra-android/tools/adb",
       "shell",
       "mkdir",
       "-p",
@@ -438,7 +438,7 @@
     "cmd": [
       "python",
       "-u",
-      "\nimport os\nimport subprocess\nimport sys\nhost   = sys.argv[1]\ndevice = sys.argv[2]\nfor d, _, fs in os.walk(host):\n  p = os.path.relpath(d, host)\n  if p != '.' and p.startswith('.'):\n    continue\n  for f in fs:\n    print os.path.join(p,f)\n    subprocess.check_call(['/usr/bin/adb.1.0.35', 'push',\n                           os.path.realpath(os.path.join(host, p, f)),\n                           os.path.join(device, p, f)])\n",
+      "\nimport os\nimport subprocess\nimport sys\nhost   = sys.argv[1]\ndevice = sys.argv[2]\nfor d, _, fs in os.walk(host):\n  p = os.path.relpath(d, host)\n  if p != '.' and p.startswith('.'):\n    continue\n  for f in fs:\n    print os.path.join(p,f)\n    subprocess.check_call(['/opt/infra-android/tools/adb', 'push',\n                           os.path.realpath(os.path.join(host, p, f)),\n                           os.path.join(device, p, f)])\n",
       "[START_DIR]/skimage",
       "/sdcard/revenge_of_the_skiabot/images"
     ],
@@ -463,7 +463,7 @@
       "@@@STEP_LOG_LINE@python.inline@    continue@@@",
       "@@@STEP_LOG_LINE@python.inline@  for f in fs:@@@",
       "@@@STEP_LOG_LINE@python.inline@    print os.path.join(p,f)@@@",
-      "@@@STEP_LOG_LINE@python.inline@    subprocess.check_call(['/usr/bin/adb.1.0.35', 'push',@@@",
+      "@@@STEP_LOG_LINE@python.inline@    subprocess.check_call(['/opt/infra-android/tools/adb', 'push',@@@",
       "@@@STEP_LOG_LINE@python.inline@                           os.path.realpath(os.path.join(host, p, f)),@@@",
       "@@@STEP_LOG_LINE@python.inline@                           os.path.join(device, p, f)])@@@",
       "@@@STEP_LOG_END@python.inline@@@"
@@ -471,7 +471,7 @@
   },
   {
     "cmd": [
-      "/usr/bin/adb.1.0.35",
+      "/opt/infra-android/tools/adb",
       "push",
       "[START_DIR]/tmp/SK_IMAGE_VERSION",
       "/sdcard/revenge_of_the_skiabot/SK_IMAGE_VERSION"
@@ -516,7 +516,7 @@
   },
   {
     "cmd": [
-      "/usr/bin/adb.1.0.35",
+      "/opt/infra-android/tools/adb",
       "shell",
       "cat",
       "/sdcard/revenge_of_the_skiabot/SVG_VERSION"
@@ -534,7 +534,7 @@
   },
   {
     "cmd": [
-      "/usr/bin/adb.1.0.35",
+      "/opt/infra-android/tools/adb",
       "shell",
       "rm",
       "-f",
@@ -552,7 +552,7 @@
   },
   {
     "cmd": [
-      "/usr/bin/adb.1.0.35",
+      "/opt/infra-android/tools/adb",
       "shell",
       "rm",
       "-rf",
@@ -570,7 +570,7 @@
   },
   {
     "cmd": [
-      "/usr/bin/adb.1.0.35",
+      "/opt/infra-android/tools/adb",
       "shell",
       "mkdir",
       "-p",
@@ -590,7 +590,7 @@
     "cmd": [
       "python",
       "-u",
-      "\nimport os\nimport subprocess\nimport sys\nhost   = sys.argv[1]\ndevice = sys.argv[2]\nfor d, _, fs in os.walk(host):\n  p = os.path.relpath(d, host)\n  if p != '.' and p.startswith('.'):\n    continue\n  for f in fs:\n    print os.path.join(p,f)\n    subprocess.check_call(['/usr/bin/adb.1.0.35', 'push',\n                           os.path.realpath(os.path.join(host, p, f)),\n                           os.path.join(device, p, f)])\n",
+      "\nimport os\nimport subprocess\nimport sys\nhost   = sys.argv[1]\ndevice = sys.argv[2]\nfor d, _, fs in os.walk(host):\n  p = os.path.relpath(d, host)\n  if p != '.' and p.startswith('.'):\n    continue\n  for f in fs:\n    print os.path.join(p,f)\n    subprocess.check_call(['/opt/infra-android/tools/adb', 'push',\n                           os.path.realpath(os.path.join(host, p, f)),\n                           os.path.join(device, p, f)])\n",
       "[START_DIR]/svg",
       "/sdcard/revenge_of_the_skiabot/svgs"
     ],
@@ -615,7 +615,7 @@
       "@@@STEP_LOG_LINE@python.inline@    continue@@@",
       "@@@STEP_LOG_LINE@python.inline@  for f in fs:@@@",
       "@@@STEP_LOG_LINE@python.inline@    print os.path.join(p,f)@@@",
-      "@@@STEP_LOG_LINE@python.inline@    subprocess.check_call(['/usr/bin/adb.1.0.35', 'push',@@@",
+      "@@@STEP_LOG_LINE@python.inline@    subprocess.check_call(['/opt/infra-android/tools/adb', 'push',@@@",
       "@@@STEP_LOG_LINE@python.inline@                           os.path.realpath(os.path.join(host, p, f)),@@@",
       "@@@STEP_LOG_LINE@python.inline@                           os.path.join(device, p, f)])@@@",
       "@@@STEP_LOG_END@python.inline@@@"
@@ -623,7 +623,7 @@
   },
   {
     "cmd": [
-      "/usr/bin/adb.1.0.35",
+      "/opt/infra-android/tools/adb",
       "push",
       "[START_DIR]/tmp/SVG_VERSION",
       "/sdcard/revenge_of_the_skiabot/SVG_VERSION"
@@ -643,9 +643,9 @@
       "python",
       "-u",
       "\nimport os\nimport subprocess\nimport sys\nimport time\nADB = sys.argv[1]\nmodel = sys.argv[2]\ntarget_percent = float(sys.argv[3])\nlog = subprocess.check_output([ADB, 'root'])\n# check for message like 'adbd cannot run as root in production builds'\nif 'cannot' in log:\n  raise Exception('adb root failed')\n\nif model == 'Nexus10':\n  # Nexus10 doesn't list available frequencies, but it does give a\n  # min and a max and seems to round to the nearest 100khz, so a\n  # subset of those available are here.\n  available_freqs = [200000, 400000, 600000, 800000, 1000000, 1200000,\n                     1400000, 1700000]\nelif model == 'Nexus7':\n  # Nexus7 claims to support 1300000, but only really allows 1200000\n  available_freqs = [51000, 102000, 204000, 340000, 475000, 640000, 760000,\n                     860000, 1000000, 1100000, 1200000]\nelse:\n  # Most devices give a list of their available frequencies.\n  available_freqs = subprocess.check_output([ADB, 'shell', 'cat '\n      '/sys/devices/system/cpu/cpu0/cpufreq/scaling_available_frequencies'])\n\n  # Check for message like '/system/bin/sh: file not found'\n  if available_freqs and '/system/bin/sh' not in available_freqs:\n    available_freqs = sorted(\n        int(i) for i in available_freqs.strip().split())\n  else:\n    raise Exception('Could not get list of available frequencies: %s' %\n                    available_freqs)\n\nmaxfreq = available_freqs[-1]\ntarget = int(round(maxfreq * target_percent))\nfreq = maxfreq\nfor f in reversed(available_freqs):\n  if f <= target:\n    freq = f\n    break\n\nprint 'Setting frequency to %d' % freq\n\nsubprocess.check_output([ADB, 'shell', 'echo \"userspace\" > '\n    '/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor'])\n# If scaling_max_freq is lower than our attempted setting, it won't take.\nsubprocess.check_output([ADB, 'shell', 'echo %d > '\n    '/sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq' % freq])\nsubprocess.check_output([ADB, 'shell', 'echo 0 > '\n    '/sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq'])\nsubprocess.check_output([ADB, 'shell', 'echo %d > '\n    '/sys/devices/system/cpu/cpu0/cpufreq/scaling_setspeed' % freq])\ntime.sleep(5)\nactual_freq = subprocess.check_output([ADB, 'shell', 'cat '\n    '/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq']).strip()\nif actual_freq != str(freq):\n  raise Exception('(actual, expected) (%s, %d)'\n                  % (actual_freq, freq))\n",
-      "/usr/bin/adb.1.0.35",
-      "NexusPlayer",
-      "0.6"
+      "/opt/infra-android/tools/adb",
+      "Nexus5x",
+      "1.0"
     ],
     "env": {
       "BUILDTYPE": "Debug",
@@ -654,92 +654,7 @@
       "SKIA_OUT": "[START_DIR]/out"
     },
     "infra_step": true,
-    "name": "Scale CPU to 0.600000",
-    "timeout": 30,
-    "~followup_annotations": [
-      "step returned non-zero exit code: 1",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@import os@@@",
-      "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
-      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
-      "@@@STEP_LOG_LINE@python.inline@import time@@@",
-      "@@@STEP_LOG_LINE@python.inline@ADB = sys.argv[1]@@@",
-      "@@@STEP_LOG_LINE@python.inline@model = sys.argv[2]@@@",
-      "@@@STEP_LOG_LINE@python.inline@target_percent = float(sys.argv[3])@@@",
-      "@@@STEP_LOG_LINE@python.inline@log = subprocess.check_output([ADB, 'root'])@@@",
-      "@@@STEP_LOG_LINE@python.inline@# check for message like 'adbd cannot run as root in production builds'@@@",
-      "@@@STEP_LOG_LINE@python.inline@if 'cannot' in log:@@@",
-      "@@@STEP_LOG_LINE@python.inline@  raise Exception('adb root failed')@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@if model == 'Nexus10':@@@",
-      "@@@STEP_LOG_LINE@python.inline@  # Nexus10 doesn't list available frequencies, but it does give a@@@",
-      "@@@STEP_LOG_LINE@python.inline@  # min and a max and seems to round to the nearest 100khz, so a@@@",
-      "@@@STEP_LOG_LINE@python.inline@  # subset of those available are here.@@@",
-      "@@@STEP_LOG_LINE@python.inline@  available_freqs = [200000, 400000, 600000, 800000, 1000000, 1200000,@@@",
-      "@@@STEP_LOG_LINE@python.inline@                     1400000, 1700000]@@@",
-      "@@@STEP_LOG_LINE@python.inline@elif model == 'Nexus7':@@@",
-      "@@@STEP_LOG_LINE@python.inline@  # Nexus7 claims to support 1300000, but only really allows 1200000@@@",
-      "@@@STEP_LOG_LINE@python.inline@  available_freqs = [51000, 102000, 204000, 340000, 475000, 640000, 760000,@@@",
-      "@@@STEP_LOG_LINE@python.inline@                     860000, 1000000, 1100000, 1200000]@@@",
-      "@@@STEP_LOG_LINE@python.inline@else:@@@",
-      "@@@STEP_LOG_LINE@python.inline@  # Most devices give a list of their available frequencies.@@@",
-      "@@@STEP_LOG_LINE@python.inline@  available_freqs = subprocess.check_output([ADB, 'shell', 'cat '@@@",
-      "@@@STEP_LOG_LINE@python.inline@      '/sys/devices/system/cpu/cpu0/cpufreq/scaling_available_frequencies'])@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@  # Check for message like '/system/bin/sh: file not found'@@@",
-      "@@@STEP_LOG_LINE@python.inline@  if available_freqs and '/system/bin/sh' not in available_freqs:@@@",
-      "@@@STEP_LOG_LINE@python.inline@    available_freqs = sorted(@@@",
-      "@@@STEP_LOG_LINE@python.inline@        int(i) for i in available_freqs.strip().split())@@@",
-      "@@@STEP_LOG_LINE@python.inline@  else:@@@",
-      "@@@STEP_LOG_LINE@python.inline@    raise Exception('Could not get list of available frequencies: %s' %@@@",
-      "@@@STEP_LOG_LINE@python.inline@                    available_freqs)@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@maxfreq = available_freqs[-1]@@@",
-      "@@@STEP_LOG_LINE@python.inline@target = int(round(maxfreq * target_percent))@@@",
-      "@@@STEP_LOG_LINE@python.inline@freq = maxfreq@@@",
-      "@@@STEP_LOG_LINE@python.inline@for f in reversed(available_freqs):@@@",
-      "@@@STEP_LOG_LINE@python.inline@  if f <= target:@@@",
-      "@@@STEP_LOG_LINE@python.inline@    freq = f@@@",
-      "@@@STEP_LOG_LINE@python.inline@    break@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@print 'Setting frequency to %d' % freq@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@subprocess.check_output([ADB, 'shell', 'echo \"userspace\" > '@@@",
-      "@@@STEP_LOG_LINE@python.inline@    '/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor'])@@@",
-      "@@@STEP_LOG_LINE@python.inline@# If scaling_max_freq is lower than our attempted setting, it won't take.@@@",
-      "@@@STEP_LOG_LINE@python.inline@subprocess.check_output([ADB, 'shell', 'echo %d > '@@@",
-      "@@@STEP_LOG_LINE@python.inline@    '/sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq' % freq])@@@",
-      "@@@STEP_LOG_LINE@python.inline@subprocess.check_output([ADB, 'shell', 'echo 0 > '@@@",
-      "@@@STEP_LOG_LINE@python.inline@    '/sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq'])@@@",
-      "@@@STEP_LOG_LINE@python.inline@subprocess.check_output([ADB, 'shell', 'echo %d > '@@@",
-      "@@@STEP_LOG_LINE@python.inline@    '/sys/devices/system/cpu/cpu0/cpufreq/scaling_setspeed' % freq])@@@",
-      "@@@STEP_LOG_LINE@python.inline@time.sleep(5)@@@",
-      "@@@STEP_LOG_LINE@python.inline@actual_freq = subprocess.check_output([ADB, 'shell', 'cat '@@@",
-      "@@@STEP_LOG_LINE@python.inline@    '/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq']).strip()@@@",
-      "@@@STEP_LOG_LINE@python.inline@if actual_freq != str(freq):@@@",
-      "@@@STEP_LOG_LINE@python.inline@  raise Exception('(actual, expected) (%s, %d)'@@@",
-      "@@@STEP_LOG_LINE@python.inline@                  % (actual_freq, freq))@@@",
-      "@@@STEP_LOG_END@python.inline@@@",
-      "@@@STEP_EXCEPTION@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "\nimport os\nimport subprocess\nimport sys\nimport time\nADB = sys.argv[1]\nmodel = sys.argv[2]\ntarget_percent = float(sys.argv[3])\nlog = subprocess.check_output([ADB, 'root'])\n# check for message like 'adbd cannot run as root in production builds'\nif 'cannot' in log:\n  raise Exception('adb root failed')\n\nif model == 'Nexus10':\n  # Nexus10 doesn't list available frequencies, but it does give a\n  # min and a max and seems to round to the nearest 100khz, so a\n  # subset of those available are here.\n  available_freqs = [200000, 400000, 600000, 800000, 1000000, 1200000,\n                     1400000, 1700000]\nelif model == 'Nexus7':\n  # Nexus7 claims to support 1300000, but only really allows 1200000\n  available_freqs = [51000, 102000, 204000, 340000, 475000, 640000, 760000,\n                     860000, 1000000, 1100000, 1200000]\nelse:\n  # Most devices give a list of their available frequencies.\n  available_freqs = subprocess.check_output([ADB, 'shell', 'cat '\n      '/sys/devices/system/cpu/cpu0/cpufreq/scaling_available_frequencies'])\n\n  # Check for message like '/system/bin/sh: file not found'\n  if available_freqs and '/system/bin/sh' not in available_freqs:\n    available_freqs = sorted(\n        int(i) for i in available_freqs.strip().split())\n  else:\n    raise Exception('Could not get list of available frequencies: %s' %\n                    available_freqs)\n\nmaxfreq = available_freqs[-1]\ntarget = int(round(maxfreq * target_percent))\nfreq = maxfreq\nfor f in reversed(available_freqs):\n  if f <= target:\n    freq = f\n    break\n\nprint 'Setting frequency to %d' % freq\n\nsubprocess.check_output([ADB, 'shell', 'echo \"userspace\" > '\n    '/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor'])\n# If scaling_max_freq is lower than our attempted setting, it won't take.\nsubprocess.check_output([ADB, 'shell', 'echo %d > '\n    '/sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq' % freq])\nsubprocess.check_output([ADB, 'shell', 'echo 0 > '\n    '/sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq'])\nsubprocess.check_output([ADB, 'shell', 'echo %d > '\n    '/sys/devices/system/cpu/cpu0/cpufreq/scaling_setspeed' % freq])\ntime.sleep(5)\nactual_freq = subprocess.check_output([ADB, 'shell', 'cat '\n    '/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq']).strip()\nif actual_freq != str(freq):\n  raise Exception('(actual, expected) (%s, %d)'\n                  % (actual_freq, freq))\n",
-      "/usr/bin/adb.1.0.35",
-      "NexusPlayer",
-      "0.6"
-    ],
-    "env": {
-      "BUILDTYPE": "Debug",
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/out"
-    },
-    "infra_step": true,
-    "name": "Scale CPU to 0.600000 (attempt 2)",
+    "name": "Scale CPU to 1.000000",
     "timeout": 30,
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@@@@",
@@ -808,9 +723,9 @@
   },
   {
     "cmd": [
-      "/usr/bin/adb.1.0.35",
+      "/opt/infra-android/tools/adb",
       "push",
-      "[START_DIR]/out/Debug/nanobench",
+      "[START_DIR]/out/Debug/dm",
       "/data/local/tmp/"
     ],
     "cwd": "[START_DIR]/skia",
@@ -821,7 +736,7 @@
       "SKIA_OUT": "[START_DIR]/out"
     },
     "infra_step": true,
-    "name": "push nanobench"
+    "name": "push dm"
   },
   {
     "cmd": [
@@ -831,17 +746,17 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "set -x; /data/local/tmp/nanobench --some-flag; echo $? >/data/local/tmp/rc",
-      "[START_DIR]/tmp/nanobench.sh"
+      "set -x; /data/local/tmp/dm --some-flag; echo $? >/data/local/tmp/rc",
+      "[START_DIR]/tmp/dm.sh"
     ],
     "infra_step": true,
-    "name": "write nanobench.sh"
+    "name": "write dm.sh"
   },
   {
     "cmd": [
-      "/usr/bin/adb.1.0.35",
+      "/opt/infra-android/tools/adb",
       "push",
-      "[START_DIR]/tmp/nanobench.sh",
+      "[START_DIR]/tmp/dm.sh",
       "/data/local/tmp/"
     ],
     "cwd": "[START_DIR]/skia",
@@ -852,11 +767,11 @@
       "SKIA_OUT": "[START_DIR]/out"
     },
     "infra_step": true,
-    "name": "push nanobench.sh"
+    "name": "push dm.sh"
   },
   {
     "cmd": [
-      "/usr/bin/adb.1.0.35",
+      "/opt/infra-android/tools/adb",
       "logcat",
       "-c"
     ],
@@ -874,20 +789,20 @@
     "cmd": [
       "python",
       "-u",
-      "\nimport subprocess\nimport sys\nbin_dir = sys.argv[1]\nsh      = sys.argv[2]\nsubprocess.check_call(['/usr/bin/adb.1.0.35', 'shell', 'sh', bin_dir + sh])\ntry:\n  sys.exit(int(subprocess.check_output(['/usr/bin/adb.1.0.35', 'shell', 'cat',\n                                        bin_dir + 'rc'])))\nexcept ValueError:\n  print \"Couldn't read the return code.  Probably killed for OOM.\"\n  sys.exit(1)\n",
+      "\nimport subprocess\nimport sys\nbin_dir = sys.argv[1]\nsh      = sys.argv[2]\nsubprocess.check_call(['/opt/infra-android/tools/adb', 'shell', 'sh', bin_dir + sh])\ntry:\n  sys.exit(int(subprocess.check_output(['/opt/infra-android/tools/adb', 'shell', 'cat',\n                                        bin_dir + 'rc'])))\nexcept ValueError:\n  print \"Couldn't read the return code.  Probably killed for OOM.\"\n  sys.exit(1)\n",
       "/data/local/tmp/",
-      "nanobench.sh"
+      "dm.sh"
     ],
-    "name": "nanobench",
+    "name": "dm",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@@@@",
       "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
       "@@@STEP_LOG_LINE@python.inline@import sys@@@",
       "@@@STEP_LOG_LINE@python.inline@bin_dir = sys.argv[1]@@@",
       "@@@STEP_LOG_LINE@python.inline@sh      = sys.argv[2]@@@",
-      "@@@STEP_LOG_LINE@python.inline@subprocess.check_call(['/usr/bin/adb.1.0.35', 'shell', 'sh', bin_dir + sh])@@@",
+      "@@@STEP_LOG_LINE@python.inline@subprocess.check_call(['/opt/infra-android/tools/adb', 'shell', 'sh', bin_dir + sh])@@@",
       "@@@STEP_LOG_LINE@python.inline@try:@@@",
-      "@@@STEP_LOG_LINE@python.inline@  sys.exit(int(subprocess.check_output(['/usr/bin/adb.1.0.35', 'shell', 'cat',@@@",
+      "@@@STEP_LOG_LINE@python.inline@  sys.exit(int(subprocess.check_output(['/opt/infra-android/tools/adb', 'shell', 'cat',@@@",
       "@@@STEP_LOG_LINE@python.inline@                                        bin_dir + 'rc'])))@@@",
       "@@@STEP_LOG_LINE@python.inline@except ValueError:@@@",
       "@@@STEP_LOG_LINE@python.inline@  print \"Couldn't read the return code.  Probably killed for OOM.\"@@@",
@@ -897,10 +812,10 @@
   },
   {
     "cmd": [
-      "/usr/bin/adb.1.0.35",
+      "/opt/infra-android/tools/adb",
       "pull",
-      "/sdcard/revenge_of_the_skiabot/perf",
-      "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-All-Android/data"
+      "/sdcard/revenge_of_the_skiabot/dm_out",
+      "[CUSTOM_[SWARM_OUT_DIR]]/dm"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
@@ -910,13 +825,13 @@
       "SKIA_OUT": "[START_DIR]/out"
     },
     "infra_step": true,
-    "name": "pull /sdcard/revenge_of_the_skiabot/perf [CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-All-Android/data"
+    "name": "pull /sdcard/revenge_of_the_skiabot/dm_out [CUSTOM_[SWARM_OUT_DIR]]/dm"
   },
   {
     "cmd": [
       "python",
       "-u",
-      "\nimport os\nimport subprocess\nimport sys\nout = sys.argv[1]\nlog = subprocess.check_output(['/usr/bin/adb.1.0.35', 'logcat', '-d'])\nfor line in log.split('\\n'):\n  tokens = line.split()\n  if len(tokens) == 11 and tokens[-7] == 'F' and tokens[-3] == 'pc':\n    addr, path = tokens[-2:]\n    local = os.path.join(out, os.path.basename(path))\n    if os.path.exists(local):\n      sym = subprocess.check_output(['addr2line', '-Cfpe', local, addr])\n      line = line.replace(addr, addr + ' ' + sym.strip())\n  print line\n",
+      "\nimport os\nimport subprocess\nimport sys\nout = sys.argv[1]\nlog = subprocess.check_output(['/opt/infra-android/tools/adb', 'logcat', '-d'])\nfor line in log.split('\\n'):\n  tokens = line.split()\n  if len(tokens) == 11 and tokens[-7] == 'F' and tokens[-3] == 'pc':\n    addr, path = tokens[-2:]\n    local = os.path.join(out, os.path.basename(path))\n    if os.path.exists(local):\n      sym = subprocess.check_output(['addr2line', '-Cfpe', local, addr])\n      line = line.replace(addr, addr + ' ' + sym.strip())\n  print line\n",
       "[START_DIR]/out/Debug"
     ],
     "env": {
@@ -934,7 +849,7 @@
       "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
       "@@@STEP_LOG_LINE@python.inline@import sys@@@",
       "@@@STEP_LOG_LINE@python.inline@out = sys.argv[1]@@@",
-      "@@@STEP_LOG_LINE@python.inline@log = subprocess.check_output(['/usr/bin/adb.1.0.35', 'logcat', '-d'])@@@",
+      "@@@STEP_LOG_LINE@python.inline@log = subprocess.check_output(['/opt/infra-android/tools/adb', 'logcat', '-d'])@@@",
       "@@@STEP_LOG_LINE@python.inline@for line in log.split('\\n'):@@@",
       "@@@STEP_LOG_LINE@python.inline@  tokens = line.split()@@@",
       "@@@STEP_LOG_LINE@python.inline@  if len(tokens) == 11 and tokens[-7] == 'F' and tokens[-3] == 'pc':@@@",
@@ -949,7 +864,7 @@
   },
   {
     "cmd": [
-      "/usr/bin/adb.1.0.35",
+      "/opt/infra-android/tools/adb",
       "kill-server"
     ],
     "cwd": "[START_DIR]/skia",

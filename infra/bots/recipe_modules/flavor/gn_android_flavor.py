@@ -8,13 +8,16 @@ import default_flavor
 import re
 import subprocess
 
-ADB_BINARY = 'adb.1.0.35'
 
 """GN Android flavor utils, used for building Skia for Android with GN."""
 class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
   def __init__(self, m):
     super(GNAndroidFlavorUtils, self).__init__(m)
     self._ever_ran_adb = False
+    self.ADB_BINARY = '/usr/bin/adb.1.0.35'
+    golo_devices = ['Nexus5x']
+    if self.m.vars.builder_cfg.get('model') in golo_devices:
+      self.ADB_BINARY = '/opt/infra-android/tools/adb'
 
     self.device_dirs = default_flavor.DeviceDirs(
         dm_dir        = self.m.vars.android_data_dir + 'dm_out',
@@ -35,11 +38,11 @@ class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
                         infra_step=infra_step)
 
   def _adb(self, title, *cmd, **kwargs):
-    self._ever_ran_adb = True
     # The only non-infra adb steps (dm / nanobench) happen to not use _adb().
     if 'infra_step' not in kwargs:
       kwargs['infra_step'] = True
 
+    self._ever_ran_adb = True
     attempts = 1
     flaky_devices = ['NexusPlayer', 'PixelC']
     if self.m.vars.builder_cfg.get('model') in flaky_devices:
@@ -49,19 +52,19 @@ class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
       self.m.run(self.m.step,
                  'kill adb server after failure of \'%s\' (attempt %d)' % (
                      title, attempt),
-                 cmd=[ADB_BINARY, 'kill-server'],
+                 cmd=[self.ADB_BINARY, 'kill-server'],
                  infra_step=True, timeout=30, abort_on_failure=False,
                  fail_build_on_failure=False)
       self.m.run(self.m.step,
                  'wait for device after failure of \'%s\' (attempt %d)' % (
                      title, attempt),
-                 cmd=[ADB_BINARY, 'wait-for-device'], infra_step=True,
+                 cmd=[self.ADB_BINARY, 'wait-for-device'], infra_step=True,
                  timeout=180, abort_on_failure=False,
                  fail_build_on_failure=False)
 
     with self.m.context(cwd=self.m.vars.skia_dir):
       return self.m.run.with_retry(self.m.step, title, attempts,
-                                   cmd=[ADB_BINARY]+list(cmd),
+                                   cmd=[self.ADB_BINARY]+list(cmd),
                                    between_attempts_fn=wait_for_device,
                                    **kwargs)
 
@@ -139,7 +142,7 @@ if actual_freq != str(freq):
   raise Exception('(actual, expected) (%s, %d)'
                   % (actual_freq, freq))
         """,
-        args = [ADB_BINARY, self.m.vars.builder_cfg.get('model'),
+        args = [self.ADB_BINARY, self.m.vars.builder_cfg.get('model'),
                 str(target_percent)],
         infra_step=True,
         timeout=30)
@@ -215,7 +218,7 @@ if actual_freq != str(freq):
                 sym = subprocess.check_output(['addr2line', '-Cfpe', local, addr])
                 line = line.replace(addr, addr + ' ' + sym.strip())
             print line
-          """ % ADB_BINARY,
+          """ % self.ADB_BINARY,
           args=[self.m.vars.skia_out.join(self.m.vars.configuration)],
           infra_step=True,
           timeout=300,
@@ -264,7 +267,8 @@ if actual_freq != str(freq):
     except ValueError:
       print "Couldn't read the return code.  Probably killed for OOM."
       sys.exit(1)
-    """ % (ADB_BINARY, ADB_BINARY), args=[self.m.vars.android_bin_dir, sh])
+    """ % (self.ADB_BINARY, self.ADB_BINARY),
+      args=[self.m.vars.android_bin_dir, sh])
 
   def copy_file_to_device(self, host, device):
     self._adb('push %s %s' % (host, device), 'push', host, device)
@@ -287,7 +291,7 @@ if actual_freq != str(freq):
         subprocess.check_call(['%s', 'push',
                                os.path.realpath(os.path.join(host, p, f)),
                                os.path.join(device, p, f)])
-    """ % ADB_BINARY, args=[host, device], infra_step=True)
+    """ % self.ADB_BINARY, args=[host, device], infra_step=True)
 
   def copy_directory_contents_to_host(self, device, host):
     self._adb('pull %s %s' % (device, host), 'pull', device, host)
