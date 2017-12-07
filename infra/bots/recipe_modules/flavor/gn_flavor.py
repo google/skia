@@ -35,7 +35,7 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
     linux_vulkan_sdk   = str(self.m.vars.slave_dir.join('linux_vulkan_sdk'))
     win_toolchain = str(self.m.vars.slave_dir.join(
       't', 'depot_tools', 'win_toolchain', 'vs_files',
-      'd3cb0e37bdd120ad0ac4650b674b09e81be45616'))
+      'a9e1098bba66d2acccc377d5ee81265910f29272'))
     win_vulkan_sdk = str(self.m.vars.slave_dir.join('win_vulkan_sdk'))
 
     cc, cxx = None, None
@@ -143,8 +143,8 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
       'sanitize': sanitize,
       'target_cpu': target_arch,
       'target_os': 'ios' if 'iOS' in extra_config else '',
-      'windk': win_toolchain if 'Win' in os else '',
       'win_sdk': win_toolchain + '/win_sdk' if 'Win' in os else '',
+      'win_vc': win_toolchain + '/VC' if 'Win' in os else '',
     }.iteritems():
       if v:
         args[k] = '"%s"' % v
