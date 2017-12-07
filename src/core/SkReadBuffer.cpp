@@ -418,12 +418,13 @@ SkFlattenable* SkReadBuffer::readFlattenable(SkFlattenable::Type ft) {
             // Read the index.  We are guaranteed that the first byte
             // is zeroed, so we must shift down a byte.
             uint32_t index = fReader.readU32() >> 8;
-            if (0 == index) {
+            if (!this->validate(index > 0)) {
                 return nullptr; // writer failed to give us the flattenable
             }
-
             SkString* namePtr = fFlattenableDict.find(index);
-            SkASSERT(namePtr);
+            if (!this->validate(namePtr != nullptr)) {
+                return nullptr;
+            }
             name = *namePtr;
         }
 
