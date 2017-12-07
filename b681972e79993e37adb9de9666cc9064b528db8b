@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "19d8c125_a2095d3b",
+        "filename": "infra/bots/recipes/test.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 205,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-12-07T21:47:01Z",
+      "side": 0,
+      "message": "woohoo!",
+      "revId": "b681972e79993e37adb9de9666cc9064b528db8b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
