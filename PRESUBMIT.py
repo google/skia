@@ -470,8 +470,11 @@ def PostUploadHook(cl, change, output_api):
     new_description_lines = list(original_description_lines)
 
     # If the change includes only doc changes then add No-Try: true in the
-    # CL's description if it does not exist yet.
-    if all_docs_changes and not _FooterExists(footers, 'No-Try', 'true'):
+    # CL's description if it does not exist yet. Do this for all users except
+    # update-docs@skia.org (see skbug.com/7310).
+    if (cl.GetIssueOwner() != "update-docs@skia.org" and
+        all_docs_changes and
+        not _FooterExists(footers, 'No-Try', 'true')):
       new_description_lines.append('No-Try: true')
       results.append(
           output_api.PresubmitNotifyResult(
