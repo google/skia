@@ -38,10 +38,10 @@ namespace SkSL {
 
 class GrVkGpu : public GrGpu {
 public:
-    static GrGpu* Create(GrBackendContext backendContext, const GrContextOptions& options,
-                         GrContext* context);
-    static GrGpu* Create(const GrVkBackendContext*, const GrContextOptions& options,
-                         GrContext* context);
+    static sk_sp<GrGpu> Make(GrBackendContext backendContext, const GrContextOptions& options,
+                             GrContext* context);
+    static sk_sp<GrGpu> Make(sk_sp<const GrVkBackendContext>, const GrContextOptions& options,
+                             GrContext* context);
 
     ~GrVkGpu() override;
 
@@ -174,7 +174,7 @@ public:
 
 private:
     GrVkGpu(GrContext* context, const GrContextOptions& options,
-            const GrVkBackendContext* backendContext);
+            sk_sp<const GrVkBackendContext> backendContext);
 
     void onResetContext(uint32_t resetBits) override {}
 

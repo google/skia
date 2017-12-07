@@ -73,40 +73,38 @@ VKAPI_ATTR VkBool32 VKAPI_CALL DebugReportCallback(
 }
 #endif
 
-GrGpu* GrVkGpu::Create(GrBackendContext backendContext, const GrContextOptions& options,
-                       GrContext* context) {
-    return Create(reinterpret_cast<const GrVkBackendContext*>(backendContext), options, context);
+sk_sp<GrGpu> GrVkGpu::Make(GrBackendContext backendContext, const GrContextOptions& options,
+                           GrContext* context) {
+    const auto* backend = reinterpret_cast<const GrVkBackendContext*>(backendContext);
+    return Make(sk_ref_sp(backend), options, context);
 }
 
-GrGpu* GrVkGpu::Create(const GrVkBackendContext* backendContext, const GrContextOptions& options,
-                       GrContext* context) {
+sk_sp<GrGpu> GrVkGpu::Make(sk_sp<const GrVkBackendContext> backendContext,
+                           const GrContextOptions& options, GrContext* context) {
     if (!backendContext) {
         return nullptr;
-    } else {
-        backendContext->ref();
     }
 
     if (!backendContext->fInterface->validate(backendContext->fExtensions)) {
         return nullptr;
     }
 
-    return new GrVkGpu(context, options, backendContext);
+    return sk_sp<GrGpu>(new GrVkGpu(context, options, std::move(backendContext)));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 GrVkGpu::GrVkGpu(GrContext* context, const GrContextOptions& options,
-                 const GrVkBackendContext* backendCtx)
-    : INHERITED(context)
-    , fDevice(backendCtx->fDevice)
-    , fQueue(backendCtx->fQueue)
-    , fResourceProvider(this)
-    , fDisconnected(false) {
-    fBackendContext.reset(backendCtx);
-
+                 sk_sp<const GrVkBackendContext> backendCtx)
+        : INHERITED(context)
+        , fBackendContext(std::move(backendCtx))
+        , fDevice(fBackendContext->fDevice)
+        , fQueue(fBackendContext->fQueue)
+        , fResourceProvider(this)
+        , fDisconnected(false) {
 #ifdef SK_ENABLE_VK_LAYERS
     fCallback = VK_NULL_HANDLE;
-    if (backendCtx->fExtensions & kEXT_debug_report_GrVkExtensionFlag) {
+    if (fBackendContext->fExtensions & kEXT_debug_report_GrVkExtensionFlag) {
         // Setup callback creation information
         VkDebugReportCallbackCreateInfoEXT callbackCreateInfo;
         callbackCreateInfo.sType = VK_STRUCTURE_TYPE_DEBUG_REPORT_CREATE_INFO_EXT;
@@ -120,25 +118,26 @@ GrVkGpu::GrVkGpu(GrContext* context, const GrContextOptions& options,
         callbackCreateInfo.pUserData = nullptr;
 
         // Register the callback
-        GR_VK_CALL_ERRCHECK(this->vkInterface(), CreateDebugReportCallbackEXT(
-                            backendCtx->fInstance, &callbackCreateInfo, nullptr, &fCallback));
+        GR_VK_CALL_ERRCHECK(this->vkInterface(),
+                            CreateDebugReportCallbackEXT(fBackendContext->fInstance,
+                                                         &callbackCreateInfo, nullptr, &fCallback));
     }
 #endif
 
     fCompiler = new SkSL::Compiler();
 
-    fVkCaps.reset(new GrVkCaps(options, this->vkInterface(), backendCtx->fPhysicalDevice,
-                               backendCtx->fFeatures, backendCtx->fExtensions));
+    fVkCaps.reset(new GrVkCaps(options, this->vkInterface(), fBackendContext->fPhysicalDevice,
+                               fBackendContext->fFeatures, fBackendContext->fExtensions));
     fCaps.reset(SkRef(fVkCaps.get()));
 
-    VK_CALL(GetPhysicalDeviceMemoryProperties(backendCtx->fPhysicalDevice, &fPhysDevMemProps));
+    VK_CALL(GetPhysicalDeviceMemoryProperties(fBackendContext->fPhysicalDevice, &fPhysDevMemProps));
 
     const VkCommandPoolCreateInfo cmdPoolInfo = {
         VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,      // sType
         nullptr,                                         // pNext
         VK_COMMAND_POOL_CREATE_TRANSIENT_BIT |
         VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT, // CmdPoolCreateFlags
-        backendCtx->fGraphicsQueueIndex,                 // queueFamilyIndex
+        fBackendContext->fGraphicsQueueIndex,            // queueFamilyIndex
     };
     GR_VK_CALL_ERRCHECK(this->vkInterface(), CreateCommandPool(fDevice, &cmdPoolInfo, nullptr,
                                                                &fCmdPool));

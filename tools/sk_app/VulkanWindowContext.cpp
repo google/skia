@@ -72,7 +72,7 @@ void VulkanWindowContext::initializeContext() {
     GET_DEV_PROC(QueuePresentKHR);
     GET_DEV_PROC(GetDeviceQueue);
 
-    fContext = GrContext::MakeVulkan(fBackendContext.get(), fDisplayParams.fGrContextOptions);
+    fContext = GrContext::MakeVulkan(fBackendContext, fDisplayParams.fGrContextOptions);
 
     fSurface = fCreateVkSurfaceFn(instance);
     if (VK_NULL_HANDLE == fSurface) {

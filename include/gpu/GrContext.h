@@ -56,12 +56,12 @@ public:
     static GrContext* Create(GrBackend, GrBackendContext, const GrContextOptions& options);
     static GrContext* Create(GrBackend, GrBackendContext);
 
-    static sk_sp<GrContext> MakeGL(const GrGLInterface*, const GrContextOptions&);
-    static sk_sp<GrContext> MakeGL(const GrGLInterface*);
+    static sk_sp<GrContext> MakeGL(sk_sp<const GrGLInterface>, const GrContextOptions&);
+    static sk_sp<GrContext> MakeGL(sk_sp<const GrGLInterface>);
 
 #ifdef SK_VULKAN
-    static sk_sp<GrContext> MakeVulkan(const GrVkBackendContext*, const GrContextOptions&);
-    static sk_sp<GrContext> MakeVulkan(const GrVkBackendContext*);
+    static sk_sp<GrContext> MakeVulkan(sk_sp<const GrVkBackendContext>, const GrContextOptions&);
+    static sk_sp<GrContext> MakeVulkan(sk_sp<const GrVkBackendContext>);
 #endif
 
 #ifdef SK_METAL
@@ -291,8 +291,8 @@ public:
 
     ///////////////////////////////////////////////////////////////////////////
     // Functions intended for internal use only.
-    GrGpu* getGpu() { return fGpu; }
-    const GrGpu* getGpu() const { return fGpu; }
+    GrGpu* getGpu() { return fGpu.get(); }
+    const GrGpu* getGpu() const { return fGpu.get(); }
     GrAtlasGlyphCache* getAtlasGlyphCache() { return fAtlasGlyphCache; }
     GrTextBlobCache* getTextBlobCache() { return fTextBlobCache.get(); }
     bool abandoned() const;
@@ -344,7 +344,7 @@ public:
     const GrContextPriv contextPriv() const;
 
 private:
-    GrGpu*                                  fGpu;
+    sk_sp<GrGpu>                            fGpu;
     const GrCaps*                           fCaps;
     GrResourceCache*                        fResourceCache;
     GrResourceProvider*                     fResourceProvider;
