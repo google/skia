@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "07c68c4f_f3067d48",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2017-12-07T19:26:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "96e0273e_c6db6e72",
+      "range": {
+        "startLine": 7,
+        "startChar": 0,
+        "endLine": 7,
+        "endChar": 1
+      },
+      "revId": "97a5c3b2f8f708a9c9ed8ab0e49e2d900bf672ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa6e1fb9_67d79027",
         "filename": "infra/bots/git_utils.py",
         "patchSetId": 2
