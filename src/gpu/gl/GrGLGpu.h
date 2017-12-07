@@ -189,7 +189,7 @@ public:
     void insertEventMarker(const char*);
 
 private:
-    GrGLGpu(GrGLContext* ctx, GrContext* context);
+    GrGLGpu(std::unique_ptr<GrGLContext>, GrContext*);
 
     // GrGpu overrides
     void onResetContext(uint32_t resetBits) override;
@@ -415,12 +415,12 @@ private:
 
     void onDumpJSON(SkJSONWriter*) const override;
 
-    sk_sp<GrGLContext>          fGLContext;
-
     bool createCopyProgram(GrTexture* srcTexture);
     bool createMipmapProgram(int progIdx);
     bool createStencilClipClearProgram();
     bool createClearColorProgram();
+
+    std::unique_ptr<GrGLContext> fGLContext;
 
     // GL program-related state
     ProgramCache*               fProgramCache;

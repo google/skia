@@ -23,8 +23,13 @@ namespace SkSL {
  * Encapsulates information about an OpenGL context including the OpenGL
  * version, the GrGLStandard type of the context, and GLSL version.
  */
-class GrGLContextInfo : public SkRefCnt {
+class GrGLContextInfo {
 public:
+    GrGLContextInfo(const GrGLContextInfo&) = delete;
+    GrGLContextInfo& operator=(const GrGLContextInfo&) = delete;
+
+    virtual ~GrGLContextInfo() {}
+
     GrGLStandard standard() const { return fInterface->fStandard; }
     GrGLVersion version() const { return fGLVersion; }
     GrGLSLGeneration glslGeneration() const { return fGLSLGeneration; }
@@ -45,11 +50,9 @@ public:
 
     const GrGLExtensions& extensions() const { return fInterface->fExtensions; }
 
-    virtual ~GrGLContextInfo() {}
-
 protected:
     struct ConstructorArgs {
-        const GrGLInterface*                fInterface;
+        sk_sp<const GrGLInterface>          fInterface;
         GrGLVersion                         fGLVersion;
         GrGLSLGeneration                    fGLSLGeneration;
         GrGLVendor                          fVendor;
@@ -62,7 +65,7 @@ protected:
         const  GrContextOptions*            fContextOptions;
     };
 
-    GrGLContextInfo(const ConstructorArgs& args);
+    GrGLContextInfo(ConstructorArgs&&);
 
     sk_sp<const GrGLInterface> fInterface;
     GrGLVersion                fGLVersion;
@@ -86,7 +89,7 @@ public:
      * Creates a GrGLContext from a GrGLInterface and the currently
      * bound OpenGL context accessible by the GrGLInterface.
      */
-    static GrGLContext* Create(const GrGLInterface* interface, const GrContextOptions& options);
+    static std::unique_ptr<GrGLContext> Make(sk_sp<const GrGLInterface>, const GrContextOptions&);
 
     const GrGLInterface* interface() const { return fInterface.get(); }
 
@@ -95,9 +98,7 @@ public:
     ~GrGLContext() override;
 
 private:
-    GrGLContext(const ConstructorArgs& args)
-    : INHERITED(args)
-    , fCompiler(nullptr) {}
+    GrGLContext(ConstructorArgs&& args) : INHERITED(std::move(args)), fCompiler(nullptr) {}
 
     mutable SkSL::Compiler* fCompiler;
 
