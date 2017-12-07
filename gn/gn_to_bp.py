@@ -177,6 +177,7 @@ gn_args = {
   'skia_use_vulkan':    'true',
   'target_cpu':         '"none"',
   'target_os':          '"android"',
+  'skia_vulkan_header': '"Skia_Vulkan_Android.h"',
 }
 gn_args = ' '.join(sorted('%s=%s' % (k,v) for (k,v) in gn_args.iteritems()))
 
@@ -240,6 +241,11 @@ cflags_cc.add("-fexceptions")
 # beginning after sorting.
 cflags = sorted(cflags)
 cflags.insert(0, "-U_FORTIFY_SOURCE")
+
+# We need to add the include path to the vulkan defines and header file set in
+# then skia_vulkan_header gn arg that is used for framework builds.
+local_includes.add("platform_tools/android/vulkan")
+export_includes.add("platform_tools/android/vulkan")
 
 # Most defines go into SkUserConfig.h, where they're seen by Skia and its users.
 defines = [str(d) for d in js['targets']['//:skia']['defines']]
