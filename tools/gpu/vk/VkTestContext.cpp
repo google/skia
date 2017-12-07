@@ -137,7 +137,7 @@ public:
     void finish() override {}
 
     sk_sp<GrContext> makeGrContext(const GrContextOptions& options) override {
-        return GrContext::MakeVulkan(fVk.get(), options);
+        return GrContext::MakeVulkan(fVk, options);
     }
 
 protected:
