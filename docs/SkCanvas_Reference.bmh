@@ -459,7 +459,7 @@ The actual output depends on the installed fonts.
         SkDebugf("peekPixels should never fail.\n");
     }
     const SkPMColor* pixels = pixmap.addr32();  // points to top-left of bitmap
-    SkPMColor pmWhite = pixels[0];  // the Premultiplied format may vary
+    SkPMColor pmWhite = pixels[0];  // the Premultiplied format may vary.
     SkPaint paint;  // by default, draws black, 12 point text
     canvas.drawString("!", 1, 10, paint);  // 1 char at baseline (1, 10)
     for (int y = 0; y < bitmap.height(); ++y) {
