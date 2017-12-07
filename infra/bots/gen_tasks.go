@@ -237,7 +237,12 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 			}
 			d["device_type"] = deviceInfo[0]
 			d["device_os"] = deviceInfo[1]
+			// TODO(kjlubick): Remove the python dimension after we have removed the
+			// Nexus5x devices from the local lab (on Monday, Dec 11, 2017 should be fine).
 			d["python"] = "2.7.9" // This indicates a RPI, e.g. in Skolo.  Golo is 2.7.12
+			if parts["model"] == "Nexus5x" {
+				d["python"] = "2.7.12"
+			}
 		} else if strings.Contains(parts["os"], "iOS") {
 			device, ok := map[string]string{
 				"iPadMini4": "iPad5,1",
