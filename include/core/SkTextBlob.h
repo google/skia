@@ -17,9 +17,6 @@
 class SkReadBuffer;
 class SkWriteBuffer;
 
-struct SkSerialProcs;
-struct SkDeserialProcs;
-
 typedef void (*SkTypefaceCatalogerProc)(SkTypeface*, void* ctx);
 typedef sk_sp<SkTypeface> (*SkTypefaceResolverProc)(uint32_t id, void* ctx);
 
@@ -73,9 +70,6 @@ public:
      */
     static sk_sp<SkTextBlob> Deserialize(const void* data, size_t size,
                                          SkTypefaceResolverProc, void* ctx);
-
-    sk_sp<SkData> serialize(const SkSerialProcs&) const;
-    static sk_sp<SkTextBlob> Deserialize(const void* data, size_t size, const SkDeserialProcs&);
 
 private:
     friend class SkNVRefCnt<SkTextBlob>;

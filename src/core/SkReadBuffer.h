@@ -185,7 +185,7 @@ public:
     // be created (e.g. it was not originally encoded) then this returns an image that doesn't
     // draw.
     sk_sp<SkImage> readImage();
-    sk_sp<SkTypeface> readTypeface();
+    virtual sk_sp<SkTypeface> readTypeface();
 
     void setTypefaceArray(SkTypeface* array[], int count) {
         fTFArray = array;
