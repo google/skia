@@ -2,6 +2,40 @@
   "comments": [
     {
       "key": {
+        "uuid": "76dbf88f_760b379f",
+        "filename": "gn/BUILDCONFIG.gn",
+        "patchSetId": 11
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-12-07T20:43:04Z",
+      "side": 1,
+      "message": "Does GN not get miffed that you\u0027re changing from string to numerical type?",
+      "revId": "9dcc112eb3263990ad67af76411cadd93b236b48",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a2e8fd67_2b65b3a3",
+        "filename": "gn/BUILDCONFIG.gn",
+        "patchSetId": 11
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-12-07T20:43:04Z",
+      "side": 1,
+      "message": "I think we can even print() here?",
+      "revId": "9dcc112eb3263990ad67af76411cadd93b236b48",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "6bb51dd8_430c495a",
         "filename": "infra/bots/assets/win_toolchain_2015/create.py",
         "patchSetId": 11
@@ -19,6 +53,23 @@
     },
     {
       "key": {
+        "uuid": "1a65db7f_fd160116",
+        "filename": "infra/bots/assets/win_toolchain_2015/create.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-12-07T20:43:04Z",
+      "side": 1,
+      "message": "Don\u0027t we want to do something with this like, assert(false) up front?  Or delete all the scripts except download.py now that you\u0027ve got it uploaded?",
+      "revId": "9dcc112eb3263990ad67af76411cadd93b236b48",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "de108d87_f4a3c2da",
         "filename": "infra/bots/recipe_modules/flavor/gn_flavor.py",
         "patchSetId": 11
@@ -30,6 +81,30 @@
       "writtenOn": "2017-12-07T20:41:25Z",
       "side": 1,
       "message": "This will fail for any added bots which use the 2015 toolchain, right?  Should we add a switch?",
+      "range": {
+        "startLine": 36,
+        "startChar": 0,
+        "endLine": 38,
+        "endChar": 50
+      },
+      "revId": "9dcc112eb3263990ad67af76411cadd93b236b48",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "50f0b28a_610c356f",
+        "filename": "infra/bots/recipe_modules/flavor/gn_flavor.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-12-07T20:43:04Z",
+      "side": 1,
+      "message": "Yeah, we\u0027ll need to do that when we add back 2015 bots.  Should be fine for now.",
+      "parentUuid": "de108d87_f4a3c2da",
       "range": {
         "startLine": 36,
         "startChar": 0,
