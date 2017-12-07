@@ -61,7 +61,7 @@ def dm_flags(api, bot):
 
   # Nexus7 runs out of memory due to having 4 cores and only 1G RAM.
   if 'CPU' in bot and 'Nexus7' in bot:
-    args.extend(['--threads', '2'])
+    args.extend(['--threads', '4'])
 
   if 'Chromecast' in bot:
     args.extend(['--threads', '0'])
@@ -78,9 +78,11 @@ def dm_flags(api, bot):
   # SIGINT, in an effort to free up resources. If requested, that signal
   # is ignored and dm will keep attempting to proceed until we actually
   # exhaust the available resources.
-  if ('NexusPlayer' in bot or
-      'Nexus10' in bot or
-      'PixelC' in bot):
+  if ('CPU' in bot and 'Android' in bot and
+      ('NexusPlayer' in bot or
+       'Nexus10' in bot or
+       'Nexus7' in bot or
+       'PixelC' in bot)):
     args.append('--ignoreSigInt')
 
   if api.vars.builder_cfg.get('cpu_or_gpu') == 'CPU':
