@@ -10,6 +10,7 @@
 
 #include "SkCommandLineFlags.h"
 #include "SkData.h"
+#include "SkJSONCPP.h"
 
 #include <algorithm>
 #include <cmath>
@@ -173,6 +174,11 @@ enum class KeyProperty {
     kNumber,
     kObject,
     kPreprocessor,
+};
+
+enum class StatusFilter {
+    kCompleted,
+    kInProgress,
 };
 
 struct IncludeKey {
@@ -1018,6 +1024,7 @@ public:
     }
 
     bool parseFile(const char* file, const char* suffix);
+    bool parseStatus(const char* file, const char* suffix, StatusFilter filter);
     virtual bool parseFromFile(const char* path) = 0;
     bool parseSetup(const char* path);
 
@@ -1109,7 +1116,27 @@ private:
     typedef TextParser INHERITED;
 };
 
+class StatusIter : public ParserCommon {
+public:
 
+    StatusIter(const char* statusFile, const char* suffix, StatusFilter);
+    const char* baseDir() { return fBaseDir.c_str(); }
+    bool next(SkString* file);
+protected:
+    bool parseFromFile(const char* path) override;
+    void reset();
+private:
+    bool startBlock();
+    bool startDirectory();
+
+    Json::Value fRoot;
+    string fBaseDir;
+    Json::Value fBlock;
+    const char* fSuffix;
+    StatusFilter fFilter;
+    unsigned fBlockIndex;
+    int fDepth;
+};
 
 class BmhParser : public ParserCommon {
 public:
@@ -1290,6 +1317,7 @@ public:
     bool skipNoName();
     bool skipToDefinitionEnd(MarkType markType);
     void spellCheck(const char* match, SkCommandLineFlags::StringArray report) const;
+    void spellStatus(const char* match, SkCommandLineFlags::StringArray report) const;
     vector<string> topicName();
     vector<string> typeName(MarkType markType, bool* expectEnd);
     string typedefName();
@@ -1883,6 +1911,7 @@ public:
     bool appendFile(const string& path);
     bool closeCatalog();
     bool openCatalog(const char* inDir, const char* outDir);
+    bool openStatus(const char* inDir, const char* outDir);
 
     bool parseFromFile(const char* path) override ;
 private:
@@ -1926,6 +1955,7 @@ public:
     }
 
     bool buildReferences(const char* path, const char* outDir);
+    bool buildStatus(const char* path, const char* outDir);
 private:
     enum class TableState {
         kNone,
