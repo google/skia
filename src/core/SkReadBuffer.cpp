@@ -63,26 +63,8 @@ SkReadBuffer::SkReadBuffer() {
 SkReadBuffer::SkReadBuffer(const void* data, size_t size) {
     fFlags = default_flags();
     fVersion = 0;
-    fReader.setMemory(data, size);
+    this->setMemory(data, size);
     fMemoryPtr = nullptr;
-
-    fTFArray = nullptr;
-    fTFCount = 0;
-
-    fFactoryArray = nullptr;
-    fFactoryCount = 0;
-#ifdef DEBUG_NON_DETERMINISTIC_ASSERT
-    fDecodedBitmapIndex = -1;
-#endif // DEBUG_NON_DETERMINISTIC_ASSERT
-}
-
-SkReadBuffer::SkReadBuffer(SkStream* stream) {
-    fFlags = default_flags();
-    fVersion = 0;
-    const size_t length = stream->getLength();
-    fMemoryPtr = sk_malloc_throw(length);
-    stream->read(fMemoryPtr, length);
-    fReader.setMemory(fMemoryPtr, length);
 
     fTFArray = nullptr;
     fTFCount = 0;
@@ -98,6 +80,12 @@ SkReadBuffer::~SkReadBuffer() {
     sk_free(fMemoryPtr);
 }
 
+void SkReadBuffer::setMemory(const void* data, size_t size) {
+    this->validate(IsPtrAlign4(data) && (SkAlign4(size) == size));
+    if (!fError) {
+        fReader.setMemory(data, size);
+    }
+}
 void SkReadBuffer::setInvalid() {
     if (!fError) {
         // When an error is found, send the read cursor to the end of the stream
