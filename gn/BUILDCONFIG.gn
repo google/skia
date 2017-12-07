@@ -27,18 +27,29 @@ declare_args() {
 
   msvc = 2015
   clang_win = ""
+
+  # windk optionally points at the bundled toolchain asset used by bots
+  windk = ""
 }
 declare_args() {
   is_debug = !is_official_build
 
-  if (msvc == 2015) {
-    windk = "C:/Program Files (x86)/Microsoft Visual Studio 14.0"
+  if (windk != "") {
+    win_sdk = "$windk/win_sdk"
+    win_vc = "$windk/VC"
   } else {
-    windk = "C:/Program Files (x86)/Microsoft Visual Studio/2017/Professional"
+    win_sdk = "C:/Program Files (x86)/Windows Kits/10"
+    if (msvc == 2015) {
+      win_vc = "C:/Program Files (x86)/Microsoft Visual Studio 14.0/VC"
+    } else {
+      win_vc =
+          "C:/Program Files (x86)/Microsoft Visual Studio/2017/Professional/VC"
+    }
+  }
+  win_sdk_version = ""
+  if (msvc == 2017) {
     win_toolchain_version = ""
   }
-  win_sdk = "C:/Program Files (x86)/Windows Kits/10"
-  win_sdk_version = ""
 }
 
 assert(!(is_debug && is_official_build))
@@ -136,7 +147,7 @@ if (is_android) {
 if (target_os == "win") {
   if (msvc == 2017 && win_toolchain_version == "") {
     win_toolchain_version = exec_script("//gn/highest_version_dir.py",
-                                        [ "$windk/VC/Tools/MSVC" ],
+                                        [ "$win_vc/Tools/MSVC" ],
                                         "trim string")
   }
   if (win_sdk_version == "") {
