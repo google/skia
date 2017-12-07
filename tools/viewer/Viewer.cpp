@@ -166,7 +166,6 @@ static DEFINE_int32(msaa, 0, "Number of subpixel samples. 0 for no HW antialiasi
 static DEFINE_bool(cachePathMasks, true, "Allows path mask textures to be cached in GPU configs.");
 DEFINE_pathrenderer_flag;
 
-static DEFINE_bool(instancedRendering, false, "Enable instanced rendering on GPU backends.");
 DECLARE_int32(threads)
 
 const char* kBackendTypeStrings[sk_app::Window::kBackendTypeCount] = {
@@ -252,7 +251,6 @@ const char* kSlideStateName = "Slide";
 const char* kBackendStateName = "Backend";
 const char* kMSAAStateName = "MSAA";
 const char* kPathRendererStateName = "Path renderer";
-const char* kInstancedRenderingStateName = "Instanced rendering";
 const char* kSoftkeyStateName = "Softkey";
 const char* kSoftkeyHint = "Please select a softkey";
 const char* kFpsStateName = "FPS";
@@ -320,7 +318,6 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
 
     DisplayParams displayParams;
     displayParams.fMSAASampleCount = FLAGS_msaa;
-    displayParams.fGrContextOptions.fEnableInstancedRendering = FLAGS_instancedRendering;
     displayParams.fGrContextOptions.fGpuPathRenderers = CollectGpuPathRenderersFromFlags();
     displayParams.fGrContextOptions.fAllowPathMaskCaching = FLAGS_cachePathMasks;
     displayParams.fGrContextOptions.fExecutor = GpuExecutorForTools();
@@ -1250,10 +1247,6 @@ void Viewer::drawImGui(SkCanvas* canvas) {
                 }
 
                 const GrContext* ctx = fWindow->getGrContext();
-                bool* inst = &params.fGrContextOptions.fEnableInstancedRendering;
-                if (ctx && ImGui::Checkbox("Instanced Rendering", inst)) {
-                    paramsChanged = true;
-                }
                 bool* wire = &params.fGrContextOptions.fWireframeMode;
                 if (ctx && ImGui::Checkbox("Wireframe Mode", wire)) {
                     paramsChanged = true;
@@ -1603,19 +1596,6 @@ void Viewer::updateUIState() {
         prState[kOptions].append(gPathRendererNames[GpuPathRenderers::kNone]);
     }
 
-    // Instanced rendering state
-    Json::Value instState(Json::objectValue);
-    instState[kName] = kInstancedRenderingStateName;
-    instState[kValue] = kOFF;
-    instState[kOptions] = Json::Value(Json::arrayValue);
-    if (ctx) {
-        if (fWindow->getRequestedDisplayParams().fGrContextOptions.fEnableInstancedRendering) {
-            instState[kValue] = kON;
-        }
-        instState[kOptions].append(kOFF);
-        instState[kOptions].append(kON);
-    }
-
     // Softkey state
     Json::Value softkeyState(Json::objectValue);
     softkeyState[kName] = kSoftkeyStateName;
@@ -1642,7 +1622,6 @@ void Viewer::updateUIState() {
     state.append(backendState);
     state.append(msaaState);
     state.append(prState);
-    state.append(instState);
     state.append(softkeyState);
     state.append(fpsState);
 
@@ -1702,16 +1681,6 @@ void Viewer::onUIStateChanged(const SkString& stateName, const SkString& stateVa
                 }
                 break;
             }
-        }
-    } else if (stateName.equals(kInstancedRenderingStateName)) {
-        DisplayParams params = fWindow->getRequestedDisplayParams();
-        bool value = !strcmp(stateValue.c_str(), kON);
-        if (params.fGrContextOptions.fEnableInstancedRendering != value) {
-            params.fGrContextOptions.fEnableInstancedRendering = value;
-            fWindow->setRequestedDisplayParams(params);
-            fWindow->inval();
-            this->updateTitle();
-            this->updateUIState();
         }
     } else if (stateName.equals(kSoftkeyStateName)) {
         if (!stateValue.equals(kSoftkeyHint)) {

@@ -196,7 +196,7 @@ SkCommandLineConfig::~SkCommandLineConfig() {
 #if SK_SUPPORT_GPU
 SkCommandLineConfigGpu::SkCommandLineConfigGpu(
     const SkString& tag, const SkTArray<SkString>& viaParts, ContextType contextType, bool useNVPR,
-    bool useInstanced, bool useDIText, int samples, SkColorType colorType, SkAlphaType alphaType,
+    bool useDIText, int samples, SkColorType colorType, SkAlphaType alphaType,
     sk_sp<SkColorSpace> colorSpace, bool useStencilBuffers, bool testThreading)
         : SkCommandLineConfig(tag, SkString("gpu"), viaParts)
         , fContextType(contextType)
@@ -209,13 +209,10 @@ SkCommandLineConfigGpu::SkCommandLineConfigGpu(
         , fTestThreading(testThreading) {
     if (useNVPR) {
         fContextOverrides |= ContextOverrides::kRequireNVPRSupport;
-    } else if (!useInstanced) {
+    } else {
         // We don't disable NVPR for instanced configs. Otherwise the caps wouldn't use mixed
         // samples and we couldn't test the mixed samples backend for simple shapes.
         fContextOverrides |= ContextOverrides::kDisableNVPR;
-    }
-    if (useInstanced) {
-        fContextOverrides |= ContextOverrides::kUseInstanced;
     }
     // Subtle logic: If the config has a color space attached, we're going to be rendering to sRGB,
     // so we need that capability. In addition, to get the widest test coverage, we DO NOT require
@@ -399,8 +396,6 @@ SkCommandLineConfigGpu* parse_command_line_config_gpu(const SkString& tag,
     SkCommandLineConfigGpu::ContextType contextType = GrContextFactory::kGL_ContextType;
     bool seenUseNVPR = false;
     bool useNVPR = false;
-    bool seenUseInstanced = false;
-    bool useInstanced = false;
     bool seenUseDIText =false;
     bool useDIText = false;
     bool seenSamples = false;
@@ -431,9 +426,6 @@ SkCommandLineConfigGpu* parse_command_line_config_gpu(const SkString& tag,
         } else if (key.equals("nvpr") && !seenUseNVPR) {
             valueOk = parse_option_bool(value, &useNVPR);
             seenUseNVPR = true;
-        } else if (key.equals("inst") && !seenUseInstanced) {
-            valueOk = parse_option_bool(value, &useInstanced);
-            seenUseInstanced = true;
         } else if (key.equals("dit") && !seenUseDIText) {
             valueOk = parse_option_bool(value, &useDIText);
             seenUseDIText = true;
@@ -457,7 +449,7 @@ SkCommandLineConfigGpu* parse_command_line_config_gpu(const SkString& tag,
     if (!seenAPI) {
         return nullptr;
     }
-    return new SkCommandLineConfigGpu(tag, vias, contextType, useNVPR, useInstanced, useDIText,
+    return new SkCommandLineConfigGpu(tag, vias, contextType, useNVPR, useDIText,
                                       samples, colorType, alphaType, colorSpace, useStencils,
                                       testThreading);
 }
