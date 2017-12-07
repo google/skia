@@ -35,6 +35,11 @@ PUBLIC_API_OWNERS = (
     'hcm@google.com',
 )
 
+AUTO_COMMIT_BOTS = (
+    'update-docs@skia.org',
+    'update-skps@skia.org'
+)
+
 AUTHORS_FILE_NAME = 'AUTHORS'
 
 DOCS_PREVIEW_URL = 'https://skia.org/?cl='
@@ -466,15 +471,18 @@ def PostUploadHook(cl, change, output_api):
 
   issue = cl.issue
   if issue:
+    # Skip PostUploadHooks for all auto-commit bots. New patchsets (caused
+    # due to PostUploadHooks) invalidates the CQ+2 vote from the
+    # "--use-commit-queue" flag to "git cl upload".
+    if cl.GetIssueOwner() in AUTO_COMMIT_BOTS:
+      return
+
     original_description_lines, footers = cl.GetDescriptionFooters()
     new_description_lines = list(original_description_lines)
 
     # If the change includes only doc changes then add No-Try: true in the
-    # CL's description if it does not exist yet. Do this for all users except
-    # update-docs@skia.org (see skbug.com/7310).
-    if (cl.GetIssueOwner() != "update-docs@skia.org" and
-        all_docs_changes and
-        not _FooterExists(footers, 'No-Try', 'true')):
+    # CL's description if it does not exist yet.
+    if all_docs_changes and not _FooterExists(footers, 'No-Try', 'true'):
       new_description_lines.append('No-Try: true')
       results.append(
           output_api.PresubmitNotifyResult(
