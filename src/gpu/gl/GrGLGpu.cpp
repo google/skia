@@ -182,29 +182,26 @@ bool GrGLGpu::BlendCoeffReferencesConstant(GrBlendCoeff coeff) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-
-GrGpu* GrGLGpu::Create(GrBackendContext backendContext, const GrContextOptions& options,
-                       GrContext* context) {
-    return Create(reinterpret_cast<const GrGLInterface*>(backendContext), options, context);
+sk_sp<GrGpu> GrGLGpu::Make(GrBackendContext backendContext, const GrContextOptions& options,
+                           GrContext* context) {
+    const auto* interface = reinterpret_cast<const GrGLInterface*>(backendContext);
+    return Make(sk_ref_sp(interface), options, context);
 }
 
-GrGpu* GrGLGpu::Create(const GrGLInterface* interface, const GrContextOptions& options,
-                       GrContext* context) {
-    sk_sp<const GrGLInterface> glInterface(interface);
-    if (!glInterface) {
-        glInterface.reset(GrGLDefaultInterface());
-    } else {
-        glInterface->ref();
-    }
-    if (!glInterface) {
-        return nullptr;
+sk_sp<GrGpu> GrGLGpu::Make(sk_sp<const GrGLInterface> interface, const GrContextOptions& options,
+                           GrContext* context) {
+    if (!interface) {
+        interface.reset(GrGLDefaultInterface());
+        if (!interface) {
+            return nullptr;
+        }
     }
 #ifdef USE_NSIGHT
     const_cast<GrContextOptions&>(options).fSuppressPathRendering = true;
 #endif
-    GrGLContext* glContext = GrGLContext::Create(glInterface.get(), options);
+    GrGLContext* glContext = GrGLContext::Create(interface.get(), options);
     if (glContext) {
-        return new GrGLGpu(glContext, context);
+        return sk_sp<GrGpu>(new GrGLGpu(glContext, context));
     }
     return nullptr;
 }

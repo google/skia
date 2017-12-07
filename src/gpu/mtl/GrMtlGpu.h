@@ -22,8 +22,8 @@ struct GrMtlBackendContext;
 
 class GrMtlGpu : public GrGpu {
 public:
-    static GrGpu* Create(GrContext* context, const GrContextOptions& options,
-                         id<MTLDevice> device, id<MTLCommandQueue> queue);
+    static sk_sp<GrGpu> Make(GrContext* context, const GrContextOptions& options,
+                             id<MTLDevice> device, id<MTLCommandQueue> queue);
 
     ~GrMtlGpu() override {}
 
