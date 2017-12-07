@@ -134,7 +134,7 @@ extern "C" {
         SK_RASTER_PIPELINE_STAGES(M)
     #undef M
 
-#if defined(JUMPER_NEON_HAS_LOWP)
+#if defined(JUMPER_HAS_NEON_LOWP)
     // We also compile 8-bit stages on ARMv8 as a normal part of Skia when compiled with Clang.
     StartPipelineFn sk_start_pipeline_lowp;
     StageFn sk_just_return_lowp;
@@ -190,7 +190,7 @@ extern "C" {
                 return nullptr;                                                 \
             }
 
-    #elif defined(JUMPER_NEON_HAS_LOWP)
+    #elif defined(JUMPER_HAS_NEON_LOWP)
         template <SkRasterPipeline::StockStage st>
         static constexpr StageFn* neon_lowp();
 
@@ -422,7 +422,7 @@ static SkJumper_Engine choose_engine() {
                 };
             }
 
-        #elif defined(JUMPER_NEON_HAS_LOWP)
+        #elif defined(JUMPER_HAS_NEON_LOWP)
             return {
             #define M(st) neon_lowp<SkRasterPipeline::st>(),
                 { SK_RASTER_PIPELINE_STAGES(M) },
