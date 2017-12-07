@@ -107,8 +107,6 @@ private:
         return nullptr;
     }
 
-    gr_instanced::InstancedRendering* onCreateInstancedRendering() override { return nullptr; }
-
     bool onReadPixels(GrSurface* surface, GrSurfaceOrigin,
                       int left, int top, int width, int height,
                       GrPixelConfig,

@@ -59,8 +59,6 @@ GrCaps::GrCaps(const GrContextOptions& options) {
     fFenceSyncSupport = false;
     fCrossContextTextureSupport = false;
 
-    fInstancedSupport = InstancedSupport::kNone;
-
     fBlendEquationSupport = kBasic_BlendEquationSupport;
     fAdvBlendEqBlacklist = 0;
 
@@ -89,7 +87,6 @@ GrCaps::GrCaps(const GrContextOptions& options) {
     fWireframeMode = false;
 #endif
     fBufferMapThreshold = options.fBufferMapThreshold;
-    fAvoidInstancedDrawsToFPTargets = false;
     fBlacklistCoverageCounting = false;
     fAvoidStencilBuffers = false;
 
@@ -175,20 +172,6 @@ void GrCaps::dumpJSON(SkJSONWriter* writer) const {
     writer->appendS32("Max Raster Samples", fMaxRasterSamples);
     writer->appendS32("Max Window Rectangles", fMaxWindowRectangles);
     writer->appendS32("Max Clip Analytic Fragment Processors", fMaxClipAnalyticFPs);
-
-    static const char* kInstancedSupportNames[] = {
-        "None",
-        "Basic",
-        "Multisampled",
-        "Mixed Sampled",
-    };
-    GR_STATIC_ASSERT(0 == (int)InstancedSupport::kNone);
-    GR_STATIC_ASSERT(1 == (int)InstancedSupport::kBasic);
-    GR_STATIC_ASSERT(2 == (int)InstancedSupport::kMultisampled);
-    GR_STATIC_ASSERT(3 == (int)InstancedSupport::kMixedSampled);
-    GR_STATIC_ASSERT(4 == SK_ARRAY_COUNT(kInstancedSupportNames));
-
-    writer->appendString("Instanced Support", kInstancedSupportNames[(int)fInstancedSupport]);
 
     static const char* kBlendEquationSupportNames[] = {
         "Basic",

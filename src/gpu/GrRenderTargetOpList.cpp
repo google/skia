@@ -13,12 +13,10 @@
 #include "GrRect.h"
 #include "GrRenderTargetContext.h"
 #include "GrResourceAllocator.h"
-#include "instanced/InstancedRendering.h"
 #include "ops/GrClearOp.h"
 #include "ops/GrCopySurfaceOp.h"
 #include "SkTraceEvent.h"
 
-using gr_instanced::InstancedRendering;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -31,9 +29,6 @@ GrRenderTargetOpList::GrRenderTargetOpList(GrRenderTargetProxy* proxy, GrGpu* gp
         : INHERITED(gpu->getContext()->resourceProvider(), proxy, auditTrail)
         , fLastClipStackGenID(SK_InvalidUniqueID)
         SkDEBUGCODE(, fNumClips(0)) {
-    if (GrCaps::InstancedSupport::kNone != gpu->caps()->instancedSupport()) {
-        fInstancedRendering.reset(gpu->createInstancedRendering());
-    }
 }
 
 GrRenderTargetOpList::~GrRenderTargetOpList() {
@@ -92,10 +87,6 @@ void GrRenderTargetOpList::onPrepare(GrOpFlushState* flushState) {
             fRecordedOps[i].fOp->prepare(flushState);
             flushState->setOpArgs(nullptr);
         }
-    }
-
-    if (fInstancedRendering) {
-        fInstancedRendering->beginFlush(flushState->resourceProvider());
     }
 }
 
@@ -192,24 +183,7 @@ void GrRenderTargetOpList::endFlush() {
     fLastClipStackGenID = SK_InvalidUniqueID;
     fRecordedOps.reset();
     fClipAllocator.reset();
-    if (fInstancedRendering) {
-        fInstancedRendering->endFlush();
-        fInstancedRendering = nullptr;
-    }
-
     INHERITED::endFlush();
-}
-
-void GrRenderTargetOpList::abandonGpuResources() {
-    if (fInstancedRendering) {
-        fInstancedRendering->resetGpuResources(InstancedRendering::ResetType::kAbandon);
-    }
-}
-
-void GrRenderTargetOpList::freeGpuResources() {
-    if (fInstancedRendering) {
-        fInstancedRendering->resetGpuResources(InstancedRendering::ResetType::kDestroy);
-    }
 }
 
 void GrRenderTargetOpList::discard() {

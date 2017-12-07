@@ -54,7 +54,7 @@ class SkCommandLineConfigGpu : public SkCommandLineConfig {
     typedef sk_gpu_test::GrContextFactory::ContextType ContextType;
     typedef sk_gpu_test::GrContextFactory::ContextOverrides ContextOverrides;
     SkCommandLineConfigGpu(const SkString& tag, const SkTArray<SkString>& viaParts,
-                           ContextType contextType, bool useNVPR, bool useInstanced, bool useDIText,
+                           ContextType contextType, bool useNVPR, bool useDIText,
                            int samples, SkColorType colorType, SkAlphaType alphaType,
                            sk_sp<SkColorSpace> colorSpace, bool useStencilBuffers,
                            bool testThreading);
@@ -66,7 +66,6 @@ class SkCommandLineConfigGpu : public SkCommandLineConfig {
                  !(fContextOverrides & ContextOverrides::kDisableNVPR));
         return fContextOverrides & ContextOverrides::kRequireNVPRSupport;
     }
-    bool getUseInstanced() const { return fContextOverrides & ContextOverrides::kUseInstanced; }
     bool getUseDIText() const { return fUseDIText; }
     int getSamples() const { return fSamples; }
     SkColorType getColorType() const { return fColorType; }

@@ -37,7 +37,6 @@
 #include "SkTraceEvent.h"
 #include "SkTypes.h"
 #include "builders/GrGLShaderStringBuilder.h"
-#include "instanced/GLInstancedRendering.h"
 
 #define GL_CALL(X) GR_GL_CALL(this->glInterface(), X)
 #define GL_CALL_RET(RET, X) GR_GL_CALL_RET(this->glInterface(), RET, X)
@@ -57,12 +56,6 @@
 //#define USE_NSIGHT
 
 ///////////////////////////////////////////////////////////////////////////////
-
-using gr_instanced::InstancedRendering;
-using gr_instanced::GLInstancedRendering;
-
-using gr_instanced::OpAllocator;
-using gr_instanced::GLOpAllocator;
 
 static const GrGLenum gXfermodeEquation2Blend[] = {
     // Basic OpenGL blend equations.
@@ -1730,15 +1723,6 @@ GrStencilAttachment* GrGLGpu::createStencilAttachmentForRenderTarget(const GrRen
 GrBuffer* GrGLGpu::onCreateBuffer(size_t size, GrBufferType intendedType,
                                   GrAccessPattern accessPattern, const void* data) {
     return GrGLBuffer::Create(this, size, intendedType, accessPattern, data);
-}
-
-
-std::unique_ptr<OpAllocator> GrGLGpu::onCreateInstancedRenderingAllocator() {
-    return std::unique_ptr<OpAllocator>(new GLOpAllocator(this->caps()));
-}
-
-InstancedRendering* GrGLGpu::onCreateInstancedRendering() {
-    return new GLInstancedRendering(this);
 }
 
 void GrGLGpu::flushScissor(const GrScissorState& scissorState,

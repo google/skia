@@ -15,7 +15,6 @@
 #include "SkJSONWriter.h"
 #include "SkTSearch.h"
 #include "SkTSort.h"
-#include "instanced/GLInstancedRendering.h"
 
 GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
                    const GrGLContextInfo& ctxInfo,
@@ -2336,14 +2335,6 @@ bool GrGLCaps::initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc*
 }
 
 void GrGLCaps::onApplyOptionsOverrides(const GrContextOptions& options) {
-    if (options.fEnableInstancedRendering) {
-        fInstancedSupport = gr_instanced::GLInstancedRendering::CheckSupport(*this);
-#ifndef SK_BUILD_FOR_MAC
-        // OS X doesn't seem to write correctly to floating point textures when using
-        // glDraw*Indirect, regardless of the underlying GPU.
-        fAvoidInstancedDrawsToFPTargets = true;
-#endif
-    }
     if (options.fUseDrawInsteadOfPartialRenderTargetWrite) {
         fUseDrawInsteadOfAllRenderTargetWrites = true;
     }

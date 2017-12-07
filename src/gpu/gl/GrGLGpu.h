@@ -28,8 +28,6 @@ class GrGLBuffer;
 class GrPipeline;
 class GrSwizzle;
 
-namespace gr_instanced { class GLInstancedRendering; }
-
 #ifdef SK_DEBUG
 #define PROGRAM_CACHE_STATS
 #endif
@@ -210,9 +208,6 @@ private:
     sk_sp<GrRenderTarget> onWrapBackendRenderTarget(const GrBackendRenderTarget&) override;
     sk_sp<GrRenderTarget> onWrapBackendTextureAsRenderTarget(const GrBackendTexture&,
                                                              int sampleCnt) override;
-
-    std::unique_ptr<gr_instanced::OpAllocator> onCreateInstancedRenderingAllocator() override;
-    gr_instanced::InstancedRendering* onCreateInstancedRendering() override;
 
     // Given a GrPixelConfig return the index into the stencil format array on GrGLCaps to a
     // compatible stencil format, or negative if there is no compatible stencil format.
@@ -650,7 +645,6 @@ private:
 
     typedef GrGpu INHERITED;
     friend class GrGLPathRendering; // For accessing setTextureUnit.
-    friend class gr_instanced::GLInstancedRendering; // For accessing flushGLState.
 };
 
 #endif

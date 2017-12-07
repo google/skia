@@ -56,12 +56,11 @@ public:
     enum class ContextOverrides {
         kNone                          = 0x0,
         kDisableNVPR                   = 0x1,
-        kUseInstanced                  = 0x2,
-        kAllowSRGBWithoutDecodeControl = 0x4,
-        kAvoidStencilBuffers           = 0x8,
+        kAllowSRGBWithoutDecodeControl = 0x2,
+        kAvoidStencilBuffers           = 0x4,
 
-        kRequireNVPRSupport            = 0x10,
-        kRequireSRGBSupport            = 0x20,
+        kRequireNVPRSupport            = 0x8,
+        kRequireSRGBSupport            = 0x10,
     };
 
     static bool IsRenderingContext(ContextType type) {

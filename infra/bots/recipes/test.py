@@ -191,19 +191,6 @@ def dm_flags(api, bot):
           'NexusPlayer'   in bot):
         configs.remove('glessrgb')
 
-    # Test instanced rendering on a limited number of platforms
-    if 'NVIDIA_Shield' in bot or 'PixelC' in bot:
-      # Multisampled instanced configs use nvpr so we substitute inst msaa
-      # configs for nvpr msaa configs.
-      old = gl_prefix + 'nvpr'
-      new = gl_prefix + 'inst'
-      configs = [x.replace(old, new) for x in configs]
-      # We also test non-msaa instanced.
-      configs.append(new)
-    elif 'MacMini7.1' in bot and 'TSAN' not in bot:
-      # The TSAN bot disables GL buffer mapping which is required for inst.
-      configs.extend([gl_prefix + 'inst'])
-
     # Test SkColorSpaceXformCanvas on a few bots
     if 'GTX1070' in bot:
       configs.append('gbr-gl')

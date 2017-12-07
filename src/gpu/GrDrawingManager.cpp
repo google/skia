@@ -60,9 +60,6 @@ GrDrawingManager::~GrDrawingManager() {
 
 void GrDrawingManager::abandon() {
     fAbandoned = true;
-    for (int i = 0; i < fOpLists.count(); ++i) {
-        fOpLists[i]->abandonGpuResources();
-    }
     this->cleanup();
 }
 
@@ -78,19 +75,6 @@ void GrDrawingManager::freeGpuResources() {
     delete fPathRendererChain;
     fPathRendererChain = nullptr;
     SkSafeSetNull(fSoftwarePathRenderer);
-    for (int i = 0; i < fOpLists.count(); ++i) {
-        fOpLists[i]->freeGpuResources();
-    }
-
-}
-
-gr_instanced::OpAllocator* GrDrawingManager::instancingAllocator() {
-    if (fInstancingAllocator) {
-        return fInstancingAllocator.get();
-    }
-
-    fInstancingAllocator = fContext->getGpu()->createInstancedRenderingAllocator();
-    return fInstancingAllocator.get();
 }
 
 // MDB TODO: make use of the 'proxy' parameter.

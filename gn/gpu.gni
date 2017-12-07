@@ -35,7 +35,6 @@ skia_gpu_sources = [
   # Private includes
   "$_include/private/GrAuditTrail.h",
   "$_include/private/GrGLSL.h",
-  "$_include/private/GrInstancedPipelineInfo.h",
   "$_include/private/GrSingleOwner.h",
   "$_include/private/GrRenderTargetProxy.h",
   "$_include/private/GrSurfaceProxy.h",
@@ -383,16 +382,6 @@ skia_gpu_sources = [
   "$_src/gpu/effects/GrXfermodeFragmentProcessor.h",
   "$_src/gpu/effects/GrYUVEffect.cpp",
   "$_src/gpu/effects/GrYUVEffect.h",
-
-  "$_src/gpu/instanced/InstancedOp.cpp",
-  "$_src/gpu/instanced/InstancedOp.h",
-  "$_src/gpu/instanced/InstancedRendering.cpp",
-  "$_src/gpu/instanced/InstancedRendering.h",
-  "$_src/gpu/instanced/InstancedRenderingTypes.h",
-  "$_src/gpu/instanced/InstanceProcessor.cpp",
-  "$_src/gpu/instanced/InstanceProcessor.h",
-  "$_src/gpu/instanced/GLInstancedRendering.cpp",
-  "$_src/gpu/instanced/GLInstancedRendering.h",
 
   # text
   "$_src/gpu/text/GrAtlasGlyphCache.cpp",
