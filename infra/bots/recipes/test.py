@@ -61,7 +61,7 @@ def dm_flags(api, bot):
 
   # Nexus7 runs out of memory due to having 4 cores and only 1G RAM.
   if 'CPU' in bot and 'Nexus7' in bot:
-    args.extend(['--threads', '3'])
+    args.extend(['--threads', '2'])
 
   if 'Chromecast' in bot:
     args.extend(['--threads', '0'])
