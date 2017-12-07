@@ -16,6 +16,24 @@
       "revId": "4a3bfab3c408416d86da10cab571b6741fd96c24",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fd193512_e5a260e6",
+        "filename": "src/core/SkReadBuffer.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 372,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-12-07T17:46:09Z",
+      "side": 1,
+      "message": "Looks like readTypeface() and clone() can both lose their virtual, but readPaint() needs to stay virtual for Pipe.",
+      "parentUuid": "e7986c7a_cb3ed739",
+      "revId": "4a3bfab3c408416d86da10cab571b6741fd96c24",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
