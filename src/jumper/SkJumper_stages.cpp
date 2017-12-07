@@ -304,6 +304,9 @@ STAGE(store_rgba, float* ptr) {
 
 SI F inv(F x) { return 1.0f - x; }
 SI F two(F x) { return x + x; }
+SI F first (F a, F b) { return a; }
+SI F second(F a, F b) { return b; }
+
 
 BLEND_MODE(clear)    { return 0; }
 BLEND_MODE(srcatop)  { return s*da + d*inv(sa); }
@@ -1287,12 +1290,12 @@ SI F solve_2pt_conical_quadratic(const SkJumper_2PtConicalCtx* c, F x, F y, F (*
                   (-coeffB - sqrt_disc) * (invCoeffA * 0.5f));
 }
 
-STAGE(xy_to_2pt_conical_quadratic_max, const SkJumper_2PtConicalCtx* ctx) {
-    r = solve_2pt_conical_quadratic(ctx, r, g, max);
+STAGE(xy_to_2pt_conical_quadratic_first, const SkJumper_2PtConicalCtx* ctx) {
+    r = solve_2pt_conical_quadratic(ctx, r, g, first);
 }
 
-STAGE(xy_to_2pt_conical_quadratic_min, const SkJumper_2PtConicalCtx* ctx) {
-    r = solve_2pt_conical_quadratic(ctx, r, g, min);
+STAGE(xy_to_2pt_conical_quadratic_second, const SkJumper_2PtConicalCtx* ctx) {
+    r = solve_2pt_conical_quadratic(ctx, r, g, second);
 }
 
 STAGE(xy_to_2pt_conical_linear, const SkJumper_2PtConicalCtx* c) {
