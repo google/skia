@@ -22,6 +22,30 @@
       "revId": "83a8cfbd735e6122fb8c3540cc62ed1a7580fffb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bb2e7636_53fd4684",
+        "filename": "gn/codesign_ios.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-12-07T20:17:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d655ee4b_fe64c868",
+      "range": {
+        "startLine": 19,
+        "startChar": 20,
+        "endLine": 19,
+        "endChar": 33
+      },
+      "revId": "83a8cfbd735e6122fb8c3540cc62ed1a7580fffb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
