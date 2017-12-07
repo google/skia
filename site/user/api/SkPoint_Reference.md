@@ -1,8 +1,6 @@
 SkPoint Reference
 ===
 
-# <a name="Vector"></a> Vector
-
 # <a name="Point"></a> Point
 
 # <a name="SkPoint"></a> Struct SkPoint
@@ -1311,3 +1309,4 @@ product of input magnitudes and cosine of the angle between them
 
 ---
 
+# <a name="Vector"></a> Vector
