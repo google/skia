@@ -184,7 +184,12 @@ sk_sp<GrGpu> GrGLGpu::Make(GrBackendContext backendContext, const GrContextOptio
 sk_sp<GrGpu> GrGLGpu::Make(sk_sp<const GrGLInterface> interface, const GrContextOptions& options,
                            GrContext* context) {
     if (!interface) {
-        interface.reset(GrGLDefaultInterface());
+        interface = GrGLMakeNativeInterface();
+        // For clients that have written their own GrGLCreateNativeInterface and haven't yet updated
+        // to GrGLMakeNativeInterface.
+        if (!interface) {
+            interface = sk_ref_sp(GrGLCreateNativeInterface());
+        }
         if (!interface) {
             return nullptr;
         }

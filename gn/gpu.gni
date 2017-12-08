@@ -407,9 +407,8 @@ skia_gpu_sources = [
   "$_src/gpu/gl/GrGLCaps.h",
   "$_src/gpu/gl/GrGLContext.cpp",
   "$_src/gpu/gl/GrGLContext.h",
-  "$_src/gpu/gl/GrGLCreateNativeInterface_none.cpp",
+  "$_src/gpu/gl/GrGLMakeNativeInterface_none.cpp",
   "$_src/gpu/gl/GrGLCreateNullInterface.cpp",
-  "$_src/gpu/gl/GrGLDefaultInterface_none.cpp",
   "$_src/gpu/gl/GrGLDefines.h",
   "$_src/gpu/gl/GrGLGLSL.cpp",
   "$_src/gpu/gl/GrGLGLSL.h",
@@ -611,13 +610,12 @@ skia_metal_sources = [
 ]
 
 skia_native_gpu_sources = [
-  "$_src/gpu/gl/GrGLDefaultInterface_native.cpp",
-  "$_src/gpu/gl/mac/GrGLCreateNativeInterface_mac.cpp",
-  "$_src/gpu/gl/win/GrGLCreateNativeInterface_win.cpp",
-  "$_src/gpu/gl/glx/GrGLCreateNativeInterface_glx.cpp",
-  "$_src/gpu/gl/egl/GrGLCreateNativeInterface_egl.cpp",
-  "$_src/gpu/gl/iOS/GrGLCreateNativeInterface_iOS.cpp",
-  "$_src/gpu/gl/android/GrGLCreateNativeInterface_android.cpp",
+  "$_src/gpu/gl/mac/GrGLMakeNativeInterface_mac.cpp",
+  "$_src/gpu/gl/win/GrGLMakeNativeInterface_win.cpp",
+  "$_src/gpu/gl/glx/GrGLMakeNativeInterface_glx.cpp",
+  "$_src/gpu/gl/egl/GrGLMakeNativeInterface_egl.cpp",
+  "$_src/gpu/gl/iOS/GrGLMakeNativeInterface_iOS.cpp",
+  "$_src/gpu/gl/android/GrGLMakeNativeInterface_android.cpp",
 ]
 
 skia_atlas_text_sources = [
