@@ -2,6 +2,75 @@
   "comments": [
     {
       "key": {
+        "uuid": "60e997ef_4639298a",
+        "filename": "src/core/SkGeometry.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 188,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-12-08T16:30:32Z",
+      "side": 1,
+      "message": "Why have this at the top? Normally we put the default at the end, and you can just return an empty string if thats the issue.",
+      "range": {
+        "startLine": 188,
+        "startChar": 8,
+        "endLine": 188,
+        "endChar": 49
+      },
+      "revId": "0d98826cfa33ac58b3ca3633dd81e9b34e06ef31",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "da6ff6ce_af54fc13",
+        "filename": "src/gpu/ccpr/GrCCPRCoverageProcessor.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-12-08T16:30:32Z",
+      "side": 1,
+      "message": "I think a switch statement is safer here so there is no worry about adding to or reordering the enum",
+      "range": {
+        "startLine": 80,
+        "startChar": 8,
+        "endLine": 80,
+        "endChar": 47
+      },
+      "revId": "0d98826cfa33ac58b3ca3633dd81e9b34e06ef31",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7660f46c_b76c0f6d",
+        "filename": "src/gpu/ccpr/GrCCPRCoverageProcessor.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-12-08T16:30:32Z",
+      "side": 1,
+      "message": "again move to bottom and explicit return nullptr or whatever",
+      "range": {
+        "startLine": 85,
+        "startChar": 12,
+        "endLine": 85,
+        "endChar": 77
+      },
+      "revId": "0d98826cfa33ac58b3ca3633dd81e9b34e06ef31",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9cd33647_34a28e86",
         "filename": "src/gpu/ccpr/GrCCPRCubicShader.cpp",
         "patchSetId": 2
