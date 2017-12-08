@@ -55,6 +55,10 @@ public:
     bool usesMixedSamples() const { return fUsesMixedSamples; }
     bool preferClientSideDynamicBuffers() const { return fPreferClientSideDynamicBuffers; }
 
+    // On tilers, an initial fullscreen clear is an OPTIMIZATION. It allows the hardware to
+    // initialize each tile with a constant value rather than loading each pixel from memory.
+    bool preferFullscreenClears() const { return fPreferFullscreenClears; }
+
     bool preferVRAMUseOverFlushes() const { return fPreferVRAMUseOverFlushes; }
 
     bool blacklistCoverageCounting() const { return fBlacklistCoverageCounting; }
@@ -144,8 +148,6 @@ public:
         return fBufferMapThreshold;
     }
 
-    bool fullClearIsFree() const { return fFullClearIsFree; }
-
     /** True in environments that will issue errors if memory uploaded to buffers
         is not initialized (even if not read by draw calls). */
     bool mustClearUploadedBufferData() const { return fMustClearUploadedBufferData; }
@@ -192,7 +194,7 @@ protected:
     bool fInstanceAttribSupport                      : 1;
     bool fUsesMixedSamples                           : 1;
     bool fPreferClientSideDynamicBuffers             : 1;
-    bool fFullClearIsFree                            : 1;
+    bool fPreferFullscreenClears                     : 1;
     bool fMustClearUploadedBufferData                : 1;
 
     // Driver workaround

@@ -69,7 +69,7 @@ public:
     }
 
     bool valid() const { return fCCPR && fRTC; }
-    void clear() const { fRTC->clear(nullptr, 0, true); }
+    void clear() const { fRTC->clear(nullptr, 0, GrRenderTargetContext::CanClearFullscreen::kYes); }
     void abandonGrContext() { fCtx = nullptr; fCCPR = nullptr; fRTC = nullptr; }
 
     void drawPath(SkPath path, GrColor4f color = GrColor4f(0, 1, 0, 1)) const {
