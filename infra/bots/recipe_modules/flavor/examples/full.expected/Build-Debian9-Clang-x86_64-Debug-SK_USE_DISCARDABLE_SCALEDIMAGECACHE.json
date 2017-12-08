@@ -49,6 +49,26 @@
     "name": "ninja"
   },
   {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport os\nimport sys\n\nwith open(sys.argv[1], 'r') as f:\n  print(f.read())\n",
+      "[CUSTOM_/_B_WORK]/skia/out/Build-Debian9-Clang-x86_64-Debug-SK_USE_DISCARDABLE_SCALEDIMAGECACHE/Debug/gen/skia.h"
+    ],
+    "cwd": "[CUSTOM_/_B_WORK]/skia",
+    "infra_step": true,
+    "name": "show skia.h",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import os@@@",
+      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@with open(sys.argv[1], 'r') as f:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  print(f.read())@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
     "name": "$result",
     "recipe_result": null,
     "status_code": 0
