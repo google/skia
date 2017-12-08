@@ -13,16 +13,14 @@
 #include "SkTypeface.h"
 
 /**
- *  A serial-proc is asked to serialize the specified object (e.g. picture or image), by writing
- *  its serialized form into the specified stream. If the proc does this, it returns true.
- *
- *  If the proc chooses to have Skia perform its default action, it ignores the stream parameter
- *  and just returns false.
+ *  A serial-proc is asked to serialize the specified object (e.g. picture or image).
+ *  If a data object is returned, it will be used (even if it is zero-length).
+ *  If null is returned, then Skia will take its default action.
  */
 
-typedef bool (*SkSerialPictureProc)(SkPicture*, SkWStream*, void* ctx);
-typedef bool (*SkSerialImageProc)(SkImage*, SkWStream*, void* ctx);
-typedef bool (*SkSerialTypefaceProc)(SkTypeface*, SkWStream*, void* ctx);
+typedef sk_sp<SkData> (*SkSerialPictureProc)(SkPicture*, void* ctx);
+typedef sk_sp<SkData> (*SkSerialImageProc)(SkImage*, void* ctx);
+typedef sk_sp<SkData> (*SkSerialTypefaceProc)(SkTypeface*, void* ctx);
 
 /**
  *  A deserial-proc is given the serialized form previously returned by the corresponding
