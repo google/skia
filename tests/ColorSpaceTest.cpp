@@ -245,13 +245,14 @@ DEF_TEST(ColorSpace_Serialize, r) {
     test_serialize(r, SkColorSpace_Base::MakeNamed(SkColorSpace_Base::kAdobeRGB_Named).get(), true);
     test_serialize(r, SkColorSpace::MakeSRGBLinear().get(), true);
 
-    sk_sp<SkData> monitorData = GetResourceAsData("icc_profiles/HP_ZR30w.icc");
+    sk_sp<SkData> monitorData = SkData::MakeFromFileName(
+            GetResourcePath("icc_profiles/HP_ZR30w.icc").c_str());
     test_serialize(r, SkColorSpace::MakeICC(monitorData->data(), monitorData->size()).get(), false);
-    monitorData = GetResourceAsData("icc_profiles/HP_Z32x.icc");
+    monitorData = SkData::MakeFromFileName( GetResourcePath("icc_profiles/HP_Z32x.icc").c_str());
     test_serialize(r, SkColorSpace::MakeICC(monitorData->data(), monitorData->size()).get(), false);
-    monitorData = GetResourceAsData("icc_profiles/upperLeft.icc");
+    monitorData = SkData::MakeFromFileName(GetResourcePath("icc_profiles/upperLeft.icc").c_str());
     test_serialize(r, SkColorSpace::MakeICC(monitorData->data(), monitorData->size()).get(), false);
-    monitorData = GetResourceAsData("icc_profiles/upperRight.icc");
+    monitorData = SkData::MakeFromFileName(GetResourcePath("icc_profiles/upperRight.icc").c_str());
     test_serialize(r, SkColorSpace::MakeICC(monitorData->data(), monitorData->size()).get(), false);
 
     SkColorSpaceTransferFn fn;
@@ -269,13 +270,14 @@ DEF_TEST(ColorSpace_Serialize, r) {
 DEF_TEST(ColorSpace_Equals, r) {
     sk_sp<SkColorSpace> srgb = SkColorSpace::MakeSRGB();
     sk_sp<SkColorSpace> adobe = SkColorSpace_Base::MakeNamed(SkColorSpace_Base::kAdobeRGB_Named);
-    sk_sp<SkData> data = GetResourceAsData("icc_profiles/HP_ZR30w.icc");
+    sk_sp<SkData> data = SkData::MakeFromFileName(
+            GetResourcePath("icc_profiles/HP_ZR30w.icc").c_str());
     sk_sp<SkColorSpace> z30 = SkColorSpace::MakeICC(data->data(), data->size());
-    data = GetResourceAsData("icc_profiles/HP_Z32x.icc");
+    data = SkData::MakeFromFileName( GetResourcePath("icc_profiles/HP_Z32x.icc").c_str());
     sk_sp<SkColorSpace> z32 = SkColorSpace::MakeICC(data->data(), data->size());
-    data = GetResourceAsData("icc_profiles/upperLeft.icc");
+    data = SkData::MakeFromFileName(GetResourcePath("icc_profiles/upperLeft.icc").c_str());
     sk_sp<SkColorSpace> upperLeft = SkColorSpace::MakeICC(data->data(), data->size());
-    data = GetResourceAsData("icc_profiles/upperRight.icc");
+    data = SkData::MakeFromFileName(GetResourcePath("icc_profiles/upperRight.icc").c_str());
     sk_sp<SkColorSpace> upperRight = SkColorSpace::MakeICC(data->data(), data->size());
 
     SkColorSpaceTransferFn fn;

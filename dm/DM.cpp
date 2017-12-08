@@ -1357,8 +1357,12 @@ int main(int argc, char** argv) {
     SkTaskGroup::Enabler enabled(FLAGS_threads);
     gCreateTypefaceDelegate = &create_from_name;
 
-    if (nullptr == GetResourceAsData("images/color_wheel.png")) {
-        info("Some resources are missing.  Do you need to set --resourcePath?\n");
+    {
+        SkString testResourcePath = GetResourcePath("images/color_wheel.png");
+        SkFILEStream testResource(testResourcePath.c_str());
+        if (!testResource.isValid()) {
+            info("Some resources are missing.  Do you need to set --resourcePath?\n");
+        }
     }
     gather_gold();
     gather_uninteresting_hashes();

@@ -24,15 +24,15 @@ public:
     SubpixelTranslateView(const char imageFilename[],
                           float horizontalVelocity,
                           float verticalVelocity)
-        : fHorizontalVelocity(horizontalVelocity)
-        , fVerticalVelocity(verticalVelocity)
-    {
-        if (!DecodeDataToBitmap(GetResourceAsData(imageFilename), &fBM)) {
-            fBM.allocN32Pixels(1, 1);
-            *(fBM.getAddr32(0,0)) = 0xFF0000FF; // red == bad
-        }
-        fCurPos = SkPoint::Make(0,0);
-        fSize = 200;
+      : fHorizontalVelocity(horizontalVelocity),
+        fVerticalVelocity(verticalVelocity) {
+      SkString resourcePath = GetResourcePath(imageFilename);
+      if (!decode_file(resourcePath.c_str(), &fBM)) {
+          fBM.allocN32Pixels(1, 1);
+          *(fBM.getAddr32(0,0)) = 0xFF0000FF; // red == bad
+      }
+      fCurPos = SkPoint::Make(0,0);
+      fSize = 200;
     }
 
 protected:
