@@ -213,11 +213,11 @@ protected:
     bool fModifiesCoverage;
     bool fModifiesColor;
     bool fNeedsNeighborRadii;
-    GrGLSLVertToFrag fColor;
-    GrGLSLVertToFrag fTriangleIsArc;
-    GrGLSLVertToFrag fArcCoords;
-    GrGLSLVertToFrag fInnerShapeCoords;
-    GrGLSLVertToFrag fInnerRRect;
+    GrGLSLVarying fColor;
+    GrGLSLVarying fTriangleIsArc;
+    GrGLSLVarying fArcCoords;
+    GrGLSLVarying fInnerShapeCoords;
+    GrGLSLVarying fInnerRRect;
     const char* fModifiedShapeCoords;
 };
 
@@ -740,17 +740,17 @@ private:
                  const char* outCoverage);
     void emitInnerRect(GrGLSLPPFragmentBuilder*, const char* outCoverage);
 
-    GrGLSLVertToFrag   fColorTimesRectCoverage;
-    GrGLSLVertToFrag   fRectCoverage;
-    GrGLSLVertToFrag   fEllipseCoords;
-    GrGLSLVertToFrag   fEllipseName;
-    GrGLSLVertToFrag   fBloatedRadius;
-    GrGLSLVertToFrag   fDistanceToInnerEdge;
-    GrGLSLVertToFrag   fInnerShapeBloatedHalfSize;
-    GrGLSLVertToFrag   fInnerEllipseCoords;
-    GrGLSLVertToFrag   fInnerEllipseName;
-    bool               fShapeIsCircle;
-    bool               fTweakAlphaForCoverage;
+    GrGLSLVarying fColorTimesRectCoverage;
+    GrGLSLVarying fRectCoverage;
+    GrGLSLVarying fEllipseCoords;
+    GrGLSLVarying fEllipseName;
+    GrGLSLVarying fBloatedRadius;
+    GrGLSLVarying fDistanceToInnerEdge;
+    GrGLSLVarying fInnerShapeBloatedHalfSize;
+    GrGLSLVarying fInnerEllipseCoords;
+    GrGLSLVarying fInnerEllipseName;
+    bool fShapeIsCircle;
+    bool fTweakAlphaForCoverage;
 
     typedef Backend INHERITED;
 };
@@ -1118,18 +1118,18 @@ private:
     void acceptCoverageMask(GrGLSLPPFragmentBuilder*, const char* shapeMask, const EmitShapeOpts&,
                             bool maybeSharedEdge = true);
 
-    int                fEffectiveSampleCnt;
-    bool               fRectTrianglesMaySplit;
-    GrGLSLVertToFrag   fShapeCoords;
-    GrGLSLVertToFrag   fShapeInverseMatrix;
-    GrGLSLVertToFrag   fFragShapeHalfSpan;
-    GrGLSLVertToFrag   fArcTest;
-    GrGLSLVertToFrag   fArcInverseMatrix;
-    GrGLSLVertToFrag   fFragArcHalfSpan;
-    GrGLSLVertToFrag   fEarlyAccept;
-    GrGLSLVertToFrag   fInnerShapeInverseMatrix;
-    GrGLSLVertToFrag   fFragInnerShapeHalfSpan;
-    SkString           fSquareFun;
+    int fEffectiveSampleCnt;
+    bool fRectTrianglesMaySplit;
+    GrGLSLVarying fShapeCoords;
+    GrGLSLVarying fShapeInverseMatrix;
+    GrGLSLVarying fFragShapeHalfSpan;
+    GrGLSLVarying fArcTest;
+    GrGLSLVarying fArcInverseMatrix;
+    GrGLSLVarying fFragArcHalfSpan;
+    GrGLSLVarying fEarlyAccept;
+    GrGLSLVarying fInnerShapeInverseMatrix;
+    GrGLSLVarying fFragInnerShapeHalfSpan;
+    SkString fSquareFun;
 
     typedef Backend INHERITED;
 };

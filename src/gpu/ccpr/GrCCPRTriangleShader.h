@@ -46,7 +46,7 @@ class GrCCPRTriangleEdgeShader : public GrCCPRTriangleShader {
                                 const char* coverage, const char* wind) override;
     void onEmitFragmentCode(GrGLSLPPFragmentBuilder*, const char* outputCoverage) const override;
 
-    GrGLSLGeoToFrag fCoverageTimesWind{kHalf_GrSLType};
+    GrGLSLVarying fCoverageTimesWind{kHalf_GrSLType, GrGLSLVarying::Scope::kGeoToFrag};
 };
 
 /**
@@ -63,11 +63,11 @@ class GrCCPRTriangleCornerShader : public GrCCPRTriangleShader {
                                 const char* coverage, const char* wind) override;
     void onEmitFragmentCode(GrGLSLPPFragmentBuilder* f, const char* outputCoverage) const override;
 
-    GrShaderVar       fAABoxMatrices{"aa_box_matrices", kFloat2x2_GrSLType, 2};
-    GrShaderVar       fAABoxTranslates{"aa_box_translates", kFloat2_GrSLType, 2};
-    GrShaderVar       fGeoShaderBisects{"bisects", kFloat2_GrSLType, 2};
-    GrGLSLGeoToFrag   fCornerLocationInAABoxes{kFloat2x2_GrSLType};
-    GrGLSLGeoToFrag   fBisectInAABoxes{kFloat2x2_GrSLType};
+    GrShaderVar fAABoxMatrices{"aa_box_matrices", kFloat2x2_GrSLType, 2};
+    GrShaderVar fAABoxTranslates{"aa_box_translates", kFloat2_GrSLType, 2};
+    GrShaderVar fGeoShaderBisects{"bisects", kFloat2_GrSLType, 2};
+    GrGLSLVarying fCornerLocationInAABoxes{kFloat2x2_GrSLType, GrGLSLVarying::Scope::kGeoToFrag};
+    GrGLSLVarying fBisectInAABoxes{kFloat2x2_GrSLType, GrGLSLVarying::Scope::kGeoToFrag};
 };
 
 #endif
