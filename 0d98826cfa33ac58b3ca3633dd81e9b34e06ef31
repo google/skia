@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "2600a684_61f48226",
+        "filename": "src/core/SkGeometry.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 188,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-12-08T18:03:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "60e997ef_4639298a",
+      "range": {
+        "startLine": 188,
+        "startChar": 8,
+        "endLine": 188,
+        "endChar": 49
+      },
+      "revId": "0d98826cfa33ac58b3ca3633dd81e9b34e06ef31",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da6ff6ce_af54fc13",
         "filename": "src/gpu/ccpr/GrCCPRCoverageProcessor.h",
         "patchSetId": 2
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "624a85f6_ce5706d8",
+        "filename": "src/gpu/ccpr/GrCCPRCoverageProcessor.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-12-08T18:03:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da6ff6ce_af54fc13",
+      "range": {
+        "startLine": 80,
+        "startChar": 8,
+        "endLine": 80,
+        "endChar": 47
+      },
+      "revId": "0d98826cfa33ac58b3ca3633dd81e9b34e06ef31",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7660f46c_b76c0f6d",
         "filename": "src/gpu/ccpr/GrCCPRCoverageProcessor.h",
         "patchSetId": 2
@@ -68,6 +116,30 @@
       "revId": "0d98826cfa33ac58b3ca3633dd81e9b34e06ef31",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b723f3d3_adedc2e1",
+        "filename": "src/gpu/ccpr/GrCCPRCoverageProcessor.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-12-08T18:03:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7660f46c_b76c0f6d",
+      "range": {
+        "startLine": 85,
+        "startChar": 12,
+        "endLine": 85,
+        "endChar": 77
+      },
+      "revId": "0d98826cfa33ac58b3ca3633dd81e9b34e06ef31",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
