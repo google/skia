@@ -393,32 +393,28 @@ void GrCCPRCoverageOp::onExecute(GrOpFlushState* flushState) {
     fDynamicStatesScratchBuffer.reserve(1 + fScissorBatches.count());
 
     // Triangles.
-    auto constexpr kTrianglesGrPrimitiveType = GrCCPRCoverageProcessor::kTrianglesGrPrimitiveType;
     this->drawMaskPrimitives(flushState, pipeline, RenderPass::kTriangleHulls,
-                             kTrianglesGrPrimitiveType, 3, &PrimitiveTallies::fTriangles);
+                             &PrimitiveTallies::fTriangles);
     this->drawMaskPrimitives(flushState, pipeline, RenderPass::kTriangleEdges,
-                             kTrianglesGrPrimitiveType, 3, &PrimitiveTallies::fTriangles);
+                             &PrimitiveTallies::fTriangles);
     this->drawMaskPrimitives(flushState, pipeline, RenderPass::kTriangleCorners,
-                             kTrianglesGrPrimitiveType, 3, &PrimitiveTallies::fTriangles);
+                             &PrimitiveTallies::fTriangles);
 
     // Quadratics.
-    auto constexpr kQuadraticsGrPrimitiveType = GrCCPRCoverageProcessor::kQuadraticsGrPrimitiveType;
     this->drawMaskPrimitives(flushState, pipeline, RenderPass::kQuadraticHulls,
-                             kQuadraticsGrPrimitiveType, 3, &PrimitiveTallies::fQuadratics);
+                             &PrimitiveTallies::fQuadratics);
     this->drawMaskPrimitives(flushState, pipeline, RenderPass::kQuadraticCorners,
-                             kQuadraticsGrPrimitiveType, 3, &PrimitiveTallies::fQuadratics);
+                             &PrimitiveTallies::fQuadratics);
 
     // Cubics.
-    auto constexpr kCubicsGrPrimitiveType = GrCCPRCoverageProcessor::kCubicsGrPrimitiveType;
     this->drawMaskPrimitives(flushState, pipeline, RenderPass::kCubicHulls,
-                             kCubicsGrPrimitiveType, 4, &PrimitiveTallies::fCubics);
+                             &PrimitiveTallies::fCubics);
     this->drawMaskPrimitives(flushState, pipeline, RenderPass::kCubicCorners,
-                             kCubicsGrPrimitiveType, 4, &PrimitiveTallies::fCubics);
+                             &PrimitiveTallies::fCubics);
 }
 
 void GrCCPRCoverageOp::drawMaskPrimitives(GrOpFlushState* flushState, const GrPipeline& pipeline,
                                           GrCCPRCoverageProcessor::RenderPass renderPass,
-                                          GrPrimitiveType primType, int vertexCount,
                                           int PrimitiveTallies::* instanceType) const {
     using ScissorMode = GrCCPRCoverageOpsBuilder::ScissorMode;
     SkASSERT(pipeline.getScissorState().enabled());
@@ -426,11 +422,12 @@ void GrCCPRCoverageOp::drawMaskPrimitives(GrOpFlushState* flushState, const GrPi
     fMeshesScratchBuffer.reset();
     fDynamicStatesScratchBuffer.reset();
 
+    GrCCPRCoverageProcessor proc(renderPass);
+
     if (const int instanceCount = fInstanceCounts[(int)ScissorMode::kNonScissored].*instanceType) {
         SkASSERT(instanceCount > 0);
         const int baseInstance = fBaseInstances[(int)ScissorMode::kNonScissored].*instanceType;
-        GrMesh& mesh = fMeshesScratchBuffer.emplace_back(primType);
-        mesh.setInstanced(fInstanceBuffer.get(), instanceCount, baseInstance, vertexCount);
+        proc.appendMesh(fInstanceBuffer.get(), instanceCount, baseInstance, &fMeshesScratchBuffer);
         fDynamicStatesScratchBuffer.push_back().fScissorRect.setXYWH(0, 0, fDrawBounds.width(),
                                                                      fDrawBounds.height());
     }
@@ -444,8 +441,8 @@ void GrCCPRCoverageOp::drawMaskPrimitives(GrOpFlushState* flushState, const GrPi
                 continue;
             }
             SkASSERT(instanceCount > 0);
-            GrMesh& mesh = fMeshesScratchBuffer.emplace_back(primType);
-            mesh.setInstanced(fInstanceBuffer.get(), instanceCount, baseInstance, vertexCount);
+            proc.appendMesh(fInstanceBuffer.get(), instanceCount, baseInstance,
+                            &fMeshesScratchBuffer);
             fDynamicStatesScratchBuffer.push_back().fScissorRect = batch.fScissor;
             baseInstance += instanceCount;
         }
@@ -454,7 +451,6 @@ void GrCCPRCoverageOp::drawMaskPrimitives(GrOpFlushState* flushState, const GrPi
     SkASSERT(fMeshesScratchBuffer.count() == fDynamicStatesScratchBuffer.count());
 
     if (!fMeshesScratchBuffer.empty()) {
-        GrCCPRCoverageProcessor proc(renderPass);
         SkASSERT(flushState->rtCommandBuffer());
         flushState->rtCommandBuffer()->draw(pipeline, proc, fMeshesScratchBuffer.begin(),
                                             fDynamicStatesScratchBuffer.begin(),
