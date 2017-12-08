@@ -173,7 +173,6 @@ static int32_t next_id() {
 }
 
 GrContext::GrContext() : fUniqueID(next_id()) {
-    fCaps = nullptr;
     fResourceCache = nullptr;
     fResourceProvider = nullptr;
     fAtlasGlyphCache = nullptr;
@@ -195,8 +194,8 @@ bool GrContext::init(GrBackend backend, GrBackendContext backendContext,
 
 bool GrContext::init(const GrContextOptions& options) {
     ASSERT_SINGLE_OWNER
-    fCaps = SkRef(fGpu->caps());
-    fResourceCache = new GrResourceCache(fCaps, fUniqueID);
+    fCaps = sk_ref_sp(fGpu->caps());
+    fResourceCache = new GrResourceCache(fCaps.get(), fUniqueID);
     fResourceProvider = new GrResourceProvider(fGpu.get(), fResourceCache, &fSingleOwner);
 
     fDisableGpuYUVConversion = options.fDisableGpuYUVConversion;
@@ -268,13 +267,11 @@ GrContext::~GrContext() {
     delete fResourceProvider;
     delete fResourceCache;
     delete fAtlasGlyphCache;
-
-    fCaps->unref();
 }
 
 sk_sp<GrContextThreadSafeProxy> GrContext::threadSafeProxy() {
     if (!fThreadSafeProxy) {
-        fThreadSafeProxy.reset(new GrContextThreadSafeProxy(sk_ref_sp(fCaps), this->uniqueID()));
+        fThreadSafeProxy.reset(new GrContextThreadSafeProxy(fCaps, this->uniqueID()));
     }
     return fThreadSafeProxy;
 }

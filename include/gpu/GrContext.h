@@ -208,7 +208,7 @@ public:
     void purgeUnlockedResources(size_t bytesToPurge, bool preferScratchResources);
 
     /** Access the context capabilities */
-    const GrCaps* caps() const { return fCaps; }
+    const GrCaps* caps() const { return fCaps.get(); }
 
     /**
      * Returns the recommended sample count for a render target when using this
@@ -348,7 +348,7 @@ public:
 
 private:
     sk_sp<GrGpu>                            fGpu;
-    const GrCaps*                           fCaps;
+    sk_sp<const GrCaps>                     fCaps;
     GrResourceCache*                        fResourceCache;
     GrResourceProvider*                     fResourceProvider;
 
