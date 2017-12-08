@@ -426,12 +426,11 @@ static sk_sp<SkImage> render(const SkTextBlob* blob) {
  */
 DEF_TEST(TextBlob_serialize, reporter) {
     sk_sp<SkTextBlob> blob0 = []() {
-        sk_sp<SkTypeface> tf0;
-        sk_sp<SkTypeface> tf1 = SkTypeface::MakeFromName("Times", SkFontStyle());
+        sk_sp<SkTypeface> tf = SkTypeface::MakeDefault();
 
         SkTextBlobBuilder builder;
-        add_run(&builder, "Hello", 10, 20, tf0);
-        add_run(&builder, "World", 10, 40, tf1);
+        add_run(&builder, "Hello", 10, 20, nullptr);    // we don't flatten this in the paint
+        add_run(&builder, "World", 10, 40, tf);         // we will flatten this in the paint
         return builder.make();
     }();
 
@@ -442,7 +441,8 @@ DEF_TEST(TextBlob_serialize, reporter) {
             *array->append() = tf;
         }
     }, &array);
-    REPORTER_ASSERT(reporter, array.count() > 0);
+    // we only expect 1, since null would not have been serialized, but the default would
+    REPORTER_ASSERT(reporter, array.count() == 1);
 
     sk_sp<SkTextBlob> blob1 = SkTextBlob::Deserialize(data->data(), data->size(),
                                                       [](uint32_t uniqueID, void* ctx) {
