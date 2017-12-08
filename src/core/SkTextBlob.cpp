@@ -868,25 +868,9 @@ sk_sp<SkTextBlob> SkTextBlob::MakeFromBuffer(SkReadBuffer& reader) {
     return blobBuilder.make();
 }
 
-class SkTypefaceCatalogerWriteBuffer : public SkBinaryWriteBuffer {
-public:
-    SkTypefaceCatalogerWriteBuffer(SkTypefaceCatalogerProc proc, void* ctx)
-        : SkBinaryWriteBuffer(SkBinaryWriteBuffer::kCrossProcess_Flag)
-        , fCatalogerProc(proc)
-        , fCatalogerCtx(ctx)
-    {}
-
-    void writeTypeface(SkTypeface* typeface) override {
-        fCatalogerProc(typeface, fCatalogerCtx);
-        this->write32(typeface ? typeface->uniqueID() : 0);
-    }
-
-    SkTypefaceCatalogerProc fCatalogerProc;
-    void*                   fCatalogerCtx;
-};
-
-sk_sp<SkData> SkTextBlob::serialize(SkTypefaceCatalogerProc proc, void* ctx) const {
-    SkTypefaceCatalogerWriteBuffer buffer(proc, ctx);
+sk_sp<SkData> SkTextBlob::serialize(const SkSerialProcs& procs) const {
+    SkBinaryWriteBuffer buffer;
+    buffer.setSerialProcs(procs);
     this->flatten(buffer);
 
     size_t total = buffer.bytesWritten();
@@ -895,26 +879,61 @@ sk_sp<SkData> SkTextBlob::serialize(SkTypefaceCatalogerProc proc, void* ctx) con
     return data;
 }
 
-class SkTypefaceResolverReadBuffer : public SkReadBuffer {
-public:
-    SkTypefaceResolverReadBuffer(const void* data, size_t size, SkTypefaceResolverProc proc,
-                                 void* ctx)
-        : SkReadBuffer(data, size)
-        , fResolverProc(proc)
-        , fResolverCtx(ctx)
-    {}
+sk_sp<SkTextBlob> SkTextBlob::Deserialize(const void* data, size_t length,
+                                          const SkDeserialProcs& procs) {
+    SkReadBuffer buffer(data, length);
+    buffer.setDeserialProcs(procs);
+    return SkTextBlob::MakeFromBuffer(buffer);
+}
 
-    sk_sp<SkTypeface> readTypeface() override {
-        auto id = this->readUInt();
-        return this->isValid() ? fResolverProc(id, fResolverCtx) : nullptr;
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace {
+    struct CatalogState {
+        SkTypefaceCatalogerProc fProc;
+        void*                   fCtx;
+    };
+
+    sk_sp<SkData> catalog_typeface_proc(SkTypeface* face, void* ctx) {
+        CatalogState* state = static_cast<CatalogState*>(ctx);
+        state->fProc(face, state->fCtx);
+        uint32_t id = face->uniqueID();
+        return SkData::MakeWithCopy(&id, sizeof(uint32_t));
     }
+}
 
-    SkTypefaceResolverProc  fResolverProc;
-    void*                   fResolverCtx;
-};
+sk_sp<SkData> SkTextBlob::serialize(SkTypefaceCatalogerProc proc, void* ctx) const {
+    CatalogState state = { proc, ctx };
+    SkSerialProcs procs;
+    procs.fTypefaceProc = catalog_typeface_proc;
+    procs.fTypefaceCtx  = &state;
+    return this->serialize(procs);
+}
+
+namespace {
+    struct ResolverState {
+        SkTypefaceResolverProc  fProc;
+        void*                   fCtx;
+    };
+
+    sk_sp<SkTypeface> resolver_typeface_proc(const void* data, size_t length, void* ctx) {
+        SkASSERT(length == 4);
+        if (length != 4) {
+            return nullptr;
+        }
+
+        ResolverState* state = static_cast<ResolverState*>(ctx);
+        uint32_t id;
+        memcpy(&id, data, length);
+        return state->fProc(id, state->fCtx);
+    }
+}
 
 sk_sp<SkTextBlob> SkTextBlob::Deserialize(const void* data, size_t length,
                                           SkTypefaceResolverProc proc, void* ctx) {
-    SkTypefaceResolverReadBuffer buffer(data, length, proc, ctx);
-    return SkTextBlob::MakeFromBuffer(buffer);
+    ResolverState state = { proc, ctx };
+    SkDeserialProcs procs;
+    procs.fTypefaceProc = resolver_typeface_proc;
+    procs.fTypefaceCtx  = &state;
+    return Deserialize(data, length, procs);
 }
