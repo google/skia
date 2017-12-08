@@ -129,6 +129,22 @@
   },
   {
     "cmd": [
+      "type",
+      "[CUSTOM_/_B_WORK]/skia/out/Build-Mac-Clang-arm64-Debug-iOS/Debug/gen/skia.h"
+    ],
+    "cwd": "[CUSTOM_/_B_WORK]/skia",
+    "env": {
+      "BUILDTYPE": "Debug",
+      "CC": "/usr/bin/clang",
+      "CHROME_HEADLESS": "1",
+      "CXX": "/usr/bin/clang++",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[CUSTOM_/_B_WORK]/skia/out/Build-Mac-Clang-arm64-Debug-iOS"
+    },
+    "name": "type skia.h"
+  },
+  {
+    "cmd": [
       "ninja",
       "-k",
       "0",
