@@ -79,3 +79,13 @@ bool SkEncoder::encodeRows(int numRows) {
 
     return true;
 }
+
+sk_sp<SkData> SkEncodePixmap(const SkPixmap& src, SkEncodedImageFormat format, int quality) {
+    SkDynamicMemoryWStream stream;
+    return SkEncodeImage(&stream, src, format, quality) ? stream.detachAsData() : nullptr;
+}
+
+sk_sp<SkData> SkEncodeBitmap(const SkBitmap& src, SkEncodedImageFormat format, int quality) {
+    SkPixmap pixmap;
+    return src.peekPixels(&pixmap) ? SkEncodePixmap(pixmap, format, quality) : nullptr;
+}
