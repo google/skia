@@ -58,7 +58,7 @@ static inline float dot(const Sk2f& a, const Sk2f& b) {
 }
 
 static inline bool are_collinear(const Sk2f& p0, const Sk2f& p1, const Sk2f& p2) {
-    static constexpr float kFlatnessTolerance = 4; // 1/4 of a pixel.
+    static constexpr float kFlatnessTolerance = 8; // 1/8 of a pixel.
 
     // Area (times 2) of the triangle.
     Sk2f a = (p0 - p1) * SkNx_shuffle<1,0>(p1 - p2);
