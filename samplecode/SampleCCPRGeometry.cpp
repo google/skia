@@ -31,8 +31,8 @@ using RenderPass = GrCCPRCoverageProcessor::RenderPass;
 
 static constexpr float kDebugBloat = 40;
 
-static int is_quadratic(RenderPass renderPass)  {
-    return renderPass >= RenderPass::kQuadraticHulls && renderPass < RenderPass::kSerpentineHulls;
+static int is_quadratic(RenderPass pass)  {
+    return pass == RenderPass::kQuadraticHulls || pass == RenderPass::kQuadraticCorners;
 }
 
 /**
@@ -61,6 +61,7 @@ private:
     void updateGpuData();
 
     RenderPass fRenderPass = RenderPass::kTriangleHulls;
+    SkCubicType fCubicType;
     SkMatrix fCubicKLM;
 
     SkPoint fPoints[4] = {
@@ -161,12 +162,16 @@ void CCPRGeometryView::onDrawContent(SkCanvas* canvas) {
     }
 #endif
 
-    const char* caption = "Use GPU backend to visualize geometry.";
-
+    SkString caption;
     if (GrRenderTargetContext* rtc =
         canvas->internal_private_accessTopLayerRenderTargetContext()) {
         rtc->priv().testingOnly_addDrawOp(skstd::make_unique<Op>(this));
-        caption = GrCCPRCoverageProcessor::GetRenderPassName(fRenderPass);
+        caption.appendf("RenderPass_%s", GrCCPRCoverageProcessor::RenderPassName(fRenderPass));
+        if (GrCCPRCoverageProcessor::RenderPassIsCubic(fRenderPass)) {
+            caption.appendf(" (%s)", SkCubicTypeName(fCubicType));
+        }
+    } else {
+        caption = "Use GPU backend to visualize geometry.";
     }
 
     SkPaint pointsPaint;
@@ -189,7 +194,7 @@ void CCPRGeometryView::onDrawContent(SkCanvas* canvas) {
     captionPaint.setTextSize(20);
     captionPaint.setColor(SK_ColorBLACK);
     captionPaint.setAntiAlias(true);
-    canvas->drawText(caption, strlen(caption), 10, 30, captionPaint);
+    canvas->drawText(caption.c_str(), caption.size(), 10, 30, captionPaint);
 }
 
 void CCPRGeometryView::updateGpuData() {
@@ -198,20 +203,7 @@ void CCPRGeometryView::updateGpuData() {
 
     if (GrCCPRCoverageProcessor::RenderPassIsCubic(fRenderPass)) {
         double t[2], s[2];
-        SkCubicType type = GrPathUtils::getCubicKLM(fPoints, &fCubicKLM, t, s);
-        if (RenderPass::kSerpentineHulls == fRenderPass && SkCubicType::kLoop == type) {
-            fRenderPass = RenderPass::kLoopHulls;
-        }
-        if (RenderPass::kSerpentineCorners == fRenderPass && SkCubicType::kLoop == type) {
-            fRenderPass = RenderPass::kLoopCorners;
-        }
-        if (RenderPass::kLoopHulls == fRenderPass && SkCubicType::kLoop != type) {
-            fRenderPass = RenderPass::kSerpentineHulls;
-        }
-        if (RenderPass::kLoopCorners == fRenderPass && SkCubicType::kLoop != type) {
-            fRenderPass = RenderPass::kSerpentineCorners;
-        }
-
+        fCubicType = GrPathUtils::getCubicKLM(fPoints, &fCubicKLM, t, s);
         GrCCPRGeometry geometry;
         geometry.beginContour(fPoints[0]);
         geometry.cubicTo(fPoints[1], fPoints[2], fPoints[3], kDebugBloat/2, kDebugBloat/2);
@@ -225,8 +217,7 @@ void CCPRGeometryView::updateGpuData() {
                 case GrCCPRGeometry::Verb::kMonotonicQuadraticTo:
                     ptsIdx += 2;
                     continue;
-                case GrCCPRGeometry::Verb::kMonotonicSerpentineTo:
-                case GrCCPRGeometry::Verb::kMonotonicLoopTo:
+                case GrCCPRGeometry::Verb::kMonotonicCubicTo:
                     fCubicInstances.push_back().set(&geometry.points()[ptsIdx], 0, 0);
                     ptsIdx += 3;
                     continue;
@@ -362,11 +353,6 @@ bool CCPRGeometryView::onQuery(SkEvent* evt) {
     if (SampleCode::CharQ(*evt, &unichar)) {
         if (unichar >= '1' && unichar <= '7') {
             fRenderPass = RenderPass(unichar - '1');
-            if (fRenderPass >= RenderPass::kLoopHulls) {
-                // '6' -> kSerpentineHulls, '7' -> kSerpentineCorners. updateGpuData converts to
-                // kLoop* if needed.
-                fRenderPass = RenderPass(int(fRenderPass) + 1);
-            }
             this->updateAndInval();
             return true;
         }
