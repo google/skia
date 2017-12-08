@@ -556,7 +556,7 @@ void SkPipeCanvas::onDrawImageLattice(const SkImage* image, const Lattice& latti
     if (paint) {
         extra |= kHasPaint_DrawImageLatticeMask;
     }
-    if (lattice.fFlags) {
+    if (lattice.fRectTypes) {
         extra |= kHasFlags_DrawImageLatticeMask;
     }
     if (lattice.fXCount >= kCount_DrawImageLatticeMask) {
@@ -583,10 +583,11 @@ void SkPipeCanvas::onDrawImageLattice(const SkImage* image, const Lattice& latti
     // so we can store them smaller.
     writer.write(lattice.fXDivs, lattice.fXCount * sizeof(int32_t));
     writer.write(lattice.fYDivs, lattice.fYCount * sizeof(int32_t));
-    if (lattice.fFlags) {
+    if (lattice.fRectTypes) {
         int32_t count = (lattice.fXCount + 1) * (lattice.fYCount + 1);
         SkASSERT(count > 0);
-        write_pad(&writer, lattice.fFlags, count);
+        write_pad(&writer, lattice.fRectTypes, count);
+        write_pad(&writer, lattice.fColors, count*sizeof(SkColor));
     }
     SkASSERT(lattice.fBounds);
     writer.write(&lattice.fBounds, sizeof(*lattice.fBounds));
