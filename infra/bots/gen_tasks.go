@@ -222,7 +222,6 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 				"GalaxyS7_G930FD": {"herolte", "NRD90M_G930FXXU1DQAS"},
 				"MotoG4":          {"athene", "NPJ25.93-14"},
 				"NVIDIA_Shield":   {"foster", "NRD90M_1915764_848"},
-				"Nexus10":         {"manta", "LMY49J_2640980"},
 				"Nexus5":          {"hammerhead", "M4B30Z_3437181"},
 				"Nexus5x":         {"bullhead", "OPR6.170623.023"},
 				"Nexus7":          {"grouper", "LMY47V_1836172"}, // 2012 Nexus 7

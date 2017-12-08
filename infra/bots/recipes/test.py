@@ -79,7 +79,6 @@ def dm_flags(api, bot):
   # is ignored and dm will keep attempting to proceed until we actually
   # exhaust the available resources.
   if ('NexusPlayer' in bot or
-      'Nexus10' in bot or
       'PixelC' in bot):
     args.append('--ignoreSigInt')
 
@@ -525,10 +524,6 @@ def dm_flags(api, bot):
     match.append('~blur_0.01')
     match.append('~GM_animated-image-blurs')
 
-  if 'Nexus10' in bot:
-    match.append('~CopySurface') # skia:5509
-    match.append('~SRGBReadWritePixels') # skia:6097
-
   if 'GalaxyS6' in bot:
     match.append('~SpecialImage') # skia:6338
     match.append('~skbug6653') # skia:6653
@@ -904,7 +899,6 @@ TEST_BUILDERS = [
   'Test-Android-Clang-GalaxyS7_G930A-GPU-Adreno530-arm64-Debug-All-Android',
   'Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-All-Android',
   'Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-All-Android_CCPR',
-  'Test-Android-Clang-Nexus10-CPU-Exynos5250-arm-Release-All-Android',
   'Test-Android-Clang-Nexus5-GPU-Adreno330-arm-Release-All-Android',
   'Test-Android-Clang-Nexus7-CPU-Tegra3-arm-Release-All-Android',
   'Test-Android-Clang-Nexus7-GPU-Tegra3-arm-Debug-All-Android',
