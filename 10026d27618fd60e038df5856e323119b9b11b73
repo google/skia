@@ -22,6 +22,30 @@
       "revId": "10026d27618fd60e038df5856e323119b9b11b73",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0341371f_ae3cf557",
+        "filename": "tools/Resources.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-12-08T19:19:47Z",
+      "side": 1,
+      "message": "right.  good point.",
+      "parentUuid": "7ca6c483_1f464ce4",
+      "range": {
+        "startLine": 46,
+        "startChar": 8,
+        "endLine": 46,
+        "endChar": 59
+      },
+      "revId": "10026d27618fd60e038df5856e323119b9b11b73",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
