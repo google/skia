@@ -74,8 +74,7 @@ void ColorCodecBench::onDelayedSetup() {
         matrix.set3x3(0.30f, 0.31f, 0.28f, 0.32f, 0.33f, 0.29f, 0.27f, 0.30f, 0.30f);
         fDstSpace = SkColorSpace::MakeRGB(gamma, matrix);
     } else {
-        sk_sp<SkData> dstData = SkData::MakeFromFileName(
-                GetResourcePath("icc_profiles/HP_ZR30w.icc").c_str());
+        sk_sp<SkData> dstData = GetResourceAsData("icc_profiles/HP_ZR30w.icc");
         SkASSERT(dstData);
         fDstSpace = SkColorSpace::MakeICC(dstData->data(), dstData->size());
     }
