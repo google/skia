@@ -49,6 +49,28 @@
   },
   {
     "cmd": [
+      "python",
+      "-u",
+      "\nimport os\n\nwith open(sys.argv[1], 'r') as f:\n  print(f.read())\n",
+      "[START_DIR]/out/Release/gen/skia.h"
+    ],
+    "cwd": "[CUSTOM_/_B_WORK]/skia",
+    "env": {
+      "PATH": "[CUSTOM_/_B_WORK]/skia/bin:<PATH>"
+    },
+    "infra_step": true,
+    "name": "show skia.h",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import os@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@with open(sys.argv[1], 'r') as f:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  print(f.read())@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
       "ninja",
       "-k",
       "0",
