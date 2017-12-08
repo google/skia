@@ -9,6 +9,7 @@
 DEPS = [
   'core',
   'infra',
+  'recipe_engine/file',
   'recipe_engine/path',
   'recipe_engine/properties',
   'recipe_engine/python',
@@ -21,6 +22,9 @@ DEPS = [
 def RunSteps(api):
   api.vars.setup()
   api.infra.update_go_deps()
+  with api.infra.DownloadGitCookies(
+      '/test/gspath', api.path['start_dir'].join('localpath'), api):
+    pass
   with api.infra.MetadataFetch(api, 'key', 'file'):
     pass
 
@@ -32,7 +36,8 @@ def GenTests(api):
                      repository='https://skia.googlesource.com/skia.git',
                      revision='abc123',
                      path_config='kitchen',
-                     swarm_out_dir='[SWARM_OUT_DIR]')
+                     swarm_out_dir='[SWARM_OUT_DIR]') +
+      api.path.exists(api.path['start_dir'].join('localpath'))
   )
 
   yield (
