@@ -22,6 +22,30 @@
       "revId": "1cc93e6db2264df0eb2cb837274366a5d2351170",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2b9360b5_63c6d04d",
+        "filename": "src/gpu/GrSurfaceProxy.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 548,
+      "author": {
+        "id": 6240
+      },
+      "writtenOn": "2017-12-08T23:32:06Z",
+      "side": 1,
+      "message": "Done.",
+      "parentUuid": "ab68a537_6e07bfb3",
+      "range": {
+        "startLine": 547,
+        "startChar": 4,
+        "endLine": 548,
+        "endChar": 61
+      },
+      "revId": "1cc93e6db2264df0eb2cb837274366a5d2351170",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
