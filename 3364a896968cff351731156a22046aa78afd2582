@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "772148e4_eae4819a",
+        "filename": "infra/bots/recipe_modules/run/api.py",
+        "patchSetId": 42
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2017-12-08T13:10:15Z",
+      "side": 1,
+      "message": "Is there a better way to do this?",
+      "revId": "3364a896968cff351731156a22046aa78afd2582",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
