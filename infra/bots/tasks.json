@@ -5291,6 +5291,16 @@
           "name": "skia/bots/go",
           "path": "go",
           "version": "version:3"
+        },
+        {
+          "name": "infra/python/cpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "version:2.7.14.chromium14"
+        },
+        {
+          "name": "infra/tools/luci/vpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:25b0564a204da2bfd6346f26a59b9efb8cfc2212"
         }
       ],
       "dimensions": [
@@ -5299,6 +5309,15 @@
         "os:Debian-9.2",
         "pool:Skia"
       ],
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin"
+        ],
+        "VPYTHON_VIRTUALENV_ROOT": [
+          "${cache_dir}/vpython"
+        ]
+      },
       "extra_args": [
         "--workdir",
         "../../..",
