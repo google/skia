@@ -125,6 +125,27 @@
   },
   {
     "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "listdir",
+      "[CUSTOM_/_B_WORK]/skia/include/android"
+    ],
+    "cwd": "[CUSTOM_/_B_WORK]/skia",
+    "env": {
+      "PATH": "[START_DIR]/emscripten_sdk/clang/fastcomp/build_incoming_64/bin:<PATH>"
+    },
+    "infra_step": true,
+    "name": "list include/android",
+    "stdout": "/path/to/tmp/",
+    "~followup_annotations": [
+      "@@@STEP_LOG_END@listdir@@@"
+    ]
+  },
+  {
+    "cmd": [
       "ninja",
       "-k",
       "0",
