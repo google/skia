@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3d9d40bb_de972a39",
+        "filename": "gm/lattice.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 227,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-12-08T20:07:08Z",
+      "side": 1,
+      "message": "remove this",
+      "revId": "4839978f10bdfc4784dac4851e05cf0f15cb34ff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
