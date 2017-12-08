@@ -160,6 +160,8 @@ void GrMtlCaps::initGrCaps(const id<MTLDevice> device) {
     fUsesMixedSamples = false;
     fGpuTracingSupport = false;
 
+    fPreferFullscreenClears = !this->isMac();
+
     fFenceSyncSupport = true;   // always available in Metal
     fCrossContextTextureSupport = false;
 
