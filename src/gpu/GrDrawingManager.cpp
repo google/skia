@@ -29,6 +29,7 @@
 #include "GrTracing.h"
 #include "text/GrAtlasTextContext.h"
 #include "text/GrStencilAndCoverTextContext.h"
+#include "text/GrTextBlobCache.h"
 
 void GrDrawingManager::cleanup() {
     for (int i = 0; i < fOpLists.count(); ++i) {
@@ -206,6 +207,9 @@ GrSemaphoresSubmitted GrDrawingManager::internalFlush(GrSurfaceProxy*,
 
     GrSemaphoresSubmitted result = fContext->getGpu()->finishFlush(numSemaphores,
                                                                    backendSemaphores);
+
+    // purge any text blobs that got deleted
+    fContext->getTextBlobCache()->purgeStaleBlobs();
 
     // We always have to notify the cache when it requested a flush so it can reset its state.
     if (flushed || type == GrResourceCache::FlushType::kCacheRequested) {
