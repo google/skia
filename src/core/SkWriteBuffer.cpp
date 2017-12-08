@@ -140,17 +140,18 @@ void SkBinaryWriteBuffer::writeImage(const SkImage* image) {
     this->writeInt(image->height());
 
     auto write_data = [this](sk_sp<SkData> data, int sign) {
-        if (data) {
-            size_t size = data->size();
-            if (size && sk_64_isS32(size)) {
-                this->write32(SkToS32(size) * sign);
-                this->writePad32(data->data(), size);    // does nothing if size == 0
-                this->write32(0);   // origin-x
-                this->write32(0);   // origin-y
-                return;
-            }
+        size_t size = data ? data->size() : 0;
+        if (!sk_64_isS32(size)) {
+            size = 0;   // too big to store
         }
-        this->write32(0);   // no data or size too big
+        if (size) {
+            this->write32(SkToS32(size) * sign);
+            this->writePad32(data->data(), size);    // does nothing if size == 0
+            this->write32(0);   // origin-x
+            this->write32(0);   // origin-y
+        } else {
+            this->write32(0);   // signal no image
+        }
     };
 
     /*
@@ -159,14 +160,19 @@ void SkBinaryWriteBuffer::writeImage(const SkImage* image) {
      *  <0 : negative (int32_t) of a custom encoded blob using SerialProcs
      *  >0 : standard encoded blob size (use MakeFromEncoded)
      */
+    sk_sp<SkData> data;
+    int sign = 1;   // +1 signals standard encoder
     if (fProcs.fImageProc) {
-        SkDynamicMemoryWStream stream;
-        if (fProcs.fImageProc(const_cast<SkImage*>(image), &stream, fProcs.fImageCtx)) {
-            write_data(stream.detachAsData(), -1);  // -1 signals custom encoder
-            return;
-        }
+        data = fProcs.fImageProc(const_cast<SkImage*>(image), fProcs.fImageCtx);
+        sign = -1;  // +1 signals custom encoder
     }
-    write_data(image->encodeToData(), 1);   // +1 signals standard encoder
+    // We check data, since a custom proc can return nullptr, in which case we behave as if
+    // there was no custom proc.
+    if (!data) {
+        data = image->encodeToData();
+        sign = 1;
+    }
+    write_data(std::move(data), sign);
 }
 
 void SkBinaryWriteBuffer::writeTypeface(SkTypeface* obj) {

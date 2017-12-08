@@ -31,31 +31,21 @@ DEF_TEST(serial_procs_image, reporter) {
     const char magic_str[] = "magic signature";
 
     const SkSerialImageProc sprocs[] = {
-        [](SkImage* img, SkWStream* stream, void* ctx) {
-            return false;
-        },
-        [](SkImage* img, SkWStream* stream, void* ctx) {
-            auto d = img->encodeToData();
-            stream->write(d->data(), d->size());
-            return true;
-        },
-        [](SkImage* img, SkWStream* stream, void* ctx) {
-            State* state = (State*)ctx;
-            stream->write(state->fStr, strlen(state->fStr));
-            return true;
-        },
+        [](SkImage* img, void* ctx) -> sk_sp<SkData> { return nullptr; },
+        [](SkImage* img, void* ctx) { return img->encodeToData(); },
+        [](SkImage* img, void* ctx) { return SkData::MakeWithCString(((State*)ctx)->fStr); },
     };
     const SkDeserialImageProc dprocs[] = {
         [](const void* data, size_t length, void*) -> sk_sp<SkImage> {
             SK_ABORT("should not get called");
             return nullptr;
         },
-        [](const void* data, size_t length, void*) -> sk_sp<SkImage> {
+        [](const void* data, size_t length, void*) {
             return SkImage::MakeFromEncoded(SkData::MakeWithCopy(data, length));
         },
         [](const void* data, size_t length, void* ctx) -> sk_sp<SkImage> {
             State* state = (State*)ctx;
-            if (length != strlen(state->fStr) || memcmp(data, state->fStr, length)) {
+            if (length != strlen(state->fStr)+1 || memcmp(data, state->fStr, length)) {
                 return nullptr;
             }
             return sk_ref_sp(state->fImg);
