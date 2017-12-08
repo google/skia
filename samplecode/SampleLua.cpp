@@ -18,8 +18,8 @@ extern "C" {
 #include "lauxlib.h"
 }
 
-//#define LUA_FILENAME    "test.lua"
-#define LUA_FILENAME    "slides.lua"
+//#define LUA_FILENAME    "lua/test.lua"
+#define LUA_FILENAME    "lua/slides.lua"
 
 static const char gDrawName[] = "onDrawContent";
 static const char gClickName[] = "onClickHandler";
@@ -44,7 +44,7 @@ public:
     ~LuaView() override { delete fLua; }
 
     void setImageFilename(lua_State* L) {
-        SkString str = GetResourcePath("mandrill_256.png");
+        SkString str = GetResourcePath("images/mandrill_256.png");
 
         lua_getglobal(L, "setImageFilename");
         if (lua_isfunction(L, -1)) {

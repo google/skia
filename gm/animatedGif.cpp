@@ -18,7 +18,7 @@
 
 #include <vector>
 
-DEFINE_string(animatedGif, "test640x479.gif", "Animated gif in resources folder");
+DEFINE_string(animatedGif, "images/test640x479.gif", "Animated gif in resources folder");
 
 namespace {
     void error(SkCanvas* canvas, const SkString& errorText) {

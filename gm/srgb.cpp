@@ -13,7 +13,7 @@
 #include "SkColorFilter.h"
 
 DEF_SIMPLE_GM(srgb_colorfilter, canvas, 512, 256*3) {
-    auto img = GetResourceAsImage("mandrill_256.png");
+    auto img = GetResourceAsImage("images/mandrill_256.png");
 
     const float array[] = {
         1, 0, 0, 0, 0,

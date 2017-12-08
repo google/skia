@@ -17,7 +17,7 @@ DEF_TEST(skbug_6389, r) {
     SkPaint p;
     p.setMaskFilter(SkBlurMaskFilter::Make(SkBlurStyle::kNormal_SkBlurStyle, 5,
                                            SkBlurMaskFilter::kHighQuality_BlurFlag));
-    p.setImageFilter(SkImageSource::Make(GetResourceAsImage("mandrill_512.png"), {0, 0, 0, 0},
+    p.setImageFilter(SkImageSource::Make(GetResourceAsImage("images/mandrill_512.png"), {0, 0, 0, 0},
                                          {0, 0, 0, 0}, (SkFilterQuality)0));
     s->getCanvas()->drawPaint(p);
 }

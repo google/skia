@@ -83,7 +83,7 @@ int main(void) {
     float       times[32];
     int         currentTime;
 
-    sk_sp<SkData> imageData(SkData::MakeFromFileName("ship.png"));
+    sk_sp<SkData> imageData(SkData::MakeFromFileName("images/ship.png"));
     atlas.reset(SkImage::NewFromEncoded(imageData.get()));
     if (!atlas) {
         SkDebugf("\nCould not decode file ship.png\n");

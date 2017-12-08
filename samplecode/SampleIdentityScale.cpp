@@ -80,5 +80,5 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-static SkView* MyFactory() { return new IdentityScaleView("mandrill_256.png"); }
+static SkView* MyFactory() { return new IdentityScaleView("images/mandrill_256.png"); }
 static SkViewRegister reg(MyFactory);

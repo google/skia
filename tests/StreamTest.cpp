@@ -287,7 +287,7 @@ DEF_TEST(StreamPeek, reporter) {
     test_fully_peekable_stream(reporter, &memStream, memStream.getLength());
 
     // Test an arbitrary file stream. file streams do not support peeking.
-    SkFILEStream fileStream(GetResourcePath("baby_tux.webp").c_str());
+    SkFILEStream fileStream(GetResourcePath("images/baby_tux.webp").c_str());
     REPORTER_ASSERT(reporter, fileStream.isValid());
     if (!fileStream.isValid()) {
         return;

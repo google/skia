@@ -108,5 +108,5 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-static SkView* MyFactory() { return new SubpixelTranslateView("mandrill_256.png", .05f, .05f); }
+static SkView* MyFactory() { return new SubpixelTranslateView("images/mandrill_256.png", .05f, .05f); }
 static SkViewRegister reg(MyFactory);

@@ -457,70 +457,70 @@ static void check(skiatest::Reporter* r,
 }
 
 DEF_TEST(Codec_wbmp, r) {
-    check(r, "mandrill.wbmp", SkISize::Make(512, 512), true, false, true);
+    check(r, "images/mandrill.wbmp", SkISize::Make(512, 512), true, false, true);
 }
 
 DEF_TEST(Codec_webp, r) {
-    check(r, "baby_tux.webp", SkISize::Make(386, 395), false, true, true);
-    check(r, "color_wheel.webp", SkISize::Make(128, 128), false, true, true);
-    check(r, "yellow_rose.webp", SkISize::Make(400, 301), false, true, true);
+    check(r, "images/baby_tux.webp", SkISize::Make(386, 395), false, true, true);
+    check(r, "images/color_wheel.webp", SkISize::Make(128, 128), false, true, true);
+    check(r, "images/yellow_rose.webp", SkISize::Make(400, 301), false, true, true);
 }
 
 DEF_TEST(Codec_bmp, r) {
-    check(r, "randPixels.bmp", SkISize::Make(8, 8), true, false, true);
-    check(r, "rle.bmp", SkISize::Make(320, 240), true, false, true);
+    check(r, "images/randPixels.bmp", SkISize::Make(8, 8), true, false, true);
+    check(r, "images/rle.bmp", SkISize::Make(320, 240), true, false, true);
 }
 
 DEF_TEST(Codec_ico, r) {
     // FIXME: We are not ready to test incomplete ICOs
     // These two tests examine interestingly different behavior:
     // Decodes an embedded BMP image
-    check(r, "color_wheel.ico", SkISize::Make(128, 128), true, false, false);
+    check(r, "images/color_wheel.ico", SkISize::Make(128, 128), true, false, false);
     // Decodes an embedded PNG image
-    check(r, "google_chrome.ico", SkISize::Make(256, 256), false, false, false, true);
+    check(r, "images/google_chrome.ico", SkISize::Make(256, 256), false, false, false, true);
 }
 
 DEF_TEST(Codec_gif, r) {
-    check(r, "box.gif", SkISize::Make(200, 55), false, false, true, true);
-    check(r, "color_wheel.gif", SkISize::Make(128, 128), false, false, true, true);
+    check(r, "images/box.gif", SkISize::Make(200, 55), false, false, true, true);
+    check(r, "images/color_wheel.gif", SkISize::Make(128, 128), false, false, true, true);
     // randPixels.gif is too small to test incomplete
-    check(r, "randPixels.gif", SkISize::Make(8, 8), false, false, false, true);
+    check(r, "images/randPixels.gif", SkISize::Make(8, 8), false, false, false, true);
 }
 
 DEF_TEST(Codec_jpg, r) {
-    check(r, "CMYK.jpg", SkISize::Make(642, 516), true, false, true);
-    check(r, "color_wheel.jpg", SkISize::Make(128, 128), true, false, true);
+    check(r, "images/CMYK.jpg", SkISize::Make(642, 516), true, false, true);
+    check(r, "images/color_wheel.jpg", SkISize::Make(128, 128), true, false, true);
     // grayscale.jpg is too small to test incomplete
-    check(r, "grayscale.jpg", SkISize::Make(128, 128), true, false, false);
-    check(r, "mandrill_512_q075.jpg", SkISize::Make(512, 512), true, false, true);
+    check(r, "images/grayscale.jpg", SkISize::Make(128, 128), true, false, false);
+    check(r, "images/mandrill_512_q075.jpg", SkISize::Make(512, 512), true, false, true);
     // randPixels.jpg is too small to test incomplete
-    check(r, "randPixels.jpg", SkISize::Make(8, 8), true, false, false);
+    check(r, "images/randPixels.jpg", SkISize::Make(8, 8), true, false, false);
 }
 
 DEF_TEST(Codec_png, r) {
-    check(r, "arrow.png", SkISize::Make(187, 312), false, false, true, true);
-    check(r, "baby_tux.png", SkISize::Make(240, 246), false, false, true, true);
-    check(r, "color_wheel.png", SkISize::Make(128, 128), false, false, true, true);
+    check(r, "images/arrow.png", SkISize::Make(187, 312), false, false, true, true);
+    check(r, "images/baby_tux.png", SkISize::Make(240, 246), false, false, true, true);
+    check(r, "images/color_wheel.png", SkISize::Make(128, 128), false, false, true, true);
     // half-transparent-white-pixel.png is too small to test incomplete
-    check(r, "half-transparent-white-pixel.png", SkISize::Make(1, 1), false, false, false, true);
-    check(r, "mandrill_128.png", SkISize::Make(128, 128), false, false, true, true);
-    check(r, "mandrill_16.png", SkISize::Make(16, 16), false, false, true, true);
-    check(r, "mandrill_256.png", SkISize::Make(256, 256), false, false, true, true);
-    check(r, "mandrill_32.png", SkISize::Make(32, 32), false, false, true, true);
-    check(r, "mandrill_512.png", SkISize::Make(512, 512), false, false, true, true);
-    check(r, "mandrill_64.png", SkISize::Make(64, 64), false, false, true, true);
-    check(r, "plane.png", SkISize::Make(250, 126), false, false, true, true);
-    check(r, "plane_interlaced.png", SkISize::Make(250, 126), false, false, true, true);
-    check(r, "randPixels.png", SkISize::Make(8, 8), false, false, true, true);
-    check(r, "yellow_rose.png", SkISize::Make(400, 301), false, false, true, true);
+    check(r, "images/half-transparent-white-pixel.png", SkISize::Make(1, 1), false, false, false, true);
+    check(r, "images/mandrill_128.png", SkISize::Make(128, 128), false, false, true, true);
+    check(r, "images/mandrill_16.png", SkISize::Make(16, 16), false, false, true, true);
+    check(r, "images/mandrill_256.png", SkISize::Make(256, 256), false, false, true, true);
+    check(r, "images/mandrill_32.png", SkISize::Make(32, 32), false, false, true, true);
+    check(r, "images/mandrill_512.png", SkISize::Make(512, 512), false, false, true, true);
+    check(r, "images/mandrill_64.png", SkISize::Make(64, 64), false, false, true, true);
+    check(r, "images/plane.png", SkISize::Make(250, 126), false, false, true, true);
+    check(r, "images/plane_interlaced.png", SkISize::Make(250, 126), false, false, true, true);
+    check(r, "images/randPixels.png", SkISize::Make(8, 8), false, false, true, true);
+    check(r, "images/yellow_rose.png", SkISize::Make(400, 301), false, false, true, true);
 }
 
 // Disable RAW tests for Win32.
 #if defined(SK_CODEC_DECODES_RAW) && (!defined(_WIN32))
 DEF_TEST(Codec_raw, r) {
-    check(r, "sample_1mp.dng", SkISize::Make(600, 338), false, false, false);
-    check(r, "sample_1mp_rotated.dng", SkISize::Make(600, 338), false, false, false);
-    check(r, "dng_with_preview.dng", SkISize::Make(600, 338), true, false, false);
+    check(r, "images/sample_1mp.dng", SkISize::Make(600, 338), false, false, false);
+    check(r, "images/sample_1mp_rotated.dng", SkISize::Make(600, 338), false, false, false);
+    check(r, "images/dng_with_preview.dng", SkISize::Make(600, 338), true, false, false);
 }
 #endif
 
@@ -598,32 +598,32 @@ static void test_dimensions(skiatest::Reporter* r, const char path[]) {
 // Ensure that onGetScaledDimensions returns valid image dimensions to use for decodes
 DEF_TEST(Codec_Dimensions, r) {
     // JPG
-    test_dimensions(r, "CMYK.jpg");
-    test_dimensions(r, "color_wheel.jpg");
-    test_dimensions(r, "grayscale.jpg");
-    test_dimensions(r, "mandrill_512_q075.jpg");
-    test_dimensions(r, "randPixels.jpg");
+    test_dimensions(r, "images/CMYK.jpg");
+    test_dimensions(r, "images/color_wheel.jpg");
+    test_dimensions(r, "images/grayscale.jpg");
+    test_dimensions(r, "images/mandrill_512_q075.jpg");
+    test_dimensions(r, "images/randPixels.jpg");
 
     // Decoding small images with very large scaling factors is a potential
     // source of bugs and crashes.  We disable these tests in Gold because
     // tiny images are not very useful to look at.
     // Here we make sure that we do not crash or access illegal memory when
     // performing scaled decodes on small images.
-    test_dimensions(r, "1x1.png");
-    test_dimensions(r, "2x2.png");
-    test_dimensions(r, "3x3.png");
-    test_dimensions(r, "3x1.png");
-    test_dimensions(r, "1x1.png");
-    test_dimensions(r, "16x1.png");
-    test_dimensions(r, "1x16.png");
-    test_dimensions(r, "mandrill_16.png");
+    test_dimensions(r, "images/1x1.png");
+    test_dimensions(r, "images/2x2.png");
+    test_dimensions(r, "images/3x3.png");
+    test_dimensions(r, "images/3x1.png");
+    test_dimensions(r, "images/1x1.png");
+    test_dimensions(r, "images/16x1.png");
+    test_dimensions(r, "images/1x16.png");
+    test_dimensions(r, "images/mandrill_16.png");
 
     // RAW
 // Disable RAW tests for Win32.
 #if defined(SK_CODEC_DECODES_RAW) && (!defined(_WIN32))
-    test_dimensions(r, "sample_1mp.dng");
-    test_dimensions(r, "sample_1mp_rotated.dng");
-    test_dimensions(r, "dng_with_preview.dng");
+    test_dimensions(r, "images/sample_1mp.dng");
+    test_dimensions(r, "images/sample_1mp_rotated.dng");
+    test_dimensions(r, "images/dng_with_preview.dng");
 #endif
 }
 
@@ -846,7 +846,7 @@ private:
 // Test that the RawCodec works also for not asset stream. This will test the code path using
 // SkRawBufferedStream instead of SkRawAssetStream.
 DEF_TEST(Codec_raw_notseekable, r) {
-    const char* path = "dng_with_preview.dng";
+    const char* path = "images/dng_with_preview.dng";
     SkString fullPath(GetResourcePath(path));
     sk_sp<SkData> data(SkData::MakeFromFileName(fullPath.c_str()));
     if (!data) {
@@ -865,7 +865,7 @@ DEF_TEST(Codec_raw_notseekable, r) {
 // Test that even if webp_parse_header fails to peek enough, it will fall back to read()
 // + rewind() and succeed.
 DEF_TEST(Codec_webp_peek, r) {
-    const char* path = "baby_tux.webp";
+    const char* path = "images/baby_tux.webp";
     SkString fullPath(GetResourcePath(path));
     auto data = SkData::MakeFromFileName(fullPath.c_str());
     if (!data) {
@@ -892,7 +892,7 @@ DEF_TEST(Codec_webp_peek, r) {
 // a couple of bits to be 1 (so long as they do not overlap with 0x9F).
 // Test that SkCodec now supports an image with these bits set.
 DEF_TEST(Codec_wbmp_restrictive, r) {
-    const char* path = "mandrill.wbmp";
+    const char* path = "images/mandrill.wbmp";
     std::unique_ptr<SkStream> stream(GetResourceAsStream(path));
     if (!stream) {
         return;
@@ -942,7 +942,7 @@ DEF_TEST(Codec_wbmp_max_size, r) {
 }
 
 DEF_TEST(Codec_jpeg_rewind, r) {
-    const char* path = "mandrill_512_q075.jpg";
+    const char* path = "images/mandrill_512_q075.jpg";
     sk_sp<SkData> data(GetResourceAsData(path));
     if (!data) {
         return;
@@ -1017,8 +1017,8 @@ static void check_color_xform(skiatest::Reporter* r, const char* path) {
 }
 
 DEF_TEST(Codec_ColorXform, r) {
-    check_color_xform(r, "mandrill_512_q075.jpg");
-    check_color_xform(r, "mandrill_512.png");
+    check_color_xform(r, "images/mandrill_512_q075.jpg");
+    check_color_xform(r, "images/mandrill_512.png");
 }
 
 static bool color_type_match(SkColorType origColorType, SkColorType codecColorType) {
@@ -1069,7 +1069,7 @@ static void check_round_trip(skiatest::Reporter* r, SkCodec* origCodec, const Sk
 }
 
 DEF_TEST(Codec_PngRoundTrip, r) {
-    auto codec = SkCodec::MakeFromStream(GetResourceAsStream("mandrill_512_q075.jpg"));
+    auto codec = SkCodec::MakeFromStream(GetResourceAsStream("images/mandrill_512_q075.jpg"));
 
     SkColorType colorTypesOpaque[] = {
             kRGB_565_SkColorType, kRGBA_8888_SkColorType, kBGRA_8888_SkColorType
@@ -1079,10 +1079,10 @@ DEF_TEST(Codec_PngRoundTrip, r) {
         check_round_trip(r, codec.get(), newInfo);
     }
 
-    codec = SkCodec::MakeFromStream(GetResourceAsStream("grayscale.jpg"));
+    codec = SkCodec::MakeFromStream(GetResourceAsStream("images/grayscale.jpg"));
     check_round_trip(r, codec.get(), codec->getInfo());
 
-    codec = SkCodec::MakeFromStream(GetResourceAsStream("yellow_rose.png"));
+    codec = SkCodec::MakeFromStream(GetResourceAsStream("images/yellow_rose.png"));
 
     SkColorType colorTypesWithAlpha[] = {
             kRGBA_8888_SkColorType, kBGRA_8888_SkColorType
@@ -1100,7 +1100,7 @@ DEF_TEST(Codec_PngRoundTrip, r) {
         }
     }
 
-    codec = SkCodec::MakeFromStream(GetResourceAsStream("index8.png"));
+    codec = SkCodec::MakeFromStream(GetResourceAsStream("images/index8.png"));
 
     for (SkAlphaType alphaType : alphaTypes) {
         SkImageInfo newInfo = codec->getInfo().makeAlphaType(alphaType)
@@ -1167,9 +1167,9 @@ static void test_conversion_possible(skiatest::Reporter* r, const char* path,
 }
 
 DEF_TEST(Codec_F16ConversionPossible, r) {
-    test_conversion_possible(r, "color_wheel.webp", false, false);
-    test_conversion_possible(r, "mandrill_512_q075.jpg", true, false);
-    test_conversion_possible(r, "yellow_rose.png", false, true);
+    test_conversion_possible(r, "images/color_wheel.webp", false, false);
+    test_conversion_possible(r, "images/mandrill_512_q075.jpg", true, false);
+    test_conversion_possible(r, "images/yellow_rose.png", false, true);
 }
 
 static void decode_frame(skiatest::Reporter* r, SkCodec* codec, size_t frame) {
@@ -1186,7 +1186,7 @@ static void decode_frame(skiatest::Reporter* r, SkCodec* codec, size_t frame) {
 // For an animated GIF, we should only read enough to decode frame 0 if the
 // client never calls getFrameInfo and only decodes frame 0.
 DEF_TEST(Codec_skipFullParse, r) {
-    auto path = "test640x479.gif";
+    auto path = "images/test640x479.gif";
     auto streamObj = GetResourceAsStream(path);
     if (!streamObj) {
         return;
@@ -1269,10 +1269,10 @@ DEF_TEST(Codec_fallBack, r) {
 
     // Formats that currently do not support incremental decoding
     auto files = {
-            "CMYK.jpg",
-            "color_wheel.ico",
-            "mandrill.wbmp",
-            "randPixels.bmp",
+            "images/CMYK.jpg",
+            "images/color_wheel.ico",
+            "images/mandrill.wbmp",
+            "images/randPixels.bmp",
             };
     for (auto file : files) {
         auto stream = LimitedRewindingStream::Make(file, SkCodec::MinBufferedBytesNeeded());
@@ -1308,7 +1308,7 @@ DEF_TEST(Codec_fallBack, r) {
 // This test verifies that we fixed an assert statement that fired when reusing a png codec
 // after scaling.
 DEF_TEST(Codec_reusePng, r) {
-    std::unique_ptr<SkStream> stream(GetResourceAsStream("plane.png"));
+    std::unique_ptr<SkStream> stream(GetResourceAsStream("images/plane.png"));
     if (!stream) {
         return;
     }
@@ -1336,7 +1336,7 @@ DEF_TEST(Codec_reusePng, r) {
 }
 
 DEF_TEST(Codec_rowsDecoded, r) {
-    auto file = "plane_interlaced.png";
+    auto file = "images/plane_interlaced.png";
     std::unique_ptr<SkStream> stream(GetResourceAsStream(file));
     if (!stream) {
         return;
@@ -1511,7 +1511,7 @@ DEF_TEST(Codec_EncodeICC, r) {
 }
 
 DEF_TEST(Codec_webp_rowsDecoded, r) {
-    const char* path = "baby_tux.webp";
+    const char* path = "images/baby_tux.webp";
     sk_sp<SkData> data(GetResourceAsData(path));
     if (!data) {
         return;

@@ -957,7 +957,7 @@ static void test_cross_context_image(skiatest::Reporter* reporter, const GrConte
 }
 
 DEF_GPUTEST(SkImage_MakeCrossContextFromEncodedRelease, reporter, options) {
-    sk_sp<SkData> data = GetResourceAsData("mandrill_128.png");
+    sk_sp<SkData> data = GetResourceAsData("images/mandrill_128.png");
     SkASSERT(data.get());
 
     test_cross_context_image(reporter, options, [&data](GrContext* ctx) {
@@ -968,7 +968,7 @@ DEF_GPUTEST(SkImage_MakeCrossContextFromEncodedRelease, reporter, options) {
 DEF_GPUTEST(SkImage_MakeCrossContextFromPixmapRelease, reporter, options) {
     SkBitmap bitmap;
     SkPixmap pixmap;
-    SkAssertResult(GetResourceAsBitmap("mandrill_128.png", &bitmap) && bitmap.peekPixels(&pixmap));
+    SkAssertResult(GetResourceAsBitmap("images/mandrill_128.png", &bitmap) && bitmap.peekPixels(&pixmap));
 
     test_cross_context_image(reporter, options, [&pixmap](GrContext* ctx) {
         return SkImage::MakeCrossContextFromPixmap(ctx, pixmap, false, nullptr);
@@ -1079,10 +1079,10 @@ static inline bool almost_equal(int a, int b) {
 
 DEF_TEST(Image_ColorSpace, r) {
     sk_sp<SkColorSpace> srgb = SkColorSpace::MakeSRGB();
-    sk_sp<SkImage> image = GetResourceAsImage("mandrill_512_q075.jpg");
+    sk_sp<SkImage> image = GetResourceAsImage("images/mandrill_512_q075.jpg");
     REPORTER_ASSERT(r, srgb.get() == image->colorSpace());
 
-    image = GetResourceAsImage("webp-color-profile-lossy.webp");
+    image = GetResourceAsImage("images/webp-color-profile-lossy.webp");
     SkColorSpaceTransferFn fn;
     bool success = image->colorSpace()->isNumericalTransferFn(&fn);
     REPORTER_ASSERT(r, success);
@@ -1138,7 +1138,7 @@ DEF_TEST(Image_makeColorSpace, r) {
     REPORTER_ASSERT(r, almost_equal(0x31, SkGetPackedG32(*adobeBitmap.getAddr32(0, 0))));
     REPORTER_ASSERT(r, almost_equal(0x4C, SkGetPackedB32(*adobeBitmap.getAddr32(0, 0))));
 
-    srgbImage = GetResourceAsImage("1x1.png");
+    srgbImage = GetResourceAsImage("images/1x1.png");
     p3Image = srgbImage->makeColorSpace(p3, SkTransferFunctionBehavior::kIgnore);
     success = p3Image->asLegacyBitmap(&p3Bitmap, SkImage::kRO_LegacyBitmapMode);
     REPORTER_ASSERT(r, success);

@@ -523,7 +523,7 @@ int main(int argc, char** argv) {
 
         // Load a graph of the CIE XYZ color gamut.
         SkBitmap gamutCanvasBitmap;
-        if (!GetResourceAsBitmap("gamut.png", &gamutCanvasBitmap)) {
+        if (!GetResourceAsBitmap("images/gamut.png", &gamutCanvasBitmap)) {
             SkDebugf("Program failure (could not load gamut.png).\n");
             return -1;
         }

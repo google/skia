@@ -49,8 +49,8 @@ static sk_sp<SkData> load_resource(
 DEF_TEST(SkPDF_JpegEmbedTest, r) {
     REQUIRE_PDF_DOCUMENT(SkPDF_JpegEmbedTest, r);
     const char test[] = "SkPDF_JpegEmbedTest";
-    sk_sp<SkData> mandrillData(load_resource(r, test, "mandrill_512_q075.jpg"));
-    sk_sp<SkData> cmykData(load_resource(r, test, "CMYK.jpg"));
+    sk_sp<SkData> mandrillData(load_resource(r, test, "images/mandrill_512_q075.jpg"));
+    sk_sp<SkData> cmykData(load_resource(r, test, "images/CMYK.jpg"));
     if (!mandrillData || !cmykData) {
         return;
     }
@@ -88,11 +88,11 @@ DEF_TEST(SkPDF_JpegIdentification, r) {
         const char* path;
         bool isJfif;
         SkJFIFInfo::Type type;
-    } kTests[] = {{"CMYK.jpg", false, SkJFIFInfo::kGrayscale},
-                  {"color_wheel.jpg", true, SkJFIFInfo::kYCbCr},
-                  {"grayscale.jpg", true, SkJFIFInfo::kGrayscale},
-                  {"mandrill_512_q075.jpg", true, SkJFIFInfo::kYCbCr},
-                  {"randPixels.jpg", true, SkJFIFInfo::kYCbCr}};
+    } kTests[] = {{"images/CMYK.jpg", false, SkJFIFInfo::kGrayscale},
+                  {"images/color_wheel.jpg", true, SkJFIFInfo::kYCbCr},
+                  {"images/grayscale.jpg", true, SkJFIFInfo::kGrayscale},
+                  {"images/mandrill_512_q075.jpg", true, SkJFIFInfo::kYCbCr},
+                  {"images/randPixels.jpg", true, SkJFIFInfo::kYCbCr}};
     for (size_t i = 0; i < SK_ARRAY_COUNT(kTests); ++i) {
         sk_sp<SkData> data(load_resource(r, "JpegIdentification", kTests[i].path));
         if (!data) {

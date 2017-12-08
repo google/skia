@@ -67,7 +67,7 @@ static sk_sp<SkShader> sh_make_lineargradient1() {
 }
 
 static sk_sp<SkShader> sh_make_image() {
-    sk_sp<SkImage> image(GetResourceAsImage("mandrill_128.png"));
+    sk_sp<SkImage> image(GetResourceAsImage("images/mandrill_128.png"));
     if (!image) {
         return nullptr;
     }
@@ -225,7 +225,7 @@ DEF_SIMPLE_GM(colorfiltershader, canvas, 610, 610) {
 }
 
 DEF_SIMPLE_GM(mixershader, canvas, 800, 700) {
-    auto shaderA = GetResourceAsImage("mandrill_128.png")->makeShader(SkShader::kClamp_TileMode,
+    auto shaderA = GetResourceAsImage("images/mandrill_128.png")->makeShader(SkShader::kClamp_TileMode,
                                                                       SkShader::kClamp_TileMode);
     const SkColor colors[] = { SK_ColorGREEN, 0 };
     auto shaderB = SkGradientShader::MakeRadial({60, 60}, 55, colors, nullptr, 2,

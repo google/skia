@@ -14,7 +14,7 @@ DEF_SIMPLE_GM(bitmap_subset_shader, canvas, 256, 256) {
     canvas->clear(SK_ColorWHITE);
 
     SkBitmap source;
-    if (!GetResourceAsBitmap("color_wheel.png", &source)) {
+    if (!GetResourceAsBitmap("images/color_wheel.png", &source)) {
         return;
     }
     SkIRect left = SkIRect::MakeWH(source.width()/2, source.height());

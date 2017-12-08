@@ -146,7 +146,7 @@ size_t count_bytes(const SkBitmap& bm, bool useDCT) {
 DEF_TEST(SkPDF_document_dct_encoder, r) {
     REQUIRE_PDF_DOCUMENT(SkPDF_document_dct_encoder, r);
     SkBitmap bm;
-    if (GetResourceAsBitmap("mandrill_64.png", &bm)) {
+    if (GetResourceAsBitmap("images/mandrill_64.png", &bm)) {
         // Lossy encoding works better on photographs.
         REPORTER_ASSERT(r, count_bytes(bm, true) < count_bytes(bm, false));
     }

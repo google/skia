@@ -533,7 +533,7 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     fImGuiFontPaint.setFilterQuality(kLow_SkFilterQuality);
     io.Fonts->TexID = &fImGuiFontPaint;
 
-    auto gamutImage = GetResourceAsImage("gamut.png");
+    auto gamutImage = GetResourceAsImage("images/gamut.png");
     if (gamutImage) {
         fImGuiGamutPaint.setShader(gamutImage->makeShader());
     }

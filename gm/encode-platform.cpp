@@ -20,12 +20,12 @@
 namespace skiagm {
 
 static void make_opaque_256(SkBitmap* bitmap) {
-    GetResourceAsBitmap("mandrill_256.png", bitmap);
+    GetResourceAsBitmap("images/mandrill_256.png", bitmap);
 }
 
 static void make_premul_256(SkBitmap* bitmap) {
     SkBitmap tmp;
-    GetResourceAsBitmap("yellow_rose.png", &tmp);
+    GetResourceAsBitmap("images/yellow_rose.png", &tmp);
     tmp.extractSubset(bitmap, SkIRect::MakeWH(256, 256));
 }
 

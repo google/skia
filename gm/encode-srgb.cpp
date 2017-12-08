@@ -42,16 +42,16 @@ static void make(SkBitmap* bitmap, SkColorType colorType, SkAlphaType alphaType,
     const char* resource;
     switch (colorType) {
         case kGray_8_SkColorType:
-            resource = "grayscale.jpg";
+            resource = "images/grayscale.jpg";
             alphaType = kOpaque_SkAlphaType;
             break;
         case kRGB_565_SkColorType:
-            resource = "color_wheel.jpg";
+            resource = "images/color_wheel.jpg";
             alphaType = kOpaque_SkAlphaType;
             break;
         default:
-            resource = (kOpaque_SkAlphaType == alphaType) ? "color_wheel.jpg"
-                                                          : "color_wheel.png";
+            resource = (kOpaque_SkAlphaType == alphaType) ? "images/color_wheel.jpg"
+                                                          : "images/color_wheel.png";
             break;
     }
 
