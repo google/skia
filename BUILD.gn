@@ -30,6 +30,7 @@ declare_args() {
   skia_use_zlib = true
   skia_use_metal = false
   skia_use_libheif = is_skia_dev_build
+  skia_embed_resources = false
 
   skia_android_serial = ""
   skia_enable_discrete_gpu = true
@@ -903,6 +904,17 @@ if (skia_enable_tools) {
       include_dirs += [ "tools/gpu/vk" ]
     }
   }
+  action("binary_resources.cpp") {
+    script = "gn/generate_binary_asset.py"
+    args = [
+      rebase_path("resources"),
+      "gResources",
+      rebase_path("$target_gen_dir/binary_resources.cpp", root_build_dir),
+    ]
+    outputs = [
+      "$target_gen_dir/binary_resources.cpp",
+    ]
+  }
   action("skia.h") {
     public_configs = [ ":skia.h_config" ]
     skia_h = "$target_gen_dir/skia.h"
@@ -1251,6 +1263,11 @@ if (skia_enable_tools) {
     public_deps = [
       "//third_party/jsoncpp",
     ]
+    if (skia_embed_resources) {
+      defines = [ "SK_EMBED_RESOURCES" ]
+      sources += [ "$target_gen_dir/binary_resources.cpp" ]
+      deps += [ ":binary_resources.cpp" ]
+    }
   }
 
   import("gn/gm.gni")

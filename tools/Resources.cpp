@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "BinaryAsset.h"
 #include "Resources.h"
 #include "SkBitmap.h"
 #include "SkCommandLineFlags.h"
@@ -40,6 +41,19 @@ std::unique_ptr<SkStreamAsset> GetResourceAsStream(const char* resource) {
                 : nullptr;
 }
 
+#ifdef SK_EMBED_RESOURCES
+extern BinaryAsset gResources[];
+sk_sp<SkData> GetResourceAsData(const char* resource) {
+    for (const BinaryAsset* ptr = gResources; ptr->name; ++ptr) {
+        if (0 == strcmp(resource, ptr->name)) {
+            return SkData::MakeWithoutCopy(ptr->data, ptr->len);
+        }
+    }
+    SkDebugf("Resource \"%s\" not found.\n", resource);
+    SK_ABORT("missing resource");
+    return nullptr;
+}
+#else
 sk_sp<SkData> GetResourceAsData(const char* resource) {
     auto data = SkData::MakeFromFileName(GetResourcePath(resource).c_str());
     if (!data) {
@@ -47,6 +61,7 @@ sk_sp<SkData> GetResourceAsData(const char* resource) {
     }
     return data;
 }
+#endif
 
 sk_sp<SkTypeface> MakeResourceAsTypeface(const char* resource) {
     std::unique_ptr<SkStreamAsset> stream(GetResourceAsStream(resource));

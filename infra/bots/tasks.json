@@ -258,6 +258,12 @@
         "Build-Debian9-GCC-x86_64-Debug"
       ]
     },
+    "Build-Debian9-GCC-x86_64-Debug-EmbededResouces": {
+      "priority": 0.8,
+      "tasks": [
+        "Build-Debian9-GCC-x86_64-Debug-EmbededResouces"
+      ]
+    },
     "Build-Debian9-GCC-x86_64-Debug-NoGPU": {
       "priority": 0.8,
       "tasks": [
@@ -268,6 +274,12 @@
       "priority": 0.8,
       "tasks": [
         "Build-Debian9-GCC-x86_64-Release"
+      ]
+    },
+    "Build-Debian9-GCC-x86_64-Release-EmbededResouces": {
+      "priority": 0.8,
+      "tasks": [
+        "Build-Debian9-GCC-x86_64-Release-EmbededResouces"
       ]
     },
     "Build-Debian9-GCC-x86_64-Release-Flutter_Android": {
@@ -4232,6 +4244,29 @@
       "isolate": "compile_skia.isolate",
       "priority": 0.8
     },
+    "Build-Debian9-GCC-x86_64-Debug-EmbededResouces": {
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "os:Debian-9.2",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "compile",
+        "repository=<(REPO)",
+        "buildername=Build-Debian9-GCC-x86_64-Debug-EmbededResouces",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "compile_skia.isolate",
+      "priority": 0.8
+    },
     "Build-Debian9-GCC-x86_64-Debug-NoGPU": {
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -4268,6 +4303,29 @@
         "compile",
         "repository=<(REPO)",
         "buildername=Build-Debian9-GCC-x86_64-Release",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "compile_skia.isolate",
+      "priority": 0.8
+    },
+    "Build-Debian9-GCC-x86_64-Release-EmbededResouces": {
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "os:Debian-9.2",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "compile",
+        "repository=<(REPO)",
+        "buildername=Build-Debian9-GCC-x86_64-Release-EmbededResouces",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",

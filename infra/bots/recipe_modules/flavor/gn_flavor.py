@@ -141,6 +141,8 @@ with open(sys.argv[1], 'w') as f:
       })
     if extra_config == 'NoGPU':
       args['skia_enable_gpu'] = 'false'
+    if extra_config == 'EmbededResouces':
+      args['skia_embed_resoucres'] = 'true'
     if extra_config == 'Shared':
       args['is_component_build'] = 'true'
     if 'Vulkan' in extra_config and not 'Android' in extra_config:
