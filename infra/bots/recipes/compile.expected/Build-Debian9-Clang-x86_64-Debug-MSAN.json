@@ -129,6 +129,22 @@
   },
   {
     "cmd": [
+      "cat",
+      "[CUSTOM_/_B_WORK]/skia/out/Build-Debian9-Clang-x86_64-Debug-MSAN/Debug/gen/skia.h"
+    ],
+    "cwd": "[CUSTOM_/_B_WORK]/skia",
+    "env": {
+      "BUILDTYPE": "Debug",
+      "CC": "/usr/bin/clang",
+      "CHROME_HEADLESS": "1",
+      "CXX": "/usr/bin/clang++",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[CUSTOM_/_B_WORK]/skia/out/Build-Debian9-Clang-x86_64-Debug-MSAN"
+    },
+    "name": "cat skia.h"
+  },
+  {
+    "cmd": [
       "ninja",
       "-k",
       "0",

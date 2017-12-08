@@ -131,6 +131,23 @@
   },
   {
     "cmd": [
+      "cat",
+      "[CUSTOM_/_B_WORK]/skia/out/Build-Debian9-Clang-x86_64-Debug-SK_USE_DISCARDABLE_SCALEDIMAGECACHE/Debug/gen/skia.h"
+    ],
+    "cwd": "[CUSTOM_/_B_WORK]/skia",
+    "env": {
+      "BUILDTYPE": "Debug",
+      "CC": "/usr/bin/clang",
+      "CHROME_HEADLESS": "1",
+      "CPPFLAGS": "-DSK_USE_DISCARDABLE_SCALEDIMAGECACHE",
+      "CXX": "/usr/bin/clang++",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[CUSTOM_/_B_WORK]/skia/out/Build-Debian9-Clang-x86_64-Debug-SK_USE_DISCARDABLE_SCALEDIMAGECACHE"
+    },
+    "name": "cat skia.h"
+  },
+  {
+    "cmd": [
       "ninja",
       "-k",
       "0",

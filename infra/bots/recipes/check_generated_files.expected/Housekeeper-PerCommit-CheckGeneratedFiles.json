@@ -199,6 +199,20 @@
   },
   {
     "cmd": [
+      "cat",
+      "[START_DIR]/out/Release/gen/skia.h"
+    ],
+    "cwd": "[CUSTOM_/_B_WORK]/skia",
+    "env": {
+      "BUILDTYPE": "Release",
+      "CHROME_HEADLESS": "1",
+      "PATH": "[CUSTOM_/_B_WORK]/skia/bin:<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[START_DIR]/out"
+    },
+    "name": "cat skia.h"
+  },
+  {
+    "cmd": [
       "ninja",
       "-k",
       "0",

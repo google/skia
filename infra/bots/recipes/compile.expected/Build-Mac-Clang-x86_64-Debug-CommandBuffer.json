@@ -168,6 +168,22 @@
   },
   {
     "cmd": [
+      "cat",
+      "[CUSTOM_/_B_WORK]/skia/out/Build-Mac-Clang-x86_64-Debug-CommandBuffer/Debug/gen/skia.h"
+    ],
+    "cwd": "[CUSTOM_/_B_WORK]/skia",
+    "env": {
+      "BUILDTYPE": "Debug",
+      "CC": "/usr/bin/clang",
+      "CHROME_HEADLESS": "1",
+      "CXX": "/usr/bin/clang++",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[CUSTOM_/_B_WORK]/skia/out/Build-Mac-Clang-x86_64-Debug-CommandBuffer"
+    },
+    "name": "cat skia.h"
+  },
+  {
+    "cmd": [
       "ninja",
       "-k",
       "0",

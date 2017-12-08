@@ -125,6 +125,20 @@
   },
   {
     "cmd": [
+      "cat",
+      "[CUSTOM_/_B_WORK]/skia/out/Build-Debian9-EMCC-wasm-Release/Release/gen/skia.h"
+    ],
+    "cwd": "[CUSTOM_/_B_WORK]/skia",
+    "env": {
+      "BUILDTYPE": "Release",
+      "CHROME_HEADLESS": "1",
+      "PATH": "[START_DIR]/emscripten_sdk/clang/fastcomp/build_incoming_64/bin:<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[CUSTOM_/_B_WORK]/skia/out/Build-Debian9-EMCC-wasm-Release"
+    },
+    "name": "cat skia.h"
+  },
+  {
+    "cmd": [
       "ninja",
       "-k",
       "0",
