@@ -273,14 +273,9 @@ bool SkPicture::PictureIOSecurityPrecautionsEnabled() {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool PixelSerializer_SkSerialImageProc(SkImage* img, SkWStream* stream, void* ctx) {
+sk_sp<SkData> PixelSerializer_SkSerialImageProc(SkImage* img, void* ctx) {
     SkASSERT(ctx);
-    sk_sp<SkData> enc = img->encodeToData(static_cast<SkPixelSerializer*>(ctx));
-    if (enc) {
-        stream->write(enc->data(), enc->size());
-        return true;
-    }
-    return false;
+    return img->encodeToData(static_cast<SkPixelSerializer*>(ctx));
 }
 
 sk_sp<SkImage> ImageDeserializer_SkDeserialImageProc(const void* data, size_t length, void* ctx) {
