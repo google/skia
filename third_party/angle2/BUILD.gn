@@ -63,6 +63,10 @@ config("common") {
 
     # Allow noexcept, even though we build without exceptions
     cflags_cc += [ "/wd4577" ]
+    if (is_clang) {
+      # utilities.cpp includes an 'unsigned long' <= UINT_MAX check
+      cflags_cc += [ "-Wno-tautological-constant-compare" ]
+    }
   }
 }
 
