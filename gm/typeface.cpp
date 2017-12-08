@@ -257,7 +257,7 @@ static void draw_typeface_rendering_gm(SkCanvas* canvas, sk_sp<SkTypeface> face,
 DEF_SIMPLE_GM_BG_NAME(typefacerendering, canvas, 640, 680, SK_ColorWHITE,
                       SkStringPrintf("typefacerendering%s",
                                      sk_tool_utils::platform_font_manager())) {
-    if (sk_sp<SkTypeface> face = MakeResourceAsTypeface("/fonts/hintgasp.ttf")) {
+    if (sk_sp<SkTypeface> face = MakeResourceAsTypeface("fonts/hintgasp.ttf")) {
         draw_typeface_rendering_gm(canvas, std::move(face));
     }
 }

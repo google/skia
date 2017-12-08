@@ -1376,7 +1376,7 @@ void draw(SkCanvas* canvas) {<div>The "hintgasp" TrueType font in the Skia resou
     SkPaint paint;
     paint.setAntiAlias(true);
     paint.setTextSize(13);
-    paint.setTypeface(MakeResourceAsTypeface("/fonts/hintgasp.ttf"));
+    paint.setTypeface(MakeResourceAsTypeface("fonts/hintgasp.ttf"));
     for (bool embedded : { false, true}) {
         paint.setEmbeddedBitmapText(embedded);
         offscreen.drawString("A", embedded ? 5 : 15, 15, paint);
