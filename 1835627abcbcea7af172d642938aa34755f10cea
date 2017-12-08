@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ccaf63b9_0bff437d",
+        "filename": "src/jumper/SkJumper.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-12-08T03:41:42Z",
+      "side": 1,
+      "message": "This looks identical to SkJumper_GatherCtx. Is there a particular reason why we can\u0027t merge them into a single struct (e.g., SkJumper_ImageCtx)?",
+      "revId": "1835627abcbcea7af172d642938aa34755f10cea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "929004f1_031dcb5b",
+        "filename": "src/jumper/SkJumper_stages.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1509,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-12-08T03:41:42Z",
+      "side": 1,
+      "message": "I see that this is logically identical to the original approach (so we won\u0027t expect any pixel changes). What I\u0027m curious about is how it handles downscale sampling. It seems that the sampling is always within the 2x2 square in the source image. But I remembered that someone mentioned sampling the MxM square if we downscale M times?",
+      "revId": "1835627abcbcea7af172d642938aa34755f10cea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "05fc5ae9_fd6121db",
+        "filename": "src/jumper/SkJumper_stages.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1532,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-12-08T03:41:42Z",
+      "side": 1,
+      "message": "Just curious: would it be faster if we extend the original image by 1 pixel in all 4 directions so we can skip this clamp stage? If so, how complex would the implementation be in our current framework?",
+      "revId": "1835627abcbcea7af172d642938aa34755f10cea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4c8bd692_509e40b8",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 403,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-12-08T03:41:42Z",
+      "side": 1,
+      "message": "Are these empty lines intentional (403 and 413)?",
+      "revId": "1835627abcbcea7af172d642938aa34755f10cea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
