@@ -1474,9 +1474,6 @@ bool IncludeParser::parseMethod(Definition* child, Definition* markupDef) {
         break;
     }
     tokenIter->fName = nameStr;
-    if ("operator" == nameStr) {
-        SkDebugf("");
-    }
     tokenIter->fMarkType = MarkType::kMethod;
     tokenIter->fPrivate = string::npos != nameStr.find("::");
     auto testIter = child->fParent->fTokens.begin();
@@ -1538,9 +1535,6 @@ bool IncludeParser::parseMethod(Definition* child, Definition* markupDef) {
         auto globalFunction = &fIFunctionMap[name];
         globalFunction->fContentStart = start;
         globalFunction->fName = name;
-        if ("operator+" == name) {
-            SkDebugf("");
-        }
         globalFunction->fFiddle = name;
         globalFunction->fContentEnd = end;
         globalFunction->fMarkType = MarkType::kMethod;
@@ -1555,9 +1549,6 @@ bool IncludeParser::parseMethod(Definition* child, Definition* markupDef) {
     SkASSERT(classDef.fStart);
     string uniqueName = this->uniqueName(classDef.fMethods, nameStr);
     markupChild->fName = uniqueName;
-        if ("operator+" == uniqueName) {
-            SkDebugf("");
-        }
     if (!this->findComments(*child, markupChild)) {
         return false;
     }

@@ -63,9 +63,6 @@ string MdOut::addReferences(const char* refStart, const char* refEnd,
         } else {
             leadingSpaces = string(base, wordStart - base);
         }
-        if (!strncmp("SkPoint::operator-()", start, 20)) {
-            SkDebugf("");
-        }
         t.skipToMethodEnd();
         if (base == t.fChar) {
             break;
@@ -77,9 +74,6 @@ string MdOut::addReferences(const char* refStart, const char* refEnd,
             continue;
         }
         ref = string(start, t.fChar - start);
-        if (412 == t.fLineCount) {
-            SkDebugf("");
-        }
         if (const Definition* def = this->isDefined(t, ref,
                 BmhParser::Resolvable::kOut != resolvable)) {
             SkASSERT(def->fFiddle.length());
@@ -264,6 +258,19 @@ bool MdOut::buildReferences(const char* fileOrPath, const char* outDir) {
                 SkDebugf("failed to parse %s\n", hunk);
                 return false;
             }
+        }
+    }
+    return true;
+}
+
+bool MdOut::buildStatus(const char* statusFile, const char* outDir) {
+    StatusIter iter(statusFile, ".bmh", StatusFilter::kInProgress);
+    for (string file; iter.next(&file); ) {
+        SkString p = SkOSPath::Join(iter.baseDir().c_str(), file.c_str());
+        const char* hunk = p.c_str();
+        if (!this->buildRefFromFile(hunk, outDir)) {
+            SkDebugf("failed to parse %s\n", hunk);
+            return false;
         }
     }
     return true;

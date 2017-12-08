@@ -1378,6 +1378,7 @@ if (skia_enable_tools) {
       ":flags",
       ":skia",
       ":tool_utils",
+      "//third_party/jsoncpp",
     ]
   }
 

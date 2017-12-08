@@ -1515,12 +1515,14 @@ true if supported
 ---
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-void draw(SkDeferredDisplayList* deferredDisplayList)
+bool draw(SkDeferredDisplayList* deferredDisplayList)
 </pre>
 
 Draws deferred display list created using <a href="undocumented#SkDeferredDisplayListRecorder">SkDeferredDisplayListRecorder</a>.
-The <a href="#SkSurface_draw">draw</a> has no effect if <a href="#Characterization">Surface Characterization</a> stored in <a href="#SkSurface_draw_2_deferredDisplayList">deferredDisplayList</a>
-is not compatible with <a href="#Surface">Surface</a>.
+Has no effect and returns false if <a href="#Characterization">Surface Characterization</a> stored in
+<a href="#SkSurface_draw_2_deferredDisplayList">deferredDisplayList</a> is not compatible with <a href="#Surface">Surface</a>.
+
+<a href="undocumented#Raster_Surface">Raster Surface</a> returns false.
 
 ### Parameters
 
@@ -1528,6 +1530,10 @@ is not compatible with <a href="#Surface">Surface</a>.
 drawing commands</td>
   </tr>
 </table>
+
+### Return Value
+
+false if <a href="#SkSurface_draw_2_deferredDisplayList">deferredDisplayList</a> is not compatible
 
 ### Example
 
