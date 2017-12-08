@@ -94,13 +94,7 @@ print log
 if 'cannot' in log:
   raise Exception('adb root failed')
 
-if model == 'Nexus10':
-  # Nexus10 doesn't list available frequencies, but it does give a
-  # min and a max and seems to round to the nearest 100khz, so a
-  # subset of those available are here.
-  available_freqs = [200000, 400000, 600000, 800000, 1000000, 1200000,
-                     1400000, 1700000]
-elif model == 'Nexus7':
+if model == 'Nexus7':
   # Nexus7 claims to support 1300000, but only really allows 1200000
   available_freqs = [51000, 102000, 204000, 340000, 475000, 640000, 760000,
                      860000, 1000000, 1100000, 1200000]
