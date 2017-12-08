@@ -178,6 +178,12 @@ void GrVkCaps::initGrCaps(const VkPhysicalDeviceProperties& properties,
 
     this->initSampleCount(properties);
 
+    if (kAMD_VkVendor == properties.vendorID ||
+        kImagination_VkVendor == properties.vendorID ||
+        kQualcomm_VkVendor == properties.vendorID) {
+        fPreferFullscreenClears = true;
+    }
+
     // Assuming since we will always map in the end to upload the data we might as well just map
     // from the get go. There is no hard data to suggest this is faster or slower.
     fBufferMapThreshold = 0;
