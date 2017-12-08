@@ -257,6 +257,10 @@ protected:
 
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const final;
 
+    // Because onGetGLSLProcessorKey is final, we need something else to allow subclasses to change
+    // the key.
+    virtual uint32_t customGLSLProcessorKey() const { return 0; }
+
     // Helper function used by derived class factories to handle color space transformation and
     // modulation by input alpha.
     static std::unique_ptr<GrFragmentProcessor> AdjustFP(
