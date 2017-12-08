@@ -122,8 +122,8 @@ void GLSLPathProcessor::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
 
     varyingHandler->emitAttributes(proc);
 
-    GrGLSLVertToFrag texcoord(kFloat2_GrSLType);
-    GrGLSLVertToFrag color(kHalf4_GrSLType);
+    GrGLSLVarying texcoord(kFloat2_GrSLType);
+    GrGLSLVarying color(kHalf4_GrSLType);
     varyingHandler->addVarying("texcoord", &texcoord);
     varyingHandler->addFlatPassThroughAttribute(&proc.getInstanceAttrib(InstanceAttribs::kColor),
                                                 args.fOutputColor);

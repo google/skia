@@ -18,52 +18,33 @@ class GrGLSLProgramBuilder;
 
 class GrGLSLVarying {
 public:
-    bool vsVarying() const { return kVertToFrag_Varying == fVarying ||
-                                    kVertToGeo_Varying == fVarying; }
-    bool fsVarying() const { return kVertToFrag_Varying == fVarying ||
-                                    kGeoToFrag_Varying == fVarying; }
-    const char* vsOut() const { return fVsOut; }
-    const char* gsIn() const { return fGsIn; }
-    const char* gsOut() const { return fGsOut; }
-    const char* fsIn() const { return fFsIn; }
-    GrSLType type() const { return fType; }
-
-protected:
-    enum Varying {
-        kVertToFrag_Varying,
-        kVertToGeo_Varying,
-        kGeoToFrag_Varying,
+    enum class Scope {
+        kVertToFrag,
+        kVertToGeo,
+        kGeoToFrag
     };
 
-    GrGLSLVarying(GrSLType type, Varying varying)
-        : fVarying(varying), fType(type), fVsOut(nullptr), fGsIn(nullptr), fGsOut(nullptr),
-          fFsIn(nullptr) {}
+    GrGLSLVarying(GrSLType type, Scope scope = Scope::kVertToFrag) : fType(type), fScope(scope) {}
 
-    Varying fVarying;
+    GrSLType type() const { return fType; }
+    Scope scope() const { return fScope; }
+    bool isInVertexShader() const { return Scope::kGeoToFrag != fScope; }
+    bool isInFragmentShader() const { return Scope::kVertToGeo != fScope; }
+
+    const char* vsOut() const { SkASSERT(this->isInVertexShader()); return fVsOut; }
+    const char* gsIn() const { return fGsIn; }
+    const char* gsOut() const { return fGsOut; }
+    const char* fsIn() const { SkASSERT(this->isInFragmentShader()); return fFsIn; }
 
 private:
-    GrSLType fType;
-    const char* fVsOut;
-    const char* fGsIn;
-    const char* fGsOut;
-    const char* fFsIn;
+    const GrSLType fType;
+    const Scope fScope;
+    const char* fVsOut = nullptr;
+    const char* fGsIn = nullptr;
+    const char* fGsOut = nullptr;
+    const char* fFsIn = nullptr;
 
     friend class GrGLSLVaryingHandler;
-};
-
-struct GrGLSLVertToFrag : public GrGLSLVarying {
-    GrGLSLVertToFrag(GrSLType type)
-        : GrGLSLVarying(type, kVertToFrag_Varying) {}
-};
-
-struct GrGLSLVertToGeo : public GrGLSLVarying {
-    GrGLSLVertToGeo(GrSLType type)
-        : GrGLSLVarying(type, kVertToGeo_Varying) {}
-};
-
-struct GrGLSLGeoToFrag : public GrGLSLVarying {
-    GrGLSLGeoToFrag(GrSLType type)
-        : GrGLSLVarying(type, kGeoToFrag_Varying) {}
 };
 
 static const int kVaryingsPerBlock = 8;

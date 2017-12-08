@@ -13,7 +13,7 @@
 
 GrGLSLVaryingHandler::VaryingHandle GrGLVaryingHandler::addPathProcessingVarying(
                                                                        const char* name,
-                                                                       GrGLSLVertToFrag* v) {
+                                                                       GrGLSLVarying* v) {
 #ifdef SK_DEBUG
     GrGLProgramBuilder* glPB = (GrGLProgramBuilder*) fProgramBuilder;
     // This call is not used for non-NVPR backends.

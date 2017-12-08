@@ -16,9 +16,9 @@
 static void append_index_uv_varyings(GrGLSLPrimitiveProcessor::EmitArgs& args,
                                      const char* inTexCoordsName,
                                      const char* atlasSizeInvName,
-                                     GrGLSLVertToFrag *uv,
-                                     GrGLSLVertToFrag *texIdx,
-                                     GrGLSLVertToFrag *st) {
+                                     GrGLSLVarying *uv,
+                                     GrGLSLVarying *texIdx,
+                                     GrGLSLVarying *st) {
     // This extracts the texture index and texel coordinates from the same variable
     // Packing structure: texel coordinates are multiplied by 2 (or shifted left 1)
     //                    texture index is stored as lower bits of both x and y
@@ -43,7 +43,7 @@ static void append_index_uv_varyings(GrGLSLPrimitiveProcessor::EmitArgs& args,
 
 static void append_multitexture_lookup(GrGLSLPrimitiveProcessor::EmitArgs& args,
                                        int numTextureSamplers,
-                                       const GrGLSLVertToFrag &texIdx,
+                                       const GrGLSLVarying &texIdx,
                                        const char* coordName,
                                        const char* colorName) {
     // conditionally load from the indexed texture sampler
