@@ -79,6 +79,7 @@
   "Build-Win-MSVC-x86_64-Release-Vulkan",
   "Calmbench-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All",
   "Calmbench-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-All",
+  "Housekeeper-Nightly-Bookmaker",
   "Housekeeper-Nightly-RecreateSKPs_Canary",
   "Housekeeper-Nightly-UpdateMetaConfig",
   "Housekeeper-PerCommit",

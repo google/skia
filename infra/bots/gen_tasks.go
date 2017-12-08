@@ -118,7 +118,9 @@ func linuxGceDimensions() []string {
 // deriveCompileTaskName returns the name of a compile task based on the given
 // job name.
 func deriveCompileTaskName(jobName string, parts map[string]string) string {
-	if parts["role"] == "Housekeeper" {
+	if jobName == "Housekeeper-Nightly-Bookmaker" {
+		return "Build-Debian9-GCC-x86_64-Release"
+	} else if parts["role"] == "Housekeeper" {
 		return "Build-Debian9-GCC-x86_64-Release-Shared"
 	} else if parts["role"] == "Test" || parts["role"] == "Perf" {
 		task_os := parts["os"]
@@ -678,6 +680,32 @@ func housekeeper(b *specs.TasksCfgBuilder, name, compileTaskName string) string 
 	return name
 }
 
+// bookmaker generates a Bookmaker task. Returns the name of the last task
+// in the generated chain of tasks, which the Job should add as a dependency.
+func bookmaker(b *specs.TasksCfgBuilder, name, compileTaskName string) string {
+	b.MustAddTask(name, &specs.TaskSpec{
+		CipdPackages: []*specs.CipdPackage{b.MustGetCipdPackageFromAsset("go")},
+		Dependencies: []string{compileTaskName},
+		Dimensions:   linuxGceDimensions(),
+		ExtraArgs: []string{
+			"--workdir", "../../..", "bookmaker",
+			fmt.Sprintf("repository=%s", specs.PLACEHOLDER_REPO),
+			fmt.Sprintf("buildername=%s", name),
+			fmt.Sprintf("swarm_out_dir=%s", specs.PLACEHOLDER_ISOLATED_OUTDIR),
+			fmt.Sprintf("revision=%s", specs.PLACEHOLDER_REVISION),
+			fmt.Sprintf("patch_repo=%s", specs.PLACEHOLDER_PATCH_REPO),
+			fmt.Sprintf("patch_storage=%s", specs.PLACEHOLDER_PATCH_STORAGE),
+			fmt.Sprintf("patch_issue=%s", specs.PLACEHOLDER_ISSUE),
+			fmt.Sprintf("patch_set=%s", specs.PLACEHOLDER_PATCHSET),
+		},
+		Isolate:          relpath("compile_skia.isolate"),
+		Priority:         0.8,
+		ExecutionTimeout: 2 * time.Hour,
+		IoTimeout:        2 * time.Hour,
+	})
+	return name
+}
+
 // infra generates an infra_tests task. Returns the name of the last task in the
 // generated chain of tasks, which the Job should add as a dependency.
 func infra(b *specs.TasksCfgBuilder, name string) string {
@@ -1104,6 +1132,9 @@ func process(b *specs.TasksCfgBuilder, name string) {
 	}
 	if name == "Housekeeper-PerCommit-CheckGeneratedFiles" {
 		deps = append(deps, checkGeneratedFiles(b, name))
+	}
+	if name == "Housekeeper-Nightly-Bookmaker" {
+		deps = append(deps, bookmaker(b, name, compileTaskName))
 	}
 
 	// Common assets needed by the remaining bots.
