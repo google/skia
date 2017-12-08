@@ -390,6 +390,7 @@ typedef intptr_t GrBackendObject;
 enum GrSurfaceOrigin {
     kTopLeft_GrSurfaceOrigin,
     kBottomLeft_GrSurfaceOrigin,
+    kGrUnknownSurfaceOrigin,
 };
 
 struct GrMipLevel {
