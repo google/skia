@@ -1,0 +1,84 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7f7cd969_1ada80b4",
+        "filename": "tools/skqp/gm_knowledge.h",
+        "patchSetId": 19
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-12-08T19:06:14Z",
+      "side": 1,
+      "message": "what takes advantage of the fact this is exposed as a C API?  Having custom ImageData structs to avoid Skia data structures seems like it doesn\u0027t have a clear benefit.",
+      "revId": "e632c294bf08f7fbcf454c1d48955e178fa0f56f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "25ac2de0_57b5c381",
+        "filename": "tools/skqp/gm_knowledge.h",
+        "patchSetId": 19
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-12-08T19:06:14Z",
+      "side": 1,
+      "message": "wouldn\u0027t these methods be better wrapped in a virtual interface so that we could employ various strategies using different classes?\n\nSkQPValidator {\n\nstatic SkQPValidator* Make();\n\nfloat validateGM(...) \u003d 0;\nbool isValid(...) \u003d 0;",
+      "revId": "e632c294bf08f7fbcf454c1d48955e178fa0f56f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d292ca28_921cfb8f",
+        "filename": "tools/skqp/png_interface.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-12-08T19:06:14Z",
+      "side": 1,
+      "message": "skAssert",
+      "range": {
+        "startLine": 35,
+        "startChar": 8,
+        "endLine": 35,
+        "endChar": 14
+      },
+      "revId": "e632c294bf08f7fbcf454c1d48955e178fa0f56f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e8b8db50_c6c32e9b",
+        "filename": "tools/skqp/png_interface.h",
+        "patchSetId": 19
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-12-08T19:06:14Z",
+      "side": 1,
+      "message": "why not just have this be an SkPixmap?  What format are the pixels expected to be in?",
+      "range": {
+        "startLine": 15,
+        "startChar": 7,
+        "endLine": 15,
+        "endChar": 12
+      },
+      "revId": "e632c294bf08f7fbcf454c1d48955e178fa0f56f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
