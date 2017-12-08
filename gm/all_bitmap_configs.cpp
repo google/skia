@@ -122,7 +122,7 @@ DEF_SIMPLE_GM(all_bitmap_configs, canvas, SCALE, 5 * SCALE) {
     sk_tool_utils::draw_checkerboard(canvas, SK_ColorLTGRAY, SK_ColorWHITE, 8);
 
     SkBitmap bitmap;
-    if (GetResourceAsBitmap("color_wheel.png", &bitmap)) {
+    if (GetResourceAsBitmap("images/color_wheel.png", &bitmap)) {
         bitmap.setImmutable();
         draw(canvas, p, bitmap, kN32_SkColorType, "Native 32");
 

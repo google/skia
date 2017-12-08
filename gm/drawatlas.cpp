@@ -198,7 +198,7 @@ DEF_SIMPLE_GM(compare_atlas_vertices, canvas, 560, 585) {
     const SkRSXform xform = SkRSXform::Make(1, 0, 0, 0);
     const SkColor color = 0x884488CC;
 
-    auto image = GetResourceAsImage("mandrill_128.png");
+    auto image = GetResourceAsImage("images/mandrill_128.png");
     auto verts = make_vertices(image, tex, color);
     const sk_sp<SkColorFilter> filters[] = {
         nullptr,

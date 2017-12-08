@@ -1358,7 +1358,7 @@ int main(int argc, char** argv) {
     gCreateTypefaceDelegate = &create_from_name;
 
     {
-        SkString testResourcePath = GetResourcePath("color_wheel.png");
+        SkString testResourcePath = GetResourcePath("images/color_wheel.png");
         SkFILEStream testResource(testResourcePath.c_str());
         if (!testResource.isValid()) {
             info("Some resources are missing.  Do you need to set --resourcePath?\n");

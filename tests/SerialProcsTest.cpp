@@ -27,7 +27,7 @@ struct State {
 };
 
 DEF_TEST(serial_procs_image, reporter) {
-    auto src_img = GetResourceAsImage("mandrill_128.png");
+    auto src_img = GetResourceAsImage("images/mandrill_128.png");
     const char magic_str[] = "magic signature";
 
     const SkSerialImageProc sprocs[] = {

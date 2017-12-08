@@ -152,7 +152,7 @@ DEF_SIMPLE_GM(patch_image, canvas, 1500, 1100) {
     const SkColor colors[SkPatchUtils::kNumCorners] = {
         SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE, SK_ColorCYAN
     };
-    dopatch(canvas, colors, GetResourceAsImage("mandrill_128.png"));
+    dopatch(canvas, colors, GetResourceAsImage("images/mandrill_128.png"));
 }
 DEF_SIMPLE_GM(patch_alpha, canvas, 1500, 1100) {
     const SkColor colors[SkPatchUtils::kNumCorners] = {
