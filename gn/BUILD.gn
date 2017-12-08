@@ -381,8 +381,22 @@ config("debug_symbols") {
       "-funwind-tables",  # Helps make in-process backtraces fuller.
     ]
   } else if (is_win) {
-    cflags = [ "/Zi" ]
-    ldflags = [ "/DEBUG" ]
+    if (is_clang) {
+      # Tell VS 2015+ to create a PDB that references debug
+      # information in .obj and .lib files instead of copying
+      # it all. This flag is incompatible with /PROFILE
+      ldflags = [ "/DEBUG:FASTLINK" ]
+
+      # /DEBUG:FASTLINK requires every object file to have standalone debug
+      # information.
+      cflags = [
+        "/Z7",  # Debug information in the .obj files.
+        "-fstandalone-debug",
+      ]
+    } else {
+      cflags = [ "/Zi" ]
+      ldflags = [ "/DEBUG" ]
+    }
   } else {
     cflags = [ "-g" ]
   }
