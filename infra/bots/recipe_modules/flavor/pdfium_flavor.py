@@ -17,7 +17,7 @@ class PDFiumFlavorUtils(default_flavor.DefaultFlavorUtils):
     pdfium_dir = self.m.vars.checkout_root.join('pdfium')
 
     # Runhook to generate the gn binary in buildtools.
-    with self.m.context(cwd=pdfium_dir):
+    with self.m.context(cwd=pdfium_dir, env=self.m.vars.gclient_env):
       self.m.run(
           self.m.step,
           'runhook',
