@@ -70,7 +70,7 @@ void GrGLSLGeometryProcessor::emitTransforms(GrGLSLVertexBuilder* vb,
         SkString strVaryingName;
         strVaryingName.printf("TransformedCoords_%d", i);
 
-        GrGLSLVertToFrag v(varyingType);
+        GrGLSLVarying v(varyingType);
         varyingHandler->addVarying(strVaryingName.c_str(), &v);
 
         SkASSERT(kFloat2_GrSLType == varyingType || kFloat3_GrSLType == varyingType);
