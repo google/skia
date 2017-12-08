@@ -56,7 +56,7 @@ std::unique_ptr<GrGLContext> GrGLContext::Make(sk_sp<const GrGLInterface> interf
     GrGLGetDriverInfo(interface->fStandard, args.fVendor, renderer, ver,
                       &args.fDriver, &args.fDriverVersion);
 
-    args.fContextOptions = &options;
+    args.fContextOptions1 = &options;
     args.fInterface = std::move(interface);
 
     return std::unique_ptr<GrGLContext>(new GrGLContext(std::move(args)));
@@ -85,5 +85,5 @@ GrGLContextInfo::GrGLContextInfo(ConstructorArgs&& args) {
     fANGLEVendor = args.fANGLEVendor;
     fANGLERenderer = args.fANGLERenderer;
 
-    fGLCaps = sk_make_sp<GrGLCaps>(*args.fContextOptions, *this, fInterface.get());
+    fGLCaps = sk_make_sp<GrGLCaps>(*args.fContextOptions1, *this, fInterface.get());
 }

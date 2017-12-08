@@ -6,6 +6,8 @@
  */
 
 #include "GrMockGpu.h"
+
+#include "GrContext.h"
 #include "GrMockBuffer.h"
 #include "GrMockCaps.h"
 #include "GrMockGpuCommandBuffer.h"
@@ -24,18 +26,16 @@ int GrMockGpu::NextExternalTextureID() {
     return sk_atomic_dec(&gID) - 1;
 }
 
-sk_sp<GrGpu> GrMockGpu::Make(GrBackendContext backendContext,
-                             const GrContextOptions& contextOptions, GrContext* context) {
-    return Make(reinterpret_cast<const GrMockOptions*>(backendContext), contextOptions, context);
+sk_sp<GrGpu> GrMockGpu::Make(GrBackendContext backendContext, GrContext* context) {
+    return Make(reinterpret_cast<const GrMockOptions*>(backendContext), context);
 }
 
-sk_sp<GrGpu> GrMockGpu::Make(const GrMockOptions* mockOptions,
-                             const GrContextOptions& contextOptions, GrContext* context) {
+sk_sp<GrGpu> GrMockGpu::Make(const GrMockOptions* mockOptions, GrContext* context) {
     static const GrMockOptions kDefaultOptions = GrMockOptions();
     if (!mockOptions) {
         mockOptions = &kDefaultOptions;
     }
-    return sk_sp<GrGpu>(new GrMockGpu(context, *mockOptions, contextOptions));
+    return sk_sp<GrGpu>(new GrMockGpu(context, *mockOptions));
 }
 
 
@@ -58,10 +58,9 @@ void GrMockGpu::submitCommandBuffer(const GrMockGpuRTCommandBuffer* cmdBuffer) {
     }
 }
 
-GrMockGpu::GrMockGpu(GrContext* context, const GrMockOptions& options,
-                     const GrContextOptions& contextOptions)
+GrMockGpu::GrMockGpu(GrContext* context, const GrMockOptions& options)
         : INHERITED(context) {
-    fCaps.reset(new GrMockCaps(contextOptions, options));
+    fCaps.reset(new GrMockCaps(context->options(), options));
 }
 
 sk_sp<GrTexture> GrMockGpu::onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,

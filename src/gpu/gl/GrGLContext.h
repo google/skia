@@ -62,7 +62,7 @@ protected:
         GrGLANGLEBackend                    fANGLEBackend;
         GrGLANGLEVendor                     fANGLEVendor;
         GrGLANGLERenderer                   fANGLERenderer;
-        const  GrContextOptions*            fContextOptions;
+        const  GrContextOptions*            fContextOptions1;
     };
 
     GrGLContextInfo(ConstructorArgs&&);
