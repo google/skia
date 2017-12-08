@@ -566,7 +566,7 @@ public:
             // emit attributes
             varyingHandler->emitAttributes(qe);
 
-            GrGLSLVertToFrag v(kHalf4_GrSLType);
+            GrGLSLVarying v(kHalf4_GrSLType);
             varyingHandler->addVarying("QuadEdge", &v);
             vertBuilder->codeAppendf("%s = %s;", v.vsOut(), qe.fInQuadEdge->fName);
 

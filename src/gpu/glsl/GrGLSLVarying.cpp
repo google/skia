@@ -12,7 +12,7 @@
 void GrGLSLVaryingHandler::addPassThroughAttribute(const GrGeometryProcessor::Attribute* input,
                                                    const char* output) {
     GrSLType type = GrVertexAttribTypeToSLType(input->fType);
-    GrGLSLVertToFrag v(type);
+    GrGLSLVarying v(type);
     this->addVarying(input->fName, &v);
     this->writePassThroughAttribute(input, output, v);
 }
@@ -20,7 +20,7 @@ void GrGLSLVaryingHandler::addPassThroughAttribute(const GrGeometryProcessor::At
 void GrGLSLVaryingHandler::addFlatPassThroughAttribute(const GrGeometryProcessor::Attribute* input,
                                                        const char* output) {
     GrSLType type = GrVertexAttribTypeToSLType(input->fType);
-    GrGLSLVertToFrag v(type);
+    GrGLSLVarying v(type);
     this->addFlatVarying(input->fName, &v);
     this->writePassThroughAttribute(input, output, v);
 }
@@ -41,7 +41,7 @@ void GrGLSLVaryingHandler::internalAddVarying(const char* name, GrGLSLVarying* v
     v.fIsFlat = flat;
     fProgramBuilder->nameVariable(&v.fVsOut, 'v', name);
     v.fVisibility = kNone_GrShaderFlags;
-    if (varying->vsVarying()) {
+    if (varying->isInVertexShader()) {
         varying->fVsOut = v.fVsOut.c_str();
         v.fVisibility |= kVertex_GrShaderFlag;
     }
@@ -51,7 +51,7 @@ void GrGLSLVaryingHandler::internalAddVarying(const char* name, GrGLSLVarying* v
         varying->fGsOut = v.fGsOut.c_str();
         v.fVisibility |= kGeometry_GrShaderFlag;
     }
-    if (varying->fsVarying()) {
+    if (varying->isInFragmentShader()) {
         varying->fFsIn = (willUseGeoShader ? v.fGsOut : v.fVsOut).c_str();
         v.fVisibility |= kFragment_GrShaderFlag;
     }

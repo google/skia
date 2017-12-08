@@ -77,7 +77,7 @@ void GrGLConicEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     // emit attributes
     varyingHandler->emitAttributes(gp);
 
-    GrGLSLVertToFrag v(kFloat4_GrSLType);
+    GrGLSLVarying v(kFloat4_GrSLType);
     varyingHandler->addVarying("ConicCoeffs", &v);
     vertBuilder->codeAppendf("%s = %s;", v.vsOut(), gp.inConicCoeffs()->fName);
 
@@ -329,7 +329,7 @@ void GrGLQuadEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     // emit attributes
     varyingHandler->emitAttributes(gp);
 
-    GrGLSLVertToFrag v(kHalf4_GrSLType);
+    GrGLSLVarying v(kHalf4_GrSLType);
     varyingHandler->addVarying("HairQuadEdge", &v);
     vertBuilder->codeAppendf("%s = %s;", v.vsOut(), gp.inHairQuadEdge()->fName);
 
@@ -552,13 +552,13 @@ void GrGLCubicEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     const char* devkLMMatrixName;
     fDevKLMUniform = uniformHandler->addUniform(kVertex_GrShaderFlag, kFloat3x3_GrSLType, "KLM",
                                                 &devkLMMatrixName);
-    GrGLSLVertToFrag v(kFloat3_GrSLType);
+    GrGLSLVarying v(kFloat3_GrSLType);
     varyingHandler->addVarying("CubicCoeffs", &v);
     vertBuilder->codeAppendf("%s = %s * float3(%s, 1);",
                              v.vsOut(), devkLMMatrixName, gpArgs->fPositionVar.c_str());
 
 
-    GrGLSLVertToFrag gradCoeffs(kFloat4_GrSLType);
+    GrGLSLVarying gradCoeffs(kFloat4_GrSLType);
     if (GrClipEdgeType::kFillAA == fEdgeType || GrClipEdgeType::kHairlineAA == fEdgeType) {
         varyingHandler->addVarying("GradCoeffs", &gradCoeffs);
         vertBuilder->codeAppendf("float k = %s[0], l = %s[1], m = %s[2];",
