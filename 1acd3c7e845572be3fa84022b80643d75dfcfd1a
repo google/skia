@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4312db6d_eea22463",
+        "filename": "src/core/SkPath.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1420,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-12-08T22:10:18Z",
+      "side": 1,
+      "message": "This change is breaking the Android roll, but https://googleplex-android-review.git.corp.google.com/#/c/platform/external/skia/+/3338811 should fix it.",
+      "range": {
+        "startLine": 1420,
+        "startChar": 7,
+        "endLine": 1420,
+        "endChar": 35
+      },
+      "revId": "1acd3c7e845572be3fa84022b80643d75dfcfd1a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
