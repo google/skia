@@ -371,6 +371,7 @@ void GrContext::flush() {
     RETURN_IF_ABANDONED
 
     fDrawingManager->flush(nullptr);
+    fTextBlobCache->purgeStaleBlobs();
 }
 
 GrSemaphoresSubmitted GrContext::flushAndSignalSemaphores(int numSemaphores,
