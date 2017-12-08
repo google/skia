@@ -335,7 +335,7 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 					"MaliT604":           "9901.12.0",
 					"MaliT764":           "10172.0.0",
 					"MaliT860":           "10172.0.0",
-					"PowerVRGX6250":      "9592.71.0",
+					"PowerVRGX6250":      "10176.5.0",
 					"TegraK1":            "10172.0.0",
 					"IntelHDGraphics615": "10032.17.0",
 				}[parts["cpu_or_gpu_value"]]
