@@ -389,7 +389,7 @@ static void run_test(const char* testName, skiatest::Reporter* reporter,
     }
 
     SkAutoSTMalloc<kImageHeight * kImageWidth, uint32_t> resultPx(h * rowBytes);
-    rtc->clear(nullptr, 0xbaaaaaad, true);
+    rtc->clear(nullptr, 0xbaaaaaad, GrRenderTargetContext::CanClearFullscreen::kYes);
     rtc->priv().testingOnly_addDrawOp(skstd::make_unique<GrMeshTestOp>(testFn));
     rtc->readPixels(gold.info(), resultPx, rowBytes, 0, 0, 0);
     for (int y = 0; y < h; ++y) {
