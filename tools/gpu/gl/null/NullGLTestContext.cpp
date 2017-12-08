@@ -17,8 +17,10 @@
 namespace {
 class NullGLContext : public sk_gpu_test::GLTestContext {
 public:
-    NullGLContext(bool enableNVPR) { this->init(GrGLCreateNullInterface(enableNVPR)); }
-   ~NullGLContext() override { this->teardown(); }
+    NullGLContext(bool enableNVPR) {
+        this->init(sk_sp<const GrGLInterface>(GrGLCreateNullInterface(enableNVPR)));
+    }
+    ~NullGLContext() override { this->teardown(); }
 
 private:
     void onPlatformMakeCurrent() const override {}

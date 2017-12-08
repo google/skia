@@ -186,8 +186,8 @@ EGLGLTestContext::EGLGLTestContext(GrGLStandard forcedGpuAPI, EGLGLTestContext* 
             continue;
         }
 
-        gl.reset(GrGLCreateNativeInterface());
-        if (nullptr == gl.get()) {
+        gl = GrGLMakeNativeInterface();
+        if (!gl) {
             SkDebugf("Failed to create gl interface.\n");
             this->destroyGLContext();
             continue;
@@ -199,7 +199,7 @@ EGLGLTestContext::EGLGLTestContext(GrGLStandard forcedGpuAPI, EGLGLTestContext* 
             continue;
         }
 
-        this->init(gl.release(), EGLFenceSync::MakeIfSupported(fDisplay));
+        this->init(std::move(gl), EGLFenceSync::MakeIfSupported(fDisplay));
         break;
     }
 }

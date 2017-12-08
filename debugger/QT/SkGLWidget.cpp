@@ -27,7 +27,7 @@ void SkGLWidget::setSampleCount(int sampleCount) {
 
 void SkGLWidget::initializeGL() {
     if (!fCurIntf) {
-        fCurIntf.reset(GrGLCreateNativeInterface());
+        fCurIntf = GrGLMakeNativeInterface()0;
     }
     if (!fCurIntf) {
         return;

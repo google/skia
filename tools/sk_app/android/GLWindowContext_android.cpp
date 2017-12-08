@@ -121,7 +121,7 @@ sk_sp<const GrGLInterface> GLWindowContext_android::onInitializeContext() {
     SkASSERT(EGL_NO_SURFACE != fSurfaceAndroid);
 
     SkAssertResult(eglMakeCurrent(fDisplay, fSurfaceAndroid, fSurfaceAndroid, fEGLContext));
-    // GLWindowContext::initializeContext will call GrGLCreateNativeInterface so we
+    // GLWindowContext::initializeContext will call GrGLMakeNativeInterface so we
     // won't call it here.
 
     glClearStencil(0);
@@ -132,7 +132,7 @@ sk_sp<const GrGLInterface> GLWindowContext_android::onInitializeContext() {
     eglGetConfigAttrib(fDisplay, surfaceConfig, EGL_STENCIL_SIZE, &fStencilBits);
     eglGetConfigAttrib(fDisplay, surfaceConfig, EGL_SAMPLES, &fSampleCount);
 
-    return sk_sp<const GrGLInterface>(GrGLCreateNativeInterface());
+    return GrGLMakeNativeInterface();
 }
 
 void GLWindowContext_android::onDestroyContext() {
