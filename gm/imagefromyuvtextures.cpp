@@ -143,7 +143,7 @@ protected:
         for (int space = kJPEG_SkYUVColorSpace; space <= kLastEnum_SkYUVColorSpace; ++space) {
             GrBackendObject yuvHandles[3];
             this->createYUVTextures(context, yuvHandles);
-            images.push_back(SkImage::MakeFromYUVTexturesCopy(context,
+            images.push_back(SkImage::MakeFromYUVTexturesCopy1(context,
                                                               static_cast<SkYUVColorSpace>(space),
                                                               yuvHandles, sizes,
                                                               kTopLeft_GrSurfaceOrigin));
