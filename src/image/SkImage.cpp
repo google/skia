@@ -23,7 +23,6 @@
 #include "SkPixelSerializer.h"
 #include "SkReadPixelsRec.h"
 #include "SkSpecialImage.h"
-#include "SkStream.h"
 #include "SkString.h"
 #include "SkSurface.h"
 
@@ -98,8 +97,7 @@ sk_sp<SkData> SkImage::encodeToData(SkEncodedImageFormat type, int quality) cons
     SkBitmap bm;
     SkColorSpace* legacyColorSpace = nullptr;
     if (as_IB(this)->getROPixels(&bm, legacyColorSpace)) {
-        SkDynamicMemoryWStream buf;
-        return SkEncodeImage(&buf, bm, type, quality) ? buf.detachAsData() : nullptr;
+        return SkEncodeBitmap(bm, type, quality);
     }
     return nullptr;
 }
@@ -118,12 +116,9 @@ sk_sp<SkData> SkImage::encodeToData(SkPixelSerializer* serializer) const {
         if (serializer) {
             return serializer->encodeToData(pmap);
         } else {
-            SkDynamicMemoryWStream buf;
-            return SkEncodeImage(&buf, pmap, SkEncodedImageFormat::kPNG, 100)
-                   ? buf.detachAsData() : nullptr;
+            return SkEncodePixmap(pmap, SkEncodedImageFormat::kPNG, 100);
         }
     }
-
     return nullptr;
 }
 
