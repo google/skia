@@ -5,25 +5,20 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrMockGpu_DEFINED
-#define GrMockGpu_DEFINED
+#ifndef GrStubGpu_DEFINED
+#define GrStubGpu_DEFINED
 
 #include "GrGpu.h"
+
 #include "GrRenderTarget.h"
 #include "GrSemaphore.h"
 #include "GrTexture.h"
-#include "SkTHash.h"
 
-class GrMockGpuRTCommandBuffer;
-struct GrMockOptions;
-class GrPipeline;
-
-class GrMockGpu : public GrGpu {
+class GrStubGpu : public GrGpu {
 public:
-    static sk_sp<GrGpu> Make(GrBackendContext, GrContext*);
-    static sk_sp<GrGpu> Make(const GrMockOptions*, GrContext*);
+    static sk_sp<GrGpu> Make(GrContext*, sk_sp<const GrCaps>);
 
-    ~GrMockGpu() override {}
+    ~GrStubGpu() override {}
 
     bool onGetReadPixelsInfo(GrSurface* srcSurface, GrSurfaceOrigin srcOrigin,
                              int readWidth, int readHeight, size_t rowBytes,
@@ -41,7 +36,7 @@ public:
 
     void onQueryMultisampleSpecs(GrRenderTarget* rt, GrSurfaceOrigin, const GrStencilSettings&,
                                  int* effectiveSampleCnt, SamplePattern*) override {
-        *effectiveSampleCnt = rt->numStencilSamples();
+        *effectiveSampleCnt = 0; // ??
     }
 
     GrGpuRTCommandBuffer* createCommandBuffer(
@@ -64,10 +59,10 @@ public:
     void waitSemaphore(sk_sp<GrSemaphore> semaphore) override {}
     sk_sp<GrSemaphore> prepareTextureForCrossContextUsage(GrTexture*) override { return nullptr; }
 
-    void submitCommandBuffer(const GrMockGpuRTCommandBuffer*);
+    void submitCommandBuffer(const GrGpuRTCommandBuffer*);
 
 private:
-    GrMockGpu(GrContext* context, const GrMockOptions&);
+    GrStubGpu(GrContext* context, sk_sp<const GrCaps> caps);
 
     void onResetContext(uint32_t resetBits) override {}
 
@@ -135,11 +130,6 @@ private:
     bool isTestingOnlyBackendTexture(GrBackendObject) const override;
 
     void deleteTestingOnlyBackendTexture(GrBackendObject, bool abandonTexture) override;
-
-    static int NextInternalTextureID();
-    static int NextExternalTextureID();
-
-    SkTHashSet<int> fOutstandingTestingOnlyTextureIDs;
 
     typedef GrGpu INHERITED;
 };
