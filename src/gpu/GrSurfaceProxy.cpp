@@ -26,7 +26,7 @@ GrSurfaceProxy::GrSurfaceProxy(LazyInstantiateCallback&& callback, GrPixelConfig
         : fConfig(config)
         , fWidth(-1) // Width, height, and origin will be initialized upon lazy instantiation.
         , fHeight(-1)
-        , fOrigin(kGrUnknownSurfaceOrigin)
+        , fOrigin(kTopLeft_GrSurfaceOrigin)
         , fFit(SkBackingFit::kApprox)
         , fBudgeted(SkBudgeted::kYes)
         , fFlags(GrResourceProvider::kNoPendingIO_Flag)
@@ -544,9 +544,6 @@ void GrSurfaceProxyPriv::doLazyInstantiation(GrResourceProvider* resourceProvide
     fProxy->fHeight = texture->height();
 
     SkASSERT(texture->config() == fProxy->fConfig);
-    SkASSERT(kGrUnknownSurfaceOrigin != fProxy->origin());
-    SkASSERT(kTopLeft_GrSurfaceOrigin == fProxy->fOrigin ||
-             kBottomLeft_GrSurfaceOrigin == fProxy->fOrigin);
     SkDEBUGCODE(fProxy->validateLazyTexture(texture.get());)
     this->assign(std::move(texture));
 }
