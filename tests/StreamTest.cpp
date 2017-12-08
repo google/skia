@@ -287,7 +287,13 @@ DEF_TEST(StreamPeek, reporter) {
     test_fully_peekable_stream(reporter, &memStream, memStream.getLength());
 
     // Test an arbitrary file stream. file streams do not support peeking.
-    SkFILEStream fileStream(GetResourcePath("images/baby_tux.webp").c_str());
+    constexpr char filename[] = "images/baby_tux.webp";
+    SkString path = GetResourcePath(filename);
+    if (!sk_exists(path.c_str())) {
+        ERRORF(reporter, "file missing: %s\n", filename);
+        return;
+    }
+    SkFILEStream fileStream(path.c_str());
     REPORTER_ASSERT(reporter, fileStream.isValid());
     if (!fileStream.isValid()) {
         return;
