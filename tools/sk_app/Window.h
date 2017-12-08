@@ -136,16 +136,19 @@ public:
 
         // return value of 'true' means 'I have handled this event'
         virtual void onBackendCreated() {}
+        virtual void onAttach(Window* window) {}
         virtual bool onChar(SkUnichar c, uint32_t modifiers) { return false; }
         virtual bool onKey(Key key, InputState state, uint32_t modifiers) { return false; }
         virtual bool onMouse(int x, int y, InputState state, uint32_t modifiers) { return false; }
         virtual bool onMouseWheel(float delta, uint32_t modifiers) { return false; }
         virtual bool onTouch(intptr_t owner, InputState state, float x, float y) { return false; }
         virtual void onUIStateChanged(const SkString& stateName, const SkString& stateValue) {}
+        virtual void onPrePaint() {}
         virtual void onPaint(SkCanvas*) {}
     };
 
     void pushLayer(Layer* layer) {
+        layer->onAttach(this);
         fLayers.push(layer);
     }
 
