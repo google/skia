@@ -13,8 +13,7 @@
 #include "SkImagePriv.h"
 
 sk_sp<SkImage> make_raster_image(const char* path, SkTransferFunctionBehavior behavior) {
-    SkString resourcePath = GetResourcePath(path);
-    sk_sp<SkData> resourceData = SkData::MakeFromFileName(resourcePath.c_str());
+    sk_sp<SkData> resourceData = GetResourceAsData(path);
     std::unique_ptr<SkCodec> codec = SkCodec::MakeFromData(resourceData);
 
     SkBitmap bitmap;
