@@ -135,24 +135,47 @@ for f in reversed(available_freqs):
 
 print 'Setting frequency to %d' % freq
 
-subprocess.check_output([ADB, 'shell', 'echo "userspace" > '
-    '/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor'])
-# If scaling_max_freq is lower than our attempted setting, it won't take.
-# We must set min first, because if we try to set max to be less than min
-# (which sometimes happens after certain devices reboot) it returns a
-# perplexing permissions error.
-subprocess.check_output([ADB, 'shell', 'echo 0 > '
-    '/sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq'])
-subprocess.check_output([ADB, 'shell', 'echo %d > '
-    '/sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq' % freq])
-subprocess.check_output([ADB, 'shell', 'echo %d > '
-    '/sys/devices/system/cpu/cpu0/cpufreq/scaling_setspeed' % freq])
+if model == 'Nexus5x':
+  subprocess.check_output([ADB, 'shell',
+      'echo 0 > /sys/devices/system/cpu/cpu0/online'])
+  subprocess.check_output([ADB, 'shell',
+      'echo 0 > /sys/devices/system/cpu/cpu1/online'])
+  subprocess.check_output([ADB, 'shell',
+      'echo 0 > /sys/devices/system/cpu/cpu2/online'])
+  subprocess.check_output([ADB, 'shell',
+      'echo 0 > /sys/devices/system/cpu/cpu3/online'])
+
+  subprocess.check_output([ADB, 'shell', 'echo "userspace" > '
+      '/sys/devices/system/cpu/cpu4/cpufreq/scaling_governor'])
+  subprocess.check_output([ADB, 'shell', 'echo %d > '
+      '/sys/devices/system/cpu/cpu4/cpufreq/scaling_setspeed' % freq])
+
+else:
+  subprocess.check_output([ADB, 'shell', 'echo "userspace" > '
+      '/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor'])
+  # If scaling_max_freq is lower than our attempted setting, it won't take.
+  # We must set min first, because if we try to set max to be less than min
+  # (which sometimes happens after certain devices reboot) it returns a
+  # perplexing permissions error.
+  subprocess.check_output([ADB, 'shell', 'echo 0 > '
+      '/sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq'])
+  subprocess.check_output([ADB, 'shell', 'echo %d > '
+      '/sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq' % freq])
+  subprocess.check_output([ADB, 'shell', 'echo %d > '
+      '/sys/devices/system/cpu/cpu0/cpufreq/scaling_setspeed' % freq])
+
 time.sleep(5)
 actual_freq = subprocess.check_output([ADB, 'shell', 'cat '
     '/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq']).strip()
 if actual_freq != str(freq):
-  raise Exception('(actual, expected) (%s, %d)'
+  raise Exception('(actual, expected) on cpu0 (%s, %d)'
                   % (actual_freq, freq))
+if model == 'Nexus5x':
+  actual_freq = subprocess.check_output([ADB, 'shell', 'cat '
+      '/sys/devices/system/cpu/cpu4/cpufreq/scaling_cur_freq']).strip()
+  if actual_freq != str(freq):
+    raise Exception('(actual, expected) on cpu4 (%s, %d)'
+                    % (actual_freq, freq))
 """,
         args = [self.ADB_BINARY, self.m.vars.builder_cfg.get('model'),
                 str(target_percent)],
