@@ -56,81 +56,6 @@ Application* Application::Create(int argc, char** argv, void* platformData) {
     return new Viewer(argc, argv, platformData);
 }
 
-static void on_backend_created_func(void* userData) {
-    Viewer* vv = reinterpret_cast<Viewer*>(userData);
-
-    return vv->onBackendCreated();
-}
-
-static void on_paint_handler(SkCanvas* canvas, void* userData) {
-    Viewer* vv = reinterpret_cast<Viewer*>(userData);
-
-    return vv->onPaint(canvas);
-}
-
-static bool on_touch_handler(intptr_t owner, Window::InputState state, float x, float y, void* userData)
-{
-    Viewer* viewer = reinterpret_cast<Viewer*>(userData);
-
-    return viewer->onTouch(owner, state, x, y);
-}
-
-static void on_ui_state_changed_handler(const SkString& stateName, const SkString& stateValue, void* userData) {
-    Viewer* viewer = reinterpret_cast<Viewer*>(userData);
-
-    return viewer->onUIStateChanged(stateName, stateValue);
-}
-
-static bool on_mouse_handler(int x, int y, Window::InputState state, uint32_t modifiers,
-                             void* userData) {
-    ImGuiIO& io = ImGui::GetIO();
-    io.MousePos.x = static_cast<float>(x);
-    io.MousePos.y = static_cast<float>(y);
-    if (Window::kDown_InputState == state) {
-        io.MouseDown[0] = true;
-    } else if (Window::kUp_InputState == state) {
-        io.MouseDown[0] = false;
-    }
-    if (io.WantCaptureMouse) {
-        return true;
-    } else {
-        Viewer* viewer = reinterpret_cast<Viewer*>(userData);
-        return viewer->onMouse(x, y, state, modifiers);
-    }
-}
-
-static bool on_mouse_wheel_handler(float delta, uint32_t modifiers, void* userData) {
-    ImGuiIO& io = ImGui::GetIO();
-    io.MouseWheel += delta;
-    return true;
-}
-
-static bool on_key_handler(Window::Key key, Window::InputState state, uint32_t modifiers,
-                           void* userData) {
-    ImGuiIO& io = ImGui::GetIO();
-    io.KeysDown[static_cast<int>(key)] = (Window::kDown_InputState == state);
-
-    if (io.WantCaptureKeyboard) {
-        return true;
-    } else {
-        Viewer* viewer = reinterpret_cast<Viewer*>(userData);
-        return viewer->onKey(key, state, modifiers);
-    }
-}
-
-static bool on_char_handler(SkUnichar c, uint32_t modifiers, void* userData) {
-    ImGuiIO& io = ImGui::GetIO();
-    if (io.WantTextInput) {
-        if (c > 0 && c < 0x10000) {
-            io.AddInputCharacter(c);
-        }
-        return true;
-    } else {
-        Viewer* viewer = reinterpret_cast<Viewer*>(userData);
-        return viewer->onChar(c, modifiers);
-    }
-}
-
 static DEFINE_bool2(fullscreen, f, true, "Run fullscreen.");
 
 static DEFINE_string2(match, m, nullptr,
@@ -325,14 +250,7 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
 
     // register callbacks
     fCommands.attach(fWindow);
-    fWindow->registerBackendCreatedFunc(on_backend_created_func, this);
-    fWindow->registerPaintFunc(on_paint_handler, this);
-    fWindow->registerTouchFunc(on_touch_handler, this);
-    fWindow->registerUIStateChangedFunc(on_ui_state_changed_handler, this);
-    fWindow->registerMouseFunc(on_mouse_handler, this);
-    fWindow->registerMouseWheelFunc(on_mouse_wheel_handler, this);
-    fWindow->registerKeyFunc(on_key_handler, this);
-    fWindow->registerCharFunc(on_char_handler, this);
+    fWindow->pushLayer(this);
 
     // add key-bindings
     fCommands.addCommand(' ', "GUI", "Toggle Debug GUI", [this]() {
@@ -810,14 +728,7 @@ void Viewer::setBackend(sk_app::Window::BackendType backendType) {
 
     // re-register callbacks
     fCommands.attach(fWindow);
-    fWindow->registerBackendCreatedFunc(on_backend_created_func, this);
-    fWindow->registerPaintFunc(on_paint_handler, this);
-    fWindow->registerTouchFunc(on_touch_handler, this);
-    fWindow->registerUIStateChangedFunc(on_ui_state_changed_handler, this);
-    fWindow->registerMouseFunc(on_mouse_handler, this);
-    fWindow->registerMouseWheelFunc(on_mouse_wheel_handler, this);
-    fWindow->registerKeyFunc(on_key_handler, this);
-    fWindow->registerCharFunc(on_char_handler, this);
+    fWindow->pushLayer(this);
     // Don't allow the window to re-attach. If we're in MSAA mode, the params we grabbed above
     // will still include our correct sample count. But the re-created fWindow will lose that
     // information. On Windows, we need to re-create the window when changing sample count,
@@ -1023,28 +934,46 @@ bool Viewer::onTouch(intptr_t owner, Window::InputState state, float x, float y)
     return true;
 }
 
-bool Viewer::onMouse(float x, float y, Window::InputState state, uint32_t modifiers) {
-    if (!fSlides[fCurrentSlide]->onMouse(x, y, state, modifiers)) {
-        if (GestureDevice::kTouch == fGestureDevice) {
-            return false;
-        }
-        switch (state) {
-            case Window::kUp_InputState: {
-                fGesture.touchEnd(nullptr);
-                break;
-            }
-            case Window::kDown_InputState: {
-                fGesture.touchBegin(nullptr, x, y);
-                break;
-            }
-            case Window::kMove_InputState: {
-                fGesture.touchMoved(nullptr, x, y);
-                break;
-            }
-        }
-        fGestureDevice = fGesture.isBeingTouched() ? GestureDevice::kMouse : GestureDevice::kNone;
+bool Viewer::onMouse(int x, int y, Window::InputState state, uint32_t modifiers) {
+    ImGuiIO& io = ImGui::GetIO();
+    io.MousePos.x = static_cast<float>(x);
+    io.MousePos.y = static_cast<float>(y);
+    if (Window::kDown_InputState == state) {
+        io.MouseDown[0] = true;
+    } else if (Window::kUp_InputState == state) {
+        io.MouseDown[0] = false;
     }
-    fWindow->inval();
+    if (io.WantCaptureMouse) {
+        return true;
+    } else {
+        if (!fSlides[fCurrentSlide]->onMouse(x, y, state, modifiers)) {
+            if (GestureDevice::kTouch == fGestureDevice) {
+                return false;
+            }
+            switch (state) {
+                case Window::kUp_InputState: {
+                    fGesture.touchEnd(nullptr);
+                    break;
+                }
+                case Window::kDown_InputState: {
+                    fGesture.touchBegin(nullptr, x, y);
+                    break;
+                }
+                case Window::kMove_InputState: {
+                    fGesture.touchMoved(nullptr, x, y);
+                    break;
+                }
+            }
+            fGestureDevice = fGesture.isBeingTouched() ? GestureDevice::kMouse : GestureDevice::kNone;
+        }
+        fWindow->inval();
+        return true;
+    }
+}
+
+bool Viewer::onMouseWheel(float delta, uint32_t modifiers) {
+    ImGuiIO& io = ImGui::GetIO();
+    io.MouseWheel += delta;
     return true;
 }
 
@@ -1697,14 +1626,27 @@ void Viewer::onUIStateChanged(const SkString& stateName, const SkString& stateVa
 }
 
 bool Viewer::onKey(sk_app::Window::Key key, sk_app::Window::InputState state, uint32_t modifiers) {
-    return fCommands.onKey(key, state, modifiers);
+    ImGuiIO& io = ImGui::GetIO();
+    io.KeysDown[static_cast<int>(key)] = (Window::kDown_InputState == state);
+
+    if (io.WantCaptureKeyboard) {
+        return true;
+    } else {
+        return fCommands.onKey(key, state, modifiers);
+    }
 }
 
 bool Viewer::onChar(SkUnichar c, uint32_t modifiers) {
-    if (fSlides[fCurrentSlide]->onChar(c)) {
+    ImGuiIO& io = ImGui::GetIO();
+    if (io.WantTextInput) {
+        if (c > 0 && c < 0x10000) {
+            io.AddInputCharacter(c);
+        }
+        return true;
+    } else if (fSlides[fCurrentSlide]->onChar(c)) {
         fWindow->inval();
         return true;
+    } else {
+        return fCommands.onChar(c, modifiers);
     }
-
-    return fCommands.onChar(c, modifiers);
 }
