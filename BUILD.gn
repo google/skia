@@ -1802,6 +1802,7 @@ if (skia_enable_tools) {
       }
       sources = [
         "tools/viewer/GMSlide.cpp",
+        "tools/viewer/ImGuiLayer.cpp",
         "tools/viewer/ImageSlide.cpp",
         "tools/viewer/SKPSlide.cpp",
         "tools/viewer/SampleSlide.cpp",

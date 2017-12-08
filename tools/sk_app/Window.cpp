@@ -88,6 +88,9 @@ void Window::onPaint() {
         SkCanvas* canvas = backbuffer->getCanvas();
 
         for (int i = 0; i < fLayers.count(); ++i) {
+            fLayers[i]->onPrePaint();
+        }
+        for (int i = 0; i < fLayers.count(); ++i) {
             fLayers[i]->onPaint(canvas);
         }
 
