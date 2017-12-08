@@ -72,17 +72,39 @@ public:
         kQuadraticCorners,
 
         // Cubics.
-        kSerpentineHulls,
-        kLoopHulls,
-        kSerpentineCorners,
-        kLoopCorners
+        kCubicHulls,
+        kCubicCorners
     };
 
-    static constexpr bool RenderPassIsCubic(RenderPass pass) {
-        return pass >= RenderPass::kSerpentineHulls && pass <= RenderPass::kLoopCorners;
+    static inline bool RenderPassIsCubic(RenderPass pass) {
+        switch (pass) {
+            case RenderPass::kTriangleHulls:
+            case RenderPass::kTriangleEdges:
+            case RenderPass::kTriangleCorners:
+            case RenderPass::kQuadraticHulls:
+            case RenderPass::kQuadraticCorners:
+                return false;
+            case RenderPass::kCubicHulls:
+            case RenderPass::kCubicCorners:
+                return true;
+        }
+        SK_ABORT("Invalid GrCCPRCoverageProcessor::RenderPass");
+        return false;
     }
 
-    static const char* GetRenderPassName(RenderPass);
+    static inline const char* RenderPassName(RenderPass pass) {
+        switch (pass) {
+            case RenderPass::kTriangleHulls: return "kTriangleHulls";
+            case RenderPass::kTriangleEdges: return "kTriangleEdges";
+            case RenderPass::kTriangleCorners: return "kTriangleCorners";
+            case RenderPass::kQuadraticHulls: return "kQuadraticHulls";
+            case RenderPass::kQuadraticCorners: return "kQuadraticCorners";
+            case RenderPass::kCubicHulls: return "kCubicHulls";
+            case RenderPass::kCubicCorners: return "kCubicCorners";
+        }
+        SK_ABORT("Invalid GrCCPRCoverageProcessor::RenderPass");
+        return "";
+    }
 
     /**
      * This serves as the base class for each RenderPass's Shader. It indicates what type of
@@ -191,7 +213,7 @@ public:
 
     GrCCPRCoverageProcessor(RenderPass);
 
-    const char* name() const override { return GetRenderPassName(fRenderPass); }
+    const char* name() const override { return RenderPassName(fRenderPass); }
     SkString dumpInfo() const override {
         return SkStringPrintf("%s\n%s", this->name(), this->INHERITED::dumpInfo().c_str());
     }

@@ -30,7 +30,7 @@ void GrCCPRGeometry::beginContour(const SkPoint& devPt) {
 
     // Store the current verb count in the fTriangles field for now. When we close the contour we
     // will use this value to calculate the actual number of triangles in its fan.
-    fCurrContourTallies = {fVerbs.count(), 0, 0, 0};
+    fCurrContourTallies = {fVerbs.count(), 0, 0};
 
     fPoints.push_back(devPt);
     fVerbs.push_back(Verb::kBeginContour);
@@ -538,13 +538,8 @@ void GrCCPRGeometry::appendMonotonicCubics(const Sk2f& p0, const Sk2f& p1, const
     p1.store(&fPoints.push_back());
     p2.store(&fPoints.push_back());
     p3.store(&fPoints.push_back());
-    if (SkCubicType::kLoop != fCurrCubicType) {
-        fVerbs.push_back(Verb::kMonotonicSerpentineTo);
-        ++fCurrContourTallies.fSerpentines;
-    } else {
-        fVerbs.push_back(Verb::kMonotonicLoopTo);
-        ++fCurrContourTallies.fLoops;
-    }
+    fVerbs.push_back(Verb::kMonotonicCubicTo);
+    ++fCurrContourTallies.fCubics;
 }
 
 void GrCCPRGeometry::appendCubicApproximation(const Sk2f& p0, const Sk2f& p1, const Sk2f& p2,

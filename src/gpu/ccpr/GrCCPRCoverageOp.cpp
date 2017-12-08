@@ -253,11 +253,9 @@ bool GrCCPRCoverageOpsBuilder::finalize(GrOnFlushResourceProvider* onFlushRP,
     // that will not overwrite previous TriangleInstance data.
     int cubicBaseIdx = GR_CT_DIV_ROUND_UP(triEndIdx * sizeof(TriangleInstance),
                                           sizeof(CubicInstance));
-    baseInstances[0].fSerpentines = cubicBaseIdx;
-    baseInstances[1].fSerpentines = baseInstances[0].fSerpentines + fTallies[0].fSerpentines;
-    baseInstances[0].fLoops = baseInstances[1].fSerpentines + fTallies[1].fSerpentines;
-    baseInstances[1].fLoops = baseInstances[0].fLoops + fTallies[0].fLoops;
-    int cubicEndIdx = baseInstances[1].fLoops + fTallies[1].fLoops;
+    baseInstances[0].fCubics = cubicBaseIdx;
+    baseInstances[1].fCubics = baseInstances[0].fCubics + fTallies[0].fCubics;
+    int cubicEndIdx = baseInstances[1].fCubics + fTallies[1].fCubics;
 
     sk_sp<GrBuffer> instanceBuffer = onFlushRP->makeBuffer(kVertex_GrBufferType,
                                                            cubicEndIdx * sizeof(CubicInstance));
@@ -325,17 +323,10 @@ bool GrCCPRCoverageOpsBuilder::finalize(GrOnFlushResourceProvider* onFlushRP,
                 currFan.push_back(ptsIdx += 2);
                 continue;
 
-            case GrCCPRGeometry::Verb::kMonotonicSerpentineTo:
+            case GrCCPRGeometry::Verb::kMonotonicCubicTo:
                 SkASSERT(!currFan.empty());
-                cubicInstanceData[currIndices->fSerpentines++].set(&pts[ptsIdx],
-                                                                   atlasOffsetX, atlasOffsetY);
-                currFan.push_back(ptsIdx += 3);
-                continue;
-
-            case GrCCPRGeometry::Verb::kMonotonicLoopTo:
-                SkASSERT(!currFan.empty());
-                cubicInstanceData[currIndices->fLoops++].set(&pts[ptsIdx],
-                                                             atlasOffsetX, atlasOffsetY);
+                cubicInstanceData[currIndices->fCubics++].set(&pts[ptsIdx],
+                                                              atlasOffsetX, atlasOffsetY);
                 currFan.push_back(ptsIdx += 3);
                 continue;
 
@@ -375,10 +366,8 @@ bool GrCCPRCoverageOpsBuilder::finalize(GrOnFlushResourceProvider* onFlushRP,
     SkASSERT(instanceIndices[1].fTriangles == initialBaseInstances[0].fQuadratics);
     SkASSERT(instanceIndices[0].fQuadratics == initialBaseInstances[1].fQuadratics);
     SkASSERT(instanceIndices[1].fQuadratics == triEndIdx);
-    SkASSERT(instanceIndices[0].fSerpentines == initialBaseInstances[1].fSerpentines);
-    SkASSERT(instanceIndices[1].fSerpentines == initialBaseInstances[0].fLoops);
-    SkASSERT(instanceIndices[0].fLoops == initialBaseInstances[1].fLoops);
-    SkASSERT(instanceIndices[1].fLoops == cubicEndIdx);
+    SkASSERT(instanceIndices[0].fCubics == initialBaseInstances[1].fCubics);
+    SkASSERT(instanceIndices[1].fCubics == cubicEndIdx);
     return true;
 }
 
@@ -421,14 +410,10 @@ void GrCCPRCoverageOp::onExecute(GrOpFlushState* flushState) {
 
     // Cubics.
     auto constexpr kCubicsGrPrimitiveType = GrCCPRCoverageProcessor::kCubicsGrPrimitiveType;
-    this->drawMaskPrimitives(flushState, pipeline, RenderPass::kSerpentineHulls,
-                             kCubicsGrPrimitiveType, 4, &PrimitiveTallies::fSerpentines);
-    this->drawMaskPrimitives(flushState, pipeline, RenderPass::kLoopHulls,
-                             kCubicsGrPrimitiveType, 4, &PrimitiveTallies::fLoops);
-    this->drawMaskPrimitives(flushState, pipeline, RenderPass::kSerpentineCorners,
-                             kCubicsGrPrimitiveType, 4, &PrimitiveTallies::fSerpentines);
-    this->drawMaskPrimitives(flushState, pipeline, RenderPass::kLoopCorners,
-                             kCubicsGrPrimitiveType, 4, &PrimitiveTallies::fLoops);
+    this->drawMaskPrimitives(flushState, pipeline, RenderPass::kCubicHulls,
+                             kCubicsGrPrimitiveType, 4, &PrimitiveTallies::fCubics);
+    this->drawMaskPrimitives(flushState, pipeline, RenderPass::kCubicCorners,
+                             kCubicsGrPrimitiveType, 4, &PrimitiveTallies::fCubics);
 }
 
 void GrCCPRCoverageOp::drawMaskPrimitives(GrOpFlushState* flushState, const GrPipeline& pipeline,
