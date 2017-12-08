@@ -54,7 +54,7 @@ sk_sp<SkTypeface> emoji_typeface() {
     return SkTypeface::MakeFromName("Apple Color Emoji", SkFontStyle());
 
 #else
-    return MakeResourceAsTypeface("/fonts/Funkster.ttf");
+    return MakeResourceAsTypeface("fonts/Funkster.ttf");
 
 #endif
 }

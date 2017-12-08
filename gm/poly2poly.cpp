@@ -224,7 +224,7 @@ protected:
     }
 
     void onOnceBeforeDraw() override {
-        fEmFace = MakeResourceAsTypeface("/fonts/Em.ttf");
+        fEmFace = MakeResourceAsTypeface("fonts/Em.ttf");
     }
 
     void onDraw(SkCanvas* canvas) override {
