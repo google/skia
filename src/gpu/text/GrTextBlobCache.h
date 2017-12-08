@@ -102,6 +102,27 @@ public:
 
     static void PostPurgeBlobMessage(uint32_t);
 
+    void purgeStaleBlobs() {
+        SkTArray<PurgeBlobMessage> msgs;
+        fPurgeBlobInbox.poll(&msgs);
+
+        for (const auto& msg : msgs) {
+            auto* idEntry = fBlobIDCache.find(msg.fID);
+            if (!idEntry) {
+                // no cache entries for id
+                continue;
+            }
+
+            // remove all blob entries from the LRU list
+            for (const auto& blob : idEntry->fBlobs) {
+                fBlobList.remove(blob.get());
+            }
+
+            // drop the idEntry itself (unrefs all blobs)
+            fBlobIDCache.remove(msg.fID);
+        }
+    }
+
 private:
     using BitmapBlobList = SkTInternalLList<GrAtlasTextBlob>;
 
@@ -168,26 +189,7 @@ private:
 
     void checkPurge(GrAtlasTextBlob* blob = nullptr) {
         // First, purge all stale blob IDs.
-        {
-            SkTArray<PurgeBlobMessage> msgs;
-            fPurgeBlobInbox.poll(&msgs);
-
-            for (const auto& msg : msgs) {
-                auto* idEntry = fBlobIDCache.find(msg.fID);
-                if (!idEntry) {
-                    // no cache entries for id
-                    continue;
-                }
-
-                // remove all blob entries from the LRU list
-                for (const auto& blob : idEntry->fBlobs) {
-                    fBlobList.remove(blob.get());
-                }
-
-                // drop the idEntry itself (unrefs all blobs)
-                fBlobIDCache.remove(msg.fID);
-            }
-        }
+        this->purgeStaleBlobs();
 
         // If we are still overbudget, then unref until we are below budget again
         if (fPool.size() > fBudget) {
