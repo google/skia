@@ -115,7 +115,6 @@ public:
 private:
     Test fTest;
     Status* fStatus;
-    GrContextFactory* fGrContextFactory;
 };
 
 static bool should_run(const char* testName, bool isGPUTest) {
