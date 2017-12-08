@@ -14,39 +14,25 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
+typedef void(*GrGLFuncPtr)();
+struct GrGLInterface;
+
+
 /**
  * Rather than depend on platform-specific GL headers and libraries, we require
  * the client to provide a struct of GL function pointers. This struct can be
  * specified per-GrContext as a parameter to GrContext::MakeGL. If NULL is
- * passed to MakeGL then a "default" GL interface is created. If the default is
+ * passed to MakeGL then a "native" GL interface is created. If the native is
  * also NULL GrContext creation will fail.
  *
- * The default interface is returned by GrGLDefaultInterface. This function's
- * implementation is platform-specific. Several have been provided, along with
- * an implementation that simply returns NULL.
- *
- * By defining GR_GL_PER_GL_CALL_IFACE_CALLBACK to 1 the client can specify a
- * callback function that will be called prior to each GL function call. See
- * comments in GrGLConfig.h
+ * The default interface is returned by GrGLMakeNativeInterface. This function's
+ * implementation is platform-specific. Several have been provided
+ * (for GLX, WGL, EGL, etc), along with an implementation that simply returns
+ * NULL.
  */
-
-typedef void(*GrGLFuncPtr)();
-
-struct GrGLInterface;
-
-const GrGLInterface* GrGLDefaultInterface();
-
-/**
- * Creates a GrGLInterface for a "native" GL context (e.g. WGL on windows,
- * GLX on linux, AGL on Mac). The interface is only valid for the GL context
- * that is current when the interface is created.
- */
+SK_API sk_sp<const GrGLInterface> GrGLMakeNativeInterface();
+// Deprecated alternative to GrGLMakeNativeInterface().
 SK_API const GrGLInterface* GrGLCreateNativeInterface();
-
-#if GR_GL_PER_GL_FUNC_CALLBACK
-typedef void (*GrGLInterfaceCallbackProc)(const GrGLInterface*);
-typedef intptr_t GrGLInterfaceCallbackData;
-#endif
 
 /**
  * Creates a null GrGLInterface that doesn't draw anything. Used for measuring
@@ -54,13 +40,6 @@ typedef intptr_t GrGLInterfaceCallbackData;
  * Chromium is using it in its unit tests.
  */
 const SK_API GrGLInterface* GrGLCreateNullInterface(bool enableNVPR = false);
-
-/** Function that returns a new interface identical to "interface" but with support for
-    test version of GL_EXT_debug_marker. */
-const GrGLInterface* GrGLInterfaceAddTestDebugMarker(const GrGLInterface*,
-                                                     GrGLInsertEventMarkerProc insertEventMarkerFn,
-                                                     GrGLPushGroupMarkerProc pushGroupMarkerFn,
-                                                     GrGLPopGroupMarkerProc popGroupMarkerFn);
 
 /**
  * GrContext uses the following interface to make all calls into OpenGL. When a
@@ -79,8 +58,6 @@ private:
 
 public:
     GrGLInterface();
-
-    static GrGLInterface* NewClone(const GrGLInterface*);
 
     // Validates that the GrGLInterface supports its advertised standard. This means the necessary
     // function pointers have been initialized for both the GL version and any advertised

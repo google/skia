@@ -232,8 +232,10 @@ static GrGLFuncPtr android_get_gl_proc(void* ctx, const char name[]) {
     return eglGetProcAddress(name);
 }
 
-const GrGLInterface* GrGLCreateNativeInterface() {
+sk_sp<const GrGLInterface> GrGLMakeNativeInterface() {
     return GrGLAssembleInterface(nullptr, android_get_gl_proc);
 }
+
+const GrGLInterface* GrGLCreateNativeInterface() { return GrGLMakeNativeInterface().release(); }
 
 #endif//defined(SK_BUILD_FOR_ANDROID)

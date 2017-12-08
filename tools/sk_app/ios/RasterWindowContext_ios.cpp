@@ -90,7 +90,7 @@ sk_sp<const GrGLInterface> RasterWindowContext_ios::onInitializeContext() {
     SkImageInfo info = SkImageInfo::Make(fWidth, fHeight, fDisplayParams.fColorType,
                                          kPremul_SkAlphaType, fDisplayParams.fColorSpace);
     fBackbufferSurface = SkSurface::MakeRaster(info);
-    return sk_sp<const GrGLInterface>(GrGLCreateNativeInterface());
+    return GrGLMakeNativeInterface();
 }
 
 void RasterWindowContext_ios::onDestroyContext() {
