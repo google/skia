@@ -130,55 +130,23 @@ public:
         kMove_InputState   // only valid for mouse
     };
 
-    // return value of 'true' means 'I have handled this event'
-    typedef void(*OnBackendCreatedFunc)(void* userData);
-    typedef bool(*OnCharFunc)(SkUnichar c, uint32_t modifiers, void* userData);
-    typedef bool(*OnKeyFunc)(Key key, InputState state, uint32_t modifiers, void* userData);
-    typedef bool(*OnMouseFunc)(int x, int y, InputState state, uint32_t modifiers, void* userData);
-    typedef bool(*OnMouseWheelFunc)(float delta, uint32_t modifiers, void* userData);
-    typedef bool(*OnTouchFunc)(intptr_t owner, InputState state, float x, float y, void* userData);
-    typedef void(*OnUIStateChangedFunc)(
-            const SkString& stateName, const SkString& stateValue, void* userData);
-    typedef void(*OnPaintFunc)(SkCanvas*, void* userData);
+    class Layer {
+    public:
+        virtual ~Layer() = default;
 
-    void registerBackendCreatedFunc(OnBackendCreatedFunc func, void* userData) {
-        fBackendCreatedFunc = func;
-        fBackendCreatedUserData = userData;
-    }
+        // return value of 'true' means 'I have handled this event'
+        virtual void onBackendCreated() {}
+        virtual bool onChar(SkUnichar c, uint32_t modifiers) { return false; }
+        virtual bool onKey(Key key, InputState state, uint32_t modifiers) { return false; }
+        virtual bool onMouse(int x, int y, InputState state, uint32_t modifiers) { return false; }
+        virtual bool onMouseWheel(float delta, uint32_t modifiers) { return false; }
+        virtual bool onTouch(intptr_t owner, InputState state, float x, float y) { return false; }
+        virtual void onUIStateChanged(const SkString& stateName, const SkString& stateValue) {}
+        virtual void onPaint(SkCanvas*) {}
+    };
 
-    void registerCharFunc(OnCharFunc func, void* userData) {
-        fCharFunc = func;
-        fCharUserData = userData;
-    }
-
-    void registerKeyFunc(OnKeyFunc func, void* userData) {
-        fKeyFunc = func;
-        fKeyUserData = userData;
-    }
-
-    void registerMouseFunc(OnMouseFunc func, void* userData) {
-        fMouseFunc = func;
-        fMouseUserData = userData;
-    }
-
-    void registerMouseWheelFunc(OnMouseWheelFunc func, void* userData) {
-        fMouseWheelFunc = func;
-        fMouseWheelUserData = userData;
-    }
-
-    void registerPaintFunc(OnPaintFunc func, void* userData) {
-        fPaintFunc = func;
-        fPaintUserData = userData;
-    }
-
-    void registerTouchFunc(OnTouchFunc func, void* userData) {
-        fTouchFunc = func;
-        fTouchUserData = userData;
-    }
-
-    void registerUIStateChangedFunc(OnUIStateChangedFunc func, void* userData) {
-        fUIStateChangedFunc = func;
-        fUIStateChangedUserData = userData;
+    void pushLayer(Layer* layer) {
+        fLayers.push(layer);
     }
 
     void onBackendCreated();
@@ -207,22 +175,7 @@ public:
 protected:
     Window();
 
-    OnBackendCreatedFunc   fBackendCreatedFunc;
-    void*                  fBackendCreatedUserData;
-    OnCharFunc             fCharFunc;
-    void*                  fCharUserData;
-    OnKeyFunc              fKeyFunc;
-    void*                  fKeyUserData;
-    OnMouseFunc            fMouseFunc;
-    void*                  fMouseUserData;
-    OnMouseWheelFunc       fMouseWheelFunc;
-    void*                  fMouseWheelUserData;
-    OnTouchFunc            fTouchFunc;
-    void*                  fTouchUserData;
-    OnUIStateChangedFunc   fUIStateChangedFunc;
-    void*                  fUIStateChangedUserData;
-    OnPaintFunc            fPaintFunc;
-    void*                  fPaintUserData;
+    SkTDArray<Layer*>      fLayers;
     DisplayParams          fRequestedDisplayParams;
 
     WindowContext* fWindowContext = nullptr;

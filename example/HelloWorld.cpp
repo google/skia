@@ -18,21 +18,6 @@ Application* Application::Create(int argc, char** argv, void* platformData) {
     return new HelloWorld(argc, argv, platformData);
 }
 
-static void on_backend_created_func(void* userData) {
-    HelloWorld* hw = reinterpret_cast<HelloWorld*>(userData);
-    return hw->onBackendCreated();
-}
-
-static void on_paint_handler(SkCanvas* canvas, void* userData) {
-    HelloWorld* hw = reinterpret_cast<HelloWorld*>(userData);
-    return hw->onPaint(canvas);
-}
-
-static bool on_char_handler(SkUnichar c, uint32_t modifiers, void* userData) {
-    HelloWorld* hw = reinterpret_cast<HelloWorld*>(userData);
-    return hw->onChar(c, modifiers);
-}
-
 HelloWorld::HelloWorld(int argc, char** argv, void* platformData)
         : fBackendType(Window::kNativeGL_BackendType)
         , fRotationAngle(0) {
@@ -42,9 +27,7 @@ HelloWorld::HelloWorld(int argc, char** argv, void* platformData)
     fWindow->setRequestedDisplayParams(DisplayParams());
 
     // register callbacks
-    fWindow->registerBackendCreatedFunc(on_backend_created_func, this);
-    fWindow->registerPaintFunc(on_paint_handler, this);
-    fWindow->registerCharFunc(on_char_handler, this);
+    fWindow->pushLayer(this);
 
     fWindow->attach(fBackendType);
 }

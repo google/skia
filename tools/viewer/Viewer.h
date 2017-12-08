@@ -20,19 +20,21 @@
 
 class SkCanvas;
 
-class Viewer : public sk_app::Application {
+class Viewer : public sk_app::Application, sk_app::Window::Layer {
 public:
     Viewer(int argc, char** argv, void* platformData);
     ~Viewer() override;
 
-    void onBackendCreated();
-    void onPaint(SkCanvas* canvas);
     void onIdle() override;
-    bool onTouch(intptr_t owner, sk_app::Window::InputState state, float x, float y);
-    bool onMouse(float x, float y, sk_app::Window::InputState state, uint32_t modifiers);
-    void onUIStateChanged(const SkString& stateName, const SkString& stateValue);
-    bool onKey(sk_app::Window::Key key, sk_app::Window::InputState state, uint32_t modifiers);
-    bool onChar(SkUnichar c, uint32_t modifiers);
+
+    void onBackendCreated() override;
+    void onPaint(SkCanvas* canvas) override;
+    bool onTouch(intptr_t owner, sk_app::Window::InputState state, float x, float y) override;
+    bool onMouse(int x, int y, sk_app::Window::InputState state, uint32_t modifiers) override;
+    bool onMouseWheel(float delta, uint32_t modifiers) override;
+    void onUIStateChanged(const SkString& stateName, const SkString& stateValue) override;
+    bool onKey(sk_app::Window::Key key, sk_app::Window::InputState state, uint32_t modifiers) override;
+    bool onChar(SkUnichar c, uint32_t modifiers) override;
 
 private:
     enum class ColorMode {

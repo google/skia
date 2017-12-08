@@ -13,15 +13,16 @@
 
 class SkCanvas;
 
-class HelloWorld : public sk_app::Application {
+class HelloWorld : public sk_app::Application, sk_app::Window::Layer {
 public:
     HelloWorld(int argc, char** argv, void* platformData);
     ~HelloWorld() override;
 
-    void onBackendCreated();
-    void onPaint(SkCanvas* canvas);
     void onIdle() override;
-    bool onChar(SkUnichar c, uint32_t modifiers);
+
+    void onBackendCreated() override;
+    void onPaint(SkCanvas* canvas) override;
+    bool onChar(SkUnichar c, uint32_t modifiers) override;
 
 private:
     void updateTitle();
