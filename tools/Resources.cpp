@@ -26,37 +26,26 @@ void SetResourcePath(const char* resource) {
     FLAGS_resourcePath.set(0, resource);
 }
 
-bool GetResourceAsBitmap(const char* resource, SkBitmap* dst) {
-    SkString resourcePath = GetResourcePath(resource);
-    sk_sp<SkData> resourceData(SkData::MakeFromFileName(resourcePath.c_str()));
-    std::unique_ptr<SkImageGenerator> gen(SkImageGenerator::MakeFromEncoded(resourceData));
-    if (!gen) {
-        return false;
-    }
-    return dst->tryAllocPixels(gen->getInfo()) &&
+
+bool DecodeDataToBitmap(sk_sp<SkData> data, SkBitmap* dst) {
+    std::unique_ptr<SkImageGenerator> gen(SkImageGenerator::MakeFromEncoded(std::move(data)));
+    return gen && dst->tryAllocPixels(gen->getInfo()) &&
         gen->getPixels(gen->getInfo().makeColorSpace(nullptr), dst->getPixels(), dst->rowBytes(),
                        nullptr);
 }
 
-sk_sp<SkImage> GetResourceAsImage(const char* resource) {
-    SkString path = GetResourcePath(resource);
-    sk_sp<SkData> resourceData(SkData::MakeFromFileName(path.c_str()));
-    return SkImage::MakeFromEncoded(resourceData);
-}
-
 std::unique_ptr<SkStreamAsset> GetResourceAsStream(const char* resource) {
-    SkString resourcePath = GetResourcePath(resource);
-    auto stream = SkFILEStream::Make(resourcePath.c_str());
-    if (!stream) {
-        SkDebugf("Resource %s not found.\n", resource);
-        return nullptr;
-    }
-    return std::move(stream);
+    auto data = GetResourceAsData(resource);
+    return data ? std::unique_ptr<SkStreamAsset>(new SkMemoryStream(std::move(data)))
+                : nullptr;
 }
 
 sk_sp<SkData> GetResourceAsData(const char* resource) {
-    SkString resourcePath = GetResourcePath(resource);
-    return SkData::MakeFromFileName(resourcePath.c_str());
+    auto data = SkData::MakeFromFileName(GetResourcePath(resource).c_str());
+    if (!data) {
+        SkDebugf("Resource \"%s\" not found.\n", resource);
+    }
+    return data;
 }
 
 sk_sp<SkTypeface> MakeResourceAsTypeface(const char* resource) {

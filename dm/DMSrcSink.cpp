@@ -1066,8 +1066,7 @@ Error ColorCodecSrc::draw(SkCanvas* canvas) const {
     }
 
     // Load the dst ICC profile.  This particular dst is fairly similar to Adobe RGB.
-    sk_sp<SkData> dstData = SkData::MakeFromFileName(
-            GetResourcePath("icc_profiles/HP_ZR30w.icc").c_str());
+    sk_sp<SkData> dstData = GetResourceAsData("icc_profiles/HP_ZR30w.icc");
     if (!dstData) {
         return "Cannot read monitor profile.  Is the resource path set correctly?";
     }

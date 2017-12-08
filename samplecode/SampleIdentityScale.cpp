@@ -25,11 +25,10 @@
 class IdentityScaleView : public SampleView {
 public:
     IdentityScaleView(const char imageFilename[]) {
-      SkString resourcePath = GetResourcePath(imageFilename);
-      if (!decode_file(resourcePath.c_str(), &fBM)) {
-          fBM.allocN32Pixels(1, 1);
-          *(fBM.getAddr32(0,0)) = 0xFF0000FF; // red == bad
-      }
+        if (!DecodeDataToBitmap(GetResourceAsData(imageFilename), &fBM)) {
+            fBM.allocN32Pixels(1, 1);
+            *(fBM.getAddr32(0,0)) = 0xFF0000FF; // red == bad
+        }
     }
 
 protected:
