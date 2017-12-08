@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "42b81418_24c3a701",
+        "filename": "samplecode/SampleUnpremul.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-12-08T16:26:24Z",
+      "side": 1,
+      "message": "I mentioned this over chat, but I\u0027d suggest deleting this whole file. DM image tests now test this.",
+      "range": {
+        "startLine": 179,
+        "startChar": 4,
+        "endLine": 179,
+        "endChar": 55
+      },
+      "revId": "905c2edc8e508e4d65eb465103f09c7497770059",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
