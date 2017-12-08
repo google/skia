@@ -111,7 +111,6 @@ void GrCCPRCoverageProcessor::getGLSLProcessorKey(const GrShaderCaps&,
 GrGLSLPrimitiveProcessor* GrCCPRCoverageProcessor::createGLSLInstance(const GrShaderCaps&) const {
     std::unique_ptr<Shader> shader;
     switch (fRenderPass) {
-        using CubicType = GrCCPRCubicShader::CubicType;
         case RenderPass::kTriangleHulls:
             shader = skstd::make_unique<GrCCPRTriangleHullShader>();
             break;
@@ -127,43 +126,12 @@ GrGLSLPrimitiveProcessor* GrCCPRCoverageProcessor::createGLSLInstance(const GrSh
         case RenderPass::kQuadraticCorners:
             shader = skstd::make_unique<GrCCPRQuadraticCornerShader>();
             break;
-        case RenderPass::kSerpentineHulls:
-            shader = skstd::make_unique<GrCCPRCubicHullShader>(CubicType::kSerpentine);
+        case RenderPass::kCubicHulls:
+            shader = skstd::make_unique<GrCCPRCubicHullShader>();
             break;
-        case RenderPass::kLoopHulls:
-            shader = skstd::make_unique<GrCCPRCubicHullShader>(CubicType::kLoop);
-            break;
-        case RenderPass::kSerpentineCorners:
-            shader = skstd::make_unique<GrCCPRCubicCornerShader>(CubicType::kSerpentine);
-            break;
-        case RenderPass::kLoopCorners:
-            shader = skstd::make_unique<GrCCPRCubicCornerShader>(CubicType::kLoop);
+        case RenderPass::kCubicCorners:
+            shader = skstd::make_unique<GrCCPRCubicCornerShader>();
             break;
     }
     return CreateGSImpl(std::move(shader));
-}
-
-const char* GrCCPRCoverageProcessor::GetRenderPassName(RenderPass renderPass) {
-    switch (renderPass) {
-        case RenderPass::kTriangleHulls:
-            return "RenderPass::kTriangleHulls";
-        case RenderPass::kTriangleEdges:
-            return "RenderPass::kTriangleEdges";
-        case RenderPass::kTriangleCorners:
-            return "RenderPass::kTriangleCorners";
-        case RenderPass::kQuadraticHulls:
-            return "RenderPass::kQuadraticHulls";
-        case RenderPass::kQuadraticCorners:
-            return "RenderPass::kQuadraticCorners";
-        case RenderPass::kSerpentineHulls:
-            return "RenderPass::kSerpentineHulls";
-        case RenderPass::kLoopHulls:
-            return "RenderPass::kLoopHulls";
-        case RenderPass::kSerpentineCorners:
-            return "RenderPass::kSerpentineCorners";
-        case RenderPass::kLoopCorners:
-            return "RenderPass::kLoopCorners";
-    }
-    SK_ABORT("Unexpected GrCCPRCoverageProcessor::RenderPass.");
-    return nullptr;
 }

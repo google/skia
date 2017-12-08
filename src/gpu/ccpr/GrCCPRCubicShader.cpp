@@ -28,28 +28,25 @@ void GrCCPRCubicShader::emitSetupCode(GrGLSLShaderBuilder* s, const char* pts,
 
     // Calculate the KLM matrix.
     s->declareGlobal(fKLMMatrix);
-    s->codeAppend ("float4 K, L, M;");
-    s->codeAppend ("float2 l, m;");
     s->codeAppend ("float discr = 3*D2*D2 - 4*D1*D3;");
-    if (CubicType::kSerpentine == fCubicType) {
-        // This math also works out for the "cusp" and "cusp at infinity" cases.
-        s->codeAppend ("float q = sqrt(max(3*discr, 0));");
-        s->codeAppend ("q = 3*D2 + (D2 >= 0 ? q : -q);");
-        s->codeAppend ("l.ts = normalize(float2(q, 6*D1));");
-        s->codeAppend ("m.ts = discr <= 0 ? l.ts : normalize(float2(2*D3, q));");
-        s->codeAppend ("K = float4(0, l.s * m.s, -l.t * m.s - m.t * l.s, l.t * m.t);");
-        s->codeAppend ("L = float4(-1,3,-3,1) * l.ssst * l.sstt * l.sttt;");
-        s->codeAppend ("M = float4(-1,3,-3,1) * m.ssst * m.sstt * m.sttt;");
-    } else {
-        s->codeAppend ("float q = sqrt(max(-discr, 0));");
-        s->codeAppend ("q = D2 + (D2 >= 0 ? q : -q);");
-        s->codeAppend ("l.ts = normalize(float2(q, 2*D1));");
-        s->codeAppend ("m.ts = discr >= 0 ? l.ts : normalize(float2(2 * (D2*D2 - D3*D1), D1*q));");
-        s->codeAppend ("float4 lxm = float4(l.s * m.s, l.s * m.t, l.t * m.s, l.t * m.t);");
-        s->codeAppend ("K = float4(0, lxm.x, -lxm.y - lxm.z, lxm.w);");
-        s->codeAppend ("L = float4(-1,1,-1,1) * l.sstt * (lxm.xyzw + float4(0, 2*lxm.zy, 0));");
-        s->codeAppend ("M = float4(-1,1,-1,1) * m.sstt * (lxm.xzyw + float4(0, 2*lxm.yz, 0));");
-    }
+    s->codeAppend ("float x = discr >= 0 ? 3 : 1;");
+    s->codeAppend ("float q = sqrt(x * abs(discr));");
+    s->codeAppend ("q = x*D2 + (D2 >= 0 ? q : -q);");
+
+    s->codeAppend ("float2 l, m;");
+    s->codeAppend ("l.ts = normalize(float2(q, 2*x * D1));");
+    s->codeAppend ("m.ts = normalize(float2(2, q) * (discr >= 0 ? float2(D3, 1) "
+                                                               ": float2(D2*D2 - D3*D1, D1)));");
+
+    s->codeAppend ("float4 K;");
+    s->codeAppend ("float4 lm = l.sstt * m.stst;");
+    s->codeAppend ("K = float4(0, lm.x, -lm.y - lm.z, lm.w);");
+
+    s->codeAppend ("float4 L, M;");
+    s->codeAppend ("lm.yz += 2*lm.zy;");
+    s->codeAppend ("L = float4(-1,x,-x,1) * l.sstt * (discr >= 0 ? l.ssst * l.sttt : lm);");
+    s->codeAppend ("M = float4(-1,x,-x,1) * m.sstt * (discr >= 0 ? m.ssst * m.sttt : lm.xzyw);");
+
     s->codeAppend ("short middlerow = abs(D2) > abs(D1) ? 2 : 1;");
     s->codeAppend ("float3x3 CI = inverse(float3x3(C[0][0], C[0][middlerow], C[0][3], "
                                                   "C[1][0], C[1][middlerow], C[1][3], "
