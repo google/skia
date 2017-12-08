@@ -50,6 +50,11 @@ bool Catalog::openCatalog(const char* inDir, const char* outDir) {
     return true;
 }
 
+bool Catalog::openStatus(const char* statusFile, const char* outDir) {
+    StatusIter iter(statusFile, ".bmh", StatusFilter::kInProgress);
+    return openCatalog(iter.baseDir().c_str(), outDir);
+}
+
 bool Catalog::closeCatalog() {
     if (fOut) {
         this->lf(1);

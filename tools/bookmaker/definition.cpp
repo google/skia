@@ -576,9 +576,6 @@ bool Definition::exampleToScript(string* result, ExampleOptions exampleOptions) 
     size_t end = text.length();
     size_t outIndent = 0;
     size_t textIndent = count_indent(text, pos, end);
-    if ("MakeFromBackendTexture" == fName) {
-        SkDebugf("");
-    }
     if (fWrapper.length() > 0) {
         code += fWrapper;
         code += "\\n";
@@ -899,9 +896,6 @@ string Definition::formatFunction() const {
     const char* lastStart = methodParser.fChar;
     const int limit = 100;  // todo: allow this to be set by caller or in global or something
     string name = this->methodName();
-    if ("MakeFromBackendTextureAsRenderTarget" == name) {
-        SkDebugf("");
-    }
     const char* nameInParser = methodParser.strnstr(name.c_str(), methodParser.fEnd);
     methodParser.skipTo(nameInParser);
     const char* lastEnd = methodParser.fChar;
