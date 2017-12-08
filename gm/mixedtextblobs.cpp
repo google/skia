@@ -42,7 +42,7 @@ protected:
     void onOnceBeforeDraw() override {
         fEmojiTypeface = sk_tool_utils::emoji_typeface();
         fEmojiText = sk_tool_utils::emoji_sample_text();
-        fReallyBigATypeface = MakeResourceAsTypeface("/fonts/ReallyBigA.ttf");
+        fReallyBigATypeface = MakeResourceAsTypeface("fonts/ReallyBigA.ttf");
 
         SkTextBlobBuilder builder;
 

@@ -27,7 +27,7 @@ static void make_paint(SkPaint* paint, sk_sp<SkTypeface> typeface) {
 
 static sk_sp<SkTypeface> chinese_typeface() {
 #ifdef SK_BUILD_FOR_ANDROID
-    return MakeResourceAsTypeface("/fonts/NotoSansCJK-Regular.ttc");
+    return MakeResourceAsTypeface("fonts/NotoSansCJK-Regular.ttc");
 #elif defined(SK_BUILD_FOR_WIN32)
     return SkTypeface::MakeFromName("SimSun", SkFontStyle());
 #elif defined(SK_BUILD_FOR_MAC)

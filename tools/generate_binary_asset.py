@@ -1,0 +1,34 @@
+#!/usr/bin/env python2
+# Copyright 2017 Google Inc.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+import os
+import sys
+def main(resource_dir, array_name, filename):
+  def get_resources(rdir):
+    for root, dirs, files in os.walk(rdir):
+      for filepath in files:
+        fullpath = os.path.join(root, filepath)
+        if os.path.isfile(fullpath):
+          yield os.path.relpath(fullpath, rdir)
+  with open(filename, 'w') as o:
+    o.write('//generated file\n#include "BinaryAsset.h"\n\n');
+    names = []
+    for n in sorted(get_resources(resource_dir)):
+      o.write('static const unsigned char x%d[] = {' % len(names))
+      with open(os.path.join(resource_dir, n), 'rb')  as f:
+        while True:
+          buf = f.read(4096)
+          if len(buf) == 0:
+            break
+          for x in buf:
+            o.write('%d,' % ord(x))
+      o.write('};\n\n')
+      names.append(n)
+    o.write('\nBinaryAsset %s[] = {\n' % array_name)
+    for i, n in enumerate(names):
+      o.write('    {"%s", x%d, sizeof(x%d)},\n' % (n, i, i))
+    o.write('    {nullptr, nullptr, 0}\n};\n')
+if __name__ == '__main__':
+  main(*sys.argv[1:4])
+
