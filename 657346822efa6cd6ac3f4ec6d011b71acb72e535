@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "323d187b_405b2566",
+        "filename": "infra/bots/recipe_modules/flavor/gn_flavor.py",
+        "patchSetId": 26
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-12-08T12:35:07Z",
+      "side": 1,
+      "message": "Super-nit:\n\nTOKEN_URL \u003d (\n    \u0027http://metadata/computeMetadata/v1/project/attributes/%s\u0027)",
+      "range": {
+        "startLine": 42,
+        "startChar": 0,
+        "endLine": 43,
+        "endChar": 18
+      },
+      "revId": "657346822efa6cd6ac3f4ec6d011b71acb72e535",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
