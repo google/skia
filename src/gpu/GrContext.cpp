@@ -38,6 +38,7 @@
 #ifdef SK_METAL
 #include "mtl/GrMtlTrampoline.h"
 #endif
+#include "stub/GrStubGpu.h"
 #ifdef SK_VULKAN
 #include "vk/GrVkGpu.h"
 #endif
@@ -122,6 +123,19 @@ sk_sp<GrContext> GrContext::MakeMock(const GrMockOptions* mockOptions,
     return context;
 }
 
+sk_sp<GrContext> GrContextPriv::MakeStubbedOut(GrContextThreadSafeProxy* proxy) {
+    sk_sp<GrContext> context(new GrContext(proxy));
+    context->fGpu = GrStubGpu::Make(GrContextOptions(), context.get(), proxy->fCaps);
+    if (!context->fGpu) {
+        return nullptr;
+    }
+    context->fBackend = kMock_GrBackend;
+    if (!context->init(GrContextOptions())) {
+        return nullptr;
+    }
+    return context;
+}
+
 #ifdef SK_VULKAN
 sk_sp<GrContext> GrContext::MakeVulkan(sk_sp<const GrVkBackendContext> backendContext) {
     GrContextOptions defaultOptions;
@@ -170,6 +184,15 @@ static int32_t next_id() {
         id = sk_atomic_inc(&gNextID);
     } while (id == SK_InvalidGenID);
     return id;
+}
+
+GrContext::GrContext(GrContextThreadSafeProxy* proxy)
+        : fCaps(proxy->fCaps.get())
+        , fUniqueID(proxy->fContextUniqueID) {
+    fGpu = nullptr;
+    fResourceCache = nullptr;
+    fResourceProvider = nullptr;
+    fAtlasGlyphCache = nullptr;
 }
 
 GrContext::GrContext() : fUniqueID(next_id()) {
