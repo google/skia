@@ -34,10 +34,8 @@ class GrSwizzle;
 
 class GrGLGpu final : public GrGpu, private GrMesh::SendToGpuImpl {
 public:
-    static sk_sp<GrGpu> Make(GrBackendContext backendContext, const GrContextOptions& options,
-                             GrContext* context);
-    static sk_sp<GrGpu> Make(sk_sp<const GrGLInterface>, const GrContextOptions& options,
-                             GrContext* context);
+    static sk_sp<GrGpu> Make(GrBackendContext backendContext, GrContext* context);
+    static sk_sp<GrGpu> Make3(sk_sp<const GrGLInterface>, GrContext* context);
     ~GrGLGpu() override;
 
     void disconnect(DisconnectType) override;

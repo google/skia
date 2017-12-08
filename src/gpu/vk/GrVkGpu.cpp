@@ -9,6 +9,7 @@
 
 #include "GrBackendSemaphore.h"
 #include "GrBackendSurface.h"
+#include "GrContext.h"
 #include "GrContextOptions.h"
 #include "GrGeometryProcessor.h"
 #include "GrGpuResourceCacheAccess.h"
@@ -73,14 +74,13 @@ VKAPI_ATTR VkBool32 VKAPI_CALL DebugReportCallback(
 }
 #endif
 
-sk_sp<GrGpu> GrVkGpu::Make(GrBackendContext backendContext, const GrContextOptions& options,
-                           GrContext* context) {
+sk_sp<GrGpu> GrVkGpu::Make(GrBackendContext backendContext, GrContext* context) {
     const auto* backend = reinterpret_cast<const GrVkBackendContext*>(backendContext);
-    return Make(sk_ref_sp(backend), options, context);
+    return Make(sk_ref_sp(backend), context);
 }
 
 sk_sp<GrGpu> GrVkGpu::Make(sk_sp<const GrVkBackendContext> backendContext,
-                           const GrContextOptions& options, GrContext* context) {
+                           GrContext* context) {
     if (!backendContext) {
         return nullptr;
     }
@@ -89,13 +89,12 @@ sk_sp<GrGpu> GrVkGpu::Make(sk_sp<const GrVkBackendContext> backendContext,
         return nullptr;
     }
 
-    return sk_sp<GrGpu>(new GrVkGpu(context, options, std::move(backendContext)));
+    return sk_sp<GrGpu>(new GrVkGpu(context, std::move(backendContext)));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-GrVkGpu::GrVkGpu(GrContext* context, const GrContextOptions& options,
-                 sk_sp<const GrVkBackendContext> backendCtx)
+GrVkGpu::GrVkGpu(GrContext* context, sk_sp<const GrVkBackendContext> backendCtx)
         : INHERITED(context)
         , fBackendContext(std::move(backendCtx))
         , fDevice(fBackendContext->fDevice)
@@ -126,7 +125,8 @@ GrVkGpu::GrVkGpu(GrContext* context, const GrContextOptions& options,
 
     fCompiler = new SkSL::Compiler();
 
-    fVkCaps.reset(new GrVkCaps(options, this->vkInterface(), fBackendContext->fPhysicalDevice,
+    fVkCaps.reset(new GrVkCaps(context->options(), this->vkInterface(),
+                               fBackendContext->fPhysicalDevice,
                                fBackendContext->fFeatures, fBackendContext->fExtensions));
     fCaps.reset(SkRef(fVkCaps.get()));
 
