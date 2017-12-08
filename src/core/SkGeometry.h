@@ -183,6 +183,18 @@ static inline bool SkCubicIsDegenerate(SkCubicType type) {
     }
 }
 
+static inline const char* SkCubicTypeName(SkCubicType type) {
+    switch (type) {
+        default: SK_ABORT("Invalid SkCubicType");
+        case SkCubicType::kSerpentine: return "kSerpentine";
+        case SkCubicType::kLoop: return "kLoop";
+        case SkCubicType::kLocalCusp: return "kLocalCusp";
+        case SkCubicType::kCuspAtInfinity: return "kCuspAtInfinity";
+        case SkCubicType::kQuadratic: return "kQuadratic";
+        case SkCubicType::kLineOrPoint: return "kLineOrPoint";
+    }
+}
+
 /** Returns the cubic classification.
 
     t[],s[] are set to the two homogeneous parameter values at which points the lines L & M

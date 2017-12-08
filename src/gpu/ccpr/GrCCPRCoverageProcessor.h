@@ -72,17 +72,26 @@ public:
         kQuadraticCorners,
 
         // Cubics.
-        kSerpentineHulls,
-        kLoopHulls,
-        kSerpentineCorners,
-        kLoopCorners
+        kCubicHulls,
+        kCubicCorners
     };
 
     static constexpr bool RenderPassIsCubic(RenderPass pass) {
-        return pass >= RenderPass::kSerpentineHulls && pass <= RenderPass::kLoopCorners;
+        return pass >= RenderPass::kCubicHulls;
     }
 
-    static const char* GetRenderPassName(RenderPass);
+    static inline const char* RenderPassName(RenderPass pass) {
+        switch (pass) {
+            default: SK_ABORT("Invalid GrCCPRCoverageProcessor::RenderPass");
+            case RenderPass::kTriangleHulls: return "kTriangleHulls";
+            case RenderPass::kTriangleEdges: return "kTriangleEdges";
+            case RenderPass::kTriangleCorners: return "kTriangleCorners";
+            case RenderPass::kQuadraticHulls: return "kQuadraticHulls";
+            case RenderPass::kQuadraticCorners: return "kQuadraticCorners";
+            case RenderPass::kCubicHulls: return "kCubicHulls";
+            case RenderPass::kCubicCorners: return "kCubicCorners";
+        }
+    }
 
     /**
      * This serves as the base class for each RenderPass's Shader. It indicates what type of
@@ -197,7 +206,7 @@ public:
 
     GrCCPRCoverageProcessor(RenderPass);
 
-    const char* name() const override { return GetRenderPassName(fRenderPass); }
+    const char* name() const override { return RenderPassName(fRenderPass); }
     SkString dumpInfo() const override {
         return SkStringPrintf("%s\n%s", this->name(), this->INHERITED::dumpInfo().c_str());
     }
