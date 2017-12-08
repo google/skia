@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0c6a9ab7_787ec33a",
+        "filename": "site/user/api/usingBookmaker.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2017-12-08T17:56:01Z",
+      "side": 1,
+      "message": "This looks unusual",
+      "range": {
+        "startLine": 2,
+        "startChar": 3,
+        "endLine": 2,
+        "endChar": 11
+      },
+      "revId": "f6f5fa49bea054faa2494a25c2d1dad5af736179",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
