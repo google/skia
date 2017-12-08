@@ -175,14 +175,12 @@ bool GrGLGpu::BlendCoeffReferencesConstant(GrBlendCoeff coeff) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-sk_sp<GrGpu> GrGLGpu::Make(GrBackendContext backendContext, const GrContextOptions& options,
-                           GrContext* context) {
+sk_sp<GrGpu> GrGLGpu::Make(GrBackendContext backendContext, GrContext* context) {
     const auto* interface = reinterpret_cast<const GrGLInterface*>(backendContext);
-    return Make(sk_ref_sp(interface), options, context);
+    return Make(sk_ref_sp(interface), context);
 }
 
-sk_sp<GrGpu> GrGLGpu::Make(sk_sp<const GrGLInterface> interface, const GrContextOptions& options,
-                           GrContext* context) {
+sk_sp<GrGpu> GrGLGpu::Make(sk_sp<const GrGLInterface> interface, GrContext* context) {
     if (!interface) {
         interface.reset(GrGLDefaultInterface());
         if (!interface) {
@@ -192,7 +190,7 @@ sk_sp<GrGpu> GrGLGpu::Make(sk_sp<const GrGLInterface> interface, const GrContext
 #ifdef USE_NSIGHT
     const_cast<GrContextOptions&>(options).fSuppressPathRendering = true;
 #endif
-    auto glContext = GrGLContext::Make(std::move(interface), options);
+    auto glContext = GrGLContext::Make(std::move(interface), context->options());
     if (!glContext) {
         return nullptr;
     }

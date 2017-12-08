@@ -15,17 +15,16 @@
 
 sk_sp<GrGpu> GrGpu::Make(GrBackend backend,
                          GrBackendContext backendContext,
-                         const GrContextOptions& options,
                          GrContext* context) {
     switch (backend) {
         case kOpenGL_GrBackend:
-            return GrGLGpu::Make(backendContext, options, context);
+            return GrGLGpu::Make(backendContext, context);
 #ifdef SK_VULKAN
         case kVulkan_GrBackend:
-            return GrVkGpu::Make(backendContext, options, context);
+            return GrVkGpu::Make(backendContext, context);
 #endif
         case kMock_GrBackend:
-            return GrMockGpu::Make(backendContext, options, context);
+            return GrMockGpu::Make(backendContext, context);
         default:
             return nullptr;
     }

@@ -7,25 +7,55 @@
 
 #include "SkDeferredDisplayListRecorder.h"
 
-#include "GrContext.h"
+#include "GrContextPriv.h"
 
 #include "SkCanvas.h" // TODO: remove
+#include "SkGr.h"
 #include "SkDeferredDisplayList.h"
-#include "SkSurface.h" // TODO: remove
+#include "SkSurface.h"
 
 SkDeferredDisplayListRecorder::SkDeferredDisplayListRecorder(
                     const SkSurfaceCharacterization& characterization)
         : fCharacterization(characterization) {
 }
 
+bool SkDeferredDisplayListRecorder::init() {
+    SkASSERT(!fSurface);
+
+    SkColorType colorType = kUnknown_SkColorType;
+    if (!GrPixelConfigToColorType(fCharacterization.config(), &colorType)) {
+        return false;
+    }
+
+    const SkImageInfo ii = SkImageInfo::Make(fCharacterization.width(), fCharacterization.height(),
+                                             colorType, kPremul_SkAlphaType,
+                                             fCharacterization.refColorSpace());
+
+#ifdef SK_RASTER_RECORDER_IMPLEMENTATION
+    // Use raster right now to allow threading
+    fSurface = SkSurface::MakeRaster(ii, &fCharacterization.surfaceProps());
+    return true;
+#else
+    SkASSERT(!fContext);
+
+    fContext = GrContextPriv::MakeStubbedOut(fCharacterization.contextInfo());
+    if (!fContext) {
+        return false;
+    }
+
+    fSurface = SkSurface::MakeRenderTarget(fContext.get(), SkBudgeted::kYes,
+                                           ii, fCharacterization.stencilCount(),
+                                           fCharacterization.origin(),
+                                           &fCharacterization.surfaceProps());
+    return SkToBool(fSurface.get());
+#endif
+}
+
 SkCanvas* SkDeferredDisplayListRecorder::getCanvas() {
     if (!fSurface) {
-        SkImageInfo ii = SkImageInfo::MakeN32(fCharacterization.width(),
-                                              fCharacterization.height(),
-                                              kOpaque_SkAlphaType);
-
-        // Use raster right now to allow threading
-        fSurface = SkSurface::MakeRaster(ii, nullptr);
+        if (!this->init()) {
+            return nullptr;
+        }
     }
 
     return fSurface->getCanvas();
