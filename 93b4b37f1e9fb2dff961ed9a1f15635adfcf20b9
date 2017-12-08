@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0bb0c467_e39aa74a",
+        "filename": "infra/bots/bookmaker_skia.isolate",
+        "patchSetId": 43
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-12-08T14:32:19Z",
+      "side": 1,
+      "message": "I know it\u0027s not exactly correct, but can we just reuse compile_skia.isolate for this?  It will make my job easier when I have to rebase all of this.",
+      "range": {
+        "startLine": 1,
+        "startChar": 1,
+        "endLine": 1,
+        "endChar": 0
+      },
+      "revId": "93b4b37f1e9fb2dff961ed9a1f15635adfcf20b9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "706d9358_42caefe0",
+        "filename": "infra/bots/recipes/bookmaker.py",
+        "patchSetId": 43
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-12-08T14:32:19Z",
+      "side": 1,
+      "message": "Don\u0027t we already have this for RecreateSKPs?  Can we reuse it?",
+      "range": {
+        "startLine": 32,
+        "startChar": 0,
+        "endLine": 32,
+        "endChar": 33
+      },
+      "revId": "93b4b37f1e9fb2dff961ed9a1f15635adfcf20b9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "31a073c0_5b990f1e",
+        "filename": "infra/bots/recipes/bookmaker.py",
+        "patchSetId": 43
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-12-08T14:32:19Z",
+      "side": 1,
+      "message": "You should mock this as part of a test.",
+      "range": {
+        "startLine": 93,
+        "startChar": 43,
+        "endLine": 93,
+        "endChar": 60
+      },
+      "revId": "93b4b37f1e9fb2dff961ed9a1f15635adfcf20b9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "330c2eb2_e2a2e3a9",
+        "filename": "infra/bots/upload_md.py",
+        "patchSetId": 43
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-12-08T14:32:19Z",
+      "side": 1,
+      "message": "The assumption here is that we should never see diffs outside of this dir?",
+      "range": {
+        "startLine": 70,
+        "startChar": 0,
+        "endLine": 74,
+        "endChar": 23
+      },
+      "revId": "93b4b37f1e9fb2dff961ed9a1f15635adfcf20b9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
