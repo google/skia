@@ -103,6 +103,7 @@
     ],
     "cwd": "[CUSTOM_/_B_WORK]",
     "env": {
+      "DEPOT_TOOLS_UPDATE": "0",
       "GYP_CHROMIUM_NO_ACTION": "0",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
