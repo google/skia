@@ -251,43 +251,34 @@ void CCPRGeometryView::Op::onExecute(GrOpFlushState* state) {
     GrGLGpu* glGpu = kOpenGL_GrBackend == context->contextPriv().getBackend() ?
                      static_cast<GrGLGpu*>(state->gpu()) : nullptr;
 
-    bool isCubic = GrCCPRCoverageProcessor::RenderPassIsCubic(fView->fRenderPass);
-    GrMesh mesh(isCubic ?  GrPrimitiveType::kLinesAdjacency : GrPrimitiveType::kTriangles);
-    if (isCubic) {
-        if (fView->fCubicInstances.empty()) {
-            return;
-        }
+    GrCCPRCoverageProcessor proc(fView->fRenderPass);
+    SkDEBUGCODE(proc.enableDebugVisualizations(kDebugBloat);)
+
+    SkSTArray<1, GrMesh, true> mesh;
+    if (GrCCPRCoverageProcessor::RenderPassIsCubic(fView->fRenderPass)) {
         sk_sp<GrBuffer> instBuff(rp->createBuffer(fView->fCubicInstances.count() *
                                                   sizeof(CubicInstance), kVertex_GrBufferType,
                                                   kDynamic_GrAccessPattern,
                                                   GrResourceProvider::kNoPendingIO_Flag |
                                                   GrResourceProvider::kRequireGpuMemory_Flag,
                                                   fView->fCubicInstances.begin()));
-        if (!instBuff) {
-            return;
+        if (!fView->fCubicInstances.empty() && instBuff) {
+            proc.appendMesh(instBuff.get(), fView->fCubicInstances.count(), 0, &mesh);
         }
-        mesh.setInstanced(instBuff.get(), fView->fCubicInstances.count(), 0, 4);
     } else {
-        if (fView->fTriangleInstances.empty()) {
-            return;
-        }
         sk_sp<GrBuffer> instBuff(rp->createBuffer(fView->fTriangleInstances.count() *
                                                   sizeof(TriangleInstance), kVertex_GrBufferType,
                                                   kDynamic_GrAccessPattern,
                                                   GrResourceProvider::kNoPendingIO_Flag |
                                                   GrResourceProvider::kRequireGpuMemory_Flag,
                                                   fView->fTriangleInstances.begin()));
-        if (!instBuff) {
-            return;
+        if (!fView->fTriangleInstances.empty() && instBuff) {
+            proc.appendMesh(instBuff.get(), fView->fTriangleInstances.count(), 0, &mesh);
         }
-        mesh.setInstanced(instBuff.get(), fView->fTriangleInstances.count(), 0, 3);
     }
 
     GrPipeline pipeline(state->drawOpArgs().fProxy, GrPipeline::ScissorState::kDisabled,
                         SkBlendMode::kSrcOver);
-
-    GrCCPRCoverageProcessor ccprProc(fView->fRenderPass);
-    SkDEBUGCODE(ccprProc.enableDebugVisualizations(kDebugBloat);)
 
     if (glGpu) {
         glGpu->handleDirtyContext();
@@ -295,7 +286,10 @@ void CCPRGeometryView::Op::onExecute(GrOpFlushState* state) {
         GR_GL_CALL(glGpu->glInterface(), Enable(GR_GL_LINE_SMOOTH));
     }
 
-    state->rtCommandBuffer()->draw(pipeline, ccprProc, &mesh, nullptr, 1, this->bounds());
+    if (!mesh.empty()) {
+        SkASSERT(1 == mesh.count());
+        state->rtCommandBuffer()->draw(pipeline, proc, mesh.begin(), nullptr, 1, this->bounds());
+    }
 
     if (glGpu) {
         context->resetContext(kMisc_GrGLBackendState);
