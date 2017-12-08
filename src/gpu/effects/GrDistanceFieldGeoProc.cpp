@@ -76,9 +76,9 @@ public:
                              args.fFPCoordTransformHandler);
 
         // add varyings
-        GrGLSLVertToFrag uv(kFloat2_GrSLType);
-        GrGLSLVertToFrag texIdx(kHalf_GrSLType);
-        GrGLSLVertToFrag st(kFloat2_GrSLType);
+        GrGLSLVarying uv(kFloat2_GrSLType);
+        GrGLSLVarying texIdx(kHalf_GrSLType);
+        GrGLSLVarying st(kFloat2_GrSLType);
         append_index_uv_varyings(args, dfTexEffect.inTextureCoords()->fName, atlasSizeInvName,
                                  &uv, &texIdx, &st);
 
@@ -342,9 +342,9 @@ public:
                                                           "AtlasSizeInv",
                                                           &atlasSizeInvName);
 
-        GrGLSLVertToFrag uv(kFloat2_GrSLType);
-        GrGLSLVertToFrag texIdx(kHalf_GrSLType);
-        GrGLSLVertToFrag st(kFloat2_GrSLType);
+        GrGLSLVarying uv(kFloat2_GrSLType);
+        GrGLSLVarying texIdx(kHalf_GrSLType);
+        GrGLSLVarying st(kFloat2_GrSLType);
         append_index_uv_varyings(args, dfTexEffect.inTextureCoords()->fName, atlasSizeInvName,
                                  &uv, &texIdx, &st);
 
@@ -634,13 +634,13 @@ public:
                              args.fFPCoordTransformHandler);
 
         // set up varyings
-        GrGLSLVertToFrag uv(kFloat2_GrSLType);
-        GrGLSLVertToFrag texIdx(kHalf_GrSLType);
-        GrGLSLVertToFrag st(kFloat2_GrSLType);
+        GrGLSLVarying uv(kFloat2_GrSLType);
+        GrGLSLVarying texIdx(kHalf_GrSLType);
+        GrGLSLVarying st(kFloat2_GrSLType);
         append_index_uv_varyings(args, dfTexEffect.inTextureCoords()->fName, atlasSizeInvName,
                                  &uv, &texIdx, &st);
 
-        GrGLSLVertToFrag delta(kFloat_GrSLType);
+        GrGLSLVarying delta(kFloat_GrSLType);
         varyingHandler->addVarying("Delta", &delta);
         if (dfTexEffect.getFlags() & kBGR_DistanceFieldEffectFlag) {
             vertBuilder->codeAppendf("%s = -%s.x/3.0;", delta.vsOut(), atlasSizeInvName);

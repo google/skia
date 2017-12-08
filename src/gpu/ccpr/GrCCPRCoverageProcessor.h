@@ -208,7 +208,7 @@ public:
                                         const char* outputCoverage) const = 0;
 
     private:
-        GrGLSLGeoToFrag fWind{kHalf_GrSLType};
+        GrGLSLVarying fWind{kHalf_GrSLType, GrGLSLVarying::Scope::kGeoToFrag};
     };
 
     GrCCPRCoverageProcessor(RenderPass);
