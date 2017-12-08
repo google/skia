@@ -158,9 +158,8 @@ private:
                            const PrimitiveTallies baseInstances[kNumScissorModes],
                            const PrimitiveTallies endInstances[kNumScissorModes]);
 
-    void drawMaskPrimitives(GrOpFlushState*, const GrPipeline&,
-                            const GrCCPRCoverageProcessor::RenderPass, GrPrimitiveType,
-                            int vertexCount, int PrimitiveTallies::* instanceType) const;
+    void drawMaskPrimitives(GrOpFlushState*, const GrPipeline&, GrCCPRCoverageProcessor::RenderPass,
+                            int PrimitiveTallies::* instanceType) const;
 
     sk_sp<GrBuffer> fInstanceBuffer;
     PrimitiveTallies fBaseInstances[kNumScissorModes];
@@ -168,8 +167,8 @@ private:
     const SkTArray<ScissorBatch, true> fScissorBatches;
     const SkISize fDrawBounds;
 
-    mutable SkTArray<GrMesh> fMeshesScratchBuffer;
-    mutable SkTArray<GrPipeline::DynamicState> fDynamicStatesScratchBuffer;
+    mutable SkTArray<GrMesh, true> fMeshesScratchBuffer;
+    mutable SkTArray<GrPipeline::DynamicState, true> fDynamicStatesScratchBuffer;
 
     friend class GrCCPRCoverageOpsBuilder;
 
