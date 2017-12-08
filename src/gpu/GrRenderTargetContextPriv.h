@@ -43,7 +43,9 @@ public:
                opList->fLastClipNumAnalyticFPs != numClipAnalyticFPs;
     }
 
-    void clear(const GrFixedClip&, const GrColor, bool canIgnoreClip);
+    using CanClearFullscreen = GrRenderTargetContext::CanClearFullscreen;
+
+    void clear(const GrFixedClip&, const GrColor, CanClearFullscreen);
 
     void clearStencilClip(const GrFixedClip&, bool insideStencilMask);
 
