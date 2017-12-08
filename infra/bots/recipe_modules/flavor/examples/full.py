@@ -77,6 +77,7 @@ TEST_BUILDERS = [
   'Build-Win-Clang-arm64-Release-Android',
   'Build-Win-Clang-x86_64-Debug-GDI',
   'Build-Win-Clang-x86_64-Release',
+  'Build-Win-Clang-x86_64-Release-Goma',
   'Build-Win-Clang-x86_64-Release-Vulkan',
   'Build-Win-MSVC-x86-Debug-Exceptions',
   'Housekeeper-PerCommit-CheckGeneratedFiles',

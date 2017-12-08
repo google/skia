@@ -35,7 +35,7 @@ with open(skia_h, "w") as f:
   f.write('#ifndef skia_h_DEFINED\n')
   f.write('#define skia_h_DEFINED\n')
   for h in headers:
-    f.write('#include "' + h + '"\n')
+    f.write('#include "' + os.path.basename(h) + '"\n')
   f.write('#endif//skia_h_DEFINED\n')
 
 with open(skia_h + '.deps', "w") as f:
