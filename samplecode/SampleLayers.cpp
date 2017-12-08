@@ -213,7 +213,7 @@ public:
     BackdropView() {
         fCenter.set(200, 150);
         fAngle = 0;
-        fImage = GetResourceAsImage("mandrill_512.png");
+        fImage = GetResourceAsImage("images/mandrill_512.png");
         fFilter = SkDilateImageFilter::Make(8, 8, nullptr);
     }
 

@@ -2034,7 +2034,7 @@ Where Layer was cleared, the original image will draw unchanged.
 Outside of the circle the mandrill is brightened.
 ##
     #Image 3
-    // sk_sp<SkImage> image = GetResourceAsImage("mandrill_256.png");
+    // sk_sp<SkImage> image = GetResourceAsImage("images/mandrill_256.png");
     canvas->drawImage(image, 0, 0, nullptr);
     SkCanvas::SaveLayerRec rec;
     SkPaint paint;

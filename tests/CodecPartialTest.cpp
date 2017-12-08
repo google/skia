@@ -125,26 +125,26 @@ DEF_TEST(Codec_partial, r) {
 #if 0
     // FIXME (scroggo): SkPngCodec needs to use SkStreamBuffer in order to
     // support incremental decoding.
-    test_partial(r, "plane.png");
-    test_partial(r, "plane_interlaced.png");
-    test_partial(r, "yellow_rose.png");
-    test_partial(r, "index8.png");
-    test_partial(r, "color_wheel.png");
-    test_partial(r, "mandrill_256.png");
-    test_partial(r, "mandrill_32.png");
-    test_partial(r, "arrow.png");
-    test_partial(r, "randPixels.png");
-    test_partial(r, "baby_tux.png");
+    test_partial(r, "images/plane.png");
+    test_partial(r, "images/plane_interlaced.png");
+    test_partial(r, "images/yellow_rose.png");
+    test_partial(r, "images/index8.png");
+    test_partial(r, "images/color_wheel.png");
+    test_partial(r, "images/mandrill_256.png");
+    test_partial(r, "images/mandrill_32.png");
+    test_partial(r, "images/arrow.png");
+    test_partial(r, "images/randPixels.png");
+    test_partial(r, "images/baby_tux.png");
 #endif
-    test_partial(r, "box.gif");
-    test_partial(r, "randPixels.gif", 215);
-    test_partial(r, "color_wheel.gif");
+    test_partial(r, "images/box.gif");
+    test_partial(r, "images/randPixels.gif", 215);
+    test_partial(r, "images/color_wheel.gif");
 }
 
 // Verify that when decoding an animated gif byte by byte we report the correct
 // fRequiredFrame as soon as getFrameInfo reports the frame.
 DEF_TEST(Codec_requiredFrame, r) {
-    auto path = "colorTables.gif";
+    auto path = "images/colorTables.gif";
     sk_sp<SkData> file = GetResourceAsData(path);
     if (!file) {
         return;
@@ -189,7 +189,7 @@ DEF_TEST(Codec_requiredFrame, r) {
 }
 
 DEF_TEST(Codec_partialAnim, r) {
-    auto path = "test640x479.gif";
+    auto path = "images/test640x479.gif";
     sk_sp<SkData> file = GetResourceAsData(path);
     if (!file) {
         return;
@@ -323,9 +323,9 @@ static void test_interleaved(skiatest::Reporter* r, const char* name) {
 }
 
 DEF_TEST(Codec_rewind, r) {
-    test_interleaved(r, "plane.png");
-    test_interleaved(r, "plane_interlaced.png");
-    test_interleaved(r, "box.gif");
+    test_interleaved(r, "images/plane.png");
+    test_interleaved(r, "images/plane_interlaced.png");
+    test_interleaved(r, "images/box.gif");
 }
 
 // Modified version of the giflib logo, from
@@ -401,7 +401,7 @@ DEF_TEST(Codec_GifPreMap, r) {
 }
 
 DEF_TEST(Codec_emptyIDAT, r) {
-    const char* name = "baby_tux.png";
+    const char* name = "images/baby_tux.png";
     sk_sp<SkData> file = GetResourceAsData(name);
     if (!file) {
         return;
@@ -425,13 +425,13 @@ DEF_TEST(Codec_emptyIDAT, r) {
 }
 
 DEF_TEST(Codec_incomplete, r) {
-    for (const char* name : { "baby_tux.png",
-                              "baby_tux.webp",
-                              "CMYK.jpg",
-                              "color_wheel.gif",
-                              "google_chrome.ico",
-                              "rle.bmp",
-                              "mandrill.wbmp",
+    for (const char* name : { "images/baby_tux.png",
+                              "images/baby_tux.webp",
+                              "images/CMYK.jpg",
+                              "images/color_wheel.gif",
+                              "images/google_chrome.ico",
+                              "images/rle.bmp",
+                              "images/mandrill.wbmp",
                               }) {
         sk_sp<SkData> file = GetResourceAsData(name);
         if (!name) {

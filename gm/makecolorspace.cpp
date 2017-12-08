@@ -61,8 +61,8 @@ protected:
         sk_sp<SkColorSpace> wideGamutLinear = as_CSB(wideGamut)->makeLinearGamma();
 
         // Lazy images
-        sk_sp<SkImage> opaqueImage = GetResourceAsImage("mandrill_128.png");
-        sk_sp<SkImage> premulImage = GetResourceAsImage("color_wheel.png");
+        sk_sp<SkImage> opaqueImage = GetResourceAsImage("images/mandrill_128.png");
+        sk_sp<SkImage> premulImage = GetResourceAsImage("images/color_wheel.png");
         canvas->drawImage(opaqueImage, 0.0f, 0.0f);
         canvas->drawImage(make_color_space(opaqueImage, wideGamut, behavior), 128.0f, 0.0f);
         canvas->drawImage(make_color_space(opaqueImage, wideGamutLinear, behavior), 256.0f, 0.0f);
@@ -72,8 +72,8 @@ protected:
         canvas->translate(0.0f, 256.0f);
 
         // Raster images
-        opaqueImage = make_raster_image("mandrill_128.png", behavior);
-        premulImage = make_raster_image("color_wheel.png", behavior);
+        opaqueImage = make_raster_image("images/mandrill_128.png", behavior);
+        premulImage = make_raster_image("images/color_wheel.png", behavior);
         canvas->drawImage(opaqueImage, 0.0f, 0.0f);
         canvas->drawImage(make_color_space(opaqueImage, wideGamut, behavior), 128.0f, 0.0f);
         canvas->drawImage(make_color_space(opaqueImage, wideGamutLinear, behavior), 256.0f, 0.0f);
