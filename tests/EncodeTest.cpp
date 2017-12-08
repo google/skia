@@ -47,7 +47,7 @@ static std::unique_ptr<SkEncoder> make(SkEncodedImageFormat format, SkWStream* d
 
 static void test_encode(skiatest::Reporter* r, SkEncodedImageFormat format) {
     SkBitmap bitmap;
-    bool success = GetResourceAsBitmap("mandrill_128.png", &bitmap);
+    bool success = GetResourceAsBitmap("images/mandrill_128.png", &bitmap);
     if (!success) {
         return;
     }
@@ -132,7 +132,7 @@ static inline bool almost_equals(const SkBitmap& a, const SkBitmap& b, int toler
 
 DEF_TEST(Encode_JpegDownsample, r) {
     SkBitmap bitmap;
-    bool success = GetResourceAsBitmap("mandrill_128.png", &bitmap);
+    bool success = GetResourceAsBitmap("images/mandrill_128.png", &bitmap);
     if (!success) {
         return;
     }
@@ -244,7 +244,7 @@ static void testPngComments(const SkPixmap& src, SkPngEncoder::Options& options,
 
 DEF_TEST(Encode_PngOptions, r) {
     SkBitmap bitmap;
-    bool success = GetResourceAsBitmap("mandrill_128.png", &bitmap);
+    bool success = GetResourceAsBitmap("images/mandrill_128.png", &bitmap);
     if (!success) {
         return;
     }
@@ -287,7 +287,7 @@ DEF_TEST(Encode_PngOptions, r) {
 
 DEF_TEST(Encode_WebpOptions, r) {
     SkBitmap bitmap;
-    bool success = GetResourceAsBitmap("google_chrome.ico", &bitmap);
+    bool success = GetResourceAsBitmap("images/google_chrome.ico", &bitmap);
     if (!success) {
         return;
     }

@@ -28,7 +28,7 @@ protected:
 
     void onDraw(SkCanvas* canvas) override {
         // Create image.
-        const char* path = "mandrill_512_q075.jpg";
+        const char* path = "images/mandrill_512_q075.jpg";
         sk_sp<SkImage> image = GetResourceAsImage(path);
         if (!image) {
             SkDebugf("Failure: Is the resource path set properly?");

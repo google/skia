@@ -82,22 +82,22 @@ DEF_TEST(ColorSpace_sRGB, r) {
 DEF_TEST(ColorSpaceParseICCProfiles, r) {
 
 #if (PNG_LIBPNG_VER_MAJOR > 1) || (PNG_LIBPNG_VER_MAJOR == 1 && PNG_LIBPNG_VER_MINOR >= 6)
-    test_path(r, "color_wheel_with_profile.png", g_sRGB_R, g_sRGB_G, g_sRGB_B,
+    test_path(r, "images/color_wheel_with_profile.png", g_sRGB_R, g_sRGB_G, g_sRGB_B,
               kSRGB_SkGammaNamed);
 #endif
 
     const float red[] = { 0.385117f, 0.716904f, 0.0970612f };
     const float green[] = { 0.143051f, 0.0606079f, 0.713913f };
     const float blue[] = { 0.436035f, 0.222488f, 0.013916f };
-    test_path(r, "icc-v2-gbr.jpg", red, green, blue, k2Dot2Curve_SkGammaNamed);
+    test_path(r, "images/icc-v2-gbr.jpg", red, green, blue, k2Dot2Curve_SkGammaNamed);
 
-    test_path(r, "webp-color-profile-crash.webp",
+    test_path(r, "images/webp-color-profile-crash.webp",
             red, green, blue, kNonStandard_SkGammaNamed);
-    test_path(r, "webp-color-profile-lossless.webp",
+    test_path(r, "images/webp-color-profile-lossless.webp",
             red, green, blue, kNonStandard_SkGammaNamed);
-    test_path(r, "webp-color-profile-lossy.webp",
+    test_path(r, "images/webp-color-profile-lossy.webp",
             red, green, blue, kNonStandard_SkGammaNamed);
-    test_path(r, "webp-color-profile-lossy-alpha.webp",
+    test_path(r, "images/webp-color-profile-lossy-alpha.webp",
             red, green, blue, kNonStandard_SkGammaNamed);
 }
 

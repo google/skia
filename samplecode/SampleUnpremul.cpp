@@ -176,6 +176,6 @@ private:
 //////////////////////////////////////////////////////////////////////////////
 
 static SkView* MyFactory() {
-    return new UnpremulView(GetResourcePath());
+    return new UnpremulView(GetResourcePath("images"));
 }
 static SkViewRegister reg(MyFactory);

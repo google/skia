@@ -163,7 +163,7 @@ DEF_SIMPLE_GM(savelayer_with_backdrop, canvas, 830, 550) {
 
     SkPaint paint;
     paint.setFilterQuality(kMedium_SkFilterQuality);
-    sk_sp<SkImage> image(GetResourceAsImage("mandrill_512.png"));
+    sk_sp<SkImage> image(GetResourceAsImage("images/mandrill_512.png"));
 
     canvas->translate(20, 20);
     for (const auto& xform : xforms) {
