@@ -39,7 +39,8 @@ DEF_TEST(ICC_ToXYZD50, r) {
         0.74519f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f,
     };
 
-    sk_sp<SkData> data = GetResourceAsData("icc_profiles/HP_ZR30w.icc");
+    sk_sp<SkData> data = SkData::MakeFromFileName(
+            GetResourcePath("icc_profiles/HP_ZR30w.icc").c_str());
     sk_sp<SkICC> z30 = SkICC::Make(data->data(), data->size());
     test_to_xyz_d50(r, z30.get(), true, z30Reference);
 
@@ -48,15 +49,15 @@ DEF_TEST(ICC_ToXYZD50, r) {
         0.75368f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f,
     };
 
-    data = GetResourceAsData("icc_profiles/HP_Z32x.icc");
+    data = SkData::MakeFromFileName( GetResourcePath("icc_profiles/HP_Z32x.icc").c_str());
     sk_sp<SkICC> z32 = SkICC::Make(data->data(), data->size());
     test_to_xyz_d50(r, z32.get(), true, z32Reference);
 
-    data = GetResourceAsData("icc_profiles/upperLeft.icc");
+    data = SkData::MakeFromFileName(GetResourcePath("icc_profiles/upperLeft.icc").c_str());
     sk_sp<SkICC> upperLeft = SkICC::Make(data->data(), data->size());
     test_to_xyz_d50(r, upperLeft.get(), false, z32Reference);
 
-    data = GetResourceAsData("icc_profiles/upperRight.icc");
+    data = SkData::MakeFromFileName(GetResourcePath("icc_profiles/upperRight.icc").c_str());
     sk_sp<SkICC> upperRight = SkICC::Make(data->data(), data->size());
     test_to_xyz_d50(r, upperRight.get(), false, z32Reference);
 }
@@ -81,19 +82,20 @@ DEF_TEST(ICC_IsNumericalTransferFn, r) {
     referenceFn.fF = 0.0f;
     referenceFn.fG = 2.2f;
 
-    sk_sp<SkData> data = GetResourceAsData("icc_profiles/HP_ZR30w.icc");
+    sk_sp<SkData> data = SkData::MakeFromFileName(
+            GetResourcePath("icc_profiles/HP_ZR30w.icc").c_str());
     sk_sp<SkICC> z30 = SkICC::Make(data->data(), data->size());
     test_is_numerical_transfer_fn(r, z30.get(), true, referenceFn);
 
-    data = GetResourceAsData("icc_profiles/HP_Z32x.icc");
+    data = SkData::MakeFromFileName( GetResourcePath("icc_profiles/HP_Z32x.icc").c_str());
     sk_sp<SkICC> z32 = SkICC::Make(data->data(), data->size());
     test_is_numerical_transfer_fn(r, z32.get(), true, referenceFn);
 
-    data = GetResourceAsData("icc_profiles/upperLeft.icc");
+    data = SkData::MakeFromFileName(GetResourcePath("icc_profiles/upperLeft.icc").c_str());
     sk_sp<SkICC> upperLeft = SkICC::Make(data->data(), data->size());
     test_is_numerical_transfer_fn(r, upperLeft.get(), false, referenceFn);
 
-    data = GetResourceAsData("icc_profiles/upperRight.icc");
+    data = SkData::MakeFromFileName(GetResourcePath("icc_profiles/upperRight.icc").c_str());
     sk_sp<SkICC> upperRight = SkICC::Make(data->data(), data->size());
     test_is_numerical_transfer_fn(r, upperRight.get(), false, referenceFn);
 }

@@ -846,8 +846,9 @@ private:
 // Test that the RawCodec works also for not asset stream. This will test the code path using
 // SkRawBufferedStream instead of SkRawAssetStream.
 DEF_TEST(Codec_raw_notseekable, r) {
-    constexpr char path[] = "images/dng_with_preview.dng";
-    sk_sp<SkData> data(GetResourceAsData(path));
+    const char* path = "images/dng_with_preview.dng";
+    SkString fullPath(GetResourcePath(path));
+    sk_sp<SkData> data(SkData::MakeFromFileName(fullPath.c_str()));
     if (!data) {
         SkDebugf("Missing resource '%s'\n", path);
         return;
@@ -864,8 +865,9 @@ DEF_TEST(Codec_raw_notseekable, r) {
 // Test that even if webp_parse_header fails to peek enough, it will fall back to read()
 // + rewind() and succeed.
 DEF_TEST(Codec_webp_peek, r) {
-    constexpr char path[] = "images/baby_tux.webp";
-    auto data = GetResourceAsData(path);
+    const char* path = "images/baby_tux.webp";
+    SkString fullPath(GetResourcePath(path));
+    auto data = SkData::MakeFromFileName(fullPath.c_str());
     if (!data) {
         SkDebugf("Missing resource '%s'\n", path);
         return;
@@ -1001,7 +1003,8 @@ static void check_color_xform(skiatest::Reporter* r, const char* path) {
 
     const int dstWidth = subsetWidth / opts.fSampleSize;
     const int dstHeight = subsetHeight / opts.fSampleSize;
-    sk_sp<SkData> data = GetResourceAsData("icc_profiles/HP_ZR30w.icc");
+    sk_sp<SkData> data = SkData::MakeFromFileName(
+            GetResourcePath("icc_profiles/HP_ZR30w.icc").c_str());
     sk_sp<SkColorSpace> colorSpace = SkColorSpace::MakeICC(data->data(), data->size());
     SkImageInfo dstInfo = codec->getInfo().makeWH(dstWidth, dstHeight)
                                           .makeColorType(kN32_SkColorType)
@@ -1383,14 +1386,12 @@ DEF_TEST(Codec_InvalidImages, r) {
 }
 
 static void test_invalid_header(skiatest::Reporter* r, const char* path) {
-    auto data = GetResourceAsData(path);
-    if (!data) {
-        return;
-    }
-    std::unique_ptr<SkStreamAsset> stream(new SkMemoryStream(std::move(data)));
+    SkString resourcePath = GetResourcePath(path);
+    auto stream = SkFILEStream::Make(resourcePath.c_str());
     if (!stream) {
         return;
     }
+
     std::unique_ptr<SkCodec> codec(SkCodec::MakeFromStream(std::move(stream)));
     REPORTER_ASSERT(r, !codec);
 }

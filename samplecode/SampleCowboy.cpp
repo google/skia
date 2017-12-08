@@ -37,13 +37,12 @@ protected:
     };
 
     void onOnceBeforeDraw() override {
-        constexpr char path[] = "Cowboy.svg";
-        auto data = GetResourceAsData(path);
-        if (!data) {
-            SkDebugf("file not found: \"%s\"\n", path);
+        fPath = GetResourcePath("Cowboy.svg");
+        SkFILEStream svgStream(fPath.c_str());
+        if (!svgStream.isValid()) {
+            SkDebugf("file not found: \"path\"\n", fPath.c_str());
             return;
         }
-        SkMemoryStream svgStream(std::move(data));
 
         SkDOM xmlDom;
         if (!xmlDom.build(svgStream)) {

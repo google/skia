@@ -32,7 +32,8 @@ static bool is_subset_of(SkData* smaller, SkData* larger) {
 
 static sk_sp<SkData> load_resource(
         skiatest::Reporter* r, const char* test, const char* filename) {
-    sk_sp<SkData> data = GetResourceAsData(filename);
+    SkString path(GetResourcePath(filename));
+    sk_sp<SkData> data(SkData::MakeFromFileName(path.c_str()));
     if (!data) {
         INFOF(r, "\n%s: Resource '%s' can not be found.\n",
               test, filename);

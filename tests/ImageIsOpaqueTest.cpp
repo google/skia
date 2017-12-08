@@ -40,13 +40,14 @@ static void test_flatten(skiatest::Reporter* reporter, const SkImageInfo& info) 
 }
 
 DEF_TEST(ImageInfo_flattening, reporter) {
-    sk_sp<SkData> data = GetResourceAsData("icc_profiles/HP_ZR30w.icc");
+     sk_sp<SkData> data =
+             SkData::MakeFromFileName(GetResourcePath("icc_profiles/HP_ZR30w.icc").c_str());
     sk_sp<SkColorSpace> space0 = SkColorSpace::MakeICC(data->data(), data->size());
-    data = GetResourceAsData("icc_profiles/HP_Z32x.icc");
+    data = SkData::MakeFromFileName( GetResourcePath("icc_profiles/HP_Z32x.icc").c_str());
     sk_sp<SkColorSpace> space1 = SkColorSpace::MakeICC(data->data(), data->size());
-    data = GetResourceAsData("icc_profiles/upperLeft.icc");
+    data = SkData::MakeFromFileName(GetResourcePath("icc_profiles/upperLeft.icc").c_str());
     sk_sp<SkColorSpace> space2 = SkColorSpace::MakeICC(data->data(), data->size());
-    data = GetResourceAsData("icc_profiles/upperRight.icc");
+    data = SkData::MakeFromFileName(GetResourcePath("icc_profiles/upperRight.icc").c_str());
     sk_sp<SkColorSpace> space3 = SkColorSpace::MakeICC(data->data(), data->size());
 
     sk_sp<SkColorSpace> spaces[] = {
