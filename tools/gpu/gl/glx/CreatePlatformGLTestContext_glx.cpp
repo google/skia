@@ -239,8 +239,8 @@ GLXGLTestContext::GLXGLTestContext(GrGLStandard forcedGpuAPI, GLXGLTestContext* 
         return;
     }
 
-    sk_sp<const GrGLInterface> gl(GrGLCreateNativeInterface());
-    if (nullptr == gl.get()) {
+    auto gl = GrGLMakeNativeInterface();
+    if (!gl) {
         SkDebugf("Failed to create gl interface");
         this->destroyGLContext();
         return;

@@ -12,23 +12,6 @@
 
 #include <stdio.h>
 
-const GrGLInterface* GrGLInterfaceAddTestDebugMarker(const GrGLInterface* interface,
-                                                     GrGLInsertEventMarkerProc insertEventMarkerFn,
-                                                     GrGLPushGroupMarkerProc pushGroupMarkerFn,
-                                                     GrGLPopGroupMarkerProc popGroupMarkerFn) {
-    GrGLInterface* newInterface = GrGLInterface::NewClone(interface);
-
-    if (!newInterface->fExtensions.has("GL_EXT_debug_marker")) {
-        newInterface->fExtensions.add("GL_EXT_debug_marker");
-    }
-
-    newInterface->fFunctions.fInsertEventMarker = insertEventMarkerFn;
-    newInterface->fFunctions.fPushGroupMarker = pushGroupMarkerFn;
-    newInterface->fFunctions.fPopGroupMarker = popGroupMarkerFn;
-
-    return newInterface;
-}
-
 GrGLInterface::GrGLInterface() {
     fStandard = kNone_GrGLStandard;
 }

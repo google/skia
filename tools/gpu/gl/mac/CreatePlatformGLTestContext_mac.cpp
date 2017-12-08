@@ -68,8 +68,8 @@ MacGLTestContext::MacGLTestContext(MacGLTestContext* shareContext)
     SkScopeExit restorer(context_restorer());
     CGLSetCurrentContext(fContext);
 
-    sk_sp<const GrGLInterface> gl(GrGLCreateNativeInterface());
-    if (nullptr == gl.get()) {
+    auto gl = GrGLMakeNativeInterface();
+    if (!gl) {
         SkDebugf("Context could not create GL interface.\n");
         this->destroyGLContext();
         return;

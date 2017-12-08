@@ -186,8 +186,8 @@ EGLGLTestContext::EGLGLTestContext(GrGLStandard forcedGpuAPI, EGLGLTestContext* 
             continue;
         }
 
-        gl.reset(GrGLCreateNativeInterface());
-        if (nullptr == gl.get()) {
+        gl = GrGLMakeNativeInterface();
+        if (!gl) {
             SkDebugf("Failed to create gl interface.\n");
             this->destroyGLContext();
             continue;
