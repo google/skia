@@ -22,6 +22,30 @@
       "revId": "0fde2d47116772de1c33c6db73319352cdaaca00",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2b627dd3_afb7425f",
+        "filename": "third_party/angle2/BUILD.gn",
+        "patchSetId": 3
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-12-08T16:34:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0ff145a5_b979f729",
+      "range": {
+        "startLine": 67,
+        "startChar": 22,
+        "endLine": 67,
+        "endChar": 29
+      },
+      "revId": "0fde2d47116772de1c33c6db73319352cdaaca00",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
