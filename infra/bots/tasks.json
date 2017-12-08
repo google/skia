@@ -401,6 +401,12 @@
         "Build-Win-Clang-x86_64-Debug-ANGLE"
       ]
     },
+    "Build-Win-Clang-x86_64-Debug-ANGLE_Goma": {
+      "priority": 0.8,
+      "tasks": [
+        "Build-Win-Clang-x86_64-Debug-ANGLE_Goma"
+      ]
+    },
     "Build-Win-Clang-x86_64-Debug-Goma": {
       "priority": 0.8,
       "tasks": [
@@ -411,6 +417,12 @@
       "priority": 0.8,
       "tasks": [
         "Build-Win-Clang-x86_64-Debug-Vulkan"
+      ]
+    },
+    "Build-Win-Clang-x86_64-Debug-Vulkan_Goma": {
+      "priority": 0.8,
+      "tasks": [
+        "Build-Win-Clang-x86_64-Debug-Vulkan_Goma"
       ]
     },
     "Build-Win-Clang-x86_64-Release": {
@@ -425,10 +437,28 @@
         "Build-Win-Clang-x86_64-Release-ANGLE"
       ]
     },
+    "Build-Win-Clang-x86_64-Release-ANGLE_Goma": {
+      "priority": 0.8,
+      "tasks": [
+        "Build-Win-Clang-x86_64-Release-ANGLE_Goma"
+      ]
+    },
+    "Build-Win-Clang-x86_64-Release-Goma": {
+      "priority": 0.8,
+      "tasks": [
+        "Build-Win-Clang-x86_64-Release-Goma"
+      ]
+    },
     "Build-Win-Clang-x86_64-Release-Vulkan": {
       "priority": 0.8,
       "tasks": [
         "Build-Win-Clang-x86_64-Release-Vulkan"
+      ]
+    },
+    "Build-Win-Clang-x86_64-Release-Vulkan_Goma": {
+      "priority": 0.8,
+      "tasks": [
+        "Build-Win-Clang-x86_64-Release-Vulkan_Goma"
       ]
     },
     "Build-Win-MSVC-x86-Debug": {
@@ -443,10 +473,28 @@
         "Build-Win-MSVC-x86-Debug-Exceptions"
       ]
     },
+    "Build-Win-MSVC-x86-Debug-Exceptions_Goma": {
+      "priority": 0.8,
+      "tasks": [
+        "Build-Win-MSVC-x86-Debug-Exceptions_Goma"
+      ]
+    },
+    "Build-Win-MSVC-x86-Debug-Goma": {
+      "priority": 0.8,
+      "tasks": [
+        "Build-Win-MSVC-x86-Debug-Goma"
+      ]
+    },
     "Build-Win-MSVC-x86-Release": {
       "priority": 0.8,
       "tasks": [
         "Build-Win-MSVC-x86-Release"
+      ]
+    },
+    "Build-Win-MSVC-x86-Release-Goma": {
+      "priority": 0.8,
+      "tasks": [
+        "Build-Win-MSVC-x86-Release-Goma"
       ]
     },
     "Build-Win-MSVC-x86_64-Debug": {
@@ -455,10 +503,22 @@
         "Build-Win-MSVC-x86_64-Debug"
       ]
     },
+    "Build-Win-MSVC-x86_64-Debug-Goma": {
+      "priority": 0.8,
+      "tasks": [
+        "Build-Win-MSVC-x86_64-Debug-Goma"
+      ]
+    },
     "Build-Win-MSVC-x86_64-Debug-Vulkan": {
       "priority": 0.8,
       "tasks": [
         "Build-Win-MSVC-x86_64-Debug-Vulkan"
+      ]
+    },
+    "Build-Win-MSVC-x86_64-Debug-Vulkan_Goma": {
+      "priority": 0.8,
+      "tasks": [
+        "Build-Win-MSVC-x86_64-Debug-Vulkan_Goma"
       ]
     },
     "Build-Win-MSVC-x86_64-Release": {
@@ -467,10 +527,22 @@
         "Build-Win-MSVC-x86_64-Release"
       ]
     },
+    "Build-Win-MSVC-x86_64-Release-Goma": {
+      "priority": 0.8,
+      "tasks": [
+        "Build-Win-MSVC-x86_64-Release-Goma"
+      ]
+    },
     "Build-Win-MSVC-x86_64-Release-Vulkan": {
       "priority": 0.8,
       "tasks": [
         "Build-Win-MSVC-x86_64-Release-Vulkan"
+      ]
+    },
+    "Build-Win-MSVC-x86_64-Release-Vulkan_Goma": {
+      "priority": 0.8,
+      "tasks": [
+        "Build-Win-MSVC-x86_64-Release-Vulkan_Goma"
       ]
     },
     "Calmbench-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All": {
@@ -4791,6 +4863,39 @@
       "isolate": "compile_skia.isolate",
       "priority": 0.8
     },
+    "Build-Win-Clang-x86_64-Debug-ANGLE_Goma": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/clang_win",
+          "path": "clang_win",
+          "version": "version:2"
+        }
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-IsolateWinToolchain"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "os:Windows-2016Server-14393",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "compile",
+        "repository=<(REPO)",
+        "buildername=Build-Win-Clang-x86_64-Debug-ANGLE_Goma",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "compile_skia.isolate",
+      "priority": 0.8
+    },
     "Build-Win-Clang-x86_64-Debug-Goma": {
       "cipd_packages": [
         {
@@ -4848,6 +4953,40 @@
         "compile",
         "repository=<(REPO)",
         "buildername=Build-Win-Clang-x86_64-Debug-Vulkan",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "compile_skia.isolate",
+      "priority": 0.8
+    },
+    "Build-Win-Clang-x86_64-Debug-Vulkan_Goma": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/clang_win",
+          "path": "clang_win",
+          "version": "version:2"
+        }
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-IsolateWinToolchain",
+        "Housekeeper-PerCommit-IsolateWinVulkanSDK"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "os:Windows-2016Server-14393",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "compile",
+        "repository=<(REPO)",
+        "buildername=Build-Win-Clang-x86_64-Debug-Vulkan_Goma",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -4924,6 +5063,72 @@
       "isolate": "compile_skia.isolate",
       "priority": 0.8
     },
+    "Build-Win-Clang-x86_64-Release-ANGLE_Goma": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/clang_win",
+          "path": "clang_win",
+          "version": "version:2"
+        }
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-IsolateWinToolchain"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "os:Windows-2016Server-14393",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "compile",
+        "repository=<(REPO)",
+        "buildername=Build-Win-Clang-x86_64-Release-ANGLE_Goma",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "compile_skia.isolate",
+      "priority": 0.8
+    },
+    "Build-Win-Clang-x86_64-Release-Goma": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/clang_win",
+          "path": "clang_win",
+          "version": "version:2"
+        }
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-IsolateWinToolchain"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "os:Windows-2016Server-14393",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "compile",
+        "repository=<(REPO)",
+        "buildername=Build-Win-Clang-x86_64-Release-Goma",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "compile_skia.isolate",
+      "priority": 0.8
+    },
     "Build-Win-Clang-x86_64-Release-Vulkan": {
       "cipd_packages": [
         {
@@ -4948,6 +5153,40 @@
         "compile",
         "repository=<(REPO)",
         "buildername=Build-Win-Clang-x86_64-Release-Vulkan",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "compile_skia.isolate",
+      "priority": 0.8
+    },
+    "Build-Win-Clang-x86_64-Release-Vulkan_Goma": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/clang_win",
+          "path": "clang_win",
+          "version": "version:2"
+        }
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-IsolateWinToolchain",
+        "Housekeeper-PerCommit-IsolateWinVulkanSDK"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "os:Windows-2016Server-14393",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "compile",
+        "repository=<(REPO)",
+        "buildername=Build-Win-Clang-x86_64-Release-Vulkan_Goma",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -5010,6 +5249,58 @@
       "isolate": "compile_skia.isolate",
       "priority": 0.8
     },
+    "Build-Win-MSVC-x86-Debug-Exceptions_Goma": {
+      "dependencies": [
+        "Housekeeper-PerCommit-IsolateWinToolchain"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "os:Windows-2016Server-14393",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "compile",
+        "repository=<(REPO)",
+        "buildername=Build-Win-MSVC-x86-Debug-Exceptions_Goma",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "compile_skia.isolate",
+      "priority": 0.8
+    },
+    "Build-Win-MSVC-x86-Debug-Goma": {
+      "dependencies": [
+        "Housekeeper-PerCommit-IsolateWinToolchain"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "os:Windows-2016Server-14393",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "compile",
+        "repository=<(REPO)",
+        "buildername=Build-Win-MSVC-x86-Debug-Goma",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "compile_skia.isolate",
+      "priority": 0.8
+    },
     "Build-Win-MSVC-x86-Release": {
       "dependencies": [
         "Housekeeper-PerCommit-IsolateWinToolchain"
@@ -5036,6 +5327,32 @@
       "isolate": "compile_skia.isolate",
       "priority": 0.8
     },
+    "Build-Win-MSVC-x86-Release-Goma": {
+      "dependencies": [
+        "Housekeeper-PerCommit-IsolateWinToolchain"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "os:Windows-2016Server-14393",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "compile",
+        "repository=<(REPO)",
+        "buildername=Build-Win-MSVC-x86-Release-Goma",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "compile_skia.isolate",
+      "priority": 0.8
+    },
     "Build-Win-MSVC-x86_64-Debug": {
       "dependencies": [
         "Housekeeper-PerCommit-IsolateWinToolchain"
@@ -5052,6 +5369,32 @@
         "compile",
         "repository=<(REPO)",
         "buildername=Build-Win-MSVC-x86_64-Debug",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "compile_skia.isolate",
+      "priority": 0.8
+    },
+    "Build-Win-MSVC-x86_64-Debug-Goma": {
+      "dependencies": [
+        "Housekeeper-PerCommit-IsolateWinToolchain"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "os:Windows-2016Server-14393",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "compile",
+        "repository=<(REPO)",
+        "buildername=Build-Win-MSVC-x86_64-Debug-Goma",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -5089,6 +5432,33 @@
       "isolate": "compile_skia.isolate",
       "priority": 0.8
     },
+    "Build-Win-MSVC-x86_64-Debug-Vulkan_Goma": {
+      "dependencies": [
+        "Housekeeper-PerCommit-IsolateWinToolchain",
+        "Housekeeper-PerCommit-IsolateWinVulkanSDK"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "os:Windows-2016Server-14393",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "compile",
+        "repository=<(REPO)",
+        "buildername=Build-Win-MSVC-x86_64-Debug-Vulkan_Goma",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "compile_skia.isolate",
+      "priority": 0.8
+    },
     "Build-Win-MSVC-x86_64-Release": {
       "dependencies": [
         "Housekeeper-PerCommit-IsolateWinToolchain"
@@ -5105,6 +5475,32 @@
         "compile",
         "repository=<(REPO)",
         "buildername=Build-Win-MSVC-x86_64-Release",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "compile_skia.isolate",
+      "priority": 0.8
+    },
+    "Build-Win-MSVC-x86_64-Release-Goma": {
+      "dependencies": [
+        "Housekeeper-PerCommit-IsolateWinToolchain"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "os:Windows-2016Server-14393",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "compile",
+        "repository=<(REPO)",
+        "buildername=Build-Win-MSVC-x86_64-Release-Goma",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -5132,6 +5528,33 @@
         "compile",
         "repository=<(REPO)",
         "buildername=Build-Win-MSVC-x86_64-Release-Vulkan",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "compile_skia.isolate",
+      "priority": 0.8
+    },
+    "Build-Win-MSVC-x86_64-Release-Vulkan_Goma": {
+      "dependencies": [
+        "Housekeeper-PerCommit-IsolateWinToolchain",
+        "Housekeeper-PerCommit-IsolateWinVulkanSDK"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "os:Windows-2016Server-14393",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "compile",
+        "repository=<(REPO)",
+        "buildername=Build-Win-MSVC-x86_64-Release-Vulkan_Goma",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
