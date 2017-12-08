@@ -7394,7 +7394,7 @@
         "gpu:PowerVRGX6250",
         "os:ChromeOS",
         "pool:Skia",
-        "release_version:9592.71.0"
+        "release_version:10176.5.0"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -7428,7 +7428,7 @@
         "gpu:PowerVRGX6250",
         "os:ChromeOS",
         "pool:Skia",
-        "release_version:9592.71.0"
+        "release_version:10176.5.0"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -15155,7 +15155,7 @@
         "gpu:PowerVRGX6250",
         "os:ChromeOS",
         "pool:Skia",
-        "release_version:9592.71.0"
+        "release_version:10176.5.0"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
@@ -15190,7 +15190,7 @@
         "gpu:PowerVRGX6250",
         "os:ChromeOS",
         "pool:Skia",
-        "release_version:9592.71.0"
+        "release_version:10176.5.0"
       ],
       "execution_timeout_ns": 14400000000000,
       "expiration_ns": 72000000000000,
