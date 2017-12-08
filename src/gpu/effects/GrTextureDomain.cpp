@@ -67,7 +67,6 @@ void GrTextureDomain::GLDomain::sampleTexture(GrGLSLShaderBuilder* builder,
                                               const SkString& inCoords,
                                               GrGLSLFragmentProcessor::SamplerHandle sampler,
                                               const char* inModulateColor) {
-    SkASSERT((Mode)-1 == fMode || textureDomain.mode() == fMode);
     SkDEBUGCODE(fMode = textureDomain.mode();)
 
     if (textureDomain.mode() != kIgnore_Mode && !fDomainUni.isValid()) {

@@ -89,7 +89,6 @@ public:
             for (int i = 0; i < kPrevDomainCount; i++) {
                 fPrevDomain[i] = SK_FloatNaN;
             }
-            SkDEBUGCODE(fMode = (Mode) -1;)
         }
 
         /**
