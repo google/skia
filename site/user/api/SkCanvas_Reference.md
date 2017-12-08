@@ -1931,7 +1931,7 @@ depth of <a href="#SkCanvas_save">save</a> state stack
 
 ### Example
 
-<div><fiddle-embed name="0da8c199f1d9ec4d1b9c5d1114d6cbd6"><div>The example draws an image, and saves it into a <a href="#Layer">Layer</a> with <a href="#SkCanvas_kInitWithPrevious_SaveLayerFlag">kInitWithPrevious SaveLayerFlag</a>.
+<div><fiddle-embed name="7d3751e82d1b6ec328ffa3d6f48ca831"><div>The example draws an image, and saves it into a <a href="#Layer">Layer</a> with <a href="#SkCanvas_kInitWithPrevious_SaveLayerFlag">kInitWithPrevious SaveLayerFlag</a>.
 Next it punches a hole in <a href="#Layer">Layer</a> and <a href="#SkCanvas_restore">restore</a> with <a href="#SkBlendMode_kPlus">SkBlendMode::kPlus</a>.
 Where <a href="#Layer">Layer</a> was cleared, the original image will draw unchanged.
 Outside of the circle the mandrill is brightened.</div></fiddle-embed></div>
