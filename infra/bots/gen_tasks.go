@@ -76,6 +76,20 @@ var (
 	// Defines the structure of job names.
 	jobNameSchema *JobNameSchema
 
+	// TODO(borenet): Roll these versions automatically!
+	CIPD_PKGS_PYTHON = []*specs.CipdPackage{
+		&specs.CipdPackage{
+			Name:    "infra/python/cpython/${platform}",
+			Path:    "cipd_bin_packages",
+			Version: "version:2.7.14.chromium14",
+		},
+		&specs.CipdPackage{
+			Name:    "infra/tools/luci/vpython/${platform}",
+			Path:    "cipd_bin_packages",
+			Version: "git_revision:25b0564a204da2bfd6346f26a59b9efb8cfc2212",
+		},
+	}
+
 	// Git 2.13.
 	cipdGit1 = &specs.CipdPackage{
 		Name:    fmt.Sprintf("infra/git/${platform}"),
@@ -683,7 +697,7 @@ func housekeeper(b *specs.TasksCfgBuilder, name, compileTaskName string) string 
 // generated chain of tasks, which the Job should add as a dependency.
 func infra(b *specs.TasksCfgBuilder, name string) string {
 	b.MustAddTask(name, &specs.TaskSpec{
-		CipdPackages: []*specs.CipdPackage{b.MustGetCipdPackageFromAsset("go")},
+		CipdPackages: append([]*specs.CipdPackage{b.MustGetCipdPackageFromAsset("go")}, CIPD_PKGS_PYTHON...),
 		Dimensions:   linuxGceDimensions(),
 		ExtraArgs: []string{
 			"--workdir", "../../..", "infra",
