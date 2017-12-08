@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b49040bb_955bf8fb",
+        "filename": "src/gpu/glsl/GrGLSLGeometryProcessor.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-12-08T20:26:26Z",
+      "side": 1,
+      "message": "@ethannicholas, I believe this interacts trivially with a change you are working on.",
+      "range": {
+        "startLine": 32,
+        "startChar": 12,
+        "endLine": 32,
+        "endChar": 28
+      },
+      "revId": "0cb91450b5709f96818845af6a3f084c0c2713f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
