@@ -69,7 +69,7 @@ protected:
         return backend == kNonRendering_Backend;
     }
     void onDelayedSetup() override {
-        sk_sp<SkImage> img(GetResourceAsImage("color_wheel.png"));
+        sk_sp<SkImage> img(GetResourceAsImage("images/color_wheel.png"));
         if (img) {
             // force decoding, throw away reference to encoded data.
             SkAutoPixmapStorage pixmap;
@@ -108,7 +108,7 @@ protected:
         return backend == kNonRendering_Backend;
     }
     void onDelayedSetup() override {
-        sk_sp<SkImage> img(GetResourceAsImage("mandrill_512_q075.jpg"));
+        sk_sp<SkImage> img(GetResourceAsImage("images/mandrill_512_q075.jpg"));
         if (!img) { return; }
         sk_sp<SkData> encoded = img->refEncodedData();
         SkASSERT(encoded);

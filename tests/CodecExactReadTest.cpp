@@ -44,13 +44,13 @@ private:
 // end of the data. Some other SkCodecs do, but some Android apps rely on not
 // doing so for PNGs. Test on other formats that work.
 DEF_TEST(Codec_end, r) {
-    for (const char* path : { "plane.png",
-                              "yellow_rose.png",
-                              "plane_interlaced.png",
-                              "google_chrome.ico",
-                              "color_wheel.ico",
-                              "mandrill.wbmp",
-                              "randPixels.bmp",
+    for (const char* path : { "images/plane.png",
+                              "images/yellow_rose.png",
+                              "images/plane_interlaced.png",
+                              "images/google_chrome.ico",
+                              "images/color_wheel.ico",
+                              "images/mandrill.wbmp",
+                              "images/randPixels.bmp",
                               }) {
         sk_sp<SkData> data = GetResourceAsData(path);
         if (!data) {

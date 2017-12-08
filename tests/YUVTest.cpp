@@ -81,46 +81,46 @@ DEF_TEST(Jpeg_YUV_Codec, r) {
     sizes[0].set(128, 128);
     sizes[1].set(64, 64);
     sizes[2].set(64, 64);
-    codec_yuv(r, "color_wheel.jpg", sizes);
+    codec_yuv(r, "images/color_wheel.jpg", sizes);
 
     // H2V2
     sizes[0].set(512, 512);
     sizes[1].set(256, 256);
     sizes[2].set(256, 256);
-    codec_yuv(r, "mandrill_512_q075.jpg", sizes);
+    codec_yuv(r, "images/mandrill_512_q075.jpg", sizes);
 
     // H1V1
     sizes[1].set(512, 512);
     sizes[2].set(512, 512);
-    codec_yuv(r, "mandrill_h1v1.jpg", sizes);
+    codec_yuv(r, "images/mandrill_h1v1.jpg", sizes);
 
     // H2V1
     sizes[1].set(256, 512);
     sizes[2].set(256, 512);
-    codec_yuv(r, "mandrill_h2v1.jpg", sizes);
+    codec_yuv(r, "images/mandrill_h2v1.jpg", sizes);
 
     // Non-power of two dimensions
     sizes[0].set(439, 154);
     sizes[1].set(220, 77);
     sizes[2].set(220, 77);
-    codec_yuv(r, "cropped_mandrill.jpg", sizes);
+    codec_yuv(r, "images/cropped_mandrill.jpg", sizes);
 
     sizes[0].set(8, 8);
     sizes[1].set(4, 4);
     sizes[2].set(4, 4);
-    codec_yuv(r, "randPixels.jpg", sizes);
+    codec_yuv(r, "images/randPixels.jpg", sizes);
 
     // Progressive images
     sizes[0].set(512, 512);
     sizes[1].set(512, 512);
     sizes[2].set(512, 512);
-    codec_yuv(r, "brickwork-texture.jpg", sizes);
-    codec_yuv(r, "brickwork_normal-map.jpg", sizes);
+    codec_yuv(r, "images/brickwork-texture.jpg", sizes);
+    codec_yuv(r, "images/brickwork_normal-map.jpg", sizes);
 
     // A CMYK encoded image should fail.
-    codec_yuv(r, "CMYK.jpg", nullptr);
+    codec_yuv(r, "images/CMYK.jpg", nullptr);
     // A grayscale encoded image should fail.
-    codec_yuv(r, "grayscale.jpg", nullptr);
+    codec_yuv(r, "images/grayscale.jpg", nullptr);
     // A PNG should fail.
-    codec_yuv(r, "arrow.png", nullptr);
+    codec_yuv(r, "images/arrow.png", nullptr);
 }
