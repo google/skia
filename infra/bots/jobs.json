@@ -65,6 +65,7 @@
   "Build-Win-Clang-arm64-Release-Android",
   "Build-Win-Clang-x86_64-Debug",
   "Build-Win-Clang-x86_64-Debug-ANGLE",
+  "Build-Win-Clang-x86_64-Debug-Goma",
   "Build-Win-Clang-x86_64-Debug-Vulkan",
   "Build-Win-Clang-x86_64-Release",
   "Build-Win-Clang-x86_64-Release-ANGLE",
