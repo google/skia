@@ -90,6 +90,7 @@ model = sys.argv[2]
 target_percent = float(sys.argv[3])
 log = subprocess.check_output([ADB, 'root'])
 # check for message like 'adbd cannot run as root in production builds'
+print log
 if 'cannot' in log:
   raise Exception('adb root failed')
 
@@ -104,6 +105,14 @@ elif model == 'Nexus7':
   available_freqs = [51000, 102000, 204000, 340000, 475000, 640000, 760000,
                      860000, 1000000, 1100000, 1200000]
 else:
+  # Temporary logging to get a sense of what devices have multiple cpus
+  try:
+    print subprocess.check_output([ADB, 'shell', 'cat ',
+        '/sys/devices/system/cpu/cpu?/cpufreq/affected_cpus'])
+    print subprocess.check_output([ADB, 'shell', 'cat ',
+        '/sys/devices/system/cpu/cpu?/cpufreq/scaling_available_frequencies'])
+  except Exception as e:
+    print e.output.strip()
   # Most devices give a list of their available frequencies.
   available_freqs = subprocess.check_output([ADB, 'shell', 'cat '
       '/sys/devices/system/cpu/cpu0/cpufreq/scaling_available_frequencies'])
@@ -129,10 +138,13 @@ print 'Setting frequency to %d' % freq
 subprocess.check_output([ADB, 'shell', 'echo "userspace" > '
     '/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor'])
 # If scaling_max_freq is lower than our attempted setting, it won't take.
-subprocess.check_output([ADB, 'shell', 'echo %d > '
-    '/sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq' % freq])
+# We must set min first, because if we try to set max to be less than min
+# (which sometimes happens after certain devices reboot) it returns a
+# perplexing permissions error.
 subprocess.check_output([ADB, 'shell', 'echo 0 > '
     '/sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq'])
+subprocess.check_output([ADB, 'shell', 'echo %d > '
+    '/sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq' % freq])
 subprocess.check_output([ADB, 'shell', 'echo %d > '
     '/sys/devices/system/cpu/cpu0/cpufreq/scaling_setspeed' % freq])
 time.sleep(5)
@@ -141,7 +153,7 @@ actual_freq = subprocess.check_output([ADB, 'shell', 'cat '
 if actual_freq != str(freq):
   raise Exception('(actual, expected) (%s, %d)'
                   % (actual_freq, freq))
-        """,
+""",
         args = [self.ADB_BINARY, self.m.vars.builder_cfg.get('model'),
                 str(target_percent)],
         infra_step=True,
