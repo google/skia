@@ -143,6 +143,30 @@
     },
     {
       "key": {
+        "uuid": "940d01b3_caeabb65",
+        "filename": "infra/bots/recipes/bookmaker.py",
+        "patchSetId": 43
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-12-08T15:18:56Z",
+      "side": 1,
+      "message": "Oh, I missed the open() here.  That will not work in recipes.  You need to do api.file.read_text(), eg. https://skia.googlesource.com/skia/+/master/infra/bots/recipes/ct_skps.py#130",
+      "parentUuid": "bf5ce2c3_538407ca",
+      "range": {
+        "startLine": 93,
+        "startChar": 43,
+        "endLine": 93,
+        "endChar": 60
+      },
+      "revId": "93b4b37f1e9fb2dff961ed9a1f15635adfcf20b9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "330c2eb2_e2a2e3a9",
         "filename": "infra/bots/upload_md.py",
         "patchSetId": 43
