@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "07d978dc_bcdcd849",
+        "filename": "src/gpu/effects/GrTextureDomain.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-12-09T02:50:06Z",
+      "side": 0,
+      "message": "SkASSERT(!fHasMode || textureDomain.mode() \u003d\u003d fMode);",
+      "revId": "be4ffab4e208ec47b4298621b9c9e8456f31717e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2bfe91d4_93e4aec9",
+        "filename": "src/gpu/effects/GrTextureDomain.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-12-09T02:50:06Z",
+      "side": 0,
+      "message": "SkDEBUGCODE(fHasMode\u003dtrue);",
+      "revId": "be4ffab4e208ec47b4298621b9c9e8456f31717e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "35397059_af8f2a61",
+        "filename": "src/gpu/effects/GrTextureDomain.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-12-09T02:50:06Z",
+      "side": 0,
+      "message": "fHasMode \u0026\u0026",
+      "revId": "be4ffab4e208ec47b4298621b9c9e8456f31717e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7e4765eb_ec2d2d36",
+        "filename": "src/gpu/effects/GrTextureDomain.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-12-09T02:50:06Z",
+      "side": 0,
+      "message": "This is all debug code- what do you think about adding a second debug field here:\n\nSkDEBUGCODE(bool fHasMode \u003d false;)",
+      "revId": "be4ffab4e208ec47b4298621b9c9e8456f31717e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
