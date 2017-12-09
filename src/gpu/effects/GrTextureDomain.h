@@ -89,7 +89,6 @@ public:
             for (int i = 0; i < kPrevDomainCount; i++) {
                 fPrevDomain[i] = SK_FloatNaN;
             }
-            SkDEBUGCODE(fMode = (Mode) -1;)
         }
 
         /**
@@ -134,6 +133,7 @@ public:
     private:
         static const int kPrevDomainCount = 4;
         SkDEBUGCODE(Mode                        fMode;)
+        SkDEBUGCODE(bool                        fHasMode = false;)
         GrGLSLProgramDataManager::UniformHandle fDomainUni;
         SkString                                fDomainName;
         float                                   fPrevDomain[kPrevDomainCount];

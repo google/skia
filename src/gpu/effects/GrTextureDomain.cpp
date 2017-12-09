@@ -67,8 +67,9 @@ void GrTextureDomain::GLDomain::sampleTexture(GrGLSLShaderBuilder* builder,
                                               const SkString& inCoords,
                                               GrGLSLFragmentProcessor::SamplerHandle sampler,
                                               const char* inModulateColor) {
-    SkASSERT((Mode)-1 == fMode || textureDomain.mode() == fMode);
+    SkASSERT(!fHasMode || textureDomain.mode() == fMode);
     SkDEBUGCODE(fMode = textureDomain.mode();)
+    SkDEBUGCODE(fHasMode = true;)
 
     if (textureDomain.mode() != kIgnore_Mode && !fDomainUni.isValid()) {
         const char* name;
@@ -160,7 +161,7 @@ void GrTextureDomain::GLDomain::setData(const GrGLSLProgramDataManager& pdman,
                                         const GrTextureDomain& textureDomain,
                                         GrSurfaceProxy* proxy) {
     GrTexture* tex = proxy->priv().peekTexture();
-    SkASSERT(textureDomain.mode() == fMode);
+    SkASSERT(fHasMode && textureDomain.mode() == fMode);
     if (kIgnore_Mode != textureDomain.mode()) {
         SkScalar wInv = SK_Scalar1 / tex->width();
         SkScalar hInv = SK_Scalar1 / tex->height();
