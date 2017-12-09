@@ -16,12 +16,12 @@
 void GrGLSLGeometryProcessor::emitCode(EmitArgs& args) {
     GrGPArgs gpArgs;
     this->onEmitCode(args, &gpArgs);
-    SkASSERT(kFloat2_GrSLType == gpArgs.fPositionVar.getType() ||
-             kFloat3_GrSLType == gpArgs.fPositionVar.getType());
 
     GrGLSLVertexBuilder* vBuilder = args.fVertBuilder;
     if (!args.fGP.willUseGeoShader()) {
         // Emit the vertex position to the hardware in the normalized window coordinates it expects.
+        SkASSERT(kFloat2_GrSLType == gpArgs.fPositionVar.getType() ||
+                 kFloat3_GrSLType == gpArgs.fPositionVar.getType());
         vBuilder->emitNormalizedSkPosition(gpArgs.fPositionVar.c_str(), args.fRTAdjustName,
                                            gpArgs.fPositionVar.getType());
     } else {
@@ -29,10 +29,14 @@ void GrGLSLGeometryProcessor::emitCode(EmitArgs& args) {
         // The geometry Shader will operate in device space, and then convert the final positions to
         // normalized hardware window coordinates under the hood, once everything else has finished.
         vBuilder->codeAppendf("sk_Position = float4(%s", gpArgs.fPositionVar.c_str());
-        if (kFloat2_GrSLType == gpArgs.fPositionVar.getType()) {
-            vBuilder->codeAppend(", 0");
+        if (kFloat4_GrSLType != gpArgs.fPositionVar.getType()) {
+            if (kFloat3_GrSLType != gpArgs.fPositionVar.getType()) {
+                SkASSERT(kFloat2_GrSLType == gpArgs.fPositionVar.getType());
+                vBuilder->codeAppend(", 0");
+            }
+            vBuilder->codeAppend(", 1");
         }
-        vBuilder->codeAppend(", 1);");
+        vBuilder->codeAppend(");");
     }
 
     if (kFloat2_GrSLType == gpArgs.fPositionVar.getType()) {
