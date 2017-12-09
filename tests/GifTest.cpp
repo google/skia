@@ -225,12 +225,12 @@ DEF_TEST(Gif, reporter) {
 // Regression test for decoding a gif image with sampleSize of 4, which was
 // previously crashing.
 DEF_TEST(Gif_Sampled, r) {
-    auto stream = SkFILEStream::Make(GetResourcePath("images/test640x479.gif").c_str());
-    REPORTER_ASSERT(r, stream);
-    if (!stream) {
+    auto data = GetResourceAsData("images/test640x479.gif");
+    REPORTER_ASSERT(r, data);
+    if (!data) {
         return;
     }
-
+    std::unique_ptr<SkStreamAsset> stream(new SkMemoryStream(std::move(data)));
     std::unique_ptr<SkAndroidCodec> codec(SkAndroidCodec::MakeFromStream(std::move(stream)));
     REPORTER_ASSERT(r, codec);
     if (!codec) {
