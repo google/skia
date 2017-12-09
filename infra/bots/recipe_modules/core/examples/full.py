@@ -15,7 +15,7 @@ def RunSteps(api):
 
 
 def GenTests(api):
-  buildername = 'Build-Win-Clang-x86_64-Release-Vulkan'
+  buildername = 'Build-Win-Clang-x86_64-Release-Vulkan_Goma'
   yield (
       api.test('test') +
       api.properties(buildername=buildername,
@@ -32,7 +32,7 @@ def GenTests(api):
     )
 
   buildername = ('Test-Win10-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-' +
-                 'Debug-All-ANGLE')
+                 'Debug-All-ANGLE_Goma')
   yield (
       api.test('no_persistent_checkout') +
       api.properties(buildername=buildername,
