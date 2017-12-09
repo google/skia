@@ -358,8 +358,8 @@ static void serialize_and_compare_typeface(sk_sp<SkTypeface> typeface, const cha
 static void TestPictureTypefaceSerialization(skiatest::Reporter* reporter) {
     {
         // Load typeface from file to test CreateFromFile with index.
-        SkString filename = GetResourcePath("/fonts/test.ttc");
-        sk_sp<SkTypeface> typeface(SkTypeface::MakeFromFile(filename.c_str(), 1));
+        auto data = GetResourceAsData("fonts/test.ttc");
+        auto typeface = SkTypeface::MakeFromStream(new SkMemoryStream(std::move(data)), 1);
         if (!typeface) {
             INFOF(reporter, "Could not run fontstream test because test.ttc not found.");
         } else {
@@ -369,7 +369,7 @@ static void TestPictureTypefaceSerialization(skiatest::Reporter* reporter) {
 
     {
         // Load typeface as stream to create with axis settings.
-        std::unique_ptr<SkStreamAsset> distortable(GetResourceAsStream("/fonts/Distortable.ttf"));
+        std::unique_ptr<SkStreamAsset> distortable(GetResourceAsStream("fonts/Distortable.ttf"));
         if (!distortable) {
             INFOF(reporter, "Could not run fontstream test because Distortable.ttf not found.");
         } else {
