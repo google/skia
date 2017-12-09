@@ -101,14 +101,14 @@ with open(sys.argv[1], 'w') as f:
     if compiler != 'MSVC' and configuration == 'Debug':
       extra_cflags.append('-O1')
 
-    if extra_config == 'Exceptions':
+    if 'Exceptions' in extra_config:
       extra_cflags.append('/EHsc')
-    if extra_config == 'Fast':
+    if 'Fast' in extra_config:
       extra_cflags.extend(['-march=native', '-fomit-frame-pointer', '-O3',
                            '-ffp-contract=off'])
     if extra_config.startswith('SK'):
       extra_cflags.append('-D' + extra_config)
-    if extra_config == 'MSAN':
+    if 'MSAN' in extra_config:
       extra_ldflags.append('-L' + clang_linux + '/msan')
 
     args = {}
@@ -117,16 +117,16 @@ with open(sys.argv[1], 'w') as f:
 
     if configuration != 'Debug':
       args['is_debug'] = 'false'
-    if extra_config == 'ANGLE':
+    if 'ANGLE' in extra_config:
       args['skia_use_angle'] = 'true'
-    if extra_config == 'CommandBuffer':
+    if 'CommandBuffer' in extra_config:
       self.m.run.run_once(self.build_command_buffer)
-    if extra_config == 'MSAN':
+    if 'MSAN' in extra_config:
       args['skia_enable_gpu']     = 'false'
       args['skia_use_fontconfig'] = 'false'
     if 'ASAN' in extra_config or 'UBSAN' in extra_config:
       args['skia_enable_spirv_validation'] = 'false'
-    if extra_config == 'Mini':
+    if 'Mini' in extra_config:
       args.update({
         'is_component_build':     'true',   # Proves we can link a coherent .so.
         'is_official_build':      'true',   # No debug symbols, no tools.
@@ -139,9 +139,9 @@ with open(sys.argv[1], 'w') as f:
         'skia_use_libwebp':       'false',
         'skia_use_zlib':          'false',
       })
-    if extra_config == 'NoGPU':
+    if 'NoGPU' in extra_config:
       args['skia_enable_gpu'] = 'false'
-    if extra_config == 'Shared':
+    if 'Shared' in extra_config:
       args['is_component_build'] = 'true'
     if 'Vulkan' in extra_config and not 'Android' in extra_config:
       args['skia_enable_vulkan_debug_layers'] = 'false'
@@ -238,7 +238,7 @@ with open(sys.argv[1], 'w') as f:
     os            = self.m.vars.builder_cfg.get('os',            '')
 
     win_vulkan_sdk = str(self.m.vars.slave_dir.join('win_vulkan_sdk'))
-    if 'Win' in os and extra_config == 'Vulkan':
+    if 'Win' in os and 'Vulkan' in extra_config:
       self.m.run.copy_build_products(
           win_vulkan_sdk,
           swarming_out_dir.join('out', configuration + '_x64'))
@@ -276,16 +276,16 @@ with open(sys.argv[1], 'w') as f:
     elif self.m.vars.is_linux:
       cmd = ['catchsegv'] + cmd
 
-    if 'ASAN' == extra_config or 'UBSAN' in extra_config:
+    if 'ASAN' in extra_config or 'UBSAN' in extra_config:
       env[ 'ASAN_OPTIONS'] = 'symbolize=1 detect_leaks=1'
       env[ 'LSAN_OPTIONS'] = 'symbolize=1 print_suppressions=1'
       env['UBSAN_OPTIONS'] = 'symbolize=1 print_stacktrace=1'
 
-    if 'MSAN' == extra_config:
+    if 'MSAN' in extra_config:
       # Find the MSAN-built libc++.
       ld_library_path.append(clang_linux + '/msan')
 
-    if 'TSAN' == extra_config:
+    if 'TSAN' in extra_config:
       # We don't care about malloc(), fprintf, etc. used in signal handlers.
       # If we're in a signal handler, we're already crashing...
       env['TSAN_OPTIONS'] = 'report_signal_unsafe=0'

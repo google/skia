@@ -64,7 +64,7 @@ def RunSteps(api):
 
 
 def GenTests(api):
-  buildername = 'Build-Win-Clang-x86_64-Release-Vulkan'
+  buildername = 'Build-Win-Clang-x86_64-Release-Vulkan_Goma'
   yield (
       api.test('test') +
       api.properties(buildername=buildername,
