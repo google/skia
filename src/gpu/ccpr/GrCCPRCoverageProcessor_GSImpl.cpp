@@ -7,6 +7,7 @@
 
 #include "GrCCPRCoverageProcessor.h"
 
+#include "GrMesh.h"
 #include "glsl/GrGLSLVertexGeoBuilder.h"
 
 using Shader = GrCCPRCoverageProcessor::Shader;
@@ -26,17 +27,16 @@ protected:
     void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) final {
         const GrCCPRCoverageProcessor& proc = args.fGP.cast<GrCCPRCoverageProcessor>();
 
-        // Vertex shader.
-        GrGLSLVertexBuilder* v = args.fVertBuilder;
-        v->codeAppendf("float2 self = float2(%s[sk_VertexID], %s[sk_VertexID]);",
-                       proc.getInstanceAttrib(InstanceAttribs::kX).fName,
-                       proc.getInstanceAttrib(InstanceAttribs::kY).fName);
-        gpArgs->fPositionVar.set(kFloat2_GrSLType, "self");
+        // The vertex shader simply forwards transposed x or y values to the geometry shader.
+        SkASSERT(1 == proc.numAttribs());
+        gpArgs->fPositionVar.set(4 == proc.numInputPoints() ? kFloat4_GrSLType : kFloat3_GrSLType,
+                                 proc.getAttrib(0).fName);
 
         // Geometry shader.
         GrGLSLVaryingHandler* varyingHandler = args.fVaryingHandler;
         this->emitGeometryShader(proc, varyingHandler, args.fGeomBuilder, args.fRTAdjustName);
         varyingHandler->emitAttributes(proc);
+        varyingHandler->setNoPerspective();
         SkASSERT(!args.fFPCoordTransformHandler->nextCoordTransform());
 
         // Fragment shader.
@@ -52,12 +52,9 @@ protected:
         int numInputPoints = proc.numInputPoints();
         SkASSERT(3 == numInputPoints || 4 == numInputPoints);
 
-        g->codeAppendf("float%ix2 pts = float%ix2(", numInputPoints, numInputPoints);
-        for (int i = 0; i < numInputPoints; ++i) {
-            g->codeAppend (i ? ", " : "");
-            g->codeAppendf("sk_in[%i].sk_Position.xy", i);
-        }
-        g->codeAppend (");");
+        const char* posValues = (4 == numInputPoints) ? "sk_Position" : "sk_Position.xyz";
+        g->codeAppendf("float%ix2 pts = transpose(float2x%i(sk_in[0].%s, sk_in[1].%s));",
+                       numInputPoints, numInputPoints, posValues, posValues);
 
         GrShaderVar wind("wind", kHalf_GrSLType);
         g->declareGlobal(wind);
@@ -89,9 +86,8 @@ protected:
         Shader::GeometryVars vars;
         fShader->emitSetupCode(g, "pts", "sk_InvocationID", wind.c_str(), &vars);
         int maxPoints = this->onEmitGeometryShader(g, wind, emitVertexFn.c_str(), vars);
-        InputType inputType = (3 == numInputPoints) ? InputType::kTriangles
-                                                    : InputType::kLinesAdjacency;
-        g->configure(inputType, OutputType::kTriangleStrip, maxPoints, fShader->getNumSegments());
+        g->configure(InputType::kLines, OutputType::kTriangleStrip, maxPoints,
+                     fShader->getNumSegments());
     }
 
     virtual int onEmitGeometryShader(GrGLSLGeometryBuilder*, const GrShaderVar& wind,
@@ -255,6 +251,17 @@ public:
     }
 };
 
+void GrCCPRCoverageProcessor::initGS() {
+    if (RenderPassIsCubic(fRenderPass)) {
+        this->addVertexAttrib("x_or_y_values", kFloat4_GrVertexAttribType); // (See appendMesh.)
+        SkASSERT(sizeof(CubicInstance) == this->getVertexStride() * 2);
+    } else {
+        this->addVertexAttrib("x_or_y_values", kFloat3_GrVertexAttribType); // (See appendMesh.)
+        SkASSERT(sizeof(TriangleInstance) == this->getVertexStride() * 2);
+    }
+    this->setWillUseGeoShader();
+}
+
 GrGLSLPrimitiveProcessor* GrCCPRCoverageProcessor::CreateGSImpl(std::unique_ptr<Shader> shader) {
     switch (shader->getGeometryType()) {
         case Shader::GeometryType::kHull:
@@ -266,4 +273,15 @@ GrGLSLPrimitiveProcessor* GrCCPRCoverageProcessor::CreateGSImpl(std::unique_ptr<
     }
     SK_ABORT("Unexpected Shader::GeometryType.");
     return nullptr;
+}
+
+void GrCCPRCoverageProcessor::appendGSMesh(GrBuffer* instanceBuffer, int instanceCount,
+                                           int baseInstance, SkTArray<GrMesh, true>* out) {
+    // GSImpl doesn't actually make instanced draw calls. Instead, we feed transposed x,y point
+    // values to the GPU in a regular vertex array and draw kLines (see initGS). Then, each vertex
+    // invocation receives either the shape's x or y values as inputs, which it forwards to the
+    // geometry shader.
+    GrMesh& mesh = out->emplace_back(GrPrimitiveType::kLines);
+    mesh.setNonIndexedNonInstanced(instanceCount * 2);
+    mesh.setVertexData(instanceBuffer, baseInstance * 2);
 }

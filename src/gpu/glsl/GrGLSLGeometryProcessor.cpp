@@ -16,27 +16,37 @@
 void GrGLSLGeometryProcessor::emitCode(EmitArgs& args) {
     GrGPArgs gpArgs;
     this->onEmitCode(args, &gpArgs);
-    SkASSERT(kFloat2_GrSLType == gpArgs.fPositionVar.getType() ||
-             kFloat3_GrSLType == gpArgs.fPositionVar.getType());
 
     GrGLSLVertexBuilder* vBuilder = args.fVertBuilder;
     if (!args.fGP.willUseGeoShader()) {
         // Emit the vertex position to the hardware in the normalized window coordinates it expects.
+        SkASSERT(kFloat2_GrSLType == gpArgs.fPositionVar.getType() ||
+                 kFloat3_GrSLType == gpArgs.fPositionVar.getType());
         vBuilder->emitNormalizedSkPosition(gpArgs.fPositionVar.c_str(), args.fRTAdjustName,
                                            gpArgs.fPositionVar.getType());
+        if (kFloat2_GrSLType == gpArgs.fPositionVar.getType()) {
+            args.fVaryingHandler->setNoPerspective();
+        }
     } else {
         // Since we have a geometry shader, leave the vertex position in Skia device space for now.
         // The geometry Shader will operate in device space, and then convert the final positions to
         // normalized hardware window coordinates under the hood, once everything else has finished.
+        // The subclass must call setNoPerspective on the varying handler, if applicable.
         vBuilder->codeAppendf("sk_Position = float4(%s", gpArgs.fPositionVar.c_str());
-        if (kFloat2_GrSLType == gpArgs.fPositionVar.getType()) {
-            vBuilder->codeAppend(", 0");
+        switch (gpArgs.fPositionVar.getType()) {
+            case kFloat_GrSLType:
+                vBuilder->codeAppend(", 0"); // fallthru.
+            case kFloat2_GrSLType:
+                vBuilder->codeAppend(", 0"); // fallthru.
+            case kFloat3_GrSLType:
+                vBuilder->codeAppend(", 1"); // fallthru.
+            case kFloat4_GrSLType:
+                vBuilder->codeAppend(");");
+                break;
+            default:
+                SK_ABORT("Invalid position var type");
+                break;
         }
-        vBuilder->codeAppend(", 1);");
-    }
-
-    if (kFloat2_GrSLType == gpArgs.fPositionVar.getType()) {
-        args.fVaryingHandler->setNoPerspective();
     }
 }
 
