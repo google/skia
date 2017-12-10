@@ -13,32 +13,6 @@
 #include "ccpr/GrCCPRTriangleShader.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 
-GrCCPRCoverageProcessor::GrCCPRCoverageProcessor(RenderPass renderPass)
-        : INHERITED(kGrCCPRCoverageProcessor_ClassID)
-        , fRenderPass(renderPass) {
-    if (RenderPassIsCubic(fRenderPass)) {
-        this->addInstanceAttrib("X", kFloat4_GrVertexAttribType);
-        this->addInstanceAttrib("Y", kFloat4_GrVertexAttribType);
-
-        SkASSERT(offsetof(CubicInstance, fX) ==
-                 this->getInstanceAttrib(InstanceAttribs::kX).fOffsetInRecord);
-        SkASSERT(offsetof(CubicInstance, fY) ==
-                 this->getInstanceAttrib(InstanceAttribs::kY).fOffsetInRecord);
-        SkASSERT(sizeof(CubicInstance) == this->getInstanceStride());
-    } else {
-        this->addInstanceAttrib("X", kFloat3_GrVertexAttribType);
-        this->addInstanceAttrib("Y", kFloat3_GrVertexAttribType);
-
-        SkASSERT(offsetof(TriangleInstance, fX) ==
-                 this->getInstanceAttrib(InstanceAttribs::kX).fOffsetInRecord);
-        SkASSERT(offsetof(TriangleInstance, fY) ==
-                 this->getInstanceAttrib(InstanceAttribs::kY).fOffsetInRecord);
-        SkASSERT(sizeof(TriangleInstance) == this->getInstanceStride());
-    }
-
-    this->setWillUseGeoShader();
-}
-
 void GrCCPRCoverageProcessor::Shader::emitVaryings(GrGLSLVaryingHandler* varyingHandler,
                                                    SkString* code, const char* position,
                                                    const char* coverage, const char* wind) {

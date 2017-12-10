@@ -15,6 +15,7 @@
 
 class GrGLSLPPFragmentBuilder;
 class GrGLSLShaderBuilder;
+class GrMesh;
 
 /**
  * This is the geometry processor for the simple convex primitive shapes (triangles and closed curve
@@ -26,22 +27,12 @@ class GrGLSLShaderBuilder;
  * below). Once all of a path's primitives have been drawn, the render target contains a composite
  * coverage count that can then be used to draw the path (see GrCCPRPathProcessor).
  *
- * Draw calls are instanced. They use use the corresponding GrPrimitiveTypes as defined below.
- * Caller fills out the primitives' atlas-space vertices and control points in instance arrays
- * using the provided structs below. There are no vertex attribs.
+ * To draw a renderer pass, see appendMesh below.
  */
 class GrCCPRCoverageProcessor : public GrGeometryProcessor {
 public:
-    static constexpr GrPrimitiveType kTrianglesGrPrimitiveType = GrPrimitiveType::kTriangles;
-    static constexpr GrPrimitiveType kQuadraticsGrPrimitiveType = GrPrimitiveType::kTriangles;
-    static constexpr GrPrimitiveType kCubicsGrPrimitiveType = GrPrimitiveType::kLinesAdjacency;
-
-    enum class InstanceAttribs : int {
-        kX,
-        kY
-    };
-
-    struct TriangleInstance { // Also used by quadratics.
+    // Defines a single triangle or closed quadratic bezier, with transposed x,y point values.
+    struct TriangleInstance {
         float fX[3];
         float fY[3];
 
@@ -49,6 +40,7 @@ public:
         void set(const SkPoint&, const SkPoint&, const SkPoint&, const Sk2f& trans);
     };
 
+    // Defines a single closed cubic bezier, with transposed x,y point values.
     struct CubicInstance {
         float fX[4];
         float fY[4];
@@ -56,11 +48,9 @@ public:
         void set(const SkPoint[4], float dx, float dy);
     };
 
-    /**
-     * All primitive shapes (triangles and convex closed curve segments) require more than one
-     * render pass. Here we enumerate every render pass needed in order to produce a complete
-     * coverage count mask. This is an exhaustive list of all ccpr coverage shaders.
-     */
+    // All primitive shapes (triangles and convex closed curve segments) require more than one
+    // render pass. Here we enumerate every render pass needed in order to produce a complete
+    // coverage count mask. This is an exhaustive list of all ccpr coverage shaders.
     enum class RenderPass {
         // Triangles.
         kTriangleHulls,
@@ -75,42 +65,44 @@ public:
         kCubicHulls,
         kCubicCorners
     };
+    static bool RenderPassIsCubic(RenderPass);
+    static const char* RenderPassName(RenderPass);
 
-    static inline bool RenderPassIsCubic(RenderPass pass) {
-        switch (pass) {
-            case RenderPass::kTriangleHulls:
-            case RenderPass::kTriangleEdges:
-            case RenderPass::kTriangleCorners:
-            case RenderPass::kQuadraticHulls:
-            case RenderPass::kQuadraticCorners:
-                return false;
-            case RenderPass::kCubicHulls:
-            case RenderPass::kCubicCorners:
-                return true;
-        }
-        SK_ABORT("Invalid GrCCPRCoverageProcessor::RenderPass");
-        return false;
+    GrCCPRCoverageProcessor(RenderPass pass)
+            : INHERITED(kGrCCPRCoverageProcessor_ClassID)
+            , fRenderPass(pass) {
+        this->initGS();
     }
 
-    static inline const char* RenderPassName(RenderPass pass) {
-        switch (pass) {
-            case RenderPass::kTriangleHulls: return "kTriangleHulls";
-            case RenderPass::kTriangleEdges: return "kTriangleEdges";
-            case RenderPass::kTriangleCorners: return "kTriangleCorners";
-            case RenderPass::kQuadraticHulls: return "kQuadraticHulls";
-            case RenderPass::kQuadraticCorners: return "kQuadraticCorners";
-            case RenderPass::kCubicHulls: return "kCubicHulls";
-            case RenderPass::kCubicCorners: return "kCubicCorners";
-        }
-        SK_ABORT("Invalid GrCCPRCoverageProcessor::RenderPass");
-        return "";
+    // Appends a GrMesh that will draw the provided instances. The instanceBuffer must be an array
+    // of either TriangleInstance or CubicInstance, depending on this processor's RendererPass, with
+    // coordinates in the desired shape's final atlas-space position.
+    //
+    // NOTE: Quadratics use TriangleInstance since both have 3 points.
+    void appendMesh(GrBuffer* instanceBuffer, int instanceCount, int baseInstance,
+                    SkTArray<GrMesh, true>* out) {
+        this->appendGSMesh(instanceBuffer, instanceCount, baseInstance, out);
     }
 
-    /**
-     * This serves as the base class for each RenderPass's Shader. It indicates what type of
-     * geometry the Impl should generate and provides implementation-independent code to process
-     * the inputs and calculate coverage in the fragment Shader.
-     */
+    // GrPrimitiveProcessor overrides.
+    const char* name() const override { return RenderPassName(fRenderPass); }
+    SkString dumpInfo() const override {
+        return SkStringPrintf("%s\n%s", this->name(), this->INHERITED::dumpInfo().c_str());
+    }
+    void getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
+    GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const override;
+
+#ifdef SK_DEBUG
+    // Increases the 1/2 pixel AA bloat by a factor of debugBloat and outputs color instead of
+    // coverage (coverage=+1 -> green, coverage=0 -> black, coverage=-1 -> red).
+    void enableDebugVisualizations(float debugBloat) { fDebugBloat = debugBloat; }
+    bool debugVisualizationsEnabled() const { return fDebugBloat > 0; }
+    float debugBloat() const { SkASSERT(this->debugVisualizationsEnabled()); return fDebugBloat; }
+#endif
+
+    // This serves as the base class for each RenderPass's Shader. It indicates what type of
+    // geometry the Impl should generate and provides implementation-independent code to process the
+    // inputs and calculate coverage in the fragment Shader.
     class Shader {
     public:
         using TexelBufferHandle = GrGLSLGeometryProcessor::TexelBufferHandle;
@@ -211,33 +203,16 @@ public:
         GrGLSLVarying fWind{kHalf_GrSLType, GrGLSLVarying::Scope::kGeoToFrag};
     };
 
-    GrCCPRCoverageProcessor(RenderPass);
-
-    const char* name() const override { return RenderPassName(fRenderPass); }
-    SkString dumpInfo() const override {
-        return SkStringPrintf("%s\n%s", this->name(), this->INHERITED::dumpInfo().c_str());
-    }
-    const Attribute& getInstanceAttrib(InstanceAttribs attribID) const {
-        return this->getAttrib((int)attribID);
-    }
-
-    void getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
-    GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const override;
-
-#ifdef SK_DEBUG
-    // Increases the 1/2 pixel AA bloat by a factor of debugBloat and outputs color instead of
-    // coverage (coverage=+1 -> green, coverage=0 -> black, coverage=-1 -> red).
-    void enableDebugVisualizations(float debugBloat) { fDebugBloat = debugBloat; }
-    bool debugVisualizationsEnabled() const { return fDebugBloat > 0; }
-    float debugBloat() const { SkASSERT(this->debugVisualizationsEnabled()); return fDebugBloat; }
-#endif
-
     class GSImpl;
 
 private:
     // Slightly undershoot a bloat radius of 0.5 so vertices that fall on integer boundaries don't
     // accidentally bleed into neighbor pixels.
     static constexpr float kAABloatRadius = 0.491111f;
+
+    void initGS();
+    void appendGSMesh(GrBuffer* instanceBuffer, int instanceCount, int baseInstance,
+                      SkTArray<GrMesh, true>* out);
 
     int numInputPoints() const {
         return RenderPassIsCubic(fRenderPass) ? 4 : 3;
@@ -268,6 +243,36 @@ inline void GrCCPRCoverageProcessor::CubicInstance::set(const SkPoint p[4], floa
     Sk4f::Load2(p, &X, &Y);
     (X + dx).store(&fX);
     (Y + dy).store(&fY);
+}
+
+inline bool GrCCPRCoverageProcessor::RenderPassIsCubic(RenderPass pass) {
+    switch (pass) {
+        case RenderPass::kTriangleHulls:
+        case RenderPass::kTriangleEdges:
+        case RenderPass::kTriangleCorners:
+        case RenderPass::kQuadraticHulls:
+        case RenderPass::kQuadraticCorners:
+            return false;
+        case RenderPass::kCubicHulls:
+        case RenderPass::kCubicCorners:
+            return true;
+    }
+    SK_ABORT("Invalid GrCCPRCoverageProcessor::RenderPass");
+    return false;
+}
+
+inline const char* GrCCPRCoverageProcessor::RenderPassName(RenderPass pass) {
+    switch (pass) {
+        case RenderPass::kTriangleHulls: return "kTriangleHulls";
+        case RenderPass::kTriangleEdges: return "kTriangleEdges";
+        case RenderPass::kTriangleCorners: return "kTriangleCorners";
+        case RenderPass::kQuadraticHulls: return "kQuadraticHulls";
+        case RenderPass::kQuadraticCorners: return "kQuadraticCorners";
+        case RenderPass::kCubicHulls: return "kCubicHulls";
+        case RenderPass::kCubicCorners: return "kCubicCorners";
+    }
+    SK_ABORT("Invalid GrCCPRCoverageProcessor::RenderPass");
+    return "";
 }
 
 #endif
