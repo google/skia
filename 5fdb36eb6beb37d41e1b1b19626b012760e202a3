@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3774c973_983cb8d6",
+        "filename": "src/jumper/SkJumper.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-12-11T21:11:09Z",
+      "side": 1,
+      "message": "I wonder if it we should be more aggressive and assert clang for ARM (with some DI_REALLY_WANT_SLOOOOW_JUMPER override for the masochists out there).",
+      "revId": "5fdb36eb6beb37d41e1b1b19626b012760e202a3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
