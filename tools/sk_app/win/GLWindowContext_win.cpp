@@ -61,9 +61,9 @@ sk_sp<const GrGLInterface> GLWindowContext_win::onInitializeContext() {
 
     // Look to see if RenderDoc is attached. If so, re-create the context with a core profile
     if (wglMakeCurrent(dc, fHGLRC)) {
-        const GrGLInterface* glInterface = GrGLCreateNativeInterface();
-        bool renderDocAttached = glInterface->hasExtension("GL_EXT_debug_tool");
-        SkSafeUnref(glInterface);
+        auto interface = GrGLMakeNativeInterface();
+        bool renderDocAttached = interface->hasExtension("GL_EXT_debug_tool");
+        interface.reset(nullptr);
         if (renderDocAttached) {
             wglDeleteContext(fHGLRC);
             fHGLRC = SkCreateWGLContext(dc, fDisplayParams.fMSAASampleCount, false /* deepColor */,
@@ -106,7 +106,7 @@ sk_sp<const GrGLInterface> GLWindowContext_win::onInitializeContext() {
         fHeight = rect.bottom - rect.top;
         glViewport(0, 0, fWidth, fHeight);
     }
-    return sk_sp<const GrGLInterface>(GrGLCreateNativeInterface());
+    return GrGLMakeNativeInterface();
 }
 
 

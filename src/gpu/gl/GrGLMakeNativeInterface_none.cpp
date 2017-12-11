@@ -7,6 +7,6 @@
 
 #include "gl/GrGLInterface.h"
 
-const GrGLInterface* GrGLCreateNativeInterface() {
-    return nullptr;
-}
+sk_sp<const GrGLInterface> GrGLMakeNativeInterface() { return nullptr; }
+
+const GrGLInterface* GrGLCreateNativeInterface() { return nullptr; }

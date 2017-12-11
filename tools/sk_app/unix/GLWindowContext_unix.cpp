@@ -107,7 +107,7 @@ sk_sp<const GrGLInterface> GLWindowContext_xlib::onInitializeContext() {
                  &border_width, &depth);
     glViewport(0, 0, fWidth, fHeight);
 
-    return sk_sp<const GrGLInterface>(GrGLCreateNativeInterface());
+    return GrGLMakeNativeInterface();
 }
 
 GLWindowContext_xlib::~GLWindowContext_xlib() {

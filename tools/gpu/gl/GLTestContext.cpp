@@ -284,9 +284,8 @@ GLTestContext::~GLTestContext() {
     SkASSERT(nullptr == fGL.get());
 }
 
-void GLTestContext::init(const GrGLInterface* gl, std::unique_ptr<FenceSync> fenceSync) {
-    SkASSERT(!fGL.get());
-    fGL.reset(gl);
+void GLTestContext::init(sk_sp<const GrGLInterface> gl, std::unique_ptr<FenceSync> fenceSync) {
+    fGL = std::move(gl);
     fFenceSync = fenceSync ? std::move(fenceSync) : GLFenceSync::MakeIfSupported(this);
     fGpuTimer = GLGpuTimer::MakeIfSupported(this);
 }

@@ -233,9 +233,7 @@ BASE_SRCS_ALL = struct(
         # Exclude multiple definitions.
         # TODO(mtklein): Move to opts?
         "src/pdf/SkDocument_PDF_None.cpp",  # We use src/pdf/SkPDFDocument.cpp.
-        "src/gpu/gl/GrGLCreateNativeInterface_none.cpp",
-        "src/gpu/gl/GrGLDefaultInterface_native.cpp",
-        "src/gpu/gl/GrGLDefaultInterface_none.cpp",
+        "src/gpu/gl/GrGLMakeNativeInterface_none.cpp",
 
         # Exclude files that don't compile with the current DEFINES.
         "src/svg/**/*",  # Depends on XML.
@@ -276,7 +274,6 @@ def codec_srcs(limited):
 # Platform-dependent SRCS for google3-default platform.
 BASE_SRCS_UNIX = struct(
     include = [
-        "src/gpu/gl/GrGLDefaultInterface_none.cpp",
         "src/ports/**/*.cpp",
         "src/ports/**/*.h",
     ],
@@ -304,7 +301,6 @@ BASE_SRCS_UNIX = struct(
 # Platform-dependent SRCS for google3-default Android.
 BASE_SRCS_ANDROID = struct(
     include = [
-        "src/gpu/gl/GrGLDefaultInterface_none.cpp",
         # TODO(benjaminwagner): Figure out how to compile with EGL.
         "src/ports/**/*.cpp",
         "src/ports/**/*.h",
@@ -333,8 +329,7 @@ BASE_SRCS_ANDROID = struct(
 # Platform-dependent SRCS for google3-default iOS.
 BASE_SRCS_IOS = struct(
     include = [
-        "src/gpu/gl/GrGLDefaultInterface_native.cpp",
-        "src/gpu/gl/iOS/GrGLCreateNativeInterface_iOS.cpp",
+        "src/gpu/gl/iOS/GrGLMakeNativeInterface_iOS.cpp",
         "src/ports/**/*.cpp",
         "src/ports/**/*.h",
         "src/utils/mac/*.cpp",

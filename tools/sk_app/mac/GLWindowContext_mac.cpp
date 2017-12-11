@@ -73,7 +73,7 @@ sk_sp<const GrGLInterface> GLWindowContext_mac::onInitializeContext() {
     } else {
         SkDebugf("MakeCurrent failed: %s\n", SDL_GetError());
     }
-    return sk_sp<const GrGLInterface>(GrGLCreateNativeInterface());
+    return GrGLMakeNativeInterface();
 }
 
 void GLWindowContext_mac::onDestroyContext() {

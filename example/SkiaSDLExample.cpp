@@ -189,7 +189,7 @@ int main(int argc, char** argv) {
     glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
     // setup GrContext
-    sk_sp<const GrGLInterface> interface(GrGLCreateNativeInterface());
+    auto interface = GrGLMakeNativeInterface();
 
     // setup contexts
     sk_sp<GrContext> grContext(GrContext::MakeGL(interface));

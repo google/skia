@@ -26,10 +26,12 @@ static GrGLFuncPtr glx_get(void* ctx, const char name[]) {
     return glXGetProcAddress(reinterpret_cast<const GLubyte*>(name));
 }
 
-const GrGLInterface* GrGLCreateNativeInterface() {
+sk_sp<const GrGLInterface> GrGLMakeNativeInterface() {
     if (nullptr == glXGetCurrentContext()) {
         return nullptr;
     }
 
     return GrGLAssembleInterface(nullptr, glx_get);
 }
+
+const GrGLInterface* GrGLCreateNativeInterface() { return GrGLMakeNativeInterface().release(); }

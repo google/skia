@@ -232,7 +232,7 @@ ANGLEGLContext::ANGLEGLContext(ANGLEBackend type, ANGLEContextVersion version,
         return;
     }
 
-    sk_sp<const GrGLInterface> gl(sk_gpu_test::CreateANGLEGLInterface());
+    sk_sp<const GrGLInterface> gl = sk_gpu_test::CreateANGLEGLInterface();
     if (nullptr == gl.get()) {
         SkDebugf("Could not create ANGLE GL interface!\n");
         this->destroyGLContext();
@@ -262,7 +262,7 @@ ANGLEGLContext::ANGLEGLContext(ANGLEBackend type, ANGLEContextVersion version,
     }
 #endif
 
-    this->init(gl.release());
+    this->init(std::move(gl));
 }
 
 ANGLEGLContext::~ANGLEGLContext() {
@@ -389,7 +389,7 @@ GrGLFuncPtr ANGLEGLContext::onPlatformGetProcAddress(const char* name) const {
 }  // anonymous namespace
 
 namespace sk_gpu_test {
-const GrGLInterface* CreateANGLEGLInterface() {
+sk_sp<const GrGLInterface> CreateANGLEGLInterface() {
     static Libs gLibs = { nullptr, nullptr };
 
     if (nullptr == gLibs.fGLLib) {

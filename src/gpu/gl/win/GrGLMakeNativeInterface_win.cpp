@@ -62,7 +62,7 @@ static GrGLFuncPtr win_get_gl_proc(void* ctx, const char name[]) {
  * This implementation will only work if GR_GL_FUNCTION_TYPE is __stdcall.
  * Otherwise, a springboard would be needed that hides the calling convention.
  */
-const GrGLInterface* GrGLCreateNativeInterface() {
+sk_sp<const GrGLInterface> GrGLMakeNativeInterface() {
     if (nullptr == wglGetCurrentContext()) {
         return nullptr;
     }
@@ -86,5 +86,7 @@ const GrGLInterface* GrGLCreateNativeInterface() {
     }
     return nullptr;
 }
+
+const GrGLInterface* GrGLCreateNativeInterface() { return GrGLMakeNativeInterface().release(); }
 
 #endif//defined(SK_BUILD_FOR_WIN32)
