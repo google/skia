@@ -386,10 +386,6 @@ sk_sp<SkTypeface> SkReadBuffer::readTypeface() {
 }
 
 SkFlattenable* SkReadBuffer::readFlattenable(SkFlattenable::Type ft) {
-    //
-    // TODO: confirm that ft matches the factory we decide to use
-    //
-
     SkFlattenable::Factory factory = nullptr;
 
     if (fInflator) {
@@ -449,6 +445,10 @@ SkFlattenable* SkReadBuffer::readFlattenable(SkFlattenable::Type ft) {
         // check that we read the amount we expected
         size_t sizeRead = fReader.offset() - offset;
         if (sizeRecorded != sizeRead) {
+            this->validate(false);
+            return nullptr;
+        }
+        if (obj && obj->getFlattenableType() != ft) {
             this->validate(false);
             return nullptr;
         }
