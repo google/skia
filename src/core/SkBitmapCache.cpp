@@ -24,6 +24,12 @@ void SkNotifyBitmapGenIDIsStale(uint32_t bitmapGenID) {
     SkResourceCache::PostPurgeSharedID(SkMakeResourceCacheSharedIDForBitmap(bitmapGenID));
 }
 
+// Picture shader cache.
+uint64_t SkMakeResourceCacheSharedIDForPictureShader(uint32_t pictureID) {
+    uint64_t sharedID = SkSetFourByteTag('p', 's', 'd', 'r');
+    return (sharedID << 32) | pictureID;
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**

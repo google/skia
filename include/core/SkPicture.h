@@ -39,6 +39,8 @@ struct SkPictInfo;
 */
 class SK_API SkPicture : public SkRefCnt {
 public:
+    ~SkPicture() override;
+
     /**
      *  Function signature defining a function that sets up an SkBitmap from encoded data. On
      *  success, the SkBitmap should have its Config, width, height, rowBytes and pixelref set.
@@ -185,6 +187,9 @@ private:
     friend class SkPictureGpuAnalyzer;
     friend struct SkPathCounter;
 
+    void notifyAddedToCache();
+    friend class SkPictureShader;
+
     // V35: Store SkRect (rather then width & height) in header
     // V36: Remove (obsolete) alphatype from SkColorTable
     // V37: Added shadow only option to SkDropShadowImageFilter (last version to record CLEAR)
@@ -224,6 +229,9 @@ private:
     SkPictureData* backport() const;
 
     mutable uint32_t fUniqueID;
+
+    // SkAtomic<bool>
+    bool fAddedToCache;
 };
 
 #endif
