@@ -104,6 +104,24 @@
       "revId": "2a1dc33deb9cc9a526d9e4f41f61935149162758",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "458317d8_b477c95a",
+        "filename": "infra/bots/recipe_modules/flavor/gn_android_flavor.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 234,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-12-11T18:36:49Z",
+      "side": 1,
+      "message": "Yeah, actually it happened to the tree Thursday.  :(",
+      "parentUuid": "0aa8ea30_d1305bd3",
+      "revId": "2a1dc33deb9cc9a526d9e4f41f61935149162758",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
