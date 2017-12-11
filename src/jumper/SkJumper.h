@@ -8,6 +8,9 @@
 #ifndef SkJumper_DEFINED
 #define SkJumper_DEFINED
 
+#include <stddef.h>
+#include <stdint.h>
+
 // This file contains definitions shared by SkJumper.cpp (compiled normally as part of Skia)
 // and SkJumper_stages.cpp (compiled into Skia _and_ offline into SkJumper_generated.h).
 // Keep it simple!
@@ -21,36 +24,18 @@
     #define MAYBE_MSABI
 #endif
 
-#if defined(JUMPER_IS_OFFLINE) && (defined(__aarch64__) || defined(__arm__))
-    // To reduce SkJumper's dependency on the Android NDK,
-    // we provide what we need from <string.h>, <stdint.h>, and <stddef.h> ourselves.
-    #define memcpy __builtin_memcpy
-
-    using  int8_t  =   signed char;
-    using uint8_t  = unsigned char;
-    using  int16_t =   signed short;
-    using uint16_t = unsigned short;
-    using  int32_t =   signed int;
-    using uint32_t = unsigned int;
-    #if defined(__aarch64__)
-        using  int64_t =   signed long;
-        using uint64_t = unsigned long;
-        using size_t = uint64_t;
-    #else
-        using  int64_t =   signed long long;
-        using uint64_t = unsigned long long;
-        using size_t = uint32_t;
-    #endif
-
-    // Now pretend we've included <stdint.h> (or it'll be included again by <arm_neon.h>).
-    #define __CLANG_STDINT_H
-    #define _STDINT_H_
+// Any custom ABI to use for all non-externally-facing stage functions.
+#if defined(__ARM_NEON) && defined(__arm__)
+    // This lets us pass vectors more efficiently on 32-bit ARM.
+    #define ABI __attribute__((pcs("aapcs-vfp")))
 #else
-    #include <string.h>
-    #include <stdint.h>
+    #define ABI
 #endif
 
-// When compiled with Clang on ARM, we'll have 8-bit NEON stages.
+// On ARM we expect that you're using Clang if you want SkJumper to be fast.
+// If you are, the baseline float stages will use NEON, and lowp stages will
+// also be available. (If somehow you're building for ARM not using Clang,
+// you'll get scalar baseline stages and no lowp support.)
 #if defined(__clang__) && defined(__ARM_NEON)
     #define JUMPER_HAS_NEON_LOWP
 #endif
