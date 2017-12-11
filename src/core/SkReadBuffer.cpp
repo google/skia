@@ -381,7 +381,9 @@ sk_sp<SkTypeface> SkReadBuffer::readTypeface() {
         if (!this->validate(data != nullptr)) {
             return nullptr;
         }
-        return fProcs.fTypefaceProc(data, size, fProcs.fTypefaceCtx);
+        return fProcs.fTypefaceProc
+            ? fProcs.fTypefaceProc(data, size, fProcs.fTypefaceCtx)
+            : nullptr;
     }
 }
 
