@@ -183,6 +183,10 @@ with open(sys.argv[1], 'w') as f:
       with self.m.context(cwd=goma_dir, env=env):
         self._py('start goma', 'goma_ctl.py', args=['ensure_start'])
       args['cc_wrapper'] = '"%s"' % goma_dir.join('gomacc')
+      if 'ANGLE' in extra_tokens and 'Win' in os:
+        # ANGLE uses case-insensitive include paths in D3D code. Not sure why
+        # only Goma warns about this.
+        extra_cflags.append('-Wno-nonportable-include-path')
       ninja_args.extend(['-j', '100'])
 
     sanitize = ''
