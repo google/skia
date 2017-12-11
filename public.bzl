@@ -274,6 +274,7 @@ def codec_srcs(limited):
 # Platform-dependent SRCS for google3-default platform.
 BASE_SRCS_UNIX = struct(
     include = [
+        "src/gpu/gl/GrGLMakeNativeInterface_none.cpp",
         "src/ports/**/*.cpp",
         "src/ports/**/*.h",
     ],
@@ -301,6 +302,7 @@ BASE_SRCS_UNIX = struct(
 # Platform-dependent SRCS for google3-default Android.
 BASE_SRCS_ANDROID = struct(
     include = [
+        "src/gpu/gl/GrGLMakeNativeInterface_none.cpp",
         # TODO(benjaminwagner): Figure out how to compile with EGL.
         "src/ports/**/*.cpp",
         "src/ports/**/*.h",
