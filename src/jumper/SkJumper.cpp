@@ -219,6 +219,7 @@ extern "C" {
     NOPE(load_f32)  NOPE(load_f32_dst)  NOPE(store_f32)
     LOWP(load_8888) LOWP(load_8888_dst) LOWP(store_8888) LOWP(gather_8888)
     LOWP(load_bgra) LOWP(load_bgra_dst) LOWP(store_bgra) LOWP(gather_bgra)
+    TODO(bilerp_clamp_8888)
     TODO(load_u16_be) TODO(load_rgb_u16_be) TODO(store_u16_be)
     NOPE(load_tables_u16_be) NOPE(load_tables_rgb_u16_be) NOPE(load_tables)
     NOPE(load_rgba) NOPE(store_rgba)
