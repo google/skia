@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "51af6317_0f7c6647",
+        "filename": "src/gpu/glsl/GrGLSLUniformHandler.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-12-11T18:37:27Z",
+      "side": 1,
+      "message": "What do you think of generating a compiler error if somebody tries to create an unrecognized uniform with the \"sk_\" prefix? Not a big deal, but this is what GL does.",
+      "range": {
+        "startLine": 16,
+        "startChar": 29,
+        "endLine": 16,
+        "endChar": 32
+      },
+      "revId": "855c17536525a2fe9bfad5d505ecbfc6d3da4f9a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e5136fa3_0932dbda",
+        "filename": "src/gpu/glsl/GrGLSLVertexGeoBuilder.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-12-11T18:37:27Z",
+      "side": 1,
+      "message": "I believe we should follow the same style as GL, and make sk_Position.z\u003d0 be the (unused) depth value, and sk_Position.w be the homogeneous \u0027z\u0027 coordinate.",
+      "revId": "855c17536525a2fe9bfad5d505ecbfc6d3da4f9a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a5d79c52_031de032",
+        "filename": "tests/SkSLGLSLTest.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 1691,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-12-11T18:37:27Z",
+      "side": 1,
+      "message": "I think RTAdjust should always be a full preccision float4. Is this easy to enforce?",
+      "range": {
+        "startLine": 1691,
+        "startChar": 18,
+        "endLine": 1691,
+        "endChar": 23
+      },
+      "revId": "855c17536525a2fe9bfad5d505ecbfc6d3da4f9a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
