@@ -69,6 +69,23 @@
       "revId": "15b1d60ddf87fb5e3e23b1d401b8379d331a6ff0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "07c4b62e_790a6e5d",
+        "filename": "infra/bots/recipe_modules/flavor/gn_android_flavor.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-12-11T18:40:09Z",
+      "side": 1,
+      "message": "(On the PixelC all 4 cores are big cores.)",
+      "revId": "15b1d60ddf87fb5e3e23b1d401b8379d331a6ff0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
