@@ -16,6 +16,24 @@
       "revId": "70d738aa706068c5c333891b2415280d1aa37014",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "70026e67_abec867d",
+        "filename": "infra/bots/recipe_modules/flavor/gn_android_flavor.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2017-12-11T19:15:27Z",
+      "side": 1,
+      "message": "Swarming puts them into powersave when they aren\u0027t running tasks, so they are likely that.  There is a chance they weren\u0027t put into powersave if they just finished a task, rebooted, and then got scheduled for a task before swarming idled them out.  So, I don\u0027t think we can safely leave it unchanged.",
+      "parentUuid": "59517b7d_d01e792e",
+      "revId": "70d738aa706068c5c333891b2415280d1aa37014",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
