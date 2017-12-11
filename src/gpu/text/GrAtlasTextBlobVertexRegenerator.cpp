@@ -211,8 +211,9 @@ Regenerator::Result Regenerator::doRegen() {
         }
     }
 
+    bool hasW = fSubRun->hasWCoord();
     Result result;
-    auto vertexStride = GetVertexStride(fSubRun->maskFormat());
+    auto vertexStride = GetVertexStride(fSubRun->maskFormat(), hasW);
     char* currVertex = fBlob->fVertices + fSubRun->vertexStartIndex() +
                        fCurrGlyph * kVerticesPerGlyph * vertexStride;
     result.fFirstVertex = currVertex;
@@ -300,7 +301,8 @@ Regenerator::Result Regenerator::regenerate() {
             return this->doRegen<false, true, true, true>();
         case kNoRegen: {
             Result result;
-            auto vertexStride = GetVertexStride(fSubRun->maskFormat());
+            bool hasW = fSubRun->hasWCoord();
+            auto vertexStride = GetVertexStride(fSubRun->maskFormat(), hasW);
             result.fGlyphsRegenerated = fSubRun->glyphCount() - fCurrGlyph;
             result.fFirstVertex = fBlob->fVertices + fSubRun->vertexStartIndex() +
                                   fCurrGlyph * kVerticesPerGlyph * vertexStride;
