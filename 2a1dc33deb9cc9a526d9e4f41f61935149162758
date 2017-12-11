@@ -122,6 +122,24 @@
       "revId": "2a1dc33deb9cc9a526d9e4f41f61935149162758",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0f452f41_d3d46bca",
+        "filename": "infra/bots/recipe_modules/flavor/gn_android_flavor.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 234,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2017-12-11T18:41:16Z",
+      "side": 1,
+      "message": "If you are referring to the failures on the Pixel devices, that was an unrelated bug: https://skia-review.googlesource.com/c/skia/+/82682",
+      "parentUuid": "458317d8_b477c95a",
+      "revId": "2a1dc33deb9cc9a526d9e4f41f61935149162758",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
