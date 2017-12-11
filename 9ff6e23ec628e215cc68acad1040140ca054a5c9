@@ -22,6 +22,30 @@
       "revId": "9ff6e23ec628e215cc68acad1040140ca054a5c9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "eb62caf6_4d882ddf",
+        "filename": "gn/BUILDCONFIG.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 169,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-12-11T19:55:26Z",
+      "side": 1,
+      "message": "No I take it back that\u0027s inhuman....",
+      "parentUuid": "c719c396_705e53a8",
+      "range": {
+        "startLine": 169,
+        "startChar": 42,
+        "endLine": 169,
+        "endChar": 73
+      },
+      "revId": "9ff6e23ec628e215cc68acad1040140ca054a5c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
