@@ -36,6 +36,144 @@
     },
     {
       "key": {
+        "uuid": "2883e990_46f826b0",
+        "filename": "tools/skqp/make_gmkb.go",
+        "patchSetId": 19
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2017-12-11T15:21:19Z",
+      "side": 1,
+      "message": "Instead of re-defining these types you could re-use the ones defined in \n\nhttps://github.com/google/skia-buildbot/blob/master/golden/go/search/export.go\n\navailabe via the \n\ngo.skia.org/infra/golden/go/search \n\npackage. Then you could use search.ReadExportTestRecords to read the records using the same code that wrote the content in the first place.",
+      "range": {
+        "startLine": 29,
+        "startChar": 0,
+        "endLine": 49,
+        "endChar": 85
+      },
+      "revId": "e632c294bf08f7fbcf454c1d48955e178fa0f56f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "12d02c4e_bb4069ac",
+        "filename": "tools/skqp/make_gmkb.go",
+        "patchSetId": 19
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2017-12-11T15:21:19Z",
+      "side": 1,
+      "message": "This should just be \n\n   []string { \n      ...\n\nwhich creates a slice. Then you don\u0027t need blacklist[:] below.",
+      "range": {
+        "startLine": 61,
+        "startChar": 16,
+        "endLine": 61,
+        "endChar": 28
+      },
+      "revId": "e632c294bf08f7fbcf454c1d48955e178fa0f56f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cb5352a1_4ec87147",
+        "filename": "tools/skqp/make_gmkb.go",
+        "patchSetId": 19
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2017-12-11T15:21:19Z",
+      "side": 1,
+      "message": "nit:  Go usually uses camelcase, i.e. writePNGToFile \nsame for other functions below.",
+      "range": {
+        "startLine": 157,
+        "startChar": 5,
+        "endLine": 157,
+        "endChar": 22
+      },
+      "revId": "e632c294bf08f7fbcf454c1d48955e178fa0f56f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1461b494_e615c17a",
+        "filename": "tools/skqp/make_gmkb.go",
+        "patchSetId": 19
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2017-12-11T15:21:19Z",
+      "side": 1,
+      "message": "Could re-use GetNRGBA(...) in \ngo.skia.org/infra/golden/go/diff.go",
+      "range": {
+        "startLine": 170,
+        "startChar": 0,
+        "endLine": 179,
+        "endChar": 1
+      },
+      "revId": "e632c294bf08f7fbcf454c1d48955e178fa0f56f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "859ccfd7_e72b1e2b",
+        "filename": "tools/skqp/make_gmkb.go",
+        "patchSetId": 19
+      },
+      "lineNbr": 200,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2017-12-11T15:21:19Z",
+      "side": 1,
+      "message": "If you used \ngo.skia.org/infra/go/fileutil \n\nYou could write: \n\noutput \u003d fileutil.Must(fileutil.EnsureDirExists(output))\n\nwhich will create all directories on the path and calls Fatal if it cannot do so.",
+      "range": {
+        "startLine": 200,
+        "startChar": 1,
+        "endLine": 200,
+        "endChar": 37
+      },
+      "revId": "e632c294bf08f7fbcf454c1d48955e178fa0f56f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "456c6fc6_b9668fe9",
+        "filename": "tools/skqp/make_gmkb.go",
+        "patchSetId": 19
+      },
+      "lineNbr": 230,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2017-12-11T15:21:19Z",
+      "side": 1,
+      "message": "It would be more idiomatic Go to use:\n\nif err :\u003d processTest(testName, imgURLs, output); err !\u003d nil {\n   log.Fatal(e)\n}\n\nsame with the other uses of check(...)",
+      "range": {
+        "startLine": 229,
+        "startChar": 3,
+        "endLine": 230,
+        "endChar": 13
+      },
+      "revId": "e632c294bf08f7fbcf454c1d48955e178fa0f56f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d292ca28_921cfb8f",
         "filename": "tools/skqp/png_interface.cpp",
         "patchSetId": 19
