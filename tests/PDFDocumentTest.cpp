@@ -44,12 +44,15 @@ static void test_abortWithFile(skiatest::Reporter* reporter) {
     SkString tmpDir = skiatest::GetTmpDir();
 
     if (tmpDir.isEmpty()) {
-        return;  // TODO(edisonn): unfortunatelly this pattern is used in other
-                 // tests, but if GetTmpDir() starts returning and empty dir
-                 // allways, then all these tests will be disabled.
+        ERRORF(reporter, "missing tmpDir.");
+        return;
     }
 
     SkString path = SkOSPath::Join(tmpDir.c_str(), "aborted.pdf");
+    if (!SkFILEWStream(path.c_str()).isValid()) {
+        ERRORF(reporter, "unable to write to: %s", path.c_str());
+        return;
+    }
 
     // Make sure doc's destructor is called to flush.
     {
@@ -72,12 +75,15 @@ static void test_abortWithFile(skiatest::Reporter* reporter) {
 static void test_file(skiatest::Reporter* reporter) {
     SkString tmpDir = skiatest::GetTmpDir();
     if (tmpDir.isEmpty()) {
-        return;  // TODO(edisonn): unfortunatelly this pattern is used in other
-                 // tests, but if GetTmpDir() starts returning and empty dir
-                 // allways, then all these tests will be disabled.
+        ERRORF(reporter, "missing tmpDir.");
+        return;
     }
 
     SkString path = SkOSPath::Join(tmpDir.c_str(), "file.pdf");
+    if (!SkFILEWStream(path.c_str()).isValid()) {
+        ERRORF(reporter, "unable to write to: %s", path.c_str());
+        return;
+    }
 
     sk_sp<SkDocument> doc(SkDocument::MakePDF(path.c_str()));
 

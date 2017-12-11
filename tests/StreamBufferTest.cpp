@@ -28,6 +28,9 @@ static void test_get_data_at_position(skiatest::Reporter* r, SkStreamBuffer* buf
 // Test buffering from the beginning, by different amounts.
 static void test_buffer_from_beginning(skiatest::Reporter* r, std::unique_ptr<SkStream> stream,
                                        size_t length) {
+    if (!stream) {
+        return;
+    }
     SkStreamBuffer buffer(std::move(stream));
 
     // Buffer an arbitrary amount:
@@ -46,6 +49,9 @@ static void test_buffer_from_beginning(skiatest::Reporter* r, std::unique_ptr<Sk
 // Test flushing the stream as we read.
 static void test_flushing(skiatest::Reporter* r, std::unique_ptr<SkStream> stream, size_t length,
                           bool getDataAtPosition) {
+    if (!stream) {
+        return;
+    }
     SkStreamBuffer buffer(std::move(stream));
     const size_t step = 5;
     for (size_t position = 0; position + step <= length; position += step) {
@@ -78,6 +84,10 @@ DEF_TEST(StreamBuffer, r) {
     if (!tmpDir.isEmpty()) {
         path = SkOSPath::Join(tmpDir.c_str(), subdir);
         SkFILEWStream writer(path.c_str());
+        if (!writer.isValid()) {
+            ERRORF(r, "unable to write to '%s'\n", path.c_str());
+            return;
+        }
         writer.write(gText, size);
     }
 
@@ -85,9 +95,11 @@ DEF_TEST(StreamBuffer, r) {
         std::function<std::unique_ptr<SkStream>()>  createStream;
         bool                                        skipIfNoTmpDir;
     } factories[] = {
-        { [&data]() { return skstd::make_unique<SkMemoryStream>(data); },       false },
-        { [&data]() { return skstd::make_unique<NotAssetMemStream>(data); },    false },
-        { [&path]() { return skstd::make_unique<SkFILEStream>(path.c_str()); }, true  },
+        { [&data]() { return skstd::make_unique<SkMemoryStream>(data); },       false  },
+        { [&data]() { return skstd::make_unique<NotAssetMemStream>(data); },    false  },
+        { [&path]() { return path.isEmpty()
+                             ? nullptr
+                             : skstd::make_unique<SkFILEStream>(path.c_str()); }, true },
     };
 
     for (auto f : factories) {
