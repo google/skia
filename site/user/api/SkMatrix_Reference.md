@@ -151,7 +151,7 @@ vertical scale factor</td>
 
 ### Example
 
-<div><fiddle-embed name="7ff17718111df6d6f95381d8a8f1b389"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -183,7 +183,7 @@ horizontal and vertical <a href="#SkMatrix_MakeScale_2_scale">scale</a> factor</
 
 ### Example
 
-<div><fiddle-embed name="2956aeb50fa862cdb13995e1e56a4bc8"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -220,7 +220,7 @@ vertical translation</td>
 
 ### Example
 
-<div><fiddle-embed name="b2479df0d9cf296ff64ac31e36684557"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -273,7 +273,7 @@ perspective scale factor</td>
 
 ### Example
 
-<div><fiddle-embed name="6bad83b64de9266e323c29d550e04188"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -317,7 +317,7 @@ Used to identify the complexity of <a href="#Matrix">Matrix</a>, to optimize per
 
 ### Example
 
-<div><fiddle-embed name="ba19b36df8cd78586f3dff54e2d4c093">
+<div><fiddle-embed name="">
 
 #### Example Output
 
@@ -356,7 +356,7 @@ other bits are <a href="#SkMatrix_set">set</a>.
 
 ### Example
 
-<div><fiddle-embed name="8e45fe2dd52731bb2d4318686257e1d7">
+<div><fiddle-embed name="">
 
 #### Example Output
 
@@ -393,7 +393,7 @@ true if <a href="#Matrix">Matrix</a> has no effect
 
 ### Example
 
-<div><fiddle-embed name="780ab376325b3cfa889ea26c0769ec11">
+<div><fiddle-embed name="">
 
 #### Example Output
 
@@ -431,7 +431,7 @@ true if <a href="#Matrix">Matrix</a> is identity; or scales, translates, or both
 
 ### Example
 
-<div><fiddle-embed name="6287e29674a487eb94174992d45b9a34">
+<div><fiddle-embed name="">
 
 #### Example Output
 
@@ -470,7 +470,7 @@ true if <a href="#Matrix">Matrix</a> is identity, or translates
 
 ### Example
 
-<div><fiddle-embed name="73ac71a8a30841873577c11c6c9b38ee">
+<div><fiddle-embed name="">
 
 #### Example Output
 
@@ -523,7 +523,7 @@ true if <a href="#Matrix">Matrix</a> maps one <a href="SkRect_Reference#Rect">Re
 
 ### Example
 
-<div><fiddle-embed name="ce5319c036c9b5086da8a0009fe409f8">
+<div><fiddle-embed name="">
 
 #### Example Output
 
@@ -576,7 +576,7 @@ true if <a href="#Matrix">Matrix</a> maps one <a href="SkRect_Reference#Rect">Re
 
 ### Example
 
-<div><fiddle-embed name="7a234c96608fb7cb8135b9940b0b15f7">
+<div><fiddle-embed name="">
 
 #### Example Output
 
@@ -618,7 +618,7 @@ true if <a href="#Matrix">Matrix</a> is in most general form
 
 ### Example
 
-<div><fiddle-embed name="688123908c733169bbbfaf11f41ecff6"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -657,7 +657,7 @@ true if <a href="#Matrix">Matrix</a> only rotates, uniformly scales, translates
 
 ### Example
 
-<div><fiddle-embed name="98d60230ad633ae74d851de3a65d72d6"><div><a href="undocumented#String">String</a> is drawn four times through but only two are visible. Drawing the pair
+<div><fiddle-embed name=""><div><a href="undocumented#String">String</a> is drawn four times through but only two are visible. Drawing the pair
 with <a href="#SkMatrix_isSimilarity">isSimilarity</a> false reveals the pair not visible through the matrix.</div></fiddle-embed></div>
 
 ### See Also
@@ -694,7 +694,7 @@ true if <a href="#Matrix">Matrix</a> only rotates, scales, translates
 
 ### Example
 
-<div><fiddle-embed name="a3d5bfebc1c3423fb983d30aaf4ac5f4"><div>Equal scale is both similar and preserves right angles.
+<div><fiddle-embed name=""><div>Equal scale is both similar and preserves right angles.
 Unequal scale is not similar but preserves right angles.
 Skews are not similar and do not preserve right angles.</div></fiddle-embed></div>
 
@@ -756,7 +756,7 @@ each value in <a href="#Matrix">Matrix</a>.
 
 ### Example
 
-<div><fiddle-embed name="3bbf75f4748420810aa2586e3c8548d9"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -832,7 +832,7 @@ value corresponding to <a href="#SkMatrix_array_operator_index">index</a>
 
 ### Example
 
-<div><fiddle-embed name="e8740493abdf0c6341762db9cee56b89">
+<div><fiddle-embed name="">
 
 #### Example Output
 
@@ -873,7 +873,7 @@ value corresponding to <a href="#SkMatrix_get_index">index</a>
 
 ### Example
 
-<div><fiddle-embed name="f5ed382bd04fa7d50b2398cce2fca23a">
+<div><fiddle-embed name="">
 
 #### Example Output
 
@@ -906,7 +906,7 @@ horizontal scale factor
 
 ### Example
 
-<div><fiddle-embed name="ab746d9be63975041ae8e50cba84dc3d">
+<div><fiddle-embed name="">
 
 #### Example Output
 
@@ -938,7 +938,7 @@ vertical scale factor
 
 ### Example
 
-<div><fiddle-embed name="708b1a548a2f8661b2ab570782fbc751">
+<div><fiddle-embed name="">
 
 #### Example Output
 
@@ -971,7 +971,7 @@ vertical skew factor
 
 ### Example
 
-<div><fiddle-embed name="6be5704506d029ffc91ba03b1d3e674b">
+<div><fiddle-embed name="">
 
 #### Example Output
 
@@ -1004,7 +1004,7 @@ horizontal scale factor
 
 ### Example
 
-<div><fiddle-embed name="df3a5d3c688e7597eae1e4e07bf91ae6">
+<div><fiddle-embed name="">
 
 #### Example Output
 
@@ -1036,7 +1036,7 @@ horizontal translation factor
 
 ### Example
 
-<div><fiddle-embed name="6236f7f2b91aff977a66ba2ee2558ca4">
+<div><fiddle-embed name="">
 
 #### Example Output
 
@@ -1068,7 +1068,7 @@ vertical translation factor
 
 ### Example
 
-<div><fiddle-embed name="08464e32d22421d2b254c71a84545ef5">
+<div><fiddle-embed name="">
 
 #### Example Output
 
@@ -1099,7 +1099,7 @@ input x perspective factor
 
 ### Example
 
-<div><fiddle-embed name="a0f5bf4b55e8c33bfda29bf67e34306f"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -1122,7 +1122,7 @@ input y perspective factor
 
 ### Example
 
-<div><fiddle-embed name="424a00a73675dbd99ad20feb0267442b"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -1157,7 +1157,7 @@ writable value corresponding to <a href="#SkMatrix_array1_operator_index">index<
 
 ### Example
 
-<div><fiddle-embed name="f4365ef332f51f7fd25040e0771ba9a2">
+<div><fiddle-embed name="">
 
 #### Example Output
 
@@ -1198,7 +1198,7 @@ one of: <a href="#SkMatrix_kMScaleX">kMScaleX</a>, <a href="#SkMatrix_kMSkewX">k
 
 ### Example
 
-<div><fiddle-embed name="1d400a92ca826cc89bcb88ea051f28c8">
+<div><fiddle-embed name="">
 
 #### Example Output
 
@@ -1234,7 +1234,7 @@ horizontal scale factor to store</td>
 
 ### Example
 
-<div><fiddle-embed name="a39dfed98c3c3c3a56be9ad59fe4e21e"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -1260,7 +1260,7 @@ vertical scale factor to store</td>
 
 ### Example
 
-<div><fiddle-embed name="f040c6dd85a02e94eaca00d5c2832604"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -1286,7 +1286,7 @@ vertical skew factor to store</td>
 
 ### Example
 
-<div><fiddle-embed name="b418d15df9829aefcc6aca93a37428bb"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -1312,7 +1312,7 @@ horizontal skew factor to store</td>
 
 ### Example
 
-<div><fiddle-embed name="c7177a6fbc1545be95a5ebca87e0cd0d"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -1338,7 +1338,7 @@ horizontal translation to store</td>
 
 ### Example
 
-<div><fiddle-embed name="a18bc2e3607ac3a8e438bcb61fb13130"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -1364,7 +1364,7 @@ vertical translation to store</td>
 
 ### Example
 
-<div><fiddle-embed name="34e3c70a72b836abf7f4858d35eecc98"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -1391,7 +1391,7 @@ perspective factor</td>
 
 ### Example
 
-<div><fiddle-embed name="830a9e4e4bb93d25afd83b2fea63929e"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -1418,7 +1418,7 @@ perspective factor</td>
 
 ### Example
 
-<div><fiddle-embed name="aeb258b7922c1a11b698b00f562182ec"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -1466,7 +1466,7 @@ perspective scale factor to store</td>
 
 ### Example
 
-<div><fiddle-embed name="95ccfc2a89ce593e6b7a9f992a844bc0"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -1494,7 +1494,7 @@ storage for nine <a href="#Scalar">Scalar</a> values</td>
 
 ### Example
 
-<div><fiddle-embed name="df509d73b47cb98b0475e4465db7b246">
+<div><fiddle-embed name="">
 
 #### Example Output
 
@@ -1543,7 +1543,7 @@ nine <a href="#Scalar">Scalar</a> values</td>
 
 ### Example
 
-<div><fiddle-embed name="ec5de0d23e5fe28ba7628625d1402e85"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -1570,7 +1570,7 @@ documentation.
 
 ### Example
 
-<div><fiddle-embed name="ca94f7922bc37ef03bbc51ad70536fcf">
+<div><fiddle-embed name="">
 
 #### Example Output
 
@@ -1605,7 +1605,7 @@ documentation.
 
 ### Example
 
-<div><fiddle-embed name="3979c865bb482e6ef1fafc71e56bbb91">
+<div><fiddle-embed name="">
 
 #### Example Output
 
@@ -1641,7 +1641,7 @@ vertical translation</td>
 
 ### Example
 
-<div><fiddle-embed name="63ca62985741b1bccb5e8b9cf734874e"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -1664,7 +1664,7 @@ Sets <a href="#Matrix">Matrix</a> to translate by (<a href="#SkMatrix_setTransla
 
 ### Example
 
-<div><fiddle-embed name="ccfc734aff2ddea0b097c83f5621de5e"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -1697,7 +1697,7 @@ pivot y</td>
 
 ### Example
 
-<div><fiddle-embed name="4565a0792058178c88e0a129a87272d6"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -1722,7 +1722,7 @@ vertical scale factor</td>
 
 ### Example
 
-<div><fiddle-embed name="1579d0cc109c26e69f66f73abd35fb0e"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -1755,7 +1755,7 @@ pivot y</td>
 
 ### Example
 
-<div><fiddle-embed name="8c28db3add9cd0177225088f6df6bbb5"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -1779,7 +1779,7 @@ angle of axes relative to upright axes</td>
 
 ### Example
 
-<div><fiddle-embed name="93efb9d191bf1b9710c173513e014d6c"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -1815,7 +1815,7 @@ pivot y</td>
 
 ### Example
 
-<div><fiddle-embed name="187e1d9228e2e4341ef820bd77b6fda9"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -1843,7 +1843,7 @@ rotation vector y component</td>
 
 ### Example
 
-<div><fiddle-embed name="e37a94a53c959951b059fcd624639ef6"><div><a href="SkCanvas_Reference#Canvas">Canvas</a> needs offset after applying <a href="#Matrix">Matrix</a> to pivot about <a href="SkRect_Reference#Rect">Rect</a> center.</div></fiddle-embed></div>
+<div><fiddle-embed name=""><div><a href="SkCanvas_Reference#Canvas">Canvas</a> needs offset after applying <a href="#Matrix">Matrix</a> to pivot about <a href="SkRect_Reference#Rect">Rect</a> center.</div></fiddle-embed></div>
 
 ### See Also
 
@@ -1877,7 +1877,7 @@ reference to <a href="#Matrix">Matrix</a>
 
 ### Example
 
-<div><fiddle-embed name="c3f5faddca466f78278b32b88fd5f5eb"><div><a href="SkCanvas_Reference#Canvas">Canvas</a> needs offset after applying <a href="#Matrix">Matrix</a> to pivot about <a href="SkRect_Reference#Rect">Rect</a> center.</div></fiddle-embed></div>
+<div><fiddle-embed name=""><div><a href="SkCanvas_Reference#Canvas">Canvas</a> needs offset after applying <a href="#Matrix">Matrix</a> to pivot about <a href="SkRect_Reference#Rect">Rect</a> center.</div></fiddle-embed></div>
 
 ### See Also
 
@@ -1910,7 +1910,7 @@ pivot y</td>
 
 ### Example
 
-<div><fiddle-embed name="55e0431adc6c5b1987ebb8123cc10342"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -1935,7 +1935,7 @@ vertical skew factor</td>
 
 ### Example
 
-<div><fiddle-embed name="05be7844e9afdd7b9bfc31c5423a70a2"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -1977,7 +1977,7 @@ a * b = | D E F | * | M N O | = | DJ+EM+FP DK+EN+FQ DL+EO+FR |
 
 ### Example
 
-<div><fiddle-embed name="0381a10ac69bdefdf9d15b47cbb9fefe"><div><a href="#SkMatrix_setPolyToPoly">setPolyToPoly</a> creates perspective matrices, one the inverse of the other.
+<div><fiddle-embed name=""><div><a href="#SkMatrix_setPolyToPoly">setPolyToPoly</a> creates perspective matrices, one the inverse of the other.
 Multiplying the matrix by its inverse turns into an identity matrix.</div></fiddle-embed></div>
 
 ### See Also
@@ -2021,7 +2021,7 @@ y translation before applying <a href="#Matrix">Matrix</a></td>
 
 ### Example
 
-<div><fiddle-embed name="08f6749933f4ce541073077ab506fd9b"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -2075,7 +2075,7 @@ pivot y</td>
 
 ### Example
 
-<div><fiddle-embed name="2531f8d1e05d7b6dc22f3efcd2fb84e4"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -2116,7 +2116,7 @@ vertical scale factor</td>
 
 ### Example
 
-<div><fiddle-embed name="3edbdea8e43d06086abf33ec4a9b415b"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -2172,7 +2172,7 @@ pivot y</td>
 
 ### Example
 
-<div><fiddle-embed name="a70bb18d67c06a20ab514e7a47924e5a"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -2219,7 +2219,7 @@ angle of axes relative to upright axes</td>
 
 ### Example
 
-<div><fiddle-embed name="5acd49bd931c79a808dd6c7cc0e92f72"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -2273,7 +2273,7 @@ pivot y</td>
 
 ### Example
 
-<div><fiddle-embed name="199a18ad61d702664ce6df1d7037aa48"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -2314,7 +2314,7 @@ vertical skew factor</td>
 
 ### Example
 
-<div><fiddle-embed name="e100c543869fe8fd516ba69de79444ba"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -2355,7 +2355,7 @@ Matrix * other = | D E F | * | M N O | = | DJ+EM+FP DK+EN+FQ DL+EO+FR |
 
 ### Example
 
-<div><fiddle-embed name="b07e62298e7b0ab5683db199faffceb2"><div><a href="#SkMatrix_setPolyToPoly">setPolyToPoly</a> creates perspective matrices, one the inverse of the <a href="#SkMatrix_preConcat_other">other</a>.
+<div><fiddle-embed name=""><div><a href="#SkMatrix_setPolyToPoly">setPolyToPoly</a> creates perspective matrices, one the inverse of the <a href="#SkMatrix_preConcat_other">other</a>.
 Multiplying the matrix by its inverse turns into an identity matrix.</div></fiddle-embed></div>
 
 ### See Also
@@ -2399,7 +2399,7 @@ y translation after applying <a href="#Matrix">Matrix</a></td>
 
 ### Example
 
-<div><fiddle-embed name="57e4cff302c0d754ac6c66050d741772"><div>Compare with <a href="#SkMatrix_preTranslate">preTranslate</a> example.</div></fiddle-embed></div>
+<div><fiddle-embed name=""><div>Compare with <a href="#SkMatrix_preTranslate">preTranslate</a> example.</div></fiddle-embed></div>
 
 ### See Also
 
@@ -2453,7 +2453,7 @@ pivot y</td>
 
 ### Example
 
-<div><fiddle-embed name="ed3aa18ba0ea95c85cc49aa3829fe384"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -2494,7 +2494,7 @@ vertical scale factor</td>
 
 ### Example
 
-<div><fiddle-embed name="1931017698766a67d3a26423453b8095"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -2548,7 +2548,7 @@ true on successful scale
 
 ### Example
 
-<div><fiddle-embed name="58c844b8f0c36acdbc8211e8c929c253"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -2604,7 +2604,7 @@ pivot y</td>
 
 ### Example
 
-<div><fiddle-embed name="e09194ee48a81e7b375ade473d340f0d"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -2651,7 +2651,7 @@ angle of axes relative to upright axes</td>
 
 ### Example
 
-<div><fiddle-embed name="52e4c53e26971af5576b30de60fa70c2"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -2705,7 +2705,7 @@ pivot y</td>
 
 ### Example
 
-<div><fiddle-embed name="8c34ae3a2b7e2742bb969819737365ec"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -2746,7 +2746,7 @@ vertical skew factor</td>
 
 ### Example
 
-<div><fiddle-embed name="3aa2603225dff72ac53dd359f897f494"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -2787,7 +2787,7 @@ other * Matrix = | D E F | * | M N O | = | DJ+EM+FP DK+EN+FQ DL+EO+FR |
 
 ### Example
 
-<div><fiddle-embed name="0a4214289249c77f48d59227c4ac4d9e"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -2837,7 +2837,7 @@ edges of destination <a href="SkRect_Reference#Rect">Rect</a>.</td>
 
 ### Example
 
-<div><fiddle-embed name="17c3070b31b700ea8f52e48af9a66b6e"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -2880,7 +2880,7 @@ true if <a href="#Matrix">Matrix</a> can represent <a href="SkRect_Reference#Rec
 
 ### Example
 
-<div><fiddle-embed name="69cdea599dcaaec35efcb24403f4287b">
+<div><fiddle-embed name="">
 
 #### Example Output
 
@@ -2938,7 +2938,7 @@ one of: <a href="#SkMatrix_kFill_ScaleToFit">kFill ScaleToFit</a>, <a href="#SkM
 
 ### Example
 
-<div><fiddle-embed name="a1d6a6721b39350f81021f71a1b93208">
+<div><fiddle-embed name="">
 
 #### Example Output
 
@@ -2993,7 +2993,7 @@ true if <a href="#Matrix">Matrix</a> was constructed successfully
 
 ### Example
 
-<div><fiddle-embed name="c851d1313e8909aaea4f0591699fdb7b"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -3026,7 +3026,7 @@ true if <a href="#Matrix">Matrix</a> can be inverted
 
 ### Example
 
-<div><fiddle-embed name="10a10c5bf2ac7ec88e84204441fc83b6"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -3059,7 +3059,7 @@ storage for 3x2 <a href="#SkMatrix_SetAffineIdentity_affine">affine</a> matrix</
 
 ### Example
 
-<div><fiddle-embed name="e10adbd0bcc940c5d4d872db0e78e892">
+<div><fiddle-embed name="">
 
 #### Example Output
 
@@ -3103,7 +3103,7 @@ true if <a href="#Matrix">Matrix</a> does not contain perspective
 
 ### Example
 
-<div><fiddle-embed name="752e4a48ed1dae05765a2499c390f277">
+<div><fiddle-embed name="">
 
 #### Example Output
 
@@ -3149,7 +3149,7 @@ column, then row, as:
 
 ### Example
 
-<div><fiddle-embed name="403370bd53526f59020a7141955d70b0">
+<div><fiddle-embed name="">
 
 #### Example Output
 
@@ -3211,7 +3211,7 @@ number of <a href="#Point">Points</a> to transform</td>
 
 ### Example
 
-<div><fiddle-embed name="f99dcb00296d0c56b6c0e178e94b3534"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -3257,7 +3257,7 @@ number of <a href="#Point">Points</a> to transform</td>
 
 ### Example
 
-<div><fiddle-embed name="428ca171ae3bd0d3f992458ac598b97b"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -3300,7 +3300,7 @@ number of <a href="#Point">Points</a> to transform</td>
 
 ### Example
 
-<div><fiddle-embed name="02c50c7bb5d5dd1fe7e54b0d3bf64c2a"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -3343,7 +3343,7 @@ number of <a href="#Point">Points</a> to transform</td>
 
 ### Example
 
-<div><fiddle-embed name="08e32de52131e6859db16729b2e56e4e"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -3386,7 +3386,7 @@ items in <a href="undocumented#Point3">Point3</a> array to transform</td>
 
 ### Example
 
-<div><fiddle-embed name="d56f93e4bc763c7ba4914321ed07a8b5"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -3428,7 +3428,7 @@ storage for mapped <a href="SkPoint_Reference#Point">Point</a></td>
 
 ### Example
 
-<div><fiddle-embed name="9e50185d502dc6903783679a84106089"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -3469,7 +3469,7 @@ mapped <a href="SkPoint_Reference#Point">Point</a>
 
 ### Example
 
-<div><fiddle-embed name="b1ead09c67a177ab8eace12b061610a7"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -3523,7 +3523,7 @@ number of <a href="#Vector">Vectors</a> to transform</td>
 
 ### Example
 
-<div><fiddle-embed name="918a9778c3d7d5cb306692784399f6dc"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -3569,7 +3569,7 @@ number of <a href="#Vector">Vectors</a> to transform</td>
 
 ### Example
 
-<div><fiddle-embed name="5754501a00a1323e76353fb53153e939"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -3612,7 +3612,7 @@ storage for mapped <a href="SkPoint_Reference#Vector">Vector</a></td>
 
 ### Example
 
-<div><fiddle-embed name="aed143fc6cd0bce4ed029b98d1e61f2d"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -3654,7 +3654,7 @@ mapped <a href="SkPoint_Reference#Vector">Vector</a>
 
 ### Example
 
-<div><fiddle-embed name="8bf1518db3f369696cd3065b541a8bd7"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -3689,7 +3689,7 @@ true if <a href="#SkMatrix_mapRect_dst">dst</a> is equivalent to mapped <a href=
 
 ### Example
 
-<div><fiddle-embed name="dbcf928b035a31ca69c99392e2e2cca9"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -3719,7 +3719,7 @@ true if result is equivalent to mapped src
 
 ### Example
 
-<div><fiddle-embed name="5fafd0bd23d1ed37425b970b4a3c6cc9"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -3769,7 +3769,7 @@ storage for mapped corner <a href="#Point">Points</a></td>
 
 ### Example
 
-<div><fiddle-embed name="c69cd2a590b5733c3cbc92cb9ceed3f5"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -3799,7 +3799,7 @@ storage for bounds of mapped <a href="#Point">Points</a></td>
 
 ### Example
 
-<div><fiddle-embed name="62bc26989c2b4c2a54d516596a71dd97"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -3832,7 +3832,7 @@ average mapped <a href="#SkMatrix_mapRadius_radius">radius</a>
 
 ### Example
 
-<div><fiddle-embed name="6d6f2082fcf59d9f02bfb1758b87db69"><div>The area enclosed by a square with sides equal to mappedRadius is the same as
+<div><fiddle-embed name=""><div>The area enclosed by a square with sides equal to mappedRadius is the same as
 the area enclosed by the ellipse major and minor axes.</div></fiddle-embed></div>
 
 ### See Also
@@ -3861,7 +3861,7 @@ true if <a href="#Matrix">Matrix</a> does not have complex perspective
 
 ### Example
 
-<div><fiddle-embed name="ab57b232acef69f26de9cb23d23c8a1a">
+<div><fiddle-embed name="">
 
 #### Example Output
 
@@ -3915,7 +3915,7 @@ position of line parallel to x-axis</td>
 
 ### Example
 
-<div><fiddle-embed name="fad6b92b21b1e1deeae61978cec2d232"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -3953,7 +3953,7 @@ true if <a href="#SkMatrix_cheapEqualTo_m">m</a> and <a href="#Matrix">Matrix</a
 
 ### Example
 
-<div><fiddle-embed name="39016b3cfc6bbabb09348a53822ce508">
+<div><fiddle-embed name="">
 
 #### Example Output
 
@@ -3998,7 +3998,7 @@ true if m and <a href="#Matrix">Matrix</a> are numerically equal
 
 ### Example
 
-<div><fiddle-embed name="3902859150b0f0c4aeb1f25d00434baa">
+<div><fiddle-embed name="">
 
 #### Example Output
 
@@ -4040,7 +4040,7 @@ true if m and <a href="#Matrix">Matrix</a> are numerically not equal
 
 ### Example
 
-<div><fiddle-embed name="8a8fadf5fd294daa4ee152833cc0dc0e"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -4061,7 +4061,7 @@ original <a href="#Matrix">Matrix</a> from output.
 
 ### Example
 
-<div><fiddle-embed name="8d72a4818e5a9188348f6c08ab5d8a40">
+<div><fiddle-embed name="">
 
 #### Example Output
 
@@ -4099,7 +4099,7 @@ storage for string representation of <a href="#Matrix">Matrix</a></td>
 
 ### Example
 
-<div><fiddle-embed name="1d86e43958e42b8eaaa9b16df1baa4c8">
+<div><fiddle-embed name="">
 
 #### Example Output
 
@@ -4134,7 +4134,7 @@ minimum scale factor
 
 ### Example
 
-<div><fiddle-embed name="1d6f67904c88a806c3731879e9af4ae5">
+<div><fiddle-embed name="">
 
 #### Example Output
 
@@ -4167,7 +4167,7 @@ maximum scale factor
 
 ### Example
 
-<div><fiddle-embed name="3fee4364929899649cf9efc37897e964">
+<div><fiddle-embed name="">
 
 #### Example Output
 
@@ -4210,7 +4210,7 @@ true if scale factors were computed correctly
 
 ### Example
 
-<div><fiddle-embed name="cd4dc63d3e04226f0b5861ba8925e223">
+<div><fiddle-embed name="">
 
 #### Example Output
 
@@ -4261,7 +4261,7 @@ true if <a href="#SkMatrix_decomposeScale_scale">scale</a> can be computed
 
 ### Example
 
-<div><fiddle-embed name="139b874da0a3ede1f3df88119085c0aa">
+<div><fiddle-embed name="">
 
 #### Example Output
 
@@ -4300,7 +4300,7 @@ const identity <a href="#Matrix">Matrix</a>
 
 ### Example
 
-<div><fiddle-embed name="d961d91020f19037204a8c3fd8cb1060">
+<div><fiddle-embed name="">
 
 #### Example Output
 
@@ -4338,7 +4338,7 @@ const invalid <a href="#Matrix">Matrix</a>
 
 ### Example
 
-<div><fiddle-embed name="af0b72360c1c7a25b4754bfa47011dd5">
+<div><fiddle-embed name="">
 
 #### Example Output
 
@@ -4392,7 +4392,7 @@ a * b = | D E F | * | M N O | = | DJ+EM+FP DK+EN+FQ DL+EO+FR |
 
 ### Example
 
-<div><fiddle-embed name="6b4562c7052da94f3d5b2412dca41946"><div><a href="#SkMatrix_setPolyToPoly">setPolyToPoly</a> creates perspective matrices, one the inverse of the other.
+<div><fiddle-embed name=""><div><a href="#SkMatrix_setPolyToPoly">setPolyToPoly</a> creates perspective matrices, one the inverse of the other.
 Multiplying the matrix by its inverse turns into an identity matrix.</div></fiddle-embed></div>
 
 ### See Also
@@ -4413,7 +4413,7 @@ modifications to <a href="#Matrix">Matrix</a> element reference returned by <a h
 
 ### Example
 
-<div><fiddle-embed name="f4365ef332f51f7fd25040e0771ba9a2">
+<div><fiddle-embed name="">
 
 #### Example Output
 
@@ -4461,7 +4461,7 @@ vertical translation to store</td>
 
 ### Example
 
-<div><fiddle-embed name="fed43797f13796529cb6731385d6f8f3">
+<div><fiddle-embed name="">
 
 #### Example Output
 
@@ -4493,7 +4493,7 @@ true if matrix has only finite elements
 
 ### Example
 
-<div><fiddle-embed name="bc6c6f6a5df770287120d87f81b922eb">
+<div><fiddle-embed name="">
 
 #### Example Output
 
