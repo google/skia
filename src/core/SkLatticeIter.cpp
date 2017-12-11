@@ -166,16 +166,19 @@ SkLatticeIter::SkLatticeIter(const SkCanvas::Lattice& lattice, const SkRect& dst
     fNumRectsInLattice = (xCount + 1) * (yCount + 1);
     fNumRectsToDraw = fNumRectsInLattice;
 
-    if (lattice.fFlags) {
-        fFlags.push_back_n(fNumRectsInLattice);
+    if (lattice.fRectTypes) {
+        fRectTypes.push_back_n(fNumRectsInLattice);
+        fColors.push_back_n(fNumRectsInLattice);
 
-        const SkCanvas::Lattice::Flags* flags = lattice.fFlags;
+        const SkCanvas::Lattice::RectType* flags = lattice.fRectTypes;
+        const SkColor* colors = lattice.fColors;
 
         bool hasPadRow = (yCount != origYCount);
         bool hasPadCol = (xCount != origXCount);
         if (hasPadRow) {
             // The first row of rects are all empty, skip the first row of flags.
             flags += origXCount + 1;
+            colors += origXCount + 1;
         }
 
         int i = 0;
@@ -184,17 +187,20 @@ SkLatticeIter::SkLatticeIter(const SkCanvas::Lattice& lattice, const SkRect& dst
                 if (0 == x && hasPadCol) {
                     // The first column of rects are all empty.  Skip a rect.
                     flags++;
+                    colors++;
                     continue;
                 }
 
-                fFlags[i] = *flags;
+                fRectTypes[i] = *flags;
+                fColors[i] = *colors;
                 flags++;
+                colors++;
                 i++;
             }
         }
 
-        for (int j = 0; j < fFlags.count(); j++) {
-            if (SkCanvas::Lattice::kTransparent_Flags == fFlags[j]) {
+        for (int j = 0; j < fRectTypes.count(); j++) {
+            if (SkCanvas::Lattice::kTransparent == fRectTypes[j]) {
                 fNumRectsToDraw--;
             }
         }
@@ -248,7 +254,7 @@ SkLatticeIter::SkLatticeIter(int w, int h, const SkIRect& c, const SkRect& dst) 
     fNumRectsToDraw = 9;
 }
 
-bool SkLatticeIter::next(SkRect* src, SkRect* dst) {
+bool SkLatticeIter::next(SkRect* src, SkRect* dst, bool* isFixedColor, SkColor* fixedColor) {
     int currRect = fCurrX + fCurrY * (fSrcX.count() - 1);
     if (currRect == fNumRectsInLattice) {
         return false;
@@ -264,12 +270,20 @@ bool SkLatticeIter::next(SkRect* src, SkRect* dst) {
         fCurrY += 1;
     }
 
-    if (fFlags.count() > 0 && SkToBool(SkCanvas::Lattice::kTransparent_Flags & fFlags[currRect])) {
-        return this->next(src, dst);
+    if (fRectTypes.count() > 0
+        && SkToBool(SkCanvas::Lattice::kTransparent == fRectTypes[currRect])) {
+        return this->next(src, dst, isFixedColor, fixedColor);
     }
 
     src->set(fSrcX[x], fSrcY[y], fSrcX[x + 1], fSrcY[y + 1]);
     dst->set(fDstX[x], fDstY[y], fDstX[x + 1], fDstY[y + 1]);
+    if (isFixedColor && fixedColor) {
+        *isFixedColor = fRectTypes.count() > 0
+                     && SkToBool(SkCanvas::Lattice::kFixedColor == fRectTypes[currRect]);
+        if (*isFixedColor) {
+            *fixedColor = fColors[currRect];
+        }
+    }
     return true;
 }
 

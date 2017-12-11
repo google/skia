@@ -1548,7 +1548,7 @@ static void fuzz_canvas(Fuzz* fuzz, SkCanvas* canvas, int depth = 9) {
                 }
                 constexpr int kMax = 6;
                 int xDivs[kMax], yDivs[kMax];
-                SkCanvas::Lattice lattice{xDivs, yDivs, nullptr, 0, 0, nullptr};
+                SkCanvas::Lattice lattice{xDivs, yDivs, nullptr, 0, 0, nullptr, nullptr};
                 fuzz->nextRange(&lattice.fXCount, 2, kMax);
                 fuzz->nextRange(&lattice.fYCount, 2, kMax);
                 fuzz->nextN(xDivs, lattice.fXCount);
@@ -1566,7 +1566,7 @@ static void fuzz_canvas(Fuzz* fuzz, SkCanvas* canvas, int depth = 9) {
                 }
                 constexpr int kMax = 6;
                 int xDivs[kMax], yDivs[kMax];
-                SkCanvas::Lattice lattice{xDivs, yDivs, nullptr, 0, 0, nullptr};
+                SkCanvas::Lattice lattice{xDivs, yDivs, nullptr, 0, 0, nullptr, nullptr};
                 fuzz->nextRange(&lattice.fXCount, 2, kMax);
                 fuzz->nextRange(&lattice.fYCount, 2, kMax);
                 fuzz->nextN(xDivs, lattice.fXCount);

@@ -550,9 +550,12 @@ void SkPictureRecord::onDrawImageNine(const SkImage* img, const SkIRect& center,
 void SkPictureRecord::onDrawImageLattice(const SkImage* image, const Lattice& lattice,
                                          const SkRect& dst, const SkPaint* paint) {
     // xCount + xDivs + yCount+ yDivs
-    int flagCount = (nullptr == lattice.fFlags) ? 0 : (lattice.fXCount + 1) * (lattice.fYCount + 1);
+    int flagCount = (nullptr == lattice.fRectTypes) ? 0 :
+                                                      (lattice.fXCount + 1) * (lattice.fYCount + 1);
     size_t latticeSize = (1 + lattice.fXCount + 1 + lattice.fYCount + 1) * kUInt32Size +
-                         SkAlign4(flagCount * sizeof(SkCanvas::Lattice::Flags)) + sizeof(SkIRect);
+                         SkAlign4(flagCount * sizeof(SkCanvas::Lattice::RectType)) +
+                         SkAlign4(flagCount * sizeof(SkColor)) +
+                         sizeof(SkIRect);
 
     // op + paint index + image index + lattice + dst rect
     size_t size = 3 * kUInt32Size + latticeSize + sizeof(dst);
@@ -564,7 +567,8 @@ void SkPictureRecord::onDrawImageLattice(const SkImage* image, const Lattice& la
     this->addInt(lattice.fYCount);
     fWriter.writePad(lattice.fYDivs, lattice.fYCount * kUInt32Size);
     this->addInt(flagCount);
-    fWriter.writePad(lattice.fFlags, flagCount * sizeof(SkCanvas::Lattice::Flags));
+    fWriter.writePad(lattice.fRectTypes, flagCount * sizeof(SkCanvas::Lattice::RectType));
+    fWriter.writePad(lattice.fColors, flagCount * sizeof(SkColor));
     SkASSERT(lattice.fBounds);
     this->addIRect(*lattice.fBounds);
     this->addRect(dst);

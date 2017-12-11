@@ -30,9 +30,12 @@ public:
     SkLatticeIter(int imageWidth, int imageHeight, const SkIRect& center, const SkRect& dst);
 
     /**
-     *  While it returns true, use src/dst to draw the image/bitmap
+     *  While it returns true, use src/dst to draw the image/bitmap. Optional parameters
+     *  isFixedColor and fixedColor specify if the rectangle is filled with a fixed color.
+     *  If (*isFixedColor) is true, then (*fixedColor) contains the rectangle color.
      */
-    bool next(SkRect* src, SkRect* dst);
+    bool next(SkRect* src, SkRect* dst, bool* isFixedColor = nullptr,
+              SkColor* fixedColor = nullptr);
 
     /**
      *  Apply a matrix to the dst points.
@@ -51,7 +54,8 @@ private:
     SkTArray<SkScalar> fSrcY;
     SkTArray<SkScalar> fDstX;
     SkTArray<SkScalar> fDstY;
-    SkTArray<SkCanvas::Lattice::Flags> fFlags;
+    SkTArray<SkCanvas::Lattice::RectType> fRectTypes;
+    SkTArray<SkColor> fColors;
 
     int  fCurrX;
     int  fCurrY;
