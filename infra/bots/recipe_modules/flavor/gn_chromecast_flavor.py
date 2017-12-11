@@ -42,44 +42,52 @@ class GNChromecastFlavorUtils(gn_android_flavor.GNAndroidFlavorUtils):
     os            = self.m.vars.builder_cfg.get('os')
     target_arch   = self.m.vars.builder_cfg.get('target_arch')
 
-    # TODO(kjlubick): can this toolchain be replaced/shared with chromebook?
-    toolchain_dir = self.m.vars.slave_dir.join('cast_toolchain', 'armv7a')
-    gles_dir = self.m.vars.slave_dir.join('chromebook_arm_gles')
+    cast_toolchain      = self.m.vars.slave_dir.join('cast_toolchain')
+    chromebook_arm_gles = self.m.vars.slave_dir.join('chromebook_arm_gles')
+    clang_linux         = self.m.vars.slave_dir.join('clang_linux')
 
-    extra_cflags = [
-      '-I%s' % gles_dir.join('include'),
+    target = [ '-target', 'armv7a-linux-gnueabihf' ]
+
+    extra_asmflags = target
+
+    extra_cflags = target + [
+      '-isystem', '%s' % \
+          cast_toolchain.join('armv7a/usr/armv7a-cros-linux-gnueabi/' +
+                              'usr/include'),
+      '-isystem', '%s' % chromebook_arm_gles.join('include'),
+      '-I%s' % cast_toolchain.join('armv7a_libc++/usr/include/c++/v1'),
+      '-I%s' % cast_toolchain.join('armv7a_libc++/usr/include/libcxxrt'),
       '-DMESA_EGL_NO_X11_HEADERS',
-      "-DSK_NO_COMMAND_BUFFER",
-      # Avoid unused warning with yyunput
-      '-Wno-error=unused-function',
+      '-DSK_NO_COMMAND_BUFFER',
       # Makes the binary small enough to fit on the small disk.
       '-g0',
     ]
 
-    extra_ldflags = [
-      # Chromecast does not package libstdc++
-      '-static-libstdc++', '-static-libgcc',
-      '-L%s' % toolchain_dir.join('lib'),
+    extra_ldflags = target + [
+      '-fuse-ld=lld',
+      '-L%s' % cast_toolchain.join('armv7a/lib'),
+      '-L%s' % cast_toolchain.join('armv7a_libc++/usr/lib'),
+      '-lc++',
+      '-lcxxrt',
     ]
 
     quote = lambda x: '"%s"' % x
     args = {
-      'cc': quote(toolchain_dir.join('bin','armv7a-cros-linux-gnueabi-gcc')),
-      'cxx': quote(toolchain_dir.join('bin','armv7a-cros-linux-gnueabi-g++')),
-      'ar': quote(toolchain_dir.join('bin','armv7a-cros-linux-gnueabi-ar')),
+      'cc':  quote(clang_linux.join('bin/clang')),
+      'cxx': quote(clang_linux.join('bin/clang++')),
       'target_cpu': quote(target_arch),
-      'skia_use_fontconfig': 'false',
-      'skia_enable_gpu': 'true',
-      # The toolchain won't allow system libraries to be used
-      # when cross-compiling
-      'skia_use_system_freetype2': 'false',
-      # Makes the binary smaller
-      'skia_use_icu': 'false',
       'skia_use_egl': 'true',
+      # Using system libraries doesn't make sense when cross-compiling.
+      'skia_use_system_freetype2': 'false',
+      # We don't currently have a non-system way of depending on this.
+      'skia_use_fontconfig': 'false',
+      # Makes the binary smaller.
+      'skia_use_icu': 'false',
     }
 
     if configuration != 'Debug':
       args['is_debug'] = 'false'
+    args['extra_asmflags'] = repr(extra_asmflags).replace("'", '"')
     args['extra_cflags'] = repr(extra_cflags).replace("'", '"')
     args['extra_ldflags'] = repr(extra_ldflags).replace("'", '"')
 
