@@ -29,7 +29,7 @@ import sys
 # about the logs of previous steps without using a wrapper like this.
 
 def main(basedir, cmd):
-  logs = collections.deque(maxlen=200)
+  logs = collections.deque(maxlen=500)
 
   proc = subprocess.Popen(cmd, stdout=subprocess.PIPE,
                           stderr=subprocess.STDOUT)
