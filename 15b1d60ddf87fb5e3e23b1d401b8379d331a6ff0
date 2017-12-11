@@ -55,6 +55,24 @@
     },
     {
       "key": {
+        "uuid": "a9ecfe40_5b67bad0",
+        "filename": "infra/bots/recipe_modules/flavor/gn_android_flavor.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2017-12-11T18:59:07Z",
+      "side": 1,
+      "message": "For some devices (Nexus 7), we would put it into the userspace governor and then try to set it to a frequency (e.g. 1.2 Ghz), but for whatever reason, the current max_frequency was \u003c 1.2 Ghz, and thus the frequency setting wouldn\u0027t take (it would be set to whatever max_frequency was).  So, the dance with the min/max is to make sure the frequency is properly applied.",
+      "parentUuid": "3772409a_b17cec35",
+      "revId": "15b1d60ddf87fb5e3e23b1d401b8379d331a6ff0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "1b5c240a_ca1004ea",
         "filename": "infra/bots/recipe_modules/flavor/gn_android_flavor.py",
         "patchSetId": 8
@@ -155,6 +173,24 @@
       "side": 1,
       "message": "No they\u0027re not.\n\nat /sys/devices/system/cpu/cpu0/cpufreq/affected_cpus                                             \u003c\n0 1 2 3\ndragon:/ $ cat /sys/devices/system/cpu/cpu?/cpufreq/related_cpus\n0 1 2 3\n0 1 2 3\n0 1 2 3\n0 1 2 3\ndragon:/ $ cat /sys/devices/system/cpu/cpu?/cpufreq/cpuinfo_max_freq\n1912500\n1912500\n1912500\n1912500",
       "parentUuid": "7def3615_11bebb14",
+      "revId": "15b1d60ddf87fb5e3e23b1d401b8379d331a6ff0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e493d108_8c3ba3db",
+        "filename": "infra/bots/recipe_modules/flavor/gn_android_flavor.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2017-12-11T18:59:07Z",
+      "side": 1,
+      "message": "Herp.  I was looking at the wrong line in my notes - you are correct.",
+      "parentUuid": "c1dc3563_8baeac0c",
       "revId": "15b1d60ddf87fb5e3e23b1d401b8379d331a6ff0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false

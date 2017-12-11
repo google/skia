@@ -55,6 +55,24 @@
     },
     {
       "key": {
+        "uuid": "3543fbed_171edd4d",
+        "filename": "infra/bots/recipe_modules/flavor/gn_android_flavor.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2017-12-11T18:59:07Z",
+      "side": 1,
+      "message": "I\u0027ll leave a TODO to do that if this logic sticks after landing.",
+      "parentUuid": "d5016c11_be618080",
+      "revId": "2a1dc33deb9cc9a526d9e4f41f61935149162758",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "0e758237_ae5ceeb3",
         "filename": "infra/bots/recipe_modules/flavor/gn_android_flavor.py",
         "patchSetId": 6
