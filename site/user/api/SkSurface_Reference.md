@@ -599,7 +599,7 @@ hint that <a href="#Surface">Surface</a> will host <a href="undocumented#Mip_Map
 
 ### Example
 
-<div><fiddle-embed name="67b6609471a3f1ed0f4b1657004cdecb"gpu="true"></fiddle-embed></div>
+<div><fiddle-embed name="67b6609471a3f1ed0f4b1657004cdecb" gpu="true"></fiddle-embed></div>
 
 ### See Also
 
@@ -649,7 +649,7 @@ fonts; may be nullptr</td>
 
 ### Example
 
-<div><fiddle-embed name="640321e8ecfb3f9329f3bc6e1f02485f"gpu="true"cpu="true"><div><a href="undocumented#LCD">LCD</a> text takes advantage of raster striping to improve resolution. Only one of
+<div><fiddle-embed name="640321e8ecfb3f9329f3bc6e1f02485f" gpu="true" cpu="true"><div><a href="undocumented#LCD">LCD</a> text takes advantage of raster striping to improve resolution. Only one of
 the four combinations is correct, depending on whether the monitor's <a href="undocumented#LCD">LCD</a> is
 horizontal or vertical, and whether the order of the stripes is red blue green
 or red green blue.</div></fiddle-embed></div>
@@ -691,7 +691,7 @@ of <a href="undocumented#Raster_Surface">Raster Surface</a>; <a href="#SkSurface
 
 ### Example
 
-<div><fiddle-embed name="5c7629c15e9ac93f098335e72560fa2e"gpu="true"></fiddle-embed></div>
+<div><fiddle-embed name="5c7629c15e9ac93f098335e72560fa2e" gpu="true"></fiddle-embed></div>
 
 ### See Also
 
@@ -919,7 +919,7 @@ enum <a href="#SkSurface_BackendHandleAccess">BackendHandleAccess</a> {
 
 ### Example
 
-<div><fiddle-embed name="260a5ba014b00eeb5a74b3c6b8d31be4"gpu="true"></fiddle-embed></div>
+<div><fiddle-embed name="260a5ba014b00eeb5a74b3c6b8d31be4" gpu="true"></fiddle-embed></div>
 
 ### See Also
 
@@ -954,7 +954,7 @@ one of:  <a href="#SkSurface_kFlushRead_BackendHandleAccess">kFlushRead BackendH
 
 ### Example
 
-<div><fiddle-embed name="4b5720038daaf65ba1ba546e678ddd6e"gpu="true"></fiddle-embed></div>
+<div><fiddle-embed name="4b5720038daaf65ba1ba546e678ddd6e" gpu="true"></fiddle-embed></div>
 
 ### See Also
 
@@ -996,7 +996,7 @@ true if <a href="#Surface">Surface</a> is backed by <a href="undocumented#GPU">G
 
 ### Example
 
-<div><fiddle-embed name="16e848a4405ce08f8393bba13cc3b8bf"gpu="true"></fiddle-embed></div>
+<div><fiddle-embed name="16e848a4405ce08f8393bba13cc3b8bf" gpu="true"></fiddle-embed></div>
 
 ### See Also
 
@@ -1506,7 +1506,7 @@ true if supported
 
 ### Example
 
-<div><fiddle-embed name="3df4e2fc63483a3fa19589b5388080bc"gpu="true"></fiddle-embed></div>
+<div><fiddle-embed name="3df4e2fc63483a3fa19589b5388080bc" gpu="true"></fiddle-embed></div>
 
 ### See Also
 
@@ -1515,12 +1515,14 @@ true if supported
 ---
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-void draw(SkDeferredDisplayList* deferredDisplayList)
+bool draw(SkDeferredDisplayList* deferredDisplayList)
 </pre>
 
 Draws deferred display list created using <a href="undocumented#SkDeferredDisplayListRecorder">SkDeferredDisplayListRecorder</a>.
-The <a href="#SkSurface_draw">draw</a> has no effect if <a href="#Characterization">Surface Characterization</a> stored in <a href="#SkSurface_draw_2_deferredDisplayList">deferredDisplayList</a>
-is not compatible with <a href="#Surface">Surface</a>.
+Has no effect and returns false if <a href="#Characterization">Surface Characterization</a> stored in
+<a href="#SkSurface_draw_2_deferredDisplayList">deferredDisplayList</a> is not compatible with <a href="#Surface">Surface</a>.
+
+<a href="undocumented#Raster_Surface">Raster Surface</a> returns false.
 
 ### Parameters
 
@@ -1529,9 +1531,13 @@ drawing commands</td>
   </tr>
 </table>
 
+### Return Value
+
+false if <a href="#SkSurface_draw_2_deferredDisplayList">deferredDisplayList</a> is not compatible
+
 ### Example
 
-<div><fiddle-embed name="3dfa7496268dfb2c7465cda5da39dfbd"gpu="true"cpu="true"></fiddle-embed></div>
+<div><fiddle-embed name="3dfa7496268dfb2c7465cda5da39dfbd" gpu="true" cpu="true"></fiddle-embed></div>
 
 ### See Also
 

@@ -426,6 +426,13 @@ bool IncludeParser::crossCheck(BmhParser& bmhParser) {
                         SkDebugf("member missing from bmh: %s\n", fullName.c_str());
                     }
                     break;
+                case MarkType::kTypedef:
+                    if (def) {
+                        def->fVisited = true;
+                    } else {
+                        SkDebugf("typedef missing from bmh: %s\n", fullName.c_str());
+                    }
+                    break;
                 default:
                     SkASSERT(0);  // unhandled
                     break;
@@ -1474,9 +1481,6 @@ bool IncludeParser::parseMethod(Definition* child, Definition* markupDef) {
         break;
     }
     tokenIter->fName = nameStr;
-    if ("operator" == nameStr) {
-        SkDebugf("");
-    }
     tokenIter->fMarkType = MarkType::kMethod;
     tokenIter->fPrivate = string::npos != nameStr.find("::");
     auto testIter = child->fParent->fTokens.begin();
@@ -1538,9 +1542,6 @@ bool IncludeParser::parseMethod(Definition* child, Definition* markupDef) {
         auto globalFunction = &fIFunctionMap[name];
         globalFunction->fContentStart = start;
         globalFunction->fName = name;
-        if ("operator+" == name) {
-            SkDebugf("");
-        }
         globalFunction->fFiddle = name;
         globalFunction->fContentEnd = end;
         globalFunction->fMarkType = MarkType::kMethod;
@@ -1555,9 +1556,6 @@ bool IncludeParser::parseMethod(Definition* child, Definition* markupDef) {
     SkASSERT(classDef.fStart);
     string uniqueName = this->uniqueName(classDef.fMethods, nameStr);
     markupChild->fName = uniqueName;
-        if ("operator+" == uniqueName) {
-            SkDebugf("");
-        }
     if (!this->findComments(*child, markupChild)) {
         return false;
     }
@@ -1603,7 +1601,7 @@ bool IncludeParser::parseObject(Definition* child, Definition* markupDef) {
                     }
                     break;
                 case KeyWord::kTypedef:
-                    if (!this->parseTypedef()) {
+                    if (!this->parseTypedef(child, markupDef)) {
                         return child->reportError<bool>("failed to parse typedef");
                     }
                     break;
@@ -1720,8 +1718,29 @@ bool IncludeParser::parseTemplate() {
     return true;
 }
 
-bool IncludeParser::parseTypedef() {
-
+bool IncludeParser::parseTypedef(Definition* child, Definition* markupDef) {
+    TextParser typedefParser(child);
+    string nameStr = typedefParser.typedefName();
+    if (!markupDef) {
+        Definition& typedefDef = fITypedefMap[nameStr];
+        SkASSERT(!typedefDef.fStart);
+        typedefDef.fStart = child->fContentStart;
+        typedefDef.fContentStart = child->fContentStart;
+        typedefDef.fName = nameStr;
+        typedefDef.fFiddle = nameStr;
+        typedefDef.fContentEnd = child->fContentEnd;
+        typedefDef.fTerminator = child->fContentEnd;
+        typedefDef.fMarkType = MarkType::kTypedef;
+        typedefDef.fLineCount = child->fLineCount;
+        return true;
+    }
+    markupDef->fTokens.emplace_back(MarkType::kTypedef, child->fContentStart, child->fContentEnd,
+        child->fLineCount, markupDef);
+    Definition* markupChild = &markupDef->fTokens.back();
+    markupChild->fName = nameStr;
+    markupChild->fTerminator = markupChild->fContentEnd;
+    IClassDefinition& classDef = fIClassMap[markupDef->fName];
+    classDef.fTypedefs[nameStr] = markupChild;
     return true;
 }
 

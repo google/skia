@@ -47,7 +47,7 @@
     "hash": "fe79a9c1ec350264eb9c7b2509dd3638",
     "file": "SkBitmap_Reference",
     "name": "SkBitmap::HeapAllocator::allocPixelRef",
-        "stdout": "pixel address = (nil)\\npixel address = 0x55f1363e3670\\n"
+        "stdout": "pixel address = (nil)\\npixel address = 0x55b067c54670\\n"
     },
         "SkBitmap_alphaType": {
     "code": "void draw(SkCanvas* canvas) {\n    const char* alphas[] = {\"Unknown\", \"Opaque\", \"Premul\", \"Unpremul\"};\n    SkPixmap pixmap(SkImageInfo::MakeA8(16, 32), nullptr, 64);\n    SkDebugf(\"alpha type: k\" \"%s\" \"_SkAlphaType\\n\", alphas[pixmap.alphaType()]);\n}",
@@ -1352,8 +1352,8 @@
         "stdout": "paint1 == paint2\\npaint1 != paint2\\n"
     },
         "SkPaint_flatten": {
-    "code": "void draw(SkCanvas* canvas) {\n    class PaintDumper : public SkWriteBuffer {\n    public:\n        bool isCrossProcess() const override { return false; };\n        void writeByteArray(const void* data, size_t size) override {}\n        void writeBool(bool value) override {}\n        void writeScalar(SkScalar value) override {}\n        void writeScalarArray(const SkScalar* value, uint32_t count) override {}\n        void writeInt(int32_t value) override {}\n        void writeIntArray(const int32_t* value, uint32_t count) override {}\n        void writeUInt(uint32_t value) override {}\n        void writeString(const char* value) override {}\n        void writeFlattenable(const SkFlattenable* flattenable) override {}\n        void writeColorArray(const SkColor* color, uint32_t count) override {}\n        void writeColor4f(const SkColor4f& color) override {}\n        void writeColor4fArray(const SkColor4f* color, uint32_t count) override {}\n        void writePoint(const SkPoint& point) override {}\n        void writePointArray(const SkPoint* point, uint32_t count) override {}\n        void writeMatrix(const SkMatrix& matrix) override {}\n        void writeIRect(const SkIRect& rect) override {}\n        void writeRect(const SkRect& rect) override {}\n        void writeRegion(const SkRegion& region) override {}\n        void writePath(const SkPath& path) override {}\n        size_t writeStream(SkStream* stream, size_t length) override { return 0; }\n        void writeBitmap(const SkBitmap& bitmap) override {}\n        void writeImage(const SkImage*) override {}\n        void writeTypeface(SkTypeface* typeface) override {}\n        void writePaint(const SkPaint& paint) override {}\n        void writeColor(SkColor color) override {\n            SkDebugf(\"color = 0x%08x\\n\", color);\n        }\n    } dumper;\n    SkPaint paint;\n    paint.setColor(SK_ColorRED);\n    paint.flatten(dumper);\n}",
-    "hash": "670672b146b50eced4d3dd10c701e0a7",
+    "code": "void draw(SkCanvas* canvas) {\n    class PaintDumper : public SkWriteBuffer {\n    public:\n        bool isCrossProcess() const override { return false; };\n        void writeByteArray(const void* data, size_t size) override {}\n        void writeBool(bool value) override {}\n        void writeScalar(SkScalar value) override {}\n        void writeScalarArray(const SkScalar* value, uint32_t count) override {}\n        void writeInt(int32_t value) override {}\n        void writeIntArray(const int32_t* value, uint32_t count) override {}\n        void writeUInt(uint32_t value) override {}\n        void writeString(const char* value) override {}\n        void writeFlattenable(const SkFlattenable* flattenable) override {}\n        void writeColorArray(const SkColor* color, uint32_t count) override {}\n        void writeColor4f(const SkColor4f& color) override {}\n        void writeColor4fArray(const SkColor4f* color, uint32_t count) override {}\n        void writePoint(const SkPoint& point) override {}\n        void writePointArray(const SkPoint* point, uint32_t count) override {}\n        void writeMatrix(const SkMatrix& matrix) override {}\n        void writeIRect(const SkIRect& rect) override {}\n        void writeRect(const SkRect& rect) override {}\n        void writeRegion(const SkRegion& region) override {}\n        void writePath(const SkPath& path) override {}\n        size_t writeStream(SkStream* stream, size_t length) override { return 0; }\n        void writeImage(const SkImage*) override {}\n        void writeTypeface(SkTypeface* typeface) override {}\n        void writePaint(const SkPaint& paint) override {}\n        void writeColor(SkColor color) override {\n            SkDebugf(\"color = 0x%08x\\n\", color);\n        }\n    } dumper;\n    SkPaint paint;\n    paint.setColor(SK_ColorRED);\n    paint.flatten(dumper);\n}",
+    "hash": "de31563f11e447dccc988108e9173d28",
     "file": "SkPaint_Reference",
     "name": "SkPaint::flatten()",
         "stdout": "color = 0xffff0000\\n"
@@ -2280,7 +2280,7 @@
     "hash": "bb761cd858e6d0ca05627262cd22ff5e",
     "file": "SkPath_Reference",
     "name": "SkPath::updateBoundsCache",
-        "stdout": "uncached avg: 0.16768 ms\\ncached avg: 0.163072 ms\\n"
+        "stdout": "uncached avg: 0.185344 ms\\ncached avg: 0.167168 ms\\n"
     },
         "SkPath_writeToMemory": {
     "code": "void draw(SkCanvas* canvas) {\n    SkPath path, copy;\n    path.lineTo(6.f / 7, 2.f / 3);\n    size_t size = path.writeToMemory(nullptr);\n    SkTDArray<char> storage;\n    storage.setCount(size);\n    path.writeToMemory(storage.begin());\n    copy.readFromMemory(storage.begin(), size);\n    SkDebugf(\"path is \" \"%s\" \"equal to copy\\n\", path == copy ? \"\" : \"not \");\n}\n",
@@ -2294,7 +2294,7 @@
     "hash": "17bcabaaee2dbb7beba562e9ca50b55e",
     "file": "SkPixmap_Reference",
     "name": "SkPixmap::addr()",
-        "stdout": "pixels address: 0x7fe0b7478010\\ninset address:  0x7fe0b74b8210\\n"
+        "stdout": "pixels address: 0x7ffa37195010\\ninset address:  0x7ffa371d5210\\n"
     },
         "SkPixmap_addr16": {
     "code": "void draw(SkCanvas* canvas) {\n    const int w = 4;\n    const int h = 4;\n    uint16_t storage[w * h];\n    SkPixmap pixmap(SkImageInfo::Make(w, h, kARGB_4444_SkColorType, kPremul_SkAlphaType),\n                    storage, w * sizeof(storage[0]));\n    SkDebugf(\"pixmap.addr16() %c= storage\\n\",\n              pixmap.addr16()  == storage ? '=' : '!');\n}",
@@ -2784,7 +2784,7 @@
     "hash": "6dbf21017c60b76cae3379fd9101342a",
     "file": "SkRect_Reference",
     "name": "SkRect::growToInclude_3",
-        "stdout": "rect: 0, 0, 1.04934e+27, 4"
+        "stdout": "rect: -8.7683e+18, -8.7683e+18, 3.85186e-34, 4"
     },
         "SkRect_height": {
     "code": "void draw(SkCanvas* canvas) {\n    SkRect unsorted = { 15, 25, 10, 20 };\n    SkDebugf(\"unsorted height: %g\\n\", unsorted.height());\n    SkRect large = { 1, -2147483647.f, 2, 2147483644.f };\n    SkDebugf(\"large height: %.0f\\n\", large.height());\n}",
@@ -4470,18 +4470,18 @@
     "name": "SkCanvas::drawText"
 },
     "SkCanvas_drawTextBlob": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkTextBlobBuilder textBlobBuilder;\n    const char bunny[] = \"/(^x^)\\\\\";\n    const int len = sizeof(bunny) - 1;\n    uint16_t glyphs[len];\n    SkPaint paint;\n    paint.textToGlyphs(bunny, len, glyphs);\n    int runs[] = { 3, 1, 3 };\n    SkPoint textPos = { 20, 100 };\n    int glyphIndex = 0;\n    for (auto runLen : runs) {\n        paint.setTextSize(1 == runLen ? 20 : 50);\n        const SkTextBlobBuilder::RunBuffer& run = \n                textBlobBuilder.allocRun(paint, runLen, textPos.fX, textPos.fY);\n        memcpy(run.glyphs, &glyphs[glyphIndex], sizeof(glyphs[0]) * runLen);\n        textPos.fX += paint.measureText(&bunny[glyphIndex], runLen, nullptr);\n        glyphIndex += runLen;\n    }\n    sk_sp<const SkTextBlob> blob = textBlobBuilder.make();\n    paint.reset();\n    canvas->drawTextBlob(blob.get(), 0, 0, paint);\n}\n",
+    "code": "void draw(SkCanvas* canvas) {\n    SkTextBlobBuilder textBlobBuilder;\n    const char bunny[] = \"/(^x^)\\\\\";\n    const int len = sizeof(bunny) - 1;\n    uint16_t glyphs[len];\n    SkPaint paint;\n    paint.textToGlyphs(bunny, len, glyphs);\n    paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);\n    int runs[] = { 3, 1, 3 };\n    SkPoint textPos = { 20, 100 };\n    int glyphIndex = 0;\n    for (auto runLen : runs) {\n        paint.setTextSize(1 == runLen ? 20 : 50);\n        const SkTextBlobBuilder::RunBuffer& run = \n                textBlobBuilder.allocRun(paint, runLen, textPos.fX, textPos.fY);\n        memcpy(run.glyphs, &glyphs[glyphIndex], sizeof(glyphs[0]) * runLen);\n        textPos.fX += paint.measureText(&glyphs[glyphIndex], sizeof(glyphs[0]) * runLen, nullptr);\n        glyphIndex += runLen;\n    }\n    sk_sp<const SkTextBlob> blob = textBlobBuilder.make();\n    paint.reset();\n    canvas->drawTextBlob(blob.get(), 0, 0, paint);\n}\n",
     "width": 256,
     "height": 120,
-    "hash": "b8c0a748ed5c328f38e00f5f3d12e5e6",
+    "hash": "2254beaa675e3b329dccddca4eeea735",
     "file": "SkCanvas_Reference",
     "name": "SkCanvas::drawTextBlob"
 },
     "SkCanvas_drawTextBlob_2": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkTextBlobBuilder textBlobBuilder;\n    SkPaint paint;\n    paint.setTextSize(50);\n    paint.setColor(SK_ColorRED);\n    const SkTextBlobBuilder::RunBuffer& run = \n            textBlobBuilder.allocRun(paint, 1, 20, 100);\n    run.glyphs[0] = 20;\n    sk_sp<const SkTextBlob> blob = textBlobBuilder.make();\n    paint.setTextSize(10);\n    paint.setColor(SK_ColorBLUE);\n    canvas->drawTextBlob(blob.get(), 0, 0, paint);\n}\n",
+    "code": "void draw(SkCanvas* canvas) {\n    SkTextBlobBuilder textBlobBuilder;\n    SkPaint paint;\n    paint.setTextSize(50);\n    paint.setColor(SK_ColorRED);\n    paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);\n    const SkTextBlobBuilder::RunBuffer& run = \n            textBlobBuilder.allocRun(paint, 1, 20, 100);\n    run.glyphs[0] = 20;\n    sk_sp<const SkTextBlob> blob = textBlobBuilder.make();\n    paint.setTextSize(10);\n    paint.setColor(SK_ColorBLUE);\n    canvas->drawTextBlob(blob.get(), 0, 0, paint);\n}\n",
     "width": 256,
     "height": 120,
-    "hash": "d313ad4726518f5d44f6433887bb7ce9",
+    "hash": "d88b17d85fa68c56b3c1ad02b69068bf",
     "file": "SkCanvas_Reference",
     "name": "SkCanvas::drawTextBlob_2"
 },
@@ -4606,10 +4606,10 @@
     "name": "SkCanvas::saveLayer_2"
 },
     "SkCanvas_saveLayer_3": {
-    "code": "void draw(SkCanvas* canvas) {\n    // sk_sp<SkImage> image = GetResourceAsImage(\"mandrill_256.png\");\n    canvas->drawImage(image, 0, 0, nullptr);\n    SkCanvas::SaveLayerRec rec;\n    SkPaint paint;\n    paint.setBlendMode(SkBlendMode::kPlus);\n    rec.fSaveLayerFlags = SkCanvas::kInitWithPrevious_SaveLayerFlag;\n    rec.fPaint = &paint;\n    canvas->saveLayer(rec);\n    paint.setBlendMode(SkBlendMode::kClear);\n    canvas->drawCircle(128, 128, 96, paint);\n    canvas->restore();\n}",
+    "code": "void draw(SkCanvas* canvas) {\n    // sk_sp<SkImage> image = GetResourceAsImage(\"images/mandrill_256.png\");\n    canvas->drawImage(image, 0, 0, nullptr);\n    SkCanvas::SaveLayerRec rec;\n    SkPaint paint;\n    paint.setBlendMode(SkBlendMode::kPlus);\n    rec.fSaveLayerFlags = SkCanvas::kInitWithPrevious_SaveLayerFlag;\n    rec.fPaint = &paint;\n    canvas->saveLayer(rec);\n    paint.setBlendMode(SkBlendMode::kClear);\n    canvas->drawCircle(128, 128, 96, paint);\n    canvas->restore();\n}",
     "width": 256,
     "height": 256,
-    "hash": "0da8c199f1d9ec4d1b9c5d1114d6cbd6",
+    "hash": "7d3751e82d1b6ec328ffa3d6f48ca831",
     "file": "SkCanvas_Reference",
     "name": "SkCanvas::saveLayer_3"
 },
@@ -4709,14 +4709,6 @@
     "file": "SkImage_Reference",
     "name": "SkImage::CachingHint"
 },
-    "SkImage_DeferredTextureImageUsageParams_DeferredTextureImageUsageParams": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
-    "width": 256,
-    "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
-    "file": "SkImage_Reference",
-    "name": "SkImage::DeferredTextureImageUsageParams::DeferredTextureImageUsageParams"
-},
     "SkImage_LegacyBitmapMode": {
     "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
     "width": 256,
@@ -4780,14 +4772,6 @@
     "hash": "882e8e0103048009a25cfc20400492f7",
     "file": "SkImage_Reference",
     "name": "SkImage::MakeFromBitmap"
-},
-    "SkImage_MakeFromDeferredTextureImageData": {
-    "code": "void draw(SkCanvas* canvas) {\n    GrContext* context = canvas->getGrContext();\n    if (!context) {\n        return;\n    }\n    sk_sp<GrContextThreadSafeProxy> proxy = context->threadSafeProxy();\n    SkImage::DeferredTextureImageUsageParams params = {SkMatrix::I(), kNone_SkFilterQuality, 0};\n    size_t size = image->getDeferredTextureImageData(*proxy, &params, 1, nullptr,\n            nullptr, kN32_SkColorType);\n    void* buffer = sk_malloc_throw(size);\n    if (image->getDeferredTextureImageData(*proxy, &params, 1, buffer, nullptr, kN32_SkColorType)) {\n        sk_sp<SkImage> newImage(\n            SkImage::MakeFromDeferredTextureImageData(context, buffer, SkBudgeted::kNo));\n        canvas->drawImage(newImage, 0, 0);\n    }\n}",
-    "width": 256,
-    "height": 256,
-    "hash": "493c3a7c12d9130532971b2a255d1652",
-    "file": "SkImage_Reference",
-    "name": "SkImage::MakeFromDeferredTextureImageData"
 },
     "SkImage_MakeFromEncoded": {
     "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
@@ -4854,10 +4838,10 @@
     "name": "SkImage::MakeFromYUVTexturesCopy"
 },
     "SkImage_MakeRasterCopy": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "code": "void draw(SkCanvas* canvas) {\n    uint8_t storage[][5] = {{ 0xCA, 0xDA, 0xCA, 0xC9, 0xA3 },\n                            { 0xAC, 0xA8, 0x89, 0xA7, 0x87 },\n                            { 0x9B, 0xB5, 0xE5, 0x95, 0x46 },\n                            { 0x90, 0x81, 0xC5, 0x71, 0x33 },\n                            { 0x75, 0x55, 0x44, 0x40, 0x30 }};\n    SkImageInfo imageInfo = SkImageInfo::Make(5, 5, kGray_8_SkColorType, kOpaque_SkAlphaType);\n    SkPixmap pixmap(imageInfo, storage[0], sizeof(storage) / 5);\n    SkBitmap bitmap;\n    bitmap.installPixels(pixmap);\n    sk_sp<SkImage> image = SkImage::MakeRasterCopy(pixmap);\n    *pixmap.writable_addr8(2, 2) = 0x00;\n    canvas->scale(10, 10);\n    canvas->drawBitmap(bitmap, 0, 0);\n    canvas->drawImage(image, 10, 0);\n}",
     "width": 256,
-    "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
+    "height": 50,
+    "hash": "513afec5795a9504ebf6af5373d16b6b",
     "file": "SkImage_Reference",
     "name": "SkImage::MakeRasterCopy"
 },
@@ -4925,27 +4909,11 @@
     "file": "SkImage_Reference",
     "name": "SkImage::encodeToData_2"
 },
-    "SkImage_getDeferredTextureImageData": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
-    "width": 256,
-    "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
-    "file": "SkImage_Reference",
-    "name": "SkImage::getDeferredTextureImageData"
-},
-    "SkImage_getTexture": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
-    "width": 256,
-    "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
-    "file": "SkImage_Reference",
-    "name": "SkImage::getTexture"
-},
     "SkImage_getTextureHandle": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "code": "void draw(SkCanvas* canvas) {\n    GrContext* context = canvas->getGrContext();\n    if (!context) {\n       return;\n    }\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    SkString str;\n    int y = 0;\n    for (auto origin : { kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin } ) {\n        sk_sp<SkImage> srcImage(SkImage::MakeFromTexture(context,\n                backEndTexture, origin, kPremul_SkAlphaType, nullptr));\n        GrSurfaceOrigin readBackOrigin;\n        GrBackendObject readBackHandle = srcImage->getTextureHandle(false, &readBackOrigin);\n        str.printf(\"readBackHandle: %x\", readBackHandle);\n        canvas->drawString(str, 5, y += 20, paint);\n        str.printf(\"origin: k%s_GrSurfaceOrigin\", readBackOrigin ? \"BottomLeft\" : \"TopLeft\");\n        canvas->drawString(str, 5, y += 20, paint);\n    }\n}",
     "width": 256,
     "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
+    "hash": "704b914d622fbff24d7a45647380459e",
     "file": "SkImage_Reference",
     "name": "SkImage::getTextureHandle"
 },
@@ -4966,10 +4934,10 @@
     "name": "SkImage::isAlphaOnly"
 },
     "SkImage_isLazyGenerated": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "code": "class TestImageGenerator : public SkImageGenerator {\npublic:\n    TestImageGenerator() : SkImageGenerator(SkImageInfo::MakeN32Premul(10, 10)) {}\n    ~TestImageGenerator() override {}\nprotected:\n    bool onGetPixels(const SkImageInfo& info, void* pixelPtr, size_t rowBytes,\n                     const Options& options) override {\n        SkPMColor* pixels = static_cast<SkPMColor*>(pixelPtr);\n        for (int y = 0; y < info.height(); ++y) {\n            for (int x = 0; x < info.width(); ++x) {\n                pixels[y * info.width() + x] = 0xff223344 + y * 0x000C0811;\n            }\n        }\n        return true;\n    }\n};\n\nvoid draw(SkCanvas* canvas) {\n    auto gen = std::unique_ptr<TestImageGenerator>(new TestImageGenerator());\n    sk_sp<SkImage> image(SkImage::MakeFromGenerator(std::move(gen)));\n    SkString lazy(image->isLazyGenerated() ? \"is lazy\" : \"not lazy\");\n    canvas->scale(8, 8);\n    canvas->drawImage(image, 0, 0, nullptr);\n    SkPaint paint;\n    paint.setTextSize(4);\n    canvas->drawString(lazy, 2, 5, paint);\n}\n",
     "width": 256,
-    "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
+    "height": 80,
+    "hash": "a8b8bd4bfe968e2c63085f867665227f",
     "file": "SkImage_Reference",
     "name": "SkImage::isLazyGenerated"
 },
@@ -5758,10 +5726,10 @@
     "name": "SkPaint::getPosTextPath"
 },
     "SkPaint_getTextBlobIntercepts": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setTextSize(120);\n    SkPoint textPos = { 20, 110 };\n    int len = 3;\n    SkTextBlobBuilder textBlobBuilder;\n    const SkTextBlobBuilder::RunBuffer& run = \n            textBlobBuilder.allocRun(paint, len, textPos.fX, textPos.fY);\n    run.glyphs[0] = 10;\n    run.glyphs[1] = 20;\n    run.glyphs[2] = 30;       \n    sk_sp<const SkTextBlob> blob = textBlobBuilder.make();\n    canvas->drawTextBlob(blob.get(), textPos.fX, textPos.fY, paint);\n    SkScalar bounds[] = { 116, 134 };\n    int count = paint.getTextBlobIntercepts(blob.get(), bounds, nullptr);\n    std::vector<SkScalar> intervals;\n    intervals.resize(count);\n    (void) paint.getTextBlobIntercepts(blob.get(), bounds, &intervals.front());\n    canvas->drawTextBlob(blob.get(), 0, 0, paint);\n    paint.setColor(0xFFFF7777);\n    SkScalar x = textPos.fX;\n    for (int i = 0; i < count; i+= 2) {\n        canvas->drawRect({x, bounds[0], intervals[i], bounds[1]}, paint);\n        x = intervals[i + 1];\n    }\n    canvas->drawRect({intervals[count - 1], bounds[0], 180, bounds[1]}, paint);\n}\n",
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);\n    paint.setTextSize(120);\n    SkPoint textPos = { 20, 110 };\n    int len = 3;\n    SkTextBlobBuilder textBlobBuilder;\n    const SkTextBlobBuilder::RunBuffer& run = \n            textBlobBuilder.allocRun(paint, len, textPos.fX, textPos.fY);\n    run.glyphs[0] = 10;\n    run.glyphs[1] = 20;\n    run.glyphs[2] = 30;       \n    sk_sp<const SkTextBlob> blob = textBlobBuilder.make();\n    canvas->drawTextBlob(blob.get(), textPos.fX, textPos.fY, paint);\n    SkScalar bounds[] = { 116, 134 };\n    int count = paint.getTextBlobIntercepts(blob.get(), bounds, nullptr);\n    std::vector<SkScalar> intervals;\n    intervals.resize(count);\n    (void) paint.getTextBlobIntercepts(blob.get(), bounds, &intervals.front());\n    canvas->drawTextBlob(blob.get(), 0, 0, paint);\n    paint.setColor(0xFFFF7777);\n    SkScalar x = textPos.fX;\n    for (int i = 0; i < count; i+= 2) {\n        canvas->drawRect({x, bounds[0], intervals[i], bounds[1]}, paint);\n        x = intervals[i + 1];\n    }\n    canvas->drawRect({intervals[count - 1], bounds[0], 180, bounds[1]}, paint);\n}\n",
     "width": 256,
     "height": 143,
-    "hash": "4961b05f4f26cf270ab4948a57876341",
+    "hash": "71959a66b2290d70003887c0de339266",
     "file": "SkPaint_Reference",
     "name": "SkPaint::getTextBlobIntercepts"
 },
