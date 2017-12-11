@@ -46,6 +46,30 @@
       "revId": "0be69f3b2ef6f49dd3e32263ec4f9b57ba7d2a2c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f27fddd4_6924bd66",
+        "filename": "tools/viewer/Viewer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 694,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-12-11T16:24:02Z",
+      "side": 1,
+      "message": "Sorry, I missed that you were iterating in reverse.",
+      "parentUuid": "5753ac8b_d6c44166",
+      "range": {
+        "startLine": 694,
+        "startChar": 13,
+        "endLine": 694,
+        "endChar": 22
+      },
+      "revId": "0be69f3b2ef6f49dd3e32263ec4f9b57ba7d2a2c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
