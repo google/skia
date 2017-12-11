@@ -481,6 +481,7 @@ void delete_left(BasicBlock* b,
     std::unique_ptr<Expression>* target = (*iter)->expression();
     ASSERT((*target)->fKind == Expression::kBinary_Kind);
     BinaryExpression& bin = (BinaryExpression&) **target;
+    ASSERT(!bin.fLeft->hasSideEffects());
     bool result;
     if (bin.fOperator == Token::EQ) {
         result = b->tryRemoveLValueBefore(iter, bin.fLeft.get());
@@ -518,6 +519,7 @@ void delete_right(BasicBlock* b,
     std::unique_ptr<Expression>* target = (*iter)->expression();
     ASSERT((*target)->fKind == Expression::kBinary_Kind);
     BinaryExpression& bin = (BinaryExpression&) **target;
+    ASSERT(!bin.fRight->hasSideEffects());
     if (!b->tryRemoveExpressionBefore(iter, bin.fRight.get())) {
         *target = std::move(bin.fLeft);
         *outNeedsRescan = true;
@@ -702,7 +704,9 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
                             // 0 * x -> 0
                             // float4(0) * x -> float4(0)
                             // float4(0) * float4(x) -> float4(0)
-                            delete_right(&b, iter, outUpdated, outNeedsRescan);
+                            if (!bin->fRight->hasSideEffects()) {
+                                delete_right(&b, iter, outUpdated, outNeedsRescan);
+                            }
                         }
                     }
                     else if (is_constant(*bin->fRight, 1)) {
@@ -726,7 +730,9 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
                             // x * 0 -> 0
                             // x * float4(0) -> float4(0)
                             // float4(x) * float4(0) -> float4(0)
-                            delete_left(&b, iter, outUpdated, outNeedsRescan);
+                            if (!bin->fLeft->hasSideEffects()) {
+                                delete_left(&b, iter, outUpdated, outNeedsRescan);
+                            }
                         }
                     }
                     break;
@@ -790,7 +796,9 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
                             // 0 / x -> 0
                             // float4(0) / x -> float4(0)
                             // float4(0) / float4(x) -> float4(0)
-                            delete_right(&b, iter, outUpdated, outNeedsRescan);
+                            if (!bin->fRight->hasSideEffects()) {
+                                delete_right(&b, iter, outUpdated, outNeedsRescan);
+                            }
                         }
                     }
                     break;
