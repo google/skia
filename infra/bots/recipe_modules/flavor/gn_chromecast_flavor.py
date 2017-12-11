@@ -46,6 +46,8 @@ class GNChromecastFlavorUtils(gn_android_flavor.GNAndroidFlavorUtils):
     toolchain_dir = self.m.vars.slave_dir.join('cast_toolchain', 'armv7a')
     gles_dir = self.m.vars.slave_dir.join('chromebook_arm_gles')
 
+    target = [ "-target", "armv7a-linux-gnueabihf" ]
+
     extra_cflags = [
       '-I%s' % gles_dir.join('include'),
       '-DMESA_EGL_NO_X11_HEADERS',
@@ -54,18 +56,18 @@ class GNChromecastFlavorUtils(gn_android_flavor.GNAndroidFlavorUtils):
       '-Wno-error=unused-function',
       # Makes the binary small enough to fit on the small disk.
       '-g0',
-    ]
+    ] + target
 
     extra_ldflags = [
       # Chromecast does not package libstdc++
       '-static-libstdc++', '-static-libgcc',
       '-L%s' % toolchain_dir.join('lib'),
-    ]
+    ] + target
 
     quote = lambda x: '"%s"' % x
     args = {
-      'cc': quote(toolchain_dir.join('bin','armv7a-cros-linux-gnueabi-gcc')),
-      'cxx': quote(toolchain_dir.join('bin','armv7a-cros-linux-gnueabi-g++')),
+      'cc': quote(toolchain_dir.join('usr', 'bin','clang-3.9')),
+      'cxx': quote(toolchain_dir.join('usr', 'bin','clang++-3.9')),
       'ar': quote(toolchain_dir.join('bin','armv7a-cros-linux-gnueabi-ar')),
       'target_cpu': quote(target_arch),
       'skia_use_fontconfig': 'false',
