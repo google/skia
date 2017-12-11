@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "74f3a06b_e3cd7185",
+        "filename": "src/core/SkDevice.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 231,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-12-11T14:51:31Z",
+      "side": 1,
+      "message": "Couple questions:\n\n   1) can we unify the logic for single pixel and single color?  They\u0027re logically the same right?\n   2) can we then unify that all with the logic for transparent?  We\u0027d skip either if it were transparent, right?\n\nMy main interest is in guaranteeing structurally that all the logically equivalent conditions flow through the same code.  I don\u0027t want to allow a possibility of us forgetting a paint alpha here or a blend mode there... if it\u0027s all the same flow we can\u0027t go wrong.\n\nI\u0027m thinking something like\n\n    bool is_single_color \u003d false;\n    SkColor color;\n\n    if (flags \u0026 kIsSingleColor) {\n       is_single_color \u003d true;\n       color \u003d colors[i];\n    } else if (is_single_pixel(image, srcR)) {\n       is_single_color \u003d true;\n       image-\u003ereadPixels(..., \u0026color, ...);\n    }\n\n    if (is_single_color) {\n        if (color \u003d\u003d SK_ColorTRANSPARENT) {\n            continue;\n        }\n        ... fast path ... \n    } else {\n        ... general case ...\n    }\n\nIt may be simplest to move the transparency logic from SkLatticeIter to here?",
+      "revId": "428487b6aac808947a1a8dd4ca9bbb4fedd4e8a1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
