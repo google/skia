@@ -59,8 +59,11 @@ struct SkDeserialProcs;
     This macro should only be used in base class objects in core
   */
 #define SK_DEFINE_FLATTENABLE_TYPE(flattenable) \
-    static Type GetFlattenableType() { \
-        return k##flattenable##_Type; \
+    static Type GetFlattenableType() {          \
+        return k##flattenable##_Type;           \
+    }                                           \
+    Type getFlattenableType() const override {  \
+        return k##flattenable##_Type;           \
     }
 
 /** \class SkFlattenable
@@ -119,6 +122,8 @@ public:
      *  DEPRECATED public : will move to protected ... use serialize() instead
      */
     virtual void flatten(SkWriteBuffer&) const {}
+
+    virtual Type getFlattenableType() const = 0;
 
     //
     // public ways to serialize / deserialize

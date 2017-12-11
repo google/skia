@@ -27,6 +27,7 @@ public:
     }
 
     Factory getFactory() const override { return nullptr; }
+    Type getFlattenableType() const override { return SkFlattenable::kSkUnused_Type; }
 
     uint32_t a() const { return fA; }
     uint32_t b() const { return fB; }
