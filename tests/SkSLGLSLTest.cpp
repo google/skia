@@ -1641,4 +1641,20 @@ DEF_TEST(SkSLForceHighPrecision, r) {
          &inputs);
 }
 
+DEF_TEST(SkSLNormalization, r) {
+    test(r,
+         "uniform half4 sk_RTAdjust; void main() { sk_Position = half4(1); }",
+         *SkSL::ShaderCapsFactory::Default(),
+         "#version 400\n"
+         "uniform vec4 sk_RTAdjust;\n"
+         "void main() {\n"
+         "    gl_Position = vec4(1.0);\n"
+         "    gl_Position = vec4(gl_Position.x * sk_RTAdjust.x + gl_Position.z * sk_RTAdjust.y, "
+                                "gl_Position.y * sk_RTAdjust.z + gl_Position.z * sk_RTAdjust.w, "
+                                "0, "
+                                "gl_Position.z);\n"
+         "}\n",
+         SkSL::Program::kVertex_Kind);
+}
+
 #endif
