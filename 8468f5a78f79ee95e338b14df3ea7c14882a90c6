@@ -39,6 +39,23 @@
       "revId": "8468f5a78f79ee95e338b14df3ea7c14882a90c6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "982b4389_90e455d1",
+        "filename": "src/core/SkReadBuffer.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 386,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-12-11T16:20:11Z",
+      "side": 1,
+      "message": "Actually, maybe just inline it all here?\n\nI\u0027m not sure I see that this need to be a factored out concept yet.",
+      "revId": "8468f5a78f79ee95e338b14df3ea7c14882a90c6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
