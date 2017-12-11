@@ -1,0 +1,107 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "93de5585_f1a4810f",
+        "filename": "BUILD.gn",
+        "patchSetId": 4
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-12-11T14:22:13Z",
+      "side": 1,
+      "message": "I was pretty serious about making this unconditional.  If we keep it an option, especially a default-off option, it seems like the sort of thing that\u0027ll bitrot.\n\n(To be pedantic, the resources are not really compiled.  Isn\u0027t this more like skia_link_resources?  Or skia_embed_resources?  I think \"embed\" is the word at least most Googlers would find familiar, IIRC.)",
+      "revId": "51fa3d4d77fe9897d7abb777b40ef64d1698df52",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "04cda797_d6e73bd2",
+        "filename": "BUILD.gn",
+        "patchSetId": 4
+      },
+      "lineNbr": 913,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-12-11T14:22:13Z",
+      "side": 1,
+      "message": "Just FYI, we usually keep the scripts run by GN in gn/.",
+      "range": {
+        "startLine": 913,
+        "startChar": 14,
+        "endLine": 913,
+        "endChar": 19
+      },
+      "revId": "51fa3d4d77fe9897d7abb777b40ef64d1698df52",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "10c48c90_bacdecb4",
+        "filename": "tools/BinaryAsset.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-12-11T14:22:13Z",
+      "side": 1,
+      "message": "It\u0027s probably more conventional to use a void*?",
+      "range": {
+        "startLine": 11,
+        "startChar": 10,
+        "endLine": 11,
+        "endChar": 23
+      },
+      "revId": "51fa3d4d77fe9897d7abb777b40ef64d1698df52",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3413dce3_17be8daf",
+        "filename": "tools/BinaryAsset.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-12-11T14:22:13Z",
+      "side": 1,
+      "message": "I wasn\u0027t really serious about this.  :P",
+      "range": {
+        "startLine": 12,
+        "startChar": 4,
+        "endLine": 12,
+        "endChar": 25
+      },
+      "revId": "51fa3d4d77fe9897d7abb777b40ef64d1698df52",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5af01d5f_0114fa38",
+        "filename": "tools/generate_binary_asset.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-12-11T14:22:13Z",
+      "side": 1,
+      "message": "In this file and BinaryAsset.h... newlines are cheap.  Please put them between unrelated units of code, to help the next person reading these files visually chunk unrelated units of code.",
+      "revId": "51fa3d4d77fe9897d7abb777b40ef64d1698df52",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
