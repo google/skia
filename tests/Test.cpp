@@ -7,6 +7,8 @@
 
 #include "Test.h"
 
+#include <stdlib.h>
+
 #include "SkCommandLineFlags.h"
 #include "SkString.h"
 #include "SkTime.h"
@@ -32,8 +34,24 @@ SkString skiatest::Failure::toString() const {
 }
 
 SkString skiatest::GetTmpDir() {
-    const char* tmpDir = FLAGS_tmpDir.isEmpty() ? nullptr : FLAGS_tmpDir[0];
-    return SkString(tmpDir);
+    if (!FLAGS_tmpDir.isEmpty()) {
+        return SkString(FLAGS_tmpDir[0]);
+    }
+#ifdef SK_BUILD_FOR_ANDROID
+    const char* environmentVariable = "TMPDIR";
+    const char* defaultValue = "/data/local/tmp";
+#elif defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_UNIX)
+    const char* environmentVariable = "TMPDIR";
+    const char* defaultValue = "/tmp";
+#elif defined(SK_BUILD_FOR_WIN32)
+    const char* environmentVariable = "TEMP";
+    const char* defaultValue = nullptr;
+#else
+    const char* environmentVariable = nullptr;
+    const char* defaultValue = nullptr;
+#endif
+    const char* tmpdir = environmentVariable ? getenv(environmentVariable) : nullptr;
+    return SkString(tmpdir ? tmpdir : defaultValue);
 }
 
 skiatest::Timer::Timer() : fStartNanos(SkTime::GetNSecs()) {}
