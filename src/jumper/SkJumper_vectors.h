@@ -10,6 +10,7 @@
 
 #include "SkJumper.h"
 #include "SkJumper_misc.h"
+#include <stdint.h>
 
 // This file contains vector types that SkJumper_stages.cpp uses to define stages.
 
@@ -17,7 +18,7 @@
 
 #if !defined(__clang__)
     #define JUMPER_IS_SCALAR
-#elif defined(__aarch64__) || defined(__ARM_VFPV4__)
+#elif defined(__ARM_NEON)
     #define JUMPER_IS_NEON
 #elif defined(__AVX512F__)
     #define JUMPER_IS_AVX512
@@ -105,7 +106,6 @@
     using U8  = V<uint8_t >;
 
     // We polyfill a few routines that Clang doesn't build into ext_vector_types.
-    SI F   mad(F f, F m, F a)                    { return vfmaq_f32(a,f,m);        }
     SI F   min(F a, F b)                         { return vminq_f32(a,b);          }
     SI F   max(F a, F b)                         { return vmaxq_f32(a,b);          }
     SI F   abs_  (F v)                           { return vabsq_f32(v);            }
@@ -117,10 +117,12 @@
     SI F if_then_else(I32 c, F t, F e) { return vbslq_f32((U32)c,t,e); }
 
     #if defined(__aarch64__)
+        SI F     mad(F f, F m, F a) { return vfmaq_f32(a,f,m); }
         SI F  floor_(F v) { return vrndmq_f32(v); }
         SI F   sqrt_(F v) { return vsqrtq_f32(v); }
         SI U32 round(F v, F scale) { return vcvtnq_u32_f32(v*scale); }
     #else
+        SI F mad(F f, F m, F a) { return vmlaq_f32(a,f,m); }
         SI F floor_(F v) {
             F roundtrip = vcvtq_f32_s32(vcvtq_s32_f32(v));
             return roundtrip - if_then_else(roundtrip > v, 1, 0);
@@ -643,7 +645,7 @@ SI F approx_powf(F x, F y) {
 }
 
 SI F from_half(U16 h) {
-#if defined(JUMPER_IS_NEON)
+#if defined(__aarch64__)
     return vcvt_f32_f16(h);
 
 #elif defined(JUMPER_IS_AVX2) || defined(JUMPER_IS_AVX512)
@@ -663,7 +665,7 @@ SI F from_half(U16 h) {
 }
 
 SI U16 to_half(F f) {
-#if defined(JUMPER_IS_NEON)
+#if defined(__aarch64__)
     return vcvt_f16_f32(f);
 
 #elif defined(JUMPER_IS_AVX2) || defined(JUMPER_IS_AVX512)

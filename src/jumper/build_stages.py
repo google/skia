@@ -120,14 +120,6 @@ subprocess.check_call(['ld', '-r', '-o', 'win_x86_merged.o',
                        'win_x86_sse2.o',
                        'win_x86_lowp_sse2.o'])
 
-vfp4 = [
-    '--target=armv7a-linux-gnueabihf',
-    '-mfpu=neon-vfpv4',
-]
-subprocess.check_call(clang + cflags + vfp4 +
-                      ['-c', stages] +
-                      ['-o', 'vfp4.o'])
-
 def parse_object_file(dot_o, directive, target=None):
   globl, hidden, label, comment, align = \
       '.globl', 'HIDDEN', ':', '// ', 'BALIGN'
@@ -235,11 +227,7 @@ print '    #define BALIGN32 .balign 32'
 print '#endif'
 
 print '.text'
-print '#if defined(__arm__)'
-print 'BALIGN4'
-parse_object_file('vfp4.o', '.long', target='elf32-littlearm')
-
-print '#elif defined(__x86_64__)'
+print '#if defined(__x86_64__)'
 print 'BALIGN32'
 parse_object_file('merged.o', '.byte')
 

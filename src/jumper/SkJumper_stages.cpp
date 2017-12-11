@@ -50,17 +50,17 @@ static const size_t N = sizeof(F) / sizeof(float);
         size_t dx, dy, tail;
         F dr,dg,db,da;
     };
-    using Stage = void(Params*, void** program, F r, F g, F b, F a);
+    using Stage = void(ABI*)(Params*, void** program, F r, F g, F b, F a);
 
 #else
     // We keep program the second argument, so that it's passed in rsi for load_and_inc().
-    using Stage = void(size_t tail, void** program, size_t dx, size_t dy, F,F,F,F, F,F,F,F);
+    using Stage = void(ABI*)(size_t tail, void** program, size_t dx, size_t dy, F,F,F,F, F,F,F,F);
 #endif
 
-MAYBE_MSABI
-extern "C" void WRAP(start_pipeline)(size_t dx, size_t dy, size_t xlimit, size_t ylimit,
-                                     void** program) {
-    auto start = (Stage*)load_and_inc(program);
+
+extern "C" MAYBE_MSABI void WRAP(start_pipeline)(size_t dx, size_t dy, size_t xlimit, size_t ylimit,
+                                                 void** program) {
+    auto start = (Stage)load_and_inc(program);
     const size_t x0 = dx;
     for (; dy < ylimit; dy++) {
     #if defined(__i386__) || defined(_M_IX86) || defined(__arm__)
@@ -90,26 +90,26 @@ extern "C" void WRAP(start_pipeline)(size_t dx, size_t dy, size_t xlimit, size_t
     #define STAGE(name, ...)                                                          \
         SI void name##_k(__VA_ARGS__, size_t dx, size_t dy, size_t tail,              \
                          F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da);         \
-        extern "C" void WRAP(name)(Params* params, void** program,                    \
-                                   F r, F g, F b, F a) {                              \
+        extern "C" ABI void WRAP(name)(Params* params, void** program,                \
+                                       F r, F g, F b, F a) {                          \
             name##_k(Ctx{program},params->dx,params->dy,params->tail, r,g,b,a,        \
                      params->dr, params->dg, params->db, params->da);                 \
-            auto next = (Stage*)load_and_inc(program);                                \
+            auto next = (Stage)load_and_inc(program);                                 \
             next(params,program, r,g,b,a);                                            \
         }                                                                             \
         SI void name##_k(__VA_ARGS__, size_t dx, size_t dy, size_t tail,              \
                          F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da)
 #else
-    #define STAGE(name, ...)                                                          \
-        SI void name##_k(__VA_ARGS__, size_t dx, size_t dy, size_t tail,              \
-                         F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da);         \
-        extern "C" void WRAP(name)(size_t tail, void** program, size_t dx, size_t dy, \
-                                   F r, F g, F b, F a, F dr, F dg, F db, F da) {      \
-            name##_k(Ctx{program},dx,dy,tail, r,g,b,a, dr,dg,db,da);                  \
-            auto next = (Stage*)load_and_inc(program);                                \
-            next(tail,program,dx,dy, r,g,b,a, dr,dg,db,da);                           \
-        }                                                                             \
-        SI void name##_k(__VA_ARGS__, size_t dx, size_t dy, size_t tail,              \
+    #define STAGE(name, ...)                                                              \
+        SI void name##_k(__VA_ARGS__, size_t dx, size_t dy, size_t tail,                  \
+                         F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da);             \
+        extern "C" ABI void WRAP(name)(size_t tail, void** program, size_t dx, size_t dy, \
+                                       F r, F g, F b, F a, F dr, F dg, F db, F da) {      \
+            name##_k(Ctx{program},dx,dy,tail, r,g,b,a, dr,dg,db,da);                      \
+            auto next = (Stage)load_and_inc(program);                                     \
+            next(tail,program,dx,dy, r,g,b,a, dr,dg,db,da);                               \
+        }                                                                                 \
+        SI void name##_k(__VA_ARGS__, size_t dx, size_t dy, size_t tail,                  \
                          F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da)
 #endif
 
@@ -117,9 +117,9 @@ extern "C" void WRAP(start_pipeline)(size_t dx, size_t dy, size_t xlimit, size_t
 // just_return() is a simple no-op stage that only exists to end the chain,
 // returning back up to start_pipeline(), and from there to the caller.
 #if defined(__i386__) || defined(_M_IX86) || defined(__arm__)
-    extern "C" void WRAP(just_return)(Params*, void**, F,F,F,F) {}
+    extern "C" ABI void WRAP(just_return)(Params*, void**, F,F,F,F) {}
 #else
-    extern "C" void WRAP(just_return)(size_t, void**, size_t,size_t, F,F,F,F, F,F,F,F) {}
+    extern "C" ABI void WRAP(just_return)(size_t, void**, size_t,size_t, F,F,F,F, F,F,F,F) {}
 #endif
 
 

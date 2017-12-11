@@ -16,17 +16,10 @@
 
 #if defined(__ARM_NEON)
     #include <arm_neon.h>
-    #if defined(__arm__)
-        #define ABI __attribute__((pcs("aapcs-vfp")))
-    #else
-        #define ABI
-    #endif
 #elif defined(__SSE2__)
     #include <immintrin.h>
-    #define ABI
 #else
     #include <math.h>
-    #define ABI
 #endif
 
 #if !defined(JUMPER_IS_OFFLINE)
@@ -62,12 +55,11 @@ using Stage = void (ABI*)(size_t tail, void** program, size_t dx, size_t dy,
                           U16  r, U16  g, U16  b, U16  a,
                           U16 dr, U16 dg, U16 db, U16 da);
 
-MAYBE_MSABI
-ABI extern "C" void WRAP(start_pipeline)(const size_t x0,
-                                         const size_t y0,
-                                         const size_t xlimit,
-                                         const size_t ylimit,
-                                         void** program) {
+extern "C" MAYBE_MSABI void WRAP(start_pipeline)(const size_t x0,
+                                                 const size_t y0,
+                                                 const size_t xlimit,
+                                                 const size_t ylimit,
+                                                 void** program) {
     auto start = (Stage)load_and_inc(program);
     for (size_t dy = y0; dy < ylimit; dy++) {
         size_t dx = x0;
@@ -80,7 +72,7 @@ ABI extern "C" void WRAP(start_pipeline)(const size_t x0,
     }
 }
 
-ABI extern "C" void WRAP(just_return)(size_t,void**,size_t,size_t,
+extern "C" ABI void WRAP(just_return)(size_t,void**,size_t,size_t,
                                       U16,U16,U16,U16, U16,U16,U16,U16) {}
 
 // All stages use the same function call ABI to chain into each other, but there are three types:
@@ -95,7 +87,7 @@ ABI extern "C" void WRAP(just_return)(size_t,void**,size_t,size_t,
 
 #define STAGE_GG(name, ...)                                                            \
     SI void name##_k(__VA_ARGS__, size_t dx, size_t dy, size_t tail, F& x, F& y);      \
-    ABI extern "C" void WRAP(name)(size_t tail, void** program, size_t dx, size_t dy,  \
+    extern "C" ABI void WRAP(name)(size_t tail, void** program, size_t dx, size_t dy,  \
                                    U16  r, U16  g, U16  b, U16  a,                     \
                                    U16 dr, U16 dg, U16 db, U16 da) {                   \
         auto x = join<F>(r,g),                                                         \
@@ -112,7 +104,7 @@ ABI extern "C" void WRAP(just_return)(size_t,void**,size_t,size_t,
     SI void name##_k(__VA_ARGS__, size_t dx, size_t dy, size_t tail, F x, F y,         \
                      U16&  r, U16&  g, U16&  b, U16&  a,                               \
                      U16& dr, U16& dg, U16& db, U16& da);                              \
-    ABI extern "C" void WRAP(name)(size_t tail, void** program, size_t dx, size_t dy,  \
+    extern "C" ABI void WRAP(name)(size_t tail, void** program, size_t dx, size_t dy,  \
                                    U16  r, U16  g, U16  b, U16  a,                     \
                                    U16 dr, U16 dg, U16 db, U16 da) {                   \
         auto x = join<F>(r,g),                                                         \
@@ -129,7 +121,7 @@ ABI extern "C" void WRAP(just_return)(size_t,void**,size_t,size_t,
     SI void name##_k(__VA_ARGS__, size_t dx, size_t dy, size_t tail,                   \
                      U16&  r, U16&  g, U16&  b, U16&  a,                               \
                      U16& dr, U16& dg, U16& db, U16& da);                              \
-    ABI extern "C" void WRAP(name)(size_t tail, void** program, size_t dx, size_t dy,  \
+    extern "C" ABI void WRAP(name)(size_t tail, void** program, size_t dx, size_t dy,  \
                                    U16  r, U16  g, U16  b, U16  a,                     \
                                    U16 dr, U16 dg, U16 db, U16 da) {                   \
         name##_k(Ctx{program}, dx,dy,tail, r,g,b,a, dr,dg,db,da);                      \
