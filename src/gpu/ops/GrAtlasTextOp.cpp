@@ -6,14 +6,12 @@
  */
 
 #include "GrAtlasTextOp.h"
-
 #include "GrContext.h"
 #include "GrOpFlushState.h"
 #include "GrResourceProvider.h"
-
 #include "SkGlyphCache.h"
 #include "SkMathPriv.h"
-
+#include "SkPoint3.h"
 #include "effects/GrBitmapTextGeoProc.h"
 #include "effects/GrDistanceFieldGeoProc.h"
 #include "text/GrAtlasGlyphCache.h"
@@ -21,6 +19,35 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 static const int kDistanceAdjustLumShift = 5;
+
+void GrAtlasTextOp::init() {
+    const Geometry& geo = fGeoData[0];
+    fColor = geo.fColor;
+    SkRect bounds;
+    geo.fBlob->computeSubRunBounds(&bounds, geo.fRun, geo.fSubRun, geo.fViewMatrix, geo.fX, geo.fY);
+    // We don't have tight bounds on the glyph paths in device space. For the purposes of bounds
+    // we treat this as a set of non-AA rects rendered with a texture.
+    this->setBounds(bounds, HasAABloat::kNo, IsZeroArea::kNo);
+    if (this->usesDistanceFields()) {
+        bool isLCD = this->isLCD();
+
+        const SkMatrix& viewMatrix = geo.fViewMatrix;
+
+        fDFGPFlags = viewMatrix.isSimilarity() ? kSimilarity_DistanceFieldEffectFlag : 0;
+        fDFGPFlags |= viewMatrix.isScaleTranslate() ? kScaleOnly_DistanceFieldEffectFlag : 0;
+        fDFGPFlags |= viewMatrix.hasPerspective() ? kPerspective_DistanceFieldEffectFlag : 0;
+        fDFGPFlags |= fUseGammaCorrectDistanceTable ? kGammaCorrect_DistanceFieldEffectFlag : 0;
+        fDFGPFlags |= (kAliasedDistanceField_MaskType == fMaskType)
+                              ? kAliased_DistanceFieldEffectFlag
+                              : 0;
+
+        if (isLCD) {
+            fDFGPFlags |= kUseLCD_DistanceFieldEffectFlag;
+            fDFGPFlags |=
+                    (kLCDBGRDistanceField_MaskType == fMaskType) ? kBGR_DistanceFieldEffectFlag : 0;
+        }
+    }
+}
 
 SkString GrAtlasTextOp::dumpInfo() const {
     SkString str;
@@ -77,11 +104,20 @@ GrDrawOp::RequiresDstTexture GrAtlasTextOp::finalize(const GrCaps& caps,
 }
 
 static void clip_quads(const SkIRect& clipRect, char* currVertex, const char* blobVertices,
-                       size_t vertexStride, int glyphCount) {
+                       size_t vertexStride, int glyphCount, bool hasW) {
     for (int i = 0; i < glyphCount; ++i) {
         const SkPoint* blobPositionLT = reinterpret_cast<const SkPoint*>(blobVertices);
         const SkPoint* blobPositionRB =
                 reinterpret_cast<const SkPoint*>(blobVertices + 3 * vertexStride);
+
+#ifdef SK_DEBUG
+        // This clipping works for perspective distance field blobs vertices because they are stored
+        // in the blob with w = 1.
+        if (hasW) {
+            SkASSERT(1.f == reinterpret_cast<const SkPoint3*>(blobPositionLT)->fZ);
+            SkASSERT(1.f == reinterpret_cast<const SkPoint3*>(blobPositionRB)->fZ);
+        }
+#endif
 
         // positions for bitmap glyphs are pixel boundary aligned
         SkIRect positionRect = SkIRect::MakeLTRB(SkScalarRoundToInt(blobPositionLT->fX),
@@ -93,9 +129,11 @@ static void clip_quads(const SkIRect& clipRect, char* currVertex, const char* bl
             currVertex += 4 * vertexStride;
         } else {
             // Pull out some more data that we'll need.
-            // In the LCD case the color will be garbage, but we'll overwrite it with the texcoords
-            // and it avoids a lot of conditionals.
-            auto color = *reinterpret_cast<const SkColor*>(blobVertices + sizeof(SkPoint));
+            // If the vertices have 2 coords rather than 3 (DF with perspective) then we will write
+            // w = 1 and then overwrite w with the color. In the LCD case the color will be garbage,
+            // but we'll overwrite it with the texcoords. This overwriting avoids conditionals.
+            size_t posSize = hasW ? sizeof(SkPoint3) : sizeof(SkPoint);
+            auto color = *reinterpret_cast<const SkColor*>(blobVertices + posSize);
             size_t coordOffset = vertexStride - 2*sizeof(uint16_t);
             auto* blobCoordsLT = reinterpret_cast<const uint16_t*>(blobVertices + coordOffset);
             auto* blobCoordsRB = reinterpret_cast<const uint16_t*>(blobVertices + 3 * vertexStride +
@@ -137,41 +175,32 @@ static void clip_quads(const SkIRect& clipRect, char* currVertex, const char* bl
             coordsRectR = coordsRectR << 1 | pageIndexX;
             coordsRectB = coordsRectB << 1 | pageIndexY;
 
+            struct TexCoords { uint16_t fX, fY; };
+
+            SkScalar positionL = SkIntToScalar(positionRect.fLeft);
+            SkScalar positionT = SkIntToScalar(positionRect.fTop);
+            SkScalar positionR = SkIntToScalar(positionRect.fRight);
+            SkScalar positionB = SkIntToScalar(positionRect.fBottom);
+
             // Set new positions and coords
-            SkPoint* currPosition = reinterpret_cast<SkPoint*>(currVertex);
-            currPosition->fX = positionRect.fLeft;
-            currPosition->fY = positionRect.fTop;
-            *(reinterpret_cast<SkColor*>(currVertex + sizeof(SkPoint))) = color;
-            uint16_t* currCoords = reinterpret_cast<uint16_t*>(currVertex + coordOffset);
-            currCoords[0] = coordsRectL;
-            currCoords[1] = coordsRectT;
+            *reinterpret_cast<SkPoint3*>(currVertex) = {positionL, positionT, 1.f};
+            *reinterpret_cast<GrColor*>(currVertex + sizeof(SkPoint)) = color;
+            *reinterpret_cast<TexCoords*>(currVertex + coordOffset) = {coordsRectL, coordsRectT};
             currVertex += vertexStride;
 
-            currPosition = reinterpret_cast<SkPoint*>(currVertex);
-            currPosition->fX = positionRect.fLeft;
-            currPosition->fY = positionRect.fBottom;
-            *(reinterpret_cast<SkColor*>(currVertex + sizeof(SkPoint))) = color;
-            currCoords = reinterpret_cast<uint16_t*>(currVertex + coordOffset);
-            currCoords[0] = coordsRectL;
-            currCoords[1] = coordsRectB;
+            *reinterpret_cast<SkPoint3*>(currVertex) = {positionL, positionB, 1.f};
+            *reinterpret_cast<GrColor*>(currVertex + sizeof(SkPoint)) = color;
+            *reinterpret_cast<TexCoords*>(currVertex + coordOffset) = {coordsRectL, coordsRectB};
             currVertex += vertexStride;
 
-            currPosition = reinterpret_cast<SkPoint*>(currVertex);
-            currPosition->fX = positionRect.fRight;
-            currPosition->fY = positionRect.fTop;
-            *(reinterpret_cast<SkColor*>(currVertex + sizeof(SkPoint))) = color;
-            currCoords = reinterpret_cast<uint16_t*>(currVertex + coordOffset);
-            currCoords[0] = coordsRectR;
-            currCoords[1] = coordsRectT;
+            *reinterpret_cast<SkPoint3*>(currVertex) = {positionR, positionT, 1.f};
+            *reinterpret_cast<GrColor*>(currVertex + sizeof(SkPoint)) = color;
+            *reinterpret_cast<TexCoords*>(currVertex + coordOffset) = {coordsRectR, coordsRectT};
             currVertex += vertexStride;
 
-            currPosition = reinterpret_cast<SkPoint*>(currVertex);
-            currPosition->fX = positionRect.fRight;
-            currPosition->fY = positionRect.fBottom;
-            *(reinterpret_cast<SkColor*>(currVertex + sizeof(SkPoint))) = color;
-            currCoords = reinterpret_cast<uint16_t*>(currVertex + coordOffset);
-            currCoords[0] = coordsRectR;
-            currCoords[1] = coordsRectB;
+            *reinterpret_cast<SkPoint3*>(currVertex) = {positionR, positionB, 1.f};
+            *reinterpret_cast<GrColor*>(currVertex + sizeof(SkPoint)) = color;
+            *reinterpret_cast<TexCoords*>(currVertex + coordOffset) = {coordsRectR, coordsRectB};
             currVertex += vertexStride;
         }
 
@@ -183,7 +212,7 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
     // if we have RGB, then we won't have any SkShaders so no need to use a localmatrix.
     // TODO actually only invert if we don't have RGBA
     SkMatrix localMatrix;
-    if (this->usesLocalCoords() && !this->viewMatrix().invert(&localMatrix)) {
+    if (this->usesLocalCoords() && !fGeoData[0].fViewMatrix.invert(&localMatrix)) {
         SkDebugf("Cannot invert viewmatrix\n");
         return;
     }
@@ -200,8 +229,10 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
     FlushInfo flushInfo;
     flushInfo.fPipeline =
             target->makePipeline(fSRGBFlags, std::move(fProcessors), target->detachAppliedClip());
+    bool dfPerspective = false;
     if (this->usesDistanceFields()) {
         flushInfo.fGeometryProcessor = this->setupDfProcessor();
+        dfPerspective = fGeoData[0].fViewMatrix.hasPerspective();
     } else {
         flushInfo.fGeometryProcessor = GrBitmapTextGeoProc::Make(
             this->color(), proxies, GrSamplerState::ClampNearest(), maskFormat,
@@ -210,7 +241,7 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
 
     flushInfo.fGlyphsToFlush = 0;
     size_t vertexStride = flushInfo.fGeometryProcessor->getVertexStride();
-    SkASSERT(vertexStride == GrAtlasTextBlob::GetVertexStride(maskFormat));
+    SkASSERT(vertexStride == GrAtlasTextBlob::GetVertexStride(maskFormat, dfPerspective));
 
     int glyphCount = this->numGlyphs();
     const GrBuffer* vertexBuffer;
@@ -243,7 +274,21 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
                 memcpy(currVertex, result.fFirstVertex, vertexBytes);
             } else {
                 clip_quads(args.fClipRect, currVertex, result.fFirstVertex, vertexStride,
-                           result.fGlyphsRegenerated);
+                           result.fGlyphsRegenerated, dfPerspective);
+            }
+            if (this->usesDistanceFields() && !args.fViewMatrix.isIdentity()) {
+                // We always do the distance field view matrix transformation after copying rather
+                // than during blob vertex generation time in the blob as handling successive
+                // arbitrary transformations would be complicated and accumulate error.
+                if (args.fViewMatrix.hasPerspective()) {
+                    auto* pos = reinterpret_cast<SkPoint3*>(currVertex);
+                    args.fViewMatrix.mapHomogeneousPointsWithStride(
+                            pos, pos, vertexStride, result.fGlyphsRegenerated * kVerticesPerGlyph);
+                } else {
+                    auto* pos = reinterpret_cast<SkPoint*>(currVertex);
+                    args.fViewMatrix.mapPointsWithStride(
+                            pos, vertexStride, result.fGlyphsRegenerated * kVerticesPerGlyph);
+                }
             }
             flushInfo.fGlyphsToFlush += result.fGlyphsRegenerated;
             if (!result.fFinished) {
@@ -300,19 +345,23 @@ bool GrAtlasTextOp::onCombineIfPossible(GrOp* t, const GrCaps& caps) {
         return false;
     }
 
-    if (!this->usesDistanceFields()) {
-        if (kColorBitmapMask_MaskType == fMaskType && this->color() != that->color()) {
-            return false;
-        }
-        if (this->usesLocalCoords() && !this->viewMatrix().cheapEqualTo(that->viewMatrix())) {
-            return false;
-        }
-    } else {
-        if (!this->viewMatrix().cheapEqualTo(that->viewMatrix())) {
+    const SkMatrix& thisFirstMatrix = fGeoData[0].fViewMatrix;
+    const SkMatrix& thatFirstMatrix = that->fGeoData[0].fViewMatrix;
+
+    if (this->usesLocalCoords() && !thisFirstMatrix.cheapEqualTo(thatFirstMatrix)) {
+        return false;
+    }
+
+    if (this->usesDistanceFields()) {
+        if (fDFGPFlags != that->fDFGPFlags) {
             return false;
         }
 
         if (fLuminanceColor != that->fLuminanceColor) {
+            return false;
+        }
+    } else {
+        if (kColorBitmapMask_MaskType == fMaskType && this->color() != that->color()) {
             return false;
         }
     }
@@ -358,20 +407,18 @@ bool GrAtlasTextOp::onCombineIfPossible(GrOp* t, const GrCaps& caps) {
 // TODO trying to figure out why lcd is so whack
 // (see comments in GrAtlasTextContext::ComputeCanonicalColor)
 sk_sp<GrGeometryProcessor> GrAtlasTextOp::setupDfProcessor() const {
-    const SkMatrix& viewMatrix = this->viewMatrix();
     const sk_sp<GrTextureProxy>* p = fFontCache->getProxies(this->maskFormat());
     bool isLCD = this->isLCD();
-    // set up any flags
-    uint32_t flags = viewMatrix.isSimilarity() ? kSimilarity_DistanceFieldEffectFlag : 0;
-    flags |= viewMatrix.isScaleTranslate() ? kScaleOnly_DistanceFieldEffectFlag : 0;
-    flags |= fUseGammaCorrectDistanceTable ? kGammaCorrect_DistanceFieldEffectFlag : 0;
-    flags |= (kAliasedDistanceField_MaskType == fMaskType) ? kAliased_DistanceFieldEffectFlag : 0;
+
+    SkMatrix localMatrix = SkMatrix::I();
+    if (this->usesLocalCoords()) {
+        // If this fails we'll just use I().
+        bool result = fGeoData[0].fViewMatrix.invert(&localMatrix);
+        (void)result;
+    }
 
     // see if we need to create a new effect
     if (isLCD) {
-        flags |= kUseLCD_DistanceFieldEffectFlag;
-        flags |= (kLCDBGRDistanceField_MaskType == fMaskType) ? kBGR_DistanceFieldEffectFlag : 0;
-
         float redCorrection = fDistanceAdjustTable->getAdjustment(
                 SkColorGetR(fLuminanceColor) >> kDistanceAdjustLumShift,
                 fUseGammaCorrectDistanceTable);
@@ -384,10 +431,8 @@ sk_sp<GrGeometryProcessor> GrAtlasTextOp::setupDfProcessor() const {
         GrDistanceFieldLCDTextGeoProc::DistanceAdjust widthAdjust =
                 GrDistanceFieldLCDTextGeoProc::DistanceAdjust::Make(
                         redCorrection, greenCorrection, blueCorrection);
-
-        return GrDistanceFieldLCDTextGeoProc::Make(this->color(), viewMatrix, p,
-                                                   GrSamplerState::ClampBilerp(), widthAdjust,
-                                                   flags, this->usesLocalCoords());
+        return GrDistanceFieldLCDTextGeoProc::Make(this->color(), p, GrSamplerState::ClampBilerp(),
+                                                   widthAdjust, fDFGPFlags, localMatrix);
     } else {
 #ifdef SK_GAMMA_APPLY_TO_A8
         float correction = 0;
@@ -397,13 +442,11 @@ sk_sp<GrGeometryProcessor> GrAtlasTextOp::setupDfProcessor() const {
             correction = fDistanceAdjustTable->getAdjustment(lum >> kDistanceAdjustLumShift,
                                                              fUseGammaCorrectDistanceTable);
         }
-        return GrDistanceFieldA8TextGeoProc::Make(this->color(), viewMatrix, p,
-                                                  GrSamplerState::ClampBilerp(), correction, flags,
-                                                  this->usesLocalCoords());
+        return GrDistanceFieldA8TextGeoProc::Make(this->color(), p, GrSamplerState::ClampBilerp(),
+                                                  correction, fDFGPFlags, localMatrix);
 #else
-        return GrDistanceFieldA8TextGeoProc::Make(this->color(), viewMatrix, p,
-                                                  GrSamplerState::ClampBilerp(), flags,
-                                                  this->usesLocalCoords());
+        return GrDistanceFieldA8TextGeoProc::Make(this->color(), p, GrSamplerState::ClampBilerp(),
+                                                  fDFGPFlags, localMatrix);
 #endif
     }
 }

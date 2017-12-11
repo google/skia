@@ -17,6 +17,7 @@
 #include "SkMaskFilter.h"
 #include "SkOpts.h"
 #include "SkPathEffect.h"
+#include "SkPoint3.h"
 #include "SkRasterizer.h"
 #include "SkSurfaceProps.h"
 #include "SkTInternalLList.h"
@@ -53,6 +54,12 @@ public:
 
     static sk_sp<GrAtlasTextBlob> Make(GrMemoryPool* pool, int glyphCount, int runCount);
 
+    /**
+     * We currently force regeneration of a blob if old or new matrix differ in having perspective.
+     * If we ever change that then the key must contain the perspectiveness when there are distance
+     * fields as perspective distance field use 3 component vertex positions and non-perspective
+     * uses 2.
+     */
     struct Key {
         Key() {
             sk_bzero(this, sizeof(Key));
@@ -126,12 +133,13 @@ public:
     }
 
     // sets the last subrun of runIndex to use distance field text
-    void setSubRunHasDistanceFields(int runIndex, bool hasLCD, bool isAntiAlias) {
+    void setSubRunHasDistanceFields(int runIndex, bool hasLCD, bool isAntiAlias, bool hasWCoord) {
         Run& run = fRuns[runIndex];
         Run::SubRunInfo& subRun = run.fSubRunInfo.back();
         subRun.setUseLCDText(hasLCD);
         subRun.setAntiAliased(isAntiAlias);
         subRun.setDrawAsDistanceFields();
+        subRun.setHasWCoord(hasWCoord);
     }
 
     void setRunDrawAsPaths(int runIndex) {
@@ -169,13 +177,15 @@ public:
                      SkGlyphCache*, const SkGlyph& skGlyph,
                      SkScalar x, SkScalar y, SkScalar scale, bool treatAsBMP);
 
-    static size_t GetVertexStride(GrMaskFormat maskFormat) {
+    static size_t GetVertexStride(GrMaskFormat maskFormat, bool isDistanceFieldWithWCoord) {
         switch (maskFormat) {
             case kA8_GrMaskFormat:
-                return kGrayTextVASize;
+                return isDistanceFieldWithWCoord ? kGrayTextDFPerspectiveVASize : kGrayTextVASize;
             case kARGB_GrMaskFormat:
+                SkASSERT(!isDistanceFieldWithWCoord);
                 return kColorTextVASize;
             default:
+                SkASSERT(!isDistanceFieldWithWCoord);
                 return kLCDTextVASize;
         }
     }
@@ -232,8 +242,10 @@ public:
     // position + local coord
     static const size_t kColorTextVASize = sizeof(SkPoint) + sizeof(SkIPoint16);
     static const size_t kGrayTextVASize = sizeof(SkPoint) + sizeof(GrColor) + sizeof(SkIPoint16);
+    static const size_t kGrayTextDFPerspectiveVASize =
+            sizeof(SkPoint3) + sizeof(GrColor) + sizeof(SkIPoint16);
     static const size_t kLCDTextVASize = kGrayTextVASize;
-    static const size_t kMaxVASize = kGrayTextVASize;
+    static const size_t kMaxVASize = kGrayTextDFPerspectiveVASize;
     static const int kVerticesPerGlyph = 4;
 
     static void AssertEqual(const GrAtlasTextBlob&, const GrAtlasTextBlob&);
@@ -419,7 +431,7 @@ private:
 
             // This function assumes the translation will be applied before it is called again
             void computeTranslation(const SkMatrix& viewMatrix, SkScalar x, SkScalar y,
-                                    SkScalar*transX, SkScalar* transY);
+                                    SkScalar* transX, SkScalar* transY);
 
             // df properties
             void setDrawAsDistanceFields() { fFlags |= kDrawAsSDF_Flag; }
@@ -432,12 +444,17 @@ private:
                 fFlags = antiAliased ? fFlags | kAntiAliased_Flag : fFlags & ~kAntiAliased_Flag;
             }
             bool isAntiAliased() const { return SkToBool(fFlags & kAntiAliased_Flag); }
+            void setHasWCoord(bool hasW) {
+                fFlags  = hasW ? (fFlags | kHasWCoord_Flag) : fFlags & ~kHasWCoord_Flag;
+            }
+            bool hasWCoord() const { return SkToBool(fFlags & kHasWCoord_Flag); }
 
         private:
             enum Flag {
                 kDrawAsSDF_Flag = 0x1,
                 kUseLCDText_Flag = 0x2,
-                kAntiAliased_Flag = 0x4
+                kAntiAliased_Flag = 0x4,
+                kHasWCoord_Flag = 0x8
             };
 
             GrDrawOpAtlas::BulkUseTokenUpdater fBulkUseToken;
