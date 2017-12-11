@@ -59,6 +59,30 @@
     },
     {
       "key": {
+        "uuid": "ce5b509b_3bcf7d8a",
+        "filename": "tools/skqp/make_gmkb.go",
+        "patchSetId": 19
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-12-11T19:45:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2883e990_46f826b0",
+      "range": {
+        "startLine": 29,
+        "startChar": 0,
+        "endLine": 49,
+        "endChar": 85
+      },
+      "revId": "e632c294bf08f7fbcf454c1d48955e178fa0f56f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "12d02c4e_bb4069ac",
         "filename": "tools/skqp/make_gmkb.go",
         "patchSetId": 19
@@ -82,6 +106,30 @@
     },
     {
       "key": {
+        "uuid": "46869198_7d82530a",
+        "filename": "tools/skqp/make_gmkb.go",
+        "patchSetId": 19
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-12-11T19:45:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "12d02c4e_bb4069ac",
+      "range": {
+        "startLine": 61,
+        "startChar": 16,
+        "endLine": 61,
+        "endChar": 28
+      },
+      "revId": "e632c294bf08f7fbcf454c1d48955e178fa0f56f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "cb5352a1_4ec87147",
         "filename": "tools/skqp/make_gmkb.go",
         "patchSetId": 19
@@ -102,6 +150,30 @@
       "revId": "e632c294bf08f7fbcf454c1d48955e178fa0f56f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e4dd0183_a7bb7ac9",
+        "filename": "tools/skqp/make_gmkb.go",
+        "patchSetId": 19
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-12-11T19:45:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cb5352a1_4ec87147",
+      "range": {
+        "startLine": 157,
+        "startChar": 5,
+        "endLine": 157,
+        "endChar": 22
+      },
+      "revId": "e632c294bf08f7fbcf454c1d48955e178fa0f56f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -171,6 +243,30 @@
       "revId": "e632c294bf08f7fbcf454c1d48955e178fa0f56f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fe45a3b4_11be1877",
+        "filename": "tools/skqp/make_gmkb.go",
+        "patchSetId": 19
+      },
+      "lineNbr": 230,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-12-11T19:45:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "456c6fc6_b9668fe9",
+      "range": {
+        "startLine": 229,
+        "startChar": 3,
+        "endLine": 230,
+        "endChar": 13
+      },
+      "revId": "e632c294bf08f7fbcf454c1d48955e178fa0f56f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
