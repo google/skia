@@ -85,6 +85,7 @@ TEST_BUILDERS = [
   'Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-All-Android',
   'Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Debug-All-Android',
   'Perf-ChromeOS-Clang-SamsungChromebookPlus-GPU-MaliT860-arm-Release-All',
+  'Test-Chromecast-GCC-Chorizo-CPU-Cortex_A7-arm-Debug-All',
   'Perf-Chromecast-GCC-Chorizo-CPU-Cortex_A7-arm-Release-All',
   'Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-MSAN',
   'Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-ASAN',

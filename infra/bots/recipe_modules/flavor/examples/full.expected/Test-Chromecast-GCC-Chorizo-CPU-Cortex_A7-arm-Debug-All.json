@@ -7,7 +7,7 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
@@ -19,12 +19,12 @@
     "cmd": [
       "[START_DIR]/skia/bin/gn",
       "gen",
-      "[START_DIR]/out/Release",
-      "--args=ar=\"[START_DIR]/cast_toolchain/armv7a/bin/armv7a-cros-linux-gnueabi-ar\" cc=\"[START_DIR]/cast_toolchain/armv7a/usr/bin/clang-3.9\" cxx=\"[START_DIR]/cast_toolchain/armv7a/usr/bin/clang++-3.9\" extra_asmflags=[\"-target\", \"armv7a-linux-gnueabihf\"] extra_cflags=[\"-target\", \"armv7a-linux-gnueabihf\", \"-isystem\", \"[START_DIR]/cast_toolchain/armv7a/usr/armv7a-cros-linux-gnueabi/usr/include\", \"-isystem\", \"[START_DIR]/chromebook_arm_gles/include\", \"-DMESA_EGL_NO_X11_HEADERS\", \"-DSK_NO_COMMAND_BUFFER\", \"-g0\"] extra_cflags_cc=[\"-I[START_DIR]/cast_toolchain/armv7a_libc++/usr/include/c++/v1\", \"-I[START_DIR]/cast_toolchain/armv7a_libc++/usr/include/libcxxrt\"] extra_ldflags=[\"-target\", \"armv7a-linux-gnueabihf\", \"-L[START_DIR]/cast_toolchain/armv7a/lib\", \"-L[START_DIR]/cast_toolchain/armv7a_libc++/usr/lib\", \"-lc++\", \"-lcxxrt\"] is_debug=false skia_enable_gpu=true skia_use_egl=true skia_use_fontconfig=false skia_use_icu=false skia_use_system_freetype2=false target_cpu=\"None\""
+      "[START_DIR]/out/Debug",
+      "--args=ar=\"[START_DIR]/cast_toolchain/armv7a/bin/armv7a-cros-linux-gnueabi-ar\" cc=\"[START_DIR]/cast_toolchain/armv7a/usr/bin/clang-3.9\" cxx=\"[START_DIR]/cast_toolchain/armv7a/usr/bin/clang++-3.9\" extra_asmflags=[\"-target\", \"armv7a-linux-gnueabihf\"] extra_cflags=[\"-target\", \"armv7a-linux-gnueabihf\", \"-isystem\", \"[START_DIR]/cast_toolchain/armv7a/usr/armv7a-cros-linux-gnueabi/usr/include\", \"-isystem\", \"[START_DIR]/chromebook_arm_gles/include\", \"-DMESA_EGL_NO_X11_HEADERS\", \"-DSK_NO_COMMAND_BUFFER\", \"-g0\", \"-O1\"] extra_cflags_cc=[\"-I[START_DIR]/cast_toolchain/armv7a_libc++/usr/include/c++/v1\", \"-I[START_DIR]/cast_toolchain/armv7a_libc++/usr/include/libcxxrt\"] extra_ldflags=[\"-target\", \"armv7a-linux-gnueabihf\", \"-L[START_DIR]/cast_toolchain/armv7a/lib\", \"-L[START_DIR]/cast_toolchain/armv7a_libc++/usr/lib\", \"-lc++\", \"-lcxxrt\"] skia_enable_gpu=true skia_use_egl=true skia_use_fontconfig=false skia_use_icu=false skia_use_system_freetype2=false target_cpu=\"None\""
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
@@ -37,13 +37,13 @@
       "-k",
       "0",
       "-C",
-      "[START_DIR]/out/Release",
+      "[START_DIR]/out/Debug",
       "nanobench",
       "dm"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
@@ -57,7 +57,7 @@
       "\nimport os\nCHROMECAST_IP_FILE = os.path.expanduser('~/chromecast.txt')\nwith open(CHROMECAST_IP_FILE, 'r') as f:\n  print f.read()\n"
     ],
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
@@ -81,7 +81,7 @@
       "192.168.1.2:5555"
     ],
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
@@ -98,7 +98,7 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
@@ -144,7 +144,7 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
@@ -162,7 +162,7 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
@@ -180,7 +180,7 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
@@ -198,7 +198,7 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
@@ -218,7 +218,7 @@
       "/cache/skia/nanobench"
     ],
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
@@ -235,7 +235,7 @@
       "/cache/skia/resources"
     ],
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
@@ -301,7 +301,7 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
@@ -320,7 +320,7 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
@@ -338,7 +338,7 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
@@ -356,7 +356,7 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
@@ -373,7 +373,7 @@
       "/cache/skia/skps"
     ],
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
@@ -411,7 +411,7 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
@@ -456,7 +456,7 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
@@ -475,7 +475,7 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
@@ -493,7 +493,7 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
@@ -511,7 +511,7 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
@@ -528,7 +528,7 @@
       "/cache/skia/images"
     ],
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
@@ -566,7 +566,7 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
@@ -611,7 +611,7 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
@@ -630,7 +630,7 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
@@ -648,7 +648,7 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
@@ -666,7 +666,7 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
@@ -683,7 +683,7 @@
       "/cache/skia/svgs"
     ],
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
@@ -721,7 +721,7 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
@@ -733,18 +733,18 @@
     "cmd": [
       "adb",
       "push",
-      "[START_DIR]/out/Release/nanobench",
+      "[START_DIR]/out/Debug/dm",
       "/cache/skia/bin"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
     },
     "infra_step": true,
-    "name": "push nanobench"
+    "name": "push dm"
   },
   {
     "cmd": [
@@ -754,33 +754,33 @@
       "-t",
       "-t",
       "root@192.168.1.2",
-      "/cache/skia/bin/nanobench",
+      "/cache/skia/bin/dm",
       "--some-flag"
     ],
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
     },
-    "name": "nanobench"
+    "name": "dm"
   },
   {
     "cmd": [
       "adb",
       "pull",
-      "/cache/skia/perf",
-      "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-Chromecast-GCC-Chorizo-CPU-Cortex_A7-arm-Release-All/data"
+      "/cache/skia/dm_out",
+      "[CUSTOM_[SWARM_OUT_DIR]]/dm"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
     },
     "infra_step": true,
-    "name": "pull /cache/skia/perf [CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-Chromecast-GCC-Chorizo-CPU-Cortex_A7-arm-Release-All/data"
+    "name": "pull /cache/skia/dm_out [CUSTOM_[SWARM_OUT_DIR]]/dm"
   },
   {
     "cmd": [
@@ -795,7 +795,7 @@
       "/cache/skia/bin"
     ],
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
@@ -810,7 +810,7 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
@@ -825,7 +825,7 @@
       "192.168.1.2:5555"
     ],
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
@@ -838,10 +838,10 @@
       "python",
       "-u",
       "\nimport os\nimport subprocess\nimport sys\nout = sys.argv[1]\nlog = subprocess.check_output(['adb', 'logcat', '-d'])\nfor line in log.split('\\n'):\n  tokens = line.split()\n  if len(tokens) == 11 and tokens[-7] == 'F' and tokens[-3] == 'pc':\n    addr, path = tokens[-2:]\n    local = os.path.join(out, os.path.basename(path))\n    if os.path.exists(local):\n      sym = subprocess.check_output(['addr2line', '-Cfpe', local, addr])\n      line = line.replace(addr, addr + ' ' + sym.strip())\n  print line\n",
-      "[START_DIR]/out/Release"
+      "[START_DIR]/out/Debug"
     ],
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
@@ -874,7 +874,7 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
@@ -889,7 +889,7 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
