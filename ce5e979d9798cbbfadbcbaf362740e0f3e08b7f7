@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fc983b83_018e7445",
+        "filename": "src/gpu/vk/GrVkCaps.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 185,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-12-11T14:32:00Z",
+      "side": 1,
+      "message": "we do clears differently on vulkan where we are never using the built in full screen clear. We clear at the start of render passes. So I don\u0027t think we\u0027ll ever really do much different on these platforms",
+      "range": {
+        "startLine": 181,
+        "startChar": 1,
+        "endLine": 185,
+        "endChar": 5
+      },
+      "revId": "ce5e979d9798cbbfadbcbaf362740e0f3e08b7f7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
