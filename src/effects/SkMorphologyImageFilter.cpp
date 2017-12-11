@@ -509,7 +509,7 @@ static sk_sp<SkSpecialImage> apply_morphology(
                                               dstRect.width(), radius.fHeight);
         GrColor clearColor =
                 GrMorphologyEffect::Type::kErode == morphType ? SK_ColorWHITE : SK_ColorTRANSPARENT;
-        dstRTContext->clear(&clearRect, clearColor, false);
+        dstRTContext->clear(&clearRect, clearColor, GrRenderTargetContext::CanClearFullscreen::kNo);
 
         srcTexture = dstRTContext->asTextureProxyRef();
         srcRect = dstRect;

@@ -272,14 +272,15 @@ void GrRenderTargetContext::discard() {
 
 void GrRenderTargetContext::clear(const SkIRect* rect,
                                   const GrColor color,
-                                  bool canIgnoreRect) {
+                                  CanClearFullscreen canClearFullscreen) {
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
     GR_CREATE_TRACE_MARKER_CONTEXT("GrRenderTargetContext", "clear", fContext);
 
     AutoCheckFlush acf(this->drawingManager());
-    this->internalClear(rect ? GrFixedClip(*rect) : GrFixedClip::Disabled(), color, canIgnoreRect);
+    this->internalClear(rect ? GrFixedClip(*rect) : GrFixedClip::Disabled(), color,
+                        canClearFullscreen);
 }
 
 void GrRenderTargetContextPriv::absClear(const SkIRect* clearRect, const GrColor color) {
@@ -319,7 +320,7 @@ void GrRenderTargetContextPriv::absClear(const SkIRect* clearRect, const GrColor
 
 void GrRenderTargetContextPriv::clear(const GrFixedClip& clip,
                                       const GrColor color,
-                                      bool canIgnoreClip) {
+                                      CanClearFullscreen canClearFullscreen) {
     ASSERT_SINGLE_OWNER_PRIV
     RETURN_IF_ABANDONED_PRIV
     SkDEBUGCODE(fRenderTargetContext->validate();)
@@ -327,16 +328,17 @@ void GrRenderTargetContextPriv::clear(const GrFixedClip& clip,
                                    fRenderTargetContext->fContext);
 
     AutoCheckFlush acf(fRenderTargetContext->drawingManager());
-    fRenderTargetContext->internalClear(clip, color, canIgnoreClip);
+    fRenderTargetContext->internalClear(clip, color, canClearFullscreen);
 }
 
 void GrRenderTargetContext::internalClear(const GrFixedClip& clip,
                                           const GrColor color,
-                                          bool canIgnoreClip) {
+                                          CanClearFullscreen canClearFullscreen) {
     bool isFull = false;
     if (!clip.hasWindowRectangles()) {
         isFull = !clip.scissorEnabled() ||
-                 (canIgnoreClip && fContext->caps()->fullClearIsFree()) ||
+                 (CanClearFullscreen::kYes == canClearFullscreen &&
+                  fContext->caps()->preferFullscreenClears()) ||
                  clip.scissorRect().contains(SkIRect::MakeWH(this->width(), this->height()));
     }
 
@@ -519,7 +521,8 @@ void GrRenderTargetContext::drawRect(const GrClip& clip,
                 // Will it blend?
                 GrColor clearColor;
                 if (paint.isConstantBlendedColor(&clearColor)) {
-                    this->clear(nullptr, clearColor, true);
+                    this->clear(nullptr, clearColor,
+                                GrRenderTargetContext::CanClearFullscreen::kYes);
                     return;
                 }
             }
