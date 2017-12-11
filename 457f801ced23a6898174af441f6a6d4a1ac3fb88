@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dc4dd80a_38b065de",
+        "filename": "src/gpu/text/GrAtlasTextBlob.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 451,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-12-11T17:52:40Z",
+      "side": 1,
+      "message": "I made this a flag rather than just inferred from df+persp so that I can force it on in the future in the atlas text context.",
+      "range": {
+        "startLine": 447,
+        "startChar": 0,
+        "endLine": 451,
+        "endChar": 0
+      },
+      "revId": "457f801ced23a6898174af441f6a6d4a1ac3fb88",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
