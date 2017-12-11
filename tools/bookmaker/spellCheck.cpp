@@ -96,6 +96,14 @@ void BmhParser::spellCheck(const char* match, SkCommandLineFlags::StringArray re
     checker.report(report);
 }
 
+void BmhParser::spellStatus(const char* statusFile, SkCommandLineFlags::StringArray report) const {
+    SpellCheck checker(*this);
+    StatusIter iter(statusFile, ".bmh", StatusFilter::kInProgress);
+    string match = iter.baseDir();
+    checker.check(match.c_str());
+    checker.report(report);
+}
+
 bool SpellCheck::check(const char* match) {
     for (const auto& topic : fBmhParser.fTopicMap) {
         Definition* topicDef = topic.second;

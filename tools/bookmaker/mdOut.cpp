@@ -63,9 +63,6 @@ string MdOut::addReferences(const char* refStart, const char* refEnd,
         } else {
             leadingSpaces = string(base, wordStart - base);
         }
-        if (!strncmp("SkPoint::operator-()", start, 20)) {
-            SkDebugf("");
-        }
         t.skipToMethodEnd();
         if (base == t.fChar) {
             break;
@@ -77,9 +74,6 @@ string MdOut::addReferences(const char* refStart, const char* refEnd,
             continue;
         }
         ref = string(start, t.fChar - start);
-        if (412 == t.fLineCount) {
-            SkDebugf("");
-        }
         if (const Definition* def = this->isDefined(t, ref,
                 BmhParser::Resolvable::kOut != resolvable)) {
             SkASSERT(def->fFiddle.length());
@@ -218,6 +212,9 @@ string MdOut::addReferences(const char* refStart, const char* refEnd,
                 continue;
             }
         }
+        if ("RasterReleaseProc" == ref) {
+            SkDebugf("");
+        }
         Definition* test = fRoot;
         do {
             if (!test->isRoot()) {
@@ -269,6 +266,19 @@ bool MdOut::buildReferences(const char* fileOrPath, const char* outDir) {
     return true;
 }
 
+bool MdOut::buildStatus(const char* statusFile, const char* outDir) {
+    StatusIter iter(statusFile, ".bmh", StatusFilter::kInProgress);
+    for (string file; iter.next(&file); ) {
+        SkString p = SkOSPath::Join(iter.baseDir().c_str(), file.c_str());
+        const char* hunk = p.c_str();
+        if (!this->buildRefFromFile(hunk, outDir)) {
+            SkDebugf("failed to parse %s\n", hunk);
+            return false;
+        }
+    }
+    return true;
+}
+
 bool MdOut::buildRefFromFile(const char* name, const char* outDir) {
     fFileName = string(name);
     string filename(name);
@@ -285,8 +295,16 @@ bool MdOut::buildRefFromFile(const char* name, const char* outDir) {
     match += ".bmh";
     fOut = nullptr;
     string fullName;
-    for (const auto& topic : fBmhParser.fTopicMap) {
-        Definition* topicDef = topic.second;
+
+    vector<string> keys;
+    keys.reserve(fBmhParser.fTopicMap.size());
+    for (const auto& it : fBmhParser.fTopicMap) {
+        keys.push_back(it.first);
+    }
+    std::sort(keys.begin(), keys.end());
+    for (auto key : keys) {
+        string s(key);
+        auto topicDef = fBmhParser.fTopicMap.at(s);
         if (topicDef->fParent) {
             continue;
         }
@@ -723,16 +741,18 @@ void MdOut::markTypeOut(Definition* def) {
                     gpuAndCpu = platParse.strnstr("cpu", platParse.fEnd);
                 }
             }
-            if (fHasFiddle) {
+            if (fHasFiddle && !def->hasChild(MarkType::kError)) {
+                SkASSERT(def->fHash.length() > 0);
                 fprintf(fOut, "<div><fiddle-embed name=\"%s\"", def->fHash.c_str());
                 if (showGpu) {
-                    fprintf(fOut, "gpu=\"true\"");
+                    fprintf(fOut, " gpu=\"true\"");
                     if (gpuAndCpu) {
-                        fprintf(fOut, "cpu=\"true\"");
+                        fprintf(fOut, " cpu=\"true\"");
                     }
                 }
                 fprintf(fOut, ">");
             } else {
+                SkASSERT(def->fHash.length() == 0);
                 fprintf(fOut, "<pre style=\"padding: 1em 1em 1em 1em; font-size: 13px"
                         " width: 62.5em; background-color: #f0f0f0\">");
                 this->lfAlways(1);

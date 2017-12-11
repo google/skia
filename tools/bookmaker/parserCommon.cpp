@@ -16,7 +16,6 @@ static void debug_out(int len, const char* data) {
 }
 
 bool ParserCommon::parseFile(const char* fileOrPath, const char* suffix) {
-//    this->reset();
     if (!sk_isdir(fileOrPath)) {
         if (!this->parseFromFile(fileOrPath)) {
             SkDebugf("failed to parse %s\n", fileOrPath);
@@ -39,9 +38,23 @@ bool ParserCommon::parseFile(const char* fileOrPath, const char* suffix) {
     return true;
 }
 
+bool ParserCommon::parseStatus(const char* statusFile, const char* suffix, StatusFilter filter) {
+    StatusIter iter(statusFile, suffix, filter);
+    if (iter.empty()) {
+        return false;
+    }
+    for (string file; iter.next(&file); ) {
+        SkString p = SkOSPath::Join(iter.baseDir().c_str(), file.c_str());
+        const char* hunk = p.c_str();
+        if (!this->parseFromFile(hunk)) {
+            SkDebugf("failed to parse %s\n", hunk);
+            return false;
+        }
+    }
+    return true;
+}
 
 bool ParserCommon::parseSetup(const char* path) {
-//    this->reset();
     sk_sp<SkData> data = SkData::MakeFromFileName(path);
     if (nullptr == data.get()) {
         SkDebugf("%s missing\n", path);
@@ -209,4 +222,106 @@ void ParserCommon::writeString(const char* str) {
     fSpaces = 0;
     fLinefeeds = 0;
     fMaxLF = 2;
+}
+
+StatusIter::StatusIter(const char* statusFile, const char* suffix, StatusFilter filter)
+    : fSuffix(suffix)
+    , fFilter(filter) {
+    if (!this->parseFromFile(statusFile)) {
+        return;
+    }
+}
+
+static const char* block_names[] = {
+    "Completed",
+    "InProgress",
+};
+
+string StatusIter::baseDir() {
+    SkASSERT(fStack.back().fObject.isArray());
+    SkASSERT(fStack.size() > 2);
+    string dir;
+    for (unsigned index = 2; index < fStack.size(); ++index) {
+        dir += fStack[index].fName;
+        if (index < fStack.size() - 1) {
+            dir += SkOSPath::SEPARATOR;
+        }
+    }
+    return dir;
+}
+
+// FIXME: need to compare fBlockName against fFilter
+// need to compare fSuffix against next value returned
+bool StatusIter::next(string* str) {
+    JsonStatus* status;
+    do {
+        do {
+            if (fStack.empty()) {
+                return false;
+            }
+            status = &fStack.back();
+            if (status->fIter != status->fObject.end()) {
+                break;
+            }
+            fStack.pop_back();
+        } while (true);
+        if (1 == fStack.size()) {
+            do {
+                StatusFilter blockType = StatusFilter::kUnknown;
+                for (unsigned index = 0; index < SK_ARRAY_COUNT(block_names); ++index) {
+                    if (status->fIter.key().asString() == block_names[index]) {
+                        blockType = (StatusFilter) index;
+                        break;
+                    }
+                }
+                if (blockType <= fFilter) {
+                    break;
+                }
+                status->fIter++;
+            } while (status->fIter != status->fObject.end());
+            if (status->fIter == status->fObject.end()) {
+                continue;
+            }
+        }
+        if (!status->fObject.isArray()) {
+            SkASSERT(status->fIter != status->fObject.end());
+            JsonStatus block = {
+                *status->fIter,
+                status->fIter->begin(),
+                status->fIter.key().asString()
+            };
+            fStack.emplace_back(block);
+            status = &(&fStack.back())[-1];
+            status->fIter++;
+            status = &fStack.back();
+            continue;
+        }
+        *str = status->fIter->asString();
+        status->fIter++;
+        if (str->length() - strlen(fSuffix) == str->find(fSuffix)) {
+            return true;
+        }
+    } while (true);
+    return true;
+}
+
+bool StatusIter::parseFromFile(const char* path) {
+    sk_sp<SkData> json(SkData::MakeFromFileName(path));
+    if (!json) {
+        SkDebugf("file %s:\n", path);
+        return this->reportError<bool>("file not readable");
+    }
+    Json::Reader reader;
+    const char* data = (const char*)json->data();
+    if (!reader.parse(data, data+json->size(), fRoot)) {
+        SkDebugf("file %s:\n", path);
+        return this->reportError<bool>("file not parsable");
+    }
+    JsonStatus block = { fRoot, fRoot.begin(), "" };
+    fStack.emplace_back(block);
+    return true;
+}
+
+void StatusIter::reset() {
+    fStack.clear();
 }

@@ -1,8 +1,6 @@
 SkIPoint Reference
 ===
 
-# <a name="IVector"></a> IVector
-
 # <a name="IPoint"></a> IPoint
 
 # <a name="SkIPoint"></a> Struct SkIPoint
@@ -501,3 +499,4 @@ Can also be used to add <a href="SkIPoint_Reference#IVector">IVector</a> to <a h
 
 ---
 
+# <a name="IVector"></a> IVector

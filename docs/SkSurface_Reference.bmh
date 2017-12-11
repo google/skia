@@ -1558,13 +1558,17 @@ Return true if Surface supports characterization. Raster_Surface returns false.
 
 # ------------------------------------------------------------------------------
 
-#Method void draw(SkDeferredDisplayList* deferredDisplayList)
+#Method bool draw(SkDeferredDisplayList* deferredDisplayList)
 
 Draws deferred display list created using SkDeferredDisplayListRecorder.
-The draw has no effect if Surface_Characterization stored in deferredDisplayList
-is not compatible with Surface.
+Has no effect and returns false if Surface_Characterization stored in
+deferredDisplayList is not compatible with Surface.
+
+Raster_Surface returns false.
 
 #Param deferredDisplayList  drawing commands ##
+
+#Return false if deferredDisplayList is not compatible ##
 
 #Example
 #Height 64

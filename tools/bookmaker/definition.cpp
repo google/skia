@@ -541,7 +541,7 @@ bool Definition::exampleToScript(string* result, ExampleOptions exampleOptions) 
                 break;
             case MarkType::kFunction: {
                 // emit this, but don't wrap this in draw()
-                string funcText(iter->fContentStart, iter->fContentEnd - iter->fContentStart - 1);
+                string funcText(iter->fContentStart, iter->fContentEnd - iter->fContentStart);
                 size_t pos = 0;
                 while (pos < funcText.length() && ' ' > funcText[pos]) {
                     ++pos;
@@ -576,9 +576,6 @@ bool Definition::exampleToScript(string* result, ExampleOptions exampleOptions) 
     size_t end = text.length();
     size_t outIndent = 0;
     size_t textIndent = count_indent(text, pos, end);
-    if ("MakeFromBackendTexture" == fName) {
-        SkDebugf("");
-    }
     if (fWrapper.length() > 0) {
         code += fWrapper;
         code += "\\n";
@@ -899,9 +896,6 @@ string Definition::formatFunction() const {
     const char* lastStart = methodParser.fChar;
     const int limit = 100;  // todo: allow this to be set by caller or in global or something
     string name = this->methodName();
-    if ("MakeFromBackendTextureAsRenderTarget" == name) {
-        SkDebugf("");
-    }
     const char* nameInParser = methodParser.strnstr(name.c_str(), methodParser.fEnd);
     methodParser.skipTo(nameInParser);
     const char* lastEnd = methodParser.fChar;
@@ -1225,10 +1219,6 @@ bool RootDefinition::dumpUnVisited(bool skip) {
             // FIXME: bugs requiring long tail fixes, suppressed here:
             // SkBitmap::validate() is wrapped in SkDEBUGCODE in .h and not parsed
             if ("SkBitmap::validate()" == leaf.first) {
-                continue;
-            }
-            // typedef uint32_t SaveLayerFlags not seen in SkCanvas.h, don't know why
-            if ("SaveLayerFlags" == leaf.first) {
                 continue;
             }
             // SkPath::pathRefIsValid in #ifdef ; prefer to remove chrome dependency to fix

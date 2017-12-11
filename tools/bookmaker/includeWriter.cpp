@@ -8,9 +8,6 @@
 #include "bookmaker.h"
 
 void IncludeWriter::descriptionOut(const Definition* def) {
-    if ("SkPoint_length" == def->fFiddle) {
-        SkDebugf("");
-    }
     const char* commentStart = def->fContentStart;
     int commentLen = (int) (def->fContentEnd - commentStart);
     bool breakOut = false;
@@ -911,9 +908,6 @@ bool IncludeWriter::populate(Definition* def, ParentPair* prevPair, RootDefiniti
     const Definition* requireDense = nullptr;
     const Definition* startDef = nullptr;
     for (auto& child : def->fTokens) {
-        if (18 == child.fParentIndex) {
-            SkDebugf("");
-        }
         if (KeyWord::kOperator == child.fKeyWord && method &&
                 Definition::MethodType::kOperator == method->fMethodType) {
             eatOperator = true;
@@ -1034,9 +1028,6 @@ bool IncludeWriter::populate(Definition* def, ParentPair* prevPair, RootDefiniti
                     --continueEnd;
                 }
                 methodName += string(fContinuation, continueEnd - fContinuation);
-                if ("SkIPoint::operator+" == methodName) {
-                    SkDebugf("");
-                }
                 method = root->find(methodName, RootDefinition::AllowParens::kNo);
                 if (!method) {
                     fLineCount = child.fLineCount;
@@ -1093,9 +1084,6 @@ bool IncludeWriter::populate(Definition* def, ParentPair* prevPair, RootDefiniti
             startDef = &child;
             fStart = child.fContentStart;
             methodName = root->fName + "::" + child.fName;
-                if ("SkIPoint::operator+" == methodName) {
-                    SkDebugf("");
-                }
             inConstructor = root->fName == child.fName;
             fContinuation = child.fContentEnd;
             method = root->find(methodName, RootDefinition::AllowParens::kNo);
@@ -1447,6 +1435,7 @@ bool IncludeWriter::populate(BmhParser& bmhParser) {
         root->clearVisited();
         fStart = includeMapper.second.fContentStart;
         fEnd = includeMapper.second.fContentEnd;
+        fAnonymousEnumCount = 1;
         allPassed &= this->populate(&includeMapper.second, nullptr, root);
         this->writeBlock((int) (fEnd - fStart), fStart);
         fIndent = 0;

@@ -85,14 +85,14 @@ is useful to position one or more Bitmaps within a shared pixel array.
 # allocPixels          # Allocates pixels from Image_Info, or aborts. ##
 # allocPixelsFlags     # Allocates pixels from Image_Info with options, or aborts. ##
 # alphaType            # Returns Image_Info Alpha_Type. ##
-# bounds()             # Returns width and height as Rectangle. ##
+# bounds()             # Returns width() and height() as Rectangle. ##
 # bytesPerPixel        # Returns number of bytes in pixel based on Color_Type. ##
 # colorSpace           # Returns Image_Info Color_Space. ##
 # colorType            # Returns Image_Info Color_Type. ##
 # computeByteSize      # Returns size required for pixels. ##
-# dimensions           # Returns width and height. ##
-# drawsNothing         # Returns true if no width, no height, or no Pixel_Ref. ##
-# empty()              # Returns true if Image_Info has zero width or height. ##
+# dimensions()         # Returns width() and height(). ##
+# drawsNothing         # Returns true if no width(), no height(), or no Pixel_Ref. ##
+# empty()              # Returns true if Image_Info has zero width() or height(). ##
 # erase()              # Writes Color to rectangle of pixels. ##
 # eraseARGB            # Writes Color to pixels. ##
 # eraseArea            # Deprecated ##
@@ -104,7 +104,7 @@ is useful to position one or more Bitmaps within a shared pixel array.
 # getAddr16            # Returns readable pixel address as 16-bit pointer. ##
 # getAddr32            # Returns readable pixel address as 32-bit pointer. ##
 # getAddr8             # Returns readable pixel address as 8-bit pointer. ##
-# getBounds            # Returns width and height as Rectangle. ##
+# getBounds            # Returns width() and height() as Rectangle. ##
 # getColor             # Returns one pixel as Unpremultiplied Color. ##
 # getGenerationID      # Returns unique ID. ##
 # getPixels            # Returns address of pixels. ##
@@ -583,7 +583,7 @@ Returns Color_Space, the range of colors, associated with Image_Info. The
 reference count of Color_Space is unchanged. The returned Color_Space is
 immutable.
 
-#Return Color_Space in Image_Info ##
+#Return Color_Space in Image_Info, or nullptr ##
 
 #Example
 #Description

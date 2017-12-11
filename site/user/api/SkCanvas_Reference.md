@@ -36,9 +36,9 @@ This approach may be deprecated in the future.
 
 | constants | description |
 | --- | ---  |
-| <a href="#SkCanvas_Lattice_Flags">Lattice::Flags</a> | Controls <a href="#SkCanvas_Lattice">Lattice</a> transparency. |
+| Lattice::Flags | Controls <a href="#SkCanvas_Lattice">Lattice</a> transparency. |
 | <a href="#SkCanvas_PointMode">PointMode</a> | Sets <a href="#SkCanvas_drawPoints">drawPoints</a> options. |
-| SaveLayerFlags | Sets <a href="#SkCanvas_SaveLayerRec">SaveLayerRec</a> options. |
+| <a href="#SkCanvas_SaveLayerFlags">SaveLayerFlags</a> | Sets <a href="#SkCanvas_SaveLayerRec">SaveLayerRec</a> options. |
 | <a href="#SkCanvas_SrcRectConstraint">SrcRectConstraint</a> | Sets <a href="#SkCanvas_drawImageRect">drawImageRect</a> options. |
 
 ## <a name="Structs"></a> Structs
@@ -385,7 +385,8 @@ specifies a <a href="#SkCanvas_copy_SkBaseDevice_star_device">device</a> for the
 
 ### Example
 
-<div><fiddle-embed name=""></fiddle-embed></div>
+<pre style="padding: 1em 1em 1em 1em; font-size: 13px width: 62.5em; background-color: #f0f0f0">
+void draw(SkCanvas* canvas) {</fiddle-embed></div>
 
 ### See Also
 
@@ -686,7 +687,8 @@ operations are never deferred.
 
 ### Example
 
-<div><fiddle-embed name=""></fiddle-embed></div>
+<pre style="padding: 1em 1em 1em 1em; font-size: 13px width: 62.5em; background-color: #f0f0f0">
+void draw(SkCanvas* canvas) {</fiddle-embed></div>
 
 ### See Also
 
@@ -1657,7 +1659,7 @@ enum {
 <a href="#SkCanvas_kDontClipToLayer_Legacy_SaveLayerFlag">kDontClipToLayer Legacy SaveLayerFlag</a> = kDontClipToLayer_PrivateSaveLayerFlag,
 };</pre>
 
-SaveLayerFlags provides options that may be used in any combination in <a href="#SkCanvas_SaveLayerRec">SaveLayerRec</a>,
+<a href="#SkCanvas_SaveLayerFlags">SaveLayerFlags</a> provides options that may be used in any combination in <a href="#SkCanvas_SaveLayerRec">SaveLayerRec</a>,
 defining how <a href="#Layer">Layer</a> allocated by <a href="#SkCanvas_saveLayer">saveLayer</a> operates.
 
 ### Constants
@@ -1700,7 +1702,7 @@ struct <a href="#SkCanvas_SaveLayerRec_SaveLayerRec">SaveLayerRec</a> {
 const <a href="SkRect_Reference#SkRect">SkRect</a>*           <a href="#SkCanvas_SaveLayerRec_fBounds">fBounds</a>;
 const <a href="SkPaint_Reference#SkPaint">SkPaint</a>*          <a href="#SkCanvas_SaveLayerRec_fPaint">fPaint</a>;
 const <a href="undocumented#SkImageFilter">SkImageFilter</a>*    <a href="#SkCanvas_SaveLayerRec_fBackdrop">fBackdrop</a>;
-<a href="#SkCanvas_SaveLayerRec_fSaveLayerFlags">fSaveLayerFlags</a>;
+<a href="#SkCanvas_SaveLayerFlags">SaveLayerFlags</a>          <a href="#SkCanvas_SaveLayerRec_fSaveLayerFlags">fSaveLayerFlags</a>;
 };</pre>
 
 <a href="#SkCanvas_SaveLayerRec_SaveLayerRec">SaveLayerRec</a> contains the state used to create the <a href="#Layer">Layer</a>. 
@@ -1931,7 +1933,7 @@ depth of <a href="#SkCanvas_save">save</a> state stack
 
 ### Example
 
-<div><fiddle-embed name="0da8c199f1d9ec4d1b9c5d1114d6cbd6"><div>The example draws an image, and saves it into a <a href="#Layer">Layer</a> with <a href="#SkCanvas_kInitWithPrevious_SaveLayerFlag">kInitWithPrevious SaveLayerFlag</a>.
+<div><fiddle-embed name="7d3751e82d1b6ec328ffa3d6f48ca831"><div>The example draws an image, and saves it into a <a href="#Layer">Layer</a> with <a href="#SkCanvas_kInitWithPrevious_SaveLayerFlag">kInitWithPrevious SaveLayerFlag</a>.
 Next it punches a hole in <a href="#Layer">Layer</a> and <a href="#SkCanvas_restore">restore</a> with <a href="#SkBlendMode_kPlus">SkBlendMode::kPlus</a>.
 Where <a href="#Layer">Layer</a> was cleared, the original image will draw unchanged.
 Outside of the circle the mandrill is brightened.</div></fiddle-embed></div>
@@ -4356,14 +4358,15 @@ and below <a href="#SkCanvas_drawBitmapNine_center">center</a> to fill the remai
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 struct <a href="#SkCanvas_Lattice">Lattice</a> {
-enum <a href="#SkCanvas_Lattice_Flags">Flags</a> {...
+enum <a href="#SkCanvas_Lattice_RectType">RectType</a> ...
 
-const int*     <a href="#SkCanvas_Lattice_fXDivs">fXDivs</a>;
-const int*     <a href="#SkCanvas_Lattice_fYDivs">fYDivs</a>;
-const <a href="#SkCanvas_Lattice_Flags">Flags</a>*   <a href="#SkCanvas_Lattice_fFlags">fFlags</a>;
-int            <a href="#SkCanvas_Lattice_fXCount">fXCount</a>;
-int            <a href="#SkCanvas_Lattice_fYCount">fYCount</a>;
-const <a href="SkIRect_Reference#SkIRect">SkIRect</a>* <a href="#SkCanvas_Lattice_fBounds">fBounds</a>;
+const int*      <a href="#SkCanvas_Lattice_fXDivs">fXDivs</a>;
+const int*      <a href="#SkCanvas_Lattice_fYDivs">fYDivs</a>;
+const <a href="#SkCanvas_Lattice_RectType">RectType</a>* <a href="#SkCanvas_Lattice_fRectTypes">fRectTypes</a>;
+int             <a href="#SkCanvas_Lattice_fXCount">fXCount</a>;
+int             <a href="#SkCanvas_Lattice_fYCount">fYCount</a>;
+const <a href="SkIRect_Reference#SkIRect">SkIRect</a>*  <a href="#SkCanvas_Lattice_fBounds">fBounds</a>;
+const <a href="undocumented#SkColor">SkColor</a>*  <a href="#SkCanvas_Lattice_fColors">fColors</a>;
 };</pre>
 
 <a href="#SkCanvas_Lattice">Lattice</a> divides <a href="SkBitmap_Reference#Bitmap">Bitmap</a> or <a href="SkImage_Reference#Image">Image</a> into a rectangular grid.
@@ -4374,20 +4377,29 @@ entries are proportionately scaled down to fit.
 The grid entries not on even columns and rows are scaled to fit the
 remaining space, if any.
 
-## <a name="SkCanvas_Lattice_Flags"></a> Enum SkCanvas::Lattice::Flags
+## <a name="SkCanvas_Lattice_RectType"></a> Enum SkCanvas::Lattice::RectType
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-enum <a href="#SkCanvas_Lattice_Flags">Flags</a> : uint8_t {
-<a href="#SkCanvas_Lattice_kTransparent_Flags">kTransparent Flags</a> = 1 << 0,
+enum <a href="#SkCanvas_Lattice_RectType">RectType</a> : uint8_t {
+<a href="#SkCanvas_Lattice_kDefault">kDefault</a> = 0,
+<a href="#SkCanvas_Lattice_kTransparent">kTransparent</a>,
+<a href="#SkCanvas_Lattice_kFixedColor">kFixedColor</a>,
 };</pre>
 
-Optional setting per rectangular grid entry to make it transparent.
+Optional setting per rectangular grid entry to make it transparent,
+or to fill the grid entry with a color.
 
 ### Constants
 
 <table>
   <tr>
-    <td><a name="SkCanvas_Lattice_kTransparent_Flags"> <code><strong>SkCanvas::Lattice::kTransparent_Flags </strong></code> </a></td><td>1</td><td>Set to skip lattice rectangle by making it transparent.</td>
+    <td><a name="SkCanvas_Lattice_kDefault"> <code><strong>SkCanvas::Lattice::kDefault </strong></code> </a></td><td>0</td><td>Draws <a href="SkBitmap_Reference#Bitmap">Bitmap</a> into lattice rectangle.</td>
+  </tr>
+  <tr>
+    <td><a name="SkCanvas_Lattice_kTransparent"> <code><strong>SkCanvas::Lattice::kTransparent </strong></code> </a></td><td>1</td><td>Skips lattice rectangle by making it transparent.</td>
+  </tr>
+  <tr>
+    <td><a name="SkCanvas_Lattice_kFixedColor"> <code><strong>SkCanvas::Lattice::kFixedColor </strong></code> </a></td><td>2</td><td>Draws one of <a href="#SkCanvas_Lattice_fColors">fColors</a> into lattice rectangle.</td>
   </tr>
 
 </table>
@@ -4408,10 +4420,12 @@ Array entries must be unique, increasing, greater than or equal to
 Set the first element to <a href="#SkCanvas_Lattice_fBounds">fBounds</a> top to collapse the top row of fixed
 grid entries.
 
-<a name="SkCanvas_Lattice_fFlags"> <code><strong>const Flags*  fFlags</strong></code> </a>
+<a name="SkCanvas_Lattice_fRectTypes"> <code><strong>const RectType* fRectTypes</strong></code> </a>
 
-Optional array of <a href="#SkCanvas_Lattice_Flags">Flags</a>, one per rectangular grid entry:
+Optional array of fill types, one per rectangular grid entry:
 array length must be(        <a href="#SkCanvas_Lattice_fXCount">fXCount</a> + 1) * (<a href="#SkCanvas_Lattice_fYCount">fYCount</a> + 1).
+
+Each <a href="#SkCanvas_Lattice_RectType">RectType</a> is one of: <a href="#SkCanvas_Lattice_kDefault">kDefault</a>, <a href="#SkCanvas_Lattice_kTransparent">kTransparent</a>, <a href="#SkCanvas_Lattice_kFixedColor">kFixedColor</a>.
 
 Array entries correspond to the rectangular grid entries, ascending
 left to right and then top to bottom.
@@ -4430,6 +4444,14 @@ divisions.
 
 Optional subset <a href="SkIRect_Reference#IRect">IRect</a> source to draw from.
 If nullptr, source bounds is dimensions of <a href="SkBitmap_Reference#Bitmap">Bitmap</a> or <a href="SkImage_Reference#Image">Image</a>.
+
+<a name="SkCanvas_Lattice_fColors"> <code><strong>const SkColor*   fColors</strong></code> </a>
+
+Optional array of colors, one per rectangular grid entry.
+Array length must be(       <a href="#SkCanvas_Lattice_fXCount">fXCount</a> + 1) * (<a href="#SkCanvas_Lattice_fYCount">fYCount</a> + 1).
+
+Array entries correspond to the rectangular grid entries, ascending
+left to right, then top to bottom.
 
 <a name="SkCanvas_drawBitmapLattice"></a>
 ## drawBitmapLattice
