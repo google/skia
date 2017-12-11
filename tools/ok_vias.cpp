@@ -6,6 +6,7 @@
  */
 
 #include "../dm/DMFontMgr.h"
+#include "../src/core/SkFontMgrPriv.h"
 #include "ProcStats.h"
 #include "SkColorFilter.h"
 #include "SkEventTracingPriv.h"
@@ -291,8 +292,6 @@ struct Trace : Dst {
 static Register trace{"trace",
                       "enable tracing in mode=atrace, mode=debugf, or mode=trace.json",
                       Trace::Create};
-
-extern sk_sp<SkFontMgr> (*gSkFontMgr_DefaultFactory)();
 
 struct PortableFonts : Dst {
     std::unique_ptr<Dst> target;

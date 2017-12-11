@@ -9,3 +9,4 @@ app/.project
 app/bin
 app/gen
 app/lint.xml
+/apps/skqp/src/main/assets
