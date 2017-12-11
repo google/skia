@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "1b3fbf3d_2419ac89",
+        "filename": "src/gpu/text/GrAtlasTextBlob.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 300,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-12-11T20:27:54Z",
+      "side": 1,
+      "message": "Ah, I didn\u0027t realize that the geometric clipping wasn\u0027t enabled for DF. Why is that? If it\u0027s fundamental I could undo my modifications to the function that does the clip when copying to the VB and just assert that we don\u0027t get there when there is a \"w\".",
+      "parentUuid": "bea20e5f_8bfa1023",
+      "range": {
+        "startLine": 299,
+        "startChar": 8,
+        "endLine": 300,
+        "endChar": 62
+      },
+      "revId": "457f801ced23a6898174af441f6a6d4a1ac3fb88",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "dc4dd80a_38b065de",
         "filename": "src/gpu/text/GrAtlasTextBlob.h",
         "patchSetId": 11
