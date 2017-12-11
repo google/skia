@@ -33,8 +33,11 @@ def get_extra_env_vars(builder_dict):
     env['CXX'] = '/usr/bin/clang++'
 
   # SKNX_NO_SIMD, SK_USE_DISCARDABLE_SCALEDIMAGECACHE, etc.
+  # TODO(benjaminwagner): Same appears in gn_flavor.py to set extra_cflags. Are
+  # both needed?
   extra_config = builder_dict.get('extra_config', '')
-  if extra_config.startswith('SK') and extra_config.isupper():
+  if extra_config.startswith('SK'):
+    assert extra_config.isupper()
     env['CPPFLAGS'] = '-D' + extra_config
 
   return env
