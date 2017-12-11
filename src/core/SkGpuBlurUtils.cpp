@@ -162,11 +162,11 @@ static void convolve_gaussian(GrRenderTargetContext* renderTargetContext,
         dstRect.fRight = midRect.right();
     }
     if (!topRect.isEmpty()) {
-        renderTargetContext->clear(&topRect, 0, false);
+        renderTargetContext->clear(&topRect, 0, GrRenderTargetContext::CanClearFullscreen::kNo);
     }
 
     if (!bottomRect.isEmpty()) {
-        renderTargetContext->clear(&bottomRect, 0, false);
+        renderTargetContext->clear(&bottomRect, 0, GrRenderTargetContext::CanClearFullscreen::kNo);
     }
 
     if (midRect.isEmpty()) {

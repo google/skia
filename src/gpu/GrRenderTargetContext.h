@@ -79,14 +79,19 @@ public:
      */
     void discard();
 
+    enum class CanClearFullscreen : bool {
+        kNo = false,
+        kYes = true
+    };
+
     /**
      * Clear the entire or rect of the render target, ignoring any clips.
      * @param rect  the rect to clear or the whole thing if rect is NULL.
      * @param color the color to clear to.
-     * @param canIgnoreRect allows partial clears to be converted to whole
-     *                      clears on platforms for which that is cheap
+     * @param CanClearFullscreen allows partial clears to be converted to fullscreen clears on
+     *                           tiling platforms where that is an optimization.
      */
-    void clear(const SkIRect* rect, GrColor color, bool canIgnoreRect);
+    void clear(const SkIRect* rect, GrColor color, CanClearFullscreen);
 
     /**
      *  Draw everywhere (respecting the clip) with the paint.
@@ -409,7 +414,7 @@ private:
     friend void test_draw_op(GrRenderTargetContext*, std::unique_ptr<GrFragmentProcessor>,
                              sk_sp<GrTextureProxy>);
 
-    void internalClear(const GrFixedClip&, const GrColor, bool canIgnoreClip);
+    void internalClear(const GrFixedClip&, const GrColor, CanClearFullscreen);
 
     // Only consumes the GrPaint if successful.
     bool drawFilledDRRect(const GrClip& clip,

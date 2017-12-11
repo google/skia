@@ -746,7 +746,7 @@ bool GrReducedClip::drawAlphaClipMask(GrRenderTargetContext* rtc) const {
     // The scratch texture that we are drawing into can be substantially larger than the mask. Only
     // clear the part that we care about.
     GrColor initialCoverage = InitialState::kAllIn == this->initialState() ? -1 : 0;
-    rtc->priv().clear(clip, initialCoverage, true);
+    rtc->priv().clear(clip, initialCoverage, GrRenderTargetContext::CanClearFullscreen::kYes);
 
     // Set the matrix so that rendered clip elements are transformed to mask space from clip space.
     SkMatrix translate;

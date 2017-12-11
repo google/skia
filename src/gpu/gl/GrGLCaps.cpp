@@ -152,8 +152,10 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         fInvalidateFBType = kDiscard_InvalidateFBType;
     }
 
-    if (kARM_GrGLVendor == ctxInfo.vendor() || kImagination_GrGLVendor == ctxInfo.vendor()) {
-        fFullClearIsFree = true;
+    if (kARM_GrGLVendor == ctxInfo.vendor() ||
+        kImagination_GrGLVendor == ctxInfo.vendor() ||
+        kQualcomm_GrGLVendor == ctxInfo.vendor() ) {
+        fPreferFullscreenClears = true;
     }
 
     if (kGL_GrGLStandard == standard) {

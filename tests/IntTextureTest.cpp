@@ -262,7 +262,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(IntTexture, reporter, ctxInfo) {
         if (!fp) {
             return;
         }
-        rtContext->clear(nullptr, 0xDDAABBCC, true);
+        rtContext->clear(nullptr, 0xDDAABBCC, GrRenderTargetContext::CanClearFullscreen::kYes);
         GrPaint paint;
         paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
         paint.addColorFragmentProcessor(std::move(fp));

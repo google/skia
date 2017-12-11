@@ -882,7 +882,7 @@ static sk_sp<GrTextureProxy> find_or_create_rrect_blur_mask(GrContext* context,
 
         GrPaint paint;
 
-        rtc->clear(nullptr, 0x0, true);
+        rtc->clear(nullptr, 0x0, GrRenderTargetContext::CanClearFullscreen::kYes);
         rtc->drawRRect(GrNoClip(), std::move(paint), GrAA::kYes, SkMatrix::I(), rrectToDraw,
                        GrStyle::SimpleFill());
 

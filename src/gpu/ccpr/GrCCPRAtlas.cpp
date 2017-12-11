@@ -116,7 +116,7 @@ sk_sp<GrRenderTargetContext> GrCCPRAtlas::finalize(GrOnFlushResourceProvider* on
     }
 
     SkIRect clearRect = SkIRect::MakeSize(fDrawBounds);
-    rtc->clear(&clearRect, 0, true);
+    rtc->clear(&clearRect, 0, GrRenderTargetContext::CanClearFullscreen::kYes);
     rtc->addDrawOp(GrNoClip(), std::move(atlasOp));
 
     fTextureProxy = sk_ref_sp(rtc->asTextureProxy());

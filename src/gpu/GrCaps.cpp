@@ -53,7 +53,7 @@ GrCaps::GrCaps(const GrContextOptions& options) {
     fInstanceAttribSupport = false;
     fUsesMixedSamples = false;
     fPreferClientSideDynamicBuffers = false;
-    fFullClearIsFree = false;
+    fPreferFullscreenClears = false;
     fMustClearUploadedBufferData = false;
     fSampleShadingSupport = false;
     fFenceSyncSupport = false;
@@ -150,7 +150,7 @@ void GrCaps::dumpJSON(SkJSONWriter* writer) const {
     writer->appendBool("Instance Attrib Support", fInstanceAttribSupport);
     writer->appendBool("Uses Mixed Samples", fUsesMixedSamples);
     writer->appendBool("Prefer client-side dynamic buffers", fPreferClientSideDynamicBuffers);
-    writer->appendBool("Full screen clear is free", fFullClearIsFree);
+    writer->appendBool("Prefer fullscreen clears", fPreferFullscreenClears);
     writer->appendBool("Must clear buffer memory", fMustClearUploadedBufferData);
     writer->appendBool("Sample shading support", fSampleShadingSupport);
     writer->appendBool("Fence sync support", fFenceSyncSupport);
