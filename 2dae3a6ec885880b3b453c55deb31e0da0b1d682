@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "fb3138b2_6687c839",
+        "filename": "infra/bots/recipe_modules/flavor/gn_android_flavor.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2017-12-11T18:31:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "98fa1566_84f77b20",
+      "range": {
+        "startLine": 86,
+        "startChar": 0,
+        "endLine": 87,
+        "endChar": 19
+      },
+      "revId": "2dae3a6ec885880b3b453c55deb31e0da0b1d682",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "eb23643d_4461fe0a",
         "filename": "infra/bots/recipe_modules/flavor/gn_android_flavor.py",
         "patchSetId": 5
@@ -36,6 +60,30 @@
       "writtenOn": "2017-12-11T17:38:40Z",
       "side": 1,
       "message": "Is it possible for the device to turn CPUs back on?  AFAICT we never re-enable them.",
+      "range": {
+        "startLine": 169,
+        "startChar": 0,
+        "endLine": 175,
+        "endChar": 38
+      },
+      "revId": "2dae3a6ec885880b3b453c55deb31e0da0b1d682",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5b00a9f4_b41ff427",
+        "filename": "infra/bots/recipe_modules/flavor/gn_android_flavor.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2017-12-11T18:31:53Z",
+      "side": 1,
+      "message": "They turn back on when the device reboots (after task).  However, Mike\u0027s comment about setting them to powersave is likely safer.",
+      "parentUuid": "eb23643d_4461fe0a",
       "range": {
         "startLine": 169,
         "startChar": 0,

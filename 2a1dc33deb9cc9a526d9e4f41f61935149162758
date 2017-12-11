@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "f9f107b4_ab812e1b",
+        "filename": "infra/bots/recipe_modules/flavor/gn_android_flavor.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2017-12-11T18:31:53Z",
+      "side": 1,
+      "message": "I\u0027d rather not encode that logic in recipes.  I\u0027m okay with just a map.",
+      "parentUuid": "d6c19778_76361f37",
+      "revId": "2a1dc33deb9cc9a526d9e4f41f61935149162758",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "0e758237_ae5ceeb3",
         "filename": "infra/bots/recipe_modules/flavor/gn_android_flavor.py",
         "patchSetId": 6
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "df032943_f4014e4a",
+        "filename": "infra/bots/recipe_modules/flavor/gn_android_flavor.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2017-12-11T18:31:53Z",
+      "side": 1,
+      "message": "I don\u0027t understand - we have been messing with this already, by setting the cpu frequency to 100% max for DM.  However, I had been doing it with userspace.  I can try ondemand and see if that impacts test time.",
+      "parentUuid": "0e758237_ae5ceeb3",
+      "revId": "2a1dc33deb9cc9a526d9e4f41f61935149162758",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "5dfacc4f_eddb5b28",
         "filename": "infra/bots/recipe_modules/flavor/gn_android_flavor.py",
         "patchSetId": 6
@@ -47,6 +83,24 @@
       "writtenOn": "2017-12-11T17:54:01Z",
       "side": 1,
       "message": "This assert as you have it written is not required to pass.  It could be clocked down...",
+      "revId": "2a1dc33deb9cc9a526d9e4f41f61935149162758",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0aa8ea30_d1305bd3",
+        "filename": "infra/bots/recipe_modules/flavor/gn_android_flavor.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 234,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2017-12-11T18:31:53Z",
+      "side": 1,
+      "message": "We haven\u0027t noticed this happen yet.",
+      "parentUuid": "5dfacc4f_eddb5b28",
       "revId": "2a1dc33deb9cc9a526d9e4f41f61935149162758",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
