@@ -22,6 +22,30 @@
       "revId": "cca230055921d2df8708ed6f9abcc2d43468dc7f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bca4e649_35eaa2f1",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 522,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-12-11T18:19:41Z",
+      "side": 0,
+      "message": ".",
+      "parentUuid": "7d3309e8_8747cb0c",
+      "range": {
+        "startLine": 522,
+        "startChar": 53,
+        "endLine": 522,
+        "endChar": 57
+      },
+      "revId": "cca230055921d2df8708ed6f9abcc2d43468dc7f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }

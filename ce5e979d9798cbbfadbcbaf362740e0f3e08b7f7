@@ -22,6 +22,30 @@
       "revId": "ce5e979d9798cbbfadbcbaf362740e0f3e08b7f7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c89b4961_ea833dfe",
+        "filename": "src/gpu/vk/GrVkCaps.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 185,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-12-11T18:19:41Z",
+      "side": 1,
+      "message": "Undid Vulkan / Metal changes in this CL and filed https://bugs.chromium.org/p/skia/issues/detail?id\u003d7396\u0026can\u003d2\u0026start\u003d0\u0026num\u003d100\u0026q\u003d\u0026colspec\u003dID%20Type%20Status%20Priority%20M%20Area%20Owner%20Summary\u0026groupby\u003d\u0026sort\u003d\u0026hotlist_id\u003d",
+      "parentUuid": "fc983b83_018e7445",
+      "range": {
+        "startLine": 181,
+        "startChar": 1,
+        "endLine": 185,
+        "endChar": 5
+      },
+      "revId": "ce5e979d9798cbbfadbcbaf362740e0f3e08b7f7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
