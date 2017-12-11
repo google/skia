@@ -140,6 +140,24 @@
       "revId": "2a1dc33deb9cc9a526d9e4f41f61935149162758",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5d55e218_60dbe2ac",
+        "filename": "infra/bots/recipe_modules/flavor/gn_android_flavor.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 234,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-12-11T18:46:04Z",
+      "side": 1,
+      "message": "Oh, might be.  Was that Thursday?",
+      "parentUuid": "0f452f41_d3d46bca",
+      "revId": "2a1dc33deb9cc9a526d9e4f41f61935149162758",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
