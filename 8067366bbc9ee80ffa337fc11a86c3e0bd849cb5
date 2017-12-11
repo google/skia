@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f38abde7_195e90fb",
+        "filename": "src/core/SkReadBuffer.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-12-11T18:52:34Z",
+      "side": 1,
+      "message": "I was thinking\n\n#if defined(_MSC_VER)\n  #pragma warning(push)\n  #pragma warning(disable : ????)  // Thanks MSVC, we know what we\u0027re doing here.\n#endif\n\n  return -static_cast\u003csize_t\u003e(value);\n\n#if defined(_MSC_VER)\n  #pragma warning(pop)\n#endif\n\nOr I think that might be able to be shorter as\n\n#if defined(_MSC_VER)\n  #pragma warning(suppress : ????)  // Thanks MSVC...\n#endif\nreturn -static_cast\u003csize_t\u003e(value);",
+      "revId": "8067366bbc9ee80ffa337fc11a86c3e0bd849cb5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
