@@ -198,13 +198,15 @@ SI T* ptr_at_xy(const SkJumper_MemoryCtx* ctx, int dx, int dy) {
     return (T*)ctx->pixels + dy*ctx->stride + dx;
 }
 
+// clamp v to [0,limit).
+SI F clamp(F v, F limit) {
+    F inclusive = bit_cast<F>( bit_cast<U32>(limit) - 1 );  // Exclusive -> inclusive.
+    return min(max(0, v), inclusive);
+}
+
 // Used by gather_ stages to calculate the base pointer and a vector of indices to load.
 template <typename T>
 SI U32 ix_and_ptr(T** ptr, const SkJumper_GatherCtx* ctx, F x, F y) {
-    auto clamp = [](F v, F limit) {
-        limit = bit_cast<F>( bit_cast<U32>(limit) - 1 );  // Exclusive -> inclusive.
-        return min(max(0, v), limit);
-    };
     x = clamp(x, ctx->width);
     y = clamp(y, ctx->height);
 
@@ -1501,4 +1503,48 @@ STAGE(gauss_a_to_rgba, Ctx::None) {
     r = a;
     g = a;
     b = a;
+}
+
+// A specialized fused image shader for clamp-x, clamp-y, non-sRGB sampling.
+STAGE(bilerp_clamp_8888, SkJumper_GatherCtx* ctx) {
+    // (cx,cy) are the center of our sample.
+    F cx = r,
+      cy = g;
+
+    // All sample points are at the same fractional offset (fx,fy).
+    // They're the 4 corners of a logical 1x1 pixel surrounding (x,y) at (0.5,0.5) offsets.
+    F fx = fract(cx + 0.5f),
+      fy = fract(cy + 0.5f);
+
+    // We'll accumulate the color of all four samples into {r,g,b,a} directly.
+    r = g = b = a = 0;
+
+    float offsets[] = {-0.5f,+0.5f};
+
+    for (float dy : offsets)
+    for (float dx : offsets) {
+        // (x,y) are the coordinates of this sample point.
+        F x = cx + dx,
+          y = cy + dy;
+
+        // ix_and_ptr() will clamp to the image's bounds for us.
+        const uint32_t* ptr;
+        U32 ix = ix_and_ptr(&ptr, ctx, x,y);
+
+        F sr,sg,sb,sa;
+        from_8888(gather(ptr, ix), &sr,&sg,&sb,&sa);
+
+        // In bilinear interpolation, the 4 pixels at +/- 0.5 offsets from the sample pixel center
+        // are combined in direct proportion to their area overlapping that logical query pixel.
+        // At positive offsets, the x-axis contribution to that rectangle is fx,
+        // or (1-fx) at negative x.  Same deal for y.
+        F sx = (dx > 0) ? fx : 1.0f - fx,
+          sy = (dy > 0) ? fy : 1.0f - fy,
+          area = sx * sy;
+
+        r += sr * area;
+        g += sg * area;
+        b += sb * area;
+        a += sa * area;
+    }
 }
