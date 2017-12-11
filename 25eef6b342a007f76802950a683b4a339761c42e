@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1086735b_eaee4978",
+        "filename": "include/core/SkImageEncoder.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-12-11T15:41:50Z",
+      "side": 1,
+      "message": "You can remove the \"block of memory\" part of this comment here.\n\nAlso, you can replace sk_tool_utils::EncodeImageToData()",
+      "revId": "25eef6b342a007f76802950a683b4a339761c42e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
