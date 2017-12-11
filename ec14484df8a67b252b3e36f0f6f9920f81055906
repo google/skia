@@ -55,6 +55,24 @@
     },
     {
       "key": {
+        "uuid": "5b2b80f3_c13ff67d",
+        "filename": "src/gpu/glsl/GrGLSLGeometryProcessor.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-12-11T17:01:27Z",
+      "side": 1,
+      "message": "Okay. Regardless, the end goal is for the GP to just assign sk_Position directly, and Ethan is actively working on that, so this code will go away very soon.",
+      "parentUuid": "dac98dd1_b4e659b3",
+      "revId": "ec14484df8a67b252b3e36f0f6f9920f81055906",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ed9c24da_105cf8c2",
         "filename": "src/gpu/glsl/GrGLSLGeometryProcessor.cpp",
         "patchSetId": 8
