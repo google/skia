@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "43e1652c_0d130502",
+        "filename": "BUILD.gn",
+        "patchSetId": 4
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-12-11T18:00:48Z",
+      "side": 1,
+      "message": "fixed",
+      "parentUuid": "f6f9955d_ab0b35e3",
+      "revId": "51fa3d4d77fe9897d7abb777b40ef64d1698df52",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "04cda797_d6e73bd2",
         "filename": "BUILD.gn",
         "patchSetId": 4
@@ -57,6 +75,30 @@
       "revId": "51fa3d4d77fe9897d7abb777b40ef64d1698df52",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e46d05ee_205b4929",
+        "filename": "BUILD.gn",
+        "patchSetId": 4
+      },
+      "lineNbr": 913,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-12-11T18:00:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "04cda797_d6e73bd2",
+      "range": {
+        "startLine": 913,
+        "startChar": 14,
+        "endLine": 913,
+        "endChar": 19
+      },
+      "revId": "51fa3d4d77fe9897d7abb777b40ef64d1698df52",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -83,6 +125,30 @@
     },
     {
       "key": {
+        "uuid": "571918c6_82bc7b65",
+        "filename": "tools/BinaryAsset.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-12-11T18:00:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "10c48c90_bacdecb4",
+      "range": {
+        "startLine": 11,
+        "startChar": 10,
+        "endLine": 11,
+        "endChar": 23
+      },
+      "revId": "51fa3d4d77fe9897d7abb777b40ef64d1698df52",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3413dce3_17be8daf",
         "filename": "tools/BinaryAsset.h",
         "patchSetId": 4
@@ -103,6 +169,30 @@
       "revId": "51fa3d4d77fe9897d7abb777b40ef64d1698df52",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c2472a37_b6ae03a7",
+        "filename": "tools/BinaryAsset.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-12-11T18:00:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3413dce3_17be8daf",
+      "range": {
+        "startLine": 12,
+        "startChar": 4,
+        "endLine": 12,
+        "endChar": 25
+      },
+      "revId": "51fa3d4d77fe9897d7abb777b40ef64d1698df52",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
