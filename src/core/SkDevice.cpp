@@ -223,8 +223,24 @@ void SkBaseDevice::drawImageLattice(const SkImage* image,
     SkLatticeIter iter(lattice, dst);
 
     SkRect srcR, dstR;
-    while (iter.next(&srcR, &dstR)) {
-        this->drawImageRect(image, &srcR, dstR, paint, SkCanvas::kStrict_SrcRectConstraint);
+    SkColor c;
+    bool isFixedColor = false;
+    const SkImageInfo info = SkImageInfo::Make(1, 1, kBGRA_8888_SkColorType, kUnpremul_SkAlphaType);
+
+    while (iter.next(&srcR, &dstR, &isFixedColor, &c)) {
+          if (isFixedColor || (srcR.width() <= 1.0f && srcR.height() <= 1.0f &&
+                               image->readPixels(info, &c, 4, srcR.fLeft, srcR.fTop))) {
+              // Fast draw with drawRect, if this is a patch containing a single color
+              // or if this is a patch containing a single pixel.
+              if (0 != c || !paint.isSrcOver()) {
+                   SkPaint paintCopy(paint);
+                   int alpha = SkAlphaMul(SkColorGetA(c), SkAlpha255To256(paint.getAlpha()));
+                   paintCopy.setColor(SkColorSetA(c, alpha));
+                   this->drawRect(dstR, paintCopy);
+              }
+        } else {
+            this->drawImageRect(image, &srcR, dstR, paint, SkCanvas::kStrict_SrcRectConstraint);
+        }
     }
 }
 
