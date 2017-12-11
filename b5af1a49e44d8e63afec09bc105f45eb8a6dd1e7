@@ -22,6 +22,30 @@
       "revId": "b5af1a49e44d8e63afec09bc105f45eb8a6dd1e7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ed4b0bcc_7eec1ffb",
+        "filename": "include/gpu/GrContext.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 389,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-12-11T18:43:13Z",
+      "side": 1,
+      "message": "Unfortunately the GrContextOptions is used to set things on the GrContext too.",
+      "parentUuid": "a51ef486_efb4afd3",
+      "range": {
+        "startLine": 389,
+        "startChar": 4,
+        "endLine": 389,
+        "endChar": 51
+      },
+      "revId": "b5af1a49e44d8e63afec09bc105f45eb8a6dd1e7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
