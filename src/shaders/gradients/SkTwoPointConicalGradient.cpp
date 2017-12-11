@@ -210,6 +210,7 @@ void SkTwoPointConicalGradient::appendGradientStages(SkArenaAlloc* alloc, SkRast
     } else {
         isWellBehaved = SkScalarAbs(dRadius) >= dCenter;
         bool isFlipped = isWellBehaved && dRadius < 0;
+        bool isFirst = (coeffA > 0) != isFlipped;
 
         // We want the larger root, per spec:
         //   "For all values of ω where r(ω) > 0, starting with the value of ω nearest
@@ -221,8 +222,11 @@ void SkTwoPointConicalGradient::appendGradientStages(SkArenaAlloc* alloc, SkRast
         // (https://html.spec.whatwg.org/multipage/canvas.html#dom-context-2d-createradialgradient)
         //
         // ... except when the gradient is flipped.
-        p->append(isFlipped ? SkRasterPipeline::xy_to_2pt_conical_quadratic_min
-                            : SkRasterPipeline::xy_to_2pt_conical_quadratic_max, ctx);
+        //
+        // The first root (-b + sqrt(...)) / 2a is larger if a (i.e. coeffA) > 0 and the second
+        // root (-b - sqrt(...)) / 2a is larger if a < 0.
+        p->append(isFirst ? SkRasterPipeline::xy_to_2pt_conical_quadratic_first
+                          : SkRasterPipeline::xy_to_2pt_conical_quadratic_second, ctx);
     }
 
     if (!isWellBehaved) {
