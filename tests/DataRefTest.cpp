@@ -150,6 +150,10 @@ static void test_files(skiatest::Reporter* reporter) {
     }
 
     SkString path = SkOSPath::Join(tmpDir.c_str(), "data_test");
+    if (!SkFILEWStream(path.c_str()).isValid()) {
+        ERRORF(reporter, "unable to write to: %s", path.c_str());
+        return;
+    }
 
     const char s[] = "abcdefghijklmnopqrstuvwxyz";
     {
