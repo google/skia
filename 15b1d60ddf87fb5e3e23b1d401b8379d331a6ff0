@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2ece3017_0052a2cb",
+        "filename": "infra/bots/recipe_modules/flavor/gn_android_flavor.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-12-11T18:27:53Z",
+      "side": 1,
+      "message": "I think you can just _scale_cpu(0.6) all the CPUs the same way.  The little CPUs will end up running around their lowest speed (because you set min to 0) and the big ones around its 0.6x speed anyway.",
+      "revId": "15b1d60ddf87fb5e3e23b1d401b8379d331a6ff0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1b5c240a_ca1004ea",
+        "filename": "infra/bots/recipe_modules/flavor/gn_android_flavor.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-12-11T18:27:53Z",
+      "side": 1,
+      "message": "(I suspect that the NexusPlayer\u0027s CPU cores are all identical.  big.LITTLE is kinda an ARM-only thing.)",
+      "revId": "15b1d60ddf87fb5e3e23b1d401b8379d331a6ff0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
