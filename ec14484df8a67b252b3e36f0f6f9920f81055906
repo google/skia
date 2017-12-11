@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "09af10e6_17b2cce0",
+        "filename": "src/gpu/glsl/GrGLSLGeometryProcessor.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-12-11T16:48:38Z",
+      "side": 1,
+      "message": "I think that would allow half precision vertex positions, which I don\u0027t believe we want to let through?",
+      "parentUuid": "2e3a99a5_f90f6220",
+      "revId": "ec14484df8a67b252b3e36f0f6f9920f81055906",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ed9c24da_105cf8c2",
         "filename": "src/gpu/glsl/GrGLSLGeometryProcessor.cpp",
         "patchSetId": 8
