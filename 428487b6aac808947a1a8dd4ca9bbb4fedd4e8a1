@@ -16,6 +16,24 @@
       "revId": "428487b6aac808947a1a8dd4ca9bbb4fedd4e8a1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8cfdbcc4_7a20f9de",
+        "filename": "src/core/SkDevice.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 231,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2017-12-11T17:23:45Z",
+      "side": 1,
+      "message": "1) This is a great idea - I\u0027ve combined single pixel and single color logic in patch set 11.\n2) The transparent flag means don\u0027t draw at all regardless of blend mode, while fixed transparent color will draw if (!paint.isSrcOver). I think the transparent logic better stay in SkLatticeIter.",
+      "parentUuid": "74f3a06b_e3cd7185",
+      "revId": "428487b6aac808947a1a8dd4ca9bbb4fedd4e8a1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
