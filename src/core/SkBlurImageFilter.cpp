@@ -439,19 +439,44 @@ static sk_sp<SkSpecialImage> cpu_blur(
     Sk4u* buffer = alloc.makeArrayDefault<Sk4u>(std::max(bufferSizeW, bufferSizeH));
 
     if (windowW > 1 || windowH > 1) {
+
+        // Basic Plan: The three cases to handle
+        // * Horizontal and Vertical - blur horizontally while copying values from the source to
+        //     the destination. Then, do an in-place vertical blur.
+        // * Horizontal only - blur horizontally copying values from the source to the destination.
+        // * Vertical only - blur vertically copying values from the source to the destination.
+
+        // Default to vertical only blur case. If a horizontal blur is needed, then these values
+        // will be adjusted while doing the horizontal blur.
         auto intermediateSrc = static_cast<uint32_t *>(src.getPixels());
         auto intermediateRowBytesAsPixels = src.rowBytesAsPixels();
         auto intermediateWidth = srcW;
 
+        // Because the border is calculated before the fork of the GPU/CPU path. The border is
+        // the maximum of the two rendering methods. In the case where sigma is zero, then the
+        // src and dst left values are the same. If sigma is small resulting in a window size of
+        // 1, then border calculations add some pixels which will always be zero. Inset the
+        // destination by those zero pixels. This case is very rare.
+        auto intermediateDst = dst.getAddr32(srcBounds.left(), 0);
+
+        // The following code is executed very rarely, I have never seen it in a real web
+        // page. If sigma is small but not zero then shared GPU/CPU border calculation
+        // code adds extra pixels for the border. Just clear everything to clear those pixels.
+        // This solution is overkill, but very simple.
+        if (windowW == 1 || windowH == 1) {
+            sk_bzero(dst.getPixels(), dst.rowBytes() * dstBounds.height());
+        }
+
         if (windowW > 1) {
-            auto shift = (srcBounds.top() - dstBounds.top());
-            // For the horizontal blur, start part way down in anticipation of the vertical blur.
+            auto shift = srcBounds.top() - dstBounds.top();
+            // For the horizontal blur, starts part way down in anticipation of the vertical blur.
             // For a vertical sigma of zero shift should be zero. But, for small sigma,
             // shift may be > 0 but the vertical window could be 1.
             intermediateSrc = static_cast<uint32_t *>(dst.getPixels())
                               + (shift > 0 ? shift * dst.rowBytesAsPixels() : 0);
             intermediateRowBytesAsPixels = dst.rowBytesAsPixels();
             intermediateWidth = dstW;
+            intermediateDst = static_cast<uint32_t *>(dst.getPixels());
 
             blur_one_direction(
                     buffer, windowW,
@@ -465,17 +490,7 @@ static sk_sp<SkSpecialImage> cpu_blur(
                     buffer, windowH,
                     srcBounds.top(), srcBounds.bottom(), dstBounds.bottom(),
                     intermediateSrc, intermediateRowBytesAsPixels, 1, intermediateWidth,
-                    static_cast<uint32_t *>(dst.getPixels()), dst.rowBytesAsPixels(), 1);
-        } else {
-            // This code is needed to account for the difference between border calculation of
-            // the GPU and CPU. Normally, a window of 1 would imply no border, but because the
-            // layout must be the same for CPU and GPU there can be a border.
-            for (int y = dstBounds.top(); y < srcBounds.top(); y++) {
-                sk_bzero(dst.getAddr32(0, y), dst.rowBytes());
-            }
-            for (int y = srcBounds.bottom(); y < dstBounds.bottom(); y++) {
-                sk_bzero(dst.getAddr32(0, y), dst.rowBytes());
-            }
+                    intermediateDst, dst.rowBytesAsPixels(), 1);
         }
     }  else {
         // There is no blurring to do, but we still need to copy the source while accounting for the
