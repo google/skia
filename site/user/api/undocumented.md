@@ -1,7 +1,11 @@
 undocumented
 ===
 
-# <a name="Glyph"></a> Glyph
+# <a name="Size"></a> Size
+
+# <a name="SkSize"></a> Struct SkSize
+
+# <a name="Curve"></a> Curve
 
 # <a name="Document"></a> Document
 
@@ -17,22 +21,6 @@ SkCanvas* beginPage(SkScalar width, SkScalar height, const SkRect* content = NUL
 ---
 
 ## <a name="PDF"></a> PDF
-
-# <a name="PostScript"></a> PostScript
-
-## <a name="Arct"></a> Arct
-
-# <a name="Deferred_Display_List"></a> Deferred Display List
-
-# <a name="SkDeferredDisplayList"></a> Class SkDeferredDisplayList
-
-## <a name="Recorder"></a> Recorder
-
-# <a name="SkDeferredDisplayListRecorder"></a> Class SkDeferredDisplayListRecorder
-
-# <a name="Size"></a> Size
-
-# <a name="SkSize"></a> Struct SkSize
 
 # <a name="Image_Color_Type"></a> Image Color Type
 
@@ -85,12 +73,6 @@ SkCanvas* beginPage(SkScalar width, SkScalar height, const SkRect* content = NUL
 
 # <a name="Line"></a> Line
 
-# <a name="Region"></a> Region
-
-# <a name="SkRegion"></a> Class SkRegion
-
-# <a name="Mip_Map"></a> Mip Map
-
 # <a name="Debugging"></a> Debugging
 
 <a name="SkDebugf"></a>
@@ -102,13 +84,15 @@ SK_API void SkDebugf(const char format[], ...)
 
 ---
 
+# <a name="Region"></a> Region
+
+# <a name="SkRegion"></a> Class SkRegion
+
 # <a name="Device"></a> Device
 
 # <a name="SkBaseDevice"></a> Class SkBaseDevice
 
 # <a name="Patch"></a> Patch
-
-# <a name="Curve"></a> Curve
 
 # <a name="Typeface"></a> Typeface
 
@@ -118,13 +102,29 @@ SK_API void SkDebugf(const char format[], ...)
 
 # <a name="SkDumpCanvas"></a> Class SkDumpCanvas
 
+# <a name="ISize"></a> ISize
+
+# <a name="SkISize"></a> Struct SkISize
+
+# <a name="PostScript"></a> PostScript
+
+## <a name="Arct"></a> Arct
+
+# <a name="Deferred_Display_List"></a> Deferred Display List
+
+# <a name="SkDeferredDisplayList"></a> Class SkDeferredDisplayList
+
+## <a name="Recorder"></a> Recorder
+
+# <a name="SkDeferredDisplayListRecorder"></a> Class SkDeferredDisplayListRecorder
+
+# <a name="Mip_Map"></a> Mip Map
+
 # <a name="HTML_Canvas"></a> HTML Canvas
 
 ## <a name="ArcTo"></a> ArcTo
 
-# <a name="ISize"></a> ISize
-
-# <a name="SkISize"></a> Struct SkISize
+# <a name="Raster_Image"></a> Raster Image
 
 # <a name="Left_Side_Bearing"></a> Left Side Bearing
 
@@ -536,6 +536,8 @@ static std::unique_ptr&lt;SkCanvas&gt; MakeCanvas(std::unique_ptr&lt;SkRasterHan
 
 # <a name="Font_Manager"></a> Font Manager
 
+# <a name="Glyph"></a> Glyph
+
 # <a name="GPU_Context"></a> GPU Context
 
 ## <a name="Resource_Cache_Limits"></a> Resource Cache Limits
@@ -943,6 +945,8 @@ void setImmutable()
 # <a name="Premultiply"></a> Premultiply
 
 # <a name="Raster_Engine"></a> Raster Engine
+
+# <a name="Raster_Bitmap"></a> Raster Bitmap
 
 # <a name="Raster_Surface"></a> Raster Surface
 

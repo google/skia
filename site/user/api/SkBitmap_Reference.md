@@ -654,7 +654,7 @@ immutable.
 
 ### Return Value
 
-<a href="undocumented#Color_Space">Color Space</a> in <a href="undocumented#Image_Info">Image Info</a>
+<a href="undocumented#Color_Space">Color Space</a> in <a href="undocumented#Image_Info">Image Info</a>, or nullptr
 
 ### Example
 

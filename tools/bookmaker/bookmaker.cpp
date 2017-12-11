@@ -7,6 +7,7 @@
 
 #include "bookmaker.h"
 
+DEFINE_string2(status, a, "", "File containing status of documentation. (Use in place of -b -i)");
 DEFINE_string2(bmh, b, "", "Path to a *.bmh file or a directory.");
 DEFINE_bool2(catalog, c, false, "Write example catalog.htm. (Requires -b -f -r)");
 DEFINE_string2(examples, e, "", "File of fiddlecli input, usually fiddle.json (For now, disables -r -f -s)");
@@ -1056,6 +1057,71 @@ void TextParser::reportWarning(const char* errorStr) const {
     }
 }
 
+string TextParser::typedefName() {
+    // look for typedef as one of three forms:
+    // typedef return-type (*NAME)(params);
+    // typedef alias NAME;
+    // typedef std::function<alias> NAME;
+    string builder;
+    const char* end = this->doubleLF();
+    if (!end) {
+       end = fEnd;
+    }
+    const char* altEnd = this->strnstr("#Typedef ##", end);
+    if (altEnd) {
+        end = this->strnchr('\n', end);
+    }
+    if (!end) {
+        return this->reportError<string>("missing typedef std::function end bracket >");
+    }
+
+    if (this->startsWith("std::function")) {
+        if (!this->skipToEndBracket('>')) {
+            return this->reportError<string>("missing typedef std::function end bracket >");
+        }
+        this->next();
+        this->skipWhiteSpace();
+        builder += string(fChar, end - fChar);
+    } else {
+        const char* paren = this->strnchr('(', end);
+        if (!paren) {
+            const char* lastWord = nullptr;
+            do {
+                this->skipToWhiteSpace();
+                if (fChar < end && isspace(fChar[0])) {
+                    this->skipWhiteSpace();
+                    lastWord = fChar;
+                } else {
+                    break;
+                }
+            } while (true);
+            if (!lastWord) {
+                return this->reportError<string>("missing typedef name");
+            }
+            builder += string(lastWord, end - lastWord);
+        } else {
+            this->skipTo(paren);
+            this->next();
+            if ('*' != this->next()) {
+                return this->reportError<string>("missing typedef function asterisk");
+            }
+            const char* nameStart = fChar;
+            if (!this->skipToEndBracket(')')) {
+                return this->reportError<string>("missing typedef function )");
+            }
+            builder += string(nameStart, fChar - nameStart);
+            if (!this->skipToEndBracket('(')) {
+                return this->reportError<string>("missing typedef params (");
+            }
+            if (! this->skipToEndBracket(')')) {
+                return this->reportError<string>("missing typedef params )");
+            }
+            this->skipTo(end);
+        }
+    }
+    return builder;
+}
+
 bool BmhParser::skipNoName() {
     if ('\n' == this->peek()) {
         this->next();
@@ -1253,67 +1319,12 @@ string BmhParser::typedefName() {
         SkASSERT(fMC != this->peek());
         return fParent->fName;
     }
-    // look for typedef as one of three forms:
-    // typedef return-type (*NAME)(params);
-    // typedef alias NAME;
-    // typedef std::function<alias> NAME;
     string builder;
-    const char* end = this->doubleLF();
-    if (!end) {
-       end = fEnd;
+    const Definition* parent = this->parentSpace();
+    if (parent && parent->fName.length() > 0) {
+        builder = parent->fName + "::";
     }
-    const char* altEnd = this->strnstr("#Typedef ##", end);
-    if (altEnd) {
-        end = this->strnchr('\n', end);
-    }
-    if (!end) {
-        return this->reportError<string>("missing typedef std::function end bracket >");
-    }
-
-    if (this->startsWith("std::function")) {
-        if (!this->skipToEndBracket('>')) {
-            return this->reportError<string>("missing typedef std::function end bracket >");
-        }
-        this->next();
-        this->skipWhiteSpace();
-        builder = string(fChar, end - fChar);
-    } else {
-        const char* paren = this->strnchr('(', end);
-        if (!paren) {
-            const char* lastWord = nullptr;
-            do {
-                this->skipToWhiteSpace();
-                if (fChar < end && isspace(fChar[0])) {
-                    this->skipWhiteSpace();
-                    lastWord = fChar;
-                } else {
-                    break;
-                }
-            } while (true);
-            if (!lastWord) {
-                return this->reportError<string>("missing typedef name");
-            }
-            builder = string(lastWord, end - lastWord);
-        } else {
-            this->skipTo(paren);
-            this->next();
-            if ('*' != this->next()) {
-                return this->reportError<string>("missing typedef function asterisk");
-            }
-            const char* nameStart = fChar;
-            if (!this->skipToEndBracket(')')) {
-                return this->reportError<string>("missing typedef function )");
-            }
-            builder = string(nameStart, fChar - nameStart);
-            if (!this->skipToEndBracket('(')) {
-                return this->reportError<string>("missing typedef params (");
-            }
-            if (! this->skipToEndBracket(')')) {
-                return this->reportError<string>("missing typedef params )");
-            }
-            this->skipTo(end);
-        }
-    }
+    builder += TextParser::typedefName();
     return uniqueRootName(builder, MarkType::kTypedef);
 }
 
@@ -1348,9 +1359,6 @@ string BmhParser::uniqueRootName(const string& base, MarkType markType) {
         return markType == def.fMarkType && def.fName == numBuilder;
     };
 
-        if (string::npos != base.find("SkMatrix::operator")) {
-            SkDebugf("");
-        }
     string builder(base);
     if (!builder.length()) {
         builder = fParent->fName;
@@ -1389,9 +1397,6 @@ tryNext: ;
             cloned->fCloned = true;
         }
         fCloned = true;
-        if (string::npos != builder.find("operator")) {
-            SkDebugf("");
-        }
         numBuilder = builder + '_' + to_string(number);
     } while (++number);
     return numBuilder;
@@ -1485,8 +1490,8 @@ int main(int argc, char** const argv) {
         "              bookmaker -b path/to/bmh_files -e fiddle.json\n"
         "              ~/go/bin/fiddlecli --input fiddle.json --output fiddleout.json\n"
         "              bookmaker -b path/to/bmh_files -f fiddleout.json -r path/to/md_files\n"
-        "              bookmaker -b path/to/bmh_files -i path/to/include.h -x\n"
-        "              bookmaker -b path/to/bmh_files -i path/to/include.h -p\n");
+        "              bookmaker -a path/to/status.json -x\n"
+        "              bookmaker -a path/to/status.json -p\n");
     bool help = false;
     for (int i = 1; i < argc; i++) {
         if (0 == strcmp("-h", argv[i]) || 0 == strcmp("--help", argv[i])) {
@@ -1505,23 +1510,38 @@ int main(int argc, char** const argv) {
     } else {
         SkCommandLineFlags::PrintUsage();
         const char* const commands[] = { "", "-h", "bmh", "-h", "examples", "-h", "include", "-h", "fiddle",
-            "-h", "ref", "-h", "tokens",
+            "-h", "ref", "-h", "status", "-h", "tokens",
             "-h", "crosscheck", "-h", "populate", "-h", "spellcheck" };
         SkCommandLineFlags::Parse(SK_ARRAY_COUNT(commands), commands);
         return 0;
     }
-    if (FLAGS_bmh.isEmpty() && FLAGS_include.isEmpty()) {
-        SkDebugf("requires -b or -i\n");
+    if (FLAGS_bmh.isEmpty() && FLAGS_include.isEmpty() && FLAGS_status.isEmpty()) {
+        SkDebugf("requires at least one of: -b -i -a\n");
         SkCommandLineFlags::PrintUsage();
         return 1;
     }
-    if ((FLAGS_bmh.isEmpty() || FLAGS_fiddle.isEmpty() || FLAGS_ref.isEmpty()) && FLAGS_catalog) {
-        SkDebugf("-c requires -b -f -r\n");
+    if (!FLAGS_bmh.isEmpty() && !FLAGS_status.isEmpty()) {
+        SkDebugf("requires -b or -a but not both\n");
         SkCommandLineFlags::PrintUsage();
         return 1;
     }
-    if (FLAGS_bmh.isEmpty() && !FLAGS_examples.isEmpty()) {
-        SkDebugf("-e requires -b\n");
+    if (!FLAGS_include.isEmpty() && !FLAGS_status.isEmpty()) {
+        SkDebugf("requires -i or -a but not both\n");
+        SkCommandLineFlags::PrintUsage();
+        return 1;
+    }
+    if (FLAGS_bmh.isEmpty() && FLAGS_status.isEmpty() && FLAGS_catalog) {
+         SkDebugf("-c requires -b or -a\n");
+        SkCommandLineFlags::PrintUsage();
+        return 1;
+    }
+    if ((FLAGS_fiddle.isEmpty() || FLAGS_ref.isEmpty()) && FLAGS_catalog) {
+        SkDebugf("-c requires -f -r\n");
+        SkCommandLineFlags::PrintUsage();
+        return 1;
+    }
+    if (FLAGS_bmh.isEmpty() && FLAGS_status.isEmpty() && !FLAGS_examples.isEmpty()) {
+        SkDebugf("-e requires -b or -a\n");
         SkCommandLineFlags::PrintUsage();
         return 1;
     }
@@ -1538,18 +1558,19 @@ int main(int argc, char** const argv) {
         }
         return 0;
     }
-    if ((FLAGS_include.isEmpty() || FLAGS_bmh.isEmpty()) && FLAGS_populate) {
-        SkDebugf("-p requires -b -i\n");
+    if ((FLAGS_include.isEmpty() || FLAGS_bmh.isEmpty()) && FLAGS_status.isEmpty() &&
+            FLAGS_populate) {
+        SkDebugf("-p requires -b -i or -a\n");
         SkCommandLineFlags::PrintUsage();
         return 1;
     }
-    if (FLAGS_bmh.isEmpty() && !FLAGS_ref.isEmpty()) {
-        SkDebugf("-r requires -b\n");
+    if (FLAGS_bmh.isEmpty() && FLAGS_status.isEmpty() && !FLAGS_ref.isEmpty()) {
+        SkDebugf("-r requires -b or -a\n");
         SkCommandLineFlags::PrintUsage();
         return 1;
     }
-    if (FLAGS_bmh.isEmpty() && !FLAGS_spellcheck.isEmpty()) {
-        SkDebugf("-s requires -b\n");
+    if (FLAGS_bmh.isEmpty() && FLAGS_status.isEmpty() && !FLAGS_spellcheck.isEmpty()) {
+        SkDebugf("-s requires -b or -a\n");
         SkCommandLineFlags::PrintUsage();
         return 1;
     }
@@ -1558,8 +1579,9 @@ int main(int argc, char** const argv) {
         SkCommandLineFlags::PrintUsage();
         return 1;
     }
-    if ((FLAGS_include.isEmpty() || FLAGS_bmh.isEmpty()) && FLAGS_crosscheck) {
-        SkDebugf("-x requires -b -i\n");
+    if ((FLAGS_include.isEmpty() || FLAGS_bmh.isEmpty()) && FLAGS_status.isEmpty() &&
+            FLAGS_crosscheck) {
+        SkDebugf("-x requires -b -i or -a\n");
         SkCommandLineFlags::PrintUsage();
         return 1;
     }
@@ -1568,31 +1590,51 @@ int main(int argc, char** const argv) {
         if (!bmhParser.parseFile(FLAGS_bmh[0], ".bmh")) {
             return -1;
         }
+    } else if (!FLAGS_status.isEmpty()) {
+        bmhParser.reset();
+        if (!bmhParser.parseStatus(FLAGS_status[0], ".bmh", StatusFilter::kInProgress)) {
+            return -1;
+        }
     }
     bool done = false;
-    if (!FLAGS_include.isEmpty()) {
-        if (FLAGS_tokens || FLAGS_crosscheck) {
+    if (!FLAGS_include.isEmpty() && FLAGS_tokens) {
+        IncludeParser includeParser;
+        includeParser.validate();
+        if (!includeParser.parseFile(FLAGS_include[0], ".h")) {
+            return -1;
+        }
+        if (FLAGS_tokens) {
+            includeParser.fDebugOut = FLAGS_stdout;
+            if (includeParser.dumpTokens(FLAGS_bmh[0])) {
+                bmhParser.fWroteOut = true;
+            }
+            done = true;
+        }
+    } else if (!FLAGS_include.isEmpty() || !FLAGS_status.isEmpty()) {
+        if (FLAGS_crosscheck) {
             IncludeParser includeParser;
             includeParser.validate();
-            if (!includeParser.parseFile(FLAGS_include[0], ".h")) {
+            if (!FLAGS_include.isEmpty() &&
+                    !includeParser.parseFile(FLAGS_include[0], ".h")) {
                 return -1;
             }
-            if (FLAGS_tokens) {
-                includeParser.fDebugOut = FLAGS_stdout;
-                if (includeParser.dumpTokens(FLAGS_bmh[0])) {
-                    bmhParser.fWroteOut = true;
-                }
-                done = true;
-            } else if (FLAGS_crosscheck) {
-                if (!includeParser.crossCheck(bmhParser)) {
-                    return -1;
-                }
-                done = true;
+            if (!FLAGS_status.isEmpty() && !includeParser.parseStatus(FLAGS_status[0], ".h",
+                    StatusFilter::kCompleted)) {
+                return -1;
             }
+            if (!includeParser.crossCheck(bmhParser)) {
+                return -1;
+            }
+            done = true;
         } else if (FLAGS_populate) {
             IncludeWriter includeWriter;
             includeWriter.validate();
-            if (!includeWriter.parseFile(FLAGS_include[0], ".h")) {
+            if (!FLAGS_include.isEmpty() &&
+                    !includeWriter.parseFile(FLAGS_include[0], ".h")) {
+                return -1;
+            }
+            if (!FLAGS_status.isEmpty() && !includeWriter.parseStatus(FLAGS_status[0], ".h",
+                    StatusFilter::kCompleted)) {
                 return -1;
             }
             includeWriter.fDebugOut = FLAGS_stdout;
@@ -1603,22 +1645,25 @@ int main(int argc, char** const argv) {
             done = true;
         }
     }
-    if (!done && !FLAGS_catalog && !FLAGS_fiddle.isEmpty() && FLAGS_examples.isEmpty()) {
+    if (!done && !FLAGS_fiddle.isEmpty() && FLAGS_examples.isEmpty()) {
         FiddleParser fparser(&bmhParser);
         if (!fparser.parseFile(FLAGS_fiddle[0], ".txt")) {
             return -1;
         }
     }
     if (!done && FLAGS_catalog && FLAGS_examples.isEmpty()) {
-        Catalog fparser(&bmhParser);
-        fparser.fDebugOut = FLAGS_stdout;
-        if (!fparser.openCatalog(FLAGS_bmh[0], FLAGS_ref[0])) {
+        Catalog cparser(&bmhParser);
+        cparser.fDebugOut = FLAGS_stdout;
+        if (!FLAGS_bmh.isEmpty() && !cparser.openCatalog(FLAGS_bmh[0], FLAGS_ref[0])) {
             return -1;
         }
-        if (!fparser.parseFile(FLAGS_fiddle[0], ".txt")) {
+        if (!FLAGS_status.isEmpty() && !cparser.openStatus(FLAGS_status[0], FLAGS_ref[0])) {
             return -1;
         }
-        if (!fparser.closeCatalog()) {
+        if (!cparser.parseFile(FLAGS_fiddle[0], ".txt")) {
+            return -1;
+        }
+        if (!cparser.closeCatalog()) {
             return -1;
         }
         bmhParser.fWroteOut = true;
@@ -1627,12 +1672,20 @@ int main(int argc, char** const argv) {
     if (!done && !FLAGS_ref.isEmpty() && FLAGS_examples.isEmpty()) {
         MdOut mdOut(bmhParser);
         mdOut.fDebugOut = FLAGS_stdout;
-        if (mdOut.buildReferences(FLAGS_bmh[0], FLAGS_ref[0])) {
+        if (!FLAGS_bmh.isEmpty() && mdOut.buildReferences(FLAGS_bmh[0], FLAGS_ref[0])) {
+            bmhParser.fWroteOut = true;
+        }
+        if (!FLAGS_status.isEmpty() && mdOut.buildStatus(FLAGS_status[0], FLAGS_ref[0])) {
             bmhParser.fWroteOut = true;
         }
     }
     if (!done && !FLAGS_spellcheck.isEmpty() && FLAGS_examples.isEmpty()) {
-        bmhParser.spellCheck(FLAGS_bmh[0], FLAGS_spellcheck);
+        if (!FLAGS_bmh.isEmpty()) {
+            bmhParser.spellCheck(FLAGS_bmh[0], FLAGS_spellcheck);
+        }
+        if (!FLAGS_status.isEmpty()) {
+            bmhParser.spellStatus(FLAGS_status[0], FLAGS_spellcheck);
+        }
         bmhParser.fWroteOut = true;
         done = true;
     }
