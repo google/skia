@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "dac98dd1_b4e659b3",
+        "filename": "src/gpu/glsl/GrGLSLGeometryProcessor.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-12-11T16:54:48Z",
+      "side": 1,
+      "message": "Eh, sure. I was thinking that we don\u0027t really need to enforce full float here and could leave it up to the caller. Since I can\u0027t think of a good reason to use half, I don\u0027t really care either way.",
+      "parentUuid": "09af10e6_17b2cce0",
+      "revId": "ec14484df8a67b252b3e36f0f6f9920f81055906",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ed9c24da_105cf8c2",
         "filename": "src/gpu/glsl/GrGLSLGeometryProcessor.cpp",
         "patchSetId": 8
