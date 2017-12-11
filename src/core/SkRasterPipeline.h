@@ -53,6 +53,7 @@ struct SkJumper_Engine;
     M(load_f32)  M(load_f32_dst)  M(store_f32)                     \
     M(load_8888) M(load_8888_dst) M(store_8888) M(gather_8888)     \
     M(load_bgra) M(load_bgra_dst) M(store_bgra) M(gather_bgra)     \
+    M(bilerp_clamp_8888)                                           \
     M(load_u16_be) M(load_rgb_u16_be) M(store_u16_be)              \
     M(load_tables_u16_be) M(load_tables_rgb_u16_be) M(load_tables) \
     M(load_rgba) M(store_rgba)                                     \
