@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "f6f9955d_ab0b35e3",
+        "filename": "BUILD.gn",
+        "patchSetId": 4
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-12-11T15:22:32Z",
+      "side": 1,
+      "message": "reed@ is pretty serious about it being conditional.\n\nembed is fine.",
+      "parentUuid": "93de5585_f1a4810f",
+      "revId": "51fa3d4d77fe9897d7abb777b40ef64d1698df52",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "04cda797_d6e73bd2",
         "filename": "BUILD.gn",
         "patchSetId": 4
