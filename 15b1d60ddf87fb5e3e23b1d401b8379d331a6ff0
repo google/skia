@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "e7cd0af4_c7b3e12e",
+        "filename": "infra/bots/recipe_modules/flavor/gn_android_flavor.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2017-12-11T18:35:58Z",
+      "side": 1,
+      "message": "I\u0027m not sure about this - everything I\u0027ve read about the userspace governor is that it *wont* scale down if not in use.",
+      "parentUuid": "2ece3017_0052a2cb",
+      "revId": "15b1d60ddf87fb5e3e23b1d401b8379d331a6ff0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "1b5c240a_ca1004ea",
         "filename": "infra/bots/recipe_modules/flavor/gn_android_flavor.py",
         "patchSetId": 8
@@ -30,6 +48,24 @@
       "writtenOn": "2017-12-11T18:27:53Z",
       "side": 1,
       "message": "(I suspect that the NexusPlayer\u0027s CPU cores are all identical.  big.LITTLE is kinda an ARM-only thing.)",
+      "revId": "15b1d60ddf87fb5e3e23b1d401b8379d331a6ff0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7c2c9d8c_171c8ff4",
+        "filename": "infra/bots/recipe_modules/flavor/gn_android_flavor.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2017-12-11T18:35:58Z",
+      "side": 1,
+      "message": "You are correct,  same thing for the PixelC.  I think we should still set 1 to powersave and scale the other.",
+      "parentUuid": "1b5c240a_ca1004ea",
       "revId": "15b1d60ddf87fb5e3e23b1d401b8379d331a6ff0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
