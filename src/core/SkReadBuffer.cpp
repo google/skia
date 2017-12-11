@@ -17,6 +17,20 @@
 #include "SkTypeface.h"
 
 namespace {
+    // If a signed int holds min_int (e.g. 0x80000000) it is undefined what happens when
+    // we negate it (even though we *know* we're 2's complement and we'll get the same
+    // value back). So we create this helper function that casts to size_t (unsigned) first,
+    // to avoid the complaint.
+    size_t sk_negate_to_size_t(int32_t value) {
+#if defined(_MSC_VER)
+#pragma warning(push)
+#pragma warning(disable : 4146)  // Thanks MSVC, we know what we're negating an unsigned
+#endif
+        return -static_cast<size_t>(value);
+#if defined(_MSC_VER)
+#pragma warning(pop)
+#endif
+    }
 
     // This generator intentionally should always fail on all attempts to get its pixels,
     // simulating a bad or empty codec stream.
@@ -367,7 +381,7 @@ sk_sp<SkTypeface> SkReadBuffer::readTypeface() {
     //  >0 -- index
     //  <0 -- custom (serial procs) : negative size in bytes
 
-    int32_t index = this->readUInt();
+    int32_t index = this->read32();
     if (index == 0) {
         return nullptr;
     } else if (index > 0) {
@@ -376,7 +390,7 @@ sk_sp<SkTypeface> SkReadBuffer::readTypeface() {
         }
         return sk_ref_sp(fTFArray[index - 1]);
     } else {    // custom
-        size_t size = -index;
+        size_t size = sk_negate_to_size_t(index);
         const void* data = this->skip(size);
         if (!this->validate(data != nullptr)) {
             return nullptr;
@@ -415,7 +429,7 @@ SkFlattenable* SkReadBuffer::readFlattenable(SkFlattenable::Type ft) {
         } else {
             // Read the index.  We are guaranteed that the first byte
             // is zeroed, so we must shift down a byte.
-            uint32_t index = this->read32() >> 8;
+            uint32_t index = this->readUInt() >> 8;
             if (!this->validate(index > 0)) {
                 return nullptr; // writer failed to give us the flattenable
             }
