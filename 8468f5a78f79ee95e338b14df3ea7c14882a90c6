@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5967f60d_73b02ef6",
+        "filename": "src/core/SkReadBuffer.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-12-11T16:17:14Z",
+      "side": 1,
+      "message": "ssize_t isn\u0027t actually a type that\u0027s available portably.\n\nAre you looking for intptr_t?  Why not just int32_t / int?",
+      "range": {
+        "startLine": 24,
+        "startChar": 31,
+        "endLine": 24,
+        "endChar": 39
+      },
+      "revId": "8468f5a78f79ee95e338b14df3ea7c14882a90c6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "146835b2_08b594e9",
+        "filename": "src/core/SkReadBuffer.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-12-11T16:17:14Z",
+      "side": 1,
+      "message": "Even though this is in an anonymous namespace, might feel cozier to tag it static.",
+      "revId": "8468f5a78f79ee95e338b14df3ea7c14882a90c6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
