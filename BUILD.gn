@@ -1701,19 +1701,30 @@ if (skia_enable_tools) {
     ]
   }
 
-  if (!is_win) {
-    test_app("gpucts") {
+  if (!is_win && skia_enable_gpu) {
+    test_lib("skqp_lib") {
+      public_include_dirs = [ "tools/skqp" ]
       sources = [
+        "dm/DMFontMgr.cpp",
         "dm/DMGpuTestProcs.cpp",
-        "tools/gpucts/gm_knowledge.c",
-        "tools/gpucts/gm_runner.cpp",
-        "tools/gpucts/gpucts.cpp",
+        "tools/skqp/gm_knowledge.cpp",
+        "tools/skqp/gm_runner.cpp",
       ]
       deps = [
         ":gm",
         ":gpu_tool_utils",
         ":skia",
         ":tests",
+        ":tool_utils",
+      ]
+    }
+    test_app("skqp") {
+      sources = [
+        "tools/skqp/skqp.cpp",
+      ]
+      deps = [
+        ":skia",
+        ":skqp_lib",
         "//third_party/googletest",
       ]
     }
