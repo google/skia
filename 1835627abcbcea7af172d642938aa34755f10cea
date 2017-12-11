@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "9256b1c1_3e2fa73e",
+        "filename": "src/jumper/SkJumper.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-12-11T14:30:33Z",
+      "side": 1,
+      "message": "Oh, you\u0027re right, how nice.  This didn\u0027t used to be the same, but now that we\u0027re constrained on just clamp/clamp and a linear transfer function, they are the same!  I will use GatherCtx (and make its void* const...)",
+      "parentUuid": "ccaf63b9_0bff437d",
+      "revId": "1835627abcbcea7af172d642938aa34755f10cea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "929004f1_031dcb5b",
         "filename": "src/jumper/SkJumper_stages.cpp",
         "patchSetId": 4
@@ -30,6 +48,24 @@
       "writtenOn": "2017-12-08T03:41:42Z",
       "side": 1,
       "message": "I see that this is logically identical to the original approach (so we won\u0027t expect any pixel changes). What I\u0027m curious about is how it handles downscale sampling. It seems that the sampling is always within the 2x2 square in the source image. But I remembered that someone mentioned sampling the MxM square if we downscale M times?",
+      "revId": "1835627abcbcea7af172d642938aa34755f10cea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a48670c7_23f56023",
+        "filename": "src/jumper/SkJumper_stages.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1509,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-12-11T14:30:33Z",
+      "side": 1,
+      "message": "Yeah, that is a good idea, and we do get that effect somewhat from mipmaps at medium quality.  But to do that directly in one step without mips would be a whole new path of code.",
+      "parentUuid": "929004f1_031dcb5b",
       "revId": "1835627abcbcea7af172d642938aa34755f10cea",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "00275621_bcea228b",
+        "filename": "src/jumper/SkJumper_stages.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1532,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-12-11T14:30:33Z",
+      "side": 1,
+      "message": "We use these in situations where we do not control the source image.  :(\n\nEven then, we do need to make sure at least cx,cy are clamped at some point.  They\u0027ve just come out of an arbitrary matrix transformation... no guarantee at all that they\u0027re in bounds.\n\nHerb did once have some good tricks for doing less clamp work in this special case, I think.  I\u0027ll check in with him.",
+      "parentUuid": "05fc5ae9_fd6121db",
+      "revId": "1835627abcbcea7af172d642938aa34755f10cea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "4c8bd692_509e40b8",
         "filename": "src/shaders/SkImageShader.cpp",
         "patchSetId": 4
@@ -64,6 +118,24 @@
       "writtenOn": "2017-12-08T03:41:42Z",
       "side": 1,
       "message": "Are these empty lines intentional (403 and 413)?",
+      "revId": "1835627abcbcea7af172d642938aa34755f10cea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1ac2960d_a48cad08",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 403,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-12-11T14:30:33Z",
+      "side": 1,
+      "message": "Yeah, I was just having trouble seeing the different cases, so I gave them an extra line of spacing.",
+      "parentUuid": "4c8bd692_509e40b8",
       "revId": "1835627abcbcea7af172d642938aa34755f10cea",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
