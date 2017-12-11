@@ -55,7 +55,7 @@ integer <a href="#SkIPoint16_y">y</a>-axis value of constructed <a href="SkIPoin
 
 ### Example
 
-<div><fiddle-embed name="d815ca04fbf22b5acec6f85b6351f362">
+<div><fiddle-embed name="">
 
 #### Example Output
 
@@ -87,7 +87,7 @@ Returns <a href="#SkIPoint16_x">x</a>-axis value of <a href="#IPoint16">IPoint16
 
 ### Example
 
-<div><fiddle-embed name="f7fd3b3674f042869de3582ab793dbf7">
+<div><fiddle-embed name="">
 
 #### Example Output
 
@@ -118,7 +118,7 @@ Returns <a href="#SkIPoint16_y">y</a>-axis value of <a href="SkIPoint_Reference#
 
 ### Example
 
-<div><fiddle-embed name="3662cedaf1e9924a401f794902da3b1f">
+<div><fiddle-embed name="">
 
 #### Example Output
 
@@ -154,7 +154,7 @@ new value for <a href="#SkIPoint16_fY">fY</a></td>
 
 ### Example
 
-<div><fiddle-embed name="abff78d3f2d97b1284ccb13d0c56b6c8">
+<div><fiddle-embed name="">
 
 #### Example Output
 

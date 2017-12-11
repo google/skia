@@ -474,7 +474,6 @@ FT_Load_Glyph
 ##
 
 #Topic Mip_Map
-#Alias Mip_Maps
 ##
 
 #Topic Nine_Patch
@@ -634,6 +633,12 @@ FT_Load_Glyph
     #Method static std::unique_ptr<SkCanvas> MakeCanvas(std::unique_ptr<SkRasterHandleAllocator>, const SkImageInfo&, const Rec* rec = nullptr)
     ##
 ##
+##
+
+#Topic Raster_Bitmap
+##
+
+#Topic Raster_Image
 ##
 
 #Topic Raster_Surface
