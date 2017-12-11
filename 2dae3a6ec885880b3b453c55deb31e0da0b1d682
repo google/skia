@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "98fa1566_84f77b20",
+        "filename": "infra/bots/recipe_modules/flavor/gn_android_flavor.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-12-11T17:38:40Z",
+      "side": 1,
+      "message": "Can you add a comment with a bit more information here?  It\u0027s not clear why, for example, with 5 CPUs we only want to scale two.  It\u0027s also strange to see ID 0 as the second in the list.",
+      "range": {
+        "startLine": 86,
+        "startChar": 0,
+        "endLine": 87,
+        "endChar": 19
+      },
+      "revId": "2dae3a6ec885880b3b453c55deb31e0da0b1d682",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "eb23643d_4461fe0a",
+        "filename": "infra/bots/recipe_modules/flavor/gn_android_flavor.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-12-11T17:38:40Z",
+      "side": 1,
+      "message": "Is it possible for the device to turn CPUs back on?  AFAICT we never re-enable them.",
+      "range": {
+        "startLine": 169,
+        "startChar": 0,
+        "endLine": 175,
+        "endChar": 38
+      },
+      "revId": "2dae3a6ec885880b3b453c55deb31e0da0b1d682",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
