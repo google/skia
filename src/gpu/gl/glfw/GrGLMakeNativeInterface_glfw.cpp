@@ -18,10 +18,12 @@ static GrGLFuncPtr glfw_get(void* ctx, const char name[]) {
     return glfwGetProcAddress(name);
 }
 
-const GrGLInterface* GrGLCreateNativeInterface() {
+sk_sp<const GrGLInterface> GrGLMakeNativeInterface() {
     if (nullptr == glfwGetCurrentContext()) {
         return nullptr;
     }
 
     return GrGLAssembleInterface(nullptr, glfw_get);
 }
+
+const GrGLInterface* GrGLCreateNativeInterface() { return GrGLMakeNativeInterface().release(); }

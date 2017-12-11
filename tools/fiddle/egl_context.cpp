@@ -71,7 +71,7 @@ sk_sp<GrContext> create_grcontext(std::ostringstream &driverinfo) {
     driverinfo << "GL Renderer: " << getString(GL_RENDERER) << "\n";
     driverinfo << "GL Extensions: " << getString(GL_EXTENSIONS) << "\n";
 
-    auto interface = GrGLCreateNativeInterface();
+    auto interface = GrGLMakeNativeInterface();
     if (!interface) {
         return nullptr;
     }
