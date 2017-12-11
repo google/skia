@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fac9d54b_69e45dec",
+        "filename": "tools/viewer/Viewer.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 940,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-12-11T16:00:17Z",
+      "side": 1,
+      "message": "Took me a bit but I think I get it -- these are moved from the original event callbacks.",
+      "range": {
+        "startLine": 938,
+        "startChar": 4,
+        "endLine": 940,
+        "endChar": 42
+      },
+      "revId": "ac1e3c4ae81330be2c404710753bf7414b19c2e9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
