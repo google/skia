@@ -157,8 +157,20 @@ public:
     void onDrawImageLattice(const SkImage* img,
                             const Lattice& lattice, const SkRect& dst,
                             const SkPaint* paint) override {
-        fTarget->drawImageLattice(prepareImage(img).get(), lattice, dst,
-                                  MaybePaint(paint, fXformer.get()));
+        SkSTArray<8, SkColor> xformed;
+        int xs = lattice.fXCount, ys = lattice.fYCount;
+        int fs = lattice.fRectTypes ? (xs + 1) * (ys + 1) : 0;
+        if (fs) {
+            xformed.reset(fs);
+            fXformer->apply(xformed.begin(), lattice.fColors, fs);
+            fTarget->drawImageLattice(prepareImage(img).get(),
+                                      {lattice.fXDivs, lattice.fYDivs, lattice.fRectTypes,
+                                       xs, ys, lattice.fBounds, xformed.begin()},
+                                      dst, MaybePaint(paint, fXformer.get()));
+        } else {
+            fTarget->drawImageLattice(prepareImage(img).get(), lattice, dst,
+                                      MaybePaint(paint, fXformer.get()));
+        }
     }
     void onDrawAtlas(const SkImage* atlas, const SkRSXform* xforms, const SkRect* tex,
                      const SkColor* colors, int count, SkBlendMode mode,
@@ -214,9 +226,20 @@ public:
                                               MaybePaint(paint, fXformer.get()));
         }
 
-
-        fTarget->drawImageLattice(fXformer->apply(bitmap).get(), lattice, dst,
-                                  MaybePaint(paint, fXformer.get()));
+        SkSTArray<8, SkColor> xformed;
+        int xs = lattice.fXCount, ys = lattice.fYCount;
+        int fs = lattice.fRectTypes ? (xs + 1) * (ys + 1) : 0;
+        if (fs) {
+            xformed.reset(fs);
+            fXformer->apply(xformed.begin(), lattice.fColors, fs);
+            fTarget->drawImageLattice(fXformer->apply(bitmap).get(),
+                                      {lattice.fXDivs, lattice.fYDivs, lattice.fRectTypes,
+                                       xs, ys, lattice.fBounds, xformed.begin()},
+                                      dst, MaybePaint(paint, fXformer.get()));
+        } else {
+            fTarget->drawImageLattice(fXformer->apply(bitmap).get(), lattice, dst,
+                                      MaybePaint(paint, fXformer.get()));
+        }
     }
     void onDrawShadowRec(const SkPath& path, const SkDrawShadowRec& rec) override {
         SkDrawShadowRec newRec(rec);
