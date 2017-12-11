@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "bea20e5f_8bfa1023",
+        "filename": "src/gpu/text/GrAtlasTextBlob.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 300,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-12-11T19:57:29Z",
+      "side": 1,
+      "message": "It looks like your intent is to clip geometrically with perspective. However, you\u0027re not going to get into the clip_quads routine unless this is true...",
+      "range": {
+        "startLine": 299,
+        "startChar": 8,
+        "endLine": 300,
+        "endChar": 62
+      },
+      "revId": "457f801ced23a6898174af441f6a6d4a1ac3fb88",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "dc4dd80a_38b065de",
         "filename": "src/gpu/text/GrAtlasTextBlob.h",
         "patchSetId": 11
