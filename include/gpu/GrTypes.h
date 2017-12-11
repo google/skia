@@ -197,7 +197,7 @@ enum GrBackend {
 
 /**
  * Backend-specific 3D context handle
- *      OpenGL: const GrGLInterface*. If null will use the result of GrGLCreateNativeInterface().
+ *      OpenGL: const GrGLInterface*. If null will use the result of GrGLMakeNativeInterface().
  *      Vulkan: GrVkBackendContext*.
  *      Mock: const GrMockOptions* or null for default constructed GrMockContextOptions.
  */
