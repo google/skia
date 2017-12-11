@@ -411,7 +411,7 @@ sk_sp<const GrGLInterface> CreateANGLEGLInterface() {
         return nullptr;
     }
 
-    return GrGLAssembleGLESInterface(&gLibs, angle_get_gl_proc);
+    return GrGLMakeAssembledGLESInterface(&gLibs, angle_get_gl_proc);
 }
 
 std::unique_ptr<GLTestContext> MakeANGLETestContext(ANGLEBackend type, ANGLEContextVersion version,

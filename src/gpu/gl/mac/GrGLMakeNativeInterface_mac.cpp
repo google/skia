@@ -55,7 +55,7 @@ static GrGLFuncPtr mac_get_gl_proc(void* ctx, const char name[]) {
 
 sk_sp<const GrGLInterface> GrGLMakeNativeInterface() {
     GLProcGetter getter;
-    return GrGLAssembleGLInterface(&getter, mac_get_gl_proc);
+    return GrGLMakeAssembledGLInterface(&getter, mac_get_gl_proc);
 }
 
 const GrGLInterface* GrGLCreateNativeInterface() { return GrGLMakeNativeInterface().release(); }

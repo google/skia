@@ -135,7 +135,7 @@ static sk_sp<const GrGLInterface> create_command_buffer_interface() {
     if (!gfFunctionsLoadedSuccessfully) {
         return nullptr;
     }
-    return GrGLAssembleGLESInterface(gLibrary, command_buffer_get_gl_proc);
+    return GrGLMakeAssembledGLESInterface(gLibrary, command_buffer_get_gl_proc);
 }
 
 
