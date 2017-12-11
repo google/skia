@@ -26,16 +26,18 @@ def build_targets_from_builder_dict(builder_dict):
   return ['most']
 
 
-def get_extra_env_vars(builder_dict):
+def get_extra_env_vars(vars_api):
   env = {}
-  if builder_dict.get('compiler') == 'Clang':
+  if vars_api.builder_cfg.get('compiler') == 'Clang':
     env['CC'] = '/usr/bin/clang'
     env['CXX'] = '/usr/bin/clang++'
 
   # SKNX_NO_SIMD, SK_USE_DISCARDABLE_SCALEDIMAGECACHE, etc.
-  extra_config = builder_dict.get('extra_config', '')
-  if extra_config.startswith('SK') and extra_config.isupper():
-    env['CPPFLAGS'] = '-D' + extra_config
+  # TODO(benjaminwagner): Same appears in gn_flavor.py to set extra_cflags. Are
+  # both needed?
+  if (len(vars_api.extra_tokens) == 1 and
+      vars_api.extra_tokens[0].startswith('SK')):
+    env['CPPFLAGS'] = '-D' + vars_api.extra_tokens[0]
 
   return env
 
@@ -43,7 +45,7 @@ def get_extra_env_vars(builder_dict):
 def RunSteps(api):
   api.core.setup()
 
-  env = get_extra_env_vars(api.vars.builder_cfg)
+  env = get_extra_env_vars(api.vars)
   build_targets = build_targets_from_builder_dict(api.vars.builder_cfg)
 
   try:

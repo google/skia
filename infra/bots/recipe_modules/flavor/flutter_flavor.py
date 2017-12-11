@@ -17,7 +17,7 @@ class FlutterFlavorUtils(default_flavor.DefaultFlavorUtils):
 
     flutter_dir = self.m.vars.checkout_root.join('src')
     configuration = self.m.vars.builder_cfg.get('configuration').lower()
-    extra_config = self.m.vars.builder_cfg.get('extra_config', '')
+    extra_tokens = self.m.vars.extra_tokens
     out_dir = configuration
 
     with self.m.context(cwd=flutter_dir):
@@ -31,7 +31,7 @@ class FlutterFlavorUtils(default_flavor.DefaultFlavorUtils):
       gn_args = [
           '--runtime-mode=%s' % configuration,
       ]
-      if 'Android' in extra_config:
+      if 'Android' in extra_tokens:
         gn_args.append('--android')
         out_dir = 'android_' + out_dir
 
