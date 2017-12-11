@@ -1,8 +1,6 @@
 SkIPoint Reference
 ===
 
-# <a name="IVector"></a> IVector
-
 # <a name="IPoint"></a> IPoint
 
 # <a name="SkIPoint"></a> Struct SkIPoint
@@ -70,7 +68,7 @@ integer <a href="#SkIPoint_y">y</a>-axis value of constructed <a href="#IPoint">
 
 ### Example
 
-<div><fiddle-embed name="e5cf5159525bd3140f288a95fe641fae">
+<div><fiddle-embed name="">
 
 #### Example Output
 
@@ -101,7 +99,7 @@ Returns <a href="#SkIPoint_x">x</a>-axis value of <a href="#IPoint">IPoint</a>.
 
 ### Example
 
-<div><fiddle-embed name="eed4185294f8a8216fc354e6ee6b2e3a">
+<div><fiddle-embed name="">
 
 #### Example Output
 
@@ -132,7 +130,7 @@ Returns <a href="#SkIPoint_y">y</a>-axis value of <a href="#IPoint">IPoint</a>.
 
 ### Example
 
-<div><fiddle-embed name="35c41b8ba7cebf8c9a7a8494e610e14d">
+<div><fiddle-embed name="">
 
 #### Example Output
 
@@ -163,7 +161,7 @@ true if <a href="#SkIPoint_fX">fX</a> is zero and <a href="#SkIPoint_fY">fY</a> 
 
 ### Example
 
-<div><fiddle-embed name="658c1df611b4577cc7e0bb384e95737e">
+<div><fiddle-embed name="">
 
 #### Example Output
 
@@ -199,7 +197,7 @@ new value for <a href="#SkIPoint_fY">fY</a></td>
 
 ### Example
 
-<div><fiddle-embed name="165418b5718d79d8f1682a8a0ee32ba0">
+<div><fiddle-embed name="">
 
 #### Example Output
 
@@ -230,7 +228,7 @@ Returns <a href="#IPoint">IPoint</a> changing the signs of <a href="#SkIPoint_fX
 
 ### Example
 
-<div><fiddle-embed name="d283e8876366349aedd85b65cadb3706">
+<div><fiddle-embed name="">
 
 #### Example Output
 
@@ -267,7 +265,7 @@ Offsets <a href="#IPoint">IPoint</a> by <a href="SkIPoint_Reference#IVector">IVe
 
 ### Example
 
-<div><fiddle-embed name="4eb2d95c9e9a66f05296e345bb68bd51"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -294,7 +292,7 @@ Subtracts <a href="SkIPoint_Reference#IVector">IVector</a> <a href="#SkIPoint_su
 
 ### Example
 
-<div><fiddle-embed name="a01e533dc7ab34ed728dc4e7a5f1f0ee"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -326,7 +324,7 @@ true if <a href="#IPoint">IPoint</a> <a href="#SkIPoint_equals">equals</a> (<a h
 
 ### Example
 
-<div><fiddle-embed name="64f575d36439d5b69aaed14ffeff1cc4">
+<div><fiddle-embed name="">
 
 #### Example Output
 
@@ -369,7 +367,7 @@ true if <a href="#SkIPoint_equal_operator_a">a</a>.<a href="#SkIPoint_fX">fX</a>
 
 ### Example
 
-<div><fiddle-embed name="37ffe2817d720f99e6c252332ce70460">
+<div><fiddle-embed name="">
 
 #### Example Output
 
@@ -412,7 +410,7 @@ true if <a href="#SkIPoint_notequal_operator_a">a</a>.<a href="#SkIPoint_fX">fX<
 
 ### Example
 
-<div><fiddle-embed name="dd89dc48dff69b53d99530b120f204bc">
+<div><fiddle-embed name="">
 
 #### Example Output
 
@@ -457,7 +455,7 @@ Can also be used to subtract <a href="SkIPoint_Reference#IVector">IVector</a> fr
 
 ### Example
 
-<div><fiddle-embed name="e626e26bf557857b824aa7d03f723e0f"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -493,7 +491,7 @@ Can also be used to add <a href="SkIPoint_Reference#IVector">IVector</a> to <a h
 
 ### Example
 
-<div><fiddle-embed name="63f4cba971c6d8434595906f865b5a29"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -501,3 +499,4 @@ Can also be used to add <a href="SkIPoint_Reference#IVector">IVector</a> to <a h
 
 ---
 
+# <a name="IVector"></a> IVector

@@ -10,6 +10,7 @@
 
 #include "SkCommandLineFlags.h"
 #include "SkData.h"
+#include "SkJSONCPP.h"
 
 #include <algorithm>
 #include <cmath>
@@ -173,6 +174,12 @@ enum class KeyProperty {
     kNumber,
     kObject,
     kPreprocessor,
+};
+
+enum class StatusFilter {
+    kCompleted,
+    kInProgress,
+    kUnknown,
 };
 
 struct IncludeKey {
@@ -636,6 +643,10 @@ public:
         }
     }
 
+    // FIXME: nothing else in TextParser knows from C++ --
+    // there could be a class between TextParser and ParserCommon
+    virtual string typedefName();
+
     const char* wordEnd() const {
         const char* end = fChar;
         while (isalnum(end[0]) || '_' == end[0] || '-' == end[0]) {
@@ -939,6 +950,7 @@ struct IClassDefinition : public Definition {
     unordered_map<string, Definition*> fMembers;
     unordered_map<string, Definition*> fMethods;
     unordered_map<string, Definition*> fStructs;
+    unordered_map<string, Definition*> fTypedefs;
 };
 
 struct Reference {
@@ -1018,6 +1030,7 @@ public:
     }
 
     bool parseFile(const char* file, const char* suffix);
+    bool parseStatus(const char* file, const char* suffix, StatusFilter filter);
     virtual bool parseFromFile(const char* path) = 0;
     bool parseSetup(const char* path);
 
@@ -1052,7 +1065,6 @@ public:
     void singleLF() {
         fMaxLF = 1;
     }
-
 
     void writeBlock(int size, const char* data) {
         SkAssertResult(writeBlockTrim(size, data));
@@ -1109,7 +1121,27 @@ private:
     typedef TextParser INHERITED;
 };
 
+struct JsonStatus {
+    const Json::Value& fObject;
+    Json::Value::iterator fIter;
+    string fName;
+};
 
+class StatusIter : public ParserCommon {
+public:
+    StatusIter(const char* statusFile, const char* suffix, StatusFilter);
+    string baseDir();
+    bool empty() { return fStack.empty(); }
+    bool next(string* file);
+protected:
+    bool parseFromFile(const char* path) override;
+    void reset();
+private:
+    vector<JsonStatus> fStack;
+    Json::Value fRoot;
+    const char* fSuffix;
+    StatusFilter fFilter;
+};
 
 class BmhParser : public ParserCommon {
 public:
@@ -1290,9 +1322,10 @@ public:
     bool skipNoName();
     bool skipToDefinitionEnd(MarkType markType);
     void spellCheck(const char* match, SkCommandLineFlags::StringArray report) const;
+    void spellStatus(const char* match, SkCommandLineFlags::StringArray report) const;
     vector<string> topicName();
     vector<string> typeName(MarkType markType, bool* expectEnd);
-    string typedefName();
+    string typedefName() override;
     string uniqueName(const string& base, MarkType markType);
     string uniqueRootName(const string& base, MarkType markType);
     void validate() const;
@@ -1473,6 +1506,7 @@ public:
     bool parseEnum(Definition* child, Definition* markupDef);
 
     bool parseFromFile(const char* path) override {
+        this->reset();
         if (!INHERITED::parseSetup(path)) {
             return false;
         }
@@ -1486,7 +1520,7 @@ public:
     bool parseObject(Definition* child, Definition* markupDef);
     bool parseObjects(Definition* parent, Definition* markupDef);
     bool parseTemplate();
-    bool parseTypedef();
+    bool parseTypedef(Definition* child, Definition* markupDef);
     bool parseUnion();
 
     void popBracket() {
@@ -1783,7 +1817,6 @@ public:
         fMethodDef = nullptr;
         fBmhStructDef = nullptr;
         fAttrDeprecated = nullptr;
-        fAnonymousEnumCount = 1;
         fInStruct = false;
         fWroteMethod = false;
         fIndentNext = false;
@@ -1883,6 +1916,7 @@ public:
     bool appendFile(const string& path);
     bool closeCatalog();
     bool openCatalog(const char* inDir, const char* outDir);
+    bool openStatus(const char* inDir, const char* outDir);
 
     bool parseFromFile(const char* path) override ;
 private:
@@ -1926,6 +1960,7 @@ public:
     }
 
     bool buildReferences(const char* path, const char* outDir);
+    bool buildStatus(const char* path, const char* outDir);
 private:
     enum class TableState {
         kNone,
