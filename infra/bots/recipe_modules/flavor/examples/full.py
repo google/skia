@@ -75,11 +75,11 @@ TEST_BUILDERS = [
   'Build-Mac-Clang-x86_64-Debug-CommandBuffer',
   'Build-Mac-Clang-x86_64-Debug-Metal',
   'Build-Win-Clang-arm64-Release-Android',
-  'Build-Win-Clang-x86_64-Debug-GDI',
+  'Build-Win-Clang-x86_64-Debug-GDI_Goma',
   'Build-Win-Clang-x86_64-Release',
   'Build-Win-Clang-x86_64-Release-ANGLE_Goma',
   'Build-Win-Clang-x86_64-Release-Goma',
-  'Build-Win-Clang-x86_64-Release-Vulkan',
+  'Build-Win-Clang-x86_64-Release-Vulkan_Goma',
   'Build-Win-MSVC-x86-Debug-Exceptions',
   'Housekeeper-PerCommit-CheckGeneratedFiles',
   'Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-All-Android',
@@ -100,7 +100,7 @@ TEST_BUILDERS = [
   'Test-Ubuntu16-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Debug-All-Vulkan',
   ('Test-Ubuntu17-GCC-Golo-GPU-QuadroP400-x86_64-Release-All'
    '-Valgrind_AbandonGpuContext_SK_CPU_LIMIT_SSE41'),
-  'Test-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Debug-All',
+  'Test-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Debug-All-Goma',
   'Test-iOS-Clang-iPadPro-GPU-GT7800-arm64-Debug-All',
   'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-SafeStack',
 ]

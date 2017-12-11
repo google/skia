@@ -91,7 +91,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "rmtree",
-      "[CUSTOM_[SWARM_OUT_DIR]]\\perfdata\\Perf-Win10-Clang-AlphaR2-GPU-RadeonR9M470X-x86_64-Release-All-ANGLE\\data"
+      "[CUSTOM_[SWARM_OUT_DIR]]\\perfdata\\Perf-Win10-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-All-Vulkan_Goma\\data"
     ],
     "infra_step": true,
     "name": "rmtree data"
@@ -106,7 +106,7 @@
       "ensure-directory",
       "--mode",
       "0777",
-      "[CUSTOM_[SWARM_OUT_DIR]]\\perfdata\\Perf-Win10-Clang-AlphaR2-GPU-RadeonR9M470X-x86_64-Release-All-ANGLE\\data"
+      "[CUSTOM_[SWARM_OUT_DIR]]\\perfdata\\Perf-Win10-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-All-Vulkan_Goma\\data"
     ],
     "infra_step": true,
     "name": "makedirs data"
@@ -159,9 +159,26 @@
       "1.1",
       "--nocpu",
       "--config",
-      "angle_d3d11_es2",
-      "angle_d3d11_es2_msaa8",
+      "vk",
       "--match",
+      "~GM_varied_text_clipped_lcd",
+      "~GM_varied_text_ignorable_clip_lcd",
+      "~blendmode_mask_DstATop",
+      "~blendmode_mask_SrcIn",
+      "~blendmode_mask_SrcOut",
+      "~blendmode_mask_Src",
+      "~fontscaler_lcd",
+      "~rotated_rects_aa_alternating_transparent_and_opaque_src",
+      "~rotated_rects_aa_changing_transparent_src",
+      "~rotated_rects_aa_same_transparent_src",
+      "~shadermask_LCD_FF",
+      "~srcmode_rects_1",
+      "~text_16_LCD_88",
+      "~text_16_LCD_BK",
+      "~text_16_LCD_FF",
+      "~text_16_LCD_WT",
+      "~desk_skbug6850overlay2",
+      "~desk_googlespreadsheet",
       "~inc0.gif",
       "~inc1.gif",
       "~incInterlaced.gif",
@@ -182,7 +199,7 @@
       "~inc0.webp",
       "~inc1.webp",
       "--outResultsFile",
-      "[CUSTOM_[SWARM_OUT_DIR]]\\perfdata\\Perf-Win10-Clang-AlphaR2-GPU-RadeonR9M470X-x86_64-Release-All-ANGLE\\data\\nanobench_abc123_1337000001.json",
+      "[CUSTOM_[SWARM_OUT_DIR]]\\perfdata\\Perf-Win10-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-All-Vulkan_Goma\\data\\nanobench_abc123_1337000001.json",
       "--properties",
       "gitHash",
       "abc123",
@@ -198,11 +215,11 @@
       "cpu_or_gpu",
       "GPU",
       "cpu_or_gpu_value",
-      "RadeonR9M470X",
+      "IntelIris540",
       "extra_config",
-      "ANGLE",
+      "Vulkan_Goma",
       "model",
-      "AlphaR2",
+      "NUC6i5SYK",
       "os",
       "Win10"
     ],
@@ -224,7 +241,7 @@
       "ensure-directory",
       "--mode",
       "0777",
-      "[CUSTOM_[SWARM_OUT_DIR]]\\perfdata\\Perf-Win10-Clang-AlphaR2-GPU-RadeonR9M470X-x86_64-Release-All-ANGLE"
+      "[CUSTOM_[SWARM_OUT_DIR]]\\perfdata\\Perf-Win10-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-All-Vulkan_Goma"
     ],
     "infra_step": true,
     "name": "makedirs perf_dir"

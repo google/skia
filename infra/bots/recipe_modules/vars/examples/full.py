@@ -26,7 +26,7 @@ TEST_BUILDERS = [
   'Build-Debian9-GCC-x86_64-Release-Flutter_Android',
   'Build-Debian9-GCC-x86_64-Release-PDFium',
   'Build-Mac-Clang-x86_64-Debug-CommandBuffer',
-  'Build-Win-Clang-x86_64-Release-Vulkan',
+  'Build-Win-Clang-x86_64-Release-Vulkan_Goma',
   'Housekeeper-Weekly-RecreateSKPs',
   'Perf-Chromecast-GCC-Chorizo-CPU-Cortex_A7-arm-Debug-All',
   'Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-ASAN',

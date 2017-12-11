@@ -351,10 +351,10 @@ TEST_BUILDERS = [
    'Valgrind_AbandonGpuContext_SK_CPU_LIMIT_SSE41'),
   ('Perf-Ubuntu17-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-'
    'Valgrind_SK_CPU_LIMIT_SSE41'),
-  'Perf-Win10-Clang-AlphaR2-GPU-RadeonR9M470X-x86_64-Release-All-ANGLE',
-  'Perf-Win10-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-All-ANGLE',
-  'Perf-Win10-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-All-Vulkan',
-  'Perf-Win10-Clang-ShuttleC-GPU-GTX960-x86_64-Release-All-ANGLE',
+  'Perf-Win10-Clang-AlphaR2-GPU-RadeonR9M470X-x86_64-Release-All-ANGLE_Goma',
+  'Perf-Win10-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-All-ANGLE_Goma',
+  'Perf-Win10-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-All-Vulkan_Goma',
+  'Perf-Win10-Clang-ShuttleC-GPU-GTX960-x86_64-Release-All-ANGLE_Goma',
   'Perf-Win2016-MSVC-GCE-CPU-AVX2-x86_64-Debug-All',
   'Perf-Win2016-MSVC-GCE-CPU-AVX2-x86_64-Release-All',
   'Perf-iOS-Clang-iPadPro-GPU-GT7800-arm64-Release-All',
@@ -397,7 +397,7 @@ def GenTests(api):
 
     yield test
 
-  builder = 'Perf-Win10-Clang-NUCD34010WYKH-GPU-IntelHD4400-x86_64-Release-All'
+  builder = 'Perf-Win10-Clang-NUCD34010WYKH-GPU-IntelHD4400-x86_64-Release-All-Goma'
   yield (
     api.test('trybot') +
     api.properties(buildername=builder,
