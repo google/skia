@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d5623d73_1c0f228f",
+        "filename": "infra/bots/recipe_modules/vars/api.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-12-11T20:21:21Z",
+      "side": 1,
+      "message": "Per my comment in compile.py, maybe this needs to be:\n\nif self.builder_cfg[\u0027extra_config\u0027].startswith(\u0027SK_\u0027):\n  self.extra_tokens \u003d [self.builder_cfg[\u0027extra_config\u0027]]\nelse:\n  self.extra_tokens \u003d self.builder_cfg[\u0027extra_config\u0027].split(\u0027_\u0027)",
+      "range": {
+        "startLine": 125,
+        "startChar": 1,
+        "endLine": 125,
+        "endChar": 77
+      },
+      "revId": "1a1c04bc70cffa5a50017ed3d338da46069ee114",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f91136dc_31eba66c",
+        "filename": "infra/bots/recipes/compile.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-12-11T20:21:21Z",
+      "side": 1,
+      "message": "The vars module will still split SK_SOME_DEF, right?  Should this be moved there?",
+      "range": {
+        "startLine": 39,
+        "startChar": 0,
+        "endLine": 40,
+        "endChar": 33
+      },
+      "revId": "1a1c04bc70cffa5a50017ed3d338da46069ee114",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
