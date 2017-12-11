@@ -6,8 +6,10 @@
 # found in the LICENSE file.
 
 import os
+import re
 import sys
 
-dirpath, = sys.argv[1:]
+dirpath = sys.argv[1]
+regex = re.compile(sys.argv[2])
 
-print sorted(os.listdir(dirpath))[-1]
+print sorted(filter(regex.match, os.listdir(dirpath)))[-1]

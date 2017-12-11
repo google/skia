@@ -164,12 +164,18 @@ if (target_os == "win") {
 if (target_os == "win") {
   if (msvc == 2017 && win_toolchain_version == "") {
     win_toolchain_version = exec_script("//gn/highest_version_dir.py",
-                                        [ "$win_vc/Tools/MSVC" ],
+                                        [
+                                          "$win_vc/Tools/MSVC",
+                                          "\d*\.\d*\.\d*",
+                                        ],
                                         "trim string")
   }
   if (win_sdk_version == "") {
     win_sdk_version = exec_script("//gn/highest_version_dir.py",
-                                  [ "$win_sdk/Include" ],
+                                  [
+                                    "$win_sdk/Include",
+                                    "\d*\.\d*\.\d*\.\d*",
+                                  ],
                                   "trim string")
   }
 }
