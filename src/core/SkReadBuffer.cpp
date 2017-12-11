@@ -367,7 +367,7 @@ sk_sp<SkTypeface> SkReadBuffer::readTypeface() {
     //  >0 -- index
     //  <0 -- custom (serial procs) : negative size in bytes
 
-    int32_t index = this->readUInt();
+    int32_t index = this->read32();
     if (index == 0) {
         return nullptr;
     } else if (index > 0) {
