@@ -43,30 +43,40 @@ class GNChromecastFlavorUtils(gn_android_flavor.GNAndroidFlavorUtils):
     target_arch   = self.m.vars.builder_cfg.get('target_arch')
 
     # TODO(kjlubick): can this toolchain be replaced/shared with chromebook?
-    toolchain_dir = self.m.vars.slave_dir.join('cast_toolchain', 'armv7a')
+    toolchain = self.m.vars.slave_dir.join('cast_toolchain')
     gles_dir = self.m.vars.slave_dir.join('chromebook_arm_gles')
 
-    extra_cflags = [
-      '-I%s' % gles_dir.join('include'),
+    target = [ '-target', 'armv7a-linux-gnueabihf' ]
+
+    extra_asmflags = target
+
+    extra_cflags = target + [
+      '-isystem', '%s' % toolchain.join('armv7a/usr/armv7a-cros-linux-gnueabi' +
+                                        '/usr/include'),
+      '-isystem', '%s' % gles_dir.join('include'),
       '-DMESA_EGL_NO_X11_HEADERS',
-      "-DSK_NO_COMMAND_BUFFER",
-      # Avoid unused warning with yyunput
-      '-Wno-error=unused-function',
+      '-DSK_NO_COMMAND_BUFFER',
       # Makes the binary small enough to fit on the small disk.
       '-g0',
     ]
 
-    extra_ldflags = [
-      # Chromecast does not package libstdc++
-      '-static-libstdc++', '-static-libgcc',
-      '-L%s' % toolchain_dir.join('lib'),
+    extra_cflags_cc = [
+      '-I%s' % toolchain.join('armv7a_libc++/usr/include/c++/v1'),
+      '-I%s' % toolchain.join('armv7a_libc++/usr/include/libcxxrt'),
+    ]
+
+    extra_ldflags = target + [
+      '-L%s' % toolchain.join('armv7a/lib'),
+      '-L%s' % toolchain.join('armv7a_libc++/usr/lib'),
+      '-lc++',
+      '-lcxxrt',
     ]
 
     quote = lambda x: '"%s"' % x
     args = {
-      'cc': quote(toolchain_dir.join('bin','armv7a-cros-linux-gnueabi-gcc')),
-      'cxx': quote(toolchain_dir.join('bin','armv7a-cros-linux-gnueabi-g++')),
-      'ar': quote(toolchain_dir.join('bin','armv7a-cros-linux-gnueabi-ar')),
+      'cc': quote(toolchain.join('armv7a/usr/bin/clang-3.9')),
+      'cxx': quote(toolchain.join('armv7a/usr/bin/clang++-3.9')),
+      'ar': quote(toolchain.join('armv7a/bin/armv7a-cros-linux-gnueabi-ar')),
       'target_cpu': quote(target_arch),
       'skia_use_fontconfig': 'false',
       'skia_enable_gpu': 'true',
@@ -80,7 +90,10 @@ class GNChromecastFlavorUtils(gn_android_flavor.GNAndroidFlavorUtils):
 
     if configuration != 'Debug':
       args['is_debug'] = 'false'
+      extra_cflags += [ '-O1' ]
+    args['extra_asmflags'] = repr(extra_asmflags).replace("'", '"')
     args['extra_cflags'] = repr(extra_cflags).replace("'", '"')
+    args['extra_cflags_cc'] = repr(extra_cflags_cc).replace("'", '"')
     args['extra_ldflags'] = repr(extra_ldflags).replace("'", '"')
 
     gn_args = ' '.join('%s=%s' % (k,v) for (k,v) in sorted(args.iteritems()))
