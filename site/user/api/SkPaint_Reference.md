@@ -2222,7 +2222,7 @@ The default width for the paint is zero.
 
 ### Example
 
-<div><fiddle-embed name="01e3e08a3022a351628ff54e84887756"gpu="true"><div>The pixels hit to represent thin lines vary with the angle of the 
+<div><fiddle-embed name="01e3e08a3022a351628ff54e84887756" gpu="true"><div>The pixels hit to represent thin lines vary with the angle of the 
 line and the platform implementation.</div></fiddle-embed></div>
 
 <a name="SkPaint_getStrokeWidth"></a>

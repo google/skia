@@ -1,0 +1,44 @@
+{
+    "Completed": {
+        "include": {
+            "core": [
+                "SkBitmap.h",
+                "SkCanvas.h",
+                "SkMatrix.h",
+                "SkPaint.h",
+                "SkPath.h",
+                "SkPixmap.h",
+                "SkPoint.h",
+                "SkRect.h",
+                "SkSurface.h"
+            ]
+        },
+        "docs": [
+            "SkCanvas_Reference.bmh",
+            "SkIPoint16_Reference.bmh",
+            "SkPaint_Reference.bmh",
+            "SkPoint_Reference.bmh",
+            "SkIRect_Reference.bmh",
+            "SkPath_Reference.bmh",
+            "SkRect_Reference.bmh",
+            "SkBitmap_Reference.bmh",
+            "SkIPoint_Reference.bmh",
+            "SkMatrix_Reference.bmh",
+            "SkPixmap_Reference.bmh",
+            "SkSurface_Reference.bmh",
+            "undocumented.bmh"
+        ]
+    },
+    "InProgress": {
+        "include": {
+            "core": [
+                "SkImage.h"
+            ]
+        },
+        "docs": [
+            "SkImage_Reference.bmh",
+            "overview.bmh",
+            "usingBookmaker.bmh"
+        ]
+    }
+}

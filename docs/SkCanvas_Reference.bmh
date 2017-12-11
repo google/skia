@@ -4711,14 +4711,15 @@ void draw(SkCanvas* canvas) {
 
 #Code
     struct Lattice {
-        enum Flags {...
+        enum RectType ...
 
-        const int*     fXDivs;
-        const int*     fYDivs;
-        const Flags*   fFlags;
-        int            fXCount;
-        int            fYCount;
-        const SkIRect* fBounds;
+        const int*      fXDivs;
+        const int*      fYDivs;
+        const RectType* fRectTypes;
+        int             fXCount;
+        int             fYCount;
+        const SkIRect*  fBounds;
+        const SkColor*  fColors;
     };
 ##
 
@@ -4730,17 +4731,28 @@ void draw(SkCanvas* canvas) {
     The grid entries not on even columns and rows are scaled to fit the
     remaining space, if any.
 
-    #Enum Flags
+    #Enum RectType
         #Code
-            enum Flags : uint8_t {
-                kTransparent_Flags = 1 << 0,
+            enum RectType : uint8_t {
+                kDefault = 0,
+                kTransparent,
+                kFixedColor,
             };
         ##
 
-        Optional setting per rectangular grid entry to make it transparent.
+        Optional setting per rectangular grid entry to make it transparent,
+        or to fill the grid entry with a color.
 
-        #Const kTransparent_Flags 1
-            Set to skip lattice rectangle by making it transparent.
+        #Const kDefault 0
+            Draws Bitmap into lattice rectangle.
+        ##
+
+        #Const kTransparent 1
+            Skips lattice rectangle by making it transparent.
+        ##
+
+        #Const kFixedColor 2
+            Draws one of fColors into lattice rectangle.
         ##
     ##
 
@@ -4760,13 +4772,15 @@ void draw(SkCanvas* canvas) {
         grid entries.
     ##
 
-    #Member const Flags*  fFlags
-        Optional array of Flags, one per rectangular grid entry:
+    #Member const RectType* fRectTypes
+        Optional array of fill types, one per rectangular grid entry:
         array length must be
     #Formula
         (fXCount + 1) * (fYCount + 1)
     ##
         .
+
+        Each RectType is one of: kDefault, kTransparent, kFixedColor.
 
         Array entries correspond to the rectangular grid entries, ascending
         left to right and then top to bottom.
@@ -4785,6 +4799,18 @@ void draw(SkCanvas* canvas) {
     #Member const SkIRect*   fBounds
        Optional subset IRect source to draw from.
        If nullptr, source bounds is dimensions of Bitmap or Image.
+    ##
+
+    #Member const SkColor*   fColors
+       Optional array of colors, one per rectangular grid entry.
+       Array length must be
+       #Formula
+       (fXCount + 1) * (fYCount + 1)
+       ##
+       .
+
+       Array entries correspond to the rectangular grid entries, ascending
+       left to right, then top to bottom.
     ##
 
 #Struct Lattice ##
