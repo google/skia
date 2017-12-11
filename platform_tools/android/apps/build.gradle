@@ -28,7 +28,7 @@ def setupSkiaLibraryBuild(project, appVariants, appName) {
         buildNativeLib.onlyIf { !project.hasProperty("suppressNativeBuild") }
 
         def copyNativeLib = project.task("${variant.name}_CopySkiaLib", type:Copy) {
-            def fromDir = "../../../../" + getVariantOutDir(project, variant).skiaOut
+            def fromDir = getVariantOutDir(project, variant).skiaOut
             def intoDir = getVariantOutDir(project, variant).androidOut
             from fromDir
             into intoDir
