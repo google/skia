@@ -109,7 +109,8 @@ sk_sp<SkImageFilter> SkMergeImageFilter::onMakeColorSpace(SkColorSpaceXformer* x
     return this->refMe();
 }
 
-sk_sp<SkFlattenable> SkMergeImageFilter::CreateProc(SkReadBuffer& buffer) {
+sk_sp<SkFlattenable> SkMergeImageFilter::CreateProc(SkReadBuffer& buffer, Type ft) {
+    SK_CHECK_FLATTENABLE_TYPE(ft);
     Common common;
     if (!common.unflatten(buffer, -1)) {
         return nullptr;

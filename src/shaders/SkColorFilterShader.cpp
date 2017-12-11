@@ -25,7 +25,8 @@ SkColorFilterShader::SkColorFilterShader(sk_sp<SkShader> shader, sk_sp<SkColorFi
     SkASSERT(fFilter);
 }
 
-sk_sp<SkFlattenable> SkColorFilterShader::CreateProc(SkReadBuffer& buffer) {
+sk_sp<SkFlattenable> SkColorFilterShader::CreateProc(SkReadBuffer& buffer, Type ft) {
+    SK_CHECK_FLATTENABLE_TYPE(ft);
     auto shader = buffer.readShader();
     auto filter = buffer.readColorFilter();
     if (!shader || !filter) {

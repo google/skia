@@ -733,7 +733,8 @@ void SkBlurMaskFilterImpl::computeFastBounds(const SkRect& src,
              src.fRight + pad, src.fBottom + pad);
 }
 
-sk_sp<SkFlattenable> SkBlurMaskFilterImpl::CreateProc(SkReadBuffer& buffer) {
+sk_sp<SkFlattenable> SkBlurMaskFilterImpl::CreateProc(SkReadBuffer& buffer, Type ft) {
+    SK_CHECK_FLATTENABLE_TYPE(ft);
     const SkScalar sigma = buffer.readScalar();
     const unsigned style = buffer.readUInt();
     unsigned flags = buffer.readUInt();

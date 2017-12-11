@@ -309,8 +309,8 @@ SkMagnifierImageFilter::SkMagnifierImageFilter(const SkRect& srcRect,
     SkASSERT(srcRect.left() >= 0 && srcRect.top() >= 0 && inset >= 0);
 }
 
-sk_sp<SkFlattenable> SkMagnifierImageFilter::CreateProc(SkReadBuffer& buffer) {
-    SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 1);
+sk_sp<SkFlattenable> SkMagnifierImageFilter::CreateProc(SkReadBuffer& buffer, Type ft) {
+    SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 1, ft);
     SkRect src;
     buffer.readRect(&src);
     return Make(src, buffer.readScalar(), common.getInput(0), &common.cropRect());

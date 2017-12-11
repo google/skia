@@ -68,7 +68,8 @@ void SkRecordedDrawable::flatten(SkWriteBuffer& buffer) const {
     pictureData.flatten(buffer);
 }
 
-sk_sp<SkFlattenable> SkRecordedDrawable::CreateProc(SkReadBuffer& buffer) {
+sk_sp<SkFlattenable> SkRecordedDrawable::CreateProc(SkReadBuffer& buffer, Type ft) {
+    SK_CHECK_FLATTENABLE_TYPE(ft);
     // Read the bounds.
     SkRect bounds;
     buffer.readRect(&bounds);

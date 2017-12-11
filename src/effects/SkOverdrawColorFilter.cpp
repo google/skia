@@ -48,7 +48,8 @@ void SkOverdrawColorFilter::flatten(SkWriteBuffer& buffer) const {
     buffer.writeByteArray(fColors, kNumColors * sizeof(SkPMColor));
 }
 
-sk_sp<SkFlattenable> SkOverdrawColorFilter::CreateProc(SkReadBuffer& buffer) {
+sk_sp<SkFlattenable> SkOverdrawColorFilter::CreateProc(SkReadBuffer& buffer, Type ft) {
+    SK_CHECK_FLATTENABLE_TYPE(ft);
     SkPMColor colors[kNumColors];
     size_t size = buffer.getArrayCount();
     if (!buffer.validate(size == sizeof(colors))) {

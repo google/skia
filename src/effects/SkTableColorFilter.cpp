@@ -197,7 +197,8 @@ void SkTable_ColorFilter::flatten(SkWriteBuffer& buffer) const {
     buffer.writeByteArray(storage, size);
 }
 
-sk_sp<SkFlattenable> SkTable_ColorFilter::CreateProc(SkReadBuffer& buffer) {
+sk_sp<SkFlattenable> SkTable_ColorFilter::CreateProc(SkReadBuffer& buffer, Type ft) {
+    SK_CHECK_FLATTENABLE_TYPE(ft);
     const int flags = buffer.read32();
     const size_t count = gCountNibBits[flags & 0xF];
     SkASSERT(count <= 4);

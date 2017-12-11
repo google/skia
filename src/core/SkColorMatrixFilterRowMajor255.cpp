@@ -69,7 +69,8 @@ void SkColorMatrixFilterRowMajor255::flatten(SkWriteBuffer& buffer) const {
     buffer.writeScalarArray(fMatrix, 20);
 }
 
-sk_sp<SkFlattenable> SkColorMatrixFilterRowMajor255::CreateProc(SkReadBuffer& buffer) {
+sk_sp<SkFlattenable> SkColorMatrixFilterRowMajor255::CreateProc(SkReadBuffer& buffer, Type ft) {
+    SK_CHECK_FLATTENABLE_TYPE(ft);
     SkScalar matrix[20];
     if (buffer.readScalarArray(matrix, 20)) {
         return sk_make_sp<SkColorMatrixFilterRowMajor255>(matrix);

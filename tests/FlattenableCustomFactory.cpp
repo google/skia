@@ -42,7 +42,8 @@ private:
     uint32_t fD;
 };
 
-static sk_sp<SkFlattenable> custom_create_proc(SkReadBuffer& buffer) {
+static sk_sp<SkFlattenable> custom_create_proc(SkReadBuffer& buffer, SkFlattenable::Type ft) {
+    SkASSERT(ft == SkFlattenable::kSkUnused_Type);
     uint32_t a = buffer.readUInt();
     uint32_t b = buffer.readUInt();
     uint32_t c = buffer.readUInt();

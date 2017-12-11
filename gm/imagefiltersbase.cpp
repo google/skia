@@ -52,8 +52,8 @@ private:
 
 static FailImageFilter::Registrar gReg0;
 
-sk_sp<SkFlattenable> FailImageFilter::CreateProc(SkReadBuffer& buffer) {
-    SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 0);
+sk_sp<SkFlattenable> FailImageFilter::CreateProc(SkReadBuffer& buffer, Type ft) {
+    SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 0, ft);
     return FailImageFilter::Make();
 }
 
@@ -99,8 +99,8 @@ private:
 
 static IdentityImageFilter::Registrar gReg1;
 
-sk_sp<SkFlattenable> IdentityImageFilter::CreateProc(SkReadBuffer& buffer) {
-    SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 1);
+sk_sp<SkFlattenable> IdentityImageFilter::CreateProc(SkReadBuffer& buffer, Type ft) {
+    SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 1, ft);
     return IdentityImageFilter::Make(common.getInput(0));
 }
 

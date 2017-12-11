@@ -143,8 +143,8 @@ SkRect SkTileImageFilter::computeFastBounds(const SkRect& src) const {
     return fDstRect;
 }
 
-sk_sp<SkFlattenable> SkTileImageFilter::CreateProc(SkReadBuffer& buffer) {
-    SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 1);
+sk_sp<SkFlattenable> SkTileImageFilter::CreateProc(SkReadBuffer& buffer, Type ft) {
+    SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 1, ft);
     SkRect src, dst;
     buffer.readRect(&src);
     buffer.readRect(&dst);

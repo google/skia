@@ -821,7 +821,8 @@ private:
     typedef SkShaderBase INHERITED;
 };
 
-sk_sp<SkFlattenable> Sk3DShader::CreateProc(SkReadBuffer& buffer) {
+sk_sp<SkFlattenable> Sk3DShader::CreateProc(SkReadBuffer& buffer, Type ft) {
+    SK_CHECK_FLATTENABLE_TYPE(ft);
     return sk_make_sp<Sk3DShader>(buffer.readShader());
 }
 

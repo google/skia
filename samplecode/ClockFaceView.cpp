@@ -70,7 +70,8 @@ private:
 
 static Dot2DPathEffect::Registrar gReg0;
 
-sk_sp<SkFlattenable> Dot2DPathEffect::CreateProc(SkReadBuffer& buffer) {
+sk_sp<SkFlattenable> Dot2DPathEffect::CreateProc(SkReadBuffer& buffer, Type ft) {
+    SK_CHECK_FLATTENABLE_TYPE(ft);
     SkMatrix matrix;
     buffer.readMatrix(&matrix);
     return sk_make_sp<Dot2DPathEffect>(buffer.readScalar(), matrix, nullptr);
@@ -98,7 +99,8 @@ private:
     typedef SkPathEffect INHERITED;
 };
 
-sk_sp<SkFlattenable> InverseFillPE::CreateProc(SkReadBuffer& buffer) {
+sk_sp<SkFlattenable> InverseFillPE::CreateProc(SkReadBuffer& buffer, Type ft) {
+    SK_CHECK_FLATTENABLE_TYPE(ft);
     return sk_make_sp<InverseFillPE>();
 }
 

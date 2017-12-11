@@ -24,8 +24,8 @@ SkPaintImageFilter::SkPaintImageFilter(const SkPaint& paint, const CropRect* cro
     , fPaint(paint) {
 }
 
-sk_sp<SkFlattenable> SkPaintImageFilter::CreateProc(SkReadBuffer& buffer) {
-    SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 0);
+sk_sp<SkFlattenable> SkPaintImageFilter::CreateProc(SkReadBuffer& buffer, Type ft) {
+    SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 0, ft);
     SkPaint paint;
     buffer.readPaint(&paint);
     return SkPaintImageFilter::Make(paint, &common.cropRect());

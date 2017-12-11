@@ -34,7 +34,8 @@ static std::tuple<SkScalar, SkScalar> angles_from_t_coeff(SkScalar tBias, SkScal
     return std::make_tuple(-tBias * 360, (1 / tScale - tBias) * 360);
 }
 
-sk_sp<SkFlattenable> SkSweepGradient::CreateProc(SkReadBuffer& buffer) {
+sk_sp<SkFlattenable> SkSweepGradient::CreateProc(SkReadBuffer& buffer, Type ft) {
+    SK_CHECK_FLATTENABLE_TYPE(ft);
     DescriptorScope desc;
     if (!desc.unflatten(buffer)) {
         return nullptr;

@@ -107,7 +107,8 @@ bool SkEmbossMaskFilter::filterMask(SkMask* dst, const SkMask& src,
     return true;
 }
 
-sk_sp<SkFlattenable> SkEmbossMaskFilter::CreateProc(SkReadBuffer& buffer) {
+sk_sp<SkFlattenable> SkEmbossMaskFilter::CreateProc(SkReadBuffer& buffer, Type ft) {
+    SK_CHECK_FLATTENABLE_TYPE(ft);
     Light light;
     if (buffer.readByteArray(&light, sizeof(Light))) {
         light.fPad = 0; // for the font-cache lookup to be clean

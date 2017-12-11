@@ -52,7 +52,8 @@ static sk_sp<SkImageFilter> make_localspace_filter(sk_sp<SkPicture> pic, const S
     return SkImageSource::Make(img, cropRect, cropRect, fq);
 }
 
-sk_sp<SkFlattenable> SkPictureImageFilter::CreateProc(SkReadBuffer& buffer) {
+sk_sp<SkFlattenable> SkPictureImageFilter::CreateProc(SkReadBuffer& buffer, Type ft) {
+    SK_CHECK_FLATTENABLE_TYPE(ft);
     sk_sp<SkPicture> picture;
     SkRect cropRect;
 

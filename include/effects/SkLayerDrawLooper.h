@@ -78,7 +78,7 @@ public:
     SK_TO_STRING_OVERRIDE()
 
     Factory getFactory() const override { return CreateProc; }
-    static sk_sp<SkFlattenable> CreateProc(SkReadBuffer& buffer);
+    static sk_sp<SkFlattenable> CreateProc(SkReadBuffer& buffer, Type);
 
 protected:
     sk_sp<SkDrawLooper> onMakeColorSpace(SkColorSpaceXformer*) const override;

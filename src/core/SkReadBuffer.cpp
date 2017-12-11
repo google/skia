@@ -445,7 +445,7 @@ SkFlattenable* SkReadBuffer::readFlattenable(SkFlattenable::Type ft) {
     uint32_t sizeRecorded = this->read32();
     if (factory) {
         size_t offset = fReader.offset();
-        obj = (*factory)(*this);
+        obj = (*factory)(*this, ft);
         // check that we read the amount we expected
         size_t sizeRead = fReader.offset() - offset;
         if (sizeRecorded != sizeRead) {

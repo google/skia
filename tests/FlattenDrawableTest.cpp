@@ -31,7 +31,8 @@ public:
         buffer.writeUInt(fD);
     }
 
-    static sk_sp<SkFlattenable> CreateProc(SkReadBuffer& buffer) {
+    static sk_sp<SkFlattenable> CreateProc(SkReadBuffer& buffer, Type ft) {
+        SK_CHECK_FLATTENABLE_TYPE(ft);
         uint32_t a = buffer.readUInt();
         uint32_t b = buffer.readUInt();
         uint32_t c = buffer.readUInt();
@@ -69,7 +70,8 @@ public:
         buffer.writePaint(fPaint);
     }
 
-    static sk_sp<SkFlattenable> CreateProc(SkReadBuffer& buffer) {
+    static sk_sp<SkFlattenable> CreateProc(SkReadBuffer& buffer, Type ft) {
+        SK_CHECK_FLATTENABLE_TYPE(ft);
         SkPaint paint;
         buffer.readPaint(&paint);
         return sk_sp<PaintDrawable>(new PaintDrawable(paint));
@@ -106,7 +108,8 @@ public:
         buffer.writeFlattenable(fPaintDrawable.get());
     }
 
-    static sk_sp<SkFlattenable> CreateProc(SkReadBuffer& buffer) {
+    static sk_sp<SkFlattenable> CreateProc(SkReadBuffer& buffer, Type ft) {
+        SK_CHECK_FLATTENABLE_TYPE(ft);
         sk_sp<SkFlattenable> intDrawable(
                 buffer.readFlattenable(SkFlattenable::kSkDrawable_Type));
         SkASSERT(intDrawable);
@@ -159,7 +162,8 @@ public:
         buffer.writeFlattenable(fDrawable.get());
     }
 
-    static sk_sp<SkFlattenable> CreateProc(SkReadBuffer& buffer) {
+    static sk_sp<SkFlattenable> CreateProc(SkReadBuffer& buffer, Type ft) {
+        SK_CHECK_FLATTENABLE_TYPE(ft);
         sk_sp<SkFlattenable> compoundDrawable(
                 buffer.readFlattenable(SkFlattenable::kSkDrawable_Type));
         SkASSERT(compoundDrawable);

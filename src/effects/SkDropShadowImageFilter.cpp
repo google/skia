@@ -40,8 +40,8 @@ SkDropShadowImageFilter::SkDropShadowImageFilter(SkScalar dx, SkScalar dy,
     , fShadowMode(shadowMode) {
 }
 
-sk_sp<SkFlattenable> SkDropShadowImageFilter::CreateProc(SkReadBuffer& buffer) {
-    SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 1);
+sk_sp<SkFlattenable> SkDropShadowImageFilter::CreateProc(SkReadBuffer& buffer, Type ft) {
+    SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 1, ft);
     SkScalar dx = buffer.readScalar();
     SkScalar dy = buffer.readScalar();
     SkScalar sigmaX = buffer.readScalar();

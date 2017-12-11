@@ -108,8 +108,8 @@ SkBlurImageFilterImpl::SkBlurImageFilterImpl(SkScalar sigmaX,
                                              SkBlurImageFilter::TileMode tileMode)
         : INHERITED(&input, 1, cropRect), fSigma{sigmaX, sigmaY}, fTileMode(tileMode) {}
 
-sk_sp<SkFlattenable> SkBlurImageFilterImpl::CreateProc(SkReadBuffer& buffer) {
-    SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 1);
+sk_sp<SkFlattenable> SkBlurImageFilterImpl::CreateProc(SkReadBuffer& buffer, Type ft) {
+    SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 1, ft);
     SkScalar sigmaX = buffer.readScalar();
     SkScalar sigmaY = buffer.readScalar();
     SkBlurImageFilter::TileMode tileMode;

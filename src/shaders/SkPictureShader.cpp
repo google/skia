@@ -152,7 +152,8 @@ sk_sp<SkShader> SkPictureShader::Make(sk_sp<SkPicture> picture, TileMode tmx, Ti
                                                nullptr));
 }
 
-sk_sp<SkFlattenable> SkPictureShader::CreateProc(SkReadBuffer& buffer) {
+sk_sp<SkFlattenable> SkPictureShader::CreateProc(SkReadBuffer& buffer, Type ft) {
+    SK_CHECK_FLATTENABLE_TYPE(ft);
     SkMatrix lm;
     buffer.readMatrix(&lm);
     TileMode mx = (TileMode)buffer.read32();

@@ -38,7 +38,8 @@ SkImageShader::SkImageShader(sk_sp<SkImage> img, TileMode tmx, TileMode tmy, con
     , fTileModeY(optimize(tmy, fImage->height()))
 {}
 
-sk_sp<SkFlattenable> SkImageShader::CreateProc(SkReadBuffer& buffer) {
+sk_sp<SkFlattenable> SkImageShader::CreateProc(SkReadBuffer& buffer, Type ft) {
+    SK_CHECK_FLATTENABLE_TYPE(ft);
     const TileMode tx = (TileMode)buffer.readUInt();
     const TileMode ty = (TileMode)buffer.readUInt();
     SkMatrix matrix;

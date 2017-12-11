@@ -1270,8 +1270,8 @@ SkDiffuseLightingImageFilter::SkDiffuseLightingImageFilter(sk_sp<SkImageFilterLi
     , fKD(kd) {
 }
 
-sk_sp<SkFlattenable> SkDiffuseLightingImageFilter::CreateProc(SkReadBuffer& buffer) {
-    SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 1);
+sk_sp<SkFlattenable> SkDiffuseLightingImageFilter::CreateProc(SkReadBuffer& buffer, Type ft) {
+    SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 1, ft);
     sk_sp<SkImageFilterLight> light(SkImageFilterLight::UnflattenLight(buffer));
     SkScalar surfaceScale = buffer.readScalar();
     SkScalar kd = buffer.readScalar();
@@ -1421,8 +1421,8 @@ SkSpecularLightingImageFilter::SkSpecularLightingImageFilter(sk_sp<SkImageFilter
     , fShininess(shininess) {
 }
 
-sk_sp<SkFlattenable> SkSpecularLightingImageFilter::CreateProc(SkReadBuffer& buffer) {
-    SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 1);
+sk_sp<SkFlattenable> SkSpecularLightingImageFilter::CreateProc(SkReadBuffer& buffer, Type ft) {
+    SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 1, ft);
     sk_sp<SkImageFilterLight> light(SkImageFilterLight::UnflattenLight(buffer));
     SkScalar surfaceScale = buffer.readScalar();
     SkScalar ks = buffer.readScalar();

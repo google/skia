@@ -48,11 +48,14 @@ struct SkDeserialProcs;
     SkFlattenable::Register(#flattenable, flattenable::CreateProc, \
                             flattenable::GetFlattenableType());
 
-#define SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(flattenable)    \
-    private:                                                                \
-    static sk_sp<SkFlattenable> CreateProc(SkReadBuffer&);                        \
-    friend class SkFlattenable::PrivateInitializer;                         \
-    public:                                                                 \
+#define SK_CHECK_FLATTENABLE_TYPE(flattenable_type) \
+    do { if (GetFlattenableType() != (flattenable_type)) return nullptr; } while (0)
+
+#define SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(flattenable)        \
+    private:                                                                    \
+    static sk_sp<SkFlattenable> CreateProc(SkReadBuffer&, SkFlattenable::Type); \
+    friend class SkFlattenable::PrivateInitializer;                             \
+    public:                                                                     \
     Factory getFactory() const override { return CreateProc; }
 
 /** For SkFlattenable derived objects with a valid type
@@ -86,7 +89,11 @@ public:
         kSkUnused_Type3,    // used to be SkNormalSource
     };
 
-    typedef sk_sp<SkFlattenable> (*Factory)(SkReadBuffer&);
+    /**
+     *  Returns the deserialized version of a flattenable that matches the specified type.
+     *  If the factory implementation does not match the requested Type, it returns null.
+     */
+    typedef sk_sp<SkFlattenable> (*Factory)(SkReadBuffer&, Type);
 
     SkFlattenable() {}
 

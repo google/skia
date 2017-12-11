@@ -43,7 +43,8 @@ private:
 
 int DummyRasterizer::gCount;
 
-sk_sp<SkFlattenable> DummyRasterizer::CreateProc(SkReadBuffer&) {
+sk_sp<SkFlattenable> DummyRasterizer::CreateProc(SkReadBuffer&, Type ft) {
+    SK_CHECK_FLATTENABLE_TYPE(ft);
     return sk_make_sp<DummyRasterizer>();
 }
 

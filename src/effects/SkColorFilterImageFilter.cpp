@@ -48,8 +48,8 @@ SkColorFilterImageFilter::SkColorFilterImageFilter(sk_sp<SkColorFilter> cf,
     , fColorFilter(std::move(cf)) {
 }
 
-sk_sp<SkFlattenable> SkColorFilterImageFilter::CreateProc(SkReadBuffer& buffer) {
-    SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 1);
+sk_sp<SkFlattenable> SkColorFilterImageFilter::CreateProc(SkReadBuffer& buffer, Type ft) {
+    SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 1, ft);
     sk_sp<SkColorFilter> cf(buffer.readColorFilter());
     return Make(std::move(cf), common.getInput(0), &common.cropRect());
 }

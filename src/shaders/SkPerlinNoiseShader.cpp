@@ -412,7 +412,9 @@ SkPerlinNoiseShaderImpl::SkPerlinNoiseShaderImpl(SkPerlinNoiseShaderImpl::Type t
     SkASSERT(numOctaves >= 0 && numOctaves < 256);
 }
 
-sk_sp<SkFlattenable> SkPerlinNoiseShaderImpl::CreateProc(SkReadBuffer& buffer) {
+sk_sp<SkFlattenable> SkPerlinNoiseShaderImpl::CreateProc(SkReadBuffer& buffer,
+                                                         SkFlattenable::Type ft) {
+    SK_CHECK_FLATTENABLE_TYPE(ft);
     Type type = (Type)buffer.readInt();
     SkScalar freqX = buffer.readScalar();
     SkScalar freqY = buffer.readScalar();

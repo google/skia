@@ -140,7 +140,8 @@ void SkHighContrast_Filter::flatten(SkWriteBuffer& buffer) const {
     buffer.writeScalar(fConfig.fContrast);
 }
 
-sk_sp<SkFlattenable> SkHighContrast_Filter::CreateProc(SkReadBuffer& buffer) {
+sk_sp<SkFlattenable> SkHighContrast_Filter::CreateProc(SkReadBuffer& buffer, Type ft) {
+    SK_CHECK_FLATTENABLE_TYPE(ft);
     SkHighContrastConfig config;
     config.fGrayscale = buffer.readBool();
     config.fInvertStyle = static_cast<InvertStyle>(buffer.readInt());

@@ -126,7 +126,8 @@ private:
     typedef SkPairPathEffect INHERITED;
 };
 
-sk_sp<SkFlattenable> SkComposePathEffect::CreateProc(SkReadBuffer& buffer) {
+sk_sp<SkFlattenable> SkComposePathEffect::CreateProc(SkReadBuffer& buffer, Type ft) {
+    SK_CHECK_FLATTENABLE_TYPE(ft);
     sk_sp<SkPathEffect> pe0(buffer.readPathEffect());
     sk_sp<SkPathEffect> pe1(buffer.readPathEffect());
     return SkComposePathEffect::Make(std::move(pe0), std::move(pe1));
@@ -192,7 +193,8 @@ private:
     typedef SkPairPathEffect INHERITED;
 };
 
-sk_sp<SkFlattenable> SkSumPathEffect::CreateProc(SkReadBuffer& buffer) {
+sk_sp<SkFlattenable> SkSumPathEffect::CreateProc(SkReadBuffer& buffer, Type ft) {
+    SK_CHECK_FLATTENABLE_TYPE(ft);
     sk_sp<SkPathEffect> pe0(buffer.readPathEffect());
     sk_sp<SkPathEffect> pe1(buffer.readPathEffect());
     return SkSumPathEffect::Make(pe0, pe1);

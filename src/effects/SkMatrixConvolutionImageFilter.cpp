@@ -78,8 +78,8 @@ sk_sp<SkImageFilter> SkMatrixConvolutionImageFilter::Make(const SkISize& kernelS
                                                                    std::move(input), cropRect));
 }
 
-sk_sp<SkFlattenable> SkMatrixConvolutionImageFilter::CreateProc(SkReadBuffer& buffer) {
-    SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 1);
+sk_sp<SkFlattenable> SkMatrixConvolutionImageFilter::CreateProc(SkReadBuffer& buffer, Type ft) {
+    SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 1, ft);
     SkISize kernelSize;
     kernelSize.fWidth = buffer.readInt();
     kernelSize.fHeight = buffer.readInt();

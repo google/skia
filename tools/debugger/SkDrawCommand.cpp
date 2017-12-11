@@ -848,7 +848,8 @@ static Json::ArrayIndex decode_data(Json::Value data, UrlDataManager& urlDataMan
 }
 
 static SkFlattenable* load_flattenable(Json::Value jsonFlattenable,
-                                       UrlDataManager& urlDataManager) {
+                                       UrlDataManager& urlDataManager,
+                                       SkFlattenable::Type ft) {
     if (!jsonFlattenable.isMember(SKDEBUGCANVAS_ATTRIBUTE_NAME)) {
         return nullptr;
     }
@@ -861,7 +862,7 @@ static SkFlattenable* load_flattenable(Json::Value jsonFlattenable,
     const void* data;
     int size = decode_data(jsonFlattenable[SKDEBUGCANVAS_ATTRIBUTE_DATA], urlDataManager, &data);
     SkReadBuffer buffer(data, size);
-    sk_sp<SkFlattenable> result = factory(buffer);
+    sk_sp<SkFlattenable> result = factory(buffer, ft);
     if (!buffer.isValid()) {
         SkDebugf("invalid buffer loading flattenable\n");
         return nullptr;
@@ -1305,7 +1306,8 @@ static void extract_json_paint_shader(Json::Value& jsonPaint, UrlDataManager& ur
                                       SkPaint* target) {
     if (jsonPaint.isMember(SKDEBUGCANVAS_ATTRIBUTE_SHADER)) {
         Json::Value jsonShader = jsonPaint[SKDEBUGCANVAS_ATTRIBUTE_SHADER];
-        SkShader* shader = (SkShader*) load_flattenable(jsonShader, urlDataManager);
+        SkShader* shader = (SkShader*) load_flattenable(jsonShader, urlDataManager,
+                                                        SkFlattenable::kSkShaderBase_Type);
         if (shader != nullptr) {
             target->setShader(sk_ref_sp(shader));
         }
@@ -1317,7 +1319,8 @@ static void extract_json_paint_patheffect(Json::Value& jsonPaint, UrlDataManager
     if (jsonPaint.isMember(SKDEBUGCANVAS_ATTRIBUTE_PATHEFFECT)) {
         Json::Value jsonPathEffect = jsonPaint[SKDEBUGCANVAS_ATTRIBUTE_PATHEFFECT];
         sk_sp<SkPathEffect> pathEffect((SkPathEffect*)load_flattenable(jsonPathEffect,
-                                                                       urlDataManager));
+                                                                       urlDataManager,
+                                                               SkFlattenable::kSkPathEffect_Type));
         if (pathEffect != nullptr) {
             target->setPathEffect(pathEffect);
         }
@@ -1329,7 +1332,8 @@ static void extract_json_paint_maskfilter(Json::Value& jsonPaint, UrlDataManager
     if (jsonPaint.isMember(SKDEBUGCANVAS_ATTRIBUTE_MASKFILTER)) {
         Json::Value jsonMaskFilter = jsonPaint[SKDEBUGCANVAS_ATTRIBUTE_MASKFILTER];
         sk_sp<SkMaskFilter> maskFilter((SkMaskFilter*)load_flattenable(jsonMaskFilter,
-                                                                       urlDataManager));
+                                                                       urlDataManager,
+                                                               SkFlattenable::kSkMaskFilter_Type));
         if (maskFilter) {
             target->setMaskFilter(std::move(maskFilter));
         }
@@ -1341,7 +1345,8 @@ static void extract_json_paint_colorfilter(Json::Value& jsonPaint, UrlDataManage
     if (jsonPaint.isMember(SKDEBUGCANVAS_ATTRIBUTE_COLORFILTER)) {
         Json::Value jsonColorFilter = jsonPaint[SKDEBUGCANVAS_ATTRIBUTE_COLORFILTER];
         sk_sp<SkColorFilter> colorFilter((SkColorFilter*)load_flattenable(jsonColorFilter,
-                                                                          urlDataManager));
+                                                                          urlDataManager,
+                                                              SkFlattenable::kSkColorFilter_Type));
         if (colorFilter != nullptr) {
             target->setColorFilter(colorFilter);
         }
@@ -1352,7 +1357,8 @@ static void extract_json_paint_looper(Json::Value& jsonPaint, UrlDataManager& ur
                                       SkPaint* target) {
     if (jsonPaint.isMember(SKDEBUGCANVAS_ATTRIBUTE_LOOPER)) {
         Json::Value jsonLooper = jsonPaint[SKDEBUGCANVAS_ATTRIBUTE_LOOPER];
-        sk_sp<SkDrawLooper> looper((SkDrawLooper*) load_flattenable(jsonLooper, urlDataManager));
+        sk_sp<SkDrawLooper> looper((SkDrawLooper*) load_flattenable(jsonLooper, urlDataManager,
+                                                                SkFlattenable::kSkDrawLooper_Type));
         if (looper != nullptr) {
             target->setLooper(std::move(looper));
         }
@@ -1364,7 +1370,8 @@ static void extract_json_paint_imagefilter(Json::Value& jsonPaint, UrlDataManage
     if (jsonPaint.isMember(SKDEBUGCANVAS_ATTRIBUTE_IMAGEFILTER)) {
         Json::Value jsonImageFilter = jsonPaint[SKDEBUGCANVAS_ATTRIBUTE_IMAGEFILTER];
         sk_sp<SkImageFilter> imageFilter((SkImageFilter*) load_flattenable(jsonImageFilter,
-                                                                           urlDataManager));
+                                                                           urlDataManager,
+                                                               SkFlattenable::kSkImageFilter_Type));
         if (imageFilter != nullptr) {
             target->setImageFilter(imageFilter);
         }
@@ -3552,7 +3559,8 @@ SkSaveLayerCommand* SkSaveLayerCommand::fromJSON(Json::Value& command,
     }
     if (command.isMember(SKDEBUGCANVAS_ATTRIBUTE_BACKDROP)) {
         Json::Value backdrop = command[SKDEBUGCANVAS_ATTRIBUTE_BACKDROP];
-        rec.fBackdrop = (SkImageFilter*) load_flattenable(backdrop, urlDataManager);
+        rec.fBackdrop = (SkImageFilter*) load_flattenable(backdrop, urlDataManager,
+                                                          SkFlattenable::kSkImageFilter_Type);
     }
     SkSaveLayerCommand* result = new SkSaveLayerCommand(rec);
     if (rec.fBackdrop != nullptr) {

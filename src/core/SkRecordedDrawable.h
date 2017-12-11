@@ -24,7 +24,7 @@ public:
 
     void flatten(SkWriteBuffer& buffer) const override;
 
-    static sk_sp<SkFlattenable> CreateProc(SkReadBuffer& buffer);
+    static sk_sp<SkFlattenable> CreateProc(SkReadBuffer& buffer, Type);
 
     Factory getFactory() const override { return CreateProc; }
 

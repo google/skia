@@ -57,7 +57,10 @@ private:
     };
 };
 
-sk_sp<SkFlattenable> TestLooper::CreateProc(SkReadBuffer&) { return sk_make_sp<TestLooper>(); }
+sk_sp<SkFlattenable> TestLooper::CreateProc(SkReadBuffer&, Type ft) {
+    SK_CHECK_FLATTENABLE_TYPE(ft);
+    return sk_make_sp<TestLooper>();
+}
 
 static void test_drawBitmap(skiatest::Reporter* reporter) {
     SkBitmap src;

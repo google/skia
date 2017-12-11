@@ -32,8 +32,8 @@ sk_sp<SkImageFilter> SkMatrixImageFilter::Make(const SkMatrix& transform,
                                                         std::move(input)));
 }
 
-sk_sp<SkFlattenable> SkMatrixImageFilter::CreateProc(SkReadBuffer& buffer) {
-    SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 1);
+sk_sp<SkFlattenable> SkMatrixImageFilter::CreateProc(SkReadBuffer& buffer, Type ft) {
+    SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 1, ft);
     SkMatrix matrix;
     buffer.readMatrix(&matrix);
     SkFilterQuality quality = static_cast<SkFilterQuality>(buffer.readInt());

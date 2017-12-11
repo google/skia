@@ -364,7 +364,8 @@ void SkDashImpl::flatten(SkWriteBuffer& buffer) const {
     buffer.writeScalarArray(fIntervals, fCount);
 }
 
-sk_sp<SkFlattenable> SkDashImpl::CreateProc(SkReadBuffer& buffer) {
+sk_sp<SkFlattenable> SkDashImpl::CreateProc(SkReadBuffer& buffer, Type ft) {
+    SK_CHECK_FLATTENABLE_TYPE(ft);
     const SkScalar phase = buffer.readScalar();
     uint32_t count = buffer.getArrayCount();
     SkAutoSTArray<32, SkScalar> intervals(count);

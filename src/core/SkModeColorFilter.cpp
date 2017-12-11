@@ -67,7 +67,8 @@ void SkModeColorFilter::flatten(SkWriteBuffer& buffer) const {
     buffer.writeUInt((int)fMode);
 }
 
-sk_sp<SkFlattenable> SkModeColorFilter::CreateProc(SkReadBuffer& buffer) {
+sk_sp<SkFlattenable> SkModeColorFilter::CreateProc(SkReadBuffer& buffer, Type ft) {
+    SK_CHECK_FLATTENABLE_TYPE(ft);
     SkColor color = buffer.readColor();
     SkBlendMode mode = (SkBlendMode)buffer.readUInt();
     return SkColorFilter::MakeModeFilter(color, mode);

@@ -34,7 +34,7 @@ public:
 
     void toString(SkString* str) const override;
 
-    static sk_sp<SkFlattenable> CreateProc(SkReadBuffer& buffer);
+    static sk_sp<SkFlattenable> CreateProc(SkReadBuffer& buffer, Type ft);
     Factory getFactory() const override { return CreateProc; }
     SK_DECLARE_FLATTENABLE_REGISTRAR_GROUP()
 

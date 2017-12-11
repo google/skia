@@ -13,9 +13,12 @@
 /**
  *  Helper to unflatten the common data, and return nullptr if we fail.
  */
-#define SK_IMAGEFILTER_UNFLATTEN_COMMON(localVar, expectedCount)    \
+#define SK_IMAGEFILTER_UNFLATTEN_COMMON(localVar, expectedCount, type)    \
     Common localVar;                                                \
     do {                                                            \
+        if ((type) != SkImageFilter::GetFlattenableType()) {        \
+            return nullptr;                                         \
+        }                                                           \
         if (!localVar.unflatten(buffer, expectedCount)) {           \
             return nullptr;                                         \
         }                                                           \

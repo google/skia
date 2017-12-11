@@ -39,7 +39,8 @@ sk_sp<SkShader> SkShader::MakeCompose(sk_sp<SkShader> dst, sk_sp<SkShader> src, 
 
 ///////////////////////////////////////////////////////////////////////////////
 
-sk_sp<SkFlattenable> SkComposeShader::CreateProc(SkReadBuffer& buffer) {
+sk_sp<SkFlattenable> SkComposeShader::CreateProc(SkReadBuffer& buffer, Type ft) {
+    SK_CHECK_FLATTENABLE_TYPE(ft);
     sk_sp<SkShader> dst(buffer.readShader());
     sk_sp<SkShader> src(buffer.readShader());
     unsigned        mode = buffer.read32();

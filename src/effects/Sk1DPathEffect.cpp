@@ -145,7 +145,8 @@ SkScalar SkPath1DPathEffect::begin(SkScalar contourLength) const {
     return fInitialOffset;
 }
 
-sk_sp<SkFlattenable> SkPath1DPathEffect::CreateProc(SkReadBuffer& buffer) {
+sk_sp<SkFlattenable> SkPath1DPathEffect::CreateProc(SkReadBuffer& buffer, Type ft) {
+    SK_CHECK_FLATTENABLE_TYPE(ft);
     SkScalar advance = buffer.readScalar();
     if (advance > 0) {
         SkPath path;

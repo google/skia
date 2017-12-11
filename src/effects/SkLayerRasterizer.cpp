@@ -143,7 +143,8 @@ bool SkLayerRasterizer::onRasterize(const SkPath& path, const SkMatrix& matrix,
     return true;
 }
 
-sk_sp<SkFlattenable> SkLayerRasterizer::CreateProc(SkReadBuffer& buffer) {
+sk_sp<SkFlattenable> SkLayerRasterizer::CreateProc(SkReadBuffer& buffer, Type ft) {
+    SK_CHECK_FLATTENABLE_TYPE(ft);
     return sk_sp<SkFlattenable>(new SkLayerRasterizer(ReadLayers(buffer)));
 }
 

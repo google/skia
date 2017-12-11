@@ -79,8 +79,8 @@ private:
     typedef SkImageFilter INHERITED;
 };
 
-sk_sp<SkFlattenable> ArithmeticImageFilterImpl::CreateProc(SkReadBuffer& buffer) {
-    SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 2);
+sk_sp<SkFlattenable> ArithmeticImageFilterImpl::CreateProc(SkReadBuffer& buffer, Type ft) {
+    SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 2, ft);
     float k[4];
     for (int i = 0; i < 4; ++i) {
         k[i] = buffer.readScalar();

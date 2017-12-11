@@ -19,7 +19,8 @@ bool SkColorShader::isOpaque() const {
     return SkColorGetA(fColor) == 255;
 }
 
-sk_sp<SkFlattenable> SkColorShader::CreateProc(SkReadBuffer& buffer) {
+sk_sp<SkFlattenable> SkColorShader::CreateProc(SkReadBuffer& buffer, Type ft) {
+    SK_CHECK_FLATTENABLE_TYPE(ft);
     return sk_make_sp<SkColorShader>(buffer.readColor());
 }
 
@@ -129,7 +130,8 @@ SkColor4Shader::SkColor4Shader(const SkColor4f& color, sk_sp<SkColorSpace> space
     , fCachedByteColor(unit_to_skcolor(color.pin(), space.get()))
 {}
 
-sk_sp<SkFlattenable> SkColor4Shader::CreateProc(SkReadBuffer& buffer) {
+sk_sp<SkFlattenable> SkColor4Shader::CreateProc(SkReadBuffer& buffer, Type ft) {
+    SK_CHECK_FLATTENABLE_TYPE(ft);
     SkColor4f color;
     buffer.readColor4f(&color);
     if (buffer.readBool()) {

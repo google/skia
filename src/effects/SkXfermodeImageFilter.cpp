@@ -63,7 +63,7 @@ protected:
 #endif
 
 private:
-    static sk_sp<SkFlattenable> LegacyArithmeticCreateProc(SkReadBuffer& buffer);
+    static sk_sp<SkFlattenable> LegacyArithmeticCreateProc(SkReadBuffer& buffer, Type);
 
     SkBlendMode fMode;
 
@@ -95,8 +95,8 @@ static unsigned unflatten_blendmode(SkReadBuffer& buffer) {
     return mode;
 }
 
-sk_sp<SkFlattenable> SkXfermodeImageFilter_Base::CreateProc(SkReadBuffer& buffer) {
-    SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 2);
+sk_sp<SkFlattenable> SkXfermodeImageFilter_Base::CreateProc(SkReadBuffer& buffer, Type ft) {
+    SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 2, ft);
     unsigned mode = unflatten_blendmode(buffer);
     if (!buffer.isValid()) {
         return nullptr;
@@ -363,8 +363,9 @@ std::unique_ptr<GrFragmentProcessor> SkXfermodeImageFilter_Base::makeFGFrag(
 #endif
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-sk_sp<SkFlattenable> SkXfermodeImageFilter_Base::LegacyArithmeticCreateProc(SkReadBuffer& buffer) {
-    SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 2);
+sk_sp<SkFlattenable> SkXfermodeImageFilter_Base::LegacyArithmeticCreateProc(SkReadBuffer& buffer,
+                                                                            Type ft) {
+    SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 2, ft);
     // skip the unused mode (srcover) field
     SkDEBUGCODE(unsigned mode =) unflatten_blendmode(buffer);
     if (!buffer.isValid()) {

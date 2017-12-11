@@ -57,7 +57,8 @@ private:
     typedef SkColorFilter INHERITED;
 };
 
-sk_sp<SkFlattenable> SkGaussianColorFilter::CreateProc(SkReadBuffer&) {
+sk_sp<SkFlattenable> SkGaussianColorFilter::CreateProc(SkReadBuffer&, Type ft) {
+    SK_CHECK_FLATTENABLE_TYPE(ft);
     return Make();
 }
 

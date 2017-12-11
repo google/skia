@@ -24,7 +24,8 @@ std::unique_ptr<GrFragmentProcessor> SkLocalMatrixShader::asFragmentProcessor(
 }
 #endif
 
-sk_sp<SkFlattenable> SkLocalMatrixShader::CreateProc(SkReadBuffer& buffer) {
+sk_sp<SkFlattenable> SkLocalMatrixShader::CreateProc(SkReadBuffer& buffer, Type ft) {
+    SK_CHECK_FLATTENABLE_TYPE(ft);
     SkMatrix lm;
     buffer.readMatrix(&lm);
     auto baseShader(buffer.readShader());

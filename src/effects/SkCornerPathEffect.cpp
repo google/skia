@@ -138,7 +138,8 @@ DONE:
     return true;
 }
 
-sk_sp<SkFlattenable> SkCornerPathEffect::CreateProc(SkReadBuffer& buffer) {
+sk_sp<SkFlattenable> SkCornerPathEffect::CreateProc(SkReadBuffer& buffer, Type t) {
+    SK_CHECK_FLATTENABLE_TYPE(t);
     return SkCornerPathEffect::Make(buffer.readScalar());
 }
 

@@ -33,7 +33,8 @@ SkLinearGradient::SkLinearGradient(const SkPoint pts[2], const Descriptor& desc)
     , fEnd(pts[1]) {
 }
 
-sk_sp<SkFlattenable> SkLinearGradient::CreateProc(SkReadBuffer& buffer) {
+sk_sp<SkFlattenable> SkLinearGradient::CreateProc(SkReadBuffer& buffer, SkFlattenable::Type ft) {
+    SK_CHECK_FLATTENABLE_TYPE(ft);
     DescriptorScope desc;
     if (!desc.unflatten(buffer)) {
         return nullptr;

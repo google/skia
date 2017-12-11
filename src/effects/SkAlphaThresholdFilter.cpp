@@ -80,8 +80,8 @@ sk_sp<SkImageFilter> SkAlphaThresholdFilter::Make(const SkRegion& region,
                                                                cropRect));
 }
 
-sk_sp<SkFlattenable> SkAlphaThresholdFilterImpl::CreateProc(SkReadBuffer& buffer) {
-    SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 1);
+sk_sp<SkFlattenable> SkAlphaThresholdFilterImpl::CreateProc(SkReadBuffer& buffer, Type ft) {
+    SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 1, ft);
     SkScalar inner = buffer.readScalar();
     SkScalar outer = buffer.readScalar();
     SkRegion rgn;

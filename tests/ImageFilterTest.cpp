@@ -109,8 +109,8 @@ private:
     typedef SkImageFilter INHERITED;
 };
 
-sk_sp<SkFlattenable> FailImageFilter::CreateProc(SkReadBuffer& buffer) {
-    SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 0);
+sk_sp<SkFlattenable> FailImageFilter::CreateProc(SkReadBuffer& buffer, Type ft) {
+    SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 0, ft);
     return sk_sp<SkFlattenable>(new FailImageFilter());
 }
 
@@ -316,7 +316,7 @@ private:
 };
 }
 
-sk_sp<SkFlattenable> MatrixTestImageFilter::CreateProc(SkReadBuffer& buffer) {
+sk_sp<SkFlattenable> MatrixTestImageFilter::CreateProc(SkReadBuffer& buffer, Type ft) {
     SkDEBUGFAIL("Should never get here");
     return nullptr;
 }

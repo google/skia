@@ -527,7 +527,8 @@ void SkRRectsGaussianEdgeMaskFilterImpl::toString(SkString* str) const {
 }
 #endif
 
-sk_sp<SkFlattenable> SkRRectsGaussianEdgeMaskFilterImpl::CreateProc(SkReadBuffer& buf) {
+sk_sp<SkFlattenable> SkRRectsGaussianEdgeMaskFilterImpl::CreateProc(SkReadBuffer& buf, Type ft) {
+    SK_CHECK_FLATTENABLE_TYPE(ft);
     SkRect rect1, rect2;
 
     buf.readRect(&rect1);

@@ -145,8 +145,8 @@ SkDisplacementMapEffect::SkDisplacementMapEffect(ChannelSelectorType xChannelSel
 SkDisplacementMapEffect::~SkDisplacementMapEffect() {
 }
 
-sk_sp<SkFlattenable> SkDisplacementMapEffect::CreateProc(SkReadBuffer& buffer) {
-    SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 2);
+sk_sp<SkFlattenable> SkDisplacementMapEffect::CreateProc(SkReadBuffer& buffer, Type ft) {
+    SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 2, ft);
     ChannelSelectorType xsel = (ChannelSelectorType)buffer.readInt();
     ChannelSelectorType ysel = (ChannelSelectorType)buffer.readInt();
     SkScalar scale = buffer.readScalar();

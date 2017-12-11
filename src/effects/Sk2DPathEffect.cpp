@@ -107,7 +107,8 @@ void SkLine2DPathEffect::nextSpan(int u, int v, int ucount, SkPath* dst) const {
     }
 }
 
-sk_sp<SkFlattenable> SkLine2DPathEffect::CreateProc(SkReadBuffer& buffer) {
+sk_sp<SkFlattenable> SkLine2DPathEffect::CreateProc(SkReadBuffer& buffer, Type ft) {
+    SK_CHECK_FLATTENABLE_TYPE(ft);
     SkMatrix matrix;
     buffer.readMatrix(&matrix);
     SkScalar width = buffer.readScalar();
@@ -135,7 +136,8 @@ SkPath2DPathEffect::SkPath2DPathEffect(const SkMatrix& m, const SkPath& p)
     : INHERITED(m), fPath(p) {
 }
 
-sk_sp<SkFlattenable> SkPath2DPathEffect::CreateProc(SkReadBuffer& buffer) {
+sk_sp<SkFlattenable> SkPath2DPathEffect::CreateProc(SkReadBuffer& buffer, Type ft) {
+    SK_CHECK_FLATTENABLE_TYPE(ft);
     SkMatrix matrix;
     buffer.readMatrix(&matrix);
     SkPath path;

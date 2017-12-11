@@ -258,7 +258,8 @@ void SkLayerDrawLooper::flatten(SkWriteBuffer& buffer) const {
     }
 }
 
-sk_sp<SkFlattenable> SkLayerDrawLooper::CreateProc(SkReadBuffer& buffer) {
+sk_sp<SkFlattenable> SkLayerDrawLooper::CreateProc(SkReadBuffer& buffer, Type ft) {
+    SK_CHECK_FLATTENABLE_TYPE(ft);
     int count = buffer.readInt();
 
     Builder builder;

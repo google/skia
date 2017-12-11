@@ -173,7 +173,8 @@ private:
     typedef SkColorFilter INHERITED;
 };
 
-sk_sp<SkFlattenable> SkComposeColorFilter::CreateProc(SkReadBuffer& buffer) {
+sk_sp<SkFlattenable> SkComposeColorFilter::CreateProc(SkReadBuffer& buffer, Type ft) {
+    SK_CHECK_FLATTENABLE_TYPE(ft);
     sk_sp<SkColorFilter> outer(buffer.readColorFilter());
     sk_sp<SkColorFilter> inner(buffer.readColorFilter());
     return MakeComposeFilter(std::move(outer), std::move(inner));
@@ -264,7 +265,8 @@ private:
     typedef SkColorFilter INHERITED;
 };
 
-sk_sp<SkFlattenable> SkSRGBGammaColorFilter::CreateProc(SkReadBuffer& buffer) {
+sk_sp<SkFlattenable> SkSRGBGammaColorFilter::CreateProc(SkReadBuffer& buffer, Type ft) {
+    SK_CHECK_FLATTENABLE_TYPE(ft);
     uint32_t dir = buffer.read32();
     if (dir <= 1) {
         return sk_sp<SkFlattenable>(new SkSRGBGammaColorFilter(static_cast<Direction>(dir)));

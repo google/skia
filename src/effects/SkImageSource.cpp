@@ -56,7 +56,8 @@ SkImageSource::SkImageSource(sk_sp<SkImage> image,
     , fFilterQuality(filterQuality) {
 }
 
-sk_sp<SkFlattenable> SkImageSource::CreateProc(SkReadBuffer& buffer) {
+sk_sp<SkFlattenable> SkImageSource::CreateProc(SkReadBuffer& buffer, Type ft) {
+    SK_CHECK_FLATTENABLE_TYPE(ft);
     SkFilterQuality filterQuality = (SkFilterQuality)buffer.readInt();
 
     SkRect src, dst;

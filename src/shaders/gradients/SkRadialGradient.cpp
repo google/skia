@@ -41,7 +41,8 @@ SkShader::GradientType SkRadialGradient::asAGradient(GradientInfo* info) const {
     return kRadial_GradientType;
 }
 
-sk_sp<SkFlattenable> SkRadialGradient::CreateProc(SkReadBuffer& buffer) {
+sk_sp<SkFlattenable> SkRadialGradient::CreateProc(SkReadBuffer& buffer, Type ft) {
+    SK_CHECK_FLATTENABLE_TYPE(ft);
     DescriptorScope desc;
     if (!desc.unflatten(buffer)) {
         return nullptr;

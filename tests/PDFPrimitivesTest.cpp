@@ -379,8 +379,8 @@ private:
     typedef SkImageFilter INHERITED;
 };
 
-sk_sp<SkFlattenable> DummyImageFilter::CreateProc(SkReadBuffer& buffer) {
-    SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 0);
+sk_sp<SkFlattenable> DummyImageFilter::CreateProc(SkReadBuffer& buffer, Type ft) {
+    SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 0, ft);
     bool visited = buffer.readBool();
     return DummyImageFilter::Make(visited);
 }

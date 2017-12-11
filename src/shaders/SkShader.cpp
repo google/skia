@@ -241,7 +241,8 @@ bool SkShaderBase::onAppendStages(const StageRec& rec) const {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-sk_sp<SkFlattenable> SkEmptyShader::CreateProc(SkReadBuffer&) {
+sk_sp<SkFlattenable> SkEmptyShader::CreateProc(SkReadBuffer&, Type ft) {
+    SK_CHECK_FLATTENABLE_TYPE(ft);
     return SkShader::MakeEmptyShader();
 }
 
