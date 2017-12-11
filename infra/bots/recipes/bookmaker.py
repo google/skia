@@ -79,6 +79,10 @@ def RunSteps(api):
       content = api.file.read_text('Read fiddleout.json',
                                    fiddlecli_output, test_data=test_data)
       out = json.loads(content)
+      # Do a dump of fiddlecli_output. Will be useful for debugging.
+      print 'Dump of %s:' % fiddlecli_output
+      print json.dumps(out, indent=4)
+
       failing_fiddles = []
       for fiddle_name in out:
         props = out[fiddle_name]
@@ -90,10 +94,6 @@ def RunSteps(api):
         for fiddle_hash in failing_fiddles:
           failure_msg += 'https://fiddle.skia.org/c/%s\n' % fiddle_hash
         raise api.step.StepFailure(failure_msg)
-
-      # Do a dump of fiddlecli_output. Will be useful for debugging.
-      print 'Dump of %s:' % fiddlecli_output
-      print json.dumps(out, indent=4)
 
     # Step 4: Update docs in site/user/api/ with the output of fiddlecli.
     #         If there are any new changes then upload and commit the changes.
