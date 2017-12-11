@@ -96,7 +96,13 @@ void GrAtlasTextBlob::appendGlyph(int runIndex,
 
     run.fInitialized = true;
 
-    size_t vertexStride = GetVertexStride(format);
+    bool hasW = subRun->hasWCoord();
+    // DF glyphs drawn in perspective must always have a w coord.
+    SkASSERT(hasW || !subRun->drawAsDistanceFields() || !fInitialViewMatrix.hasPerspective());
+    // Non-DF glyphs should never have a w coord.
+    SkASSERT(!hasW || subRun->drawAsDistanceFields());
+
+    size_t vertexStride = GetVertexStride(format, hasW);
 
     subRun->setMaskFormat(format);
 
@@ -105,53 +111,29 @@ void GrAtlasTextBlob::appendGlyph(int runIndex,
 
     intptr_t vertex = reinterpret_cast<intptr_t>(this->fVertices + subRun->vertexEndIndex());
 
-    if (kARGB_GrMaskFormat != glyph->fMaskFormat) {
-        // V0
-        SkPoint* position = reinterpret_cast<SkPoint*>(vertex);
-        position->set(positions.fLeft, positions.fTop);
-        SkColor* colorPtr = reinterpret_cast<SkColor*>(vertex + sizeof(SkPoint));
-        *colorPtr = color;
-        vertex += vertexStride;
+    // We always write the third position component used by SDFs. If it is unused it gets
+    // overwritten. Similarly, we always write the color and the blob will later overwrite it
+    // with texture coords if it is unused.
+    size_t colorOffset = hasW ? sizeof(SkPoint3) : sizeof(SkPoint);
+    // V0
+    *reinterpret_cast<SkPoint3*>(vertex) = {positions.fLeft, positions.fTop, 1.f};
+    *reinterpret_cast<GrColor*>(vertex + colorOffset) = color;
+    vertex += vertexStride;
 
-        // V1
-        position = reinterpret_cast<SkPoint*>(vertex);
-        position->set(positions.fLeft, positions.fBottom);
-        colorPtr = reinterpret_cast<SkColor*>(vertex + sizeof(SkPoint));
-        *colorPtr = color;
-        vertex += vertexStride;
+    // V1
+    *reinterpret_cast<SkPoint3*>(vertex) = {positions.fLeft, positions.fBottom, 1.f};
+    *reinterpret_cast<GrColor*>(vertex + colorOffset) = color;
+    vertex += vertexStride;
 
-        // V2
-        position = reinterpret_cast<SkPoint*>(vertex);
-        position->set(positions.fRight, positions.fTop);
-        colorPtr = reinterpret_cast<SkColor*>(vertex + sizeof(SkPoint));
-        *colorPtr = color;
-        vertex += vertexStride;
+    // V2
+    *reinterpret_cast<SkPoint3*>(vertex) = {positions.fRight, positions.fTop, 1.f};
+    *reinterpret_cast<GrColor*>(vertex + colorOffset) = color;
+    vertex += vertexStride;
 
-        // V3
-        position = reinterpret_cast<SkPoint*>(vertex);
-        position->set(positions.fRight, positions.fBottom);
-        colorPtr = reinterpret_cast<SkColor*>(vertex + sizeof(SkPoint));
-        *colorPtr = color;
-    } else {
-        // V0
-        SkPoint* position = reinterpret_cast<SkPoint*>(vertex);
-        position->set(positions.fLeft, positions.fTop);
-        vertex += vertexStride;
+    // V3
+    *reinterpret_cast<SkPoint3*>(vertex) = {positions.fRight, positions.fBottom, 1.f};
+    *reinterpret_cast<GrColor*>(vertex + colorOffset) = color;
 
-        // V1
-        position = reinterpret_cast<SkPoint*>(vertex);
-        position->set(positions.fLeft, positions.fBottom);
-        vertex += vertexStride;
-
-        // V2
-        position = reinterpret_cast<SkPoint*>(vertex);
-        position->set(positions.fRight, positions.fTop);
-        vertex += vertexStride;
-
-        // V3
-        position = reinterpret_cast<SkPoint*>(vertex);
-        position->set(positions.fRight, positions.fBottom);
-    }
     subRun->appendVertices(vertexStride);
     fGlyphs[subRun->glyphEndIndex()] = glyph;
     subRun->glyphAppended();
@@ -185,6 +167,7 @@ bool GrAtlasTextBlob::mustRegenerate(const GrTextUtils::Paint& paint,
         return true;
     }
 
+    /** This could be relaxed for blobs with only distance field glyphs. */
     if (fInitialViewMatrix.hasPerspective() && !fInitialViewMatrix.cheapEqualTo(viewMatrix)) {
         return true;
     }
