@@ -34,6 +34,24 @@
       "revId": "0a2e809c67e89cb9677eeb78695fae615d513699",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9bf32f7a_a204ea5b",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 525,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-12-11T22:37:06Z",
+      "side": 1,
+      "message": "Oops, you\u0027re right. It looks like we only did a clear if it was full screen. This is confusing, I\u0027ll change it to be kYes.",
+      "parentUuid": "fcc0db8a_baf4b9d8",
+      "revId": "0a2e809c67e89cb9677eeb78695fae615d513699",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
