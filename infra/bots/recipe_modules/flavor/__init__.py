@@ -5,6 +5,7 @@
 DEPS = [
   'builder_name_schema',
   'depot_tools/bot_update',
+  'depot_tools/gclient',
   'env',
   'recipe_engine/context',
   'recipe_engine/file',
