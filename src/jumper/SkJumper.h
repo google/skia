@@ -63,10 +63,10 @@ struct SkJumper_MemoryCtx {
 };
 
 struct SkJumper_GatherCtx {
-    void* pixels;
-    int   stride;
-    float width,
-          height;
+    const void* pixels;
+    int         stride;
+    float       width;
+    float       height;
 };
 
 // State shared by save_xy, accumulate, and bilinear_* / bicubic_*.
