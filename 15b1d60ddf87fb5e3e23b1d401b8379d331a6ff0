@@ -104,6 +104,24 @@
       "revId": "15b1d60ddf87fb5e3e23b1d401b8379d331a6ff0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7def3615_11bebb14",
+        "filename": "infra/bots/recipe_modules/flavor/gn_android_flavor.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2017-12-11T18:42:26Z",
+      "side": 1,
+      "message": "However, they are logically grouped into 2 groups, so if one wanted to scale all of them, they would need to do it in 2 sets of instructions.",
+      "parentUuid": "8b9d5abf_372ce35d",
+      "revId": "15b1d60ddf87fb5e3e23b1d401b8379d331a6ff0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
