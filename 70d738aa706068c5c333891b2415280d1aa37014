@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "59517b7d_d01e792e",
+        "filename": "infra/bots/recipe_modules/flavor/gn_android_flavor.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-12-11T19:10:40Z",
+      "side": 1,
+      "message": "We might even just leave this unchanged?  What governor are they coming up with before we set them?",
+      "revId": "70d738aa706068c5c333891b2415280d1aa37014",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
