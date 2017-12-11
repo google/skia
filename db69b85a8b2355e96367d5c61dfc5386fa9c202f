@@ -16,6 +16,24 @@
       "revId": "db69b85a8b2355e96367d5c61dfc5386fa9c202f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2e8de2da_a7e5468f",
+        "filename": "src/shaders/gradients/SkTwoPointConicalGradient.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 213,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-12-11T19:18:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "db06fbff_ae72ffd2",
+      "revId": "db69b85a8b2355e96367d5c61dfc5386fa9c202f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
