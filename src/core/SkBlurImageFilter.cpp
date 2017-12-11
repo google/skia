@@ -400,6 +400,7 @@ static sk_sp<SkSpecialImage> cpu_blur(
         SkIRect srcBounds, SkIRect dstBounds) {
     SkBitmap inputBM;
 
+    SkDebugf("Sigma:  %g   %g\n", sigma.fX, sigma.fY);
     if (!input->getROPixels(&inputBM)) {
         return nullptr;
     }
@@ -410,6 +411,8 @@ static sk_sp<SkSpecialImage> cpu_blur(
 
     auto windowW = calculate_window(sigma.x()),
          windowH = calculate_window(sigma.y());
+
+    SkDebugf("Window: %d    %d\n", windowW, windowH);
 
     SkBitmap src;
     inputBM.extractSubset(&src, srcBounds);
@@ -442,9 +445,10 @@ static sk_sp<SkSpecialImage> cpu_blur(
         auto intermediateSrc = static_cast<uint32_t *>(src.getPixels());
         auto intermediateRowBytesAsPixels = src.rowBytesAsPixels();
         auto intermediateWidth = srcW;
+        auto intermediateDst = static_cast<uint32_t *>(dst.getPixels());
 
         if (windowW > 1) {
-            auto shift = (srcBounds.top() - dstBounds.top());
+            auto shift = srcBounds.top() - dstBounds.top();
             // For the horizontal blur, start part way down in anticipation of the vertical blur.
             // For a vertical sigma of zero shift should be zero. But, for small sigma,
             // shift may be > 0 but the vertical window could be 1.
@@ -458,6 +462,23 @@ static sk_sp<SkSpecialImage> cpu_blur(
                     srcBounds.left(), srcBounds.right(), dstBounds.right(),
                     static_cast<uint32_t *>(src.getPixels()), 1, src.rowBytesAsPixels(), srcH,
                     intermediateSrc, 1, intermediateRowBytesAsPixels);
+        } else {
+            SkDebugf("dst w: %d   dst h: %d\n", dstBounds.width(), dstBounds.height());
+            int leftCount = srcBounds.left() - dstBounds.left();
+            SkDebugf("sl: %d dr: %d left count: %d\n", srcBounds.left(), dstBounds.left(),leftCount);
+            if (leftCount > 0) {
+                intermediateDst += leftCount;
+                for (int y = dstBounds.top(); y < dstBounds.bottom(); y++) {
+                    sk_bzero(dst.getAddr32(0, y), leftCount * sizeof(uint32_t));
+                }
+            }
+            int rightCount = dstBounds.right() - srcBounds.right();
+            SkDebugf("right count: %d\n", rightCount);
+            if (rightCount > 0) {
+                for (int y = dstBounds.top(); y < dstBounds.bottom(); y++) {
+                  sk_bzero(dst.getAddr32(srcBounds.right(), y), rightCount * sizeof(uint32_t));
+                }
+            }
         }
 
         if (windowH > 1) {
@@ -465,7 +486,7 @@ static sk_sp<SkSpecialImage> cpu_blur(
                     buffer, windowH,
                     srcBounds.top(), srcBounds.bottom(), dstBounds.bottom(),
                     intermediateSrc, intermediateRowBytesAsPixels, 1, intermediateWidth,
-                    static_cast<uint32_t *>(dst.getPixels()), dst.rowBytesAsPixels(), 1);
+                    intermediateDst, dst.rowBytesAsPixels(), 1);
         } else {
             // This code is needed to account for the difference between border calculation of
             // the GPU and CPU. Normally, a window of 1 would imply no border, but because the
