@@ -46,6 +46,30 @@
       "revId": "f0936b49285d7192e1e9b2d9bb1c86cdb689dbee",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2183c10c_9e23089e",
+        "filename": "tools/skqp/gm_knowledge.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-12-11T22:52:23Z",
+      "side": 1,
+      "message": ".",
+      "parentUuid": "7b1f10dd_1867c782",
+      "range": {
+        "startLine": 62,
+        "startChar": 15,
+        "endLine": 62,
+        "endChar": 22
+      },
+      "revId": "f0936b49285d7192e1e9b2d9bb1c86cdb689dbee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }

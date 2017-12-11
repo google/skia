@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "4172507b_cdf29730",
+        "filename": "tools/skqp/gm_knowledge.h",
+        "patchSetId": 19
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-12-11T22:52:23Z",
+      "side": 1,
+      "message": "I\u0027ve gotten rid of the C API.  Nobody is going to need that.",
+      "parentUuid": "7f7cd969_1ada80b4",
+      "revId": "e632c294bf08f7fbcf454c1d48955e178fa0f56f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "25ac2de0_57b5c381",
         "filename": "tools/skqp/gm_knowledge.h",
         "patchSetId": 19
@@ -30,6 +48,24 @@
       "writtenOn": "2017-12-08T19:06:14Z",
       "side": 1,
       "message": "wouldn\u0027t these methods be better wrapped in a virtual interface so that we could employ various strategies using different classes?\n\nSkQPValidator {\n\nstatic SkQPValidator* Make();\n\nfloat validateGM(...) \u003d 0;\nbool isValid(...) \u003d 0;",
+      "revId": "e632c294bf08f7fbcf454c1d48955e178fa0f56f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "37a6608b_06bf4312",
+        "filename": "tools/skqp/gm_knowledge.h",
+        "patchSetId": 19
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-12-11T22:52:23Z",
+      "side": 1,
+      "message": "I think we can refactor that later.",
+      "parentUuid": "25ac2de0_57b5c381",
       "revId": "e632c294bf08f7fbcf454c1d48955e178fa0f56f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -293,6 +329,30 @@
     },
     {
       "key": {
+        "uuid": "ffa84591_4f32cc50",
+        "filename": "tools/skqp/png_interface.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-12-11T22:52:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d292ca28_921cfb8f",
+      "range": {
+        "startLine": 35,
+        "startChar": 8,
+        "endLine": 35,
+        "endChar": 14
+      },
+      "revId": "e632c294bf08f7fbcf454c1d48955e178fa0f56f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e8b8db50_c6c32e9b",
         "filename": "tools/skqp/png_interface.h",
         "patchSetId": 19
@@ -304,6 +364,30 @@
       "writtenOn": "2017-12-08T19:06:14Z",
       "side": 1,
       "message": "why not just have this be an SkPixmap?  What format are the pixels expected to be in?",
+      "range": {
+        "startLine": 15,
+        "startChar": 7,
+        "endLine": 15,
+        "endChar": 12
+      },
+      "revId": "e632c294bf08f7fbcf454c1d48955e178fa0f56f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "300d86bb_9b766703",
+        "filename": "tools/skqp/png_interface.h",
+        "patchSetId": 19
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-12-11T22:52:23Z",
+      "side": 1,
+      "message": "I want to require that the pixels be RGBA8888.  So why bother with anything more complex?",
+      "parentUuid": "e8b8db50_c6c32e9b",
       "range": {
         "startLine": 15,
         "startChar": 7,
