@@ -6,6 +6,7 @@
  */
 
 #include "SkAtomics.h"
+#include "SkBitmapCache.h"
 #include "SkImageDeserializer.h"
 #include "SkImageGenerator.h"
 #include "SkPicture.h"
@@ -14,6 +15,7 @@
 #include "SkPicturePlayback.h"
 #include "SkPictureRecord.h"
 #include "SkPictureRecorder.h"
+#include "SkResourceCache.h"
 #include "SkSerialProcs.h"
 
 #if defined(SK_DISALLOW_CROSSPROCESS_PICTUREIMAGEFILTERS) || \
@@ -25,7 +27,18 @@ static bool g_AllPictureIOSecurityPrecautionsEnabled = false;
 
 /* SkPicture impl.  This handles generic responsibilities like unique IDs and serialization. */
 
-SkPicture::SkPicture() : fUniqueID(0) {}
+SkPicture::SkPicture() : fUniqueID(0), fAddedToCache(false) {}
+
+SkPicture::~SkPicture() {
+    if (sk_atomic_load(&fAddedToCache, sk_memory_order_seq_cst)) {
+        // purge dependent caches
+        SkResourceCache::PostPurgeSharedID(SkMakeResourceCacheSharedIDForPictureShader(fUniqueID));
+    }
+}
+
+void SkPicture::notifyAddedToCache() {
+    sk_atomic_store(&fAddedToCache, true, sk_memory_order_seq_cst);
+}
 
 uint32_t SkPicture::uniqueID() const {
     static uint32_t gNextID = 1;

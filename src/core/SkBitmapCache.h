@@ -15,6 +15,7 @@ class SkImage;
 class SkResourceCache;
 
 uint64_t SkMakeResourceCacheSharedIDForBitmap(uint32_t bitmapGenID);
+uint64_t SkMakeResourceCacheSharedIDForPictureShader(uint32_t pictureID);
 
 void SkNotifyBitmapGenIDIsStale(uint32_t bitmapGenID);
 
