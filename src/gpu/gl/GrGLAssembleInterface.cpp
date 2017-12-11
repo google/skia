@@ -15,7 +15,7 @@
 
 #define GET_EGL_PROC_SUFFIX(F, S) functions->fEGL ## F = (GrEGL ## F ## Proc) get(ctx, "egl" #F #S)
 
-sk_sp<const GrGLInterface> GrGLAssembleInterface(void* ctx, GrGLGetProc get) {
+sk_sp<const GrGLInterface> GrGLMakeAssembledInterface(void *ctx, GrGLGetProc get) {
     GET_PROC_LOCAL(GetString);
     if (nullptr == GetString) {
         return nullptr;
@@ -29,9 +29,9 @@ sk_sp<const GrGLInterface> GrGLAssembleInterface(void* ctx, GrGLGetProc get) {
     GrGLStandard standard = GrGLGetStandardInUseFromString(verStr);
 
     if (kGLES_GrGLStandard == standard) {
-        return GrGLAssembleGLESInterface(ctx, get);
+        return GrGLMakeAssembledGLESInterface(ctx, get);
     } else if (kGL_GrGLStandard == standard) {
-        return GrGLAssembleGLInterface(ctx, get);
+        return GrGLMakeAssembledGLInterface(ctx, get);
     }
     return nullptr;
 }
@@ -51,7 +51,7 @@ static void get_egl_query_and_display(GrEGLQueryStringProc* queryString, GrEGLDi
     }
 }
 
-sk_sp<const GrGLInterface> GrGLAssembleGLInterface(void* ctx, GrGLGetProc get) {
+sk_sp<const GrGLInterface> GrGLMakeAssembledGLInterface(void *ctx, GrGLGetProc get) {
     GET_PROC_LOCAL(GetString);
     GET_PROC_LOCAL(GetStringi);
     GET_PROC_LOCAL(GetIntegerv);
@@ -546,7 +546,7 @@ sk_sp<const GrGLInterface> GrGLAssembleGLInterface(void* ctx, GrGLGetProc get) {
     return interface;
 }
 
-sk_sp<const GrGLInterface> GrGLAssembleGLESInterface(void* ctx, GrGLGetProc get) {
+sk_sp<const GrGLInterface> GrGLMakeAssembledGLESInterface(void *ctx, GrGLGetProc get) {
     GET_PROC_LOCAL(GetString);
     if (nullptr == GetString) {
         return nullptr;
@@ -992,4 +992,8 @@ sk_sp<const GrGLInterface> GrGLAssembleGLESInterface(void* ctx, GrGLGetProc get)
     interface->fExtensions.swap(&extensions);
 
     return interface;
+}
+
+SK_API const GrGLInterface* GrGLAssembleInterface(void *ctx, GrGLGetProc get) {
+    return GrGLMakeAssembledInterface(ctx, get).release();
 }

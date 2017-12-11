@@ -233,7 +233,7 @@ static GrGLFuncPtr android_get_gl_proc(void* ctx, const char name[]) {
 }
 
 sk_sp<const GrGLInterface> GrGLMakeNativeInterface() {
-    return GrGLAssembleInterface(nullptr, android_get_gl_proc);
+    return GrGLMakeAssembledInterface(nullptr, android_get_gl_proc);
 }
 
 const GrGLInterface* GrGLCreateNativeInterface() { return GrGLMakeNativeInterface().release(); }

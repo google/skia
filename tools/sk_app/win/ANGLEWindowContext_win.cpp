@@ -116,7 +116,7 @@ sk_sp<const GrGLInterface> ANGLEGLWindowContext_win::onInitializeContext() {
         return nullptr;
     }
 
-    sk_sp<const GrGLInterface> interface(GrGLAssembleInterface(
+    sk_sp<const GrGLInterface> interface(GrGLMakeAssembledInterface(
             nullptr,
             [](void* ctx, const char name[]) -> GrGLFuncPtr { return eglGetProcAddress(name); }));
     if (interface) {

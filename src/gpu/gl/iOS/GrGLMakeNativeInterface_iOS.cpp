@@ -51,7 +51,7 @@ static GrGLFuncPtr ios_get_gl_proc(void* ctx, const char name[]) {
 
 sk_sp<const GrGLInterface> GrGLMakeNativeInterface() {
     GLProcGetter getter;
-    return GrGLAssembleGLESInterface(&getter, ios_get_gl_proc);
+    return GrGLMakeAssembledGLESInterface(&getter, ios_get_gl_proc);
 }
 
 const GrGLInterface* GrGLCreateNativeInterface() { return GrGLMakeNativeInterface().release(); }
