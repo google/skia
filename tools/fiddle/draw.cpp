@@ -12,7 +12,7 @@
 #include "fiddle_main.h"
 DrawOptions GetDrawOptions() {
     // path *should* be absolute.
-    static const char path[] = "resources/color_wheel.png";
+    static const char path[] = "resources/images/color_wheel.png";
     return DrawOptions(256, 256, true, true, true, true, true, false, false, path,
                        GrMipMapped::kYes, 64, 64, 0, GrMipMapped::kYes);
 }
