@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ff08a76f_b724efe4",
+        "filename": "tools/viewer/Viewer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 694,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-12-11T16:13:14Z",
+      "side": 1,
+      "message": "Is this the right order -- don\u0027t we want imGUI first (SkTDArray::push() adds it to the end)?",
+      "range": {
+        "startLine": 694,
+        "startChar": 13,
+        "endLine": 694,
+        "endChar": 22
+      },
+      "revId": "0be69f3b2ef6f49dd3e32263ec4f9b57ba7d2a2c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
