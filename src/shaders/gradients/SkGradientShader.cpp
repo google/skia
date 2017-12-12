@@ -1003,22 +1003,26 @@ uint32_t GrGradientEffect::GLSLProcessor::GenBaseGradientKey(const GrProcessor& 
 
     // Build a key using the following bit allocation:
                 static constexpr uint32_t kStrategyBits = 3;
+                static constexpr uint32_t kCustomBits   = 6;
                 static constexpr uint32_t kPremulBits   = 1;
     SkDEBUGCODE(static constexpr uint32_t kWrapModeBits = 2;)
 
     uint32_t key = static_cast<uint32_t>(e.fStrategy);
     SkASSERT(key < (1 << kStrategyBits));
 
+    key |= e.customGLSLProcessorKey() << kStrategyBits;
+    SkASSERT(key < (1 << (kStrategyBits + kCustomBits)));
+
     // This is already baked into the table for texture gradients,
     // and only changes behavior for analytical gradients.
     if (e.fStrategy != InterpolationStrategy::kTexture &&
         e.fPremulType == GrGradientEffect::kBeforeInterp_PremulType) {
-        key |= 1 << kStrategyBits;
-        SkASSERT(key < (1 << (kStrategyBits + kPremulBits)));
+        key |= 1 << (kStrategyBits + kCustomBits);
+        SkASSERT(key < (1 << (kStrategyBits + kCustomBits + kPremulBits)));
     }
 
-    key |= static_cast<uint32_t>(e.fWrapMode) << (kStrategyBits + kPremulBits);
-    SkASSERT(key < (1 << (kStrategyBits + kPremulBits + kWrapModeBits)));
+    key |= static_cast<uint32_t>(e.fWrapMode) << (kStrategyBits + kCustomBits + kPremulBits);
+    SkASSERT(key < (1 << (kStrategyBits + kCustomBits + kPremulBits + kWrapModeBits)));
 
     return key;
 }
