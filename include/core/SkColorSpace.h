@@ -13,6 +13,13 @@
 
 class SkData;
 
+enum SkGammaNamed {
+    kLinear_SkGammaNamed,
+    kSRGB_SkGammaNamed,
+    k2Dot2Curve_SkGammaNamed,
+    kNonStandard_SkGammaNamed,
+};
+
 /**
  *  Describes a color gamut with primaries and a white point.
  */
@@ -128,6 +135,8 @@ public:
     };
     Type type() const;
 
+    SkGammaNamed gammaNamed() const;
+
     /**
      *  Returns true if the color space gamma is near enough to be approximated as sRGB.
      *  This includes the canonical sRGB transfer function as well as a 2.2f exponential
@@ -153,6 +162,49 @@ public:
      *  Returns false otherwise.
      */
     bool toXYZD50(SkMatrix44* toXYZD50) const;
+
+    /**
+     *  Describes color space gamut as a transformation to XYZ D50.
+     *  Returns nullptr if color gamut cannot be described in terms of XYZ D50.
+     */
+    const SkMatrix44* toXYZD50() const;
+
+    /**
+     *  Describes color space gamut as a transformation from XYZ D50
+     *  Returns nullptr if color gamut cannot be described in terms of XYZ D50.
+     */
+    const SkMatrix44* fromXYZD50() const;
+
+    /**
+     *  Returns a hash of the gamut transofmration to XYZ D50. Allows for fast equality checking
+     *  of gamuts, at the (very small) risk of collision.
+     *  Returns 0 if color gamut cannot be described in terms of XYZ D50.
+     */
+    uint32_t toXYZD50Hash() const;
+
+    /**
+     *  Returns a color space with the same gamut as this one, but with a linear gamma.
+     *  For color spaces whose gamut can not be described in terms of XYZ D50, returns
+     *  linear sRGB.
+     */
+    virtual sk_sp<SkColorSpace> makeLinearGamma() const = 0;
+
+    /**
+     *  Returns a color space with the same gamut as this one, with with the sRGB transfer
+     *  function. For color spaces whose gamut can not be described in terms of XYZ D50, returns
+     *  sRGB.
+     */
+    virtual sk_sp<SkColorSpace> makeSRGBGamma() const = 0;
+
+    /**
+     *  Returns a color space with the same transfer function as this one, but with the primary
+     *  colors rotated. For any XYZ space, this produces a new color space that maps RGB to GBR
+     *  (when applied to a source), and maps RGB to BRG (when applied to a destination). For other
+     *  types of color spaces, returns nullptr.
+     *
+     *  This is used for testing, to construct color spaces that have severe and testable behavior.
+     */
+    virtual sk_sp<SkColorSpace> makeColorSpin() const { return nullptr; }
 
     /**
      *  Returns true if the color space is sRGB.
@@ -191,6 +243,16 @@ public:
 private:
     SkColorSpace() = default;
     friend class SkColorSpace_Base;
+
+    virtual const SkMatrix44* onToXYZD50() const = 0;
+    virtual uint32_t onToXYZD50Hash() const = 0;
+    virtual const SkMatrix44* onFromXYZD50() const = 0;
+
+    virtual SkGammaNamed onGammaNamed() const = 0;
+    virtual bool onGammaCloseToSRGB() const = 0;
+    virtual bool onGammaIsLinear() const = 0;
+    virtual bool onIsNumericalTransferFn(SkColorSpaceTransferFn* coeffs) const = 0;
+    virtual bool onIsCMYK() const { return false; }
 
     using INHERITED = SkRefCnt;
 };

@@ -83,8 +83,7 @@ void ColorCodecBench::onDelayedSetup() {
 
     if (FLAGS_half) {
         fDstInfo = fDstInfo.makeColorType(kRGBA_F16_SkColorType);
-        SkASSERT(SkColorSpace_Base::Type::kXYZ == as_CSB(fDstSpace)->type());
-        fDstSpace = static_cast<SkColorSpace_XYZ*>(fDstSpace.get())->makeLinearGamma();
+        fDstSpace = fDstSpace->makeLinearGamma();
     }
 
     fDst.reset(fDstInfo.computeMinByteSize());

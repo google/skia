@@ -558,7 +558,7 @@ static inline bool needs_swizzler_to_convert_from_cmyk(J_COLOR_SPACE jpegColorTy
         return false;
     }
 
-    bool hasCMYKColorSpace = as_CSB(srcInfo.colorSpace())->onIsCMYK();
+    bool hasCMYKColorSpace = SkColorSpace::kCMYK_Type ==  srcInfo.colorSpace()->type();
     return !hasCMYKColorSpace || !hasColorSpaceXform;
 }
 

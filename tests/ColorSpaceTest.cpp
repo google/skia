@@ -24,11 +24,9 @@ static void test_space(skiatest::Reporter* r, SkColorSpace* space,
                        const SkGammaNamed expectedGamma) {
 
     REPORTER_ASSERT(r, nullptr != space);
-    SkASSERT(SkColorSpace_Base::Type::kXYZ == as_CSB(space)->type());
-    SkColorSpace_XYZ* csXYZ = static_cast<SkColorSpace_XYZ*>(space);
-    REPORTER_ASSERT(r, expectedGamma == csXYZ->gammaNamed());
+    REPORTER_ASSERT(r, expectedGamma == space->gammaNamed());
 
-    const SkMatrix44& mat = *csXYZ->toXYZD50();
+    const SkMatrix44& mat = *space->toXYZD50();
     const float src[] = {
         1, 0, 0, 1,
         0, 1, 0, 1,
@@ -211,9 +209,7 @@ DEF_TEST(ColorSpace_Named, r) {
         auto cs = SkColorSpace_Base::MakeNamed(rec.fNamed);
         REPORTER_ASSERT(r, cs);
         if (cs) {
-            SkASSERT(SkColorSpace_Base::Type::kXYZ == as_CSB(cs)->type());
-            SkColorSpace_XYZ* csXYZ = static_cast<SkColorSpace_XYZ*>(cs.get());
-            REPORTER_ASSERT(r, rec.fExpectedGamma == csXYZ->gammaNamed());
+            REPORTER_ASSERT(r, rec.fExpectedGamma == cs->gammaNamed());
         }
     }
 
@@ -477,8 +473,8 @@ DEF_TEST(ColorSpace_MatrixHash, r) {
     srgbMat.set3x3RowMajorf(gSRGB_toXYZD50);
     sk_sp<SkColorSpace> strange = SkColorSpace::MakeRGB(fn, srgbMat);
 
-    REPORTER_ASSERT(r, *as_CSB(srgb)->toXYZD50() == *as_CSB(strange)->toXYZD50());
-    REPORTER_ASSERT(r, as_CSB(srgb)->toXYZD50Hash() == as_CSB(strange)->toXYZD50Hash());
+    REPORTER_ASSERT(r, *srgb->toXYZD50() == *strange->toXYZD50());
+    REPORTER_ASSERT(r, srgb->toXYZD50Hash() == strange->toXYZD50Hash());
 }
 
 DEF_TEST(ColorSpace_IsSRGB, r) {

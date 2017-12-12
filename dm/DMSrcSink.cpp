@@ -385,8 +385,7 @@ static bool get_decode_info(SkImageInfo* decodeInfo, SkColorType canvasColorType
             }
 
             if (kRGBA_F16_SkColorType == canvasColorType) {
-                sk_sp<SkColorSpace> linearSpace =
-                        as_CSB(decodeInfo->colorSpace())->makeLinearGamma();
+                sk_sp<SkColorSpace> linearSpace = decodeInfo->colorSpace()->makeLinearGamma();
                 *decodeInfo = decodeInfo->makeColorSpace(std::move(linearSpace));
             }
 
@@ -1083,9 +1082,7 @@ Error ColorCodecSrc::draw(SkCanvas* canvas) const {
         decodeInfo = decodeInfo.makeAlphaType(kPremul_SkAlphaType);
     }
     if (kRGBA_F16_SkColorType == fColorType) {
-        SkASSERT(SkColorSpace_Base::Type::kXYZ == as_CSB(decodeInfo.colorSpace())->type());
-        SkColorSpace_XYZ* csXYZ = static_cast<SkColorSpace_XYZ*>(decodeInfo.colorSpace());
-        decodeInfo = decodeInfo.makeColorSpace(csXYZ->makeLinearGamma());
+        decodeInfo = decodeInfo.makeColorSpace(decodeInfo.colorSpace()->makeLinearGamma());
     }
 
     SkImageInfo bitmapInfo = decodeInfo;

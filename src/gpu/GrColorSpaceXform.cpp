@@ -119,20 +119,20 @@ sk_sp<GrColorSpaceXform> GrColorSpaceXform::Make(const SkColorSpace* src,
         return nullptr;
     }
 
-    const SkMatrix44* toXYZD50   = as_CSB(src)->toXYZD50();
-    const SkMatrix44* fromXYZD50 = as_CSB(dst)->fromXYZD50();
+    const SkMatrix44* toXYZD50   = src->toXYZD50();
+    const SkMatrix44* fromXYZD50 = dst->fromXYZD50();
     if (!toXYZD50 || !fromXYZD50) {
         // Unsupported colour spaces -- cannot specify gamut as a matrix
         return nullptr;
     }
 
     // Determine if a gamut xform is needed
-    uint32_t srcHash = as_CSB(src)->toXYZD50Hash();
-    uint32_t dstHash = as_CSB(dst)->toXYZD50Hash();
+    uint32_t srcHash = src->toXYZD50Hash();
+    uint32_t dstHash = dst->toXYZD50Hash();
     if (srcHash != dstHash) {
         flags |= kApplyGamutXform_Flag;
     } else {
-        SkASSERT(*toXYZD50 == *as_CSB(dst)->toXYZD50() && "Hash collision");
+        SkASSERT(*toXYZD50 == *dst->toXYZD50() && "Hash collision");
     }
 
     if (0 == flags) {

@@ -32,17 +32,11 @@ sk_sp<SkICC> SkICC::Make(const void* ptr, size_t len) {
 }
 
 bool SkICC::toXYZD50(SkMatrix44* toXYZD50) const {
-    const SkMatrix44* m = as_CSB(fColorSpace)->toXYZD50();
-    if (!m) {
-        return false;
-    }
-
-    *toXYZD50 = *m;
-    return true;
+    return fColorSpace->toXYZD50(toXYZD50);
 }
 
 bool SkICC::isNumericalTransferFn(SkColorSpaceTransferFn* coeffs) const {
-    return as_CSB(fColorSpace)->onIsNumericalTransferFn(coeffs);
+    return fColorSpace->isNumericalTransferFn(coeffs);
 }
 
 static const int kDefaultTableSize = 512; // Arbitrary

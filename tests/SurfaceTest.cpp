@@ -812,7 +812,7 @@ static void test_surface_creation_and_snapshot_with_color_space(
 
     auto srgbColorSpace = SkColorSpace::MakeSRGB();
     auto adobeColorSpace = SkColorSpace_Base::MakeNamed(SkColorSpace_Base::kAdobeRGB_Named);
-    const SkMatrix44* srgbMatrix = as_CSB(srgbColorSpace)->toXYZD50();
+    const SkMatrix44* srgbMatrix = srgbColorSpace->toXYZD50();
     SkASSERT(srgbMatrix);
     SkColorSpaceTransferFn oddGamma;
     oddGamma.fA = 1.0f;

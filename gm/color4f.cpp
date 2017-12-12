@@ -96,7 +96,7 @@ DEF_SIMPLE_GM(color4shader, canvas, 360, 480) {
     canvas->translate(10, 10);
 
     auto srgb = SkColorSpace::MakeSRGB();
-    auto spin = as_CSB(srgb)->makeColorSpin(); // RGB -> GBR
+    auto spin = srgb->makeColorSpin(); // RGB -> GBR
 
     const SkColor4f colors[] {
         { 1, 0, 0, 1 },

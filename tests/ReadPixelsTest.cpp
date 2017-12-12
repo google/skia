@@ -595,11 +595,11 @@ DEF_TEST(ReadPixels_ValidConversion, reporter) {
                     for (SkAlphaType srcAT: kAlphaTypes) {
                         for (sk_sp<SkColorSpace> srcCS : kColorSpaces) {
                             if (kRGBA_F16_SkColorType == dstCT && dstCS) {
-                                dstCS = as_CSB(dstCS)->makeLinearGamma();
+                                dstCS = dstCS->makeLinearGamma();
                             }
 
                             if (kRGBA_F16_SkColorType == srcCT && srcCS) {
-                                srcCS = as_CSB(srcCS)->makeLinearGamma();
+                                srcCS = srcCS->makeLinearGamma();
                             }
 
                             test_conversion(reporter,

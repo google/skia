@@ -531,7 +531,7 @@ int main(int argc, char** argv) {
         // Draw the sRGB gamut if requested.
         if (FLAGS_sRGB_gamut) {
             sk_sp<SkColorSpace> sRGBSpace = SkColorSpace::MakeSRGB();
-            const SkMatrix44* mat = as_CSB(sRGBSpace)->toXYZD50();
+            const SkMatrix44* mat = sRGBSpace->toXYZD50();
             SkASSERT(mat);
             draw_gamut(gamutCanvas.canvas(), *mat, "sRGB", 0xFFFF9394, false);
         }
@@ -540,11 +540,11 @@ int main(int argc, char** argv) {
         if (FLAGS_adobeRGB) {
             sk_sp<SkColorSpace> adobeRGBSpace = SkColorSpace::MakeRGB(
                     SkColorSpace::kSRGB_RenderTargetGamma, SkColorSpace::kAdobeRGB_Gamut);
-            const SkMatrix44* mat = as_CSB(adobeRGBSpace)->toXYZD50();
+            const SkMatrix44* mat = adobeRGBSpace->toXYZD50();
             SkASSERT(mat);
             draw_gamut(gamutCanvas.canvas(), *mat, "Adobe RGB", 0xFF31a9e1, false);
         }
-        const SkMatrix44* mat = as_CSB(colorSpace)->toXYZD50();
+        const SkMatrix44* mat = colorSpace->toXYZD50();
         SkASSERT(mat);
         auto xyz = static_cast<SkColorSpace_XYZ*>(colorSpace.get());
         draw_gamut(gamutCanvas.canvas(), *mat, input, 0xFF000000, true);
@@ -556,7 +556,7 @@ int main(int argc, char** argv) {
         if (FLAGS_sRGB_gamma) {
             draw_transfer_fn(gammaCanvas.canvas(), kSRGB_SkGammaNamed, nullptr, 0xFFFF9394);
         }
-        draw_transfer_fn(gammaCanvas.canvas(), xyz->gammaNamed(), xyz->gammas(), 0xFF000000);
+        draw_transfer_fn(gammaCanvas.canvas(), colorSpace->gammaNamed(), xyz->gammas(), 0xFF000000);
         if (!gammaCanvas.save(&outputFilenames, createOutputFilename("gamma", 0))) {
             return -1;
         }

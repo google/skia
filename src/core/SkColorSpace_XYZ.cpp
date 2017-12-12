@@ -37,7 +37,7 @@ SkColorSpace_XYZ::SkColorSpace_XYZ(SkGammaNamed gammaNamed, sk_sp<SkGammas> gamm
     }
 }
 
-const SkMatrix44* SkColorSpace_XYZ::fromXYZD50() const {
+const SkMatrix44* SkColorSpace_XYZ::onFromXYZD50() const {
     fFromXYZOnce([this] {
         if (!fToXYZD50.invert(&fFromXYZD50)) {
             // If a client gives us a dst gamut with a transform that we can't invert, we will

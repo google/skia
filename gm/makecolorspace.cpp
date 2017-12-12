@@ -57,7 +57,7 @@ protected:
 
         sk_sp<SkColorSpace> wideGamut = SkColorSpace::MakeRGB(SkColorSpace::kSRGB_RenderTargetGamma,
                                                               SkColorSpace::kAdobeRGB_Gamut);
-        sk_sp<SkColorSpace> wideGamutLinear = as_CSB(wideGamut)->makeLinearGamma();
+        sk_sp<SkColorSpace> wideGamutLinear = wideGamut->makeLinearGamma();
 
         // Lazy images
         sk_sp<SkImage> opaqueImage = GetResourceAsImage("images/mandrill_128.png");

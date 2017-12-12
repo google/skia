@@ -1385,8 +1385,7 @@ GrGradientEffect::RandomGradientParams::RandomGradientParams(SkRandom* random) {
     if (fUseColors4f) {
         fColorSpace = GrTest::TestColorSpace(random);
         if (fColorSpace) {
-            SkASSERT(SkColorSpace_Base::Type::kXYZ == as_CSB(fColorSpace)->type());
-            fColorSpace = static_cast<SkColorSpace_XYZ*>(fColorSpace.get())->makeLinearGamma();
+            fColorSpace = fColorSpace->makeLinearGamma();
         }
     }
 

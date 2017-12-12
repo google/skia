@@ -390,7 +390,7 @@ SkImageInfo SkImage_Lazy::buildCacheInfo(CachedFormat format) const {
             return fInfo.makeColorSpace(nullptr);
         case kLinearF16_CachedFormat:
             return fInfo.makeColorType(kRGBA_F16_SkColorType)
-                        .makeColorSpace(as_CSB(fInfo.colorSpace())->makeLinearGamma());
+                        .makeColorSpace(fInfo.colorSpace()->makeLinearGamma());
         case kSRGB8888_CachedFormat:
             // If the transfer function is nearly (but not exactly) sRGB, we don't want the codec
             // to bother trans-coding. It would be slow, and do more harm than good visually,
@@ -399,7 +399,7 @@ SkImageInfo SkImage_Lazy::buildCacheInfo(CachedFormat format) const {
                 return fInfo.makeColorType(kRGBA_8888_SkColorType);
             } else {
                 return fInfo.makeColorType(kRGBA_8888_SkColorType)
-                            .makeColorSpace(as_CSB(fInfo.colorSpace())->makeSRGBGamma());
+                            .makeColorSpace(fInfo.colorSpace()->makeSRGBGamma());
             }
         case kSBGR8888_CachedFormat:
             // See note above about not-quite-sRGB transfer functions.
@@ -407,7 +407,7 @@ SkImageInfo SkImage_Lazy::buildCacheInfo(CachedFormat format) const {
                 return fInfo.makeColorType(kBGRA_8888_SkColorType);
             } else {
                 return fInfo.makeColorType(kBGRA_8888_SkColorType)
-                            .makeColorSpace(as_CSB(fInfo.colorSpace())->makeSRGBGamma());
+                            .makeColorSpace(fInfo.colorSpace()->makeSRGBGamma());
             }
         default:
             SkDEBUGFAIL("Invalid cached format");
