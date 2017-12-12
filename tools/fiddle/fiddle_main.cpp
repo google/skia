@@ -10,6 +10,7 @@
 #include <sstream>
 #include <string>
 
+#include "SkAutoPixmapStorage.h"
 #include "SkCommandLineFlags.h"
 #include "SkMipMap.h"
 #include "SkUtils.h"
@@ -135,13 +136,29 @@ static bool setup_backend_objects(GrContext* context,
     backingDesc.fSampleCnt = 0;
 
     if (!bm.empty()) {
+        SkPixmap originalPixmap;
+        SkPixmap* pixmap = &originalPixmap;
+        if (!bm.peekPixels(&originalPixmap)) {
+            return false;
+        }
+
+        SkAutoPixmapStorage rgbaPixmap;
+        if (kN32_SkColorType != kRGBA_8888_SkColorType) {
+            if (!rgbaPixmap.tryAlloc(bm.info().makeColorType(kRGBA_8888_SkColorType))) {
+                return false;
+            }
+            if (!bm.readPixels(rgbaPixmap)) {
+                return false;
+            }
+            pixmap = &rgbaPixmap;
+        }
         int mipLevelCount = GrMipMapped::kYes == options.fMipMapping
                                     ? SkMipMap::ComputeLevelCount(bm.width(), bm.height())
                                     : 1;
         std::unique_ptr<GrMipLevel[]> texels(new GrMipLevel[mipLevelCount]);
 
-        texels[0].fPixels = bm.getPixels();
-        texels[0].fRowBytes = bm.rowBytes();
+        texels[0].fPixels = pixmap->addr();
+        texels[0].fRowBytes = pixmap->rowBytes();
 
         for (int i = 1; i < mipLevelCount; i++) {
             texels[i].fPixels = nullptr;
