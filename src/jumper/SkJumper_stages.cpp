@@ -20,10 +20,6 @@ static const size_t N = sizeof(F) / sizeof(float);
 // That lets us link together several options.
 #if !defined(JUMPER_IS_OFFLINE)
     #define WRAP(name) sk_##name
-#elif defined(__aarch64__)
-    #define WRAP(name) sk_##name##_aarch64
-#elif defined(__arm__)
-    #define WRAP(name) sk_##name##_vfp4
 #elif defined(__AVX512F__)
     #define WRAP(name) sk_##name##_skx
 #elif defined(__AVX2__)
