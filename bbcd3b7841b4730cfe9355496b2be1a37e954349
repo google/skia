@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b740de3b_4951fc88",
+        "filename": "src/gpu/GrContext.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 335,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-12-12T21:34:34Z",
+      "side": 1,
+      "message": "It seems OK to me but would it make sense to make the ms count an optional param to purgeAsNeeded() if we\u0027re always going to do these together?",
+      "range": {
+        "startLine": 335,
+        "startChar": 4,
+        "endLine": 335,
+        "endChar": 36
+      },
+      "revId": "bbcd3b7841b4730cfe9355496b2be1a37e954349",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0f10e65b_2d421d2b",
+        "filename": "src/gpu/text/GrTextBlobCache.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-12-12T21:34:34Z",
+      "side": 1,
+      "message": "We probably don\u0027t need to inline this. I think Josh went a little crazy with the inlining in the atlas/blob code.",
+      "revId": "bbcd3b7841b4730cfe9355496b2be1a37e954349",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
