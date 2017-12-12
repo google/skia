@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a7d432dd_3ee71f76",
+        "filename": "src/shaders/gradients/SkTwoPointConicalGradient_gpu.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-12-12T20:40:50Z",
+      "side": 1,
+      "message": "nit: no need for explicit numerical values.",
+      "range": {
+        "startLine": 30,
+        "startChar": 21,
+        "endLine": 30,
+        "endChar": 24
+      },
+      "revId": "b18a28cbd96cb7575653ba32fb042628edc502bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3c30974b_12d2fc6c",
+        "filename": "src/shaders/gradients/SkTwoPointConicalGradient_gpu.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-12-12T20:40:50Z",
+      "side": 1,
+      "message": "Why do we need this value?  Looks like fType is always one of radial/strip/focal.",
+      "range": {
+        "startLine": 33,
+        "startChar": 8,
+        "endLine": 33,
+        "endChar": 21
+      },
+      "revId": "b18a28cbd96cb7575653ba32fb042628edc502bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f0a85c09_7bd82285",
+        "filename": "src/shaders/gradients/SkTwoPointConicalGradient_gpu.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-12-12T20:40:50Z",
+      "side": 1,
+      "message": "nit: inline in the conditional below?",
+      "range": {
+        "startLine": 104,
+        "startChar": 12,
+        "endLine": 104,
+        "endChar": 60
+      },
+      "revId": "b18a28cbd96cb7575653ba32fb042628edc502bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9f6ad5e7_4df32e76",
+        "filename": "src/shaders/gradients/SkTwoPointConicalGradient_gpu.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 172,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-12-12T20:40:50Z",
+      "side": 1,
+      "message": "Same as args.fFragBuilder-\u003eensureCoords2D(), no?",
+      "range": {
+        "startLine": 163,
+        "startChar": 0,
+        "endLine": 172,
+        "endChar": 9
+      },
+      "revId": "b18a28cbd96cb7575653ba32fb042628edc502bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f41ba740_3c54070e",
+        "filename": "src/shaders/gradients/SkTwoPointConicalGradient_gpu.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 246,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-12-12T20:40:50Z",
+      "side": 1,
+      "message": "Same as args.fFragBuilder-\u003eensureCoords2D()?",
+      "range": {
+        "startLine": 237,
+        "startChar": 0,
+        "endLine": 246,
+        "endChar": 9
+      },
+      "revId": "b18a28cbd96cb7575653ba32fb042628edc502bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
