@@ -29,7 +29,7 @@ import sys
 # about the logs of previous steps without using a wrapper like this.
 
 def main(basedir, cmd):
-  logs = collections.deque(maxlen=200)
+  logs = collections.deque(maxlen=500)
 
   proc = subprocess.Popen(cmd, stdout=subprocess.PIPE,
                           stderr=subprocess.STDOUT)
@@ -47,7 +47,7 @@ def main(basedir, cmd):
   # doesn't have that. So, we capture both addresses and prefer using the first
   # over the second, unless the first is blank or invalid. Relative offsets
   # like abort+0x16a are ignored.
-  stack_line = r'^(?P<path>.+)\(\+?(?P<addr>.*)\) \[(?P<addr2>.+)\]'
+  stack_line = r'^(?P<path>.+)\(\+?(?P<addr>.*)\) ?\[(?P<addr2>.+)\]'
   # After performing addr2line, the result can be something obnoxious like:
   # foo(bar) at /b/s/w/a39kd/Skia/out/Clang/../../src/gpu/Frobulator.cpp:13
   # The extra_path strips off the not-useful prefix and leaves just the
