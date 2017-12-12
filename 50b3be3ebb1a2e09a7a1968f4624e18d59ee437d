@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2167b2dc_891a5a32",
+        "filename": "infra/bots/recipes/upload_skiaserve.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-12-12T19:27:36Z",
+      "side": 1,
+      "message": "Why is this needed?  IIUC we shouldn\u0027t need to sync code.",
+      "range": {
+        "startLine": 24,
+        "startChar": 0,
+        "endLine": 24,
+        "endChar": 18
+      },
+      "revId": "50b3be3ebb1a2e09a7a1968f4624e18d59ee437d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3ea11fb9_2347e4a1",
+        "filename": "infra/bots/recipes/upload_skiaserve.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-12-12T19:27:36Z",
+      "side": 1,
+      "message": "super nit: spaces",
+      "range": {
+        "startLine": 31,
+        "startChar": 13,
+        "endLine": 31,
+        "endChar": 16
+      },
+      "revId": "50b3be3ebb1a2e09a7a1968f4624e18d59ee437d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
