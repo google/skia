@@ -440,9 +440,9 @@ static void fuzz_img(sk_sp<SkData> bytes, uint8_t scale, uint8_t mode) {
 }
 
 static void fuzz_skp(sk_sp<SkData> bytes) {
-    SkMemoryStream stream(bytes);
+    SkReadBuffer buf(bytes->data(), bytes->size());
     SkDebugf("Decoding\n");
-    sk_sp<SkPicture> pic(SkPicture::MakeFromStream(&stream));
+    sk_sp<SkPicture> pic(SkPicture::MakeFromBuffer(buf));
     if (!pic) {
         SkDebugf("[terminated] Couldn't decode as a picture.\n");
         return;
