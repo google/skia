@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "c49cbb0b_da50412a",
+        "filename": "src/gpu/GrContext.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 335,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-12-12T21:43:01Z",
+      "side": 1,
+      "message": "I\u0027m not following -- are you suggesting adding the ms param and then call purgeResourcesNotUsedSince() inside purgeAsNeeded()?",
+      "parentUuid": "b740de3b_4951fc88",
+      "range": {
+        "startLine": 335,
+        "startChar": 4,
+        "endLine": 335,
+        "endChar": 36
+      },
+      "revId": "bbcd3b7841b4730cfe9355496b2be1a37e954349",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "0f10e65b_2d421d2b",
         "filename": "src/gpu/text/GrTextBlobCache.h",
         "patchSetId": 5
