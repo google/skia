@@ -161,12 +161,18 @@ public:
                                                                 int width,
                                                                 int height) override;
 
-    GrBackendObject createTestingOnlyBackendTexture(void* pixels, int w, int h,
-                                                    GrPixelConfig config,
-                                                    bool isRenderTarget,
-                                                    GrMipMapped mipMapped) override;
-    bool isTestingOnlyBackendTexture(GrBackendObject) const override;
-    void deleteTestingOnlyBackendTexture(GrBackendObject, bool abandonTexture) override;
+    GrBackendObject createTestingOnlyBackendObject(void* pixels, int w, int h,
+                                                   GrPixelConfig config,
+                                                   bool isRenderTarget,
+                                                   GrMipMapped mipMapped) override;
+    void deleteTestingOnlyBackendObject(GrBackendObject, bool abandonTexture) override;
+
+    GrBackendTexture createTestingOnlyBackendTexture(void* pixels, int w, int h,
+                                                     GrPixelConfig config,
+                                                     bool isRenderTarget,
+                                                     GrMipMapped mipMapped) override;
+    bool isTestingOnlyBackendTexture(const GrBackendTexture&) const override;
+    void deleteTestingOnlyBackendTexture(GrBackendTexture*, bool abandonTexture = false) override;
 
     void resetShaderCacheForTesting() const override;
 
