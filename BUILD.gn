@@ -1729,6 +1729,19 @@ if (skia_enable_tools) {
       ]
     }
   }
+  if (is_android && skia_enable_gpu) {
+    test_app("skqp_app") {
+      is_shared_library = true
+      sources = [
+        "tools/skqp/jni/org_skia_skqp_SkQPRunner.cpp",
+      ]
+      deps = [
+        ":skia",
+        ":skqp_lib",
+      ]
+      libs = [ "android" ]
+    }
+  }
 
   if (skia_enable_gpu) {
     test_lib("sk_app") {

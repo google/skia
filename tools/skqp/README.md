@@ -63,4 +63,20 @@ Run as an executable
 Run as an APK
 -------------
 
-[TODO]
+1.  Build the skqp.apk, load it on the device, and run the tests
+
+        platform_tools/android/bin/android_build_app -C out/${arch}-rel skqp
+        adb install -r out/${arch}-rel/skqp.apk
+        adb shell am instrument -w \
+            org.skia.skqp/android.support.test.runner.AndroidJUnitRunner
+
+2.  Retrieve the report if there are any errors:
+
+        rm -rf /tmp/skqp
+        mkdir /tmp/skqp
+        adb backup -f /tmp/skqp/backup.ab org.skia.skqp
+        dd if=/tmp/skqp/backup.ab bs=24 skip=1 | tools/skqp/inflate.py | \
+            ( cd /tmp/skqp; tar x )
+        rm /tmp/skqp/backup.ab
+        tools/skqp/make_report.py /tmp/skqp/apps/org.skia.skqp/f
+
