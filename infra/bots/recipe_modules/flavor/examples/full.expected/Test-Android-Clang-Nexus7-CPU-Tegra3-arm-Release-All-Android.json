@@ -50,6 +50,22 @@
   },
   {
     "cmd": [
+      "gsutil",
+      "cp",
+      "[START_DIR]/out/Release/skiaserve",
+      "gs://skia-public-binaries/skiaserve/None/abc123/"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "BUILDTYPE": "Release",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[START_DIR]/out"
+    },
+    "name": "Copy skiaserve to GS"
+  },
+  {
+    "cmd": [
       "/usr/bin/adb.1.0.35",
       "push",
       "file.txt",

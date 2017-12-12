@@ -266,6 +266,16 @@ if actual_freq != str(freq):
     self._run('gn gen', gn, 'gen', self.out_dir, '--args=' + gn_args)
     self._run('ninja', ninja, '-k', '0', '-C', self.out_dir)
 
+    if (configuration == 'Release' and
+        extra_config == 'Android' and
+        os not in ('Mac', 'Win')):
+      # Copy the skiaserve binary over only for Linux Android compile bots.
+      # See skbug.com/7399 for context.
+      src = self.out_dir.join('skiaserve')
+      dest = 'gs://skia-public-binaries/skiaserve/%s/%s/' % (
+          target_arch, self.m.vars.got_revision)
+      self._run('Copy skiaserve to GS', 'gsutil', 'cp', src, dest)
+
   def install(self):
     self._adb('mkdir ' + self.device_dirs.resource_dir,
               'shell', 'mkdir', '-p', self.device_dirs.resource_dir)
