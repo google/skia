@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bb566cc2_fc6d180f",
+        "filename": "src/gpu/GrContext.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 206,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-12-12T20:17:18Z",
+      "side": 1,
+      "message": "should we have a DDL backend type? Might be misleading if GrContext::backend() reported say GL.",
+      "range": {
+        "startLine": 206,
+        "startChar": 19,
+        "endLine": 206,
+        "endChar": 34
+      },
+      "revId": "d5acda48443504b515c8d9df39fc98cd787baddc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

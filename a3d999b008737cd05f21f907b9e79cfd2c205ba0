@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7ff8d4c9_6cb92142",
+        "filename": "src/gpu/stub/GrStubGpu.h",
+        "patchSetId": 14
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-12-12T20:17:18Z",
+      "side": 1,
+      "message": "I\u0027m not hung up on it but Stub doesn\u0027t seem quite right to me as that seems almost like it could be a mock. Maybe GrDDLGpu or something that indicates that the methods should never be called? I wouldn\u0027t be upset if you just left it, though.",
+      "range": {
+        "startLine": 17,
+        "startChar": 6,
+        "endLine": 17,
+        "endChar": 15
+      },
+      "revId": "a3d999b008737cd05f21f907b9e79cfd2c205ba0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c1c4033a_a4a4d887",
+        "filename": "src/gpu/stub/GrStubGpu.h",
+        "patchSetId": 14
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-12-12T20:17:18Z",
+      "side": 1,
+      "message": "should this and a bunch of the other methods in here also assert?",
+      "range": {
+        "startLine": 74,
+        "startChar": 4,
+        "endLine": 76,
+        "endChar": 5
+      },
+      "revId": "a3d999b008737cd05f21f907b9e79cfd2c205ba0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
