@@ -56,7 +56,7 @@ def RunSteps(api):
 
     # Step 1: Extract all fiddles out of markdown files.
     cmd = [bookmaker_binary,
-           '-b', 'docs',  # Path to a *.bmh file or directory.
+           '-a', 'docs/status.json',  # File containing status of documentation.
            '-e', fiddlecli_input,  # Fiddle cli input.
            ]
     api.run(api.step, 'Extract all fiddles out of md files', cmd=cmd)

@@ -144,8 +144,8 @@
   {
     "cmd": [
       "[START_DIR]/out/Release/bookmaker",
-      "-b",
-      "docs",
+      "-a",
+      "docs/status.json",
       "-e",
       "[START_DIR]/fiddle.json"
     ],
