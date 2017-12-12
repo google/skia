@@ -15,7 +15,7 @@
     "Build-Debian9-Clang-arm-Release-Android": {
       "priority": 0.8,
       "tasks": [
-        "Build-Debian9-Clang-arm-Release-Android"
+        "Upload-Build-Debian9-Clang-arm-Release-Android"
       ]
     },
     "Build-Debian9-Clang-arm-Release-Android_API26": {
@@ -45,7 +45,7 @@
     "Build-Debian9-Clang-arm64-Release-Android": {
       "priority": 0.8,
       "tasks": [
-        "Build-Debian9-Clang-arm64-Release-Android"
+        "Upload-Build-Debian9-Clang-arm64-Release-Android"
       ]
     },
     "Build-Debian9-Clang-arm64-Release-Android_Vulkan": {
@@ -63,7 +63,7 @@
     "Build-Debian9-Clang-x64-Release-Android": {
       "priority": 0.8,
       "tasks": [
-        "Build-Debian9-Clang-x64-Release-Android"
+        "Upload-Build-Debian9-Clang-x64-Release-Android"
       ]
     },
     "Build-Debian9-Clang-x86-Debug": {
@@ -87,7 +87,7 @@
     "Build-Debian9-Clang-x86-Release-Android": {
       "priority": 0.8,
       "tasks": [
-        "Build-Debian9-Clang-x86-Release-Android"
+        "Upload-Build-Debian9-Clang-x86-Release-Android"
       ]
     },
     "Build-Debian9-Clang-x86-Release-Android_Vulkan": {
@@ -23581,6 +23581,110 @@
       "io_timeout_ns": 2400000000000,
       "isolate": "test_skia_bundled_unix.isolate",
       "max_attempts": 1,
+      "priority": 0.8
+    },
+    "Upload-Build-Debian9-Clang-arm-Release-Android": {
+      "dependencies": [
+        "Build-Debian9-Clang-arm-Release-Android"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "os:Debian-9.2",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_skiaserve",
+        "repository=<(REPO)",
+        "buildername=Build-Debian9-Clang-arm-Release-Android",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Build-Debian9-Clang-arm64-Release-Android": {
+      "dependencies": [
+        "Build-Debian9-Clang-arm64-Release-Android"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "os:Debian-9.2",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_skiaserve",
+        "repository=<(REPO)",
+        "buildername=Build-Debian9-Clang-arm64-Release-Android",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Build-Debian9-Clang-x64-Release-Android": {
+      "dependencies": [
+        "Build-Debian9-Clang-x64-Release-Android"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "os:Debian-9.2",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_skiaserve",
+        "repository=<(REPO)",
+        "buildername=Build-Debian9-Clang-x64-Release-Android",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Build-Debian9-Clang-x86-Release-Android": {
+      "dependencies": [
+        "Build-Debian9-Clang-x86-Release-Android"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "os:Debian-9.2",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_skiaserve",
+        "repository=<(REPO)",
+        "buildername=Build-Debian9-Clang-x86-Release-Android",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "upload_dm_results.isolate",
       "priority": 0.8
     },
     "Upload-Calmbench-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All": {
