@@ -640,97 +640,9 @@
   },
   {
     "cmd": [
-      "python",
-      "-u",
-      "\nimport os\nimport subprocess\nimport sys\nimport time\nADB = sys.argv[1]\ncpu = int(sys.argv[2])\ngov = sys.argv[3]\n\nlog = subprocess.check_output([ADB, 'root'])\n# check for message like 'adbd cannot run as root in production builds'\nprint log\nif 'cannot' in log:\n  raise Exception('adb root failed')\n\nsubprocess.check_output([ADB, 'shell', 'echo \"%s\" > '\n    '/sys/devices/system/cpu/cpu%d/cpufreq/scaling_governor' % (gov, cpu)])\nactual_gov = subprocess.check_output([ADB, 'shell', 'cat '\n    '/sys/devices/system/cpu/cpu%d/cpufreq/scaling_governor' % cpu]).strip()\nif actual_gov != str(gov):\n  raise Exception('(actual, expected) (%s, %d)'\n                  % (actual_gov, gov))\n",
-      "/usr/bin/adb.1.0.35",
-      "2",
-      "ondemand"
-    ],
-    "env": {
-      "BUILDTYPE": "Debug",
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/out"
-    },
-    "infra_step": true,
-    "name": "Set CPU 2's governor to ondemand",
-    "timeout": 30,
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@import os@@@",
-      "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
-      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
-      "@@@STEP_LOG_LINE@python.inline@import time@@@",
-      "@@@STEP_LOG_LINE@python.inline@ADB = sys.argv[1]@@@",
-      "@@@STEP_LOG_LINE@python.inline@cpu = int(sys.argv[2])@@@",
-      "@@@STEP_LOG_LINE@python.inline@gov = sys.argv[3]@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@log = subprocess.check_output([ADB, 'root'])@@@",
-      "@@@STEP_LOG_LINE@python.inline@# check for message like 'adbd cannot run as root in production builds'@@@",
-      "@@@STEP_LOG_LINE@python.inline@print log@@@",
-      "@@@STEP_LOG_LINE@python.inline@if 'cannot' in log:@@@",
-      "@@@STEP_LOG_LINE@python.inline@  raise Exception('adb root failed')@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@subprocess.check_output([ADB, 'shell', 'echo \"%s\" > '@@@",
-      "@@@STEP_LOG_LINE@python.inline@    '/sys/devices/system/cpu/cpu%d/cpufreq/scaling_governor' % (gov, cpu)])@@@",
-      "@@@STEP_LOG_LINE@python.inline@actual_gov = subprocess.check_output([ADB, 'shell', 'cat '@@@",
-      "@@@STEP_LOG_LINE@python.inline@    '/sys/devices/system/cpu/cpu%d/cpufreq/scaling_governor' % cpu]).strip()@@@",
-      "@@@STEP_LOG_LINE@python.inline@if actual_gov != str(gov):@@@",
-      "@@@STEP_LOG_LINE@python.inline@  raise Exception('(actual, expected) (%s, %d)'@@@",
-      "@@@STEP_LOG_LINE@python.inline@                  % (actual_gov, gov))@@@",
-      "@@@STEP_LOG_END@python.inline@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "\nimport os\nimport subprocess\nimport sys\nimport time\nADB = sys.argv[1]\ncpu = int(sys.argv[2])\ngov = sys.argv[3]\n\nlog = subprocess.check_output([ADB, 'root'])\n# check for message like 'adbd cannot run as root in production builds'\nprint log\nif 'cannot' in log:\n  raise Exception('adb root failed')\n\nsubprocess.check_output([ADB, 'shell', 'echo \"%s\" > '\n    '/sys/devices/system/cpu/cpu%d/cpufreq/scaling_governor' % (gov, cpu)])\nactual_gov = subprocess.check_output([ADB, 'shell', 'cat '\n    '/sys/devices/system/cpu/cpu%d/cpufreq/scaling_governor' % cpu]).strip()\nif actual_gov != str(gov):\n  raise Exception('(actual, expected) (%s, %d)'\n                  % (actual_gov, gov))\n",
-      "/usr/bin/adb.1.0.35",
-      "0",
-      "ondemand"
-    ],
-    "env": {
-      "BUILDTYPE": "Debug",
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/out"
-    },
-    "infra_step": true,
-    "name": "Set CPU 0's governor to ondemand",
-    "timeout": 30,
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@import os@@@",
-      "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
-      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
-      "@@@STEP_LOG_LINE@python.inline@import time@@@",
-      "@@@STEP_LOG_LINE@python.inline@ADB = sys.argv[1]@@@",
-      "@@@STEP_LOG_LINE@python.inline@cpu = int(sys.argv[2])@@@",
-      "@@@STEP_LOG_LINE@python.inline@gov = sys.argv[3]@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@log = subprocess.check_output([ADB, 'root'])@@@",
-      "@@@STEP_LOG_LINE@python.inline@# check for message like 'adbd cannot run as root in production builds'@@@",
-      "@@@STEP_LOG_LINE@python.inline@print log@@@",
-      "@@@STEP_LOG_LINE@python.inline@if 'cannot' in log:@@@",
-      "@@@STEP_LOG_LINE@python.inline@  raise Exception('adb root failed')@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@subprocess.check_output([ADB, 'shell', 'echo \"%s\" > '@@@",
-      "@@@STEP_LOG_LINE@python.inline@    '/sys/devices/system/cpu/cpu%d/cpufreq/scaling_governor' % (gov, cpu)])@@@",
-      "@@@STEP_LOG_LINE@python.inline@actual_gov = subprocess.check_output([ADB, 'shell', 'cat '@@@",
-      "@@@STEP_LOG_LINE@python.inline@    '/sys/devices/system/cpu/cpu%d/cpufreq/scaling_governor' % cpu]).strip()@@@",
-      "@@@STEP_LOG_LINE@python.inline@if actual_gov != str(gov):@@@",
-      "@@@STEP_LOG_LINE@python.inline@  raise Exception('(actual, expected) (%s, %d)'@@@",
-      "@@@STEP_LOG_LINE@python.inline@                  % (actual_gov, gov))@@@",
-      "@@@STEP_LOG_END@python.inline@@@"
-    ]
-  },
-  {
-    "cmd": [
       "/usr/bin/adb.1.0.35",
       "push",
-      "[START_DIR]/out/Debug/dm",
+      "[START_DIR]/out/Debug/nanobench",
       "/data/local/tmp/"
     ],
     "cwd": "[START_DIR]/skia",
@@ -741,7 +653,7 @@
       "SKIA_OUT": "[START_DIR]/out"
     },
     "infra_step": true,
-    "name": "push dm"
+    "name": "push nanobench"
   },
   {
     "cmd": [
@@ -751,17 +663,17 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "set -x; /data/local/tmp/dm --some-flag; echo $? >/data/local/tmp/rc",
-      "[START_DIR]/tmp/dm.sh"
+      "set -x; /data/local/tmp/nanobench --some-flag; echo $? >/data/local/tmp/rc",
+      "[START_DIR]/tmp/nanobench.sh"
     ],
     "infra_step": true,
-    "name": "write dm.sh"
+    "name": "write nanobench.sh"
   },
   {
     "cmd": [
       "/usr/bin/adb.1.0.35",
       "push",
-      "[START_DIR]/tmp/dm.sh",
+      "[START_DIR]/tmp/nanobench.sh",
       "/data/local/tmp/"
     ],
     "cwd": "[START_DIR]/skia",
@@ -772,7 +684,7 @@
       "SKIA_OUT": "[START_DIR]/out"
     },
     "infra_step": true,
-    "name": "push dm.sh"
+    "name": "push nanobench.sh"
   },
   {
     "cmd": [
@@ -796,9 +708,9 @@
       "-u",
       "\nimport subprocess\nimport sys\nbin_dir = sys.argv[1]\nsh      = sys.argv[2]\nsubprocess.check_call(['/usr/bin/adb.1.0.35', 'shell', 'sh', bin_dir + sh])\ntry:\n  sys.exit(int(subprocess.check_output(['/usr/bin/adb.1.0.35', 'shell', 'cat',\n                                        bin_dir + 'rc'])))\nexcept ValueError:\n  print \"Couldn't read the return code.  Probably killed for OOM.\"\n  sys.exit(1)\n",
       "/data/local/tmp/",
-      "dm.sh"
+      "nanobench.sh"
     ],
-    "name": "dm",
+    "name": "nanobench",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@@@@",
       "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
@@ -819,8 +731,8 @@
     "cmd": [
       "/usr/bin/adb.1.0.35",
       "pull",
-      "/sdcard/revenge_of_the_skiabot/dm_out",
-      "[CUSTOM_[SWARM_OUT_DIR]]/dm"
+      "/sdcard/revenge_of_the_skiabot/perf",
+      "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-Android-Clang-GalaxyS7_G930FD-GPU-MaliT880-arm64-Debug-All-Android/data"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
@@ -830,7 +742,7 @@
       "SKIA_OUT": "[START_DIR]/out"
     },
     "infra_step": true,
-    "name": "pull /sdcard/revenge_of_the_skiabot/dm_out [CUSTOM_[SWARM_OUT_DIR]]/dm"
+    "name": "pull /sdcard/revenge_of_the_skiabot/perf [CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-Android-Clang-GalaxyS7_G930FD-GPU-MaliT880-arm64-Debug-All-Android/data"
   },
   {
     "cmd": [

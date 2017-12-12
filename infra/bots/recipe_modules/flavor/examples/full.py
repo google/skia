@@ -83,6 +83,7 @@ TEST_BUILDERS = [
   'Build-Win-MSVC-x86-Debug-Exceptions',
   'Housekeeper-PerCommit-CheckGeneratedFiles',
   'Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-All-Android',
+  'Perf-Android-Clang-GalaxyS7_G930FD-GPU-MaliT880-arm64-Debug-All-Android',
   'Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Debug-All-Android',
   'Perf-ChromeOS-Clang-SamsungChromebookPlus-GPU-MaliT860-arm-Release-All',
   'Perf-Chromecast-GCC-Chorizo-CPU-Cortex_A7-arm-Release-All',
@@ -193,5 +194,5 @@ def GenTests(api):
                      revision='abc123',
                      path_config='kitchen',
                      swarm_out_dir='[SWARM_OUT_DIR]') +
-      api.step_data('Scale CPU to 0.600000', retcode=1)
+      api.step_data('Scale CPU 2 to 0.600000', retcode=1)
   )

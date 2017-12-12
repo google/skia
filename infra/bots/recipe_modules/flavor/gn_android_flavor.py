@@ -73,12 +73,49 @@ class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
   rootable_blacklist = ['GalaxyS6', 'GalaxyS7_G930A', 'GalaxyS7_G930FD',
                         'MotoG4', 'NVIDIA_Shield']
 
-  def _lock_cpu(self, target_percent):
-    if (self.m.vars.builder_cfg.get('model') in self.rootable_blacklist or
+  # Maps device type -> cpu ids that need to be set when scaling, with the
+  # primary CPU being listed first. CPUs are configured together,
+  # for example, the Nexus 5x has cpu0-3 and cpu4-5 linked together, each
+  # group using the same configuration - anything that happens to cpu0,
+  # happens to cpu1-3.
+  # cpus at index 1+ will be clocked down to powersave during nanobench.
+  # TODO(kjlubick): determine this dynamically - should be able to look
+  # at which cores have the highest frequency and affected_cpus.
+  cpus_to_scale = {
+    'Nexus5x': [4, 0],
+    'NexusPlayer': [2, 0],
+    'Pixel': [2, 0],
+    'Pixel2XL': [4, 0]
+  }
+
+  def _scale_for_dm(self):
+    device = self.m.vars.builder_cfg.get('model')
+    if (device in self.rootable_blacklist or
         self.m.vars.internal_hardware_label):
       return
+
+    for i in self.cpus_to_scale.get(device, [0]):
+      self._set_governor(i, 'ondemand')
+
+  def _scale_for_nanobench(self):
+    device = self.m.vars.builder_cfg.get('model')
+    if (device in self.rootable_blacklist or
+      self.m.vars.internal_hardware_label):
+      return
+
+    cpus = self.cpus_to_scale.get(device, [0])
+
+    for i in cpus[1:]:
+      self._set_governor(i, 'powersave')
+
+    # Scale just the first (primary) cpu.
+    self._set_governor(cpus[0], 'userspace')
+    self._scale_cpu(cpus[0], 0.6)
+
+  def _set_governor(self, cpu, gov):
+    self._ever_ran_adb = True
     self.m.run.with_retry(self.m.python.inline,
-        'Scale CPU to %f' % target_percent,
+        "Set CPU %d's governor to %s" % (cpu, gov),
         3, # attempts
         program="""
 import os
@@ -86,38 +123,60 @@ import subprocess
 import sys
 import time
 ADB = sys.argv[1]
-model = sys.argv[2]
-target_percent = float(sys.argv[3])
+cpu = int(sys.argv[2])
+gov = sys.argv[3]
+
 log = subprocess.check_output([ADB, 'root'])
 # check for message like 'adbd cannot run as root in production builds'
 print log
 if 'cannot' in log:
   raise Exception('adb root failed')
 
-if model == 'Nexus7':
-  # Nexus7 claims to support 1300000, but only really allows 1200000
-  available_freqs = [51000, 102000, 204000, 340000, 475000, 640000, 760000,
-                     860000, 1000000, 1100000, 1200000]
-else:
-  # Temporary logging to get a sense of what devices have multiple cpus
-  try:
-    print subprocess.check_output([ADB, 'shell', 'cat ',
-        '/sys/devices/system/cpu/cpu?/cpufreq/affected_cpus'])
-    print subprocess.check_output([ADB, 'shell', 'cat ',
-        '/sys/devices/system/cpu/cpu?/cpufreq/scaling_available_frequencies'])
-  except Exception as e:
-    print e.output.strip()
-  # Most devices give a list of their available frequencies.
-  available_freqs = subprocess.check_output([ADB, 'shell', 'cat '
-      '/sys/devices/system/cpu/cpu0/cpufreq/scaling_available_frequencies'])
+subprocess.check_output([ADB, 'shell', 'echo "%s" > '
+    '/sys/devices/system/cpu/cpu%d/cpufreq/scaling_governor' % (gov, cpu)])
+actual_gov = subprocess.check_output([ADB, 'shell', 'cat '
+    '/sys/devices/system/cpu/cpu%d/cpufreq/scaling_governor' % cpu]).strip()
+if actual_gov != str(gov):
+  raise Exception('(actual, expected) (%s, %d)'
+                  % (actual_gov, gov))
+""",
+        args = [self.ADB_BINARY, cpu, gov],
+        infra_step=True,
+        timeout=30)
 
-  # Check for message like '/system/bin/sh: file not found'
-  if available_freqs and '/system/bin/sh' not in available_freqs:
-    available_freqs = sorted(
-        int(i) for i in available_freqs.strip().split())
-  else:
-    raise Exception('Could not get list of available frequencies: %s' %
-                    available_freqs)
+
+  def _scale_cpu(self, cpu, target_percent):
+    self._ever_ran_adb = True
+    self.m.run.with_retry(self.m.python.inline,
+        'Scale CPU %d to %f' % (cpu, target_percent),
+        3, # attempts
+        program="""
+import os
+import subprocess
+import sys
+import time
+ADB = sys.argv[1]
+target_percent = float(sys.argv[2])
+cpu = int(sys.argv[3])
+log = subprocess.check_output([ADB, 'root'])
+# check for message like 'adbd cannot run as root in production builds'
+print log
+if 'cannot' in log:
+  raise Exception('adb root failed')
+
+root = '/sys/devices/system/cpu/cpu%d/cpufreq' %cpu
+
+# All devices we test on give a list of their available frequencies.
+available_freqs = subprocess.check_output([ADB, 'shell',
+    'cat %s/scaling_available_frequencies' % root])
+
+# Check for message like '/system/bin/sh: file not found'
+if available_freqs and '/system/bin/sh' not in available_freqs:
+  available_freqs = sorted(
+      int(i) for i in available_freqs.strip().split())
+else:
+  raise Exception('Could not get list of available frequencies: %s' %
+                  available_freqs)
 
 maxfreq = available_freqs[-1]
 target = int(round(maxfreq * target_percent))
@@ -129,27 +188,24 @@ for f in reversed(available_freqs):
 
 print 'Setting frequency to %d' % freq
 
-subprocess.check_output([ADB, 'shell', 'echo "userspace" > '
-    '/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor'])
 # If scaling_max_freq is lower than our attempted setting, it won't take.
 # We must set min first, because if we try to set max to be less than min
 # (which sometimes happens after certain devices reboot) it returns a
 # perplexing permissions error.
 subprocess.check_output([ADB, 'shell', 'echo 0 > '
-    '/sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq'])
+    '%s/scaling_min_freq' % root])
 subprocess.check_output([ADB, 'shell', 'echo %d > '
-    '/sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq' % freq])
+    '%s/scaling_max_freq' % (freq, root)])
 subprocess.check_output([ADB, 'shell', 'echo %d > '
-    '/sys/devices/system/cpu/cpu0/cpufreq/scaling_setspeed' % freq])
+    '%s/scaling_setspeed' % (freq, root)])
 time.sleep(5)
 actual_freq = subprocess.check_output([ADB, 'shell', 'cat '
-    '/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq']).strip()
+    '%s/scaling_cur_freq' % root]).strip()
 if actual_freq != str(freq):
   raise Exception('(actual, expected) (%s, %d)'
                   % (actual_freq, freq))
 """,
-        args = [self.ADB_BINARY, self.m.vars.builder_cfg.get('model'),
-                str(target_percent)],
+        args = [self.ADB_BINARY, str(target_percent), cpu],
         infra_step=True,
         timeout=30)
 
@@ -245,9 +301,9 @@ if actual_freq != str(freq):
 
   def step(self, name, cmd, **kwargs):
     if (cmd[0] == 'nanobench'):
-      self._lock_cpu(0.6)
+      self._scale_for_nanobench()
     else:
-      self._lock_cpu(1.0)
+      self._scale_for_dm()
     app = self.m.vars.skia_out.join(self.m.vars.configuration, cmd[0])
     self._adb('push %s' % cmd[0],
               'push', app, self.m.vars.android_bin_dir)
