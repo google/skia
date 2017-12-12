@@ -4874,13 +4874,14 @@ void draw(SkCanvas* canvas) {
     }
     const int xDivs[] = { center.fLeft, center.fRight };
     const int yDivs[] = { center.fTop, center.fBottom };
-    SkCanvas::Lattice::Flags flags[3][3];
-    memset(flags, 0, sizeof(flags));  
-    flags[1][1] = SkCanvas::Lattice::kTransparent_Flags;
-    SkCanvas::Lattice lattice = { xDivs, yDivs, flags[0], SK_ARRAY_COUNT(xDivs),
-         SK_ARRAY_COUNT(yDivs), nullptr };
+    SkCanvas::Lattice::RectType fillTypes[3][3];
+    memset(fillTypes, 0, sizeof(fillTypes));
+    fillTypes[1][1] = SkCanvas::Lattice::kTransparent;
+    SkColor dummy[9];  // temporary pending bug fix
+    SkCanvas::Lattice lattice = { xDivs, yDivs, fillTypes[0], SK_ARRAY_COUNT(xDivs),
+         SK_ARRAY_COUNT(yDivs), nullptr, dummy };
     for (auto dest: { 20, 30, 40, 60, 90 } ) {
-        canvas->drawBitmapLattice(bitmap, lattice , SkRect::MakeWH(dest, 110 - dest), nullptr);
+        canvas->drawBitmapLattice(bitmap, lattice, SkRect::MakeWH(dest, 110 - dest), nullptr);
         canvas->translate(dest + 4, 0);
     }
 }
@@ -4949,11 +4950,12 @@ void draw(SkCanvas* canvas) {
     }
     const int xDivs[] = { center.fLeft, center.fRight };
     const int yDivs[] = { center.fTop, center.fBottom };
-    SkCanvas::Lattice::Flags flags[3][3];
-    memset(flags, 0, sizeof(flags));  
-    flags[1][1] = SkCanvas::Lattice::kTransparent_Flags;
-    SkCanvas::Lattice lattice = { xDivs, yDivs, flags[0], SK_ARRAY_COUNT(xDivs),
-         SK_ARRAY_COUNT(yDivs), nullptr };
+    SkCanvas::Lattice::RectType fillTypes[3][3];
+    memset(fillTypes, 0, sizeof(fillTypes));  
+    fillTypes[1][1] = SkCanvas::Lattice::kTransparent;
+    SkColor dummy[9];  // temporary pending bug fix
+    SkCanvas::Lattice lattice = { xDivs, yDivs, fillTypes[0], SK_ARRAY_COUNT(xDivs),
+         SK_ARRAY_COUNT(yDivs), nullptr, dummy };
     sk_sp<SkImage> image = SkImage::MakeFromBitmap(bitmap);
     SkImage* imagePtr = image.get();
     for (auto dest: { 20, 30, 40, 60, 90 } ) {
