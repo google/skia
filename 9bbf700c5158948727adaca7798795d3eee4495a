@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "466a7d53_fecb5058",
+        "filename": "src/core/SkColorSpaceXformCanvas.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-12-12T16:39:12Z",
+      "side": 1,
+      "message": "This might be easier to follow if we add a new method to SkColorspaceXformer (your fXformer here), like\n\n   SkCanvas::Lattice apply(const SkCanvas::Lattice\u0026);\n\nthat way the calls here can just be\n\n   fTarget-\u003edrawImageLattice(prepareImage(img).get(), fXformer-\u003eapply(lattice), dst,\n                             MaybePaint(paint, fXformer.get());\n\nand\n\n   fTarget-\u003edrawImageLattice(fXformer-\u003eapply(bitmap).get(), fXformer-\u003eapply(lattice), ...);",
+      "revId": "9bbf700c5158948727adaca7798795d3eee4495a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "376c0eb4_66aed7c7",
+        "filename": "src/core/SkColorSpaceXformCanvas.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-12-12T16:39:12Z",
+      "side": 1,
+      "message": "Do we not need to check that fColors is not null?",
+      "range": {
+        "startLine": 163,
+        "startChar": 12,
+        "endLine": 163,
+        "endChar": 14
+      },
+      "revId": "9bbf700c5158948727adaca7798795d3eee4495a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
