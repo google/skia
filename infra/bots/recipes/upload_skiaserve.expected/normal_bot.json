@@ -1,0 +1,16 @@
+[
+  {
+    "cmd": [
+      "gsutil",
+      "cp",
+      "[CUSTOM_/_B_WORK]/skia/out/Build-Debian9-Clang-arm-Release-Android/skiaserve",
+      "gs://skia-public-binaries/skiaserve/arm/None/"
+    ],
+    "name": "upload skiaserve"
+  },
+  {
+    "name": "$result",
+    "recipe_result": null,
+    "status_code": 0
+  }
+]

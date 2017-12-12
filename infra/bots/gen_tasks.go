@@ -552,6 +552,35 @@ func compile(b *specs.TasksCfgBuilder, name string, parts map[string]string) str
 	if !util.In(name, JOBS) {
 		glog.Fatalf("Job %q is missing from the JOBS list!", name)
 	}
+
+	// Upload the skiaserve binary only for Linux Android compile bots.
+	// See skbug.com/7399 for context.
+	if parts["configuration"] == "Release" &&
+		parts["extra_config"] == "Android" &&
+		!strings.Contains(parts["os"], "Win") &&
+		!strings.Contains(parts["os"], "Mac") {
+		uploadName := fmt.Sprintf("%s%s%s", PREFIX_UPLOAD, jobNameSchema.Sep, name)
+		b.MustAddTask(uploadName, &specs.TaskSpec{
+			Dependencies: []string{name},
+			Dimensions:   linuxGceDimensions(),
+			ExtraArgs: []string{
+				"--workdir", "../../..", "upload_skiaserve",
+				fmt.Sprintf("repository=%s", specs.PLACEHOLDER_REPO),
+				fmt.Sprintf("buildername=%s", name),
+				fmt.Sprintf("swarm_out_dir=%s", specs.PLACEHOLDER_ISOLATED_OUTDIR),
+				fmt.Sprintf("revision=%s", specs.PLACEHOLDER_REVISION),
+				fmt.Sprintf("patch_repo=%s", specs.PLACEHOLDER_PATCH_REPO),
+				fmt.Sprintf("patch_storage=%s", specs.PLACEHOLDER_PATCH_STORAGE),
+				fmt.Sprintf("patch_issue=%s", specs.PLACEHOLDER_ISSUE),
+				fmt.Sprintf("patch_set=%s", specs.PLACEHOLDER_PATCHSET),
+			},
+			// We're using the same isolate as upload_dm_results
+			Isolate:  relpath("upload_dm_results.isolate"),
+			Priority: 0.8,
+		})
+		return uploadName
+	}
+
 	return name
 }
 
