@@ -136,8 +136,8 @@ subprocess.check_output([ADB, 'shell', 'echo "%s" > '
     '/sys/devices/system/cpu/cpu%d/cpufreq/scaling_governor' % (gov, cpu)])
 actual_gov = subprocess.check_output([ADB, 'shell', 'cat '
     '/sys/devices/system/cpu/cpu%d/cpufreq/scaling_governor' % cpu]).strip()
-if actual_gov != str(gov):
-  raise Exception('(actual, expected) (%s, %d)'
+if actual_gov != gov:
+  raise Exception('(actual, expected) (%s, %s)'
                   % (actual_gov, gov))
 """,
         args = [self.ADB_BINARY, cpu, gov],
