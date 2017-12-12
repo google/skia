@@ -22,10 +22,10 @@
  */
 class GrCCPRQuadraticShader : public GrCCPRCoverageProcessor::Shader {
 protected:
-    void emitSetupCode(GrGLSLShaderBuilder*, const char* pts, const char* segmentId,
+    void emitSetupCode(GrGLSLVertexGeoBuilder*, const char* pts, const char* repetitionID,
                        const char* wind, GeometryVars*) const final;
 
-    virtual void onEmitSetupCode(GrGLSLShaderBuilder*, const char* pts, const char* segmentId,
+    virtual void onEmitSetupCode(GrGLSLVertexGeoBuilder*, const char* pts, const char* repetitionID,
                                  GeometryVars*) const = 0;
 
     WindHandling onEmitVaryings(GrGLSLVaryingHandler*, SkString* code, const char* position,
@@ -45,10 +45,7 @@ protected:
  * the provided curves are monotonic, this will get every pixel right except the two corners.
  */
 class GrCCPRQuadraticHullShader : public GrCCPRQuadraticShader {
-    int getNumSegments() const final { return 4; } // 4 wedges.
-
-    GeometryType getGeometryType() const override { return GeometryType::kHull; }
-    void onEmitSetupCode(GrGLSLShaderBuilder*, const char* pts, const char* wedgeId,
+    void onEmitSetupCode(GrGLSLVertexGeoBuilder*, const char* pts, const char* repetitionID,
                          GeometryVars*) const override;
     void onEmitVaryings(GrGLSLVaryingHandler*, SkString* code) override;
     void onEmitFragmentCode(GrGLSLPPFragmentBuilder*, const char* outputCoverage) const override;
@@ -60,10 +57,7 @@ class GrCCPRQuadraticHullShader : public GrCCPRQuadraticShader {
  * This pass fixes the corners of a closed quadratic segment with soft MSAA.
  */
 class GrCCPRQuadraticCornerShader : public GrCCPRQuadraticShader {
-    int getNumSegments() const final { return 2; } // 2 corners.
-
-    GeometryType getGeometryType() const override { return GeometryType::kCorners; }
-    void onEmitSetupCode(GrGLSLShaderBuilder*, const char* pts, const char* cornerId,
+    void onEmitSetupCode(GrGLSLVertexGeoBuilder*, const char* pts, const char* repetitionID,
                          GeometryVars*) const override;
     void onEmitVaryings(GrGLSLVaryingHandler*, SkString* code) override;
     void onEmitFragmentCode(GrGLSLPPFragmentBuilder*, const char* outputCoverage) const override;

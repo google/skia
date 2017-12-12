@@ -12,6 +12,7 @@
 #include "ccpr/GrCCPRQuadraticShader.h"
 #include "ccpr/GrCCPRTriangleShader.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
+#include "glsl/GrGLSLVertexGeoBuilder.h"
 
 void GrCCPRCoverageProcessor::Shader::emitVaryings(GrGLSLVaryingHandler* varyingHandler,
                                                    SkString* code, const char* position,
@@ -44,7 +45,7 @@ void GrCCPRCoverageProcessor::Shader::emitFragmentCode(const GrCCPRCoverageProce
 #endif
 }
 
-void GrCCPRCoverageProcessor::Shader::EmitEdgeDistanceEquation(GrGLSLShaderBuilder* s,
+void GrCCPRCoverageProcessor::Shader::EmitEdgeDistanceEquation(GrGLSLVertexGeoBuilder* s,
                                                                const char* leftPt,
                                                                const char* rightPt,
                                                                const char* outputDistanceEquation) {
@@ -107,5 +108,5 @@ GrGLSLPrimitiveProcessor* GrCCPRCoverageProcessor::createGLSLInstance(const GrSh
             shader = skstd::make_unique<GrCCPRCubicCornerShader>();
             break;
     }
-    return CreateGSImpl(std::move(shader));
+    return this->createGSImpl(std::move(shader));
 }

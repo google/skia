@@ -36,15 +36,16 @@ void GrCCPRTriangleEdgeShader::onEmitFragmentCode(GrGLSLPPFragmentBuilder* f,
     f->codeAppendf("%s = %s;", outputCoverage, fCoverageTimesWind.fsIn());
 }
 
-void GrCCPRTriangleCornerShader::emitSetupCode(GrGLSLShaderBuilder* s, const char* pts,
-                                               const char* cornerId, const char* wind,
+void GrCCPRTriangleCornerShader::emitSetupCode(GrGLSLVertexGeoBuilder* s, const char* pts,
+                                               const char* repetitionID, const char* wind,
                                                GeometryVars* vars) const {
-    s->codeAppendf("float2 corner = %s[sk_InvocationID];", pts);
+    s->codeAppendf("float2 corner = %s[%s];", pts, repetitionID);
     vars->fCornerVars.fPoint = "corner";
 
-    s->codeAppendf("float2x2 vectors = float2x2(corner - %s[(sk_InvocationID + 2) %% 3], "
-                                               "corner - %s[(sk_InvocationID + 1) %% 3]);",
-                                               pts, pts);
+    s->codeAppendf("float2x2 vectors = float2x2(corner - %s[0 != %s ? %s - 1 : 2], "
+                                               "corner - %s[2 != %s ? %s + 1 : 0]);",
+                                               pts, repetitionID, repetitionID, pts, repetitionID,
+                                               repetitionID);
 
     // Make sure neither vector is 0 to avoid a divide-by-zero. Wind will be zero anyway if this
     // is the case, so whatever we output won't have any effect as long it isn't NaN or Inf.

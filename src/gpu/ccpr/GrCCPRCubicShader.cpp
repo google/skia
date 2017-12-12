@@ -8,13 +8,11 @@
 #include "GrCCPRCubicShader.h"
 
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
+#include "glsl/GrGLSLVertexGeoBuilder.h"
 
-void GrCCPRCubicShader::emitSetupCode(GrGLSLShaderBuilder* s, const char* pts,
-                                      const char* segmentId, const char* wind,
+void GrCCPRCubicShader::emitSetupCode(GrGLSLVertexGeoBuilder* s, const char* pts,
+                                      const char* repetitionID, const char* wind,
                                       GeometryVars* vars) const {
-    // Evaluate the cubic at T=.5 for an mid-ish point.
-    s->codeAppendf("float2 midpoint = %s * float4(.125, .375, .375, .125);", pts);
-
     // Find the cubic's power basis coefficients.
     s->codeAppendf("float2x4 C = float4x4(-1,  3, -3,  1, "
                                          " 3, -6,  3,  0, "
@@ -55,6 +53,9 @@ void GrCCPRCubicShader::emitSetupCode(GrGLSLShaderBuilder* s, const char* pts,
                                       "L[0], L[middlerow], L[3], "
                                       "M[0], M[middlerow], M[3]);", fKLMMatrix.c_str());
 
+    // Evaluate the cubic at T=.5 for a mid-ish point.
+    s->codeAppendf("float2 midpoint = %s * float4(.125, .375, .375, .125);", pts);
+
     // Orient the KLM matrix so we fill the correct side of the curve.
     s->codeAppendf("float2 orientation = sign(float3(midpoint, 1) * float2x3(%s[1], %s[2]));",
                    fKLMMatrix.c_str(), fKLMMatrix.c_str());
@@ -69,7 +70,7 @@ void GrCCPRCubicShader::emitSetupCode(GrGLSLShaderBuilder* s, const char* pts,
     s->codeAppendf("float2 edgept1 = %s[3 - edgeidx0];", pts);
     Shader::EmitEdgeDistanceEquation(s, "edgept0", "edgept1", fEdgeDistanceEquation.c_str());
 
-    this->onEmitSetupCode(s, pts, segmentId, vars);
+    this->onEmitSetupCode(s, pts, repetitionID, vars);
 }
 
 GrCCPRCubicShader::WindHandling
@@ -83,12 +84,6 @@ GrCCPRCubicShader::onEmitVaryings(GrGLSLVaryingHandler* varyingHandler, SkString
 
     this->onEmitVaryings(varyingHandler, code);
     return WindHandling::kNotHandled;
-}
-
-void GrCCPRCubicHullShader::onEmitSetupCode(GrGLSLShaderBuilder* s, const char* /*pts*/,
-                                            const char* /*wedgeId*/, GeometryVars* vars) const {
-    // "midpoint" was just defined by the base class.
-    vars->fHullVars.fAlternateMidpoint = "midpoint";
 }
 
 void GrCCPRCubicHullShader::onEmitVaryings(GrGLSLVaryingHandler* varyingHandler, SkString* code) {
@@ -109,9 +104,9 @@ void GrCCPRCubicHullShader::onEmitFragmentCode(GrGLSLPPFragmentBuilder* f,
     f->codeAppendf("%s += min(d, 0);", outputCoverage); // Flat closing edge.
 }
 
-void GrCCPRCubicCornerShader::onEmitSetupCode(GrGLSLShaderBuilder* s, const char* pts,
-                                              const char* cornerId, GeometryVars* vars) const {
-    s->codeAppendf("float2 corner = %s[%s * 3];", pts, cornerId);
+void GrCCPRCubicCornerShader::onEmitSetupCode(GrGLSLVertexGeoBuilder* s, const char* pts,
+                                              const char* repetitionID, GeometryVars* vars) const {
+    s->codeAppendf("float2 corner = %s[%s * 3];", pts, repetitionID);
     vars->fCornerVars.fPoint = "corner";
 }
 
