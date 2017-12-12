@@ -90,22 +90,30 @@ GrStencilAttachment* GrMockGpu::createStencilAttachmentForRenderTarget(const GrR
     return new GrMockStencilAttachment(this, width, height, kBits, rt->numColorSamples());
 }
 
-GrBackendObject GrMockGpu::createTestingOnlyBackendTexture(void* pixels, int w, int h,
-                                                           GrPixelConfig config, bool isRT,
-                                                           GrMipMapped) {
-    auto info = new GrMockTextureInfo;
-    info->fID = NextExternalTextureID();
-    fOutstandingTestingOnlyTextureIDs.add(info->fID);
-    return reinterpret_cast<GrBackendObject>(info);
+#if 0
+
+#else
+GrBackendTexture GrMockGpu::createTestingOnlyBackendTexture(void* pixels, int w, int h,
+                                                            GrPixelConfig config, bool isRT,
+                                                            GrMipMapped) {
+    GrMockTextureInfo info;
+    info.fID = NextExternalTextureID();
+    fOutstandingTestingOnlyTextureIDs.add(info.fID);
+    return GrBackendTexture(w, h, config, info);
 }
 
-bool GrMockGpu::isTestingOnlyBackendTexture(GrBackendObject object) const {
-    return fOutstandingTestingOnlyTextureIDs.contains(
-            reinterpret_cast<const GrMockTextureInfo*>(object)->fID);
+bool GrMockGpu::isTestingOnlyBackendTexture1(const GrBackendTexture& tex) const {
+    SkASSERT(kMock_GrBackend == tex.backend());
+
+    const GrMockTextureInfo* info = tex.getMockTextureInfo();
+
+    return fOutstandingTestingOnlyTextureIDs.contains(info->fID);
 }
 
-void GrMockGpu::deleteTestingOnlyBackendTexture(GrBackendObject object, bool abandonTexture) {
-    auto info = reinterpret_cast<const GrMockTextureInfo*>(object);
+void GrMockGpu::deleteTestingOnlyBackendTexture(GrBackendTexture* tex, bool abandonTexture) {
+    SkASSERT(kMock_GrBackend == tex->backend());
+
+    const GrMockTextureInfo* info = tex->getMockTextureInfo();
     fOutstandingTestingOnlyTextureIDs.remove(info->fID);
-    delete info;
 }
+#endif
