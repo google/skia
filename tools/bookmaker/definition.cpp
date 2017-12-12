@@ -6,6 +6,7 @@
  */
 
 #include "bookmaker.h"
+#include "SkOSPath.h"
 
 static size_t count_indent(const string& text, size_t test, size_t end) {
     size_t result = test;
@@ -586,7 +587,7 @@ bool Definition::exampleToScript(string* result, ExampleOptions exampleOptions) 
         code += "}";
     }
     string example = "\"" + normalizedName + "\": {\n";
-    size_t nameStart = fFileName.find("\\", 0);
+    size_t nameStart = fFileName.find(SkOSPath::SEPARATOR, 0);
     SkASSERT(string::npos != nameStart);
     string baseFile = fFileName.substr(nameStart + 1, fFileName.length() - nameStart - 5);
     if (ExampleOptions::kText == exampleOptions) {
