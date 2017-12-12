@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "87670d85_5a54f7e4",
+        "filename": "src/gpu/glsl/GrGLSLUniformHandler.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-12-12T15:07:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "51af6317_0f7c6647",
+      "range": {
+        "startLine": 16,
+        "startChar": 29,
+        "endLine": 16,
+        "endChar": 32
+      },
+      "revId": "855c17536525a2fe9bfad5d505ecbfc6d3da4f9a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e5136fa3_0932dbda",
         "filename": "src/gpu/glsl/GrGLSLVertexGeoBuilder.cpp",
         "patchSetId": 8
@@ -39,6 +63,24 @@
       "revId": "855c17536525a2fe9bfad5d505ecbfc6d3da4f9a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "686f91db_bca9ca2e",
+        "filename": "src/gpu/glsl/GrGLSLVertexGeoBuilder.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-12-12T15:07:56Z",
+      "side": 1,
+      "message": "I swear I remember fixing this. Oh well, re-fixed.",
+      "parentUuid": "e5136fa3_0932dbda",
+      "revId": "855c17536525a2fe9bfad5d505ecbfc6d3da4f9a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -62,6 +104,30 @@
       "revId": "855c17536525a2fe9bfad5d505ecbfc6d3da4f9a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "50abddf9_467a76a0",
+        "filename": "tests/SkSLGLSLTest.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 1691,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-12-12T15:07:56Z",
+      "side": 1,
+      "message": "Added a couple of asserts to catch it.",
+      "parentUuid": "a5d79c52_031de032",
+      "range": {
+        "startLine": 1691,
+        "startChar": 18,
+        "endLine": 1691,
+        "endChar": 23
+      },
+      "revId": "855c17536525a2fe9bfad5d505ecbfc6d3da4f9a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
