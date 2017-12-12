@@ -9,6 +9,7 @@
 
 #include "GrBackendSemaphore.h"
 #include "GrBackendSurface.h"
+#include "GrContext.h"
 #include "GrContextOptions.h"
 #include "GrGeometryProcessor.h"
 #include "GrGpuResourceCacheAccess.h"
@@ -80,7 +81,8 @@ sk_sp<GrGpu> GrVkGpu::Make(GrBackendContext backendContext, const GrContextOptio
 }
 
 sk_sp<GrGpu> GrVkGpu::Make(sk_sp<const GrVkBackendContext> backendContext,
-                           const GrContextOptions& options, GrContext* context) {
+                           const GrContextOptions& options,
+                           GrContext* context) {
     if (!backendContext) {
         return nullptr;
     }
@@ -126,7 +128,8 @@ GrVkGpu::GrVkGpu(GrContext* context, const GrContextOptions& options,
 
     fCompiler = new SkSL::Compiler();
 
-    fVkCaps.reset(new GrVkCaps(options, this->vkInterface(), fBackendContext->fPhysicalDevice,
+    fVkCaps.reset(new GrVkCaps(options, this->vkInterface(),
+                               fBackendContext->fPhysicalDevice,
                                fBackendContext->fFeatures, fBackendContext->fExtensions));
     fCaps.reset(SkRef(fVkCaps.get()));
 

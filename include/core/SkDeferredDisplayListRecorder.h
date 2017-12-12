@@ -13,8 +13,12 @@
 #include "../private/SkDeferredDisplayList.h"
 #include "../private/SkSurfaceCharacterization.h"
 
+class GrContext;
+
 class SkCanvas;
-class SkSurface; // TODO: remove
+class SkSurface;
+
+#define SK_RASTER_RECORDER_IMPLEMENTATION 1
 
 /*
  * This class is intended to be used as:
@@ -44,9 +48,13 @@ public:
     std::unique_ptr<SkDeferredDisplayList> detach();
 
 private:
-    const SkSurfaceCharacterization fCharacterization;
+    bool init();
 
-    sk_sp<SkSurface> fSurface; // temporary until we have a real implementation
+    const SkSurfaceCharacterization fCharacterization;
+#ifndef SK_RASTER_RECORDER_IMPLEMENTATION
+    sk_sp<GrContext> fContext;
+#endif
+    sk_sp<SkSurface> fSurface;
 };
 
 #endif
