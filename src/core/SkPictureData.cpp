@@ -278,59 +278,6 @@ void SkPictureData::flattenToBuffer(SkWriteBuffer& buffer) const {
     }
 }
 
-void SkPictureData::serialize(SkWStream* stream, const SkSerialProcs& procs,
-                              SkRefCntSet* topLevelTypeFaceSet) const {
-    // This can happen at pretty much any time, so might as well do it first.
-    write_tag_size(stream, SK_PICT_READER_TAG, fOpData->size());
-    stream->write(fOpData->bytes(), fOpData->size());
-
-    // We serialize all typefaces into the typeface section of the top-level picture.
-    SkRefCntSet localTypefaceSet;
-    SkRefCntSet* typefaceSet = topLevelTypeFaceSet ? topLevelTypeFaceSet : &localTypefaceSet;
-
-    // We delay serializing the bulk of our data until after we've serialized
-    // factories and typefaces by first serializing to an in-memory write buffer.
-    SkFactorySet factSet;  // buffer refs factSet, so factSet must come first.
-    SkBinaryWriteBuffer buffer(SkBinaryWriteBuffer::kCrossProcess_Flag);
-    buffer.setFactoryRecorder(&factSet);
-    buffer.setSerialProcs(procs);
-    buffer.setTypefaceRecorder(typefaceSet);
-    this->flattenToBuffer(buffer);
-
-    // Dummy serialize our sub-pictures for the side effect of filling
-    // typefaceSet with typefaces from sub-pictures.
-    struct DevNull: public SkWStream {
-        DevNull() : fBytesWritten(0) {}
-        size_t fBytesWritten;
-        bool write(const void*, size_t size) override { fBytesWritten += size; return true; }
-        size_t bytesWritten() const override { return fBytesWritten; }
-    } devnull;
-    for (int i = 0; i < fPictureCount; i++) {
-        fPictureRefs[i]->serialize(&devnull, procs, typefaceSet);
-    }
-
-    // We need to write factories before we write the buffer.
-    // We need to write typefaces before we write the buffer or any sub-picture.
-    WriteFactories(stream, factSet);
-    if (typefaceSet == &localTypefaceSet) {
-        WriteTypefaces(stream, *typefaceSet);
-    }
-
-    // Write the buffer.
-    write_tag_size(stream, SK_PICT_BUFFER_SIZE_TAG, buffer.bytesWritten());
-    buffer.writeToStream(stream);
-
-    // Write sub-pictures by calling serialize again.
-    if (fPictureCount > 0) {
-        write_tag_size(stream, SK_PICT_PICTURE_TAG, fPictureCount);
-        for (int i = 0; i < fPictureCount; i++) {
-            fPictureRefs[i]->serialize(stream, procs, typefaceSet);
-        }
-    }
-
-    stream->write32(SK_PICT_EOF_TAG);
-}
-
 void SkPictureData::flatten(SkWriteBuffer& buffer) const {
     write_tag_size(buffer, SK_PICT_READER_TAG, fOpData->size());
     buffer.writeByteArray(fOpData->bytes(), fOpData->size());

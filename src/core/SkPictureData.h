@@ -85,7 +85,6 @@ public:
 
     virtual ~SkPictureData();
 
-    void serialize(SkWStream*, const SkSerialProcs&, SkRefCntSet*) const;
     void flatten(SkWriteBuffer&) const;
 
     bool containsBitmaps() const;

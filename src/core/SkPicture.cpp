@@ -223,17 +223,20 @@ sk_sp<SkData> SkPicture::serialize(const SkSerialProcs& procs) const {
 }
 
 void SkPicture::serialize(SkWStream* stream, const SkSerialProcs& procs,
-                          SkRefCntSet* typefaceSet) const {
-    SkPictInfo info = this->createHeader();
-    std::unique_ptr<SkPictureData> data(this->backport());
+                          SkRefCntSet* topLevelTypeFaceSet) const {
+    // We serialize all typefaces into the typeface section of the top-level picture.
+    SkRefCntSet localTypefaceSet;
+    SkRefCntSet* typefaceSet = topLevelTypeFaceSet ? topLevelTypeFaceSet : &localTypefaceSet;
 
-    stream->write(&info, sizeof(info));
-    if (data) {
-        stream->writeBool(true);
-        data->serialize(stream, procs, typefaceSet);
-    } else {
-        stream->writeBool(false);
-    }
+    // We delay serializing the bulk of our data until after we've serialized
+    // factories and typefaces by first serializing to an in-memory write buffer.
+    SkFactorySet factSet;  // buffer refs factSet, so factSet must come first.
+    SkBinaryWriteBuffer buffer(SkBinaryWriteBuffer::kCrossProcess_Flag);
+    buffer.setFactoryRecorder(&factSet);
+    buffer.setSerialProcs(procs);
+    buffer.setTypefaceRecorder(typefaceSet);
+
+    this->flatten(buffer);
 }
 
 void SkPicture::flatten(SkWriteBuffer& buffer) const {
