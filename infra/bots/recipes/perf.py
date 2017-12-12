@@ -461,7 +461,7 @@ def GenTests(api):
                                      'svg', 'VERSION'),
         api.path['start_dir'].join('tmp', 'uninteresting_hashes.txt')
     ) +
-    api.step_data('Scale CPU 2 to 0.600000', retcode=1)
+    api.step_data('Scale CPU 0 to 0.600000', retcode=1)
   )
 
   yield (
@@ -480,7 +480,7 @@ def GenTests(api):
                                      'svg', 'VERSION'),
         api.path['start_dir'].join('tmp', 'uninteresting_hashes.txt')
     ) +
-    api.step_data('Scale CPU 2 to 0.600000', retcode=1)+
-    api.step_data('Scale CPU 2 to 0.600000 (attempt 2)', retcode=1)+
-    api.step_data('Scale CPU 2 to 0.600000 (attempt 3)', retcode=1)
+    api.step_data('Scale CPU 0 to 0.600000', retcode=1)+
+    api.step_data('Scale CPU 0 to 0.600000 (attempt 2)', retcode=1)+
+    api.step_data('Scale CPU 0 to 0.600000 (attempt 3)', retcode=1)
   )

@@ -88,6 +88,19 @@ class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
     'Pixel2XL': [4, 0]
   }
 
+  # Maps device -> number of cores. TODO(kjlubick) if we want to do this
+  # long term, compute this dynamically.
+  total_cpus = {
+    'AndroidOne': 4,
+    'Nexus5': 4,
+    'Nexus7': 4,
+    'Nexus5x': 6,
+    'NexusPlayer': 4,
+    'Pixel': 4,
+    'Pixel2XL': 8,
+    'PixelC': 4,
+  }
+
   def _scale_for_dm(self):
     device = self.m.vars.builder_cfg.get('model')
     if (device in self.rootable_blacklist or
@@ -107,18 +120,14 @@ class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
       self.m.vars.internal_hardware_label):
       return
 
-    cpus = self.cpus_to_scale.get(device, [0])
+    # Scale just the first two cpus.
+    self._set_governor(0, 'userspace')
+    self._scale_cpu(0, 0.6)
 
-    for i in cpus[1:]:
+    for i in range(2, self.total_cpus[device]):
       # NexusPlayer only has "ondemand userspace interactive performance"
-      if device == 'NexusPlayer':
-        self._set_governor(i, 'interactive')
-      else:
-        self._set_governor(i, 'powersave')
+      self._disable_cpu(i)
 
-    # Scale just the first (primary) cpu.
-    self._set_governor(cpus[0], 'userspace')
-    self._scale_cpu(cpus[0], 0.6)
 
   def _set_governor(self, cpu, gov):
     self._ever_ran_adb = True
@@ -149,6 +158,38 @@ if actual_gov != gov:
                   % (actual_gov, gov))
 """,
         args = [self.ADB_BINARY, cpu, gov],
+        infra_step=True,
+        timeout=30)
+
+
+  def _disable_cpu(self, cpu):
+    self._ever_ran_adb = True
+    self.m.run.with_retry(self.m.python.inline,
+        'Disabling CPU %d' % cpu,
+        3, # attempts
+        program="""
+import os
+import subprocess
+import sys
+import time
+ADB = sys.argv[1]
+cpu = int(sys.argv[2])
+
+log = subprocess.check_output([ADB, 'root'])
+# check for message like 'adbd cannot run as root in production builds'
+print log
+if 'cannot' in log:
+  raise Exception('adb root failed')
+
+subprocess.check_output([ADB, 'shell', 'echo 0 > '
+    '/sys/devices/system/cpu/cpu%d/online' % cpu])
+actual_status = subprocess.check_output([ADB, 'shell', 'cat '
+    '/sys/devices/system/cpu/cpu%d/online' % cpu]).strip()
+if actual_status != str(0):
+  raise Exception('(actual, expected) (%s, %d)'
+                  % (actual_gov, gov))
+""",
+        args = [self.ADB_BINARY, cpu],
         infra_step=True,
         timeout=30)
 
