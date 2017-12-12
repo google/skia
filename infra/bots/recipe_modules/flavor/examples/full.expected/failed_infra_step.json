@@ -642,10 +642,10 @@
     "cmd": [
       "python",
       "-u",
-      "\nimport os\nimport subprocess\nimport sys\nimport time\nADB = sys.argv[1]\ncpu = int(sys.argv[2])\ngov = sys.argv[3]\n\nlog = subprocess.check_output([ADB, 'root'])\n# check for message like 'adbd cannot run as root in production builds'\nprint log\nif 'cannot' in log:\n  raise Exception('adb root failed')\n\nsubprocess.check_output([ADB, 'shell', 'echo \"%s\" > '\n    '/sys/devices/system/cpu/cpu%d/cpufreq/scaling_governor' % (gov, cpu)])\nactual_gov = subprocess.check_output([ADB, 'shell', 'cat '\n    '/sys/devices/system/cpu/cpu%d/cpufreq/scaling_governor' % cpu]).strip()\nif actual_gov != str(gov):\n  raise Exception('(actual, expected) (%s, %d)'\n                  % (actual_gov, gov))\n",
+      "\nimport os\nimport subprocess\nimport sys\nimport time\nADB = sys.argv[1]\ncpu = int(sys.argv[2])\ngov = sys.argv[3]\n\nlog = subprocess.check_output([ADB, 'root'])\n# check for message like 'adbd cannot run as root in production builds'\nprint log\nif 'cannot' in log:\n  raise Exception('adb root failed')\n\nsubprocess.check_output([ADB, 'shell', 'echo \"%s\" > '\n    '/sys/devices/system/cpu/cpu%d/cpufreq/scaling_governor' % (gov, cpu)])\nactual_gov = subprocess.check_output([ADB, 'shell', 'cat '\n    '/sys/devices/system/cpu/cpu%d/cpufreq/scaling_governor' % cpu]).strip()\nif actual_gov != gov:\n  raise Exception('(actual, expected) (%s, %s)'\n                  % (actual_gov, gov))\n",
       "/usr/bin/adb.1.0.35",
       "0",
-      "powersave"
+      "interactive"
     ],
     "env": {
       "BUILDTYPE": "Debug",
@@ -654,7 +654,7 @@
       "SKIA_OUT": "[START_DIR]/out"
     },
     "infra_step": true,
-    "name": "Set CPU 0's governor to powersave",
+    "name": "Set CPU 0's governor to interactive",
     "timeout": 30,
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@@@@",
@@ -676,8 +676,8 @@
       "@@@STEP_LOG_LINE@python.inline@    '/sys/devices/system/cpu/cpu%d/cpufreq/scaling_governor' % (gov, cpu)])@@@",
       "@@@STEP_LOG_LINE@python.inline@actual_gov = subprocess.check_output([ADB, 'shell', 'cat '@@@",
       "@@@STEP_LOG_LINE@python.inline@    '/sys/devices/system/cpu/cpu%d/cpufreq/scaling_governor' % cpu]).strip()@@@",
-      "@@@STEP_LOG_LINE@python.inline@if actual_gov != str(gov):@@@",
-      "@@@STEP_LOG_LINE@python.inline@  raise Exception('(actual, expected) (%s, %d)'@@@",
+      "@@@STEP_LOG_LINE@python.inline@if actual_gov != gov:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  raise Exception('(actual, expected) (%s, %s)'@@@",
       "@@@STEP_LOG_LINE@python.inline@                  % (actual_gov, gov))@@@",
       "@@@STEP_LOG_END@python.inline@@@"
     ]
@@ -686,7 +686,7 @@
     "cmd": [
       "python",
       "-u",
-      "\nimport os\nimport subprocess\nimport sys\nimport time\nADB = sys.argv[1]\ncpu = int(sys.argv[2])\ngov = sys.argv[3]\n\nlog = subprocess.check_output([ADB, 'root'])\n# check for message like 'adbd cannot run as root in production builds'\nprint log\nif 'cannot' in log:\n  raise Exception('adb root failed')\n\nsubprocess.check_output([ADB, 'shell', 'echo \"%s\" > '\n    '/sys/devices/system/cpu/cpu%d/cpufreq/scaling_governor' % (gov, cpu)])\nactual_gov = subprocess.check_output([ADB, 'shell', 'cat '\n    '/sys/devices/system/cpu/cpu%d/cpufreq/scaling_governor' % cpu]).strip()\nif actual_gov != str(gov):\n  raise Exception('(actual, expected) (%s, %d)'\n                  % (actual_gov, gov))\n",
+      "\nimport os\nimport subprocess\nimport sys\nimport time\nADB = sys.argv[1]\ncpu = int(sys.argv[2])\ngov = sys.argv[3]\n\nlog = subprocess.check_output([ADB, 'root'])\n# check for message like 'adbd cannot run as root in production builds'\nprint log\nif 'cannot' in log:\n  raise Exception('adb root failed')\n\nsubprocess.check_output([ADB, 'shell', 'echo \"%s\" > '\n    '/sys/devices/system/cpu/cpu%d/cpufreq/scaling_governor' % (gov, cpu)])\nactual_gov = subprocess.check_output([ADB, 'shell', 'cat '\n    '/sys/devices/system/cpu/cpu%d/cpufreq/scaling_governor' % cpu]).strip()\nif actual_gov != gov:\n  raise Exception('(actual, expected) (%s, %s)'\n                  % (actual_gov, gov))\n",
       "/usr/bin/adb.1.0.35",
       "2",
       "userspace"
@@ -720,8 +720,8 @@
       "@@@STEP_LOG_LINE@python.inline@    '/sys/devices/system/cpu/cpu%d/cpufreq/scaling_governor' % (gov, cpu)])@@@",
       "@@@STEP_LOG_LINE@python.inline@actual_gov = subprocess.check_output([ADB, 'shell', 'cat '@@@",
       "@@@STEP_LOG_LINE@python.inline@    '/sys/devices/system/cpu/cpu%d/cpufreq/scaling_governor' % cpu]).strip()@@@",
-      "@@@STEP_LOG_LINE@python.inline@if actual_gov != str(gov):@@@",
-      "@@@STEP_LOG_LINE@python.inline@  raise Exception('(actual, expected) (%s, %d)'@@@",
+      "@@@STEP_LOG_LINE@python.inline@if actual_gov != gov:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  raise Exception('(actual, expected) (%s, %s)'@@@",
       "@@@STEP_LOG_LINE@python.inline@                  % (actual_gov, gov))@@@",
       "@@@STEP_LOG_END@python.inline@@@"
     ]

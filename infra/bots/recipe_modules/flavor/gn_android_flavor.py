@@ -95,7 +95,11 @@ class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
       return
 
     for i in self.cpus_to_scale.get(device, [0]):
-      self._set_governor(i, 'ondemand')
+      # AndroidOne doesn't support ondemand governor. hotplug is similar.
+      if device == 'AndroidOne':
+        self._set_governor(i, 'hotplug')
+      else:
+        self._set_governor(i, 'ondemand')
 
   def _scale_for_nanobench(self):
     device = self.m.vars.builder_cfg.get('model')
@@ -106,7 +110,11 @@ class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
     cpus = self.cpus_to_scale.get(device, [0])
 
     for i in cpus[1:]:
-      self._set_governor(i, 'powersave')
+      # NexusPlayer only has "ondemand userspace interactive performance"
+      if device == 'NexusPlayer':
+        self._set_governor(i, 'interactive')
+      else:
+        self._set_governor(i, 'powersave')
 
     # Scale just the first (primary) cpu.
     self._set_governor(cpus[0], 'userspace')
@@ -136,8 +144,8 @@ subprocess.check_output([ADB, 'shell', 'echo "%s" > '
     '/sys/devices/system/cpu/cpu%d/cpufreq/scaling_governor' % (gov, cpu)])
 actual_gov = subprocess.check_output([ADB, 'shell', 'cat '
     '/sys/devices/system/cpu/cpu%d/cpufreq/scaling_governor' % cpu]).strip()
-if actual_gov != str(gov):
-  raise Exception('(actual, expected) (%s, %d)'
+if actual_gov != gov:
+  raise Exception('(actual, expected) (%s, %s)'
                   % (actual_gov, gov))
 """,
         args = [self.ADB_BINARY, cpu, gov],
