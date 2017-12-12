@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "7828aec5_6f75eb5f",
+        "filename": "platform_tools/android/.gitignore",
+        "patchSetId": 3
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-12-12T22:40:38Z",
+      "side": 1,
+      "message": "the gmkb assets",
+      "parentUuid": "4eb3db27_bf6ee3f1",
+      "revId": "37d19aed23eefbe33ae4d7b81e48347ca5f4df76",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a54e617e_e589fc62",
         "filename": "platform_tools/android/apps/skqp/build.gradle",
         "patchSetId": 3
@@ -33,6 +51,24 @@
       "revId": "37d19aed23eefbe33ae4d7b81e48347ca5f4df76",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4d3a1a8c_30585058",
+        "filename": "platform_tools/android/apps/skqp/build.gradle",
+        "patchSetId": 3
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-12-12T22:40:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a54e617e_e589fc62",
+      "revId": "37d19aed23eefbe33ae4d7b81e48347ca5f4df76",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "a4e3306e_b74701cc",
+        "filename": "platform_tools/android/apps/skqp/src/main/AndroidManifest.xml",
+        "patchSetId": 3
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-12-12T22:40:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8ffb473a_eb525f25",
+      "revId": "37d19aed23eefbe33ae4d7b81e48347ca5f4df76",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "52eeb6f5_408531f3",
         "filename": "platform_tools/android/apps/skqp/src/main/AndroidManifest.xml",
         "patchSetId": 3
@@ -67,6 +121,24 @@
       "revId": "37d19aed23eefbe33ae4d7b81e48347ca5f4df76",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3f124121_272b981f",
+        "filename": "platform_tools/android/apps/skqp/src/main/AndroidManifest.xml",
+        "patchSetId": 3
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-12-12T22:40:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "52eeb6f5_408531f3",
+      "revId": "37d19aed23eefbe33ae4d7b81e48347ca5f4df76",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "14336210_961544bf",
+        "filename": "platform_tools/android/apps/skqp/src/main/java/org/skia/skqp/SkQPRunner.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-12-12T22:40:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9d0d3a07_38da7005",
+      "revId": "37d19aed23eefbe33ae4d7b81e48347ca5f4df76",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a6bd94c5_4f05e889",
         "filename": "platform_tools/android/apps/skqp/src/main/java/org/skia/skqp/SkQPRunner.java",
         "patchSetId": 3
@@ -101,6 +191,24 @@
       "revId": "37d19aed23eefbe33ae4d7b81e48347ca5f4df76",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "19d7500d_48941d45",
+        "filename": "platform_tools/android/apps/skqp/src/main/java/org/skia/skqp/SkQPRunner.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-12-12T22:40:38Z",
+      "side": 1,
+      "message": "How about:\n    private String[] mGMs;\n    private String[] mBackends;\n    private String[] mUnitTests;",
+      "parentUuid": "a6bd94c5_4f05e889",
+      "revId": "37d19aed23eefbe33ae4d7b81e48347ca5f4df76",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -127,6 +235,30 @@
     },
     {
       "key": {
+        "uuid": "5efd96b7_74b96d94",
+        "filename": "platform_tools/android/apps/skqp/src/main/java/org/skia/skqp/SkQPRunner.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-12-12T22:40:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4600e14c_16c68b15",
+      "range": {
+        "startLine": 33,
+        "startChar": 4,
+        "endLine": 33,
+        "endChar": 10
+      },
+      "revId": "37d19aed23eefbe33ae4d7b81e48347ca5f4df76",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2d98dc03_a3c841ee",
         "filename": "platform_tools/android/apps/skqp/src/main/java/org/skia/skqp/SkQPRunner.java",
         "patchSetId": 3
@@ -141,6 +273,24 @@
       "revId": "37d19aed23eefbe33ae4d7b81e48347ca5f4df76",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d568626f_0f4a42f0",
+        "filename": "platform_tools/android/apps/skqp/src/main/java/org/skia/skqp/SkQPRunner.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-12-12T22:40:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2d98dc03_a3c841ee",
+      "revId": "37d19aed23eefbe33ae4d7b81e48347ca5f4df76",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -190,6 +340,30 @@
     },
     {
       "key": {
+        "uuid": "3c799fa2_75246edc",
+        "filename": "tools/skqp/README.md",
+        "patchSetId": 3
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-12-12T22:40:38Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "29b0215f_270e2db3",
+      "range": {
+        "startLine": 68,
+        "startChar": 55,
+        "endLine": 68,
+        "endChar": 61
+      },
+      "revId": "37d19aed23eefbe33ae4d7b81e48347ca5f4df76",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "36fc2d01_f18024fc",
         "filename": "tools/skqp/jni/org_skia_skqp_SkQPRunner.cpp",
         "patchSetId": 3
@@ -204,6 +378,24 @@
       "revId": "37d19aed23eefbe33ae4d7b81e48347ca5f4df76",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "11b70400_a5cf6f3b",
+        "filename": "tools/skqp/jni/org_skia_skqp_SkQPRunner.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-12-12T22:40:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "36fc2d01_f18024fc",
+      "revId": "37d19aed23eefbe33ae4d7b81e48347ca5f4df76",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
