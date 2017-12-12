@@ -47,7 +47,7 @@
     "hash": "fe79a9c1ec350264eb9c7b2509dd3638",
     "file": "SkBitmap_Reference",
     "name": "SkBitmap::HeapAllocator::allocPixelRef",
-        "stdout": "pixel address = (nil)\\npixel address = 0x55ec5691a670\\n"
+        "stdout": "pixel address = (nil)\\npixel address = 0x560ddd0ac670\\n"
     },
         "SkBitmap_alphaType": {
     "code": "void draw(SkCanvas* canvas) {\n    const char* alphas[] = {\"Unknown\", \"Opaque\", \"Premul\", \"Unpremul\"};\n    SkPixmap pixmap(SkImageInfo::MakeA8(16, 32), nullptr, 64);\n    SkDebugf(\"alpha type: k\" \"%s\" \"_SkAlphaType\\n\", alphas[pixmap.alphaType()]);\n}",
@@ -173,7 +173,7 @@
     "hash": "db9dd91e0207c3941c09538555817b4b",
     "file": "SkBitmap_Reference",
     "name": "SkBitmap::getGenerationID",
-        "stdout": "empty id 0\\nalloc id 2\\nerase id 4\\n"
+        "stdout": "empty id 0\\nalloc id 4\\nerase id 6\\n"
     },
         "SkBitmap_getPixels": {
     "code": "void draw(SkCanvas* canvas) {\n    SkBitmap bitmap;\n    bitmap.setInfo(SkImageInfo::MakeN32(4, 4, kPremul_SkAlphaType));\n    bitmap.allocPixels();\n    bitmap.eraseColor(0x00000000);\n    void* baseAddr = bitmap.getPixels();\n    *(SkPMColor*)baseAddr = 0xFFFFFFFF;\n    SkDebugf(\"bitmap.getColor(0, 1) %c= 0x00000000\\n\",\n              bitmap.getColor(0, 1)  == 0x00000000 ? '=' : '!');\n    SkDebugf(\"bitmap.getColor(0, 0) %c= 0xFFFFFFFF\\n\",\n              bitmap.getColor(0, 0)  == 0xFFFFFFFF ? '=' : '!');\n}",
@@ -1986,7 +1986,7 @@
     "hash": "eb5fa5bea23059ce538e883502f828f5",
     "file": "SkPath_Reference",
     "name": "SkPath::RawIter::peek()",
-        "stdout": "peek Move == verb Move\\npeek Quad == verb Quad\\npeek Conic == verb Conic\\npeek Done != verb Cubic\\npeek Done == verb Done\\npeek Done == verb Done\\n"
+        "stdout": "peek Move == verb Move\\npeek Quad == verb Quad\\npeek Conic == verb Conic\\npeek Cubic == verb Cubic\\npeek Done == verb Done\\npeek Done == verb Done\\n"
     },
         "SkPath_SegmentMask": {
     "code": "void draw(SkCanvas* canvas) {\n    SkPath path;\n    path.conicTo(10, 10, 20, 30, 1);\n    SkDebugf(\"Path kConic_SegmentMask is %s\\n\", path.getSegmentMasks() & \n          SkPath::kConic_SegmentMask ? \"set\" : \"clear\");\n    SkDebugf(\"Path kQuad_SegmentMask is %s\\n\", path.getSegmentMasks() & \n          SkPath::kQuad_SegmentMask ? \"set\" : \"clear\");\n}",
@@ -2280,7 +2280,7 @@
     "hash": "bb761cd858e6d0ca05627262cd22ff5e",
     "file": "SkPath_Reference",
     "name": "SkPath::updateBoundsCache",
-        "stdout": "uncached avg: 0.212736 ms\\ncached avg: 0.209408 ms\\n"
+        "stdout": "uncached avg: 0.18048 ms\\ncached avg: 0.182784 ms\\n"
     },
         "SkPath_writeToMemory": {
     "code": "void draw(SkCanvas* canvas) {\n    SkPath path, copy;\n    path.lineTo(6.f / 7, 2.f / 3);\n    size_t size = path.writeToMemory(nullptr);\n    SkTDArray<char> storage;\n    storage.setCount(size);\n    path.writeToMemory(storage.begin());\n    copy.readFromMemory(storage.begin(), size);\n    SkDebugf(\"path is \" \"%s\" \"equal to copy\\n\", path == copy ? \"\" : \"not \");\n}\n",
@@ -2294,7 +2294,7 @@
     "hash": "17bcabaaee2dbb7beba562e9ca50b55e",
     "file": "SkPixmap_Reference",
     "name": "SkPixmap::addr()",
-        "stdout": "pixels address: 0x7fc70296c010\\ninset address:  0x7fc7029ac210\\n"
+        "stdout": "pixels address: 0x7f2a440bb010\\ninset address:  0x7f2a440fb210\\n"
     },
         "SkPixmap_addr16": {
     "code": "void draw(SkCanvas* canvas) {\n    const int w = 4;\n    const int h = 4;\n    uint16_t storage[w * h];\n    SkPixmap pixmap(SkImageInfo::Make(w, h, kARGB_4444_SkColorType, kPremul_SkAlphaType),\n                    storage, w * sizeof(storage[0]));\n    SkDebugf(\"pixmap.addr16() %c= storage\\n\",\n              pixmap.addr16()  == storage ? '=' : '!');\n}",
@@ -2784,7 +2784,7 @@
     "hash": "6dbf21017c60b76cae3379fd9101342a",
     "file": "SkRect_Reference",
     "name": "SkRect::growToInclude_3",
-        "stdout": "rect: -1.75032e-36, -1.75032e-36, 3.85186e-34, 4"
+        "stdout": "rect: 30, 50, 40, 60  \\n"
     },
         "SkRect_height": {
     "code": "void draw(SkCanvas* canvas) {\n    SkRect unsorted = { 15, 25, 10, 20 };\n    SkDebugf(\"unsorted height: %g\\n\", unsorted.height());\n    SkRect large = { 1, -2147483647.f, 2, 2147483644.f };\n    SkDebugf(\"large height: %.0f\\n\", large.height());\n}",

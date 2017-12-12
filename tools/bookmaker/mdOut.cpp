@@ -212,9 +212,6 @@ string MdOut::addReferences(const char* refStart, const char* refEnd,
                 continue;
             }
         }
-        if ("RasterReleaseProc" == ref) {
-            SkDebugf("");
-        }
         Definition* test = fRoot;
         do {
             if (!test->isRoot()) {
