@@ -163,7 +163,7 @@ static SkPM4f* convert_colors(const SkColor src[], int count, SkColorSpace* devi
         }
     } else {
         auto srcCS = SkColorSpace::MakeSRGB();
-        auto dstCS = as_CSB(deviceCS)->makeLinearGamma();
+        auto dstCS = deviceCS->makeLinearGamma();
         SkColorSpaceXform::Apply(dstCS.get(), SkColorSpaceXform::kRGBA_F32_ColorFormat, dst,
                                  srcCS.get(), SkColorSpaceXform::kBGRA_8888_ColorFormat, src,
                                  count, SkColorSpaceXform::kPremul_AlphaOp);

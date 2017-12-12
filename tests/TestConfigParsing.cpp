@@ -158,10 +158,9 @@ DEF_TEST(ParseConfigs_DefaultConfigs, reporter) {
     REPORTER_ASSERT(reporter, configs[24]->asConfigGpu()->getColorType() == kRGBA_F16_SkColorType);
     REPORTER_ASSERT(reporter, configs[24]->asConfigGpu()->getColorSpace());
     REPORTER_ASSERT(reporter, configs[24]->asConfigGpu()->getColorSpace()->gammaIsLinear());
-    const SkMatrix44* srgbXYZ = as_CSB(srgbColorSpace)->toXYZD50();
+    const SkMatrix44* srgbXYZ = srgbColorSpace->toXYZD50();
     SkASSERT(srgbXYZ);
-    const SkMatrix44* config25XYZ =
-            as_CSB(configs[24]->asConfigGpu()->getColorSpace())->toXYZD50();
+    const SkMatrix44* config25XYZ = configs[24]->asConfigGpu()->getColorSpace()->toXYZD50();
     SkASSERT(config25XYZ);
     REPORTER_ASSERT(reporter, *config25XYZ == *srgbXYZ);
     REPORTER_ASSERT(reporter, configs[25]->asConfigGpu()->getColorType() == kRGBA_8888_SkColorType);
@@ -169,15 +168,14 @@ DEF_TEST(ParseConfigs_DefaultConfigs, reporter) {
     REPORTER_ASSERT(reporter, configs[32]->asConfigGpu()->getColorType() == kRGBA_F16_SkColorType);
     REPORTER_ASSERT(reporter, configs[32]->asConfigGpu()->getColorSpace());
     REPORTER_ASSERT(reporter, configs[32]->asConfigGpu()->getColorSpace()->gammaIsLinear());
-    const SkMatrix44* config41XYZ =
-            as_CSB(configs[32]->asConfigGpu()->getColorSpace())->toXYZD50();
+    const SkMatrix44* config41XYZ = configs[32]->asConfigGpu()->getColorSpace()->toXYZD50();
     SkASSERT(config41XYZ);
     REPORTER_ASSERT(reporter, *config41XYZ != *srgbXYZ);
     REPORTER_ASSERT(reporter, configs[33]->asConfigGpu()->getColorType() == kRGBA_F16_SkColorType);
     REPORTER_ASSERT(reporter, configs[33]->asConfigGpu()->getColorSpace());
     REPORTER_ASSERT(reporter, configs[33]->asConfigGpu()->getColorSpace()->gammaIsLinear());
-    REPORTER_ASSERT(reporter, *as_CSB(configs[33]->asConfigGpu()->getColorSpace())->toXYZD50() !=
-                    *as_CSB(srgbColorSpace)->toXYZD50());
+    REPORTER_ASSERT(reporter, *configs[33]->asConfigGpu()->getColorSpace()->toXYZD50() !=
+                    *srgbColorSpace->toXYZD50());
     REPORTER_ASSERT(reporter, configs[34]->asConfigGpu()->getContextType() ==
                               GrContextFactory::kGL_ContextType);
     REPORTER_ASSERT(reporter, SkToBool(configs[34]->asConfigGpu()->getContextOverrides() &

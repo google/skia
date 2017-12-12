@@ -31,7 +31,7 @@ sk_sp<SkColorSpace> fix_for_colortype(sk_sp<SkColorSpace> colorSpace, SkColorTyp
             return SkColorSpace::MakeSRGBLinear();
         }
 
-        return as_CSB(colorSpace)->makeLinearGamma();
+        return colorSpace->makeLinearGamma();
     }
 
     return colorSpace;
