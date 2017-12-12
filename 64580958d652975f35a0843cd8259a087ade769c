@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b35558d0_355c7ab9",
+        "filename": "src/core/SkBlurImageFilter.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 467,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-12-12T21:39:08Z",
+      "side": 1,
+      "message": "nit: dst.eraseColor(0) is easier to think about, and hopefully equivalent.",
+      "revId": "64580958d652975f35a0843cd8259a087ade769c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
