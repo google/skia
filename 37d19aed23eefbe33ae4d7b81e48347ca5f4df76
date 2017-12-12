@@ -1,0 +1,209 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4eb3db27_bf6ee3f1",
+        "filename": "platform_tools/android/.gitignore",
+        "patchSetId": 3
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-12-12T18:56:51Z",
+      "side": 1,
+      "message": "what is being put in here?",
+      "revId": "37d19aed23eefbe33ae4d7b81e48347ca5f4df76",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a54e617e_e589fc62",
+        "filename": "platform_tools/android/apps/skqp/build.gradle",
+        "patchSetId": 3
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-12-12T18:56:51Z",
+      "side": 1,
+      "message": "drop mips and mips64",
+      "revId": "37d19aed23eefbe33ae4d7b81e48347ca5f4df76",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8ffb473a_eb525f25",
+        "filename": "platform_tools/android/apps/skqp/src/main/AndroidManifest.xml",
+        "patchSetId": 3
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-12-12T18:56:51Z",
+      "side": 1,
+      "message": "drop this comment",
+      "revId": "37d19aed23eefbe33ae4d7b81e48347ca5f4df76",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "52eeb6f5_408531f3",
+        "filename": "platform_tools/android/apps/skqp/src/main/AndroidManifest.xml",
+        "patchSetId": 3
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-12-12T18:56:51Z",
+      "side": 1,
+      "message": "and this one",
+      "revId": "37d19aed23eefbe33ae4d7b81e48347ca5f4df76",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9d0d3a07_38da7005",
+        "filename": "platform_tools/android/apps/skqp/src/main/java/org/skia/skqp/SkQPRunner.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-12-12T18:56:51Z",
+      "side": 1,
+      "message": "convention is to prefix the native calls with \u0027n\u0027 to make it clearer to the reader in other functions.  For example this method would be renamed nInit()",
+      "revId": "37d19aed23eefbe33ae4d7b81e48347ca5f4df76",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a6bd94c5_4f05e889",
+        "filename": "platform_tools/android/apps/skqp/src/main/java/org/skia/skqp/SkQPRunner.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-12-12T18:56:51Z",
+      "side": 1,
+      "message": "String[] nGetGMNames();\nString[] nGetBackendNames();\nString[] nGetUnitTestNames();\n\nthen you can remove your mGMCount, mBackendCount, and mUnitTestCount variables.",
+      "revId": "37d19aed23eefbe33ae4d7b81e48347ca5f4df76",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4600e14c_16c68b15",
+        "filename": "platform_tools/android/apps/skqp/src/main/java/org/skia/skqp/SkQPRunner.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-12-12T18:56:51Z",
+      "side": 1,
+      "message": "these variables should be private",
+      "range": {
+        "startLine": 33,
+        "startChar": 4,
+        "endLine": 33,
+        "endChar": 10
+      },
+      "revId": "37d19aed23eefbe33ae4d7b81e48347ca5f4df76",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2d98dc03_a3c841ee",
+        "filename": "platform_tools/android/apps/skqp/src/main/java/org/skia/skqp/SkQPRunner.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-12-12T18:56:51Z",
+      "side": 1,
+      "message": "remove this",
+      "revId": "37d19aed23eefbe33ae4d7b81e48347ca5f4df76",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "605e18f9_41d77b8a",
+        "filename": "platform_tools/android/apps/skqp/src/main/java/org/skia/skqp/SkQPRunner.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-12-12T18:56:51Z",
+      "side": 1,
+      "message": "pass the mAssetManager as a param to this function.",
+      "range": {
+        "startLine": 57,
+        "startChar": 18,
+        "endLine": 57,
+        "endChar": 19
+      },
+      "revId": "37d19aed23eefbe33ae4d7b81e48347ca5f4df76",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "29b0215f_270e2db3",
+        "filename": "tools/skqp/README.md",
+        "patchSetId": 3
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-12-12T18:56:51Z",
+      "side": 1,
+      "message": "res/raw",
+      "range": {
+        "startLine": 68,
+        "startChar": 55,
+        "endLine": 68,
+        "endChar": 61
+      },
+      "revId": "37d19aed23eefbe33ae4d7b81e48347ca5f4df76",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "36fc2d01_f18024fc",
+        "filename": "tools/skqp/jni/org_skia_skqp_SkQPRunner.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-12-12T18:56:51Z",
+      "side": 1,
+      "message": "just pass the object down through the method call instead of doing the extra work to look it up.",
+      "revId": "37d19aed23eefbe33ae4d7b81e48347ca5f4df76",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
