@@ -1143,9 +1143,7 @@ static void test_conversion_possible(skiatest::Reporter* r, const char* path,
                         || SkCodec::kInvalidConversion == result);
     }
 
-    SkASSERT(SkColorSpace_Base::Type::kXYZ == as_CSB(infoF16.colorSpace())->type());
-    SkColorSpace_XYZ* csXYZ = static_cast<SkColorSpace_XYZ*>(infoF16.colorSpace());
-    infoF16 = infoF16.makeColorSpace(csXYZ->makeLinearGamma());
+    infoF16 = infoF16.makeColorSpace(infoF16.colorSpace()->makeLinearGamma());
     result = codec->getPixels(infoF16, bm.getPixels(), bm.rowBytes());
     REPORTER_ASSERT(r, SkCodec::kSuccess == result);
     result = codec->startScanlineDecode(infoF16);

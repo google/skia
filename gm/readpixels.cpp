@@ -41,7 +41,7 @@ static void clamp_if_necessary(const SkImageInfo& info, void* pixels) {
 
 sk_sp<SkColorSpace> fix_for_colortype(SkColorSpace* colorSpace, SkColorType colorType) {
     if (kRGBA_F16_SkColorType == colorType) {
-        return as_CSB(colorSpace)->makeLinearGamma();
+        return colorSpace->makeLinearGamma();
     }
 
     return sk_ref_sp(colorSpace);

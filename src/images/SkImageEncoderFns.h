@@ -361,7 +361,7 @@ static inline sk_sp<SkData> icc_from_color_space(const SkImageInfo& info) {
 
     sk_sp<SkColorSpace> owned;
     if (kRGBA_F16_SkColorType == info.colorType()) {
-        owned = as_CSB(cs)->makeSRGBGamma();
+        owned = cs->makeSRGBGamma();
         cs = owned.get();
     }
 

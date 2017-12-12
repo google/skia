@@ -15,7 +15,7 @@
  *  Create a color space that swaps the red, green, and blue channels.
  */
 static sk_sp<SkColorSpace> gbr_color_space() {
-    return as_CSB(SkColorSpace::MakeSRGB())->makeColorSpin();
+    return SkColorSpace::MakeSRGB()->makeColorSpin();
 }
 
 /**
