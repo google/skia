@@ -327,13 +327,28 @@ DEF_TEST(ColorSpaceXform_A2BCLUT, r) {
     }
 }
 
+static sk_sp<SkColorSpace> make_dci_p3() {
+    // DCI P3 (D65)
+    SkColorSpacePrimaries p3;
+    p3.fRX = 0.680f;
+    p3.fRY = 0.320f;
+    p3.fGX = 0.265f;
+    p3.fGY = 0.690f;
+    p3.fBX = 0.150f;
+    p3.fBY = 0.060f;
+    p3.fWX = 0.3127f;
+    p3.fWY = 0.3290f;
+    return SkColorSpace::MakeRGB(SkColorSpace::kSRGB_RenderTargetGamma,
+                                 SkColorSpace::kDCIP3_D65_Gamut);
+}
+
 DEF_TEST(SkColorSpaceXform_LoadTail, r) {
     std::unique_ptr<uint64_t[]> srcPixel(new uint64_t[1]);
     srcPixel[0] = 0;
     uint32_t dstPixel;
-    sk_sp<SkColorSpace> adobe = SkColorSpace_Base::MakeNamed(SkColorSpace_Base::kAdobeRGB_Named);
+    sk_sp<SkColorSpace> p3 = make_dci_p3();
     sk_sp<SkColorSpace> srgb = SkColorSpace::MakeSRGB();
-    std::unique_ptr<SkColorSpaceXform> xform = SkColorSpaceXform::New(adobe.get(), srgb.get());
+    std::unique_ptr<SkColorSpaceXform> xform = SkColorSpaceXform::New(p3.get(), srgb.get());
 
     // ASAN will catch us if we read past the tail.
     bool success = xform->apply(SkColorSpaceXform::kRGBA_8888_ColorFormat, &dstPixel,
