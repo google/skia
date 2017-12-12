@@ -1,0 +1,113 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a068f4cc_321cbc76",
+        "filename": "include/core/SkWriteBuffer.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-12-12T22:49:42Z",
+      "side": 1,
+      "message": "Looking at current users, we always call this right after construction.  I\u0027m starting to think SkSerialProcs wants to be an optional ctor arg when it grows up.\n\nMaybe a follow-up, if it doesn\u0027t require changing too many signatures.",
+      "revId": "801465798952d43c3d3733c389bf3c30a0fe5624",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "957f2030_2f7f260c",
+        "filename": "include/core/SkWriteBuffer.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-12-12T22:49:42Z",
+      "side": 1,
+      "message": "uNit: extra spacing.",
+      "range": {
+        "startLine": 93,
+        "startChar": 17,
+        "endLine": 93,
+        "endChar": 20
+      },
+      "revId": "801465798952d43c3d3733c389bf3c30a0fe5624",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5201395c_554c3fd0",
+        "filename": "src/core/SkPicture.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 188,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-12-12T22:49:42Z",
+      "side": 1,
+      "message": "CF/UBSAN fodder?",
+      "range": {
+        "startLine": 188,
+        "startChar": 8,
+        "endLine": 188,
+        "endChar": 21
+      },
+      "revId": "801465798952d43c3d3733c389bf3c30a0fe5624",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a582fed5_526239cd",
+        "filename": "src/core/SkPicture.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 212,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-12-12T22:49:42Z",
+      "side": 1,
+      "message": "nit: const auto\u0026",
+      "range": {
+        "startLine": 212,
+        "startChar": 8,
+        "endLine": 212,
+        "endChar": 23
+      },
+      "revId": "801465798952d43c3d3733c389bf3c30a0fe5624",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a6134956_41901672",
+        "filename": "src/core/SkPicture.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 216,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-12-12T22:49:42Z",
+      "side": 1,
+      "message": "CF/UBSAN trigger?",
+      "range": {
+        "startLine": 216,
+        "startChar": 8,
+        "endLine": 216,
+        "endChar": 21
+      },
+      "revId": "801465798952d43c3d3733c389bf3c30a0fe5624",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
