@@ -7,6 +7,7 @@
 
 #include "GrMtlTrampoline.h"
 
+#include "GrContext.h"
 #include "GrMtlGpu.h"
 
 sk_sp<GrGpu> GrMtlTrampoline::MakeGpu(GrContext* context,
