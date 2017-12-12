@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ebf02891_b8817b70",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 561,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-12-12T18:30:53Z",
+      "side": 1,
+      "message": "Slightly interesting diff here, but results should be the same (just costs a little more).",
+      "revId": "0d48c6379cf1f7738d63ef0c165e389da3e78387",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
