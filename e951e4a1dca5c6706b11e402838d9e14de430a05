@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4a1bbac7_9e4d28c8",
+        "filename": "src/shaders/gradients/SkGradientShader.cpp",
+        "patchSetId": 24
+      },
+      "lineNbr": 1010,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-12-12T22:36:11Z",
+      "side": 0,
+      "message": "Nit: dropped unintentionally?",
+      "revId": "e951e4a1dca5c6706b11e402838d9e14de430a05",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
