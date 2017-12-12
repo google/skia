@@ -174,7 +174,7 @@ func main() {
 	}
 	input := os.Args[1]
 	output := os.Args[2]
-	err := os.Mkdir(output, os.ModePerm)
+	err := os.MkdirAll(output, os.ModePerm)
 	if err != nil && !os.IsExist(err) {
 		log.Fatal(err)
 	}
