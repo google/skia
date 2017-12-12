@@ -624,7 +624,7 @@ STAGE(to_srgb, Ctx::None) {
         const float c = 1.130026340485f,
                     d = 0.141387879848f;
     #elif defined(JUMPER_IS_SSE2) || defined(JUMPER_IS_SSE41) || \
-          defined(JUMPER_IS_AVX ) || defined(JUMPER_IS_AVX2 )
+          defined(JUMPER_IS_AVX ) || defined(JUMPER_IS_HSW )
         const float c = 1.130048394203f,
                     d = 0.141357362270f;
     #elif defined(JUMPER_IS_NEON)
@@ -1162,7 +1162,7 @@ STAGE(matrix_perspective, const float* m) {
 SI void gradient_lookup(const SkJumper_GradientCtx* c, U32 idx, F t,
                         F* r, F* g, F* b, F* a) {
     F fr, br, fg, bg, fb, bb, fa, ba;
-#if defined(JUMPER_IS_AVX2) || defined(JUMPER_IS_AVX512)
+#if defined(JUMPER_IS_HSW) || defined(JUMPER_IS_AVX512)
     if (c->stopCount <=8) {
         fr = _mm256_permutevar8x32_ps(_mm256_loadu_ps(c->fs[0]), idx);
         br = _mm256_permutevar8x32_ps(_mm256_loadu_ps(c->bs[0]), idx);
