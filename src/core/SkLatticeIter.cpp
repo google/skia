@@ -192,7 +192,7 @@ SkLatticeIter::SkLatticeIter(const SkCanvas::Lattice& lattice, const SkRect& dst
                 }
 
                 fRectTypes[i] = *flags;
-                fColors[i] = *colors;
+                fColors[i] = SkCanvas::Lattice::kFixedColor == *flags ? *colors : 0;
                 flags++;
                 colors++;
                 i++;
