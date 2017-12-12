@@ -6,6 +6,8 @@
  */
 
 #include "GrMockGpu.h"
+
+#include "GrContext.h"
 #include "GrMockBuffer.h"
 #include "GrMockCaps.h"
 #include "GrMockGpuCommandBuffer.h"
@@ -24,18 +26,18 @@ int GrMockGpu::NextExternalTextureID() {
     return sk_atomic_dec(&gID) - 1;
 }
 
-sk_sp<GrGpu> GrMockGpu::Make(GrBackendContext backendContext,
-                             const GrContextOptions& contextOptions, GrContext* context) {
-    return Make(reinterpret_cast<const GrMockOptions*>(backendContext), contextOptions, context);
+sk_sp<GrGpu> GrMockGpu::Make(GrBackendContext backendContext, const GrContextOptions& options,
+                             GrContext* context) {
+    return Make(reinterpret_cast<const GrMockOptions*>(backendContext), options, context);
 }
 
-sk_sp<GrGpu> GrMockGpu::Make(const GrMockOptions* mockOptions,
-                             const GrContextOptions& contextOptions, GrContext* context) {
+sk_sp<GrGpu> GrMockGpu::Make(const GrMockOptions* mockOptions, const GrContextOptions& options,
+                             GrContext* context) {
     static const GrMockOptions kDefaultOptions = GrMockOptions();
     if (!mockOptions) {
         mockOptions = &kDefaultOptions;
     }
-    return sk_sp<GrGpu>(new GrMockGpu(context, *mockOptions, contextOptions));
+    return sk_sp<GrGpu>(new GrMockGpu(context, *mockOptions, options));
 }
 
 
