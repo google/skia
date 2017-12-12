@@ -4496,7 +4496,7 @@ and so on; or nullptr</td>
 
 ### Example
 
-<div><fiddle-embed name="773134f4fe127f9c9caa110c24c988dc"><div>The two leftmost <a href="#SkCanvas_drawBitmapLattice_bitmap">bitmap</a> draws has four corners and sides to the left and right of center.
+<div><fiddle-embed name="7a02b16a4cc8158d88858a76907c9d89"><div>The two leftmost <a href="#SkCanvas_drawBitmapLattice_bitmap">bitmap</a> draws has four corners and sides to the left and right of center.
 The leftmost <a href="#SkCanvas_drawBitmapLattice_bitmap">bitmap</a> draw scales the width of corners proportionately to fit.
 The third and fourth draw corners are not scaled; the sides are scaled to 
 fill the remaining space; the center is transparent.
@@ -4552,7 +4552,7 @@ and so on; or nullptr</td>
 
 ### Example
 
-<div><fiddle-embed name="c52ee1d4c69363c6b109539c1da3ce83"><div>The leftmost <a href="#SkCanvas_drawImageLattice_image">image</a> is smaller than center; only corners are drawn, all scaled to fit.
+<div><fiddle-embed name="75f43f11c6bd58175071b8b54ebec676"><div>The leftmost <a href="#SkCanvas_drawImageLattice_image">image</a> is smaller than center; only corners are drawn, all scaled to fit.
 The second <a href="#SkCanvas_drawImageLattice_image">image</a> equals the size of center; only corners are drawn without scaling.
 The remaining images are larger than center. All corners draw without scaling. The sides
 are scaled if needed to take up the remaining space; the center is transparent.</div></fiddle-embed></div>

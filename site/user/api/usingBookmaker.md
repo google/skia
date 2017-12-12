@@ -53,6 +53,16 @@ All structs, classes, enums, their members and methods, functions, and so on,
 require descriptions. Most also require examples.
 
 All methods and functions should include examples if practical.
+It's difficult to think of a meaningful example for class destructors.
+In cases like these, change the placeholder:
+
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
+#Example</pre>
+
+to:
+
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
+#NoExample</pre>
 
 Descriptions start with an active verb. Descriptions are complete, punctuated
 sentences unless they describe parameters or return values. Parameters and
@@ -60,8 +70,8 @@ returned values are described by phrases that start lower case and do not
 include trailing punctuation.
 
 Descriptions are not self-referential; they do not include the thing they
-describe. Descriptions may contain upper case references to definitions
-but otherwise should be free of jargon.
+describe. Descriptions may contain upper case or camel case references to
+definitions but otherwise should be free of jargon.
 
 Descriptions may contain code and formulas, each bracketed by markup.
 
@@ -76,6 +86,10 @@ an example, and any cross references.
 
 Each method must contain either one or more examples or markup indicating
 that there is no example.
+
+After editing is complete, searching for "" should fail,
+assuming "" is not the perfect word to use in a description or
+example!
 Generate fiddle.json from all examples, including the ones you just wrote.
 Error checking is syntatic: starting keywords are closed, keywords have the
 correct parents.
@@ -112,6 +126,18 @@ Generate an updated include header. Run:
 $ ./out/dir/bookmaker -p -b docs -i include/core/<a href="usingBookmaker#SkXXX">SkXXX</a>.h</pre>
 
 to write the updated <a href="undocumented#SkXXX.h">SkXXX.h</a> to the current directory.
+
+Once adding the file is complete, add the file to status.json in the section. You may add it to the section during
+development, or leave status.json unchanged.
+
+If the new file has been added to status.json, you can run
+any of the above commands with -a docs/status.json in place of
+-b docs or -i includes.
+
+Complete rebuilding of all bookmaker output looks like:
+
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
+./  out/skia/bookmaker.exe -a docs/status.json -e fiddle.json</pre>
 
 ## <a name="Bugs"></a> Bugs
 
