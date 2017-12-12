@@ -9,11 +9,13 @@
 #define SkAtlasTextTarget_DEFINED
 
 #include <memory>
+#include "SkDeque.h"
 #include "SkRefCnt.h"
 #include "SkScalar.h"
 
 class SkAtlasTextContext;
 class SkAtlasTextFont;
+class SkMatrix;
 struct SkPoint;
 
 /** Represents a client-created renderable surface and is used to draw text into the surface. */
@@ -36,6 +38,17 @@ public:
     virtual void drawText(const SkGlyphID[], const SkPoint[], int glyphCnt, uint32_t color,
                           const SkAtlasTextFont&) = 0;
 
+    int save();
+    void restore();
+    void restoreToCount(int count);
+
+    void translate(SkScalar dx, SkScalar dy);
+    void scale(SkScalar sx, SkScalar sy);
+    void rotate(SkScalar degrees);
+    void rotate(SkScalar degrees, SkScalar px, SkScalar py);
+    void skew(SkScalar sx, SkScalar sy);
+    void concat(const SkMatrix& matrix);
+
     /** Issues all queued text draws to SkAtlasTextRenderer. */
     virtual void flush() = 0;
 
@@ -49,12 +62,21 @@ public:
 protected:
     SkAtlasTextTarget(sk_sp<SkAtlasTextContext>, int width, int height, void* handle);
 
+    const SkMatrix& ctm() const { return *static_cast<const SkMatrix*>(fMatrixStack.back()); }
+
     void* const fHandle;
     const sk_sp<SkAtlasTextContext> fContext;
     const int fWidth;
     const int fHeight;
 
 private:
+    SkMatrix* accessCTM() const {
+        return static_cast<SkMatrix*>(const_cast<void*>(fMatrixStack.back()));
+    }
+
+    SkDeque fMatrixStack;
+    int fSaveCnt;
+
     SkAtlasTextTarget() = delete;
     SkAtlasTextTarget(const SkAtlasTextContext&) = delete;
     SkAtlasTextTarget& operator=(const SkAtlasTextContext&) = delete;

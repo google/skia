@@ -646,7 +646,7 @@ void GrAtlasTextContext::drawDFPosText(GrAtlasTextBlob* blob, int runIndex,
     SkTDArray<char> fallbackTxt;
     SkTDArray<SkScalar> fallbackPos;
 
-    bool hasWCoord = viewMatrix.hasPerspective();
+    bool hasWCoord = viewMatrix.hasPerspective() || true;
     // Setup distance field paint and text ratio
     SkScalar textRatio;
     SkPaint dfPaint(paint);

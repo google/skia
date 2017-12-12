@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkPoint.h"
+#include "SkPoint3.h"
 #include "SkRefCnt.h"
 
 #ifndef SkAtlasTextRenderer_DEFINED
@@ -26,7 +26,7 @@ public:
 
     struct SDFVertex {
         /** Position in device space (not normalized). */
-        SkPoint fPosition;
+        SkPoint3 fPosition;
         /** Color, same value for all four corners of a glyph quad. */
         uint32_t fColor;
         /** Texture coordinate (in texel units, not normalized). */
