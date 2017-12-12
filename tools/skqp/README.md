@@ -60,3 +60,15 @@ up later, after I package everything up in an APK.)
           nohup $OPEN /tmp/report/report.html > /dev/null 2>&1 &
         fi
 
+Run as an APK
+-------------
+
+FIXME:  install the GMKB data files....
+
+    platform_tools/android/bin/android_build_app -C out/arm64 skqp
+    adb install -r out/arm64/skqp.apk
+    adb logcat --clear
+    adb shell am instrument -w org.skia.skqp/android.support.test.runner.AndroidJUnitRunner
+    adb logcat -d
+
+
