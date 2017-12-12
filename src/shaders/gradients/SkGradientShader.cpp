@@ -1007,7 +1007,6 @@ uint32_t GrGradientEffect::GLSLProcessor::GenBaseGradientKey(const GrProcessor& 
     SkDEBUGCODE(static constexpr uint32_t kWrapModeBits = 2;)
 
     uint32_t key = static_cast<uint32_t>(e.fStrategy);
-    SkASSERT(key < (1 << kStrategyBits));
 
     // This is already baked into the table for texture gradients,
     // and only changes behavior for analytical gradients.
