@@ -62,7 +62,7 @@ GrDeferredUploadToken SkInternalAtlasTextContext::addASAPUpload(
 }
 
 void SkInternalAtlasTextContext::recordDraw(const void* srcVertexData, int glyphCnt,
-                                            void* targetHandle) {
+                                            const SkMatrix& matrix, void* targetHandle) {
     auto vertexDataSize = sizeof(SkAtlasTextRenderer::SDFVertex) * 4 * glyphCnt;
     auto vertexData = fArena.makeArrayDefault<char>(vertexDataSize);
     memcpy(vertexData, srcVertexData, vertexDataSize);
@@ -72,6 +72,7 @@ void SkInternalAtlasTextContext::recordDraw(const void* srcVertexData, int glyph
         // This isn't expected by SkAtlasTextRenderer subclasses.
         vertex->fTextureCoord.fX /= 2;
         vertex->fTextureCoord.fY /= 2;
+        matrix.mapHomogeneousPoints(&vertex->fPosition, &vertex->fPosition, 1);
     }
     fDraws.append(&fArena, Draw{glyphCnt, this->issueDrawToken(), targetHandle, vertexData});
 }
