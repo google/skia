@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "f83c461b_9260dee0",
+        "filename": "include/core/SkColorSpace.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-12-12T18:44:43Z",
+      "side": 1,
+      "message": "It\u0027d be nice to not to add : uint8_t.  It being here makes it seem like it matters...",
+      "range": {
+        "startLine": 16,
+        "startChar": 20,
+        "endLine": 16,
+        "endChar": 27
+      },
+      "revId": "0d48c6379cf1f7738d63ef0c165e389da3e78387",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ebf02891_b8817b70",
         "filename": "src/codec/SkJpegCodec.cpp",
         "patchSetId": 1
@@ -13,6 +36,29 @@
       "writtenOn": "2017-12-12T18:30:53Z",
       "side": 1,
       "message": "Slightly interesting diff here, but results should be the same (just costs a little more).",
+      "revId": "0d48c6379cf1f7738d63ef0c165e389da3e78387",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ac560740_9b719d2d",
+        "filename": "src/core/SkColorSpace.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 381,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-12-12T18:44:43Z",
+      "side": 1,
+      "message": "Don\u0027t we generally not want to call the onFoo() except from foo()?  That way foo() exists as some sort of injection point... if we make direct calls to onFoo(), the foo/onFoo distinction might as well not exist, right?",
+      "range": {
+        "startLine": 381,
+        "startChar": 26,
+        "endLine": 381,
+        "endChar": 35
+      },
       "revId": "0d48c6379cf1f7738d63ef0c165e389da3e78387",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
