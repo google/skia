@@ -34,6 +34,16 @@
     #define JUMPER_IS_SCALAR
 #endif
 
+// Older Clangs seem to crash when generating non-optimized NEON code for ARMv7.
+#if defined(__clang__) && !defined(__OPTIMIZE__) && defined(__arm__)
+    // Apple Clang 9 and vanilla Clang 5 are fine, and may even be conservative.
+    #if defined(__apple_build_version__) && __clang_major__ < 9
+        #define JUMPER_IS_SCALAR
+    #elif __clang_major__ < 5
+        #define JUMPER_IS_SCALAR
+    #endif
+#endif
+
 #if defined(JUMPER_IS_SCALAR)
     // This path should lead to portable scalar code.
     #include <math.h>
