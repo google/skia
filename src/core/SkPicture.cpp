@@ -222,17 +222,49 @@ sk_sp<SkData> SkPicture::serialize(const SkSerialProcs& procs) const {
     return stream.detachAsData();
 }
 
+static sk_sp<SkData> custom_serialize(const SkPicture* picture, const SkSerialProcs& procs) {
+    if (procs.fPictureProc) {
+        auto data = procs.fPictureProc(const_cast<SkPicture*>(picture), procs.fPictureCtx);
+        if (data) {
+            size_t size = data->size();
+            if (!sk_64_isS32(size) || size <= 1) {
+                return SkData::MakeEmpty();
+            }
+            return data;
+        }
+    }
+    return nullptr;
+}
+
+static bool write_pad32(SkWStream* stream, const void* data, size_t size) {
+    if (!stream->write(data, size)) {
+        return false;
+    }
+    if (size & 3) {
+        uint32_t zero = 0;
+        return stream->write(&zero, 4 - (size & 3));
+    }
+    return true;
+}
+
 void SkPicture::serialize(SkWStream* stream, const SkSerialProcs& procs,
                           SkRefCntSet* typefaceSet) const {
     SkPictInfo info = this->createHeader();
-    std::unique_ptr<SkPictureData> data(this->backport());
-
     stream->write(&info, sizeof(info));
+
+    if (auto custom = custom_serialize(this, procs)) {
+        size_t size = SkToU32(custom->size());
+        stream->write32(-SkToU32(size));    // negative for custom format
+        write_pad32(stream, custom->data(), size);
+        return;
+    }
+
+    std::unique_ptr<SkPictureData> data(this->backport());
     if (data) {
-        stream->writeBool(true);
+        stream->write32(1); // special size meaning SkPictureData
         data->serialize(stream, procs, typefaceSet);
     } else {
-        stream->writeBool(false);
+        stream->write32(0); // signal no content
     }
 }
 
@@ -244,11 +276,19 @@ void SkPicture::flatten(SkWriteBuffer& buffer) const {
     buffer.writeUInt(info.getVersion());
     buffer.writeRect(info.fCullRect);
     buffer.writeUInt(info.fFlags);
+
+    if (auto custom = custom_serialize(this, buffer.fProcs)) {
+        uint32_t size = SkToU32(custom->size());
+        buffer.write32(-size);    // negative for custom format
+        buffer.writePad32(custom->data(), size);
+        return;
+    }
+
     if (data) {
-        buffer.writeBool(true);
+        buffer.write32(1); // special size meaning SkPictureData
         data->flatten(buffer);
     } else {
-        buffer.writeBool(false);
+        buffer.write32(0); // signal no content
     }
 }
 
