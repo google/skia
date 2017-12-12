@@ -265,6 +265,17 @@ if actual_freq != str(freq):
     self._py('fetch-gn', self.m.vars.skia_dir.join('bin', 'fetch-gn'))
     self._run('gn gen', gn, 'gen', self.out_dir, '--args=' + gn_args)
     self._run('ninja', ninja, '-k', '0', '-C', self.out_dir)
+    # rmistry: do a step here
+    if (configuration == 'Release' and
+        extra_config == 'Android' and
+        os not in ('Mac', 'Win')):
+      # Copy the skiaserve binary over only for Linux Android compile bots.
+      # See skbug/7399 for context.
+      print compiler
+      print os
+      print target_arch
+      # What is the skia hash here????
+      self._run('copy skiaserve only for some', 'gsutil', 'ls', '-l', 'gs://skia-public-binaries/')
 
   def install(self):
     self._adb('mkdir ' + self.device_dirs.resource_dir,
