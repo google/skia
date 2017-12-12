@@ -8,9 +8,10 @@
 #include "GrCCPRQuadraticShader.h"
 
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
+#include "glsl/GrGLSLVertexGeoBuilder.h"
 
-void GrCCPRQuadraticShader::emitSetupCode(GrGLSLShaderBuilder* s, const char* pts,
-                                          const char* segmentId, const char* wind,
+void GrCCPRQuadraticShader::emitSetupCode(GrGLSLVertexGeoBuilder* s, const char* pts,
+                                          const char* repetitionID, const char* wind,
                                           GeometryVars* vars) const {
     s->declareGlobal(fCanonicalMatrix);
     s->codeAppendf("%s = float3x3(0.0, 0, 1, "
@@ -26,7 +27,7 @@ void GrCCPRQuadraticShader::emitSetupCode(GrGLSLShaderBuilder* s, const char* pt
     s->codeAppendf("float2 edgept1 = %s[%s > 0 ? 0 : 2];", pts, wind);
     Shader::EmitEdgeDistanceEquation(s, "edgept0", "edgept1", fEdgeDistanceEquation.c_str());
 
-    this->onEmitSetupCode(s, pts, segmentId, vars);
+    this->onEmitSetupCode(s, pts, repetitionID, vars);
 }
 
 GrCCPRQuadraticShader::WindHandling
@@ -44,8 +45,9 @@ GrCCPRQuadraticShader::onEmitVaryings(GrGLSLVaryingHandler* varyingHandler, SkSt
     return WindHandling::kNotHandled;
 }
 
-void GrCCPRQuadraticHullShader::onEmitSetupCode(GrGLSLShaderBuilder* s, const char* pts,
-                                                const char* /*wedgeId*/, GeometryVars* vars) const {
+void GrCCPRQuadraticHullShader::onEmitSetupCode(GrGLSLVertexGeoBuilder* s, const char* pts,
+                                                const char* /*repetitionID*/,
+                                                GeometryVars* vars) const {
     // Find the T value whose tangent is halfway between the tangents at the endpionts.
     s->codeAppendf("float2 tan0 = %s[1] - %s[0];", pts, pts);
     s->codeAppendf("float2 tan1 = %s[2] - %s[1];", pts, pts);
@@ -77,9 +79,10 @@ void GrCCPRQuadraticHullShader::onEmitFragmentCode(GrGLSLPPFragmentBuilder* f,
     f->codeAppendf("%s += min(%s.z, 0);", outputCoverage, fXYD.fsIn()); // Flat closing edge.
 }
 
-void GrCCPRQuadraticCornerShader::onEmitSetupCode(GrGLSLShaderBuilder* s, const char* pts,
-                                                  const char* cornerId, GeometryVars* vars) const {
-    s->codeAppendf("float2 corner = %s[%s * 2];", pts, cornerId);
+void GrCCPRQuadraticCornerShader::onEmitSetupCode(GrGLSLVertexGeoBuilder* s, const char* pts,
+                                                  const char* repetitionID,
+                                                  GeometryVars* vars) const {
+    s->codeAppendf("float2 corner = %s[%s * 2];", pts, repetitionID);
     vars->fCornerVars.fPoint = "corner";
 }
 
