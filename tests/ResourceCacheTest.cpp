@@ -201,32 +201,24 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceCacheWrappedResources, reporter, ctxI
         return;
     }
 
-    GrBackendObject texHandles[2];
+    GrBackendTexture backendTextures[2];
     static const int kW = 100;
     static const int kH = 100;
 
-    texHandles[0] = gpu->createTestingOnlyBackendTexture(nullptr, kW, kH, kRGBA_8888_GrPixelConfig);
-    texHandles[1] = gpu->createTestingOnlyBackendTexture(nullptr, kW, kH, kRGBA_8888_GrPixelConfig);
+    backendTextures[0] = gpu->createTestingOnlyBackendTexture(nullptr, kW, kH,
+                                                              kRGBA_8888_GrPixelConfig,
+                                                              false, GrMipMapped::kNo);
+    backendTextures[1] = gpu->createTestingOnlyBackendTexture(nullptr, kW, kH,
+                                                              kRGBA_8888_GrPixelConfig,
+                                                              false, GrMipMapped::kNo);
 
     context->resetContext();
 
-    GrBackendTexture backendTex1 = GrTest::CreateBackendTexture(context->contextPriv().getBackend(),
-                                                                kW,
-                                                                kH,
-                                                                kRGBA_8888_GrPixelConfig,
-                                                                GrMipMapped::kNo,
-                                                                texHandles[0]);
     sk_sp<GrTexture> borrowed(context->resourceProvider()->wrapBackendTexture(
-            backendTex1, kBorrow_GrWrapOwnership));
+            backendTextures[0], kBorrow_GrWrapOwnership));
 
-    GrBackendTexture backendTex2 = GrTest::CreateBackendTexture(context->contextPriv().getBackend(),
-                                                                kW,
-                                                                kH,
-                                                                kRGBA_8888_GrPixelConfig,
-                                                                GrMipMapped::kNo,
-                                                                texHandles[1]);
     sk_sp<GrTexture> adopted(context->resourceProvider()->wrapBackendTexture(
-            backendTex2, kAdopt_GrWrapOwnership));
+            backendTextures[1], kAdopt_GrWrapOwnership));
 
     REPORTER_ASSERT(reporter, borrowed != nullptr && adopted != nullptr);
     if (!borrowed || !adopted) {
@@ -238,14 +230,14 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceCacheWrappedResources, reporter, ctxI
 
     context->flush();
 
-    bool borrowedIsAlive = gpu->isTestingOnlyBackendTexture(texHandles[0]);
-    bool adoptedIsAlive = gpu->isTestingOnlyBackendTexture(texHandles[1]);
+    bool borrowedIsAlive = gpu->isTestingOnlyBackendTexture(backendTextures[0]);
+    bool adoptedIsAlive = gpu->isTestingOnlyBackendTexture(backendTextures[1]);
 
     REPORTER_ASSERT(reporter, borrowedIsAlive);
     REPORTER_ASSERT(reporter, !adoptedIsAlive);
 
-    gpu->deleteTestingOnlyBackendTexture(texHandles[0], !borrowedIsAlive);
-    gpu->deleteTestingOnlyBackendTexture(texHandles[1], !adoptedIsAlive);
+    gpu->deleteTestingOnlyBackendTexture(&(backendTextures[0]), !borrowedIsAlive);
+    gpu->deleteTestingOnlyBackendTexture(&(backendTextures[1]), !adoptedIsAlive);
 
     context->resetContext();
 }

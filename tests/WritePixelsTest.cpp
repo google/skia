@@ -428,22 +428,19 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WritePixelsNonTexture_Gpu, reporter, ctxInfo)
 
     for (auto& origin : { kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin }) {
         for (int sampleCnt : {0, 4}) {
-            auto handle = context->getGpu()->createTestingOnlyBackendTexture(
-                    nullptr, DEV_W, DEV_H, kSkia8888_GrPixelConfig, true);
-            GrBackendTexture backendTexture = GrTest::CreateBackendTexture(
-                    ctxInfo.backend(), DEV_W, DEV_H, kSkia8888_GrPixelConfig, GrMipMapped::kNo,
-                    handle);
+            GrBackendTexture backendTex = context->getGpu()->createTestingOnlyBackendTexture(
+                    nullptr, DEV_W, DEV_H, kSkia8888_GrPixelConfig, true, GrMipMapped::kNo);
             sk_sp<SkSurface> surface(SkSurface::MakeFromBackendTextureAsRenderTarget(
-                    context, backendTexture, origin, sampleCnt, nullptr, nullptr));
+                    context, backendTex, origin, sampleCnt, nullptr, nullptr));
             if (!surface) {
-                context->getGpu()->deleteTestingOnlyBackendTexture(handle);
+                context->getGpu()->deleteTestingOnlyBackendTexture(&backendTex);
                 continue;
             }
 
             test_write_pixels(reporter, surface.get());
 
             surface.reset();
-            context->getGpu()->deleteTestingOnlyBackendTexture(handle);
+            context->getGpu()->deleteTestingOnlyBackendTexture(&backendTex);
         }
     }
 }

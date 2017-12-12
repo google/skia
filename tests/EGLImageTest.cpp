@@ -22,15 +22,14 @@
 using sk_gpu_test::GLTestContext;
 
 static void cleanup(GLTestContext* glctx0, GrGLuint texID0, GLTestContext* glctx1,
-                    sk_sp<GrContext> grctx1, const GrGLTextureInfo* grbackendtex1,
+                    sk_sp<GrContext> grctx1, GrBackendTexture* backendTex1,
                     GrEGLImage image1) {
     if (glctx1) {
         glctx1->makeCurrent();
         if (grctx1) {
-            if (grbackendtex1) {
+            if (backendTex1 && backendTex1->isValid()) {
                 GrGLGpu* gpu1 = static_cast<GrGLGpu*>(grctx1->getGpu());
-                GrBackendObject handle = reinterpret_cast<GrBackendObject>(grbackendtex1);
-                gpu1->deleteTestingOnlyBackendTexture(handle, false);
+                gpu1->deleteTestingOnlyBackendTexture(backendTex1);
             }
         }
         if (GR_EGL_NO_IMAGE != image1) {
@@ -64,19 +63,19 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(EGLImageTest, reporter, ctxInfo) {
         return;
     }
     sk_sp<GrContext> context1 = GrContext::MakeGL(sk_ref_sp(glCtx1->gl()));
-    const GrGLTextureInfo* backendTexture1 = nullptr;
+    GrBackendTexture backendTexture1;
     GrEGLImage image = GR_EGL_NO_IMAGE;
     GrGLTextureInfo externalTexture;
     externalTexture.fID = 0;
 
     if (!context1) {
-        cleanup(glCtx0, externalTexture.fID, glCtx1.get(), context1, backendTexture1, image);
+        cleanup(glCtx0, externalTexture.fID, glCtx1.get(), context1, &backendTexture1, image);
         return;
     }
 
     if (!glCtx1->gl()->hasExtension("EGL_KHR_image") ||
         !glCtx1->gl()->hasExtension("EGL_KHR_gl_texture_2D_image")) {
-        cleanup(glCtx0, externalTexture.fID, glCtx1.get(), context1, backendTexture1, image);
+        cleanup(glCtx0, externalTexture.fID, glCtx1.get(), context1, &backendTexture1, image);
         return;
     }
 
@@ -86,24 +85,28 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(EGLImageTest, reporter, ctxInfo) {
     context1->flush();
     GrGpu* gpu1 = context1->getGpu();
     static const int kSize = 100;
-    backendTexture1 = reinterpret_cast<const GrGLTextureInfo*>(
-        gpu1->createTestingOnlyBackendTexture(nullptr, kSize, kSize, kRGBA_8888_GrPixelConfig));
-    if (!backendTexture1 || !backendTexture1->fID) {
+    backendTexture1 =
+        gpu1->createTestingOnlyBackendTexture(nullptr, kSize, kSize, kRGBA_8888_GrPixelConfig,
+                                              false, GrMipMapped::kNo);
+    if (!gpu1->isTestingOnlyBackendTexture(backendTexture1)) {
         ERRORF(reporter, "Error creating texture for EGL Image");
-        cleanup(glCtx0, externalTexture.fID, glCtx1.get(), context1, backendTexture1, image);
+        cleanup(glCtx0, externalTexture.fID, glCtx1.get(), context1, &backendTexture1, image);
         return;
     }
-    if (GR_GL_TEXTURE_2D != backendTexture1->fTarget) {
+
+    const GrGLTextureInfo* texInfo = backendTexture1.getGLTextureInfo();
+
+    if (GR_GL_TEXTURE_2D != texInfo->fTarget) {
         ERRORF(reporter, "Expected backend texture to be 2D");
-        cleanup(glCtx0, externalTexture.fID, glCtx1.get(), context1, backendTexture1, image);
+        cleanup(glCtx0, externalTexture.fID, glCtx1.get(), context1, &backendTexture1, image);
         return;
     }
 
     // Wrap the texture in an EGLImage
-    image = glCtx1->texture2DToEGLImage(backendTexture1->fID);
+    image = glCtx1->texture2DToEGLImage(texInfo->fID);
     if (GR_EGL_NO_IMAGE == image) {
         ERRORF(reporter, "Error creating EGL Image from texture");
-        cleanup(glCtx0, externalTexture.fID, glCtx1.get(), context1, backendTexture1, image);
+        cleanup(glCtx0, externalTexture.fID, glCtx1.get(), context1, &backendTexture1, image);
         return;
     }
 
@@ -121,8 +124,8 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(EGLImageTest, reporter, ctxInfo) {
         pixels.get()[i] = 0xDDAABBCC;
     }
     GR_GL_CALL(glCtx1->gl(), ActiveTexture(GR_GL_TEXTURE0));
-    GR_GL_CALL(glCtx1->gl(), BindTexture(backendTexture1->fTarget, backendTexture1->fID));
-    GR_GL_CALL(glCtx1->gl(), TexSubImage2D(backendTexture1->fTarget, 0, 0, 0, kSize, kSize,
+    GR_GL_CALL(glCtx1->gl(), BindTexture(texInfo->fTarget, texInfo->fID));
+    GR_GL_CALL(glCtx1->gl(), TexSubImage2D(texInfo->fTarget, 0, 0, 0, kSize, kSize,
                                            GR_GL_RGBA, GR_GL_UNSIGNED_BYTE, pixels.get()));
     GR_GL_CALL(glCtx1->gl(), Finish());
     // We've been making direct GL calls in GL context 1, let GrContext 1 know its internal
@@ -137,7 +140,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(EGLImageTest, reporter, ctxInfo) {
     externalTexture.fID = glCtx0->eglImageToExternalTexture(image);
     if (0 == externalTexture.fID) {
         ERRORF(reporter, "Error converting EGL Image back to texture");
-        cleanup(glCtx0, externalTexture.fID, glCtx1.get(), context1, backendTexture1, image);
+        cleanup(glCtx0, externalTexture.fID, glCtx1.get(), context1, &backendTexture1, image);
         return;
     }
 
@@ -151,7 +154,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(EGLImageTest, reporter, ctxInfo) {
 
     if (!surfaceContext) {
         ERRORF(reporter, "Error wrapping external texture in GrSurfaceContext.");
-        cleanup(glCtx0, externalTexture.fID, glCtx1.get(), context1, backendTexture1, image);
+        cleanup(glCtx0, externalTexture.fID, glCtx1.get(), context1, &backendTexture1, image);
         return;
     }
 
@@ -175,7 +178,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(EGLImageTest, reporter, ctxInfo) {
     test_copy_from_surface(reporter, context0, surfaceContext->asSurfaceProxy(),
                            pixels.get(), true, "EGLImageTest-copy");
 
-    cleanup(glCtx0, externalTexture.fID, glCtx1.get(), context1, backendTexture1, image);
+    cleanup(glCtx0, externalTexture.fID, glCtx1.get(), context1, &backendTexture1, image);
 }
 
 #endif

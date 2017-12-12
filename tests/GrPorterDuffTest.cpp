@@ -1066,14 +1066,9 @@ DEF_GPUTEST(PorterDuffNoDualSourceBlending, reporter, options) {
         return;
     }
 
-    GrBackendObject backendTexHandle =
-        ctx->getGpu()->createTestingOnlyBackendTexture(nullptr, 100, 100, kRGBA_8888_GrPixelConfig);
-    GrBackendTexture backendTex = GrTest::CreateBackendTexture(ctx->contextPriv().getBackend(),
-                                                               100,
-                                                               100,
-                                                               kRGBA_8888_GrPixelConfig,
-                                                               GrMipMapped::kNo,
-                                                               backendTexHandle);
+    GrBackendTexture backendTex =
+        ctx->getGpu()->createTestingOnlyBackendTexture(nullptr, 100, 100, kRGBA_8888_GrPixelConfig,
+                                                       false, GrMipMapped::kNo);
 
     GrXferProcessor::DstProxy fakeDstProxy;
     {
@@ -1104,7 +1099,7 @@ DEF_GPUTEST(PorterDuffNoDualSourceBlending, reporter, options) {
             }
         }
     }
-    ctx->getGpu()->deleteTestingOnlyBackendTexture(backendTexHandle);
+    ctx->getGpu()->deleteTestingOnlyBackendTexture(&backendTex);
 }
 
 #endif
