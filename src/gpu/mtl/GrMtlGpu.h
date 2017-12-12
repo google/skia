@@ -141,13 +141,20 @@ private:
 
     void clearStencil(GrRenderTarget* target, int clearValue) override  {}
 
-    GrBackendObject createTestingOnlyBackendTexture(void* pixels, int w, int h,
-                                                    GrPixelConfig config, bool isRT,
-                                                    GrMipMapped) override {
+    GrBackendObject createTestingOnlyBackendObject(void* pixels, int w, int h,
+                                                   GrPixelConfig config, bool isRT,
+                                                   GrMipMapped) override {
         return 0;
     }
-    bool isTestingOnlyBackendTexture(GrBackendObject ) const override { return false; }
-    void deleteTestingOnlyBackendTexture(GrBackendObject, bool abandonTexture) override {}
+    void deleteTestingOnlyBackendObject(GrBackendObject, bool abandonTexture = false) override {}
+
+    GrBackendTexture createTestingOnlyBackendTexture(void* pixels, int w, int h,
+                                                     GrPixelConfig config, bool isRT,
+                                                     GrMipMapped) override {
+        return GrBackendTexture();
+    }
+    bool isTestingOnlyBackendTexture(const GrBackendTexture&) const override { return false; }
+    void deleteTestingOnlyBackendTexture(GrBackendTexture*, bool abandon = false) override {}
 
     sk_sp<GrMtlCaps> fMtlCaps;
 
