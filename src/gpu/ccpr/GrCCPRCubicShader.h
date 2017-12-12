@@ -23,11 +23,11 @@
  */
 class GrCCPRCubicShader : public GrCCPRCoverageProcessor::Shader {
 protected:
-    void emitSetupCode(GrGLSLShaderBuilder*, const char* pts, const char* segmentId,
+    void emitSetupCode(GrGLSLVertexGeoBuilder*, const char* pts, const char* repetitionID,
                        const char* wind, GeometryVars*) const final;
 
-    virtual void onEmitSetupCode(GrGLSLShaderBuilder*, const char* pts, const char* segmentId,
-                                 GeometryVars*) const = 0;
+    virtual void onEmitSetupCode(GrGLSLVertexGeoBuilder*, const char* pts, const char* repetitionID,
+                                 GeometryVars*) const {}
 
     WindHandling onEmitVaryings(GrGLSLVaryingHandler*, SkString* code, const char* position,
                                 const char* coverage, const char* wind) final;
@@ -40,10 +40,6 @@ protected:
 };
 
 class GrCCPRCubicHullShader : public GrCCPRCubicShader {
-    GeometryType getGeometryType() const override { return GeometryType::kHull; }
-    int getNumSegments() const override { return 4; } // 4 wedges.
-    void onEmitSetupCode(GrGLSLShaderBuilder*, const char* pts, const char* wedgeId,
-                         GeometryVars*) const override;
     void onEmitVaryings(GrGLSLVaryingHandler*, SkString* code) override;
     void onEmitFragmentCode(GrGLSLPPFragmentBuilder*, const char* outputCoverage) const override;
 
@@ -51,9 +47,7 @@ class GrCCPRCubicHullShader : public GrCCPRCubicShader {
 };
 
 class GrCCPRCubicCornerShader : public GrCCPRCubicShader {
-    GeometryType getGeometryType() const override { return GeometryType::kCorners; }
-    int getNumSegments() const override { return 2; } // 2 corners.
-    void onEmitSetupCode(GrGLSLShaderBuilder*, const char* pts, const char* cornerId,
+    void onEmitSetupCode(GrGLSLVertexGeoBuilder*, const char* pts, const char* repetitionID,
                          GeometryVars*) const override;
     void onEmitVaryings(GrGLSLVaryingHandler*, SkString* code) override;
     void onEmitFragmentCode(GrGLSLPPFragmentBuilder*, const char* outputCoverage) const override;

@@ -16,9 +16,6 @@
  *         convex hull of those boxes.)
  */
 class GrCCPRTriangleHullShader : public GrCCPRCoverageProcessor::Shader {
-    GeometryType getGeometryType() const override { return GeometryType::kHull; }
-    int getNumSegments() const final { return 3; }
-
     WindHandling onEmitVaryings(GrGLSLVaryingHandler*, SkString* code, const char* position,
                                 const char* coverage, const char* wind) override;
     void onEmitFragmentCode(GrGLSLPPFragmentBuilder* f, const char* outputCoverage) const override;
@@ -30,9 +27,6 @@ class GrCCPRTriangleHullShader : public GrCCPRCoverageProcessor::Shader {
  *         coverage=-1 on the outside edge to coverage=0 on the inside edge.
  */
 class GrCCPRTriangleEdgeShader : public GrCCPRCoverageProcessor::Shader {
-    GeometryType getGeometryType() const override { return GeometryType::kEdges; }
-    int getNumSegments() const final { return 3; }
-
     WindHandling onEmitVaryings(GrGLSLVaryingHandler*, SkString* code, const char* position,
                                 const char* coverage, const char* wind) override;
     void onEmitFragmentCode(GrGLSLPPFragmentBuilder*, const char* outputCoverage) const override;
@@ -46,10 +40,7 @@ class GrCCPRTriangleEdgeShader : public GrCCPRCoverageProcessor::Shader {
  *         the same time.
  */
 class GrCCPRTriangleCornerShader : public GrCCPRCoverageProcessor::Shader {
-    GeometryType getGeometryType() const override { return GeometryType::kCorners; }
-    int getNumSegments() const final { return 3; }
-
-    void emitSetupCode(GrGLSLShaderBuilder*, const char* pts, const char* cornerId,
+    void emitSetupCode(GrGLSLVertexGeoBuilder*, const char* pts, const char* repetitionID,
                        const char* wind, GeometryVars*) const override;
     WindHandling onEmitVaryings(GrGLSLVaryingHandler*, SkString* code, const char* position,
                                 const char* coverage, const char* wind) override;
