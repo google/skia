@@ -654,7 +654,7 @@ std::unique_ptr<SkCodec> SkRawCodec::MakeFromStream(std::unique_ptr<SkStream> st
                 colorSpace = SkColorSpace::MakeSRGB();
                 break;
             case ::piex::PreviewImageData::kAdobeRgb:
-                colorSpace = SkColorSpace_Base::MakeNamed(SkColorSpace_Base::kAdobeRGB_Named);
+                colorSpace = SkColorSpace::MakeAdobeRGB();
                 break;
         }
 
