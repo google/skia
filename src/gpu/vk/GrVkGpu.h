@@ -85,12 +85,21 @@ public:
 
     void xferBarrier(GrRenderTarget*, GrXferBarrierType) override {}
 
+#if 0
     GrBackendObject createTestingOnlyBackendTexture(void* pixels, int w, int h,
                                                     GrPixelConfig config,
                                                     bool isRenderTarget,
                                                     GrMipMapped) override;
     bool isTestingOnlyBackendTexture(GrBackendObject id) const override;
     void deleteTestingOnlyBackendTexture(GrBackendObject id, bool abandonTexture) override;
+#else
+    GrBackendTexture createTestingOnlyBackendTexture(void* pixels, int w, int h,
+                                                     GrPixelConfig config,
+                                                     bool isRenderTarget,
+                                                     GrMipMapped) override;
+    bool isTestingOnlyBackendTexture1(const GrBackendTexture&) const override;
+    void deleteTestingOnlyBackendTexture(GrBackendTexture*, bool abandonTexture) override;
+#endif
 
     GrStencilAttachment* createStencilAttachmentForRenderTarget(const GrRenderTarget*,
                                                                 int width,
