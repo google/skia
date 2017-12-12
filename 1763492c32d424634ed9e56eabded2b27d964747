@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "df88224a_2b84f0dc",
+        "filename": "infra/bots/recipe_modules/flavor/gn_android_flavor.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-12-12T14:35:49Z",
+      "side": 1,
+      "message": "Think it\u0027s worth streamlining into one call to _set_governor() that goes through a list of governors to try, failing if none work?\n\n    self._set_governor(i, \u0027ondemand\u0027, \u0027conservative\u0027, \u0027hotplug\u0027, ...)",
+      "revId": "1763492c32d424634ed9e56eabded2b27d964747",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
