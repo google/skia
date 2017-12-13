@@ -811,7 +811,6 @@ static void test_surface_creation_and_snapshot_with_color_space(
     std::function<sk_sp<SkSurface>(const SkImageInfo&)> surfaceMaker) {
 
     auto srgbColorSpace = SkColorSpace::MakeSRGB();
-    auto adobeColorSpace = SkColorSpace_Base::MakeNamed(SkColorSpace_Base::kAdobeRGB_Named);
     const SkMatrix44* srgbMatrix = srgbColorSpace->toXYZD50();
     SkASSERT(srgbMatrix);
     SkColorSpaceTransferFn oddGamma;
@@ -830,12 +829,10 @@ static void test_surface_creation_and_snapshot_with_color_space(
         { kN32_SkColorType,       nullptr,          true,  "N32-nullptr" },
         { kN32_SkColorType,       linearColorSpace, false, "N32-linear"  },
         { kN32_SkColorType,       srgbColorSpace,   true,  "N32-srgb"    },
-        { kN32_SkColorType,       adobeColorSpace,  true,  "N32-adobe"   },
         { kN32_SkColorType,       oddColorSpace,    false, "N32-odd"     },
         { kRGBA_F16_SkColorType,  nullptr,          true,  "F16-nullptr" },
         { kRGBA_F16_SkColorType,  linearColorSpace, true,  "F16-linear"  },
         { kRGBA_F16_SkColorType,  srgbColorSpace,   false, "F16-srgb"    },
-        { kRGBA_F16_SkColorType,  adobeColorSpace,  false, "F16-adobe"   },
         { kRGBA_F16_SkColorType,  oddColorSpace,    false, "F16-odd"     },
         { kRGB_565_SkColorType,   srgbColorSpace,   false, "565-srgb"    },
         { kAlpha_8_SkColorType,   srgbColorSpace,   false, "A8-srgb"     },
