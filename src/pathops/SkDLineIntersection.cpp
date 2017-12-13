@@ -47,13 +47,13 @@ int SkIntersections::intersectRay(const SkDLine& a, const SkDLine& b) {
              byLen  * axLen         -   ayLen          * bxLen == 0 ( == denom )
      */
     double denom = bLen.fY * aLen.fX - aLen.fY * bLen.fX;
-    SkDVector ab0 = a[0] - b[0];
-    double numerA = ab0.fY * bLen.fX - bLen.fY * ab0.fX;
-    double numerB = ab0.fY * aLen.fX - aLen.fY * ab0.fX;
-    numerA /= denom;
-    numerB /= denom;
     int used;
     if (!approximately_zero(denom)) {
+        SkDVector ab0 = a[0] - b[0];
+        double numerA = ab0.fY * bLen.fX - bLen.fY * ab0.fX;
+        double numerB = ab0.fY * aLen.fX - aLen.fY * ab0.fX;
+        numerA /= denom;
+        numerB /= denom;
         fT[0][0] = numerA;
         fT[1][0] = numerB;
         used = 1;
