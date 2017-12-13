@@ -252,6 +252,7 @@ std::unique_ptr<GrFragmentProcessor> GrCircleBlurFragmentProcessor::Make(
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramBuilder.h"
+#include "GrTexture.h"
 #include "SkSLCPP.h"
 #include "SkSLUtil.h"
 class GrGLSLCircleBlurFragmentProcessor : public GrGLSLFragmentProcessor {
@@ -296,7 +297,8 @@ private:
         (void)textureRadius;
         auto solidRadius = _outer.solidRadius();
         (void)solidRadius;
-        UniformHandle& blurProfileSampler = fBlurProfileSamplerVar;
+        GrSurfaceProxy& blurProfileSamplerProxy = *_outer.textureSampler(0).proxy();
+        GrTexture& blurProfileSampler = *blurProfileSamplerProxy.priv().peekTexture();
         (void)blurProfileSampler;
         UniformHandle& circleData = fCircleDataVar;
         (void)circleData;
