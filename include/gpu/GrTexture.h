@@ -30,6 +30,8 @@ public:
      */
     virtual GrBackendObject getTextureHandle() const = 0;
 
+    virtual GrBackendTexture getBackendTexture() const = 0;
+
     /**
      * This function indicates that the texture parameters (wrap mode, filtering, ...) have been
      * changed externally to Skia.

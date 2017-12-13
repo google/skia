@@ -7,6 +7,7 @@
 
 #include "GrVkRenderTarget.h"
 
+#include "GrBackendSurface.h"
 #include "GrRenderTargetPriv.h"
 #include "GrVkCommandBuffer.h"
 #include "GrVkFramebuffer.h"
@@ -345,6 +346,11 @@ GrBackendObject GrVkRenderTarget::getRenderTargetHandle() const {
     // image. If we only wrap the msaa target (currently not implemented) we should return a handle
     // to that instead.
     return (GrBackendObject)&fInfo;
+}
+
+GrBackendRenderTarget GrVkRenderTarget::getBackendRenderTarget() const {
+    return GrBackendRenderTarget(this->width(), this->height(), this->numColorSamples(),
+                                 this->numStencilSamples(), fInfo);
 }
 
 const GrVkResource* GrVkRenderTarget::stencilImageResource() const {

@@ -40,6 +40,10 @@ public:
 
     GrBackendObject getRenderTargetHandle() const override;
 
+    GrBackendRenderTarget getBackendRenderTarget() const override {
+        return GrBackendRenderTarget(); // invalid
+    }
+
 protected:
     GrMtlRenderTarget(GrMtlGpu* gpu,
                       const GrSurfaceDesc& desc,

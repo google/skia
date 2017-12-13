@@ -9,6 +9,7 @@
 #ifndef GrGLRenderTarget_DEFINED
 #define GrGLRenderTarget_DEFINED
 
+#include "GrBackendSurface.h"
 #include "GrGLIRect.h"
 #include "GrRenderTarget.h"
 #include "SkScalar.h"
@@ -61,6 +62,14 @@ public:
     }
 
     GrBackendObject getRenderTargetHandle() const override { return fRTFBOID; }
+
+    GrBackendRenderTarget getBackendRenderTarget() const override {
+        GrGLFramebufferInfo fbi;
+        fbi.fFBOID = fRTFBOID;
+
+        return GrBackendRenderTarget(this->width(), this->height(), this->numColorSamples(),
+                                     this->numStencilSamples(), this->config(), fbi);
+    }
 
     bool canAttemptStencilAttachment() const override;
 
