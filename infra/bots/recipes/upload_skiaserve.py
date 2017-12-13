@@ -30,7 +30,7 @@ def RunSteps(api):
   src = api.vars.skia_out.join(api.vars.configuration, 'skiaserve')
   target_arch = api.vars.builder_cfg.get('target_arch')
   dest = 'gs://skia-public-binaries/skiaserve/%s/%s/' % (
-      target_arch, api.vars.got_revision)
+      target_arch, api.properties['revision'])
   api.gsutil.cp('skiaserve', src, dest)
 
 
