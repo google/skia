@@ -69,6 +69,7 @@
   "Build-Win-Clang-x86_64-Debug-ANGLE",
   "Build-Win-Clang-x86_64-Debug-ANGLE_Goma",
   "Build-Win-Clang-x86_64-Debug-Goma",
+  "Build-Win-Clang-x86_64-Debug-GomaNoFallback",
   "Build-Win-Clang-x86_64-Debug-Vulkan",
   "Build-Win-Clang-x86_64-Debug-Vulkan_Goma",
   "Build-Win-Clang-x86_64-Release",
