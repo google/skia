@@ -1294,10 +1294,10 @@
         "Perf-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-ANGLE"
       ]
     },
-    "Perf-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Goma": {
+    "Perf-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-NoGoma": {
       "priority": 0.8,
       "tasks": [
-        "Perf-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Goma"
+        "Perf-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-NoGoma"
       ]
     },
     "Perf-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Vulkan": {
@@ -1582,10 +1582,10 @@
         "Perf-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All"
       ]
     },
-    "Perf-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-Goma": {
+    "Perf-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-NoGoma": {
       "priority": 0.8,
       "tasks": [
-        "Perf-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-Goma"
+        "Perf-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-NoGoma"
       ]
     },
     "Perf-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release-All": {
@@ -2484,10 +2484,10 @@
         "Upload-Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-ANGLE"
       ]
     },
-    "Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Goma": {
+    "Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-NoGoma": {
       "priority": 0.8,
       "tasks": [
-        "Upload-Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Goma"
+        "Upload-Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-NoGoma"
       ]
     },
     "Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Vulkan": {
@@ -2802,10 +2802,10 @@
         "Upload-Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-FSAA"
       ]
     },
-    "Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-Goma": {
+    "Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-NoGoma": {
       "priority": 0.8,
       "tasks": [
-        "Upload-Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-Goma"
+        "Upload-Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-NoGoma"
       ]
     },
     "Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release-All": {
@@ -10018,7 +10018,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Debug",
+        "Build-Win-Clang-x86_64-Debug-Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -10065,7 +10065,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Debug-ANGLE",
+        "Build-Win-Clang-x86_64-Debug-ANGLE_Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -10112,7 +10112,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Debug-Vulkan",
+        "Build-Win-Clang-x86_64-Debug-Vulkan_Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -10159,7 +10159,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Release",
+        "Build-Win-Clang-x86_64-Release-Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -10206,7 +10206,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Release-ANGLE",
+        "Build-Win-Clang-x86_64-Release-ANGLE_Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -10253,7 +10253,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Release-Vulkan",
+        "Build-Win-Clang-x86_64-Release-Vulkan_Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -10300,7 +10300,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Debug",
+        "Build-Win-Clang-x86_64-Debug-Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -10347,7 +10347,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Release",
+        "Build-Win-Clang-x86_64-Release-Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -10394,7 +10394,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Release-ANGLE",
+        "Build-Win-Clang-x86_64-Release-ANGLE_Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -10441,7 +10441,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Debug",
+        "Build-Win-Clang-x86_64-Debug-Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -10488,7 +10488,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Debug-ANGLE",
+        "Build-Win-Clang-x86_64-Debug-ANGLE_Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -10516,7 +10516,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Perf-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Goma": {
+    "Perf-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-NoGoma": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -10535,7 +10535,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Debug-Goma",
+        "Build-Win-Clang-x86_64-Debug",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -10550,7 +10550,7 @@
         "../../..",
         "perf",
         "repository=<(REPO)",
-        "buildername=Perf-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Goma",
+        "buildername=Perf-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-NoGoma",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -10582,7 +10582,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Debug-Vulkan",
+        "Build-Win-Clang-x86_64-Debug-Vulkan_Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -10629,7 +10629,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Release",
+        "Build-Win-Clang-x86_64-Release-Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -10676,7 +10676,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Release-ANGLE",
+        "Build-Win-Clang-x86_64-Release-ANGLE_Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -10723,7 +10723,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Release-Vulkan",
+        "Build-Win-Clang-x86_64-Release-Vulkan_Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -10770,7 +10770,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Debug",
+        "Build-Win-Clang-x86_64-Debug-Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -10817,7 +10817,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Debug-ANGLE",
+        "Build-Win-Clang-x86_64-Debug-ANGLE_Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -10864,7 +10864,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Release",
+        "Build-Win-Clang-x86_64-Release-Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -10911,7 +10911,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Release-ANGLE",
+        "Build-Win-Clang-x86_64-Release-ANGLE_Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -10958,7 +10958,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Debug",
+        "Build-Win-Clang-x86_64-Debug-Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -11005,7 +11005,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Debug-ANGLE",
+        "Build-Win-Clang-x86_64-Debug-ANGLE_Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -11052,7 +11052,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Debug-Vulkan",
+        "Build-Win-Clang-x86_64-Debug-Vulkan_Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -11099,7 +11099,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Release",
+        "Build-Win-Clang-x86_64-Release-Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -11146,7 +11146,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Release-ANGLE",
+        "Build-Win-Clang-x86_64-Release-ANGLE_Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -11193,7 +11193,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Release-Vulkan",
+        "Build-Win-Clang-x86_64-Release-Vulkan_Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -11240,7 +11240,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Debug",
+        "Build-Win-Clang-x86_64-Debug-Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -11287,7 +11287,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Debug-ANGLE",
+        "Build-Win-Clang-x86_64-Debug-ANGLE_Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -11334,7 +11334,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Release",
+        "Build-Win-Clang-x86_64-Release-Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -11381,7 +11381,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Release-ANGLE",
+        "Build-Win-Clang-x86_64-Release-ANGLE_Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -11428,7 +11428,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Debug",
+        "Build-Win-Clang-x86_64-Debug-Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -11475,7 +11475,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Debug-ANGLE",
+        "Build-Win-Clang-x86_64-Debug-ANGLE_Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -11522,7 +11522,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Debug-Vulkan",
+        "Build-Win-Clang-x86_64-Debug-Vulkan_Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -11569,7 +11569,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Release",
+        "Build-Win-Clang-x86_64-Release-Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -11616,7 +11616,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Release-ANGLE",
+        "Build-Win-Clang-x86_64-Release-ANGLE_Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -11663,7 +11663,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Release-Vulkan",
+        "Build-Win-Clang-x86_64-Release-Vulkan_Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -11710,7 +11710,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Debug",
+        "Build-Win-Clang-x86_64-Debug-Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -11757,7 +11757,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Debug-ANGLE",
+        "Build-Win-Clang-x86_64-Debug-ANGLE_Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -11804,7 +11804,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Debug-Vulkan",
+        "Build-Win-Clang-x86_64-Debug-Vulkan_Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -11851,7 +11851,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Release",
+        "Build-Win-Clang-x86_64-Release-Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -11898,7 +11898,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Release-ANGLE",
+        "Build-Win-Clang-x86_64-Release-ANGLE_Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -11945,7 +11945,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Release-Vulkan",
+        "Build-Win-Clang-x86_64-Release-Vulkan_Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -11992,7 +11992,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Debug",
+        "Build-Win-Clang-x86_64-Debug-Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -12040,7 +12040,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Debug-ANGLE",
+        "Build-Win-Clang-x86_64-Debug-ANGLE_Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -12088,7 +12088,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Debug-Vulkan",
+        "Build-Win-Clang-x86_64-Debug-Vulkan_Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -12136,7 +12136,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Release",
+        "Build-Win-Clang-x86_64-Release-Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -12184,7 +12184,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Release-ANGLE",
+        "Build-Win-Clang-x86_64-Release-ANGLE_Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -12232,7 +12232,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Release-Vulkan",
+        "Build-Win-Clang-x86_64-Release-Vulkan_Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -12280,7 +12280,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Debug",
+        "Build-Win-Clang-x86_64-Debug-Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -12327,7 +12327,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Debug-ANGLE",
+        "Build-Win-Clang-x86_64-Debug-ANGLE_Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -12374,7 +12374,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Debug-Vulkan",
+        "Build-Win-Clang-x86_64-Debug-Vulkan_Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -12421,7 +12421,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Release",
+        "Build-Win-Clang-x86_64-Release-Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -12468,7 +12468,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Release-ANGLE",
+        "Build-Win-Clang-x86_64-Release-ANGLE_Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -12515,7 +12515,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Release-Vulkan",
+        "Build-Win-Clang-x86_64-Release-Vulkan_Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -12750,7 +12750,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Debug",
+        "Build-Win-Clang-x86_64-Debug-Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -12778,7 +12778,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Perf-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-Goma": {
+    "Perf-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-NoGoma": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -12797,7 +12797,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Debug-Goma",
+        "Build-Win-Clang-x86_64-Debug",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -12812,7 +12812,7 @@
         "../../..",
         "perf",
         "repository=<(REPO)",
-        "buildername=Perf-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-Goma",
+        "buildername=Perf-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-NoGoma",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -12844,7 +12844,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Release",
+        "Build-Win-Clang-x86_64-Release-Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -13032,7 +13032,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Debug",
+        "Build-Win-Clang-x86_64-Debug-Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -13079,7 +13079,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Release",
+        "Build-Win-Clang-x86_64-Release-Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -13126,7 +13126,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Debug",
+        "Build-Win-Clang-x86_64-Debug-Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -13220,7 +13220,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Debug",
+        "Build-Win-Clang-x86_64-Debug-Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -19155,7 +19155,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Debug",
+        "Build-Win-Clang-x86_64-Debug-Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -19203,7 +19203,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Debug-ANGLE",
+        "Build-Win-Clang-x86_64-Debug-ANGLE_Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -19251,7 +19251,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Debug-Vulkan",
+        "Build-Win-Clang-x86_64-Debug-Vulkan_Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -19299,7 +19299,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Release",
+        "Build-Win-Clang-x86_64-Release-Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -19347,7 +19347,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Release-ANGLE",
+        "Build-Win-Clang-x86_64-Release-ANGLE_Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -19395,7 +19395,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Release-Vulkan",
+        "Build-Win-Clang-x86_64-Release-Vulkan_Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -19443,7 +19443,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Debug",
+        "Build-Win-Clang-x86_64-Debug-Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -19491,7 +19491,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Release",
+        "Build-Win-Clang-x86_64-Release-Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -19539,7 +19539,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Release-ANGLE",
+        "Build-Win-Clang-x86_64-Release-ANGLE_Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -19587,7 +19587,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Debug",
+        "Build-Win-Clang-x86_64-Debug-Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -19635,7 +19635,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Debug-ANGLE",
+        "Build-Win-Clang-x86_64-Debug-ANGLE_Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -19664,7 +19664,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Goma": {
+    "Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-NoGoma": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -19683,7 +19683,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Debug-Goma",
+        "Build-Win-Clang-x86_64-Debug",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -19699,7 +19699,7 @@
         "test",
         "repository=<(REPO)",
         "buildbucket_build_id=<(BUILDBUCKET_BUILD_ID)",
-        "buildername=Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Goma",
+        "buildername=Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-NoGoma",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -19731,7 +19731,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Debug-Vulkan",
+        "Build-Win-Clang-x86_64-Debug-Vulkan_Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -19779,7 +19779,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Release",
+        "Build-Win-Clang-x86_64-Release-Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -19827,7 +19827,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Release-ANGLE",
+        "Build-Win-Clang-x86_64-Release-ANGLE_Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -19875,7 +19875,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Release",
+        "Build-Win-Clang-x86_64-Release-Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -19923,7 +19923,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Release-Vulkan",
+        "Build-Win-Clang-x86_64-Release-Vulkan_Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -19971,7 +19971,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Debug",
+        "Build-Win-Clang-x86_64-Debug-Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -20019,7 +20019,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Debug",
+        "Build-Win-Clang-x86_64-Debug-Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -20067,7 +20067,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Debug-ANGLE",
+        "Build-Win-Clang-x86_64-Debug-ANGLE_Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -20115,7 +20115,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Release",
+        "Build-Win-Clang-x86_64-Release-Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -20163,7 +20163,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Release-ANGLE",
+        "Build-Win-Clang-x86_64-Release-ANGLE_Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -20211,7 +20211,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Debug",
+        "Build-Win-Clang-x86_64-Debug-Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -20259,7 +20259,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Debug-ANGLE",
+        "Build-Win-Clang-x86_64-Debug-ANGLE_Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -20307,7 +20307,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Debug-Vulkan",
+        "Build-Win-Clang-x86_64-Debug-Vulkan_Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -20355,7 +20355,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Release",
+        "Build-Win-Clang-x86_64-Release-Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -20403,7 +20403,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Release-ANGLE",
+        "Build-Win-Clang-x86_64-Release-ANGLE_Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -20451,7 +20451,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Release-Vulkan",
+        "Build-Win-Clang-x86_64-Release-Vulkan_Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -20499,7 +20499,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Debug",
+        "Build-Win-Clang-x86_64-Debug-Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -20547,7 +20547,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Debug-ANGLE",
+        "Build-Win-Clang-x86_64-Debug-ANGLE_Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -20595,7 +20595,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Release",
+        "Build-Win-Clang-x86_64-Release-Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -20643,7 +20643,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Release-ANGLE",
+        "Build-Win-Clang-x86_64-Release-ANGLE_Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -20691,7 +20691,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Debug",
+        "Build-Win-Clang-x86_64-Debug-Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -20739,7 +20739,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Debug-ANGLE",
+        "Build-Win-Clang-x86_64-Debug-ANGLE_Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -20787,7 +20787,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Debug-Vulkan",
+        "Build-Win-Clang-x86_64-Debug-Vulkan_Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -20835,7 +20835,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Release",
+        "Build-Win-Clang-x86_64-Release-Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -20883,7 +20883,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Release-ANGLE",
+        "Build-Win-Clang-x86_64-Release-ANGLE_Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -20931,7 +20931,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Release-Vulkan",
+        "Build-Win-Clang-x86_64-Release-Vulkan_Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -20979,7 +20979,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Debug",
+        "Build-Win-Clang-x86_64-Debug-Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -21027,7 +21027,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Debug-ANGLE",
+        "Build-Win-Clang-x86_64-Debug-ANGLE_Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -21075,7 +21075,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Debug-Vulkan",
+        "Build-Win-Clang-x86_64-Debug-Vulkan_Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -21123,7 +21123,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Release",
+        "Build-Win-Clang-x86_64-Release-Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -21171,7 +21171,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Release-ANGLE",
+        "Build-Win-Clang-x86_64-Release-ANGLE_Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -21219,7 +21219,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Release-Vulkan",
+        "Build-Win-Clang-x86_64-Release-Vulkan_Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -21267,7 +21267,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Debug",
+        "Build-Win-Clang-x86_64-Debug-Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -21316,7 +21316,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Debug-ANGLE",
+        "Build-Win-Clang-x86_64-Debug-ANGLE_Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -21365,7 +21365,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Debug-Vulkan",
+        "Build-Win-Clang-x86_64-Debug-Vulkan_Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -21414,7 +21414,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Release",
+        "Build-Win-Clang-x86_64-Release-Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -21463,7 +21463,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Release-ANGLE",
+        "Build-Win-Clang-x86_64-Release-ANGLE_Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -21512,7 +21512,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Release-Vulkan",
+        "Build-Win-Clang-x86_64-Release-Vulkan_Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -21561,7 +21561,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Debug",
+        "Build-Win-Clang-x86_64-Debug-Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -21609,7 +21609,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Debug-ANGLE",
+        "Build-Win-Clang-x86_64-Debug-ANGLE_Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -21657,7 +21657,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Debug-Vulkan",
+        "Build-Win-Clang-x86_64-Debug-Vulkan_Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -21705,7 +21705,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Release",
+        "Build-Win-Clang-x86_64-Release-Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -21753,7 +21753,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Release-ANGLE",
+        "Build-Win-Clang-x86_64-Release-ANGLE_Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -21801,7 +21801,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Release-Vulkan",
+        "Build-Win-Clang-x86_64-Release-Vulkan_Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -22041,7 +22041,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Debug",
+        "Build-Win-Clang-x86_64-Debug-Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -22089,7 +22089,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Debug",
+        "Build-Win-Clang-x86_64-Debug-Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -22137,7 +22137,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Debug",
+        "Build-Win-Clang-x86_64-Debug-Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -22185,7 +22185,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Debug",
+        "Build-Win-Clang-x86_64-Debug-Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -22214,7 +22214,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-Goma": {
+    "Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-NoGoma": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -22233,7 +22233,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Debug-Goma",
+        "Build-Win-Clang-x86_64-Debug",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -22249,7 +22249,7 @@
         "test",
         "repository=<(REPO)",
         "buildbucket_build_id=<(BUILDBUCKET_BUILD_ID)",
-        "buildername=Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-Goma",
+        "buildername=Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-NoGoma",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -22281,7 +22281,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Release",
+        "Build-Win-Clang-x86_64-Release-Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -22329,7 +22329,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Release",
+        "Build-Win-Clang-x86_64-Release-Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -22377,7 +22377,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Release",
+        "Build-Win-Clang-x86_64-Release-Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -22425,7 +22425,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Release",
+        "Build-Win-Clang-x86_64-Release-Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -22665,7 +22665,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Debug",
+        "Build-Win-Clang-x86_64-Debug-Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -22713,7 +22713,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Release",
+        "Build-Win-Clang-x86_64-Release-Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -22761,7 +22761,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Debug",
+        "Build-Win-Clang-x86_64-Debug-Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -22809,7 +22809,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Debug",
+        "Build-Win-Clang-x86_64-Debug-Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -22857,7 +22857,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Debug",
+        "Build-Win-Clang-x86_64-Debug-Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -22905,7 +22905,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Release",
+        "Build-Win-Clang-x86_64-Release-Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -23049,7 +23049,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Debug",
+        "Build-Win-Clang-x86_64-Debug-Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -23097,7 +23097,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Release",
+        "Build-Win-Clang-x86_64-Release-Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -29073,9 +29073,9 @@
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
     },
-    "Upload-Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Goma": {
+    "Upload-Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-NoGoma": {
       "dependencies": [
-        "Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Goma"
+        "Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-NoGoma"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -29088,7 +29088,7 @@
         "../../..",
         "upload_dm_results",
         "repository=<(REPO)",
-        "buildername=Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Goma",
+        "buildername=Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-NoGoma",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -30477,9 +30477,9 @@
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
     },
-    "Upload-Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-Goma": {
+    "Upload-Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-NoGoma": {
       "dependencies": [
-        "Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-Goma"
+        "Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-NoGoma"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -30492,7 +30492,7 @@
         "../../..",
         "upload_dm_results",
         "repository=<(REPO)",
-        "buildername=Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-Goma",
+        "buildername=Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-NoGoma",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",

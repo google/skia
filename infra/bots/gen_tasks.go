@@ -127,7 +127,7 @@ func deriveCompileTaskName(jobName string, parts map[string]string) string {
 		ec := []string{}
 		if val := parts["extra_config"]; val != "" {
 			ec = strings.Split(val, "_")
-			ignore := []string{"Skpbench", "AbandonGpuContext", "PreAbandonGpuContext", "Valgrind", "ReleaseAndAbandonGpuContext", "CCPR", "FSAA", "FAAA", "FDAA", "NativeFonts", "GDI", "NoGPUThreads"}
+			ignore := []string{"Skpbench", "AbandonGpuContext", "PreAbandonGpuContext", "Valgrind", "ReleaseAndAbandonGpuContext", "CCPR", "FSAA", "FAAA", "FDAA", "NativeFonts", "GDI", "NoGPUThreads", "NoGoma"}
 			keep := make([]string, 0, len(ec))
 			for _, part := range ec {
 				if !util.In(part, ignore) {
@@ -151,6 +151,10 @@ func deriveCompileTaskName(jobName string, parts map[string]string) string {
 			ec = append([]string{task_os}, ec...)
 			task_os = "Mac"
 		} else if strings.Contains(task_os, "Win") {
+			if parts["compiler"] == "Clang" && !strings.Contains(jobName, "NoGoma") {
+				// Goma increases Win compile times quite a bit, but we currently only have Clang Builds.
+				ec = append(ec, "Goma")
+			}
 			task_os = "Win"
 		} else if strings.Contains(task_os, "Ubuntu") || strings.Contains(task_os, "Debian") {
 			task_os = "Debian9"
