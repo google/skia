@@ -464,7 +464,7 @@ static sk_sp<SkSpecialImage> cpu_blur(
         // code adds extra pixels for the border. Just clear everything to clear those pixels.
         // This solution is overkill, but very simple.
         if (windowW == 1 || windowH == 1) {
-            sk_bzero(dst.getPixels(), dst.rowBytes() * dstBounds.height());
+            dst.eraseColor(0);
         }
 
         if (windowW > 1) {
