@@ -3,7 +3,7 @@
     "cmd": [
       "gsutil",
       "cp",
-      "[CUSTOM_/_B_WORK]/skia/out/Build-Debian9-Clang-arm-Release-Android/Release/skiaserve",
+      "[START_DIR]/out/Release/skiaserve",
       "gs://skia-public-binaries/skiaserve/arm/abc123/"
     ],
     "name": "upload skiaserve"

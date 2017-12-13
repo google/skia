@@ -27,7 +27,7 @@ def RunSteps(api):
     # Do not upload skiaserve for trybots.
     return
 
-  src = api.vars.skia_out.join(api.vars.configuration, 'skiaserve')
+  src = api.path['start_dir'].join('out', api.vars.configuration, 'skiaserve')
   target_arch = api.vars.builder_cfg.get('target_arch')
   dest = 'gs://skia-public-binaries/skiaserve/%s/%s/' % (
       target_arch, api.properties['revision'])
