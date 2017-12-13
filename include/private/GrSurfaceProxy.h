@@ -217,7 +217,8 @@ public:
                                               const GrSurfaceDesc&, SkBudgeted,
                                               const void* srcData, size_t rowBytes);
 
-    static sk_sp<GrTextureProxy> MakeWrappedBackend(GrContext*, GrBackendTexture&, GrSurfaceOrigin);
+    static sk_sp<GrTextureProxy> MakeWrappedBackend(GrContext*, const GrBackendTexture&,
+                                                    GrSurfaceOrigin);
 
     using LazyInstantiateCallback = std::function<sk_sp<GrTexture>(GrResourceProvider*,
                                                                    GrSurfaceOrigin* outOrigin)>;
