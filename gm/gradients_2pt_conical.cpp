@@ -49,17 +49,6 @@ static sk_sp<SkShader> Make2ConicalOutside(const SkPoint pts[2], const GradData&
                                                  data.fPos, data.fCount, tm, 0, &localMatrix);
 }
 
-static sk_sp<SkShader> Make2ConicalOutsideStrip(const SkPoint pts[2], const GradData& data,
-                                                SkShader::TileMode tm, const SkMatrix& localMatrix) {
-    SkPoint center0, center1;
-    SkScalar radius0 = (pts[1].fX - pts[0].fX) / 10;
-    SkScalar radius1 = (pts[1].fX - pts[0].fX) / 3;
-    center0.set(pts[0].fX + radius0, pts[0].fY + radius0);
-    center1.set(pts[1].fX - radius1, pts[1].fY - radius1);
-    return SkGradientShader::MakeTwoPointConical(center0, radius1, center1, radius1, data.fColors,
-                                                 data.fPos, data.fCount, tm, 0, &localMatrix);
-}
-
 static sk_sp<SkShader> Make2ConicalOutsideFlip(const SkPoint pts[2], const GradData& data,
                              SkShader::TileMode tm, const SkMatrix& localMatrix) {
     SkPoint center0, center1;
@@ -264,8 +253,7 @@ typedef sk_sp<SkShader> (*GradMaker)(const SkPoint pts[2], const GradData& data,
 
 constexpr GradMaker gGradMakersOutside[] = {
     Make2ConicalOutside, Make2ConicalOutsideFlip,
-    Make2ConicalZeroRadOutside, Make2ConicalZeroRadFlipOutside,
-    Make2ConicalOutsideStrip
+    Make2ConicalZeroRadOutside, Make2ConicalZeroRadFlipOutside
 };
 
 constexpr GradMaker gGradMakersInside[] = {
