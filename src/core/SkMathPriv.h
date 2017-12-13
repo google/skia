@@ -49,6 +49,21 @@ static inline unsigned SkClampUMax(unsigned value, unsigned max) {
     return value;
 }
 
+// If a signed int holds min_int (e.g. 0x80000000) it is undefined what happens when
+// we negate it (even though we *know* we're 2's complement and we'll get the same
+// value back). So we create this helper function that casts to size_t (unsigned) first,
+// to avoid the complaint.
+static inline size_t sk_negate_to_size_t(int32_t value) {
+#if defined(_MSC_VER)
+#pragma warning(push)
+#pragma warning(disable : 4146)  // Thanks MSVC, we know what we're negating an unsigned
+#endif
+    return -static_cast<size_t>(value);
+#if defined(_MSC_VER)
+#pragma warning(pop)
+#endif
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 /** Return a*b/255, truncating away any fractional bits. Only valid if both
