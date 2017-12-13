@@ -20,9 +20,9 @@ static constexpr float gSRGB_toXYZD50[] {
 };
 
 static constexpr float gAdobeRGB_toXYZD50[] {
-    0.6097559f, 0.2052401f, 0.1492240f, // Rx, Gx, Bx
-    0.3111242f, 0.6256560f, 0.0632197f, // Ry, Gy, Gz
-    0.0194811f, 0.0608902f, 0.7448387f, // Rz, Gz, Bz
+    0.6097412f, 0.2052765f, 0.1491852f, // Rx, Gx, Bx
+    0.3111115f, 0.6256714f, 0.0632172f, // Ry, Gy, Gz
+    0.0194702f, 0.0608673f, 0.7445679f, // Rz, Gz, Bz
 };
 
 static constexpr float gDCIP3_toXYZD50[] {

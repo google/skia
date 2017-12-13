@@ -371,9 +371,9 @@ static void draw_gamut(SkCanvas* canvas, const SkMatrix44& xyz, const char* name
     // Report the XYZ values.
     SkDebugf("%s\n", name);
     SkDebugf("       R     G     B\n");
-    SkDebugf("X  %.3f %.3f %.3f\n", xyz.get(0, 0), xyz.get(0, 1), xyz.get(0, 2));
-    SkDebugf("Y  %.3f %.3f %.3f\n", xyz.get(1, 0), xyz.get(1, 1), xyz.get(1, 2));
-    SkDebugf("Z  %.3f %.3f %.3f\n", xyz.get(2, 0), xyz.get(2, 1), xyz.get(2, 2));
+    SkDebugf("X  %.7f %.7f %.7f\n", xyz.get(0, 0), xyz.get(0, 1), xyz.get(0, 2));
+    SkDebugf("Y  %.7f %.7f %.7f\n", xyz.get(1, 0), xyz.get(1, 1), xyz.get(1, 2));
+    SkDebugf("Z  %.7f %.7f %.7f\n", xyz.get(2, 0), xyz.get(2, 1), xyz.get(2, 2));
 
     // Calculate the points in the gamut from the XYZ values.
     SkPoint rgb[4];

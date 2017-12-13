@@ -527,6 +527,16 @@ bool SkColorSpace::Equals(const SkColorSpace* src, const SkColorSpace* dst) {
         return false;
     }
 
+    const SkMatrix44* sm = src->toXYZD50();
+    const SkMatrix44* dm = dst->toXYZD50();
+    for (int r = 0; r < 4; ++r) {
+        for (int c = 0; c < 4; ++c) {
+            float s = sm->getFloat(r, c);
+            float d = dm->getFloat(r, c);
+            SkDebugf("%1.8f : %1.8f : %1.8f\n", s, d, fabsf(s - d));
+        }
+    }
+
     switch (src->gammaNamed()) {
         case kSRGB_SkGammaNamed:
         case k2Dot2Curve_SkGammaNamed:
