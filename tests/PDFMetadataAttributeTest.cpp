@@ -26,7 +26,7 @@ DEF_TEST(SkPDF_Metadata, r) {
 
     SkDynamicMemoryWStream pdf;
     sk_sp<SkDocument> doc = SkDocument::MakePDF(&pdf, SK_ScalarDefaultRasterDPI,
-                                                metadata, nullptr, false);
+                                                metadata, false);
     doc->beginPage(612.0f, 792.0f);
     doc->close();
     sk_sp<SkData> data = pdf.detachAsData();

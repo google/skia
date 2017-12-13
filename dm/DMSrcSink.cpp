@@ -1645,7 +1645,7 @@ Error PDFSink::draw(const Src& src, SkBitmap*, SkWStream* dst, SkString*) const 
     metadata.fTitle = src.name();
     metadata.fSubject = "rendering correctness test";
     metadata.fCreator = "Skia/DM";
-    sk_sp<SkDocument> doc = SkDocument::MakePDF(dst, fRasterDpi, metadata, nullptr, fPDFA);
+    sk_sp<SkDocument> doc = SkDocument::MakePDF(dst, fRasterDpi, metadata, fPDFA);
     if (!doc) {
         return "SkDocument::MakePDF() returned nullptr";
     }

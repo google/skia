@@ -10,7 +10,9 @@
 
 #include "SkBitmap.h"
 #include "SkPicture.h"
+#ifdef SK_SUPPORT_LEGACY_PDF_PIXELSERIALIZER
 #include "SkPixelSerializer.h"
+#endif
 #include "SkRect.h"
 #include "SkRefCnt.h"
 #include "SkString.h"
@@ -109,16 +111,6 @@ public:
      *         or sent online or to printer.
      *  @param metadata a PDFmetadata object.  Any fields may be left
      *         empty.
-     *  @param jpegEncoder For PDF documents, if a jpegEncoder is set,
-     *         use it to encode SkImages and SkBitmaps as [JFIF]JPEGs.
-     *         This feature is deprecated and is only supplied for
-     *         backwards compatability.
-     *         The prefered method to create PDFs with JPEG images is
-     *         to use SkImage::NewFromEncoded() and not jpegEncoder.
-     *         Chromium uses NewFromEncoded.
-     *         If the encoder is unset, or if jpegEncoder->onEncode()
-     *         returns NULL, fall back on encoding images losslessly
-     *         with Deflate.
      *  @param pdfa Iff true, include XMP metadata, a document UUID,
      *         and sRGB output intent information.  This adds length
      *         to the document and makes it non-reproducable, but are
@@ -130,13 +122,18 @@ public:
     static sk_sp<SkDocument> MakePDF(SkWStream* stream,
                                      SkScalar dpi,
                                      const SkDocument::PDFMetadata& metadata,
+                                     bool pdfa);
+#ifdef SK_SUPPORT_LEGACY_PDF_PIXELSERIALIZER
+    static sk_sp<SkDocument> MakePDF(SkWStream* stream,
+                                     SkScalar dpi,
+                                     const SkDocument::PDFMetadata& metadata,
                                      sk_sp<SkPixelSerializer> jpegEncoder,
                                      bool pdfa);
+#endif
 
     static sk_sp<SkDocument> MakePDF(SkWStream* stream,
                                      SkScalar dpi = SK_ScalarDefaultRasterDPI) {
-        return SkDocument::MakePDF(stream, dpi, SkDocument::PDFMetadata(),
-                                   nullptr, false);
+        return SkDocument::MakePDF(stream, dpi, SkDocument::PDFMetadata(), false);
     }
 
     /**
