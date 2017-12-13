@@ -38,10 +38,8 @@ namespace SkSL {
 
 class GrVkGpu : public GrGpu {
 public:
-    static sk_sp<GrGpu> Make(GrBackendContext backendContext, const GrContextOptions& options,
-                             GrContext* context);
-    static sk_sp<GrGpu> Make(sk_sp<const GrVkBackendContext>, const GrContextOptions& options,
-                             GrContext* context);
+    static sk_sp<GrGpu> Make(GrBackendContext backendContext, const GrContextOptions&, GrContext*);
+    static sk_sp<GrGpu> Make(sk_sp<const GrVkBackendContext>, const GrContextOptions&, GrContext*);
 
     ~GrVkGpu() override;
 
@@ -173,8 +171,7 @@ public:
     GrVkHeap* getHeap(Heap heap) const { return fHeaps[heap].get(); }
 
 private:
-    GrVkGpu(GrContext* context, const GrContextOptions& options,
-            sk_sp<const GrVkBackendContext> backendContext);
+    GrVkGpu(GrContext*, const GrContextOptions&, sk_sp<const GrVkBackendContext> backendContext);
 
     void onResetContext(uint32_t resetBits) override {}
 

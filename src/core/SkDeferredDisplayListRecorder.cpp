@@ -7,25 +7,61 @@
 
 #include "SkDeferredDisplayListRecorder.h"
 
-#include "GrContext.h"
+#if SK_SUPPORT_GPU
+#include "GrContextPriv.h"
+#include "SkGr.h"
+#endif
 
 #include "SkCanvas.h" // TODO: remove
 #include "SkDeferredDisplayList.h"
-#include "SkSurface.h" // TODO: remove
+#include "SkSurface.h"
+#include "SkSurfaceCharacterization.h"
 
 SkDeferredDisplayListRecorder::SkDeferredDisplayListRecorder(
                     const SkSurfaceCharacterization& characterization)
         : fCharacterization(characterization) {
 }
 
+bool SkDeferredDisplayListRecorder::init() {
+    SkASSERT(!fSurface);
+
+#ifdef SK_RASTER_RECORDER_IMPLEMENTATION
+    // Use raster right now to allow threading
+    const SkImageInfo ii = SkImageInfo::Make(fCharacterization.width(), fCharacterization.height(),
+                                             kN32_SkColorType, kOpaque_SkAlphaType,
+                                             fCharacterization.refColorSpace());
+
+    fSurface = SkSurface::MakeRaster(ii, &fCharacterization.surfaceProps());
+#else
+    if (!fContext) {
+        fContext = GrContextPriv::MakeStubbedOut(fCharacterization.contextInfo());
+        if (!fContext) {
+            return false;
+        }
+    }
+
+    SkColorType colorType = kUnknown_SkColorType;
+    if (!GrPixelConfigToColorType(fCharacterization.config(), &colorType)) {
+        return false;
+    }
+
+    const SkImageInfo ii = SkImageInfo::Make(fCharacterization.width(), fCharacterization.height(),
+                                             colorType, kPremul_SkAlphaType,
+                                             fCharacterization.refColorSpace());
+
+    fSurface = SkSurface::MakeRenderTarget(fContext.get(), SkBudgeted::kYes,
+                                           ii, fCharacterization.stencilCount(),
+                                           fCharacterization.origin(),
+                                           &fCharacterization.surfaceProps());
+#endif
+    return SkToBool(fSurface.get());
+}
+
 SkCanvas* SkDeferredDisplayListRecorder::getCanvas() {
     if (!fSurface) {
-        SkImageInfo ii = SkImageInfo::MakeN32(fCharacterization.width(),
-                                              fCharacterization.height(),
-                                              kOpaque_SkAlphaType);
-
-        // Use raster right now to allow threading
-        fSurface = SkSurface::MakeRaster(ii, nullptr);
+        if (!this->init()) {
+            return nullptr;
+        }
     }
 
     return fSurface->getCanvas();

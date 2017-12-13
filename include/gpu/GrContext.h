@@ -382,16 +382,16 @@ private:
 
     GrAuditTrail                            fAuditTrail;
 
-    GrBackend                               fBackend;
+    const GrBackend                         fBackend;
 
     GrContextOptions::PersistentCache*      fPersistentCache;
 
     // TODO: have the GrClipStackClip use renderTargetContexts and rm this friending
     friend class GrContextPriv;
 
-    GrContext(); // init must be called after the constructor.
-    bool init(GrBackend, GrBackendContext, const GrContextOptions& options);
-    bool init(const GrContextOptions& options);
+    GrContext(GrBackend); // init must be called after the constructor.
+    GrContext(GrContextThreadSafeProxy*);
+    bool init(const GrContextOptions&);
 
     /**
      * These functions create premul <-> unpremul effects. If the second argument is 'true', they
@@ -427,14 +427,24 @@ public:
     bool matches(GrContext* context) const { return context->uniqueID() == fContextUniqueID; }
 
 private:
-    GrContextThreadSafeProxy(sk_sp<const GrCaps> caps, uint32_t uniqueID)
+    // DDL TODO: need to add unit tests for backend & maybe options
+    GrContextThreadSafeProxy(sk_sp<const GrCaps> caps,
+                             uint32_t uniqueID,
+                             GrBackend backend,
+                             const GrContextOptions& options)
         : fCaps(std::move(caps))
-        , fContextUniqueID(uniqueID) {}
+        , fContextUniqueID(uniqueID)
+        , fBackend(backend)
+        , fOptions(options) {
+    }
 
-    sk_sp<const GrCaps> fCaps;
-    uint32_t            fContextUniqueID;
+    sk_sp<const GrCaps>    fCaps;
+    const uint32_t         fContextUniqueID;
+    const GrBackend        fBackend;
+    const GrContextOptions fOptions;
 
     friend class GrContext;
+    friend class GrContextPriv;
     friend class SkImage;
 
     typedef SkRefCnt INHERITED;

@@ -10,12 +10,14 @@
 
 #include "GrTypes.h"
 
-#if SK_SUPPORT_GPU
-#include "GrTypesPriv.h"
 #include "SkSurfaceProps.h"
 
-class GrContextThreadSafeProxy;
 class SkColorSpace;
+
+#if SK_SUPPORT_GPU
+#include "GrTypesPriv.h"
+
+class GrContextThreadSafeProxy;
 
 /** \class SkSurfaceCharacterization
     A surface characterization contains all the information Ganesh requires to makes its internal
@@ -103,14 +105,23 @@ private:
 
 class SkSurfaceCharacterization {
 public:
-    SkSurfaceCharacterization() : fWidth(0), fHeight(0) { }
+    SkSurfaceCharacterization()
+            : fWidth(0)
+            , fHeight(0)
+            , fSurfaceProps(0, kUnknown_SkPixelGeometry) {
+    }
 
     int width() const { return fWidth; }
     int height() const { return fHeight; }
+    SkColorSpace* colorSpace() const { return fColorSpace.get(); }
+    sk_sp<SkColorSpace> refColorSpace() const { return fColorSpace; }
+    const SkSurfaceProps& surfaceProps()const { return fSurfaceProps; }
 
 private:
     int                             fWidth;
     int                             fHeight;
+    sk_sp<SkColorSpace>             fColorSpace;
+    SkSurfaceProps                  fSurfaceProps;
 };
 
 #endif

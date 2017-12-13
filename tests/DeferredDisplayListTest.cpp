@@ -106,6 +106,10 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(SkSurfaceCharacterization, reporter, ctxInfo) {
 
         SkDeferredDisplayListRecorder r(c);
         SkCanvas* canvas = r.getCanvas();
+        if (!canvas) {
+            return;
+        }
+
         canvas->drawRect(SkRect::MakeXYWH(10, 10, 10, 10), SkPaint());
         ddl = r.detach();
 

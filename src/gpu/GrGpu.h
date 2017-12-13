@@ -8,6 +8,7 @@
 #ifndef GrGpu_DEFINED
 #define GrGpu_DEFINED
 
+#include "GrCaps.h"
 #include "GrGpuCommandBuffer.h"
 #include "GrProgramDesc.h"
 #include "GrSwizzle.h"
@@ -48,8 +49,7 @@ public:
      * not supported (at compile-time or run-time) this returns nullptr. The context will not be
      * fully constructed and should not be used by GrGpu until after this function returns.
      */
-    static sk_sp<GrGpu> Make(GrBackend, GrBackendContext, const GrContextOptions&,
-                             GrContext* context);
+    static sk_sp<GrGpu> Make(GrBackend, GrBackendContext, const GrContextOptions&, GrContext*);
 
     ////////////////////////////////////////////////////////////////////////////
 
@@ -63,6 +63,7 @@ public:
      * Gets the capabilities of the draw target.
      */
     const GrCaps* caps() const { return fCaps.get(); }
+    sk_sp<const GrCaps> refCaps() const { return fCaps; }
 
     GrPathRendering* pathRendering() { return fPathRendering.get();  }
 
