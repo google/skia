@@ -46,6 +46,30 @@
       "revId": "767a9df878a7f51e477a0d3cf5cf2ab14f892cb9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fa7f48fd_6c38fdf4",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 365,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-12-13T14:23:46Z",
+      "side": 1,
+      "message": "I\u0027ve removed the explicit check above.",
+      "parentUuid": "4f1a8f6e_f3859419",
+      "range": {
+        "startLine": 365,
+        "startChar": 51,
+        "endLine": 365,
+        "endChar": 69
+      },
+      "revId": "767a9df878a7f51e477a0d3cf5cf2ab14f892cb9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
