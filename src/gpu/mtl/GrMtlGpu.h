@@ -141,6 +141,11 @@ private:
 
     void clearStencil(GrRenderTarget* target, int clearValue) override  {}
 
+    bool onValidateBackendTexture(const GrBackendTexture& tex, SkColorType ct,
+                                  SkAlphaType at, sk_sp<SkColorSpace> cs) const override {
+        return false;
+    }
+
     GrBackendObject createTestingOnlyBackendObject(void* pixels, int w, int h,
                                                    GrPixelConfig config, bool isRT,
                                                    GrMipMapped) override {

@@ -4493,6 +4493,8 @@ GrBackendTexture GrGLGpu::createTestingOnlyBackendTexture(void* pixels, int w, i
         return GrBackendTexture();  // invalid
     }
 
+    info.fFormat = this->glCaps().configSizedInternalFormat(config);
+
     this->unbindCpuToGpuXferBuffer();
 
     // Figure out the number of mip levels.
@@ -4519,7 +4521,7 @@ GrBackendTexture GrGLGpu::createTestingOnlyBackendTexture(void* pixels, int w, i
         height = SkTMax(1, height / 2);
     }
 
-    return GrBackendTexture(w, h, config, mipMapped, info);
+    return GrBackendTexture(w, h, mipMapped, info);
 }
 
 bool GrGLGpu::isTestingOnlyBackendTexture(const GrBackendTexture& tex) const {
@@ -4693,6 +4695,62 @@ int GrGLGpu::TextureToCopyProgramIdx(GrTexture* texture) {
             SK_ABORT("Unexpected samper type");
             return 0;
     }
+}
+
+bool GrGLGpu::onValidateBackendTexture(const GrBackendTexture& tex, SkColorType ct,
+                                       SkAlphaType at, sk_sp<SkColorSpace> cs) const {
+    const GrGLTextureInfo* texInfo = tex.getGLTextureInfo();
+    if (!texInfo) {
+        return false;
+    }
+    GrGLenum format = texInfo->fFormat;
+    tex.fConfig = kUnknown_GrPixelConfig;
+
+    switch (ct) {
+        case kUnknown_SkColorType:
+            return false;
+        case kAlpha_8_SkColorType:
+            if (GR_GL_ALPHA8 == format) {
+                tex.fConfig = kAlpha_8_as_Alpha_GrPixelConfig;
+            } else if (GR_GL_R8 == format) {
+                tex.fConfig = kAlpha_8_as_Red_GrPixelConfig;
+            }
+            break;
+        case kRGB_565_SkColorType:
+            if (GR_GL_RGB565 == format) {
+                tex.fConfig = kRGB_565_GrPixelConfig;
+            }
+            break;
+        case kARGB_4444_SkColorType:
+            if (GR_GL_RGBA4 == format) {
+                tex.fConfig = kRGBA_4444_GrPixelConfig;
+            }
+            break;
+        case kRGBA_8888_SkColorType:
+            if (GR_GL_RGBA8 == format) {
+                tex.fConfig = kRGBA_8888_GrPixelConfig;
+            }
+            break;
+        case kBGRA_8888_SkColorType:
+            if (GR_GL_BGRA8 == format) {
+                tex.fConfig = kBGRA_8888_GrPixelConfig;
+            }
+            break;
+        case kGray_8_SkColorType:
+            if (GR_GL_LUMINANCE8 == format) {
+                tex.fConfig = kGray_8_as_Lum_GrPixelConfig;
+            } else if (GR_GL_R8 == format) {
+                tex.fConfig = kGray_8_as_Red_GrPixelConfig;
+            }
+            break;
+        case kRGBA_F16_SkColorType:
+            if (GR_GL_RGBA16F == format) {
+                tex.fConfig = kRGBA_half_GrPixelConfig;
+            }
+            break;
+    }
+
+    return kUnknown_GrPixelConfig != tex.fConfig;
 }
 
 void GrGLGpu::onDumpJSON(SkJSONWriter* writer) const {

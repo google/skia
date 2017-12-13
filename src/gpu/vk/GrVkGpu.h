@@ -260,6 +260,9 @@ private:
                       GrVkRenderTarget* src, GrSurfaceOrigin srcOrigin,
                       const SkIRect& srcRect, const SkIPoint& dstPoint);
 
+    bool onValidateBackendTexture(const GrBackendTexture& tex, SkColorType ct,
+                                  SkAlphaType at, sk_sp<SkColorSpace> cs) const override;
+
     sk_sp<const GrVkBackendContext> fBackendContext;
     sk_sp<GrVkCaps>                 fVkCaps;
 

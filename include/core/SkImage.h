@@ -122,6 +122,15 @@ public:
                                           TextureReleaseProc textureReleaseProc,
                                           ReleaseContext releaseContext);
 
+    static sk_sp<SkImage> MakeFromTexture(GrContext* context,
+                                          const GrBackendTexture& backendTexture,
+                                          GrSurfaceOrigin origin,
+                                          SkColorType colorType,
+                                          SkAlphaType alphaType,
+                                          sk_sp<SkColorSpace> colorSpace,
+                                          TextureReleaseProc textureReleaseProc,
+                                          ReleaseContext releaseContext);
+
     /**
      *  Decodes and uploads the encoded data to a GPU backed image using the supplied GrContext.
      *  That image can be safely used by other GrContexts, across thread boundaries. The GrContext

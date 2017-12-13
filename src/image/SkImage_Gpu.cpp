@@ -301,6 +301,28 @@ sk_sp<SkImage> SkImage::MakeFromTexture(GrContext* ctx,
                                       releaseP, releaseC);
 }
 
+bool validate_backend_texture(GrContext* ctx, const GrBackendTexture& tex,
+                              SkColorType ct, SkAlphaType at, sk_sp<SkColorSpace> cs) {
+    // TODO: Create a SkImageColorInfo struct for color, alpha, and color space so we don't need to
+    // create a fake image info here.
+    SkImageInfo info = SkImageInfo::Make(1, 1, ct, at, cs);
+    if (!SkImageInfoIsValidAllowNumericalCS(info)) {
+        return false;
+    }
+
+    return ctx->getGpu()->validateBackendTexture(tex, ct, at, cs);
+}
+
+sk_sp<SkImage> SkImage::MakeFromTexture(GrContext* ctx,
+                                        const GrBackendTexture& tex, GrSurfaceOrigin origin,
+                                        SkColorType ct, SkAlphaType at, sk_sp<SkColorSpace> cs,
+                                        TextureReleaseProc releaseP, ReleaseContext releaseC) {
+    if (!validate_backend_texture(ctx, tex, ct, at, cs)) {
+        return nullptr;
+    }
+    return MakeFromTexture(ctx, tex, origin, at, cs, releaseP, releaseC);
+}
+
 sk_sp<SkImage> SkImage::MakeFromAdoptedTexture(GrContext* ctx,
                                                const GrBackendTexture& tex, GrSurfaceOrigin origin,
                                                SkAlphaType at, sk_sp<SkColorSpace> cs) {
