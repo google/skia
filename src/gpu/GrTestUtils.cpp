@@ -309,9 +309,9 @@ sk_sp<SkColorSpace> TestColorSpace(SkRandom* random) {
         gOnce = true;
         // No color space (legacy mode)
         gColorSpaces[0] = nullptr;
-        // sRGB or Adobe
+        // sRGB or color-spin sRGB
         gColorSpaces[1] = SkColorSpace::MakeSRGB();
-        gColorSpaces[2] = SkColorSpace_Base::MakeNamed(SkColorSpace_Base::kAdobeRGB_Named);
+        gColorSpaces[2] = SkColorSpace::MakeSRGB()->makeColorSpin();
     }
     return gColorSpaces[random->nextULessThan(static_cast<uint32_t>(SK_ARRAY_COUNT(gColorSpaces)))];
 }
@@ -322,13 +322,13 @@ sk_sp<GrColorSpaceXform> TestColorXform(SkRandom* random) {
     if (!gOnce) {
         gOnce = true;
         sk_sp<SkColorSpace> srgb = SkColorSpace::MakeSRGB();
-        sk_sp<SkColorSpace> adobe = SkColorSpace_Base::MakeNamed(SkColorSpace_Base::kAdobeRGB_Named);
+        sk_sp<SkColorSpace> spin = SkColorSpace::MakeSRGB()->makeColorSpin();
         // No gamut change
         gXforms[0] = nullptr;
-        // To larger gamut (with automatic transfer function)
-        gXforms[1] = GrColorSpaceXform::Make(srgb.get(), kSRGBA_8888_GrPixelConfig, adobe.get());
-        // To smaller gamut (with manual transfer function)
-        gXforms[2] = GrColorSpaceXform::Make(adobe.get(), kRGBA_8888_GrPixelConfig, srgb.get());
+        // To different gamut (with automatic transfer function)
+        gXforms[1] = GrColorSpaceXform::Make(srgb.get(), kSRGBA_8888_GrPixelConfig, spin.get());
+        // To different gamut (with manual transfer function)
+        gXforms[2] = GrColorSpaceXform::Make(spin.get(), kRGBA_8888_GrPixelConfig, srgb.get());
     }
     return gXforms[random->nextULessThan(static_cast<uint32_t>(SK_ARRAY_COUNT(gXforms)))];
 }

@@ -174,49 +174,6 @@ DEF_TEST(ColorSpaceSRGBLinearCompare, r) {
     REPORTER_ASSERT(r, strangeColorSpace != namedColorSpace);
 }
 
-DEF_TEST(ColorSpaceAdobeCompare, r) {
-    // Create an sRGB color space by name
-    sk_sp<SkColorSpace> namedColorSpace =
-            SkColorSpace_Base::MakeNamed(SkColorSpace_Base::kAdobeRGB_Named);
-
-    // Create an sRGB color space by value
-    SkMatrix44 adobeToxyzD50(SkMatrix44::kUninitialized_Constructor);
-    adobeToxyzD50.set3x3RowMajorf(gAdobeRGB_toXYZD50);
-
-    SkColorSpaceTransferFn fn;
-    fn.fA = 1.0f;
-    fn.fB = 0.0f;
-    fn.fC = 0.0f;
-    fn.fD = 0.0f;
-    fn.fE = 0.0f;
-    fn.fF = 0.0f;
-    fn.fG = 2.2f;
-    sk_sp<SkColorSpace> rgbColorSpace = SkColorSpace::MakeRGB(fn, adobeToxyzD50);
-    REPORTER_ASSERT(r, rgbColorSpace == namedColorSpace);
-}
-
-DEF_TEST(ColorSpace_Named, r) {
-    const struct {
-        SkColorSpace_Base::Named fNamed;
-        SkGammaNamed             fExpectedGamma;
-    } recs[] {
-        { SkColorSpace_Base::kSRGB_Named,       kSRGB_SkGammaNamed },
-        { SkColorSpace_Base::kAdobeRGB_Named,   k2Dot2Curve_SkGammaNamed },
-        { SkColorSpace_Base::kSRGBLinear_Named, kLinear_SkGammaNamed },
-    };
-
-    for (auto rec : recs) {
-        auto cs = SkColorSpace_Base::MakeNamed(rec.fNamed);
-        REPORTER_ASSERT(r, cs);
-        if (cs) {
-            REPORTER_ASSERT(r, rec.fExpectedGamma == cs->gammaNamed());
-        }
-    }
-
-    SkImageInfo info = SkImageInfo::MakeS32(10, 10, kPremul_SkAlphaType);
-    REPORTER_ASSERT(r, info.gammaCloseToSRGB());
-}
-
 static void test_serialize(skiatest::Reporter* r, SkColorSpace* space, bool isNamed) {
     sk_sp<SkData> data1 = space->serialize();
 
@@ -238,7 +195,6 @@ static void test_serialize(skiatest::Reporter* r, SkColorSpace* space, bool isNa
 
 DEF_TEST(ColorSpace_Serialize, r) {
     test_serialize(r, SkColorSpace::MakeSRGB().get(), true);
-    test_serialize(r, SkColorSpace_Base::MakeNamed(SkColorSpace_Base::kAdobeRGB_Named).get(), true);
     test_serialize(r, SkColorSpace::MakeSRGBLinear().get(), true);
 
     sk_sp<SkData> monitorData = GetResourceAsData("icc_profiles/HP_ZR30w.icc");
@@ -264,7 +220,6 @@ DEF_TEST(ColorSpace_Serialize, r) {
 
 DEF_TEST(ColorSpace_Equals, r) {
     sk_sp<SkColorSpace> srgb = SkColorSpace::MakeSRGB();
-    sk_sp<SkColorSpace> adobe = SkColorSpace_Base::MakeNamed(SkColorSpace_Base::kAdobeRGB_Named);
     sk_sp<SkData> data = GetResourceAsData("icc_profiles/HP_ZR30w.icc");
     sk_sp<SkColorSpace> z30 = SkColorSpace::MakeICC(data->data(), data->size());
     data = GetResourceAsData("icc_profiles/HP_Z32x.icc");
@@ -287,7 +242,6 @@ DEF_TEST(ColorSpace_Equals, r) {
 
     REPORTER_ASSERT(r, SkColorSpace::Equals(nullptr, nullptr));
     REPORTER_ASSERT(r, SkColorSpace::Equals(srgb.get(), srgb.get()));
-    REPORTER_ASSERT(r, SkColorSpace::Equals(adobe.get(), adobe.get()));
     REPORTER_ASSERT(r, SkColorSpace::Equals(z30.get(), z30.get()));
     REPORTER_ASSERT(r, SkColorSpace::Equals(z32.get(), z32.get()));
     REPORTER_ASSERT(r, SkColorSpace::Equals(upperLeft.get(), upperLeft.get()));
@@ -296,13 +250,11 @@ DEF_TEST(ColorSpace_Equals, r) {
 
     REPORTER_ASSERT(r, !SkColorSpace::Equals(nullptr, srgb.get()));
     REPORTER_ASSERT(r, !SkColorSpace::Equals(srgb.get(), nullptr));
-    REPORTER_ASSERT(r, !SkColorSpace::Equals(adobe.get(), srgb.get()));
     REPORTER_ASSERT(r, !SkColorSpace::Equals(z30.get(), srgb.get()));
     REPORTER_ASSERT(r, !SkColorSpace::Equals(z32.get(), z30.get()));
     REPORTER_ASSERT(r, !SkColorSpace::Equals(upperLeft.get(), srgb.get()));
     REPORTER_ASSERT(r, !SkColorSpace::Equals(upperLeft.get(), upperRight.get()));
     REPORTER_ASSERT(r, !SkColorSpace::Equals(z30.get(), upperRight.get()));
-    REPORTER_ASSERT(r, !SkColorSpace::Equals(upperRight.get(), adobe.get()));
     REPORTER_ASSERT(r, !SkColorSpace::Equals(z30.get(), rgb4.get()));
     REPORTER_ASSERT(r, !SkColorSpace::Equals(srgb.get(), rgb4.get()));
 }
@@ -352,27 +304,6 @@ DEF_TEST(ColorSpace_Primaries, r) {
     sk_sp<SkColorSpace> space = SkColorSpace::MakeRGB(SkColorSpace::kSRGB_RenderTargetGamma,
                                                       srgbToXYZ);
     REPORTER_ASSERT(r, SkColorSpace::MakeSRGB() == space);
-
-    // AdobeRGB primaries (D65)
-    SkColorSpacePrimaries adobe;
-    adobe.fRX = 0.64f;
-    adobe.fRY = 0.33f;
-    adobe.fGX = 0.21f;
-    adobe.fGY = 0.71f;
-    adobe.fBX = 0.15f;
-    adobe.fBY = 0.06f;
-    adobe.fWX = 0.3127f;
-    adobe.fWY = 0.3290f;
-    SkMatrix44 adobeToXYZ(SkMatrix44::kUninitialized_Constructor);
-    result = adobe.toXYZD50(&adobeToXYZ);
-    REPORTER_ASSERT(r, result);
-
-    SkColorSpaceTransferFn fn;
-    fn.fA = 1.0f;
-    fn.fB = fn.fC = fn.fD = fn.fE = fn.fF = 0.0f;
-    fn.fG = 2.2f;
-    space = SkColorSpace::MakeRGB(fn, adobeToXYZ);
-    REPORTER_ASSERT(r, SkColorSpace_Base::MakeNamed(SkColorSpace_Base::kAdobeRGB_Named) == space);
 
     // ProPhoto (D50)
     SkColorSpacePrimaries proPhoto;
