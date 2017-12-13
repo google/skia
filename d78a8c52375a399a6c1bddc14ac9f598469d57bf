@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a663aec8_d56533c1",
+        "filename": "src/shaders/gradients/SkTwoPointConicalGradient_gpu.cpp",
+        "patchSetId": 28
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-12-13T16:50:24Z",
+      "side": 1,
+      "message": "what about the \"edge\" case. Or realFocal? Basically each thing that you added to the key for the shader, we want to make sure that it will get tested here.",
+      "range": {
+        "startLine": 126,
+        "startChar": 2,
+        "endLine": 132,
+        "endChar": 5
+      },
+      "revId": "d78a8c52375a399a6c1bddc14ac9f598469d57bf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
