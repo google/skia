@@ -19,23 +19,6 @@
 #include "GrContext.h"
 #endif
 
-static void drawJpeg(SkCanvas* canvas, const SkISize& size) {
-    // TODO: Make this draw a file that is checked in, so it can
-    // be exercised on machines other than mike's. Will require a
-    // rebaseline.
-    sk_sp<SkData> data(SkData::MakeFromFileName("/Users/mike/Downloads/skia.google.jpeg"));
-    if (nullptr == data) {
-        return;
-    }
-    sk_sp<SkImage> image = SkImage::MakeFromEncoded(std::move(data));
-    if (image) {
-        SkAutoCanvasRestore acr(canvas, true);
-        canvas->scale(size.width() * 1.0f / image->width(),
-                      size.height() * 1.0f / image->height());
-        canvas->drawImage(image, 0, 0, nullptr);
-    }
-}
-
 static void drawContents(SkSurface* surface, SkColor fillC) {
     SkSize size = SkSize::Make(SkIntToScalar(surface->width()),
                                SkIntToScalar(surface->height()));
@@ -129,8 +112,6 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-        drawJpeg(canvas, this->getISize());
-
         canvas->scale(2, 2);
 
         const char* kLabel1 = "Original Img";
