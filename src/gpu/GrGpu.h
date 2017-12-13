@@ -496,6 +496,12 @@ public:
         return this->onIsACopyNeededForTextureParams(proxy, params, copyParams, scaleAdjust);
     }
 
+    // Returns true if the GrBackendTexutre can we used with the supplied SkColorType, SkAlphaType,
+    // and SkColorSpace. If it is compatible, the GrPixelConfig on the GrBackendTexture will be set
+    // to a config that matches the backend format and requested SkColorType.
+    bool validateBackendTexture(const GrBackendTexture& tex, SkColorType ct, SkAlphaType at,
+                                sk_sp<SkColorSpace> cs) const;
+
     // This is only to be used in GL-specific tests.
     virtual const GrGLContext* glContextForTesting() const { return nullptr; }
 
@@ -603,6 +609,9 @@ private:
                                          int* effectiveSampleCnt, SamplePattern*) = 0;
 
     virtual void onFinishFlush(bool insertedSemaphores) = 0;
+
+    virtual bool onValidateBackendTexture(const GrBackendTexture& tex, SkColorType ct,
+                                          SkAlphaType at, sk_sp<SkColorSpace> cs) const = 0;
 
     virtual void onDumpJSON(SkJSONWriter*) const {}
 

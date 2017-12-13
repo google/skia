@@ -91,7 +91,7 @@ private:
 
     int fWidth;         //<! width in pixels
     int fHeight;        //<! height in pixels
-    GrPixelConfig fConfig;
+    mutable GrPixelConfig fConfig;
     GrMipMapped fMipMapped;
     GrBackend fBackend;
 
