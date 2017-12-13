@@ -292,6 +292,7 @@ private:
     SkTHashMap<SkString, SkFlattenable::Factory> fCustomFactory;
 
     SkDeserialProcs fProcs;
+    friend class SkPicture;
 
 #ifdef DEBUG_NON_DETERMINISTIC_ASSERT
     // Debugging counter to keep track of how many bitmaps we
