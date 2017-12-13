@@ -16,6 +16,24 @@
       "revId": "e951e4a1dca5c6706b11e402838d9e14de430a05",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0a603b8c_c0f4c24f",
+        "filename": "src/shaders/gradients/SkGradientShader.cpp",
+        "patchSetId": 24
+      },
+      "lineNbr": 1010,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-12-13T15:20:39Z",
+      "side": 0,
+      "message": "Done",
+      "parentUuid": "4a1bbac7_9e4d28c8",
+      "revId": "e951e4a1dca5c6706b11e402838d9e14de430a05",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
