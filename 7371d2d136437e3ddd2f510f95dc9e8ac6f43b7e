@@ -22,6 +22,30 @@
       "revId": "7371d2d136437e3ddd2f510f95dc9e8ac6f43b7e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4538a225_0ffffe85",
+        "filename": "gm/gradients_2pt_conical.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-12-13T20:47:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6e7f396c_da2cd16c",
+      "range": {
+        "startLine": 55,
+        "startChar": 5,
+        "endLine": 56,
+        "endChar": 51
+      },
+      "revId": "7371d2d136437e3ddd2f510f95dc9e8ac6f43b7e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
