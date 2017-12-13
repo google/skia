@@ -70,6 +70,30 @@
       "revId": "d5acda48443504b515c8d9df39fc98cd787baddc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3b47c623_5b12a5c5",
+        "filename": "src/gpu/GrContext.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 206,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-12-13T18:10:04Z",
+      "side": 1,
+      "message": "These are all reasonable points but also lead me to think that moving towards two classes is the right direction.",
+      "parentUuid": "0944ea44_960170f8",
+      "range": {
+        "startLine": 206,
+        "startChar": 19,
+        "endLine": 206,
+        "endChar": 34
+      },
+      "revId": "d5acda48443504b515c8d9df39fc98cd787baddc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
