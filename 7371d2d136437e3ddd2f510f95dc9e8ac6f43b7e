@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6e7f396c_da2cd16c",
+        "filename": "gm/gradients_2pt_conical.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-12-13T20:40:05Z",
+      "side": 1,
+      "message": "lets rewrite this to only use one radius. It is confusing that you are calculating two but then just send one of them duplicated in the function call. Just make one radius and 2 centers.",
+      "range": {
+        "startLine": 55,
+        "startChar": 5,
+        "endLine": 56,
+        "endChar": 51
+      },
+      "revId": "7371d2d136437e3ddd2f510f95dc9e8ac6f43b7e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
