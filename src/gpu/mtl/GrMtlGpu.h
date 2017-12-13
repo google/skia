@@ -141,13 +141,6 @@ private:
 
     void clearStencil(GrRenderTarget* target, int clearValue) override  {}
 
-    GrBackendObject createTestingOnlyBackendObject(void* pixels, int w, int h,
-                                                   GrPixelConfig config, bool isRT,
-                                                   GrMipMapped) override {
-        return 0;
-    }
-    void deleteTestingOnlyBackendObject(GrBackendObject, bool abandonTexture = false) override {}
-
     GrBackendTexture createTestingOnlyBackendTexture(void* pixels, int w, int h,
                                                      GrPixelConfig config, bool isRT,
                                                      GrMipMapped) override {
