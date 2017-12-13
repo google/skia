@@ -37,8 +37,6 @@ public:
 
     virtual bool isCrossProcess() const = 0;
 
-    virtual void writePad32(const void* buffer, size_t bytes) = 0;
-
     virtual void writeByteArray(const void* data, size_t size) = 0;
     void writeDataAsByteArray(SkData* data) {
         this->writeByteArray(data->data(), data->size());
@@ -85,14 +83,9 @@ public:
      */
     void setClientContext(void* ctx) { fClientCtx = ctx; }
 
-    void setSerialProcs(const SkSerialProcs& procs) { fProcs = procs; }
-
 protected:
-    SkDeduper*      fDeduper = nullptr;
-    void*           fClientCtx = nullptr;
-    SkSerialProcs   fProcs;
-
-    friend class SkPicture; // fProcs
+    SkDeduper* fDeduper = nullptr;
+    void*      fClientCtx = nullptr;
 };
 
 /**
@@ -115,7 +108,7 @@ public:
     void write(const void* buffer, size_t bytes) {
         fWriter.write(buffer, bytes);
     }
-    void writePad32(const void* buffer, size_t bytes) override {
+    void writePad32(const void* buffer, size_t bytes) {
         fWriter.writePad(buffer, bytes);
     }
 
@@ -157,6 +150,8 @@ public:
     SkFactorySet* setFactoryRecorder(SkFactorySet*);
     SkRefCntSet* setTypefaceRecorder(SkRefCntSet*);
 
+    void setSerialProcs(const SkSerialProcs& procs) { fProcs = procs; }
+
 #ifdef SK_SUPPORT_LEGACY_SERIAL_BUFFER_OBJECTS
     void setPixelSerializer(sk_sp<SkPixelSerializer>);
 #endif
@@ -167,6 +162,7 @@ private:
     SkWriter32 fWriter;
 
     SkRefCntSet*    fTFSet;
+    SkSerialProcs   fProcs;
 
     // Only used if we do not have an fFactorySet
     SkTHashMap<SkString, uint32_t> fFlattenableDict;
