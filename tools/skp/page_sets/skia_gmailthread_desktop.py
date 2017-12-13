@@ -3,6 +3,7 @@
 # found in the LICENSE file.
 # pylint: disable=W0401,W0614
 
+from page_sets.login_helpers import google_login
 
 from telemetry import story
 from telemetry.page import page as page_module
@@ -16,10 +17,8 @@ class SkiaBuildbotDesktopPage(page_module.Page):
         url=url,
         name=url,
         page_set=page_set,
-        credentials_path='data/credentials.json',
         shared_page_state_class=shared_page_state.SharedDesktopPageState)
     self.archive_data_file = 'data/skia_gmailthread_desktop.json'
-    self.credentials = 'google'
 
   def RunSmoothness(self, action_runner):
     action_runner.ScrollElement()
