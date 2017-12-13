@@ -111,6 +111,17 @@ cc_defaults {
     },
 }
 
+// "defaults" property to disable profile use for Skia tools and benchmarks.
+cc_defaults {
+    name: "skia_pgo_no_profile_use",
+    defaults: [
+        "skia_pgo",
+    ],
+    pgo: {
+        enable_profile_use: false,
+    },
+}
+
 cc_defaults {
     name: "skia_deps",
     shared_libs: [
@@ -143,7 +154,8 @@ cc_defaults {
 cc_defaults {
     name: "skia_tool_deps",
     defaults: [
-        "skia_deps"
+        "skia_deps",
+        "skia_pgo_no_profile_use"
     ],
     static_libs: [
         "libjsoncpp",
