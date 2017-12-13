@@ -100,13 +100,16 @@ static sk_sp<SkSurface> create_gpu_surface_backend_texture_as_render_target(
         return nullptr;
     }
 
-    GrBackendTexture backendTex =
+    GrBackendTexture backendTex = (*backingSurface)->getBackendTexture();
+#if 0
             GrTest::CreateBackendTexture(context->contextPriv().getBackend(),
                                          width,
                                          height,
                                          config,
                                          GrMipMapped::kNo,
                                          (*backingSurface)->getTextureHandle());
+#endif
+
     sk_sp<SkSurface> surface =
             SkSurface::MakeFromBackendTextureAsRenderTarget(context, backendTex, origin,
                                                             sampleCnt, nullptr, nullptr);

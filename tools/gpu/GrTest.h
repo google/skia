@@ -21,9 +21,11 @@ namespace GrTest {
     GrBackendTexture CreateBackendTexture(GrBackend, int width, int height,
                                           GrPixelConfig, GrMipMapped, GrBackendObject);
 
+#if 0
     GrBackendRenderTarget CreateBackendRenderTarget(GrBackend, int width, int height,
                                                     int sampleCnt, int stencilBits,
                                                     GrPixelConfig, GrBackendObject);
+#endif
 };
 
 #endif

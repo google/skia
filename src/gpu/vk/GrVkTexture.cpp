@@ -165,6 +165,10 @@ GrBackendObject GrVkTexture::getTextureHandle() const {
     return (GrBackendObject)&fInfo;
 }
 
+GrBackendTexture GrVkTexture::getBackendTexture() const {
+    return GrBackendTexture(this->width(), this->height(), fInfo);
+}
+
 GrVkGpu* GrVkTexture::getVkGpu() const {
     SkASSERT(!this->wasDestroyed());
     return static_cast<GrVkGpu*>(this->getGpu());

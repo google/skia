@@ -173,12 +173,15 @@ static bool setup_backend_objects(GrContext* context,
             return false;
         }
 
+        backEndTexture = backingTexture->getBackendTexture();
+#if 0
         backEndTexture = GrTest::CreateBackendTexture(backend,
                                                       backingDesc.fWidth,
                                                       backingDesc.fHeight,
                                                       kConfig,
                                                       options.fMipMapping,
                                                       backingTexture->getTextureHandle());
+#endif
         if (!backEndTexture.isValid()) {
             return false;
         }

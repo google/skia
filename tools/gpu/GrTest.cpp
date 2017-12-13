@@ -78,6 +78,7 @@ GrBackendTexture CreateBackendTexture(GrBackend backend, int width, int height,
     }
 }
 
+#if 0
 GrBackendRenderTarget CreateBackendRenderTarget(GrBackend backend, int width, int height,
                                                 int sampleCnt, int stencilBits,
                                                 GrPixelConfig config,
@@ -99,6 +100,7 @@ GrBackendRenderTarget CreateBackendRenderTarget(GrBackend backend, int width, in
             return GrBackendRenderTarget();
     }
 }
+#endif
 
 }  // namespace GrTest
 
