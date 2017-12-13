@@ -28,6 +28,8 @@ public:
     GrBackendObject getTextureHandle() const override {
         return reinterpret_cast<GrBackendObject>(&fInfo);
     }
+    GrBackendTexture getBackendTexture() const override;
+
     void textureParamsModified() override {}
     void setRelease(ReleaseProc proc, ReleaseCtx ctx) override {
         fReleaseProc = proc;

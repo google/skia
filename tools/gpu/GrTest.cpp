@@ -54,6 +54,7 @@ void SetupAlwaysEvictAtlas(GrContext* context) {
     context->setTextContextAtlasSizes_ForTesting(configs);
 }
 
+#if 0
 GrBackendTexture CreateBackendTexture(GrBackend backend, int width, int height,
                                       GrPixelConfig config, GrMipMapped mipMapped,
                                       GrBackendObject handle) {
@@ -99,6 +100,7 @@ GrBackendRenderTarget CreateBackendRenderTarget(GrBackend backend, int width, in
             return GrBackendRenderTarget();
     }
 }
+#endif
 
 }  // namespace GrTest
 

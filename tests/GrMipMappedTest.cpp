@@ -159,10 +159,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrBackendTextureImageMipMappedTest, reporter,
                 return;
             }
 
-            GrBackendObject genBackendObject = genTexture->getTextureHandle();
+            GrBackendTexture genBackendObject = genTexture->getBackendTexture();
 
-            if (kOpenGL_GrBackend == context->contextPriv().getBackend()) {
-                const GrGLTextureInfo* origTexInfo = backendTex.getGLTextureInfo();
+            if (const GrGLTextureInfo* origTexInfo = backendTex.getGLTextureInfo()) {
                 GrGLTextureInfo* genTexInfo = (GrGLTextureInfo*)genBackendObject;
                 if (willUseMips && GrMipMapped::kNo == mipMapped) {
                     // We did a copy so the texture IDs should be different
