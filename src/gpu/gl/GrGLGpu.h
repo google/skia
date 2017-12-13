@@ -161,12 +161,6 @@ public:
                                                                 int width,
                                                                 int height) override;
 
-    GrBackendObject createTestingOnlyBackendObject(void* pixels, int w, int h,
-                                                   GrPixelConfig config,
-                                                   bool isRenderTarget,
-                                                   GrMipMapped mipMapped) override;
-    void deleteTestingOnlyBackendObject(GrBackendObject, bool abandonTexture) override;
-
     GrBackendTexture createTestingOnlyBackendTexture(void* pixels, int w, int h,
                                                      GrPixelConfig config,
                                                      bool isRenderTarget,
