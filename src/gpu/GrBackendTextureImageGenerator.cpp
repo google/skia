@@ -30,32 +30,6 @@ GrBackendTextureImageGenerator::RefHelper::~RefHelper() {
     SkMessageBus<GrGpuResourceFreedMessage>::Post(msg);
 }
 
-// TODO: I copied this from SkImage_Gpu, perhaps we put a version of this somewhere else?
-static GrBackendTexture make_backend_texture_from_handle(GrBackend backend,
-                                                         int width, int height,
-                                                         GrPixelConfig config,
-                                                         GrMipMapped mipMapped,
-                                                         GrBackendObject handle) {
-    switch (backend) {
-        case kOpenGL_GrBackend: {
-            const GrGLTextureInfo* glInfo = (const GrGLTextureInfo*)(handle);
-            return GrBackendTexture(width, height, config, mipMapped, *glInfo);
-        }
-#ifdef SK_VULKAN
-        case kVulkan_GrBackend: {
-            const GrVkImageInfo* vkInfo = (const GrVkImageInfo*)(handle);
-            return GrBackendTexture(width, height, *vkInfo);
-        }
-#endif
-        case kMock_GrBackend: {
-            const GrMockTextureInfo* mockInfo = (const GrMockTextureInfo*)(handle);
-            return GrBackendTexture(width, height, config, mipMapped, *mockInfo);
-        }
-        default:
-            return GrBackendTexture();
-    }
-}
-
 std::unique_ptr<SkImageGenerator>
 GrBackendTextureImageGenerator::Make(sk_sp<GrTexture> texture, GrSurfaceOrigin origin,
                                      sk_sp<GrSemaphore> semaphore,
@@ -76,14 +50,7 @@ GrBackendTextureImageGenerator::Make(sk_sp<GrTexture> texture, GrSurfaceOrigin o
     // this point. That ref will be released when the generator's RefHelper is freed.
     context->getResourceCache()->insertCrossContextGpuResource(texture.get());
 
-    GrBackend backend = context->contextPriv().getBackend();
-    GrMipMapped mipMapped = texture->texturePriv().mipMapped();
-    GrBackendTexture backendTexture = make_backend_texture_from_handle(backend,
-                                                                       texture->width(),
-                                                                       texture->height(),
-                                                                       texture->config(),
-                                                                       mipMapped,
-                                                                       texture->getTextureHandle());
+    GrBackendTexture backendTexture = texture->getBackendTexture();
 
     SkImageInfo info = SkImageInfo::Make(texture->width(), texture->height(), colorType, alphaType,
                                          std::move(colorSpace));
