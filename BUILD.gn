@@ -904,17 +904,6 @@ if (skia_enable_tools) {
       include_dirs += [ "tools/gpu/vk" ]
     }
   }
-  action("binary_resources.cpp") {
-    script = "gn/generate_binary_asset.py"
-    args = [
-      rebase_path("resources"),
-      "gResources",
-      rebase_path("$target_gen_dir/binary_resources.cpp", root_build_dir),
-    ]
-    outputs = [
-      "$target_gen_dir/binary_resources.cpp",
-    ]
-  }
   action("skia.h") {
     public_configs = [ ":skia.h_config" ]
     skia_h = "$target_gen_dir/skia.h"
@@ -925,6 +914,20 @@ if (skia_enable_tools) {
     outputs = [
       skia_h,
     ]
+  }
+
+  if (skia_embed_resources) {
+    action("binary_resources.cpp") {
+      script = "gn/generate_binary_asset.py"
+      args = [
+        rebase_path("resources"),
+        "gResources",
+        rebase_path("$target_gen_dir/binary_resources.cpp", root_build_dir),
+      ]
+      outputs = [
+        "$target_gen_dir/binary_resources.cpp",
+      ]
+    }
   }
 
   if (skia_enable_gpu && target_cpu == "x64") {
