@@ -46,6 +46,30 @@
       "revId": "d5acda48443504b515c8d9df39fc98cd787baddc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0944ea44_960170f8",
+        "filename": "src/gpu/GrContext.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 206,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-12-13T16:50:41Z",
+      "side": 1,
+      "message": "Additionally, Greg points out that it would be good to check the compatibility of wrapped resources at record time if they do pass them in.",
+      "parentUuid": "0008128a_38821a63",
+      "range": {
+        "startLine": 206,
+        "startChar": 19,
+        "endLine": 206,
+        "endChar": 34
+      },
+      "revId": "d5acda48443504b515c8d9df39fc98cd787baddc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
