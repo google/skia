@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cc4b8571_b6a2d7d3",
+        "filename": "src/gpu/vk/GrVkUtil.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-12-13T14:53:30Z",
+      "side": 1,
+      "message": "This second sentence doesn\u0027t seem to be true.",
+      "revId": "c9a104bfaf28c3c96e32f04621b8022673377fc5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
