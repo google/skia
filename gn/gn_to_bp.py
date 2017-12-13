@@ -143,7 +143,8 @@ cc_defaults {
 cc_defaults {
     name: "skia_tool_deps",
     defaults: [
-        "skia_deps"
+        "skia_deps",
+        "skia_pgo"
     ],
     static_libs: [
         "libjsoncpp",
