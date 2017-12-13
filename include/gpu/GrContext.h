@@ -114,7 +114,7 @@ public:
     }
 
     /**
-     * Abandons all GPU resources and assumes the underlying backend 3D API context is not longer
+     * Abandons all GPU resources and assumes the underlying backend 3D API context is no longer
      * usable. Call this if you have lost the associated GPU context, and thus internal texture,
      * buffer, etc. references/IDs are now invalid. Calling this ensures that the destructors of the
      * GrContext and any of its created resource objects will not make backend 3D API calls. Content
@@ -346,6 +346,9 @@ public:
     GrContextPriv contextPriv();
     const GrContextPriv contextPriv() const;
 
+protected:
+    GrContext(GrContextThreadSafeProxy*);
+
 private:
     sk_sp<GrGpu>                            fGpu;
     sk_sp<const GrCaps>                     fCaps;
@@ -390,7 +393,6 @@ private:
     friend class GrContextPriv;
 
     GrContext(GrBackend); // init must be called after the constructor.
-    GrContext(GrContextThreadSafeProxy*);
     bool init(const GrContextOptions&);
 
     /**
@@ -416,6 +418,15 @@ private:
     static void TextBlobCacheOverBudgetCB(void* data);
 
     typedef SkRefCnt INHERITED;
+};
+
+class SK_API GrNormalContext : public GrContext {
+public:
+
+protected:
+
+private:
+    typedef GrContext INHERITED;
 };
 
 /**

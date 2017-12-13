@@ -214,7 +214,9 @@ bool SkSurface::characterize(SkSurfaceCharacterization* characterization) const 
 }
 
 bool SkSurface::draw(SkDeferredDisplayList* ddl) {
-    return asSB(this)->onDraw(ddl);
+    bool result = asSB(this)->onDraw(ddl);
+    this->flush();
+    return result;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////

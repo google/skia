@@ -180,8 +180,18 @@ static int32_t next_id() {
     return id;
 }
 
+class SK_API GrDLLContext : public GrContext {
+public:
+    GrDLLContext(GrContextThreadSafeProxy* proxy) : INHERITED(proxy) {}
+
+protected:
+
+private:
+    typedef GrContext INHERITED;
+};
+
 sk_sp<GrContext> GrContextPriv::MakeDDL(GrContextThreadSafeProxy* proxy) {
-    sk_sp<GrContext> context(new GrContext(proxy));
+    sk_sp<GrContext> context(new GrDLLContext(proxy));
 
     context->fGpu = GrDDLGpu::Make(context.get(), proxy->fCaps);
     if (!context->fGpu) {
