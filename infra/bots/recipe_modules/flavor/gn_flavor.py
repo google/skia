@@ -56,7 +56,7 @@ with open(sys.argv[1], 'w') as f:
     """Build Skia with GN."""
     compiler      = self.m.vars.builder_cfg.get('compiler',      '')
     configuration = self.m.vars.builder_cfg.get('configuration', '')
-    extra_config  = self.m.vars.builder_cfg.get('extra_config',  '')
+    extra_tokens  = self.m.vars.extra_tokens
     os            = self.m.vars.builder_cfg.get('os',            '')
     target_arch   = self.m.vars.builder_cfg.get('target_arch',   '')
 
@@ -90,7 +90,7 @@ with open(sys.argv[1], 'w') as f:
       cxx  = emscripten_sdk + '/emscripten/incoming/em++'
       extra_cflags.append('-Wno-unknown-warning-option')
 
-    if 'Coverage' in extra_config:
+    if 'Coverage' in extra_tokens:
       # See https://clang.llvm.org/docs/SourceBasedCodeCoverage.html for
       # more info on using llvm to gather coverage information.
       extra_cflags.append('-fprofile-instr-generate')
@@ -101,14 +101,18 @@ with open(sys.argv[1], 'w') as f:
     if compiler != 'MSVC' and configuration == 'Debug':
       extra_cflags.append('-O1')
 
-    if extra_config == 'Exceptions':
+    if 'Exceptions' in extra_tokens:
       extra_cflags.append('/EHsc')
-    if extra_config == 'Fast':
+    if 'Fast' in extra_tokens:
       extra_cflags.extend(['-march=native', '-fomit-frame-pointer', '-O3',
                            '-ffp-contract=off'])
-    if extra_config.startswith('SK'):
-      extra_cflags.append('-D' + extra_config)
-    if extra_config == 'MSAN':
+
+    # TODO(benjaminwagner): Same appears in compile.py to set CPPFLAGS. Are
+    # both needed?
+    if len(extra_tokens) == 1 and extra_tokens[0].startswith('SK'):
+      extra_cflags.append('-D' + extra_tokens[0])
+
+    if 'MSAN' in extra_tokens:
       extra_ldflags.append('-L' + clang_linux + '/msan')
 
     args = {}
@@ -117,16 +121,16 @@ with open(sys.argv[1], 'w') as f:
 
     if configuration != 'Debug':
       args['is_debug'] = 'false'
-    if extra_config == 'ANGLE':
+    if 'ANGLE' in extra_tokens:
       args['skia_use_angle'] = 'true'
-    if extra_config == 'CommandBuffer':
+    if 'CommandBuffer' in extra_tokens:
       self.m.run.run_once(self.build_command_buffer)
-    if extra_config == 'MSAN':
+    if 'MSAN' in extra_tokens:
       args['skia_enable_gpu']     = 'false'
       args['skia_use_fontconfig'] = 'false'
-    if 'ASAN' in extra_config or 'UBSAN' in extra_config:
+    if 'ASAN' in extra_tokens or 'UBSAN' in extra_tokens:
       args['skia_enable_spirv_validation'] = 'false'
-    if extra_config == 'Mini':
+    if 'Mini' in extra_tokens:
       args.update({
         'is_component_build':     'true',   # Proves we can link a coherent .so.
         'is_official_build':      'true',   # No debug symbols, no tools.
@@ -139,21 +143,21 @@ with open(sys.argv[1], 'w') as f:
         'skia_use_libwebp':       'false',
         'skia_use_zlib':          'false',
       })
-    if extra_config == 'NoGPU':
+    if 'NoGPU' in extra_tokens:
       args['skia_enable_gpu'] = 'false'
-    if extra_config == 'EmbededResouces':
+    if 'EmbededResouces' in extra_tokens:
       args['skia_embed_resoucres'] = 'true'
-    if extra_config == 'Shared':
+    if 'Shared' in extra_tokens:
       args['is_component_build'] = 'true'
-    if 'Vulkan' in extra_config and not 'Android' in extra_config:
+    if 'Vulkan' in extra_tokens and not 'Android' in extra_tokens:
       args['skia_enable_vulkan_debug_layers'] = 'false'
       if self.m.vars.is_linux:
         args['skia_vulkan_sdk'] = '"%s"' % linux_vulkan_sdk
       if 'Win' in os:
         args['skia_vulkan_sdk'] = '"%s"' % win_vulkan_sdk
-    if 'Metal' in extra_config:
+    if 'Metal' in extra_tokens:
       args['skia_use_metal'] = 'true'
-    if 'CheckGeneratedFiles' in extra_config:
+    if 'CheckGeneratedFiles' in extra_tokens:
       args['skia_compile_processors'] = 'true'
     if compiler == 'Clang' and 'Win' in os:
       args['clang_win'] = '"%s"' % self.m.vars.slave_dir.join('clang_win')
@@ -165,7 +169,7 @@ with open(sys.argv[1], 'w') as f:
         'skia_use_icu':        'false',
         'skia_enable_gpu':     'false',
       })
-    if 'Goma' in extra_config:
+    if 'Goma' in extra_tokens:
       json_file = self._get_goma_json()
       self.m.cipd.set_service_account_credentials(json_file)
       goma_package = ('infra_internal/goma/client/%s' %
@@ -182,9 +186,11 @@ with open(sys.argv[1], 'w') as f:
       ninja_args.extend(['-j', '100'])
 
     sanitize = ''
-    if 'SAN' in extra_config:
-      sanitize = extra_config
-    elif 'SafeStack' in extra_config:
+    for t in extra_tokens:
+      if t.endswith('SAN'):
+        sanitize = t
+    if 'SafeStack' in extra_tokens:
+      assert sanitize == ''
       sanitize = 'safe-stack'
 
     for (k,v) in {
@@ -192,7 +198,7 @@ with open(sys.argv[1], 'w') as f:
       'cxx': cxx,
       'sanitize': sanitize,
       'target_cpu': target_arch,
-      'target_os': 'ios' if 'iOS' in extra_config else '',
+      'target_os': 'ios' if 'iOS' in extra_tokens else '',
       'win_sdk': win_toolchain + '/win_sdk' if 'Win' in os else '',
       'win_vc': win_toolchain + '/VC' if 'Win' in os else '',
     }.iteritems():
@@ -212,7 +218,7 @@ with open(sys.argv[1], 'w') as f:
     try:
       with self.m.context(cwd=self.m.vars.skia_dir):
         self._py('fetch-gn', self.m.vars.skia_dir.join('bin', 'fetch-gn'))
-        if 'CheckGeneratedFiles' in extra_config:
+        if 'CheckGeneratedFiles' in extra_tokens:
           env['PATH'] = '%s:%%(PATH)s' % self.m.vars.skia_dir.join('bin')
           self._py(
               'fetch-clang-format',
@@ -236,11 +242,11 @@ with open(sys.argv[1], 'w') as f:
 
   def copy_extra_build_products(self, swarming_out_dir):
     configuration = self.m.vars.builder_cfg.get('configuration', '')
-    extra_config  = self.m.vars.builder_cfg.get('extra_config',  '')
+    extra_tokens  = self.m.vars.extra_tokens
     os            = self.m.vars.builder_cfg.get('os',            '')
 
     win_vulkan_sdk = str(self.m.vars.slave_dir.join('win_vulkan_sdk'))
-    if 'Win' in os and extra_config == 'Vulkan':
+    if 'Win' in os and 'Vulkan' in extra_tokens:
       self.m.run.copy_build_products(
           win_vulkan_sdk,
           swarming_out_dir.join('out', configuration + '_x64'))
@@ -254,7 +260,7 @@ with open(sys.argv[1], 'w') as f:
 
     slave_dir = self.m.vars.slave_dir
     clang_linux = str(slave_dir.join('clang_linux'))
-    extra_config = self.m.vars.builder_cfg.get('extra_config', '')
+    extra_tokens = self.m.vars.extra_tokens
 
     if self.m.vars.is_linux:
       if (self.m.vars.builder_cfg.get('cpu_or_gpu', '') == 'GPU'
@@ -268,31 +274,31 @@ with open(sys.argv[1], 'w') as f:
         env['LIBGL_DRIVERS_PATH'] = str(dri_path)
         env['VK_ICD_FILENAMES'] = str(dri_path.join('intel_icd.x86_64.json'))
 
-      if 'Vulkan' in extra_config:
+      if 'Vulkan' in extra_tokens:
         path.append(slave_dir.join('linux_vulkan_sdk', 'bin'))
         ld_library_path.append(slave_dir.join('linux_vulkan_sdk', 'lib'))
 
-    if 'SAN' in extra_config:
+    if any('SAN' in t for t in extra_tokens):
       # Sanitized binaries may want to run clang_linux/bin/llvm-symbolizer.
       path.append(clang_linux + '/bin')
     elif self.m.vars.is_linux:
       cmd = ['catchsegv'] + cmd
 
-    if 'ASAN' == extra_config or 'UBSAN' in extra_config:
+    if 'ASAN' in extra_tokens or 'UBSAN' in extra_tokens:
       env[ 'ASAN_OPTIONS'] = 'symbolize=1 detect_leaks=1'
       env[ 'LSAN_OPTIONS'] = 'symbolize=1 print_suppressions=1'
       env['UBSAN_OPTIONS'] = 'symbolize=1 print_stacktrace=1'
 
-    if 'MSAN' == extra_config:
+    if 'MSAN' in extra_tokens:
       # Find the MSAN-built libc++.
       ld_library_path.append(clang_linux + '/msan')
 
-    if 'TSAN' == extra_config:
+    if 'TSAN' in extra_tokens:
       # We don't care about malloc(), fprintf, etc. used in signal handlers.
       # If we're in a signal handler, we're already crashing...
       env['TSAN_OPTIONS'] = 'report_signal_unsafe=0'
 
-    if 'Coverage' in extra_config:
+    if 'Coverage' in extra_tokens:
       # This is the output file for the coverage data. Just running the binary
       # will produce the output. The output_file is in the swarming_out_dir and
       # thus will be an isolated output of the Test step.
