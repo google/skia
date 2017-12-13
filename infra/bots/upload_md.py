@@ -74,7 +74,7 @@ def main():
             sys.exit(1)
         if diff_files:
           subprocess.check_call(['git', 'add', '-u'])
-          git_branch.commit_and_upload(False)
+          git_branch.commit_and_upload(True)
         else:
           print 'No changes so nothing to upload.'
 
