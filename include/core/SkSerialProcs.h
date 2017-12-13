@@ -16,6 +16,10 @@
  *  A serial-proc is asked to serialize the specified object (e.g. picture or image).
  *  If a data object is returned, it will be used (even if it is zero-length).
  *  If null is returned, then Skia will take its default action.
+ *
+ *  The default action for pictures is to use Skia's internal format.
+ *  The default action for images is to encode using PNG.
+ *  The default action for typefaces is to use Skia's internal format.
  */
 
 typedef sk_sp<SkData> (*SkSerialPictureProc)(SkPicture*, void* ctx);
