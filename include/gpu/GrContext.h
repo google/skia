@@ -346,6 +346,9 @@ public:
     GrContextPriv contextPriv();
     const GrContextPriv contextPriv() const;
 
+protected:
+    GrContext(GrContextThreadSafeProxy*);
+
 private:
     sk_sp<GrGpu>                            fGpu;
     sk_sp<const GrCaps>                     fCaps;
@@ -387,10 +390,9 @@ private:
     GrContextOptions::PersistentCache*      fPersistentCache;
 
     // TODO: have the GrClipStackClip use renderTargetContexts and rm this friending
-    friend class GrContextPriv;
+//    friend class GrContextPriv;
 
     GrContext(GrBackend); // init must be called after the constructor.
-    GrContext(GrContextThreadSafeProxy*);
     bool init(const GrContextOptions&);
 
     /**
@@ -416,6 +418,15 @@ private:
     static void TextBlobCacheOverBudgetCB(void* data);
 
     typedef SkRefCnt INHERITED;
+};
+
+class SK_API GrNormalContext : public GrContext {
+public:
+
+protected:
+
+private:
+    typedef GrContext INHERITED;
 };
 
 /**
