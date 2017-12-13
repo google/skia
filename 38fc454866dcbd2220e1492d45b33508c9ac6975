@@ -1,0 +1,106 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "75d37cb6_c7cd50d5",
+        "filename": "tools/skqp/gm_knowledge.cpp",
+        "patchSetId": 27
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-12-13T21:56:10Z",
+      "side": 1,
+      "message": "Is \"static constexpr const char*\" better in this case?",
+      "revId": "38fc454866dcbd2220e1492d45b33508c9ac6975",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3d1fe18c_8d956d17",
+        "filename": "tools/skqp/gm_knowledge.cpp",
+        "patchSetId": 27
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-12-13T21:56:10Z",
+      "side": 1,
+      "message": "SkASSERT(error !\u003d kNone) so one won\u0027t mistakenly use this in the future to set kNone?",
+      "revId": "38fc454866dcbd2220e1492d45b33508c9ac6975",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5cf78c8b_755bcc0d",
+        "filename": "tools/skqp/gm_knowledge.cpp",
+        "patchSetId": 27
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-12-13T21:56:10Z",
+      "side": 1,
+      "message": "The following question might not be related with this specific CL: I wonder why SkBitmap doesn\u0027t have this helper function? I think it\u0027s a quite useful one.",
+      "revId": "38fc454866dcbd2220e1492d45b33508c9ac6975",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e64f2d5f_d7c97239",
+        "filename": "tools/skqp/gm_knowledge.h",
+        "patchSetId": 27
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-12-13T21:56:10Z",
+      "side": 1,
+      "message": "Maybe drop \" \u003d 0,  \u003d 1, \u003d 2\"? I wrote them myself today for clarity and Greg suggested to not do that.",
+      "revId": "38fc454866dcbd2220e1492d45b33508c9ac6975",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "659b0db9_77f262f1",
+        "filename": "tools/skqp/gm_knowledge.h",
+        "patchSetId": 27
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-12-13T21:56:10Z",
+      "side": 1,
+      "message": "gm_name -\u003e name; gmkb_directory_path should be assetManager?",
+      "revId": "38fc454866dcbd2220e1492d45b33508c9ac6975",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e41f1bb3_4fff2cd2",
+        "filename": "tools/skqp/skqp_asset_manager.h",
+        "patchSetId": 27
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-12-13T21:56:10Z",
+      "side": 1,
+      "message": "Should this also be inside a special namespace like gmkb or skqp?",
+      "revId": "38fc454866dcbd2220e1492d45b33508c9ac6975",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

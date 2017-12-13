@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5685c240_40977ef8",
+        "filename": "tools/skqp/gm_runner.h",
+        "patchSetId": 28
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-12-13T21:56:10Z",
+      "side": 1,
+      "message": "Why do we need to declare it here instead of just include \"gm.h\"? (\"gm.h\" is included in gm_runner.cpp)",
+      "revId": "827e5102d7f5afee5ef7e328524c8f221eef6836",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ffdefc21_36d3110a",
+        "filename": "tools/skqp/gm_runner.h",
+        "patchSetId": 28
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-12-13T21:56:10Z",
+      "side": 1,
+      "message": "Similarly, why not include \"Test.h\"?",
+      "revId": "827e5102d7f5afee5ef7e328524c8f221eef6836",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2d2b6dc4_3be4aef1",
+        "filename": "tools/skqp/skqp.cpp",
+        "patchSetId": 28
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-12-13T21:56:10Z",
+      "side": 1,
+      "message": "Similarly, maybe put these global variables under gmkb or skqp namespace?",
+      "revId": "827e5102d7f5afee5ef7e328524c8f221eef6836",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

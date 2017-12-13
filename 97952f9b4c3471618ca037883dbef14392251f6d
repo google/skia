@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9ab1ef33_ce423eb2",
+        "filename": "tools/skqp/gm_runner.cpp",
+        "patchSetId": 29
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-12-13T21:56:10Z",
+      "side": 1,
+      "message": "Why don\u0027t we simply use test-\u003ename instead of GetUnitTestName(test)?",
+      "revId": "97952f9b4c3471618ca037883dbef14392251f6d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "72da5e6f_94044255",
+        "filename": "tools/skqp/make_gmkb.go",
+        "patchSetId": 29
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-12-13T21:56:10Z",
+      "side": 1,
+      "message": "Comment why we may have a testName with \u0027/\u0027?",
+      "revId": "97952f9b4c3471618ca037883dbef14392251f6d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4f820148_e461e70f",
+        "filename": "tools/skqp/skqp.cpp",
+        "patchSetId": 29
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-12-13T21:56:10Z",
+      "side": 1,
+      "message": "It seems that we\u0027re tearing down and setting up the backend for every GM. Would it save us some time if we run all GMs of the same backend consecutively so we only need to setup the context once per backend?",
+      "revId": "97952f9b4c3471618ca037883dbef14392251f6d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
