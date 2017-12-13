@@ -38,6 +38,8 @@ public:
          * be rendered from outline as individual paths. Negative means use a default value.
          */
         SkScalar fMaxDistanceFieldFontSize = -1.f;
+        /** Forces all distance field vertices to use 3 components, not just when in perspective. */
+        bool fDistanceFieldVerticesAlwaysHaveW = false;
     };
 
     static std::unique_ptr<GrAtlasTextContext> Make(const Options& options);
@@ -142,6 +144,7 @@ private:
 
     SkScalar fMinDistanceFieldFontSize;
     SkScalar fMaxDistanceFieldFontSize;
+    bool fDistanceFieldVerticesAlwaysHaveW;
 
 #if GR_TEST_UTILS
     static const uint32_t kTextBlobOpScalerContextFlags =

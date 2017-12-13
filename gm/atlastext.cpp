@@ -49,7 +49,8 @@ static SkScalar draw_string(SkAtlasTextTarget* target, const SkString& text, SkS
 
     target->drawText(glyphs.get(), positions.get(), cnt, color, *font);
 
-    return positions[cnt - 1].fX + widths[cnt - 1];
+    // Return the width of the of draw.
+    return positions[cnt - 1].fX + widths[cnt - 1] - positions[0].fX;
 }
 
 class AtlasTextGM : public skiagm::GM {
@@ -109,12 +110,30 @@ private:
                 auto size = 2 * s;
                 for (const auto& typeface : fTypefaces) {
                     for (const auto& text : kTexts) {
-                        uint32_t color = random.nextU();
-                        x = size + draw_string(fTarget.get(), text, x, y, color, typeface, size);
+                        // Choose a random color but don't let alpha be too small to see.
+                        uint32_t color = random.nextU() | 0x40000000;
+                        fTarget->save();
+                        // Randomly add a little bit of perspective
+                        if (random.nextBool()) {
+                            SkMatrix persp;
+                            persp.reset();
+                            persp.setPerspY(0.0005f);
+                            persp.preTranslate(-x, -y + s);
+                            persp.postTranslate(x, y - s);
+                            fTarget->concat(persp);
+                        }
+                        // Randomly switch between positioning with a matrix vs x, y passed to draw.
+                        SkScalar drawX = x, drawY = y;
+                        if (random.nextBool()) {
+                            fTarget->translate(x, y);
+                            drawX = drawY = 0;
+                        }
+                        x += size +
+                             draw_string(fTarget.get(), text, drawX, drawY, color, typeface, size);
                         x = SkScalarCeilToScalar(x);
-                        // Flush periodically to test continued drawing after a flush. Using color
-                        // to avoid churning the RNG and having to rebaseline images.
-                        if (!(color & 0xf)) {
+                        fTarget->restore();
+                        // Flush periodically to test continued drawing after a flush.
+                        if ((random.nextU() % 8) == 0) {
                             fTarget->flush();
                         }
                         if (x + 100 > kSize) {

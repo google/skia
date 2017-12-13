@@ -125,7 +125,7 @@ GLTestAtlasTextRenderer::GLTestAtlasTextRenderer(std::unique_ptr<GLTestContext> 
         uniform vec4 uDstScaleAndTranslate;
         uniform vec2 uAtlasInvSize;
 
-        layout (location = 0) in vec2 inPosition;
+        layout (location = 0) in vec3 inPosition;
         layout (location = 1) in vec4 inColor;
         layout (location = 2) in uvec2 inTextureCoords;
 
@@ -143,7 +143,7 @@ GLTestAtlasTextRenderer::GLTestAtlasTextRenderer(std::unique_ptr<GLTestContext> 
             vColor = inColor;
             gl_Position = vec4(inPosition.x * uDstScaleAndTranslate.x + uDstScaleAndTranslate.y,
                                inPosition.y * uDstScaleAndTranslate.z + uDstScaleAndTranslate.w,
-                               0.0, 1.0);
+                               0.0, inPosition.z);
         }
     )";
     strings[1] = kVS;
@@ -360,8 +360,8 @@ void GLTestAtlasTextRenderer::drawSDFGlyphs(void* targetHandle, void* textureHan
     callgl(BindVertexArray, 0);
     callgl(BindBuffer, GR_GL_ARRAY_BUFFER, 0);
     callgl(BindBuffer, GR_GL_ELEMENT_ARRAY_BUFFER, 0);
-    callgl(VertexAttribPointer, 0, 2, GR_GL_FLOAT, GR_GL_FALSE, sizeof(SDFVertex), vertices);
-    size_t colorOffset = 2 * sizeof(float);
+    callgl(VertexAttribPointer, 0, 3, GR_GL_FLOAT, GR_GL_FALSE, sizeof(SDFVertex), vertices);
+    size_t colorOffset = 3 * sizeof(float);
     callgl(VertexAttribPointer, 1, 4, GR_GL_UNSIGNED_BYTE, GR_GL_TRUE, sizeof(SDFVertex),
            reinterpret_cast<const char*>(vertices) + colorOffset);
     size_t texOffset = colorOffset + sizeof(uint32_t);

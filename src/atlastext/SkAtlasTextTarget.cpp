@@ -21,9 +21,52 @@ static constexpr int kMaxBatchLookBack = 10;
 
 SkAtlasTextTarget::SkAtlasTextTarget(sk_sp<SkAtlasTextContext> context, int width, int height,
                                      void* handle)
-        : fHandle(handle), fContext(std::move(context)), fWidth(width), fHeight(height) {}
+        : fHandle(handle)
+        , fContext(std::move(context))
+        , fWidth(width)
+        , fHeight(height)
+        , fMatrixStack(sizeof(SkMatrix), 4)
+        , fSaveCnt(0) {
+    fMatrixStack.push_back();
+    this->accessCTM()->reset();
+}
 
 SkAtlasTextTarget::~SkAtlasTextTarget() { fContext->renderer()->targetDeleted(fHandle); }
+
+int SkAtlasTextTarget::save() {
+    const auto& currCTM = this->ctm();
+    *static_cast<SkMatrix*>(fMatrixStack.push_back()) = currCTM;
+    return fSaveCnt++;
+}
+
+void SkAtlasTextTarget::restore() {
+    if (fSaveCnt) {
+        fMatrixStack.pop_back();
+        fSaveCnt--;
+    }
+}
+
+void SkAtlasTextTarget::restoreToCount(int count) {
+    while (fSaveCnt > count) {
+        this->restore();
+    }
+}
+
+void SkAtlasTextTarget::translate(SkScalar dx, SkScalar dy) {
+    this->accessCTM()->preTranslate(dx, dy);
+}
+
+void SkAtlasTextTarget::scale(SkScalar sx, SkScalar sy) { this->accessCTM()->preScale(sx, sy); }
+
+void SkAtlasTextTarget::rotate(SkScalar degrees) { this->accessCTM()->preRotate(degrees); }
+
+void SkAtlasTextTarget::rotate(SkScalar degrees, SkScalar px, SkScalar py) {
+    this->accessCTM()->preRotate(degrees, px, py);
+}
+
+void SkAtlasTextTarget::skew(SkScalar sx, SkScalar sy) { this->accessCTM()->preSkew(sx, sy); }
+
+void SkAtlasTextTarget::concat(const SkMatrix& matrix) { this->accessCTM()->preConcat(matrix); }
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -95,7 +138,7 @@ void SkInternalAtlasTextTarget::drawText(const SkGlyphID glyphs[], const SkPoint
     auto atlasTextContext = grContext->contextPriv().drawingManager()->getAtlasTextContext();
     size_t byteLength = sizeof(SkGlyphID) * glyphCnt;
     const SkScalar* pos = &positions->fX;
-    atlasTextContext->drawPosText(grContext, this, GrNoClip(), paint, SkMatrix::I(), props,
+    atlasTextContext->drawPosText(grContext, this, GrNoClip(), paint, this->ctm(), props,
                                   (const char*)glyphs, byteLength, pos, 2, {0, 0}, bounds);
 }
 
@@ -149,7 +192,8 @@ void GrAtlasTextOp::executeForTextTarget(SkAtlasTextTarget* target) {
         GrAtlasTextBlob::VertexRegenerator::Result result;
         do {
             result = regenerator.regenerate();
-            context.recordDraw(result.fFirstVertex, result.fGlyphsRegenerated, target->handle());
+            context.recordDraw(result.fFirstVertex, result.fGlyphsRegenerated,
+                               fGeoData[i].fViewMatrix, target->handle());
             if (!result.fFinished) {
                 // Make space in the atlas so we can continue generating vertices.
                 context.flush();

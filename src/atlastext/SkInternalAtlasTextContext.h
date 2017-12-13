@@ -14,6 +14,7 @@
 #include "SkRefCnt.h"
 
 class SkAtlasTextRenderer;
+class SkMatrix;
 class GrContext;
 class GrAtlasGlyphCache;
 class GrTextBlobCache;
@@ -38,7 +39,7 @@ public:
 
     GrDeferredUploadToken addASAPUpload(GrDeferredTextureUploadFn&&) override;
 
-    void recordDraw(const void* vertexData, int glyphCnt, void* targetHandle);
+    void recordDraw(const void* vertexData, int glyphCnt, const SkMatrix&, void* targetHandle);
 
     void flush();
 
