@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "4baf2a48_1539d0e4",
+        "filename": "include/gpu/GrContext.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 196,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-12-13T14:06:33Z",
+      "side": 1,
+      "message": "Maybe this param should have a more descriptive name since the meaning used to be in the function name",
+      "range": {
+        "startLine": 196,
+        "startChar": 58,
+        "endLine": 196,
+        "endChar": 60
+      },
+      "revId": "bbcd3b7841b4730cfe9355496b2be1a37e954349",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b740de3b_4951fc88",
         "filename": "src/gpu/GrContext.cpp",
         "patchSetId": 5
@@ -37,6 +60,30 @@
       "side": 1,
       "message": "I\u0027m not following -- are you suggesting adding the ms param and then call purgeResourcesNotUsedSince() inside purgeAsNeeded()?",
       "parentUuid": "b740de3b_4951fc88",
+      "range": {
+        "startLine": 335,
+        "startChar": 4,
+        "endLine": 335,
+        "endChar": 36
+      },
+      "revId": "bbcd3b7841b4730cfe9355496b2be1a37e954349",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ac2855d5_af18698e",
+        "filename": "src/gpu/GrContext.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 335,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-12-13T14:06:33Z",
+      "side": 1,
+      "message": "Actually, just ignore this comment :)",
+      "parentUuid": "c49cbb0b_da50412a",
       "range": {
         "startLine": 335,
         "startChar": 4,
