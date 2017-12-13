@@ -898,7 +898,7 @@ static bool check_backend_texture(const GrBackendTexture& backendTex,
         return false;
     }
 
-    SkASSERT(config == GrVkFormatToPixelConfig(info->fFormat));
+    SkASSERT(GrVkFormatPixelConfigPairIsValid(info->fFormat, config));
     return true;
 }
 
@@ -1072,7 +1072,7 @@ void GrVkGpu::generateMipmap(GrVkTexture* tex, GrSurfaceOrigin texOrigin) {
     }
 
     // setup memory barrier
-    SkASSERT(kUnknown_GrPixelConfig != GrVkFormatToPixelConfig(tex->imageFormat()));
+    SkASSERT(GrVkFormatIsSupported(tex->imageFormat()));
     VkImageAspectFlags aspectFlags = VK_IMAGE_ASPECT_COLOR_BIT;
     VkImageMemoryBarrier imageMemoryBarrier = {
         VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,          // sType
