@@ -102,6 +102,8 @@ public:
 
     static void PostPurgeBlobMessage(uint32_t);
 
+    void purgeStaleBlobs();
+
 private:
     using BitmapBlobList = SkTInternalLList<GrAtlasTextBlob>;
 
@@ -166,55 +168,7 @@ private:
         this->checkPurge(rawBlobPtr);
     }
 
-    void checkPurge(GrAtlasTextBlob* blob = nullptr) {
-        // First, purge all stale blob IDs.
-        {
-            SkTArray<PurgeBlobMessage> msgs;
-            fPurgeBlobInbox.poll(&msgs);
-
-            for (const auto& msg : msgs) {
-                auto* idEntry = fBlobIDCache.find(msg.fID);
-                if (!idEntry) {
-                    // no cache entries for id
-                    continue;
-                }
-
-                // remove all blob entries from the LRU list
-                for (const auto& blob : idEntry->fBlobs) {
-                    fBlobList.remove(blob.get());
-                }
-
-                // drop the idEntry itself (unrefs all blobs)
-                fBlobIDCache.remove(msg.fID);
-            }
-        }
-
-        // If we are still overbudget, then unref until we are below budget again
-        if (fPool.size() > fBudget) {
-            BitmapBlobList::Iter iter;
-            iter.init(fBlobList, BitmapBlobList::Iter::kTail_IterStart);
-            GrAtlasTextBlob* lruBlob = nullptr;
-            while (fPool.size() > fBudget && (lruBlob = iter.get()) && lruBlob != blob) {
-                // Backup the iterator before removing and unrefing the blob
-                iter.prev();
-
-                this->remove(lruBlob);
-            }
-
-            // If we break out of the loop with lruBlob == blob, then we haven't purged enough
-            // use the call back and try to free some more.  If we are still overbudget after this,
-            // then this single textblob is over our budget
-            if (blob && lruBlob == blob) {
-                (*fCallback)(fData);
-            }
-
-#ifdef SPEW_BUDGET_MESSAGE
-            if (fPool.size() > fBudget) {
-                SkDebugf("Single textblob is larger than our whole budget");
-            }
-#endif
-        }
-    }
+    void checkPurge(GrAtlasTextBlob* blob = nullptr);
 
     static const int kMinGrowthSize = 1 << 16;
     static const int kDefaultBudget = 1 << 22;
