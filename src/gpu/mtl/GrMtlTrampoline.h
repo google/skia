@@ -21,10 +21,7 @@ struct GrContextOptions;
  */
 class GrMtlTrampoline {
 public:
-    static sk_sp<GrGpu> MakeGpu(GrContext* context,
-                                const GrContextOptions& options,
-                                void* device,
-                                void* queue);
+    static sk_sp<GrGpu> MakeGpu(GrContext*, const GrContextOptions&, void* device, void* queue);
 };
 
 #endif
