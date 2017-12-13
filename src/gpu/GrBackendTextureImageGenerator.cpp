@@ -76,14 +76,7 @@ GrBackendTextureImageGenerator::Make(sk_sp<GrTexture> texture, GrSurfaceOrigin o
     // this point. That ref will be released when the generator's RefHelper is freed.
     context->getResourceCache()->insertCrossContextGpuResource(texture.get());
 
-    GrBackend backend = context->contextPriv().getBackend();
-    GrMipMapped mipMapped = texture->texturePriv().mipMapped();
-    GrBackendTexture backendTexture = make_backend_texture_from_handle(backend,
-                                                                       texture->width(),
-                                                                       texture->height(),
-                                                                       texture->config(),
-                                                                       mipMapped,
-                                                                       texture->getTextureHandle());
+    GrBackendTexture backendTexture  = texture->getBackendTexture();
 
     SkImageInfo info = SkImageInfo::Make(texture->width(), texture->height(), colorType, alphaType,
                                          std::move(colorSpace));

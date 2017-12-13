@@ -15,6 +15,7 @@ class GrCaps;
 class GrRenderTargetOpList;
 class GrRenderTargetPriv;
 class GrStencilAttachment;
+class GrBackendRenderTarget;
 
 /**
  * GrRenderTarget represents a 2D buffer of pixels that can be rendered to.
@@ -103,6 +104,8 @@ public:
      *  platform. e.g. on OpenGL, return the FBO ID.
      */
     virtual GrBackendObject getRenderTargetHandle() const = 0;
+
+    virtual GrBackendRenderTarget getBackendRenderTarget() const = 0;
 
     // Checked when this object is asked to attach a stencil buffer.
     virtual bool canAttemptStencilAttachment() const = 0;
