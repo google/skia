@@ -835,6 +835,11 @@ STAGE(gamma, const float* G) {
     g = approx_powf(g, *G);
     b = approx_powf(b, *G);
 }
+STAGE(gamma_dst, const float* G) {
+    dr = approx_powf(dr, *G);
+    dg = approx_powf(dg, *G);
+    db = approx_powf(db, *G);
+}
 
 STAGE(lab_to_xyz, Ctx::None) {
     F L = r * 100.0f,
