@@ -1294,16 +1294,22 @@
         "Perf-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-ANGLE"
       ]
     },
-    "Perf-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Goma": {
+    "Perf-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-ANGLE_Goma": {
       "priority": 0.8,
       "tasks": [
-        "Perf-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Goma"
+        "Perf-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-ANGLE_Goma"
       ]
     },
     "Perf-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Vulkan": {
       "priority": 0.8,
       "tasks": [
         "Perf-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Vulkan"
+      ]
+    },
+    "Perf-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Vulkan_Goma": {
+      "priority": 0.8,
+      "tasks": [
+        "Perf-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Vulkan_Goma"
       ]
     },
     "Perf-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Release-All": {
@@ -1580,12 +1586,6 @@
       "priority": 0.8,
       "tasks": [
         "Perf-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All"
-      ]
-    },
-    "Perf-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-Goma": {
-      "priority": 0.8,
-      "tasks": [
-        "Perf-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-Goma"
       ]
     },
     "Perf-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release-All": {
@@ -2484,16 +2484,22 @@
         "Upload-Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-ANGLE"
       ]
     },
-    "Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Goma": {
+    "Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-ANGLE_Goma": {
       "priority": 0.8,
       "tasks": [
-        "Upload-Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Goma"
+        "Upload-Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-ANGLE_Goma"
       ]
     },
     "Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Vulkan": {
       "priority": 0.8,
       "tasks": [
         "Upload-Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Vulkan"
+      ]
+    },
+    "Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Vulkan_Goma": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Vulkan_Goma"
       ]
     },
     "Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Release-All": {
@@ -2800,12 +2806,6 @@
       "priority": 0.8,
       "tasks": [
         "Upload-Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-FSAA"
-      ]
-    },
-    "Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-Goma": {
-      "priority": 0.8,
-      "tasks": [
-        "Upload-Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-Goma"
       ]
     },
     "Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release-All": {
@@ -10516,7 +10516,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Perf-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Goma": {
+    "Perf-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-ANGLE_Goma": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -10535,7 +10535,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Debug-Goma",
+        "Build-Win-Clang-x86_64-Debug-ANGLE_Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -10550,7 +10550,7 @@
         "../../..",
         "perf",
         "repository=<(REPO)",
-        "buildername=Perf-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Goma",
+        "buildername=Perf-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-ANGLE_Goma",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -10598,6 +10598,53 @@
         "perf",
         "repository=<(REPO)",
         "buildername=Perf-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Vulkan",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "perf_skia_bundled_win.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
+    "Perf-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Vulkan_Goma": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:34"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:101"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:9"
+        }
+      ],
+      "dependencies": [
+        "Build-Win-Clang-x86_64-Debug-Vulkan_Goma",
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "gpu:10de:1cb3-22.21.13.8205",
+        "os:Windows-10-15063",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "perf",
+        "repository=<(REPO)",
+        "buildername=Perf-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Vulkan_Goma",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -12766,53 +12813,6 @@
         "perf",
         "repository=<(REPO)",
         "buildername=Perf-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_repo=<(PATCH_REPO)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
-      ],
-      "io_timeout_ns": 2400000000000,
-      "isolate": "perf_skia_bundled_win.isolate",
-      "max_attempts": 1,
-      "priority": 0.8
-    },
-    "Perf-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-Goma": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:34"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:101"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:9"
-        }
-      ],
-      "dependencies": [
-        "Build-Win-Clang-x86_64-Debug-Goma",
-        "Housekeeper-PerCommit-BundleRecipes"
-      ],
-      "dimensions": [
-        "cpu:x86-64-Haswell_GCE",
-        "os:Windows-2016Server-14393",
-        "pool:Skia"
-      ],
-      "execution_timeout_ns": 14400000000000,
-      "expiration_ns": 72000000000000,
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "perf",
-        "repository=<(REPO)",
-        "buildername=Perf-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-Goma",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -19664,7 +19664,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Goma": {
+    "Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-ANGLE_Goma": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -19683,7 +19683,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-Clang-x86_64-Debug-Goma",
+        "Build-Win-Clang-x86_64-Debug-ANGLE_Goma",
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
@@ -19699,7 +19699,7 @@
         "test",
         "repository=<(REPO)",
         "buildbucket_build_id=<(BUILDBUCKET_BUILD_ID)",
-        "buildername=Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Goma",
+        "buildername=Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-ANGLE_Goma",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -19748,6 +19748,54 @@
         "repository=<(REPO)",
         "buildbucket_build_id=<(BUILDBUCKET_BUILD_ID)",
         "buildername=Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Vulkan",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia_bundled_win.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
+    "Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Vulkan_Goma": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:34"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:101"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:9"
+        }
+      ],
+      "dependencies": [
+        "Build-Win-Clang-x86_64-Debug-Vulkan_Goma",
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "gpu:10de:1cb3-22.21.13.8205",
+        "os:Windows-10-15063",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "test",
+        "repository=<(REPO)",
+        "buildbucket_build_id=<(BUILDBUCKET_BUILD_ID)",
+        "buildername=Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Vulkan_Goma",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -22202,54 +22250,6 @@
         "repository=<(REPO)",
         "buildbucket_build_id=<(BUILDBUCKET_BUILD_ID)",
         "buildername=Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-FSAA",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_repo=<(PATCH_REPO)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
-      ],
-      "io_timeout_ns": 2400000000000,
-      "isolate": "test_skia_bundled_win.isolate",
-      "max_attempts": 1,
-      "priority": 0.8
-    },
-    "Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-Goma": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:34"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:101"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:9"
-        }
-      ],
-      "dependencies": [
-        "Build-Win-Clang-x86_64-Debug-Goma",
-        "Housekeeper-PerCommit-BundleRecipes"
-      ],
-      "dimensions": [
-        "cpu:x86-64-Haswell_GCE",
-        "os:Windows-2016Server-14393",
-        "pool:Skia"
-      ],
-      "execution_timeout_ns": 14400000000000,
-      "expiration_ns": 72000000000000,
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "test",
-        "repository=<(REPO)",
-        "buildbucket_build_id=<(BUILDBUCKET_BUILD_ID)",
-        "buildername=Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-Goma",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -29073,9 +29073,9 @@
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
     },
-    "Upload-Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Goma": {
+    "Upload-Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-ANGLE_Goma": {
       "dependencies": [
-        "Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Goma"
+        "Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-ANGLE_Goma"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -29088,7 +29088,7 @@
         "../../..",
         "upload_dm_results",
         "repository=<(REPO)",
-        "buildername=Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Goma",
+        "buildername=Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-ANGLE_Goma",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -29116,6 +29116,33 @@
         "upload_dm_results",
         "repository=<(REPO)",
         "buildername=Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Vulkan",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Vulkan_Goma": {
+      "dependencies": [
+        "Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Vulkan_Goma"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "os:Debian-9.2",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Vulkan_Goma",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -30466,33 +30493,6 @@
         "upload_dm_results",
         "repository=<(REPO)",
         "buildername=Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-FSAA",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_repo=<(PATCH_REPO)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)",
-        "gs_bucket=skia-infra-gm"
-      ],
-      "isolate": "upload_dm_results.isolate",
-      "priority": 0.8
-    },
-    "Upload-Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-Goma": {
-      "dependencies": [
-        "Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-Goma"
-      ],
-      "dimensions": [
-        "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
-        "os:Debian-9.2",
-        "pool:Skia"
-      ],
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "upload_dm_results",
-        "repository=<(REPO)",
-        "buildername=Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-Goma",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
