@@ -418,6 +418,24 @@ private:
     typedef SkRefCnt INHERITED;
 };
 
+class SK_API GrNormalContext : public GrContext {
+public:
+
+protected:
+
+private:
+    typedef GrContext INHERITED;
+};
+
+class SK_API GrDLLContext : public GrContext {
+public:
+
+protected:
+
+private:
+    typedef GrContext INHERITED;
+};
+
 /**
  * Can be used to perform actions related to the generating GrContext in a thread safe manner. The
  * proxy does not access the 3D API (e.g. OpenGL) that backs the generating GrContext.
