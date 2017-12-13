@@ -540,18 +540,6 @@ def DM_ARGS(asan):
       "~^PaintBreakText$$",
       "~^RecordDraw_TextBounds$$",
   ]
-  if asan:
-    # The ASAN we use with Bazel has some strict checks, so omit tests that
-    # trigger them.
-    # All of the following are due to
-    # https://bugs.chromium.org/p/skia/issues/detail?id=7052
-    match += [
-        "~^clippedcubic2$$",
-        "~^PathOpsCubicIntersection$$",
-        "~^PathOpsCubicLineIntersection$$",
-        "~^PathOpsOpCubicsThreaded$$",
-        "~^PathOpsOpLoopsThreaded$$",
-    ]
   return ["--src"] + source + ["--config"] + config + ["--match"] + match
 
 ################################################################################

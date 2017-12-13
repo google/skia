@@ -544,15 +544,6 @@ def dm_flags(api, bot):
   if 'NoGPUThreads' in bot:
     args.extend(['--gpuThreads', '0'])
 
-  if 'ASAN' in bot and 'CPU' in bot:
-    # skia:7052
-    for config in ['565', '8888', 'f16', 'srgb']:
-      blacklist([config, 'gm', '_', 'clippedcubic2'])
-    match.append('~^PathOpsCubicIntersection$')
-    match.append('~^PathOpsCubicLineIntersection$')
-    match.append('~^PathOpsOpCubicsThreaded$')
-    match.append('~^PathOpsOpLoopsThreaded$')
-
   if 'Vulkan' in bot and 'Adreno530' in bot:
       # skia:5777
       match.extend(['~CopySurface'])
