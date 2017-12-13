@@ -38,6 +38,7 @@
 #ifdef SK_METAL
 #include "mtl/GrMtlTrampoline.h"
 #endif
+#include "ddl/GrDDLGpu.h"
 #ifdef SK_VULKAN
 #include "vk/GrVkGpu.h"
 #endif
@@ -67,11 +68,18 @@ GrContext* GrContext::Create(GrBackend backend, GrBackendContext backendContext)
 
 GrContext* GrContext::Create(GrBackend backend, GrBackendContext backendContext,
                              const GrContextOptions& options) {
-    sk_sp<GrContext> context(new GrContext);
 
-    if (!context->init(backend, backendContext, options)) {
+    sk_sp<GrContext> context(new GrContext(backend));
+
+    context->fGpu = GrGpu::Make(backend, backendContext, options, context.get());
+    if (!context->fGpu) {
         return nullptr;
     }
+
+    if (!context->init(options)) {
+        return nullptr;
+    }
+
     return context.release();
 }
 
@@ -82,12 +90,12 @@ sk_sp<GrContext> GrContext::MakeGL(sk_sp<const GrGLInterface> interface) {
 
 sk_sp<GrContext> GrContext::MakeGL(sk_sp<const GrGLInterface> interface,
                                    const GrContextOptions& options) {
-    sk_sp<GrContext> context(new GrContext);
+    sk_sp<GrContext> context(new GrContext(kOpenGL_GrBackend));
+
     context->fGpu = GrGLGpu::Make(std::move(interface), options, context.get());
     if (!context->fGpu) {
         return nullptr;
     }
-    context->fBackend = kOpenGL_GrBackend;
     if (!context->init(options)) {
         return nullptr;
     }
@@ -110,12 +118,12 @@ sk_sp<GrContext> GrContext::MakeMock(const GrMockOptions* mockOptions) {
 
 sk_sp<GrContext> GrContext::MakeMock(const GrMockOptions* mockOptions,
                                      const GrContextOptions& options) {
-    sk_sp<GrContext> context(new GrContext);
+    sk_sp<GrContext> context(new GrContext(kMock_GrBackend));
+
     context->fGpu = GrMockGpu::Make(mockOptions, options, context.get());
     if (!context->fGpu) {
         return nullptr;
     }
-    context->fBackend = kMock_GrBackend;
     if (!context->init(options)) {
         return nullptr;
     }
@@ -130,12 +138,12 @@ sk_sp<GrContext> GrContext::MakeVulkan(sk_sp<const GrVkBackendContext> backendCo
 
 sk_sp<GrContext> GrContext::MakeVulkan(sk_sp<const GrVkBackendContext> backendContext,
                                        const GrContextOptions& options) {
-    sk_sp<GrContext> context(new GrContext);
+    sk_sp<GrContext> context(new GrContext(kVulkan_GrBackend));
+
     context->fGpu = GrVkGpu::Make(std::move(backendContext), options, context.get());
     if (!context->fGpu) {
         return nullptr;
     }
-    context->fBackend = kVulkan_GrBackend;
     if (!context->init(options)) {
         return nullptr;
     }
@@ -150,12 +158,12 @@ sk_sp<GrContext> GrContext::MakeMetal(void* device, void* queue) {
 }
 
 sk_sp<GrContext> GrContext::MakeMetal(void* device, void* queue, const GrContextOptions& options) {
-    sk_sp<GrContext> context(new GrContext);
+    sk_sp<GrContext> context(new GrContext(kMetal_GrBackend));
+
     context->fGpu = GrMtlTrampoline::MakeGpu(context.get(), options, device, queue);
     if (!context->fGpu) {
         return nullptr;
     }
-    context->fBackend = kMetal_GrBackend;
     if (!context->init(options)) {
         return nullptr;
     }
@@ -172,31 +180,44 @@ static int32_t next_id() {
     return id;
 }
 
-GrContext::GrContext() : fUniqueID(next_id()) {
+sk_sp<GrContext> GrContextPriv::MakeDDL(GrContextThreadSafeProxy* proxy) {
+    sk_sp<GrContext> context(new GrContext(proxy));
+
+    context->fGpu = GrDDLGpu::Make(context.get(), proxy->fCaps);
+    if (!context->fGpu) {
+        return nullptr;
+    }
+    if (!context->init(proxy->fOptions)) {
+        return nullptr;
+    }
+    return context;
+}
+
+GrContext::GrContext(GrBackend backend)
+        : fUniqueID(next_id())
+        , fBackend(backend) {
     fResourceCache = nullptr;
     fResourceProvider = nullptr;
     fAtlasGlyphCache = nullptr;
 }
 
-bool GrContext::init(GrBackend backend, GrBackendContext backendContext,
-                     const GrContextOptions& options) {
-    ASSERT_SINGLE_OWNER
-    SkASSERT(!fGpu);
-
-    fBackend = backend;
-
-    fGpu = GrGpu::Make(backend, backendContext, options, this);
-    if (!fGpu) {
-        return false;
-    }
-    return this->init(options);
+GrContext::GrContext(GrContextThreadSafeProxy* proxy)
+        : fUniqueID(proxy->fContextUniqueID)
+        , fBackend(proxy->fBackend) {
+    fResourceCache = nullptr;
+    fResourceProvider = nullptr;
+    fAtlasGlyphCache = nullptr;
 }
 
 bool GrContext::init(const GrContextOptions& options) {
     ASSERT_SINGLE_OWNER
-    fCaps = sk_ref_sp(fGpu->caps());
+    fCaps = fGpu->refCaps();
     fResourceCache = new GrResourceCache(fCaps.get(), fUniqueID);
     fResourceProvider = new GrResourceProvider(fGpu.get(), fResourceCache, &fSingleOwner);
+    // DDL TODO: we need to think through how the task group & persistent cache
+    // get passed on to/shared between all the DDLRecorders created with this context.
+    fThreadSafeProxy.reset(new GrContextThreadSafeProxy(fCaps, this->uniqueID(), fBackend,
+                                                        options));
 
     fDisableGpuYUVConversion = options.fDisableGpuYUVConversion;
     fDidTestPMConversions = false;
@@ -270,9 +291,6 @@ GrContext::~GrContext() {
 }
 
 sk_sp<GrContextThreadSafeProxy> GrContext::threadSafeProxy() {
-    if (!fThreadSafeProxy) {
-        fThreadSafeProxy.reset(new GrContextThreadSafeProxy(fCaps, this->uniqueID()));
-    }
     return fThreadSafeProxy;
 }
 

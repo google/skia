@@ -22,6 +22,11 @@ class GrTextureContext;
     data members or virtual methods. */
 class GrContextPriv {
 public:
+    /**
+     * Create a GrContext without a resource cache
+     */
+    static sk_sp<GrContext> MakeDDL(GrContextThreadSafeProxy*);
+
     GrDrawingManager* drawingManager() { return fContext->fDrawingManager.get(); }
 
     sk_sp<GrSurfaceContext> makeWrappedSurfaceContext(sk_sp<GrSurfaceProxy>, sk_sp<SkColorSpace>);
