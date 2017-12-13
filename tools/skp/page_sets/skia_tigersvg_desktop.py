@@ -16,7 +16,6 @@ class SkiaBuildbotDesktopPage(page_module.Page):
         url=url,
         name=url,
         page_set=page_set,
-        credentials_path='data/credentials.json',
         shared_page_state_class=shared_page_state.SharedDesktopPageState)
     self.archive_data_file = 'data/skia_tigersvg_desktop.json'
 
