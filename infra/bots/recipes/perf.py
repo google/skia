@@ -292,7 +292,8 @@ def perf_steps(api):
         args.extend([k, api.vars.builder_cfg[k]])
 
   # See skia:2789.
-  if 'AbandonGpuContext' in api.vars.extra_tokens:
+  extra_config_parts = api.vars.builder_cfg.get('extra_config', '').split('_')
+  if 'AbandonGpuContext' in extra_config_parts:
     args.extend(['--abandonGpuContext'])
 
   api.run(api.flavor.step, target, cmd=args,
