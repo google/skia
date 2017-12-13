@@ -37,6 +37,15 @@ bool GrPixelConfigToVkFormat(GrPixelConfig config, VkFormat* format);
 */
 GrPixelConfig GrVkFormatToPixelConfig(VkFormat format);
 
+bool GrVkFormatIsSupported(VkFormat);
+
+/**
+ * Returns true if the passed in VkFormat and GrPixelConfig are compatible with each other. If the
+ * GrPixelConfig is kUnknown_GrPixelConfig, this will return true if the VkFormat is a format that
+ * is supported on our backend.
+ */
+bool GrVkFormatPixelConfigPairIsValid(VkFormat, GrPixelConfig);
+
 /**
  * Returns true if the given vulkan texture format is sRGB encoded.
  * Also provides the non-sRGB version, if there is one.
