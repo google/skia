@@ -176,6 +176,12 @@ void CPPCodeGenerator::writeRuntimeValue(const Type& type, const Layout& layout,
     } else if (type.kind() == Type::kEnum_Kind) {
         this->write("%d");
         fFormatArgs.push_back("(int) " + cppCode);
+    } else if (type == *fContext.fInt4_Type || type == *fContext.fShort4_Type) {
+        this->write(type.name() + "(%d, %d, %d, %d)");
+        fFormatArgs.push_back(cppCode + ".left()");
+        fFormatArgs.push_back(cppCode + ".top()");
+        fFormatArgs.push_back(cppCode + ".right()");
+        fFormatArgs.push_back(cppCode + ".bottom()");
     } else {
         printf("unsupported runtime value type '%s'\n", String(type.fName).c_str());
         ASSERT(false);
@@ -589,6 +595,7 @@ void CPPCodeGenerator::writeSetData(std::vector<const Variable*>& uniforms) {
         this->writef("        }\n");
     }
     if (section) {
+        int samplerIndex = 0;
         for (const auto& p : fProgram.fElements) {
             if (ProgramElement::kVar_Kind == p->fKind) {
                 const VarDeclarations* decls = (const VarDeclarations*) p.get();
@@ -596,7 +603,15 @@ void CPPCodeGenerator::writeSetData(std::vector<const Variable*>& uniforms) {
                     VarDeclaration& decl = (VarDeclaration&) *raw;
                     String nameString(decl.fVar->fName);
                     const char* name = nameString.c_str();
-                    if (needs_uniform_var(*decl.fVar)) {
+                    if (decl.fVar->fType.kind() == Type::kSampler_Kind) {
+                        this->writef("        GrSurfaceProxy& %sProxy = "
+                                     "*_outer.textureSampler(%d).proxy();\n",
+                                     name, samplerIndex);
+                        this->writef("        GrTexture& %s = *%sProxy.priv().peekTexture();\n",
+                                     name, name);
+                        this->writef("        (void) %s;\n", name);
+                        ++samplerIndex;
+                    } else if (needs_uniform_var(*decl.fVar)) {
                         this->writef("        UniformHandle& %s = %sVar;\n"
                                      "        (void) %s;\n",
                                      name, HCodeGenerator::FieldName(name).c_str(), name);
@@ -755,6 +770,7 @@ bool CPPCodeGenerator::generateCode() {
     this->writef("#include \"glsl/GrGLSLFragmentProcessor.h\"\n"
                  "#include \"glsl/GrGLSLFragmentShaderBuilder.h\"\n"
                  "#include \"glsl/GrGLSLProgramBuilder.h\"\n"
+                 "#include \"GrTexture.h\"\n"
                  "#include \"SkSLCPP.h\"\n"
                  "#include \"SkSLUtil.h\"\n"
                  "class GrGLSL%s : public GrGLSLFragmentProcessor {\n"

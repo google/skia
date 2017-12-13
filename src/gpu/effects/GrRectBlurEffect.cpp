@@ -13,6 +13,7 @@
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramBuilder.h"
+#include "GrTexture.h"
 #include "SkSLCPP.h"
 #include "SkSLUtil.h"
 class GrGLSLRectBlurEffect : public GrGLSLFragmentProcessor {
@@ -113,7 +114,8 @@ private:
         (void)rect;
         auto sigma = _outer.sigma();
         (void)sigma;
-        UniformHandle& blurProfile = fBlurProfileVar;
+        GrSurfaceProxy& blurProfileProxy = *_outer.textureSampler(0).proxy();
+        GrTexture& blurProfile = *blurProfileProxy.priv().peekTexture();
         (void)blurProfile;
         UniformHandle& proxyRectHalf = fProxyRectHalfVar;
         (void)proxyRectHalf;
