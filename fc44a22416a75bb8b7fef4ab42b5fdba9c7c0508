@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6ed3945d_12ae3c9c",
+        "filename": "gn/gpu.gni",
+        "patchSetId": 2
+      },
+      "lineNbr": 353,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-12-13T17:22:41Z",
+      "side": 1,
+      "message": "This seems out of place.",
+      "revId": "fc44a22416a75bb8b7fef4ab42b5fdba9c7c0508",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
