@@ -22,6 +22,30 @@
       "revId": "d5acda48443504b515c8d9df39fc98cd787baddc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0008128a_38821a63",
+        "filename": "src/gpu/GrContext.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 206,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-12-13T16:25:14Z",
+      "side": 1,
+      "message": "Well, I had intended to just have this be the backend of the final/destination SkSurface/GrContext. I would like to avoid adding another backend and it seems like one shouldn\u0027t really be able to do anything with the final backend information (e.g., create resources, etc.) in the DDL case. In a separate thread of refactoring CLs I\u0027m also trying to do away with GrBackendObject which seems to be where the backend() call is mainly used.",
+      "parentUuid": "bb566cc2_fc6d180f",
+      "range": {
+        "startLine": 206,
+        "startChar": 19,
+        "endLine": 206,
+        "endChar": 34
+      },
+      "revId": "d5acda48443504b515c8d9df39fc98cd787baddc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
