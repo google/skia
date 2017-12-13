@@ -190,10 +190,10 @@ public:
     void purgeAllUnlockedResources();
 
     /**
-     * Purge GPU resources that haven't been used in the past 'ms' milliseconds, regardless of
-     * whether the context is currently under budget.
+     * Purge GPU resources that haven't been used in the past 'msNotUsed' milliseconds or are
+     * otherwise marked for deletion, regardless of whether the context is under budget.
      */
-    void purgeResourcesNotUsedInMs(std::chrono::milliseconds ms);
+    void performDeferredCleanup(std::chrono::milliseconds msNotUsed);
 
     /**
      * Purge unlocked resources from the cache until the the provided byte count has been reached
