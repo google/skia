@@ -83,35 +83,19 @@ static void outset_for_stroke(SkRect* rect, const SkStrokeRec& rec) {
     rect->outset(radius, radius);
 }
 
-// Only handles lines for now. If returns true, dstPath is the new (smaller)
-// path. If returns false, then dstPath parameter is ignored.
-static bool cull_path(const SkPath& srcPath, const SkStrokeRec& rec,
-                      const SkRect* cullRect, SkScalar intervalLength,
-                      SkPath* dstPath) {
-    if (nullptr == cullRect) {
+static bool cull_path(SkPoint pts[2], const SkRect& bounds, SkScalar intervalLength) {
+    SkVector dxy = pts[1] - pts[0];
+
+    // only horizontal or vertical lines
+    if (dxy.fX && dxy.fY) {
         return false;
     }
-
-    SkPoint pts[2];
-    if (!srcPath.isLine(pts)) {
-        return false;
-    }
-
-    SkRect bounds = *cullRect;
-    outset_for_stroke(&bounds, rec);
-
-    SkScalar dx = pts[1].x() - pts[0].x();
-    SkScalar dy = pts[1].y() - pts[0].y();
-
-    // just do horizontal lines for now (lazy)
-    if (dy) {
-        return false;
-    }
+    // FIXME: need to make this work for either x or y
 
     SkScalar minX = pts[0].fX;
     SkScalar maxX = pts[1].fX;
 
-    if (dx < 0) {
+    if (dxy.fX < 0) {
         SkTSwap(minX, maxX);
     }
 
@@ -134,12 +118,55 @@ static bool cull_path(const SkPath& srcPath, const SkStrokeRec& rec,
     }
 
     SkASSERT(maxX >= minX);
-    if (dx < 0) {
+    if (dxy.fX < 0) {
         SkTSwap(minX, maxX);
     }
     pts[0].fX = minX;
     pts[1].fX = maxX;
 
+    // If line is zero-length, bump out the end by a tiny amount
+    // to draw endcaps. The bump factor is sized so that
+    // SkPoint::Distance() computes a non-zero length.
+    if (minX == maxX) {
+        pts[1].fX += maxX * FLT_EPSILON * 32;  // 16 instead of 32 does not draw; length stays zero
+    }
+    return true;
+}
+
+// Only handles lines for now. If returns true, dstPath is the new (smaller)
+// path. If returns false, then dstPath parameter is ignored.
+static bool cull_path(const SkPath& srcPath, const SkStrokeRec& rec,
+                      const SkRect* cullRect, SkScalar intervalLength,
+                      SkPath* dstPath) {
+    if (nullptr == cullRect) {
+        return false;
+    }
+
+    SkRect bounds;
+    SkPoint pts[4];
+    if (!srcPath.isLine(pts)) {
+        if (!srcPath.isRect(nullptr)) {
+            return false;
+        }
+        bounds = *cullRect;
+        outset_for_stroke(&bounds, rec);
+        // break rect into four lines, and call each one separately
+        SkPath::Iter iter(srcPath, false);
+        SkAssertResult(SkPath::kMove_Verb == iter.next(pts));
+        while (SkPath::kLine_Verb == iter.next(pts)) {
+            // FIXME: need to adjust dash phase by prior length
+            if (cull_path(pts, bounds, intervalLength)) {
+                dstPath->moveTo(pts[0]);
+                dstPath->lineTo(pts[1]);
+            }
+        }
+        return !dstPath->isEmpty();
+    }
+    bounds = *cullRect;
+    outset_for_stroke(&bounds, rec);
+    if (!cull_path(pts, bounds, intervalLength)) {
+        return false;
+    }
     dstPath->moveTo(pts[0]);
     dstPath->lineTo(pts[1]);
     return true;
