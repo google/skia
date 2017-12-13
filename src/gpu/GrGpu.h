@@ -496,6 +496,9 @@ public:
         return this->onIsACopyNeededForTextureParams(proxy, params, copyParams, scaleAdjust);
     }
 
+    bool validateBackendTexture(const GrBackendTexture& tex, SkColorType ct, SkAlphaType at,
+                                sk_sp<SkColorSpace> cs) const;
+
     // This is only to be used in GL-specific tests.
     virtual const GrGLContext* glContextForTesting() const { return nullptr; }
 
@@ -603,6 +606,9 @@ private:
                                          int* effectiveSampleCnt, SamplePattern*) = 0;
 
     virtual void onFinishFlush(bool insertedSemaphores) = 0;
+
+    virtual bool onValidateBackendTexture(const GrBackendTexture& tex, SkColorType ct,
+                                          SkAlphaType at, sk_sp<SkColorSpace> cs) const = 0;
 
     virtual void onDumpJSON(SkJSONWriter*) const {}
 
