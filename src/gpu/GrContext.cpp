@@ -234,6 +234,12 @@ bool GrContext::init(const GrContextOptions& options) {
     GrAtlasTextContext::Options atlasTextContextOptions;
     atlasTextContextOptions.fMaxDistanceFieldFontSize = options.fGlyphsAsPathsFontSize;
     atlasTextContextOptions.fMinDistanceFieldFontSize = options.fMinDistanceFieldFontSize;
+    atlasTextContextOptions.fDistanceFieldVerticesAlwaysHaveW = false;
+#if SK_SUPPORT_ATLAS_TEXT
+    if (GrContextOptions::Enable::kYes == options.fDistanceFieldGlyphVerticesAlwaysHaveW) {
+        atlasTextContextOptions.fDistanceFieldVerticesAlwaysHaveW = true;
+    }
+#endif
 
     fDrawingManager.reset(
             new GrDrawingManager(this, prcOptions, atlasTextContextOptions, &fSingleOwner));
