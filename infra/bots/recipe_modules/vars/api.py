@@ -120,6 +120,13 @@ class SkiaVarsApi(recipe_api.RecipeApi):
     arch = (self.builder_cfg.get('arch') or self.builder_cfg.get('target_arch'))
     if ('Win' in self.builder_cfg.get('os', '') and arch == 'x86_64'):
       self.configuration += '_x64'
+    self.extra_tokens = []
+    if len(self.builder_cfg.get('extra_config', '')) > 0:
+      if self.builder_cfg['extra_config'].startswith('SK'):
+        assert self.builder_cfg['extra_config'].isupper()
+        self.extra_tokens = [self.builder_cfg['extra_config']]
+      else:
+        self.extra_tokens = self.builder_cfg['extra_config'].split('_')
 
     self.default_env.update({'SKIA_OUT': self.skia_out,
                              'BUILDTYPE': self.configuration})
@@ -221,4 +228,3 @@ print os.environ.get('SWARMING_TASK_ID', '')
 ''',
           stdout=self.m.raw_io.output()).stdout.rstrip()
     return self._swarming_task_id
-

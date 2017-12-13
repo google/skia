@@ -97,7 +97,7 @@ class SkiaApi(recipe_api.RecipeApi):
       main.revision = 'origin/master'
       main.managed = True
       m[main_name] = 'got_flutter_revision'
-      if 'Android' in self.m.vars.builder_cfg.get('extra_config', ''):
+      if 'Android' in self.m.vars.extra_tokens:
         gclient_cfg.target_os.add('android')
 
       skia_dep_path = 'src/third_party/skia'

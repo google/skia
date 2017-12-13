@@ -859,12 +859,11 @@ def test_steps(api):
   args.extend(dm_flags(api, api.vars.builder_name))
 
   # See skia:2789.
-  extra_config_parts = api.vars.builder_cfg.get('extra_config', '').split('_')
-  if 'AbandonGpuContext' in extra_config_parts:
+  if 'AbandonGpuContext' in api.vars.extra_tokens:
     args.append('--abandonGpuContext')
-  if 'PreAbandonGpuContext' in extra_config_parts:
+  if 'PreAbandonGpuContext' in api.vars.extra_tokens:
     args.append('--preAbandonGpuContext')
-  if 'ReleaseAndAbandonGpuContext' in extra_config_parts:
+  if 'ReleaseAndAbandonGpuContext' in api.vars.extra_tokens:
     args.append('--releaseAndAbandonGpuContext')
 
   api.run(api.flavor.step, 'dm', cmd=args, abort_on_failure=False)

@@ -261,7 +261,7 @@ if actual_freq != str(freq):
   def compile(self, unused_target):
     compiler      = self.m.vars.builder_cfg.get('compiler')
     configuration = self.m.vars.builder_cfg.get('configuration')
-    extra_config  = self.m.vars.builder_cfg.get('extra_config', '')
+    extra_tokens  = self.m.vars.extra_tokens
     os            = self.m.vars.builder_cfg.get('os')
     target_arch   = self.m.vars.builder_cfg.get('target_arch')
 
@@ -285,14 +285,16 @@ if actual_freq != str(freq):
 
     if configuration != 'Debug':
       args['is_debug'] = 'false'
-    if 'Vulkan' in extra_config:
+    if 'Vulkan' in extra_tokens:
       args['ndk_api'] = 24
       args['skia_enable_vulkan_debug_layers'] = 'false'
 
     # If an Android API level is specified, use that.
-    m = re.search(r'API(\d+)', extra_config)
-    if m and len(m.groups()) == 1:
-      args['ndk_api'] = m.groups()[0]
+    for t in extra_tokens:
+      m = re.search(r'API(\d+)', t)
+      if m and len(m.groups()) == 1:
+        args['ndk_api'] = m.groups()[0]
+        break
 
     if extra_cflags:
       args['extra_cflags'] = repr(extra_cflags).replace("'", '"')
