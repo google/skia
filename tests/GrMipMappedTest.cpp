@@ -159,21 +159,19 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrBackendTextureImageMipMappedTest, reporter,
                 return;
             }
 
-            GrBackendObject genBackendObject = genTexture->getTextureHandle();
+            GrBackendTexture genBackendTex = genTexture->getBackendTexture();
 
-            if (kOpenGL_GrBackend == context->contextPriv().getBackend()) {
+            if (const GrGLTextureInfo* genTexInfo = genBackendTex.getGLTextureInfo()) {
                 const GrGLTextureInfo* origTexInfo = backendTex.getGLTextureInfo();
-                GrGLTextureInfo* genTexInfo = (GrGLTextureInfo*)genBackendObject;
                 if (willUseMips && GrMipMapped::kNo == mipMapped) {
                     // We did a copy so the texture IDs should be different
                     REPORTER_ASSERT(reporter, origTexInfo->fID != genTexInfo->fID);
                 } else {
                     REPORTER_ASSERT(reporter, origTexInfo->fID == genTexInfo->fID);
                 }
-            } else if (kVulkan_GrBackend == context->contextPriv().getBackend()) {
 #ifdef SK_VULKAN
+            } else if (const GrVkImageInfo* genImageInfo = genBackendTex.getVkImageInfo()) {
                 const GrVkImageInfo* origImageInfo = backendTex.getVkImageInfo();
-                GrVkImageInfo* genImageInfo = (GrVkImageInfo*)genBackendObject;
                 if (willUseMips && GrMipMapped::kNo == mipMapped) {
                     // We did a copy so the texture IDs should be different
                     REPORTER_ASSERT(reporter, origImageInfo->fImage != genImageInfo->fImage);
@@ -181,8 +179,6 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrBackendTextureImageMipMappedTest, reporter,
                     REPORTER_ASSERT(reporter, origImageInfo->fImage == genImageInfo->fImage);
                 }
 #endif
-            } else if (kMetal_GrBackend == context->contextPriv().getBackend()) {
-                REPORTER_ASSERT(reporter, false);
             } else {
                 REPORTER_ASSERT(reporter, false);
             }

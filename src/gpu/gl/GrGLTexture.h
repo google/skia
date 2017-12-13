@@ -40,6 +40,7 @@ public:
     }
 
     GrBackendObject getTextureHandle() const override;
+    GrBackendTexture getBackendTexture() const override;
 
     void textureParamsModified() override { fTexParams.invalidate(); }
 

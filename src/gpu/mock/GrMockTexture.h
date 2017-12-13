@@ -28,6 +28,11 @@ public:
     GrBackendObject getTextureHandle() const override {
         return reinterpret_cast<GrBackendObject>(&fInfo);
     }
+    GrBackendTexture getBackendTexture() const override {
+        return GrBackendTexture(this->width(), this->height(), this->config(),
+                                this->texturePriv().mipMapped(), fInfo);
+    }
+
     void textureParamsModified() override {}
     void setRelease(ReleaseProc proc, ReleaseCtx ctx) override {
         fReleaseProc = proc;
@@ -68,6 +73,11 @@ public:
     }
     ResolveType getResolveType() const override { return kCanResolve_ResolveType; }
     GrBackendObject getRenderTargetHandle() const override { return 0; }
+
+    GrBackendRenderTarget getBackendRenderTarget() const override {
+        return GrBackendRenderTarget(); // invalid
+    }
+
     bool canAttemptStencilAttachment() const override { return true; }
     bool completeStencilAttachment() override { return true; }
     GrTexture* asTexture() override { return this; }

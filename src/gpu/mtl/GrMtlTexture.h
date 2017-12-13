@@ -27,6 +27,7 @@ public:
     id<MTLTexture> mtlTexture() const { return fTexture; }
 
     GrBackendObject getTextureHandle() const override;
+    GrBackendTexture getBackendTexture() const override;
 
     void textureParamsModified() override {}
 

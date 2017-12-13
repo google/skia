@@ -9,6 +9,7 @@
 #include "GrGLGpu.h"
 #include "GrSemaphore.h"
 #include "GrShaderCaps.h"
+#include "GrTexturePriv.h"
 #include "SkTraceMemoryDump.h"
 
 #define GPUGL static_cast<GrGLGpu*>(this->getGpu())
@@ -103,6 +104,11 @@ void GrGLTexture::onAbandon() {
 
 GrBackendObject GrGLTexture::getTextureHandle() const {
     return reinterpret_cast<GrBackendObject>(&fInfo);
+}
+
+GrBackendTexture GrGLTexture::getBackendTexture() const {
+    return GrBackendTexture(this->width(), this->height(), this->config(),
+                            this->texturePriv().mipMapped(), fInfo);
 }
 
 void GrGLTexture::setMemoryBacking(SkTraceMemoryDump* traceMemoryDump,

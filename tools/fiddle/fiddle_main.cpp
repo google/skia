@@ -124,15 +124,12 @@ static bool setup_backend_objects(GrContext* context,
         return false;
     }
 
-    GrBackend backend = context->contextPriv().getBackend();
-    const GrPixelConfig kConfig = kRGBA_8888_GrPixelConfig;
-
     GrSurfaceDesc backingDesc;
     backingDesc.fFlags = kNone_GrSurfaceFlags;
     backingDesc.fOrigin = kTopLeft_GrSurfaceOrigin;
     backingDesc.fWidth = bm.width();
     backingDesc.fHeight = bm.height();
-    backingDesc.fConfig = kConfig;
+    backingDesc.fConfig = kRGBA_8888_GrPixelConfig;
     backingDesc.fSampleCnt = 0;
 
     if (!bm.empty()) {
@@ -173,12 +170,7 @@ static bool setup_backend_objects(GrContext* context,
             return false;
         }
 
-        backEndTexture = GrTest::CreateBackendTexture(backend,
-                                                      backingDesc.fWidth,
-                                                      backingDesc.fHeight,
-                                                      kConfig,
-                                                      options.fMipMapping,
-                                                      backingTexture->getTextureHandle());
+        backEndTexture = backingTexture->getBackendTexture();
         if (!backEndTexture.isValid()) {
             return false;
         }
@@ -209,13 +201,7 @@ static bool setup_backend_objects(GrContext* context,
 
         backingRenderTarget = sk_ref_sp(tmp->asRenderTarget());
 
-        backEndRenderTarget = GrTest::CreateBackendRenderTarget(
-                                                    backend,
-                                                    backingDesc.fWidth,
-                                                    backingDesc.fHeight,
-                                                    backingDesc.fSampleCnt, 0,
-                                                    kConfig,
-                                                    backingRenderTarget->getRenderTargetHandle());
+        backEndRenderTarget = backingRenderTarget->getBackendRenderTarget();
         if (!backEndRenderTarget.isValid()) {
             return false;
         }
@@ -243,13 +229,7 @@ static bool setup_backend_objects(GrContext* context,
             return false;
         }
 
-        backEndTextureRenderTarget = GrTest::CreateBackendTexture(
-                                                    backend,
-                                                    backingDesc.fWidth,
-                                                    backingDesc.fHeight,
-                                                    kConfig,
-                                                    options.fOffScreenMipMapping,
-                                                    backingTextureRenderTarget->getTextureHandle());
+        backEndTextureRenderTarget = backingTextureRenderTarget->getBackendTexture();
         if (!backEndTextureRenderTarget.isValid()) {
             return false;
         }
