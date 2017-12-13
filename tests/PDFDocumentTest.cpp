@@ -136,9 +136,7 @@ size_t count_bytes(const SkBitmap& bm, bool useDCT) {
     SkDynamicMemoryWStream stream;
     sk_sp<SkDocument> doc;
     if (useDCT) {
-        doc = SkDocument::MakePDF(&stream, SK_ScalarDefaultRasterDPI,
-                                  SkDocument::PDFMetadata(),
-                                  sk_make_sp<JPEGSerializer>(), false);
+        doc = SkDocument::MakePDF(&stream, SkDocument::PDFMetadata());
     } else {
         doc = SkDocument::MakePDF(&stream);
     }
@@ -189,10 +187,10 @@ DEF_TEST(SkPDF_pdfa_document, r) {
     pdfMetadata.fTitle = "test document";
     pdfMetadata.fCreation.fEnabled = true;
     pdfMetadata.fCreation.fDateTime = {0, 1999, 12, 5, 31, 23, 59, 59};
+    pdfMetadata.fPDFA = true;
 
     SkDynamicMemoryWStream buffer;
-    auto doc = SkDocument::MakePDF(&buffer, SK_ScalarDefaultRasterDPI,
-                                   pdfMetadata, nullptr, /* pdfa = */ true);
+    auto doc = SkDocument::MakePDF(&buffer, pdfMetadata);
     doc->beginPage(64, 64)->drawColor(SK_ColorRED);
     doc->close();
     sk_sp<SkData> data(buffer.detachAsData());
@@ -210,8 +208,8 @@ DEF_TEST(SkPDF_pdfa_document, r) {
         }
     }
     pdfMetadata.fProducer = "phoney library";
-    doc = SkDocument::MakePDF(&buffer, SK_ScalarDefaultRasterDPI,
-                              pdfMetadata, nullptr, /* pdfa = */ true);
+    pdfMetadata.fPDFA = true;
+    doc = SkDocument::MakePDF(&buffer, pdfMetadata);
     doc->beginPage(64, 64)->drawColor(SK_ColorRED);
     doc->close();
     data = buffer.detachAsData();

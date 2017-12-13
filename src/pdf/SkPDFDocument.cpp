@@ -455,10 +455,18 @@ sk_sp<SkDocument> SkDocument::MakePDF(const char path[], SkScalar dpi) {
 }
 
 sk_sp<SkDocument> SkDocument::MakePDF(SkWStream* stream,
+                                      const SkDocument::PDFMetadata& metadata) {
+    return SkPDFMakeDocument(stream, nullptr, dpi, metadata, nullptr, pdfa);
+}
+
+#ifdef SK_SUPPORT_LEGACY_PDF_PIXELSERIALIZER
+sk_sp<SkDocument> SkDocument::MakePDF(SkWStream* stream,
                                       SkScalar dpi,
                                       const SkDocument::PDFMetadata& metadata,
                                       sk_sp<SkPixelSerializer> jpegEncoder,
                                       bool pdfa) {
-    return SkPDFMakeDocument(stream, nullptr, dpi, metadata,
+    return SkPDFMakeDocument(stream, jpegEncoder, dpi, metadata,
                              std::move(jpegEncoder), pdfa);
 }
+#endif
+
