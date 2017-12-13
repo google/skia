@@ -1,0 +1,78 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ea2ad95f_be728506",
+        "filename": "platform_tools/android/apps/skqp/src/main/java/org/skia/skqp/SkQPRunner.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-12-13T14:26:25Z",
+      "side": 1,
+      "message": "singular not plural as it only executes one test at a time.",
+      "range": {
+        "startLine": 26,
+        "startChar": 28,
+        "endLine": 26,
+        "endChar": 45
+      },
+      "revId": "9ed45cca85889db1a2ac33cd6948a8361efe1a2d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "89ef1702_8cee717b",
+        "filename": "platform_tools/android/apps/skqp/src/main/java/org/skia/skqp/SkQPRunner.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-12-13T14:26:25Z",
+      "side": 1,
+      "message": "use the junit asserts or java exceptions instead of Java asserts.  Those asserts are dependent on the VM having the option enabled.",
+      "revId": "9ed45cca85889db1a2ac33cd6948a8361efe1a2d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2f46a9cc_8a8396f2",
+        "filename": "platform_tools/android/apps/skqp/src/main/java/org/skia/skqp/SkQPRunner.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-12-13T14:26:25Z",
+      "side": 1,
+      "message": "what cases cause !\u003d 0 to be returned instead of an error code?",
+      "revId": "9ed45cca85889db1a2ac33cd6948a8361efe1a2d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e9875373_b5e1c247",
+        "filename": "tools/skqp/jni/org_skia_skqp_SkQPRunner.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-12-13T14:26:25Z",
+      "side": 1,
+      "message": "no need for a static function with only one caller.",
+      "revId": "9ed45cca85889db1a2ac33cd6948a8361efe1a2d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
