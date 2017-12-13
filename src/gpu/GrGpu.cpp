@@ -504,6 +504,14 @@ GrSemaphoresSubmitted GrGpu::finishFlush(int numSemaphores,
                                             : GrSemaphoresSubmitted::kNo;
 }
 
+bool GrGpu::validateBackendTexture(GrBackendTexture* tex, SkColorType ct,
+                                   SkAlphaType at, sk_sp<SkColorSpace> cs) const {
+    if (!this->onValidateBackendTexture(tex, ct, at, cs)) {
+        return false;
+    }
+    return this->caps()->isConfigTexturable(tex->fConfig);
+}
+
 void GrGpu::dumpJSON(SkJSONWriter* writer) const {
     writer->beginObject();
 
