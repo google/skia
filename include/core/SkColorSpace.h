@@ -79,7 +79,6 @@ struct SK_API SkColorSpaceTransferFn {
 
 class SK_API SkColorSpace : public SkRefCnt {
 public:
-
     /**
      *  Create the sRGB color space.
      */
@@ -241,9 +240,6 @@ public:
     static bool Equals(const SkColorSpace* src, const SkColorSpace* dst);
 
 private:
-    SkColorSpace() = default;
-    friend class SkColorSpace_Base;
-
     virtual const SkMatrix44* onToXYZD50() const = 0;
     virtual uint32_t onToXYZD50Hash() const = 0;
     virtual const SkMatrix44* onFromXYZD50() const = 0;

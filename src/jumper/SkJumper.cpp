@@ -236,7 +236,7 @@ extern "C" {
     LOWP(matrix_2x3) NOPE(matrix_3x4) TODO(matrix_4x5) TODO(matrix_4x3)
     LOWP(matrix_perspective)
     NOPE(parametric_r) NOPE(parametric_g) NOPE(parametric_b)
-    NOPE(parametric_a) NOPE(gamma)
+    NOPE(parametric_a) NOPE(gamma) NOPE(gamma_dst)
     NOPE(table_r) NOPE(table_g) NOPE(table_b) NOPE(table_a)
     NOPE(lab_to_xyz)
                     TODO(mirror_x)   TODO(repeat_x)
