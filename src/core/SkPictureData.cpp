@@ -305,8 +305,9 @@ void SkPictureData::serialize(SkWStream* stream, const SkSerialProcs& procs,
         bool write(const void*, size_t size) override { fBytesWritten += size; return true; }
         size_t bytesWritten() const override { return fBytesWritten; }
     } devnull;
+    SkSerialProcs nullProcs;
     for (int i = 0; i < fPictureCount; i++) {
-        fPictureRefs[i]->serialize(&devnull, procs, typefaceSet);
+        fPictureRefs[i]->serialize(&devnull, nullProcs, typefaceSet);
     }
 
     // We need to write factories before we write the buffer.
