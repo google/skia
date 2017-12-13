@@ -73,32 +73,25 @@ class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
   rootable_blacklist = ['GalaxyS6', 'GalaxyS7_G930A', 'GalaxyS7_G930FD',
                         'MotoG4', 'NVIDIA_Shield']
 
-  # Maps device type -> cpu ids that need to be set when scaling, with the
-  # primary CPU being listed first. CPUs are configured together,
-  # for example, the Nexus 5x has cpu0-3 and cpu4-5 linked together, each
-  # group using the same configuration - anything that happens to cpu0,
-  # happens to cpu1-3.
-  # cpus at index 1+ will be clocked down to powersave during nanobench.
-  # TODO(kjlubick): determine this dynamically - should be able to look
-  # at which cores have the highest frequency and affected_cpus.
+  # Maps device type -> cpus that should be scaled for nanobench. Some devices
+  # have multiple of the same CPU (e.g. NexusPlayer), so we should scale all
+  # similar CPUs the same.
   cpus_to_scale = {
-    'Nexus5x': [4, 0],
-    'NexusPlayer': [2, 0],
-    'Pixel': [2, 0],
-    'Pixel2XL': [4, 0]
+    'Nexus5x': [4],
+    'NexusPlayer': [0, 2],
+    'Pixel': [2],
+    'Pixel2XL': [4]
   }
 
-  # Maps device -> number of cores. TODO(kjlubick) if we want to do this
-  # long term, compute this dynamically.
-  total_cpus = {
-    'AndroidOne': 4,
-    'Nexus5': 4,
-    'Nexus7': 4,
-    'Nexus5x': 6,
-    'NexusPlayer': 4,
-    'Pixel': 4,
-    'Pixel2XL': 8,
-    'PixelC': 4,
+  # Maps device type -> cpu ids.  E.g. Nexus5x has cpu0-3 as one chip and cpu4-5
+  # as the other. Thus, if one wants to run a single-threaded application, one
+  # can disable cpu0-3 and scale cpu 4 to have only cpu4 and 5 at the same
+  # frequency
+  disable_for_nanobench = {
+    'Nexus5x': range(0, 4),
+    'Pixel': range(0, 2),
+    'Pixel2XL': range(0, 4),
+    'PixelC': range(0, 2)
   }
 
   def _scale_for_dm(self):
@@ -106,6 +99,9 @@ class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
     if (device in self.rootable_blacklist or
         self.m.vars.internal_hardware_label):
       return
+
+    for i in self.disable_for_nanobench.get(device, []):
+      self._power_cpu(i, True) # enable
 
     for i in self.cpus_to_scale.get(device, [0]):
       # AndroidOne doesn't support ondemand governor. hotplug is similar.
@@ -120,13 +116,12 @@ class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
       self.m.vars.internal_hardware_label):
       return
 
-    # Scale just the first two cpus.
-    self._set_governor(0, 'userspace')
-    self._scale_cpu(0, 0.6)
+    for i in self.cpus_to_scale.get(device, [0]):
+      self._set_governor(i, 'userspace')
+      self._scale_cpu(i, 0.6)
 
-    for i in range(2, self.total_cpus[device]):
-      # NexusPlayer only has "ondemand userspace interactive performance"
-      self._disable_cpu(i)
+    for i in self.disable_for_nanobench.get(device, []):
+      self._power_cpu(i, False) # disable
 
 
   def _set_governor(self, cpu, gov):
@@ -162,10 +157,15 @@ if actual_gov != gov:
         timeout=30)
 
 
-  def _disable_cpu(self, cpu):
+  def _power_cpu(self, cpu, enable):
     self._ever_ran_adb = True
+    value = 0
+    msg = 'Disabling'
+    if enable:
+      value = 1
+      msg = 'Enabling'
     self.m.run.with_retry(self.m.python.inline,
-        'Disabling CPU %d' % cpu,
+        '%s CPU %d' % (msg, cpu),
         3, # attempts
         program="""
 import os
@@ -174,6 +174,7 @@ import sys
 import time
 ADB = sys.argv[1]
 cpu = int(sys.argv[2])
+value = int(sys.argv[3])
 
 log = subprocess.check_output([ADB, 'root'])
 # check for message like 'adbd cannot run as root in production builds'
@@ -181,15 +182,15 @@ print log
 if 'cannot' in log:
   raise Exception('adb root failed')
 
-subprocess.check_output([ADB, 'shell', 'echo 0 > '
-    '/sys/devices/system/cpu/cpu%d/online' % cpu])
+subprocess.check_output([ADB, 'shell', 'echo %s > '
+    '/sys/devices/system/cpu/cpu%d/online' % (value, cpu)])
 actual_status = subprocess.check_output([ADB, 'shell', 'cat '
     '/sys/devices/system/cpu/cpu%d/online' % cpu]).strip()
 if actual_status != str(0):
   raise Exception('(actual, expected) (%s, %d)'
                   % (actual_gov, gov))
 """,
-        args = [self.ADB_BINARY, cpu],
+        args = [self.ADB_BINARY, cpu, value],
         infra_step=True,
         timeout=30)
 
