@@ -140,6 +140,12 @@ static bool cull_path(const SkPath& srcPath, const SkStrokeRec& rec,
     pts[0].fX = minX;
     pts[1].fX = maxX;
 
+    // If line is zero-length, bump out the end by a tiny amount
+    // to draw endcaps. The bump factor is sized so that
+    // SkPoint::Distance() computes a non-zero length.
+    if (minX == maxX) {
+        pts[1].fX += maxX * FLT_EPSILON * 32;  // 16 instead of 32 does not draw; length stays zero
+    }
     dstPath->moveTo(pts[0]);
     dstPath->lineTo(pts[1]);
     return true;
