@@ -75,11 +75,14 @@
     ],
     "cwd": "[CACHE]/goma",
     "env": {
-      "BUILDTYPE": "Release_x64",
+      "BUILDTYPE": "Debug_x64",
       "CHROME_HEADLESS": "1",
+      "GOMA_FALLBACK": "0",
+      "GOMA_HERMETIC": "error",
       "GOMA_SERVICE_ACCOUNT_JSON_FILE": "[START_DIR]/tmp/jwt_service_account_goma-client.json",
+      "GOMA_USE_LOCAL": "0",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[CUSTOM_C:\\_B_WORK]/skia/out/Build-Win-Clang-x86_64-Release-Goma"
+      "SKIA_OUT": "[CUSTOM_C:\\_B_WORK]/skia/out/Build-Win-Clang-x86_64-Debug-GomaNoFallback"
     },
     "infra_step": true,
     "name": "start goma"
@@ -92,10 +95,10 @@
     ],
     "cwd": "[CUSTOM_C:\\_B_WORK]/skia",
     "env": {
-      "BUILDTYPE": "Release_x64",
+      "BUILDTYPE": "Debug_x64",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[CUSTOM_C:\\_B_WORK]/skia/out/Build-Win-Clang-x86_64-Release-Goma"
+      "SKIA_OUT": "[CUSTOM_C:\\_B_WORK]/skia/out/Build-Win-Clang-x86_64-Debug-GomaNoFallback"
     },
     "infra_step": true,
     "name": "fetch-gn"
@@ -104,16 +107,19 @@
     "cmd": [
       "[CUSTOM_C:\\_B_WORK]/skia/bin/gn.exe",
       "gen",
-      "[CUSTOM_C:\\_B_WORK]/skia/out/Build-Win-Clang-x86_64-Release-Goma/Release_x64",
-      "--args=cc=\"clang\" cc_wrapper=\"[CACHE]/goma/gomacc\" clang_win=\"[START_DIR]/clang_win\" cxx=\"clang++\" is_debug=false target_cpu=\"x86_64\" win_sdk=\"[START_DIR]/t/depot_tools/win_toolchain/vs_files/a9e1098bba66d2acccc377d5ee81265910f29272/win_sdk\" win_vc=\"[START_DIR]/t/depot_tools/win_toolchain/vs_files/a9e1098bba66d2acccc377d5ee81265910f29272/VC\""
+      "[CUSTOM_C:\\_B_WORK]/skia/out/Build-Win-Clang-x86_64-Debug-GomaNoFallback/Debug_x64",
+      "--args=cc=\"clang\" cc_wrapper=\"[CACHE]/goma/gomacc\" clang_win=\"[START_DIR]/clang_win\" cxx=\"clang++\" extra_cflags=[\"-O1\"] target_cpu=\"x86_64\" win_sdk=\"[START_DIR]/t/depot_tools/win_toolchain/vs_files/a9e1098bba66d2acccc377d5ee81265910f29272/win_sdk\" win_vc=\"[START_DIR]/t/depot_tools/win_toolchain/vs_files/a9e1098bba66d2acccc377d5ee81265910f29272/VC\""
     ],
     "cwd": "[CUSTOM_C:\\_B_WORK]/skia",
     "env": {
-      "BUILDTYPE": "Release_x64",
+      "BUILDTYPE": "Debug_x64",
       "CHROME_HEADLESS": "1",
+      "GOMA_FALLBACK": "0",
+      "GOMA_HERMETIC": "error",
       "GOMA_SERVICE_ACCOUNT_JSON_FILE": "[START_DIR]/tmp/jwt_service_account_goma-client.json",
+      "GOMA_USE_LOCAL": "0",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[CUSTOM_C:\\_B_WORK]/skia/out/Build-Win-Clang-x86_64-Release-Goma"
+      "SKIA_OUT": "[CUSTOM_C:\\_B_WORK]/skia/out/Build-Win-Clang-x86_64-Debug-GomaNoFallback"
     },
     "name": "gn gen"
   },
@@ -123,17 +129,20 @@
       "-k",
       "0",
       "-C",
-      "[CUSTOM_C:\\_B_WORK]/skia/out/Build-Win-Clang-x86_64-Release-Goma/Release_x64",
+      "[CUSTOM_C:\\_B_WORK]/skia/out/Build-Win-Clang-x86_64-Debug-GomaNoFallback/Debug_x64",
       "-j",
       "100"
     ],
     "cwd": "[CUSTOM_C:\\_B_WORK]/skia",
     "env": {
-      "BUILDTYPE": "Release_x64",
+      "BUILDTYPE": "Debug_x64",
       "CHROME_HEADLESS": "1",
+      "GOMA_FALLBACK": "0",
+      "GOMA_HERMETIC": "error",
       "GOMA_SERVICE_ACCOUNT_JSON_FILE": "[START_DIR]/tmp/jwt_service_account_goma-client.json",
+      "GOMA_USE_LOCAL": "0",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[CUSTOM_C:\\_B_WORK]/skia/out/Build-Win-Clang-x86_64-Release-Goma"
+      "SKIA_OUT": "[CUSTOM_C:\\_B_WORK]/skia/out/Build-Win-Clang-x86_64-Debug-GomaNoFallback"
     },
     "name": "ninja"
   },
@@ -146,11 +155,14 @@
     ],
     "cwd": "[CACHE]/goma",
     "env": {
-      "BUILDTYPE": "Release_x64",
+      "BUILDTYPE": "Debug_x64",
       "CHROME_HEADLESS": "1",
+      "GOMA_FALLBACK": "0",
+      "GOMA_HERMETIC": "error",
       "GOMA_SERVICE_ACCOUNT_JSON_FILE": "[START_DIR]/tmp/jwt_service_account_goma-client.json",
+      "GOMA_USE_LOCAL": "0",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[CUSTOM_C:\\_B_WORK]/skia/out/Build-Win-Clang-x86_64-Release-Goma"
+      "SKIA_OUT": "[CUSTOM_C:\\_B_WORK]/skia/out/Build-Win-Clang-x86_64-Debug-GomaNoFallback"
     },
     "infra_step": true,
     "name": "print goma stats"
@@ -164,11 +176,14 @@
     ],
     "cwd": "[CACHE]/goma",
     "env": {
-      "BUILDTYPE": "Release_x64",
+      "BUILDTYPE": "Debug_x64",
       "CHROME_HEADLESS": "1",
+      "GOMA_FALLBACK": "0",
+      "GOMA_HERMETIC": "error",
       "GOMA_SERVICE_ACCOUNT_JSON_FILE": "[START_DIR]/tmp/jwt_service_account_goma-client.json",
+      "GOMA_USE_LOCAL": "0",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[CUSTOM_C:\\_B_WORK]/skia/out/Build-Win-Clang-x86_64-Release-Goma"
+      "SKIA_OUT": "[CUSTOM_C:\\_B_WORK]/skia/out/Build-Win-Clang-x86_64-Debug-GomaNoFallback"
     },
     "infra_step": true,
     "name": "stop goma"

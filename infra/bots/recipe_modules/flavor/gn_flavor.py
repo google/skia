@@ -169,7 +169,7 @@ with open(sys.argv[1], 'w') as f:
         'skia_use_icu':        'false',
         'skia_enable_gpu':     'false',
       })
-    if 'Goma' in extra_tokens:
+    if 'Goma' in extra_tokens or 'GomaNoFallback' in extra_tokens:
       json_file = self._get_goma_json()
       self.m.cipd.set_service_account_credentials(json_file)
       goma_package = ('infra_internal/goma/client/%s' %
@@ -177,9 +177,10 @@ with open(sys.argv[1], 'w') as f:
       goma_dir = self.m.path['cache'].join('goma')
       self.m.cipd.ensure(goma_dir, {goma_package: 'release'})
       env['GOMA_SERVICE_ACCOUNT_JSON_FILE'] = json_file
-      env['GOMA_HERMETIC'] = 'error'
-      env['GOMA_USE_LOCAL'] = '0'
-      env['GOMA_FALLBACK'] = '0'
+      if 'GomaNoFallback' in extra_tokens:
+        env['GOMA_HERMETIC'] = 'error'
+        env['GOMA_USE_LOCAL'] = '0'
+        env['GOMA_FALLBACK'] = '0'
       with self.m.context(cwd=goma_dir, env=env):
         self._py('start goma', 'goma_ctl.py', args=['ensure_start'])
       args['cc_wrapper'] = '"%s"' % goma_dir.join('gomacc')
