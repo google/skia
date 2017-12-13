@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d17931b3_bf109f3e",
+        "filename": "BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 907,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-12-13T17:57:36Z",
+      "side": 1,
+      "message": "I just noticed that this is smack in the middle of skia.h bits.  Can you move it before or after?",
+      "revId": "cdd9229be444710263374b95e7a333300c083f2d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
