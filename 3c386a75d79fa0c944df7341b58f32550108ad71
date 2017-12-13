@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "02769343_be76b564",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-12-13T16:43:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1c140e6a_1d7c0640",
+      "revId": "3c386a75d79fa0c944df7341b58f32550108ad71",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b28b526d_6dd6c7d4",
         "filename": "src/gpu/vk/GrVkGpu.cpp",
         "patchSetId": 3
@@ -39,6 +57,30 @@
       "revId": "3c386a75d79fa0c944df7341b58f32550108ad71",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0e5c5e8d_c7ef0c1c",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 2218,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-12-13T16:43:36Z",
+      "side": 1,
+      "message": "Done. Copy is made in SkImage_gpu. Once we can get rid of the old APIs, we should be able to move the GrPixelConfig off of the GrBackendTexture and then shouldn\u0027t need to make a copy of it to begin with.",
+      "parentUuid": "b28b526d_6dd6c7d4",
+      "range": {
+        "startLine": 2218,
+        "startChar": 16,
+        "endLine": 2218,
+        "endChar": 60
+      },
+      "revId": "3c386a75d79fa0c944df7341b58f32550108ad71",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
