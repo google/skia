@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1c140e6a_1d7c0640",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-12-13T16:05:08Z",
+      "side": 1,
+      "message": "Will you want a version that doesn\u0027t take the release stuff? Or default param values?",
+      "revId": "3c386a75d79fa0c944df7341b58f32550108ad71",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b28b526d_6dd6c7d4",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 2218,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-12-13T16:05:08Z",
+      "side": 1,
+      "message": "This seems really weird to me. We\u0027re modifying a const\u0026 param.\n\nWhat if we made a non-const copy of the passed in GrBackendTexture in order to modify it?",
+      "range": {
+        "startLine": 2218,
+        "startChar": 16,
+        "endLine": 2218,
+        "endChar": 60
+      },
+      "revId": "3c386a75d79fa0c944df7341b58f32550108ad71",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
