@@ -185,10 +185,10 @@ bool VulkanWindowContext::createSwapchain(int width, int height,
     auto srgbColorSpace = SkColorSpace::MakeSRGB();
     bool wantSRGB = srgbColorSpace == params.fColorSpace;
     for (uint32_t i = 0; i < surfaceFormatCount; ++i) {
-        GrPixelConfig config = GrVkFormatToPixelConfig(surfaceFormats[i].format);
-        if (kUnknown_GrPixelConfig != config &&
-            GrPixelConfigIsSRGB(config) == wantSRGB) {
-            surfaceFormat = surfaceFormats[i].format;
+        VkFormat localFormat = surfaceFormats[i].format;
+        if (GrVkFormatIsSupported(localFormat) &&
+            GrVkFormatIsSRGB(localFormat, nullptr) == wantSRGB) {
+            surfaceFormat = localFormat;
             colorSpace = surfaceFormats[i].colorSpace;
             break;
         }
