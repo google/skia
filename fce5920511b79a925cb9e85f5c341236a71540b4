@@ -25,6 +25,23 @@
     },
     {
       "key": {
+        "uuid": "19af3e11_c3fc1ab6",
+        "filename": "infra/bots/recipe_modules/flavor/gn_android_flavor.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-12-14T14:23:52Z",
+      "side": 1,
+      "message": "# This is paranoia... any CPUs we disabled while running nanobench \n# ought to be back online now that we\u0027ve restarted the device.\n\n?",
+      "revId": "fce5920511b79a925cb9e85f5c341236a71540b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "500bb69e_ee5d45bf",
         "filename": "infra/bots/recipe_modules/flavor/gn_android_flavor.py",
         "patchSetId": 4
@@ -41,6 +58,29 @@
         "startChar": 0,
         "endLine": 104,
         "endChar": 39
+      },
+      "revId": "fce5920511b79a925cb9e85f5c341236a71540b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "22a15e8d_2f295f27",
+        "filename": "infra/bots/recipe_modules/flavor/gn_android_flavor.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-12-14T14:23:52Z",
+      "side": 1,
+      "message": "It might be clearer both at the call sites and here in the implementation if you just pass value directly in, e.g. \n\n\n  def _set_cpu_online(self, N, value):\n     \u0027\u0027\u0027Set /sys/.../cpu{N}/online to value (0 or 1).\u0027\u0027\u0027",
+      "range": {
+        "startLine": 160,
+        "startChar": 28,
+        "endLine": 160,
+        "endChar": 34
       },
       "revId": "fce5920511b79a925cb9e85f5c341236a71540b4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
