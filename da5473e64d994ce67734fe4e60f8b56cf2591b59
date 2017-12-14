@@ -22,6 +22,30 @@
       "revId": "da5473e64d994ce67734fe4e60f8b56cf2591b59",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "00690691_fdf24ce5",
+        "filename": "src/gpu/text/GrAtlasTextContext.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-12-14T17:24:48Z",
+      "side": 1,
+      "message": "But since it is currently always disabled for distance field glyphs we should be ok, though. Right?",
+      "parentUuid": "d452118a_958338f0",
+      "range": {
+        "startLine": 42,
+        "startChar": 13,
+        "endLine": 42,
+        "endChar": 46
+      },
+      "revId": "da5473e64d994ce67734fe4e60f8b56cf2591b59",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
