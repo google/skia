@@ -16,6 +16,7 @@
 #include "Test.h"
 
 #if SK_SUPPORT_GPU
+#include "GrBackendSurface.h"
 #include "GrContext.h"
 #include "GrSurfaceProxy.h"
 #include "GrTextureProxy.h"
@@ -130,8 +131,9 @@ static void test_image(const sk_sp<SkSpecialImage>& img, skiatest::Reporter* rep
 
         REPORTER_ASSERT(reporter, tightSurf->width() == subset.width());
         REPORTER_ASSERT(reporter, tightSurf->height() == subset.height());
-        REPORTER_ASSERT(reporter, isGPUBacked ==
-                     !!tightSurf->getTextureHandle(SkSurface::kDiscardWrite_BackendHandleAccess));
+        GrBackendTexture backendTex = tightSurf->getBackendTexture(
+                                                    SkSurface::kDiscardWrite_BackendHandleAccess);
+        REPORTER_ASSERT(reporter, isGPUBacked == backendTex.isValid());
         SkPixmap tmpPixmap;
         REPORTER_ASSERT(reporter, isGPUBacked != !!tightSurf->peekPixels(&tmpPixmap));
     }

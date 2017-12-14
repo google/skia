@@ -19,8 +19,12 @@ public:
     SkSurface_Gpu(sk_sp<SkGpuDevice>);
     ~SkSurface_Gpu() override;
 
-    GrBackendObject onGetTextureHandle(BackendHandleAccess) override;
-    bool onGetRenderTargetHandle(GrBackendObject*, BackendHandleAccess) override;
+    GrBackendObject onGetTextureHandle1(BackendHandleAccess) override;
+    bool onGetRenderTargetHandle1(GrBackendObject*, BackendHandleAccess) override;
+
+    GrBackendTexture onGetBackendTexture(BackendHandleAccess) override;
+    GrBackendRenderTarget onGetBackendRenderTarget(BackendHandleAccess) override;
+
     SkCanvas* onNewCanvas() override;
     sk_sp<SkSurface> onNewSurface(const SkImageInfo&) override;
     sk_sp<SkImage> onNewImageSnapshot() override;
