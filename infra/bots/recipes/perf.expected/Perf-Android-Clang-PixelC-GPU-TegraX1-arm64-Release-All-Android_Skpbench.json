@@ -696,10 +696,9 @@
     "cmd": [
       "python",
       "-u",
-      "\nimport os\nimport subprocess\nimport sys\nimport time\nADB = sys.argv[1]\ncpu = int(sys.argv[2])\nvalue = int(sys.argv[3])\n\nlog = subprocess.check_output([ADB, 'root'])\n# check for message like 'adbd cannot run as root in production builds'\nprint log\nif 'cannot' in log:\n  raise Exception('adb root failed')\n\nsubprocess.check_output([ADB, 'shell', 'echo %s > '\n    '/sys/devices/system/cpu/cpu%d/online' % (value, cpu)])\nactual_status = subprocess.check_output([ADB, 'shell', 'cat '\n    '/sys/devices/system/cpu/cpu%d/online' % cpu]).strip()\nif actual_status != str(0):\n  raise Exception('(actual, expected) (%s, %d)'\n                  % (actual_gov, gov))\n",
+      "\nimport os\nimport subprocess\nimport sys\nimport time\nADB = sys.argv[1]\ncpu = int(sys.argv[2])\n\nlog = subprocess.check_output([ADB, 'root'])\n# check for message like 'adbd cannot run as root in production builds'\nprint log\nif 'cannot' in log:\n  raise Exception('adb root failed')\n\nsubprocess.check_output([ADB, 'shell', 'echo 0 > '\n    '/sys/devices/system/cpu/cpu%d/online' % cpu])\nactual_status = subprocess.check_output([ADB, 'shell', 'cat '\n    '/sys/devices/system/cpu/cpu%d/online' % cpu]).strip()\nif actual_status != str(0):\n  raise Exception('(actual, expected) (%s, %d)'\n                  % (actual_gov, gov))\n",
       "/usr/bin/adb.1.0.35",
-      "0",
-      "0"
+      "2"
     ],
     "env": {
       "BUILDTYPE": "Release",
@@ -708,7 +707,7 @@
       "SKIA_OUT": "[START_DIR]/out"
     },
     "infra_step": true,
-    "name": "Disabling CPU 0",
+    "name": "Disabling CPU 2",
     "timeout": 30,
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@@@@",
@@ -718,7 +717,6 @@
       "@@@STEP_LOG_LINE@python.inline@import time@@@",
       "@@@STEP_LOG_LINE@python.inline@ADB = sys.argv[1]@@@",
       "@@@STEP_LOG_LINE@python.inline@cpu = int(sys.argv[2])@@@",
-      "@@@STEP_LOG_LINE@python.inline@value = int(sys.argv[3])@@@",
       "@@@STEP_LOG_LINE@python.inline@@@@",
       "@@@STEP_LOG_LINE@python.inline@log = subprocess.check_output([ADB, 'root'])@@@",
       "@@@STEP_LOG_LINE@python.inline@# check for message like 'adbd cannot run as root in production builds'@@@",
@@ -726,8 +724,8 @@
       "@@@STEP_LOG_LINE@python.inline@if 'cannot' in log:@@@",
       "@@@STEP_LOG_LINE@python.inline@  raise Exception('adb root failed')@@@",
       "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@subprocess.check_output([ADB, 'shell', 'echo %s > '@@@",
-      "@@@STEP_LOG_LINE@python.inline@    '/sys/devices/system/cpu/cpu%d/online' % (value, cpu)])@@@",
+      "@@@STEP_LOG_LINE@python.inline@subprocess.check_output([ADB, 'shell', 'echo 0 > '@@@",
+      "@@@STEP_LOG_LINE@python.inline@    '/sys/devices/system/cpu/cpu%d/online' % cpu])@@@",
       "@@@STEP_LOG_LINE@python.inline@actual_status = subprocess.check_output([ADB, 'shell', 'cat '@@@",
       "@@@STEP_LOG_LINE@python.inline@    '/sys/devices/system/cpu/cpu%d/online' % cpu]).strip()@@@",
       "@@@STEP_LOG_LINE@python.inline@if actual_status != str(0):@@@",
@@ -740,10 +738,9 @@
     "cmd": [
       "python",
       "-u",
-      "\nimport os\nimport subprocess\nimport sys\nimport time\nADB = sys.argv[1]\ncpu = int(sys.argv[2])\nvalue = int(sys.argv[3])\n\nlog = subprocess.check_output([ADB, 'root'])\n# check for message like 'adbd cannot run as root in production builds'\nprint log\nif 'cannot' in log:\n  raise Exception('adb root failed')\n\nsubprocess.check_output([ADB, 'shell', 'echo %s > '\n    '/sys/devices/system/cpu/cpu%d/online' % (value, cpu)])\nactual_status = subprocess.check_output([ADB, 'shell', 'cat '\n    '/sys/devices/system/cpu/cpu%d/online' % cpu]).strip()\nif actual_status != str(0):\n  raise Exception('(actual, expected) (%s, %d)'\n                  % (actual_gov, gov))\n",
+      "\nimport os\nimport subprocess\nimport sys\nimport time\nADB = sys.argv[1]\ncpu = int(sys.argv[2])\n\nlog = subprocess.check_output([ADB, 'root'])\n# check for message like 'adbd cannot run as root in production builds'\nprint log\nif 'cannot' in log:\n  raise Exception('adb root failed')\n\nsubprocess.check_output([ADB, 'shell', 'echo 0 > '\n    '/sys/devices/system/cpu/cpu%d/online' % cpu])\nactual_status = subprocess.check_output([ADB, 'shell', 'cat '\n    '/sys/devices/system/cpu/cpu%d/online' % cpu]).strip()\nif actual_status != str(0):\n  raise Exception('(actual, expected) (%s, %d)'\n                  % (actual_gov, gov))\n",
       "/usr/bin/adb.1.0.35",
-      "1",
-      "0"
+      "3"
     ],
     "env": {
       "BUILDTYPE": "Release",
@@ -752,7 +749,7 @@
       "SKIA_OUT": "[START_DIR]/out"
     },
     "infra_step": true,
-    "name": "Disabling CPU 1",
+    "name": "Disabling CPU 3",
     "timeout": 30,
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@@@@",
@@ -762,7 +759,6 @@
       "@@@STEP_LOG_LINE@python.inline@import time@@@",
       "@@@STEP_LOG_LINE@python.inline@ADB = sys.argv[1]@@@",
       "@@@STEP_LOG_LINE@python.inline@cpu = int(sys.argv[2])@@@",
-      "@@@STEP_LOG_LINE@python.inline@value = int(sys.argv[3])@@@",
       "@@@STEP_LOG_LINE@python.inline@@@@",
       "@@@STEP_LOG_LINE@python.inline@log = subprocess.check_output([ADB, 'root'])@@@",
       "@@@STEP_LOG_LINE@python.inline@# check for message like 'adbd cannot run as root in production builds'@@@",
@@ -770,8 +766,8 @@
       "@@@STEP_LOG_LINE@python.inline@if 'cannot' in log:@@@",
       "@@@STEP_LOG_LINE@python.inline@  raise Exception('adb root failed')@@@",
       "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@subprocess.check_output([ADB, 'shell', 'echo %s > '@@@",
-      "@@@STEP_LOG_LINE@python.inline@    '/sys/devices/system/cpu/cpu%d/online' % (value, cpu)])@@@",
+      "@@@STEP_LOG_LINE@python.inline@subprocess.check_output([ADB, 'shell', 'echo 0 > '@@@",
+      "@@@STEP_LOG_LINE@python.inline@    '/sys/devices/system/cpu/cpu%d/online' % cpu])@@@",
       "@@@STEP_LOG_LINE@python.inline@actual_status = subprocess.check_output([ADB, 'shell', 'cat '@@@",
       "@@@STEP_LOG_LINE@python.inline@    '/sys/devices/system/cpu/cpu%d/online' % cpu]).strip()@@@",
       "@@@STEP_LOG_LINE@python.inline@if actual_status != str(0):@@@",
