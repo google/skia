@@ -150,7 +150,8 @@ cc_defaults {
         "libskia",
     ],
     cflags: [
-        "-Wno-unused-parameter"
+        "-Wno-unused-parameter",
+        "-Wno-unused-variable",
     ],
 }
 
