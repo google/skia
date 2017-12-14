@@ -13,18 +13,28 @@
 #include "SkSurface.h"
 #include "SkSurfacePriv.h"
 
+#include "GrBackendSurface.h"
+
 class SkSurface_Base : public SkSurface {
 public:
     SkSurface_Base(int width, int height, const SkSurfaceProps*);
     SkSurface_Base(const SkImageInfo&, const SkSurfaceProps*);
     virtual ~SkSurface_Base();
 
-    virtual GrBackendObject onGetTextureHandle(BackendHandleAccess) {
+    virtual GrBackendObject onGetTextureHandle1(BackendHandleAccess) {
         return 0;
     }
 
-    virtual bool onGetRenderTargetHandle(GrBackendObject*, BackendHandleAccess) {
+    virtual bool onGetRenderTargetHandle1(GrBackendObject*, BackendHandleAccess) {
         return false;
+    }
+
+    virtual GrBackendTexture onGetBackendTexture(BackendHandleAccess) {
+        return GrBackendTexture(); // invalid
+    }
+
+    virtual GrBackendRenderTarget onGetBackendRenderTarget(BackendHandleAccess) {
+        return GrBackendRenderTarget(); // invalid
     }
 
     /**

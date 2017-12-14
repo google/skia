@@ -184,12 +184,20 @@ bool SkSurface::readPixels(const SkBitmap& bitmap, int srcX, int srcY) {
     return bitmap.peekPixels(&pm) && this->readPixels(pm, srcX, srcY);
 }
 
-GrBackendObject SkSurface::getTextureHandle(BackendHandleAccess access) {
-    return asSB(this)->onGetTextureHandle(access);
+GrBackendObject SkSurface::getTextureHandle1(BackendHandleAccess access) {
+    return asSB(this)->onGetTextureHandle1(access);
 }
 
-bool SkSurface::getRenderTargetHandle(GrBackendObject* obj, BackendHandleAccess access) {
-    return asSB(this)->onGetRenderTargetHandle(obj, access);
+bool SkSurface::getRenderTargetHandle1(GrBackendObject* obj, BackendHandleAccess access) {
+    return asSB(this)->onGetRenderTargetHandle1(obj, access);
+}
+
+GrBackendTexture SkSurface::getBackendTexture(BackendHandleAccess access) {
+    return asSB(this)->onGetBackendTexture(access);
+}
+
+GrBackendRenderTarget SkSurface::getBackendRenderTarget(BackendHandleAccess access) {
+    return asSB(this)->onGetBackendRenderTarget(access);
 }
 
 void SkSurface::prepareForExternalIO() {
