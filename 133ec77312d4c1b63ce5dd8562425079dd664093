@@ -16,6 +16,24 @@
       "revId": "133ec77312d4c1b63ce5dd8562425079dd664093",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "244cc2da_ed423961",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1828,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-12-14T19:08:20Z",
+      "side": 1,
+      "message": "Yep, that\u0027s the downside.  I guess the unspoken assumption of this CL is that no non-trivial client is doing this any more.  As you\u0027ve pointed out, there is a safety valve here... clients who want to continue to use mutable bitmaps (like Android) can use kNever_SkCopyPixelsMode to avoid the copy.\n\n(This _is_ the raster backend.)",
+      "parentUuid": "a8f71548_a831abde",
+      "revId": "133ec77312d4c1b63ce5dd8562425079dd664093",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
