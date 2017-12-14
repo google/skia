@@ -195,6 +195,11 @@ public:
      */
     void performDeferredCleanup(std::chrono::milliseconds msNotUsed);
 
+    // Temporary compatibility API for Android.
+    void purgeResourcesNotUsedInMs(std::chrono::milliseconds msNotUsed) {
+        this->performDeferredCleanup(msNotUsed);
+    }
+
     /**
      * Purge unlocked resources from the cache until the the provided byte count has been reached
      * or we have purged all unlocked resources. The default policy is to purge in LRU order, but
