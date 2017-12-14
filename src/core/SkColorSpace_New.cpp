@@ -93,6 +93,7 @@ SkColorSpace_New::SkColorSpace_New(sk_sp<TransferFn> transferFn,
                                    SkMatrix44 toXYZD50,
                                    Blending blending)
     : fTransferFn(std::move(transferFn))
+    , fFromXYZD50(SkMatrix44::kUninitialized_Constructor)
     , fToXYZD50(toXYZD50)
     , fToXYZD50Hash(SkOpts::hash_fn(&toXYZD50, 16*sizeof(SkMScalar), 0))
     , fBlending(blending)
