@@ -1663,44 +1663,35 @@ void GrRenderTargetContext::internalDrawPath(const GrClip& clip,
 
     GrPathRenderer* pr;
     static constexpr GrPathRendererChain::DrawType kType = GrPathRendererChain::DrawType::kColor;
-    do {
-        shape = GrShape(path, style);
-        if (shape.isEmpty() && !shape.inverseFilled()) {
+    shape = GrShape(path, style);
+    if (shape.isEmpty() && !shape.inverseFilled()) {
+        return;
+    }
+
+    canDrawArgs.fAAType = aaType;
+
+    // Try a 1st time without applying any of the style to the geometry (and barring sw)
+    pr = this->drawingManager()->getPathRenderer(canDrawArgs, false, kType);
+    SkScalar styleScale =  GrStyle::MatrixToScaleFactor(viewMatrix);
+
+    if (!pr && shape.style().pathEffect()) {
+        // It didn't work above, so try again with the path effect applied.
+        shape = shape.applyStyle(GrStyle::Apply::kPathEffectOnly, styleScale);
+        if (shape.isEmpty()) {
             return;
         }
-
-        canDrawArgs.fAAType = aaType;
-
-        // Try a 1st time without applying any of the style to the geometry (and barring sw)
         pr = this->drawingManager()->getPathRenderer(canDrawArgs, false, kType);
-        SkScalar styleScale =  GrStyle::MatrixToScaleFactor(viewMatrix);
-
-        if (!pr && shape.style().pathEffect()) {
-            // It didn't work above, so try again with the path effect applied.
-            shape = shape.applyStyle(GrStyle::Apply::kPathEffectOnly, styleScale);
+    }
+    if (!pr) {
+        if (shape.style().applies()) {
+            shape = shape.applyStyle(GrStyle::Apply::kPathEffectAndStrokeRec, styleScale);
             if (shape.isEmpty()) {
                 return;
             }
-            pr = this->drawingManager()->getPathRenderer(canDrawArgs, false, kType);
         }
-        if (!pr) {
-            if (shape.style().applies()) {
-                shape = shape.applyStyle(GrStyle::Apply::kPathEffectAndStrokeRec, styleScale);
-                if (shape.isEmpty()) {
-                    return;
-                }
-            }
-            // This time, allow SW renderer
-            pr = this->drawingManager()->getPathRenderer(canDrawArgs, true, kType);
-        }
-        if (!pr && GrAATypeIsHW(aaType)) {
-            // There are exceptional cases where we may wind up falling back to coverage based AA
-            // when the target is MSAA (e.g. through disabling path renderers via GrContextOptions).
-            aaType = GrAAType::kCoverage;
-        } else {
-            break;
-        }
-    } while(true);
+        // This time, allow SW renderer
+        pr = this->drawingManager()->getPathRenderer(canDrawArgs, true, kType);
+    }
 
     if (!pr) {
 #ifdef SK_DEBUG
