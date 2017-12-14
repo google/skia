@@ -7,7 +7,6 @@
 
 #include "SkCodec.h"
 #include "SkCodecPriv.h"
-#include "SkColorSpacePriv.h"
 #include "SkColorData.h"
 #include "SkData.h"
 #include "SkJpegCodec.h"
@@ -655,8 +654,7 @@ std::unique_ptr<SkCodec> SkRawCodec::MakeFromStream(std::unique_ptr<SkStream> st
                 colorSpace = SkColorSpace::MakeSRGB();
                 break;
             case ::piex::PreviewImageData::kAdobeRgb:
-                colorSpace = SkColorSpace::MakeRGB(g2Dot2_TransferFn,
-                                                   SkColorSpace::kAdobeRGB_Gamut);
+                colorSpace = SkColorSpace_Base::MakeNamed(SkColorSpace_Base::kAdobeRGB_Named);
                 break;
         }
 

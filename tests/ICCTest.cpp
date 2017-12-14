@@ -99,7 +99,8 @@ DEF_TEST(ICC_IsNumericalTransferFn, r) {
 }
 
 static inline void test_write_icc(skiatest::Reporter* r, const SkColorSpaceTransferFn& fn,
-                                  const SkMatrix44& toXYZD50, bool writeToFile) {
+                                  const SkMatrix44& toXYZD50, SkColorSpace* reference,
+                                  bool writeToFile) {
     sk_sp<SkData> profile = SkICC::WriteToICC(fn, toXYZD50);
     if (writeToFile) {
         SkFILEWStream stream("out.icc");
@@ -107,8 +108,7 @@ static inline void test_write_icc(skiatest::Reporter* r, const SkColorSpaceTrans
     }
 
     sk_sp<SkColorSpace> colorSpace = SkColorSpace::MakeICC(profile->data(), profile->size());
-    sk_sp<SkColorSpace> reference = SkColorSpace::MakeRGB(fn, toXYZD50);
-    REPORTER_ASSERT(r, SkColorSpace::Equals(reference.get(), colorSpace.get()));
+    REPORTER_ASSERT(r, SkColorSpace::Equals(reference, colorSpace.get()));
 }
 
 DEF_TEST(ICC_WriteICC, r) {
@@ -122,9 +122,8 @@ DEF_TEST(ICC_WriteICC, r) {
     adobeFn.fG = 2.2f;
     SkMatrix44 adobeMatrix(SkMatrix44::kUninitialized_Constructor);
     adobeMatrix.set3x3RowMajorf(gAdobeRGB_toXYZD50);
-    // TODO: Restore this test once we fix our Adobe matrix to be based on the decoded ICC
-    // fixed point values, and once we use a rounding conversion to fixed-point.
-//    test_write_icc(r, adobeFn, adobeMatrix, false);
+    test_write_icc(r, adobeFn, adobeMatrix,
+                   SkColorSpace_Base::MakeNamed(SkColorSpace_Base::kAdobeRGB_Named).get(), false);
 
     SkColorSpaceTransferFn srgbFn;
     srgbFn.fA = 1.0f / 1.055f;
@@ -136,7 +135,8 @@ DEF_TEST(ICC_WriteICC, r) {
     srgbFn.fG = 2.4f;
     SkMatrix44 srgbMatrix(SkMatrix44::kUninitialized_Constructor);
     srgbMatrix.set3x3RowMajorf(gSRGB_toXYZD50);
-    test_write_icc(r, srgbFn, srgbMatrix, false);
+    test_write_icc(r, srgbFn, srgbMatrix, SkColorSpace::MakeSRGB().get(),
+                   false);
 
     SkString adobeTag = SkICCGetColorProfileTag(adobeFn, adobeMatrix);
     SkString srgbTag = SkICCGetColorProfileTag(srgbFn, srgbMatrix);
@@ -173,6 +173,10 @@ public:
 DEF_TEST(ICC_RawTransferFns, r) {
     sk_sp<SkICC> srgb = ICCTest::MakeICC(SkColorSpace::MakeSRGB());
     test_raw_transfer_fn(r, srgb.get());
+
+    sk_sp<SkICC> adobe =
+            ICCTest::MakeICC(SkColorSpace_Base::MakeNamed(SkColorSpace_Base::kAdobeRGB_Named));
+    test_raw_transfer_fn(r, adobe.get());
 
     // Lookup-table based gamma curves
     constexpr size_t tableSize = 10;
