@@ -15,8 +15,8 @@ class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
     super(GNAndroidFlavorUtils, self).__init__(m)
     self._ever_ran_adb = False
     self.ADB_BINARY = '/usr/bin/adb.1.0.35'
-    golo_devices = ['Nexus5x']
-    if self.m.vars.builder_cfg.get('model') in golo_devices:
+    self._golo_devices = ['Nexus5x']
+    if self.m.vars.builder_cfg.get('model') in self._golo_devices:
       self.ADB_BINARY = '/opt/infra-android/tools/adb'
 
     self.device_dirs = default_flavor.DeviceDirs(
@@ -73,32 +73,33 @@ class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
   rootable_blacklist = ['GalaxyS6', 'GalaxyS7_G930A', 'GalaxyS7_G930FD',
                         'MotoG4', 'NVIDIA_Shield']
 
-  # Maps device type -> cpu ids that need to be set when scaling, with the
-  # primary CPU being listed first. CPUs are configured together,
-  # for example, the Nexus 5x has cpu0-3 and cpu4-5 linked together, each
-  # group using the same configuration - anything that happens to cpu0,
-  # happens to cpu1-3.
-  # cpus at index 1+ will be clocked down to powersave during nanobench.
-  # TODO(kjlubick): determine this dynamically - should be able to look
-  # at which cores have the highest frequency and affected_cpus.
+  # Maps device type -> CPU ids that should be scaled for nanobench.
+  # Many devices have two (or more) different CPUs (e.g. big.LITTLE
+  # on Nexus5x). The CPUs listed are the biggest cpus on the device.
+  # The CPUs are grouped together, so we only need to scale one of them
+  # (the one listed) in order to scale them all.
+  # E.g. Nexus5x has cpu0-3 as one chip and cpu4-5 as the other. Thus,
+  # if one wants to run a single-threaded application (e.g. nanobench), one
+  # can disable cpu0-3 and scale cpu 4 to have only cpu4 and 5 at the same
+  # frequency.  See also disable_for_nanobench.
   cpus_to_scale = {
-    'Nexus5x': [4, 0],
-    'NexusPlayer': [2, 0],
-    'Pixel': [2, 0],
-    'Pixel2XL': [4, 0]
+    'Nexus5x': [4],
+    'NexusPlayer': [0, 2], # has 2 identical chips, so scale them both.
+    'Pixel': [2],
+    'Pixel2XL': [4]
   }
 
-  # Maps device -> number of cores. TODO(kjlubick) if we want to do this
-  # long term, compute this dynamically.
-  total_cpus = {
-    'AndroidOne': 4,
-    'Nexus5': 4,
-    'Nexus7': 4,
-    'Nexus5x': 6,
-    'NexusPlayer': 4,
-    'Pixel': 4,
-    'Pixel2XL': 8,
-    'PixelC': 4,
+  # Maps device type -> CPU ids that should be turned off when running
+  # single-threaded applications like nanobench. The devices listed have
+  # multiple, differnt CPUs. We notice a lot of noise that seems to be
+  # caused by nanobench running on the slow CPU, then the big CPU. By
+  # disabling this, we see less of that noise by forcing the same CPU
+  # to be used for the performance testing every time.
+  disable_for_nanobench = {
+    'Nexus5x': range(0, 4),
+    'Pixel': range(0, 2),
+    'Pixel2XL': range(0, 4),
+    'PixelC': range(0, 2)
   }
 
   def _scale_for_dm(self):
@@ -106,6 +107,11 @@ class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
     if (device in self.rootable_blacklist or
         self.m.vars.internal_hardware_label):
       return
+
+    # This is paranoia... any CPUs we disabled while running nanobench
+    # ought to be back online now that we've restarted the device.
+    for i in self.disable_for_nanobench.get(device, []):
+      self._set_cpu_online(i, 1) # enable
 
     for i in self.cpus_to_scale.get(device, [0]):
       # AndroidOne doesn't support ondemand governor. hotplug is similar.
@@ -120,13 +126,12 @@ class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
       self.m.vars.internal_hardware_label):
       return
 
-    # Scale just the first two cpus.
-    self._set_governor(0, 'userspace')
-    self._scale_cpu(0, 0.6)
+    for i in self.cpus_to_scale.get(device, [0]):
+      self._set_governor(i, 'userspace')
+      self._scale_cpu(i, 0.6)
 
-    for i in range(2, self.total_cpus[device]):
-      # NexusPlayer only has "ondemand userspace interactive performance"
-      self._disable_cpu(i)
+    for i in self.disable_for_nanobench.get(device, []):
+      self._set_cpu_online(i, 0) # disable
 
 
   def _set_governor(self, cpu, gov):
@@ -162,10 +167,14 @@ if actual_gov != gov:
         timeout=30)
 
 
-  def _disable_cpu(self, cpu):
+  def _set_cpu_online(self, cpu, value):
+    """Set /sys/devices/system/cpu/cpu{N}/online to value (0 or 1)."""
     self._ever_ran_adb = True
+    msg = 'Disabling'
+    if value:
+      msg = 'Enabling'
     self.m.run.with_retry(self.m.python.inline,
-        'Disabling CPU %d' % cpu,
+        '%s CPU %d' % (msg, cpu),
         3, # attempts
         program="""
 import os
@@ -174,6 +183,7 @@ import sys
 import time
 ADB = sys.argv[1]
 cpu = int(sys.argv[2])
+value = int(sys.argv[3])
 
 log = subprocess.check_output([ADB, 'root'])
 # check for message like 'adbd cannot run as root in production builds'
@@ -181,15 +191,23 @@ print log
 if 'cannot' in log:
   raise Exception('adb root failed')
 
-subprocess.check_output([ADB, 'shell', 'echo 0 > '
-    '/sys/devices/system/cpu/cpu%d/online' % cpu])
+# If we try to echo 1 to an already online cpu, adb returns exit code 1.
+# So, check the value before trying to write it.
+prior_status = subprocess.check_output([ADB, 'shell', 'cat '
+    '/sys/devices/system/cpu/cpu%d/online' % cpu]).strip()
+if prior_status == str(value):
+  print 'CPU %d online already %d' % (cpu, value)
+  sys.exit()
+
+subprocess.check_output([ADB, 'shell', 'echo %s > '
+    '/sys/devices/system/cpu/cpu%d/online' % (value, cpu)])
 actual_status = subprocess.check_output([ADB, 'shell', 'cat '
     '/sys/devices/system/cpu/cpu%d/online' % cpu]).strip()
-if actual_status != str(0):
+if actual_status != str(value):
   raise Exception('(actual, expected) (%s, %d)'
-                  % (actual_gov, gov))
+                  % (actual_status, value))
 """,
-        args = [self.ADB_BINARY, cpu],
+        args = [self.ADB_BINARY, cpu, value],
         infra_step=True,
         timeout=30)
 
@@ -343,8 +361,11 @@ if actual_freq != str(freq):
     # and the following pull step would also fail "device not found" - causing
     # us to run the shutdown command when the device was probably not in a
     # broken state; it was just rebooting.
+    # Avoid doing this to machines in the Golo because they are harder to fix
+    # than local devices.
     if (self.m.run.failed_steps and
-        isinstance(self.m.run.failed_steps[0], recipe_api.InfraFailure)):
+        isinstance(self.m.run.failed_steps[0], recipe_api.InfraFailure) and
+        self.m.vars.builder_cfg.get('model') not in self._golo_devices):
       self._adb('shut down device to quarantine bot', 'shell', 'reboot', '-p')
 
     if self._ever_ran_adb:
