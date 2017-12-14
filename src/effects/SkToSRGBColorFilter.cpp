@@ -30,9 +30,10 @@ void SkToSRGBColorFilter::onAppendStages(SkRasterPipeline* p,
         p->append_from_srgb(shaderIsOpaque ? kOpaque_SkAlphaType
                                            : kPremul_SkAlphaType);
     } else if (fSrcColorSpace->isNumericalTransferFn(&srcFn)) {
-        p->append(SkRasterPipeline::parametric_r, &srcFn);
-        p->append(SkRasterPipeline::parametric_g, &srcFn);
-        p->append(SkRasterPipeline::parametric_b, &srcFn);
+        auto copy = alloc->make<SkColorSpaceTransferFn>(srcFn);
+        p->append(SkRasterPipeline::parametric_r, copy);
+        p->append(SkRasterPipeline::parametric_g, copy);
+        p->append(SkRasterPipeline::parametric_b, copy);
     } else {
         SkDEBUGFAIL("Looks like we got a table transfer function here, quite unexpectedly.");
         // TODO: If we really need to handle this, we can, but I don't think Ganesh does.
