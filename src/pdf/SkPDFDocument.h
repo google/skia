@@ -10,6 +10,9 @@
 #include "SkDocument.h"
 #include "SkPDFCanon.h"
 #include "SkPDFMetadata.h"
+#ifdef SK_SUPPORT_LEGACY_PDF_PIXELSERIALIZER
+#include "SkPixelSerializer.h"
+#endif
 #include "SkPDFFont.h"
 
 class SkPDFDevice;
@@ -26,10 +29,11 @@ class SkPDFDevice;
  */
 sk_sp<SkDocument> SkPDFMakeDocument(SkWStream* stream,
                                     void (*doneProc)(SkWStream*, bool),
-                                    SkScalar rasterDpi,
-                                    const SkDocument::PDFMetadata&,
-                                    sk_sp<SkPixelSerializer>,
-                                    bool pdfa);
+                                    const SkDocument::PDFMetadata&
+#ifdef SK_SUPPORT_LEGACY_PDF_PIXELSERIALIZER
+                                    , sk_sp<SkPixelSerializer> = nullptr
+#endif
+                                    );
 
 // Logically part of SkPDFDocument (like SkPDFCanon), but separate to
 // keep similar functionality together.
@@ -56,10 +60,11 @@ class SkPDFDocument : public SkDocument {
 public:
     SkPDFDocument(SkWStream*,
                   void (*)(SkWStream*, bool),
-                  SkScalar,
-                  const SkDocument::PDFMetadata&,
-                  sk_sp<SkPixelSerializer>,
-                  bool);
+                  const SkDocument::PDFMetadata&
+#ifdef SK_SUPPORT_LEGACY_PDF_PIXELSERIALIZER
+                  , sk_sp<SkPixelSerializer> = nullptr
+#endif
+                  );
     ~SkPDFDocument() override;
     SkCanvas* onBeginPage(SkScalar, SkScalar) override;
     void onEndPage() override;
@@ -77,8 +82,9 @@ public:
      */
     void serialize(const sk_sp<SkPDFObject>&);
     SkPDFCanon* canon() { return &fCanon; }
-    SkScalar rasterDpi() const { return fRasterDpi; }
+    SkScalar rasterDpi() const { return fMetadata.fRasterDPI; }
     void registerFont(SkPDFFont* f) { fFonts.add(f); }
+    const PDFMetadata& metadata() const { return fMetadata; }
 
 private:
     SkPDFObjectSerializer fObjectSerializer;
@@ -90,9 +96,7 @@ private:
     std::unique_ptr<SkCanvas> fCanvas;
     sk_sp<SkPDFObject> fID;
     sk_sp<SkPDFObject> fXMP;
-    SkScalar fRasterDpi;
     SkDocument::PDFMetadata fMetadata;
-    bool fPDFA;
 
     void reset();
 };

@@ -56,7 +56,8 @@ static void test_abortWithFile(skiatest::Reporter* reporter) {
 
     // Make sure doc's destructor is called to flush.
     {
-        sk_sp<SkDocument> doc(SkDocument::MakePDF(path.c_str()));
+        SkFILEWStream stream(path.c_str());
+        sk_sp<SkDocument> doc = SkDocument::MakePDF(&stream);
 
         SkCanvas* canvas = doc->beginPage(100, 100);
         canvas->drawColor(SK_ColorRED);
@@ -85,13 +86,15 @@ static void test_file(skiatest::Reporter* reporter) {
         return;
     }
 
-    sk_sp<SkDocument> doc(SkDocument::MakePDF(path.c_str()));
+    {
+        SkFILEWStream stream(path.c_str());
+        sk_sp<SkDocument> doc = SkDocument::MakePDF(&stream);
+        SkCanvas* canvas = doc->beginPage(100, 100);
 
-    SkCanvas* canvas = doc->beginPage(100, 100);
-
-    canvas->drawColor(SK_ColorRED);
-    doc->endPage();
-    doc->close();
+        canvas->drawColor(SK_ColorRED);
+        doc->endPage();
+        doc->close();
+    }
 
     FILE* file = fopen(path.c_str(), "r");
     REPORTER_ASSERT(reporter, file != nullptr);
@@ -121,41 +124,6 @@ DEF_TEST(SkPDF_document_tests, reporter) {
     test_abortWithFile(reporter);
     test_file(reporter);
     test_close(reporter);
-}
-
-namespace {
-class JPEGSerializer final : public SkPixelSerializer {
-    bool onUseEncodedData(const void*, size_t) override { return true; }
-    SkData* onEncode(const SkPixmap& pixmap) override {
-        return sk_tool_utils::EncodeImageToData(pixmap, SkEncodedImageFormat::kJPEG, 85).release();
-    }
-};
-}  // namespace
-
-size_t count_bytes(const SkBitmap& bm, bool useDCT) {
-    SkDynamicMemoryWStream stream;
-    sk_sp<SkDocument> doc;
-    if (useDCT) {
-        doc = SkDocument::MakePDF(&stream, SK_ScalarDefaultRasterDPI,
-                                  SkDocument::PDFMetadata(),
-                                  sk_make_sp<JPEGSerializer>(), false);
-    } else {
-        doc = SkDocument::MakePDF(&stream);
-    }
-    SkCanvas* canvas = doc->beginPage(64, 64);
-    canvas->drawBitmap(bm, 0, 0);
-    doc->endPage();
-    doc->close();
-    return stream.bytesWritten();
-}
-
-DEF_TEST(SkPDF_document_dct_encoder, r) {
-    REQUIRE_PDF_DOCUMENT(SkPDF_document_dct_encoder, r);
-    SkBitmap bm;
-    if (GetResourceAsBitmap("images/mandrill_64.png", &bm)) {
-        // Lossy encoding works better on photographs.
-        REPORTER_ASSERT(r, count_bytes(bm, true) < count_bytes(bm, false));
-    }
 }
 
 DEF_TEST(SkPDF_document_skbug_4734, r) {
@@ -189,10 +157,10 @@ DEF_TEST(SkPDF_pdfa_document, r) {
     pdfMetadata.fTitle = "test document";
     pdfMetadata.fCreation.fEnabled = true;
     pdfMetadata.fCreation.fDateTime = {0, 1999, 12, 5, 31, 23, 59, 59};
+    pdfMetadata.fPDFA = true;
 
     SkDynamicMemoryWStream buffer;
-    auto doc = SkDocument::MakePDF(&buffer, SK_ScalarDefaultRasterDPI,
-                                   pdfMetadata, nullptr, /* pdfa = */ true);
+    auto doc = SkDocument::MakePDF(&buffer, pdfMetadata);
     doc->beginPage(64, 64)->drawColor(SK_ColorRED);
     doc->close();
     sk_sp<SkData> data(buffer.detachAsData());
@@ -210,8 +178,8 @@ DEF_TEST(SkPDF_pdfa_document, r) {
         }
     }
     pdfMetadata.fProducer = "phoney library";
-    doc = SkDocument::MakePDF(&buffer, SK_ScalarDefaultRasterDPI,
-                              pdfMetadata, nullptr, /* pdfa = */ true);
+    pdfMetadata.fPDFA = true;
+    doc = SkDocument::MakePDF(&buffer, pdfMetadata);
     doc->beginPage(64, 64)->drawColor(SK_ColorRED);
     doc->close();
     data = buffer.detachAsData();

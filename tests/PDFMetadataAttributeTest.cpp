@@ -25,8 +25,7 @@ DEF_TEST(SkPDF_Metadata, r) {
     metadata.fModified.fDateTime = now;
 
     SkDynamicMemoryWStream pdf;
-    sk_sp<SkDocument> doc = SkDocument::MakePDF(&pdf, SK_ScalarDefaultRasterDPI,
-                                                metadata, nullptr, false);
+    sk_sp<SkDocument> doc = SkDocument::MakePDF(&pdf, metadata);
     doc->beginPage(612.0f, 792.0f);
     doc->close();
     sk_sp<SkData> data = pdf.detachAsData();
