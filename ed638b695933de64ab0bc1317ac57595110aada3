@@ -22,6 +22,30 @@
       "revId": "ed638b695933de64ab0bc1317ac57595110aada3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8e4b5e7e_128dba97",
+        "filename": "src/gpu/effects/GrDistanceFieldGeoProc.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 197,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-12-14T18:35:25Z",
+      "side": 1,
+      "message": "Ha, after rewriting the constructor to remove the matrix #ifdef stuff and getting the \":\"s and \",\"s right this just seemed a lot simpler.",
+      "parentUuid": "33c99133_71a6ad41",
+      "range": {
+        "startLine": 197,
+        "startChar": 26,
+        "endLine": 197,
+        "endChar": 32
+      },
+      "revId": "ed638b695933de64ab0bc1317ac57595110aada3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
