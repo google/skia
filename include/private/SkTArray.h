@@ -441,7 +441,7 @@ private:
         if (!count && !reserveCount) {
             fAllocCount = 0;
             fMemArray = nullptr;
-            fOwnMemory = false;
+            fOwnMemory = true;
             fReserved = false;
         } else {
             fAllocCount = SkTMax(count, SkTMax(kMinHeapAllocCount, reserveCount));

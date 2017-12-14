@@ -23,11 +23,13 @@ public:
      */
     typedef void (*PFOverBudgetCB)(void* data);
 
-    GrTextBlobCache(PFOverBudgetCB cb, void* data)
+    GrTextBlobCache(PFOverBudgetCB cb, void* data, uint32_t uniqueID)
         : fPool(0u, kMinGrowthSize)
         , fCallback(cb)
         , fData(data)
-        , fBudget(kDefaultBudget) {
+        , fBudget(kDefaultBudget)
+        , fUniqueID(uniqueID)
+        , fPurgeBlobInbox(uniqueID) {
         SkASSERT(cb && data);
     }
     ~GrTextBlobCache();
@@ -51,7 +53,7 @@ public:
         sk_sp<GrAtlasTextBlob> cacheBlob(this->makeBlob(blob));
         cacheBlob->setupKey(key, blurRec, paint);
         this->add(cacheBlob);
-        blob->notifyAddedToCache();
+        blob->notifyAddedToCache(fUniqueID);
         return cacheBlob;
     }
 
@@ -100,7 +102,7 @@ public:
         uint32_t fID;
     };
 
-    static void PostPurgeBlobMessage(uint32_t);
+    static void PostPurgeBlobMessage(uint32_t blobID, uint32_t cacheID);
 
     void purgeStaleBlobs();
 
@@ -178,6 +180,7 @@ private:
     PFOverBudgetCB fCallback;
     void* fData;
     size_t fBudget;
+    uint32_t fUniqueID;      // unique id to use for messaging
     SkMessageBus<PurgeBlobMessage>::Inbox fPurgeBlobInbox;
 };
 
