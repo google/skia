@@ -96,14 +96,19 @@ public:
         SkScalar min = SkTMin(SkTMin(r, g), b);
         SkScalar luminance = 0.5f*(max + min);
 
+        // Want:
+        // - Luminance = 0 -> colorAlpha = a, greyscaleAlpha = 0
+        // - Luminance = 1 -> colorAlpha = a + factor?, greyscaleAlpha = a - colorAlpha?
+        // - a = 0 -> colorAlpha = 0, greyscaleAlpha = 0
+
         // We get best results with a luminance between 0.3 and 0.5, with smoothstep applied
-        SkScalar adjustedLuminance = (0.6f - 0.4f*luminance)*luminance*luminance + 0.3f;
+        SkScalar colorAlpha = (0.6f - 0.4f*luminance)*luminance*luminance + a;
         // Similarly, we need to tone down the given greyscale alpha depending on how
         // much color we're applying.
-        a -= (0.5f*adjustedLuminance - 0.15f);
+        SkScalar greyscaleAlpha = a - colorAlpha;
 
-        *colorScale = adjustedLuminance*(SK_Scalar1 - a);
-        *tonalAlpha = *colorScale + a;
+        *colorScale = colorAlpha*(SK_Scalar1 - greyscaleAlpha);
+        *tonalAlpha = *colorScale + greyscaleAlpha;
     }
 
 };
