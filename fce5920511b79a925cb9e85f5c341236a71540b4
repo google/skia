@@ -131,6 +131,30 @@
     },
     {
       "key": {
+        "uuid": "d1bf95c4_78824bf4",
+        "filename": "infra/bots/recipe_modules/flavor/gn_android_flavor.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-12-14T14:55:51Z",
+      "side": 1,
+      "message": "What I\u0027m saying is that I\u0027m not sure that\u0027s an assumption we can make.  Maybe it\u0027s since been fixed, but I have seen numerous failures to reboot devices in Swarming in the past, and it\u0027s not unreasonable to think that it might happen again.  I really think we should avoid making any assumptions about the state of the device when the recipe starts.",
+      "parentUuid": "cdd04579_71c2898c",
+      "range": {
+        "startLine": 103,
+        "startChar": 0,
+        "endLine": 104,
+        "endChar": 39
+      },
+      "revId": "fce5920511b79a925cb9e85f5c341236a71540b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "22a15e8d_2f295f27",
         "filename": "infra/bots/recipe_modules/flavor/gn_android_flavor.py",
         "patchSetId": 4
