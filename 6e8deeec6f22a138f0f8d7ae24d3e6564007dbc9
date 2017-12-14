@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0c323691_f8a05a95",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2402,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-12-14T16:08:53Z",
+      "side": 1,
+      "message": "We use the same GL sized format for both RGBA and BGRA correct?",
+      "range": {
+        "startLine": 2402,
+        "startChar": 23,
+        "endLine": 2402,
+        "endChar": 42
+      },
+      "revId": "6e8deeec6f22a138f0f8d7ae24d3e6564007dbc9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
