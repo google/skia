@@ -13,6 +13,10 @@
 
 struct GrMockTextureInfo {
     int fID;
+
+    bool operator==(const struct GrMockTextureInfo& that) const {
+        return fID == that.fID;
+    }
 };
 
 /**

@@ -308,6 +308,16 @@ public:
                                      GrSurfaceOrigin* origin = nullptr) const;
 
     /**
+     *  Retrieves the backend texture. If there is none an invalid object will be returned.
+     *  If flushPendingGrContextIO is set to true then the GrContext will issue to the backend API
+     *  any deferred IO operations on the texture before returning.
+     *  If 'origin' is supplied it will be filled in with the origin of the content drawn
+     *  into the image.
+     */
+    GrBackendTexture getBackendTexture(bool flushPendingGrContextIO,
+                                       GrSurfaceOrigin* origin = nullptr) const;
+
+    /**
      *  Hints to image calls where the system might cache computed intermediates (e.g. the results
      *  of decoding or a read-back from the GPU. Passing kAllow signals that the system's default
      *  behavior is fine. Passing kDisallow signals that caching should be avoided.
