@@ -98,7 +98,8 @@ private:
 
     // Call when this blob is part of the key to a cache entry. This allows the cache
     // to know automatically those entries can be purged when this SkTextBlob is deleted.
-    void notifyAddedToCache() const {
+    void notifyAddedToCache(uint32_t cacheID) const {
+        fCacheID = cacheID;
         fAddedToCache.store(true);
     }
 
@@ -108,6 +109,7 @@ private:
 
     const SkRect           fBounds;
     const uint32_t         fUniqueID;
+    mutable uint32_t       fCacheID;
     mutable SkAtomic<bool> fAddedToCache;
 
     SkDEBUGCODE(size_t fStorageSize;)

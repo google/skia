@@ -27,9 +27,9 @@ void GrTextBlobCache::freeAll() {
     SkASSERT(fBlobList.isEmpty());
 }
 
-void GrTextBlobCache::PostPurgeBlobMessage(uint32_t id) {
-    SkASSERT(id != SK_InvalidGenID);
-    SkMessageBus<PurgeBlobMessage>::Post(PurgeBlobMessage({id}));
+void GrTextBlobCache::PostPurgeBlobMessage(uint32_t blobID, uint32_t cacheID) {
+    SkASSERT(blobID != SK_InvalidGenID);
+    SkMessageBus<PurgeBlobMessage>::Post(PurgeBlobMessage({blobID}), cacheID);
 }
 
 void GrTextBlobCache::purgeStaleBlobs() {
