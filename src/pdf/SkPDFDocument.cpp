@@ -462,3 +462,7 @@ sk_sp<SkDocument> SkDocument::MakePDF(SkWStream* stream,
     return SkPDFMakeDocument(stream, nullptr, dpi, metadata,
                              std::move(jpegEncoder), pdfa);
 }
+
+sk_sp<SkDocument> SkDocument::MakePDF(SkWStream* stream, const PDFMetadata& metadata) {
+    return MakePDF(stream, SK_ScalarDefaultRasterDPI, metadata, nullptr, false);
+}
