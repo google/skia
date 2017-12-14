@@ -518,3 +518,33 @@ DEF_GM( return new Strokes5GM; )
 
 DEF_GM( return new ZeroLenStrokesGM; )
 DEF_GM( return new TeenyStrokesGM; )
+
+DEF_SIMPLE_GM(zerolinedash, canvas, 256, 256) {
+    canvas->clear(SK_ColorWHITE);
+
+    SkPaint paint;
+    paint.setColor(SkColorSetARGB(255, 0, 0, 0));
+    paint.setStrokeWidth(11);
+    paint.setStrokeCap(SkPaint::kRound_Cap);
+    paint.setStrokeJoin(SkPaint::kBevel_Join);
+
+    SkScalar dash_pattern[] = {1, 5};
+    paint.setPathEffect(SkDashPathEffect::Make(dash_pattern, 2, 0));
+
+    canvas->drawLine(100, 100, 100, 100, paint);
+}
+
+DEF_SIMPLE_GM(longrect_dash, canvas, 256, 256) {
+    canvas->clear(SK_ColorWHITE);
+
+    SkPaint paint;
+    paint.setColor(SkColorSetARGB(255, 0, 0, 0));
+    paint.setStrokeWidth(11);
+    paint.setStrokeCap(SkPaint::kRound_Cap);
+    paint.setStrokeJoin(SkPaint::kBevel_Join);
+    paint.setStyle(SkPaint::kStroke_Style);
+    SkScalar dash_pattern[] = {1, 5};
+    paint.setPathEffect(SkDashPathEffect::Make(dash_pattern, 2, 0));
+
+    canvas->drawRect({100, 100, 1000000, 1000000}, paint);
+}
