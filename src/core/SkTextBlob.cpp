@@ -313,7 +313,7 @@ SkTextBlob::SkTextBlob(const SkRect& bounds)
 SkTextBlob::~SkTextBlob() {
 #if SK_SUPPORT_GPU
     if (fAddedToCache.load()) {
-        GrTextBlobCache::PostPurgeBlobMessage(fUniqueID);
+        GrTextBlobCache::PostPurgeBlobMessage(fUniqueID, fCacheID);
     }
 #endif
 

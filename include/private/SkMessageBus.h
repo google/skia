@@ -18,11 +18,11 @@ template <typename Message>
 class SkMessageBus : SkNoncopyable {
 public:
     // Post a message to be received by all Inboxes for this Message type.  Threadsafe.
-    static void Post(const Message& m);
+    static void Post(const Message& m, uint32_t id = SK_InvalidUniqueID);
 
     class Inbox {
     public:
-        Inbox();
+        Inbox(uint32_t id = SK_InvalidUniqueID);
         ~Inbox();
 
         // Overwrite out with all the messages we've received since the last call.  Threadsafe.
@@ -31,6 +31,7 @@ public:
     private:
         SkTArray<Message>  fMessages;
         SkMutex            fMessagesMutex;
+        uint32_t           fID;
 
         friend class SkMessageBus;
         void receive(const Message& m);  // SkMessageBus is a friend only to call this.
@@ -58,7 +59,7 @@ private:
 //   ----------------------- Implementation of SkMessageBus::Inbox -----------------------
 
 template<typename Message>
-SkMessageBus<Message>::Inbox::Inbox() {
+SkMessageBus<Message>::Inbox::Inbox(uint32_t id) : fID(id) {
     // Register ourselves with the corresponding message bus.
     SkMessageBus<Message>* bus = SkMessageBus<Message>::Get();
     SkAutoMutexAcquire lock(bus->fInboxesMutex);
@@ -99,11 +100,13 @@ template <typename Message>
 SkMessageBus<Message>::SkMessageBus() {}
 
 template <typename Message>
-/*static*/ void SkMessageBus<Message>::Post(const Message& m) {
+/*static*/ void SkMessageBus<Message>::Post(const Message& m, uint32_t id) {
     SkMessageBus<Message>* bus = SkMessageBus<Message>::Get();
     SkAutoMutexAcquire lock(bus->fInboxesMutex);
     for (int i = 0; i < bus->fInboxes.count(); i++) {
-        bus->fInboxes[i]->receive(m);
+        if (SK_InvalidUniqueID == id || bus->fInboxes[i]->fID == id) {
+            bus->fInboxes[i]->receive(m);
+        }
     }
 }
 
