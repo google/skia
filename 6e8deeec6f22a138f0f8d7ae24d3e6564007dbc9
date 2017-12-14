@@ -22,6 +22,30 @@
       "revId": "6e8deeec6f22a138f0f8d7ae24d3e6564007dbc9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "72b50943_d089f220",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2402,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-12-14T16:16:28Z",
+      "side": 1,
+      "message": "Yes, but that\u0027s a bit of a kludge. I really hope no one ever hits this condition. Might be better to just fail (assert?) here?",
+      "parentUuid": "0c323691_f8a05a95",
+      "range": {
+        "startLine": 2402,
+        "startChar": 23,
+        "endLine": 2402,
+        "endChar": 42
+      },
+      "revId": "6e8deeec6f22a138f0f8d7ae24d3e6564007dbc9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
