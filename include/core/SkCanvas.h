@@ -2537,15 +2537,16 @@ protected:
     virtual void onDrawImageLattice(const SkImage* image, const Lattice& lattice, const SkRect& dst,
                                     const SkPaint* paint);
 
-    virtual void onDrawBitmap(const SkBitmap& bitmap, SkScalar dx, SkScalar dy,
-                              const SkPaint* paint);
-    virtual void onDrawBitmapRect(const SkBitmap& bitmap, const SkRect* src, const SkRect& dst,
-                                  const SkPaint* paint, SrcRectConstraint constraint);
-    virtual void onDrawBitmapNine(const SkBitmap& bitmap, const SkIRect& center, const SkRect& dst,
-                                  const SkPaint* paint);
-    virtual void onDrawBitmapLattice(const SkBitmap& bitmap, const Lattice& lattice,
-                                     const SkRect& dst, const SkPaint* paint);
     virtual void onDrawShadowRec(const SkPath&, const SkDrawShadowRec&);
+
+    // These legacy hooks do nothing and are not called.
+    // They're here temporarily while we clean up SkCanvas subclasses outside Skia.
+    virtual void onDrawBitmap(const SkBitmap&, SkScalar, SkScalar, const SkPaint*) {}
+    virtual void onDrawBitmapRect(const SkBitmap&, const SkRect*, const SkRect&,
+                                  const SkPaint*, SrcRectConstraint) {}
+    virtual void onDrawBitmapNine(const SkBitmap&, const SkIRect&, const SkRect&, const SkPaint*) {}
+    virtual void onDrawBitmapLattice(const SkBitmap&, const Lattice&,
+                                     const SkRect&, const SkPaint*) {}
 
     enum ClipEdgeStyle {
         kHard_ClipEdgeStyle,
@@ -2707,9 +2708,6 @@ private:
      */
     SkIRect getTopLayerBounds() const;
 
-    void internalDrawBitmapRect(const SkBitmap& bitmap, const SkRect* src,
-                                const SkRect& dst, const SkPaint* paint,
-                                SrcRectConstraint);
     void internalDrawPaint(const SkPaint& paint);
     void internalSaveLayer(const SaveLayerRec&, SaveLayerStrategy);
     void internalDrawDevice(SkBaseDevice*, int x, int y, const SkPaint*, SkImage* clipImage,

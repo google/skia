@@ -100,30 +100,6 @@ void SkPaintFilterCanvas::onDrawPath(const SkPath& path, const SkPaint& paint) {
     }
 }
 
-void SkPaintFilterCanvas::onDrawBitmap(const SkBitmap& bm, SkScalar left, SkScalar top,
-                                       const SkPaint* paint) {
-    AutoPaintFilter apf(this, kBitmap_Type, paint);
-    if (apf.shouldDraw()) {
-        this->INHERITED::onDrawBitmap(bm, left, top, apf.paint());
-    }
-}
-
-void SkPaintFilterCanvas::onDrawBitmapRect(const SkBitmap& bm, const SkRect* src, const SkRect& dst,
-                                           const SkPaint* paint, SrcRectConstraint constraint) {
-    AutoPaintFilter apf(this, kBitmap_Type, paint);
-    if (apf.shouldDraw()) {
-        this->INHERITED::onDrawBitmapRect(bm, src, dst, apf.paint(), constraint);
-    }
-}
-
-void SkPaintFilterCanvas::onDrawBitmapNine(const SkBitmap& bm, const SkIRect& center,
-                                           const SkRect& dst, const SkPaint* paint) {
-    AutoPaintFilter apf(this, kBitmap_Type, paint);
-    if (apf.shouldDraw()) {
-        this->INHERITED::onDrawBitmapNine(bm, center, dst, apf.paint());
-    }
-}
-
 void SkPaintFilterCanvas::onDrawImage(const SkImage* image, SkScalar left, SkScalar top,
                                       const SkPaint* paint) {
     AutoPaintFilter apf(this, kBitmap_Type, paint);
