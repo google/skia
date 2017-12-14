@@ -84,7 +84,11 @@ protected:
             return;
         }
         while (loops-- > 0) {
-            auto object = SkPDFCreateBitmapObject(fImage, nullptr);
+            auto object = SkPDFCreateBitmapObject(fImage,
+#ifdef SK_SUPPORT_LEGACY_PDF_PIXELSERIALIZER
+                                                  nullptr,
+#endif
+                                                  false);
             SkASSERT(object);
             if (!object) {
                 return;
@@ -121,7 +125,11 @@ protected:
             return;
         }
         while (loops-- > 0) {
-            auto object = SkPDFCreateBitmapObject(fImage, nullptr);
+            auto object = SkPDFCreateBitmapObject(fImage,
+#ifdef SK_SUPPORT_LEGACY_PDF_PIXELSERIALIZER
+                                                  nullptr,
+#endif
+                                                  false);
             SkASSERT(object);
             if (!object) {
                 return;
@@ -214,8 +222,7 @@ struct PDFShaderBench : public Benchmark {
         SkASSERT(fShader);
         while (loops-- > 0) {
             SkNullWStream nullStream;
-            SkPDFDocument doc(&nullStream, nullptr, 72,
-                              SkDocument::PDFMetadata(), nullptr, false);
+            SkPDFDocument doc(&nullStream, nullptr, SkDocument::PDFMetadata());
             sk_sp<SkPDFObject> shader = SkPDFMakeShader(&doc, fShader.get(), SkMatrix::I(),
                                                         {0, 0, 400, 400}, SK_ColorBLACK);
         }
