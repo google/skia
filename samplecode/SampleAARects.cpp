@@ -39,12 +39,14 @@ class AARectView : public SampleView {
     };
 public:
     AARectView() {
-        fBitmap = createBitmap(N);
-
-        fWidth = N;
     }
 
 protected:
+    void onOnceBeforeDraw() override {
+        fBitmap = createBitmap(N);
+        fWidth = N;
+    }
+
     // overrides from SkEventSink
     virtual bool onQuery(SkEvent* evt) {
         if (SampleCode::TitleQ(*evt)) {
