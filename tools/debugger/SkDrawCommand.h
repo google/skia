@@ -32,9 +32,6 @@ public:
         kClipRRect_OpType,
         kConcat_OpType,
         kDrawAnnotation_OpType,
-        kDrawBitmap_OpType,
-        kDrawBitmapNine_OpType,
-        kDrawBitmapRect_OpType,
         kDrawClear_OpType,
         kDrawDRRect_OpType,
         kDrawImage_OpType,
@@ -267,85 +264,6 @@ private:
     SkRect          fRect;
     SkString        fKey;
     sk_sp<SkData>   fValue;
-
-    typedef SkDrawCommand INHERITED;
-};
-
-class SkDrawBitmapCommand : public SkDrawCommand {
-public:
-    SkDrawBitmapCommand(const SkBitmap& bitmap, SkScalar left, SkScalar top,
-                        const SkPaint* paint);
-    void execute(SkCanvas* canvas) const override;
-    bool render(SkCanvas* canvas) const override;
-    Json::Value toJSON(UrlDataManager& urlDataManager) const override;
-    static SkDrawBitmapCommand* fromJSON(Json::Value& command, UrlDataManager& urlDataManager);
-
-private:
-    SkBitmap fBitmap;
-    SkScalar fLeft;
-    SkScalar fTop;
-    SkPaint  fPaint;
-    SkPaint* fPaintPtr;
-
-    typedef SkDrawCommand INHERITED;
-};
-
-class SkDrawBitmapNineCommand : public SkDrawCommand {
-public:
-    SkDrawBitmapNineCommand(const SkBitmap& bitmap, const SkIRect& center,
-                            const SkRect& dst, const SkPaint* paint);
-    void execute(SkCanvas* canvas) const override;
-    bool render(SkCanvas* canvas) const override;
-    Json::Value toJSON(UrlDataManager& urlDataManager) const override;
-    static SkDrawBitmapNineCommand* fromJSON(Json::Value& command, UrlDataManager& urlDataManager);
-
-private:
-    SkBitmap fBitmap;
-    SkIRect  fCenter;
-    SkRect   fDst;
-    SkPaint  fPaint;
-    SkPaint* fPaintPtr;
-
-    typedef SkDrawCommand INHERITED;
-};
-
-class SkDrawBitmapRectCommand : public SkDrawCommand {
-public:
-    SkDrawBitmapRectCommand(const SkBitmap& bitmap, const SkRect* src,
-                            const SkRect& dst, const SkPaint* paint,
-                            SkCanvas::SrcRectConstraint);
-    void execute(SkCanvas* canvas) const override;
-    bool render(SkCanvas* canvas) const override;
-    Json::Value toJSON(UrlDataManager& urlDataManager) const override;
-    static SkDrawBitmapRectCommand* fromJSON(Json::Value& command, UrlDataManager& urlDataManager);
-
-    const SkBitmap& bitmap() const { return fBitmap; }
-
-    // The non-const 'paint' method allows modification of this object's
-    // SkPaint. For this reason the ctor and setPaint method make a local copy.
-    // The 'fPaintPtr' member acts a signal that the local SkPaint is valid
-    // (since only an SkPaint* is passed into the ctor).
-    const SkPaint* paint() const { return fPaintPtr; }
-    SkPaint* paint() { return fPaintPtr; }
-
-    void setPaint(const SkPaint& paint) { fPaint = paint; fPaintPtr = &fPaint; }
-
-    const SkRect* srcRect() const { return fSrc.isEmpty() ? nullptr : &fSrc; }
-    void setSrcRect(const SkRect& src) { fSrc = src; }
-
-    const SkRect& dstRect() const { return fDst; }
-    void setDstRect(const SkRect& dst) { fDst = dst; }
-
-    SkCanvas::SrcRectConstraint constraint() const { return fConstraint; }
-    void setConstraint(SkCanvas::SrcRectConstraint constraint) { fConstraint = constraint; }
-
-private:
-    SkBitmap                      fBitmap;
-    SkRect                        fSrc;
-    SkRect                        fDst;
-    SkPaint                       fPaint;
-    SkPaint*                      fPaintPtr;
-    SkCanvas::SrcRectConstraint   fConstraint;
 
     typedef SkDrawCommand INHERITED;
 };

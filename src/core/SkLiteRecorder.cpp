@@ -129,27 +129,6 @@ void SkLiteRecorder::onDrawTextBlob(const SkTextBlob* blob,
     fDL->drawTextBlob(blob, x,y, paint);
 }
 
-void SkLiteRecorder::onDrawBitmap(const SkBitmap& bm,
-                                  SkScalar x, SkScalar y,
-                                  const SkPaint* paint) {
-    fDL->drawImage(SkImage::MakeFromBitmap(bm), x,y, paint);
-}
-void SkLiteRecorder::onDrawBitmapNine(const SkBitmap& bm,
-                                      const SkIRect& center, const SkRect& dst,
-                                      const SkPaint* paint) {
-    fDL->drawImageNine(SkImage::MakeFromBitmap(bm), center, dst, paint);
-}
-void SkLiteRecorder::onDrawBitmapRect(const SkBitmap& bm,
-                                      const SkRect* src, const SkRect& dst,
-                                      const SkPaint* paint, SrcRectConstraint constraint) {
-    fDL->drawImageRect(SkImage::MakeFromBitmap(bm), src, dst, paint, constraint);
-}
-void SkLiteRecorder::onDrawBitmapLattice(const SkBitmap& bm,
-                                         const SkCanvas::Lattice& lattice, const SkRect& dst,
-                                         const SkPaint* paint) {
-    fDL->drawImageLattice(SkImage::MakeFromBitmap(bm), lattice, dst, paint);
-}
-
 void SkLiteRecorder::onDrawImage(const SkImage* img,
                                   SkScalar x, SkScalar y,
                                   const SkPaint* paint) {
