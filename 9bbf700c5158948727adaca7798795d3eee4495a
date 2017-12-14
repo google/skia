@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "7b45bca6_16c1b592",
+        "filename": "src/core/SkColorSpaceXformCanvas.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2017-12-14T15:42:54Z",
+      "side": 1,
+      "message": "Agreed it is better to have a method, instead of copy-paste.",
+      "parentUuid": "466a7d53_fecb5058",
+      "revId": "9bbf700c5158948727adaca7798795d3eee4495a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "376c0eb4_66aed7c7",
         "filename": "src/core/SkColorSpaceXformCanvas.cpp",
         "patchSetId": 1
@@ -39,6 +57,30 @@
       "revId": "9bbf700c5158948727adaca7798795d3eee4495a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "172c9fea_73c0a7a5",
+        "filename": "src/core/SkColorSpaceXformCanvas.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2017-12-14T15:42:54Z",
+      "side": 1,
+      "message": "yes - I added a nullptr check. Cary made a modification and fColors can be null, if there are no fixed colors (for example if there are only transparent rects).",
+      "parentUuid": "376c0eb4_66aed7c7",
+      "range": {
+        "startLine": 163,
+        "startChar": 12,
+        "endLine": 163,
+        "endChar": 14
+      },
+      "revId": "9bbf700c5158948727adaca7798795d3eee4495a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
