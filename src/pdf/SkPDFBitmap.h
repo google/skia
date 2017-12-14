@@ -10,7 +10,9 @@
 #include "SkRefCnt.h"
 
 class SkImage;
+#ifdef SK_SUPPORT_LEGACY_PDF_PIXELSERIALIZER
 class SkPixelSerializer;
+#endif
 class SkPDFObject;
 
 /**
@@ -19,6 +21,9 @@ class SkPDFObject;
  * the image, and its emitObject() does not cache any data.
  */
 sk_sp<SkPDFObject> SkPDFCreateBitmapObject(sk_sp<SkImage>,
-                                           SkPixelSerializer*);
+#ifdef SK_SUPPORT_LEGACY_PDF_PIXELSERIALIZER
+                                           SkPixelSerializer*,
+#endif
+                                           int encodingQuality);
 
 #endif  // SkPDFBitmap_DEFINED
