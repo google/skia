@@ -34,6 +34,24 @@
       "revId": "133ec77312d4c1b63ce5dd8562425079dd664093",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4529b019_8f510ed8",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1828,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-12-14T19:15:36Z",
+      "side": 1,
+      "message": "I don\u0027t think kNever_SkCopyPixelsMode is exposed in the public APIs.  However, anyone can wrap their mutable bitmap in a surface, make a snapshot, and draw from that to get the same effect.",
+      "parentUuid": "244cc2da_ed423961",
+      "revId": "133ec77312d4c1b63ce5dd8562425079dd664093",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
