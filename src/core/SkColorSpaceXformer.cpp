@@ -102,19 +102,6 @@ sk_sp<SkImage> SkColorSpaceXformer::apply(const SkImage* src) {
         });
 }
 
-sk_sp<SkImage> SkColorSpaceXformer::apply(const SkBitmap& src) {
-    const AutoCachePurge autoPurge(this);
-    sk_sp<SkImage> image = SkMakeImageFromRasterBitmap(src, kNever_SkCopyPixelsMode);
-    if (!image) {
-        return nullptr;
-    }
-
-    sk_sp<SkImage> xformed = image->makeColorSpace(fDst, SkTransferFunctionBehavior::kIgnore);
-    // We want to be sure we don't let the kNever_SkCopyPixelsMode image escape this stack frame.
-    SkASSERT(xformed != image);
-    return xformed;
-}
-
 sk_sp<SkColorFilter> SkColorSpaceXformer::apply(const SkColorFilter* colorFilter) {
     const AutoCachePurge autoPurge(this);
     return this->cachedApply<SkColorFilter>(colorFilter, &fColorFilterCache,

@@ -12,7 +12,6 @@
 #include "SkRefCnt.h"
 #include "SkTHash.h"
 
-class SkBitmap;
 class SkColorFilter;
 class SkColorSpace;
 class SkColorSpaceXform;
@@ -28,7 +27,6 @@ public:
     ~SkColorSpaceXformer();
 
     sk_sp<SkImage> apply(const SkImage*);
-    sk_sp<SkImage> apply(const SkBitmap&);
     sk_sp<SkColorFilter> apply(const SkColorFilter*);
     sk_sp<SkImageFilter> apply(const SkImageFilter*);
     sk_sp<SkShader>      apply(const SkShader*);

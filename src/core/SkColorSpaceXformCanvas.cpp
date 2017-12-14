@@ -181,52 +181,6 @@ public:
                            MaybePaint(paint, fXformer.get()));
     }
 
-    // TODO: quick reject bitmap draw calls before transforming too?
-    void onDrawBitmap(const SkBitmap& bitmap,
-                      SkScalar l, SkScalar t,
-                      const SkPaint* paint) override {
-        if (this->skipXform(bitmap)) {
-            return fTarget->drawBitmap(bitmap, l, t, MaybePaint(paint, fXformer.get()));
-        }
-
-        fTarget->drawImage(fXformer->apply(bitmap).get(), l, t, MaybePaint(paint, fXformer.get()));
-    }
-    void onDrawBitmapRect(const SkBitmap& bitmap,
-                          const SkRect* src, const SkRect& dst,
-                          const SkPaint* paint, SrcRectConstraint constraint) override {
-        if (this->skipXform(bitmap)) {
-            return fTarget->drawBitmapRect(bitmap,
-                    src ? *src : SkRect::MakeIWH(bitmap.width(), bitmap.height()), dst,
-                    MaybePaint(paint, fXformer.get()), constraint);
-        }
-
-        fTarget->drawImageRect(fXformer->apply(bitmap).get(),
-                               src ? *src : SkRect::MakeIWH(bitmap.width(), bitmap.height()), dst,
-                               MaybePaint(paint, fXformer.get()), constraint);
-    }
-    void onDrawBitmapNine(const SkBitmap& bitmap,
-                          const SkIRect& center, const SkRect& dst,
-                          const SkPaint* paint) override {
-        if (this->skipXform(bitmap)) {
-            return fTarget->drawBitmapNine(bitmap, center, dst, MaybePaint(paint, fXformer.get()));
-        }
-
-        fTarget->drawImageNine(fXformer->apply(bitmap).get(), center, dst,
-                               MaybePaint(paint, fXformer.get()));
-
-    }
-    void onDrawBitmapLattice(const SkBitmap& bitmap,
-                             const Lattice& lattice, const SkRect& dst,
-                             const SkPaint* paint) override {
-        if (this->skipXform(bitmap)) {
-            return fTarget->drawBitmapLattice(bitmap, lattice, dst,
-                                              MaybePaint(paint, fXformer.get()));
-        }
-
-
-        fTarget->drawImageLattice(fXformer->apply(bitmap).get(), lattice, dst,
-                                  MaybePaint(paint, fXformer.get()));
-    }
     void onDrawShadowRec(const SkPath& path, const SkDrawShadowRec& rec) override {
         SkDrawShadowRec newRec(rec);
         newRec.fColor = fXformer->apply(rec.fColor);
@@ -332,12 +286,6 @@ private:
         // to xform only the useful part of the image. Sub image could be reduced
         // even further by taking into account dst_rect+ctm+clip
         return fXformer->apply(image);
-    }
-
-    bool skipXform(const SkBitmap& bitmap) {
-        return (!bitmap.colorSpace() && fTargetCS->isSRGB()) ||
-               (SkColorSpace::Equals(bitmap.colorSpace(), fTargetCS.get())) ||
-               (kAlpha_8_SkColorType == bitmap.colorType());
     }
 
     SkCanvas*                            fTarget;
