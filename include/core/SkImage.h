@@ -32,6 +32,15 @@ class GrContext;
 class GrContextThreadSafeProxy;
 class GrTexture;
 
+#if !SK_SUPPORT_GPU
+class SK_API GrBackendTexture {
+public:
+    GrBackendTexture() {}
+
+    bool isValid() const { return false; }
+};
+#endif
+
 /**
  *  SkImage is an abstraction for drawing a rectagle of pixels, though the
  *  particular type of image could be actually storing its data on the GPU, or
@@ -306,6 +315,16 @@ public:
      */
     GrBackendObject getTextureHandle(bool flushPendingGrContextIO,
                                      GrSurfaceOrigin* origin = nullptr) const;
+
+    /**
+     *  Retrieves the backend texture. If there is none an invalid object will be returned.
+     *  If flushPendingGrContextIO is set to true then the GrContext will issue to the backend API
+     *  any deferred IO operations on the texture before returning.
+     *  If 'origin' is supplied it will be filled in with the origin of the content drawn
+     *  into the image.
+     */
+    GrBackendTexture getBackendTexture(bool flushPendingGrContextIO,
+                                       GrSurfaceOrigin* origin = nullptr) const;
 
     /**
      *  Hints to image calls where the system might cache computed intermediates (e.g. the results
