@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a8f71548_a831abde",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1828,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-12-14T19:01:41Z",
+      "side": 1,
+      "message": "so the downside to this is all mutable bitmaps drawn through the raster backend will be unecessarily copied.  What about having this be the default implementation, but only have the raster backend do the override?  Without this there is no way to quickly draw mutable bitmaps.\n\nThe raster backend could still use images but pass the no copy option when it constructs the image using SkMakeImageFromRasterBitmap(bitmap, kNever_SkCopyPixelsMode);",
+      "revId": "133ec77312d4c1b63ce5dd8562425079dd664093",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
