@@ -171,8 +171,7 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-static sk_sp<SkDocument> MakePDFDocument(const Config &config,
-                                         SkWStream *wStream) {
+static sk_sp<SkDocument> MakePDFDocument(const Config &config, SkWStream *wStream) {
     SkDocument::PDFMetadata pdf_info;
     pdf_info.fTitle = config.title.value.c_str();
     pdf_info.fAuthor = config.author.value.c_str();
@@ -186,7 +185,7 @@ static sk_sp<SkDocument> MakePDFDocument(const Config &config,
         pdf_info.fCreation.fDateTime = now;
         pdf_info.fModified.fEnabled = true;
         pdf_info.fModified.fDateTime = now;
-        pdfa = true;
+        pdf_info.fPDFA = true;
     #endif
     return SkDocument::MakePDF(wStream, pdf_info);
 }
