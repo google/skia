@@ -64,8 +64,6 @@ skia_effects_sources = [
   "$_src/shaders/gradients/Sk4fGradientPriv.h",
   "$_src/shaders/gradients/Sk4fLinearGradient.cpp",
   "$_src/shaders/gradients/Sk4fLinearGradient.h",
-  "$_src/shaders/gradients/SkClampRange.cpp",
-  "$_src/shaders/gradients/SkClampRange.h",
   "$_src/shaders/gradients/SkGradientBitmapCache.cpp",
   "$_src/shaders/gradients/SkGradientBitmapCache.h",
   "$_src/shaders/gradients/SkGradientShader.cpp",

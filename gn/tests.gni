@@ -26,7 +26,6 @@ tests_sources = [
   "$_tests/CanvasStateTest.cpp",
   "$_tests/CanvasTest.cpp",
   "$_tests/ChecksumTest.cpp",
-  "$_tests/ClampRangeTest.cpp",
   "$_tests/ClearTest.cpp",
   "$_tests/ClipBoundsTest.cpp",
   "$_tests/ClipCubicTest.cpp",
