@@ -1350,6 +1350,18 @@ if (skia_enable_tools) {
     ]
   }
 
+  test_lib("experimental_sksg") {
+    public_include_dirs = [ "experimental/sksg" ]
+    sources = [
+      "experimental/sksg/SkSGContainerNode.cpp",
+      "experimental/sksg/SkSGNode.cpp",
+      "experimental/sksg/SkSGRenderableNode.cpp",
+    ]
+    deps = [
+      ":skia",
+    ]
+  }
+
   if (target_cpu != "wasm") {
     test_lib("views") {
       public_include_dirs = [ "include/views" ]
