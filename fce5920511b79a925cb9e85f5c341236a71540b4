@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "75f63ddb_71f0157c",
+        "filename": "infra/bots/recipe_modules/flavor/gn_android_flavor.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-12-14T14:19:01Z",
+      "side": 1,
+      "message": "Sorry to keep bugging you about this, but can we be really super specific here?  I assume these are CPU IDs?",
+      "range": {
+        "startLine": 76,
+        "startChar": 24,
+        "endLine": 76,
+        "endChar": 28
+      },
+      "revId": "fce5920511b79a925cb9e85f5c341236a71540b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "500bb69e_ee5d45bf",
+        "filename": "infra/bots/recipe_modules/flavor/gn_android_flavor.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-12-14T14:19:01Z",
+      "side": 1,
+      "message": "This and the below look correct assuming that this is the only code which runs on our Android devices, but I\u0027m not sure that\u0027s a safe assumption (if only because we might make a mistake sometime, or because we leased the bot to someone who messed with the CPUs).  Can we instead turn on/off all of the CPUs here, set all of the governors, and scale all frequencies in both cases?  That would ensure that we get the result we want, regardless of any previous settings.",
+      "range": {
+        "startLine": 103,
+        "startChar": 0,
+        "endLine": 104,
+        "endChar": 39
+      },
+      "revId": "fce5920511b79a925cb9e85f5c341236a71540b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
