@@ -97,7 +97,7 @@ public:
         SkScalar luminance = 0.5f*(max + min);
 
         // We get best results with a luminance between 0.3 and 0.5, with smoothstep applied
-        SkScalar adjustedLuminance = (0.6f - 0.4f*luminance)*luminance*luminance + 0.3f;
+        SkScalar adjustedLuminance = (1.5 - luminance)*luminance*luminance;
         // Similarly, we need to tone down the given greyscale alpha depending on how
         // much color we're applying.
         a -= (0.5f*adjustedLuminance - 0.15f);
