@@ -127,7 +127,8 @@ $ ./out/dir/bookmaker -p -b docs -i include/core/<a href="usingBookmaker#SkXXX">
 
 to write the updated <a href="undocumented#SkXXX.h">SkXXX.h</a> to the current directory.
 
-Once adding the file is complete, add the file to status.json in the section. You may add it to the section during
+Once adding the file is complete, add the file to status.json in the
+<a href="usingBookmaker#Completed">Completed</a> section. You may add it to the <a href="usingBookmaker#InProgress">InProgress</a> section during
 development, or leave status.json unchanged.
 
 If the new file has been added to status.json, you can run
