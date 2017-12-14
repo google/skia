@@ -151,7 +151,7 @@ static void apply_premul(const SkImageInfo& info, void* pixels, size_t rowBytes)
     }
 }
 
-GrBackendObject SkImage_Gpu::onGetTextureHandle(bool flushPendingGrContextIO,
+GrBackendObject SkImage_Gpu::onGetTextureHandle1(bool flushPendingGrContextIO,
                                                 GrSurfaceOrigin* origin) const {
     SkASSERT(fProxy);
 
@@ -171,6 +171,28 @@ GrBackendObject SkImage_Gpu::onGetTextureHandle(bool flushPendingGrContextIO,
         return texture->getTextureHandle();
     }
     return 0;
+}
+
+GrBackendTexture SkImage_Gpu::onGetBackendTexture(bool flushPendingGrContextIO,
+                                                  GrSurfaceOrigin* origin) const {
+    SkASSERT(fProxy);
+
+    if (!fProxy->instantiate(fContext->resourceProvider())) {
+        return GrBackendTexture(); // invalid
+    }
+
+    GrTexture* texture = fProxy->priv().peekTexture();
+
+    if (texture) {
+        if (flushPendingGrContextIO) {
+            fContext->contextPriv().prepareSurfaceForExternalIO(fProxy.get());
+        }
+        if (origin) {
+            *origin = fProxy->origin();
+        }
+        return texture->getBackendTexture();
+    }
+    return GrBackendTexture(); // invalid
 }
 
 GrTexture* SkImage_Gpu::onGetTexture() const {

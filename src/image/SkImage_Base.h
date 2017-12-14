@@ -13,6 +13,7 @@
 #include "SkSurface.h"
 
 #if SK_SUPPORT_GPU
+    #include "GrBackendSurface.h"
     #include "GrTextureProxy.h"
 
     class GrTexture;
@@ -54,9 +55,13 @@ public:
     virtual sk_sp<GrTextureProxy> refPinnedTextureProxy(uint32_t* uniqueID) const {
         return nullptr;
     }
-    virtual GrBackendObject onGetTextureHandle(bool flushPendingGrContextIO,
+    virtual GrBackendObject onGetTextureHandle1(bool flushPendingGrContextIO,
                                                GrSurfaceOrigin* origin) const {
         return 0;
+    }
+    virtual GrBackendTexture onGetBackendTexture(bool flushPendingGrContextIO,
+                                                 GrSurfaceOrigin* origin) const {
+        return GrBackendTexture(); // invaluid
     }
     virtual GrTexture* onGetTexture() const { return nullptr; }
 #endif
