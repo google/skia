@@ -99,6 +99,17 @@ public:
     */
     void swap(SkBitmap& other);
 
+
+    /** Returns a SkPixmap with the SkBitmap pixel address, row bytes, and
+        SkImageInfo to pixmap, if address is available.  If pixel address
+        is not available, return an empty SkPixmap.
+
+        The SkPixmap contents become invalid on any future change to SkBitmap.
+
+        @return  new SkPixmap describing this SkBitmap.
+    */
+    SkPixmap pixmap() const { return fPixels ? SkPixmap(fInfo, fPixels, fRowBytes) : SkPixmap(); }
+
     /** Returns width, height, SkAlphaType, SkColorType, and SkColorSpace.
 
         @return  reference to SkImageInfo
@@ -337,8 +348,7 @@ public:
         @return    true if all pixels have opaque values or SkColorType is opaque
     */
     static bool ComputeIsOpaque(const SkBitmap& bm) {
-        SkPixmap pmap;
-        return bm.peekPixels(&pmap) && pmap.computeIsOpaque();
+        return bm.pixmap().computeIsOpaque();
     }
 
     /** Returns SkRect { 0, 0, width(), height() }.
@@ -840,9 +850,7 @@ public:
         @return   pixel converted to unpremultiplied color
     */
     SkColor getColor(int x, int y) const {
-        SkPixmap pixmap;
-        SkAssertResult(this->peekPixels(&pixmap));
-        return pixmap.getColor(x, y);
+        return this->pixmap().getColor(x, y);
     }
 
     /** Returns pixel address at (x, y).

@@ -211,10 +211,9 @@ static void make_color_test_bitmap_variant(
     SkASSERT(alphaType == kPremul_SkAlphaType || alphaType == kUnpremul_SkAlphaType);
     bm->allocPixels(
         SkImageInfo::Make(SCALE, SCALE, colorType, alphaType, colorSpace));
-    SkPixmap pm;
-    bm->peekPixels(&pm);
-    for (int y = 0; y < bm->height(); y++) {
-        for (int x = 0; x < bm->width(); x++) {
+    SkPixmap pm = bm->pixmap();
+    for (int y = 0; y < pm.height(); y++) {
+        for (int x = 0; x < pm.width(); x++) {
             *pm.writable_addr32(x, y) = make_pixel(x, y, alphaType);
         }
     }

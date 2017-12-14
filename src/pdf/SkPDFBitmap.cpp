@@ -430,9 +430,8 @@ sk_sp<SkPDFObject> SkPDFCreateBitmapObject(sk_sp<SkImage> image,
 #ifdef SK_SUPPORT_LEGACY_PDF_PIXELSERIALIZER
     if (pixelSerializer) {
         SkBitmap bm;
-        SkPixmap pmap;
-        if (SkPDFUtils::ToBitmap(image.get(), &bm) && bm.peekPixels(&pmap)) {
-            data = pixelSerializer->encodeToData(pmap);
+        if (SkPDFUtils::ToBitmap(image.get(), &bm)) {
+            data = pixelSerializer->encodeToData(bm.pixmap());
             if (data && SkIsJFIF(data.get(), &info)) {
                 bool yuv = info.fType == SkJFIFInfo::kYCbCr;
                 if (info.fSize == image->dimensions()) {  // Sanity check.
