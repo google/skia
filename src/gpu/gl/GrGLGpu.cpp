@@ -4421,6 +4421,8 @@ GrBackendTexture GrGLGpu::createTestingOnlyBackendTexture(void* pixels, int w, i
         return GrBackendTexture();  // invalid
     }
 
+    info.fFormat = this->glCaps().configSizedInternalFormat(config);
+
     this->unbindCpuToGpuXferBuffer();
 
     // Figure out the number of mip levels.

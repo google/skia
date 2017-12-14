@@ -32,6 +32,8 @@ public:
 
     virtual GrBackendTexture getBackendTexture() const = 0;
 
+    virtual bool setLayout(int layout) { return false; }
+
     /**
      * This function indicates that the texture parameters (wrap mode, filtering, ...) have been
      * changed externally to Skia.

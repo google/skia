@@ -87,6 +87,7 @@ private:
     friend class GrGpu;
     friend class GrGLGpu;
     friend class GrVkGpu;
+    friend struct GrBackendTexture_TestAccess;   // to implement Equal method in tests
     GrPixelConfig config() const { return fConfig; }
 
     int fWidth;         //<! width in pixels

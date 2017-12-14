@@ -13,7 +13,9 @@
 #include "SkSurface.h"
 
 #if SK_SUPPORT_GPU
+    #include "GrBackendSurface.h"
     #include "GrTextureProxy.h"
+    #include "GrVkTypes.h"
 
     class GrTexture;
 #endif
@@ -58,6 +60,14 @@ public:
                                                GrSurfaceOrigin* origin) const {
         return 0;
     }
+    virtual GrBackendTexture onGetBackendTexture(bool flushPendingGrContextIO,
+                                                 GrSurfaceOrigin* origin) const {
+        return GrBackendTexture(); // invalid
+    }
+    virtual bool onSetLayout(VkImageLayout) {
+        return false;
+    }
+
     virtual GrTexture* onGetTexture() const { return nullptr; }
 #endif
     virtual SkImageCacherator* peekCacherator() const { return nullptr; }

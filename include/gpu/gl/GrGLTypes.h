@@ -113,6 +113,10 @@ struct GrGLTextureInfo {
     GrGLenum fTarget;
     GrGLuint fID;
     GrGLenum fFormat = 0;
+
+    bool operator==(const GrGLTextureInfo& that) const {
+        return fTarget == that.fTarget && fID == that.fID && fFormat == that.fFormat;
+    }
 };
 
 GR_STATIC_ASSERT(sizeof(GrBackendObject) >= sizeof(const GrGLTextureInfo*));

@@ -173,6 +173,49 @@ GrBackendObject SkImage_Gpu::onGetTextureHandle(bool flushPendingGrContextIO,
     return 0;
 }
 
+GrBackendTexture SkImage_Gpu::onGetBackendTexture(bool flushPendingGrContextIO,
+                                                  GrSurfaceOrigin* origin) const {
+    SkASSERT(fProxy);
+
+    if (!fProxy->instantiate(fContext->resourceProvider())) {
+        return GrBackendTexture(); // invalid
+    }
+
+    GrTexture* texture = fProxy->priv().peekTexture();
+
+    if (texture) {
+        if (flushPendingGrContextIO) {
+            fContext->contextPriv().prepareSurfaceForExternalIO(fProxy.get());
+        }
+        if (origin) {
+            *origin = fProxy->origin();
+        }
+        return texture->getBackendTexture();
+    }
+    return GrBackendTexture(); // invalid
+}
+
+bool SkImage_Gpu::onSetLayout(VkImageLayout layout) {
+    GrBackend backend = fContext->contextPriv().getBackend();
+    if (kVulkan_GrBackend != backend) {
+        return false;
+    }
+
+    SkASSERT(fProxy);
+
+    if (!fProxy->instantiate(fContext->resourceProvider())) {
+        return false;
+    }
+
+    GrVkTexture* texture = static_cast<GrVkTexture*>(fProxy->priv().peekTexture());
+    if (texture) {
+        texture->setLayout(layout);
+        return true;
+    }
+
+    return false;
+}
+
 GrTexture* SkImage_Gpu::onGetTexture() const {
     GrTextureProxy* proxy = this->peekProxy();
     if (!proxy) {

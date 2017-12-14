@@ -44,6 +44,8 @@ public:
         this->setResourceRelease(proc, ctx);
     }
 
+    bool setLayout(int) override { return true; }
+
 protected:
     GrVkTexture(GrVkGpu*, const GrSurfaceDesc&, const GrVkImageInfo&, const GrVkImageView*,
                 GrMipMapsStatus, GrBackendObjectOwnership);

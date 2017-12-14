@@ -17,10 +17,10 @@ namespace GrTest {
      * constantly be evicting entries
      */
     void SetupAlwaysEvictAtlas(GrContext*);
+};
 
-    // TODO: remove this. It is only used in the SurfaceSemaphores Test.
-    GrBackendTexture CreateBackendTexture(GrBackend, int width, int height,
-                                          GrPixelConfig, GrMipMapped, GrBackendObject);
+struct GrBackendTexture_TestAccess {
+    static bool Equal(const GrBackendTexture& t0, const GrBackendTexture& t1);
 };
 
 #endif
