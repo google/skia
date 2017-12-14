@@ -57,6 +57,11 @@ size_t sk_stream_read (sk_stream_t* cstream, void* buffer, size_t size)
     return AsStream(cstream)->read(buffer, size);
 }
 
+size_t sk_stream_peek (sk_stream_t* cstream, void* buffer, size_t size)
+{
+    return AsStream(cstream)->peek(buffer, size);
+}
+
 size_t sk_stream_skip (sk_stream_t* cstream, size_t size)
 {
     return AsStream(cstream)->skip(size);

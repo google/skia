@@ -34,6 +34,7 @@ SK_C_API void sk_memorystream_destroy(sk_stream_memorystream_t* cstream);
 ////////////////////////////////////////////////////////////////////////////////
 
 SK_C_API size_t sk_stream_read(sk_stream_t* cstream, void* buffer, size_t size);
+SK_C_API size_t sk_stream_peek(sk_stream_t* cstream, void* buffer, size_t size);
 SK_C_API size_t sk_stream_skip(sk_stream_t* cstream, size_t size);
 SK_C_API bool sk_stream_is_at_end(sk_stream_t* cstream);
 SK_C_API int8_t sk_stream_read_s8(sk_stream_t* cstream);
