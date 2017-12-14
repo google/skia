@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d452118a_958338f0",
+        "filename": "src/gpu/text/GrAtlasTextContext.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-12-14T17:17:01Z",
+      "side": 1,
+      "message": "If this is true either the geometric text clipping should be disabled, or you will have to modify that routine to take Point3.",
+      "range": {
+        "startLine": 42,
+        "startChar": 13,
+        "endLine": 42,
+        "endChar": 46
+      },
+      "revId": "da5473e64d994ce67734fe4e60f8b56cf2591b59",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
