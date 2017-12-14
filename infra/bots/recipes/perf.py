@@ -483,3 +483,26 @@ def GenTests(api):
     api.step_data('Scale CPU 0 to 0.600000 (attempt 2)', retcode=1)+
     api.step_data('Scale CPU 0 to 0.600000 (attempt 3)', retcode=1)
   )
+
+  builder = ('Perf-Android-Clang-Nexus5x-GPU-Adreno418-arm64-Release'
+             '-All-Android')
+  yield (
+    api.test('cpu_scale_failed_golo') +
+    api.properties(buildername=builder,
+                   revision='abc123',
+                   path_config='kitchen',
+                   swarm_out_dir='[SWARM_OUT_DIR]') +
+    api.path.exists(
+        api.path['start_dir'].join('skia'),
+        api.path['start_dir'].join('skia', 'infra', 'bots', 'assets',
+                                     'skimage', 'VERSION'),
+        api.path['start_dir'].join('skia', 'infra', 'bots', 'assets',
+                                     'skp', 'VERSION'),
+        api.path['start_dir'].join('skia', 'infra', 'bots', 'assets',
+                                     'svg', 'VERSION'),
+        api.path['start_dir'].join('tmp', 'uninteresting_hashes.txt')
+    ) +
+    api.step_data('Scale CPU 4 to 0.600000', retcode=1)+
+    api.step_data('Scale CPU 4 to 0.600000 (attempt 2)', retcode=1)+
+    api.step_data('Scale CPU 4 to 0.600000 (attempt 3)', retcode=1)
+  )
