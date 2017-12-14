@@ -81,6 +81,41 @@ public:
     // Returns true if the backend texture has been initialized.
     bool isValid() const { return fConfig != kUnknown_GrPixelConfig; }
 
+    bool operator==(const GrBackendTexture& that) const {
+        if (!this->isValid() || !that.isValid()) {
+            return false; // two invalid backend textures are not considered equal
+        }
+
+        if (fWidth != that.fWidth ||
+            fHeight != that.fHeight ||
+            fConfig != that.fConfig ||
+            fMipMapped != that.fMipMapped ||
+            fBackend != that.fBackend) {
+            return false;
+        }
+
+        if (const GrGLTextureInfo* info = this->getGLTextureInfo()) {
+            const GrGLTextureInfo* other = that.getGLTextureInfo();
+
+            return *info == *other;
+#ifdef SK_VULKAN
+        } else if (const GrVkImageInfo* info = this->getVkImageInfo()) {
+            const GrVkImageInfo* other = that.getVkImageInfo();
+
+            return *info == *other;
+#endif
+        } else if (const GrMockTextureInfo* info = this->getMockTextureInfo()) {
+            const GrMockTextureInfo* other = that.getMockTextureInfo();
+
+            return *info == *other;
+        }
+
+        SkASSERT(0);  // both objects are valid but they are not one of the known types!
+        return false;
+    }
+
+    bool operator!=(const GrBackendTexture& that) const { return !(*this == that); }
+
 private:
     // Friending for access to the GrPixelConfig
     friend class SkSurface;
