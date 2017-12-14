@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "2b936720_1a7e170b",
+        "filename": "infra/bots/recipe_modules/flavor/gn_android_flavor.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2017-12-14T14:47:22Z",
+      "side": 1,
+      "message": "Clarified documentation.",
+      "parentUuid": "75f63ddb_71f0157c",
+      "range": {
+        "startLine": 76,
+        "startChar": 24,
+        "endLine": 76,
+        "endChar": 28
+      },
+      "revId": "fce5920511b79a925cb9e85f5c341236a71540b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "19af3e11_c3fc1ab6",
         "filename": "infra/bots/recipe_modules/flavor/gn_android_flavor.py",
         "patchSetId": 4
@@ -39,6 +63,24 @@
       "revId": "fce5920511b79a925cb9e85f5c341236a71540b4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "04f7fc12_083bd9d0",
+        "filename": "infra/bots/recipe_modules/flavor/gn_android_flavor.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2017-12-14T14:47:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "19af3e11_c3fc1ab6",
+      "revId": "fce5920511b79a925cb9e85f5c341236a71540b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -65,6 +107,30 @@
     },
     {
       "key": {
+        "uuid": "cdd04579_71c2898c",
+        "filename": "infra/bots/recipe_modules/flavor/gn_android_flavor.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2017-12-14T14:47:22Z",
+      "side": 1,
+      "message": "See added comment by Mike - \n# This is paranoia... any CPUs we disabled while running nanobench \n# ought to be back online now that we\u0027ve restarted the device.\n\nI think we can assume that as long as the device was rebooted after the previous task,\nthis code will be a no-op.",
+      "parentUuid": "500bb69e_ee5d45bf",
+      "range": {
+        "startLine": 103,
+        "startChar": 0,
+        "endLine": 104,
+        "endChar": 39
+      },
+      "revId": "fce5920511b79a925cb9e85f5c341236a71540b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "22a15e8d_2f295f27",
         "filename": "infra/bots/recipe_modules/flavor/gn_android_flavor.py",
         "patchSetId": 4
@@ -85,6 +151,30 @@
       "revId": "fce5920511b79a925cb9e85f5c341236a71540b4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "97150d66_fc2064b8",
+        "filename": "infra/bots/recipe_modules/flavor/gn_android_flavor.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2017-12-14T14:47:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "22a15e8d_2f295f27",
+      "range": {
+        "startLine": 160,
+        "startChar": 28,
+        "endLine": 160,
+        "endChar": 34
+      },
+      "revId": "fce5920511b79a925cb9e85f5c341236a71540b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
