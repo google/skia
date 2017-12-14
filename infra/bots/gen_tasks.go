@@ -365,6 +365,8 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 		} else if d["os"] == DEFAULT_OS_MAC {
 			// Mac CPU bots.
 			d["cpu"] = "x86-64-E5-2697_v2"
+			// skia:7408
+			d["cert"] = "1"
 		}
 	}
 
