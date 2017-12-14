@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fbdcb8d1_7713cf1d",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 4424,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-12-14T17:34:17Z",
+      "side": 1,
+      "message": "don\u0027t use internalFormat here, it has to be the sized format. See my cl, https://skia-review.googlesource.com/c/skia/+/84342",
+      "range": {
+        "startLine": 4424,
+        "startChar": 19,
+        "endLine": 4424,
+        "endChar": 33
+      },
+      "revId": "0d1501d16b19ed0c8381cd05526d116e38c00ef7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
