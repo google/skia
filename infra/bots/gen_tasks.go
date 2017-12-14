@@ -361,7 +361,7 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 			// Windows CPU bots.
 			d["cpu"] = "x86-64-Haswell_GCE"
 			// skia:7409
-			d["machine_type"] = "n1-standard-16"
+			d["machine_type"] = "n1-highcpu-64"
 		} else if d["os"] == DEFAULT_OS_MAC {
 			// Mac CPU bots.
 			d["cpu"] = "x86-64-E5-2697_v2"
