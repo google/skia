@@ -62,8 +62,7 @@ public:
 
     void setCanvas(SkPipeCanvas* canvas) { fPipeCanvas = canvas; }
     void setStream(SkWStream* stream) { fStream = stream; }
-    void setTypefaceSerializer(SkTypefaceSerializer* tfs) { fTFSerializer = tfs; }
-    void setImageSerializer(SkImageSerializer* ims) { fIMSerializer = ims; }
+    void setSerialProcs(const SkSerialProcs& procs) { fProcs = procs; }
 
     // returns 0 if not found
     int findImage(SkImage* image) const { return fImages.find(image->uniqueID()); }
@@ -77,9 +76,7 @@ public:
 private:
     SkPipeCanvas*           fPipeCanvas = nullptr;
     SkWStream*              fStream = nullptr;
-
-    SkTypefaceSerializer*   fTFSerializer = nullptr;
-    SkImageSerializer*      fIMSerializer = nullptr;
+    SkSerialProcs           fProcs;
 
     // All our keys (at the moment) are 32bit uniqueIDs
     SkTIndexSet<uint32_t>   fImages;
