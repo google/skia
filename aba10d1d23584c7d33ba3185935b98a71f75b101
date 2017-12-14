@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1262f58d_8d047f64",
+        "filename": "include/core/SkTextBlob.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-12-14T17:52:04Z",
+      "side": 1,
+      "message": "What about replacing this with SkAtomic\u003cuint32_t\u003e where we init in cons to the invalid ID and then atomically set it to the cacheID in notifyAddedToCache() and then test whether it is the invalid ID in the destructor to decide whether to post.",
+      "range": {
+        "startLine": 113,
+        "startChar": 4,
+        "endLine": 113,
+        "endChar": 41
+      },
+      "revId": "aba10d1d23584c7d33ba3185935b98a71f75b101",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5ccd252b_ee4201db",
+        "filename": "include/private/SkTArray.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 444,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-12-14T17:52:04Z",
+      "side": 1,
+      "message": "Curious if this actually affects anything",
+      "range": {
+        "startLine": 444,
+        "startChar": 12,
+        "endLine": 444,
+        "endChar": 30
+      },
+      "revId": "aba10d1d23584c7d33ba3185935b98a71f75b101",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
