@@ -139,6 +139,8 @@ public:
                                    nullptr, false);
     }
 
+    static sk_sp<SkDocument> MakePDF(SkWStream* stream, const PDFMetadata& metadata);
+
     /**
      *  Create a PDF-backed document, writing the results into a file.
      */
