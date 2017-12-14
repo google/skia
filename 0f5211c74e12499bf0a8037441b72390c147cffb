@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ab1567fd_1c75e726",
+        "filename": "include/gpu/GrBackendSurface.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-12-14T16:19:17Z",
+      "side": 1,
+      "message": "nit: is it anymore readable here to do this as:\n\nif (GL \u003d\u003d backend) {\n    return fGLInfo \u003d\u003d that.fGLInfo;\nelse if (Vulkan \u003d\u003d backend) {\n....\n}",
+      "range": {
+        "startLine": 96,
+        "startChar": 0,
+        "endLine": 111,
+        "endChar": 9
+      },
+      "revId": "0f5211c74e12499bf0a8037441b72390c147cffb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
