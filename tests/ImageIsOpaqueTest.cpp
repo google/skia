@@ -52,6 +52,7 @@ DEF_TEST(ImageInfo_flattening, reporter) {
     sk_sp<SkColorSpace> spaces[] = {
         nullptr,
         SkColorSpace::MakeSRGB(),
+        SkColorSpace_Base::MakeNamed(SkColorSpace_Base::kAdobeRGB_Named),
         space0,
         space1,
         space2,
