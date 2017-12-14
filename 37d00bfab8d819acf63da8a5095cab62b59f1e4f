@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "969c8099_1045100c",
+        "filename": "infra/bots/recipe_modules/flavor/gn_android_flavor.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 191,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-12-14T13:29:01Z",
+      "side": 1,
+      "message": "Isn\u0027t this section here still totally whack?\n\nLike, there\u0027s no actual_gov or gov, right?  And we seem to always be expecting cat .../online to show 0?\n\nCan\u0027t we just write this as\n\n   assert(actual \u003d\u003d expected)\n\n?",
+      "range": {
+        "startLine": 189,
+        "startChar": 0,
+        "endLine": 191,
+        "endChar": 38
+      },
+      "revId": "37d00bfab8d819acf63da8a5095cab62b59f1e4f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
