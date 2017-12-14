@@ -308,12 +308,12 @@ static int32_t next_id() {
 SkTextBlob::SkTextBlob(const SkRect& bounds)
     : fBounds(bounds)
     , fUniqueID(next_id())
-    , fAddedToCache(false) {}
+    , fCacheID(SK_InvalidUniqueID) {}
 
 SkTextBlob::~SkTextBlob() {
 #if SK_SUPPORT_GPU
-    if (fAddedToCache.load()) {
-        GrTextBlobCache::PostPurgeBlobMessage(fUniqueID);
+    if (SK_InvalidUniqueID != fCacheID.load()) {
+        GrTextBlobCache::PostPurgeBlobMessage(fUniqueID, fCacheID);
     }
 #endif
 
