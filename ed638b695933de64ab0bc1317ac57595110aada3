@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "33c99133_71a6ad41",
+        "filename": "src/gpu/effects/GrDistanceFieldGeoProc.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 197,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-12-14T18:32:02Z",
+      "side": 1,
+      "message": "In the TIL department...",
+      "range": {
+        "startLine": 197,
+        "startChar": 26,
+        "endLine": 197,
+        "endChar": 32
+      },
+      "revId": "ed638b695933de64ab0bc1317ac57595110aada3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
