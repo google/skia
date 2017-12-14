@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "c5d9a698_2518eac3",
+        "filename": "src/gpu/text/GrAtlasTextBlob.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 300,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-12-14T17:28:30Z",
+      "side": 1,
+      "message": "I removed the change to clip_quads since we can\u0027t get there with 3 component positions currently and we\u0027d need to also handle the matrix there if we ever did.",
+      "parentUuid": "1b3fbf3d_2419ac89",
+      "range": {
+        "startLine": 299,
+        "startChar": 8,
+        "endLine": 300,
+        "endChar": 62
+      },
+      "revId": "457f801ced23a6898174af441f6a6d4a1ac3fb88",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "dc4dd80a_38b065de",
         "filename": "src/gpu/text/GrAtlasTextBlob.h",
         "patchSetId": 11
