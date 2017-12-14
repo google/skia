@@ -155,6 +155,30 @@
     },
     {
       "key": {
+        "uuid": "03a70a9b_92e80df5",
+        "filename": "infra/bots/recipe_modules/flavor/gn_android_flavor.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2017-12-14T15:04:45Z",
+      "side": 1,
+      "message": "I haven\u0027t noticed devices failing to reboot.  In fact, I checked on this before landing the original incarnation because I wanted to make sure the CPUs refreshed after a task.\n\nIf it becomes a problem, then I will be more than happy to the complexity of this logic and do a full re-configure of the CPU.",
+      "parentUuid": "d1bf95c4_78824bf4",
+      "range": {
+        "startLine": 103,
+        "startChar": 0,
+        "endLine": 104,
+        "endChar": 39
+      },
+      "revId": "fce5920511b79a925cb9e85f5c341236a71540b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "22a15e8d_2f295f27",
         "filename": "infra/bots/recipe_modules/flavor/gn_android_flavor.py",
         "patchSetId": 4
