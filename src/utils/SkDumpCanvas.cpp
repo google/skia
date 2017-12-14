@@ -344,41 +344,6 @@ void SkDumpCanvas::onDrawPath(const SkPath& path, const SkPaint& paint) {
     this->dump(kDrawPath_Verb, &paint, "drawPath(%s)", str.c_str());
 }
 
-void SkDumpCanvas::onDrawBitmap(const SkBitmap& bitmap, SkScalar x, SkScalar y,
-                                const SkPaint* paint) {
-    SkString str;
-    bitmap.toString(&str);
-    this->dump(kDrawBitmap_Verb, paint, "drawBitmap(%s %g %g)", str.c_str(),
-               SkScalarToFloat(x), SkScalarToFloat(y));
-}
-
-void SkDumpCanvas::onDrawBitmapRect(const SkBitmap& bitmap, const SkRect* src, const SkRect& dst,
-                                    const SkPaint* paint, SrcRectConstraint) {
-    SkString bs, rs;
-    bitmap.toString(&bs);
-    toString(dst, &rs);
-    // show the src-rect only if its not everything
-    if (src && (src->fLeft > 0 || src->fTop > 0 ||
-                src->fRight < SkIntToScalar(bitmap.width()) ||
-                src->fBottom < SkIntToScalar(bitmap.height()))) {
-        SkString ss;
-        toString(*src, &ss);
-        rs.prependf("%s ", ss.c_str());
-    }
-
-    this->dump(kDrawBitmap_Verb, paint, "drawBitmapRect(%s %s)", bs.c_str(), rs.c_str());
-}
-
-void SkDumpCanvas::onDrawBitmapNine(const SkBitmap& bitmap, const SkIRect& center,
-                                    const SkRect& dst, const SkPaint* paint) {
-    SkString str, centerStr, dstStr;
-    bitmap.toString(&str);
-    toString(center, &centerStr);
-    toString(dst, &dstStr);
-    this->dump(kDrawBitmap_Verb, paint, "drawBitmapNine(%s %s %s)", str.c_str(),
-               centerStr.c_str(), dstStr.c_str());
-}
-
 void SkDumpCanvas::onDrawImage(const SkImage* image, SkScalar x, SkScalar y, const SkPaint* paint) {
     SkString str;
     image->toString(&str);

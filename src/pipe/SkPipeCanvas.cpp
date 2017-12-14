@@ -451,50 +451,6 @@ void SkPipeCanvas::onDrawPath(const SkPath& path, const SkPaint& paint) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-static sk_sp<SkImage> make_from_bitmap(const SkBitmap& bitmap) {
-    // If we just "make" an image, it will force a CPU copy (if its mutable), only to have
-    // us then either find it in our cache, or compress and send it.
-    //
-    // Better could be to look it up in our cache first, and only create/compress it if we have to.
-    //
-    // But for now, just do the dumb thing...
-    return SkImage::MakeFromBitmap(bitmap);
-}
-
-void SkPipeCanvas::onDrawBitmap(const SkBitmap& bitmap, SkScalar x, SkScalar y,
-                                const SkPaint* paint) {
-    sk_sp<SkImage> image = make_from_bitmap(bitmap);
-    if (image) {
-        this->onDrawImage(image.get(), x, y, paint);
-    }
-}
-
-void SkPipeCanvas::onDrawBitmapRect(const SkBitmap& bitmap, const SkRect* src, const SkRect& dst,
-                                    const SkPaint* paint, SrcRectConstraint constraint) {
-    sk_sp<SkImage> image = make_from_bitmap(bitmap);
-    if (image) {
-        this->onDrawImageRect(image.get(), src, dst, paint, constraint);
-    }
-}
-
-void SkPipeCanvas::onDrawBitmapNine(const SkBitmap& bitmap, const SkIRect& center,
-                                    const SkRect& dst, const SkPaint* paint) {
-    sk_sp<SkImage> image = make_from_bitmap(bitmap);
-    if (image) {
-        this->onDrawImageNine(image.get(), center, dst, paint);
-    }
-}
-
-void SkPipeCanvas::onDrawBitmapLattice(const SkBitmap& bitmap, const Lattice& lattice,
-                                       const SkRect& dst, const SkPaint* paint) {
-    sk_sp<SkImage> image = make_from_bitmap(bitmap);
-    if (image) {
-        this->onDrawImageLattice(image.get(), lattice, dst, paint);
-    }
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
 void SkPipeCanvas::onDrawImage(const SkImage* image, SkScalar left, SkScalar top,
                                const SkPaint* paint) {
     unsigned extra = 0;

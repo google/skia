@@ -477,22 +477,6 @@ void SkDebugCanvas::onDrawAnnotation(const SkRect& rect, const char key[], SkDat
     this->addDrawCommand(new SkDrawAnnotationCommand(rect, key, sk_ref_sp(value)));
 }
 
-void SkDebugCanvas::onDrawBitmap(const SkBitmap& bitmap, SkScalar left,
-                                 SkScalar top, const SkPaint* paint) {
-    this->addDrawCommand(new SkDrawBitmapCommand(bitmap, left, top, paint));
-}
-
-void SkDebugCanvas::onDrawBitmapRect(const SkBitmap& bitmap, const SkRect* src, const SkRect& dst,
-                                     const SkPaint* paint, SrcRectConstraint constraint) {
-    this->addDrawCommand(new SkDrawBitmapRectCommand(bitmap, src, dst, paint,
-                                                     (SrcRectConstraint)constraint));
-}
-
-void SkDebugCanvas::onDrawBitmapNine(const SkBitmap& bitmap, const SkIRect& center,
-                                     const SkRect& dst, const SkPaint* paint) {
-    this->addDrawCommand(new SkDrawBitmapNineCommand(bitmap, center, dst, paint));
-}
-
 void SkDebugCanvas::onDrawImage(const SkImage* image, SkScalar left, SkScalar top,
                                 const SkPaint* paint) {
     this->addDrawCommand(new SkDrawImageCommand(image, left, top, paint));
