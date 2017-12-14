@@ -70,6 +70,24 @@
       "revId": "133ec77312d4c1b63ce5dd8562425079dd664093",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fe0d1395_8373283a",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1828,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-12-14T19:37:04Z",
+      "side": 1,
+      "message": "Well scrap that idea as I didn\u0027t know SkSurface::MakeRasterDirect wouldn\u0027t allow you to pass ownership of the pixels.",
+      "parentUuid": "f3dea7f3_6b5120dd",
+      "revId": "133ec77312d4c1b63ce5dd8562425079dd664093",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
