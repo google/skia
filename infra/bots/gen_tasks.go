@@ -280,6 +280,10 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 			if parts["model"] == "GCE" && d["os"] == DEFAULT_OS_DEBIAN {
 				d["os"] = DEFAULT_OS_LINUX_GCE
 			}
+			if parts["model"] == "GCE" && d["os"] == DEFAULT_OS_WIN {
+				// skia:7409
+				d["machine_type"] = "n1-standard-16"
+			}
 		} else {
 			if strings.Contains(parts["os"], "Win") {
 				gpu, ok := map[string]string{
@@ -356,6 +360,8 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 		} else if d["os"] == DEFAULT_OS_WIN {
 			// Windows CPU bots.
 			d["cpu"] = "x86-64-Haswell_GCE"
+			// skia:7409
+			d["machine_type"] = "n1-standard-16"
 		} else if d["os"] == DEFAULT_OS_MAC {
 			// Mac CPU bots.
 			d["cpu"] = "x86-64-E5-2697_v2"
