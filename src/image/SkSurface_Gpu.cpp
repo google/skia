@@ -52,7 +52,7 @@ static GrRenderTarget* prepare_rt_for_external_access(SkSurface_Gpu* surface,
     return rtc->accessRenderTarget();
 }
 
-GrBackendObject SkSurface_Gpu::onGetTextureHandle(BackendHandleAccess access) {
+GrBackendObject SkSurface_Gpu::onGetTextureHandle1(BackendHandleAccess access) {
     GrRenderTarget* rt = prepare_rt_for_external_access(this, access);
     if (!rt) {
         return 0;
@@ -64,13 +64,34 @@ GrBackendObject SkSurface_Gpu::onGetTextureHandle(BackendHandleAccess access) {
     return 0;
 }
 
-bool SkSurface_Gpu::onGetRenderTargetHandle(GrBackendObject* obj, BackendHandleAccess access) {
+bool SkSurface_Gpu::onGetRenderTargetHandle1(GrBackendObject* obj, BackendHandleAccess access) {
     GrRenderTarget* rt = prepare_rt_for_external_access(this, access);
     if (!rt) {
         return false;
     }
     *obj = rt->getRenderTargetHandle();
     return true;
+}
+
+GrBackendTexture SkSurface_Gpu::onGetBackendTexture(BackendHandleAccess access) {
+    GrRenderTarget* rt = prepare_rt_for_external_access(this, access);
+    if (!rt) {
+        return GrBackendTexture(); // invalid
+    }
+    GrTexture* texture = rt->asTexture();
+    if (texture) {
+        return texture->getBackendTexture();
+    }
+    return GrBackendTexture(); // invalid
+}
+
+GrBackendRenderTarget SkSurface_Gpu::onGetBackendRenderTarget(BackendHandleAccess access) {
+    GrRenderTarget* rt = prepare_rt_for_external_access(this, access);
+    if (!rt) {
+        return GrBackendRenderTarget(); // invalid
+    }
+
+    return rt->getBackendRenderTarget();
 }
 
 SkCanvas* SkSurface_Gpu::onNewCanvas() {

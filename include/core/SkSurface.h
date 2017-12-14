@@ -215,7 +215,7 @@ public:
      *  The returned texture-handle is only valid until the next draw-call into the surface,
      *  or the surface is deleted.
      */
-    GrBackendObject getTextureHandle(BackendHandleAccess backendHandleAccess);
+    GrBackendObject getTextureHandle1(BackendHandleAccess backendHandleAccess);
 
     /**
      *  Retrieves the backend API handle of the RenderTarget backing this surface.  Callers must
@@ -223,8 +223,23 @@ public:
      *
      *  In OpenGL this will return the FramebufferObject ID.
      */
-    bool getRenderTargetHandle(GrBackendObject* backendObject,
+    bool getRenderTargetHandle1(GrBackendObject* backendObject,
                                BackendHandleAccess backendHandleAccess);
+
+    /**
+     *  Retrieves the backend texture used by this surface, it returns an invalid backend
+     *  texture if the surface is not backed by a GPU texture.
+     *
+     *  The returned backend texture is only valid until the next draw-call into the surface,
+     *  or the surface is deleted.
+     */
+    GrBackendTexture getBackendTexture(BackendHandleAccess backendHandleAccess);
+
+    /**
+     *  Retrieves the backend render target behind this surface. If the surface is not GPU-backed
+     *  it will return an invalid backend render target.
+     */
+    GrBackendRenderTarget getBackendRenderTarget(BackendHandleAccess backendHandleAccess);
 
     /**
      *  Return a canvas that will draw into this surface. This will always
