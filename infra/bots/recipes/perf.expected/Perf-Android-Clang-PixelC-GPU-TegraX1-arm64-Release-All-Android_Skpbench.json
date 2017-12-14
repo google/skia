@@ -696,9 +696,10 @@
     "cmd": [
       "python",
       "-u",
-      "\nimport os\nimport subprocess\nimport sys\nimport time\nADB = sys.argv[1]\ncpu = int(sys.argv[2])\n\nlog = subprocess.check_output([ADB, 'root'])\n# check for message like 'adbd cannot run as root in production builds'\nprint log\nif 'cannot' in log:\n  raise Exception('adb root failed')\n\nsubprocess.check_output([ADB, 'shell', 'echo 0 > '\n    '/sys/devices/system/cpu/cpu%d/online' % cpu])\nactual_status = subprocess.check_output([ADB, 'shell', 'cat '\n    '/sys/devices/system/cpu/cpu%d/online' % cpu]).strip()\nif actual_status != str(0):\n  raise Exception('(actual, expected) (%s, %d)'\n                  % (actual_gov, gov))\n",
+      "\nimport os\nimport subprocess\nimport sys\nimport time\nADB = sys.argv[1]\ncpu = int(sys.argv[2])\nvalue = int(sys.argv[3])\n\nlog = subprocess.check_output([ADB, 'root'])\n# check for message like 'adbd cannot run as root in production builds'\nprint log\nif 'cannot' in log:\n  raise Exception('adb root failed')\n\n# If we try to echo 1 to an already online cpu, adb returns exit code 1.\n# So, check the value before trying to write it.\nprior_status = subprocess.check_output([ADB, 'shell', 'cat '\n    '/sys/devices/system/cpu/cpu%d/online' % cpu]).strip()\nif prior_status == str(value):\n  print 'CPU %d online already %d' % (cpu, value)\n  sys.exit()\n\nsubprocess.check_output([ADB, 'shell', 'echo %s > '\n    '/sys/devices/system/cpu/cpu%d/online' % (value, cpu)])\nactual_status = subprocess.check_output([ADB, 'shell', 'cat '\n    '/sys/devices/system/cpu/cpu%d/online' % cpu]).strip()\nif actual_status != str(value):\n  raise Exception('(actual, expected) (%s, %d)'\n                  % (actual_status, value))\n",
       "/usr/bin/adb.1.0.35",
-      "2"
+      "0",
+      "0"
     ],
     "env": {
       "BUILDTYPE": "Release",
@@ -707,7 +708,7 @@
       "SKIA_OUT": "[START_DIR]/out"
     },
     "infra_step": true,
-    "name": "Disabling CPU 2",
+    "name": "Disabling CPU 0",
     "timeout": 30,
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@@@@",
@@ -717,6 +718,7 @@
       "@@@STEP_LOG_LINE@python.inline@import time@@@",
       "@@@STEP_LOG_LINE@python.inline@ADB = sys.argv[1]@@@",
       "@@@STEP_LOG_LINE@python.inline@cpu = int(sys.argv[2])@@@",
+      "@@@STEP_LOG_LINE@python.inline@value = int(sys.argv[3])@@@",
       "@@@STEP_LOG_LINE@python.inline@@@@",
       "@@@STEP_LOG_LINE@python.inline@log = subprocess.check_output([ADB, 'root'])@@@",
       "@@@STEP_LOG_LINE@python.inline@# check for message like 'adbd cannot run as root in production builds'@@@",
@@ -724,13 +726,21 @@
       "@@@STEP_LOG_LINE@python.inline@if 'cannot' in log:@@@",
       "@@@STEP_LOG_LINE@python.inline@  raise Exception('adb root failed')@@@",
       "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@subprocess.check_output([ADB, 'shell', 'echo 0 > '@@@",
-      "@@@STEP_LOG_LINE@python.inline@    '/sys/devices/system/cpu/cpu%d/online' % cpu])@@@",
+      "@@@STEP_LOG_LINE@python.inline@# If we try to echo 1 to an already online cpu, adb returns exit code 1.@@@",
+      "@@@STEP_LOG_LINE@python.inline@# So, check the value before trying to write it.@@@",
+      "@@@STEP_LOG_LINE@python.inline@prior_status = subprocess.check_output([ADB, 'shell', 'cat '@@@",
+      "@@@STEP_LOG_LINE@python.inline@    '/sys/devices/system/cpu/cpu%d/online' % cpu]).strip()@@@",
+      "@@@STEP_LOG_LINE@python.inline@if prior_status == str(value):@@@",
+      "@@@STEP_LOG_LINE@python.inline@  print 'CPU %d online already %d' % (cpu, value)@@@",
+      "@@@STEP_LOG_LINE@python.inline@  sys.exit()@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@subprocess.check_output([ADB, 'shell', 'echo %s > '@@@",
+      "@@@STEP_LOG_LINE@python.inline@    '/sys/devices/system/cpu/cpu%d/online' % (value, cpu)])@@@",
       "@@@STEP_LOG_LINE@python.inline@actual_status = subprocess.check_output([ADB, 'shell', 'cat '@@@",
       "@@@STEP_LOG_LINE@python.inline@    '/sys/devices/system/cpu/cpu%d/online' % cpu]).strip()@@@",
-      "@@@STEP_LOG_LINE@python.inline@if actual_status != str(0):@@@",
+      "@@@STEP_LOG_LINE@python.inline@if actual_status != str(value):@@@",
       "@@@STEP_LOG_LINE@python.inline@  raise Exception('(actual, expected) (%s, %d)'@@@",
-      "@@@STEP_LOG_LINE@python.inline@                  % (actual_gov, gov))@@@",
+      "@@@STEP_LOG_LINE@python.inline@                  % (actual_status, value))@@@",
       "@@@STEP_LOG_END@python.inline@@@"
     ]
   },
@@ -738,9 +748,10 @@
     "cmd": [
       "python",
       "-u",
-      "\nimport os\nimport subprocess\nimport sys\nimport time\nADB = sys.argv[1]\ncpu = int(sys.argv[2])\n\nlog = subprocess.check_output([ADB, 'root'])\n# check for message like 'adbd cannot run as root in production builds'\nprint log\nif 'cannot' in log:\n  raise Exception('adb root failed')\n\nsubprocess.check_output([ADB, 'shell', 'echo 0 > '\n    '/sys/devices/system/cpu/cpu%d/online' % cpu])\nactual_status = subprocess.check_output([ADB, 'shell', 'cat '\n    '/sys/devices/system/cpu/cpu%d/online' % cpu]).strip()\nif actual_status != str(0):\n  raise Exception('(actual, expected) (%s, %d)'\n                  % (actual_gov, gov))\n",
+      "\nimport os\nimport subprocess\nimport sys\nimport time\nADB = sys.argv[1]\ncpu = int(sys.argv[2])\nvalue = int(sys.argv[3])\n\nlog = subprocess.check_output([ADB, 'root'])\n# check for message like 'adbd cannot run as root in production builds'\nprint log\nif 'cannot' in log:\n  raise Exception('adb root failed')\n\n# If we try to echo 1 to an already online cpu, adb returns exit code 1.\n# So, check the value before trying to write it.\nprior_status = subprocess.check_output([ADB, 'shell', 'cat '\n    '/sys/devices/system/cpu/cpu%d/online' % cpu]).strip()\nif prior_status == str(value):\n  print 'CPU %d online already %d' % (cpu, value)\n  sys.exit()\n\nsubprocess.check_output([ADB, 'shell', 'echo %s > '\n    '/sys/devices/system/cpu/cpu%d/online' % (value, cpu)])\nactual_status = subprocess.check_output([ADB, 'shell', 'cat '\n    '/sys/devices/system/cpu/cpu%d/online' % cpu]).strip()\nif actual_status != str(value):\n  raise Exception('(actual, expected) (%s, %d)'\n                  % (actual_status, value))\n",
       "/usr/bin/adb.1.0.35",
-      "3"
+      "1",
+      "0"
     ],
     "env": {
       "BUILDTYPE": "Release",
@@ -749,7 +760,7 @@
       "SKIA_OUT": "[START_DIR]/out"
     },
     "infra_step": true,
-    "name": "Disabling CPU 3",
+    "name": "Disabling CPU 1",
     "timeout": 30,
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@@@@",
@@ -759,6 +770,7 @@
       "@@@STEP_LOG_LINE@python.inline@import time@@@",
       "@@@STEP_LOG_LINE@python.inline@ADB = sys.argv[1]@@@",
       "@@@STEP_LOG_LINE@python.inline@cpu = int(sys.argv[2])@@@",
+      "@@@STEP_LOG_LINE@python.inline@value = int(sys.argv[3])@@@",
       "@@@STEP_LOG_LINE@python.inline@@@@",
       "@@@STEP_LOG_LINE@python.inline@log = subprocess.check_output([ADB, 'root'])@@@",
       "@@@STEP_LOG_LINE@python.inline@# check for message like 'adbd cannot run as root in production builds'@@@",
@@ -766,13 +778,21 @@
       "@@@STEP_LOG_LINE@python.inline@if 'cannot' in log:@@@",
       "@@@STEP_LOG_LINE@python.inline@  raise Exception('adb root failed')@@@",
       "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@subprocess.check_output([ADB, 'shell', 'echo 0 > '@@@",
-      "@@@STEP_LOG_LINE@python.inline@    '/sys/devices/system/cpu/cpu%d/online' % cpu])@@@",
+      "@@@STEP_LOG_LINE@python.inline@# If we try to echo 1 to an already online cpu, adb returns exit code 1.@@@",
+      "@@@STEP_LOG_LINE@python.inline@# So, check the value before trying to write it.@@@",
+      "@@@STEP_LOG_LINE@python.inline@prior_status = subprocess.check_output([ADB, 'shell', 'cat '@@@",
+      "@@@STEP_LOG_LINE@python.inline@    '/sys/devices/system/cpu/cpu%d/online' % cpu]).strip()@@@",
+      "@@@STEP_LOG_LINE@python.inline@if prior_status == str(value):@@@",
+      "@@@STEP_LOG_LINE@python.inline@  print 'CPU %d online already %d' % (cpu, value)@@@",
+      "@@@STEP_LOG_LINE@python.inline@  sys.exit()@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@subprocess.check_output([ADB, 'shell', 'echo %s > '@@@",
+      "@@@STEP_LOG_LINE@python.inline@    '/sys/devices/system/cpu/cpu%d/online' % (value, cpu)])@@@",
       "@@@STEP_LOG_LINE@python.inline@actual_status = subprocess.check_output([ADB, 'shell', 'cat '@@@",
       "@@@STEP_LOG_LINE@python.inline@    '/sys/devices/system/cpu/cpu%d/online' % cpu]).strip()@@@",
-      "@@@STEP_LOG_LINE@python.inline@if actual_status != str(0):@@@",
+      "@@@STEP_LOG_LINE@python.inline@if actual_status != str(value):@@@",
       "@@@STEP_LOG_LINE@python.inline@  raise Exception('(actual, expected) (%s, %d)'@@@",
-      "@@@STEP_LOG_LINE@python.inline@                  % (actual_gov, gov))@@@",
+      "@@@STEP_LOG_LINE@python.inline@                  % (actual_status, value))@@@",
       "@@@STEP_LOG_END@python.inline@@@"
     ]
   },
