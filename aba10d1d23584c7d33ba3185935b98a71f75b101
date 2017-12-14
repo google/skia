@@ -72,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "8be32b3e_4c771ec6",
+        "filename": "include/private/SkTArray.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 313,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-12-14T18:14:40Z",
+      "side": 1,
+      "message": "Gotcha, that makes sense.",
+      "parentUuid": "9753877c_1dd7e31b",
+      "range": {
+        "startLine": 304,
+        "startChar": 8,
+        "endLine": 313,
+        "endChar": 9
+      },
+      "revId": "aba10d1d23584c7d33ba3185935b98a71f75b101",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "5ccd252b_ee4201db",
         "filename": "include/private/SkTArray.h",
         "patchSetId": 2
@@ -107,6 +131,30 @@
       "side": 1,
       "message": "See the comment above. I tried checking for the nullptr case in swap, but that caused other problems (which unfortunately I don\u0027t remember right now). The downside is that it\u0027ll try to sk_free the null fMemArray. I can remove it -- I don\u0027t know whether it\u0027s a big win or not.",
       "parentUuid": "5ccd252b_ee4201db",
+      "range": {
+        "startLine": 444,
+        "startChar": 12,
+        "endLine": 444,
+        "endChar": 30
+      },
+      "revId": "aba10d1d23584c7d33ba3185935b98a71f75b101",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ec5529bc_de000bcc",
+        "filename": "include/private/SkTArray.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 444,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-12-14T18:14:40Z",
+      "side": 1,
+      "message": "Seems like a good trade-off to me, calling sk_free on null should not be a problem.",
+      "parentUuid": "0d0f9c83_698a543b",
       "range": {
         "startLine": 444,
         "startChar": 12,
