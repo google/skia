@@ -7,7 +7,6 @@
 
 #include "SkCanvas.h"
 #include "SkDeduper.h"
-#include "SkImageDeserializer.h"
 #include "SkPicture.h"
 #include "SkPictureRecorder.h"
 #include "SkPipe.h"
@@ -29,13 +28,12 @@ class SkPipeInflator : public SkInflator {
 public:
     SkPipeInflator(SkRefSet<SkImage>* images, SkRefSet<SkPicture>* pictures,
                    SkRefSet<SkTypeface>* typefaces, SkTDArray<SkFlattenable::Factory>* factories,
-                   SkTypefaceDeserializer* tfd, SkImageDeserializer* imd)
+                   const SkDeserialProcs& procs)
         : fImages(images)
         , fPictures(pictures)
         , fTypefaces(typefaces)
         , fFactories(factories)
-        , fTFDeserializer(tfd)
-        , fIMDeserializer(imd)
+        , fProcs(procs)
     {}
 
     SkImage* getImage(int index) override {
@@ -76,12 +74,8 @@ public:
         return false;
     }
 
-    void setTypefaceDeserializer(SkTypefaceDeserializer* tfd) {
-        fTFDeserializer = tfd;
-    }
-
-    void setImageDeserializer(SkImageDeserializer* imd) {
-        fIMDeserializer = imd;
+    void setDeserialProcs(const SkDeserialProcs& procs) {
+        fProcs = procs;
     }
 
     sk_sp<SkTypeface> makeTypeface(const void* data, size_t size);
@@ -92,9 +86,7 @@ private:
     SkRefSet<SkPicture>*                fPictures;
     SkRefSet<SkTypeface>*               fTypefaces;
     SkTDArray<SkFlattenable::Factory>*  fFactories;
-
-    SkTypefaceDeserializer*             fTFDeserializer;
-    SkImageDeserializer*                fIMDeserializer;
+    SkDeserialProcs                     fProcs;
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -632,44 +624,11 @@ static void drawAnnotation_handler(SkPipeReader& reader, uint32_t packedVerb, Sk
         }
 #endif
 
-static sk_sp<SkImage> make_from_skiaimageformat(const void* encoded, size_t encodedSize) {
-    if (encodedSize < 24) {
-        return nullptr;
-    }
-
-    SkMemoryStream stream(encoded, encodedSize);
-    char signature[8];
-    stream.read(signature, 8);
-    if (memcmp(signature, "skiaimgf", 8)) {
-        return nullptr;
-    }
-
-    int width = stream.readU32();
-    int height = stream.readU32();
-    SkColorType ct = (SkColorType)stream.readU16();
-    SkAlphaType at = (SkAlphaType)stream.readU16();
-    SkASSERT(kAlpha_8_SkColorType == ct);
-
-    SkDEBUGCODE(size_t colorSpaceSize =) stream.readU32();
-    SkASSERT(0 == colorSpaceSize);
-
-    SkImageInfo info = SkImageInfo::Make(width, height, ct, at);
-    size_t size = width * height;
-    sk_sp<SkData> pixels = SkData::MakeUninitialized(size);
-    stream.read(pixels->writable_data(), size);
-    SkASSERT(encodedSize == SkAlign4(stream.getPosition()));
-    return SkImage::MakeRasterData(info, pixels, width);
-}
-
 sk_sp<SkImage> SkPipeInflator::makeImage(const sk_sp<SkData>& data) {
-    if (fIMDeserializer) {
-        return fIMDeserializer->makeFromData(data.get(), nullptr);
+    if (fProcs.fImageProc) {
+        return fProcs.fImageProc(data->data(), data->size(), fProcs.fImageCtx);
     }
-    sk_sp<SkImage> image = make_from_skiaimageformat(data->data(), data->size());
-    if (!image) {
-        image = SkImage::MakeFromEncoded(data);
-    }
-    return image;
+    return SkImage::MakeFromEncoded(data);
 }
 
 
@@ -694,8 +653,8 @@ static void defineImage_handler(SkPipeReader& reader, uint32_t packedVerb, SkCan
 }
 
 sk_sp<SkTypeface> SkPipeInflator::makeTypeface(const void* data, size_t size) {
-    if (fTFDeserializer) {
-        return fTFDeserializer->deserialize(data, size);
+    if (fProcs.fTypefaceProc) {
+        return fProcs.fTypefaceProc(data, size, fProcs.fTypefaceCtx);
     }
     SkMemoryStream stream(data, size, false);
     return SkTypeface::MakeDeserialize(&stream);
@@ -819,20 +778,14 @@ public:
     SkRefSet<SkPicture>                 fPictures;
     SkRefSet<SkTypeface>                fTypefaces;
     SkTDArray<SkFlattenable::Factory>   fFactories;
-
-    SkTypefaceDeserializer*             fTFDeserializer = nullptr;
-    SkImageDeserializer*                fIMDeserializer = nullptr;
+    SkDeserialProcs                     fProcs;
 };
 
 SkPipeDeserializer::SkPipeDeserializer() : fImpl(new Impl) {}
 SkPipeDeserializer::~SkPipeDeserializer() {}
 
-void SkPipeDeserializer::setTypefaceDeserializer(SkTypefaceDeserializer* tfd) {
-    fImpl->fTFDeserializer = tfd;
-}
-
-void SkPipeDeserializer::setImageDeserializer(SkImageDeserializer* imd) {
-    fImpl->fIMDeserializer = imd;
+void SkPipeDeserializer::setDeserialProcs(const SkDeserialProcs& procs) {
+    fImpl->fProcs = procs;
 }
 
 sk_sp<SkImage> SkPipeDeserializer::readImage(const void* data, size_t size) {
@@ -848,7 +801,7 @@ sk_sp<SkImage> SkPipeDeserializer::readImage(const void* data, size_t size) {
     if (SkPipeVerb::kDefineImage == unpack_verb(packedVerb)) {
         SkPipeInflator inflator(&fImpl->fImages, &fImpl->fPictures,
                                 &fImpl->fTypefaces, &fImpl->fFactories,
-                                fImpl->fTFDeserializer, fImpl->fIMDeserializer);
+                                fImpl->fProcs);
         SkPipeReader reader(this, ptr, size);
         reader.setInflator(&inflator);
         defineImage_handler(reader, packedVerb, nullptr);
@@ -878,7 +831,7 @@ sk_sp<SkPicture> SkPipeDeserializer::readPicture(const void* data, size_t size) 
     if (SkPipeVerb::kDefinePicture == unpack_verb(packedVerb)) {
         SkPipeInflator inflator(&fImpl->fImages, &fImpl->fPictures,
                                 &fImpl->fTypefaces, &fImpl->fFactories,
-                                fImpl->fTFDeserializer, fImpl->fIMDeserializer);
+                                fImpl->fProcs);
         SkPipeReader reader(this, ptr, size);
         reader.setInflator(&inflator);
         definePicture_handler(reader, packedVerb, nullptr);
@@ -947,7 +900,7 @@ static bool do_playback(SkPipeReader& reader, SkCanvas* canvas, int* endPictureI
 bool SkPipeDeserializer::playback(const void* data, size_t size, SkCanvas* canvas) {
     SkPipeInflator inflator(&fImpl->fImages, &fImpl->fPictures,
                             &fImpl->fTypefaces, &fImpl->fFactories,
-                            fImpl->fTFDeserializer, fImpl->fIMDeserializer);
+                            fImpl->fProcs);
     SkPipeReader reader(this, data, size);
     reader.setInflator(&inflator);
     return do_playback(reader, canvas);

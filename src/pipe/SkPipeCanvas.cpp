@@ -13,7 +13,6 @@
 #include "SkPathEffect.h"
 #include "SkPipeCanvas.h"
 #include "SkPipeFormat.h"
-#include "SkPixelSerializer.h"
 #include "SkRSXform.h"
 #include "SkRasterizer.h"
 #include "SkShader.h"
@@ -804,37 +803,13 @@ void SkPipeCanvas::onDrawAnnotation(const SkRect& rect, const char key[], SkData
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-class A8Serializer : public SkPixelSerializer {
-protected:
-    bool onUseEncodedData(const void* data, size_t len) {
-        return true;
-    }
-
-    SkData* onEncode(const SkPixmap& pmap) {
-        if (kAlpha_8_SkColorType == pmap.colorType()) {
-            SkDynamicMemoryWStream stream;
-            stream.write("skiaimgf", 8);
-            stream.write32(pmap.width());
-            stream.write32(pmap.height());
-            stream.write16(pmap.colorType());
-            stream.write16(pmap.alphaType());
-            stream.write32(0);  // no colorspace for now
-            for (int y = 0; y < pmap.height(); ++y) {
-                stream.write(pmap.addr8(0, y), pmap.width());
-            }
-            return stream.detachAsData().release();
+static sk_sp<SkData> encode(SkImage* img, SkSerialImageProc proc, void* ctx) {
+    if (proc) {
+        if (auto data = proc(img, ctx)) {
+            return data;
         }
-        return nullptr;
     }
-};
-
-static sk_sp<SkData> default_image_serializer(SkImage* image) {
-    A8Serializer serial;
-    sk_sp<SkData> data = image->encodeToData(&serial);
-    if (!data) {
-        data = image->encodeToData();
-    }
-    return data;
+    return img->encodeToData();
 }
 
 static bool show_deduper_traffic = false;
@@ -849,8 +824,7 @@ int SkPipeDeduper::findOrDefineImage(SkImage* image) {
         return index;
     }
 
-    sk_sp<SkData> data = fIMSerializer ? fIMSerializer->serialize(image)
-                                       : default_image_serializer(image);
+    sk_sp<SkData> data = encode(image, fProcs.fImageProc, fProcs.fImageCtx);
     if (data) {
         index = fImages.add(image->uniqueID());
         SkASSERT(index > 0);
@@ -900,7 +874,13 @@ int SkPipeDeduper::findOrDefinePicture(SkPicture* picture) {
     return index;
 }
 
-static sk_sp<SkData> encode(SkTypeface* tf) {
+static sk_sp<SkData> encode(const SkSerialProcs& procs, SkTypeface* tf) {
+    if (procs.fTypefaceProc) {
+        auto data = procs.fTypefaceProc(tf, procs.fTypefaceCtx);
+        if (data) {
+            return data;
+        }
+    }
     SkDynamicMemoryWStream stream;
     tf->serialize(&stream);
     return sk_sp<SkData>(stream.detachAsData());
@@ -920,7 +900,7 @@ int SkPipeDeduper::findOrDefineTypeface(SkTypeface* typeface) {
         return index;
     }
 
-    sk_sp<SkData> data = fTFSerializer ? fTFSerializer->serialize(typeface) : encode(typeface);
+    sk_sp<SkData> data = encode(fProcs, typeface);
     if (data) {
         index = fTypefaces.add(typeface->uniqueID());
         SkASSERT(index > 0);
@@ -985,14 +965,6 @@ SkPipeSerializer::~SkPipeSerializer() {
     if (fImpl->fCanvas) {
         this->endWrite();
     }
-}
-
-void SkPipeSerializer::setTypefaceSerializer(SkTypefaceSerializer* tfs) {
-    fImpl->fDeduper.setTypefaceSerializer(tfs);
-}
-
-void SkPipeSerializer::setImageSerializer(SkImageSerializer* ims) {
-    fImpl->fDeduper.setImageSerializer(ims);
 }
 
 void SkPipeSerializer::resetCache() {
