@@ -11,13 +11,10 @@
 #include "SkData.h"
 #include "SkImage.h"
 #include "SkPicture.h"
+#include "SkSerialProcs.h"
 
 class SkCanvas;
-class SkImageDeserializer;
-class SkImageSerializer;
 class SkTypeface;
-class SkTypefaceDeserializer;
-class SkTypefaceSerializer;
 class SkWStream;
 
 struct SkRect;
@@ -27,9 +24,7 @@ public:
     SkPipeSerializer();
     ~SkPipeSerializer();
 
-    // Ownership is not transferred, so caller must ceep the serializer alive
-    void setTypefaceSerializer(SkTypefaceSerializer*);
-    void setImageSerializer(SkImageSerializer*);
+    void setSerialProcs(const SkSerialProcs&);
 
     void resetCache();
 
@@ -52,9 +47,7 @@ public:
     SkPipeDeserializer();
     ~SkPipeDeserializer();
 
-    // Ownership is not transferred, so caller must ceep the deserializer alive
-    void setTypefaceDeserializer(SkTypefaceDeserializer*);
-    void setImageDeserializer(SkImageDeserializer*);
+    void setDeserialProcs(const SkDeserialProcs&);
 
     sk_sp<SkImage> readImage(const SkData* data) {
         if (!data) {
@@ -78,30 +71,6 @@ public:
 private:
     class Impl;
     std::unique_ptr<Impl> fImpl;
-};
-
-//////////////////////////////////////////////////////////////////////////////////////////////////
-
-class SkTypefaceSerializer {
-public:
-    virtual ~SkTypefaceSerializer() {}
-
-    virtual sk_sp<SkData> serialize(SkTypeface*) = 0;
-};
-
-class SkImageSerializer {
-public:
-    virtual ~SkImageSerializer() {}
-
-    virtual sk_sp<SkData> serialize(SkImage*) = 0;
-};
-
-
-class SkTypefaceDeserializer {
-public:
-    virtual ~SkTypefaceDeserializer() {}
-
-    virtual sk_sp<SkTypeface> deserialize(const void* data, size_t size) = 0;
 };
 
 #endif
