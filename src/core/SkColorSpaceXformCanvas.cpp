@@ -157,8 +157,9 @@ public:
     void onDrawImageLattice(const SkImage* img,
                             const Lattice& lattice, const SkRect& dst,
                             const SkPaint* paint) override {
-        fTarget->drawImageLattice(prepareImage(img).get(), lattice, dst,
-                                  MaybePaint(paint, fXformer.get()));
+        SkSTArray<16, SkColor> colorBuffer;
+        fTarget->drawImageLattice(prepareImage(img).get(), fXformer->apply(lattice, colorBuffer),
+                                  dst, MaybePaint(paint, fXformer.get()));
     }
     void onDrawAtlas(const SkImage* atlas, const SkRSXform* xforms, const SkRect* tex,
                      const SkColor* colors, int count, SkBlendMode mode,
@@ -214,8 +215,9 @@ public:
                                               MaybePaint(paint, fXformer.get()));
         }
 
-
-        fTarget->drawImageLattice(fXformer->apply(bitmap).get(), lattice, dst,
+        SkSTArray<16, SkColor> colorBuffer;
+        fTarget->drawImageLattice(fXformer->apply(bitmap).get(),
+                                  fXformer->apply(lattice, colorBuffer), dst,
                                   MaybePaint(paint, fXformer.get()));
     }
     void onDrawShadowRec(const SkPath& path, const SkDrawShadowRec& rec) override {
