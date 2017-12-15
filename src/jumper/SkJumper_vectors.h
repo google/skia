@@ -651,7 +651,8 @@ SI F approx_pow2(F x) {
 }
 
 SI F approx_powf(F x, F y) {
-    return approx_pow2(approx_log2(x) * y);
+    return if_then_else(x == 0, 0
+                              , approx_pow2(approx_log2(x) * y));
 }
 
 SI F from_half(U16 h) {
