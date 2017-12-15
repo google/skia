@@ -96,6 +96,14 @@ public:
     */
     void setColorSpace(sk_sp<SkColorSpace> colorSpace);
 
+    /**
+        Changes pixel address and row bytes; SkImageInfo unchanged.
+
+        @param address   new pixel address
+        @param rowBytes  new row bytes
+    */
+    void resetKeepInfo(const void* address, size_t rowBytes);
+
     /** Sets width, height, pixel address, and row bytes to SkMask properties, if SkMask
         format is SkMask::kA8_Format; and returns true. Otherwise sets width, height,
         row bytes to zero; pixel address to nullptr; SkColorType to kUnknown_SkColorType;

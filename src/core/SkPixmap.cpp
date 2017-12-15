@@ -52,6 +52,11 @@ void SkPixmap::setColorSpace(sk_sp<SkColorSpace> cs) {
     fInfo = fInfo.makeColorSpace(std::move(cs));
 }
 
+void SkPixmap::resetKeepInfo(const void* address, size_t rowBytes) {
+    fRowBytes = rowBytes;
+    fPixels = address;
+}
+
 bool SkPixmap::extractSubset(SkPixmap* result, const SkIRect& subset) const {
     SkIRect srcRect, r;
     srcRect.set(0, 0, this->width(), this->height());
