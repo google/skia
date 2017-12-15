@@ -113,7 +113,7 @@ public:
         //!< Call if getDeviceSpaceType() is kRect to get the rect.
         const SkRect& getDeviceSpaceRect() const {
             SkASSERT(DeviceSpaceType::kRect == fDeviceSpaceType &&
-                     (fDeviceSpaceRRect.isRect() || fDeviceSpaceRRect.isEmpty()));
+                     (fDeviceSpaceRRect.isRect() || fDeviceSpaceRRect.isDegenerate()));
             return fDeviceSpaceRRect.getBounds();
         }
 

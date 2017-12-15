@@ -109,7 +109,7 @@ static void check_equivalence(skiatest::Reporter* r, const GrShape& a, const GrS
 
     // The asRRect() output params are all initialized just to silence compiler warnings about
     // uninitialized variables.
-    SkRRect rrectA = SkRRect::MakeEmpty(), rrectB = SkRRect::MakeEmpty();
+    SkRRect rrectA, rrectB;
     SkPath::Direction dirA = SkPath::kCW_Direction, dirB = SkPath::kCW_Direction;
     unsigned startA = ~0U, startB = ~0U;
     bool invertedA = true, invertedB = true;
@@ -1511,7 +1511,7 @@ DEF_TEST(GrShape_empty_shape, reporter) {
 
     // A shape made from an empty rrect should behave the same as an empty path.
     SkRRect emptyRRect = SkRRect::MakeRect(SkRect::MakeEmpty());
-    REPORTER_ASSERT(reporter, emptyRRect.getType() == SkRRect::kEmpty_Type);
+    REPORTER_ASSERT(reporter, emptyRRect.getType() == SkRRect::kDegenerate_Type);
     TestCase dashAndStrokeEmptyRRectCase(reporter, emptyRRect, dashAndStroke);
     dashAndStrokeEmptyRRectCase.compare(reporter, fillEmptyCase,
                                         TestCase::kAllSame_ComparisonExpecation);
@@ -1644,7 +1644,7 @@ void test_rrect(skiatest::Reporter* r, const SkRRect& rrect) {
     make_key(&exampleInvHairlineCaseKey, exampleInvHairlineCase);
 
     // These are dummy initializations to suppress warnings.
-    SkRRect queryRR = SkRRect::MakeEmpty();
+    SkRRect queryRR;
     SkPath::Direction queryDir = SkPath::kCW_Direction;
     unsigned queryStart = ~0U;
     bool queryInverted = true;

@@ -225,7 +225,7 @@ void SkReadBuffer::readRect(SkRect* rect) {
 
 void SkReadBuffer::readRRect(SkRRect* rrect) {
     if (!this->validate(fReader.readRRect(rrect))) {
-        rrect->setEmpty();
+        *rrect = SkRRect::MakeRect(SkRect::MakeEmpty());
     }
 }
 
