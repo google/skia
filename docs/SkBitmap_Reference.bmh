@@ -122,6 +122,7 @@ is useful to position one or more Bitmaps within a shared pixel array.
 # peekPixels           # Returns Pixmap if possible. ##
 # pixelRef             # Returns Pixel_Ref, or nullptr. ##
 # pixelRefOrigin       # Returns offset within Pixel_Ref. ##
+# pixmap()             # Returns Pixmap if possible. ##
 # readPixels           # Copies and converts pixels. ##
 # readyToDraw          # Returns true if address of pixels is not nullptr. ##
 # refColorSpace        # Returns Image_Info Color_Space. ##
@@ -442,6 +443,56 @@ two width:1 height:1 colorType:kRGBA_8888_SkColorType alphaType:kOpaque_SkAlphaT
 ##
 
 #SeeAlso SkBitmap(SkBitmap&& src) operator=(SkBitmap&& src)
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method SkPixmap pixmap() const
+
+Returns Pixmap with Bitmap pixel address, row bytes, and Image_Info, if address is available.
+If pixel address is not available, returns default constructed Pixmap: nullptr pixels,
+kUnknown_SkColorType, kUnknown_SkAlphaType, width and height of zero.
+
+Returned Pixmap becomes invalid on any future change to Bitmap
+
+#Return Pixmap describing Bitmap, if pixels are readable; otherwise containing zeroes ##
+
+#Example
+    SkBitmap bitmap;
+    bitmap.allocPixels(SkImageInfo::MakeN32Premul(10, 11));
+    SkCanvas offscreen(bitmap);
+    offscreen.clear(SK_ColorWHITE);
+    SkPaint paint;
+    offscreen.drawString("&", 0, 10, paint);
+    SkPixmap pixmap = bitmap.pixmap();
+    if (pixmap.addr()) {
+        const SkPMColor* pixels = pixmap.addr32();
+        SkPMColor pmWhite = pixels[0];
+        for (int y = 0; y < bitmap.height(); ++y) {
+            for (int x = 0; x < bitmap.width(); ++x) {
+                SkDebugf("%c", *pixels++ == pmWhite ? '-' : 'x');
+            }
+            SkDebugf("\n");
+        }
+    }
+    #StdOut
+----------
+---xx-----
+--x--x----
+--x-------
+--xx------
+--x-x---x-
+-x---x--x-
+-x----xx--
+-xx---x---
+--xxxx-xx-
+----------
+    #StdOut ##
+
+##
+
+#SeeAlso peekPixels installPixels readPixels writePixels
 
 ##
 
@@ -3401,7 +3452,7 @@ x---x-
     #StdOut ##
 ##
 
-#SeeAlso installPixels readPixels writePixels
+#SeeAlso pixmap() installPixels readPixels writePixels 
 
 ##
 

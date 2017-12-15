@@ -1,4 +1,4 @@
-﻿#Topic Paint
+#Topic Paint
 #Alias Paint_Reference
 
 #Class SkPaint
@@ -1906,8 +1906,8 @@ on the output device, which may have more or fewer bits, and may have a differen
     Unpremultiplied, packing 8-bit components for Alpha, Red, Blue, and Green. 
 
     #Param color    Unpremultiplied Color_ARGB ##
-        
-    #Example
+    
+    #Example
         SkPaint green1, green2;
         unsigned a = 255;
         unsigned r = 0;
@@ -2598,7 +2598,7 @@ void draw(SkCanvas* canvas) {
 
 #Method Join getStrokeJoin() const
 
-    The geometry drawn at the corners of strokes. 
+    The geometry drawn at the corners of strokes.
 
     #Return  one of: kMiter_Join, kRound_Join, kBevel_Join ##
 
@@ -2617,7 +2617,7 @@ void draw(SkCanvas* canvas) {
 
 #Method void setStrokeJoin(Join join)
 
-    The geometry drawn at the corners of strokes. 
+    The geometry drawn at the corners of strokes.
 
     #Param join  one of: kMiter_Join, kRound_Join, kBevel_Join;
                  otherwise, has no effect 
@@ -4448,7 +4448,7 @@ void draw(SkCanvas* canvas) {
     dimensions required by stroking and Path_Effect.
     Returns the same result as getFontMetrics.
 
-    #Return         recommended spacing between lines ##
+    #Return         recommended spacing between lines ##
 
     #Example
         SkPaint paint;

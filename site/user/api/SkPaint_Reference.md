@@ -2606,7 +2606,7 @@ May be used to verify that <a href="#Stroke_Join">Stroke Join</a> is a legal val
 Join getStrokeJoin() const
 </pre>
 
-The geometry drawn at the corners of strokes. 
+The geometry drawn at the corners of strokes.
 
 ### Return Value
 
@@ -2637,7 +2637,7 @@ kMiter_Join == default stroke join
 void setStrokeJoin(Join join)
 </pre>
 
-The geometry drawn at the corners of strokes. 
+The geometry drawn at the corners of strokes.
 
 ### Parameters
 

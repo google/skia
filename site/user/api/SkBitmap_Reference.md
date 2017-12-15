@@ -107,6 +107,7 @@ is useful to position one or more <a href="#Bitmap">Bitmaps</a> within a shared 
 | <a href="#SkBitmap_peekPixels">peekPixels</a> | Returns <a href="SkPixmap_Reference#Pixmap">Pixmap</a> if possible. |
 | <a href="#SkBitmap_pixelRef">pixelRef</a> | Returns <a href="undocumented#Pixel_Ref">Pixel Ref</a>, or nullptr. |
 | <a href="#SkBitmap_pixelRefOrigin">pixelRefOrigin</a> | Returns offset within <a href="undocumented#Pixel_Ref">Pixel Ref</a>. |
+| <a href="#SkBitmap_pixmap">pixmap</a> | Returns <a href="SkPixmap_Reference#Pixmap">Pixmap</a> if possible. |
 | <a href="#SkBitmap_readPixels">readPixels</a> | Copies and converts pixels. |
 | <a href="#SkBitmap_readyToDraw">readyToDraw</a> | Returns true if address of pixels is not nullptr. |
 | <a href="#SkBitmap_refColorSpace">refColorSpace</a> | Returns <a href="undocumented#Image_Info">Image Info</a> <a href="undocumented#Color_Space">Color Space</a>. |
@@ -472,6 +473,51 @@ two width:1 height:1 colorType:kRGBA_8888_SkColorType alphaType:kOpaque_SkAlphaT
 ### See Also
 
 <a href="#SkBitmap_move_SkBitmap">SkBitmap(SkBitmap&& src)</a> <a href="#SkBitmap_move_operator">operator=(SkBitmap&& src)</a>
+
+---
+
+<a name="SkBitmap_pixmap"></a>
+## pixmap
+
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
+SkPixmap pixmap() const
+</pre>
+
+Returns <a href="SkPixmap_Reference#Pixmap">Pixmap</a> with <a href="#Bitmap">Bitmap</a> pixel address, row bytes, and <a href="undocumented#Image_Info">Image Info</a>, if address is available.
+If pixel address is not available, returns default constructed <a href="SkPixmap_Reference#Pixmap">Pixmap</a>: nullptr pixels,
+<a href="undocumented#SkColorType">kUnknown SkColorType</a>, <a href="undocumented#SkAlphaType">kUnknown SkAlphaType</a>, <a href="#SkBitmap_width">width</a> and <a href="#SkBitmap_height">height</a> of zero.
+
+Returned <a href="SkPixmap_Reference#Pixmap">Pixmap</a> becomes invalid on any future change to <a href="#Bitmap">Bitmap</a>
+
+### Return Value
+
+<a href="SkPixmap_Reference#Pixmap">Pixmap</a> describing <a href="#Bitmap">Bitmap</a>, if pixels are readable; otherwise containing zeroes
+
+### Example
+
+<div><fiddle-embed name="4e2da4cff5fa3752b630a63080b44752">
+
+#### Example Output
+
+~~~~
+----------
+---xx-----
+--x--x----
+--x-------
+--xx------
+--x-x---x-
+-x---x--x-
+-x----xx--
+-xx---x---
+--xxxx-xx-
+----------
+~~~~
+
+</fiddle-embed></div>
+
+### See Also
+
+<a href="#SkBitmap_peekPixels">peekPixels</a> <a href="#SkBitmap_installPixels">installPixels</a> <a href="#SkBitmap_readPixels">readPixels</a> <a href="#SkBitmap_writePixels">writePixels</a>
 
 ---
 
@@ -1982,15 +2028,15 @@ true if <a href="undocumented#Image_Info">Image Info</a> is set to <a href="#SkB
 bool installPixels(const SkPixmap& pixmap)
 </pre>
 
-Sets <a href="undocumented#Image_Info">Image Info</a> to <a href="#SkBitmap_installPixels_3_pixmap">pixmap</a>.<a href="#SkBitmap_info">info</a> following the rules in <a href="#SkBitmap_setInfo">setInfo</a>, and creates
-<a href="undocumented#Pixel_Ref">Pixel Ref</a> containing <a href="#SkBitmap_installPixels_3_pixmap">pixmap</a>.addr() and <a href="#SkBitmap_installPixels_3_pixmap">pixmap</a>.<a href="#SkBitmap_rowBytes">rowBytes</a>.
+Sets <a href="undocumented#Image_Info">Image Info</a> to <a href="#SkBitmap_pixmap">pixmap</a>.<a href="#SkBitmap_info">info</a> following the rules in <a href="#SkBitmap_setInfo">setInfo</a>, and creates
+<a href="undocumented#Pixel_Ref">Pixel Ref</a> containing <a href="#SkBitmap_pixmap">pixmap</a>.addr() and <a href="#SkBitmap_pixmap">pixmap</a>.<a href="#SkBitmap_rowBytes">rowBytes</a>.
 
-If <a href="undocumented#Image_Info">Image Info</a> could not be set, or <a href="#SkBitmap_installPixels_3_pixmap">pixmap</a>.<a href="#SkBitmap_rowBytes">rowBytes</a> is less than
+If <a href="undocumented#Image_Info">Image Info</a> could not be set, or <a href="#SkBitmap_pixmap">pixmap</a>.<a href="#SkBitmap_rowBytes">rowBytes</a> is less than
 <a href="#SkImageInfo_minRowBytes">SkImageInfo::minRowBytes</a>: calls <a href="#SkBitmap_reset">reset</a>, and returns false.
 
-Otherwise, if <a href="#SkBitmap_installPixels_3_pixmap">pixmap</a>.addr() equals nullptr: sets <a href="undocumented#Image_Info">Image Info</a>, returns true.
+Otherwise, if <a href="#SkBitmap_pixmap">pixmap</a>.addr() equals nullptr: sets <a href="undocumented#Image_Info">Image Info</a>, returns true.
 
-Caller must ensure that <a href="#SkBitmap_installPixels_3_pixmap">pixmap</a> is valid for the lifetime of <a href="#Bitmap">Bitmap</a> and <a href="undocumented#Pixel_Ref">Pixel Ref</a>.
+Caller must ensure that <a href="#SkBitmap_pixmap">pixmap</a> is valid for the lifetime of <a href="#Bitmap">Bitmap</a> and <a href="undocumented#Pixel_Ref">Pixel Ref</a>.
 
 ### Parameters
 
@@ -2001,7 +2047,7 @@ Caller must ensure that <a href="#SkBitmap_installPixels_3_pixmap">pixmap</a> is
 
 ### Return Value
 
-true if <a href="undocumented#Image_Info">Image Info</a> was set to <a href="#SkBitmap_installPixels_3_pixmap">pixmap</a>.<a href="#SkBitmap_info">info</a>
+true if <a href="undocumented#Image_Info">Image Info</a> was set to <a href="#SkBitmap_pixmap">pixmap</a>.<a href="#SkBitmap_info">info</a>
 
 ### Example
 
@@ -3369,11 +3415,11 @@ true if <a href="#Alpha">Alpha</a> layer was constructed in <a href="#SkBitmap_e
 bool peekPixels(SkPixmap* pixmap) const
 </pre>
 
-Copies <a href="#Bitmap">Bitmap</a> pixel address, row bytes, and <a href="undocumented#Image_Info">Image Info</a> to <a href="#SkBitmap_peekPixels_pixmap">pixmap</a>, if address
+Copies <a href="#Bitmap">Bitmap</a> pixel address, row bytes, and <a href="undocumented#Image_Info">Image Info</a> to <a href="#SkBitmap_pixmap">pixmap</a>, if address
 is available, and returns true. If pixel address is not available, return
-false and leave <a href="#SkBitmap_peekPixels_pixmap">pixmap</a> unchanged.
+false and leave <a href="#SkBitmap_pixmap">pixmap</a> unchanged.
 
-<a href="#SkBitmap_peekPixels_pixmap">pixmap</a> contents become invalid on any future change to <a href="#Bitmap">Bitmap</a>.
+<a href="#SkBitmap_pixmap">pixmap</a> contents become invalid on any future change to <a href="#Bitmap">Bitmap</a>.
 
 ### Parameters
 
@@ -3410,7 +3456,7 @@ x---x-
 
 ### See Also
 
-<a href="#SkBitmap_installPixels">installPixels</a> <a href="#SkBitmap_readPixels">readPixels</a> <a href="#SkBitmap_writePixels">writePixels</a>
+<a href="#SkBitmap_pixmap">pixmap</a> <a href="#SkBitmap_installPixels">installPixels</a> <a href="#SkBitmap_readPixels">readPixels</a> <a href="#SkBitmap_writePixels">writePixels</a>
 
 ---
 

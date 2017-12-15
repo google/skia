@@ -273,6 +273,13 @@
     "name": "SkBitmap::pixelRefOrigin",
         "stdout": "source origin: 0, 0\\nsubset origin: 32, 64\\n"
     },
+        "SkBitmap_pixmap": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkBitmap bitmap;\n    bitmap.allocPixels(SkImageInfo::MakeN32Premul(10, 11));\n    SkCanvas offscreen(bitmap);\n    offscreen.clear(SK_ColorWHITE);\n    SkPaint paint;\n    offscreen.drawString(\"&\", 0, 10, paint);\n    SkPixmap pixmap = bitmap.pixmap();\n    if (pixmap.addr()) {\n        const SkPMColor* pixels = pixmap.addr32();\n        SkPMColor pmWhite = pixels[0];\n        for (int y = 0; y < bitmap.height(); ++y) {\n            for (int x = 0; x < bitmap.width(); ++x) {\n                SkDebugf(\"%c\", *pixels++ == pmWhite ? '-' : 'x');\n            }\n            SkDebugf(\"\\n\");\n        }\n    }\n}",
+    "hash": "4e2da4cff5fa3752b630a63080b44752",
+    "file": "SkBitmap_Reference",
+    "name": "SkBitmap::pixmap()",
+        "stdout": "----------\\n---xx-----\\n--x--x----\\n--x-------\\n--xx------\\n--x-x---x-\\n-x---x--x-\\n-x----xx--\\n-xx---x---\\n--xxxx-xx-\\n----------\\n"
+    },
         "SkBitmap_refColorSpace": {
     "code": "void draw(SkCanvas* canvas) {\n    SkBitmap bitmap1, bitmap2;\n    bitmap1.setInfo(SkImageInfo::MakeN32(16, 32, kPremul_SkAlphaType, \n            SkColorSpace::MakeSRGBLinear()));\n    bitmap2.setInfo(SkImageInfo::MakeN32(16, 32, kPremul_SkAlphaType,\n            bitmap1.refColorSpace()));\n    SkColorSpace* colorSpace = bitmap2.colorSpace();\n    SkDebugf(\"gammaCloseToSRGB: %s  gammaIsLinear: %s  isSRGB: %s\\n\",\n            colorSpace->gammaCloseToSRGB() ? \"true\" : \"false\",\n            colorSpace->gammaIsLinear() ? \"true\" : \"false\",\n            colorSpace->isSRGB() ? \"true\" : \"false\");\n}",
     "hash": "972e9bb22c1ce94bb97b2d106168280e",
@@ -1028,6 +1035,13 @@
     "file": "SkIRect_Reference",
     "name": "SkIRect::y()",
         "stdout": "unsorted.fTop: 25 unsorted.y(): 25\\nsorted.fTop: 5 sorted.y(): 5\\n"
+    },
+        "SkImage_MakeFromRaster": {
+    "code": "static void releaseProc(const void* pixels, SkImage::ReleaseContext context) {\n     int* countPtr = static_cast<int*>(context);\n     *countPtr += 1;\n}\n\nvoid draw(SkCanvas* canvas) {\n    SkColor color = 0;\n    SkPixmap pixmap(SkImageInfo::MakeN32(1, 1, kPremul_SkAlphaType), &color, 4);\n    int releaseCount = 0;\n    sk_sp<SkImage> image(SkImage::MakeFromRaster(pixmap, releaseProc, &releaseCount));\n    SkDebugf(\"before reset: %d\\n\", releaseCount);\n    image.reset();\n    SkDebugf(\"after reset: %d\\n\", releaseCount);\n}\n",
+    "hash": "275356b65d18c8868f4434137350cddc",
+    "file": "SkImage_Reference",
+    "name": "SkImage::MakeFromRaster",
+        "stdout": "before reset: 0\\nafter reset: 1\\n"
     },
         "SkMatrix_I": {
     "code": "void draw(SkCanvas* canvas) {\n    SkMatrix m1, m2, m3;\n    m1.reset();\n    m2.setIdentity();\n    m3 = SkMatrix::I();\n    SkDebugf(\"m1 %c= m2\\n\", m1 == m2 ? '=' : '!');\n    SkDebugf(\"m2 %c= m3\\n\", m1 == m2 ? '=' : '!');\n}",
@@ -4766,26 +4780,18 @@
     "name": "SkImage::MakeFromAdoptedTexture"
 },
     "SkImage_MakeFromBitmap": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "code": "void draw(SkCanvas* canvas) {\n    uint8_t storage[][5] = {{ 0xCA, 0xDA, 0xCA, 0xC9, 0xA3 },\n                            { 0xAC, 0xA8, 0x89, 0xA7, 0x87 },\n                            { 0x9B, 0xB5, 0xE5, 0x95, 0x46 },\n                            { 0x90, 0x81, 0xC5, 0x71, 0x33 },\n                            { 0x75, 0x55, 0x44, 0x40, 0x30 }};\n    SkImageInfo imageInfo = SkImageInfo::Make(5, 5, kGray_8_SkColorType, kOpaque_SkAlphaType);\n    SkPixmap pixmap(imageInfo, storage[0], sizeof(storage) / 5);\n    SkBitmap bitmap;\n    bitmap.installPixels(pixmap);\n    sk_sp<SkImage> image1 = SkImage::MakeFromBitmap(bitmap);\n    bitmap.setImmutable();\n    sk_sp<SkImage> image2 = SkImage::MakeFromBitmap(bitmap);\n    *pixmap.writable_addr8(2, 2) = 0x00;\n    canvas->scale(10, 10);\n    canvas->drawImage(image1, 0, 0);\n    canvas->drawImage(image2, 10, 0);\n}",
     "width": 256,
-    "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
+    "height": 50,
+    "hash": "cf2cf53321e4e6a77c2841bfbc0ef707",
     "file": "SkImage_Reference",
     "name": "SkImage::MakeFromBitmap"
 },
-    "SkImage_MakeFromEncoded": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
-    "width": 256,
-    "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
-    "file": "SkImage_Reference",
-    "name": "SkImage::MakeFromEncoded"
-},
     "SkImage_MakeFromGenerator": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "code": "void draw(SkCanvas* canvas) {\n    SkPictureRecorder recorder;\n    recorder.beginRecording(100, 100)->drawColor(SK_ColorRED);\n    auto picture = recorder.finishRecordingAsPicture();\n    auto gen = SkImageGenerator::MakeFromPicture({100, 100}, picture, nullptr, nullptr,\n                                                 SkImage::BitDepth::kU8, SkColorSpace::MakeSRGB());\n    sk_sp<SkImage> image = SkImage::MakeFromGenerator(std::move(gen));\n    canvas->drawImage(image, 0, 0);\n}",
     "width": 256,
     "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
+    "hash": "ba59d292a18cb0e8a90e1bb143115f1d",
     "file": "SkImage_Reference",
     "name": "SkImage::MakeFromGenerator"
 },
@@ -4805,27 +4811,19 @@
     "file": "SkImage_Reference",
     "name": "SkImage::MakeFromPicture"
 },
-    "SkImage_MakeFromRaster": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
-    "width": 256,
-    "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
-    "file": "SkImage_Reference",
-    "name": "SkImage::MakeFromRaster"
-},
     "SkImage_MakeFromTexture": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "code": "void draw(SkCanvas* canvas) {\n    GrContext* context = canvas->getGrContext();\n    if (!context) {\n       return;\n    }\n    canvas->scale(.25f, .25f);\n    int x = 0;\n    for (auto origin : { kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin } ) {\n        sk_sp<SkImage> image = SkImage::MakeFromTexture(canvas->getGrContext(), backEndTexture,\n               origin, kOpaque_SkAlphaType, nullptr);\n        canvas->drawImage(image, x, 0);\n    x += 512;\n    }\n}",
     "width": 256,
-    "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
+    "height": 128,
+    "hash": "2faa98d6a1d578010326af17ee7e4d2a",
     "file": "SkImage_Reference",
     "name": "SkImage::MakeFromTexture"
 },
     "SkImage_MakeFromTexture_2": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "code": "void draw(SkCanvas* canvas) {\n    GrContext* context = canvas->getGrContext();\n    if (!context) {\n       return;\n    }\n    auto debugster = [](SkImage::ReleaseContext context) -> void {\n        *((int *) context) += 128;\n    };\n    int x = 0;\n    for (auto origin : { kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin } ) {\n        sk_sp<SkImage> image = SkImage::MakeFromTexture(canvas->getGrContext(), backEndTexture,\n               origin, kOpaque_SkAlphaType, nullptr, debugster, &x);\n        canvas->drawImage(image, x, 0);\n        x += 128;\n    }\n}",
     "width": 256,
     "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
+    "hash": "dea2835da4be78d1e9ab4be58010d1ad",
     "file": "SkImage_Reference",
     "name": "SkImage::MakeFromTexture_2"
 },
@@ -4846,10 +4844,10 @@
     "name": "SkImage::MakeRasterCopy"
 },
     "SkImage_MakeRasterData": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "code": "void draw(SkCanvas* canvas) {\n    size_t rowBytes = image->width() * SkColorTypeBytesPerPixel(kRGBA_8888_SkColorType);\n    sk_sp<SkData> data = SkData::MakeUninitialized(rowBytes * image->height());\n    SkImageInfo dstInfo = SkImageInfo::MakeN32(image->width(), image->height(), \n                                               kPremul_SkAlphaType);\n    image->readPixels(dstInfo, data->writable_data(), rowBytes, 0, 0, SkImage::kAllow_CachingHint);\n    sk_sp<SkImage> raw = SkImage::MakeRasterData(dstInfo.makeColorType(kRGBA_8888_SkColorType),\n                                                 data, rowBytes);\n    canvas->drawImage(image, 0, 0);\n    canvas->drawImage(raw.get(), 128, 0);\n}",
     "width": 256,
     "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
+    "hash": "367bdf6ee6ef2482eea95d4a9887c9b0",
     "file": "SkImage_Reference",
     "name": "SkImage::MakeRasterData"
 },
