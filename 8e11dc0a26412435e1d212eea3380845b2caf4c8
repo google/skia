@@ -34,6 +34,24 @@
       "revId": "8e11dc0a26412435e1d212eea3380845b2caf4c8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "beb4c0d4_482019c1",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 4
+      },
+      "lineNbr": 284,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-12-15T17:47:13Z",
+      "side": 1,
+      "message": "Yep, I thought of that, but I\u0027m not sure it\u0027s worth the complication of having another machine type. I also considered just making all the machines 64-cores for consistency, but I felt like it would be awfully wasteful for Perf, plus, \"If it ain\u0027t broke, don\u0027t fix it.\"",
+      "parentUuid": "cde303f3_35209abd",
+      "revId": "8e11dc0a26412435e1d212eea3380845b2caf4c8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
