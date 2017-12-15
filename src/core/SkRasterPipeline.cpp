@@ -18,7 +18,6 @@ void SkRasterPipeline::reset() {
     fStages      = nullptr;
     fNumStages   = 0;
     fSlotsNeeded = 1;  // We always need one extra slot for just_return().
-    fClamped     = true;
 }
 
 void SkRasterPipeline::append(StockStage stage, void* ctx) {
@@ -52,7 +51,6 @@ void SkRasterPipeline::extend(const SkRasterPipeline& src) {
     fStages = &stages[src.fNumStages - 1];
     fNumStages   += src.fNumStages;
     fSlotsNeeded += src.fSlotsNeeded - 1;  // Don't double count just_returns().
-    fClamped = fClamped && src.fClamped;
 }
 
 void SkRasterPipeline::dump() const {
@@ -125,26 +123,13 @@ void SkRasterPipeline::append_constant_color(SkArenaAlloc* alloc, const float rg
 #undef INC_WHITE
 #undef INC_COLOR
 
-// It's pretty easy to start with sound premultiplied linear floats, pack those
-// to sRGB encoded bytes, then read them back to linear floats and find them not
-// quite premultiplied, with a color channel just a smidge greater than the alpha
-// channel.  This can happen basically any time we have different transfer
-// functions for alpha and colors... sRGB being the only one we draw into.
-
-// This is an annoying problem with no known good solution.  So apply the clamp hammer.
-
-void SkRasterPipeline::append_from_srgb(SkAlphaType at) {
+// TODO: we used to clamp to [0,a]] here if at == kPremul, but don't anymore.
+// These should no longer need to be special append() methods.
+void SkRasterPipeline::append_from_srgb(SkAlphaType) {
     this->unchecked_append(from_srgb, nullptr);
-    if (at == kPremul_SkAlphaType) {
-        this->append(SkRasterPipeline::clamp_a);
-    }
 }
-
-void SkRasterPipeline::append_from_srgb_dst(SkAlphaType at) {
+void SkRasterPipeline::append_from_srgb_dst(SkAlphaType) {
     this->unchecked_append(from_srgb_dst, nullptr);
-    if (at == kPremul_SkAlphaType) {
-        this->append(SkRasterPipeline::clamp_a_dst);
-    }
 }
 
 //static int gCounts[5] = { 0, 0, 0, 0, 0 };
@@ -186,15 +171,6 @@ void SkRasterPipeline::append_matrix(SkArenaAlloc* alloc, const SkMatrix& matrix
             matrix.get9(storage);
             this->append(SkRasterPipeline::matrix_perspective, storage);
         }
-    }
-}
-
-void SkRasterPipeline::clamp_if_unclamped(SkAlphaType alphaType) {
-    if (!fClamped) {
-        this->append(SkRasterPipeline::clamp_0);
-        this->append(alphaType == kPremul_SkAlphaType ? SkRasterPipeline::clamp_a
-                                                      : SkRasterPipeline::clamp_1);
-        fClamped = true;
     }
 }
 
