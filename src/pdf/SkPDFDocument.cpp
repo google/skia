@@ -12,9 +12,6 @@
 #include "SkPDFCanon.h"
 #include "SkPDFDevice.h"
 #include "SkPDFUtils.h"
-#ifdef SK_SUPPORT_LEGACY_PDF_PIXELSERIALIZER
-#include "SkPixelSerializer.h"
-#endif
 #include "SkStream.h"
 
 SkPDFObjectSerializer::SkPDFObjectSerializer() : fBaseOffset(0), fNextToBeSerialized(0) {}
@@ -176,16 +173,9 @@ static sk_sp<SkPDFDict> generate_page_tree(SkTArray<sk_sp<SkPDFDict>>* pages) {
 
 SkPDFDocument::SkPDFDocument(SkWStream* stream,
                              void (*doneProc)(SkWStream*, bool),
-                             const SkDocument::PDFMetadata& metadata
-#ifdef SK_SUPPORT_LEGACY_PDF_PIXELSERIALIZER
-                             , sk_sp<SkPixelSerializer> jpegEncoder
-#endif
-                             )
+                             const SkDocument::PDFMetadata& metadata)
     : SkDocument(stream, doneProc)
     , fMetadata(metadata) {
-#ifdef SK_SUPPORT_LEGACY_PDF_PIXELSERIALIZER
-    fCanon.fPixelSerializer = std::move(jpegEncoder);
-#endif
 }
 
 SkPDFDocument::~SkPDFDocument() {
@@ -436,11 +426,7 @@ void SkPDFDocument::onClose(SkWStream* stream) {
 
 sk_sp<SkDocument> SkPDFMakeDocument(SkWStream* stream,
                                     void (*proc)(SkWStream*, bool),
-                                    const SkDocument::PDFMetadata& metadata
-#ifdef SK_SUPPORT_LEGACY_PDF_PIXELSERIALIZER
-                                    , sk_sp<SkPixelSerializer> jpeg
-#endif
-                                    ) {
+                                    const SkDocument::PDFMetadata& metadata) {
     SkDocument::PDFMetadata meta = metadata;
     if (meta.fRasterDPI <= 0) {
         meta.fRasterDPI = 72.0f;
@@ -448,12 +434,7 @@ sk_sp<SkDocument> SkPDFMakeDocument(SkWStream* stream,
     if (meta.fEncodingQuality < 0) {
         meta.fEncodingQuality = 0;
     }
-    return stream ? sk_make_sp<SkPDFDocument>(stream, proc, meta
-#ifdef SK_SUPPORT_LEGACY_PDF_PIXELSERIALIZER
-                                              , std::move(jpeg)
-#endif
-                                              )
-                  : nullptr;
+    return stream ? sk_make_sp<SkPDFDocument>(stream, proc, meta) : nullptr;
 }
 
 sk_sp<SkDocument> SkDocument::MakePDF(SkWStream* stream, const PDFMetadata& metadata) {
@@ -464,30 +445,3 @@ sk_sp<SkDocument> SkDocument::MakePDF(SkWStream* stream) {
     return SkPDFMakeDocument(stream, nullptr, PDFMetadata());
 }
 
-#ifdef SK_SUPPORT_LEGACY_PDF_PIXELSERIALIZER
-sk_sp<SkDocument> SkDocument::MakePDF(SkWStream* stream,
-                                      SkScalar dpi,
-                                      const PDFMetadata& metadata,
-                                      sk_sp<SkPixelSerializer> jpegEncoder,
-                                      bool pdfa) {
-    PDFMetadata meta = metadata;
-    meta.fRasterDPI = dpi;
-    meta.fPDFA = pdfa;
-    return SkPDFMakeDocument(stream, nullptr, meta, jpegEncoder);
-}
-sk_sp<SkDocument> SkDocument::MakePDF(SkWStream* stream, SkScalar dpi) {
-    PDFMetadata meta;
-    meta.fRasterDPI = dpi;
-    return SkPDFMakeDocument(stream, nullptr, meta, nullptr);
-}
-sk_sp<SkDocument> SkDocument::MakePDF(const char path[], SkScalar dpi) {
-    auto delete_wstream = [](SkWStream* stream, bool) { delete stream; };
-    auto stream = skstd::make_unique<SkFILEWStream>(path);
-    if (!stream->isValid()) {
-        return nullptr;
-    }
-    PDFMetadata meta;
-    meta.fRasterDPI = dpi;
-    return SkPDFMakeDocument(stream.release(), delete_wstream, meta, nullptr);
-}
-#endif

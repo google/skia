@@ -586,7 +586,6 @@ def base_defines(os_conditions):
       "SK_JUMPER_DISABLE_8BIT",
       # JPEG is in codec_limited
       "SK_HAS_JPEG_LIBRARY",
-      "SK_SUPPORT_LEGACY_PDF_PIXELSERIALIZER",
   ] + skia_select(
       os_conditions,
       [

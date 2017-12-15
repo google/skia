@@ -84,11 +84,7 @@ protected:
             return;
         }
         while (loops-- > 0) {
-            auto object = SkPDFCreateBitmapObject(fImage,
-#ifdef SK_SUPPORT_LEGACY_PDF_PIXELSERIALIZER
-                                                  nullptr,
-#endif
-                                                  false);
+            auto object = SkPDFCreateBitmapObject(fImage);
             SkASSERT(object);
             if (!object) {
                 return;
@@ -125,11 +121,7 @@ protected:
             return;
         }
         while (loops-- > 0) {
-            auto object = SkPDFCreateBitmapObject(fImage,
-#ifdef SK_SUPPORT_LEGACY_PDF_PIXELSERIALIZER
-                                                  nullptr,
-#endif
-                                                  false);
+            auto object = SkPDFCreateBitmapObject(fImage);
             SkASSERT(object);
             if (!object) {
                 return;
