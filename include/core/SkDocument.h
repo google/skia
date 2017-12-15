@@ -10,9 +10,6 @@
 
 #include "SkBitmap.h"
 #include "SkPicture.h"
-#ifdef SK_SUPPORT_LEGACY_PDF_PIXELSERIALIZER
-#include "SkPixelSerializer.h"
-#endif
 #include "SkRect.h"
 #include "SkRefCnt.h"
 #include "SkString.h"
@@ -114,49 +111,6 @@ public:
          */
         int fEncodingQuality = 101;
     };
-
-#ifdef SK_SUPPORT_LEGACY_PDF_PIXELSERIALIZER
-    /**
-     *  Create a PDF-backed document, writing the results into a
-     *  SkWStream.
-     *
-     *  PDF pages are sized in point units. 1 pt == 1/72 inch ==
-     *  127/360 mm.
-     *
-     *  @param stream A PDF document will be written to this
-     *         stream.  The document may write to the stream at
-     *         anytime during its lifetime, until either close() is
-     *         called or the document is deleted.
-     *  @param dpi The DPI (pixels-per-inch) at which features without
-     *         native PDF support will be rasterized (e.g. draw image
-     *         with perspective, draw text with perspective, ...)  A
-     *         larger DPI would create a PDF that reflects the
-     *         original intent with better fidelity, but it can make
-     *         for larger PDF files too, which would use more memory
-     *         while rendering, and it would be slower to be processed
-     *         or sent online or to printer.
-     *  @param metadata a PDFmetadata object.  Any fields may be left
-     *         empty.
-     *  @param pdfa Iff true, include XMP metadata, a document UUID,
-     *         and sRGB output intent information.  This adds length
-     *         to the document and makes it non-reproducable, but are
-     *         necessary features for PDF/A-2b conformance
-     *
-     *  @returns NULL if there is an error, otherwise a newly created
-     *           PDF-backed SkDocument.
-     */
-    static sk_sp<SkDocument> MakePDF(SkWStream* stream,
-                                     SkScalar dpi,
-                                     const PDFMetadata& metadata,
-                                     sk_sp<SkPixelSerializer> jpegEncoder,
-                                     bool pdfa);
-    /**
-     *  Create a PDF-backed document, writing the results into a file.
-     */
-    static sk_sp<SkDocument> MakePDF(const char outputFilePath[],
-                                     SkScalar dpi = SK_ScalarDefaultRasterDPI);
-    static sk_sp<SkDocument> MakePDF(SkWStream* stream, SkScalar dpi);
-#endif
 
     /**
      *  Create a PDF-backed document, writing the results into a
