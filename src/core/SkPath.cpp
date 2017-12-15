@@ -1127,14 +1127,10 @@ void SkPath::addRRect(const SkRRect& rrect, Direction dir) {
 void SkPath::addRRect(const SkRRect &rrect, Direction dir, unsigned startIndex) {
         assert_known_direction(dir);
 
-        if (rrect.isEmpty()) {
-            return;
-        }
-
         bool isRRect = hasOnlyMoveTos();
         const SkRect& bounds = rrect.getBounds();
 
-        if (rrect.isRect()) {
+        if (rrect.isRect() || rrect.isEmpty()) {
             // degenerate(rect) => radii points are collapsing
             this->addRect(bounds, dir, (startIndex + 1) / 2);
         } else if (rrect.isOval()) {
