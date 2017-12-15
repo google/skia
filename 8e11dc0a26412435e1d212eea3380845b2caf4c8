@@ -124,6 +124,24 @@
       "revId": "8e11dc0a26412435e1d212eea3380845b2caf4c8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cdc3db57_76a2ab3d",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 4
+      },
+      "lineNbr": 284,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-12-15T17:54:22Z",
+      "side": 1,
+      "message": "Regarding Goma on 64-core: Take a look at the tryjobs on PS1,2,3. From what I can tell, they aren\u0027t any faster than the Goma builds running on 16-core machines.\n\n(If we want to stick with two types of machines, 4-core and 64-core, then yes, I would put the Goma Builds on 64-core.)",
+      "parentUuid": "5ffe06d5_2df95add",
+      "revId": "8e11dc0a26412435e1d212eea3380845b2caf4c8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
