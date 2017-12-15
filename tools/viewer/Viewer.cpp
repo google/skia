@@ -14,32 +14,24 @@
 #include "SKPSlide.h"
 
 #include "GrContext.h"
-#include "SkATrace.h"
 #include "SkCanvas.h"
-#include "SkColorSpace_Base.h"
 #include "SkColorSpacePriv.h"
 #include "SkColorSpaceXformCanvas.h"
 #include "SkCommandLineFlags.h"
 #include "SkCommonFlagsGpuThreads.h"
 #include "SkCommonFlagsPathRenderer.h"
-#include "SkDashPathEffect.h"
 #include "SkEventTracingPriv.h"
 #include "SkGraphics.h"
 #include "SkImagePriv.h"
-#include "SkMetaData.h"
-#include "SkOnce.h"
 #include "SkOSFile.h"
 #include "SkOSPath.h"
 #include "SkPictureRecorder.h"
-#include "SkRandom.h"
 #include "SkScan.h"
 #include "SkStream.h"
 #include "SkSurface.h"
-#include "SkSwizzle.h"
 #include "SkTaskGroup.h"
 #include "SkThreadedBMPDevice.h"
 #include "SkTime.h"
-#include "SkVertices.h"
 
 #include "imgui.h"
 
@@ -55,8 +47,6 @@ static std::map<GpuPathRenderers, std::string> gPathRendererNames;
 Application* Application::Create(int argc, char** argv, void* platformData) {
     return new Viewer(argc, argv, platformData);
 }
-
-static DEFINE_bool2(fullscreen, f, true, "Run fullscreen.");
 
 static DEFINE_string2(match, m, nullptr,
                "[~][^]substring[$] [...] of bench name to run.\n"
@@ -207,18 +197,15 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
 {
     SkGraphics::Init();
 
-    static SkOnce initPathRendererNames;
-    initPathRendererNames([]() {
-        gPathRendererNames[GpuPathRenderers::kAll] = "All Path Renderers";
-        gPathRendererNames[GpuPathRenderers::kDefault] =
-                "Default Ganesh Behavior (best path renderer, not including CCPR)";
-        gPathRendererNames[GpuPathRenderers::kStencilAndCover] = "NV_path_rendering";
-        gPathRendererNames[GpuPathRenderers::kMSAA] = "Sample shading";
-        gPathRendererNames[GpuPathRenderers::kSmall] = "Small paths (cached sdf or alpha masks)";
-        gPathRendererNames[GpuPathRenderers::kCoverageCounting] = "Coverage counting";
-        gPathRendererNames[GpuPathRenderers::kTessellating] = "Tessellating";
-        gPathRendererNames[GpuPathRenderers::kNone] = "Software masks";
-    });
+    gPathRendererNames[GpuPathRenderers::kAll] = "All Path Renderers";
+    gPathRendererNames[GpuPathRenderers::kDefault] =
+            "Default Ganesh Behavior (best path renderer, not including CCPR)";
+    gPathRendererNames[GpuPathRenderers::kStencilAndCover] = "NV_path_rendering";
+    gPathRendererNames[GpuPathRenderers::kMSAA] = "Sample shading";
+    gPathRendererNames[GpuPathRenderers::kSmall] = "Small paths (cached sdf or alpha masks)";
+    gPathRendererNames[GpuPathRenderers::kCoverageCounting] = "Coverage counting";
+    gPathRendererNames[GpuPathRenderers::kTessellating] = "Tessellating";
+    gPathRendererNames[GpuPathRenderers::kNone] = "Software masks";
 
     memset(fPaintTimes, 0, sizeof(fPaintTimes));
     memset(fFlushTimes, 0, sizeof(fFlushTimes));
