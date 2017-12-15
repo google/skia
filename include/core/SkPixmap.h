@@ -96,6 +96,13 @@ public:
     */
     void setColorSpace(sk_sp<SkColorSpace> colorSpace);
 
+    void setAlphaType(SkAlphaType newAlphaType);
+
+    void setColorType(SkColorType newColorType);
+
+    void setPixels(const void* addr) { fPixels = addr; }
+    void setRowBytes(size_t rowBytes) { fRowBytes = rowBytes; }
+
     /** Sets width, height, pixel address, and row bytes to SkMask properties, if SkMask
         format is SkMask::kA8_Format; and returns true. Otherwise sets width, height,
         row bytes to zero; pixel address to nullptr; SkColorType to kUnknown_SkColorType;
