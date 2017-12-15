@@ -364,10 +364,7 @@ bool SkImage_Raster::onAsLegacyBitmap(SkBitmap* bitmap, LegacyBitmapMode mode) c
         // pixelref since the caller might call setImmutable() themselves
         // (thus changing our state).
         if (fBitmap.isImmutable()) {
-            bitmap->setInfo(fBitmap.info(), fBitmap.rowBytes());
-            bitmap->setPixelRef(sk_ref_sp(fBitmap.pixelRef()),
-                                fBitmap.pixelRefOrigin().x(),
-                                fBitmap.pixelRefOrigin().y());
+            *bitmap = fBitmap;
             return true;
         }
     }
