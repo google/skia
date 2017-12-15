@@ -2225,28 +2225,6 @@ SpvId SPIRVCodeGenerator::writeBinaryOperation(const Type& resultType,
     return result;
 }
 
-bool is_assignment(Token::Kind op) {
-    switch (op) {
-        case Token::EQ:           // fall through
-        case Token::PLUSEQ:       // fall through
-        case Token::MINUSEQ:      // fall through
-        case Token::STAREQ:       // fall through
-        case Token::SLASHEQ:      // fall through
-        case Token::PERCENTEQ:    // fall through
-        case Token::SHLEQ:        // fall through
-        case Token::SHREQ:        // fall through
-        case Token::BITWISEOREQ:  // fall through
-        case Token::BITWISEXOREQ: // fall through
-        case Token::BITWISEANDEQ: // fall through
-        case Token::LOGICALOREQ:  // fall through
-        case Token::LOGICALXOREQ: // fall through
-        case Token::LOGICALANDEQ:
-            return true;
-        default:
-            return false;
-    }
-}
-
 SpvId SPIRVCodeGenerator::foldToBool(SpvId id, const Type& operandType, OutputStream& out) {
     if (operandType.kind() == Type::kVector_Kind) {
         SpvId result = this->nextId();
@@ -2310,7 +2288,7 @@ SpvId SPIRVCodeGenerator::writeBinaryExpression(const BinaryExpression& b, Outpu
     const Type& resultType = b.fType;
     std::unique_ptr<LValue> lvalue;
     SpvId lhs;
-    if (is_assignment(b.fOperator)) {
+    if (Compiler::IsAssignment(b.fOperator)) {
         lvalue = this->getLValue(*b.fLeft, out);
         lhs = lvalue->load(out);
     } else {
