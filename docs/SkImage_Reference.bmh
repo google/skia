@@ -146,7 +146,16 @@ pixels is not nullptr, and contains enough data for Image.
 #Return Image sharing pixels, or nullptr ##
 
 #Example
-// incomplete
+#Image 3
+    size_t rowBytes = image->width() * SkColorTypeBytesPerPixel(kRGBA_8888_SkColorType);
+    sk_sp<SkData> data = SkData::MakeUninitialized(rowBytes * image->height());
+    SkImageInfo dstInfo = SkImageInfo::MakeN32(image->width(), image->height(), 
+                                               kPremul_SkAlphaType);
+    image->readPixels(dstInfo, data->writable_data(), rowBytes, 0, 0, SkImage::kAllow_CachingHint);
+    sk_sp<SkImage> raw = SkImage::MakeRasterData(dstInfo.makeColorType(kRGBA_8888_SkColorType),
+                                                 data, rowBytes);
+    canvas->drawImage(image, 0, 0);
+    canvas->drawImage(raw.get(), 128, 0);
 ##
 
 #SeeAlso MakeRasterCopy MakeFromGenerator
@@ -176,9 +185,13 @@ provided by caller when Image is created, and may be nullptr.
                                          RasterReleaseProc rasterReleaseProc,
                                          ReleaseContext releaseContext)
 
-Creates Image from pixmap, sharing pixmap pixels. Pixels must remain valid and
+Creates Image from pixmap, sharing Pixmap pixels. Pixels must remain valid and
 unchanged until rasterReleaseProc is called. rasterReleaseProc is passed
 releaseContext when Image is deleted or no longer refers to pixmap pixels.
+
+Pass nullptr for rasterReleaseProc to share Pixmap without requiring a callback
+when Image is released. Pass nullptr for releaseContext if rasterReleaseProc
+does not require state.
 
 Image is returned if pixmap is valid. Valid Pixmap parameters include:
 dimensions are greater than zero;
@@ -188,13 +201,32 @@ row bytes are large enough to hold one row of pixels;
 pixel address is not nullptr.
 
 #Param pixmap  Image_Info, pixel address, and row bytes ##
-#Param rasterReleaseProc  function called when pixels can be released ##
-#Param releaseContext  state passed to rasterReleaseProc ##
+#Param rasterReleaseProc  function called when pixels can be released; or nullptr ##
+#Param releaseContext  state passed to rasterReleaseProc; or nullptr ##
 
-#Return incomplete ##
+#Return Image sharing pixmap ##
 
 #Example
-// incomplete
+#Function
+static void releaseProc(const void* pixels, SkImage::ReleaseContext context) {
+     int* countPtr = static_cast<int*>(context);
+     *countPtr += 1;
+}
+##
+
+void draw(SkCanvas* canvas) {
+    SkColor color = 0;
+    SkPixmap pixmap(SkImageInfo::MakeN32(1, 1, kPremul_SkAlphaType), &color, 4);
+    int releaseCount = 0;
+    sk_sp<SkImage> image(SkImage::MakeFromRaster(pixmap, releaseProc, &releaseCount));
+    SkDebugf("before reset: %d\n", releaseCount);
+    image.reset();
+    SkDebugf("after reset: %d\n", releaseCount);
+}
+#StdOut
+before reset: 0
+after reset: 1
+##
 ##
 
 #SeeAlso MakeRasterCopy MakeRasterData MakeFromGenerator RasterReleaseProc ReleaseContext
@@ -221,7 +253,29 @@ pixel address is not nullptr.
 #Return created Image, or nullptr ##
 
 #Example
-// incomplete
+#Description
+The first Bitmap is shared; writing to the pixel memory changes the first
+Image.
+The second Bitmap is marked immutable, and is copied; writing to the pixel
+memory does not alter the second Image.
+##
+#Height 50
+    uint8_t storage[][5] = {{ 0xCA, 0xDA, 0xCA, 0xC9, 0xA3 },
+                            { 0xAC, 0xA8, 0x89, 0xA7, 0x87 },
+                            { 0x9B, 0xB5, 0xE5, 0x95, 0x46 },
+                            { 0x90, 0x81, 0xC5, 0x71, 0x33 },
+                            { 0x75, 0x55, 0x44, 0x40, 0x30 }};
+    SkImageInfo imageInfo = SkImageInfo::Make(5, 5, kGray_8_SkColorType, kOpaque_SkAlphaType);
+    SkPixmap pixmap(imageInfo, storage[0], sizeof(storage) / 5);
+    SkBitmap bitmap;
+    bitmap.installPixels(pixmap);
+    sk_sp<SkImage> image1 = SkImage::MakeFromBitmap(bitmap);
+    bitmap.setImmutable();
+    sk_sp<SkImage> image2 = SkImage::MakeFromBitmap(bitmap);
+    *pixmap.writable_addr8(2, 2) = 0x00;
+    canvas->scale(10, 10);
+    canvas->drawImage(image1, 0, 0);
+    canvas->drawImage(image2, 10, 0);
 ##
 
 #SeeAlso MakeFromRaster MakeRasterCopy MakeFromGenerator MakeRasterData
@@ -233,12 +287,14 @@ pixel address is not nullptr.
 #Method static sk_sp<SkImage> MakeFromGenerator(std::unique_ptr<SkImageGenerator> imageGenerator,
                                             const SkIRect* subset = nullptr)
 
-Creates Image based from imageGenerator.
-Takes ownership of imageGenerator; it may not be used elsewhere.
-If subset is not nullptr, it must be contained within imageGenerator data bounds.
+Creates Image from data returned by imageGenerator. Generated data is owned by Image and may not
+be shared or accessed.
 
-Image is returned if generator data is valid. Valid data parameters vary
-by type of data and platform.
+subset allows selecting a portion of the full image. Pass nullptr to select the entire image;
+otherwise, subset must be contained by image bounds.
+
+Image is returned if generator data is valid. Valid data parameters vary by type of data
+and platform.
 
 imageGenerator may wrap Picture data, codec data, or custom data.
 
@@ -248,7 +304,16 @@ imageGenerator may wrap Picture data, codec data, or custom data.
 #Return created Image, or nullptr ##
 
 #Example
-// incomplete
+#Description
+The generator returning Picture cannot be shared; std::move transfers ownership to generated Image.
+##
+    SkPictureRecorder recorder;
+    recorder.beginRecording(100, 100)->drawColor(SK_ColorRED);
+    auto picture = recorder.finishRecordingAsPicture();
+    auto gen = SkImageGenerator::MakeFromPicture({100, 100}, picture, nullptr, nullptr,
+                                                 SkImage::BitDepth::kU8, SkColorSpace::MakeSRGB());
+    sk_sp<SkImage> image = SkImage::MakeFromGenerator(std::move(gen));
+    canvas->drawImage(image, 0, 0);
 ##
 
 #SeeAlso MakeFromEncoded
@@ -260,7 +325,8 @@ imageGenerator may wrap Picture data, codec data, or custom data.
 #Method static sk_sp<SkImage> MakeFromEncoded(sk_sp<SkData> encoded, const SkIRect* subset = nullptr)
 
 Creates Image from encoded data. 
-If a subset is not nullptr, it must be contained within encoded data bounds.
+subset allows selecting a portion of the full image. Pass nullptr to select the entire image;
+otherwise, subset must be contained by image bounds.
 
 Image is returned if format of the encoded data is recognized and supported.
 Recognized formats vary by platfrom.
@@ -270,8 +336,11 @@ Recognized formats vary by platfrom.
 
 #Return created Image, or nullptr ##
 
-#Example
-// incomplete
+#Bug 7343
+Waiting on fiddle to support returning image as SkData
+##
+
+#NoExample
 ##
 
 #SeeAlso MakeFromGenerator
@@ -307,7 +376,24 @@ Recognized formats vary by GPU back-end.
 #Return created Image, or nullptr ##
 
 #Example
-// incomplete
+#Image 3
+#Platform gpu
+#Height 128
+#Description
+A back-end texture has been created and uploaded to the GPU outside of this example.
+##
+GrContext* context = canvas->getGrContext();
+if (!context) {
+   return;
+}
+canvas->scale(.25f, .25f);
+int x = 0;
+for (auto origin : { kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin } ) {
+    sk_sp<SkImage> image = SkImage::MakeFromTexture(canvas->getGrContext(), backEndTexture,
+           origin, kOpaque_SkAlphaType, nullptr);
+    canvas->drawImage(image, x, 0);
+x += 512;
+}
 ##
 
 #SeeAlso MakeFromAdoptedTexture SkSurface::MakeFromBackendTexture
@@ -343,8 +429,26 @@ Recognized formats vary by GPU back-end.
 
 #Return created Image, or nullptr ##
 
+#ToDo
+This doesn't do anything clever with TextureReleaseProc because it may not get called
+within the lifetime of the example
+##
+
 #Example
-// incomplete
+GrContext* context = canvas->getGrContext();
+if (!context) {
+   return;
+}
+auto debugster = [](SkImage::ReleaseContext context) -> void {
+    *((int *) context) += 128;
+};
+int x = 0;
+for (auto origin : { kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin } ) {
+    sk_sp<SkImage> image = SkImage::MakeFromTexture(canvas->getGrContext(), backEndTexture,
+           origin, kOpaque_SkAlphaType, nullptr, debugster, &x);
+    canvas->drawImage(image, x, 0);
+    x += 128;
+}
 ##
 
 #SeeAlso MakeFromAdoptedTexture SkSurface::MakeFromBackendTexture
