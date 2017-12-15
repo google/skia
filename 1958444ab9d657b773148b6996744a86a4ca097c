@@ -42,6 +42,30 @@
     },
     {
       "key": {
+        "uuid": "e84c284c_a392bd7a",
+        "filename": "include/core/SkPixmap.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-12-15T18:30:40Z",
+      "side": 1,
+      "message": "I have removed them and replaced it with a singe new call which is only used in SkBitmap.cpp.",
+      "parentUuid": "89ee117a_6d27943b",
+      "range": {
+        "startLine": 102,
+        "startChar": 41,
+        "endLine": 102,
+        "endChar": 42
+      },
+      "revId": "1958444ab9d657b773148b6996744a86a4ca097c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "26adadd0_e96d7f43",
         "filename": "include/core/SkPixmap.h",
         "patchSetId": 8
@@ -65,6 +89,30 @@
     },
     {
       "key": {
+        "uuid": "c391e712_85eb6c8a",
+        "filename": "include/core/SkPixmap.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-12-15T18:30:40Z",
+      "side": 1,
+      "message": "/removed/",
+      "parentUuid": "26adadd0_e96d7f43",
+      "range": {
+        "startLine": 111,
+        "startChar": 9,
+        "endLine": 111,
+        "endChar": 21
+      },
+      "revId": "1958444ab9d657b773148b6996744a86a4ca097c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "21195edb_1a6c7cc0",
         "filename": "include/core/SkPixmap.h",
         "patchSetId": 8
@@ -85,6 +133,30 @@
       "revId": "1958444ab9d657b773148b6996744a86a4ca097c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ee6a5f0d_3c08e706",
+        "filename": "include/core/SkPixmap.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-12-15T18:30:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "21195edb_1a6c7cc0",
+      "range": {
+        "startLine": 123,
+        "startChar": 9,
+        "endLine": 123,
+        "endChar": 20
+      },
+      "revId": "1958444ab9d657b773148b6996744a86a4ca097c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
