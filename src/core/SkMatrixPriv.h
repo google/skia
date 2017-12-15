@@ -92,6 +92,9 @@ public:
         }
     }
 
+    static void MapHomogeneousPointsWithStride(const SkMatrix& mx, SkPoint3 dst[],
+                                               const SkPoint3 src[], size_t stride, int count);
+
     static void SetMappedRectTriStrip(const SkMatrix& mx, const SkRect& rect, SkPoint quad[4]) {
         SkMatrix::TypeMask tm = mx.getType();
         SkScalar l = rect.fLeft;

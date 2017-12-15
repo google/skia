@@ -1337,9 +1337,6 @@ public:
         @param count  items in SkPoint3 array to transform
     */
     void mapHomogeneousPoints(SkPoint3 dst[], const SkPoint3 src[], int count) const;
-    /** Same as above but with a variable offset between successive points. */
-    void mapHomogeneousPointsWithStride(SkPoint3 dst[], const SkPoint3 src[], size_t stride,
-                                        int count) const;
 
     /** Maps SkPoint (x, y) to result. SkPoint is mapped by multiplying by SkMatrix. Given:
 
