@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "80613f59_ad06f222",
+        "filename": "tools/skqp/gm_runner.h",
+        "patchSetId": 28
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-12-15T02:44:42Z",
+      "side": 1,
+      "message": "We don\u0027t need to.",
+      "parentUuid": "5685c240_40977ef8",
+      "revId": "827e5102d7f5afee5ef7e328524c8f221eef6836",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ffdefc21_36d3110a",
         "filename": "tools/skqp/gm_runner.h",
         "patchSetId": 28
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "632d1c47_819aad5e",
+        "filename": "tools/skqp/gm_runner.h",
+        "patchSetId": 28
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-12-15T02:44:42Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "ffdefc21_36d3110a",
+      "revId": "827e5102d7f5afee5ef7e328524c8f221eef6836",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2d2b6dc4_3be4aef1",
         "filename": "tools/skqp/skqp.cpp",
         "patchSetId": 28
@@ -50,6 +86,24 @@
       "revId": "827e5102d7f5afee5ef7e328524c8f221eef6836",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "df8cf002_0f5fdcb8",
+        "filename": "tools/skqp/skqp.cpp",
+        "patchSetId": 28
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-12-15T02:44:42Z",
+      "side": 1,
+      "message": "That doesn\u0027t need to happen for static globals whose names don\u0027t leave the compilation unit.",
+      "parentUuid": "2d2b6dc4_3be4aef1",
+      "revId": "827e5102d7f5afee5ef7e328524c8f221eef6836",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }

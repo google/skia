@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "af84588d_b0087800",
+        "filename": "tools/skqp/gm_runner.cpp",
+        "patchSetId": 29
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-12-15T02:44:42Z",
+      "side": 1,
+      "message": "I really endeavored to keep the layers of this program fairly independent.",
+      "parentUuid": "9ab1ef33_ce423eb2",
+      "revId": "97952f9b4c3471618ca037883dbef14392251f6d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "72da5e6f_94044255",
         "filename": "tools/skqp/make_gmkb.go",
         "patchSetId": 29
@@ -50,6 +68,24 @@
       "revId": "97952f9b4c3471618ca037883dbef14392251f6d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "93a0d27f_e6bb5916",
+        "filename": "tools/skqp/skqp.cpp",
+        "patchSetId": 29
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-12-15T02:44:42Z",
+      "side": 1,
+      "message": "This is how DM does it.  It is possible that a test could get the context into some bad state.  This prevents that.",
+      "parentUuid": "4f820148_e461e70f",
+      "revId": "97952f9b4c3471618ca037883dbef14392251f6d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }

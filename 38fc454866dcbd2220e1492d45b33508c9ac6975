@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "935bc632_f1311d1c",
+        "filename": "tools/skqp/gm_knowledge.cpp",
+        "patchSetId": 27
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-12-15T02:44:42Z",
+      "side": 1,
+      "message": "I want to simply concat them later:\n   \"\u003ca  href\u003d\\\"%s/\" PATH_IMG_PNG \"\\\"\u003e\nmacros allow that.",
+      "parentUuid": "75d37cb6_c7cd50d5",
+      "revId": "38fc454866dcbd2220e1492d45b33508c9ac6975",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3d1fe18c_8d956d17",
         "filename": "tools/skqp/gm_knowledge.cpp",
         "patchSetId": 27
@@ -33,6 +51,24 @@
       "revId": "38fc454866dcbd2220e1492d45b33508c9ac6975",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "822a491f_234d62fb",
+        "filename": "tools/skqp/gm_knowledge.cpp",
+        "patchSetId": 27
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-12-15T02:44:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3d1fe18c_8d956d17",
+      "revId": "38fc454866dcbd2220e1492d45b33508c9ac6975",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "2c6e2df5_9d14da06",
+        "filename": "tools/skqp/gm_knowledge.cpp",
+        "patchSetId": 27
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-12-15T02:44:42Z",
+      "side": 1,
+      "message": "I agree.  This pattern is so common.\n\nSkPixmap SkBitmap::pixmap() const {\n    return this-\u003eaddr() ? SkPixmap(this-\u003einfo(), this-\u003eaddr(), this-\u003erowBytes()) : SkPixmap();\n}",
+      "parentUuid": "5cf78c8b_755bcc0d",
+      "revId": "38fc454866dcbd2220e1492d45b33508c9ac6975",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e64f2d5f_d7c97239",
         "filename": "tools/skqp/gm_knowledge.h",
         "patchSetId": 27
@@ -67,6 +121,24 @@
       "revId": "38fc454866dcbd2220e1492d45b33508c9ac6975",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "70f72fca_c79e9a72",
+        "filename": "tools/skqp/gm_knowledge.h",
+        "patchSetId": 27
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-12-15T02:44:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e64f2d5f_d7c97239",
+      "revId": "38fc454866dcbd2220e1492d45b33508c9ac6975",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "8364bd27_e9533016",
+        "filename": "tools/skqp/gm_knowledge.h",
+        "patchSetId": 27
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-12-15T02:44:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "659b0db9_77f262f1",
+      "revId": "38fc454866dcbd2220e1492d45b33508c9ac6975",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e41f1bb3_4fff2cd2",
         "filename": "tools/skqp/skqp_asset_manager.h",
         "patchSetId": 27
@@ -101,6 +191,24 @@
       "revId": "38fc454866dcbd2220e1492d45b33508c9ac6975",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d2c3d817_eece7620",
+        "filename": "tools/skqp/skqp_asset_manager.h",
+        "patchSetId": 27
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-12-15T02:44:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e41f1bb3_4fff2cd2",
+      "revId": "38fc454866dcbd2220e1492d45b33508c9ac6975",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
