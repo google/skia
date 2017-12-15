@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cde303f3_35209abd",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 4
+      },
+      "lineNbr": 284,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-12-15T17:40:59Z",
+      "side": 1,
+      "message": "We can probably use 1-2 core machines for Perf even.",
+      "revId": "8e11dc0a26412435e1d212eea3380845b2caf4c8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
