@@ -552,13 +552,6 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         GR_GL_GetIntegerv(gli, GR_GL_MAX_WINDOW_RECTANGLES, &fMaxWindowRectangles);
     }
 
-    if (kPowerVRRogue_GrGLRenderer == ctxInfo.renderer()) {
-        // Temporarily disabling clip analytic fragments processors on Nexus player while we work
-        // around a driver bug related to gl_FragCoord.
-        // https://bugs.chromium.org/p/skia/issues/detail?id=7286
-        fMaxClipAnalyticFPs = 0;
-    }
-
 #ifndef SK_BUILD_FOR_IOS
     if (kPowerVR54x_GrGLRenderer == ctxInfo.renderer() ||
         kPowerVRRogue_GrGLRenderer == ctxInfo.renderer() ||
@@ -1047,6 +1040,12 @@ void GrGLCaps::initGLSL(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli
         shaderCaps->fMustGuardDivisionEvenAfterExplicitZeroCheck = true;
     }
 #endif
+
+    // Some devices in these families are rendering garbage if we access gl_FragCoord (issue 7286).
+    if (kTegra3_GrGLRenderer == ctxInfo.renderer() ||
+        kPowerVRRogue_GrGLRenderer == ctxInfo.renderer()) {
+        shaderCaps->fCanUseFragCoord = false;
+    }
 }
 
 bool GrGLCaps::hasPathRenderingSupport(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
