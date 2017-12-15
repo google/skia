@@ -16,6 +16,24 @@
       "revId": "8e11dc0a26412435e1d212eea3380845b2caf4c8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "069e4764_3211b38f",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 4
+      },
+      "lineNbr": 284,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-12-15T17:46:21Z",
+      "side": 1,
+      "message": "It\u0027d also be interesting to try moving the Test machines to the 64-core ones.  They should scale up well like Build bots.",
+      "parentUuid": "cde303f3_35209abd",
+      "revId": "8e11dc0a26412435e1d212eea3380845b2caf4c8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
