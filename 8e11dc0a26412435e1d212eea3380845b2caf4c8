@@ -70,6 +70,24 @@
       "revId": "8e11dc0a26412435e1d212eea3380845b2caf4c8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "30702b0e_7d1c8e20",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 4
+      },
+      "lineNbr": 284,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-12-15T17:48:59Z",
+      "side": 1,
+      "message": "Betcha we could just have two, 64-core for Build and Test, \u003c\u003d4 for Perf.\n\nIt might actually be worth trying driving the Goma builds from a 64-core machine too.  We\u0027re not necessarily not CPU limited when using Goma and/or it might let you set -j even higher.",
+      "parentUuid": "beb4c0d4_482019c1",
+      "revId": "8e11dc0a26412435e1d212eea3380845b2caf4c8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
