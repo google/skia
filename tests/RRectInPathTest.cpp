@@ -43,7 +43,7 @@ static SkRRect path_contains_rrect(skiatest::Reporter* reporter, const SkPath& p
 static SkRRect inner_path_contains_rrect(skiatest::Reporter* reporter, const SkRRect& in,
                                          SkPath::Direction dir, unsigned start) {
     switch (in.getType()) {
-        case SkRRect::kEmpty_Type:
+        case SkRRect::kDegenerate_Type:
         case SkRRect::kRect_Type:
         case SkRRect::kOval_Type:
             return in;

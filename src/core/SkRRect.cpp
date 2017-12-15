@@ -7,6 +7,7 @@
 
 #include <cmath>
 #include "SkRRect.h"
+#include "SkScopeExit.h"
 #include "SkBuffer.h"
 #include "SkMatrix.h"
 #include "SkScaleToSides.h"
@@ -14,11 +15,8 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 void SkRRect::setRectXY(const SkRect& rect, SkScalar xRad, SkScalar yRad) {
-    fRect = rect;
-    fRect.sort();
-
-    if (fRect.isEmpty() || !fRect.isFinite()) {
-        this->setEmpty();
+    fRect = rect.makeSorted();
+    if (this->initalizeIfRectIsDegenerate()) {
         return;
     }
 
@@ -52,11 +50,8 @@ void SkRRect::setRectXY(const SkRect& rect, SkScalar xRad, SkScalar yRad) {
 
 void SkRRect::setNinePatch(const SkRect& rect, SkScalar leftRad, SkScalar topRad,
                            SkScalar rightRad, SkScalar bottomRad) {
-    fRect = rect;
-    fRect.sort();
-
-    if (fRect.isEmpty() || !fRect.isFinite()) {
-        this->setEmpty();
+    fRect = rect.makeSorted();
+    if (this->initalizeIfRectIsDegenerate()) {
         return;
     }
 
@@ -123,11 +118,8 @@ static double compute_min_scale(double rad1, double rad2, double limit, double c
 }
 
 void SkRRect::setRectRadii(const SkRect& rect, const SkVector radii[4]) {
-    fRect = rect;
-    fRect.sort();
-
-    if (fRect.isEmpty() || !fRect.isFinite()) {
-        this->setEmpty();
+    fRect = rect.makeSorted();
+    if (this->initalizeIfRectIsDegenerate()) {
         return;
     }
 
@@ -160,6 +152,22 @@ void SkRRect::setRectRadii(const SkRect& rect, const SkVector radii[4]) {
     }
 
     this->scaleRadii();
+}
+
+bool SkRRect::initalizeIfRectIsDegenerate() {
+    if (!fRect.isFinite()) {
+        *this = SkRRect();
+        return true;
+    }
+    // Our callers all sort the rect before calling. However, this must only be asserted after
+    // checking for nans.
+    SkASSERT(fRect.isSorted());
+    if (fRect.isEmpty()) {
+        memset(fRadii, 0, sizeof(fRadii));
+        fType = kDegenerate_Type;
+        return true;
+    }
+    return false;
 }
 
 void SkRRect::scaleRadii() {
@@ -289,14 +297,14 @@ static bool radii_are_nine_patch(const SkVector radii[4]) {
 
 // There is a simplified version of this method in setRectXY
 void SkRRect::computeType() {
-    struct Validator {
-        Validator(const SkRRect* r) : fR(r) {}
-        ~Validator() { SkASSERT(fR->isValid()); }
-        const SkRRect* fR;
-    } autoValidate(this);
+    SK_AT_SCOPE_EXIT(SkASSERT(this->isValid()));
 
     if (fRect.isEmpty()) {
-        fType = kEmpty_Type;
+        SkASSERT(fRect.isSorted());
+        for (size_t i = 0; i < SK_ARRAY_COUNT(fRadii); ++i) {
+            SkASSERT((fRadii[i] == SkVector{0, 0}));
+        }
+        fType = kDegenerate_Type;
         return;
     }
 
@@ -369,10 +377,11 @@ bool SkRRect::transform(const SkMatrix& matrix, SkRRect* dst) const {
     }
 
     // The matrix may have scaled us to zero (or due to float madness, we now have collapsed
-    // some dimension of the rect, so we need to check for that.
-    if (newRect.isEmpty()) {
-        dst->setEmpty();
-        return true;
+    // some dimension of the rect, so we need to check for that. Note that matrix must be
+    // scale and translate and mapRect() produces a sorted rect. So an empty rect indicates
+    // loss of precision.
+    if (!newRect.isFinite() || newRect.isEmpty()) {
+        return false;
     }
 
     // At this point, this is guaranteed to succeed, so we can modify dst.
@@ -431,6 +440,7 @@ bool SkRRect::transform(const SkMatrix& matrix, SkRRect* dst) const {
     }
 
     dst->scaleRadii();
+    dst->isValid();
 
     return true;
 }
@@ -438,10 +448,24 @@ bool SkRRect::transform(const SkMatrix& matrix, SkRRect* dst) const {
 ///////////////////////////////////////////////////////////////////////////////
 
 void SkRRect::inset(SkScalar dx, SkScalar dy, SkRRect* dst) const {
-    const SkRect r = fRect.makeInset(dx, dy);
-
-    if (r.isEmpty()) {
-        dst->setEmpty();
+    SkRect r = fRect.makeInset(dx, dy);
+    bool degenerate = false;
+    if (r.fRight <= r.fLeft) {
+        degenerate = true;
+        r.fLeft = r.fRight = SkScalarAve(r.fLeft, r.fRight);
+    }
+    if (r.fBottom <= r.fTop) {
+        degenerate = true;
+        r.fTop = r.fBottom = SkScalarAve(r.fTop, r.fBottom);
+    }
+    if (degenerate) {
+        dst->fRect = r;
+        memset(dst->fRadii, 0, sizeof(dst->fRadii));
+        dst->fType = kDegenerate_Type;
+        return;
+    }
+    if (!r.isFinite()) {
+        *dst = SkRRect();
         return;
     }
 
@@ -563,7 +587,7 @@ bool SkRRect::isValid() const {
     }
 
     switch (fType) {
-        case kEmpty_Type:
+        case kDegenerate_Type:
             if (!fRect.isEmpty() || !allRadiiZero || !allRadiiSame || !allCornersSquare) {
                 return false;
             }
@@ -608,7 +632,7 @@ bool SkRRect::isValid() const {
 }
 
 bool SkRRect::AreRectAndRadiiValid(const SkRect& rect, const SkVector radii[4]) {
-    if (!rect.isFinite()) {
+    if (!rect.isFinite() || !rect.isSorted()) {
         return false;
     }
     for (int i = 0; i < 4; ++i) {

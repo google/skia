@@ -467,7 +467,7 @@ SkBlurMaskFilterImpl::filterRRectToNine(const SkRRect& rrect, const SkMatrix& ma
                                         NinePatch* patch) const {
     SkASSERT(patch != nullptr);
     switch (rrect.getType()) {
-        case SkRRect::kEmpty_Type:
+        case SkRRect::kDegenerate_Type:
             // Nothing to draw.
             return kFalse_FilterReturn;
 

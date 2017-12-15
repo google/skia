@@ -898,7 +898,7 @@ void GrRenderTargetContext::drawRRect(const GrClip& origClip,
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
     GR_CREATE_TRACE_MARKER_CONTEXT("GrRenderTargetContext", "drawRRect", fContext);
-    if (rrect.isEmpty()) {
+    if (rrect.isDegenerate() && style.isSimpleFill()) {
        return;
     }
 
@@ -989,7 +989,7 @@ bool GrRenderTargetContext::drawFastShadow(const GrClip& clip,
         return false;
     }
 
-    if (rrect.isEmpty()) {
+    if (rrect.isDegenerate()) {
         return true;
     }
 
@@ -1171,8 +1171,8 @@ bool GrRenderTargetContext::drawFilledDRRect(const GrClip& clip,
                                              const SkMatrix& viewMatrix,
                                              const SkRRect& origOuter,
                                              const SkRRect& origInner) {
-    SkASSERT(!origInner.isEmpty());
-    SkASSERT(!origOuter.isEmpty());
+    SkASSERT(!origInner.isDegenerate());
+    SkASSERT(!origOuter.isDegenerate());
 
     SkTCopyOnFirstWrite<SkRRect> inner(origInner), outer(origOuter);
 
@@ -1262,8 +1262,8 @@ void GrRenderTargetContext::drawDRRect(const GrClip& clip,
     SkDEBUGCODE(this->validate();)
     GR_CREATE_TRACE_MARKER_CONTEXT("GrRenderTargetContext", "drawDRRect", fContext);
 
-    SkASSERT(!outer.isEmpty());
-    SkASSERT(!inner.isEmpty());
+    SkASSERT(!outer.isDegenerate());
+    SkASSERT(!inner.isDegenerate());
 
     AutoCheckFlush acf(this->drawingManager());
 
