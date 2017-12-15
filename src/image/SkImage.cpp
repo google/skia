@@ -405,6 +405,7 @@ sk_sp<SkImage> MakeTextureFromMipMap(GrContext*, const SkImageInfo&, const GrMip
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+#ifdef SK_SUPPORT_LEGACY_IMAGEDESERIALIZER
 #include "SkImageDeserializer.h"
 
 sk_sp<SkImage> SkImageDeserializer::makeFromData(SkData* data, const SkIRect* subset) {
@@ -414,6 +415,7 @@ sk_sp<SkImage> SkImageDeserializer::makeFromMemory(const void* data, size_t leng
                                                    const SkIRect* subset) {
     return SkImage::MakeFromEncoded(SkData::MakeWithCopy(data, length), subset);
 }
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
