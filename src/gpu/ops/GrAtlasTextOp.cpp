@@ -11,6 +11,7 @@
 #include "GrResourceProvider.h"
 #include "SkGlyphCache.h"
 #include "SkMathPriv.h"
+#include "SkMatrixPriv.h"
 #include "SkPoint3.h"
 #include "effects/GrBitmapTextGeoProc.h"
 #include "effects/GrDistanceFieldGeoProc.h"
@@ -281,7 +282,7 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
                 // arbitrary transformations would be complicated and accumulate error.
                 if (args.fViewMatrix.hasPerspective()) {
                     auto* pos = reinterpret_cast<SkPoint3*>(currVertex);
-                    args.fViewMatrix.mapHomogeneousPointsWithStride(
+                    SkMatrixPriv::MapHomogeneousPointsWithStride(args.fViewMatrix,
                             pos, pos, vertexStride, result.fGlyphsRegenerated * kVerticesPerGlyph);
                 } else {
                     auto* pos = reinterpret_cast<SkPoint*>(currVertex);
