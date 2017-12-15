@@ -403,7 +403,6 @@ config("release") {
     cflags = [
       "/O2",
       "/Zc:inline",
-      "/GS-",
     ]
     ldflags = [
       "/OPT:ICF",
