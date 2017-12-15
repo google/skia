@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a57d22f4_5fcb9586",
+        "filename": "src/core/SkICC.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 285,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-12-15T16:05:47Z",
+      "side": 1,
+      "message": "to accommodate the full potential 32-bit mantissa of the 16.16 SkFixed value, and so avoiding ...\n\n?",
+      "range": {
+        "startLine": 285,
+        "startChar": 70,
+        "endLine": 285,
+        "endChar": 73
+      },
+      "revId": "3d505860fce6ffe43f982837710454eade1059f5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
