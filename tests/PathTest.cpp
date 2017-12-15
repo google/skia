@@ -3662,7 +3662,10 @@ static void test_rrect(skiatest::Reporter* reporter) {
     SkRect emptyR = {10, 20, 10, 30};
     rr.setRectRadii(emptyR, radii);
     p.addRRect(rr);
-    REPORTER_ASSERT(reporter, p.isEmpty());
+    // The round rect is "empty" in that it has no fill area. However,
+    // the path isn't "empty" in that it should have verbs and points.
+    REPORTER_ASSERT(reporter, !p.isEmpty());
+    p.reset();
     SkRect largeR = {0, 0, SK_ScalarMax, SK_ScalarMax};
     rr.setRectRadii(largeR, radii);
     p.addRRect(rr);

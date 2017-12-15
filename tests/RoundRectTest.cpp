@@ -71,36 +71,51 @@ static void test_empty(skiatest::Reporter* reporter) {
     for (size_t i = 0; i < SK_ARRAY_COUNT(oooRects); ++i) {
         r.setRect(oooRects[i]);
         REPORTER_ASSERT(reporter, !r.isEmpty());
+        REPORTER_ASSERT(reporter, r.rect() == oooRects[i].makeSorted());
 
         r.setOval(oooRects[i]);
         REPORTER_ASSERT(reporter, !r.isEmpty());
+        REPORTER_ASSERT(reporter, r.rect() == oooRects[i].makeSorted());
 
         r.setRectXY(oooRects[i], 1, 2);
         REPORTER_ASSERT(reporter, !r.isEmpty());
+        REPORTER_ASSERT(reporter, r.rect() == oooRects[i].makeSorted());
 
         r.setNinePatch(oooRects[i], 0, 1, 2, 3);
         REPORTER_ASSERT(reporter, !r.isEmpty());
+        REPORTER_ASSERT(reporter, r.rect() == oooRects[i].makeSorted());
 
         r.setRectRadii(oooRects[i], radii);
         REPORTER_ASSERT(reporter, !r.isEmpty());
+        REPORTER_ASSERT(reporter, r.rect() == oooRects[i].makeSorted());
     }
 
     for (size_t i = 0; i < SK_ARRAY_COUNT(emptyRects); ++i) {
         r.setRect(emptyRects[i]);
         REPORTER_ASSERT(reporter, r.isEmpty());
+        REPORTER_ASSERT(reporter, r.rect() == emptyRects[i]);
 
         r.setOval(emptyRects[i]);
         REPORTER_ASSERT(reporter, r.isEmpty());
+        REPORTER_ASSERT(reporter, r.rect() == emptyRects[i]);
 
         r.setRectXY(emptyRects[i], 1, 2);
         REPORTER_ASSERT(reporter, r.isEmpty());
+        REPORTER_ASSERT(reporter, r.rect() == emptyRects[i]);
 
         r.setNinePatch(emptyRects[i], 0, 1, 2, 3);
         REPORTER_ASSERT(reporter, r.isEmpty());
+        REPORTER_ASSERT(reporter, r.rect() == emptyRects[i]);
 
         r.setRectRadii(emptyRects[i], radii);
         REPORTER_ASSERT(reporter, r.isEmpty());
+        REPORTER_ASSERT(reporter, r.rect() == emptyRects[i]);
     }
+
+    r.setRect({SK_ScalarNaN, 10, 10, 20});
+    REPORTER_ASSERT(reporter, r == SkRRect::MakeEmpty());
+    r.setRect({0, 10, 10, SK_ScalarInfinity});
+    REPORTER_ASSERT(reporter, r == SkRRect::MakeEmpty());
 }
 
 static const SkScalar kWidth = 100.0f;
