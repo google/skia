@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "386d2b0a_15f9d743",
+        "filename": "include/core/SkPixmap.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2017-12-15T18:45:15Z",
+      "side": 1,
+      "message": "Is this generally useful and thus should be a public call? If not, please move it to SkPixmapPriv.h",
+      "revId": "78b36f3ad3c95c990aa8f4e40cbae4ad41f405c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
