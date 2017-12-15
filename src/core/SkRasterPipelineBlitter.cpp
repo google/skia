@@ -258,10 +258,6 @@ void SkRasterPipelineBlitter::append_store(SkRasterPipeline* p) const {
         p->append(SkRasterPipeline::dither, &fDitherRate);
     }
 
-    if (fDst.info().colorType() != kRGBA_F16_SkColorType) {
-        p->clamp_if_unclamped(kPremul_SkAlphaType);
-    }
-
     switch (fDst.info().colorType()) {
         case kGray_8_SkColorType:    p->append(SkRasterPipeline::luminance_to_alpha); // fallthru
         case kAlpha_8_SkColorType:   p->append(SkRasterPipeline::store_a8,   &fDstPtr); break;
@@ -311,7 +307,6 @@ void SkRasterPipelineBlitter::blitRect(int x, int y, int w, int h) {
                 && !fDst.colorSpace()
                 && fDst.info().alphaType() != kUnpremul_SkAlphaType
                 && fDitherRate == 0.0f) {
-            p.clamp_if_unclamped(kPremul_SkAlphaType);
             auto stage = fDst.info().colorType() == kRGBA_8888_SkColorType
                        ? SkRasterPipeline::srcover_rgba_8888
                        : SkRasterPipeline::srcover_bgra_8888;

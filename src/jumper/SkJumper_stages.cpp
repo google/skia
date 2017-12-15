@@ -208,6 +208,19 @@ SI U32 ix_and_ptr(T** ptr, const SkJumper_GatherCtx* ctx, F x, F y) {
     return trunc_(y)*ctx->stride + trunc_(x);
 }
 
+// We often have a nominally [0,1] float value we need to scale and convert to an integer,
+// whether for a table lookup or to pack back down into bytes for storage.
+//
+// In practice, especially when dealing with interesting color spaces, that notionally
+// [0,1] float may be out of [0,1] range.  Unorms cannot represent that, so we must clamp.
+//
+// You can adjust the expected input to [0,bias] by tweaking that parameter.
+SI U32 to_unorm(F v, F scale, F bias = 1.0f) {
+    // TODO: platform-specific implementations to to_unorm(), removing round() entirely?
+    // Any time we use round() we probably want to use to_unorm().
+    return round(min(max(0, v), bias), scale);
+}
+
 // Now finally, normal Stages!
 
 STAGE(seed_shader, const float* iota) {
@@ -486,18 +499,19 @@ STAGE(srcover_rgba_8888, const SkJumper_MemoryCtx* ctx) {
     db = cast((dst >> 16) & 0xff);
     da = cast((dst >> 24)       );
     // {dr,dg,db,da} are in [0,255]
-    // { r, g, b, a} are in [0,  1]
+    // { r, g, b, a} are in [0,  1] (but may be out of gamut)
 
     r = mad(dr, inv(a), r*255.0f);
     g = mad(dg, inv(a), g*255.0f);
     b = mad(db, inv(a), b*255.0f);
     a = mad(da, inv(a), a*255.0f);
-    // { r, g, b, a} are now in [0,255]
+    // { r, g, b, a} are now in [0,255]  (but may be out of gamut)
 
-    dst = round(r, 1.0f)
-        | round(g, 1.0f) <<  8
-        | round(b, 1.0f) << 16
-        | round(a, 1.0f) << 24;
+    // to_unorm() clamps back to gamut.  Scaling by 1 since we're already 255-biased.
+    dst = to_unorm(r, 1, 255)
+        | to_unorm(g, 1, 255) <<  8
+        | to_unorm(b, 1, 255) << 16
+        | to_unorm(a, 1, 255) << 24;
     store(ptr, dst, tail);
 }
 
@@ -510,18 +524,19 @@ STAGE(srcover_bgra_8888, const SkJumper_MemoryCtx* ctx) {
     dr = cast((dst >> 16) & 0xff);
     da = cast((dst >> 24)       );
     // {dr,dg,db,da} are in [0,255]
-    // { r, g, b, a} are in [0,  1]
+    // { r, g, b, a} are in [0,  1] (but may be out of gamut)
 
     r = mad(dr, inv(a), r*255.0f);
     g = mad(dg, inv(a), g*255.0f);
     b = mad(db, inv(a), b*255.0f);
     a = mad(da, inv(a), a*255.0f);
-    // { r, g, b, a} are now in [0,255]
+    // { r, g, b, a} are now in [0,255]  (but may be out of gamut)
 
-    dst = round(b, 1.0f)
-        | round(g, 1.0f) <<  8
-        | round(r, 1.0f) << 16
-        | round(a, 1.0f) << 24;
+    // to_unorm() clamps back to gamut.  Scaling by 1 since we're already 255-biased.
+    dst = to_unorm(b, 1, 255)
+        | to_unorm(g, 1, 255) <<  8
+        | to_unorm(r, 1, 255) << 16
+        | to_unorm(a, 1, 255) << 24;
     store(ptr, dst, tail);
 }
 
@@ -796,24 +811,24 @@ STAGE(byte_tables, const void* ctx) {  // TODO: rename Tables SkJumper_ByteTable
     struct Tables { const uint8_t *r, *g, *b, *a; };
     auto tables = (const Tables*)ctx;
 
-    r = from_byte(gather(tables->r, round(r, 255.0f)));
-    g = from_byte(gather(tables->g, round(g, 255.0f)));
-    b = from_byte(gather(tables->b, round(b, 255.0f)));
-    a = from_byte(gather(tables->a, round(a, 255.0f)));
+    r = from_byte(gather(tables->r, to_unorm(r, 255)));
+    g = from_byte(gather(tables->g, to_unorm(g, 255)));
+    b = from_byte(gather(tables->b, to_unorm(b, 255)));
+    a = from_byte(gather(tables->a, to_unorm(a, 255)));
 }
 
 STAGE(byte_tables_rgb, const void* ctx) {  // TODO: rename Tables SkJumper_ByteTablesRGBCtx
     struct Tables { const uint8_t *r, *g, *b; int n; };
     auto tables = (const Tables*)ctx;
 
-    F scale = tables->n - 1;
-    r = from_byte(gather(tables->r, round(r, scale)));
-    g = from_byte(gather(tables->g, round(g, scale)));
-    b = from_byte(gather(tables->b, round(b, scale)));
+    int scale = tables->n - 1;
+    r = from_byte(gather(tables->r, to_unorm(r, scale)));
+    g = from_byte(gather(tables->g, to_unorm(g, scale)));
+    b = from_byte(gather(tables->b, to_unorm(b, scale)));
 }
 
 SI F table(F v, const SkJumper_TableCtx* ctx) {
-    return gather(ctx->table, round(v, ctx->size - 1));
+    return gather(ctx->table, to_unorm(v, ctx->size - 1));
 }
 STAGE(table_r, const SkJumper_TableCtx* ctx) { r = table(r, ctx); }
 STAGE(table_g, const SkJumper_TableCtx* ctx) { g = table(g, ctx); }
@@ -881,7 +896,7 @@ STAGE(gather_a8, const SkJumper_GatherCtx* ctx) {
 STAGE(store_a8, const SkJumper_MemoryCtx* ctx) {
     auto ptr = ptr_at_xy<uint8_t>(ctx, dx,dy);
 
-    U8 packed = pack(pack(round(a, 255.0f)));
+    U8 packed = pack(pack(to_unorm(a, 255)));
     store(ptr, packed, tail);
 }
 
@@ -925,9 +940,9 @@ STAGE(gather_565, const SkJumper_GatherCtx* ctx) {
 STAGE(store_565, const SkJumper_MemoryCtx* ctx) {
     auto ptr = ptr_at_xy<uint16_t>(ctx, dx,dy);
 
-    U16 px = pack( round(r, 31.0f) << 11
-                 | round(g, 63.0f) <<  5
-                 | round(b, 31.0f)      );
+    U16 px = pack( to_unorm(r, 31) << 11
+                 | to_unorm(g, 63) <<  5
+                 | to_unorm(b, 31)      );
     store(ptr, px, tail);
 }
 
@@ -946,10 +961,10 @@ STAGE(gather_4444, const SkJumper_GatherCtx* ctx) {
 }
 STAGE(store_4444, const SkJumper_MemoryCtx* ctx) {
     auto ptr = ptr_at_xy<uint16_t>(ctx, dx,dy);
-    U16 px = pack( round(r, 15.0f) << 12
-                 | round(g, 15.0f) <<  8
-                 | round(b, 15.0f) <<  4
-                 | round(a, 15.0f)      );
+    U16 px = pack( to_unorm(r, 15) << 12
+                 | to_unorm(g, 15) <<  8
+                 | to_unorm(b, 15) <<  4
+                 | to_unorm(a, 15)      );
     store(ptr, px, tail);
 }
 
@@ -969,10 +984,10 @@ STAGE(gather_8888, const SkJumper_GatherCtx* ctx) {
 STAGE(store_8888, const SkJumper_MemoryCtx* ctx) {
     auto ptr = ptr_at_xy<uint32_t>(ctx, dx,dy);
 
-    U32 px = round(r, 255.0f)
-           | round(g, 255.0f) <<  8
-           | round(b, 255.0f) << 16
-           | round(a, 255.0f) << 24;
+    U32 px = to_unorm(r, 255)
+           | to_unorm(g, 255) <<  8
+           | to_unorm(b, 255) << 16
+           | to_unorm(a, 255) << 24;
     store(ptr, px, tail);
 }
 
@@ -992,10 +1007,10 @@ STAGE(gather_bgra, const SkJumper_GatherCtx* ctx) {
 STAGE(store_bgra, const SkJumper_MemoryCtx* ctx) {
     auto ptr = ptr_at_xy<uint32_t>(ctx, dx,dy);
 
-    U32 px = round(b, 255.0f)
-           | round(g, 255.0f) <<  8
-           | round(r, 255.0f) << 16
-           | round(a, 255.0f) << 24;
+    U32 px = to_unorm(b, 255)
+           | to_unorm(g, 255) <<  8
+           | to_unorm(r, 255) << 16
+           | to_unorm(a, 255) << 24;
     store(ptr, px, tail);
 }
 
@@ -1064,10 +1079,10 @@ STAGE(load_rgb_u16_be, const SkJumper_MemoryCtx* ctx) {
 STAGE(store_u16_be, const SkJumper_MemoryCtx* ctx) {
     auto ptr = ptr_at_xy<uint16_t>(ctx, 4*dx,dy);
 
-    U16 R = bswap(pack(round(r, 65535.0f))),
-        G = bswap(pack(round(g, 65535.0f))),
-        B = bswap(pack(round(b, 65535.0f))),
-        A = bswap(pack(round(a, 65535.0f)));
+    U16 R = bswap(pack(to_unorm(r, 65535))),
+        G = bswap(pack(to_unorm(g, 65535))),
+        B = bswap(pack(to_unorm(b, 65535))),
+        A = bswap(pack(to_unorm(a, 65535)));
 
     store4(ptr,tail, R,G,B,A);
 }

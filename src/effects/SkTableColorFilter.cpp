@@ -113,13 +113,6 @@ public:
         if (fFlags & kG_Flag) { g = ptr; ptr += 256; }
         if (fFlags & kB_Flag) { b = ptr;             }
 
-        // If our inputs are out of range, we'd attempt to read values outside our tables.
-        // We could finesse this with p->clamp_if_unclamped(kPremul_SkAlphaType) here, but
-        // this filter is already slow enough that I'd rather just be paranoid and safe.
-        p->append(SkRasterPipeline::clamp_0);
-        p->append(SkRasterPipeline::clamp_a);
-        p->set_clamped(true);
-
         if (!shaderIsOpaque) {
             p->append(SkRasterPipeline::unpremul);
         }
