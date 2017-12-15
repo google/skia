@@ -29,7 +29,8 @@ protected:
                                 FPCoordTransformIter*);
 
     // Emit transformed local coords from the vertex shader as a uniform matrix and varying per
-    // coord-transform.
+    // coord-transform. localCoordsVar must be a 2- or 3-component vector. If it is 3 then it is
+    // assumed to be a 2D homogeneous coordinate.
     void emitTransforms(GrGLSLVertexBuilder*,
                         GrGLSLVaryingHandler*,
                         GrGLSLUniformHandler*,

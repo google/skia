@@ -57,40 +57,43 @@ void GrGLSLGeometryProcessor::emitTransforms(GrGLSLVertexBuilder* vb,
                                              const SkMatrix& localMatrix,
                                              FPCoordTransformHandler* handler) {
     SkASSERT(GrSLTypeIsFloatType(localCoordsVar.getType()));
-    SkASSERT(2 == GrSLTypeVecLength(localCoordsVar.getType()));
+    SkASSERT(2 == GrSLTypeVecLength(localCoordsVar.getType()) ||
+             3 == GrSLTypeVecLength(localCoordsVar.getType()));
 
+    bool threeComponentLocalCoords = 3 == GrSLTypeVecLength(localCoordsVar.getType());
+    SkString localCoords;
+    if (threeComponentLocalCoords) {
+        localCoords = localCoordsVar.getName();
+    } else {
+        localCoords.printf("float3(%s, 1)", localCoordsVar.c_str());
+    }
     int i = 0;
     while (const GrCoordTransform* coordTransform = handler->nextCoordTransform()) {
         SkString strUniName;
         strUniName.printf("CoordTransformMatrix_%d", i);
-        GrSLType varyingType;
-
-        uint32_t type = coordTransform->getMatrix().getType();
-        type |= localMatrix.getType();
-
-        varyingType = SkToBool(SkMatrix::kPerspective_Mask & type) ? kFloat3_GrSLType :
-                                                                     kFloat2_GrSLType;
         const char* uniName;
-
-
         fInstalledTransforms.push_back().fHandle = uniformHandler->addUniform(kVertex_GrShaderFlag,
                                                                               kFloat3x3_GrSLType,
                                                                               strUniName.c_str(),
                                                                               &uniName).toIndex();
+        GrSLType varyingType = kFloat2_GrSLType;
+        if (localMatrix.hasPerspective() || coordTransform->getMatrix().hasPerspective()) {
+            varyingType = kFloat3_GrSLType;
+        }
         SkString strVaryingName;
         strVaryingName.printf("TransformedCoords_%d", i);
-
         GrGLSLVarying v(varyingType);
         varyingHandler->addVarying(strVaryingName.c_str(), &v);
 
-        SkASSERT(kFloat2_GrSLType == varyingType || kFloat3_GrSLType == varyingType);
         handler->specifyCoordsForCurrCoordTransform(SkString(v.fsIn()), varyingType);
 
         if (kFloat2_GrSLType == varyingType) {
-            vb->codeAppendf("%s = (%s * float3(%s, 1)).xy;", v.vsOut(), uniName,
-                            localCoordsVar.c_str());
+            vb->codeAppendf("%s = (%s * %s).xy;", v.vsOut(), uniName, localCoords.c_str());
+            if (threeComponentLocalCoords) {
+                vb->codeAppendf("%s /= %s.z;", v.vsOut(), localCoords.c_str());
+            }
         } else {
-            vb->codeAppendf("%s = %s * float3(%s, 1);", v.vsOut(), uniName, localCoordsVar.c_str());
+            vb->codeAppendf("%s = %s * %s;", v.vsOut(), uniName, localCoords.c_str());
         }
         ++i;
     }

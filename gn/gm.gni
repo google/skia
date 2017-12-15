@@ -101,6 +101,7 @@ gm_sources = [
   "$_gm/dashing.cpp",
   "$_gm/degeneratesegments.cpp",
   "$_gm/dftext.cpp",
+  "$_gm/dftext_blob_persp.cpp",
   "$_gm/discard.cpp",
   "$_gm/displacement.cpp",
   "$_gm/distantclip.cpp",
