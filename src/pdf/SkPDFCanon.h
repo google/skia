@@ -11,6 +11,9 @@
 #include "SkPDFGradientShader.h"
 #include "SkPDFGraphicState.h"
 #include "SkPDFShader.h"
+#ifdef SK_SUPPORT_LEGACY_PDF_PIXELSERIALIZER
+#include "SkPixelSerializer.h"
+#endif
 #include "SkTDArray.h"
 #include "SkTHash.h"
 #include "SkTypeface.h"
@@ -42,6 +45,9 @@ public:
     SkTHashMap<SkPDFStrokeGraphicState, sk_sp<SkPDFDict>> fStrokeGSMap;
     SkTHashMap<SkPDFFillGraphicState, sk_sp<SkPDFDict>> fFillGSMap;
 
+#ifdef SK_SUPPORT_LEGACY_PDF_PIXELSERIALIZER
+    sk_sp<SkPixelSerializer> fPixelSerializer;
+#endif
     sk_sp<SkPDFStream> fInvertFunction;
     sk_sp<SkPDFDict> fNoSmaskGraphicState;
     sk_sp<SkPDFArray> fRangeObject;

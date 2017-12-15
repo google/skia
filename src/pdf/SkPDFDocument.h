@@ -10,6 +10,9 @@
 #include "SkDocument.h"
 #include "SkPDFCanon.h"
 #include "SkPDFMetadata.h"
+#ifdef SK_SUPPORT_LEGACY_PDF_PIXELSERIALIZER
+#include "SkPixelSerializer.h"
+#endif
 #include "SkPDFFont.h"
 
 class SkPDFDevice;
@@ -26,7 +29,11 @@ class SkPDFDevice;
  */
 sk_sp<SkDocument> SkPDFMakeDocument(SkWStream* stream,
                                     void (*doneProc)(SkWStream*, bool),
-                                    const SkDocument::PDFMetadata&);
+                                    const SkDocument::PDFMetadata&
+#ifdef SK_SUPPORT_LEGACY_PDF_PIXELSERIALIZER
+                                    , sk_sp<SkPixelSerializer> = nullptr
+#endif
+                                    );
 
 // Logically part of SkPDFDocument (like SkPDFCanon), but separate to
 // keep similar functionality together.
@@ -53,7 +60,11 @@ class SkPDFDocument : public SkDocument {
 public:
     SkPDFDocument(SkWStream*,
                   void (*)(SkWStream*, bool),
-                  const SkDocument::PDFMetadata&);
+                  const SkDocument::PDFMetadata&
+#ifdef SK_SUPPORT_LEGACY_PDF_PIXELSERIALIZER
+                  , sk_sp<SkPixelSerializer> = nullptr
+#endif
+                  );
     ~SkPDFDocument() override;
     SkCanvas* onBeginPage(SkScalar, SkScalar) override;
     void onEndPage() override;

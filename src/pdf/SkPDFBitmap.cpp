@@ -407,7 +407,11 @@ void PDFJpegBitmap::emitObject(SkWStream* stream,
 
 ////////////////////////////////////////////////////////////////////////////////
 
-sk_sp<SkPDFObject> SkPDFCreateBitmapObject(sk_sp<SkImage> image, int encodingQuality) {
+sk_sp<SkPDFObject> SkPDFCreateBitmapObject(sk_sp<SkImage> image,
+#ifdef SK_SUPPORT_LEGACY_PDF_PIXELSERIALIZER
+                                           SkPixelSerializer* pixelSerializer,
+#endif
+                                           int encodingQuality) {
     SkASSERT(image);
     SkASSERT(encodingQuality >= 0);
     sk_sp<SkData> data = image->refEncodedData();
@@ -422,6 +426,21 @@ sk_sp<SkPDFObject> SkPDFCreateBitmapObject(sk_sp<SkImage> image, int encodingQua
             return sk_make_sp<PDFJpegBitmap>(info.fSize, data.get(), yuv);
         }
     }
+
+#ifdef SK_SUPPORT_LEGACY_PDF_PIXELSERIALIZER
+    if (pixelSerializer) {
+        SkBitmap bm;
+        if (SkPDFUtils::ToBitmap(image.get(), &bm)) {
+            data = pixelSerializer->encodeToData(bm.pixmap());
+            if (data && SkIsJFIF(data.get(), &info)) {
+                bool yuv = info.fType == SkJFIFInfo::kYCbCr;
+                if (info.fSize == image->dimensions()) {  // Sanity check.
+                    return sk_make_sp<PDFJpegBitmap>(info.fSize, data.get(), yuv);
+                }
+            }
+        }
+    }
+#endif
 
     const bool isOpaque = image_compute_is_opaque(image.get());
 
