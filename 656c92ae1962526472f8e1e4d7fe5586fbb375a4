@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "5834312f_33d19f09",
+        "filename": "include/core/SkBitmap.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 259,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-12-15T17:15:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "611bb000_09de736e",
+      "range": {
+        "startLine": 259,
+        "startChar": 37,
+        "endLine": 259,
+        "endChar": 70
+      },
+      "revId": "656c92ae1962526472f8e1e4d7fe5586fbb375a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d5a689e0_c9af117d",
         "filename": "src/core/SkBitmap.cpp",
         "patchSetId": 4
@@ -45,6 +69,30 @@
       "revId": "656c92ae1962526472f8e1e4d7fe5586fbb375a4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "183cb683_401d356e",
+        "filename": "src/core/SkBitmap.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-12-15T17:15:27Z",
+      "side": 1,
+      "message": "*bounds \u003d SkRect::Make(this-\u003edimensions())\nis cleanest, and it only makes two int-to-float conversions.",
+      "parentUuid": "d5a689e0_c9af117d",
+      "range": {
+        "startLine": 94,
+        "startChar": 14,
+        "endLine": 94,
+        "endChar": 60
+      },
+      "revId": "656c92ae1962526472f8e1e4d7fe5586fbb375a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
