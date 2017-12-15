@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "bb8b62d5_b5442810",
+        "filename": "platform_tools/android/apps/skqp/src/main/java/org/skia/skqp/SkQPRunner.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-12-15T17:51:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ea2ad95f_be728506",
+      "range": {
+        "startLine": 26,
+        "startChar": 28,
+        "endLine": 26,
+        "endChar": 45
+      },
+      "revId": "9ed45cca85889db1a2ac33cd6948a8361efe1a2d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "89ef1702_8cee717b",
         "filename": "platform_tools/android/apps/skqp/src/main/java/org/skia/skqp/SkQPRunner.java",
         "patchSetId": 6
@@ -39,6 +63,24 @@
       "revId": "9ed45cca85889db1a2ac33cd6948a8361efe1a2d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3efd8bc4_0e1566b1",
+        "filename": "platform_tools/android/apps/skqp/src/main/java/org/skia/skqp/SkQPRunner.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-12-15T17:51:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "89ef1702_8cee717b",
+      "revId": "9ed45cca85889db1a2ac33cd6948a8361efe1a2d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -59,6 +101,24 @@
     },
     {
       "key": {
+        "uuid": "faf94e27_2a588be0",
+        "filename": "platform_tools/android/apps/skqp/src/main/java/org/skia/skqp/SkQPRunner.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-12-15T17:51:27Z",
+      "side": 1,
+      "message": "\"Image mismatch: max channel diff \u003d %f\"",
+      "parentUuid": "2f46a9cc_8a8396f2",
+      "revId": "9ed45cca85889db1a2ac33cd6948a8361efe1a2d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e9875373_b5e1c247",
         "filename": "tools/skqp/jni/org_skia_skqp_SkQPRunner.cpp",
         "patchSetId": 6
@@ -73,6 +133,24 @@
       "revId": "9ed45cca85889db1a2ac33cd6948a8361efe1a2d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "86b34534_cdc0c212",
+        "filename": "tools/skqp/jni/org_skia_skqp_SkQPRunner.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-12-15T17:51:27Z",
+      "side": 1,
+      "message": "this code didn\u0027t work.  Back to the old way :(",
+      "parentUuid": "e9875373_b5e1c247",
+      "revId": "9ed45cca85889db1a2ac33cd6948a8361efe1a2d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
