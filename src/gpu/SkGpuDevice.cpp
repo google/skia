@@ -443,11 +443,11 @@ void SkGpuDevice::drawDRRect(const SkRRect& outer,
                              const SkRRect& inner, const SkPaint& paint) {
     ASSERT_SINGLE_OWNER
     GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawDRRect", fContext.get());
-    if (outer.isEmpty()) {
+    if (outer.isDegenerate()) {
        return;
     }
 
-    if (inner.isEmpty()) {
+    if (inner.isDegenerate()) {
         return this->drawRRect(outer, paint);
     }
 

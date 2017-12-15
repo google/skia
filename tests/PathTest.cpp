@@ -3659,10 +3659,11 @@ static void test_rrect(skiatest::Reporter* reporter) {
     p.addRRect(rr, SkPath::kCCW_Direction);
     REPORTER_ASSERT(reporter, !p.isConvex());
     p.reset();
-    SkRect emptyR = {10, 20, 10, 30};
-    rr.setRectRadii(emptyR, radii);
+    SkRect degenerateRR = {10, 20, 10, 30};
+    rr.setRectRadii(degenerateRR, radii);
     p.addRRect(rr);
-    REPORTER_ASSERT(reporter, p.isEmpty());
+    REPORTER_ASSERT(reporter, !p.isEmpty());
+    p.reset();
     SkRect largeR = {0, 0, SK_ScalarMax, SK_ScalarMax};
     rr.setRectRadii(largeR, radii);
     p.addRRect(rr);
@@ -3671,7 +3672,7 @@ static void test_rrect(skiatest::Reporter* reporter) {
     // we check for non-finites
     SkRect infR = {0, 0, SK_ScalarMax, SK_ScalarInfinity};
     rr.setRectRadii(infR, radii);
-    REPORTER_ASSERT(reporter, rr.isEmpty());
+    REPORTER_ASSERT(reporter, rr.isDegenerate());
 
     SkRect tinyR = {0, 0, 1e-9f, 1e-9f};
     p.addRoundRect(tinyR, 5e-11f, 5e-11f);

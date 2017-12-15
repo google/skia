@@ -45,7 +45,7 @@ static void test_empty_crbug_458524(skiatest::Reporter* reporter) {
     SkMatrix matrix;
     matrix.setScale(0, 1);
     rr.transform(matrix, &other);
-    REPORTER_ASSERT(reporter, SkRRect::kEmpty_Type == other.getType());
+    REPORTER_ASSERT(reporter, SkRRect::kDegenerate_Type == other.getType());
 }
 
 // Test that all the SkRRect entry points correctly handle un-sorted and
@@ -70,36 +70,46 @@ static void test_empty(skiatest::Reporter* reporter) {
 
     for (size_t i = 0; i < SK_ARRAY_COUNT(oooRects); ++i) {
         r.setRect(oooRects[i]);
-        REPORTER_ASSERT(reporter, !r.isEmpty());
+        REPORTER_ASSERT(reporter, !r.isDegenerate());
+        REPORTER_ASSERT(reporter, r.rect() == oooRects[i].makeSorted());
 
         r.setOval(oooRects[i]);
-        REPORTER_ASSERT(reporter, !r.isEmpty());
+        REPORTER_ASSERT(reporter, !r.isDegenerate());
+        REPORTER_ASSERT(reporter, r.rect() == oooRects[i].makeSorted());
 
         r.setRectXY(oooRects[i], 1, 2);
-        REPORTER_ASSERT(reporter, !r.isEmpty());
+        REPORTER_ASSERT(reporter, !r.isDegenerate());
+        REPORTER_ASSERT(reporter, r.rect() == oooRects[i].makeSorted());
 
         r.setNinePatch(oooRects[i], 0, 1, 2, 3);
-        REPORTER_ASSERT(reporter, !r.isEmpty());
+        REPORTER_ASSERT(reporter, !r.isDegenerate());
+        REPORTER_ASSERT(reporter, r.rect() == oooRects[i].makeSorted());
 
         r.setRectRadii(oooRects[i], radii);
-        REPORTER_ASSERT(reporter, !r.isEmpty());
+        REPORTER_ASSERT(reporter, !r.isDegenerate());
+        REPORTER_ASSERT(reporter, r.rect() == oooRects[i].makeSorted());
     }
 
     for (size_t i = 0; i < SK_ARRAY_COUNT(emptyRects); ++i) {
         r.setRect(emptyRects[i]);
-        REPORTER_ASSERT(reporter, r.isEmpty());
+        REPORTER_ASSERT(reporter, r.isDegenerate());
+        REPORTER_ASSERT(reporter, r.rect() == emptyRects[i]);
 
         r.setOval(emptyRects[i]);
-        REPORTER_ASSERT(reporter, r.isEmpty());
+        REPORTER_ASSERT(reporter, r.isDegenerate());
+        REPORTER_ASSERT(reporter, r.rect() == emptyRects[i]);
 
         r.setRectXY(emptyRects[i], 1, 2);
-        REPORTER_ASSERT(reporter, r.isEmpty());
+        REPORTER_ASSERT(reporter, r.isDegenerate());
+        REPORTER_ASSERT(reporter, r.rect() == emptyRects[i]);
 
         r.setNinePatch(emptyRects[i], 0, 1, 2, 3);
-        REPORTER_ASSERT(reporter, r.isEmpty());
+        REPORTER_ASSERT(reporter, r.isDegenerate());
+        REPORTER_ASSERT(reporter, r.rect() == emptyRects[i]);
 
         r.setRectRadii(emptyRects[i], radii);
-        REPORTER_ASSERT(reporter, r.isEmpty());
+        REPORTER_ASSERT(reporter, r.isDegenerate());
+        REPORTER_ASSERT(reporter, r.rect() == emptyRects[i]);
     }
 }
 
@@ -118,7 +128,7 @@ static void test_inset(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, rr2.isRect());
 
     rr.inset(r.width()/2, r.height()/2, &rr2);
-    REPORTER_ASSERT(reporter, rr2.isEmpty());
+    REPORTER_ASSERT(reporter, rr2.isDegenerate());
 
     rr.setRectXY(r, 20, 20);
     rr.inset(19, 19, &rr2);
@@ -159,9 +169,7 @@ static void test_round_rect_basic(skiatest::Reporter* reporter) {
     SkPoint zeroPt = { 0, 0 };
     SkRRect empty;
 
-    empty.setEmpty();
-
-    REPORTER_ASSERT(reporter, SkRRect::kEmpty_Type == empty.type());
+    REPORTER_ASSERT(reporter, SkRRect::kDegenerate_Type == empty.type());
     REPORTER_ASSERT(reporter, empty.rect().isEmpty());
 
     for (int i = 0; i < 4; ++i) {
@@ -267,9 +275,7 @@ static void test_round_rect_rects(skiatest::Reporter* reporter) {
     //----
     SkRRect empty;
 
-    empty.setEmpty();
-
-    REPORTER_ASSERT(reporter, SkRRect::kEmpty_Type == empty.type());
+    REPORTER_ASSERT(reporter, SkRRect::kDegenerate_Type == empty.type());
     r = empty.rect();
     REPORTER_ASSERT(reporter, 0 == r.fLeft && 0 == r.fTop && 0 == r.fRight && 0 == r.fBottom);
 
@@ -499,9 +505,8 @@ static void test_round_rect_contains_rect(skiatest::Reporter* reporter) {
 static void assert_transform_failure(skiatest::Reporter* reporter, const SkRRect& orig,
                                      const SkMatrix& matrix) {
     // The test depends on the fact that the original is not empty.
-    SkASSERT(!orig.isEmpty());
+    SkASSERT(!orig.isDegenerate());
     SkRRect dst;
-    dst.setEmpty();
 
     const SkRRect copyOfDst = dst;
     const SkRRect copyOfOrig = orig;
@@ -528,7 +533,6 @@ static void assert_transform_failure(skiatest::Reporter* reporter, const SkRRect
 // Called to test various transforms on a single SkRRect.
 static void test_transform_helper(skiatest::Reporter* reporter, const SkRRect& orig) {
     SkRRect dst;
-    dst.setEmpty();
 
     // The identity matrix will duplicate the rrect.
     bool success = orig.transform(SkMatrix::I(), &dst);
@@ -566,7 +570,6 @@ static void test_transform_helper(skiatest::Reporter* reporter, const SkRRect& o
     SkScalar translateY = SkIntToScalar(15);
     matrix.setTranslateX(translateX);
     matrix.setTranslateY(translateY);
-    dst.setEmpty();
     success = orig.transform(matrix, &dst);
     REPORTER_ASSERT(reporter, success);
     for (int i = 0; i < 4; ++i) {
@@ -585,7 +588,6 @@ static void test_transform_helper(skiatest::Reporter* reporter, const SkRRect& o
     // Scaling in -x will flip the round rect horizontally.
     matrix.reset();
     matrix.setScaleX(SkIntToScalar(-1));
-    dst.setEmpty();
     success = orig.transform(matrix, &dst);
     REPORTER_ASSERT(reporter, success);
     {
@@ -611,7 +613,6 @@ static void test_transform_helper(skiatest::Reporter* reporter, const SkRRect& o
     // Scaling in -y will flip the round rect vertically.
     matrix.reset();
     matrix.setScaleY(SkIntToScalar(-1));
-    dst.setEmpty();
     success = orig.transform(matrix, &dst);
     REPORTER_ASSERT(reporter, success);
     {
@@ -634,7 +635,6 @@ static void test_transform_helper(skiatest::Reporter* reporter, const SkRRect& o
     matrix.reset();
     matrix.setScaleY(SkIntToScalar(-1));
     matrix.setScaleX(SkIntToScalar(-1));
-    dst.setEmpty();
     success = orig.transform(matrix, &dst);
     REPORTER_ASSERT(reporter, success);
     {
@@ -656,7 +656,6 @@ static void test_transform_helper(skiatest::Reporter* reporter, const SkRRect& o
     matrix.reset();
     matrix.setScaleX(xScale);
     matrix.setScaleY(yScale);
-    dst.setEmpty();
     success = orig.transform(matrix, &dst);
     REPORTER_ASSERT(reporter, success);
     // Radii are scaled.
@@ -748,7 +747,7 @@ static void test_read(skiatest::Reporter* reporter) {
     static const SkRect kInfRect = {10.f, 10.f, SK_ScalarInfinity, 20.f};
     SkRRect rrect;
 
-    test_read_rrect(reporter, SkRRect::MakeEmpty(), true);
+    test_read_rrect(reporter, SkRRect(), true);
     test_read_rrect(reporter, SkRRect::MakeRect(kRect), true);
     // These get coerced to empty.
     test_read_rrect(reporter, SkRRect::MakeRect(kInfRect), true);

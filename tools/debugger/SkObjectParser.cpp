@@ -275,7 +275,7 @@ SkString* SkObjectParser::RRectToString(const SkRRect& rrect, const char* title)
 
     if (nullptr == title) {
         mRRect->append("SkRRect (");
-        if (rrect.isEmpty()) {
+        if (rrect.isDegenerate()) {
             mRRect->append("empty");
         } else if (rrect.isRect()) {
             mRRect->append("rect");

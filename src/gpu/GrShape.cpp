@@ -463,7 +463,7 @@ void GrShape::attemptToSimplifyPath() {
         fRRectData.fDir = rrectDir;
         fRRectData.fStart = rrectStart;
         fRRectData.fInverted = inverted;
-        SkASSERT(!fRRectData.fRRect.isEmpty());
+        SkASSERT(!fRRectData.fRRect.isDegenerate());
     } else if (this->path().isOval(&rect, &rrectDir, &rrectStart)) {
         this->changeType(Type::kRRect);
         fRRectData.fRRect.setOval(rect);
@@ -539,7 +539,8 @@ void GrShape::attemptToSimplifyPath() {
 void GrShape::attemptToSimplifyRRect() {
     SkASSERT(Type::kRRect == fType);
     SkASSERT(!fInheritedKey.count());
-    if (fRRectData.fRRect.isEmpty()) {
+    // TODO: This isn't valid for strokes.
+    if (fRRectData.fRRect.isDegenerate()) {
         // Dashing ignores the inverseness currently. skbug.com/5421
         fType = fRRectData.fInverted && !fStyle.isDashed() ? Type::kInvertedEmpty : Type::kEmpty;
         return;
@@ -622,7 +623,7 @@ void GrShape::attemptToSimplifyLine() {
             fRRectData.fInverted = inverted;
             fRRectData.fDir = kDefaultRRectDir;
             fRRectData.fStart = kDefaultRRectStart;
-            if (fRRectData.fRRect.isEmpty()) {
+            if (fRRectData.fRRect.isDegenerate()) {
                 // This can happen when r is very small relative to the rect edges.
                 this->changeType(inverted ? Type::kInvertedEmpty : Type::kEmpty);
                 return;

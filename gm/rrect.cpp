@@ -18,7 +18,7 @@ static void inset0(const SkRRect& src, SkScalar dx, SkScalar dy, SkRRect* dst) {
 
     r.inset(dx, dy);
     if (r.isEmpty()) {
-        dst->setEmpty();
+        dst->setRect(SkRect::MakeEmpty());
         return;
     }
 
@@ -38,7 +38,7 @@ static void inset1(const SkRRect& src, SkScalar dx, SkScalar dy, SkRRect* dst) {
 
     r.inset(dx, dy);
     if (r.isEmpty()) {
-        dst->setEmpty();
+        dst->setRect(SkRect::MakeEmpty());
         return;
     }
 
@@ -54,7 +54,7 @@ static void inset2(const SkRRect& src, SkScalar dx, SkScalar dy, SkRRect* dst) {
 
     r.inset(dx, dy);
     if (r.isEmpty()) {
-        dst->setEmpty();
+        dst->setRect(SkRect::MakeEmpty());
         return;
     }
 
@@ -82,7 +82,7 @@ static void inset3(const SkRRect& src, SkScalar dx, SkScalar dy, SkRRect* dst) {
 
     r.inset(dx, dy);
     if (r.isEmpty()) {
-        dst->setEmpty();
+        dst->setRect(SkRect::MakeEmpty());
         return;
     }
 
