@@ -258,7 +258,7 @@ int SkEdgeBuilder::buildPoly(const SkPath& path, const SkIRect* iclip, int shift
     SkPoint         pts[4];
     SkPath::Verb    verb;
 
-    int maxEdgeCount = path.countPoints();
+    size_t maxEdgeCount = path.countPoints();
     if (iclip) {
         // clipping can turn 1 line into (up to) kMaxClippedLineSegments, since
         // we turn portions that are clipped out on the left/right into vertical
@@ -331,7 +331,7 @@ int SkEdgeBuilder::buildPoly(const SkPath& path, const SkIRect* iclip, int shift
         }
     }
     SkASSERT((size_t)(edge - edgeStart) <= maxEdgeCount * edgeSize);
-    SkASSERT(edgePtr - (char**)fEdgeList <= maxEdgeCount);
+    SkASSERT((size_t)(edgePtr - (char**)fEdgeList) <= maxEdgeCount);
     return SkToInt(edgePtr - (char**)fEdgeList);
 }
 
