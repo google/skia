@@ -67,7 +67,7 @@ static bool is_orientation_marker(jpeg_marker_struct* marker, SkEncodedOrigin* o
     offset += sizeof(kExifSig) + 1;
 
     // Require that the marker is at least large enough to contain the number of entries.
-    if (marker->data_length < offset + 2) {
+    if (offset + 2 < offset || marker->data_length < offset + 2) {
         return false;
     }
     uint32_t numEntries = get_endian_short(data + offset, littleEndian);
