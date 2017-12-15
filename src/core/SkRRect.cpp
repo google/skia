@@ -17,8 +17,11 @@ void SkRRect::setRectXY(const SkRect& rect, SkScalar xRad, SkScalar yRad) {
     fRect = rect;
     fRect.sort();
 
-    if (fRect.isEmpty() || !fRect.isFinite()) {
-        this->setEmpty();
+    if (fRect.isEmpty()) {
+        this->setEmpty(fRect);
+        return;
+    } else if (!fRect.isFinite()) {
+        this->setEmpty(SkRect::MakeEmpty());
         return;
     }
 
@@ -55,8 +58,11 @@ void SkRRect::setNinePatch(const SkRect& rect, SkScalar leftRad, SkScalar topRad
     fRect = rect;
     fRect.sort();
 
-    if (fRect.isEmpty() || !fRect.isFinite()) {
-        this->setEmpty();
+    if (fRect.isEmpty()) {
+        this->setEmpty(fRect);
+        return;
+    } else if (!fRect.isFinite()) {
+        this->setEmpty(SkRect::MakeEmpty());
         return;
     }
 
@@ -126,8 +132,11 @@ void SkRRect::setRectRadii(const SkRect& rect, const SkVector radii[4]) {
     fRect = rect;
     fRect.sort();
 
-    if (fRect.isEmpty() || !fRect.isFinite()) {
-        this->setEmpty();
+    if (fRect.isEmpty()) {
+        this->setEmpty(fRect);
+        return;
+    } else if (!fRect.isFinite()) {
+        this->setEmpty(SkRect::MakeEmpty());
         return;
     }
 
@@ -296,7 +305,8 @@ void SkRRect::computeType() {
     } autoValidate(this);
 
     if (fRect.isEmpty()) {
-        fType = kEmpty_Type;
+        SkASSERT(fRect.isSorted());
+        fType = kDegenerate_Type;
         return;
     }
 
@@ -371,7 +381,7 @@ bool SkRRect::transform(const SkMatrix& matrix, SkRRect* dst) const {
     // The matrix may have scaled us to zero (or due to float madness, we now have collapsed
     // some dimension of the rect, so we need to check for that.
     if (newRect.isEmpty()) {
-        dst->setEmpty();
+        dst->setEmpty(newRect);
         return true;
     }
 
@@ -438,10 +448,10 @@ bool SkRRect::transform(const SkMatrix& matrix, SkRRect* dst) const {
 ///////////////////////////////////////////////////////////////////////////////
 
 void SkRRect::inset(SkScalar dx, SkScalar dy, SkRRect* dst) const {
-    const SkRect r = fRect.makeInset(dx, dy);
-
+    SkRect r = fRect.makeInset(dx, dy);
+    r.sort();
     if (r.isEmpty()) {
-        dst->setEmpty();
+        dst->setEmpty(r);
         return;
     }
 
@@ -563,7 +573,7 @@ bool SkRRect::isValid() const {
     }
 
     switch (fType) {
-        case kEmpty_Type:
+        case kDegenerate_Type:
             if (!fRect.isEmpty() || !allRadiiZero || !allRadiiSame || !allCornersSquare) {
                 return false;
             }
@@ -608,7 +618,7 @@ bool SkRRect::isValid() const {
 }
 
 bool SkRRect::AreRectAndRadiiValid(const SkRect& rect, const SkVector radii[4]) {
-    if (!rect.isFinite()) {
+    if (!rect.isFinite() || !rect.isSorted()) {
         return false;
     }
     for (int i = 0; i < 4; ++i) {

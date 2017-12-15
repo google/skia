@@ -46,7 +46,7 @@ protected:
         SkRRect inners[5];
         r.inset(25, 25);
 
-        inners[0].setEmpty();
+        inners[0].setRect(SkRect::MakeEmpty());
         inners[1].setRect(r);
         inners[2].setOval(r);
         inners[3].setRectXY(r, 20, 20);

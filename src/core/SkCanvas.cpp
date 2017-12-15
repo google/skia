@@ -1678,10 +1678,10 @@ GrContext* SkCanvas::getGrContext() {
 void SkCanvas::drawDRRect(const SkRRect& outer, const SkRRect& inner,
                           const SkPaint& paint) {
     TRACE_EVENT0("skia", TRACE_FUNC);
-    if (outer.isEmpty()) {
+    if (outer.isDegenerate()) {
         return;
     }
-    if (inner.isEmpty()) {
+    if (inner.isDegenerate()) {
         this->drawRRect(outer, paint);
         return;
     }

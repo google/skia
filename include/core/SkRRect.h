@@ -48,7 +48,9 @@ class SkWBuffer;
 */
 class SK_API SkRRect {
 public:
-    SkRRect() { this->setEmpty(); }
+    /** Default initialized to a degenerate rrect at the origin. */
+    SkRRect() { this->setEmpty(SkRect::MakeEmpty()); }
+
     SkRRect(const SkRRect&) = default;
     SkRRect& operator=(const SkRRect&) = default;
 
@@ -57,8 +59,8 @@ public:
      * by type(). The subtypes become progressively less restrictive.
      */
     enum Type {
-        // !< The RR is empty
-        kEmpty_Type,
+        // !< The RR is has zero width and/or zero height.
+        kDegenerate_Type,
 
         //!< The RR is actually a (non-empty) rect (i.e., at least one radius
         //!< at each corner is zero)
@@ -99,7 +101,7 @@ public:
 
     Type type() const { return this->getType(); }
 
-    inline bool isEmpty() const { return kEmpty_Type == this->getType(); }
+    inline bool isDegenerate() const { return kDegenerate_Type == this->getType(); }
     inline bool isRect() const { return kRect_Type == this->getType(); }
     inline bool isOval() const { return kOval_Type == this->getType(); }
     inline bool isSimple() const { return kSimple_Type == this->getType(); }
@@ -120,25 +122,19 @@ public:
     SkScalar height() const { return fRect.height(); }
 
     /**
-     * Set this RR to the empty rectangle (0,0,0,0) with 0 x & y radii.
-     */
-    void setEmpty() {
-        fRect.setEmpty();
-        memset(fRadii, 0, sizeof(fRadii));
-        fType = kEmpty_Type;
-
-        SkASSERT(this->isValid());
-    }
-
-    /**
-     * Set this RR to match the supplied rect. All radii will be 0.
+     * Set this RR to match the supplied rect. All radii will be 0. A non-finite rect will
+     * converted to an empty rect at the origin.
      */
     void setRect(const SkRect& rect) {
         fRect = rect;
         fRect.sort();
 
-        if (fRect.isEmpty() || !fRect.isFinite()) {
-            this->setEmpty();
+        if (fRect.isEmpty()) {
+            this->setEmpty(fRect);
+            return;
+        }
+        if (!fRect.isFinite()) {
+            this->setEmpty(SkRect::MakeEmpty());
             return;
         }
 
@@ -146,12 +142,6 @@ public:
         fType = kRect_Type;
 
         SkASSERT(this->isValid());
-    }
-
-    static SkRRect MakeEmpty() {
-        SkRRect rr;
-        rr.setEmpty();
-        return rr;
     }
 
     static SkRRect MakeRect(const SkRect& r) {
@@ -180,8 +170,12 @@ public:
         fRect = oval;
         fRect.sort();
 
-        if (fRect.isEmpty() || !fRect.isFinite()) {
-            this->setEmpty();
+        if (fRect.isEmpty()) {
+            this->setEmpty(fRect);
+            return;
+        }
+        if (!fRect.isFinite()) {
+            this->setEmpty(SkRect::MakeEmpty());
             return;
         }
 
@@ -336,6 +330,15 @@ private:
         : fRect(rect)
         , fRadii{radii[0], radii[1], radii[2], radii[3]}
         , fType(type) {}
+
+    void setEmpty(const SkRect& emptyRect) {
+        SkASSERT(emptyRect.isEmpty() && emptyRect.isSorted());
+        fRect = emptyRect;
+        memset(fRadii, 0, sizeof(fRadii));
+        fType = kDegenerate_Type;
+
+        SkASSERT(this->isValid());
+    }
 
     SkRect fRect;
     // Radii order is UL, UR, LR, LL. Use Corner enum to index into fRadii[]

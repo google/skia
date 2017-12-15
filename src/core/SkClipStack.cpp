@@ -22,7 +22,7 @@ int32_t SkClipStack::gGenID = kFirstUnreservedGenID;
 SkClipStack::Element::Element(const Element& that) {
     switch (that.getDeviceSpaceType()) {
         case DeviceSpaceType::kEmpty:
-            fDeviceSpaceRRect.setEmpty();
+            fDeviceSpaceRRect.setRect(SkRect::MakeEmpty());
             fDeviceSpacePath.reset();
             break;
         case DeviceSpaceType::kRect:  // Rect uses rrect
@@ -172,7 +172,7 @@ void SkClipStack::Element::initRRect(int saveCount, const SkRRect& rrect, const 
                                      SkClipOp op, bool doAA) {
     if (rrect.transform(m, &fDeviceSpaceRRect)) {
         SkRRect::Type type = fDeviceSpaceRRect.getType();
-        if (SkRRect::kRect_Type == type || SkRRect::kEmpty_Type == type) {
+        if (SkRRect::kRect_Type == type || SkRRect::kDegenerate_Type == type) {
             fDeviceSpaceType = DeviceSpaceType::kRect;
         } else {
             fDeviceSpaceType = DeviceSpaceType::kRRect;
@@ -241,7 +241,7 @@ void SkClipStack::Element::setEmpty() {
     fFiniteBound.setEmpty();
     fFiniteBoundType = kNormal_BoundsType;
     fIsIntersectionOfRects = false;
-    fDeviceSpaceRRect.setEmpty();
+    fDeviceSpaceRRect.setRect(SkRect::MakeEmpty());
     fDeviceSpacePath.reset();
     fGenID = kEmptyGenID;
     SkDEBUGCODE(this->checkEmpty();)
@@ -252,7 +252,7 @@ void SkClipStack::Element::checkEmpty() const {
     SkASSERT(kNormal_BoundsType == fFiniteBoundType);
     SkASSERT(!fIsIntersectionOfRects);
     SkASSERT(kEmptyGenID == fGenID);
-    SkASSERT(fDeviceSpaceRRect.isEmpty());
+    SkASSERT(fDeviceSpaceRRect.isDegenerate());
     SkASSERT(!fDeviceSpacePath.isValid());
 }
 

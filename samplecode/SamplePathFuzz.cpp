@@ -325,7 +325,6 @@ SkRRect makeRRect() {
     }
     switch (rrectType) {
         case kSetEmpty:
-            rrect.setEmpty();
             break;
         case kSetRect: {
             SkRect rect = makeRect();
