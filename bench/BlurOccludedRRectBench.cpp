@@ -27,8 +27,6 @@ public:
 
     void onDraw(int loops, SkCanvas* canvas) override {
         for (int l = 0; l < loops; ++l) {
-            canvas->clear(0xFFFAFAFA);
-
             SkPaint opaque;
             opaque.setAntiAlias(true);
             opaque.setColor(SK_ColorWHITE);

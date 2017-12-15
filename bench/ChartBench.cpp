@@ -132,9 +132,6 @@ protected:
         }
 
         for (int frame = 0; frame < loops; ++frame) {
-
-            canvas->clear(0xFFE0F0E0);
-
             SkPath plotPath;
             SkPath fillPath;
 
