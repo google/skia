@@ -142,7 +142,7 @@ size of pixel row or larger</td>
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name="367bdf6ee6ef2482eea95d4a9887c9b0"></fiddle-embed></div>
 
 ### See Also
 
@@ -171,9 +171,13 @@ static sk_sp&lt;SkImage&gt; MakeFromRaster(const SkPixmap& pixmap, RasterRelease
                                      ReleaseContext releaseContext)
 </pre>
 
-Creates <a href="#Image">Image</a> from <a href="#SkImage_MakeFromRaster_pixmap">pixmap</a>, sharing <a href="#SkImage_MakeFromRaster_pixmap">pixmap</a> pixels. Pixels must remain valid and
+Creates <a href="#Image">Image</a> from <a href="#SkImage_MakeFromRaster_pixmap">pixmap</a>, sharing <a href="SkPixmap_Reference#Pixmap">Pixmap</a> pixels. Pixels must remain valid and
 unchanged until <a href="#SkImage_MakeFromRaster_rasterReleaseProc">rasterReleaseProc</a> is called. <a href="#SkImage_MakeFromRaster_rasterReleaseProc">rasterReleaseProc</a> is passed
 <a href="#SkImage_MakeFromRaster_releaseContext">releaseContext</a> when <a href="#Image">Image</a> is deleted or no longer refers to <a href="#SkImage_MakeFromRaster_pixmap">pixmap</a> pixels.
+
+Pass nullptr for <a href="#SkImage_MakeFromRaster_rasterReleaseProc">rasterReleaseProc</a> to share <a href="SkPixmap_Reference#Pixmap">Pixmap</a> without requiring a callback
+when <a href="#Image">Image</a> is released. Pass nullptr for <a href="#SkImage_MakeFromRaster_releaseContext">releaseContext</a> if <a href="#SkImage_MakeFromRaster_rasterReleaseProc">rasterReleaseProc</a>
+does not require state.
 
 <a href="#Image">Image</a> is returned if <a href="#SkImage_MakeFromRaster_pixmap">pixmap</a> is valid. Valid <a href="SkPixmap_Reference#Pixmap">Pixmap</a> parameters include:
 <a href="#SkImage_dimensions">dimensions</a> are greater than zero;
@@ -187,19 +191,28 @@ pixel address is not nullptr.
 <table>  <tr>    <td><a name="SkImage_MakeFromRaster_pixmap"> <code><strong>pixmap </strong></code> </a></td> <td>
 <a href="#Info">Image Info</a>, pixel address, and row bytes</td>
   </tr>  <tr>    <td><a name="SkImage_MakeFromRaster_rasterReleaseProc"> <code><strong>rasterReleaseProc </strong></code> </a></td> <td>
-function called when pixels can be released</td>
+function called when pixels can be released; or nullptr</td>
   </tr>  <tr>    <td><a name="SkImage_MakeFromRaster_releaseContext"> <code><strong>releaseContext </strong></code> </a></td> <td>
-state passed to <a href="#SkImage_MakeFromRaster_rasterReleaseProc">rasterReleaseProc</a></td>
+state passed to <a href="#SkImage_MakeFromRaster_rasterReleaseProc">rasterReleaseProc</a>; or nullptr</td>
   </tr>
 </table>
 
 ### Return Value
 
-incomplete
+<a href="#Image">Image</a> sharing <a href="#SkImage_MakeFromRaster_pixmap">pixmap</a>
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name="275356b65d18c8868f4434137350cddc">
+
+#### Example Output
+
+~~~~
+before reset: 0
+after reset: 1
+~~~~
+
+</fiddle-embed></div>
 
 ### See Also
 
@@ -238,7 +251,10 @@ created <a href="#Image">Image</a>, or nullptr
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name="cf2cf53321e4e6a77c2841bfbc0ef707"><div>The first <a href="SkBitmap_Reference#Bitmap">Bitmap</a> is shared; writing to the pixel memory changes the first
+<a href="#Image">Image</a>.
+The second <a href="SkBitmap_Reference#Bitmap">Bitmap</a> is marked immutable, and is copied; writing to the pixel
+memory does not alter the second <a href="#Image">Image</a>.</div></fiddle-embed></div>
 
 ### See Also
 
@@ -254,12 +270,14 @@ static sk_sp&lt;SkImage&gt; MakeFromGenerator(std::unique_ptr&lt;SkImageGenerato
                                  const SkIRect* subset = nullptr)
 </pre>
 
-Creates <a href="#Image">Image</a> based from <a href="#SkImage_MakeFromGenerator_imageGenerator">imageGenerator</a>.
-Takes ownership of <a href="#SkImage_MakeFromGenerator_imageGenerator">imageGenerator</a>; it may not be used elsewhere.
-If <a href="#SkImage_MakeFromGenerator_subset">subset</a> is not nullptr, it must be contained within <a href="#SkImage_MakeFromGenerator_imageGenerator">imageGenerator</a> data <a href="#SkImage_bounds">bounds</a>.
+Creates <a href="#Image">Image</a> from data returned by <a href="#SkImage_MakeFromGenerator_imageGenerator">imageGenerator</a>. Generated data is owned by <a href="#Image">Image</a> and may not
+be shared or accessed.
 
-<a href="#Image">Image</a> is returned if generator data is valid. Valid data parameters vary
-by type of data and platform.
+<a href="#SkImage_MakeFromGenerator_subset">subset</a> allows selecting a portion of the full image. Pass nullptr to select the entire image;
+otherwise, <a href="#SkImage_MakeFromGenerator_subset">subset</a> must be contained by image <a href="#SkImage_bounds">bounds</a>.
+
+<a href="#Image">Image</a> is returned if generator data is valid. Valid data parameters vary by type of data
+and platform.
 
 <a href="#SkImage_MakeFromGenerator_imageGenerator">imageGenerator</a> may wrap <a href="undocumented#Picture">Picture</a> data, codec data, or custom data.
 
@@ -278,7 +296,7 @@ created <a href="#Image">Image</a>, or nullptr
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name="ba59d292a18cb0e8a90e1bb143115f1d"><div>The generator returning <a href="undocumented#Picture">Picture</a> cannot be shared; std::move transfers ownership to generated <a href="#Image">Image</a>.</div></fiddle-embed></div>
 
 ### See Also
 
@@ -294,7 +312,8 @@ static sk_sp&lt;SkImage&gt; MakeFromEncoded(sk_sp&lt;SkData&gt; encoded, const S
 </pre>
 
 Creates <a href="#Image">Image</a> from <a href="#SkImage_MakeFromEncoded_encoded">encoded</a> data. 
-If a <a href="#SkImage_MakeFromEncoded_subset">subset</a> is not nullptr, it must be contained within <a href="#SkImage_MakeFromEncoded_encoded">encoded</a> data <a href="#SkImage_bounds">bounds</a>.
+<a href="#SkImage_MakeFromEncoded_subset">subset</a> allows selecting a portion of the full image. Pass nullptr to select the entire image;
+otherwise, <a href="#SkImage_MakeFromEncoded_subset">subset</a> must be contained by image <a href="#SkImage_bounds">bounds</a>.
 
 <a href="#Image">Image</a> is returned if format of the <a href="#SkImage_MakeFromEncoded_encoded">encoded</a> data is recognized and supported.
 Recognized formats vary by platfrom.
@@ -311,10 +330,6 @@ data of <a href="#Image">Image</a> to decode</td>
 ### Return Value
 
 created <a href="#Image">Image</a>, or nullptr
-
-### Example
-
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
 
 ### See Also
 
@@ -359,7 +374,7 @@ created <a href="#Image">Image</a>, or nullptr
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name="2faa98d6a1d578010326af17ee7e4d2a" gpu="true"><div>A back-end texture has been created and uploaded to the <a href="undocumented#GPU">GPU</a> outside of this example.</div></fiddle-embed></div>
 
 ### See Also
 
@@ -408,7 +423,7 @@ created <a href="#Image">Image</a>, or nullptr
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name="dea2835da4be78d1e9ab4be58010d1ad"></fiddle-embed></div>
 
 ### See Also
 
