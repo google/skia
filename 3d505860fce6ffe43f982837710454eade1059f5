@@ -93,6 +93,54 @@
       "revId": "3d505860fce6ffe43f982837710454eade1059f5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8b70dd9e_61629913",
+        "filename": "src/core/SkICC.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 285,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-12-15T16:53:49Z",
+      "side": 1,
+      "message": "I think that the round-trip (within Skia) is less likely, but float -\u003e fixed is somewhat likely -- for clients rendering to \"known\" color spaces (like Rec 2020 or DCI P3), it\u0027s much easier for them to create those color spaces via SkColorSpacePrimaries (and copying the values from the relevant spec). That\u0027s going to lead to XYZ values that didn\u0027t originate with an SkFixed, so this fix ensures that we write out such color spaces as accurately as possible.",
+      "parentUuid": "970c67e1_22e28389",
+      "range": {
+        "startLine": 285,
+        "startChar": 14,
+        "endLine": 285,
+        "endChar": 37
+      },
+      "revId": "3d505860fce6ffe43f982837710454eade1059f5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a2c1462d_91cfcbe4",
+        "filename": "src/core/SkICC.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 285,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-12-15T16:53:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a57d22f4_5fcb9586",
+      "range": {
+        "startLine": 285,
+        "startChar": 70,
+        "endLine": 285,
+        "endChar": 73
+      },
+      "revId": "3d505860fce6ffe43f982837710454eade1059f5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
