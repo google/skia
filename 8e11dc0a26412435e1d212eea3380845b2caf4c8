@@ -52,6 +52,24 @@
       "revId": "8e11dc0a26412435e1d212eea3380845b2caf4c8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a628bb3e_01e1fb87",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 4
+      },
+      "lineNbr": 284,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-12-15T17:48:28Z",
+      "side": 1,
+      "message": "Ah, ok. I wasn\u0027t sure about Test, but if 4x cores makes it 4x faster, that\u0027s definitely a win.",
+      "parentUuid": "beb4c0d4_482019c1",
+      "revId": "8e11dc0a26412435e1d212eea3380845b2caf4c8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
