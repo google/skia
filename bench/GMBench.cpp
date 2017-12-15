@@ -27,6 +27,7 @@ void GMBench::onDraw(int loops, SkCanvas* canvas) {
     // Does the GM ever rely on drawBackground to lazily compute something?
     fGM->drawBackground(canvas);
     for (int i = 0; i < loops; ++i) {
+        SkAutoCanvasRestore acr(canvas, true);
         fGM->drawContent(canvas);
     }
 }
