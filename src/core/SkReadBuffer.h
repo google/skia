@@ -216,7 +216,7 @@ public:
 
     void setDeserialProcs(const SkDeserialProcs& procs);
 
-#ifdef SK_SUPPORT_LEGACY_IMAGEDESERIALIZER
+#ifdef SK_SUPPORT_LEGACY_SERIAL_BUFFER_OBJECTS
     void setImageDeserializer(SkImageDeserializer* factory);
 #endif
 
