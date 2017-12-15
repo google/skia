@@ -2,6 +2,46 @@
   "comments": [
     {
       "key": {
+        "uuid": "ddb8c377_7373b538",
+        "filename": "include/core/SkBitmap.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2017-12-15T17:34:01Z",
+      "side": 1,
+      "message": "Is the intent for this to replace peekPixels()? Should peekPixels() be marked obsolete or deprecated?",
+      "revId": "1958444ab9d657b773148b6996744a86a4ca097c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "89ee117a_6d27943b",
+        "filename": "include/core/SkPixmap.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2017-12-15T17:34:01Z",
+      "side": 1,
+      "message": "Are these additions used anywhere? Tested? Do they make code more clear?\n\nI am dubious of these because of the wonky nature of their arguments. Not all alpha types work with all colorTypes, etc. and there\u0027s no return to show if the call did something or not.\n\nUnless you need these, I recommend not adding them.",
+      "range": {
+        "startLine": 102,
+        "startChar": 41,
+        "endLine": 102,
+        "endChar": 42
+      },
+      "revId": "1958444ab9d657b773148b6996744a86a4ca097c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "26adadd0_e96d7f43",
         "filename": "include/core/SkPixmap.h",
         "patchSetId": 8
