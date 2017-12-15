@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "26adadd0_e96d7f43",
+        "filename": "include/core/SkPixmap.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-12-15T17:24:41Z",
+      "side": 1,
+      "message": "This is kind of a funny API. setAlphaType makes sense (we may figure out that it\u0027s opaque after the fact), but this one seems like it could easily result in garbage. Maybe the client should just call reset? (Also, it looks like it\u0027s never called?)",
+      "range": {
+        "startLine": 111,
+        "startChar": 9,
+        "endLine": 111,
+        "endChar": 21
+      },
+      "revId": "1958444ab9d657b773148b6996744a86a4ca097c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "21195edb_1a6c7cc0",
+        "filename": "include/core/SkPixmap.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-12-15T17:24:41Z",
+      "side": 1,
+      "message": "Maybe this should be combined with setPixels? It seems funny that you would only change the row bytes.",
+      "range": {
+        "startLine": 123,
+        "startChar": 9,
+        "endLine": 123,
+        "endChar": 20
+      },
+      "revId": "1958444ab9d657b773148b6996744a86a4ca097c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
