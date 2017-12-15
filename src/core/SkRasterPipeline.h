@@ -150,11 +150,6 @@ public:
 
     bool empty() const { return fStages == nullptr; }
 
-    // Used to track if we're handling values outside [0.0f, 1.0f],
-    // and to clamp back to [0.0f, 1.0f] if so.
-    void set_clamped(bool clamped) { fClamped = clamped; }
-    void clamp_if_unclamped(SkAlphaType);
-
 private:
     struct StageList {
         StageList* prev;
@@ -169,7 +164,6 @@ private:
     StageList*    fStages;
     int           fNumStages;
     int           fSlotsNeeded;
-    bool          fClamped;
 };
 
 template <size_t bytes>
