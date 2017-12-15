@@ -10,20 +10,15 @@
 #include "SkRefCnt.h"
 
 class SkImage;
-#ifdef SK_SUPPORT_LEGACY_PDF_PIXELSERIALIZER
-class SkPixelSerializer;
-#endif
 class SkPDFObject;
 
 /**
  * SkPDFBitmap wraps a SkImage and serializes it as an image Xobject.
  * It is designed to use a minimal amout of memory, aside from refing
  * the image, and its emitObject() does not cache any data.
+ *
+ *  quality > 100 means lossless
  */
-sk_sp<SkPDFObject> SkPDFCreateBitmapObject(sk_sp<SkImage>,
-#ifdef SK_SUPPORT_LEGACY_PDF_PIXELSERIALIZER
-                                           SkPixelSerializer*,
-#endif
-                                           int encodingQuality);
+sk_sp<SkPDFObject> SkPDFCreateBitmapObject(sk_sp<SkImage>, int encodingQuality = 101);
 
 #endif  // SkPDFBitmap_DEFINED
