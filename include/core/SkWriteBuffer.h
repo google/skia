@@ -9,6 +9,8 @@
 #ifndef SkWriteBuffer_DEFINED
 #define SkWriteBuffer_DEFINED
 
+#define SK_SUPPORT_LEGACY_SERIAL_BUFFER_OBJECTS
+
 #include "SkData.h"
 #include "SkImage.h"
 #include "SkPath.h"
@@ -18,7 +20,9 @@
 #include "SkWriter32.h"
 #include "../private/SkTHash.h"
 
+#ifdef SK_SUPPORT_LEGACY_SERIAL_BUFFER_OBJECTS
 #include "SkPixelSerializer.h"
+#endif
 
 class SkBitmap;
 class SkDeduper;
@@ -153,7 +157,9 @@ public:
     SkFactorySet* setFactoryRecorder(SkFactorySet*);
     SkRefCntSet* setTypefaceRecorder(SkRefCntSet*);
 
+#ifdef SK_SUPPORT_LEGACY_SERIAL_BUFFER_OBJECTS
     void setPixelSerializer(sk_sp<SkPixelSerializer>);
+#endif
 
 private:
     const uint32_t fFlags;
@@ -165,7 +171,9 @@ private:
     // Only used if we do not have an fFactorySet
     SkTHashMap<SkString, uint32_t> fFlattenableDict;
 
+#ifdef SK_SUPPORT_LEGACY_SERIAL_BUFFER_OBJECTS
     sk_sp<SkPixelSerializer> fPS;
+#endif
 };
 
 #endif // SkWriteBuffer_DEFINED

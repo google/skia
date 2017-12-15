@@ -143,13 +143,18 @@ sk_sp<SkPicture> SkPicture::Forwardport(const SkPictInfo& info,
     return r.finishRecordingAsPicture();
 }
 
-#ifdef SK_SUPPORT_LEGACY_IMAGEDESERIALIZER
 sk_sp<SkPicture> SkPicture::MakeFromStream(SkStream* stream, SkImageDeserializer* factory) {
     SkDeserialProcs procs;
     procs.fImageProc = ImageDeserializer_SkDeserialImageProc;
     procs.fImageCtx  = factory;
     return MakeFromStream(stream, procs, nullptr);
 }
+
+sk_sp<SkPicture> SkPicture::MakeFromStream(SkStream* stream) {
+    SkImageDeserializer factory;
+    return MakeFromStream(stream, &factory);
+}
+
 sk_sp<SkPicture> SkPicture::MakeFromData(const void* data, size_t size,
                                          SkImageDeserializer* factory) {
     SkMemoryStream stream(data, size);
@@ -163,28 +168,6 @@ sk_sp<SkPicture> SkPicture::MakeFromData(const SkData* data, SkImageDeserializer
     SkMemoryStream stream(data->data(), data->size());
     return MakeFromStream(&stream, factory);
 }
-#endif
-
-sk_sp<SkPicture> SkPicture::MakeFromStream(SkStream* stream) {
-    return MakeFromStream(stream, SkDeserialProcs(), nullptr);
-}
-
-sk_sp<SkPicture> SkPicture::MakeFromData(const void* data, size_t size) {
-    if (!data) {
-        return nullptr;
-    }
-    SkMemoryStream stream(data, size);
-    return MakeFromStream(&stream, SkDeserialProcs(), nullptr);
-}
-
-sk_sp<SkPicture> SkPicture::MakeFromData(const SkData* data) {
-    if (!data) {
-        return nullptr;
-    }
-    SkMemoryStream stream(data->data(), data->size());
-    return MakeFromStream(&stream, SkDeserialProcs(), nullptr);
-}
-
 
 sk_sp<SkPicture> SkPicture::MakeFromData(const SkData* data, const SkDeserialProcs& procs) {
     if (!data) {
@@ -382,13 +365,24 @@ bool SkPicture::PictureIOSecurityPrecautionsEnabled() {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "SkReadBuffer.h"
-#include "SkWriteBuffer.h"
-
 sk_sp<SkData> PixelSerializer_SkSerialImageProc(SkImage* img, void* ctx) {
     SkASSERT(ctx);
     return img->encodeToData(static_cast<SkPixelSerializer*>(ctx));
 }
+
+sk_sp<SkImage> ImageDeserializer_SkDeserialImageProc(const void* data, size_t length, void* ctx) {
+    SkASSERT(ctx);
+    SkImageDeserializer* imd = static_cast<SkImageDeserializer*>(ctx);
+    const SkIRect* subset = nullptr;
+    return imd->makeFromMemory(data, length, subset);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+#ifdef SK_SUPPORT_LEGACY_SERIAL_BUFFER_OBJECTS
+#include "SkReadBuffer.h"
+#include "SkWriteBuffer.h"
+
 void SkBinaryWriteBuffer::setPixelSerializer(sk_sp<SkPixelSerializer> ps) {
     fPS = ps;
     if (ps) {
@@ -400,13 +394,6 @@ void SkBinaryWriteBuffer::setPixelSerializer(sk_sp<SkPixelSerializer> ps) {
     }
 }
 
-#ifdef SK_SUPPORT_LEGACY_IMAGEDESERIALIZER
-sk_sp<SkImage> ImageDeserializer_SkDeserialImageProc(const void* data, size_t length, void* ctx) {
-    SkASSERT(ctx);
-    SkImageDeserializer* imd = static_cast<SkImageDeserializer*>(ctx);
-    const SkIRect* subset = nullptr;
-    return imd->makeFromMemory(data, length, subset);
-}
 void SkReadBuffer::setImageDeserializer(SkImageDeserializer* factory) {
     if (factory) {
         fProcs.fImageProc = ImageDeserializer_SkDeserialImageProc;

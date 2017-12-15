@@ -14,7 +14,6 @@ struct SkIRect;
 class SkData;
 class SkImage;
 
-#ifdef SK_SUPPORT_LEGACY_IMAGEDESERIALIZER
 class SK_API SkImageDeserializer {
 public:
     virtual ~SkImageDeserializer() {}
@@ -33,6 +32,5 @@ public:
     virtual sk_sp<SkImage> makeFromData(SkData*, const SkIRect* subset);
     virtual sk_sp<SkImage> makeFromMemory(const void* data, size_t length, const SkIRect* subset);
 };
-#endif
 
 #endif
