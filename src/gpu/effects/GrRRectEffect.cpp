@@ -132,9 +132,7 @@ std::unique_ptr<GrFragmentProcessor> CircularRRectEffect::TestCreate(GrProcessor
 
 class GLCircularRRectEffect : public GrGLSLFragmentProcessor {
 public:
-    GLCircularRRectEffect() {
-        fPrevRRect.setEmpty();
-    }
+    GLCircularRRectEffect() = default;
 
     virtual void emitCode(EmitArgs&) override;
 
@@ -483,9 +481,7 @@ std::unique_ptr<GrFragmentProcessor> EllipticalRRectEffect::TestCreate(GrProcess
 
 class GLEllipticalRRectEffect : public GrGLSLFragmentProcessor {
 public:
-    GLEllipticalRRectEffect() {
-        fPrevRRect.setEmpty();
-    }
+    GLEllipticalRRectEffect() = default;
 
     void emitCode(EmitArgs&) override;
 
