@@ -13,6 +13,7 @@
 #include "SkMathPriv.h"
 #include "SkMatrixPriv.h"
 #include "SkReadBuffer.h"
+#include "SkSafeMath.h"
 #include "SkStream.h"
 #include "SkTypeface.h"
 
@@ -91,6 +92,21 @@ void SkReadBuffer::setInvalid() {
         fReader.skip(fReader.available());
         fError = true;
     }
+}
+
+size_t SkReadBuffer::available() const {
+    return fReader.available();
+}
+
+bool SkReadBuffer::isAvailable(size_t size) const {
+    return fReader.isAvailable(size);
+}
+
+bool SkReadBuffer::isArrayAvailable(size_t elemSize, uint32_t count) const {
+    SkSafeMath safe;
+    size_t size = safe.mul(elemSize, count);
+    size = safe.add(size, sizeof(uint32_t));    // we store the count as well
+    return safe.ok() && this->isAvailable(size);
 }
 
 const void* SkReadBuffer::skip(size_t size) {

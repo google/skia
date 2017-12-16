@@ -637,3 +637,19 @@ DEF_TEST(Annotations, reporter) {
     TestAnnotationCanvas canvas(reporter, recs, SK_ARRAY_COUNT(recs));
     canvas.drawPicture(pict1);
 }
+
+DEF_TEST(readbuffer_available, reporter) {
+    char storage[100];
+    SkReadBuffer buffer(storage, 100);
+
+    REPORTER_ASSERT(reporter, buffer.available() == 100);
+    REPORTER_ASSERT(reporter, buffer.isAvailable(0));
+    REPORTER_ASSERT(reporter, buffer.isAvailable(99));
+    REPORTER_ASSERT(reporter, buffer.isAvailable(100));
+    REPORTER_ASSERT(reporter, !buffer.isAvailable(101));
+
+    REPORTER_ASSERT(reporter, buffer.isArrayAvailable(4, 24));
+    REPORTER_ASSERT(reporter, !buffer.isArrayAvailable(4, 25));  // need room for "count"
+    REPORTER_ASSERT(reporter, !buffer.isArrayAvailable(0x7FFFFFFFF, 0x7FFFFFFF));
+}
+

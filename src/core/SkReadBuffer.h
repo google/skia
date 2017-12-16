@@ -116,6 +116,19 @@ public:
     bool eof() { return fReader.eof(); }
     const void* skip(size_t size);
 
+    size_t available() const;
+    bool isAvailable(size_t size) const;
+    bool isArrayAvailable(size_t elemSize, uint32_t count) const;
+    bool isScalarArrayAvailable(uint32_t count) const {
+        return this->isArrayAvailable(sizeof(SkScalar), count);
+    }
+    bool isIntArrayAvailable(uint32_t count) const {
+        return this->isArrayAvailable(sizeof(uint32_t), count);
+    }
+    bool byteArrayAvailable(uint32_t count) const {
+        return this->isArrayAvailable(sizeof(uint8_t), count);
+    }
+
     // primitives
     bool readBool();
     SkColor readColor();
