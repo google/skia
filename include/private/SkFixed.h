@@ -30,11 +30,6 @@ typedef int32_t             SkFixed;
 #define SK_FixedTanPIOver8  (0x6A0A)
 #define SK_FixedRoot2Over2  (0xB505)
 
-// NOTE: SkFixedToFloat is exact. SkFloatToFixed seems to lack a rounding step. For all fixed-point
-// values, this version is as accurate as possible for (fixed -> float -> fixed). Rounding reduces
-// accuracy if the intermediate floats are in the range that only holds integers (adding 0.5f to an
-// odd integer then snaps to nearest even). Using double for the rounding math gives maximum
-// accuracy for (float -> fixed -> float), but that's usually overkill.
 #define SkFixedToFloat(x)   ((x) * 1.52587890625e-5f)
 #define SkFloatToFixed(x)   sk_float_saturate2int((x) * SK_Fixed1)
 
