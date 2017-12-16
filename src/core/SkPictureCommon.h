@@ -142,7 +142,6 @@ struct SkPathCounter {
     int fNumSlowPathsAndDashEffects;
 };
 
-sk_sp<SkData> PixelSerializer_SkSerialImageProc(SkImage*, void* pixelserializer);
 sk_sp<SkImage> ImageDeserializer_SkDeserialImageProc(const void*, size_t, void* imagedeserializer);
 
 #endif  // SkPictureCommon_DEFINED

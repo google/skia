@@ -279,10 +279,7 @@ void SkDebuggerGUI::drawComplete() {
 
 void SkDebuggerGUI::saveToFile(const SkString& filename) {
     SkFILEWStream file(filename.c_str());
-    sk_sp<SkPicture> copy(fDebugger.copyPicture());
-
-    sk_sp<SkPixelSerializer> serializer(sk_tool_utils::MakePixelSerializer());
-    copy->serialize(&file, serializer.get());
+    fDebugger.copyPicture()->serialize(&file);
 }
 
 void SkDebuggerGUI::loadFile(QListWidgetItem *item) {

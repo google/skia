@@ -242,18 +242,13 @@ SkPictureData* SkPicture::backport() const {
     return new SkPictureData(rec, info);
 }
 
-void SkPicture::serialize(SkWStream* stream, SkPixelSerializer* pixelSerializer) const {
-    SkSerialProcs procs;
-    if (pixelSerializer) {
-        procs.fImageProc = PixelSerializer_SkSerialImageProc;
-        procs.fImageCtx  = pixelSerializer;
-    }
-    this->serialize(stream, procs, nullptr);
+void SkPicture::serialize(SkWStream* stream) const {
+    this->serialize(stream, SkSerialProcs(), nullptr);
 }
 
-sk_sp<SkData> SkPicture::serialize(SkPixelSerializer* pixelSerializer) const {
+sk_sp<SkData> SkPicture::serialize() const {
     SkDynamicMemoryWStream stream;
-    this->serialize(&stream, pixelSerializer);
+    this->serialize(&stream);
     return stream.detachAsData();
 }
 
@@ -356,24 +351,3 @@ void SkPicture::SetPictureIOSecurityPrecautionsEnabled_Dangerous(bool set) {
 bool SkPicture::PictureIOSecurityPrecautionsEnabled() {
     return g_AllPictureIOSecurityPrecautionsEnabled;
 }
-
-//////////////////////////////////////////////////////////////////////////////////////////////////
-
-#include "SkReadBuffer.h"
-#include "SkWriteBuffer.h"
-
-sk_sp<SkData> PixelSerializer_SkSerialImageProc(SkImage* img, void* ctx) {
-    SkASSERT(ctx);
-    return img->encodeToData(static_cast<SkPixelSerializer*>(ctx));
-}
-void SkBinaryWriteBuffer::setPixelSerializer(sk_sp<SkPixelSerializer> ps) {
-    fPS = ps;
-    if (ps) {
-        fProcs.fImageProc = PixelSerializer_SkSerialImageProc;
-        fProcs.fImageCtx  = ps.get();
-    } else {
-        fProcs.fImageProc = nullptr;
-        fProcs.fImageCtx  = nullptr;
-    }
-}
-

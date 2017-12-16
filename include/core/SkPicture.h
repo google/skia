@@ -21,7 +21,6 @@ struct SkDeserialProcs;
 class SkImage;
 class SkPath;
 class SkPictureData;
-class SkPixelSerializer;
 class SkReadBuffer;
 class SkRefCntSet;
 struct SkSerialProcs;
@@ -107,19 +106,9 @@ public:
     /** Returns a non-zero value unique among all pictures. */
     uint32_t uniqueID() const;
 
-    /**
-     *  Serialize the picture to SkData. If non nullptr, pixel-serializer will be used to
-     *  customize how images reference by the picture are serialized/compressed.
-     */
-    sk_sp<SkData> serialize(SkPixelSerializer* = nullptr) const;
-
+    sk_sp<SkData> serialize() const;
+    void serialize(SkWStream*) const;
     sk_sp<SkData> serialize(const SkSerialProcs&) const;
-
-    /**
-     *  Serialize to a stream. If non nullptr, pixel-serializer will be used to
-     *  customize how images reference by the picture are serialized/compressed.
-     */
-    void serialize(SkWStream*, SkPixelSerializer* = nullptr) const;
 
     /**
      *  Serialize to a buffer.
