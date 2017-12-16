@@ -21,8 +21,8 @@
 #include "SkMakeUnique.h"
 #include "SkPicture.h"
 #include "SkPictureRecorder.h"
-#include "SkPixelSerializer.h"
 #include "SkRRect.h"
+#include "SkSerialProcs.h"
 #include "SkStream.h"
 #include "SkSurface.h"
 #include "SkUtils.h"
@@ -221,50 +221,6 @@ DEF_TEST(Image_MakeFromRasterBitmap, reporter) {
     }
 }
 
-namespace {
-
-const char* kSerializedData = "serialized";
-
-class MockSerializer : public SkPixelSerializer {
-public:
-    MockSerializer(sk_sp<SkData> (*func)()) : fFunc(func), fDidEncode(false) { }
-
-    bool didEncode() const { return fDidEncode; }
-
-protected:
-    bool onUseEncodedData(const void*, size_t) override {
-        return false;
-    }
-
-    SkData* onEncode(const SkPixmap&) override {
-        fDidEncode = true;
-        return fFunc().release();
-    }
-
-private:
-    sk_sp<SkData> (*fFunc)();
-    bool fDidEncode;
-
-    typedef SkPixelSerializer INHERITED;
-};
-
-} // anonymous namespace
-
-// Test that SkImage encoding observes custom pixel serializers.
-DEF_TEST(Image_Encode_Serializer, reporter) {
-    MockSerializer serializer([]() -> sk_sp<SkData> {
-        return SkData::MakeWithCString(kSerializedData);
-    });
-    sk_sp<SkImage> image(create_image());
-    sk_sp<SkData> encoded = image->encodeToData(&serializer);
-    sk_sp<SkData> reference(SkData::MakeWithCString(kSerializedData));
-
-    REPORTER_ASSERT(reporter, serializer.didEncode());
-    REPORTER_ASSERT(reporter, encoded);
-    REPORTER_ASSERT(reporter, encoded->size() > 0);
-    REPORTER_ASSERT(reporter, encoded->equals(reference.get()));
-}
-
 // Test that image encoding failures do not break picture serialization/deserialization.
 DEF_TEST(Image_Serialize_Encoding_Failure, reporter) {
     auto surface(SkSurface::MakeRasterN32Premul(100, 100));
@@ -279,21 +235,22 @@ DEF_TEST(Image_Serialize_Encoding_Failure, reporter) {
     REPORTER_ASSERT(reporter, picture);
     REPORTER_ASSERT(reporter, picture->approximateOpCount() > 0);
 
-    MockSerializer emptySerializer([]() -> sk_sp<SkData> { return SkData::MakeEmpty(); });
-    MockSerializer nullSerializer([]() -> sk_sp<SkData> { return nullptr; });
-    MockSerializer* serializers[] = { &emptySerializer, &nullSerializer };
+    bool was_called = false;
+    SkSerialProcs procs;
+    procs.fImageProc = [](SkImage*, void* called) {
+        *(bool*)called = true;
+        return SkData::MakeEmpty();
+    };
+    procs.fImageCtx = &was_called;
 
-    for (size_t i = 0; i < SK_ARRAY_COUNT(serializers); ++i) {
-        SkDynamicMemoryWStream wstream;
-        REPORTER_ASSERT(reporter, !serializers[i]->didEncode());
-        picture->serialize(&wstream, serializers[i]);
-        REPORTER_ASSERT(reporter, serializers[i]->didEncode());
+    REPORTER_ASSERT(reporter, !was_called);
+    auto data = picture->serialize(procs);
+    REPORTER_ASSERT(reporter, was_called);
+    REPORTER_ASSERT(reporter, data && data->size() > 0);
 
-        std::unique_ptr<SkStream> rstream(wstream.detachAsStream());
-        sk_sp<SkPicture> deserialized(SkPicture::MakeFromStream(rstream.get()));
-        REPORTER_ASSERT(reporter, deserialized);
-        REPORTER_ASSERT(reporter, deserialized->approximateOpCount() > 0);
-    }
+    auto deserialized = SkPicture::MakeFromData(data->data(), data->size());
+    REPORTER_ASSERT(reporter, deserialized);
+    REPORTER_ASSERT(reporter, deserialized->approximateOpCount() > 0);
 }
 
 // Test that a draw that only partially covers the drawing surface isn't

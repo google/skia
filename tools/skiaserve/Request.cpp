@@ -8,7 +8,6 @@
 #include "Request.h"
 
 #include "SkPictureRecorder.h"
-#include "SkPixelSerializer.h"
 #include "SkPM4fPriv.h"
 #include "picture_utils.h"
 #include "sk_tool_utils.h"
@@ -114,14 +113,7 @@ sk_sp<SkData> Request::writeOutSkp() {
 
     fDebugCanvas->draw(canvas);
 
-    sk_sp<SkPicture> picture(recorder.finishRecordingAsPicture());
-
-    SkDynamicMemoryWStream outStream;
-
-    sk_sp<SkPixelSerializer> serializer = sk_tool_utils::MakePixelSerializer();
-    picture->serialize(&outStream, serializer.get());
-
-    return outStream.detachAsData();
+    return recorder.finishRecordingAsPicture()->serialize();
 }
 
 GrContext* Request::getContext() {

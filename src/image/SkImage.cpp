@@ -20,7 +20,6 @@
 #include "SkNextID.h"
 #include "SkPicture.h"
 #include "SkPixelRef.h"
-#include "SkPixelSerializer.h"
 #include "SkReadPixelsRec.h"
 #include "SkSpecialImage.h"
 #include "SkString.h"
@@ -102,10 +101,8 @@ sk_sp<SkData> SkImage::encodeToData(SkEncodedImageFormat type, int quality) cons
     return nullptr;
 }
 
-sk_sp<SkData> SkImage::encodeToData(SkPixelSerializer* serializer) const {
-    sk_sp<SkData> encoded(this->refEncodedData());
-    if (encoded &&
-        (!serializer || serializer->useEncodedData(encoded->data(), encoded->size()))) {
+sk_sp<SkData> SkImage::encodeToData() const {
+    if (auto encoded = this->refEncodedData()) {
         return encoded;
     }
 
@@ -113,11 +110,7 @@ sk_sp<SkData> SkImage::encodeToData(SkPixelSerializer* serializer) const {
     SkPixmap pmap;
     SkColorSpace* legacyColorSpace = nullptr;
     if (as_IB(this)->getROPixels(&bm, legacyColorSpace) && bm.peekPixels(&pmap)) {
-        if (serializer) {
-            return serializer->encodeToData(pmap);
-        } else {
-            return SkEncodePixmap(pmap, SkEncodedImageFormat::kPNG, 100);
-        }
+        return SkEncodePixmap(pmap, SkEncodedImageFormat::kPNG, 100);
     }
     return nullptr;
 }
