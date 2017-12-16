@@ -18,8 +18,6 @@
 #include "SkWriter32.h"
 #include "../private/SkTHash.h"
 
-#include "SkPixelSerializer.h"
-
 class SkBitmap;
 class SkDeduper;
 class SkFactorySet;
@@ -153,8 +151,6 @@ public:
     SkFactorySet* setFactoryRecorder(SkFactorySet*);
     SkRefCntSet* setTypefaceRecorder(SkRefCntSet*);
 
-    void setPixelSerializer(sk_sp<SkPixelSerializer>);
-
 private:
     const uint32_t fFlags;
     SkFactorySet* fFactorySet;
@@ -164,8 +160,6 @@ private:
 
     // Only used if we do not have an fFactorySet
     SkTHashMap<SkString, uint32_t> fFlattenableDict;
-
-    sk_sp<SkPixelSerializer> fPS;
 };
 
 #endif // SkWriteBuffer_DEFINED
