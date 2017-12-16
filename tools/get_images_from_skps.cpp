@@ -15,7 +15,7 @@
 #include "SkOSFile.h"
 #include "SkOSPath.h"
 #include "SkPicture.h"
-#include "SkSerialProcs.h"
+#include "SkPixelSerializer.h"
 #include "SkStream.h"
 #include "SkTHash.h"
 
@@ -41,7 +41,7 @@ static std::map<std::string, unsigned int> gSkpToUnsupportedCount;
 
 static SkTHashSet<SkMD5::Digest> gSeen;
 
-struct Sniffer {
+struct Sniffer : public SkPixelSerializer {
 
     std::string skpName;
 
@@ -122,6 +122,12 @@ struct Sniffer {
 
         gKnown++;
     }
+
+    bool onUseEncodedData(const void* ptr, size_t len) override {
+        this->sniff(ptr, len);
+        return true;
+    }
+    SkData* onEncode(const SkPixmap&) override { return nullptr; }
 };
 
 static bool get_images_from_file(const SkString& file) {
@@ -133,15 +139,7 @@ static bool get_images_from_file(const SkString& file) {
 
     SkDynamicMemoryWStream scratch;
     Sniffer sniff(file.c_str());
-    SkSerialProcs procs;
-    procs.fImageProc = [](SkImage* image, void* ctx) {
-        if (auto data = image->refEncodedData()) {
-            ((Sniffer*)ctx)->sniff(data->data(), data->size());
-        }
-        return SkData::MakeEmpty();
-    };
-    procs.fImageCtx = &sniff;
-    picture->serialize(procs);
+    picture->serialize(&scratch, &sniff);
     return true;
 }
 

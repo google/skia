@@ -24,6 +24,7 @@ class SkCanvas;
 class SkImageGenerator;
 class SkPaint;
 class SkPicture;
+class SkPixelSerializer;
 class SkString;
 class SkSurface;
 class GrBackendTexture;
@@ -351,21 +352,28 @@ public:
                      CachingHint cachingHint = kAllow_CachingHint) const;
 
     /**
-     *  Encode the image's pixels and return the result as SkData. This will ignore any possible
-     *  existing encoded data (see refEncodedData()), and will always attempt to encode the
-     *  image using the specified encoded image format.
+     *  Encode the image's pixels and return the result as SkData.
      *
      *  If the image type cannot be encoded, or the requested encoder format is
-     *  not supported, this will return nullptr.
+     *  not supported, this will return NULL.
      */
     sk_sp<SkData> encodeToData(SkEncodedImageFormat encodedImageFormat, int quality) const;
 
     /**
      *  Encode the image and return the result as SkData.  This will attempt to reuse existing
-     *  encoded data (as returned by refEncodedData). If there is no eisting data, the image
-     *  will be encoded using PNG. On an error, this returns nullptr.
+     *  encoded data (as returned by refEncodedData).
+     *
+     *  We defer to the SkPixelSerializer both for vetting existing encoded data
+     *  (useEncodedData) and for encoding the image (encode) when no such data is
+     *  present or is rejected by the serializer.
+     *
+     *  If not specified, we use a default serializer which 1) always accepts existing data
+     *  (in any format) and 2) encodes to PNG.
+     *
+     *  If no compatible encoded data exists and encoding fails, this method will also
+     *  fail (return NULL).
      */
-    sk_sp<SkData> encodeToData() const;
+    sk_sp<SkData> encodeToData(SkPixelSerializer* pixelSerializer = nullptr) const;
 
     /**
      *  If the image already has its contents in encoded form (e.g. PNG or JPEG), return that

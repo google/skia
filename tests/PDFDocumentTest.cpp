@@ -12,6 +12,7 @@
 #include "SkOSFile.h"
 #include "SkOSPath.h"
 #include "SkStream.h"
+#include "SkPixelSerializer.h"
 
 #include "sk_tool_utils.h"
 

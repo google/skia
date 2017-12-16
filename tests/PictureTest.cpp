@@ -22,6 +22,7 @@
 #include "SkPictureAnalyzer.h"
 #include "SkPictureRecorder.h"
 #include "SkPixelRef.h"
+#include "SkPixelSerializer.h"
 #include "SkMiniRecorder.h"
 #include "SkRRect.h"
 #include "SkRandom.h"
