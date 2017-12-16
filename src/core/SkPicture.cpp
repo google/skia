@@ -6,7 +6,6 @@
  */
 
 #include "SkAtomics.h"
-#include "SkImageDeserializer.h"
 #include "SkImageGenerator.h"
 #include "SkMathPriv.h"
 #include "SkPicture.h"
@@ -142,28 +141,6 @@ sk_sp<SkPicture> SkPicture::Forwardport(const SkPictInfo& info,
     playback.draw(r.beginRecording(info.fCullRect), nullptr/*no callback*/, buffer);
     return r.finishRecordingAsPicture();
 }
-
-#ifdef SK_SUPPORT_LEGACY_IMAGEDESERIALIZER
-sk_sp<SkPicture> SkPicture::MakeFromStream(SkStream* stream, SkImageDeserializer* factory) {
-    SkDeserialProcs procs;
-    procs.fImageProc = ImageDeserializer_SkDeserialImageProc;
-    procs.fImageCtx  = factory;
-    return MakeFromStream(stream, procs, nullptr);
-}
-sk_sp<SkPicture> SkPicture::MakeFromData(const void* data, size_t size,
-                                         SkImageDeserializer* factory) {
-    SkMemoryStream stream(data, size);
-    return MakeFromStream(&stream, factory);
-}
-
-sk_sp<SkPicture> SkPicture::MakeFromData(const SkData* data, SkImageDeserializer* factory) {
-    if (!data) {
-        return nullptr;
-    }
-    SkMemoryStream stream(data->data(), data->size());
-    return MakeFromStream(&stream, factory);
-}
-#endif
 
 sk_sp<SkPicture> SkPicture::MakeFromStream(SkStream* stream) {
     return MakeFromStream(stream, SkDeserialProcs(), nullptr);
@@ -399,22 +376,4 @@ void SkBinaryWriteBuffer::setPixelSerializer(sk_sp<SkPixelSerializer> ps) {
         fProcs.fImageCtx  = nullptr;
     }
 }
-
-#ifdef SK_SUPPORT_LEGACY_IMAGEDESERIALIZER
-sk_sp<SkImage> ImageDeserializer_SkDeserialImageProc(const void* data, size_t length, void* ctx) {
-    SkASSERT(ctx);
-    SkImageDeserializer* imd = static_cast<SkImageDeserializer*>(ctx);
-    const SkIRect* subset = nullptr;
-    return imd->makeFromMemory(data, length, subset);
-}
-void SkReadBuffer::setImageDeserializer(SkImageDeserializer* factory) {
-    if (factory) {
-        fProcs.fImageProc = ImageDeserializer_SkDeserialImageProc;
-        fProcs.fImageCtx  = factory;
-    } else {
-        fProcs.fImageProc = nullptr;
-        fProcs.fImageCtx  = nullptr;
-    }
-}
-#endif
 

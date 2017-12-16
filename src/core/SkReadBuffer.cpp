@@ -8,7 +8,6 @@
 #include "SkBitmap.h"
 #include "SkDeduper.h"
 #include "SkImage.h"
-#include "SkImageDeserializer.h"
 #include "SkImageGenerator.h"
 #include "SkMakeUnique.h"
 #include "SkMathPriv.h"
