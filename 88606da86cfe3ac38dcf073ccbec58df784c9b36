@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3f95bd13_a0ea7b1c",
+        "filename": "src/core/SkReadBuffer.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2017-12-16T20:46:19Z",
+      "side": 1,
+      "message": "isByteArrayAvailable ?",
+      "range": {
+        "startLine": 128,
+        "startChar": 0,
+        "endLine": 128,
+        "endChar": 51
+      },
+      "revId": "88606da86cfe3ac38dcf073ccbec58df784c9b36",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
