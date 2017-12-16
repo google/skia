@@ -19,9 +19,6 @@ class SkCanvas;
 class SkData;
 struct SkDeserialProcs;
 class SkImage;
-#ifdef SK_SUPPORT_LEGACY_IMAGEDESERIALIZER
-class SkImageDeserializer;
-#endif
 class SkPath;
 class SkPictureData;
 class SkPixelSerializer;
@@ -55,16 +52,8 @@ public:
     typedef bool (*InstallPixelRefProc)(const void* src, size_t length, SkBitmap* dst);
 
     /**
-     *  Recreate a picture that was serialized into a stream.
-     *
-     *  Any serialized images in the stream will be passed the image-deserializer, or if that is
-     *  null, to the default deserializer that will call SkImage::MakeFromEncoded().
+     *  Recreate a picture that was serialized into a stream or data.
      */
-#ifdef SK_SUPPORT_LEGACY_IMAGEDESERIALIZER
-    static sk_sp<SkPicture> MakeFromStream(SkStream*, SkImageDeserializer*);
-    static sk_sp<SkPicture> MakeFromData(const SkData* data, SkImageDeserializer*);
-    static sk_sp<SkPicture> MakeFromData(const void* data, size_t size, SkImageDeserializer*);
-#endif
 
     static sk_sp<SkPicture> MakeFromStream(SkStream*);
     static sk_sp<SkPicture> MakeFromData(const SkData* data);

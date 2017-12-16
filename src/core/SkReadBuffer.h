@@ -216,10 +216,6 @@ public:
 
     void setDeserialProcs(const SkDeserialProcs& procs);
 
-#ifdef SK_SUPPORT_LEGACY_IMAGEDESERIALIZER
-    void setImageDeserializer(SkImageDeserializer* factory);
-#endif
-
     /**
      *  If isValid is false, sets the buffer to be "invalid". Returns true if the buffer
      *  is still valid.
