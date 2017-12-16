@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "97688ba2_e13b3c78",
+        "filename": "include/core/SkBitmap.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-12-16T23:49:04Z",
+      "side": 1,
+      "message": "yes, let\u0027s deprecate it in the next CL.",
+      "parentUuid": "ddb8c377_7373b538",
+      "revId": "1958444ab9d657b773148b6996744a86a4ca097c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "89ee117a_6d27943b",
         "filename": "include/core/SkPixmap.h",
         "patchSetId": 8

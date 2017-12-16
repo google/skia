@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "3b442edb_b2a26216",
+        "filename": "include/core/SkBitmap.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 1217,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-12-16T23:49:04Z",
+      "side": 1,
+      "message": "I think the other call is easier and better and doesn\u0027t force a ref of the colorspace.\n\nso yes, lets deprecate this in a later cl.",
+      "parentUuid": "86a000da_cbb8178c",
+      "range": {
+        "startLine": 1217,
+        "startChar": 0,
+        "endLine": 1217,
+        "endChar": 44
+      },
+      "revId": "78b36f3ad3c95c990aa8f4e40cbae4ad41f405c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "386d2b0a_15f9d743",
         "filename": "include/core/SkPixmap.h",
         "patchSetId": 9
@@ -39,6 +63,24 @@
       "revId": "78b36f3ad3c95c990aa8f4e40cbae4ad41f405c1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b92ba1b3_53002347",
+        "filename": "include/core/SkPixmap.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-12-16T23:49:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "386d2b0a_15f9d743",
+      "revId": "78b36f3ad3c95c990aa8f4e40cbae4ad41f405c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
