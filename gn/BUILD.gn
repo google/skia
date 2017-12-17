@@ -218,6 +218,11 @@ config("default") {
       sanitizers = "thread"
     } else if (sanitize == "MSAN") {
       sanitizers = "memory"
+    } else if (sanitize == "UBSAN") {
+      sanitizers = "bool,float-cast-overflow,function,integer-divide-by-zero,nonnull-attribute,null,return,returns-nonnull-attribute,shift,signed-integer-overflow,unreachable,vla-bound,vptr"
+      if (!is_debug) {
+        sanitizers += ",object-size"  # No-op with somewhat annoying warning at -O0.
+      }
     }
 
     cflags += [
