@@ -219,7 +219,7 @@ config("default") {
     } else if (sanitize == "MSAN") {
       sanitizers = "memory"
     } else if (sanitize == "UBSAN") {
-      sanitizers = "bool,float-cast-overflow,integer-divide-by-zero,nonnull-attribute,null,return,returns-nonnull-attribute,shift,signed-integer-overflow,unreachable,vla-bound"
+      sanitizers = "address,bool,float-cast-overflow,integer-divide-by-zero,nonnull-attribute,null,return,returns-nonnull-attribute,shift,signed-integer-overflow,unreachable,vla-bound"
       if (!is_mac && !is_win) {
         sanitizers += ",function"  # Not supported on Mac or Win.
       }
