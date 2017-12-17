@@ -114,7 +114,7 @@
       "[CUSTOM_/_B_WORK]/skia/bin/gn",
       "gen",
       "[CUSTOM_/_B_WORK]/skia/out/Build-Debian9-EMCC-wasm-Release/Release",
-      "--args=cc=\"[START_DIR]/emscripten_sdk/emscripten/incoming/emcc\" cxx=\"[START_DIR]/emscripten_sdk/emscripten/incoming/em++\" extra_cflags=[\"-Wno-unknown-warning-option\"] is_debug=false skia_enable_gpu=false skia_use_dng_sdk=false skia_use_fontconfig=false skia_use_freetype=false skia_use_icu=false target_cpu=\"wasm\""
+      "--args=cc=\"[START_DIR]/emscripten_sdk/emscripten/incoming/emcc\" cxx=\"[START_DIR]/emscripten_sdk/emscripten/incoming/em++\" extra_cflags=[\"-Wno-unknown-warning-option\", \"-O2\"] is_debug=false skia_enable_gpu=false skia_use_dng_sdk=false skia_use_fontconfig=false skia_use_freetype=false skia_use_icu=false target_cpu=\"wasm\""
     ],
     "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {

@@ -20,7 +20,7 @@
       "[START_DIR]/skia/bin/gn",
       "gen",
       "[START_DIR]/out/Release",
-      "--args=cc=\"gcc\" cxx=\"g++\" is_debug=false"
+      "--args=cc=\"gcc\" cxx=\"g++\" extra_cflags=[\"-O2\"] is_debug=false"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {

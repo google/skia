@@ -114,7 +114,7 @@
       "[CUSTOM_/_B_WORK]/skia/bin/gn",
       "gen",
       "[CUSTOM_/_B_WORK]/skia/out/Build-Debian9-GCC-x86_64-Release-Shared/Release",
-      "--args=cc=\"gcc\" cxx=\"g++\" is_component_build=true is_debug=false target_cpu=\"x86_64\""
+      "--args=cc=\"gcc\" cxx=\"g++\" extra_cflags=[\"-O2\"] is_component_build=true is_debug=false target_cpu=\"x86_64\""
     ],
     "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {

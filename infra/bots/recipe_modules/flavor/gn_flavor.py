@@ -100,6 +100,8 @@ with open(sys.argv[1], 'w') as f:
 
     if compiler != 'MSVC' and configuration == 'Debug':
       extra_cflags.append('-O1')
+    if compiler != 'MSVC' and configuration == 'Release':
+      extra_cflags.append('-O2')
 
     if 'Exceptions' in extra_tokens:
       extra_cflags.append('/EHsc')

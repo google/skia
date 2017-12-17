@@ -208,8 +208,8 @@ config("default") {
     sanitizers = sanitize
     if (sanitize == "ASAN") {
       sanitizers = "address,bool,float-cast-overflow,integer-divide-by-zero,nonnull-attribute,null,return,returns-nonnull-attribute,shift,signed-integer-overflow,unreachable,vla-bound,vptr"
-      if (!is_mac) {
-        sanitizers += ",function"  # Not supported on Mac.
+      if (!is_mac && !is_win) {
+        sanitizers += ",function"  # Not supported on Mac or Win.
       }
       if (!is_debug) {
         sanitizers += ",object-size"  # No-op with somewhat annoying warning at -O0.
@@ -218,6 +218,14 @@ config("default") {
       sanitizers = "thread"
     } else if (sanitize == "MSAN") {
       sanitizers = "memory"
+    } else if (sanitize == "UBSAN") {
+      sanitizers = "bool,float-cast-overflow,integer-divide-by-zero,nonnull-attribute,null,object-size,return,returns-nonnull-attribute,shift,signed-integer-overflow,unreachable,vla-bound"
+      if (!is_mac && !is_win) {
+        sanitizers += ",function"  # Not supported on Mac or Win.
+      }
+      if (!is_win) {
+        sanitizers += ",vptr"  # Not supported on Win.
+      }
     }
 
     cflags += [
