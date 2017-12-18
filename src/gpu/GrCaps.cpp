@@ -104,6 +104,9 @@ void GrCaps::applyOptionsOverrides(const GrContextOptions& options) {
     if (options.fMaxTileSizeOverride && options.fMaxTileSizeOverride < fMaxTextureSize) {
         fMaxTileSize = options.fMaxTileSizeOverride;
     }
+    if (options.fSuppressGeometryShaders) {
+        fShaderCaps->fGeometryShaderSupport = false;
+    }
 #endif
     if (fMaxWindowRectangles > GrWindowRectangles::kMaxWindows) {
         SkDebugf("WARNING: capping window rectangles at %i. HW advertises support for %i.\n",
