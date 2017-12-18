@@ -89,6 +89,7 @@ DEFINE_bool(forceDeltaAA, false, "Force delta anti-aliasing for all paths.");
 
 #if SK_SUPPORT_GPU
 DEFINE_bool(cachePathMasks, true, "Allows path mask textures to be cached in GPU configs.");
+DEFINE_bool(noGS, false, "Disables support for geometry shaders.");
 #endif
 
 bool CollectImages(SkCommandLineFlags::StringArray images, SkTArray<SkString>* output) {

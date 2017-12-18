@@ -38,6 +38,7 @@ DECLARE_bool(deltaAA);
 DECLARE_bool(forceDeltaAA);
 #if SK_SUPPORT_GPU
 DECLARE_bool(cachePathMasks);
+DECLARE_bool(noGS);
 #endif
 
 DECLARE_string(key);
