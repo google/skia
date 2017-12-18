@@ -30,8 +30,7 @@
 #include "SkCodec.h"
 #include "SkCommonFlags.h"
 #include "SkCommonFlagsConfig.h"
-#include "SkCommonFlagsGpuThreads.h"
-#include "SkCommonFlagsPathRenderer.h"
+#include "SkCommonFlagsGpu.h"
 #include "SkData.h"
 #include "SkDebugfTracer.h"
 #include "SkEventTracingPriv.h"
@@ -134,10 +133,6 @@ DEFINE_string(benchType,  "",
         "Apply usual --match rules to bench type: micro, recording, piping, playback, skcodec, etc.");
 
 DEFINE_bool(forceRasterPipeline, false, "sets gSkForceRasterPipelineBlitter");
-
-#if SK_SUPPORT_GPU
-DEFINE_pathrenderer_flag;
-#endif
 
 static double now_ms() { return SkTime::GetNSecs() * 1e-6; }
 
@@ -1150,9 +1145,7 @@ int main(int argc, char** argv) {
     SkTaskGroup::Enabler enabled(FLAGS_threads);
 
 #if SK_SUPPORT_GPU
-    grContextOpts.fGpuPathRenderers = CollectGpuPathRenderersFromFlags();
-    grContextOpts.fAllowPathMaskCaching = FLAGS_cachePathMasks;
-    grContextOpts.fExecutor = GpuExecutorForTools();
+    SetCtxOptionsFromCommonFlags(&grContextOpts);
 #endif
 
     if (FLAGS_veryVerbose) {

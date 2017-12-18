@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "GrContextOptions.h"
 #include "SkCommonFlags.h"
 #include "SkExecutor.h"
 #include "SkOnce.h"
@@ -56,9 +57,6 @@ DEFINE_string(svgs, "", "Directory to read SVGs from, or a single SVG file.");
 DEFINE_int32_2(threads, j, -1, "Run threadsafe tests on a threadpool with this many extra threads, "
                                "defaulting to one extra thread per core.");
 
-DEFINE_int32(gpuThreads, 2, "Create this many extra threads to assist with GPU work, "
-                            "including software path rendering. Defaults to two.");
-
 DEFINE_bool2(verbose, v, false, "enable verbose output from the test driver.");
 
 DEFINE_bool2(veryVerbose, V, false, "tell individual tests to be verbose.");
@@ -86,10 +84,6 @@ DEFINE_bool(deltaAA, kDefaultDeltaAA,
             "If true, use delta anti-aliasing in suitable cases (it overrides forceAnalyticAA.");
 
 DEFINE_bool(forceDeltaAA, false, "Force delta anti-aliasing for all paths.");
-
-#if SK_SUPPORT_GPU
-DEFINE_bool(cachePathMasks, true, "Allows path mask textures to be cached in GPU configs.");
-#endif
 
 bool CollectImages(SkCommandLineFlags::StringArray images, SkTArray<SkString>* output) {
     SkASSERT(output);
@@ -137,8 +131,32 @@ bool CollectImages(SkCommandLineFlags::StringArray images, SkTArray<SkString>* o
     return true;
 }
 
+#if SK_SUPPORT_GPU
+
+#include "SkCommonFlagsGpu.h"
+
+DEFINE_int32(gpuThreads, 2, "Create this many extra threads to assist with GPU work, "
+                            "including software path rendering. Defaults to two.");
+
+DEFINE_bool(cachePathMasks, true, "Allows path mask textures to be cached in GPU configs.");
+
+DEFINE_bool(noGS, false, "Disables support for geometry shaders.");
+
+DEFINE_string(pr, "default",
+              "Set of enabled gpu path renderers. Defined as a list of: "
+              "[[~]all [~]default [~]dashline [~]nvpr [~]msaa [~]aaconvex "
+              "[~]aalinearizing [~]small [~]tess]");
+
 SkExecutor* GpuExecutorForTools() {
     static std::unique_ptr<SkExecutor> gGpuExecutor = (0 != FLAGS_gpuThreads)
         ? SkExecutor::MakeFIFOThreadPool(FLAGS_gpuThreads) : nullptr;
     return gGpuExecutor.get();
 }
+
+void SetCtxOptionsFromCommonFlags(GrContextOptions* ctxOptions) {
+    ctxOptions->fGpuPathRenderers = CollectGpuPathRenderersFromFlags();
+    ctxOptions->fAllowPathMaskCaching = FLAGS_cachePathMasks;
+    ctxOptions->fSuppressGeometryShaders = FLAGS_noGS;
+}
+
+#endif

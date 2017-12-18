@@ -19,8 +19,7 @@
 #include "SkColorSpacePriv.h"
 #include "SkCommonFlags.h"
 #include "SkCommonFlagsConfig.h"
-#include "SkCommonFlagsGpuThreads.h"
-#include "SkCommonFlagsPathRenderer.h"
+#include "SkCommonFlagsGpu.h"
 #include "SkData.h"
 #include "SkDebugfTracer.h"
 #include "SkDocument.h"
@@ -95,10 +94,6 @@ DEFINE_string(mskps, "", "Directory to read mskps from, or a single mskp file.")
 DEFINE_bool(forceRasterPipeline, false, "sets gSkForceRasterPipelineBlitter");
 
 DEFINE_bool(ddl, false, "If true, use DeferredDisplayLists for GPU SKP rendering.");
-
-#if SK_SUPPORT_GPU
-DEFINE_pathrenderer_flag;
-#endif
 
 DEFINE_bool(ignoreSigInt, false, "ignore SIGINT signals during test execution");
 
@@ -1345,9 +1340,7 @@ int main(int argc, char** argv) {
 
     GrContextOptions grCtxOptions;
 #if SK_SUPPORT_GPU
-    grCtxOptions.fGpuPathRenderers = CollectGpuPathRenderersFromFlags();
-    grCtxOptions.fAllowPathMaskCaching = FLAGS_cachePathMasks;
-    grCtxOptions.fExecutor = GpuExecutorForTools();
+    SetCtxOptionsFromCommonFlags(&grCtxOptions);
 #endif
 
     JsonWriter::DumpJson();  // It's handy for the bots to assume this is ~never missing.

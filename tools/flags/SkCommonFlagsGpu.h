@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef SK_COMMON_FLAGS_PATH_RENDERER_H
-#define SK_COMMON_FLAGS_PATH_RENDERER_H
+#ifndef SK_COMMON_FLAGS_GPU_H
+#define SK_COMMON_FLAGS_GPU_H
 
 #if SK_SUPPORT_GPU
 
@@ -14,13 +14,10 @@
 #include "SkCommandLineFlags.h"
 #include "SkTypes.h"
 
+DECLARE_int32(gpuThreads);
+DECLARE_bool(cachePathMasks);
+DECLARE_bool(noGS);
 DECLARE_string(pr);
-
-#define DEFINE_pathrenderer_flag                                                   \
-    DEFINE_string(pr, "default",                                                   \
-                  "Set of enabled gpu path renderers. Defined as a list of: "      \
-                  "[[~]all [~]default [~]dashline [~]nvpr [~]msaa [~]aaconvex "    \
-                  "[~]aalinearizing [~]small [~]tess]")
 
 inline GpuPathRenderers get_named_pathrenderers_flags(const char* name) {
     if (!strcmp(name, "all")) {
@@ -66,6 +63,13 @@ inline GpuPathRenderers CollectGpuPathRenderersFromFlags() {
     }
     return gpuPathRenderers;
 }
+
+class SkExecutor* GpuExecutorForTools();
+
+/**
+ *  Helper to set GrContextOptions from common GPU flags.
+ */
+void SetCtxOptionsFromCommonFlags(struct GrContextOptions*);
 
 #endif // SK_SUPPORT_GPU
 

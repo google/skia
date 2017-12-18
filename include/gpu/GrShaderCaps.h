@@ -296,7 +296,8 @@ private:
     GrSwizzle fConfigTextureSwizzle[kGrPixelConfigCnt];
     GrSwizzle fConfigOutputSwizzle[kGrPixelConfigCnt];
 
-    friend class GrGLCaps;  // For initialization.
+    friend class GrCaps;  // For initialization.
+    friend class GrGLCaps;
     friend class GrMockCaps;
     friend class GrMtlCaps;
     friend class GrVkCaps;

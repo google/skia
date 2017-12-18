@@ -167,6 +167,11 @@ struct GrContextOptions {
     bool fSuppressPathRendering = false;
 
     /**
+     * If true, the caps will never support geometry shaders.
+     */
+    bool fSuppressGeometryShaders = false;
+
+    /**
      * Render everything in wireframe
      */
     bool fWireframeMode = false;
