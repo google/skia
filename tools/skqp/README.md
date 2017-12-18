@@ -46,18 +46,17 @@ Run as an executable
 1.  Build the SkQP program, load files on the device, and run skqp:
 
         ninja -C out/${arch}-rel skqp
-        adb shell "cd /data/local/tmp; rm -rf gmkb report"
+        adb shell "cd /data/local/tmp; rm -rf gmkb"
         adb push platform_tools/android/apps/skqp/src/main/assets/gmkb \
             /data/local/tmp/
         adb push out/${arch}-rel/skqp /data/local/tmp/
-        adb shell "cd /data/local/tmp; ./skqp gmkb report"
+        adb shell "cd /data/local/tmp; rm -rf report; ./skqp gmkb report"
 
-2.  Produce a one-page error report if there are errors:
+2.  Get the error report if there are errors:
 
-        rm -rf /tmp/report
         if adb shell test -d /data/local/tmp/report; then
             adb pull /data/local/tmp/report /tmp/
-            tools/skqp/make_report.py /tmp/report
+            tools/skqp/sysopen.py /tmp/report/report.html
         fi
 
 Run as an APK
@@ -72,11 +71,8 @@ Run as an APK
 
 2.  Retrieve the report if there are any errors:
 
-        rm -rf /tmp/skqp
-        mkdir /tmp/skqp
-        adb backup -f /tmp/skqp/backup.ab org.skia.skqp
-        dd if=/tmp/skqp/backup.ab bs=24 skip=1 | tools/skqp/inflate.py | \
-            ( cd /tmp/skqp; tar x )
-        rm /tmp/skqp/backup.ab
-        tools/skqp/make_report.py /tmp/skqp/apps/org.skia.skqp/f
+        adb backup -f /tmp/skqp.ab org.skia.skqp
+        # Must unlock phone and verify backup.
+        tools/skqp/extract_report.py /tmp/skqp/backup.ab
+
 

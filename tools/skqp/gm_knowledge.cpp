@@ -12,11 +12,13 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <cstdlib>
 
 #include "../../src/core/SkStreamPriv.h"
 #include "SkBitmap.h"
 #include "SkCodec.h"
 #include "SkOSFile.h"
+#include "SkOSPath.h"
 #include "SkPngEncoder.h"
 #include "SkStream.h"
 
@@ -27,6 +29,8 @@
 #define PATH_IMG_PNG "image.png"
 #define PATH_ERR_PNG "errors.png"
 #define PATH_REPORT  "report.html"
+#define PATH_MAX_ERROR "maxerror"
+#define PATH_BAD_PIXELS "badpixels"
 
 ////////////////////////////////////////////////////////////////////////////////
 inline void path_join_append(std::ostringstream* o) { }
@@ -126,6 +130,13 @@ static SkBitmap ReadPngRgba8888FromFile(skqp::AssetManager* assetManager, const 
 }
 
 namespace gmkb {
+bool IsGoodGM(const char* name, skqp::AssetManager* assetManager) {
+    std::string max_path = path_join(name, PATH_MAX_PNG);
+    std::string min_path = path_join(name, PATH_MIN_PNG);
+    return asset_exists(assetManager, max_path.c_str())
+        && asset_exists(assetManager, min_path.c_str());
+}
+
 // Assumes that for each GM foo, asset_manager has files foo/{max,min}.png
 float Check(const uint32_t* pixels,
             int width,
@@ -193,27 +204,16 @@ float Check(const uint32_t* pixels,
         SkAssertResult(WritePixmapToFile(to_pixmap(errorBitmap), error_path.c_str()));
 
         auto report_path = path_join(report_subdirectory, PATH_REPORT);
-        auto rdir = path_join("..", "..", backend, name);
 
         auto max_path_out = path_join(report_subdirectory, PATH_MAX_PNG);
         auto min_path_out = path_join(report_subdirectory, PATH_MIN_PNG);
         (void)copy(assetManager, max_path.c_str(), max_path_out.c_str());
         (void)copy(assetManager, min_path.c_str(), min_path_out.c_str());
 
-        SkString text = SkStringPrintf(
-            "backend: %s\n<br>\n"
-            "gm name: %s\n<br>\n"
-            "maximum error: %d\n<br>\n"
-            "bad pixel counts: %d\n<br>\n"
-            "<a  href=\"%s/" PATH_IMG_PNG "\">"
-            "<img src=\"%s/" PATH_IMG_PNG "\" alt='img'></a>\n"
-            "<a  href=\"%s/" PATH_ERR_PNG "\">"
-            "<img src=\"%s/" PATH_ERR_PNG "\" alt='err'></a>\n<br>\n"
-            "<a  href=\"%s/" PATH_MAX_PNG "\">max</a>\n<br>\n"
-            "<a  href=\"%s/" PATH_MIN_PNG "\">min</a>\n<hr>\n",
-            backend, name, badness, badPixelCount,
-            rdir.c_str(), rdir.c_str(), rdir.c_str(), rdir.c_str(), rdir.c_str(), rdir.c_str());
-        SkFILEWStream(report_path.c_str()).write(text.c_str(), text.size());
+        SkFILEWStream(path_join(report_subdirectory, "maxerror").c_str())
+            .writeDecAsText(badness);
+        SkFILEWStream(path_join(report_subdirectory, "badpixels").c_str())
+            .writeDecAsText(badPixelCount);
     }
     if (error_out) {
         *error_out = Error::kNone;
@@ -221,10 +221,79 @@ float Check(const uint32_t* pixels,
     return (float)badness;
 }
 
-bool IsGoodGM(const char* name, skqp::AssetManager* assetManager) {
-    std::string max_path = path_join(name, PATH_MAX_PNG);
-    std::string min_path = path_join(name, PATH_MIN_PNG);
-    return asset_exists(assetManager, max_path.c_str())
-        && asset_exists(assetManager, min_path.c_str());
+static bool is_implied_directory(const char* s) {
+    for (const auto& d : { "..", "." }) {
+        if (0 == strcmp(d, s)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+static int read_file_parse_int(const char* path) {
+    SkFILEStream f(path);
+    if (!f.isValid()) { return -1; }
+    char buffer[12];
+    size_t len = f.read(buffer, sizeof(buffer) - 1);
+    SkASSERT(len < sizeof(buffer));
+    buffer[len] = '\0';
+    return atoi(buffer);
+}
+
+bool MakeReport(const char* report_directory_path) {
+    auto report = path_join(report_directory_path, PATH_REPORT);
+    SkFILEWStream out(report.c_str());
+    if (!out.isValid()) {
+        return false;
+    }
+    out.writeText(
+        "<!doctype html>\n"
+        "<html lang=\"en\">\n"
+        "<head>\n"
+        "<meta charset=\"UTF-8\">\n"
+        "<title>SkQP Report</title>\n"
+        "<style>\n"
+        "img { max-width:48%; border:1px green solid; }\n"
+        "</style>\n"
+        "</head>\n"
+        "<body>\n"
+        "<h1>SkQP Report</h1>\n"
+        "<hr>\n");
+    SkString backend;
+    for (SkOSFile::Iter backends(report_directory_path); backends.next(&backend, true);) {
+        if (is_implied_directory(backend.c_str())) {
+            continue;
+        }
+        auto backendDir = path_join(report_directory_path, backend.c_str());
+        SkString gm;
+        for (SkOSFile::Iter gms(backendDir.c_str()); gms.next(&gm, true);) {
+            if (is_implied_directory(gm.c_str())) {
+                continue;
+            }
+            auto gmDir = path_join(backendDir.c_str(), gm.c_str());
+            int maxerror = read_file_parse_int(path_join(gmDir.c_str(), PATH_MAX_ERROR).c_str());
+            int badpixels = read_file_parse_int(path_join(gmDir.c_str(), PATH_BAD_PIXELS).c_str());
+            auto rdir = path_join(backend.c_str(), gm.c_str());
+            auto text = SkStringPrintf(
+                "<h2>%s/%s</h2>\n"
+                "backend: %s\n<br>\n"
+                "gm name: %s\n<br>\n"
+                "maximum error: %d\n<br>\n"
+                "bad pixel counts: %d\n<br>\n"
+                "<a  href=\"%s/" PATH_IMG_PNG "\">"
+                "<img src=\"%s/" PATH_IMG_PNG "\" alt='img'></a>\n"
+                "<a  href=\"%s/" PATH_ERR_PNG "\">"
+                "<img src=\"%s/" PATH_ERR_PNG "\" alt='err'></a>\n<br>\n"
+                "<a  href=\"%s/" PATH_MAX_PNG "\">max</a>\n<br>\n"
+                "<a  href=\"%s/" PATH_MIN_PNG "\">min</a>\n<hr>\n\n",
+                backend.c_str(), gm.c_str(),
+                backend.c_str(), gm.c_str(), maxerror, badpixels,
+                rdir.c_str(), rdir.c_str(), rdir.c_str(),
+                rdir.c_str(), rdir.c_str(), rdir.c_str());
+            out.write(text.c_str(), text.size());
+        }
+    }
+    out.writeText("</body>\n</html>\n");
+    return true;
 }
 }  // namespace gmkb
