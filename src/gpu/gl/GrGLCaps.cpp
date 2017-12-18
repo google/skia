@@ -2392,11 +2392,15 @@ bool GrGLCaps::onValidateBackendTexture(GrBackendTexture* tex, SkColorType ct) c
         case kRGBA_8888_SkColorType:
             if (GR_GL_RGBA8 == format) {
                 tex->fConfig = kRGBA_8888_GrPixelConfig;
+            } else if (GR_GL_SRGB8_ALPHA8 == format) {
+                tex->fConfig = kSRGBA_8888_GrPixelConfig;
             }
             break;
         case kBGRA_8888_SkColorType:
             if (GR_GL_BGRA8 == format) {
                 tex->fConfig = kBGRA_8888_GrPixelConfig;
+            } else if (GR_GL_SRGB8_ALPHA8 == format) {
+                tex->fConfig = kSBGRA_8888_GrPixelConfig;
             }
             break;
         case kGray_8_SkColorType:
