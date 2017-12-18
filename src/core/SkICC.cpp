@@ -281,25 +281,37 @@ static constexpr uint32_t kICCTagTable[3 * kICCNumEntries] {
     SkEndian_SwapBE32(kTAG_cprt_Bytes),
 };
 
+// This is like SkFloatToFixed, but rounds to nearest, preserving as much accuracy as possible
+// when going float -> fixed -> float (it has the same accuracy when going fixed -> float -> fixed).
+// The use of double is necessary to accomodate the full potential 32-bit mantissa of the 16.16
+// SkFixed value, and so avoiding rounding problems with float. Also, see the comment in SkFixed.h.
+static SkFixed float_round_to_fixed(float x) {
+#if defined(SK_SUPPORT_LEGACY_ICC_PRECISON)
+    return SkFloatToFixed(x);
+#else
+    return sk_float_saturate2int((float)floor((double)x * SK_Fixed1 + 0.5));
+#endif
+}
+
 static void write_xyz_tag(uint32_t* ptr, const SkMatrix44& toXYZ, int col) {
     ptr[0] = SkEndian_SwapBE32(kXYZ_PCSSpace);
     ptr[1] = 0;
-    ptr[2] = SkEndian_SwapBE32(SkFloatToFixed(toXYZ.getFloat(0, col)));
-    ptr[3] = SkEndian_SwapBE32(SkFloatToFixed(toXYZ.getFloat(1, col)));
-    ptr[4] = SkEndian_SwapBE32(SkFloatToFixed(toXYZ.getFloat(2, col)));
+    ptr[2] = SkEndian_SwapBE32(float_round_to_fixed(toXYZ.getFloat(0, col)));
+    ptr[3] = SkEndian_SwapBE32(float_round_to_fixed(toXYZ.getFloat(1, col)));
+    ptr[4] = SkEndian_SwapBE32(float_round_to_fixed(toXYZ.getFloat(2, col)));
 }
 
 static void write_trc_tag(uint32_t* ptr, const SkColorSpaceTransferFn& fn) {
     ptr[0] = SkEndian_SwapBE32(kTAG_ParaCurveType);
     ptr[1] = 0;
     ptr[2] = (uint32_t) (SkEndian_SwapBE16(kGABCDEF_ParaCurveType));
-    ptr[3] = SkEndian_SwapBE32(SkFloatToFixed(fn.fG));
-    ptr[4] = SkEndian_SwapBE32(SkFloatToFixed(fn.fA));
-    ptr[5] = SkEndian_SwapBE32(SkFloatToFixed(fn.fB));
-    ptr[6] = SkEndian_SwapBE32(SkFloatToFixed(fn.fC));
-    ptr[7] = SkEndian_SwapBE32(SkFloatToFixed(fn.fD));
-    ptr[8] = SkEndian_SwapBE32(SkFloatToFixed(fn.fE));
-    ptr[9] = SkEndian_SwapBE32(SkFloatToFixed(fn.fF));
+    ptr[3] = SkEndian_SwapBE32(float_round_to_fixed(fn.fG));
+    ptr[4] = SkEndian_SwapBE32(float_round_to_fixed(fn.fA));
+    ptr[5] = SkEndian_SwapBE32(float_round_to_fixed(fn.fB));
+    ptr[6] = SkEndian_SwapBE32(float_round_to_fixed(fn.fC));
+    ptr[7] = SkEndian_SwapBE32(float_round_to_fixed(fn.fD));
+    ptr[8] = SkEndian_SwapBE32(float_round_to_fixed(fn.fE));
+    ptr[9] = SkEndian_SwapBE32(float_round_to_fixed(fn.fF));
 }
 
 static bool is_3x3(const SkMatrix44& toXYZD50) {
