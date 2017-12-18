@@ -46,6 +46,30 @@
       "revId": "6e8deeec6f22a138f0f8d7ae24d3e6564007dbc9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9f781360_7b9741a2",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2402,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-12-18T19:31:48Z",
+      "side": 1,
+      "message": "We have unit tests that are testing this and removing it technically reduces functionallity that exists currently. So I say we leave this for now.",
+      "parentUuid": "72b50943_d089f220",
+      "range": {
+        "startLine": 2402,
+        "startChar": 23,
+        "endLine": 2402,
+        "endChar": 42
+      },
+      "revId": "6e8deeec6f22a138f0f8d7ae24d3e6564007dbc9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
