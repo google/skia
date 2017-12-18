@@ -1346,8 +1346,9 @@ int main(int argc, char** argv) {
     GrContextOptions grCtxOptions;
 #if SK_SUPPORT_GPU
     grCtxOptions.fGpuPathRenderers = CollectGpuPathRenderersFromFlags();
-    grCtxOptions.fAllowPathMaskCaching = FLAGS_cachePathMasks;
     grCtxOptions.fExecutor = GpuExecutorForTools();
+    grCtxOptions.fAllowPathMaskCaching = FLAGS_cachePathMasks;
+    grCtxOptions.fSuppressGeometryShaders = FLAGS_nogeo;
 #endif
 
     JsonWriter::DumpJson();  // It's handy for the bots to assume this is ~never missing.

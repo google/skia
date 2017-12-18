@@ -78,10 +78,11 @@ static DEFINE_string(jpgs, "jpgs", "Directory to read jpgs from.");
 static DEFINE_string2(backend, b, "sw", "Backend to use. Allowed values are " BACKENDS_STR ".");
 
 static DEFINE_int32(msaa, 0, "Number of subpixel samples. 0 for no HW antialiasing.");
-static DEFINE_bool(cachePathMasks, true, "Allows path mask textures to be cached in GPU configs.");
 DEFINE_pathrenderer_flag;
 
 DECLARE_int32(threads)
+DECLARE_bool(cachePathMasks);
+DECLARE_bool(nogeo);
 
 const char* kBackendTypeStrings[sk_app::Window::kBackendTypeCount] = {
     "OpenGL",
@@ -231,8 +232,9 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     DisplayParams displayParams;
     displayParams.fMSAASampleCount = FLAGS_msaa;
     displayParams.fGrContextOptions.fGpuPathRenderers = CollectGpuPathRenderersFromFlags();
-    displayParams.fGrContextOptions.fAllowPathMaskCaching = FLAGS_cachePathMasks;
     displayParams.fGrContextOptions.fExecutor = GpuExecutorForTools();
+    displayParams.fGrContextOptions.fAllowPathMaskCaching = FLAGS_cachePathMasks;
+    displayParams.fGrContextOptions.fSuppressGeometryShaders = FLAGS_nogeo;
     fWindow->setRequestedDisplayParams(displayParams);
 
     // register callbacks

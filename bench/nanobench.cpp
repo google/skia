@@ -1151,8 +1151,9 @@ int main(int argc, char** argv) {
 
 #if SK_SUPPORT_GPU
     grContextOpts.fGpuPathRenderers = CollectGpuPathRenderersFromFlags();
-    grContextOpts.fAllowPathMaskCaching = FLAGS_cachePathMasks;
     grContextOpts.fExecutor = GpuExecutorForTools();
+    grContextOpts.fAllowPathMaskCaching = FLAGS_cachePathMasks;
+    grContextOpts.fSuppressGeometryShaders = FLAGS_nogeo;
 #endif
 
     if (FLAGS_veryVerbose) {

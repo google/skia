@@ -279,6 +279,7 @@ int main(int argc, char** argv) {
     GrContextOptions ctxOptions;
     ctxOptions.fGpuPathRenderers = CollectGpuPathRenderersFromFlags();
     ctxOptions.fAllowPathMaskCaching = FLAGS_cachePathMasks;
+    ctxOptions.fSuppressGeometryShaders = FLAGS_nogeo;
     sk_gpu_test::GrContextFactory factory(ctxOptions);
     sk_gpu_test::ContextInfo ctxInfo =
         factory.getContextInfo(config->getContextType(), config->getContextOverrides());
