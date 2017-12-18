@@ -109,6 +109,9 @@ void GrCaps::applyOptionsOverrides(const GrContextOptions& options) {
         fMaxWindowRectangles = GrWindowRectangles::kMaxWindows;
     }
     fAvoidStencilBuffers = options.fAvoidStencilBuffers;
+    if (options.fSuppressGeometryShaders) {
+        fShaderCaps->fGeometryShaderSupport = false;
+    }
 }
 
 static SkString map_flags_to_string(uint32_t flags) {
