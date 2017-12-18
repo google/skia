@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "39bbb5ab_02749117",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-12-18T16:10:50Z",
+      "side": 1,
+      "message": "I would use SkTo\u003cuint32_t\u003e((marker-\u003edata_length - offset - 2) / kEntrySize) just to make sure that the divide does not overflow.",
+      "range": {
+        "startLine": 78,
+        "startChar": 46,
+        "endLine": 78,
+        "endChar": 93
+      },
+      "revId": "40b129ccea158dcc2480f5d10d4e520e1153476b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
