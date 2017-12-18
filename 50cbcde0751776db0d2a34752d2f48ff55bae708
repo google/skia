@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a73cf7c9_dd638661",
+        "filename": "platform_tools/android/apps/skqp/build.gradle",
+        "patchSetId": 12
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-12-18T15:44:23Z",
+      "side": 1,
+      "message": "2017",
+      "revId": "50cbcde0751776db0d2a34752d2f48ff55bae708",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c9c5f21b_d05e41a2",
+        "filename": "tools/skqp/README.md",
+        "patchSetId": 12
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-12-18T15:44:23Z",
+      "side": 1,
+      "message": "skqp.akp -\u003e skqp.apk?",
+      "revId": "50cbcde0751776db0d2a34752d2f48ff55bae708",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bbac8e9d_195a3ce2",
+        "filename": "tools/skqp/jni/org_skia_skqp_SkQPRunner.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 146,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-12-18T15:44:23Z",
+      "side": 1,
+      "message": "Maybe we can combine the 3 almost-identical pieces of code above?\n\nFor example:\n\n  auto getBackendName \u003d [](int i){ return gm_runner::GetGMName(gBackends[i]).c_str(); };\n  auto getGMName \u003d [](int i){ return gm_runner::GetGMName(gGMs[i]).c_str(); };\n  auto getUniteTestName \u003d [](int i){ return gm_runner::GetUnitTestName(gUnitTests[i]); };\n\n  SetStringArrayField(object, \"mBackends\", gBackends.size(), getBackendName);\n  SetStringArrayField(object, \"mGMs\", gGMs.size(), getGMName);\n  SetStringArrayField(object, \"mUnitTests\", gUnitTests.size(), getUniteTestName);\n\n  static void SetStringArrayField(...) { ... }",
+      "revId": "50cbcde0751776db0d2a34752d2f48ff55bae708",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
