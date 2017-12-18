@@ -16,6 +16,24 @@
       "revId": "cc87ab2308c9086f6e0190578ac479408c4aca75",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b2478f87_f3b97945",
+        "filename": "gm/imagefiltersbase.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 211,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-12-18T20:29:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7c9215ec_9c4d0412",
+      "revId": "cc87ab2308c9086f6e0190578ac479408c4aca75",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
