@@ -87,10 +87,8 @@ GrGLSLPrimitiveProcessor* GrCCPRCoverageProcessor::createGLSLInstance(const GrSh
     std::unique_ptr<Shader> shader;
     switch (fRenderPass) {
         case RenderPass::kTriangleHulls:
-            shader = skstd::make_unique<GrCCPRTriangleHullShader>();
-            break;
         case RenderPass::kTriangleEdges:
-            shader = skstd::make_unique<GrCCPRTriangleEdgeShader>();
+            shader = skstd::make_unique<GrCCPRTriangleShader>();
             break;
         case RenderPass::kTriangleCorners:
             shader = skstd::make_unique<GrCCPRTriangleCornerShader>();
