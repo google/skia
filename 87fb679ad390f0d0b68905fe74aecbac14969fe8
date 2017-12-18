@@ -22,6 +22,30 @@
       "revId": "87fb679ad390f0d0b68905fe74aecbac14969fe8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "011e0673_0295aeea",
+        "filename": "src/sksl/SkSLGLSLCodeGenerator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 604,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-12-18T21:54:05Z",
+      "side": 1,
+      "message": "I remember adding this as a quick fix while I tracked down where I was incorrectly sign-extending an unsigned number, and I evidently forgot to remove it after solving the problem. It seems to work perfectly without it now, so I\u0027ve gone ahead and removed it. Thanks for the catch.",
+      "parentUuid": "6dd57360_eff72556",
+      "range": {
+        "startLine": 604,
+        "startChar": 41,
+        "endLine": 604,
+        "endChar": 51
+      },
+      "revId": "87fb679ad390f0d0b68905fe74aecbac14969fe8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
