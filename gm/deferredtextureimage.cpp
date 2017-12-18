@@ -148,23 +148,23 @@ static void DrawDeferredTextureImageMipMapTree(SkCanvas* canvas, SkImage* image,
 DEF_SIMPLE_GM(deferred_texture_image_none, canvas, 512 + 512 + 30, 512 + 20) {
     auto params = SkImage::DeferredTextureImageUsageParams(SkMatrix::MakeScale(1.f, 1.f),
                                                            kNone_SkFilterQuality, 0);
-    DrawDeferredTextureImageData(canvas, "mandrill_512.png", &params, kN32_SkColorType);
+    DrawDeferredTextureImageData(canvas, "images/mandrill_512.png", &params, kN32_SkColorType);
 }
 
 DEF_SIMPLE_GM(deferred_texture_image_low, canvas, 512 + 512 + 30, 512 + 20) {
     auto params = SkImage::DeferredTextureImageUsageParams(SkMatrix::MakeScale(1.f, 1.f),
                                                            kLow_SkFilterQuality, 0);
-    DrawDeferredTextureImageData(canvas, "mandrill_512.png", &params, kN32_SkColorType);
+    DrawDeferredTextureImageData(canvas, "images/mandrill_512.png", &params, kN32_SkColorType);
 }
 
 DEF_SIMPLE_GM(deferred_texture_image_low_dithered, canvas, 180 + 180 + 30, 180 + 20) {
     auto params = SkImage::DeferredTextureImageUsageParams(SkMatrix::MakeScale(0.25f, 0.25f),
                                                            kLow_SkFilterQuality, 0);
-    DrawDeferredTextureImageData(canvas, "dog.jpg", &params, kARGB_4444_SkColorType);
+    DrawDeferredTextureImageData(canvas, "images/dog.jpg", &params, kARGB_4444_SkColorType);
 }
 
 DEF_SIMPLE_GM(deferred_texture_image_medium_encoded, canvas, 512 + 512 + 30, 1110) {
-    sk_sp<SkImage> encodedImage = GetResourceAsImage("mandrill_512.png");
+    sk_sp<SkImage> encodedImage = GetResourceAsImage("images/mandrill_512.png");
     if (!encodedImage) {
         SkDebugf("\nCould not load resource.\n");
         return;
@@ -177,7 +177,7 @@ DEF_SIMPLE_GM(deferred_texture_image_medium_encoded, canvas, 512 + 512 + 30, 111
 
 DEF_SIMPLE_GM(deferred_texture_image_medium_decoded, canvas, 512 + 512 + 30, 1110) {
     SkBitmap bitmap;
-    if (!GetResourceAsBitmap("mandrill_512.png", &bitmap)) {
+    if (!GetResourceAsBitmap("images/mandrill_512.png", &bitmap)) {
         SkDebugf("\nCould not decode resource.\n");
         return;
     }
@@ -191,11 +191,11 @@ DEF_SIMPLE_GM(deferred_texture_image_medium_decoded, canvas, 512 + 512 + 30, 111
 DEF_SIMPLE_GM(deferred_texture_image_high, canvas, 512 + 512 + 30, 512 + 20) {
     auto params = SkImage::DeferredTextureImageUsageParams(SkMatrix::MakeScale(1.f, 1.f),
                                                            kHigh_SkFilterQuality, 0);
-    DrawDeferredTextureImageData(canvas, "mandrill_512.png", &params, kN32_SkColorType);
+    DrawDeferredTextureImageData(canvas, "images/mandrill_512.png", &params, kN32_SkColorType);
 }
 
 DEF_SIMPLE_GM(deferred_texture_image_medium_encoded_indexed, canvas, 128 + 128 + 30, 340) {
-    sk_sp<SkImage> encodedImage = GetResourceAsImage("color_wheel.gif");
+    sk_sp<SkImage> encodedImage = GetResourceAsImage("images/color_wheel.gif");
     if (!encodedImage) {
         SkDebugf("\nCould not load resource.\n");
         return;
@@ -208,7 +208,7 @@ DEF_SIMPLE_GM(deferred_texture_image_medium_encoded_indexed, canvas, 128 + 128 +
 
 DEF_SIMPLE_GM(deferred_texture_image_medium_decoded_indexed, canvas, 128 + 128 + 30, 340) {
     SkBitmap bitmap;
-    if (!GetResourceAsBitmap("color_wheel.gif", &bitmap)) {
+    if (!GetResourceAsBitmap("images/color_wheel.gif", &bitmap)) {
         SkDebugf("\nCould not decode resource.\n");
         return;
     }
