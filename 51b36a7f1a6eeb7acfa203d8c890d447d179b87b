@@ -16,6 +16,24 @@
       "revId": "51b36a7f1a6eeb7acfa203d8c890d447d179b87b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "30920d87_c0024191",
+        "filename": "src/core/SkColorSpaceXformCanvas.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2017-12-18T19:21:44Z",
+      "side": 1,
+      "message": "I changed the sizing to be outside \"apply\". Initially I had it inside to share more code.",
+      "parentUuid": "e9a54219_8fad1f21",
+      "revId": "51b36a7f1a6eeb7acfa203d8c890d447d179b87b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
