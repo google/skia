@@ -175,7 +175,7 @@ static inline void transform_scanline_unpremultiply_sRGB(void* dst, const void* 
         p.append(SkRasterPipeline::load_bgra, &src_ctx);
     }
 
-    p.append_from_srgb(kPremul_SkAlphaType);
+    p.append(SkRasterPipeline::from_srgb);
     p.append(SkRasterPipeline::unpremul);
     p.append(SkRasterPipeline::to_srgb);
     p.append(SkRasterPipeline::store_8888, &dst_ctx);
@@ -201,7 +201,7 @@ static inline void transform_scanline_to_premul_linear(char* SK_RESTRICT dst,
                        dst_ctx = { (void*)dst, 0 };
     SkRasterPipeline_<256> p;
     p.append(SkRasterPipeline::load_8888, &src_ctx);
-    p.append_from_srgb(kUnpremul_SkAlphaType);
+    p.append(SkRasterPipeline::from_srgb);
     p.append(SkRasterPipeline::premul);
     p.append(SkRasterPipeline::to_srgb);
     p.append(SkRasterPipeline::store_8888, &dst_ctx);
