@@ -1114,6 +1114,22 @@ DEF_TEST(SkSLArrayTypes, r) {
          "}\n");
 }
 
+DEF_TEST(SkSLArrayIndexTypes, r) {
+    test(r,
+         "void main() { float array[4] = float[4](1, 2, 3, 4);"
+         "short x = 0; ushort y = 1; int z = 2; uint w = 3;"
+         "sk_FragColor = float4(array[x], array[y], array[z], array[w]); }",
+         *SkSL::ShaderCapsFactory::Default(),
+         "#version 400\n"
+         "out vec4 sk_FragColor;\n"
+         "void main() {\n"
+         "    sk_FragColor = vec4(float[4](1.0, 2.0, 3.0, 4.0)[0], "
+                                 "float[4](1.0, 2.0, 3.0, 4.0)[1], "
+                                 "float[4](1.0, 2.0, 3.0, 4.0)[2], "
+                                 "float[4](1.0, 2.0, 3.0, 4.0)[3]);\n"
+         "}\n");
+}
+
 DEF_TEST(SkSLGeometry, r) {
     test(r,
          "layout(points) in;"
