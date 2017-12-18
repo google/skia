@@ -8,6 +8,7 @@
 #ifndef SkColorSpaceXformer_DEFINED
 #define SkColorSpaceXformer_DEFINED
 
+#include "SkCanvas.h"
 #include "SkColor.h"
 #include "SkRefCnt.h"
 #include "SkTHash.h"
@@ -37,6 +38,8 @@ public:
     SkColor apply(SkColor srgb);
 
     sk_sp<SkColorSpace> dst() const { return fDst; }
+
+    SkCanvas::Lattice apply(const SkCanvas::Lattice&, SkColor*, int);
 
 private:
     SkColorSpaceXformer(sk_sp<SkColorSpace> dst, std::unique_ptr<SkColorSpaceXform> fromSRGB);
