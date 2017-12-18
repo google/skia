@@ -11,22 +11,11 @@
 #include "ccpr/GrCCPRCoverageProcessor.h"
 
 /**
- * Pass 1: Draw the triangle's conservative raster hull with a coverage of 1. (Conservative raster
- *         is drawn by considering 3 pixel size boxes, one centered at each vertex, and drawing the
- *         convex hull of those boxes.)
+ * Passes 1 & 2: Draw the triangle's conservative raster hull with a coverage of 1, then smooth the
+ *               edges by drawing the conservative rasters of all 3 edges and interpolating from
+ *               coverage=-1 on the outside to coverage=0 on the inside.
  */
-class GrCCPRTriangleHullShader : public GrCCPRCoverageProcessor::Shader {
-    WindHandling onEmitVaryings(GrGLSLVaryingHandler*, SkString* code, const char* position,
-                                const char* coverage, const char* wind) override;
-    void onEmitFragmentCode(GrGLSLPPFragmentBuilder* f, const char* outputCoverage) const override;
-};
-
-/**
- * Pass 2: Smooth the edges that were over-rendered during Pass 1. Draw the conservative raster of
- *         each edge (i.e. convex hull of two pixel-size boxes at the endpoints), interpolating from
- *         coverage=-1 on the outside edge to coverage=0 on the inside edge.
- */
-class GrCCPRTriangleEdgeShader : public GrCCPRCoverageProcessor::Shader {
+class GrCCPRTriangleShader : public GrCCPRCoverageProcessor::Shader {
     WindHandling onEmitVaryings(GrGLSLVaryingHandler*, SkString* code, const char* position,
                                 const char* coverage, const char* wind) override;
     void onEmitFragmentCode(GrGLSLPPFragmentBuilder*, const char* outputCoverage) const override;
