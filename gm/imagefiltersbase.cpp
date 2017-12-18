@@ -208,7 +208,7 @@ protected:
             IdentityImageFilter::Make(nullptr),
             FailImageFilter::Make(),
             SkColorFilterImageFilter::Make(std::move(cf), nullptr),
-            SkBlurImageFilter::Make(12.0f, 0.0f, nullptr),
+            SkBlurImageFilter::Make(12.0f, 0.29f, nullptr),
             SkDropShadowImageFilter::Make(
                                     10.0f, 5.0f, 3.0f, 3.0f, SK_ColorBLUE,
                                     SkDropShadowImageFilter::kDrawShadowAndForeground_ShadowMode,
