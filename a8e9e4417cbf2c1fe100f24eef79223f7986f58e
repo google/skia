@@ -22,6 +22,30 @@
       "revId": "a8e9e4417cbf2c1fe100f24eef79223f7986f58e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "50ebd629_9c10d71c",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-12-18T13:56:43Z",
+      "side": 1,
+      "message": "Yes, thanks! Following reed\u0027s suggestion of using uint64_t handles this case as well.",
+      "parentUuid": "e598120e_8bad0ea4",
+      "range": {
+        "startLine": 67,
+        "startChar": 0,
+        "endLine": 67,
+        "endChar": 35
+      },
+      "revId": "a8e9e4417cbf2c1fe100f24eef79223f7986f58e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
