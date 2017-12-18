@@ -201,8 +201,15 @@ int main(int argc, char** argv) {
     GR_GL_GetIntegerv(interface.get(), GR_GL_FRAMEBUFFER_BINDING, &buffer);
     GrGLFramebufferInfo info;
     info.fFBOID = (GrGLuint) buffer;
-    GrBackendRenderTarget target(dw, dh, kMsaaSampleCount, kStencilBits,
-                                 kSkia8888_GrPixelConfig, info);
+    SkColorType colorType;
+    if (kRGBA_8888_GrPixelConfig == kSkia8888_GrPixelConfig) {
+        info.fFormat = GR_GL_RGBA8;
+        colorType = kRGBA_8888_SkColorType;
+    } else {
+        info.fFormat = GR_GL_BGRA8;
+        colorType = kBGRA_8888_SkColorType;
+    }
+    GrBackendRenderTarget target(dw, dh, kMsaaSampleCount, kStencilBits, info);
 
     // setup SkSurface
     // To use distance field text, use commented out SkSurfaceProps instead
@@ -212,7 +219,7 @@ int main(int argc, char** argv) {
 
     sk_sp<SkSurface> surface(SkSurface::MakeFromBackendRenderTarget(grContext.get(), target,
                                                                     kBottomLeft_GrSurfaceOrigin,
-                                                                    nullptr, &props));
+                                                                    colorType, nullptr, &props));
 
     SkCanvas* canvas = surface->getCanvas();
     canvas->scale((float)dw/dm.w, (float)dh/dm.h);

@@ -99,9 +99,23 @@ public:
                                                    sk_sp<SkColorSpace> colorSpace,
                                                    const SkSurfaceProps* surfaceProps);
 
+    static sk_sp<SkSurface> MakeFromBackendTexture(GrContext* context,
+                                                   const GrBackendTexture& backendTexture,
+                                                   GrSurfaceOrigin origin, int sampleCnt,
+                                                   SkColorType colorType,
+                                                   sk_sp<SkColorSpace> colorSpace,
+                                                   const SkSurfaceProps* surfaceProps);
+
     static sk_sp<SkSurface> MakeFromBackendRenderTarget(GrContext* context,
                                                 const GrBackendRenderTarget& backendRenderTarget,
                                                 GrSurfaceOrigin origin,
+                                                sk_sp<SkColorSpace> colorSpace,
+                                                const SkSurfaceProps* surfaceProps);
+
+    static sk_sp<SkSurface> MakeFromBackendRenderTarget(GrContext* context,
+                                                const GrBackendRenderTarget& backendRenderTarget,
+                                                GrSurfaceOrigin origin,
+                                                SkColorType colorType,
                                                 sk_sp<SkColorSpace> colorSpace,
                                                 const SkSurfaceProps* surfaceProps);
 
@@ -116,6 +130,14 @@ public:
                                                             const GrBackendTexture& backendTexture,
                                                             GrSurfaceOrigin origin,
                                                             int sampleCnt,
+                                                            sk_sp<SkColorSpace> colorSpace,
+                                                            const SkSurfaceProps* surfaceProps);
+
+    static sk_sp<SkSurface> MakeFromBackendTextureAsRenderTarget(GrContext* context,
+                                                            const GrBackendTexture& backendTexture,
+                                                            GrSurfaceOrigin origin,
+                                                            int sampleCnt,
+                                                            SkColorType,
                                                             sk_sp<SkColorSpace> colorSpace,
                                                             const SkSurfaceProps* surfaceProps);
 

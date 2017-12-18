@@ -63,13 +63,7 @@ public:
 
     GrBackendObject getRenderTargetHandle() const override { return fRTFBOID; }
 
-    GrBackendRenderTarget getBackendRenderTarget() const override {
-        GrGLFramebufferInfo fbi;
-        fbi.fFBOID = fRTFBOID;
-
-        return GrBackendRenderTarget(this->width(), this->height(), this->numColorSamples(),
-                                     this->numStencilSamples(), this->config(), fbi);
-    }
+    GrBackendRenderTarget getBackendRenderTarget() const override;
 
     bool canAttemptStencilAttachment() const override;
 

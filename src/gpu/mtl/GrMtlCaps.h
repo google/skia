@@ -56,11 +56,16 @@ public:
         return false;
     }
 
-private:
-    bool onValidateBackendTexture(GrBackendTexture* tex, SkColorType ct) const override {
+    bool validateBackendTexture(const GrBackendTexture&, SkColorType,
+                                GrPixelConfig*) const override {
+        return false;
+    }
+    bool validateBackendRenderTarget(const GrBackendRenderTarget&, SkColorType,
+                                     GrPixelConfig*) const override {
         return false;
     }
 
+private:
     void initFeatureSet(MTLFeatureSet featureSet);
 
     void initGrCaps(const id<MTLDevice> device);
