@@ -71,8 +71,8 @@ inline void regen_vertices(char* vertex, const GrGlyph* glyph, size_t vertexStri
 
     // This is a bit wonky, but sometimes we have LCD text, in which case we won't have color
     // vertices, hence vertexStride - sizeof(SkIPoint16)
+    intptr_t colorOffset = sizeof(SkPoint);
     intptr_t texCoordOffset = vertexStride - sizeof(SkIPoint16);
-    intptr_t colorOffset = texCoordOffset - sizeof(GrColor);
 
     // V0
     if (regenPos) {
@@ -211,9 +211,8 @@ Regenerator::Result Regenerator::doRegen() {
         }
     }
 
-    bool hasW = fSubRun->hasWCoord();
     Result result;
-    auto vertexStride = GetVertexStride(fSubRun->maskFormat(), hasW);
+    auto vertexStride = GetVertexStride(fSubRun->maskFormat());
     char* currVertex = fBlob->fVertices + fSubRun->vertexStartIndex() +
                        fCurrGlyph * kVerticesPerGlyph * vertexStride;
     result.fFirstVertex = currVertex;
@@ -301,8 +300,7 @@ Regenerator::Result Regenerator::regenerate() {
             return this->doRegen<false, true, true, true>();
         case kNoRegen: {
             Result result;
-            bool hasW = fSubRun->hasWCoord();
-            auto vertexStride = GetVertexStride(fSubRun->maskFormat(), hasW);
+            auto vertexStride = GetVertexStride(fSubRun->maskFormat());
             result.fGlyphsRegenerated = fSubRun->glyphCount() - fCurrGlyph;
             result.fFirstVertex = fBlob->fVertices + fSubRun->vertexStartIndex() +
                                   fCurrGlyph * kVerticesPerGlyph * vertexStride;
