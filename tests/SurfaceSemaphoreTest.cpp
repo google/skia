@@ -83,7 +83,10 @@ void draw_child(skiatest::Reporter* reporter,
     sk_sp<SkImage> childImage = SkImage::MakeFromTexture(childCtx,
                                                          backendTexture,
                                                          kTopLeft_GrSurfaceOrigin,
+                                                         kRGBA_8888_SkColorType,
                                                          kPremul_SkAlphaType,
+                                                         nullptr,
+                                                         nullptr,
                                                          nullptr);
 
     SkCanvas* childCanvas = childSurface->getCanvas();

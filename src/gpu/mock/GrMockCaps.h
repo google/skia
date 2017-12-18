@@ -52,6 +52,10 @@ public:
     }
 
 private:
+    bool onValidateBackendTexture(GrBackendTexture* tex, SkColorType ct) const override {
+        return SkToBool(tex->getMockTextureInfo());
+    }
+
     GrMockOptions fOptions;
     typedef GrCaps INHERITED;
 };

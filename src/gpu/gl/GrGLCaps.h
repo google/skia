@@ -416,6 +416,8 @@ public:
     }
 
 private:
+    bool onValidateBackendTexture(GrBackendTexture*, SkColorType) const override;
+
     enum ExternalFormatUsage {
         kTexImage_ExternalFormatUsage,
         kOther_ExternalFormatUsage,
