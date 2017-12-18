@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "92692aa3_5b40ba99",
+        "filename": "src/core/SkColorSpaceXformCanvas.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-12-18T19:30:23Z",
+      "side": 1,
+      "message": "How do we interpret the lattice if fColors is set but fRectTypes is not?",
+      "range": {
+        "startLine": 161,
+        "startChar": 20,
+        "endLine": 161,
+        "endChar": 57
+      },
+      "revId": "16cfe9777955eabbd11286ebb66a9bbb7668843d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
