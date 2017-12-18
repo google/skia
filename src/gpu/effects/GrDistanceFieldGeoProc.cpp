@@ -286,9 +286,7 @@ sk_sp<GrGeometryProcessor> GrDistanceFieldA8TextGeoProc::TestCreate(GrProcessorT
     }
     SkMatrix localMatrix = GrTest::TestMatrix(d->fRandom);
     GrColor color = GrRandomColor(d->fRandom);
-#ifdef SK_GAMMA_APPLY_TO_A8
     float lum = d->fRandom->nextF();
-#endif
     return GrDistanceFieldA8TextGeoProc::Make(color,
                                               proxies,
                                               samplerState,
