@@ -16,6 +16,24 @@
       "revId": "b86e5febfb16d05a7036814cfb397faed23d19ac",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "32542c12_3b69e2aa",
+        "filename": "gm/deferredtextureimage.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-12-18T16:43:38Z",
+      "side": 1,
+      "message": "Oops, done.",
+      "parentUuid": "e1369871_c95aa70f",
+      "revId": "b86e5febfb16d05a7036814cfb397faed23d19ac",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
