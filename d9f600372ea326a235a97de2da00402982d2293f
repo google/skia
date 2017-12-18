@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6b2b9980_e02fc652",
+        "filename": "gn/BUILD.gn",
+        "patchSetId": 6
+      },
+      "lineNbr": 227,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-12-18T01:01:40Z",
+      "side": 1,
+      "message": "Regardless of what I do, I get \"clang-cl.exe: error: the object size sanitizer has no effect at -O0, but is explicitly enabled\"",
+      "range": {
+        "startLine": 227,
+        "startChar": 24,
+        "endLine": 227,
+        "endChar": 35
+      },
+      "revId": "d9f600372ea326a235a97de2da00402982d2293f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
