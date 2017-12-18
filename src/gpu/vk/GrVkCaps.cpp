@@ -444,11 +444,15 @@ bool GrVkCaps::onValidateBackendTexture(GrBackendTexture* tex, SkColorType ct) c
         case kRGBA_8888_SkColorType:
             if (VK_FORMAT_R8G8B8A8_UNORM == format) {
                 tex->fConfig = kRGBA_8888_GrPixelConfig;
+            } else if (VK_FORMAT_R8G8B8A8_SRGB == format) {
+                tex->fConfig = kSRGBA_8888_GrPixelConfig;
             }
             break;
         case kBGRA_8888_SkColorType:
             if (VK_FORMAT_B8G8R8A8_UNORM == format) {
                 tex->fConfig = kBGRA_8888_GrPixelConfig;
+            } else if (VK_FORMAT_B8G8R8A8_SRGB == format) {
+                tex->fConfig = kSBGRA_8888_GrPixelConfig;
             }
             break;
         case kGray_8_SkColorType:
