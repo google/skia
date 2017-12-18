@@ -49,6 +49,7 @@ public:
 #endif
 
     SkCoverageDeltaList(SkArenaAlloc* alloc, int top, int bottom, bool forceRLE);
+    SkCoverageDeltaList(SkArenaAlloc* alloc, SkCoverageDeltaList*);
 
     int  top() const { return fTop; }
     int  bottom() const { return fBottom; }
@@ -168,6 +169,22 @@ private:
     void checkX(int x) const {
         SkASSERT(x >= fBounds.fLeft - PADDING && x < fBounds.fRight + PADDING);
     }
+};
+
+struct SkCoverageRecord {
+    SkArenaAlloc* fAlloc;
+    std::vector<SkIRect> fRects;
+    std::vector<SkMask> fMasks;
+    std::vector<SkCoverageDeltaList> fLists;
+
+    SkCoverageRecord(SkArenaAlloc* alloc) : fAlloc(alloc) {}
+
+    void addRect(int x, int y, int width, int height) {
+        fRects.push_back(SkIRect::MakeXYWH(x, y, width, height));
+    }
+
+    void addMask(const SkMask&);
+    void addList(SkCoverageDeltaList* deltas);
 };
 
 static SK_ALWAYS_INLINE SkAlpha CoverageToAlpha(SkFixed coverage, bool isEvenOdd, bool isInverse) {

@@ -350,7 +350,7 @@ void SkScan::DAAFillPath(const SkPath& path, const SkRegion& origClip, SkBlitter
         } else {
             SkCoverageDeltaList deltaList(&alloc, clippedIR.fTop, clippedIR.fBottom, forceRLE);
             gen_alpha_deltas(path, clipBounds, deltaList, blitter, skipRect, containedInClip);
-            blitter->blitCoverageDeltas(&deltaList, clipBounds, isEvenOdd, isInverse, isConvex);
+            blitter->blitCoverageDeltas(&deltaList, clipBounds, isEvenOdd, isInverse, isConvex, &alloc);
         }
     };
 

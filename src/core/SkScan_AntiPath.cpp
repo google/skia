@@ -584,6 +584,7 @@ void MaskSuperBlitter::blitH(int x, int y, int width) {
 ///////////////////////////////////////////////////////////////////////////////
 
 static bool ShouldUseDAA(const SkPath& path) {
+    return true; // TODO TEST
     if (gSkForceDeltaAA) {
         return true;
     }

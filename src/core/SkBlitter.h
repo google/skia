@@ -36,7 +36,8 @@ public:
     // For example, one may avoid some virtual blitAntiH calls by directly calling
     // SkBlitRow::Color32.
     virtual void blitCoverageDeltas(SkCoverageDeltaList* deltas, const SkIRect& clip,
-                                    bool isEvenOdd, bool isInverse, bool isConvex);
+                                    bool isEvenOdd, bool isInverse, bool isConvex,
+                                    SkArenaAlloc* alloc);
 
     /// Blit a horizontal run of one or more pixels.
     virtual void blitH(int x, int y, int width) = 0;
@@ -211,6 +212,28 @@ public:
 private:
     SkBlitter*  fBlitter;
     SkIRect     fClipRect;
+};
+
+/** Record the SkMask and SkCoverageDeltaList for later playback on different tiles
+*/
+class SkRecordingBlitter : public SkBlitter {
+public:
+    SkRecordingBlitter(SkCoverageRecord* record) : fRecord(record) {}
+
+    void blitRect(int x, int y, int width, int height) override;
+    // TODO Change to blitCoverageDeltas(SkCoverageDeltaMask) later
+    void blitMask(const SkMask&, const SkIRect& clip) override;
+    void blitCoverageDeltas(SkCoverageDeltaList* deltas, const SkIRect& clip,
+                            bool isEvenOdd, bool isInverse, bool isConvex, SkArenaAlloc*) override;
+
+
+    void blitH(int x, int y, int width) override { SK_ABORT("Not supported"); }
+    void blitAntiH(int x, int y, const SkAlpha antialias[], const int16_t runs[]) override {
+        SK_ABORT("Not supported");
+    }
+
+private:
+    SkCoverageRecord* fRecord;
 };
 
 /** Wraps another (real) blitter, and ensures that the real blitter is only

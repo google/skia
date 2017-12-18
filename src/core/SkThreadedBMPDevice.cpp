@@ -7,6 +7,7 @@
 
 #include "SkThreadedBMPDevice.h"
 
+#include "SkDrawProcs.h"
 #include "SkPath.h"
 #include "SkTaskGroup.h"
 #include "SkVertices.h"
@@ -14,13 +15,11 @@
 #include <mutex>
 #include <vector>
 
-constexpr int MAX_CACHE_LINE = 64;
-
 // Some basic logics and data structures that are shared across the current experimental schedulers.
-class TiledDrawSchedulerBase : public TiledDrawScheduler {
+class ThreadedDrawSchedulerBase : public ThreadedDrawScheduler {
 public:
-    TiledDrawSchedulerBase(int tiles, WorkFunc work)
-            : fTileCnt(tiles), fIsFinishing(false), fDrawCnt(0), fWork(std::move(work)) {}
+    ThreadedDrawSchedulerBase(int tiles, SkThreadedBMPDevice* device)
+            : fTileCnt(tiles), fIsFinishing(false), fDrawCnt(0), fDevice(device) {}
 
     void signal() override {
         fDrawCnt++;
@@ -29,69 +28,118 @@ public:
         fIsFinishing.store(true, std::memory_order_relaxed);
     }
 
+    // initIndex should be thread-local or exclusively owned by the thread
+    void tryInit(int& initIndex, int threadId) {
+        while (initIndex < fDrawCnt) {
+            DrawElement& initElement = fDevice->fQueue[initIndex];
+            if (!initElement.fInitialized && initElement.fNeedInit) {
+                bool needInit = true;
+                // TODO maybe try exchange_weak
+                if (initElement.fNeedInit.compare_exchange_strong(
+                        needInit, false)) {
+                    SkArenaAlloc* threadAlloc = &fDevice->fThreadAllocs[threadId];
+                    initElement.fInitFn(threadAlloc);
+                    initElement.fInitialized = true;
+                }
+            }
+            initIndex++;
+        }
+    }
+
+    // The drawIndex should be thread-local, or exclusively owned by this thread.
+    // The drawIndex is incremented if drawn (including empty draw).
+    // Return true if drawn and false otherwise.
+    bool tryDraw(int& drawIndex, int tileIndex, int threadId) {
+        SkASSERT(drawIndex < fDrawCnt);
+        DrawElement& drawElement = fDevice->fQueue[drawIndex];
+        if (!SkIRect::Intersects(fDevice->fTileBounds[tileIndex], drawElement.fDrawBounds)) {
+            drawIndex++;
+            return true;
+        }
+        if (drawElement.fInitialized) {
+            SkArenaAlloc* threadAlloc = &fDevice->fThreadAllocs[threadId];
+            drawElement.fDrawFn(threadAlloc, fDevice->fTileBounds[tileIndex]);
+            drawIndex++;
+            return true;
+        }
+        return false;
+    }
+
 protected:
     const int                   fTileCnt;
     std::atomic<bool>           fIsFinishing;
     std::atomic<int>            fDrawCnt;
-    WorkFunc                    fWork;
+    SkThreadedBMPDevice*        fDevice;
 };
 
-class TiledDrawSchedulerBySpinning : public TiledDrawSchedulerBase {
+class SpinningScheduler : public ThreadedDrawSchedulerBase {
 public:
-    TiledDrawSchedulerBySpinning(int tiles, WorkFunc work)
-            : TiledDrawSchedulerBase(tiles, std::move(work)), fScheduleData(tiles) {}
+    // the number of tiles and the number of threads are equal for this scheduler
+    SpinningScheduler(int tiles, SkThreadedBMPDevice* device)
+            : ThreadedDrawSchedulerBase(tiles, device), fScheduleData(tiles) {}
 
-    void signal() final { this->TiledDrawSchedulerBase::signal(); }
-    void finish() final { this->TiledDrawSchedulerBase::finish(); }
+    void signal() final { this->ThreadedDrawSchedulerBase::signal(); }
+    void finish() final { this->ThreadedDrawSchedulerBase::finish(); }
 
-    bool next(int& tileIndex) final {
-        int& drawIndex = fScheduleData[tileIndex].fDrawIndex;
-        SkASSERT(drawIndex <= fDrawCnt);
+    bool next(int threadId) final {
+        int& drawIndex = fScheduleData[threadId].fDrawIndex;
+
         while (true) {
+            SkASSERT(drawIndex <= fDrawCnt);
             bool isFinishing = fIsFinishing.load(std::memory_order_relaxed);
             if (isFinishing && drawIndex >= fDrawCnt) {
                 return false;
-            } else if (drawIndex < fDrawCnt) {
-                fWork(tileIndex, drawIndex++);
+            }
+
+            if (drawIndex < fDrawCnt && this->tryDraw(drawIndex, threadId, threadId)) {
                 return true;
             }
+
+            // In this scheduler, we first draw and then try to init; we can also first try to init
+            // everything before attemp to draw.
+            this->tryInit(fScheduleData[threadId].fInitIndex, threadId);
         }
     }
 
 private:
     // alignas(MAX_CACHE_LINE) to avoid false sharing by cache lines
-    struct alignas(MAX_CACHE_LINE) TileScheduleData {
-        TileScheduleData() : fDrawIndex(0) {}
+    struct alignas(MAX_CACHE_LINE) ScheduleData {
+        ScheduleData() : fDrawIndex(0), fInitIndex(0) {}
 
         int fDrawIndex; // next draw index for this tile
+        int fInitIndex; // next init index for this thread (tile = thread)
     };
 
-    std::vector<TileScheduleData>  fScheduleData;
+    std::vector<ScheduleData>  fScheduleData;
 };
 
-class TiledDrawSchedulerFlexible : public TiledDrawSchedulerBase {
+class FlexibleScheduler : public ThreadedDrawSchedulerBase {
 public:
-    TiledDrawSchedulerFlexible(int tiles, WorkFunc work)
-            : TiledDrawSchedulerBase(tiles, std::move(work)), fScheduleData(tiles) {}
+    FlexibleScheduler(int tiles, int threads, SkThreadedBMPDevice* device)
+            : ThreadedDrawSchedulerBase(tiles, device), fTileData(tiles), fThreadData(threads) {
+        for (int i = 0; i < threads; ++i) {
+            fThreadData[i].fTileIndex = i;
+        }
+    }
 
-    void signal() final { this->TiledDrawSchedulerBase::signal(); }
-    void finish() final { this->TiledDrawSchedulerBase::finish(); }
+    void signal() final { this->ThreadedDrawSchedulerBase::signal(); }
+    void finish() final { this->ThreadedDrawSchedulerBase::finish(); }
 
-    bool next(int& tileIndex) final {
+    bool next(int threadId) final {
         int failCnt = 0;
+        int& tileIndex = fThreadData[threadId].fTileIndex;
         while (true) {
-            TileScheduleData& scheduleData = fScheduleData[tileIndex];
-            bool locked = scheduleData.fMutex.try_lock();
+            TileData& tileData = fTileData[tileIndex];
+            bool locked = tileData.fMutex.try_lock();
             bool processed = false;
 
             if (locked) {
-                if (scheduleData.fDrawIndex < fDrawCnt) {
-                    fWork(tileIndex, scheduleData.fDrawIndex++);
-                    processed = true;
+                if (tileData.fDrawIndex < fDrawCnt) {
+                    processed = this->tryDraw(tileData.fDrawIndex, tileIndex, threadId);
                 } else {
                     failCnt += fIsFinishing.load(std::memory_order_relaxed);
                 }
-                scheduleData.fMutex.unlock();
+                tileData.fMutex.unlock();
             }
 
             if (processed) {
@@ -102,40 +150,51 @@ public:
                 }
                 tileIndex = (tileIndex + 1) % fTileCnt;
             }
+
+            this->tryInit(fThreadData[threadId].fInitIndex, threadId);
         }
     }
 
 private:
     // alignas(MAX_CACHE_LINE) to avoid false sharing by cache lines
-    struct alignas(MAX_CACHE_LINE) TileScheduleData {
-        TileScheduleData() : fDrawIndex(0) {}
+    struct alignas(MAX_CACHE_LINE) TileData {
+        TileData() : fDrawIndex(0) {}
 
         int         fDrawIndex; // next draw index for this tile
         std::mutex  fMutex;     // the mutex for the thread to acquire
     };
 
-    std::vector<TileScheduleData>  fScheduleData;
+    struct alignas(MAX_CACHE_LINE) ThreadData {
+        ThreadData() : fInitIndex(0), fTileIndex(0) {}
+
+        int         fInitIndex; // next draw index for this tile
+        int         fTileIndex; // the tile that the current thread is working on
+    };
+
+    std::vector<TileData>   fTileData;
+    std::vector<ThreadData> fThreadData;
 };
 
-class TiledDrawSchedulerBySemaphores : public TiledDrawSchedulerBase {
+class SemaphoreTreeScheduler : public ThreadedDrawSchedulerBase {
 public:
-    TiledDrawSchedulerBySemaphores(int tiles, WorkFunc work)
-            : TiledDrawSchedulerBase(tiles, std::move(work)), fScheduleData(tiles) {}
+    SemaphoreTreeScheduler(int tiles, SkThreadedBMPDevice* device)
+            : ThreadedDrawSchedulerBase(tiles, device), fScheduleData(tiles) {}
 
 
     void signal() final {
-        this->TiledDrawSchedulerBase::signal();
+        this->ThreadedDrawSchedulerBase::signal();
         signalRoot();
     }
 
     void finish() final {
-        this->TiledDrawSchedulerBase::finish();
+        this->ThreadedDrawSchedulerBase::finish();
         signalRoot();
     }
 
-    bool next(int& tileIndex) final {
+    bool next(int threadId) final {
+        int tileIndex = threadId;
         SkASSERT(tileIndex >= 0 && tileIndex < fTileCnt);
-        TileScheduleData& scheduleData = fScheduleData[tileIndex];
+        ScheduleData& scheduleData = fScheduleData[tileIndex];
         while (true) {
             scheduleData.fSemaphore.wait();
             int leftChild = (tileIndex + 1) * 2 - 1;
@@ -152,7 +211,11 @@ public:
                 return false;
             } else {
                 SkASSERT(scheduleData.fDrawIndex < fDrawCnt);
-                fWork(tileIndex, scheduleData.fDrawIndex++);
+                // We have to init first so we won't be blocked by uninitialized draw
+                this->tryInit(scheduleData.fInitIndex, threadId);
+                // Some other threds might be initializing this draw, so try until initialized
+                // and drawn.
+                while (!this->tryDraw(scheduleData.fDrawIndex, tileIndex, threadId)) {}
                 return true;
             }
         }
@@ -160,10 +223,11 @@ public:
 
 private:
     // alignas(MAX_CACHE_LINE) to avoid false sharing by cache lines
-    struct alignas(MAX_CACHE_LINE) TileScheduleData {
-        TileScheduleData() : fDrawIndex(0) {}
+    struct alignas(MAX_CACHE_LINE) ScheduleData {
+        ScheduleData() : fDrawIndex(0), fInitIndex(0) {}
 
         int         fDrawIndex;
+        int         fInitIndex;
         SkSemaphore fSemaphore;
     };
 
@@ -172,33 +236,18 @@ private:
         fScheduleData[0].fSemaphore.signal();
     }
 
-    std::vector<TileScheduleData> fScheduleData;
+    std::vector<ScheduleData> fScheduleData;
 };
 
 void SkThreadedBMPDevice::startThreads() {
     SkASSERT(fQueueSize == 0);
 
-    TiledDrawScheduler::WorkFunc work = [this](int tileIndex, int drawIndex){
-        auto& element = fQueue[drawIndex];
-        if (SkIRect::Intersects(fTileBounds[tileIndex], element.fDrawBounds)) {
-            element.fDrawFn(fTileBounds[tileIndex]);
-        }
-    };
+    // fScheduler.reset(new SemaphoreTreeScheduler(fTileCnt, this));
+    // fScheduler.reset(new SpinningScheduler(fTileCnt, this));
+    fScheduler.reset(new FlexibleScheduler(fTileCnt, fThreadCnt, this));
 
-    // using Scheduler = TiledDrawSchedulerBySemaphores;
-    // using Scheduler = TiledDrawSchedulerBySpinning;
-    using Scheduler = TiledDrawSchedulerFlexible;
-    fScheduler.reset(new Scheduler(fTileCnt, work));
-
-    // We intentionally call the int parameter tileIndex although it ranges from 0 to fThreadCnt-1.
-    // For some schedulers (e.g., TiledDrawSchedulerBySemaphores and TiledDrawSchedulerBySpinning),
-    // fThreadCnt should be equal to fTileCnt so it doesn't make a difference.
-    //
-    // For TiledDrawSchedulerFlexible, the input tileIndex provides only a hint about which tile
-    // the current thread should draw; the scheduler may later modify that tileIndex to draw on
-    // another tile.
-    fTaskGroup->batch(fThreadCnt, [this](int tileIndex){
-        while (fScheduler->next(tileIndex)) {}
+    fTaskGroup->batch(fThreadCnt, [this](int threadId){
+        while (fScheduler->next(threadId)) {}
     });
 }
 
@@ -216,12 +265,17 @@ SkThreadedBMPDevice::SkThreadedBMPDevice(const SkBitmap& bitmap,
         : INHERITED(bitmap)
         , fTileCnt(tiles)
         , fThreadCnt(threads <= 0 ? tiles : threads)
+        , fThreadAllocs(threads <= 0 ? tiles : threads)
 {
     if (executor == nullptr) {
         fInternalExecutor = SkExecutor::MakeFIFOThreadPool(fThreadCnt);
         executor = fInternalExecutor.get();
     }
     fExecutor = executor;
+
+    for(int i = 0; i < fThreadCnt; ++i) {
+        fThreadAllocs.emplace_back();
+    }
 
     // Tiling using stripes for now; we'll explore better tiling in the future.
     int h = (bitmap.height() + fTileCnt - 1) / SkTMax(fTileCnt, 1);
@@ -240,32 +294,16 @@ void SkThreadedBMPDevice::flush() {
     startThreads();
 }
 
-// Having this captured in lambda seems to be faster than saving this in DrawElement
-struct SkThreadedBMPDevice::DrawState {
-    SkPixmap fDst;
-    SkMatrix fMatrix;
-    SkRasterClip fRC;
 
-    explicit DrawState(SkThreadedBMPDevice* dev) {
-        // we need fDst to be set, and if we're actually drawing, to dirty the genID
-        if (!dev->accessPixels(&fDst)) {
-            // NoDrawDevice uses us (why?) so we have to catch this case w/ no pixels
-            fDst.reset(dev->imageInfo(), nullptr, 0);
-        }
-        fMatrix = dev->ctm();
-        fRC = dev->fRCStack.rc();
+DrawState::DrawState(SkThreadedBMPDevice* dev) {
+    // we need fDst to be set, and if we're actually drawing, to dirty the genID
+    if (!dev->accessPixels(&fDst)) {
+        // NoDrawDevice uses us (why?) so we have to catch this case w/ no pixels
+        fDst.reset(dev->imageInfo(), nullptr, 0);
     }
-
-    SkDraw getThreadDraw(SkRasterClip& threadRC, const SkIRect& threadBounds) const {
-        SkDraw draw;
-        draw.fDst = fDst;
-        draw.fMatrix = &fMatrix;
-        threadRC = fRC;
-        threadRC.op(threadBounds, SkRegion::kIntersect_Op);
-        draw.fRC = &threadRC;
-        return draw;
-    }
-};
+    fMatrix = dev->ctm();
+    fRC = dev->getRCStack()->rc();
+}
 
 SkIRect SkThreadedBMPDevice::transformDrawBounds(const SkRect& drawBounds) const {
     if (drawBounds.isLargest()) {
@@ -282,15 +320,32 @@ SkIRect SkThreadedBMPDevice::transformDrawBounds(const SkRect& drawBounds) const
         if (fQueueSize == MAX_QUEUE_SIZE) {                                                        \
             this->flush();                                                                         \
         }                                                                                          \
-        DrawState ds(this);                                                                        \
         SkASSERT(fQueueSize < MAX_QUEUE_SIZE);                                                     \
-        fQueue[fQueueSize++] = {                                                                   \
-            this->transformDrawBounds(drawBounds),                                                 \
-            [=](const SkIRect& tileBounds) {                                                       \
-                SkRasterClip tileRC;                                                               \
-                SkDraw draw = ds.getThreadDraw(tileRC, tileBounds);                                \
-                draw.actualDrawCall;                                                               \
-            },                                                                                     \
+        DrawElement* element = &fQueue[fQueueSize++];                                               \
+        element->fDS = DrawState(this);                                                             \
+        element->fDrawBounds = this->transformDrawBounds(drawBounds);                               \
+        element->fInitialized = true;                                                               \
+        element->fDrawFn = [=](SkArenaAlloc*, const SkIRect& tileBounds) {                   \
+            SkRasterClip tileRC;                                                                   \
+            SkDraw draw = element->fDS.getThreadDraw(tileRC, tileBounds);                          \
+            draw.actualDrawCall;                                                                   \
+        };                                                                                         \
+        fScheduler->signal();                                                                      \
+    } while (false)
+
+#define THREADED_DRAW_WITH_INIT(drawBounds, initCall)                                              \
+    do {                                                                                           \
+        if (fQueueSize == MAX_QUEUE_SIZE) {                                                        \
+            this->flush();                                                                         \
+        }                                                                                          \
+        SkASSERT(fQueueSize < MAX_QUEUE_SIZE);                                                     \
+        DrawElement* element = &fQueue[fQueueSize++];                                               \
+        element->fDS = DrawState(this);                                                             \
+        element->fDrawBounds = this->transformDrawBounds(drawBounds);                               \
+        element->fInitialized = false;                                                              \
+        element->fNeedInit = true;                                                                  \
+        element->fInitFn = [=](SkArenaAlloc* alloc) {                         \
+            element->fDS.getDraw().initCall;                                                \
         };                                                                                         \
         fScheduler->signal();                                                                      \
     } while (false)
@@ -340,7 +395,14 @@ void SkThreadedBMPDevice::drawPath(const SkPath& path, const SkPaint& paint,
     SkRect drawBounds = path.isInverseFillType() ? SkRect::MakeLargest()
                                                  : get_fast_bounds(path.getBounds(), paint);
     // For thread safety, make path imutable
-    THREADED_DRAW(drawBounds, drawPath(path, paint, prePathMatrix, false));
+    SkScalar coverage;
+    if (path.countVerbs() < 100 || SkDrawTreatAsHairline(paint, this->ctm(), &coverage)) {
+        THREADED_DRAW(drawBounds, drawPath(path, paint, prePathMatrix, false));
+    } else {
+        THREADED_DRAW_WITH_INIT(
+                drawBounds, drawPath(path, paint, prePathMatrix, false, false, nullptr, alloc,
+                                     element));
+    }
 }
 
 void SkThreadedBMPDevice::drawBitmap(const SkBitmap& bitmap, SkScalar x, SkScalar y,

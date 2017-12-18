@@ -35,6 +35,7 @@
 #include "SkTextMapStateProc.h"
 #include "SkTLazy.h"
 #include "SkUtils.h"
+#include "SkThreadedBMPDevice.h"
 
 static SkPaint make_paint_with_image(
     const SkPaint& origPaint, const SkBitmap& bitmap, SkMatrix* matrix = nullptr) {
@@ -946,7 +947,8 @@ SkScalar SkDraw::ComputeResScaleForStroking(const SkMatrix& matrix) {
 }
 
 void SkDraw::drawDevPath(const SkPath& devPath, const SkPaint& paint, bool drawCoverage,
-                         SkBlitter* customBlitter, bool doFill) const {
+                         SkBlitter* customBlitter, bool doFill, SkArenaAlloc* alloc,
+                         DrawElement* element) const {
     // Do a conservative quick-reject test, since a looper or other modifier may have moved us
     // out of range.
     if (!devPath.isInverseFillType()) {
@@ -970,9 +972,13 @@ void SkDraw::drawDevPath(const SkPath& devPath, const SkPaint& paint, bool drawC
 
     SkBlitter* blitter = nullptr;
     SkAutoBlitterChoose blitterStorage;
+    SkAutoBlitterChoose* blitterStoragePtr = &blitterStorage;
+    if (alloc) {
+        blitterStoragePtr = alloc->make<SkAutoBlitterChoose>();
+    }
     if (nullptr == customBlitter) {
-        blitterStorage.choose(fDst, *fMatrix, paint, drawCoverage);
-        blitter = blitterStorage.get();
+        blitterStoragePtr->choose(fDst, *fMatrix, paint, drawCoverage);
+        blitter = blitterStoragePtr->get();
     } else {
         blitter = customBlitter;
     }
@@ -1025,12 +1031,51 @@ void SkDraw::drawDevPath(const SkPath& devPath, const SkPaint& paint, bool drawC
             }
         }
     }
-    proc(devPath, *fRC, blitter);
+
+    SkASSERT((alloc == nullptr) == (element == nullptr));
+    if (alloc == nullptr) {
+        proc(devPath, *fRC, blitter);
+    } else if (!doFill || !paint.isAntiAlias()) {
+        element->fDrawFn = [element, proc, devPath, blitter](SkArenaAlloc*,
+                                                    const SkIRect& tileBounds) {
+            SkRasterClip tileRC;
+            SkDraw draw = element->fDS.getThreadDraw(tileRC, tileBounds);
+            proc(devPath, *draw.fRC, blitter);
+        };
+    } else {
+        SkCoverageRecord* record = alloc->make<SkCoverageRecord>(alloc);
+        SkRecordingBlitter recordBlitter(record);
+        proc(devPath, *fRC, &recordBlitter);
+        element->fInitData = record;
+        element->fDrawFn = [element, devPath, blitter](SkArenaAlloc* alloc, const SkIRect& tileBounds) {
+            SkRasterClip tileRC;
+            SkDraw draw = element->fDS.getThreadDraw(tileRC, tileBounds);
+            SkCoverageRecord* record = static_cast<SkCoverageRecord*>(element->fInitData);
+
+            for(const SkIRect& rect : record->fRects) {
+                blitter->blitRect(rect.fLeft, rect.fTop, rect.width(), rect.height());
+            }
+            // TODO the bounds below may be incorrect
+            // (e.g., the inverse filling might have already handled some rects)
+            for(const SkMask& mask : record->fMasks) {
+                SkIRect clippedBounds = draw.fRC->getBounds();
+                if (clippedBounds.intersect(mask.fBounds)) {
+                    blitter->blitMask(mask, clippedBounds);
+                }
+            }
+            for(SkCoverageDeltaList& list : record->fLists) {
+                blitter->blitCoverageDeltas(
+                        &list, draw.fRC->getBounds(), devPath.getFillType() & 1,
+                        devPath.isInverseFillType(), devPath.isConvex(), alloc);
+            }
+        };
+    }
 }
 
 void SkDraw::drawPath(const SkPath& origSrcPath, const SkPaint& origPaint,
                       const SkMatrix* prePathMatrix, bool pathIsMutable,
-                      bool drawCoverage, SkBlitter* customBlitter) const {
+                      bool drawCoverage, SkBlitter* customBlitter,
+                      SkArenaAlloc* alloc, DrawElement* element) const {
     SkDEBUGCODE(this->validate();)
 
     // nothing to draw
@@ -1040,10 +1085,14 @@ void SkDraw::drawPath(const SkPath& origSrcPath, const SkPaint& origPaint,
 
     SkPath*         pathPtr = (SkPath*)&origSrcPath;
     bool            doFill = true;
-    SkPath          tmpPath;
+    SkPath          tmpPathStorage;
+    SkPath*         tmpPath = &tmpPathStorage;
     SkMatrix        tmpMatrix;
     const SkMatrix* matrix = fMatrix;
-    tmpPath.setIsVolatile(true);
+    if (alloc) {
+        tmpPath = alloc->make<SkPath>();
+    }
+    tmpPath->setIsVolatile(true);
 
     if (prePathMatrix) {
         if (origPaint.getPathEffect() || origPaint.getStyle() != SkPaint::kFill_Style ||
@@ -1051,7 +1100,7 @@ void SkDraw::drawPath(const SkPath& origSrcPath, const SkPaint& origPaint,
             SkPath* result = pathPtr;
 
             if (!pathIsMutable) {
-                result = &tmpPath;
+                result = tmpPath;
                 pathIsMutable = true;
             }
             pathPtr->transform(*prePathMatrix, result);
@@ -1096,9 +1145,9 @@ void SkDraw::drawPath(const SkPath& origSrcPath, const SkPaint& origPaint,
         if (this->computeConservativeLocalClipBounds(&cullRect)) {
             cullRectPtr = &cullRect;
         }
-        doFill = paint->getFillPath(*pathPtr, &tmpPath, cullRectPtr,
+        doFill = paint->getFillPath(*pathPtr, tmpPath, cullRectPtr,
                                     ComputeResScaleForStroking(*fMatrix));
-        pathPtr = &tmpPath;
+        pathPtr = tmpPath;
     }
 
     if (paint->getRasterizer()) {
@@ -1113,12 +1162,12 @@ void SkDraw::drawPath(const SkPath& origSrcPath, const SkPaint& origPaint,
     }
 
     // avoid possibly allocating a new path in transform if we can
-    SkPath* devPathPtr = pathIsMutable ? pathPtr : &tmpPath;
+    SkPath* devPathPtr = pathIsMutable ? pathPtr : tmpPath;
 
     // transform the path into device space
     pathPtr->transform(*matrix, devPathPtr);
 
-    this->drawDevPath(*devPathPtr, *paint, drawCoverage, customBlitter, doFill);
+    this->drawDevPath(*devPathPtr, *paint, drawCoverage, customBlitter, doFill, alloc, element);
 }
 
 void SkDraw::drawBitmapAsMask(const SkBitmap& bitmap, const SkPaint& paint) const {
