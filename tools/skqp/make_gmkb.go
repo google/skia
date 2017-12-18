@@ -174,8 +174,11 @@ func main() {
 	}
 	input := os.Args[1]
 	output := os.Args[2]
-	err := os.MkdirAll(output, os.ModePerm)
-	if err != nil && !os.IsExist(err) {
+	// output is removed and replaced with a clean directory.
+	if err := os.RemoveAll(output); err != nil && !os.IsNotExist(err) {
+		log.Fatal(err)
+	}
+	if err := os.MkdirAll(output, os.ModePerm); err != nil && !os.IsExist(err) {
 		log.Fatal(err)
 	}
 
@@ -184,12 +187,6 @@ func main() {
 		log.Fatal(err)
 	}
 	sort.Sort(ExportTestRecordArray(records))
-
-	index, err := os.Create(path.Join(output, "index.txt"))
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer index.Close()
 
 	var wg sync.WaitGroup
 	for _, record := range records {
@@ -212,11 +209,6 @@ func main() {
 			}
 			fmt.Printf("\r%-60s", testName)
 		}(record.TestName, goodUrls, output)
-
-		_, err = fmt.Fprintf(index, "%s\n", record.TestName)
-		if err != nil {
-			log.Fatal(err)
-		}
 	}
 	wg.Wait()
 	fmt.Printf("\r%60s\n", "")

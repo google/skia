@@ -8,17 +8,22 @@
 #include "gm_knowledge.h"
 
 #include <cfloat>
+#include <cstdlib>
 #include <fstream>
+#include <mutex>
 #include <sstream>
 #include <string>
 #include <vector>
 
 #include "../../src/core/SkStreamPriv.h"
+#include "../../src/core/SkTSort.h"
 #include "SkBitmap.h"
 #include "SkCodec.h"
 #include "SkOSFile.h"
+#include "SkOSPath.h"
 #include "SkPngEncoder.h"
 #include "SkStream.h"
+
 
 #include "skqp_asset_manager.h"
 
@@ -28,27 +33,6 @@
 #define PATH_ERR_PNG "errors.png"
 #define PATH_REPORT  "report.html"
 
-////////////////////////////////////////////////////////////////////////////////
-inline void path_join_append(std::ostringstream* o) { }
-
-template<class... Types>
-void path_join_append(std::ostringstream* o, const char* v, Types... args) {
-    constexpr char kPathSeparator[] = "/";
-    *o << kPathSeparator << v;
-    path_join_append(o, args...);
-}
-
-template<class... Types>
-std::string path_join(const char* v, Types... args) {
-    std::ostringstream o;
-    o << v;
-    path_join_append(&o, args...);
-    return o.str();
-}
-template<class... Types>
-std::string path_join(const std::string& v, Types... args) {
-    return path_join(v.c_str(), args...);
-}
 ////////////////////////////////////////////////////////////////////////////////
 
 static int get_error(uint32_t value, uint32_t value_max, uint32_t value_min) {
@@ -125,7 +109,24 @@ static SkBitmap ReadPngRgba8888FromFile(skqp::AssetManager* assetManager, const 
     return bitmap;
 }
 
+namespace {
+struct Run {
+    SkString fBackend;
+    SkString fGM;
+    int fMaxerror;
+    int fBadpixels;
+};
+}  // namespace
+
+static std::vector<Run> gErrors;
+static std::mutex gMutex;
+
 namespace gmkb {
+bool IsGoodGM(const char* name, skqp::AssetManager* assetManager) {
+    return asset_exists(assetManager, SkOSPath::Join(name, PATH_MAX_PNG).c_str())
+        && asset_exists(assetManager, SkOSPath::Join(name, PATH_MIN_PNG).c_str());
+}
+
 // Assumes that for each GM foo, asset_manager has files foo/{max,min}.png
 float Check(const uint32_t* pixels,
             int width,
@@ -135,13 +136,12 @@ float Check(const uint32_t* pixels,
             skqp::AssetManager* assetManager,
             const char* report_directory_path,
             Error* error_out) {
-    using std::string;
     if (width <= 0 || height <= 0) {
         return set_error_code(error_out, Error::kBadInput);
     }
     size_t N = (unsigned)width * (unsigned)height;
-    string max_path = path_join(name, PATH_MAX_PNG);
-    string min_path = path_join(name, PATH_MIN_PNG);
+    SkString max_path = SkOSPath::Join(name, PATH_MAX_PNG);
+    SkString min_path = SkOSPath::Join(name, PATH_MIN_PNG);
     SkBitmap max_image = ReadPngRgba8888FromFile(assetManager, max_path.c_str());
     if (max_image.isNull()) {
         return set_error_code(error_out, Error::kBadData);
@@ -175,11 +175,11 @@ float Check(const uint32_t* pixels,
         if (!backend) {
             backend = "skia";
         }
-        string report_directory = path_join(report_directory_path, backend);
+        SkString report_directory = SkOSPath::Join(report_directory_path, backend);
         sk_mkdir(report_directory.c_str());
-        string report_subdirectory = path_join(report_directory, name);
+        SkString report_subdirectory = SkOSPath::Join(report_directory.c_str(), name);
         sk_mkdir(report_subdirectory.c_str());
-        string error_path = path_join(report_subdirectory, PATH_IMG_PNG);
+        SkString error_path = SkOSPath::Join(report_subdirectory.c_str(), PATH_IMG_PNG);
         SkAssertResult(WritePixmapToFile(rgba8888_to_pixmap(pixels, width, height),
                                          error_path.c_str()));
         SkBitmap errorBitmap;
@@ -189,18 +189,52 @@ float Check(const uint32_t* pixels,
             int error = get_error(pixels[i], max_pixels[i], min_pixels[i]);
             errors[i] = error > 0 ? 0xFF000000 + (unsigned)error : 0x00000000;
         }
-        error_path = path_join(report_subdirectory, PATH_ERR_PNG);
+        error_path = SkOSPath::Join(report_subdirectory.c_str(), PATH_ERR_PNG);
         SkAssertResult(WritePixmapToFile(to_pixmap(errorBitmap), error_path.c_str()));
 
-        auto report_path = path_join(report_subdirectory, PATH_REPORT);
-        auto rdir = path_join("..", "..", backend, name);
+        SkString report_path = SkOSPath::Join(report_subdirectory.c_str(), PATH_REPORT);
 
-        auto max_path_out = path_join(report_subdirectory, PATH_MAX_PNG);
-        auto min_path_out = path_join(report_subdirectory, PATH_MIN_PNG);
+        SkString max_path_out = SkOSPath::Join(report_subdirectory.c_str(), PATH_MAX_PNG);
+        SkString min_path_out = SkOSPath::Join(report_subdirectory.c_str(), PATH_MIN_PNG);
         (void)copy(assetManager, max_path.c_str(), max_path_out.c_str());
         (void)copy(assetManager, min_path.c_str(), min_path_out.c_str());
 
+        std::lock_guard<std::mutex> lock(gMutex);
+        gErrors.push_back(Run{SkString(backend), SkString(name), badness, badPixelCount});
+    }
+    if (error_out) {
+        *error_out = Error::kNone;
+    }
+    return (float)badness;
+}
+
+bool MakeReport(const char* report_directory_path) {
+    SkFILEWStream out(SkOSPath::Join(report_directory_path, PATH_REPORT).c_str());
+    if (!out.isValid()) {
+        return false;
+    }
+    out.writeText(
+        "<!doctype html>\n"
+        "<html lang=\"en\">\n"
+        "<head>\n"
+        "<meta charset=\"UTF-8\">\n"
+        "<title>SkQP Report</title>\n"
+        "<style>\n"
+        "img { max-width:48%; border:1px green solid; }\n"
+        "</style>\n"
+        "</head>\n"
+        "<body>\n"
+        "<h1>SkQP Report</h1>\n"
+        "<hr>\n");
+    std::lock_guard<std::mutex> lock(gMutex);
+    for (const Run& run : gErrors) {
+        const SkString& backend = run.fBackend;
+        const SkString& gm = run.fGM;
+        int maxerror = run.fMaxerror;
+        int badpixels = run.fBadpixels;
+        SkString rdir = SkOSPath::Join(backend.c_str(), gm.c_str());
         SkString text = SkStringPrintf(
+            "<h2>%s</h2>\n"
             "backend: %s\n<br>\n"
             "gm name: %s\n<br>\n"
             "maximum error: %d\n<br>\n"
@@ -210,21 +244,13 @@ float Check(const uint32_t* pixels,
             "<a  href=\"%s/" PATH_ERR_PNG "\">"
             "<img src=\"%s/" PATH_ERR_PNG "\" alt='err'></a>\n<br>\n"
             "<a  href=\"%s/" PATH_MAX_PNG "\">max</a>\n<br>\n"
-            "<a  href=\"%s/" PATH_MIN_PNG "\">min</a>\n<hr>\n",
-            backend, name, badness, badPixelCount,
-            rdir.c_str(), rdir.c_str(), rdir.c_str(), rdir.c_str(), rdir.c_str(), rdir.c_str());
-        SkFILEWStream(report_path.c_str()).write(text.c_str(), text.size());
+            "<a  href=\"%s/" PATH_MIN_PNG "\">min</a>\n<hr>\n\n",
+            rdir.c_str(), backend.c_str(), gm.c_str(), maxerror, badpixels,
+            rdir.c_str(), rdir.c_str(), rdir.c_str(),
+            rdir.c_str(), rdir.c_str(), rdir.c_str());
+        out.write(text.c_str(), text.size());
     }
-    if (error_out) {
-        *error_out = Error::kNone;
-    }
-    return (float)badness;
-}
-
-bool IsGoodGM(const char* name, skqp::AssetManager* assetManager) {
-    std::string max_path = path_join(name, PATH_MAX_PNG);
-    std::string min_path = path_join(name, PATH_MIN_PNG);
-    return asset_exists(assetManager, max_path.c_str())
-        && asset_exists(assetManager, min_path.c_str());
+    out.writeText("</body>\n</html>\n");
+    return true;
 }
 }  // namespace gmkb

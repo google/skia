@@ -66,6 +66,12 @@ Check to see if the given test has expected results.
 */
 bool IsGoodGM(const char* name, skqp::AssetManager* assetManager);
 
+/**
+Call this after running all checks.
+
+@param report_directory_path  locatation to write report to.
+*/
+bool MakeReport(const char* report_directory_path);
 }  // namespace gmkb
 
 #endif  // gm_knowledge_DEFINED

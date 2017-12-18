@@ -24,6 +24,7 @@ public class SkQPRunner extends Runner {
     private native void nInit(AssetManager assetManager, String dataDir);
     private native float nExecuteGM(int gm, int backend) throws SkQPException;
     private native String[] nExecuteUnitTest(int test);
+    private native void nMakeReport();
 
     private AssetManager mAssetManager;
     private String[] mGMs;
@@ -128,6 +129,7 @@ public class SkQPRunner extends Runner {
             }
             notifier.fireTestFinished(desc);
         }
+        this.nMakeReport();
     }
 }
 
