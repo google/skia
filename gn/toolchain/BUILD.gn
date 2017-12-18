@@ -70,12 +70,12 @@ toolchain("msvc") {
     pdbname = "{{target_out_dir}}/{{label_name}}_c.pdb"
 
     # Label names may have spaces so pdbname must be quoted.
-    command = "$env_setup $cc_wrapper \"$cl\" /nologo /showIncludes /FC @$rspfile /c {{source}} /Fo{{output}} /Fd\"$pdbname\""
+    command = "$env_setup $cc_wrapper \"$cl\" /nologo /showIncludes /FC @$rspfile /c {{source}} /Fo{{output}} /Fd\"$pdbname\" {{cflags}} {{cflags_c}}"
     depsformat = "msvc"
     outputs = [
       "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.obj",
     ]
-    rspfile_content = "{{defines}} {{include_dirs}} {{cflags}} {{cflags_c}}"
+    rspfile_content = "{{defines}} {{include_dirs}}"
     description = "compile {{source}}"
   }
 
@@ -85,12 +85,12 @@ toolchain("msvc") {
     pdbname = "{{target_out_dir}}/{{label_name}}_c.pdb"
 
     # Label names may have spaces so pdbname must be quoted.
-    command = "$env_setup $cc_wrapper \"$cl\" /nologo /showIncludes /FC @$rspfile /c {{source}} /Fo{{output}} /Fd\"$pdbname\""
+    command = "$env_setup $cc_wrapper \"$cl\" /nologo /showIncludes /FC @$rspfile /c {{source}} /Fo{{output}} /Fd\"$pdbname\" {{cflags}} {{cflags_cc}}"
     depsformat = "msvc"
     outputs = [
       "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.obj",
     ]
-    rspfile_content = "{{defines}} {{include_dirs}} {{cflags}} {{cflags_cc}}"
+    rspfile_content = "{{defines}} {{include_dirs}}"
     description = "compile {{source}}"
   }
 
