@@ -16,6 +16,24 @@
       "revId": "adddb0777ebd4e99f38f46887f96a419c8f59b43",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d56f77f7_cb36bfeb",
+        "filename": "dm/DMSrcSink.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1590,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-12-18T19:44:34Z",
+      "side": 1,
+      "message": "Yeah, this should be fine. This sink is only used with GPU support enabled.",
+      "parentUuid": "8177780a_481d0d8b",
+      "revId": "adddb0777ebd4e99f38f46887f96a419c8f59b43",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
