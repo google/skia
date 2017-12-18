@@ -13,6 +13,7 @@
 #include <android/asset_manager_jni.h>
 
 #include "gm_runner.h"
+#include "gm_knowledge.h"
 #include "skqp_asset_manager.h"
 #include "SkStream.h"
 
@@ -22,6 +23,7 @@ JNIEXPORT void JNICALL Java_org_skia_skqp_SkQPRunner_nInit(JNIEnv*, jobject, job
 JNIEXPORT jfloat JNICALL Java_org_skia_skqp_SkQPRunner_nExecuteGM(JNIEnv*, jobject, jint, jint);
 JNIEXPORT jobjectArray JNICALL Java_org_skia_skqp_SkQPRunner_nExecuteUnitTest(JNIEnv*, jobject,
                                                                               jint);
+JNIEXPORT void JNICALL Java_org_skia_skqp_SkQPRunner_nMakeReport(JNIEnv*, jobject);
 }  // extern "C"
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -128,7 +130,7 @@ void Java_org_skia_skqp_SkQPRunner_nInit(JNIEnv* env, jobject object, jobject as
     jassert(env, gAssetManager.fMgr);
 
     const char* dataDirString = env->GetStringUTFChars(dataDir, nullptr);
-    gReportDirectory = dataDirString;
+    gReportDirectory =  std::string(dataDirString) + "/skqp_report";
     env->ReleaseStringUTFChars(dataDir, dataDirString);
 
     gBackends = gm_runner::GetSupportedBackends();
@@ -189,6 +191,15 @@ jobjectArray Java_org_skia_skqp_SkQPRunner_nExecuteUnitTest(JNIEnv* env,
         set_string_array_element(env, array, errors[i].c_str(), i);
     }
     return (jobjectArray)env->NewGlobalRef(array);
+}
+
+void Java_org_skia_skqp_SkQPRunner_nMakeReport(JNIEnv*, jobject) {
+    std::string reportDirectoryPath;
+    {
+        std::lock_guard<std::mutex> lock(gMutex);
+        reportDirectoryPath = gReportDirectory;
+    }
+    (void)gmkb::MakeReport(reportDirectoryPath.c_str());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
