@@ -7,6 +7,7 @@
 
 #include "GrCCPRQuadraticShader.h"
 
+#include "glsl/GrGLSLVertexGeoBuilder.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLVertexGeoBuilder.h"
 
@@ -33,19 +34,21 @@ void GrCCPRQuadraticShader::emitSetupCode(GrGLSLVertexGeoBuilder* s, const char*
 }
 
 Shader::WindHandling GrCCPRQuadraticShader::onEmitVaryings(GrGLSLVaryingHandler* varyingHandler,
+                                                           GrGLSLVarying::Scope scope,
                                                            SkString* code, const char* position,
                                                            const char* coverage,
                                                            const char* /*wind*/) {
     SkASSERT(!coverage);
 
+    fXYD.reset(kFloat3_GrSLType, scope);
     varyingHandler->addVarying("xyd", &fXYD);
     code->appendf("%s.xy = (%s * float3(%s, 1)).xy;",
-                  fXYD.gsOut(), fCanonicalMatrix.c_str(), position);
+                  OutName(fXYD), fCanonicalMatrix.c_str(), position);
     code->appendf("%s.z = dot(%s.xy, %s) + %s.z;",
-                  fXYD.gsOut(), fEdgeDistanceEquation.c_str(), position,
+                  OutName(fXYD), fEdgeDistanceEquation.c_str(), position,
                   fEdgeDistanceEquation.c_str());
 
-    this->onEmitVaryings(varyingHandler, code);
+    this->onEmitVaryings(varyingHandler, scope, code);
     return WindHandling::kNotHandled;
 }
 
@@ -69,10 +72,11 @@ void GrCCPRQuadraticHullShader::onEmitSetupCode(GrGLSLVertexGeoBuilder* s, const
 }
 
 void GrCCPRQuadraticHullShader::onEmitVaryings(GrGLSLVaryingHandler* varyingHandler,
-                                               SkString* code) {
+                                               GrGLSLVarying::Scope scope, SkString* code) {
+    fGrad.reset(kFloat2_GrSLType, scope);
     varyingHandler->addVarying("grad", &fGrad);
     code->appendf("%s = float2(2 * %s.x, -1) * float2x2(%s);",
-                  fGrad.gsOut(), fXYD.gsOut(), fCanonicalMatrix.c_str());
+                  OutName(fGrad), OutName(fXYD), fCanonicalMatrix.c_str());
 }
 
 void GrCCPRQuadraticHullShader::onEmitFragmentCode(GrGLSLPPFragmentBuilder* f,
@@ -91,15 +95,17 @@ void GrCCPRQuadraticCornerShader::onEmitSetupCode(GrGLSLVertexGeoBuilder* s, con
 }
 
 void GrCCPRQuadraticCornerShader::onEmitVaryings(GrGLSLVaryingHandler* varyingHandler,
-                                                 SkString* code) {
+                                                 GrGLSLVarying::Scope scope, SkString* code) {
+    fdXYDdx.reset(kFloat3_GrSLType, scope);
     varyingHandler->addFlatVarying("dXYDdx", &fdXYDdx);
     code->appendf("%s = float3(%s[0].x, %s[0].y, %s.x);",
-                  fdXYDdx.gsOut(), fCanonicalMatrix.c_str(), fCanonicalMatrix.c_str(),
+                  OutName(fdXYDdx), fCanonicalMatrix.c_str(), fCanonicalMatrix.c_str(),
                   fEdgeDistanceEquation.c_str());
 
+    fdXYDdy.reset(kFloat3_GrSLType, scope);
     varyingHandler->addFlatVarying("dXYDdy", &fdXYDdy);
     code->appendf("%s = float3(%s[1].x, %s[1].y, %s.y);",
-                  fdXYDdy.gsOut(), fCanonicalMatrix.c_str(), fCanonicalMatrix.c_str(),
+                  OutName(fdXYDdy), fCanonicalMatrix.c_str(), fCanonicalMatrix.c_str(),
                   fEdgeDistanceEquation.c_str());
 }
 

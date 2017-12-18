@@ -38,8 +38,7 @@ static void crop_path(const SkPath& path, const SkIRect& cropbox, SkPath* out) {
 
 bool GrCoverageCountingPathRenderer::IsSupported(const GrCaps& caps) {
     const GrShaderCaps& shaderCaps = *caps.shaderCaps();
-    return shaderCaps.geometryShaderSupport() &&
-           shaderCaps.integerSupport() &&
+    return shaderCaps.integerSupport() &&
            shaderCaps.flatInterpolationSupport() &&
            caps.instanceAttribSupport() &&
            GrCaps::kNone_MapFlags != caps.mapBufferFlags() &&
