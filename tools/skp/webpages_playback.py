@@ -107,6 +107,8 @@ CHROMIUM_PAGE_SETS_TO_PREFIX = {
 PAGE_SETS_TO_EXCLUSIONS = {
     # See skbug.com/7348
     'key_mobile_sites_smooth.py': '"(digg|worldjournal)"',
+    # See skbug.com/7421
+    'top_25_smooth.py': '"(mail\.google\.com)"',
 }
 
 
