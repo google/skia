@@ -10,6 +10,8 @@
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLVertexGeoBuilder.h"
 
+using Shader = GrCCPRCoverageProcessor::Shader;
+
 void GrCCPRCubicShader::emitSetupCode(GrGLSLVertexGeoBuilder* s, const char* pts,
                                       const char* repetitionID, const char* wind,
                                       GeometryVars* vars) const {
@@ -73,10 +75,11 @@ void GrCCPRCubicShader::emitSetupCode(GrGLSLVertexGeoBuilder* s, const char* pts
     this->onEmitSetupCode(s, pts, repetitionID, vars);
 }
 
-GrCCPRCubicShader::WindHandling
-GrCCPRCubicShader::onEmitVaryings(GrGLSLVaryingHandler* varyingHandler, SkString* code,
-                                  const char* position, const char* /*coverage*/,
-                                  const char* /*wind*/) {
+Shader::WindHandling GrCCPRCubicShader::onEmitVaryings(GrGLSLVaryingHandler* varyingHandler,
+                                                       SkString* code, const char* position,
+                                                       const char* coverage, const char* /*wind*/) {
+    SkASSERT(!coverage);
+
     varyingHandler->addVarying("klmd", &fKLMD);
     code->appendf("float3 klm = float3(%s, 1) * %s;", position, fKLMMatrix.c_str());
     code->appendf("float d = dot(float3(%s, 1), %s);", position, fEdgeDistanceEquation.c_str());

@@ -10,6 +10,8 @@
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLVertexGeoBuilder.h"
 
+using Shader = GrCCPRCoverageProcessor::Shader;
+
 void GrCCPRQuadraticShader::emitSetupCode(GrGLSLVertexGeoBuilder* s, const char* pts,
                                           const char* repetitionID, const char* wind,
                                           GeometryVars* vars) const {
@@ -30,10 +32,12 @@ void GrCCPRQuadraticShader::emitSetupCode(GrGLSLVertexGeoBuilder* s, const char*
     this->onEmitSetupCode(s, pts, repetitionID, vars);
 }
 
-GrCCPRQuadraticShader::WindHandling
-GrCCPRQuadraticShader::onEmitVaryings(GrGLSLVaryingHandler* varyingHandler, SkString* code,
-                                      const char* position, const char* /*coverage*/,
-                                      const char* /*wind*/) {
+Shader::WindHandling GrCCPRQuadraticShader::onEmitVaryings(GrGLSLVaryingHandler* varyingHandler,
+                                                           SkString* code, const char* position,
+                                                           const char* coverage,
+                                                           const char* /*wind*/) {
+    SkASSERT(!coverage);
+
     varyingHandler->addVarying("xyd", &fXYD);
     code->appendf("%s.xy = (%s * float3(%s, 1)).xy;",
                   fXYD.gsOut(), fCanonicalMatrix.c_str(), position);

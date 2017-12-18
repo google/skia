@@ -66,7 +66,10 @@ protected:
         SkString emitVertexFn;
         SkSTArray<2, GrShaderVar> emitArgs;
         const char* position = emitArgs.emplace_back("position", kFloat2_GrSLType).c_str();
-        const char* coverage = emitArgs.emplace_back("coverage", kHalf_GrSLType).c_str();
+        const char* coverage = nullptr;
+        if (RenderPass::kTriangleEdges == proc.fRenderPass) {
+            coverage = emitArgs.emplace_back("coverage", kHalf_GrSLType).c_str();
+        }
         g->emitFunction(kVoid_GrSLType, "emitVertex", emitArgs.count(), emitArgs.begin(), [&]() {
             SkString fnBody;
             fShader->emitVaryings(varyingHandler, &fnBody, position, coverage, wind.c_str());
@@ -139,16 +142,16 @@ public:
         g->codeAppend ("if (all(left_right_notequal)) {");
                            // The top corner will have three conservative raster vertices. Emit the
                            // middle one first to the triangle strip.
-        g->codeAppendf(    "%s(top + float2(-leftbloat.y, leftbloat.x), 1);", emitVertexFn);
+        g->codeAppendf(    "%s(top + float2(-leftbloat.y, leftbloat.x));", emitVertexFn);
         g->codeAppend ("}");
         g->codeAppend ("if (any(left_right_notequal)) {");
                            // Second conservative raster vertex for the top corner.
-        g->codeAppendf(    "%s(top + rightbloat, 1);", emitVertexFn);
+        g->codeAppendf(    "%s(top + rightbloat);", emitVertexFn);
         g->codeAppend ("}");
 
         // Main interior body of the triangle.
-        g->codeAppendf("%s(top + leftbloat, 1);", emitVertexFn);
-        g->codeAppendf("%s(right + rightbloat, 1);", emitVertexFn);
+        g->codeAppendf("%s(top + leftbloat);", emitVertexFn);
+        g->codeAppendf("%s(right + rightbloat);", emitVertexFn);
 
         // Here the two invocations diverge. We can't symmetrically divide three triangle points
         // between two invocations, so each does the following:
@@ -157,11 +160,11 @@ public:
         // sk_InvocationID=1: Remaining two conservative raster vertices for the third corner.
         g->codeAppendf("bool2 right_down_notequal = notEqual(rightbloat, downbloat);");
         g->codeAppend ("if (any(right_down_notequal) || 0 == sk_InvocationID) {");
-        g->codeAppendf(    "%s(sk_InvocationID == 0 ? left + leftbloat : right + downbloat, 1);",
+        g->codeAppendf(    "%s(sk_InvocationID == 0 ? left + leftbloat : right + downbloat);",
                            emitVertexFn);
         g->codeAppend ("}");
         g->codeAppend ("if (all(right_down_notequal) && 0 != sk_InvocationID) {");
-        g->codeAppendf(    "%s(right + float2(-rightbloat.y, rightbloat.x), 1);", emitVertexFn);
+        g->codeAppendf(    "%s(right + float2(-rightbloat.y, rightbloat.x));", emitVertexFn);
         g->codeAppend ("}");
 
         g->configure(InputType::kLines, OutputType::kTriangleStrip, 6, 2);
@@ -214,27 +217,25 @@ public:
         g->codeAppend ("if (all(left_up_notequal)) {");
                            // The top-left corner will have three conservative raster vertices.
                            // Emit the middle one first to the triangle strip.
-        g->codeAppendf(    "%s(topleft + float2(-leftbloat.y, leftbloat.x), 1);",
-                           emitVertexFn);
+        g->codeAppendf(    "%s(topleft + float2(-leftbloat.y, leftbloat.x));", emitVertexFn);
         g->codeAppend ("}");
         g->codeAppend ("if (any(left_up_notequal)) {");
                            // Second conservative raster vertex for the top-left corner.
-        g->codeAppendf(    "%s(topleft + leftbloat, 1);", emitVertexFn);
+        g->codeAppendf(    "%s(topleft + leftbloat);", emitVertexFn);
         g->codeAppend ("}");
 
         // Main interior body of this invocation's half of the hull.
-        g->codeAppendf("%s(topleft + upbloat, 1);", emitVertexFn);
-        g->codeAppendf("%s(bottomleft + leftbloat, 1);", emitVertexFn);
-        g->codeAppendf("%s(topright + upbloat, 1);", emitVertexFn);
+        g->codeAppendf("%s(topleft + upbloat);", emitVertexFn);
+        g->codeAppendf("%s(bottomleft + leftbloat);", emitVertexFn);
+        g->codeAppendf("%s(topright + upbloat);", emitVertexFn);
 
         // Remaining two conservative raster vertices for the top-right corner.
         g->codeAppendf("bool2 up_right_notequal = notEqual(upbloat, rightbloat);");
         g->codeAppend ("if (any(up_right_notequal)) {");
-        g->codeAppendf(    "%s(topright + rightbloat, 1);", emitVertexFn);
+        g->codeAppendf(    "%s(topright + rightbloat);", emitVertexFn);
         g->codeAppend ("}");
         g->codeAppend ("if (all(up_right_notequal)) {");
-        g->codeAppendf(    "%s(topright + float2(-upbloat.y, upbloat.x), 1);",
-                           emitVertexFn);
+        g->codeAppendf(    "%s(topright + float2(-upbloat.y, upbloat.x));", emitVertexFn);
         g->codeAppend ("}");
 
         g->configure(InputType::kLines, OutputType::kTriangleStrip, 7, 2);
@@ -306,10 +307,10 @@ public:
         const char* corner = vars.fCornerVars.fPoint;
         SkASSERT(corner);
 
-        g->codeAppendf("%s(%s + float2(-bloat, -bloat), 1);", emitVertexFn, corner);
-        g->codeAppendf("%s(%s + float2(-bloat, +bloat), 1);", emitVertexFn, corner);
-        g->codeAppendf("%s(%s + float2(+bloat, -bloat), 1);", emitVertexFn, corner);
-        g->codeAppendf("%s(%s + float2(+bloat, +bloat), 1);", emitVertexFn, corner);
+        g->codeAppendf("%s(%s + float2(-bloat, -bloat));", emitVertexFn, corner);
+        g->codeAppendf("%s(%s + float2(-bloat, +bloat));", emitVertexFn, corner);
+        g->codeAppendf("%s(%s + float2(+bloat, -bloat));", emitVertexFn, corner);
+        g->codeAppendf("%s(%s + float2(+bloat, +bloat));", emitVertexFn, corner);
 
         g->configure(InputType::kLines, OutputType::kTriangleStrip, 4, fNumCorners);
     }

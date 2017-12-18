@@ -57,9 +57,9 @@ public:
     enum class RenderPass {
         // For a Hull, the Impl generates a "conservative raster hull" around the input points. This
         // is the geometry that causes a pixel to be rasterized if it is touched anywhere by the
-        // input polygon. The initial coverage values sent to the Shader at each vertex are +1 all
-        // around. Logically, the conservative raster hull is equivalent to the convex hull of pixel
-        // size boxes centered on each input point.
+        // input polygon. Initial coverage values sent to the Shader at each vertex will be null.
+        // Logically, the conservative raster hull is equivalent to the convex hull of pixel size
+        // boxes centered on each input point.
         kTriangleHulls,
         kQuadraticHulls,
         kCubicHulls,
@@ -74,8 +74,7 @@ public:
 
         // For Corners, the Impl Generates the conservative rasters of corner points (i.e.
         // pixel-size boxes). It generates 3 corner boxes for triangles and 2 for curves. The Shader
-        // specifies which corners. The initial coverage values sent to the Shader at each pixel are
-        // +1 all around.
+        // specifies which corners. Initial coverage values sent to the Shader will be null.
         kTriangleCorners,
         kQuadraticCorners,
         kCubicCorners
