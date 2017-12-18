@@ -1037,46 +1037,30 @@ const SkMatrix::MapPtsProc SkMatrix::gMapPtsProcs[] = {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void SkMatrix::mapHomogeneousPointsWithStride(SkPoint3 dst[], const SkPoint3 src[], size_t stride,
-                                              int count) const {
+void SkMatrix::mapHomogeneousPoints(SkPoint3 dst[], const SkPoint3 src[], int count) const {
     SkASSERT((dst && src && count > 0) || 0 == count);
     // no partial overlap
     SkASSERT(src == dst || &dst[count] <= &src[0] || &src[count] <= &dst[0]);
 
     if (count > 0) {
         if (this->isIdentity()) {
-            if (src != dst) {
-                if (stride == sizeof(SkPoint3)) {
-                    memcpy(dst, src, count * sizeof(SkPoint3));
-                } else {
-                    for (int i = 0; i < count; ++i) {
-                        *dst = *src;
-                        dst = reinterpret_cast<SkPoint3*>(reinterpret_cast<char*>(dst) + stride);
-                        src = reinterpret_cast<const SkPoint3*>(reinterpret_cast<const char*>(src) +
-                                                                stride);
-                    }
-                }
-            }
+            memcpy(dst, src, count * sizeof(SkPoint3));
             return;
         }
         do {
             SkScalar sx = src->fX;
             SkScalar sy = src->fY;
             SkScalar sw = src->fZ;
-            src = reinterpret_cast<const SkPoint3*>(reinterpret_cast<const char*>(src) + stride);
+            src++;
 
             SkScalar x = sdot(sx, fMat[kMScaleX], sy, fMat[kMSkewX],  sw, fMat[kMTransX]);
             SkScalar y = sdot(sx, fMat[kMSkewY],  sy, fMat[kMScaleY], sw, fMat[kMTransY]);
             SkScalar w = sdot(sx, fMat[kMPersp0], sy, fMat[kMPersp1], sw, fMat[kMPersp2]);
 
             dst->set(x, y, w);
-            dst = reinterpret_cast<SkPoint3*>(reinterpret_cast<char*>(dst) + stride);
+            dst++;
         } while (--count);
     }
-}
-
-void SkMatrix::mapHomogeneousPoints(SkPoint3 dst[], const SkPoint3 src[], int count) const {
-    this->mapHomogeneousPointsWithStride(dst, src, sizeof(SkPoint3), count);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
