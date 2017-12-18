@@ -244,7 +244,7 @@ public:
                 p->append(SkRasterPipeline::to_srgb);
                 break;
             case Direction::kSRGBToLinear:
-                p->append_from_srgb(shaderIsOpaque ? kOpaque_SkAlphaType : kUnpremul_SkAlphaType);
+                p->append(SkRasterPipeline::from_srgb);
                 break;
         }
         if (!shaderIsOpaque) {

@@ -125,11 +125,6 @@ public:
 
     void dump() const;
 
-    // Conversion from sRGB can be subtly tricky when premultiplication is involved.
-    // Use these helpers to keep things sane.
-    void append_from_srgb(SkAlphaType);
-    void append_from_srgb_dst(SkAlphaType);
-
     // Appends a stage for the specified matrix.
     // Tries to optimize the stage by analyzing the type of matrix.
     void append_matrix(SkArenaAlloc*, const SkMatrix&);

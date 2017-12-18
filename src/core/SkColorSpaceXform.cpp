@@ -485,7 +485,7 @@ bool SkColorSpaceXform_XYZ::onApply(ColorFormat dstColorFormat, void* dst,
                     break;
                 case kSRGB_SrcGamma:
                     pipeline.append(SkRasterPipeline::load_u16_be, &src_ctx);
-                    pipeline.append_from_srgb(kUnpremul_SkAlphaType);
+                    pipeline.append(SkRasterPipeline::from_srgb);
                     break;
                 case kTable_SrcGamma:
                     loadTables.fSrc = src;
@@ -503,7 +503,7 @@ bool SkColorSpaceXform_XYZ::onApply(ColorFormat dstColorFormat, void* dst,
                     break;
                 case kSRGB_SrcGamma:
                     pipeline.append(SkRasterPipeline::load_rgb_u16_be, &src_ctx);
-                    pipeline.append_from_srgb(kUnpremul_SkAlphaType);
+                    pipeline.append(SkRasterPipeline::from_srgb);
                     break;
                 case kTable_SrcGamma:
                     loadTables.fSrc = src;

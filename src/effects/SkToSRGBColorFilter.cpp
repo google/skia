@@ -27,8 +27,7 @@ void SkToSRGBColorFilter::onAppendStages(SkRasterPipeline* p,
     if (fSrcColorSpace->gammaIsLinear()) {
         // Nothing to do.
     } else if (fSrcColorSpace->gammaCloseToSRGB()) {
-        p->append_from_srgb(shaderIsOpaque ? kOpaque_SkAlphaType
-                                           : kPremul_SkAlphaType);
+        p->append(SkRasterPipeline::from_srgb);
     } else if (fSrcColorSpace->isNumericalTransferFn(&srcFn)) {
         auto copy = alloc->make<SkColorSpaceTransferFn>(srcFn);
         p->append(SkRasterPipeline::parametric_r, copy);

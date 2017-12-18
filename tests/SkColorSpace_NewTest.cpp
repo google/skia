@@ -62,11 +62,11 @@ DEF_TEST(SkColorSpace_New_TransferFnStages, r) {
         SkRasterPipeline_<256> p;
 
         p.append(SkRasterPipeline::load_8888, &src_ctx);
-        cs->transferFn().linearizeSrc(&p, kUnpremul_SkAlphaType);
+        cs->transferFn().linearizeSrc(&p);
         p.append(SkRasterPipeline::premul);
 
         p.append(SkRasterPipeline::load_8888_dst, &dst_ctx);
-        cs->transferFn().linearizeDst(&p, kUnpremul_SkAlphaType);
+        cs->transferFn().linearizeDst(&p);
         p.append(SkRasterPipeline::premul_dst);
 
         p.append(SkRasterPipeline::srcover);
