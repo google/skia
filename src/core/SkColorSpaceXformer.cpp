@@ -176,3 +176,14 @@ SkPaint SkColorSpaceXformer::apply(const SkPaint& src) {
 
     return dst;
 }
+
+SkCanvas::Lattice SkColorSpaceXformer::apply(const SkCanvas::Lattice& lattice,
+                                             SkColor* colorBuffer, int count) {
+    if (count) {
+        this->apply(colorBuffer, lattice.fColors, count);
+        return {lattice.fXDivs, lattice.fYDivs, lattice.fRectTypes,
+                lattice.fXCount, lattice.fYCount, lattice.fBounds, colorBuffer};
+    }
+
+    return lattice;
+}
