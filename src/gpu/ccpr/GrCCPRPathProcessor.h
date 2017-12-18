@@ -27,8 +27,6 @@ class GrShaderCaps;
 class GrCCPRPathProcessor : public GrGeometryProcessor {
 public:
     static constexpr int kPerInstanceIndexCount = 6 * 3;
-    static sk_sp<GrBuffer> FindOrMakeIndexBuffer(GrOnFlushResourceProvider*);
-    static sk_sp<GrBuffer> FindOrMakeVertexBuffer(GrOnFlushResourceProvider*);
 
     enum class InstanceAttribs {
         kDevBounds,
@@ -53,6 +51,9 @@ public:
     };
 
     GR_STATIC_ASSERT(4 * 16 == sizeof(Instance));
+
+    static sk_sp<const GrBuffer> FindIndexBuffer(GrOnFlushResourceProvider*);
+    static sk_sp<const GrBuffer> FindVertexBuffer(GrOnFlushResourceProvider*);
 
     GrCCPRPathProcessor(GrResourceProvider*, sk_sp<GrTextureProxy> atlas, SkPath::FillType,
                        const GrShaderCaps&);
