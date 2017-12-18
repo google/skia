@@ -22,6 +22,30 @@
       "revId": "657c2f5e62c197df37ec7f337f5b0c0b2af82e26",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8448563c_774e5d88",
+        "filename": "src/gpu/ccpr/GrCCPRCoverageProcessor.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-12-18T17:06:34Z",
+      "side": 1,
+      "message": "Good call",
+      "parentUuid": "4590ab13_b6fc2abd",
+      "range": {
+        "startLine": 90,
+        "startChar": 12,
+        "endLine": 93,
+        "endChar": 64
+      },
+      "revId": "657c2f5e62c197df37ec7f337f5b0c0b2af82e26",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
