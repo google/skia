@@ -17,6 +17,7 @@
 #include "SkColorSpaceXformCanvas.h"
 #include "SkColorSpace_XYZ.h"
 #include "SkCommonFlags.h"
+#include "SkCommonFlagsGpu.h"
 #include "SkData.h"
 #include "SkDebugCanvas.h"
 #include "SkDeferredDisplayListRecorder.h"
@@ -66,7 +67,6 @@
 DEFINE_bool(multiPage, false, "For document-type backends, render the source"
             " into multiple pages");
 DEFINE_bool(RAW_threading, true, "Allow RAW decodes to run on multiple threads?");
-DECLARE_int32(gpuThreads);
 
 using sk_gpu_test::GrContextFactory;
 
@@ -1584,7 +1584,11 @@ GPUThreadTestingSink::GPUThreadTestingSink(GrContextFactory::ContextType ct,
                                            const GrContextOptions& grCtxOptions)
         : INHERITED(ct, overrides, samples, diText, colorType, alphaType, std::move(colorSpace),
                     threaded, grCtxOptions)
+#if SK_SUPPORT_GPU
         , fExecutor(SkExecutor::MakeFIFOThreadPool(FLAGS_gpuThreads)) {
+#else
+        , fExecutor(nullptr) {
+#endif
     SkASSERT(fExecutor);
 }
 
