@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7c9215ec_9c4d0412",
+        "filename": "gm/imagefiltersbase.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 211,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-12-18T20:23:46Z",
+      "side": 1,
+      "message": "Let\u0027s leave a note about why we picked these values, so no one deletes or changes this?",
+      "revId": "cc87ab2308c9086f6e0190578ac479408c4aca75",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
