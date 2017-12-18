@@ -600,7 +600,7 @@ void GLSLCodeGenerator::writeBoolLiteral(const BoolLiteral& b) {
 }
 
 void GLSLCodeGenerator::writeIntLiteral(const IntLiteral& i) {
-    if (i.fType == *fContext.fUInt_Type) {
+    if (i.fType == *fContext.fUInt_Type || i.fType == *fContext.fUShort_Type) {
         this->write(to_string(i.fValue & 0xffffffff) + "u");
     } else {
         this->write(to_string((int32_t) i.fValue));
