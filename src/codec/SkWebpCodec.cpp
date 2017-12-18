@@ -364,7 +364,7 @@ static void blend_line(SkColorType dstCT, void* dst,
     // Load the final dst.
     p.append(load_dst, &dst_ctx);
     if (needsSrgbToLinear) {
-        p.append_from_srgb(dstAt);
+        p.append(SkRasterPipeline::from_srgb);
     }
     if (kUnpremul_SkAlphaType == dstAt) {
         p.append(SkRasterPipeline::premul);
@@ -376,7 +376,7 @@ static void blend_line(SkColorType dstCT, void* dst,
     pick_memory_stages(srcCT, &load_src, nullptr);
     p.append(load_src, &src_ctx);
     if (needsSrgbToLinear) {
-        p.append_from_srgb(kUnpremul_SkAlphaType);
+        p.append(SkRasterPipeline::from_srgb);
     }
     if (srcHasAlpha) {
         p.append(SkRasterPipeline::premul);

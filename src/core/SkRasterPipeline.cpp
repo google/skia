@@ -21,7 +21,6 @@ void SkRasterPipeline::reset() {
 }
 
 void SkRasterPipeline::append(StockStage stage, void* ctx) {
-    SkASSERT(stage != from_srgb);      // Please use append_from_srgb().
     SkASSERT(stage != uniform_color);  // Please use append_constant_color().
     SkASSERT(stage != seed_shader);    // Please use append_seed_shader().
     this->unchecked_append(stage, ctx);
@@ -122,15 +121,6 @@ void SkRasterPipeline::append_constant_color(SkArenaAlloc* alloc, const float rg
 #undef INC_BLACK
 #undef INC_WHITE
 #undef INC_COLOR
-
-// TODO: we used to clamp to [0,a]] here if at == kPremul, but don't anymore.
-// These should no longer need to be special append() methods.
-void SkRasterPipeline::append_from_srgb(SkAlphaType) {
-    this->unchecked_append(from_srgb, nullptr);
-}
-void SkRasterPipeline::append_from_srgb_dst(SkAlphaType) {
-    this->unchecked_append(from_srgb_dst, nullptr);
-}
 
 //static int gCounts[5] = { 0, 0, 0, 0, 0 };
 

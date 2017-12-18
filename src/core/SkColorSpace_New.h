@@ -26,9 +26,9 @@ public:
         virtual SkColorSpaceTransferFn parameterize() const = 0;
 
         // Append stages to use this transfer function with SkRasterPipeline-based rendering.
-        virtual void linearizeDst(SkRasterPipeline*, SkAlphaType) const = 0;
-        virtual void linearizeSrc(SkRasterPipeline*, SkAlphaType) const = 0;
-        virtual void    encodeSrc(SkRasterPipeline*             ) const = 0;
+        virtual void linearizeDst(SkRasterPipeline*) const = 0;
+        virtual void linearizeSrc(SkRasterPipeline*) const = 0;
+        virtual void    encodeSrc(SkRasterPipeline*) const = 0;
 
         // TODO: Ganesh hooks.
 

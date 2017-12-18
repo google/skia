@@ -238,7 +238,7 @@ void SkRasterPipelineBlitter::append_load_dst(SkRasterPipeline* p) const {
         default:                                                                           break;
     }
     if (fDst.info().gammaCloseToSRGB()) {
-        p->append_from_srgb_dst(fDst.info().alphaType());
+        p->append(SkRasterPipeline::from_srgb_dst);
     }
     if (fDst.info().alphaType() == kUnpremul_SkAlphaType) {
         p->append(SkRasterPipeline::premul_dst);

@@ -347,7 +347,7 @@ bool SkImageShader::onAppendStages(const StageRec& rec) const {
             default: SkASSERT(false);
         }
         if (rec.fDstCS && (!info.colorSpace() || info.gammaCloseToSRGB())) {
-            p->append_from_srgb(info.alphaType());
+            p->append(SkRasterPipeline::from_srgb);
         }
     };
 

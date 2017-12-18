@@ -18,9 +18,9 @@ namespace {
             return { 1,1, 0,0,0,0,0 };
         }
 
-        void linearizeDst(SkRasterPipeline*, SkAlphaType) const override {}
-        void linearizeSrc(SkRasterPipeline*, SkAlphaType) const override {}
-        void    encodeSrc(SkRasterPipeline*             ) const override {}
+        void linearizeDst(SkRasterPipeline*) const override {}
+        void linearizeSrc(SkRasterPipeline*) const override {}
+        void    encodeSrc(SkRasterPipeline*) const override {}
     };
 
     struct SRGBTransferFn : public SkColorSpace_New::TransferFn {
@@ -28,11 +28,11 @@ namespace {
             return { 2.4f, 1/1.055f, 0.055f/1.055f, 1/12.92f, 0.04045f, 0, 0 };
         }
 
-        void linearizeDst(SkRasterPipeline* p, SkAlphaType at) const override {
-            p->append_from_srgb_dst(at);
+        void linearizeDst(SkRasterPipeline* p) const override {
+            p->append(SkRasterPipeline::from_srgb_dst);
         }
-        void linearizeSrc(SkRasterPipeline* p, SkAlphaType at) const override {
-            p->append_from_srgb(at);
+        void linearizeSrc(SkRasterPipeline* p) const override {
+            p->append(SkRasterPipeline::from_srgb);
         }
         void encodeSrc(SkRasterPipeline* p) const override {
             p->append(SkRasterPipeline::to_srgb);
@@ -49,13 +49,11 @@ namespace {
             return { fGamma, 1, 0,0,0,0,0 };
         }
 
-        void linearizeDst(SkRasterPipeline* p, SkAlphaType) const override {
+        void linearizeDst(SkRasterPipeline* p) const override {
             p->append(SkRasterPipeline::gamma_dst, &fGamma);
-            // TODO: use SkAlphaType to clamp like SRGBTransferFn does?
         }
-        void linearizeSrc(SkRasterPipeline* p, SkAlphaType) const override {
+        void linearizeSrc(SkRasterPipeline* p) const override {
             p->append(SkRasterPipeline::gamma, &fGamma);
-            // TODO: use SkAlphaType to clamp like SRGBTransferFn does?
         }
         void encodeSrc(SkRasterPipeline* p) const override {
             p->append(SkRasterPipeline::gamma, &fInv);

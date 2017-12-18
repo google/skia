@@ -125,7 +125,7 @@ public:
         }
         if (fDst.colorSpace() &&
                 (!fSource.colorSpace() || fSource.colorSpace()->gammaCloseToSRGB())) {
-            p.append_from_srgb(fSource.alphaType());
+            p.append(SkRasterPipeline::from_srgb);
         }
         if (fSource.colorType() == kAlpha_8_SkColorType) {
             p.append(SkRasterPipeline::set_rgb, &fPaintColor);

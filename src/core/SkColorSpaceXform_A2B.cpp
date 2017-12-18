@@ -140,8 +140,7 @@ SkColorSpaceXform_A2B::SkColorSpaceXform_A2B(SkColorSpace_A2B* srcSpace,
                 // Take the fast path for ordinary sRGB.
                 if (3 == currentChannels && kSRGB_SkGammaNamed == e.gammaNamed()) {
                     SkCSXformPrintf("fast path from sRGB\n");
-                    // Images should always start the pipeline as unpremul
-                    fElementsPipeline.append_from_srgb(kUnpremul_SkAlphaType);
+                    fElementsPipeline.append(SkRasterPipeline::from_srgb);
                     break;
                 }
 

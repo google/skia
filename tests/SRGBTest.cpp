@@ -51,7 +51,7 @@ DEF_TEST(sk_pipeline_srgb_roundtrip, r) {
 
     SkRasterPipeline_<256> p;
     p.append(SkRasterPipeline::load_8888,  &ptr);
-    p.append_from_srgb(kUnpremul_SkAlphaType);
+    p.append(SkRasterPipeline::from_srgb);
     p.append(SkRasterPipeline::to_srgb);
     p.append(SkRasterPipeline::store_8888, &ptr);
 
