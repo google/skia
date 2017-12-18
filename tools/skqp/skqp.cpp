@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "gm_knowledge.h"
 #include "gm_runner.h"
 
 #ifdef __clang__
@@ -136,5 +137,7 @@ int main(int argc, char** argv) {
         gReportDirectoryPath = argv[2];
     }
     register_skia_tests();
-    return RUN_ALL_TESTS();
+    int ret = RUN_ALL_TESTS();
+    (void)gmkb::MakeReport(gReportDirectoryPath.c_str());
+    return ret;
 }
