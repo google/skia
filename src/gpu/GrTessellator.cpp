@@ -215,9 +215,9 @@ inline void* emit_vertex(Vertex* v, const AAParams* aaParams, void* data) {
 }
 
 void* emit_triangle(Vertex* v0, Vertex* v1, Vertex* v2, const AAParams* aaParams, void* data) {
-    LOG("emit_triangle (%g, %g) %d\n", v0->fPoint.fX, v0->fPoint.fY, v0->fAlpha);
-    LOG("              (%g, %g) %d\n", v1->fPoint.fX, v1->fPoint.fY, v1->fAlpha);
-    LOG("              (%g, %g) %d\n", v2->fPoint.fX, v2->fPoint.fY, v2->fAlpha);
+    LOG("emit_triangle %g (%g, %g) %d\n", v0->fID, v0->fPoint.fX, v0->fPoint.fY, v0->fAlpha);
+    LOG("              %g (%g, %g) %d\n", v1->fID, v1->fPoint.fX, v1->fPoint.fY, v1->fAlpha);
+    LOG("              %g (%g, %g) %d\n", v2->fID, v2->fPoint.fX, v2->fPoint.fY, v2->fAlpha);
 #if TESSELLATOR_WIREFRAME
     data = emit_vertex(v0, aaParams, data);
     data = emit_vertex(v1, aaParams, data);
@@ -293,7 +293,7 @@ struct Line {
     }
 
     // Compute the intersection of two (infinite) Lines.
-    bool intersect(const Line& other, SkPoint* point) {
+    bool intersect(const Line& other, SkPoint* point) const {
         double denom = fA * other.fB - fB * other.fA;
         if (denom == 0.0) {
             return false;
@@ -379,7 +379,7 @@ struct Edge {
     void recompute() {
         fLine = Line(fTop, fBottom);
     }
-    bool intersect(const Edge& other, SkPoint* p, uint8_t* alpha = nullptr) {
+    bool intersect(const Edge& other, SkPoint* p, uint8_t* alpha = nullptr) const {
         LOG("intersecting %g -> %g with %g -> %g\n",
                fTop->fID, fBottom->fID,
                other.fTop->fID, other.fBottom->fID);
@@ -1090,6 +1090,38 @@ bool out_of_range_and_collinear(const SkPoint& p, Edge* edge, Comparator& c) {
     return false;
 }
 
+Vertex* create_sorted_vertex(const SkPoint& p, uint8_t alpha, VertexList* mesh,
+                             Vertex* reference, Comparator& c, SkArenaAlloc& alloc) {
+    Vertex* prevV = reference;
+    while (prevV && c.sweep_lt(p, prevV->fPoint)) {
+        prevV = prevV->fPrev;
+    }
+    Vertex* nextV = prevV ? prevV->fNext : mesh->fHead;
+    while (nextV && c.sweep_lt(nextV->fPoint, p)) {
+        prevV = nextV;
+        nextV = nextV->fNext;
+    }
+    Vertex* v;
+    if (prevV && coincident(prevV->fPoint, p)) {
+        v = prevV;
+    } else if (nextV && coincident(nextV->fPoint, p)) {
+        v = nextV;
+    } else {
+        v = alloc.make<Vertex>(p, alpha);
+#if LOGGING_ENABLED
+        if (!prevV) {
+            v->fID = mesh->fHead->fID - 1.0f;
+        } else if (!nextV) {
+            v->fID = mesh->fTail->fID + 1.0f;
+        } else {
+            v->fID = (prevV->fID + nextV->fID) * 0.5f;
+        }
+#endif
+        mesh->insert(v, prevV, nextV);
+    }
+    return v;
+}
+
 bool check_for_intersection(Edge* edge, Edge* other, EdgeList* activeEdges, Vertex** current,
                             VertexList* mesh, Comparator& c, SkArenaAlloc& alloc) {
     if (!edge || !other) {
@@ -1121,29 +1153,7 @@ bool check_for_intersection(Edge* edge, Edge* other, EdgeList* activeEdges, Vert
         } else if (p == other->fBottom->fPoint) {
             v = other->fBottom;
         } else {
-            Vertex* prevV = top;
-            Vertex* nextV = top ? top->fNext : mesh->fHead;
-            while (nextV && c.sweep_lt(nextV->fPoint, p)) {
-                prevV = nextV;
-                nextV = nextV->fNext;
-            }
-            if (prevV && coincident(prevV->fPoint, p)) {
-                v = prevV;
-            } else if (nextV && coincident(nextV->fPoint, p)) {
-                v = nextV;
-            } else {
-                v = alloc.make<Vertex>(p, alpha);
-#if LOGGING_ENABLED
-                if (!prevV) {
-                    v->fID = mesh->fHead->fID - 1.0f;
-                } else if (!nextV) {
-                    v->fID = mesh->fTail->fID + 1.0f;
-                } else {
-                    v->fID = (prevV->fID + nextV->fID) * 0.5f;
-                }
-#endif
-                mesh->insert(v, prevV, nextV);
-            }
+            v = create_sorted_vertex(p, alpha, mesh, top, c, alloc);
         }
         rewind(activeEdges, current, top ? top : v, c);
         split_edge(edge, v, activeEdges, current, c, alloc);
@@ -1283,6 +1293,25 @@ void merge_sort(VertexList* vertices) {
     sorted_merge<sweep_lt>(&front, &back, vertices);
 }
 
+void dump_mesh(const VertexList& mesh) {
+#if LOGGING_ENABLED
+    for (Vertex* v = mesh.fHead; v; v = v->fNext) {
+        LOG("vertex %g (%g, %g) alpha %d", v->fID, v->fPoint.fX, v->fPoint.fY, v->fAlpha);
+        if (Vertex* p = v->fPartner) {
+            LOG(", partner %g (%g, %g) alpha %d\n", p->fID, p->fPoint.fX, p->fPoint.fY, p->fAlpha);
+        } else {
+            LOG(", null partner\n");
+        }
+        for (Edge* e = v->fFirstEdgeAbove; e; e = e->fNextEdgeAbove) {
+            LOG("  edge %g -> %g, winding %d\n", e->fTop->fID, e->fBottom->fID, e->fWinding);
+        }
+        for (Edge* e = v->fFirstEdgeBelow; e; e = e->fNextEdgeBelow) {
+            LOG("  edge %g -> %g, winding %d\n", e->fTop->fID, e->fBottom->fID, e->fWinding);
+        }
+    }
+#endif
+}
+
 // Stage 4: Simplify the mesh by inserting new vertices at intersecting edges.
 
 void simplify(VertexList* mesh, Comparator& c, SkArenaAlloc& alloc) {
@@ -1390,7 +1419,7 @@ bool is_complex(const VertexList& vertices) {
 // Stage 5: Tessellate the simplified mesh into monotone polygons.
 
 Poly* tessellate(const VertexList& vertices, SkArenaAlloc& alloc) {
-    LOG("tessellating simple polygons\n");
+    LOG("\ntessellating simple polygons\n");
     EdgeList activeEdges;
     Poly* polys = nullptr;
     for (Vertex* v = vertices.fHead; v != nullptr; v = v->fNext) {
@@ -1658,6 +1687,7 @@ void stroke_boundary(EdgeList* boundary, VertexList* innerMesh, VertexList* oute
 }
 
 void extract_boundary(EdgeList* boundary, Edge* e, SkPath::FillType fillType, SkArenaAlloc& alloc) {
+    LOG("\nextracting boundary\n");
     bool down = apply_fill_type(fillType, e->fWinding);
     while (e) {
         e->fWinding = down ? 1 : -1;
@@ -1758,10 +1788,15 @@ Poly* contours_to_polys(VertexList* contours, int contourCnt, SkPath::FillType f
         if (is_complex(innerMesh) || is_complex(*outerMesh)) {
             LOG("found complex mesh; taking slow path\n");
             VertexList aaMesh;
+            LOG("\ninner mesh after:\n");
+            dump_mesh(innerMesh);
+            LOG("\nouter mesh after:\n");
+            dump_mesh(*outerMesh);
             connect_partners(outerMesh, c, alloc);
             sorted_merge(&innerMesh, outerMesh, &aaMesh, c);
             merge_coincident_vertices(&aaMesh, c, alloc);
             simplify(&aaMesh, c, alloc);
+            dump_mesh(aaMesh);
             outerMesh->fHead = outerMesh->fTail = nullptr;
             return tessellate(aaMesh, alloc);
         } else {
