@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6dd57360_eff72556",
+        "filename": "src/sksl/SkSLGLSLCodeGenerator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 604,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-12-18T20:48:29Z",
+      "side": 1,
+      "message": "Curious why this? And should it be 0xffff for ushort?",
+      "range": {
+        "startLine": 604,
+        "startChar": 41,
+        "endLine": 604,
+        "endChar": 51
+      },
+      "revId": "87fb679ad390f0d0b68905fe74aecbac14969fe8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
