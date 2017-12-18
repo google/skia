@@ -217,8 +217,8 @@ private:
     std::map<uint32_t, RTPendingPaths> fRTPendingPathsMap;
     SkDEBUGCODE(int fPendingDrawOpsCount = 0;)
 
-    sk_sp<GrBuffer> fPerFlushIndexBuffer;
-    sk_sp<GrBuffer> fPerFlushVertexBuffer;
+    sk_sp<const GrBuffer> fPerFlushIndexBuffer;
+    sk_sp<const GrBuffer> fPerFlushVertexBuffer;
     sk_sp<GrBuffer> fPerFlushInstanceBuffer;
     GrSTAllocator<4, GrCCPRAtlas> fPerFlushAtlases;
     bool fPerFlushResourcesAreValid;
