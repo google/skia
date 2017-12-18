@@ -57,6 +57,10 @@ public:
     }
 
 private:
+    bool onValidateBackendTexture(GrBackendTexture* tex, SkColorType ct) const override {
+        return false;
+    }
+
     void initFeatureSet(MTLFeatureSet featureSet);
 
     void initGrCaps(const id<MTLDevice> device);

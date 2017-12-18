@@ -11,9 +11,11 @@
 #include "../private/GrTypesPriv.h"
 #include "GrBlend.h"
 #include "GrShaderCaps.h"
+#include "SkImageInfo.h"
 #include "SkRefCnt.h"
 #include "SkString.h"
 
+class GrBackendTexture;
 struct GrContextOptions;
 class GrRenderTargetProxy;
 class SkJSONWriter;
@@ -170,6 +172,13 @@ public:
     virtual bool initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc* desc,
                                     bool* rectsMustMatch, bool* disallowSubrect) const = 0;
 
+    /**
+     * Returns true if the GrBackendTexutre can we used with the supplied SkColorType. If it is
+     * compatible, the GrPixelConfig on the GrBackendTexture will be set to a config that matches
+     * the backend format and requested SkColorType.
+     */
+    bool validateBackendTexture(GrBackendTexture* tex, SkColorType ct) const;
+
 protected:
     /** Subclasses must call this at the end of their constructors in order to apply caps
         overrides requested by the client. Note that overrides will only reduce the caps never
@@ -229,6 +238,7 @@ protected:
     int fMaxClipAnalyticFPs;
 
 private:
+    virtual bool onValidateBackendTexture(GrBackendTexture* tex, SkColorType ct) const = 0;
     virtual void onApplyOptionsOverrides(const GrContextOptions&) {}
     virtual void onDumpJSON(SkJSONWriter*) const {}
 

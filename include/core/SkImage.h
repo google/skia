@@ -96,6 +96,9 @@ public:
      *  managing the lifetime of the underlying platform texture.
      *
      *  Will return NULL if the specified backend texture is unsupported.
+     *
+     *  DEPRECATED: This factory is deprecated and clients should use the factory below which takes
+     *  an SkColorType.
      */
     static sk_sp<SkImage> MakeFromTexture(GrContext* context,
                                           const GrBackendTexture& backendTexture,
@@ -112,10 +115,53 @@ public:
      *  no longer is holding a reference to it.
      *
      *  Will return NULL if the specified backend texture is unsupported.
+     *
+     *  DEPRECATED: This factory is deprecated and clients should use the factory below which takes
+     *  an SkColorType.
      */
     static sk_sp<SkImage> MakeFromTexture(GrContext* context,
                                           const GrBackendTexture& backendTexture,
                                           GrSurfaceOrigin origin,
+                                          SkAlphaType alphaType,
+                                          sk_sp<SkColorSpace> colorSpace,
+                                          TextureReleaseProc textureReleaseProc,
+                                          ReleaseContext releaseContext);
+
+    /**
+     *  Create a new image from the specified descriptor. Note - the caller is responsible for
+     *  managing the lifetime of the underlying platform texture.
+     *
+     *  The GrBackendTexture mush have a valid backed format supplied (GrGLTextureInfo::fFormat,
+     *  GrVkImageInfo::fFormat, etc.) in it. The passed in SkColorType informs skia how it should
+     *  interpret the backend format supplied by the GrBackendTexture. If the format in the
+     *  GrBackendTexture is not compitable with the SkColorType, SkAlphaType, and SkColorSpace we
+     *  will return nullptr.
+     */
+    static sk_sp<SkImage> MakeFromTexture(GrContext* context,
+                                          const GrBackendTexture& backendTexture,
+                                          GrSurfaceOrigin origin,
+                                          SkColorType colorType,
+                                          SkAlphaType alphaType,
+                                          sk_sp<SkColorSpace> colorSpace) {
+        return MakeFromTexture(context, backendTexture, origin, colorType, alphaType, colorSpace,
+                               nullptr, nullptr);
+    }
+
+    /**
+     *  Create a new image from the GrBackendTexture. The underlying platform texture must stay
+     *  valid and unaltered until the specified release-proc is invoked, indicating that Skia
+     *  no longer is holding a reference to it.
+     *
+     *  The GrBackendTexture mush have a valid backed format supplied (GrGLTextureInfo::fFormat,
+     *  GrVkImageInfo::fFormat, etc.) in it. The passed in SkColorType informs skia how it should
+     *  interpret the backend format supplied by the GrBackendTexture. If the format in the
+     *  GrBackendTexture is not compitable with the SkColorType, SkAlphaType, and SkColorSpace we
+     *  will return nullptr.
+     */
+    static sk_sp<SkImage> MakeFromTexture(GrContext* context,
+                                          const GrBackendTexture& backendTexture,
+                                          GrSurfaceOrigin origin,
+                                          SkColorType colorType,
                                           SkAlphaType alphaType,
                                           sk_sp<SkColorSpace> colorSpace,
                                           TextureReleaseProc textureReleaseProc,
@@ -158,10 +204,30 @@ public:
      *  texture when the image is released.
      *
      *  Will return NULL if the specified backend texture is unsupported.
+     *
+     *  DEPRECATED: This factory is deprecated and clients should use the factory below which takes
+     *  an SkColorType.
      */
     static sk_sp<SkImage> MakeFromAdoptedTexture(GrContext* context,
                                                  const GrBackendTexture& backendTexture,
                                                  GrSurfaceOrigin surfaceOrigin,
+                                                 SkAlphaType alphaType = kPremul_SkAlphaType,
+                                                 sk_sp<SkColorSpace> colorSpace = nullptr);
+
+    /**
+     *  Create a new image from the specified descriptor. Note - Skia will delete or recycle the
+     *  texture when the image is released.
+     *
+     *  The GrBackendTexture mush have a valid backed format supplied (GrGLTextureInfo::fFormat,
+     *  GrVkImageInfo::fFormat, etc.) in it. The passed in SkColorType informs skia how it should
+     *  interpret the backend format supplied by the GrBackendTexture. If the format in the
+     *  GrBackendTexture is not compitable with the SkColorType, SkAlphaType, and SkColorSpace we
+     *  will return nullptr.
+     */
+    static sk_sp<SkImage> MakeFromAdoptedTexture(GrContext* context,
+                                                 const GrBackendTexture& backendTexture,
+                                                 GrSurfaceOrigin surfaceOrigin,
+                                                 SkColorType colorType,
                                                  SkAlphaType alphaType = kPremul_SkAlphaType,
                                                  sk_sp<SkColorSpace> colorSpace = nullptr);
 
