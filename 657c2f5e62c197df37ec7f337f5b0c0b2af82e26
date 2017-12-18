@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4590ab13_b6fc2abd",
+        "filename": "src/gpu/ccpr/GrCCPRCoverageProcessor.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-12-18T14:05:50Z",
+      "side": 1,
+      "message": "assuming these are meant ot be the same, maybe merge them together?",
+      "range": {
+        "startLine": 90,
+        "startChar": 12,
+        "endLine": 93,
+        "endChar": 64
+      },
+      "revId": "657c2f5e62c197df37ec7f337f5b0c0b2af82e26",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
