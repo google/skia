@@ -2200,3 +2200,4 @@ sk_sp<GrSemaphore> GrVkGpu::prepareTextureForCrossContextUsage(GrTexture* textur
     // The image layout change serves as a barrier, so no semaphore is needed
     return nullptr;
 }
+

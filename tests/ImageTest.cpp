@@ -730,7 +730,8 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkImage_NewFromTextureRelease, reporter, c
     TextureReleaseChecker releaseChecker;
     GrSurfaceOrigin texOrigin = kBottomLeft_GrSurfaceOrigin;
     sk_sp<SkImage> refImg(
-        SkImage::MakeFromTexture(ctx, backendTex, texOrigin, kPremul_SkAlphaType, nullptr,
+        SkImage::MakeFromTexture(ctx, backendTex, texOrigin, kRGBA_8888_SkColorType,
+                                 kPremul_SkAlphaType, nullptr,
                                  TextureReleaseChecker::Release, &releaseChecker));
 
     GrSurfaceOrigin readBackOrigin;

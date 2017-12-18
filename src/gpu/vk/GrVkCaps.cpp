@@ -6,6 +6,8 @@
  */
 
 #include "GrVkCaps.h"
+
+#include "GrBackendSurface.h"
 #include "GrRenderTargetProxy.h"
 #include "GrShaderCaps.h"
 #include "GrVkUtil.h"
@@ -412,4 +414,56 @@ int GrVkCaps::getSampleCount(int requestedCount, GrPixelConfig config) const {
     }
     return fConfigTable[config].fColorSampleCounts[count-1];
 }
+
+bool GrVkCaps::onValidateBackendTexture(GrBackendTexture* tex, SkColorType ct) const {
+    const GrVkImageInfo* imageInfo = tex->getVkImageInfo();
+    if (!imageInfo) {
+        return false;
+    }
+    VkFormat format = imageInfo->fFormat;
+    tex->fConfig = kUnknown_GrPixelConfig;
+
+    switch (ct) {
+        case kUnknown_SkColorType:
+            return false;
+        case kAlpha_8_SkColorType:
+            if (VK_FORMAT_R8_UNORM == format) {
+                tex->fConfig = kAlpha_8_as_Red_GrPixelConfig;
+            }
+            break;
+        case kRGB_565_SkColorType:
+            if (VK_FORMAT_R5G6B5_UNORM_PACK16 == format) {
+                tex->fConfig = kRGB_565_GrPixelConfig;
+            }
+            break;
+        case kARGB_4444_SkColorType:
+            if (VK_FORMAT_B4G4R4A4_UNORM_PACK16 == format) {
+                tex->fConfig = kRGBA_4444_GrPixelConfig;
+            }
+            break;
+        case kRGBA_8888_SkColorType:
+            if (VK_FORMAT_R8G8B8A8_UNORM == format) {
+                tex->fConfig = kRGBA_8888_GrPixelConfig;
+            }
+            break;
+        case kBGRA_8888_SkColorType:
+            if (VK_FORMAT_B8G8R8A8_UNORM == format) {
+                tex->fConfig = kBGRA_8888_GrPixelConfig;
+            }
+            break;
+        case kGray_8_SkColorType:
+            if (VK_FORMAT_R8_UNORM == format) {
+                tex->fConfig = kGray_8_as_Red_GrPixelConfig;
+            }
+            break;
+        case kRGBA_F16_SkColorType:
+            if (VK_FORMAT_R16G16B16A16_SFLOAT == format) {
+                tex->fConfig = kRGBA_half_GrPixelConfig;
+            }
+            break;
+    }
+
+    return kUnknown_GrPixelConfig != tex->fConfig;
+}
+
 
