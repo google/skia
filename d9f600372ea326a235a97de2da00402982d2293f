@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "5a8d00ad_cc8293a4",
+        "filename": "gn/BUILD.gn",
+        "patchSetId": 6
+      },
+      "lineNbr": 210,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-12-18T15:22:57Z",
+      "side": 1,
+      "message": "Let\u0027s factor the ASAN and UBSAN bits?\n\nif (sanitize \u003d\u003d \"ASAN\" || sanitize \u003d\u003d \"UBSAN\") {\n   sanitizers \u003d \"bool,float-cast-overflow,...\"\n   if (...) {\n     ...\n   }\n}\nif (sanitize \u003d\u003d \"ASAN\") {\n   sanitizers +\u003d \",address\"\n}\n\nOr, I guess we could split apart the ASAN and UBSAN bots entirely?\nOr, just keep calling them ASAN but not add \"address\" on Windows if it doesn\u0027t work?",
+      "revId": "d9f600372ea326a235a97de2da00402982d2293f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "6b2b9980_e02fc652",
         "filename": "gn/BUILD.gn",
         "patchSetId": 6
@@ -13,6 +30,30 @@
       "writtenOn": "2017-12-18T01:01:40Z",
       "side": 1,
       "message": "Regardless of what I do, I get \"clang-cl.exe: error: the object size sanitizer has no effect at -O0, but is explicitly enabled\"",
+      "range": {
+        "startLine": 227,
+        "startChar": 24,
+        "endLine": 227,
+        "endChar": 35
+      },
+      "revId": "d9f600372ea326a235a97de2da00402982d2293f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c86ff8ad_16161d5d",
+        "filename": "gn/BUILD.gn",
+        "patchSetId": 6
+      },
+      "lineNbr": 227,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-12-18T15:22:57Z",
+      "side": 1,
+      "message": "Hmm.  That doesn\u0027t seem right.\n\nYour GN line was this, right?\n\n\n\u0027C:\\b\\work\\skia\\bin\\gn.exe\u0027 gen \u0027C:\\b\\work\\skia\\out\\Build-Win-Clang-x86_64-Release-UBSAN\\Release_x64\u0027 \u0027--args\u003dcc\u003d\"clang\" clang_win\u003d\"c:\\b\\s\\w\\ir\\clang_win\" cxx\u003d\"clang++\" extra_cflags\u003d[\"-O2\"] is_debug\u003dfalse sanitize\u003d\"UBSAN\" skia_enable_spirv_validation\u003dfalse target_cpu\u003d\"x86_64\" \n\nI\u0027d think that\u0027d be fine, doubly so.  Let\u0027s see if we can grab one of the .rsp files to see what we\u0027re actually passing on the command line?  You can run ninja -d keeprsp to keep them around instead of having them be eaten up during the build.\n\n[5/2000] compile ../../../tests/LayerDrawLooperTest.cpp\nFAILED: obj/tests/tests.LayerDrawLooperTest.obj \n\"c:\\b\\s\\w\\ir\\clang_win/bin/clang-cl.exe\" /nologo /showIncludes /FC @obj/tests/tests.LayerDrawLooperTest.obj.rsp /c ../../../tests/LayerDrawLooperTest.cpp /Foobj/tests/tests.LayerDrawLooperTest.obj /Fd\"obj/tests_c.pdb\"\nclang-cl.exe: error: the object size sanitizer has no effect at -O0, but is explicitly enabled: -fsanitize\u003dbool,float-cast-overflow,integer-divide-by-zero,nonnull-attribute,null,object-size,return,returns-nonnull-attribute,shift,signed-integer-overflow,unreachable,vla-bound [-Werror,-Winvalid-command-line-argument]",
+      "parentUuid": "6b2b9980_e02fc652",
       "range": {
         "startLine": 227,
         "startChar": 24,
