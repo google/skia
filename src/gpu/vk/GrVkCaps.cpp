@@ -415,59 +415,67 @@ int GrVkCaps::getSampleCount(int requestedCount, GrPixelConfig config) const {
     return fConfigTable[config].fColorSampleCounts[count-1];
 }
 
-bool GrVkCaps::onValidateBackendTexture(GrBackendTexture* tex, SkColorType ct) const {
-    const GrVkImageInfo* imageInfo = tex->getVkImageInfo();
+bool validate_image_info(const GrVkImageInfo* imageInfo, SkColorType ct, GrPixelConfig* config) {
     if (!imageInfo) {
         return false;
     }
     VkFormat format = imageInfo->fFormat;
-    tex->fConfig = kUnknown_GrPixelConfig;
+    *config = kUnknown_GrPixelConfig;
 
     switch (ct) {
         case kUnknown_SkColorType:
             return false;
         case kAlpha_8_SkColorType:
             if (VK_FORMAT_R8_UNORM == format) {
-                tex->fConfig = kAlpha_8_as_Red_GrPixelConfig;
+                *config = kAlpha_8_as_Red_GrPixelConfig;
             }
             break;
         case kRGB_565_SkColorType:
             if (VK_FORMAT_R5G6B5_UNORM_PACK16 == format) {
-                tex->fConfig = kRGB_565_GrPixelConfig;
+                *config = kRGB_565_GrPixelConfig;
             }
             break;
         case kARGB_4444_SkColorType:
             if (VK_FORMAT_B4G4R4A4_UNORM_PACK16 == format) {
-                tex->fConfig = kRGBA_4444_GrPixelConfig;
+                *config = kRGBA_4444_GrPixelConfig;
             }
             break;
         case kRGBA_8888_SkColorType:
             if (VK_FORMAT_R8G8B8A8_UNORM == format) {
-                tex->fConfig = kRGBA_8888_GrPixelConfig;
+                *config = kRGBA_8888_GrPixelConfig;
             } else if (VK_FORMAT_R8G8B8A8_SRGB == format) {
-                tex->fConfig = kSRGBA_8888_GrPixelConfig;
+                *config = kSRGBA_8888_GrPixelConfig;
             }
             break;
         case kBGRA_8888_SkColorType:
             if (VK_FORMAT_B8G8R8A8_UNORM == format) {
-                tex->fConfig = kBGRA_8888_GrPixelConfig;
+                *config = kBGRA_8888_GrPixelConfig;
             } else if (VK_FORMAT_B8G8R8A8_SRGB == format) {
-                tex->fConfig = kSBGRA_8888_GrPixelConfig;
+                *config = kSBGRA_8888_GrPixelConfig;
             }
             break;
         case kGray_8_SkColorType:
             if (VK_FORMAT_R8_UNORM == format) {
-                tex->fConfig = kGray_8_as_Red_GrPixelConfig;
+                *config = kGray_8_as_Red_GrPixelConfig;
             }
             break;
         case kRGBA_F16_SkColorType:
             if (VK_FORMAT_R16G16B16A16_SFLOAT == format) {
-                tex->fConfig = kRGBA_half_GrPixelConfig;
+                *config = kRGBA_half_GrPixelConfig;
             }
             break;
     }
 
-    return kUnknown_GrPixelConfig != tex->fConfig;
+    return kUnknown_GrPixelConfig != *config;
 }
 
+bool GrVkCaps::validateBackendTexture(const GrBackendTexture& tex, SkColorType ct,
+                                      GrPixelConfig* config) const {
+    return validate_image_info(tex.getVkImageInfo(), ct, config);
+}
+
+bool GrVkCaps::validateBackendRenderTarget(const GrBackendRenderTarget& rt, SkColorType ct,
+                                           GrPixelConfig* config) const {
+    return validate_image_info(rt.getVkImageInfo(), ct, config);
+}
 

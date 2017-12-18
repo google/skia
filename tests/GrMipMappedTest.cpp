@@ -53,6 +53,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrWrappedMipMappedTest, reporter, ctxInfo) {
                                                                            backendTex,
                                                                            kTopLeft_GrSurfaceOrigin,
                                                                            0,
+                                                                           kRGBA_8888_SkColorType,
                                                                            nullptr,
                                                                            nullptr);
 
@@ -221,6 +222,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrImageSnapshotMipMappedTest, reporter, ctxIn
                                                             backendTex,
                                                             kTopLeft_GrSurfaceOrigin,
                                                             0,
+                                                            kRGBA_8888_SkColorType,
                                                             nullptr,
                                                             nullptr);
             } else {

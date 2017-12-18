@@ -415,9 +415,12 @@ public:
         return fProgramBinarySupport;
     }
 
-private:
-    bool onValidateBackendTexture(GrBackendTexture*, SkColorType) const override;
+    bool validateBackendTexture(const GrBackendTexture&, SkColorType,
+                                GrPixelConfig*) const override;
+    bool validateBackendRenderTarget(const GrBackendRenderTarget&, SkColorType,
+                                     GrPixelConfig*) const override;
 
+private:
     enum ExternalFormatUsage {
         kTexImage_ExternalFormatUsage,
         kOther_ExternalFormatUsage,
