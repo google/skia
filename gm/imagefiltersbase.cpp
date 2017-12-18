@@ -208,7 +208,10 @@ protected:
             IdentityImageFilter::Make(nullptr),
             FailImageFilter::Make(),
             SkColorFilterImageFilter::Make(std::move(cf), nullptr),
-            SkBlurImageFilter::Make(12.0f, 0.0f, nullptr),
+            // The strage 0.29 value tickles an edge case where crop rect calculates
+            // a small border, but the blur really needs no border. This tickels
+            // an msan uninitialized value bug.
+            SkBlurImageFilter::Make(12.0f, 0.29f, nullptr),
             SkDropShadowImageFilter::Make(
                                     10.0f, 5.0f, 3.0f, 3.0f, SK_ColorBLUE,
                                     SkDropShadowImageFilter::kDrawShadowAndForeground_ShadowMode,
