@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "43106105_5412e11c",
+        "filename": "platform_tools/android/apps/skqp/build.gradle",
+        "patchSetId": 12
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-12-18T17:05:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a73cf7c9_dd638661",
+      "revId": "50cbcde0751776db0d2a34752d2f48ff55bae708",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c9c5f21b_d05e41a2",
         "filename": "tools/skqp/README.md",
         "patchSetId": 12
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "d4440afe_76f955cf",
+        "filename": "tools/skqp/README.md",
+        "patchSetId": 12
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-12-18T17:05:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c9c5f21b_d05e41a2",
+      "revId": "50cbcde0751776db0d2a34752d2f48ff55bae708",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "bbac8e9d_195a3ce2",
         "filename": "tools/skqp/jni/org_skia_skqp_SkQPRunner.cpp",
         "patchSetId": 12
@@ -50,6 +86,24 @@
       "revId": "50cbcde0751776db0d2a34752d2f48ff55bae708",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bd8385ac_ff7cb64a",
+        "filename": "tools/skqp/jni/org_skia_skqp_SkQPRunner.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 146,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-12-18T17:05:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bbac8e9d_195a3ce2",
+      "revId": "50cbcde0751776db0d2a34752d2f48ff55bae708",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
