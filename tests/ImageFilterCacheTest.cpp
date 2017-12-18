@@ -221,7 +221,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterCache_ImageBackedGPU, reporter, ct
     sk_sp<SkImage> srcImage(SkImage::MakeFromTexture(context,
                                                      backendTex,
                                                      texOrigin,
-                                                     kPremul_SkAlphaType, nullptr));
+                                                     kRGBA_8888_SkColorType,
+                                                     kPremul_SkAlphaType, nullptr,
+                                                     nullptr, nullptr));
     if (!srcImage) {
         return;
     }

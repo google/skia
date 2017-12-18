@@ -108,11 +108,13 @@ protected:
         GrGLTextureInfo info;
         info.fID = id;
         info.fTarget = TARGET;
+        info.fFormat = GR_GL_RGBA8;
 
-        GrBackendTexture rectangleTex(width, height, kRGBA_8888_GrPixelConfig, info);
+        GrBackendTexture rectangleTex(width, height, GrMipMapped::kNo, info);
 
         if (sk_sp<SkImage> image = SkImage::MakeFromAdoptedTexture(context, rectangleTex,
-                                                                   kTopLeft_GrSurfaceOrigin)) {
+                                                                   kTopLeft_GrSurfaceOrigin,
+                                                                   kRGBA_8888_SkColorType)) {
             return image;
         }
         GR_GL_CALL(gl, DeleteTextures(1, &id));

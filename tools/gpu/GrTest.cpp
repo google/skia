@@ -67,7 +67,8 @@ GrBackendTexture CreateBackendTexture(GrBackend backend, int width, int height,
 #endif
         case kOpenGL_GrBackend: {
             GrGLTextureInfo* glInfo = (GrGLTextureInfo*)(handle);
-            return GrBackendTexture(width, height, config, mipMapped, *glInfo);
+            SkASSERT(glInfo->fFormat);
+            return GrBackendTexture(width, height, mipMapped, *glInfo);
         }
         case kMock_GrBackend: {
             GrMockTextureInfo* mockInfo = (GrMockTextureInfo*)(handle);

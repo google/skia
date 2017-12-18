@@ -61,7 +61,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrWrappedMipMappedTest, reporter, ctxInfo) {
             } else {
                 image = SkImage::MakeFromTexture(context, backendTex,
                                                  kTopLeft_GrSurfaceOrigin,
-                                                 kPremul_SkAlphaType, nullptr);
+                                                 kRGBA_8888_SkColorType,
+                                                 kPremul_SkAlphaType, nullptr,
+                                                 nullptr, nullptr);
                 proxy = as_IB(image)->asTextureProxyRef();
             }
             REPORTER_ASSERT(reporter, proxy);
@@ -108,7 +110,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrBackendTextureImageMipMappedTest, reporter,
 
             sk_sp<SkImage> image = SkImage::MakeFromTexture(context, backendTex,
                                                             kTopLeft_GrSurfaceOrigin,
-                                                            kPremul_SkAlphaType, nullptr);
+                                                            kRGBA_8888_SkColorType,
+                                                            kPremul_SkAlphaType, nullptr,
+                                                            nullptr, nullptr);
 
             GrTextureProxy* proxy = as_IB(image)->peekProxy();
             REPORTER_ASSERT(reporter, proxy);

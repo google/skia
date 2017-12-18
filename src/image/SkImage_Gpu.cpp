@@ -301,11 +301,45 @@ sk_sp<SkImage> SkImage::MakeFromTexture(GrContext* ctx,
                                       releaseP, releaseC);
 }
 
+bool validate_backend_texture(GrContext* ctx, GrBackendTexture* tex,
+                              SkColorType ct, SkAlphaType at, sk_sp<SkColorSpace> cs) {
+    // TODO: Create a SkImageColorInfo struct for color, alpha, and color space so we don't need to
+    // create a fake image info here.
+    SkImageInfo info = SkImageInfo::Make(1, 1, ct, at, cs);
+    if (!SkImageInfoIsValidAllowNumericalCS(info)) {
+        return false;
+    }
+
+    return ctx->caps()->validateBackendTexture(tex, ct);
+}
+
+sk_sp<SkImage> SkImage::MakeFromTexture(GrContext* ctx,
+                                        const GrBackendTexture& tex, GrSurfaceOrigin origin,
+                                        SkColorType ct, SkAlphaType at, sk_sp<SkColorSpace> cs,
+                                        TextureReleaseProc releaseP, ReleaseContext releaseC) {
+    GrBackendTexture texCopy = tex;
+    if (!validate_backend_texture(ctx, &texCopy, ct, at, cs)) {
+        return nullptr;
+    }
+    return MakeFromTexture(ctx, texCopy, origin, at, cs, releaseP, releaseC);
+}
+
 sk_sp<SkImage> SkImage::MakeFromAdoptedTexture(GrContext* ctx,
                                                const GrBackendTexture& tex, GrSurfaceOrigin origin,
                                                SkAlphaType at, sk_sp<SkColorSpace> cs) {
     return new_wrapped_texture_common(ctx, tex, origin, at, std::move(cs), kAdopt_GrWrapOwnership,
                                       nullptr, nullptr);
+}
+
+sk_sp<SkImage> SkImage::MakeFromAdoptedTexture(GrContext* ctx,
+                                               const GrBackendTexture& tex, GrSurfaceOrigin origin,
+                                               SkColorType ct, SkAlphaType at,
+                                               sk_sp<SkColorSpace> cs) {
+    GrBackendTexture texCopy = tex;
+    if (!validate_backend_texture(ctx, &texCopy, ct, at, cs)) {
+        return nullptr;
+    }
+    return MakeFromAdoptedTexture(ctx, texCopy, origin, at, cs);
 }
 
 static GrBackendTexture make_backend_texture_from_handle(GrBackend backend,

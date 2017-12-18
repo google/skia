@@ -112,6 +112,8 @@ public:
                             bool* rectsMustMatch, bool* disallowSubrect) const override;
 
 private:
+    bool onValidateBackendTexture(GrBackendTexture*, SkColorType) const override;
+
     enum VkVendor {
         kAMD_VkVendor = 4098,
         kImagination_VkVendor = 4112,

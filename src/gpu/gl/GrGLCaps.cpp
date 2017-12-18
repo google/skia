@@ -2361,3 +2361,58 @@ int GrGLCaps::getSampleCount(int requestedCount, GrPixelConfig config) const {
     return fConfigTable[config].fColorSampleCounts[count-1];
 }
 
+bool GrGLCaps::onValidateBackendTexture(GrBackendTexture* tex, SkColorType ct) const {
+    const GrGLTextureInfo* texInfo = tex->getGLTextureInfo();
+    if (!texInfo) {
+        return false;
+    }
+    GrGLenum format = texInfo->fFormat;
+    tex->fConfig = kUnknown_GrPixelConfig;
+
+    switch (ct) {
+        case kUnknown_SkColorType:
+            return false;
+        case kAlpha_8_SkColorType:
+            if (GR_GL_ALPHA8 == format) {
+                tex->fConfig = kAlpha_8_as_Alpha_GrPixelConfig;
+            } else if (GR_GL_R8 == format) {
+                tex->fConfig = kAlpha_8_as_Red_GrPixelConfig;
+            }
+            break;
+        case kRGB_565_SkColorType:
+            if (GR_GL_RGB565 == format) {
+                tex->fConfig = kRGB_565_GrPixelConfig;
+            }
+            break;
+        case kARGB_4444_SkColorType:
+            if (GR_GL_RGBA4 == format) {
+                tex->fConfig = kRGBA_4444_GrPixelConfig;
+            }
+            break;
+        case kRGBA_8888_SkColorType:
+            if (GR_GL_RGBA8 == format) {
+                tex->fConfig = kRGBA_8888_GrPixelConfig;
+            }
+            break;
+        case kBGRA_8888_SkColorType:
+            if (GR_GL_BGRA8 == format) {
+                tex->fConfig = kBGRA_8888_GrPixelConfig;
+            }
+            break;
+        case kGray_8_SkColorType:
+            if (GR_GL_LUMINANCE8 == format) {
+                tex->fConfig = kGray_8_as_Lum_GrPixelConfig;
+            } else if (GR_GL_R8 == format) {
+                tex->fConfig = kGray_8_as_Red_GrPixelConfig;
+            }
+            break;
+        case kRGBA_F16_SkColorType:
+            if (GR_GL_RGBA16F == format) {
+                tex->fConfig = kRGBA_half_GrPixelConfig;
+            }
+            break;
+    }
+
+    return kUnknown_GrPixelConfig != tex->fConfig;
+}
+

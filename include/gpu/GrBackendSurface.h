@@ -84,8 +84,11 @@ public:
 private:
     // Friending for access to the GrPixelConfig
     friend class SkSurface;
+    friend class GrCaps;
     friend class GrGpu;
+    friend class GrGLCaps;
     friend class GrGLGpu;
+    friend class GrVkCaps;
     friend class GrVkGpu;
     GrPixelConfig config() const { return fConfig; }
 
@@ -146,8 +149,11 @@ public:
 private:
     // Friending for access to the GrPixelConfig
     friend class SkSurface;
+    friend class GrCaps;
     friend class GrGpu;
+    friend class GrGLCaps;
     friend class GrGLGpu;
+    friend class GrVkCaps;
     friend class GrVkGpu;
     GrPixelConfig config() const { return fConfig; }
 
