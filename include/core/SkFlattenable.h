@@ -64,6 +64,12 @@ struct SkDeserialProcs;
     }                                           \
     Type getFlattenableType() const override {  \
         return k##flattenable##_Type;           \
+    }                                           \
+    static sk_sp<flattenable> Deserialize(const void* data, size_t size,                \
+                                          const SkDeserialProcs* procs = nullptr) {     \
+        return sk_sp<flattenable>(static_cast<flattenable*>(                            \
+                                  SkFlattenable::Deserialize(                           \
+                                  k##flattenable##_Type, data, size, procs).release()));\
     }
 
 /** \class SkFlattenable
