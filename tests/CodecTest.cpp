@@ -1467,8 +1467,7 @@ static void test_encode_icc(skiatest::Reporter* r, SkEncodedImageFormat format,
     SkImageInfo srgbInfo = SkImageInfo::MakeS32(1, 1, kOpaque_SkAlphaType);
     srgbBitmap.allocPixels(srgbInfo);
     *srgbBitmap.getAddr32(0, 0) = 0;
-    SkPixmap pixmap;
-    srgbBitmap.peekPixels(&pixmap);
+    SkPixmap pixmap = srgbBitmap.pixmap();;
     SkDynamicMemoryWStream srgbBuf;
     encode_format(&srgbBuf, pixmap, unpremulBehavior, format);
     sk_sp<SkData> srgbData = srgbBuf.detachAsData();

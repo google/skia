@@ -162,10 +162,10 @@ struct Png : Dst {
             bm = dst;
         }
 
-        SkPixmap pm;
-        if (!bm.peekPixels(&pm)) {
+        if (!bm.getPixels()) {
             return Status::Failed;
         }
+        const SkPixmap& pm = bm.pixmap();
 
         sk_mkdir(dir.c_str());
         SkFILEWStream dst{(dir + "/" + src->name() + ".png").c_str()};

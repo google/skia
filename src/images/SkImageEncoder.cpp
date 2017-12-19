@@ -30,6 +30,12 @@ bool SkWebpEncoder::Encode(SkWStream*, const SkPixmap&, const Options&) { return
 
 bool SkEncodeImage(SkWStream* dst, const SkPixmap& src,
                    SkEncodedImageFormat format, int quality) {
+    if (src.addr() == nullptr ||
+        src.colorType() == kUnknown_SkColorType ||
+        src.info().dimensions().isEmpty())
+    {
+        return false;
+    }
     #ifdef SK_USE_CG_ENCODER
         (void)quality;
         return SkEncodeImageWithCG(dst, src, format);
@@ -86,6 +92,5 @@ sk_sp<SkData> SkEncodePixmap(const SkPixmap& src, SkEncodedImageFormat format, i
 }
 
 sk_sp<SkData> SkEncodeBitmap(const SkBitmap& src, SkEncodedImageFormat format, int quality) {
-    SkPixmap pixmap;
-    return src.peekPixels(&pixmap) ? SkEncodePixmap(pixmap, format, quality) : nullptr;
+    return SkEncodePixmap(src.pixmap(), format, quality);
 }

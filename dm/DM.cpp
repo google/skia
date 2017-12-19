@@ -998,10 +998,10 @@ static bool gather_sinks(const GrContextOptions& grCtxOptions, bool defaultConfi
 }
 
 static bool dump_png(SkBitmap bitmap, const char* path, const char* md5) {
-    SkPixmap pm;
-    if (!bitmap.peekPixels(&pm)) {
+    if (!bitmap.getPixels()) {
         return false;  // Ought to never happen... we're already read-back at this point.
     }
+    const SkPixmap& pm = bitmap.pixmap();
     SkFILEWStream dst{path};
 
     SkString description;

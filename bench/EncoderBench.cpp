@@ -30,11 +30,10 @@ public:
     }
 
     void onDraw(int loops, SkCanvas*) override {
+        SkASSERT(fBitmap.getPixels() != nullptr);
         while (loops-- > 0) {
-            SkPixmap pixmap;
-            SkAssertResult(fBitmap.peekPixels(&pixmap));
             SkNullWStream dst;
-            SkAssertResult(fEncoder(&dst, pixmap));
+            SkAssertResult(fEncoder(&dst, fBitmap.pixmap()));
             SkASSERT(dst.bytesWritten() > 0);
         }
     }

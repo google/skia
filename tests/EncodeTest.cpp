@@ -52,10 +52,10 @@ static void test_encode(skiatest::Reporter* r, SkEncodedImageFormat format) {
         return;
     }
 
-    SkPixmap src;
-    success = bitmap.peekPixels(&src);
+    const SkPixmap& src = bitmap.pixmap();
+    success = src.addr();
     REPORTER_ASSERT(r, success);
-    if (!success) {
+    if (success) {
         return;
     }
 
@@ -137,8 +137,8 @@ DEF_TEST(Encode_JpegDownsample, r) {
         return;
     }
 
-    SkPixmap src;
-    success = bitmap.peekPixels(&src);
+    const SkPixmap& src = bitmap.pixmap();
+    success = src.addr();
     REPORTER_ASSERT(r, success);
     if (!success) {
         return;
@@ -249,8 +249,8 @@ DEF_TEST(Encode_PngOptions, r) {
         return;
     }
 
-    SkPixmap src;
-    success = bitmap.peekPixels(&src);
+    const SkPixmap& src = bitmap.pixmap();
+    success = src.addr();
     REPORTER_ASSERT(r, success);
     if (!success) {
         return;
@@ -292,8 +292,8 @@ DEF_TEST(Encode_WebpOptions, r) {
         return;
     }
 
-    SkPixmap src;
-    success = bitmap.peekPixels(&src);
+    const SkPixmap& src = bitmap.pixmap();
+    success = src.addr();
     REPORTER_ASSERT(r, success);
     if (!success) {
         return;
