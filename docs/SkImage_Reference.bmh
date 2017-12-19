@@ -336,11 +336,15 @@ Recognized formats vary by platfrom.
 
 #Return created Image, or nullptr ##
 
-#Bug 7343
-Waiting on fiddle to support returning image as SkData
-##
-
-#NoExample
+#Example
+#Image 3
+int x = 0;
+for (int quality : { 100, 50, 10, 1} ) {
+    sk_sp<SkData> encodedData = image->encodeToData(SkEncodedImageFormat::kJPEG, quality);
+    sk_sp<SkImage> image = SkImage::MakeFromEncoded(encodedData);
+    canvas->drawImage(image, x, 0);
+    x += 64;
+}
 ##
 
 #SeeAlso MakeFromGenerator
@@ -431,7 +435,7 @@ Recognized formats vary by GPU back-end.
 
 #ToDo
 This doesn't do anything clever with TextureReleaseProc because it may not get called
-within the lifetime of the example
+fwithin the lifetime of the example
 ##
 
 #Example
@@ -484,7 +488,12 @@ supports moving resources. Recognized formats vary by platform and GPU back-end.
 #Return created Image, or nullptr ##
 
 #Example
-// incomplete
+#Image 4
+#Height 128
+GrContext* context = canvas->getGrContext();
+sk_sp<SkData> encodedData = image->encodeToData(SkEncodedImageFormat::kJPEG, 100);
+sk_sp<SkImage> image = SkImage::MakeCrossContextFromEncoded(context, encodedData, false, nullptr);
+canvas->drawImage(image, 0, 0);
 ##
 
 #SeeAlso MakeCrossContextFromPixmap
@@ -522,7 +531,14 @@ be returned. Recognized GPU formats vary by platform and GPU back-end.
 #Return created Image, or nullptr ##
 
 #Example
-// incomplete
+#Image 4
+#Height 128
+GrContext* context = canvas->getGrContext();
+SkPixmap pixmap;
+if (source.peekPixels(&pixmap)) {
+    sk_sp<SkImage> image = SkImage::MakeCrossContextFromPixmap(context, pixmap, false, nullptr);
+    canvas->drawImage(image, 0, 0);
+}
 ##
 
 #SeeAlso MakeCrossContextFromEncoded
@@ -554,10 +570,25 @@ Recognized formats vary by GPU back-end.
 #Return created Image, or nullptr ##
 
 #Example
-// incomplete
+   if (!canvas->getGrContext()) {
+       return;
+   }
+   canvas->scale(.5f, .5f);
+   canvas->clear(0x7f3f5f7f);
+   int x = 0, y = 0;
+   for (auto origin : { kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin } ) {
+       for (auto alpha : { kOpaque_SkAlphaType, kPremul_SkAlphaType, kUnpremul_SkAlphaType } ) {
+           sk_sp<SkImage> image = SkImage::MakeFromAdoptedTexture(canvas->getGrContext(),
+                                                                  backEndTexture, origin, alpha);
+           canvas->drawImage(image, x, y);
+           x += 160;
+       }
+       x -= 160 * 3;
+       y += 256;
+   }
 ##
 
-#SeeAlso incomplete
+#SeeAlso MakeFromTexture MakeFromYUVTexturesCopy
 
 #Method ##
 
@@ -569,24 +600,31 @@ Recognized formats vary by GPU back-end.
                                                   GrSurfaceOrigin surfaceOrigin,
                                                   sk_sp<SkColorSpace> colorSpace = nullptr)
 
-Create a new image by copying the pixels from the specified y, u, v textures. The data
-from the textures is immediately ingested into the image and the textures can be modified or
-deleted after the function returns. The image will have the dimensions of the y texture.
+Creates Image from copy of yuvTextureHandles, an array of textures on GPU.
+yuvTextureHandles contain pixels for Y, U, and V planes of Image.
+yuvSizes conain dimensions for each pixel plane. Dimensions must be greater than
+zero but may differ from plane to plane. Returned Image has the dimensions
+yuvSizes[0]. yuvColorSpace describes how YUV colors convert to RGB colors. 
 
-#Param context  incomplete ##
-#Param yuvColorSpace  incomplete ##
-#Param yuvTextureHandles  incomplete ##
-#Param yuvSizes  incomplete ##
-#Param surfaceOrigin  incomplete ##
-#Param colorSpace  incomplete ##
+#Param context  GPU_Context ##
+#Param yuvColorSpace  one of: kJPEG_SkYUVColorSpace, kRec601_SkYUVColorSpace,
+                              kRec709_SkYUVColorSpace
+##
+#Param yuvTextureHandles  array of Y, U, and V textures on GPU ##
+#Param yuvSizes  dimensions of Y, U, and V textures ##
+#Param surfaceOrigin  one of: kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin ##
+#Param colorSpace  range of colors ##
 
-#Return incomplete ##
+#Return created Image, or nullptr ##
 
-#Example
-// incomplete
+# seems too complicated to create an example for this
+#ToDo
+should this be moved to chrome only?
+##
+#NoExample
 ##
 
-#SeeAlso incomplete
+#SeeAlso MakeFromNV12TexturesCopy
 
 #Method ##
 
@@ -599,24 +637,32 @@ deleted after the function returns. The image will have the dimensions of the y 
                                                    GrSurfaceOrigin surfaceOrigin,
                                                    sk_sp<SkColorSpace> colorSpace = nullptr)
 
-Create a new image by copying the pixels from the specified y and UV_Mapping. The data
-from the textures is immediately ingested into the image and the textures can be modified or
-deleted after the function returns. The image will have the dimensions of the y texture.
+Creates Image from copy of nv12TextureHandles, an array of textures on GPU.
+nv12TextureHandles[0] contains pixels for Y plane.
+nv12TextureHandles[1] contains pixels for U plane followed by pixels for V plane.
+nv12Sizes conain dimensions for each pixel plane. Dimensions must be greater than
+zero but may differ from plane to plane. Returned Image has the dimensions
+nv12Sizes[0]. yuvColorSpace describes how YUV colors convert to RGB colors.
 
-#Param context  incomplete ##
-#Param yuvColorSpace  incomplete ##
-#Param nv12TextureHandles  incomplete ##
-#Param nv12Sizes  incomplete ##
-#Param surfaceOrigin  incomplete ##
-#Param colorSpace  incomplete ##
+#Param context  GPU_Context ##
+#Param yuvColorSpace  one of: kJPEG_SkYUVColorSpace, kRec601_SkYUVColorSpace,
+                              kRec709_SkYUVColorSpace
+##
+#Param nv12TextureHandles  array of Y and U/V textures on GPU ##
+#Param nv12Sizes  dimensions of Y, U/V textures ##
+#Param surfaceOrigin  one of: kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin ##
+#Param colorSpace  range of colors ##
 
-#Return incomplete ##
+#Return created Image, or nullptr ##
 
-#Example
-// incomplete
+# seems too complicated to create an example for this
+#ToDo
+should this be moved to chrome only?
+##
+#NoExample
 ##
 
-#SeeAlso incomplete
+#SeeAlso MakeFromYUVTexturesCopy
 
 #Method ##
 
@@ -659,7 +705,7 @@ On creation of the SkImage, snap the SkPicture to a particular BitDepth and SkCo
 #Param matrix  incomplete ##
 #Param paint  incomplete ##
 #Param bitDepth  incomplete ##
-#Param colorSpace  incomplete ##
+#Param colorSpace  range of colors ##
 
 #Return incomplete ##
 
@@ -707,7 +753,7 @@ The new image takes a reference on the buffer.
 
 #Param hardwareBuffer  incomplete ##
 #Param alphaType  incomplete ##
-#Param colorSpace  incomplete ##
+#Param colorSpace  range of colors ##
 
 #Return incomplete ##
 
@@ -978,7 +1024,7 @@ draws on GPU_Surface associated with context.
 Texture-backed images may become invalid if their underlying GrContext is abandoned. Some
 generator-backed images may be invalid for CPU and/or GPU.
 
-#Param context  incomplete ##
+#Param context  GPU_Context ##
 
 #Return incomplete ##
 
@@ -1258,7 +1304,7 @@ with surfaces that have the supplied destination color space. If no transformati
 required, the returned image may be the same as this image. If this image is from a
 different GrContext, this will fail.
 
-#Param context  incomplete ##
+#Param context  GPU_Context ##
 #Param dstColorSpace  incomplete ##
 
 #Return incomplete ##
@@ -1347,7 +1393,7 @@ without conversion or making a copy.
 If the SkImage is not texture backed, this function will generate a texture with the image's
 contents and return that.
 
-#Param context  incomplete ##
+#Param context  GPU_Context ##
 #Param image  incomplete ##
 #Param backendTexture  incomplete ##
 #Param backendTextureReleaseProc  incomplete ##
