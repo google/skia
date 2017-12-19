@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6764fcd3_68dc93a3",
+        "filename": "include/private/SkTemplates.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 225,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-12-19T14:43:47Z",
+      "side": 1,
+      "message": "nit rewrap",
+      "revId": "0f07a5acbb17f80b82d138c9571cbde2c34cc992",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e9960b80_2ead639a",
+        "filename": "include/private/SkTemplates.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 394,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-12-19T14:43:47Z",
+      "side": 1,
+      "message": "ditto",
+      "revId": "0f07a5acbb17f80b82d138c9571cbde2c34cc992",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "51130457_a5075762",
+        "filename": "src/core/SkAutoMalloc.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-12-19T14:43:47Z",
+      "side": 1,
+      "message": "ditto",
+      "revId": "0f07a5acbb17f80b82d138c9571cbde2c34cc992",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "83223bbe_e728265c",
+        "filename": "src/jumper/SkJumper_vectors.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 658,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-12-19T14:43:47Z",
+      "side": 1,
+      "message": "ditto",
+      "revId": "0f07a5acbb17f80b82d138c9571cbde2c34cc992",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2242acba_0d3e617c",
+        "filename": "src/jumper/SkJumper_vectors.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 678,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-12-19T14:43:47Z",
+      "side": 1,
+      "message": "ditto",
+      "revId": "0f07a5acbb17f80b82d138c9571cbde2c34cc992",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
