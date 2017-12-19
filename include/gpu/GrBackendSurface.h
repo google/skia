@@ -83,12 +83,10 @@ public:
 
 private:
     // Friending for access to the GrPixelConfig
+    friend class SkImage;
     friend class SkSurface;
-    friend class GrCaps;
     friend class GrGpu;
-    friend class GrGLCaps;
     friend class GrGLGpu;
-    friend class GrVkCaps;
     friend class GrVkGpu;
     GrPixelConfig config() const { return fConfig; }
 
@@ -112,11 +110,20 @@ public:
     // Creates an invalid backend texture.
     GrBackendRenderTarget() : fConfig(kUnknown_GrPixelConfig) {}
 
+    // GrGLTextureInfo::fFormat is ignored
+    // Deprecated: Should use version that does not take a GrPixelConfig instead
     GrBackendRenderTarget(int width,
                           int height,
                           int sampleCnt,
                           int stencilBits,
                           GrPixelConfig config,
+                          const GrGLFramebufferInfo& glInfo);
+
+    // The GrGLTextureInfo must have a valid fFormat.
+    GrBackendRenderTarget(int width,
+                          int height,
+                          int sampleCnt,
+                          int stencilBits,
                           const GrGLFramebufferInfo& glInfo);
 
 #ifdef SK_VULKAN
@@ -149,11 +156,10 @@ public:
 private:
     // Friending for access to the GrPixelConfig
     friend class SkSurface;
-    friend class GrCaps;
+    friend class SkSurface_Gpu;
+    friend class SkImage_Gpu;
     friend class GrGpu;
-    friend class GrGLCaps;
     friend class GrGLGpu;
-    friend class GrVkCaps;
     friend class GrVkGpu;
     GrPixelConfig config() const { return fConfig; }
 

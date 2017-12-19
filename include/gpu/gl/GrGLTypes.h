@@ -119,6 +119,7 @@ GR_STATIC_ASSERT(sizeof(GrBackendObject) >= sizeof(const GrGLTextureInfo*));
 
 struct GrGLFramebufferInfo {
     GrGLuint fFBOID;
+    GrGLenum fFormat = 0;
 };
 
 GR_STATIC_ASSERT(sizeof(GrBackendObject) >= sizeof(const GrGLFramebufferInfo*));

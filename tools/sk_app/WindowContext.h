@@ -61,7 +61,6 @@ protected:
     int               fWidth;
     int               fHeight;
     DisplayParams     fDisplayParams;
-    GrPixelConfig     fPixelConfig;
     SkSurfaceProps    fSurfaceProps;
 
     // parameters obtained from the native window

@@ -64,7 +64,7 @@ private:
 
     BackbufferInfo* getAvailableBackbuffer();
     bool createSwapchain(int width, int height, const DisplayParams& params);
-    void createBuffers(VkFormat format);
+    void createBuffers(VkFormat format, SkColorType colorType);
     void destroyBuffers();
 
     sk_sp<const GrVkBackendContext> fBackendContext;

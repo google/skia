@@ -218,11 +218,3 @@ void GrCaps::dumpJSON(SkJSONWriter* writer) const {
     writer->endObject();
 }
 
-bool GrCaps::validateBackendTexture(GrBackendTexture* tex, SkColorType ct) const {
-    if (!this->onValidateBackendTexture(tex, ct)) {
-        return false;
-    }
-    return this->isConfigTexturable(tex->fConfig);
-}
-
-

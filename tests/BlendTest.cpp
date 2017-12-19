@@ -84,8 +84,8 @@ DEF_TEST(Blend_byte_multiply, r) {
 #if SK_SUPPORT_GPU
 namespace {
 static sk_sp<SkSurface> create_gpu_surface_backend_texture_as_render_target(
-        GrContext* context, int sampleCnt, int width, int height, GrPixelConfig config,
-        GrSurfaceOrigin origin,
+        GrContext* context, int sampleCnt, int width, int height, SkColorType colorType,
+        GrPixelConfig config, GrSurfaceOrigin origin,
         sk_sp<GrTexture>* backingSurface) {
     GrSurfaceDesc backingDesc;
     backingDesc.fFlags = kRenderTarget_GrSurfaceFlag;
@@ -104,7 +104,7 @@ static sk_sp<SkSurface> create_gpu_surface_backend_texture_as_render_target(
 
     sk_sp<SkSurface> surface =
             SkSurface::MakeFromBackendTextureAsRenderTarget(context, backendTex, origin,
-                                                            sampleCnt, nullptr, nullptr);
+                                                            sampleCnt, colorType, nullptr, nullptr);
 
     return surface;
 }
@@ -158,7 +158,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ES2BlendWithNoTexture, reporter, ctxInfo) 
         sk_sp<GrTexture> backingSurface;
         // BGRA forces a framebuffer blit on ES2.
         sk_sp<SkSurface> surface = create_gpu_surface_backend_texture_as_render_target(
-                context, sampleCnt, kWidth, kHeight, kConfig, origin, &backingSurface);
+                context, sampleCnt, kWidth, kHeight, kColorType, kConfig, origin, &backingSurface);
 
         if (!surface && sampleCnt > 0) {
             // Some platforms don't support MSAA.

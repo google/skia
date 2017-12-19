@@ -2361,62 +2361,82 @@ int GrGLCaps::getSampleCount(int requestedCount, GrPixelConfig config) const {
     return fConfigTable[config].fColorSampleCounts[count-1];
 }
 
-bool GrGLCaps::onValidateBackendTexture(GrBackendTexture* tex, SkColorType ct) const {
-    const GrGLTextureInfo* texInfo = tex->getGLTextureInfo();
-    if (!texInfo) {
-        return false;
-    }
-    GrGLenum format = texInfo->fFormat;
-    tex->fConfig = kUnknown_GrPixelConfig;
+bool validate_sized_format(GrGLenum format, SkColorType ct, GrPixelConfig* config,
+                           GrGLStandard standard) {
+    *config = kUnknown_GrPixelConfig;
 
     switch (ct) {
         case kUnknown_SkColorType:
             return false;
         case kAlpha_8_SkColorType:
             if (GR_GL_ALPHA8 == format) {
-                tex->fConfig = kAlpha_8_as_Alpha_GrPixelConfig;
+                *config = kAlpha_8_as_Alpha_GrPixelConfig;
             } else if (GR_GL_R8 == format) {
-                tex->fConfig = kAlpha_8_as_Red_GrPixelConfig;
+                *config = kAlpha_8_as_Red_GrPixelConfig;
             }
             break;
         case kRGB_565_SkColorType:
             if (GR_GL_RGB565 == format) {
-                tex->fConfig = kRGB_565_GrPixelConfig;
+                *config = kRGB_565_GrPixelConfig;
             }
             break;
         case kARGB_4444_SkColorType:
             if (GR_GL_RGBA4 == format) {
-                tex->fConfig = kRGBA_4444_GrPixelConfig;
+                *config = kRGBA_4444_GrPixelConfig;
             }
             break;
         case kRGBA_8888_SkColorType:
             if (GR_GL_RGBA8 == format) {
-                tex->fConfig = kRGBA_8888_GrPixelConfig;
+                *config = kRGBA_8888_GrPixelConfig;
             } else if (GR_GL_SRGB8_ALPHA8 == format) {
-                tex->fConfig = kSRGBA_8888_GrPixelConfig;
+                *config = kSRGBA_8888_GrPixelConfig;
             }
             break;
         case kBGRA_8888_SkColorType:
-            if (GR_GL_BGRA8 == format) {
-                tex->fConfig = kBGRA_8888_GrPixelConfig;
+            if (GR_GL_RGBA8 == format) {
+                if (kGL_GrGLStandard == standard) {
+                    *config = kBGRA_8888_GrPixelConfig;
+                }
+            } else if (GR_GL_BGRA8 == format) {
+                if (kGLES_GrGLStandard == standard) {
+                    *config = kBGRA_8888_GrPixelConfig;
+                }
             } else if (GR_GL_SRGB8_ALPHA8 == format) {
-                tex->fConfig = kSBGRA_8888_GrPixelConfig;
+                *config = kSBGRA_8888_GrPixelConfig;
             }
             break;
         case kGray_8_SkColorType:
             if (GR_GL_LUMINANCE8 == format) {
-                tex->fConfig = kGray_8_as_Lum_GrPixelConfig;
+                *config = kGray_8_as_Lum_GrPixelConfig;
             } else if (GR_GL_R8 == format) {
-                tex->fConfig = kGray_8_as_Red_GrPixelConfig;
+                *config = kGray_8_as_Red_GrPixelConfig;
             }
             break;
         case kRGBA_F16_SkColorType:
             if (GR_GL_RGBA16F == format) {
-                tex->fConfig = kRGBA_half_GrPixelConfig;
+                *config = kRGBA_half_GrPixelConfig;
             }
             break;
     }
 
-    return kUnknown_GrPixelConfig != tex->fConfig;
+    return kUnknown_GrPixelConfig != *config;
+}
+
+bool GrGLCaps::validateBackendTexture(const GrBackendTexture& tex, SkColorType ct,
+                                      GrPixelConfig* config) const {
+    const GrGLTextureInfo* texInfo = tex.getGLTextureInfo();
+    if (!texInfo) {
+        return false;
+    }
+    return validate_sized_format(texInfo->fFormat, ct, config, fStandard);
+}
+
+bool GrGLCaps::validateBackendRenderTarget(const GrBackendRenderTarget& rt, SkColorType ct,
+                                           GrPixelConfig* config) const {
+    const GrGLFramebufferInfo* fbInfo = rt.getGLFramebufferInfo();
+    if (!fbInfo) {
+        return false;
+    }
+    return validate_sized_format(fbInfo->fFormat, ct, config, fStandard);
 }
 
