@@ -71,18 +71,16 @@ sk_sp<GrTextureProxy> GrUploadBitmapToTextureProxy(GrResourceProvider* resourceP
     if (!bitmap.readyToDraw()) {
         return nullptr;
     }
-    SkPixmap pixmap;
-    if (!bitmap.peekPixels(&pixmap)) {
+    const SkPixmap& pixmap = bitmap.pixmap();
+    if (!pixmap.addr()) {
         return nullptr;
     }
     return GrUploadPixmapToTextureProxy(resourceProvider, pixmap, SkBudgeted::kYes, dstColorSpace);
 }
 
 static const SkPixmap* compute_desc(const GrCaps& caps, const SkPixmap& pixmap,
-                                    GrSurfaceDesc* desc,
-                                    SkBitmap* tmpBitmap, SkPixmap* tmpPixmap) {
-    const SkPixmap* pmap = &pixmap;
-
+                                    GrSurfaceDesc* desc, SkBitmap* tmpBitmap) {
+    SkASSERT(tmpBitmap);
     *desc = GrImageInfoToSurfaceDesc(pixmap.info(), caps);
 
     // TODO: We're checking for srgbSupport, but we can then end up picking sBGRA as our pixel
@@ -109,15 +107,15 @@ static const SkPixmap* compute_desc(const GrCaps& caps, const SkPixmap& pixmap,
         if (!linSrcPixmap.readPixels(linDstInfo, tmpBitmap->getPixels(), tmpBitmap->rowBytes())) {
             return nullptr;
         }
-        if (!tmpBitmap->peekPixels(tmpPixmap)) {
+        if (!tmpBitmap->getPixels()) {
             return nullptr;
         }
-        pmap = tmpPixmap;
         // must rebuild desc, since we've forced the info to be N32
-        *desc = GrImageInfoToSurfaceDesc(pmap->info(), caps);
+        *desc = GrImageInfoToSurfaceDesc(tmpBitmap->info(), caps);
+        return &tmpBitmap->pixmap();
+    } else {
+        return &pixmap;
     }
-
-    return pmap;
 }
 
 sk_sp<GrTextureProxy> GrUploadPixmapToTextureProxy(GrResourceProvider* resourceProvider,
@@ -133,12 +131,11 @@ sk_sp<GrTextureProxy> GrUploadPixmapToTextureProxy(GrResourceProvider* resourceP
     }
 
     SkBitmap tmpBitmap;
-    SkPixmap tmpPixmap;
     GrSurfaceDesc desc;
 
     ATRACE_ANDROID_FRAMEWORK("Upload Texture [%ux%u]", pixmap.width(), pixmap.height());
     if (const SkPixmap* pmap = compute_desc(*resourceProvider->caps(), pixmap, &desc,
-                                            &tmpBitmap, &tmpPixmap)) {
+                                            &tmpBitmap)) {
         return GrSurfaceProxy::MakeDeferred(resourceProvider, desc,
                                             budgeted, pmap->addr(), pmap->rowBytes());
     }
@@ -172,16 +169,14 @@ sk_sp<GrTextureProxy> GrGenerateMipMapsAndUploadToTextureProxy(GrContext* ctx,
         return nullptr;
     }
 
-    SkPixmap pixmap;
-    if (!bitmap.peekPixels(&pixmap)) {
+    if (!bitmap.getPixels()) {
         return nullptr;
     }
 
     SkBitmap tmpBitmap;
-    SkPixmap tmpPixmap;
     GrSurfaceDesc desc;
-    const SkPixmap* pmap = compute_desc(*ctx->resourceProvider()->caps(), pixmap, &desc,
-                                        &tmpBitmap, &tmpPixmap);
+    const SkPixmap* pmap = compute_desc(*ctx->resourceProvider()->caps(), bitmap.pixmap(), &desc,
+                                        &tmpBitmap);
     if (!pmap) {
         return nullptr;
     }

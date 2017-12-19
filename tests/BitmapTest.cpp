@@ -14,25 +14,24 @@
 static void test_peekpixels(skiatest::Reporter* reporter) {
     const SkImageInfo info = SkImageInfo::MakeN32Premul(10, 10);
 
-    SkPixmap pmap;
     SkBitmap bm;
 
     // empty should return false
-    REPORTER_ASSERT(reporter, !bm.peekPixels(nullptr));
-    REPORTER_ASSERT(reporter, !bm.peekPixels(&pmap));
+    REPORTER_ASSERT(reporter, !bm.getPixels());
+    REPORTER_ASSERT(reporter, bm.pixmap().addr() == nullptr);
 
     // no pixels should return false
     bm.setInfo(SkImageInfo::MakeN32Premul(10, 10));
-    REPORTER_ASSERT(reporter, !bm.peekPixels(nullptr));
-    REPORTER_ASSERT(reporter, !bm.peekPixels(&pmap));
+    REPORTER_ASSERT(reporter, !bm.getPixels());
+    REPORTER_ASSERT(reporter, bm.pixmap().addr() == nullptr);
 
     // real pixels should return true
     bm.allocPixels(info);
-    REPORTER_ASSERT(reporter, bm.peekPixels(nullptr));
-    REPORTER_ASSERT(reporter, bm.peekPixels(&pmap));
-    REPORTER_ASSERT(reporter, pmap.info() == bm.info());
-    REPORTER_ASSERT(reporter, pmap.addr() == bm.getPixels());
-    REPORTER_ASSERT(reporter, pmap.rowBytes() == bm.rowBytes());
+    REPORTER_ASSERT(reporter, bm.getPixels());
+    REPORTER_ASSERT(reporter, bm.pixmap().addr() != nullptr);
+    REPORTER_ASSERT(reporter, bm.pixmap().info() == bm.info());
+    REPORTER_ASSERT(reporter, bm.pixmap().addr() == bm.getPixels());
+    REPORTER_ASSERT(reporter, bm.pixmap().rowBytes() == bm.rowBytes());
 }
 
 // https://code.google.com/p/chromium/issues/detail?id=446164
@@ -198,10 +197,10 @@ DEF_TEST(Bitmap_compute_is_opaque, r) {
 // Test that erase+getColor round trips with RGBA_F16 pixels.
 DEF_TEST(Bitmap_erase_f16_erase_getColor, r) {
     SkRandom random;
-    SkPixmap pm;
     SkBitmap bm;
     bm.allocPixels(SkImageInfo::Make(1, 1, kRGBA_F16_SkColorType, kPremul_SkAlphaType));
-    REPORTER_ASSERT(r, bm.peekPixels(&pm));
+    const SkPixmap& pm = bm.pixmap();
+    REPORTER_ASSERT(r, pm.addr());
     for (unsigned i = 0; i < 0x100; ++i) {
         // Test all possible values of blue component.
         SkColor color1 = (SkColor)((random.nextU() & 0xFFFFFF00) | i);

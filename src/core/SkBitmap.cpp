@@ -417,12 +417,11 @@ void SkBitmap::erase(SkColor c, const SkIRect& area) const {
             break;
     }
 
-    SkPixmap result;
-    if (!this->peekPixels(&result)) {
+    if (!this->getPixels()) {
         return;
     }
 
-    if (result.erase(c, area)) {
+    if (this->pixmap().erase(c, area)) {
         this->notifyPixelsChanged();
     }
 }
@@ -474,11 +473,10 @@ bool SkBitmap::extractSubset(SkBitmap* result, const SkIRect& subset) const {
 
 bool SkBitmap::readPixels(const SkImageInfo& requestedDstInfo, void* dstPixels, size_t dstRB,
                           int x, int y, SkTransferFunctionBehavior behavior) const {
-    SkPixmap src;
-    if (!this->peekPixels(&src)) {
+    if (!this->getPixels()) {
         return false;
     }
-    return src.readPixels(requestedDstInfo, dstPixels, dstRB, x, y, behavior);
+    return this->pixmap().readPixels(requestedDstInfo, dstPixels, dstRB, x, y, behavior);
 }
 
 bool SkBitmap::readPixels(const SkPixmap& dst, int srcX, int srcY) const {
@@ -509,16 +507,15 @@ static bool GetBitmapAlpha(const SkBitmap& src, uint8_t* SK_RESTRICT alpha, int 
     SkASSERT(alpha != nullptr);
     SkASSERT(alphaRowBytes >= src.width());
 
-    SkPixmap pmap;
-    if (!src.peekPixels(&pmap)) {
+    if (!src.getPixels()) {
         for (int y = 0; y < src.height(); ++y) {
             memset(alpha, 0, src.width());
             alpha += alphaRowBytes;
         }
         return false;
     }
-    SkConvertPixels(SkImageInfo::MakeA8(pmap.width(), pmap.height()), alpha, alphaRowBytes,
-                    pmap.info(), pmap.addr(), pmap.rowBytes(), nullptr,
+    SkConvertPixels(SkImageInfo::MakeA8(src.width(), src.height()), alpha, alphaRowBytes,
+                    src.info(), src.getPixels(), src.rowBytes(), nullptr,
                     SkTransferFunctionBehavior::kRespect);
     return true;
 }
@@ -663,7 +660,7 @@ void SkBitmap::toString(SkString* str) const {
 bool SkBitmap::peekPixels(SkPixmap* pmap) const {
     if (this->getPixels()) {
         if (pmap) {
-            *pmap = fPixmap;
+            *pmap = this->pixmap();
         }
         return true;
     }
