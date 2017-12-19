@@ -1074,8 +1074,8 @@ string TextParser::typedefName() {
     if (!end) {
         return this->reportError<string>("missing typedef std::function end bracket >");
     }
-
-    if (this->startsWith("std::function")) {
+    bool stdFunction = this->startsWith("std::function");
+    if (stdFunction) {
         if (!this->skipToEndBracket('>')) {
             return this->reportError<string>("missing typedef std::function end bracket >");
         }
