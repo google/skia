@@ -19,6 +19,5 @@ SkFlattenable* SkValidatingDeserializeFlattenable(const void* data, size_t size,
 }
 
 sk_sp<SkImageFilter> SkValidatingDeserializeImageFilter(const void* data, size_t size) {
-    auto flat = SkFlattenable::Deserialize(SkFlattenable::kSkImageFilter_Type, data, size);
-    return sk_sp<SkImageFilter>(static_cast<SkImageFilter*>(flat.release()));
+    return SkImageFilter::Deserialize(data, size);
 }
