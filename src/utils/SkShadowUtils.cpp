@@ -466,7 +466,7 @@ static SkColor compute_render_color(SkColor color, float alpha, bool useTonalCol
         SkShadowUtils::ComputeTonalColorParams(color4f.fR,
                                                color4f.fG,
                                                color4f.fB,
-                                               alpha,
+                                               color4f.fA*alpha,
                                                &colorScale, &tonalAlpha);
         // After pre-multiplying, we want the alpha to be scaled by tonalAlpha, and
         // the color scaled by colorScale. This scale factor gives that.
