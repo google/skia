@@ -71,8 +71,8 @@ sk_sp<GrTextureProxy> GrUploadBitmapToTextureProxy(GrResourceProvider* resourceP
     if (!bitmap.readyToDraw()) {
         return nullptr;
     }
-    SkPixmap pixmap;
-    if (!bitmap.peekPixels(&pixmap)) {
+    const SkPixmap& pixmap = bitmap.pixmap();
+    if (!pixmap.addr()) {
         return nullptr;
     }
     return GrUploadPixmapToTextureProxy(resourceProvider, pixmap, SkBudgeted::kYes, dstColorSpace);
@@ -109,9 +109,10 @@ static const SkPixmap* compute_desc(const GrCaps& caps, const SkPixmap& pixmap,
         if (!linSrcPixmap.readPixels(linDstInfo, tmpBitmap->getPixels(), tmpBitmap->rowBytes())) {
             return nullptr;
         }
-        if (!tmpBitmap->peekPixels(tmpPixmap)) {
+        if (!tmpBitmap->getPixels()) {
             return nullptr;
         }
+        *tmpPixmap = tmpBitmap->pixmap();
         pmap = tmpPixmap;
         // must rebuild desc, since we've forced the info to be N32
         *desc = GrImageInfoToSurfaceDesc(pmap->info(), caps);
@@ -172,8 +173,8 @@ sk_sp<GrTextureProxy> GrGenerateMipMapsAndUploadToTextureProxy(GrContext* ctx,
         return nullptr;
     }
 
-    SkPixmap pixmap;
-    if (!bitmap.peekPixels(&pixmap)) {
+    SkPixmap pixmap = bitmap.pixmap();
+    if (!pixmap.addr()) {
         return nullptr;
     }
 

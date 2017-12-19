@@ -1426,9 +1426,9 @@ Error NullSink::draw(const Src& src, SkBitmap*, SkWStream*, SkString*) const {
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 static bool encode_png_base64(const SkBitmap& bitmap, SkString* dst) {
-    SkPixmap pm;
-    if (!bitmap.peekPixels(&pm)) {
-        dst->set("peekPixels failed");
+    const SkPixmap& pm = bitmap.pixmap();
+    if (!pm.addr()) {
+        dst->set("bitmap missing pixel address");
         return false;
     }
 

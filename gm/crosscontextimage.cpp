@@ -29,9 +29,9 @@ DEF_SIMPLE_GM(cross_context_image, canvas, 512 * 3 + 60, 512 + 128 + 30) {
     canvas->drawImage(crossContextImage, 512 + 30, 10);
 
     SkBitmap bmp;
-    SkPixmap pixmap;
+    const SkPixmap& pixmap = bmp.pixmap();
     SkAssertResult(encodedImage->asLegacyBitmap(&bmp, SkImage::kRO_LegacyBitmapMode) &&
-                   bmp.peekPixels(&pixmap));
+                   pixmap.addr());
 
     sk_sp<SkImage> crossContextRaster = SkImage::MakeCrossContextFromPixmap(
             context, pixmap, false, canvas->imageInfo().colorSpace());

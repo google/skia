@@ -180,8 +180,7 @@ bool SkSurface::readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t d
 }
 
 bool SkSurface::readPixels(const SkBitmap& bitmap, int srcX, int srcY) {
-    SkPixmap pm;
-    return bitmap.peekPixels(&pm) && this->readPixels(pm, srcX, srcY);
+    return bitmap.getPixels() && this->readPixels(bitmap.pixmap(), srcX, srcY);
 }
 
 GrBackendObject SkSurface::getTextureHandle(BackendHandleAccess access) {

@@ -60,8 +60,8 @@ static SkEncodedImageFormat kTypes[] {
 #endif
 
 static sk_sp<SkData> encode_data(SkEncodedImageFormat type, const SkBitmap& bitmap) {
-    SkPixmap src;
-    if (!bitmap.peekPixels(&src)) {
+    const SkPixmap& src = bitmap.pixmap();
+    if (!src.addr()) {
         return nullptr;
     }
     SkDynamicMemoryWStream buf;
