@@ -42,7 +42,7 @@ struct SkAntiRect {
 class SkCoverageDeltaList {
 public:
     // We can store INIT_ROW_SIZE deltas per row (i.e., per y-scanline) initially.
-#ifdef GOOGLE3
+#ifdef SK_BUILD_FOR_GOOGLE3
     static constexpr int INIT_ROW_SIZE = 8; // google3 has 16k stack limit; so we make it small
 #else
     static constexpr int INIT_ROW_SIZE = 32;
@@ -112,7 +112,7 @@ public:
 
     static constexpr int SIMD_WIDTH     = 8;
     static constexpr int SUITABLE_WIDTH = 32;
-#ifdef GOOGLE3
+#ifdef SK_BUILD_FOR_GOOGLE3
     static constexpr int MAX_MASK_SIZE  = 1024; // G3 has 16k stack limit based on -fstack-usage
 #else
     static constexpr int MAX_MASK_SIZE  = 2048;

@@ -10,7 +10,7 @@
 #ifndef SkJSONCPP_DEFINED
 #define SkJSONCPP_DEFINED
 
-#ifdef GOOGLE3
+#ifdef SK_BUILD_FOR_GOOGLE3
     #include "third_party/jsoncpp/reader.h"
     #include "third_party/jsoncpp/value.h"
     #include "third_party/jsoncpp/writer.h"

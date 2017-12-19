@@ -129,7 +129,7 @@
 #
 #endif
 
-#if defined(GOOGLE3)
+#if defined(SK_BUILD_FOR_GOOGLE3)
     void SkDebugfForDumpStackTrace(const char* data, void* unused);
     void DumpStackTrace(int skip_count, void w(const char*, void*), void* arg);
 #  define SK_DUMP_GOOGLE3_STACK() DumpStackTrace(0, SkDebugfForDumpStackTrace, nullptr)
