@@ -39,8 +39,7 @@ SK_API bool SkEncodeImage(SkWStream* dst, const SkPixmap& src,
  * The following helper function wraps SkEncodeImage().
  */
 inline bool SkEncodeImage(SkWStream* dst, const SkBitmap& src, SkEncodedImageFormat f, int q) {
-    SkPixmap pixmap;
-    return src.peekPixels(&pixmap) && SkEncodeImage(dst, pixmap, f, q);
+    return SkEncodeImage(dst, src.pixmap(), f, q);
 }
 
 /**

@@ -162,8 +162,8 @@ struct Png : Dst {
             bm = dst;
         }
 
-        SkPixmap pm;
-        if (!bm.peekPixels(&pm)) {
+        const SkPixmap& pm = bm.pixmap();
+        if (!pm.addr()) {
             return Status::Failed;
         }
 

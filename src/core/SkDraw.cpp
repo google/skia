@@ -1137,8 +1137,8 @@ void SkDraw::drawBitmapAsMask(const SkBitmap& bitmap, const SkPaint& paint) cons
         int ix = SkScalarRoundToInt(fMatrix->getTranslateX());
         int iy = SkScalarRoundToInt(fMatrix->getTranslateY());
 
-        SkPixmap pmap;
-        if (!bitmap.peekPixels(&pmap)) {
+        const SkPixmap& pmap = bitmap.pixmap();
+        if (!pmap.addr()) {
             return;
         }
         SkMask  mask;
@@ -1256,8 +1256,8 @@ void SkDraw::drawBitmap(const SkBitmap& bitmap, const SkMatrix& prematrix,
         // It is safe to call lock pixels now, since we know the matrix is
         // (more or less) identity.
         //
-        SkPixmap pmap;
-        if (!bitmap.peekPixels(&pmap)) {
+        const SkPixmap& pmap = bitmap.pixmap();
+        if (!pmap.addr()) {
             return;
         }
         int ix = SkScalarRoundToInt(matrix.getTranslateX());
@@ -1312,8 +1312,8 @@ void SkDraw::drawSprite(const SkBitmap& bitmap, int x, int y, const SkPaint& ori
     SkPaint paint(origPaint);
     paint.setStyle(SkPaint::kFill_Style);
 
-    SkPixmap pmap;
-    if (!bitmap.peekPixels(&pmap)) {
+    const SkPixmap& pmap = bitmap.pixmap();
+    if (!pmap.addr()) {
         return;
     }
 

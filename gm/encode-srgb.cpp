@@ -65,8 +65,8 @@ static void make(SkBitmap* bitmap, SkColorType colorType, SkAlphaType alphaType,
 }
 
 static sk_sp<SkData> encode_data(const SkBitmap& bitmap, SkEncodedImageFormat format) {
-    SkPixmap src;
-    if (!bitmap.peekPixels(&src)) {
+    const SkPixmap& src = bitmap.pixmap();
+    if (!src.addr()) {
         return nullptr;
     }
     SkDynamicMemoryWStream buf;

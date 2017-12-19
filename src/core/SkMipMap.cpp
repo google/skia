@@ -779,11 +779,7 @@ bool SkMipMap::extractLevel(const SkSize& scaleSize, Level* levelPtr) const {
 //
 SkMipMap* SkMipMap::Build(const SkBitmap& src, SkDestinationSurfaceColorMode colorMode,
                           SkDiscardableFactoryProc fact) {
-    SkPixmap srcPixmap;
-    if (!src.peekPixels(&srcPixmap)) {
-        return nullptr;
-    }
-    return Build(srcPixmap, colorMode, fact);
+    return src.getPixels() ? Build(src.pixmap(), colorMode, fact) : nullptr;
 }
 
 int SkMipMap::countLevels() const {
