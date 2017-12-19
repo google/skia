@@ -113,7 +113,13 @@ class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
     for i in self.disable_for_nanobench.get(device, []):
       self._set_cpu_online(i, 1) # enable
 
-    for i in self.cpus_to_scale.get(device, [0]):
+    scale_up = self.cpus_to_scale.get(device, [0])
+    # For big.LITTLE devices, make sure we scale the LITTLE cores up;
+    # there is a chance they are still in powersave mode from when
+    # swarming slows things down for cooling down and charging.
+    if 0 not in scale_up:
+      scale_up.append(0)
+    for i in scale_up:
       # AndroidOne doesn't support ondemand governor. hotplug is similar.
       if device == 'AndroidOne':
         self._set_governor(i, 'hotplug')
