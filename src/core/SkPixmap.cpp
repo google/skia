@@ -251,10 +251,6 @@ bool SkPixmap::scalePixels(const SkPixmap& dst, SkFilterQuality quality) const {
     // Trick: if src and dst are both unpremul, we can give the correct result if we change both
     //        to premul (or opaque), since the draw will not try to blend or otherwise interpret
     //        the pixels' alpha.
-    //
-    // Today this works except in kHigh_SkFilterQuality, where we incorrectly clamp assuming the
-    // colors are premul. TODO: fix the HQ mode.
-    //
     if (srcPtr->alphaType() == kUnpremul_SkAlphaType &&
         dstPtr->alphaType() == kUnpremul_SkAlphaType)
     {
