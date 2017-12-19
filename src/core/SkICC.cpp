@@ -286,11 +286,7 @@ static constexpr uint32_t kICCTagTable[3 * kICCNumEntries] {
 // The use of double is necessary to accomodate the full potential 32-bit mantissa of the 16.16
 // SkFixed value, and so avoiding rounding problems with float. Also, see the comment in SkFixed.h.
 static SkFixed float_round_to_fixed(float x) {
-#if defined(SK_SUPPORT_LEGACY_ICC_PRECISON)
-    return SkFloatToFixed(x);
-#else
     return sk_float_saturate2int((float)floor((double)x * SK_Fixed1 + 0.5));
-#endif
 }
 
 static void write_xyz_tag(uint32_t* ptr, const SkMatrix44& toXYZ, int col) {
