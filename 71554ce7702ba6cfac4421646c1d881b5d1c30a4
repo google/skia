@@ -2,6 +2,98 @@
   "comments": [
     {
       "key": {
+        "uuid": "f3fd4be7_57ed2db0",
+        "filename": "bench/EncoderBench.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2017-12-19T21:10:59Z",
+      "side": 1,
+      "message": "does not assert if pixmap().addr() is nullptr",
+      "range": {
+        "startLine": 35,
+        "startChar": 42,
+        "endLine": 35,
+        "endChar": 49
+      },
+      "revId": "71554ce7702ba6cfac4421646c1d881b5d1c30a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d990859b_41eb791a",
+        "filename": "bench/ReadPixBench.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2017-12-19T21:10:59Z",
+      "side": 1,
+      "message": ";; ?",
+      "range": {
+        "startLine": 95,
+        "startChar": 35,
+        "endLine": 95,
+        "endChar": 41
+      },
+      "revId": "71554ce7702ba6cfac4421646c1d881b5d1c30a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e0e123bb_499128cc",
+        "filename": "gm/crosscontextimage.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2017-12-19T21:10:59Z",
+      "side": 1,
+      "message": "bmp isn\u0027t set up here -- so while I understand why this works, it looks odd. This depends on the implementation being exactly the way it is, which seems fragile.",
+      "range": {
+        "startLine": 32,
+        "startChar": 33,
+        "endLine": 32,
+        "endChar": 39
+      },
+      "revId": "71554ce7702ba6cfac4421646c1d881b5d1c30a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b50641bb_9564a9aa",
+        "filename": "gm/encode-platform.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2017-12-19T21:10:59Z",
+      "side": 1,
+      "message": "Do you think this is more clear?\n\nif (!bitmap.getPixels()) {\n    return nullptr;\n}\nSkPixmap src \u003d bitmap.pixmap();",
+      "range": {
+        "startLine": 64,
+        "startChar": 9,
+        "endLine": 64,
+        "endChar": 12
+      },
+      "revId": "71554ce7702ba6cfac4421646c1d881b5d1c30a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9aa043bc_fda8fa05",
         "filename": "include/core/SkImageEncoder.h",
         "patchSetId": 1
@@ -13,6 +105,172 @@
       "writtenOn": "2017-12-19T20:30:05Z",
       "side": 1,
       "message": "Is EncodeImage document to check for null pixmap pixels?",
+      "revId": "71554ce7702ba6cfac4421646c1d881b5d1c30a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dcb0a361_11bd62fc",
+        "filename": "src/core/SkBitmap.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 664,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2017-12-19T21:10:59Z",
+      "side": 1,
+      "message": ";;",
+      "range": {
+        "startLine": 664,
+        "startChar": 26,
+        "endLine": 664,
+        "endChar": 32
+      },
+      "revId": "71554ce7702ba6cfac4421646c1d881b5d1c30a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "aa07bfc7_7d43584a",
+        "filename": "src/gpu/SkGr.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2017-12-19T21:10:59Z",
+      "side": 1,
+      "message": "Maybe this is all correct, but it looks like it could be simpler if the caller knew that tmpBitmap contained a pixmap",
+      "range": {
+        "startLine": 115,
+        "startChar": 20,
+        "endLine": 115,
+        "endChar": 21
+      },
+      "revId": "71554ce7702ba6cfac4421646c1d881b5d1c30a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8a9e0557_a50310c9",
+        "filename": "src/gpu/SkGr.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2017-12-19T21:10:59Z",
+      "side": 1,
+      "message": "const SkPixmap\u0026 pixmap ...",
+      "revId": "71554ce7702ba6cfac4421646c1d881b5d1c30a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2b32c37c_5cf60deb",
+        "filename": "src/gpu/SkGr.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 177,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2017-12-19T21:10:59Z",
+      "side": 1,
+      "message": "... but \n\nif (!bitmap.getPixels()) {\n\nwould be more clear to me (with pixmap setup moved to below test)",
+      "revId": "71554ce7702ba6cfac4421646c1d881b5d1c30a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "302903b8_3c76e653",
+        "filename": "src/image/SkImage.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2017-12-19T21:10:59Z",
+      "side": 1,
+      "message": "OK to remove nullptr addr() test here?",
+      "range": {
+        "startLine": 110,
+        "startChar": 38,
+        "endLine": 110,
+        "endChar": 54
+      },
+      "revId": "71554ce7702ba6cfac4421646c1d881b5d1c30a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c85506bb_d6d60dfe",
+        "filename": "src/image/SkImage_Lazy.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 471,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2017-12-19T21:10:59Z",
+      "side": 1,
+      "message": "why the change in behavior here?",
+      "range": {
+        "startLine": 471,
+        "startChar": 22,
+        "endLine": 471,
+        "endChar": 31
+      },
+      "revId": "71554ce7702ba6cfac4421646c1d881b5d1c30a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d2126ca7_9e15ca81",
+        "filename": "src/image/SkImage_Lazy.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 512,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2017-12-19T21:10:59Z",
+      "side": 1,
+      "message": "why the change in behavior here?",
+      "revId": "71554ce7702ba6cfac4421646c1d881b5d1c30a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c58fd482_f4afa6ec",
+        "filename": "src/image/SkImage_Raster.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 314,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2017-12-19T21:10:59Z",
+      "side": 1,
+      "message": "Old code returned default SkImage. New code returns nullptr",
+      "range": {
+        "startLine": 314,
+        "startChar": 37,
+        "endLine": 314,
+        "endChar": 43
+      },
       "revId": "71554ce7702ba6cfac4421646c1d881b5d1c30a4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
