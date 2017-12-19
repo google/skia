@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9aa043bc_fda8fa05",
+        "filename": "include/core/SkImageEncoder.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-12-19T20:30:05Z",
+      "side": 1,
+      "message": "Is EncodeImage document to check for null pixmap pixels?",
+      "revId": "71554ce7702ba6cfac4421646c1d881b5d1c30a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b4cceec6_aa3202a8",
+        "filename": "tools/ok_vias.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-12-19T20:30:05Z",
+      "side": 1,
+      "message": "would be nice if we had a single way/pattern to do this check. Some places in this CL you check the bitmap, and here you check the pixmap. Don\u0027t have a concrete suggestion yet, but I wanted to note difference from the older api.",
+      "range": {
+        "startLine": 166,
+        "startChar": 16,
+        "endLine": 166,
+        "endChar": 20
+      },
+      "revId": "71554ce7702ba6cfac4421646c1d881b5d1c30a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
