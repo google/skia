@@ -1,0 +1,165 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "030bfad7_b41a4829",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-12-19T16:17:26Z",
+      "side": 1,
+      "message": "Don\u0027t mushy on this requirement. It *must* be valid!",
+      "range": {
+        "startLine": 134,
+        "startChar": 29,
+        "endLine": 134,
+        "endChar": 33
+      },
+      "revId": "79917e2b061c4d579812a1a6b8a5ec23ad119e76",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "38e4ba5b_3007e13c",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-12-19T16:17:26Z",
+      "side": 1,
+      "message": "must",
+      "range": {
+        "startLine": 155,
+        "startChar": 29,
+        "endLine": 155,
+        "endChar": 33
+      },
+      "revId": "79917e2b061c4d579812a1a6b8a5ec23ad119e76",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e8c99373_a0c5c0be",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 221,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-12-19T16:17:26Z",
+      "side": 1,
+      "message": "must",
+      "range": {
+        "startLine": 221,
+        "startChar": 29,
+        "endLine": 221,
+        "endChar": 33
+      },
+      "revId": "79917e2b061c4d579812a1a6b8a5ec23ad119e76",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "95d18a35_3941b962",
+        "filename": "include/core/SkSurface.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-12-19T16:17:26Z",
+      "side": 1,
+      "message": "must",
+      "range": {
+        "startLine": 108,
+        "startChar": 29,
+        "endLine": 108,
+        "endChar": 33
+      },
+      "revId": "79917e2b061c4d579812a1a6b8a5ec23ad119e76",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2b7d1374_788e1027",
+        "filename": "include/core/SkSurface.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-12-19T16:17:26Z",
+      "side": 1,
+      "message": "must",
+      "range": {
+        "startLine": 128,
+        "startChar": 34,
+        "endLine": 128,
+        "endChar": 38
+      },
+      "revId": "79917e2b061c4d579812a1a6b8a5ec23ad119e76",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fabeaaae_f5056445",
+        "filename": "include/core/SkSurface.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 162,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-12-19T16:17:26Z",
+      "side": 1,
+      "message": "must",
+      "range": {
+        "startLine": 162,
+        "startChar": 29,
+        "endLine": 162,
+        "endChar": 33
+      },
+      "revId": "79917e2b061c4d579812a1a6b8a5ec23ad119e76",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5a24388d_e707cebf",
+        "filename": "include/gpu/GrCaps.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 178,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-12-19T16:17:26Z",
+      "side": 1,
+      "message": "in?",
+      "range": {
+        "startLine": 178,
+        "startChar": 30,
+        "endLine": 178,
+        "endChar": 33
+      },
+      "revId": "79917e2b061c4d579812a1a6b8a5ec23ad119e76",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
