@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4320c0cb_dfcdd0dd",
+        "filename": "infra/bots/recipe_modules/flavor/gn_android_flavor.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2017-12-19T15:26:31Z",
+      "side": 1,
+      "message": "Is CPU 0 always LITTLE for all devices?",
+      "range": {
+        "startLine": 120,
+        "startChar": 7,
+        "endLine": 120,
+        "endChar": 8
+      },
+      "revId": "a8ef52f99bfc4018cea54f835e4946a77c4ce9e6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
