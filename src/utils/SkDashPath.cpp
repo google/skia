@@ -83,6 +83,16 @@ static void outset_for_stroke(SkRect* rect, const SkStrokeRec& rec) {
     rect->outset(radius, radius);
 }
 
+// If line is zero-length, bump out the end by a tiny amount
+// to draw endcaps. The bump factor is sized so that
+// SkPoint::Distance() computes a non-zero length.
+// Offsets SK_ScalarNearlyZero or smaller create empty paths when Iter measures length.
+// Large values are scaled by SK_ScalarNearlyZero so significant bits change.
+static void adjust_zero_length_line(SkPoint pts[2]) {
+    SkASSERT(pts[0] == pts[1]);
+    pts[1].fX += SkTMax(1.001f, pts[1].fX) * SK_ScalarNearlyZero;
+}
+
 static bool clip_line(SkPoint pts[2], const SkRect& bounds, SkScalar intervalLength,
                       SkScalar priorPhase) {
     SkVector dxy = pts[1] - pts[0];
@@ -131,13 +141,8 @@ static bool clip_line(SkPoint pts[2], const SkRect& bounds, SkScalar intervalLen
     (&pts[0].fX)[xyOffset] = minXY;
     (&pts[1].fX)[xyOffset] = maxXY;
 
-    // If line is zero-length, bump out the end by a tiny amount
-    // to draw endcaps. The bump factor is sized so that
-    // SkPoint::Distance() computes a non-zero length.
-    // Offsets SK_ScalarNearlyZero or smaller create empty paths when Iter measures length.
-    // Large values are scaled by SK_ScalarNearlyZero so significant bits change.
     if (minXY == maxXY) {
-        (&pts[1].fX)[xyOffset] += SkTMax(1.001f, maxXY) * SK_ScalarNearlyZero;
+        adjust_zero_length_line(pts);
     }
     return true;
 }
@@ -165,6 +170,13 @@ static bool cull_path(const SkPath& srcPath, const SkStrokeRec& rec,
                       const SkRect* cullRect, SkScalar intervalLength,
                       SkPath* dstPath) {
     if (nullptr == cullRect) {
+        SkPoint pts[2];
+        if (srcPath.isLine(pts) && pts[0] == pts[1]) {
+            adjust_zero_length_line(pts);
+            dstPath->moveTo(pts[0]);
+            dstPath->lineTo(pts[1]);
+            return true;
+        }
         return false;
     }
 
