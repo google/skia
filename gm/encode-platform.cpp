@@ -60,10 +60,10 @@ static SkEncodedImageFormat kTypes[] {
 #endif
 
 static sk_sp<SkData> encode_data(SkEncodedImageFormat type, const SkBitmap& bitmap) {
-    SkPixmap src;
-    if (!bitmap.peekPixels(&src)) {
+    if (!bitmap.getPixels()) {
         return nullptr;
     }
+    const SkPixmap& src = bitmap.pixmap();
     SkDynamicMemoryWStream buf;
     #if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
         return SkEncodeImageWithCG(&buf, src, type) ? buf.detachAsData() : nullptr;

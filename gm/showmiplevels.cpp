@@ -131,8 +131,7 @@ protected:
         SkScalar x = 4;
         SkScalar y = 4;
 
-        SkPixmap prevPM;
-        baseBM.peekPixels(&prevPM);
+        SkPixmap prevPM = baseBM.pixmap();
 
         SkDestinationSurfaceColorMode colorMode = SkDestinationSurfaceColorMode::kLegacy;
         sk_sp<SkMipMap> mm(SkMipMap::Build(baseBM, colorMode, nullptr));

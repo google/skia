@@ -134,11 +134,11 @@ static bool setup_backend_objects(GrContext* context,
     backingDesc.fSampleCnt = 0;
 
     if (!bm.empty()) {
-        SkPixmap originalPixmap;
-        SkPixmap* pixmap = &originalPixmap;
-        if (!bm.peekPixels(&originalPixmap)) {
+        SkPixmap originalPixmap = bm.pixmap();
+        if (originalPixmap.addr()) {
             return false;
         }
+        SkPixmap* pixmap = &originalPixmap;
 
         SkAutoPixmapStorage rgbaPixmap;
         if (kN32_SkColorType != kRGBA_8888_SkColorType) {

@@ -63,12 +63,11 @@ bool SkImage::scalePixels(const SkPixmap& dst, SkFilterQuality quality, CachingH
     //
     SkBitmap bm;
     if (as_IB(this)->getROPixels(&bm, dst.info().colorSpace(), chint)) {
-        SkPixmap pmap;
         // Note: By calling the pixmap scaler, we never cache the final result, so the chint
         //       is (currently) only being applied to the getROPixels. If we get a request to
         //       also attempt to cache the final (scaled) result, we would add that logic here.
         //
-        return bm.peekPixels(&pmap) && pmap.scalePixels(dst, quality);
+        return bm.getPixels() && bm.pixmap().scalePixels(dst, quality);
     }
     return false;
 }
@@ -107,10 +106,9 @@ sk_sp<SkData> SkImage::encodeToData() const {
     }
 
     SkBitmap bm;
-    SkPixmap pmap;
     SkColorSpace* legacyColorSpace = nullptr;
-    if (as_IB(this)->getROPixels(&bm, legacyColorSpace) && bm.peekPixels(&pmap)) {
-        return SkEncodePixmap(pmap, SkEncodedImageFormat::kPNG, 100);
+    if (as_IB(this)->getROPixels(&bm, legacyColorSpace)) {
+        return SkEncodePixmap(bm.pixmap(), SkEncodedImageFormat::kPNG, 100);
     }
     return nullptr;
 }

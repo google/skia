@@ -58,13 +58,6 @@ static float set_error_code(gmkb::Error* error_out, gmkb::Error error) {
     return FLT_MAX;
 }
 
-static SkPixmap to_pixmap(const SkBitmap& bitmap) {
-    SkPixmap pixmap;
-    SkAssertResult(bitmap.peekPixels(&pixmap));
-    return pixmap;
-}
-
-
 static bool WritePixmapToFile(const SkPixmap& pixmap, const char* path) {
     SkFILEWStream wStream(path);
     SkPngEncoder::Options options;
@@ -102,7 +95,7 @@ static SkBitmap ReadPngRgba8888FromFile(skqp::AssetManager* assetManager, const 
         SkImageInfo info = SkImageInfo::Make(size.width(), size.height(), kColorType, kAlphaType);
         bitmap.allocPixels(info);
         SkASSERT(bitmap.rowBytes() == (unsigned)bitmap.width() * sizeof(uint32_t));
-        if (SkCodec::kSuccess != codec->getPixels(to_pixmap(bitmap))) {
+        if (SkCodec::kSuccess != codec->getPixels(bitmap.pixmap())) {
             bitmap.reset();
         }
     }
