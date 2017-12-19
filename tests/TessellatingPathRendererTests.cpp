@@ -374,7 +374,40 @@ static SkPath create_path_24() {
      return path;
 }
 
+// An edge collapse event which also collapses a neighbour, requiring
+// its event to be removed.
+static SkPath create_path_25() {
+    SkPath path;
+    path.moveTo( 43.44110107421875,  148.15106201171875);
+    path.lineTo( 44.64471435546875,  148.16748046875);
+    path.lineTo( 46.35009765625,     147.403076171875);
+    path.lineTo( 46.45404052734375,  148.34906005859375);
+    path.lineTo( 45.0400390625,      148.54205322265625);
+    path.lineTo( 44.624053955078125, 148.9810791015625);
+    path.lineTo( 44.59405517578125,  149.16107177734375);
+    path.lineTo( 44.877044677734375, 149.62005615234375);
+    path.lineTo(144.373016357421875,  68.8070068359375);
+    return path;
+}
+
+// An edge collapse event causes an edge to become collinear, requiring
+// its event to be removed.
+static SkPath create_path_26() {
+    SkPath path;
+    path.moveTo( 43.44110107421875,  148.15106201171875);
+    path.lineTo( 44.64471435546875,  148.16748046875);
+    path.lineTo( 46.35009765625,     147.403076171875);
+    path.lineTo( 46.45404052734375,  148.34906005859375);
+    path.lineTo( 45.0400390625,      148.54205322265625);
+    path.lineTo( 44.624053955078125, 148.9810791015625);
+    path.lineTo( 44.59405517578125,  149.16107177734375);
+    path.lineTo( 44.877044677734375, 149.62005615234375);
+    path.lineTo(144.373016357421875,  68.8070068359375);
+    return path;
+}
+
 static std::unique_ptr<GrFragmentProcessor> create_linear_gradient_processor(GrContext* ctx) {
+
     SkPoint pts[2] = { {0, 0}, {1, 1} };
     SkColor colors[2] = { SK_ColorGREEN, SK_ColorBLUE };
     sk_sp<SkShader> shader = SkGradientShader::MakeLinear(
@@ -460,5 +493,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(TessellatingPathRendererTests, reporter, ctxInfo) {
     test_path(ctx, rtc.get(), create_path_22());
     test_path(ctx, rtc.get(), create_path_23());
     test_path(ctx, rtc.get(), create_path_24());
+    test_path(ctx, rtc.get(), create_path_25(), SkMatrix(), GrAAType::kCoverage);
+    test_path(ctx, rtc.get(), create_path_26(), SkMatrix(), GrAAType::kCoverage);
 }
 #endif
