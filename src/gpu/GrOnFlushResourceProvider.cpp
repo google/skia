@@ -88,19 +88,14 @@ sk_sp<GrBuffer> GrOnFlushResourceProvider::makeBuffer(GrBufferType intendedType,
                                             data));
 }
 
-sk_sp<GrBuffer> GrOnFlushResourceProvider::findOrMakeStaticBuffer(const GrUniqueKey& key,
-                                                                  GrBufferType intendedType,
-                                                                  size_t size, const void* data) {
+sk_sp<const GrBuffer> GrOnFlushResourceProvider::findOrMakeStaticBuffer(GrBufferType intendedType,
+                                                                        size_t size,
+                                                                        const void* data,
+                                                                        const GrUniqueKey& key) {
     GrResourceProvider* rp = fDrawingMgr->getContext()->resourceProvider();
-    sk_sp<GrBuffer> buffer(rp->findByUniqueKey<GrBuffer>(key));
-    if (!buffer) {
-        buffer.reset(rp->createBuffer(size, intendedType, kStatic_GrAccessPattern, 0, data));
-        if (!buffer) {
-            return nullptr;
-        }
-        SkASSERT(buffer->sizeInBytes() == size); // rp shouldn't bin and/or cache static buffers.
-        buffer->resourcePriv().setUniqueKey(key);
-    }
+    sk_sp<const GrBuffer> buffer = rp->findOrMakeStaticBuffer(intendedType, size, data, key);
+    // Static buffers should never have pending IO.
+    SkASSERT(!buffer->resourcePriv().hasPendingIO_debugOnly());
     return buffer;
 }
 
