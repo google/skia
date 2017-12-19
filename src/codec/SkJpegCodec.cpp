@@ -63,7 +63,8 @@ static bool is_orientation_marker(jpeg_marker_struct* marker, SkEncodedOrigin* o
 
     // Get the offset from the start of the marker.
     // Account for 'E', 'x', 'i', 'f', '\0', '<fill byte>'.
-    uint32_t offset = get_endian_int(data + 10, littleEndian);
+    // Though this only reads four bytes, use a larger int in case it overflows.
+    uint64_t offset = get_endian_int(data + 10, littleEndian);
     offset += sizeof(kExifSig) + 1;
 
     // Require that the marker is at least large enough to contain the number of entries.
@@ -74,7 +75,8 @@ static bool is_orientation_marker(jpeg_marker_struct* marker, SkEncodedOrigin* o
 
     // Tag (2 bytes), Datatype (2 bytes), Number of elements (4 bytes), Data (4 bytes)
     const uint32_t kEntrySize = 12;
-    numEntries = SkTMin(numEntries, (marker->data_length - offset - 2) / kEntrySize);
+    const auto max = SkTo<uint32_t>((marker->data_length - offset - 2) / kEntrySize);
+    numEntries = SkTMin(numEntries, max);
 
     // Advance the data to the start of the entries.
     data += offset + 2;
