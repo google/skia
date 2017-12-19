@@ -1278,6 +1278,7 @@ if (skia_enable_tools) {
     public_include_dirs = [ "gm" ]
     sources = gm_sources
     deps = [
+      ":experimental_sksg",
       ":flags",
       ":gpu_tool_utils",
       ":skia",
@@ -1293,6 +1294,7 @@ if (skia_enable_tools) {
       sources -= [ "//tests/FontMgrAndroidParserTest.cpp" ]
     }
     deps = [
+      ":experimental_sksg",
       ":experimental_svg_model",
       ":flags",
       ":skia",
@@ -1344,6 +1346,31 @@ if (skia_enable_tools) {
       "experimental/svg/model/SkSVGTransformableNode.cpp",
       "experimental/svg/model/SkSVGUse.cpp",
       "experimental/svg/model/SkSVGValue.cpp",
+    ]
+    deps = [
+      ":skia",
+    ]
+  }
+
+  test_lib("experimental_sksg") {
+    public_include_dirs = [
+      "experimental/sksg",
+      "experimental/sksg/effects",
+      "experimental/sksg/geometry",
+      "experimental/sksg/paint",
+    ]
+    sources = [
+      "experimental/sksg/SkSGDraw.cpp",
+      "experimental/sksg/SkSGEffectNode.cpp",
+      "experimental/sksg/SkSGGeometryNode.cpp",
+      "experimental/sksg/SkSGGroup.cpp",
+      "experimental/sksg/SkSGInvalidationController.cpp",
+      "experimental/sksg/SkSGNode.cpp",
+      "experimental/sksg/SkSGPaintNode.cpp",
+      "experimental/sksg/SkSGRenderNode.cpp",
+      "experimental/sksg/effects/SkSGTransform.cpp",
+      "experimental/sksg/geometry/SkSGRect.cpp",
+      "experimental/sksg/paint/SkSGColor.cpp",
     ]
     deps = [
       ":skia",
@@ -1432,6 +1459,7 @@ if (skia_enable_tools) {
                   "src/core/SkThreadedBMPDevice.h",
                 ]
       deps = [
+        ":experimental_sksg",
         ":experimental_svg_model",
         ":flags",
         ":gm",
@@ -1459,6 +1487,7 @@ if (skia_enable_tools) {
       include_dirs = [ "tests" ]
       deps = [
         ":common_flags",
+        ":experimental_sksg",
         ":experimental_svg_model",
         ":flags",
         ":gm",
@@ -1497,6 +1526,7 @@ if (skia_enable_tools) {
     deps = [
       ":bench",
       ":common_flags",
+      ":experimental_sksg",
       ":experimental_svg_model",
       ":flags",
       ":gm",
