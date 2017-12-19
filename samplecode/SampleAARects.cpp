@@ -39,14 +39,16 @@ class AARectView : public SampleView {
     };
 public:
     AARectView() {
-        fBitmap = createBitmap(N);
-
-        fWidth = N;
     }
 
 protected:
+    void onOnceBeforeDraw() override {
+        fBitmap = createBitmap(N);
+        fWidth = N;
+    }
+
     // overrides from SkEventSink
-    virtual bool onQuery(SkEvent* evt) {
+    bool onQuery(SkEvent* evt) override {
         if (SampleCode::TitleQ(*evt)) {
             SampleCode::TitleR(evt, "AA Rects");
             return true;
@@ -54,7 +56,7 @@ protected:
         return this->INHERITED::onQuery(evt);
     }
 
-    virtual void onDrawContent(SkCanvas* canvas) {
+    void onDrawContent(SkCanvas* canvas) override {
         canvas->translate(SkIntToScalar(10), SkIntToScalar(10));
 
         SkPaint bluePaint;

@@ -109,6 +109,10 @@ public:
     SkScalar fAngle;
 
     DitherView() {
+    }
+
+protected:
+    void onOnceBeforeDraw() override {
         make_bm(&fBM);
         make_bm(&fBMPreDither);
         pre_dither(fBMPreDither);
@@ -119,9 +123,8 @@ public:
         this->setBGColor(0xFF181818);
     }
 
-protected:
     // overrides from SkEventSink
-    virtual bool onQuery(SkEvent* evt) {
+    bool onQuery(SkEvent* evt) override {
         if (SampleCode::TitleQ(*evt)) {
             SampleCode::TitleR(evt, "Dither");
             return true;
@@ -129,7 +132,7 @@ protected:
         return this->INHERITED::onQuery(evt);
     }
 
-    virtual void onDrawContent(SkCanvas* canvas) {
+    void onDrawContent(SkCanvas* canvas) override {
         SkPaint paint;
         SkScalar x = SkIntToScalar(10);
         SkScalar y = SkIntToScalar(10);
