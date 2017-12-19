@@ -236,6 +236,10 @@ void CCPRGeometryView::updateGpuData() {
                 GrCCPRGeometry::Verb::kEndClosedContour == verb) {
                 continue;
             }
+            if (GrCCPRGeometry::Verb::kLineTo == verb) {
+                ++ptsIdx;
+                continue;
+            }
             SkASSERT(GrCCPRGeometry::Verb::kMonotonicQuadraticTo == verb);
             fTriangleInstances.push_back().set(&geometry.points()[ptsIdx], Sk2f(0, 0));
             ptsIdx += 2;
@@ -251,10 +255,14 @@ void CCPRGeometryView::Op::onExecute(GrOpFlushState* state) {
     GrGLGpu* glGpu = kOpenGL_GrBackend == context->contextPriv().getBackend() ?
                      static_cast<GrGLGpu*>(state->gpu()) : nullptr;
 
-    GrCCPRCoverageProcessor proc(fView->fRenderPass);
+    if (!GrCCPRCoverageProcessor::DoesRenderPass(fView->fRenderPass, *state->caps().shaderCaps())) {
+        return;
+    }
+
+    GrCCPRCoverageProcessor proc(rp, fView->fRenderPass, *state->caps().shaderCaps());
     SkDEBUGCODE(proc.enableDebugVisualizations(kDebugBloat);)
 
-    SkSTArray<1, GrMesh, true> mesh;
+    SkSTArray<1, GrMesh> mesh;
     if (GrCCPRCoverageProcessor::RenderPassIsCubic(fView->fRenderPass)) {
         sk_sp<GrBuffer> instBuff(rp->createBuffer(fView->fCubicInstances.count() *
                                                   sizeof(CubicInstance), kVertex_GrBufferType,
