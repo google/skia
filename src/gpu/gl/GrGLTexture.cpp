@@ -107,8 +107,7 @@ GrBackendObject GrGLTexture::getTextureHandle() const {
 }
 
 GrBackendTexture GrGLTexture::getBackendTexture() const {
-    return GrBackendTexture(this->width(), this->height(), this->config(),
-                            this->texturePriv().mipMapped(), fInfo);
+    return GrBackendTexture(this->width(), this->height(), this->texturePriv().mipMapped(), fInfo);
 }
 
 void GrGLTexture::setMemoryBacking(SkTraceMemoryDump* traceMemoryDump,

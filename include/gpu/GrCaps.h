@@ -15,6 +15,7 @@
 #include "SkRefCnt.h"
 #include "SkString.h"
 
+class GrBackendRenderTarget;
 class GrBackendTexture;
 struct GrContextOptions;
 class GrRenderTargetProxy;
@@ -174,10 +175,13 @@ public:
 
     /**
      * Returns true if the GrBackendTexutre can we used with the supplied SkColorType. If it is
-     * compatible, the GrPixelConfig on the GrBackendTexture will be set to a config that matches
-     * the backend format and requested SkColorType.
+     * compatible, the passed in GrPixelConfig will be set to a config that matches the backend
+     * format and requested SkColorType.
      */
-    bool validateBackendTexture(GrBackendTexture* tex, SkColorType ct) const;
+    virtual bool validateBackendTexture(const GrBackendTexture& tex, SkColorType ct,
+                                        GrPixelConfig*) const = 0;
+    virtual bool validateBackendRenderTarget(const GrBackendRenderTarget&, SkColorType,
+                                             GrPixelConfig*) const = 0;
 
 protected:
     /** Subclasses must call this at the end of their constructors in order to apply caps
@@ -238,7 +242,6 @@ protected:
     int fMaxClipAnalyticFPs;
 
 private:
-    virtual bool onValidateBackendTexture(GrBackendTexture* tex, SkColorType ct) const = 0;
     virtual void onApplyOptionsOverrides(const GrContextOptions&) {}
     virtual void onDumpJSON(SkJSONWriter*) const {}
 

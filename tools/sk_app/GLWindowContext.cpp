@@ -39,15 +39,6 @@ void GLWindowContext::initializeContext() {
         this->initializeContext();
         return;
     }
-
-    if (fContext) {
-        // We may not have real sRGB support (ANGLE, in particular), so check for
-        // that, and fall back to L32:
-        fPixelConfig = fContext->caps()->srgbSupport() && fDisplayParams.fColorSpace
-                       ? kSRGBA_8888_GrPixelConfig : kRGBA_8888_GrPixelConfig;
-    } else {
-        fPixelConfig = kUnknown_GrPixelConfig;
-    }
 }
 
 void GLWindowContext::destroyContext() {
@@ -72,16 +63,18 @@ sk_sp<SkSurface> GLWindowContext::getBackbufferSurface() {
             GR_GL_CALL(fBackendContext.get(), GetIntegerv(GR_GL_FRAMEBUFFER_BINDING,
                                                           &buffer));
             fbInfo.fFBOID = buffer;
+            fbInfo.fFormat = fContext->caps()->srgbSupport() && fDisplayParams.fColorSpace
+                             ? GR_GL_SRGB8_ALPHA8 : GR_GL_RGBA8;
 
             GrBackendRenderTarget backendRT(fWidth,
                                             fHeight,
                                             fSampleCount,
                                             fStencilBits,
-                                            fPixelConfig,
                                             fbInfo);
 
             fSurface = SkSurface::MakeFromBackendRenderTarget(fContext.get(), backendRT,
                                                               kBottomLeft_GrSurfaceOrigin,
+                                                              kRGBA_8888_SkColorType,
                                                               fDisplayParams.fColorSpace,
                                                               &fSurfaceProps);
         }

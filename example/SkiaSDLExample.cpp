@@ -180,6 +180,11 @@ int main(int argc, char** argv) {
         return success;
     }
 
+    uint32_t windowFormat = SDL_GetWindowPixelFormat(window);
+    int contextType;
+    SDL_GL_GetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, &contextType);
+
+
     int dw, dh;
     SDL_GL_GetDrawableSize(window, &dw, &dh);
 
@@ -201,8 +206,23 @@ int main(int argc, char** argv) {
     GR_GL_GetIntegerv(interface.get(), GR_GL_FRAMEBUFFER_BINDING, &buffer);
     GrGLFramebufferInfo info;
     info.fFBOID = (GrGLuint) buffer;
-    GrBackendRenderTarget target(dw, dh, kMsaaSampleCount, kStencilBits,
-                                 kSkia8888_GrPixelConfig, info);
+    SkColorType colorType;
+
+    if (SDL_PIXELFORMAT_RGBA8888 == windowFormat) {
+        info.fFormat = GR_GL_RGBA8;
+        colorType = kRGBA_8888_SkColorType;
+    } else {
+        SkASSERT(SDL_PIXELFORMAT_BGRA8888);
+        colorType = kBGRA_8888_SkColorType;
+        if (SDL_GL_CONTEXT_PROFILE_ES == contextType) {
+            info.fFormat = GR_GL_BGRA8;
+        } else {
+            // We assume the internal format is RGBA8 on desktop GL
+            info.fFormat = GR_GL_RGBA8;
+        }
+    }
+
+    GrBackendRenderTarget target(dw, dh, kMsaaSampleCount, kStencilBits, info);
 
     // setup SkSurface
     // To use distance field text, use commented out SkSurfaceProps instead
@@ -212,7 +232,7 @@ int main(int argc, char** argv) {
 
     sk_sp<SkSurface> surface(SkSurface::MakeFromBackendRenderTarget(grContext.get(), target,
                                                                     kBottomLeft_GrSurfaceOrigin,
-                                                                    nullptr, &props));
+                                                                    colorType, nullptr, &props));
 
     SkCanvas* canvas = surface->getCanvas();
     canvas->scale((float)dw/dm.w, (float)dh/dm.h);

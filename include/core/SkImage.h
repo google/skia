@@ -131,7 +131,7 @@ public:
      *  Create a new image from the specified descriptor. Note - the caller is responsible for
      *  managing the lifetime of the underlying platform texture.
      *
-     *  The GrBackendTexture mush have a valid backed format supplied (GrGLTextureInfo::fFormat,
+     *  The GrBackendTexture must have a valid backend format supplied (GrGLTextureInfo::fFormat,
      *  GrVkImageInfo::fFormat, etc.) in it. The passed in SkColorType informs skia how it should
      *  interpret the backend format supplied by the GrBackendTexture. If the format in the
      *  GrBackendTexture is not compitable with the SkColorType, SkAlphaType, and SkColorSpace we
@@ -152,7 +152,7 @@ public:
      *  valid and unaltered until the specified release-proc is invoked, indicating that Skia
      *  no longer is holding a reference to it.
      *
-     *  The GrBackendTexture mush have a valid backed format supplied (GrGLTextureInfo::fFormat,
+     *  The GrBackendTexture must have a valid backend format supplied (GrGLTextureInfo::fFormat,
      *  GrVkImageInfo::fFormat, etc.) in it. The passed in SkColorType informs skia how it should
      *  interpret the backend format supplied by the GrBackendTexture. If the format in the
      *  GrBackendTexture is not compitable with the SkColorType, SkAlphaType, and SkColorSpace we
@@ -218,7 +218,7 @@ public:
      *  Create a new image from the specified descriptor. Note - Skia will delete or recycle the
      *  texture when the image is released.
      *
-     *  The GrBackendTexture mush have a valid backed format supplied (GrGLTextureInfo::fFormat,
+     *  The GrBackendTexture must have a valid backend format supplied (GrGLTextureInfo::fFormat,
      *  GrVkImageInfo::fFormat, etc.) in it. The passed in SkColorType informs skia how it should
      *  interpret the backend format supplied by the GrBackendTexture. If the format in the
      *  GrBackendTexture is not compitable with the SkColorType, SkAlphaType, and SkColorSpace we

@@ -56,8 +56,14 @@ void SkGLWidget::createRenderTarget() {
     glClear(GL_STENCIL_BUFFER_BIT);
     fCurContext->resetContext();
     GrBackendRenderTarget backendRenderTarget = this->getBackendRenderTarget();
+    SkColorType colorType;
+    if (kRGBA_8888_GrPixelConfig == kSkia8888_GrPixelConfig) {
+        colorType = kRGBA_8888_SkColorType;
+    } else {
+        colorType = kBGRA_8888_SkColorType;
+    }
     fGpuSurface = SkSurface::MakeFromBackendRenderTarget(fCurContext.get(), backendRenderTarget,
-                                                         kBottomLeft_GrSurfaceOrigin,
+                                                         kBottomLeft_GrSurfaceOrigin, colorType,
                                                          nullptr, nullptr);
     fCanvas = fGpuSurface->getCanvas();
 }
@@ -84,11 +90,12 @@ GrBackendRenderTarget SkGLWidget::getBackendRenderTarget() {
     GR_GL_GetIntegerv(fCurIntf.get(), GR_GL_FRAMEBUFFER_BINDING, &info.fFBOID);
     GR_GL_GetIntegerv(fCurIntf.get(), GR_GL_SAMPLES, &sampleCnt);
     GR_GL_GetIntegerv(fCurIntf.get(), GR_GL_STENCIL_BITS, &stencilBits);
+    // We are on desktop so we assume the internal config is RGBA
+    info.fFormat = GR_GL_RGBA8;
     return GrBackendRenderTarget(SkScalarRoundToInt(this->width()),
                                  SkScalarRoundToInt(this->height()),
                                  sampleCnt,
                                  stencilBits,
-                                 kSkia8888_GrPixelConfig,
                                  info);
 }
 

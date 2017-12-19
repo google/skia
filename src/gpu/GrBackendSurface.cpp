@@ -127,6 +127,19 @@ GrBackendRenderTarget::GrBackendRenderTarget(int width,
         , fBackend(kOpenGL_GrBackend)
         , fGLInfo(glInfo) {}
 
+GrBackendRenderTarget::GrBackendRenderTarget(int width,
+                                             int height,
+                                             int sampleCnt,
+                                             int stencilBits,
+                                             const GrGLFramebufferInfo& glInfo)
+        : fWidth(width)
+        , fHeight(height)
+        , fSampleCnt(sampleCnt)
+        , fStencilBits(stencilBits)
+        , fConfig(GrGLSizedFormatToPixelConfig(glInfo.fFormat))
+        , fBackend(kOpenGL_GrBackend)
+        , fGLInfo(glInfo) {}
+
 #ifdef SK_VULKAN
 const GrVkImageInfo* GrBackendRenderTarget::getVkImageInfo() const {
     if (kVulkan_GrBackend == fBackend) {

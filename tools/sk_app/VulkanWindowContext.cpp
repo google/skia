@@ -201,6 +201,20 @@ bool VulkanWindowContext::createSwapchain(int width, int height,
         return false;
     }
 
+    SkColorType colorType;
+    switch (surfaceFormat) {
+        case VK_FORMAT_R8G8B8A8_UNORM: // fall through
+        case VK_FORMAT_R8G8B8A8_SRGB:
+            colorType = kRGBA_8888_SkColorType;
+            break;
+        case VK_FORMAT_B8G8R8A8_UNORM: // fall through
+        case VK_FORMAT_B8G8R8A8_SRGB:
+            colorType = kBGRA_8888_SkColorType;
+            break;
+        default:
+            return false;
+    }
+
     // If mailbox mode is available, use it, as it is the lowest-latency non-
     // tearing mode. If not, fall back to FIFO which is always available.
     VkPresentModeKHR mode = VK_PRESENT_MODE_FIFO_KHR;
@@ -254,15 +268,12 @@ bool VulkanWindowContext::createSwapchain(int width, int height,
         fDestroySwapchainKHR(fBackendContext->fDevice, swapchainCreateInfo.oldSwapchain, nullptr);
     }
 
-    this->createBuffers(swapchainCreateInfo.imageFormat);
+    this->createBuffers(swapchainCreateInfo.imageFormat, colorType);
 
     return true;
 }
 
-void VulkanWindowContext::createBuffers(VkFormat format) {
-    fPixelConfig = GrVkFormatToPixelConfig(format);
-    SkASSERT(kUnknown_GrPixelConfig != fPixelConfig);
-
+void VulkanWindowContext::createBuffers(VkFormat format, SkColorType colorType) {
     fGetSwapchainImagesKHR(fBackendContext->fDevice, fSwapchain, &fImageCount, nullptr);
     SkASSERT(fImageCount);
     fImages = new VkImage[fImageCount];
@@ -287,6 +298,7 @@ void VulkanWindowContext::createBuffers(VkFormat format) {
         fSurfaces[i] = SkSurface::MakeFromBackendTextureAsRenderTarget(fContext.get(), backendTex,
                                                                        kTopLeft_GrSurfaceOrigin,
                                                                        fSampleCount,
+                                                                       colorType,
                                                                        fDisplayParams.fColorSpace,
                                                                        &fSurfaceProps);
     }
