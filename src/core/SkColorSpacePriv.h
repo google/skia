@@ -10,6 +10,7 @@
 #include <math.h>
 
 #include "SkColorSpace_Base.h"
+#include "SkFixed.h"
 
 #define SkColorSpacePrintf(...)
 
@@ -19,10 +20,14 @@ static constexpr float gSRGB_toXYZD50[] {
     0.0139322f, 0.0971045f, 0.7141733f, // Rz, Gz, Bz
 };
 
+// ICC fixed-point repesentation of:
+// 0.60974, 0.20528, 0.14919,
+// 0.31111, 0.62567, 0.06322,
+// 0.01947, 0.06087, 0.74457,
 static constexpr float gAdobeRGB_toXYZD50[] {
-    0.6097559f, 0.2052401f, 0.1492240f, // Rx, Gx, Bx
-    0.3111242f, 0.6256560f, 0.0632197f, // Ry, Gy, Gz
-    0.0194811f, 0.0608902f, 0.7448387f, // Rz, Gz, Bz
+    SkFixedToFloat(0x9c18), SkFixedToFloat(0x348d), SkFixedToFloat(0x2631), // Rx, Gx, Bx
+    SkFixedToFloat(0x4fa5), SkFixedToFloat(0xa02c), SkFixedToFloat(0x102f), // Ry, Gy, Gz
+    SkFixedToFloat(0x04fc), SkFixedToFloat(0x0f95), SkFixedToFloat(0xbe9c), // Rz, Gz, Bz
 };
 
 static constexpr float gDCIP3_toXYZD50[] {
