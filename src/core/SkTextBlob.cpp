@@ -879,11 +879,19 @@ sk_sp<SkData> SkTextBlob::serialize(const SkSerialProcs& procs) const {
     return data;
 }
 
+sk_sp<SkData> SkTextBlob::serialize() const {
+    return this->serialize(SkSerialProcs());
+}
+
 sk_sp<SkTextBlob> SkTextBlob::Deserialize(const void* data, size_t length,
                                           const SkDeserialProcs& procs) {
     SkReadBuffer buffer(data, length);
     buffer.setDeserialProcs(procs);
     return SkTextBlob::MakeFromBuffer(buffer);
+}
+
+sk_sp<SkTextBlob> SkTextBlob::Deserialize(const void* data, size_t length) {
+    return SkTextBlob::Deserialize(data, length, SkDeserialProcs());
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

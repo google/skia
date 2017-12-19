@@ -75,7 +75,9 @@ public:
                                          SkTypefaceResolverProc, void* ctx);
 
     sk_sp<SkData> serialize(const SkSerialProcs&) const;
+    sk_sp<SkData> serialize() const;
     static sk_sp<SkTextBlob> Deserialize(const void* data, size_t size, const SkDeserialProcs&);
+    static sk_sp<SkTextBlob> Deserialize(const void* data, size_t size);
 
 private:
     friend class SkNVRefCnt<SkTextBlob>;
