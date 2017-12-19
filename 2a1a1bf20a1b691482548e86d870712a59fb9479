@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4e7b9ee1_ce9f2b39",
+        "filename": "src/gpu/GrOnFlushResourceProvider.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-12-19T13:55:40Z",
+      "side": 1,
+      "message": "Why the param order change? I think size and data should be adjacent.",
+      "range": {
+        "startLine": 86,
+        "startChar": 49,
+        "endLine": 87,
+        "endChar": 67
+      },
+      "revId": "2a1a1bf20a1b691482548e86d870712a59fb9479",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1b10a1b2_620b18df",
+        "filename": "src/gpu/GrResourceProvider.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-12-19T13:55:40Z",
+      "side": 1,
+      "message": "We typically use \"Make\" for functions that return objects that manager their own lifetime (by value, sk_sp\u003c\u003e, std::unique_ptr, ...) to differentiate from older functions named \"Create\" that may return an unmanaged result.",
+      "range": {
+        "startLine": 145,
+        "startChar": 26,
+        "endLine": 145,
+        "endChar": 50
+      },
+      "revId": "2a1a1bf20a1b691482548e86d870712a59fb9479",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
