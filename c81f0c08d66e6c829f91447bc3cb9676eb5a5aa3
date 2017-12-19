@@ -1,0 +1,141 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ae94952d_2de365c9",
+        "filename": "gm/jsongm.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-12-19T15:10:20Z",
+      "side": 1,
+      "message": "Nit: doesn\u0027t have to be now, but since the dictionaries are sorted, std::binary_search()?",
+      "range": {
+        "startLine": 61,
+        "startChar": 0,
+        "endLine": 66,
+        "endChar": 14
+      },
+      "revId": "c81f0c08d66e6c829f91447bc3cb9676eb5a5aa3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d35141e6_41bd5f35",
+        "filename": "gm/jsongm.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-12-19T15:10:20Z",
+      "side": 1,
+      "message": "static const(expr)?",
+      "revId": "c81f0c08d66e6c829f91447bc3cb9676eb5a5aa3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "59aa4829_9b0b7df8",
+        "filename": "gm/jsongm.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 235,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-12-19T15:10:20Z",
+      "side": 1,
+      "message": "Nit: I think we can use a range loop if Value has begin/end:\n\n  for (const auto\u0026 childValue : v)",
+      "revId": "c81f0c08d66e6c829f91447bc3cb9676eb5a5aa3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "af47deb2_15853ff1",
+        "filename": "gm/jsongm.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 358,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-12-19T15:10:20Z",
+      "side": 1,
+      "message": "Nit: does the struct need to be named?",
+      "revId": "c81f0c08d66e6c829f91447bc3cb9676eb5a5aa3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8ac100d6_38e088c2",
+        "filename": "gm/jsongm.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 363,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-12-19T15:10:20Z",
+      "side": 1,
+      "message": "nit: static",
+      "revId": "c81f0c08d66e6c829f91447bc3cb9676eb5a5aa3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4b02eacb_233ac330",
+        "filename": "gm/jsongm.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 382,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-12-19T15:10:20Z",
+      "side": 1,
+      "message": "nit: can we refactor to use find\u003c\u003e instead?",
+      "range": {
+        "startLine": 378,
+        "startChar": 0,
+        "endLine": 382,
+        "endChar": 5
+      },
+      "revId": "c81f0c08d66e6c829f91447bc3cb9676eb5a5aa3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8bd227d1_ca20b4a1",
+        "filename": "gm/jsongm.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 394,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-12-19T15:10:20Z",
+      "side": 1,
+      "message": "nit: ditto",
+      "range": {
+        "startLine": 389,
+        "startChar": 0,
+        "endLine": 394,
+        "endChar": 9
+      },
+      "revId": "c81f0c08d66e6c829f91447bc3cb9676eb5a5aa3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
