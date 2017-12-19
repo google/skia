@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "90094516_1d577436",
+        "filename": "src/gpu/GrOnFlushResourceProvider.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-12-19T17:44:54Z",
+      "side": 1,
+      "message": "Agreed. It was all to match the existing createBuffer method in the resource provider. We can just switch them back.",
+      "parentUuid": "4e7b9ee1_ce9f2b39",
+      "range": {
+        "startLine": 86,
+        "startChar": 49,
+        "endLine": 87,
+        "endChar": 67
+      },
+      "revId": "2a1a1bf20a1b691482548e86d870712a59fb9479",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1b10a1b2_620b18df",
         "filename": "src/gpu/GrResourceProvider.h",
         "patchSetId": 4
@@ -45,6 +69,30 @@
       "revId": "2a1a1bf20a1b691482548e86d870712a59fb9479",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c0467017_cfb8ce7d",
+        "filename": "src/gpu/GrResourceProvider.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-12-19T17:44:54Z",
+      "side": 1,
+      "message": "Got it. I didn\u0027t realize that was the distinction.",
+      "parentUuid": "1b10a1b2_620b18df",
+      "range": {
+        "startLine": 145,
+        "startChar": 26,
+        "endLine": 145,
+        "endChar": 50
+      },
+      "revId": "2a1a1bf20a1b691482548e86d870712a59fb9479",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
