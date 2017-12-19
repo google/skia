@@ -18,6 +18,7 @@
 #include "SkJSONCPP.h"
 #include "SkTouchGesture.h"
 #include "Slide.h"
+#include "StatsLayer.h"
 
 class SkCanvas;
 
@@ -51,12 +52,10 @@ private:
     void setStartupSlide();
     void setupCurrentSlide(int previousSlide);
     void listNames();
-    void resetMeasurements();
 
     void updateUIState();
 
     void drawSlide(SkCanvas* canvs);
-    void drawStats(SkCanvas* canvas);
     void drawImGui();
 
     void changeZoomLevel(float delta);
@@ -68,19 +67,15 @@ private:
 
     sk_app::Window*        fWindow;
 
-    static const int kMeasurementCount = 1 << 6;  // should be power of 2 for fast mod
-    double fPaintTimes[kMeasurementCount];
-    double fFlushTimes[kMeasurementCount];
-    double fAnimateTimes[kMeasurementCount];
-    int fCurrentMeasurement;
-    double fCumulativeMeasurementTime;
-    int fCumulativeMeasurementCount;
+    StatsLayer             fStatsLayer;
+    StatsLayer::Timer      fPaintTimer;
+    StatsLayer::Timer      fFlushTimer;
+    StatsLayer::Timer      fAnimateTimer;
 
     SkAnimTimer            fAnimTimer;
     SkTArray<sk_sp<Slide>> fSlides;
     int                    fCurrentSlide;
 
-    bool                   fDisplayStats;
     bool                   fRefresh; // whether to continuously refresh for measuring render time
 
     bool                   fSaveToSKP;
