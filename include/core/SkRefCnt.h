@@ -124,7 +124,7 @@ private:
 #else
 class SK_API SkRefCnt : public SkRefCntBase {
     // "#include SK_REF_CNT_MIXIN_INCLUDE" doesn't work with this build system.
-    #if defined(GOOGLE3)
+    #if defined(SK_BUILD_FOR_GOOGLE3)
     public:
         void deref() const { this->unref(); }
     #endif

@@ -146,8 +146,8 @@ void read_and_check_pixels(skiatest::Reporter* reporter, GrSurfaceContext* conte
 // conversion during read/write along with srgb/linear conversions.
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SRGBReadWritePixels, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
-#if defined(GOOGLE3)
-    // Stack frame size is limited in GOOGLE3.
+#if defined(SK_BUILD_FOR_GOOGLE3)
+    // Stack frame size is limited in SK_BUILD_FOR_GOOGLE3.
     static const int kW = 63;
     static const int kH = 63;
 #else

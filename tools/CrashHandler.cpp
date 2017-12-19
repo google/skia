@@ -15,7 +15,7 @@
 #ifndef SK_CRASH_HANDLER
     void SetupCrashHandler() { }
 
-#elif defined(GOOGLE3)
+#elif defined(SK_BUILD_FOR_GOOGLE3)
     #include "base/process_state.h"
     void SetupCrashHandler() { InstallSignalHandlers(); }
 

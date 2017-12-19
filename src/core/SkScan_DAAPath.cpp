@@ -337,7 +337,7 @@ void SkScan::DAAFillPath(const SkPath& path, SkBlitter* blitter, const SkIRect& 
         return;
     }
 
-#ifdef GOOGLE3
+#ifdef SK_BUILD_FOR_GOOGLE3
     constexpr int STACK_SIZE = 12 << 10; // 12K stack size alloc; Google3 has 16K limit.
 #else
     constexpr int STACK_SIZE = 64 << 10; // 64k stack size to avoid heap allocation

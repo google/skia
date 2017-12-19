@@ -576,7 +576,7 @@ def base_defines(os_conditions):
       # Chrome DEFINES.
       "SK_USE_FREETYPE_EMBOLDEN",
       # Turn on a few Google3-specific build fixes.
-      "GOOGLE3",
+      "SK_BUILD_FOR_GOOGLE3",
       # Required for building dm.
       "GR_TEST_UTILS",
       # Staging flags for API changes
