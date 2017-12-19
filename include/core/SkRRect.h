@@ -48,7 +48,9 @@ class SkWBuffer;
 */
 class SK_API SkRRect {
 public:
-    SkRRect() { this->setEmpty(); }
+    /** Default initialized to a rrect at the origin with zero width and height. */
+    SkRRect() = default;
+
     SkRRect(const SkRRect&) = default;
     SkRRect& operator=(const SkRRect&) = default;
 
@@ -57,7 +59,7 @@ public:
      * by type(). The subtypes become progressively less restrictive.
      */
     enum Type {
-        // !< The RR is empty
+        // !< The RR has zero width and/or zero height. All radii are zero.
         kEmpty_Type,
 
         //!< The RR is actually a (non-empty) rect (i.e., at least one radius
@@ -120,25 +122,15 @@ public:
     SkScalar height() const { return fRect.height(); }
 
     /**
-     * Set this RR to the empty rectangle (0,0,0,0) with 0 x & y radii.
+     * Same as default initialized - zero width and height at the origin.
      */
-    void setEmpty() {
-        fRect.setEmpty();
-        memset(fRadii, 0, sizeof(fRadii));
-        fType = kEmpty_Type;
-
-        SkASSERT(this->isValid());
-    }
+    void setEmpty() { *this = SkRRect(); }
 
     /**
      * Set this RR to match the supplied rect. All radii will be 0.
      */
     void setRect(const SkRect& rect) {
-        fRect = rect;
-        fRect.sort();
-
-        if (fRect.isEmpty() || !fRect.isFinite()) {
-            this->setEmpty();
+        if (!this->initializeRect(rect)) {
             return;
         }
 
@@ -148,11 +140,8 @@ public:
         SkASSERT(this->isValid());
     }
 
-    static SkRRect MakeEmpty() {
-        SkRRect rr;
-        rr.setEmpty();
-        return rr;
-    }
+    /** Makes an empty rrect at the origin with zero width and height. */
+    static SkRRect MakeEmpty() { return SkRRect(); }
 
     static SkRRect MakeRect(const SkRect& r) {
         SkRRect rr;
@@ -177,11 +166,7 @@ public:
      * width and all y radii will equal half the height.
      */
     void setOval(const SkRect& oval) {
-        fRect = oval;
-        fRect.sort();
-
-        if (fRect.isEmpty() || !fRect.isFinite()) {
-            this->setEmpty();
+        if (!this->initializeRect(oval)) {
             return;
         }
 
@@ -246,6 +231,12 @@ public:
      *  in stroking: If the corner is sharp (no curvature), leave it alone,
      *  otherwise we grow/shrink the radii by the amount of the inset. If a
      *  given radius becomes negative, it is pinned to 0.
+     *
+     *  If the inset amount is larger than the width/height then the rrect collapses to
+     *  a degenerate line or point.
+     *
+     *  If the inset is sufficiently negative to cause the bounds to become infinite then
+     *  the result is a default initialized rrect.
      *
      *  It is valid for dst == this.
      */
@@ -337,17 +328,22 @@ private:
         , fRadii{radii[0], radii[1], radii[2], radii[3]}
         , fType(type) {}
 
-    SkRect fRect;
-    // Radii order is UL, UR, LR, LL. Use Corner enum to index into fRadii[]
-    SkVector fRadii[4];
-    // use an explicitly sized type so we're sure the class is dense (no uninitialized bytes)
-    int32_t fType;
-    // TODO: add padding so we can use memcpy for flattening and not copy
-    // uninitialized data
+    /**
+     * Initializes fRect. If the passed in rect is not finite or empty the rrect will be fully
+     * initialized and false is returned. Otherwise, just fRect is initialized and true is returned.
+     */
+    bool initializeRect(const SkRect&);
 
     void computeType();
     bool checkCornerContainment(SkScalar x, SkScalar y) const;
     void scaleRadii();
+
+    SkRect fRect = SkRect::MakeEmpty();
+    // Radii order is UL, UR, LR, LL. Use Corner enum to index into fRadii[]
+    SkVector fRadii[4] = {{0, 0}, {0, 0}, {0,0}, {0,0}};
+    // use an explicitly sized type so we're sure the class is dense (no uninitialized bytes)
+    int32_t fType = kEmpty_Type;
+    // TODO: add padding so we can use memcpy for flattening and not copy uninitialized data
 
     // to access fRadii directly
     friend class SkPath;

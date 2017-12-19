@@ -539,9 +539,8 @@ void GrShape::attemptToSimplifyPath() {
 void GrShape::attemptToSimplifyRRect() {
     SkASSERT(Type::kRRect == fType);
     SkASSERT(!fInheritedKey.count());
-    if (fRRectData.fRRect.isEmpty()) {
-        // Dashing ignores the inverseness currently. skbug.com/5421
-        fType = fRRectData.fInverted && !fStyle.isDashed() ? Type::kInvertedEmpty : Type::kEmpty;
+    if (fRRectData.fRRect.isEmpty() && fStyle.isSimpleFill()) {
+        fType = Type::kEmpty;
         return;
     }
     if (!this->style().hasPathEffect()) {
