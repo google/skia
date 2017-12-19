@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5427e2d6_a015c9a6",
+        "filename": "include/gpu/GrCaps.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 182,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-12-19T15:29:12Z",
+      "side": 1,
+      "message": "I switched these calls to take the pointer to a GrPixelConfig directly since we will eventually be moving the pixelConfig off of GrBackendTexture/RenderTarget once we get clients moved to the new api. For now its a little weird since the pointer lives on the GrBackendTexture, but this will avoid the need to update all these API\u0027s in the future",
+      "range": {
+        "startLine": 182,
+        "startChar": 40,
+        "endLine": 182,
+        "endChar": 55
+      },
+      "revId": "ddab4306bcb1cf3afa152be86ae220d4b83937a1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
