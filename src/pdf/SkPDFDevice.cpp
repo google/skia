@@ -923,6 +923,17 @@ void SkPDFDevice::internalDrawPath(const SkClipStack& clipStack,
             pathPtr = &modifiedPath;
             pathIsMutable = true;
         }
+
+        // If a path is too big, clip it before calling getFillPath().
+        // This will mess up the pathEffect, but it's better than crashing.
+        SkIRect bigBounds = this->bounds();
+        bigBounds.outset(this->width(), this->height());
+        if (!bigBounds.contains(pathPtr->getBounds())) {
+            SkPath boundsPath;
+            boundsPath.addRect(SkRect::Make(bigBounds));
+            Op(*pathPtr, boundsPath, kIntersect_SkPathOp, pathPtr);
+        }
+
         if (paint.getFillPath(*pathPtr, pathPtr)) {
             paint.setStyle(SkPaint::kFill_Style);
         } else {
