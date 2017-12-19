@@ -29,9 +29,6 @@
 #include "SkGr.h"
 #endif
 
-// The value where the three pass window calculation results in a zero window.
-// N[Solve[sigma*3*Sqrt[2 Pi]/4 == 1/2, sigma], 16]
-static constexpr double kZeroWindow = 0.26596152026762;
 static constexpr double kPi = 3.14159265358979323846264338327950288;
 
 class SkBlurImageFilterImpl final : public SkImageFilter {
@@ -393,11 +390,83 @@ static void blur_one_direction(Sk4u* buffer, int window,
     }
 }
 
+static sk_sp<SkSpecialImage> copy_image_with_bounds(
+        SkSpecialImage *source, const sk_sp<SkSpecialImage> &input,
+        SkIRect srcBounds, SkIRect dstBounds) {
+    SkBitmap inputBM;
+    if (!input->getROPixels(&inputBM)) {
+        return nullptr;
+    }
+
+    if (inputBM.colorType() != kN32_SkColorType) {
+        return nullptr;
+    }
+
+    SkBitmap src;
+    inputBM.extractSubset(&src, srcBounds);
+
+    // Make everything relative to the destination bounds.
+    srcBounds.offset(-dstBounds.x(), -dstBounds.y());
+    dstBounds.offset(-dstBounds.x(), -dstBounds.y());
+
+    auto srcW = srcBounds.width(),
+         dstW = dstBounds.width(),
+         dstH = dstBounds.height();
+
+    SkImageInfo dstInfo = SkImageInfo::Make(dstW, dstH, inputBM.colorType(), inputBM.alphaType());
+
+    SkBitmap dst;
+    if (!dst.tryAllocPixels(dstInfo)) {
+        return nullptr;
+    }
+
+    // There is no blurring to do, but we still need to copy the source while accounting for the
+    // dstBounds. Remember that the src was intersected with the dst.
+    int y = 0;
+    size_t dstWBytes = dstW * sizeof(uint32_t);
+    for (;y < srcBounds.top(); y++) {
+        sk_bzero(dst.getAddr32(0, y), dstWBytes);
+    }
+
+    for (;y < srcBounds.bottom(); y++) {
+        int x = 0;
+        uint32_t* dstPtr = dst.getAddr32(0, y);
+        for (;x < srcBounds.left(); x++) {
+            *dstPtr++ = 0;
+        }
+
+        memcpy(dstPtr, src.getAddr32(x - srcBounds.left(), y - srcBounds.top()),
+               srcW * sizeof(uint32_t));
+
+        dstPtr += srcW;
+        x += srcW;
+
+        for (;x < dstBounds.right(); x++) {
+            *dstPtr++ = 0;
+        }
+    }
+
+    for (;y < dstBounds.bottom(); y++) {
+        sk_bzero(dst.getAddr32(0, y), dstWBytes);
+    }
+
+    return SkSpecialImage::MakeFromRaster(SkIRect::MakeWH(dstBounds.width(),
+                                                          dstBounds.height()),
+                                          dst, &source->props());
+}
+
 // TODO: Implement CPU backend for different fTileMode.
 static sk_sp<SkSpecialImage> cpu_blur(
         SkVector sigma,
         SkSpecialImage *source, const sk_sp<SkSpecialImage> &input,
         SkIRect srcBounds, SkIRect dstBounds) {
+    auto windowW = calculate_window(sigma.x()),
+         windowH = calculate_window(sigma.y());
+
+    if (windowW <= 1 && windowH <= 1) {
+        return copy_image_with_bounds(source, input, srcBounds, dstBounds);
+    }
+
     SkBitmap inputBM;
 
     if (!input->getROPixels(&inputBM)) {
@@ -407,9 +476,6 @@ static sk_sp<SkSpecialImage> cpu_blur(
     if (inputBM.colorType() != kN32_SkColorType) {
         return nullptr;
     }
-
-    auto windowW = calculate_window(sigma.x()),
-         windowH = calculate_window(sigma.y());
 
     SkBitmap src;
     inputBM.extractSubset(&src, srcBounds);
@@ -438,89 +504,57 @@ static sk_sp<SkSpecialImage> cpu_blur(
     SkSTArenaAlloc<1024> alloc;
     Sk4u* buffer = alloc.makeArrayDefault<Sk4u>(std::max(bufferSizeW, bufferSizeH));
 
-    if (windowW > 1 || windowH > 1) {
+    // Basic Plan: The three cases to handle
+    // * Horizontal and Vertical - blur horizontally while copying values from the source to
+    //     the destination. Then, do an in-place vertical blur.
+    // * Horizontal only - blur horizontally copying values from the source to the destination.
+    // * Vertical only - blur vertically copying values from the source to the destination.
 
-        // Basic Plan: The three cases to handle
-        // * Horizontal and Vertical - blur horizontally while copying values from the source to
-        //     the destination. Then, do an in-place vertical blur.
-        // * Horizontal only - blur horizontally copying values from the source to the destination.
-        // * Vertical only - blur vertically copying values from the source to the destination.
+    // Default to vertical only blur case. If a horizontal blur is needed, then these values
+    // will be adjusted while doing the horizontal blur.
+    auto intermediateSrc = static_cast<uint32_t *>(src.getPixels());
+    auto intermediateRowBytesAsPixels = src.rowBytesAsPixels();
+    auto intermediateWidth = srcW;
 
-        // Default to vertical only blur case. If a horizontal blur is needed, then these values
-        // will be adjusted while doing the horizontal blur.
-        auto intermediateSrc = static_cast<uint32_t *>(src.getPixels());
-        auto intermediateRowBytesAsPixels = src.rowBytesAsPixels();
-        auto intermediateWidth = srcW;
+    // Because the border is calculated before the fork of the GPU/CPU path. The border is
+    // the maximum of the two rendering methods. In the case where sigma is zero, then the
+    // src and dst left values are the same. If sigma is small resulting in a window size of
+    // 1, then border calculations add some pixels which will always be zero. Inset the
+    // destination by those zero pixels. This case is very rare.
+    auto intermediateDst = dst.getAddr32(srcBounds.left(), 0);
 
-        // Because the border is calculated before the fork of the GPU/CPU path. The border is
-        // the maximum of the two rendering methods. In the case where sigma is zero, then the
-        // src and dst left values are the same. If sigma is small resulting in a window size of
-        // 1, then border calculations add some pixels which will always be zero. Inset the
-        // destination by those zero pixels. This case is very rare.
-        auto intermediateDst = dst.getAddr32(srcBounds.left(), 0);
+    // The following code is executed very rarely, I have never seen it in a real web
+    // page. If sigma is small but not zero then shared GPU/CPU border calculation
+    // code adds extra pixels for the border. Just clear everything to clear those pixels.
+    // This solution is overkill, but very simple.
+    if (windowW == 1 || windowH == 1) {
+        dst.eraseColor(0);
+    }
 
-        // The following code is executed very rarely, I have never seen it in a real web
-        // page. If sigma is small but not zero then shared GPU/CPU border calculation
-        // code adds extra pixels for the border. Just clear everything to clear those pixels.
-        // This solution is overkill, but very simple.
-        if (windowW == 1 || windowH == 1) {
-            dst.eraseColor(0);
-        }
+    if (windowW > 1) {
+        auto shift = srcBounds.top() - dstBounds.top();
+        // For the horizontal blur, starts part way down in anticipation of the vertical blur.
+        // For a vertical sigma of zero shift should be zero. But, for small sigma,
+        // shift may be > 0 but the vertical window could be 1.
+        intermediateSrc = static_cast<uint32_t *>(dst.getPixels())
+                          + (shift > 0 ? shift * dst.rowBytesAsPixels() : 0);
+        intermediateRowBytesAsPixels = dst.rowBytesAsPixels();
+        intermediateWidth = dstW;
+        intermediateDst = static_cast<uint32_t *>(dst.getPixels());
 
-        if (windowW > 1) {
-            auto shift = srcBounds.top() - dstBounds.top();
-            // For the horizontal blur, starts part way down in anticipation of the vertical blur.
-            // For a vertical sigma of zero shift should be zero. But, for small sigma,
-            // shift may be > 0 but the vertical window could be 1.
-            intermediateSrc = static_cast<uint32_t *>(dst.getPixels())
-                              + (shift > 0 ? shift * dst.rowBytesAsPixels() : 0);
-            intermediateRowBytesAsPixels = dst.rowBytesAsPixels();
-            intermediateWidth = dstW;
-            intermediateDst = static_cast<uint32_t *>(dst.getPixels());
+        blur_one_direction(
+                buffer, windowW,
+                srcBounds.left(), srcBounds.right(), dstBounds.right(),
+                static_cast<uint32_t *>(src.getPixels()), 1, src.rowBytesAsPixels(), srcH,
+                intermediateSrc, 1, intermediateRowBytesAsPixels);
+    }
 
-            blur_one_direction(
-                    buffer, windowW,
-                    srcBounds.left(), srcBounds.right(), dstBounds.right(),
-                    static_cast<uint32_t *>(src.getPixels()), 1, src.rowBytesAsPixels(), srcH,
-                    intermediateSrc, 1, intermediateRowBytesAsPixels);
-        }
-
-        if (windowH > 1) {
-            blur_one_direction(
-                    buffer, windowH,
-                    srcBounds.top(), srcBounds.bottom(), dstBounds.bottom(),
-                    intermediateSrc, intermediateRowBytesAsPixels, 1, intermediateWidth,
-                    intermediateDst, dst.rowBytesAsPixels(), 1);
-        }
-    }  else {
-        // There is no blurring to do, but we still need to copy the source while accounting for the
-        // dstBounds. Remember that the src was intersected with the dst.
-        int y = 0;
-        size_t dstWBytes = dstW * sizeof(uint32_t);
-        for (;y < srcBounds.top(); y++) {
-            sk_bzero(dst.getAddr32(0, y), dstWBytes);
-        }
-        for (;y < srcBounds.bottom(); y++) {
-            int x = 0;
-            uint32_t* dstPtr = dst.getAddr32(0, y);
-            for (;x < srcBounds.left(); x++) {
-                *dstPtr++ = 0;
-            }
-
-            memcpy(dstPtr,
-                   src.getAddr32(x - srcBounds.left(), y - srcBounds.top()),
-                   srcW * sizeof(uint32_t));
-
-            dstPtr += srcW;
-            x += srcW;
-
-            for (;x < dstBounds.right(); x++) {
-                *dstPtr++ = 0;
-            }
-        }
-        for (;y < dstBounds.bottom(); y++) {
-            sk_bzero(dst.getAddr32(0, y), dstWBytes);
-        }
+    if (windowH > 1) {
+        blur_one_direction(
+                buffer, windowH,
+                srcBounds.top(), srcBounds.bottom(), dstBounds.bottom(),
+                intermediateSrc, intermediateRowBytesAsPixels, 1, intermediateWidth,
+                intermediateDst, dst.rowBytesAsPixels(), 1);
     }
 
     return SkSpecialImage::MakeFromRaster(SkIRect::MakeWH(dstBounds.width(),
@@ -574,12 +608,7 @@ sk_sp<SkSpecialImage> SkBlurImageFilterImpl::onFilterImage(SkSpecialImage* sourc
     } else
 #endif
     {
-        // If both sigmas will result in a zero width window, there is nothing to do.
-        if (sigma.x() < kZeroWindow && sigma.y() < kZeroWindow) {
-            result = input->makeSubset(inputBounds);
-        } else {
-            result = cpu_blur(sigma, source, input, inputBounds, dstBounds);
-        }
+        result = cpu_blur(sigma, source, input, inputBounds, dstBounds);
     }
 
     // Return the resultOffset if the blur succeeded.
@@ -604,7 +633,7 @@ sk_sp<SkSpecialImage> SkBlurImageFilterImpl::gpuFilter(
     // N[Solve[{c/n == 1/2048, sigma > 0}, sigma], 16]
     static constexpr double kZeroWindowGPU = 0.2561130112451658;
     if (sigma.x() < kZeroWindowGPU && sigma.y() < kZeroWindowGPU) {
-        return input->makeSubset(inputBounds);
+        return copy_image_with_bounds(source, input, inputBounds, dstBounds);
     }
 
     GrContext* context = source->getContext();
