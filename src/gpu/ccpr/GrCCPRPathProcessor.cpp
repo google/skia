@@ -36,6 +36,12 @@ static constexpr float kOctoEdgeNorms[8 * 4] = {
 
 GR_DECLARE_STATIC_UNIQUE_KEY(gVertexBufferKey);
 
+sk_sp<const GrBuffer> GrCCPRPathProcessor::FindVertexBuffer(GrOnFlushResourceProvider* onFlushRP) {
+    GR_DEFINE_STATIC_UNIQUE_KEY(gVertexBufferKey);
+    return onFlushRP->findOrMakeStaticBuffer(kVertex_GrBufferType, sizeof(kOctoEdgeNorms),
+                                             kOctoEdgeNorms, gVertexBufferKey);
+}
+
 // Index buffer for the octagon defined above.
 static uint16_t kOctoIndices[GrCCPRPathProcessor::kPerInstanceIndexCount] = {
     0, 4, 2,
@@ -47,6 +53,12 @@ static uint16_t kOctoIndices[GrCCPRPathProcessor::kPerInstanceIndexCount] = {
 };
 
 GR_DECLARE_STATIC_UNIQUE_KEY(gIndexBufferKey);
+
+sk_sp<const GrBuffer> GrCCPRPathProcessor::FindIndexBuffer(GrOnFlushResourceProvider* onFlushRP) {
+    GR_DEFINE_STATIC_UNIQUE_KEY(gIndexBufferKey);
+    return onFlushRP->findOrMakeStaticBuffer(kIndex_GrBufferType, sizeof(kOctoIndices),
+                                             kOctoIndices, gIndexBufferKey);
+}
 
 GrCCPRPathProcessor::GrCCPRPathProcessor(GrResourceProvider* rp, sk_sp<GrTextureProxy> atlas,
                                          SkPath::FillType fillType, const GrShaderCaps& shaderCaps)
@@ -189,16 +201,4 @@ void GLSLPathProcessor::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
         f->codeAppend ("half t = mod(abs(coverage_count), 2);");
         f->codeAppendf("%s = half4(1 - abs(t - 1));", args.fOutputCoverage);
     }
-}
-
-sk_sp<GrBuffer> GrCCPRPathProcessor::FindOrMakeIndexBuffer(GrOnFlushResourceProvider* onFlushRP) {
-    GR_DEFINE_STATIC_UNIQUE_KEY(gIndexBufferKey);
-    return onFlushRP->findOrMakeStaticBuffer(gIndexBufferKey, kIndex_GrBufferType,
-                                             sizeof(kOctoIndices), kOctoIndices);
-}
-
-sk_sp<GrBuffer> GrCCPRPathProcessor::FindOrMakeVertexBuffer(GrOnFlushResourceProvider* onFlushRP) {
-    GR_DEFINE_STATIC_UNIQUE_KEY(gVertexBufferKey);
-    return onFlushRP->findOrMakeStaticBuffer(gVertexBufferKey, kVertex_GrBufferType,
-                                             sizeof(kOctoEdgeNorms), kOctoEdgeNorms);
 }

@@ -324,13 +324,13 @@ void GrCoverageCountingPathRenderer::preFlush(GrOnFlushResourceProvider* onFlush
     }
 
     // Allocate GPU buffers.
-    fPerFlushIndexBuffer = GrCCPRPathProcessor::FindOrMakeIndexBuffer(onFlushRP);
+    fPerFlushIndexBuffer = GrCCPRPathProcessor::FindIndexBuffer(onFlushRP);
     if (!fPerFlushIndexBuffer) {
         SkDebugf("WARNING: failed to allocate ccpr path index buffer.\n");
         return;
     }
 
-    fPerFlushVertexBuffer = GrCCPRPathProcessor::FindOrMakeVertexBuffer(onFlushRP);
+    fPerFlushVertexBuffer = GrCCPRPathProcessor::FindVertexBuffer(onFlushRP);
     if (!fPerFlushVertexBuffer) {
         SkDebugf("WARNING: failed to allocate ccpr path vertex buffer.\n");
         return;

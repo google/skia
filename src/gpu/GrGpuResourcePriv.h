@@ -16,6 +16,8 @@
  */
 class GrGpuResource::ResourcePriv {
 public:
+    SkDEBUGCODE(bool hasPendingIO_debugOnly() const { return fResource->internalHasPendingIO(); })
+
     /**
      * Sets a unique key for the resource. If the resource was previously cached as scratch it will
      * be converted to a uniquely-keyed resource. If the key is invalid then this is equivalent to
