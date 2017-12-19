@@ -22,6 +22,30 @@
       "revId": "a8ef52f99bfc4018cea54f835e4946a77c4ce9e6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c7a82f62_3c646b51",
+        "filename": "infra/bots/recipe_modules/flavor/gn_android_flavor.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2017-12-19T15:27:10Z",
+      "side": 1,
+      "message": "All the ones we have right now.",
+      "parentUuid": "4320c0cb_dfcdd0dd",
+      "range": {
+        "startLine": 120,
+        "startChar": 7,
+        "endLine": 120,
+        "endChar": 8
+      },
+      "revId": "a8ef52f99bfc4018cea54f835e4946a77c4ce9e6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
