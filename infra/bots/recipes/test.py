@@ -184,6 +184,7 @@ def dm_flags(api, bot):
     if 'glessrgb' in configs:
       if ('IntelHD405'    in bot or
           'IntelIris540'  in bot or
+          'IntelIris640'  in bot or
           'IntelBayTrail' in bot or
           'IntelHD2000'   in bot or
           'AndroidOne'    in bot or
@@ -574,7 +575,8 @@ def dm_flags(api, bot):
                   '~^SpecialImage_Gpu$',
                   '~^SurfaceSemaphores$'])
 
-  if 'Vulkan' in bot and api.vars.is_linux and 'IntelIris540' in bot:
+  if ('Vulkan' in bot and api.vars.is_linux and
+      ('IntelIris540' in bot or 'IntelIris640' in bot)):
     match.extend(['~VkHeapTests']) # skia:6245
 
   if 'Vulkan' in bot and api.vars.is_linux and 'IntelHD405' in bot:

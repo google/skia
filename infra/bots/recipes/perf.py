@@ -93,6 +93,7 @@ def nanobench_flags(api, bot):
     if 'glessrgb' in configs:
       if ('IntelHD405'    in bot or
           'IntelIris540'  in bot or
+          'IntelIris640'  in bot or
           'IntelBayTrail' in bot or
           'IntelHD2000'   in bot or
           'AndroidOne'    in bot or
