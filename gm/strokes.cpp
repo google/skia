@@ -534,10 +534,6 @@ DEF_SIMPLE_GM(zerolinedash, canvas, 256, 256) {
     canvas->drawLine(100, 100, 100, 100, paint);
 }
 
-// disable temporarily
-// pdf takes a very long time to run this
-// bug.skia.org/7423
-#if 0
 DEF_SIMPLE_GM(longrect_dash, canvas, 250, 250) {
     canvas->clear(SK_ColorWHITE);
 
@@ -565,4 +561,3 @@ DEF_SIMPLE_GM(longrect_dash, canvas, 250, 250) {
         }
     }
 }
-#endif
