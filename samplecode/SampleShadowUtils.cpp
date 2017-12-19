@@ -121,6 +121,7 @@ protected:
         if (!fShowSpot) {
             spotAlpha = 0;
         }
+        flags |= SkShadowFlags::kDisableTonalColor_ShadowFlag;
         if (fUseAlt) {
             flags |= SkShadowFlags::kGeometricOnly_ShadowFlag;
         }

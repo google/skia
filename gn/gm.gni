@@ -317,6 +317,7 @@ gm_sources = [
   "$_gm/tilemodes.cpp",
   "$_gm/tilemodes_scaled.cpp",
   "$_gm/tinybitmap.cpp",
+  "$_gm/tonalshadows.cpp",
   "$_gm/transparency.cpp",
   "$_gm/typeface.cpp",
   "$_gm/variedtext.cpp",

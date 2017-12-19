@@ -84,9 +84,9 @@ public:
      * set the alpha to (S_a + C_a - S_a*C_a).
      *
      * @param r  Red value of color
-     * @param g  Red value of color
-     * @param b  Red value of color
-     * @param a  Red value of color
+     * @param g  Green value of color
+     * @param b  Blue value of color
+     * @param a  Alpha value of color
      * @param colorScale  Factor to scale color values by
      * @param tonalAlpha  Value to set alpha to
      */
@@ -96,14 +96,28 @@ public:
         SkScalar min = SkTMin(SkTMin(r, g), b);
         SkScalar luminance = 0.5f*(max + min);
 
-        // We get best results with a luminance between 0.3 and 0.5, with smoothstep applied
-        SkScalar adjustedLuminance = (0.6f - 0.4f*luminance)*luminance*luminance + 0.3f;
-        // Similarly, we need to tone down the given greyscale alpha depending on how
-        // much color we're applying.
-        a -= (0.5f*adjustedLuminance - 0.15f);
+        // We compute a color alpha value based on the luminance of the color, scaled by an
+        // adjusted alpha value. We want the following properties to match the UX examples
+        // (assuming a = 0.25) and to ensure that we have reasonable results when the color
+        // is black and/or the alpha is 0:
+        //     f(0, a) = 0
+        //     f(luminance, 0) = 0
+        //     f(1, 0.25) = .5
+        //     f(0.5, 0.25) = .4
+        //     f(1, 1) = 1
+        // The following functions match this as closely as possible.
+        SkScalar alphaAdjust = (2.6f + (-2.66667f + 1.06667f*a)*a)*a;
+        SkScalar colorAlpha = (3.544762f + (-4.891428f + 2.3466f*luminance)*luminance)*luminance;
+        colorAlpha = SkTPin(alphaAdjust*colorAlpha, 0.0f, 1.0f);
 
-        *colorScale = adjustedLuminance*(SK_Scalar1 - a);
-        *tonalAlpha = *colorScale + a;
+        // Similarly, we set the greyscale alpha based on luminance and alpha so that
+        //     f(0, a) = a
+        //     f(luminance, 0) = 0
+        //     f(1, 0.25) = 0.15
+        SkScalar greyscaleAlpha = SkTPin(a*(1 - 0.4f*luminance), 0.0f, 1.0f);
+
+        *colorScale = colorAlpha*(SK_Scalar1 - greyscaleAlpha);
+        *tonalAlpha = *colorScale + greyscaleAlpha;
     }
 
 };

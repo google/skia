@@ -1141,7 +1141,7 @@ bool GrRenderTargetContext::drawFastShadow(const GrClip& clip,
             SkScalar colorScale;
             SkScalar tonalAlpha;
             SkShadowUtils::ComputeTonalColorParams(color.fRGBA[0], color.fRGBA[1],
-                                                   color.fRGBA[2], rec.fSpotAlpha,
+                                                   color.fRGBA[2], color.fRGBA[3]*rec.fSpotAlpha,
                                                    &colorScale, &tonalAlpha);
             color.fRGBA[0] *= colorScale;
             color.fRGBA[1] *= colorScale;
