@@ -116,7 +116,7 @@ with open(sys.argv[1], 'w') as f:
       extra_ldflags.append('-L' + clang_linux + '/msan')
 
     args = {}
-    ninja_args = ['-k', '0', '-C', self.out_dir]
+    ninja_args = ['-d', 'keeprsp', '-k', '0', '-C', self.out_dir]
     env = {}
 
     if configuration != 'Debug':
@@ -235,6 +235,26 @@ with open(sys.argv[1], 'w') as f:
         with self.m.env(env):
           self._run('gn gen', [gn, 'gen', self.out_dir, '--args=' + gn_args])
           self._run('ninja', [ninja] + ninja_args)
+          self.m.python.inline(
+              'show rsps',
+        """
+import os
+import sys
+
+base = sys.argv[1]
+
+for root, dirs, files in os.walk(base):
+  for f in files:
+    path = os.path.join(root, f)
+    if (os.path.isfile(path) and
+        f.endswith('.rsp')):
+      print(path)
+      with open(path, 'r') as c:
+        print(c.read())
+      print '---'
+""",
+              args=[self.out_dir],
+              infra_step=True)
     finally:
       if goma_dir:
         with self.m.context(cwd=goma_dir, env=env):
