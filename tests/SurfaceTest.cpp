@@ -598,6 +598,7 @@ static sk_sp<SkSurface> create_gpu_surface_backend_texture(
 
     sk_sp<SkSurface> surface = SkSurface::MakeFromBackendTexture(context, *outTexture,
                                                                  kTopLeft_GrSurfaceOrigin, sampleCnt,
+                                                                 kRGBA_8888_SkColorType,
                                                                  nullptr, nullptr);
     if (!surface) {
         context->getGpu()->deleteTestingOnlyBackendTexture(outTexture);
@@ -621,7 +622,8 @@ static sk_sp<SkSurface> create_gpu_surface_backend_texture_as_render_target(
     }
 
     sk_sp<SkSurface> surface = SkSurface::MakeFromBackendTextureAsRenderTarget(
-            context, *outTexture, kTopLeft_GrSurfaceOrigin, sampleCnt, nullptr, nullptr);
+            context, *outTexture, kTopLeft_GrSurfaceOrigin, sampleCnt, kRGBA_8888_SkColorType,
+            nullptr, nullptr);
 
     if (!surface) {
         context->getGpu()->deleteTestingOnlyBackendTexture(outTexture);
@@ -894,6 +896,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceCreationWithColorSpace_Gpu, reporter, 
 
         return SkSurface::MakeFromBackendTexture(context, backendTex,
                                                  kTopLeft_GrSurfaceOrigin, 0,
+                                                 info.colorType(),
                                                  sk_ref_sp(info.colorSpace()), nullptr);
     };
 

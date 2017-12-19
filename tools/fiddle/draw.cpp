@@ -33,6 +33,7 @@ void draw(SkCanvas* canvas) {
         sk_sp<SkImage> tmp = SkImage::MakeFromTexture(context,
                                                       backEndTexture,
                                                       kTopLeft_GrSurfaceOrigin,
+                                                      kRGBA_8888_SkColorType,
                                                       kOpaque_SkAlphaType,
                                                       nullptr);
 
@@ -40,13 +41,14 @@ void draw(SkCanvas* canvas) {
         sk_sp<SkSurface> tmp2 = SkSurface::MakeFromBackendTexture(context,
                                                                   backEndTextureRenderTarget,
                                                                   kTopLeft_GrSurfaceOrigin,
-                                                                  0, nullptr, nullptr);
+                                                                  0, kRGBA_8888_SkColorType,
+                                                                  nullptr, nullptr);
 
         // Note: this surface should only be renderable (i.e., not textureable)
         sk_sp<SkSurface> tmp3 = SkSurface::MakeFromBackendRenderTarget(context,
                                                                        backEndRenderTarget,
                                                                        kTopLeft_GrSurfaceOrigin,
+                                                                       kRGBA_8888_SkColorType,
                                                                        nullptr, nullptr);
     }
-
 }

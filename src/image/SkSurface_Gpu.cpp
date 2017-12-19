@@ -294,6 +294,52 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendTexture(GrContext* context, const GrB
     return sk_make_sp<SkSurface_Gpu>(std::move(device));
 }
 
+bool validate_backend_texture(GrContext* ctx, const GrBackendTexture& tex, GrPixelConfig* config,
+                              int sampleCnt, SkColorType ct, sk_sp<SkColorSpace> cs,
+                              bool texturable) {
+    // TODO: Create a SkImageColorInfo struct for color, alpha, and color space so we don't need to
+    // create a fake image info here.
+    SkImageInfo info = SkImageInfo::Make(1, 1, ct, kPremul_SkAlphaType, cs);
+
+    if (!SkSurface_Gpu::Valid(info)) {
+        return false;
+    }
+
+    if (!ctx->caps()->validateBackendTexture(tex, ct, config)) {
+        return false;
+    }
+
+    if (!ctx->caps()->isConfigRenderable(*config, sampleCnt > 0)) {
+        return false;
+    }
+
+    if (ctx->caps()->getSampleCount(sampleCnt, *config) != sampleCnt) {
+        return false;
+    }
+
+    if (texturable && !ctx->caps()->isConfigTexturable(*config)) {
+        return false;
+    }
+    return true;
+}
+
+sk_sp<SkSurface> SkSurface::MakeFromBackendTexture(GrContext* context, const GrBackendTexture& tex,
+                                                   GrSurfaceOrigin origin, int sampleCnt,
+                                                   SkColorType colorType,
+                                                   sk_sp<SkColorSpace> colorSpace,
+                                                   const SkSurfaceProps* props) {
+    if (!context) {
+        return nullptr;
+    }
+    GrBackendTexture texCopy = tex;
+    if (!validate_backend_texture(context, texCopy, &texCopy.fConfig,
+                                  sampleCnt, colorType, colorSpace, true)) {
+        return nullptr;
+    }
+
+    return MakeFromBackendTexture(context, texCopy, origin, sampleCnt, colorSpace, props);
+}
+
 sk_sp<SkSurface> SkSurface::MakeFromBackendRenderTarget(GrContext* context,
                                                         const GrBackendRenderTarget& backendRT,
                                                         GrSurfaceOrigin origin,
@@ -323,6 +369,44 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendRenderTarget(GrContext* context,
     }
 
     return sk_make_sp<SkSurface_Gpu>(std::move(device));
+}
+
+bool validate_backend_render_target(GrContext* ctx, const GrBackendRenderTarget& rt,
+                                    GrPixelConfig* config, SkColorType ct, sk_sp<SkColorSpace> cs) {
+    // TODO: Create a SkImageColorInfo struct for color, alpha, and color space so we don't need to
+    // create a fake image info here.
+    SkImageInfo info = SkImageInfo::Make(1, 1, ct, kPremul_SkAlphaType, cs);
+
+    if (!SkSurface_Gpu::Valid(info)) {
+        return false;
+    }
+
+    if (!ctx->caps()->validateBackendRenderTarget(rt, ct, config)) {
+        return false;
+    }
+
+    if (!ctx->caps()->isConfigRenderable(*config, false)) {
+        return false;
+    }
+
+    return true;
+}
+
+sk_sp<SkSurface> SkSurface::MakeFromBackendRenderTarget(GrContext* context,
+                                                        const GrBackendRenderTarget& rt,
+                                                        GrSurfaceOrigin origin,
+                                                        SkColorType colorType,
+                                                        sk_sp<SkColorSpace> colorSpace,
+                                                        const SkSurfaceProps* props) {
+    if (!context) {
+        return nullptr;
+    }
+    GrBackendRenderTarget rtCopy = rt;
+    if (!validate_backend_render_target(context, rtCopy, &rtCopy.fConfig, colorType, colorSpace)) {
+        return nullptr;
+    }
+
+    return MakeFromBackendRenderTarget(context, rtCopy, origin, colorSpace, props);
 }
 
 sk_sp<SkSurface> SkSurface::MakeFromBackendTextureAsRenderTarget(GrContext* context,
@@ -355,6 +439,26 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendTextureAsRenderTarget(GrContext* cont
         return nullptr;
     }
     return sk_make_sp<SkSurface_Gpu>(std::move(device));
+}
+
+sk_sp<SkSurface> SkSurface::MakeFromBackendTextureAsRenderTarget(GrContext* context,
+                                                                 const GrBackendTexture& tex,
+                                                                 GrSurfaceOrigin origin,
+                                                                 int sampleCnt,
+                                                                 SkColorType colorType,
+                                                                 sk_sp<SkColorSpace> colorSpace,
+                                                                 const SkSurfaceProps* props) {
+    if (!context) {
+        return nullptr;
+    }
+    GrBackendTexture texCopy = tex;
+    if (!validate_backend_texture(context, texCopy, &texCopy.fConfig,
+                                  sampleCnt, colorType, colorSpace, false)) {
+        return nullptr;
+    }
+
+    return MakeFromBackendTextureAsRenderTarget(context, texCopy, origin, sampleCnt, colorSpace,
+                                                props);
 }
 
 #endif
