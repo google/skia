@@ -133,6 +133,19 @@ public:
     static const uint32_t kMinScratchTextureSize;
 
     /**
+     * Either finds and refs, or creates a static buffer with the given parameters and contents.
+     *
+     * @param intendedType    hint to the graphics subsystem about what the buffer will be used for.
+     * @param size            minimum size of buffer to return.
+     * @param data            optional data with which to initialize the buffer.
+     * @param key             Key to be assigned to the buffer.
+     *
+     * @return The buffer if successful, otherwise nullptr.
+     */
+    sk_sp<const GrBuffer> findOrMakeStaticBuffer(GrBufferType intendedType, size_t size,
+                                                 const void* data, const GrUniqueKey& key);
+
+    /**
      * Either finds and refs, or creates an index buffer with a repeating pattern for drawing
      * contiguous vertices of a repeated mesh. If the return is non-null, the caller owns a ref on
      * the returned GrBuffer.
