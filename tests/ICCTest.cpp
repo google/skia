@@ -98,6 +98,16 @@ DEF_TEST(ICC_IsNumericalTransferFn, r) {
     test_is_numerical_transfer_fn(r, upperRight.get(), false, referenceFn);
 }
 
+DEF_TEST(ICC_Adobe, r) {
+    // Test that the color spaces produced by our procedural Adobe factory, and the official
+    // Adobe ICC profile match exactly.
+    sk_sp<SkData> data = GetResourceAsData("icc_profiles/AdobeRGB1998.icc");
+    sk_sp<SkColorSpace> fromIcc = SkColorSpace::MakeICC(data->data(), data->size());
+    sk_sp<SkColorSpace> procedural = SkColorSpace::MakeRGB(g2Dot2_TransferFn,
+                                                           SkColorSpace::kAdobeRGB_Gamut);
+    REPORTER_ASSERT(r, SkColorSpace::Equals(fromIcc.get(), procedural.get()));
+}
+
 static inline void test_write_icc(skiatest::Reporter* r, const SkColorSpaceTransferFn& fn,
                                   const SkMatrix44& toXYZD50, bool writeToFile) {
     sk_sp<SkData> profile = SkICC::WriteToICC(fn, toXYZD50);
@@ -124,7 +134,7 @@ DEF_TEST(ICC_WriteICC, r) {
     adobeMatrix.set3x3RowMajorf(gAdobeRGB_toXYZD50);
     // TODO: Restore this test once we fix our Adobe matrix to be based on the decoded ICC
     // fixed point values, and once we use a rounding conversion to fixed-point.
-//    test_write_icc(r, adobeFn, adobeMatrix, false);
+    test_write_icc(r, adobeFn, adobeMatrix, false);
 
     SkColorSpaceTransferFn srgbFn;
     srgbFn.fA = 1.0f / 1.055f;

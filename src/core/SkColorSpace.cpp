@@ -119,6 +119,7 @@ sk_sp<SkColorSpace> SkColorSpace_Base::MakeRGB(SkGammaNamed gammaNamed, const Sk
                 return SkColorSpace::MakeSRGB();
             }
             break;
+#ifdef SK_SUPPORT_LEGACY_ADOBE_XYZ
         case k2Dot2Curve_SkGammaNamed:
             if (xyz_almost_equal(toXYZD50, gAdobeRGB_toXYZD50)) {
                 SkMatrix44 adobe44(SkMatrix44::kUninitialized_Constructor);
@@ -126,6 +127,7 @@ sk_sp<SkColorSpace> SkColorSpace_Base::MakeRGB(SkGammaNamed gammaNamed, const Sk
                 return sk_sp<SkColorSpace>(new SkColorSpace_XYZ(k2Dot2Curve_SkGammaNamed, adobe44));
             }
             break;
+#endif
         case kLinear_SkGammaNamed:
             if (xyz_almost_equal(toXYZD50, gSRGB_toXYZD50)) {
                 return SkColorSpace::MakeSRGBLinear();
