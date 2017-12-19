@@ -30,7 +30,6 @@
 #include "SkSurface.h"
 #include "SkTaskGroup.h"
 #include "SkThreadedBMPDevice.h"
-#include "SkTime.h"
 
 #include "imgui.h"
 
@@ -171,11 +170,7 @@ const char* kOFF = "OFF";
 const char* kRefreshStateName = "Refresh";
 
 Viewer::Viewer(int argc, char** argv, void* platformData)
-    : fCurrentMeasurement(0)
-    , fCumulativeMeasurementTime(0)
-    , fCumulativeMeasurementCount(0)
-    , fDisplayStats(false)
-    , fRefresh(false)
+    : fRefresh(false)
     , fSaveToSKP(false)
     , fShowImGuiDebugWindow(false)
     , fShowSlidePicker(false)
@@ -204,10 +199,6 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     gPathRendererNames[GpuPathRenderers::kTessellating] = "Tessellating";
     gPathRendererNames[GpuPathRenderers::kNone] = "Software masks";
 
-    memset(fPaintTimes, 0, sizeof(fPaintTimes));
-    memset(fFlushTimes, 0, sizeof(fFlushTimes));
-    memset(fAnimateTimes, 0, sizeof(fAnimateTimes));
-
     SkDebugf("Command line arguments: ");
     for (int i = 1; i < argc; ++i) {
         SkDebugf("%s ", argv[i]);
@@ -230,9 +221,16 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     SetCtxOptionsFromCommonFlags(&displayParams.fGrContextOptions);
     fWindow->setRequestedDisplayParams(displayParams);
 
+    // Configure timers
+    fStatsLayer.setActive(false);
+    fAnimateTimer = fStatsLayer.addTimer("Animate", SK_ColorMAGENTA, 0xffff66ff);
+    fPaintTimer = fStatsLayer.addTimer("Paint", SK_ColorGREEN);
+    fFlushTimer = fStatsLayer.addTimer("Flush", SK_ColorRED, 0xffff6666);
+
     // register callbacks
     fCommands.attach(fWindow);
     fWindow->pushLayer(this);
+    fWindow->pushLayer(&fStatsLayer);
     fWindow->pushLayer(&fImGuiLayer);
 
     // add key-bindings
@@ -261,11 +259,11 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
         fWindow->inval();
     });
     fCommands.addCommand('s', "Overlays", "Toggle stats display", [this]() {
-        this->fDisplayStats = !this->fDisplayStats;
+        fStatsLayer.setActive(!fStatsLayer.getActive());
         fWindow->inval();
     });
     fCommands.addCommand('0', "Overlays", "Reset stats", [this]() {
-        this->resetMeasurements();
+        fStatsLayer.resetMeasurements();
         this->updateTitle();
         fWindow->inval();
     });
@@ -593,15 +591,6 @@ void Viewer::listNames() {
     }
 }
 
-void Viewer::resetMeasurements() {
-    memset(fPaintTimes, 0, sizeof(fPaintTimes));
-    memset(fFlushTimes, 0, sizeof(fFlushTimes));
-    memset(fAnimateTimes, 0, sizeof(fAnimateTimes));
-    fCurrentMeasurement = 0;
-    fCumulativeMeasurementTime = 0;
-    fCumulativeMeasurementCount = 0;
-}
-
 void Viewer::setupCurrentSlide(int previousSlide) {
     if (fCurrentSlide == previousSlide) {
         return; // no change; do nothing
@@ -632,7 +621,7 @@ void Viewer::setupCurrentSlide(int previousSlide) {
         fSlides[previousSlide]->unload();
     }
 
-    this->resetMeasurements();
+    fStatsLayer.resetMeasurements();
 
     fWindow->inval();
 }
@@ -673,6 +662,7 @@ void Viewer::setBackend(sk_app::Window::BackendType backendType) {
     // re-register callbacks
     fCommands.attach(fWindow);
     fWindow->pushLayer(this);
+    fWindow->pushLayer(&fStatsLayer);
     fWindow->pushLayer(&fImGuiLayer);
 
     // Don't allow the window to re-attach. If we're in MSAA mode, the params we grabbed above
@@ -788,15 +778,15 @@ void Viewer::drawSlide(SkCanvas* canvas) {
     slideCanvas->clear(SK_ColorWHITE);
     slideCanvas->concat(computeMatrix());
     // Time the painting logic of the slide
-    double startTime = SkTime::GetMSecs();
+    fStatsLayer.beginTiming(fPaintTimer);
     fSlides[fCurrentSlide]->draw(slideCanvas);
-    fPaintTimes[fCurrentMeasurement] = SkTime::GetMSecs() - startTime;
+    fStatsLayer.endTiming(fPaintTimer);
     slideCanvas->restoreToCount(count);
 
     // Force a flush so we can time that, too
-    startTime = SkTime::GetMSecs();
+    fStatsLayer.beginTiming(fFlushTimer);
     slideCanvas->flush();
-    fFlushTimes[fCurrentMeasurement] = SkTime::GetMSecs() - startTime;
+    fStatsLayer.endTiming(fFlushTimer);
 
     // If we rendered offscreen, snap an image and push the results to the window's canvas
     if (offscreenSurface) {
@@ -816,7 +806,7 @@ void Viewer::onBackendCreated() {
     this->updateTitle();
     this->updateUIState();
     this->setupCurrentSlide(-1);
-    this->resetMeasurements();
+    fStatsLayer.resetMeasurements();
     fWindow->show();
     fWindow->inval();
 }
@@ -824,18 +814,6 @@ void Viewer::onBackendCreated() {
 void Viewer::onPaint(SkCanvas* canvas) {
     this->drawSlide(canvas);
 
-    // Advance our timing bookkeeping
-    fCumulativeMeasurementTime += fAnimateTimes[fCurrentMeasurement] +
-                                  fPaintTimes[fCurrentMeasurement] +
-                                  fFlushTimes[fCurrentMeasurement];
-    fCumulativeMeasurementCount++;
-    fCurrentMeasurement = (fCurrentMeasurement + 1) & (kMeasurementCount - 1);
-    SkASSERT(fCurrentMeasurement < kMeasurementCount);
-
-    // Draw any overlays or UI that we don't want timed
-    if (fDisplayStats) {
-        drawStats(canvas);
-    }
     fCommands.drawHelp(canvas);
 
     this->drawImGui();
@@ -891,102 +869,6 @@ bool Viewer::onMouse(int x, int y, Window::InputState state, uint32_t modifiers)
     }
     fWindow->inval();
     return true;
-}
-
-void Viewer::drawStats(SkCanvas* canvas) {
-    static const float kPixelPerMS = 2.0f;
-    static const int kDisplayWidth = 192;
-    static const int kGraphHeight = 100;
-    static const int kTextHeight = 60;
-    static const int kDisplayHeight = kGraphHeight + kTextHeight;
-    static const int kDisplayPadding = 10;
-    static const int kGraphPadding = 3;
-    static const SkScalar kBaseMS = 1000.f / 60.f;  // ms/frame to hit 60 fps
-
-    SkISize canvasSize = canvas->getBaseLayerSize();
-    SkRect rect = SkRect::MakeXYWH(SkIntToScalar(canvasSize.fWidth-kDisplayWidth-kDisplayPadding),
-                                   SkIntToScalar(kDisplayPadding),
-                                   SkIntToScalar(kDisplayWidth), SkIntToScalar(kDisplayHeight));
-    SkPaint paint;
-    canvas->save();
-
-    paint.setColor(SK_ColorBLACK);
-    canvas->drawRect(rect, paint);
-    // draw the 16ms line
-    paint.setColor(SK_ColorLTGRAY);
-    canvas->drawLine(rect.fLeft, rect.fBottom - kBaseMS*kPixelPerMS,
-                     rect.fRight, rect.fBottom - kBaseMS*kPixelPerMS, paint);
-    paint.setColor(SK_ColorRED);
-    paint.setStyle(SkPaint::kStroke_Style);
-    canvas->drawRect(rect, paint);
-    paint.setStyle(SkPaint::kFill_Style);
-
-    int x = SkScalarTruncToInt(rect.fLeft) + kGraphPadding;
-    const int xStep = 3;
-    int i = fCurrentMeasurement;
-    double ms = 0;
-    double animateMS = 0;
-    double paintMS = 0;
-    double flushMS = 0;
-    int count = 0;
-    do {
-        // Round to nearest values
-        int animateHeight = (int)(fAnimateTimes[i] * kPixelPerMS + 0.5);
-        int paintHeight = (int)(fPaintTimes[i] * kPixelPerMS + 0.5);
-        int flushHeight = (int)(fFlushTimes[i] * kPixelPerMS + 0.5);
-        int startY = SkScalarTruncToInt(rect.fBottom);
-        int endY = SkTMax(startY - flushHeight, kDisplayPadding + kTextHeight);
-        paint.setColor(SK_ColorRED);
-        canvas->drawLine(SkIntToScalar(x), SkIntToScalar(startY),
-                         SkIntToScalar(x), SkIntToScalar(endY), paint);
-        startY = endY;
-        endY = SkTMax(startY - paintHeight, kDisplayPadding + kTextHeight);
-        paint.setColor(SK_ColorGREEN);
-        canvas->drawLine(SkIntToScalar(x), SkIntToScalar(startY),
-                         SkIntToScalar(x), SkIntToScalar(endY), paint);
-        startY = endY;
-        endY = SkTMax(startY - animateHeight, kDisplayPadding + kTextHeight);
-        paint.setColor(SK_ColorMAGENTA);
-        canvas->drawLine(SkIntToScalar(x), SkIntToScalar(startY),
-                         SkIntToScalar(x), SkIntToScalar(endY), paint);
-
-        double inc = fAnimateTimes[i] + fPaintTimes[i] + fFlushTimes[i];
-        if (inc > 0) {
-            ms += inc;
-            animateMS += fAnimateTimes[i];
-            paintMS += fPaintTimes[i];
-            flushMS += fFlushTimes[i];
-            ++count;
-        }
-
-        i++;
-        i &= (kMeasurementCount - 1);  // fast mod
-        x += xStep;
-    } while (i != fCurrentMeasurement);
-
-    paint.setTextSize(16);
-    SkString mainString;
-    mainString.appendf("%4.3f ms -> %4.3f ms", ms / SkTMax(1, count),
-                  fCumulativeMeasurementTime / SkTMax(1, fCumulativeMeasurementCount));
-    paint.setColor(SK_ColorWHITE);
-    canvas->drawString(mainString.c_str(), rect.fLeft+3, rect.fTop + 14, paint);
-
-    SkString animateString;
-    animateString.appendf("Animate: %4.3f ms", animateMS / SkTMax(1, count));
-    paint.setColor(0xffff66ff);    // pure magenta is hard to read
-    canvas->drawString(animateString.c_str(), rect.fLeft+3, rect.fTop + 28, paint);
-
-    SkString paintString;
-    paintString.appendf("Paint: %4.3f ms", paintMS / SkTMax(1, count));
-    paint.setColor(SK_ColorGREEN);
-    canvas->drawString(paintString.c_str(), rect.fLeft+3, rect.fTop + 42, paint);
-
-    SkString flushString;
-    flushString.appendf("Flush: %4.3f ms", flushMS / SkTMax(1, count));
-    paint.setColor(0xffff6666);    // pure red is hard to read
-    canvas->drawString(flushString.c_str(), rect.fLeft+3, rect.fTop + 56, paint);
-
-    canvas->restore();
 }
 
 static ImVec2 ImGui_DragPrimary(const char* label, float* x, float* y,
@@ -1282,13 +1164,13 @@ void Viewer::onIdle() {
     }
     fDeferredActions.reset();
 
-    double startTime = SkTime::GetMSecs();
+    fStatsLayer.beginTiming(fAnimateTimer);
     fAnimTimer.updateTime();
     bool animateWantsInval = fSlides[fCurrentSlide]->animate(fAnimTimer);
-    fAnimateTimes[fCurrentMeasurement] = SkTime::GetMSecs() - startTime;
+    fStatsLayer.endTiming(fAnimateTimer);
 
     ImGuiIO& io = ImGui::GetIO();
-    if (animateWantsInval || fDisplayStats || fRefresh || io.MetricsActiveWindows) {
+    if (animateWantsInval || fStatsLayer.getActive() || fRefresh || io.MetricsActiveWindows) {
         fWindow->inval();
     }
 }
@@ -1378,12 +1260,12 @@ void Viewer::updateUIState() {
     // FPS state
     Json::Value fpsState(Json::objectValue);
     fpsState[kName] = kFpsStateName;
-    int idx = (fCurrentMeasurement + (kMeasurementCount - 1)) & (kMeasurementCount - 1);
+    double animTime = fStatsLayer.getLastTime(fAnimateTimer);
+    double paintTime = fStatsLayer.getLastTime(fPaintTimer);
+    double flushTime = fStatsLayer.getLastTime(fFlushTimer);
     fpsState[kValue] = SkStringPrintf("%8.3lf ms\n\nA %8.3lf\nP %8.3lf\nF%8.3lf",
-                                      fAnimateTimes[idx] + fPaintTimes[idx] + fFlushTimes[idx],
-                                      fAnimateTimes[idx],
-                                      fPaintTimes[idx],
-                                      fFlushTimes[idx]).c_str();
+                                      animTime + paintTime + flushTime,
+                                      animTime, paintTime, flushTime).c_str();
     fpsState[kOptions] = Json::Value(Json::arrayValue);
 
     Json::Value state(Json::arrayValue);

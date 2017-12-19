@@ -1846,6 +1846,7 @@ if (skia_enable_tools) {
         "tools/viewer/ImageSlide.cpp",
         "tools/viewer/SKPSlide.cpp",
         "tools/viewer/SampleSlide.cpp",
+        "tools/viewer/StatsLayer.cpp",
         "tools/viewer/Viewer.cpp",
       ]
       libs = []

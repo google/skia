@@ -132,7 +132,11 @@ public:
 
     class Layer {
     public:
+        Layer() : fActive(true) {}
         virtual ~Layer() = default;
+
+        bool getActive() { return fActive; }
+        void setActive(bool active) { fActive = active; }
 
         // return value of 'true' means 'I have handled this event'
         virtual void onBackendCreated() {}
@@ -145,6 +149,10 @@ public:
         virtual void onUIStateChanged(const SkString& stateName, const SkString& stateValue) {}
         virtual void onPrePaint() {}
         virtual void onPaint(SkCanvas*) {}
+
+    private:
+        friend class Window;
+        bool fActive;
     };
 
     void pushLayer(Layer* layer) {
@@ -189,6 +197,9 @@ protected:
     void markInvalProcessed();
 
     bool fIsContentInvalidated = false;  // use this to avoid duplicate invalidate events
+
+    void visitLayers(std::function<void(Layer*)> visitor);
+    bool signalLayers(std::function<bool(Layer*)> visitor);
 };
 
 }   // namespace sk_app

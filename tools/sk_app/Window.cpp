@@ -20,61 +20,49 @@ void Window::detach() {
     fWindowContext = nullptr;
 }
 
-void Window::onBackendCreated() {
+void Window::visitLayers(std::function<void(Layer*)> visitor) {
     for (int i = 0; i < fLayers.count(); ++i) {
-        fLayers[i]->onBackendCreated();
+        if (fLayers[i]->fActive) {
+            visitor(fLayers[i]);
+        }
     }
+}
+
+bool Window::signalLayers(std::function<bool(Layer*)> visitor) {
+    for (int i = fLayers.count() - 1; i >= 0; --i) {
+        if (fLayers[i]->fActive && visitor(fLayers[i])) {
+            return true;
+        }
+    }
+    return false;
+}
+
+void Window::onBackendCreated() {
+    this->visitLayers([](Layer* layer) { layer->onBackendCreated(); });
 }
 
 bool Window::onChar(SkUnichar c, uint32_t modifiers) {
-    for (int i = fLayers.count() - 1; i >= 0; --i) {
-        if (fLayers[i]->onChar(c, modifiers)) {
-            return true;
-        }
-    }
-    return false;
+    return this->signalLayers([=](Layer* layer) { return layer->onChar(c, modifiers); });
 }
 
 bool Window::onKey(Key key, InputState state, uint32_t modifiers) {
-    for (int i = fLayers.count() - 1; i >= 0; --i) {
-        if (fLayers[i]->onKey(key, state, modifiers)) {
-            return true;
-        }
-    }
-    return false;
+    return this->signalLayers([=](Layer* layer) { return layer->onKey(key, state, modifiers); });
 }
 
 bool Window::onMouse(int x, int y, InputState state, uint32_t modifiers) {
-    for (int i = fLayers.count() - 1; i >= 0; --i) {
-        if (fLayers[i]->onMouse(x, y, state, modifiers)) {
-            return true;
-        }
-    }
-    return false;
+    return this->signalLayers([=](Layer* layer) { return layer->onMouse(x, y, state, modifiers); });
 }
 
 bool Window::onMouseWheel(float delta, uint32_t modifiers) {
-    for (int i = fLayers.count() - 1; i >= 0; --i) {
-        if (fLayers[i]->onMouseWheel(delta, modifiers)) {
-            return true;
-        }
-    }
-    return false;
+    return this->signalLayers([=](Layer* layer) { return layer->onMouseWheel(delta, modifiers); });
 }
 
 bool Window::onTouch(intptr_t owner, InputState state, float x, float y) {
-    for (int i = fLayers.count() - 1; i >= 0; --i) {
-        if (fLayers[i]->onTouch(owner, state, x, y)) {
-            return true;
-        }
-    }
-    return false;
+    return this->signalLayers([=](Layer* layer) { return layer->onTouch(owner, state, x, y); });
 }
 
 void Window::onUIStateChanged(const SkString& stateName, const SkString& stateValue) {
-    for (int i = 0; i < fLayers.count(); ++i) {
-        fLayers[i]->onUIStateChanged(stateName, stateValue);
-    }
+    this->visitLayers([=](Layer* layer) { layer->onUIStateChanged(stateName, stateValue); });
 }
 
 void Window::onPaint() {
@@ -87,12 +75,8 @@ void Window::onPaint() {
         // draw into the canvas of this surface
         SkCanvas* canvas = backbuffer->getCanvas();
 
-        for (int i = 0; i < fLayers.count(); ++i) {
-            fLayers[i]->onPrePaint();
-        }
-        for (int i = 0; i < fLayers.count(); ++i) {
-            fLayers[i]->onPaint(canvas);
-        }
+        this->visitLayers([](Layer* layer) { layer->onPrePaint(); });
+        this->visitLayers([=](Layer* layer) { layer->onPaint(canvas); });
 
         canvas->flush();
 
