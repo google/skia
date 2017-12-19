@@ -165,6 +165,18 @@ static bool cull_path(const SkPath& srcPath, const SkStrokeRec& rec,
                       const SkRect* cullRect, SkScalar intervalLength,
                       SkPath* dstPath) {
     if (nullptr == cullRect) {
+        SkPoint pts[2];
+        if (srcPath.isLine(pts) && pts[0] == pts[1]) {
+            // If line is zero-length, bump out the end by a tiny amount
+            // to draw endcaps. The bump factor is sized so that
+            // SkPoint::Distance() computes a non-zero length.
+            // Offsets SK_ScalarNearlyZero or smaller create empty paths when Iter measures length.
+            // Large values are scaled by SK_ScalarNearlyZero so significant bits change.
+            pts[1].fX += SkTMax(1.001f, pts[1].fX) * SK_ScalarNearlyZero;
+            dstPath->moveTo(pts[0]);
+            dstPath->lineTo(pts[1]);
+            return true;
+        }
         return false;
     }
 
