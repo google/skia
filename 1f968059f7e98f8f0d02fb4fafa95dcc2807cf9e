@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "120e4887_d74451e6",
+        "filename": "src/gpu/effects/GrRRectBlurEffect.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-12-20T17:01:21Z",
+      "side": 1,
+      "message": "Turns out this is a longstanding bug in SkSL; it creates a uniform handle for each variable declared uniform, even though it isn\u0027t necessary for samplers. As far as I can tell it\u0027s completely harmless; it has been doing this for every fragment processor with a sampler for a while now.\n\nIf it\u0027s ok with you, I\u0027ll fix this in a followup change rather than here.",
+      "parentUuid": "e83516b2_a7464c04",
+      "range": {
+        "startLine": 127,
+        "startChar": 4,
+        "endLine": 127,
+        "endChar": 39
+      },
+      "revId": "1f968059f7e98f8f0d02fb4fafa95dcc2807cf9e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "1ac5b019_1dac04b4",
         "filename": "src/gpu/effects/GrRRectBlurEffect.cpp",
         "patchSetId": 1
@@ -45,6 +69,30 @@
       "revId": "1f968059f7e98f8f0d02fb4fafa95dcc2807cf9e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a162bac1_34675edf",
+        "filename": "src/gpu/effects/GrRRectBlurEffect.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-12-20T17:01:21Z",
+      "side": 1,
+      "message": "I believe it\u0027s just a harmless difference. The human who wrote the original code obviously knew the texture was computed, and so it was going to end up the same as long as all of the other parameters were the same. SkSL doesn\u0027t know that, so it includes a check.",
+      "parentUuid": "1ac5b019_1dac04b4",
+      "range": {
+        "startLine": 140,
+        "startChar": 4,
+        "endLine": 140,
+        "endChar": 66
+      },
+      "revId": "1f968059f7e98f8f0d02fb4fafa95dcc2807cf9e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
