@@ -1509,12 +1509,20 @@ DEF_TEST(GrShape_empty_shape, reporter) {
     dashAndStrokeInvertexEmptyCase.compare(reporter, fillEmptyCase,
                                            TestCase::kAllSame_ComparisonExpecation);
 
-    // A shape made from an empty rrect should behave the same as an empty path.
-    SkRRect emptyRRect = SkRRect::MakeRect(SkRect::MakeEmpty());
+    // A shape made from an empty rrect should behave the same as an empty path when filled but not
+    // when stroked. However, dashing an empty rrect produces an empty path leaving nothign to
+    // stroke.
+    SkRRect emptyRRect = SkRRect::MakeEmpty();
     REPORTER_ASSERT(reporter, emptyRRect.getType() == SkRRect::kEmpty_Type);
+
+    TestCase fillEmptyRRectCase(reporter, emptyRRect, fill);
+    fillEmptyRRectCase.compare(reporter, fillEmptyCase,
+                               TestCase::kAllSame_ComparisonExpecation);
+
     TestCase dashAndStrokeEmptyRRectCase(reporter, emptyRRect, dashAndStroke);
     dashAndStrokeEmptyRRectCase.compare(reporter, fillEmptyCase,
                                         TestCase::kAllSame_ComparisonExpecation);
+
     static constexpr SkPath::Direction kDir = SkPath::kCCW_Direction;
     static constexpr int kStart = 0;
     TestCase dashAndStrokeEmptyInvertedRRectCase(reporter, emptyRRect, kDir, kStart, true,
@@ -1525,9 +1533,14 @@ DEF_TEST(GrShape_empty_shape, reporter) {
 
     // Same for a rect.
     SkRect emptyRect = SkRect::MakeEmpty();
+    TestCase fillEmptyRectCase(reporter, emptyRect, fill);
+    fillEmptyRectCase.compare(reporter, fillEmptyCase,
+                              TestCase::kAllSame_ComparisonExpecation);
+
     TestCase dashAndStrokeEmptyRectCase(reporter, emptyRect, dashAndStroke);
     dashAndStrokeEmptyRectCase.compare(reporter, fillEmptyCase,
                                        TestCase::kAllSame_ComparisonExpecation);
+
     TestCase dashAndStrokeEmptyInvertedRectCase(reporter, SkRRect::MakeRect(emptyRect), kDir,
                                                 kStart, true, GrStyle(dashAndStroke));
     // Dashing ignores inverseness so this is equivalent to the non-inverted empty fill.
