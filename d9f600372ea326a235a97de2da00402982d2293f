@@ -87,6 +87,30 @@
       "revId": "d9f600372ea326a235a97de2da00402982d2293f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1de210b1_5fdc2d2e",
+        "filename": "gn/BUILD.gn",
+        "patchSetId": 6
+      },
+      "lineNbr": 227,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-12-20T21:43:23Z",
+      "side": 1,
+      "message": "Nope, in PS5 and PS6 of that CL, I put \"/O2\"/\"-O1\" before \"-fsanitize\" and it still failed.",
+      "parentUuid": "24566694_31e4c924",
+      "range": {
+        "startLine": 227,
+        "startChar": 24,
+        "endLine": 227,
+        "endChar": 35
+      },
+      "revId": "d9f600372ea326a235a97de2da00402982d2293f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
