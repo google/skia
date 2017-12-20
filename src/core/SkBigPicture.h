@@ -43,7 +43,6 @@ public:
 // SkPicture overrides
     void playback(SkCanvas*, AbortCallback*) const override;
     SkRect cullRect() const override;
-    bool willPlayBackBitmaps() const override;
     int approximateOpCount() const override;
     size_t approximateBytesUsed() const override;
     const SkBigPicture* asSkBigPicture() const override { return this; }
@@ -64,7 +63,6 @@ private:
         bool suitableForGpuRasterization(const char** reason) const;
 
         uint8_t fNumSlowPathsAndDashEffects;
-        bool    fWillPlaybackBitmaps : 1;
     };
 
     int numSlowPaths() const override;
