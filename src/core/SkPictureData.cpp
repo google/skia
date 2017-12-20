@@ -305,9 +305,8 @@ void SkPictureData::serialize(SkWStream* stream, const SkSerialProcs& procs,
         bool write(const void*, size_t size) override { fBytesWritten += size; return true; }
         size_t bytesWritten() const override { return fBytesWritten; }
     } devnull;
-    SkSerialProcs nullProcs;
     for (int i = 0; i < fPictureCount; i++) {
-        fPictureRefs[i]->serialize(&devnull, nullProcs, typefaceSet);
+        fPictureRefs[i]->serialize(&devnull, nullptr, typefaceSet);
     }
 
     // We need to write factories before we write the buffer.
@@ -325,7 +324,7 @@ void SkPictureData::serialize(SkWStream* stream, const SkSerialProcs& procs,
     if (fPictureCount > 0) {
         write_tag_size(stream, SK_PICT_PICTURE_TAG, fPictureCount);
         for (int i = 0; i < fPictureCount; i++) {
-            fPictureRefs[i]->serialize(stream, procs, typefaceSet);
+            fPictureRefs[i]->serialize(stream, &procs, typefaceSet);
         }
     }
 
@@ -436,7 +435,7 @@ bool SkPictureData::parseStreamTag(SkStream* stream,
             fPictureCount = 0;
             fPictureRefs = new const SkPicture* [size];
             for (uint32_t i = 0; i < size; i++) {
-                fPictureRefs[i] = SkPicture::MakeFromStream(stream, procs, topLevelTFPlayback).release();
+                fPictureRefs[i] = SkPicture::MakeFromStream(stream, &procs, topLevelTFPlayback).release();
                 if (!fPictureRefs[i]) {
                     return false;
                 }

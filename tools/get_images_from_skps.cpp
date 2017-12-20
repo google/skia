@@ -141,7 +141,7 @@ static bool get_images_from_file(const SkString& file) {
         return SkData::MakeEmpty();
     };
     procs.fImageCtx = &sniff;
-    picture->serialize(procs);
+    picture->serialize(&procs);
     return true;
 }
 

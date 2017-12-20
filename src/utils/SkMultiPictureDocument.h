@@ -4,17 +4,26 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
 #ifndef SkMultiPictureDocument_DEFINED
 #define SkMultiPictureDocument_DEFINED
 
 #include "SkDocument.h"
 
+struct SkDeserialProcs;
+struct SkSerialProcs;
 class SkStreamSeekable;
 
 /**
  *  Writes into a file format that is similar to SkPicture::serialize()
  */
-SK_API sk_sp<SkDocument> SkMakeMultiPictureDocument(SkWStream* dst);
+SK_API sk_sp<SkDocument> SkMakeMultiPictureDocument(SkWStream* dst, const SkSerialProcs* = nullptr);
+
+#ifdef SK_SUPPORT_LEGACY_SERIALPROCS_REF
+SK_API sk_sp<SkDocument> SkMakeMultiPictureDocument(SkWStream* dst) {
+    return SkMakeMultiPictureDocument(dst, nullptr);
+}
+#endif
 
 struct SkDocumentPage {
     sk_sp<SkPicture> fPicture;
@@ -33,6 +42,7 @@ SK_API int SkMultiPictureDocumentReadPageCount(SkStreamSeekable* src);
  */
 SK_API bool SkMultiPictureDocumentRead(SkStreamSeekable* src,
                                        SkDocumentPage* dstArray,
-                                       int dstArrayCount);
+                                       int dstArrayCount,
+                                       const SkDeserialProcs* = nullptr);
 
 #endif  // SkMultiPictureDocument_DEFINED

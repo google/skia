@@ -36,7 +36,7 @@ typedef sk_sp<SkPicture> (*SkDeserialPictureProc)(const void* data, size_t lengt
 typedef sk_sp<SkImage> (*SkDeserialImageProc)(const void* data, size_t length, void* ctx);
 typedef sk_sp<SkTypeface> (*SkDeserialTypefaceProc)(const void* data, size_t length, void* ctx);
 
-struct SkSerialProcs {
+struct SK_API SkSerialProcs {
     SkSerialPictureProc fPictureProc = nullptr;
     void*               fPictureCtx = nullptr;
 
@@ -47,7 +47,7 @@ struct SkSerialProcs {
     void*                fTypefaceCtx = nullptr;
 };
 
-struct SkDeserialProcs {
+struct SK_API SkDeserialProcs {
     SkDeserialPictureProc   fPictureProc = nullptr;
     void*                   fPictureCtx = nullptr;
 
