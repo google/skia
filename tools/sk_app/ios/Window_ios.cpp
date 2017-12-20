@@ -183,26 +183,15 @@ bool Window_ios::handleEvent(const SDL_Event& event) {
             break;
 
         case SDL_MOUSEBUTTONDOWN:
-            if (event.button.button == SDL_BUTTON_LEFT) {
-                this->onMouse(event.button.x, event.button.y,
-                              Window::kDown_InputState, get_modifiers(event));
-            }
+            this->onTouch(0, Window::kDown_InputState, event.button.x, event.button.y);
             break;
 
         case SDL_MOUSEBUTTONUP:
-            if (event.button.button == SDL_BUTTON_LEFT) {
-                this->onMouse(event.button.x, event.button.y,
-                              Window::kUp_InputState, get_modifiers(event));
-            }
+            this->onTouch(0, Window::kUp_InputState, event.button.x, event.button.y);
             break;
 
         case SDL_MOUSEMOTION:
-            this->onMouse(event.motion.x, event.motion.y,
-                          Window::kMove_InputState, get_modifiers(event));
-            break;
-
-        case SDL_MOUSEWHEEL:
-            this->onMouseWheel(event.wheel.y, get_modifiers(event));
+            this->onTouch(0, Window::kMove_InputState, event.motion.x, event.motion.y);
             break;
 
         case SDL_KEYDOWN: {
