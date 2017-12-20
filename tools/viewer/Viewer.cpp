@@ -847,27 +847,34 @@ bool Viewer::onTouch(intptr_t owner, Window::InputState state, float x, float y)
 }
 
 bool Viewer::onMouse(int x, int y, Window::InputState state, uint32_t modifiers) {
-    if (!fSlides[fCurrentSlide]->onMouse(x, y, state, modifiers)) {
-        if (GestureDevice::kTouch == fGestureDevice) {
-            return false;
-        }
-        switch (state) {
-            case Window::kUp_InputState: {
-                fGesture.touchEnd(nullptr);
-                break;
-            }
-            case Window::kDown_InputState: {
-                fGesture.touchBegin(nullptr, x, y);
-                break;
-            }
-            case Window::kMove_InputState: {
-                fGesture.touchMoved(nullptr, x, y);
-                break;
-            }
-        }
-        fGestureDevice = fGesture.isBeingTouched() ? GestureDevice::kMouse : GestureDevice::kNone;
+    if (GestureDevice::kTouch == fGestureDevice) {
+        return false;
     }
-    fWindow->inval();
+
+    if (fSlides[fCurrentSlide]->onMouse(x, y, state, modifiers)) {
+        fWindow->inval();
+        return true;
+    }
+
+    switch (state) {
+        case Window::kUp_InputState: {
+            fGesture.touchEnd(nullptr);
+            break;
+        }
+        case Window::kDown_InputState: {
+            fGesture.touchBegin(nullptr, x, y);
+            break;
+        }
+        case Window::kMove_InputState: {
+            fGesture.touchMoved(nullptr, x, y);
+            break;
+        }
+    }
+    fGestureDevice = fGesture.isBeingTouched() ? GestureDevice::kMouse : GestureDevice::kNone;
+
+    if (state != Window::kMove_InputState || fGesture.isBeingTouched()) {
+        fWindow->inval();
+    }
     return true;
 }
 
