@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "51e32288_4daa615c",
+        "filename": "src/core/SkRegion.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1133,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-12-20T18:52:15Z",
+      "side": 1,
+      "message": "Don\u0027t ySpanCount and intervalCount need to be positive also? Is that checked somewhere else?",
+      "range": {
+        "startLine": 1133,
+        "startChar": 34,
+        "endLine": 1133,
+        "endChar": 44
+      },
+      "revId": "15d223c9d4a703e3f42cf7128d83731dabca1a0c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
