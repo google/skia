@@ -115,12 +115,6 @@ public:
      */
     void flatten(SkWriteBuffer&) const;
 
-    /**
-     * Returns true if any bitmaps may be produced when this SkPicture
-     * is replayed.
-     */
-    virtual bool willPlayBackBitmaps() const = 0;
-
     /** Return the approximate number of operations in this picture.  This
      *  number may be greater or less than the number of SkCanvas calls
      *  recorded: some calls may be recorded as more than one operation, or some

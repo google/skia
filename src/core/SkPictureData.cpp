@@ -152,18 +152,6 @@ SkPictureData::~SkPictureData() {
     delete fFactoryPlayback;
 }
 
-bool SkPictureData::containsBitmaps() const {
-    if (fBitmapImageCount > 0 || fImageCount > 0) {
-        return true;
-    }
-    for (int i = 0; i < fPictureCount; ++i) {
-        if (fPictureRefs[i]->willPlayBackBitmaps()) {
-            return true;
-        }
-    }
-    return false;
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
