@@ -28,6 +28,46 @@ if (is_ios) {
   ios_sysroot = exec_script("find_ios_sysroot.py", [ sdk ], "trim string")
 }
 
+config("extra_flags") {
+  asmflags = extra_asmflags
+  cflags = extra_cflags
+  cflags_c = extra_cflags_c
+  cflags_cc = extra_cflags_cc
+  ldflags = extra_ldflags
+}
+
+config("release") {
+  if (is_win) {
+    cflags = [
+      "/O2",
+      "/Zc:inline",
+    ]
+    ldflags = [
+      "/OPT:ICF",
+      "/OPT:REF",
+    ]
+  } else {
+    cflags = [
+      "-O3",
+      "-fdata-sections",
+      "-ffunction-sections",
+    ]
+    if (is_mac || is_ios) {
+      ldflags = [ "-dead_strip" ]
+    } else {
+      ldflags = [ "-Wl,--gc-sections" ]
+    }
+    if (target_cpu == "wasm") {
+      # The compiler asks us to add an optimization flag to both cflags
+      # and ldflags to cut down on the local variables,
+      # for performance reasons.
+      # The "linking" step is the conversion to javascript.
+      ldflags += [ "-O3" ]
+    }
+  }
+  defines = [ "NDEBUG" ]
+}
+
 config("default") {
   asmflags = []
   cflags = []
@@ -219,12 +259,12 @@ config("default") {
     } else if (sanitize == "MSAN") {
       sanitizers = "memory"
     } else if (sanitize == "UBSAN") {
-      sanitizers = "bool,float-cast-overflow,integer-divide-by-zero,nonnull-attribute,null,return,returns-nonnull-attribute,shift,signed-integer-overflow,unreachable,vla-bound"
+      sanitizers = "bool,float-cast-overflow,integer-divide-by-zero,nonnull-attribute,null,object-size,return,returns-nonnull-attribute,shift,signed-integer-overflow,unreachable,vla-bound"
       if (!is_mac && !is_win) {
         sanitizers += ",function"  # Not supported on Mac or Win.
       }
       if (!is_win) {
-        sanitizers += ",object-size,vptr"  # Not supported on Win.
+        sanitizers += ",vptr"  # Not supported on Win.
       }
     }
 
@@ -371,14 +411,6 @@ config("warnings_except_public_headers") {
   }
 }
 
-config("extra_flags") {
-  asmflags = extra_asmflags
-  cflags = extra_cflags
-  cflags_c = extra_cflags_c
-  cflags_cc = extra_cflags_cc
-  ldflags = extra_ldflags
-}
-
 config("debug_symbols") {
   # It's annoying to wait for full debug symbols to push over
   # to Android devices.  -gline-tables-only is a lot slimmer.
@@ -403,38 +435,6 @@ config("no_rtti") {
       cflags_cc = [ "-fno-rtti" ]
     }
   }
-}
-
-config("release") {
-  if (is_win) {
-    cflags = [
-      "/O2",
-      "/Zc:inline",
-    ]
-    ldflags = [
-      "/OPT:ICF",
-      "/OPT:REF",
-    ]
-  } else {
-    cflags = [
-      "-O3",
-      "-fdata-sections",
-      "-ffunction-sections",
-    ]
-    if (is_mac || is_ios) {
-      ldflags = [ "-dead_strip" ]
-    } else {
-      ldflags = [ "-Wl,--gc-sections" ]
-    }
-    if (target_cpu == "wasm") {
-      # The compiler asks us to add an optimization flag to both cflags
-      # and ldflags to cut down on the local variables,
-      # for performance reasons.
-      # The "linking" step is the conversion to javascript.
-      ldflags += [ "-O3" ]
-    }
-  }
-  defines = [ "NDEBUG" ]
 }
 
 config("executable") {
