@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "2460849f_f57c3681",
+        "filename": "gn/BUILD.gn",
+        "patchSetId": 6
+      },
+      "lineNbr": 210,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-12-20T23:08:29Z",
+      "side": 1,
+      "message": "Did #1.\n\nI don\u0027t want to do #2 because we would use twice as many bots as necessary.\n\nI thought about doing #3, but I was afraid people would see \"ASAN\" and say, \"Yes, of course we\u0027re running ASAN on Windows.\" But we\u0027re not, really.",
+      "parentUuid": "5a8d00ad_cc8293a4",
+      "revId": "d9f600372ea326a235a97de2da00402982d2293f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6b2b9980_e02fc652",
         "filename": "gn/BUILD.gn",
         "patchSetId": 6
