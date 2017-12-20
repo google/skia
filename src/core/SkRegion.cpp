@@ -8,6 +8,7 @@
 
 #include "SkAtomics.h"
 #include "SkRegionPriv.h"
+#include "SkSafeMath.h"
 #include "SkTemplates.h"
 #include "SkUtils.h"
 
@@ -1129,6 +1130,21 @@ size_t SkRegion::writeToMemory(void* storage) const {
     return buffer.pos();
 }
 
+static bool validate_run_count(int ySpanCount, int intervalCount, int runCount) {
+    // return 2 + 3 * ySpanCount + 2 * intervalCount;
+    if (ySpanCount < 1 || intervalCount < 2) {
+        return false;
+    }
+    SkSafeMath safeMath;
+    int sum = 2;
+    sum = safeMath.addInt(sum, ySpanCount);
+    sum = safeMath.addInt(sum, ySpanCount);
+    sum = safeMath.addInt(sum, ySpanCount);
+    sum = safeMath.addInt(sum, intervalCount);
+    sum = safeMath.addInt(sum, intervalCount);
+    return safeMath && sum == runCount;
+}
+
 // Validate that a memory sequence is a valid region.
 // Try to check all possible errors.
 // never read beyond &runs[runCount-1].
@@ -1139,7 +1155,7 @@ static bool validate_run(const int32_t* runs,
                          int32_t intervalCount) {
     // Region Layout:
     //    Top ( Bottom Span_Interval_Count ( Left Right )* Sentinel )+ Sentinel
-    if (ySpanCount < 1 || intervalCount < 2 || runCount != 2 + 3 * ySpanCount + 2 * intervalCount) {
+    if (!validate_run_count(SkToInt(ySpanCount), SkToInt(intervalCount), runCount)) {
         return false;
     }
     SkASSERT(runCount >= 7);  // 7==SkRegion::kRectRegionRuns
