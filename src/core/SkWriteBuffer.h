@@ -10,18 +10,15 @@
 #define SkWriteBuffer_DEFINED
 
 #include "SkData.h"
-#include "SkImage.h"
-#include "SkPath.h"
-#include "SkPicture.h"
-#include "SkRefCnt.h"
 #include "SkSerialProcs.h"
 #include "SkWriter32.h"
 #include "../private/SkTHash.h"
 
-class SkBitmap;
 class SkDeduper;
 class SkFactorySet;
 class SkFlattenable;
+class SkImage;
+class SkPath;
 class SkRefCntSet;
 
 class SK_API SkWriteBuffer {
@@ -67,23 +64,10 @@ public:
 
     void setDeduper(SkDeduper* deduper) { fDeduper = deduper; }
 
-    /**
-     *  Return a client specified context pointer. This is not interpreted by the writebuffer.
-     *  It defaults to nullptr, but may be set with setClientContext(...).
-     */
-    void* getClientContext() const { return fClientCtx; }
-
-    /**
-     *  Set the client specified context pointer. This is not interpreted by the writebuffer.
-     *  It defaults to nullptr. It can be inspected by calling getClientContext().
-     */
-    void setClientContext(void* ctx) { fClientCtx = ctx; }
-
     void setSerialProcs(const SkSerialProcs& procs) { fProcs = procs; }
 
 protected:
     SkDeduper*      fDeduper = nullptr;
-    void*           fClientCtx = nullptr;
     SkSerialProcs   fProcs;
 
     friend class SkPicture; // fProcs
