@@ -43,50 +43,6 @@ static void make_bm(SkBitmap* bm, int w, int h, SkColor color, bool immutable) {
     }
 }
 
-// For a while willPlayBackBitmaps() ignored SkImages and just looked for SkBitmaps.
-static void test_images_are_found_by_willPlayBackBitmaps(skiatest::Reporter* reporter) {
-    // We just need _some_ SkImage
-    const SkPMColor pixel = 0;
-    const SkImageInfo info = SkImageInfo::MakeN32Premul(1, 1);
-    sk_sp<SkImage> image(SkImage::MakeRasterCopy(SkPixmap(info, &pixel, sizeof(pixel))));
-
-    SkPictureRecorder recorder;
-    recorder.beginRecording(100,100)->drawImage(image, 0,0);
-    sk_sp<SkPicture> picture(recorder.finishRecordingAsPicture());
-
-    REPORTER_ASSERT(reporter, picture->willPlayBackBitmaps());
-}
-
-/* Hit a few SkPicture::Analysis cases not handled elsewhere. */
-static void test_analysis(skiatest::Reporter* reporter) {
-    SkPictureRecorder recorder;
-
-    SkCanvas* canvas = recorder.beginRecording(100, 100);
-    {
-        canvas->drawRect(SkRect::MakeWH(10, 10), SkPaint ());
-    }
-    sk_sp<SkPicture> picture(recorder.finishRecordingAsPicture());
-    REPORTER_ASSERT(reporter, !picture->willPlayBackBitmaps());
-
-    canvas = recorder.beginRecording(100, 100);
-    {
-        SkPaint paint;
-        // CreateBitmapShader is too smart for us; an empty (or 1x1) bitmap shader
-        // gets optimized into a non-bitmap form, so we create a 2x2 bitmap here.
-        SkBitmap bitmap;
-        bitmap.allocPixels(SkImageInfo::MakeN32Premul(2, 2));
-        bitmap.eraseColor(SK_ColorBLUE);
-        *(bitmap.getAddr32(0, 0)) = SK_ColorGREEN;
-        paint.setShader(SkShader::MakeBitmapShader(bitmap, SkShader::kClamp_TileMode,
-                                                   SkShader::kClamp_TileMode));
-        REPORTER_ASSERT(reporter, paint.getShader()->isAImage());
-
-        canvas->drawRect(SkRect::MakeWH(10, 10), paint);
-    }
-    REPORTER_ASSERT(reporter, recorder.finishRecordingAsPicture()->willPlayBackBitmaps());
-}
-
-
 #ifdef SK_DEBUG
 // Ensure that deleting an empty SkPicture does not assert. Asserts only fire
 // in debug mode, so only run in debug mode.
@@ -452,36 +408,6 @@ DEF_TEST(PictureRecorder_replay, reporter) {
         check_save_state(reporter, copy.get(), 2, 1, 3);
     }
 
-    // (partially) check leakage of draw ops
-    {
-        SkPictureRecorder recorder;
-
-        SkCanvas* canvas = recorder.beginRecording(10, 10);
-
-        SkRect r = SkRect::MakeWH(5, 5);
-        SkPaint p;
-
-        canvas->drawRect(r, p);
-
-        sk_sp<SkPicture> copy(SkPictureRecorderReplayTester::Copy(&recorder));
-
-        REPORTER_ASSERT(reporter, !copy->willPlayBackBitmaps());
-
-        SkBitmap bm;
-        make_bm(&bm, 10, 10, SK_ColorRED, true);
-
-        r.offset(5.0f, 5.0f);
-        canvas->drawBitmapRect(bm, r, nullptr);
-
-        sk_sp<SkPicture> final(recorder.finishRecordingAsPicture());
-        REPORTER_ASSERT(reporter, final->willPlayBackBitmaps());
-
-        REPORTER_ASSERT(reporter, copy->uniqueID() != final->uniqueID());
-
-        // The snapshot shouldn't pick up any operations added after it was made
-        REPORTER_ASSERT(reporter, !copy->willPlayBackBitmaps());
-    }
-
     // Recreate the Android partialReplay test case
     {
         SkPictureRecorder recorder;
@@ -782,48 +708,6 @@ static void test_clip_expansion(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, testCanvas.getClipCount() == 2);
 }
 
-static void test_hierarchical(skiatest::Reporter* reporter) {
-    SkBitmap bm;
-    make_bm(&bm, 10, 10, SK_ColorRED, true);
-
-    SkPictureRecorder recorder;
-
-    recorder.beginRecording(10, 10);
-    sk_sp<SkPicture> childPlain(recorder.finishRecordingAsPicture());
-    REPORTER_ASSERT(reporter, !childPlain->willPlayBackBitmaps()); // 0
-
-    recorder.beginRecording(10, 10)->drawBitmap(bm, 0, 0);
-    sk_sp<SkPicture> childWithBitmap(recorder.finishRecordingAsPicture());
-    REPORTER_ASSERT(reporter, childWithBitmap->willPlayBackBitmaps()); // 1
-
-    {
-        SkCanvas* canvas = recorder.beginRecording(10, 10);
-        canvas->drawPicture(childPlain);
-        sk_sp<SkPicture> parentPP(recorder.finishRecordingAsPicture());
-        REPORTER_ASSERT(reporter, !parentPP->willPlayBackBitmaps()); // 0
-    }
-    {
-        SkCanvas* canvas = recorder.beginRecording(10, 10);
-        canvas->drawPicture(childWithBitmap);
-        sk_sp<SkPicture> parentPWB(recorder.finishRecordingAsPicture());
-        REPORTER_ASSERT(reporter, parentPWB->willPlayBackBitmaps()); // 1
-    }
-    {
-        SkCanvas* canvas = recorder.beginRecording(10, 10);
-        canvas->drawBitmap(bm, 0, 0);
-        canvas->drawPicture(childPlain);
-        sk_sp<SkPicture> parentWBP(recorder.finishRecordingAsPicture());
-        REPORTER_ASSERT(reporter, parentWBP->willPlayBackBitmaps()); // 1
-    }
-    {
-        SkCanvas* canvas = recorder.beginRecording(10, 10);
-        canvas->drawBitmap(bm, 0, 0);
-        canvas->drawPicture(childWithBitmap);
-        sk_sp<SkPicture> parentWBWB(recorder.finishRecordingAsPicture());
-        REPORTER_ASSERT(reporter, parentWBWB->willPlayBackBitmaps()); // 2
-    }
-}
-
 static void test_gen_id(skiatest::Reporter* reporter) {
 
     SkPictureRecorder recorder;
@@ -867,11 +751,8 @@ DEF_TEST(Picture, reporter) {
 #if SK_SUPPORT_GPU
     test_gpu_veto(reporter);
 #endif
-    test_images_are_found_by_willPlayBackBitmaps(reporter);
-    test_analysis(reporter);
     test_clip_bound_opt(reporter);
     test_clip_expansion(reporter);
-    test_hierarchical(reporter);
     test_gen_id(reporter);
     test_cull_rect_reset(reporter);
 }
