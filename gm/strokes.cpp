@@ -534,7 +534,6 @@ DEF_SIMPLE_GM(zerolinedash, canvas, 256, 256) {
     canvas->drawLine(100, 100, 100, 100, paint);
 }
 
-#define PDF_IS_FIXED_SO_THIS_DOESNT_BREAK_IT
 #ifdef PDF_IS_FIXED_SO_THIS_DOESNT_BREAK_IT
 DEF_SIMPLE_GM(longrect_dash, canvas, 250, 250) {
     canvas->clear(SK_ColorWHITE);
