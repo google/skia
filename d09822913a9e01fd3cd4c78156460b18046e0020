@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "15b384bc_caef8669",
+        "filename": "src/gpu/ccpr/GrCCPRCoverageProcessor.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 232,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-12-20T16:57:21Z",
+      "side": 1,
+      "message": "Why is this a bool with true/false values?",
+      "range": {
+        "startLine": 229,
+        "startChar": 0,
+        "endLine": 232,
+        "endChar": 6
+      },
+      "revId": "d09822913a9e01fd3cd4c78156460b18046e0020",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
