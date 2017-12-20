@@ -38,13 +38,10 @@ public:
      *  Recreate a picture that was serialized into a stream or data.
      */
 
-    static sk_sp<SkPicture> MakeFromStream(SkStream*);
-    static sk_sp<SkPicture> MakeFromData(const SkData* data);
-    static sk_sp<SkPicture> MakeFromData(const void* data, size_t size);
-
-    static sk_sp<SkPicture> MakeFromStream(SkStream*, const SkDeserialProcs& procs);
-    static sk_sp<SkPicture> MakeFromData(const SkData* data, const SkDeserialProcs& procs);
-    static sk_sp<SkPicture> MakeFromData(sk_sp<SkData> data, const SkDeserialProcs& procs);
+    static sk_sp<SkPicture> MakeFromStream(SkStream*, const SkDeserialProcs* = nullptr);
+    static sk_sp<SkPicture> MakeFromData(const SkData* data, const SkDeserialProcs* = nullptr);
+    static sk_sp<SkPicture> MakeFromData(const void* data, size_t size,
+                                         const SkDeserialProcs* = nullptr);
 
     /**
      *  Recreate a picture that was serialized into a buffer. If the creation requires bitmap
@@ -90,9 +87,16 @@ public:
     /** Returns a non-zero value unique among all pictures. */
     uint32_t uniqueID() const;
 
-    sk_sp<SkData> serialize() const;
-    void serialize(SkWStream*) const;
+    sk_sp<SkData> serialize(const SkSerialProcs* = nullptr) const;
+    void serialize(SkWStream*, const SkSerialProcs* = nullptr) const;
+
+#ifdef SK_SUPPORT_LEGACY_SERIALPROCS_REF
     sk_sp<SkData> serialize(const SkSerialProcs&) const;
+    static sk_sp<SkPicture> MakeFromStream(SkStream*, const SkDeserialProcs& procs);
+    static sk_sp<SkPicture> MakeFromData(const SkData* data, const SkDeserialProcs& procs);
+    static sk_sp<SkPicture> MakeFromData(sk_sp<SkData> data, const SkDeserialProcs& procs);
+    static sk_sp<SkPicture> MakeFromData(sk_sp<SkData>, const SkDeserialProcs* = nullptr);
+#endif
 
     /**
      *  Serialize to a buffer.
@@ -121,8 +125,8 @@ private:
     friend class SkEmptyPicture;
     template <typename> friend class SkMiniPicture;
 
-    void serialize(SkWStream*, const SkSerialProcs&, SkRefCntSet* typefaces) const;
-    static sk_sp<SkPicture> MakeFromStream(SkStream*, const SkDeserialProcs&, SkTypefacePlayback*);
+    void serialize(SkWStream*, const SkSerialProcs*, SkRefCntSet* typefaces) const;
+    static sk_sp<SkPicture> MakeFromStream(SkStream*, const SkDeserialProcs*, SkTypefacePlayback*);
     friend class SkPictureData;
 
     /** Return true if the SkStream/Buffer represents a serialized picture, and

@@ -107,8 +107,7 @@ SkIPoint DeserializePictureBench::onGetSize() {
 }
 
 void DeserializePictureBench::onDraw(int loops, SkCanvas*) {
-    SkDeserialProcs procs;
     for (int i = 0; i < loops; ++i) {
-        SkPicture::MakeFromData(fEncodedPicture, procs);
+        SkPicture::MakeFromData(fEncodedPicture.get());
     }
 }
