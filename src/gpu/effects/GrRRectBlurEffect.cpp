@@ -124,7 +124,6 @@ private:
     UniformHandle fProxyRectVar;
     UniformHandle fBlurRadiusVar;
     UniformHandle fCornerRadiusVar;
-    UniformHandle fNinePatchSamplerVar;
 };
 GrGLSLFragmentProcessor* GrRRectBlurEffect::onCreateGLSLInstance() const {
     return new GrGLSLRRectBlurEffect();

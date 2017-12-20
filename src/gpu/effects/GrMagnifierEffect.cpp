@@ -130,7 +130,6 @@ private:
     }
     UniformHandle fBoundsUniformVar;
     UniformHandle fOffsetVar;
-    UniformHandle fSrcVar;
     UniformHandle fXInvZoomVar;
     UniformHandle fYInvZoomVar;
     UniformHandle fXInvInsetVar;
