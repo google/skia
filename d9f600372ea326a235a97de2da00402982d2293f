@@ -63,6 +63,30 @@
       "revId": "d9f600372ea326a235a97de2da00402982d2293f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "24566694_31e4c924",
+        "filename": "gn/BUILD.gn",
+        "patchSetId": 6
+      },
+      "lineNbr": 227,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-12-20T19:41:41Z",
+      "side": 1,
+      "message": "I added \u0027-d keeprsp\u0027 and dumped the contents of all rsp files in this CL:\nhttps://skia-review.googlesource.com/c/skia/+/87400\n\nFor Debug, we\u0027re passing \"-O1\" in the rsp, and for Release, we\u0027re passing \"/O2\", so I don\u0027t think it\u0027s an issue of Windows-vs-Unix flag format. Maybe the -O flag needs to come earlier than the -fsanitize option?",
+      "parentUuid": "c86ff8ad_16161d5d",
+      "range": {
+        "startLine": 227,
+        "startChar": 24,
+        "endLine": 227,
+        "endChar": 35
+      },
+      "revId": "d9f600372ea326a235a97de2da00402982d2293f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
