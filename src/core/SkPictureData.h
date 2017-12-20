@@ -88,8 +88,6 @@ public:
     void serialize(SkWStream*, const SkSerialProcs&, SkRefCntSet*) const;
     void flatten(SkWriteBuffer&) const;
 
-    bool containsBitmaps() const;
-
     bool hasText() const { return fContentInfo.hasText(); }
 
     int opCount() const { return fContentInfo.numOperations(); }

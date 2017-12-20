@@ -59,7 +59,6 @@ const SkBigPicture::Analysis& SkBigPicture::analysis() const {
 }
 
 SkRect SkBigPicture::cullRect()            const { return fCullRect; }
-bool   SkBigPicture::willPlayBackBitmaps() const { return this->analysis().fWillPlaybackBitmaps; }
 int    SkBigPicture::numSlowPaths() const { return this->analysis().fNumSlowPathsAndDashEffects; }
 int    SkBigPicture::approximateOpCount()   const { return fRecord->count(); }
 size_t SkBigPicture::approximateBytesUsed() const {
@@ -78,15 +77,7 @@ SkPicture const* const* SkBigPicture::drawablePicts() const {
 
 void SkBigPicture::Analysis::init(const SkRecord& record) {
     TRACE_EVENT0("skia", TRACE_FUNC);
-    SkBitmapHunter bitmap;
     SkPathCounter  path;
 
-    bool hasBitmap = false;
-    for (int i = 0; i < record.count(); i++) {
-        hasBitmap = hasBitmap || record.visit(i, bitmap);
-        record.visit(i, path);
-    }
-
-    fWillPlaybackBitmaps        = hasBitmap;
     fNumSlowPathsAndDashEffects = SkTMin<int>(path.fNumSlowPathsAndDashEffects, 255);
 }
