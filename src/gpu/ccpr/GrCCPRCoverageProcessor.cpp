@@ -11,21 +11,17 @@
 #include "ccpr/GrCCPRCubicShader.h"
 #include "ccpr/GrCCPRQuadraticShader.h"
 #include "ccpr/GrCCPRTriangleShader.h"
-#include "glsl/GrGLSLVertexGeoBuilder.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLVertexGeoBuilder.h"
 
 void GrCCPRCoverageProcessor::Shader::emitVaryings(GrGLSLVaryingHandler* varyingHandler,
-                                                   GrGLSLVarying::Scope scope, SkString* code,
-                                                   const char* position, const char* coverage,
-                                                   const char* wind) {
-    SkASSERT(GrGLSLVarying::Scope::kVertToGeo != scope);
-    WindHandling windHandling = this->onEmitVaryings(varyingHandler, scope, code, position,
-                                                     coverage, wind);
+                                                   SkString* code, const char* position,
+                                                   const char* coverage, const char* wind) {
+    WindHandling windHandling = this->onEmitVaryings(varyingHandler, code, position, coverage,
+                                                     wind);
     if (WindHandling::kNotHandled == windHandling) {
-        fWind.reset(kHalf_GrSLType, scope);
         varyingHandler->addFlatVarying("wind", &fWind);
-        code->appendf("%s = %s;", OutName(fWind), wind);
+        code->appendf("%s = %s;", fWind.gsOut(), wind);
     }
 }
 
@@ -84,16 +80,7 @@ int GrCCPRCoverageProcessor::Shader::DefineSoftSampleLocations(GrGLSLPPFragmentB
 
 void GrCCPRCoverageProcessor::getGLSLProcessorKey(const GrShaderCaps&,
                                                   GrProcessorKeyBuilder* b) const {
-    int key = (int)fRenderPass << 1;
-    if (Impl::kGeometryShader == fImpl) {
-        key |= 1;
-    }
-#ifdef SK_DEBUG
-    uint32_t bloatBits;
-    memcpy(&bloatBits, &fDebugBloat, 4);
-    b->add32(bloatBits);
-#endif
-    b->add32(key);
+    b->add32((int)fRenderPass);
 }
 
 GrGLSLPrimitiveProcessor* GrCCPRCoverageProcessor::createGLSLInstance(const GrShaderCaps&) const {
@@ -119,6 +106,5 @@ GrGLSLPrimitiveProcessor* GrCCPRCoverageProcessor::createGLSLInstance(const GrSh
             shader = skstd::make_unique<GrCCPRCubicCornerShader>();
             break;
     }
-    return Impl::kGeometryShader == fImpl ? this->createGSImpl(std::move(shader))
-                                          : this->createVSImpl(std::move(shader));
+    return this->createGSImpl(std::move(shader));
 }

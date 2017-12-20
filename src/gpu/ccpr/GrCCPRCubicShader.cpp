@@ -76,29 +76,25 @@ void GrCCPRCubicShader::emitSetupCode(GrGLSLVertexGeoBuilder* s, const char* pts
 }
 
 Shader::WindHandling GrCCPRCubicShader::onEmitVaryings(GrGLSLVaryingHandler* varyingHandler,
-                                                       GrGLSLVarying::Scope scope,
                                                        SkString* code, const char* position,
                                                        const char* coverage, const char* /*wind*/) {
     SkASSERT(!coverage);
 
-    fKLMD.reset(kFloat4_GrSLType, scope);
     varyingHandler->addVarying("klmd", &fKLMD);
     code->appendf("float3 klm = float3(%s, 1) * %s;", position, fKLMMatrix.c_str());
     code->appendf("float d = dot(float3(%s, 1), %s);", position, fEdgeDistanceEquation.c_str());
-    code->appendf("%s = float4(klm, d);", OutName(fKLMD));
+    code->appendf("%s = float4(klm, d);", fKLMD.gsOut());
 
-    this->onEmitVaryings(varyingHandler, scope, code);
+    this->onEmitVaryings(varyingHandler, code);
     return WindHandling::kNotHandled;
 }
 
-void GrCCPRCubicHullShader::onEmitVaryings(GrGLSLVaryingHandler* varyingHandler,
-                                           GrGLSLVarying::Scope scope, SkString* code) {
-    fGradMatrix.reset(kFloat2x2_GrSLType, scope);
-    varyingHandler->addVarying("grad_matrix", &fGradMatrix);
+void GrCCPRCubicHullShader::onEmitVaryings(GrGLSLVaryingHandler* varyingHandler, SkString* code) {
     // "klm" was just defined by the base class.
-    code->appendf("%s[0] = 3 * klm[0] * %s[0].xy;", OutName(fGradMatrix), fKLMMatrix.c_str());
+    varyingHandler->addVarying("grad_matrix", &fGradMatrix);
+    code->appendf("%s[0] = 3 * klm[0] * %s[0].xy;", fGradMatrix.gsOut(), fKLMMatrix.c_str());
     code->appendf("%s[1] = -klm[1] * %s[2].xy - klm[2] * %s[1].xy;",
-                    OutName(fGradMatrix), fKLMMatrix.c_str(), fKLMMatrix.c_str());
+                    fGradMatrix.gsOut(), fKLMMatrix.c_str(), fKLMMatrix.c_str());
 }
 
 void GrCCPRCubicHullShader::onEmitFragmentCode(GrGLSLPPFragmentBuilder* f,
@@ -117,18 +113,15 @@ void GrCCPRCubicCornerShader::onEmitSetupCode(GrGLSLVertexGeoBuilder* s, const c
     vars->fCornerVars.fPoint = "corner";
 }
 
-void GrCCPRCubicCornerShader::onEmitVaryings(GrGLSLVaryingHandler* varyingHandler,
-                                             GrGLSLVarying::Scope scope, SkString* code) {
-    fdKLMDdx.reset(kFloat4_GrSLType, scope);
+void GrCCPRCubicCornerShader::onEmitVaryings(GrGLSLVaryingHandler* varyingHandler, SkString* code) {
     varyingHandler->addFlatVarying("dklmddx", &fdKLMDdx);
     code->appendf("%s = float4(%s[0].x, %s[1].x, %s[2].x, %s.x);",
-                  OutName(fdKLMDdx), fKLMMatrix.c_str(), fKLMMatrix.c_str(),
+                  fdKLMDdx.gsOut(), fKLMMatrix.c_str(), fKLMMatrix.c_str(),
                   fKLMMatrix.c_str(), fEdgeDistanceEquation.c_str());
 
-    fdKLMDdy.reset(kFloat4_GrSLType, scope);
     varyingHandler->addFlatVarying("dklmddy", &fdKLMDdy);
     code->appendf("%s = float4(%s[0].y, %s[1].y, %s[2].y, %s.y);",
-                  OutName(fdKLMDdy), fKLMMatrix.c_str(), fKLMMatrix.c_str(),
+                  fdKLMDdy.gsOut(), fKLMMatrix.c_str(), fKLMMatrix.c_str(),
                   fKLMMatrix.c_str(), fEdgeDistanceEquation.c_str());
 }
 
