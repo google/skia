@@ -8,6 +8,7 @@
 #include "SkCommandLineFlags.h"
 #include "SkPicture.h"
 #include "SkPictureData.h"
+#include "SkPictureCommon.h"
 #include "SkStream.h"
 #include "SkFontDescriptor.h"
 
@@ -51,7 +52,7 @@ int main(int argc, char** argv) {
     size_t totStreamSize = stream.getLength();
 
     SkPictInfo info;
-    if (!SkPicture::InternalOnly_StreamIsSKP(&stream, &info)) {
+    if (!SkPicture_StreamIsSKP(&stream, &info)) {
         return kNotAnSKP;
     }
 
