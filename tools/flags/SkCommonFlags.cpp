@@ -147,16 +147,13 @@ DEFINE_string(pr, "default",
               "[[~]all [~]default [~]dashline [~]nvpr [~]msaa [~]aaconvex "
               "[~]aalinearizing [~]small [~]tess]");
 
-SkExecutor* GpuExecutorForTools() {
+void SetCtxOptionsFromCommonFlags(GrContextOptions* ctxOptions) {
     static std::unique_ptr<SkExecutor> gGpuExecutor = (0 != FLAGS_gpuThreads)
         ? SkExecutor::MakeFIFOThreadPool(FLAGS_gpuThreads) : nullptr;
-    return gGpuExecutor.get();
-}
-
-void SetCtxOptionsFromCommonFlags(GrContextOptions* ctxOptions) {
-    ctxOptions->fGpuPathRenderers = CollectGpuPathRenderersFromFlags();
+    ctxOptions->fExecutor = gGpuExecutor.get();
     ctxOptions->fAllowPathMaskCaching = FLAGS_cachePathMasks;
     ctxOptions->fSuppressGeometryShaders = FLAGS_noGS;
+    ctxOptions->fGpuPathRenderers = CollectGpuPathRenderersFromFlags();
 }
 
 #endif

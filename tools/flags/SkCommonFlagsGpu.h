@@ -64,8 +64,6 @@ inline GpuPathRenderers CollectGpuPathRenderersFromFlags() {
     return gpuPathRenderers;
 }
 
-class SkExecutor* GpuExecutorForTools();
-
 /**
  *  Helper to set GrContextOptions from common GPU flags.
  */
