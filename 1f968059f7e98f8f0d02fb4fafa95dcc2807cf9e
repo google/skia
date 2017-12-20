@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e83516b2_a7464c04",
+        "filename": "src/gpu/effects/GrRRectBlurEffect.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-12-20T15:25:21Z",
+      "side": 1,
+      "message": "What is causing us to make this Uniform here now? Seems like this would be handled by our call to addTextureSampler in the ctor (like in the old code). We never upload data to the one declared in this class.",
+      "range": {
+        "startLine": 127,
+        "startChar": 4,
+        "endLine": 127,
+        "endChar": 39
+      },
+      "revId": "1f968059f7e98f8f0d02fb4fafa95dcc2807cf9e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1ac5b019_1dac04b4",
+        "filename": "src/gpu/effects/GrRRectBlurEffect.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-12-20T15:25:21Z",
+      "side": 1,
+      "message": "This wasn\u0027t in the old code. Was that a bug or do we don\u0027t need/want to check this here?",
+      "range": {
+        "startLine": 140,
+        "startChar": 4,
+        "endLine": 140,
+        "endChar": 66
+      },
+      "revId": "1f968059f7e98f8f0d02fb4fafa95dcc2807cf9e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

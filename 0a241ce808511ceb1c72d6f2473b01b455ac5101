@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b78c2cbd_a5f2d91e",
+        "filename": "src/effects/SkBlurMaskFilter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1086,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-12-20T15:25:21Z",
+      "side": 0,
+      "message": "nit: I think after this change no one else calls GrGLSLFragmentProcessor::GenKey(), so we should delete that",
+      "range": {
+        "startLine": 1086,
+        "startChar": 4,
+        "endLine": 1086,
+        "endChar": 48
+      },
+      "revId": "0a241ce808511ceb1c72d6f2473b01b455ac5101",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
