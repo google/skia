@@ -1552,6 +1552,7 @@ public:
         fInEnum = false;
         fInFunction = false;
         fInString = false;
+        fFailed = false;
     }
 
     void setBracketShortCuts(Bracket bracket) {
@@ -1728,6 +1729,7 @@ protected:
     bool fInEnum;
     bool fInFunction;
     bool fInString;
+    bool fFailed;
 
     typedef ParserCommon INHERITED;
 };
