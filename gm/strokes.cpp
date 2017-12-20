@@ -533,34 +533,3 @@ DEF_SIMPLE_GM(zerolinedash, canvas, 256, 256) {
 
     canvas->drawLine(100, 100, 100, 100, paint);
 }
-
-#define PDF_IS_FIXED_SO_THIS_DOESNT_BREAK_IT
-#ifdef PDF_IS_FIXED_SO_THIS_DOESNT_BREAK_IT
-DEF_SIMPLE_GM(longrect_dash, canvas, 250, 250) {
-    canvas->clear(SK_ColorWHITE);
-
-    SkPaint paint;
-    paint.setColor(SkColorSetARGB(255, 0, 0, 0));
-    paint.setStrokeWidth(5);
-    paint.setStrokeCap(SkPaint::kRound_Cap);
-    paint.setStrokeJoin(SkPaint::kBevel_Join);
-    paint.setStyle(SkPaint::kStroke_Style);
-    SkScalar dash_pattern[] = {1, 5};
-    paint.setPathEffect(SkDashPathEffect::Make(dash_pattern, 2, 0));
-    // try all combinations of stretching bounds
-    for (auto left : { 20.f, -100001.f } ) {
-        for (auto top : { 20.f, -100001.f } ) {
-            for (auto right : { 40.f, 100001.f } ) {
-                for (auto bottom : { 40.f, 100001.f } ) {
-                    canvas->save();
-                    canvas->clipRect({10, 10, 50, 50});
-                    canvas->drawRect({left, top, right, bottom}, paint);
-                    canvas->restore();
-                    canvas->translate(60, 0);
-               }
-            }
-            canvas->translate(-60 * 4, 60);
-        }
-    }
-}
-#endif
