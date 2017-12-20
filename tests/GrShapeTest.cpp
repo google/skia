@@ -1490,6 +1490,8 @@ DEF_TEST(GrShape_empty_shape, reporter) {
     SkPaint stroke;
     stroke.setStrokeWidth(2.f);
     stroke.setStyle(SkPaint::kStroke_Style);
+    stroke.setStrokeJoin(SkPaint::kRound_Join);
+    stroke.setStrokeCap(SkPaint::kRound_Cap);
     TestCase strokeEmptyCase(reporter, emptyPath, stroke);
     strokeEmptyCase.compare(reporter, fillEmptyCase, TestCase::kAllSame_ComparisonExpecation);
     TestCase strokeInvertedEmptyCase(reporter, invertedEmptyPath, stroke);
@@ -1509,25 +1511,49 @@ DEF_TEST(GrShape_empty_shape, reporter) {
     dashAndStrokeInvertexEmptyCase.compare(reporter, fillEmptyCase,
                                            TestCase::kAllSame_ComparisonExpecation);
 
-    // A shape made from an empty rrect should behave the same as an empty path.
-    SkRRect emptyRRect = SkRRect::MakeRect(SkRect::MakeEmpty());
+    // A shape made from an empty rrect should behave the same as an empty path when filled but not
+    // when stroked. However, dashing an empty rrect produces an empty path leaving nothing to
+    // stroke - so equivalent to filling an empty path.
+    SkRRect emptyRRect = SkRRect::MakeEmpty();
     REPORTER_ASSERT(reporter, emptyRRect.getType() == SkRRect::kEmpty_Type);
+
+    TestCase fillEmptyRRectCase(reporter, emptyRRect, fill);
+    fillEmptyRRectCase.compare(reporter, fillEmptyCase, TestCase::kAllSame_ComparisonExpecation);
+
+    TestCase strokeEmptyRRectCase(reporter, emptyRRect, stroke);
+    strokeEmptyRRectCase.compare(reporter, strokeEmptyCase,
+                                 TestCase::kAllDifferent_ComparisonExpecation);
+
     TestCase dashAndStrokeEmptyRRectCase(reporter, emptyRRect, dashAndStroke);
     dashAndStrokeEmptyRRectCase.compare(reporter, fillEmptyCase,
                                         TestCase::kAllSame_ComparisonExpecation);
+
     static constexpr SkPath::Direction kDir = SkPath::kCCW_Direction;
     static constexpr int kStart = 0;
+
+    TestCase fillInvertedEmptyRRectCase(reporter, emptyRRect, kDir, kStart, true, GrStyle(fill));
+    fillInvertedEmptyRRectCase.compare(reporter, fillInvertedEmptyCase,
+                                       TestCase::kAllSame_ComparisonExpecation);
+
+    TestCase strokeInvertedEmptyRRectCase(reporter, emptyRRect, kDir, kStart, true,
+                                          GrStyle(stroke));
+    strokeInvertedEmptyRRectCase.compare(reporter, strokeInvertedEmptyCase,
+                                         TestCase::kAllDifferent_ComparisonExpecation);
+
     TestCase dashAndStrokeEmptyInvertedRRectCase(reporter, emptyRRect, kDir, kStart, true,
                                                  GrStyle(dashAndStroke));
-    // Dashing ignores inverseness so this is equivalent to the non-inverted empty fill.
     dashAndStrokeEmptyInvertedRRectCase.compare(reporter, fillEmptyCase,
                                                 TestCase::kAllSame_ComparisonExpecation);
 
     // Same for a rect.
     SkRect emptyRect = SkRect::MakeEmpty();
+    TestCase fillEmptyRectCase(reporter, emptyRect, fill);
+    fillEmptyRectCase.compare(reporter, fillEmptyCase, TestCase::kAllSame_ComparisonExpecation);
+
     TestCase dashAndStrokeEmptyRectCase(reporter, emptyRect, dashAndStroke);
     dashAndStrokeEmptyRectCase.compare(reporter, fillEmptyCase,
                                        TestCase::kAllSame_ComparisonExpecation);
+
     TestCase dashAndStrokeEmptyInvertedRectCase(reporter, SkRRect::MakeRect(emptyRect), kDir,
                                                 kStart, true, GrStyle(dashAndStroke));
     // Dashing ignores inverseness so this is equivalent to the non-inverted empty fill.

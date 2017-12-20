@@ -338,7 +338,8 @@ public:
             case Type::kRRect:
                 if (fRRectData.fRRect.getType() == SkRRect::kOval_Type) {
                     return SkPath::kConic_SegmentMask;
-                } else if (fRRectData.fRRect.getType() == SkRRect::kRect_Type) {
+                } else if (fRRectData.fRRect.getType() == SkRRect::kRect_Type ||
+                           fRRectData.fRRect.getType() == SkRRect::kEmpty_Type) {
                     return SkPath::kLine_SegmentMask;
                 }
                 return SkPath::kLine_SegmentMask | SkPath::kConic_SegmentMask;
