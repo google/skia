@@ -4527,10 +4527,10 @@
     },
     "Build-Mac-Clang-arm-Debug-iOS": {
       "dimensions": [
-        "cert:1",
+        "cert:2",
         "cpu:x86-64-E5-2697_v2",
         "gpu:none",
-        "os:Mac-10.13.1",
+        "os:Mac-10.13.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -4551,10 +4551,10 @@
     },
     "Build-Mac-Clang-arm-Release-iOS": {
       "dimensions": [
-        "cert:1",
+        "cert:2",
         "cpu:x86-64-E5-2697_v2",
         "gpu:none",
-        "os:Mac-10.13.1",
+        "os:Mac-10.13.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -4582,10 +4582,10 @@
         }
       ],
       "dimensions": [
-        "cert:1",
+        "cert:2",
         "cpu:x86-64-E5-2697_v2",
         "gpu:none",
-        "os:Mac-10.13.1",
+        "os:Mac-10.13.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -4606,10 +4606,10 @@
     },
     "Build-Mac-Clang-arm64-Debug-iOS": {
       "dimensions": [
-        "cert:1",
+        "cert:2",
         "cpu:x86-64-E5-2697_v2",
         "gpu:none",
-        "os:Mac-10.13.1",
+        "os:Mac-10.13.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -4630,10 +4630,10 @@
     },
     "Build-Mac-Clang-arm64-Release-iOS": {
       "dimensions": [
-        "cert:1",
+        "cert:2",
         "cpu:x86-64-E5-2697_v2",
         "gpu:none",
-        "os:Mac-10.13.1",
+        "os:Mac-10.13.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -4654,10 +4654,10 @@
     },
     "Build-Mac-Clang-x64-Release-iOS": {
       "dimensions": [
-        "cert:1",
+        "cert:2",
         "cpu:x86-64-E5-2697_v2",
         "gpu:none",
-        "os:Mac-10.13.1",
+        "os:Mac-10.13.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -4678,10 +4678,10 @@
     },
     "Build-Mac-Clang-x86_64-Debug": {
       "dimensions": [
-        "cert:1",
+        "cert:2",
         "cpu:x86-64-E5-2697_v2",
         "gpu:none",
-        "os:Mac-10.13.1",
+        "os:Mac-10.13.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -4702,10 +4702,10 @@
     },
     "Build-Mac-Clang-x86_64-Debug-CommandBuffer": {
       "dimensions": [
-        "cert:1",
+        "cert:2",
         "cpu:x86-64-E5-2697_v2",
         "gpu:none",
-        "os:Mac-10.13.1",
+        "os:Mac-10.13.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -4726,10 +4726,10 @@
     },
     "Build-Mac-Clang-x86_64-Debug-Metal": {
       "dimensions": [
-        "cert:1",
+        "cert:2",
         "cpu:x86-64-E5-2697_v2",
         "gpu:none",
-        "os:Mac-10.13.1",
+        "os:Mac-10.13.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -4750,10 +4750,10 @@
     },
     "Build-Mac-Clang-x86_64-Release": {
       "dimensions": [
-        "cert:1",
+        "cert:2",
         "cpu:x86-64-E5-2697_v2",
         "gpu:none",
-        "os:Mac-10.13.1",
+        "os:Mac-10.13.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -4774,10 +4774,10 @@
     },
     "Build-Mac-Clang-x86_64-Release-CommandBuffer": {
       "dimensions": [
-        "cert:1",
+        "cert:2",
         "cpu:x86-64-E5-2697_v2",
         "gpu:none",
-        "os:Mac-10.13.1",
+        "os:Mac-10.13.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -4798,10 +4798,10 @@
     },
     "Build-Mac-Clang-x86_64-Release-TSAN": {
       "dimensions": [
-        "cert:1",
+        "cert:2",
         "cpu:x86-64-E5-2697_v2",
         "gpu:none",
-        "os:Mac-10.13.1",
+        "os:Mac-10.13.2",
         "pool:Skia"
       ],
       "extra_args": [
@@ -8810,7 +8810,7 @@
       ],
       "dimensions": [
         "cpu:x86-64-E5-2697_v2",
-        "os:Mac-10.13.1",
+        "os:Mac-10.13.2",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -8857,7 +8857,7 @@
       ],
       "dimensions": [
         "cpu:x86-64-E5-2697_v2",
-        "os:Mac-10.13.1",
+        "os:Mac-10.13.2",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -17724,7 +17724,7 @@
       ],
       "dimensions": [
         "cpu:x86-64-E5-2697_v2",
-        "os:Mac-10.13.1",
+        "os:Mac-10.13.2",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -17772,7 +17772,7 @@
       ],
       "dimensions": [
         "cpu:x86-64-E5-2697_v2",
-        "os:Mac-10.13.1",
+        "os:Mac-10.13.2",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -17820,7 +17820,7 @@
       ],
       "dimensions": [
         "cpu:x86-64-E5-2697_v2",
-        "os:Mac-10.13.1",
+        "os:Mac-10.13.2",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -17868,7 +17868,7 @@
       ],
       "dimensions": [
         "cpu:x86-64-E5-2697_v2",
-        "os:Mac-10.13.1",
+        "os:Mac-10.13.2",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
