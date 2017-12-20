@@ -71,7 +71,6 @@ private:
             pdman.set1f(fOuterThresholdVar, _outer.outerThreshold());
         }
     }
-    UniformHandle fMaskVar;
     UniformHandle fInnerThresholdVar;
     UniformHandle fOuterThresholdVar;
 };
