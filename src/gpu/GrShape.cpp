@@ -539,11 +539,20 @@ void GrShape::attemptToSimplifyPath() {
 void GrShape::attemptToSimplifyRRect() {
     SkASSERT(Type::kRRect == fType);
     SkASSERT(!fInheritedKey.count());
-    // TODO: This isn't valid for strokes.
     if (fRRectData.fRRect.isEmpty()) {
-        // Dashing ignores the inverseness currently. skbug.com/5421
-        fType = fRRectData.fInverted && !fStyle.isDashed() ? Type::kInvertedEmpty : Type::kEmpty;
-        return;
+        // An empty filled rrect is equivalent to a filled empty path with inversion preserved.
+        if (fStyle.isSimpleFill()) {
+            fType = fRRectData.fInverted ? Type::kInvertedEmpty : Type::kEmpty;
+            fStyle = GrStyle::SimpleFill();
+            return;
+        }
+        // Dashing a rrect with no width or height is equivalent to filling an emtpy path.
+        if (fStyle.isDashed() && !fRRectData.fRRect.width() && !fRRectData.fRRect.height()) {
+            // Dashing ignores the inverseness (currently). skbug.com/5421.
+            fType = Type::kEmpty;
+            fStyle = GrStyle::SimpleFill();
+            return;
+        }
     }
     if (!this->style().hasPathEffect()) {
         fRRectData.fDir = kDefaultRRectDir;
