@@ -633,7 +633,7 @@ void IncludeWriter::methodOut(const Definition* method, const Definition& child)
             this->indentToColumn(column);
             int partLen = (int) (partEnd - partStart);
             // FIXME : detect this earlier; assert if #Return is empty
-            SkASSERT(partLen > 0 && partLen < 200);
+            SkASSERT(partLen > 0 && partLen < 300);  // may assert if param desc is especially long
             fIndent = column;
             this->rewriteBlock(partLen, partStart, Phrase::kYes);
             fIndent = saveIndent;

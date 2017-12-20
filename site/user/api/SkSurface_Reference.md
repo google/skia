@@ -406,6 +406,83 @@ void draw(SkCanvas* canvas) {
 
 ---
 
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
+static sk_sp&lt;SkSurface&gt; MakeFromBackendTexture(GrContext* context,
+                                               const GrBackendTexture& backendTexture,
+                                               GrSurfaceOrigin origin, int sampleCnt,
+                                               SkColorType colorType,
+                                               sk_sp&lt;SkColorSpace&gt; colorSpace,
+                                               const SkSurfaceProps* surfaceProps)
+</pre>
+
+Wraps a <a href="undocumented#GPU">GPU</a>-backed texture into <a href="#Surface">Surface</a>. Caller must ensure the texture is
+valid for the lifetime of returned <a href="#Surface">Surface</a>. If <a href="#SkSurface_MakeFromBackendTexture_2_sampleCnt">sampleCnt</a> greater than zero,
+creates an intermediate <a href="undocumented#MSAA">MSAA</a> <a href="#Surface">Surface</a> which is used for drawing <a href="#SkSurface_MakeFromBackendTexture_2_backendTexture">backendTexture</a>.
+
+<a href="#Surface">Surface</a> is returned if all parameters are valid. <a href="#SkSurface_MakeFromBackendTexture_2_backendTexture">backendTexture</a> is valid if
+its pixel configuration agrees with <a href="#SkSurface_MakeFromBackendTexture_2_colorSpace">colorSpace</a> and <a href="#SkSurface_MakeFromBackendTexture_2_context">context</a>; for instance, if
+<a href="#SkSurface_MakeFromBackendTexture_2_backendTexture">backendTexture</a> has an <a href="undocumented#sRGB">sRGB</a> configuration, then <a href="#SkSurface_MakeFromBackendTexture_2_context">context</a> must support <a href="undocumented#sRGB">sRGB</a>,
+and <a href="#SkSurface_MakeFromBackendTexture_2_colorSpace">colorSpace</a> must be present. Further, <a href="#SkSurface_MakeFromBackendTexture_2_backendTexture">backendTexture</a> <a href="#SkSurface_width">width</a> and <a href="#SkSurface_height">height</a> must
+not exceed <a href="#SkSurface_MakeFromBackendTexture_2_context">context</a> capabilities, and the <a href="#SkSurface_MakeFromBackendTexture_2_context">context</a> must be able to support
+back-end textures.
+
+If <a href="undocumented#SK_SUPPORT_GPU">SK SUPPORT GPU</a> is defined as zero, has no effect and returns nullptr.
+
+### Parameters
+
+<table>  <tr>    <td><a name="SkSurface_MakeFromBackendTexture_2_context"> <code><strong>context </strong></code> </a></td> <td>
+<a href="undocumented#GPU_Context">GPU Context</a></td>
+  </tr>  <tr>    <td><a name="SkSurface_MakeFromBackendTexture_2_backendTexture"> <code><strong>backendTexture </strong></code> </a></td> <td>
+texture residing on <a href="undocumented#GPU">GPU</a></td>
+  </tr>  <tr>    <td><a name="SkSurface_MakeFromBackendTexture_2_origin"> <code><strong>origin </strong></code> </a></td> <td>
+one of: <a href="undocumented#GrSurfaceOrigin">kBottomLeft GrSurfaceOrigin</a>, <a href="undocumented#GrSurfaceOrigin">kTopLeft GrSurfaceOrigin</a></td>
+  </tr>  <tr>    <td><a name="SkSurface_MakeFromBackendTexture_2_sampleCnt"> <code><strong>sampleCnt </strong></code> </a></td> <td>
+samples per pixel, or 0 to disable full scene anti-aliasing</td>
+  </tr>  <tr>    <td><a name="SkSurface_MakeFromBackendTexture_2_colorType"> <code><strong>colorType </strong></code> </a></td> <td>
+one of: <a href="undocumented#SkColorType">kUnknown SkColorType</a>, <a href="undocumented#SkColorType">kAlpha 8 SkColorType</a>,
+<a href="undocumented#SkColorType">kRGB 565 SkColorType</a>, <a href="undocumented#SkColorType">kARGB 4444 SkColorType</a>,
+<a href="undocumented#SkColorType">kRGBA 8888 SkColorType</a>, <a href="undocumented#SkColorType">kBGRA 8888 SkColorType</a>,
+<a href="undocumented#SkColorType">kGray 8 SkColorType</a>, <a href="undocumented#SkColorType">kRGBA F16 SkColorType</a></td>
+  </tr>  <tr>    <td><a name="SkSurface_MakeFromBackendTexture_2_colorSpace"> <code><strong>colorSpace </strong></code> </a></td> <td>
+range of colors</td>
+  </tr>  <tr>    <td><a name="SkSurface_MakeFromBackendTexture_2_surfaceProps"> <code><strong>surfaceProps </strong></code> </a></td> <td>
+<a href="undocumented#LCD">LCD</a> striping orientation and setting for device independent
+fonts; may be nullptr</td>
+  </tr>
+</table>
+
+### Return Value
+
+<a href="#Surface">Surface</a> if all parameters are valid; otherwise, nullptr
+
+### Example
+
+<pre style="padding: 1em 1em 1em 1em; font-size: 13px width: 62.5em; background-color: #f0f0f0">
+void draw(SkCanvas* canvas) {
+    SkPaint paint;
+    paint.setTextSize(32);
+    GrContext* context = canvas->getGrContext();
+    if (!context) {
+         canvas->drawString("GPU only!", 20, 40, paint);
+         return;
+    }
+    sk_sp<SkSurface> gpuSurface = SkSurface::MakeFromBackendTexture(context,
+            backEndTextureRenderTarget, kTopLeft_GrSurfaceOrigin,
+            kRGBA_8888_SkColorType, 0, nullptr, nullptr);
+    auto surfaceCanvas = gpuSurface->getCanvas();
+    surfaceCanvas->clear(SK_ColorWHITE);
+    surfaceCanvas->drawString("GPU rocks!", 20, 40, paint);
+    sk_sp<SkImage> image(gpuSurface->makeImageSnapshot());
+    canvas->drawImage(image, 0, 0);
+}
+</pre>
+
+### See Also
+
+<a href="undocumented#GrBackendTexture">GrBackendTexture</a> <a href="#SkSurface_MakeFromBackendRenderTarget">MakeFromBackendRenderTarget</a> <a href="#SkSurface_MakeRenderTarget">MakeRenderTarget</a>
+
+---
+
 <a name="SkSurface_MakeFromBackendRenderTarget"></a>
 ## MakeFromBackendRenderTarget
 
@@ -476,6 +553,79 @@ void draw(SkCanvas* canvas) {
 
 ---
 
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
+static sk_sp&lt;SkSurface&gt; MakeFromBackendRenderTarget(GrContext* context,
+                                                   const GrBackendRenderTarget& backendRenderTarget,
+                                                   GrSurfaceOrigin origin, SkColorType colorType,
+                                                   sk_sp&lt;SkColorSpace&gt; colorSpace,
+                                                   const SkSurfaceProps* surfaceProps)
+</pre>
+
+Wraps a <a href="undocumented#GPU">GPU</a>-backed buffer into <a href="#Surface">Surface</a>. Caller must ensure render target is
+valid for the lifetime of returned <a href="#Surface">Surface</a>.
+
+<a href="#Surface">Surface</a> is returned if all parameters are valid. <a href="#SkSurface_MakeFromBackendRenderTarget_2_backendRenderTarget">backendRenderTarget</a> is valid if
+its pixel configuration agrees with <a href="#SkSurface_MakeFromBackendRenderTarget_2_colorSpace">colorSpace</a> and <a href="#SkSurface_MakeFromBackendRenderTarget_2_context">context</a>; for instance, if
+<a href="#SkSurface_MakeFromBackendRenderTarget_2_backendRenderTarget">backendRenderTarget</a> has an <a href="undocumented#sRGB">sRGB</a> configuration, then <a href="#SkSurface_MakeFromBackendRenderTarget_2_context">context</a> must support <a href="undocumented#sRGB">sRGB</a>,
+and <a href="#SkSurface_MakeFromBackendRenderTarget_2_colorSpace">colorSpace</a> must be present. Further, <a href="#SkSurface_MakeFromBackendRenderTarget_2_backendRenderTarget">backendRenderTarget</a> <a href="#SkSurface_width">width</a> and <a href="#SkSurface_height">height</a> must
+not exceed <a href="#SkSurface_MakeFromBackendRenderTarget_2_context">context</a> capabilities, and the <a href="#SkSurface_MakeFromBackendRenderTarget_2_context">context</a> must be able to support
+back-end render targets.
+
+If <a href="undocumented#SK_SUPPORT_GPU">SK SUPPORT GPU</a> is defined as zero, has no effect and returns nullptr.
+
+### Parameters
+
+<table>  <tr>    <td><a name="SkSurface_MakeFromBackendRenderTarget_2_context"> <code><strong>context </strong></code> </a></td> <td>
+<a href="undocumented#GPU_Context">GPU Context</a></td>
+  </tr>  <tr>    <td><a name="SkSurface_MakeFromBackendRenderTarget_2_backendRenderTarget"> <code><strong>backendRenderTarget </strong></code> </a></td> <td>
+<a href="undocumented#GPU">GPU</a> intermediate memory buffer</td>
+  </tr>  <tr>    <td><a name="SkSurface_MakeFromBackendRenderTarget_2_origin"> <code><strong>origin </strong></code> </a></td> <td>
+one of: <a href="undocumented#GrSurfaceOrigin">kBottomLeft GrSurfaceOrigin</a>, <a href="undocumented#GrSurfaceOrigin">kTopLeft GrSurfaceOrigin</a></td>
+  </tr>  <tr>    <td><a name="SkSurface_MakeFromBackendRenderTarget_2_colorType"> <code><strong>colorType </strong></code> </a></td> <td>
+one of: <a href="undocumented#SkColorType">kUnknown SkColorType</a>, <a href="undocumented#SkColorType">kAlpha 8 SkColorType</a>,
+<a href="undocumented#SkColorType">kRGB 565 SkColorType</a>, <a href="undocumented#SkColorType">kARGB 4444 SkColorType</a>,
+<a href="undocumented#SkColorType">kRGBA 8888 SkColorType</a>, <a href="undocumented#SkColorType">kBGRA 8888 SkColorType</a>,
+<a href="undocumented#SkColorType">kGray 8 SkColorType</a>, <a href="undocumented#SkColorType">kRGBA F16 SkColorType</a></td>
+  </tr>  <tr>    <td><a name="SkSurface_MakeFromBackendRenderTarget_2_colorSpace"> <code><strong>colorSpace </strong></code> </a></td> <td>
+range of colors</td>
+  </tr>  <tr>    <td><a name="SkSurface_MakeFromBackendRenderTarget_2_surfaceProps"> <code><strong>surfaceProps </strong></code> </a></td> <td>
+<a href="undocumented#LCD">LCD</a> striping orientation and setting for device independent
+fonts; may be nullptr</td>
+  </tr>
+</table>
+
+### Return Value
+
+<a href="#Surface">Surface</a> if all parameters are valid; otherwise, nullptr
+
+### Example
+
+<pre style="padding: 1em 1em 1em 1em; font-size: 13px width: 62.5em; background-color: #f0f0f0">
+void draw(SkCanvas* canvas) {
+    SkPaint paint;
+    paint.setTextSize(32);
+    GrContext* context = canvas->getGrContext();
+    if (!context) {
+         canvas->drawString("GPU only!", 20, 40, paint);
+         return;
+    }
+    sk_sp<SkSurface> gpuSurface = SkSurface::MakeFromBackendRenderTarget(context,
+            backEndRenderTarget, kTopLeft_GrSurfaceOrigin, kRGBA_8888_SkColorType,
+            nullptr, nullptr);
+    auto surfaceCanvas = gpuSurface->getCanvas();
+    surfaceCanvas->clear(SK_ColorWHITE);
+    surfaceCanvas->drawString("GPU rocks!", 20, 40, paint);
+    sk_sp<SkImage> image(gpuSurface->makeImageSnapshot());
+    canvas->drawImage(image, 0, 0);
+}
+</pre>
+
+### See Also
+
+<a href="#SkSurface_MakeFromBackendTexture">MakeFromBackendTexture</a> <a href="#SkSurface_MakeRenderTarget">MakeRenderTarget</a>
+
+---
+
 <a name="SkSurface_MakeFromBackendTextureAsRenderTarget"></a>
 ## MakeFromBackendTextureAsRenderTarget
 
@@ -530,6 +680,76 @@ void draw(SkCanvas* canvas) {SkPaint paint;
     sk_sp<SkSurface> gpuSurface = SkSurface::MakeFromBackendTextureAsRenderTarget(
             context, backEndTextureRenderTarget, kTopLeft_GrSurfaceOrigin, 0,
             nullptr, nullptr);
+    auto surfaceCanvas = gpuSurface->getCanvas();
+    surfaceCanvas->clear(SK_ColorWHITE);
+    surfaceCanvas->drawString("GPU rocks!", 20, 40, paint);
+    sk_sp<SkImage> image(gpuSurface->makeImageSnapshot());
+    canvas->drawImage(image, 0, 0);
+}
+</pre>
+
+### See Also
+
+<a href="#SkSurface_MakeFromBackendRenderTarget">MakeFromBackendRenderTarget</a> <a href="#SkSurface_MakeRenderTarget">MakeRenderTarget</a>
+
+---
+
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
+static sk_sp&lt;SkSurface&gt; MakeFromBackendTextureAsRenderTarget(GrContext* context,
+                                            const GrBackendTexture& backendTexture,
+                                            GrSurfaceOrigin origin, int sampleCnt,
+                                            SkColorType colorType, sk_sp&lt;SkColorSpace&gt; colorSpace,
+                                            const SkSurfaceProps* surfaceProps)
+</pre>
+
+Used to wrap a <a href="undocumented#GPU">GPU</a>-backed texture as a <a href="#SkSurface">SkSurface</a>. <a href="undocumented#Skia">Skia</a> will treat the texture as
+a rendering target only, but unlike NewFromBackendRenderTarget, <a href="undocumented#Skia">Skia</a> will manage and own
+the associated render target objects (but not the provided texture). <a href="undocumented#Skia">Skia</a> will not assume
+ownership of the texture and the client must ensure the texture is valid for the lifetime
+of the <a href="#SkSurface">SkSurface</a>.
+
+If <a href="undocumented#SK_SUPPORT_GPU">SK SUPPORT GPU</a> is defined as zero, has no effect and returns nullptr.
+
+### Parameters
+
+<table>  <tr>    <td><a name="SkSurface_MakeFromBackendTextureAsRenderTarget_2_context"> <code><strong>context </strong></code> </a></td> <td>
+<a href="undocumented#GPU_Context">GPU Context</a></td>
+  </tr>  <tr>    <td><a name="SkSurface_MakeFromBackendTextureAsRenderTarget_2_backendTexture"> <code><strong>backendTexture </strong></code> </a></td> <td>
+texture residing on <a href="undocumented#GPU">GPU</a></td>
+  </tr>  <tr>    <td><a name="SkSurface_MakeFromBackendTextureAsRenderTarget_2_origin"> <code><strong>origin </strong></code> </a></td> <td>
+one of: <a href="undocumented#GrSurfaceOrigin">kBottomLeft GrSurfaceOrigin</a>, <a href="undocumented#GrSurfaceOrigin">kTopLeft GrSurfaceOrigin</a></td>
+  </tr>  <tr>    <td><a name="SkSurface_MakeFromBackendTextureAsRenderTarget_2_sampleCnt"> <code><strong>sampleCnt </strong></code> </a></td> <td>
+samples per pixel, or 0 to disable full scene anti-aliasing</td>
+  </tr>  <tr>    <td><a name="SkSurface_MakeFromBackendTextureAsRenderTarget_2_colorType"> <code><strong>colorType </strong></code> </a></td> <td>
+one of: <a href="undocumented#SkColorType">kUnknown SkColorType</a>, <a href="undocumented#SkColorType">kAlpha 8 SkColorType</a>,
+<a href="undocumented#SkColorType">kRGB 565 SkColorType</a>, <a href="undocumented#SkColorType">kARGB 4444 SkColorType</a>,
+<a href="undocumented#SkColorType">kRGBA 8888 SkColorType</a>, <a href="undocumented#SkColorType">kBGRA 8888 SkColorType</a>,
+<a href="undocumented#SkColorType">kGray 8 SkColorType</a>, <a href="undocumented#SkColorType">kRGBA F16 SkColorType</a></td>
+  </tr>  <tr>    <td><a name="SkSurface_MakeFromBackendTextureAsRenderTarget_2_colorSpace"> <code><strong>colorSpace </strong></code> </a></td> <td>
+range of colors</td>
+  </tr>  <tr>    <td><a name="SkSurface_MakeFromBackendTextureAsRenderTarget_2_surfaceProps"> <code><strong>surfaceProps </strong></code> </a></td> <td>
+<a href="undocumented#LCD">LCD</a> striping orientation and setting for device independent
+fonts; may be nullptr</td>
+  </tr>
+</table>
+
+### Return Value
+
+<a href="#Surface">Surface</a> if all parameters are valid; otherwise, nullptr
+
+### Example
+
+<pre style="padding: 1em 1em 1em 1em; font-size: 13px width: 62.5em; background-color: #f0f0f0">
+void draw(SkCanvas* canvas) {SkPaint paint;
+    paint.setTextSize(32);
+    GrContext* context = canvas->getGrContext();
+    if (!context) {
+         canvas->drawString("GPU only!", 20, 40, paint);
+         return;
+    }
+    sk_sp<SkSurface> gpuSurface = SkSurface::MakeFromBackendTextureAsRenderTarget(
+            context, backEndTextureRenderTarget, kTopLeft_GrSurfaceOrigin, 0,
+            kRGBA_8888_SkColorType, nullptr, nullptr);
     auto surfaceCanvas = gpuSurface->getCanvas();
     surfaceCanvas->clear(SK_ColorWHITE);
     surfaceCanvas->drawString("GPU rocks!", 20, 40, paint);
