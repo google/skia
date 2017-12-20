@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7388cf2e_5f25998b",
+        "filename": "src/utils/SkMultiPictureDocument.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 6300
+      },
+      "writtenOn": "2017-12-20T23:06:11Z",
+      "side": 1,
+      "message": "This function is still needed for the time being, as https://cs.chromium.org/chromium/src/content/renderer/gpu/gpu_benchmarking_extension.cc?l\u003d449\n\nWe can fix there and then delete this?",
+      "range": {
+        "startLine": 23,
+        "startChar": 25,
+        "endLine": 23,
+        "endChar": 51
+      },
+      "revId": "b590f53c1d3a6fb1671c6d0156f3f1dfc9ef2ef6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
