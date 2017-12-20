@@ -5,11 +5,13 @@
  * found in the LICENSE file.
  */
 
+#include <map>
 #include "SkMultiPictureDocument.h"
 #include "SkMultiPictureDocumentPriv.h"
 #include "SkNWayCanvas.h"
 #include "SkPicture.h"
 #include "SkPictureRecorder.h"
+#include "SkSerialProcs.h"
 #include "SkStream.h"
 #include "SkTArray.h"
 
@@ -36,6 +38,11 @@ static constexpr char kEndPage[] = "SkMultiPictureEndPage";
 
 const uint32_t kVersion = 2;
 
+struct SerializeContext {
+  uint32_t process_id;
+  const std::vector<SkPicIdType>& pic_ids;
+};
+
 static SkSize join(const SkTArray<SkSize>& sizes) {
     SkSize joined = {0, 0};
     for (SkSize s : sizes) {
@@ -44,13 +51,75 @@ static SkSize join(const SkTArray<SkSize>& sizes) {
     return joined;
 }
 
+sk_sp<SkData> serializeOopPicture(SkPicture* pic, void* ctx) {
+  SerializeContext* context = reinterpret_cast<SerializeContext*>(ctx);
+  SkPicIdType pic_id = pic->uniqueID();
+  for (SkPicIdType id : context->pic_ids) {
+    if (id == pic_id) {
+      SkOopPicIdType unique_id = SkOopPicUniqueId(context->process_id, id);
+      return SkData::MakeWithCopy(&unique_id, sizeof(unique_id));
+    }
+  }
+  return nullptr;
+}
+
+sk_sp<SkPicture> GetEmptyPicture() {
+  SkPictureRecorder rec;
+  SkCanvas* c = rec.beginRecording(100, 100);
+  c->save();
+  c->restore();
+  return rec.finishRecordingAsPicture();
+}
+
+sk_sp<SkPicture> deserializeOopPicture(const void* data,
+                                       size_t length, void* ctx) {
+  SkASSERT(ctx);
+  auto pic_map =
+      reinterpret_cast<std::map<SkOopPicIdType, sk_sp<SkPicture>>*>(ctx);
+  SkOopPicIdType id;
+  sk_sp<SkPicture> empty_pic = GetEmptyPicture();
+  if (length < sizeof(id)) {
+    SkASSERT(false);
+    return empty_pic;
+  }
+  memcpy(&id, data, sizeof(id));
+  auto iter = pic_map->find(id);
+  if (iter == pic_map->end()) {
+    // When we don't have the out-of-process picture available, we return
+    // an empty picture. Returning a nullptr will cause the deserialization
+    // crash.
+    return empty_pic;
+  }
+  return iter->second;
+}
+
+SkSerialProcs serialProcs(void* ctx) {
+  SkSerialProcs procs;
+  procs.fPictureProc = serializeOopPicture;
+  procs.fPictureCtx = ctx;
+  return procs;
+}
+
+SkDeserialProcs deserialProcs(void* ctx) {
+  SkDeserialProcs procs;
+  procs.fPictureProc = deserializeOopPicture;
+  procs.fPictureCtx = ctx;
+  return procs;
+}
+
 struct MultiPictureDocument final : public SkDocument {
     SkPictureRecorder fPictureRecorder;
     SkSize fCurrentPageSize;
     SkTArray<sk_sp<SkPicture>> fPages;
     SkTArray<SkSize> fSizes;
-    MultiPictureDocument(SkWStream* s, void (*d)(SkWStream*, bool))
-        : SkDocument(s, d) {}
+    uint32_t proc_id;
+    std::vector<SkPicIdType> subframe_content_ids;
+    MultiPictureDocument(SkWStream* s, void (*d)(SkWStream*, bool),
+                         uint32_t process_id,
+                         const std::vector<SkPicIdType>& ids)
+        : SkDocument(s, d),
+          proc_id(process_id),
+          subframe_content_ids(ids) {}
     ~MultiPictureDocument() override { this->close(); }
 
     SkCanvas* onBeginPage(SkScalar w, SkScalar h) override {
@@ -77,7 +146,8 @@ struct MultiPictureDocument final : public SkDocument {
             c->drawAnnotation(SkRect::MakeEmpty(), kEndPage, nullptr);
         }
         sk_sp<SkPicture> p = fPictureRecorder.finishRecordingAsPicture();
-        p->serialize(wStream);
+        SerializeContext ctx = {proc_id, subframe_content_ids};
+        p->serialize(wStream, serialProcs(&ctx));
         fPages.reset();
         fSizes.reset();
         return;
@@ -87,10 +157,31 @@ struct MultiPictureDocument final : public SkDocument {
         fSizes.reset();
     }
 };
+
+}
+
+void SkSerializePictureWithOopContent(sk_sp<SkPicture> pic,
+                                      SkWStream* wStream,
+                                      uint32_t process_id,
+                                      const std::vector<SkPicIdType>& pic_ids) {
+  SerializeContext ctx = {process_id, pic_ids};
+  pic->serialize(wStream, serialProcs(&ctx));
+}
+
+sk_sp<SkPicture> SkDeserializePictureWithOopContent(SkStream* stream,
+                                                    void* deserialize_context) {
+  return SkPicture::MakeFromStream(stream, deserialProcs(deserialize_context));
 }
 
 sk_sp<SkDocument> SkMakeMultiPictureDocument(SkWStream* wStream) {
-    return sk_make_sp<MultiPictureDocument>(wStream, nullptr);
+  return sk_make_sp<MultiPictureDocument>(wStream, nullptr,
+                                          0, std::vector<SkPicIdType>());
+}
+
+sk_sp<SkDocument> SkMakeMultiPictureDocument(SkWStream* wStream,
+    uint32_t process_id, const std::vector<SkPicIdType>& pic_ids) {
+  return sk_make_sp<MultiPictureDocument>(wStream, nullptr,
+                                          process_id, pic_ids);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -171,7 +262,8 @@ struct PagerCanvas : public SkNWayCanvas {
 
 bool SkMultiPictureDocumentRead(SkStreamSeekable* stream,
                                 SkDocumentPage* dstArray,
-                                int dstArrayCount) {
+                                int dstArrayCount,
+                                void* deserialize_context) {
     if (!SkMultiPictureDocumentReadPageSizes(stream, dstArray, dstArrayCount)) {
         return false;
     }
@@ -181,7 +273,8 @@ bool SkMultiPictureDocumentRead(SkStreamSeekable* stream,
                         SkTMax(joined.height(), dstArray[i].fSize.height())};
     }
 
-    auto picture = SkPicture::MakeFromStream(stream);
+    auto picture = SkPicture::MakeFromStream(
+        stream, deserialProcs(deserialize_context));
 
     PagerCanvas canvas(joined.toCeil(), dstArray, dstArrayCount);
     // Must call playback(), not drawPicture() to reach

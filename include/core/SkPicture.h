@@ -108,6 +108,7 @@ public:
 
     sk_sp<SkData> serialize() const;
     void serialize(SkWStream*) const;
+    void serialize(SkWStream*, const SkSerialProcs&) const;
     sk_sp<SkData> serialize(const SkSerialProcs&) const;
 
     /**
