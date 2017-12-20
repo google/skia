@@ -144,4 +144,6 @@ struct SkPathCounter {
 
 sk_sp<SkImage> ImageDeserializer_SkDeserialImageProc(const void*, size_t, void* imagedeserializer);
 
+bool SkPicture_StreamIsSKP(SkStream*, SkPictInfo*);
+
 #endif  // SkPictureCommon_DEFINED

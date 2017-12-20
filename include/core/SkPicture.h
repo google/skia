@@ -131,17 +131,6 @@ public:
     /** Returns the approximate byte size of this picture, not including large ref'd objects. */
     virtual size_t approximateBytesUsed() const = 0;
 
-    /** Return true if the SkStream/Buffer represents a serialized picture, and
-        fills out SkPictInfo. After this function returns, the data source is not
-        rewound so it will have to be manually reset before passing to
-        CreateFromStream or CreateFromBuffer. Note, CreateFromStream and
-        CreateFromBuffer perform this check internally so these entry points are
-        intended for stand alone tools.
-        If false is returned, SkPictInfo is unmodified.
-    */
-    static bool InternalOnly_StreamIsSKP(SkStream*, SkPictInfo*);
-    static bool InternalOnly_BufferIsSKP(SkReadBuffer*, SkPictInfo*);
-
 #ifdef SK_SUPPORT_LEGACY_PICTURE_GPUVETO
     /** Return true if the picture is suitable for rendering on the GPU.  */
     bool suitableForGpuRasterization(GrContext*, const char** whyNot = nullptr) const;
@@ -162,6 +151,18 @@ private:
     void serialize(SkWStream*, const SkSerialProcs&, SkRefCntSet* typefaces) const;
     static sk_sp<SkPicture> MakeFromStream(SkStream*, const SkDeserialProcs&, SkTypefacePlayback*);
     friend class SkPictureData;
+
+    /** Return true if the SkStream/Buffer represents a serialized picture, and
+     fills out SkPictInfo. After this function returns, the data source is not
+     rewound so it will have to be manually reset before passing to
+     CreateFromStream or CreateFromBuffer. Note, CreateFromStream and
+     CreateFromBuffer perform this check internally so these entry points are
+     intended for stand alone tools.
+     If false is returned, SkPictInfo is unmodified.
+     */
+    static bool StreamIsSKP(SkStream*, SkPictInfo*);
+    static bool BufferIsSKP(SkReadBuffer*, SkPictInfo*);
+    friend bool SkPicture_StreamIsSKP(SkStream*, SkPictInfo*);
 
     virtual int numSlowPaths() const = 0;
     friend class SkPictureGpuAnalyzer;

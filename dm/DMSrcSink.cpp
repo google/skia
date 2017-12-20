@@ -35,6 +35,7 @@
 #include "SkOSFile.h"
 #include "SkOSPath.h"
 #include "SkOpts.h"
+#include "SkPictureCommon.h"
 #include "SkPictureData.h"
 #include "SkPictureRecorder.h"
 #include "SkPipe.h"
@@ -1175,7 +1176,7 @@ static SkRect get_cull_rect_for_skp(const char* path) {
         return SkRect::MakeEmpty();
     }
     SkPictInfo info;
-    if (!SkPicture::InternalOnly_StreamIsSKP(stream.get(), &info)) {
+    if (!SkPicture_StreamIsSKP(stream.get(), &info)) {
         return SkRect::MakeEmpty();
     }
 
