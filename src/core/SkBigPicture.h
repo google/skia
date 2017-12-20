@@ -43,7 +43,6 @@ public:
 // SkPicture overrides
     void playback(SkCanvas*, AbortCallback*) const override;
     SkRect cullRect() const override;
-    bool willPlayBackBitmaps() const override;
     int approximateOpCount() const override;
     size_t approximateBytesUsed() const override;
     const SkBigPicture* asSkBigPicture() const override { return this; }
@@ -58,24 +57,11 @@ public:
     const SkRecord*     record() const { return fRecord.get(); }
 
 private:
-    struct Analysis {
-        void init(const SkRecord&);
-
-        bool suitableForGpuRasterization(const char** reason) const;
-
-        uint8_t fNumSlowPathsAndDashEffects;
-        bool    fWillPlaybackBitmaps : 1;
-    };
-
-    int numSlowPaths() const override;
-    const Analysis& analysis() const;
     int drawableCount() const;
     SkPicture const* const* drawablePicts() const;
 
     const SkRect                         fCullRect;
     const size_t                         fApproxBytesUsedBySubPictures;
-    mutable SkOnce                       fAnalysisOnce;
-    mutable Analysis                     fAnalysis;
     sk_sp<const SkRecord>                fRecord;
     std::unique_ptr<const SnapshotArray> fDrawablePicts;
     sk_sp<const SkBBoxHierarchy>         fBBH;

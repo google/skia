@@ -4,70 +4,18 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
 #ifndef SkPictureCommon_DEFINED
 #define SkPictureCommon_DEFINED
 
 // Some shared code used by both SkBigPicture and SkMiniPicture.
 //   SkTextHunter   -- SkRecord visitor that returns true when the op draws text.
-//   SkBitmapHunter -- SkRecord visitor that returns true when the op draws a bitmap or image.
 //   SkPathCounter  -- SkRecord visitor that counts paths that draw slowly on the GPU.
 
 #include "SkPathEffect.h"
 #include "SkRecords.h"
 #include "SkShader.h"
 #include "SkTLogic.h"
-
-// N.B. This name is slightly historical: hunting season is now open for SkImages too.
-struct SkBitmapHunter {
-    // Some ops have a paint, some have an optional paint.  Either way, get back a pointer.
-    static const SkPaint* AsPtr(const SkPaint& p) { return &p; }
-    static const SkPaint* AsPtr(const SkRecords::Optional<SkPaint>& p) { return p; }
-
-    // Main entry for visitor:
-    // If the op is a DrawPicture, recurse.
-    // If the op has a bitmap or image directly, return true.
-    // If the op has a paint and the paint has a bitmap, return true.
-    // Otherwise, return false.
-    bool operator()(const SkRecords::DrawPicture& op) { return op.picture->willPlayBackBitmaps(); }
-    bool operator()(const SkRecords::DrawDrawable&) { /*TODO*/ return false; }
-
-    template <typename T>
-    bool operator()(const T& op) { return CheckBitmap(op); }
-
-    // If the op is tagged as having an image, return true.
-    template <typename T>
-    static SK_WHEN(T::kTags & SkRecords::kHasImage_Tag, bool) CheckBitmap(const T&) {
-        return true;
-    }
-
-    // If not, look for one in its paint (if it has a paint).
-    template <typename T>
-    static SK_WHEN(!(T::kTags & SkRecords::kHasImage_Tag), bool) CheckBitmap(const T& op) {
-        return CheckPaint(op);
-    }
-
-    // Most draws-type ops have paints.
-    template <typename T>
-    static SK_WHEN(T::kTags & SkRecords::kHasPaint_Tag, bool) CheckPaint(const T& op) {
-        return PaintHasBitmap(AsPtr(op.paint));
-    }
-
-    template <typename T>
-    static SK_WHEN(!(T::kTags & SkRecords::kHasPaint_Tag), bool) CheckPaint(const T&) {
-        return false;
-    }
-
-private:
-    static bool PaintHasBitmap(const SkPaint* paint) {
-        if (paint) {
-            const SkShader* shader = paint->getShader();
-            if (shader && shader->isAImage()) {
-                return true;
-            }
-        }
-        return false;
-    }
-};
 
 // TODO: might be nicer to have operator() return an int (the number of slow paths) ?
 struct SkPathCounter {
@@ -76,11 +24,6 @@ struct SkPathCounter {
     static const SkPaint* AsPtr(const SkRecords::Optional<SkPaint>& p) { return p; }
 
     SkPathCounter() : fNumSlowPathsAndDashEffects(0) {}
-
-    // Recurse into nested pictures.
-    void operator()(const SkRecords::DrawPicture& op) {
-        fNumSlowPathsAndDashEffects += op.picture->numSlowPaths();
-    }
 
     void checkPaint(const SkPaint* paint) {
         if (paint && paint->getPathEffect()) {

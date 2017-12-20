@@ -23,8 +23,6 @@ public:
     size_t approximateBytesUsed() const override { return sizeof(*this); }
     int    approximateOpCount()   const override { return 0; }
     SkRect cullRect()             const override { return SkRect::MakeEmpty(); }
-    int    numSlowPaths()         const override { return 0; }
-    bool   willPlayBackBitmaps()  const override { return false; }
 };
 
 // Calculate conservative bounds for each type of draw op that can be its own mini picture.
@@ -58,12 +56,6 @@ public:
     size_t approximateBytesUsed() const override { return sizeof(*this); }
     int    approximateOpCount()   const override { return 1; }
     SkRect cullRect()             const override { return fCull; }
-    bool   willPlayBackBitmaps()  const override { return SkBitmapHunter()(fOp); }
-    int    numSlowPaths()         const override {
-        SkPathCounter counter;
-        counter(fOp);
-        return counter.fNumSlowPathsAndDashEffects;
-    }
 
 private:
     SkRect fCull;

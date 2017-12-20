@@ -335,16 +335,6 @@ void SkPicture::flatten(SkWriteBuffer& buffer) const {
     }
 }
 
-#ifdef SK_SUPPORT_LEGACY_PICTURE_GPUVETO
-bool SkPicture::suitableForGpuRasterization(GrContext*, const char** whyNot) const {
-    if (this->numSlowPaths() > 5) {
-        if (whyNot) { *whyNot = "Too many slow paths (either concave or dashed)."; }
-        return false;
-    }
-    return true;
-}
-#endif
-
 // Global setting to disable security precautions for serialization.
 bool SkPicture::PictureIOSecurityPrecautionsEnabled() {
     return g_AllPictureIOSecurityPrecautionsEnabled;
