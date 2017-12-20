@@ -246,6 +246,10 @@ void SkPicture::serialize(SkWStream* stream) const {
     this->serialize(stream, SkSerialProcs(), nullptr);
 }
 
+void SkPicture::serialize(SkWStream* stream, const SkSerialProcs& procs) const {
+    this->serialize(stream, procs, nullptr);
+}
+
 sk_sp<SkData> SkPicture::serialize() const {
     SkDynamicMemoryWStream stream;
     this->serialize(&stream);
