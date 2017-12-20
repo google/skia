@@ -74,6 +74,10 @@ public:
     const void* text() { return (const void*)fText; }
     size_t fByteLength;
     const char* fText;
+
+    bool validate(SkReadBuffer* reader, int count, const SkPaint& paint) const {
+        return reader->validate(paint.countText(fText, fByteLength) == count);
+    }
 };
 
 void get_text(SkReadBuffer* reader, TextContainer* text) {
@@ -479,6 +483,7 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
             TextContainer text;
             get_text(reader, &text);
             size_t points = reader->readInt();
+            text.validate(reader, points, *paint);
             const SkPoint* pos = (const SkPoint*)reader->skip(points * sizeof(SkPoint));
             BREAK_ON_READ_ERROR(reader);
 
@@ -491,9 +496,11 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
             TextContainer text;
             get_text(reader, &text);
             size_t points = reader->readInt();
+            text.validate(reader, points, *paint);
             const SkPoint* pos = (const SkPoint*)reader->skip(points * sizeof(SkPoint));
             const SkScalar top = reader->readScalar();
             const SkScalar bottom = reader->readScalar();
+            SkDebugf("postexth count %zu pos %p\n", points, pos);
             BREAK_ON_READ_ERROR(reader);
 
             SkRect clip = canvas->getLocalClipBounds();
@@ -506,6 +513,7 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
             TextContainer text;
             get_text(reader, &text);
             size_t xCount = reader->readInt();
+            text.validate(reader, xCount, *paint);
             const SkScalar constY = reader->readScalar();
             const SkScalar* xpos = (const SkScalar*)reader->skip(xCount * sizeof(SkScalar));
             BREAK_ON_READ_ERROR(reader);
@@ -519,6 +527,7 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
             TextContainer text;
             get_text(reader, &text);
             size_t xCount = reader->readInt();
+            text.validate(reader, xCount, *paint);
             const SkScalar* xpos = (const SkScalar*)reader->skip((3 + xCount) * sizeof(SkScalar));
             BREAK_ON_READ_ERROR(reader);
 
