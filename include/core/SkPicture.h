@@ -115,12 +115,6 @@ public:
      */
     void flatten(SkWriteBuffer&) const;
 
-    /**
-     * Returns true if any bitmaps may be produced when this SkPicture
-     * is replayed.
-     */
-    virtual bool willPlayBackBitmaps() const = 0;
-
     /** Return the approximate number of operations in this picture.  This
      *  number may be greater or less than the number of SkCanvas calls
      *  recorded: some calls may be recorded as more than one operation, or some
@@ -130,11 +124,6 @@ public:
 
     /** Returns the approximate byte size of this picture, not including large ref'd objects. */
     virtual size_t approximateBytesUsed() const = 0;
-
-#ifdef SK_SUPPORT_LEGACY_PICTURE_GPUVETO
-    /** Return true if the picture is suitable for rendering on the GPU.  */
-    bool suitableForGpuRasterization(GrContext*, const char** whyNot = nullptr) const;
-#endif
 
     // Returns NULL if this is not an SkBigPicture.
     virtual const SkBigPicture* asSkBigPicture() const { return nullptr; }
@@ -164,8 +153,6 @@ private:
     static bool BufferIsSKP(SkReadBuffer*, SkPictInfo*);
     friend bool SkPicture_StreamIsSKP(SkStream*, SkPictInfo*);
 
-    virtual int numSlowPaths() const = 0;
-    friend class SkPictureGpuAnalyzer;
     friend struct SkPathCounter;
 
     // V35: Store SkRect (rather then width & height) in header

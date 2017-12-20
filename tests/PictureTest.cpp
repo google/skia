@@ -19,7 +19,6 @@
 #include "SkMD5.h"
 #include "SkPaint.h"
 #include "SkPicture.h"
-#include "SkPictureAnalyzer.h"
 #include "SkPictureRecorder.h"
 #include "SkPixelRef.h"
 #include "SkMiniRecorder.h"
@@ -42,50 +41,6 @@ static void make_bm(SkBitmap* bm, int w, int h, SkColor color, bool immutable) {
         bm->setImmutable();
     }
 }
-
-// For a while willPlayBackBitmaps() ignored SkImages and just looked for SkBitmaps.
-static void test_images_are_found_by_willPlayBackBitmaps(skiatest::Reporter* reporter) {
-    // We just need _some_ SkImage
-    const SkPMColor pixel = 0;
-    const SkImageInfo info = SkImageInfo::MakeN32Premul(1, 1);
-    sk_sp<SkImage> image(SkImage::MakeRasterCopy(SkPixmap(info, &pixel, sizeof(pixel))));
-
-    SkPictureRecorder recorder;
-    recorder.beginRecording(100,100)->drawImage(image, 0,0);
-    sk_sp<SkPicture> picture(recorder.finishRecordingAsPicture());
-
-    REPORTER_ASSERT(reporter, picture->willPlayBackBitmaps());
-}
-
-/* Hit a few SkPicture::Analysis cases not handled elsewhere. */
-static void test_analysis(skiatest::Reporter* reporter) {
-    SkPictureRecorder recorder;
-
-    SkCanvas* canvas = recorder.beginRecording(100, 100);
-    {
-        canvas->drawRect(SkRect::MakeWH(10, 10), SkPaint ());
-    }
-    sk_sp<SkPicture> picture(recorder.finishRecordingAsPicture());
-    REPORTER_ASSERT(reporter, !picture->willPlayBackBitmaps());
-
-    canvas = recorder.beginRecording(100, 100);
-    {
-        SkPaint paint;
-        // CreateBitmapShader is too smart for us; an empty (or 1x1) bitmap shader
-        // gets optimized into a non-bitmap form, so we create a 2x2 bitmap here.
-        SkBitmap bitmap;
-        bitmap.allocPixels(SkImageInfo::MakeN32Premul(2, 2));
-        bitmap.eraseColor(SK_ColorBLUE);
-        *(bitmap.getAddr32(0, 0)) = SK_ColorGREEN;
-        paint.setShader(SkShader::MakeBitmapShader(bitmap, SkShader::kClamp_TileMode,
-                                                   SkShader::kClamp_TileMode));
-        REPORTER_ASSERT(reporter, paint.getShader()->isAImage());
-
-        canvas->drawRect(SkRect::MakeWH(10, 10), paint);
-    }
-    REPORTER_ASSERT(reporter, recorder.finishRecordingAsPicture()->willPlayBackBitmaps());
-}
-
 
 #ifdef SK_DEBUG
 // Ensure that deleting an empty SkPicture does not assert. Asserts only fire
@@ -129,192 +84,6 @@ static void rand_op(SkCanvas* canvas, SkRandom& rand) {
         canvas->drawPaint(paint);
     }
 }
-
-#if SK_SUPPORT_GPU
-
-static SkPath make_convex_path() {
-    SkPath path;
-    path.lineTo(100, 0);
-    path.lineTo(50, 100);
-    path.close();
-
-    return path;
-}
-
-static SkPath make_concave_path() {
-    SkPath path;
-    path.lineTo(50, 50);
-    path.lineTo(100, 0);
-    path.lineTo(50, 100);
-    path.close();
-
-    return path;
-}
-
-static void test_gpu_veto(skiatest::Reporter* reporter) {
-    SkPictureRecorder recorder;
-
-    SkCanvas* canvas = recorder.beginRecording(100, 100);
-    {
-        SkPath path;
-        path.moveTo(0, 0);
-        path.lineTo(50, 50);
-
-        SkScalar intervals[] = { 1.0f, 1.0f };
-        sk_sp<SkPathEffect> dash(SkDashPathEffect::Make(intervals, 2, 0));
-
-        SkPaint paint;
-        paint.setStyle(SkPaint::kStroke_Style);
-        paint.setPathEffect(dash);
-
-        for (int i = 0; i < 50; ++i) {
-            canvas->drawPath(path, paint);
-        }
-    }
-    sk_sp<SkPicture> picture(recorder.finishRecordingAsPicture());
-    // path effects currently render an SkPicture undesireable for GPU rendering
-
-    const char *reason = nullptr;
-    REPORTER_ASSERT(reporter,
-        !SkPictureGpuAnalyzer(picture).suitableForGpuRasterization(&reason));
-    REPORTER_ASSERT(reporter, reason);
-
-    canvas = recorder.beginRecording(100, 100);
-    {
-        SkPath path;
-
-        path.moveTo(0, 0);
-        path.lineTo(0, 50);
-        path.lineTo(25, 25);
-        path.lineTo(50, 50);
-        path.lineTo(50, 0);
-        path.close();
-        REPORTER_ASSERT(reporter, !path.isConvex());
-
-        SkPaint paint;
-        paint.setAntiAlias(true);
-        for (int i = 0; i < 50; ++i) {
-            canvas->drawPath(path, paint);
-        }
-    }
-    picture = recorder.finishRecordingAsPicture();
-    // A lot of small AA concave paths should be fine for GPU rendering
-    REPORTER_ASSERT(reporter, SkPictureGpuAnalyzer(picture).suitableForGpuRasterization());
-
-    canvas = recorder.beginRecording(100, 100);
-    {
-        SkPath path;
-
-        path.moveTo(0, 0);
-        path.lineTo(0, 100);
-        path.lineTo(50, 50);
-        path.lineTo(100, 100);
-        path.lineTo(100, 0);
-        path.close();
-        REPORTER_ASSERT(reporter, !path.isConvex());
-
-        SkPaint paint;
-        paint.setAntiAlias(true);
-        for (int i = 0; i < 50; ++i) {
-            canvas->drawPath(path, paint);
-        }
-    }
-    picture = recorder.finishRecordingAsPicture();
-    // A lot of large AA concave paths currently render an SkPicture undesireable for GPU rendering
-    REPORTER_ASSERT(reporter, !SkPictureGpuAnalyzer(picture).suitableForGpuRasterization());
-
-    canvas = recorder.beginRecording(100, 100);
-    {
-        SkPath path;
-
-        path.moveTo(0, 0);
-        path.lineTo(0, 50);
-        path.lineTo(25, 25);
-        path.lineTo(50, 50);
-        path.lineTo(50, 0);
-        path.close();
-        REPORTER_ASSERT(reporter, !path.isConvex());
-
-        SkPaint paint;
-        paint.setAntiAlias(true);
-        paint.setStyle(SkPaint::kStroke_Style);
-        paint.setStrokeWidth(0);
-        for (int i = 0; i < 50; ++i) {
-            canvas->drawPath(path, paint);
-        }
-    }
-    picture = recorder.finishRecordingAsPicture();
-    // hairline stroked AA concave paths are fine for GPU rendering
-    REPORTER_ASSERT(reporter, SkPictureGpuAnalyzer(picture).suitableForGpuRasterization());
-
-    canvas = recorder.beginRecording(100, 100);
-    {
-        SkPaint paint;
-        SkScalar intervals [] = { 10, 20 };
-        paint.setPathEffect(SkDashPathEffect::Make(intervals, 2, 25));
-
-        SkPoint points [2] = { { 0, 0 }, { 100, 0 } };
-
-        for (int i = 0; i < 50; ++i) {
-            canvas->drawPoints(SkCanvas::kLines_PointMode, 2, points, paint);
-        }
-    }
-    picture = recorder.finishRecordingAsPicture();
-    // fast-path dashed effects are fine for GPU rendering ...
-    REPORTER_ASSERT(reporter, SkPictureGpuAnalyzer(picture).suitableForGpuRasterization());
-
-    canvas = recorder.beginRecording(100, 100);
-    {
-        SkPaint paint;
-        SkScalar intervals [] = { 10, 20 };
-        paint.setPathEffect(SkDashPathEffect::Make(intervals, 2, 25));
-
-        for (int i = 0; i < 50; ++i) {
-            canvas->drawRect(SkRect::MakeWH(10, 10), paint);
-        }
-    }
-    picture = recorder.finishRecordingAsPicture();
-    // ... but only when applied to drawPoint() calls
-    REPORTER_ASSERT(reporter, !SkPictureGpuAnalyzer(picture).suitableForGpuRasterization());
-
-    canvas = recorder.beginRecording(100, 100);
-    {
-        const SkPath convexClip = make_convex_path();
-        const SkPath concaveClip = make_concave_path();
-
-        for (int i = 0; i < 50; ++i) {
-            canvas->clipPath(convexClip);
-            canvas->clipPath(concaveClip);
-            canvas->clipPath(convexClip, kIntersect_SkClipOp, true);
-            canvas->drawRect(SkRect::MakeWH(100, 100), SkPaint());
-        }
-    }
-    picture = recorder.finishRecordingAsPicture();
-    // Convex clips and non-AA concave clips are fine on the GPU.
-    REPORTER_ASSERT(reporter, SkPictureGpuAnalyzer(picture).suitableForGpuRasterization());
-
-    canvas = recorder.beginRecording(100, 100);
-    {
-        const SkPath concaveClip = make_concave_path();
-        for (int i = 0; i < 50; ++i) {
-            canvas->clipPath(concaveClip, kIntersect_SkClipOp, true);
-            canvas->drawRect(SkRect::MakeWH(100, 100), SkPaint());
-        }
-    }
-    picture = recorder.finishRecordingAsPicture();
-    // ... but AA concave clips are not.
-    REPORTER_ASSERT(reporter, !SkPictureGpuAnalyzer(picture).suitableForGpuRasterization());
-
-    // Nest the previous picture inside a new one.
-    canvas = recorder.beginRecording(100, 100);
-    {
-        canvas->drawPicture(picture);
-    }
-    picture = recorder.finishRecordingAsPicture();
-    REPORTER_ASSERT(reporter, !SkPictureGpuAnalyzer(picture).suitableForGpuRasterization());
-}
-
-#endif // SK_SUPPORT_GPU
 
 static void set_canvas_to_save_count_4(SkCanvas* canvas) {
     canvas->restoreToCount(1);
@@ -450,36 +219,6 @@ DEF_TEST(PictureRecorder_replay, reporter) {
 
         // The copy shouldn't pick up any operations added after it was made
         check_save_state(reporter, copy.get(), 2, 1, 3);
-    }
-
-    // (partially) check leakage of draw ops
-    {
-        SkPictureRecorder recorder;
-
-        SkCanvas* canvas = recorder.beginRecording(10, 10);
-
-        SkRect r = SkRect::MakeWH(5, 5);
-        SkPaint p;
-
-        canvas->drawRect(r, p);
-
-        sk_sp<SkPicture> copy(SkPictureRecorderReplayTester::Copy(&recorder));
-
-        REPORTER_ASSERT(reporter, !copy->willPlayBackBitmaps());
-
-        SkBitmap bm;
-        make_bm(&bm, 10, 10, SK_ColorRED, true);
-
-        r.offset(5.0f, 5.0f);
-        canvas->drawBitmapRect(bm, r, nullptr);
-
-        sk_sp<SkPicture> final(recorder.finishRecordingAsPicture());
-        REPORTER_ASSERT(reporter, final->willPlayBackBitmaps());
-
-        REPORTER_ASSERT(reporter, copy->uniqueID() != final->uniqueID());
-
-        // The snapshot shouldn't pick up any operations added after it was made
-        REPORTER_ASSERT(reporter, !copy->willPlayBackBitmaps());
     }
 
     // Recreate the Android partialReplay test case
@@ -782,48 +521,6 @@ static void test_clip_expansion(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, testCanvas.getClipCount() == 2);
 }
 
-static void test_hierarchical(skiatest::Reporter* reporter) {
-    SkBitmap bm;
-    make_bm(&bm, 10, 10, SK_ColorRED, true);
-
-    SkPictureRecorder recorder;
-
-    recorder.beginRecording(10, 10);
-    sk_sp<SkPicture> childPlain(recorder.finishRecordingAsPicture());
-    REPORTER_ASSERT(reporter, !childPlain->willPlayBackBitmaps()); // 0
-
-    recorder.beginRecording(10, 10)->drawBitmap(bm, 0, 0);
-    sk_sp<SkPicture> childWithBitmap(recorder.finishRecordingAsPicture());
-    REPORTER_ASSERT(reporter, childWithBitmap->willPlayBackBitmaps()); // 1
-
-    {
-        SkCanvas* canvas = recorder.beginRecording(10, 10);
-        canvas->drawPicture(childPlain);
-        sk_sp<SkPicture> parentPP(recorder.finishRecordingAsPicture());
-        REPORTER_ASSERT(reporter, !parentPP->willPlayBackBitmaps()); // 0
-    }
-    {
-        SkCanvas* canvas = recorder.beginRecording(10, 10);
-        canvas->drawPicture(childWithBitmap);
-        sk_sp<SkPicture> parentPWB(recorder.finishRecordingAsPicture());
-        REPORTER_ASSERT(reporter, parentPWB->willPlayBackBitmaps()); // 1
-    }
-    {
-        SkCanvas* canvas = recorder.beginRecording(10, 10);
-        canvas->drawBitmap(bm, 0, 0);
-        canvas->drawPicture(childPlain);
-        sk_sp<SkPicture> parentWBP(recorder.finishRecordingAsPicture());
-        REPORTER_ASSERT(reporter, parentWBP->willPlayBackBitmaps()); // 1
-    }
-    {
-        SkCanvas* canvas = recorder.beginRecording(10, 10);
-        canvas->drawBitmap(bm, 0, 0);
-        canvas->drawPicture(childWithBitmap);
-        sk_sp<SkPicture> parentWBWB(recorder.finishRecordingAsPicture());
-        REPORTER_ASSERT(reporter, parentWBWB->willPlayBackBitmaps()); // 2
-    }
-}
-
 static void test_gen_id(skiatest::Reporter* reporter) {
 
     SkPictureRecorder recorder;
@@ -864,14 +561,8 @@ DEF_TEST(Picture, reporter) {
 #endif
     test_unbalanced_save_restores(reporter);
     test_peephole();
-#if SK_SUPPORT_GPU
-    test_gpu_veto(reporter);
-#endif
-    test_images_are_found_by_willPlayBackBitmaps(reporter);
-    test_analysis(reporter);
     test_clip_bound_opt(reporter);
     test_clip_expansion(reporter);
-    test_hierarchical(reporter);
     test_gen_id(reporter);
     test_cull_rect_reset(reporter);
 }
@@ -1084,56 +775,6 @@ DEF_TEST(Picture_preserveCullRect, r) {
     REPORTER_ASSERT(r, deserializedPicture->cullRect().bottom() == 4);
 }
 
-#if SK_SUPPORT_GPU
-
-DEF_TEST(PictureGpuAnalyzer, r) {
-    SkPictureRecorder recorder;
-
-    {
-        SkCanvas* canvas = recorder.beginRecording(10, 10);
-        SkPaint paint;
-        SkScalar intervals [] = { 10, 20 };
-        paint.setPathEffect(SkDashPathEffect::Make(intervals, 2, 25));
-
-        for (int i = 0; i < 50; ++i) {
-            canvas->drawRect(SkRect::MakeWH(10, 10), paint);
-        }
-    }
-    sk_sp<SkPicture> vetoPicture(recorder.finishRecordingAsPicture());
-
-    SkPictureGpuAnalyzer analyzer;
-    REPORTER_ASSERT(r, analyzer.suitableForGpuRasterization());
-
-    analyzer.analyzePicture(vetoPicture.get());
-    REPORTER_ASSERT(r, !analyzer.suitableForGpuRasterization());
-
-    analyzer.reset();
-    REPORTER_ASSERT(r, analyzer.suitableForGpuRasterization());
-
-    recorder.beginRecording(10, 10)->drawPicture(vetoPicture);
-    sk_sp<SkPicture> nestedVetoPicture(recorder.finishRecordingAsPicture());
-
-    analyzer.analyzePicture(nestedVetoPicture.get());
-    REPORTER_ASSERT(r, !analyzer.suitableForGpuRasterization());
-
-    analyzer.reset();
-
-    const SkPath convexClip = make_convex_path();
-    const SkPath concaveClip = make_concave_path();
-    for (int i = 0; i < 50; ++i) {
-        analyzer.analyzeClipPath(convexClip, kIntersect_SkClipOp, false);
-        analyzer.analyzeClipPath(convexClip, kIntersect_SkClipOp, true);
-        analyzer.analyzeClipPath(concaveClip, kIntersect_SkClipOp, false);
-    }
-    REPORTER_ASSERT(r, analyzer.suitableForGpuRasterization());
-
-    for (int i = 0; i < 50; ++i) {
-        analyzer.analyzeClipPath(concaveClip, kIntersect_SkClipOp, true);
-    }
-    REPORTER_ASSERT(r, !analyzer.suitableForGpuRasterization());
-}
-
-#endif // SK_SUPPORT_GPU
 
 // If we record bounded ops into a picture with a big cull and calculate the
 // bounds of those ops, we should trim down the picture cull to the ops' bounds.
