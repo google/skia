@@ -98,9 +98,6 @@ with open(sys.argv[1], 'w') as f:
       extra_ldflags.append('-fprofile-instr-generate')
       extra_ldflags.append('-fcoverage-mapping')
 
-    if compiler != 'MSVC' and configuration == 'Debug':
-      extra_cflags.append('-O1')
-
     if 'Exceptions' in extra_tokens:
       extra_cflags.append('/EHsc')
     if 'Fast' in extra_tokens:
@@ -116,7 +113,7 @@ with open(sys.argv[1], 'w') as f:
       extra_ldflags.append('-L' + clang_linux + '/msan')
 
     args = {}
-    ninja_args = ['-k', '0', '-C', self.out_dir]
+    ninja_args = ['-v', '-k', '0', '-C', self.out_dir]
     env = {}
 
     if configuration != 'Debug':
