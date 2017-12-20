@@ -16,8 +16,7 @@
 #include "SkPictureRecorder.h"
 #include "SkSerialProcs.h"
 
-#if defined(SK_DISALLOW_CROSSPROCESS_PICTUREIMAGEFILTERS) || \
-    defined(SK_ENABLE_PICTURE_IO_SECURITY_PRECAUTIONS)
+#if defined(SK_DISALLOW_CROSSPROCESS_PICTUREIMAGEFILTERS)
 static bool g_AllPictureIOSecurityPrecautionsEnabled = true;
 #else
 static bool g_AllPictureIOSecurityPrecautionsEnabled = false;
@@ -344,10 +343,6 @@ bool SkPicture::suitableForGpuRasterization(GrContext*, const char** whyNot) con
 #endif
 
 // Global setting to disable security precautions for serialization.
-void SkPicture::SetPictureIOSecurityPrecautionsEnabled_Dangerous(bool set) {
-    g_AllPictureIOSecurityPrecautionsEnabled = set;
-}
-
 bool SkPicture::PictureIOSecurityPrecautionsEnabled() {
     return g_AllPictureIOSecurityPrecautionsEnabled;
 }
