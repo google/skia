@@ -206,13 +206,22 @@ config("default") {
     # You can either pass the sanitizers directly, e.g. "address,undefined",
     # or pass one of the couple common aliases used by the bots.
     sanitizers = sanitize
-    if (sanitize == "ASAN") {
-      sanitizers = "address,bool,float-cast-overflow,integer-divide-by-zero,nonnull-attribute,null,return,returns-nonnull-attribute,shift,signed-integer-overflow,unreachable,vla-bound,vptr"
-      if (!is_mac) {
-        sanitizers += ",function"  # Not supported on Mac.
+    if (sanitize == "ASAN" || sanitize == "UBSAN") {
+      # ASAN implicitly runs all UBSAN checks also.
+      sanitizers = "bool,float-cast-overflow,integer-divide-by-zero,nonnull-attribute,null,return,returns-nonnull-attribute,shift,signed-integer-overflow,unreachable,vla-bound"
+      if (!is_mac && !is_win) {
+        sanitizers += ",function"  # Not supported on Mac or Win.
       }
-      if (!is_debug) {
-        sanitizers += ",object-size"  # No-op with somewhat annoying warning at -O0.
+      if (!is_win) {
+        sanitizers += ",vptr"  # Not supported on Win.
+      }
+      if (!is_debug && !is_win) {
+        # No-op with somewhat annoying warning at -O0.
+        # Seems to be broken on Win.
+        sanitizers += ",object-size"
+      }
+      if (sanitize == "ASAN") {
+        sanitizers += ",address"
       }
     } else if (sanitize == "TSAN") {
       sanitizers = "thread"
