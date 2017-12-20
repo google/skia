@@ -241,8 +241,7 @@ static void blur_path(SkCanvas* canvas, const SkPath& path,
 static void readback(const SkBitmap& src, int* result, int resultCount) {
     SkBitmap readback;
     readback.allocN32Pixels(resultCount, 30);
-    SkPixmap pm;
-    readback.peekPixels(&pm);
+    const SkPixmap& pm = readback.pixmap();
     src.readPixels(pm, 0, 0);
 
     const SkPMColor* pixels = pm.addr32(0, 15);

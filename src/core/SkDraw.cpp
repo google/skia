@@ -1137,16 +1137,15 @@ void SkDraw::drawBitmapAsMask(const SkBitmap& bitmap, const SkPaint& paint) cons
         int ix = SkScalarRoundToInt(fMatrix->getTranslateX());
         int iy = SkScalarRoundToInt(fMatrix->getTranslateY());
 
-        SkPixmap pmap;
-        if (!bitmap.peekPixels(&pmap)) {
+        if (!bitmap.getPixels()) {
             return;
         }
         SkMask  mask;
-        mask.fBounds.set(ix, iy, ix + pmap.width(), iy + pmap.height());
+        mask.fBounds.set(ix, iy, ix + bitmap.width(), iy + bitmap.height());
         mask.fFormat = SkMask::kA8_Format;
-        mask.fRowBytes = SkToU32(pmap.rowBytes());
+        mask.fRowBytes = SkToU32(bitmap.rowBytes());
         // fImage is typed as writable, but in this case it is used read-only
-        mask.fImage = (uint8_t*)pmap.addr8(0, 0);
+        mask.fImage = bitmap.getAddr8(0, 0);
 
         this->drawDevMask(mask, paint);
     } else {    // need to xform the bitmap first
@@ -1256,8 +1255,8 @@ void SkDraw::drawBitmap(const SkBitmap& bitmap, const SkMatrix& prematrix,
         // It is safe to call lock pixels now, since we know the matrix is
         // (more or less) identity.
         //
-        SkPixmap pmap;
-        if (!bitmap.peekPixels(&pmap)) {
+        const SkPixmap& pmap = bitmap.pixmap();
+        if (!pmap.addr()) {
             return;
         }
         int ix = SkScalarRoundToInt(matrix.getTranslateX());
@@ -1312,8 +1311,8 @@ void SkDraw::drawSprite(const SkBitmap& bitmap, int x, int y, const SkPaint& ori
     SkPaint paint(origPaint);
     paint.setStyle(SkPaint::kFill_Style);
 
-    SkPixmap pmap;
-    if (!bitmap.peekPixels(&pmap)) {
+    const SkPixmap& pmap = bitmap.pixmap();
+    if (!pmap.addr()) {
         return;
     }
 
