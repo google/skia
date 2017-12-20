@@ -72,8 +72,7 @@ protected:
         }
         g->emitFunction(kVoid_GrSLType, "emitVertex", emitArgs.count(), emitArgs.begin(), [&]() {
             SkString fnBody;
-            fShader->emitVaryings(varyingHandler, GrGLSLVarying::Scope::kGeoToFrag, &fnBody,
-                                  position, coverage, wind.c_str());
+            fShader->emitVaryings(varyingHandler, &fnBody, position, coverage, wind.c_str());
             g->emitVertex(&fnBody, position, rtAdjust);
             return fnBody;
         }().c_str(), &emitVertexFn);
@@ -293,7 +292,7 @@ public:
 };
 
 /**
- * Generates conservative rasters around corners. (See comments for RenderPass)
+ * Generates conservatives around corners. (See comments for RenderPass)
  */
 class GSCornerImpl : public GrCCPRCoverageProcessor::GSImpl {
 public:
@@ -321,7 +320,6 @@ private:
 };
 
 void GrCCPRCoverageProcessor::initGS() {
-    SkASSERT(Impl::kGeometryShader == fImpl);
     if (RenderPassIsCubic(fRenderPass)) {
         this->addVertexAttrib("x_or_y_values", kFloat4_GrVertexAttribType); // (See appendMesh.)
         SkASSERT(sizeof(CubicInstance) == this->getVertexStride() * 2);
@@ -333,12 +331,11 @@ void GrCCPRCoverageProcessor::initGS() {
 }
 
 void GrCCPRCoverageProcessor::appendGSMesh(GrBuffer* instanceBuffer, int instanceCount,
-                                           int baseInstance, SkTArray<GrMesh>* out) const {
+                                           int baseInstance, SkTArray<GrMesh, true>* out) const {
     // GSImpl doesn't actually make instanced draw calls. Instead, we feed transposed x,y point
     // values to the GPU in a regular vertex array and draw kLines (see initGS). Then, each vertex
     // invocation receives either the shape's x or y values as inputs, which it forwards to the
     // geometry shader.
-    SkASSERT(Impl::kGeometryShader == fImpl);
     GrMesh& mesh = out->emplace_back(GrPrimitiveType::kLines);
     mesh.setNonIndexedNonInstanced(instanceCount * 2);
     mesh.setVertexData(instanceBuffer, baseInstance * 2);

@@ -7,7 +7,6 @@
 
 #include "GrCCPRCoverageOp.h"
 
-#include "GrCaps.h"
 #include "GrGpuCommandBuffer.h"
 #include "GrOnFlushResourceProvider.h"
 #include "GrOpFlushState.h"
@@ -397,7 +396,7 @@ void GrCCPRCoverageOp::onExecute(GrOpFlushState* flushState) {
     this->drawMaskPrimitives(flushState, pipeline, RenderPass::kTriangleHulls,
                              &PrimitiveTallies::fTriangles);
     this->drawMaskPrimitives(flushState, pipeline, RenderPass::kTriangleEdges,
-                             &PrimitiveTallies::fTriangles); // Might get skipped.
+                             &PrimitiveTallies::fTriangles);
     this->drawMaskPrimitives(flushState, pipeline, RenderPass::kTriangleCorners,
                              &PrimitiveTallies::fTriangles);
 
@@ -420,19 +419,14 @@ void GrCCPRCoverageOp::drawMaskPrimitives(GrOpFlushState* flushState, const GrPi
     using ScissorMode = GrCCPRCoverageOpsBuilder::ScissorMode;
     SkASSERT(pipeline.getScissorState().enabled());
 
-    if (!GrCCPRCoverageProcessor::DoesRenderPass(renderPass, *flushState->caps().shaderCaps())) {
-        return;
-    }
-
     fMeshesScratchBuffer.reset();
     fDynamicStatesScratchBuffer.reset();
 
-    GrCCPRCoverageProcessor proc(flushState->resourceProvider(), renderPass,
-                                 *flushState->caps().shaderCaps());
+    GrCCPRCoverageProcessor proc(renderPass);
 
-    if (int instanceCount = fInstanceCounts[(int)ScissorMode::kNonScissored].*instanceType) {
+    if (const int instanceCount = fInstanceCounts[(int)ScissorMode::kNonScissored].*instanceType) {
         SkASSERT(instanceCount > 0);
-        int baseInstance = fBaseInstances[(int)ScissorMode::kNonScissored].*instanceType;
+        const int baseInstance = fBaseInstances[(int)ScissorMode::kNonScissored].*instanceType;
         proc.appendMesh(fInstanceBuffer.get(), instanceCount, baseInstance, &fMeshesScratchBuffer);
         fDynamicStatesScratchBuffer.push_back().fScissorRect.setXYWH(0, 0, fDrawBounds.width(),
                                                                      fDrawBounds.height());
