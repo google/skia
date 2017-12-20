@@ -213,12 +213,9 @@ config("default") {
         sanitizers += ",function"  # Not supported on Mac or Win.
       }
       if (!is_win) {
-        sanitizers += ",vptr"  # Not supported on Win.
-      }
-      if (!is_debug && !is_win) {
-        # No-op with somewhat annoying warning at -O0.
-        # Seems to be broken on Win.
-        sanitizers += ",object-size"
+        # object-size gives a strange error about using -O0 (even when we aren't) on Win.
+        # vptr is not suuported on Win.
+        sanitizers += ",object-size,vptr"
       }
       if (sanitize == "ASAN") {
         sanitizers += ",address"
