@@ -34,6 +34,8 @@
   {
     "cmd": [
       "ninja",
+      "-d",
+      "keeprsp",
       "-k",
       "0",
       "-C",
@@ -47,6 +49,35 @@
       "SKIA_OUT": "[CUSTOM_/_B_WORK]/skia/out/Build-Debian9-GCC-x86_64-Release-NoGPU"
     },
     "name": "ninja"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport os\nimport sys\n\nbase = sys.argv[1]\n\nfor root, dirs, files in os.walk(base):\n  for f in files:\n    path = os.path.join(root, f)\n    if (os.path.isfile(path) and\n        f.endswith('.rsp')):\n      print(path)\n      with open(path, 'r') as c:\n        print(c.read())\n      print '---'\n",
+      "[CUSTOM_/_B_WORK]/skia/out/Build-Debian9-GCC-x86_64-Release-NoGPU/Release"
+    ],
+    "cwd": "[CUSTOM_/_B_WORK]/skia",
+    "infra_step": true,
+    "name": "show rsps",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import os@@@",
+      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@base = sys.argv[1]@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@for root, dirs, files in os.walk(base):@@@",
+      "@@@STEP_LOG_LINE@python.inline@  for f in files:@@@",
+      "@@@STEP_LOG_LINE@python.inline@    path = os.path.join(root, f)@@@",
+      "@@@STEP_LOG_LINE@python.inline@    if (os.path.isfile(path) and@@@",
+      "@@@STEP_LOG_LINE@python.inline@        f.endswith('.rsp')):@@@",
+      "@@@STEP_LOG_LINE@python.inline@      print(path)@@@",
+      "@@@STEP_LOG_LINE@python.inline@      with open(path, 'r') as c:@@@",
+      "@@@STEP_LOG_LINE@python.inline@        print(c.read())@@@",
+      "@@@STEP_LOG_LINE@python.inline@      print '---'@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
   },
   {
     "name": "$result",
