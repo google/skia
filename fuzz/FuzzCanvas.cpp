@@ -1325,14 +1325,15 @@ static void fuzz_canvas(Fuzz* fuzz, SkCanvas* canvas, int depth = 9) {
                 break;
             case 24: {
                 fuzz_paint(fuzz, &paint, depth - 1);
-                uint8_t pointMode;
-                fuzz->nextRange(&pointMode, 0, 3);
+                SkCanvas::PointMode pointMode;
+                fuzz_enum_range(fuzz, &pointMode,
+                                SkCanvas::kPoints_PointMode, SkCanvas::kPolygon_PointMode);
                 size_t count;
                 constexpr int kMaxCount = 30;
                 fuzz->nextRange(&count, 0, kMaxCount);
                 SkPoint pts[kMaxCount];
                 fuzz->nextN(pts, count);
-                canvas->drawPoints((SkCanvas::PointMode)pointMode, count, pts, paint);
+                canvas->drawPoints(pointMode, count, pts, paint);
                 break;
             }
             case 25: {
