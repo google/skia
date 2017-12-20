@@ -307,7 +307,6 @@ private:
                    1.f / textureRadius);
     }
     UniformHandle fCircleDataVar;
-    UniformHandle fBlurProfileSamplerVar;
 };
 GrGLSLFragmentProcessor* GrCircleBlurFragmentProcessor::onCreateGLSLInstance() const {
     return new GrGLSLCircleBlurFragmentProcessor();

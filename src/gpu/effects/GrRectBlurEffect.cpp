@@ -131,7 +131,6 @@ private:
     UniformHandle fProxyRectFloatVar;
     UniformHandle fProfileSizeVar;
     UniformHandle fRectVar;
-    UniformHandle fBlurProfileVar;
 };
 GrGLSLFragmentProcessor* GrRectBlurEffect::onCreateGLSLInstance() const {
     return new GrGLSLRectBlurEffect();

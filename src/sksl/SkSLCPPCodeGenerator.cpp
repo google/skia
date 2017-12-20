@@ -13,7 +13,8 @@
 namespace SkSL {
 
 static bool needs_uniform_var(const Variable& var) {
-    return (var.fModifiers.fFlags & Modifiers::kUniform_Flag);
+    return (var.fModifiers.fFlags & Modifiers::kUniform_Flag) &&
+           var.fType.kind() != Type::kSampler_Kind;
 }
 
 CPPCodeGenerator::CPPCodeGenerator(const Context* context, const Program* program,
