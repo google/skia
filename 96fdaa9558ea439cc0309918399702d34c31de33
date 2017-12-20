@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "52b21195_eedf45eb",
+        "filename": "src/core/SkBlitter.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-12-20T17:53:11Z",
+      "side": 1,
+      "message": "Why not use a struct/class instead of allocating raw bytes?",
+      "range": {
+        "startLine": 87,
+        "startChar": 46,
+        "endLine": 87,
+        "endChar": 50
+      },
+      "revId": "96fdaa9558ea439cc0309918399702d34c31de33",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
