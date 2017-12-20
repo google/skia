@@ -170,7 +170,7 @@ static bool between(SkScalar a, SkScalar b, SkScalar c) {
 // path. If returns false, then dstPath parameter is ignored.
 static bool cull_path(const SkPath& srcPath, const SkStrokeRec& rec,
                       const SkRect* cullRect, SkScalar intervalLength,
-                      SkPath* dstPath) {
+                      SkPath* dstPath, SkScalar* initialDashLength) {
 #ifdef SK_SUPPORT_LEGACY_DASH_CULL_PATH
     if (nullptr == cullRect) {
         return false;
@@ -248,6 +248,35 @@ static bool cull_path(const SkPath& srcPath, const SkStrokeRec& rec,
         bounds = *cullRect;
         outset_for_stroke(&bounds, rec);
         if (isRect) {
+            if (srcPath.isLastContourClosed() && *initialDashLength > 0) {
+                SkScalar dashLen = *initialDashLength;
+                int max = srcPath.countPoints();
+                int last = max;
+                SkVector lastVector;
+                SkScalar lastLength;
+                SkPoint lastPoint = srcPath.getPoint(0);
+                SkPoint firstPoint;
+                while (dashLen > 0 && last > 0) {
+                    firstPoint = srcPath.getPoint(last - 1);
+                    lastVector = lastPoint - firstPoint;
+                    lastLength = lastVector.length();
+                    dashLen -= lastLength;
+                    --last;
+                    lastPoint = firstPoint;
+                }
+                if (dashLen < 0) {
+                    lastVector.setLength(-dashLen);
+                    firstPoint += lastVector;
+ //                   *initialDashLength = 0;
+                }
+                dstPath->moveTo(firstPoint);
+                --max;
+                while (last < max) {
+                    dstPath->lineTo(srcPath.getPoint(last));
+                    ++last;
+                }
+                dstPath->lineTo(srcPath.getPoint(0));
+            }
             // break rect into four lines, and call each one separately
             SkPath::Iter iter(srcPath, false);
             SkAssertResult(SkPath::kMove_Verb == iter.next(pts));
@@ -260,7 +289,7 @@ static bool cull_path(const SkPath& srcPath, const SkStrokeRec& rec,
                     bool skipMoveTo = contains_inclusive(bounds, pts[0]);
                     if (clip_line(pts, bounds, intervalLength,
                                   SkScalarMod(priorLength, intervalLength))) {
-                        if (0 == priorLength || !skipMoveTo) {
+                        if (dstPath->isEmpty() || !skipMoveTo) {
                             dstPath->moveTo(pts[0]);
                         }
                         dstPath->lineTo(pts[1]);
@@ -368,7 +397,7 @@ bool SkDashPath::InternalFilter(SkPath* dst, const SkPath& src, SkStrokeRec* rec
 
     SkPath cullPathStorage;
     const SkPath* srcPtr = &src;
-    if (cull_path(src, *rec, cullRect, intervalLength, &cullPathStorage)) {
+    if (cull_path(src, *rec, cullRect, intervalLength, &cullPathStorage, &initialDashLength)) {
         srcPtr = &cullPathStorage;
     }
 
