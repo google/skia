@@ -244,7 +244,7 @@ DEF_TEST(Image_Serialize_Encoding_Failure, reporter) {
     procs.fImageCtx = &was_called;
 
     REPORTER_ASSERT(reporter, !was_called);
-    auto data = picture->serialize(procs);
+    auto data = picture->serialize(&procs);
     REPORTER_ASSERT(reporter, was_called);
     REPORTER_ASSERT(reporter, data && data->size() > 0);
 

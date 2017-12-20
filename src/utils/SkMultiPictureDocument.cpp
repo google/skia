@@ -10,6 +10,7 @@
 #include "SkNWayCanvas.h"
 #include "SkPicture.h"
 #include "SkPictureRecorder.h"
+#include "SkSerialProcs.h"
 #include "SkStream.h"
 #include "SkTArray.h"
 
@@ -45,12 +46,15 @@ static SkSize join(const SkTArray<SkSize>& sizes) {
 }
 
 struct MultiPictureDocument final : public SkDocument {
+    const SkSerialProcs fProcs;
     SkPictureRecorder fPictureRecorder;
     SkSize fCurrentPageSize;
     SkTArray<sk_sp<SkPicture>> fPages;
     SkTArray<SkSize> fSizes;
-    MultiPictureDocument(SkWStream* s, void (*d)(SkWStream*, bool))
-        : SkDocument(s, d) {}
+    MultiPictureDocument(SkWStream* s, void (*d)(SkWStream*, bool), const SkSerialProcs* procs)
+        : SkDocument(s, d)
+        , fProcs(procs ? *procs : SkSerialProcs())
+    {}
     ~MultiPictureDocument() override { this->close(); }
 
     SkCanvas* onBeginPage(SkScalar w, SkScalar h) override {
@@ -77,7 +81,7 @@ struct MultiPictureDocument final : public SkDocument {
             c->drawAnnotation(SkRect::MakeEmpty(), kEndPage, nullptr);
         }
         sk_sp<SkPicture> p = fPictureRecorder.finishRecordingAsPicture();
-        p->serialize(wStream);
+        p->serialize(wStream, &fProcs);
         fPages.reset();
         fSizes.reset();
         return;
@@ -89,8 +93,8 @@ struct MultiPictureDocument final : public SkDocument {
 };
 }
 
-sk_sp<SkDocument> SkMakeMultiPictureDocument(SkWStream* wStream) {
-    return sk_make_sp<MultiPictureDocument>(wStream, nullptr);
+sk_sp<SkDocument> SkMakeMultiPictureDocument(SkWStream* wStream, const SkSerialProcs* procs) {
+    return sk_make_sp<MultiPictureDocument>(wStream, nullptr, procs);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -171,7 +175,8 @@ struct PagerCanvas : public SkNWayCanvas {
 
 bool SkMultiPictureDocumentRead(SkStreamSeekable* stream,
                                 SkDocumentPage* dstArray,
-                                int dstArrayCount) {
+                                int dstArrayCount,
+                                const SkDeserialProcs* procs) {
     if (!SkMultiPictureDocumentReadPageSizes(stream, dstArray, dstArrayCount)) {
         return false;
     }
@@ -181,7 +186,7 @@ bool SkMultiPictureDocumentRead(SkStreamSeekable* stream,
                         SkTMax(joined.height(), dstArray[i].fSize.height())};
     }
 
-    auto picture = SkPicture::MakeFromStream(stream);
+    auto picture = SkPicture::MakeFromStream(stream, procs);
 
     PagerCanvas canvas(joined.toCeil(), dstArray, dstArrayCount);
     // Must call playback(), not drawPicture() to reach

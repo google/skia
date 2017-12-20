@@ -70,11 +70,11 @@ DEF_TEST(serial_procs_image, reporter) {
 
     for (size_t i = 0; i < SK_ARRAY_COUNT(sprocs); ++i) {
         sproc.fImageProc = sprocs[i];
-        auto data = pic->serialize(sproc);
+        auto data = pic->serialize(&sproc);
         REPORTER_ASSERT(reporter, data);
 
         dproc.fImageProc = dprocs[i];
-        auto new_pic = SkPicture::MakeFromData(data, dproc);
+        auto new_pic = SkPicture::MakeFromData(data.get(), &dproc);
         REPORTER_ASSERT(reporter, data);
 
         auto dst_img = picture_to_image(new_pic);
@@ -140,9 +140,11 @@ static void test_pictures(skiatest::Reporter* reporter, sk_sp<SkPicture> p0, int
         ctx.fSkipMe = p0.get();
     }
 
-    auto d0 = p0->serialize(makes(array_serial_proc, &ctx));
+    SkSerialProcs sprocs = makes(array_serial_proc, &ctx);
+    auto d0 = p0->serialize(&sprocs);
     REPORTER_ASSERT(reporter, ctx.fArray.count() == count);
-    p0 = SkPicture::MakeFromData(d0.get(), maked(array_deserial_proc, &ctx));
+    SkDeserialProcs dprocs = maked(array_deserial_proc, &ctx);
+    p0 = SkPicture::MakeFromData(d0.get(), &dprocs);
     REPORTER_ASSERT(reporter, ctx.fArray.count() == 0);
 }
 
