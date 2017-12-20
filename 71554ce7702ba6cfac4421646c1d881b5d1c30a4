@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "99a8dfb7_ac9d1f15",
+        "filename": "bench/EncoderBench.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-12-20T16:04:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f3fd4be7_57ed2db0",
+      "range": {
+        "startLine": 35,
+        "startChar": 42,
+        "endLine": 35,
+        "endChar": 49
+      },
+      "revId": "71554ce7702ba6cfac4421646c1d881b5d1c30a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d990859b_41eb791a",
         "filename": "bench/ReadPixBench.cpp",
         "patchSetId": 1
@@ -45,6 +69,30 @@
       "revId": "71554ce7702ba6cfac4421646c1d881b5d1c30a4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1cc1b7b9_4df5d940",
+        "filename": "bench/ReadPixBench.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-12-20T16:04:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d990859b_41eb791a",
+      "range": {
+        "startLine": 95,
+        "startChar": 35,
+        "endLine": 95,
+        "endChar": 41
+      },
+      "revId": "71554ce7702ba6cfac4421646c1d881b5d1c30a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "4d562c3e_72f24f7f",
+        "filename": "gm/crosscontextimage.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-12-20T16:04:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e0e123bb_499128cc",
+      "range": {
+        "startLine": 32,
+        "startChar": 33,
+        "endLine": 32,
+        "endChar": 39
+      },
+      "revId": "71554ce7702ba6cfac4421646c1d881b5d1c30a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b50641bb_9564a9aa",
         "filename": "gm/encode-platform.cpp",
         "patchSetId": 1
@@ -94,6 +166,30 @@
     },
     {
       "key": {
+        "uuid": "c634e24b_348e8699",
+        "filename": "gm/encode-platform.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-12-20T16:04:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b50641bb_9564a9aa",
+      "range": {
+        "startLine": 64,
+        "startChar": 9,
+        "endLine": 64,
+        "endChar": 12
+      },
+      "revId": "71554ce7702ba6cfac4421646c1d881b5d1c30a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9aa043bc_fda8fa05",
         "filename": "include/core/SkImageEncoder.h",
         "patchSetId": 1
@@ -108,6 +204,24 @@
       "revId": "71554ce7702ba6cfac4421646c1d881b5d1c30a4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cf3e291e_1ebce488",
+        "filename": "include/core/SkImageEncoder.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-12-20T16:04:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9aa043bc_fda8fa05",
+      "revId": "71554ce7702ba6cfac4421646c1d881b5d1c30a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -134,6 +248,30 @@
     },
     {
       "key": {
+        "uuid": "818c1107_778d4e58",
+        "filename": "src/core/SkBitmap.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 664,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-12-20T16:04:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "dcb0a361_11bd62fc",
+      "range": {
+        "startLine": 664,
+        "startChar": 26,
+        "endLine": 664,
+        "endChar": 32
+      },
+      "revId": "71554ce7702ba6cfac4421646c1d881b5d1c30a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "aa07bfc7_7d43584a",
         "filename": "src/gpu/SkGr.cpp",
         "patchSetId": 1
@@ -157,6 +295,30 @@
     },
     {
       "key": {
+        "uuid": "377a5c6a_a5a8a86b",
+        "filename": "src/gpu/SkGr.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-12-20T16:04:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "aa07bfc7_7d43584a",
+      "range": {
+        "startLine": 115,
+        "startChar": 20,
+        "endLine": 115,
+        "endChar": 21
+      },
+      "revId": "71554ce7702ba6cfac4421646c1d881b5d1c30a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8a9e0557_a50310c9",
         "filename": "src/gpu/SkGr.cpp",
         "patchSetId": 1
@@ -174,6 +336,24 @@
     },
     {
       "key": {
+        "uuid": "fa6fbad7_9d70294f",
+        "filename": "src/gpu/SkGr.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-12-20T16:04:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8a9e0557_a50310c9",
+      "revId": "71554ce7702ba6cfac4421646c1d881b5d1c30a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2b32c37c_5cf60deb",
         "filename": "src/gpu/SkGr.cpp",
         "patchSetId": 1
@@ -188,6 +368,24 @@
       "revId": "71554ce7702ba6cfac4421646c1d881b5d1c30a4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8dfd96f3_fe3b1d7a",
+        "filename": "src/gpu/SkGr.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 177,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-12-20T16:04:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2b32c37c_5cf60deb",
+      "revId": "71554ce7702ba6cfac4421646c1d881b5d1c30a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -214,6 +412,30 @@
     },
     {
       "key": {
+        "uuid": "a2a93578_6ac4ce30",
+        "filename": "src/image/SkImage.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-12-20T16:04:49Z",
+      "side": 1,
+      "message": "SkEncodePixmap call SkEncodeImage, which now does a null check.",
+      "parentUuid": "302903b8_3c76e653",
+      "range": {
+        "startLine": 110,
+        "startChar": 38,
+        "endLine": 110,
+        "endChar": 54
+      },
+      "revId": "71554ce7702ba6cfac4421646c1d881b5d1c30a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c85506bb_d6d60dfe",
         "filename": "src/image/SkImage_Lazy.cpp",
         "patchSetId": 1
@@ -234,6 +456,30 @@
       "revId": "71554ce7702ba6cfac4421646c1d881b5d1c30a4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a0f66444_6a9dc8e7",
+        "filename": "src/image/SkImage_Lazy.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 471,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-12-20T16:04:49Z",
+      "side": 1,
+      "message": "if tryAllocPixels() returns true, then getPixels() must return non-null.",
+      "parentUuid": "c85506bb_d6d60dfe",
+      "range": {
+        "startLine": 471,
+        "startChar": 22,
+        "endLine": 471,
+        "endChar": 31
+      },
+      "revId": "71554ce7702ba6cfac4421646c1d881b5d1c30a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -277,6 +523,30 @@
     },
     {
       "key": {
+        "uuid": "5f5b1546_3f10c5ab",
+        "filename": "src/image/SkImage_Raster.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 314,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-12-20T16:04:49Z",
+      "side": 1,
+      "message": "sk_sp\u003cSkImage\u003e() is the same as nullptr implicitly cast to sk_sp\u003cSkImage\u003e type.\n\nSee include/core/SkRefCnt.h, line 253.\n\nIt is idiomatic C++11 to use `nullptr` here.",
+      "parentUuid": "c58fd482_f4afa6ec",
+      "range": {
+        "startLine": 314,
+        "startChar": 37,
+        "endLine": 314,
+        "endChar": 43
+      },
+      "revId": "71554ce7702ba6cfac4421646c1d881b5d1c30a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b4cceec6_aa3202a8",
         "filename": "tools/ok_vias.cpp",
         "patchSetId": 1
@@ -297,6 +567,30 @@
       "revId": "71554ce7702ba6cfac4421646c1d881b5d1c30a4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "582f524e_e4c6b9da",
+        "filename": "tools/ok_vias.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-12-20T16:04:49Z",
+      "side": 1,
+      "message": "Now consistantly check bitmap.getPixels() before calling bitmap.pixmap().",
+      "parentUuid": "b4cceec6_aa3202a8",
+      "range": {
+        "startLine": 166,
+        "startChar": 16,
+        "endLine": 166,
+        "endChar": 20
+      },
+      "revId": "71554ce7702ba6cfac4421646c1d881b5d1c30a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
