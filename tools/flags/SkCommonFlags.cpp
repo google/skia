@@ -154,9 +154,10 @@ SkExecutor* GpuExecutorForTools() {
 }
 
 void SetCtxOptionsFromCommonFlags(GrContextOptions* ctxOptions) {
-    ctxOptions->fGpuPathRenderers = CollectGpuPathRenderersFromFlags();
+    ctxOptions->fExecutor = GpuExecutorForTools();
     ctxOptions->fAllowPathMaskCaching = FLAGS_cachePathMasks;
     ctxOptions->fSuppressGeometryShaders = FLAGS_noGS;
+    ctxOptions->fGpuPathRenderers = CollectGpuPathRenderersFromFlags();
 }
 
 #endif
