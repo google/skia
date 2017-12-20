@@ -301,11 +301,13 @@ bool IncludeParser::crossCheck(BmhParser& bmhParser) {
                                         def->fVisited = true;
                                     } else {
                                         SkDebugf("missing toString bmh: %s\n", fullName.c_str());
+                                        fFailed = true;
                                     }
                                 }
                                 break;
                             } else {
                                 SkDebugf("method macro differs from bmh: %s\n", fullName.c_str());
+                                fFailed = true;
                             }
                         }
                     }
@@ -337,6 +339,7 @@ bool IncludeParser::crossCheck(BmhParser& bmhParser) {
                     }
                     if (!def) {
                         SkDebugf("method missing from bmh: %s\n", fullName.c_str());
+                        fFailed = true;
                         break;
                     }
                     if (def->crossCheck2(token)) {
@@ -346,6 +349,7 @@ bool IncludeParser::crossCheck(BmhParser& bmhParser) {
                         }
                     } else {
                        SkDebugf("method differs from bmh: %s\n", fullName.c_str());
+                       fFailed = true;
                     }
                 } break;
                 case MarkType::kComment:
@@ -382,6 +386,7 @@ bool IncludeParser::crossCheck(BmhParser& bmhParser) {
                         }
                         if (!def) {
                             SkDebugf("enum missing from bmh: %s\n", fullName.c_str());
+                            fFailed = true;
                             break;
                         }
                     }
@@ -394,12 +399,14 @@ bool IncludeParser::crossCheck(BmhParser& bmhParser) {
                     }
                     if (MarkType::kCode != def->fMarkType) {
                         SkDebugf("enum code missing from bmh: %s\n", fullName.c_str());
+                        fFailed = true;
                         break;
                     }
                     if (def->crossCheck(token)) {
                         def->fVisited = true;
                     } else {
-                       SkDebugf("enum differs from bmh: %s\n", def->fName.c_str());
+                        SkDebugf("enum differs from bmh: %s\n", def->fName.c_str());
+                        fFailed = true;
                     }
                     for (auto& child : token.fChildren) {
                         string constName = MarkType::kEnumClass == token.fMarkType ?
@@ -413,6 +420,7 @@ bool IncludeParser::crossCheck(BmhParser& bmhParser) {
                         if (!def) {
                             if (string::npos == child->fName.find("Legacy_")) {
                                 SkDebugf("const missing from bmh: %s\n", constName.c_str());
+                                fFailed = true;
                             }
                         } else {
                             def->fVisited = true;
@@ -424,6 +432,7 @@ bool IncludeParser::crossCheck(BmhParser& bmhParser) {
                         def->fVisited = true;
                     } else {
                         SkDebugf("member missing from bmh: %s\n", fullName.c_str());
+                        fFailed = true;
                     }
                     break;
                 case MarkType::kTypedef:
@@ -431,6 +440,7 @@ bool IncludeParser::crossCheck(BmhParser& bmhParser) {
                         def->fVisited = true;
                     } else {
                         SkDebugf("typedef missing from bmh: %s\n", fullName.c_str());
+                        fFailed = true;
                     }
                     break;
                 default:
@@ -448,11 +458,12 @@ bool IncludeParser::crossCheck(BmhParser& bmhParser) {
         RootDefinition* root = &finder->second;
         if (!root->dumpUnVisited(bmhParser.fSkip)) {
             SkDebugf("some struct elements not found; struct finding in includeParser is missing\n");
+            fFailed = true;
         }
         SkDebugf("cross-checked %s\n", className.c_str());
     }
     bmhParser.fWroteOut = true;
-    return true;
+    return !fFailed;
 }
 
 IClassDefinition* IncludeParser::defineClass(const Definition& includeDef,
