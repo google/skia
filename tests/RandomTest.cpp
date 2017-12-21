@@ -190,3 +190,25 @@ DEF_TEST(Random, reporter) {
 
     test_range(reporter);
 }
+
+#ifdef SK_DEBUG
+// Test that seed, nextUCount, and seek can perfectly reproduce random numbers
+DEF_TEST(RandomDebug, reporter) {
+    constexpr int T = 5;
+    constexpr int N = 10;
+    constexpr int S = 0;
+
+    SkRandom r(S);
+    for(int i = 0; i < T; ++i) {
+        r.nextU();
+        r.nextF();
+        r.next64();
+    }
+    SkRandom c(r.seed());
+    c.seek(r.nextUCount());
+
+    for(int i = 0; i < N; ++i) {
+        REPORTER_ASSERT(reporter, r.nextU() == c.nextU());
+    }
+}
+#endif

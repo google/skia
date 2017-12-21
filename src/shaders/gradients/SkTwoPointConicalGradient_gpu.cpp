@@ -118,6 +118,10 @@ GR_DEFINE_FRAGMENT_PROCESSOR_TEST(TwoPointConicalEffect);
 #if GR_TEST_UTILS
 std::unique_ptr<GrFragmentProcessor> TwoPointConicalEffect::TestCreate(
         GrProcessorTestData* d) {
+#ifdef SK_DEBUG
+    SkRandom initialRandom(*d->fRandom); // make a copy for later debug dump
+#endif
+
     SkPoint center1 = {d->fRandom->nextUScalar1(), d->fRandom->nextUScalar1()};
     SkPoint center2 = {d->fRandom->nextUScalar1(), d->fRandom->nextUScalar1()};
     SkScalar radius1 = d->fRandom->nextUScalar1();
@@ -155,6 +159,7 @@ std::unique_ptr<GrFragmentProcessor> TwoPointConicalEffect::TestCreate(
             SkScalarNearlyZero(SkPoint::Distance(center1, center2))) {
         radius2 += .1f; // make sure that we're not degenerated
     }
+
     RandomGradientParams params(d->fRandom);
     auto shader = params.fUseColors4f ?
         SkGradientShader::MakeTwoPointConical(center1, radius1, center2, radius2,
@@ -165,6 +170,18 @@ std::unique_ptr<GrFragmentProcessor> TwoPointConicalEffect::TestCreate(
                                               params.fColorCount, params.fTileMode);
     GrTest::TestAsFPArgs asFPArgs(d);
     std::unique_ptr<GrFragmentProcessor> fp = as_SB(shader)->asFragmentProcessor(asFPArgs.args());
+
+#ifdef SK_DEBUG
+    if (!fp) {
+        SkDebugf("SkPoint  center1 = {%f, %f};\n", center1.fX, center1.fY);
+        SkDebugf("SkPoint  center2 = {%f, %f};\n", center2.fX, center2.fY);
+        SkDebugf("SkScalar radius1 = %f, radius2 = %f;\n", radius1, radius2);
+        SkDebugf("SkRandom initialRandom(%u);\n", initialRandom.seed());
+        SkDebugf("initialRandom.seek(%d);\n", initialRandom.nextUCount());
+        params.dump();
+    }
+#endif
+
     GrAlwaysAssert(fp);
     return fp;
 }
