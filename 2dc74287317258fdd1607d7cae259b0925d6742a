@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4d4f3a65_f4e0c312",
+        "filename": "src/gpu/GrShape.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 647,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-12-21T16:35:44Z",
+      "side": 1,
+      "message": "does it gain us much safety asserting that these should be the same value here?",
+      "range": {
+        "startLine": 647,
+        "startChar": 41,
+        "endLine": 647,
+        "endChar": 62
+      },
+      "revId": "2dc74287317258fdd1607d7cae259b0925d6742a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
