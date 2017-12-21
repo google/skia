@@ -420,9 +420,9 @@ int SkPaint::textToGlyphs(const void* textData, size_t byteLength, uint16_t glyp
     if (nullptr == glyphs) {
         switch (this->getTextEncoding()) {
         case kUTF8_TextEncoding:
-            return SkUTF8_CountUnichars((const char*)textData, byteLength);
+            return SkUTF8_CountUnichars(textData, byteLength);
         case kUTF16_TextEncoding:
-            return SkUTF16_CountUnichars((const uint16_t*)textData, SkToInt(byteLength >> 1));
+            return SkUTF16_CountUnichars(textData, byteLength);
         case kUTF32_TextEncoding:
             return SkToInt(byteLength >> 2);
         case kGlyphID_TextEncoding:
