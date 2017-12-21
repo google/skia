@@ -43,13 +43,10 @@ inline int SkUTF8_CountUTF8Bytes(const char utf8[]) {
 
 int         SkUTF8_CountUnichars(const char utf8[]);
 
-/** This function is safe: invalid UTF8 sequences will return -1; */
-int         SkUTF8_CountUnicharsWithError(const char utf8[], size_t byteLength);
-
-/** This function is safe: invalid UTF8 sequences will return 0; */
-inline int  SkUTF8_CountUnichars(const char utf8[], size_t byteLength) {
-    return SkClampPos(SkUTF8_CountUnicharsWithError(utf8, byteLength));
-}
+/** These functions are safe: invalid sequences will return -1; */
+int SkUTF8_CountUnichars(const void* utf8, size_t byteLength);
+int SkUTF16_CountUnichars(const void* utf16, size_t byteLength);
+int SkUTF32_CountUnichars(const void* utf32, size_t byteLength);
 
 /** This function is safe: invalid UTF8 sequences will return -1
  *  When -1 is returned, ptr is unchanged.
@@ -83,7 +80,6 @@ size_t      SkUTF8_FromUnichar(SkUnichar uni, char utf8[] = nullptr);
 #define SkUTF16_IsLowSurrogate(c)   (((c) & 0xFC00) == 0xDC00)
 
 int SkUTF16_CountUnichars(const uint16_t utf16[]);
-int SkUTF16_CountUnichars(const uint16_t utf16[], int numberOf16BitValues);
 // returns the current unichar and then moves past it (*p++)
 SkUnichar SkUTF16_NextUnichar(const uint16_t**);
 // this guy backs up to the previus unichar value, and returns it (*--p)
