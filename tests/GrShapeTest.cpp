@@ -1996,6 +1996,76 @@ DEF_TEST(GrShape_stroked_lines, r) {
             TestCase::kAllSame_ComparisonExpecation);
 }
 
+DEF_TEST(GrShape_stroked_dashed_lines_zero_off_interval, r) {
+    static constexpr SkScalar kIntervals[] = {10.f, 0.f, 5.f, 0.f};
+    auto dash = SkDashPathEffect::Make(kIntervals, SK_ARRAY_COUNT(kIntervals), 1.f);
+    REPORTER_ASSERT(r, dash);
+
+    // Paints to try
+    SkPaint buttCap;
+    buttCap.setStyle(SkPaint::kStroke_Style);
+    buttCap.setStrokeWidth(4);
+    buttCap.setStrokeCap(SkPaint::kButt_Cap);
+    buttCap.setPathEffect(dash);
+
+    SkPaint squareCap = buttCap;
+    squareCap.setStrokeCap(SkPaint::kSquare_Cap);
+    squareCap.setPathEffect(dash);
+
+    SkPaint roundCap = buttCap;
+    roundCap.setStrokeCap(SkPaint::kRound_Cap);
+    roundCap.setPathEffect(dash);
+
+    // vertical
+    SkPath linePath;
+    linePath.moveTo(4, 4);
+    linePath.lineTo(4, 5);
+
+    SkPaint fill;
+
+    make_TestCase(r, linePath, buttCap)->compare(
+            r, TestCase(r, SkRect::MakeLTRB(2, 4, 6, 5), fill),
+            TestCase::kAllSame_ComparisonExpecation);
+
+    make_TestCase(r, linePath, squareCap)->compare(
+            r, TestCase(r, SkRect::MakeLTRB(2, 2, 6, 7), fill),
+            TestCase::kAllSame_ComparisonExpecation);
+
+    make_TestCase(r, linePath, roundCap)->compare(r,
+        TestCase(r, SkRRect::MakeRectXY(SkRect::MakeLTRB(2, 2, 6, 7), 2, 2), fill),
+        TestCase::kAllSame_ComparisonExpecation);
+
+    // horizontal
+    linePath.reset();
+    linePath.moveTo(4, 4);
+    linePath.lineTo(5, 4);
+
+    make_TestCase(r, linePath, buttCap)->compare(
+            r, TestCase(r, SkRect::MakeLTRB(4, 2, 5, 6), fill),
+            TestCase::kAllSame_ComparisonExpecation);
+    make_TestCase(r, linePath, squareCap)->compare(
+            r, TestCase(r, SkRect::MakeLTRB(2, 2, 7, 6), fill),
+            TestCase::kAllSame_ComparisonExpecation);
+    make_TestCase(r, linePath, roundCap)->compare(
+            r, TestCase(r, SkRRect::MakeRectXY(SkRect::MakeLTRB(2, 2, 7, 6), 2, 2), fill),
+            TestCase::kAllSame_ComparisonExpecation);
+
+    // point
+    linePath.reset();
+    linePath.moveTo(4, 4);
+    linePath.lineTo(4, 4);
+
+    make_TestCase(r, linePath, buttCap)->compare(
+            r, TestCase(r, SkRect::MakeEmpty(), fill),
+            TestCase::kAllSame_ComparisonExpecation);
+    make_TestCase(r, linePath, squareCap)->compare(
+            r, TestCase(r, SkRect::MakeLTRB(2, 2, 6, 6), fill),
+            TestCase::kAllSame_ComparisonExpecation);
+    make_TestCase(r, linePath, roundCap)->compare(
+            r, TestCase(r, SkRRect::MakeRectXY(SkRect::MakeLTRB(2, 2, 6, 6), 2, 2), fill),
+            TestCase::kAllSame_ComparisonExpecation);
+}
+
 DEF_TEST(GrShape_short_path_keys, r) {
     SkPaint paints[4];
     paints[1].setStyle(SkPaint::kStroke_Style);
