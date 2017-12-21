@@ -3,7 +3,8 @@
  DirectWrite TrueType Windows Linux Android iOS __ANDROID_API__
  FreeType FreeType-based Harfbuzz   
  Descenders Kerning Unhinted 
- LCD RGB sRGB YUV_ColorSpace
+ LCD RGB sRGB YUV
+ YUV_Component_Y YUV_Component_U YUV_Component_V
  Unicode Unicode5 UTF-8 UTF-16 UTF-32 ASCII Unichar
  API
  CPU
@@ -811,3 +812,12 @@ FT_Load_Glyph
     #Struct SkWriteBuffer
     #Struct ##
 #Topic ##
+
+#Enum YUV_ColorSpace
+#Const kJPEG_SkYUVColorSpace 0
+##
+#Const kRec601_SkYUVColorSpace 1
+##
+#Const kRec709_SkYUVColorSpace 2
+##
+##
