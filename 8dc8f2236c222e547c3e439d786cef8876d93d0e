@@ -22,6 +22,30 @@
       "revId": "8dc8f2236c222e547c3e439d786cef8876d93d0e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "caa20169_51ac3ce8",
+        "filename": "src/shaders/gradients/SkTwoPointConicalGradient_gpu.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-12-21T16:37:31Z",
+      "side": 1,
+      "message": "I agree, cause for local debugging, once you have the params, you just comment out the randoms and hard code the params in. Unless we\u0027re not getting enough precision in the float values printed out here?",
+      "parentUuid": "f21a9439_f58b3124",
+      "range": {
+        "startLine": 178,
+        "startChar": 0,
+        "endLine": 179,
+        "endChar": 74
+      },
+      "revId": "8dc8f2236c222e547c3e439d786cef8876d93d0e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
