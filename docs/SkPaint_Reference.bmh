@@ -113,7 +113,7 @@ Shader attached to Paint.
 #Legend ##
 # SkPaint()                      # Constructs with default values.             ##
 # SkPaint(const SkPaint& paint)  # Makes a shallow copy.                       ##
-# SkPaint(SkPaint&& paint)       # Moves paint without copying it.             ##
+# SkPaint(const SkPaint&& paint)       # Moves paint without copying it.             ##
 # ~SkPaint()                     # Decreases Reference_Count of owned objects. ##
 #Table ##
 #Subtopic ##
@@ -346,7 +346,7 @@ This prevents objects with Reference_Count from being modified once Paint refers
 
 ##
 
-#Method SkPaint(SkPaint&& paint)
+#Method SkPaint(const SkPaint&& paint)
 
     Implements a move constructor to avoid increasing the reference counts
     of objects referenced by the paint.
