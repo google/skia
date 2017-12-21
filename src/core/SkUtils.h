@@ -30,6 +30,8 @@ static inline void sk_memset64(uint64_t buffer[], uint64_t value, int count) {
 
 #define kMaxBytesInUTF8Sequence     4
 
+const SkUnichar kReplacement_SkUnichar = 0xFFFD;
+
 #ifdef SK_DEBUG
     int SkUTF8_LeadByteToCount(unsigned c);
 #else
@@ -41,10 +43,10 @@ inline int SkUTF8_CountUTF8Bytes(const char utf8[]) {
     return SkUTF8_LeadByteToCount(*(const uint8_t*)utf8);
 }
 
-int         SkUTF8_CountUnichars(const char utf8[]);
+int SkUTF8_CountUnichars(const char utf8[]);
 
 /** This function is safe: invalid UTF8 sequences will return -1; */
-int         SkUTF8_CountUnicharsWithError(const char utf8[], size_t byteLength);
+int SkUTF8_CountUnicharsWithError(const char utf8[], size_t byteLength);
 
 /** This function is safe: invalid UTF8 sequences will return 0; */
 inline int  SkUTF8_CountUnichars(const char utf8[], size_t byteLength) {
@@ -62,7 +64,7 @@ inline SkUnichar SkUTF8_NextUnichar(const char** ptr, const char* end) {
     SkUnichar val = SkUTF8_NextUnicharWithError(ptr, end);
     if (val < 0) {
         *ptr = end;
-        return 0xFFFD;  // REPLACEMENT CHARACTER
+        return kReplacement_SkUnichar;
     }
     return val;
 }

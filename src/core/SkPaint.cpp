@@ -508,7 +508,7 @@ bool SkPaint::containsText(const void* textData, size_t byteLength) const {
             const char* text = static_cast<const char*>(textData);
             const char* stop = text + byteLength;
             while (text < stop) {
-                if (0 == cache->unicharToGlyph(SkUTF8_NextUnichar(&text))) {
+                if (0 == cache->unicharToGlyph(SkUTF8_NextUnicharWithError(&text, stop))) {
                     return false;
                 }
             }
@@ -561,15 +561,15 @@ void SkPaint::glyphsToUnichars(const uint16_t glyphs[], int count, SkUnichar tex
 ///////////////////////////////////////////////////////////////////////////////
 
 static const SkGlyph& sk_getMetrics_utf8_next(SkGlyphCache* cache,
-                                              const char** text) {
+                                              const char** text, const char* stop) {
     SkASSERT(cache != nullptr);
     SkASSERT(text != nullptr);
 
-    return cache->getUnicharMetrics(SkUTF8_NextUnichar(text));
+    return cache->getUnicharMetrics(SkUTF8_NextUnicharWithError(text, stop));
 }
 
 static const SkGlyph& sk_getMetrics_utf16_next(SkGlyphCache* cache,
-                                               const char** text) {
+                                               const char** text, const char* stop) {
     SkASSERT(cache != nullptr);
     SkASSERT(text != nullptr);
 
@@ -577,7 +577,7 @@ static const SkGlyph& sk_getMetrics_utf16_next(SkGlyphCache* cache,
 }
 
 static const SkGlyph& sk_getMetrics_utf32_next(SkGlyphCache* cache,
-                                               const char** text) {
+                                               const char** text, const char* stop) {
     SkASSERT(cache != nullptr);
     SkASSERT(text != nullptr);
 
@@ -588,7 +588,7 @@ static const SkGlyph& sk_getMetrics_utf32_next(SkGlyphCache* cache,
 }
 
 static const SkGlyph& sk_getMetrics_glyph_next(SkGlyphCache* cache,
-                                               const char** text) {
+                                               const char** text, const char* stop) {
     SkASSERT(cache != nullptr);
     SkASSERT(text != nullptr);
 
@@ -600,15 +600,15 @@ static const SkGlyph& sk_getMetrics_glyph_next(SkGlyphCache* cache,
 }
 
 static const SkGlyph& sk_getAdvance_utf8_next(SkGlyphCache* cache,
-                                              const char** text) {
+                                              const char** text, const char* stop) {
     SkASSERT(cache != nullptr);
     SkASSERT(text != nullptr);
 
-    return cache->getUnicharAdvance(SkUTF8_NextUnichar(text));
+    return cache->getUnicharAdvance(SkUTF8_NextUnicharWithError(text, stop));
 }
 
 static const SkGlyph& sk_getAdvance_utf16_next(SkGlyphCache* cache,
-                                               const char** text) {
+                                               const char** text, const char* stop) {
     SkASSERT(cache != nullptr);
     SkASSERT(text != nullptr);
 
@@ -616,7 +616,7 @@ static const SkGlyph& sk_getAdvance_utf16_next(SkGlyphCache* cache,
 }
 
 static const SkGlyph& sk_getAdvance_utf32_next(SkGlyphCache* cache,
-                                               const char** text) {
+                                               const char** text, const char* stop) {
     SkASSERT(cache != nullptr);
     SkASSERT(text != nullptr);
 
@@ -627,7 +627,7 @@ static const SkGlyph& sk_getAdvance_utf32_next(SkGlyphCache* cache,
 }
 
 static const SkGlyph& sk_getAdvance_glyph_next(SkGlyphCache* cache,
-                                               const char** text) {
+                                               const char** text, const char* stop) {
     SkASSERT(cache != nullptr);
     SkASSERT(text != nullptr);
 
@@ -769,19 +769,19 @@ SkScalar SkPaint::measure_text(SkGlyphCache* cache,
 
     int         n = 1;
     const char* stop = (const char*)text + byteLength;
-    const SkGlyph* g = &glyphCacheProc(cache, &text);
+    const SkGlyph* g = &glyphCacheProc(cache, &text, stop);
     SkScalar x = advance(*g, xyIndex);
 
     if (nullptr == bounds) {
         if (this->isDevKernText()) {
             for (; text < stop; n++) {
                 const int rsb = g->fRsbDelta;
-                g = &glyphCacheProc(cache, &text);
+                g = &glyphCacheProc(cache, &text, stop);
                 x += SkAutoKern_Adjust(rsb, g->fLsbDelta) + advance(*g, xyIndex);
             }
         } else {
             for (; text < stop; n++) {
-                x += advance(glyphCacheProc(cache, &text), xyIndex);
+                x += advance(glyphCacheProc(cache, &text, stop), xyIndex);
             }
         }
     } else {
@@ -789,14 +789,14 @@ SkScalar SkPaint::measure_text(SkGlyphCache* cache,
         if (this->isDevKernText()) {
             for (; text < stop; n++) {
                 const int rsb = g->fRsbDelta;
-                g = &glyphCacheProc(cache, &text);
+                g = &glyphCacheProc(cache, &text, stop);
                 x += SkAutoKern_Adjust(rsb, g->fLsbDelta);
                 joinBoundsProc(*g, bounds, x);
                 x += advance(*g, xyIndex);
             }
         } else {
             for (; text < stop; n++) {
-                g = &glyphCacheProc(cache, &text);
+                g = &glyphCacheProc(cache, &text, stop);
                 joinBoundsProc(*g, bounds, x);
                 x += advance(*g, xyIndex);
             }
@@ -883,7 +883,7 @@ size_t SkPaint::breakText(const void* textD, size_t length, SkScalar maxWidth,
         int rsb = 0;
         while (text < stop) {
             const char* curr = text;
-            const SkGlyph& g = glyphCacheProc(cache, &text);
+            const SkGlyph& g = glyphCacheProc(cache, &text, stop);
             SkScalar x = SkAutoKern_Adjust(rsb, g.fLsbDelta) + advance(g, xyIndex);
             if ((width += x) > maxWidth) {
                 width -= x;
@@ -895,7 +895,7 @@ size_t SkPaint::breakText(const void* textD, size_t length, SkScalar maxWidth,
     } else {
         while (text < stop) {
             const char* curr = text;
-            SkScalar x = advance(glyphCacheProc(cache, &text), xyIndex);
+            SkScalar x = advance(glyphCacheProc(cache, &text, stop), xyIndex);
             if ((width += x) > maxWidth) {
                 width -= x;
                 text = curr;
@@ -994,7 +994,7 @@ int SkPaint::getTextWidths(const void* textData, size_t byteLength,
 
         if (scale) {
             while (text < stop) {
-                const SkGlyph& g = glyphCacheProc(cache, &text);
+                const SkGlyph& g = glyphCacheProc(cache, &text, stop);
                 if (widths) {
                     SkScalar adjust = autokern.adjust(g);
 
@@ -1013,7 +1013,7 @@ int SkPaint::getTextWidths(const void* textData, size_t byteLength,
             }
         } else {
             while (text < stop) {
-                const SkGlyph& g = glyphCacheProc(cache, &text);
+                const SkGlyph& g = glyphCacheProc(cache, &text, stop);
                 if (widths) {
                     SkScalar adjust = autokern.adjust(g);
 
@@ -1034,7 +1034,7 @@ int SkPaint::getTextWidths(const void* textData, size_t byteLength,
     } else {    // no devkern
         if (scale) {
             while (text < stop) {
-                const SkGlyph& g = glyphCacheProc(cache, &text);
+                const SkGlyph& g = glyphCacheProc(cache, &text, stop);
                 if (widths) {
                     *widths++ = advance(g, xyIndex) * scale;
                 }
@@ -1045,7 +1045,7 @@ int SkPaint::getTextWidths(const void* textData, size_t byteLength,
             }
         } else {
             while (text < stop) {
-                const SkGlyph& g = glyphCacheProc(cache, &text);
+                const SkGlyph& g = glyphCacheProc(cache, &text, stop);
                 if (widths) {
                     *widths++ = advance(g, xyIndex);
                 }
@@ -2267,7 +2267,7 @@ SkTextBaseIter::~SkTextBaseIter() {
 
 bool SkTextToPathIter::next(const SkPath** path, SkScalar* xpos) {
     if (fText < fStop) {
-        const SkGlyph& glyph = fGlyphCacheProc(fCache, &fText);
+        const SkGlyph& glyph = fGlyphCacheProc(fCache, &fText, fStop);
 
         fXPos += (fPrevAdvance + fAutoKern.adjust(glyph)) * fScale;
         fPrevAdvance = advance(glyph, fXYIndex);   // + fPaint.getTextTracking();
@@ -2290,7 +2290,7 @@ bool SkTextToPathIter::next(const SkPath** path, SkScalar* xpos) {
 }
 
 bool SkTextInterceptsIter::next(SkScalar* array, int* count) {
-    const SkGlyph& glyph = fGlyphCacheProc(fCache, &fText);
+    const SkGlyph& glyph = fGlyphCacheProc(fCache, &fText, fStop);
     fXPos += (fPrevAdvance + fAutoKern.adjust(glyph)) * fScale;
     fPrevAdvance = advance(glyph, fXYIndex);   // + fPaint.getTextTracking();
     if (fCache->findPath(glyph)) {

@@ -597,7 +597,7 @@ void GrAtlasTextContext::drawDFText(GrAtlasTextBlob* blob, int runIndex,
     while (textPtr < stop) {
         // don't need x, y here, since all subpixel variants will have the
         // same advance
-        const SkGlyph& glyph = glyphCacheProc(origPaintCache, &textPtr);
+        const SkGlyph& glyph = glyphCacheProc(origPaintCache, &textPtr, stop);
 
         SkScalar width = SkFloatToScalar(glyph.fAdvanceX) + autokern.adjust(glyph);
         positions.push_back(stopX + origin * width);
@@ -672,7 +672,7 @@ void GrAtlasTextContext::drawDFPosText(GrAtlasTextBlob* blob, int runIndex,
         while (text < stop) {
             const char* lastText = text;
             // the last 2 parameters are ignored
-            const SkGlyph& glyph = glyphCacheProc(cache, &text);
+            const SkGlyph& glyph = glyphCacheProc(cache, &text, stop);
 
             if (glyph.fWidth) {
                 SkScalar x = offset.x() + pos[0];
@@ -696,7 +696,7 @@ void GrAtlasTextContext::drawDFPosText(GrAtlasTextBlob* blob, int runIndex,
         while (text < stop) {
             const char* lastText = text;
             // the last 2 parameters are ignored
-            const SkGlyph& glyph = glyphCacheProc(cache, &text);
+            const SkGlyph& glyph = glyphCacheProc(cache, &text, stop);
 
             if (glyph.fWidth) {
                 SkScalar x = offset.x() + pos[0];

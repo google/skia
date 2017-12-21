@@ -1667,7 +1667,7 @@ public:
     SK_TO_STRING_NONVIRT()
 
 private:
-    typedef const SkGlyph& (*GlyphCacheProc)(SkGlyphCache*, const char**);
+    typedef const SkGlyph& (*GlyphCacheProc)(SkGlyphCache*, const char**, const char* stop);
 
     sk_sp<SkTypeface>     fTypeface;
     sk_sp<SkPathEffect>   fPathEffect;

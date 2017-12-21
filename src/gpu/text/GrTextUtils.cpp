@@ -139,7 +139,7 @@ void GrTextUtils::DrawPosTextAsPath(GrContext* context, GrTextUtils::Target* tar
     paint.setPathEffect(origPaint.refPathEffect());
 
     while (text < stop) {
-        const SkGlyph& glyph = glyphCacheProc(cache, &text);
+        const SkGlyph& glyph = glyphCacheProc(cache, &text, stop);
         if (glyph.fWidth) {
             const SkPath* path = cache->findPath(glyph);
             if (path) {

@@ -442,7 +442,7 @@ void GrStencilAndCoverTextContext::TextRun::setText(const char text[], size_t by
         while (textPtr < stop) {
             // We don't need x, y here, since all subpixel variants will have the
             // same advance.
-            const SkGlyph& glyph = glyphCacheProc(glyphCache, &textPtr);
+            const SkGlyph& glyph = glyphCacheProc(glyphCache, &textPtr, stop);
 
             stopX += SkFloatToScalar(glyph.fAdvanceX);
             stopY += SkFloatToScalar(glyph.fAdvanceY);
@@ -465,7 +465,7 @@ void GrStencilAndCoverTextContext::TextRun::setText(const char text[], size_t by
 
     FallbackBlobBuilder fallback;
     while (text < stop) {
-        const SkGlyph& glyph = glyphCacheProc(glyphCache, &text);
+        const SkGlyph& glyph = glyphCacheProc(glyphCache, &text, stop);
         x += autokern.adjust(glyph) * fTextRatio;
         if (glyph.fWidth) {
             this->appendGlyph(glyph, SkPoint::Make(x, y), &fallback);
@@ -499,7 +499,7 @@ void GrStencilAndCoverTextContext::TextRun::setPosText(const char text[], size_t
     SkTextAlignProc alignProc(fFont.getTextAlign());
     FallbackBlobBuilder fallback;
     while (text < stop) {
-        const SkGlyph& glyph = glyphCacheProc(glyphCache, &text);
+        const SkGlyph& glyph = glyphCacheProc(glyphCache, &text, stop);
         if (glyph.fWidth) {
             SkPoint tmsLoc;
             tmsProc(pos, &tmsLoc);

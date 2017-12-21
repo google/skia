@@ -128,7 +128,7 @@ SkUnichar SkUTF8_ToUnichar(const char utf8[]) {
     return c;
 }
 
-// SAFE: returns -1 on invalid UTF-8 sequence.
+// SAFE: returns kReplacement_SkUnichar on invalid UTF-8 sequence.
 SkUnichar SkUTF8_NextUnicharWithError(const char** ptr, const char* end) {
     SkASSERT(ptr && *ptr);
     SkASSERT(*ptr < end);
@@ -137,7 +137,7 @@ SkUnichar SkUTF8_NextUnicharWithError(const char** ptr, const char* end) {
     int             hic = c << 24;
 
     if (!utf8_byte_is_leading_byte(c)) {
-        return -1;
+        return kReplacement_SkUnichar;
     }
     if (hic < 0) {
         uint32_t mask = (uint32_t)~0x3F;
@@ -145,12 +145,12 @@ SkUnichar SkUTF8_NextUnicharWithError(const char** ptr, const char* end) {
         do {
             ++p;
             if (p >= (const uint8_t*)end) {
-                return -1;
+                return kReplacement_SkUnichar;
             }
             // check before reading off end of array.
             uint8_t nextByte = *p;
             if (!utf8_byte_is_continuation(nextByte)) {
-                return -1;
+                return kReplacement_SkUnichar;
             }
             c = (c << 6) | (nextByte & 0x3F);
             mask <<= 5;
