@@ -90,14 +90,6 @@ public:
     sk_sp<SkData> serialize(const SkSerialProcs* = nullptr) const;
     void serialize(SkWStream*, const SkSerialProcs* = nullptr) const;
 
-#ifdef SK_SUPPORT_LEGACY_SERIALPROCS_REF
-    sk_sp<SkData> serialize(const SkSerialProcs&) const;
-    static sk_sp<SkPicture> MakeFromStream(SkStream*, const SkDeserialProcs& procs);
-    static sk_sp<SkPicture> MakeFromData(const SkData* data, const SkDeserialProcs& procs);
-    static sk_sp<SkPicture> MakeFromData(sk_sp<SkData> data, const SkDeserialProcs& procs);
-    static sk_sp<SkPicture> MakeFromData(sk_sp<SkData>, const SkDeserialProcs* = nullptr);
-#endif
-
     /**
      *  Serialize to a buffer.
      */

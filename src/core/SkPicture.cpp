@@ -243,26 +243,6 @@ sk_sp<SkData> SkPicture::serialize(const SkSerialProcs* procs) const {
     return stream.detachAsData();
 }
 
-#ifdef SK_SUPPORT_LEGACY_SERIALPROCS_REF
-sk_sp<SkData> SkPicture::serialize(const SkSerialProcs& procs) const {
-    return this->serialize(&procs);
-}
-sk_sp<SkPicture> SkPicture::MakeFromData(const SkData* data, const SkDeserialProcs& procs) {
-    return SkPicture::MakeFromData(data, &procs);
-}
-
-sk_sp<SkPicture> SkPicture::MakeFromData(sk_sp<SkData> data, const SkDeserialProcs& procs) {
-    return SkPicture::MakeFromData(std::move(data), &procs);
-}
-
-sk_sp<SkPicture> SkPicture::MakeFromStream(SkStream* stream, const SkDeserialProcs& procs) {
-    return SkPicture::MakeFromStream(stream, &procs);
-}
-sk_sp<SkPicture> SkPicture::MakeFromData(sk_sp<SkData> data, const SkDeserialProcs* procs) {
-    return SkPicture::MakeFromData(data.get(), procs);
-}
-#endif
-
 static sk_sp<SkData> custom_serialize(const SkPicture* picture, const SkSerialProcs& procs) {
     if (procs.fPictureProc) {
         auto data = procs.fPictureProc(const_cast<SkPicture*>(picture), procs.fPictureCtx);
