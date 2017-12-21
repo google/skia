@@ -738,8 +738,6 @@ public:
             SkString name = SkOSPath::Basename(path.c_str());
             fSourceType = "skp";
             fBenchType  = "recording";
-            fSKPBytes = static_cast<double>(pic->approximateBytesUsed());
-            fSKPOps   = pic->approximateOpCount();
             return new RecordingBench(name.c_str(), pic.get(), FLAGS_bbh, FLAGS_lite);
         }
 
@@ -753,8 +751,6 @@ public:
             SkString name = SkOSPath::Basename(path.c_str());
             fSourceType = "skp";
             fBenchType  = "piping";
-            fSKPBytes = static_cast<double>(pic->approximateBytesUsed());
-            fSKPOps   = pic->approximateOpCount();
             return new PipingBench(name.c_str(), pic.get());
         }
 
@@ -768,8 +764,6 @@ public:
             SkString name = SkOSPath::Basename(path.c_str());
             fSourceType = "skp";
             fBenchType  = "deserial";
-            fSKPBytes = static_cast<double>(data->size());
-            fSKPOps   = 0;
             return new DeserializePictureBench(name.c_str(), std::move(data));
         }
 
@@ -1061,10 +1055,6 @@ public:
                 log->configOption("multi_picture_draw", fUseMPDs[fCurrentUseMPD-1] ? "true" : "false");
             }
         }
-        if (0 == strcmp(fBenchType, "recording")) {
-            log->metric("bytes", fSKPBytes);
-            log->metric("ops",   fSKPOps);
-        }
     }
 
 private:
@@ -1092,8 +1082,6 @@ private:
     SkTArray<SkColorType, true> fColorTypes;
     SkScalar           fZoomMax;
     double             fZoomPeriodMs;
-
-    double fSKPBytes, fSKPOps;
 
     const char* fSourceType;  // What we're benching: bench, GM, SKP, ...
     const char* fBenchType;   // How we bench it: micro, recording, playback, ...
