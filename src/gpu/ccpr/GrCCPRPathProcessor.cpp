@@ -140,13 +140,17 @@ void GLSLPathProcessor::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     varyingHandler->addFlatPassThroughAttribute(&proc.getInstanceAttrib(InstanceAttribs::kColor),
                                                 args.fOutputColor);
 
-    // Vertex shader.
+    // The vertex shader bloats and intersects the devBounds and devBounds45 rectangles, in order to
+    // find an octagon that circumscribes the (bloated) path.
     GrGLSLVertexBuilder* v = args.fVertBuilder;
 
-    // Find the intersections of (bloated) devBounds and devBounds45 in order to come up with an
-    // octagon that circumscribes the (bloated) path. A vertex is the intersection of two lines:
-    // one edge from the path's bounding box and one edge from its 45-degree bounding box.
-    v->codeAppendf("float2x2 N = float2x2(%s);", proc.getEdgeNormsAttrib().fName);
+    // Each vertex is the intersection of one edge from devBounds and one from devBounds45.
+    // 'N' holds the normals to these edges as column vectors.
+    //
+    // NOTE: "float2x2(float4)" is valid and equivalent to "float2x2(float4.xy, float4.zw)",
+    // however Intel compilers crash when we use the former syntax in this shader.
+    v->codeAppendf("float2x2 N = float2x2(%s.xy, %s.zw);",
+                   proc.getEdgeNormsAttrib().fName, proc.getEdgeNormsAttrib().fName);
 
     // N[0] is the normal for the edge we are intersecting from the regular bounding box, pointing
     // out of the octagon.
@@ -179,9 +183,11 @@ void GLSLPathProcessor::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
                        texcoord.vsOut(), atlasAdjust, atlasAdjust);
     }
 
-    // Convert to (local) path cordinates.
-    v->codeAppendf("float2 pathcoord = inverse(float2x2(%s)) * (octocoord - %s);",
+    // Convert to path/local cordinates.
+    v->codeAppendf("float2x2 viewmatrix = float2x2(%s.xy, %s.zw);", // float2x2(float4) busts Intel.
                    proc.getInstanceAttrib(InstanceAttribs::kViewMatrix).fName,
+                   proc.getInstanceAttrib(InstanceAttribs::kViewMatrix).fName);
+    v->codeAppendf("float2 pathcoord = inverse(viewmatrix) * (octocoord - %s);",
                    proc.getInstanceAttrib(InstanceAttribs::kViewTranslate).fName);
 
     this->emitTransforms(v, varyingHandler, uniHandler, GrShaderVar("pathcoord", kFloat2_GrSLType),

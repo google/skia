@@ -405,14 +405,6 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         fBlacklistCoverageCounting = true;
     }
 
-#ifndef SK_BUILD_FOR_MAC
-    if (kIntel_GrGLVendor == ctxInfo.vendor()) {
-        // Non-Mac Intel bots across the board either crash with CCPR or do not draw properly.
-        // Hopefully this issue resolves itself when we move away from geometry shaders.
-        fBlacklistCoverageCounting = true;
-    }
-#endif
-
     if (!contextOptions.fAvoidStencilBuffers) {
         // To reduce surface area, if we avoid stencil buffers, we also disable MSAA.
         this->initFSAASupport(contextOptions, ctxInfo, gli);
