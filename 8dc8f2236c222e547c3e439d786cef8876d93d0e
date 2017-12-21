@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f21a9439_f58b3124",
+        "filename": "src/shaders/gradients/SkTwoPointConicalGradient_gpu.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-12-21T16:16:31Z",
+      "side": 1,
+      "message": "Why do we need any of the SkRandom info (and related changes) for diagnosing?  Dumping the gradient factory params should be sufficient to repro, no?",
+      "range": {
+        "startLine": 178,
+        "startChar": 0,
+        "endLine": 179,
+        "endChar": 74
+      },
+      "revId": "8dc8f2236c222e547c3e439d786cef8876d93d0e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
