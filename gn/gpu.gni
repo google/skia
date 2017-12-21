@@ -384,8 +384,8 @@ skia_gpu_sources = [
   "$_src/gpu/effects/GrUnpremulInputFragmentProcessor.h",
   "$_src/gpu/effects/GrXfermodeFragmentProcessor.cpp",
   "$_src/gpu/effects/GrXfermodeFragmentProcessor.h",
-  "$_src/gpu/effects/GrYUVEffect.cpp",
-  "$_src/gpu/effects/GrYUVEffect.h",
+  "$_src/gpu/effects/GrYUVtoRGBEffect.cpp",
+  "$_src/gpu/effects/GrYUVtoRGBEffect.h",
 
   # text
   "$_src/gpu/text/GrAtlasGlyphCache.cpp",

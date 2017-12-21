@@ -18,7 +18,7 @@
 #include "SkYUVPlanesCache.h"
 #include "effects/GrNonlinearColorSpaceXformEffect.h"
 #include "effects/GrSRGBEffect.h"
-#include "effects/GrYUVEffect.h"
+#include "effects/GrYUVtoRGBEffect.h"
 
 namespace {
 /**
@@ -139,10 +139,10 @@ sk_sp<GrTextureProxy> GrYUVProvider::refAsTextureProxy(GrContext* ctx, const GrS
 
     GrPaint paint;
     auto yuvToRgbProcessor =
-            GrYUVEffect::MakeYUVToRGB(yuvTextureContexts[0]->asTextureProxyRef(),
-                                      yuvTextureContexts[1]->asTextureProxyRef(),
-                                      yuvTextureContexts[2]->asTextureProxyRef(),
-                                      yuvInfo.fSizeInfo.fSizes, yuvInfo.fColorSpace, false);
+            GrYUVtoRGBEffect::Make(yuvTextureContexts[0]->asTextureProxyRef(),
+                                   yuvTextureContexts[1]->asTextureProxyRef(),
+                                   yuvTextureContexts[2]->asTextureProxyRef(),
+                                   yuvInfo.fSizeInfo.fSizes, yuvInfo.fColorSpace, false);
     paint.addColorFragmentProcessor(std::move(yuvToRgbProcessor));
 
     // If we're decoding an sRGB image, the result of our linear math on the YUV planes is already

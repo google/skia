@@ -44,4 +44,5 @@ skia_gpu_processor_sources = [
   "$_src/gpu/effects/GrOverdrawFragmentProcessor.fp",
   "$_src/gpu/effects/GrSimpleTextureEffect.fp",
   "$_src/gpu/effects/GrUnpremulInputFragmentProcessor.fp",
+  "$_src/gpu/effects/GrYUVtoRGBEffect.fp",
 ]

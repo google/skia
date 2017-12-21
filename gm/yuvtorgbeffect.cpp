@@ -17,7 +17,7 @@
 #include "SkBitmap.h"
 #include "SkGr.h"
 #include "SkGradientShader.h"
-#include "effects/GrYUVEffect.h"
+#include "effects/GrYUVtoRGBEffect.h"
 #include "ops/GrDrawOp.h"
 #include "ops/GrRectOpFactory.h"
 
@@ -119,12 +119,12 @@ protected:
 
             for (int i = 0; i < 6; ++i) {
                 std::unique_ptr<GrFragmentProcessor> fp(
-                        GrYUVEffect::MakeYUVToRGB(proxy[indices[i][0]],
-                                                  proxy[indices[i][1]],
-                                                  proxy[indices[i][2]],
-                                                  sizes,
-                                                  static_cast<SkYUVColorSpace>(space),
-                                                  false));
+                        GrYUVtoRGBEffect::Make(proxy[indices[i][0]],
+                                               proxy[indices[i][1]],
+                                               proxy[indices[i][2]],
+                                               sizes,
+                                               static_cast<SkYUVColorSpace>(space),
+                                               false));
                 if (fp) {
                     GrPaint grPaint;
                     grPaint.setXPFactory(GrPorterDuffXPFactory::Get(SkBlendMode::kSrc));
@@ -247,8 +247,8 @@ protected:
 
             GrPaint grPaint;
             grPaint.setXPFactory(GrPorterDuffXPFactory::Get(SkBlendMode::kSrc));
-            auto fp = GrYUVEffect::MakeYUVToRGB(proxy[0], proxy[1], proxy[2], sizes,
-                                                static_cast<SkYUVColorSpace>(space), true);
+            auto fp = GrYUVtoRGBEffect::Make(proxy[0], proxy[1], proxy[2], sizes,
+                                             static_cast<SkYUVColorSpace>(space), true);
             if (fp) {
                 SkMatrix viewMatrix;
                 viewMatrix.setTranslate(x, y);
