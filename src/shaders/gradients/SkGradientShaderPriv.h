@@ -291,7 +291,7 @@ protected:
         the gradient factory. (The constructor may decide not to use stops, in which case fStops
         will be nullptr). */
     struct RandomGradientParams {
-        static const int kMaxRandomGradientColors = 5;
+        static constexpr int kMaxRandomGradientColors = 5;
 
         RandomGradientParams(SkRandom* r);
 
@@ -338,6 +338,9 @@ private:
     PremulType            fPremulType; // This is already baked into the table for texture
                                        // gradients, and only changes behavior for gradients
                                        // that don't use a texture.
+
+    friend class DumpHelper; // to access RandomGradientParams
+
     typedef GrFragmentProcessor INHERITED;
 
 };
