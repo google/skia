@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "2d5fbbee_6a2b088e",
+        "filename": "src/shaders/gradients/SkGradientShaderPriv.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 307,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-12-21T20:15:21Z",
+      "side": 1,
+      "message": "RandomGradientParams is a protected class inside GrGradientEffect. So it seems that I have to declare something within GrGradientEffect. The minimal thing that I need to declare seems to be something like \"friend class DumpHelper;\". I\u0027m doing that right now and also adding a TODO so I won\u0027t forget to remove them.",
+      "parentUuid": "8fbac43c_abef3cfb",
+      "revId": "b5b2724d010261a40611e036997f7bee0168d1c4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d34e09dd_2698fafe",
         "filename": "src/shaders/gradients/SkGradientShaderPriv.h",
         "patchSetId": 6
@@ -39,6 +57,30 @@
       "revId": "b5b2724d010261a40611e036997f7bee0168d1c4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "da8e9319_456e53b3",
+        "filename": "src/shaders/gradients/SkGradientShaderPriv.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 308,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-12-21T20:15:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d34e09dd_2698fafe",
+      "range": {
+        "startLine": 308,
+        "startChar": 26,
+        "endLine": 308,
+        "endChar": 50
+      },
+      "revId": "b5b2724d010261a40611e036997f7bee0168d1c4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
