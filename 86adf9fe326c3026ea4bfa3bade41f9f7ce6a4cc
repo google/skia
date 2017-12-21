@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c5a42e84_4e24617f",
+        "filename": "src/core/SkSafeMath.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-12-21T20:58:58Z",
+      "side": 1,
+      "message": "I don\u0027t think max_size_t is a thing.  SK_MaxSizeT, or maybe just drop the first _?",
+      "range": {
+        "startLine": 51,
+        "startChar": 25,
+        "endLine": 51,
+        "endChar": 35
+      },
+      "revId": "86adf9fe326c3026ea4bfa3bade41f9f7ce6a4cc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
