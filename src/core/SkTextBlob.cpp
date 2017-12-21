@@ -925,7 +925,6 @@ namespace {
     };
 
     sk_sp<SkTypeface> resolver_typeface_proc(const void* data, size_t length, void* ctx) {
-        SkASSERT(length == 4);
         if (length != 4) {
             return nullptr;
         }
