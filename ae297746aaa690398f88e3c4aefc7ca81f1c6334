@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8dffda82_4a617f0e",
+        "filename": "src/core/SkUtils.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-12-21T16:16:38Z",
+      "side": 1,
+      "message": "Can\u0027t distinguish between a bad UTF-8 string and one that contains kReplacement_SkUnichar.",
+      "revId": "ae297746aaa690398f88e3c4aefc7ca81f1c6334",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
