@@ -55,6 +55,24 @@
     },
     {
       "key": {
+        "uuid": "a27fb0e9_ce440166",
+        "filename": "include/core/SkColorSpace.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-12-21T20:21:31Z",
+      "side": 1,
+      "message": "Yeah, I too was thinking your \"preferably\" path, as a follow up.",
+      "parentUuid": "101c2823_6392404a",
+      "revId": "f2eee2369ae4fd99c3b3eb78e3c3fb76a1c43d0e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "95a0a9dd_e9a429ce",
         "filename": "src/core/SkColorSpace_ICC.cpp",
         "patchSetId": 1
