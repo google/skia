@@ -12,10 +12,14 @@ import android.content.res.AssetManager;
 import android.content.res.Resources;
 import android.support.test.InstrumentationRegistry;
 import android.util.Log;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.lang.annotation.Annotation;
+import java.util.List;
 import org.junit.runner.Description;
+import org.junit.runner.Result;
 import org.junit.runner.Runner;
 import org.junit.runner.notification.Failure;
 import org.junit.runner.notification.RunNotifier;
@@ -130,6 +134,29 @@ public class SkQPRunner extends Runner {
             notifier.fireTestFinished(desc);
         }
         this.nMakeReport();
+    }
+
+    public static String RunTests() {
+        Result result = new Result();
+        RunNotifier notifier = new RunNotifier();
+        notifier.addFirstListener(result.createListener());
+
+        Runner runner = new SkQPRunner(SkQP.class);
+        notifier.fireTestRunStarted(runner.getDescription());
+        runner.run(notifier);
+        notifier.fireTestRunFinished(result);
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        PrintStream out = new PrintStream(baos);
+
+        int runCount = result.getRunCount();
+        List<Failure> failures = result.getFailures();
+        out.format("%d of %d tests failed\n", failures.size(), runCount);
+        for (Failure failure : failures) {
+            out.println(failure.toString());
+        }
+        out.flush();
+        return out.toString();
     }
 }
 
