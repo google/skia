@@ -20,10 +20,10 @@ public:
     const SkMatrix44* onFromXYZD50() const override;
 
     bool onGammaCloseToSRGB() const override;
-
     bool onGammaIsLinear() const override;
-
     bool onIsNumericalTransferFn(SkColorSpaceTransferFn* coeffs) const override;
+
+    const SkData* onProfileData() const override { return fProfileData.get(); }
 
     Type type() const override { return Type::kXYZ; }
 
@@ -43,6 +43,8 @@ public:
                      const SkMatrix44& toXYZ, sk_sp<SkData> profileData);
 
 private:
+    sk_sp<SkData>          fProfileData;
+
     const SkGammaNamed     fGammaNamed;
     sk_sp<SkGammas>        fGammas;
     const SkMatrix44       fToXYZD50;

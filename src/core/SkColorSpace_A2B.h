@@ -55,6 +55,8 @@ public:
 
     bool onIsCMYK() const override { return SkColorSpace::kCMYK_Type == fICCType; }
 
+    const SkData* onProfileData() const override { return fProfileData.get(); }
+
     sk_sp<SkColorSpace> makeLinearGamma() const override {
         // TODO: Analyze the extrema of our projection into XYZ and use suitable primaries?
         // For now, just fall back to a default, because we don't have a good answer.
@@ -168,6 +170,8 @@ public:
                      sk_sp<SkData> profileData);
 
 private:
+    sk_sp<SkData>        fProfileData;
+
     SkColorSpace::Type   fICCType;
     std::vector<Element> fElements;
     PCS                  fPCS;

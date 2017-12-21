@@ -139,14 +139,7 @@ public:
 
     virtual Type type() const = 0;
 
-    static sk_sp<SkColorSpace> MakeRGB(SkGammaNamed gammaNamed, const SkMatrix44& toXYZD50);
-
-protected:
-    SkColorSpace_Base(sk_sp<SkData> profileData);
-
 private:
-    sk_sp<SkData> fProfileData;
-
     friend class SkColorSpace;
     friend class SkColorSpace_XYZ;
     friend class ColorSpaceXformTest;
