@@ -2,16 +2,18 @@
 SkQP
 ====
 
-**Motivation**: Test an Android device’s GPU and OpenGLES & Vulkan drivers with
-Skia and Skia’s existing unit & rendering tests.
+**Motivation**: Test an Android device's GPU and OpenGLES & Vulkan drivers with
+Skia and Skia's existing unit & rendering tests.
 
 How To Use SkQP on your Android device:
 
 1.  To build SkQP you need to install the
     [Android NDK](https://developer.android.com/ndk/).
 
-2.  Checkout Skia, then go to the source directory:
+2.  [Checkout depot\_tools and Skia](https://skia.org/user/download),
+    then go to Skia's source directory:
 
+        export PATH="${DEPOT_TOOLS_PATH}:$PATH"
         cd $SKIA_SOURCE_DIRECTORY
 
 3.  Configure and build Skia for your device's architecture:
@@ -60,6 +62,13 @@ Run as an executable
 
 Run as an APK
 -------------
+
+0.  Install the [Android SDK](https://developer.android.com/studio/#command-tools).
+
+        mkdir ~/android-sdk
+        ( cd ~/android-sdk; unzip ~/Downloads/sdk-tools-*.zip )
+        yes | ~/android-sdk/tools/bin/sdkmanager --licenses
+        export ANDROID_HOME=~/android-sdk
 
 1.  Build the skqp.apk, load it on the device, and run the tests
 
