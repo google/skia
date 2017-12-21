@@ -929,14 +929,11 @@ static Sink* create_via(const SkString& tag, Sink* wrapped) {
     VIA("gbr",       ViaCSXform,           wrapped, rgb_to_gbr(), true);
     VIA("lite",      ViaLite,              wrapped);
     VIA("pipe",      ViaPipe,              wrapped);
-    VIA("twice",     ViaTwice,             wrapped);
 #ifdef TEST_VIA_SVG
     VIA("svg",       ViaSVG,               wrapped);
 #endif
     VIA("serialize", ViaSerialization,     wrapped);
     VIA("pic",       ViaPicture,           wrapped);
-    VIA("2ndpic",    ViaSecondPicture,     wrapped);
-    VIA("sp",        ViaSingletonPictures, wrapped);
     VIA("tiles",     ViaTiles, 256, 256, nullptr,            wrapped);
     VIA("tiles_rt",  ViaTiles, 256, 256, new SkRTreeFactory, wrapped);
 

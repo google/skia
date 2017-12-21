@@ -98,7 +98,6 @@ def dm_flags(api, bot):
       configs.extend(['g8'])
       configs.extend(['565'])
       configs.extend(['f16'])
-      configs.extend(['sp-8888', '2ndpic-8888']) # Test niche uses of SkPicture.
       configs.extend(['lite-8888'])              # Experimental display list.
       configs.extend(['gbr-8888'])
 
@@ -435,25 +434,19 @@ def dm_flags(api, bot):
 
   # skia:4769
   for test in ['drawfilter']:
-    blacklist([    'sp-8888', 'gm', '_', test])
     blacklist([   'pic-8888', 'gm', '_', test])
-    blacklist(['2ndpic-8888', 'gm', '_', test])
     blacklist([  'lite-8888', 'gm', '_', test])
   # skia:4703
   for test in ['image-cacherator-from-picture',
                'image-cacherator-from-raster',
                'image-cacherator-from-ctable']:
-    blacklist([       'sp-8888', 'gm', '_', test])
     blacklist([      'pic-8888', 'gm', '_', test])
-    blacklist([   '2ndpic-8888', 'gm', '_', test])
     blacklist(['serialize-8888', 'gm', '_', test])
 
   # GM that requires raster-backed canvas
   for test in ['gamut', 'complexclip4_bw', 'complexclip4_aa']:
-    blacklist([       'sp-8888', 'gm', '_', test])
     blacklist([      'pic-8888', 'gm', '_', test])
     blacklist([     'lite-8888', 'gm', '_', test])
-    blacklist([   '2ndpic-8888', 'gm', '_', test])
     blacklist(['serialize-8888', 'gm', '_', test])
 
   # GM that not support tiles_rt

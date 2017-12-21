@@ -2070,46 +2070,6 @@ Error ViaPipe::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkStrin
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-// Draw the Src into two pictures, then draw the second picture into the wrapped Sink.
-// This tests that any shortcuts we may take while recording that second picture are legal.
-Error ViaSecondPicture::draw(
-        const Src& src, SkBitmap* bitmap, SkWStream* stream, SkString* log) const {
-    auto size = src.size();
-    return draw_to_canvas(fSink.get(), bitmap, stream, log, size, [&](SkCanvas* canvas) -> Error {
-        SkPictureRecorder recorder;
-        sk_sp<SkPicture> pic;
-        for (int i = 0; i < 2; i++) {
-            Error err = src.draw(recorder.beginRecording(SkIntToScalar(size.width()),
-                                                         SkIntToScalar(size.height())));
-            if (!err.isEmpty()) {
-                return err;
-            }
-            pic = recorder.finishRecordingAsPicture();
-        }
-        canvas->drawPicture(pic);
-        return check_against_reference(bitmap, src, fSink.get());
-    });
-}
-
-/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-
-// Draw the Src twice.  This can help exercise caching.
-Error ViaTwice::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkString* log) const {
-    return draw_to_canvas(fSink.get(), bitmap, stream, log, src.size(), [&](SkCanvas* canvas) -> Error {
-        for (int i = 0; i < 2; i++) {
-            SkAutoCanvasRestore acr(canvas, true/*save now*/);
-            canvas->clear(SK_ColorTRANSPARENT);
-            Error err = src.draw(canvas);
-            if (err.isEmpty()) {
-                return err;
-            }
-        }
-        return check_against_reference(bitmap, src, fSink.get());
-    });
-}
-
-/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-
 #ifdef TEST_VIA_SVG
 #include "SkXMLWriter.h"
 #include "SkSVGCanvas.h"
@@ -2134,78 +2094,6 @@ Error ViaSVG::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkString
     });
 }
 #endif
-
-/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-
-// This is like SkRecords::Draw, in that it plays back SkRecords ops into a Canvas.
-// Unlike SkRecords::Draw, it builds a single-op sub-picture out of each Draw-type op.
-// This is an only-slightly-exaggerated simluation of Blink's Slimming Paint pictures.
-struct DrawsAsSingletonPictures {
-    SkCanvas* fCanvas;
-    const SkDrawableList& fDrawables;
-    SkRect fBounds;
-
-    template <typename T>
-    void draw(const T& op, SkCanvas* canvas) {
-        // We must pass SkMatrix::I() as our initial matrix.
-        // By default SkRecords::Draw() uses the canvas' matrix as its initial matrix,
-        // which would have the funky effect of applying transforms over and over.
-        SkRecords::Draw d(canvas, nullptr, fDrawables.begin(), fDrawables.count(), &SkMatrix::I());
-        d(op);
-    }
-
-    // Draws get their own picture.
-    template <typename T>
-    SK_WHEN(T::kTags & SkRecords::kDraw_Tag, void) operator()(const T& op) {
-        SkPictureRecorder rec;
-        this->draw(op, rec.beginRecording(fBounds));
-        sk_sp<SkPicture> pic(rec.finishRecordingAsPicture());
-        fCanvas->drawPicture(pic);
-    }
-
-    // We'll just issue non-draws directly.
-    template <typename T>
-    skstd::enable_if_t<!(T::kTags & SkRecords::kDraw_Tag), void> operator()(const T& op) {
-        this->draw(op, fCanvas);
-    }
-};
-
-// Record Src into a picture, then record it into a macro picture with a sub-picture for each draw.
-// Then play back that macro picture into our wrapped sink.
-Error ViaSingletonPictures::draw(
-        const Src& src, SkBitmap* bitmap, SkWStream* stream, SkString* log) const {
-    auto size = src.size();
-    return draw_to_canvas(fSink.get(), bitmap, stream, log, size, [&](SkCanvas* canvas) -> Error {
-        // Use low-level (Skia-private) recording APIs so we can read the SkRecord.
-        SkRecord skr;
-        SkRecorder recorder(&skr, size.width(), size.height());
-        Error err = src.draw(&recorder);
-        if (!err.isEmpty()) {
-            return err;
-        }
-
-        // Record our macro-picture, with each draw op as its own sub-picture.
-        SkPictureRecorder macroRec;
-        SkCanvas* macroCanvas = macroRec.beginRecording(SkIntToScalar(size.width()),
-                                                        SkIntToScalar(size.height()));
-
-        std::unique_ptr<SkDrawableList> drawables(recorder.detachDrawableList());
-        const SkDrawableList empty;
-
-        DrawsAsSingletonPictures drawsAsSingletonPictures = {
-            macroCanvas,
-            drawables ? *drawables : empty,
-            SkRect::MakeWH((SkScalar)size.width(), (SkScalar)size.height()),
-        };
-        for (int i = 0; i < skr.count(); i++) {
-            skr.visit(i, drawsAsSingletonPictures);
-        }
-        sk_sp<SkPicture> macroPic(macroRec.finishRecordingAsPicture());
-
-        canvas->drawPicture(macroPic);
-        return check_against_reference(bitmap, src, fSink.get());
-    });
-}
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
