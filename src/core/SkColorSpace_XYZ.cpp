@@ -11,7 +11,7 @@
 #include "SkOpts.h"
 
 SkColorSpace_XYZ::SkColorSpace_XYZ(SkGammaNamed gammaNamed, const SkMatrix44& toXYZD50)
-    : INHERITED(nullptr)
+    : fProfileData(nullptr)
     , fGammaNamed(gammaNamed)
     , fGammas(nullptr)
     , fToXYZD50(toXYZD50)
@@ -21,7 +21,7 @@ SkColorSpace_XYZ::SkColorSpace_XYZ(SkGammaNamed gammaNamed, const SkMatrix44& to
 
 SkColorSpace_XYZ::SkColorSpace_XYZ(SkGammaNamed gammaNamed, sk_sp<SkGammas> gammas,
                                    const SkMatrix44& toXYZD50, sk_sp<SkData> profileData)
-    : INHERITED(std::move(profileData))
+    : fProfileData(std::move(profileData))
     , fGammaNamed(gammaNamed)
     , fGammas(std::move(gammas))
     , fToXYZD50(toXYZD50)
@@ -86,14 +86,14 @@ sk_sp<SkColorSpace> SkColorSpace_XYZ::makeLinearGamma() const {
     if (this->gammaIsLinear()) {
         return sk_ref_sp(const_cast<SkColorSpace_XYZ*>(this));
     }
-    return SkColorSpace_Base::MakeRGB(kLinear_SkGammaNamed, fToXYZD50);
+    return SkColorSpace::MakeRGB(kLinear_SkGammaNamed, fToXYZD50);
 }
 
 sk_sp<SkColorSpace> SkColorSpace_XYZ::makeSRGBGamma() const {
     if (this->gammaCloseToSRGB()) {
         return sk_ref_sp(const_cast<SkColorSpace_XYZ*>(this));
     }
-    return SkColorSpace_Base::MakeRGB(kSRGB_SkGammaNamed, fToXYZD50);
+    return SkColorSpace::MakeRGB(kSRGB_SkGammaNamed, fToXYZD50);
 }
 
 sk_sp<SkColorSpace> SkColorSpace_XYZ::makeColorSpin() const {

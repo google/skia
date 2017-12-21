@@ -119,6 +119,8 @@ public:
     static sk_sp<SkColorSpace> MakeRGB(const SkColorSpaceTransferFn& coeffs,
                                        const SkMatrix44& toXYZD50);
 
+    static sk_sp<SkColorSpace> MakeRGB(SkGammaNamed gammaNamed, const SkMatrix44& toXYZD50);
+
     /**
      *  Create an SkColorSpace from an ICC profile.
      */
@@ -249,6 +251,8 @@ private:
     virtual bool onGammaIsLinear() const = 0;
     virtual bool onIsNumericalTransferFn(SkColorSpaceTransferFn* coeffs) const = 0;
     virtual bool onIsCMYK() const { return false; }
+
+    virtual const SkData* onProfileData() const { return nullptr; }
 
     using INHERITED = SkRefCnt;
 };
