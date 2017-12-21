@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "101c2823_6392404a",
+        "filename": "include/core/SkColorSpace.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-12-21T20:19:44Z",
+      "side": 1,
+      "message": "Hmm. That turns into a bigger project pretty quickly. We either have to re-implement the logic of the function that we\u0027re calling in SkColorSpace_ICC, or (preferably) change the ICC code to avoid aggressively converting all the way to the \"named gamma\" type (and probably just keep things as SkColorSpaceTransferFn). I\u0027m going to land this as-is, with the hope that several of these factories will be removed before too long.",
+      "parentUuid": "506f8832_608ee4cf",
+      "revId": "f2eee2369ae4fd99c3b3eb78e3c3fb76a1c43d0e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "95a0a9dd_e9a429ce",
         "filename": "src/core/SkColorSpace_ICC.cpp",
         "patchSetId": 1
