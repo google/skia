@@ -2022,9 +2022,9 @@ HRESULT SkXPSDevice::AddGlyphs(IXpsOMObjectFactory* xpsFactory,
 static int num_glyph_guess(SkPaint::TextEncoding encoding, const void* text, size_t byteLength) {
     switch (encoding) {
     case SkPaint::kUTF8_TextEncoding:
-        return SkUTF8_CountUnichars(static_cast<const char *>(text), byteLength);
+        return SkUTF8_CountUnichars(text, byteLength);
     case SkPaint::kUTF16_TextEncoding:
-        return SkUTF16_CountUnichars(static_cast<const uint16_t *>(text), SkToInt(byteLength));
+        return SkUTF16_CountUnichars(text, byteLength);
     case SkPaint::kGlyphID_TextEncoding:
         return SkToInt(byteLength / 2);
     default:
