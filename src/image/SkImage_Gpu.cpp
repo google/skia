@@ -28,7 +28,7 @@
 #include "GrTexturePriv.h"
 #include "GrTextureProxy.h"
 #include "effects/GrNonlinearColorSpaceXformEffect.h"
-#include "effects/GrYUVEffect.h"
+#include "effects/GrYUVtoRGBEffect.h"
 #include "SkCanvas.h"
 #include "SkBitmapCache.h"
 #include "SkGr.h"
@@ -427,8 +427,8 @@ static sk_sp<SkImage> make_from_yuv_textures_copy(GrContext* ctx, SkYUVColorSpac
 
     GrPaint paint;
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
-    paint.addColorFragmentProcessor(GrYUVEffect::MakeYUVToRGB(yProxy, uProxy, vProxy,
-                                                              yuvSizes, colorSpace, nv12));
+    paint.addColorFragmentProcessor(GrYUVtoRGBEffect::Make(yProxy, uProxy, vProxy,
+                                                           yuvSizes, colorSpace, nv12));
 
     const SkRect rect = SkRect::MakeIWH(width, height);
 

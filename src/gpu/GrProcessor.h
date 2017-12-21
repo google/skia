@@ -135,6 +135,7 @@ public:
         kGrSweepGradient_ClassID,
         kGrTextureDomainEffect_ClassID,
         kGrUnpremulInputFragmentProcessor_ClassID,
+        kGrYUVtoRGBEffect_ClassID,
         kHighContrastFilterEffect_ClassID,
         kInstanceProcessor_ClassID,
         kLumaColorFilterEffect_ClassID,
@@ -150,7 +151,6 @@ public:
         kSwizzleFragmentProcessor_ClassID,
         kTestFP_ClassID,
         kTextureGeometryProcessor_ClassID,
-        kYUVtoRGBEffect_ClassID
     };
 
     virtual ~GrProcessor() = default;
