@@ -70,6 +70,30 @@
       "revId": "8dc8f2236c222e547c3e439d786cef8876d93d0e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6f903e16_b15569a6",
+        "filename": "src/shaders/gradients/SkTwoPointConicalGradient_gpu.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-12-21T18:10:14Z",
+      "side": 1,
+      "message": "Hack, RandomGradientParams has a user-defined constructor so I can\u0027t initialize it in the way that I did. (The only way to initialize it seems to be using an SkRandom pointer.)\n\nHow about that I just dump the raw memory with some special treatments for the pointers as did in the latest patch? It makes the code a little shorter. But it makes the dump completely unreadable. Maybe the dump is not quite readable anyway in any of the previous approach.",
+      "parentUuid": "e79f8cc3_fa2f2da5",
+      "range": {
+        "startLine": 178,
+        "startChar": 0,
+        "endLine": 179,
+        "endChar": 74
+      },
+      "revId": "8dc8f2236c222e547c3e439d786cef8876d93d0e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
