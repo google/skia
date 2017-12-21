@@ -12,14 +12,11 @@
 #include "SkRect.h"
 #include "SkTypes.h"
 
-class GrContext;
 class SkBigPicture;
-class SkBitmap;
 class SkCanvas;
 class SkData;
 struct SkDeserialProcs;
 class SkImage;
-class SkPath;
 class SkPictureData;
 class SkReadBuffer;
 class SkRefCntSet;
@@ -37,19 +34,6 @@ struct SkPictInfo;
 */
 class SK_API SkPicture : public SkRefCnt {
 public:
-    /**
-     *  Function signature defining a function that sets up an SkBitmap from encoded data. On
-     *  success, the SkBitmap should have its Config, width, height, rowBytes and pixelref set.
-     *  If the installed pixelref has decoded the data into pixels, then the src buffer need not be
-     *  copied. If the pixelref defers the actual decode until its lockPixels() is called, then it
-     *  must make a copy of the src buffer.
-     *  @param src Encoded data.
-     *  @param length Size of the encoded data, in bytes.
-     *  @param dst SkBitmap to install the pixel ref on.
-     *  @param bool Whether or not a pixel ref was successfully installed.
-     */
-    typedef bool (*InstallPixelRefProc)(const void* src, size_t length, SkBitmap* dst);
-
     /**
      *  Recreate a picture that was serialized into a stream or data.
      */
