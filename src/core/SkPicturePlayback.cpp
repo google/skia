@@ -70,20 +70,24 @@ static const SkRect* get_rect_ptr(SkReadBuffer* reader, SkRect* storage) {
 
 class TextContainer {
 public:
+    TextContainer(SkReadBuffer* reader, const SkPaint* paint) {
+        if (reader->validate(paint != nullptr)) {
+            fByteLength = reader->readInt();
+            fText = (const char*)reader->skip(fByteLength);
+        }
+    }
+
     size_t length() { return fByteLength; }
     const void* text() { return (const void*)fText; }
-    size_t fByteLength;
-    const char* fText;
+
+    size_t fByteLength = 0;
+    const char* fText = nullptr;
+    int fCount = 0;
 
     bool validate(SkReadBuffer* reader, int count, const SkPaint& paint) const {
         return reader->validate(paint.countText(fText, fByteLength) == count);
     }
 };
-
-void get_text(SkReadBuffer* reader, TextContainer* text) {
-    size_t length = text->fByteLength = reader->readInt();
-    text->fText = (const char*)reader->skip(length);
-}
 
 void SkPicturePlayback::draw(SkCanvas* canvas,
                              SkPicture::AbortCallback* callback,
@@ -480,8 +484,7 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
         } break;
         case DRAW_POS_TEXT: {
             const SkPaint* paint = fPictureData->getPaint(reader);
-            TextContainer text;
-            get_text(reader, &text);
+            TextContainer text(reader, paint);
             size_t points = reader->readInt();
             text.validate(reader, points, *paint);
             const SkPoint* pos = (const SkPoint*)reader->skip(points * sizeof(SkPoint));
@@ -493,8 +496,7 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
         } break;
         case DRAW_POS_TEXT_TOP_BOTTOM: {
             const SkPaint* paint = fPictureData->getPaint(reader);
-            TextContainer text;
-            get_text(reader, &text);
+            TextContainer text(reader, paint);
             size_t points = reader->readInt();
             text.validate(reader, points, *paint);
             const SkPoint* pos = (const SkPoint*)reader->skip(points * sizeof(SkPoint));
@@ -510,8 +512,7 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
         } break;
         case DRAW_POS_TEXT_H: {
             const SkPaint* paint = fPictureData->getPaint(reader);
-            TextContainer text;
-            get_text(reader, &text);
+            TextContainer text(reader, paint);
             size_t xCount = reader->readInt();
             text.validate(reader, xCount, *paint);
             const SkScalar constY = reader->readScalar();
@@ -524,8 +525,7 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
         } break;
         case DRAW_POS_TEXT_H_TOP_BOTTOM: {
             const SkPaint* paint = fPictureData->getPaint(reader);
-            TextContainer text;
-            get_text(reader, &text);
+            TextContainer text(reader, paint);
             size_t xCount = reader->readInt();
             text.validate(reader, xCount, *paint);
             const SkScalar* xpos = (const SkScalar*)reader->skip((3 + xCount) * sizeof(SkScalar));
@@ -592,8 +592,7 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
         } break;
         case DRAW_TEXT: {
             const SkPaint* paint = fPictureData->getPaint(reader);
-            TextContainer text;
-            get_text(reader, &text);
+            TextContainer text(reader, paint);
             SkScalar x = reader->readScalar();
             SkScalar y = reader->readScalar();
             BREAK_ON_READ_ERROR(reader);
@@ -615,8 +614,7 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
         } break;
         case DRAW_TEXT_TOP_BOTTOM: {
             const SkPaint* paint = fPictureData->getPaint(reader);
-            TextContainer text;
-            get_text(reader, &text);
+            TextContainer text(reader, paint);
             const SkScalar* ptr = (const SkScalar*)reader->skip(4 * sizeof(SkScalar));
             BREAK_ON_READ_ERROR(reader);
 
@@ -633,8 +631,7 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
         } break;
         case DRAW_TEXT_ON_PATH: {
             const SkPaint* paint = fPictureData->getPaint(reader);
-            TextContainer text;
-            get_text(reader, &text);
+            TextContainer text(reader, paint);
             const SkPath& path = fPictureData->getPath(reader);
             SkMatrix matrix;
             reader->readMatrix(&matrix);
@@ -648,8 +645,7 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
             const SkPaint* paint = fPictureData->getPaint(reader);
             int count = reader->readInt();
             uint32_t flags = reader->read32();
-            TextContainer text;
-            get_text(reader, &text);
+            TextContainer text(reader, paint);
             const SkRSXform* xform = (const SkRSXform*)reader->skip(count * sizeof(SkRSXform));
             const SkRect* cull = nullptr;
             if (flags & DRAW_TEXT_RSXFORM_HAS_CULL) {

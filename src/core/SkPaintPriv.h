@@ -64,6 +64,8 @@ public:
     }
 
     static bool ShouldDither(const SkPaint&, SkColorType);
+
+    static bool ValidateText(const void* text, size_t length, SkPaint::TextEncoding);
 };
 
 #endif

@@ -84,3 +84,17 @@ bool SkPaintPriv::ShouldDither(const SkPaint& p, SkColorType dstCT) {
     return p.getImageFilter() || p.getMaskFilter()
         || !p.getShader() || !as_SB(p.getShader())->isConstant();
 }
+
+bool SkPaintPriv::ValidateText(const void* text, size_t length, SkPaint::TextEncoding encoding) {
+    if (length == 0) {
+        return true;
+    }
+    switch (encoding) {
+        case SkPaint::kUTF8_TextEncoding: return SkUtils::ValidateUTF8(text, length);
+        case SkPaint::kUTF16_TextEncoding: return SkUtils::ValidateUTF16(text, length);
+        case SkPaint::kUTF32_TextEncoding: return SkUtils::ValidateUTF32(text, length);
+        case SkPaint::kGlyphID_TextEncoding: return SkAlign2(length) == length;
+    }
+    return false;
+}
+
