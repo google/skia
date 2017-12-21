@@ -91,7 +91,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "rmtree",
-      "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-Ubuntu16-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-All/data"
+      "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-Ubuntu16-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Release-All/data"
     ],
     "infra_step": true,
     "name": "rmtree data"
@@ -106,7 +106,7 @@
       "ensure-directory",
       "--mode",
       "0777",
-      "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-Ubuntu16-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-All/data"
+      "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-Ubuntu16-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Release-All/data"
     ],
     "infra_step": true,
     "name": "makedirs data"
@@ -189,7 +189,7 @@
       "~inc1.webp",
       "--verbose",
       "--outResultsFile",
-      "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-Ubuntu16-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-All/data/nanobench_abc123_1337000001.json",
+      "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-Ubuntu16-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Release-All/data/nanobench_abc123_1337000001.json",
       "--properties",
       "gitHash",
       "abc123",
@@ -205,9 +205,9 @@
       "cpu_or_gpu",
       "GPU",
       "cpu_or_gpu_value",
-      "IntelIris540",
+      "IntelIris640",
       "model",
-      "NUC6i5SYK",
+      "NUC7i5BNK",
       "os",
       "Ubuntu16"
     ],
@@ -233,7 +233,7 @@
       "ensure-directory",
       "--mode",
       "0777",
-      "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-Ubuntu16-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-All"
+      "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-Ubuntu16-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Release-All"
     ],
     "infra_step": true,
     "name": "makedirs perf_dir"

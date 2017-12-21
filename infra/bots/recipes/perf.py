@@ -92,7 +92,6 @@ def nanobench_flags(api, bot):
     # The following devices do not support glessrgb.
     if 'glessrgb' in configs:
       if ('IntelHD405'    in bot or
-          'IntelIris540'  in bot or
           'IntelIris640'  in bot or
           'IntelBayTrail' in bot or
           'IntelHD2000'   in bot or
@@ -346,8 +345,8 @@ TEST_BUILDERS = [
   ('Perf-Mac-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Release-All-'
    'CommandBuffer'),
   'Perf-Ubuntu16-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Debug-All-Vulkan',
-  'Perf-Ubuntu16-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Debug-All-Vulkan',
-  'Perf-Ubuntu16-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-All',
+  'Perf-Ubuntu16-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Debug-All-Vulkan',
+  'Perf-Ubuntu16-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Release-All',
   ('Perf-Ubuntu17-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-'
    'Valgrind_AbandonGpuContext_SK_CPU_LIMIT_SSE41'),
   ('Perf-Ubuntu17-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-'
