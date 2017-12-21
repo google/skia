@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "07486e00_6e80eef0",
+        "filename": "src/shaders/gradients/SkGradientShaderPriv.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 307,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-12-21T21:09:58Z",
+      "side": 1,
+      "message": "Ack.\n\n(I think you can work around that with local lambdas, but prolly not worth the effort)",
+      "parentUuid": "2d5fbbee_6a2b088e",
+      "revId": "b5b2724d010261a40611e036997f7bee0168d1c4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d34e09dd_2698fafe",
         "filename": "src/shaders/gradients/SkGradientShaderPriv.h",
         "patchSetId": 6
