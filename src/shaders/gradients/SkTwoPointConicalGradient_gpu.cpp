@@ -165,6 +165,16 @@ std::unique_ptr<GrFragmentProcessor> TwoPointConicalEffect::TestCreate(
                                               params.fColorCount, params.fTileMode);
     GrTest::TestAsFPArgs asFPArgs(d);
     std::unique_ptr<GrFragmentProcessor> fp = as_SB(shader)->asFragmentProcessor(asFPArgs.args());
+
+#ifdef SK_DEBUG
+    if (!fp) {
+        SkDebugf("SkPoint  center1 = {%f, %f};\n", center1.fX, center1.fY);
+        SkDebugf("SkPoint  center2 = {%f, %f};\n", center2.fX, center2.fY);
+        SkDebugf("SkScalar radius1 = %f, radius2 = %f;\n", radius1, radius2);
+        params.dump();
+    }
+#endif
+
     GrAlwaysAssert(fp);
     return fp;
 }

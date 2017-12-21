@@ -291,7 +291,7 @@ protected:
         the gradient factory. (The constructor may decide not to use stops, in which case fStops
         will be nullptr). */
     struct RandomGradientParams {
-        static const int kMaxRandomGradientColors = 5;
+        static constexpr int kMaxRandomGradientColors = 5;
 
         RandomGradientParams(SkRandom* r);
 
@@ -303,6 +303,30 @@ protected:
         SkShader::TileMode fTileMode;
         int fColorCount;
         SkScalar* fStops;
+
+        void dump() {
+            auto csData = fColorSpace->serialize();
+            DumpData("csData", csData->data(), csData->size());
+            SkDebugf("sk_sp<SkColorSpace> colorSpace = SkColorSpace::Deserialize(csData, %d);\n",
+                     csData->size());
+
+            auto csBackup = fColorSpace;
+            fColorSpace = nullptr; // make sure that we won't dump an illegal sk_sp
+            DumpData("paramsData", this, sizeof(RandomGradientParams));
+            SkDebugf("auto& params = *(RandomGradientParams*)(paramsData);\n");
+            SkDebugf("params.fColorSpace = colorSpace;\n");
+            SkDebugf("if (params.fStops != nullptr) { params.fStops = params.fStopStorage; }\n");
+            fColorSpace = csBackup;
+        }
+
+    private:
+        static void DumpData(const char* name, const void* data, int size) {
+            SkDebugf("char %s[%d] = {", name, size);
+            for(int i = 0; i < size; ++i) {
+                SkDebugf("%s%d", i == 0 ? "" : ", ", static_cast<const char*>(data)[i]);
+            }
+            SkDebugf("};\n");
+        }
     };
     #endif
 
