@@ -46,6 +46,30 @@
       "revId": "8dc8f2236c222e547c3e439d786cef8876d93d0e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e79f8cc3_fa2f2da5",
+        "filename": "src/shaders/gradients/SkTwoPointConicalGradient_gpu.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-12-21T17:29:17Z",
+      "side": 1,
+      "message": "I was going to do that but then I thought that it will both make the code and the dump quite complicated due to the pointers, floats, and ColorSpace data inside params. (And of course, we probably also lose some float precision; but that doesn\u0027t seem to be a big problem because our SkPath can dump floats in hex without losing any precision.)\n\nPlease see the new patch that dumps the whole params. Instead of dumping the following:\n\n    SkRandom initialRandom(1295466848);\n    initialRandom.seek(12);\n\nit will dump:\n\nchar csData[4] \u003d {0, 2, 0, 0};\nsk_sp\u003cSkColorSpace\u003e colorSpace \u003d SkColorSpace::Deserialize(csData, 4);\nRandomGradientParams params \u003d {\n    1,\n    {32767, 1291845888, 1065353216, 1065353216, 1065353216},\n    {{0.814224, 0.976395, 0.313416, 0.076248}, {0.641739, 0.736282, 0.619705, 0.379700}, {0.946808, 0.704742, 0.127258, 0.019989}, {0.058426, 0.332001, 0.761353, 0.070297}, {0.000000, 0.000000, 0.000000, 0.000000}},\n    colorSpace,\n    {0.000000, 0.178574, 0.613214, 0.767023, 0.000000},\n    2,\n    4,\n    nullptr\n};\nparams.fStops \u003d params.fStopStorage;\n\nPlease let me know if you still likes dumping params better. If so, I\u0027ll delete the code that dumps SkRandom.",
+      "parentUuid": "caa20169_51ac3ce8",
+      "range": {
+        "startLine": 178,
+        "startChar": 0,
+        "endLine": 179,
+        "endChar": 74
+      },
+      "revId": "8dc8f2236c222e547c3e439d786cef8876d93d0e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
