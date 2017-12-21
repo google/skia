@@ -514,33 +514,9 @@ private:
     std::unique_ptr<SkBBHFactory> fFactory;
 };
 
-class ViaSecondPicture : public Via {
-public:
-    explicit ViaSecondPicture(Sink* sink) : Via(sink) {}
-    Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
-};
-
-class ViaSingletonPictures : public Via {
-public:
-    explicit ViaSingletonPictures(Sink* sink) : Via(sink) {}
-    Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
-};
-
-class ViaTwice : public Via {
-public:
-    explicit ViaTwice(Sink* sink) : Via(sink) {}
-    Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
-};
-
 class ViaSVG : public Via {
 public:
     explicit ViaSVG(Sink* sink) : Via(sink) {}
-    Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
-};
-
-class ViaMojo : public Via {
-public:
-    explicit ViaMojo(Sink* sink) : Via(sink) {}
     Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
 };
 
