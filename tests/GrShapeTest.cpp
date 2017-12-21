@@ -1934,66 +1934,80 @@ DEF_TEST(GrShape_lines, r) {
 }
 
 DEF_TEST(GrShape_stroked_lines, r) {
-    // Paints to try
-    SkPaint buttCap;
-    buttCap.setStyle(SkPaint::kStroke_Style);
-    buttCap.setStrokeWidth(4);
-    buttCap.setStrokeCap(SkPaint::kButt_Cap);
+    static constexpr SkScalar kIntervals1[] = {1.f, 0.f};
+    auto dash1 = SkDashPathEffect::Make(kIntervals1, SK_ARRAY_COUNT(kIntervals1), 0.f);
+    REPORTER_ASSERT(r, dash1);
+    static constexpr SkScalar kIntervals2[] = {10.f, 0.f, 5.f, 0.f};
+    auto dash2 = SkDashPathEffect::Make(kIntervals2, SK_ARRAY_COUNT(kIntervals2), 10.f);
+    REPORTER_ASSERT(r, dash2);
 
-    SkPaint squareCap = buttCap;
-    squareCap.setStrokeCap(SkPaint::kSquare_Cap);
+    sk_sp<SkPathEffect> pathEffects[] = {nullptr, std::move(dash1), std::move(dash2)};
 
-    SkPaint roundCap = buttCap;
-    roundCap.setStrokeCap(SkPaint::kRound_Cap);
+    for (const auto& pe : pathEffects) {
+        // Paints to try
+        SkPaint buttCap;
+        buttCap.setStyle(SkPaint::kStroke_Style);
+        buttCap.setStrokeWidth(4);
+        buttCap.setStrokeCap(SkPaint::kButt_Cap);
+        buttCap.setPathEffect(pe);
 
-    // vertical
-    SkPath linePath;
-    linePath.moveTo(4, 4);
-    linePath.lineTo(4, 5);
+        SkPaint squareCap = buttCap;
+        squareCap.setStrokeCap(SkPaint::kSquare_Cap);
+        squareCap.setPathEffect(pe);
 
-    SkPaint fill;
+        SkPaint roundCap = buttCap;
+        roundCap.setStrokeCap(SkPaint::kRound_Cap);
+        roundCap.setPathEffect(pe);
 
-    make_TestCase(r, linePath, buttCap)->compare(
-            r, TestCase(r, SkRect::MakeLTRB(2, 4, 6, 5), fill),
-            TestCase::kAllSame_ComparisonExpecation);
+        // vertical
+        SkPath linePath;
+        linePath.moveTo(4, 4);
+        linePath.lineTo(4, 5);
 
-    make_TestCase(r, linePath, squareCap)->compare(
-            r, TestCase(r, SkRect::MakeLTRB(2, 2, 6, 7), fill),
-            TestCase::kAllSame_ComparisonExpecation);
+        SkPaint fill;
 
-    make_TestCase(r, linePath, roundCap)->compare(r,
-        TestCase(r, SkRRect::MakeRectXY(SkRect::MakeLTRB(2, 2, 6, 7), 2, 2), fill),
-        TestCase::kAllSame_ComparisonExpecation);
+        make_TestCase(r, linePath, buttCap)->compare(
+                r, TestCase(r, SkRect::MakeLTRB(2, 4, 6, 5), fill),
+                TestCase::kAllSame_ComparisonExpecation);
 
-    // horizontal
-    linePath.reset();
-    linePath.moveTo(4, 4);
-    linePath.lineTo(5, 4);
+        make_TestCase(r, linePath, squareCap)->compare(
+                r, TestCase(r, SkRect::MakeLTRB(2, 2, 6, 7), fill),
+                TestCase::kAllSame_ComparisonExpecation);
 
-    make_TestCase(r, linePath, buttCap)->compare(
-            r, TestCase(r, SkRect::MakeLTRB(4, 2, 5, 6), fill),
-            TestCase::kAllSame_ComparisonExpecation);
-    make_TestCase(r, linePath, squareCap)->compare(
-            r, TestCase(r, SkRect::MakeLTRB(2, 2, 7, 6), fill),
-            TestCase::kAllSame_ComparisonExpecation);
-    make_TestCase(r, linePath, roundCap)->compare(
-            r, TestCase(r, SkRRect::MakeRectXY(SkRect::MakeLTRB(2, 2, 7, 6), 2, 2), fill),
-            TestCase::kAllSame_ComparisonExpecation);
+        make_TestCase(r, linePath, roundCap)->compare(r,
+                TestCase(r, SkRRect::MakeRectXY(SkRect::MakeLTRB(2, 2, 6, 7), 2, 2), fill),
+                TestCase::kAllSame_ComparisonExpecation);
 
-    // point
-    linePath.reset();
-    linePath.moveTo(4, 4);
-    linePath.lineTo(4, 4);
+        // horizontal
+        linePath.reset();
+        linePath.moveTo(4, 4);
+        linePath.lineTo(5, 4);
 
-    make_TestCase(r, linePath, buttCap)->compare(
-            r, TestCase(r, SkRect::MakeEmpty(), fill),
-            TestCase::kAllSame_ComparisonExpecation);
-    make_TestCase(r, linePath, squareCap)->compare(
-            r, TestCase(r, SkRect::MakeLTRB(2, 2, 6, 6), fill),
-            TestCase::kAllSame_ComparisonExpecation);
-    make_TestCase(r, linePath, roundCap)->compare(
-            r, TestCase(r, SkRRect::MakeRectXY(SkRect::MakeLTRB(2, 2, 6, 6), 2, 2), fill),
-            TestCase::kAllSame_ComparisonExpecation);
+        make_TestCase(r, linePath, buttCap)->compare(
+                r, TestCase(r, SkRect::MakeLTRB(4, 2, 5, 6), fill),
+                TestCase::kAllSame_ComparisonExpecation);
+        make_TestCase(r, linePath, squareCap)->compare(
+                r, TestCase(r, SkRect::MakeLTRB(2, 2, 7, 6), fill),
+                TestCase::kAllSame_ComparisonExpecation);
+        make_TestCase(r, linePath, roundCap)->compare(
+                r, TestCase(r, SkRRect::MakeRectXY(SkRect::MakeLTRB(2, 2, 7, 6), 2, 2), fill),
+                TestCase::kAllSame_ComparisonExpecation);
+
+        // point
+        linePath.reset();
+        linePath.moveTo(4, 4);
+        linePath.lineTo(4, 4);
+
+        make_TestCase(r, linePath, buttCap)->compare(
+                r, TestCase(r, SkRect::MakeEmpty(), fill),
+                TestCase::kAllSame_ComparisonExpecation);
+        make_TestCase(r, linePath, squareCap)->compare(
+                r, TestCase(r, SkRect::MakeLTRB(2, 2, 6, 6), fill),
+                TestCase::kAllSame_ComparisonExpecation);
+        make_TestCase(r, linePath, roundCap)->compare(
+                r, TestCase(r, SkRRect::MakeRectXY(SkRect::MakeLTRB(2, 2, 6, 6), 2, 2), fill),
+                TestCase::kAllSame_ComparisonExpecation);
+    }
 }
 
 DEF_TEST(GrShape_short_path_keys, r) {

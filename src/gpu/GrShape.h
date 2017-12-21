@@ -438,6 +438,8 @@ private:
     void attemptToSimplifyRRect();
     void attemptToSimplifyLine();
 
+    bool attemptToSimplifyStrokedLineToRRect();
+
     // Defaults to use when there is no distinction between even/odd and winding fills.
     static constexpr SkPath::FillType kDefaultPathFillType = SkPath::kEvenOdd_FillType;
     static constexpr SkPath::FillType kDefaultPathInverseFillType =
