@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8fbac43c_abef3cfb",
+        "filename": "src/shaders/gradients/SkGradientShaderPriv.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 307,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-12-21T19:44:54Z",
+      "side": 1,
+      "message": "(nit)\n\nDo these helpers have to be members?\n\nIf not, I would prefer to keep the change localized and have them as static helpers next to the only call site in SkTwoPointConicalGradient_gpu.cpp.\n\nI\u0027m assuming this is a one-shot thing for debugging, to be removed as soon as the problem is solved.",
+      "revId": "b5b2724d010261a40611e036997f7bee0168d1c4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d34e09dd_2698fafe",
+        "filename": "src/shaders/gradients/SkGradientShaderPriv.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 308,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-12-21T19:44:54Z",
+      "side": 1,
+      "message": "If fColorSpace guaranteed non-null?",
+      "range": {
+        "startLine": 308,
+        "startChar": 26,
+        "endLine": 308,
+        "endChar": 50
+      },
+      "revId": "b5b2724d010261a40611e036997f7bee0168d1c4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
