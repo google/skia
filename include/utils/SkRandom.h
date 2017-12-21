@@ -36,6 +36,9 @@ public:
     /** Return the next pseudo random number as an unsigned 32bit value.
      */
     uint32_t nextU() {
+#ifdef SK_DEBUG
+        fNextUCount++;
+#endif
         fK = kKMul*(fK & 0xffff) + (fK >> 16);
         fJ = kJMul*(fJ & 0xffff) + (fJ >> 16);
         return (((fK << 16) | (fK >> 16)) + fJ);
@@ -139,11 +142,26 @@ public:
      */
     void setSeed(uint32_t seed) { init(seed); }
 
+#ifdef SK_DEBUG
+    uint32_t seed() const { return fSeed; }
+    int nextUCount() const { return fNextUCount; }
+
+    void seek(int c) {
+        for(int i = 0; i < c; ++ i) {
+            this->nextU();
+        }
+    }
+#endif
+
 private:
     // Initialize state variables with LCG.
     // We must ensure that both J and K are non-zero, otherwise the
     // multiply-with-carry step will forevermore return zero.
     void init(uint32_t seed) {
+#ifdef SK_DEBUG
+        fSeed = seed;
+        fNextUCount = 0;
+#endif
         fK = NextLCG(seed);
         if (0 == fK) {
             fK = NextLCG(fK);
@@ -180,6 +198,11 @@ private:
 
     uint32_t fK;
     uint32_t fJ;
+
+#ifdef SK_DEBUG
+    uint32_t fSeed;
+    int fNextUCount;
+#endif
 };
 
 #endif

@@ -291,7 +291,7 @@ protected:
         the gradient factory. (The constructor may decide not to use stops, in which case fStops
         will be nullptr). */
     struct RandomGradientParams {
-        static const int kMaxRandomGradientColors = 5;
+        static constexpr int kMaxRandomGradientColors = 5;
 
         RandomGradientParams(SkRandom* r);
 
@@ -303,6 +303,51 @@ protected:
         SkShader::TileMode fTileMode;
         int fColorCount;
         SkScalar* fStops;
+
+        void dump() {
+            auto csData = fColorSpace->serialize();
+            SkDebugf("char csData[%d] = {", csData->size());
+            for(size_t i = 0; i < csData->size(); ++i) {
+                SkDebugf("%s%d", i == 0 ? "" : ", ",
+                         static_cast<const char*>(csData->data())[i]);
+            }
+            SkDebugf("};\n");
+            SkDebugf("sk_sp<SkColorSpace> colorSpace = SkColorSpace::Deserialize(csData, %d);\n",
+                     csData->size());
+
+            SkDebugf("RandomGradientParams params = {\n");
+            SkDebugf("    %d,\n", fUseColors4f);
+            SkDebugf("    %s,\n", Dump(fColors).c_str());
+            SkDebugf("    %s,\n", Dump(fColors4f).c_str());
+            SkDebugf("    colorSpace,\n");
+            SkDebugf("    %s,\n", Dump(fStopStorage).c_str());
+            SkDebugf("    %d,\n", fTileMode);
+            SkDebugf("    %d,\n", fColorCount);
+            SkDebugf("    nullptr\n};\n");
+
+            if (fStops != nullptr) {
+                // fStops is either nullptr or fStopStorage
+                SkDebugf("params.fStops = params.fStopStorage;\n");
+            }
+        }
+
+    private:
+        static SkString Dump(SkColor c) { return SkStringPrintf("%u", c); }
+        static SkString Dump(SkScalar f) { return SkStringPrintf("%f", f); }
+        static SkString Dump(SkColor4f c) {
+            return SkStringPrintf("{%f, %f, %f, %f}", c.fR, c.fG, c.fB, c.fA);
+        }
+
+        template<typename T>
+        static SkString Dump(T d[kMaxRandomGradientColors]) {
+            SkString result;
+            for(int i = 0; i < kMaxRandomGradientColors; ++ i) {
+                result.appendf("%s", i == 0 ? "{" : ", ");
+                result += Dump(d[i]);
+            }
+            result.appendf("}");
+            return result;
+        }
     };
     #endif
 
