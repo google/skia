@@ -82,7 +82,7 @@ public:
         SkDrawLooper, and SkImageFilter cannot be modified after they are created.
         This prevents objects with SkRefCnt from being modified once SkPaint refers to them.
 
-        @param paint  original to copy
+        @param paint  original to copy.
         @return       shallow copy of paint
     */
     SkPaint(const SkPaint& paint);
@@ -95,7 +95,7 @@ public:
         @param paint  original to move
         @return       content of paint
     */
-    SkPaint(SkPaint&& paint);
+    SkPaint(const SkPaint&& paint);
 
     /** Decreases SkPaint SkRefCnt of owned objects: SkTypeface, SkPathEffect, SkShader,
         SkMaskFilter, SkColorFilter, SkRasterizer, SkDrawLooper, and SkImageFilter. If the
