@@ -13,6 +13,7 @@
 #include "SkMathPriv.h"
 #include "SkMatrixPriv.h"
 #include "SkReadBuffer.h"
+#include "SkSafeMath.h"
 #include "SkStream.h"
 #include "SkTypeface.h"
 
@@ -104,6 +105,10 @@ const void* SkReadBuffer::skip(size_t size) {
 
     fReader.skip(size);
     return addr;
+}
+
+const void* SkReadBuffer::skip(size_t count, size_t size) {
+    return this->skip(SkSafeMath::Mul(count, size));
 }
 
 void SkReadBuffer::setDeserialProcs(const SkDeserialProcs& procs) {
