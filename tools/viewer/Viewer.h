@@ -22,6 +22,27 @@
 
 class SkCanvas;
 
+class ListWidget {
+public:
+    ListWidget(const char* name, const char** values, int numValues, std::function<int()> getValue,
+               std::function<void(int)> setValue);
+
+    void drawImGui();
+    Json::Value toJson();
+    void setValue(const SkString& value);
+
+private:
+    Json::Value& getValuesJson();
+
+    const char* fName;
+    const char** fValues;
+    int fNumValues;
+    std::function<int()> fGetValue;
+    std::function<void(int)> fSetValue;
+
+    Json::Value fValuesJson;
+};
+
 class Viewer : public sk_app::Application, sk_app::Window::Layer {
 public:
     Viewer(int argc, char** argv, void* platformData);
@@ -116,6 +137,8 @@ private:
     SkTArray<std::function<void(void)>> fDeferredActions;
 
     Json::Value            fAllSlideNames; // cache all slide names for fast updateUIState
+
+    std::unique_ptr<ListWidget> fBackendWidget;
 
     int fTileCnt;
     int fThreadCnt;

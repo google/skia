@@ -22,6 +22,7 @@
 #include "SkEventTracingPriv.h"
 #include "SkGraphics.h"
 #include "SkImagePriv.h"
+#include "SkMakeUnique.h"
 #include "SkOSFile.h"
 #include "SkOSPath.h"
 #include "SkPictureRecorder.h"
@@ -399,6 +400,15 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     }
     fImGuiGamutPaint.setColor(SK_ColorWHITE);
     fImGuiGamutPaint.setFilterQuality(kLow_SkFilterQuality);
+
+    fBackendWidget = skstd::make_unique<ListWidget>(
+        "Backend", kBackendTypeStrings, sk_app::Window::kBackendTypeCount,
+        [this]() { return fBackendType; },
+        [this](int newBackend) {
+            fDeferredActions.push_back([=]() {
+                this->setBackend(static_cast<sk_app::Window::BackendType>(newBackend));
+            });
+        });
 
     fWindow->attach(backend_type_for_window(fBackendType));
 }
@@ -938,6 +948,48 @@ static void ImGui_Primaries(SkColorSpacePrimaries* primaries, SkPaint* gamutPain
     ImGui::SetCursorPos(endPos);
 }
 
+ListWidget::ListWidget(const char* name, const char** values, int numValues,
+                       std::function<int()> getValue, std::function<void(int)> setValue)
+        : fName(name)
+        , fValues(values)
+        , fNumValues(numValues)
+        , fGetValue(std::move(getValue))
+        , fSetValue(std::move(setValue))
+        , fValuesJson(Json::arrayValue) {}
+
+void ListWidget::drawImGui() {
+    int currentValue = fGetValue();
+    if (ImGui::Combo(fName, &currentValue, fValues, fNumValues)) {
+        fSetValue(currentValue);
+    }
+}
+
+Json::Value ListWidget::toJson() {
+    Json::Value state(Json::objectValue);
+    state[kName] = fName;
+    state[kValue] = fValues[fGetValue()];
+    state[kOptions] = this->getValuesJson();
+    return state;
+}
+
+void ListWidget::setValue(const SkString& value) {
+    for (int i = 0; i < fNumValues; ++i) {
+        if (value.equals(fValues[i])) {
+            fSetValue(i);
+            break;
+        }
+    }
+}
+
+Json::Value& ListWidget::getValuesJson() {
+    if (fValuesJson.size() == 0) {
+        for (int i = 0; i < fNumValues; ++i) {
+            fValuesJson.append(Json::Value(fValues[i]));
+        }
+    }
+    return fValuesJson;
+}
+
 void Viewer::drawImGui() {
     // Support drawing the ImGui demo window. Superfluous, but gives a good idea of what's possible
     if (fShowImGuiTestWindow) {
@@ -953,23 +1005,7 @@ void Viewer::drawImGui() {
         if (ImGui::Begin("Tools", &fShowImGuiDebugWindow,
                          ImGuiWindowFlags_AlwaysVerticalScrollbar)) {
             if (ImGui::CollapsingHeader("Backend")) {
-                int newBackend = static_cast<int>(fBackendType);
-                ImGui::RadioButton("Raster", &newBackend, sk_app::Window::kRaster_BackendType);
-                ImGui::SameLine();
-                ImGui::RadioButton("OpenGL", &newBackend, sk_app::Window::kNativeGL_BackendType);
-#if SK_ANGLE && defined(SK_BUILD_FOR_WIN)
-                ImGui::SameLine();
-                ImGui::RadioButton("ANGLE", &newBackend, sk_app::Window::kANGLE_BackendType);
-#endif
-#if defined(SK_VULKAN)
-                ImGui::SameLine();
-                ImGui::RadioButton("Vulkan", &newBackend, sk_app::Window::kVulkan_BackendType);
-#endif
-                if (newBackend != fBackendType) {
-                    fDeferredActions.push_back([=]() {
-                        this->setBackend(static_cast<sk_app::Window::BackendType>(newBackend));
-                    });
-                }
+                fBackendWidget->drawImGui();
 
                 const GrContext* ctx = fWindow->getGrContext();
                 bool* wire = &params.fGrContextOptions.fWireframeMode;
@@ -977,7 +1013,7 @@ void Viewer::drawImGui() {
                     paramsChanged = true;
                 }
 
-                if (ctx) {
+                if (sk_app::Window::kRaster_BackendType != fBackendType) {
                     int sampleCount = fWindow->sampleCount();
                     ImGui::Text("MSAA: "); ImGui::SameLine();
                     ImGui::RadioButton("0", &sampleCount, 0); ImGui::SameLine();
@@ -1202,13 +1238,7 @@ void Viewer::updateUIState() {
     slideState[kOptions] = fAllSlideNames;
 
     // Backend state
-    Json::Value backendState(Json::objectValue);
-    backendState[kName] = kBackendStateName;
-    backendState[kValue] = kBackendTypeStrings[fBackendType];
-    backendState[kOptions] = Json::Value(Json::arrayValue);
-    for (auto str : kBackendTypeStrings) {
-        backendState[kOptions].append(Json::Value(str));
-    }
+    Json::Value backendState = fBackendWidget->toJson();
 
     // MSAA state
     Json::Value msaaState(Json::objectValue);
@@ -1306,16 +1336,7 @@ void Viewer::onUIStateChanged(const SkString& stateName, const SkString& stateVa
             SkDebugf("Slide not found: %s", stateValue.c_str());
         }
     } else if (stateName.equals(kBackendStateName)) {
-        for (int i = 0; i < sk_app::Window::kBackendTypeCount; i++) {
-            if (stateValue.equals(kBackendTypeStrings[i])) {
-                if (fBackendType != i) {
-                    fBackendType = (sk_app::Window::BackendType)i;
-                    fWindow->detach();
-                    fWindow->attach(backend_type_for_window(fBackendType));
-                }
-                break;
-            }
-        }
+        fBackendWidget->setValue(stateValue);
     } else if (stateName.equals(kMSAAStateName)) {
         DisplayParams params = fWindow->getRequestedDisplayParams();
         int sampleCount = atoi(stateValue.c_str());
