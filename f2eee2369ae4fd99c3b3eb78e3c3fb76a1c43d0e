@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "506f8832_608ee4cf",
+        "filename": "include/core/SkColorSpace.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-12-21T18:52:25Z",
+      "side": 1,
+      "message": "I\u0027m game to keep plowing forward.  I\u0027d think the best refactor to that code is probably to call one of the other 4 MakeRGB() methods instead of this SkGammaNamed one.  What do you think?",
+      "parentUuid": "df815c0c_6a798ceb",
+      "revId": "f2eee2369ae4fd99c3b3eb78e3c3fb76a1c43d0e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "95a0a9dd_e9a429ce",
         "filename": "src/core/SkColorSpace_ICC.cpp",
         "patchSetId": 1
