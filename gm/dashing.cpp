@@ -569,6 +569,42 @@ DEF_SIMPLE_GM(dashtextcaps, canvas, 512, 512) {
     canvas->drawLine(8, 120, 456, 120, p);
 }
 
+DEF_SIMPLE_GM(dash_line_zero_off_interval, canvas, 160, 330) {
+    static constexpr SkScalar kIntervals[] = {5.f, 0.f, 2.f, 0.f};
+    SkPaint dashPaint;
+    dashPaint.setPathEffect(SkDashPathEffect::Make(kIntervals, SK_ARRAY_COUNT(kIntervals), 0.f));
+    SkASSERT(dashPaint.getPathEffect());
+    dashPaint.setStyle(SkPaint::kStroke_Style);
+    dashPaint.setStrokeWidth(20.f);
+    static constexpr struct {
+        SkPoint fA, fB;
+    } kLines[] = {{{0.5f, 0.5f}, {30.5f, 0.5f}},    // horizontal
+                  {{0.5f, 0.5f}, {0.5f, 30.5f}},    // vertical
+                  {{0.5f, 0.5f}, {0.5f, 0.5f}},     // point
+                  {{0.5f, 0.5f}, {25.5f, 25.5f}}};  // diagonal
+    SkScalar pad = 5.f + dashPaint.getStrokeWidth();
+    canvas->translate(pad / 2.f, pad / 2.f);
+    canvas->save();
+    SkScalar h = 0.f;
+    for (const auto& line : kLines) {
+        h = SkTMax(h, SkScalarAbs(line.fA.fY - line.fB.fY));
+    }
+    for (const auto& line : kLines) {
+        SkScalar w = SkScalarAbs(line.fA.fX - line.fB.fX);
+        for (auto cap : {SkPaint::kButt_Cap, SkPaint::kSquare_Cap, SkPaint::kRound_Cap}) {
+            dashPaint.setStrokeCap(cap);
+            for (auto aa : {false, true}) {
+                dashPaint.setAntiAlias(aa);
+                canvas->drawLine(line.fA, line.fB, dashPaint);
+                canvas->translate(0.f, pad + h);
+            }
+        }
+        canvas->restore();
+        canvas->translate(pad + w, 0.f);
+        canvas->save();
+    }
+}
+
 //////////////////////////////////////////////////////////////////////////////
 
 DEF_GM(return new DashingGM;)
