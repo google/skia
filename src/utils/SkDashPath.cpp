@@ -369,6 +369,43 @@ bool SkDashPath::InternalFilter(SkPath* dst, const SkPath& src, SkStrokeRec* rec
     SkPath cullPathStorage;
     const SkPath* srcPtr = &src;
     if (cull_path(src, *rec, cullRect, intervalLength, &cullPathStorage)) {
+        // if rect is closed, starts in a dash, and ends in a dash, add the initial join
+        // potentially a better fix is described here: bug.skia.org/7445
+        if (src.isRect(nullptr) && src.isLastContourClosed() && is_even(initialDashIndex)) {
+            SkScalar pathLength = SkPathMeasure(src, false, rec->getResScale()).getLength();
+            SkScalar endPhase = SkScalarMod(pathLength + initialDashLength, intervalLength);
+            int index = 0;
+            while (endPhase > intervals[index]) {
+                endPhase -= intervals[index++];
+                SkASSERT(index <= count);
+            }
+            // if dash ends inside "on", or ends at beginning of "off"
+            if (is_even(index) == (endPhase > 0)) {
+                SkPoint midPoint = src.getPoint(0);
+                // get vector at end of rect
+                int last = src.countPoints() - 1;
+                while (midPoint == src.getPoint(last)) {
+                    --last;
+                    SkASSERT(last >= 0);
+                }
+                // get vector at start of rect
+                int next = 1;
+                while (midPoint == src.getPoint(next)) {
+                    ++next;
+                    SkASSERT(next < last);
+                }
+                SkVector v = midPoint - src.getPoint(last);
+                const SkScalar kTinyOffset = SK_ScalarNearlyZero;
+                // scale vector to make start of tiny right angle
+                v *= kTinyOffset;
+                cullPathStorage.moveTo(midPoint - v);
+                cullPathStorage.lineTo(midPoint);
+                v = midPoint - src.getPoint(next);
+                // scale vector to make end of tiny right angle
+                v *= kTinyOffset;
+                cullPathStorage.lineTo(midPoint - v);
+            }
+        }
         srcPtr = &cullPathStorage;
     }
 
