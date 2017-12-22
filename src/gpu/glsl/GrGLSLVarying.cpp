@@ -37,6 +37,7 @@ void GrGLSLVaryingHandler::internalAddVarying(const char* name, GrGLSLVarying* v
     VaryingInfo& v = fVaryings.push_back();
 
     SkASSERT(varying);
+    SkASSERT(kVoid_GrSLType != varying->fType);
     v.fType = varying->fType;
     v.fIsFlat = flat;
     fProgramBuilder->nameVariable(&v.fVsOut, 'v', name);
