@@ -167,7 +167,7 @@ private:
     const SkTArray<ScissorBatch, true> fScissorBatches;
     const SkISize fDrawBounds;
 
-    mutable SkTArray<GrMesh, true> fMeshesScratchBuffer;
+    mutable SkTArray<GrMesh> fMeshesScratchBuffer;
     mutable SkTArray<GrPipeline::DynamicState, true> fDynamicStatesScratchBuffer;
 
     friend class GrCCPRCoverageOpsBuilder;

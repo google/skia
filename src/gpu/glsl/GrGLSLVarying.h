@@ -24,7 +24,14 @@ public:
         kGeoToFrag
     };
 
+    GrGLSLVarying() = default;
     GrGLSLVarying(GrSLType type, Scope scope = Scope::kVertToFrag) : fType(type), fScope(scope) {}
+
+    void reset(GrSLType type, Scope scope = Scope::kVertToFrag) {
+        *this = GrGLSLVarying();
+        fType = type;
+        fScope = scope;
+    }
 
     GrSLType type() const { return fType; }
     Scope scope() const { return fScope; }
@@ -37,8 +44,8 @@ public:
     const char* fsIn() const { SkASSERT(this->isInFragmentShader()); return fFsIn; }
 
 private:
-    const GrSLType fType;
-    const Scope fScope;
+    GrSLType fType = kVoid_GrSLType;
+    Scope fScope = Scope::kVertToFrag;
     const char* fVsOut = nullptr;
     const char* fGsIn = nullptr;
     const char* fGsOut = nullptr;
