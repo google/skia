@@ -361,18 +361,15 @@ if actual_freq != str(freq):
           timeout=300,
           abort_on_failure=False)
 
-    # Only shutdown the device and quarantine the bot if the first failed step
+    # Only quarantine the bot if the first failed step
     # is an infra step. If, instead, we did this for any infra failures, we
-    # would shutdown too much. For example, if a Nexus 10 died during dm
+    # would do this too much. For example, if a Nexus 10 died during dm
     # and the following pull step would also fail "device not found" - causing
     # us to run the shutdown command when the device was probably not in a
     # broken state; it was just rebooting.
-    # Avoid doing this to machines in the Golo because they are harder to fix
-    # than local devices.
     if (self.m.run.failed_steps and
-        isinstance(self.m.run.failed_steps[0], recipe_api.InfraFailure) and
-        self.m.vars.builder_cfg.get('model') not in self._golo_devices):
-      self._adb('shut down device to quarantine bot', 'shell', 'reboot', '-p')
+        isinstance(self.m.run.failed_steps[0], recipe_api.InfraFailure)):
+      self.m.file.write_text('Quarantining Bot', '~/force_quarantine', ' ')
 
     if self._ever_ran_adb:
       self._adb('kill adb server', 'kill-server')

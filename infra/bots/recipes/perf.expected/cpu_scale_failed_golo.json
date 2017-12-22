@@ -919,6 +919,20 @@
   },
   {
     "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      " ",
+      "~/force_quarantine"
+    ],
+    "infra_step": true,
+    "name": "Quarantining Bot"
+  },
+  {
+    "cmd": [
       "/opt/infra-android/tools/adb",
       "kill-server"
     ],
