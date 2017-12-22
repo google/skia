@@ -91,7 +91,7 @@ class IsolateApi(recipe_api.RecipeApi):
       step_result.presentation.status = self.m.step.WARNING
 
   def isolate_tests(self, build_dir, targets=None, verbose=False,
-                    set_swarm_hashes=True, use_exparchive=False,
+                    set_swarm_hashes=True, always_use_exparchive=False,
                     **kwargs):
     """Archives prepared tests in |build_dir| to isolate server.
 
@@ -135,10 +135,10 @@ class IsolateApi(recipe_api.RecipeApi):
       return
 
     batch_targets = []
-    archive_targets = []
+    exparchive_targets = []
     for t in targets:
-      if t.endswith('_exparchive'):
-        archive_targets.append(t)
+      if t.endswith('_exparchive') or always_use_exparchive:
+        exparchive_targets.append(t)
       else:
         batch_targets.append(t)
 
@@ -146,13 +146,13 @@ class IsolateApi(recipe_api.RecipeApi):
     try:
       args = [
           self.m.swarming_client.path,
-          'archive',
+          'exparchive',
           '--dump-json', self.m.json.output(),
           '--isolate-server', self._isolate_server,
           '--eventlog-endpoint', 'prod',
       ] + (['--verbose'] if verbose else [])
 
-      for target in archive_targets:
+      for target in exparchive_targets:
         isolate_steps.append(
             self.m.python(
                 'isolate %s' % target,
