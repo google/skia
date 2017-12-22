@@ -337,8 +337,7 @@ size_t SkColorSpace::writeToMemory(void* memory) const {
     // we must have a profile that we can serialize easily.
     if (!this->onProfileData()) {
         // Profile data is mandatory for A2B0 color spaces.
-        SkASSERT(SkColorSpace_Base::Type::kXYZ == as_CSB(this)->type());
-        const SkColorSpace_XYZ* thisXYZ = static_cast<const SkColorSpace_XYZ*>(this);
+        SkASSERT(SkColorSpace_Base::Type::kA2B != as_CSB(this)->type());
         // If we have a named profile, only write the enum.
         const SkGammaNamed gammaNamed = this->gammaNamed();
         if (this == srgb()) {
@@ -370,13 +369,8 @@ size_t SkColorSpace::writeToMemory(void* memory) const {
                 return sizeof(ColorSpaceHeader) + 12 * sizeof(float);
             }
             default: {
-                const SkGammas* gammas = thisXYZ->gammas();
-                SkASSERT(gammas);
-                SkASSERT(gammas->isParametric(0));
-                SkASSERT(gammas->isParametric(1));
-                SkASSERT(gammas->isParametric(2));
-                SkASSERT(gammas->data(0) == gammas->data(1));
-                SkASSERT(gammas->data(0) == gammas->data(2));
+                SkColorSpaceTransferFn transferFn;
+                SkAssertResult(this->isNumericalTransferFn(&transferFn));
 
                 if (memory) {
                     *((ColorSpaceHeader*) memory) =
@@ -384,13 +378,13 @@ size_t SkColorSpace::writeToMemory(void* memory) const {
                                                    ColorSpaceHeader::kTransferFn_Flag);
                     memory = SkTAddOffset<void>(memory, sizeof(ColorSpaceHeader));
 
-                    *(((float*) memory) + 0) = gammas->params(0).fA;
-                    *(((float*) memory) + 1) = gammas->params(0).fB;
-                    *(((float*) memory) + 2) = gammas->params(0).fC;
-                    *(((float*) memory) + 3) = gammas->params(0).fD;
-                    *(((float*) memory) + 4) = gammas->params(0).fE;
-                    *(((float*) memory) + 5) = gammas->params(0).fF;
-                    *(((float*) memory) + 6) = gammas->params(0).fG;
+                    *(((float*) memory) + 0) = transferFn.fA;
+                    *(((float*) memory) + 1) = transferFn.fB;
+                    *(((float*) memory) + 2) = transferFn.fC;
+                    *(((float*) memory) + 3) = transferFn.fD;
+                    *(((float*) memory) + 4) = transferFn.fE;
+                    *(((float*) memory) + 5) = transferFn.fF;
+                    *(((float*) memory) + 6) = transferFn.fG;
                     memory = SkTAddOffset<void>(memory, 7 * sizeof(float));
 
                     this->toXYZD50()->as3x4RowMajorf((float*) memory);
