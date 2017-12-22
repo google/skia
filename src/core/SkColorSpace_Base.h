@@ -131,7 +131,6 @@ struct SkGammas : SkRefCnt {
 
 class SkColorSpace_Base : public SkColorSpace {
 public:
-
     enum class Type : uint8_t {
         kXYZ,
         kA2B
@@ -140,10 +139,6 @@ public:
     virtual Type type() const = 0;
 
 private:
-    friend class SkColorSpace;
-    friend class SkColorSpace_XYZ;
-    friend class ColorSpaceXformTest;
-    friend class ColorSpaceTest;
     typedef SkColorSpace INHERITED;
 };
 
