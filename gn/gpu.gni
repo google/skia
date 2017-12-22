@@ -301,6 +301,7 @@ skia_gpu_sources = [
   "$_src/gpu/ccpr/GrCCPRCoverageOp.h",
   "$_src/gpu/ccpr/GrCCPRCoverageProcessor.cpp",
   "$_src/gpu/ccpr/GrCCPRCoverageProcessor_GSImpl.cpp",
+  "$_src/gpu/ccpr/GrCCPRCoverageProcessor_VSImpl.cpp",
   "$_src/gpu/ccpr/GrCCPRCoverageProcessor.h",
   "$_src/gpu/ccpr/GrCCPRCubicShader.cpp",
   "$_src/gpu/ccpr/GrCCPRCubicShader.h",
