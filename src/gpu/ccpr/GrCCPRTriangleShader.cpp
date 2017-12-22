@@ -13,16 +13,14 @@
 using Shader = GrCCPRCoverageProcessor::Shader;
 
 Shader::WindHandling GrCCPRTriangleShader::onEmitVaryings(GrGLSLVaryingHandler* varyingHandler,
-                                                          GrGLSLVarying::Scope scope,
                                                           SkString* code, const char* /*position*/,
                                                           const char* coverage, const char* wind) {
-    fCoverageTimesWind.reset(kHalf_GrSLType, scope);
     if (!coverage) {
         varyingHandler->addFlatVarying("wind", &fCoverageTimesWind);
-        code->appendf("%s = %s;", OutName(fCoverageTimesWind), wind);
+        code->appendf("%s = %s;", fCoverageTimesWind.gsOut(), wind);
     } else {
         varyingHandler->addVarying("coverage_times_wind", &fCoverageTimesWind);
-        code->appendf("%s = %s * %s;", OutName(fCoverageTimesWind), coverage, wind);
+        code->appendf("%s = %s * %s;", fCoverageTimesWind.gsOut(), coverage, wind);
     }
     return WindHandling::kHandled;
 }
@@ -87,23 +85,18 @@ void GrCCPRTriangleCornerShader::emitSetupCode(GrGLSLVertexGeoBuilder* s, const 
 }
 
 Shader::WindHandling
-GrCCPRTriangleCornerShader::onEmitVaryings(GrGLSLVaryingHandler* varyingHandler,
-                                           GrGLSLVarying::Scope scope, SkString* code,
+GrCCPRTriangleCornerShader::onEmitVaryings(GrGLSLVaryingHandler* varyingHandler, SkString* code,
                                            const char* position, const char* coverage,
                                            const char* /*wind*/) {
     SkASSERT(!coverage);
 
-    fCornerLocationInAABoxes.reset(kFloat2x2_GrSLType, scope);
     varyingHandler->addVarying("corner_location_in_aa_boxes", &fCornerLocationInAABoxes);
-
-    fBisectInAABoxes.reset(kFloat2x2_GrSLType, scope);
     varyingHandler->addFlatVarying("bisect_in_aa_boxes", &fBisectInAABoxes);
-
     code->appendf("for (int i = 0; i < 2; ++i) {");
     code->appendf(    "%s[i] = %s * %s[i] + %s[i];",
-                      OutName(fCornerLocationInAABoxes), position, fAABoxMatrices.c_str(),
+                      fCornerLocationInAABoxes.gsOut(), position, fAABoxMatrices.c_str(),
                       fAABoxTranslates.c_str());
-    code->appendf(    "%s[i] = %s[i];", OutName(fBisectInAABoxes), fGeoShaderBisects.c_str());
+    code->appendf(    "%s[i] = %s[i];", fBisectInAABoxes.gsOut(), fGeoShaderBisects.c_str());
     code->appendf("}");
 
     return WindHandling::kNotHandled;

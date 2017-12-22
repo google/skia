@@ -28,14 +28,14 @@ protected:
     virtual void onEmitSetupCode(GrGLSLVertexGeoBuilder*, const char* pts, const char* repetitionID,
                                  GeometryVars*) const = 0;
 
-    WindHandling onEmitVaryings(GrGLSLVaryingHandler*, GrGLSLVarying::Scope, SkString* code,
-                                const char* position, const char* coverage, const char* wind) final;
+    WindHandling onEmitVaryings(GrGLSLVaryingHandler*, SkString* code, const char* position,
+                                const char* coverage, const char* wind) final;
 
-    virtual void onEmitVaryings(GrGLSLVaryingHandler*, GrGLSLVarying::Scope, SkString* code) {}
+    virtual void onEmitVaryings(GrGLSLVaryingHandler*, SkString* code) = 0;
 
     const GrShaderVar fCanonicalMatrix{"canonical_matrix", kFloat3x3_GrSLType};
     const GrShaderVar fEdgeDistanceEquation{"edge_distance_equation", kFloat3_GrSLType};
-    GrGLSLVarying fXYD;
+    GrGLSLVarying fXYD{kFloat3_GrSLType, GrGLSLVarying::Scope::kGeoToFrag};
 };
 
 /**
@@ -47,10 +47,10 @@ protected:
 class GrCCPRQuadraticHullShader : public GrCCPRQuadraticShader {
     void onEmitSetupCode(GrGLSLVertexGeoBuilder*, const char* pts, const char* repetitionID,
                          GeometryVars*) const override;
-    void onEmitVaryings(GrGLSLVaryingHandler*, GrGLSLVarying::Scope, SkString* code) override;
+    void onEmitVaryings(GrGLSLVaryingHandler*, SkString* code) override;
     void onEmitFragmentCode(GrGLSLPPFragmentBuilder*, const char* outputCoverage) const override;
 
-    GrGLSLVarying fGrad;
+    GrGLSLVarying fGrad{kFloat2_GrSLType, GrGLSLVarying::Scope::kGeoToFrag};
 };
 
 /**
@@ -59,11 +59,11 @@ class GrCCPRQuadraticHullShader : public GrCCPRQuadraticShader {
 class GrCCPRQuadraticCornerShader : public GrCCPRQuadraticShader {
     void onEmitSetupCode(GrGLSLVertexGeoBuilder*, const char* pts, const char* repetitionID,
                          GeometryVars*) const override;
-    void onEmitVaryings(GrGLSLVaryingHandler*, GrGLSLVarying::Scope, SkString* code) override;
+    void onEmitVaryings(GrGLSLVaryingHandler*, SkString* code) override;
     void onEmitFragmentCode(GrGLSLPPFragmentBuilder*, const char* outputCoverage) const override;
 
-    GrGLSLVarying fdXYDdx;
-    GrGLSLVarying fdXYDdy;
+    GrGLSLVarying fdXYDdx{kFloat3_GrSLType, GrGLSLVarying::Scope::kGeoToFrag};
+    GrGLSLVarying fdXYDdy{kFloat3_GrSLType, GrGLSLVarying::Scope::kGeoToFrag};
 };
 
 #endif
