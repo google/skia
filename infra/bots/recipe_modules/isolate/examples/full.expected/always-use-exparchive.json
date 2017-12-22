@@ -94,9 +94,9 @@
     "stdout": "/path/to/tmp/json",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@json.output@[@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"test_exparchive\", @@@",
       "@@@STEP_LOG_LINE@json.output@  \"test1\", @@@",
-      "@@@STEP_LOG_LINE@json.output@  \"test2\", @@@",
-      "@@@STEP_LOG_LINE@json.output@  \"test_exparchive\"@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"test2\"@@@",
       "@@@STEP_LOG_LINE@json.output@]@@@",
       "@@@STEP_LOG_END@json.output@@@"
     ]
@@ -128,7 +128,7 @@
       "-u",
       "RECIPE_MODULE[skia::isolate]/resources/isolate.py",
       "[START_DIR]/swarming.client",
-      "archive",
+      "exparchive",
       "--dump-json",
       "/path/to/tmp/json",
       "--isolate-server",
@@ -154,18 +154,47 @@
       "-u",
       "RECIPE_MODULE[skia::isolate]/resources/isolate.py",
       "[START_DIR]/swarming.client",
-      "batcharchive",
+      "exparchive",
       "--dump-json",
       "/path/to/tmp/json",
       "--isolate-server",
       "https://isolateserver-dev.appspot.com",
-      "RECIPE_PACKAGE_REPO[skia]/test1.isolated.gen.json",
-      "RECIPE_PACKAGE_REPO[skia]/test2.isolated.gen.json"
+      "--eventlog-endpoint",
+      "prod",
+      "--isolate",
+      "RECIPE_PACKAGE_REPO[skia]/test1.isolate",
+      "--isolated",
+      "RECIPE_PACKAGE_REPO[skia]/test1.isolated"
     ],
-    "name": "isolate tests",
+    "name": "isolate test1",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@json.output@{@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"test1\": \"[dummy hash for test1]\", @@@",
+      "@@@STEP_LOG_LINE@json.output@  \"test1\": \"[dummy hash for test1]\"@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[skia::isolate]/resources/isolate.py",
+      "[START_DIR]/swarming.client",
+      "exparchive",
+      "--dump-json",
+      "/path/to/tmp/json",
+      "--isolate-server",
+      "https://isolateserver-dev.appspot.com",
+      "--eventlog-endpoint",
+      "prod",
+      "--isolate",
+      "RECIPE_PACKAGE_REPO[skia]/test2.isolate",
+      "--isolated",
+      "RECIPE_PACKAGE_REPO[skia]/test2.isolated"
+    ],
+    "name": "isolate test2",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@json.output@{@@@",
       "@@@STEP_LOG_LINE@json.output@  \"test2\": \"[dummy hash for test2]\"@@@",
       "@@@STEP_LOG_LINE@json.output@}@@@",
       "@@@STEP_LOG_END@json.output@@@",

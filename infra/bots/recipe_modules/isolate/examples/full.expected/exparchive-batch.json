@@ -128,7 +128,7 @@
       "-u",
       "RECIPE_MODULE[skia::isolate]/resources/isolate.py",
       "[START_DIR]/swarming.client",
-      "archive",
+      "exparchive",
       "--dump-json",
       "/path/to/tmp/json",
       "--isolate-server",
