@@ -115,6 +115,7 @@ public:
     size_t offset() { return fReader.offset(); }
     bool eof() { return fReader.eof(); }
     const void* skip(size_t size);
+    const void* skip(size_t count, size_t size);    // does safe multiply
 
     // primitives
     bool readBool();
