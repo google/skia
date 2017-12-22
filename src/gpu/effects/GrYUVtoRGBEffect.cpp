@@ -46,7 +46,7 @@ std::unique_ptr<GrFragmentProcessor> GrYUVtoRGBEffect::Make(sk_sp<GrTextureProxy
              (sizes[2].fWidth != sizes[0].fWidth) || (sizes[2].fHeight != sizes[0].fHeight))
                     ? GrSamplerState::Filter::kBilerp
                     : GrSamplerState::Filter::kNearest;
-    SkMatrix44 mat;
+    SkMatrix44 mat(SkMatrix44::kUninitialized_Constructor);
     switch (colorSpace) {
         case kJPEG_SkYUVColorSpace:
             mat.setColMajorf(kJPEGConversionMatrix);
