@@ -1348,6 +1348,7 @@ Returns IRect { 0, 0, width(), height() }.
 #Example
 #Height 128
 #Image 4
+    canvas->scale(.5f, .5f);
     SkIRect bounds = source.bounds();
     for (int x : { 0, bounds.width() } ) {
         for (int y : { 0, bounds.height() } ) {
