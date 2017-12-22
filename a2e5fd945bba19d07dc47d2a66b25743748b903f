@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "34a3c31b_ae7b114b",
+        "filename": "src/core/SkColorSpace.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 338,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-12-22T21:39:20Z",
+      "side": 1,
+      "message": "Maybe a longer question, but can we not just construct an ICC profile?  I thought we already do this, somewhere in Android?  It\u0027d be nice to just serialize as ICC profiles... kind of keeps us honest.",
+      "range": {
+        "startLine": 338,
+        "startChar": 9,
+        "endLine": 338,
+        "endChar": 30
+      },
+      "revId": "a2e5fd945bba19d07dc47d2a66b25743748b903f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cd7b28e5_46e9467a",
+        "filename": "src/core/SkColorSpace.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 340,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-12-22T21:39:20Z",
+      "side": 1,
+      "message": "Remind me, is this the same as,\n\n  SkASSERT(SkToBool(this-\u003etoXYZD50()));\n\n?  I ask because\n\n1)  type() seems like something we want to delete rather than promote to SkColorSpace\n2)  we seem to dereference this-\u003etoXYZD50() without a null check\n\nMight be we actually want to do something a bit more defensive, like call\n\n  SkMatrix44 gamut;\n  if (!this-\u003etoXZYD50(\u0026gamut)) {\n     return error of some sort;\n  }\n  ...",
+      "revId": "a2e5fd945bba19d07dc47d2a66b25743748b903f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
