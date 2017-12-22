@@ -82,7 +82,7 @@ layout(key) in bool nv12;
              (sizes[2].fHeight != sizes[0].fHeight)) ?
             GrSamplerState::Filter::kBilerp :
             GrSamplerState::Filter::kNearest;
-        SkMatrix44 mat;
+        SkMatrix44 mat(SkMatrix44::kUninitialized_Constructor);
         switch (colorSpace) {
             case kJPEG_SkYUVColorSpace:
                 mat.setColMajorf(kJPEGConversionMatrix);
