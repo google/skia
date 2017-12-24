@@ -20,7 +20,6 @@ class SkEmptyPicture final : public SkPicture {
 public:
     void playback(SkCanvas*, AbortCallback*) const override { }
 
-    size_t approximateBytesUsed() const override { return sizeof(*this); }
     int    approximateOpCount()   const override { return 0; }
     SkRect cullRect()             const override { return SkRect::MakeEmpty(); }
 };
@@ -53,7 +52,6 @@ public:
         SkRecords::Draw(c, nullptr, nullptr, 0, nullptr)(fOp);
     }
 
-    size_t approximateBytesUsed() const override { return sizeof(*this); }
     int    approximateOpCount()   const override { return 1; }
     SkRect cullRect()             const override { return fCull; }
 
