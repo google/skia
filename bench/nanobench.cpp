@@ -1059,6 +1059,7 @@ public:
             }
         }
         if (0 == strcmp(fBenchType, "recording")) {
+            log->metric("bytes", 0); // TODO: update bot expectations so we can remove this
             log->metric("ops",   fSKPOps);
         }
     }
