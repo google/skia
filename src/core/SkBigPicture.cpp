@@ -15,8 +15,10 @@
 SkBigPicture::SkBigPicture(const SkRect& cull,
                            SkRecord* record,
                            SnapshotArray* drawablePicts,
-                           SkBBoxHierarchy* bbh)
+                           SkBBoxHierarchy* bbh,
+                           size_t approxBytesUsedBySubPictures)
     : fCullRect(cull)
+    , fApproxBytesUsedBySubPictures(approxBytesUsedBySubPictures)
     , fRecord(record)               // Take ownership of caller's ref.
     , fDrawablePicts(drawablePicts) // Take ownership.
     , fBBH(bbh)                     // Take ownership of caller's ref.
@@ -52,7 +54,12 @@ void SkBigPicture::partialPlayback(SkCanvas* canvas,
 }
 
 SkRect SkBigPicture::cullRect()            const { return fCullRect; }
-int    SkBigPicture::approximateOpCount()  const { return fRecord->count(); }
+int    SkBigPicture::approximateOpCount()   const { return fRecord->count(); }
+size_t SkBigPicture::approximateBytesUsed() const {
+    size_t bytes = sizeof(*this) + fRecord->bytesUsed() + fApproxBytesUsedBySubPictures;
+    if (fBBH) { bytes += fBBH->bytesUsed(); }
+    return bytes;
+}
 
 int SkBigPicture::drawableCount() const {
     return fDrawablePicts ? fDrawablePicts->count() : 0;

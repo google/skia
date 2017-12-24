@@ -102,6 +102,9 @@ public:
      */
     virtual int approximateOpCount() const = 0;
 
+    /** Returns the approximate byte size of this picture, not including large ref'd objects. */
+    virtual size_t approximateBytesUsed() const = 0;
+
     // Returns NULL if this is not an SkBigPicture.
     virtual const SkBigPicture* asSkBigPicture() const { return nullptr; }
 
