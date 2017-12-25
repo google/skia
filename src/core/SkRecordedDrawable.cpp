@@ -31,9 +31,14 @@ SkPicture* SkRecordedDrawable::onNewPictureSnapshot() {
         pictList = fDrawableList->newDrawableSnapshot();
     }
 
+    size_t subPictureBytes = 0;
+    for (int i = 0; pictList && i < pictList->count(); i++) {
+        subPictureBytes += pictList->begin()[i]->approximateBytesUsed();
+    }
     // SkBigPicture will take ownership of a ref on both fRecord and fBBH.
     // We're not willing to give up our ownership, so we must ref them for SkPicture.
-    return new SkBigPicture(fBounds, SkRef(fRecord.get()), pictList, SkSafeRef(fBBH.get()));
+    return new SkBigPicture(fBounds, SkRef(fRecord.get()), pictList, SkSafeRef(fBBH.get()),
+                            subPictureBytes);
 }
 
 void SkRecordedDrawable::flatten(SkWriteBuffer& buffer) const {
