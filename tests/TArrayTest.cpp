@@ -140,82 +140,95 @@ void test_copy_ctor(skiatest::Reporter* reporter, SkTArray<T, MEM_MOVE>&& array)
 }
 
 static void test_move(skiatest::Reporter* reporter) {
-#define TEST_MOVE do {                                 \
-    SRC_T src;                                         \
-    src.emplace_back(sk_make_sp<SkRefCnt>());          \
-    {                                                  \
-        /* copy ctor */                                \
-        DST_T copy(src);                               \
-        REPORTER_ASSERT(reporter, !copy[0]->unique()); \
-    }                                                  \
-    {                                                  \
-        /* move ctor */                                \
-        DST_T move(std::move(src));                    \
-        REPORTER_ASSERT(reporter, move[0]->unique());  \
-    }                                                  \
-    REPORTER_ASSERT(reporter, src.empty());            \
-    src.emplace_back(sk_make_sp<SkRefCnt>());          \
-    {                                                  \
-        /* copy assignment */                          \
-        DST_T copy;                                    \
-        copy = src;                                    \
-        REPORTER_ASSERT(reporter, !copy[0]->unique()); \
-    }                                                  \
-    {                                                  \
-        /* move assignment */                          \
-        DST_T move;                                    \
-        move = std::move(src);                         \
-        REPORTER_ASSERT(reporter, move[0]->unique());  \
-    }                                                  \
-    REPORTER_ASSERT(reporter, src.empty());            \
+#define TEST_MOVE(expect_steal_storage) do {                         \
+    {                                                                \
+        SRC_T src;                                                   \
+        src.emplace_back(sk_make_sp<SkRefCnt>());                    \
+        const auto* srcBegin = src.begin();                          \
+        {                                                            \
+            /* copy ctor */                                          \
+            DST_T copy(src);                                         \
+            REPORTER_ASSERT(reporter, !copy[0]->unique());           \
+            REPORTER_ASSERT(reporter, copy.begin() != srcBegin);     \
+        }                                                            \
+        {                                                            \
+            /* move ctor */                                          \
+            DST_T move(std::move(src));                              \
+            REPORTER_ASSERT(reporter, move[0]->unique());            \
+            REPORTER_ASSERT(reporter,                                \
+                (move.begin() == srcBegin) == expect_steal_storage); \
+        }                                                            \
+        REPORTER_ASSERT(reporter, src.empty());                      \
+    }                                                                \
+    {                                                                \
+        SRC_T src;                                                   \
+        src.emplace_back(sk_make_sp<SkRefCnt>());                    \
+        const auto* srcBegin = src.begin();                          \
+        {                                                            \
+            /* copy assignment */                                    \
+            DST_T copy;                                              \
+            copy = src;                                              \
+            REPORTER_ASSERT(reporter, !copy[0]->unique());           \
+            REPORTER_ASSERT(reporter, copy.begin() != srcBegin);     \
+        }                                                            \
+        {                                                            \
+            /* move assignment */                                    \
+            DST_T move;                                              \
+            move = std::move(src);                                   \
+            REPORTER_ASSERT(reporter, move[0]->unique());            \
+            REPORTER_ASSERT(reporter,                                \
+                (move.begin() == srcBegin) == expect_steal_storage); \
+        }                                                            \
+        REPORTER_ASSERT(reporter, src.empty());                      \
+    }                                                                \
 } while (false)
 
     {
         using SRC_T = SkTArray<sk_sp<SkRefCnt>, false>;
         using DST_T = SkTArray<sk_sp<SkRefCnt>, false>;
-        TEST_MOVE;
+        TEST_MOVE(true);
     }
 
     {
         using SRC_T = SkTArray<sk_sp<SkRefCnt>, true>;
         using DST_T = SkTArray<sk_sp<SkRefCnt>, true>;
-        TEST_MOVE;
+        TEST_MOVE(true);
     }
 
     {
         using SRC_T = SkSTArray<1, sk_sp<SkRefCnt>, false>;
         using DST_T = SkSTArray<1, sk_sp<SkRefCnt>, false>;
-        TEST_MOVE;
+        TEST_MOVE(false);
     }
 
     {
         using SRC_T = SkSTArray<1, sk_sp<SkRefCnt>, true>;
         using DST_T = SkSTArray<1, sk_sp<SkRefCnt>, true>;
-        TEST_MOVE;
+        TEST_MOVE(false);
     }
 
     {
         using SRC_T = SkTArray<sk_sp<SkRefCnt>, false>;
         using DST_T = SkSTArray<1, sk_sp<SkRefCnt>, false>;
-        TEST_MOVE;
+        TEST_MOVE(false);
     }
 
     {
         using SRC_T = SkTArray<sk_sp<SkRefCnt>, true>;
         using DST_T = SkSTArray<1, sk_sp<SkRefCnt>, true>;
-        TEST_MOVE;
+        TEST_MOVE(false);
     }
 
     {
         using SRC_T = SkSTArray<1, sk_sp<SkRefCnt>, false>;
         using DST_T = SkTArray<sk_sp<SkRefCnt>, false>;
-        TEST_MOVE;
+        TEST_MOVE(false);
     }
 
     {
         using SRC_T = SkSTArray<1, sk_sp<SkRefCnt>, true>;
         using DST_T = SkTArray<sk_sp<SkRefCnt>, true>;
-        TEST_MOVE;
+        TEST_MOVE(false);
     }
 #undef TEST_MOVE
 }
