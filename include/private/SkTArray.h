@@ -42,10 +42,8 @@ public:
     }
 
     explicit SkTArray(SkTArray&& that) {
-        // TODO: If 'that' owns its memory why don't we just steal the pointer?
-        this->init(that.fCount);
-        that.move(fMemArray);
-        that.fCount = 0;
+        this->init();
+        *this = std::move(that);
     }
 
     /**
@@ -71,6 +69,7 @@ public:
         this->copy(that.fItemArray);
         return *this;
     }
+
     SkTArray& operator=(SkTArray&& that) {
         if (this == &that) {
             return *this;
@@ -78,10 +77,29 @@ public:
         for (int i = 0; i < fCount; ++i) {
             fItemArray[i].~T();
         }
-        fCount = 0;
-        this->checkRealloc(that.count());
-        fCount = that.count();
-        that.move(fMemArray);
+
+        // Steal the src storage iff it owns the allocation
+        // AND the count doesn't fit in dest's preallocated storage.
+        if (that.fOwnMemory && that.fCount > fAllocCount) {
+            if (fOwnMemory) {
+                sk_free(fMemArray);
+            }
+
+            fCount      = that.fCount;
+            fAllocCount = that.fAllocCount;
+            fMemArray   = that.fMemArray;
+            fReserved   = that.fReserved;
+            fOwnMemory  = true;
+
+            that.fMemArray   = nullptr;
+            that.fAllocCount = 0;
+        } else {
+            fCount = 0;
+            this->checkRealloc(that.count());
+            fCount = that.count();
+            that.move(fMemArray);
+        }
+
         that.fCount = 0;
         return *this;
     }
