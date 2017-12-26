@@ -1,2 +1,3 @@
 include ':viewer'
 include ':skqp'
+include ':skqpapp'
