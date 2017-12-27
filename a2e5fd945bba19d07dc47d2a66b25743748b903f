@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "e6fdc828_9b06e8f3",
+        "filename": "src/core/SkColorSpace.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 338,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-12-27T14:24:31Z",
+      "side": 1,
+      "message": "Yes, I think that\u0027s a good strategy. Our current ICC code is (unsurprisingly) incomplete and fairly intertwined with the runtime representation of XYZ and A2B profiles. I do think having an intermediate parsed-ICC representation (eg SkICC) is going to be helpful, for both directions.\n\nOne (minor) issue is that we would need to encode non-ICC data (the blending flag) using a private tag. That\u0027s supported in the format (and we could even register it with ICC so that other people don\u0027t accidentally use the same one), but if we use \u0027skia\u0027, I think we\u0027re probably okay.",
+      "parentUuid": "34a3c31b_ae7b114b",
+      "range": {
+        "startLine": 338,
+        "startChar": 9,
+        "endLine": 338,
+        "endChar": 30
+      },
+      "revId": "a2e5fd945bba19d07dc47d2a66b25743748b903f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "cd7b28e5_46e9467a",
         "filename": "src/core/SkColorSpace.cpp",
         "patchSetId": 2
@@ -36,6 +60,24 @@
       "writtenOn": "2017-12-22T21:39:20Z",
       "side": 1,
       "message": "Remind me, is this the same as,\n\n  SkASSERT(SkToBool(this-\u003etoXYZD50()));\n\n?  I ask because\n\n1)  type() seems like something we want to delete rather than promote to SkColorSpace\n2)  we seem to dereference this-\u003etoXYZD50() without a null check\n\nMight be we actually want to do something a bit more defensive, like call\n\n  SkMatrix44 gamut;\n  if (!this-\u003etoXZYD50(\u0026gamut)) {\n     return error of some sort;\n  }\n  ...",
+      "revId": "a2e5fd945bba19d07dc47d2a66b25743748b903f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0b706652_538be75a",
+        "filename": "src/core/SkColorSpace.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 340,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-12-27T14:24:31Z",
+      "side": 1,
+      "message": "Yes. At this point, I was just rewriting this so that it would be clear that the code does work with the proposed new color space, although I think your version makes that even clearer. type() is definitely a mess, due to the remaining uses of the derived types (often to use SkGammas), and because we don\u0027t - yet - have a replacement for usage of A2B. This is where I think having a parsed ICC representation is going to be necessary - we need to figure out how the \"pure xform\" library is going to work - how much information do we need extracted from the profile to implement the transformations for complex profiles?",
+      "parentUuid": "cd7b28e5_46e9467a",
       "revId": "a2e5fd945bba19d07dc47d2a66b25743748b903f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
