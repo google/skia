@@ -51,6 +51,7 @@ private:
     friend class Draw;
     friend class EffectNode;
     friend class Group;
+    friend class Stroke;
 
     template <typename Func>
     void forEachInvalReceiver(Func&&) const;
