@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "87122bee_bba382ea",
+        "filename": "src/shaders/gradients/SkTwoPointConicalGradient_gpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 439,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-12-27T22:17:32Z",
+      "side": 1,
+      "message": "can you a comment for this if, \"We want to check if the end radius is zero and if so we swap it with the start radius. Because of numerical precision, we check if r0 + (r1-r0) is zero\".",
+      "range": {
+        "startLine": 439,
+        "startChar": 11,
+        "endLine": 439,
+        "endChar": 61
+      },
+      "revId": "39331828d913576cbc90f517f7ddf2636f904126",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
