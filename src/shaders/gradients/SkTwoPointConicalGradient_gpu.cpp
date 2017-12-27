@@ -172,10 +172,23 @@ std::unique_ptr<GrFragmentProcessor> TwoPointConicalEffect::TestCreate(
     int type = mask & kTestTypeMask;
     if (type == TwoPointConicalEffect::kRadial_Type) {
         center2 = center1;
+        // Make sure that the radii are different
+        if (SkScalarNearlyZero(radius1 - radius2)) {
+            radius2 += .1f;
+        }
     } else if (type == TwoPointConicalEffect::kStrip_Type) {
         radius1 = SkTMax(radius1, .1f); // Make sure that the radius is non-zero
         radius2 = radius1;
+        // Make sure that the centers are different
+        if (SkScalarNearlyZero(SkPoint::Distance(center1, center2))) {
+            center2.fX += .1f;
+        }
     } else { // kFocal_Type
+        // Make sure that the centers are different
+        if (SkScalarNearlyZero(SkPoint::Distance(center1, center2))) {
+            center2.fX += .1f;
+        }
+
         if (kTestNativelyFocalBit & mask) {
             radius1 = 0;
         }
@@ -186,12 +199,18 @@ std::unique_ptr<GrFragmentProcessor> TwoPointConicalEffect::TestCreate(
             std::swap(radius1, radius2);
             radius2 = 0;
         }
+
+        // Make sure that the radii are different
+        if (SkScalarNearlyZero(radius1 - radius2)) {
+            radius2 += .1f;
+        }
     }
 
     if (SkScalarNearlyZero(radius1 - radius2) &&
             SkScalarNearlyZero(SkPoint::Distance(center1, center2))) {
         radius2 += .1f; // make sure that we're not degenerated
     }
+
     RandomGradientParams params(d->fRandom);
     auto shader = params.fUseColors4f ?
         SkGradientShader::MakeTwoPointConical(center1, radius1, center2, radius2,
