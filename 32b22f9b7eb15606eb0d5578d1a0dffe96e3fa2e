@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "fd0acf25_e0edbbdb",
+        "filename": "src/shaders/gradients/SkTwoPointConicalGradient_gpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-12-27T16:35:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "442d75fd_38cb41f3",
+      "range": {
+        "startLine": 174,
+        "startChar": 8,
+        "endLine": 174,
+        "endChar": 25
+      },
+      "revId": "32b22f9b7eb15606eb0d5578d1a0dffe96e3fa2e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d03fbc5c_a9273aab",
         "filename": "src/shaders/gradients/SkTwoPointConicalGradient_gpu.cpp",
         "patchSetId": 1
@@ -45,6 +69,30 @@
       "revId": "32b22f9b7eb15606eb0d5578d1a0dffe96e3fa2e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "910f5e3b_9b4dd382",
+        "filename": "src/shaders/gradients/SkTwoPointConicalGradient_gpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 177,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-12-27T16:35:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d03fbc5c_a9273aab",
+      "range": {
+        "startLine": 176,
+        "startChar": 8,
+        "endLine": 177,
+        "endChar": 26
+      },
+      "revId": "32b22f9b7eb15606eb0d5578d1a0dffe96e3fa2e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "16968e4f_dfcde889",
+        "filename": "src/shaders/gradients/SkTwoPointConicalGradient_gpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 191,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-12-27T16:35:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b5e495ec_bbbc76c9",
+      "range": {
+        "startLine": 189,
+        "startChar": 6,
+        "endLine": 191,
+        "endChar": 5
+      },
+      "revId": "32b22f9b7eb15606eb0d5578d1a0dffe96e3fa2e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d45c59c4_daa75d27",
         "filename": "src/shaders/gradients/SkTwoPointConicalGradient_gpu.cpp",
         "patchSetId": 1
@@ -91,6 +163,30 @@
       "revId": "32b22f9b7eb15606eb0d5578d1a0dffe96e3fa2e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ba99f8fb_b7b778b0",
+        "filename": "src/shaders/gradients/SkTwoPointConicalGradient_gpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 199,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-12-27T16:35:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d45c59c4_daa75d27",
+      "range": {
+        "startLine": 198,
+        "startChar": 8,
+        "endLine": 199,
+        "endChar": 62
+      },
+      "revId": "32b22f9b7eb15606eb0d5578d1a0dffe96e3fa2e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
