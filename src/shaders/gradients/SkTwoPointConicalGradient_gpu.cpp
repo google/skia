@@ -436,7 +436,7 @@ TwoPointConicalEffect::Data::Data(const SkTwoPointConicalGradient& shader, SkMat
             fType = kStrip_Type;
         } else { // focal case
             fType = kFocal_Type;
-            if (SkScalarNearlyZero(shader.getEndRadius())) {
+            if (SkScalarNearlyZero(fRadius0 + fDiffRadius)) {
                 // swap r0, r1
                 matrix.postTranslate(-1, 0);
                 matrix.postScale(-1, 1);
