@@ -97,6 +97,8 @@ GrDrawOp::RequiresDstTexture GrAtlasTextOp::finalize(const GrCaps& caps,
             break;
     }
     auto analysis = fProcessors.finalize(color, coverage, clip, false, caps, dstIsClamped, &fColor);
+    // We need to update the per-geo color after analysis, too. This one is sent per-vertex.
+    fGeoData[0].fColor = fColor;
     fUsesLocalCoords = analysis.usesLocalCoords();
     fCanCombineOnTouchOrOverlap =
             !analysis.requiresDstTexture() &&
