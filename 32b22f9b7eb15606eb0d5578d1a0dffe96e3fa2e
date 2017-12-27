@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "442d75fd_38cb41f3",
+        "filename": "src/shaders/gradients/SkTwoPointConicalGradient_gpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-12-27T16:23:07Z",
+      "side": 1,
+      "message": "Need to make sure radius1 !\u003d radius2 here",
+      "range": {
+        "startLine": 174,
+        "startChar": 8,
+        "endLine": 174,
+        "endChar": 25
+      },
+      "revId": "32b22f9b7eb15606eb0d5578d1a0dffe96e3fa2e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d03fbc5c_a9273aab",
+        "filename": "src/shaders/gradients/SkTwoPointConicalGradient_gpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 177,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-12-27T16:23:07Z",
+      "side": 1,
+      "message": "need to make sure center1 !\u003d center2 here",
+      "range": {
+        "startLine": 176,
+        "startChar": 8,
+        "endLine": 177,
+        "endChar": 26
+      },
+      "revId": "32b22f9b7eb15606eb0d5578d1a0dffe96e3fa2e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b5e495ec_bbbc76c9",
+        "filename": "src/shaders/gradients/SkTwoPointConicalGradient_gpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 191,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-12-27T16:23:07Z",
+      "side": 1,
+      "message": "I don\u0027t think this else is needed, and just leave the focal as an else. You just need to make sure at the bottom of this case that (radius1 !\u003d radius2 || (center !\u003d center2 \u0026\u0026 radius1 !\u003d0))",
+      "range": {
+        "startLine": 189,
+        "startChar": 6,
+        "endLine": 191,
+        "endChar": 5
+      },
+      "revId": "32b22f9b7eb15606eb0d5578d1a0dffe96e3fa2e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d45c59c4_daa75d27",
+        "filename": "src/shaders/gradients/SkTwoPointConicalGradient_gpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 199,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-12-27T16:23:07Z",
+      "side": 1,
+      "message": "Its weird to say that we can \"handle\" this case, cause the spec says it is invalid and nothing is to be drawn.",
+      "range": {
+        "startLine": 198,
+        "startChar": 8,
+        "endLine": 199,
+        "endChar": 62
+      },
+      "revId": "32b22f9b7eb15606eb0d5578d1a0dffe96e3fa2e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
