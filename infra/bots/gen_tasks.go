@@ -115,6 +115,11 @@ func linuxGceDimensions() []string {
 	}
 }
 
+func deriveCalmbuildTaskName(jobName string, parts map[string]string) string {
+	// Currently we only have one build target
+	return "Calmbuild-Debian9-Clang-x86_64-Release"
+}
+
 // deriveCompileTaskName returns the name of a compile task based on the given
 // job name.
 func deriveCompileTaskName(jobName string, parts map[string]string) string {
@@ -770,9 +775,9 @@ func infra(b *specs.TasksCfgBuilder, name string) string {
 	return name
 }
 
-// calmbench generates a calmbench task. Returns the name of the last task in the
+// calmbuild generates a calmbuild task. Returns the name of the last task in the
 // generated chain of tasks, which the Job should add as a dependency.
-func calmbench(b *specs.TasksCfgBuilder, name string, parts map[string]string) string {
+func calmbuild(b *specs.TasksCfgBuilder, name string, parts map[string]string) string {
 	s := &specs.TaskSpec{
 		CipdPackages: []*specs.CipdPackage{b.MustGetCipdPackageFromAsset("clang_linux")},
 		Dimensions:   swarmDimensions(parts),
@@ -791,7 +796,33 @@ func calmbench(b *specs.TasksCfgBuilder, name string, parts map[string]string) s
 		Priority: 0.8,
 	}
 
-	s.Dependencies = append(s.Dependencies, ISOLATE_SKP_NAME, ISOLATE_SVG_NAME)
+	b.MustAddTask(name, s)
+
+	return name
+}
+
+// calmbench generates a calmbench task. Returns the name of the last task in the
+// generated chain of tasks, which the Job should add as a dependency.
+func calmbench(b *specs.TasksCfgBuilder, name string, parts map[string]string, calmbuildTaskName string) string {
+	s := &specs.TaskSpec{
+		CipdPackages: []*specs.CipdPackage{b.MustGetCipdPackageFromAsset("clang_linux")},
+		Dimensions:   swarmDimensions(parts),
+		ExtraArgs: []string{
+			"--workdir", "../../..", "calmbench",
+			fmt.Sprintf("repository=%s", specs.PLACEHOLDER_REPO),
+			fmt.Sprintf("buildername=%s", name),
+			fmt.Sprintf("swarm_out_dir=%s", specs.PLACEHOLDER_ISOLATED_OUTDIR),
+			fmt.Sprintf("revision=%s", specs.PLACEHOLDER_REVISION),
+			fmt.Sprintf("patch_repo=%s", specs.PLACEHOLDER_PATCH_REPO),
+			fmt.Sprintf("patch_storage=%s", specs.PLACEHOLDER_PATCH_STORAGE),
+			fmt.Sprintf("patch_issue=%s", specs.PLACEHOLDER_ISSUE),
+			fmt.Sprintf("patch_set=%s", specs.PLACEHOLDER_PATCHSET),
+		},
+		Isolate:  relpath("infra_skia.isolate"),
+		Priority: 0.8,
+	}
+
+	s.Dependencies = append(s.Dependencies, ISOLATE_SKP_NAME, ISOLATE_SVG_NAME, calmbuildTaskName)
 
 	b.MustAddTask(name, s)
 
@@ -1144,9 +1175,20 @@ func process(b *specs.TasksCfgBuilder, name string) {
 		deps = append(deps, compile(b, name, parts))
 	}
 
+	// Compile bots for calmbench (it has to comiple two versions of nanobench)
+	if parts["role"] == "Calmbuild" {
+		deps = append(deps, calmbuild(b, name, parts))
+	}
+
 	// Calmbench bots.
 	if parts["role"] == "Calmbench" {
-		deps = append(deps, calmbench(b, name, parts))
+		calmbuildTaskName := deriveCalmbuildTaskName(name, parts)
+		compileTaskParts, err := jobNameSchema.ParseJobName(calmbuildTaskName)
+		if err != nil {
+			glog.Fatal(err)
+		}
+		calmbuild(b, calmbuildTaskName, compileTaskParts)
+		deps = append(deps, calmbench(b, name, parts, calmbuildTaskName))
 	}
 
 	// Most remaining bots need a compile task.
