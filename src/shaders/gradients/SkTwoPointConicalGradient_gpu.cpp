@@ -455,7 +455,9 @@ TwoPointConicalEffect::Data::Data(const SkTwoPointConicalGradient& shader, SkMat
             fType = kStrip_Type;
         } else { // focal case
             fType = kFocal_Type;
-            if (SkScalarNearlyZero(shader.getEndRadius())) {
+            // We want to check if the end radius is zero and if so we swap it with the start
+            // radius. Because of numerical precision, we check if r0 + (r1-r0) is zero
+            if (SkScalarNearlyZero(fRadius0 + fDiffRadius)) {
                 // swap r0, r1
                 matrix.postTranslate(-1, 0);
                 matrix.postScale(-1, 1);
