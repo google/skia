@@ -22,6 +22,30 @@
       "revId": "39331828d913576cbc90f517f7ddf2636f904126",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a0f3d56c_7df72e3b",
+        "filename": "src/shaders/gradients/SkTwoPointConicalGradient_gpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 439,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-12-28T15:04:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "87122bee_bba382ea",
+      "range": {
+        "startLine": 439,
+        "startChar": 11,
+        "endLine": 439,
+        "endChar": 61
+      },
+      "revId": "39331828d913576cbc90f517f7ddf2636f904126",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
