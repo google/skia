@@ -114,23 +114,7 @@ sk_sp<SkFlattenable> SkMergeImageFilter::CreateProc(SkReadBuffer& buffer) {
     if (!common.unflatten(buffer, -1)) {
         return nullptr;
     }
-
-    const int count = common.inputCount();
-    if (buffer.isVersionLT(SkReadBuffer::kNoModesInMergeImageFilter_Verison)) {
-        bool hasModes = buffer.readBool();
-        if (hasModes) {
-            // Older pictures may have stored blendmodes, but by inspection we think these were
-            // all src-over, so we have removed support for storing these.
-            SkAutoSTArray<4, uint8_t> modes8(count);
-            if (!buffer.readByteArray(modes8.get(), count)) {
-                return nullptr;
-            }
-            if (!buffer.isValid()) {
-                return nullptr;
-            }
-        }
-    }
-    return Make(common.inputs(), count, &common.cropRect());
+    return Make(common.inputs(), common.inputCount(), &common.cropRect());
 }
 
 void SkMergeImageFilter::flatten(SkWriteBuffer& buffer) const {
