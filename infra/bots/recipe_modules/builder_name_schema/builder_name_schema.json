@@ -49,6 +49,12 @@
       "arch",
       "configuration"
     ],
+    "Calmbuild": [
+      "os",
+      "compiler",
+      "target_arch",
+      "configuration"
+    ],
     "Calmbench": [
       "os",
       "compiler",
