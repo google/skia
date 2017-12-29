@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d39a4367_178dc05d",
+        "filename": "src/core/SkReadBuffer.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-12-29T17:14:16Z",
+      "side": 0,
+      "message": "do we still care about this validation?",
+      "range": {
+        "startLine": 174,
+        "startChar": 8,
+        "endLine": 174,
+        "endChar": 42
+      },
+      "revId": "f3504d430cec35330017aa2af3a51083801c7dd9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

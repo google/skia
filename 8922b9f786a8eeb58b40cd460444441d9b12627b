@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c710163a_5e30f32e",
+        "filename": "src/core/SkReadBuffer.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 236,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-12-29T17:14:16Z",
+      "side": 1,
+      "message": "So this saturates to size_t, and we may read less than requested without invalidating the buffer?",
+      "range": {
+        "startLine": 236,
+        "startChar": 34,
+        "endLine": 236,
+        "endChar": 68
+      },
+      "revId": "8922b9f786a8eeb58b40cd460444441d9b12627b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
