@@ -128,6 +128,9 @@ public:
     // peek
     uint8_t peekByte();
 
+    // Reads SkAlign4(bytes), but will only copy bytes into the buffer.
+    bool readPad32(void* buffer, size_t bytes);
+
     // strings -- the caller is responsible for freeing the string contents
     void readString(SkString* string);
 
@@ -156,9 +159,6 @@ public:
     sk_sp<SkPathEffect> readPathEffect() { return this->readFlattenable<SkPathEffect>(); }
     sk_sp<SkRasterizer> readRasterizer() { return this->readFlattenable<SkRasterizer>(); }
     sk_sp<SkShader> readShader() { return this->readFlattenable<SkShaderBase>(); }
-
-    // Reads SkAlign4(bytes), but will only copy bytes into the buffer.
-    bool readPad32(void* buffer, size_t bytes);
 
     // binary data and arrays
     bool readByteArray(void* value, size_t size);
