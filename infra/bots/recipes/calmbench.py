@@ -49,6 +49,11 @@ def RunSteps(api):
         '--githash', api.vars.got_revision,
     ]
 
+    if 'Calmbuild' in api.properties['buildername']:
+      command.append('--compile-only')
+    else:
+      command.append('--no-compile')
+
     keys_blacklist = ['configuration', 'role', 'test_filter']
     command.append('--key')
     for k in sorted(api.vars.builder_cfg.keys()):
@@ -60,6 +65,7 @@ def RunSteps(api):
 
 def GenTests(api):
   builders = [
+    "Calmbuild-Debian9-Clang-x86_64-Release",
     "Calmbench-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All",
     "Calmbench-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-All",
   ]
