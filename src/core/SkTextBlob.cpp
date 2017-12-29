@@ -790,13 +790,20 @@ void SkTextBlob::flatten(SkWriteBuffer& buffer) const {
 }
 
 sk_sp<SkTextBlob> SkTextBlob::MakeFromBuffer(SkReadBuffer& reader) {
+    const int runCount = reader.isVersionLT(SkReadBuffer::kTextBlobImplicitRunCount_Version)
+    ? reader.read32() : std::numeric_limits<int>::max();
+    if (runCount < 0) {
+        return nullptr;
+    }
+
     SkRect bounds;
     reader.readRect(&bounds);
 
     SkTextBlobBuilder blobBuilder;
-    for (;;) {
+    for (int i = 0; i < runCount; ++i) {
         int glyphCount = reader.read32();
-        if (glyphCount == 0) {
+        if (glyphCount == 0 &&
+            !reader.isVersionLT(SkReadBuffer::kTextBlobImplicitRunCount_Version)) {
             // End-of-runs marker.
             break;
         }
