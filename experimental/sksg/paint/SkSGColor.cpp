@@ -11,10 +11,8 @@ namespace sksg {
 
 Color::Color(SkColor c) : fColor(c) {}
 
-SkPaint Color::onMakePaint() const {
-    SkPaint paint;
-    paint.setColor(fColor);
-    return paint;
+void Color::onApplyToPaint(SkPaint* paint) const {
+    paint->setColor(fColor);
 }
 
 } // namespace sksg

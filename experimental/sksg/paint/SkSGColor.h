@@ -24,7 +24,7 @@ public:
     SG_ATTRIBUTE(Color, SkColor, fColor)
 
 protected:
-    SkPaint onMakePaint() const override;
+    void onApplyToPaint(SkPaint*) const override;
 
 private:
     explicit Color(SkColor);
