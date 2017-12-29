@@ -36,12 +36,12 @@ public:
     /**
      * Copies one array to another. The new array will be heap allocated.
      */
-    explicit SkTArray(const SkTArray& that) {
+    SkTArray(const SkTArray& that) {
         this->init(that.fCount);
         this->copy(that.fItemArray);
     }
 
-    explicit SkTArray(SkTArray&& that) {
+    SkTArray(SkTArray&& that) {
         // TODO: If 'that' owns its memory why don't we just steal the pointer?
         this->init(that.fCount);
         that.move(fMemArray);
