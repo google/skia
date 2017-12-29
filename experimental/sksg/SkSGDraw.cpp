@@ -8,6 +8,7 @@
 #include "SkSGDraw.h"
 
 #include "SkSGGeometryNode.h"
+#include "SkSGInvalidationController.h"
 #include "SkSGPaintNode.h"
 
 namespace sksg {
@@ -31,8 +32,16 @@ void Draw::onRender(SkCanvas* canvas) const {
 void Draw::onRevalidate(InvalidationController* ic, const SkMatrix& ctm) {
     SkASSERT(this->isInvalidated());
 
+    // TODO: paint bounds extents
+    const auto oldBounds = fGeometry->fBounds;
+
     fGeometry->revalidate(ic, ctm);
     fPaint->revalidate(ic, ctm);
+
+    ic->inval(oldBounds, ctm);
+    if (fGeometry->fBounds != oldBounds) {
+        ic->inval(fGeometry->fBounds, ctm);
+    }
 }
 
 } // namespace sksg
