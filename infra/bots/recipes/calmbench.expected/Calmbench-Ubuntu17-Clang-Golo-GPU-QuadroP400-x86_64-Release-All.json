@@ -229,6 +229,7 @@
       "--concise",
       "--githash",
       "9046e2e693bb92a76e972b694580e5d17ad10748",
+      "--no-compile",
       "--key",
       "arch",
       "x86_64",

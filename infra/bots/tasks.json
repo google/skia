@@ -5450,7 +5450,8 @@
       ],
       "dependencies": [
         "Housekeeper-PerCommit-IsolateSKP",
-        "Housekeeper-PerCommit-IsolateSVG"
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Calmbuild-Debian9-Clang-x86_64-Release"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -5483,7 +5484,8 @@
       ],
       "dependencies": [
         "Housekeeper-PerCommit-IsolateSKP",
-        "Housekeeper-PerCommit-IsolateSVG"
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Calmbuild-Debian9-Clang-x86_64-Release"
       ],
       "dimensions": [
         "gpu:10de:1cb3-384.59",
@@ -5496,6 +5498,40 @@
         "calmbench",
         "repository=<(REPO)",
         "buildername=Calmbench-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-All",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "infra_skia.isolate",
+      "priority": 0.8
+    },
+    "Calmbuild-Debian9-Clang-x86_64-Release": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/clang_linux",
+          "path": "clang_linux",
+          "version": "version:10"
+        }
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "os:Debian-9.2",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "calmbench",
+        "repository=<(REPO)",
+        "buildername=Calmbuild-Debian9-Clang-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
