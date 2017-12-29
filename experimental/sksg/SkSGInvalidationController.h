@@ -8,6 +8,7 @@
 #ifndef SkSGInvalidationController_DEFINED
 #define SkSGInvalidationController_DEFINED
 
+#include "SkMatrix.h"
 #include "SkTDArray.h"
 #include "SkTypes.h"
 
@@ -24,7 +25,7 @@ class InvalidationController : public SkNoncopyable {
 public:
     InvalidationController();
 
-    void inval(const SkRect&);
+    void inval(const SkRect&, const SkMatrix& ctm = SkMatrix::I());
 
     const SkRect* begin() const { return fRects.begin(); }
     const SkRect* end()   const { return fRects.end(); }

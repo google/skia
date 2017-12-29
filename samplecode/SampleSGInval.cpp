@@ -62,6 +62,10 @@ protected:
     }
 
     bool onAnimate(const SkAnimTimer& timer) override {
+        if (!fRoot) {
+            return true;
+        }
+
         static constexpr SkScalar kSize = 50;
         static constexpr SkScalar kRate = 1.0f / 500;
         const auto t = timer.msec() * kRate;
