@@ -20,7 +20,15 @@ const SkPaint& PaintNode::makePaint() {
 void PaintNode::onRevalidate(InvalidationController*, const SkMatrix&) {
     SkASSERT(this->isInvalidated());
 
-    fPaint = this->onMakePaint();
+    fPaint.reset();
+    fPaint.setAntiAlias(fAntiAlias);
+    fPaint.setStyle(fStyle);
+    fPaint.setStrokeWidth(fStrokeWidth);
+    fPaint.setStrokeMiter(fStrokeMiter);
+    fPaint.setStrokeJoin(fStrokeJoin);
+    fPaint.setStrokeCap(fStrokeCap);
+
+    this->onApplyToPaint(&fPaint);
 }
 
 } // namespace sksg
