@@ -22,18 +22,31 @@ namespace sksg {
  */
 class PaintNode : public Node {
 public:
-
     const SkPaint& makePaint();
+
+    SG_ATTRIBUTE(AntiAlias  , bool          , fAntiAlias  )
+    SG_ATTRIBUTE(StrokeWidth, SkScalar      , fStrokeWidth)
+    SG_ATTRIBUTE(StrokeMiter, SkScalar      , fStrokeMiter)
+    SG_ATTRIBUTE(Style      , SkPaint::Style, fStyle      )
+    SG_ATTRIBUTE(StrokeJoin , SkPaint::Join , fStrokeJoin )
+    SG_ATTRIBUTE(StrokeCap  , SkPaint::Cap  , fStrokeCap  )
 
 protected:
     PaintNode();
 
-    virtual SkPaint onMakePaint() const = 0;
+    virtual void onApplyToPaint(SkPaint*) const = 0;
 
     void onRevalidate(InvalidationController*, const SkMatrix&) override;
 
 private:
-    SkPaint fPaint;
+    SkPaint        fPaint;
+
+    SkScalar       fStrokeWidth = 1,
+                   fStrokeMiter = 4;
+    bool           fAntiAlias   = false;
+    SkPaint::Style fStyle       = SkPaint::kFill_Style;
+    SkPaint::Join  fStrokeJoin  = SkPaint::kMiter_Join;
+    SkPaint::Cap   fStrokeCap   = SkPaint::kButt_Cap;
 
     typedef Node INHERITED;
 };

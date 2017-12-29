@@ -1372,7 +1372,6 @@ if (skia_enable_tools) {
       "experimental/sksg/geometry/SkSGPath.cpp",
       "experimental/sksg/geometry/SkSGRect.cpp",
       "experimental/sksg/paint/SkSGColor.cpp",
-      "experimental/sksg/paint/SkSGStroke.cpp",
     ]
     deps = [
       ":skia",
