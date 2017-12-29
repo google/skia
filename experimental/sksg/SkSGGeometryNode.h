@@ -41,6 +41,8 @@ protected:
     void onRevalidate(InvalidationController*, const SkMatrix&) override;
 
 private:
+    friend class Draw; // wants to know the cached bounds.
+
     SkRect fBounds;
 
     typedef Node INHERITED;
