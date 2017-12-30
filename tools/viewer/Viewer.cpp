@@ -11,6 +11,7 @@
 #include "ImageSlide.h"
 #include "Resources.h"
 #include "SampleSlide.h"
+#include "SkottySlide.h"
 #include "SKPSlide.h"
 
 #include "GrContext.h"
@@ -68,9 +69,11 @@ static DEFINE_bool(list, false, "List samples?");
 #ifdef SK_BUILD_FOR_ANDROID
 static DEFINE_string(skps, "/data/local/tmp/skps", "Directory to read skps from.");
 static DEFINE_string(jpgs, "/data/local/tmp/resources", "Directory to read jpgs from.");
+static DEFINE_string(jsons, "/data/local/tmp/jsons", "Directory to read (Bodymovin) jsons from.");
 #else
 static DEFINE_string(skps, "skps", "Directory to read skps from.");
 static DEFINE_string(jpgs, "jpgs", "Directory to read jpgs from.");
+static DEFINE_string(jsons, "jsons", "Directory to read (Bodymovin) jsons from.");
 #endif
 
 static DEFINE_string2(backend, b, "sw", "Backend to use. Allowed values are " BACKENDS_STR ".");
@@ -478,6 +481,19 @@ void Viewer::initSlides() {
             if (slide) {
                 fSlides.push_back(slide);
             }
+        }
+    }
+
+    // JSONs
+    for (const auto& json : FLAGS_jsons) {
+        SkOSFile::Iter it(json.c_str(), ".json");
+        SkString jsonName;
+        while (it.next(&jsonName)) {
+            if (SkCommandLineFlags::ShouldSkip(FLAGS_match, jsonName.c_str())) {
+                continue;
+            }
+            fSlides.push_back(sk_make_sp<SkottySlide>(jsonName, SkOSPath::Join(json.c_str(),
+                                                                               jsonName.c_str())));
         }
     }
 }
