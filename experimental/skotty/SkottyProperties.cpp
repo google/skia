@@ -39,6 +39,11 @@ bool ParsePoints(const Json::Value& v, PointArray* pts) {
 } // namespace
 
 bool ScalarValue::Parse(const Json::Value& v, ScalarValue* scalar) {
+    // Some files appear to wrap keyframes in arrays for no reason.
+    if (v.isArray() && v.size() == 1) {
+        return Parse(v[0], scalar);
+    }
+
     if (v.isNull() || !v.isConvertibleTo(Json::realValue))
         return false;
 
@@ -68,8 +73,8 @@ bool ShapeValue::Parse(const Json::Value& v, ShapeValue* shape) {
                outPts,
                verts;
 
-    // Some files appear to wrap these in arrays for no reason.
-    if (v.isArray()) {
+    // Some files appear to wrap keyframes in arrays for no reason.
+    if (v.isArray() && v.size() == 1) {
         return Parse(v[0], shape);
     }
 
@@ -135,6 +140,7 @@ SkPath ShapeValue::as<SkPath>() const {
 
     if (fClose) {
         addCubic(fVertices.back(), fVertices.front(), &path);
+        path.close();
     }
 
     return path;
