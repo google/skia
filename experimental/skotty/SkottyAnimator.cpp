@@ -54,6 +54,9 @@ void KeyframeInterval<ShapeValue>::lerp(float t, ShapeValue* v) const {
                 lerp_point(fV0.fVertices[i].fVertex  , fV1.fVertices[i].fVertex  , t)
             }));
     }
+
+    // hmm, any meaningful interpolation to consider here?
+    v->fClose = fV0.fClose;
 }
 
 } // namespace skotty
