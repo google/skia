@@ -17,8 +17,8 @@ InvalidationController::InvalidationController() {}
 void InvalidationController::inval(const SkRect& r, const SkMatrix& ctm) {
     SkTCopyOnFirstWrite<SkRect> rect(r);
 
-    if (!ctm.isIdentity() && !ctm.mapRect(rect.writable())) {
-        *rect.writable() = SkRect::MakeLTRB(SK_ScalarMin, SK_ScalarMin, SK_ScalarMax, SK_ScalarMax);
+    if (!ctm.isIdentity()) {
+        ctm.mapRect(rect.writable());
     }
 
     fRects.push(*rect);
