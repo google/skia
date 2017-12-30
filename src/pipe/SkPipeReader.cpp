@@ -552,8 +552,8 @@ static void drawImageLattice_handler(SkPipeReader& reader, uint32_t packedVerb, 
     if (packedVerb & kHasFlags_DrawImageLatticeMask) {
         int32_t count = (lattice.fXCount + 1) * (lattice.fYCount + 1);
         SkASSERT(count > 0);
-        lattice.fRectTypes = skip<SkCanvas::Lattice::RectType>(reader, SkAlign4(count));
-        lattice.fColors = skip<SkColor>(reader, SkAlign4(count));
+        lattice.fRectTypes = skip<SkCanvas::Lattice::RectType>(reader, count);
+        lattice.fColors = skip<SkColor>(reader, count);
     } else {
         lattice.fRectTypes = nullptr;
         lattice.fColors = nullptr;
