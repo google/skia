@@ -20,6 +20,7 @@
 class SkPath;
 
 namespace sksg {
+class RRect;
 class RenderNode;
 class Transform;
 }
@@ -99,6 +100,25 @@ struct ShapeValue {
   private:                                            \
     p_type f##p_name = p_default;                     \
   public:
+
+// TODO: this is artificial, since the properties are not really composite and
+//       could be applied discretely.  Only used as an adaptor due to the lack
+//       of a decent SKSG setRadii() API.
+class CompositeRRect final : public SkRefCnt {
+public:
+    explicit CompositeRRect(sk_sp<sksg::RRect>);
+
+    COMPOSITE_PROPERTY(Position, SkPoint              , SkPoint::Make(0, 0))
+    COMPOSITE_PROPERTY(Size    , SkSize               , SkSize::Make(0, 0))
+    COMPOSITE_PROPERTY(Radii   , std::vector<SkScalar>, std::vector<SkScalar>())
+
+private:
+    void apply();
+
+    sk_sp<sksg::RRect> fRRectNode;
+
+    using INHERITED = SkRefCnt;
+};
 
 class CompositeTransform final : public SkRefCnt {
 public:

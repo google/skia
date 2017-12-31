@@ -11,6 +11,7 @@
 #include "SkSGGeometryNode.h"
 
 #include "SkRect.h"
+#include "SkRRect.h"
 
 class SkCanvas;
 class SkPaint;
@@ -20,7 +21,7 @@ namespace sksg {
 /**
  * Concrete Geometry node, wrapping an SkRect.
  */
-class Rect : public GeometryNode {
+class Rect final : public GeometryNode {
 public:
     static sk_sp<Rect> Make()                { return sk_sp<Rect>(new Rect(SkRect::MakeEmpty())); }
     static sk_sp<Rect> Make(const SkRect& r) { return sk_sp<Rect>(new Rect(r)); }
@@ -39,6 +40,27 @@ private:
     explicit Rect(const SkRect&);
 
     SkRect fRect;
+};
+
+/**
+ * Concrete Geometry node, wrapping an SkRRect.
+ */
+class RRect final : public GeometryNode {
+public:
+    static sk_sp<RRect> Make()                  { return sk_sp<RRect>(new RRect(SkRRect())); }
+    static sk_sp<RRect> Make(const SkRRect& rr) { return sk_sp<RRect>(new RRect(rr)); }
+
+    SG_ATTRIBUTE(RRect, SkRRect, fRRect)
+
+protected:
+    void onDraw(SkCanvas*, const SkPaint&) const override;
+
+    SkRect onComputeBounds() const override;
+
+private:
+    explicit RRect(const SkRRect&);
+
+    SkRRect fRRect;
 };
 
 } // namespace sksg

@@ -10,6 +10,7 @@
 #include "SkColor.h"
 #include "SkottyPriv.h"
 #include "SkPath.h"
+#include "SkSGRect.h"
 #include "SkSGTransform.h"
 
 namespace  skotty {
@@ -121,6 +122,24 @@ SkPoint VectorValue::as<SkPoint>() const {
 }
 
 template <>
+SkSize VectorValue::as<SkSize>() const {
+    const auto pt = this->as<SkPoint>();
+    return SkSize::Make(pt.x(), pt.y());
+}
+
+template <>
+std::vector<SkScalar> VectorValue::as<std::vector<SkScalar>>() const {
+    std::vector<SkScalar> vec;
+    vec.reserve(fVals.count());
+
+    for (const auto& val : fVals) {
+        vec.push_back(val);
+    }
+
+    return vec;
+}
+
+template <>
 SkPath ShapeValue::as<SkPath>() const {
     SkPath path;
 
@@ -144,6 +163,24 @@ SkPath ShapeValue::as<SkPath>() const {
     }
 
     return path;
+}
+
+CompositeRRect::CompositeRRect(sk_sp<sksg::RRect> wrapped_node)
+    : fRRectNode(std::move(wrapped_node)) {}
+
+void CompositeRRect::apply() {
+    auto rr = SkRRect::MakeRect(SkRect::MakeXYWH(fPosition.x(), fPosition.y(),
+                                                 fSize.width(), fSize.height()));
+    if (fRadii.size() == 1 || fRadii.size() == 4) {
+        SkVector radii[4];
+        for (int i = 0; i < 4; ++i) {
+            const auto r = fRadii.size() == 1 ? fRadii[0] : fRadii[i];
+            radii[i] = SkVector::Make(r, r);
+        }
+        rr.setRectRadii(rr.rect(), radii);
+    }
+
+    fRRectNode->setRRect(rr);
 }
 
 CompositeTransform::CompositeTransform(sk_sp<sksg::RenderNode> wrapped_node)
