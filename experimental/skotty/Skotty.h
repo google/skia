@@ -38,9 +38,11 @@ public:
 
     void animationTick(SkMSec);
 
-    const SkString& version() const { return fVersion; }
-    const SkSize& size() const { return fSize; }
-    SkScalar frameRate() const { return fFrameRate; }
+    const SkString& version() const { return fVersion;   }
+    const SkSize&      size() const { return fSize;      }
+         SkScalar frameRate() const { return fFrameRate; }
+         SkScalar   inPoint() const { return fInPoint;   }
+         SkScalar  outPoint() const { return fOutPoint;  }
 
     void setShowInval(bool show) { fShowInval = show; }
 

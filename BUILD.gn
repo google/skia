@@ -1503,6 +1503,7 @@ if (skia_enable_tools) {
       include_dirs = [ "tests" ]
       deps = [
         ":common_flags",
+        ":experimental_skotty",
         ":experimental_sksg",
         ":experimental_svg_model",
         ":flags",
