@@ -262,6 +262,7 @@ private:
     Path fPath;
 };
 
+#if !defined(SK_BUILD_FOR_GOOGLE3)
 class SkottySrc final : public Src {
 public:
     explicit SkottySrc(Path path);
@@ -279,6 +280,7 @@ private:
     SkISize                            fTileSize = SkISize::MakeEmpty();
     std::unique_ptr<skotty::Animation> fAnimation;
 };
+#endif
 
 #if defined(SK_XML)
 } // namespace DM

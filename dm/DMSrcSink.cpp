@@ -32,7 +32,6 @@
 #include "SkMultiPictureDocumentPriv.h"
 #include "SkMultiPictureDraw.h"
 #include "SkNullCanvas.h"
-#include "Skotty.h"
 #include "SkOSFile.h"
 #include "SkOSPath.h"
 #include "SkOpts.h"
@@ -59,6 +58,10 @@
     #include "SkHRESULT.h"
     #include "SkTScopedComPtr.h"
     #include <XpsObjectModel.h>
+#endif
+
+#if !defined(SK_BUILD_FOR_GOOGLE3)
+    #include "Skotty.h"
 #endif
 
 #if defined(SK_XML)
@@ -1313,6 +1316,7 @@ Name DDLSKPSrc::name() const { return SkOSPath::Basename(fPath.c_str()); }
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
+#if !defined(SK_BUILD_FOR_GOOGLE3)
 SkottySrc::SkottySrc(Path path)
     : fName(SkOSPath::Basename(path.c_str())) {
 
@@ -1389,6 +1393,7 @@ bool SkottySrc::veto(SinkFlags flags) const {
 
     return !type_ok || flags.approach != SinkFlags::kDirect;
 }
+#endif
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 #if defined(SK_XML)
