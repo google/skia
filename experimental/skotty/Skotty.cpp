@@ -218,10 +218,17 @@ static constexpr GroupAttacherT gGroupAttachers[] = {
     AttachShapeGroup,
 };
 
+using TransformAttacherT = sk_sp<sksg::RenderNode> (*)(const Json::Value&, AttachContext*,
+                                                       sk_sp<sksg::RenderNode>);
+static constexpr TransformAttacherT gTransformAttachers[] = {
+    AttachTransform,
+};
+
 enum class ShapeType {
     kGeometry,
     kPaint,
     kGroup,
+    kTransform,
 };
 
 struct ShapeInfo {
@@ -232,10 +239,11 @@ struct ShapeInfo {
 
 const ShapeInfo* FindShapeInfo(const Json::Value& shape) {
     static constexpr ShapeInfo gShapeInfo[] = {
-        { "fl", ShapeType::kPaint   , 0 }, // fill   -> AttachFillPaint
-        { "gr", ShapeType::kGroup   , 0 }, // group  -> AttachShapeGroup
-        { "sh", ShapeType::kGeometry, 0 }, // shape  -> AttachPathGeometry
-        { "st", ShapeType::kPaint   , 1 }, // stroke -> AttachStrokePaint
+        { "fl", ShapeType::kPaint    , 0 }, // fill      -> AttachFillPaint
+        { "gr", ShapeType::kGroup    , 0 }, // group     -> AttachShapeGroup
+        { "sh", ShapeType::kGeometry , 0 }, // shape     -> AttachPathGeometry
+        { "st", ShapeType::kPaint    , 1 }, // stroke    -> AttachStrokePaint
+        { "tr", ShapeType::kTransform, 0 }, // transform -> AttachTransform
     };
 
     if (!shape.isObject())
@@ -261,7 +269,8 @@ sk_sp<sksg::RenderNode> AttachShape(const Json::Value& shapeArray, AttachContext
     if (!shapeArray.isArray())
         return nullptr;
 
-    sk_sp<sksg::Group> shape_group = sksg::Group::Make();
+    sk_sp<sksg::Group>        shape_group = sksg::Group::Make();
+    sk_sp<sksg::RenderNode> xformed_group = shape_group;
 
     SkSTArray<16, sk_sp<sksg::GeometryNode>, true> geos;
     SkSTArray<16, sk_sp<sksg::PaintNode>   , true> paints;
@@ -292,6 +301,11 @@ sk_sp<sksg::RenderNode> AttachShape(const Json::Value& shapeArray, AttachContext
                 shape_group->addChild(std::move(group));
             }
         } break;
+        case ShapeType::kTransform: {
+            // TODO: BM appears to transform the grometry, not the draw op itself.
+            SkASSERT(info->fAttacherIndex < SK_ARRAY_COUNT(gTransformAttachers));
+            xformed_group = gTransformAttachers[info->fAttacherIndex](s, ctx, xformed_group);
+        } break;
         }
     }
 
@@ -302,7 +316,7 @@ sk_sp<sksg::RenderNode> AttachShape(const Json::Value& shapeArray, AttachContext
     }
 
     LOG("** Attached shape - geometries: %d, paints: %d\n", geos.count(), paints.count());
-    return shape_group;
+    return xformed_group;
 }
 
 sk_sp<sksg::RenderNode> AttachCompLayer(const Json::Value& layer, AttachContext* ctx) {
