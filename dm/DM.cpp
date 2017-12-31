@@ -784,6 +784,7 @@ static bool gather_srcs() {
         gather_file_srcs<SKPSrc>(FLAGS_skps, "skp");
     }
     gather_file_srcs<MSKPSrc>(FLAGS_mskps, "mskp");
+    gather_file_srcs<SkottySrc>(FLAGS_jsons, "json");
 #if defined(SK_XML)
     gather_file_srcs<SVGSrc>(FLAGS_svgs, "svg");
 #endif

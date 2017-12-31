@@ -32,6 +32,7 @@
 #include "SkMultiPictureDocumentPriv.h"
 #include "SkMultiPictureDraw.h"
 #include "SkNullCanvas.h"
+#include "Skotty.h"
 #include "SkOSFile.h"
 #include "SkOSPath.h"
 #include "SkOpts.h"
@@ -1310,7 +1311,86 @@ SkISize DDLSKPSrc::size() const {
 
 Name DDLSKPSrc::name() const { return SkOSPath::Basename(fPath.c_str()); }
 
-/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+SkottySrc::SkottySrc(Path path)
+    : fName(SkOSPath::Basename(path.c_str())) {
+
+    auto stream = SkStream::MakeFromFile(path.c_str());
+    fAnimation  = skotty::Animation::Make(stream.get());
+
+    if (!fAnimation) {
+        return;
+    }
+
+    // Fit kTileCount x kTileCount frames to a 1000x1000 film strip.
+    static constexpr SkScalar kTargetSize = 1000;
+    const auto scale = kTargetSize / (kTileCount * std::max(fAnimation->size().width(),
+                                                            fAnimation->size().height()));
+    fTileSize = SkSize::Make(scale * fAnimation->size().width(),
+                             scale * fAnimation->size().height()).toCeil();
+
+}
+
+Error SkottySrc::draw(SkCanvas* canvas) const {
+    if (!fAnimation) {
+        return SkStringPrintf("Unable to parse file: %s", fName.c_str());
+    }
+
+    canvas->drawColor(SK_ColorWHITE);
+
+    SkPaint paint;
+    paint.setColor(0xffa0a0a0);
+    paint.setStyle(SkPaint::kStroke_Style);
+    paint.setStrokeWidth(0);
+
+    const auto ip = fAnimation->inPoint() * 1000 / fAnimation->frameRate(),
+               op = fAnimation->outPoint() * 1000 / fAnimation->frameRate(),
+               fr = (op - ip) / (kTileCount * kTileCount - 1);
+
+    const auto canvas_size = this->size();
+    for (int i = 0; i < kTileCount; ++i) {
+        const SkScalar y = i * (fTileSize.height() + 1);
+        canvas->drawLine(0, .5f + y, canvas_size.width(), .5f + y, paint);
+
+        for (int j = 0; j < kTileCount; ++j) {
+            const SkScalar x = j * (fTileSize.width() + 1);
+            canvas->drawLine(x + .5f, 0, x + .5f, canvas_size.height(), paint);
+            SkRect dest = SkRect::MakeXYWH(x, y, fTileSize.width(), fTileSize.height());
+
+            SkAutoCanvasRestore acr(canvas, true);
+            canvas->clipRect(dest);
+            canvas->concat(SkMatrix::MakeRectToRect(SkRect::MakeSize(fAnimation->size()),
+                                                    dest,
+                                                    SkMatrix::kFill_ScaleToFit));
+
+            const auto t = fr * (i * kTileCount + j);
+            fAnimation->animationTick(t);
+            fAnimation->render(canvas);
+        }
+    }
+
+    return "";
+}
+
+SkISize SkottySrc::size() const {
+    // Padding for grid.
+    return SkISize::Make(kTileCount * (fTileSize.width()  + 1),
+                         kTileCount * (fTileSize.height() + 1));
+}
+
+Name SkottySrc::name() const { return fName; }
+
+bool SkottySrc::veto(SinkFlags flags) const {
+    // No need to test to non-(raster||gpu||vector) or indirect backends.
+    bool type_ok = flags.type == SinkFlags::kRaster
+                || flags.type == SinkFlags::kGPU
+                || flags.type == SinkFlags::kVector;
+
+    return !type_ok || flags.approach != SinkFlags::kDirect;
+}
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 #if defined(SK_XML)
 // Used when the image doesn't have an intrinsic size.
 static const SkSize kDefaultSVGSize = {1000, 1000};

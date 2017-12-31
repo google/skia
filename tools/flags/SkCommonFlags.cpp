@@ -52,6 +52,8 @@ DEFINE_bool(releaseAndAbandonGpuContext, false,
 
 DEFINE_string(skps, "skps", "Directory to read skps from.");
 
+DEFINE_string(jsons, "", "Directory to read Bodymovin JSONs from, or a single JSON file.");
+
 DEFINE_string(svgs, "", "Directory to read SVGs from, or a single SVG file.");
 
 DEFINE_int32_2(threads, j, -1, "Run threadsafe tests on a threadpool with this many extra threads, "
