@@ -183,8 +183,8 @@ static inline SkPMColor16 SkDitherARGB32To4444(SkPMColor c, unsigned dither)
 
     #define DITHER_VALUE(x) dither_scan[(x) & 3]
 #else
-    extern SK_API const uint16_t gDitherMatrix_4Bit_16[4];
-    extern SK_API const uint16_t gDitherMatrix_3Bit_16[4];
+    extern const uint16_t gDitherMatrix_4Bit_16[4];
+    extern const uint16_t gDitherMatrix_3Bit_16[4];
 
     #define DITHER_4444_SCAN(y) const uint16_t dither_scan = gDitherMatrix_4Bit_16[(y) & 3]
     #define DITHER_565_SCAN(y)  const uint16_t dither_scan = gDitherMatrix_3Bit_16[(y) & 3]

@@ -33,7 +33,7 @@ class SkSurface;
 struct SkPoint;
 
 ///////////////////////////////////////////////////////////////////////////////
-class SK_API SkBitmapDevice : public SkBaseDevice {
+class SkBitmapDevice : public SkBaseDevice {
 public:
     /**
      *  Construct a new device with the specified bitmap as its backend. It is

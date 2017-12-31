@@ -33,7 +33,7 @@ SkPathEffect::DashType SkPathEffect::asADash(DashInfo* info) const {
  including flattening them. It does nothing in filterPath, and is only useful
  for managing the lifetimes of its two arguments.
  */
-class SK_API SkPairPathEffect : public SkPathEffect {
+class SkPairPathEffect : public SkPathEffect {
 protected:
     SkPairPathEffect(sk_sp<SkPathEffect> pe0, sk_sp<SkPathEffect> pe1)
         : fPE0(std::move(pe0)), fPE1(std::move(pe1))
@@ -77,7 +77,7 @@ void SkPairPathEffect::toString(SkString* str) const {
  This subclass of SkPathEffect composes its two arguments, to create
  a compound pathEffect.
  */
-class SK_API SkComposePathEffect : public SkPairPathEffect {
+class SkComposePathEffect : public SkPairPathEffect {
 public:
     /** Construct a pathEffect whose effect is to apply first the inner pathEffect
      and the the outer pathEffect (e.g. outer(inner(path)))
@@ -147,7 +147,7 @@ void SkComposePathEffect::toString(SkString* str) const {
  This subclass of SkPathEffect applies two pathEffects, one after the other.
  Its filterPath() returns true if either of the effects succeeded.
  */
-class SK_API SkSumPathEffect : public SkPairPathEffect {
+class SkSumPathEffect : public SkPairPathEffect {
 public:
     /** Construct a pathEffect whose effect is to apply two effects, in sequence.
      (e.g. first(path) + second(path))

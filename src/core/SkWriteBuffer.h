@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
@@ -21,7 +20,7 @@ class SkImage;
 class SkPath;
 class SkRefCntSet;
 
-class SK_API SkWriteBuffer {
+class SkWriteBuffer {
 public:
     SkWriteBuffer() {}
     virtual ~SkWriteBuffer() {}
@@ -76,7 +75,7 @@ protected:
 /**
  * Concrete implementation that serializes to a flat binary blob.
  */
-class SK_API SkBinaryWriteBuffer : public SkWriteBuffer {
+class SkBinaryWriteBuffer : public SkWriteBuffer {
 public:
     enum Flags {
         kCrossProcess_Flag = 1 << 0,

@@ -18,7 +18,7 @@ struct SkRect;
 /**
  *  Disect a lattice request into an sequence of src-rect / dst-rect pairs
  */
-class SK_API SkLatticeIter {
+class SkLatticeIter {
 public:
 
     static bool Valid(int imageWidth, int imageHeight, const SkCanvas::Lattice& lattice);

@@ -10,7 +10,7 @@
 
 #include "SkColorFilter.h"
 
-class SK_API SkColorMatrixFilterRowMajor255 : public SkColorFilter {
+class SkColorMatrixFilterRowMajor255 : public SkColorFilter {
 public:
     SkColorMatrixFilterRowMajor255() {}
     explicit SkColorMatrixFilterRowMajor255(const SkScalar array[20]);

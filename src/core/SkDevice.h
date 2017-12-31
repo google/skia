@@ -13,7 +13,6 @@
 #include "SkColor.h"
 #include "SkSurfaceProps.h"
 
-class SkAndroidFrameworkUtils;
 class SkBitmap;
 class SkDrawFilter;
 struct SkDrawShadowRec;
@@ -23,9 +22,8 @@ class SkMatrix;
 class SkRasterHandleAllocator;
 class SkRegion;
 class SkSpecialImage;
-class GrRenderTarget;
 
-class SK_API SkBaseDevice : public SkRefCnt {
+class SkBaseDevice : public SkRefCnt {
 public:
     SkBaseDevice(const SkImageInfo&, const SkSurfaceProps&);
 
@@ -353,7 +351,6 @@ private:
     friend class SkDraw;
     friend class SkDrawIter;
     friend class SkDeviceFilteredPaint;
-    friend class SkNoPixelsBitmapDevice;
     friend class SkSurface_Raster;
     friend class DeviceTestingAccess;
 

@@ -43,7 +43,7 @@ sk_sp<SkShader> SkMakeBitmapShader(const SkBitmap& src, SkShader::TileMode, SkSh
  *  SkImageInfo, or the bitmap's pixels cannot be accessed, this will return
  *  nullptr.
  */
-extern SK_API sk_sp<SkImage> SkMakeImageFromRasterBitmap(const SkBitmap&, SkCopyPixelsMode);
+extern sk_sp<SkImage> SkMakeImageFromRasterBitmap(const SkBitmap&, SkCopyPixelsMode);
 
 /**
  *  Similar to SkMakeImageFromRasterBitmap, this wraps a |src| bitmap in an image.
