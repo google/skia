@@ -25,7 +25,7 @@
 #include "effects/GrSimpleTextureEffect.h"
 #endif
 
-class SK_API SkAlphaThresholdFilterImpl : public SkImageFilter {
+class SkAlphaThresholdFilterImpl : public SkImageFilter {
 public:
     SkAlphaThresholdFilterImpl(const SkRegion& region, SkScalar innerThreshold,
                                SkScalar outerThreshold, sk_sp<SkImageFilter> input,

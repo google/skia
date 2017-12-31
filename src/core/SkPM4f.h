@@ -26,7 +26,7 @@ static inline Sk4f swizzle_rb_if_bgra(const Sk4f& x) {
 /*
  *  The float values are 0...1 premultiplied in RGBA order (regardless of SkPMColor order)
  */
-struct SK_API SkPM4f {
+struct SkPM4f {
     enum {
         R, G, B, A,
     };

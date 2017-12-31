@@ -31,7 +31,7 @@
 *                           Final result is black with alpha of Gaussian(B)*G.
 *                           The assumption is that the original color's alpha is 1.
 */
-class SK_API SkGaussianColorFilter : public SkColorFilter {
+class SkGaussianColorFilter : public SkColorFilter {
 public:
     static sk_sp<SkColorFilter> Make() {
         return sk_sp<SkColorFilter>(new SkGaussianColorFilter);
