@@ -438,6 +438,7 @@ static inline void sk_memcpy_4bytes(void* dst, const void* src, size_t size) {
 }
 
 #define SkDynamicMemoryWStream_MinBlockSize   4096
+#define SkDynamicMemoryWStream_MaxBlockSize   (16*1024*1024)
 
 struct SkDynamicMemoryWStream::Block {
     Block*  fNext;
@@ -448,6 +449,7 @@ struct SkDynamicMemoryWStream::Block {
     char*   start() { return (char*)(this + 1); }
     size_t  avail() const { return fStop - fCurr; }
     size_t  written() const { return fCurr - this->start(); }
+    size_t  allocated() const { return fStop - this->start(); }
 
     void init(size_t size) {
         fNext = nullptr;
@@ -491,6 +493,17 @@ size_t SkDynamicMemoryWStream::bytesWritten() const {
     return 0;
 }
 
+static size_t compute_new_alloc(size_t size) {
+    if (size >= SkDynamicMemoryWStream_MinBlockSize) {
+        return SkDynamicMemoryWStream_MinBlockSize;
+    } else if (size <= 64 * 1024) {
+        size <<= 1;             // * 2
+    } else {
+        size += size >> 2;  // * 1.25
+    }
+    return size;
+}
+
 bool SkDynamicMemoryWStream::write(const void* buffer, size_t count) {
     if (count > 0) {
         size_t  size;
@@ -507,9 +520,12 @@ bool SkDynamicMemoryWStream::write(const void* buffer, size_t count) {
             }
             // If we get here, we've just exhausted fTail, so update our tracker
             fBytesWrittenBeforeTail += fTail->written();
-        }
 
-        size = SkTMax<size_t>(count, SkDynamicMemoryWStream_MinBlockSize - sizeof(Block));
+            size = compute_new_alloc(fTail->allocated());
+        } else {
+            size = SkDynamicMemoryWStream_MinBlockSize - sizeof(Block);
+        }
+        size = SkTMax<size_t>(size, count);
         size = SkAlign4(size);  // ensure we're always a multiple of 4 (see padToAlign4())
 
         Block* block = (Block*)sk_malloc_throw(sizeof(Block) + size);
