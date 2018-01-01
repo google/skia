@@ -10,7 +10,7 @@
 
 #include <string.h>  // for memcpy()
 
-// Miscellany used by SkJumper_stages.cpp and SkJumper_vectors.h.
+// Miscellany used by SkJumper_stages.cpp and SkJumper_stages_lowp.cpp.
 
 // Every function in this file should be marked static and inline using SI.
 #if defined(__clang__)
