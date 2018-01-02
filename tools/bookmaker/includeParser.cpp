@@ -1493,6 +1493,9 @@ bool IncludeParser::parseMethod(Definition* child, Definition* markupDef) {
     }
     tokenIter->fName = nameStr;
     tokenIter->fMarkType = MarkType::kMethod;
+    if (string::npos != nameStr.find("defined")) {
+        SkDebugf("");
+    }
     tokenIter->fPrivate = string::npos != nameStr.find("::");
     auto testIter = child->fParent->fTokens.begin();
     SkASSERT(child->fParentIndex > 0);
@@ -1642,9 +1645,17 @@ bool IncludeParser::parseObject(Definition* child, Definition* markupDef) {
                         auto tokenIter = child->fParent->fTokens.begin();
                         std::advance(tokenIter, child->fParentIndex);
                         tokenIter = std::prev(tokenIter);
-                        TextParser checkDeprecated(&*tokenIter);
-                        if (checkDeprecated.startsWith("SK_ATTR_DEPRECATED")) {
+                        TextParser previousToken(&*tokenIter);
+                        if (previousToken.startsWith("SK_ATTR_DEPRECATED")) {
                             break;
+                        }
+                        if (Bracket::kPound == child->fParent->fBracket &&
+                                KeyWord::kIf == child->fParent->fKeyWord) {
+                            // TODO: this will skip methods named defined() -- for the
+                            // moment there aren't any
+                            if (previousToken.startsWith("defined")) {
+                                break;
+                            }
                         }
                     }
                     if (!this->parseMethod(child, markupDef)) {
