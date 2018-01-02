@@ -1,11 +1,13 @@
 # external references that will be documented eventually ...
 #External
- DirectWrite TrueType Windows Linux Android iOS __ANDROID_API__
+ DirectWrite TrueType Windows Linux Android iOS __ANDROID_API__ AHardwareBuffer
  FreeType FreeType-based Harfbuzz   
  Descenders Kerning Unhinted 
- LCD RGB sRGB YUV_ColorSpace
+ LCD RGB sRGB YUV
+ YUV_Component_Y YUV_Component_U YUV_Component_V
  Unicode Unicode5 UTF-8 UTF-16 UTF-32 ASCII Unichar
  API
+ BMP GIF HEIF ICO JPEG PNG WBMP WebP
  CPU
  GPU GPU-backed OpenGL Vulkan I/O MSAA UV_Mapping Multi_Sample_Anti_Aliasing GPU_Share_Group
  PDF XPS
@@ -293,6 +295,10 @@ FT_Load_Glyph
 
 #Topic GPU_Surface
 #Substitute GPU surface
+##
+
+#Topic GPU_Texture
+#Substitute GPU texture
 ##
 
 #Topic HTML_Canvas
@@ -638,9 +644,6 @@ FT_Load_Glyph
 #Topic Raster_Bitmap
 ##
 
-#Topic Raster_Image
-##
-
 #Topic Raster_Surface
 ##
 
@@ -811,3 +814,12 @@ FT_Load_Glyph
     #Struct SkWriteBuffer
     #Struct ##
 #Topic ##
+
+#Enum YUV_ColorSpace
+#Const kJPEG_SkYUVColorSpace 0
+##
+#Const kRec601_SkYUVColorSpace 1
+##
+#Const kRec709_SkYUVColorSpace 2
+##
+##

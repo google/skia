@@ -3,16 +3,40 @@
 
 #Class SkImage
 
-SkImage is an abstraction for drawing a rectangle of pixels, though the
-particular type of image could be actually storing its data on the GPU, or
-as drawing commands (picture or PDF or otherwise), ready to be played back
-into another canvas.
-The content of SkImage is always immutable, though the actual storage may
-change, if for example that image can be re-created via encoded data or
-other means.
-SkImage always has a non-zero dimensions. If there is a request to create a new
-image, either directly or via SkSurface, and either of the requested dimensions
-are zero, then nullptr will be returned.
+Image describes a two dimensional array of pixels to draw. The pixels may be
+unencoded in a Raster_Bitmap, encoded in a Picture or compressed data stream,
+or located in GPU memory as a GPU_Texture.
+
+Image cannot be modified after it is created. Image may allocate additional
+storage as needed; for instance, an encoded Image may decode when drawn.
+
+Image width and height are greater than zero. Creating an Image with zero width
+or height returns Image equal to nullptr.
+
+Image may be created from Bitmap, Pixmap, Surface, Picture, encoded streams,
+GPU_Texture, YUV_ColorSpace data, or hardware buffer. Encoded streams supported
+include BMP, GIF, HEIF, ICO, JPEG, PNG, WBMP, WebP. Supported encodings details
+vary with platform.
+
+#Topic Raster_Image
+#Alias Raster_Image
+Raster_Image pixels are unencoded in a Raster_Bitmap. These pixels may be read
+directly and in most cases written to, although edited pixels may not be drawn
+if Image has been copied internally.
+##
+
+#Topic Texture_Image
+Texture_Image are located on GPU and pixels are not accessible. Texture_Image
+are allocated optimally for best performance. Raster_Image may
+be drawn to GPU_Surface, but pixels are uploaded from CPU to GPU downgrading
+performance.
+##
+
+#Topic Lazy_Image
+Lazy_Image defer allocating buffer for Image pixels and decoding stream until
+Image is drawn. Lazy_Image caches result if possible to speed up repeated
+drawing.
+##
 
 #Topic Overview
 
@@ -30,36 +54,39 @@ are zero, then nullptr will be returned.
 #Legend
 # description                      # function ##
 #Legend ##
-# MakeBackendTextureFromSkImage    # Creates GPU texture from Image. ##
+# MakeBackendTextureFromSkImage    # Creates GPU_Texture from Image. ##
 # MakeCrossContextFromEncoded      # Creates Image from encoded data, and uploads to GPU. ##
 # MakeFromAHardwareBuffer          # Creates Image from Android hardware buffer. ##
-# MakeFromAdoptedTexture           # Creates Image from GPU texture, managed internally. ##
+# MakeFromAdoptedTexture           # Creates Image from GPU_Texture, managed internally. ##
 # MakeFromBitmap                   # Creates Image from Bitmap, sharing or copying pixels. ##
+# MakeFromDeferredTextureImageData # ##
 # MakeFromEncoded                  # Creates Image from encoded data. ##
 # MakeFromGenerator                # Creates Image from a stream of data. ##
 # MakeFromNV12TexturesCopy         # Creates Image from YUV_ColorSpace data in two planes. ##
 # MakeFromPicture                  # Creates Image from Picture. ##
 # MakeFromRaster                   # Creates Image from Pixmap, with release. ##
-# MakeFromTexture                  # Creates Image from GPU texture, managed externally. ##
+# MakeFromTexture                  # Creates Image from GPU_Texture, managed externally. ##
 # MakeFromYUVTexturesCopy          # Creates Image from YUV_ColorSpace data in three planes. ##
 # MakeRasterCopy                   # Creates Image from Pixmap and copied pixels. ##
 # MakeRasterData                   # Creates Image from Image_Info and shared pixels. ##
-# alphaType                        # Returns Alpha_Type ##
-# asLegacyBitmap                   # Returns as Raster_Bitmap ##
+# alphaType                        # Returns Alpha_Type. ##
+# asLegacyBitmap                   # Returns as Raster_Bitmap. ##
 # bounds()                         # Returns width() and height() as Rectangle. ##
 # colorSpace                       # Returns Color_Space. ##
 # dimensions()                     # Returns width() and height(). ##
 # encodeToData                     # Returns encoded Image as SkData. ##
+# getDeferredTextureImageData      # ##
 # getTexture                       # Deprecated. ##
 # getTextureHandle                 # Returns GPU reference to Image as texture. ##
 # height()                         # Returns pixel row count. ##
 # isAlphaOnly                      # Returns if pixels represent a transparency mask. ##
 # isLazyGenerated                  # Returns if Image is created as needed. ##
 # isOpaque                         # Returns if Alpha_Type is kOpaque_SkAlphaType. ##
-# isTextureBacked                  # Returns if Image was created from GPU texture. ##
+# isTextureBacked                  # Returns if Image was created from GPU_Texture. ##
 # isValid                          # Returns if Image can draw to Raster_Surface or GPU_Context. ##
 # makeColorSpace                   # Creates Image matching Color_Space if possible. ##
-# makeNonTextureImage              # Creates Raster_Image if possible. ##
+# makeNonTextureImage              # Creates Image without dependency on GPU_Texture. ##
+# makeRasterImage                  # Creates Image compatible with Raster_Surface if possible. ##
 # makeShader                       # Creates Shader, Paint element that can tile Image. ##
 # makeSubset                       # Creates Image containing part of original. ##
 # makeTextureImage                 # Creates Image matching Color_Space if possible. ##
@@ -336,11 +363,15 @@ Recognized formats vary by platfrom.
 
 #Return created Image, or nullptr ##
 
-#Bug 7343
-Waiting on fiddle to support returning image as SkData
-##
-
-#NoExample
+#Example
+#Image 3
+int x = 0;
+for (int quality : { 100, 50, 10, 1} ) {
+    sk_sp<SkData> encodedData = image->encodeToData(SkEncodedImageFormat::kJPEG, quality);
+    sk_sp<SkImage> image = SkImage::MakeFromEncoded(encodedData);
+    canvas->drawImage(image, x, 0);
+    x += 64;
+}
 ##
 
 #SeeAlso MakeFromGenerator
@@ -359,11 +390,7 @@ Waiting on fiddle to support returning image as SkData
                                           SkAlphaType alphaType,
                                           sk_sp<SkColorSpace> colorSpace)
 
-Creates Image from GPU texture associated with context. Caller is responsible for
-managing the lifetime of GPU texture.
-
-Image is returned if format of backendTexture is recognized and supported.
-Recognized formats vary by GPU back-end.
+Deprecated.
 
 #Param context  GPU_Context ##
 #Param backendTexture  texture residing on GPU ##
@@ -371,7 +398,75 @@ Recognized formats vary by GPU back-end.
 #Param alphaType  one of: kUnknown_SkAlphaType, kOpaque_SkAlphaType,
                           kPremul_SkAlphaType, kUnpremul_SkAlphaType
 ##
-#Param colorSpace  range of colors ##
+#Param colorSpace  range of colors; may be nullptr ##
+
+#Return created Image, or nullptr ##
+
+#NoExample
+##
+
+#SeeAlso MakeFromAdoptedTexture SkSurface::MakeFromBackendTexture
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method static sk_sp<SkImage> MakeFromTexture(GrContext* context,
+                                          const GrBackendTexture& backendTexture,
+                                          GrSurfaceOrigin origin,
+                                          SkAlphaType alphaType,
+                                          sk_sp<SkColorSpace> colorSpace,
+                                          TextureReleaseProc textureReleaseProc,
+                                          ReleaseContext releaseContext)
+
+Deprecated.
+
+#Param context  GPU_Context ##
+#Param backendTexture  texture residing on GPU ##
+#Param origin  one of: kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin ##
+#Param alphaType  one of: kUnknown_SkAlphaType, kOpaque_SkAlphaType,
+                          kPremul_SkAlphaType, kUnpremul_SkAlphaType
+##
+#Param colorSpace  range of colors; may be nullptr ##
+#Param textureReleaseProc  function called when texture can be released ##
+#Param releaseContext  state passed to textureReleaseProc ##
+
+#Return created Image, or nullptr ##
+
+#NoExample
+##
+
+#SeeAlso MakeFromAdoptedTexture SkSurface::MakeFromBackendTexture
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method static sk_sp<SkImage> MakeFromTexture(GrContext* context,
+                                          const GrBackendTexture& backendTexture,
+                                          GrSurfaceOrigin origin,
+                                          SkColorType colorType,
+                                          SkAlphaType alphaType,
+                                          sk_sp<SkColorSpace> colorSpace)
+
+Creates Image from GPU_Texture associated with context. Caller is responsible for
+managing the lifetime of GPU_Texture.
+
+Image is returned if format of backendTexture is recognized and supported.
+Recognized formats vary by GPU back-end.
+
+#Param context  GPU_Context ##
+#Param backendTexture  texture residing on GPU ##
+#Param origin  one of: kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin ##
+#Param colorType  one of: kUnknown_SkColorType, kAlpha_8_SkColorType,
+                          kRGB_565_SkColorType, kARGB_4444_SkColorType,
+                          kRGBA_8888_SkColorType, kBGRA_8888_SkColorType,
+                          kGray_8_SkColorType, kRGBA_F16_SkColorType
+##
+#Param alphaType  one of: kUnknown_SkAlphaType, kOpaque_SkAlphaType,
+                          kPremul_SkAlphaType, kUnpremul_SkAlphaType
+##
+#Param colorSpace  range of colors; may be nullptr ##
 
 #Return created Image, or nullptr ##
 
@@ -405,12 +500,13 @@ x += 512;
 #Method static sk_sp<SkImage> MakeFromTexture(GrContext* context,
                                           const GrBackendTexture& backendTexture,
                                           GrSurfaceOrigin origin,
+                                          SkColorType colorType,
                                           SkAlphaType alphaType,
                                           sk_sp<SkColorSpace> colorSpace,
                                           TextureReleaseProc textureReleaseProc,
                                           ReleaseContext releaseContext)
 
-Creates Image from GPU texture associated with context. GPU texture must stay
+Creates Image from GPU_Texture associated with context. GPU_Texture must stay
 valid and unchanged until textureReleaseProc is called. textureReleaseProc is
 passed releaseContext when Image is deleted or no longer refers to texture.
 
@@ -420,10 +516,15 @@ Recognized formats vary by GPU back-end.
 #Param context  GPU_Context ##
 #Param backendTexture  texture residing on GPU ##
 #Param origin  one of: kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin ##
+#Param colorType  one of: kUnknown_SkColorType, kAlpha_8_SkColorType,
+                          kRGB_565_SkColorType, kARGB_4444_SkColorType,
+                          kRGBA_8888_SkColorType, kBGRA_8888_SkColorType,
+                          kGray_8_SkColorType, kRGBA_F16_SkColorType
+##
 #Param alphaType  one of: kUnknown_SkAlphaType, kOpaque_SkAlphaType,
                           kPremul_SkAlphaType, kUnpremul_SkAlphaType
 ##
-#Param colorSpace  range of colors ##
+#Param colorSpace  range of colors; may be nullptr ##
 #Param textureReleaseProc  function called when texture can be released ##
 #Param releaseContext  state passed to textureReleaseProc ##
 
@@ -431,7 +532,7 @@ Recognized formats vary by GPU back-end.
 
 #ToDo
 This doesn't do anything clever with TextureReleaseProc because it may not get called
-within the lifetime of the example
+fwithin the lifetime of the example
 ##
 
 #Example
@@ -445,7 +546,7 @@ auto debugster = [](SkImage::ReleaseContext context) -> void {
 int x = 0;
 for (auto origin : { kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin } ) {
     sk_sp<SkImage> image = SkImage::MakeFromTexture(canvas->getGrContext(), backEndTexture,
-           origin, kOpaque_SkAlphaType, nullptr, debugster, &x);
+           origin, kRGBA_8888_SkColorType, kOpaque_SkAlphaType, nullptr, debugster, &x);
     canvas->drawImage(image, x, 0);
     x += 128;
 }
@@ -476,6 +577,9 @@ dstColorSpace. Color_Space of Image is determined by encoded data.
 Image is returned if format of data is recognized and supported, and if context
 supports moving resources. Recognized formats vary by platform and GPU back-end.
 
+Image is returned using MakeFromEncoded if context is nullptr or does not support
+moving resources between contexts.
+
 #Param context  GPU_Context ##
 #Param data  Image to decode ##
 #Param buildMips  create Image as Mip_Map if true ##
@@ -484,7 +588,13 @@ supports moving resources. Recognized formats vary by platform and GPU back-end.
 #Return created Image, or nullptr ##
 
 #Example
-// incomplete
+#Image 4
+#Height 128
+GrContext* context = canvas->getGrContext();
+sk_sp<SkData> encodedData = image->encodeToData(SkEncodedImageFormat::kJPEG, 100);
+sk_sp<SkImage> image = SkImage::MakeCrossContextFromEncoded(context,
+                                                            encodedData, false, nullptr);
+canvas->drawImage(image, 0, 0);
 ##
 
 #SeeAlso MakeCrossContextFromPixmap
@@ -509,10 +619,11 @@ asynchronously.
 Texture created from pixmap is uploaded to match Surface created with
 dstColorSpace. Color_Space of Image is determined by pixmap.colorSpace().
 
-Image is returned referring to GPU back-end if format of data is recognized and 
-supported, and if context supports moving resources. Otherwise, pixmap pixel
-data is copied and Image as returned in raster format if possible; nullptr may
-be returned. Recognized GPU formats vary by platform and GPU back-end.
+Image is returned referring to GPU back-end if context is not nullptr, 
+format of data is recognized and supported, and if context supports moving
+resources between contexts. Otherwise, pixmap pixel data is copied and Image
+as returned in raster format if possible; nullptr may be returned.
+Recognized GPU formats vary by platform and GPU back-end.
 
 #Param context  GPU_Context ##
 #Param pixmap  Image_Info, pixel address, and row bytes ##
@@ -522,7 +633,15 @@ be returned. Recognized GPU formats vary by platform and GPU back-end.
 #Return created Image, or nullptr ##
 
 #Example
-// incomplete
+#Image 4
+#Height 128
+GrContext* context = canvas->getGrContext();
+SkPixmap pixmap;
+if (source.peekPixels(&pixmap)) {
+    sk_sp<SkImage> image = SkImage::MakeCrossContextFromPixmap(context, pixmap,
+                                                               false, nullptr);
+    canvas->drawImage(image, 0, 0);
+}
 ##
 
 #SeeAlso MakeCrossContextFromEncoded
@@ -537,6 +656,34 @@ be returned. Recognized GPU formats vary by platform and GPU back-end.
                                                  SkAlphaType alphaType = kPremul_SkAlphaType,
                                                  sk_sp<SkColorSpace> colorSpace = nullptr)
 
+Deprecated.
+
+#Param context  GPU_Context ##
+#Param backendTexture  texture residing on GPU ##
+#Param surfaceOrigin  one of: kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin ##
+#Param alphaType  one of: kUnknown_SkAlphaType, kOpaque_SkAlphaType,
+                          kPremul_SkAlphaType, kUnpremul_SkAlphaType
+##
+#Param colorSpace  range of colors; may be nullptr ##
+
+#Return created Image, or nullptr ##
+
+#NoExample
+##
+
+#SeeAlso MakeFromTexture MakeFromYUVTexturesCopy
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method static sk_sp<SkImage> MakeFromAdoptedTexture(GrContext* context,
+                                                 const GrBackendTexture& backendTexture,
+                                                 GrSurfaceOrigin surfaceOrigin,
+                                                 SkColorType colorType,
+                                                 SkAlphaType alphaType = kPremul_SkAlphaType,
+                                                 sk_sp<SkColorSpace> colorSpace = nullptr)
+
 Creates Image from backendTexture associated with context. backendTexture and
 returned Image are managed internally, and are released when no longer needed.
 
@@ -546,18 +693,39 @@ Recognized formats vary by GPU back-end.
 #Param context  GPU_Context ##
 #Param backendTexture  texture residing on GPU ##
 #Param surfaceOrigin  one of: kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin ##
+#Param colorType  one of: kUnknown_SkColorType, kAlpha_8_SkColorType,
+                          kRGB_565_SkColorType, kARGB_4444_SkColorType,
+                          kRGBA_8888_SkColorType, kBGRA_8888_SkColorType,
+                          kGray_8_SkColorType, kRGBA_F16_SkColorType
+##
 #Param alphaType  one of: kUnknown_SkAlphaType, kOpaque_SkAlphaType,
                           kPremul_SkAlphaType, kUnpremul_SkAlphaType
 ##
-#Param colorSpace  range of colors ##
+#Param colorSpace  range of colors; may be nullptr ##
 
 #Return created Image, or nullptr ##
 
 #Example
-// incomplete
+   if (!canvas->getGrContext()) {
+       return;
+   }
+   canvas->scale(.5f, .5f);
+   canvas->clear(0x7f3f5f7f);
+   int x = 0, y = 0;
+   for (auto origin : { kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin } ) {
+       for (auto alpha : { kOpaque_SkAlphaType, kPremul_SkAlphaType, kUnpremul_SkAlphaType } ) {
+           sk_sp<SkImage> image = SkImage::MakeFromAdoptedTexture(canvas->getGrContext(),
+                                                                  backEndTexture, origin, 
+                                                                  kRGBA_8888_SkColorType, alpha);
+           canvas->drawImage(image, x, y);
+           x += 160;
+       }
+       x -= 160 * 3;
+       y += 256;
+   }
 ##
 
-#SeeAlso incomplete
+#SeeAlso MakeFromTexture MakeFromYUVTexturesCopy
 
 #Method ##
 
@@ -569,24 +737,69 @@ Recognized formats vary by GPU back-end.
                                                   GrSurfaceOrigin surfaceOrigin,
                                                   sk_sp<SkColorSpace> colorSpace = nullptr)
 
-Create a new image by copying the pixels from the specified y, u, v textures. The data
-from the textures is immediately ingested into the image and the textures can be modified or
-deleted after the function returns. The image will have the dimensions of the y texture.
+Creates Image from copy of yuvTextureHandles, an array of textures on GPU.
+yuvTextureHandles contain pixels for YUV planes of Image.
+yuvSizes conain dimensions for each pixel plane. Dimensions must be greater than
+zero but may differ from plane to plane. Returned Image has the dimensions
+yuvSizes[0]. yuvColorSpace describes how YUV colors convert to RGB colors. 
 
-#Param context  incomplete ##
-#Param yuvColorSpace  incomplete ##
-#Param yuvTextureHandles  incomplete ##
-#Param yuvSizes  incomplete ##
-#Param surfaceOrigin  incomplete ##
-#Param colorSpace  incomplete ##
+#Param context  GPU_Context ##
+#Param yuvColorSpace  one of: kJPEG_SkYUVColorSpace, kRec601_SkYUVColorSpace,
+                              kRec709_SkYUVColorSpace
+##
+#Param yuvTextureHandles  array of YUV textures on GPU ##
+#Param yuvSizes  dimensions of YUV textures ##
+#Param surfaceOrigin  one of: kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin ##
+#Param colorSpace  range of colors; may be nullptr ##
 
-#Return incomplete ##
+#Return created Image, or nullptr ##
 
-#Example
-// incomplete
+# seems too complicated to create an example for this
+#ToDo
+should this be moved to chrome only?
 ##
 
-#SeeAlso incomplete
+#NoExample
+##
+
+#SeeAlso MakeFromNV12TexturesCopy
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method static sk_sp<SkImage> MakeFromYUVTexturesCopy(GrContext* context, SkYUVColorSpace yuvColorSpace,
+                                                  const GrBackendTexture yuvTextureHandles[3],
+                                                  const SkISize yuvSizes[3],
+                                                  GrSurfaceOrigin surfaceOrigin,
+                                                  sk_sp<SkColorSpace> colorSpace = nullptr)
+
+Creates Image from copy of yuvTextureHandles, an array of textures on GPU.
+yuvTextureHandles contain pixels for YUV planes of Image.
+yuvSizes conain dimensions for each pixel plane. Dimensions must be greater than
+zero but may differ from plane to plane. Returned Image has the dimensions
+yuvSizes[0]. yuvColorSpace describes how YUV colors convert to RGB colors. 
+
+#Param context  GPU_Context ##
+#Param yuvColorSpace  one of: kJPEG_SkYUVColorSpace, kRec601_SkYUVColorSpace,
+                              kRec709_SkYUVColorSpace
+##
+#Param yuvTextureHandles  array of YUV textures on GPU ##
+#Param yuvSizes  dimensions of YUV textures ##
+#Param surfaceOrigin  one of: kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin ##
+#Param colorSpace  range of colors; may be nullptr ##
+
+#Return created Image, or nullptr ##
+
+# seems too complicated to create an example for this
+#ToDo
+should this be moved to chrome only?
+##
+
+#NoExample
+##
+
+#SeeAlso MakeFromNV12TexturesCopy
 
 #Method ##
 
@@ -599,48 +812,103 @@ deleted after the function returns. The image will have the dimensions of the y 
                                                    GrSurfaceOrigin surfaceOrigin,
                                                    sk_sp<SkColorSpace> colorSpace = nullptr)
 
-Create a new image by copying the pixels from the specified y and UV_Mapping. The data
-from the textures is immediately ingested into the image and the textures can be modified or
-deleted after the function returns. The image will have the dimensions of the y texture.
+Creates Image from copy of nv12TextureHandles, an array of textures on GPU.
+nv12TextureHandles[0] contains pixels for YUV_Component_Y plane.
+nv12TextureHandles[1] contains pixels for YUV_Component_U plane,
+followed by pixels for YUV_Component_V plane.
+nv12Sizes conain dimensions for each pixel plane. Dimensions must be greater than
+zero but may differ from plane to plane. Returned Image has the dimensions
+nv12Sizes[0]. yuvColorSpace describes how YUV colors convert to RGB colors.
 
-#Param context  incomplete ##
-#Param yuvColorSpace  incomplete ##
-#Param nv12TextureHandles  incomplete ##
-#Param nv12Sizes  incomplete ##
-#Param surfaceOrigin  incomplete ##
-#Param colorSpace  incomplete ##
+#Param context  GPU_Context ##
+#Param yuvColorSpace  one of: kJPEG_SkYUVColorSpace, kRec601_SkYUVColorSpace,
+                              kRec709_SkYUVColorSpace
+##
+#Param nv12TextureHandles  array of YUV textures on GPU ##
+#Param nv12Sizes  dimensions of YUV textures ##
+#Param surfaceOrigin  one of: kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin ##
+#Param colorSpace  range of colors; may be nullptr ##
 
-#Return incomplete ##
+#Return created Image, or nullptr ##
 
-#Example
-// incomplete
+# seems too complicated to create an example for this
+#ToDo
+should this be moved to chrome only?
 ##
 
-#SeeAlso incomplete
+#NoExample
+##
+
+#SeeAlso MakeFromYUVTexturesCopy
 
 #Method ##
 
 # ------------------------------------------------------------------------------
 
+#Method static sk_sp<SkImage> MakeFromNV12TexturesCopy(GrContext* context,
+                                                   SkYUVColorSpace yuvColorSpace,
+                                                   const GrBackendTexture nv12TextureHandles[2],
+                                                   const SkISize nv12Sizes[2],
+                                                   GrSurfaceOrigin surfaceOrigin,
+                                                   sk_sp<SkColorSpace> colorSpace = nullptr)
+
+Creates Image from copy of nv12TextureHandles, an array of textures on GPU.
+nv12TextureHandles[0] contains pixels for YUV_Component_Y plane.
+nv12TextureHandles[1] contains pixels for YUV_Component_U plane,
+followed by pixels for YUV_Component_V plane.
+nv12Sizes conain dimensions for each pixel plane. Dimensions must be greater than
+zero but may differ from plane to plane. Returned Image has the dimensions
+nv12Sizes[0]. yuvColorSpace describes how YUV colors convert to RGB colors.
+
+#Param context  GPU_Context ##
+#Param yuvColorSpace  one of: kJPEG_SkYUVColorSpace, kRec601_SkYUVColorSpace,
+                              kRec709_SkYUVColorSpace
+##
+#Param nv12TextureHandles  array of YUV textures on GPU ##
+#Param nv12Sizes  dimensions of YUV textures ##
+#Param surfaceOrigin  one of: kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin ##
+#Param colorSpace  range of colors; may be nullptr ##
+
+#Return created Image, or nullptr ##
+
+# seems too complicated to create an example for this
+#ToDo
+should this be moved to chrome only?
+##
+
+#NoExample
+##
+
+#SeeAlso MakeFromYUVTexturesCopy
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Bug 7424
+currently uncalled by any test or client
+##
+
 #Enum BitDepth
 
 #Code
-    enum BitDepth {
+    enum class BitDepth {
         kU8,
         kF16,
     };
 ##
 
 #Const kU8 0
+Use 8 bits per Color_ARGB component using unsigned integer format.
 ##
 #Const kF16 1
+Use 16 bits per Color_ARGB component using half-precision floating point format.  
 ##
 
-#Example
-// incomplete
+#NoExample
 ##
 
-#SeeAlso incomplete
+#SeeAlso MakeFromPicture
 
 #Enum ##
 
@@ -651,23 +919,44 @@ deleted after the function returns. The image will have the dimensions of the y 
                                           BitDepth bitDepth,
                                           sk_sp<SkColorSpace> colorSpace)
 
-Create a new image from the specified picture.
-On creation of the SkImage, snap the SkPicture to a particular BitDepth and SkColorSpace.
+Creates Image from picture. Returned Image width and height are set by dimensions.
+Image draws picture with matrix and paint, set to bitDepth and colorSpace.
 
-#Param picture  incomplete ##
-#Param dimensions  incomplete ##
-#Param matrix  incomplete ##
-#Param paint  incomplete ##
-#Param bitDepth  incomplete ##
-#Param colorSpace  incomplete ##
+If matrix is nullptr, draws with identity Matrix. If paint is nullptr, draws
+with default Paint. colorSpace may be nullptr. 
 
-#Return incomplete ##
+#Param picture  stream of drawing commands ##
+#Param dimensions  width and height ##
+#Param matrix  Matrix to rotate, scale, translate, and so on; may be nullptr ##
+#Param paint  Paint to apply transparency, filtering, and so on; may be nullptr ##
+#Param bitDepth  8 bit integer or 16 bit float: per component ##
+#Param colorSpace  range of colors; may be nullptr ##
+
+#Return created Image, or nullptr ##
 
 #Example
-// incomplete
+    SkPaint paint;
+    SkPictureRecorder recorder;
+    SkCanvas* recordingCanvas = recorder.beginRecording(50, 50);
+    for (auto color : { SK_ColorRED, SK_ColorBLUE, 0xff007f00 } ) {
+        paint.setColor(color);
+        recordingCanvas->drawRect({10, 10, 30, 40}, paint);
+        recordingCanvas->translate(10, 10);
+        recordingCanvas->scale(1.2f, 1.4f);
+    }
+    sk_sp<SkPicture> playback = recorder.finishRecordingAsPicture();
+    int x = 0, y = 0;
+    for (auto alpha : { 70, 140, 210 } ) {
+        paint.setAlpha(alpha);
+        auto srgbColorSpace = SkColorSpace::MakeSRGB();
+        sk_sp<SkImage> image = SkImage::MakeFromPicture(playback, {50, 50}, nullptr, &paint,
+                                                        SkImage::BitDepth::kU8, srgbColorSpace);
+        canvas->drawImage(image, x, y);
+        x += 70; y += 70;
+    }
 ##
 
-#SeeAlso incomplete
+#SeeAlso SkCanvas::drawPicture
 
 #Method ##
 
@@ -677,45 +966,25 @@ On creation of the SkImage, snap the SkPicture to a particular BitDepth and SkCo
                                                  SkAlphaType alphaType = kPremul_SkAlphaType,
                                                  sk_sp<SkColorSpace> colorSpace = nullptr)
 
-    Create a new image from the an Android hardware buffer.
-    The new image takes a reference on the buffer.
+#Bug 7447 ##
 
-    Only available on Android, when __ANDROID_API__ is defined to be 26 or greater.
+Creates Image from Android hardware buffer.
+Returned Image takes a reference on the buffer.
 
-#Param hardwareBuffer  incomplete ##
-#Param alphaType  incomplete ##
-#Param colorSpace  incomplete ##
+Only available on Android, when __ANDROID_API__ is defined to be 26 or greater.
 
-#Return incomplete ##
+#Param hardwareBuffer  AHardwareBuffer Android hardware buffer ##
+#Param alphaType  one of: kUnknown_SkAlphaType, kOpaque_SkAlphaType,
+                          kPremul_SkAlphaType, kUnpremul_SkAlphaType
+##
+#Param colorSpace  range of colors; may be nullptr ##
 
-#Example
-// incomplete
+#Return created Image, or nullptr ##
+
+#NoExample
 ##
 
-#SeeAlso incomplete
-
-#Method ##
-
-# ------------------------------------------------------------------------------
-
-#Method static sk_sp<SkImage> MakeFromAHardwareBuffer(AHardwareBuffer* hardwareBuffer,
-                                                 SkAlphaType alphaType = kPremul_SkAlphaType,
-                                                 sk_sp<SkColorSpace> colorSpace = nullptr)
-
-Create a new image from the an Android hardware buffer.
-The new image takes a reference on the buffer.
-
-#Param hardwareBuffer  incomplete ##
-#Param alphaType  incomplete ##
-#Param colorSpace  incomplete ##
-
-#Return incomplete ##
-
-#Example
-// incomplete
-##
-
-#SeeAlso incomplete
+#SeeAlso MakeFromRaster
 
 #Method ##
 
@@ -723,13 +992,23 @@ The new image takes a reference on the buffer.
 
 #Method int width() const
 
-#Return incomplete ##
+Returns pixel count in each row.
+
+#Return pixel width in Image ##
 
 #Example
-// incomplete
+#Image 4
+#Height 168
+   canvas->translate(10, 10);
+   canvas->drawImage(image, 0, 0);
+   canvas->translate(0, image->height());
+   SkPaint paint;
+   paint.setTextAlign(SkPaint::kCenter_Align);
+   canvas->drawLine(0, 10, image->width(), 10, paint);
+   canvas->drawString("width", image->width() / 2, 25, paint);
 ##
 
-#SeeAlso incomplete
+#SeeAlso dimensions() height()
 
 #Method ##
 
@@ -739,13 +1018,21 @@ The new image takes a reference on the buffer.
 
 Returns pixel row count.
 
-#Return incomplete ##
+#Return pixel height in Image ##
 
 #Example
-// incomplete
-##
+#Image 4
+#Height 148
+   canvas->translate(10, 10);
+   canvas->drawImage(image, 0, 0);
+   canvas->translate(image->width(), 0);
+   SkPaint paint;
+   paint.setTextAlign(SkPaint::kCenter_Align);
+   paint.setVerticalText(true);
+   canvas->drawLine(10, 0, 10, image->height(), paint);
+   canvas->drawString("height", 25, image->height() / 2, paint);##
 
-#SeeAlso incomplete
+#SeeAlso dimensions() width()
 
 #Method ##
 
@@ -758,10 +1045,14 @@ Returns ISize { width(), height() }.
 #Return integral size of width() and height() ##
 
 #Example
-// incomplete
+#Image 4
+    SkISize dimensions = image->dimensions();
+    SkIRect bounds = image->bounds();
+    SkIRect dimensionsAsBounds = SkIRect::MakeSize(dimensions);
+    SkDebugf("dimensionsAsBounds %c= bounds\n", dimensionsAsBounds == bounds ? '=' : '!');
 ##
 
-#SeeAlso height() width()
+#SeeAlso height() width() bounds()
 
 #Method ##
 
@@ -774,10 +1065,18 @@ Returns IRect { 0, 0, width(), height() }.
 #Return integral rectangle from origin to width() and height() ##
 
 #Example
-// incomplete
+#Height 128
+#Image 4
+    canvas->scale(.5f, .5f);
+    SkIRect bounds = image->bounds();
+    for (int x : { 0, image->width() } ) {
+        for (int y : { 0, image->height() } ) {
+            canvas->drawImage(image, x, y);
+        }
+    }
 ##
 
-#SeeAlso incomplete
+#SeeAlso dimensions() 
 
 #Method ##
 
@@ -785,13 +1084,27 @@ Returns IRect { 0, 0, width(), height() }.
 
 #Method uint32_t uniqueID() const
 
-#Return incomplete ##
+Returns value unique to image. Image contents cannot change after Image is
+created. Any operation to create a new Image will receive generate a new
+unique number.
+
+#Return unique identifier ##
 
 #Example
-// incomplete
+#Image 5
+#Height 156
+ sk_sp<SkImage> subset = image->makeSubset({10, 20, 90, 100});
+ canvas->drawImage(image, 0, 0);
+ canvas->drawImage(subset, 128, 0);
+ SkPaint paint;
+ SkString s;
+ s.printf("original id: %d", image->uniqueID());
+ canvas->drawString(s, 20, image->height() + 20, paint);
+ s.printf("subset id: %d", subset->uniqueID());
+ canvas->drawString(s, 148, subset->height() + 20, paint);
 ##
 
-#SeeAlso incomplete
+#SeeAlso isLazyGenerated
 
 #Method ##
 
@@ -799,13 +1112,25 @@ Returns IRect { 0, 0, width(), height() }.
 
 #Method SkAlphaType alphaType() const
 
-#Return incomplete ##
+Returns Alpha_Type, one of: kUnknown_SkAlphaType, kOpaque_SkAlphaType,
+kPremul_SkAlphaType, kUnpremul_SkAlphaType.
+
+Alpha_Type returned was a parameter to an Image constructor,
+or was parsed from encoded data.
+
+#Return Alpha_Type in Image ##
 
 #Example
-// incomplete
+#Image 4
+#Height 156
+  const char* alphaTypeStr[] = { "Unknown", "Opaque", "Premul", "Unpremul" };
+  SkAlphaType alphaType = image->alphaType();
+  canvas->drawImage(image, 0, 0);
+  SkPaint paint;
+  canvas->drawString(alphaTypeStr[(int) alphaType], 20, image->height() + 20, paint);
 ##
 
-#SeeAlso incomplete
+#SeeAlso SkImageInfo::alphaType
 
 #Method ##
 
@@ -978,7 +1303,7 @@ draws on GPU_Surface associated with context.
 Texture-backed images may become invalid if their underlying GrContext is abandoned. Some
 generator-backed images may be invalid for CPU and/or GPU.
 
-#Param context  incomplete ##
+#Param context  GPU_Context ##
 
 #Return incomplete ##
 
@@ -1168,20 +1493,14 @@ Returns nullptr if encoding fails, or encodedImageFormat is not supported.
 
 # ------------------------------------------------------------------------------
 
-#Method sk_sp<SkData> encodeToData(SkPixelSerializer* pixelSerializer = nullptr) const
+#Method sk_sp<SkData> encodeToData() const
 
 Encodes Image and returns result as SkData. Will reuse existing encoded data
-if present, as returned by refEncodedData. pixelSerializer validates existing
-encoded data, and encodes Image when existing encoded data is missing or
-invalid.
-
-Passing nullptr for pixelSerializer selects default serialization which 
-accepts all data and encodes to PNG.
+if present, as returned by refEncodedData. If encoded data is missing or invalid,
+Image is encoded as PNG.
 
 Returns nullptr if existing encoded data is missing or invalid and 
 encoding fails.
-
-#Param pixelSerializer  incomplete ##
 
 #Return incomplete ##
 
@@ -1258,7 +1577,7 @@ with surfaces that have the supplied destination color space. If no transformati
 required, the returned image may be the same as this image. If this image is from a
 different GrContext, this will fail.
 
-#Param context  incomplete ##
+#Param context  GPU_Context ##
 #Param dstColorSpace  incomplete ##
 
 #Return incomplete ##
@@ -1274,6 +1593,23 @@ different GrContext, this will fail.
 # ------------------------------------------------------------------------------
 
 #Method sk_sp<SkImage> makeNonTextureImage() const
+
+Creates raster Image if Image contains GPU_Texture and raster Image  ,  this will make a raster copy of it (or nullptr if reading back
+the pixels fails). Otherwise, it returns the original image.
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method sk_sp<SkImage> makeRasterImage() const
 
 If the image is texture-backed this will make a raster copy of it (or nullptr if reading back
 the pixels fails). Otherwise, it returns the original image.
@@ -1322,6 +1658,127 @@ caller.
 
 # ------------------------------------------------------------------------------
 
+#Struct DeferredTextureImageUsageParams
+
+#Code
+    struct DeferredTextureImageUsageParams {
+        DeferredTextureImageUsageParams(const SkMatrix matrix, const SkFilterQuality quality,
+                                        int preScaleMipLevel);
+        SkMatrix        fMatrix;
+        SkFilterQuality fQuality;
+        int             fPreScaleMipLevel;
+    };
+##
+
+#Member SkMatrix fMatrix
+##
+
+#Member SkFilterQuality fQuality
+##
+
+#Member int fPreScaleMipLevel
+##
+
+#Method         DeferredTextureImageUsageParams(const SkMatrix matrix, const SkFilterQuality quality,
+                                        int preScaleMipLevel)
+
+#Param matrix incomplete ##
+#Param quality incomplete ##
+#Param preScaleMipLevel incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+##
+
+#Method size_t getDeferredTextureImageData(const GrContextThreadSafeProxy& contextThreadSafeProxy,
+                            const DeferredTextureImageUsageParams deferredTextureImageUsageParams[],
+                            int paramCnt,
+                            void* buffer,
+                            SkColorSpace* dstColorSpace = nullptr,
+                            SkColorType dstColorType = kN32_SkColorType) const
+
+This method allows clients to capture the data necessary to turn a SkImage into a texture-
+backed image. If the original image is codec-backed this will decode into a format optimized
+for the context represented by the proxy. This method is thread safe with respect to the
+GrContext whence the proxy came. Clients allocate and manage the storage of the deferred
+texture data and control its lifetime. No cleanup is required, thus it is safe to simply free
+the memory out from under the data.
+
+The same method is used both for getting the size necessary for pre-uploaded texture data
+and for retrieving the data. The params array represents the set of draws over which to
+optimize the pre-upload data.
+
+When called with a null buffer this returns the size that the client must allocate in order
+to create deferred texture data for this image (or zero if this is an inappropriate
+candidate). The buffer allocated by the client should be 8 byte aligned.
+
+When buffer is not null this fills in the deferred texture data for this image in the
+provided buffer (assuming this is an appropriate candidate image and the buffer is
+appropriately aligned). Upon success the size written is returned, otherwise 0.
+
+dstColorSpace is the color space of the surface where this texture will ultimately be used.
+If the method determines that mip-maps are needed, this helps determine the correct strategy
+for building them (gamma-correct or not).
+
+dstColorType is the color type of the surface where this texture will ultimately be used.
+This determines the format with which the image will be uploaded to the GPU. If dstColorType
+does not support color spaces (low bit depth types such as kARGB_4444_SkColorType),
+then dstColorSpace must be null.
+
+#Param contextThreadSafeProxy  incomplete ##
+#Param deferredTextureImageUsageParams  incomplete ##
+#Param paramCnt  incomplete ##
+#Param buffer  incomplete ##
+#Param dstColorSpace  incomplete ##
+#Param dstColorType  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+##
+
+#Method static sk_sp<SkImage> MakeFromDeferredTextureImageData(GrContext* context, const void* data,
+                                                           SkBudgeted budgeted)
+
+Returns a texture-backed image from data produced in SkImage::getDeferredTextureImageData.
+The context must be the context that provided the proxy passed to
+getDeferredTextureImageData.
+
+#Param context GPU_Context ##
+#Param data incomplete ##
+#Param budgeted incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+##
+
+# ------------------------------------------------------------------------------
+
 #Typedef std::function<void(GrBackendTexture)> BackendTextureReleaseProc
 
 ##
@@ -1347,7 +1804,7 @@ without conversion or making a copy.
 If the SkImage is not texture backed, this function will generate a texture with the image's
 contents and return that.
 
-#Param context  incomplete ##
+#Param context  GPU_Context ##
 #Param image  incomplete ##
 #Param backendTexture  incomplete ##
 #Param backendTextureReleaseProc  incomplete ##
