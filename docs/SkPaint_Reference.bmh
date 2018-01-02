@@ -567,47 +567,10 @@ can reconstitute the paint at a later time.
 
 #Param buffer  Write_Buffer receiving the flattened Paint data ##
 
-#Example
-    class PaintDumper : public SkWriteBuffer {
-    public:
-        bool isCrossProcess() const override { return false; };
-        void writePad32(const void* buffer, size_t bytes) override {}
-        void writeByteArray(const void* data, size_t size) override {}
-        void writeBool(bool value) override {}
-        void writeScalar(SkScalar value) override {}
-        void writeScalarArray(const SkScalar* value, uint32_t count) override {}
-        void writeInt(int32_t value) override {}
-        void writeIntArray(const int32_t* value, uint32_t count) override {}
-        void writeUInt(uint32_t value) override {}
-        void writeString(const char* value) override {}
-        void writeFlattenable(const SkFlattenable* flattenable) override {}
-        void writeColorArray(const SkColor* color, uint32_t count) override {}
-        void writeColor4f(const SkColor4f& color) override {}
-        void writeColor4fArray(const SkColor4f* color, uint32_t count) override {}
-        void writePoint(const SkPoint& point) override {}
-        void writePointArray(const SkPoint* point, uint32_t count) override {}
-        void writeMatrix(const SkMatrix& matrix) override {}
-        void writeIRect(const SkIRect& rect) override {}
-        void writeRect(const SkRect& rect) override {}
-        void writeRegion(const SkRegion& region) override {}
-        void writePath(const SkPath& path) override {}
-        size_t writeStream(SkStream* stream, size_t length) override { return 0; }
-        void writeImage(const SkImage*) override {}
-        void writeTypeface(SkTypeface* typeface) override {}
-        void writePaint(const SkPaint& paint) override {}
+# why is flatten() public? 
+#Bug 6172 ##
 
-        void writeColor(SkColor color) override {
-            SkDebugf("color = 0x%08x\n", color);
-        }
-    } dumper;
-
-    SkPaint paint;
-    paint.setColor(SK_ColorRED);
-    paint.flatten(dumper);
-
-    #StdOut
-        color = 0xffff0000
-    ##
+#NoExample
 ##
 
 ##

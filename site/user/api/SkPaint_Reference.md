@@ -613,18 +613,6 @@ can reconstitute the paint at a later time.
   </tr>
 </table>
 
-### Example
-
-<div><fiddle-embed name="ef700e9d42d1826d35e92eeae120e7fa">
-
-#### Example Output
-
-~~~~
-color = 0xffff0000
-~~~~
-
-</fiddle-embed></div>
-
 ---
 
 <a name="SkPaint_unflatten"></a>
