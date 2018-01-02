@@ -436,8 +436,8 @@ DEF_TEST(SkPDF_FontCanEmbedTypeface, reporter) {
 // test to see that all finite scalars round trip via scanf().
 static void check_pdf_scalar_serialization(
         skiatest::Reporter* reporter, float inputFloat) {
-    char floatString[SkPDFUtils::kMaximumFloatDecimalLength];
-    size_t len = SkPDFUtils::FloatToDecimal(inputFloat, floatString);
+    char floatString[kMaximumSkFloatToDecimalLength];
+    size_t len = SkFloatToDecimal(inputFloat, floatString);
     if (len >= sizeof(floatString)) {
         ERRORF(reporter, "string too long: %u", (unsigned)len);
         return;
