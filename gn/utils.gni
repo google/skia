@@ -38,6 +38,8 @@ skia_utils_sources = [
   "$_src/utils/SkDashPathPriv.h",
   "$_src/utils/SkDumpCanvas.cpp",
   "$_src/utils/SkEventTracer.cpp",
+  "$_src/utils/SkFloatToDecimal.cpp",
+  "$_src/utils/SkFloatToDecimal.h",
   "$_src/utils/SkFloatUtils.h",
   "$_src/utils/SkInsetConvexPolygon.cpp",
   "$_src/utils/SkInsetConvexPolygon.h",

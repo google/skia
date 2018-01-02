@@ -7,6 +7,7 @@
 #ifndef SkPDFUtils_DEFINED
 #define SkPDFUtils_DEFINED
 
+#include "SkFloatToDecimal.h"
 #include "SkPDFTypes.h"
 #include "SkPaint.h"
 #include "SkPath.h"
@@ -76,14 +77,13 @@ inline void AppendColorComponent(uint8_t value, SkWStream* wStream) {
     wStream->write(buffer, len);
 }
 
-// 3 = '-', '.', and '\0' characters.
-// 9 = number of significant digits
-// abs(FLT_MIN_10_EXP) = number of zeros in FLT_MIN
-const size_t kMaximumFloatDecimalLength = 3 + 9 - FLT_MIN_10_EXP;
-// FloatToDecimal is exposed for unit tests.
-size_t FloatToDecimal(float value,
-                      char output[kMaximumFloatDecimalLength]);
-void AppendScalar(SkScalar value, SkWStream* stream);
+inline void AppendScalar(SkScalar value, SkWStream* stream) {
+    char result[kMaximumSkFloatToDecimalLength];
+    size_t len = SkFloatToDecimal(SkScalarToFloat(value), result);
+    SkASSERT(len < kMaximumSkFloatToDecimalLength);
+    stream->write(result, len);
+}
+
 void WriteString(SkWStream* wStream, const char* input, size_t len);
 
 inline void WriteUInt16BE(SkDynamicMemoryWStream* wStream, uint16_t value) {

@@ -10,6 +10,7 @@
 #include "Resources.h"
 #include "SkAutoPixmapStorage.h"
 #include "SkData.h"
+#include "SkFloatToDecimal.h"
 #include "SkGradientShader.h"
 #include "SkImage.h"
 #include "SkPixmap.h"
@@ -36,12 +37,30 @@ struct WStreamWriteTextBenchmark : public Benchmark {
 
 DEF_BENCH(return new WStreamWriteTextBenchmark;)
 
+// Test speed of SkFloatToDecimal for typical floats that
+// might be found in a PDF document.
+struct PDFScalarBench : public Benchmark {
+    bool isSuitableFor(Backend b) override {
+        return b == kNonRendering_Backend;
+    }
+    const char* onGetName() override { return "PDFScalar"; }
+    void onDraw(int loops, SkCanvas*) override {
+        SkRandom random;
+        char dst[kMaximumSkFloatToDecimalLength];
+        while (loops-- > 0) {
+            auto f = random.nextRangeF(-500.0f, 1500.0f);
+            (void)SkFloatToDecimal(f, dst);
+        }
+    }
+};
+
+DEF_BENCH(return new PDFScalarBench;)
+
 #ifdef SK_SUPPORT_PDF
 
 #include "SkPDFBitmap.h"
 #include "SkPDFDocument.h"
 #include "SkPDFShader.h"
-#include "SkPDFUtils.h"
 
 namespace {
 static void test_pdf_object_serialization(const sk_sp<SkPDFObject> object) {
@@ -164,23 +183,6 @@ private:
     std::unique_ptr<SkStreamAsset> fAsset;
 };
 
-// Test speed of SkPDFUtils::FloatToDecimal for typical floats that
-// might be found in a PDF document.
-struct PDFScalarBench : public Benchmark {
-    bool isSuitableFor(Backend b) override {
-        return b == kNonRendering_Backend;
-    }
-    const char* onGetName() override { return "PDFScalar"; }
-    void onDraw(int loops, SkCanvas*) override {
-        SkRandom random;
-        char dst[SkPDFUtils::kMaximumFloatDecimalLength];
-        while (loops-- > 0) {
-            auto f = random.nextRangeF(-500.0f, 1500.0f);
-            (void)SkPDFUtils::FloatToDecimal(f, dst);
-        }
-    }
-};
-
 struct PDFColorComponentBench : public Benchmark {
     bool isSuitableFor(Backend b) override {
         return b == kNonRendering_Backend;
@@ -244,7 +246,6 @@ struct WritePDFTextBenchmark : public Benchmark {
 DEF_BENCH(return new PDFImageBench;)
 DEF_BENCH(return new PDFJpegImageBench;)
 DEF_BENCH(return new PDFCompressionBench;)
-DEF_BENCH(return new PDFScalarBench;)
 DEF_BENCH(return new PDFColorComponentBench;)
 DEF_BENCH(return new PDFShaderBench;)
 DEF_BENCH(return new WritePDFTextBenchmark;)
