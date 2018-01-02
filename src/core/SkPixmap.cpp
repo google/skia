@@ -11,6 +11,7 @@
 #include "SkConvertPixels.h"
 #include "SkData.h"
 #include "SkImageInfoPriv.h"
+#include "SkImageShader.h"
 #include "SkHalf.h"
 #include "SkMask.h"
 #include "SkNx.h"
@@ -228,10 +229,6 @@ bool SkPixmap::erase(const SkColor4f& origColor, const SkIRect* subset) const {
     return true;
 }
 
-static void set_alphatype(SkPixmap* dst, const SkPixmap& src, SkAlphaType at) {
-    dst->reset(src.info().makeAlphaType(at), src.addr(), src.rowBytes());
-}
-
 bool SkPixmap::scalePixels(const SkPixmap& dst, SkFilterQuality quality) const {
     // Can't do anthing with empty src or dst
     if (this->width() <= 0 || this->height() <= 0 || dst.width() <= 0 || dst.height() <= 0) {
@@ -243,39 +240,46 @@ bool SkPixmap::scalePixels(const SkPixmap& dst, SkFilterQuality quality) const {
         return this->readPixels(dst);
     }
 
-    // Temp storage in case we need to edit the requested alphatypes
-    SkPixmap storage_src, storage_dst;
-    const SkPixmap* srcPtr = this;
-    const SkPixmap* dstPtr = &dst;
-
-    // Trick: if src and dst are both unpremul, we can give the correct result if we change both
-    //        to premul (or opaque), since the draw will not try to blend or otherwise interpret
-    //        the pixels' alpha.
-    if (srcPtr->alphaType() == kUnpremul_SkAlphaType &&
-        dstPtr->alphaType() == kUnpremul_SkAlphaType)
-    {
-        set_alphatype(&storage_src, *this, kPremul_SkAlphaType);
-        set_alphatype(&storage_dst, dst,   kPremul_SkAlphaType);
-        srcPtr = &storage_src;
-        dstPtr = &storage_dst;
-    }
-
     SkBitmap bitmap;
-    if (!bitmap.installPixels(*srcPtr)) {
+    if (!bitmap.installPixels(*this)) {
         return false;
     }
-    bitmap.setIsVolatile(true); // so we don't try to cache it
+    bitmap.setIsVolatile(true);   // Disable any caching.
 
-    auto surface(SkSurface::MakeRasterDirect(dstPtr->info(), dstPtr->writable_addr(), dstPtr->rowBytes()));
-    if (!surface) {
+    // We're going to set this up a little oddly so that we can scale unpremul SkPixmaps
+    // to unpremul dsts without ever premultiplying (and potentially throwing away information).
+
+    // 1) Instead of just drawing bitmap with drawBitmap(), we'll create a shader
+    // that carefully keeps its output in the alpha type we request, dst.alphaType().
+    sk_sp<SkImage> img = SkMakeImageFromRasterBitmap(bitmap, kNever_SkCopyPixelsMode);
+    sk_sp<SkShader> shader = SkImageShader::Make(img,
+                                                 SkShader::kClamp_TileMode,
+                                                 SkShader::kClamp_TileMode,
+                                                 nullptr/*local matrix*/,
+                                                 dst.alphaType());
+
+    // 2) No matter what dst's actual alpha type is, we'll construct this surface
+    // as if it were premul.  This keeps the rest of the drawing pipeline oblivious
+    // to our trickery here, and prevents it from doing anything like a manual unpremul.
+    sk_sp<SkSurface> surface =
+        SkSurface::MakeRasterDirect(dst.info().makeAlphaType(kPremul_SkAlphaType),
+                                    dst.writable_addr(),
+                                    dst.rowBytes());
+    if (!img || !shader || !surface) {
         return false;
     }
 
+    // 3) Using SkBlendMode::kSrc means we won't be tempted to try any premul-only blending math.
     SkPaint paint;
-    paint.setFilterQuality(quality);
     paint.setBlendMode(SkBlendMode::kSrc);
-    surface->getCanvas()->drawBitmapRect(bitmap, SkRect::MakeIWH(dst.width(), dst.height()),
-                                         &paint);
+    paint.setFilterQuality(quality);
+    paint.setShader(std::move(shader));
+
+    // 4) Here's the actual "scale" part of the operation.
+    surface->getCanvas()->concat(SkMatrix::MakeRectToRect(SkRect::Make(img->bounds()),
+                                                          SkRect::Make(dst.bounds()),
+                                                          SkMatrix::kFill_ScaleToFit));
+    surface->getCanvas()->drawPaint(paint);
     return true;
 }
 
