@@ -4868,10 +4868,10 @@
     "name": "SkImage::bounds()"
 },
     "SkImage_colorSpace": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "code": "void draw(SkCanvas* canvas) {\n    SkPixmap pixmap;\n    source.peekPixels(&pixmap);\n    canvas->scale(.25f, .25f);\n    int y = 0;\n    for (auto gamma : { SkColorSpace::kLinear_RenderTargetGamma,\n                        SkColorSpace::kSRGB_RenderTargetGamma } ) {\n        int x = 0;\n        sk_sp<SkColorSpace> colorSpace = SkColorSpace::MakeRGB(gamma, SkColorSpace::kSRGB_Gamut);\n        for (int index = 0; index < 2; ++index) {\n            pixmap.setColorSpace(colorSpace);\n            sk_sp<SkImage> image = SkImage::MakeRasterCopy(pixmap);\n            canvas->drawImage(image, x, y);\n            colorSpace = image->colorSpace()->makeColorSpin();\n            x += 512;\n        }\n        y += 512;\n    }\n}",
     "width": 256,
     "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
+    "hash": "4468d573f42af6f5e234be10a5453bb2",
     "file": "SkImage_Reference",
     "name": "SkImage::colorSpace"
 },
