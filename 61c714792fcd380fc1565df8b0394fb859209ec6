@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "60a82bb5_18a19342",
+        "filename": "infra/bots/recipes/bookmaker.py",
+        "patchSetId": 12
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2018-01-02T17:38:31Z",
+      "side": 1,
+      "message": "Example failure run: https://chromium-swarm.appspot.com/task?id\u003d3a97e6c00ff78010\n\nIt would be useful to display the stdout of the \"Validate docs match include/core/*.h\" step inside the \"Failure reason\" step to make it obvious to developers how to fix the bot.\nAny tips on how to do that?",
+      "revId": "61c714792fcd380fc1565df8b0394fb859209ec6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
