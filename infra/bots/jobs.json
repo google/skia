@@ -91,6 +91,7 @@
   "Housekeeper-Nightly-RecreateSKPs_Canary",
   "Housekeeper-Nightly-UpdateMetaConfig",
   "Housekeeper-PerCommit",
+  "Housekeeper-PerCommit-Bookmaker",
   "Housekeeper-PerCommit-BundleRecipes",
   "Housekeeper-PerCommit-CheckGeneratedFiles",
   "Housekeeper-PerCommit-InfraTests",

@@ -118,7 +118,7 @@ func linuxGceDimensions() []string {
 // deriveCompileTaskName returns the name of a compile task based on the given
 // job name.
 func deriveCompileTaskName(jobName string, parts map[string]string) string {
-	if jobName == "Housekeeper-Nightly-Bookmaker" {
+	if strings.Contains(jobName, "Bookmaker") {
 		return "Build-Debian9-GCC-x86_64-Release"
 	} else if parts["role"] == "Housekeeper" {
 		return "Build-Debian9-GCC-x86_64-Release-Shared"
@@ -1174,7 +1174,7 @@ func process(b *specs.TasksCfgBuilder, name string) {
 	if name == "Housekeeper-PerCommit-CheckGeneratedFiles" {
 		deps = append(deps, checkGeneratedFiles(b, name))
 	}
-	if name == "Housekeeper-Nightly-Bookmaker" {
+	if strings.Contains(name, "Bookmaker") {
 		deps = append(deps, bookmaker(b, name, compileTaskName))
 	}
 
