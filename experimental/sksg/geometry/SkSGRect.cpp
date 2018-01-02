@@ -22,4 +22,14 @@ SkRect Rect::onComputeBounds() const {
     return fRect;
 }
 
+RRect::RRect(const SkRRect& rr) : fRRect(rr) {}
+
+void RRect::onDraw(SkCanvas* canvas, const SkPaint& paint) const {
+    canvas->drawRRect(fRRect, paint);
+}
+
+SkRect RRect::onComputeBounds() const {
+    return fRRect.getBounds();
+}
+
 } // namespace sksg
