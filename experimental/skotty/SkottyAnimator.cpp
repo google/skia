@@ -39,7 +39,7 @@ void KeyframeInterval<ShapeValue>::lerp(float t, ShapeValue* v) const {
     SkASSERT(fV0.cardinality() == fV1.cardinality());
     SkASSERT(v->cardinality() == 0);
 
-    SkAssertResult(fV0.fPath.interpolate(fV1.fPath, t, &v->fPath));
+    SkAssertResult(fV1.fPath.interpolate(fV0.fPath, t, &v->fPath));
 }
 
 } // namespace skotty
