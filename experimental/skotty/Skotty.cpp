@@ -21,6 +21,7 @@
 #include "SkSGInvalidationController.h"
 #include "SkSGGroup.h"
 #include "SkSGPath.h"
+#include "SkSGRect.h"
 #include "SkSGTransform.h"
 #include "SkStream.h"
 #include "SkTArray.h"
@@ -79,7 +80,7 @@ bool AttachProperty(const Json::Value& jprop, AttachContext* ctx, const sk_sp<No
 
 sk_sp<sksg::RenderNode> AttachTransform(const Json::Value& t, AttachContext* ctx,
                                         sk_sp<sksg::RenderNode> wrapped_node) {
-    if (!t.isObject())
+    if (!t.isObject() || !wrapped_node)
         return wrapped_node;
 
     auto xform = sk_make_sp<CompositeTransform>(wrapped_node);
@@ -141,6 +142,26 @@ sk_sp<sksg::GeometryNode> AttachPathGeometry(const Json::Value& jpath, AttachCon
         LOG("** Attached path geometry - verbs: %d\n", path_node->getPath().countVerbs());
 
     return path_attached ? path_node : nullptr;
+}
+
+sk_sp<sksg::GeometryNode> AttachRRectGeometry(const Json::Value& jrect, AttachContext* ctx) {
+    SkASSERT(jrect.isObject());
+
+    auto rect_node = sksg::RRect::Make();
+    auto composite = sk_make_sp<CompositeRRect>(rect_node);
+
+    auto p_attached = AttachProperty<VectorValue, SkPoint>(jrect["p"], ctx, composite,
+            [](const sk_sp<CompositeRRect>& node, const SkPoint& pos) { node->setPosition(pos); });
+    auto s_attached = AttachProperty<VectorValue, SkSize>(jrect["s"], ctx, composite,
+            [](const sk_sp<CompositeRRect>& node, const SkSize& sz) { node->setSize(sz); });
+    auto r_attached = AttachProperty<ScalarValue, SkScalar>(jrect["r"], ctx, composite,
+            [](const sk_sp<CompositeRRect>& node, SkScalar radius) { node->setRadius(radius); });
+
+    if (!p_attached && !s_attached && !r_attached) {
+        return nullptr;
+    }
+
+    return rect_node;
 }
 
 sk_sp<sksg::Color> AttachColorPaint(const Json::Value& obj, AttachContext* ctx) {
@@ -205,6 +226,7 @@ sk_sp<sksg::PaintNode> AttachStrokePaint(const Json::Value& jstroke, AttachConte
 using GeometryAttacherT = sk_sp<sksg::GeometryNode> (*)(const Json::Value&, AttachContext*);
 static constexpr GeometryAttacherT gGeometryAttachers[] = {
     AttachPathGeometry,
+    AttachRRectGeometry,
 };
 
 using PaintAttacherT = sk_sp<sksg::PaintNode> (*)(const Json::Value&, AttachContext*);
@@ -241,6 +263,7 @@ const ShapeInfo* FindShapeInfo(const Json::Value& shape) {
     static constexpr ShapeInfo gShapeInfo[] = {
         { "fl", ShapeType::kPaint    , 0 }, // fill      -> AttachFillPaint
         { "gr", ShapeType::kGroup    , 0 }, // group     -> AttachShapeGroup
+        { "rc", ShapeType::kGeometry , 1 }, // shape     -> AttachRRectGeometry
         { "sh", ShapeType::kGeometry , 0 }, // shape     -> AttachPathGeometry
         { "st", ShapeType::kPaint    , 1 }, // stroke    -> AttachStrokePaint
         { "tr", ShapeType::kTransform, 0 }, // transform -> AttachTransform
