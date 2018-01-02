@@ -117,11 +117,11 @@ public:
     const void* skip(size_t size);
     const void* skip(size_t count, size_t size);    // does safe multiply
 
-    template <typename T> const T* skipT(size_t size) {
-        return static_cast<const T*>(this->skip(size));
+    template <typename T> const T* skipT() {
+        return static_cast<const T*>(this->skip(sizeof(T)));
     }
-    template <typename T> const T* skipT(size_t count, size_t size) {
-        return static_cast<const T*>(this->skip(count, size));
+    template <typename T> const T* skipT(size_t count) {
+        return static_cast<const T*>(this->skip(count, sizeof(T)));
     }
 
     // primitives
