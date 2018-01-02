@@ -2,6 +2,52 @@
   "comments": [
     {
       "key": {
+        "uuid": "54078685_e33ccd51",
+        "filename": "infra/bots/recipes/bookmaker.py",
+        "patchSetId": 12
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-01-02T19:47:58Z",
+      "side": 1,
+      "message": "IIRC this should be api.vars.builder_name.",
+      "range": {
+        "startLine": 53,
+        "startChar": 17,
+        "endLine": 53,
+        "endChar": 47
+      },
+      "revId": "61c714792fcd380fc1565df8b0394fb859209ec6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ed6fb21d_d6db4f55",
+        "filename": "infra/bots/recipes/bookmaker.py",
+        "patchSetId": 12
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-01-02T19:47:58Z",
+      "side": 1,
+      "message": "We may want this to be a separate recipe, since the only common steps are setup stuff.",
+      "range": {
+        "startLine": 55,
+        "startChar": 4,
+        "endLine": 55,
+        "endChar": 34
+      },
+      "revId": "61c714792fcd380fc1565df8b0394fb859209ec6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "60a82bb5_18a19342",
         "filename": "infra/bots/recipes/bookmaker.py",
         "patchSetId": 12
@@ -13,6 +59,24 @@
       "writtenOn": "2018-01-02T17:38:31Z",
       "side": 1,
       "message": "Example failure run: https://chromium-swarm.appspot.com/task?id\u003d3a97e6c00ff78010\n\nIt would be useful to display the stdout of the \"Validate docs match include/core/*.h\" step inside the \"Failure reason\" step to make it obvious to developers how to fix the bot.\nAny tips on how to do that?",
+      "revId": "61c714792fcd380fc1565df8b0394fb859209ec6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "459a94dd_dbe63b57",
+        "filename": "infra/bots/recipes/bookmaker.py",
+        "patchSetId": 12
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-01-02T19:47:58Z",
+      "side": 1,
+      "message": "I don\u0027t think it\u0027s possible unless you consume the output of the step (see steps which read files and that kind of thing), in which case the output would not show up in the step itself.  IIRC even chrome-infra has some steps which say \"see output of X step for the failure\".",
+      "parentUuid": "60a82bb5_18a19342",
       "revId": "61c714792fcd380fc1565df8b0394fb859209ec6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
