@@ -1070,6 +1070,7 @@ struct Task {
     static void Run(const Task& task) {
         SkString name = task.src->name();
 
+        SkDebugf("dm start: %s\n", name.c_str());
         SkString log;
         if (!FLAGS_dryRun) {
             SkBitmap bitmap;
@@ -1156,6 +1157,7 @@ struct Task {
                 }
             });
         }
+        SkDebugf("dm end: %s\n", name.c_str());
         done(task.sink.tag.c_str(), task.src.tag.c_str(), task.src.options.c_str(), name.c_str());
     }
 

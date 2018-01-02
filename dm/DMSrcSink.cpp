@@ -23,6 +23,8 @@
 #include "SkDeferredDisplayListRecorder.h"
 #include "SkDocument.h"
 #include "SkExecutor.h"
+
+#include "SkDrawFilter.h"
 #include "SkImageGenerator.h"
 #include "SkImageGeneratorCG.h"
 #include "SkImageGeneratorWIC.h"
@@ -74,6 +76,9 @@ DEFINE_bool(multiPage, false, "For document-type backends, render the source"
 DEFINE_bool(RAW_threading, true, "Allow RAW decodes to run on multiple threads?");
 
 using sk_gpu_test::GrContextFactory;
+
+extern uint64_t gOperationCount;
+extern bool gInBlob;
 
 namespace DM {
 
@@ -1151,6 +1156,7 @@ SKPSrc::SKPSrc(Path path) : fPath(path) { }
 
 static sk_sp<SkPicture> read_skp(const char* path) {
     std::unique_ptr<SkStream> stream = SkStream::MakeFromFile(path);
+
     if (!stream) {
         return nullptr;
     }
@@ -1170,7 +1176,20 @@ Error SKPSrc::draw(SkCanvas* canvas) const {
     }
 
     canvas->clipRect(kSKPViewport);
+
+    class Counter : public SkDrawFilter {
+        bool filter(SkPaint*, Type) override {
+            if (!gInBlob) {
+                gOperationCount += 1;
+            }
+            return true;
+        }
+    };
+
+    Counter c;
+    canvas->setDrawFilter(&c);
     canvas->drawPicture(pic);
+    canvas->setDrawFilter(nullptr);
     return "";
 }
 

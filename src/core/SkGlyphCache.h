@@ -340,8 +340,13 @@ public:
             }
         }
 
+
+        uint32_t checksum = cache->getDescriptor().getChecksum();
+        uint32_t gCount = cache->getScalerContext()->getGlyphCount();
+        SkDebugf("glyph start: %u %u %u\n", checksum, gCount, glyphCount);
         for (size_t i = 0; i < glyphCount; i++) {
             SkGlyphID glyphId = glyphs[i];
+            SkDebugf("glyph use: %u %u\n", checksum, glyphId);
             SkPoint finalPosition = positioner(i);
             if (!SkScalarsAreFinite(finalPosition.fX, finalPosition.fY)) {
                 continue;
@@ -385,6 +390,8 @@ public:
 
             imager(mask);
         }
+
+        SkDebugf("glyph end: %u\n", checksum);
 
         return true;
 
