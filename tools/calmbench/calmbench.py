@@ -129,6 +129,7 @@ def compile_branch(args, branch):
 
   commands = [
     ['git', 'checkout', branch],
+    ['gclient', 'sync'],
     ['ninja', '-C', args.ninjadir, 'nanobench'],
     ['cp', args.ninjadir + '/nanobench', nano_path(args, branch)]
   ]
@@ -150,6 +151,7 @@ def compile_modified(args):
     subprocess.check_call(['git', 'reset', 'HEAD^', '--soft'])
     subprocess.check_call(['git', 'stash'])
 
+  subprocess.check_call(['gclient', 'sync'], cwd=args.skiadir)
   subprocess.check_call(
       ['ninja', '-C', args.ninjadir, 'nanobench'], cwd=args.skiadir)
   subprocess.check_call(
