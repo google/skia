@@ -131,6 +131,11 @@ public:
         return fMustGuardDivisionEvenAfterExplicitZeroCheck;
     }
 
+    // On at least one Intel/ANGLE platform, inverse(mat2) doesn't exist.
+    bool inverseMat2IsMissing() const {
+        return fInverseMat2IsMissing;
+    }
+
     // Returns the string of an extension that must be enabled in the shader to support
     // derivatives. If nullptr is returned then no extension needs to be enabled. Before calling
     // this function, the caller should check that shaderDerivativeSupport exists.
@@ -267,6 +272,7 @@ private:
     bool fRequiresLocalOutputColorForFBFetch : 1;
     bool fMustObfuscateUniformColor : 1;
     bool fMustGuardDivisionEvenAfterExplicitZeroCheck : 1;
+    bool fInverseMat2IsMissing : 1;
 
     const char* fVersionDeclString;
 

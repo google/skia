@@ -38,6 +38,7 @@ GrShaderCaps::GrShaderCaps(const GrContextOptions& options) {
     fRequiresLocalOutputColorForFBFetch = false;
     fMustObfuscateUniformColor = false;
     fMustGuardDivisionEvenAfterExplicitZeroCheck = false;
+    fInverseMat2IsMissing = false;
     fFlatInterpolationSupport = false;
     fPreferFlatInterpolation = false;
     fNoPerspectiveInterpolationSupport = false;
@@ -112,6 +113,7 @@ void GrShaderCaps::dumpJSON(SkJSONWriter* writer) const {
     writer->appendBool("Must obfuscate uniform color", fMustObfuscateUniformColor);
     writer->appendBool("Must guard division even after explicit zero check",
                        fMustGuardDivisionEvenAfterExplicitZeroCheck);
+    writer->appendBool("inverse(mat2) is missing", fInverseMat2IsMissing);
     writer->appendBool("Flat interpolation support", fFlatInterpolationSupport);
     writer->appendBool("Prefer flat interpolation", fPreferFlatInterpolation);
     writer->appendBool("No perspective interpolation support", fNoPerspectiveInterpolationSupport);

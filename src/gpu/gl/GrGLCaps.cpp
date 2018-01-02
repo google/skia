@@ -16,6 +16,10 @@
 #include "SkTSearch.h"
 #include "SkTSort.h"
 
+
+
+#include "SkAutoMalloc.h"
+
 GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
                    const GrGLContextInfo& ctxInfo,
                    const GrGLInterface* glInterface) : INHERITED(contextOptions) {
@@ -1044,6 +1048,38 @@ void GrGLCaps::initGLSL(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli
         shaderCaps->fMustGuardDivisionEvenAfterExplicitZeroCheck = true;
     }
 #endif
+
+    // On at least one Intel/ANGLE platform, inverse(mat2) doesn't exist.
+    const char* inverseMat2Shader[] = {
+        fShaderCaps->fVersionDeclString,
+        "void main() { inverse(mat2(1,2,3,4)); }"
+    };
+    GrGLuint inverseMat2ShaderID;
+    GR_GL_CALL_RET(gli, inverseMat2ShaderID, CreateShader(GR_GL_VERTEX_SHADER));
+    GR_GL_CALL(gli, ShaderSource(inverseMat2ShaderID, SK_ARRAY_COUNT(inverseMat2Shader),
+                                 inverseMat2Shader, nullptr));
+    GR_GL_CALL(gli, CompileShader(inverseMat2ShaderID));
+    GrGLint success = GR_GL_INIT_ZERO;
+    GR_GL_CALL(gli, GetShaderiv(inverseMat2ShaderID, GR_GL_COMPILE_STATUS, &success));
+    shaderCaps->fInverseMat2IsMissing = !success;
+    SkDebugf("@@@> %s@@@> %s\n", inverseMat2Shader[0], inverseMat2Shader[1]);
+    SkDebugf("@@@@@@@> shaderCaps->fInverseMat2IsMissing=%i\n", shaderCaps->fInverseMat2IsMissing);
+    if (!success) {
+        SkDebugf("GLSL compilation error\n----------------------\n");
+        GrGLint infoLen = GR_GL_INIT_ZERO;
+        GR_GL_CALL(gli, GetShaderiv(inverseMat2ShaderID, GR_GL_INFO_LOG_LENGTH, &infoLen));
+        SkAutoMalloc log(sizeof(char)*(infoLen+1)); // outside if for debugger
+        if (infoLen > 0) {
+            // retrieve length even though we don't need it to workaround bug in Chromium cmd
+            // buffer param validation.
+            GrGLsizei length = GR_GL_INIT_ZERO;
+            GR_GL_CALL(gli, GetShaderInfoLog(inverseMat2ShaderID, infoLen+1, &length, (char*)log.get()));
+            SkDebugf("Errors:\n%s\n", (const char*) log.get());
+        }
+        SkDEBUGFAIL("GLSL compilation failed!");
+        GR_GL_CALL(gli, DeleteShader(inverseMat2ShaderID));
+    }
+    exit(-(int)shaderCaps->fInverseMat2IsMissing);
 }
 
 bool GrGLCaps::hasPathRenderingSupport(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
