@@ -22,6 +22,30 @@
       "revId": "f2a7dfbf1fb09c00382899d9b944363b8d95ffb5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "25a4549e_900b84c9",
+        "filename": "src/shaders/gradients/SkTwoPointConicalGradient_gpu.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 472,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2018-01-02T16:12:00Z",
+      "side": 1,
+      "message": "Yes, I did that just for clarity. I\u0027ve now made it 0 and write fRadius0 / fDiffRadius in the comment.",
+      "parentUuid": "8fbe9988_2c647a06",
+      "range": {
+        "startLine": 472,
+        "startChar": 25,
+        "endLine": 472,
+        "endChar": 48
+      },
+      "revId": "f2a7dfbf1fb09c00382899d9b944363b8d95ffb5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
