@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8fbe9988_2c647a06",
+        "filename": "src/shaders/gradients/SkTwoPointConicalGradient_gpu.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 472,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-01-02T16:09:01Z",
+      "side": 1,
+      "message": "you just set fRadius0 \u003d0, so isn\u0027t this just 0?",
+      "range": {
+        "startLine": 472,
+        "startChar": 25,
+        "endLine": 472,
+        "endChar": 48
+      },
+      "revId": "f2a7dfbf1fb09c00382899d9b944363b8d95ffb5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
