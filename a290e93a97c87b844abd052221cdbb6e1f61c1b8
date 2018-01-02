@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "82d388f4_5cd6632a",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 9
+      },
+      "lineNbr": 1178,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-01-02T18:09:44Z",
+      "side": 1,
+      "message": "typo",
+      "range": {
+        "startLine": 1178,
+        "startChar": 42,
+        "endLine": 1178,
+        "endChar": 49
+      },
+      "revId": "a290e93a97c87b844abd052221cdbb6e1f61c1b8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "982659bb_e875c613",
+        "filename": "infra/bots/recipe_modules/vars/examples/full.py",
+        "patchSetId": 9
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-01-02T18:09:44Z",
+      "side": 1,
+      "message": "nit: sort",
+      "revId": "a290e93a97c87b844abd052221cdbb6e1f61c1b8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
