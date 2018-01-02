@@ -292,11 +292,29 @@ sk_sp<sksg::RenderNode> AttachShape(const Json::Value& shapeArray, AttachContext
     if (!shapeArray.isArray())
         return nullptr;
 
+    // (https://helpx.adobe.com/after-effects/using/overview-shape-layers-paths-vector.html#groups_and_render_order_for_shapes_and_shape_attributes)
+    //
+    // Render order for shapes within a shape layer
+    //
+    // The rules for rendering a shape layer are similar to the rules for rendering a composition
+    // that contains nested compositions:
+    //
+    //   * Within a group, the shape at the bottom of the Timeline panel stacking order is rendered
+    //     first.
+    //
+    //   * All path operations within a group are performed before paint operations. This means,
+    //     for example, that the stroke follows the distortions in the path made by the Wiggle Paths
+    //     path operation. Path operations within a group are performed from top to bottom.
+    //
+    //   * Paint operations within a group are performed from the bottom to the top in the Timeline
+    //     panel stacking order. This means, for example, that a stroke is rendered on top of
+    //     (in front of) a stroke that appears after it in the Timeline panel.
+    //
     sk_sp<sksg::Group>        shape_group = sksg::Group::Make();
     sk_sp<sksg::RenderNode> xformed_group = shape_group;
 
     SkSTArray<16, sk_sp<sksg::GeometryNode>, true> geos;
-    SkSTArray<16, sk_sp<sksg::PaintNode>   , true> paints;
+    SkSTArray<16, sk_sp<sksg::RenderNode>  , true> draws;
 
     for (const auto& s : shapeArray) {
         const auto* info = FindShapeInfo(s);
@@ -315,13 +333,15 @@ sk_sp<sksg::RenderNode> AttachShape(const Json::Value& shapeArray, AttachContext
         case ShapeType::kPaint: {
             SkASSERT(info->fAttacherIndex < SK_ARRAY_COUNT(gPaintAttachers));
             if (auto paint = gPaintAttachers[info->fAttacherIndex](s, ctx)) {
-                paints.push_back(std::move(paint));
+                for (const auto& geo : geos) {
+                    draws.push_back(sksg::Draw::Make(geo, paint));
+                }
             }
         } break;
         case ShapeType::kGroup: {
             SkASSERT(info->fAttacherIndex < SK_ARRAY_COUNT(gGroupAttachers));
             if (auto group = gGroupAttachers[info->fAttacherIndex](s, ctx)) {
-                shape_group->addChild(std::move(group));
+                draws.push_back(std::move(group));
             }
         } break;
         case ShapeType::kTransform: {
@@ -332,13 +352,15 @@ sk_sp<sksg::RenderNode> AttachShape(const Json::Value& shapeArray, AttachContext
         }
     }
 
-    for (const auto& geo : geos) {
-        for (int i = paints.count() - 1; i >= 0; --i) {
-            shape_group->addChild(sksg::Draw::Make(geo, paints[i]));
-        }
+    if (draws.empty()) {
+        return nullptr;
     }
 
-    LOG("** Attached shape - geometries: %d, paints: %d\n", geos.count(), paints.count());
+    for (int i = draws.count() - 1; i >= 0; --i) {
+        shape_group->addChild(std::move(draws[i]));
+    }
+
+    LOG("** Attached shape: %d draws.\n", draws.count());
     return xformed_group;
 }
 
