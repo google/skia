@@ -637,24 +637,6 @@ sk_sp<SkImage> SkImage::MakeFromAHardwareBuffer(AHardwareBuffer* graphicBuffer, 
 }
 #endif
 
-sk_sp<SkImage> SkImage::makeNonTextureImage() const {
-    if (!this->isTextureBacked()) {
-        return sk_ref_sp(const_cast<SkImage*>(this));
-    }
-    SkImageInfo info = as_IB(this)->onImageInfo();
-    size_t rowBytes = info.minRowBytes();
-    size_t size = info.computeByteSize(rowBytes);
-    auto data = SkData::MakeUninitialized(size);
-    if (!data) {
-        return nullptr;
-    }
-    SkPixmap pm(info, data->writable_data(), rowBytes);
-    if (!this->readPixels(pm, 0, 0, kDisallow_CachingHint)) {
-        return nullptr;
-    }
-    return MakeRasterData(info, data, rowBytes);
-}
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace {
