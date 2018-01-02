@@ -1951,52 +1951,32 @@ STAGE(xy_to_radius, Ctx::None) {
     r = sqrt_(X2 + Y2);
 }
 
-SI F solve_2pt_conical_quadratic(const SkJumper_2PtConicalCtx* c, F x, F y, F (*select)(F, F)) {
-    // At this point, (x, y) is mapped into a synthetic gradient space with
-    // the start circle centerd on (0, 0), and the end circle centered on (1, 0)
-    // (see the stage setup).
-    //
-    // We're searching along X-axis for x', such that
-    //
-    //   1) r(x') is a linear interpolation between r0 and r1
-    //   2) (x, y) is on the circle C(x', 0, r(x'))
-    //
-    // Solving this system boils down to a quadratic equation with coefficients
-    //
-    //   a = 1 - (r1 - r0)^2             <- constant, precomputed in ctx->fCoeffA)
-    //
-    //   b = -2 * (x + (r1 - r0) * r0)
-    //
-    //   c = x^2 + y^2 - r0^2
-    //
-    // Since the start/end circle centers are the extremes of the [0, 1] interval
-    // on the X axis, the solution (x') is exactly the t we are looking for.
-
-    const F coeffA = c->fCoeffA,
-            coeffB = -2 * (x + c->fDR*c->fR0),
-            coeffC = x*x + y*y - c->fR0*c->fR0;
-
-    const F disc      = mad(coeffB, coeffB, -4 * coeffA * coeffC);
-    const F sqrt_disc = sqrt_(disc);
-
-    const F invCoeffA = c->fInvCoeffA;
-    return select((-coeffB + sqrt_disc) * (invCoeffA * 0.5f),
-                  (-coeffB - sqrt_disc) * (invCoeffA * 0.5f));
+STAGE(xy_to_2pt_conical_linear, Ctx::None) {
+    r = (r * r + g * g) / r;
 }
 
-STAGE(xy_to_2pt_conical_quadratic_first, const SkJumper_2PtConicalCtx* ctx) {
-    r = solve_2pt_conical_quadratic(ctx, r, g, first);
+STAGE(xy_to_2pt_conical_well_behaved, const SkJumper_2PtConicalCtx* ctx) {
+    r = sqrt(r * r + g * g) - r * ctx->p0; // ctx->p0 = 1/r1
 }
 
-STAGE(xy_to_2pt_conical_quadratic_second, const SkJumper_2PtConicalCtx* ctx) {
-    r = solve_2pt_conical_quadratic(ctx, r, g, second);
+STAGE(xy_to_2pt_conical_greater, const SkJumper_2PtConicalCtx* ctx) {
+    r = sqrt(r * r - g * g) - r * ctx->p0; // ctx->p0 = 1/r1
 }
 
-STAGE(xy_to_2pt_conical_linear, const SkJumper_2PtConicalCtx* c) {
-    const F coeffB = -2 * (r + c->fDR*c->fR0),
-            coeffC = r*r + g*g - c->fR0*c->fR0;
+STAGE(xy_to_2pt_conical_smaller, const SkJumper_2PtConicalCtx* ctx) {
+    r = -sqrt(r * r - g * g) - r * ctx->p0; // ctx->p0 = 1/r1
+}
 
-    r = -coeffC / coeffB;
+STAGE(xy_to_2pt_conical_compensate_focal_positive, const SkJumper_2PtConicalCtx* ctx) {
+    r = ctx->p1 + r; // ctx->p1 = f
+}
+
+STAGE(xy_to_2pt_conical_compensate_focal_negative, const SkJumper_2PtConicalCtx* ctx) {
+    r = ctx->p1 - r; // ctx->p1 = f
+}
+
+STAGE(xy_to_2pt_conical_unswap, Ctx::None) {
+    r = 1 - r;
 }
 
 STAGE(mask_2pt_conical_degenerates, SkJumper_2PtConicalCtx* c) {

@@ -34,8 +34,49 @@ sk_sp<SkShader> SkTwoPointConicalGradient::Create(const SkPoint& c0, SkScalar r0
             return nullptr;
         }
 
-        // General two-point case.
-        gradientType = Type::kTwoPoint;
+        if (SkScalarNearlyZero(shader.getDiffRadius())) {
+            gradientType = Type::kStrip;
+        } else {
+            gradientType = Type::kFocal;
+
+            SkScalar focalX = - r0 / (r1 - r0);
+            if (SkScalarNearlyZero(focalX - 1)) {
+                // swap r0, r1
+                gradientMatrix.postTranslate(-1, 0);
+                gradientMatrix.postScale(-1, 1);
+                std::swap(r0, r1);
+                fRadius0 = 0;
+                fDiffRadius = -fDiffRadius;
+                fIsSwapped = true;
+                focalX = 0; // - fRadius0 / fDiffRadius;
+                gradientType = Type::kSwappedFocal;
+            }
+
+            // Map {focal point, (1, 0)} to {(0, 0), (1, 0)}
+            const SkPoint from[2]   = { {focalX, 0}, {1, 0} };
+            const SkPoint to[2]     = { {0, 0}, {1, 0} };
+            SkMatrix focalMatrix;
+            if (!focalMatrix.setPolyToPoly(from, to, 2)) {
+                SkDEBUGFAILF("Mapping focal point failed unexpectedly for focalX = %f.\n", focalX);
+                // We won't be able to draw the gradient; at least make sure that we initialize the
+                // memory to prevent security issues.
+                focalMatrix = SkMatrix::MakeScale(1, 1);
+            }
+            gradientMatrix.postConcat(focalMatrix);
+            r0 /= SkScalarAbs(1 - focalX);
+            r1 /= SkScalarAbs(1 - focalX);
+
+            // The following transformations are just to accelerate the shader computation by saving
+            // some arithmatic operations.
+            bool isFocalOnCircle = SkScalarNearlyZero(1 - r1);
+            if (isFocalOnCircle) {
+                gradientMatrix.postScale(0.5, 0.5); // r1 = 1 so r1 + 1 = 2 and 0.5 = 1 / (r1 + 1)
+            } else {
+                SkScalar scale = SkScalarAbs(r1 / (r1 - r0)); // |1 - f|
+                gradientMatrix.postScale(scale, scale);
+            }
+       }
+
     }
 
     return sk_sp<SkShader>(new SkTwoPointConicalGradient(c0, r0, c1, r1, desc,
@@ -189,48 +230,34 @@ void SkTwoPointConicalGradient::appendGradientStages(SkArenaAlloc* alloc, SkRast
         return;
     }
 
-    const auto dCenter = (fCenter1 - fCenter2).length();
-
-    // Since we've squashed the centers into a unit vector, we must also scale
-    // all the coefficient variables by (1 / dCenter).
-    const auto coeffA = 1 - dRadius * dRadius / (dCenter * dCenter);
-    auto* ctx = alloc->make<SkJumper_2PtConicalCtx>();
-    ctx->fCoeffA    = coeffA;
-    ctx->fInvCoeffA = 1 / coeffA;
-    ctx->fR0        = fRadius1 / dCenter;
-    ctx->fDR        = dRadius  / dCenter;
-
-    // Is the solver guaranteed to not produce degenerates?
-    bool isWellBehaved = true;
-
-    if (SkScalarNearlyZero(coeffA)) {
-        // The focal point is on the edge of the end circle.
-        p->append(SkRasterPipeline::xy_to_2pt_conical_linear, ctx);
-        isWellBehaved = false;
-    } else {
-        isWellBehaved = SkScalarAbs(dRadius) >= dCenter;
-        bool isFlipped = isWellBehaved && dRadius < 0;
-        bool isFirst = (coeffA > 0) != isFlipped;
-
-        // We want the larger root, per spec:
-        //   "For all values of ω where r(ω) > 0, starting with the value of ω nearest
-        //    to positive infinity and ending with the value of ω nearest to negative
-        //    infinity, draw the circumference of the circle with radius r(ω) at position
-        //    (x(ω), y(ω)), with the color at ω, but only painting on the parts of the
-        //    bitmap that have not yet been painted on by earlier circles in this step for
-        //    this rendering of the gradient."
-        // (https://html.spec.whatwg.org/multipage/canvas.html#dom-context-2d-createradialgradient)
-        //
-        // ... except when the gradient is flipped.
-        //
-        // The first root (-b + sqrt(...)) / 2a is larger if a (i.e. coeffA) > 0 and the second
-        // root (-b - sqrt(...)) / 2a is larger if a < 0.
-        p->append(isFirst ? SkRasterPipeline::xy_to_2pt_conical_quadratic_first
-                          : SkRasterPipeline::xy_to_2pt_conical_quadratic_second, ctx);
+    if (fType == Type::kStrip) {
+        // TODO To be implemented.
+        return;
     }
 
-    if (!isWellBehaved) {
-        p->append(SkRasterPipeline::mask_2pt_conical_degenerates, ctx);
-        postPipeline->append(SkRasterPipeline::apply_vector_mask, &ctx->fMask);
+    auto* ctx = alloc->make<SkJumper_2PtConicalCtx>();
+    ctx->fP0 = 1/fRadius2;
+    ctx->fP1 = fRadius1 / (fRadius2 - fRadius1);
+
+    if (this->isFocalOnCircle()) {
+        p->append(SkRasterPipeline::xy_to_2pt_conical_linear);
+    } else if (this->isWellBehaved()) {
+        p->append(SkRasterPipeline::xy_to_2pt_conical_well_behaved, ctx);
+    } else if (this->fIsSwapped || !this->isRadiusIncreasing()) {
+        p->append(SkRasterPipeline::xy_to_2pt_conical_smaller);
+    } else {
+        p->append(SkRasterPipeline::xy_to_2pt_conical_greater);
+    }
+
+    if (!SkNearlyZero(ctx->fP1)) {
+        if (this->isRadiusIncreasing()) {
+            p->append(SkRasterPipeline::xy_to_2pt_conical_compensate_focal_positive, ctx);
+        } else {
+            p->append(SkRasterPipeline::xy_to_2pt_conical_compensate_focal_negative, ctx);
+        }
+    }
+
+    if (fIsSwapped) {
+        p->append(SkRasterPipeline::xy_to_2pt_conical_unswap);
     }
 }

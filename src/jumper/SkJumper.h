@@ -105,7 +105,9 @@ struct SkJumper_2PtConicalCtx {
     float    fCoeffA,
              fInvCoeffA,
              fR0,
-             fDR;
+             fDR,
+             fP0,
+             fP1;
 };
 
 struct SkJumper_UniformColorCtx {

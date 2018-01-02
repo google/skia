@@ -86,9 +86,13 @@ struct SkJumper_Engine;
     M(evenly_spaced_2_stop_gradient)                               \
     M(xy_to_unit_angle)                                            \
     M(xy_to_radius)                                                \
-    M(xy_to_2pt_conical_quadratic_first)                           \
-    M(xy_to_2pt_conical_quadratic_second)                          \
     M(xy_to_2pt_conical_linear)                                    \
+    M(xy_to_2pt_conical_well_behaved)                              \
+    M(xy_to_2pt_conical_smaller)                                   \
+    M(xy_to_2pt_conical_greater)                                   \
+    M(xy_to_2pt_conical_compensate_focal_positive)                 \
+    M(xy_to_2pt_conical_compensate_focal_negative)                 \
+    M(xy_to_2pt_conical_unswap)                                    \
     M(mask_2pt_conical_degenerates) M(apply_vector_mask)           \
     M(byte_tables) M(byte_tables_rgb)                              \
     M(rgb_to_hsl) M(hsl_to_rgb)                                    \

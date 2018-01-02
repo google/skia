@@ -30,6 +30,25 @@ public:
     const SkPoint& getEndCenter() const { return fCenter2; }
     SkScalar getEndRadius() const { return fRadius2; }
 
+    // Whether the focal point (0, 0) is on the end circle with center (1, 0) and radius r1. If this
+    // is true, it's as if an aircraft is flying at Mach 1 and all circles (soundwaves) will go
+    // through the focal point (aircraft). In our previous implementations, this was known as the
+    // edge case where the inside circle touches the outside circle (on the focal point). If we were
+    // to solve for t bruteforcely using a quadratic equation, this case implies that the quadratic
+    // equation degenerates to a linear equation.
+    bool isFocalOnCircle() const { return SkScalarNearlyZero(1 - fRadius2); }
+    bool isSwapped() const { return fData.fIsSwapped; }
+
+    Type getType() const { return fData.fType; }
+
+    // Whether the t we solved is always valid (so we don't need to check r(t) > 0).
+    bool isWellBehaved() const { return !this->isFocalOnCircle() && fRadius2 > 1; }
+
+    // Whether r0 == 0 so it's focal without any transformation
+    bool isNativelyFocal() const { return SkScalarNearlyZero(fRadius1); }
+
+    bool isRadiusIncreasing() const { return fRadius2 > fRadius1; }
+
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkTwoPointConicalGradient)
 
@@ -45,7 +64,9 @@ protected:
 private:
     enum class Type {
         kRadial,
-        kTwoPoint,
+        kStrip,
+        kFocal,
+        kSwappedFocal
     };
 
     SkTwoPointConicalGradient(const SkPoint& c0, SkScalar r0,
