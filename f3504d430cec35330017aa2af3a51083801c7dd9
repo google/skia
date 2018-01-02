@@ -22,6 +22,30 @@
       "revId": "f3504d430cec35330017aa2af3a51083801c7dd9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3e82e9fe_518bbccf",
+        "filename": "src/core/SkReadBuffer.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-01-02T15:09:34Z",
+      "side": 0,
+      "message": "I had missed that. I\u0027m not sure anymore if storing the zero is helpful or not, but I\u0027ll re-add the validation for now.",
+      "parentUuid": "d39a4367_178dc05d",
+      "range": {
+        "startLine": 174,
+        "startChar": 8,
+        "endLine": 174,
+        "endChar": 42
+      },
+      "revId": "f3504d430cec35330017aa2af3a51083801c7dd9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
