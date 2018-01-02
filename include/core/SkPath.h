@@ -138,8 +138,8 @@ public:
         compatibility prior to calling interpolate().
 
         @param ending  SkPoint arrays averaged with this SkPoint arrays
-        @param weight  contribution of ending SkPoint arrays, and
-                       one minus contribution of this SkPoint arrays
+        @param weight  contribution of this SkPoint arrays, and
+                       one minus contribution of ending SkPoint arrays
         @param out     SkPath replaced by interpolated averages
         @return        true if SkPath contain same number of SkPoint
     */
