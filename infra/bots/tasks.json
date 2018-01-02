@@ -560,6 +560,12 @@
         "Housekeeper-PerCommit"
       ]
     },
+    "Housekeeper-PerCommit-Bookmaker": {
+      "priority": 0.8,
+      "tasks": [
+        "Housekeeper-PerCommit-Bookmaker"
+      ]
+    },
     "Housekeeper-PerCommit-BundleRecipes": {
       "priority": 0.8,
       "tasks": [
@@ -5627,6 +5633,41 @@
         "patch_set=<(PATCHSET)"
       ],
       "isolate": "housekeeper_skia.isolate",
+      "priority": 0.8
+    },
+    "Housekeeper-PerCommit-Bookmaker": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/go",
+          "path": "go",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Debian9-GCC-x86_64-Release"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "os:Debian-9.2",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 7200000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "bookmaker",
+        "repository=<(REPO)",
+        "buildername=Housekeeper-PerCommit-Bookmaker",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 7200000000000,
+      "isolate": "compile_skia.isolate",
       "priority": 0.8
     },
     "Housekeeper-PerCommit-BundleRecipes": {
