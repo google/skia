@@ -17,6 +17,7 @@
 // For brevity
 typedef GrGLSLProgramDataManager::UniformHandle UniformHandle;
 
+// Please see https://skia.org/dev/design/conical for how our shader works.
 class TwoPointConicalEffect : public GrGradientEffect {
 public:
     class DegeneratedGLSLProcessor; // radial (center0 == center1) or strip (r0 == r1) case
@@ -300,6 +301,7 @@ private:
 // FocalGLSLProcessor
 //////////////////////////////////////////////////////////////////////////////
 
+// Please see https://skia.org/dev/design/conical for how our shader works.
 class TwoPointConicalEffect::FocalGLSLProcessor : public GrGradientEffect::GLSLProcessor {
 protected:
     void emitCode(EmitArgs& args) override {
@@ -320,48 +322,44 @@ protected:
         const char* p = coords2D.c_str();
 
         if (ge.isFocalOnCircle()) {
-            fragBuilder->codeAppendf("half %s_prime = dot(%s, %s) / %s.x;", tName, p, p, p);
+            fragBuilder->codeAppendf("half x_t = dot(%s, %s) / %s.x;", p, p, p);
         } else if (ge.isWellBehaved()) {
-            // empty sign is positive
-            char sign = ge.isRadiusIncreasing() ? ' ' : '-';
-            fragBuilder->codeAppendf("half %s_prime = %clength(%s) - %s.x * %s;",
-                    tName, sign, p, p, p0.c_str());
+            fragBuilder->codeAppendf("half x_t = length(%s) - %s.x * %s;", p, p, p0.c_str());
         } else {
-            char sign = ge.isSwapped() ? '-' : ' ';
+            char sign = (ge.isSwapped() || !ge.isRadiusIncreasing()) ? '-' : ' ';
             fragBuilder->codeAppendf("half temp = %s.x * %s.x - %s.y * %s.y;", p, p, p, p);
-            // Initialize t_prime to illegal state (where r(t) < 0)
-            fragBuilder->codeAppendf("half %s_prime = %s;",
-                    tName, ge.isRadiusIncreasing() ? "-1" : "1");
+            // Initialize x_t to illegal state
+            fragBuilder->codeAppendf("half x_t = -1;");
 
             // Only do sqrt if temp >= 0; this is significantly slower than checking temp >= 0 in
             // the if statement that checks r(t) >= 0. But GPU may break if we sqrt a negative
             // float. (Although I havevn't observed that on any devices so far, and the old approach
             // also does sqrt negative value without a check.) If the performance is really
-            // critical, maybe we should just compute the area where temp and t_prime are always
+            // critical, maybe we should just compute the area where temp and x_t are always
             // valid and drop all these ifs.
             fragBuilder->codeAppendf("if (temp >= 0) {");
-            fragBuilder->codeAppendf("%s_prime = (%csqrt(temp) - %s.x * %s);",
-                    tName, sign, p, p0.c_str());
+            fragBuilder->codeAppendf("x_t = (%csqrt(temp) - %s.x * %s);", sign, p, p0.c_str());
             fragBuilder->codeAppendf("}");
         }
-        // "- 0" is much faster than "- p1" so we specialize the natively focal case where p1 = 0.
-        fragBuilder->codeAppendf("half %s = %s_prime - %s;", tName, tName,
-                ge.isNativelyFocal() ? "0" : p1.c_str());
 
-        if (ge.isSwapped()) {
-            fragBuilder->codeAppendf("%s = 1 - %s;", tName, tName);
-        }
+        // empty sign is positive
+        char sign = ge.isRadiusIncreasing() ? ' ' : '-';
+
+        // "- 0" is much faster than "- p1" so we specialize the natively focal case where p1 = 0.
+        fragBuilder->codeAppendf("half %s = %cx_t - %s;", tName, sign,
+                ge.isNativelyFocal() ? "0" : p1.c_str());
 
         if (!ge.isWellBehaved()) {
             // output will default to transparent black (we simply won't write anything
             // else to it if invalid, instead of discarding or returning prematurely)
             fragBuilder->codeAppendf("%s = half4(0.0,0.0,0.0,0.0);", args.fOutputColor);
-
-            // r(t) must be nonnegative; we need to swap direction if r0 > r1 because we did a final
-            // scale of r1 / (r1 - r0) that's negative if r0 > r1.
-            char direction = ge.isRadiusIncreasing() ? '>' : '<';
-            fragBuilder->codeAppendf("if (%s_prime %c= 0.0) {", tName, direction);
+            fragBuilder->codeAppendf("if (x_t > 0.0) {");
         }
+
+        if (ge.isSwapped()) {
+            fragBuilder->codeAppendf("%s = 1 - %s;", tName, tName);
+        }
+
         this->emitColor(fragBuilder,
                         uniformHandler,
                         args.fShaderCaps,
@@ -496,7 +494,8 @@ TwoPointConicalEffect::Data::Data(const SkTwoPointConicalGradient& shader, SkMat
             } else {
                 matrix.postScale(r1 / (r1 * r1 - 1), 1 / sqrt(SkScalarAbs(r1 * r1 - 1)));
             }
-            matrix.postScale(r1 / (r1 - r0), r1 / (r1 - r0));
+            SkScalar scale = SkScalarAbs(r1 / (r1 - r0)); // |1 - f|
+            matrix.postScale(scale, scale);
         }
     }
 }
