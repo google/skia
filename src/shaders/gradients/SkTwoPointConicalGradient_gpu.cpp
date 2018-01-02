@@ -455,23 +455,33 @@ TwoPointConicalEffect::Data::Data(const SkTwoPointConicalGradient& shader, SkMat
             fType = kStrip_Type;
         } else { // focal case
             fType = kFocal_Type;
-            // We want to check if the end radius is zero and if so we swap it with the start
-            // radius. Because of numerical precision, we check if r0 + (r1-r0) is zero
-            if (SkScalarNearlyZero(fRadius0 + fDiffRadius)) {
+            SkScalar focalX = - fRadius0 / fDiffRadius;
+
+            // We want to check if the end radius is zero. If so, dr = -r0 and focalX will be 1.
+            // That makes our mapping from {focal_point, (1, 0)} to {(0, 0), {1, 0)} invalid. Hence
+            // we have to swap r0 and r1 to make sure focalX != 1. Due to precision limit, checking
+            // focalX == 1 is better than checking r1 == 0 or r0 + (r1 - r0) for large r0 (e.g., r0
+            // = 1e6, r1 = 1).
+            if (SkScalarNearlyZero(focalX - 1)) {
                 // swap r0, r1
                 matrix.postTranslate(-1, 0);
                 matrix.postScale(-1, 1);
                 fRadius0 = 0;
                 fDiffRadius = -fDiffRadius;
                 fIsSwapped = true;
+                focalX = 0; // - fRadius0 / fDiffRadius;
             }
 
             // Map {focal point, (1, 0)} to {(0, 0), (1, 0)}
-            SkScalar focalX = - fRadius0 / fDiffRadius;
             const SkPoint from[2]   = { {focalX, 0}, {1, 0} };
             const SkPoint to[2]     = { {0, 0}, {1, 0} };
             SkMatrix focalMatrix;
-            focalMatrix.setPolyToPoly(from, to, 2);
+            if (!focalMatrix.setPolyToPoly(from, to, 2)) {
+                SkDEBUGFAILF("Mapping focal point failed unexpectedly for focalX = %f.\n", focalX);
+                // We won't be able to draw the gradient; at least make sure that we initialize the
+                // memory to prevent security issues.
+                focalMatrix = SkMatrix::MakeScale(1, 1);
+            }
             matrix.postConcat(focalMatrix);
             fRadius0 /= SkScalarAbs(1 - focalX);
             fDiffRadius /= SkScalarAbs(1 - focalX);
