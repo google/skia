@@ -9,7 +9,7 @@
 
 GrShape& GrShape::operator=(const GrShape& that) {
     fStyle = that.fStyle;
-    fOriginalPath = that.fOriginalPath;
+    //fOriginalPath = that.fOriginalPath;
     this->changeType(that.fType, Type::kPath == that.fType ? &that.path() : nullptr);
     switch (fType) {
         case Type::kEmpty:
@@ -67,7 +67,7 @@ GrShape GrShape::MakeFilled(const GrShape& original, FillInversion inversion) {
         return original;
     }
     GrShape result;
-    result.fOriginalPath = original.fOriginalPath;
+    //result.fOriginalPath = original.fOriginalPath;
     switch (original.fType) {
         case Type::kRRect:
             result.fType = original.fType;
@@ -327,10 +327,10 @@ void GrShape::setInheritedKey(const GrShape &parent, GrStyle::Apply apply, SkSca
 }
 
 void GrShape::addGenIDChangeListener(SkPathRef::GenIDChangeListener* listener) const {
-    SkPathPriv::AddGenIDChangeListener(fOriginalPath, listener);
+    //SkPathPriv::AddGenIDChangeListener(fOriginalPath, listener);
 }
 
-GrShape::GrShape(const GrShape& that) : fStyle(that.fStyle), fOriginalPath(that.fOriginalPath) {
+GrShape::GrShape(const GrShape& that) : fStyle(that.fStyle)/*, fOriginalPath(that.fOriginalPath)*/ {
     const SkPath* thatPath = Type::kPath == that.fType ? &that.fPathData.fPath : nullptr;
     this->initType(that.fType, thatPath);
     switch (fType) {
@@ -436,7 +436,7 @@ GrShape::GrShape(const GrShape& parent, GrStyle::Apply apply, SkScalar scale) {
                                                  scale));
         fStyle.resetToInitStyle(fillOrHairline);
     }
-    fOriginalPath = parent.fOriginalPath;
+    //fOriginalPath = parent.fOriginalPath;
     this->attemptToSimplifyPath();
     this->setInheritedKey(*parentForKey, apply, scale);
 }
@@ -500,7 +500,7 @@ void GrShape::attemptToSimplifyPath() {
         // Whenever we simplify to a non-path, break the chain so we no longer refer to the
         // original path. This prevents attaching genID listeners to temporary paths created when
         // drawing simple shapes.
-        fOriginalPath.reset();
+        //fOriginalPath.reset();
         if (Type::kRRect == fType) {
             this->attemptToSimplifyRRect();
         } else if (Type::kLine == fType) {

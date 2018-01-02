@@ -61,6 +61,8 @@ public:
         sk_atomic_store(&fVal, val, mo);
     }
 
+    void storeUnsafe(const T& val) { fVal = val; }
+
     // Alias for .load(default_memory_order).
     operator T() const {
         return this->load();
