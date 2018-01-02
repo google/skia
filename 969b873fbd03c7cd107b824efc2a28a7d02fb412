@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dd126c8b_d9dba041",
+        "filename": "src/utils/SkFloatToDecimal.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2018-01-02T22:03:05Z",
+      "side": 1,
+      "message": "possibly could be faster, with something like:\n\nint temp \u003d d;\nd /\u003d 10;\nbuffer[bufferIndex++] \u003d temp - d * 10",
+      "revId": "969b873fbd03c7cd107b824efc2a28a7d02fb412",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
