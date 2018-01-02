@@ -1536,6 +1536,22 @@ if (skia_enable_tools) {
       ":tool_utils",
     ]
   }
+
+  if (skia_enable_gpu && is_android) {
+    test_app("gmrunner") {
+      is_shared_library = true
+      sources = [
+        "experimental/gmrunner/gmrunner.cpp",
+      ]
+      libs = []
+      deps = [
+        ":gm",
+        ":gpu_tool_utils",
+        ":skia",
+      ]
+    }
+  }
+
   test_app("nanobench") {
     sources = [
       "bench/nanobench.cpp",
