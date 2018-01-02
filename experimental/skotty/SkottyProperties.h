@@ -8,6 +8,7 @@
 #ifndef SkottyProperties_DEFINED
 #define SkottyProperties_DEFINED
 
+#include "SkPath.h"
 #include "SkPoint.h"
 #include "SkSize.h"
 #include "SkottyPriv.h"
@@ -26,12 +27,6 @@ class Transform;
 }
 
 namespace  skotty {
-
-struct BezierVertex {
-    SkPoint fInPoint,  // "in" control point, relative to the vertex
-            fOutPoint, // "out" control point, relative to the vertex
-            fVertex;
-};
 
 struct ScalarValue {
     float fVal;
@@ -73,8 +68,7 @@ struct VectorValue {
 };
 
 struct ShapeValue {
-    SkTArray<BezierVertex, true> fVertices;
-    bool                         fClose = false;
+    SkPath fPath;
 
     ShapeValue()                              = default;
     ShapeValue(const ShapeValue&)             = delete;
@@ -83,7 +77,7 @@ struct ShapeValue {
 
     static bool Parse(const Json::Value&, ShapeValue*);
 
-    size_t cardinality() const { return SkTo<size_t>(fVertices.count()); }
+    size_t cardinality() const { return SkTo<size_t>(fPath.countVerbs()); }
 
     template <typename T>
     T as() const;
