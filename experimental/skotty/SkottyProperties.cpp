@@ -70,9 +70,9 @@ bool VectorValue::Parse(const Json::Value& v, VectorValue* vec) {
 }
 
 bool ShapeValue::Parse(const Json::Value& v, ShapeValue* shape) {
-    PointArray inPts,
-               outPts,
-               verts;
+    PointArray inPts,  // Cubic Bezier "in" control points, relative to vertices.
+               outPts, // Cubic Bezier "out" control points, relative to vertices.
+               verts;  // Cubic Bezier vertices.
 
     // Some files appear to wrap keyframes in arrays for no reason.
     if (v.isArray() && v.size() == 1) {
@@ -89,12 +89,26 @@ bool ShapeValue::Parse(const Json::Value& v, ShapeValue* shape) {
         return false;
     }
 
-    SkASSERT(shape->fVertices.empty());
-    for (int i = 0; i < inPts.count(); ++i) {
-        shape->fVertices.emplace_back(BezierVertex({inPts[i], outPts[i], verts[i]}));
+    SkASSERT(shape->fPath.isEmpty());
+
+    if (!verts.empty()) {
+        shape->fPath.moveTo(verts.front());
     }
 
-    shape->fClose = ParseBool(v["c"], false);
+    const auto& addCubic = [&](int from, int to) {
+        shape->fPath.cubicTo(verts[from] + outPts[from],
+                             verts[to]   + inPts[to],
+                             verts[to]);
+    };
+
+    for (int i = 1; i < verts.count(); ++i) {
+        addCubic(i - 1, i);
+    }
+
+    if (!verts.empty() && ParseBool(v["c"], false)) {
+        addCubic(verts.count() - 1, 0);
+        shape->fPath.close();
+    }
 
     return true;
 }
@@ -141,28 +155,7 @@ std::vector<SkScalar> VectorValue::as<std::vector<SkScalar>>() const {
 
 template <>
 SkPath ShapeValue::as<SkPath>() const {
-    SkPath path;
-
-    if (!fVertices.empty()) {
-        path.moveTo(fVertices.front().fVertex);
-    }
-
-    const auto& addCubic = [](const BezierVertex& from, const BezierVertex& to, SkPath* path) {
-        path->cubicTo(from.fVertex + from.fOutPoint,
-                      to.fVertex   + to.fInPoint,
-                      to.fVertex);
-    };
-
-    for (int i = 1; i < fVertices.count(); ++i) {
-        addCubic(fVertices[i - 1], fVertices[i], &path);
-    }
-
-    if (fClose) {
-        addCubic(fVertices.back(), fVertices.front(), &path);
-        path.close();
-    }
-
-    return path;
+    return fPath;
 }
 
 CompositeRRect::CompositeRRect(sk_sp<sksg::RRect> wrapped_node)
