@@ -116,14 +116,14 @@ void SkReadBuffer::setDeserialProcs(const SkDeserialProcs& procs) {
 }
 
 bool SkReadBuffer::readBool() {
-    uint32_t value = this->readInt();
+    uint32_t value = this->readUInt();
     // Boolean value should be either 0 or 1
     this->validate(!(value & ~1));
     return value != 0;
 }
 
 SkColor SkReadBuffer::readColor() {
-    return this->readInt();
+    return this->readUInt();
 }
 
 int32_t SkReadBuffer::readInt() {
@@ -155,34 +155,27 @@ uint8_t SkReadBuffer::peekByte() {
 }
 
 bool SkReadBuffer::readPad32(void* buffer, size_t bytes) {
-    if (!this->validate(fReader.isAvailable(bytes))) {
-        return false;
+    if (const void* src = this->skip(bytes)) {
+        memcpy(buffer, src, bytes);
+        return true;
     }
-    fReader.read(buffer, bytes);
-    return true;
+    return false;
 }
 
 void SkReadBuffer::readString(SkString* string) {
     const size_t len = this->readUInt();
-    const void* ptr = fReader.peek();
-    const char* cptr = (const char*)ptr;
-
-    // skip over the string + '\0' and then pad to a multiple of 4
-    const size_t alignedSize = SkAlign4(len + 1);
-    this->skip(alignedSize);
-    if (!fError) {
-        this->validate(cptr[len] == '\0');
+    // skip over the string + '\0'
+    if (const char* src = this->skipT<char>(len + 1)) {
+        if (this->validate(src[len] == 0)) {
+            string->set(src, len);
+            return;
+        }
     }
-    if (!fError) {
-        string->set(cptr, len);
-    }
+    string->reset();
 }
 
 void SkReadBuffer::readColor4f(SkColor4f* color) {
-    const void* ptr = this->skip(sizeof(SkColor4f));
-    if (!fError) {
-        memcpy(color, ptr, sizeof(SkColor4f));
-    } else {
+    if (!this->readPad32(color, sizeof(SkColor4f))) {
         *color = {0, 0, 0, 0};
     }
 }
@@ -193,36 +186,26 @@ void SkReadBuffer::readPoint(SkPoint* point) {
 }
 
 void SkReadBuffer::readPoint3(SkPoint3* point) {
-    point->fX = this->readScalar();
-    point->fY = this->readScalar();
-    point->fZ = this->readScalar();
+    this->readPad32(point, sizeof(SkPoint3));
 }
 
 void SkReadBuffer::readMatrix(SkMatrix* matrix) {
     size_t size = 0;
-    if (!fError) {
+    if (this->isValid()) {
         size = SkMatrixPriv::ReadFromMemory(matrix, fReader.peek(), fReader.available());
         this->validate((SkAlign4(size) == size) && (0 != size));
     }
-    if (!fError) {
-        (void)this->skip(size);
-    }
+    (void)this->skip(size);
 }
 
 void SkReadBuffer::readIRect(SkIRect* rect) {
-    const void* ptr = this->skip(sizeof(SkIRect));
-    if (!fError) {
-        memcpy(rect, ptr, sizeof(SkIRect));
-    } else {
+    if (!this->readPad32(rect, sizeof(SkIRect))) {
         rect->setEmpty();
     }
 }
 
 void SkReadBuffer::readRect(SkRect* rect) {
-    const void* ptr = this->skip(sizeof(SkRect));
-    if (!fError) {
-        memcpy(rect, ptr, sizeof(SkRect));
-    } else {
+    if (!this->readPad32(rect, sizeof(SkRect))) {
         rect->setEmpty();
     }
 }
@@ -239,9 +222,7 @@ void SkReadBuffer::readRegion(SkRegion* region) {
         size = region->readFromMemory(fReader.peek(), fReader.available());
         this->validate((SkAlign4(size) == size) && (0 != size));
     }
-    if (!fError) {
-        (void)this->skip(size);
-    }
+    (void)this->skip(size);
 }
 
 void SkReadBuffer::readPath(SkPath* path) {
@@ -250,48 +231,37 @@ void SkReadBuffer::readPath(SkPath* path) {
         size = path->readFromMemory(fReader.peek(), fReader.available());
         this->validate((SkAlign4(size) == size) && (0 != size));
     }
-    if (!fError) {
-        (void)this->skip(size);
-    }
+    (void)this->skip(size);
 }
 
 bool SkReadBuffer::readArray(void* value, size_t size, size_t elementSize) {
-    const uint32_t count = this->getArrayCount();
-    this->validate(size == count);
-    (void)this->skip(sizeof(uint32_t)); // Skip array count
-    const uint64_t byteLength64 = sk_64_mul(count, elementSize);
-    const size_t byteLength = count * elementSize;
-    this->validate(byteLength == byteLength64);
-    const void* ptr = this->skip(SkAlign4(byteLength));
-    if (!fError) {
-        memcpy(value, ptr, byteLength);
-        return true;
-    }
-    return false;
+    const uint32_t count = this->readUInt();
+    return this->validate(size == count) &&
+           this->readPad32(value, SkSafeMath::Mul(size, elementSize));
 }
 
 bool SkReadBuffer::readByteArray(void* value, size_t size) {
-    return readArray(static_cast<unsigned char*>(value), size, sizeof(unsigned char));
+    return this->readArray(value, size, sizeof(uint8_t));
 }
 
 bool SkReadBuffer::readColorArray(SkColor* colors, size_t size) {
-    return readArray(colors, size, sizeof(SkColor));
+    return this->readArray(colors, size, sizeof(SkColor));
 }
 
 bool SkReadBuffer::readColor4fArray(SkColor4f* colors, size_t size) {
-    return readArray(colors, size, sizeof(SkColor4f));
+    return this->readArray(colors, size, sizeof(SkColor4f));
 }
 
 bool SkReadBuffer::readIntArray(int32_t* values, size_t size) {
-    return readArray(values, size, sizeof(int32_t));
+    return this->readArray(values, size, sizeof(int32_t));
 }
 
 bool SkReadBuffer::readPointArray(SkPoint* points, size_t size) {
-    return readArray(points, size, sizeof(SkPoint));
+    return this->readArray(points, size, sizeof(SkPoint));
 }
 
 bool SkReadBuffer::readScalarArray(SkScalar* values, size_t size) {
-    return readArray(values, size, sizeof(SkScalar));
+    return this->readArray(values, size, sizeof(SkScalar));
 }
 
 uint32_t SkReadBuffer::getArrayCount() {
