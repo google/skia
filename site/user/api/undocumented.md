@@ -317,6 +317,8 @@ void flush()
 
 # <a name="GPU_Surface"></a> GPU Surface
 
+# <a name="GPU_Texture"></a> GPU Texture
+
 # <a name="Glyph"></a> Glyph
 
 # <a name="HTML_Canvas"></a> HTML Canvas
@@ -929,8 +931,6 @@ static std::unique_ptr&lt;SkCanvas&gt; MakeCanvas(std::unique_ptr&lt;SkRasterHan
 </pre>
 
 ---
-
-# <a name="Raster_Image"></a> Raster Image
 
 # <a name="Raster_Surface"></a> Raster Surface
 

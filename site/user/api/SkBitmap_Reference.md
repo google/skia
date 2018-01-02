@@ -1452,7 +1452,7 @@ integral rectangle from origin to <a href="#SkBitmap_width">width</a> and <a hre
 
 ### Example
 
-<div><fiddle-embed name="bd020c1527964761adf7646e82a36487"></fiddle-embed></div>
+<div><fiddle-embed name="41a60435d6eb76cb400fe9be635e3762"></fiddle-embed></div>
 
 ### See Also
 

@@ -1731,6 +1731,8 @@ bool IncludeParser::parseTemplate() {
 
 bool IncludeParser::parseTypedef(Definition* child, Definition* markupDef) {
     TextParser typedefParser(child);
+    typedefParser.skipExact("typedef");
+    typedefParser.skipWhiteSpace();
     string nameStr = typedefParser.typedefName();
     if (!markupDef) {
         Definition& typedefDef = fITypedefMap[nameStr];
