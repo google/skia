@@ -46,7 +46,7 @@ public:
 
     explicit GrShape(const SkRect& rect) : GrShape(rect, GrStyle::SimpleFill()) {}
 
-    GrShape(const SkPath& path, const GrStyle& style) : fStyle(style), fOriginalPath(path) {
+    GrShape(const SkPath& path, const GrStyle& style) : fStyle(style)/*, fOriginalPath(path)*/ {
         this->initType(Type::kPath, &path);
         this->attemptToSimplifyPath();
     }
@@ -91,7 +91,7 @@ public:
         this->attemptToSimplifyRRect();
     }
 
-    GrShape(const SkPath& path, const SkPaint& paint) : fStyle(paint), fOriginalPath(path) {
+    GrShape(const SkPath& path, const SkPaint& paint) : fStyle(paint)/*, fOriginalPath(path)*/ {
         this->initType(Type::kPath, &path);
         this->attemptToSimplifyPath();
     }
@@ -509,7 +509,8 @@ private:
         } fLineData;
     };
     GrStyle                     fStyle;
-    SkPath                      fOriginalPath;
+    //SkPath                      fOriginalPath;
+    char deadspace[sizeof(SkPath)];
     SkAutoSTArray<8, uint32_t>  fInheritedKey;
 };
 #endif

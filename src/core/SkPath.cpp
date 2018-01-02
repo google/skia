@@ -179,9 +179,8 @@ void SkPath::copyFields(const SkPath& that) {
     fFillType        = that.fFillType;
     fIsVolatile      = that.fIsVolatile;
 
-    // Non-atomic assignment of atomic values.
-    fConvexity     .store(that.fConvexity     .load());
-    fFirstDirection.store(that.fFirstDirection.load());
+    fConvexity     .storeUnsafe(that.fConvexity     .load());
+    fFirstDirection.storeUnsafe(that.fFirstDirection.load());
 }
 
 bool operator==(const SkPath& a, const SkPath& b) {
