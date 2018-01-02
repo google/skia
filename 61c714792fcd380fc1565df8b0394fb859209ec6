@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "032498a1_59c51699",
+        "filename": "infra/bots/recipes/bookmaker.py",
+        "patchSetId": 12
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2018-01-02T19:55:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "54078685_e33ccd51",
+      "range": {
+        "startLine": 53,
+        "startChar": 17,
+        "endLine": 53,
+        "endChar": 47
+      },
+      "revId": "61c714792fcd380fc1565df8b0394fb859209ec6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ed6fb21d_d6db4f55",
         "filename": "infra/bots/recipes/bookmaker.py",
         "patchSetId": 12
@@ -45,6 +69,30 @@
       "revId": "61c714792fcd380fc1565df8b0394fb859209ec6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "56e3b847_65dde6da",
+        "filename": "infra/bots/recipes/bookmaker.py",
+        "patchSetId": 12
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2018-01-02T19:55:34Z",
+      "side": 1,
+      "message": "Kept it in the same recipe because I expect to move more things from Nightly to PerCommit soonish so this will make it easier.",
+      "parentUuid": "ed6fb21d_d6db4f55",
+      "range": {
+        "startLine": 55,
+        "startChar": 4,
+        "endLine": 55,
+        "endChar": 34
+      },
+      "revId": "61c714792fcd380fc1565df8b0394fb859209ec6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -80,6 +128,24 @@
       "revId": "61c714792fcd380fc1565df8b0394fb859209ec6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c58f51ee_40fd10a3",
+        "filename": "infra/bots/recipes/bookmaker.py",
+        "patchSetId": 12
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2018-01-02T19:55:34Z",
+      "side": 1,
+      "message": "Ack. Thanks for the information.",
+      "parentUuid": "459a94dd_dbe63b57",
+      "revId": "61c714792fcd380fc1565df8b0394fb859209ec6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
