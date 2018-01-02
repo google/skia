@@ -1142,14 +1142,33 @@ Returns Color_Space, the range of colors, associated with Image.  The
 reference count of Color_Space is unchanged. The returned Color_Space is
 immutable.
 
-Color_Space returned was a parameter to an Image constructor,
-or was parsed from encoded data. Color_Space may be ignored when
-drawing Image, and when drawing into Surface constructed with Color_Space.
+Color_Space returned was passed to an Image constructor,
+or was parsed from encoded data. Color_Space returned may be ignored when Image
+is drawn, depending on the capabilities of the Surface receiving the drawing.
 
 #Return Color_Space in Image, or nullptr ##
 
 #Example
-// incomplete
+#Image 3
+#Set sRGB
+#Platform gpu
+    SkPixmap pixmap;
+    source.peekPixels(&pixmap);
+    canvas->scale(.25f, .25f);
+    int y = 0;
+    for (auto gamma : { SkColorSpace::kLinear_RenderTargetGamma,
+                        SkColorSpace::kSRGB_RenderTargetGamma } ) {
+        int x = 0;
+        sk_sp<SkColorSpace> colorSpace = SkColorSpace::MakeRGB(gamma, SkColorSpace::kSRGB_Gamut);
+        for (int index = 0; index < 2; ++index) {
+            pixmap.setColorSpace(colorSpace);
+            sk_sp<SkImage> image = SkImage::MakeRasterCopy(pixmap);
+            canvas->drawImage(image, x, y);
+            colorSpace = image->colorSpace()->makeColorSpin();
+            x += 512;
+        }
+        y += 512;
+    }
 ##
 
 #SeeAlso incomplete

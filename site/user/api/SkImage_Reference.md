@@ -1176,9 +1176,9 @@ Returns <a href="undocumented#Color_Space">Color Space</a>, the range of colors,
 reference count of <a href="undocumented#Color_Space">Color Space</a> is unchanged. The returned <a href="undocumented#Color_Space">Color Space</a> is
 immutable.
 
-<a href="undocumented#Color_Space">Color Space</a> returned was a parameter to an <a href="#Image">Image</a> constructor,
-or was parsed from encoded data. <a href="undocumented#Color_Space">Color Space</a> may be ignored when
-drawing <a href="#Image">Image</a>, and when drawing into <a href="SkSurface_Reference#Surface">Surface</a> constructed with <a href="undocumented#Color_Space">Color Space</a>.
+<a href="undocumented#Color_Space">Color Space</a> returned was passed to an <a href="#Image">Image</a> constructor,
+or was parsed from encoded data. <a href="undocumented#Color_Space">Color Space</a> returned may be ignored when <a href="#Image">Image</a>
+is drawn, depending on the capabilities of the <a href="SkSurface_Reference#Surface">Surface</a> receiving the drawing.
 
 ### Return Value
 
@@ -1186,7 +1186,7 @@ drawing <a href="#Image">Image</a>, and when drawing into <a href="SkSurface_Ref
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name="4468d573f42af6f5e234be10a5453bb2" gpu="true"></fiddle-embed></div>
 
 ### See Also
 
