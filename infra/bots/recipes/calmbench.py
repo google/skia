@@ -26,8 +26,11 @@ DEPS = [
 # only option to tools/calmbench/calmbench.py.
 def RunSteps(api):
   api.core.setup()
+
   api.flavor.install(skps=True, svgs=True)
-  api.flavor.compile("most")
+  if 'Calmbuild' in api.properties['buildername']:
+    api.flavor.compile("most")
+
   with api.context(cwd=api.vars.skia_dir):
     extra_arg = '--svgs %s --skps %s' % (api.flavor.device_dirs.svg_dir,
                                          api.flavor.device_dirs.skp_dir)
@@ -49,6 +52,16 @@ def RunSteps(api):
         '--githash', api.vars.got_revision,
     ]
 
+    if 'Calmbuild' in api.properties['buildername']:
+      command.append('--compile-only')
+    else:
+      command.append('--no-compile')
+      nanobenches = api.file.glob_paths(
+          'find nanobenches', api.path['start_dir'], 'nanobench_*',
+          test_data=['nanobench_master', 'nanobench_modified'])
+      for nanobench in nanobenches:
+        api.file.copy('copy nanobench', nanobench, api.vars.swarming_out_dir)
+
     keys_blacklist = ['configuration', 'role', 'test_filter']
     command.append('--key')
     for k in sorted(api.vars.builder_cfg.keys()):
@@ -60,6 +73,7 @@ def RunSteps(api):
 
 def GenTests(api):
   builders = [
+    "Calmbuild-Debian9-Clang-x86_64-Release",
     "Calmbench-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All",
     "Calmbench-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-All",
   ]

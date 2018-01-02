@@ -168,52 +168,50 @@
     "cmd": [
       "python",
       "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "glob",
-      "[START_DIR]",
-      "nanobench_*"
+      "[CUSTOM_/_B_WORK]/skia/bin/fetch-gn"
     ],
     "cwd": "[CUSTOM_/_B_WORK]/skia",
+    "env": {
+      "BUILDTYPE": "Release",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[START_DIR]/out"
+    },
     "infra_step": true,
-    "name": "find nanobenches",
-    "stdout": "/path/to/tmp/",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@glob@[START_DIR]/nanobench_master@@@",
-      "@@@STEP_LOG_LINE@glob@[START_DIR]/nanobench_modified@@@",
-      "@@@STEP_LOG_END@glob@@@"
-    ]
+    "name": "fetch-gn"
   },
   {
     "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "copy",
-      "[START_DIR]/nanobench_master",
-      "[CUSTOM_[SWARM_OUT_DIR]]"
+      "[CUSTOM_/_B_WORK]/skia/bin/gn",
+      "gen",
+      "[START_DIR]/out/Release",
+      "--args=cc=\"[START_DIR]/clang_linux/bin/clang\" cxx=\"[START_DIR]/clang_linux/bin/clang++\" extra_cflags=[\"-B[START_DIR]/clang_linux/bin\"] extra_ldflags=[\"-B[START_DIR]/clang_linux/bin\", \"-fuse-ld=lld\"] is_debug=false target_cpu=\"x86_64\""
     ],
     "cwd": "[CUSTOM_/_B_WORK]/skia",
-    "infra_step": true,
-    "name": "copy nanobench"
+    "env": {
+      "BUILDTYPE": "Release",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[START_DIR]/out"
+    },
+    "name": "gn gen"
   },
   {
     "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "copy",
-      "[START_DIR]/nanobench_modified",
-      "[CUSTOM_[SWARM_OUT_DIR]]"
+      "ninja",
+      "-k",
+      "0",
+      "-C",
+      "[START_DIR]/out/Release"
     ],
     "cwd": "[CUSTOM_/_B_WORK]/skia",
-    "infra_step": true,
-    "name": "copy nanobench (2)"
+    "env": {
+      "BUILDTYPE": "Release",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[START_DIR]/out"
+    },
+    "name": "ninja"
   },
   {
     "cmd": [
@@ -221,30 +219,24 @@
       "tools/calmbench/calmbench.py",
       "modified",
       "--config",
-      "8888",
+      "gl",
       "--ninjadir",
       "[START_DIR]/out/Release",
       "--extraarg",
-      "--svgs [START_DIR]/svg --skps [START_DIR]/skp --mpd false",
+      "--svgs [START_DIR]/svg --skps [START_DIR]/skp",
       "--writedir",
       "[CUSTOM_[SWARM_OUT_DIR]]",
       "--concise",
       "--githash",
       "9046e2e693bb92a76e972b694580e5d17ad10748",
-      "--no-compile",
+      "--compile-only",
       "--key",
-      "arch",
-      "x86_64",
       "compiler",
       "Clang",
-      "cpu_or_gpu",
-      "CPU",
-      "cpu_or_gpu_value",
-      "AVX2",
-      "model",
-      "GCE",
       "os",
-      "Debian9"
+      "Debian9",
+      "target_arch",
+      "x86_64"
     ],
     "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {
