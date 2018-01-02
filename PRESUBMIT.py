@@ -60,6 +60,8 @@ PATH_PREFIX_TO_EXTRA_TRYBOTS = {
     # 'src/image/SkImage_Base.h': 'master5:pqr,stu;master1:abc1;master2:def',
 }
 
+SERVICE_ACCOUNT_SUFFIX = '@skia-buildbots.google.com.iam.gserviceaccount.com'
+
 
 def _CheckChangeHasEol(input_api, output_api, source_file_filter=None):
   """Checks that files end with atleast one \n (LF)."""
@@ -336,6 +338,11 @@ def _CheckOwnerIsInAuthorsFile(input_api, output_api):
     cr = CodeReview(input_api)
 
     owner_email = cr.GetOwnerEmail()
+
+    # Service accounts don't need to be in AUTHORS.
+    if owner_email.endswith(SERVICE_ACCOUNT_SUFFIX):
+      return results
+
     try:
       authors_content = ''
       for line in open(AUTHORS_FILE_NAME):
