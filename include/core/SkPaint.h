@@ -25,6 +25,7 @@ class SkWriteBuffer;
 class SkGlyph;
 struct SkRect;
 class SkGlyphCache;
+class SkGlyphCacheIterator;
 class SkImageFilter;
 class SkMaskFilter;
 class SkPath;
@@ -1770,6 +1771,7 @@ private:
     static SkScalar MaxCacheSize2();
 
     friend class SkAutoGlyphCache;
+    friend class SkGlyphCacheIterator;
     friend class SkAutoGlyphCacheNoGamma;
     friend class SkCanvas;
     friend class SkDraw;
