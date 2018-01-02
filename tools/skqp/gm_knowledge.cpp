@@ -170,7 +170,7 @@ float Check(const uint32_t* pixels,
             ++badPixelCount;
         }
     }
-    if (report_directory_path && badness > 0 && report_directory_path[0] != '\0') {
+    if (report_directory_path && report_directory_path[0] != '\0') {
         sk_mkdir(report_directory_path);
         if (!backend) {
             backend = "skia";
