@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "70fd6c9d_39a96b55",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 9
+      },
+      "lineNbr": 802,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-01-02T20:06:23Z",
+      "side": 1,
+      "message": "We shouldn\u0027t need to add a new type of task for this.  The normal Build- tasks already build the \"most\" target.  We just need to add calmbench to the upload whitelist in https://skia.googlesource.com/skia/+/master/infra/bots/recipe_modules/run/api.py#12\n\nThen we just need to add a Build task which syncs to the \"previous\" commit, ie. HEAD~1 for normal jobs and HEAD for try jobs.  I don\u0027t have a good idea for the name, but something like Build-...-BackOne (or something better :P ).  The Calmbench task would just depend on both of these.",
+      "range": {
+        "startLine": 778,
+        "startChar": 0,
+        "endLine": 802,
+        "endChar": 1
+      },
+      "revId": "a290e93a97c87b844abd052221cdbb6e1f61c1b8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "82d388f4_5cd6632a",
         "filename": "infra/bots/gen_tasks.go",
         "patchSetId": 9
@@ -36,6 +59,29 @@
       "writtenOn": "2018-01-02T18:09:44Z",
       "side": 1,
       "message": "nit: sort",
+      "revId": "a290e93a97c87b844abd052221cdbb6e1f61c1b8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2d54dfac_7c722f29",
+        "filename": "tools/calmbench/calmbench.py",
+        "patchSetId": 9
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-01-02T20:06:23Z",
+      "side": 1,
+      "message": "Just to reiterate, we need to move all of the syncing and compiling out of this script and just use the existing compile tasks.",
+      "range": {
+        "startLine": 103,
+        "startChar": 0,
+        "endLine": 104,
+        "endChar": 50
+      },
       "revId": "a290e93a97c87b844abd052221cdbb6e1f61c1b8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
