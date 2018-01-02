@@ -13,13 +13,11 @@
 #include "SkRandom.h"
 #include "SkShader.h"
 #include "SkSurface.h"
+#include "sk_tool_utils.h"
 
 static sk_sp<SkImage> makebm(SkCanvas* caller, int w, int h) {
     SkImageInfo info = SkImageInfo::MakeN32Premul(w, h);
-    auto surface(caller->makeSurface(info));
-    if (nullptr == surface) {
-        surface = SkSurface::MakeRaster(info);
-    }
+    auto surface(sk_tool_utils::makeSurface(caller, info));
     SkCanvas* canvas = surface->getCanvas();
 
     const SkScalar wScalar = SkIntToScalar(w);

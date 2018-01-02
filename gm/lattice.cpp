@@ -7,16 +7,12 @@
 
 #include "gm.h"
 #include "SkSurface.h"
+#include "sk_tool_utils.h"
 
 static sk_sp<SkSurface> make_surface(SkCanvas* root, int N, int padLeft, int padTop,
                                      int padRight, int padBottom) {
     SkImageInfo info = SkImageInfo::MakeN32Premul(N + padLeft + padRight, N + padTop + padBottom);
-    auto surface = root->makeSurface(info);
-    if (!surface) {
-        surface = SkSurface::MakeRaster(info);
-    }
-
-    return surface;
+    return sk_tool_utils::makeSurface(root, info);
 }
 
 static sk_sp<SkImage> make_image(SkCanvas* root, int* xDivs, int* yDivs, int padLeft, int padTop,

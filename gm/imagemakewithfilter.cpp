@@ -70,10 +70,7 @@ protected:
 
         canvas->translate(MARGIN, MARGIN);
 
-        sk_sp<SkSurface> surface = canvas->makeSurface(info);
-        if (!surface) {
-            surface = SkSurface::MakeRaster(info);
-        }
+        sk_sp<SkSurface> surface = sk_tool_utils::makeSurface(canvas, info);
         sk_tool_utils::draw_checkerboard(surface->getCanvas());
         sk_sp<SkImage> source = surface->makeImageSnapshot();
 

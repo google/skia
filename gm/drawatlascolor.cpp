@@ -20,10 +20,7 @@ static sk_sp<SkImage> make_atlas(SkCanvas* caller, int atlasSize) {
     const int kBlockSize = atlasSize/2;
 
     SkImageInfo info = SkImageInfo::MakeN32Premul(atlasSize, atlasSize);
-    auto surface(caller->makeSurface(info));
-    if (nullptr == surface) {
-        surface = SkSurface::MakeRaster(info);
-    }
+    auto surface(sk_tool_utils::makeSurface(caller, info));
     SkCanvas* canvas = surface->getCanvas();
 
     SkPaint paint;

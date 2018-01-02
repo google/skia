@@ -35,12 +35,7 @@ static SkBitmap make_chessbm(int w, int h) {
 static sk_sp<SkImage> makebm(SkCanvas* origCanvas, SkBitmap* resultBM, int w, int h) {
     SkImageInfo info = SkImageInfo::MakeN32Premul(w, h);
 
-    auto surface(origCanvas->makeSurface(info));
-    if (nullptr == surface) {
-        // picture canvas will return null, so fall-back to raster
-        surface = SkSurface::MakeRaster(info);
-    }
-
+    auto surface(sk_tool_utils::makeSurface(origCanvas, info));
     SkCanvas* canvas = surface->getCanvas();
 
     canvas->clear(SK_ColorTRANSPARENT);

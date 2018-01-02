@@ -124,10 +124,7 @@ protected:
     void onDraw(SkCanvas* canvas) override {
         SkImageInfo info = SkImageInfo::MakeN32Premul(100, 100);
 
-        auto surf(canvas->makeSurface(info, nullptr));
-        if (!surf) {
-            surf = SkSurface::MakeRaster(info);
-        }
+        auto surf(sk_tool_utils::makeSurface(canvas, info, nullptr));
         drawInto(surf->getCanvas());
 
         sk_sp<SkImage> image(surf->makeImageSnapshot());
@@ -152,10 +149,7 @@ DEF_GM( return new NewSurfaceGM )
 
 DEF_SIMPLE_GM(copy_on_write_retain, canvas, 256, 256) {
     const SkImageInfo info = SkImageInfo::MakeN32Premul(256, 256);
-    sk_sp<SkSurface> surf = canvas->makeSurface(info, nullptr);
-    if (!surf) {
-        surf = SkSurface::MakeRaster(info, nullptr);
-    }
+    sk_sp<SkSurface> surf = sk_tool_utils::makeSurface(canvas, info);
 
     surf->getCanvas()->clear(SK_ColorRED);
     // its important that image survives longer than the next draw, so the surface will see
@@ -173,11 +167,7 @@ DEF_SIMPLE_GM(copy_on_write_retain, canvas, 256, 256) {
 
 DEF_SIMPLE_GM(copy_on_write_savelayer, canvas, 256, 256) {
     const SkImageInfo info = SkImageInfo::MakeN32Premul(256, 256);
-    sk_sp<SkSurface> surf = canvas->makeSurface(info, nullptr);
-    if (!surf) {
-        surf = SkSurface::MakeRaster(info, nullptr);
-    }
-
+    sk_sp<SkSurface> surf = sk_tool_utils::makeSurface(canvas, info);
     surf->getCanvas()->clear(SK_ColorRED);
     // its important that image survives longer than the next draw, so the surface will see
     // an outstanding image, and have to decide if it should retain or discard those pixels

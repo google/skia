@@ -11,14 +11,12 @@
 #include "SkCanvas.h"
 #include "SkRSXform.h"
 #include "SkSurface.h"
+#include "sk_tool_utils.h"
 
 class DrawAtlasGM : public skiagm::GM {
     static sk_sp<SkImage> MakeAtlas(SkCanvas* caller, const SkRect& target) {
         SkImageInfo info = SkImageInfo::MakeN32Premul(100, 100);
-        auto surface(caller->makeSurface(info));
-        if (nullptr == surface) {
-            surface = SkSurface::MakeRaster(info);
-        }
+        auto surface(sk_tool_utils::makeSurface(caller, info));
         SkCanvas* canvas = surface->getCanvas();
         // draw red everywhere, but we don't expect to see it in the draw, testing the notion
         // that drawAtlas draws a subset-region of the atlas.
