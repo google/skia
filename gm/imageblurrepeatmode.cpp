@@ -10,17 +10,9 @@
 #include "SkSurface.h"
 #include "SkBlurImageFilter.h"
 
-static sk_sp<SkSurface> make_surface(SkCanvas* canvas, const SkImageInfo& info) {
-    auto surface = canvas->makeSurface(info);
-    if (!surface) {
-        surface = SkSurface::MakeRaster(info);
-    }
-    return surface;
-}
-
 static sk_sp<SkImage> make_image(SkCanvas* canvas, int direction) {
     SkImageInfo info = SkImageInfo::MakeN32Premul(250, 200);
-    auto surface = make_surface(canvas, info);
+    auto surface = sk_tool_utils::makeSurface(canvas, info);
     SkCanvas* c = surface->getCanvas();
     SkPaint paint;
     paint.setAntiAlias(true);

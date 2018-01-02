@@ -24,6 +24,8 @@ class SkPaint;
 class SkPath;
 class SkRRect;
 class SkShader;
+class SkSurface;
+class SkSurfaceProps;
 class SkTestFont;
 class SkTextBlobBuilder;
 
@@ -111,6 +113,9 @@ namespace sk_tool_utils {
 
     SkBitmap create_string_bitmap(int w, int h, SkColor c, int x, int y,
                                   int textSize, const char* str);
+
+    // If the canvas does't make a surface (e.g. recording), make a raster surface
+    sk_sp<SkSurface> makeSurface(SkCanvas*, const SkImageInfo&, const SkSurfaceProps* = nullptr);
 
     // A helper for inserting a drawtext call into a SkTextBlobBuilder
     void add_to_text_blob_w_len(SkTextBlobBuilder* builder, const char* text, size_t len,
@@ -245,7 +250,6 @@ namespace sk_tool_utils {
 
     bool copy_to(SkBitmap* dst, SkColorType dstCT, const SkBitmap& src);
     void copy_to_g8(SkBitmap* dst, const SkBitmap& src);
-
 }  // namespace sk_tool_utils
 
 #endif  // sk_tool_utils_DEFINED

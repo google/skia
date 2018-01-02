@@ -13,13 +13,11 @@
 #include "SkMorphologyImageFilter.h"
 #include "SkOffsetImageFilter.h"
 #include "SkSurface.h"
+#include "sk_tool_utils.h"
 
 static sk_sp<SkImage> make_image(SkCanvas* rootCanvas) {
     SkImageInfo info = SkImageInfo::MakeN32Premul(100, 100);
-    auto surface(rootCanvas->makeSurface(info));
-    if (!surface) {
-        surface = SkSurface::MakeRaster(info);
-    }
+    auto surface(sk_tool_utils::makeSurface(rootCanvas, info));
 
     SkPaint paint;
     paint.setAntiAlias(true);

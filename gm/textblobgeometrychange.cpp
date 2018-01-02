@@ -45,10 +45,7 @@ protected:
 
         SkImageInfo info = SkImageInfo::MakeN32Premul(200, 200);
         SkSurfaceProps props(0, kUnknown_SkPixelGeometry);
-        auto surface = canvas->makeSurface(info, &props);
-        if (!surface) {
-            surface = SkSurface::MakeRaster(info, &props);
-        }
+        auto surface = sk_tool_utils::makeSurface(canvas, info, &props);
         SkCanvas* c = surface->getCanvas();
 
         // LCD text on white background
