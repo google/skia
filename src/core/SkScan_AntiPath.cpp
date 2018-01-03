@@ -750,17 +750,23 @@ void SkScan::AntiFillPath(const SkPath& path, const SkRegion& origClip,
 
     SkASSERT(SkIntToScalar(ir.fTop) <= path.getBounds().fTop);
 
+#ifdef SK_SUPPORT_LEGACY_CONTAINED_IN_CLIP
+    bool containedInClip = clipper.getClipRect() == nullptr;
+#else
+    bool containedInClip = clipRgn->getBounds().contains(ir);
+#endif
+
     if (forceDAA || ShouldUseDAA(path)) {
         SkScan::DAAFillPath(path, blitter, ir, clipRgn->getBounds(),
-                            clipper.getClipRect() == nullptr, forceRLE);
+                            containedInClip, forceRLE);
     } else if (ShouldUseAAA(path)) {
         // Do not use AAA if path is too complicated:
         // there won't be any speedup or significant visual improvement.
         SkScan::AAAFillPath(path, blitter, ir, clipRgn->getBounds(),
-                            clipper.getClipRect() == nullptr, forceRLE);
+                            containedInClip, forceRLE);
     } else {
         SkScan::SAAFillPath(path, blitter, ir, clipRgn->getBounds(),
-                            clipper.getClipRect() == nullptr, forceRLE);
+                            containedInClip, forceRLE);
     }
 
     if (isInverse) {
