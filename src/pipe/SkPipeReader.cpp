@@ -6,7 +6,9 @@
  */
 
 #include "SkCanvas.h"
+#include "SkCanvasPriv.h"
 #include "SkDeduper.h"
+#include "SkDrawShadowInfo.h"
 #include "SkPicture.h"
 #include "SkPictureRecorder.h"
 #include "SkPipe.h"
@@ -480,6 +482,15 @@ static void drawPath_handler(SkPipeReader& reader, uint32_t packedVerb, SkCanvas
     canvas->drawPath(path, read_paint(reader));
 }
 
+static void drawShadowRec_handler(SkPipeReader& reader, uint32_t packedVerb, SkCanvas* canvas) {
+    SkASSERT(SkPipeVerb::kDrawShadowRec == unpack_verb(packedVerb));
+    SkPath path;
+    reader.readPath(&path);
+    SkDrawShadowRec rec;
+    reader.readPad32(&rec, sizeof(rec));
+    canvas->private_draw_shadow_rec(path, rec);
+}
+
 static void drawPoints_handler(SkPipeReader& reader, uint32_t packedVerb, SkCanvas* canvas) {
     SkASSERT(SkPipeVerb::kDrawPoints == unpack_verb(packedVerb));
     SkCanvas::PointMode mode = (SkCanvas::PointMode)unpack_verb_extra(packedVerb);
@@ -539,26 +550,9 @@ static void drawImageLattice_handler(SkPipeReader& reader, uint32_t packedVerb, 
     sk_sp<SkImage> image(reader.readImage());
 
     SkCanvas::Lattice lattice;
-    lattice.fXCount = (packedVerb >> kXCount_DrawImageLatticeShift) & kCount_DrawImageLatticeMask;
-    if (lattice.fXCount == kCount_DrawImageLatticeMask) {
-        lattice.fXCount = reader.read32();
+    if (!SkCanvasPriv::ReadLattice(reader, &lattice)) {
+        return;
     }
-    lattice.fYCount = (packedVerb >> kXCount_DrawImageLatticeShift) & kCount_DrawImageLatticeMask;
-    if (lattice.fYCount == kCount_DrawImageLatticeMask) {
-        lattice.fYCount = reader.read32();
-    }
-    lattice.fXDivs = skip<int32_t>(reader, lattice.fXCount);
-    lattice.fYDivs = skip<int32_t>(reader, lattice.fYCount);
-    if (packedVerb & kHasFlags_DrawImageLatticeMask) {
-        int32_t count = (lattice.fXCount + 1) * (lattice.fYCount + 1);
-        SkASSERT(count > 0);
-        lattice.fRectTypes = skip<SkCanvas::Lattice::RectType>(reader, count);
-        lattice.fColors = skip<SkColor>(reader, count);
-    } else {
-        lattice.fRectTypes = nullptr;
-        lattice.fColors = nullptr;
-    }
-    lattice.fBounds = skip<SkIRect>(reader);
     const SkRect* dst = skip<SkRect>(reader);
 
     SkPaint paintStorage, *paint = nullptr;
@@ -749,6 +743,7 @@ const HandlerRec gPipeHandlers[] = {
     HANDLER(drawPoints),
     HANDLER(drawRect),
     HANDLER(drawPath),
+    HANDLER(drawShadowRec),
     HANDLER(drawOval),
     HANDLER(drawRRect),
 

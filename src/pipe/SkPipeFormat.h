@@ -38,13 +38,14 @@ enum class SkPipeVerb : uint8_t {
     kDrawPoints,        // extra == PointMode
     kDrawRect,          // extra == 0
     kDrawPath,          // extra == 0
+    kDrawShadowRec,     // extra == 0
     kDrawOval,          // extra == 0
     kDrawRRect,         // extra == 0
 
     kDrawImage,         // extra == has_paint:1
     kDrawImageRect,     // extra == constraint | has_src_rect | has_paint
     kDrawImageNine,     // extra == has_paint:1
-    kDrawImageLattice,  // extra == x_count:8 | y_count:8 | has_paint:1
+    kDrawImageLattice,  // extra == has_paint:1
 
     kDrawVertices,
 

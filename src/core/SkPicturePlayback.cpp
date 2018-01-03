@@ -6,6 +6,7 @@
  */
 
 #include "SkCanvas.h"
+#include "SkCanvasPriv.h"
 #include "SkDrawShadowInfo.h"
 #include "SkPaintPriv.h"
 #include "SkPatchUtils.h"
@@ -360,24 +361,11 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
             const SkPaint* paint = fPictureData->getPaint(reader);
             const SkImage* image = fPictureData->getImage(reader);
             SkCanvas::Lattice lattice;
-            lattice.fXCount = reader->readInt();
-            lattice.fXDivs = (const int*) reader->skip(lattice.fXCount, sizeof(int32_t));
-            lattice.fYCount = reader->readInt();
-            lattice.fYDivs = (const int*) reader->skip(lattice.fYCount, sizeof(int32_t));
-            int flagCount = reader->readInt();
-            lattice.fRectTypes = (0 == flagCount) ? nullptr :
-                    (const SkCanvas::Lattice::RectType*)
-                    reader->skip(SkAlign4(flagCount * sizeof(SkCanvas::Lattice::RectType)));
-            lattice.fColors = (0 == flagCount) ? nullptr : (const SkColor*)
-                    reader->skip(SkAlign4(flagCount * sizeof(SkColor)));
-            SkIRect src;
-            reader->readIRect(&src);
-            lattice.fBounds = &src;
-            SkRect dst;
-            reader->readRect(&dst);
+            (void)SkCanvasPriv::ReadLattice(*reader, &lattice);
+            const SkRect* dst = reader->skipT<SkRect>();
             BREAK_ON_READ_ERROR(reader);
 
-            canvas->drawImageLattice(image, lattice, dst, paint);
+            canvas->drawImageLattice(image, lattice, *dst, paint);
         } break;
         case DRAW_IMAGE_NINE: {
             const SkPaint* paint = fPictureData->getPaint(reader);
