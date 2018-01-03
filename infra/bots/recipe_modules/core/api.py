@@ -125,7 +125,7 @@ class SkiaApi(recipe_api.RecipeApi):
 
     # Hack the patch ref if necessary.
     if self.m.bot_update._issue and self.m.bot_update._patchset:
-      self.m.bot_update._gerrit_ref = 'refs/changes/%s/%d/%d' % (
+      self.m.bot_update._gerrit_ref = 'refs/changes/%s/%s/%s' % (
           str(self.m.bot_update._issue)[-2:],
           self.m.bot_update._issue,
           self.m.bot_update._patchset,
