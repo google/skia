@@ -157,6 +157,10 @@ with open(sys.argv[1], 'w') as f:
         args['skia_vulkan_sdk'] = '"%s"' % win_vulkan_sdk
     if 'Metal' in extra_tokens:
       args['skia_use_metal'] = 'true'
+    if 'iOS' in extra_tokens:
+      # Bots use Chromium signing cert.
+      args['skia_ios_identity'] = '".*GS9WA.*"'
+      args['skia_ios_profile'] = '"Upstream Testing Provisioning Profile"'
     if 'CheckGeneratedFiles' in extra_tokens:
       args['skia_compile_processors'] = 'true'
     if compiler == 'Clang' and 'Win' in os:

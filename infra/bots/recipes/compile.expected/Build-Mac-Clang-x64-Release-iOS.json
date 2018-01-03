@@ -116,7 +116,7 @@
       "[CUSTOM_/_B_WORK]/skia/bin/gn",
       "gen",
       "[CUSTOM_/_B_WORK]/skia/out/Build-Mac-Clang-x64-Release-iOS/Release",
-      "--args=cc=\"clang\" cxx=\"clang++\" is_debug=false target_cpu=\"x64\" target_os=\"ios\""
+      "--args=cc=\"clang\" cxx=\"clang++\" is_debug=false skia_ios_identity=\".*GS9WA.*\" skia_ios_profile=\"Upstream Testing Provisioning Profile\" target_cpu=\"x64\" target_os=\"ios\""
     ],
     "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {
