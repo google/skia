@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "048300ec_2813dae5",
+        "filename": "platform_tools/android/apps/skqpapp/src/main/AndroidManifest.xml",
+        "patchSetId": 10
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-01-03T19:28:08Z",
+      "side": 1,
+      "message": "you can move these 2 activities into skqp\u0027s AndroidManifest.xml",
+      "revId": "eb21c72b508f536695fdbb25e3fb20472342d59d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
