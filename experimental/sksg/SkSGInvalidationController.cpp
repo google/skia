@@ -15,6 +15,10 @@ namespace sksg {
 InvalidationController::InvalidationController() {}
 
 void InvalidationController::inval(const SkRect& r, const SkMatrix& ctm) {
+    if (r.isEmpty()) {
+        return;
+    }
+
     SkTCopyOnFirstWrite<SkRect> rect(r);
 
     if (!ctm.isIdentity()) {

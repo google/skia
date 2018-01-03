@@ -29,19 +29,14 @@ void Draw::onRender(SkCanvas* canvas) const {
     fGeometry->draw(canvas, fPaint->makePaint());
 }
 
-void Draw::onRevalidate(InvalidationController* ic, const SkMatrix& ctm) {
-    SkASSERT(this->isInvalidated());
+SkRect Draw::onRevalidate(InvalidationController* ic, const SkMatrix& ctm) {
+    SkASSERT(this->hasInval());
 
     // TODO: paint bounds extents
-    const auto oldBounds = fGeometry->fBounds;
-
-    fGeometry->revalidate(ic, ctm);
+    const auto bounds = fGeometry->revalidate(ic, ctm);
     fPaint->revalidate(ic, ctm);
 
-    ic->inval(oldBounds, ctm);
-    if (fGeometry->fBounds != oldBounds) {
-        ic->inval(fGeometry->fBounds, ctm);
-    }
+    return bounds;
 }
 
 } // namespace sksg
