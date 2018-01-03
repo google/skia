@@ -11,6 +11,7 @@
 #include "SkConvertPixels.h"
 #include "SkData.h"
 #include "SkImageInfoPriv.h"
+#include "SkImageShader.h"
 #include "SkHalf.h"
 #include "SkMask.h"
 #include "SkNx.h"
@@ -229,54 +230,65 @@ bool SkPixmap::erase(const SkColor4f& origColor, const SkIRect* subset) const {
     return true;
 }
 
-static void set_alphatype(SkPixmap* dst, const SkPixmap& src, SkAlphaType at) {
-    dst->reset(src.info().makeAlphaType(at), src.addr(), src.rowBytes());
-}
+bool SkPixmap::scalePixels(const SkPixmap& actualDst, SkFilterQuality quality) const {
+    // We may need to tweak how we interpret these just a little below, so we make copies.
+    SkPixmap src = *this,
+             dst = actualDst;
 
-bool SkPixmap::scalePixels(const SkPixmap& dst, SkFilterQuality quality) const {
     // Can't do anthing with empty src or dst
-    if (this->width() <= 0 || this->height() <= 0 || dst.width() <= 0 || dst.height() <= 0) {
+    if (src.width() <= 0 || src.height() <= 0 ||
+        dst.width() <= 0 || dst.height() <= 0) {
         return false;
     }
 
     // no scaling involved?
-    if (dst.width() == this->width() && dst.height() == this->height()) {
-        return this->readPixels(dst);
+    if (src.width() == dst.width() && src.height() == dst.height()) {
+        return src.readPixels(dst);
     }
 
-    // Temp storage in case we need to edit the requested alphatypes
-    SkPixmap storage_src, storage_dst;
-    const SkPixmap* srcPtr = this;
-    const SkPixmap* dstPtr = &dst;
+    // If src and dst are both unpremul, we'll fake them out to appear as if premul.
+    bool clampAsIfUnpremul = false;
+    if (src.alphaType() == kUnpremul_SkAlphaType &&
+        dst.alphaType() == kUnpremul_SkAlphaType) {
+        src.reset(src.info().makeAlphaType(kPremul_SkAlphaType), src.addr(), src.rowBytes());
+        dst.reset(dst.info().makeAlphaType(kPremul_SkAlphaType), dst.addr(), dst.rowBytes());
 
-    // Trick: if src and dst are both unpremul, we can give the correct result if we change both
-    //        to premul (or opaque), since the draw will not try to blend or otherwise interpret
-    //        the pixels' alpha.
-    if (srcPtr->alphaType() == kUnpremul_SkAlphaType &&
-        dstPtr->alphaType() == kUnpremul_SkAlphaType)
-    {
-        set_alphatype(&storage_src, *this, kPremul_SkAlphaType);
-        set_alphatype(&storage_dst, dst,   kPremul_SkAlphaType);
-        srcPtr = &storage_src;
-        dstPtr = &storage_dst;
+        // In turn, we'll need to tell the image shader to clamp to [0,1] instead
+        // of the usual [0,a] when using a bicubic scaling (kHigh_SkFilterQuality)
+        // or a gamut transformation.
+        clampAsIfUnpremul = true;
     }
 
     SkBitmap bitmap;
-    if (!bitmap.installPixels(*srcPtr)) {
+    if (!bitmap.installPixels(src)) {
         return false;
     }
-    bitmap.setIsVolatile(true); // so we don't try to cache it
+    bitmap.setImmutable();        // Don't copy when we create an image.
+    bitmap.setIsVolatile(true);   // Disable any caching.
 
-    auto surface(SkSurface::MakeRasterDirect(dstPtr->info(), dstPtr->writable_addr(), dstPtr->rowBytes()));
-    if (!surface) {
+    SkMatrix scale = SkMatrix::MakeRectToRect(SkRect::Make(src.bounds()),
+                                              SkRect::Make(dst.bounds()),
+                                              SkMatrix::kFill_ScaleToFit);
+
+    // We'll create a shader to do this draw so we have control over the bicubic clamp.
+    sk_sp<SkShader> shader = SkImageShader::Make(SkImage::MakeFromBitmap(bitmap),
+                                                 SkShader::kClamp_TileMode,
+                                                 SkShader::kClamp_TileMode,
+                                                 &scale,
+                                                 clampAsIfUnpremul);
+
+    sk_sp<SkSurface> surface = SkSurface::MakeRasterDirect(dst.info(),
+                                                           dst.writable_addr(),
+                                                           dst.rowBytes());
+    if (!shader || !surface) {
         return false;
     }
 
     SkPaint paint;
-    paint.setFilterQuality(quality);
     paint.setBlendMode(SkBlendMode::kSrc);
-    surface->getCanvas()->drawBitmapRect(bitmap, SkRect::MakeIWH(dst.width(), dst.height()),
-                                         &paint);
+    paint.setFilterQuality(quality);
+    paint.setShader(std::move(shader));
+    surface->getCanvas()->drawPaint(paint);
     return true;
 }
 
