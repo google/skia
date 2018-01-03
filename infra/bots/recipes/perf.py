@@ -183,7 +183,7 @@ def nanobench_flags(api, bot):
     match.append('~top25desk_ebay_com.skp_1.1')
   if 'Vulkan' in bot and 'NexusPlayer' in bot:
     match.append('~blendmode_') # skia:6691
-  if 'ASAN' in bot and 'CPU' in bot:
+  if ('ASAN' in bot or 'UBSAN' in bot) and 'CPU' in bot:
     # floor2int_undef benches undefined behavior, so ASAN correctly complains.
     match.append('~^floor2int_undef$')
 

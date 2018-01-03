@@ -431,6 +431,12 @@
         "Build-Win-Clang-x86_64-Debug-GomaNoFallback"
       ]
     },
+    "Build-Win-Clang-x86_64-Debug-UBSAN": {
+      "priority": 0.8,
+      "tasks": [
+        "Build-Win-Clang-x86_64-Debug-UBSAN"
+      ]
+    },
     "Build-Win-Clang-x86_64-Debug-Vulkan": {
       "priority": 0.8,
       "tasks": [
@@ -465,6 +471,12 @@
       "priority": 0.8,
       "tasks": [
         "Build-Win-Clang-x86_64-Release-Goma"
+      ]
+    },
+    "Build-Win-Clang-x86_64-Release-UBSAN": {
+      "priority": 0.8,
+      "tasks": [
+        "Build-Win-Clang-x86_64-Release-UBSAN"
       ]
     },
     "Build-Win-Clang-x86_64-Release-Vulkan": {
@@ -1600,10 +1612,22 @@
         "Perf-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All"
       ]
     },
+    "Perf-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-UBSAN": {
+      "priority": 0.8,
+      "tasks": [
+        "Perf-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-UBSAN"
+      ]
+    },
     "Perf-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release-All": {
       "priority": 0.8,
       "tasks": [
         "Upload-Perf-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release-All"
+      ]
+    },
+    "Perf-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release-All-UBSAN": {
+      "priority": 0.8,
+      "tasks": [
+        "Perf-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release-All-UBSAN"
       ]
     },
     "Perf-Win2016-MSVC-GCE-CPU-AVX2-x86-Debug-All": {
@@ -2820,6 +2844,12 @@
         "Upload-Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-FSAA"
       ]
     },
+    "Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-UBSAN": {
+      "priority": 0.8,
+      "tasks": [
+        "Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-UBSAN"
+      ]
+    },
     "Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release-All": {
       "priority": 0.8,
       "tasks": [
@@ -2842,6 +2872,12 @@
       "priority": 0.8,
       "tasks": [
         "Upload-Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release-All-FSAA"
+      ]
+    },
+    "Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release-All-UBSAN": {
+      "priority": 0.8,
+      "tasks": [
+        "Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release-All-UBSAN"
       ]
     },
     "Test-Win2016-MSVC-GCE-CPU-AVX2-x86-Debug-All": {
@@ -4979,6 +5015,40 @@
       "isolate": "compile_skia.isolate",
       "priority": 0.8
     },
+    "Build-Win-Clang-x86_64-Debug-UBSAN": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/clang_win",
+          "path": "clang_win",
+          "version": "version:2"
+        }
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-IsolateWinToolchain"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "machine_type:n1-highcpu-64",
+        "os:Windows-2016Server-14393",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "compile",
+        "repository=<(REPO)",
+        "buildername=Build-Win-Clang-x86_64-Debug-UBSAN",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "compile_skia.isolate",
+      "priority": 0.8
+    },
     "Build-Win-Clang-x86_64-Debug-Vulkan": {
       "cipd_packages": [
         {
@@ -5175,6 +5245,40 @@
         "compile",
         "repository=<(REPO)",
         "buildername=Build-Win-Clang-x86_64-Release-Goma",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "compile_skia.isolate",
+      "priority": 0.8
+    },
+    "Build-Win-Clang-x86_64-Release-UBSAN": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/clang_win",
+          "path": "clang_win",
+          "version": "version:2"
+        }
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-IsolateWinToolchain"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "machine_type:n1-highcpu-64",
+        "os:Windows-2016Server-14393",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "compile",
+        "repository=<(REPO)",
+        "buildername=Build-Win-Clang-x86_64-Release-UBSAN",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -12939,6 +13043,54 @@
       "max_attempts": 1,
       "priority": 0.8
     },
+    "Perf-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-UBSAN": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:34"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:108"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:9"
+        }
+      ],
+      "dependencies": [
+        "Build-Win-Clang-x86_64-Debug-UBSAN",
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "machine_type:n1-standard-16",
+        "os:Windows-2016Server-14393",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "perf",
+        "repository=<(REPO)",
+        "buildername=Perf-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-UBSAN",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "perf_skia_bundled_win.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
     "Perf-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release-All": {
       "cipd_packages": [
         {
@@ -12975,6 +13127,54 @@
         "perf",
         "repository=<(REPO)",
         "buildername=Perf-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release-All",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "perf_skia_bundled_win.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
+    "Perf-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release-All-UBSAN": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:34"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:108"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:9"
+        }
+      ],
+      "dependencies": [
+        "Build-Win-Clang-x86_64-Release-UBSAN",
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "machine_type:n1-standard-16",
+        "os:Windows-2016Server-14393",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "perf",
+        "repository=<(REPO)",
+        "buildername=Perf-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release-All-UBSAN",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -22384,6 +22584,55 @@
       "max_attempts": 1,
       "priority": 0.8
     },
+    "Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-UBSAN": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:34"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:108"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:9"
+        }
+      ],
+      "dependencies": [
+        "Build-Win-Clang-x86_64-Debug-UBSAN",
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "machine_type:n1-standard-16",
+        "os:Windows-2016Server-14393",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "test",
+        "repository=<(REPO)",
+        "buildbucket_build_id=<(BUILDBUCKET_BUILD_ID)",
+        "buildername=Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-UBSAN",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia_bundled_win.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
     "Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release-All": {
       "cipd_packages": [
         {
@@ -22568,6 +22817,55 @@
         "repository=<(REPO)",
         "buildbucket_build_id=<(BUILDBUCKET_BUILD_ID)",
         "buildername=Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release-All-FSAA",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia_bundled_win.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
+    "Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release-All-UBSAN": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:34"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:108"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:9"
+        }
+      ],
+      "dependencies": [
+        "Build-Win-Clang-x86_64-Release-UBSAN",
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "machine_type:n1-standard-16",
+        "os:Windows-2016Server-14393",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "test",
+        "repository=<(REPO)",
+        "buildbucket_build_id=<(BUILDBUCKET_BUILD_ID)",
+        "buildername=Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release-All-UBSAN",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
