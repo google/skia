@@ -135,6 +135,21 @@
   {
     "cmd": [
       "ideviceinstaller",
+      "-U",
+      "com.google.dm"
+    ],
+    "env": {
+      "BUILDTYPE": "Debug",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[START_DIR]/out"
+    },
+    "infra_step": true,
+    "name": "uninstall_dm"
+  },
+  {
+    "cmd": [
+      "ideviceinstaller",
       "-i",
       "[START_DIR]/out/Debug/dm.app"
     ],
@@ -146,6 +161,21 @@
     },
     "infra_step": true,
     "name": "install_dm"
+  },
+  {
+    "cmd": [
+      "ideviceinstaller",
+      "-U",
+      "com.google.nanobench"
+    ],
+    "env": {
+      "BUILDTYPE": "Debug",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[START_DIR]/out"
+    },
+    "infra_step": true,
+    "name": "uninstall_nanobench"
   },
   {
     "cmd": [
