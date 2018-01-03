@@ -279,7 +279,7 @@ void SkPictureData::serialize(SkWStream* stream, const SkSerialProcs& procs,
     // We delay serializing the bulk of our data until after we've serialized
     // factories and typefaces by first serializing to an in-memory write buffer.
     SkFactorySet factSet;  // buffer refs factSet, so factSet must come first.
-    SkBinaryWriteBuffer buffer(SkBinaryWriteBuffer::kCrossProcess_Flag);
+    SkBinaryWriteBuffer buffer;
     buffer.setFactoryRecorder(&factSet);
     buffer.setSerialProcs(procs);
     buffer.setTypefaceRecorder(typefaceSet);
@@ -343,29 +343,6 @@ void SkPictureData::flatten(SkWriteBuffer& buffer) const {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-
-/**
- *  Return the corresponding SkReadBuffer flags, given a set of
- *  SkPictInfo flags.
- */
-static uint32_t pictInfoFlagsToReadBufferFlags(uint32_t pictInfoFlags) {
-    static const struct {
-        uint32_t    fSrc;
-        uint32_t    fDst;
-    } gSD[] = {
-        { SkPictInfo::kCrossProcess_Flag,   SkReadBuffer::kCrossProcess_Flag },
-        { SkPictInfo::kScalarIsFloat_Flag,  SkReadBuffer::kScalarIsFloat_Flag },
-        { SkPictInfo::kPtrIs64Bit_Flag,     SkReadBuffer::kPtrIs64Bit_Flag },
-    };
-
-    uint32_t rbMask = 0;
-    for (size_t i = 0; i < SK_ARRAY_COUNT(gSD); ++i) {
-        if (pictInfoFlags & gSD[i].fSrc) {
-            rbMask |= gSD[i].fDst;
-        }
-    }
-    return rbMask;
-}
 
 bool SkPictureData::parseStreamTag(SkStream* stream,
                                    uint32_t tag,
@@ -437,7 +414,6 @@ bool SkPictureData::parseStreamTag(SkStream* stream,
             }
 
             SkReadBuffer buffer(storage.get(), size);
-            buffer.setFlags(pictInfoFlagsToReadBufferFlags(fInfo.fFlags));
             buffer.setVersion(fInfo.getVersion());
 
             if (!fFactoryPlayback) {
