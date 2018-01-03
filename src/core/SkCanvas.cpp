@@ -2909,32 +2909,6 @@ std::unique_ptr<SkCanvas> SkCanvas::MakeRasterDirect(const SkImageInfo& info, vo
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkAutoCanvasMatrixPaint::SkAutoCanvasMatrixPaint(SkCanvas* canvas, const SkMatrix* matrix,
-                                                 const SkPaint* paint, const SkRect& bounds)
-    : fCanvas(canvas)
-    , fSaveCount(canvas->getSaveCount())
-{
-    if (paint) {
-        SkRect newBounds = bounds;
-        if (matrix) {
-            matrix->mapRect(&newBounds);
-        }
-        canvas->saveLayer(&newBounds, paint);
-    } else if (matrix) {
-        canvas->save();
-    }
-
-    if (matrix) {
-        canvas->concat(*matrix);
-    }
-}
-
-SkAutoCanvasMatrixPaint::~SkAutoCanvasMatrixPaint() {
-    fCanvas->restoreToCount(fSaveCount);
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
 SkNoDrawCanvas::SkNoDrawCanvas(int width, int height)
     : INHERITED(SkIRect::MakeWH(width, height), kConservativeRasterClip_InitFlag) {}
 
@@ -3008,3 +2982,7 @@ SkRasterHandleAllocator::MakeCanvas(std::unique_ptr<SkRasterHandleAllocator> all
     }
     return hndl ? std::unique_ptr<SkCanvas>(new SkCanvas(bm, std::move(alloc), hndl)) : nullptr;
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+

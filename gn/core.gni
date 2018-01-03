@@ -59,6 +59,7 @@ skia_core_sources = [
   "$_src/core/SkBuffer.cpp",
   "$_src/core/SkCachedData.cpp",
   "$_src/core/SkCanvas.cpp",
+  "$_src/core/SkCanvasPriv.cpp",
   "$_src/core/SkCanvasPriv.h",
   "$_src/core/SkCoverageDelta.h",
   "$_src/core/SkCoverageDelta.cpp",
