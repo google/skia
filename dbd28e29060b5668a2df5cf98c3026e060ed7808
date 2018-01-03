@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "25aebfc9_4894530a",
+        "filename": "tests/GrShapeTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 245,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-01-03T18:19:51Z",
+      "side": 1,
+      "message": "nit: \u0027volatile\u0027",
+      "revId": "dbd28e29060b5668a2df5cf98c3026e060ed7808",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
