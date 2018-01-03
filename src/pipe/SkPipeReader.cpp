@@ -93,10 +93,6 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename T> const T* skip(SkReadBuffer& reader, int count = 1) {
-    return (const T*)reader.skip(count * sizeof(T));
-}
-
 static SkRRect read_rrect(SkReadBuffer& reader) {
     SkRRect rrect;
     rrect.readFromMemory(reader.skip(SkRRect::kSizeInMemory), SkRRect::kSizeInMemory);
@@ -108,9 +104,9 @@ static SkMatrix read_sparse_matrix(SkReadBuffer& reader, SkMatrix::TypeMask tm) 
     matrix.reset();
 
     if (tm & SkMatrix::kPerspective_Mask) {
-        matrix.set9(skip<SkScalar>(reader, 9));
+        matrix.set9(reader.skipT<SkScalar>(9));
     } else if (tm & SkMatrix::kAffine_Mask) {
-        const SkScalar* tmp = skip<SkScalar>(reader, 6);
+        const SkScalar* tmp = reader.skipT<SkScalar>(6);
         matrix[SkMatrix::kMScaleX] = tmp[0];
         matrix[SkMatrix::kMSkewX]  = tmp[1];
         matrix[SkMatrix::kMTransX] = tmp[2];
@@ -118,13 +114,13 @@ static SkMatrix read_sparse_matrix(SkReadBuffer& reader, SkMatrix::TypeMask tm) 
         matrix[SkMatrix::kMSkewY]  = tmp[4];
         matrix[SkMatrix::kMTransY] = tmp[5];
     } else if (tm & SkMatrix::kScale_Mask) {
-        const SkScalar* tmp = skip<SkScalar>(reader, 4);
+        const SkScalar* tmp = reader.skipT<SkScalar>(4);
         matrix[SkMatrix::kMScaleX] = tmp[0];
         matrix[SkMatrix::kMTransX] = tmp[1];
         matrix[SkMatrix::kMScaleY] = tmp[2];
         matrix[SkMatrix::kMTransY] = tmp[3];
     } else if (tm & SkMatrix::kTranslate_Mask) {
-        const SkScalar* tmp = skip<SkScalar>(reader, 2);
+        const SkScalar* tmp = reader.skipT<SkScalar>(2);
         matrix[SkMatrix::kMTransX] = tmp[0];
         matrix[SkMatrix::kMTransY] = tmp[1];
     }
@@ -228,7 +224,7 @@ static void save_handler(SkPipeReader& reader, uint32_t packedVerb, SkCanvas* ca
 static void saveLayer_handler(SkPipeReader& reader, uint32_t packedVerb, SkCanvas* canvas) {
     SkASSERT(SkPipeVerb::kSaveLayer == unpack_verb(packedVerb));
     unsigned extra = unpack_verb_extra(packedVerb);
-    const SkRect* bounds = (extra & kHasBounds_SaveLayerMask) ? skip<SkRect>(reader) : nullptr;
+    const SkRect* bounds = (extra & kHasBounds_SaveLayerMask) ? reader.skipT<SkRect>() : nullptr;
     SkPaint paintStorage, *paint = nullptr;
     if (extra & kHasPaint_SaveLayerMask) {
         paintStorage = read_paint(reader);
@@ -277,7 +273,7 @@ static void clipRect_handler(SkPipeReader& reader, uint32_t packedVerb, SkCanvas
     SkASSERT(SkPipeVerb::kClipRect == unpack_verb(packedVerb));
     SkClipOp op = (SkClipOp)(unpack_verb_extra(packedVerb) >> 1);
     bool isAA = unpack_verb_extra(packedVerb) & 1;
-    canvas->clipRect(*skip<SkRect>(reader), op, isAA);
+    canvas->clipRect(*reader.skipT<SkRect>(), op, isAA);
 }
 
 static void clipRRect_handler(SkPipeReader& reader, uint32_t packedVerb, SkCanvas* canvas) {
@@ -307,7 +303,7 @@ static void clipRegion_handler(SkPipeReader& reader, uint32_t packedVerb, SkCanv
 static void drawArc_handler(SkPipeReader& reader, uint32_t packedVerb, SkCanvas* canvas) {
     SkASSERT(SkPipeVerb::kDrawArc == unpack_verb(packedVerb));
     const bool useCenter = (bool)(unpack_verb_extra(packedVerb) & 1);
-    const SkScalar* scalars = skip<SkScalar>(reader, 6);    // bounds[0..3], start[4], sweep[5]
+    const SkScalar* scalars = reader.skipT<SkScalar>(6);    // bounds[0..3], start[4], sweep[5]
     const SkRect* bounds = (const SkRect*)scalars;
     canvas->drawArc(*bounds, scalars[4], scalars[5], useCenter, read_paint(reader));
 }
@@ -317,15 +313,15 @@ static void drawAtlas_handler(SkPipeReader& reader, uint32_t packedVerb, SkCanva
     SkBlendMode mode = (SkBlendMode)(packedVerb & kMode_DrawAtlasMask);
     sk_sp<SkImage> image(reader.readImage());
     int count = reader.read32();
-    const SkRSXform* xform = skip<SkRSXform>(reader, count);
-    const SkRect* rect = skip<SkRect>(reader, count);
+    const SkRSXform* xform = reader.skipT<SkRSXform>(count);
+    const SkRect* rect = reader.skipT<SkRect>(count);
     const SkColor* color = nullptr;
     if (packedVerb & kHasColors_DrawAtlasMask) {
-        color = skip<SkColor>(reader, count);
+        color = reader.skipT<SkColor>(count);
     }
     const SkRect* cull = nullptr;
     if (packedVerb & kHasCull_DrawAtlasMask) {
-        cull = skip<SkRect>(reader);
+        cull = reader.skipT<SkRect>();
     }
     SkPaint paintStorage, *paint = nullptr;
     if (packedVerb & kHasPaint_DrawAtlasMask) {
@@ -362,7 +358,7 @@ static void drawPosText_handler(SkPipeReader& reader, uint32_t packedVerb, SkCan
     }
     const void* text = reader.skip(SkAlign4(len));
     int count = reader.read32();
-    const SkPoint* pos = skip<SkPoint>(reader, count);
+    const SkPoint* pos = reader.skipT<SkPoint>(count);
     SkPaint paint = read_paint(reader);
     SkASSERT(paint.countText(text, len) == count);
     canvas->drawPosText(text, len, pos, paint);
@@ -376,7 +372,7 @@ static void drawPosTextH_handler(SkPipeReader& reader, uint32_t packedVerb, SkCa
     }
     const void* text = reader.skip(SkAlign4(len));
     int count = reader.read32();
-    const SkScalar* xpos = skip<SkScalar>(reader, count);
+    const SkScalar* xpos = reader.skipT<SkScalar>(count);
     SkScalar constY = reader.readScalar();
     SkPaint paint = read_paint(reader);
     SkASSERT(paint.countText(text, len) == count);
@@ -419,8 +415,8 @@ static void drawTextRSXform_handler(SkPipeReader& reader, uint32_t packedVerb, S
     }
     const void* text = reader.skip(SkAlign4(len));
     int count = reader.read32();
-    const SkRSXform* xform = skip<SkRSXform>(reader, count);
-    const SkRect* cull = (packedVerb & 1) ? skip<SkRect>(reader) : nullptr;
+    const SkRSXform* xform = reader.skipT<SkRSXform>(count);
+    const SkRect* cull = (packedVerb & 1) ? reader.skipT<SkRect>() : nullptr;
     SkPaint paint = read_paint(reader);
     SkASSERT(paint.countText(text, len) == count);
     canvas->drawTextRSXform(text, len, xform, cull, paint);
@@ -430,12 +426,12 @@ static void drawPatch_handler(SkPipeReader& reader, uint32_t packedVerb, SkCanva
     SkASSERT(SkPipeVerb::kDrawPatch == unpack_verb(packedVerb));
     const SkColor* colors = nullptr;
     const SkPoint* tex = nullptr;
-    const SkPoint* cubics = skip<SkPoint>(reader, 12);
+    const SkPoint* cubics = reader.skipT<SkPoint>(12);
     if (packedVerb & kHasColors_DrawPatchExtraMask) {
-        colors = skip<SkColor>(reader, 4);
+        colors = reader.skipT<SkColor>(4);
     }
     if (packedVerb & kHasTexture_DrawPatchExtraMask) {
-        tex = skip<SkPoint>(reader, 4);
+        tex = reader.skipT<SkPoint>(4);
     }
     SkBlendMode mode = (SkBlendMode)(packedVerb & kModeEnum_DrawPatchExtraMask);
     canvas->drawPatch(cubics, colors, tex, mode, read_paint(reader));
@@ -448,7 +444,7 @@ static void drawPaint_handler(SkPipeReader& reader, uint32_t packedVerb, SkCanva
 
 static void drawRect_handler(SkPipeReader& reader, uint32_t packedVerb, SkCanvas* canvas) {
     SkASSERT(SkPipeVerb::kDrawRect == unpack_verb(packedVerb));
-    const SkRect* rect = skip<SkRect>(reader);
+    const SkRect* rect = reader.skipT<SkRect>();
     canvas->drawRect(*rect, read_paint(reader));
 }
 
@@ -459,13 +455,13 @@ static void drawRegion_handler(SkPipeReader& reader, uint32_t packedVerb, SkCanv
         size = reader.read32();
     }
     SkRegion region;
-    region.readFromMemory(skip<char>(reader, SkAlign4(size)), size);
+    region.readFromMemory(reader.skipT<char>(size), size);
     canvas->drawRegion(region, read_paint(reader));
 }
 
 static void drawOval_handler(SkPipeReader& reader, uint32_t packedVerb, SkCanvas* canvas) {
     SkASSERT(SkPipeVerb::kDrawOval == unpack_verb(packedVerb));
-    const SkRect* rect = skip<SkRect>(reader);
+    const SkRect* rect = reader.skipT<SkRect>();
     canvas->drawOval(*rect, read_paint(reader));
 }
 
@@ -495,7 +491,7 @@ static void drawPoints_handler(SkPipeReader& reader, uint32_t packedVerb, SkCanv
     SkASSERT(SkPipeVerb::kDrawPoints == unpack_verb(packedVerb));
     SkCanvas::PointMode mode = (SkCanvas::PointMode)unpack_verb_extra(packedVerb);
     int count = reader.read32();
-    const SkPoint* points = skip<SkPoint>(reader, count);
+    const SkPoint* points = reader.skipT<SkPoint>(count);
     canvas->drawPoints(mode, count, points, read_paint(reader));
 }
 
@@ -518,8 +514,8 @@ static void drawImageRect_handler(SkPipeReader& reader, uint32_t packedVerb, SkC
     SkCanvas::SrcRectConstraint constraint =
             (SkCanvas::SrcRectConstraint)(packedVerb & kConstraint_DrawImageRectMask);
     const SkRect* src = (packedVerb & kHasSrcRect_DrawImageRectMask) ?
-                        skip<SkRect>(reader) : nullptr;
-    const SkRect* dst = skip<SkRect>(reader);
+                        reader.skipT<SkRect>() : nullptr;
+    const SkRect* dst = reader.skipT<SkRect>();
     SkPaint paintStorage, *paint = nullptr;
     if (packedVerb & kHasPaint_DrawImageRectMask) {
         paintStorage = read_paint(reader);
@@ -535,8 +531,8 @@ static void drawImageRect_handler(SkPipeReader& reader, uint32_t packedVerb, SkC
 static void drawImageNine_handler(SkPipeReader& reader, uint32_t packedVerb, SkCanvas* canvas) {
     SkASSERT(SkPipeVerb::kDrawImageNine == unpack_verb(packedVerb));
     sk_sp<SkImage> image(reader.readImage());
-    const SkIRect* center = skip<SkIRect>(reader);
-    const SkRect* dst = skip<SkRect>(reader);
+    const SkIRect* center = reader.skipT<SkIRect>();
+    const SkRect* dst = reader.skipT<SkRect>();
     SkPaint paintStorage, *paint = nullptr;
     if (packedVerb & kHasPaint_DrawImageNineMask) {
         paintStorage = read_paint(reader);
@@ -553,7 +549,7 @@ static void drawImageLattice_handler(SkPipeReader& reader, uint32_t packedVerb, 
     if (!SkCanvasPriv::ReadLattice(reader, &lattice)) {
         return;
     }
-    const SkRect* dst = skip<SkRect>(reader);
+    const SkRect* dst = reader.skipT<SkRect>();
 
     SkPaint paintStorage, *paint = nullptr;
     if (packedVerb & kHasPaint_DrawImageLatticeMask) {
@@ -590,14 +586,14 @@ static void drawPicture_handler(SkPipeReader& reader, uint32_t packedVerb, SkCan
 
 static void drawAnnotation_handler(SkPipeReader& reader, uint32_t packedVerb, SkCanvas* canvas) {
     SkASSERT(SkPipeVerb::kDrawAnnotation == unpack_verb(packedVerb));
-    const SkRect* rect = skip<SkRect>(reader);
+    const SkRect* rect = reader.skipT<SkRect>();
 
     // len includes the key's trailing 0
     uint32_t len = unpack_verb_extra(packedVerb) >> 1;
     if (0 == len) {
         len = reader.read32();
     }
-    const char* key = skip<char>(reader, len);
+    const char* key = reader.skipT<char>(len);
     sk_sp<SkData> data;
     if (packedVerb & 1) {
         uint32_t size = reader.read32();
@@ -697,7 +693,10 @@ static void definePicture_handler(SkPipeReader& reader, uint32_t packedVerb, SkC
     } else {
         SkPictureRecorder recorder;
         int pictureIndex = -1;  // invalid
-        const SkRect* cull = skip<SkRect>(reader);
+        const SkRect* cull = reader.skipT<SkRect>();
+        if (!cull) {
+            return;
+        }
         do_playback(reader, recorder.beginRecording(*cull), &pictureIndex);
         SkASSERT(pictureIndex > 0);
         sk_sp<SkPicture> picture = recorder.finishRecordingAsPicture();
