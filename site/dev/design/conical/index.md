@@ -11,9 +11,13 @@ MathJax.Hub.Config({
 
 <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_CHTML'></script>
 
+(Please refresh the page if you see a lot of dollars instead of math symbols.)
+
 We present a fast shading algorithm (compared to bruteforcely solving the quadratic equation of
 gradient $t$) for computing the two-point conical gradient (i.e., createRadialGradient in
 [spec](https://html.spec.whatwg.org/multipage/canvas.html#dom-context-2d-createradialgradient)).
+It reduced the number of multiplications per pixel from ~10 downto 3, and brought a speedup up to
+26% in our nanobenches.
 
 This document has 3 parts:
 
