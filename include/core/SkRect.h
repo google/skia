@@ -10,6 +10,7 @@
 
 #include "SkPoint.h"
 #include "SkSize.h"
+#include "../private/SkPedanticMath.h"
 #include "../private/SkTFitsIn.h"
 
 struct SkRect;
@@ -117,56 +118,56 @@ struct SK_API SkIRect {
 
         @return  fLeft
     */
-    int left() const { return fLeft; }
+    int32_t left() const { return fLeft; }
 
     /** Returns top edge of SkIRect, if sorted. Call isEmpty() to see if SkIRect may be invalid,
         and sort() to reverse fTop and fBottom if needed.
 
         @return  fTop
     */
-    int top() const { return fTop; }
+    int32_t top() const { return fTop; }
 
     /** Returns right edge of SkIRect, if sorted.
         Call sort() to reverse fLeft and fRight if needed.
 
         @return  fRight
     */
-    int right() const { return fRight; }
+    int32_t right() const { return fRight; }
 
     /** Returns bottom edge of SkIRect, if sorted. Call isEmpty() to see if SkIRect may be invalid,
         and sort() to reverse fTop and fBottom if needed.
 
         @return  fBottom
     */
-    int bottom() const { return fBottom; }
+    int32_t bottom() const { return fBottom; }
 
     /** Returns left edge of SkIRect, if sorted. Call isEmpty() to see if SkIRect may be invalid,
         and sort() to reverse fLeft and fRight if needed.
 
         @return  fLeft
     */
-    int x() const { return fLeft; }
+    int32_t x() const { return fLeft; }
 
     /** Returns top edge of SkIRect, if sorted. Call isEmpty() to see if SkIRect may be invalid,
         and sort() to reverse fTop and fBottom if needed.
 
         @return  fTop
     */
-    int y() const { return fTop; }
+    int32_t y() const { return fTop; }
 
     /** Returns span on the x-axis. This does not check if SkIRect is sorted, or if
         result fits in 32-bit signed integer; result may be negative.
 
         @return  fRight minus fLeft
     */
-    int width() const { return fRight - fLeft; }
+    int32_t width() const { return SkSub32(fRight, fLeft); }
 
     /** Returns span on the y-axis. This does not check if SkIRect is sorted, or if
         result fits in 32-bit signed integer; result may be negative.
 
         @return  fBottom minus fTop
     */
-    int height() const { return fBottom - fTop; }
+    int32_t height() const { return SkSub32(fBottom, fTop); }
 
     /** Returns spans on the x-axis and y-axis. This does not check if SkIRect is sorted,
         or if result fits in 32-bit signed integer; result may be negative.
@@ -182,7 +183,7 @@ struct SK_API SkIRect {
 
         @return  midpoint in x
     */
-    int centerX() const { return (fRight + fLeft) >> 1; }
+    int32_t centerX() const { return (fRight + fLeft) >> 1; }
 
     /** Returns average of top edge and bottom edge. Result does not change if SkRect
         is sorted. Result may be incorrect if SkRect is far from the origin.
@@ -191,7 +192,7 @@ struct SK_API SkIRect {
 
         @return  midpoint in y
     */
-    int centerY() const { return (fBottom + fTop) >> 1; }
+    int32_t centerY() const { return (fBottom + fTop) >> 1; }
 
     /** Returns true if fLeft is equal to or greater than fRight, or if fTop is equal
         to or greater than fBottom. Call sort() to reverse rectangles with negative
