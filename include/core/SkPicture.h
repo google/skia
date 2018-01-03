@@ -163,7 +163,7 @@ private:
     // V60: Remove flags in picture header
 
     // Only SKPs within the min/current picture version range (inclusive) can be read.
-    static const uint32_t     MIN_PICTURE_VERSION = 51;     // Produced by Chrome ~M56.
+    static const uint32_t     MIN_PICTURE_VERSION = 56;     // august 2017
     static const uint32_t CURRENT_PICTURE_VERSION = 60;
 
     static bool IsValidPictInfo(const SkPictInfo& info);
