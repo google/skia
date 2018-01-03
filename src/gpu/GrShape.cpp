@@ -9,7 +9,6 @@
 
 GrShape& GrShape::operator=(const GrShape& that) {
     fStyle = that.fStyle;
-    fOriginalPath = that.fOriginalPath;
     this->changeType(that.fType, Type::kPath == that.fType ? &that.path() : nullptr);
     switch (fType) {
         case Type::kEmpty:
@@ -29,6 +28,11 @@ GrShape& GrShape::operator=(const GrShape& that) {
     fInheritedKey.reset(that.fInheritedKey.count());
     sk_careful_memcpy(fInheritedKey.get(), that.fInheritedKey.get(),
                       sizeof(uint32_t) * fInheritedKey.count());
+    if (that.fInheritedPathForListeners.isValid()) {
+        fInheritedPathForListeners.set(*that.fInheritedPathForListeners.get());
+    } else {
+        fInheritedPathForListeners.reset();
+    }
     return *this;
 }
 
@@ -67,7 +71,9 @@ GrShape GrShape::MakeFilled(const GrShape& original, FillInversion inversion) {
         return original;
     }
     GrShape result;
-    result.fOriginalPath = original.fOriginalPath;
+    if (original.fInheritedPathForListeners.isValid()) {
+        result.fInheritedPathForListeners.set(*original.fInheritedPathForListeners.get());
+    }
     switch (original.fType) {
         case Type::kRRect:
             result.fType = original.fType;
@@ -326,11 +332,24 @@ void GrShape::setInheritedKey(const GrShape &parent, GrStyle::Apply apply, SkSca
     }
 }
 
-void GrShape::addGenIDChangeListener(SkPathRef::GenIDChangeListener* listener) const {
-    SkPathPriv::AddGenIDChangeListener(fOriginalPath, listener);
+const SkPath* GrShape::originalPathForListeners() const {
+    if (fInheritedPathForListeners.isValid()) {
+        return fInheritedPathForListeners.get();
+    } else if (Type::kPath == fType && !fPathData.fPath.isVolatile()) {
+        return &fPathData.fPath;
+    }
+    return nullptr;
 }
 
-GrShape::GrShape(const GrShape& that) : fStyle(that.fStyle), fOriginalPath(that.fOriginalPath) {
+void GrShape::addGenIDChangeListener(SkPathRef::GenIDChangeListener* listener) const {
+    if (const auto* lp = this->originalPathForListeners()) {
+        SkPathPriv::AddGenIDChangeListener(*lp, listener);
+    } else {
+        delete listener;
+    }
+}
+
+GrShape::GrShape(const GrShape& that) : fStyle(that.fStyle) {
     const SkPath* thatPath = Type::kPath == that.fType ? &that.fPathData.fPath : nullptr;
     this->initType(that.fType, thatPath);
     switch (fType) {
@@ -351,6 +370,9 @@ GrShape::GrShape(const GrShape& that) : fStyle(that.fStyle), fOriginalPath(that.
     fInheritedKey.reset(that.fInheritedKey.count());
     sk_careful_memcpy(fInheritedKey.get(), that.fInheritedKey.get(),
                       sizeof(uint32_t) * fInheritedKey.count());
+    if (that.fInheritedPathForListeners.isValid()) {
+        fInheritedPathForListeners.set(*that.fInheritedPathForListeners.get());
+    }
 }
 
 GrShape::GrShape(const GrShape& parent, GrStyle::Apply apply, SkScalar scale) {
@@ -436,7 +458,11 @@ GrShape::GrShape(const GrShape& parent, GrStyle::Apply apply, SkScalar scale) {
                                                  scale));
         fStyle.resetToInitStyle(fillOrHairline);
     }
-    fOriginalPath = parent.fOriginalPath;
+    if (parent.fInheritedPathForListeners.isValid()) {
+        fInheritedPathForListeners.set(*parent.fInheritedPathForListeners.get());
+    } else if (Type::kPath == parent.fType && !parent.fPathData.fPath.isVolatile()) {
+        fInheritedPathForListeners.set(parent.fPathData.fPath);
+    }
     this->attemptToSimplifyPath();
     this->setInheritedKey(*parentForKey, apply, scale);
 }
@@ -500,7 +526,7 @@ void GrShape::attemptToSimplifyPath() {
         // Whenever we simplify to a non-path, break the chain so we no longer refer to the
         // original path. This prevents attaching genID listeners to temporary paths created when
         // drawing simple shapes.
-        fOriginalPath.reset();
+        fInheritedPathForListeners.reset();
         if (Type::kRRect == fType) {
             this->attemptToSimplifyRRect();
         } else if (Type::kLine == fType) {

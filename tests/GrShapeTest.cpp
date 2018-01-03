@@ -18,11 +18,18 @@
 #include "SkClipOpPriv.h"
 
 uint32_t GrShape::testingOnly_getOriginalGenerationID() const {
-    return fOriginalPath.getGenerationID();
+    if (const auto* lp = this->originalPathForListeners()) {
+        return lp->getGenerationID();
+    }
+    return SkPath().getGenerationID();
 }
 
 bool GrShape::testingOnly_isPath() const {
     return Type::kPath == fType;
+}
+
+bool GrShape::testingOnly_isNonVolatilePath() const {
+    return Type::kPath == fType && !fPathData.fPath.isVolatile();
 }
 
 using Key = SkTArray<uint32_t>;
@@ -219,7 +226,7 @@ static void check_equivalence(skiatest::Reporter* r, const GrShape& a, const GrS
 
 static void check_original_path_ids(skiatest::Reporter* r, const GrShape& base, const GrShape& pe,
                                     const GrShape& peStroke, const GrShape& full) {
-    bool baseIsPath = base.testingOnly_isPath();
+    bool baseIsNonVolatilePath = base.testingOnly_isNonVolatilePath();
     bool peIsPath = pe.testingOnly_isPath();
     bool peStrokeIsPath = peStroke.testingOnly_isPath();
     bool fullIsPath = full.testingOnly_isPath();
@@ -235,8 +242,9 @@ static void check_original_path_ids(skiatest::Reporter* r, const GrShape& base, 
     uint32_t emptyID = SkPath().getGenerationID();
 
     // If we started with a real path, then our genID should match that path's gen ID (and not be
-    // empty). If we started with a simple shape, our original path should have been reset.
-    REPORTER_ASSERT(r, baseIsPath == (baseID != emptyID));
+    // empty). If we started with a simple shape or a volatile path, our original path should have
+    // been reset.
+    REPORTER_ASSERT(r, baseIsNonVolatilePath == (baseID != emptyID));
 
     // For the derived shapes, if they're simple types, their original paths should have been reset
     REPORTER_ASSERT(r, peIsPath || (peID == emptyID));
@@ -250,7 +258,7 @@ static void check_original_path_ids(skiatest::Reporter* r, const GrShape& base, 
 
     // From here on, we know that the path effect produced a shape that was a "real" path
 
-    if (baseIsPath) {
+    if (baseIsNonVolatilePath) {
         REPORTER_ASSERT(r, baseID == peID);
     }
 
@@ -259,7 +267,7 @@ static void check_original_path_ids(skiatest::Reporter* r, const GrShape& base, 
         REPORTER_ASSERT(r, peStrokeID == fullID);
     }
 
-    if (baseIsPath && peStrokeIsPath) {
+    if (baseIsNonVolatilePath && peStrokeIsPath) {
         REPORTER_ASSERT(r, baseID == peStrokeID);
         REPORTER_ASSERT(r, baseID == fullID);
     }
