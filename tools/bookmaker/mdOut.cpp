@@ -318,7 +318,7 @@ bool MdOut::buildRefFromFile(const char* name, const char* outDir) {
                 fullName += '/';
             }
             fullName += filename;
-            fOut = fopen(fullName.c_str(), "wb");
+            fOut = fopen(filename.c_str(), "wb");
             if (!fOut) {
                 SkDebugf("could not open output file %s\n", fullName.c_str());
                 return false;
@@ -337,7 +337,17 @@ bool MdOut::buildRefFromFile(const char* name, const char* outDir) {
     if (fOut) {
         this->writePending();
         fclose(fOut);
-        SkDebugf("wrote %s\n", fullName.c_str());
+        fflush(fOut);
+        if (this->writtenFileDiffers(filename, fullName)) {
+            fOut = fopen(fullName.c_str(), "wb");
+            int writtenSize;
+            const char* written = ReadToBuffer(filename, &writtenSize);
+            fwrite(written, 1, writtenSize, fOut);
+            fclose(fOut);
+            fflush(fOut);
+            SkDebugf("wrote updated %s\n", fullName.c_str());
+        }
+        remove(filename.c_str());
         fOut = nullptr;
     }
     return true;

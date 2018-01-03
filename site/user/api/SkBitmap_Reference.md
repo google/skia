@@ -483,9 +483,10 @@ two width:1 height:1 colorType:kRGBA_8888_SkColorType alphaType:kOpaque_SkAlphaT
 SkPixmap pixmap() const
 </pre>
 
-Returns <a href="SkPixmap_Reference#Pixmap">Pixmap</a> with <a href="#Bitmap">Bitmap</a> pixel address, row bytes, and <a href="undocumented#Image_Info">Image Info</a>, if address is available.
-If pixel address is not available, returns default constructed <a href="SkPixmap_Reference#Pixmap">Pixmap</a>: nullptr pixels,
-<a href="undocumented#SkColorType">kUnknown SkColorType</a>, <a href="undocumented#SkAlphaType">kUnknown SkAlphaType</a>, <a href="#SkBitmap_width">width</a> and <a href="#SkBitmap_height">height</a> of zero.
+Returns <a href="SkPixmap_Reference#Pixmap">Pixmap</a> with <a href="#Bitmap">Bitmap</a> pixel address, row bytes, and <a href="undocumented#Image_Info">Image Info</a>, if address
+is available. If pixel address is not available, returns default constructed
+<a href="SkPixmap_Reference#Pixmap">Pixmap</a>: nullptr pixels, <a href="undocumented#SkColorType">kUnknown SkColorType</a>, <a href="undocumented#SkAlphaType">kUnknown SkAlphaType</a>, <a href="#SkBitmap_width">width</a> and
+<a href="#SkBitmap_height">height</a> of zero.
 
 Returned <a href="SkPixmap_Reference#Pixmap">Pixmap</a> becomes invalid on any future change to <a href="#Bitmap">Bitmap</a>
 
