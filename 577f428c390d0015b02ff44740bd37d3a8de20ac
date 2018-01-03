@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "29a54d05_7e033316",
+        "filename": "src/core/SkCanvasPriv.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-01-03T14:29:19Z",
+      "side": 1,
+      "message": "These seem like they\u0027d be more naturally methods on SkCanvas::Lattice.  Is this over here to keep them Skia-private?",
+      "revId": "577f428c390d0015b02ff44740bd37d3a8de20ac",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
