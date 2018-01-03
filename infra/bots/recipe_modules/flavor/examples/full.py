@@ -64,6 +64,7 @@ TEST_BUILDERS = [
   'Build-Debian9-Clang-x86_64-Release-Fast',
   'Build-Debian9-Clang-x86_64-Release-Mini',
   'Build-Debian9-Clang-x86_64-Release-Vulkan',
+  'Build-Debian9-Clang-x86_64-Release-Vulkan_ParentRevision',
   'Build-Debian9-EMCC-wasm-Release',
   'Build-Debian9-GCC-x86_64-Debug-EmbededResouces',
   'Build-Debian9-GCC-x86_64-Release-ANGLE',

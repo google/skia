@@ -97,7 +97,13 @@ class DefaultFlavorUtils(object):
   @property
   def out_dir(self):
     """Flavor-specific out directory."""
-    return self.m.vars.skia_out.join(self.m.vars.configuration)
+    if 'ParentRevision' in self.m.vars.extra_tokens:
+      # Tasks that depend on ParentRevision builds usually also depend on a
+      # second build task. Use a different path so that the binaries end up in
+      # different directories in the isolate.
+      return self.m.vars.skia_out.join(self.m.vars.builder_name)
+    else:
+      return self.m.vars.skia_out.join(self.m.vars.configuration)
 
   def device_path_join(self, *args):
     """Like os.path.join(), but for paths on a connected device."""
