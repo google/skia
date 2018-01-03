@@ -10,6 +10,9 @@
 
 #include "SkCanvas.h"
 
+class SkReadBuffer;
+class SkWriteBuffer;
+
 class SkAutoCanvasMatrixPaint : SkNoncopyable {
 public:
     SkAutoCanvasMatrixPaint(SkCanvas*, const SkMatrix*, const SkPaint*, const SkRect& bounds);
@@ -18,6 +21,15 @@ public:
 private:
     SkCanvas*   fCanvas;
     int         fSaveCount;
+};
+
+class SkCanvasPriv {
+public:
+    // The lattice has pointers directly into the readbuffer
+    static bool ReadLattice(SkReadBuffer&, SkCanvas::Lattice*);
+
+    // return the byte-size of the lattice, even if the buffer is null
+    static size_t WriteLattice(uint32_t*, const SkCanvas::Lattice&);
 };
 
 #endif

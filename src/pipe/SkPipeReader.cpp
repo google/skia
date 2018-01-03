@@ -7,6 +7,7 @@
 
 #include "SkCanvas.h"
 #include "SkDeduper.h"
+#include "SkDrawShadowInfo.h"
 #include "SkPicture.h"
 #include "SkPictureRecorder.h"
 #include "SkPipe.h"
@@ -480,6 +481,15 @@ static void drawPath_handler(SkPipeReader& reader, uint32_t packedVerb, SkCanvas
     canvas->drawPath(path, read_paint(reader));
 }
 
+static void drawShadowRec_handler(SkPipeReader& reader, uint32_t packedVerb, SkCanvas* canvas) {
+    SkASSERT(SkPipeVerb::kDrawShadowRec == unpack_verb(packedVerb));
+    SkPath path;
+    reader.readPath(&path);
+    SkDrawShadowRec rec;
+    reader.readPad32(&rec, sizeof(rec));
+    canvas->private_draw_shadow_rec(path, rec);
+}
+
 static void drawPoints_handler(SkPipeReader& reader, uint32_t packedVerb, SkCanvas* canvas) {
     SkASSERT(SkPipeVerb::kDrawPoints == unpack_verb(packedVerb));
     SkCanvas::PointMode mode = (SkCanvas::PointMode)unpack_verb_extra(packedVerb);
@@ -749,6 +759,7 @@ const HandlerRec gPipeHandlers[] = {
     HANDLER(drawPoints),
     HANDLER(drawRect),
     HANDLER(drawPath),
+    HANDLER(drawShadowRec),
     HANDLER(drawOval),
     HANDLER(drawRRect),
 

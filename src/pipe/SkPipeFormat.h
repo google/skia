@@ -38,6 +38,7 @@ enum class SkPipeVerb : uint8_t {
     kDrawPoints,        // extra == PointMode
     kDrawRect,          // extra == 0
     kDrawPath,          // extra == 0
+    kDrawShadowRec,     // extra == 0
     kDrawOval,          // extra == 0
     kDrawRRect,         // extra == 0
 

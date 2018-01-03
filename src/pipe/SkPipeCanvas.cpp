@@ -8,6 +8,7 @@
 #include "SkAutoMalloc.h"
 #include "SkColorFilter.h"
 #include "SkDrawLooper.h"
+#include "SkDrawShadowInfo.h"
 #include "SkImageFilter.h"
 #include "SkMaskFilter.h"
 #include "SkPathEffect.h"
@@ -446,6 +447,13 @@ void SkPipeCanvas::onDrawPath(const SkPath& path, const SkPaint& paint) {
     writer.write32(pack_verb(SkPipeVerb::kDrawPath));
     writer.writePath(path);
     write_paint(writer, paint, kGeometry_PaintUsage);
+}
+
+void SkPipeCanvas::onDrawShadowRec(const SkPath& path, const SkDrawShadowRec& rec) {
+    SkPipeWriter writer(this);
+    writer.write32(pack_verb(SkPipeVerb::kDrawShadowRec));
+    writer.writePath(path);
+    writer.write(&rec, sizeof(rec));
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
