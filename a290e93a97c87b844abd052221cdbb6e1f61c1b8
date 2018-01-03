@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "19ac0d53_969b403d",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 9
+      },
+      "lineNbr": 802,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2018-01-03T19:52:40Z",
+      "side": 1,
+      "message": "I don\u0027t have any time pressure for this (unless my bots are using too much resources that someone is complaining) so let\u0027s do it right.",
+      "parentUuid": "70fd6c9d_39a96b55",
+      "range": {
+        "startLine": 778,
+        "startChar": 0,
+        "endLine": 802,
+        "endChar": 1
+      },
+      "revId": "a290e93a97c87b844abd052221cdbb6e1f61c1b8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "82d388f4_5cd6632a",
         "filename": "infra/bots/gen_tasks.go",
         "patchSetId": 9
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "3fc27d34_f700f2e3",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 9
+      },
+      "lineNbr": 1178,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2018-01-03T19:52:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "82d388f4_5cd6632a",
+      "range": {
+        "startLine": 1178,
+        "startChar": 42,
+        "endLine": 1178,
+        "endChar": 49
+      },
+      "revId": "a290e93a97c87b844abd052221cdbb6e1f61c1b8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "982659bb_e875c613",
         "filename": "infra/bots/recipe_modules/vars/examples/full.py",
         "patchSetId": 9
@@ -65,6 +113,24 @@
     },
     {
       "key": {
+        "uuid": "5765d1a3_447d15f2",
+        "filename": "infra/bots/recipe_modules/vars/examples/full.py",
+        "patchSetId": 9
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2018-01-03T19:52:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "982659bb_e875c613",
+      "revId": "a290e93a97c87b844abd052221cdbb6e1f61c1b8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2d54dfac_7c722f29",
         "filename": "tools/calmbench/calmbench.py",
         "patchSetId": 9
@@ -76,6 +142,30 @@
       "writtenOn": "2018-01-02T20:06:23Z",
       "side": 1,
       "message": "Just to reiterate, we need to move all of the syncing and compiling out of this script and just use the existing compile tasks.",
+      "range": {
+        "startLine": 103,
+        "startChar": 0,
+        "endLine": 104,
+        "endChar": 50
+      },
+      "revId": "a290e93a97c87b844abd052221cdbb6e1f61c1b8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "00fd9a18_0d760d41",
+        "filename": "tools/calmbench/calmbench.py",
+        "patchSetId": 9
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2018-01-03T19:52:40Z",
+      "side": 1,
+      "message": "I agree this on the bots. But I think that compiling two versions automatically is still useful for local development.",
+      "parentUuid": "2d54dfac_7c722f29",
       "range": {
         "startLine": 103,
         "startChar": 0,
