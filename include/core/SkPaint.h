@@ -529,7 +529,7 @@ public:
 
         /** Set to stroke geometry.
             Applies to SkRect, SkRegion, SkRRect, arcs, circles, ovals, SkPath, and text.
-            Arcs, lines, and SkPoint, are always drawn as if kStroke_Style is set,
+            Arcs, lines, and points, are always drawn as if kStroke_Style is set,
             and ignore the set Style.
             The stroke construction is unaffected by the FillType.
         */
@@ -1542,9 +1542,11 @@ public:
         bounds describes a pair of lines parallel to the text advance.
         The return count is zero or a multiple of two, and is at most twice the number of glyphs in
         the string.
-        Uses SkPaint::TextEncoding to decode text, SkTypeface to get the glyph paths,
+        Uses SkTypeface to get the glyph paths,
         and text size, fake bold, and SkPathEffect to scale and modify the glyph paths.
         Uses run array and SkPaint::Align to position intervals.
+
+        SkPaint::TextEncoding must be set to SkPaint::kGlyphID_TextEncoding.
 
         Pass nullptr for intervals to determine the size of the interval array.
 
@@ -1581,7 +1583,7 @@ public:
     */
     bool nothingToDraw() const;
 
-    /** (to be made private)
+    /**     (to be made private)
         Returns true if SkPaint does not include elements requiring extensive computation
         to compute SkBaseDevice bounds of drawn geometry. For instance, SkPaint with SkPathEffect
         always returns false.
@@ -1590,7 +1592,7 @@ public:
     */
     bool canComputeFastBounds() const;
 
-    /** (to be made private)
+    /**     (to be made private)
         Only call this if canComputeFastBounds() returned true. This takes a
         raw rectangle (the raw bounds of a shape), and adjusts it for stylistic
         effects in the paint (e.g. stroking). If needed, it uses the storage
@@ -1601,15 +1603,15 @@ public:
         should not rely on storage being set to the result, but should always
         use the returned value. It is legal for orig and storage to be the same
         SkRect.
-        e.g.
-        if (paint.canComputeFastBounds()) {
-        SkRect r, storage;
-        path.computeBounds(&r, SkPath::kFast_BoundsType);
-        const SkRect& fastR = paint.computeFastBounds(r, &storage);
-        if (canvas->quickReject(fastR, ...)) {
-        // don't draw the path
-        }
-        }
+            e.g.
+            if (paint.canComputeFastBounds()) {
+            SkRect r, storage;
+            path.computeBounds(&r, SkPath::kFast_BoundsType);
+            const SkRect& fastR = paint.computeFastBounds(r, &storage);
+            if (canvas->quickReject(fastR, ...)) {
+            // don't draw the path
+            }
+            }
 
         @param orig     geometry modified by SkPaint when drawn
         @param storage  computed bounds of geometry; may not be nullptr
@@ -1633,7 +1635,7 @@ public:
         return this->doComputeFastBounds(orig, storage, style);
     }
 
-    /** (to be made private)
+    /**     (to be made private)
 
         @param orig     geometry modified by SkPaint when drawn
         @param storage  computed bounds of geometry
@@ -1644,7 +1646,7 @@ public:
         return this->doComputeFastBounds(orig, storage, kStroke_Style);
     }
 
-    /** (to be made private)
+    /**     (to be made private)
         Computes the bounds, overriding the SkPaint SkPaint::Style. This can be used to
         account for additional width required by stroking orig, without
         altering SkPaint::Style set to fill.

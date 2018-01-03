@@ -71,7 +71,6 @@ class SK_API SkCanvas : SkNoncopyable {
 public:
 
     /** Allocates raster SkCanvas that will draw directly into pixels.
-        To access pixels after drawing, call flush() or peekPixels().
 
         SkCanvas is returned if all parameters are valid.
         Valid parameters include:
@@ -85,12 +84,15 @@ public:
         info width times bytes required for SkColorType.
 
         Pixel buffer size should be info height times computed rowBytes.
+        Pixels are not initialized.
+        To access pixels after drawing, call flush() or peekPixels().
 
         @param info      width, height, SkColorType, SkAlphaType, SkColorSpace, of raster surface;
                          width, or height, or both, may be zero
         @param pixels    pointer to destination pixels buffer
         @param rowBytes  interval from one SkSurface row to the next, or zero
-        @param props     optional surfaceprops
+        @param props     LCD striping orientation and setting for device independent fonts;
+                         may be nullptr
         @return          SkCanvas if all parameters are valid; otherwise, nullptr
     */
     static std::unique_ptr<SkCanvas> MakeRasterDirect(const SkImageInfo& info, void* pixels,
@@ -201,7 +203,7 @@ public:
     */
     SkCanvas(const SkBitmap& bitmap, const SkSurfaceProps& props);
 
-    /** Draw saved layer, if any.
+    /** Draw saved layers, if any.
         Free up resources used by SkCanvas.
     */
     virtual ~SkCanvas();
@@ -231,6 +233,8 @@ public:
 
     /** Triggers the immediate execution of all pending draw operations.
         If SkCanvas is associated with GPU surface, resolves all pending GPU operations.
+        If SkCanvas is associated with raster surface, has no effect; raster draw
+        operations are never deferred.
     */
     void flush();
 
@@ -302,10 +306,10 @@ public:
     bool peekPixels(SkPixmap* pixmap);
 
     /** Copies SkRect of pixels from SkCanvas into dstPixels. SkMatrix and clip are
-        ignored. Source SkRect corners are (srcX, srcY) and
-        (imageInfo().width(), imageInfo().height()).
+        ignored.
 
-        Destination SkRect corners are (0, 0) and (bitmap.width(), bitmap.height()).
+        Source SkRect corners are (srcX, srcY) and (imageInfo().width(), imageInfo().height()).
+        Destination SkRect corners are (0, 0) and (dstInfo.width(), dstInfo.height()).
         Copies each readable pixel intersecting both rectangles, without scaling,
         converting to dstInfo.colorType() and dstInfo.alphaType() if required.
 
@@ -339,10 +343,10 @@ public:
                     int srcX, int srcY);
 
     /** Copies SkRect of pixels from SkCanvas into pixmap. SkMatrix and clip are
-        ignored. Source SkRect corners are (srcX, srcY) and
-        (imageInfo().width(), imageInfo().height()).
+        ignored.
 
-        Destination SkRect corners are (0, 0) and (bitmap.width(), bitmap.height()).
+        Source SkRect corners are (srcX, srcY) and (imageInfo().width(), imageInfo().height()).
+        Destination SkRect corners are (0, 0) and (pixmap.width(), pixmap.height()).
         Copies each readable pixel intersecting both rectangles, without scaling,
         converting to pixmap.colorType() and pixmap.alphaType() if required.
 
@@ -354,7 +358,7 @@ public:
         Caller must allocate pixel storage in pixmap if needed.
 
         Pixel values are converted only if SkColorType and SkAlphaType
-        do not match. Only pixels within both source and destination SkRect
+        do not match. Only pixels within both source and destination rects
         are copied. pixmap pixels contents outside SkRect intersection are unchanged.
 
         Pass negative values for srcX or srcY to offset pixels across or down pixmap.
@@ -374,9 +378,9 @@ public:
     bool readPixels(const SkPixmap& pixmap, int srcX, int srcY);
 
     /** Copies SkRect of pixels from SkCanvas into bitmap. SkMatrix and clip are
-        ignored. Source SkRect corners are (srcX, srcY) and
-        (imageInfo().width(), imageInfo().height()).
+        ignored.
 
+        Source SkRect corners are (srcX, srcY) and (imageInfo().width(), imageInfo().height()).
         Destination SkRect corners are (0, 0) and (bitmap.width(), bitmap.height()).
         Copies each readable pixel intersecting both rectangles, without scaling,
         converting to bitmap.colorType() and bitmap.alphaType() if required.
@@ -668,7 +672,7 @@ public:
             clipMatrix uses color alpha channel of image, transformed by clipMatrix, to clip
             layer when drawn to SkCanvas.
 
-            Implementation is incomplete; has no effect if SkBaseDevice is GPU-backed.
+            Implementation is not complete; has no effect if SkBaseDevice is GPU-backed.
 
             @param bounds          layer dimensions; may be nullptr
             @param paint           graphics state applied to layer when overlaying prior
@@ -1624,7 +1628,7 @@ public:
     /** Draw SkBitmap bitmap, with its top-left corner at (left, top),
         using clip, SkMatrix, and optional SkPaint paint.
 
-        If SkPaint paint is supplied, apply SkColorFilter, color alpha, SkImageFilter,
+        If SkPaint paint is not nullptr, apply SkColorFilter, color alpha, SkImageFilter,
         SkBlendMode, and SkDrawLooper. If bitmap is kAlpha_8_SkColorType, apply SkShader.
         If paint contains SkMaskFilter, generate mask from bitmap bounds.
 
@@ -1761,18 +1765,13 @@ public:
     struct Lattice {
 
         /** \enum SkCanvas::Lattice::RectType
-            Optional setting per rectangular grid entry.
+            Optional setting per rectangular grid entry to make it transparent,
+            or to fill the grid entry with a color.
         */
         enum RectType : uint8_t {
-            kDefault = 0,
-
-            /** Set to skip lattice rectangle by making it transparent. */
-            kTransparent,
-
-            /** The lattice rectangle is a fixed color. The color value is stored
-                in fColors.
-            */
-            kFixedColor,
+            kDefault     = 0, //!< Draws SkBitmap into lattice rectangle.
+            kTransparent,     //!< Skips lattice rectangle by making it transparent.
+            kFixedColor,      //!< Draws one of fColors into lattice rectangle.
         };
 
         /** Array of x-coordinates that divide the bitmap vertically.
@@ -1781,7 +1780,7 @@ public:
             Set the first element to fBounds left to collapse the left column of
             fixed grid entries.
         */
-        const int*     fXDivs;
+        const int*      fXDivs;
 
         /** Array of y-coordinates that divide the bitmap horizontally.
             Array entries must be unique, increasing, greater than or equal to
@@ -1789,10 +1788,12 @@ public:
             Set the first element to fBounds top to collapse the top row of fixed
             grid entries.
         */
-        const int*     fYDivs;
+        const int*      fYDivs;
 
-        /** Optional array of rectangle types, one per rectangular grid entry:
+        /** Optional array of fill types, one per rectangular grid entry:
             array length must be (fXCount + 1) * (fYCount + 1).
+
+            Each RectType is one of: kDefault, kTransparent, kFixedColor.
 
             Array entries correspond to the rectangular grid entries, ascending
             left to right and then top to bottom.
@@ -1802,26 +1803,25 @@ public:
         /** Number of entries in fXDivs array; one less than the number of
             horizontal divisions.
         */
-        int            fXCount;
+        int             fXCount;
 
         /** Number of entries in fYDivs array; one less than the number of vertical
             divisions.
         */
-        int            fYCount;
+        int             fYCount;
 
         /** Optional subset SkIRect source to draw from.
             If nullptr, source bounds is dimensions of SkBitmap or SkImage.
         */
-        const SkIRect* fBounds;
+        const SkIRect*  fBounds;
 
-
-        /** Optional array of colors, one per rectangular grid entry:
-            array length must be (fXCount + 1) * (fYCount + 1).
+        /** Optional array of colors, one per rectangular grid entry.
+            Array length must be (fXCount + 1) * (fYCount + 1).
 
             Array entries correspond to the rectangular grid entries, ascending
-            left to right and then top to bottom.
+            left to right, then top to bottom.
         */
-        const SkColor* fColors;
+        const SkColor*  fColors;
 
     };
 
@@ -2090,6 +2090,8 @@ public:
         font embedded bitmaps, full hinting spacing, lcd text, linear text,
         subpixel text, and SkPaint vertical text.
 
+        SkPaint::TextEncoding must be set to SkPaint::kGlyphID_TextEncoding.
+
         Elements of paint: SkPathEffect, SkRasterizer, SkMaskFilter, SkShader, SkColorFilter,
         SkImageFilter, and SkDrawLooper; apply to blob.
 
@@ -2108,6 +2110,8 @@ public:
         font embedded bitmaps, full hinting spacing, lcd text, linear text,
         subpixel text, and SkPaint vertical text.
 
+        SkPaint::TextEncoding must be set to SkPaint::kGlyphID_TextEncoding.
+
         Elements of paint: SkPathEffect, SkRasterizer, SkMaskFilter, SkShader, SkColorFilter,
         SkImageFilter, and SkDrawLooper; apply to blob.
 
@@ -2120,11 +2124,11 @@ public:
         this->drawTextBlob(blob.get(), x, y, paint);
     }
 
-    /** Draw picture picture, using clip and SkMatrix.
+    /** Draw SkPicture picture, using clip and SkMatrix.
         Clip and SkMatrix are unchanged by picture contents, as if
         save() was called before and restore() was called after drawPicture().
 
-        Picture records a series of draw commands for later playback.
+        SkPicture records a series of draw commands for later playback.
 
         @param picture  recorded drawing commands to play
     */
@@ -2132,11 +2136,11 @@ public:
         this->drawPicture(picture, nullptr, nullptr);
     }
 
-    /** Draw picture picture, using clip and SkMatrix.
+    /** Draw SkPicture picture, using clip and SkMatrix.
         Clip and SkMatrix are unchanged by picture contents, as if
         save() was called before and restore() was called after drawPicture().
 
-        Picture records a series of draw commands for later playback.
+        SkPicture records a series of draw commands for later playback.
 
         @param picture  recorded drawing commands to play
     */
@@ -2144,7 +2148,7 @@ public:
         this->drawPicture(picture.get());
     }
 
-    /** Draw picture picture, using clip and SkMatrix; transforming picture with
+    /** Draw SkPicture picture, using clip and SkMatrix; transforming picture with
         SkMatrix matrix, if provided; and use SkPaint paint color alpha, SkColorFilter,
         SkImageFilter, and SkBlendMode, if provided.
 
@@ -2157,7 +2161,7 @@ public:
     */
     void drawPicture(const SkPicture* picture, const SkMatrix* matrix, const SkPaint* paint);
 
-    /** Draw picture picture, using clip and SkMatrix; transforming picture with
+    /** Draw SkPicture picture, using clip and SkMatrix; transforming picture with
         SkMatrix matrix, if provided; and use SkPaint paint color alpha, SkColorFilter,
         SkImageFilter, and SkBlendMode, if provided.
 
@@ -2192,12 +2196,12 @@ public:
     */
     void drawVertices(const sk_sp<SkVertices>& vertices, SkBlendMode mode, const SkPaint& paint);
 
-    /** Draws a Coons patch: the interpolation of four cubics with shared corners,
+    /** Draws a Coons_Patch: the interpolation of four cubics with shared corners,
         associating a color, and optionally a texture coordinate, with each corner.
 
-        The Coons patch uses clip and SkMatrix, paint SkShader, SkColorFilter,
+        Coons_Patch uses clip and SkMatrix, paint SkShader, SkColorFilter,
         color alpha, SkImageFilter, and SkBlendMode. If SkShader is provided it is treated
-        as the Coons patch texture; SkBlendMode mode combines color colors and SkShader if
+        as Coons_Patch texture; SkBlendMode mode combines color colors and SkShader if
         both are provided.
 
         SkPoint array cubics specifies four cubics starting at the top-left corner,
@@ -2220,12 +2224,12 @@ public:
     void drawPatch(const SkPoint cubics[12], const SkColor colors[4],
                    const SkPoint texCoords[4], SkBlendMode mode, const SkPaint& paint);
 
-    /** Draws cubic Coons patch: the interpolation of four cubics with shared corners,
+    /** Draws cubic Coons_Patch: the interpolation of four cubics with shared corners,
         associating a color, and optionally a texture coordinate, with each corner.
 
-        The Coons patch uses clip and SkMatrix, paint SkShader, SkColorFilter,
+        Coons_Patch uses clip and SkMatrix, paint SkShader, SkColorFilter,
         color alpha, SkImageFilter, and SkBlendMode. If SkShader is provided it is treated
-        as the Coons patch texture; SkBlendMode mode combines color colors and SkShader if
+        as Coons_Patch texture; SkBlendMode mode combines color colors and SkShader if
         both are provided.
 
         SkPoint array cubics specifies four cubics starting at the top-left corner,
@@ -2344,7 +2348,7 @@ public:
         optional matrix.
 
         If SkCanvas has an asynchronous implementation, as is the case
-        when it is recording into picture, then drawable will be referenced,
+        when it is recording into SkPicture, then drawable will be referenced,
         so that SkDrawable::draw() can be called when the operation is finalized. To force
         immediate drawing, call SkDrawable::draw() instead.
 
@@ -2356,7 +2360,7 @@ public:
     /** Draw SkDrawable drawable using clip and SkMatrix, offset by (x, y).
 
         If SkCanvas has an asynchronous implementation, as is the case
-        when it is recording into picture, then drawable will be referenced,
+        when it is recording into SkPicture, then drawable will be referenced,
         so that SkDrawable::draw() can be called when the operation is finalized. To force
         immediate drawing, call SkDrawable::draw() instead.
 
@@ -2367,9 +2371,9 @@ public:
     void drawDrawable(SkDrawable* drawable, SkScalar x, SkScalar y);
 
     /** Associate SkRect on SkCanvas when an annotation; a key-value pair, where the key is
-        a null-terminated utf8 string, and optional value is stored as data.
+        a null-terminated utf8 string, and optional value is stored as SkData.
 
-        Only some canvas implementations, such as recording to picture, or drawing to
+        Only some canvas implementations, such as recording to SkPicture, or drawing to
         document pdf, use annotations.
 
         @param rect   SkRect extent of canvas to annotate
@@ -2379,9 +2383,9 @@ public:
     void drawAnnotation(const SkRect& rect, const char key[], SkData* value);
 
     /** Associate SkRect on SkCanvas when an annotation; a key-value pair, where the key is
-        a null-terminated utf8 string, and optional value is stored as data.
+        a null-terminated utf8 string, and optional value is stored as SkData.
 
-        Only some canvas implementations, such as recording to picture, or drawing to
+        Only some canvas implementations, such as recording to SkPicture, or drawing to
         document pdf, use annotations.
 
         @param rect   SkRect extent of canvas to annotate
@@ -2790,7 +2794,8 @@ public:
         }
     }
 
-    /** Restores SkCanvas to saved state.
+    /** Restores SkCanvas to saved state. Destructor is called when container goes out of
+        scope.
     */
     ~SkAutoCanvasRestore() {
         if (fCanvas) {
