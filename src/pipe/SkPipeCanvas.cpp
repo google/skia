@@ -6,8 +6,10 @@
  */
 
 #include "SkAutoMalloc.h"
+#include "SkCanvasPriv.h"
 #include "SkColorFilter.h"
 #include "SkDrawLooper.h"
+#include "SkDrawShadowInfo.h"
 #include "SkImageFilter.h"
 #include "SkMaskFilter.h"
 #include "SkPathEffect.h"
@@ -448,6 +450,13 @@ void SkPipeCanvas::onDrawPath(const SkPath& path, const SkPaint& paint) {
     write_paint(writer, paint, kGeometry_PaintUsage);
 }
 
+void SkPipeCanvas::onDrawShadowRec(const SkPath& path, const SkDrawShadowRec& rec) {
+    SkPipeWriter writer(this);
+    writer.write32(pack_verb(SkPipeVerb::kDrawShadowRec));
+    writer.writePath(path);
+    writer.write(&rec, sizeof(rec));
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 static sk_sp<SkImage> make_from_bitmap(const SkBitmap& bitmap) {
@@ -555,41 +564,10 @@ void SkPipeCanvas::onDrawImageLattice(const SkImage* image, const Lattice& latti
     if (paint) {
         extra |= kHasPaint_DrawImageLatticeMask;
     }
-    if (lattice.fRectTypes) {
-        extra |= kHasFlags_DrawImageLatticeMask;
-    }
-    if (lattice.fXCount >= kCount_DrawImageLatticeMask) {
-        extra |= kCount_DrawImageLatticeMask << kXCount_DrawImageLatticeShift;
-    } else {
-        extra |= lattice.fXCount << kXCount_DrawImageLatticeShift;
-    }
-    if (lattice.fYCount >= kCount_DrawImageLatticeMask) {
-        extra |= kCount_DrawImageLatticeMask << kYCount_DrawImageLatticeShift;
-    } else {
-        extra |= lattice.fYCount << kYCount_DrawImageLatticeShift;
-    }
-
     SkPipeWriter writer(this);
     writer.write32(pack_verb(SkPipeVerb::kDrawImageLattice, extra));
     writer.writeImage(image);
-    if (lattice.fXCount >= kCount_DrawImageLatticeMask) {
-        writer.write32(lattice.fXCount);
-    }
-    if (lattice.fYCount >= kCount_DrawImageLatticeMask) {
-        writer.write32(lattice.fYCount);
-    }
-    // Often these divs will be small (8 or 16 bits). Consider sniffing that and writing a flag
-    // so we can store them smaller.
-    writer.write(lattice.fXDivs, lattice.fXCount * sizeof(int32_t));
-    writer.write(lattice.fYDivs, lattice.fYCount * sizeof(int32_t));
-    if (lattice.fRectTypes) {
-        int32_t count = (lattice.fXCount + 1) * (lattice.fYCount + 1);
-        SkASSERT(count > 0);
-        write_pad(&writer, lattice.fRectTypes, count);
-        write_pad(&writer, lattice.fColors, count*sizeof(SkColor));
-    }
-    SkASSERT(lattice.fBounds);
-    writer.write(&lattice.fBounds, sizeof(*lattice.fBounds));
+    SkCanvasPriv::WriteLattice(writer, lattice);
     writer.write(&dst, sizeof(dst));
     if (paint) {
         write_paint(writer, *paint, kImage_PaintUsage);
