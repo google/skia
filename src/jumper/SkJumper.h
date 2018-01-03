@@ -102,10 +102,8 @@ struct SkJumper_GradientCtx {
 
 struct SkJumper_2PtConicalCtx {
     uint32_t fMask[SkJumper_kMaxStride];
-    float    fCoeffA,
-             fInvCoeffA,
-             fR0,
-             fDR;
+    float    fP0,
+             fP1;
 };
 
 struct SkJumper_UniformColorCtx {
