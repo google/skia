@@ -12,9 +12,13 @@
 
 namespace sksg {
 
-InvalidationController::InvalidationController() {}
+InvalidationController::InvalidationController() : fBounds(SkRect::MakeEmpty()) {}
 
 void InvalidationController::inval(const SkRect& r, const SkMatrix& ctm) {
+    if (r.isEmpty()) {
+        return;
+    }
+
     SkTCopyOnFirstWrite<SkRect> rect(r);
 
     if (!ctm.isIdentity()) {
@@ -22,6 +26,7 @@ void InvalidationController::inval(const SkRect& r, const SkMatrix& ctm) {
     }
 
     fRects.push(*rect);
+    fBounds.join(*rect);
 }
 
 } // namespace sksg
