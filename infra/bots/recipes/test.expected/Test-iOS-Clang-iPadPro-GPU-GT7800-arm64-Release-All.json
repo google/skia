@@ -17,6 +17,23 @@
   {
     "cmd": [
       "ideviceinstaller",
+      "-U",
+      "com.google.dm"
+    ],
+    "env": {
+      "BUILDTYPE": "Release",
+      "CHROME_HEADLESS": "1",
+      "IOS_BUNDLE_ID": "com.google.dm",
+      "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[START_DIR]/out"
+    },
+    "infra_step": true,
+    "name": "uninstall_dm"
+  },
+  {
+    "cmd": [
+      "ideviceinstaller",
       "-i",
       "[START_DIR]/out/Release/dm.app"
     ],
@@ -30,6 +47,23 @@
     },
     "infra_step": true,
     "name": "install_dm"
+  },
+  {
+    "cmd": [
+      "ideviceinstaller",
+      "-U",
+      "com.google.nanobench"
+    ],
+    "env": {
+      "BUILDTYPE": "Release",
+      "CHROME_HEADLESS": "1",
+      "IOS_BUNDLE_ID": "com.google.dm",
+      "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[START_DIR]/out"
+    },
+    "infra_step": true,
+    "name": "uninstall_nanobench"
   },
   {
     "cmd": [
