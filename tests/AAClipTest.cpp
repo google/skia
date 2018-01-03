@@ -409,6 +409,15 @@ static void test_crbug_422693(skiatest::Reporter* reporter) {
     rc.op(path, SkMatrix::I(), rc.getBounds(), SkRegion::kIntersect_Op, true);
 }
 
+static void test_huge(skiatest::Reporter* reporter) {
+    SkAAClip clip;
+    int big = 0x70000000;
+    SkIRect r = { -big, -big, big, big };
+    SkASSERT(r.width() < 0 && r.height() < 0);
+
+    clip.setRect(r);
+}
+
 DEF_TEST(AAClip, reporter) {
     test_empty(reporter);
     test_path_bounds(reporter);
@@ -419,4 +428,5 @@ DEF_TEST(AAClip, reporter) {
     test_nearly_integral(reporter);
     test_really_a_rect(reporter);
     test_crbug_422693(reporter);
+    test_huge(reporter);
 }

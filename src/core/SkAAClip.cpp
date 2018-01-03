@@ -9,6 +9,7 @@
 #include "SkAtomics.h"
 #include "SkBlitter.h"
 #include "SkColorData.h"
+#include "SkRectPriv.h"
 #include "SkPath.h"
 #include "SkScan.h"
 #include "SkUtils.h"
@@ -703,7 +704,7 @@ bool SkAAClip::setEmpty() {
 }
 
 bool SkAAClip::setRect(const SkIRect& bounds) {
-    if (bounds.isEmpty()) {
+    if (!SkRectPriv::PositiveDimensions(bounds)) {
         return this->setEmpty();
     }
 
