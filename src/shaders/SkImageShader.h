@@ -15,8 +15,11 @@
 
 class SkImageShader : public SkShaderBase {
 public:
-    static sk_sp<SkShader> Make(sk_sp<SkImage>, TileMode tx, TileMode ty,
-                                const SkMatrix* localMatrix);
+    static sk_sp<SkShader> Make(sk_sp<SkImage>,
+                                SkShader::TileMode tx,
+                                SkShader::TileMode ty,
+                                const SkMatrix* localMatrix,
+                                bool clampAsIfUnpremul = false);
 
     bool isOpaque() const override;
 
@@ -27,19 +30,23 @@ public:
     std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const GrFPArgs&) const override;
 #endif
 
-    SkImageShader(sk_sp<SkImage>, TileMode tx, TileMode ty, const SkMatrix* localMatrix);
-
     static bool IsRasterPipelineOnly(const SkMatrix& ctm, SkColorType, SkAlphaType,
                                      SkShader::TileMode tx, SkShader::TileMode ty,
                                      const SkMatrix& localM);
 
-protected:
+private:
+    SkImageShader(sk_sp<SkImage>,
+                  SkShader::TileMode tx,
+                  SkShader::TileMode ty,
+                  const SkMatrix* localMatrix,
+                  bool clampAsIfUnpremul);
+
     void flatten(SkWriteBuffer&) const override;
     Context* onMakeContext(const ContextRec&, SkArenaAlloc* storage) const override;
 #ifdef SK_SUPPORT_LEGACY_SHADER_ISABITMAP
-    bool onIsABitmap(SkBitmap*, SkMatrix*, TileMode*) const override;
+    bool onIsABitmap(SkBitmap*, SkMatrix*, SkShader::TileMode*) const override;
 #endif
-    SkImage* onIsAImage(SkMatrix*, TileMode*) const override;
+    SkImage* onIsAImage(SkMatrix*, SkShader::TileMode*) const override;
 
     bool onIsRasterPipelineOnly(const SkMatrix& ctm) const override;
 
@@ -50,13 +57,12 @@ protected:
                                                         &this->getLocalMatrix());
     }
 
-    sk_sp<SkImage>  fImage;
-    const TileMode  fTileModeX;
-    const TileMode  fTileModeY;
+    sk_sp<SkImage>           fImage;
+    const SkShader::TileMode fTileModeX;
+    const SkShader::TileMode fTileModeY;
+    const bool               fClampAsIfUnpremul;
 
-private:
     friend class SkShaderBase;
-
     typedef SkShaderBase INHERITED;
 };
 
