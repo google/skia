@@ -16,6 +16,24 @@
       "revId": "dd1b3fa938bc7ee2c9531cd037194be663939f1f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d9998812_ce2c7bd9",
+        "filename": "src/core/SkPaint.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1874,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-01-03T16:31:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ab3beccf_889876d3",
+      "revId": "dd1b3fa938bc7ee2c9531cd037194be663939f1f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
