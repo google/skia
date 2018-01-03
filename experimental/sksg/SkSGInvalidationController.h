@@ -27,11 +27,13 @@ public:
 
     void inval(const SkRect&, const SkMatrix& ctm = SkMatrix::I());
 
-    const SkRect* begin() const { return fRects.begin(); }
-    const SkRect* end()   const { return fRects.end(); }
+    const SkRect& bounds() const { return fBounds;        }
+    const SkRect*  begin() const { return fRects.begin(); }
+    const SkRect*    end() const { return fRects.end();   }
 
 private:
     SkTDArray<SkRect> fRects;
+    SkRect            fBounds;
 
     typedef SkNoncopyable INHERITED;
 };

@@ -34,7 +34,7 @@ protected:
 
     void onRender(SkCanvas*) const override;
 
-    void onRevalidate(InvalidationController*, const SkMatrix&) override;
+    SkRect onRevalidate(InvalidationController*, const SkMatrix&) override;
 
 private:
     sk_sp<GeometryNode> fGeometry;

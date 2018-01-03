@@ -36,7 +36,7 @@ protected:
 
     virtual void onApplyToPaint(SkPaint*) const = 0;
 
-    void onRevalidate(InvalidationController*, const SkMatrix&) override;
+    SkRect onRevalidate(InvalidationController*, const SkMatrix&) final;
 
 private:
     SkPaint        fPaint;

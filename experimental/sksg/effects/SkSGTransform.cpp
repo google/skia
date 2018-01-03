@@ -21,9 +21,13 @@ void Transform::onRender(SkCanvas* canvas) const {
     this->INHERITED::onRender(canvas);
 }
 
-void Transform::onRevalidate(InvalidationController* ic, const SkMatrix& ctm) {
-    const auto localCTM = SkMatrix::Concat(ctm, fMatrix);
-    this->INHERITED::onRevalidate(ic, localCTM);
+SkRect Transform::onRevalidate(InvalidationController* ic, const SkMatrix& ctm) {
+    SkASSERT(this->hasInval());
+
+    auto bounds = this->INHERITED::onRevalidate(ic, SkMatrix::Concat(ctm, fMatrix));
+    fMatrix.mapRect(&bounds);
+
+    return bounds;
 }
 
 } // namespace sksg

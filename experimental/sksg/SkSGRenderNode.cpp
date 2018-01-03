@@ -12,7 +12,7 @@ namespace sksg {
 RenderNode::RenderNode() {}
 
 void RenderNode::render(SkCanvas* canvas) const {
-    SkASSERT(!this->isInvalidated());
+    SkASSERT(!this->hasInval());
     this->onRender(canvas);
 }
 

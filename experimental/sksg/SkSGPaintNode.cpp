@@ -12,23 +12,27 @@ namespace sksg {
 PaintNode::PaintNode() {}
 
 const SkPaint& PaintNode::makePaint() {
-    SkASSERT(!this->isInvalidated());
+    SkASSERT(!this->hasInval());
 
     return fPaint;
 }
 
-void PaintNode::onRevalidate(InvalidationController*, const SkMatrix&) {
-    SkASSERT(this->isInvalidated());
+SkRect PaintNode::onRevalidate(InvalidationController*, const SkMatrix&) {
+    SkASSERT(this->hasInval());
 
-    fPaint.reset();
-    fPaint.setAntiAlias(fAntiAlias);
-    fPaint.setStyle(fStyle);
-    fPaint.setStrokeWidth(fStrokeWidth);
-    fPaint.setStrokeMiter(fStrokeMiter);
-    fPaint.setStrokeJoin(fStrokeJoin);
-    fPaint.setStrokeCap(fStrokeCap);
+    if (this->hasSelfInval()) {
+        fPaint.reset();
+        fPaint.setAntiAlias(fAntiAlias);
+        fPaint.setStyle(fStyle);
+        fPaint.setStrokeWidth(fStrokeWidth);
+        fPaint.setStrokeMiter(fStrokeMiter);
+        fPaint.setStrokeJoin(fStrokeJoin);
+        fPaint.setStrokeCap(fStrokeCap);
 
-    this->onApplyToPaint(&fPaint);
+        this->onApplyToPaint(&fPaint);
+    }
+
+    return SkRect::MakeEmpty();
 }
 
 } // namespace sksg

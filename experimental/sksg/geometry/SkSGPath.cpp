@@ -18,7 +18,9 @@ void Path::onDraw(SkCanvas* canvas, const SkPaint& paint) const {
     canvas->drawPath(fPath, paint);
 }
 
-SkRect Path::onComputeBounds() const {
+SkRect Path::onRevalidate(InvalidationController*, const SkMatrix&) {
+    SkASSERT(this->hasSelfInval());
+
     return fPath.computeTightBounds();
 }
 

@@ -18,7 +18,9 @@ void Rect::onDraw(SkCanvas* canvas, const SkPaint& paint) const {
     canvas->drawRect(fRect, paint);
 }
 
-SkRect Rect::onComputeBounds() const {
+SkRect Rect::onRevalidate(InvalidationController*, const SkMatrix&) {
+    SkASSERT(this->hasSelfInval());
+
     return fRect;
 }
 
@@ -28,7 +30,9 @@ void RRect::onDraw(SkCanvas* canvas, const SkPaint& paint) const {
     canvas->drawRRect(fRRect, paint);
 }
 
-SkRect RRect::onComputeBounds() const {
+SkRect RRect::onRevalidate(InvalidationController*, const SkMatrix&) {
+    SkASSERT(this->hasSelfInval());
+
     return fRRect.getBounds();
 }
 

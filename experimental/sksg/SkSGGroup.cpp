@@ -27,6 +27,8 @@ void Group::addChild(sk_sp<RenderNode> node) {
 
     node->addInvalReceiver(this);
     fChildren.push_back(std::move(node));
+
+    this->invalidateSelf();
 }
 
 void Group::removeChild(const sk_sp<RenderNode>& node) {
@@ -39,6 +41,8 @@ void Group::removeChild(const sk_sp<RenderNode>& node) {
         }
     }
     SkASSERT(fChildren.count() == origCount - 1);
+
+    this->invalidateSelf();
 }
 
 void Group::onRender(SkCanvas* canvas) const {
@@ -47,10 +51,16 @@ void Group::onRender(SkCanvas* canvas) const {
     }
 }
 
-void Group::onRevalidate(InvalidationController* ic, const SkMatrix& ctm) {
+SkRect Group::onRevalidate(InvalidationController* ic, const SkMatrix& ctm) {
+    SkASSERT(this->hasInval());
+
+    SkRect bounds = SkRect::MakeEmpty();
+
     for (const auto& child : fChildren) {
-        child->revalidate(ic, ctm);
+        bounds.join(child->revalidate(ic, ctm));
     }
+
+    return bounds;
 }
 
 } // namespace sksg

@@ -8,6 +8,7 @@
 #ifndef SkSGNode_DEFINED
 #define SkSGNode_DEFINED
 
+#include "SkRect.h"
 #include "SkRefCnt.h"
 #include "SkTDArray.h"
 
@@ -29,21 +30,24 @@ class InvalidationController;
  */
 class Node : public SkRefCnt {
 public:
-    // Traverse the DAG and revalidate any connected/invalidated nodes.
-    void revalidate(InvalidationController*, const SkMatrix&);
+    // Traverse the DAG and revalidate any dependant/invalidated nodes.
+    // Returns the bounding box for the DAG fragment.
+    const SkRect& revalidate(InvalidationController*, const SkMatrix&);
 
 protected:
     Node();
     ~Node() override;
 
-    // Mark this node and (transitively) any invalidation receivers for revalidation.
-    void invalidate();
+    void invalidateSelf();
+    void invalidateAncestors();
 
-    bool isInvalidated() const { return fFlags & kInvalidated_Flag; }
+    bool hasSelfInval()       const { return fFlags & kInvalSelf_Flag; }
+    bool hasDescendantInval() const { return fFlags & kInvalDescendant_Flag; }
+    bool hasInval()           const { return this->hasSelfInval() || this->hasDescendantInval(); }
 
-    // Dispatched on revalidation.  Subclasses are expected to recompute their geometry
-    // and push dirty rects to the InvalidationController.
-    virtual void onRevalidate(InvalidationController*, const SkMatrix& ctm) = 0;
+    // Dispatched on revalidation.  Subclasses are expected to recompute/cache their properties
+    // and return their bounding box in local coordinates.
+    virtual SkRect onRevalidate(InvalidationController*, const SkMatrix& ctm) = 0;
 
 private:
     void addInvalReceiver(Node*);
@@ -57,9 +61,10 @@ private:
     void forEachInvalReceiver(Func&&) const;
 
     enum Flags {
-        kInvalidated_Flag   = 1 << 0, // the node requires revalidation
-        kReceiverArray_Flag = 1 << 1, // the node has more than one inval receiver
-        kInTraversal_Flag   = 1 << 2, // the node is part of a traversal (cycle detection)
+        kInvalSelf_Flag       = 1 << 0, // the node requires revalidation
+        kInvalDescendant_Flag = 1 << 1, // the node's descendents require invalidation
+        kReceiverArray_Flag   = 1 << 2, // the node has more than one inval receiver
+        kInTraversal_Flag     = 1 << 3, // the node is part of a traversal (cycle detection)
     };
 
     class ScopedFlag;
@@ -68,18 +73,19 @@ private:
         Node*             fInvalReceiver;
         SkTDArray<Node*>* fInvalReceiverArray;
     };
+    SkRect                fBounds;
     uint32_t              fFlags;
 
     typedef SkRefCnt INHERITED;
 };
 
 // Helper for defining attribute getters/setters in subclasses.
-#define SG_ATTRIBUTE(attr_name, attr_type, attr_container) \
+#define SG_ATTRIBUTE(attr_name, attr_type, attr_container)      \
     attr_type get##attr_name() const { return attr_container; } \
-    void set##attr_name(attr_type v) {                    \
-        if (attr_container == v) return;                   \
-        attr_container = v;                                \
-        this->invalidate();                                \
+    void set##attr_name(attr_type v) {                          \
+        if (attr_container == v) return;                        \
+        attr_container = v;                                     \
+        this->invalidateSelf();                                 \
    }
 
 } // namespace sksg
