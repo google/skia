@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "045e9c5c_7c9d18b6",
+        "filename": "include/private/SkPedanticMath.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-03T20:20:16Z",
+      "side": 1,
+      "message": "As much as I like this new header, this code might actually be a good fit for SkSafeMath?",
+      "range": {
+        "startLine": 8,
+        "startChar": 8,
+        "endLine": 8,
+        "endChar": 30
+      },
+      "revId": "8b0e0f0fb08cb5d3ecfa9f049a240564cd21ab2b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fef90b34_fb781193",
+        "filename": "include/private/SkPedanticMath.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-03T20:20:16Z",
+      "side": 1,
+      "message": "complaints?",
+      "range": {
+        "startLine": 11,
+        "startChar": 24,
+        "endLine": 11,
+        "endChar": 27
+      },
+      "revId": "8b0e0f0fb08cb5d3ecfa9f049a240564cd21ab2b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e00ba2d4_8003d3f1",
+        "filename": "src/core/SkAAClip.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 707,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-03T20:20:16Z",
+      "side": 1,
+      "message": "I actually kind of think the inlined version,\n\nif (bounds.width() \u003c\u003d 0 || bounds.height() \u003c\u003d 0) {\n    ...\n}\n\nmight read more clearly than the new method.",
+      "range": {
+        "startLine": 707,
+        "startChar": 8,
+        "endLine": 707,
+        "endChar": 47
+      },
+      "revId": "8b0e0f0fb08cb5d3ecfa9f049a240564cd21ab2b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e80c46f1_bd1d5e9f",
+        "filename": "tests/AAClipTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 416,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-03T20:20:16Z",
+      "side": 1,
+      "message": "Probably better to use REPORTER_ASSERT(reporter, r.width() ...)?",
+      "range": {
+        "startLine": 416,
+        "startChar": 4,
+        "endLine": 416,
+        "endChar": 12
+      },
+      "revId": "8b0e0f0fb08cb5d3ecfa9f049a240564cd21ab2b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
