@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "c16dae88_9a98788c",
+        "filename": "include/private/SkPedanticMath.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-01-03T20:35:11Z",
+      "side": 1,
+      "message": "SkSafeMath.h is not in private",
+      "parentUuid": "045e9c5c_7c9d18b6",
+      "range": {
+        "startLine": 8,
+        "startChar": 8,
+        "endLine": 8,
+        "endChar": 30
+      },
+      "revId": "8b0e0f0fb08cb5d3ecfa9f049a240564cd21ab2b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "fef90b34_fb781193",
         "filename": "include/private/SkPedanticMath.h",
         "patchSetId": 2
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "cc2eeba5_c321adcd",
+        "filename": "include/private/SkPedanticMath.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-01-03T20:35:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fef90b34_fb781193",
+      "range": {
+        "startLine": 11,
+        "startChar": 24,
+        "endLine": 11,
+        "endChar": 27
+      },
+      "revId": "8b0e0f0fb08cb5d3ecfa9f049a240564cd21ab2b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e00ba2d4_8003d3f1",
         "filename": "src/core/SkAAClip.cpp",
         "patchSetId": 2
@@ -59,6 +107,30 @@
       "writtenOn": "2018-01-03T20:20:16Z",
       "side": 1,
       "message": "I actually kind of think the inlined version,\n\nif (bounds.width() \u003c\u003d 0 || bounds.height() \u003c\u003d 0) {\n    ...\n}\n\nmight read more clearly than the new method.",
+      "range": {
+        "startLine": 707,
+        "startChar": 8,
+        "endLine": 707,
+        "endChar": 47
+      },
+      "revId": "8b0e0f0fb08cb5d3ecfa9f049a240564cd21ab2b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3d3c5143_2f674d69",
+        "filename": "src/core/SkAAClip.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 707,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-01-03T20:35:11Z",
+      "side": 1,
+      "message": "It might, though I could be guilting in the future of seeing that, and wanting to replace it with isEmpty() (the old version), which would lose the overflow catch.",
+      "parentUuid": "e00ba2d4_8003d3f1",
       "range": {
         "startLine": 707,
         "startChar": 8,
