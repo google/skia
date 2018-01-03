@@ -1,0 +1,78 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a23eca47_e2e105ba",
+        "filename": "src/jumper/SkJumper_stages.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 1951,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-03T19:17:59Z",
+      "side": 1,
+      "message": "Let\u0027s link to https://skia.org/dev/design/conical somewhere in here too?",
+      "revId": "3c313f3129bcf0a4c909dff8b823439f635a8b87",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0f2ece53_6a7474ce",
+        "filename": "src/jumper/SkJumper_stages.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 1957,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-03T19:17:59Z",
+      "side": 1,
+      "message": "I tend to find math easier to read if we group */ more tightly than +-, especially with these short variable names, and especially when they\u0027re mixed like (r*r + g*g)/r.",
+      "range": {
+        "startLine": 1957,
+        "startChar": 29,
+        "endLine": 1957,
+        "endChar": 34
+      },
+      "revId": "3c313f3129bcf0a4c909dff8b823439f635a8b87",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4e2d7fb4_9d8fd246",
+        "filename": "src/jumper/SkJumper_stages.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 1960,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-03T19:17:59Z",
+      "side": 1,
+      "message": "Think we should start these stages with something like,\n\n F x\u003dr, y\u003dg, \u0026t\u003dr;\n\nas a reminder so we can write these as\n\n  t \u003d (x*x + y*y)/x\n\n?",
+      "revId": "3c313f3129bcf0a4c909dff8b823439f635a8b87",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7081e118_db9e1b68",
+        "filename": "src/jumper/SkJumper_stages.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 1961,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-03T19:17:59Z",
+      "side": 1,
+      "message": "Is there any benefit or downside to writing this as\n\n   r + (g*g)/r\n\n?",
+      "revId": "3c313f3129bcf0a4c909dff8b823439f635a8b87",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
