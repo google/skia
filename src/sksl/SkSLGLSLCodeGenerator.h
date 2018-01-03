@@ -136,6 +136,14 @@ protected:
 
     void writeMinAbsHack(Expression& absExpr, Expression& otherExpr);
 
+    void writeDeterminantHack(const Expression& mat);
+
+    void writeInverseHack(const Expression& mat);
+
+    void writeTransposeHack(const Expression& mat);
+
+    void writeInverseSqrtHack(const Expression& x);
+
     virtual void writeFunctionCall(const FunctionCall& c);
 
     void writeConstructor(const Constructor& c, Precedence parentPrecedence);
@@ -187,6 +195,7 @@ protected:
     const char* fLineEnding;
     const Context& fContext;
     StringStream fHeader;
+    StringStream fExtraFunctions;
     String fFunctionHeader;
     Program::Kind fProgramKind;
     int fVarCount = 0;
@@ -196,6 +205,7 @@ protected:
     // more than one or two structs per shader, a simple linear search will be faster than anything
     // fancier.
     std::vector<const Type*> fWrittenStructs;
+    std::set<String> fWrittenIntrinsics;
     // true if we have run into usages of dFdx / dFdy
     bool fFoundDerivatives = false;
     bool fFoundImageDecl = false;
