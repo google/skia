@@ -68,10 +68,10 @@ public:
         kGradientShaderFloatColor_Version  = 49,
         kXfermodeToBlendMode_Version       = 50,
         kXfermodeToBlendMode2_Version      = 51,
-         */
         kTextBlobImplicitRunCount_Version  = 52,
         kComposeShaderCanLerp_Version      = 54,
         kNoModesInMergeImageFilter_Verison = 55,
+         */
         kTileModeInBlurImageFilter_Version = 56,
         kTileInfoInSweepGradient_Version   = 57,
         k2PtConicalNoFlip_Version          = 58,
