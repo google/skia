@@ -1000,6 +1000,12 @@ void dumpHex() const
   <tr>
     <td><a name="SkShader_kClamp_TileMode"> <code><strong>SkShader::kClamp_TileMode </strong></code> </a></td><td>0</td><td></td>
   </tr>
+  <tr>
+    <td><a name="SkShader_kRepeat_TileMode"> <code><strong>SkShader::kRepeat_TileMode </strong></code> </a></td><td>1</td><td></td>
+  </tr>
+  <tr>
+    <td><a name="SkShader_kMirror_TileMode"> <code><strong>SkShader::kMirror_TileMode </strong></code> </a></td><td>2</td><td></td>
+  </tr>
 
 </table>
 

@@ -122,6 +122,7 @@ enum class MarkType {
     kRoot,
     kRow,
     kSeeAlso,
+    kSet,
     kStdOut,
     kStruct,
     kSubstitute,
@@ -1236,6 +1237,7 @@ public:
 , { "",            nullptr,      MarkType::kRow,          R_Y, E_N, M(Table) | M(List) }
 , { "SeeAlso",     nullptr,      MarkType::kSeeAlso,      R_Y, E_N,
                                                              M_CSST | M_E | M(Method) | M(Typedef) }
+, { "Set",         nullptr,      MarkType::kSet,          R_N, E_N, M(Example) }
 , { "StdOut",      nullptr,      MarkType::kStdOut,       R_N, E_N, M(Example) }
 , { "Struct",      &fClassMap,   MarkType::kStruct,       R_Y, E_O, M(Class) | M(Root) | M_ST }
 , { "Substitute",  nullptr,      MarkType::kSubstitute,   R_N, E_N, M_ST }
@@ -1425,6 +1427,7 @@ public:
         , { nullptr,        MarkType::kRoot }
         , { nullptr,        MarkType::kRow }
         , { nullptr,        MarkType::kSeeAlso }
+        , { nullptr,        MarkType::kSet }
         , { nullptr,        MarkType::kStdOut }
         , { &fIStructMap,   MarkType::kStruct }
         , { nullptr,        MarkType::kSubstitute }

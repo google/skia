@@ -1176,9 +1176,9 @@ Returns <a href="undocumented#Color_Space">Color Space</a>, the range of colors,
 reference count of <a href="undocumented#Color_Space">Color Space</a> is unchanged. The returned <a href="undocumented#Color_Space">Color Space</a> is
 immutable.
 
-<a href="undocumented#Color_Space">Color Space</a> returned was a parameter to an <a href="#Image">Image</a> constructor,
-or was parsed from encoded data. <a href="undocumented#Color_Space">Color Space</a> may be ignored when
-drawing <a href="#Image">Image</a>, and when drawing into <a href="SkSurface_Reference#Surface">Surface</a> constructed with <a href="undocumented#Color_Space">Color Space</a>.
+<a href="undocumented#Color_Space">Color Space</a> returned was passed to an <a href="#Image">Image</a> constructor,
+or was parsed from encoded data. <a href="undocumented#Color_Space">Color Space</a> returned may be ignored when <a href="#Image">Image</a>
+is drawn, depending on the capabilities of the <a href="SkSurface_Reference#Surface">Surface</a> receiving the drawing.
 
 ### Return Value
 
@@ -1186,11 +1186,11 @@ drawing <a href="#Image">Image</a>, and when drawing into <a href="SkSurface_Ref
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name="4468d573f42af6f5e234be10a5453bb2"></fiddle-embed></div>
 
 ### See Also
 
-incomplete
+<a href="#SkImage_refColorSpace">refColorSpace</a> <a href="#SkImage_makeColorSpace">makeColorSpace</a>
 
 ---
 
@@ -1201,17 +1201,27 @@ incomplete
 sk_sp&lt;SkColorSpace&gt; refColorSpace() const
 </pre>
 
+Returns a smart pointer to <a href="undocumented#Color_Space">Color Space</a>, the range of colors, associated with
+<a href="#Image">Image</a>.  The smart pointer tracks the number of objects sharing this
+<a href="undocumented#SkColorSpace">SkColorSpace</a> reference so the memory is released when the owners destruct.
+
+The returned <a href="undocumented#SkColorSpace">SkColorSpace</a> is immutable.
+
+<a href="undocumented#Color_Space">Color Space</a> returned was passed to an <a href="#Image">Image</a> constructor,
+or was parsed from encoded data. <a href="undocumented#Color_Space">Color Space</a> returned may be ignored when <a href="#Image">Image</a>
+is drawn, depending on the capabilities of the <a href="SkSurface_Reference#Surface">Surface</a> receiving the drawing.
+
 ### Return Value
 
-incomplete
+<a href="undocumented#Color_Space">Color Space</a> in <a href="#Image">Image</a>, or nullptr, wrapped in a smart pointer
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name="59b2078ebfbda8736a57c0486ae33332"></fiddle-embed></div>
 
 ### See Also
 
-incomplete
+<a href="#SkImage_colorSpace">colorSpace</a> <a href="#SkImage_makeColorSpace">makeColorSpace</a>
 
 ---
 
@@ -1231,11 +1241,19 @@ true if pixels represent a transparency mask
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name="50762c73b8ea91959c5a7b68fbf1062d">
+
+#### Example Output
+
+~~~~
+alphaOnly = true
+~~~~
+
+</fiddle-embed></div>
 
 ### See Also
 
-incomplete
+<a href="#SkImage_alphaType">alphaType</a> <a href="#SkImage_isOpaque">isOpaque</a>
 
 ---
 
@@ -1246,7 +1264,7 @@ incomplete
 bool isOpaque() const
 </pre>
 
-Returns if all pixels ignore any <a href="#Alpha">Alpha</a> value and are treated as fully opaque.
+Returns true if pixels ignore their <a href="#Alpha">Alpha</a> value and are treated as fully opaque.
 
 ### Return Value
 
@@ -1254,11 +1272,20 @@ true if <a href="#Alpha_Type">Alpha Type</a> is <a href="undocumented#SkAlphaTyp
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name="e3340460003b74ee286d625e68589d65">
+
+#### Example Output
+
+~~~~
+isOpaque = false
+isOpaque = true
+~~~~
+
+</fiddle-embed></div>
 
 ### See Also
 
-incomplete
+<a href="#SkImage_alphaType">alphaType</a> <a href="#SkImage_isAlphaOnly">isAlphaOnly</a>
 
 ---
 
@@ -1270,28 +1297,34 @@ sk_sp&lt;SkShader&gt; makeShader(SkShader::TileMode tileMode1, SkShader::TileMod
                            const SkMatrix* localMatrix = nullptr) const
 </pre>
 
+Creates <a href="undocumented#Shader">Shader</a> from <a href="#Image">Image</a>. <a href="undocumented#Shader">Shader</a> <a href="#SkImage_dimensions">dimensions</a> are taken from <a href="#Image">Image</a>. <a href="undocumented#Shader">Shader</a> uses
+<a href="#SkShader_TileMode">SkShader::TileMode</a> rules to fill drawn area outside <a href="#Image">Image</a>. <a href="#SkImage_makeShader_localMatrix">localMatrix</a> permits
+transforming <a href="#Image">Image</a> before <a href="#Matrix">Canvas Matrix</a> is applied.
+
 ### Parameters
 
 <table>  <tr>    <td><a name="SkImage_makeShader_tileMode1"> <code><strong>tileMode1 </strong></code> </a></td> <td>
-incomplete</td>
+tiling in x, one of: <a href="#SkShader_kClamp_TileMode">SkShader::kClamp TileMode</a>, <a href="#SkShader_kRepeat_TileMode">SkShader::kRepeat TileMode</a>,
+<a href="#SkShader_kMirror_TileMode">SkShader::kMirror TileMode</a></td>
   </tr>  <tr>    <td><a name="SkImage_makeShader_tileMode2"> <code><strong>tileMode2 </strong></code> </a></td> <td>
-incomplete</td>
+tiling in y, one of: <a href="#SkShader_kClamp_TileMode">SkShader::kClamp TileMode</a>, <a href="#SkShader_kRepeat_TileMode">SkShader::kRepeat TileMode</a>,
+<a href="#SkShader_kMirror_TileMode">SkShader::kMirror TileMode</a></td>
   </tr>  <tr>    <td><a name="SkImage_makeShader_localMatrix"> <code><strong>localMatrix </strong></code> </a></td> <td>
-incomplete</td>
+<a href="#Image">Image</a> transformation, or nullptr</td>
   </tr>
 </table>
 
 ### Return Value
 
-incomplete
+<a href="undocumented#Shader">Shader</a> containing <a href="#Image">Image</a>
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name="1c6de6fe72b00b5be970f5f718363449"></fiddle-embed></div>
 
 ### See Also
 
-incomplete
+<a href="#SkImage_scalePixels">scalePixels</a>
 
 ---
 
@@ -1299,22 +1332,24 @@ incomplete
 sk_sp&lt;SkShader&gt; makeShader(const SkMatrix* localMatrix = nullptr) const
 </pre>
 
-Helper version of
+Creates <a href="undocumented#Shader">Shader</a> from <a href="#Image">Image</a>. <a href="undocumented#Shader">Shader</a> <a href="#SkImage_dimensions">dimensions</a> are taken from <a href="#Image">Image</a>. <a href="undocumented#Shader">Shader</a> uses
+<a href="#SkShader_kClamp_TileMode">SkShader::kClamp TileMode</a> to fill drawn area outside <a href="#Image">Image</a>. <a href="#SkImage_makeShader_2_localMatrix">localMatrix</a> permits
+transforming <a href="#Image">Image</a> before <a href="#Matrix">Canvas Matrix</a> is applied.
 
 ### Parameters
 
 <table>  <tr>    <td><a name="SkImage_makeShader_2_localMatrix"> <code><strong>localMatrix </strong></code> </a></td> <td>
-incomplete</td>
+<a href="#Image">Image</a> transformation, or nullptr</td>
   </tr>
 </table>
 
 ### Return Value
 
-incomplete
+<a href="undocumented#Shader">Shader</a> containing <a href="#Image">Image</a>
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name="10172fca71b9dbdcade772513ffeb27e"></fiddle-embed></div>
 
 ### See Also
 

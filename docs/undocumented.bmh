@@ -694,6 +694,10 @@ FT_Load_Glyph
     #Enum TileMode
         #Const kClamp_TileMode 0
         ##
+        #Const kRepeat_TileMode 1
+        ##
+        #Const kMirror_TileMode 2
+        ##
     ##
     #Method static sk_sp<SkShader> MakeBitmapShader(const SkBitmap& src, TileMode tmx, TileMode tmy,
                                             const SkMatrix* localMatrix = nullptr)
