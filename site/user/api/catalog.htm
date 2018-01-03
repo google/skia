@@ -1050,6 +1050,20 @@
     "name": "SkImage::dimensions()",
         "stdout": "dimensionsAsBounds == bounds\\n"
     },
+        "SkImage_isAlphaOnly": {
+    "code": "void draw(SkCanvas* canvas) {\n    uint8_t pmColors = 0;\n    sk_sp<SkImage> image = SkImage::MakeRasterCopy({SkImageInfo::MakeA8(1, 1), &pmColors, 1});\n    SkDebugf(\"alphaOnly = %s\\n\", image->isAlphaOnly() ? \"true\" : \"false\");\n}",
+    "hash": "50762c73b8ea91959c5a7b68fbf1062d",
+    "file": "SkImage_Reference",
+    "name": "SkImage::isAlphaOnly",
+        "stdout": "alphaOnly = true\\n"
+    },
+        "SkImage_isOpaque": {
+    "code": "void draw(SkCanvas* canvas) {\n    auto check_isopaque = [](const SkImageInfo& imageInfo) -> void {\n        auto surface(SkSurface::MakeRaster(imageInfo));\n        auto image(surface->makeImageSnapshot());\n        SkDebugf(\"isOpaque = %s\\n\", image->isOpaque() ? \"true\" : \"false\");\n    };\n    check_isopaque(SkImageInfo::MakeN32Premul(5, 5));\n    check_isopaque(SkImageInfo::MakeN32(5, 5, kOpaque_SkAlphaType));\n}",
+    "hash": "e3340460003b74ee286d625e68589d65",
+    "file": "SkImage_Reference",
+    "name": "SkImage::isOpaque",
+        "stdout": "isOpaque = false\\nisOpaque = true\\n"
+    },
         "SkMatrix_I": {
     "code": "void draw(SkCanvas* canvas) {\n    SkMatrix m1, m2, m3;\n    m1.reset();\n    m2.setIdentity();\n    m3 = SkMatrix::I();\n    SkDebugf(\"m1 %c= m2\\n\", m1 == m2 ? '=' : '!');\n    SkDebugf(\"m2 %c= m3\\n\", m1 == m2 ? '=' : '!');\n}",
     "hash": "d961d91020f19037204a8c3fd8cb1060",
@@ -4868,10 +4882,10 @@
     "name": "SkImage::bounds()"
 },
     "SkImage_colorSpace": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "code": "void draw(SkCanvas* canvas) {\n    SkPixmap pixmap;\n    source.peekPixels(&pixmap);\n    canvas->scale(.25f, .25f);\n    int y = 0;\n    for (auto gamma : { SkColorSpace::kLinear_RenderTargetGamma,\n                        SkColorSpace::kSRGB_RenderTargetGamma } ) {\n        int x = 0;\n        sk_sp<SkColorSpace> colorSpace = SkColorSpace::MakeRGB(gamma, SkColorSpace::kSRGB_Gamut);\n        for (int index = 0; index < 2; ++index) {\n            pixmap.setColorSpace(colorSpace);\n            sk_sp<SkImage> image = SkImage::MakeRasterCopy(pixmap);\n            canvas->drawImage(image, x, y);\n            colorSpace = image->colorSpace()->makeColorSpin();\n            x += 512;\n        }\n        y += 512;\n    }\n}",
     "width": 256,
     "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
+    "hash": "4468d573f42af6f5e234be10a5453bb2",
     "file": "SkImage_Reference",
     "name": "SkImage::colorSpace"
 },
@@ -4915,14 +4929,6 @@
     "file": "SkImage_Reference",
     "name": "SkImage::height()"
 },
-    "SkImage_isAlphaOnly": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
-    "width": 256,
-    "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
-    "file": "SkImage_Reference",
-    "name": "SkImage::isAlphaOnly"
-},
     "SkImage_isLazyGenerated": {
     "code": "class TestImageGenerator : public SkImageGenerator {\npublic:\n    TestImageGenerator() : SkImageGenerator(SkImageInfo::MakeN32Premul(10, 10)) {}\n    ~TestImageGenerator() override {}\nprotected:\n    bool onGetPixels(const SkImageInfo& info, void* pixelPtr, size_t rowBytes,\n                     const Options& options) override {\n        SkPMColor* pixels = static_cast<SkPMColor*>(pixelPtr);\n        for (int y = 0; y < info.height(); ++y) {\n            for (int x = 0; x < info.width(); ++x) {\n                pixels[y * info.width() + x] = 0xff223344 + y * 0x000C0811;\n            }\n        }\n        return true;\n    }\n};\n\nvoid draw(SkCanvas* canvas) {\n    auto gen = std::unique_ptr<TestImageGenerator>(new TestImageGenerator());\n    sk_sp<SkImage> image(SkImage::MakeFromGenerator(std::move(gen)));\n    SkString lazy(image->isLazyGenerated() ? \"is lazy\" : \"not lazy\");\n    canvas->scale(8, 8);\n    canvas->drawImage(image, 0, 0, nullptr);\n    SkPaint paint;\n    paint.setTextSize(4);\n    canvas->drawString(lazy, 2, 5, paint);\n}\n",
     "width": 256,
@@ -4930,14 +4936,6 @@
     "hash": "a8b8bd4bfe968e2c63085f867665227f",
     "file": "SkImage_Reference",
     "name": "SkImage::isLazyGenerated"
-},
-    "SkImage_isOpaque": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
-    "width": 256,
-    "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
-    "file": "SkImage_Reference",
-    "name": "SkImage::isOpaque"
 },
     "SkImage_isTextureBacked": {
     "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
@@ -4980,18 +4978,18 @@
     "name": "SkImage::makeRasterImage"
 },
     "SkImage_makeShader": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "code": "void draw(SkCanvas* canvas) {\n    SkMatrix matrix;\n    matrix.setRotate(45);\n    SkPaint paint;\n    paint.setShader(image->makeShader(SkShader::kRepeat_TileMode, SkShader::kMirror_TileMode,\n                                      &matrix));\n    canvas->drawPaint(paint);\n}",
     "width": 256,
     "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
+    "hash": "1c6de6fe72b00b5be970f5f718363449",
     "file": "SkImage_Reference",
     "name": "SkImage::makeShader"
 },
     "SkImage_makeShader_2": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "code": "void draw(SkCanvas* canvas) {\n    SkMatrix matrix;\n    matrix.setRotate(45);\n    matrix.postTranslate(125, 30);\n    SkPaint paint;\n    paint.setShader(image->makeShader(&matrix));\n    canvas->drawPaint(paint);\n}",
     "width": 256,
     "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
+    "hash": "10172fca71b9dbdcade772513ffeb27e",
     "file": "SkImage_Reference",
     "name": "SkImage::makeShader_2"
 },
@@ -5044,10 +5042,10 @@
     "name": "SkImage::readPixels_2"
 },
     "SkImage_refColorSpace": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "code": "void draw(SkCanvas* canvas) {\n    SkPixmap pixmap;\n    source.peekPixels(&pixmap);\n    canvas->scale(.25f, .25f);\n    int y = 0;\n    for (auto gamma : { SkColorSpace::kLinear_RenderTargetGamma,\n                        SkColorSpace::kSRGB_RenderTargetGamma } ) {\n        int x = 0;\n        sk_sp<SkColorSpace> colorSpace = SkColorSpace::MakeRGB(gamma, SkColorSpace::kSRGB_Gamut);\n        for (int index = 0; index < 2; ++index) {\n            pixmap.setColorSpace(colorSpace);\n            sk_sp<SkImage> image = SkImage::MakeRasterCopy(pixmap);\n            canvas->drawImage(image, x, y);\n            colorSpace = image->refColorSpace()->makeColorSpin();\n            x += 512;\n        }\n        y += 512;\n    }\n}",
     "width": 256,
     "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
+    "hash": "59b2078ebfbda8736a57c0486ae33332",
     "file": "SkImage_Reference",
     "name": "SkImage::refColorSpace"
 },

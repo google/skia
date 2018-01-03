@@ -614,10 +614,9 @@ paths are interpolatable
 bool interpolate(const SkPath& ending, SkScalar weight, SkPath* out) const
 </pre>
 
-Interpolate between <a href="#Path">Paths</a> with equal sized <a href="SkPath_Reference#Point_Array">Point Arrays</a>.
-Copy <a href="#Verb_Array">Verb Array</a> and <a href="#Weight">Weights</a> to <a href="#SkPath_interpolate_out">out</a>,
-and set <a href="#SkPath_interpolate_out">out</a> <a href="#Point_Array">Point Array</a> to a weighted average of this <a href="#Point_Array">Point Array</a> and <a href="#SkPath_interpolate_ending">ending</a> 
-<a href="#Point_Array">Point Array</a>, using the formula:
+Interpolate between <a href="#Path">Paths</a> with <a href="#Point_Array">Point Array</a> of equal size.
+Copy <a href="#Verb_Array">Verb Array</a> and <a href="#Weight">Weights</a> to <a href="#SkPath_interpolate_out">out</a>, and set <a href="#SkPath_interpolate_out">out</a> <a href="#Point_Array">Point Array</a> to a weighted
+average of this <a href="#Point_Array">Point Array</a> and <a href="#SkPath_interpolate_ending">ending</a> <a href="#Point_Array">Point Array</a>, using the formula:
 (this->points * <a href="#SkPath_interpolate_weight">weight</a>) + <a href="#SkPath_interpolate_ending">ending</a>->points * (1 - <a href="#SkPath_interpolate_weight">weight</a>).
 
 <a href="#SkPath_interpolate_weight">weight</a> is most useful when between zero (<a href="#SkPath_interpolate_ending">ending</a> <a href="#Point_Array">Point Array</a>) and 
@@ -633,8 +632,8 @@ compatibility prior to calling <a href="#SkPath_interpolate">interpolate</a>.
 <table>  <tr>    <td><a name="SkPath_interpolate_ending"> <code><strong>ending </strong></code> </a></td> <td>
 <a href="#Point_Array">Point Array</a> averaged with this <a href="#Point_Array">Point Array</a></td>
   </tr>  <tr>    <td><a name="SkPath_interpolate_weight"> <code><strong>weight </strong></code> </a></td> <td>
-contribution of <a href="#SkPath_interpolate_ending">ending</a> <a href="#Point_Array">Point Array</a>, and 
-one minus contribution of this <a href="#Point_Array">Point Array</a></td>
+contribution of this <a href="#Point_Array">Point Array</a>, and 
+one minus contribution of <a href="#SkPath_interpolate_ending">ending</a> <a href="#Point_Array">Point Array</a></td>
   </tr>  <tr>    <td><a name="SkPath_interpolate_out"> <code><strong>out </strong></code> </a></td> <td>
 <a href="#Path">Path</a> replaced by interpolated averages</td>
   </tr>

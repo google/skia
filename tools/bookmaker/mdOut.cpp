@@ -883,6 +883,8 @@ void MdOut::markTypeOut(Definition* def) {
             fprintf(fOut, "See Also");
             this->lf(2);
             break;
+        case MarkType::kSet:
+            break;
         case MarkType::kStdOut: {
             TextParser code(def);
             this->mdHeaderOut(4);

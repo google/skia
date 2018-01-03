@@ -526,6 +526,7 @@ bool Definition::exampleToScript(string* result, ExampleOptions exampleOptions) 
     string normalizedName(fFiddle);
     string code;
     string imageStr = "0";
+    string srgbStr = "false";
     for (auto const& iter : fChildren) {
         switch (iter->fMarkType) {
             case MarkType::kError:
@@ -561,6 +562,15 @@ bool Definition::exampleToScript(string* result, ExampleOptions exampleOptions) 
             case MarkType::kMarkChar:
             case MarkType::kPlatform:
                 // ignore for now
+                break;
+            case MarkType::kSet:
+                if ("sRGB" == string(iter->fContentStart,
+                                     iter->fContentEnd - iter->fContentStart)) {
+                    srgbStr = "true";
+                } else {
+                    SkASSERT(0);   // more work to do
+                    return false;
+                }
                 break;
             case MarkType::kStdOut:
                 textOut = true;
@@ -609,7 +619,7 @@ bool Definition::exampleToScript(string* result, ExampleOptions exampleOptions) 
             example += "        \"width\": " + widthStr + ",\n";
             example += "        \"height\": " + heightStr + ",\n";
             example += "        \"source\": " + imageStr + ",\n";
-            example += "        \"srgb\": false,\n";
+            example += "        \"srgb\": " + srgbStr + ",\n";
             example += "        \"f16\": false,\n";
             example += "        \"textOnly\": " + textOutStr + ",\n";
             example += "        \"animated\": false,\n";

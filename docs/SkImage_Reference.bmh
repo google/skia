@@ -1142,17 +1142,35 @@ Returns Color_Space, the range of colors, associated with Image.  The
 reference count of Color_Space is unchanged. The returned Color_Space is
 immutable.
 
-Color_Space returned was a parameter to an Image constructor,
-or was parsed from encoded data. Color_Space may be ignored when
-drawing Image, and when drawing into Surface constructed with Color_Space.
+Color_Space returned was passed to an Image constructor,
+or was parsed from encoded data. Color_Space returned may be ignored when Image
+is drawn, depending on the capabilities of the Surface receiving the drawing.
 
 #Return Color_Space in Image, or nullptr ##
 
 #Example
-// incomplete
+#Image 3
+#Set sRGB
+    SkPixmap pixmap;
+    source.peekPixels(&pixmap);
+    canvas->scale(.25f, .25f);
+    int y = 0;
+    for (auto gamma : { SkColorSpace::kLinear_RenderTargetGamma,
+                        SkColorSpace::kSRGB_RenderTargetGamma } ) {
+        int x = 0;
+        sk_sp<SkColorSpace> colorSpace = SkColorSpace::MakeRGB(gamma, SkColorSpace::kSRGB_Gamut);
+        for (int index = 0; index < 2; ++index) {
+            pixmap.setColorSpace(colorSpace);
+            sk_sp<SkImage> image = SkImage::MakeRasterCopy(pixmap);
+            canvas->drawImage(image, x, y);
+            colorSpace = image->colorSpace()->makeColorSpin();
+            x += 512;
+        }
+        y += 512;
+    }
 ##
 
-#SeeAlso incomplete
+#SeeAlso refColorSpace makeColorSpace
 
 #Method ##
 
@@ -1160,13 +1178,41 @@ drawing Image, and when drawing into Surface constructed with Color_Space.
 
 #Method sk_sp<SkColorSpace> refColorSpace() const
 
-#Return incomplete ##
+Returns a smart pointer to Color_Space, the range of colors, associated with
+Image.  The smart pointer tracks the number of objects sharing this
+SkColorSpace reference so the memory is released when the owners destruct.
+
+The returned SkColorSpace is immutable.
+
+Color_Space returned was passed to an Image constructor,
+or was parsed from encoded data. Color_Space returned may be ignored when Image
+is drawn, depending on the capabilities of the Surface receiving the drawing.
+
+#Return Color_Space in Image, or nullptr, wrapped in a smart pointer ##
 
 #Example
-// incomplete
+#Image 3
+#Set sRGB
+    SkPixmap pixmap;
+    source.peekPixels(&pixmap);
+    canvas->scale(.25f, .25f);
+    int y = 0;
+    for (auto gamma : { SkColorSpace::kLinear_RenderTargetGamma,
+                        SkColorSpace::kSRGB_RenderTargetGamma } ) {
+        int x = 0;
+        sk_sp<SkColorSpace> colorSpace = SkColorSpace::MakeRGB(gamma, SkColorSpace::kSRGB_Gamut);
+        for (int index = 0; index < 2; ++index) {
+            pixmap.setColorSpace(colorSpace);
+            sk_sp<SkImage> image = SkImage::MakeRasterCopy(pixmap);
+            canvas->drawImage(image, x, y);
+            colorSpace = image->refColorSpace()->makeColorSpin();
+            x += 512;
+        }
+        y += 512;
+    }
 ##
 
-#SeeAlso incomplete
+#SeeAlso colorSpace makeColorSpace
 
 #Method ##
 
@@ -1180,10 +1226,15 @@ is packed in 8 bits as defined by kAlpha_8_SkColorType.
 #Return true if pixels represent a transparency mask ##
 
 #Example
-// incomplete
+    uint8_t pmColors = 0;
+    sk_sp<SkImage> image = SkImage::MakeRasterCopy({SkImageInfo::MakeA8(1, 1), &pmColors, 1});
+    SkDebugf("alphaOnly = %s\n", image->isAlphaOnly() ? "true" : "false");
+#StdOut
+alphaOnly = true
+##
 ##
 
-#SeeAlso incomplete
+#SeeAlso alphaType isOpaque
 
 #Method ##
 
@@ -1191,15 +1242,26 @@ is packed in 8 bits as defined by kAlpha_8_SkColorType.
 
 #Method bool isOpaque() const
 
-Returns if all pixels ignore any Alpha value and are treated as fully opaque.
+Returns true if pixels ignore their Alpha value and are treated as fully opaque.
 
 #Return true if Alpha_Type is kOpaque_SkAlphaType ##
 
 #Example
-// incomplete
+    auto check_isopaque = [](const SkImageInfo& imageInfo) -> void {
+        auto surface(SkSurface::MakeRaster(imageInfo));
+        auto image(surface->makeImageSnapshot());
+        SkDebugf("isOpaque = %s\n", image->isOpaque() ? "true" : "false");
+    };
+
+    check_isopaque(SkImageInfo::MakeN32Premul(5, 5));
+    check_isopaque(SkImageInfo::MakeN32(5, 5, kOpaque_SkAlphaType));
+#StdOut
+isOpaque = false
+isOpaque = true
+##
 ##
 
-#SeeAlso incomplete
+#SeeAlso alphaType isAlphaOnly
 
 #Method ##
 
@@ -1208,17 +1270,31 @@ Returns if all pixels ignore any Alpha value and are treated as fully opaque.
 #Method sk_sp<SkShader> makeShader(SkShader::TileMode tileMode1, SkShader::TileMode tileMode2,
                                const SkMatrix* localMatrix = nullptr) const
 
-#Param tileMode1  incomplete ##
-#Param tileMode2  incomplete ##
-#Param localMatrix  incomplete ##
+Creates Shader from Image. Shader dimensions are taken from Image. Shader uses
+SkShader::TileMode rules to fill drawn area outside Image. localMatrix permits
+transforming Image before Canvas_Matrix is applied.
 
-#Return incomplete ##
+#Param tileMode1  tiling in x, one of: SkShader::kClamp_TileMode, SkShader::kRepeat_TileMode,
+                  SkShader::kMirror_TileMode
+##
+#Param tileMode2  tiling in y, one of: SkShader::kClamp_TileMode, SkShader::kRepeat_TileMode,
+                  SkShader::kMirror_TileMode
+##
+#Param localMatrix  Image transformation, or nullptr ##
+
+#Return Shader containing Image ##
 
 #Example
-// incomplete
+#Image 4
+SkMatrix matrix;
+matrix.setRotate(45);
+SkPaint paint;
+paint.setShader(image->makeShader(SkShader::kRepeat_TileMode, SkShader::kMirror_TileMode,
+                                  &matrix));
+canvas->drawPaint(paint);
 ##
 
-#SeeAlso incomplete
+#SeeAlso scalePixels
 
 #Method ##
 
@@ -1226,14 +1302,22 @@ Returns if all pixels ignore any Alpha value and are treated as fully opaque.
 
 #Method sk_sp<SkShader> makeShader(const SkMatrix* localMatrix = nullptr) const
 
-Helper version of makeShader() that specifies SkShader::kClamp_TileMode.
+Creates Shader from Image. Shader dimensions are taken from Image. Shader uses
+SkShader::kClamp_TileMode to fill drawn area outside Image. localMatrix permits
+transforming Image before Canvas_Matrix is applied.
 
-#Param localMatrix  incomplete ##
+#Param localMatrix  Image transformation, or nullptr ##
 
-#Return incomplete ##
+#Return Shader containing Image ##
 
 #Example
-// incomplete
+#Image 5
+SkMatrix matrix;
+matrix.setRotate(45);
+matrix.postTranslate(125, 30);
+SkPaint paint;
+paint.setShader(image->makeShader(&matrix));
+canvas->drawPaint(paint);
 ##
 
 #SeeAlso incomplete

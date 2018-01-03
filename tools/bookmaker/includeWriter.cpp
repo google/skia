@@ -65,6 +65,9 @@ void IncludeWriter::descriptionOut(const Definition* def) {
                 commentLen = (int) (prop->fContentEnd - commentStart);
                 if (commentLen > 0) {
                     this->writeBlockIndent(commentLen, commentStart);
+                    if ('\n' != commentStart[commentLen - 1] && '\n' == commentStart[commentLen]) {
+                        this->lfcr();
+                    }
                 }
                 commentStart = prop->fTerminator;
                 commentLen = (int) (def->fContentEnd - commentStart);
