@@ -46,7 +46,7 @@ namespace SkOpts {
                         inverted_CMYK_to_BGR1; // i.e. convert color space
 
     extern void (*memset16)(uint16_t[], uint16_t, int);
-    extern void (*memset32)(uint32_t[], uint32_t, int);
+    extern void SK_API (*memset32)(uint32_t[], uint32_t, int);
     extern void (*memset64)(uint64_t[], uint64_t, int);
 
     // The fastest high quality 32-bit hash we can provide on this platform.
