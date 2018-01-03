@@ -10,8 +10,6 @@
 
 #include "SkSGNode.h"
 
-#include "SkRect.h"
-
 class SkCanvas;
 class SkPaint;
 
@@ -30,20 +28,14 @@ public:
     // SkPath asPath() const;  // unused for now
 
 protected:
-    GeometryNode();
+    GeometryNode() = default;
 
     virtual void onDraw(SkCanvas*, const SkPaint&) const = 0;
 
-    virtual SkRect onComputeBounds() const = 0;
-
     // virtual SkPath onAsPath() const = 0; // unused for now
-
-    void onRevalidate(InvalidationController*, const SkMatrix&) override;
 
 private:
     friend class Draw; // wants to know the cached bounds.
-
-    SkRect fBounds;
 
     typedef Node INHERITED;
 };
