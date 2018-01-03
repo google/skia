@@ -31,7 +31,7 @@ protected:
     ~Group() override;
 
     void onRender(SkCanvas*) const override;
-    void onRevalidate(InvalidationController*, const SkMatrix&) override;
+    SkRect onRevalidate(InvalidationController*, const SkMatrix&) override;
 
 private:
     SkTArray<sk_sp<RenderNode>, true> fChildren;
