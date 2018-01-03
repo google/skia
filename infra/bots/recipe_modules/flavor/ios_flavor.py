@@ -19,10 +19,18 @@ class iOSFlavorUtils(gn_flavor.GNFlavorUtils):
     for app_name in ['dm', 'nanobench']:
       app_package = self.m.vars.skia_out.join(self.m.vars.configuration,
                                               '%s.app' % app_name)
+
+      # If app ID changes, upgrade will fail, so uninstall first.
       self.m.run(self.m.step,
-                'install_' + app_name,
-                cmd=['ideviceinstaller', '-i', app_package],
-                infra_step=True)
+                 'uninstall_' + app_name,
+                 cmd=['ideviceinstaller', '-U', 'com.google.%s' % app_name],
+                 infra_step=True,
+                 # App may not be installed.
+                 abort_on_failure=False, fail_build_on_failure=False)
+      self.m.run(self.m.step,
+                 'install_' + app_name,
+                 cmd=['ideviceinstaller', '-i', app_package],
+                 infra_step=True)
 
     self.device_dirs = default_flavor.DeviceDirs(
         dm_dir='dm',
