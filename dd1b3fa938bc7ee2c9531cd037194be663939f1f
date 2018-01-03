@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ab3beccf_889876d3",
+        "filename": "src/core/SkPaint.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1874,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-01-03T16:23:41Z",
+      "side": 1,
+      "message": "Let\u0027s keep the comment about why we always set kHasTypeface?",
+      "revId": "dd1b3fa938bc7ee2c9531cd037194be663939f1f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
