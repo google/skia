@@ -31,23 +31,30 @@ static SkShader::TileMode optimize(SkShader::TileMode tm, int dimension) {
 #endif
 }
 
-SkImageShader::SkImageShader(sk_sp<SkImage> img, TileMode tmx, TileMode tmy, const SkMatrix* matrix)
-    : INHERITED(matrix)
+SkImageShader::SkImageShader(sk_sp<SkImage> img,
+                             TileMode tmx, TileMode tmy,
+                             const SkMatrix* localMatrix,
+                             bool clampAsIfUnpremul)
+    : INHERITED(localMatrix)
     , fImage(std::move(img))
     , fTileModeX(optimize(tmx, fImage->width()))
     , fTileModeY(optimize(tmy, fImage->height()))
+    , fClampAsIfUnpremul(clampAsIfUnpremul)
 {}
+
+// fClampAsIfUnpremul is always false when constructed through public APIs,
+// so there's no need to read or write it here.
 
 sk_sp<SkFlattenable> SkImageShader::CreateProc(SkReadBuffer& buffer) {
     const TileMode tx = (TileMode)buffer.readUInt();
     const TileMode ty = (TileMode)buffer.readUInt();
-    SkMatrix matrix;
-    buffer.readMatrix(&matrix);
+    SkMatrix localMatrix;
+    buffer.readMatrix(&localMatrix);
     sk_sp<SkImage> img = buffer.readImage();
     if (!img) {
         return nullptr;
     }
-    return SkImageShader::Make(std::move(img), tx, ty, &matrix);
+    return SkImageShader::Make(std::move(img), tx, ty, &localMatrix);
 }
 
 void SkImageShader::flatten(SkWriteBuffer& buffer) const {
@@ -55,6 +62,7 @@ void SkImageShader::flatten(SkWriteBuffer& buffer) const {
     buffer.writeUInt(fTileModeY);
     buffer.writeMatrix(this->getLocalMatrix());
     buffer.writeImage(fImage.get());
+    SkASSERT(fClampAsIfUnpremul == false);
 }
 
 bool SkImageShader::isOpaque() const {
@@ -164,13 +172,14 @@ static bool bitmap_is_too_big(int w, int h) {
     return w > kMaxSize || h > kMaxSize;
 }
 
-sk_sp<SkShader> SkImageShader::Make(sk_sp<SkImage> image, TileMode tx, TileMode ty,
-                                    const SkMatrix* localMatrix) {
+sk_sp<SkShader> SkImageShader::Make(sk_sp<SkImage> image,
+                                    TileMode tx, TileMode ty,
+                                    const SkMatrix* localMatrix,
+                                    bool clampAsIfUnpremul) {
     if (!image || bitmap_is_too_big(image->width(), image->height())) {
         return sk_make_sp<SkEmptyShader>();
-    } else {
-        return sk_make_sp<SkImageShader>(image, tx, ty, localMatrix);
     }
+    return sk_sp<SkShader>{ new SkImageShader(image, tx,ty, localMatrix, clampAsIfUnpremul) };
 }
 
 #ifndef SK_IGNORE_TO_STRING
@@ -390,14 +399,16 @@ bool SkImageShader::onAppendStages(const StageRec& rec) const {
             info.alphaType() == kUnpremul_SkAlphaType) {
             p->append(SkRasterPipeline::premul);
         }
-#if defined(SK_LEGACY_HIGH_QUALITY_SCALING_CLAMP)
+    #if defined(SK_LEGACY_HIGH_QUALITY_SCALING_CLAMP)
         if (quality > kLow_SkFilterQuality) {
             // Bicubic filtering naturally produces out of range values on both sides.
             p->append(SkRasterPipeline::clamp_0);
-            p->append(SkRasterPipeline::clamp_a);
+            p->append(fClampAsIfUnpremul ? SkRasterPipeline::clamp_1
+                                         : SkRasterPipeline::clamp_a);
         }
-#endif
-        append_gamut_transform(p, alloc, info.colorSpace(), rec.fDstCS, kPremul_SkAlphaType);
+    #endif
+        append_gamut_transform(p, alloc, info.colorSpace(), rec.fDstCS,
+                               fClampAsIfUnpremul ? kUnpremul_SkAlphaType : kPremul_SkAlphaType);
         return true;
     };
 
