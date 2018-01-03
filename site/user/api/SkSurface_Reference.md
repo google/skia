@@ -1121,7 +1121,14 @@ enum <a href="#SkSurface_BackendHandleAccess">BackendHandleAccess</a> {
 <a href="#SkSurface_kFlushRead_BackendHandleAccess">kFlushRead BackendHandleAccess</a>,
 <a href="#SkSurface_kFlushWrite_BackendHandleAccess">kFlushWrite BackendHandleAccess</a>,
 <a href="#SkSurface_kDiscardWrite_BackendHandleAccess">kDiscardWrite BackendHandleAccess</a>,
-};</pre>
+};
+
+static const <a href="#SkSurface_BackendHandleAccess">BackendHandleAccess</a> <a href="#SkSurface_kFlushRead_TextureHandleAccess">kFlushRead TextureHandleAccess</a> =
+<a href="#SkSurface_kFlushRead_BackendHandleAccess">kFlushRead BackendHandleAccess</a>;
+static const <a href="#SkSurface_BackendHandleAccess">BackendHandleAccess</a> <a href="#SkSurface_kFlushWrite_TextureHandleAccess">kFlushWrite TextureHandleAccess</a> =
+<a href="#SkSurface_kFlushWrite_BackendHandleAccess">kFlushWrite BackendHandleAccess</a>;
+static const <a href="#SkSurface_BackendHandleAccess">BackendHandleAccess</a> <a href="#SkSurface_kDiscardWrite_TextureHandleAccess">kDiscardWrite TextureHandleAccess</a> =
+<a href="#SkSurface_kDiscardWrite_BackendHandleAccess">kDiscardWrite BackendHandleAccess</a>;</pre>
 
 ### Constants
 
@@ -1134,6 +1141,18 @@ enum <a href="#SkSurface_BackendHandleAccess">BackendHandleAccess</a> {
   </tr>
   <tr>
     <td><a name="SkSurface_kDiscardWrite_BackendHandleAccess"> <code><strong>SkSurface::kDiscardWrite_BackendHandleAccess </strong></code> </a></td><td>2</td><td>Caller must overwrite the entire back-end object.</td>
+  </tr>
+  <tr>
+    <td><a name="SkSurface_kFlushRead_TextureHandleAccess"> <code><strong>SkSurface::kFlushRead_TextureHandleAccess </strong></code> </a></td><td>0</td><td>Deprecated.
+</td>
+  </tr>
+  <tr>
+    <td><a name="SkSurface_kFlushWrite_TextureHandleAccess"> <code><strong>SkSurface::kFlushWrite_TextureHandleAccess </strong></code> </a></td><td>1</td><td>Deprecated.
+</td>
+  </tr>
+  <tr>
+    <td><a name="SkSurface_kDiscardWrite_TextureHandleAccess"> <code><strong>SkSurface::kDiscardWrite_TextureHandleAccess </strong></code> </a></td><td>2</td><td>Deprecated.
+</td>
   </tr>
 </table>
 
