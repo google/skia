@@ -162,9 +162,7 @@ sk_sp<SkFlattenable> SkPictureShader::CreateProc(SkReadBuffer& buffer) {
 
     sk_sp<SkPicture> picture;
 
-    if (buffer.isCrossProcess() && SkPicture::PictureIOSecurityPrecautionsEnabled()) {
-        // Newer code won't serialize pictures in disallow-cross-process-picture mode.
-        // Assert that they didn't serialize anything except a false here.
+    if (SkPicture::PictureIOSecurityPrecautionsEnabled()) {
         buffer.validate(!buffer.readBool());
     } else {
         bool didSerialize = buffer.readBool();
@@ -183,7 +181,7 @@ void SkPictureShader::flatten(SkWriteBuffer& buffer) const {
 
     // The deserialization code won't trust that our serialized picture is safe to deserialize.
     // So write a 'false' telling it that we're not serializing a picture.
-    if (buffer.isCrossProcess() && SkPicture::PictureIOSecurityPrecautionsEnabled()) {
+    if (SkPicture::PictureIOSecurityPrecautionsEnabled()) {
         buffer.writeBool(false);
     } else {
         buffer.writeBool(true);
