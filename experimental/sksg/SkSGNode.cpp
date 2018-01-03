@@ -7,6 +7,8 @@
 
 #include "SkSGNode.h"
 
+#include "SkSGInvalidationController.h"
+
 namespace sksg {
 
 class Node::ScopedFlag {
@@ -26,15 +28,16 @@ private:
     uint32_t fFlag;
 };
 
-#define TRAVERSAL_GUARD                     \
+#define TRAVERSAL_GUARD(ret)                \
     if (this->fFlags & kInTraversal_Flag) { \
-        return;                             \
+        return ret;                         \
     }                                       \
     ScopedFlag traversal_guard(this, kInTraversal_Flag);
 
 Node::Node()
     : fInvalReceiver(nullptr)
-    , fFlags(kInvalidated_Flag) {}
+    , fBounds(SkRect::MakeLargestS32())
+    , fFlags(kInvalSelf_Flag | kInvalDescendant_Flag) {}
 
 Node::~Node() {
     if (fFlags & kReceiverArray_Flag) {
@@ -92,26 +95,51 @@ void Node::forEachInvalReceiver(Func&& func) const {
     }
 }
 
-void Node::invalidate() {
-    TRAVERSAL_GUARD
-
-    if (this->isInvalidated()) {
+void Node::invalidateSelf() {
+    if (this->hasSelfInval()) {
         return;
     }
 
-    fFlags |= kInvalidated_Flag;
+    fFlags |= kInvalSelf_Flag;
+    this->invalidateAncestors();
+}
+
+void Node::invalidateAncestors() {
+    TRAVERSAL_GUARD()
+
     forEachInvalReceiver([&](Node* receiver) {
-        receiver->invalidate();
+        if (receiver->hasDescendantInval()) {
+            return;
+        }
+        receiver->fFlags |= kInvalDescendant_Flag;
+        receiver->invalidateAncestors();
     });
 }
 
-void Node::revalidate(InvalidationController* ic, const SkMatrix& ctm) {
-    TRAVERSAL_GUARD
+const SkRect& Node::revalidate(InvalidationController* ic, const SkMatrix& ctm) {
+    TRAVERSAL_GUARD(fBounds)
 
-    if (this->isInvalidated()) {
-        this->onRevalidate(ic, ctm);
-        fFlags &= ~kInvalidated_Flag;
+    if (!this->hasInval()) {
+        return fBounds;
     }
+
+    SkRect prevBounds;
+    if (this->hasSelfInval()) {
+        prevBounds = fBounds;
+    }
+
+    fBounds = this->onRevalidate(ic, ctm);
+
+    if (this->hasSelfInval()) {
+        ic->inval(prevBounds, ctm);
+        if (fBounds != prevBounds) {
+            ic->inval(fBounds, ctm);
+        }
+    }
+
+    fFlags &= ~(kInvalSelf_Flag | kInvalDescendant_Flag);
+
+    return fBounds;
 }
 
 } // namespace sksg

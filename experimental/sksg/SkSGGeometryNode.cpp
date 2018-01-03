@@ -9,18 +9,9 @@
 
 namespace sksg {
 
-GeometryNode::GeometryNode()
-    : fBounds(SkRect::MakeLTRB(SK_ScalarMin, SK_ScalarMin, SK_ScalarMax, SK_ScalarMax)) {}
-
 void GeometryNode::draw(SkCanvas* canvas, const SkPaint& paint) const {
-    SkASSERT(!this->isInvalidated());
+    SkASSERT(!this->hasInval());
     this->onDraw(canvas, paint);
-}
-
-void GeometryNode::onRevalidate(InvalidationController*, const SkMatrix&) {
-    SkASSERT(this->isInvalidated());
-
-    fBounds = this->onComputeBounds();
 }
 
 } // namespace sksg
