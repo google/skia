@@ -28,7 +28,7 @@ namespace {
  */
 class YUVScoper {
 public:
-    bool init(GrYUVProvider*, SkYUVPlanesCache::Info*, void* planes[3], bool useCache);
+    bool init(GrYUVProvider*, SkYUVPlanesCache::Info*, void* planes[3]);
 
 private:
     // we only use one or the other of these
@@ -37,11 +37,8 @@ private:
 };
 }
 
-bool YUVScoper::init(GrYUVProvider* provider, SkYUVPlanesCache::Info* yuvInfo, void* planes[3],
-                     bool useCache) {
-    if (useCache) {
-        fCachedData.reset(SkYUVPlanesCache::FindAndRef(provider->onGetID(), yuvInfo));
-    }
+bool YUVScoper::init(GrYUVProvider* provider, SkYUVPlanesCache::Info* yuvInfo, void* planes[3]) {
+    fCachedData.reset(SkYUVPlanesCache::FindAndRef(provider->onGetID(), yuvInfo));
 
     if (fCachedData.get()) {
         planes[0] = (void*)fCachedData->data();
@@ -60,13 +57,8 @@ bool YUVScoper::init(GrYUVProvider* provider, SkYUVPlanesCache::Info* yuvInfo, v
         for (int i = 0; i < 3; i++) {
             totalSize += yuvInfo->fSizeInfo.fWidthBytes[i] * yuvInfo->fSizeInfo.fSizes[i].fHeight;
         }
-        if (useCache) {
-            fCachedData.reset(SkResourceCache::NewCachedData(totalSize));
-            planes[0] = fCachedData->writable_data();
-        } else {
-            fStorage.reset(totalSize);
-            planes[0] = fStorage.get();
-        }
+        fCachedData.reset(SkResourceCache::NewCachedData(totalSize));
+        planes[0] = fCachedData->writable_data();
         planes[1] = (uint8_t*)planes[0] + (yuvInfo->fSizeInfo.fWidthBytes[SkYUVSizeInfo::kY] *
                                            yuvInfo->fSizeInfo.fSizes[SkYUVSizeInfo::kY].fHeight);
         planes[2] = (uint8_t*)planes[1] + (yuvInfo->fSizeInfo.fWidthBytes[SkYUVSizeInfo::kU] *
@@ -77,22 +69,19 @@ bool YUVScoper::init(GrYUVProvider* provider, SkYUVPlanesCache::Info* yuvInfo, v
             return false;
         }
 
-        if (useCache) {
-            // Decoding is done, cache the resulting YUV planes
-            SkYUVPlanesCache::Add(provider->onGetID(), fCachedData.get(), yuvInfo);
-        }
+        // Decoding is done, cache the resulting YUV planes
+        SkYUVPlanesCache::Add(provider->onGetID(), fCachedData.get(), yuvInfo);
     }
     return true;
 }
 
 sk_sp<GrTextureProxy> GrYUVProvider::refAsTextureProxy(GrContext* ctx, const GrSurfaceDesc& desc,
-                                                       bool useCache,
                                                        const SkColorSpace* srcColorSpace,
                                                        const SkColorSpace* dstColorSpace) {
     SkYUVPlanesCache::Info yuvInfo;
     void* planes[3];
     YUVScoper scoper;
-    if (!scoper.init(this, &yuvInfo, planes, useCache)) {
+    if (!scoper.init(this, &yuvInfo, planes)) {
         return nullptr;
     }
 
