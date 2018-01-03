@@ -17,7 +17,7 @@ class SkString;
 
 /** \class SkMatrix
     SkMatrix holds a 3x3 matrix for transforming coordinates. This allows mapping
-    SkPoint and SkVector with translation, scaling, skewing, rotation, and
+    points and vectors with translation, scaling, skewing, rotation, and
     perspective.
 
     SkMatrix elements are in row major order. SkMatrix does not have a constructor,
@@ -79,21 +79,22 @@ public:
         return m;
     }
 
-    /** Sets matrix to be:
+    /** Sets SkMatrix to:
 
             | scaleX  skewX transX |
             |  skewY scaleY transY |
-            |  pers0 pers1  pers2  |
+            |  pers0  pers1  pers2 |
 
-        @param scaleX  horizontal scale factor to store
-        @param skewX   horizontal skew factor to store
-        @param transX  horizontal translation to store
-        @param skewY   vertical skew factor to store
-        @param scaleY  vertical scale factor to store
-        @param transY  vertical translation to store
-        @param pers0   input x perspective factor to store
-        @param pers1   input y perspective factor to store
-        @param pers2   perspective scale factor to store
+        @param scaleX  horizontal scale factor
+        @param skewX   horizontal skew factor
+        @param transX  horizontal translation
+        @param skewY   vertical skew factor
+        @param scaleY  vertical scale factor
+        @param transY  vertical translation
+        @param pers0   input x perspective factor
+        @param pers1   input y perspective factor
+        @param pers2   perspective scale factor
+        @return        SkMatrix constructed from parameters
     */
     static SkMatrix SK_WARN_UNUSED_RESULT MakeAll(SkScalar scaleX, SkScalar skewX,  SkScalar transX,
                                                   SkScalar skewY,  SkScalar scaleY, SkScalar transY,
@@ -240,7 +241,7 @@ public:
 
         Describes that the SkMatrix makes rendering with and without the matrix are
         visually alike; a transformed circle remains a circle. Mathematically, this is
-        referred to as similarity of a Euclidean space, or a similarity transformation.
+        referred to as similarity of a Euclidean_Space, or a similarity transformation.
 
         Preserves right angles, keeping the arms of the angle equal lengths.
 
@@ -291,6 +292,13 @@ public:
         kATransY, //!< vertical translation
     };
 
+    /** Returns one matrix value. Asserts if index is out of range and SK_DEBUG is
+        defined.
+
+        @param index  one of: kMScaleX, kMSkewX, kMTransX, kMSkewY, kMScaleY, kMTransY,
+                      kMPersp0, kMPersp1, kMPersp2
+        @return       value corresponding to index
+    */
     SkScalar operator[](int index) const {
         SkASSERT((unsigned)index < 9);
         return fMat[index];
@@ -309,44 +317,44 @@ public:
     }
 
     /** Returns scale factor multiplied by x input, contributing to x output.
-        With mapPoints(), scales SkPoint along the x-axis.
+        With mapPoints(), scales points along the x-axis.
 
         @return  horizontal scale factor
     */
     SkScalar getScaleX() const { return fMat[kMScaleX]; }
 
     /** Returns scale factor multiplied by y input, contributing to y output.
-        With mapPoints(), scales SkPoint along the y-axis.
+        With mapPoints(), scales points along the y-axis.
 
         @return  vertical scale factor
     */
     SkScalar getScaleY() const { return fMat[kMScaleY]; }
 
     /** Returns scale factor multiplied by x input, contributing to y output.
-        With mapPoints(), skews SkPoint along the y-axis.
-        Skew x and y together can rotate SkPoint.
+        With mapPoints(), skews points along the y-axis.
+        Skew x and y together can rotate points.
 
         @return  vertical skew factor
     */
     SkScalar getSkewY() const { return fMat[kMSkewY]; }
 
     /** Returns scale factor multiplied by y input, contributing to x output.
-        With mapPoints(), skews SkPoint along the x-axis.
-        Skew x and y together can rotate SkPoint.
+        With mapPoints(), skews points along the x-axis.
+        Skew x and y together can rotate points.
 
         @return  horizontal scale factor
     */
     SkScalar getSkewX() const { return fMat[kMSkewX]; }
 
     /** Returns translation contributing to x output.
-        With mapPoints(), moves SkPoint along the x-axis.
+        With mapPoints(), moves points along the x-axis.
 
         @return  horizontal translation factor
     */
     SkScalar getTranslateX() const { return fMat[kMTransX]; }
 
     /** Returns translation contributing to y output.
-        With mapPoints(), moves SkPoint along the y-axis.
+        With mapPoints(), moves points along the y-axis.
 
         @return  vertical translation factor
     */
@@ -502,7 +510,7 @@ public:
     */
     void set9(const SkScalar buffer[9]);
 
-    /** Sets SkMatrix to identity; which has no effect on mapped SkPoint. Sets SkMatrix to:
+    /** Sets SkMatrix to identity; which has no effect on mapped points. Sets SkMatrix to:
 
             | 1 0 0 |
             | 0 1 0 |
@@ -513,7 +521,7 @@ public:
     */
     void reset();
 
-    /** Sets SkMatrix to identity; which has no effect on mapped SkPoint. Sets SkMatrix to:
+    /** Sets SkMatrix to identity; which has no effect on mapped points. Sets SkMatrix to:
 
             | 1 0 0 |
             | 0 1 0 |
@@ -533,7 +541,7 @@ public:
 
     /** Sets SkMatrix to translate by (v.fX, v.fY).
 
-        @param v  SkVector containing horizontal and vertical translation
+        @param v  vector containing horizontal and vertical translation
     */
     void setTranslate(const SkVector& v) { this->setTranslate(v.fX, v.fY); }
 
@@ -575,8 +583,8 @@ public:
     /** Sets SkMatrix to rotate by sinValue and cosValue, about a pivot point at (px, py).
         The pivot point is unchanged when mapped with SkMatrix.
 
-        SkVector (sinValue, cosValue) describes the angle of rotation relative to (0, 1).
-        SkVector length specifies scale.
+        Vector (sinValue, cosValue) describes the angle of rotation relative to (0, 1).
+        Vector length specifies scale.
 
         @param sinValue  rotation vector x component
         @param cosValue  rotation vector y component
@@ -588,8 +596,8 @@ public:
 
     /** Sets SkMatrix to rotate by sinValue and cosValue, about a pivot point at (0, 0).
 
-        SkVector (sinValue, cosValue) describes the angle of rotation relative to (0, 1).
-        SkVector length specifies scale.
+        Vector (sinValue, cosValue) describes the angle of rotation relative to (0, 1).
+        Vector length specifies scale.
 
         @param sinValue  rotation vector x component
         @param cosValue  rotation vector y component
@@ -598,9 +606,9 @@ public:
 
     /** Sets SkMatrix to rotate, scale, and translate using a compressed matrix form.
 
-        SkVector (rsxForm.fSSin, rsxForm.fSCos) describes the angle of rotation relative
-        to (0, 1). SkVector length specifies scale. Mapped point is rotated and scaled
-        by SkVector, then translated by (rsxForm.fTx, rsxForm.fTy).
+        Vector (rsxForm.fSSin, rsxForm.fSCos) describes the angle of rotation relative
+        to (0, 1). Vector length specifies scale. Mapped point is rotated and scaled
+        by vector, then translated by (rsxForm.fTx, rsxForm.fTy).
 
         @param rsxForm  compressed SkRSXform matrix
         @return         reference to SkMatrix
@@ -1134,13 +1142,13 @@ public:
 
         If count is zero, sets SkMatrix to identity and returns true.
         If count is one, sets SkMatrix to translate and returns true.
-        If count is two or more, sets SkMatrix to map SkPoint if possible; returns false
+        If count is two or more, sets SkMatrix to map points if possible; returns false
         if SkMatrix cannot be constructed. If count is four, SkMatrix may include
         perspective.
 
-        @param src    SkPoint to map from
-        @param dst    SkPoint to map to
-        @param count  number of SkPoint in src and dst
+        @param src    points to map from
+        @param dst    points to map to
+        @param count  number of points in src and dst
         @return       true if SkMatrix was constructed successfully
     */
     bool setPolyToPoly(const SkPoint src[], const SkPoint dst[], int count);
@@ -1205,7 +1213,7 @@ public:
     void setAffine(const SkScalar affine[6]);
 
     /** Maps src SkPoint array of length count to dst SkPoint array of equal or greater
-        length. SkPoint are mapped by multiplying each SkPoint by SkMatrix. Given:
+        length. Points are mapped by multiplying each SkPoint by SkMatrix. Given:
 
                      | A B C |        | x |
             Matrix = | D E F |,  pt = | y |
@@ -1226,9 +1234,9 @@ public:
 
         src and dst may point to the same storage.
 
-        @param dst    storage for mapped SkPoint
-        @param src    SkPoint to transform
-        @param count  number of SkPoint to transform
+        @param dst    storage for mapped points
+        @param src    points to transform
+        @param count  number of points to transform
     */
     void mapPoints(SkPoint dst[], const SkPoint src[], int count) const {
         SkASSERT((dst && src && count > 0) || 0 == count);
@@ -1237,7 +1245,7 @@ public:
         this->getMapPtsProc()(*this, dst, src, count);
     }
 
-    /** Maps pts SkPoint array of length count in place. SkPoint are mapped by multiplying
+    /** Maps pts SkPoint array of length count in place. Points are mapped by multiplying
         each SkPoint by SkMatrix. Given:
 
                      | A B C |        | x |
@@ -1257,15 +1265,15 @@ public:
             Matrix * pt = |D E F| |y| = |Ax+By+C Dx+Ey+F Gx+Hy+I| = ------- , -------
                           |G H I| |1|                               Gx+Hy+I   Gx+Hy+I
 
-        @param pts    storage for mapped SkPoint
-        @param count  number of SkPoint to transform
+        @param pts    storage for mapped points
+        @param count  number of points to transform
     */
     void mapPoints(SkPoint pts[], int count) const {
         this->mapPoints(pts, pts, count);
     }
 
     /** Maps count pts, skipping stride bytes to advance from one SkPoint to the next.
-        SkPoint are mapped by multiplying each SkPoint by SkMatrix. Given:
+        Points are mapped by multiplying each SkPoint by SkMatrix. Given:
 
                      | A B C |        | x |
             Matrix = | D E F |,  pt = | y |
@@ -1277,9 +1285,9 @@ public:
             Matrix * pt = |D E F| |y| = |Ax+By+C Dx+Ey+F Gx+Hy+I| = ------- , -------
                           |G H I| |1|                               Gx+Hy+I   Gx+Hy+I
 
-        @param pts     storage for mapped SkPoint
+        @param pts     storage for mapped points
         @param stride  size of record starting with SkPoint, in bytes
-        @param count   number of SkPoint to transform
+        @param count   number of points to transform
     */
     void mapPointsWithStride(SkPoint pts[], size_t stride, int count) const {
         SkASSERT(stride >= sizeof(SkPoint));
@@ -1292,7 +1300,7 @@ public:
 
     /** Maps src SkPoint array of length count to dst SkPoint array, skipping stride bytes
         to advance from one SkPoint to the next.
-        SkPoint are mapped by multiplying each SkPoint by SkMatrix. Given:
+        Points are mapped by multiplying each SkPoint by SkMatrix. Given:
 
                      | A B C |         | x |
             Matrix = | D E F |,  src = | y |
@@ -1304,10 +1312,10 @@ public:
             Matrix * pt = |D E F| |y| = |Ax+By+C Dx+Ey+F Gx+Hy+I| = ------- , -------
                           |G H I| |1|                               Gx+Hy+I   Gx+Hy+I
 
-        @param dst     storage for mapped SkPoint
-        @param src     SkPoint to transform
+        @param dst     storage for mapped points
+        @param src     points to transform
         @param stride  size of record starting with SkPoint, in bytes
-        @param count   number of SkPoint to transform
+        @param count   number of points to transform
     */
     void mapPointsWithStride(SkPoint dst[], const SkPoint src[], size_t stride, int count) const {
         SkASSERT(stride >= sizeof(SkPoint));
@@ -1381,8 +1389,8 @@ public:
         return result;
     }
 
-    /** Maps src SkVector array of length count to SkVector SkPoint array of equal or greater
-        length. SkVector are mapped by multiplying each SkVector by SkMatrix, treating
+    /** Maps src vector array of length count to vector SkPoint array of equal or greater
+        length. Vectors are mapped by multiplying each vector by SkMatrix, treating
         SkMatrix translation as zero. Given:
 
                      | A B 0 |         | x |
@@ -1396,7 +1404,7 @@ public:
                 y = src[i].fY
             }
 
-        each dst SkVector is computed as:
+        each dst vector is computed as:
 
                            |A B 0| |x|                            Ax+By     Dx+Ey
             Matrix * src = |D E 0| |y| = |Ax+By Dx+Ey Gx+Hy+I| = ------- , -------
@@ -1404,13 +1412,13 @@ public:
 
         src and dst may point to the same storage.
 
-        @param dst    storage for mapped SkVector
-        @param src    SkVector to transform
-        @param count  number of SkVector to transform
+        @param dst    storage for mapped vectors
+        @param src    vectors to transform
+        @param count  number of vectors to transform
     */
     void mapVectors(SkVector dst[], const SkVector src[], int count) const;
 
-    /** Maps vecs SkVector array of length count in place, multiplying each SkVector by
+    /** Maps vecs vector array of length count in place, multiplying each vector by
         SkMatrix, treating SkMatrix translation as zero. Given:
 
                      | A B 0 |         | x |
@@ -1424,57 +1432,57 @@ public:
                 y = vecs[i].fY
             }
 
-        each result SkVector is computed as:
+        each result vector is computed as:
 
                            |A B 0| |x|                            Ax+By     Dx+Ey
             Matrix * vec = |D E 0| |y| = |Ax+By Dx+Ey Gx+Hy+I| = ------- , -------
                            |G H I| |1|                           Gx+Hy+I   Gx+Hy+I
 
-        @param vecs   SkVector to transform, and storage for mapped SkVector
-        @param count  number of SkVector to transform
+        @param vecs   vectors to transform, and storage for mapped vectors
+        @param count  number of vectors to transform
     */
     void mapVectors(SkVector vecs[], int count) const {
         this->mapVectors(vecs, vecs, count);
     }
 
-    /** Maps SkVector (x, y) to result. SkVector is mapped by multiplying by SkMatrix,
+    /** Maps vector (x, y) to result. Vector is mapped by multiplying by SkMatrix,
         treating SkMatrix translation as zero. Given:
 
                      | A B 0 |         | dx |
             Matrix = | D E 0 |,  vec = | dy |
                      | G H I |         |  1 |
 
-        each result SkVector is computed as:
+        each result vector is computed as:
 
                        |A B 0| |dx|                                        A*dx+B*dy     D*dx+E*dy
         Matrix * vec = |D E 0| |dy| = |A*dx+B*dy D*dx+E*dy G*dx+H*dy+I| = ----------- , -----------
                        |G H I| | 1|                                       G*dx+H*dy+I   G*dx+*dHy+I
 
-        @param dx      x-coordinate of SkVector to map
-        @param dy      y-coordinate of SkVector to map
-        @param result  storage for mapped SkVector
+        @param dx      x-coordinate of vector to map
+        @param dy      y-coordinate of vector to map
+        @param result  storage for mapped vector
     */
     void mapVector(SkScalar dx, SkScalar dy, SkVector* result) const {
         SkVector vec = { dx, dy };
         this->mapVectors(result, &vec, 1);
     }
 
-    /** Returns SkVector (x, y) multiplied by SkMatrix, treating SkMatrix translation as zero.
+    /** Returns vector (x, y) multiplied by SkMatrix, treating SkMatrix translation as zero.
         Given:
 
                      | A B 0 |         | dx |
             Matrix = | D E 0 |,  vec = | dy |
                      | G H I |         |  1 |
 
-        each result SkVector is computed as:
+        each result vector is computed as:
 
                        |A B 0| |dx|                                        A*dx+B*dy     D*dx+E*dy
         Matrix * vec = |D E 0| |dy| = |A*dx+B*dy D*dx+E*dy G*dx+H*dy+I| = ----------- , -----------
                        |G H I| | 1|                                       G*dx+H*dy+I   G*dx+*dHy+I
 
-        @param dx  x-coordinate of SkVector to map
-        @param dy  y-coordinate of SkVector to map
-        @return    mapped SkVector
+        @param dx  x-coordinate of vector to map
+        @param dy  y-coordinate of vector to map
+        @return    mapped vector
     */
     SkVector mapVector(SkScalar dx, SkScalar dy) const {
         SkVector vec = { dx, dy };
@@ -1487,7 +1495,7 @@ public:
 
         Returned value is the same as calling rectStaysRect().
 
-        @param dst  storage for bounds of mapped SkPoint
+        @param dst  storage for bounds of mapped points
         @param src  SkRect to map
         @return     true if dst is equivalent to mapped src
     */
@@ -1505,7 +1513,7 @@ public:
         return this->mapRect(rect, *rect);
     }
 
-    /** Maps four corners of rect to dst. SkPoint are mapped by multiplying each
+    /** Maps four corners of rect to dst. Points are mapped by multiplying each
         rect corner by SkMatrix. rect corner is processed in this order:
         (rect.fLeft, rect.fTop), (rect.fRight, rect.fTop), (rect.fRight, rect.fBottom),
         (rect.fLeft, rect.fBottom).
@@ -1527,7 +1535,7 @@ public:
             Matrix * pt = |D E F| |y| = |Ax+By+C Dx+Ey+F Gx+Hy+I| = ------- , -------
                           |G H I| |1|                               Gx+Hy+I   Gx+Hy+I
 
-        @param dst   storage for mapped corner SkPoint
+        @param dst   storage for mapped corner points
         @param rect  SkRect to map
     */
     void mapRectToQuad(SkPoint dst[4], const SkRect& rect) const {
@@ -1540,7 +1548,7 @@ public:
         elements other than scale or translate: asserts if SK_DEBUG is defined;
         otherwise, results are undefined.
 
-        @param dst  storage for bounds of mapped SkPoint
+        @param dst  storage for bounds of mapped points
         @param src  SkRect to map
     */
     void mapRectScaleTranslate(SkRect* dst, const SkRect& src) const;
@@ -1556,7 +1564,7 @@ public:
     SkScalar mapRadius(SkScalar radius) const;
 
     /** Returns true if a unit step in x at some y mapped through SkMatrix can be
-        represented by a constant SkVector. Returns true if getType() returns kIdentity_Mask,
+        represented by a constant vector. Returns true if getType() returns kIdentity_Mask,
         or combinations of: kTranslate_Mask, kScale_Mask, and kAffine_Mask.
 
         May return true if getType() returns kPerspective_Mask, but only when SkMatrix
@@ -1566,11 +1574,11 @@ public:
     */
     bool isFixedStepInX() const;
 
-    /** Returns SkVector representing a unit step in x at y mapped through SkMatrix.
+    /** Returns vector representing a unit step in x at y mapped through SkMatrix.
         If isFixedStepInX() is false, returned value is undefined.
 
         @param y  position of line parallel to x-axis
-        @return   SkVector advance of mapped unit step in x
+        @return   vector advance of mapped unit step in x
     */
     SkVector fixedStepInX(SkScalar y) const;
 
@@ -1579,7 +1587,7 @@ public:
         Returns false when the sign of zero values is the different; when one
         matrix has positive zero value and the other has negative zero value.
 
-        Returns true even when both SkMatrix contain NaN.
+        Returns true even when both matrices contain NaN.
 
         NaN never equals any value, including itself. To improve performance, NaN values
         are treated as bit patterns that are equal if their bit patterns are equal.
