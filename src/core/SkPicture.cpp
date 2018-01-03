@@ -66,13 +66,6 @@ SkPictInfo SkPicture::createHeader() const {
     // Set picture info after magic bytes in the header
     info.setVersion(CURRENT_PICTURE_VERSION);
     info.fCullRect = this->cullRect();
-    info.fFlags = SkPictInfo::kCrossProcess_Flag;
-    // TODO: remove this flag, since we're always float (now)
-    info.fFlags |= SkPictInfo::kScalarIsFloat_Flag;
-
-    if (8 == sizeof(void*)) {
-        info.fFlags |= SkPictInfo::kPtrIs64Bit_Flag;
-    }
     return info;
 }
 
@@ -102,7 +95,9 @@ bool SkPicture::StreamIsSKP(SkStream* stream, SkPictInfo* pInfo) {
     info.fCullRect.fTop    = stream->readScalar();
     info.fCullRect.fRight  = stream->readScalar();
     info.fCullRect.fBottom = stream->readScalar();
-    info.fFlags            = stream->readU32();
+    if (info.getVersion() < SkReadBuffer::kRemoveHeaderFlags_Version) {
+        (void)stream->readU32();    // used to be flags
+    }
 
     if (IsValidPictInfo(info)) {
         if (pInfo) { *pInfo = info; }
@@ -123,7 +118,9 @@ bool SkPicture::BufferIsSKP(SkReadBuffer* buffer, SkPictInfo* pInfo) {
 
     info.setVersion(buffer->readUInt());
     buffer->readRect(&info.fCullRect);
-    info.fFlags = buffer->readUInt();
+    if (info.getVersion() < SkReadBuffer::kRemoveHeaderFlags_Version) {
+        (void)buffer->readUInt();   // used to be flags
+    }
 
     if (IsValidPictInfo(info)) {
         if (pInfo) { *pInfo = info; }
@@ -306,7 +303,6 @@ void SkPicture::flatten(SkWriteBuffer& buffer) const {
     buffer.writeByteArray(&info.fMagic, sizeof(info.fMagic));
     buffer.writeUInt(info.getVersion());
     buffer.writeRect(info.fCullRect);
-    buffer.writeUInt(info.fFlags);
 
     if (auto custom = custom_serialize(this, buffer.fProcs)) {
         int32_t size = SkToS32(custom->size());

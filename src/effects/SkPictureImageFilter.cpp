@@ -56,7 +56,7 @@ sk_sp<SkFlattenable> SkPictureImageFilter::CreateProc(SkReadBuffer& buffer) {
     sk_sp<SkPicture> picture;
     SkRect cropRect;
 
-    if (buffer.isCrossProcess() && SkPicture::PictureIOSecurityPrecautionsEnabled()) {
+    if (SkPicture::PictureIOSecurityPrecautionsEnabled()) {
         buffer.validate(!buffer.readBool());
     } else {
         if (buffer.readBool()) {
@@ -77,7 +77,7 @@ sk_sp<SkFlattenable> SkPictureImageFilter::CreateProc(SkReadBuffer& buffer) {
 }
 
 void SkPictureImageFilter::flatten(SkWriteBuffer& buffer) const {
-    if (buffer.isCrossProcess() && SkPicture::PictureIOSecurityPrecautionsEnabled()) {
+    if (SkPicture::PictureIOSecurityPrecautionsEnabled()) {
         buffer.writeBool(false);
     } else {
         bool hasPicture = (fPicture != nullptr);

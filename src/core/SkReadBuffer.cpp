@@ -36,17 +36,7 @@ namespace {
 } // anonymous namespace
 
 
-static uint32_t default_flags() {
-    uint32_t flags = 0;
-    flags |= SkReadBuffer::kScalarIsFloat_Flag;
-    if (8 == sizeof(void*)) {
-        flags |= SkReadBuffer::kPtrIs64Bit_Flag;
-    }
-    return flags;
-}
-
 SkReadBuffer::SkReadBuffer() {
-    fFlags = default_flags();
     fVersion = 0;
     fMemoryPtr = nullptr;
 
@@ -61,7 +51,6 @@ SkReadBuffer::SkReadBuffer() {
 }
 
 SkReadBuffer::SkReadBuffer(const void* data, size_t size) {
-    fFlags = default_flags();
     fVersion = 0;
     this->setMemory(data, size);
     fMemoryPtr = nullptr;

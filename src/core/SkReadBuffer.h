@@ -76,6 +76,7 @@ public:
         kTileInfoInSweepGradient_Version   = 57,
         k2PtConicalNoFlip_Version          = 58,
         kRemovePictureImageFilterLocalSpace = 59,
+        kRemoveHeaderFlags_Version         = 60,
     };
 
     /**
@@ -93,23 +94,6 @@ public:
         SkASSERT(0 == fVersion || version == fVersion);
         fVersion = version;
     }
-
-    enum Flags {
-        kCrossProcess_Flag  = 1 << 0,
-        kScalarIsFloat_Flag = 1 << 1,
-        kPtrIs64Bit_Flag    = 1 << 2,
-        kValidation_Flag    = 1 << 3,
-    };
-
-    void setFlags(uint32_t flags) { fFlags = flags; }
-    uint32_t getFlags() const { return fFlags; }
-
-    bool isCrossProcess() const {
-        return this->isValidating() || SkToBool(fFlags & kCrossProcess_Flag);
-    }
-    bool isScalarFloat() const { return SkToBool(fFlags & kScalarIsFloat_Flag); }
-    bool isPtr64Bit() const { return SkToBool(fFlags & kPtrIs64Bit_Flag); }
-    bool isValidating() const { return SkToBool(fFlags & kValidation_Flag); }
 
     size_t size() { return fReader.size(); }
     size_t offset() { return fReader.offset(); }
@@ -281,7 +265,6 @@ private:
     bool readArray(void* value, size_t size, size_t elementSize);
     void setMemory(const void*, size_t);
 
-    uint32_t fFlags;
     int fVersion;
 
     void* fMemoryPtr;

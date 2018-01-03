@@ -28,12 +28,6 @@ class SkReadBuffer;
 class SkTextBlob;
 
 struct SkPictInfo {
-    enum Flags {
-        kCrossProcess_Flag      = 1 << 0,
-        kScalarIsFloat_Flag     = 1 << 1,
-        kPtrIs64Bit_Flag        = 1 << 2,
-    };
-
     SkPictInfo() : fVersion(~0U) {}
 
     uint32_t getVersion() const {
@@ -52,7 +46,6 @@ private:
     uint32_t    fVersion;
 public:
     SkRect      fCullRect;
-    uint32_t    fFlags;
 };
 
 #define SK_PICT_READER_TAG     SkSetFourByteTag('r', 'e', 'a', 'd')
