@@ -247,6 +247,191 @@ void GLSLCodeGenerator::writeMinAbsHack(Expression& absExpr, Expression& otherEx
     this->write(") ? " + tmpVar1 + " : " + tmpVar2 + ")");
 }
 
+void GLSLCodeGenerator::writeInverseSqrtHack(const Expression& x) {
+    this->write("(1.0 / sqrt(");
+    this->writeExpression(x, kTopLevel_Precedence);
+    this->write("))");
+}
+
+void GLSLCodeGenerator::writeDeterminantHack(const Expression& mat) {
+    String name;
+    if (mat.fType == *fContext.fFloat2x2_Type || mat.fType == *fContext.fHalf2x2_Type) {
+        name = "_determinant2";
+        if (fWrittenIntrinsics.find(name) == fWrittenIntrinsics.end()) {
+            fWrittenIntrinsics.insert(name);
+            fExtraFunctions.writeText((
+                "float " + name + "(mat2 m) {"
+                "    return m[0][0] * m[1][1] - m[0][1] * m[1][0];"
+                "}"
+            ).c_str());
+        }
+    }
+    else if (mat.fType == *fContext.fFloat3x3_Type || mat.fType == *fContext.fHalf3x3_Type) {
+        name = "_determinant3";
+        if (fWrittenIntrinsics.find(name) == fWrittenIntrinsics.end()) {
+            fWrittenIntrinsics.insert(name);
+            fExtraFunctions.writeText((
+                "float " + name + "(mat3 m) {"
+                "    float a00 = m[0][0], a01 = m[0][1], a02 = m[0][2];"
+                "    float a10 = m[1][0], a11 = m[1][1], a12 = m[1][2];"
+                "    float a20 = m[2][0], a21 = m[2][1], a22 = m[2][2];"
+                "    float b01 = a22 * a11 - a12 * a21;"
+                "    float b11 = -a22 * a10 + a12 * a20;"
+                "    float b21 = a21 * a10 - a11 * a20;"
+                "    return a00 * b01 + a01 * b11 + a02 * b21;"
+                "}"
+            ).c_str());
+        }
+    }
+    else if (mat.fType == *fContext.fFloat4x4_Type || mat.fType == *fContext.fHalf4x4_Type) {
+        name = "_determinant3";
+        if (fWrittenIntrinsics.find(name) == fWrittenIntrinsics.end()) {
+            fWrittenIntrinsics.insert(name);
+            fExtraFunctions.writeText((
+                "mat4 " + name + "(mat4 m) {"
+                "    float a00 = m[0][0], a01 = m[0][1], a02 = m[0][2], a03 = m[0][3];"
+                "    float a10 = m[1][0], a11 = m[1][1], a12 = m[1][2], a13 = m[1][3];"
+                "    float a20 = m[2][0], a21 = m[2][1], a22 = m[2][2], a23 = m[2][3];"
+                "    float a30 = m[3][0], a31 = m[3][1], a32 = m[3][2], a33 = m[3][3];"
+                "    float b00 = a00 * a11 - a01 * a10;"
+                "    float b01 = a00 * a12 - a02 * a10;"
+                "    float b02 = a00 * a13 - a03 * a10;"
+                "    float b03 = a01 * a12 - a02 * a11;"
+                "    float b04 = a01 * a13 - a03 * a11;"
+                "    float b05 = a02 * a13 - a03 * a12;"
+                "    float b06 = a20 * a31 - a21 * a30;"
+                "    float b07 = a20 * a32 - a22 * a30;"
+                "    float b08 = a20 * a33 - a23 * a30;"
+                "    float b09 = a21 * a32 - a22 * a31;"
+                "    float b10 = a21 * a33 - a23 * a31;"
+                "    float b11 = a22 * a33 - a23 * a32;"
+                "    return b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06;"
+                "}"
+            ).c_str());
+        }
+    }
+    else {
+        ASSERT(false);
+    }
+    this->write(name + "(");
+    this->writeExpression(mat, kTopLevel_Precedence);
+    this->write(")");
+}
+
+void GLSLCodeGenerator::writeInverseHack(const Expression& mat) {
+    String name;
+    if (mat.fType == *fContext.fFloat2x2_Type || mat.fType == *fContext.fHalf2x2_Type) {
+        name = "_inverse2";
+        if (fWrittenIntrinsics.find(name) == fWrittenIntrinsics.end()) {
+            fWrittenIntrinsics.insert(name);
+            fExtraFunctions.writeText((
+                "mat2 " + name + "(mat2 m) {"
+                "    return mat2(m[1][1], -m[0][1], -m[1][0], m[0][0]) / "
+                               "(m[0][0] * m[1][1] - m[0][1] * m[1][0]);"
+                "}"
+            ).c_str());
+        }
+    }
+    else if (mat.fType == *fContext.fFloat3x3_Type || mat.fType == *fContext.fHalf3x3_Type) {
+        name = "_inverse3";
+        if (fWrittenIntrinsics.find(name) == fWrittenIntrinsics.end()) {
+            fWrittenIntrinsics.insert(name);
+            fExtraFunctions.writeText((
+                "mat3 " +  name + "(mat3 m) {"
+                "    float a00 = m[0][0], a01 = m[0][1], a02 = m[0][2];"
+                "    float a10 = m[1][0], a11 = m[1][1], a12 = m[1][2];"
+                "    float a20 = m[2][0], a21 = m[2][1], a22 = m[2][2];"
+                "    float b01 = a22 * a11 - a12 * a21;"
+                "    float b11 = -a22 * a10 + a12 * a20;"
+                "    float b21 = a21 * a10 - a11 * a20;"
+                "    float det = a00 * b01 + a01 * b11 + a02 * b21;"
+                "    return mat3(b01, (-a22 * a01 + a02 * a21), (a12 * a01 - a02 * a11),"
+                "                b11, (a22 * a00 - a02 * a20), (-a12 * a00 + a02 * a10),"
+                "                b21, (-a21 * a00 + a01 * a20), (a11 * a00 - a01 * a10)) / det;"
+                "}"
+            ).c_str());
+        }
+    }
+    else if (mat.fType == *fContext.fFloat4x4_Type || mat.fType == *fContext.fHalf4x4_Type) {
+        name = "_inverse4";
+        if (fWrittenIntrinsics.find(name) == fWrittenIntrinsics.end()) {
+            fWrittenIntrinsics.insert(name);
+            fExtraFunctions.writeText((
+                "mat4 " + name + "(mat4 m) {"
+                "    float a00 = m[0][0], a01 = m[0][1], a02 = m[0][2], a03 = m[0][3];"
+                "    float a10 = m[1][0], a11 = m[1][1], a12 = m[1][2], a13 = m[1][3];"
+                "    float a20 = m[2][0], a21 = m[2][1], a22 = m[2][2], a23 = m[2][3];"
+                "    float a30 = m[3][0], a31 = m[3][1], a32 = m[3][2], a33 = m[3][3];"
+                "    float b00 = a00 * a11 - a01 * a10;"
+                "    float b01 = a00 * a12 - a02 * a10;"
+                "    float b02 = a00 * a13 - a03 * a10;"
+                "    float b03 = a01 * a12 - a02 * a11;"
+                "    float b04 = a01 * a13 - a03 * a11;"
+                "    float b05 = a02 * a13 - a03 * a12;"
+                "    float b06 = a20 * a31 - a21 * a30;"
+                "    float b07 = a20 * a32 - a22 * a30;"
+                "    float b08 = a20 * a33 - a23 * a30;"
+                "    float b09 = a21 * a32 - a22 * a31;"
+                "    float b10 = a21 * a33 - a23 * a31;"
+                "    float b11 = a22 * a33 - a23 * a32;"
+                "    float det = b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - "
+                "                b04 * b07 + b05 * b06;"
+                "    return mat4("
+                "        a11 * b11 - a12 * b10 + a13 * b09,"
+                "        a02 * b10 - a01 * b11 - a03 * b09,"
+                "        a31 * b05 - a32 * b04 + a33 * b03,"
+                "        a22 * b04 - a21 * b05 - a23 * b03,"
+                "        a12 * b08 - a10 * b11 - a13 * b07,"
+                "        a00 * b11 - a02 * b08 + a03 * b07,"
+                "        a32 * b02 - a30 * b05 - a33 * b01,"
+                "        a20 * b05 - a22 * b02 + a23 * b01,"
+                "        a10 * b10 - a11 * b08 + a13 * b06,"
+                "        a01 * b08 - a00 * b10 - a03 * b06,"
+                "        a30 * b04 - a31 * b02 + a33 * b00,"
+                "        a21 * b02 - a20 * b04 - a23 * b00,"
+                "        a11 * b07 - a10 * b09 - a12 * b06,"
+                "        a00 * b09 - a01 * b07 + a02 * b06,"
+                "        a31 * b01 - a30 * b03 - a32 * b00,"
+                "        a20 * b03 - a21 * b01 + a22 * b00) / det;"
+                "}"
+            ).c_str());
+        }
+    }
+    else {
+        ASSERT(false);
+    }
+    this->write(name + "(");
+    this->writeExpression(mat, kTopLevel_Precedence);
+    this->write(")");
+}
+
+void GLSLCodeGenerator::writeTransposeHack(const Expression& mat) {
+    String name = "transpose" + to_string(mat.fType.columns()) + to_string(mat.fType.rows());
+    if (fWrittenIntrinsics.find(name) == fWrittenIntrinsics.end()) {
+        fWrittenIntrinsics.insert(name);
+        String type = this->getTypeName(mat.fType);
+        const Type& base = mat.fType.componentType();
+        String transposed =  this->getTypeName(base.toCompound(fContext,
+                                                               mat.fType.rows(),
+                                                               mat.fType.columns()));
+        fExtraFunctions.writeText((transposed + " " + name + "(" + type + " m) {\nreturn " +
+                                  transposed + "(").c_str());
+        const char* separator = "";
+        for (int row = 0; row < mat.fType.rows(); ++row) {
+            for (int column = 0; column < mat.fType.columns(); ++column) {
+                fExtraFunctions.writeText(separator);
+                fExtraFunctions.writeText(("m[" + to_string(column) + "][" + to_string(row) +
+                                           "]").c_str());
+                separator = ", ";
+            }
+        }
+        fExtraFunctions.writeText("); }");
+    }
+    this->write(name + "(");
+    this->writeExpression(mat, kTopLevel_Precedence);
+    this->write(")");
+}
+
 void GLSLCodeGenerator::writeFunctionCall(const FunctionCall& c) {
     if (!fProgram.fSettings.fCaps->canUseMinAndAbsTogether() && c.fFunction.fName == "min" &&
         c.fFunction.fBuiltin) {
@@ -287,6 +472,30 @@ void GLSLCodeGenerator::writeFunctionCall(const FunctionCall& c) {
             this->write(")");
             return;
         }
+    }
+    if (c.fFunction.fBuiltin && c.fFunction.fName == "determinant" &&
+        fProgram.fSettings.fCaps->generation() < k150_GrGLSLGeneration) {
+        ASSERT(c.fArguments.size() == 1);
+        this->writeDeterminantHack(*c.fArguments[0]);
+        return;
+    }
+    if (c.fFunction.fBuiltin && c.fFunction.fName == "inverse" &&
+        fProgram.fSettings.fCaps->generation() < k140_GrGLSLGeneration) {
+        ASSERT(c.fArguments.size() == 1);
+        this->writeInverseHack(*c.fArguments[0]);
+        return;
+    }
+    if (c.fFunction.fBuiltin && c.fFunction.fName == "inverseSqrt" &&
+        fProgram.fSettings.fCaps->generation() < k130_GrGLSLGeneration) {
+        ASSERT(c.fArguments.size() == 1);
+        this->writeInverseSqrtHack(*c.fArguments[0]);
+        return;
+    }
+    if (c.fFunction.fBuiltin && c.fFunction.fName == "transpose" &&
+        fProgram.fSettings.fCaps->generation() < k130_GrGLSLGeneration) {
+        ASSERT(c.fArguments.size() == 1);
+        this->writeTransposeHack(*c.fArguments[0]);
+        return;
     }
     if (!fFoundDerivatives && (c.fFunction.fName == "dFdx" || c.fFunction.fName == "dFdy") &&
         c.fFunction.fBuiltin && fProgram.fSettings.fCaps->shaderDerivativeExtensionString()) {
@@ -1048,6 +1257,7 @@ bool GLSLCodeGenerator::generateCode() {
     if (this->usesPrecisionModifiers()) {
         this->writeLine("precision mediump float;");
     }
+    write_stringstream(fExtraFunctions, *rawOut);
     write_stringstream(body, *rawOut);
     return true;
 }
