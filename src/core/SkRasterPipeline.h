@@ -76,6 +76,7 @@ struct SkJumper_Engine;
     M(lab_to_xyz)                                                  \
                  M(mirror_x)   M(repeat_x)                         \
                  M(mirror_y)   M(repeat_y)                         \
+    M(negate_x)                                                    \
     M(bilinear_nx) M(bilinear_px) M(bilinear_ny) M(bilinear_py)    \
     M(bicubic_n3x) M(bicubic_n1x) M(bicubic_p1x) M(bicubic_p3x)    \
     M(bicubic_n3y) M(bicubic_n1y) M(bicubic_p1y) M(bicubic_p3y)    \
@@ -86,9 +87,14 @@ struct SkJumper_Engine;
     M(evenly_spaced_2_stop_gradient)                               \
     M(xy_to_unit_angle)                                            \
     M(xy_to_radius)                                                \
-    M(xy_to_2pt_conical_quadratic_first)                           \
-    M(xy_to_2pt_conical_quadratic_second)                          \
+    M(xy_to_2pt_conical_strip)                                     \
     M(xy_to_2pt_conical_linear)                                    \
+    M(xy_to_2pt_conical_well_behaved)                              \
+    M(xy_to_2pt_conical_smaller)                                   \
+    M(xy_to_2pt_conical_greater)                                   \
+    M(alter_2pt_conical_compensate_focal)                          \
+    M(alter_2pt_conical_unswap)                                    \
+    M(mask_2pt_conical_nan)                                        \
     M(mask_2pt_conical_degenerates) M(apply_vector_mask)           \
     M(byte_tables) M(byte_tables_rgb)                              \
     M(rgb_to_hsl) M(hsl_to_rgb)                                    \
