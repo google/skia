@@ -132,8 +132,6 @@ DEF_TEST(ICC_WriteICC, r) {
     adobeFn.fG = 2.2f;
     SkMatrix44 adobeMatrix(SkMatrix44::kUninitialized_Constructor);
     adobeMatrix.set3x3RowMajorf(gAdobeRGB_toXYZD50);
-    // TODO: Restore this test once we fix our Adobe matrix to be based on the decoded ICC
-    // fixed point values, and once we use a rounding conversion to fixed-point.
     test_write_icc(r, adobeFn, adobeMatrix, false);
 
     SkColorSpaceTransferFn srgbFn;
