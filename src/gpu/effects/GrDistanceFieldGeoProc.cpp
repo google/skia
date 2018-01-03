@@ -206,7 +206,6 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 
 GrDistanceFieldA8TextGeoProc::GrDistanceFieldA8TextGeoProc(
-        GrColor color,
         const sk_sp<GrTextureProxy> proxies[kMaxTextures],
         const GrSamplerState& params,
 #ifdef SK_GAMMA_APPLY_TO_A8
@@ -215,7 +214,6 @@ GrDistanceFieldA8TextGeoProc::GrDistanceFieldA8TextGeoProc(
         uint32_t flags,
         const SkMatrix& localMatrix)
         : INHERITED(kGrDistanceFieldA8TextGeoProc_ClassID)
-        , fColor(color)
 #ifdef SK_GAMMA_APPLY_TO_A8
         , fDistanceAdjust(distanceAdjust)
 #endif
@@ -285,12 +283,10 @@ sk_sp<GrGeometryProcessor> GrDistanceFieldA8TextGeoProc::TestCreate(GrProcessorT
         flags |= d->fRandom->nextBool() ? kScaleOnly_DistanceFieldEffectFlag : 0;
     }
     SkMatrix localMatrix = GrTest::TestMatrix(d->fRandom);
-    GrColor color = GrRandomColor(d->fRandom);
 #ifdef SK_GAMMA_APPLY_TO_A8
     float lum = d->fRandom->nextF();
 #endif
-    return GrDistanceFieldA8TextGeoProc::Make(color,
-                                              proxies,
+    return GrDistanceFieldA8TextGeoProc::Make(proxies,
                                               samplerState,
 #ifdef SK_GAMMA_APPLY_TO_A8
                                               lum,
@@ -494,13 +490,11 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 GrDistanceFieldPathGeoProc::GrDistanceFieldPathGeoProc(
-                                                 GrColor color,
                                                  const SkMatrix& matrix,
                                                  const sk_sp<GrTextureProxy> proxies[kMaxTextures],
                                                  const GrSamplerState& params,
                                                  uint32_t flags)
         : INHERITED(kGrDistanceFieldPathGeoProc_ClassID)
-        , fColor(color)
         , fMatrix(matrix)
         , fFlags(flags & kNonLCD_DistanceFieldEffectMask)
         , fInColor(nullptr) {
@@ -563,8 +557,7 @@ sk_sp<GrGeometryProcessor> GrDistanceFieldPathGeoProc::TestCreate(GrProcessorTes
         flags |= d->fRandom->nextBool() ? kScaleOnly_DistanceFieldEffectFlag : 0;
     }
 
-    return GrDistanceFieldPathGeoProc::Make(GrRandomColor(d->fRandom),
-                                            GrTest::TestMatrix(d->fRandom),
+    return GrDistanceFieldPathGeoProc::Make(GrTest::TestMatrix(d->fRandom),
                                             proxies,
                                             samplerState,
                                             flags);
@@ -791,14 +784,12 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 GrDistanceFieldLCDTextGeoProc::GrDistanceFieldLCDTextGeoProc(
-                                                 GrColor color,
                                                  const sk_sp<GrTextureProxy> proxies[kMaxTextures],
                                                  const GrSamplerState& params,
                                                  DistanceAdjust distanceAdjust,
                                                  uint32_t flags,
                                                  const SkMatrix& localMatrix)
         : INHERITED(kGrDistanceFieldLCDTextGeoProc_ClassID)
-        , fColor(color)
         , fDistanceAdjust(distanceAdjust)
         , fFlags(flags & kLCD_DistanceFieldEffectMask)
         , fLocalMatrix(localMatrix) {
@@ -864,9 +855,7 @@ sk_sp<GrGeometryProcessor> GrDistanceFieldLCDTextGeoProc::TestCreate(GrProcessor
         flags |= d->fRandom->nextBool() ? kScaleOnly_DistanceFieldEffectFlag : 0;
     }
     flags |= d->fRandom->nextBool() ? kBGR_DistanceFieldEffectFlag : 0;
-    GrColor color = GrRandomColor(d->fRandom);
     SkMatrix localMatrix = GrTest::TestMatrix(d->fRandom);
-    return GrDistanceFieldLCDTextGeoProc::Make(color, proxies, samplerState, wa, flags,
-                                               localMatrix);
+    return GrDistanceFieldLCDTextGeoProc::Make(proxies, samplerState, wa, flags, localMatrix);
 }
 #endif

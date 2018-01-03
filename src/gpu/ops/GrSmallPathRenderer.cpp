@@ -249,8 +249,7 @@ private:
                 matrix = &SkMatrix::I();
             }
             flushInfo.fGeometryProcessor = GrDistanceFieldPathGeoProc::Make(
-                    this->color(), *matrix, atlas->getProxies(),
-                    GrSamplerState::ClampBilerp(), flags);
+                    *matrix, atlas->getProxies(), GrSamplerState::ClampBilerp(), flags);
         } else {
             SkMatrix invert;
             if (fHelper.usesLocalCoords()) {

@@ -132,7 +132,6 @@ private:
     GrAtlasTextOp(GrPaint&& paint)
             : INHERITED(ClassID())
             , fGeoDataAllocSize(kMinGeometryAllocated)
-            , fColor(paint.getColor())
             , fSRGBFlags(GrPipeline::SRGBFlagsFromPaint(paint))
             , fProcessors(std::move(paint)) {}
 
@@ -178,7 +177,7 @@ private:
 
     inline void flush(GrMeshDrawOp::Target* target, FlushInfo* flushInfo) const;
 
-    GrColor color() const { return fColor; }
+    GrColor color() const { SkASSERT(fGeoCount > 0); return fGeoData[0].fColor; }
     bool usesLocalCoords() const { return fUsesLocalCoords; }
     int numGlyphs() const { return fNumGlyphs; }
 
@@ -190,7 +189,6 @@ private:
 
     SkAutoSTMalloc<kMinGeometryAllocated, Geometry> fGeoData;
     int fGeoDataAllocSize;
-    GrColor fColor;
     uint32_t fSRGBFlags;
     GrProcessorSet fProcessors;
     bool fUsesLocalCoords;

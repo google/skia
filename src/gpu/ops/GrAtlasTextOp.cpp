@@ -23,7 +23,6 @@ static const int kDistanceAdjustLumShift = 5;
 
 void GrAtlasTextOp::init() {
     const Geometry& geo = fGeoData[0];
-    fColor = geo.fColor;
     SkRect bounds;
     geo.fBlob->computeSubRunBounds(&bounds, geo.fRun, geo.fSubRun, geo.fViewMatrix, geo.fX, geo.fY);
     // We don't have tight bounds on the glyph paths in device space. For the purposes of bounds
@@ -79,7 +78,7 @@ GrDrawOp::RequiresDstTexture GrAtlasTextOp::finalize(const GrCaps& caps,
     if (kColorBitmapMask_MaskType == fMaskType) {
         color.setToUnknown();
     } else {
-        color.setToConstant(fColor);
+        color.setToConstant(this->color());
     }
     switch (fMaskType) {
         case kGrayscaleCoverageMask_MaskType:
@@ -96,9 +95,8 @@ GrDrawOp::RequiresDstTexture GrAtlasTextOp::finalize(const GrCaps& caps,
             coverage = GrProcessorAnalysisCoverage::kNone;
             break;
     }
-    auto analysis = fProcessors.finalize(color, coverage, clip, false, caps, dstIsClamped, &fColor);
-    // We need to update the per-geo color after analysis, too. This one is sent per-vertex.
-    fGeoData[0].fColor = fColor;
+    auto analysis = fProcessors.finalize(color, coverage, clip, false, caps, dstIsClamped,
+                                         &fGeoData[0].fColor);
     fUsesLocalCoords = analysis.usesLocalCoords();
     fCanCombineOnTouchOrOverlap =
             !analysis.requiresDstTexture() &&
@@ -433,8 +431,8 @@ sk_sp<GrGeometryProcessor> GrAtlasTextOp::setupDfProcessor() const {
         GrDistanceFieldLCDTextGeoProc::DistanceAdjust widthAdjust =
                 GrDistanceFieldLCDTextGeoProc::DistanceAdjust::Make(
                         redCorrection, greenCorrection, blueCorrection);
-        return GrDistanceFieldLCDTextGeoProc::Make(this->color(), p, GrSamplerState::ClampBilerp(),
-                                                   widthAdjust, fDFGPFlags, localMatrix);
+        return GrDistanceFieldLCDTextGeoProc::Make(p, GrSamplerState::ClampBilerp(), widthAdjust,
+                                                   fDFGPFlags, localMatrix);
     } else {
 #ifdef SK_GAMMA_APPLY_TO_A8
         float correction = 0;
@@ -444,10 +442,10 @@ sk_sp<GrGeometryProcessor> GrAtlasTextOp::setupDfProcessor() const {
             correction = fDistanceAdjustTable->getAdjustment(lum >> kDistanceAdjustLumShift,
                                                              fUseGammaCorrectDistanceTable);
         }
-        return GrDistanceFieldA8TextGeoProc::Make(this->color(), p, GrSamplerState::ClampBilerp(),
+        return GrDistanceFieldA8TextGeoProc::Make(p, GrSamplerState::ClampBilerp(),
                                                   correction, fDFGPFlags, localMatrix);
 #else
-        return GrDistanceFieldA8TextGeoProc::Make(this->color(), p, GrSamplerState::ClampBilerp(),
+        return GrDistanceFieldA8TextGeoProc::Make(p, GrSamplerState::ClampBilerp(),
                                                   fDFGPFlags, localMatrix);
 #endif
     }

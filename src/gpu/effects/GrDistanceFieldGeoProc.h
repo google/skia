@@ -57,20 +57,18 @@ public:
 
     /** The local matrix should be identity if local coords are not required by the GrPipeline. */
 #ifdef SK_GAMMA_APPLY_TO_A8
-    static sk_sp<GrGeometryProcessor> Make(GrColor color,
-                                           const sk_sp<GrTextureProxy> proxies[kMaxTextures],
+    static sk_sp<GrGeometryProcessor> Make(const sk_sp<GrTextureProxy> proxies[kMaxTextures],
                                            const GrSamplerState& params, float lum, uint32_t flags,
                                            const SkMatrix& localMatrixIfUsesLocalCoords) {
         return sk_sp<GrGeometryProcessor>(new GrDistanceFieldA8TextGeoProc(
-                color, proxies, params, lum, flags, localMatrixIfUsesLocalCoords));
+                proxies, params, lum, flags, localMatrixIfUsesLocalCoords));
     }
 #else
-    static sk_sp<GrGeometryProcessor> Make(GrColor color,
-                                           const sk_sp<GrTextureProxy> proxies[kMaxTextures],
+    static sk_sp<GrGeometryProcessor> Make(const sk_sp<GrTextureProxy> proxies[kMaxTextures],
                                            const GrSamplerState& params, uint32_t flags,
                                            const SkMatrix& localMatrixIfUsesLocalCoords) {
         return sk_sp<GrGeometryProcessor>(new GrDistanceFieldA8TextGeoProc(
-                color, proxies, params, flags, localMatrixIfUsesLocalCoords));
+                proxies, params, flags, localMatrixIfUsesLocalCoords));
     }
 #endif
 
@@ -81,7 +79,6 @@ public:
     const Attribute* inPosition() const { return fInPosition; }
     const Attribute* inColor() const { return fInColor; }
     const Attribute* inTextureCoords() const { return fInTextureCoords; }
-    GrColor color() const { return fColor; }
     const SkMatrix& localMatrix() const { return fLocalMatrix; }
 #ifdef SK_GAMMA_APPLY_TO_A8
     float getDistanceAdjust() const { return fDistanceAdjust; }
@@ -95,14 +92,13 @@ public:
     GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const override;
 
 private:
-    GrDistanceFieldA8TextGeoProc(GrColor, const sk_sp<GrTextureProxy> proxies[kMaxTextures],
+    GrDistanceFieldA8TextGeoProc(const sk_sp<GrTextureProxy> proxies[kMaxTextures],
                                  const GrSamplerState& params,
 #ifdef SK_GAMMA_APPLY_TO_A8
                                  float distanceAdjust,
 #endif
                                  uint32_t flags, const SkMatrix& localMatrix);
 
-    GrColor          fColor;
     TextureSampler   fTextureSamplers[kMaxTextures];
 #ifdef SK_GAMMA_APPLY_TO_A8
     float            fDistanceAdjust;
@@ -129,11 +125,11 @@ public:
     static constexpr int kMaxTextures = 4;
 
     /** The local matrix should be identity if local coords are not required by the GrPipeline. */
-    static sk_sp<GrGeometryProcessor> Make(GrColor color, const SkMatrix& matrix,
+    static sk_sp<GrGeometryProcessor> Make(const SkMatrix& matrix,
                                            const sk_sp<GrTextureProxy> proxies[kMaxTextures],
                                            const GrSamplerState& params, uint32_t flags) {
         return sk_sp<GrGeometryProcessor>(
-            new GrDistanceFieldPathGeoProc(color, matrix, proxies, params, flags));
+            new GrDistanceFieldPathGeoProc(matrix, proxies, params, flags));
     }
 
     ~GrDistanceFieldPathGeoProc() override {}
@@ -143,7 +139,6 @@ public:
     const Attribute* inPosition() const { return fInPosition; }
     const Attribute* inColor() const { return fInColor; }
     const Attribute* inTextureCoords() const { return fInTextureCoords; }
-    GrColor color() const { return fColor; }
     const SkMatrix& matrix() const { return fMatrix; }
     uint32_t getFlags() const { return fFlags; }
 
@@ -154,11 +149,10 @@ public:
     GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const override;
 
 private:
-    GrDistanceFieldPathGeoProc(GrColor, const SkMatrix& matrix,
+    GrDistanceFieldPathGeoProc(const SkMatrix& matrix,
                                const sk_sp<GrTextureProxy> proxies[kMaxTextures],
                                const GrSamplerState&, uint32_t flags);
 
-    GrColor          fColor;
     SkMatrix         fMatrix;      // view matrix if perspective, local matrix otherwise
     TextureSampler   fTextureSamplers[kMaxTextures];
     uint32_t         fFlags;
@@ -196,14 +190,13 @@ public:
 
     static constexpr int kMaxTextures = 4;
 
-    static sk_sp<GrGeometryProcessor> Make(GrColor color,
-                                           const sk_sp<GrTextureProxy> proxies[kMaxTextures],
+    static sk_sp<GrGeometryProcessor> Make(const sk_sp<GrTextureProxy> proxies[kMaxTextures],
                                            const GrSamplerState& params,
                                            DistanceAdjust distanceAdjust,
                                            uint32_t flags,
                                            const SkMatrix& localMatrixIfUsesLocalCoords) {
         return sk_sp<GrGeometryProcessor>(new GrDistanceFieldLCDTextGeoProc(
-                color, proxies, params, distanceAdjust, flags, localMatrixIfUsesLocalCoords));
+                proxies, params, distanceAdjust, flags, localMatrixIfUsesLocalCoords));
     }
 
     ~GrDistanceFieldLCDTextGeoProc() override {}
@@ -214,7 +207,6 @@ public:
     const Attribute* inColor() const { return fInColor; }
     const Attribute* inTextureCoords() const { return fInTextureCoords; }
     DistanceAdjust getDistanceAdjust() const { return fDistanceAdjust; }
-    GrColor color() const { return fColor; }
     uint32_t getFlags() const { return fFlags; }
     const SkMatrix& localMatrix() const { return fLocalMatrix; }
 
@@ -225,11 +217,10 @@ public:
     GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const override;
 
 private:
-    GrDistanceFieldLCDTextGeoProc(GrColor, const sk_sp<GrTextureProxy> proxies[kMaxTextures],
+    GrDistanceFieldLCDTextGeoProc(const sk_sp<GrTextureProxy> proxies[kMaxTextures],
                                   const GrSamplerState& params, DistanceAdjust wa, uint32_t flags,
                                   const SkMatrix& localMatrix);
 
-    GrColor          fColor;
     TextureSampler   fTextureSamplers[kMaxTextures];
     DistanceAdjust   fDistanceAdjust;
     uint32_t         fFlags;
