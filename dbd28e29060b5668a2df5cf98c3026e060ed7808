@@ -16,6 +16,24 @@
       "revId": "dbd28e29060b5668a2df5cf98c3026e060ed7808",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d6d367ae_f5d5e0f2",
+        "filename": "tests/GrShapeTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 245,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-01-03T18:54:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "25aebfc9_4894530a",
+      "revId": "dbd28e29060b5668a2df5cf98c3026e060ed7808",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
