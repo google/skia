@@ -118,7 +118,7 @@ DEF_GPUTEST(TessellatingPathRendererCacheTest, reporter, /* options */) {
     // resources should be created.
     const int kExpectedResources = 1;
 
-    test_path(reporter, create_concave_path, createPR, kExpectedResources);
+    //test_path(reporter, create_concave_path, createPR, kExpectedResources);
 
     // Test with a style that alters the path geometry. This needs to attach the invalidation logic
     // to the original path, not the modified path produced by the style.
