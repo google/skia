@@ -736,10 +736,9 @@ paths are interpolatable
 
 #Method bool interpolate(const SkPath& ending, SkScalar weight, SkPath* out) const
 
-Interpolate between Paths with equal sized Point_Arrays.
-Copy Verb_Array and Weights to out,
-and set out Point_Array to a weighted average of this Point_Array and ending 
-Point_Array, using the formula:
+Interpolate between Paths with Point_Array of equal size.
+Copy Verb_Array and Weights to out, and set out Point_Array to a weighted
+average of this Point_Array and ending Point_Array, using the formula:
 #Formula
 (this->points * weight) + ending->points * (1 - weight)
 ##
@@ -754,8 +753,8 @@ the same size as ending Point_Array. Call isInterpolatable to check Path
 compatibility prior to calling interpolate().
 
 #Param ending  Point_Array averaged with this Point_Array ##
-#Param weight  contribution of ending Point_Array, and 
-               one minus contribution of this Point_Array 
+#Param weight  contribution of this Point_Array, and 
+               one minus contribution of ending Point_Array 
 ##
 #Param out     Path replaced by interpolated averages ##
 
@@ -1759,7 +1758,7 @@ second move is not line
 # ------------------------------------------------------------------------------
 
 #Subtopic Point_Array
-#Alias Point_Arrays
+#Substitute SkPoint array
 
 Point_Array contains Points satisfying the allocated Points for
 each Verb in Verb_Array. For instance, Path containing one Contour with Line
