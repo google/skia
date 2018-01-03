@@ -89,7 +89,7 @@ int SkChopQuadAtMaxCurvature(const SkPoint src[3], SkPoint dst[5]);
     convert it into the cubic fitting the same curve. The new cubic
     curve is returned in dst[0..3].
 */
-void SkConvertQuadToCubic(const SkPoint src[3], SkPoint dst[4]);
+SK_API void SkConvertQuadToCubic(const SkPoint src[3], SkPoint dst[4]);
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -272,13 +272,13 @@ struct SkConic {
      *  return the power-of-2 number of quads needed to approximate this conic
      *  with a sequence of quads. Will be >= 0.
      */
-    int computeQuadPOW2(SkScalar tol) const;
+    int SK_API computeQuadPOW2(SkScalar tol) const;
 
     /**
      *  Chop this conic into N quads, stored continguously in pts[], where
      *  N = 1 << pow2. The amount of storage needed is (1 + 2 * N)
      */
-    int SK_WARN_UNUSED_RESULT chopIntoQuadsPOW2(SkPoint pts[], int pow2) const;
+    int SK_API SK_WARN_UNUSED_RESULT chopIntoQuadsPOW2(SkPoint pts[], int pow2) const;
 
     bool findXExtrema(SkScalar* t) const;
     bool findYExtrema(SkScalar* t) const;
