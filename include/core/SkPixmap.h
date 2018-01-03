@@ -120,7 +120,7 @@ public:
     */
     bool SK_WARN_UNUSED_RESULT extractSubset(SkPixmap* subset, const SkIRect& area) const;
 
-    /** Returns width, height, SkAlphaType, SkColorType, and SkColorSpace.
+    /** Returns width, height, alpha type, color type, and SkColorSpace.
 
         @return  reference to ImageInfo
     */
@@ -157,18 +157,18 @@ public:
     */
     int height() const { return fInfo.height(); }
 
-    /** Returns SkColorType, one of: kUnknown_SkColorType, kAlpha_8_SkColorType,
+    /** Returns color type, one of: kUnknown_SkColorType, kAlpha_8_SkColorType,
         kRGB_565_SkColorType, kARGB_4444_SkColorType, kRGBA_8888_SkColorType,
         kBGRA_8888_SkColorType, kGray_8_SkColorType, kRGBA_F16_SkColorType.
 
-        @return  SkColorType in SkImageInfo
+        @return  color type in SkImageInfo
     */
     SkColorType colorType() const { return fInfo.colorType(); }
 
-    /** Returns SkAlphaType, one of: kUnknown_SkAlphaType, kOpaque_SkAlphaType,
+    /** Returns alpha type, one of: kUnknown_SkAlphaType, kOpaque_SkAlphaType,
         kPremul_SkAlphaType, kUnpremul_SkAlphaType.
 
-        @return  SkAlphaType in SkImageInfo
+        @return  alpha type in SkImageInfo
     */
     SkAlphaType alphaType() const { return fInfo.alphaType(); }
 
@@ -180,11 +180,11 @@ public:
     */
     SkColorSpace* colorSpace() const { return fInfo.colorSpace(); }
 
-    /** Returns true if SkAlphaType is kOpaque_SkAlphaType.
-        Does not check if SkColorType allows alpha, or if any pixel value has
+    /** Returns true if alpha type is kOpaque_SkAlphaType.
+        Does not check if color type allows alpha, or if any pixel value has
         transparency.
 
-        @return  true if SkImageInfo has opaque SkAlphaType
+        @return  true if SkImageInfo has opaque alpha type
     */
     bool isOpaque() const { return fInfo.isOpaque(); }
 
@@ -218,30 +218,30 @@ public:
     */
     size_t computeByteSize() const { return fInfo.computeByteSize(fRowBytes); }
 
-    /** Returns true if all pixels are opaque. SkColorType determines how pixels
-        are encoded, and whether pixel describes alpha. Returns true for SkColorType
-        without alpha in each pixel; for other SkColorType, returns true if all
+    /** Returns true if all pixels are opaque. color type determines how pixels
+        are encoded, and whether pixel describes alpha. Returns true for color types
+        without alpha in each pixel; for other color types, returns true if all
         pixels have alpha values equivalent to 1.0 or greater.
 
-        For SkColorType kRGB_565_SkColorType or kGray_8_SkColorType: always
-        returns true. For SkColorType kAlpha_8_SkColorType, kBGRA_8888_SkColorType,
+        For color types kRGB_565_SkColorType or kGray_8_SkColorType: always
+        returns true. For color types kAlpha_8_SkColorType, kBGRA_8888_SkColorType,
         kRGBA_8888_SkColorType: returns true if all pixel alpha values are 255.
-        For SkColorType kARGB_4444_SkColorType: returns true if all pixel alpha values are 15.
+        For color type kARGB_4444_SkColorType: returns true if all pixel alpha values are 15.
         For kRGBA_F16_SkColorType: returns true if all pixel alpha values are 1.0 or
         greater.
 
         Returns false for kUnknown_SkColorType.
 
-        @return  true if all pixels have opaque values or SkColorType is opaque
+        @return  true if all pixels have opaque values or color type is opaque
     */
     bool computeIsOpaque() const;
 
     /** Returns pixel at (x, y) as unpremultiplied color.
-        Returns black with alpha if SkColorType is kAlpha_8_SkColorType.
+        Returns black with alpha if color type is kAlpha_8_SkColorType.
 
         Input is not validated: out of bounds values of x or y trigger an assert() if
         built with SK_DEBUG defined; and returns undefined values or may crash if
-        SK_RELEASE is defined. Fails if SkColorType is kUnknown_SkColorType or
+        SK_RELEASE is defined. Fails if color type is kUnknown_SkColorType or
         pixel address is nullptr.
 
         SkColorSpace in SkImageInfo is ignored. Some color precision may be lost in the
@@ -257,7 +257,7 @@ public:
     /** Returns readable pixel address at (x, y). Returns nullptr if SkPixelRef is nullptr.
 
         Input is not validated: out of bounds values of x or y trigger an assert() if
-        built with SK_DEBUG defined. Returns nullptr if SkColorType is kUnknown_SkColorType.
+        built with SK_DEBUG defined. Returns nullptr if color type is kUnknown_SkColorType.
 
         Performs a lookup of pixel size; for better performance, call
         one of: addr8, addr16, addr32, addr64, or addrF16().
@@ -271,7 +271,7 @@ public:
     }
 
     /** Returns readable base pixel address. Result is addressable as unsigned 8-bit bytes.
-        Will trigger an assert() if SkColorType is not kAlpha_8_SkColorType or
+        Will trigger an assert() if color type is not kAlpha_8_SkColorType or
         kGray_8_SkColorType, and is built with SK_DEBUG defined.
 
         One byte corresponds to one pixel.
@@ -284,7 +284,7 @@ public:
     }
 
     /** Returns readable base pixel address. Result is addressable as unsigned 16-bit words.
-        Will trigger an assert() if SkColorType is not kRGB_565_SkColorType or
+        Will trigger an assert() if color type is not kRGB_565_SkColorType or
         kARGB_4444_SkColorType, and is built with SK_DEBUG defined.
 
         One word corresponds to one pixel.
@@ -297,7 +297,7 @@ public:
     }
 
     /** Returns readable base pixel address. Result is addressable as unsigned 32-bit words.
-        Will trigger an assert() if SkColorType is not kRGBA_8888_SkColorType or
+        Will trigger an assert() if color type is not kRGBA_8888_SkColorType or
         kBGRA_8888_SkColorType, and is built with SK_DEBUG defined.
 
         One word corresponds to one pixel.
@@ -310,7 +310,7 @@ public:
     }
 
     /** Returns readable base pixel address. Result is addressable as unsigned 64-bit words.
-        Will trigger an assert() if SkColorType is not kRGBA_F16_SkColorType and is built
+        Will trigger an assert() if color type is not kRGBA_F16_SkColorType and is built
         with SK_DEBUG defined.
 
         One word corresponds to one pixel.
@@ -323,7 +323,7 @@ public:
     }
 
     /** Returns readable base pixel address. Result is addressable as unsigned 16-bit words.
-        Will trigger an assert() if SkColorType is not kRGBA_F16_SkColorType and is built
+        Will trigger an assert() if color type is not kRGBA_F16_SkColorType and is built
         with SK_DEBUG defined.
 
         Each word represents one color component encoded as a half float.
@@ -342,7 +342,7 @@ public:
         Input is not validated: out of bounds values of x or y trigger an assert() if
         built with SK_DEBUG defined.
 
-        Will trigger an assert() if SkColorType is not kAlpha_8_SkColorType or
+        Will trigger an assert() if color type is not kAlpha_8_SkColorType or
         kGray_8_SkColorType, and is built with SK_DEBUG defined.
 
         @param x  column index, zero or greater, and less than width()
@@ -360,7 +360,7 @@ public:
         Input is not validated: out of bounds values of x or y trigger an assert() if
         built with SK_DEBUG defined.
 
-        Will trigger an assert() if SkColorType is not kRGB_565_SkColorType or
+        Will trigger an assert() if color type is not kRGB_565_SkColorType or
         kARGB_4444_SkColorType, and is built with SK_DEBUG defined.
 
         @param x  column index, zero or greater, and less than width()
@@ -378,7 +378,7 @@ public:
         Input is not validated: out of bounds values of x or y trigger an assert() if
         built with SK_DEBUG defined.
 
-        Will trigger an assert() if SkColorType is not kRGBA_8888_SkColorType or
+        Will trigger an assert() if color type is not kRGBA_8888_SkColorType or
         kBGRA_8888_SkColorType, and is built with SK_DEBUG defined.
 
         @param x  column index, zero or greater, and less than width()
@@ -396,7 +396,7 @@ public:
         Input is not validated: out of bounds values of x or y trigger an assert() if
         built with SK_DEBUG defined.
 
-        Will trigger an assert() if SkColorType is not kRGBA_F16_SkColorType and is built
+        Will trigger an assert() if color type is not kRGBA_F16_SkColorType and is built
         with SK_DEBUG defined.
 
         @param x  column index, zero or greater, and less than width()
@@ -414,7 +414,7 @@ public:
         Input is not validated: out of bounds values of x or y trigger an assert() if
         built with SK_DEBUG defined.
 
-        Will trigger an assert() if SkColorType is not kRGBA_F16_SkColorType and is built
+        Will trigger an assert() if color type is not kRGBA_F16_SkColorType and is built
         with SK_DEBUG defined.
 
         Each unsigned 16-bit word represents one color component encoded as a half float.
@@ -438,7 +438,7 @@ public:
     /** Returns writable pixel address at (x, y).
 
         Input is not validated: out of bounds values of x or y trigger an assert() if
-        built with SK_DEBUG defined. Returns zero if SkColorType is kUnknown_SkColorType.
+        built with SK_DEBUG defined. Returns zero if color type is kUnknown_SkColorType.
 
         @param x  column index, zero or greater, and less than width()
         @param y  row index, zero or greater, and less than height()
@@ -449,7 +449,7 @@ public:
     }
 
     /** Returns writable pixel address at (x, y). Result is addressable as unsigned
-        8-bit bytes. Will trigger an assert() if SkColorType is not kAlpha_8_SkColorType
+        8-bit bytes. Will trigger an assert() if color type is not kAlpha_8_SkColorType
         or kGray_8_SkColorType, and is built with SK_DEBUG defined.
 
         One byte corresponds to one pixel.
@@ -463,7 +463,7 @@ public:
     }
 
     /** Returns writable_addr pixel address at (x, y). Result is addressable as unsigned
-        16-bit words. Will trigger an assert() if SkColorType is not kRGB_565_SkColorType
+        16-bit words. Will trigger an assert() if color type is not kRGB_565_SkColorType
         or kARGB_4444_SkColorType, and is built with SK_DEBUG defined.
 
         One word corresponds to one pixel.
@@ -477,7 +477,7 @@ public:
     }
 
     /** Returns writable pixel address at (x, y). Result is addressable as unsigned
-        32-bit words. Will trigger an assert() if SkColorType is not
+        32-bit words. Will trigger an assert() if color type is not
         kRGBA_8888_SkColorType or kBGRA_8888_SkColorType, and is built with SK_DEBUG
         defined.
 
@@ -492,7 +492,7 @@ public:
     }
 
     /** Returns writable pixel address at (x, y). Result is addressable as unsigned
-        64-bit words. Will trigger an assert() if SkColorType is not
+        64-bit words. Will trigger an assert() if color type is not
         kRGBA_F16_SkColorType and is built with SK_DEBUG defined.
 
         One word corresponds to one pixel.
@@ -506,7 +506,7 @@ public:
     }
 
     /** Returns writable pixel address at (x, y). Result is addressable as unsigned
-        16-bit words. Will trigger an assert() if SkColorType is not
+        16-bit words. Will trigger an assert() if color type is not
         kRGBA_F16_SkColorType and is built with SK_DEBUG defined.
 
         Each word represents one color component encoded as a half float.
@@ -523,7 +523,7 @@ public:
     /** Copies a SkRect of pixels to dstPixels. Copy starts at (srcX, srcY), and does not
         exceed (this->width(), this->height()).
 
-        dstInfo specifies width, height, SkColorType, SkAlphaType, and
+        dstInfo specifies width, height, color type, alpha type, and
         SkColorSpace of destination. dstRowBytes specifics the gap from one destination
         row to the next. Returns true if pixels are copied. Returns false if
         dstInfo.addr() equals nullptr, or dstRowBytes is less than dstInfo.minRowBytes().
@@ -544,7 +544,7 @@ public:
         If behavior is SkTransferFunctionBehavior::kIgnore: source
         pixels are treated as if they are linear, regardless of how they are encoded.
 
-        @param dstInfo      destination width, height, SkColorType, SkAlphaType, SkColorSpace
+        @param dstInfo      destination width, height, color type, alpha type, SkColorSpace
         @param dstPixels    destination pixel storage
         @param dstRowBytes  destination row length
         @param srcX         column index whose absolute value is less than width()
@@ -559,7 +559,7 @@ public:
     /** Copies a SkRect of pixels to dstPixels. Copy starts at (0, 0), and does not
         exceed (this->width(), this->height()).
 
-        dstInfo specifies width, height, SkColorType, SkAlphaType, and
+        dstInfo specifies width, height, color type, alpha type, and
         SkColorSpace of destination. dstRowBytes specifics the gap from one destination
         row to the next. Returns true if pixels are copied. Returns false if
         dstInfo.addr() equals nullptr, or dstRowBytes is less than dstInfo.minRowBytes().
@@ -573,7 +573,7 @@ public:
 
         Returns false if this->width() or this->height() is zero or negative.
 
-        @param dstInfo      destination width, height, SkColorType, SkAlphaType, SkColorSpace
+        @param dstInfo      destination width, height, color type, alpha type, SkColorSpace
         @param dstPixels    destination pixel storage
         @param dstRowBytes  destination row length
         @return             true if pixels are copied to dstPixels
@@ -585,7 +585,7 @@ public:
     /** Copies a SkRect of pixels to dstPixels. Copy starts at (srcX, srcY), and does not
         exceed (this->width(), this->height()).
 
-        dstInfo specifies width, height, SkColorType, SkAlphaType, and
+        dstInfo specifies width, height, color type, alpha type, and
         SkColorSpace of destination. dstRowBytes specifics the gap from one destination
         row to the next. Returns true if pixels are copied. Returns false if
         dstInfo.addr() equals nullptr, or dstRowBytes is less than dstInfo.minRowBytes().
@@ -601,7 +601,7 @@ public:
         false if this->width() or this->height() is zero or negative. Returns false if:
         abs(srcX) >= this->width(), or if abs(srcY) >= this->height().
 
-        @param dstInfo      destination width, height, SkColorType, SkAlphaType, SkColorSpace
+        @param dstInfo      destination width, height, color type, alpha type, SkColorSpace
         @param dstPixels    destination pixel storage
         @param dstRowBytes  destination row length
         @param srcX         column index whose absolute value is less than width()
@@ -615,8 +615,8 @@ public:
     }
 
     /** Copies a SkRect of pixels to dst. Copy starts at (srcX, srcY), and does not
-        exceed (this->width(), this->height()). dst specifies width, height, SkColorType,
-        SkAlphaType, and SkColorSpace of destination.  Returns true if pixels are copied.
+        exceed (this->width(), this->height()). dst specifies width, height, color type,
+        alpha type, and SkColorSpace of destination.  Returns true if pixels are copied.
         Returns false if dst.addr() equals nullptr, or dst.rowBytes() is less than
         dst SkImageInfo::minRowBytes.
 
@@ -640,15 +640,15 @@ public:
         return this->readPixels(dst.info(), dst.writable_addr(), dst.rowBytes(), srcX, srcY);
     }
 
-    /** Copies pixels inside bounds() to dst. dst specifies width, height, SkColorType,
-        SkAlphaType, and SkColorSpace of destination.  Returns true if pixels are copied.
+    /** Copies pixels inside bounds() to dst. dst specifies width, height, color type,
+        alpha type, and SkColorSpace of destination.  Returns true if pixels are copied.
         Returns false if dst.addr() equals nullptr, or dst.rowBytes() is less than
         dst SkImageInfo::minRowBytes.
 
         Pixels are copied only if pixel conversion is possible. If this->colorType() is
-        kGray_8_SkColorType, or kAlpha_8_SkColorType; dst SkColorType must match.
+        kGray_8_SkColorType, or kAlpha_8_SkColorType; dst color type must match.
         If this->colorType() is kGray_8_SkColorType, dst SkColorSpace must match.
-        If this->alphaType() is kOpaque_SkAlphaType, dst SkAlphaType must
+        If this->alphaType() is kOpaque_SkAlphaType, dst alpha type must
         match. If this->colorSpace() is nullptr, dst SkColorSpace must match. Returns
         false if pixel conversion is not possible.
 
@@ -667,9 +667,9 @@ public:
         less than dst SkImageInfo::minRowBytes.
 
         Pixels are copied only if pixel conversion is possible. If this->colorType() is
-        kGray_8_SkColorType, or kAlpha_8_SkColorType; dst SkColorType must match.
+        kGray_8_SkColorType, or kAlpha_8_SkColorType; dst color type must match.
         If this->colorType() is kGray_8_SkColorType, dst SkColorSpace must match.
-        If this->alphaType() is kOpaque_SkAlphaType, dst SkAlphaType must
+        If this->alphaType() is kOpaque_SkAlphaType, dst alpha type must
         match. If this->colorSpace() is nullptr, dst SkColorSpace must match. Returns
         false if pixel conversion is not possible.
 
