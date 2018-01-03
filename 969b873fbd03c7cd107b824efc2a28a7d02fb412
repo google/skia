@@ -16,6 +16,24 @@
       "revId": "969b873fbd03c7cd107b824efc2a28a7d02fb412",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "76952f18_fd43179e",
+        "filename": "src/utils/SkFloatToDecimal.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-01-03T16:08:07Z",
+      "side": 1,
+      "message": "\"On many platforms, a single CPU instruction obtains both the quotient and the remainder, and this function may leverage that, although compilers are generally able to merge nearby / and % where suitable.\"\n\nI tried your change, and I tried std::div(), and both were slower.",
+      "parentUuid": "dd126c8b_d9dba041",
+      "revId": "969b873fbd03c7cd107b824efc2a28a7d02fb412",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
