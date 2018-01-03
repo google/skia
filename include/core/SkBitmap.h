@@ -99,14 +99,14 @@ public:
     */
     void swap(SkBitmap& other);
 
+    /** Returns SkPixmap with SkBitmap pixel address, row bytes, and SkImageInfo, if address
+        is available. If pixel address is not available, returns default constructed
+        SkPixmap: nullptr pixels, kUnknown_SkColorType, kUnknown_SkAlphaType, width and
+        height of zero.
 
-    /** Returns a SkPixmap with the SkBitmap pixel address, row bytes, and
-        SkImageInfo to pixmap, if address is available.  If pixel address
-        is not available, return an empty SkPixmap.
+        Returned SkPixmap becomes invalid on any future change to SkBitmap
 
-        The SkPixmap contents become invalid on any future change to SkBitmap.
-
-        @return  new SkPixmap describing this SkBitmap.
+        @return  SkPixmap describing SkBitmap, if pixels are readable; otherwise containing zeroes
     */
     SkPixmap pixmap() const { return fPixels ? SkPixmap(fInfo, fPixels, fRowBytes) : SkPixmap(); }
 
@@ -116,7 +116,7 @@ public:
     */
     const SkImageInfo& info() const { return fInfo; }
 
-    /** Returns pixel count in each pixel row. Should be equal or less than:
+    /** Returns pixel count in each row. Should be equal or less than:
         rowBytes() / info().bytesPerPixel().
 
         Maybe be less than pixelRef().width(). Will not exceed pixelRef().width() less
@@ -154,7 +154,7 @@ public:
         reference count of SkColorSpace is unchanged. The returned SkColorSpace is
         immutable.
 
-        @return  SkColorSpace in SkImageInfo
+        @return  SkColorSpace in SkImageInfo, or nullptr
     */
     SkColorSpace* colorSpace() const { return fInfo.colorSpace(); }
 
@@ -404,7 +404,6 @@ public:
 
         Calls reset() and returns false if:
         - rowBytes exceeds 31 bits
-        - imageInfo.width() times imageInfo.bytesPerPixel() exceeds 31 bits
         - imageInfo.width() is negative
         - imageInfo.height() is negative
         - rowBytes is positive and less than imageInfo.width() times imageInfo.bytesPerPixel()
@@ -427,8 +426,7 @@ public:
         memory. If flags is kZeroPixels_AllocFlag, memory is zeroed.
 
         Returns false and calls reset() if SkImageInfo could not be set, or memory could
-        not be allocated, or memory size exceeds 31 bits, or memory could not optionally
-        be zeroed.
+        not be allocated, or memory could not optionally be zeroed.
 
         On most platforms, allocating pixel memory may succeed even though there is
         not sufficient memory to hold pixels; allocation does not take place
@@ -449,7 +447,7 @@ public:
         memory. If flags is kZeroPixels_AllocFlag, memory is zeroed.
 
         Aborts execution if SkImageInfo could not be set, or memory could
-        not be allocated, or memory size exceeds 31 bits, or memory could not optionally
+        not be allocated, or memory could not optionally
         be zeroed. Abort steps may be provided by the user at compile time by defining
         SK_ABORT.
 
@@ -492,7 +490,7 @@ public:
         or equal zero. Pass in zero for rowBytes to compute the minimum valid value.
 
         Aborts execution if SkImageInfo could not be set, or memory could
-        not be allocated, or memory size exceeds 31 bits. Abort steps may be provided by
+        not be allocated. Abort steps may be provided by
         the user at compile time by defining SK_ABORT.
 
         On most platforms, allocating pixel memory may succeed even though there is
@@ -529,7 +527,7 @@ public:
         memory.
 
         Aborts execution if SkImageInfo could not be set, or memory could
-        not be allocated, or memory size exceeds 31 bits. Abort steps may be provided by
+        not be allocated. Abort steps may be provided by
         the user at compile time by defining SK_ABORT.
 
         On most platforms, allocating pixel memory may succeed even though there is
@@ -543,7 +541,7 @@ public:
         this->allocPixels(info, info.minRowBytes());
     }
 
-    /** Sets SkImageInfo to width, height, and the native SkColorType; and allocates
+    /** Sets SkImageInfo to width, height, and native SkColorType; and allocates
         pixel memory. If isOpaque is true, sets SkImageInfo to kOpaque_SkAlphaType;
         otherwise, sets to kPremul_SkAlphaType.
 
@@ -552,8 +550,8 @@ public:
 
         Returns false if allocation fails.
 
-        Use to create SkBitmap that matches native pixel arrangement on the platform,
-        to draw without converting its pixel format.
+        Use to create SkBitmap that matches SkPMColor, the native pixel arrangement on
+        the platform. SkBitmap drawn to output device skips converting its pixel format.
 
         @param width     pixel column count; must be zero or greater
         @param height    pixel row count; must be zero or greater
@@ -574,8 +572,8 @@ public:
         allocation fails. Abort steps may be provided by the user at compile time by
         defining SK_ABORT.
 
-        Use to create SkBitmap that matches native pixel arrangement on the platform,
-        to draw without converting its pixel format.
+        Use to create SkBitmap that matches SkPMColor, the native pixel arrangement on
+        the platform. SkBitmap drawn to output device skips converting its pixel format.
 
         @param width     pixel column count; must be zero or greater
         @param height    pixel row count; must be zero or greater
@@ -676,8 +674,7 @@ public:
     /** Allocates pixel memory with HeapAllocator, and replaces existing SkPixelRef.
         The allocation size is determined by SkImageInfo width, height, and SkColorType.
 
-        Returns false if info().colorType is kUnknown_SkColorType, or allocation exceeds
-        31 bits, or allocation fails.
+        Returns false if info().colorType is kUnknown_SkColorType, or allocation fails.
 
         @return  true if the allocation succeeds
     */
@@ -688,8 +685,8 @@ public:
     /** Allocates pixel memory with HeapAllocator, and replaces existing SkPixelRef.
         The allocation size is determined by SkImageInfo width, height, and SkColorType.
 
-        Aborts if info().colorType is kUnknown_SkColorType, or allocation exceeds
-        31 bits, or allocation fails. Abort steps may be provided by the user at compile
+        Aborts if info().colorType is kUnknown_SkColorType, or allocation fails.
+        Abort steps may be provided by the user at compile
         time by defining SK_ABORT.
     */
     void allocPixels() {
