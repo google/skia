@@ -16,15 +16,13 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-SkBinaryWriteBuffer::SkBinaryWriteBuffer(uint32_t flags)
-    : fFlags(flags)
-    , fFactorySet(nullptr)
+SkBinaryWriteBuffer::SkBinaryWriteBuffer()
+    : fFactorySet(nullptr)
     , fTFSet(nullptr) {
 }
 
-SkBinaryWriteBuffer::SkBinaryWriteBuffer(void* storage, size_t storageSize, uint32_t flags)
-    : fFlags(flags)
-    , fFactorySet(nullptr)
+SkBinaryWriteBuffer::SkBinaryWriteBuffer(void* storage, size_t storageSize)
+    : fFactorySet(nullptr)
     , fWriter(storage, storageSize)
     , fTFSet(nullptr) {
 }

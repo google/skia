@@ -25,8 +25,6 @@ public:
     SkWriteBuffer() {}
     virtual ~SkWriteBuffer() {}
 
-    virtual bool isCrossProcess() const = 0;
-
     virtual void writePad32(const void* buffer, size_t bytes) = 0;
 
     virtual void writeByteArray(const void* data, size_t size) = 0;
@@ -77,17 +75,9 @@ protected:
  */
 class SkBinaryWriteBuffer : public SkWriteBuffer {
 public:
-    enum Flags {
-        kCrossProcess_Flag = 1 << 0,
-    };
-
-    SkBinaryWriteBuffer(uint32_t flags = 0);
-    SkBinaryWriteBuffer(void* initialStorage, size_t storageSize, uint32_t flags = 0);
+    SkBinaryWriteBuffer();
+    SkBinaryWriteBuffer(void* initialStorage, size_t storageSize);
     ~SkBinaryWriteBuffer() override;
-
-    bool isCrossProcess() const override {
-        return SkToBool(fFlags & kCrossProcess_Flag);
-    }
 
     void write(const void* buffer, size_t bytes) {
         fWriter.write(buffer, bytes);
@@ -135,7 +125,6 @@ public:
     SkRefCntSet* setTypefaceRecorder(SkRefCntSet*);
 
 private:
-    const uint32_t fFlags;
     SkFactorySet* fFactorySet;
     SkWriter32 fWriter;
 
