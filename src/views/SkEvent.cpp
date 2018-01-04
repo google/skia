@@ -6,6 +6,7 @@
  */
 
 #include "SkEvent.h"
+#include "SkMalloc.h"
 
 void SkEvent::initialize(const char* type) {
     fType = nullptr;
@@ -13,36 +14,30 @@ void SkEvent::initialize(const char* type) {
     f32 = 0;
 }
 
-SkEvent::SkEvent()
-{
+SkEvent::SkEvent() {
     initialize("");
 }
 
-SkEvent::SkEvent(const SkEvent& src)
-{
+SkEvent::SkEvent(const SkEvent& src) {
     *this = src;
     setType(src.fType);
 }
 
-SkEvent::SkEvent(const char type[])
-{
+SkEvent::SkEvent(const char type[]) {
     SkASSERT(type);
     initialize(type);
 }
 
-SkEvent::~SkEvent()
-{
+SkEvent::~SkEvent() {
     sk_free(fType);
 }
 
-bool SkEvent::isType(const char type[]) const
-{
+bool SkEvent::isType(const char type[]) const {
     size_t typeLen = strlen(type);
     return strncmp(fType, type, typeLen) == 0 && fType[typeLen] == 0;
 }
 
-void SkEvent::setType(const char type[])
-{
+void SkEvent::setType(const char type[]) {
     size_t typeLen = strlen(type);
     fType = (char*) sk_malloc_throw(typeLen + 1);
     memcpy(fType, type, typeLen);

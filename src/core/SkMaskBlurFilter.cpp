@@ -5,15 +5,15 @@
  * found in the LICENSE file.
  */
 
+#include "SkArenaAlloc.h"
+#include "SkGaussFilter.h"
+#include "SkMalloc.h"
 #include "SkMaskBlurFilter.h"
+#include "SkNx.h"
+#include "SkSafeMath.h"
 
 #include <cmath>
 #include <climits>
-
-#include "SkArenaAlloc.h"
-#include "SkGaussFilter.h"
-#include "SkNx.h"
-#include "SkSafeMath.h"
 
 static const double kPi = 3.14159265358979323846264338327950288;
 
