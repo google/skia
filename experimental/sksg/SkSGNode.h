@@ -52,11 +52,14 @@ protected:
 private:
     void addInvalReceiver(Node*);
     void removeInvalReceiver(Node*);
+    // TODO: too friendly, find another way.
+    friend class ComposedMatrix;
     friend class Draw;
     friend class EffectNode;
     friend class Group;
     friend class Merge;
     friend class Stroke;
+    friend class Transform;
 
     template <typename Func>
     void forEachInvalReceiver(Func&&) const;

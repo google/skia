@@ -171,8 +171,8 @@ void CompositeRRect::apply() {
    fRRectNode->setRRect(rr);
 }
 
-CompositeTransform::CompositeTransform(sk_sp<sksg::RenderNode> wrapped_node)
-    : fTransformNode(sksg::Transform::Make(std::move(wrapped_node), SkMatrix::I())) {}
+CompositeTransform::CompositeTransform(sk_sp<sksg::Matrix> matrix)
+    : fMatrixNode(std::move(matrix)) {}
 
 void CompositeTransform::apply() {
     SkMatrix t = SkMatrix::MakeTrans(-fAnchorPoint.x(), -fAnchorPoint.y());
@@ -182,7 +182,7 @@ void CompositeTransform::apply() {
     t.postTranslate(fPosition.x(), fPosition.y());
     // TODO: skew
 
-    fTransformNode->setMatrix(t);
+    fMatrixNode->setMatrix(t);
 }
 
 } // namespace skotty

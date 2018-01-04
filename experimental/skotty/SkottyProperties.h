@@ -21,9 +21,9 @@
 class SkPath;
 
 namespace sksg {
+class Matrix;
 class RRect;
-class RenderNode;
-class Transform;
+class RenderNode;;
 }
 
 namespace  skotty {
@@ -113,9 +113,7 @@ private:
 
 class CompositeTransform final : public SkRefCnt {
 public:
-    explicit CompositeTransform(sk_sp<sksg::RenderNode>);
-
-    const sk_sp<sksg::Transform>& node() const { return fTransformNode; }
+    explicit CompositeTransform(sk_sp<sksg::Matrix>);
 
     COMPOSITE_PROPERTY(AnchorPoint, SkPoint , SkPoint::Make(0, 0))
     COMPOSITE_PROPERTY(Position   , SkPoint , SkPoint::Make(0, 0))
@@ -127,7 +125,7 @@ public:
 private:
     void apply();
 
-    sk_sp<sksg::Transform> fTransformNode;
+    sk_sp<sksg::Matrix> fMatrixNode;
 
     using INHERITED = SkRefCnt;
 };
