@@ -406,14 +406,7 @@ static void check(skiatest::Reporter* r,
             return;
         }
 
-        std::unique_ptr<SkAndroidCodec> androidCodec(nullptr);
-        if (isIncomplete) {
-            size_t size = stream->getLength();
-            sk_sp<SkData> data((SkData::MakeFromStream(stream.get(), 2 * size / 3)));
-            androidCodec = SkAndroidCodec::MakeFromData(data);
-        } else {
-            androidCodec = SkAndroidCodec::MakeFromStream(std::move(stream));
-        }
+        auto androidCodec = SkAndroidCodec::MakeFromCodec(std::move(codec));
         if (!androidCodec) {
             ERRORF(r, "Unable to decode '%s'", path);
             return;
