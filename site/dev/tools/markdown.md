@@ -13,12 +13,19 @@ with the value of the Reitveld issue id:
 
     https://skia.org/path/to/markdown-file?cl=REITVELD_ISSUE_NUMBER
 
-You can also run a local copy of the documentation server, which will allow
-you to preview changes much quicker. You must have [Go](https://golang.org)
-installed on your computer, which you will have if you are running on a Google
-corporate workstation. Run:
+This is the preferred method of previewing docs changes.
 
-    go get -u skia.googlesource.com/buildbot.git/doc/go/docserver
+If for some reason you can't use the method above to preview docs changes you
+can also run a local copy of the documentation server, which will allow you to
+preview changes much quicker. You must have a recent version (>=8.9) of
+[node](https://nodejs.org/) installed on your machine. You must also have
+[Go](https://golang.org) installed on your computer, which you will have if
+you are running on a Google corporate workstation. Installation also means
+that you have `$GOPATH/bin` [added to your PATH](https://golang.org/doc/code.html#GOPATH). Run:
+
+    go get -u go.skia.org/infra/doc/go/docserver
+    cd $GOPATH/src/go.skia.org/infra/doc
+    make
 
 And then **from within** the directory of your local Git checkout of Skia run:
 
