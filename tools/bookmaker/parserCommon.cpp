@@ -224,6 +224,52 @@ void ParserCommon::writeString(const char* str) {
     fMaxLF = 2;
 }
 
+const char* ParserCommon::ReadToBuffer(string filename, int* size) {
+    FILE* file = fopen(filename.c_str(), "rb");
+    if (!file) {
+        return nullptr;
+    }
+    fseek(file, 0L, SEEK_END);
+    *size = (int) ftell(file);
+    rewind(file);
+    char* buffer = new char[*size];
+    memset(buffer, ' ', *size);
+    SkAssertResult(*size == (int)fread(buffer, 1, *size, file));
+    fclose(file);
+    fflush(file);
+    return buffer;
+}
+
+bool ParserCommon::writtenFileDiffers(string filename, string readname) {
+    int writtenSize, readSize;
+    const char* written = ReadToBuffer(filename, &writtenSize);
+    if (!written) {
+        return true;
+    }
+    const char* read = ReadToBuffer(readname, &readSize);
+    if (!read) {
+        delete[] written;
+        return true;
+    }
+#if 0  // enable for debugging this
+    int smaller = SkTMin(writtenSize, readSize);
+    for (int index = 0; index < smaller; ++index) {
+        if (written[index] != read[index]) {
+            SkDebugf("%.*s\n", 40, &written[index]);
+            SkDebugf("%.*s\n", 40, &read[index]);
+            break;
+        }
+    }
+#endif
+    if (readSize != writtenSize) {
+        return true;
+    }
+    bool result = !!memcmp(written, read, writtenSize);
+    delete[] written;
+    delete[] read;
+    return result;
+}
+
 StatusIter::StatusIter(const char* statusFile, const char* suffix, StatusFilter filter)
     : fSuffix(suffix)
     , fFilter(filter) {
