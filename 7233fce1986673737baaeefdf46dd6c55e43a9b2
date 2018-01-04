@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "1b0fd083_4b107712",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 288,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-01-04T19:06:31Z",
+      "side": 1,
+      "message": "So the contract for this call is that the return value only has meaning if numSemaphores \u003e 0. Basically it was a validation that if you passed us in semaphores were we successful in using them, and not whether we submitted any semaphores or not. So in the case were numSemaphores \u003e 0, we were always setting the return value.\n\nThus initializing this value to anything is fine, with kNo probably being the best choice.",
+      "parentUuid": "a3e9973e_3be55af6",
+      "revId": "7233fce1986673737baaeefdf46dd6c55e43a9b2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "35b07674_307b3409",
         "filename": "src/gpu/GrTextureMaker.cpp",
         "patchSetId": 6
