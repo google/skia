@@ -74,10 +74,40 @@ public:
 #endif
     }
 
+    int32_t GrIORefProxy::getProxyRefCnt_TestOnly() const {
+        return fRefCnt;
+    }
+
+    int32_t GrIORefProxy::getBackingRefCnt_TestOnly() const {
+        if (fTarget) {
+            return fTarget->fRefCnt;
+        }
+
+        return fRefCnt;
+    }
+
+    int32_t GrIORefProxy::getPendingReadCnt_TestOnly() const {
+        if (fTarget) {
+            return fTarget->fPendingReads;
+        }
+
+        return fPendingReads;
+    }
+
+    int32_t GrIORefProxy::getPendingWriteCnt_TestOnly() const {
+        if (fTarget) {
+            return fTarget->fPendingWrites;
+        }
+
+        return fPendingWrites;
+    }
+
+#if 0
     int32_t getProxyRefCnt_TestOnly() const;
     int32_t getBackingRefCnt_TestOnly() const;
     int32_t getPendingReadCnt_TestOnly() const;
     int32_t getPendingWriteCnt_TestOnly() const;
+#endif
 
     void addPendingRead() const {
         this->validate();
@@ -181,6 +211,8 @@ private:
 
 class GrSurfaceProxy : public GrIORefProxy {
 public:
+    bool fIsOkayToBeInstantiated = false;
+
     static sk_sp<GrSurfaceProxy> MakeWrapped(sk_sp<GrSurface>, GrSurfaceOrigin);
     static sk_sp<GrTextureProxy> MakeWrapped(sk_sp<GrTexture>, GrSurfaceOrigin);
 

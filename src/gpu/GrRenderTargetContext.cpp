@@ -267,7 +267,9 @@ void GrRenderTargetContext::discard() {
 
     AutoCheckFlush acf(this->drawingManager());
 
+    SkASSERT(!this->priv().isInstantiated());
     this->getRTOpList()->discard();
+    SkASSERT(!this->priv().isInstantiated());
 }
 
 void GrRenderTargetContext::clear(const SkIRect* rect,
@@ -523,6 +525,7 @@ void GrRenderTargetContext::drawRect(const GrClip& clip,
                 if (paint.isConstantBlendedColor(&clearColor)) {
                     this->clear(nullptr, clearColor,
                                 GrRenderTargetContext::CanClearFullscreen::kYes);
+                    paint.markHandled();
                     return;
                 }
             }
@@ -716,6 +719,7 @@ void GrRenderTargetContext::fillRectToRect(const GrClip& clip,
     SkRect croppedLocalRect = localRect;
     if (!crop_filled_rect(this->width(), this->height(), clip, viewMatrix,
                           &croppedRect, &croppedLocalRect)) {
+        paint.markHandled();
         return;
     }
 
@@ -1624,6 +1628,10 @@ SkBudgeted GrRenderTargetContextPriv::isBudgeted() const {
     SkDEBUGCODE(fRenderTargetContext->validate();)
 
     return fRenderTargetContext->fRenderTargetProxy->isBudgeted();
+}
+
+bool GrRenderTargetContextPriv::isInstantiated() const {
+    return fRenderTargetContext->fRenderTargetProxy->priv().isInstantiated();
 }
 
 void GrRenderTargetContext::drawShapeUsingPathRenderer(const GrClip& clip,

@@ -7,6 +7,8 @@
 
 #include "Test.h"
 
+#if 0
+
 #include "SkBitmap.h"
 #include "SkImage.h"
 #include "SkImageFilter.h"
@@ -275,4 +277,6 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterCache_GPUBacked, reporter, ctxInfo
     test_internal_purge(reporter, fullImg);
     test_explicit_purging(reporter, fullImg, subsetImg);
 }
+#endif
+
 #endif

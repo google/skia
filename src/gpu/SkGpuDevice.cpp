@@ -432,6 +432,7 @@ void SkGpuDevice::drawRRect(const SkRRect& rrect, const SkPaint& paint) {
         SkPath path;
         path.setIsVolatile(true);
         path.addRRect(rrect);
+        grPaint.markHandled();
         GrBlurUtils::drawPathWithMaskFilter(fContext.get(), fRenderTargetContext.get(),
                                             this->clip(), path, paint, this->ctm(), nullptr,
                                             this->devClipBounds(), true);

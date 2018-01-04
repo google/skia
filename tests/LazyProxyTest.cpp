@@ -75,7 +75,7 @@ public:
         }
 
         void visitProxies(const VisitProxyFunc& func) const override {
-            func(fProxy.get());
+            func(fProxy.get(), false);
         }
 
         void onExecute(GrOpFlushState*) override {

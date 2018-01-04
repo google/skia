@@ -129,6 +129,17 @@ public:
         return fCoverageFragmentProcessors[i].get();
     }
 
+    void markHandled() {
+        for (int i = 0; i < this->numColorFragmentProcessors(); ++i) {
+            GrFragmentProcessor* fp = this->getColorFragmentProcessor(i);
+            fp->markAsHandled();
+        }
+        for (int i = 0; i < this->numCoverageFragmentProcessors(); ++i) {
+            GrFragmentProcessor* fp = this->getCoverageFragmentProcessor(i);
+            fp->markAsHandled();
+        }
+    }
+
     /**
      * Returns true if the paint's output color will be constant after blending. If the result is
      * true, constantColor will be updated to contain the constant color. Note that we can conflate

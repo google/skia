@@ -143,6 +143,7 @@ GrBitmapTextGeoProc::GrBitmapTextGeoProc(GrColor color,
             fTextureSamplers[i].reset(std::move(proxies[i]), params);
             this->addTextureSampler(&fTextureSamplers[i]);
         }
+        fTextureSamplers[i].fHandled = true;  // all the ops that use this should add dependencies
     }
 }
 

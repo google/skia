@@ -277,6 +277,11 @@ public:
      * Must be initialized before adding to a GrProcessor's texture access list.
      */
     TextureSampler();
+
+    ~TextureSampler() {
+        SkASSERT(fHandled);
+    }
+
     /**
      * This copy constructor is used by GrFragmentProcessor::clone() implementations. The copy
      * always takes a new ref on the texture proxy as the new fragment processor will not yet be
@@ -285,7 +290,9 @@ public:
     explicit TextureSampler(const TextureSampler& that)
             : fProxyRef(sk_ref_sp(that.fProxyRef.get()), that.fProxyRef.ioType())
             , fSamplerState(that.fSamplerState)
-            , fVisibility(that.fVisibility) {}
+            , fVisibility(that.fVisibility) {
+        fHandled = that.fHandled;
+    }
 
     TextureSampler(sk_sp<GrTextureProxy>, const GrSamplerState&);
 
@@ -330,6 +337,8 @@ public:
      * For internal use by GrProcessor.
      */
     const GrSurfaceProxyRef* programProxy() const { return &fProxyRef; }
+
+    mutable bool fHandled = false;
 
 private:
     GrSurfaceProxyRef fProxyRef;

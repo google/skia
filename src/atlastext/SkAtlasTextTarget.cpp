@@ -160,7 +160,7 @@ void SkInternalAtlasTextTarget::addDrawOp(const GrClip& clip, std::unique_ptr<Gr
             break;
         }
     }
-    op->visitProxies([](GrSurfaceProxy*) {});
+    op->visitProxies([](GrSurfaceProxy*, bool isDstRead) {});
     fOps.emplace_back(std::move(op));
 }
 

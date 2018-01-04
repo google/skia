@@ -329,6 +329,8 @@ public:
                                                                            nullptr, nullptr);
 #endif
 
+        rtc->accessRenderTarget();
+
         // clear the atlas
         rtc->clear(nullptr, 0xFFFFFFFF, GrRenderTargetContext::CanClearFullscreen::kYes);
 

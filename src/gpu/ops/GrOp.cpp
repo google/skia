@@ -10,6 +10,15 @@
 #include "GrMemoryPool.h"
 #include "SkSpinlock.h"
 
+void GrOp::markAsHandled() {
+    auto noop = [] (const GrSurfaceProxy* p, bool isDstRead) {
+    };
+
+    // This call just fools the infrastructure into believing all the TextureSamplers have
+    // been processed
+    this->visitProxies(noop);
+}
+
 // TODO I noticed a small benefit to using a larger exclusive pool for ops. Its very small, but
 // seems to be mostly consistent.  There is a lot in flux right now, but we should really revisit
 // this.

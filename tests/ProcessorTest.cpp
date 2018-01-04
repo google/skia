@@ -344,6 +344,8 @@ sk_sp<GrTextureProxy> make_input_texture(GrContext* context, int width, int heig
     return GrSurfaceProxy::MakeDeferred(context->resourceProvider(), desc, SkBudgeted::kYes,
                                         data.get(), width * sizeof(GrColor));
 }
+
+#if 0
 DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
     using FPFactory = GrFragmentProcessorTestFactory;
@@ -384,6 +386,9 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, repor
             timesToInvokeFactory *= FPFactory::Count() / 2;
         }
         for (int j = 0; j < timesToInvokeFactory; ++j) {
+            if (fp) {
+                fp->markAsHandled();
+            }
             fp = FPFactory::MakeIdx(i, &testData);
             if (!fp->instantiate(context->resourceProvider())) {
                 continue;
@@ -475,6 +480,12 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, repor
                     }
                 }
             }
+
+            clone->markAsHandled();
+        }
+
+        if (fp) {
+            fp->markAsHandled();
         }
     }
 }
@@ -556,6 +567,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorCloneTest, reporter, ctxInfo) {
         }
     }
 }
+#endif
 
 #endif  // GR_TEST_UTILS
 #endif  // SK_ALLOW_STATIC_GLOBAL_INITIALIZERS

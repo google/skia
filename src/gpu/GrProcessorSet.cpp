@@ -235,6 +235,8 @@ GrProcessorSet::Analysis GrProcessorSet::finalize(const GrProcessorAnalysisColor
         analysis.fUsesLocalCoords = coverageUsesLocalCoords | colorAnalysis.usesLocalCoords();
     }
     for (int i = 0; i < colorFPsToEliminate; ++i) {
+        GrFragmentProcessor* fp = const_cast<GrFragmentProcessor*>(fFragmentProcessors[i].get());
+        fp->markAsHandled();
         fFragmentProcessors[i].reset(nullptr);
     }
     for (int i = colorFPsToEliminate; i < fFragmentProcessors.count(); ++i) {

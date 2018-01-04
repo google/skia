@@ -114,7 +114,7 @@ bool GrTextureOpList::copySurface(const GrCaps& caps,
         return false;
     }
 
-    auto addDependency = [ &caps, this ] (GrSurfaceProxy* p) {
+    auto addDependency = [ &caps, this ] (GrSurfaceProxy* p, bool isDstRead) {
         this->addDependency(p, caps);
     };
     op->visitProxies(addDependency);
@@ -126,23 +126,36 @@ bool GrTextureOpList::copySurface(const GrCaps& caps,
 void GrTextureOpList::gatherProxyIntervals(GrResourceAllocator* alloc) const {
     unsigned int cur = alloc->numOps();
 
+    SkDebugf("********************************************\n");
+    SkDebugf("gather for texture opList #%d { tpID: %d tID: %d }\n",
+             this->uniqueID(),
+             fTarget.get()->uniqueID().asUInt(),
+             this->isInstantiated() ? fTarget.get()->underlyingUniqueID().asUInt() : -1);
+
+    if (this->isInstantiated()) {
+        SkASSERT(fTarget.get()->fIsOkayToBeInstantiated);
+        // TODO: I want an assert that the instantiated GrSurface cannot accessed from the cache
+    }
+
     // Add the interval for all the writes to this opList's target
+    SkDebugf("adding destination interval to opList #%d for %d ops\n", this->uniqueID(), fRecordedOps.count());
     if (fRecordedOps.count()) {
-        alloc->addInterval(fTarget.get(), cur, cur+fRecordedOps.count()-1);
+        alloc->addInterval(fTarget.get(), cur, cur+fRecordedOps.count()-1, 1, false);
     } else {
         // This can happen if there is a loadOp (e.g., a clear) but no other draws. In this case we
         // still need to add an interval for the destination so we create a fake op# for
         // the missing clear op.
-        alloc->addInterval(fTarget.get());
+        alloc->addInterval(fTarget.get(), 1, false);
         alloc->incOps();
     }
 
-    auto gather = [ alloc SkDEBUGCODE(, this) ] (GrSurfaceProxy* p) {
-        alloc->addInterval(p SkDEBUGCODE(, p == fTarget.get()));
+    auto gather = [ alloc SkDEBUGCODE(, this) ] (GrSurfaceProxy* p, bool isDstRead) {
+        alloc->addInterval(p, 1, isDstRead);
     };
     for (int i = 0; i < fRecordedOps.count(); ++i) {
         const GrOp* op = fRecordedOps[i].get(); // only diff from the GrRenderTargetOpList version
         if (op) {
+            SkDebugf("gathering intervals for: opList #%d (%s), op# %d\n", this->uniqueID(), op->name(), cur+i);
             op->visitProxies(gather);
         }
 
@@ -150,6 +163,7 @@ void GrTextureOpList::gatherProxyIntervals(GrResourceAllocator* alloc) const {
         // keep all the math consistent.
         alloc->incOps();
     }
+    SkDebugf("********************************************\n");
 }
 
 void GrTextureOpList::recordOp(std::unique_ptr<GrOp> op) {

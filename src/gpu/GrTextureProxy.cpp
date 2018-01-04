@@ -125,6 +125,8 @@ size_t GrTextureProxy::onUninstantiatedGpuMemorySize() const {
 }
 
 void GrTextureProxy::setUniqueKey(GrResourceCache* cache, const GrUniqueKey& key) {
+    SkDebugf("*************** setting unique key on TP: %d\n",this->uniqueID().asUInt());
+
     SkASSERT(key.isValid());
     SkASSERT(!fUniqueKey.isValid()); // proxies can only ever get one uniqueKey
 
@@ -138,6 +140,8 @@ void GrTextureProxy::setUniqueKey(GrResourceCache* cache, const GrUniqueKey& key
 }
 
 void GrTextureProxy::clearUniqueKey() {
+    SkDebugf("*************** clearing unique key on TP: %d\n",this->uniqueID().asUInt());
+
     fUniqueKey.reset();
     fCache = nullptr;
 }

@@ -1247,10 +1247,12 @@ GrGradientEffect::GrGradientEffect(ClassID classID, const CreateArgs& args, bool
             break;
     }
 
+
     // Now that we've locked down a strategy, adjust any dependent params.
     if (fStrategy != InterpolationStrategy::kTexture) {
         // Analytical cases.
         fCoordTransform.reset(*args.fMatrix);
+        fTextureSampler.fHandled = true;          // no texture to sample
     } else {
         SkGradientShaderBase::GradientBitmapType bitmapType =
             SkGradientShaderBase::GradientBitmapType::kLegacy;

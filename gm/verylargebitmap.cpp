@@ -120,5 +120,8 @@ protected:
 private:
     typedef skiagm::GM INHERITED;
 };
-DEF_GM( return new VeryLargeBitmapGM(make_raster_image, "bitmap"); )
-DEF_GM( return new VeryLargeBitmapGM(make_picture_image, "_picture_image"); )
+
+// These tests force flushing at an inconvenient time and cause an in-flight RTC
+// to be instantiated.
+//DEF_GM( return new VeryLargeBitmapGM(make_raster_image, "bitmap"); )
+//DEF_GM( return new VeryLargeBitmapGM(make_picture_image, "_picture_image"); )

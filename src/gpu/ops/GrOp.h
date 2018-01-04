@@ -63,9 +63,11 @@ public:
     GrOp(uint32_t classID);
     virtual ~GrOp();
 
+    void markAsHandled();
+
     virtual const char* name() const = 0;
 
-    typedef std::function<void(GrSurfaceProxy*)> VisitProxyFunc;
+    typedef std::function<void(GrSurfaceProxy*, bool isDstRead)> VisitProxyFunc;
 
     virtual void visitProxies(const VisitProxyFunc&) const {
         // This default implementation assumes the op has no proxies
