@@ -144,7 +144,7 @@ public:
                 SkASSERT(fPtr != fStorage); // otherwise we lied when setting didChangeAlloc.
                 fPtr = fStorage;
             } else {
-                fPtr = sk_malloc_flags(size, SK_MALLOC_THROW | SK_MALLOC_TEMP);
+                fPtr = sk_malloc_throw(size);
             }
 
             fSize = size;
