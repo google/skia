@@ -194,6 +194,41 @@ sk_sp<sksg::GeometryNode> AttachEllipseGeometry(const Json::Value& jellipse, Att
     return rect_node;
 }
 
+sk_sp<sksg::GeometryNode> AttachPolystarGeometry(const Json::Value& jstar, AttachContext* ctx) {
+    SkASSERT(jstar.isObject());
+
+    static constexpr CompositePolyStar::Type gTypes[] = {
+        CompositePolyStar::Type::kStar, // "sy": 1
+        CompositePolyStar::Type::kPoly, // "sy": 2
+    };
+
+    const auto type = ParseInt(jstar["sy"], 0) - 1;
+    if (type < 0 || type >= SkTo<int>(SK_ARRAY_COUNT(gTypes))) {
+        LogFail(jstar, "Unknown polystar type");
+        return nullptr;
+    }
+
+    auto path_node = sksg::Path::Make();
+    auto composite = sk_make_sp<CompositePolyStar>(path_node, gTypes[type]);
+
+    AttachProperty<VectorValue, SkPoint>(jstar["p"], ctx, composite,
+        [](const sk_sp<CompositePolyStar>& node, const SkPoint& p) { node->setPosition(p); });
+    AttachProperty<ScalarValue, SkScalar>(jstar["pt"], ctx, composite,
+        [](const sk_sp<CompositePolyStar>& node, SkScalar pt) { node->setPointCount(pt); });
+    AttachProperty<ScalarValue, SkScalar>(jstar["ir"], ctx, composite,
+        [](const sk_sp<CompositePolyStar>& node, SkScalar ir) { node->setInnerRadius(ir); });
+    AttachProperty<ScalarValue, SkScalar>(jstar["or"], ctx, composite,
+        [](const sk_sp<CompositePolyStar>& node, SkScalar otr) { node->setOuterRadius(otr); });
+    AttachProperty<ScalarValue, SkScalar>(jstar["is"], ctx, composite,
+        [](const sk_sp<CompositePolyStar>& node, SkScalar is) { node->setInnerRoundness(is); });
+    AttachProperty<ScalarValue, SkScalar>(jstar["os"], ctx, composite,
+        [](const sk_sp<CompositePolyStar>& node, SkScalar os) { node->setOuterRoundness(os); });
+    AttachProperty<ScalarValue, SkScalar>(jstar["r"], ctx, composite,
+        [](const sk_sp<CompositePolyStar>& node, SkScalar r) { node->setRotation(r); });
+
+    return path_node;
+}
+
 sk_sp<sksg::Color> AttachColorPaint(const Json::Value& obj, AttachContext* ctx) {
     SkASSERT(obj.isObject());
 
@@ -278,6 +313,7 @@ static constexpr GeometryAttacherT gGeometryAttachers[] = {
     AttachPathGeometry,
     AttachRRectGeometry,
     AttachEllipseGeometry,
+    AttachPolystarGeometry,
 };
 
 using PaintAttacherT = sk_sp<sksg::PaintNode> (*)(const Json::Value&, AttachContext*);
@@ -325,8 +361,9 @@ const ShapeInfo* FindShapeInfo(const Json::Value& shape) {
         { "fl", ShapeType::kPaint         , 0 }, // fill      -> AttachFillPaint
         { "gr", ShapeType::kGroup         , 0 }, // group     -> AttachShapeGroup
         { "mm", ShapeType::kGeometryEffect, 0 }, // merge     -> AttachMergeGeometryEffect
-        { "rc", ShapeType::kGeometry      , 1 }, // shape     -> AttachRRectGeometry
+        { "rc", ShapeType::kGeometry      , 1 }, // rrect     -> AttachRRectGeometry
         { "sh", ShapeType::kGeometry      , 0 }, // shape     -> AttachPathGeometry
+        { "sr", ShapeType::kGeometry      , 3 }, // polystar  -> AttachPolyStarGeometry
         { "st", ShapeType::kPaint         , 1 }, // stroke    -> AttachStrokePaint
         { "tr", ShapeType::kTransform     , 0 }, // transform -> AttachTransform
     };
