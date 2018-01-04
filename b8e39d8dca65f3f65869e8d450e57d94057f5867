@@ -98,6 +98,24 @@
       "revId": "b8e39d8dca65f3f65869e8d450e57d94057f5867",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a5d68e7e_d304f9a6",
+        "filename": "src/codec/SkIcoCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-01-04T15:40:58Z",
+      "side": 1,
+      "message": "Unclear. The caller seems to be checking for failure on the next line. I will ask leon.",
+      "parentUuid": "c1b41a42_9b160786",
+      "revId": "b8e39d8dca65f3f65869e8d450e57d94057f5867",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
