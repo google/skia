@@ -101,7 +101,7 @@ public:
 
     COMPOSITE_PROPERTY(Position, SkPoint , SkPoint::Make(0, 0))
     COMPOSITE_PROPERTY(Size    , SkSize  , SkSize::Make(0, 0))
-    COMPOSITE_PROPERTY(Radius  , SkScalar, 0)
+    COMPOSITE_PROPERTY(Radius  , SkSize  , SkSize::Make(0, 0))
 
 private:
     void apply();
