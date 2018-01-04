@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "22237db3_d07aee31",
+        "filename": "src/opts/SkBlitMask_opts_arm_neon.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-01-04T17:26:26Z",
+      "side": 0,
+      "message": "I added in the fix we discussed just to get it to compile.",
+      "revId": "22d77cb363cc67349ab4d51a51200da2434d322e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
