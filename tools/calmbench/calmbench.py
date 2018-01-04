@@ -69,6 +69,9 @@ def parse_args():
   no_compile_help = (
       'whether NOT to compile nanobench and copy it to WRITEDIR '
       '(i.e., reuse previous nanobench compiled)')
+  compile_only_help = (
+      'whether to just compile nanobench and copy it to WRITEDIR '
+      'without running it')
   skip_base_help = (
       'whether NOT to run nanobench on baseline branch '
       '(i.e., reuse previous baseline measurements)')
@@ -97,6 +100,8 @@ def parse_args():
   parser.add_argument('branch', type=str, help=branch_help)
   parser.add_argument('--no-compile', dest='no_compile', action="store_true",
       help=no_compile_help)
+  parser.add_argument('--compile-only', dest='compile_only',
+      action="store_true", help=compile_only_help)
   parser.add_argument('--skip-base', dest='skipbase', action="store_true",
       help=skip_base_help)
   parser.add_argument('--noinit', dest='noinit', action="store_true",
@@ -104,6 +109,7 @@ def parse_args():
   parser.add_argument('--concise', dest='concise', action="store_true",
       help="If set, no verbose thread info will be printed.")
   parser.set_defaults(no_compile=False);
+  parser.set_defaults(compile_only=False);
   parser.set_defaults(skipbase=False);
   parser.set_defaults(noinit=False);
   parser.set_defaults(concise=False);
@@ -177,6 +183,9 @@ def main():
 
   if not args.no_compile:
     compile_nanobench(args)
+
+  if args.compile_only:
+    return
 
   command = [
     'python',

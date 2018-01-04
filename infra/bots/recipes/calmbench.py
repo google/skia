@@ -20,14 +20,10 @@ DEPS = [
   'vars',
 ]
 
-# TODO (liyuqian): Currently, this recipe combines both compile and nanobench
-# functions. In the future, we may want to break it into two recipes, which
-# would be useful for Android/iOS tests. To do that, I also have to add compile-
-# only option to tools/calmbench/calmbench.py.
 def RunSteps(api):
   api.core.setup()
+
   api.flavor.install(skps=True, svgs=True)
-  api.flavor.compile("most")
   with api.context(cwd=api.vars.skia_dir):
     extra_arg = '--svgs %s --skps %s' % (api.flavor.device_dirs.svg_dir,
                                          api.flavor.device_dirs.skp_dir)
@@ -48,6 +44,15 @@ def RunSteps(api):
         '--concise',
         '--githash', api.vars.got_revision,
     ]
+
+    command.append('--no-compile')
+    api.file.copy('copy nanobench_modified',
+                  api.path['start_dir'].join('out', 'Release', 'nanobench'),
+                  api.vars.swarming_out_dir.join('nanobench_modified'))
+    api.file.copy('copy nanobench_master',
+                  api.path['start_dir'].join('ParentRevision', 'out', 'Release',
+                                             'nanobench'),
+                  api.vars.swarming_out_dir.join('nanobench_master'))
 
     keys_blacklist = ['configuration', 'role', 'test_filter']
     command.append('--key')

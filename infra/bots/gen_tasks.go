@@ -122,7 +122,7 @@ func deriveCompileTaskName(jobName string, parts map[string]string) string {
 		return "Build-Debian9-GCC-x86_64-Release"
 	} else if parts["role"] == "Housekeeper" {
 		return "Build-Debian9-GCC-x86_64-Release-Shared"
-	} else if parts["role"] == "Test" || parts["role"] == "Perf" {
+	} else if parts["role"] == "Test" || parts["role"] == "Perf" || parts["role"] == "Calmbench" {
 		task_os := parts["os"]
 		ec := []string{}
 		if val := parts["extra_config"]; val != "" {
@@ -774,8 +774,9 @@ func infra(b *specs.TasksCfgBuilder, name string) string {
 
 // calmbench generates a calmbench task. Returns the name of the last task in the
 // generated chain of tasks, which the Job should add as a dependency.
-func calmbench(b *specs.TasksCfgBuilder, name string, parts map[string]string) string {
+func calmbench(b *specs.TasksCfgBuilder, name string, parts map[string]string, compileTaskName string) string {
 	s := &specs.TaskSpec{
+		Dependencies: []string{compileTaskName, compileTaskName + "-ParentRevision"},
 		CipdPackages: []*specs.CipdPackage{b.MustGetCipdPackageFromAsset("clang_linux")},
 		Dimensions:   swarmDimensions(parts),
 		ExtraArgs: []string{
@@ -1146,11 +1147,6 @@ func process(b *specs.TasksCfgBuilder, name string) {
 		deps = append(deps, compile(b, name, parts))
 	}
 
-	// Calmbench bots.
-	if parts["role"] == "Calmbench" {
-		deps = append(deps, calmbench(b, name, parts))
-	}
-
 	// Most remaining bots need a compile task.
 	compileTaskName := deriveCompileTaskName(name, parts)
 	compileTaskParts, err := jobNameSchema.ParseJobName(compileTaskName)
@@ -1158,7 +1154,7 @@ func process(b *specs.TasksCfgBuilder, name string) {
 		glog.Fatal(err)
 	}
 	// These bots do not need a compile task.
-	if parts["role"] != "Build" && parts["role"] != "Calmbench" &&
+	if parts["role"] != "Build" &&
 		name != "Housekeeper-PerCommit-BundleRecipes" &&
 		name != "Housekeeper-PerCommit-InfraTests" &&
 		name != "Housekeeper-PerCommit-CheckGeneratedFiles" &&
@@ -1167,6 +1163,9 @@ func process(b *specs.TasksCfgBuilder, name string) {
 		!strings.Contains(name, "-CT_") &&
 		!strings.Contains(name, "Housekeeper-PerCommit-Isolate") {
 		compile(b, compileTaskName, compileTaskParts)
+		if (parts["role"] == "Calmbench") {
+			compile(b, compileTaskName + "-ParentRevision", compileTaskParts)
+		}
 	}
 
 	// Housekeepers.
@@ -1222,6 +1221,11 @@ func process(b *specs.TasksCfgBuilder, name string) {
 	// Perf bots.
 	if parts["role"] == "Perf" && !strings.Contains(name, "-CT_") {
 		deps = append(deps, perf(b, name, parts, compileTaskName, pkgs))
+	}
+
+	// Calmbench bots.
+	if parts["role"] == "Calmbench" {
+		deps = append(deps, calmbench(b, name, parts, compileTaskName))
 	}
 
 	// Add the Job spec.
@@ -1364,3 +1368,4 @@ func (s *JobNameSchema) MakeJobName(parts map[string]string) (string, error) {
 	}
 	return strings.Join(rvParts, s.Sep), nil
 }
+

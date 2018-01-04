@@ -168,50 +168,31 @@
     "cmd": [
       "python",
       "-u",
-      "[CUSTOM_/_B_WORK]/skia/bin/fetch-gn"
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "[START_DIR]/out/Release/nanobench",
+      "[CUSTOM_[SWARM_OUT_DIR]]/nanobench_modified"
     ],
     "cwd": "[CUSTOM_/_B_WORK]/skia",
-    "env": {
-      "BUILDTYPE": "Release",
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/out"
-    },
     "infra_step": true,
-    "name": "fetch-gn"
+    "name": "copy nanobench_modified"
   },
   {
     "cmd": [
-      "[CUSTOM_/_B_WORK]/skia/bin/gn",
-      "gen",
-      "[START_DIR]/out/Release",
-      "--args=cc=\"[START_DIR]/clang_linux/bin/clang\" cxx=\"[START_DIR]/clang_linux/bin/clang++\" extra_cflags=[\"-B[START_DIR]/clang_linux/bin\"] extra_ldflags=[\"-B[START_DIR]/clang_linux/bin\", \"-fuse-ld=lld\"] is_debug=false"
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "[START_DIR]/ParentRevision/out/Release/nanobench",
+      "[CUSTOM_[SWARM_OUT_DIR]]/nanobench_master"
     ],
     "cwd": "[CUSTOM_/_B_WORK]/skia",
-    "env": {
-      "BUILDTYPE": "Release",
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/out"
-    },
-    "name": "gn gen"
-  },
-  {
-    "cmd": [
-      "ninja",
-      "-k",
-      "0",
-      "-C",
-      "[START_DIR]/out/Release"
-    ],
-    "cwd": "[CUSTOM_/_B_WORK]/skia",
-    "env": {
-      "BUILDTYPE": "Release",
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/out"
-    },
-    "name": "ninja"
+    "infra_step": true,
+    "name": "copy nanobench_master"
   },
   {
     "cmd": [
@@ -229,6 +210,7 @@
       "--concise",
       "--githash",
       "9046e2e693bb92a76e972b694580e5d17ad10748",
+      "--no-compile",
       "--key",
       "arch",
       "x86_64",
