@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "01e4a263_f32abf69",
+        "filename": "include/private/SkMalloc.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-01-04T15:27:42Z",
+      "side": 1,
+      "message": "Do we need this flag?",
+      "revId": "b8e39d8dca65f3f65869e8d450e57d94057f5867",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c1b41a42_9b160786",
+        "filename": "src/codec/SkIcoCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-01-04T15:27:42Z",
+      "side": 1,
+      "message": "Not the other flavor here ?",
+      "revId": "b8e39d8dca65f3f65869e8d450e57d94057f5867",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
