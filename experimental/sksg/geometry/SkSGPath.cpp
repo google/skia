@@ -24,4 +24,8 @@ SkRect Path::onRevalidate(InvalidationController*, const SkMatrix&) {
     return fPath.computeTightBounds();
 }
 
+SkPath Path::onAsPath() const {
+    return fPath;
+}
+
 } // namespace sksg
