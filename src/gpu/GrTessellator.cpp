@@ -16,6 +16,7 @@
 #include "SkPointPriv.h"
 #include "SkTDPQueue.h"
 
+#include <algorithm>
 #include <stdio.h>
 
 /*
@@ -282,6 +283,10 @@ inline void round(SkPoint* p) {
     p->fY = SkScalarRoundToScalar(p->fY * SkFloatToScalar(4.0f)) * SkFloatToScalar(0.25f);
 }
 
+inline SkScalar double_to_clamped_scalar(double d) {
+    return SkDoubleToScalar(std::min((double) SK_ScalarMax, std::max(d, (double) -SK_ScalarMax)));
+}
+
 // A line equation in implicit form. fA * x + fB * y + fC = 0, for all points (x, y) on the line.
 struct Line {
     Line(double a, double b, double c) : fA(a), fB(b), fC(c) {}
@@ -320,9 +325,9 @@ struct Line {
         if (denom == 0.0) {
             return false;
         }
-        double scale = 1.0f / denom;
-        point->fX = SkDoubleToScalar((fB * other.fC - other.fB * fC) * scale);
-        point->fY = SkDoubleToScalar((other.fA * fC - fA * other.fC) * scale);
+        double scale = 1.0 / denom;
+        point->fX = double_to_clamped_scalar((fB * other.fC - other.fB * fC) * scale);
+        point->fY = double_to_clamped_scalar((other.fA * fC - fA * other.fC) * scale);
         round(point);
         return true;
     }
