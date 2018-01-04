@@ -166,8 +166,8 @@ void CompositeRRect::apply() {
     auto rr = SkRRect::MakeRectXY(SkRect::MakeXYWH(fPosition.x() - fSize.width() / 2,
                                                    fPosition.y() - fSize.height() / 2,
                                                    fSize.width(), fSize.height()),
-                                  fRadius,
-                                  fRadius);
+                                  fRadius.width(),
+                                  fRadius.height());
    fRRectNode->setRRect(rr);
 }
 

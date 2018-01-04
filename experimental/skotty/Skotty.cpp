@@ -158,11 +158,38 @@ sk_sp<sksg::GeometryNode> AttachRRectGeometry(const Json::Value& jrect, AttachCo
     auto s_attached = AttachProperty<VectorValue, SkSize>(jrect["s"], ctx, composite,
             [](const sk_sp<CompositeRRect>& node, const SkSize& sz) { node->setSize(sz); });
     auto r_attached = AttachProperty<ScalarValue, SkScalar>(jrect["r"], ctx, composite,
-            [](const sk_sp<CompositeRRect>& node, SkScalar radius) { node->setRadius(radius); });
+            [](const sk_sp<CompositeRRect>& node, SkScalar radius) {
+                node->setRadius(SkSize::Make(radius, radius));
+            });
 
     if (!p_attached && !s_attached && !r_attached) {
         return nullptr;
     }
+
+    LOG("** Attached (r)rect geometry\n");
+
+    return rect_node;
+}
+
+sk_sp<sksg::GeometryNode> AttachEllipseGeometry(const Json::Value& jellipse, AttachContext* ctx) {
+    SkASSERT(jellipse.isObject());
+
+    auto rect_node = sksg::RRect::Make();
+    auto composite = sk_make_sp<CompositeRRect>(rect_node);
+
+    auto p_attached = AttachProperty<VectorValue, SkPoint>(jellipse["p"], ctx, composite,
+            [](const sk_sp<CompositeRRect>& node, const SkPoint& pos) { node->setPosition(pos); });
+    auto s_attached = AttachProperty<VectorValue, SkSize>(jellipse["s"], ctx, composite,
+            [](const sk_sp<CompositeRRect>& node, const SkSize& sz) {
+                node->setSize(sz);
+                node->setRadius(SkSize::Make(sz.width() / 2, sz.height() / 2));
+            });
+
+    if (!p_attached && !s_attached) {
+        return nullptr;
+    }
+
+    LOG("** Attached ellipse geometry\n");
 
     return rect_node;
 }
@@ -250,6 +277,7 @@ using GeometryAttacherT = sk_sp<sksg::GeometryNode> (*)(const Json::Value&, Atta
 static constexpr GeometryAttacherT gGeometryAttachers[] = {
     AttachPathGeometry,
     AttachRRectGeometry,
+    AttachEllipseGeometry,
 };
 
 using PaintAttacherT = sk_sp<sksg::PaintNode> (*)(const Json::Value&, AttachContext*);
@@ -293,6 +321,7 @@ struct ShapeInfo {
 
 const ShapeInfo* FindShapeInfo(const Json::Value& shape) {
     static constexpr ShapeInfo gShapeInfo[] = {
+        { "el", ShapeType::kGeometry      , 2 }, // ellipse   -> AttachEllipseGeometry
         { "fl", ShapeType::kPaint         , 0 }, // fill      -> AttachFillPaint
         { "gr", ShapeType::kGroup         , 0 }, // group     -> AttachShapeGroup
         { "mm", ShapeType::kGeometryEffect, 0 }, // merge     -> AttachMergeGeometryEffect
