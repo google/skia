@@ -36,6 +36,8 @@ struct SkJumper_Engine;
  * If you'd like to see how this works internally, you want to start digging around src/jumper.
  */
 
+// TODO (liyuqian): remove xy_to_2pt_conical_quadratic_first, xy_to_2pt_conical_quadratic_second,
+// xy_to_2pt_conical_linear, and mask_2pt_conical_degenerates_legacy once rebaselined.
 #define SK_RASTER_PIPELINE_STAGES(M)                               \
     M(callback)                                                    \
     M(move_src_dst) M(move_dst_src)                                \
@@ -76,6 +78,7 @@ struct SkJumper_Engine;
     M(lab_to_xyz)                                                  \
                  M(mirror_x)   M(repeat_x)                         \
                  M(mirror_y)   M(repeat_y)                         \
+    M(negate_x)                                                    \
     M(bilinear_nx) M(bilinear_px) M(bilinear_ny) M(bilinear_py)    \
     M(bicubic_n3x) M(bicubic_n1x) M(bicubic_p1x) M(bicubic_p3x)    \
     M(bicubic_n3y) M(bicubic_n1y) M(bicubic_p1y) M(bicubic_p3y)    \
@@ -89,6 +92,15 @@ struct SkJumper_Engine;
     M(xy_to_2pt_conical_quadratic_first)                           \
     M(xy_to_2pt_conical_quadratic_second)                          \
     M(xy_to_2pt_conical_linear)                                    \
+    M(mask_2pt_conical_degenerates_legacy)                         \
+    M(xy_to_2pt_conical_strip)                                     \
+    M(xy_to_2pt_conical_focal_on_circle)                           \
+    M(xy_to_2pt_conical_well_behaved)                              \
+    M(xy_to_2pt_conical_smaller)                                   \
+    M(xy_to_2pt_conical_greater)                                   \
+    M(alter_2pt_conical_compensate_focal)                          \
+    M(alter_2pt_conical_unswap)                                    \
+    M(mask_2pt_conical_nan)                                        \
     M(mask_2pt_conical_degenerates) M(apply_vector_mask)           \
     M(byte_tables) M(byte_tables_rgb)                              \
     M(rgb_to_hsl) M(hsl_to_rgb)                                    \
