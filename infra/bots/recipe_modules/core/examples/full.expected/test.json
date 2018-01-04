@@ -113,6 +113,21 @@
     "name": "makedirs tmp_dir"
   },
   {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "ensure-directory",
+      "--mode",
+      "0777",
+      "[CUSTOM_[SWARM_OUT_DIR]]"
+    ],
+    "infra_step": true,
+    "name": "makedirs swarming_out_dir"
+  },
+  {
     "name": "$result",
     "recipe_result": null,
     "status_code": 0

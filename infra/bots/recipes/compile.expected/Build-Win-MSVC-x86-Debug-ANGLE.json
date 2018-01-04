@@ -97,6 +97,21 @@
     "cmd": [
       "python",
       "-u",
+      "RECIPE_MODULE[recipe_engine::file]\\resources\\fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "ensure-directory",
+      "--mode",
+      "0777",
+      "[CUSTOM_[SWARM_OUT_DIR]]"
+    ],
+    "infra_step": true,
+    "name": "makedirs swarming_out_dir"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
       "[CUSTOM_C:\\_B_WORK]\\skia\\bin\\fetch-gn"
     ],
     "cwd": "[CUSTOM_C:\\_B_WORK]\\skia",

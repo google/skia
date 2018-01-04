@@ -9,7 +9,7 @@
       "ensure-directory",
       "--mode",
       "0777",
-      "[CUSTOM_/_B_WORK]"
+      "[CUSTOM_C:\\_B_WORK]"
     ],
     "infra_step": true,
     "name": "makedirs checkout_path"
@@ -22,10 +22,10 @@
       "--json-output",
       "/path/to/tmp/json",
       "remove",
-      "[CUSTOM_/_B_WORK]/.gclient_entries"
+      "[CUSTOM_C:\\_B_WORK]/.gclient_entries"
     ],
     "infra_step": true,
-    "name": "remove [CUSTOM_/_B_WORK]/.gclient_entries"
+    "name": "remove [CUSTOM_C:\\_B_WORK]/.gclient_entries"
   },
   {
     "cmd": [
@@ -33,25 +33,21 @@
       "-u",
       "RECIPE_MODULE[depot_tools::bot_update]/resources/bot_update.py",
       "--spec-path",
-      "cache_dir = '[CUSTOM_/_B_CACHE]'\nsolutions = [{'deps_file': '.DEPS.git', 'managed': False, 'name': 'skia', 'url': 'https://skia.googlesource.com/skia.git'}]",
+      "cache_dir = '[CUSTOM_C:\\\\_B_CACHE]'\nsolutions = [{'deps_file': '.DEPS.git', 'managed': False, 'name': 'skia', 'url': 'https://skia.googlesource.com/skia.git'}]",
       "--patch_root",
       "skia",
       "--revision_mapping_file",
       "{\"got_revision\": \"skia\"}",
       "--git-cache-dir",
-      "[CUSTOM_/_B_CACHE]",
+      "[CUSTOM_C:\\_B_CACHE]",
       "--cleanup-dir",
       "[CLEANUP]/bot_update",
-      "--gerrit_repo",
-      "https://skia.googlesource.com/skia.git",
-      "--gerrit_ref",
-      "refs/changes/89/456789/12",
       "--output_json",
       "/path/to/tmp/json",
       "--revision",
-      "skia@abc123"
+      "skia@abc123^"
     ],
-    "cwd": "[CUSTOM_/_B_WORK]",
+    "cwd": "[CUSTOM_C:\\_B_WORK]",
     "env_prefixes": {
       "PATH": [
         "RECIPE_PACKAGE_REPO[depot_tools]"
@@ -64,7 +60,7 @@
       "@@@STEP_LOG_LINE@json.output@{@@@",
       "@@@STEP_LOG_LINE@json.output@  \"did_run\": true, @@@",
       "@@@STEP_LOG_LINE@json.output@  \"fixed_revisions\": {@@@",
-      "@@@STEP_LOG_LINE@json.output@    \"skia\": \"abc123\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"skia\": \"abc123^\"@@@",
       "@@@STEP_LOG_LINE@json.output@  }, @@@",
       "@@@STEP_LOG_LINE@json.output@  \"manifest\": {@@@",
       "@@@STEP_LOG_LINE@json.output@    \"skia\": {@@@",
@@ -122,72 +118,10 @@
       "ensure-directory",
       "--mode",
       "0777",
-      "[CUSTOM_[SWARM_OUT_DIR]]"
+      "[CUSTOM_[SWARM_OUT_DIR]]/ParentRevision"
     ],
     "infra_step": true,
     "name": "makedirs swarming_out_dir"
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "glob",
-      "[START_DIR]",
-      "*.json"
-    ],
-    "infra_step": true,
-    "name": "find json results",
-    "stdout": "/path/to/tmp/",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@glob@[START_DIR]/bench_modified_master.json@@@",
-      "@@@STEP_LOG_END@glob@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "glob",
-      "[START_DIR]",
-      "*.csv"
-    ],
-    "infra_step": true,
-    "name": "find csv results",
-    "stdout": "/path/to/tmp/",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@glob@[START_DIR]/bench_modified_master.csv@@@",
-      "@@@STEP_LOG_END@glob@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "gsutil",
-      "cp",
-      "-z",
-      "json",
-      "[START_DIR]/bench_modified_master.json",
-      "gs://skia-calmbench/trybot/calmbench-v1/2012/05/14/12/Calmbench-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All/456789/12/bench_modified_master_9046e2e693bb92a76e972b694580e5d17ad10748_1337000001.json"
-    ],
-    "infra_step": true,
-    "name": "upload json"
-  },
-  {
-    "cmd": [
-      "gsutil",
-      "cp",
-      "-z",
-      "csv",
-      "[START_DIR]/bench_modified_master.csv",
-      "gs://skia-calmbench/trybot/calmbench-v1/2012/05/14/12/Calmbench-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All/456789/12/bench_modified_master_9046e2e693bb92a76e972b694580e5d17ad10748_1337000001.csv"
-    ],
-    "infra_step": true,
-    "name": "upload csv"
   },
   {
     "name": "$result",
