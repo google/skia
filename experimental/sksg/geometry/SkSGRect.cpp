@@ -9,6 +9,7 @@
 
 #include "SkCanvas.h"
 #include "SkPaint.h"
+#include "SkPath.h"
 
 namespace sksg {
 
@@ -24,6 +25,12 @@ SkRect Rect::onRevalidate(InvalidationController*, const SkMatrix&) {
     return fRect;
 }
 
+SkPath Rect::onAsPath() const {
+    SkPath path;
+    path.addRect(fRect);
+    return path;
+}
+
 RRect::RRect(const SkRRect& rr) : fRRect(rr) {}
 
 void RRect::onDraw(SkCanvas* canvas, const SkPaint& paint) const {
@@ -34,6 +41,12 @@ SkRect RRect::onRevalidate(InvalidationController*, const SkMatrix&) {
     SkASSERT(this->hasSelfInval());
 
     return fRRect.getBounds();
+}
+
+SkPath RRect::onAsPath() const {
+    SkPath path;
+    path.addRRect(fRRect);
+    return path;
 }
 
 } // namespace sksg
