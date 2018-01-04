@@ -781,7 +781,7 @@ selects whether allocation for offscreen pixels is tracked by <a href="#SkSurfac
 describes the pixel format in <a href="undocumented#Image_Color_Type">Image Color Type</a>, and transparency in
 <a href="undocumented#Image_Alpha_Type">Image Alpha Type</a>, and color matching in <a href="undocumented#Color_Space">Color Space</a>.
 
-<a href="#SkSurface_MakeRenderTarget_sampleCount">sampleCount</a> requests the number of samples per pixel. 
+<a href="#SkSurface_MakeRenderTarget_sampleCount">sampleCount</a> requests the number of samples per pixel.
 Pass zero to disable <a href="undocumented#Multi_Sample_Anti_Aliasing">Multi Sample Anti Aliasing</a>.  The request is rounded
 up to the next supported count, or rounded down if it is larger than the
 maximum supported count.
@@ -839,7 +839,7 @@ selects whether allocation for offscreen pixels is tracked by <a href="#SkSurfac
 describes the pixel format in <a href="undocumented#Image_Color_Type">Image Color Type</a>, and transparency in
 <a href="undocumented#Image_Alpha_Type">Image Alpha Type</a>, and color matching in <a href="undocumented#Color_Space">Color Space</a>.
 
-<a href="#SkSurface_MakeRenderTarget_2_sampleCount">sampleCount</a> requests the number of samples per pixel. 
+<a href="#SkSurface_MakeRenderTarget_2_sampleCount">sampleCount</a> requests the number of samples per pixel.
 Pass zero to disable <a href="undocumented#Multi_Sample_Anti_Aliasing">Multi Sample Anti Aliasing</a>.  The request is rounded
 up to the next supported count, or rounded down if it is larger than the
 maximum supported count.
@@ -1121,7 +1121,14 @@ enum <a href="#SkSurface_BackendHandleAccess">BackendHandleAccess</a> {
 <a href="#SkSurface_kFlushRead_BackendHandleAccess">kFlushRead BackendHandleAccess</a>,
 <a href="#SkSurface_kFlushWrite_BackendHandleAccess">kFlushWrite BackendHandleAccess</a>,
 <a href="#SkSurface_kDiscardWrite_BackendHandleAccess">kDiscardWrite BackendHandleAccess</a>,
-};</pre>
+};
+
+static const <a href="#SkSurface_BackendHandleAccess">BackendHandleAccess</a> <a href="#SkSurface_kFlushRead_TextureHandleAccess">kFlushRead TextureHandleAccess</a> =
+<a href="#SkSurface_kFlushRead_BackendHandleAccess">kFlushRead BackendHandleAccess</a>;
+static const <a href="#SkSurface_BackendHandleAccess">BackendHandleAccess</a> <a href="#SkSurface_kFlushWrite_TextureHandleAccess">kFlushWrite TextureHandleAccess</a> =
+<a href="#SkSurface_kFlushWrite_BackendHandleAccess">kFlushWrite BackendHandleAccess</a>;
+static const <a href="#SkSurface_BackendHandleAccess">BackendHandleAccess</a> <a href="#SkSurface_kDiscardWrite_TextureHandleAccess">kDiscardWrite TextureHandleAccess</a> =
+<a href="#SkSurface_kDiscardWrite_BackendHandleAccess">kDiscardWrite BackendHandleAccess</a>;</pre>
 
 ### Constants
 
@@ -1134,6 +1141,18 @@ enum <a href="#SkSurface_BackendHandleAccess">BackendHandleAccess</a> {
   </tr>
   <tr>
     <td><a name="SkSurface_kDiscardWrite_BackendHandleAccess"> <code><strong>SkSurface::kDiscardWrite_BackendHandleAccess </strong></code> </a></td><td>2</td><td>Caller must overwrite the entire back-end object.</td>
+  </tr>
+  <tr>
+    <td><a name="SkSurface_kFlushRead_TextureHandleAccess"> <code><strong>SkSurface::kFlushRead_TextureHandleAccess </strong></code> </a></td><td>0</td><td>Deprecated.
+</td>
+  </tr>
+  <tr>
+    <td><a name="SkSurface_kFlushWrite_TextureHandleAccess"> <code><strong>SkSurface::kFlushWrite_TextureHandleAccess </strong></code> </a></td><td>1</td><td>Deprecated.
+</td>
+  </tr>
+  <tr>
+    <td><a name="SkSurface_kDiscardWrite_TextureHandleAccess"> <code><strong>SkSurface::kDiscardWrite_TextureHandleAccess </strong></code> </a></td><td>2</td><td>Deprecated.
+</td>
   </tr>
 </table>
 
@@ -1640,7 +1659,7 @@ with which they were created.
 
 If <a href="#kNo">GrSemaphoresSubmitted::kNo</a> is returned, the <a href="undocumented#GPU">GPU</a> back-end did not create or
 add any semaphores to signal on the <a href="undocumented#GPU">GPU</a>; the caller should not instruct the <a href="undocumented#GPU">GPU</a>
-to <a href="#SkSurface_wait">wait</a> on any of the semaphores. 
+to <a href="#SkSurface_wait">wait</a> on any of the semaphores.
 
 Pending surface commands are flushed regardless of the return result.
 
