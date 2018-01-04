@@ -22,6 +22,30 @@
       "revId": "07e9c7a371787d90217a7abde86a7aef1ead2fda",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "29f38b44_62b22c10",
+        "filename": "include/codec/SkAndroidCodec.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-01-04T18:47:48Z",
+      "side": 1,
+      "message": "I like the idea of the public factory being jsut MakeFromCodec.  I\u0027m happy to defer that to a later CL if you want to land this as is.",
+      "parentUuid": "2b5e479f_cfad1f05",
+      "range": {
+        "startLine": 37,
+        "startChar": 43,
+        "endLine": 37,
+        "endChar": 57
+      },
+      "revId": "07e9c7a371787d90217a7abde86a7aef1ead2fda",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
