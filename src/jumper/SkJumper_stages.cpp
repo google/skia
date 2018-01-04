@@ -991,8 +991,6 @@ STAGE(store_rgba, float* ptr) {
 
 SI F inv(F x) { return 1.0f - x; }
 SI F two(F x) { return x + x; }
-SI F first (F a, F b) { return a; }
-SI F second(F a, F b) { return b; }
 
 
 BLEND_MODE(clear)    { return 0; }
@@ -1951,6 +1949,11 @@ STAGE(xy_to_radius, Ctx::None) {
     r = sqrt_(X2 + Y2);
 }
 
+// TODO (liyuqian): remove xy_to_2pt_conical_quadratic_first, xy_to_2pt_conical_quadratic_second,
+// xy_to_2pt_conical_linear, and mask_2pt_conical_degenerates_legacy once rebaselined.
+SI F first (F a, F b) { return a; }
+SI F second(F a, F b) { return b; }
+
 SI F solve_2pt_conical_quadratic(const SkJumper_2PtConicalCtx* c, F x, F y, F (*select)(F, F)) {
     // At this point, (x, y) is mapped into a synthetic gradient space with
     // the start circle centerd on (0, 0), and the end circle centered on (1, 0)
@@ -1999,7 +2002,7 @@ STAGE(xy_to_2pt_conical_linear, const SkJumper_2PtConicalCtx* c) {
     r = -coeffC / coeffB;
 }
 
-STAGE(mask_2pt_conical_degenerates, SkJumper_2PtConicalCtx* c) {
+STAGE(mask_2pt_conical_degenerates_legacy, SkJumper_2PtConicalCtx* c) {
     // The gradient t coordinate is in the r register right now.
     F& t = r;
 
@@ -2007,6 +2010,59 @@ STAGE(mask_2pt_conical_degenerates, SkJumper_2PtConicalCtx* c) {
     // and save a mask to ignore those colors in apply_vector_mask.
     auto is_degenerate = (mad(t, c->fDR, c->fR0) < 0)  // Radius(t) < 0
                        | (t != t);                     // t == NaN
+    t = if_then_else(is_degenerate, F(0), t);
+    unaligned_store(&c->fMask, if_then_else(is_degenerate, U32(0), U32(0xffffffff)));
+}
+
+// Please see https://skia.org/dev/design/conical for how our 2pt conical shader works.
+
+STAGE(negate_x, Ctx::None) { r = -r; }
+
+STAGE(xy_to_2pt_conical_strip, const SkJumper_2PtConicalCtx* ctx) {
+    F x = r, y = g, &t = r;
+    t = x + sqrt_(ctx->fP0 - y*y); // ctx->fP0 = r0 * r0
+}
+
+STAGE(xy_to_2pt_conical_focal_on_circle, Ctx::None) {
+    F x = r, y = g, &t = r;
+    t = x + y*y / x; // (x^2 + y^2) / x
+}
+
+STAGE(xy_to_2pt_conical_well_behaved, const SkJumper_2PtConicalCtx* ctx) {
+    F x = r, y = g, &t = r;
+    t = sqrt_(x*x + y*y) - x * ctx->fP0; // ctx->fP0 = 1/r1
+}
+
+STAGE(xy_to_2pt_conical_greater, const SkJumper_2PtConicalCtx* ctx) {
+    F x = r, y = g, &t = r;
+    t = sqrt_(x*x - y*y) - x * ctx->fP0; // ctx->fP0 = 1/r1
+}
+
+STAGE(xy_to_2pt_conical_smaller, const SkJumper_2PtConicalCtx* ctx) {
+    F x = r, y = g, &t = r;
+    t = -sqrt_(x*x - y*y) - x * ctx->fP0; // ctx->fP0 = 1/r1
+}
+
+STAGE(alter_2pt_conical_compensate_focal, const SkJumper_2PtConicalCtx* ctx) {
+    F& t = r;
+    t = t + ctx->fP1; // ctx->fP1 = f
+}
+
+STAGE(alter_2pt_conical_unswap, Ctx::None) {
+    F& t = r;
+    t = 1 - t;
+}
+
+STAGE(mask_2pt_conical_nan, SkJumper_2PtConicalCtx* c) {
+    F& t = r;
+    auto is_degenerate = (t != t); // NaN
+    t = if_then_else(is_degenerate, F(0), t);
+    unaligned_store(&c->fMask, if_then_else(is_degenerate, U32(0), U32(0xffffffff)));
+}
+
+STAGE(mask_2pt_conical_degenerates, SkJumper_2PtConicalCtx* c) {
+    F& t = r;
+    auto is_degenerate = (t <= 0) | (t != t);
     t = if_then_else(is_degenerate, F(0), t);
     unaligned_store(&c->fMask, if_then_else(is_degenerate, U32(0), U32(0xffffffff)));
 }

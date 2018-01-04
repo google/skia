@@ -252,10 +252,22 @@ extern "C" {
     LOWP(evenly_spaced_2_stop_gradient)
     LOWP(xy_to_unit_angle)
     LOWP(xy_to_radius)
+    TODO(negate_x)
+    // TODO (liyuqian): remove xy_to_2pt_conical_quadratic_first,
+    // xy_to_2pt_conical_quadratic_second, mask_2pt_conical_degenerates_legacy,
+    // and xy_to_2pt_conical_linear once rebaselined.
     TODO(xy_to_2pt_conical_quadratic_first)
     TODO(xy_to_2pt_conical_quadratic_second)
     TODO(xy_to_2pt_conical_linear)
-    TODO(mask_2pt_conical_degenerates) TODO(apply_vector_mask)
+    TODO(mask_2pt_conical_degenerates_legacy)
+    TODO(xy_to_2pt_conical_strip)
+    TODO(xy_to_2pt_conical_focal_on_circle)
+    TODO(xy_to_2pt_conical_well_behaved)
+    TODO(xy_to_2pt_conical_greater)
+    TODO(xy_to_2pt_conical_smaller)
+    TODO(alter_2pt_conical_compensate_focal)
+    TODO(alter_2pt_conical_unswap)
+    TODO(mask_2pt_conical_nan) TODO(mask_2pt_conical_degenerates) TODO(apply_vector_mask)
     TODO(byte_tables) TODO(byte_tables_rgb)
     NOPE(rgb_to_hsl) NOPE(hsl_to_rgb)
     NOPE(clut_3D) NOPE(clut_4D)
