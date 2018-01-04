@@ -306,7 +306,6 @@ config("warnings") {
     cflags += [
       "-Wno-cast-align",
       "-Wno-cast-qual",
-      "-Wno-conditional-uninitialized",
       "-Wno-conversion",
       "-Wno-disabled-macro-expansion",
       "-Wno-documentation",
