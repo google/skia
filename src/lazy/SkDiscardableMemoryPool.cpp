@@ -164,7 +164,7 @@ void DiscardableMemoryPool::dumpDownTo(size_t budget) {
 }
 
 std::unique_ptr<SkDiscardableMemory> DiscardableMemoryPool::make(size_t bytes) {
-    SkAutoFree addr(sk_malloc_flags(bytes, 0));
+    SkAutoFree addr(sk_malloc_canfail(bytes));
     if (nullptr == addr) {
         return nullptr;
     }
