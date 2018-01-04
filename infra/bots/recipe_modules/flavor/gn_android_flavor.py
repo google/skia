@@ -369,7 +369,8 @@ if actual_freq != str(freq):
     # broken state; it was just rebooting.
     if (self.m.run.failed_steps and
         isinstance(self.m.run.failed_steps[0], recipe_api.InfraFailure)):
-      self.m.file.write_text('Quarantining Bot', '~/force_quarantine', ' ')
+      self.m.file.write_text('Quarantining Bot',
+                             '/home/chrome-bot/force_quarantine', ' ')
 
     if self._ever_ran_adb:
       self._adb('kill adb server', 'kill-server')
