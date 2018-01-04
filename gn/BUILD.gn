@@ -313,18 +313,15 @@ config("warnings") {
       "-Wno-documentation-unknown-command",
       "-Wno-double-promotion",
       "-Wno-exit-time-destructors",  # TODO: OK outside libskia
-      "-Wno-float-conversion",
       "-Wno-float-equal",
       "-Wno-format-nonliteral",
       "-Wno-global-constructors",  # TODO: OK outside libskia
-      "-Wno-gnu-zero-variadic-macro-arguments",
       "-Wno-missing-prototypes",
       "-Wno-missing-variable-declarations",
       "-Wno-pedantic",
       "-Wno-reserved-id-macro",
       "-Wno-shadow",
       "-Wno-shift-sign-overflow",
-      "-Wno-sign-conversion",
       "-Wno-signed-enum-bitfield",
       "-Wno-switch-enum",
       "-Wno-undef",
