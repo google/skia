@@ -55,8 +55,7 @@ std::unique_ptr<SkCodec> SkIcoCodec::MakeFromStream(std::unique_ptr<SkStream> st
         uint32_t offset;
         uint32_t size;
     };
-    SkAutoFree dirEntryBuffer(sk_malloc_flags(sizeof(Entry) * numImages,
-                                              SK_MALLOC_TEMP));
+    SkAutoFree dirEntryBuffer(sk_malloc_canfail(sizeof(Entry) * numImages));
     if (!dirEntryBuffer) {
         SkCodecPrintf("Error: OOM allocating ICO directory for %i images.\n",
                       numImages);
@@ -131,7 +130,7 @@ std::unique_ptr<SkCodec> SkIcoCodec::MakeFromStream(std::unique_ptr<SkStream> st
         bytesRead = offset;
 
         // Create a new stream for the embedded codec
-        SkAutoFree buffer(sk_malloc_flags(size, 0));
+        SkAutoFree buffer(sk_malloc_canfail(size));
         if (!buffer) {
             SkCodecPrintf("Warning: OOM trying to create embedded stream.\n");
             break;
