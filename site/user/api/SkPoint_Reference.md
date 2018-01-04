@@ -41,7 +41,7 @@ SkPoint Reference
 | <a href="#SkPoint_distanceToOrigin">distanceToOrigin</a> | Returns straight-line distance to origin. |
 | <a href="#SkPoint_dot">dot</a> | Returns <a href="#SkPoint_dot">dot</a> product. |
 | <a href="#SkPoint_equals">equals</a> | Returns true if <a href="#Point">Points</a> are equal. |
-| <a href="#SkPoint_isFinite">isFinite</a> | Returns true if no member is infinite or <a href="undocumented#NaN">NaN</a>. |
+| <a href="#SkPoint_isFinite">isFinite</a> | Returns true if no member is infinite or NaN. |
 | <a href="#SkPoint_isZero">isZero</a> | Returns true if both members equal zero. |
 | <a href="#SkPoint_iset">iset</a> | Sets to integer input. |
 | <a href="#SkPoint_length">length</a> | Returns straight-line distance to origin. |
@@ -59,12 +59,12 @@ SkPoint Reference
 <a name="SkPoint_fX"> <code><strong>SkScalar  fX</strong></code> </a>
 
 <a href="#SkPoint_x">x</a>-axis value used by both <a href="#Point">Point</a> and <a href="SkPoint_Reference#Vector">Vector</a>. May contain any value, including
-infinities and <a href="undocumented#NaN">NaN</a>.
+infinities and NaN.
 
 <a name="SkPoint_fY"> <code><strong>SkScalar  fY</strong></code> </a>
 
 <a href="#SkPoint_y">y</a>-axis value used by both <a href="#Point">Point</a> and <a href="SkPoint_Reference#Vector">Vector</a>. May contain any value, including
-infinities and <a href="undocumented#NaN">NaN</a>.
+infinities and NaN.
 
 <a name="SkPoint_Make"></a>
 ## Make
@@ -245,9 +245,9 @@ void iset(int32_t x, int32_t y)
 
 Sets <a href="#SkPoint_fX">fX</a> to <a href="#SkPoint_x">x</a> and <a href="#SkPoint_fY">fY</a> to <a href="#SkPoint_y">y</a>, promoting integers to <a href="undocumented#SkScalar">SkScalar</a> values.
 
-Assigning a large integer value directly to <a href="#SkPoint_fX">fX</a> or <a href="#SkPoint_fY">fY</a> may cause a compiler 
+Assigning a large integer value directly to <a href="#SkPoint_fX">fX</a> or <a href="#SkPoint_fY">fY</a> may cause a compiler
 error, triggered by narrowing conversion of int to <a href="undocumented#SkScalar">SkScalar</a>. This safely
-casts <a href="#SkPoint_x">x</a> and <a href="#SkPoint_y">y</a> to avoid the error. 
+casts <a href="#SkPoint_x">x</a> and <a href="#SkPoint_y">y</a> to avoid the error.
 
 ### Parameters
 
@@ -276,7 +276,7 @@ Sets <a href="#SkPoint_fX">fX</a> to <a href="#SkPoint_iset_2_p">p</a>.<a href="
 
 Assigning an <a href="SkIPoint_Reference#IPoint">IPoint</a> containing a large integer value directly to <a href="#SkPoint_fX">fX</a> or <a href="#SkPoint_fY">fY</a> may
 cause a compiler error, triggered by narrowing conversion of int to <a href="undocumented#SkScalar">SkScalar</a>.
-This safely casts <a href="#SkPoint_iset_2_p">p</a>.<a href="#SkPoint_fX">fX</a> and <a href="#SkPoint_iset_2_p">p</a>.<a href="#SkPoint_fY">fY</a> to avoid the error. 
+This safely casts <a href="#SkPoint_iset_2_p">p</a>.<a href="#SkPoint_fX">fX</a> and <a href="#SkPoint_iset_2_p">p</a>.<a href="#SkPoint_fY">fY</a> to avoid the error.
 
 ### Parameters
 
@@ -435,7 +435,7 @@ added to <a href="#SkPoint_fY">fY</a></td>
 SkScalar length() const
 </pre>
 
-Returns the <a href="undocumented#Euclidean_Distance">Euclidean Distance</a> from origin, computed as:
+Returns the Euclidean_Distance from origin, computed as:
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 sqrt(fX * fX + fY * fY)</pre>
@@ -463,7 +463,7 @@ straight-line distance to origin
 SkScalar distanceToOrigin() const
 </pre>
 
-Returns the <a href="undocumented#Euclidean_Distance">Euclidean Distance</a> from origin, computed as:
+Returns the Euclidean_Distance from origin, computed as:
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 sqrt(fX * fX + fY * fY)</pre>
@@ -849,7 +849,7 @@ Returns true if both <a href="#SkPoint_fX">fX</a> and <a href="#SkPoint_fY">fY</
 
 ### Return Value
 
-true for values other than infinities and <a href="undocumented#NaN">NaN</a>
+true for values other than infinities and NaN
 
 ### Example
 
@@ -1079,7 +1079,7 @@ Can also be used to add <a href="SkPoint_Reference#Vector">Vector</a> to <a href
 static SkScalar Length(SkScalar x, SkScalar y)
 </pre>
 
-Returns the <a href="undocumented#Euclidean_Distance">Euclidean Distance</a> from origin, computed as:
+Returns the Euclidean_Distance from origin, computed as:
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 sqrt(x * x + y * y)</pre>
@@ -1152,7 +1152,7 @@ original <a href="#SkPoint_Normalize_vec">vec</a> <a href="#SkPoint_length">leng
 static SkScalar Distance(const SkPoint& a, const SkPoint& b)
 </pre>
 
-Returns the <a href="undocumented#Euclidean_Distance">Euclidean Distance</a> between <a href="#SkPoint_Distance_a">a</a> and <a href="#SkPoint_Distance_b">b</a>.
+Returns the Euclidean_Distance between <a href="#SkPoint_Distance_a">a</a> and <a href="#SkPoint_Distance_b">b</a>.
 
 ### Parameters
 

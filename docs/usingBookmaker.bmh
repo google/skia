@@ -1,6 +1,8 @@
 #External
 SkXXX
-bmh_SkXXX
+SkIRect_Reference
+SkSurface_Reference
+SkSurface.h
 CL
 Go
 Visual_Studio
@@ -9,11 +11,73 @@ Completed InProgress
 
 #Topic Bookmaker
 
+#Subtopic Broken_Build
+
+If the 
+#A Housekeeper-PerCommit-Bookmaker # https://status.skia.org/repo/skia?filter=search&search_value=Housekeeper-PerCommit-Bookmaker ##
+ bot is red, the bot has detected that the files in docs and include/core differ.
+
+The bot output describes what changed.
+
+To fix this, edit the docs file corresponding to the changed include file.
+
+For instance, if the change was made to SkIRect, edit docs/SkIRect_Reference.bmh.
+Checking in the edited docs/SkIRect_Reference.bmh will fix the bot.
+
+To regenerate the documentation, follow the Installing and Regenerate steps below.
+
+If the
+#A Housekeeper-Nightly-Bookmaker # https://status.skia.org/repo/skia?filter=search&search_value=Housekeeper-Nightly-Bookmaker ##
+ bot is red, one of several things may have gone wrong:
+
+#List
+# A change to include broke documentation examples. ##
+# Something changed the examples that output text. ##
+# Some interface was added, deleted, edited. ##
+# Documentation is malformed. ##
+##
+
+The bot output describes what changed, and includes the file and line
+where the error occurred.
+
+To regenerate the documentation, follow the Installing and Regenerate steps below.
+
+#Subtopic Broken_Build ##
+
+#Subtopic Editing_Comments
+
+Edit docs instead of include/core files to update comments if possible.
+
+The Bookmaker bots do not complain if the docs file does not match the
+corresponding include comments. Running Bookmaker include generation will
+report when docs and includes comments do not match.
+
+For instance, if include/core/SkSurface.h comments do not match
+docs/SkSurface_Reference.bmh, running:
+
+#Code
+$ ./out/dir/bookmaker -b docs -i include/core/SkSurface.h -p
+##
+
+generates
+
+#Code
+wrote updated SkSurface.h
+##
+
+The updated SkSurface.h is written to the root to avoid subsequent runs of
+Bookmaker from recompiling. if SkSurface.h was not changed, it is not written,
+and Bookmaker will not generate any output.
+
+#Subtopic Editing_Comments ##
+
 How to use the Bookmaker utility.
+
+#Subtopic Installing
 
 Install
 #A Go # https://golang.org/doc/install ##
- if needed.  
+ if needed.
 Get the fiddle command line interface tool.
 By default this will appear in your home directory.
 
@@ -26,6 +90,24 @@ Build Bookmaker.
 #Code
 $ ninja -C out/dir bookmaker
 ##
+
+#Subtopic Installing ##
+
+#Subtopic Regenerate
+
+Complete rebuilding of all bookmaker output looks like:
+
+#Code
+$ ./out/skia/bookmaker.exe -a docs/status.json -e fiddle.json
+$ ~/go/bin/fiddlecli.exe --input fiddle.json --output fiddleout.json
+$ ./out/skia/bookmaker.exe -a docs/status.json -f fiddleout.json -r site/user/api -c
+$ ./out/skia/bookmaker.exe -a docs/status.json -x
+$ ./out/skia/bookmaker.exe -a docs/status.json -p
+##
+
+#Subtopic Regenerate ##
+
+#Subtopic New_Documentation
 
 Generate an starter Bookmaker file from an existing include.
 
@@ -57,6 +139,8 @@ Next, use your favorite editor to fill out
 docs/SkXXX_Reference.bmh
 ##
 .
+
+##
 
 #Subtopic Style
 
@@ -94,7 +178,7 @@ Descriptions may contain code and formulas, each bracketed by markup.
 Similar items may be grouped into topics. Topics may include subtopics.
 
 Each document begins with one or more indices that include the contents of
-that file. A class reference includes an index listing contained topics, 
+that file. A class reference includes an index listing contained topics,
 a separate listing for constructors, one for methods, and so on.
 
 Class methods contain a description, any parameters, any return value,
@@ -107,7 +191,9 @@ After editing is complete, searching for "incomplete" should fail,
 assuming "incomplete" is not the perfect word to use in a description or
 example!
 
-##
+#Subtopic Style ##
+
+#Subtopic Adding_Documentation
 
 Generate fiddle.json from all examples, including the ones you just wrote.
 Error checking is syntatic: starting keywords are closed, keywords have the
@@ -126,7 +212,7 @@ Errors are contained by the output but aren't reported yet.
 $ $GOPATH/bin/fiddlecli --input fiddle.json --output fiddleout.json
 ##
 
-Generate bmh_SkXXX.md from SkXXX.bmh and fiddleout.json.
+Generate SkXXX.md from SkXXX.bmh and fiddleout.json.
 Error checking includes: undefined references, fiddle compiler errors,
 missing or mismatched printf output.
 Again, you can click on any errors inside Visual_Studio.
@@ -159,15 +245,7 @@ If the new file has been added to status.json, you can run
 any of the above commands with -a docs/status.json in place of
 -b docs or -i includes.
 
-Complete rebuilding of all bookmaker output looks like:
-
-#Code
-  ./out/skia/bookmaker.exe -a docs/status.json -e fiddle.json
-  ~/go/bin/fiddlecli.exe --input fiddle.json --output fiddleout.json
-  ./out/skia/bookmaker.exe -a docs/status.json -f fiddleout.json -r site/user/api -c
-  ./out/skia/bookmaker.exe -a docs/status.json -x
-  ./out/skia/bookmaker.exe -a docs/status.json -p
-##
+#Subtopic Adding_Documentation ##
 
 #Subtopic Bugs
 
