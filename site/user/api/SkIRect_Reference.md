@@ -344,7 +344,7 @@ rect: -10, 35, 5, 60  isEmpty: false
 ## left
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-int left() const
+int32_t left() const
 </pre>
 
 Returns <a href="#SkIRect_left">left</a> edge of <a href="#IRect">IRect</a>, if sorted.
@@ -377,7 +377,7 @@ sorted.fLeft: 10 sorted.left(): 10
 ## top
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-int top() const
+int32_t top() const
 </pre>
 
 Returns <a href="#SkIRect_top">top</a> edge of <a href="#IRect">IRect</a>, if sorted. Call <a href="#SkIRect_isEmpty">isEmpty</a> to see if <a href="#IRect">IRect</a> may be invalid,
@@ -410,7 +410,7 @@ sorted.fTop: 5 sorted.top(): 5
 ## right
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-int right() const
+int32_t right() const
 </pre>
 
 Returns <a href="#SkIRect_right">right</a> edge of <a href="#IRect">IRect</a>, if sorted.
@@ -443,7 +443,7 @@ sorted.fRight: 15 sorted.right(): 15
 ## bottom
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-int bottom() const
+int32_t bottom() const
 </pre>
 
 Returns <a href="#SkIRect_bottom">bottom</a> edge of <a href="#IRect">IRect</a>, if sorted. Call <a href="#SkIRect_isEmpty">isEmpty</a> to see if <a href="#IRect">IRect</a> may be invalid,
@@ -476,7 +476,7 @@ sorted.fBottom: 25 sorted.bottom(): 25
 ## x
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-int x() const
+int32_t x() const
 </pre>
 
 Returns <a href="#SkIRect_left">left</a> edge of <a href="#IRect">IRect</a>, if sorted. Call <a href="#SkIRect_isEmpty">isEmpty</a> to see if <a href="#IRect">IRect</a> may be invalid,
@@ -509,7 +509,7 @@ sorted.fLeft: 10 sorted.x(): 10
 ## y
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-int y() const
+int32_t y() const
 </pre>
 
 Returns <a href="#SkIRect_top">top</a> edge of <a href="#IRect">IRect</a>, if sorted. Call <a href="#SkIRect_isEmpty">isEmpty</a> to see if <a href="#IRect">IRect</a> may be invalid,
@@ -542,7 +542,7 @@ sorted.fTop: 5 sorted.y(): 5
 ## width
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-int width() const
+int32_t width() const
 </pre>
 
 Returns span on the <a href="#SkIRect_x">x</a>-axis. This does not check if <a href="#IRect">IRect</a> is sorted, or if
@@ -575,7 +575,7 @@ large width: -5
 ## height
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-int height() const
+int32_t height() const
 </pre>
 
 Returns span on the <a href="#SkIRect_y">y</a>-axis. This does not check if <a href="#IRect">IRect</a> is sorted, or if
@@ -642,7 +642,7 @@ outset rect: 20, 30, 80, 90  size: 60, 60
 ## centerX
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-int centerX() const
+int32_t centerX() const
 </pre>
 
 Returns average of <a href="#SkIRect_left">left</a> edge and <a href="#SkIRect_right">right</a> edge. Result does not change if <a href="SkRect_Reference#Rect">Rect</a>
@@ -678,7 +678,7 @@ left: -10 right:  11 centerX:   0 div2:   0
 ## centerY
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-int centerY() const
+int32_t centerY() const
 </pre>
 
 Returns average of <a href="#SkIRect_top">top</a> edge and <a href="#SkIRect_bottom">bottom</a> edge. Result does not change if <a href="SkRect_Reference#Rect">Rect</a>
