@@ -368,7 +368,7 @@ private:
         SkDEBUGCODE(quads.verticesEnd = quads.vertices + fMaxQuadVertices;)
 
         const GrBuffer* lineIndexBuffer = nullptr;
-        int firstLineIndex;
+        int firstLineIndex = 0;
         if (fIsIndexed) {
             lines.indices =
                     target->makeIndexSpace(3 * fMaxLineVertices, &lineIndexBuffer, &firstLineIndex);
