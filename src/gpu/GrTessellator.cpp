@@ -1990,7 +1990,7 @@ void stroke_boundary(EdgeList* boundary, VertexList* innerMesh, VertexList* oute
                     if (!innerTangent.intersect(prevInner, &innerPoint1) ||
                         !innerTangent.intersect(inner, &innerPoint2) ||
                         !outerTangent.intersect(bisector, &outerPoint)) {
-                        SkASSERT(false);
+                        continue;
                     }
                     Line prevTangent(prevV->fPoint,
                                      prevV->fPoint + SkVector::Make(prevOuter.fA, prevOuter.fB));
@@ -2008,7 +2008,7 @@ void stroke_boundary(EdgeList* boundary, VertexList* innerMesh, VertexList* oute
                     // Miter outer points
                     if (!outerTangent.intersect(prevOuter, &outerPoint1) ||
                         !outerTangent.intersect(outer, &outerPoint2)) {
-                        SkASSERT(false);
+                        continue;
                     }
                     Line prevTangent(prevV->fPoint,
                                      prevV->fPoint + SkVector::Make(prevInner.fA, prevInner.fB));
