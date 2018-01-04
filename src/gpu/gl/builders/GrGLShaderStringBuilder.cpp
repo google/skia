@@ -88,7 +88,7 @@ std::unique_ptr<SkSL::Program> GrSkSLtoGLSL(const GrGLContext& context, GrGLenum
 #endif
     SkSL::Compiler* compiler = context.compiler();
     std::unique_ptr<SkSL::Program> program;
-    SkSL::Program::Kind programKind;
+    SkSL::Program::Kind programKind = SkSL::Program::kVertex_Kind;
     switch (type) {
         case GR_GL_VERTEX_SHADER:   programKind = SkSL::Program::kVertex_Kind;   break;
         case GR_GL_FRAGMENT_SHADER: programKind = SkSL::Program::kFragment_Kind; break;
