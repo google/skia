@@ -78,48 +78,6 @@ sk_sp<GrTextureProxy> GrUploadBitmapToTextureProxy(GrResourceProvider* resourceP
     return GrUploadPixmapToTextureProxy(resourceProvider, pixmap, SkBudgeted::kYes, dstColorSpace);
 }
 
-static const SkPixmap* compute_desc(const GrCaps& caps, const SkPixmap& pixmap,
-                                    GrSurfaceDesc* desc,
-                                    SkBitmap* tmpBitmap, SkPixmap* tmpPixmap) {
-    const SkPixmap* pmap = &pixmap;
-
-    *desc = GrImageInfoToSurfaceDesc(pixmap.info(), caps);
-
-    // TODO: We're checking for srgbSupport, but we can then end up picking sBGRA as our pixel
-    // config (which may not be supported). We need better fallback management here.
-    SkColorSpace* colorSpace = pixmap.colorSpace();
-
-    if (caps.srgbSupport() &&
-        colorSpace && colorSpace->gammaCloseToSRGB() && !GrPixelConfigIsSRGB(desc->fConfig)) {
-        // We were supplied an sRGB-like color space, but we don't have a suitable pixel config.
-        // Convert to 8888 sRGB so we can handle the data correctly. The raster backend doesn't
-        // handle sRGB Index8 -> sRGB 8888 correctly (yet), so lie about both the source and
-        // destination (claim they're linear):
-        SkImageInfo linSrcInfo = SkImageInfo::Make(pixmap.width(), pixmap.height(),
-                                                   pixmap.colorType(), pixmap.alphaType());
-        SkPixmap linSrcPixmap(linSrcInfo, pixmap.addr(), pixmap.rowBytes());
-
-        SkImageInfo dstInfo = SkImageInfo::Make(pixmap.width(), pixmap.height(),
-                                                kN32_SkColorType, kPremul_SkAlphaType,
-                                                pixmap.info().refColorSpace());
-
-        tmpBitmap->allocPixels(dstInfo);
-
-        SkImageInfo linDstInfo = SkImageInfo::MakeN32Premul(pixmap.width(), pixmap.height());
-        if (!linSrcPixmap.readPixels(linDstInfo, tmpBitmap->getPixels(), tmpBitmap->rowBytes())) {
-            return nullptr;
-        }
-        if (!tmpBitmap->peekPixels(tmpPixmap)) {
-            return nullptr;
-        }
-        pmap = tmpPixmap;
-        // must rebuild desc, since we've forced the info to be N32
-        *desc = GrImageInfoToSurfaceDesc(pmap->info(), caps);
-    }
-
-    return pmap;
-}
-
 sk_sp<GrTextureProxy> GrUploadPixmapToTextureProxy(GrResourceProvider* resourceProvider,
                                                    const SkPixmap& pixmap,
                                                    SkBudgeted budgeted,
@@ -132,18 +90,10 @@ sk_sp<GrTextureProxy> GrUploadPixmapToTextureProxy(GrResourceProvider* resourceP
         return nullptr;
     }
 
-    SkBitmap tmpBitmap;
-    SkPixmap tmpPixmap;
-    GrSurfaceDesc desc;
-
     ATRACE_ANDROID_FRAMEWORK("Upload Texture [%ux%u]", pixmap.width(), pixmap.height());
-    if (const SkPixmap* pmap = compute_desc(*resourceProvider->caps(), pixmap, &desc,
-                                            &tmpBitmap, &tmpPixmap)) {
-        return GrSurfaceProxy::MakeDeferred(resourceProvider, desc,
-                                            budgeted, pmap->addr(), pmap->rowBytes());
-    }
-
-    return nullptr;
+    GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(pixmap.info(), *resourceProvider->caps());
+    return GrSurfaceProxy::MakeDeferred(resourceProvider, desc, budgeted, pixmap.addr(),
+                                        pixmap.rowBytes());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -177,17 +127,9 @@ sk_sp<GrTextureProxy> GrGenerateMipMapsAndUploadToTextureProxy(GrContext* ctx,
         return nullptr;
     }
 
-    SkBitmap tmpBitmap;
-    SkPixmap tmpPixmap;
-    GrSurfaceDesc desc;
-    const SkPixmap* pmap = compute_desc(*ctx->resourceProvider()->caps(), pixmap, &desc,
-                                        &tmpBitmap, &tmpPixmap);
-    if (!pmap) {
-        return nullptr;
-    }
-
     ATRACE_ANDROID_FRAMEWORK("Upload MipMap Texture [%ux%u]", pmap->width(), pmap->height());
-    std::unique_ptr<SkMipMap> mipmaps(SkMipMap::Build(*pmap, colorMode, nullptr));
+    GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(pixmap.info(), *ctx->resourceProvider()->caps());
+    std::unique_ptr<SkMipMap> mipmaps(SkMipMap::Build(pixmap, colorMode, nullptr));
     if (!mipmaps) {
         return nullptr;
     }
@@ -199,8 +141,8 @@ sk_sp<GrTextureProxy> GrGenerateMipMapsAndUploadToTextureProxy(GrContext* ctx,
 
     std::unique_ptr<GrMipLevel[]> texels(new GrMipLevel[mipLevelCount]);
 
-    texels[0].fPixels = pmap->addr();
-    texels[0].fRowBytes = pmap->rowBytes();
+    texels[0].fPixels = pixmap.addr();
+    texels[0].fRowBytes = pixmap.rowBytes();
 
     for (int i = 1; i < mipLevelCount; ++i) {
         SkMipMap::Level generatedMipLevel;
@@ -335,8 +277,6 @@ GrColor4f SkColorToUnpremulGrColor4f(SkColor c, const GrColorSpaceInfo& colorSpa
 
 GrPixelConfig SkImageInfo2GrPixelConfig(const SkColorType type, SkColorSpace* cs,
                                         const GrCaps& caps) {
-    // We intentionally ignore profile type for non-8888 formats. Anything we can't support
-    // in hardware will be expanded to sRGB 8888 in GrUploadPixmapToTexture.
     switch (type) {
         case kUnknown_SkColorType:
             return kUnknown_GrPixelConfig;
@@ -349,6 +289,8 @@ GrPixelConfig SkImageInfo2GrPixelConfig(const SkColorType type, SkColorSpace* cs
         case kRGBA_8888_SkColorType:
             return (caps.srgbSupport() && cs && cs->gammaCloseToSRGB())
                    ? kSRGBA_8888_GrPixelConfig : kRGBA_8888_GrPixelConfig;
+        // TODO: We're checking for srgbSupport, but we can then end up picking sBGRA as our pixel
+        // config (which may not be supported). We need a better test here.
         case kBGRA_8888_SkColorType:
             return (caps.srgbSupport() && cs && cs->gammaCloseToSRGB())
                    ? kSBGRA_8888_GrPixelConfig : kBGRA_8888_GrPixelConfig;
