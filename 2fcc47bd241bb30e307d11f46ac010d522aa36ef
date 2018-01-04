@@ -73,6 +73,30 @@
     },
     {
       "key": {
+        "uuid": "38e2fbe8_7145a08d",
+        "filename": "infra/bots/recipe_modules/core/api.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-01-04T16:23:28Z",
+      "side": 1,
+      "message": "I see. I would hope that the full output would show the error even if the step output does not.",
+      "parentUuid": "2c3f938f_12abaf4f",
+      "range": {
+        "startLine": 40,
+        "startChar": 6,
+        "endLine": 40,
+        "endChar": 35
+      },
+      "revId": "2fcc47bd241bb30e307d11f46ac010d522aa36ef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d0ecb772_8b090bf1",
         "filename": "infra/bots/recipe_modules/core/api.py",
         "patchSetId": 3
@@ -203,6 +227,30 @@
       "side": 1,
       "message": "Your previous tryjob succeeded, so presumably the file copying step did the right thing.",
       "parentUuid": "16a25586_f0b870f7",
+      "range": {
+        "startLine": 100,
+        "startChar": 6,
+        "endLine": 100,
+        "endChar": 74
+      },
+      "revId": "2fcc47bd241bb30e307d11f46ac010d522aa36ef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "68b3e26b_9aee0fbe",
+        "filename": "infra/bots/recipe_modules/vars/api.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-01-04T16:23:28Z",
+      "side": 1,
+      "message": "So, should I remove the \"self.m.file.ensure_directory(... self.m.vars.swarming_out_dir)\"?",
+      "parentUuid": "81cbaf84_231e869e",
       "range": {
         "startLine": 100,
         "startChar": 6,
