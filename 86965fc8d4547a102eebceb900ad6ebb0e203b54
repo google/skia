@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ce03fe17_eea45a42",
+        "filename": "gm/drawminibitmaprect.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-01-04T20:27:01Z",
+      "side": 1,
+      "message": "rm this?",
+      "revId": "86965fc8d4547a102eebceb900ad6ebb0e203b54",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
