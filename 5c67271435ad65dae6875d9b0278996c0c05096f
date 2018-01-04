@@ -22,6 +22,30 @@
       "revId": "5c67271435ad65dae6875d9b0278996c0c05096f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "568cbe2d_d22ac651",
+        "filename": "infra/bots/recipe_modules/flavor/ios_flavor.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-01-04T16:29:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8c964fc4_546744f1",
+      "range": {
+        "startLine": 32,
+        "startChar": 64,
+        "endLine": 32,
+        "endChar": 65
+      },
+      "revId": "5c67271435ad65dae6875d9b0278996c0c05096f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
