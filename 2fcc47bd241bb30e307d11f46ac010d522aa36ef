@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "b8566721_7946f3bd",
+        "filename": "infra/bots/recipe_modules/core/api.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-01-04T16:13:21Z",
+      "side": 1,
+      "message": "It\u0027s not supposed to behave well. If someone asks for both ParentRevision and persistent_checkout, they\u0027re doing something wrong (or at least not yet supported), and I want it to fail-fast.",
+      "parentUuid": "6af8f348_aa493a3f",
+      "range": {
+        "startLine": 40,
+        "startChar": 6,
+        "endLine": 40,
+        "endChar": 35
+      },
+      "revId": "2fcc47bd241bb30e307d11f46ac010d522aa36ef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d0ecb772_8b090bf1",
         "filename": "infra/bots/recipe_modules/core/api.py",
         "patchSetId": 3
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "7eb2a0cf_c01af1e1",
+        "filename": "infra/bots/recipe_modules/core/api.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-01-04T16:13:21Z",
+      "side": 1,
+      "message": "Yes, unfortunately. LMK if the comment helps explain.",
+      "parentUuid": "d0ecb772_8b090bf1",
+      "range": {
+        "startLine": 144,
+        "startChar": 16,
+        "endLine": 144,
+        "endChar": 65
+      },
+      "revId": "2fcc47bd241bb30e307d11f46ac010d522aa36ef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "43666301_268d5e41",
         "filename": "infra/bots/recipe_modules/vars/api.py",
         "patchSetId": 3
@@ -68,6 +116,30 @@
       "revId": "2fcc47bd241bb30e307d11f46ac010d522aa36ef",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "16a25586_f0b870f7",
+        "filename": "infra/bots/recipe_modules/vars/api.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-01-04T16:13:21Z",
+      "side": 1,
+      "message": "Hmm, could be a problem. I added a mkdirs in core/api.py, which changes every expectation file. LMK if that\u0027s better or worse.",
+      "parentUuid": "43666301_268d5e41",
+      "range": {
+        "startLine": 100,
+        "startChar": 6,
+        "endLine": 100,
+        "endChar": 74
+      },
+      "revId": "2fcc47bd241bb30e307d11f46ac010d522aa36ef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
