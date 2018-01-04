@@ -55,6 +55,7 @@ private:
     friend class Draw;
     friend class EffectNode;
     friend class Group;
+    friend class Merge;
     friend class Stroke;
 
     template <typename Func>
