@@ -136,12 +136,18 @@ void SkBaseDevice::drawPatch(const SkPoint cubics[12], const SkColor colors[4],
     }
 }
 
+uint64_t gOperationCount = 0;
+bool gInBlob = false;
 void SkBaseDevice::drawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
                                 const SkPaint &paint, SkDrawFilter* drawFilter) {
-
+    gInBlob = true;
+    gOperationCount += 1;
     SkPaint runPaint = paint;
 
+    static uint32_t blobId = 0;
+    SkDebugf("blob start: %u %u\n", blobId, gOperationCount);
     SkTextBlobRunIterator it(blob);
+    int count = 0;
     for (;!it.done(); it.next()) {
         size_t textLen = it.glyphCount() * sizeof(uint16_t);
         const SkPoint& offset = it.offset();
@@ -177,7 +183,11 @@ void SkBaseDevice::drawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
             // A draw filter may change the paint arbitrarily, so we must re-seed in this case.
             runPaint = paint;
         }
+        count++;
     }
+    SkDebugf("blob end: %u %d %u\n", blobId, count, gOperationCount);
+    blobId++;
+    gInBlob = false;
 }
 
 void SkBaseDevice::drawImage(const SkImage* image, SkScalar x, SkScalar y,
