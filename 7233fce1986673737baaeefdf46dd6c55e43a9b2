@@ -72,6 +72,24 @@
     },
     {
       "key": {
+        "uuid": "bc26726e_d77c9e47",
+        "filename": "src/gpu/GrTextureMaker.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-01-04T19:11:04Z",
+      "side": 1,
+      "message": "That would probably be fine since it is then only used in cases were copyKey.isValid(). Though if someone were to refactor this code and try to then use origOrigin outside of copyKey.isValid(), I\u0027m not sure if that is safe or not if we have an original texture.\n\nI guess the original thing we had, before compiler warning, made sure origOrigin was only used when copyKey.isValid() or else we\u0027d get a use of unitialized memory bug.",
+      "parentUuid": "35b07674_307b3409",
+      "revId": "7233fce1986673737baaeefdf46dd6c55e43a9b2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "85c17ad3_1b2135bc",
         "filename": "src/gpu/gl/builders/GrGLShaderStringBuilder.cpp",
         "patchSetId": 6
