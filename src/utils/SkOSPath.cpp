@@ -9,7 +9,8 @@
 
 SkString SkOSPath::Join(const char *rootPath, const char *relativePath) {
     SkString result(rootPath);
-    if (!result.endsWith(SEPARATOR) && !result.isEmpty()) {
+    if (!result.endsWith(SEPARATOR) && ('\\' != SEPARATOR || !result.endsWith('/')) &&
+            !result.isEmpty()) {
         result.appendUnichar(SEPARATOR);
     }
     result.append(relativePath);
@@ -21,6 +22,12 @@ SkString SkOSPath::Basename(const char* fullPath) {
         return SkString();
     }
     const char* filename = strrchr(fullPath, SEPARATOR);
+    if ('\\' == SEPARATOR) {
+        const char* alternate = strrchr(fullPath, '/');
+        if (filename < alternate) {
+            filename = alternate;
+        }
+    }
     if (nullptr == filename) {
         filename = fullPath;
     } else {
@@ -34,11 +41,17 @@ SkString SkOSPath::Dirname(const char* fullPath) {
         return SkString();
     }
     const char* end = strrchr(fullPath, SEPARATOR);
+    if ('\\' == SEPARATOR) {
+        const char* alternate = strrchr(fullPath, '/');
+        if (end < alternate) {
+            end = alternate;
+        }
+    }
     if (nullptr == end) {
         return SkString();
     }
     if (end == fullPath) {
-        SkASSERT(fullPath[0] == SEPARATOR);
+        SkASSERT(fullPath[0] == SEPARATOR || ('\\' == SEPARATOR && fullPath[0] == '/'));
         ++end;
     }
     return SkString(fullPath, end - fullPath);
