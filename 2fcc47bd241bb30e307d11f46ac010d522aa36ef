@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6af8f348_aa493a3f",
+        "filename": "infra/bots/recipe_modules/core/api.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-01-04T12:29:41Z",
+      "side": 1,
+      "message": "I don\u0027t think this will behave well in recipes, but I don\u0027t have a good alternative.",
+      "range": {
+        "startLine": 40,
+        "startChar": 6,
+        "endLine": 40,
+        "endChar": 35
+      },
+      "revId": "2fcc47bd241bb30e307d11f46ac010d522aa36ef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d0ecb772_8b090bf1",
+        "filename": "infra/bots/recipe_modules/core/api.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-01-04T12:29:41Z",
+      "side": 1,
+      "message": "I\u0027m confused about this logic. In the non-trybot case, this will set patch\u003dTrue.  Is that what we want?",
+      "range": {
+        "startLine": 144,
+        "startChar": 16,
+        "endLine": 144,
+        "endChar": 65
+      },
+      "revId": "2fcc47bd241bb30e307d11f46ac010d522aa36ef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "43666301_268d5e41",
+        "filename": "infra/bots/recipe_modules/vars/api.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-01-04T12:29:41Z",
+      "side": 1,
+      "message": "Do we need to create this directory, or is it created elsewhere?",
+      "range": {
+        "startLine": 100,
+        "startChar": 6,
+        "endLine": 100,
+        "endChar": 74
+      },
+      "revId": "2fcc47bd241bb30e307d11f46ac010d522aa36ef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
