@@ -97,6 +97,8 @@ skia_core_sources = [
   "$_src/core/SkCpu.h",
   "$_src/core/SkCubicClipper.cpp",
   "$_src/core/SkCubicClipper.h",
+  "$_src/core/SkCubicMap.cpp",
+  "$_src/core/SkCubicMap.h",
   "$_src/core/SkData.cpp",
   "$_src/core/SkDataTable.cpp",
   "$_src/core/SkDebug.cpp",
