@@ -93,6 +93,11 @@ class SkiaVarsApi(recipe_api.RecipeApi):
     self.images_dir = self.slave_dir.join('skimage')
     self.skia_out = self.skia_dir.join('out', self.builder_name)
     self.swarming_out_dir = self.make_path(self.m.properties['swarm_out_dir'])
+    if 'ParentRevision' in self.builder_name:
+      # Tasks that depend on ParentRevision builds usually also depend on a
+      # second build task. Use a different path for build results so that the
+      # binaries end up in different directories in the isolate.
+      self.swarming_out_dir = self.swarming_out_dir.join('ParentRevision')
     self.local_skp_dir = self.slave_dir.join('skp')
     self.local_svg_dir = self.slave_dir.join('svg')
     if not self.is_compile_bot:

@@ -30,6 +30,7 @@
   "Build-Debian9-Clang-x86_64-Release-Chromebook_GLES",
   "Build-Debian9-Clang-x86_64-Release-Fast",
   "Build-Debian9-Clang-x86_64-Release-Mini",
+  "Build-Debian9-Clang-x86_64-Release-ParentRevision",
   "Build-Debian9-Clang-x86_64-Release-SKNX_NO_SIMD",
   "Build-Debian9-Clang-x86_64-Release-SK_CPU_LIMIT_SSE2",
   "Build-Debian9-Clang-x86_64-Release-SK_CPU_LIMIT_SSE41",

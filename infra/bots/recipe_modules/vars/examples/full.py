@@ -22,6 +22,7 @@ def RunSteps(api):
 
 
 TEST_BUILDERS = [
+  'Build-Debian9-Clang-x86_64-Release-ParentRevision',
   'Build-Debian9-Clang-x86_64-Release-SKNX_NO_SIMD',
   'Build-Debian9-GCC-x86_64-Release-Flutter_Android',
   'Build-Debian9-GCC-x86_64-Release-PDFium',
