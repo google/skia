@@ -13,11 +13,10 @@
 #include "SkRandom.h"
 #include "SkShader.h"
 #include "SkSurface.h"
-#include "sk_tool_utils.h"
 
-static sk_sp<SkImage> makebm(SkCanvas* caller, int w, int h) {
+static sk_sp<SkImage> makebm(int w, int h) {
     SkImageInfo info = SkImageInfo::MakeN32Premul(w, h);
-    auto surface(sk_tool_utils::makeSurface(caller, info));
+    auto surface(SkSurface::MakeRaster(info));
     SkCanvas* canvas = surface->getCanvas();
 
     const SkScalar wScalar = SkIntToScalar(w);
@@ -79,7 +78,7 @@ protected:
 
     void onDraw(SkCanvas* canvas) override {
         if (nullptr == fImage) {
-            fImage = makebm(canvas, gSurfaceSize, gSurfaceSize);
+            fImage = makebm(gSurfaceSize, gSurfaceSize);
         }
 
         const SkRect dstRect = { 0, 0, SkIntToScalar(64), SkIntToScalar(64)};
