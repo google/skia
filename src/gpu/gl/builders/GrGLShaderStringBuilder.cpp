@@ -93,6 +93,7 @@ std::unique_ptr<SkSL::Program> GrSkSLtoGLSL(const GrGLContext& context, GrGLenum
         case GR_GL_VERTEX_SHADER:   programKind = SkSL::Program::kVertex_Kind;   break;
         case GR_GL_FRAGMENT_SHADER: programKind = SkSL::Program::kFragment_Kind; break;
         case GR_GL_GEOMETRY_SHADER: programKind = SkSL::Program::kGeometry_Kind; break;
+        default: SK_ABORT("unsupported shader kind");
     }
     program = compiler->convertProgram(programKind, sksl, settings);
     if (!program || !compiler->toGLSL(*program, glsl)) {

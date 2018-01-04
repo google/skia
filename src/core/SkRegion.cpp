@@ -1200,7 +1200,7 @@ static bool validate_run(const int32_t* runs,
             return false;  // too many intervals
         }
         bool firstInterval = true;
-        int32_t lastRight;  // check that x-intervals are distinct and ordered.
+        int32_t lastRight = 0;  // check that x-intervals are distinct and ordered.
         while (xIntervals-- > 0) {
             rect.fLeft = *runs++;
             rect.fRight = *runs++;

@@ -2050,7 +2050,7 @@ int LogFontTypeface::onCharsToGlyphs(const void* chars, Encoding encoding,
         WCHAR scratch[scratchCount];
         int glyphIndex = 0;
         const char* currentUtf8 = reinterpret_cast<const char*>(chars);
-        SkUnichar currentChar;
+        SkUnichar currentChar = 0;
         if (glyphCount) {
             currentChar = SkUTF8_NextUnichar(&currentUtf8);
         }
