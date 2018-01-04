@@ -50,6 +50,24 @@
       "revId": "7233fce1986673737baaeefdf46dd6c55e43a9b2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a46b55c5_cf9af5f1",
+        "filename": "src/gpu/gl/builders/GrGLShaderStringBuilder.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2018-01-04T18:28:40Z",
+      "side": 1,
+      "message": "The abort was actually my change - SkSL / GLSL errors are fairly likely in practice, but for \"WTF I don\u0027t even know what kind of program this is\", a crash seems like a reasonable response.",
+      "parentUuid": "85c17ad3_1b2135bc",
+      "revId": "7233fce1986673737baaeefdf46dd6c55e43a9b2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
