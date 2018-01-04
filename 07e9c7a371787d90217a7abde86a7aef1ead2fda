@@ -46,6 +46,30 @@
       "revId": "07e9c7a371787d90217a7abde86a7aef1ead2fda",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "abaa1d6e_3bec0ba5",
+        "filename": "include/codec/SkAndroidCodec.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-01-04T18:58:59Z",
+      "side": 1,
+      "message": "It would need a guard anyway. I\u0027ll follow up with a later CL.",
+      "parentUuid": "29f38b44_62b22c10",
+      "range": {
+        "startLine": 37,
+        "startChar": 43,
+        "endLine": 37,
+        "endChar": 57
+      },
+      "revId": "07e9c7a371787d90217a7abde86a7aef1ead2fda",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
