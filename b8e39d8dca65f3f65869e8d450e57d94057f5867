@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "d3c06c7a_e18c8bb4",
+        "filename": "include/private/SkMalloc.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-01-04T15:39:49Z",
+      "side": 1,
+      "message": "see newer patch sets",
+      "parentUuid": "01e4a263_f32abf69",
+      "revId": "b8e39d8dca65f3f65869e8d450e57d94057f5867",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "7be43ac7_7a1d7285",
         "filename": "include/private/SkMalloc.h",
         "patchSetId": 1
@@ -39,6 +57,30 @@
       "revId": "b8e39d8dca65f3f65869e8d450e57d94057f5867",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "db0d1ee8_ae3364c0",
+        "filename": "include/private/SkMalloc.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-01-04T15:39:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7be43ac7_7a1d7285",
+      "range": {
+        "startLine": 35,
+        "startChar": 17,
+        "endLine": 36,
+        "endChar": 22
+      },
+      "revId": "b8e39d8dca65f3f65869e8d450e57d94057f5867",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
