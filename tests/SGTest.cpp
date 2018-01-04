@@ -6,6 +6,9 @@
  */
 
 #include "SkRect.h"
+
+#if !defined(SK_BUILD_FOR_GOOGLE3)
+
 #include "SkSGColor.h"
 #include "SkSGDraw.h"
 #include "SkSGGroup.h"
@@ -117,3 +120,5 @@ DEF_TEST(SGInvalidation, reporter) {
                     &damage);
     }
 }
+
+#endif // !defined(SK_BUILD_FOR_GOOGLE3)
