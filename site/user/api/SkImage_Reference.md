@@ -6,7 +6,7 @@ SkImage Reference
 # <a name="SkImage"></a> Class SkImage
 <a href="#Image">Image</a> describes a two dimensional array of pixels to draw. The pixels may be
 unencoded in a <a href="undocumented#Raster_Bitmap">Raster Bitmap</a>, encoded in a <a href="undocumented#Picture">Picture</a> or compressed data stream,
-or located in <a href="undocumented#GPU">GPU</a> memory as a <a href="undocumented#GPU_Texture">GPU Texture</a>.
+or located in GPU memory as a <a href="undocumented#GPU_Texture">GPU Texture</a>.
 
 <a href="#Image">Image</a> cannot be modified after it is created. <a href="#Image">Image</a> may allocate additional
 storage as needed; for instance, an encoded <a href="#Image">Image</a> may decode when drawn.
@@ -16,7 +16,7 @@ or <a href="#SkImage_height">height</a> returns <a href="#Image">Image</a> equal
 
 <a href="#Image">Image</a> may be created from <a href="SkBitmap_Reference#Bitmap">Bitmap</a>, <a href="SkPixmap_Reference#Pixmap">Pixmap</a>, <a href="SkSurface_Reference#Surface">Surface</a>, <a href="undocumented#Picture">Picture</a>, encoded streams,
 <a href="undocumented#GPU_Texture">GPU Texture</a>, <a href="undocumented#YUV_ColorSpace">YUV ColorSpace</a> data, or hardware buffer. Encoded streams supported
-include <a href="undocumented#BMP">BMP</a>, <a href="undocumented#GIF">GIF</a>, <a href="undocumented#HEIF">HEIF</a>, <a href="undocumented#ICO">ICO</a>, <a href="undocumented#JPEG">JPEG</a>, <a href="undocumented#PNG">PNG</a>, <a href="undocumented#WBMP">WBMP</a>, <a href="undocumented#WebP">WebP</a>. Supported encodings details
+include BMP, GIF, HEIF, ICO, JPEG, PNG, WBMP, WebP. Supported encodings details
 vary with platform.
 
 # <a name="Raster_Image"></a> Raster Image
@@ -25,9 +25,9 @@ directly and in most cases written to, although edited pixels may not be drawn
 if <a href="#Image">Image</a> has been copied internally.
 
 # <a name="Texture_Image"></a> Texture Image
-<a href="#Texture_Image">Texture Image</a> are located on <a href="undocumented#GPU">GPU</a> and pixels are not accessible. <a href="#Texture_Image">Texture Image</a>
+<a href="#Texture_Image">Texture Image</a> are located on GPU and pixels are not accessible. <a href="#Texture_Image">Texture Image</a>
 are allocated optimally for best performance. <a href="SkImage_Reference#Raster_Image">Raster Image</a> may
-be drawn to <a href="undocumented#GPU_Surface">GPU Surface</a>, but pixels are uploaded from <a href="undocumented#CPU">CPU</a> to <a href="undocumented#GPU">GPU</a> downgrading
+be drawn to <a href="undocumented#GPU_Surface">GPU Surface</a>, but pixels are uploaded from CPU to GPU downgrading
 performance.
 
 # <a name="Lazy_Image"></a> Lazy Image
@@ -47,8 +47,8 @@ drawing.
 | description | function |
 | --- | ---  |
 | <a href="#SkImage_MakeBackendTextureFromSkImage">MakeBackendTextureFromSkImage</a> | Creates <a href="undocumented#GPU_Texture">GPU Texture</a> from <a href="#Image">Image</a>. |
-| <a href="#SkImage_MakeCrossContextFromEncoded">MakeCrossContextFromEncoded</a> | Creates <a href="#Image">Image</a> from encoded data, and uploads to <a href="undocumented#GPU">GPU</a>. |
-| <a href="#SkImage_MakeFromAHardwareBuffer">MakeFromAHardwareBuffer</a> | Creates <a href="#Image">Image</a> from <a href="undocumented#Android">Android</a> hardware buffer. |
+| <a href="#SkImage_MakeCrossContextFromEncoded">MakeCrossContextFromEncoded</a> | Creates <a href="#Image">Image</a> from encoded data, and uploads to GPU. |
+| <a href="#SkImage_MakeFromAHardwareBuffer">MakeFromAHardwareBuffer</a> | Creates <a href="#Image">Image</a> from Android hardware buffer. |
 | <a href="#SkImage_MakeFromAdoptedTexture">MakeFromAdoptedTexture</a> | Creates <a href="#Image">Image</a> from <a href="undocumented#GPU_Texture">GPU Texture</a>, managed internally. |
 | <a href="#SkImage_MakeFromBitmap">MakeFromBitmap</a> | Creates <a href="#Image">Image</a> from <a href="SkBitmap_Reference#Bitmap">Bitmap</a>, sharing or copying pixels. |
 | <a href="#SkImage_MakeFromDeferredTextureImageData">MakeFromDeferredTextureImageData</a> |  |
@@ -69,7 +69,7 @@ drawing.
 | <a href="#SkImage_encodeToData">encodeToData</a> | Returns encoded <a href="#Image">Image</a> as <a href="undocumented#SkData">SkData</a>. |
 | <a href="#SkImage_getDeferredTextureImageData">getDeferredTextureImageData</a> |  |
 | <a href="#SkImage_getTexture">getTexture</a> | Deprecated. |
-| <a href="#SkImage_getTextureHandle">getTextureHandle</a> | Returns <a href="undocumented#GPU">GPU</a> reference to <a href="#Image">Image</a> as texture. |
+| <a href="#SkImage_getTextureHandle">getTextureHandle</a> | Returns GPU reference to <a href="#Image">Image</a> as texture. |
 | <a href="#SkImage_height">height</a> | Returns pixel row count. |
 | <a href="#SkImage_isAlphaOnly">isAlphaOnly</a> | Returns if pixels represent a transparency mask. |
 | <a href="#SkImage_isLazyGenerated">isLazyGenerated</a> | Returns if <a href="#Image">Image</a> is created as needed. |
@@ -180,7 +180,7 @@ Caller data passed to <a href="#SkImage_RasterReleaseProc">RasterReleaseProc</a>
 <a href="#SkImage_MakeFromRaster">MakeFromRaster</a> <a href="#SkImage_RasterReleaseProc">RasterReleaseProc</a>
 
 Function called when <a href="#Image">Image</a> no longer shares pixels. <a href="#SkImage_ReleaseContext">ReleaseContext</a> is
-provided by caller when <a href="#Image">Image</a> is created, and may be nullptr.   
+provided by caller when <a href="#Image">Image</a> is created, and may be nullptr.
 
 ### See Also
 
@@ -250,7 +250,7 @@ after reset: 1
 static sk_sp&lt;SkImage&gt; MakeFromBitmap(const SkBitmap& bitmap)
 </pre>
 
-Creates <a href="#Image">Image</a> from <a href="#SkImage_MakeFromBitmap_bitmap">bitmap</a>, sharing or copying <a href="#SkImage_MakeFromBitmap_bitmap">bitmap</a> pixels. If the <a href="#SkImage_MakeFromBitmap_bitmap">bitmap</a> 
+Creates <a href="#Image">Image</a> from <a href="#SkImage_MakeFromBitmap_bitmap">bitmap</a>, sharing or copying <a href="#SkImage_MakeFromBitmap_bitmap">bitmap</a> pixels. If the <a href="#SkImage_MakeFromBitmap_bitmap">bitmap</a>
 is marked immutable, and its pixel memory is shareable, it may be shared
 instead of copied.
 
@@ -334,7 +334,7 @@ created <a href="#Image">Image</a>, or nullptr
 static sk_sp&lt;SkImage&gt; MakeFromEncoded(sk_sp&lt;SkData&gt; encoded, const SkIRect* subset = nullptr)
 </pre>
 
-Creates <a href="#Image">Image</a> from <a href="#SkImage_MakeFromEncoded_encoded">encoded</a> data. 
+Creates <a href="#Image">Image</a> from <a href="#SkImage_MakeFromEncoded_encoded">encoded</a> data.
 <a href="#SkImage_MakeFromEncoded_subset">subset</a> allows selecting a portion of the full image. Pass nullptr to select the entire image;
 otherwise, <a href="#SkImage_MakeFromEncoded_subset">subset</a> must be contained by image <a href="#SkImage_bounds">bounds</a>.
 
@@ -380,7 +380,7 @@ Deprecated.
 <table>  <tr>    <td><a name="SkImage_MakeFromTexture_context"> <code><strong>context </strong></code> </a></td> <td>
 <a href="undocumented#GPU_Context">GPU Context</a></td>
   </tr>  <tr>    <td><a name="SkImage_MakeFromTexture_backendTexture"> <code><strong>backendTexture </strong></code> </a></td> <td>
-texture residing on <a href="undocumented#GPU">GPU</a></td>
+texture residing on GPU</td>
   </tr>  <tr>    <td><a name="SkImage_MakeFromTexture_origin"> <code><strong>origin </strong></code> </a></td> <td>
 one of: <a href="undocumented#GrSurfaceOrigin">kBottomLeft GrSurfaceOrigin</a>, <a href="undocumented#GrSurfaceOrigin">kTopLeft GrSurfaceOrigin</a></td>
   </tr>  <tr>    <td><a name="SkImage_MakeFromTexture_alphaType"> <code><strong>alphaType </strong></code> </a></td> <td>
@@ -416,7 +416,7 @@ Deprecated.
 <table>  <tr>    <td><a name="SkImage_MakeFromTexture_2_context"> <code><strong>context </strong></code> </a></td> <td>
 <a href="undocumented#GPU_Context">GPU Context</a></td>
   </tr>  <tr>    <td><a name="SkImage_MakeFromTexture_2_backendTexture"> <code><strong>backendTexture </strong></code> </a></td> <td>
-texture residing on <a href="undocumented#GPU">GPU</a></td>
+texture residing on GPU</td>
   </tr>  <tr>    <td><a name="SkImage_MakeFromTexture_2_origin"> <code><strong>origin </strong></code> </a></td> <td>
 one of: <a href="undocumented#GrSurfaceOrigin">kBottomLeft GrSurfaceOrigin</a>, <a href="undocumented#GrSurfaceOrigin">kTopLeft GrSurfaceOrigin</a></td>
   </tr>  <tr>    <td><a name="SkImage_MakeFromTexture_2_alphaType"> <code><strong>alphaType </strong></code> </a></td> <td>
@@ -451,14 +451,14 @@ Creates <a href="#Image">Image</a> from <a href="undocumented#GPU_Texture">GPU T
 managing the lifetime of <a href="undocumented#GPU_Texture">GPU Texture</a>.
 
 <a href="#Image">Image</a> is returned if format of <a href="#SkImage_MakeFromTexture_3_backendTexture">backendTexture</a> is recognized and supported.
-Recognized formats vary by <a href="undocumented#GPU">GPU</a> back-end.
+Recognized formats vary by GPU back-end.
 
 ### Parameters
 
 <table>  <tr>    <td><a name="SkImage_MakeFromTexture_3_context"> <code><strong>context </strong></code> </a></td> <td>
 <a href="undocumented#GPU_Context">GPU Context</a></td>
   </tr>  <tr>    <td><a name="SkImage_MakeFromTexture_3_backendTexture"> <code><strong>backendTexture </strong></code> </a></td> <td>
-texture residing on <a href="undocumented#GPU">GPU</a></td>
+texture residing on GPU</td>
   </tr>  <tr>    <td><a name="SkImage_MakeFromTexture_3_origin"> <code><strong>origin </strong></code> </a></td> <td>
 one of: <a href="undocumented#GrSurfaceOrigin">kBottomLeft GrSurfaceOrigin</a>, <a href="undocumented#GrSurfaceOrigin">kTopLeft GrSurfaceOrigin</a></td>
   </tr>  <tr>    <td><a name="SkImage_MakeFromTexture_3_colorType"> <code><strong>colorType </strong></code> </a></td> <td>
@@ -480,7 +480,7 @@ created <a href="#Image">Image</a>, or nullptr
 
 ### Example
 
-<div><fiddle-embed name="2faa98d6a1d578010326af17ee7e4d2a" gpu="true"><div>A back-end texture has been created and uploaded to the <a href="undocumented#GPU">GPU</a> outside of this example.</div></fiddle-embed></div>
+<div><fiddle-embed name="2faa98d6a1d578010326af17ee7e4d2a" gpu="true"><div>A back-end texture has been created and uploaded to the GPU outside of this example.</div></fiddle-embed></div>
 
 ### See Also
 
@@ -501,14 +501,14 @@ valid and unchanged until <a href="#SkImage_MakeFromTexture_4_textureReleaseProc
 passed <a href="#SkImage_MakeFromTexture_4_releaseContext">releaseContext</a> when <a href="#Image">Image</a> is deleted or no longer refers to texture.
 
 <a href="#Image">Image</a> is returned if format of <a href="#SkImage_MakeFromTexture_4_backendTexture">backendTexture</a> is recognized and supported.
-Recognized formats vary by <a href="undocumented#GPU">GPU</a> back-end.
+Recognized formats vary by GPU back-end.
 
 ### Parameters
 
 <table>  <tr>    <td><a name="SkImage_MakeFromTexture_4_context"> <code><strong>context </strong></code> </a></td> <td>
 <a href="undocumented#GPU_Context">GPU Context</a></td>
   </tr>  <tr>    <td><a name="SkImage_MakeFromTexture_4_backendTexture"> <code><strong>backendTexture </strong></code> </a></td> <td>
-texture residing on <a href="undocumented#GPU">GPU</a></td>
+texture residing on GPU</td>
   </tr>  <tr>    <td><a name="SkImage_MakeFromTexture_4_origin"> <code><strong>origin </strong></code> </a></td> <td>
 one of: <a href="undocumented#GrSurfaceOrigin">kBottomLeft GrSurfaceOrigin</a>, <a href="undocumented#GrSurfaceOrigin">kTopLeft GrSurfaceOrigin</a></td>
   </tr>  <tr>    <td><a name="SkImage_MakeFromTexture_4_colorType"> <code><strong>colorType </strong></code> </a></td> <td>
@@ -550,10 +550,10 @@ static sk_sp&lt;SkImage&gt; MakeCrossContextFromEncoded(GrContext* context, sk_s
                                                   bool buildMips, SkColorSpace* dstColorSpace)
 </pre>
 
-Creates <a href="#Image">Image</a> from encoded <a href="#SkImage_MakeCrossContextFromEncoded_data">data</a>. <a href="#Image">Image</a> is uploaded to <a href="undocumented#GPU">GPU</a> back-end using <a href="#SkImage_MakeCrossContextFromEncoded_context">context</a>. 
+Creates <a href="#Image">Image</a> from encoded <a href="#SkImage_MakeCrossContextFromEncoded_data">data</a>. <a href="#Image">Image</a> is uploaded to GPU back-end using <a href="#SkImage_MakeCrossContextFromEncoded_context">context</a>.
 
-Created <a href="#Image">Image</a> is available to other <a href="undocumented#GPU">GPU</a> contexts, and is available across thread
-boundaries. All contexts must be in the same <a href="undocumented#GPU_Share_Group">GPU Share Group</a>, or otherwise 
+Created <a href="#Image">Image</a> is available to other GPU contexts, and is available across thread
+boundaries. All contexts must be in the same GPU_Share_Group, or otherwise
 share resources.
 
 When <a href="#Image">Image</a> is no longer referenced, <a href="#SkImage_MakeCrossContextFromEncoded_context">context</a> releases texture memory
@@ -563,7 +563,7 @@ asynchronously.
 <a href="#SkImage_MakeCrossContextFromEncoded_dstColorSpace">dstColorSpace</a>. <a href="undocumented#Color_Space">Color Space</a> of <a href="#Image">Image</a> is determined by encoded <a href="#SkImage_MakeCrossContextFromEncoded_data">data</a>.
 
 <a href="#Image">Image</a> is returned if format of <a href="#SkImage_MakeCrossContextFromEncoded_data">data</a> is recognized and supported, and if <a href="#SkImage_MakeCrossContextFromEncoded_context">context</a>
-supports moving resources. Recognized formats vary by platform and <a href="undocumented#GPU">GPU</a> back-end.
+supports moving resources. Recognized formats vary by platform and GPU back-end.
 
 <a href="#Image">Image</a> is returned using <a href="#SkImage_MakeFromEncoded">MakeFromEncoded</a> if <a href="#SkImage_MakeCrossContextFromEncoded_context">context</a> is nullptr or does not support
 moving resources between contexts.
@@ -577,7 +577,7 @@ moving resources between contexts.
   </tr>  <tr>    <td><a name="SkImage_MakeCrossContextFromEncoded_buildMips"> <code><strong>buildMips </strong></code> </a></td> <td>
 create <a href="#Image">Image</a> as <a href="undocumented#Mip_Map">Mip Map</a> if true</td>
   </tr>  <tr>    <td><a name="SkImage_MakeCrossContextFromEncoded_dstColorSpace"> <code><strong>dstColorSpace </strong></code> </a></td> <td>
-range of colors of matching <a href="SkSurface_Reference#Surface">Surface</a> on <a href="undocumented#GPU">GPU</a></td>
+range of colors of matching <a href="SkSurface_Reference#Surface">Surface</a> on GPU</td>
   </tr>
 </table>
 
@@ -603,10 +603,10 @@ static sk_sp&lt;SkImage&gt; MakeCrossContextFromPixmap(GrContext* context, const
                                                  bool buildMips, SkColorSpace* dstColorSpace)
 </pre>
 
-Creates <a href="#Image">Image</a> from <a href="#SkImage_MakeCrossContextFromPixmap_pixmap">pixmap</a>. <a href="#Image">Image</a> is uploaded to <a href="undocumented#GPU">GPU</a> back-end using <a href="#SkImage_MakeCrossContextFromPixmap_context">context</a>. 
+Creates <a href="#Image">Image</a> from <a href="#SkImage_MakeCrossContextFromPixmap_pixmap">pixmap</a>. <a href="#Image">Image</a> is uploaded to GPU back-end using <a href="#SkImage_MakeCrossContextFromPixmap_context">context</a>.
 
-Created <a href="#Image">Image</a> is available to other <a href="undocumented#GPU">GPU</a> contexts, and is available across thread
-boundaries. All contexts must be in the same <a href="undocumented#GPU_Share_Group">GPU Share Group</a>, or otherwise 
+Created <a href="#Image">Image</a> is available to other GPU contexts, and is available across thread
+boundaries. All contexts must be in the same GPU_Share_Group, or otherwise
 share resources.
 
 When <a href="#Image">Image</a> is no longer referenced, <a href="#SkImage_MakeCrossContextFromPixmap_context">context</a> releases texture memory
@@ -615,11 +615,11 @@ asynchronously.
 <a href="undocumented#Texture">Texture</a> created from <a href="#SkImage_MakeCrossContextFromPixmap_pixmap">pixmap</a> is uploaded to match <a href="SkSurface_Reference#Surface">Surface</a> created with
 <a href="#SkImage_MakeCrossContextFromPixmap_dstColorSpace">dstColorSpace</a>. <a href="undocumented#Color_Space">Color Space</a> of <a href="#Image">Image</a> is determined by <a href="#SkImage_MakeCrossContextFromPixmap_pixmap">pixmap</a>.<a href="#SkImage_colorSpace">colorSpace</a>.
 
-<a href="#Image">Image</a> is returned referring to <a href="undocumented#GPU">GPU</a> back-end if <a href="#SkImage_MakeCrossContextFromPixmap_context">context</a> is not nullptr, 
+<a href="#Image">Image</a> is returned referring to GPU back-end if <a href="#SkImage_MakeCrossContextFromPixmap_context">context</a> is not nullptr,
 format of data is recognized and supported, and if <a href="#SkImage_MakeCrossContextFromPixmap_context">context</a> supports moving
 resources between contexts. Otherwise, <a href="#SkImage_MakeCrossContextFromPixmap_pixmap">pixmap</a> pixel data is copied and <a href="#Image">Image</a>
 as returned in raster format if possible; nullptr may be returned.
-Recognized <a href="undocumented#GPU">GPU</a> formats vary by platform and <a href="undocumented#GPU">GPU</a> back-end.
+Recognized GPU formats vary by platform and GPU back-end.
 
 ### Parameters
 
@@ -630,7 +630,7 @@ Recognized <a href="undocumented#GPU">GPU</a> formats vary by platform and <a hr
   </tr>  <tr>    <td><a name="SkImage_MakeCrossContextFromPixmap_buildMips"> <code><strong>buildMips </strong></code> </a></td> <td>
 create <a href="#Image">Image</a> as <a href="undocumented#Mip_Map">Mip Map</a> if true</td>
   </tr>  <tr>    <td><a name="SkImage_MakeCrossContextFromPixmap_dstColorSpace"> <code><strong>dstColorSpace </strong></code> </a></td> <td>
-range of colors of matching <a href="SkSurface_Reference#Surface">Surface</a> on <a href="undocumented#GPU">GPU</a></td>
+range of colors of matching <a href="SkSurface_Reference#Surface">Surface</a> on GPU</td>
   </tr>
 </table>
 
@@ -666,7 +666,7 @@ Deprecated.
 <table>  <tr>    <td><a name="SkImage_MakeFromAdoptedTexture_context"> <code><strong>context </strong></code> </a></td> <td>
 <a href="undocumented#GPU_Context">GPU Context</a></td>
   </tr>  <tr>    <td><a name="SkImage_MakeFromAdoptedTexture_backendTexture"> <code><strong>backendTexture </strong></code> </a></td> <td>
-texture residing on <a href="undocumented#GPU">GPU</a></td>
+texture residing on GPU</td>
   </tr>  <tr>    <td><a name="SkImage_MakeFromAdoptedTexture_surfaceOrigin"> <code><strong>surfaceOrigin </strong></code> </a></td> <td>
 one of: <a href="undocumented#GrSurfaceOrigin">kBottomLeft GrSurfaceOrigin</a>, <a href="undocumented#GrSurfaceOrigin">kTopLeft GrSurfaceOrigin</a></td>
   </tr>  <tr>    <td><a name="SkImage_MakeFromAdoptedTexture_alphaType"> <code><strong>alphaType </strong></code> </a></td> <td>
@@ -699,14 +699,14 @@ Creates <a href="#Image">Image</a> from <a href="#SkImage_MakeFromAdoptedTexture
 returned <a href="#Image">Image</a> are managed internally, and are released when no longer needed.
 
 <a href="#Image">Image</a> is returned if format of <a href="#SkImage_MakeFromAdoptedTexture_2_backendTexture">backendTexture</a> is recognized and supported.
-Recognized formats vary by <a href="undocumented#GPU">GPU</a> back-end.
+Recognized formats vary by GPU back-end.
 
 ### Parameters
 
 <table>  <tr>    <td><a name="SkImage_MakeFromAdoptedTexture_2_context"> <code><strong>context </strong></code> </a></td> <td>
 <a href="undocumented#GPU_Context">GPU Context</a></td>
   </tr>  <tr>    <td><a name="SkImage_MakeFromAdoptedTexture_2_backendTexture"> <code><strong>backendTexture </strong></code> </a></td> <td>
-texture residing on <a href="undocumented#GPU">GPU</a></td>
+texture residing on GPU</td>
   </tr>  <tr>    <td><a name="SkImage_MakeFromAdoptedTexture_2_surfaceOrigin"> <code><strong>surfaceOrigin </strong></code> </a></td> <td>
 one of: <a href="undocumented#GrSurfaceOrigin">kBottomLeft GrSurfaceOrigin</a>, <a href="undocumented#GrSurfaceOrigin">kTopLeft GrSurfaceOrigin</a></td>
   </tr>  <tr>    <td><a name="SkImage_MakeFromAdoptedTexture_2_colorType"> <code><strong>colorType </strong></code> </a></td> <td>
@@ -747,11 +747,11 @@ static sk_sp&lt;SkImage&gt; MakeFromYUVTexturesCopy(GrContext* context, SkYUVCol
                                               sk_sp&lt;SkColorSpace&gt; colorSpace = nullptr)
 </pre>
 
-Creates <a href="#Image">Image</a> from copy of <a href="#SkImage_MakeFromYUVTexturesCopy_yuvTextureHandles">yuvTextureHandles</a>, an array of textures on <a href="undocumented#GPU">GPU</a>.
-<a href="#SkImage_MakeFromYUVTexturesCopy_yuvTextureHandles">yuvTextureHandles</a> contain pixels for <a href="undocumented#YUV">YUV</a> planes of <a href="#Image">Image</a>.
+Creates <a href="#Image">Image</a> from copy of <a href="#SkImage_MakeFromYUVTexturesCopy_yuvTextureHandles">yuvTextureHandles</a>, an array of textures on GPU.
+<a href="#SkImage_MakeFromYUVTexturesCopy_yuvTextureHandles">yuvTextureHandles</a> contain pixels for YUV planes of <a href="#Image">Image</a>.
 <a href="#SkImage_MakeFromYUVTexturesCopy_yuvSizes">yuvSizes</a> conain <a href="#SkImage_dimensions">dimensions</a> for each pixel plane. Dimensions must be greater than
 zero but may differ from plane to plane. Returned <a href="#Image">Image</a> has the <a href="#SkImage_dimensions">dimensions</a>
-<a href="#SkImage_MakeFromYUVTexturesCopy_yuvSizes">yuvSizes</a>[0]. <a href="#SkImage_MakeFromYUVTexturesCopy_yuvColorSpace">yuvColorSpace</a> describes how <a href="undocumented#YUV">YUV</a> colors convert to <a href="undocumented#RGB">RGB</a> colors. 
+<a href="#SkImage_MakeFromYUVTexturesCopy_yuvSizes">yuvSizes</a>[0]. <a href="#SkImage_MakeFromYUVTexturesCopy_yuvColorSpace">yuvColorSpace</a> describes how YUV colors convert to RGB colors.
 
 ### Parameters
 
@@ -761,9 +761,9 @@ zero but may differ from plane to plane. Returned <a href="#Image">Image</a> has
 one of: <a href="undocumented#YUV_ColorSpace">kJPEG SkYUVColorSpace</a>, <a href="undocumented#YUV_ColorSpace">kRec601 SkYUVColorSpace</a>,
 <a href="undocumented#YUV_ColorSpace">kRec709 SkYUVColorSpace</a></td>
   </tr>  <tr>    <td><a name="SkImage_MakeFromYUVTexturesCopy_yuvTextureHandles"> <code><strong>yuvTextureHandles </strong></code> </a></td> <td>
-array of <a href="undocumented#YUV">YUV</a> textures on <a href="undocumented#GPU">GPU</a></td>
+array of YUV textures on GPU</td>
   </tr>  <tr>    <td><a name="SkImage_MakeFromYUVTexturesCopy_yuvSizes"> <code><strong>yuvSizes </strong></code> </a></td> <td>
-<a href="#SkImage_dimensions">dimensions</a> of <a href="undocumented#YUV">YUV</a> textures</td>
+<a href="#SkImage_dimensions">dimensions</a> of YUV textures</td>
   </tr>  <tr>    <td><a name="SkImage_MakeFromYUVTexturesCopy_surfaceOrigin"> <code><strong>surfaceOrigin </strong></code> </a></td> <td>
 one of: <a href="undocumented#GrSurfaceOrigin">kBottomLeft GrSurfaceOrigin</a>, <a href="undocumented#GrSurfaceOrigin">kTopLeft GrSurfaceOrigin</a></td>
   </tr>  <tr>    <td><a name="SkImage_MakeFromYUVTexturesCopy_colorSpace"> <code><strong>colorSpace </strong></code> </a></td> <td>
@@ -789,11 +789,11 @@ static sk_sp&lt;SkImage&gt; MakeFromYUVTexturesCopy(GrContext* context, SkYUVCol
                                               sk_sp&lt;SkColorSpace&gt; colorSpace = nullptr)
 </pre>
 
-Creates <a href="#Image">Image</a> from copy of <a href="#SkImage_MakeFromYUVTexturesCopy_2_yuvTextureHandles">yuvTextureHandles</a>, an array of textures on <a href="undocumented#GPU">GPU</a>.
-<a href="#SkImage_MakeFromYUVTexturesCopy_2_yuvTextureHandles">yuvTextureHandles</a> contain pixels for <a href="undocumented#YUV">YUV</a> planes of <a href="#Image">Image</a>.
+Creates <a href="#Image">Image</a> from copy of <a href="#SkImage_MakeFromYUVTexturesCopy_2_yuvTextureHandles">yuvTextureHandles</a>, an array of textures on GPU.
+<a href="#SkImage_MakeFromYUVTexturesCopy_2_yuvTextureHandles">yuvTextureHandles</a> contain pixels for YUV planes of <a href="#Image">Image</a>.
 <a href="#SkImage_MakeFromYUVTexturesCopy_2_yuvSizes">yuvSizes</a> conain <a href="#SkImage_dimensions">dimensions</a> for each pixel plane. Dimensions must be greater than
 zero but may differ from plane to plane. Returned <a href="#Image">Image</a> has the <a href="#SkImage_dimensions">dimensions</a>
-<a href="#SkImage_MakeFromYUVTexturesCopy_2_yuvSizes">yuvSizes</a>[0]. <a href="#SkImage_MakeFromYUVTexturesCopy_2_yuvColorSpace">yuvColorSpace</a> describes how <a href="undocumented#YUV">YUV</a> colors convert to <a href="undocumented#RGB">RGB</a> colors. 
+<a href="#SkImage_MakeFromYUVTexturesCopy_2_yuvSizes">yuvSizes</a>[0]. <a href="#SkImage_MakeFromYUVTexturesCopy_2_yuvColorSpace">yuvColorSpace</a> describes how YUV colors convert to RGB colors.
 
 ### Parameters
 
@@ -803,9 +803,9 @@ zero but may differ from plane to plane. Returned <a href="#Image">Image</a> has
 one of: <a href="undocumented#YUV_ColorSpace">kJPEG SkYUVColorSpace</a>, <a href="undocumented#YUV_ColorSpace">kRec601 SkYUVColorSpace</a>,
 <a href="undocumented#YUV_ColorSpace">kRec709 SkYUVColorSpace</a></td>
   </tr>  <tr>    <td><a name="SkImage_MakeFromYUVTexturesCopy_2_yuvTextureHandles"> <code><strong>yuvTextureHandles </strong></code> </a></td> <td>
-array of <a href="undocumented#YUV">YUV</a> textures on <a href="undocumented#GPU">GPU</a></td>
+array of YUV textures on GPU</td>
   </tr>  <tr>    <td><a name="SkImage_MakeFromYUVTexturesCopy_2_yuvSizes"> <code><strong>yuvSizes </strong></code> </a></td> <td>
-<a href="#SkImage_dimensions">dimensions</a> of <a href="undocumented#YUV">YUV</a> textures</td>
+<a href="#SkImage_dimensions">dimensions</a> of YUV textures</td>
   </tr>  <tr>    <td><a name="SkImage_MakeFromYUVTexturesCopy_2_surfaceOrigin"> <code><strong>surfaceOrigin </strong></code> </a></td> <td>
 one of: <a href="undocumented#GrSurfaceOrigin">kBottomLeft GrSurfaceOrigin</a>, <a href="undocumented#GrSurfaceOrigin">kTopLeft GrSurfaceOrigin</a></td>
   </tr>  <tr>    <td><a name="SkImage_MakeFromYUVTexturesCopy_2_colorSpace"> <code><strong>colorSpace </strong></code> </a></td> <td>
@@ -834,13 +834,13 @@ static sk_sp&lt;SkImage&gt; MakeFromNV12TexturesCopy(GrContext* context, SkYUVCo
                                                sk_sp&lt;SkColorSpace&gt; colorSpace = nullptr)
 </pre>
 
-Creates <a href="#Image">Image</a> from copy of <a href="#SkImage_MakeFromNV12TexturesCopy_nv12TextureHandles">nv12TextureHandles</a>, an array of textures on <a href="undocumented#GPU">GPU</a>.
-<a href="#SkImage_MakeFromNV12TexturesCopy_nv12TextureHandles">nv12TextureHandles</a>[0] contains pixels for <a href="undocumented#YUV_Component_Y">YUV Component Y</a> plane.
-<a href="#SkImage_MakeFromNV12TexturesCopy_nv12TextureHandles">nv12TextureHandles</a>[1] contains pixels for <a href="undocumented#YUV_Component_U">YUV Component U</a> plane,
-followed by pixels for <a href="undocumented#YUV_Component_V">YUV Component V</a> plane.
+Creates <a href="#Image">Image</a> from copy of <a href="#SkImage_MakeFromNV12TexturesCopy_nv12TextureHandles">nv12TextureHandles</a>, an array of textures on GPU.
+<a href="#SkImage_MakeFromNV12TexturesCopy_nv12TextureHandles">nv12TextureHandles</a>[0] contains pixels for YUV_Component_Y plane.
+<a href="#SkImage_MakeFromNV12TexturesCopy_nv12TextureHandles">nv12TextureHandles</a>[1] contains pixels for YUV_Component_U plane,
+followed by pixels for YUV_Component_V plane.
 <a href="#SkImage_MakeFromNV12TexturesCopy_nv12Sizes">nv12Sizes</a> conain <a href="#SkImage_dimensions">dimensions</a> for each pixel plane. Dimensions must be greater than
 zero but may differ from plane to plane. Returned <a href="#Image">Image</a> has the <a href="#SkImage_dimensions">dimensions</a>
-<a href="#SkImage_MakeFromNV12TexturesCopy_nv12Sizes">nv12Sizes</a>[0]. <a href="#SkImage_MakeFromNV12TexturesCopy_yuvColorSpace">yuvColorSpace</a> describes how <a href="undocumented#YUV">YUV</a> colors convert to <a href="undocumented#RGB">RGB</a> colors.
+<a href="#SkImage_MakeFromNV12TexturesCopy_nv12Sizes">nv12Sizes</a>[0]. <a href="#SkImage_MakeFromNV12TexturesCopy_yuvColorSpace">yuvColorSpace</a> describes how YUV colors convert to RGB colors.
 
 ### Parameters
 
@@ -850,9 +850,9 @@ zero but may differ from plane to plane. Returned <a href="#Image">Image</a> has
 one of: <a href="undocumented#YUV_ColorSpace">kJPEG SkYUVColorSpace</a>, <a href="undocumented#YUV_ColorSpace">kRec601 SkYUVColorSpace</a>,
 <a href="undocumented#YUV_ColorSpace">kRec709 SkYUVColorSpace</a></td>
   </tr>  <tr>    <td><a name="SkImage_MakeFromNV12TexturesCopy_nv12TextureHandles"> <code><strong>nv12TextureHandles </strong></code> </a></td> <td>
-array of <a href="undocumented#YUV">YUV</a> textures on <a href="undocumented#GPU">GPU</a></td>
+array of YUV textures on GPU</td>
   </tr>  <tr>    <td><a name="SkImage_MakeFromNV12TexturesCopy_nv12Sizes"> <code><strong>nv12Sizes </strong></code> </a></td> <td>
-<a href="#SkImage_dimensions">dimensions</a> of <a href="undocumented#YUV">YUV</a> textures</td>
+<a href="#SkImage_dimensions">dimensions</a> of YUV textures</td>
   </tr>  <tr>    <td><a name="SkImage_MakeFromNV12TexturesCopy_surfaceOrigin"> <code><strong>surfaceOrigin </strong></code> </a></td> <td>
 one of: <a href="undocumented#GrSurfaceOrigin">kBottomLeft GrSurfaceOrigin</a>, <a href="undocumented#GrSurfaceOrigin">kTopLeft GrSurfaceOrigin</a></td>
   </tr>  <tr>    <td><a name="SkImage_MakeFromNV12TexturesCopy_colorSpace"> <code><strong>colorSpace </strong></code> </a></td> <td>
@@ -878,13 +878,13 @@ static sk_sp&lt;SkImage&gt; MakeFromNV12TexturesCopy(GrContext* context, SkYUVCo
                                                sk_sp&lt;SkColorSpace&gt; colorSpace = nullptr)
 </pre>
 
-Creates <a href="#Image">Image</a> from copy of <a href="#SkImage_MakeFromNV12TexturesCopy_2_nv12TextureHandles">nv12TextureHandles</a>, an array of textures on <a href="undocumented#GPU">GPU</a>.
-<a href="#SkImage_MakeFromNV12TexturesCopy_2_nv12TextureHandles">nv12TextureHandles</a>[0] contains pixels for <a href="undocumented#YUV_Component_Y">YUV Component Y</a> plane.
-<a href="#SkImage_MakeFromNV12TexturesCopy_2_nv12TextureHandles">nv12TextureHandles</a>[1] contains pixels for <a href="undocumented#YUV_Component_U">YUV Component U</a> plane,
-followed by pixels for <a href="undocumented#YUV_Component_V">YUV Component V</a> plane.
+Creates <a href="#Image">Image</a> from copy of <a href="#SkImage_MakeFromNV12TexturesCopy_2_nv12TextureHandles">nv12TextureHandles</a>, an array of textures on GPU.
+<a href="#SkImage_MakeFromNV12TexturesCopy_2_nv12TextureHandles">nv12TextureHandles</a>[0] contains pixels for YUV_Component_Y plane.
+<a href="#SkImage_MakeFromNV12TexturesCopy_2_nv12TextureHandles">nv12TextureHandles</a>[1] contains pixels for YUV_Component_U plane,
+followed by pixels for YUV_Component_V plane.
 <a href="#SkImage_MakeFromNV12TexturesCopy_2_nv12Sizes">nv12Sizes</a> conain <a href="#SkImage_dimensions">dimensions</a> for each pixel plane. Dimensions must be greater than
 zero but may differ from plane to plane. Returned <a href="#Image">Image</a> has the <a href="#SkImage_dimensions">dimensions</a>
-<a href="#SkImage_MakeFromNV12TexturesCopy_2_nv12Sizes">nv12Sizes</a>[0]. <a href="#SkImage_MakeFromNV12TexturesCopy_2_yuvColorSpace">yuvColorSpace</a> describes how <a href="undocumented#YUV">YUV</a> colors convert to <a href="undocumented#RGB">RGB</a> colors.
+<a href="#SkImage_MakeFromNV12TexturesCopy_2_nv12Sizes">nv12Sizes</a>[0]. <a href="#SkImage_MakeFromNV12TexturesCopy_2_yuvColorSpace">yuvColorSpace</a> describes how YUV colors convert to RGB colors.
 
 ### Parameters
 
@@ -894,9 +894,9 @@ zero but may differ from plane to plane. Returned <a href="#Image">Image</a> has
 one of: <a href="undocumented#YUV_ColorSpace">kJPEG SkYUVColorSpace</a>, <a href="undocumented#YUV_ColorSpace">kRec601 SkYUVColorSpace</a>,
 <a href="undocumented#YUV_ColorSpace">kRec709 SkYUVColorSpace</a></td>
   </tr>  <tr>    <td><a name="SkImage_MakeFromNV12TexturesCopy_2_nv12TextureHandles"> <code><strong>nv12TextureHandles </strong></code> </a></td> <td>
-array of <a href="undocumented#YUV">YUV</a> textures on <a href="undocumented#GPU">GPU</a></td>
+array of YUV textures on GPU</td>
   </tr>  <tr>    <td><a name="SkImage_MakeFromNV12TexturesCopy_2_nv12Sizes"> <code><strong>nv12Sizes </strong></code> </a></td> <td>
-<a href="#SkImage_dimensions">dimensions</a> of <a href="undocumented#YUV">YUV</a> textures</td>
+<a href="#SkImage_dimensions">dimensions</a> of YUV textures</td>
   </tr>  <tr>    <td><a name="SkImage_MakeFromNV12TexturesCopy_2_surfaceOrigin"> <code><strong>surfaceOrigin </strong></code> </a></td> <td>
 one of: <a href="undocumented#GrSurfaceOrigin">kBottomLeft GrSurfaceOrigin</a>, <a href="undocumented#GrSurfaceOrigin">kTopLeft GrSurfaceOrigin</a></td>
   </tr>  <tr>    <td><a name="SkImage_MakeFromNV12TexturesCopy_2_colorSpace"> <code><strong>colorSpace </strong></code> </a></td> <td>
@@ -952,7 +952,7 @@ Creates <a href="#Image">Image</a> from <a href="#SkImage_MakeFromPicture_pictur
 <a href="#Image">Image</a> draws <a href="#SkImage_MakeFromPicture_picture">picture</a> with <a href="#SkImage_MakeFromPicture_matrix">matrix</a> and <a href="#SkImage_MakeFromPicture_paint">paint</a>, set to <a href="#SkImage_MakeFromPicture_bitDepth">bitDepth</a> and <a href="#SkImage_colorSpace">colorSpace</a>.
 
 If <a href="#SkImage_MakeFromPicture_matrix">matrix</a> is nullptr, draws with identity <a href="SkMatrix_Reference#Matrix">Matrix</a>. If <a href="#SkImage_MakeFromPicture_paint">paint</a> is nullptr, draws
-with default <a href="SkPaint_Reference#Paint">Paint</a>. <a href="#SkImage_colorSpace">colorSpace</a> may be nullptr. 
+with default <a href="SkPaint_Reference#Paint">Paint</a>. <a href="#SkImage_colorSpace">colorSpace</a> may be nullptr.
 
 ### Parameters
 
@@ -994,15 +994,15 @@ static sk_sp&lt;SkImage&gt; MakeFromAHardwareBuffer(AHardwareBuffer* hardwareBuf
                                             sk_sp&lt;SkColorSpace&gt; colorSpace = nullptr)
 </pre>
 
-Creates <a href="#Image">Image</a> from <a href="undocumented#Android">Android</a> hardware buffer.
+Creates <a href="#Image">Image</a> from Android hardware buffer.
 Returned <a href="#Image">Image</a> takes a reference on the buffer.
 
-Only available on <a href="undocumented#Android">Android</a>, when __<a href="undocumented#ANDROID_API__">ANDROID API  </a> is defined to be 26 or greater.
+Only available on Android, when __ANDROID_API__ is defined to be 26 or greater.
 
 ### Parameters
 
 <table>  <tr>    <td><a name="SkImage_MakeFromAHardwareBuffer_hardwareBuffer"> <code><strong>hardwareBuffer </strong></code> </a></td> <td>
-<a href="undocumented#AHardwareBuffer">AHardwareBuffer</a> <a href="undocumented#Android">Android</a> hardware buffer</td>
+AHardwareBuffer Android hardware buffer</td>
   </tr>  <tr>    <td><a name="SkImage_MakeFromAHardwareBuffer_alphaType"> <code><strong>alphaType </strong></code> </a></td> <td>
 one of: <a href="undocumented#SkAlphaType">kUnknown SkAlphaType</a>, <a href="undocumented#SkAlphaType">kOpaque SkAlphaType</a>,
 <a href="undocumented#SkAlphaType">kPremul SkAlphaType</a>, <a href="undocumented#SkAlphaType">kUnpremul SkAlphaType</a></td>
@@ -1436,7 +1436,7 @@ is nullptr, tests if <a href="#Image">Image</a> draws on <a href="undocumented#R
 draws on <a href="undocumented#GPU_Surface">GPU Surface</a> associated with <a href="#SkImage_isValid_context">context</a>.
 
 <a href="undocumented#Texture">Texture</a>-backed images may become invalid if their underlying <a href="undocumented#GrContext">GrContext</a> is abandoned. Some
-generator-backed images may be invalid for <a href="undocumented#CPU">CPU</a> and/or <a href="undocumented#GPU">GPU</a>.
+generator-backed images may be invalid for CPU and/or GPU.
 
 ### Parameters
 
@@ -1466,8 +1466,8 @@ incomplete
 GrBackendObject getTextureHandle(bool flushPendingGrContextIO, GrSurfaceOrigin* origin = nullptr) const
 </pre>
 
-Retrieves the back-end <a href="undocumented#API">API</a> handle of texture. If <a href="#SkImage_getTextureHandle_flushPendingGrContextIO">flushPendingGrContextIO</a> is true,
-complete deferred <a href="undocumented#I">I</a>/<a href="undocumented#O">O</a> operations.
+Retrieves the back-end API handle of texture. If <a href="#SkImage_getTextureHandle_flushPendingGrContextIO">flushPendingGrContextIO</a> is true,
+complete deferred I/O operations.
 
 If <a href="#SkImage_getTextureHandle_origin">origin</a> in not nullptr, copies location of content drawn into <a href="#Image">Image</a>.
 
@@ -1483,7 +1483,7 @@ storage for one of: <a href="undocumented#GrSurfaceOrigin">kTopLeft GrSurfaceOri
 
 ### Return Value
 
-back-end <a href="undocumented#API">API</a> texture handle
+back-end API texture handle
 
 ### Example
 
@@ -1504,7 +1504,7 @@ enum <a href="#SkImage_CachingHint">CachingHint</a> {
 };</pre>
 
 Hints to image calls where the system might cache computed intermediates (e.g. the results
-of decoding or a read-back from the <a href="undocumented#GPU">GPU</a>. Passing <a href="#SkImage_kAllow_CachingHint">kAllow CachingHint</a> signals that the system's default
+of decoding or a read-back from the GPU. Passing <a href="#SkImage_kAllow_CachingHint">kAllow CachingHint</a> signals that the system's default
 behavior is fine. Passing <a href="#SkImage_kDisallow_CachingHint">kDisallow CachingHint</a> signals that caching should be avoided.
 
 ### Constants
@@ -1693,9 +1693,9 @@ sk_sp&lt;SkData&gt; encodeToData() const
 
 Encodes <a href="#Image">Image</a> and returns result as <a href="undocumented#SkData">SkData</a>. Will reuse existing encoded data
 if present, as returned by <a href="#SkImage_refEncodedData">refEncodedData</a>. If encoded data is missing or invalid,
-<a href="#Image">Image</a> is encoded as <a href="undocumented#PNG">PNG</a>.
+<a href="#Image">Image</a> is encoded as PNG.
 
-Returns nullptr if existing encoded data is missing or invalid and 
+Returns nullptr if existing encoded data is missing or invalid and
 encoding fails.
 
 ### Return Value
@@ -1719,7 +1719,7 @@ incomplete
 sk_sp&lt;SkData&gt; refEncodedData() const
 </pre>
 
-If the image already has its contents in encoded form (e.g. <a href="undocumented#PNG">PNG</a> or <a href="undocumented#JPEG">JPEG</a>), return that
+If the image already has its contents in encoded form (e.g. PNG or JPEG), return that
 as <a href="undocumented#SkData">SkData</a>. If the image does not already has its contents in encoded form, return nullptr.
 
 To force the image to return its contents as encoded data, call <a href="#SkImage_encodeToData">encodeToData</a>.
@@ -2021,7 +2021,7 @@ If the method determines that mip-maps are needed, this helps determine the corr
 for building them (gamma-correct or not).
 
 <a href="#SkImage_getDeferredTextureImageData_dstColorType">dstColorType</a> is the color type of the surface where this texture will ultimately be used.
-This determines the format with which the image will be uploaded to the <a href="undocumented#GPU">GPU</a>. If <a href="#SkImage_getDeferredTextureImageData_dstColorType">dstColorType</a>
+This determines the format with which the image will be uploaded to the GPU. If <a href="#SkImage_getDeferredTextureImageData_dstColorType">dstColorType</a>
 does not support color spaces (low bit depth types such as <a href="undocumented#SkColorType">kARGB 4444 SkColorType</a>),
 then <a href="#SkImage_getDeferredTextureImageData_dstColorSpace">dstColorSpace</a> must be null.
 
@@ -2107,13 +2107,13 @@ static bool MakeBackendTextureFromSkImage(GrContext* context, sk_sp&lt;SkImage&g
 Creates a <a href="undocumented#GrBackendTexture">GrBackendTexture</a> from the provided <a href="#SkImage">SkImage</a>. Returns true on success. The
 <a href="undocumented#GrBackendTexture">GrBackendTexture</a> and <a href="#SkImage_BackendTextureReleaseProc">BackendTextureReleaseProc</a> are populated on success. It is the callers
 responsibility to call the <a href="#SkImage_BackendTextureReleaseProc">BackendTextureReleaseProc</a> once they have deleted the texture.
-Note that the <a href="#SkImage_BackendTextureReleaseProc">BackendTextureReleaseProc</a> allows <a href="undocumented#Skia">Skia</a> to clean up auxiliary data related
+Note that the <a href="#SkImage_BackendTextureReleaseProc">BackendTextureReleaseProc</a> allows Skia to clean up auxiliary data related
 to the <a href="undocumented#GrBackendTexture">GrBackendTexture</a>, and is not a substitute for the client deleting the <a href="undocumented#GrBackendTexture">GrBackendTexture</a>
 themselves.
 
 If <a href="#SkImage_MakeBackendTextureFromSkImage_image">image</a> is both texture backed and singly referenced; that is, its only
 reference was transferred using std::move(): <a href="#SkImage_MakeBackendTextureFromSkImage_image">image</a> is returned in <a href="#SkImage_MakeBackendTextureFromSkImage_backendTexture">backendTexture</a>
-without conversion or making a copy. 
+without conversion or making a copy.
 
 If the <a href="#SkImage">SkImage</a> is not texture backed, this function will generate a texture with the <a href="#SkImage_MakeBackendTextureFromSkImage_image">image</a>'s
 contents and return that.
@@ -2247,7 +2247,7 @@ Otherwise, returns nullptr.
 This will leave the image as is if it already in <a href="#SkImage_makeColorSpace_target">target</a> color space.
 Otherwise, it will convert the pixels from <a href="#Image">Image</a> color space to <a href="#SkImage_makeColorSpace_target">target</a>
 color space.  If this-><a href="#SkImage_colorSpace">colorSpace</a> is nullptr, <a href="#Image">Image</a> color space will be
-treated as <a href="undocumented#sRGB">sRGB</a>.
+treated as sRGB.
 
 If <a href="#SkImage_makeColorSpace_premulBehavior">premulBehavior</a> is <a href="#SkTransferFunctionBehavior_kRespect">SkTransferFunctionBehavior::kRespect</a>: converts <a href="#Image">Image</a>
 pixels to a linear space before converting to match destination <a href="#Color_Type">Color Type</a>

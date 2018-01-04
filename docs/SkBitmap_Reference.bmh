@@ -450,9 +450,10 @@ two width:1 height:1 colorType:kRGBA_8888_SkColorType alphaType:kOpaque_SkAlphaT
 
 #Method SkPixmap pixmap() const
 
-Returns Pixmap with Bitmap pixel address, row bytes, and Image_Info, if address is available.
-If pixel address is not available, returns default constructed Pixmap: nullptr pixels,
-kUnknown_SkColorType, kUnknown_SkAlphaType, width and height of zero.
+Returns Pixmap with Bitmap pixel address, row bytes, and Image_Info, if address
+is available. If pixel address is not available, returns default constructed
+Pixmap: nullptr pixels, kUnknown_SkColorType, kUnknown_SkAlphaType, width and
+height of zero.
 
 Returned Pixmap becomes invalid on any future change to Bitmap
 
