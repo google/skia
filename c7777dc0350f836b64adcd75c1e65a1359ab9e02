@@ -1,0 +1,203 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "66ce69c2_2445186c",
+        "filename": "platform_tools/android/apps/settings.gradle",
+        "patchSetId": 13
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-01-04T17:45:29Z",
+      "side": 1,
+      "message": "remove this",
+      "range": {
+        "startLine": 3,
+        "startChar": 0,
+        "endLine": 3,
+        "endChar": 7
+      },
+      "revId": "c7777dc0350f836b64adcd75c1e65a1359ab9e02",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e95e4cbb_88ee3782",
+        "filename": "platform_tools/android/apps/skqp/build.gradle",
+        "patchSetId": 13
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-01-04T17:45:29Z",
+      "side": 1,
+      "message": "do you use all of these dependencies?",
+      "revId": "c7777dc0350f836b64adcd75c1e65a1359ab9e02",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c229b40b_3643bbdd",
+        "filename": "platform_tools/android/apps/skqp/src/main/AndroidManifest.xml",
+        "patchSetId": 13
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-01-04T17:45:29Z",
+      "side": 1,
+      "message": "can we either drop the icons altogether or add the skia logo?",
+      "revId": "c7777dc0350f836b64adcd75c1e65a1359ab9e02",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0ab23404_55fb968b",
+        "filename": "platform_tools/android/apps/skqp/src/main/AndroidManifest.xml",
+        "patchSetId": 13
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-01-04T17:45:29Z",
+      "side": 1,
+      "message": "just call is SkQP",
+      "range": {
+        "startLine": 11,
+        "startChar": 21,
+        "endLine": 11,
+        "endChar": 28
+      },
+      "revId": "c7777dc0350f836b64adcd75c1e65a1359ab9e02",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2829c981_d80c79cf",
+        "filename": "platform_tools/android/apps/skqp/src/main/AndroidManifest.xml",
+        "patchSetId": 13
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-01-04T17:45:29Z",
+      "side": 1,
+      "message": "is the data really javascript or just plain text?",
+      "revId": "c7777dc0350f836b64adcd75c1e65a1359ab9e02",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "09f0132d_fca693d7",
+        "filename": "platform_tools/android/apps/skqp/src/main/java/org/skia/skqp/MainActivity.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-01-04T17:45:29Z",
+      "side": 1,
+      "message": "Intent intent \u003d new Intent(this, SkQPActivity.class);\nstartActivity(intent);",
+      "revId": "c7777dc0350f836b64adcd75c1e65a1359ab9e02",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d4cfe008_27d374a7",
+        "filename": "platform_tools/android/apps/skqp/src/main/java/org/skia/skqp/SkQPActivity.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-01-04T17:45:29Z",
+      "side": 1,
+      "message": "Is there a reason you only run the tests when the intent had this specific action?",
+      "revId": "c7777dc0350f836b64adcd75c1e65a1359ab9e02",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d29d5161_39a4ea24",
+        "filename": "platform_tools/android/apps/skqp/src/main/java/org/skia/skqp/SkQPActivity.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-01-04T17:45:29Z",
+      "side": 1,
+      "message": "Instead of finish could we display a completed text box or something like that?",
+      "revId": "c7777dc0350f836b64adcd75c1e65a1359ab9e02",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ce08123c_c66b5ac1",
+        "filename": "platform_tools/android/apps/skqp/src/main/java/org/skia/skqp/SkQPRunner.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-01-04T17:45:29Z",
+      "side": 1,
+      "message": "can you explain the reasoning behind splitting this logic into this class and an impl?",
+      "revId": "c7777dc0350f836b64adcd75c1e65a1359ab9e02",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a5462d8c_d9b58fbd",
+        "filename": "platform_tools/android/apps/skqp/src/main/res/layout/activity_main.xml",
+        "patchSetId": 13
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-01-04T17:45:29Z",
+      "side": 1,
+      "message": "Does this text view serve a purpose?",
+      "revId": "c7777dc0350f836b64adcd75c1e65a1359ab9e02",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f1309caf_1f54a750",
+        "filename": "platform_tools/android/apps/skqp/src/main/res/mipmap-xxxhdpi/ic_launcher.png",
+        "patchSetId": 13
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-01-04T17:45:29Z",
+      "side": 1,
+      "message": "remove the image files.",
+      "revId": "c7777dc0350f836b64adcd75c1e65a1359ab9e02",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
