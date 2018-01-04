@@ -16,6 +16,24 @@
       "revId": "eb21c72b508f536695fdbb25e3fb20472342d59d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9ba68082_f04f3be3",
+        "filename": "platform_tools/android/apps/skqpapp/src/main/AndroidManifest.xml",
+        "patchSetId": 10
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2018-01-04T16:02:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "048300ec_2813dae5",
+      "revId": "eb21c72b508f536695fdbb25e3fb20472342d59d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
