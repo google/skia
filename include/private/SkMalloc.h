@@ -18,8 +18,17 @@
 */
 
 enum {
-    SK_MALLOC_TEMP  = 0x01, //!< hint to sk_malloc that the requested memory will be freed in the scope of the stack frame
-    SK_MALLOC_THROW = 0x02  //!< instructs sk_malloc to not return normally if the memory cannot be allocated.
+    /**
+     *  If this bit is set, the returned buffer must be zero-initialized. If this bit is not set
+     *  the buffer can be uninitialized.
+     */
+    SK_MALLOC_ZERO_INITIALIZE   = 1 << 0,
+
+    /**
+     *  If this bit is set, the implementation must throw/crash/quit if the request cannot
+     *  be fulfilled. If this bit is not set, then it should return nullptr on failure.
+     */
+    SK_MALLOC_THROW             = 1 << 1,
 };
 /** Return a block of memory (at least 4-byte aligned) of at least the
     specified size. If the requested memory cannot be returned, either
@@ -27,8 +36,9 @@ enum {
     (if SK_MALLOC_TEMP bit is set). To free the memory, call sk_free().
 */
 SK_API extern void* sk_malloc_flags(size_t size, unsigned flags);
+
 /** Same as sk_malloc(), but hard coded to pass SK_MALLOC_THROW as the flag
-*/
+ */
 SK_API extern void* sk_malloc_throw(size_t size);
 /** Same as standard realloc(), but this one never returns null on failure. It will throw
     an exception if it fails.
@@ -45,6 +55,19 @@ SK_API extern void* sk_calloc(size_t size);
 /** Same as sk_calloc, but throws an exception instead of returning NULL on failure.
  */
 SK_API extern void* sk_calloc_throw(size_t size);
+
+// Performs a safe multiply count * elemSize, checking for overflow
+void* sk_calloc_throw(size_t count, size_t elemSize);
+void* sk_malloc_throw(size_t count, size_t elemSize);
+void* sk_realloc_throw(void* buffer, size_t count, size_t elemSize);
+
+/**
+ *  These variants return nullptr on failure
+ */
+static inline void* sk_malloc_canfail(size_t size) {
+    return sk_malloc_flags(size, 0);
+}
+void* sk_malloc_canfail(size_t count, size_t elemSize);
 
 /** Called internally if we run out of memory. The platform implementation must
     not return, but should either throw an exception or otherwise exit.
