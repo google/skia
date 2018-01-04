@@ -52,7 +52,7 @@ DEF_SIMPLE_GM(dont_clip_to_layer, canvas, 120, 120) {
     canvas->saveLayer(&r, nullptr);
     canvas->drawColor(SK_ColorRED);
 
-    SkRect r0 = { 20, 20, 100, 55 };
+    SkRect r0 = { 20, 20, 90, 55 };
     SkRect r1 = { 20, 65, 100, 100 };
 
     SkCanvas::SaveLayerRec rec;
