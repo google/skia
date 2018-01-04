@@ -10,8 +10,11 @@
 #include "SkColor.h"
 #include "SkottyPriv.h"
 #include "SkPath.h"
+#include "SkSGPath.h"
 #include "SkSGRect.h"
 #include "SkSGTransform.h"
+
+#include <cmath>
 
 namespace  skotty {
 
@@ -183,6 +186,38 @@ void CompositeTransform::apply() {
     // TODO: skew
 
     fTransformNode->setMatrix(t);
+}
+
+CompositePolyStar::CompositePolyStar(sk_sp<sksg::Path> wrapped_node, Type t)
+    : fPathNode(std::move(wrapped_node))
+    , fType(t) {}
+
+void CompositePolyStar::apply() {
+    const auto count = SkScalarTruncToInt(fPointCount);
+    const auto arc   = SK_ScalarPI * 2 / count;
+
+    const auto pt_on_circle = [](const SkPoint& c, SkScalar r, SkScalar a) {
+        return SkPoint::Make(c.x() + r * std::cos(a),
+                             c.y() + r * std::sin(a));
+    };
+
+    // TODO: inner/outer "roundness"?
+
+    SkPath poly;
+
+    auto angle = SkDegreesToRadians(fRotation);
+    poly.moveTo(pt_on_circle(fPosition, fOuterRadius, angle));
+
+    for (int i = 0; i < count; ++i) {
+        if (fType == Type::kStar) {
+            poly.lineTo(pt_on_circle(fPosition, fInnerRadius, angle + arc * 0.5f));
+        }
+        angle += arc;
+        poly.lineTo(pt_on_circle(fPosition, fOuterRadius, angle));
+    }
+
+    poly.close();
+    fPathNode->setPath(poly);
 }
 
 } // namespace skotty
