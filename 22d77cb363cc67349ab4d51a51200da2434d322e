@@ -16,6 +16,24 @@
       "revId": "22d77cb363cc67349ab4d51a51200da2434d322e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bb42ad1c_361ac4fa",
+        "filename": "src/opts/SkBlitMask_opts_arm_neon.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-04T18:25:43Z",
+      "side": 0,
+      "message": "Perfect.",
+      "parentUuid": "22237db3_d07aee31",
+      "revId": "22d77cb363cc67349ab4d51a51200da2434d322e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }

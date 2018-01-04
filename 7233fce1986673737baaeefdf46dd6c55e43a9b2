@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a52e5388_818d4492",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 288,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-04T18:25:43Z",
+      "side": 1,
+      "message": "This looks like maybe uncovering a real bug.  Let\u0027s add bsalomon to review this bit?",
+      "revId": "7233fce1986673737baaeefdf46dd6c55e43a9b2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "35b07674_307b3409",
+        "filename": "src/gpu/GrTextureMaker.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-04T18:25:43Z",
+      "side": 1,
+      "message": "I think we\u0027re going to need a domain expert like Brian to look at this one too.\n\nIt\u0027d be nice if this ended up as,\n\n    GrSurfaceOrigin origOrigin \u003d original ? original-\u003eorigin()\n                                          : kTopLeft_GrSurfaceOrigin;",
+      "revId": "7233fce1986673737baaeefdf46dd6c55e43a9b2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "85c17ad3_1b2135bc",
+        "filename": "src/gpu/gl/builders/GrGLShaderStringBuilder.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-04T18:25:43Z",
+      "side": 1,
+      "message": "You\u0027ll want to add Ethan to this review, but I suspect we want less severe error handling than this, like the bit with the SkDebugf()\u0027s and return nullptr just below this.",
+      "revId": "7233fce1986673737baaeefdf46dd6c55e43a9b2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
