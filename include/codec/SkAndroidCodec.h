@@ -20,6 +20,11 @@
 class SK_API SkAndroidCodec : SkNoncopyable {
 public:
     /**
+     *  Pass ownership of an SkCodec to a newly-created SkAndroidCodec.
+     */
+    static std::unique_ptr<SkAndroidCodec> MakeFromCodec(std::unique_ptr<SkCodec>);
+
+    /**
      *  If this stream represents an encoded image that we know how to decode,
      *  return an SkAndroidCodec that can decode it. Otherwise return NULL.
      *
