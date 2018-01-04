@@ -20,31 +20,13 @@
 #include "effects/GrSRGBEffect.h"
 #include "effects/GrYUVtoRGBEffect.h"
 
-namespace {
-/**
- *  Helper class to manage the resources used for storing the YUV planar data. Depending on the
- *  useCache option, we may find (and lock) the data in our ResourceCache, or we may have allocated
- *  it in scratch storage.
- */
-class YUVScoper {
-public:
-    bool init(GrYUVProvider*, SkYUVPlanesCache::Info*, void* planes[3], bool useCache);
+sk_sp<SkCachedData> init_provider(GrYUVProvider* provider, SkYUVPlanesCache::Info* yuvInfo,
+                                  void* planes[3]) {
+    sk_sp<SkCachedData> data;
+    data.reset(SkYUVPlanesCache::FindAndRef(provider->onGetID(), yuvInfo));
 
-private:
-    // we only use one or the other of these
-    sk_sp<SkCachedData>  fCachedData;
-    SkAutoMalloc         fStorage;
-};
-}
-
-bool YUVScoper::init(GrYUVProvider* provider, SkYUVPlanesCache::Info* yuvInfo, void* planes[3],
-                     bool useCache) {
-    if (useCache) {
-        fCachedData.reset(SkYUVPlanesCache::FindAndRef(provider->onGetID(), yuvInfo));
-    }
-
-    if (fCachedData.get()) {
-        planes[0] = (void*)fCachedData->data();
+    if (data.get()) {
+        planes[0] = (void*)data->data();
         planes[1] = (uint8_t*)planes[0] + (yuvInfo->fSizeInfo.fWidthBytes[SkYUVSizeInfo::kY] *
                                            yuvInfo->fSizeInfo.fSizes[SkYUVSizeInfo::kY].fHeight);
         planes[2] = (uint8_t*)planes[1] + (yuvInfo->fSizeInfo.fWidthBytes[SkYUVSizeInfo::kU] *
@@ -52,7 +34,7 @@ bool YUVScoper::init(GrYUVProvider* provider, SkYUVPlanesCache::Info* yuvInfo, v
     } else {
         // Fetch yuv plane sizes for memory allocation.
         if (!provider->onQueryYUV8(&yuvInfo->fSizeInfo, &yuvInfo->fColorSpace)) {
-            return false;
+            return nullptr;
         }
 
         // Allocate the memory for YUV
@@ -60,13 +42,8 @@ bool YUVScoper::init(GrYUVProvider* provider, SkYUVPlanesCache::Info* yuvInfo, v
         for (int i = 0; i < 3; i++) {
             totalSize += yuvInfo->fSizeInfo.fWidthBytes[i] * yuvInfo->fSizeInfo.fSizes[i].fHeight;
         }
-        if (useCache) {
-            fCachedData.reset(SkResourceCache::NewCachedData(totalSize));
-            planes[0] = fCachedData->writable_data();
-        } else {
-            fStorage.reset(totalSize);
-            planes[0] = fStorage.get();
-        }
+        data.reset(SkResourceCache::NewCachedData(totalSize));
+        planes[0] = data->writable_data();
         planes[1] = (uint8_t*)planes[0] + (yuvInfo->fSizeInfo.fWidthBytes[SkYUVSizeInfo::kY] *
                                            yuvInfo->fSizeInfo.fSizes[SkYUVSizeInfo::kY].fHeight);
         planes[2] = (uint8_t*)planes[1] + (yuvInfo->fSizeInfo.fWidthBytes[SkYUVSizeInfo::kU] *
@@ -74,25 +51,23 @@ bool YUVScoper::init(GrYUVProvider* provider, SkYUVPlanesCache::Info* yuvInfo, v
 
         // Get the YUV planes.
         if (!provider->onGetYUV8Planes(yuvInfo->fSizeInfo, planes)) {
-            return false;
+            return nullptr;
         }
 
-        if (useCache) {
-            // Decoding is done, cache the resulting YUV planes
-            SkYUVPlanesCache::Add(provider->onGetID(), fCachedData.get(), yuvInfo);
-        }
+        // Decoding is done, cache the resulting YUV planes
+        SkYUVPlanesCache::Add(provider->onGetID(), data.get(), yuvInfo);
     }
-    return true;
+    return data;
 }
 
 sk_sp<GrTextureProxy> GrYUVProvider::refAsTextureProxy(GrContext* ctx, const GrSurfaceDesc& desc,
-                                                       bool useCache,
                                                        const SkColorSpace* srcColorSpace,
                                                        const SkColorSpace* dstColorSpace) {
     SkYUVPlanesCache::Info yuvInfo;
     void* planes[3];
-    YUVScoper scoper;
-    if (!scoper.init(this, &yuvInfo, planes, useCache)) {
+
+    sk_sp<SkCachedData>  dataStorage = init_provider(this, &yuvInfo, planes);
+    if (!dataStorage) {
         return nullptr;
     }
 
