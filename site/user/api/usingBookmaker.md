@@ -2,9 +2,61 @@ usingBookmaker
 ===
 
 # <a name="Bookmaker"></a> Bookmaker
+
+## <a name="Broken_Build"></a> Broken Build
+
+If the <a href="https://chromium-swarm.appspot.com/task?id=3ada561141420210">Housekeeper-PerCommit-Bookmaker</a> bot is red, the bot has detected that the files in docs and include/core differ.
+
+The bot output describes what changed.
+
+To fix this, edit the docs file corresponding to the changed include file.
+
+For instance, if the change was made to <a href="SkIRect_Reference#SkIRect">SkIRect</a>, edit docs/<a href="usingBookmaker#SkIRect_Reference">SkIRect Reference</a>.bmh.
+Checking in the edited docs/<a href="usingBookmaker#SkIRect_Reference">SkIRect Reference</a>.bmh will fix the bot.
+
+To regenerate the documentation, follow the <a href="#Install">Install</a> and <a href="#Regenerate">Regenerate</a> steps below.
+
+If the <a href="https://chromium-swarm.appspot.com/task?id=3ad85c0f737d2610">Housekeeper-Nightly-Bookmaker</a> bot is red, one of several things may have gone wrong:
+
+<table>  <tr>
+    <td>A change to include broke documentation examples.</td>  </tr>  <tr>
+    <td>Something changed the examples that output text.</td>  </tr>  <tr>
+    <td>Some interface was added, deleted, edited.</td>  </tr>  <tr>
+    <td>Documentation is malformed.</td>  </tr>
+</table>
+
+The bot output describes what changed, and includes the file and line
+where the error occurred.
+
+To regenerate the documentation, follow the <a href="#Install">Install</a> and <a href="#Regenerate">Regenerate</a> steps below.
+
+## <a name="Editing_Comments"></a> Editing Comments
+
+Edit docs instead of include/core files to update comments if possible.
+
+The <a href="#Bookmaker">Bookmaker</a> bots do not complain if the docs file does not match the
+corresponding include comments. Running <a href="#Bookmaker">Bookmaker</a> include generation will
+report when docs and includes comments do not match.
+
+For instance, if include/core/<a href="usingBookmaker#SkSurface.h">SkSurface.h</a> comments do not match
+docs/<a href="usingBookmaker#SkSurface_Reference">SkSurface Reference</a>.bmh, running:
+
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
+$ ./out/dir/bookmaker -b docs -i include/core/<a href="usingBookmaker#SkSurface.h">SkSurface.h</a> -p</pre>
+
+generates
+
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
+wrote updated <a href="SkSurface_Reference#SkSurface">SkSurface</a>.h</pre>
+
+The updated <a href="usingBookmaker#SkSurface.h">SkSurface.h</a> is written to the root to avoid subsequent runs of
+<a href="#Bookmaker">Bookmaker</a> from recompiling. if <a href="usingBookmaker#SkSurface.h">SkSurface.h</a> was not changed, it is not written,
+and <a href="#Bookmaker">Bookmaker</a> will not generate any output.
 How to use the <a href="#Bookmaker">Bookmaker</a> utility.
 
-Install<a href="usingBookmaker#Go">Go</a>if needed.  
+## <a name="Install"></a> Install
+
+<a href="#Install">Install</a> <a href="https://golang.org/doc/install">Go</a> if needed.
 Get the fiddle command line interface tool.
 By default this will appear in your home directory.
 
@@ -15,6 +67,15 @@ Build <a href="#Bookmaker">Bookmaker</a>.
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 $ ninja -<a href="undocumented#C">C</a> out/dir bookmaker</pre>
+
+## <a name="Regenerate"></a> Regenerate
+
+Complete rebuilding of all bookmaker output looks like:
+
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
+./  out/skia/bookmaker.exe -a docs/status.json -e fiddle.json</pre>
+
+## <a name="New_Documentation"></a> New Documentation
 
 Generate an starter <a href="#Bookmaker">Bookmaker</a> file from an existing include.
 
@@ -78,7 +139,7 @@ Descriptions may contain code and formulas, each bracketed by markup.
 Similar items may be grouped into topics. Topics may include subtopics.
 
 Each document begins with one or more indices that include the contents of
-that file. A class reference includes an index listing contained topics, 
+that file. A class reference includes an index listing contained topics,
 a separate listing for constructors, one for methods, and so on.
 
 Class methods contain a description, any parameters, any return value,
@@ -90,6 +151,9 @@ that there is no example.
 After editing is complete, searching for "" should fail,
 assuming "" is not the perfect word to use in a description or
 example!
+
+## <a name="Adding_Documentation"></a> Adding Documentation
+
 Generate fiddle.json from all examples, including the ones you just wrote.
 Error checking is syntatic: starting keywords are closed, keywords have the
 correct parents.
@@ -105,7 +169,7 @@ Errors are contained by the output but aren't reported yet.
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 $ $GOPATH/bin/fiddlecli --input fiddle.json --output fiddleout.json</pre>
 
-Generate <a href="usingBookmaker#bmh_SkXXX">bmh SkXXX</a>.md from <a href="usingBookmaker#SkXXX">SkXXX</a>.bmh and fiddleout.json.
+Generate <a href="usingBookmaker#SkXXX">SkXXX</a>.md from <a href="usingBookmaker#SkXXX">SkXXX</a>.bmh and fiddleout.json.
 Error checking includes: undefined references, fiddle compiler errors,
 missing or mismatched printf output.
 Again, you can click on any errors inside <a href="usingBookmaker#Visual_Studio">Visual Studio</a>.
@@ -135,11 +199,6 @@ If the new file has been added to status.json, you can run
 any of the above commands with -a docs/status.json in place of
 -b docs or -i includes.
 
-Complete rebuilding of all bookmaker output looks like:
-
-<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-./  out/skia/bookmaker.exe -a docs/status.json -e fiddle.json</pre>
-
 ## <a name="Bugs"></a> Bugs
 
-<a href="#Bookmaker">Bookmaker</a> bugs are trackedhere.
+<a href="#Bookmaker">Bookmaker</a> bugs are tracked <a href="bug.skia.org/6898">here</a> .

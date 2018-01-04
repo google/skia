@@ -13,7 +13,7 @@ so it must be explicitly initialized. <a href="#SkMatrix_setIdentity">setIdentit
 so it has no effect. <a href="#SkMatrix_setTranslate">setTranslate</a>, <a href="#SkMatrix_setScale">setScale</a>, <a href="#SkMatrix_setSkew">setSkew</a>, <a href="#SkMatrix_setRotate">setRotate</a>, <a href="#SkMatrix_set9">set9</a> and <a href="#SkMatrix_setAll">setAll</a>
 initializes all <a href="#Matrix">Matrix</a> elements with the corresponding mapping.
 
-<a href="#Matrix">Matrix</a> includes a hidden variable that classifies the type of matrix to 
+<a href="#Matrix">Matrix</a> includes a hidden variable that classifies the type of matrix to
 improve performance. <a href="#Matrix">Matrix</a> is not thread safe unless <a href="#SkMatrix_getType">getType</a> is called first.
 
 # <a name="Overview"></a> Overview
@@ -609,7 +609,7 @@ Returns true if the matrix contains perspective elements. <a href="#Matrix">Matr
 |       --            --              --          |
 | perspective-x  perspective-y  perspective-scale |</pre>
 
-where perspective-x or perspective-y is non-zero, or perspective-scale is 
+where perspective-x or perspective-y is non-zero, or perspective-scale is
 not one. All other elements may have any value.
 
 ### Return Value
@@ -638,7 +638,7 @@ uniform scale.
 Returns false if <a href="#Matrix">Matrix</a> contains different scales, skewing, perspective, or
 degenerate forms that collapse to a line or point.
 
-Describes that the <a href="#Matrix">Matrix</a> makes rendering with and without the matrix are 
+Describes that the <a href="#Matrix">Matrix</a> makes rendering with and without the matrix are
 visually alike; a transformed circle remains a circle. Mathematically, this is
 referred to as similarity of a <a href="undocumented#Euclidean_Space">Euclidean Space</a>, or a similarity transformation.
 
@@ -675,7 +675,7 @@ bool preservesRightAngles(SkScalar tol = SK_ScalarNearlyZero) const
 
 Returns true if <a href="#Matrix">Matrix</a> contains only translation, rotation, reflection, and
 scale. Scale may differ along rotated axes.
-Returns false if <a href="#Matrix">Matrix</a> skewing, perspective, or degenerate forms that collapse 
+Returns false if <a href="#Matrix">Matrix</a> skewing, perspective, or degenerate forms that collapse
 to a line or point.
 
 Preserves right angles, but not requiring that the arms of the angle
@@ -1091,7 +1091,7 @@ matrix.getTranslateY() == 24
 SkScalar getPerspX() const
 </pre>
 
-Returns factor scaling input x relative to input y. 
+Returns factor scaling input x relative to input y.
 
 ### Return Value
 
@@ -1114,7 +1114,7 @@ input x perspective factor
 SkScalar getPerspY() const
 </pre>
 
-Returns factor scaling input y relative to input x. 
+Returns factor scaling input y relative to input x.
 
 ### Return Value
 
@@ -1223,7 +1223,7 @@ operator[] <a href="#SkMatrix_get">get</a>
 void setScaleX(SkScalar v)
 </pre>
 
-Sets horizontal scale factor. 
+Sets horizontal scale factor.
 
 ### Parameters
 
@@ -1249,7 +1249,7 @@ horizontal scale factor to store</td>
 void setScaleY(SkScalar v)
 </pre>
 
-Sets vertical scale factor. 
+Sets vertical scale factor.
 
 ### Parameters
 
@@ -1275,7 +1275,7 @@ vertical scale factor to store</td>
 void setSkewY(SkScalar v)
 </pre>
 
-Sets vertical skew factor. 
+Sets vertical skew factor.
 
 ### Parameters
 
@@ -1301,7 +1301,7 @@ vertical skew factor to store</td>
 void setSkewX(SkScalar v)
 </pre>
 
-Sets horizontal skew factor. 
+Sets horizontal skew factor.
 
 ### Parameters
 
@@ -1794,7 +1794,7 @@ angle of axes relative to upright axes</td>
 void setSinCos(SkScalar sinValue, SkScalar cosValue, SkScalar px, SkScalar py)
 </pre>
 
-Sets <a href="#Matrix">Matrix</a> to rotate by <a href="#SkMatrix_setSinCos_sinValue">sinValue</a> and <a href="#SkMatrix_setSinCos_cosValue">cosValue</a>, about a pivot point at (<a href="#SkMatrix_setSinCos_px">px</a>, <a href="#SkMatrix_setSinCos_py">py</a>). 
+Sets <a href="#Matrix">Matrix</a> to rotate by <a href="#SkMatrix_setSinCos_sinValue">sinValue</a> and <a href="#SkMatrix_setSinCos_cosValue">cosValue</a>, about a pivot point at (<a href="#SkMatrix_setSinCos_px">px</a>, <a href="#SkMatrix_setSinCos_py">py</a>).
 The pivot point is unchanged when mapped with <a href="#Matrix">Matrix</a>.
 
 <a href="SkPoint_Reference#Vector">Vector</a> (<a href="#SkMatrix_setSinCos_sinValue">sinValue</a>, <a href="#SkMatrix_setSinCos_cosValue">cosValue</a>) describes the angle of rotation relative to (0, 1).
@@ -1827,7 +1827,7 @@ pivot y</td>
 void setSinCos(SkScalar sinValue, SkScalar cosValue)
 </pre>
 
-Sets <a href="#Matrix">Matrix</a> to rotate by <a href="#SkMatrix_setSinCos_2_sinValue">sinValue</a> and <a href="#SkMatrix_setSinCos_2_cosValue">cosValue</a>, about a pivot point at (0, 0). 
+Sets <a href="#Matrix">Matrix</a> to rotate by <a href="#SkMatrix_setSinCos_2_sinValue">sinValue</a> and <a href="#SkMatrix_setSinCos_2_cosValue">cosValue</a>, about a pivot point at (0, 0).
 
 <a href="SkPoint_Reference#Vector">Vector</a> (<a href="#SkMatrix_setSinCos_2_sinValue">sinValue</a>, <a href="#SkMatrix_setSinCos_2_cosValue">cosValue</a>) describes the angle of rotation relative to (0, 1).
 <a href="SkPoint_Reference#Vector">Vector</a> length specifies scale.
@@ -2974,7 +2974,7 @@ If <a href="#SkMatrix_setPolyToPoly_count">count</a> is zero, sets <a href="#Mat
 If <a href="#SkMatrix_setPolyToPoly_count">count</a> is one, sets <a href="#Matrix">Matrix</a> to translate and returns true.
 If <a href="#SkMatrix_setPolyToPoly_count">count</a> is two or more, sets <a href="#Matrix">Matrix</a> to map <a href="#Point">Points</a> if possible; returns false
 if <a href="#Matrix">Matrix</a> cannot be constructed. If <a href="#SkMatrix_setPolyToPoly_count">count</a> is four, <a href="#Matrix">Matrix</a> may include
-perspective. 
+perspective.
 
 ### Parameters
 
@@ -3737,7 +3737,7 @@ void mapRectToQuad(SkPoint dst[4], const SkRect& rect) const
 Maps four corners of <a href="#SkMatrix_mapRectToQuad_rect">rect</a> to <a href="#SkMatrix_mapRectToQuad_dst">dst</a>. <a href="#Point">Points</a> are mapped by multiplying each
 <a href="#SkMatrix_mapRectToQuad_rect">rect</a> corner by <a href="#Matrix">Matrix</a>. <a href="#SkMatrix_mapRectToQuad_rect">rect</a> corner is processed in this order:
 (<a href="#SkMatrix_mapRectToQuad_rect">rect</a>.fLeft, <a href="#SkMatrix_mapRectToQuad_rect">rect</a>.fTop), (<a href="#SkMatrix_mapRectToQuad_rect">rect</a>.fRight, <a href="#SkMatrix_mapRectToQuad_rect">rect</a>.fTop), (<a href="#SkMatrix_mapRectToQuad_rect">rect</a>.fRight, <a href="#SkMatrix_mapRectToQuad_rect">rect</a>.fBottom),
-(<a href="#SkMatrix_mapRectToQuad_rect">rect</a>.fLeft, <a href="#SkMatrix_mapRectToQuad_rect">rect</a>.fBottom). 
+(<a href="#SkMatrix_mapRectToQuad_rect">rect</a>.fLeft, <a href="#SkMatrix_mapRectToQuad_rect">rect</a>.fBottom).
 
 <a href="#SkMatrix_mapRectToQuad_rect">rect</a> may be empty: <a href="#SkMatrix_mapRectToQuad_rect">rect</a>.fLeft may be greater than or equal to <a href="#SkMatrix_mapRectToQuad_rect">rect</a>.fRight;
 <a href="#SkMatrix_mapRectToQuad_rect">rect</a>.fTop may be greater than or equal to <a href="#SkMatrix_mapRectToQuad_rect">rect</a>.fBottom.
@@ -4190,7 +4190,7 @@ matrix.getMaxScale() 42
 bool SK_WARN_UNUSED_RESULT getMinMaxScales(SkScalar scaleFactors[2]) const
 </pre>
 
-Sets <a href="#SkMatrix_getMinMaxScales_scaleFactors">scaleFactors</a>[0] to the minimum scaling factor, and <a href="#SkMatrix_getMinMaxScales_scaleFactors">scaleFactors</a>[1] to the 
+Sets <a href="#SkMatrix_getMinMaxScales_scaleFactors">scaleFactors</a>[0] to the minimum scaling factor, and <a href="#SkMatrix_getMinMaxScales_scaleFactors">scaleFactors</a>[1] to the
 maximum scaling factor. Scaling factors are computed by decomposing
 the <a href="#Matrix">Matrix</a> scaling and skewing elements.
 
@@ -4242,7 +4242,7 @@ to determine if <a href="#Matrix">Matrix</a> can be decomposed without computing
 
 Returns true if <a href="#SkMatrix_decomposeScale_scale">scale</a> components are found. <a href="#SkMatrix_decomposeScale_scale">scale</a> and <a href="#SkMatrix_decomposeScale_remaining">remaining</a> are
 unchanged if <a href="#Matrix">Matrix</a> contains perspective; <a href="#SkMatrix_decomposeScale_scale">scale</a> factors are not finite, or
-are nearly zero. 
+are nearly zero.
 
 On success<a href="#Matrix">Matrix</a> = <a href="#SkMatrix_decomposeScale_scale">scale</a> * Remaining
 
@@ -4408,7 +4408,7 @@ Multiplying the matrix by its inverse turns into an identity matrix.</div></fidd
 void dirtyMatrixTypeCache()
 </pre>
 
-Sets internal cache to unknown state. Use to force update after repeated 
+Sets internal cache to unknown state. Use to force update after repeated
 modifications to <a href="#Matrix">Matrix</a> element reference returned by <a href="#SkMatrix_array1_operator">operator[](int index)</a>.
 
 ### Example
