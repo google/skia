@@ -9,6 +9,7 @@
 #define SkottyPriv_DEFINED
 
 #include "SkJSONCPP.h"
+#include "SkPoint.h"
 #include "SkScalar.h"
 #include "SkString.h"
 
@@ -34,6 +35,13 @@ static inline int ParseInt(const Json::Value& v, int defaultValue) {
 static inline bool ParseBool(const Json::Value& v, bool defaultValue) {
     return !v.isNull() && v.isConvertibleTo(Json::booleanValue)
         ? v.asBool() : defaultValue;
+}
+
+static inline SkPoint ParsePoint(const Json::Value& v, const SkPoint& defaultValue) {
+    return v.isObject()
+        ? SkPoint::Make(ParseScalar(v["x"], defaultValue.x()),
+                        ParseScalar(v["y"], defaultValue.y()))
+        : defaultValue;
 }
 
 } // namespace

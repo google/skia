@@ -42,4 +42,16 @@ void KeyframeInterval<ShapeValue>::lerp(float t, ShapeValue* v) const {
     SkAssertResult(fV1.fPath.interpolate(fV0.fPath, t, &v->fPath));
 }
 
+float AnimatorBase::ComputeLocalT(float t, float t0, float t1,
+                                  const SkPoint& c0, const SkPoint& c1) {
+    SkASSERT(t1 > t0);
+    auto lt = (t - t0) / (t1 - t0);
+
+    if (c0 != SkPoint({0, 0}) || c1 != SkPoint({1, 1})) {
+        // TODO: lt = CubicBezier(lt, c0, c1);
+    }
+
+    return SkTPin<float>(lt, 0, 1);
+}
+
 } // namespace skotty
