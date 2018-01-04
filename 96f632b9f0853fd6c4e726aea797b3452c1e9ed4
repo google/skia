@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c96f742f_4d808d62",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 10
+      },
+      "lineNbr": 779,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-01-04T20:48:24Z",
+      "side": 1,
+      "message": "This will work right now, but in general is not necessarily correct, since there may already be an \"extra config\" in the name of the compile task (eg. Android).  In other words, there may be cases where we need to use \"_\" instead of \"-\".  I think this will work:\n\ncompileTaskNameParent :\u003d \"\"\ncompileTaskParts, err :\u003d jobNameSchema.ParseJobName(compileTaskName)\nif err !\u003d nil {\n\tglog.Fatal(err)\n}\nif compileTaskParts[\"extra_config\"] \u003d\u003d \"\" {\n\tcompileTaskNameParent \u003d compileTaskName + \"-ParentRevision\"\n} else {\n\tcompileTaskNameParent \u003d compileTaskName + \"_ParentRevision\"\n}\n\nOr something like that.",
+      "range": {
+        "startLine": 779,
+        "startChar": 42,
+        "endLine": 779,
+        "endChar": 77
+      },
+      "revId": "96f632b9f0853fd6c4e726aea797b3452c1e9ed4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fa11e790_ecbc6469",
+        "filename": "infra/bots/recipes/calmbench.py",
+        "patchSetId": 10
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-01-04T20:48:24Z",
+      "side": 1,
+      "message": "This will still cause us to check out Skia, which is no longer necessary.  We\u0027ll need to remove these two lines to skip that: https://skia.googlesource.com/skia/+/master/infra/bots/recipe_modules/vars/api.py#44",
+      "range": {
+        "startLine": 24,
+        "startChar": 2,
+        "endLine": 24,
+        "endChar": 18
+      },
+      "revId": "96f632b9f0853fd6c4e726aea797b3452c1e9ed4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
