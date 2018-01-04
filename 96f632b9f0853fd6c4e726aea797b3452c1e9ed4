@@ -25,6 +25,29 @@
     },
     {
       "key": {
+        "uuid": "10d45ca6_be87a955",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 10
+      },
+      "lineNbr": 1167,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-01-04T20:48:29Z",
+      "side": 1,
+      "message": "nit: Probably doesn\u0027t matter, but it would be nice for compileTaskParts[\"extra_config\"] to reflect the addition of ParentRevision.",
+      "range": {
+        "startLine": 1167,
+        "startChar": 51,
+        "endLine": 1167,
+        "endChar": 67
+      },
+      "revId": "96f632b9f0853fd6c4e726aea797b3452c1e9ed4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "fa11e790_ecbc6469",
         "filename": "infra/bots/recipes/calmbench.py",
         "patchSetId": 10
@@ -41,6 +64,52 @@
         "startChar": 2,
         "endLine": 24,
         "endChar": 18
+      },
+      "revId": "96f632b9f0853fd6c4e726aea797b3452c1e9ed4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1ac72225_82a867b9",
+        "filename": "infra/bots/recipes/calmbench.py",
+        "patchSetId": 10
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-01-04T20:48:29Z",
+      "side": 1,
+      "message": "nit: Would it be easier to call ab.py directly? This would simplify things in two ways:\nA. None of the changes you made to calmbench.py in this CL are needed.\nB. Instead of copying to swarming_out_dir on lines 49-55, you could specify the existing paths to the two versions of nanobench. (It also eliminates unneeded files in the results.)",
+      "range": {
+        "startLine": 39,
+        "startChar": 20,
+        "endLine": 39,
+        "endChar": 47
+      },
+      "revId": "96f632b9f0853fd6c4e726aea797b3452c1e9ed4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f4b09c9e_16ecb23f",
+        "filename": "infra/bots/recipes/calmbench.py",
+        "patchSetId": 10
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-01-04T20:48:29Z",
+      "side": 1,
+      "message": "nit: maybe should make this work for Debug also, i.e. replace this with api.vars.configuration. Eric might have a better suggestion.",
+      "range": {
+        "startLine": 50,
+        "startChar": 52,
+        "endLine": 50,
+        "endChar": 61
       },
       "revId": "96f632b9f0853fd6c4e726aea797b3452c1e9ed4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
