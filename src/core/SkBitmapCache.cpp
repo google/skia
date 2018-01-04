@@ -301,7 +301,7 @@ SkBitmapCache::RecPtr SkBitmapCache::Alloc(const SkBitmapCacheDesc& desc, const 
     if (factory) {
         dm.reset(factory(size));
     } else {
-        block = sk_malloc_flags(size, 0);
+        block = sk_malloc_canfail(size);
     }
     if (!dm && !block) {
         return nullptr;
