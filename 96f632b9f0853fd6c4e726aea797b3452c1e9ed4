@@ -94,6 +94,30 @@
     },
     {
       "key": {
+        "uuid": "e45733e4_7144d632",
+        "filename": "infra/bots/recipes/calmbench.py",
+        "patchSetId": 10
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-01-04T20:52:50Z",
+      "side": 1,
+      "message": "This is a good idea.  We don\u0027t need to upload these executables to the isolate server again, and avoiding the copy would save us a bit of time when we start running on RPI.",
+      "parentUuid": "1ac72225_82a867b9",
+      "range": {
+        "startLine": 39,
+        "startChar": 20,
+        "endLine": 39,
+        "endChar": 47
+      },
+      "revId": "96f632b9f0853fd6c4e726aea797b3452c1e9ed4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "f4b09c9e_16ecb23f",
         "filename": "infra/bots/recipes/calmbench.py",
         "patchSetId": 10
@@ -105,6 +129,30 @@
       "writtenOn": "2018-01-04T20:48:29Z",
       "side": 1,
       "message": "nit: maybe should make this work for Debug also, i.e. replace this with api.vars.configuration. Eric might have a better suggestion.",
+      "range": {
+        "startLine": 50,
+        "startChar": 52,
+        "endLine": 50,
+        "endChar": 61
+      },
+      "revId": "96f632b9f0853fd6c4e726aea797b3452c1e9ed4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6f67fc40_b99a8ed9",
+        "filename": "infra/bots/recipes/calmbench.py",
+        "patchSetId": 10
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-01-04T20:52:50Z",
+      "side": 1,
+      "message": "api.vars.configuration seems right to me.",
+      "parentUuid": "f4b09c9e_16ecb23f",
       "range": {
         "startLine": 50,
         "startChar": 52,
