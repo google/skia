@@ -117,6 +117,30 @@
       "revId": "c94ba37021bc8b10dda153557c1da1a0646e573d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0e63ab6b_8c57bf73",
+        "filename": "include/private/SkMalloc.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-01-04T17:01:44Z",
+      "side": 1,
+      "message": "Doh! Now I understand. Yes, this is a bug. It should NOT pass the THROW flag. Will fix.",
+      "parentUuid": "5f3bc98e_599736d3",
+      "range": {
+        "startLine": 89,
+        "startChar": 33,
+        "endLine": 89,
+        "endChar": 48
+      },
+      "revId": "c94ba37021bc8b10dda153557c1da1a0646e573d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
