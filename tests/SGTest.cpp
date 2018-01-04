@@ -25,9 +25,9 @@ static void check_inval(skiatest::Reporter* reporter, const sk_sp<sksg::Node>& r
     const auto bbox = root->revalidate(&ic, SkMatrix::I());
 
     if (0) {
-        printf("** bbox: [%f %f %f %f], ibbox: [%f %f %f %f]\n",
-               bbox.fLeft, bbox.fTop, bbox.fRight, bbox.fBottom,
-               ic.bounds().left(), ic.bounds().top(), ic.bounds().right(), ic.bounds().bottom());
+        SkDebugf("** bbox: [%f %f %f %f], ibbox: [%f %f %f %f]\n",
+                 bbox.fLeft, bbox.fTop, bbox.fRight, bbox.fBottom,
+                 ic.bounds().left(), ic.bounds().top(), ic.bounds().right(), ic.bounds().bottom());
     }
 
     REPORTER_ASSERT(reporter, bbox == expected_bounds);
@@ -39,9 +39,9 @@ static void check_inval(skiatest::Reporter* reporter, const sk_sp<sksg::Node>& r
             const auto r1 = (*expected_damage)[i],
                        r2 = ic.begin()[i];
             if (0) {
-                printf("*** expected inval: [%f %f %f %f], actual: [%f %f %f %f]\n",
-                       r1.left(), r1.top(), r1.right(), r1.bottom(),
-                       r2.left(), r2.top(), r2.right(), r2.bottom());
+                SkDebugf("*** expected inval: [%f %f %f %f], actual: [%f %f %f %f]\n",
+                         r1.left(), r1.top(), r1.right(), r1.bottom(),
+                         r2.left(), r2.top(), r2.right(), r2.bottom());
             }
             REPORTER_ASSERT(reporter, r1 == r2);
         }
