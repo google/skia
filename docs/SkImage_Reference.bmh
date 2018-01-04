@@ -1320,7 +1320,7 @@ paint.setShader(image->makeShader(&matrix));
 canvas->drawPaint(paint);
 ##
 
-#SeeAlso incomplete
+#SeeAlso scalePixels
 
 #Method ##
 
@@ -1328,17 +1328,46 @@ canvas->drawPaint(paint);
 
 #Method bool peekPixels(SkPixmap* pixmap) const
 
-If the image has direct access to its pixels (i.e. they are in local RAM)
-return true, and if not null, return in the pixmap parameter the info about the
-images pixels.
-On failure, return false and ignore the pixmap parameter.
+Copies Image pixel address, row bytes, and Image_Info to pixmap, if address
+is available, and returns true. If pixel address is not available, return
+false and leave pixmap unchanged.
 
-#Param pixmap  incomplete ##
+#Param pixmap  storage for pixel state if pixels are readable; otherwise, ignored ##
 
-#Return incomplete ##
+#Return true if Image has direct access to pixels ##
 
 #Example
-// incomplete
+    SkBitmap bitmap;
+    bitmap.allocPixels(SkImageInfo::MakeN32Premul(12, 11));
+    SkCanvas offscreen(bitmap);
+    offscreen.clear(SK_ColorWHITE);
+    SkPaint paint;
+    offscreen.drawString("%", 1, 10, paint);
+    sk_sp<SkImage> image = SkImage::MakeFromBitmap(bitmap);
+    SkPixmap pixmap;
+    if (image->peekPixels(&pixmap)) {
+        const SkPMColor* pixels = pixmap.addr32();
+        SkPMColor pmWhite = pixels[0];
+        for (int y = 0; y < image->height(); ++y) {
+            for (int x = 0; x < image->width(); ++x) {
+                SkDebugf("%c", *pixels++ == pmWhite ? '-' : 'x');
+            }
+            SkDebugf("\n");
+        }
+    }
+#StdOut
+------------
+--xx----x---
+-x--x--x----
+-x--x--x----
+-x--x-x-----
+--xx-xx-xx--
+-----x-x--x-
+----x--x--x-
+----x--x--x-
+---x----xx--
+------------
+##
 ##
 
 #SeeAlso incomplete
