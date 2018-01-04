@@ -406,6 +406,17 @@ static SkPath create_path_26() {
     return path;
 }
 
+
+// A path which results in non-finite points when stroked and bevelled for AA.
+static SkPath create_path_27() {
+     SkPath path;
+     path.moveTo(8.5027233009104409507e+37, 1.7503381025241130639e+37);
+     path.lineTo(7.0923661737711584874e+37, 1.4600074517285415699e+37);
+     path.lineTo(7.0848733446033294691e+37, 1.4584649744781838604e+37);
+     path.lineTo(-2.0473916115129349496e+37, -4.2146796450364162012e+36);
+     path.lineTo(2.0473912312177548811e+37, 4.2146815465123165435e+36);
+     return path;
+}
 static std::unique_ptr<GrFragmentProcessor> create_linear_gradient_processor(GrContext* ctx) {
 
     SkPoint pts[2] = { {0, 0}, {1, 1} };
@@ -495,5 +506,6 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(TessellatingPathRendererTests, reporter, ctxInfo) {
     test_path(ctx, rtc.get(), create_path_24());
     test_path(ctx, rtc.get(), create_path_25(), SkMatrix(), GrAAType::kCoverage);
     test_path(ctx, rtc.get(), create_path_26(), SkMatrix(), GrAAType::kCoverage);
+    test_path(ctx, rtc.get(), create_path_27(), SkMatrix(), GrAAType::kCoverage);
 }
 #endif
