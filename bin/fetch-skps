@@ -1,6 +1,8 @@
 #!/bin/sh
 
 # Copies the latest bot-generated SKP set to ./skps.
+# If you are having trouble, please refer to the instructions at:
+# https://sites.google.com/a/google.com/skia/key-resources/skps
 
 set -x
 set -e
