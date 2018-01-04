@@ -10,6 +10,12 @@
 #include "SkOSFile.h"
 #include "SkOSPath.h"
 
+#define FPRINTF(...)                \
+    if (fDebugOut) {                \
+        SkDebugf(__VA_ARGS__);      \
+    }                               \
+    fprintf(fOut, __VA_ARGS__)
+
 static void add_ref(const string& leadingSpaces, const string& ref, string* result) {
     *result += leadingSpaces + ref;
 }
@@ -65,7 +71,11 @@ string MdOut::addReferences(const char* refStart, const char* refEnd,
         }
         t.skipToMethodEnd();
         if (base == t.fChar) {
-            break;
+            if (!t.eof() && '~' == base[0] && !isalnum(base[1])) {
+                t.next();
+            } else {
+                break;
+            }
         }
         if (start >= t.fChar) {
             continue;
@@ -76,6 +86,10 @@ string MdOut::addReferences(const char* refStart, const char* refEnd,
         ref = string(start, t.fChar - start);
         if (const Definition* def = this->isDefined(t, ref,
                 BmhParser::Resolvable::kOut != resolvable)) {
+            if (MarkType::kExternal == def->fMarkType) {
+                add_ref(leadingSpaces, ref, &result);
+                continue;
+            }
             SkASSERT(def->fFiddle.length());
             if (!t.eof() && '(' == t.peek() && t.strnchr(')', t.fEnd)) {
                 if (!t.skipToEndBracket(')')) {
@@ -237,16 +251,21 @@ string MdOut::addReferences(const char* refStart, const char* refEnd,
     return result;
 }
 
-bool MdOut::buildReferences(const char* fileOrPath, const char* outDir) {
-    if (!sk_isdir(fileOrPath)) {
-        if (!this->buildRefFromFile(fileOrPath, outDir)) {
-            SkDebugf("failed to parse %s\n", fileOrPath);
+bool MdOut::buildReferences(const char* docDir, const char* mdFileOrPath) {
+    if (!sk_isdir(mdFileOrPath)) {
+        SkString mdFile = SkOSPath::Basename(mdFileOrPath);
+        SkString bmhFile = SkOSPath::Join(docDir, mdFile.c_str());
+        bmhFile.remove(bmhFile.size() - 3, 3);
+        bmhFile += ".bmh";
+        SkString mdPath = SkOSPath::Dirname(mdFileOrPath);
+        if (!this->buildRefFromFile(bmhFile.c_str(), mdPath.c_str())) {
+            SkDebugf("failed to parse %s\n", mdFileOrPath);
             return false;
         }
     } else {
-        SkOSFile::Iter it(fileOrPath, ".bmh");
+        SkOSFile::Iter it(docDir, ".bmh");
         for (SkString file; it.next(&file); ) {
-            SkString p = SkOSPath::Join(fileOrPath, file.c_str());
+            SkString p = SkOSPath::Join(docDir, file.c_str());
             const char* hunk = p.c_str();
             if (!SkStrEndsWith(hunk, ".bmh")) {
                 continue;
@@ -254,7 +273,7 @@ bool MdOut::buildReferences(const char* fileOrPath, const char* outDir) {
             if (SkStrEndsWith(hunk, "markup.bmh")) {  // don't look inside this for now
                 continue;
             }
-            if (!this->buildRefFromFile(hunk, outDir)) {
+            if (!this->buildRefFromFile(hunk, mdFileOrPath)) {
                 SkDebugf("failed to parse %s\n", hunk);
                 return false;
             }
@@ -318,7 +337,7 @@ bool MdOut::buildRefFromFile(const char* name, const char* outDir) {
                 fullName += '/';
             }
             fullName += filename;
-            fOut = fopen(fullName.c_str(), "wb");
+            fOut = fopen(filename.c_str(), "wb");
             if (!fOut) {
                 SkDebugf("could not open output file %s\n", fullName.c_str());
                 return false;
@@ -328,16 +347,26 @@ bool MdOut::buildRefFromFile(const char* name, const char* outDir) {
                 header.replace(underscorePos, 1, " ");
             }
             SkASSERT(string::npos == header.find('_'));
-            fprintf(fOut, "%s", header.c_str());
+            FPRINTF("%s", header.c_str());
             this->lfAlways(1);
-            fprintf(fOut, "===");
+            FPRINTF("===");
         }
         this->markTypeOut(topicDef);
     }
     if (fOut) {
         this->writePending();
         fclose(fOut);
-        SkDebugf("wrote %s\n", fullName.c_str());
+        fflush(fOut);
+        if (this->writtenFileDiffers(filename, fullName)) {
+            fOut = fopen(fullName.c_str(), "wb");
+            int writtenSize;
+            const char* written = ReadToBuffer(filename, &writtenSize);
+            fwrite(written, 1, writtenSize, fOut);
+            fclose(fOut);
+            fflush(fOut);
+            SkDebugf("wrote updated %s\n", fullName.c_str());
+        }
+        remove(filename.c_str());
         fOut = nullptr;
     }
     return true;
@@ -642,35 +671,46 @@ void MdOut::markTypeOut(Definition* def) {
             (!def->fParent || MarkType::kConst != def->fParent->fMarkType) &&
             TableState::kNone != fTableState) {
         this->writePending();
-        fprintf(fOut, "</table>");
+        FPRINTF("</table>");
         this->lf(2);
         fTableState = TableState::kNone;
     }
     switch (def->fMarkType) {
         case MarkType::kAlias:
             break;
-        case MarkType::kAnchor:
-            break;
+        case MarkType::kAnchor: {
+            if (fColumn > 0) {
+                this->writeSpace();
+            }
+            this->writePending();
+            TextParser parser(def);
+            const char* start = parser.fChar;
+            parser.skipToEndBracket(" # ");
+            string anchorText(start, parser.fChar - start);
+            parser.skipExact(" # ");
+            string anchorLink(parser.fChar, parser.fEnd - parser.fChar);
+            FPRINTF("<a href=\"%s\">%s", anchorLink.c_str(), anchorText.c_str());
+            } break;
         case MarkType::kBug:
             break;
         case MarkType::kClass:
             this->mdHeaderOut(1);
-            fprintf(fOut, "<a name=\"%s\"></a> Class %s", this->linkName(def).c_str(),
+            FPRINTF("<a name=\"%s\"></a> Class %s", this->linkName(def).c_str(),
                     def->fName.c_str());
             this->lf(1);
             break;
         case MarkType::kCode:
             this->lfAlways(2);
-            fprintf(fOut, "<pre style=\"padding: 1em 1em 1em 1em;"
+            FPRINTF("<pre style=\"padding: 1em 1em 1em 1em;"
                     "width: 62.5em; background-color: #f0f0f0\">");
             this->lf(1);
             break;
         case MarkType::kColumn:
             this->writePending();
             if (fInList) {
-                fprintf(fOut, "    <td>");
+                FPRINTF("    <td>");
             } else {
-                fprintf(fOut, "| ");
+                FPRINTF("| ");
             }
             break;
         case MarkType::kComment:
@@ -678,7 +718,7 @@ void MdOut::markTypeOut(Definition* def) {
         case MarkType::kConst: {
             if (TableState::kNone == fTableState) {
                 this->mdHeaderOut(3);
-                fprintf(fOut, "Constants\n"
+                FPRINTF("Constants\n"
                         "\n"
                         "<table>");
                 fTableState = TableState::kRow;
@@ -686,19 +726,19 @@ void MdOut::markTypeOut(Definition* def) {
             }
             if (TableState::kRow == fTableState) {
                 this->writePending();
-                fprintf(fOut, "  <tr>");
+                FPRINTF("  <tr>");
                 this->lf(1);
                 fTableState = TableState::kColumn;
             }
             this->writePending();
-            fprintf(fOut, "    <td><a name=\"%s\"> <code><strong>%s </strong></code> </a></td>",
+            FPRINTF("    <td><a name=\"%s\"> <code><strong>%s </strong></code> </a></td>",
                     def->fFiddle.c_str(), def->fName.c_str());
             const char* lineEnd = strchr(textStart, '\n');
             SkASSERT(lineEnd < def->fTerminator);
             SkASSERT(lineEnd > textStart);
             SkASSERT((int) (lineEnd - textStart) == lineEnd - textStart);
-            fprintf(fOut, "<td>%.*s</td>", (int) (lineEnd - textStart), textStart);
-            fprintf(fOut, "<td>");
+            FPRINTF("<td>%.*s</td>", (int) (lineEnd - textStart), textStart);
+            FPRINTF("<td>");
             textStart = lineEnd;
         } break;
         case MarkType::kDefine:
@@ -710,21 +750,21 @@ void MdOut::markTypeOut(Definition* def) {
         case MarkType::kDescription:
             fInDescription = true;
             this->writePending();
-            fprintf(fOut, "<div>");
+            FPRINTF("<div>");
             break;
         case MarkType::kDoxygen:
             break;
         case MarkType::kEnum:
         case MarkType::kEnumClass:
             this->mdHeaderOut(2);
-            fprintf(fOut, "<a name=\"%s\"></a> Enum %s", def->fFiddle.c_str(), def->fName.c_str());
+            FPRINTF("<a name=\"%s\"></a> Enum %s", def->fFiddle.c_str(), def->fName.c_str());
             this->lf(2);
             break;
         case MarkType::kError:
             break;
         case MarkType::kExample: {
             this->mdHeaderOut(3);
-            fprintf(fOut, "Example\n"
+            FPRINTF("Example\n"
                             "\n");
             fHasFiddle = true;
             bool showGpu = false;
@@ -740,21 +780,21 @@ void MdOut::markTypeOut(Definition* def) {
             }
             if (fHasFiddle && !def->hasChild(MarkType::kError)) {
                 SkASSERT(def->fHash.length() > 0);
-                fprintf(fOut, "<div><fiddle-embed name=\"%s\"", def->fHash.c_str());
+                FPRINTF("<div><fiddle-embed name=\"%s\"", def->fHash.c_str());
                 if (showGpu) {
-                    fprintf(fOut, " gpu=\"true\"");
+                    FPRINTF(" gpu=\"true\"");
                     if (gpuAndCpu) {
-                        fprintf(fOut, " cpu=\"true\"");
+                        FPRINTF(" cpu=\"true\"");
                     }
                 }
-                fprintf(fOut, ">");
+                FPRINTF(">");
             } else {
                 SkASSERT(def->fHash.length() == 0);
-                fprintf(fOut, "<pre style=\"padding: 1em 1em 1em 1em; font-size: 13px"
+                FPRINTF("<pre style=\"padding: 1em 1em 1em 1em; font-size: 13px"
                         " width: 62.5em; background-color: #f0f0f0\">");
                 this->lfAlways(1);
                 if (def->fWrapper.length() > 0) {
-                    fprintf(fOut, "%s", def->fWrapper.c_str());
+                    FPRINTF("%s", def->fWrapper.c_str());
                 }
                 fRespectLeadingSpace = true;
             }
@@ -780,7 +820,7 @@ void MdOut::markTypeOut(Definition* def) {
         case MarkType::kList:
             fInList = true;
             this->lfAlways(2);
-            fprintf(fOut, "<table>");
+            FPRINTF("<table>");
             this->lf(1);
             break;
         case MarkType::kLiteral:
@@ -794,7 +834,7 @@ void MdOut::markTypeOut(Definition* def) {
             tp.skipWhiteSpace();
             const char* end = tp.trimmedBracketEnd('\n');
             this->lfAlways(2);
-            fprintf(fOut, "<a name=\"%s\"> <code><strong>%.*s</strong></code> </a>",
+            FPRINTF("<a name=\"%s\"> <code><strong>%.*s</strong></code> </a>",
                     def->fFiddle.c_str(), (int) (end - tp.fChar), tp.fChar);
             this->lf(2);
             } break;
@@ -804,9 +844,9 @@ void MdOut::markTypeOut(Definition* def) {
 
             if (!def->isClone()) {
                 this->lfAlways(2);
-                fprintf(fOut, "<a name=\"%s\"></a>", def->fFiddle.c_str());
+                FPRINTF("<a name=\"%s\"></a>", def->fFiddle.c_str());
                 this->mdHeaderOutLF(2, 1);
-                fprintf(fOut, "%s", method_name.c_str());
+                FPRINTF("%s", method_name.c_str());
                 this->lf(2);
             }
 
@@ -814,7 +854,7 @@ void MdOut::markTypeOut(Definition* def) {
             // TODO: 50em below should match limit = 80 in formatFunction()
             this->writePending();
             string preformattedStr = preformat(formattedStr);
-            fprintf(fOut, "<pre style=\"padding: 1em 1em 1em 1em;"
+            FPRINTF("<pre style=\"padding: 1em 1em 1em 1em;"
                                     "width: 62.5em; background-color: #f0f0f0\">\n"
                             "%s\n"
                             "</pre>",  preformattedStr.c_str());
@@ -838,7 +878,7 @@ void MdOut::markTypeOut(Definition* def) {
                 fTableState = TableState::kRow;
             }
             if (TableState::kRow == fTableState) {
-                fprintf(fOut, "  <tr>");
+                FPRINTF("  <tr>");
                 this->lf(1);
                 fTableState = TableState::kColumn;
             }
@@ -866,7 +906,7 @@ void MdOut::markTypeOut(Definition* def) {
             break;
         case MarkType::kReturn:
             this->mdHeaderOut(3);
-            fprintf(fOut, "Return Value");
+            FPRINTF("Return Value");
             if (!this->checkParamReturnBody(def)) {
                 return;
             }
@@ -874,13 +914,13 @@ void MdOut::markTypeOut(Definition* def) {
             break;
         case MarkType::kRow:
             if (fInList) {
-                fprintf(fOut, "  <tr>");
+                FPRINTF("  <tr>");
                 this->lf(1);
             }
             break;
         case MarkType::kSeeAlso:
             this->mdHeaderOut(3);
-            fprintf(fOut, "See Also");
+            FPRINTF("See Also");
             this->lf(2);
             break;
         case MarkType::kSet:
@@ -896,23 +936,23 @@ void MdOut::markTypeOut(Definition* def) {
             code.skipSpace();
             while (!code.eof()) {
                 const char* end = code.trimmedLineEnd();
-                fprintf(fOut, "%.*s\n", (int) (end - code.fChar), code.fChar);
+                FPRINTF("%.*s\n", (int) (end - code.fChar), code.fChar);
                 code.skipToLineStart();
             }
-            fprintf(fOut, "~~~~");
+            FPRINTF("~~~~");
             this->lf(2);
             } break;
         case MarkType::kStruct:
             fRoot = def->asRoot();
             this->mdHeaderOut(1);
-            fprintf(fOut, "<a name=\"%s\"></a> Struct %s", def->fFiddle.c_str(), def->fName.c_str());
+            FPRINTF("<a name=\"%s\"></a> Struct %s", def->fFiddle.c_str(), def->fName.c_str());
             this->lf(1);
             break;
         case MarkType::kSubstitute:
             break;
         case MarkType::kSubtopic:
             this->mdHeaderOut(2);
-            fprintf(fOut, "<a name=\"%s\"></a> %s", def->fName.c_str(), printable.c_str());
+            FPRINTF("<a name=\"%s\"></a> %s", def->fName.c_str(), printable.c_str());
             this->lf(2);
             break;
         case MarkType::kTable:
@@ -928,7 +968,7 @@ void MdOut::markTypeOut(Definition* def) {
             break;
         case MarkType::kTopic:
             this->mdHeaderOut(1);
-            fprintf(fOut, "<a name=\"%s\"></a> %s", this->linkName(def).c_str(),
+            FPRINTF("<a name=\"%s\"></a> %s", this->linkName(def).c_str(),
                     printable.c_str());
             this->lf(1);
             break;
@@ -951,23 +991,28 @@ void MdOut::markTypeOut(Definition* def) {
     }
     this->childrenOut(def, textStart);
     switch (def->fMarkType) {  // post child work, at least for tables
+        case MarkType::kAnchor:
+            if (fColumn > 0) {
+                this->writeSpace();
+            }
+            break;
         case MarkType::kCode:
             this->writePending();
-            fprintf(fOut, "</pre>");
+            FPRINTF("</pre>");
             this->lf(2);
             break;
         case MarkType::kColumn:
             if (fInList) {
                 this->writePending();
-                fprintf(fOut, "</td>");
+                FPRINTF("</td>");
                 this->lf(1);
             } else {
-                fprintf(fOut, " ");
+                FPRINTF(" ");
             }
             break;
         case MarkType::kDescription:
             this->writePending();
-            fprintf(fOut, "</div>");
+            FPRINTF("</div>");
             fInDescription = false;
             break;
         case MarkType::kEnum:
@@ -977,22 +1022,26 @@ void MdOut::markTypeOut(Definition* def) {
         case MarkType::kExample:
             this->writePending();
             if (fHasFiddle) {
-                fprintf(fOut, "</fiddle-embed></div>");
+                FPRINTF("</fiddle-embed></div>");
             } else {
                 this->lfAlways(1);
                 if (def->fWrapper.length() > 0) {
-                    fprintf(fOut, "}");
+                    FPRINTF("}");
                     this->lfAlways(1);
                 }
-                fprintf(fOut, "</pre>");
+                FPRINTF("</pre>");
             }
             this->lf(2);
             fRespectLeadingSpace = false;
             break;
+        case MarkType::kLink:
+            this->writeString("</a>");
+            this->writeSpace();
+            break;
         case MarkType::kList:
             fInList = false;
             this->writePending();
-            fprintf(fOut, "</table>");
+            FPRINTF("</table>");
             this->lf(2);
             break;
         case MarkType::kLegend: {
@@ -1003,15 +1052,15 @@ void MdOut::markTypeOut(Definition* def) {
             SkASSERT(columnCount > 0);
             this->writePending();
             for (size_t index = 0; index < columnCount; ++index) {
-                fprintf(fOut, "| --- ");
+                FPRINTF("| --- ");
             }
-            fprintf(fOut, " |");
+            FPRINTF(" |");
             this->lf(1);
             } break;
         case MarkType::kMethod:
             fMethod = nullptr;
             this->lfAlways(2);
-            fprintf(fOut, "---");
+            FPRINTF("---");
             this->lf(2);
             break;
         case MarkType::kConst:
@@ -1019,8 +1068,8 @@ void MdOut::markTypeOut(Definition* def) {
             SkASSERT(TableState::kColumn == fTableState);
             fTableState = TableState::kRow;
             this->writePending();
-            fprintf(fOut, "</td>\n");
-            fprintf(fOut, "  </tr>");
+            FPRINTF("</td>\n");
+            FPRINTF("  </tr>");
             this->lf(1);
             break;
         case MarkType::kReturn:
@@ -1029,9 +1078,9 @@ void MdOut::markTypeOut(Definition* def) {
             break;
         case MarkType::kRow:
             if (fInList) {
-                fprintf(fOut, "  </tr>");
+                FPRINTF("  </tr>");
             } else {
-                fprintf(fOut, "|");
+                FPRINTF("|");
             }
             this->lf(1);
             break;
@@ -1051,9 +1100,9 @@ void MdOut::markTypeOut(Definition* def) {
 void MdOut::mdHeaderOutLF(int depth, int lf) {
     this->lfAlways(lf);
     for (int index = 0; index < depth; ++index) {
-        fprintf(fOut, "#");
+        FPRINTF("#");
     }
-    fprintf(fOut, " ");
+    FPRINTF(" ");
 }
 
 void MdOut::resolveOut(const char* start, const char* end, BmhParser::Resolvable resolvable) {
@@ -1098,22 +1147,28 @@ void MdOut::resolveOut(const char* start, const char* end, BmhParser::Resolvable
             paragraph.skipToEndBracket('\n');
             ptrdiff_t lineLength = paragraph.fChar - contentStart;
             if (lineLength) {
-                this->writePending();
-                fprintf(fOut, "%.*s", (int) lineLength, contentStart);
+                while (lineLength && contentStart[lineLength - 1] <= ' ') {
+                    --lineLength;
+                }
+                string str(contentStart, lineLength);
+                this->writeString(str.c_str());
             }
+#if 0
             int linefeeds = 0;
             while (lineLength > 0 && '\n' == contentStart[--lineLength]) {
+
                 ++linefeeds;
             }
             if (lineLength > 0) {
                 this->nl();
             }
             fLinefeeds += linefeeds;
+#endif
             if (paragraph.eof()) {
                 break;
             }
             if ('\n' == paragraph.next()) {
-                linefeeds = 1;
+                int linefeeds = 1;
                 if (!paragraph.eof() && '\n' == paragraph.peek()) {
                     linefeeds = 2;
                 }
@@ -1122,7 +1177,7 @@ void MdOut::resolveOut(const char* start, const char* end, BmhParser::Resolvable
         }
 #if 0
         while (end > start && end[0] == '\n') {
-            fprintf(fOut, "\n");
+            FPRINTF("\n");
             --end;
         }
 #endif

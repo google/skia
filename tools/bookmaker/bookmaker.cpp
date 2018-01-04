@@ -16,7 +16,7 @@ DEFINE_string2(include, i, "", "Path to a *.h file or a directory.");
 DEFINE_bool2(hack, k, false, "Do a find/replace hack to update all *.bmh files. (Requires -b)");
 DEFINE_bool2(stdout, o, false, "Write file out to standard out.");
 DEFINE_bool2(populate, p, false, "Populate include from bmh. (Requires -b -i)");
-DEFINE_string2(ref, r, "", "Resolve refs and write bmh_*.md files to path. (Requires -b -f)");
+DEFINE_string2(ref, r, "", "Resolve refs and write *.md files to path. (Requires -b -f)");
 DEFINE_string2(spellcheck, s, "", "Spell-check [once, all, mispelling]. (Requires -b)");
 DEFINE_bool2(tokens, t, false, "Write bmh from include. (Requires -b -i)");
 DEFINE_bool2(crosscheck, x, false, "Check bmh against includes. (Requires -b -i)");

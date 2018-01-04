@@ -1041,6 +1041,8 @@ public:
         fParent = fParent->fParent;
     }
 
+    const char* ReadToBuffer(string filename, int* size);
+
     virtual void reset() = 0;
 
     void resetCommon() {
@@ -1104,6 +1106,7 @@ public:
         this->writeString(str.c_str());
     }
 
+    bool writtenFileDiffers(string filename, string readname);
 
     unordered_map<string, sk_sp<SkData>> fRawData;
     unordered_map<string, vector<char>> fLFOnly;
@@ -1195,7 +1198,7 @@ public:
 // names without formal definitions (e.g. Column) aren't included
 // fill in other names once they're actually used
   { "",            nullptr,      MarkType::kNone,         R_Y, E_N, 0 }
-, { "A",           nullptr,      MarkType::kAnchor,       R_Y, E_N, 0 }
+, { "A",           nullptr,      MarkType::kAnchor,       R_N, E_N, 0 }
 , { "Alias",       nullptr,      MarkType::kAlias,        R_N, E_N, 0 }
 , { "Bug",         nullptr,      MarkType::kBug,          R_N, E_N, 0 }
 , { "Class",       &fClassMap,   MarkType::kClass,        R_Y, E_O, M_CSST | M(Root) }
@@ -1556,6 +1559,7 @@ public:
         fInFunction = false;
         fInString = false;
         fFailed = false;
+        fPriorEnum = nullptr;
     }
 
     void setBracketShortCuts(Bracket bracket) {
@@ -1724,6 +1728,8 @@ protected:
     Definition* fRootTopic;
     Definition* fInBrace;
     Definition* fLastObject;
+    Definition* fPriorEnum;
+    int fPriorIndex;
     const char* fIncludeWord;
     char fPrev;
     bool fInChar;
@@ -1837,7 +1843,6 @@ public:
     void structOut(const Definition* root, const Definition& child,
             const char* commentStart, const char* commentEnd);
     void structSizeMembers(const Definition& child);
-
 private:
     BmhParser* fBmhParser;
     Definition* fDeferComment;
@@ -1966,8 +1971,8 @@ public:
         this->reset();
     }
 
-    bool buildReferences(const char* path, const char* outDir);
-    bool buildStatus(const char* path, const char* outDir);
+    bool buildReferences(const char* docDir, const char* mdOutDirOrFile);
+    bool buildStatus(const char* docDir, const char* mdOutDir);
 private:
     enum class TableState {
         kNone,

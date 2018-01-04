@@ -37,7 +37,7 @@ SkIPoint16 Reference
 static constexpr SkIPoint16 Make(int x, int y)
 </pre>
 
-Sets <a href="#SkIPoint16_fX">fX</a> to <a href="#SkIPoint16_x">x</a>, <a href="#SkIPoint16_fY">fY</a> to <a href="#SkIPoint16_y">y</a>. If <a href="undocumented#SK_DEBUG">SK DEBUG</a> is defined, asserts
+Sets <a href="#SkIPoint16_fX">fX</a> to <a href="#SkIPoint16_x">x</a>, <a href="#SkIPoint16_fY">fY</a> to <a href="#SkIPoint16_y">y</a>. If SK_DEBUG is defined, asserts
 if <a href="#SkIPoint16_x">x</a> or <a href="#SkIPoint16_y">y</a> does not fit in 16 bits.
 
 ### Parameters

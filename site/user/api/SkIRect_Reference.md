@@ -5,10 +5,10 @@ SkIRect Reference
 
 # <a name="SkIRect"></a> Struct SkIRect
 <a href="#SkIRect">SkIRect</a> holds four 32 bit integer coordinates describing the upper and
-lower bounds of a rectangle. <a href="#SkIRect">SkIRect</a> may be created from outer bounds or 
+lower bounds of a rectangle. <a href="#SkIRect">SkIRect</a> may be created from outer bounds or
 from position, <a href="#SkIRect_width">width</a>, and <a href="#SkIRect_height">height</a>. <a href="#SkIRect">SkIRect</a> describes an area; if its <a href="#SkIRect_right">right</a>
 is less than or equal to its <a href="#SkIRect_left">left</a>, or if its <a href="#SkIRect_bottom">bottom</a> is less than or equal to
-its <a href="#SkIRect_top">top</a>, it is considered empty. 
+its <a href="#SkIRect_top">top</a>, it is considered empty.
 
 # <a name="Overview"></a> Overview
 
@@ -137,7 +137,7 @@ outset rect isEmpty: false
 static SkIRect SK_WARN_UNUSED_RESULT MakeLargest()
 </pre>
 
-Returns constructed <a href="#IRect">IRect</a> setting <a href="#SkIRect_left">left</a> and <a href="#SkIRect_top">top</a> to most negative value, and 
+Returns constructed <a href="#IRect">IRect</a> setting <a href="#SkIRect_left">left</a> and <a href="#SkIRect_top">top</a> to most negative value, and
 setting <a href="#SkIRect_right">right</a> and <a href="#SkIRect_bottom">bottom</a> to most positive value.
 
 ### Return Value
@@ -213,7 +213,7 @@ all equal
 static constexpr SkIRect SK_WARN_UNUSED_RESULT MakeSize(const SkISize& size)
 </pre>
 
-Returns constructed <a href="#IRect">IRect</a> <a href="#SkIRect_set">set</a> to (0, 0, <a href="#SkIRect_size">size</a>.<a href="#SkIRect_width">width</a>, <a href="#SkIRect_size">size</a>.<a href="#SkIRect_height">height</a>). 
+Returns constructed <a href="#IRect">IRect</a> <a href="#SkIRect_set">set</a> to (0, 0, <a href="#SkIRect_size">size</a>.<a href="#SkIRect_width">width</a>, <a href="#SkIRect_size">size</a>.<a href="#SkIRect_height">height</a>).
 Does not validate input; <a href="#SkIRect_size">size</a>.<a href="#SkIRect_width">width</a> or <a href="#SkIRect_size">size</a>.<a href="#SkIRect_height">height</a> may be negative.
 
 ### Parameters
@@ -300,7 +300,7 @@ static constexpr SkIRect SK_WARN_UNUSED_RESULT MakeXYWH(int32_t x, int32_t y, in
 </pre>
 
 Returns constructed <a href="#IRect">IRect</a> <a href="#SkIRect_set">set</a> to:
-(<a href="#SkIRect_x">x</a>, <a href="#SkIRect_y">y</a>, <a href="#SkIRect_x">x</a> + <a href="#SkIRect_MakeXYWH_w">w</a>, <a href="#SkIRect_y">y</a> + <a href="#SkIRect_MakeXYWH_h">h</a>). 
+(<a href="#SkIRect_x">x</a>, <a href="#SkIRect_y">y</a>, <a href="#SkIRect_x">x</a> + <a href="#SkIRect_MakeXYWH_w">w</a>, <a href="#SkIRect_y">y</a> + <a href="#SkIRect_MakeXYWH_h">h</a>).
 Does not validate input;
 <a href="#SkIRect_MakeXYWH_w">w</a> or <a href="#SkIRect_MakeXYWH_h">h</a> may be negative.
 
@@ -682,7 +682,7 @@ int32_t centerY() const
 </pre>
 
 Returns average of <a href="#SkIRect_top">top</a> edge and <a href="#SkIRect_bottom">bottom</a> edge. Result does not change if <a href="SkRect_Reference#Rect">Rect</a>
-is sorted. Result may be incorrect if <a href="SkRect_Reference#Rect">Rect</a> is far from the origin. 
+is sorted. Result may be incorrect if <a href="SkRect_Reference#Rect">Rect</a> is far from the origin.
 
 Result is rounded down.
 
@@ -751,7 +751,7 @@ sorted: {20, 40, 20, 50} is empty
 bool isLargest() const
 </pre>
 
-Returns true if <a href="#IRect">IRect</a> encloses largest possible area. 
+Returns true if <a href="#IRect">IRect</a> encloses largest possible area.
 
 ### Return Value
 
@@ -785,7 +785,7 @@ large is empty: false
 bool operator==(const SkIRect& a, const SkIRect& b)
 </pre>
 
-Returns true if all members in <a href="#SkIRect_equal_operator_a">a</a>: <a href="#SkIRect_fLeft">fLeft</a>, <a href="#SkIRect_fTop">fTop</a>, <a href="#SkIRect_fRight">fRight</a>, and <a href="#SkIRect_fBottom">fBottom</a>; are 
+Returns true if all members in <a href="#SkIRect_equal_operator_a">a</a>: <a href="#SkIRect_fLeft">fLeft</a>, <a href="#SkIRect_fTop">fTop</a>, <a href="#SkIRect_fRight">fRight</a>, and <a href="#SkIRect_fBottom">fBottom</a>; are
 identical to corresponding members in <a href="#SkIRect_equal_operator_b">b</a>.
 
 ### Parameters
@@ -826,7 +826,7 @@ test == sorted
 bool operator!=(const SkIRect& a, const SkIRect& b)
 </pre>
 
-Returns true if any member in <a href="#SkIRect_notequal_operator_a">a</a>: <a href="#SkIRect_fLeft">fLeft</a>, <a href="#SkIRect_fTop">fTop</a>, <a href="#SkIRect_fRight">fRight</a>, and <a href="#SkIRect_fBottom">fBottom</a>; is not 
+Returns true if any member in <a href="#SkIRect_notequal_operator_a">a</a>: <a href="#SkIRect_fLeft">fLeft</a>, <a href="#SkIRect_fTop">fTop</a>, <a href="#SkIRect_fRight">fRight</a>, and <a href="#SkIRect_fBottom">fBottom</a>; is not
 identical to the corresponding member in <a href="#SkIRect_notequal_operator_b">b</a>.
 
 ### Parameters
@@ -868,7 +868,7 @@ bool is16Bit() const
 </pre>
 
 Returns true if all members: <a href="#SkIRect_fLeft">fLeft</a>, <a href="#SkIRect_fTop">fTop</a>, <a href="#SkIRect_fRight">fRight</a>, and <a href="#SkIRect_fBottom">fBottom</a>; values are
-equal to or larger than -32768 and equal to or smaller than 32767. 
+equal to or larger than -32768 and equal to or smaller than 32767.
 
 ### Return Value
 
@@ -1019,7 +1019,7 @@ void setXYWH(int32_t x, int32_t y, int32_t width, int32_t height)
 </pre>
 
 Sets <a href="#IRect">IRect</a> to:
-(<a href="#SkIRect_x">x</a>, <a href="#SkIRect_y">y</a>, <a href="#SkIRect_x">x</a> + <a href="#SkIRect_width">width</a>, <a href="#SkIRect_y">y</a> + <a href="#SkIRect_height">height</a>). 
+(<a href="#SkIRect_x">x</a>, <a href="#SkIRect_y">y</a>, <a href="#SkIRect_x">x</a> + <a href="#SkIRect_width">width</a>, <a href="#SkIRect_y">y</a> + <a href="#SkIRect_height">height</a>).
 Does not validate input;
 <a href="#SkIRect_width">width</a> or <a href="#SkIRect_height">height</a> may be negative.
 
@@ -1115,7 +1115,7 @@ Returns <a href="#IRect">IRect</a> <a href="#SkIRect_offset">offset</a> by (<a h
 If <a href="#SkIRect_makeOffset_dx">dx</a> is negative, <a href="#IRect">IRect</a> returned is moved to the <a href="#SkIRect_left">left</a>.
 If <a href="#SkIRect_makeOffset_dx">dx</a> is positive, <a href="#IRect">IRect</a> returned is moved to the <a href="#SkIRect_right">right</a>.
 If <a href="#SkIRect_makeOffset_dy">dy</a> is negative, <a href="#IRect">IRect</a> returned is moved upward.
-If <a href="#SkIRect_makeOffset_dy">dy</a> is positive, <a href="#IRect">IRect</a> returned is moved downward. 
+If <a href="#SkIRect_makeOffset_dy">dy</a> is positive, <a href="#IRect">IRect</a> returned is moved downward.
 
 ### Parameters
 
@@ -1161,7 +1161,7 @@ Returns <a href="#IRect">IRect</a>, <a href="#SkIRect_inset">inset</a> by (<a hr
 If <a href="#SkIRect_makeInset_dx">dx</a> is negative, <a href="#IRect">IRect</a> returned is wider.
 If <a href="#SkIRect_makeInset_dx">dx</a> is positive, <a href="#IRect">IRect</a> returned is narrower.
 If <a href="#SkIRect_makeInset_dy">dy</a> is negative, <a href="#IRect">IRect</a> returned is taller.
-If <a href="#SkIRect_makeInset_dy">dy</a> is positive, <a href="#IRect">IRect</a> returned is shorter. 
+If <a href="#SkIRect_makeInset_dy">dy</a> is positive, <a href="#IRect">IRect</a> returned is shorter.
 
 ### Parameters
 
@@ -1207,7 +1207,7 @@ Returns <a href="#IRect">IRect</a>, <a href="#SkIRect_outset">outset</a> by (<a 
 If <a href="#SkIRect_makeOutset_dx">dx</a> is negative, <a href="#IRect">IRect</a> returned is narrower.
 If <a href="#SkIRect_makeOutset_dx">dx</a> is positive, <a href="#IRect">IRect</a> returned is wider.
 If <a href="#SkIRect_makeOutset_dy">dy</a> is negative, <a href="#IRect">IRect</a> returned is shorter.
-If <a href="#SkIRect_makeOutset_dy">dy</a> is positive, <a href="#IRect">IRect</a> returned is taller. 
+If <a href="#SkIRect_makeOutset_dy">dy</a> is positive, <a href="#IRect">IRect</a> returned is taller.
 
 ### Parameters
 
@@ -1253,7 +1253,7 @@ Offsets <a href="#IRect">IRect</a> by adding <a href="#SkIRect_offset_dx">dx</a>
 If <a href="#SkIRect_offset_dx">dx</a> is negative, moves <a href="#IRect">IRect</a> returned to the <a href="#SkIRect_left">left</a>.
 If <a href="#SkIRect_offset_dx">dx</a> is positive, moves <a href="#IRect">IRect</a> returned to the <a href="#SkIRect_right">right</a>.
 If <a href="#SkIRect_offset_dy">dy</a> is negative, moves <a href="#IRect">IRect</a> returned upward.
-If <a href="#SkIRect_offset_dy">dy</a> is positive, moves <a href="#IRect">IRect</a> returned downward. 
+If <a href="#SkIRect_offset_dy">dy</a> is positive, moves <a href="#IRect">IRect</a> returned downward.
 
 ### Parameters
 
@@ -1292,7 +1292,7 @@ Offsets <a href="#IRect">IRect</a> by adding <a href="#SkIRect_offset_2_delta">d
 If <a href="#SkIRect_offset_2_delta">delta</a>.fX is negative, moves <a href="#IRect">IRect</a> returned to the <a href="#SkIRect_left">left</a>.
 If <a href="#SkIRect_offset_2_delta">delta</a>.fX is positive, moves <a href="#IRect">IRect</a> returned to the <a href="#SkIRect_right">right</a>.
 If <a href="#SkIRect_offset_2_delta">delta</a>.fY is negative, moves <a href="#IRect">IRect</a> returned upward.
-If <a href="#SkIRect_offset_2_delta">delta</a>.fY is positive, moves <a href="#IRect">IRect</a> returned downward. 
+If <a href="#SkIRect_offset_2_delta">delta</a>.fY is positive, moves <a href="#IRect">IRect</a> returned downward.
 
 ### Parameters
 
@@ -1675,7 +1675,7 @@ Constructs <a href="#IRect">IRect</a> from (<a href="#SkIRect_left">left</a>, <a
 construction.
 
 Returns true if <a href="SkRect_Reference#Rect">Rect</a> <a href="#SkIRect_contains">contains</a> construction.
-Asserts if <a href="#IRect">IRect</a> is empty or construction is empty, and if <a href="undocumented#SK_DEBUG">SK DEBUG</a> is defined.
+Asserts if <a href="#IRect">IRect</a> is empty or construction is empty, and if SK_DEBUG is defined.
 
 Return is undefined if <a href="SkRect_Reference#Rect">Rect</a> is empty or construction is empty.
 
@@ -1721,7 +1721,7 @@ bool containsNoEmptyCheck(const SkIRect& r) const
 </pre>
 
 Returns true if <a href="SkRect_Reference#Rect">Rect</a> <a href="#SkIRect_contains">contains</a> construction.
-Asserts if <a href="#IRect">IRect</a> is empty or construction is empty, and if <a href="undocumented#SK_DEBUG">SK DEBUG</a> is defined.
+Asserts if <a href="#IRect">IRect</a> is empty or construction is empty, and if SK_DEBUG is defined.
 
 Return is undefined if <a href="SkRect_Reference#Rect">Rect</a> is empty or construction is empty.
 
@@ -1757,7 +1757,7 @@ rect: (30, 50, 40, 60) does not contain (29, 59, 30, 60)
 ---
 
 # <a name="Intersection"></a> Intersection
-IRects <a href="#SkIRect_intersect">intersect</a> when they enclose a common area. To <a href="#SkIRect_intersect">intersect</a>, each of the pair 
+IRects <a href="#SkIRect_intersect">intersect</a> when they enclose a common area. To <a href="#SkIRect_intersect">intersect</a>, each of the pair
 must describe area; <a href="#SkIRect_fLeft">fLeft</a> is less than <a href="#SkIRect_fRight">fRight</a>, and <a href="#SkIRect_fTop">fTop</a> is less than <a href="#SkIRect_fBottom">fBottom</a>;
 empty() returns false. The intersection of <a href="#IRect">IRect</a> pair can be described by:
 (max(a.fLeft, b.fLeft), max(a.fTop, b.fTop),
@@ -1857,7 +1857,7 @@ bool SK_WARN_UNUSED_RESULT intersectNoEmptyCheck(const SkIRect& a, const SkIRect
 Returns true if <a href="#SkIRect_intersectNoEmptyCheck_a">a</a> intersects <a href="#SkIRect_intersectNoEmptyCheck_b">b</a>, and sets <a href="#IRect">IRect</a> to intersection.
 Returns false if <a href="#SkIRect_intersectNoEmptyCheck_a">a</a> does not <a href="#SkIRect_intersect">intersect</a> <a href="#SkIRect_intersectNoEmptyCheck_b">b</a>, and leaves <a href="#IRect">IRect</a> unchanged.
 
-Asserts if either <a href="#SkIRect_intersectNoEmptyCheck_a">a</a> or <a href="#SkIRect_intersectNoEmptyCheck_b">b</a> is empty, and if <a href="undocumented#SK_DEBUG">SK DEBUG</a> is defined.
+Asserts if either <a href="#SkIRect_intersectNoEmptyCheck_a">a</a> or <a href="#SkIRect_intersectNoEmptyCheck_b">b</a> is empty, and if SK_DEBUG is defined.
 
 ### Parameters
 
@@ -1988,7 +1988,7 @@ static bool IntersectsNoEmptyCheck(const SkIRect& a, const SkIRect& b)
 </pre>
 
 Returns true if <a href="#SkIRect_IntersectsNoEmptyCheck_a">a</a> intersects <a href="#SkIRect_IntersectsNoEmptyCheck_b">b</a>.
-Asserts if either <a href="#SkIRect_IntersectsNoEmptyCheck_a">a</a> or <a href="#SkIRect_IntersectsNoEmptyCheck_b">b</a> is empty, and if <a href="undocumented#SK_DEBUG">SK DEBUG</a> is defined.
+Asserts if either <a href="#SkIRect_IntersectsNoEmptyCheck_a">a</a> or <a href="#SkIRect_IntersectsNoEmptyCheck_b">b</a> is empty, and if SK_DEBUG is defined.
 
 ### Parameters
 
