@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "a3e9973e_3be55af6",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 288,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-01-04T18:57:57Z",
+      "side": 1,
+      "message": "+egdaniel@ though I suspect this is the correct fix.",
+      "parentUuid": "a52e5388_818d4492",
+      "revId": "7233fce1986673737baaeefdf46dd6c55e43a9b2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "35b07674_307b3409",
         "filename": "src/gpu/GrTextureMaker.cpp",
         "patchSetId": 6
