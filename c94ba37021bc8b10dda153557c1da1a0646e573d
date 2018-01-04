@@ -93,6 +93,30 @@
       "revId": "c94ba37021bc8b10dda153557c1da1a0646e573d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dea41ebe_b0bd6684",
+        "filename": "include/private/SkMalloc.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-01-04T16:53:39Z",
+      "side": 1,
+      "message": "Cleared this up in person. I don\u0027t have a strong preference for the name, so long as this one does not throw.",
+      "parentUuid": "5f3bc98e_599736d3",
+      "range": {
+        "startLine": 89,
+        "startChar": 33,
+        "endLine": 89,
+        "endChar": 48
+      },
+      "revId": "c94ba37021bc8b10dda153557c1da1a0646e573d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
