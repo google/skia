@@ -20,6 +20,7 @@
 #include "SkSGDraw.h"
 #include "SkSGInvalidationController.h"
 #include "SkSGGroup.h"
+#include "SkSGMerge.h"
 #include "SkSGPath.h"
 #include "SkSGRect.h"
 #include "SkSGTransform.h"
@@ -28,6 +29,8 @@
 #include "SkTHash.h"
 
 #include <cmath>
+#include <vector>
+
 #include "stdlib.h"
 
 namespace skotty {
@@ -223,6 +226,26 @@ sk_sp<sksg::PaintNode> AttachStrokePaint(const Json::Value& jstroke, AttachConte
     return stroke_node;
 }
 
+std::vector<sk_sp<sksg::GeometryNode>> AttachMergeGeometryEffect(
+    const Json::Value& jmerge, AttachContext* ctx, std::vector<sk_sp<sksg::GeometryNode>>&& geos) {
+    std::vector<sk_sp<sksg::GeometryNode>> merged;
+
+    static constexpr sksg::Merge::Mode gModes[] = {
+        sksg::Merge::Mode::kMerge,      // "mm": 1
+        sksg::Merge::Mode::kUnion,      // "mm": 2
+        sksg::Merge::Mode::kDifference, // "mm": 3
+        sksg::Merge::Mode::kIntersect,  // "mm": 4
+        sksg::Merge::Mode::kXOR      ,  // "mm": 5
+    };
+
+    const auto mode = gModes[SkTPin<int>(ParseInt(jmerge["mm"], 1) - 1, 0, SK_ARRAY_COUNT(gModes))];
+    merged.push_back(sksg::Merge::Make(std::move(geos), mode));
+
+    LOG("** Attached merge path effect, mode: %d\n", mode);
+
+    return merged;
+}
+
 using GeometryAttacherT = sk_sp<sksg::GeometryNode> (*)(const Json::Value&, AttachContext*);
 static constexpr GeometryAttacherT gGeometryAttachers[] = {
     AttachPathGeometry,
@@ -246,8 +269,17 @@ static constexpr TransformAttacherT gTransformAttachers[] = {
     AttachTransform,
 };
 
+using GeometryEffectAttacherT =
+    std::vector<sk_sp<sksg::GeometryNode>> (*)(const Json::Value&,
+                                               AttachContext*,
+                                               std::vector<sk_sp<sksg::GeometryNode>>&&);
+static constexpr GeometryEffectAttacherT gGeometryEffectAttachers[] = {
+    AttachMergeGeometryEffect,
+};
+
 enum class ShapeType {
     kGeometry,
+    kGeometryEffect,
     kPaint,
     kGroup,
     kTransform,
@@ -261,12 +293,13 @@ struct ShapeInfo {
 
 const ShapeInfo* FindShapeInfo(const Json::Value& shape) {
     static constexpr ShapeInfo gShapeInfo[] = {
-        { "fl", ShapeType::kPaint    , 0 }, // fill      -> AttachFillPaint
-        { "gr", ShapeType::kGroup    , 0 }, // group     -> AttachShapeGroup
-        { "rc", ShapeType::kGeometry , 1 }, // shape     -> AttachRRectGeometry
-        { "sh", ShapeType::kGeometry , 0 }, // shape     -> AttachPathGeometry
-        { "st", ShapeType::kPaint    , 1 }, // stroke    -> AttachStrokePaint
-        { "tr", ShapeType::kTransform, 0 }, // transform -> AttachTransform
+        { "fl", ShapeType::kPaint         , 0 }, // fill      -> AttachFillPaint
+        { "gr", ShapeType::kGroup         , 0 }, // group     -> AttachShapeGroup
+        { "mm", ShapeType::kGeometryEffect, 0 }, // merge     -> AttachMergeGeometryEffect
+        { "rc", ShapeType::kGeometry      , 1 }, // shape     -> AttachRRectGeometry
+        { "sh", ShapeType::kGeometry      , 0 }, // shape     -> AttachPathGeometry
+        { "st", ShapeType::kPaint         , 1 }, // stroke    -> AttachStrokePaint
+        { "tr", ShapeType::kTransform     , 0 }, // transform -> AttachTransform
     };
 
     if (!shape.isObject())
@@ -313,8 +346,8 @@ sk_sp<sksg::RenderNode> AttachShape(const Json::Value& shapeArray, AttachContext
     sk_sp<sksg::Group>        shape_group = sksg::Group::Make();
     sk_sp<sksg::RenderNode> xformed_group = shape_group;
 
-    SkSTArray<16, sk_sp<sksg::GeometryNode>, true> geos;
-    SkSTArray<16, sk_sp<sksg::RenderNode>  , true> draws;
+    std::vector<sk_sp<sksg::GeometryNode>> geos;
+    std::vector<sk_sp<sksg::RenderNode>> draws;
 
     for (const auto& s : shapeArray) {
         const auto* info = FindShapeInfo(s);
@@ -329,6 +362,10 @@ sk_sp<sksg::RenderNode> AttachShape(const Json::Value& shapeArray, AttachContext
             if (auto geo = gGeometryAttachers[info->fAttacherIndex](s, ctx)) {
                 geos.push_back(std::move(geo));
             }
+        } break;
+        case ShapeType::kGeometryEffect: {
+            SkASSERT(info->fAttacherIndex < SK_ARRAY_COUNT(gGeometryEffectAttachers));
+            geos = gGeometryEffectAttachers[info->fAttacherIndex](s, ctx, std::move(geos));
         } break;
         case ShapeType::kPaint: {
             SkASSERT(info->fAttacherIndex < SK_ARRAY_COUNT(gPaintAttachers));
@@ -356,11 +393,11 @@ sk_sp<sksg::RenderNode> AttachShape(const Json::Value& shapeArray, AttachContext
         return nullptr;
     }
 
-    for (int i = draws.count() - 1; i >= 0; --i) {
-        shape_group->addChild(std::move(draws[i]));
+    for (auto draw = draws.rbegin(); draw != draws.rend(); ++draw) {
+        shape_group->addChild(std::move(*draw));
     }
 
-    LOG("** Attached shape: %d draws.\n", draws.count());
+    LOG("** Attached shape: %zd draws.\n", draws.size());
     return xformed_group;
 }
 

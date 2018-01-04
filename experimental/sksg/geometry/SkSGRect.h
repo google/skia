@@ -35,6 +35,7 @@ protected:
     void onDraw(SkCanvas*, const SkPaint&) const override;
 
     SkRect onRevalidate(InvalidationController*, const SkMatrix&) override;
+    SkPath onAsPath() const override;
 
 private:
     explicit Rect(const SkRect&);
@@ -56,6 +57,7 @@ protected:
     void onDraw(SkCanvas*, const SkPaint&) const override;
 
     SkRect onRevalidate(InvalidationController*, const SkMatrix&) override;
+    SkPath onAsPath() const override;
 
 private:
     explicit RRect(const SkRRect&);
