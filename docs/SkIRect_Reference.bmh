@@ -287,7 +287,7 @@ rect: -10, 35, 5, 60  isEmpty: false
 
 # ------------------------------------------------------------------------------
 
-#Method int left() const
+#Method int32_t left() const
 
 Returns left edge of IRect, if sorted.
 Call sort() to reverse fLeft and fRight if needed.
@@ -311,7 +311,7 @@ sorted.fLeft: 10 sorted.left(): 10
 
 # ------------------------------------------------------------------------------
 
-#Method int top() const
+#Method int32_t top() const
 
 Returns top edge of IRect, if sorted. Call isEmpty to see if IRect may be invalid,
 and sort() to reverse fTop and fBottom if needed.
@@ -335,7 +335,7 @@ sorted.fTop: 5 sorted.top(): 5
 
 # ------------------------------------------------------------------------------
 
-#Method int right() const
+#Method int32_t right() const
 
 Returns right edge of IRect, if sorted.
 Call sort() to reverse fLeft and fRight if needed.
@@ -359,7 +359,7 @@ sorted.fRight: 15 sorted.right(): 15
 
 # ------------------------------------------------------------------------------
 
-#Method int bottom() const
+#Method int32_t bottom() const
 
 Returns bottom edge of IRect, if sorted. Call isEmpty to see if IRect may be invalid,
 and sort() to reverse fTop and fBottom if needed.
@@ -383,7 +383,7 @@ sorted.fBottom: 25 sorted.bottom(): 25
 
 # ------------------------------------------------------------------------------
 
-#Method int x() const
+#Method int32_t x() const
 
 Returns left edge of IRect, if sorted. Call isEmpty to see if IRect may be invalid,
 and sort() to reverse fLeft and fRight if needed.
@@ -407,7 +407,7 @@ sorted.fLeft: 10 sorted.x(): 10
 
 # ------------------------------------------------------------------------------
 
-#Method int y() const
+#Method int32_t y() const
 
 Returns top edge of IRect, if sorted. Call isEmpty to see if IRect may be invalid,
 and sort() to reverse fTop and fBottom if needed.
@@ -431,7 +431,7 @@ sorted.fTop: 5 sorted.y(): 5
 
 # ------------------------------------------------------------------------------
 
-#Method int width() const
+#Method int32_t width() const
 
 Returns span on the x-axis. This does not check if IRect is sorted, or if
 result fits in 32-bit signed integer; result may be negative.
@@ -455,7 +455,7 @@ large width: -5
 
 # ------------------------------------------------------------------------------
 
-#Method int height() const
+#Method int32_t height() const
 
 Returns span on the y-axis. This does not check if IRect is sorted, or if
 result fits in 32-bit signed integer; result may be negative.
@@ -512,7 +512,7 @@ original rect: 20, 30, 40, 50  size: 20, 20
 
 # ------------------------------------------------------------------------------
 
-#Method int centerX() const
+#Method int32_t centerX() const
 
 Returns average of left edge and right edge. Result does not change if Rect
 is sorted. Result may be incorrect if Rect is far from the origin.
@@ -543,7 +543,7 @@ left: -10 right:  11 centerX:   0 div2:   0
 
 # ------------------------------------------------------------------------------
 
-#Method int centerY() const
+#Method int32_t centerY() const
 
 Returns average of top edge and bottom edge. Result does not change if Rect
 is sorted. Result may be incorrect if Rect is far from the origin. 
