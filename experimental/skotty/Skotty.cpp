@@ -29,6 +29,7 @@
 #include "SkTHash.h"
 
 #include <cmath>
+#include <unordered_map>
 #include <vector>
 
 #include "stdlib.h"
@@ -81,33 +82,37 @@ bool AttachProperty(const Json::Value& jprop, AttachContext* ctx, const sk_sp<No
     return true;
 }
 
-sk_sp<sksg::RenderNode> AttachTransform(const Json::Value& t, AttachContext* ctx,
-                                        sk_sp<sksg::RenderNode> wrapped_node) {
-    if (!t.isObject() || !wrapped_node)
-        return wrapped_node;
+sk_sp<sksg::Matrix> AttachMatrix(const Json::Value& t, AttachContext* ctx,
+                                        sk_sp<sksg::Matrix> preMatrix) {
+    if (!t.isObject())
+        return nullptr;
 
-    auto xform = sk_make_sp<CompositeTransform>(wrapped_node);
-    auto anchor_attached = AttachProperty<VectorValue, SkPoint>(t["a"], ctx, xform,
+    auto matrix = preMatrix
+        ? sksg::ComposedMatrix::Make(std::move(preMatrix), SkMatrix::I())
+        : sksg::Matrix::Make(SkMatrix::I());
+
+    auto composite = sk_make_sp<CompositeTransform>(matrix);
+    auto anchor_attached = AttachProperty<VectorValue, SkPoint>(t["a"], ctx, composite,
             [](const sk_sp<CompositeTransform>& node, const SkPoint& a) {
                 node->setAnchorPoint(a);
             });
-    auto position_attached = AttachProperty<VectorValue, SkPoint>(t["p"], ctx, xform,
+    auto position_attached = AttachProperty<VectorValue, SkPoint>(t["p"], ctx, composite,
             [](const sk_sp<CompositeTransform>& node, const SkPoint& p) {
                 node->setPosition(p);
             });
-    auto scale_attached = AttachProperty<VectorValue, SkVector>(t["s"], ctx, xform,
+    auto scale_attached = AttachProperty<VectorValue, SkVector>(t["s"], ctx, composite,
             [](const sk_sp<CompositeTransform>& node, const SkVector& s) {
                 node->setScale(s);
             });
-    auto rotation_attached = AttachProperty<ScalarValue, SkScalar>(t["r"], ctx, xform,
+    auto rotation_attached = AttachProperty<ScalarValue, SkScalar>(t["r"], ctx, composite,
             [](const sk_sp<CompositeTransform>& node, SkScalar r) {
                 node->setRotation(r);
             });
-    auto skew_attached = AttachProperty<ScalarValue, SkScalar>(t["sk"], ctx, xform,
+    auto skew_attached = AttachProperty<ScalarValue, SkScalar>(t["sk"], ctx, composite,
             [](const sk_sp<CompositeTransform>& node, SkScalar sk) {
                 node->setSkew(sk);
             });
-    auto skewaxis_attached = AttachProperty<ScalarValue, SkScalar>(t["sa"], ctx, xform,
+    auto skewaxis_attached = AttachProperty<ScalarValue, SkScalar>(t["sa"], ctx, composite,
             [](const sk_sp<CompositeTransform>& node, SkScalar sa) {
                 node->setSkewAxis(sa);
             });
@@ -119,10 +124,21 @@ sk_sp<sksg::RenderNode> AttachTransform(const Json::Value& t, AttachContext* ctx
         !skew_attached &&
         !skewaxis_attached) {
         LogFail(t, "Could not parse transform");
+        return nullptr;
+    }
+
+    return matrix;
+}
+
+sk_sp<sksg::RenderNode> AttachTransform(const Json::Value& t, AttachContext* ctx,
+                                        sk_sp<sksg::RenderNode> wrapped_node,
+                                        sk_sp<sksg::Matrix> preMatrix) {
+    auto matrix = AttachMatrix(t, ctx, std::move(preMatrix));
+    if (!matrix) {
         return wrapped_node;
     }
 
-    return xform->node();
+    return sksg::Transform::Make(std::move(wrapped_node), std::move(matrix));
 }
 
 sk_sp<sksg::RenderNode> AttachShape(const Json::Value&, AttachContext* ctx);
@@ -328,7 +344,8 @@ static constexpr GroupAttacherT gGroupAttachers[] = {
 };
 
 using TransformAttacherT = sk_sp<sksg::RenderNode> (*)(const Json::Value&, AttachContext*,
-                                                       sk_sp<sksg::RenderNode>);
+                                                       sk_sp<sksg::RenderNode>,
+                                                       sk_sp<sksg::Matrix>);
 static constexpr TransformAttacherT gTransformAttachers[] = {
     AttachTransform,
 };
@@ -450,7 +467,8 @@ sk_sp<sksg::RenderNode> AttachShape(const Json::Value& shapeArray, AttachContext
         case ShapeType::kTransform: {
             // TODO: BM appears to transform the geometry, not the draw op itself.
             SkASSERT(info->fAttacherIndex < SK_ARRAY_COUNT(gTransformAttachers));
-            xformed_group = gTransformAttachers[info->fAttacherIndex](s, ctx, xformed_group);
+            xformed_group = gTransformAttachers[info->fAttacherIndex](s, ctx, xformed_group,
+                                                                      nullptr);
         } break;
         }
     }
@@ -522,8 +540,70 @@ sk_sp<sksg::RenderNode> AttachTextLayer(const Json::Value& layer, AttachContext*
     return nullptr;
 }
 
-sk_sp<sksg::RenderNode> AttachLayer(const Json::Value& layer, AttachContext* ctx) {
-    if (!layer.isObject())
+using LayerXformsT = std::unordered_map<const Json::Value*, sk_sp<sksg::Matrix>>;
+sk_sp<sksg::Matrix> AttachLayerMatrix(const Json::Value& layers,
+                                      const Json::Value& layer,
+                                      AttachContext* ctx,
+                                      LayerXformsT* layerXforms);
+
+sk_sp<sksg::Matrix> AttachLayerParentMatrix(const Json::Value& layers,
+                                            const Json::Value& layer,
+                                            AttachContext* ctx,
+                                            LayerXformsT* layerXforms) {
+    SkASSERT(layers.isArray());
+    SkASSERT(layer.isObject());
+
+    const auto parentIndex = ParseInt(layer["parent"], -1);
+    if (parentIndex < 0) {
+        return nullptr;
+    }
+
+    LOG("*** parentIndex: %d\n", parentIndex);
+    // TODO: cache indices?
+    const Json::Value* parent = nullptr;
+    for (const auto& l : layers) {
+        if (!l.isObject()) {
+            continue;
+        }
+
+        if (ParseInt(l["ind"], -1) == parentIndex) {
+            parent = &l;
+            break;
+        }
+    }
+
+    // TODO: cycle detection?
+    if (!parent || parent == &layer) {
+        LOG("!! Parent layer index %d not found.\n", parentIndex);
+        return nullptr;
+    }
+
+    return AttachLayerMatrix(layers, *parent, ctx, layerXforms);
+}
+
+sk_sp<sksg::Matrix> AttachLayerMatrix(const Json::Value& layers,
+                                      const Json::Value& layer,
+                                      AttachContext* ctx,
+                                      LayerXformsT* layerXforms) {
+    SkASSERT(layer.isObject());
+
+    const auto cached = layerXforms->find(&layer);
+    if (cached != layerXforms->end()) {
+        return cached->second;
+    }
+
+    auto parentMatrix = AttachLayerParentMatrix(layers, layer, ctx, layerXforms);
+    auto matrix = AttachMatrix(layer["ks"], ctx, std::move(parentMatrix));
+
+    layerXforms->insert(std::make_pair(&layer, matrix));
+    return matrix;
+}
+
+sk_sp<sksg::RenderNode> AttachLayer(const Json::Value& jlayers,
+                                    const Json::Value& jlayer,
+                                    AttachContext* ctx,
+                                    LayerXformsT* layerXforms) {
+    if (!jlayer.isObject())
         return nullptr;
 
     using LayerAttacher = sk_sp<sksg::RenderNode> (*)(const Json::Value&, AttachContext*);
@@ -536,22 +616,32 @@ sk_sp<sksg::RenderNode> AttachLayer(const Json::Value& layer, AttachContext* ctx
         AttachTextLayer,  // 'ty': 5
     };
 
-    int type = ParseInt(layer["ty"], -1);
+    int type = ParseInt(jlayer["ty"], -1);
     if (type < 0 || type >= SkTo<int>(SK_ARRAY_COUNT(gLayerAttachers))) {
         return nullptr;
     }
 
-    return AttachTransform(layer["ks"], ctx, gLayerAttachers[type](layer, ctx));
+    auto layer       = gLayerAttachers[type](jlayer, ctx);
+    auto layerMatrix = AttachLayerMatrix(jlayers, jlayer, ctx, layerXforms);
+
+    return layerMatrix
+        ? sksg::Transform::Make(std::move(layer), std::move(layerMatrix))
+        : layer;
 }
 
 sk_sp<sksg::RenderNode> AttachComposition(const Json::Value& comp, AttachContext* ctx) {
     if (!comp.isObject())
         return nullptr;
 
-    SkSTArray<16, sk_sp<sksg::RenderNode>, true> layers;
+    const auto& jlayers = comp["layers"];
+    if (!jlayers.isArray())
+        return nullptr;
 
-    for (const auto& l : comp["layers"]) {
-        if (auto layer_fragment = AttachLayer(l, ctx)) {
+    SkSTArray<16, sk_sp<sksg::RenderNode>, true> layers;
+    LayerXformsT                                 layerXforms;
+
+    for (const auto& l : jlayers) {
+        if (auto layer_fragment = AttachLayer(jlayers, l, ctx, &layerXforms)) {
             layers.push_back(std::move(layer_fragment));
         }
     }
