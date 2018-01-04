@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "2c3f938f_12abaf4f",
+        "filename": "infra/bots/recipe_modules/core/api.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-01-04T16:17:47Z",
+      "side": 1,
+      "message": "What I mean is that, since this isn\u0027t a step failure, it may not be at all obvious what went wrong.  Probably not a big deal, since this should be a rare exception anyway.",
+      "parentUuid": "b8566721_7946f3bd",
+      "range": {
+        "startLine": 40,
+        "startChar": 6,
+        "endLine": 40,
+        "endChar": 35
+      },
+      "revId": "2fcc47bd241bb30e307d11f46ac010d522aa36ef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d0ecb772_8b090bf1",
         "filename": "infra/bots/recipe_modules/core/api.py",
         "patchSetId": 3
@@ -96,6 +120,30 @@
     },
     {
       "key": {
+        "uuid": "9ec39775_3bc9caf5",
+        "filename": "infra/bots/recipe_modules/core/api.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-01-04T16:17:47Z",
+      "side": 1,
+      "message": "Yep, makes sense, thanks!",
+      "parentUuid": "7eb2a0cf_c01af1e1",
+      "range": {
+        "startLine": 144,
+        "startChar": 16,
+        "endLine": 144,
+        "endChar": 65
+      },
+      "revId": "2fcc47bd241bb30e307d11f46ac010d522aa36ef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "43666301_268d5e41",
         "filename": "infra/bots/recipe_modules/vars/api.py",
         "patchSetId": 3
@@ -131,6 +179,30 @@
       "side": 1,
       "message": "Hmm, could be a problem. I added a mkdirs in core/api.py, which changes every expectation file. LMK if that\u0027s better or worse.",
       "parentUuid": "43666301_268d5e41",
+      "range": {
+        "startLine": 100,
+        "startChar": 6,
+        "endLine": 100,
+        "endChar": 74
+      },
+      "revId": "2fcc47bd241bb30e307d11f46ac010d522aa36ef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "81cbaf84_231e869e",
+        "filename": "infra/bots/recipe_modules/vars/api.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-01-04T16:17:47Z",
+      "side": 1,
+      "message": "Your previous tryjob succeeded, so presumably the file copying step did the right thing.",
+      "parentUuid": "16a25586_f0b870f7",
       "range": {
         "startLine": 100,
         "startChar": 6,
