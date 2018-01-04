@@ -15,18 +15,13 @@ void SkBlitLCD16OpaqueRow_neon(SkPMColor dst[], const uint16_t src[],
     int colG = SkColorGetG(color);
     int colB = SkColorGetB(color);
 
-    uint8x8_t vcolR, vcolG, vcolB;
-    uint8x8_t vopqDstA, vopqDstR, vopqDstG, vopqDstB;
-
-    if (width >= 8) {
-        vcolR = vdup_n_u8(colR);
-        vcolG = vdup_n_u8(colG);
-        vcolB = vdup_n_u8(colB);
-        vopqDstA = vdup_n_u8(SkGetPackedA32(opaqueDst));
-        vopqDstR = vdup_n_u8(SkGetPackedR32(opaqueDst));
-        vopqDstG = vdup_n_u8(SkGetPackedG32(opaqueDst));
-        vopqDstB = vdup_n_u8(SkGetPackedB32(opaqueDst));
-    }
+    uint8x8_t vcolR = vdup_n_u8(colR);
+    uint8x8_t vcolG = vdup_n_u8(colG);
+    uint8x8_t vcolB = vdup_n_u8(colB);
+    uint8x8_t vopqDstA = vdup_n_u8(SkGetPackedA32(opaqueDst));
+    uint8x8_t vopqDstR = vdup_n_u8(SkGetPackedR32(opaqueDst));
+    uint8x8_t vopqDstG = vdup_n_u8(SkGetPackedG32(opaqueDst));
+    uint8x8_t vopqDstB = vdup_n_u8(SkGetPackedB32(opaqueDst));
 
     while (width >= 8) {
         uint8x8x4_t vdst;

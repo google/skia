@@ -2073,7 +2073,7 @@ bool IncludeParser::parseChar() {
                 }
             } else if (fParent->fChildren.size() > 0) {
                 auto lastIter = fParent->fChildren.end();
-                Definition* priorEnum;
+                Definition* priorEnum = nullptr;
                 while (fParent->fChildren.begin() != lastIter) {
                     std::advance(lastIter, -1);
                     priorEnum = *lastIter;
