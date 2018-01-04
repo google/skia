@@ -260,6 +260,30 @@
       "revId": "2fcc47bd241bb30e307d11f46ac010d522aa36ef",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4771496b_eb5734b6",
+        "filename": "infra/bots/recipe_modules/vars/api.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-01-04T16:31:40Z",
+      "side": 1,
+      "message": "I think I would.  At least, I think you can remove the if statement.",
+      "parentUuid": "68b3e26b_9aee0fbe",
+      "range": {
+        "startLine": 100,
+        "startChar": 6,
+        "endLine": 100,
+        "endChar": 74
+      },
+      "revId": "2fcc47bd241bb30e307d11f46ac010d522aa36ef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
