@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "7dd77259_ed123563",
+        "filename": "include/private/SkMalloc.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-01-04T16:47:46Z",
+      "side": 1,
+      "message": "Probably true, just being extra safe.",
+      "parentUuid": "27bc061d_7a6ae67d",
+      "range": {
+        "startLine": 31,
+        "startChar": 7,
+        "endLine": 31,
+        "endChar": 45
+      },
+      "revId": "c94ba37021bc8b10dda153557c1da1a0646e573d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "674af5eb_cede6f86",
         "filename": "include/private/SkMalloc.h",
         "patchSetId": 7
@@ -36,6 +60,30 @@
       "writtenOn": "2018-01-04T16:18:12Z",
       "side": 1,
       "message": "I\u0027m confused - \"canfail\" sounds to me like it will not throw.",
+      "range": {
+        "startLine": 89,
+        "startChar": 33,
+        "endLine": 89,
+        "endChar": 48
+      },
+      "revId": "c94ba37021bc8b10dda153557c1da1a0646e573d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5f3bc98e_599736d3",
+        "filename": "include/private/SkMalloc.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-01-04T16:47:46Z",
+      "side": 1,
+      "message": "You missed an earlier voting section. Suggestion? (we have may on the board next to Robert)",
+      "parentUuid": "674af5eb_cede6f86",
       "range": {
         "startLine": 89,
         "startChar": 33,
