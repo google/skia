@@ -32,8 +32,7 @@ static void test_dir_with_file(skiatest::Reporter* reporter, SkString dir,
     // fullName should be the combined size of dir and file, plus one if
     // dir did not include the final path separator.
     size_t expectedSize = dir.size() + filename.size();
-    if (!dir.endsWith(SkOSPath::SEPARATOR) && ('\\' != SkOSPath::SEPARATOR ||
-            !dir.endsWith('/')) && !dir.isEmpty()) {
+    if (!dir.endsWith(SkOSPath::SEPARATOR) && !dir.isEmpty()) {
         expectedSize++;
     }
     REPORTER_ASSERT(reporter, fullName.size() == expectedSize);
@@ -47,10 +46,7 @@ static void test_dir_with_file(skiatest::Reporter* reporter, SkString dir,
     // dirname should be the same as dir with any trailing seperators removed.
     // Except when the the string is just "/".
     SkString strippedDir = dir;
-    while (strippedDir.size() > 2 &&
-            (strippedDir[strippedDir.size() - 1] == SkOSPath::SEPARATOR ||
-            ('\\' == SkOSPath::SEPARATOR &&
-             strippedDir[strippedDir.size() - 1] == '/'))) {
+    while (strippedDir.size() > 2 && strippedDir[strippedDir.size() - 1] == SkOSPath::SEPARATOR) {
         strippedDir.remove(strippedDir.size() - 1, 1);
     }
     if (!dirname.equals(strippedDir)) {
@@ -106,13 +102,4 @@ DEF_TEST(OSPath, reporter) {
     // Test that nullptr can be used for the directory and filename.
     SkString emptyPath = SkOSPath::Join(nullptr, nullptr);
     REPORTER_ASSERT(reporter, emptyPath.isEmpty());
-
-#ifdef SK_BUILD_FOR_WIN
-    test_dir_with_file(reporter, SkString("dir/"), filename);
-    test_dir_with_file(reporter, SkString("dir/dir"), filename);
-    test_dir_with_file(reporter, SkString("dir\\dir/"), filename);
-    test_dir_with_file(reporter, SkString("dir/dir\\"), filename);
-    test_dir_with_file(reporter, SkString("dir\\dir/dir"), filename);
-    test_dir_with_file(reporter, SkString("dir/dir\\dir"), filename);
-#endif
 }
