@@ -68,7 +68,8 @@ protected:
                         SkBackingFit, SkBudgeted, uint32_t flags);
 
     // Lazy-callback version
-    GrRenderTargetProxy(LazyInstantiateCallback&&, GrPixelConfig);
+    GrRenderTargetProxy(LazyInstantiateCallback&&, const GrSurfaceDesc&, SkBackingFit, SkBudgeted,
+                        uint32_t flags);
 
     // Wrapped version
     GrRenderTargetProxy(sk_sp<GrSurface>, GrSurfaceOrigin);
