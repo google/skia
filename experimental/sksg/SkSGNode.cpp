@@ -38,10 +38,11 @@ private:
     if (traversal_guard.wasSet())                        \
         return
 
-Node::Node()
+Node::Node(uint32_t invalTraits)
     : fInvalReceiver(nullptr)
     , fBounds(SkRect::MakeLargestS32())
-    , fFlags(kInvalSelf_Flag | kInvalDescendant_Flag) {}
+    , fInvalTraits(invalTraits)
+    , fFlags(kInvalidated_Flag) {}
 
 Node::~Node() {
     if (fFlags & kReceiverArray_Flag) {
@@ -99,24 +100,24 @@ void Node::forEachInvalReceiver(Func&& func) const {
     }
 }
 
-void Node::invalidateSelf() {
-    if (this->hasSelfInval()) {
+void Node::invalidate(bool damageBubbling) {
+    TRAVERSAL_GUARD;
+
+    if (this->hasInval() && (!damageBubbling || (fFlags & kDamage_Flag))) {
+        // All done.
         return;
     }
 
-    fFlags |= kInvalSelf_Flag;
-    this->invalidateAncestors();
-}
+    if (damageBubbling && !(fInvalTraits & kBubbleDamage_Trait)) {
+        // Found a damage receiver.
+        fFlags |= kDamage_Flag;
+        damageBubbling = false;
+    }
 
-void Node::invalidateAncestors() {
-    TRAVERSAL_GUARD;
+    fFlags |= kInvalidated_Flag;
 
     forEachInvalReceiver([&](Node* receiver) {
-        if (receiver->hasDescendantInval()) {
-            return;
-        }
-        receiver->fFlags |= kInvalDescendant_Flag;
-        receiver->invalidateAncestors();
+        receiver->invalidate(damageBubbling);
     });
 }
 
@@ -127,21 +128,21 @@ const SkRect& Node::revalidate(InvalidationController* ic, const SkMatrix& ctm) 
         return fBounds;
     }
 
-    const auto result     = this->onRevalidate(ic, ctm);
-    const auto selfDamage = result.fDamage == Damage::kForceSelf ||
-                            (this->hasSelfInval() && result.fDamage != Damage::kBlockSelf);
+    SkRect prevBounds;
+    if (fFlags & kDamage_Flag) {
+        prevBounds = fBounds;
+    }
 
-    if (selfDamage) {
-        // old bounds
-        ic->inval(fBounds, ctm);
-        if (result.fBounds != fBounds) {
-            // new bounds
-            ic->inval(result.fBounds, ctm);
+    fBounds = this->onRevalidate(ic, ctm);
+
+    if (fFlags & kDamage_Flag) {
+        ic->inval(prevBounds, ctm);
+        if (fBounds != prevBounds) {
+            ic->inval(fBounds, ctm);
         }
     }
 
-    fBounds = result.fBounds;
-    fFlags &= ~(kInvalSelf_Flag | kInvalDescendant_Flag);
+    fFlags &= ~(kInvalidated_Flag | kDamage_Flag);
 
     return fBounds;
 }

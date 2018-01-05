@@ -29,7 +29,7 @@ public:
     SkPath asPath() const;
 
 protected:
-    GeometryNode() = default;
+    GeometryNode();
 
     virtual void onDraw(SkCanvas*, const SkPaint&) const = 0;
 
