@@ -1792,23 +1792,22 @@ static void fuzz_ganesh(Fuzz* fuzz, GrContext* context) {
 }
 
 DEF_FUZZ(NativeGLCanvas, fuzz) {
-    GrContext* context = sk_gpu_test::GrContextFactory().get(
-            sk_gpu_test::GrContextFactory::kGL_ContextType);
+    sk_gpu_test::GrContextFactory f;
+    GrContext* context = f.get(sk_gpu_test::GrContextFactory::kGL_ContextType);
     if (!context) {
-        context = sk_gpu_test::GrContextFactory().get(
-                sk_gpu_test::GrContextFactory::kGLES_ContextType);
+        context = f.get(sk_gpu_test::GrContextFactory::kGLES_ContextType);
     }
     fuzz_ganesh(fuzz, context);
 }
 
 DEF_FUZZ(NullGLCanvas, fuzz) {
-    fuzz_ganesh(fuzz, sk_gpu_test::GrContextFactory().get(
-            sk_gpu_test::GrContextFactory::kNullGL_ContextType));
+    sk_gpu_test::GrContextFactory f;
+    fuzz_ganesh(fuzz, f.get(sk_gpu_test::GrContextFactory::kNullGL_ContextType));
 }
 
 DEF_FUZZ(DebugGLCanvas, fuzz) {
-    fuzz_ganesh(fuzz, sk_gpu_test::GrContextFactory().get(
-            sk_gpu_test::GrContextFactory::kDebugGL_ContextType));
+    sk_gpu_test::GrContextFactory f;
+    fuzz_ganesh(fuzz, f.get(sk_gpu_test::GrContextFactory::kDebugGL_ContextType));
 }
 #endif
 
