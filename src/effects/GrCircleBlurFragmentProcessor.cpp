@@ -170,6 +170,9 @@ static sk_sp<GrTextureProxy> create_profile_texture(GrResourceProvider* resource
                                                     const SkRect& circle, float sigma,
                                                     float* solidRadius, float* textureRadius) {
     float circleR = circle.width() / 2.0f;
+    if (circleR < SK_ScalarNearlyZero) {
+        return nullptr;
+    }
     // Profile textures are cached by the ratio of sigma to circle radius and by the size of the
     // profile texture (binned by powers of 2).
     SkScalar sigmaToCircleRRatio = sigma / circleR;
