@@ -13,5 +13,5 @@ SkBmpBaseCodec::SkBmpBaseCodec(int width, int height, const SkEncodedInfo& info,
                                std::unique_ptr<SkStream> stream,
                                uint16_t bitsPerPixel, SkCodec::SkScanlineOrder rowOrder)
     : INHERITED(width, height, info, std::move(stream), bitsPerPixel, rowOrder)
-    , fSrcBuffer(sk_malloc_flags(this->srcRowBytes(), 0))
+    , fSrcBuffer(sk_malloc_canfail(this->srcRowBytes()))
 {}
