@@ -13,7 +13,6 @@
 #include "GrGpuResourcePriv.h"
 #include "GrResourceCache.h"
 #include "GrResourceKey.h"
-#include "GrTextureProxy.h"
 #include "SkMessageBus.h"
 #include "SkRefCnt.h"
 #include "SkTArray.h"
@@ -123,7 +122,7 @@ public:
      * Releases the backend API resources owned by all GrGpuResource objects and removes them from
      * the cache.
      */
-    void releaseAll();
+    void releaseAll1();
 
     enum {
         /** Preferentially returns scratch resources with no pending IO. */
@@ -192,6 +191,7 @@ public:
     /*
      * Associate the provided proxy with the provided unique key.
      */
+#if 0
     void assignUniqueKeyToProxy(const GrUniqueKey&, GrTextureProxy*);
 
     /*
@@ -228,6 +228,7 @@ public:
      * also gives the option to invalidate the GrUniqueKey on the underlying GrTexture.
      */
     void processInvalidProxyUniqueKey(const GrUniqueKey&, GrTextureProxy*, bool invalidateSurface);
+#endif
 
     /**
      * Query whether a unique key exists in the cache.
@@ -324,8 +325,6 @@ public:
     // Enumerates all cached resources and dumps their details to traceMemoryDump.
     void dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) const;
 
-    int numUniqueKeyProxies_TestOnly() const;
-
 private:
     ///////////////////////////////////////////////////////////////////////////
     /// @name Methods accessible via ResourceAccess
@@ -380,12 +379,14 @@ private:
     };
     typedef SkTDynamicHash<GrGpuResource, GrUniqueKey, UniqueHashTraits> UniqueHash;
 
+#if 0
     struct UniquelyKeyedProxyHashTraits {
         static const GrUniqueKey& GetKey(const GrTextureProxy& p) { return p.getUniqueKey(); }
 
         static uint32_t Hash(const GrUniqueKey& key) { return key.hash(); }
     };
     typedef SkTDynamicHash<GrTextureProxy, GrUniqueKey, UniquelyKeyedProxyHashTraits> UniquelyKeyedProxyHash;
+#endif
 
     static bool CompareTimestamp(GrGpuResource* const& a, GrGpuResource* const& b) {
         return a->cacheAccess().timestamp() < b->cacheAccess().timestamp();
@@ -411,9 +412,11 @@ private:
     ScratchMap                          fScratchMap;
     // This holds all resources that have unique keys.
     UniqueHash                          fUniqueHash;
+#if 0
     // This holds the texture proxies that have unique keys. The resourceCache does not get a ref
     // on these proxies but they must send a message to the resourceCache when they are deleted.
     UniquelyKeyedProxyHash              fUniquelyKeyedProxies;
+#endif
 
     // our budget, used in purgeAsNeeded()
     int                                 fMaxCount;

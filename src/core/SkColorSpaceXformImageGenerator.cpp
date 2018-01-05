@@ -71,7 +71,7 @@ sk_sp<GrTextureProxy> SkColorSpaceXformImageGenerator::onGenerateTexture(
 
     SkASSERT(ctx);
 
-    sk_sp<GrTextureProxy> proxy = GrUploadBitmapToTextureProxy(ctx->resourceProvider(),
+    sk_sp<GrTextureProxy> proxy = GrUploadBitmapToTextureProxy(ctx->proxyProvider(),
                                                                fSrc, nullptr);
 
     if (!proxy) {

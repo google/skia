@@ -51,7 +51,7 @@ void runFPTest(skiatest::Reporter* reporter, GrContext* context,
         desc.fWidth = DEV_W;
         desc.fHeight = DEV_H;
         desc.fConfig = config;
-        sk_sp<GrTextureProxy> fpProxy = GrSurfaceProxy::MakeDeferred(context->resourceProvider(),
+        sk_sp<GrTextureProxy> fpProxy = GrSurfaceProxy::MakeDeferred(context->proxyProvider(),
                                                                      desc, SkBudgeted::kNo,
                                                                      controlPixelData.begin(), 0);
         // Floating point textures are NOT supported everywhere

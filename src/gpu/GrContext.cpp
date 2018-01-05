@@ -12,6 +12,7 @@
 #include "GrContextPriv.h"
 #include "GrDrawingManager.h"
 #include "GrGpu.h"
+#include "GrProxyProvider.h"
 #include "GrRenderTargetContext.h"
 #include "GrRenderTargetProxy.h"
 #include "GrResourceCache.h"
@@ -303,7 +304,8 @@ sk_sp<GrContextThreadSafeProxy> GrContext::threadSafeProxy() {
 void GrContext::abandonContext() {
     ASSERT_SINGLE_OWNER
 
-    fResourceProvider->abandon();
+    fProxyProvider->abandon();
+    fResourceProvider->abandon1();
 
     // Need to abandon the drawing manager first so all the render targets
     // will be released/forgotten before they too are abandoned.
@@ -322,14 +324,16 @@ void GrContext::abandonContext() {
 void GrContext::releaseResourcesAndAbandonContext() {
     ASSERT_SINGLE_OWNER
 
-    fResourceProvider->abandon();
+    fProxyProvider->abandon();
+    fResourceProvider->abandon1();
 
     // Need to abandon the drawing manager first so all the render targets
     // will be released/forgotten before they too are abandoned.
     fDrawingManager->abandon();
 
     // Release all resources in the backend 3D API.
-    fResourceCache->releaseAll();
+    fProxyProvider->foo();
+    fResourceCache->releaseAll1();
 
     fGpu->disconnect(GrGpu::DisconnectType::kCleanup);
 
@@ -521,7 +525,7 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceContext* dst,
 
     sk_sp<GrTextureProxy> tempProxy;
     if (GrGpu::kNoDraw_DrawPreference != drawPreference) {
-        tempProxy = GrSurfaceProxy::MakeDeferred(fContext->resourceProvider(),
+        tempProxy = GrSurfaceProxy::MakeDeferred(fContext->proxyProvider(),
                                                  tempDrawInfo.fTempSurfaceDesc,
                                                  SkBackingFit::kApprox,
                                                  SkBudgeted::kYes);
@@ -812,11 +816,11 @@ sk_sp<GrSurfaceContext> GrContextPriv::makeDeferredSurfaceContext(const GrSurfac
 
     sk_sp<GrTextureProxy> proxy;
     if (GrMipMapped::kNo == mipMapped) {
-        proxy = GrSurfaceProxy::MakeDeferred(fContext->resourceProvider(), dstDesc, fit,
+        proxy = GrSurfaceProxy::MakeDeferred(fContext->proxyProvider(), dstDesc, fit,
                                              isDstBudgeted);
     } else {
         SkASSERT(SkBackingFit::kExact == fit);
-        proxy = GrSurfaceProxy::MakeDeferredMipMap(fContext->resourceProvider(), dstDesc,
+        proxy = GrSurfaceProxy::MakeDeferredMipMap(fContext->proxyProvider(), dstDesc,
                                                    isDstBudgeted);
     }
     if (!proxy) {
@@ -978,9 +982,9 @@ sk_sp<GrRenderTargetContext> GrContext::makeDeferredRenderTargetContext(
 
     sk_sp<GrTextureProxy> rtp;
     if (GrMipMapped::kNo == mipMapped) {
-        rtp = GrSurfaceProxy::MakeDeferred(this->resourceProvider(), desc, fit, budgeted);
+        rtp = GrSurfaceProxy::MakeDeferred(this->proxyProvider(), desc, fit, budgeted);
     } else {
-        rtp = GrSurfaceProxy::MakeDeferredMipMap(this->resourceProvider(), desc, budgeted);
+        rtp = GrSurfaceProxy::MakeDeferredMipMap(this->proxyProvider(), desc, budgeted);
     }
     if (!rtp) {
         return nullptr;

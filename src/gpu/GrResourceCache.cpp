@@ -87,7 +87,7 @@ GrResourceCache::GrResourceCache(const GrCaps* caps, uint32_t contextUniqueID)
 }
 
 GrResourceCache::~GrResourceCache() {
-    this->releaseAll();
+    this->releaseAll1();
 }
 
 void GrResourceCache::setLimits(int count, size_t bytes, int maxUnusedFlushes) {
@@ -191,20 +191,10 @@ void GrResourceCache::abandonAll() {
     SkASSERT(!fPurgeableBytes);
 }
 
-void GrResourceCache::releaseAll() {
+void GrResourceCache::releaseAll1() {
     AutoValidate av(this);
 
     this->processFreedGpuResources();
-
-    // We must remove the uniqueKeys from the proxies here. While they possess a uniqueKey
-    // they also have a raw pointer back to this class (which is presumably going away)!
-    UniquelyKeyedProxyHash::Iter iter(&fUniquelyKeyedProxies);
-    for (UniquelyKeyedProxyHash::Iter iter(&fUniquelyKeyedProxies); !iter.done(); ++iter) {
-        GrTextureProxy& tmp = *iter;
-
-        this->processInvalidProxyUniqueKey(tmp.getUniqueKey(), &tmp, false);
-    }
-    SkASSERT(!fUniquelyKeyedProxies.count());
 
     while(fNonpurgeableResources.count()) {
         GrGpuResource* back = *(fNonpurgeableResources.end() - 1);
@@ -862,6 +852,7 @@ bool GrResourceCache::isInCache(const GrGpuResource* resource) const {
 
 #endif
 
+#if 0
 void GrResourceCache::adoptUniqueKeyFromSurface(GrTextureProxy* proxy, const GrSurface* surf) {
     SkASSERT(surf->getUniqueKey().isValid());
     proxy->cacheAccess().setUniqueKey(this, surf->getUniqueKey());
@@ -954,4 +945,4 @@ void GrResourceCache::processInvalidProxyUniqueKey(const GrUniqueKey& key, GrTex
         }
     }
 }
-
+#endif

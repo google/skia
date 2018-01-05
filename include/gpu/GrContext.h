@@ -30,6 +30,7 @@ class GrIndexBuffer;
 struct GrMockOptions;
 class GrOvalRenderer;
 class GrPath;
+class GrProxyProvider;
 class GrRenderTargetContext;
 class GrResourceEntry;
 class GrResourceCache;
@@ -306,6 +307,8 @@ public:
     bool abandoned() const;
     GrResourceProvider* resourceProvider() { return fResourceProvider; }
     const GrResourceProvider* resourceProvider() const { return fResourceProvider; }
+    GrProxyProvider* proxyProvider() { return fProxyProvider; }
+    const GrProxyProvider* proxyProvider() const { return fProxyProvider; }
     GrResourceCache* getResourceCache() { return fResourceCache; }
 
     /** Reset GPU stats */
@@ -356,6 +359,7 @@ private:
     sk_sp<const GrCaps>                     fCaps;
     GrResourceCache*                        fResourceCache;
     GrResourceProvider*                     fResourceProvider;
+    GrProxyProvider*                        fProxyProvider;
 
     sk_sp<GrContextThreadSafeProxy>         fThreadSafeProxy;
 

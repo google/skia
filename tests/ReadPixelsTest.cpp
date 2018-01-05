@@ -462,7 +462,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadPixels_Texture, reporter, ctxInfo) {
             desc.fConfig = kSkia8888_GrPixelConfig;
             desc.fOrigin = origin;
 
-            sk_sp<GrTextureProxy> proxy = GrSurfaceProxy::MakeDeferred(context->resourceProvider(),
+            sk_sp<GrTextureProxy> proxy = GrSurfaceProxy::MakeDeferred(context->proxyProvider(),
                                                                        desc, SkBudgeted::kNo,
                                                                        bmp.getPixels(),
                                                                        bmp.rowBytes());
