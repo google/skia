@@ -1298,35 +1298,6 @@ public:
         }
     }
 
-    /** Maps src SkPoint array of length count to dst SkPoint array, skipping stride bytes
-        to advance from one SkPoint to the next.
-        Points are mapped by multiplying each SkPoint by SkMatrix. Given:
-
-                     | A B C |         | x |
-            Matrix = | D E F |,  src = | y |
-                     | G H I |         | 1 |
-
-        each resulting dst SkPoint is computed as:
-
-                          |A B C| |x|                               Ax+By+C   Dx+Ey+F
-            Matrix * pt = |D E F| |y| = |Ax+By+C Dx+Ey+F Gx+Hy+I| = ------- , -------
-                          |G H I| |1|                               Gx+Hy+I   Gx+Hy+I
-
-        @param dst     storage for mapped points
-        @param src     points to transform
-        @param stride  size of record starting with SkPoint, in bytes
-        @param count   number of points to transform
-    */
-    void mapPointsWithStride(SkPoint dst[], const SkPoint src[], size_t stride, int count) const {
-        SkASSERT(stride >= sizeof(SkPoint));
-        SkASSERT(0 == stride % sizeof(SkScalar));
-        for (int i = 0; i < count; ++i) {
-            this->mapPoints(dst, src, 1);
-            src = (SkPoint*)((intptr_t)src + stride);
-            dst = (SkPoint*)((intptr_t)dst + stride);
-        }
-    }
-
     /** Maps src SkPoint3 array of length count to dst SkPoint3 array, which must of length count or
         greater. SkPoint3 array is mapped by multiplying each SkPoint3 by SkMatrix. Given:
 

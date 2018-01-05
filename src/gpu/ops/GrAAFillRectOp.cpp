@@ -14,6 +14,7 @@
 #include "GrResourceProvider.h"
 #include "GrTypes.h"
 #include "SkMatrix.h"
+#include "SkMatrixPriv.h"
 #include "SkRect.h"
 #include "SkPointPriv.h"
 #include "ops/GrSimpleMeshDrawOpHelper.h"
@@ -119,7 +120,7 @@ static void generate_aa_fill_rect_geometry(intptr_t verts,
         SkMatrix localCoordMatrix;
         localCoordMatrix.setConcat(*localMatrix, invViewMatrix);
         SkPoint* fan0Loc = reinterpret_cast<SkPoint*>(verts + sizeof(SkPoint) + sizeof(GrColor));
-        localCoordMatrix.mapPointsWithStride(fan0Loc, fan0Pos, vertexStride, 8);
+        SkMatrixPriv::MapPointsWithStride(localCoordMatrix, fan0Loc, fan0Pos, vertexStride, 8);
     }
 
     // Make verts point to vertex color and then set all the color and coverage vertex attrs
