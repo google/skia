@@ -65,7 +65,7 @@ static SkOpSegment* findChaseOp(SkTDArray<SkOpSpanBase*>& chase, SkOpSpanBase** 
             segment = angle->segment();
             SkOpSpanBase* start = angle->start();
             SkOpSpanBase* end = angle->end();
-            int maxWinding, sumWinding, oppMaxWinding, oppSumWinding;
+            int maxWinding = 0, sumWinding = 0, oppMaxWinding = 0, oppSumWinding = 0;
             if (sortable) {
                 segment->setUpWindings(start, end, &sumMiWinding, &sumSuWinding,
                         &maxWinding, &sumWinding, &oppMaxWinding, &oppSumWinding);
