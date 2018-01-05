@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cfc46279_95625736",
+        "filename": "src/core/SkBitmap.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2018-01-05T17:27:07Z",
+      "side": 1,
+      "message": "Is \n\nif (!pix || 0 \u003d\u003d rb) {\n\nsufficient? (with change below)",
+      "range": {
+        "startLine": 174,
+        "startChar": 21,
+        "endLine": 174,
+        "endChar": 25
+      },
+      "revId": "a30c0dba1ce6c99d2424cd60f9e0fcfa18be4879",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6307d11b_851dc777",
+        "filename": "src/core/SkBitmap.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 178,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2018-01-05T17:27:07Z",
+      "side": 1,
+      "message": "addr \u003e\u003d pix\n\nif condition above is simplified",
+      "range": {
+        "startLine": 178,
+        "startChar": 13,
+        "endLine": 178,
+        "endChar": 18
+      },
+      "revId": "a30c0dba1ce6c99d2424cd60f9e0fcfa18be4879",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9dbd92e4_fa1e1a36",
+        "filename": "src/core/SkBitmap.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 195,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2018-01-05T17:27:07Z",
+      "side": 1,
+      "message": "is this wish a TODO ? bug?",
+      "range": {
+        "startLine": 195,
+        "startChar": 0,
+        "endLine": 195,
+        "endChar": 67
+      },
+      "revId": "a30c0dba1ce6c99d2424cd60f9e0fcfa18be4879",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
