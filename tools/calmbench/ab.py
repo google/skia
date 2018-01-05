@@ -58,7 +58,6 @@ timesB  = {}
 def parse_args():
   parser = ArgumentParser(description=HELP)
 
-  parser.add_argument('skiadir', type=str, help="skia directory")
   parser.add_argument('outdir', type=str, help="output directory")
   parser.add_argument('a', type=str, help="name of A")
   parser.add_argument('b', type=str, help="name of B")
