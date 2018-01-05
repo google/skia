@@ -36,7 +36,7 @@ protected:
 
     virtual void onApplyToPaint(SkPaint*) const = 0;
 
-    SkRect onRevalidate(InvalidationController*, const SkMatrix&) final;
+    RevalidationResult onRevalidate(InvalidationController*, const SkMatrix&) final;
 
 private:
     SkPaint        fPaint;

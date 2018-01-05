@@ -17,7 +17,7 @@ const SkPaint& PaintNode::makePaint() {
     return fPaint;
 }
 
-SkRect PaintNode::onRevalidate(InvalidationController*, const SkMatrix&) {
+Node::RevalidationResult PaintNode::onRevalidate(InvalidationController*, const SkMatrix&) {
     SkASSERT(this->hasInval());
 
     if (this->hasSelfInval()) {
@@ -32,7 +32,8 @@ SkRect PaintNode::onRevalidate(InvalidationController*, const SkMatrix&) {
         this->onApplyToPaint(&fPaint);
     }
 
-    return SkRect::MakeEmpty();
+    // Paints have no bounds and don't contribute to damage.
+    return { SkRect::MakeEmpty(), Damage::kBlockSelf };
 }
 
 } // namespace sksg

@@ -47,7 +47,16 @@ protected:
 
     // Dispatched on revalidation.  Subclasses are expected to recompute/cache their properties
     // and return their bounding box in local coordinates.
-    virtual SkRect onRevalidate(InvalidationController*, const SkMatrix& ctm) = 0;
+    enum class Damage {
+        kDefault,    // respects the local kInvalSelf_Flag
+        kForceSelf,  // forces self revalidation regardless of kInvalSelf_Flag
+        kBlockSelf,  // blocks self revalidation regardless of kInvalSelf_Flag
+    };
+    struct RevalidationResult {
+        SkRect  fBounds;
+        Damage  fReval;
+    };
+    virtual RevalidationResult onRevalidate(InvalidationController*, const SkMatrix& ctm) = 0;
 
 private:
     void addInvalReceiver(Node*);

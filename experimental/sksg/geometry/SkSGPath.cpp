@@ -18,10 +18,11 @@ void Path::onDraw(SkCanvas* canvas, const SkPaint& paint) const {
     canvas->drawPath(fPath, paint);
 }
 
-SkRect Path::onRevalidate(InvalidationController*, const SkMatrix&) {
+Node::RevalidationResult Path::onRevalidate(InvalidationController*, const SkMatrix&) {
     SkASSERT(this->hasSelfInval());
 
-    return fPath.computeTightBounds();
+    // Geometry does not contribute damage directly.
+    return { fPath.computeTightBounds(), Damage::kBlockSelf };
 }
 
 SkPath Path::onAsPath() const {

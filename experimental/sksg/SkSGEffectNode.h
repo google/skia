@@ -25,7 +25,7 @@ protected:
 
     void onRender(SkCanvas*) const override;
 
-    SkRect onRevalidate(InvalidationController*, const SkMatrix&) override;
+    RevalidationResult onRevalidate(InvalidationController*, const SkMatrix&) override;
 
 private:
     sk_sp<RenderNode> fChild;

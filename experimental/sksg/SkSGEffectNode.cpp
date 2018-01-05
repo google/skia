@@ -22,10 +22,10 @@ void EffectNode::onRender(SkCanvas* canvas) const {
     fChild->render(canvas);
 }
 
-SkRect EffectNode::onRevalidate(InvalidationController* ic, const SkMatrix& ctm) {
+Node::RevalidationResult EffectNode::onRevalidate(InvalidationController* ic, const SkMatrix& ctm) {
     SkASSERT(this->hasInval());
 
-    return fChild->revalidate(ic, ctm);
+    return { fChild->revalidate(ic, ctm), Damage::kDefault };
 }
 
 } // namespace sksg

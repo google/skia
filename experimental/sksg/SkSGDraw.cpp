@@ -29,14 +29,16 @@ void Draw::onRender(SkCanvas* canvas) const {
     fGeometry->draw(canvas, fPaint->makePaint());
 }
 
-SkRect Draw::onRevalidate(InvalidationController* ic, const SkMatrix& ctm) {
+Node::RevalidationResult Draw::onRevalidate(InvalidationController* ic, const SkMatrix& ctm) {
     SkASSERT(this->hasInval());
 
-    // TODO: paint bounds extents
+    // TODO: adjust bounds for paint
     const auto bounds = fGeometry->revalidate(ic, ctm);
     fPaint->revalidate(ic, ctm);
 
-    return bounds;
+    // Neither paint nor geometry contribute to damage directly; instead we generate
+    // damage here, at the binding point.
+    return { bounds, Damage::kForceSelf };
 }
 
 } // namespace sksg
