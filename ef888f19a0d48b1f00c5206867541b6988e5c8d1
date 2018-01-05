@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e31850ba_cd1352f5",
+        "filename": "platform_tools/android/apps/skqp/src/main/java/org/skia/skqp/SkQPActivity.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-01-05T15:09:12Z",
+      "side": 1,
+      "message": "so Context.getExternalFilesDir() or Environment.getExternalStorageDirectory() does not work here?",
+      "revId": "ef888f19a0d48b1f00c5206867541b6988e5c8d1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "47c380d8_f2ab35db",
+        "filename": "platform_tools/android/apps/skqp/src/main/java/org/skia/skqp/SkQPRunnerImpl.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-01-05T15:09:12Z",
+      "side": 1,
+      "message": "there look to be a bunch of unused imports here.",
+      "revId": "ef888f19a0d48b1f00c5206867541b6988e5c8d1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b18dcac5_02e34da4",
+        "filename": "platform_tools/android/apps/skqp/src/main/java/org/skia/skqp/SkQPRunnerImpl.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-01-05T15:09:12Z",
+      "side": 1,
+      "message": "can we drop runner from the name as this isn\u0027t a junit runner?",
+      "range": {
+        "startLine": 34,
+        "startChar": 13,
+        "endLine": 34,
+        "endChar": 27
+      },
+      "revId": "ef888f19a0d48b1f00c5206867541b6988e5c8d1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
