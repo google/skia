@@ -34,7 +34,7 @@ TEST_BUILDERS = [
   'Perf-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Release-All-CT_BENCH_1k_SKPs',
   'Upload-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-Coverage',
   'Calmbench-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All',
-  "Calmbench-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-All"
+  'Calmbench-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-All'
 ]
 
 

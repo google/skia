@@ -28,6 +28,7 @@ import time
 import json
 import subprocess
 import shlex
+import multiprocessing
 from argparse import ArgumentParser
 from multiprocessing import Process
 from threading import Thread
@@ -58,7 +59,6 @@ timesB  = {}
 def parse_args():
   parser = ArgumentParser(description=HELP)
 
-  parser.add_argument('skiadir', type=str, help="skia directory")
   parser.add_argument('outdir', type=str, help="output directory")
   parser.add_argument('a', type=str, help="name of A")
   parser.add_argument('b', type=str, help="name of B")
@@ -86,6 +86,11 @@ def parse_args():
   args = parser.parse_args()
   args.skip_b = args.skip_b == "true"
   args.noinit = args.noinit == "true"
+
+  if args.threads == -1:
+    args.threads = 1
+    if args.config in ["8888", "565"]: # multi-thread for CPU only
+        args.threads = max(1, multiprocessing.cpu_count() / 2)
 
   return args
 

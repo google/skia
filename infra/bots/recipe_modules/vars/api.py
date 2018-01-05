@@ -41,8 +41,6 @@ class SkiaVarsApi(recipe_api.RecipeApi):
     # Compile bots keep a persistent checkout.
     if self.is_compile_bot:
       self.persistent_checkout = True
-    if 'Calmbench' in self.builder_name:
-      self.persistent_checkout = True
     if 'Housekeeper' in self.builder_name:
       self.persistent_checkout = True
     if '-CT_' in self.builder_name:

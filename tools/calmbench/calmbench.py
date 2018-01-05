@@ -181,7 +181,6 @@ def main():
   command = [
     'python',
     temp_ab_name,
-    args.skiadir,
     args.writedir,
     args.branch + ("_A" if args.branch == args.baseline else ""),
     args.baseline + ("_B" if args.branch == args.baseline else ""),
