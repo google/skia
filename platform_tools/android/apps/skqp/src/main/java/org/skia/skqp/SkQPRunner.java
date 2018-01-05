@@ -21,7 +21,8 @@ import org.junit.runner.notification.Failure;
 import org.junit.runner.notification.RunNotifier;
 
 public class SkQPRunner extends Runner {
-    private native void nInit(AssetManager assetManager, String dataDir);
+    private native void nInit(AssetManager assetManager);
+    private native void nSetReportDirectory(String dataDir);
     private native float nExecuteGM(int gm, int backend) throws SkQPException;
     private native String[] nExecuteUnitTest(int test);
     private native void nMakeReport();
@@ -34,6 +35,8 @@ public class SkQPRunner extends Runner {
     private static boolean sOnceFlag = false;
     private static final String kSkiaGM = "SkiaGM_";
     private static final String kSkiaUnitTests = "Skia_UnitTests";
+    private static final String kLogPrefix = "org.skia.skqp";
+    private static final String kDefaultReportName = "skqp_report";
 
     private Description mDescription;
 
@@ -47,7 +50,11 @@ public class SkQPRunner extends Runner {
     }
 
     private static void Fail(Description desc, RunNotifier notifier, String failure) {
-        notifier.fireTestFailure(new Failure(desc, new Throwable(failure)));
+        if (notifier != null) {
+            notifier.fireTestFailure(new Failure(desc, new Throwable(failure)));
+        } else {
+            Log.i(kLogPrefix, "Failure: " + desc.toString() + ": " + failure);
+        }
     }
 
     ////////////////////////////////////////////////////////////////////////////
@@ -62,16 +69,10 @@ public class SkQPRunner extends Runner {
         System.loadLibrary("skqp_app");
 
         Context context = InstrumentationRegistry.getTargetContext();
-        File filesDir = context.getFilesDir();
-        try {
-            SkQPRunner.DeleteDirectoryContents(filesDir);
-        } catch (IOException e) {
-            Log.w("org.skis.skqp", "DeleteDirectoryContents: " + e.getMessage());
-        }
 
         Resources resources = context.getResources();
         mAssetManager = resources.getAssets();
-        this.nInit(mAssetManager, filesDir.getAbsolutePath());
+        this.nInit(mAssetManager);
 
         mDescription = Description.createSuiteDescription(testClass);
         Annotation annots[] = new Annotation[0];
@@ -85,6 +86,20 @@ public class SkQPRunner extends Runner {
             mDescription.addChild(Description.createTestDescription(kSkiaUnitTests,
                         mUnitTests[unitTest], annots));
         }
+        this.changeReportDirectory(
+                (new File(context.getFilesDir(), kDefaultReportName)).getAbsolutePath());
+    }
+
+    public void changeReportDirectory(String reportDir) {
+        File reportDirectoryFile = new File(reportDir);
+        if (reportDirectoryFile.exists()) {
+            try {
+                SkQPRunner.DeleteDirectoryContents(reportDirectoryFile);
+            } catch (IOException e) {
+                Log.w(kLogPrefix, "DeleteDirectoryContents: " + e.getMessage());
+            }
+        }
+        this.nSetReportDirectory(reportDir);
     }
 
     @Override
@@ -100,7 +115,11 @@ public class SkQPRunner extends Runner {
             String classname = kSkiaGM + mBackends[backend];
             for (int gm = 0; gm < mGMs.length; gm++) {
                 Description desc = Description.createTestDescription(classname, mGMs[gm], annots);
-                notifier.fireTestStarted(desc);
+                if (notifier != null) {
+                    notifier.fireTestStarted(desc);
+                } else {
+                    Log.i(kLogPrefix, "starting test: " + desc.toString());
+                }
                 float value = java.lang.Float.MAX_VALUE;
                 String error = null;
                 try {
@@ -114,20 +133,32 @@ public class SkQPRunner extends Runner {
                     SkQPRunner.Fail(desc, notifier, String.format(
                                 "Image mismatch: max channel diff = %f", value));
                 }
-                notifier.fireTestFinished(desc);
+                if (notifier != null) {
+                    notifier.fireTestFinished(desc);
+                } else {
+                    Log.i(kLogPrefix, "test complete: " + desc.toString());
+                }
             }
         }
         for (int unitTest = 0; unitTest < mUnitTests.length; unitTest++) {
             Description desc = Description.createTestDescription(
                     kSkiaUnitTests, mUnitTests[unitTest], annots);
-            notifier.fireTestStarted(desc);
+            if (notifier != null) {
+                notifier.fireTestStarted(desc);
+            } else {
+                Log.i(kLogPrefix, "starting test: " + desc.toString());
+            }
             String[] errors = this.nExecuteUnitTest(unitTest);
             if (errors != null && errors.length > 0) {
                 for (String error : errors) {
                     SkQPRunner.Fail(desc, notifier, error);
                 }
             }
-            notifier.fireTestFinished(desc);
+            if (notifier != null) {
+                notifier.fireTestFinished(desc);
+            } else {
+                Log.i(kLogPrefix, "test complete: " + desc.toString());
+            }
         }
         this.nMakeReport();
     }

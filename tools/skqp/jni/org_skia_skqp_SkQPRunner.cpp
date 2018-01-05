@@ -19,7 +19,8 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 extern "C" {
-JNIEXPORT void JNICALL Java_org_skia_skqp_SkQPRunner_nInit(JNIEnv*, jobject, jobject, jstring);
+JNIEXPORT void JNICALL Java_org_skia_skqp_SkQPRunner_nInit(JNIEnv*, jobject, jobject);
+JNIEXPORT void JNICALL Java_org_skia_skqp_SkQPRunner_nSetReportDirectory(JNIEnv*, jobject, jstring);
 JNIEXPORT jfloat JNICALL Java_org_skia_skqp_SkQPRunner_nExecuteGM(JNIEnv*, jobject, jint, jint);
 JNIEXPORT jobjectArray JNICALL Java_org_skia_skqp_SkQPRunner_nExecuteUnitTest(JNIEnv*, jobject,
                                                                               jint);
@@ -118,8 +119,14 @@ jobjectArray to_java_string_array(JNIEnv* env,
     return jarray;
 }
 
-void Java_org_skia_skqp_SkQPRunner_nInit(JNIEnv* env, jobject object, jobject assetManager,
-                                         jstring dataDir) {
+void Java_org_skia_skqp_SkQPRunner_nSetReportDirectory(JNIEnv* env, jobject, jstring dataDir) {
+    std::lock_guard<std::mutex> lock(gMutex);
+    const char* dataDirString = env->GetStringUTFChars(dataDir, nullptr);
+    gReportDirectory =  std::string(dataDirString);
+    env->ReleaseStringUTFChars(dataDir, dataDirString);
+}
+
+void Java_org_skia_skqp_SkQPRunner_nInit(JNIEnv* env, jobject object, jobject assetManager) {
     jclass clazz = env->GetObjectClass(object);
     jassert(env, assetManager);
 
@@ -128,10 +135,6 @@ void Java_org_skia_skqp_SkQPRunner_nInit(JNIEnv* env, jobject object, jobject as
     std::lock_guard<std::mutex> lock(gMutex);
     gAssetManager.fMgr = AAssetManager_fromJava(env, assetManager);
     jassert(env, gAssetManager.fMgr);
-
-    const char* dataDirString = env->GetStringUTFChars(dataDir, nullptr);
-    gReportDirectory =  std::string(dataDirString) + "/skqp_report";
-    env->ReleaseStringUTFChars(dataDir, dataDirString);
 
     gBackends = gm_runner::GetSupportedBackends();
     gGMs = gm_runner::GetGMFactories(&gAssetManager);
