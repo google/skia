@@ -9,6 +9,7 @@
 #include "SkRRect.h"
 #include "SkScopeExit.h"
 #include "SkBuffer.h"
+#include "SkMalloc.h"
 #include "SkMatrix.h"
 #include "SkScaleToSides.h"
 
@@ -320,6 +321,11 @@ void SkRRect::computeType() {
 
     if (allCornersSquare) {
         fType = kRect_Type;
+        // We can be "all square" and still have non-zero values, since corner={0, 1} is considered
+        // square. To make things more internally consistent/clear, we forcibly zero all 8 values.
+        if (!allRadiiEqual) {
+            sk_bzero(fRadii, sizeof(fRadii));
+        }
         return;
     }
 
