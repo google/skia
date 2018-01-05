@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "0f87729f_7243d9f9",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 10
+      },
+      "lineNbr": 779,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2018-01-05T01:55:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c96f742f_4d808d62",
+      "range": {
+        "startLine": 779,
+        "startChar": 42,
+        "endLine": 779,
+        "endChar": 77
+      },
+      "revId": "96f632b9f0853fd6c4e726aea797b3452c1e9ed4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "10d45ca6_be87a955",
         "filename": "infra/bots/gen_tasks.go",
         "patchSetId": 10
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "8a9b6327_6bc030ac",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 10
+      },
+      "lineNbr": 1167,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2018-01-05T01:55:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "10d45ca6_be87a955",
+      "range": {
+        "startLine": 1167,
+        "startChar": 51,
+        "endLine": 1167,
+        "endChar": 67
+      },
+      "revId": "96f632b9f0853fd6c4e726aea797b3452c1e9ed4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa11e790_ecbc6469",
         "filename": "infra/bots/recipes/calmbench.py",
         "patchSetId": 10
@@ -59,6 +107,30 @@
       "writtenOn": "2018-01-04T20:48:24Z",
       "side": 1,
       "message": "This will still cause us to check out Skia, which is no longer necessary.  We\u0027ll need to remove these two lines to skip that: https://skia.googlesource.com/skia/+/master/infra/bots/recipe_modules/vars/api.py#44",
+      "range": {
+        "startLine": 24,
+        "startChar": 2,
+        "endLine": 24,
+        "endChar": 18
+      },
+      "revId": "96f632b9f0853fd6c4e726aea797b3452c1e9ed4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f2a91e26_b619f042",
+        "filename": "infra/bots/recipes/calmbench.py",
+        "patchSetId": 10
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2018-01-05T01:55:28Z",
+      "side": 1,
+      "message": "The current workflow does require a Skia checkout as it requires tools/calmbench/calmbench.py\n\nIs there a way to only checkout scripts under tools/calmbench, but not the whole Skia?",
+      "parentUuid": "fa11e790_ecbc6469",
       "range": {
         "startLine": 24,
         "startChar": 2,
@@ -118,6 +190,30 @@
     },
     {
       "key": {
+        "uuid": "31456d67_45e32895",
+        "filename": "infra/bots/recipes/calmbench.py",
+        "patchSetId": 10
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2018-01-05T01:55:28Z",
+      "side": 1,
+      "message": "Done. However, I\u0027m not sure if it makes thing easier because ab.py is extremely hacky. I\u0027ll have to polish both calmbench.py and ab.py in the future.",
+      "parentUuid": "e45733e4_7144d632",
+      "range": {
+        "startLine": 39,
+        "startChar": 20,
+        "endLine": 39,
+        "endChar": 47
+      },
+      "revId": "96f632b9f0853fd6c4e726aea797b3452c1e9ed4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f4b09c9e_16ecb23f",
         "filename": "infra/bots/recipes/calmbench.py",
         "patchSetId": 10
@@ -162,6 +258,30 @@
       "revId": "96f632b9f0853fd6c4e726aea797b3452c1e9ed4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2cfb56eb_b9421be3",
+        "filename": "infra/bots/recipes/calmbench.py",
+        "patchSetId": 10
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2018-01-05T01:55:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6f67fc40_b99a8ed9",
+      "range": {
+        "startLine": 50,
+        "startChar": 52,
+        "endLine": 50,
+        "endChar": 61
+      },
+      "revId": "96f632b9f0853fd6c4e726aea797b3452c1e9ed4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
