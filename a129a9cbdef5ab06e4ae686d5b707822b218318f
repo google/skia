@@ -22,6 +22,29 @@
       "revId": "a129a9cbdef5ab06e4ae686d5b707822b218318f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "060a60db_61705300",
+        "filename": "src/core/SkRRect.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 328,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-01-05T19:40:56Z",
+      "side": 1,
+      "message": "The way I understand this class is that the various setters are supposed to handle cases like this. If we\u0027re getting here from a fuzzer I *think* the right thing to do is reject the read data in readFromMemory() rather than attempt to fix it up.",
+      "range": {
+        "startLine": 324,
+        "startChar": 0,
+        "endLine": 328,
+        "endChar": 9
+      },
+      "revId": "a129a9cbdef5ab06e4ae686d5b707822b218318f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
