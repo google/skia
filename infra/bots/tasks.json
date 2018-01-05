@@ -5595,6 +5595,8 @@
         }
       ],
       "dependencies": [
+        "Build-Debian9-Clang-x86_64-Release",
+        "Build-Debian9-Clang-x86_64-Release-ParentRevision",
         "Housekeeper-PerCommit-IsolateSKP",
         "Housekeeper-PerCommit-IsolateSVG"
       ],
@@ -5616,7 +5618,7 @@
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
       ],
-      "isolate": "infra_skia.isolate",
+      "isolate": "calmbench.isolate",
       "priority": 0.8
     },
     "Calmbench-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-All": {
@@ -5628,6 +5630,8 @@
         }
       ],
       "dependencies": [
+        "Build-Debian9-Clang-x86_64-Release",
+        "Build-Debian9-Clang-x86_64-Release-ParentRevision",
         "Housekeeper-PerCommit-IsolateSKP",
         "Housekeeper-PerCommit-IsolateSVG"
       ],
@@ -5649,7 +5653,7 @@
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
       ],
-      "isolate": "infra_skia.isolate",
+      "isolate": "calmbench.isolate",
       "priority": 0.8
     },
     "Housekeeper-Nightly-Bookmaker": {

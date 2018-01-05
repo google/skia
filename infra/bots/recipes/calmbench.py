@@ -20,14 +20,9 @@ DEPS = [
   'vars',
 ]
 
-# TODO (liyuqian): Currently, this recipe combines both compile and nanobench
-# functions. In the future, we may want to break it into two recipes, which
-# would be useful for Android/iOS tests. To do that, I also have to add compile-
-# only option to tools/calmbench/calmbench.py.
 def RunSteps(api):
   api.core.setup()
   api.flavor.install(skps=True, svgs=True)
-  api.flavor.compile("most")
   with api.context(cwd=api.vars.skia_dir):
     extra_arg = '--svgs %s --skps %s' % (api.flavor.device_dirs.svg_dir,
                                          api.flavor.device_dirs.skp_dir)
@@ -40,17 +35,25 @@ def RunSteps(api):
       config = "gl"
 
     command = [
-        'python', 'tools/calmbench/calmbench.py', 'modified',
-        '--config', config,
-        '--ninjadir', api.vars.skia_out.join("Release"),
-        '--extraarg', extra_arg,
-        '--writedir', api.vars.swarming_out_dir,
-        '--concise',
-        '--githash', api.vars.got_revision,
+        'python',
+        api.vars.skia_dir.join('tools', 'calmbench', 'ab.py'),
+        api.vars.swarming_out_dir,
+        'modified', 'master',
+        api.path['start_dir'].join("out", api.vars.configuration, 'nanobench'),
+        api.path['start_dir'].join("ParentRevision", "out",
+                                   api.vars.configuration, 'nanobench'),
+        extra_arg, extra_arg,
+        2,          # reps
+        "false",    # skipbase
+        config,
+        -1,         # threads; let ab.py decide the threads
+        "false",    # noinit
+        "--githash", api.vars.got_revision,
+        "--concise"
     ]
 
     keys_blacklist = ['configuration', 'role', 'test_filter']
-    command.append('--key')
+    command.append('--keys')
     for k in sorted(api.vars.builder_cfg.keys()):
       if not k in keys_blacklist:
         command.extend([k, api.vars.builder_cfg[k]])
