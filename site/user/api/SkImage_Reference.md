@@ -1353,7 +1353,7 @@ transforming <a href="#Image">Image</a> before <a href="#Matrix">Canvas Matrix</
 
 ### See Also
 
-incomplete
+<a href="#SkImage_scalePixels">scalePixels</a>
 
 ---
 
@@ -1364,29 +1364,46 @@ incomplete
 bool peekPixels(SkPixmap* pixmap) const
 </pre>
 
-If the image has direct access to its pixels (i.e. they are in local RAM)
-return true, and if not null, return in the <a href="#SkImage_peekPixels_pixmap">pixmap</a> parameter the info about the
-images pixels.
-On failure, return false and ignore the <a href="#SkImage_peekPixels_pixmap">pixmap</a> parameter.
+Copies <a href="#Image">Image</a> pixel address, row bytes, and <a href="#Info">Image Info</a> to <a href="#SkImage_peekPixels_pixmap">pixmap</a>, if address
+is available, and returns true. If pixel address is not available, return
+false and leave <a href="#SkImage_peekPixels_pixmap">pixmap</a> unchanged.
 
 ### Parameters
 
 <table>  <tr>    <td><a name="SkImage_peekPixels_pixmap"> <code><strong>pixmap </strong></code> </a></td> <td>
-incomplete</td>
+storage for pixel state if pixels are readable; otherwise, ignored</td>
   </tr>
 </table>
 
 ### Return Value
 
-incomplete
+true if <a href="#Image">Image</a> has direct access to pixels
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name="900c0eab8dfdecd8301ed5be95887f8e">
+
+#### Example Output
+
+~~~~
+------------
+--xx----x---
+-x--x--x----
+-x--x--x----
+-x--x-x-----
+--xx-xx-xx--
+-----x-x--x-
+----x--x--x-
+----x--x--x-
+---x----xx--
+------------
+~~~~
+
+</fiddle-embed></div>
 
 ### See Also
 
-incomplete
+<a href="#SkImage_readPixels">readPixels</a>
 
 ---
 
@@ -1408,19 +1425,20 @@ Deprecated.
 bool isTextureBacked() const
 </pre>
 
-Returns true if the image is texture backed.
+Returns true the contents of <a href="#Image">Image</a> was created on or uploaded to GPU memory,
+and is available as a <a href="undocumented#GPU_Texture">GPU Texture</a>.
 
 ### Return Value
 
-incomplete
+true if <a href="#Image">Image</a> is a <a href="undocumented#GPU_Texture">GPU Texture</a>
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name="96fd92d399778486a51c5d828ef99322" gpu="true"></fiddle-embed></div>
 
 ### See Also
 
-incomplete
+<a href="#SkImage_MakeFromTexture">MakeFromTexture</a> <a href="#SkImage_isValid">isValid</a>
 
 ---
 
@@ -1431,12 +1449,13 @@ incomplete
 bool isValid(GrContext* context) const
 </pre>
 
-Returns true if <a href="#Image">Image</a> can be drawn. If <a href="#SkImage_isValid_context">context</a>
-is nullptr, tests if <a href="#Image">Image</a> draws on <a href="undocumented#Raster_Surface">Raster Surface</a>; Otherwise, tests if <a href="#Image">Image</a>
-draws on <a href="undocumented#GPU_Surface">GPU Surface</a> associated with <a href="#SkImage_isValid_context">context</a>.
+Returns true if <a href="#Image">Image</a> can be drawn on either <a href="undocumented#Raster_Surface">Raster Surface</a> or <a href="undocumented#GPU_Surface">GPU Surface</a>.
+If <a href="#SkImage_isValid_context">context</a> is nullptr, tests if <a href="#Image">Image</a> draws on <a href="undocumented#Raster_Surface">Raster Surface</a>;
+otherwise, tests if <a href="#Image">Image</a> draws on <a href="undocumented#GPU_Surface">GPU Surface</a> associated with <a href="#SkImage_isValid_context">context</a>.
 
-<a href="undocumented#Texture">Texture</a>-backed images may become invalid if their underlying <a href="undocumented#GrContext">GrContext</a> is abandoned. Some
-generator-backed images may be invalid for CPU and/or GPU.
+<a href="#Image">Image</a> backed by <a href="undocumented#GPU_Texture">GPU Texture</a> may become invalid if associated <a href="undocumented#GrContext">GrContext</a> is
+invalid. <a href="#Lazy_Image">Lazy Image</a> may be invalid and may not draw to <a href="undocumented#Raster_Surface">Raster Surface</a> or
+<a href="undocumented#GPU_Surface">GPU Surface</a> or both.
 
 ### Parameters
 
@@ -1447,15 +1466,15 @@ generator-backed images may be invalid for CPU and/or GPU.
 
 ### Return Value
 
-incomplete
+true if <a href="#Image">Image</a> can be drawn
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name="daf1507ab3a5f7cb0f90058cbc028402" gpu="true"></fiddle-embed></div>
 
 ### See Also
 
-incomplete
+<a href="#SkImage_isTextureBacked">isTextureBacked</a> <a href="#SkImage_isLazyGenerated">isLazyGenerated</a>
 
 ---
 
@@ -2228,6 +2247,10 @@ true if <a href="#Image">Image</a> is created as needed
 ### Example
 
 <div><fiddle-embed name="a8b8bd4bfe968e2c63085f867665227f"></fiddle-embed></div>
+
+### Example
+
+<div><fiddle-embed name="070dd0405890b84c07827d93fa01c331" gpu="true"></fiddle-embed></div>
 
 ### See Also
 
