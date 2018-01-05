@@ -16,6 +16,24 @@
       "revId": "2556cb4a08dc462f582bab525198f735e9f3a65e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9b0fc980_b3473c1b",
+        "filename": "gm/aaclip.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 190,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-01-05T15:41:25Z",
+      "side": 1,
+      "message": "will promote to a real gm once we think the feature is useful.",
+      "parentUuid": "accd721d_a034e2ee",
+      "revId": "2556cb4a08dc462f582bab525198f735e9f3a65e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
