@@ -20,9 +20,13 @@
 #include "GrTextureProxy.h"
 #include "SkGr.h"
 #include "SkMathPriv.h"
+#include "SkPoint.h"
+#include "SkPoint3.h"
 #include "glsl/GrGLSLColorSpaceXformHelper.h"
+#include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLGeometryProcessor.h"
 #include "glsl/GrGLSLVarying.h"
+#include "glsl/GrGLSLVertexGeoBuilder.h"
 
 namespace {
 
@@ -36,6 +40,12 @@ public:
     struct Vertex {
         SkPoint fPosition;
         SkPoint fTextureCoords;
+        GrColor fColor;
+    };
+    struct AAVertex {
+        SkPoint fPosition;
+        SkPoint fTextureCoords;
+        SkPoint3 fEdges[4];
         GrColor fColor;
     };
     struct MultiTextureVertex {
@@ -55,11 +65,13 @@ public:
 #endif
 
     static int SupportsMultitexture(const GrShaderCaps& caps) {
+        return false;
         return caps.integerSupport() && caps.maxFragmentSamplers() > 1;
     }
 
     static sk_sp<GrGeometryProcessor> Make(sk_sp<GrTextureProxy> proxies[], int proxyCnt,
                                            sk_sp<GrColorSpaceXform> csxf,
+                                           GrAA aa,
                                            const GrSamplerState::Filter filters[],
                                            const GrShaderCaps& caps) {
         // We use placement new to avoid always allocating space for kMaxTextures TextureSampler
@@ -68,7 +80,7 @@ public:
         size_t size = sizeof(TextureGeometryProcessor) + sizeof(TextureSampler) * (samplerCnt - 1);
         void* mem = GrGeometryProcessor::operator new(size);
         return sk_sp<TextureGeometryProcessor>(new (mem) TextureGeometryProcessor(
-                proxies, proxyCnt, samplerCnt, std::move(csxf), filters, caps));
+                proxies, proxyCnt, samplerCnt, std::move(csxf), aa, filters, caps));
     }
 
     ~TextureGeometryProcessor() override {
@@ -149,12 +161,50 @@ public:
                                                                       &fColorSpaceXformHelper);
                 }
                 args.fFragBuilder->codeAppend(";");
-                args.fFragBuilder->codeAppendf("%s = float4(1);", args.fOutputCoverage);
+                if (GrAA::kYes == textureGP.aa()) {
+                    args.fFragBuilder->codeAppend("float3 aaEdge[4];");
+                    if (args.fShaderCaps->preferFlatInterpolation()) {
+                        args.fVaryingHandler->addFlatPassThroughAttribute(&textureGP.fAAEdges[0],
+                                                                          "aaEdge[0]");
+                        args.fVaryingHandler->addFlatPassThroughAttribute(&textureGP.fAAEdges[1],
+                                                                          "aaEdge[1]");
+                        args.fVaryingHandler->addFlatPassThroughAttribute(&textureGP.fAAEdges[2],
+                                                                          "aaEdge[2]");
+                        args.fVaryingHandler->addFlatPassThroughAttribute(&textureGP.fAAEdges[3],
+                                                                          "aaEdge[3]");
+                    } else {
+                        args.fVaryingHandler->addPassThroughAttribute(&textureGP.fAAEdges[0],
+                                                                          "aaEdge[0]");
+                        args.fVaryingHandler->addPassThroughAttribute(&textureGP.fAAEdges[1],
+                                                                          "aaEdge[1]");
+                        args.fVaryingHandler->addPassThroughAttribute(&textureGP.fAAEdges[2],
+                                                                          "aaEdge[2]");
+                        args.fVaryingHandler->addPassThroughAttribute(&textureGP.fAAEdges[3],
+                                                                          "aaEdge[3]");
+                    }
+#if 0
+                    args.fFragBuilder->codeAppend(
+                            R"(float mindist = min(min(dot(aaEdge[0].xy, sk_FragCoord.xy) + aaEdge[0].z,
+                                                       dot(aaEdge[1].xy, sk_FragCoord.xy) + aaEdge[1].z),
+                                                   min(dot(aaEdge[2].xy, sk_FragCoord.xy) + aaEdge[2].z,
+                                                       dot(aaEdge[3].xy, sk_FragCoord.xy) + aaEdge[3].z));)");
+#elif 1
+                    args.fFragBuilder->codeAppendf("float mindist = 1.0;");
+#else
+                    args.fFragBuilder->codeAppendf("float mindist = dot(%s.xy, sk_FragCoord.xy) + %s.z;", quadEdge1.fsIn(), quadEdge1.fsIn());
+#endif
+                    args.fFragBuilder->codeAppendf("%s = float4(clamp(mindist, 0, 1));",
+                                                   args.fOutputCoverage);
+                } else {
+                    args.fFragBuilder->codeAppendf("%s = float4(1);", args.fOutputCoverage);
+                }
             }
             GrGLSLColorSpaceXformHelper fColorSpaceXformHelper;
         };
         return new GLSLProcessor;
     }
+
+    GrAA aa() const { return GrAA(fAAEdges[0].isInitialized()); }
 
 private:
     // This exists to reduce the number of shaders generated. It does some rounding of sampler
@@ -173,7 +223,7 @@ private:
     }
 
     TextureGeometryProcessor(sk_sp<GrTextureProxy> proxies[], int proxyCnt, int samplerCnt,
-                             sk_sp<GrColorSpaceXform> csxf, const GrSamplerState::Filter filters[],
+                             sk_sp<GrColorSpaceXform> csxf, GrAA aa, const GrSamplerState::Filter filters[],
                              const GrShaderCaps& caps)
             : INHERITED(kTextureGeometryProcessor_ClassID)
             , fColorSpaceXform(std::move(csxf)) {
@@ -200,6 +250,12 @@ private:
         }
 
         fTextureCoords = this->addVertexAttrib("textureCoords", kFloat2_GrVertexAttribType);
+        if (GrAA::kYes == aa) {
+            fAAEdges[0] = this->addVertexAttrib("aaEdge0", kFloat3_GrVertexAttribType);
+            fAAEdges[1] = this->addVertexAttrib("aaEdge1", kFloat3_GrVertexAttribType);
+            fAAEdges[2] = this->addVertexAttrib("aaEdge2", kFloat3_GrVertexAttribType);
+            fAAEdges[3] = this->addVertexAttrib("aaEdge3", kFloat3_GrVertexAttribType);
+        }
         fColors = this->addVertexAttrib("color", kUByte4_norm_GrVertexAttribType);
     }
 
@@ -207,12 +263,65 @@ private:
     Attribute fTextureIdx;
     Attribute fTextureCoords;
     Attribute fColors;
-    sk_sp<GrColorSpaceXform> fColorSpaceXform;
+    Attribute fAAEdges[4];
     TextureSampler fSamplers[1];
+    sk_sp<GrColorSpaceXform> fColorSpaceXform;
 
     typedef GrGeometryProcessor INHERITED;
 };
 
+static GrQuad bloat_quad_and_compute_edges(const GrQuad& quad, SkPoint3 edges[4]) {
+    // GrQuad is in tristip order but we want the points to be in a fan order, so swap 2 and 3.
+    Sk4f xs(quad.point(0).fX, quad.point(1).fX, quad.point(3).fX, quad.point(2).fX);
+    Sk4f ys(quad.point(0).fY, quad.point(1).fY, quad.point(3).fY, quad.point(2).fY);
+
+    Sk4f xsrot = SkNx_shuffle<1, 2, 3, 0>(xs);
+    Sk4f ysrot = SkNx_shuffle<1, 2, 3, 0>(ys);
+    Sk4f normXs = ysrot - ys;
+    Sk4f normYs = xsrot - xs;
+    Sk4f ds = xsrot * ys - ysrot * xs;
+    Sk4f invNormLengths = (normXs * normXs + normYs * normYs);
+    float test = normXs[0] * xs[2] + normYs[0] * ys[2] + ds[0];
+    // Make sure the edge equations have their normals facing into the quad in device space
+    if (test < 0) {
+        invNormLengths = -invNormLengths;
+    }
+    invNormLengths = invNormLengths.rsqrt();
+    normXs *= invNormLengths;
+    normYs *= invNormLengths;
+    ds *= invNormLengths;
+
+    // Here is the bloat. This makes our edge equations compute coverage without requiring a half
+    // pixel offset and is also used to compute the bloated quad that will cover all pixels.
+    ds += Sk4f(0.5f);
+
+    edges[0].fX = normXs[0]; edges[0].fY = normYs[0]; edges[0].fZ = ds[0];
+    edges[1].fX = normXs[1]; edges[1].fY = normYs[1]; edges[1].fZ = ds[1];
+    edges[2].fX = normXs[2]; edges[2].fY = normYs[2]; edges[2].fZ = ds[2];
+    edges[3].fX = normXs[3]; edges[3].fY = normYs[3]; edges[3].fZ = ds[3];
+
+    // Reverse the process to compute the points of the bloated quad from the edge equations. This
+    // time the inputs don't have 1s as their third coord and we want to homogenize rather than
+    // normalize the output since we need a GrQuad with 2D points.
+    xsrot = SkNx_shuffle<3, 0, 1, 2>(normXs);
+    ysrot = SkNx_shuffle<3, 0, 1, 2>(normYs);
+    Sk4f dsrot = SkNx_shuffle<3, 0, 1, 2>(ds);
+    xs = ysrot * ds - normYs * dsrot;
+    ys = xsrot * ds - normXs * dsrot;
+    ds = xsrot * normYs - ysrot * normXs;
+    ds = ds.invert();
+    xs *= ds;
+    ys *= ds;
+
+    GrQuad bloated;
+    // Go back to tri strip order when writing out the bloated quad.
+    bloated.points()[0] = {xs[0], ys[0]};
+    bloated.points()[1] = {xs[1], ys[1]};
+    bloated.points()[3] = {xs[2], ys[2]};
+    bloated.points()[2] = {xs[3], ys[3]};
+
+    return bloated;
+}
 /**
  * Op that implements GrTextureOp::Make. It draws textured quads. Each quad can modulate against a
  * the texture by color. The blend with the destination is always src-over. The edges are non-AA.
@@ -221,11 +330,11 @@ class TextureOp final : public GrMeshDrawOp {
 public:
     static std::unique_ptr<GrDrawOp> Make(sk_sp<GrTextureProxy> proxy,
                                           GrSamplerState::Filter filter, GrColor color,
-                                          const SkRect srcRect, const SkRect dstRect,
+                                          const SkRect srcRect, const SkRect dstRect, GrAA aa,
                                           const SkMatrix& viewMatrix, sk_sp<GrColorSpaceXform> csxf,
                                           bool allowSRBInputs) {
         return std::unique_ptr<GrDrawOp>(new TextureOp(std::move(proxy), filter, color, srcRect,
-                                                       dstRect, viewMatrix, std::move(csxf),
+                                                       dstRect, aa, viewMatrix, std::move(csxf),
                                                        allowSRBInputs));
     }
 
@@ -305,13 +414,14 @@ __attribute__((no_sanitize("float-cast-overflow")))
     static constexpr int kMaxTextures = TextureGeometryProcessor::kMaxTextures;
 
     TextureOp(sk_sp<GrTextureProxy> proxy, GrSamplerState::Filter filter, GrColor color,
-              const SkRect& srcRect, const SkRect& dstRect, const SkMatrix& viewMatrix,
+              const SkRect& srcRect, const SkRect& dstRect, GrAA aa, const SkMatrix& viewMatrix,
               sk_sp<GrColorSpaceXform> csxf, bool allowSRGBInputs)
             : INHERITED(ClassID())
             , fColorSpaceXform(std::move(csxf))
             , fProxy0(proxy.release())
             , fFilter0(filter)
             , fProxyCnt(1)
+            , fAA(aa)
             , fFinalized(false)
             , fAllowSRGBInputs(allowSRGBInputs) {
         Draw& draw = fDraws.push_back();
@@ -338,7 +448,7 @@ __attribute__((no_sanitize("float-cast-overflow")))
         }
 
         sk_sp<GrGeometryProcessor> gp =
-                TextureGeometryProcessor::Make(proxiesSPs, fProxyCnt, std::move(fColorSpaceXform),
+                TextureGeometryProcessor::Make(proxiesSPs, fProxyCnt, std::move(fColorSpaceXform), fAA,
                                                filters, *target->caps().shaderCaps());
         GrPipeline::InitArgs args;
         args.fProxy = target->proxy();
@@ -356,32 +466,66 @@ __attribute__((no_sanitize("float-cast-overflow")))
             return;
         }
         if (1 == fProxyCnt) {
-            SkASSERT(gp->getVertexStride() == sizeof(TextureGeometryProcessor::Vertex));
-            for (int i = 0; i < fDraws.count(); ++i) {
-                auto vertices = static_cast<TextureGeometryProcessor::Vertex*>(vdata);
-                GrTexture* texture = proxies[0]->priv().peekTexture();
-                float iw = 1.f / texture->width();
-                float ih = 1.f / texture->height();
-                float tl = iw * fDraws[i].fSrcRect.fLeft;
-                float tr = iw * fDraws[i].fSrcRect.fRight;
-                float tt = ih * fDraws[i].fSrcRect.fTop;
-                float tb = ih * fDraws[i].fSrcRect.fBottom;
-                if (proxies[0]->origin() == kBottomLeft_GrSurfaceOrigin) {
-                    tt = 1.f - tt;
-                    tb = 1.f - tb;
+            if (GrAA::kYes == fAA) {
+                SkASSERT(gp->getVertexStride() == sizeof(TextureGeometryProcessor::AAVertex));
+                for (int i = 0; i < fDraws.count(); ++i) {
+                    auto vertices = static_cast<TextureGeometryProcessor::AAVertex*>(vdata);
+                    GrTexture* texture = proxies[0]->priv().peekTexture();
+                    float iw = 1.f / texture->width();
+                    float ih = 1.f / texture->height();
+                    float tl = iw * fDraws[i].fSrcRect.fLeft;
+                    float tr = iw * fDraws[i].fSrcRect.fRight;
+                    float tt = ih * fDraws[i].fSrcRect.fTop;
+                    float tb = ih * fDraws[i].fSrcRect.fBottom;
+                    if (proxies[0]->origin() == kBottomLeft_GrSurfaceOrigin) {
+                        tt = 1.f - tt;
+                        tb = 1.f - tb;
+                    }
+                    GrQuad quad = bloat_quad_and_compute_edges(fDraws[0].fQuad, vertices[0].fEdges);
+                    vertices[0 + 4 * i].fPosition = quad.point(0);
+                    vertices[0 + 4 * i].fTextureCoords = {tl, tt};
+                    vertices[0 + 4 * i].fColor = fDraws[i].fColor;
+                    vertices[1 + 4 * i].fPosition = quad.point(1);
+                    vertices[1 + 4 * i].fTextureCoords = {tl, tb};
+                    memcpy(vertices[1 + 4 * i].fEdges, vertices[0 + 4 * 1].fEdges, 4 * sizeof(SkPoint3));
+                    vertices[1 + 4 * i].fColor = fDraws[i].fColor;
+                    vertices[2 + 4 * i].fPosition = quad.point(2);
+                    vertices[2 + 4 * i].fTextureCoords = {tr, tt};
+                    memcpy(vertices[2 + 4 * i].fEdges, vertices[0 + 4 * 1].fEdges, 4 * sizeof(SkPoint3));
+                    vertices[2 + 4 * i].fColor = fDraws[i].fColor;
+                    vertices[3 + 4 * i].fPosition = quad.point(3);
+                    vertices[3 + 4 * i].fTextureCoords = {tr, tb};
+                    memcpy(vertices[3 + 4 * i].fEdges, vertices[0 + 4 * 1].fEdges, 4 * sizeof(SkPoint3));
+                    vertices[3 + 4 * i].fColor = fDraws[i].fColor;
                 }
-                vertices[0 + 4 * i].fPosition = fDraws[i].fQuad.points()[0];
-                vertices[0 + 4 * i].fTextureCoords = {tl, tt};
-                vertices[0 + 4 * i].fColor = fDraws[i].fColor;
-                vertices[1 + 4 * i].fPosition = fDraws[i].fQuad.points()[1];
-                vertices[1 + 4 * i].fTextureCoords = {tl, tb};
-                vertices[1 + 4 * i].fColor = fDraws[i].fColor;
-                vertices[2 + 4 * i].fPosition = fDraws[i].fQuad.points()[2];
-                vertices[2 + 4 * i].fTextureCoords = {tr, tt};
-                vertices[2 + 4 * i].fColor = fDraws[i].fColor;
-                vertices[3 + 4 * i].fPosition = fDraws[i].fQuad.points()[3];
-                vertices[3 + 4 * i].fTextureCoords = {tr, tb};
-                vertices[3 + 4 * i].fColor = fDraws[i].fColor;
+            } else {
+                SkASSERT(gp->getVertexStride() == sizeof(TextureGeometryProcessor::Vertex));
+                for (int i = 0; i < fDraws.count(); ++i) {
+                    auto vertices = static_cast<TextureGeometryProcessor::Vertex*>(vdata);
+                    GrTexture* texture = proxies[0]->priv().peekTexture();
+                    float iw = 1.f / texture->width();
+                    float ih = 1.f / texture->height();
+                    float tl = iw * fDraws[i].fSrcRect.fLeft;
+                    float tr = iw * fDraws[i].fSrcRect.fRight;
+                    float tt = ih * fDraws[i].fSrcRect.fTop;
+                    float tb = ih * fDraws[i].fSrcRect.fBottom;
+                    if (proxies[0]->origin() == kBottomLeft_GrSurfaceOrigin) {
+                        tt = 1.f - tt;
+                        tb = 1.f - tb;
+                    }
+                    vertices[0 + 4 * i].fPosition = fDraws[i].fQuad.points()[0];
+                    vertices[0 + 4 * i].fTextureCoords = {tl, tt};
+                    vertices[0 + 4 * i].fColor = fDraws[i].fColor;
+                    vertices[1 + 4 * i].fPosition = fDraws[i].fQuad.points()[1];
+                    vertices[1 + 4 * i].fTextureCoords = {tl, tb};
+                    vertices[1 + 4 * i].fColor = fDraws[i].fColor;
+                    vertices[2 + 4 * i].fPosition = fDraws[i].fQuad.points()[2];
+                    vertices[2 + 4 * i].fTextureCoords = {tr, tt};
+                    vertices[2 + 4 * i].fColor = fDraws[i].fColor;
+                    vertices[3 + 4 * i].fPosition = fDraws[i].fQuad.points()[3];
+                    vertices[3 + 4 * i].fTextureCoords = {tr, tb};
+                    vertices[3 + 4 * i].fColor = fDraws[i].fColor;
+                }
             }
         } else {
             SkASSERT(gp->getVertexStride() == sizeof(TextureGeometryProcessor::MultiTextureVertex));
@@ -444,6 +588,9 @@ __attribute__((no_sanitize("float-cast-overflow")))
         const auto* that = t->cast<TextureOp>();
         const auto& shaderCaps = *caps.shaderCaps();
         if (!GrColorSpaceXform::Equals(fColorSpaceXform.get(), that->fColorSpaceXform.get())) {
+            return false;
+        }
+        if (this->fAA != that->fAA) {
             return false;
         }
         // Because of an issue where GrColorSpaceXform adds the same function every time it is used
@@ -591,6 +738,7 @@ __attribute__((no_sanitize("float-cast-overflow")))
     // Used to track whether fProxy is ref'ed or has a pending IO after finalize() is called.
     uint8_t fFinalized;
     uint8_t fAllowSRGBInputs;
+    GrAA fAA; // TODO <- pack or make per-draw.
 
     typedef GrMeshDrawOp INHERITED;
 };
@@ -603,11 +751,11 @@ constexpr int TextureOp::kMaxTextures;
 namespace GrTextureOp {
 
 std::unique_ptr<GrDrawOp> Make(sk_sp<GrTextureProxy> proxy, GrSamplerState::Filter filter,
-                               GrColor color, const SkRect& srcRect, const SkRect& dstRect,
+                               GrColor color, const SkRect& srcRect, const SkRect& dstRect, GrAA aa,
                                const SkMatrix& viewMatrix, sk_sp<GrColorSpaceXform> csxf,
                                bool allowSRGBInputs) {
     SkASSERT(!viewMatrix.hasPerspective());
-    return TextureOp::Make(std::move(proxy), filter, color, srcRect, dstRect, viewMatrix,
+    return TextureOp::Make(std::move(proxy), filter, color, srcRect, dstRect, aa, viewMatrix,
                            std::move(csxf), allowSRGBInputs);
 }
 
@@ -637,7 +785,8 @@ GR_DRAW_OP_TEST_DEFINE(TextureOp) {
             static_cast<uint32_t>(GrSamplerState::Filter::kMipMap) + 1);
     auto csxf = GrTest::TestColorXform(random);
     bool allowSRGBInputs = random->nextBool();
-    return GrTextureOp::Make(std::move(proxy), filter, color, srcRect, rect, viewMatrix,
+    GrAA aa = GrAA(random->nextBool());
+    return GrTextureOp::Make(std::move(proxy), filter, color, srcRect, rect, aa, viewMatrix,
                              std::move(csxf), allowSRGBInputs);
 }
 

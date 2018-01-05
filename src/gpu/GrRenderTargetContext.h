@@ -149,7 +149,7 @@ public:
      * view matrix does not have perspective.
      */
     void drawTextureAffine(const GrClip& clip, sk_sp<GrTextureProxy>, GrSamplerState::Filter,
-                           GrColor, const SkRect& srcRect, const SkRect& dstRect,
+                           GrColor, const SkRect& srcRect, const SkRect& dstRect, GrAA aa,
                            const SkMatrix& viewMatrix, sk_sp<GrColorSpaceXform>);
 
     /**

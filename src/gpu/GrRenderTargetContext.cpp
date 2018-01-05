@@ -766,7 +766,7 @@ static bool must_filter(const SkRect& src, const SkRect& dst, const SkMatrix& ct
 
 void GrRenderTargetContext::drawTextureAffine(const GrClip& clip, sk_sp<GrTextureProxy> proxy,
                                               GrSamplerState::Filter filter, GrColor color,
-                                              const SkRect& srcRect, const SkRect& dstRect,
+                                              const SkRect& srcRect, const SkRect& dstRect, GrAA aa,
                                               const SkMatrix& viewMatrix,
                                               sk_sp<GrColorSpaceXform> colorSpaceXform) {
     ASSERT_SINGLE_OWNER
@@ -779,6 +779,7 @@ void GrRenderTargetContext::drawTextureAffine(const GrClip& clip, sk_sp<GrTextur
     }
     SkRect clippedDstRect = dstRect;
     SkRect clippedSrcRect = srcRect;
+    // TODO: OK TO DO WITH AA?
     if (!crop_filled_rect(this->width(), this->height(), clip, viewMatrix, &clippedDstRect,
                           &clippedSrcRect)) {
         return;
@@ -786,8 +787,8 @@ void GrRenderTargetContext::drawTextureAffine(const GrClip& clip, sk_sp<GrTextur
 
     bool allowSRGB = SkToBool(this->colorSpaceInfo().colorSpace());
     this->addDrawOp(clip, GrTextureOp::Make(std::move(proxy), filter, color, clippedSrcRect,
-                                            clippedDstRect, viewMatrix, std::move(colorSpaceXform),
-                                            allowSRGB));
+                                            clippedDstRect, aa, viewMatrix,
+                                            std::move(colorSpaceXform), allowSRGB));
 }
 
 void GrRenderTargetContext::fillRectWithLocalMatrix(const GrClip& clip,
