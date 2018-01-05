@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8fe3f19d_bd063c2e",
+        "filename": "src/core/SkPictureData.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-01-05T19:32:13Z",
+      "side": 1,
+      "message": "I\u0027m just a casual reader here, but shouldn\u0027t this be index - 1?",
+      "range": {
+        "startLine": 120,
+        "startChar": 37,
+        "endLine": 120,
+        "endChar": 42
+      },
+      "revId": "a129a9cbdef5ab06e4ae686d5b707822b218318f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
