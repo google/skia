@@ -9,7 +9,7 @@
 
 namespace sksg {
 
-RenderNode::RenderNode() {}
+RenderNode::RenderNode() : INHERITED(0) {}
 
 void RenderNode::render(SkCanvas* canvas) const {
     SkASSERT(!this->hasInval());
