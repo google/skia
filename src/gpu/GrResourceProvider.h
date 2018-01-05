@@ -20,6 +20,7 @@ class GrBackendTexture;
 class GrGpu;
 class GrPath;
 class GrRenderTarget;
+class GrResourceProviderPriv;
 class GrSemaphore;
 class GrSingleOwner;
 class GrStencilAttachment;
@@ -275,6 +276,9 @@ public:
     const GrCaps* caps() const { return fCaps.get(); }
     bool overBudget() const { return fCache->overBudget(); }
 
+    inline GrResourceProviderPriv priv();
+    inline const GrResourceProviderPriv priv() const;
+
 private:
     sk_sp<GrGpuResource> findResourceByUniqueKey(const GrUniqueKey&);
 
@@ -291,6 +295,9 @@ private:
     GrResourceCache* cache() { return fCache; }
     const GrResourceCache* cache() const { return fCache; }
 
+    friend class GrResourceProviderPriv;
+
+    // Method made available via GrResourceProviderPriv
     GrGpu* gpu() { return fGpu; }
     const GrGpu* gpu() const { return fGpu; }
 
