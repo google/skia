@@ -52,18 +52,19 @@ static void check_inval(skiatest::Reporter* reporter, const sk_sp<sksg::Node>& r
 }
 
 DEF_TEST(SGInvalidation, reporter) {
-    auto color = sksg::Color::Make(0xff000000);
-    auto r1    = sksg::Rect::Make(SkRect::MakeWH(100, 100)),
-         r2    = sksg::Rect::Make(SkRect::MakeWH(100, 100));
-    auto grp   = sksg::Group::Make();
-    auto tr    = sksg::Transform::Make(grp, SkMatrix::I());
+    auto color  = sksg::Color::Make(0xff000000);
+    auto r1     = sksg::Rect::Make(SkRect::MakeWH(100, 100)),
+         r2     = sksg::Rect::Make(SkRect::MakeWH(100, 100));
+    auto grp    = sksg::Group::Make();
+    auto matrix = sksg::Matrix::Make(SkMatrix::I());
+    auto root   = sksg::Transform::Make(grp, matrix);
 
     grp->addChild(sksg::Draw::Make(r1, color));
     grp->addChild(sksg::Draw::Make(r2, color));
 
     {
         // Initial revalidation.
-        check_inval(reporter, tr,
+        check_inval(reporter, root,
                     SkRect::MakeWH(100, 100),
                     SkRect::MakeLargestS32(),
                     nullptr);
@@ -73,7 +74,7 @@ DEF_TEST(SGInvalidation, reporter) {
         // Move r2 to (200 100).
         r2->setL(200); r2->setT(100); r2->setR(300); r2->setB(200);
         std::vector<SkRect> damage = { {0, 0, 100, 100}, { 200, 100, 300, 200} };
-        check_inval(reporter, tr,
+        check_inval(reporter, root,
                     SkRect::MakeWH(300, 200),
                     SkRect::MakeWH(300, 200),
                     &damage);
@@ -83,7 +84,7 @@ DEF_TEST(SGInvalidation, reporter) {
         // Update the common color.
         color->setColor(0xffff0000);
         std::vector<SkRect> damage = { {0, 0, 100, 100}, { 200, 100, 300, 200} };
-        check_inval(reporter, tr,
+        check_inval(reporter, root,
                     SkRect::MakeWH(300, 200),
                     SkRect::MakeWH(300, 200),
                     &damage);
@@ -93,7 +94,7 @@ DEF_TEST(SGInvalidation, reporter) {
         // Shrink r1.
         r1->setR(50);
         std::vector<SkRect> damage = { {0, 0, 100, 100}, { 0, 0, 50, 100} };
-        check_inval(reporter, tr,
+        check_inval(reporter, root,
                     SkRect::MakeWH(300, 200),
                     SkRect::MakeWH(100, 100),
                     &damage);
@@ -101,9 +102,9 @@ DEF_TEST(SGInvalidation, reporter) {
 
     {
         // Update transform.
-        tr->setMatrix(SkMatrix::MakeScale(2, 2));
+        matrix->setMatrix(SkMatrix::MakeScale(2, 2));
         std::vector<SkRect> damage = { {0, 0, 300, 200}, { 0, 0, 600, 400} };
-        check_inval(reporter, tr,
+        check_inval(reporter, root,
                     SkRect::MakeWH(600, 400),
                     SkRect::MakeWH(600, 400),
                     &damage);
@@ -113,7 +114,7 @@ DEF_TEST(SGInvalidation, reporter) {
         // Shrink r2 under transform.
         r2->setR(250);
         std::vector<SkRect> damage = { {400, 200, 600, 400}, { 400, 200, 500, 400} };
-        check_inval(reporter, tr,
+        check_inval(reporter, root,
                     SkRect::MakeWH(500, 400),
                     SkRect::MakeLTRB(400, 200, 600, 400),
                     &damage);
