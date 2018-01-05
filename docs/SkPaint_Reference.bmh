@@ -3232,7 +3232,7 @@ implementation.
         void draw(SkCanvas* canvas) {
            SkPaint paint;
            SkDebugf("nullptr %c= typeface\n", paint.getTypeface() ? '!' : '=');
-           paint.setTypeface(SkTypeface::MakeFromName("Times New Roman", SkFontStyle()));
+           paint.setTypeface(SkTypeface::MakeFromName("monospace", SkFontStyle()));
            SkDebugf("nullptr %c= typeface\n", paint.getTypeface() ? '!' : '=');
         }
 
@@ -3253,7 +3253,7 @@ implementation.
     #Example
         void draw(SkCanvas* canvas) {
            SkPaint paint1, paint2;
-           paint1.setTypeface(SkTypeface::MakeFromName("Times New Roman", 
+           paint1.setTypeface(SkTypeface::MakeFromName("monospace", 
                     SkFontStyle(SkFontStyle::kNormal_Weight, SkFontStyle::kNormal_Width,
                     SkFontStyle::kItalic_Slant)));
            SkDebugf("typeface1 %c= typeface2\n",
@@ -3283,10 +3283,10 @@ typeface Reference_Count by one.
     #Height 64
         void draw(SkCanvas* canvas) {
             SkPaint paint;
-            paint.setTypeface(SkTypeface::MakeFromName("Courier New", SkFontStyle()));
-            canvas->drawString("Courier New", 10, 30, paint);
+            paint.setTypeface(SkTypeface::MakeFromName("monospace", SkFontStyle()));
+            canvas->drawString("hamburgerfons", 10, 30, paint);
             paint.setTypeface(nullptr);
-            canvas->drawString("default", 10, 50, paint);
+            canvas->drawString("hamburgerfons", 10, 50, paint);
         }
     ##
 

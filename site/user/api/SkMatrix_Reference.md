@@ -3308,49 +3308,6 @@ number of <a href="#Point">Points</a> to transform</td>
 
 ---
 
-<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-void mapPointsWithStride(SkPoint dst[], const SkPoint src[], size_t stride, int count) const
-</pre>
-
-Maps <a href="#SkMatrix_mapPointsWithStride_2_src">src</a> <a href="SkPoint_Reference#Point">Point</a> array of length <a href="#SkMatrix_mapPointsWithStride_2_count">count</a> to <a href="#SkMatrix_mapPointsWithStride_2_dst">dst</a> <a href="SkPoint_Reference#Point">Point</a> array, skipping <a href="#SkMatrix_mapPointsWithStride_2_stride">stride</a> bytes
-to advance from one <a href="SkPoint_Reference#Point">Point</a> to the next.
-<a href="#Point">Points</a> are mapped by multiplying each <a href="SkPoint_Reference#Point">Point</a> by <a href="#Matrix">Matrix</a>. Given:
-
-<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-         | A B C |         | x |
-Matrix = | D E F |,  src = | y |
-         | G H I |         | 1 |</pre>
-
-each resulting <a href="#SkMatrix_mapPointsWithStride_2_dst">dst</a> <a href="SkPoint_Reference#Point">Point</a> is computed as:
-
-<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-              |A B C| |x|                               Ax+By+C   Dx+Ey+F
-Matrix * pt = |D E F| |y| = |Ax+By+C Dx+Ey+F Gx+Hy+I| = ------- , -------
-              |G H I| |1|                               Gx+Hy+I   Gx+Hy+I</pre>
-
-### Parameters
-
-<table>  <tr>    <td><a name="SkMatrix_mapPointsWithStride_2_dst"> <code><strong>dst </strong></code> </a></td> <td>
-storage for mapped <a href="#Point">Points</a></td>
-  </tr>  <tr>    <td><a name="SkMatrix_mapPointsWithStride_2_src"> <code><strong>src </strong></code> </a></td> <td>
-<a href="#Point">Points</a> to transform</td>
-  </tr>  <tr>    <td><a name="SkMatrix_mapPointsWithStride_2_stride"> <code><strong>stride </strong></code> </a></td> <td>
-size of record starting with <a href="SkPoint_Reference#Point">Point</a>, in bytes</td>
-  </tr>  <tr>    <td><a name="SkMatrix_mapPointsWithStride_2_count"> <code><strong>count </strong></code> </a></td> <td>
-number of <a href="#Point">Points</a> to transform</td>
-  </tr>
-</table>
-
-### Example
-
-<div><fiddle-embed name="08e32de52131e6859db16729b2e56e4e"></fiddle-embed></div>
-
-### See Also
-
-<a href="#SkMatrix_mapPoints">mapPoints</a> <a href="#SkMatrix_mapXY">mapXY</a> <a href="#SkMatrix_mapHomogeneousPoints">mapHomogeneousPoints</a> <a href="#SkMatrix_mapVectors">mapVectors</a>
-
----
-
 <a name="SkMatrix_mapHomogeneousPoints"></a>
 ## mapHomogeneousPoints
 
