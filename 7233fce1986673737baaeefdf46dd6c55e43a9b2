@@ -55,6 +55,24 @@
     },
     {
       "key": {
+        "uuid": "d6a60633_b769f793",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 288,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-01-05T14:14:28Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "1b0fd083_4b107712",
+      "revId": "7233fce1986673737baaeefdf46dd6c55e43a9b2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "35b07674_307b3409",
         "filename": "src/gpu/GrTextureMaker.cpp",
         "patchSetId": 6
@@ -84,6 +102,24 @@
       "side": 1,
       "message": "That would probably be fine since it is then only used in cases were copyKey.isValid(). Though if someone were to refactor this code and try to then use origOrigin outside of copyKey.isValid(), I\u0027m not sure if that is safe or not if we have an original texture.\n\nI guess the original thing we had, before compiler warning, made sure origOrigin was only used when copyKey.isValid() or else we\u0027d get a use of unitialized memory bug.",
       "parentUuid": "35b07674_307b3409",
+      "revId": "7233fce1986673737baaeefdf46dd6c55e43a9b2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dd1696e3_035278ea",
+        "filename": "src/gpu/GrTextureMaker.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-01-05T14:14:28Z",
+      "side": 1,
+      "message": "Is this the CL to do such a refactoring?  Is this change ok as is?",
+      "parentUuid": "bc26726e_d77c9e47",
       "revId": "7233fce1986673737baaeefdf46dd6c55e43a9b2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -122,6 +158,24 @@
       "revId": "7233fce1986673737baaeefdf46dd6c55e43a9b2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1d335281_d9b04022",
+        "filename": "src/gpu/gl/builders/GrGLShaderStringBuilder.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-01-05T14:14:28Z",
+      "side": 1,
+      "message": "Rebasing the CL removed the diff (since it had already been merged)",
+      "parentUuid": "a46b55c5_cf9af5f1",
+      "revId": "7233fce1986673737baaeefdf46dd6c55e43a9b2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
