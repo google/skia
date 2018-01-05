@@ -127,20 +127,20 @@ const SkRect& Node::revalidate(InvalidationController* ic, const SkMatrix& ctm) 
         return fBounds;
     }
 
-    SkRect prevBounds;
-    if (this->hasSelfInval()) {
-        prevBounds = fBounds;
-    }
+    const auto result     = this->onRevalidate(ic, ctm);
+    const auto selfDamage = result.fReval == Damage::kForceSelf ||
+                            (this->hasSelfInval() && result.fReval != Damage::kBlockSelf);
 
-    fBounds = this->onRevalidate(ic, ctm);
-
-    if (this->hasSelfInval()) {
-        ic->inval(prevBounds, ctm);
-        if (fBounds != prevBounds) {
-            ic->inval(fBounds, ctm);
+    if (selfDamage) {
+        // old bounds
+        ic->inval(fBounds, ctm);
+        if (result.fBounds != fBounds) {
+            // new bounds
+            ic->inval(result.fBounds, ctm);
         }
     }
 
+    fBounds = result.fBounds;
     fFlags &= ~(kInvalSelf_Flag | kInvalDescendant_Flag);
 
     return fBounds;

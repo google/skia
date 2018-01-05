@@ -51,16 +51,16 @@ void Group::onRender(SkCanvas* canvas) const {
     }
 }
 
-SkRect Group::onRevalidate(InvalidationController* ic, const SkMatrix& ctm) {
+Node::RevalidationResult Group::onRevalidate(InvalidationController* ic, const SkMatrix& ctm) {
     SkASSERT(this->hasInval());
 
-    SkRect bounds = SkRect::MakeEmpty();
+    RevalidationResult result =  { SkRect::MakeEmpty(), Damage::kDefault };
 
     for (const auto& child : fChildren) {
-        bounds.join(child->revalidate(ic, ctm));
+        result.fBounds.join(child->revalidate(ic, ctm));
     }
 
-    return bounds;
+    return result;
 }
 
 } // namespace sksg
