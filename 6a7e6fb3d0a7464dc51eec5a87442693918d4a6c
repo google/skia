@@ -16,6 +16,24 @@
       "revId": "6a7e6fb3d0a7464dc51eec5a87442693918d4a6c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d041b0e0_6c623f73",
+        "filename": "src/gpu/GrResourceProviderPriv.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-01-05T18:01:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9b212f7b_464f583b",
+      "revId": "6a7e6fb3d0a7464dc51eec5a87442693918d4a6c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
