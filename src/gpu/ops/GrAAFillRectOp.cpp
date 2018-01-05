@@ -88,7 +88,7 @@ static void generate_aa_fill_rect_geometry(intptr_t verts,
         // create the rotated rect
         SkPointPriv::SetRectFan(fan0Pos, rect.fLeft, rect.fTop, rect.fRight, rect.fBottom,
                 vertexStride);
-        viewMatrix.mapPointsWithStride(fan0Pos, vertexStride, 4);
+        SkMatrixPriv::MapPointsWithStride(viewMatrix, fan0Pos, vertexStride, 4);
 
         // Now create the inset points and then outset the original
         // rotated points
