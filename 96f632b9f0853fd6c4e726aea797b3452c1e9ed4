@@ -143,6 +143,30 @@
     },
     {
       "key": {
+        "uuid": "39808531_32af8788",
+        "filename": "infra/bots/recipes/calmbench.py",
+        "patchSetId": 10
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-01-05T12:08:26Z",
+      "side": 1,
+      "message": "Our tasks use a tool called isolate which takes a set of files from the repo and transfers them to the Swarming task.  It\u0027s generally faster than syncing the whole repo (it hashes the files, caches them, and only transfers when they change).  You just have to make sure that the .isolate file contains everything you need.  The calmbench task is currently using this isolate file, which only includes the .gclient file above the repo root: https://skia.googlesource.com/skia/+/master/infra/bots/infra_skia.isolate  The assumption is that the task will sync all of the code, so we don\u0027t need to send anything to it.  We can add a new infra/bots/calmbench.isolate which gets us the right files.  It would essentially be a clone of https://skia.googlesource.com/skia/+/master/infra/bots/perf_skia.isolate but in the \u0027files\u0027 list we\u0027d include the path to calmbench.py (and ab.py, and anything else that\u0027s needed).  Actually, you can specify a directory by leaving a slash at the end, eg. \u0027tools/calmbench/\u0027",
+      "parentUuid": "f2a91e26_b619f042",
+      "range": {
+        "startLine": 24,
+        "startChar": 2,
+        "endLine": 24,
+        "endChar": 18
+      },
+      "revId": "96f632b9f0853fd6c4e726aea797b3452c1e9ed4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "1ac72225_82a867b9",
         "filename": "infra/bots/recipes/calmbench.py",
         "patchSetId": 10
