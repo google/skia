@@ -24,7 +24,6 @@
 #include "SkPngEncoder.h"
 #include "SkStream.h"
 
-
 #include "skqp_asset_manager.h"
 
 #define PATH_MAX_PNG "max.png"
@@ -170,6 +169,10 @@ float Check(const uint32_t* pixels,
             ++badPixelCount;
         }
     }
+    if (badness == 0) {
+        std::lock_guard<std::mutex> lock(gMutex);
+        gErrors.push_back(Run{SkString(backend), SkString(name), 0, 0});
+    }
     if (report_directory_path && badness > 0 && report_directory_path[0] != '\0') {
         sk_mkdir(report_directory_path);
         if (!backend) {
@@ -209,6 +212,20 @@ float Check(const uint32_t* pixels,
 }
 
 bool MakeReport(const char* report_directory_path) {
+    std::lock_guard<std::mutex> lock(gMutex);
+    {
+        SkFILEWStream csvOut(SkOSPath::Join(report_directory_path, "out.csv").c_str());
+        if (!csvOut.isValid()) {
+            return false;
+        }
+        for (const Run& run : gErrors) {
+            SkString line = SkStringPrintf("\"%s\",\"%s\",%d,%d\n",
+                                           run.fBackend.c_str(), run.fGM.c_str(),
+                                           run.fMaxerror, run.fBadpixels);
+            csvOut.write(line.c_str(), line.size());
+        }
+    }
+
     SkFILEWStream out(SkOSPath::Join(report_directory_path, PATH_REPORT).c_str());
     if (!out.isValid()) {
         return false;
@@ -226,12 +243,14 @@ bool MakeReport(const char* report_directory_path) {
         "<body>\n"
         "<h1>SkQP Report</h1>\n"
         "<hr>\n");
-    std::lock_guard<std::mutex> lock(gMutex);
     for (const Run& run : gErrors) {
         const SkString& backend = run.fBackend;
         const SkString& gm = run.fGM;
         int maxerror = run.fMaxerror;
         int badpixels = run.fBadpixels;
+        if (maxerror == 0 && badpixels == 0) {
+            continue;
+        }
         SkString rdir = SkOSPath::Join(backend.c_str(), gm.c_str());
         SkString text = SkStringPrintf(
             "<h2>%s</h2>\n"
