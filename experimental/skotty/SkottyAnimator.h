@@ -8,6 +8,8 @@
 #ifndef SkottyAnimator_DEFINED
 #define SkottyAnimator_DEFINED
 
+#include "SkCubicMap.h"
+#include "SkMakeUnique.h"
 #include "SkottyPriv.h"
 #include "SkottyProperties.h"
 #include "SkTArray.h"
@@ -29,7 +31,7 @@ protected:
 
     // Compute a cubic-Bezier-interpolated t relative to [t0..t1].
     static float ComputeLocalT(float t, float t0, float t1,
-                               const SkPoint& c0, const SkPoint& c1);
+                               const SkCubicMap*);
 };
 
 // Describes a keyframe interpolation interval (v0@t0) -> (v1@t1).
@@ -44,9 +46,8 @@ struct KeyframeInterval {
     float   fT0 = 0,
             fT1 = 0;
 
-    // Cubic Bezier interpolation control pts.
-    SkPoint fC0,
-            fC1;
+    // Initialized for non-linear lerp.
+    std::unique_ptr<SkCubicMap> fCubicMap;
 
     // Parse the current interval AND back-fill prev interval t1.
     bool parse(const Json::Value& k, KeyframeInterval* prev) {
@@ -75,8 +76,16 @@ struct KeyframeInterval {
         }
 
         // default is linear lerp
-        fC0 = ParsePoint(k["i"], SkPoint::Make(0, 0));
-        fC1 = ParsePoint(k["o"], SkPoint::Make(1, 1));
+        static constexpr SkPoint kDefaultC0 = { 0, 0 },
+                                 kDefaultC1 = { 1, 1 };
+        const auto c0 = ParsePoint(k["i"], kDefaultC0),
+                   c1 = ParsePoint(k["o"], kDefaultC1);
+
+        if (c0 != kDefaultC0 || c1 != kDefaultC1) {
+            fCubicMap = skstd::make_unique<SkCubicMap>();
+            // TODO: why do we have to plug these inverted?
+            fCubicMap->setPts(c1, c0);
+        }
 
         return true;
     }
@@ -95,7 +104,7 @@ public:
         const auto& frame = this->findInterval(t);
 
         ValT val;
-        frame.lerp(ComputeLocalT(t, frame.fT0, frame.fT1, frame.fC0, frame.fC1), &val);
+        frame.lerp(ComputeLocalT(t, frame.fT0, frame.fT1, frame.fCubicMap.get()), &val);
 
         fFunc(fTarget, val.template as<AttrT>());
     }
