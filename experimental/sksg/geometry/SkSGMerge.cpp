@@ -54,7 +54,7 @@ static SkPathOp mode_to_op(Merge::Mode mode) {
     return kUnion_SkPathOp;
 }
 
-Node::RevalidationResult Merge::onRevalidate(InvalidationController* ic, const SkMatrix& ctm) {
+SkRect Merge::onRevalidate(InvalidationController* ic, const SkMatrix& ctm) {
     SkASSERT(this->hasInval());
 
     const auto op = mode_to_op(fMode);
@@ -75,8 +75,7 @@ Node::RevalidationResult Merge::onRevalidate(InvalidationController* ic, const S
         builder.resolve(&fMerged);
     }
 
-    // Geometry does not contribute damage directly.
-    return { fMerged.computeTightBounds(), Damage::kBlockSelf };
+    return fMerged.computeTightBounds();
 }
 
 } // namespace skotty
