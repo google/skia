@@ -175,12 +175,7 @@ public:
             }
 
             if (count > kCount) {
-                const uint64_t size64 = sk_64_mul(count, sizeof(T));
-                const size_t size = static_cast<size_t>(size64);
-                if (size != size64) {
-                    sk_out_of_memory();
-                }
-                fArray = (T*) sk_malloc_throw(size);
+                fArray = (T*) sk_malloc_throw(count, sizeof(T));
             } else if (count > 0) {
                 fArray = (T*) fStorage;
             } else {
@@ -250,7 +245,7 @@ public:
 
     /** Allocates space for 'count' Ts. */
     explicit SkAutoTMalloc(size_t count) {
-        fPtr = count ? (T*)sk_malloc_flags(count * sizeof(T), SK_MALLOC_THROW) : nullptr;
+        fPtr = count ? (T*)sk_malloc_throw(count, sizeof(T)) : nullptr;
     }
 
     SkAutoTMalloc(SkAutoTMalloc<T>&& that) : fPtr(that.release()) {}
@@ -271,7 +266,7 @@ public:
     /** Resize the memory area pointed to by the current ptr without preserving contents. */
     T* reset(size_t count = 0) {
         sk_free(fPtr);
-        fPtr = count ? (T*)sk_malloc_flags(count * sizeof(T), SK_MALLOC_THROW) : nullptr;
+        fPtr = count ? (T*)sk_malloc_throw(count, sizeof(T)) : nullptr;
         return fPtr;
     }
 
@@ -322,7 +317,7 @@ public:
 
     SkAutoSTMalloc(size_t count) {
         if (count > kCount) {
-            fPtr = (T*)sk_malloc_flags(count * sizeof(T), SK_MALLOC_THROW | SK_MALLOC_TEMP);
+            fPtr = (T*)sk_malloc_throw(count, sizeof(T));
         } else if (count) {
             fPtr = fTStorage;
         } else {
@@ -342,7 +337,7 @@ public:
             sk_free(fPtr);
         }
         if (count > kCount) {
-            fPtr = (T*)sk_malloc_throw(count * sizeof(T));
+            fPtr = (T*)sk_malloc_throw(count, sizeof(T));
         } else if (count) {
             fPtr = fTStorage;
         } else {
@@ -373,14 +368,14 @@ public:
     void realloc(size_t count) {
         if (count > kCount) {
             if (fPtr == fTStorage) {
-                fPtr = (T*)sk_malloc_throw(count * sizeof(T));
+                fPtr = (T*)sk_malloc_throw(count, sizeof(T));
                 memcpy(fPtr, fTStorage, kCount * sizeof(T));
             } else {
-                fPtr = (T*)sk_realloc_throw(fPtr, count * sizeof(T));
+                fPtr = (T*)sk_realloc_throw(fPtr, count, sizeof(T));
             }
         } else if (count) {
             if (fPtr != fTStorage) {
-                fPtr = (T*)sk_realloc_throw(fPtr, count * sizeof(T));
+                fPtr = (T*)sk_realloc_throw(fPtr, count, sizeof(T));
             }
         } else {
             this->reset(0);
