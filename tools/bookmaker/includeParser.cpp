@@ -458,8 +458,7 @@ bool IncludeParser::crossCheck(BmhParser& bmhParser) {
             continue;
         }
         RootDefinition* root = &finder->second;
-        if (!root->dumpUnVisited(bmhParser.fSkip)) {
-            SkDebugf("some struct elements not found; struct finding in includeParser is missing\n");
+        if (!root->dumpUnVisited()) {
             fFailed = true;
         }
         if (crossChecks) {

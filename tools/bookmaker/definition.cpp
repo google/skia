@@ -1215,18 +1215,10 @@ void RootDefinition::clearVisited() {
     }
 }
 
-bool RootDefinition::dumpUnVisited(bool skip) {
-    bool allStructElementsFound = true;
+bool RootDefinition::dumpUnVisited() {
+    bool success = true;
     for (auto& leaf : fLeaves) {
         if (!leaf.second.fVisited) {
-            // TODO: parse embedded struct in includeParser phase, then remove this condition
-            if (skip) {
-                const Definition& def = leaf.second;
-                if (def.fChildren.size() > 0 &&
-                        MarkType::kDeprecated == def.fChildren[0]->fMarkType) {
-                    continue;
-                }
-            }
             // FIXME: bugs requiring long tail fixes, suppressed here:
             // SkBitmap::validate() is wrapped in SkDEBUGCODE in .h and not parsed
             if ("SkBitmap::validate()" == leaf.first) {
@@ -1238,12 +1230,13 @@ bool RootDefinition::dumpUnVisited(bool skip) {
             }
             // FIXME: end of long tail bugs
             SkDebugf("defined in bmh but missing in include: %s\n", leaf.first.c_str());
+            success = false;
         }
     }
     for (auto& branch : fBranches) {
-        allStructElementsFound &= branch.second->dumpUnVisited(skip);
+        success &= branch.second->dumpUnVisited();
     }
-    return allStructElementsFound;
+    return success;
 }
 
 const Definition* RootDefinition::find(const string& ref, AllowParens allowParens) const {

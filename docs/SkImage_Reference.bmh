@@ -1320,7 +1320,7 @@ paint.setShader(image->makeShader(&matrix));
 canvas->drawPaint(paint);
 ##
 
-#SeeAlso incomplete
+#SeeAlso scalePixels
 
 #Method ##
 
@@ -1328,20 +1328,49 @@ canvas->drawPaint(paint);
 
 #Method bool peekPixels(SkPixmap* pixmap) const
 
-If the image has direct access to its pixels (i.e. they are in local RAM)
-return true, and if not null, return in the pixmap parameter the info about the
-images pixels.
-On failure, return false and ignore the pixmap parameter.
+Copies Image pixel address, row bytes, and Image_Info to pixmap, if address
+is available, and returns true. If pixel address is not available, return
+false and leave pixmap unchanged.
 
-#Param pixmap  incomplete ##
+#Param pixmap  storage for pixel state if pixels are readable; otherwise, ignored ##
 
-#Return incomplete ##
+#Return true if Image has direct access to pixels ##
 
 #Example
-// incomplete
+    SkBitmap bitmap;
+    bitmap.allocPixels(SkImageInfo::MakeN32Premul(12, 11));
+    SkCanvas offscreen(bitmap);
+    offscreen.clear(SK_ColorWHITE);
+    SkPaint paint;
+    offscreen.drawString("%", 1, 10, paint);
+    sk_sp<SkImage> image = SkImage::MakeFromBitmap(bitmap);
+    SkPixmap pixmap;
+    if (image->peekPixels(&pixmap)) {
+        const SkPMColor* pixels = pixmap.addr32();
+        SkPMColor pmWhite = pixels[0];
+        for (int y = 0; y < image->height(); ++y) {
+            for (int x = 0; x < image->width(); ++x) {
+                SkDebugf("%c", *pixels++ == pmWhite ? '-' : 'x');
+            }
+            SkDebugf("\n");
+        }
+    }
+#StdOut
+------------
+--xx----x---
+-x--x--x----
+-x--x--x----
+-x--x-x-----
+--xx-xx-xx--
+-----x-x--x-
+----x--x--x-
+----x--x--x-
+---x----xx--
+------------
+##
 ##
 
-#SeeAlso incomplete
+#SeeAlso readPixels
 
 #Method ##
 
@@ -1355,7 +1384,7 @@ Deprecated.
 ##
 
 #Private
-currently used by Canvas2DLayerBridge in Chromium.
+Currently used by Canvas2DLayerBridge in Chromium.
 ##
 
 #Method ##
@@ -1364,15 +1393,37 @@ currently used by Canvas2DLayerBridge in Chromium.
 
 #Method bool isTextureBacked() const
 
-Returns true if the image is texture backed.
+Returns true the contents of Image was created on or uploaded to GPU memory,
+and is available as a GPU_Texture.
 
-#Return incomplete ##
+#Return true if Image is a GPU_Texture ##
 
 #Example
-// incomplete
+#Image 5
+#Platform gpu
+auto drawImage = [=](sk_sp<SkImage> image, const char* label) -> void {
+    if (nullptr == image) {
+        return;
+    }
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    paint.setTextAlign(SkPaint::kCenter_Align);
+    canvas->drawImage(image, 0, 0);
+    canvas->drawString(label, image->width() / 2, image->height() / 4, paint);
+    canvas->drawString(image->isTextureBacked() ? "is GPU texture" : "not GPU texture",
+                       image->width() / 2, image->height() * 3 / 4, paint);
+};
+sk_sp<SkImage> bitmapImage(SkImage::MakeFromBitmap(source));
+sk_sp<SkImage> textureImage(SkImage::MakeFromTexture(canvas->getGrContext(), backEndTexture,
+                            kTopLeft_GrSurfaceOrigin, kOpaque_SkAlphaType, nullptr));
+drawImage(image, "image");
+canvas->translate(image->width(), 0);
+drawImage(bitmapImage, "source");
+canvas->translate(-image->width(), image->height());
+drawImage(textureImage, "backEndTexture");
 ##
 
-#SeeAlso incomplete
+#SeeAlso MakeFromTexture isValid
 
 #Method ##
 
@@ -1380,22 +1431,48 @@ Returns true if the image is texture backed.
 
 #Method bool isValid(GrContext* context) const
 
-Returns true if Image can be drawn. If context
-is nullptr, tests if Image draws on Raster_Surface; Otherwise, tests if Image
-draws on GPU_Surface associated with context.
+Returns true if Image can be drawn on either Raster_Surface or GPU_Surface.
+If context is nullptr, tests if Image draws on Raster_Surface;
+otherwise, tests if Image draws on GPU_Surface associated with context.
 
-Texture-backed images may become invalid if their underlying GrContext is abandoned. Some
-generator-backed images may be invalid for CPU and/or GPU.
+Image backed by GPU_Texture may become invalid if associated GrContext is
+invalid. Lazy_Image may be invalid and may not draw to Raster_Surface or
+GPU_Surface or both.
 
 #Param context  GPU_Context ##
 
-#Return incomplete ##
+#Return true if Image can be drawn  ##
 
 #Example
-// incomplete
+#Image 5
+#Platform gpu
+auto drawImage = [=](sk_sp<SkImage> image, const char* label) -> void {
+    if (nullptr == image) {
+        return;
+    }
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    paint.setTextAlign(SkPaint::kCenter_Align);
+    canvas->drawImage(image, 0, 0);
+    canvas->drawString(label, image->width() / 2, image->height() / 4, paint);
+    if (canvas->getGrContext()) {
+        canvas->drawString(image->isValid(canvas->getGrContext()) ? "is valid on GPU" :
+                "not valid on GPU", image->width() / 2, image->height() * 5 / 8, paint);
+    }
+    canvas->drawString(image->isValid(nullptr) ? "is valid on CPU" :
+            "not valid on CPU", image->width() / 2, image->height() * 7 / 8, paint);
+};
+sk_sp<SkImage> bitmapImage(SkImage::MakeFromBitmap(source));
+sk_sp<SkImage> textureImage(SkImage::MakeFromTexture(canvas->getGrContext(), backEndTexture,
+                            kTopLeft_GrSurfaceOrigin, kOpaque_SkAlphaType, nullptr));
+drawImage(image, "image");
+canvas->translate(image->width(), 0);
+drawImage(bitmapImage, "source");
+canvas->translate(-image->width(), image->height());
+drawImage(textureImage, "backEndTexture");
 ##
 
-#SeeAlso incomplete
+#SeeAlso isTextureBacked isLazyGenerated
 
 #Method ##
 
@@ -1989,6 +2066,34 @@ void draw(SkCanvas* canvas) {
     SkPaint paint;
     paint.setTextSize(4);
     canvas->drawString(lazy, 2, 5, paint);
+}
+##
+
+#Example
+#Image 5
+#Platform gpu
+void draw(SkCanvas* canvas) {
+    auto drawImage = [=](sk_sp<SkImage> image, const char* label) -> void {
+        if (nullptr == image) {
+            return;
+        }
+        SkPaint paint;
+        paint.setAntiAlias(true);
+        paint.setTextAlign(SkPaint::kCenter_Align);
+        canvas->drawImage(image, 0, 0);
+        canvas->drawString(label, image->width() / 2, image->height() / 4, paint);
+        canvas->drawString(
+                image->isLazyGenerated() ? "is lazily generated" : "not lazily generated",
+                image->width() / 2, image->height() * 3 / 4, paint);
+    };
+    sk_sp<SkImage> bitmapImage(SkImage::MakeFromBitmap(source));
+    sk_sp<SkImage> textureImage(SkImage::MakeFromTexture(canvas->getGrContext(), backEndTexture,
+                                kTopLeft_GrSurfaceOrigin, kOpaque_SkAlphaType, nullptr));
+    drawImage(image, "image");
+    canvas->translate(image->width(), 0);
+    drawImage(bitmapImage, "source");
+    canvas->translate(-image->width(), image->height());
+    drawImage(textureImage, "backEndTexture");
 }
 ##
 
