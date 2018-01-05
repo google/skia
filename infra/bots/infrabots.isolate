@@ -1,7 +1,6 @@
 {
   'variables': {
     'files': [
-      '../../tools/valgrind.supp',
       './',
     ],
   },

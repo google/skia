@@ -17,11 +17,8 @@ class PDFiumFlavorUtils(default_flavor.DefaultFlavorUtils):
     pdfium_dir = self.m.vars.checkout_root.join('pdfium')
 
     # Runhook to generate the gn binary in buildtools.
-    with self.m.context(cwd=pdfium_dir):
-      self.m.run(
-          self.m.step,
-          'runhook',
-          cmd=['gclient', 'runhook', 'gn_linux64'])
+    with self.m.context(cwd=pdfium_dir, env=self.m.vars.gclient_env):
+      self.m.gclient('runhook', ['runhook', 'gn_linux64'])
 
       # Install the sysroot.
       self.m.run(

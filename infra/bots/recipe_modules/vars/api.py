@@ -34,7 +34,7 @@ class SkiaVarsApi(recipe_api.RecipeApi):
         self.default_env.get('PATH', '%(PATH)s'),
         str(self.m.bot_update._module.PACKAGE_REPO_ROOT),
     ])
-    self.gclient_env = {}
+    self.gclient_env = {'DEPOT_TOOLS_UPDATE': '0'}
     self.is_compile_bot = self.builder_name.startswith('Build-')
 
     self.persistent_checkout = False

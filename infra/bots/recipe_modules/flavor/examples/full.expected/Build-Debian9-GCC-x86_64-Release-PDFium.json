@@ -1,18 +1,19 @@
 [
   {
     "cmd": [
-      "gclient",
+      "python",
+      "-u",
+      "RECIPE_PACKAGE_REPO[depot_tools]/gclient.py",
       "runhook",
       "gn_linux64"
     ],
     "cwd": "[CUSTOM_/_B_WORK]/pdfium",
     "env": {
-      "BUILDTYPE": "Release",
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[CUSTOM_/_B_WORK]/pdfium/third_party/skia/out/Build-Debian9-GCC-x86_64-Release-PDFium"
+      "DEPOT_TOOLS_UPDATE": "0",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
-    "name": "runhook"
+    "infra_step": true,
+    "name": "gclient runhook"
   },
   {
     "cmd": [
@@ -24,6 +25,7 @@
     "env": {
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
+      "DEPOT_TOOLS_UPDATE": "0",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[CUSTOM_/_B_WORK]/pdfium/third_party/skia/out/Build-Debian9-GCC-x86_64-Release-PDFium"
     },
@@ -41,6 +43,7 @@
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "CHROMIUM_BUILDTOOLS_PATH": "[CUSTOM_/_B_WORK]/pdfium/buildtools",
+      "DEPOT_TOOLS_UPDATE": "0",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[CUSTOM_/_B_WORK]/pdfium/third_party/skia/out/Build-Debian9-GCC-x86_64-Release-PDFium"
     },
@@ -58,6 +61,7 @@
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "CHROMIUM_BUILDTOOLS_PATH": "[CUSTOM_/_B_WORK]/pdfium/buildtools",
+      "DEPOT_TOOLS_UPDATE": "0",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[CUSTOM_/_B_WORK]/pdfium/third_party/skia/out/Build-Debian9-GCC-x86_64-Release-PDFium"
     },
