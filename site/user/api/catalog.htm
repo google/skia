@@ -1576,8 +1576,8 @@
         "stdout": "0 == default text skew x\\n"
     },
         "SkPaint_getTypeface": {
-    "code": "void draw(SkCanvas* canvas) {\n   SkPaint paint;\n   SkDebugf(\"nullptr %c= typeface\\n\", paint.getTypeface() ? '!' : '=');\n   paint.setTypeface(SkTypeface::MakeFromName(\"Times New Roman\", SkFontStyle()));\n   SkDebugf(\"nullptr %c= typeface\\n\", paint.getTypeface() ? '!' : '=');\n}\n",
-    "hash": "4d9ffb5761b62a9e3bc9b0bca8787bce",
+    "code": "void draw(SkCanvas* canvas) {\n   SkPaint paint;\n   SkDebugf(\"nullptr %c= typeface\\n\", paint.getTypeface() ? '!' : '=');\n   paint.setTypeface(SkTypeface::MakeFromName(\"monospace\", SkFontStyle()));\n   SkDebugf(\"nullptr %c= typeface\\n\", paint.getTypeface() ? '!' : '=');\n}\n",
+    "hash": "5ce718e5a184baaac80e7098d7dad67b",
     "file": "SkPaint_Reference",
     "name": "SkPaint::getTypeface",
         "stdout": "nullptr == typeface\\nnullptr != typeface\\n"
@@ -1737,8 +1737,8 @@
         "stdout": "shader unique: true\\nshader unique: false\\n"
     },
         "SkPaint_refTypeface": {
-    "code": "void draw(SkCanvas* canvas) {\n   SkPaint paint1, paint2;\n   paint1.setTypeface(SkTypeface::MakeFromName(\"Times New Roman\", \n            SkFontStyle(SkFontStyle::kNormal_Weight, SkFontStyle::kNormal_Width,\n            SkFontStyle::kItalic_Slant)));\n   SkDebugf(\"typeface1 %c= typeface2\\n\",\n            paint1.getTypeface() == paint2.getTypeface() ? '=' : '!');\n   paint2.setTypeface(paint1.refTypeface());\n   SkDebugf(\"typeface1 %c= typeface2\\n\",\n            paint1.getTypeface() == paint2.getTypeface() ? '=' : '!');\n}\n",
-    "hash": "c8edce7b36a3ffda8af4fe89d7187dbc",
+    "code": "void draw(SkCanvas* canvas) {\n   SkPaint paint1, paint2;\n   paint1.setTypeface(SkTypeface::MakeFromName(\"monospace\", \n            SkFontStyle(SkFontStyle::kNormal_Weight, SkFontStyle::kNormal_Width,\n            SkFontStyle::kItalic_Slant)));\n   SkDebugf(\"typeface1 %c= typeface2\\n\",\n            paint1.getTypeface() == paint2.getTypeface() ? '=' : '!');\n   paint2.setTypeface(paint1.refTypeface());\n   SkDebugf(\"typeface1 %c= typeface2\\n\",\n            paint1.getTypeface() == paint2.getTypeface() ? '=' : '!');\n}\n",
+    "hash": "4bf8ed109c4b46d8a05c8b7763c1982c",
     "file": "SkPaint_Reference",
     "name": "SkPaint::refTypeface",
         "stdout": "typeface1 != typeface2\\ntypeface1 == typeface2\\n"
@@ -5224,14 +5224,6 @@
     "file": "SkMatrix_Reference",
     "name": "SkMatrix::mapPointsWithStride"
 },
-    "SkMatrix_mapPointsWithStride_2": {
-    "code": "void draw(SkCanvas* canvas) {\n    struct PointZ {\n        SkPoint fPt;\n        const SkPoint fStationary;\n    };\n    const PointZ src[] = {{{40, 70}, {40, 70}}, {{180, 70}, {180, 70}}, {{180, 220}, {180, 220}},\n               {{40, 220}, {40, 220}}};\n    PointZ dst[] = {{{0, 0}, {60, 80}}, {{0, 0}, {150, 40}}, {{0, 0}, {100, 240}},\n               {{0, 0}, {10, 250}}};\n    constexpr int count = SK_ARRAY_COUNT(src);\n    SkPaint paint;\n    paint.setARGB(77, 23, 99, 154);\n    for (int i = 0; i < 5; ++i) {\n    SkMatrix matrix;\n        matrix.setRotate(10 * i, 128, 128);\n        matrix.mapPointsWithStride(&dst[0].fPt, &src[0].fPt, sizeof(PointZ), count);\n        canvas->drawPoints(SkCanvas::kPolygon_PointMode, count * 2, &dst[0].fPt, paint);\n    }\n}",
-    "width": 256,
-    "height": 256,
-    "hash": "08e32de52131e6859db16729b2e56e4e",
-    "file": "SkMatrix_Reference",
-    "name": "SkMatrix::mapPointsWithStride_2"
-},
     "SkMatrix_mapPoints_2": {
     "code": "void draw(SkCanvas* canvas) {\n    SkMatrix matrix;\n    matrix.setRotate(35, 128, 128);\n    const int count = 4;\n    SkPoint pts[count];\n    matrix.mapRectToQuad(pts, {40, 70, 180, 220} );\n    SkPaint paint;\n    paint.setARGB(77, 23, 99, 154);\n    for (int i = 0; i < 5; ++i) {\n        canvas->drawPoints(SkCanvas::kPolygon_PointMode, count, pts, paint);\n        matrix.mapPoints(pts, count);\n    }\n}",
     "width": 256,
@@ -5873,10 +5865,10 @@
     "name": "SkPaint::setTextAlign"
 },
     "SkPaint_setTypeface": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setTypeface(SkTypeface::MakeFromName(\"Courier New\", SkFontStyle()));\n    canvas->drawString(\"Courier New\", 10, 30, paint);\n    paint.setTypeface(nullptr);\n    canvas->drawString(\"default\", 10, 50, paint);\n}\n",
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setTypeface(SkTypeface::MakeFromName(\"monospace\", SkFontStyle()));\n    canvas->drawString(\"hamburgerfons\", 10, 30, paint);\n    paint.setTypeface(nullptr);\n    canvas->drawString(\"hamburgerfons\", 10, 50, paint);\n}\n",
     "width": 256,
     "height": 64,
-    "hash": "3d2656ec4c555ed2c7ec086720124a2a",
+    "hash": "0e6fbb7773cd925b274552f4cd1abef2",
     "file": "SkPaint_Reference",
     "name": "SkPaint::setTypeface"
 },
