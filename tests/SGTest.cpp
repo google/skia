@@ -81,13 +81,12 @@ DEF_TEST(SGInvalidation, reporter) {
 
     {
         // Update the common color.
-        // TODO: this doesn't work ATM as expected; fix and enable.
-//        color->setColor(0xffff0000);
-//        std::vector<SkRect> damage = { {0, 0, 100, 100}, { 200, 100, 300, 200} };
-//        check_inval(reporter, tr,
-//                    SkRect::MakeWH(300, 200),
-//                    SkRect::MakeWH(300, 200),
-//                    &damage);
+        color->setColor(0xffff0000);
+        std::vector<SkRect> damage = { {0, 0, 100, 100}, { 200, 100, 300, 200} };
+        check_inval(reporter, tr,
+                    SkRect::MakeWH(300, 200),
+                    SkRect::MakeWH(300, 200),
+                    &damage);
     }
 
     {
