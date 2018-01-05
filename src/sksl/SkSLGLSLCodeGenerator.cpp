@@ -1014,7 +1014,7 @@ void GLSLCodeGenerator::writeVarDeclarations(const VarDeclarations& decl, bool g
             wroteType = true;
         }
         this->write(var.fVar->fName);
-        for (const auto& size : var.fSizes) {
+        for (const auto& size : var.fVar->fSizes) {
             this->write("[");
             if (size) {
                 this->writeExpression(*size, kTopLevel_Precedence);

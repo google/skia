@@ -16,6 +16,7 @@
 #include "GrShaderCaps.h"
 #include "GrFragmentProcessor.h"
 #include "GrCoordTransform.h"
+#include "SkPoint3.h"
 class GrEllipseEffect : public GrFragmentProcessor {
 public:
     GrClipEdgeType edgeType() const { return fEdgeType; }

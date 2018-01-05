@@ -14,6 +14,7 @@
 #if SK_SUPPORT_GPU
 #include "GrFragmentProcessor.h"
 #include "GrCoordTransform.h"
+#include "SkPoint3.h"
 class GrCircleBlurFragmentProcessor : public GrFragmentProcessor {
 public:
     SkRect circleRect() const { return fCircleRect; }

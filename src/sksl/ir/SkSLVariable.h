@@ -39,6 +39,16 @@ struct Variable : public Symbol {
     , fReadCount(0)
     , fWriteCount(0) {}
 
+    Variable(int offset, Modifiers modifiers, StringFragment name, const Type& type,
+             Storage storage, std::vector<std::unique_ptr<Expression>> sizes)
+    : INHERITED(offset, kVariable_Kind, name)
+    , fModifiers(modifiers)
+    , fType(type)
+    , fStorage(storage)
+    , fSizes(std::move(sizes))
+    , fReadCount(0)
+    , fWriteCount(0){}
+
     virtual String description() const override {
         return fModifiers.description() + fType.fName + " " + fName;
     }
@@ -51,6 +61,7 @@ struct Variable : public Symbol {
     const Type& fType;
     const Storage fStorage;
 
+    std::vector<std::unique_ptr<Expression>> fSizes;
     Expression* fInitialValue = nullptr;
 
     // Tracks how many sites read from the variable. If this is zero for a non-out variable (or

@@ -22,16 +22,14 @@ namespace SkSL {
  */
 struct VarDeclaration : public Statement {
     VarDeclaration(const Variable* var,
-                   std::vector<std::unique_ptr<Expression>> sizes,
                    std::unique_ptr<Expression> value)
     : INHERITED(var->fOffset, Statement::kVarDeclaration_Kind)
     , fVar(var)
-    , fSizes(std::move(sizes))
     , fValue(std::move(value)) {}
 
     String description() const {
         String result = fVar->fName;
-        for (const auto& size : fSizes) {
+        for (const auto& size : fVar->fSizes) {
             if (size) {
                 result += "[" + size->description() + "]";
             } else {
@@ -45,7 +43,6 @@ struct VarDeclaration : public Statement {
     }
 
     const Variable* fVar;
-    std::vector<std::unique_ptr<Expression>> fSizes;
     std::unique_ptr<Expression> fValue;
 
     typedef Statement INHERITED;

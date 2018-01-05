@@ -137,6 +137,7 @@ static String default_value(const Variable& var) {
 static bool is_private(const Variable& var) {
     return !(var.fModifiers.fFlags & Modifiers::kUniform_Flag) &&
            !(var.fModifiers.fFlags & Modifiers::kIn_Flag) &&
+           !(var.fModifiers.fFlags & Modifiers::kConst_Flag) &&
            var.fStorage == Variable::kGlobal_Storage &&
            var.fModifiers.fLayout.fBuiltin == -1;
 }
@@ -387,6 +388,35 @@ void CPPCodeGenerator::writeProgramElement(const ProgramElement& p) {
     INHERITED::writeProgramElement(p);
 }
 
+const char* CPPCodeGenerator::getUniformType(const Type& type) {
+    if (Type::kArray_Kind == type.kind()) {
+        return this->getUniformType(type.componentType());
+    }
+    if (type == *fContext.fFloat_Type) {
+        return "kFloat_GrSLType";
+    } else if (type == *fContext.fHalf_Type) {
+        return "kHalf_GrSLType";
+    } else if (type == *fContext.fFloat2_Type) {
+        return "kFloat2_GrSLType";
+    } else if (type == *fContext.fHalf2_Type) {
+        return "kHalf2_GrSLType";
+    } else if (type == *fContext.fFloat3_Type) {
+        return "kFloat3_GrSLType";
+    } else if (type == *fContext.fHalf3_Type) {
+        return "kHalf3_GrSLType";
+    } else if (type == *fContext.fFloat4_Type) {
+        return "kFloat4_GrSLType";
+    } else if (type == *fContext.fHalf4_Type) {
+        return "kHalf4_GrSLType";
+    } else if (type == *fContext.fFloat4x4_Type) {
+        return "kFloat4x4_GrSLType";
+    } else if (type == *fContext.fHalf4x4_Type) {
+        return "kHalf4x4_GrSLType";
+    } else {
+        ABORT("unsupported uniform type: %s\n", type.name().c_str());
+    }
+}
+
 void CPPCodeGenerator::addUniform(const Variable& var) {
     if (!needs_uniform_var(var)) {
         return;
@@ -401,40 +431,28 @@ void CPPCodeGenerator::addUniform(const Variable& var) {
     } else {
         precision = "kDefault_GrSLPrecision";
     }
-    const char* type;
-    if (var.fType == *fContext.fFloat_Type) {
-        type = "kFloat_GrSLType";
-    } else if (var.fType == *fContext.fHalf_Type) {
-        type = "kHalf_GrSLType";
-    } else if (var.fType == *fContext.fFloat2_Type) {
-        type = "kFloat2_GrSLType";
-    } else if (var.fType == *fContext.fHalf2_Type) {
-        type = "kHalf2_GrSLType";
-    } else if (var.fType == *fContext.fFloat4_Type) {
-        type = "kFloat4_GrSLType";
-    } else if (var.fType == *fContext.fHalf4_Type) {
-        type = "kHalf4_GrSLType";
-    } else if (var.fType == *fContext.fFloat4x4_Type) {
-        type = "kFloat4x4_GrSLType";
-    } else if (var.fType == *fContext.fHalf4x4_Type) {
-        type = "kHalf4x4_GrSLType";
-    } else {
-        ABORT("unsupported uniform type: %s %s;\n", String(var.fType.fName).c_str(),
-              String(var.fName).c_str());
-    }
+    const char* type = this->getUniformType(var.fType);
     if (var.fModifiers.fLayout.fWhen.size()) {
         this->writef("        if (%s) {\n    ", var.fModifiers.fLayout.fWhen.c_str());
     }
     String name(var.fName);
-    this->writef("        %sVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, %s, "
-                 "%s, \"%s\");\n", HCodeGenerator::FieldName(name.c_str()).c_str(), type, precision,
-                 name.c_str());
+    if (var.fType.kind() == Type::kArray_Kind) {
+        this->writef("        %sVar = args.fUniformHandler->addUniformArray("
+                     "kFragment_GrShaderFlag, %s, %s, \"%s\", %s);\n",
+                     HCodeGenerator::FieldName(name.c_str()).c_str(), type, precision, name.c_str(),
+                                               var.fSizes[0]->description().c_str());
+    } else {
+        this->writef("        %sVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, %s, "
+                     "%s, \"%s\");\n", HCodeGenerator::FieldName(name.c_str()).c_str(), type,
+                     precision, name.c_str());
+    }
     if (var.fModifiers.fLayout.fWhen.size()) {
         this->write("        }\n");
     }
 }
 
 void CPPCodeGenerator::writePrivateVars() {
+    HCodeGenerator::WriteConstants(fProgram, fOut);
     for (const auto& p : fProgram.fElements) {
         if (ProgramElement::kVar_Kind == p->fKind) {
             const VarDeclarations* decls = (const VarDeclarations*) p.get();
@@ -446,11 +464,15 @@ void CPPCodeGenerator::writePrivateVars() {
                                       "fragmentProcessor variables must be declared 'in'");
                         return;
                     }
-                    this->writef("%s %s = %s;\n",
-                                 HCodeGenerator::FieldType(fContext, decl.fVar->fType,
-                                                           decl.fVar->fModifiers.fLayout).c_str(),
-                                 String(decl.fVar->fName).c_str(),
-                                 default_value(*decl.fVar).c_str());
+                    String name = String(decl.fVar->fName);
+                    this->writef("%s",
+                                 HCodeGenerator::FieldDeclaration(fContext,
+                                                                  *decl.fVar,
+                                                                  name.c_str()).c_str());
+                    if (Type::kArray_Kind != decl.fVar->fType.kind()) {
+                        this->writef(" = %s", default_value(*decl.fVar).c_str());
+                    }
+                    this->writef(";\n");
                 }
             }
         }
@@ -469,6 +491,21 @@ void CPPCodeGenerator::writePrivateVarValues() {
                     this->writeExpression(*decl.fValue, kAssignment_Precedence);
                     fCPPMode = false;
                     this->write(";\n");
+                }
+            }
+        }
+    }
+}
+
+void CPPCodeGenerator::writePrivateVarInits() {
+    for (const auto& p : fProgram.fElements) {
+        if (ProgramElement::kVar_Kind == p->fKind) {
+            const VarDeclarations* decls = (const VarDeclarations*) p.get();
+            for (const auto& raw : decls->fVars) {
+                VarDeclaration& decl = (VarDeclaration&) *raw;
+                if (is_private(*decl.fVar) && Type::kArray_Kind == decl.fVar->fType.kind()) {
+                    String name(decl.fVar->fName);
+                    this->writef("memset(%s, 0, sizeof(%s));\n", name.c_str(), name.c_str());
                 }
             }
         }
@@ -584,6 +621,19 @@ void CPPCodeGenerator::writeSetData(std::vector<const Variable*>& uniforms) {
                              "        %s.setMatrix4f(%sVar, %sValue);\n",
                              name, name, name, pdman, HCodeGenerator::FieldName(name).c_str(),
                              name);
+            } else if (u->fType.kind() == Type::kArray_Kind) {
+                ASSERT(u->fSizes.size() == 1);
+                String count = u->fSizes[0]->description();
+                int columns;
+                if (u->fType.componentType().kind() == Type::kVector_Kind) {
+                    columns = u->fType.componentType().columns();
+                }
+                else {
+                    columns = 1;
+                }
+                this->writef("        %s.set%dfv(%sVar, %s, (float*) _outer.%s());",
+                             pdman, columns, HCodeGenerator::FieldName(name).c_str(), count.c_str(),
+                             name);
             } else if (u->fType == *fContext.fFragmentProcessor_Type) {
                 // do nothing
             } else {
@@ -645,7 +695,8 @@ void CPPCodeGenerator::writeClone() {
                      ": INHERITED(k%s_ClassID, src.optimizationFlags())", fFullName.c_str(),
                      fFullName.c_str(), fFullName.c_str(), fFullName.c_str());
         for (const auto& param : fSectionAndParameterHelper.getParameters()) {
-            if (param->fType == *fContext.fFragmentProcessor_Type) {
+            if (param->fType == *fContext.fFragmentProcessor_Type ||
+                param->fType.kind() == Type::kArray_Kind) {
                 continue;
             }
             String fieldName = HCodeGenerator::FieldName(String(param->fName).c_str());
@@ -659,6 +710,14 @@ void CPPCodeGenerator::writeClone() {
                          fieldName.c_str());
         }
         this->writef(" {\n");
+        for (const auto& param : fSectionAndParameterHelper.getParameters()) {
+            if (param->fType.kind() == Type::kArray_Kind) {
+                String fieldName = HCodeGenerator::FieldName(String(param->fName).c_str());
+                const char* name = fieldName.c_str();
+                this->writef("        memcpy(%s, src.%s, sizeof(%s));\n", name, name, name);
+            }
+        }
+
         int childCount = 0;
         for (const auto& param : fSectionAndParameterHelper.getParameters()) {
             if (param->fType.kind() == Type::kSampler_Kind) {
@@ -776,8 +835,10 @@ bool CPPCodeGenerator::generateCode() {
                  "#include \"SkSLUtil.h\"\n"
                  "class GrGLSL%s : public GrGLSLFragmentProcessor {\n"
                  "public:\n"
-                 "    GrGLSL%s() {}\n",
+                 "    GrGLSL%s() {\n",
                  baseName, baseName);
+    this->writePrivateVarInits();
+    this->write("}\n");
     bool result = this->writeEmitCode(uniforms);
     this->write("private:\n");
     this->writeSetData(uniforms);
@@ -808,11 +869,14 @@ bool CPPCodeGenerator::generateCode() {
         if (param->fType == *fContext.fFragmentProcessor_Type) {
             continue;
         }
-        String nameString(param->fName);
+        String nameString(HCodeGenerator::FieldName(String(param->fName).c_str()));
         const char* name = nameString.c_str();
-        this->writef("    if (%s != that.%s) return false;\n",
-                     HCodeGenerator::FieldName(name).c_str(),
-                     HCodeGenerator::FieldName(name).c_str());
+        if (param->fType.kind() == Type::kArray_Kind) {
+            this->writef("    if (memcmp(%s, that.%s, sizeof(%s))) return false;\n", name, name,
+                         name);
+        } else {
+            this->writef("    if (%s != that.%s) return false;\n", name, name);
+        }
     }
     this->write("    return true;\n"
                 "}\n");

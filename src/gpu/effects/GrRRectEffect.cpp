@@ -7,6 +7,7 @@
 
 #include "GrRRectEffect.h"
 
+#include "GrCaps.h"
 #include "GrConvexPolyEffect.h"
 #include "GrFragmentProcessor.h"
 #include "GrOvalEffect.h"

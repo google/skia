@@ -277,7 +277,8 @@ std::unique_ptr<VarDeclarations> IRGenerator::convertVarDeclarations(const ASTVa
             }
         }
         auto var = std::unique_ptr<Variable>(new Variable(decl.fOffset, decl.fModifiers,
-                                                          varDecl.fName, *type, storage));
+                                                          varDecl.fName, *type, storage,
+                                                          std::move(sizes)));
         if (var->fName == Compiler::RTADJUST_NAME) {
             ASSERT(!fRTAdjust);
             ASSERT(var->fType == *fContext.fFloat4_Type);
@@ -302,8 +303,7 @@ std::unique_ptr<VarDeclarations> IRGenerator::convertVarDeclarations(const ASTVa
             Variable* old = (Variable*) (*fSymbolTable)[varDecl.fName];
             old->fModifiers = var->fModifiers;
         } else {
-            variables.emplace_back(new VarDeclaration(var.get(), std::move(sizes),
-                                                      std::move(value)));
+            variables.emplace_back(new VarDeclaration(var.get(), std::move(value)));
             fSymbolTable->add(varDecl.fName, std::move(var));
         }
     }
