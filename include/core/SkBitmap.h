@@ -380,8 +380,8 @@ public:
         @return  bounds within SkPixelRef bounds
     */
     SkIRect getSubset() const {
-        return SkIRect::MakeXYWH(fPixelRefOrigin.x(), fPixelRefOrigin.y(),
-                                 fInfo.width(), fInfo.height());
+        SkIPoint origin = this->pixelRefOrigin();
+        return SkIRect::MakeXYWH(origin.x(), origin.y(), this->width(), this->height());
     }
 
     /** Sets width, height, SkAlphaType, SkColorType, SkColorSpace, and optional
@@ -737,7 +737,7 @@ public:
 
         @return  pixel origin within SkPixelRef
     */
-    SkIPoint pixelRefOrigin() const { return fPixelRefOrigin; }
+    SkIPoint pixelRefOrigin() const;
 
     /** Replaces pixelRef and origin in SkBitmap.  dx and dy specify the offset
         within the SkPixelRef pixels for the top-left corner of the bitmap.
@@ -1282,15 +1282,9 @@ private:
 
     sk_sp<SkPixelRef>   fPixelRef;
     void*               fPixels;
-    SkIPoint            fPixelRefOrigin;
     SkImageInfo         fInfo;
     uint32_t            fRowBytes;
     uint8_t             fFlags;
-
-    /*  Unreference any pixelrefs
-    */
-    void freePixels();
-    void updatePixelsFromRef();
 
     friend class SkReadBuffer;        // unflatten
 };
