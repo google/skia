@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "1e9259c8_5c08ae59",
+        "filename": "platform_tools/android/apps/settings.gradle",
+        "patchSetId": 13
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2018-01-05T14:47:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "66ce69c2_2445186c",
+      "range": {
+        "startLine": 3,
+        "startChar": 0,
+        "endLine": 3,
+        "endChar": 7
+      },
+      "revId": "c7777dc0350f836b64adcd75c1e65a1359ab9e02",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e95e4cbb_88ee3782",
         "filename": "platform_tools/android/apps/skqp/build.gradle",
         "patchSetId": 13
@@ -42,6 +66,24 @@
     },
     {
       "key": {
+        "uuid": "e0966429_84e8afb7",
+        "filename": "platform_tools/android/apps/skqp/build.gradle",
+        "patchSetId": 13
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2018-01-05T14:47:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e95e4cbb_88ee3782",
+      "revId": "c7777dc0350f836b64adcd75c1e65a1359ab9e02",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c229b40b_3643bbdd",
         "filename": "platform_tools/android/apps/skqp/src/main/AndroidManifest.xml",
         "patchSetId": 13
@@ -56,6 +98,24 @@
       "revId": "c7777dc0350f836b64adcd75c1e65a1359ab9e02",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "59a62fc4_0df4e72c",
+        "filename": "platform_tools/android/apps/skqp/src/main/AndroidManifest.xml",
+        "patchSetId": 13
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2018-01-05T14:47:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c229b40b_3643bbdd",
+      "revId": "c7777dc0350f836b64adcd75c1e65a1359ab9e02",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -82,6 +142,30 @@
     },
     {
       "key": {
+        "uuid": "a865025b_fdc1667c",
+        "filename": "platform_tools/android/apps/skqp/src/main/AndroidManifest.xml",
+        "patchSetId": 13
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2018-01-05T14:47:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0ab23404_55fb968b",
+      "range": {
+        "startLine": 11,
+        "startChar": 21,
+        "endLine": 11,
+        "endChar": 28
+      },
+      "revId": "c7777dc0350f836b64adcd75c1e65a1359ab9e02",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2829c981_d80c79cf",
         "filename": "platform_tools/android/apps/skqp/src/main/AndroidManifest.xml",
         "patchSetId": 13
@@ -93,6 +177,24 @@
       "writtenOn": "2018-01-04T17:45:29Z",
       "side": 1,
       "message": "is the data really javascript or just plain text?",
+      "revId": "c7777dc0350f836b64adcd75c1e65a1359ab9e02",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5fc532b2_33e76cdb",
+        "filename": "platform_tools/android/apps/skqp/src/main/AndroidManifest.xml",
+        "patchSetId": 13
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2018-01-05T14:47:38Z",
+      "side": 1,
+      "message": "This is from the example here:\nhttps://firebase.google.com/docs/test-lab/game-loop",
+      "parentUuid": "2829c981_d80c79cf",
       "revId": "c7777dc0350f836b64adcd75c1e65a1359ab9e02",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -116,6 +218,24 @@
     },
     {
       "key": {
+        "uuid": "9616f8d3_46bb67b8",
+        "filename": "platform_tools/android/apps/skqp/src/main/java/org/skia/skqp/MainActivity.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2018-01-05T14:47:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "09f0132d_fca693d7",
+      "revId": "c7777dc0350f836b64adcd75c1e65a1359ab9e02",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d4cfe008_27d374a7",
         "filename": "platform_tools/android/apps/skqp/src/main/java/org/skia/skqp/SkQPActivity.java",
         "patchSetId": 13
@@ -133,6 +253,24 @@
     },
     {
       "key": {
+        "uuid": "1b88ccf4_cd0994e5",
+        "filename": "platform_tools/android/apps/skqp/src/main/java/org/skia/skqp/SkQPActivity.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2018-01-05T14:47:38Z",
+      "side": 1,
+      "message": "Done\nThis was from driven by Firebase being the main target.",
+      "parentUuid": "d4cfe008_27d374a7",
+      "revId": "c7777dc0350f836b64adcd75c1e65a1359ab9e02",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d29d5161_39a4ea24",
         "filename": "platform_tools/android/apps/skqp/src/main/java/org/skia/skqp/SkQPActivity.java",
         "patchSetId": 13
@@ -144,6 +282,24 @@
       "writtenOn": "2018-01-04T17:45:29Z",
       "side": 1,
       "message": "Instead of finish could we display a completed text box or something like that?",
+      "revId": "c7777dc0350f836b64adcd75c1e65a1359ab9e02",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1e21deb3_373b4599",
+        "filename": "platform_tools/android/apps/skqp/src/main/java/org/skia/skqp/SkQPActivity.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2018-01-05T14:47:38Z",
+      "side": 1,
+      "message": "We can, I would like to add that in the next iteration and have this version \ndo some mileage on Firebase Testlab, just to make sure it\u0027s all working. \nIt might also fit better in the MainActivity.",
+      "parentUuid": "d29d5161_39a4ea24",
       "revId": "c7777dc0350f836b64adcd75c1e65a1359ab9e02",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -167,6 +323,24 @@
     },
     {
       "key": {
+        "uuid": "581836a1_3ff054d0",
+        "filename": "platform_tools/android/apps/skqp/src/main/java/org/skia/skqp/SkQPRunner.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2018-01-05T14:47:38Z",
+      "side": 1,
+      "message": "I didn\u0027t want to interfere with the already working jUnit code and I needed to re-write the \nrunTests/run method. Both use cases might also write to different directories. \nSo instead of duplicating functionality in one class I split them. I think it\u0027s also \ncleaner to have a class solely for wrapping the native code. \nIn other languages I would have SkQPRunner inherit from SkQPRunnerImpl.",
+      "parentUuid": "ce08123c_c66b5ac1",
+      "revId": "c7777dc0350f836b64adcd75c1e65a1359ab9e02",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "a5462d8c_d9b58fbd",
         "filename": "platform_tools/android/apps/skqp/src/main/res/layout/activity_main.xml",
         "patchSetId": 13
@@ -178,6 +352,24 @@
       "writtenOn": "2018-01-04T17:45:29Z",
       "side": 1,
       "message": "Does this text view serve a purpose?",
+      "revId": "c7777dc0350f836b64adcd75c1e65a1359ab9e02",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b889e653_e2eea411",
+        "filename": "platform_tools/android/apps/skqp/src/main/res/layout/activity_main.xml",
+        "patchSetId": 13
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2018-01-05T14:47:38Z",
+      "side": 1,
+      "message": "No. \nThe first version of the UI was done with Android Studio and I added this to make sure my activity actually fired.\n \nI would like to keep this for now and do another pass through the app to strip out the UI or add a useful one.",
+      "parentUuid": "a5462d8c_d9b58fbd",
       "revId": "c7777dc0350f836b64adcd75c1e65a1359ab9e02",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -198,6 +390,24 @@
       "revId": "c7777dc0350f836b64adcd75c1e65a1359ab9e02",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b1c9536c_cc8e2f06",
+        "filename": "platform_tools/android/apps/skqp/src/main/res/mipmap-xxxhdpi/ic_launcher.png",
+        "patchSetId": 13
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2018-01-05T14:47:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f1309caf_1f54a750",
+      "revId": "c7777dc0350f836b64adcd75c1e65a1359ab9e02",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
