@@ -69,14 +69,18 @@ protected:
                    const void* srcData, size_t srcRowBytes, uint32_t flags);
 
     // Lazy-callback version
-    GrTextureProxy(LazyInstantiateCallback&&, GrPixelConfig);
+    GrTextureProxy(LazyInstantiateCallback&&, const GrSurfaceDesc& desc, GrMipMapped,
+                   SkBackingFit fit, SkBudgeted budgeted, uint32_t flags);
 
     // Wrapped version
     GrTextureProxy(sk_sp<GrSurface>, GrSurfaceOrigin);
 
     ~GrTextureProxy() override;
 
-    SkDestinationSurfaceColorMode mipColorMode() const { return fMipColorMode;  }
+    SkDestinationSurfaceColorMode mipColorMode() const {
+        SkASSERT(LazyState::kNot == this->lazyInstantiationState());
+        return fMipColorMode;
+    }
 
     sk_sp<GrSurface> createSurface(GrResourceProvider*) const override;
 
