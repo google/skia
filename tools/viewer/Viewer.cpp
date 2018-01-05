@@ -614,7 +614,7 @@ void Viewer::setupCurrentSlide(int previousSlide) {
     // prepare dimensions for image slides
     fSlides[fCurrentSlide]->load(SkIntToScalar(fWindow->width()), SkIntToScalar(fWindow->height()));
 
-    fGesture.reset();
+    fGesture.resetTouchState();
     fDefaultMatrix.reset();
 
     const SkISize slideSize = fSlides[fCurrentSlide]->getDimensions();
