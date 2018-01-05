@@ -82,7 +82,6 @@ improve performance. Matrix is not thread safe unless getType is called first.
 # isTranslate            # Returns if transform is limited to translate. ##
 # mapHomogeneousPoints   # Maps Point3 array. ##
 # mapPoints              # Maps Point array. ##
-# mapPointsWithStride    # Maps Point array with padding. ##
 # mapRadius              # Returns mean radius of mapped Circle. ##
 # mapRect                # Returns bounds of mapped Rect. ##
 # mapRectScaleTranslate  # Returns bounds of mapped Rect. ##
@@ -3203,7 +3202,7 @@ src and dst may point to the same storage.
     }
 ##
 
-#SeeAlso mapPointsWithStride mapXY mapHomogeneousPoints mapVectors
+#SeeAlso mapXY mapHomogeneousPoints mapVectors
 
 ##
 
@@ -3257,56 +3256,7 @@ Matrix * pt = |D E F| |y| = |Ax+By+C Dx+Ey+F Gx+Hy+I| = ------- , -------
     }
 ##
 
-#SeeAlso mapPointsWithStride mapXY mapHomogeneousPoints mapVectors
-
-##
-
-# ------------------------------------------------------------------------------
-
-#Method void mapPointsWithStride(SkPoint pts[], size_t stride, int count) const
-
-Maps count pts, skipping stride bytes to advance from one Point to the next.
-Points are mapped by multiplying each Point by Matrix. Given:
-
-#Code
-#Literal
-         | A B C |        | x |
-Matrix = | D E F |,  pt = | y |
-         | G H I |        | 1 |
-##
-
-each resulting pts Point is computed as:
-
-#Code
-#Literal
-              |A B C| |x|                               Ax+By+C   Dx+Ey+F
-Matrix * pt = |D E F| |y| = |Ax+By+C Dx+Ey+F Gx+Hy+I| = ------- , -------
-              |G H I| |1|                               Gx+Hy+I   Gx+Hy+I
-##
-
-#Param pts  storage for mapped Points ##
-#Param stride  size of record starting with Point, in bytes ##
-#Param count  number of Points to transform ##
-
-#Example
-    SkMatrix matrix;
-    matrix.reset();
-    struct PointZ {
-        SkPoint fPt;
-        SkPoint fStationary;
-    } pts[] = {{{40, 70}, {40, 70}}, {{180, 70}, {180, 70}}, {{180, 220}, {180, 220}},
-               {{40, 220}, {40, 220}}};
-    constexpr int count = SK_ARRAY_COUNT(pts);
-    SkPaint paint;
-    paint.setARGB(77, 23, 99, 154);
-    for (int i = 0; i < 5; ++i) {
-        matrix.preRotate(10, 128, 128);
-        matrix.mapPointsWithStride(&pts[0].fPt, sizeof(PointZ), count);
-        canvas->drawPoints(SkCanvas::kPolygon_PointMode, count * 2, &pts[0].fPt, paint);
-    }
-##
-
-#SeeAlso mapPoints mapXY mapHomogeneousPoints mapVectors
+#SeeAlso mapXY mapHomogeneousPoints mapVectors
 
 ##
 
@@ -3363,7 +3313,7 @@ Matrix * src = |D E F| |y| = |Ax+By+Cz Dx+Ey+Fz Gx+Hy+Iz|
     debugster(src);
 ##
 
-#SeeAlso mapPoints mapXY mapPointsWithStride mapVectors
+#SeeAlso mapPoints mapXY mapVectors
 
 ##
 
@@ -3408,7 +3358,7 @@ Matrix * pt = |D E F| |y| = |Ax+By+C Dx+Ey+F Gx+Hy+I| = ------- , -------
     canvas->drawPoints(SkCanvas::kPolygon_PointMode, SK_ARRAY_COUNT(lines), lines, paint);
 ##
 
-#SeeAlso mapPoints mapPointsWithStride mapVectors
+#SeeAlso mapPoints mapVectors
 
 ##
 
@@ -3457,7 +3407,7 @@ canvas->concat(matrix);
 canvas->drawBitmap(source, 0, 0);
 ##
 
-#SeeAlso mapPoints mapPointsWithStride mapVectors
+#SeeAlso mapPoints mapVectors
 
 ##
 
@@ -3519,7 +3469,7 @@ src and dst may point to the same storage.
     }
 ##
 
-#SeeAlso mapVector mapPoints mapPointsWithStride mapXY
+#SeeAlso mapVector mapPoints mapXY
 
 ##
 
@@ -3575,7 +3525,7 @@ Matrix * vec = |D E 0| |y| = |Ax+By Dx+Ey Gx+Hy+I| = ------- , -------
     }
 ##
 
-#SeeAlso mapVector mapPoints mapPointsWithStride mapXY
+#SeeAlso mapVector mapPoints mapXY
 
 ##
 
@@ -3624,7 +3574,7 @@ Matrix * vec = |D E 0| |dy| = |A*dx+B*dy D*dx+E*dy G*dx+H*dy+I| = ----------- , 
     }
 ##
 
-#SeeAlso mapVectors mapPoints mapPointsWithStride mapXY
+#SeeAlso mapVectors mapPoints mapXY
 
 ##
 
@@ -3674,7 +3624,7 @@ Matrix * vec = |D E 0| |dy| = |A*dx+B*dy D*dx+E*dy G*dx+H*dy+I| = ----------- , 
     }
 ##
 
-#SeeAlso mapVectors mapPoints mapPointsWithStride mapXY
+#SeeAlso mapVectors mapPoints mapXY
 
 ##
 

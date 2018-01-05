@@ -14,6 +14,7 @@
 #include "GrSimpleMeshDrawOpHelper.h"
 #include "SkBitmap.h"
 #include "SkLatticeIter.h"
+#include "SkMatrixPriv.h"
 #include "SkPointPriv.h"
 #include "SkRect.h"
 
@@ -152,8 +153,8 @@ private:
             // If we didn't handle it above, apply the matrix here.
             if (!isScaleTranslate) {
                 SkPoint* positions = reinterpret_cast<SkPoint*>(patchVerts);
-                patch.fViewMatrix.mapPointsWithStride(
-                        positions, vertexStride, kVertsPerRect * patch.fIter->numRectsToDraw());
+                SkMatrixPriv::MapPointsWithStride(patch.fViewMatrix, positions, vertexStride,
+                                                  kVertsPerRect * patch.fIter->numRectsToDraw());
             }
         }
         helper.recordDraw(target, gp.get(), fHelper.makePipeline(target));

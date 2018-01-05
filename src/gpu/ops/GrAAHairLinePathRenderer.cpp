@@ -18,6 +18,7 @@
 #include "GrResourceProvider.h"
 #include "GrSimpleMeshDrawOpHelper.h"
 #include "SkGeometry.h"
+#include "SkMatrixPriv.h"
 #include "SkPoint3.h"
 #include "SkPointPriv.h"
 #include "SkStroke.h"
@@ -581,7 +582,8 @@ static void bloat_quad(const SkPoint qpts[3], const SkMatrix* toDevice,
     intersect_lines(a0.fPos, abN, c0.fPos, cbN, &b0.fPos);
 
     if (toSrc) {
-        toSrc->mapPointsWithStride(&verts[0].fPos, sizeof(BezierVertex), kQuadNumVertices);
+        SkMatrixPriv::MapPointsWithStride(*toSrc, &verts[0].fPos, sizeof(BezierVertex),
+                                          kQuadNumVertices);
     }
 }
 
@@ -683,9 +685,8 @@ static void add_line(const SkPoint p[2],
         (*vert)[5].fCoverage = 0;
 
         if (toSrc) {
-            toSrc->mapPointsWithStride(&(*vert)->fPos,
-                                       sizeof(LineVertex),
-                                       kLineSegNumVertices);
+            SkMatrixPriv::MapPointsWithStride(*toSrc, &(*vert)->fPos, sizeof(LineVertex),
+                                              kLineSegNumVertices);
         }
     } else {
         // just make it degenerate and likely offscreen
