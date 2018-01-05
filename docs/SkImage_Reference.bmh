@@ -332,6 +332,7 @@ imageGenerator may wrap Picture data, codec data, or custom data.
 
 #Example
 #Description
+#Height 128
 The generator returning Picture cannot be shared; std::move transfers ownership to generated Image.
 ##
     SkPictureRecorder recorder;
@@ -536,6 +537,8 @@ fwithin the lifetime of the example
 ##
 
 #Example
+#Platform gpu
+#Image 4
 GrContext* context = canvas->getGrContext();
 if (!context) {
    return;
@@ -589,7 +592,7 @@ moving resources between contexts.
 
 #Example
 #Image 4
-#Height 128
+#Height 64
 GrContext* context = canvas->getGrContext();
 sk_sp<SkData> encodedData = image->encodeToData(SkEncodedImageFormat::kJPEG, 100);
 sk_sp<SkImage> image = SkImage::MakeCrossContextFromEncoded(context,
@@ -634,7 +637,7 @@ Recognized GPU formats vary by platform and GPU back-end.
 
 #Example
 #Image 4
-#Height 128
+#Height 64
 GrContext* context = canvas->getGrContext();
 SkPixmap pixmap;
 if (source.peekPixels(&pixmap)) {
@@ -706,6 +709,8 @@ Recognized formats vary by GPU back-end.
 #Return created Image, or nullptr ##
 
 #Example
+#Image 5
+#Platform gpu
    if (!canvas->getGrContext()) {
        return;
    }
@@ -998,7 +1003,7 @@ Returns pixel count in each row.
 
 #Example
 #Image 4
-#Height 168
+#Height 96
    canvas->translate(10, 10);
    canvas->drawImage(image, 0, 0);
    canvas->translate(0, image->height());
@@ -1022,7 +1027,7 @@ Returns pixel row count.
 
 #Example
 #Image 4
-#Height 148
+#Height 96
    canvas->translate(10, 10);
    canvas->drawImage(image, 0, 0);
    canvas->translate(image->width(), 0);
@@ -1030,7 +1035,8 @@ Returns pixel row count.
    paint.setTextAlign(SkPaint::kCenter_Align);
    paint.setVerticalText(true);
    canvas->drawLine(10, 0, 10, image->height(), paint);
-   canvas->drawString("height", 25, image->height() / 2, paint);##
+   canvas->drawString("height", 25, image->height() / 2, paint);
+##
 
 #SeeAlso dimensions() width()
 
@@ -1067,10 +1073,9 @@ Returns IRect { 0, 0, width(), height() }.
 #Example
 #Height 128
 #Image 4
-    canvas->scale(.5f, .5f);
     SkIRect bounds = image->bounds();
-    for (int x : { 0, image->width() } ) {
-        for (int y : { 0, image->height() } ) {
+    for (int x : { 0, bounds.width() } ) {
+        for (int y : { 0, bounds.height() } ) {
             canvas->drawImage(image, x, y);
         }
     }
@@ -1122,10 +1127,10 @@ or was parsed from encoded data.
 
 #Example
 #Image 4
-#Height 156
+#Height 96
   const char* alphaTypeStr[] = { "Unknown", "Opaque", "Premul", "Unpremul" };
   SkAlphaType alphaType = image->alphaType();
-  canvas->drawImage(image, 0, 0);
+  canvas->drawImage(image, 16, 0);
   SkPaint paint;
   canvas->drawString(alphaTypeStr[(int) alphaType], 20, image->height() + 20, paint);
 ##
@@ -1491,10 +1496,10 @@ If origin in not nullptr, copies location of content drawn into Image.
                kBottomLeft_GrSurfaceOrigin; or nullptr 
 ##
 
-#Return back-end API texture handle ##
+#Return back-end API texture handle, or nullptr ##
 
 #Example
-#Image 3
+#Image 4
 #Platform gpu
 GrContext* context = canvas->getGrContext();
 if (!context) {
@@ -1503,20 +1508,45 @@ if (!context) {
 SkPaint paint;
 paint.setAntiAlias(true);
 SkString str;
-int y = 0;
+int y = -10;
 for (auto origin : { kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin } ) {
     sk_sp<SkImage> srcImage(SkImage::MakeFromTexture(context,
             backEndTexture, origin, kPremul_SkAlphaType, nullptr));
     GrSurfaceOrigin readBackOrigin;
     GrBackendObject readBackHandle = srcImage->getTextureHandle(false, &readBackOrigin);
-    str.printf("readBackHandle: %x", readBackHandle);
-    canvas->drawString(str, 5, y += 20, paint);
+    str.printf("readBackHandle: 0x%x", readBackHandle);
+    canvas->drawString(str, 5, y += 30, paint);
+    canvas->drawImage(srcImage, 80, y += 10);
     str.printf("origin: k%s_GrSurfaceOrigin", readBackOrigin ? "BottomLeft" : "TopLeft");
-    canvas->drawString(str, 5, y += 20, paint);
+    canvas->drawString(str, 5, y += srcImage->height() + 10, paint);
 }
 ##
 
-#SeeAlso incomplete
+#Example
+#Image 5
+#Platform gpu
+    auto drawImage = [=](sk_sp<SkImage> image, const char* label) -> void {
+        if (nullptr == image) {
+            return;
+        }
+        SkPaint paint;
+        paint.setAntiAlias(true);
+        paint.setTextAlign(SkPaint::kCenter_Align);
+        canvas->drawImage(image, 0, image->height() / 4);
+        canvas->drawString(label, image->width() / 2, image->height() / 8, paint);
+        GrSurfaceOrigin readBackOrigin;
+        GrBackendObject readBackHandle = image->getTextureHandle(false, &readBackOrigin);
+        canvas->drawString(readBackHandle ? "has readBackHandle" : "no readBackHandle",
+                           image->width() / 2, image->height() * 11 / 8, paint);
+    };
+    drawImage(image, "image");
+    canvas->translate(image->width(), 0);
+    sk_sp<SkImage> textureImage(SkImage::MakeFromTexture(canvas->getGrContext(), backEndTexture,
+                                kTopLeft_GrSurfaceOrigin, kOpaque_SkAlphaType, nullptr));
+    drawImage(textureImage, "backEndTexture");
+##
+
+#SeeAlso MakeFromTexture isTextureBacked
 
 #Method ##
 
@@ -1531,9 +1561,12 @@ for (auto origin : { kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin } ) {
     };
 ##
 
-Hints to image calls where the system might cache computed intermediates (e.g. the results
-of decoding or a read-back from the GPU. Passing kAllow_CachingHint signals that the system's default
-behavior is fine. Passing kDisallow_CachingHint signals that caching should be avoided.
+Hints to image calls where the system might cache computed intermediates 
+(e.g. the results
+of decoding or a read-back from the GPU. 
+Passing kAllow_CachingHint signals that the system's default
+behavior is fine. 
+Passing kDisallow_CachingHint signals that caching should be avoided.
 
 #Const kAllow_CachingHint 0
 ##
@@ -1544,7 +1577,7 @@ behavior is fine. Passing kDisallow_CachingHint signals that caching should be a
 // incomplete
 ##
 
-#SeeAlso incomplete
+#SeeAlso readPixels scalePixels
 
 #Enum ##
 
@@ -1553,37 +1586,71 @@ behavior is fine. Passing kDisallow_CachingHint signals that caching should be a
 #Method bool readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
                     int srcX, int srcY, CachingHint cachingHint = kAllow_CachingHint) const
 
-Copy the pixels from the image into the specified buffer (dstPixels + dstRowBytes),
-converting them into the requested format (dstInfo). The image pixels are read
-starting at the specified (srcX, srcY) location.
-dstInfo and (srcX, srcY) offset specifies a source rectangle:
-#Code
-SkRect srcR;
-srcR.setXYWH(srcX, srcY, dstInfo.width(), dstInfo.height());
+Copies Rect of pixels from Image to dstPixels. Copy starts at offset (srcX, srcY),
+and does not exceed (this->width(), this->height()). 
+
+dstInfo specifies width, height, Color_Type, Alpha_Type, and 
+Color_Space of destination. dstRowBytes specifics the gap from one destination
+row to the next. Returns true if pixels are copied. Returns false if:
+#List
+# dstInfo.addr() equals nullptr ##
+# dstRowBytes is less than dstInfo.minRowBytes ##
+# Pixel_Ref is nullptr ##
 ##
 
-The source rectangle is intersected with the bounds of the image. If this intersection is not empty,
-then we have two sets of pixels (of equal size). Replace dstPixels with the
-corresponding Image pixels, performing any Color_Type/Alpha_Type transformations needed
-(in the case where Image and dstInfo have different Color_Types or Alpha_Types).
-This call can fail, returning false, for several reasons:
-if source rectangle does not intersect the image bounds;
-if the requested Color_Type/Alpha_Type cannot be converted from the image's types.
+Pixels are copied only if pixel conversion is possible. If this->colorType is
+kGray_8_SkColorType, or kAlpha_8_SkColorType; dstInfo.colorType must match.
+If this->colorType is kGray_8_SkColorType, dstInfo.colorSpace must match.
+If this->alphaType is kOpaque_SkAlphaType, dstInfo.alphaType must
+match. If this->colorSpace is nullptr, dstInfo.colorSpace must match. Returns
+false if pixel conversion is not possible.
 
-#Param dstInfo  incomplete ##
-#Param dstPixels  incomplete ##
-#Param dstRowBytes  incomplete ##
-#Param srcX  incomplete ##
-#Param srcY  incomplete ##
-#Param cachingHint  incomplete ##
+srcX and srcY may be negative to copy only top or left of source. Returns
+false if width() or height() is zero or negative. 
+Returns false if 
+#Formula
+abs(srcX) >= this->width()
+##
+, or if
+#Formula
+abs(srcY) >= this->height()
+##
+.
 
-#Return incomplete ##
+If cachingHint is kAllow_CachingHint, pixels may be retained locally.
+If cachingHint is kDisallow_CachingHint, pixels are not added to the local cache.
+
+#Param dstInfo  destination width, height, Color_Type, Alpha_Type, Color_Space ##
+#Param dstPixels  destination pixel storage ##
+#Param dstRowBytes  destination row length ##
+#Param srcX  column index whose absolute value is less than width() ##
+#Param srcY  row index whose absolute value is less than height() ##
+#Param cachingHint  one of: kAllow_CachingHint, kDisallow_CachingHint ##
+
+#Return true if pixels are copied to dstPixels ##
 
 #Example
-// incomplete
+    canvas->scale(.5f, .5f);
+    const int width = 32;
+    const int height = 32;
+    std::vector<int32_t> dstPixels;
+    dstPixels.resize(height * width * 4);
+    SkImageInfo info = SkImageInfo::MakeN32Premul(width, height);
+    for (int y = 0; y < 512; y += height ) {
+        for (int x = 0; x < 512; x += width ) {
+            if (image->readPixels(info, &dstPixels.front(), width * 4, x, y)) {
+                SkPixmap dstPixmap(info, &dstPixels.front(), width * 4);
+                SkBitmap bitmap;
+                bitmap.installPixels(dstPixmap);
+                canvas->drawBitmap(bitmap, 0, 0);
+            }
+            canvas->translate(48, 0);
+        }
+        canvas->translate(-16 * 48, 48);
+    }
 ##
 
-#SeeAlso incomplete
+#SeeAlso scalePixels SkBitmap::readPixels SkPixmap::readPixels SkCanvas::readPixels SkSurface::readPixels
 
 #Method ##
 
