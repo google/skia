@@ -76,7 +76,7 @@ sk_sp<SkImageFilter> SkBlurImageFilter::Make(SkScalar sigmaX, SkScalar sigmaY,
                                              sk_sp<SkImageFilter> input,
                                              const SkImageFilter::CropRect* cropRect,
                                              TileMode tileMode) {
-    if (0 == sigmaX && 0 == sigmaY && !cropRect) {
+    if (sigmaX < SK_ScalarNearlyZero && sigmaY < SK_ScalarNearlyZero && !cropRect) {
         return input;
     }
     return sk_sp<SkImageFilter>(
