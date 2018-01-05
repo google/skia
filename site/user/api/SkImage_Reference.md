@@ -1353,7 +1353,7 @@ transforming <a href="#Image">Image</a> before <a href="#Matrix">Canvas Matrix</
 
 ### See Also
 
-incomplete
+<a href="#SkImage_scalePixels">scalePixels</a>
 
 ---
 
@@ -1364,25 +1364,42 @@ incomplete
 bool peekPixels(SkPixmap* pixmap) const
 </pre>
 
-If the image has direct access to its pixels (i.e. they are in local RAM)
-return true, and if not null, return in the <a href="#SkImage_peekPixels_pixmap">pixmap</a> parameter the info about the
-images pixels.
-On failure, return false and ignore the <a href="#SkImage_peekPixels_pixmap">pixmap</a> parameter.
+Copies <a href="#Image">Image</a> pixel address, row bytes, and <a href="#Info">Image Info</a> to <a href="#SkImage_peekPixels_pixmap">pixmap</a>, if address
+is available, and returns true. If pixel address is not available, return
+false and leave <a href="#SkImage_peekPixels_pixmap">pixmap</a> unchanged.
 
 ### Parameters
 
 <table>  <tr>    <td><a name="SkImage_peekPixels_pixmap"> <code><strong>pixmap </strong></code> </a></td> <td>
-incomplete</td>
+storage for pixel state if pixels are readable; otherwise, ignored</td>
   </tr>
 </table>
 
 ### Return Value
 
-incomplete
+true if <a href="#Image">Image</a> has direct access to pixels
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name="900c0eab8dfdecd8301ed5be95887f8e">
+
+#### Example Output
+
+~~~~
+------------
+--xx----x---
+-x--x--x----
+-x--x--x----
+-x--x-x-----
+--xx-xx-xx--
+-----x-x--x-
+----x--x--x-
+----x--x--x-
+---x----xx--
+------------
+~~~~
+
+</fiddle-embed></div>
 
 ### See Also
 
