@@ -108,15 +108,19 @@ SkTouchGesture::SkTouchGesture() {
 SkTouchGesture::~SkTouchGesture() {
 }
 
-void SkTouchGesture::reset() {
+void SkTouchGesture::resetTouchState() {
     fIsTransLimited = false;
     fTouches.reset();
     fState = kEmpty_State;
     fLocalM.reset();
-    fGlobalM.reset();
 
     fLastUpMillis = SkTime::GetMSecs() - 2*MAX_DBL_TAP_INTERVAL;
     fLastUpP.set(0, 0);
+}
+
+void SkTouchGesture::reset() {
+    fGlobalM.reset();
+    this->resetTouchState();
 }
 
 void SkTouchGesture::flushLocalM() {

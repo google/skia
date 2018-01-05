@@ -36,6 +36,7 @@ public:
     void touchMoved(void* owner, float x, float y);
     void touchEnd(void* owner);
     void reset();
+    void resetTouchState();
 
     bool isActive() { return fFlinger.isActive(); }
     void stop() { fFlinger.stop(); }
