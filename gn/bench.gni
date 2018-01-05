@@ -70,7 +70,6 @@ bench_sources = [
   "$_bench/Matrix44Bench.cpp",
   "$_bench/MatrixBench.cpp",
   "$_bench/MatrixConvolutionBench.cpp",
-  "$_bench/MeasureBench.cpp",
   "$_bench/MemsetBench.cpp",
   "$_bench/MergeBench.cpp",
   "$_bench/MipMapBench.cpp",
