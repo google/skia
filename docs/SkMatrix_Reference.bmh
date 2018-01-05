@@ -3312,59 +3312,6 @@ Matrix * pt = |D E F| |y| = |Ax+By+C Dx+Ey+F Gx+Hy+I| = ------- , -------
 
 # ------------------------------------------------------------------------------
 
-#Method void mapPointsWithStride(SkPoint dst[], const SkPoint src[], size_t stride, int count) const
-
-Maps src Point array of length count to dst Point array, skipping stride bytes
-to advance from one Point to the next.
-Points are mapped by multiplying each Point by Matrix. Given:
-
-#Code
-#Literal
-         | A B C |         | x |
-Matrix = | D E F |,  src = | y |
-         | G H I |         | 1 |
-##
-
-each resulting dst Point is computed as:
-
-#Code
-#Literal
-              |A B C| |x|                               Ax+By+C   Dx+Ey+F
-Matrix * pt = |D E F| |y| = |Ax+By+C Dx+Ey+F Gx+Hy+I| = ------- , -------
-              |G H I| |1|                               Gx+Hy+I   Gx+Hy+I
-##
-
-#Param dst  storage for mapped Points ##
-#Param src  Points to transform ##
-#Param stride  size of record starting with Point, in bytes ##
-#Param count  number of Points to transform ##
-
-#Example
-    struct PointZ {
-        SkPoint fPt;
-        const SkPoint fStationary;
-    };
-    const PointZ src[] = {{{40, 70}, {40, 70}}, {{180, 70}, {180, 70}}, {{180, 220}, {180, 220}},
-               {{40, 220}, {40, 220}}};
-    PointZ dst[] = {{{0, 0}, {60, 80}}, {{0, 0}, {150, 40}}, {{0, 0}, {100, 240}},
-               {{0, 0}, {10, 250}}};
-    constexpr int count = SK_ARRAY_COUNT(src);
-    SkPaint paint;
-    paint.setARGB(77, 23, 99, 154);
-    for (int i = 0; i < 5; ++i) {
-    SkMatrix matrix;
-        matrix.setRotate(10 * i, 128, 128);
-        matrix.mapPointsWithStride(&dst[0].fPt, &src[0].fPt, sizeof(PointZ), count);
-        canvas->drawPoints(SkCanvas::kPolygon_PointMode, count * 2, &dst[0].fPt, paint);
-    }
-##
-
-#SeeAlso mapPoints mapXY mapHomogeneousPoints mapVectors
-
-##
-
-# ------------------------------------------------------------------------------
-
 #Method void mapHomogeneousPoints(SkPoint3 dst[], const SkPoint3 src[], int count) const
 
 Maps src Point3 array of length count to dst Point3 array, which must of length count or
