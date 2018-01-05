@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "c77c650d_442b6824",
+        "filename": "platform_tools/android/apps/skqp/src/main/java/org/skia/skqp/SkQPActivity.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2018-01-05T19:51:17Z",
+      "side": 1,
+      "message": "They \"work\", but they don\u0027t consistently contain the \"/sdcard...\" prefix (IIRC). \nBut firebase requires that prefix to copy data to GCS (don\u0027t know if that is bound to change),\nthat\u0027s why it\u0027s hard coded.",
+      "parentUuid": "e31850ba_cd1352f5",
+      "revId": "ef888f19a0d48b1f00c5206867541b6988e5c8d1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "47c380d8_f2ab35db",
         "filename": "platform_tools/android/apps/skqp/src/main/java/org/skia/skqp/SkQPRunnerImpl.java",
         "patchSetId": 16
@@ -33,6 +51,24 @@
       "revId": "ef888f19a0d48b1f00c5206867541b6988e5c8d1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "459d5c31_2bcb3a16",
+        "filename": "platform_tools/android/apps/skqp/src/main/java/org/skia/skqp/SkQPRunnerImpl.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2018-01-05T19:51:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "47c380d8_f2ab35db",
+      "revId": "ef888f19a0d48b1f00c5206867541b6988e5c8d1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -56,6 +92,30 @@
       "revId": "ef888f19a0d48b1f00c5206867541b6988e5c8d1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c73087e3_e265fb00",
+        "filename": "platform_tools/android/apps/skqp/src/main/java/org/skia/skqp/SkQPRunnerImpl.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2018-01-05T19:51:17Z",
+      "side": 1,
+      "message": "Done\nRenamed to just SkQP, but any other name will also work for me.",
+      "parentUuid": "b18dcac5_02e34da4",
+      "range": {
+        "startLine": 34,
+        "startChar": 13,
+        "endLine": 34,
+        "endChar": 27
+      },
+      "revId": "ef888f19a0d48b1f00c5206867541b6988e5c8d1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
