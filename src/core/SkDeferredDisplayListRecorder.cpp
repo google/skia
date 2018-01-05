@@ -34,7 +34,7 @@ bool SkDeferredDisplayListRecorder::init() {
     fSurface = SkSurface::MakeRaster(ii, &fCharacterization.surfaceProps());
 #else
     if (!fContext) {
-        fContext = GrContextPriv::MakeStubbedOut(fCharacterization.contextInfo());
+        fContext = GrContextPriv::MakeDDL(fCharacterization.contextInfo());
         if (!fContext) {
             return false;
         }
