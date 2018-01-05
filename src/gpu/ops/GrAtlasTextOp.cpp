@@ -286,8 +286,9 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
                             pos, pos, vertexStride, result.fGlyphsRegenerated * kVerticesPerGlyph);
                 } else {
                     auto* pos = reinterpret_cast<SkPoint*>(currVertex);
-                    args.fViewMatrix.mapPointsWithStride(
-                            pos, vertexStride, result.fGlyphsRegenerated * kVerticesPerGlyph);
+                    SkMatrixPriv::MapPointsWithStride(
+                            args.fViewMatrix, pos, vertexStride,
+                            result.fGlyphsRegenerated * kVerticesPerGlyph);
                 }
             }
             flushInfo.fGlyphsToFlush += result.fGlyphsRegenerated;

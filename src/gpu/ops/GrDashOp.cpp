@@ -17,6 +17,7 @@
 #include "GrProcessor.h"
 #include "GrStyle.h"
 #include "SkGr.h"
+#include "SkMatrixPriv.h"
 #include "SkPointPriv.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLGeometryProcessor.h"
@@ -181,7 +182,7 @@ void setup_dashed_rect_common(const SkRect& rect, const SkMatrix& matrix, T* ver
     vertices[idx + 2].fPos = SkPoint::Make(rect.fRight, rect.fTop);
     vertices[idx + 3].fPos = SkPoint::Make(rect.fRight, rect.fBottom);
 
-    matrix.mapPointsWithStride(&vertices[idx].fPos, sizeof(T), 4);
+    SkMatrixPriv::MapPointsWithStride(matrix, &vertices[idx].fPos, sizeof(T), 4);
 }
 
 static void setup_dashed_rect(const SkRect& rect, void* vertices, int idx,
