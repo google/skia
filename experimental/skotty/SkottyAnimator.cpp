@@ -43,12 +43,12 @@ void KeyframeInterval<ShapeValue>::lerp(float t, ShapeValue* v) const {
 }
 
 float AnimatorBase::ComputeLocalT(float t, float t0, float t1,
-                                  const SkPoint& c0, const SkPoint& c1) {
+                                  const SkCubicMap* cubicMap) {
     SkASSERT(t1 > t0);
     auto lt = (t - t0) / (t1 - t0);
 
-    if (c0 != SkPoint({0, 0}) || c1 != SkPoint({1, 1})) {
-        // TODO: lt = CubicBezier(lt, c0, c1);
+    if (cubicMap) {
+        lt = cubicMap->computeYFromX(lt);
     }
 
     return SkTPin<float>(lt, 0, 1);
