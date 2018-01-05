@@ -3266,7 +3266,7 @@ Increments <a href="undocumented#Typeface">Typeface</a> <a href="undocumented#Re
 
 ### Example
 
-<div><fiddle-embed name="4d9ffb5761b62a9e3bc9b0bca8787bce">
+<div><fiddle-embed name="5ce718e5a184baaac80e7098d7dad67b">
 
 #### Example Output
 
@@ -3294,7 +3294,7 @@ Increases <a href="undocumented#Typeface">Typeface</a> <a href="undocumented#Ref
 
 ### Example
 
-<div><fiddle-embed name="c8edce7b36a3ffda8af4fe89d7187dbc">
+<div><fiddle-embed name="4bf8ed109c4b46d8a05c8b7763c1982c">
 
 #### Example Output
 
@@ -3327,7 +3327,7 @@ font and style used to draw text</td>
 
 ### Example
 
-<div><fiddle-embed name="3d2656ec4c555ed2c7ec086720124a2a"></fiddle-embed></div>
+<div><fiddle-embed name="0e6fbb7773cd925b274552f4cd1abef2"></fiddle-embed></div>
 
 ---
 
