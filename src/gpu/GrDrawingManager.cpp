@@ -285,7 +285,7 @@ GrSemaphoresSubmitted GrDrawingManager::prepareSurfaceForExternalIO(
     }
     SkASSERT(proxy);
 
-    GrSemaphoresSubmitted result;
+    GrSemaphoresSubmitted result = GrSemaphoresSubmitted::kNo;
     if (proxy->priv().hasPendingIO() || numSemaphores) {
         result = this->flush(proxy, numSemaphores, backendSemaphores);
     }

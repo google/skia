@@ -1294,7 +1294,7 @@ void SkScalerContext_FreeType::generateFontMetrics(SkPaint::FontMetrics* metrics
     SkScalar x_height = 0.0f;
     SkScalar avgCharWidth = 0.0f;
     SkScalar cap_height = 0.0f;
-    SkScalar strikeoutThickness, strikeoutPosition;
+    SkScalar strikeoutThickness = 0.0f, strikeoutPosition = 0.0f;
     TT_OS2* os2 = (TT_OS2*) FT_Get_Sfnt_Table(face, ft_sfnt_os2);
     if (os2) {
         x_height = SkIntToScalar(os2->sxHeight) / upem * fScale.y();

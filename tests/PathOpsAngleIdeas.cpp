@@ -611,7 +611,7 @@ DEF_TEST(PathOpsAngleBruteT, reporter) {
     SkRandom ran;
     double smaller = SK_Scalar1;
     SkDQuad small[2];
-    SkDEBUGCODE(int smallIndex);
+    SkDEBUGCODE(int smallIndex = 0);
     for (int index = 0; index < 100000; ++index) {
         SkDPoint origin = {ran.nextRangeF(-1000, 1000), ran.nextRangeF(-1000, 1000)};
         QuadPts quad1 = {{origin, {ran.nextRangeF(-1000, 1000), ran.nextRangeF(-1000, 1000)},
