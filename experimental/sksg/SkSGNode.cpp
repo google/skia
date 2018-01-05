@@ -128,8 +128,8 @@ const SkRect& Node::revalidate(InvalidationController* ic, const SkMatrix& ctm) 
     }
 
     const auto result     = this->onRevalidate(ic, ctm);
-    const auto selfDamage = result.fReval == Damage::kForceSelf ||
-                            (this->hasSelfInval() && result.fReval != Damage::kBlockSelf);
+    const auto selfDamage = result.fDamage == Damage::kForceSelf ||
+                            (this->hasSelfInval() && result.fDamage != Damage::kBlockSelf);
 
     if (selfDamage) {
         // old bounds

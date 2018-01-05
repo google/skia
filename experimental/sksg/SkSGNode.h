@@ -54,18 +54,21 @@ protected:
     };
     struct RevalidationResult {
         SkRect  fBounds;
-        Damage  fReval;
+        Damage  fDamage;
     };
     virtual RevalidationResult onRevalidate(InvalidationController*, const SkMatrix& ctm) = 0;
 
 private:
     void addInvalReceiver(Node*);
     void removeInvalReceiver(Node*);
+    // TODO: too friendly, find another way.
     friend class Draw;
     friend class EffectNode;
     friend class Group;
+    friend class Matrix;
     friend class Merge;
     friend class Stroke;
+    friend class Transform;
 
     template <typename Func>
     void forEachInvalReceiver(Func&&) const;
