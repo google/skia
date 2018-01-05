@@ -35,14 +35,12 @@ static bool reset_return_false(SkBitmap* bm) {
 
 SkBitmap::SkBitmap()
     : fPixels        (nullptr)
-    , fPixelRefOrigin{0, 0}
     , fRowBytes      (0)
     , fFlags         (0) {}
 
 SkBitmap::SkBitmap(const SkBitmap& src)
     : fPixelRef      (src.fPixelRef)
     , fPixels        (src.fPixels)
-    , fPixelRefOrigin(src.fPixelRefOrigin)
     , fInfo          (src.fInfo)
     , fRowBytes      (src.fRowBytes)
     , fFlags         (src.fFlags)
@@ -54,7 +52,6 @@ SkBitmap::SkBitmap(const SkBitmap& src)
 SkBitmap::SkBitmap(SkBitmap&& other)
     : fPixelRef      (std::move(other.fPixelRef))
     , fPixels                  (other.fPixels)
-    , fPixelRefOrigin          (other.fPixelRefOrigin)
     , fInfo          (std::move(other.fInfo))
     , fRowBytes                (other.fRowBytes)
     , fFlags                   (other.fFlags)
@@ -62,7 +59,6 @@ SkBitmap::SkBitmap(SkBitmap&& other)
     SkASSERT(!other.fPixelRef);
     other.fInfo.reset();
     other.fPixels         = nullptr;
-    other.fPixelRefOrigin = SkIPoint{0, 0};
     other.fRowBytes       = 0;
     other.fFlags          = 0;
 }
@@ -73,7 +69,6 @@ SkBitmap& SkBitmap::operator=(const SkBitmap& src) {
     if (this != &src) {
         fPixelRef       = src.fPixelRef;
         fPixels         = src.fPixels;
-        fPixelRefOrigin = src.fPixelRefOrigin;
         fInfo           = src.fInfo;
         fRowBytes       = src.fRowBytes;
         fFlags          = src.fFlags;
@@ -87,13 +82,11 @@ SkBitmap& SkBitmap::operator=(SkBitmap&& other) {
         fPixelRef       = std::move(other.fPixelRef);
         fInfo           = std::move(other.fInfo);
         fPixels         = other.fPixels;
-        fPixelRefOrigin = other.fPixelRefOrigin;
         fRowBytes       = other.fRowBytes;
         fFlags          = other.fFlags;
         SkASSERT(!other.fPixelRef);
         other.fInfo.reset();
         other.fPixels         = nullptr;
-        other.fPixelRefOrigin = SkIPoint{0, 0};
         other.fRowBytes       = 0;
         other.fFlags          = 0;
     }
@@ -106,9 +99,11 @@ void SkBitmap::swap(SkBitmap& other) {
 }
 
 void SkBitmap::reset() {
-    this->freePixels();
-    this->fInfo.reset();
-    sk_bzero(this, sizeof(*this));
+    fPixelRef = nullptr;  // Free pixels.
+    fPixels = nullptr;
+    fInfo.reset();
+    fRowBytes = 0;
+    fFlags = 0;
 }
 
 void SkBitmap::getBounds(SkRect* bounds) const {
@@ -152,7 +147,8 @@ bool SkBitmap::setInfo(const SkImageInfo& info, size_t rowBytes) {
         return reset_return_false(this);
     }
 
-    this->freePixels();
+    fPixelRef = nullptr;  // Free pixels.
+    fPixels = nullptr;
 
     fInfo = info.makeAlphaType(newAT);
     fRowBytes = SkToU32(rowBytes);
@@ -171,19 +167,18 @@ bool SkBitmap::setAlphaType(SkAlphaType newAlphaType) {
     return true;
 }
 
-void SkBitmap::updatePixelsFromRef() {
-    void* p = nullptr;
-    if (fPixelRef) {
-        // wish we could assert that a pixelref *always* has pixels
-        p = fPixelRef->pixels();
-        if (p) {
-            SkASSERT(fRowBytes == fPixelRef->rowBytes());
-            p = (char*)p
-                + fPixelRefOrigin.fY * fRowBytes
-                + fPixelRefOrigin.fX * fInfo.bytesPerPixel();
-        }
+SkIPoint SkBitmap::pixelRefOrigin() const {
+    const char* addr = (const char*)fPixels;
+    const char* pix = (const char*)(fPixelRef ? fPixelRef->pixels() : nullptr);
+    size_t rb = this->rowBytes();
+    if (!pix || 0 == rb) {
+        return {0, 0};
     }
-    fPixels = p;
+    SkASSERT(this->bytesPerPixel() > 0);
+    SkASSERT(this->bytesPerPixel() == (1 << this->shiftPerPixel()));
+    SkASSERT(addr >= pix);
+    size_t off = addr - pix;
+    return {SkToS32((off % rb) >> this->shiftPerPixel()), SkToS32(off / rb)};
 }
 
 void SkBitmap::setPixelRef(sk_sp<SkPixelRef> pr, int dx, int dy) {
@@ -197,12 +192,14 @@ void SkBitmap::setPixelRef(sk_sp<SkPixelRef> pr, int dx, int dy) {
 #endif
     fPixelRef = kUnknown_SkColorType != fInfo.colorType() ? std::move(pr) : nullptr;
     if (fPixelRef) {
-        fPixelRefOrigin.set(dx, dy);
         fRowBytes = fPixelRef->rowBytes();
-        this->updatePixelsFromRef();
+        // TODO(reed):  Enforce that PixelRefs must have non-null pixels.
+        if (void* p = fPixelRef->pixels()) {
+            fPixels = (char*)p + dy * fRowBytes + dx * fInfo.bytesPerPixel();
+        } else {
+            fPixels = nullptr;
+        }
     } else {
-        // ignore dx,dy if there is no pixelref
-        fPixelRefOrigin = {0, 0};
         fPixels = nullptr;
     }
 
@@ -334,12 +331,6 @@ bool SkBitmap::installMaskPixels(const SkMask& mask) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-
-void SkBitmap::freePixels() {
-    fPixelRef = nullptr;
-    fPixelRefOrigin = {0, 0};
-    fPixels = nullptr;
-}
 
 uint32_t SkBitmap::getGenerationID() const {
     return fPixelRef ? fPixelRef->getGenerationID() : 0;
@@ -484,11 +475,9 @@ bool SkBitmap::extractSubset(SkBitmap* result, const SkIRect& subset) const {
     dst.setIsVolatile(this->isVolatile());
 
     if (fPixelRef) {
-        SkIPoint origin = fPixelRefOrigin;
-        origin.fX += r.fLeft;
-        origin.fY += r.fTop;
+        SkIPoint origin = this->pixelRefOrigin();
         // share the pixelref with a custom offset
-        dst.setPixelRef(fPixelRef, origin.x(), origin.y());
+        dst.setPixelRef(fPixelRef, origin.x() + r.fLeft, origin.y() + r.fTop);
     }
     SkDEBUGCODE(dst.validate();)
 
@@ -646,10 +635,10 @@ void SkBitmap::validate() const {
     if (fPixels) {
         SkASSERT(fPixelRef);
         SkASSERT(fPixelRef->rowBytes() == fRowBytes);
-        SkASSERT(fPixelRefOrigin.fX >= 0);
-        SkASSERT(fPixelRefOrigin.fY >= 0);
-        SkASSERT(fPixelRef->width() >= (int)this->width() + fPixelRefOrigin.fX);
-        SkASSERT(fPixelRef->height() >= (int)this->height() + fPixelRefOrigin.fY);
+        SkIPoint origin = this->pixelRefOrigin();
+        SkASSERT(origin.fY >= 0);
+        SkASSERT(fPixelRef->width() >= (int)this->width() + origin.fX);
+        SkASSERT(fPixelRef->height() >= (int)this->height() + origin.fY);
         SkASSERT(fPixelRef->rowBytes() >= fInfo.minRowBytes());
     }
 }
