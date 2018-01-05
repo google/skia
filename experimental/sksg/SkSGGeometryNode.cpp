@@ -11,6 +11,9 @@
 
 namespace sksg {
 
+// Geometry nodes don't generate damage on their own, but via their aggregation ancestor Draw nodes.
+GeometryNode::GeometryNode() : INHERITED(kBubbleDamage_Trait) {}
+
 void GeometryNode::draw(SkCanvas* canvas, const SkPaint& paint) const {
     SkASSERT(!this->hasInval());
     this->onDraw(canvas, paint);

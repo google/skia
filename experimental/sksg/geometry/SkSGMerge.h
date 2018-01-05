@@ -45,7 +45,7 @@ public:
 protected:
     void onDraw(SkCanvas*, const SkPaint&) const override;
 
-    RevalidationResult onRevalidate(InvalidationController*, const SkMatrix&) override;
+    SkRect onRevalidate(InvalidationController*, const SkMatrix&) override;
     SkPath onAsPath() const override;
 
 private:

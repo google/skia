@@ -35,30 +35,31 @@ public:
     const SkRect& revalidate(InvalidationController*, const SkMatrix&);
 
 protected:
-    Node();
+    enum InvalTraits {
+        // Nodes with this trait never generate direct damage -- instead,
+        // the damage bubbles up to ancestors.
+        kBubbleDamage_Trait = 1 << 0,
+    };
+
+    explicit Node(uint32_t invalTraits);
     ~Node() override;
 
-    void invalidateSelf();
-    void invalidateAncestors();
-
-    bool hasSelfInval()       const { return fFlags & kInvalSelf_Flag; }
-    bool hasDescendantInval() const { return fFlags & kInvalDescendant_Flag; }
-    bool hasInval()           const { return this->hasSelfInval() || this->hasDescendantInval(); }
+    // Tag this node for invalidation and optional damage.
+    void invalidate(bool damage = true);
+    bool hasInval() const { return fFlags & kInvalidated_Flag; }
 
     // Dispatched on revalidation.  Subclasses are expected to recompute/cache their properties
     // and return their bounding box in local coordinates.
-    enum class Damage {
-        kDefault,    // respects the local kInvalSelf_Flag
-        kForceSelf,  // forces self revalidation regardless of kInvalSelf_Flag
-        kBlockSelf,  // blocks self revalidation regardless of kInvalSelf_Flag
-    };
-    struct RevalidationResult {
-        SkRect  fBounds;
-        Damage  fDamage;
-    };
-    virtual RevalidationResult onRevalidate(InvalidationController*, const SkMatrix& ctm) = 0;
+    virtual SkRect onRevalidate(InvalidationController*, const SkMatrix& ctm) = 0;
 
 private:
+    enum Flags {
+        kInvalidated_Flag   = 1 << 0, // the node or its descendants require revalidation
+        kDamage_Flag        = 1 << 1, // the node contributes damage during revalidation
+        kReceiverArray_Flag = 1 << 2, // the node has more than one inval receiver
+        kInTraversal_Flag   = 1 << 3, // the node is part of a traversal (cycle detection)
+    };
+
     void addInvalReceiver(Node*);
     void removeInvalReceiver(Node*);
     // TODO: too friendly, find another way.
@@ -73,13 +74,6 @@ private:
     template <typename Func>
     void forEachInvalReceiver(Func&&) const;
 
-    enum Flags {
-        kInvalSelf_Flag       = 1 << 0, // the node requires revalidation
-        kInvalDescendant_Flag = 1 << 1, // the node's descendents require invalidation
-        kReceiverArray_Flag   = 1 << 2, // the node has more than one inval receiver
-        kInTraversal_Flag     = 1 << 3, // the node is part of a traversal (cycle detection)
-    };
-
     class ScopedFlag;
 
     union {
@@ -87,7 +81,8 @@ private:
         SkTDArray<Node*>* fInvalReceiverArray;
     };
     SkRect                fBounds;
-    uint32_t              fFlags;
+    const uint32_t        fInvalTraits : 16;
+    uint32_t              fFlags       : 16;
 
     typedef SkRefCnt INHERITED;
 };
@@ -98,7 +93,7 @@ private:
     void set##attr_name(attr_type v) {                          \
         if (attr_container == v) return;                        \
         attr_container = v;                                     \
-        this->invalidateSelf();                                 \
+        this->invalidate();                                 \
    }
 
 } // namespace sksg

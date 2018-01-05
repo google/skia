@@ -10,9 +10,10 @@
 #include "SkCanvas.h"
 
 namespace sksg {
-
+// Matrix nodes don't generate damage on their own, but via aggregation ancestor Transform nodes.
 Matrix::Matrix(const SkMatrix& m, sk_sp<Matrix> parent)
-    : fParent(std::move(parent))
+    : INHERITED(kBubbleDamage_Trait)
+    , fParent(std::move(parent))
     , fLocalMatrix(m) {
     if (fParent) {
         fParent->addInvalReceiver(this);
@@ -25,7 +26,7 @@ Matrix::~Matrix() {
     }
 }
 
-Node::RevalidationResult Matrix::onRevalidate(InvalidationController* ic, const SkMatrix& ctm) {
+SkRect Matrix::onRevalidate(InvalidationController* ic, const SkMatrix& ctm) {
     fTotalMatrix = fLocalMatrix;
 
     if (fParent) {
@@ -33,8 +34,7 @@ Node::RevalidationResult Matrix::onRevalidate(InvalidationController* ic, const 
         fTotalMatrix.postConcat(fParent->getTotalMatrix());
     }
 
-    // A free-floating matrix contributes no damage.
-    return { SkRect::MakeEmpty(), Damage::kBlockSelf };
+    return SkRect::MakeEmpty();
 }
 
 Transform::Transform(sk_sp<RenderNode> child, sk_sp<Matrix> matrix)
@@ -54,19 +54,17 @@ void Transform::onRender(SkCanvas* canvas) const {
     this->INHERITED::onRender(canvas);
 }
 
-Node::RevalidationResult Transform::onRevalidate(InvalidationController* ic, const SkMatrix& ctm) {
+SkRect Transform::onRevalidate(InvalidationController* ic, const SkMatrix& ctm) {
     SkASSERT(this->hasInval());
 
-    // We don't care about matrix reval results, but we do care whether it was invalidated.
-    const auto localDamage = fMatrix->hasInval() ? Damage::kForceSelf : Damage::kDefault;
+    // We don't care about matrix reval results.
     fMatrix->revalidate(ic, ctm);
 
     const auto& m = fMatrix->getTotalMatrix();
-    auto result = this->INHERITED::onRevalidate(ic, SkMatrix::Concat(ctm, m));
-    m.mapRect(&result.fBounds);
-    result.fDamage = localDamage;
+    auto bounds = this->INHERITED::onRevalidate(ic, SkMatrix::Concat(ctm, m));
+    m.mapRect(&bounds);
 
-    return result;
+    return bounds;
 }
 
 } // namespace sksg

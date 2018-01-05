@@ -32,9 +32,9 @@ public:
     const SkMatrix& getTotalMatrix() const { return fTotalMatrix; }
 
 protected:
-    explicit Matrix(const SkMatrix&, sk_sp<Matrix>);
+    Matrix(const SkMatrix&, sk_sp<Matrix>);
 
-    RevalidationResult onRevalidate(InvalidationController*, const SkMatrix&) override;
+    SkRect onRevalidate(InvalidationController*, const SkMatrix&) override;
 
 private:
     sk_sp<Matrix> fParent;
@@ -68,7 +68,7 @@ protected:
 
     void onRender(SkCanvas*) const override;
 
-    RevalidationResult onRevalidate(InvalidationController*, const SkMatrix&) override;
+    SkRect onRevalidate(InvalidationController*, const SkMatrix&) override;
 
 private:
     sk_sp<Matrix> fMatrix;

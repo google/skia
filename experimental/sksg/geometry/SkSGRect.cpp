@@ -19,11 +19,10 @@ void Rect::onDraw(SkCanvas* canvas, const SkPaint& paint) const {
     canvas->drawRect(fRect, paint);
 }
 
-Node::RevalidationResult Rect::onRevalidate(InvalidationController*, const SkMatrix&) {
-    SkASSERT(this->hasSelfInval());
+SkRect Rect::onRevalidate(InvalidationController*, const SkMatrix&) {
+    SkASSERT(this->hasInval());
 
-    // Geometry does not contribute damage directly.
-    return { fRect, Damage::kBlockSelf };
+    return fRect;
 }
 
 SkPath Rect::onAsPath() const {
@@ -38,11 +37,10 @@ void RRect::onDraw(SkCanvas* canvas, const SkPaint& paint) const {
     canvas->drawRRect(fRRect, paint);
 }
 
-Node::RevalidationResult RRect::onRevalidate(InvalidationController*, const SkMatrix&) {
-    SkASSERT(this->hasSelfInval());
+SkRect RRect::onRevalidate(InvalidationController*, const SkMatrix&) {
+    SkASSERT(this->hasInval());
 
-    // Geometry does not contribute damage directly.
-    return { fRRect.getBounds(), Damage::kBlockSelf };
+    return fRRect.getBounds();
 }
 
 SkPath RRect::onAsPath() const {
