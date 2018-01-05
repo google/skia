@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9b212f7b_464f583b",
+        "filename": "src/gpu/GrResourceProviderPriv.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-01-05T17:54:43Z",
+      "side": 1,
+      "message": "context -\u003e provider ?",
+      "revId": "6a7e6fb3d0a7464dc51eec5a87442693918d4a6c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
