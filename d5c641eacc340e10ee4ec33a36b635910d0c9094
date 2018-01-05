@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f4ff1b27_5c59aa87",
+        "filename": "include/core/SkMatrix.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 1292,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-01-05T15:54:12Z",
+      "side": 1,
+      "message": "This already has an analagous function in SkMatrixPriv, implemented differently. I want to replace uses of this with the private one and delete this but in a separate CL.",
+      "range": {
+        "startLine": 1292,
+        "startChar": 9,
+        "endLine": 1292,
+        "endChar": 28
+      },
+      "revId": "d5c641eacc340e10ee4ec33a36b635910d0c9094",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
