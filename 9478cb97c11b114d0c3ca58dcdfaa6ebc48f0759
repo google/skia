@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9653168e_9e1a137f",
+        "filename": "src/core/SkMatrixPriv.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-01-05T20:04:17Z",
+      "side": 1,
+      "message": "Isn\u0027t this a dup from the line above ?",
+      "revId": "9478cb97c11b114d0c3ca58dcdfaa6ebc48f0759",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
