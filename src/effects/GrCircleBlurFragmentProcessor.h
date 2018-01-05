@@ -20,7 +20,7 @@ public:
     float textureRadius() const { return fTextureRadius; }
     float solidRadius() const { return fSolidRadius; }
 
-    static std::unique_ptr<GrFragmentProcessor> Make(GrResourceProvider* resourceProvider,
+    static std::unique_ptr<GrFragmentProcessor> Make(GrProxyProvider* proxyProvider,
                                                      const SkRect& circle, float sigma);
     GrCircleBlurFragmentProcessor(const GrCircleBlurFragmentProcessor& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
@@ -29,7 +29,7 @@ public:
 private:
     GrCircleBlurFragmentProcessor(SkRect circleRect, float textureRadius, float solidRadius,
                                   sk_sp<GrTextureProxy> blurProfileSampler,
-                                  GrResourceProvider* resourceProvider)
+                                  GrProxyProvider* proxyProvider)
             : INHERITED(kGrCircleBlurFragmentProcessor_ClassID,
                         (OptimizationFlags)kCompatibleWithCoverageAsAlpha_OptimizationFlag)
             , fCircleRect(circleRect)

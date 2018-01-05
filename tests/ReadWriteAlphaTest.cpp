@@ -58,7 +58,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, ctxInfo) {
         // We are initializing the texture with zeros here
         memset(alphaData, 0, X_SIZE * Y_SIZE);
 
-        sk_sp<GrTextureProxy> proxy(GrSurfaceProxy::MakeDeferred(context->resourceProvider(),
+        sk_sp<GrTextureProxy> proxy(GrSurfaceProxy::MakeDeferred(context->proxyProvider(),
                                                                  desc,
                                                                  SkBudgeted::kNo,
                                                                  alphaData, 0));
@@ -167,7 +167,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, ctxInfo) {
                 }
             }
             sk_sp<GrTextureProxy> proxy =
-                GrSurfaceProxy::MakeDeferred(context->resourceProvider(), desc, SkBudgeted::kNo,
+                GrSurfaceProxy::MakeDeferred(context->proxyProvider(), desc, SkBudgeted::kNo,
                                              rgbaData, 0);
             if (!proxy) {
                 // We always expect to be able to create a RGBA texture

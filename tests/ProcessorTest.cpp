@@ -170,19 +170,19 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ProcessorRefTest, reporter, ctxInfo) {
             {
                 bool texelBufferSupport = context->caps()->shaderCaps()->texelBufferSupport();
                 sk_sp<GrTextureProxy> proxy1(
-                        GrSurfaceProxy::MakeDeferred(context->resourceProvider(),
+                        GrSurfaceProxy::MakeDeferred(context->proxyProvider(),
                                                      desc, SkBackingFit::kExact,
                                                      SkBudgeted::kYes));
                 sk_sp<GrTextureProxy> proxy2
-                        (GrSurfaceProxy::MakeDeferred(context->resourceProvider(),
+                        (GrSurfaceProxy::MakeDeferred(context->proxyProvider(),
                                                       desc, SkBackingFit::kExact,
                                                       SkBudgeted::kYes));
                 sk_sp<GrTextureProxy> proxy3(
-                        GrSurfaceProxy::MakeDeferred(context->resourceProvider(),
+                        GrSurfaceProxy::MakeDeferred(context->proxyProvider(),
                                                      desc, SkBackingFit::kExact,
                                                      SkBudgeted::kYes));
                 sk_sp<GrTextureProxy> proxy4(
-                        GrSurfaceProxy::MakeDeferred(context->resourceProvider(),
+                        GrSurfaceProxy::MakeDeferred(context->proxyProvider(),
                                                      desc, SkBackingFit::kExact,
                                                      SkBudgeted::kYes));
                 sk_sp<GrBuffer> buffer(texelBufferSupport
@@ -310,7 +310,7 @@ bool init_test_textures(GrContext* context, SkRandom* random, sk_sp<GrTexturePro
                     input_texel_color(random->nextULessThan(256), random->nextULessThan(256));
         }
     }
-    proxies[0] = GrSurfaceProxy::MakeDeferred(context->resourceProvider(), desc, SkBudgeted::kYes,
+    proxies[0] = GrSurfaceProxy::MakeDeferred(context->proxyProvider(), desc, SkBudgeted::kYes,
                                               rgbaData.get(), kTestTextureSize * sizeof(GrColor));
 
     // Put random values into the alpha texture that the test FPs can optionally use.
@@ -321,7 +321,7 @@ bool init_test_textures(GrContext* context, SkRandom* random, sk_sp<GrTexturePro
             alphaData[kTestTextureSize * y + x] = random->nextULessThan(256);
         }
     }
-    proxies[1] = GrSurfaceProxy::MakeDeferred(context->resourceProvider(), desc, SkBudgeted::kYes,
+    proxies[1] = GrSurfaceProxy::MakeDeferred(context->proxyProvider(), desc, SkBudgeted::kYes,
                                               alphaData.get(), kTestTextureSize);
 
     return proxies[0] && proxies[1];
@@ -341,7 +341,7 @@ sk_sp<GrTextureProxy> make_input_texture(GrContext* context, int width, int heig
     desc.fWidth = width;
     desc.fHeight = height;
     desc.fConfig = kRGBA_8888_GrPixelConfig;
-    return GrSurfaceProxy::MakeDeferred(context->resourceProvider(), desc, SkBudgeted::kYes,
+    return GrSurfaceProxy::MakeDeferred(context->proxyProvider(), desc, SkBudgeted::kYes,
                                         data.get(), width * sizeof(GrColor));
 }
 DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, reporter, ctxInfo) {

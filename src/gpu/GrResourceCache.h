@@ -13,7 +13,6 @@
 #include "GrGpuResourcePriv.h"
 #include "GrResourceCache.h"
 #include "GrResourceKey.h"
-#include "GrTextureProxy.h"
 #include "SkMessageBus.h"
 #include "SkRefCnt.h"
 #include "SkTArray.h"
@@ -22,6 +21,7 @@
 #include "SkTMultiMap.h"
 
 class GrCaps;
+class GrProxyProvider;
 class SkString;
 class SkTraceMemoryDump;
 
@@ -49,7 +49,7 @@ struct GrGpuResourceFreedMessage {
  */
 class GrResourceCache {
 public:
-    GrResourceCache(const GrCaps* caps, uint32_t contextUniqueID);
+    GrResourceCache(const GrCaps*, uint32_t contextUniqueID);
     ~GrResourceCache();
 
     // Default maximum number of budgeted resources in the cache.
@@ -192,6 +192,7 @@ public:
     /*
      * Associate the provided proxy with the provided unique key.
      */
+#if 0
     void assignUniqueKeyToProxy(const GrUniqueKey&, GrTextureProxy*);
 
     /*
@@ -228,6 +229,7 @@ public:
      * also gives the option to invalidate the GrUniqueKey on the underlying GrTexture.
      */
     void processInvalidProxyUniqueKey(const GrUniqueKey&, GrTextureProxy*, bool invalidateSurface);
+#endif
 
     /**
      * Query whether a unique key exists in the cache.
@@ -324,7 +326,7 @@ public:
     // Enumerates all cached resources and dumps their details to traceMemoryDump.
     void dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) const;
 
-    int numUniqueKeyProxies_TestOnly() const;
+    void setProxyProvider(GrProxyProvider* proxyProvider) { fProxyProvider = proxyProvider; }
 
 private:
     ///////////////////////////////////////////////////////////////////////////
@@ -380,12 +382,14 @@ private:
     };
     typedef SkTDynamicHash<GrGpuResource, GrUniqueKey, UniqueHashTraits> UniqueHash;
 
+#if 0
     struct UniquelyKeyedProxyHashTraits {
         static const GrUniqueKey& GetKey(const GrTextureProxy& p) { return p.getUniqueKey(); }
 
         static uint32_t Hash(const GrUniqueKey& key) { return key.hash(); }
     };
     typedef SkTDynamicHash<GrTextureProxy, GrUniqueKey, UniquelyKeyedProxyHashTraits> UniquelyKeyedProxyHash;
+#endif
 
     static bool CompareTimestamp(GrGpuResource* const& a, GrGpuResource* const& b) {
         return a->cacheAccess().timestamp() < b->cacheAccess().timestamp();
@@ -400,6 +404,7 @@ private:
     typedef SkTDPQueue<GrGpuResource*, CompareTimestamp, AccessResourceIndex> PurgeableQueue;
     typedef SkTDArray<GrGpuResource*> ResourceArray;
 
+    GrProxyProvider*                    fProxyProvider;
     // Whenever a resource is added to the cache or the result of a cache lookup, fTimestamp is
     // assigned as the resource's timestamp and then incremented. fPurgeableQueue orders the
     // purgeable resources by this value, and thus is used to purge resources in LRU order.
@@ -411,9 +416,11 @@ private:
     ScratchMap                          fScratchMap;
     // This holds all resources that have unique keys.
     UniqueHash                          fUniqueHash;
+#if 0
     // This holds the texture proxies that have unique keys. The resourceCache does not get a ref
     // on these proxies but they must send a message to the resourceCache when they are deleted.
     UniquelyKeyedProxyHash              fUniquelyKeyedProxies;
+#endif
 
     // our budget, used in purgeAsNeeded()
     int                                 fMaxCount;

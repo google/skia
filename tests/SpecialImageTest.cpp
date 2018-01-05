@@ -234,7 +234,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialImage_MakeTexture, reporter, ctxInfo) 
         // gpu
         const GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(bm.info(), *context->caps());
 
-        sk_sp<GrTextureProxy> proxy(GrSurfaceProxy::MakeDeferred(context->resourceProvider(),
+        sk_sp<GrTextureProxy> proxy(GrSurfaceProxy::MakeDeferred(context->proxyProvider(),
                                                                  desc, SkBudgeted::kNo,
                                                                  bm.getPixels(), bm.rowBytes()));
         if (!proxy) {
@@ -267,7 +267,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialImage_Gpu, reporter, ctxInfo) {
 
     const GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(bm.info(), *context->caps());
 
-    sk_sp<GrTextureProxy> proxy(GrSurfaceProxy::MakeDeferred(context->resourceProvider(),
+    sk_sp<GrTextureProxy> proxy(GrSurfaceProxy::MakeDeferred(context->proxyProvider(),
                                                              desc, SkBudgeted::kNo,
                                                              bm.getPixels(), bm.rowBytes()));
     if (!proxy) {
@@ -307,7 +307,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialImage_DeferredGpu, reporter, ctxInfo) 
     desc.fHeight = kFullSize;
     desc.fConfig = kSkia8888_GrPixelConfig;
 
-    sk_sp<GrTextureProxy> proxy(GrSurfaceProxy::MakeDeferred(context->resourceProvider(),
+    sk_sp<GrTextureProxy> proxy(GrSurfaceProxy::MakeDeferred(context->proxyProvider(),
                                                              desc, SkBudgeted::kNo,
                                                              bm.getPixels(), 0));
     if (!proxy) {

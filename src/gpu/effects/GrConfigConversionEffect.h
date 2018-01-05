@@ -58,7 +58,7 @@ public:
         desc.fConfig = kConfig;
 
         sk_sp<GrTextureProxy> dataProxy = GrSurfaceProxy::MakeDeferred(
-                context->resourceProvider(), desc, SkBudgeted::kYes, data, 0);
+                context->proxyProvider(), desc, SkBudgeted::kYes, data, 0);
         if (!dataProxy) {
             return false;
         }
