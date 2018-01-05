@@ -231,8 +231,8 @@ void CCPR::ClipPath::init(const SkPath& deviceSpacePath, const SkIRect& accessRe
                           int rtHeight) {
     SkASSERT(this->isUninitialized());
 
-    fAtlasLazyProxy = GrSurfaceProxy::MakeLazy([this](GrResourceProvider* resourceProvider,
-                                                      GrSurfaceOrigin* outOrigin) {
+    fAtlasLazyProxy = GrSurfaceProxy::MakeFullyLazy([this](GrResourceProvider* resourceProvider,
+                                                           GrSurfaceOrigin* outOrigin) {
         SkASSERT(fHasAtlas);
         SkASSERT(!fHasAtlasTransform);
 
