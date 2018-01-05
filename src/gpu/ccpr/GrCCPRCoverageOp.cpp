@@ -269,11 +269,11 @@ bool GrCCPRCoverageOpsBuilder::finalize(GrOnFlushResourceProvider* onFlushRP,
     SkASSERT(cubicInstanceData);
 
     PathInfo* currPathInfo = fPathsInfo.begin();
-    float atlasOffsetX, atlasOffsetY;
+    float atlasOffsetX = 0.0, atlasOffsetY = 0.0;
     Sk2f atlasOffset;
     int ptsIdx = -1;
     PrimitiveTallies instanceIndices[2] = {baseInstances[0], baseInstances[1]};
-    PrimitiveTallies* currIndices;
+    PrimitiveTallies* currIndices = nullptr;
     SkSTArray<256, int32_t, true> currFan;
 
 #ifdef SK_DEBUG

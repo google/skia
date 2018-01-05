@@ -685,7 +685,7 @@ Definition* IncludeWriter::structMemberOut(const Definition* memberStart, const 
     const char* commentStart = nullptr;
     ptrdiff_t commentLen = 0;
     string name(child.fContentStart, (int) (child.fContentEnd - child.fContentStart));
-    bool isShort;
+    bool isShort = false;
     Definition* commentBlock = nullptr;
     for (auto memberDef : fBmhStructDef->fChildren)  {
         if (memberDef->fName.length() - name.length() == memberDef->fName.find(name)) {
@@ -902,7 +902,7 @@ bool IncludeWriter::populate(Definition* def, ParentPair* prevPair, RootDefiniti
     // skip include comment
     // if there is a series of same named methods, write one set of comments, then write all methods
     string methodName;
-    const Definition* method;
+    const Definition* method = nullptr;
     const Definition* clonedMethod = nullptr;
     const Definition* memberStart = nullptr;
     const Definition* memberEnd = nullptr;
@@ -1721,7 +1721,7 @@ IncludeWriter::Wrote IncludeWriter::rewriteBlock(int size, const char* data, Phr
     int lastPrintable = 0;
     int lastSpace = -1;
     char c = 0;
-    char last;
+    char last = 0;
     bool embeddedIndirection = false;
     bool embeddedSymbol = false;
     bool hasLower = false;
