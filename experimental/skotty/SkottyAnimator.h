@@ -15,7 +15,6 @@
 #include "SkTArray.h"
 #include "SkTypes.h"
 
-#include <functional>
 #include <memory>
 
 namespace skotty {
@@ -97,8 +96,9 @@ struct KeyframeInterval {
 template <typename ValT, typename AttrT, typename NodeT>
 class Animator : public AnimatorBase {
 public:
+    using ApplyFuncT = void(*)(const sk_sp<NodeT>&, const AttrT&);
     static std::unique_ptr<Animator> Make(const Json::Value& frames, sk_sp<NodeT> node,
-        std::function<void(const sk_sp<NodeT>&, const AttrT&)> applyFunc);
+        ApplyFuncT&& applyFunc);
 
     void tick(SkMSec t) override {
         const auto& frame = this->findInterval(t);
@@ -111,7 +111,7 @@ public:
 
 private:
     Animator(SkTArray<KeyframeInterval<ValT>>&& intervals, sk_sp<NodeT> node,
-             std::function<void(const sk_sp<NodeT>&, const AttrT&)> applyFunc)
+             ApplyFuncT&& applyFunc)
         : fIntervals(std::move(intervals))
         , fTarget(std::move(node))
         , fFunc(std::move(applyFunc)) {}
@@ -120,13 +120,13 @@ private:
 
     const SkTArray<KeyframeInterval<ValT>>                 fIntervals;
     sk_sp<NodeT>                                           fTarget;
-    std::function<void(const sk_sp<NodeT>&, const AttrT&)> fFunc;
+    ApplyFuncT fFunc;
 };
 
 template <typename ValT, typename AttrT, typename NodeT>
 std::unique_ptr<Animator<ValT, AttrT, NodeT>>
-Animator<ValT, AttrT, NodeT>::Make(const Json::Value& frames,
-    sk_sp<NodeT> node, std::function<void(const sk_sp<NodeT>&, const AttrT&)> applyFunc) {
+Animator<ValT, AttrT, NodeT>::Make(const Json::Value& frames, sk_sp<NodeT> node,
+                                   ApplyFuncT&& applyFunc) {
 
     if (!frames.isArray())
         return nullptr;
