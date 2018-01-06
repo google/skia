@@ -15,7 +15,7 @@ if (skia_use_system_libjpeg_turbo) {
   }
 } else {
   third_party("libjpeg") {
-    public_include_dirs = [ "../externals/libjpeg-turbo" ]
+    public_include_dirs = [ ".", "../externals/libjpeg-turbo" ]
 
     defines = [ "TURBO_FOR_WINDOWS" ]
 
