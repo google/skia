@@ -31,25 +31,8 @@ void* sk_realloc_throw(void* addr, size_t size) {
 }
 
 void* sk_malloc_flags(size_t size, unsigned flags) {
-#ifndef SK_SUPPORT_LEGACY_MALLOC_PORTING_LAYER
     if (flags & SK_MALLOC_ZERO_INITIALIZE) {
         return (flags & SK_MALLOC_THROW) ? moz_xcalloc(size, 1) : calloc(size, 1);
     }
-#endif
     return (flags & SK_MALLOC_THROW) ? moz_xmalloc(size) : malloc(size);
 }
-
-#ifdef SK_SUPPORT_LEGACY_MALLOC_PORTING_LAYER
-void* sk_malloc_throw(size_t size) {
-    return sk_malloc_flags(size, SK_MALLOC_THROW);
-}
-
-void* sk_calloc(size_t size) {
-    return calloc(size, 1);
-}
-
-void* sk_calloc_throw(size_t size) {
-    return moz_xcalloc(size, 1);
-}
-#endif
-
