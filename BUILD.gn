@@ -1387,6 +1387,7 @@ if (skia_enable_tools) {
       "experimental/sksg/geometry/SkSGMerge.cpp",
       "experimental/sksg/geometry/SkSGPath.cpp",
       "experimental/sksg/geometry/SkSGRect.cpp",
+      "experimental/sksg/geometry/SkSGTrimEffect.cpp",
       "experimental/sksg/paint/SkSGColor.cpp",
     ]
     deps = [
