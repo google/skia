@@ -32,6 +32,8 @@ skia_utils_sources = [
   "$_src/utils/SkCanvasStack.h",
   "$_src/utils/SkCanvasStack.cpp",
   "$_src/utils/SkCanvasStateUtils.cpp",
+  "$_src/utils/SkCurveMeasure.cpp",
+  "$_src/utils/SkCurveMeasure.h",
   "$_src/utils/SkDashPath.cpp",
   "$_src/utils/SkDashPathPriv.h",
   "$_src/utils/SkDumpCanvas.cpp",
@@ -85,4 +87,5 @@ skia_utils_sources = [
   "$_src/utils/win/SkTScopedComPtr.h",
   "$_src/utils/win/SkWGL.h",
   "$_src/utils/win/SkWGL_win.cpp",
+
 ]
