@@ -74,7 +74,6 @@ improve performance. <a href="#Matrix">Matrix</a> is not thread safe unless <a h
 | <a href="#SkMatrix_isTranslate">isTranslate</a> | Returns if transform is limited to translate. |
 | <a href="#SkMatrix_mapHomogeneousPoints">mapHomogeneousPoints</a> | Maps <a href="undocumented#Point3">Point3</a> array. |
 | <a href="#SkMatrix_mapPoints">mapPoints</a> | Maps <a href="SkPoint_Reference#Point">Point</a> array. |
-| <a href="#SkMatrix_mapPointsWithStride">mapPointsWithStride</a> | Maps <a href="SkPoint_Reference#Point">Point</a> array with padding. |
 | <a href="#SkMatrix_mapRadius">mapRadius</a> | Returns mean radius of mapped <a href="undocumented#Circle">Circle</a>. |
 | <a href="#SkMatrix_mapRect">mapRect</a> | Returns bounds of mapped <a href="SkRect_Reference#Rect">Rect</a>. |
 | <a href="#SkMatrix_mapRectScaleTranslate">mapRectScaleTranslate</a> | Returns bounds of mapped <a href="SkRect_Reference#Rect">Rect</a>. |
@@ -3215,7 +3214,7 @@ number of <a href="#Point">Points</a> to transform</td>
 
 ### See Also
 
-<a href="#SkMatrix_mapPointsWithStride">mapPointsWithStride</a> <a href="#SkMatrix_mapXY">mapXY</a> <a href="#SkMatrix_mapHomogeneousPoints">mapHomogeneousPoints</a> <a href="#SkMatrix_mapVectors">mapVectors</a>
+<a href="#SkMatrix_mapXY">mapXY</a> <a href="#SkMatrix_mapHomogeneousPoints">mapHomogeneousPoints</a> <a href="#SkMatrix_mapVectors">mapVectors</a>
 
 ---
 
@@ -3261,50 +3260,7 @@ number of <a href="#Point">Points</a> to transform</td>
 
 ### See Also
 
-<a href="#SkMatrix_mapPointsWithStride">mapPointsWithStride</a> <a href="#SkMatrix_mapXY">mapXY</a> <a href="#SkMatrix_mapHomogeneousPoints">mapHomogeneousPoints</a> <a href="#SkMatrix_mapVectors">mapVectors</a>
-
----
-
-<a name="SkMatrix_mapPointsWithStride"></a>
-## mapPointsWithStride
-
-<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-void mapPointsWithStride(SkPoint pts[], size_t stride, int count) const
-</pre>
-
-Maps <a href="#SkMatrix_mapPointsWithStride_count">count</a> <a href="#SkMatrix_mapPointsWithStride_pts">pts</a>, skipping <a href="#SkMatrix_mapPointsWithStride_stride">stride</a> bytes to advance from one <a href="SkPoint_Reference#Point">Point</a> to the next.
-<a href="#Point">Points</a> are mapped by multiplying each <a href="SkPoint_Reference#Point">Point</a> by <a href="#Matrix">Matrix</a>. Given:
-
-<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-         | A B C |        | x |
-Matrix = | D E F |,  pt = | y |
-         | G H I |        | 1 |</pre>
-
-each resulting <a href="#SkMatrix_mapPointsWithStride_pts">pts</a> <a href="SkPoint_Reference#Point">Point</a> is computed as:
-
-<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-              |A B C| |x|                               Ax+By+C   Dx+Ey+F
-Matrix * pt = |D E F| |y| = |Ax+By+C Dx+Ey+F Gx+Hy+I| = ------- , -------
-              |G H I| |1|                               Gx+Hy+I   Gx+Hy+I</pre>
-
-### Parameters
-
-<table>  <tr>    <td><a name="SkMatrix_mapPointsWithStride_pts"> <code><strong>pts </strong></code> </a></td> <td>
-storage for mapped <a href="#Point">Points</a></td>
-  </tr>  <tr>    <td><a name="SkMatrix_mapPointsWithStride_stride"> <code><strong>stride </strong></code> </a></td> <td>
-size of record starting with <a href="SkPoint_Reference#Point">Point</a>, in bytes</td>
-  </tr>  <tr>    <td><a name="SkMatrix_mapPointsWithStride_count"> <code><strong>count </strong></code> </a></td> <td>
-number of <a href="#Point">Points</a> to transform</td>
-  </tr>
-</table>
-
-### Example
-
-<div><fiddle-embed name="02c50c7bb5d5dd1fe7e54b0d3bf64c2a"></fiddle-embed></div>
-
-### See Also
-
-<a href="#SkMatrix_mapPoints">mapPoints</a> <a href="#SkMatrix_mapXY">mapXY</a> <a href="#SkMatrix_mapHomogeneousPoints">mapHomogeneousPoints</a> <a href="#SkMatrix_mapVectors">mapVectors</a>
+<a href="#SkMatrix_mapXY">mapXY</a> <a href="#SkMatrix_mapHomogeneousPoints">mapHomogeneousPoints</a> <a href="#SkMatrix_mapVectors">mapVectors</a>
 
 ---
 
@@ -3347,7 +3303,7 @@ items in <a href="undocumented#Point3">Point3</a> array to transform</td>
 
 ### See Also
 
-<a href="#SkMatrix_mapPoints">mapPoints</a> <a href="#SkMatrix_mapXY">mapXY</a> <a href="#SkMatrix_mapPointsWithStride">mapPointsWithStride</a> <a href="#SkMatrix_mapVectors">mapVectors</a>
+<a href="#SkMatrix_mapPoints">mapPoints</a> <a href="#SkMatrix_mapXY">mapXY</a> <a href="#SkMatrix_mapVectors">mapVectors</a>
 
 ---
 
@@ -3389,7 +3345,7 @@ storage for mapped <a href="SkPoint_Reference#Point">Point</a></td>
 
 ### See Also
 
-<a href="#SkMatrix_mapPoints">mapPoints</a> <a href="#SkMatrix_mapPointsWithStride">mapPointsWithStride</a> <a href="#SkMatrix_mapVectors">mapVectors</a>
+<a href="#SkMatrix_mapPoints">mapPoints</a> <a href="#SkMatrix_mapVectors">mapVectors</a>
 
 ---
 
@@ -3430,7 +3386,7 @@ mapped <a href="SkPoint_Reference#Point">Point</a>
 
 ### See Also
 
-<a href="#SkMatrix_mapPoints">mapPoints</a> <a href="#SkMatrix_mapPointsWithStride">mapPointsWithStride</a> <a href="#SkMatrix_mapVectors">mapVectors</a>
+<a href="#SkMatrix_mapPoints">mapPoints</a> <a href="#SkMatrix_mapVectors">mapVectors</a>
 
 ---
 
@@ -3484,7 +3440,7 @@ number of <a href="#Vector">Vectors</a> to transform</td>
 
 ### See Also
 
-<a href="#SkMatrix_mapVector">mapVector</a> <a href="#SkMatrix_mapPoints">mapPoints</a> <a href="#SkMatrix_mapPointsWithStride">mapPointsWithStride</a> <a href="#SkMatrix_mapXY">mapXY</a>
+<a href="#SkMatrix_mapVector">mapVector</a> <a href="#SkMatrix_mapPoints">mapPoints</a> <a href="#SkMatrix_mapXY">mapXY</a>
 
 ---
 
@@ -3530,7 +3486,7 @@ number of <a href="#Vector">Vectors</a> to transform</td>
 
 ### See Also
 
-<a href="#SkMatrix_mapVector">mapVector</a> <a href="#SkMatrix_mapPoints">mapPoints</a> <a href="#SkMatrix_mapPointsWithStride">mapPointsWithStride</a> <a href="#SkMatrix_mapXY">mapXY</a>
+<a href="#SkMatrix_mapVector">mapVector</a> <a href="#SkMatrix_mapPoints">mapPoints</a> <a href="#SkMatrix_mapXY">mapXY</a>
 
 ---
 
@@ -3573,7 +3529,7 @@ storage for mapped <a href="SkPoint_Reference#Vector">Vector</a></td>
 
 ### See Also
 
-<a href="#SkMatrix_mapVectors">mapVectors</a> <a href="#SkMatrix_mapPoints">mapPoints</a> <a href="#SkMatrix_mapPointsWithStride">mapPointsWithStride</a> <a href="#SkMatrix_mapXY">mapXY</a>
+<a href="#SkMatrix_mapVectors">mapVectors</a> <a href="#SkMatrix_mapPoints">mapPoints</a> <a href="#SkMatrix_mapXY">mapXY</a>
 
 ---
 
@@ -3615,7 +3571,7 @@ mapped <a href="SkPoint_Reference#Vector">Vector</a>
 
 ### See Also
 
-<a href="#SkMatrix_mapVectors">mapVectors</a> <a href="#SkMatrix_mapPoints">mapPoints</a> <a href="#SkMatrix_mapPointsWithStride">mapPointsWithStride</a> <a href="#SkMatrix_mapXY">mapXY</a>
+<a href="#SkMatrix_mapVectors">mapVectors</a> <a href="#SkMatrix_mapPoints">mapPoints</a> <a href="#SkMatrix_mapXY">mapXY</a>
 
 ---
 
