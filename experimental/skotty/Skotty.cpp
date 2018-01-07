@@ -24,6 +24,7 @@
 #include "SkSGPath.h"
 #include "SkSGRect.h"
 #include "SkSGTransform.h"
+#include "SkSGTrimEffect.h"
 #include "SkStream.h"
 #include "SkTArray.h"
 #include "SkTHash.h"
@@ -308,12 +309,54 @@ std::vector<sk_sp<sksg::GeometryNode>> AttachMergeGeometryEffect(
         sksg::Merge::Mode::kXOR      ,  // "mm": 5
     };
 
-    const auto mode = gModes[SkTPin<int>(ParseInt(jmerge["mm"], 1) - 1, 0, SK_ARRAY_COUNT(gModes))];
+    const auto mode = gModes[SkTPin<int>(ParseInt(jmerge["mm"], 1) - 1,
+                                         0, SK_ARRAY_COUNT(gModes) - 1)];
     merged.push_back(sksg::Merge::Make(std::move(geos), mode));
 
     LOG("** Attached merge path effect, mode: %d\n", mode);
 
     return merged;
+}
+
+std::vector<sk_sp<sksg::GeometryNode>> AttachTrimGeometryEffect(
+    const Json::Value& jtrim, AttachContext* ctx, std::vector<sk_sp<sksg::GeometryNode>>&& geos) {
+
+    enum class Mode {
+        kMerged,   // "m": 1
+        kSeparate, // "m": 2
+    } gModes[] = { Mode::kMerged, Mode::kSeparate };
+
+    const auto mode = gModes[SkTPin<int>(ParseInt(jtrim["m"], 1) - 1,
+                                         0, SK_ARRAY_COUNT(gModes) - 1)];
+
+    std::vector<sk_sp<sksg::GeometryNode>> inputs;
+    if (mode == Mode::kMerged) {
+        inputs.push_back(sksg::Merge::Make(std::move(geos), sksg::Merge::Mode::kMerge));
+    } else {
+        inputs = std::move(geos);
+    }
+
+    std::vector<sk_sp<sksg::GeometryNode>> trimmed;
+    trimmed.reserve(inputs.size());
+    for (const auto& i : inputs) {
+        const auto trim = sksg::TrimEffect::Make(i);
+        trimmed.push_back(trim);
+        AttachProperty<ScalarValue, SkScalar>(jtrim["s"], ctx, trim,
+            [](const sk_sp<sksg::TrimEffect>& node, const SkScalar& s) {
+                node->setStart(s * 0.01f);
+            });
+        AttachProperty<ScalarValue, SkScalar>(jtrim["e"], ctx, trim,
+            [](const sk_sp<sksg::TrimEffect>& node, const SkScalar& e) {
+                node->setEnd(e * 0.01f);
+            });
+        // TODO: "offset" doesn't currently work the same as BM - figure out what's going on.
+        AttachProperty<ScalarValue, SkScalar>(jtrim["o"], ctx, trim,
+            [](const sk_sp<sksg::TrimEffect>& node, const SkScalar& o) {
+                node->setOffset(o * 0.01f);
+            });
+    }
+
+    return trimmed;
 }
 
 using GeometryAttacherT = sk_sp<sksg::GeometryNode> (*)(const Json::Value&, AttachContext*);
@@ -341,6 +384,7 @@ using GeometryEffectAttacherT =
                                                std::vector<sk_sp<sksg::GeometryNode>>&&);
 static constexpr GeometryEffectAttacherT gGeometryEffectAttachers[] = {
     AttachMergeGeometryEffect,
+    AttachTrimGeometryEffect,
 };
 
 enum class ShapeType {
@@ -367,6 +411,7 @@ const ShapeInfo* FindShapeInfo(const Json::Value& shape) {
         { "sh", ShapeType::kGeometry      , 0 }, // shape     -> AttachPathGeometry
         { "sr", ShapeType::kGeometry      , 3 }, // polystar  -> AttachPolyStarGeometry
         { "st", ShapeType::kPaint         , 1 }, // stroke    -> AttachStrokePaint
+        { "tm", ShapeType::kGeometryEffect, 1 }, // trim      -> AttachTrimGeometryEffect
         { "tr", ShapeType::kTransform     , 0 }, // transform -> In-place handler
     };
 
