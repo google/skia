@@ -24,6 +24,7 @@ JNIEXPORT jfloat JNICALL Java_org_skia_skqp_SkQPRunner_nExecuteGM(JNIEnv*, jobje
 JNIEXPORT jobjectArray JNICALL Java_org_skia_skqp_SkQPRunner_nExecuteUnitTest(JNIEnv*, jobject,
                                                                               jint);
 JNIEXPORT void JNICALL Java_org_skia_skqp_SkQPRunner_nMakeReport(JNIEnv*, jobject);
+JNIEXPORT void JNICALL Java_org_skia_skqp_SkQPRunner_nSetExperimentalMode(JNIEnv*, jobject);
 }  // extern "C"
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -200,6 +201,10 @@ void Java_org_skia_skqp_SkQPRunner_nMakeReport(JNIEnv*, jobject) {
         reportDirectoryPath = gReportDirectory;
     }
     (void)gmkb::MakeReport(reportDirectoryPath.c_str());
+}
+
+void Java_org_skia_skqp_SkQPRunner_nSetExperimentalMode(JNIEnv*, jobject) {
+    gm_runner::SetMode(gm_runner::Mode::kExperimentalMode);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

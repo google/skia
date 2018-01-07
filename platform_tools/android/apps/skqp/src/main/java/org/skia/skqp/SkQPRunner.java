@@ -25,6 +25,7 @@ public class SkQPRunner extends Runner {
     private native float nExecuteGM(int gm, int backend) throws SkQPException;
     private native String[] nExecuteUnitTest(int test);
     private native void nMakeReport();
+    public  native void nSetExperimentalMode();
 
     private AssetManager mAssetManager;
     private String[] mGMs;

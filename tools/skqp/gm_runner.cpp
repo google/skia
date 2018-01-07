@@ -20,6 +20,7 @@
 #include "gl/GLTestContext.h"
 #include "gm.h"
 #include "gm_knowledge.h"
+#include "skqp_blacklist.h"
 #include "vk/VkTestContext.h"
 
 namespace gm_runner {
@@ -162,19 +163,40 @@ static bool evaluate_gm(SkiaBackend backend,
     return true;
 }
 
+static bool in_null_terminated_list(const char* string, const char** list) {
+    for (const char** ptr = list; *ptr; ++ptr) {
+        if (0 == strcmp(string, *ptr)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+static Mode gMode = Mode::kCompatibilityTestMode;
+
+void SetMode(Mode m) { gMode = m; }
+
 std::tuple<float, Error> EvaluateGM(SkiaBackend backend,
                                     GMFactory gmFact,
                                     skqp::AssetManager* assetManager,
                                     const char* reportDirectoryPath) {
     std::vector<uint32_t> pixels;
     std::unique_ptr<skiagm::GM> gm(gmFact(nullptr));
+    const char* name = gm->getName();
     int width = 0, height = 0;
     if (!evaluate_gm(backend, gm.get(), &width, &height, &pixels)) {
         return std::make_tuple(FLT_MAX, Error::SkiaFailure);
     }
+
+    if (Mode::kCompatibilityTestMode == gMode &&
+        in_null_terminated_list(name, skqp::kNoScoreInCompatibilityTestMode))
+    {
+        return std::make_tuple(0, Error::None);
+    }
+
     gmkb::Error e;
     float value = gmkb::Check(pixels.data(), width, height,
-                              gm->getName(), GetBackendName(backend), assetManager,
+                              name, GetBackendName(backend), assetManager,
                               reportDirectoryPath, &e);
     Error error = gmkb::Error::kBadInput == e ? Error::BadSkiaOutput
                 : gmkb::Error::kBadData  == e ? Error::BadGMKBData
@@ -191,8 +213,11 @@ std::vector<GMFactory> GetGMFactories(skqp::AssetManager* assetManager) {
     std::vector<GMFactory> result;
     for (const skiagm::GMRegistry* r = skiagm::GMRegistry::Head(); r; r = r->next()) {
         GMFactory f = r->factory();
-
-        if (gmkb::IsGoodGM(GetGMName(f).c_str(), assetManager)) {
+        auto name = GetGMName(f);
+        if (gmkb::IsGoodGM(name.c_str(), assetManager) &&
+            !(Mode::kExperimentalMode == gMode &&
+              in_null_terminated_list(name.c_str(), skqp::kDoNotExecuteInExperimentalMode)))
+        {
             result.push_back(r->factory());
             SkASSERT(result.back());
         }

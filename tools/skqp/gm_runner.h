@@ -37,6 +37,13 @@ enum class SkiaBackend {
     kVulkan,
 };
 
+enum class Mode {
+    kCompatibilityTestMode,
+    kExperimentalMode,
+};
+
+void SetMode(Mode);
+
 /**
 Initialize Skia
 */

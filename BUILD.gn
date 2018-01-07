@@ -1757,6 +1757,7 @@ if (skia_enable_tools) {
         "dm/DMGpuTestProcs.cpp",
         "tools/skqp/gm_knowledge.cpp",
         "tools/skqp/gm_runner.cpp",
+        "tools/skqp/skqp_blacklist.cpp",
       ]
       deps = [
         ":gm",
