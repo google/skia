@@ -70,6 +70,7 @@ private:
     friend class Merge;
     friend class Stroke;
     friend class Transform;
+    friend class TrimEffect;
 
     template <typename Func>
     void forEachInvalReceiver(Func&&) const;
