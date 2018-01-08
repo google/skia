@@ -7,13 +7,13 @@
 apply plugin: 'com.android.application'
 
 dependencies {
-    compile 'com.android.support:support-annotations:24.0.0'
+    compile 'com.android.support.constraint:constraint-layout:1.0.2'
+    compile 'com.android.support:design:26.+'
     compile 'com.android.support.test:runner:0.5'
-    compile group: 'junit', name: 'junit', version: '4.+'
 }
 
 android {
-    compileSdkVersion 23
+    compileSdkVersion 26
     buildToolsVersion "22.0.1"
     defaultConfig {
         applicationId "org.skia.skqp"
