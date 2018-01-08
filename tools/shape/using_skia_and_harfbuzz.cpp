@@ -171,7 +171,11 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
+#ifdef SK_SUPPORT_LEGACY_REFCNT_DOCUMENT
 static sk_sp<SkDocument> MakePDFDocument(const Config &config, SkWStream *wStream) {
+#else
+static std::unique_ptr<SkDocument> MakePDFDocument(const Config &config, SkWStream *wStream) {
+#endif
     SkDocument::PDFMetadata pdf_info;
     pdf_info.fTitle = config.title.value.c_str();
     pdf_info.fAuthor = config.author.value.c_str();
@@ -193,7 +197,7 @@ static sk_sp<SkDocument> MakePDFDocument(const Config &config, SkWStream *wStrea
 int main(int argc, char **argv) {
     Config config(argc, argv);
     SkFILEWStream wStream(config.output_file_name.value.c_str());
-    sk_sp<SkDocument> doc = MakePDFDocument(config, &wStream);
+    auto doc = MakePDFDocument(config, &wStream);
     assert(doc);
     Placement placement(&config, doc.get());
 

@@ -24,8 +24,12 @@ class SkPDFDevice;
  *         or sent online or to printer.  A good choice is
  *         SK_ScalarDefaultRasterDPI(72.0f).
  */
+#ifdef SK_SUPPORT_LEGACY_REFCNT_DOCUMENT
 sk_sp<SkDocument> SkPDFMakeDocument(SkWStream* stream,
                                     const SkDocument::PDFMetadata&);
+#else
+std::unique_ptr<SkDocument> SkPDFMakeDocument(SkWStream*, const SkDocument::PDFMetadata&);
+#endif
 
 // Logically part of SkPDFDocument (like SkPDFCanon), but separate to
 // keep similar functionality together.

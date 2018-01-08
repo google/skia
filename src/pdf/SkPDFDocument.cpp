@@ -423,6 +423,7 @@ void SkPDFDocument::onClose(SkWStream* stream) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+#ifdef SK_SUPPORT_LEGACY_REFCNT_DOCUMENT
 sk_sp<SkDocument> SkPDFMakeDocument(SkWStream* stream,
                                     const SkDocument::PDFMetadata& metadata) {
     SkDocument::PDFMetadata meta = metadata;
@@ -442,4 +443,24 @@ sk_sp<SkDocument> SkDocument::MakePDF(SkWStream* stream, const PDFMetadata& meta
 sk_sp<SkDocument> SkDocument::MakePDF(SkWStream* stream) {
     return SkPDFMakeDocument(stream, PDFMetadata());
 }
+#else
+std::unique_ptr<SkDocument> SkPDFMakeDocument(SkWStream* stream,
+                                              const SkDocument::PDFMetadata& metadata) {
+    SkDocument::PDFMetadata meta = metadata;
+    if (meta.fRasterDPI <= 0) {
+        meta.fRasterDPI = 72.0f;
+    }
+    if (meta.fEncodingQuality < 0) {
+        meta.fEncodingQuality = 0;
+    }
+    return stream ? skstd::make_unique<SkPDFDocument>(stream, meta) : nullptr;
+}
 
+std::unique_ptr<SkDocument> SkDocument::MakePDF(SkWStream* stream, const PDFMetadata& metadata) {
+    return SkPDFMakeDocument(stream, metadata);
+}
+
+std::unique_ptr<SkDocument> SkDocument::MakePDF(SkWStream* stream) {
+    return SkPDFMakeDocument(stream, PDFMetadata());
+}
+#endif

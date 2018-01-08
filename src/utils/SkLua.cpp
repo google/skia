@@ -37,10 +37,17 @@ extern "C" {
     #include "lauxlib.h"
 }
 
+#ifdef SK_SUPPORT_LEGACY_REFCNT_DOCUMENT
 struct DocHolder {
     sk_sp<SkDocument>           fDoc;
     std::unique_ptr<SkWStream>  fStream;
 };
+#else
+struct DocHolder {
+    std::unique_ptr<SkDocument> fDoc;
+    std::unique_ptr<SkWStream>  fStream;
+};
+#endif
 
 // return the metatable name for a given class
 template <typename T> const char* get_mtname();
@@ -1896,7 +1903,7 @@ static int lsk_newDocumentPDF(lua_State* L) {
     if (!file->isValid()) {
         return 0;
     }
-    sk_sp<SkDocument> doc = SkDocument::MakePDF(file.get());
+    auto doc = SkDocument::MakePDF(file.get());
     if (!doc) {
         return 0;
     }

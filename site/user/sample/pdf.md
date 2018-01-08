@@ -22,7 +22,7 @@ SkDocument and SkCanvas APIs.
         metadata.fCreation.fDateTime = now;
         metadata.fModified.fEnabled  = true;
         metadata.fModified.fDateTime = now;
-        sk_sp<SkDocument> pdfDocument = SkDocument::MakePDF(
+        std::unique_ptr<SkDocument> pdfDocument = SkDocument::MakePDF(
                 outputStream, SK_ScalarDefaultRasterDPI, metadata,
                 nullptr, true);
         assert(pdfDocument);
