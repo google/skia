@@ -40,6 +40,7 @@ void KeyframeInterval<ShapeValue>::lerp(float t, ShapeValue* v) const {
     SkASSERT(v->cardinality() == 0);
 
     SkAssertResult(fV1.fPath.interpolate(fV0.fPath, t, &v->fPath));
+    v->fPath.setIsVolatile(true);
 }
 
 float AnimatorBase::ComputeLocalT(float t, float t0, float t1,
