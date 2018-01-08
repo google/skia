@@ -370,7 +370,7 @@
     "infra_step": true,
     "name": "Copy Go binary",
     "~followup_annotations": [
-      "@@@SET_BUILD_PROPERTY@Download SKPs by rank@\"https://pantheon.corp.google.com/storage/browser/cluster-telemetry/swarming/skps/10k/c37e844a6f8708-eee762104c75bd/\"@@@",
+      "@@@SET_BUILD_PROPERTY@Download SKPs by rank@\"https://pantheon.corp.google.com/storage/browser/cluster-telemetry/swarming/skps/All/2b7e85eb251dc7-a3cf3659ed2c08/\"@@@",
       "@@@SET_BUILD_PROPERTY@Webpage rankings@\"https://storage.cloud.google.com/cluster-telemetry/csv/top-1m.csv\"@@@"
     ]
   },
@@ -395,7 +395,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "rmtree",
-      "[CUSTOM_/_B_WORK]/skps/c37e844a6f8708-eee762104c75bd/10k/5/slave1"
+      "[CUSTOM_/_B_WORK]/skps/2b7e85eb251dc7-a3cf3659ed2c08/All/5/slave1"
     ],
     "infra_step": true,
     "name": "rmtree slave1"
@@ -410,7 +410,7 @@
       "ensure-directory",
       "--mode",
       "0777",
-      "[CUSTOM_/_B_WORK]/skps/c37e844a6f8708-eee762104c75bd/10k/5/slave1"
+      "[CUSTOM_/_B_WORK]/skps/2b7e85eb251dc7-a3cf3659ed2c08/All/5/slave1"
     ],
     "infra_step": true,
     "name": "makedirs slave1"
@@ -420,17 +420,17 @@
       "gsutil",
       "-m",
       "cp",
-      "gs://cluster-telemetry/swarming/skps/10k/c37e844a6f8708-eee762104c75bd/1/*.skp",
-      "gs://cluster-telemetry/swarming/skps/10k/c37e844a6f8708-eee762104c75bd/2/*.skp",
-      "gs://cluster-telemetry/swarming/skps/10k/c37e844a6f8708-eee762104c75bd/3/*.skp",
-      "gs://cluster-telemetry/swarming/skps/10k/c37e844a6f8708-eee762104c75bd/4/*.skp",
-      "gs://cluster-telemetry/swarming/skps/10k/c37e844a6f8708-eee762104c75bd/5/*.skp",
-      "gs://cluster-telemetry/swarming/skps/10k/c37e844a6f8708-eee762104c75bd/6/*.skp",
-      "gs://cluster-telemetry/swarming/skps/10k/c37e844a6f8708-eee762104c75bd/7/*.skp",
-      "gs://cluster-telemetry/swarming/skps/10k/c37e844a6f8708-eee762104c75bd/8/*.skp",
-      "gs://cluster-telemetry/swarming/skps/10k/c37e844a6f8708-eee762104c75bd/9/*.skp",
-      "gs://cluster-telemetry/swarming/skps/10k/c37e844a6f8708-eee762104c75bd/10/*.skp",
-      "[CUSTOM_/_B_WORK]/skps/c37e844a6f8708-eee762104c75bd/10k/5/slave1"
+      "gs://cluster-telemetry/swarming/skps/All/2b7e85eb251dc7-a3cf3659ed2c08/1/*.skp",
+      "gs://cluster-telemetry/swarming/skps/All/2b7e85eb251dc7-a3cf3659ed2c08/2/*.skp",
+      "gs://cluster-telemetry/swarming/skps/All/2b7e85eb251dc7-a3cf3659ed2c08/3/*.skp",
+      "gs://cluster-telemetry/swarming/skps/All/2b7e85eb251dc7-a3cf3659ed2c08/4/*.skp",
+      "gs://cluster-telemetry/swarming/skps/All/2b7e85eb251dc7-a3cf3659ed2c08/5/*.skp",
+      "gs://cluster-telemetry/swarming/skps/All/2b7e85eb251dc7-a3cf3659ed2c08/6/*.skp",
+      "gs://cluster-telemetry/swarming/skps/All/2b7e85eb251dc7-a3cf3659ed2c08/7/*.skp",
+      "gs://cluster-telemetry/swarming/skps/All/2b7e85eb251dc7-a3cf3659ed2c08/8/*.skp",
+      "gs://cluster-telemetry/swarming/skps/All/2b7e85eb251dc7-a3cf3659ed2c08/9/*.skp",
+      "gs://cluster-telemetry/swarming/skps/All/2b7e85eb251dc7-a3cf3659ed2c08/10/*.skp",
+      "[CUSTOM_/_B_WORK]/skps/2b7e85eb251dc7-a3cf3659ed2c08/All/5/slave1"
     ],
     "name": "gsutil cp"
   },
@@ -457,7 +457,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "{\n    \"args\": [\n        \"--isolate\", \n        \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct/ct_skps.isolate\", \n        \"--isolated\", \n        \"[START_DIR]/swarming_temp_dir/skia-task-ct-nanobench-1.isolated\", \n        \"--config-variable\", \n        \"OS\", \n        \"linux\", \n        \"--extra-variable\", \n        \"NUM_SLAVES\", \n        \"5\", \n        \"--extra-variable\", \n        \"CONFIGURATION\", \n        \"Release\", \n        \"--extra-variable\", \n        \"SLAVE_NUM\", \n        \"1\", \n        \"--extra-variable\", \n        \"PAGE_TYPE\", \n        \"10k\", \n        \"--extra-variable\", \n        \"BUILDER\", \n        \"Perf-Ubuntu14-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-CT_BENCH_1k_SKPs\", \n        \"--extra-variable\", \n        \"GIT_HASH\", \n        \"9046e2e693bb92a76e972b694580e5d17ad10748\", \n        \"--extra-variable\", \n        \"TOOL_NAME\", \n        \"nanobench\", \n        \"--extra-variable\", \n        \"CHROMIUM_BUILD\", \n        \"c37e844a6f8708-eee762104c75bd\"\n    ], \n    \"dir\": \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct\", \n    \"version\": 1\n}",
+      "{\n    \"args\": [\n        \"--isolate\", \n        \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct/ct_skps.isolate\", \n        \"--isolated\", \n        \"[START_DIR]/swarming_temp_dir/skia-task-ct-nanobench-1.isolated\", \n        \"--config-variable\", \n        \"OS\", \n        \"linux\", \n        \"--extra-variable\", \n        \"NUM_SLAVES\", \n        \"5\", \n        \"--extra-variable\", \n        \"CONFIGURATION\", \n        \"Release\", \n        \"--extra-variable\", \n        \"SLAVE_NUM\", \n        \"1\", \n        \"--extra-variable\", \n        \"PAGE_TYPE\", \n        \"All\", \n        \"--extra-variable\", \n        \"BUILDER\", \n        \"Perf-Ubuntu14-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-CT_BENCH_1k_SKPs\", \n        \"--extra-variable\", \n        \"GIT_HASH\", \n        \"9046e2e693bb92a76e972b694580e5d17ad10748\", \n        \"--extra-variable\", \n        \"TOOL_NAME\", \n        \"nanobench\", \n        \"--extra-variable\", \n        \"CHROMIUM_BUILD\", \n        \"2b7e85eb251dc7-a3cf3659ed2c08\"\n    ], \n    \"dir\": \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct\", \n    \"version\": 1\n}",
       "[START_DIR]/swarming_temp_dir/ct-nanobench-1.isolated.gen.json"
     ],
     "infra_step": true,
@@ -471,7 +471,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "rmtree",
-      "[CUSTOM_/_B_WORK]/skps/c37e844a6f8708-eee762104c75bd/10k/5/slave2"
+      "[CUSTOM_/_B_WORK]/skps/2b7e85eb251dc7-a3cf3659ed2c08/All/5/slave2"
     ],
     "infra_step": true,
     "name": "rmtree slave2"
@@ -486,7 +486,7 @@
       "ensure-directory",
       "--mode",
       "0777",
-      "[CUSTOM_/_B_WORK]/skps/c37e844a6f8708-eee762104c75bd/10k/5/slave2"
+      "[CUSTOM_/_B_WORK]/skps/2b7e85eb251dc7-a3cf3659ed2c08/All/5/slave2"
     ],
     "infra_step": true,
     "name": "makedirs slave2"
@@ -496,17 +496,17 @@
       "gsutil",
       "-m",
       "cp",
-      "gs://cluster-telemetry/swarming/skps/10k/c37e844a6f8708-eee762104c75bd/11/*.skp",
-      "gs://cluster-telemetry/swarming/skps/10k/c37e844a6f8708-eee762104c75bd/12/*.skp",
-      "gs://cluster-telemetry/swarming/skps/10k/c37e844a6f8708-eee762104c75bd/13/*.skp",
-      "gs://cluster-telemetry/swarming/skps/10k/c37e844a6f8708-eee762104c75bd/14/*.skp",
-      "gs://cluster-telemetry/swarming/skps/10k/c37e844a6f8708-eee762104c75bd/15/*.skp",
-      "gs://cluster-telemetry/swarming/skps/10k/c37e844a6f8708-eee762104c75bd/16/*.skp",
-      "gs://cluster-telemetry/swarming/skps/10k/c37e844a6f8708-eee762104c75bd/17/*.skp",
-      "gs://cluster-telemetry/swarming/skps/10k/c37e844a6f8708-eee762104c75bd/18/*.skp",
-      "gs://cluster-telemetry/swarming/skps/10k/c37e844a6f8708-eee762104c75bd/19/*.skp",
-      "gs://cluster-telemetry/swarming/skps/10k/c37e844a6f8708-eee762104c75bd/20/*.skp",
-      "[CUSTOM_/_B_WORK]/skps/c37e844a6f8708-eee762104c75bd/10k/5/slave2"
+      "gs://cluster-telemetry/swarming/skps/All/2b7e85eb251dc7-a3cf3659ed2c08/11/*.skp",
+      "gs://cluster-telemetry/swarming/skps/All/2b7e85eb251dc7-a3cf3659ed2c08/12/*.skp",
+      "gs://cluster-telemetry/swarming/skps/All/2b7e85eb251dc7-a3cf3659ed2c08/13/*.skp",
+      "gs://cluster-telemetry/swarming/skps/All/2b7e85eb251dc7-a3cf3659ed2c08/14/*.skp",
+      "gs://cluster-telemetry/swarming/skps/All/2b7e85eb251dc7-a3cf3659ed2c08/15/*.skp",
+      "gs://cluster-telemetry/swarming/skps/All/2b7e85eb251dc7-a3cf3659ed2c08/16/*.skp",
+      "gs://cluster-telemetry/swarming/skps/All/2b7e85eb251dc7-a3cf3659ed2c08/17/*.skp",
+      "gs://cluster-telemetry/swarming/skps/All/2b7e85eb251dc7-a3cf3659ed2c08/18/*.skp",
+      "gs://cluster-telemetry/swarming/skps/All/2b7e85eb251dc7-a3cf3659ed2c08/19/*.skp",
+      "gs://cluster-telemetry/swarming/skps/All/2b7e85eb251dc7-a3cf3659ed2c08/20/*.skp",
+      "[CUSTOM_/_B_WORK]/skps/2b7e85eb251dc7-a3cf3659ed2c08/All/5/slave2"
     ],
     "name": "gsutil cp (2)"
   },
@@ -533,7 +533,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "{\n    \"args\": [\n        \"--isolate\", \n        \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct/ct_skps.isolate\", \n        \"--isolated\", \n        \"[START_DIR]/swarming_temp_dir/skia-task-ct-nanobench-2.isolated\", \n        \"--config-variable\", \n        \"OS\", \n        \"linux\", \n        \"--extra-variable\", \n        \"NUM_SLAVES\", \n        \"5\", \n        \"--extra-variable\", \n        \"CONFIGURATION\", \n        \"Release\", \n        \"--extra-variable\", \n        \"SLAVE_NUM\", \n        \"2\", \n        \"--extra-variable\", \n        \"PAGE_TYPE\", \n        \"10k\", \n        \"--extra-variable\", \n        \"BUILDER\", \n        \"Perf-Ubuntu14-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-CT_BENCH_1k_SKPs\", \n        \"--extra-variable\", \n        \"GIT_HASH\", \n        \"9046e2e693bb92a76e972b694580e5d17ad10748\", \n        \"--extra-variable\", \n        \"TOOL_NAME\", \n        \"nanobench\", \n        \"--extra-variable\", \n        \"CHROMIUM_BUILD\", \n        \"c37e844a6f8708-eee762104c75bd\"\n    ], \n    \"dir\": \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct\", \n    \"version\": 1\n}",
+      "{\n    \"args\": [\n        \"--isolate\", \n        \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct/ct_skps.isolate\", \n        \"--isolated\", \n        \"[START_DIR]/swarming_temp_dir/skia-task-ct-nanobench-2.isolated\", \n        \"--config-variable\", \n        \"OS\", \n        \"linux\", \n        \"--extra-variable\", \n        \"NUM_SLAVES\", \n        \"5\", \n        \"--extra-variable\", \n        \"CONFIGURATION\", \n        \"Release\", \n        \"--extra-variable\", \n        \"SLAVE_NUM\", \n        \"2\", \n        \"--extra-variable\", \n        \"PAGE_TYPE\", \n        \"All\", \n        \"--extra-variable\", \n        \"BUILDER\", \n        \"Perf-Ubuntu14-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-CT_BENCH_1k_SKPs\", \n        \"--extra-variable\", \n        \"GIT_HASH\", \n        \"9046e2e693bb92a76e972b694580e5d17ad10748\", \n        \"--extra-variable\", \n        \"TOOL_NAME\", \n        \"nanobench\", \n        \"--extra-variable\", \n        \"CHROMIUM_BUILD\", \n        \"2b7e85eb251dc7-a3cf3659ed2c08\"\n    ], \n    \"dir\": \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct\", \n    \"version\": 1\n}",
       "[START_DIR]/swarming_temp_dir/ct-nanobench-2.isolated.gen.json"
     ],
     "infra_step": true,
@@ -547,7 +547,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "rmtree",
-      "[CUSTOM_/_B_WORK]/skps/c37e844a6f8708-eee762104c75bd/10k/5/slave3"
+      "[CUSTOM_/_B_WORK]/skps/2b7e85eb251dc7-a3cf3659ed2c08/All/5/slave3"
     ],
     "infra_step": true,
     "name": "rmtree slave3"
@@ -562,7 +562,7 @@
       "ensure-directory",
       "--mode",
       "0777",
-      "[CUSTOM_/_B_WORK]/skps/c37e844a6f8708-eee762104c75bd/10k/5/slave3"
+      "[CUSTOM_/_B_WORK]/skps/2b7e85eb251dc7-a3cf3659ed2c08/All/5/slave3"
     ],
     "infra_step": true,
     "name": "makedirs slave3"
@@ -572,17 +572,17 @@
       "gsutil",
       "-m",
       "cp",
-      "gs://cluster-telemetry/swarming/skps/10k/c37e844a6f8708-eee762104c75bd/21/*.skp",
-      "gs://cluster-telemetry/swarming/skps/10k/c37e844a6f8708-eee762104c75bd/22/*.skp",
-      "gs://cluster-telemetry/swarming/skps/10k/c37e844a6f8708-eee762104c75bd/23/*.skp",
-      "gs://cluster-telemetry/swarming/skps/10k/c37e844a6f8708-eee762104c75bd/24/*.skp",
-      "gs://cluster-telemetry/swarming/skps/10k/c37e844a6f8708-eee762104c75bd/25/*.skp",
-      "gs://cluster-telemetry/swarming/skps/10k/c37e844a6f8708-eee762104c75bd/26/*.skp",
-      "gs://cluster-telemetry/swarming/skps/10k/c37e844a6f8708-eee762104c75bd/27/*.skp",
-      "gs://cluster-telemetry/swarming/skps/10k/c37e844a6f8708-eee762104c75bd/28/*.skp",
-      "gs://cluster-telemetry/swarming/skps/10k/c37e844a6f8708-eee762104c75bd/29/*.skp",
-      "gs://cluster-telemetry/swarming/skps/10k/c37e844a6f8708-eee762104c75bd/30/*.skp",
-      "[CUSTOM_/_B_WORK]/skps/c37e844a6f8708-eee762104c75bd/10k/5/slave3"
+      "gs://cluster-telemetry/swarming/skps/All/2b7e85eb251dc7-a3cf3659ed2c08/21/*.skp",
+      "gs://cluster-telemetry/swarming/skps/All/2b7e85eb251dc7-a3cf3659ed2c08/22/*.skp",
+      "gs://cluster-telemetry/swarming/skps/All/2b7e85eb251dc7-a3cf3659ed2c08/23/*.skp",
+      "gs://cluster-telemetry/swarming/skps/All/2b7e85eb251dc7-a3cf3659ed2c08/24/*.skp",
+      "gs://cluster-telemetry/swarming/skps/All/2b7e85eb251dc7-a3cf3659ed2c08/25/*.skp",
+      "gs://cluster-telemetry/swarming/skps/All/2b7e85eb251dc7-a3cf3659ed2c08/26/*.skp",
+      "gs://cluster-telemetry/swarming/skps/All/2b7e85eb251dc7-a3cf3659ed2c08/27/*.skp",
+      "gs://cluster-telemetry/swarming/skps/All/2b7e85eb251dc7-a3cf3659ed2c08/28/*.skp",
+      "gs://cluster-telemetry/swarming/skps/All/2b7e85eb251dc7-a3cf3659ed2c08/29/*.skp",
+      "gs://cluster-telemetry/swarming/skps/All/2b7e85eb251dc7-a3cf3659ed2c08/30/*.skp",
+      "[CUSTOM_/_B_WORK]/skps/2b7e85eb251dc7-a3cf3659ed2c08/All/5/slave3"
     ],
     "name": "gsutil cp (3)"
   },
@@ -609,7 +609,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "{\n    \"args\": [\n        \"--isolate\", \n        \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct/ct_skps.isolate\", \n        \"--isolated\", \n        \"[START_DIR]/swarming_temp_dir/skia-task-ct-nanobench-3.isolated\", \n        \"--config-variable\", \n        \"OS\", \n        \"linux\", \n        \"--extra-variable\", \n        \"NUM_SLAVES\", \n        \"5\", \n        \"--extra-variable\", \n        \"CONFIGURATION\", \n        \"Release\", \n        \"--extra-variable\", \n        \"SLAVE_NUM\", \n        \"3\", \n        \"--extra-variable\", \n        \"PAGE_TYPE\", \n        \"10k\", \n        \"--extra-variable\", \n        \"BUILDER\", \n        \"Perf-Ubuntu14-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-CT_BENCH_1k_SKPs\", \n        \"--extra-variable\", \n        \"GIT_HASH\", \n        \"9046e2e693bb92a76e972b694580e5d17ad10748\", \n        \"--extra-variable\", \n        \"TOOL_NAME\", \n        \"nanobench\", \n        \"--extra-variable\", \n        \"CHROMIUM_BUILD\", \n        \"c37e844a6f8708-eee762104c75bd\"\n    ], \n    \"dir\": \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct\", \n    \"version\": 1\n}",
+      "{\n    \"args\": [\n        \"--isolate\", \n        \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct/ct_skps.isolate\", \n        \"--isolated\", \n        \"[START_DIR]/swarming_temp_dir/skia-task-ct-nanobench-3.isolated\", \n        \"--config-variable\", \n        \"OS\", \n        \"linux\", \n        \"--extra-variable\", \n        \"NUM_SLAVES\", \n        \"5\", \n        \"--extra-variable\", \n        \"CONFIGURATION\", \n        \"Release\", \n        \"--extra-variable\", \n        \"SLAVE_NUM\", \n        \"3\", \n        \"--extra-variable\", \n        \"PAGE_TYPE\", \n        \"All\", \n        \"--extra-variable\", \n        \"BUILDER\", \n        \"Perf-Ubuntu14-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-CT_BENCH_1k_SKPs\", \n        \"--extra-variable\", \n        \"GIT_HASH\", \n        \"9046e2e693bb92a76e972b694580e5d17ad10748\", \n        \"--extra-variable\", \n        \"TOOL_NAME\", \n        \"nanobench\", \n        \"--extra-variable\", \n        \"CHROMIUM_BUILD\", \n        \"2b7e85eb251dc7-a3cf3659ed2c08\"\n    ], \n    \"dir\": \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct\", \n    \"version\": 1\n}",
       "[START_DIR]/swarming_temp_dir/ct-nanobench-3.isolated.gen.json"
     ],
     "infra_step": true,
@@ -623,7 +623,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "rmtree",
-      "[CUSTOM_/_B_WORK]/skps/c37e844a6f8708-eee762104c75bd/10k/5/slave4"
+      "[CUSTOM_/_B_WORK]/skps/2b7e85eb251dc7-a3cf3659ed2c08/All/5/slave4"
     ],
     "infra_step": true,
     "name": "rmtree slave4"
@@ -638,7 +638,7 @@
       "ensure-directory",
       "--mode",
       "0777",
-      "[CUSTOM_/_B_WORK]/skps/c37e844a6f8708-eee762104c75bd/10k/5/slave4"
+      "[CUSTOM_/_B_WORK]/skps/2b7e85eb251dc7-a3cf3659ed2c08/All/5/slave4"
     ],
     "infra_step": true,
     "name": "makedirs slave4"
@@ -648,17 +648,17 @@
       "gsutil",
       "-m",
       "cp",
-      "gs://cluster-telemetry/swarming/skps/10k/c37e844a6f8708-eee762104c75bd/31/*.skp",
-      "gs://cluster-telemetry/swarming/skps/10k/c37e844a6f8708-eee762104c75bd/32/*.skp",
-      "gs://cluster-telemetry/swarming/skps/10k/c37e844a6f8708-eee762104c75bd/33/*.skp",
-      "gs://cluster-telemetry/swarming/skps/10k/c37e844a6f8708-eee762104c75bd/34/*.skp",
-      "gs://cluster-telemetry/swarming/skps/10k/c37e844a6f8708-eee762104c75bd/35/*.skp",
-      "gs://cluster-telemetry/swarming/skps/10k/c37e844a6f8708-eee762104c75bd/36/*.skp",
-      "gs://cluster-telemetry/swarming/skps/10k/c37e844a6f8708-eee762104c75bd/37/*.skp",
-      "gs://cluster-telemetry/swarming/skps/10k/c37e844a6f8708-eee762104c75bd/38/*.skp",
-      "gs://cluster-telemetry/swarming/skps/10k/c37e844a6f8708-eee762104c75bd/39/*.skp",
-      "gs://cluster-telemetry/swarming/skps/10k/c37e844a6f8708-eee762104c75bd/40/*.skp",
-      "[CUSTOM_/_B_WORK]/skps/c37e844a6f8708-eee762104c75bd/10k/5/slave4"
+      "gs://cluster-telemetry/swarming/skps/All/2b7e85eb251dc7-a3cf3659ed2c08/31/*.skp",
+      "gs://cluster-telemetry/swarming/skps/All/2b7e85eb251dc7-a3cf3659ed2c08/32/*.skp",
+      "gs://cluster-telemetry/swarming/skps/All/2b7e85eb251dc7-a3cf3659ed2c08/33/*.skp",
+      "gs://cluster-telemetry/swarming/skps/All/2b7e85eb251dc7-a3cf3659ed2c08/34/*.skp",
+      "gs://cluster-telemetry/swarming/skps/All/2b7e85eb251dc7-a3cf3659ed2c08/35/*.skp",
+      "gs://cluster-telemetry/swarming/skps/All/2b7e85eb251dc7-a3cf3659ed2c08/36/*.skp",
+      "gs://cluster-telemetry/swarming/skps/All/2b7e85eb251dc7-a3cf3659ed2c08/37/*.skp",
+      "gs://cluster-telemetry/swarming/skps/All/2b7e85eb251dc7-a3cf3659ed2c08/38/*.skp",
+      "gs://cluster-telemetry/swarming/skps/All/2b7e85eb251dc7-a3cf3659ed2c08/39/*.skp",
+      "gs://cluster-telemetry/swarming/skps/All/2b7e85eb251dc7-a3cf3659ed2c08/40/*.skp",
+      "[CUSTOM_/_B_WORK]/skps/2b7e85eb251dc7-a3cf3659ed2c08/All/5/slave4"
     ],
     "name": "gsutil cp (4)"
   },
@@ -685,7 +685,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "{\n    \"args\": [\n        \"--isolate\", \n        \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct/ct_skps.isolate\", \n        \"--isolated\", \n        \"[START_DIR]/swarming_temp_dir/skia-task-ct-nanobench-4.isolated\", \n        \"--config-variable\", \n        \"OS\", \n        \"linux\", \n        \"--extra-variable\", \n        \"NUM_SLAVES\", \n        \"5\", \n        \"--extra-variable\", \n        \"CONFIGURATION\", \n        \"Release\", \n        \"--extra-variable\", \n        \"SLAVE_NUM\", \n        \"4\", \n        \"--extra-variable\", \n        \"PAGE_TYPE\", \n        \"10k\", \n        \"--extra-variable\", \n        \"BUILDER\", \n        \"Perf-Ubuntu14-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-CT_BENCH_1k_SKPs\", \n        \"--extra-variable\", \n        \"GIT_HASH\", \n        \"9046e2e693bb92a76e972b694580e5d17ad10748\", \n        \"--extra-variable\", \n        \"TOOL_NAME\", \n        \"nanobench\", \n        \"--extra-variable\", \n        \"CHROMIUM_BUILD\", \n        \"c37e844a6f8708-eee762104c75bd\"\n    ], \n    \"dir\": \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct\", \n    \"version\": 1\n}",
+      "{\n    \"args\": [\n        \"--isolate\", \n        \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct/ct_skps.isolate\", \n        \"--isolated\", \n        \"[START_DIR]/swarming_temp_dir/skia-task-ct-nanobench-4.isolated\", \n        \"--config-variable\", \n        \"OS\", \n        \"linux\", \n        \"--extra-variable\", \n        \"NUM_SLAVES\", \n        \"5\", \n        \"--extra-variable\", \n        \"CONFIGURATION\", \n        \"Release\", \n        \"--extra-variable\", \n        \"SLAVE_NUM\", \n        \"4\", \n        \"--extra-variable\", \n        \"PAGE_TYPE\", \n        \"All\", \n        \"--extra-variable\", \n        \"BUILDER\", \n        \"Perf-Ubuntu14-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-CT_BENCH_1k_SKPs\", \n        \"--extra-variable\", \n        \"GIT_HASH\", \n        \"9046e2e693bb92a76e972b694580e5d17ad10748\", \n        \"--extra-variable\", \n        \"TOOL_NAME\", \n        \"nanobench\", \n        \"--extra-variable\", \n        \"CHROMIUM_BUILD\", \n        \"2b7e85eb251dc7-a3cf3659ed2c08\"\n    ], \n    \"dir\": \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct\", \n    \"version\": 1\n}",
       "[START_DIR]/swarming_temp_dir/ct-nanobench-4.isolated.gen.json"
     ],
     "infra_step": true,
@@ -699,7 +699,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "rmtree",
-      "[CUSTOM_/_B_WORK]/skps/c37e844a6f8708-eee762104c75bd/10k/5/slave5"
+      "[CUSTOM_/_B_WORK]/skps/2b7e85eb251dc7-a3cf3659ed2c08/All/5/slave5"
     ],
     "infra_step": true,
     "name": "rmtree slave5"
@@ -714,7 +714,7 @@
       "ensure-directory",
       "--mode",
       "0777",
-      "[CUSTOM_/_B_WORK]/skps/c37e844a6f8708-eee762104c75bd/10k/5/slave5"
+      "[CUSTOM_/_B_WORK]/skps/2b7e85eb251dc7-a3cf3659ed2c08/All/5/slave5"
     ],
     "infra_step": true,
     "name": "makedirs slave5"
@@ -724,17 +724,17 @@
       "gsutil",
       "-m",
       "cp",
-      "gs://cluster-telemetry/swarming/skps/10k/c37e844a6f8708-eee762104c75bd/41/*.skp",
-      "gs://cluster-telemetry/swarming/skps/10k/c37e844a6f8708-eee762104c75bd/42/*.skp",
-      "gs://cluster-telemetry/swarming/skps/10k/c37e844a6f8708-eee762104c75bd/43/*.skp",
-      "gs://cluster-telemetry/swarming/skps/10k/c37e844a6f8708-eee762104c75bd/44/*.skp",
-      "gs://cluster-telemetry/swarming/skps/10k/c37e844a6f8708-eee762104c75bd/45/*.skp",
-      "gs://cluster-telemetry/swarming/skps/10k/c37e844a6f8708-eee762104c75bd/46/*.skp",
-      "gs://cluster-telemetry/swarming/skps/10k/c37e844a6f8708-eee762104c75bd/47/*.skp",
-      "gs://cluster-telemetry/swarming/skps/10k/c37e844a6f8708-eee762104c75bd/48/*.skp",
-      "gs://cluster-telemetry/swarming/skps/10k/c37e844a6f8708-eee762104c75bd/49/*.skp",
-      "gs://cluster-telemetry/swarming/skps/10k/c37e844a6f8708-eee762104c75bd/50/*.skp",
-      "[CUSTOM_/_B_WORK]/skps/c37e844a6f8708-eee762104c75bd/10k/5/slave5"
+      "gs://cluster-telemetry/swarming/skps/All/2b7e85eb251dc7-a3cf3659ed2c08/41/*.skp",
+      "gs://cluster-telemetry/swarming/skps/All/2b7e85eb251dc7-a3cf3659ed2c08/42/*.skp",
+      "gs://cluster-telemetry/swarming/skps/All/2b7e85eb251dc7-a3cf3659ed2c08/43/*.skp",
+      "gs://cluster-telemetry/swarming/skps/All/2b7e85eb251dc7-a3cf3659ed2c08/44/*.skp",
+      "gs://cluster-telemetry/swarming/skps/All/2b7e85eb251dc7-a3cf3659ed2c08/45/*.skp",
+      "gs://cluster-telemetry/swarming/skps/All/2b7e85eb251dc7-a3cf3659ed2c08/46/*.skp",
+      "gs://cluster-telemetry/swarming/skps/All/2b7e85eb251dc7-a3cf3659ed2c08/47/*.skp",
+      "gs://cluster-telemetry/swarming/skps/All/2b7e85eb251dc7-a3cf3659ed2c08/48/*.skp",
+      "gs://cluster-telemetry/swarming/skps/All/2b7e85eb251dc7-a3cf3659ed2c08/49/*.skp",
+      "gs://cluster-telemetry/swarming/skps/All/2b7e85eb251dc7-a3cf3659ed2c08/50/*.skp",
+      "[CUSTOM_/_B_WORK]/skps/2b7e85eb251dc7-a3cf3659ed2c08/All/5/slave5"
     ],
     "name": "gsutil cp (5)"
   },
@@ -761,7 +761,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "{\n    \"args\": [\n        \"--isolate\", \n        \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct/ct_skps.isolate\", \n        \"--isolated\", \n        \"[START_DIR]/swarming_temp_dir/skia-task-ct-nanobench-5.isolated\", \n        \"--config-variable\", \n        \"OS\", \n        \"linux\", \n        \"--extra-variable\", \n        \"NUM_SLAVES\", \n        \"5\", \n        \"--extra-variable\", \n        \"CONFIGURATION\", \n        \"Release\", \n        \"--extra-variable\", \n        \"SLAVE_NUM\", \n        \"5\", \n        \"--extra-variable\", \n        \"PAGE_TYPE\", \n        \"10k\", \n        \"--extra-variable\", \n        \"BUILDER\", \n        \"Perf-Ubuntu14-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-CT_BENCH_1k_SKPs\", \n        \"--extra-variable\", \n        \"GIT_HASH\", \n        \"9046e2e693bb92a76e972b694580e5d17ad10748\", \n        \"--extra-variable\", \n        \"TOOL_NAME\", \n        \"nanobench\", \n        \"--extra-variable\", \n        \"CHROMIUM_BUILD\", \n        \"c37e844a6f8708-eee762104c75bd\"\n    ], \n    \"dir\": \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct\", \n    \"version\": 1\n}",
+      "{\n    \"args\": [\n        \"--isolate\", \n        \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct/ct_skps.isolate\", \n        \"--isolated\", \n        \"[START_DIR]/swarming_temp_dir/skia-task-ct-nanobench-5.isolated\", \n        \"--config-variable\", \n        \"OS\", \n        \"linux\", \n        \"--extra-variable\", \n        \"NUM_SLAVES\", \n        \"5\", \n        \"--extra-variable\", \n        \"CONFIGURATION\", \n        \"Release\", \n        \"--extra-variable\", \n        \"SLAVE_NUM\", \n        \"5\", \n        \"--extra-variable\", \n        \"PAGE_TYPE\", \n        \"All\", \n        \"--extra-variable\", \n        \"BUILDER\", \n        \"Perf-Ubuntu14-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-CT_BENCH_1k_SKPs\", \n        \"--extra-variable\", \n        \"GIT_HASH\", \n        \"9046e2e693bb92a76e972b694580e5d17ad10748\", \n        \"--extra-variable\", \n        \"TOOL_NAME\", \n        \"nanobench\", \n        \"--extra-variable\", \n        \"CHROMIUM_BUILD\", \n        \"2b7e85eb251dc7-a3cf3659ed2c08\"\n    ], \n    \"dir\": \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct\", \n    \"version\": 1\n}",
       "[START_DIR]/swarming_temp_dir/ct-nanobench-5.isolated.gen.json"
     ],
     "infra_step": true,
@@ -775,11 +775,11 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "{\"chromium_build\": \"c37e844a6f8708-eee762104c75bd\", \"num_slaves\": 5, \"page_type\": \"10k\"}",
-      "[CUSTOM_/_B_WORK]/skps/c37e844a6f8708-eee762104c75bd/10k/5/skps_version"
+      "{\"chromium_build\": \"2b7e85eb251dc7-a3cf3659ed2c08\", \"num_slaves\": 5, \"page_type\": \"All\"}",
+      "[CUSTOM_/_B_WORK]/skps/2b7e85eb251dc7-a3cf3659ed2c08/All/5/skps_version"
     ],
     "infra_step": true,
-    "name": "Create [CUSTOM_/_B_WORK]/skps/c37e844a6f8708-eee762104c75bd/10k/5/skps_version"
+    "name": "Create [CUSTOM_/_B_WORK]/skps/2b7e85eb251dc7-a3cf3659ed2c08/All/5/skps_version"
   },
   {
     "cmd": [
@@ -1270,7 +1270,7 @@
       "cp",
       "-R",
       "[START_DIR]/swarming_temp_dir/outputs/ct-nanobench-1/0/file 1",
-      "gs://skia-perf/ct/10k/2012/05/14/12/"
+      "gs://skia-perf/ct/All/2012/05/14/12/"
     ],
     "env": {
       "AWS_CREDENTIAL_FILE": null,
@@ -1285,7 +1285,7 @@
       "cp",
       "-R",
       "[START_DIR]/swarming_temp_dir/outputs/ct-nanobench-1/0/file 2",
-      "gs://skia-perf/ct/10k/2012/05/14/12/"
+      "gs://skia-perf/ct/All/2012/05/14/12/"
     ],
     "env": {
       "AWS_CREDENTIAL_FILE": null,
@@ -1396,7 +1396,7 @@
       "cp",
       "-R",
       "[START_DIR]/swarming_temp_dir/outputs/ct-nanobench-2/0/file 1",
-      "gs://skia-perf/ct/10k/2012/05/14/12/"
+      "gs://skia-perf/ct/All/2012/05/14/12/"
     ],
     "env": {
       "AWS_CREDENTIAL_FILE": null,
@@ -1411,7 +1411,7 @@
       "cp",
       "-R",
       "[START_DIR]/swarming_temp_dir/outputs/ct-nanobench-2/0/file 2",
-      "gs://skia-perf/ct/10k/2012/05/14/12/"
+      "gs://skia-perf/ct/All/2012/05/14/12/"
     ],
     "env": {
       "AWS_CREDENTIAL_FILE": null,
@@ -1522,7 +1522,7 @@
       "cp",
       "-R",
       "[START_DIR]/swarming_temp_dir/outputs/ct-nanobench-3/0/file 1",
-      "gs://skia-perf/ct/10k/2012/05/14/12/"
+      "gs://skia-perf/ct/All/2012/05/14/12/"
     ],
     "env": {
       "AWS_CREDENTIAL_FILE": null,
@@ -1537,7 +1537,7 @@
       "cp",
       "-R",
       "[START_DIR]/swarming_temp_dir/outputs/ct-nanobench-3/0/file 2",
-      "gs://skia-perf/ct/10k/2012/05/14/12/"
+      "gs://skia-perf/ct/All/2012/05/14/12/"
     ],
     "env": {
       "AWS_CREDENTIAL_FILE": null,
@@ -1648,7 +1648,7 @@
       "cp",
       "-R",
       "[START_DIR]/swarming_temp_dir/outputs/ct-nanobench-4/0/file 1",
-      "gs://skia-perf/ct/10k/2012/05/14/12/"
+      "gs://skia-perf/ct/All/2012/05/14/12/"
     ],
     "env": {
       "AWS_CREDENTIAL_FILE": null,
@@ -1663,7 +1663,7 @@
       "cp",
       "-R",
       "[START_DIR]/swarming_temp_dir/outputs/ct-nanobench-4/0/file 2",
-      "gs://skia-perf/ct/10k/2012/05/14/12/"
+      "gs://skia-perf/ct/All/2012/05/14/12/"
     ],
     "env": {
       "AWS_CREDENTIAL_FILE": null,
@@ -1774,7 +1774,7 @@
       "cp",
       "-R",
       "[START_DIR]/swarming_temp_dir/outputs/ct-nanobench-5/0/file 1",
-      "gs://skia-perf/ct/10k/2012/05/14/12/"
+      "gs://skia-perf/ct/All/2012/05/14/12/"
     ],
     "env": {
       "AWS_CREDENTIAL_FILE": null,
@@ -1789,7 +1789,7 @@
       "cp",
       "-R",
       "[START_DIR]/swarming_temp_dir/outputs/ct-nanobench-5/0/file 2",
-      "gs://skia-perf/ct/10k/2012/05/14/12/"
+      "gs://skia-perf/ct/All/2012/05/14/12/"
     ],
     "env": {
       "AWS_CREDENTIAL_FILE": null,
