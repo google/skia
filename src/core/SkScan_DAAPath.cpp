@@ -319,10 +319,8 @@ void gen_alpha_deltas(const SkPath& path, const SkIRect& clipBounds, Deltas& res
 // blitRegion, sk_blit_above, sk_blit_below in SkScan::AntiFillPath to maintain the draw order. If
 // we do that, be caureful that blitRect may throw exception if the rect is empty.
 void SkScan::DAAFillPath(const SkPath& path, SkBlitter* blitter, const SkIRect& ir,
-                         const SkIRect& clipBounds, bool containedInClip, bool forceRLE) {
-#if !defined(SK_SUPPORT_LEGACY_AA_BEHAVIOR)
-    containedInClip = clipBounds.contains(ir);
-#endif
+                         const SkIRect& clipBounds, bool forceRLE) {
+    bool containedInClip = clipBounds.contains(ir);
     bool isEvenOdd  = path.getFillType() & 1;
     bool isConvex   = path.isConvex();
     bool isInverse  = path.isInverseFillType();
