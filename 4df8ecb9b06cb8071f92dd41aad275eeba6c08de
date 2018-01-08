@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0754f358_55fa764f",
+        "filename": "src/gpu/GrResourceCache.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 203,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-01-08T16:41:19Z",
+      "side": 1,
+      "message": "do we want asserts around places we access ProxyProvider to make sure one is always set?",
+      "range": {
+        "startLine": 203,
+        "startChar": 4,
+        "endLine": 203,
+        "endChar": 42
+      },
+      "revId": "4df8ecb9b06cb8071f92dd41aad275eeba6c08de",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3d4a01c6_8b51ebd6",
+        "filename": "src/gpu/GrResourceCache.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 589,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-01-08T16:41:19Z",
+      "side": 1,
+      "message": "asserts here as well",
+      "range": {
+        "startLine": 589,
+        "startChar": 8,
+        "endLine": 589,
+        "endChar": 22
+      },
+      "revId": "4df8ecb9b06cb8071f92dd41aad275eeba6c08de",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3618553c_8f0478d2",
+        "filename": "src/gpu/GrResourceProvider.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-01-08T16:41:19Z",
+      "side": 1,
+      "message": "do you think we hit this code path enough to care that an extra proxy is now getting made here and then thrown away?",
+      "range": {
+        "startLine": 136,
+        "startChar": 7,
+        "endLine": 136,
+        "endChar": 85
+      },
+      "revId": "4df8ecb9b06cb8071f92dd41aad275eeba6c08de",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
