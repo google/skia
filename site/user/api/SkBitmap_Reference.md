@@ -2886,8 +2886,8 @@ bool readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
                 SkTransferFunctionBehavior behavior) const
 </pre>
 
-Copies a <a href="SkRect_Reference#Rect">Rect</a> of pixels to <a href="#SkBitmap_readPixels_dstPixels">dstPixels</a>. Copy starts at (<a href="#SkBitmap_readPixels_srcX">srcX</a>, <a href="#SkBitmap_readPixels_srcY">srcY</a>), and does not exceed
-(this-><a href="#SkBitmap_width">width</a>, this-><a href="#SkBitmap_height">height</a>).
+Copies <a href="SkRect_Reference#Rect">Rect</a> of pixels from <a href="#Bitmap">Bitmap</a> pixels to <a href="#SkBitmap_readPixels_dstPixels">dstPixels</a>. Copy starts at (<a href="#SkBitmap_readPixels_srcX">srcX</a>, <a href="#SkBitmap_readPixels_srcY">srcY</a>),
+and does not exceed (this-><a href="#SkBitmap_width">width</a>, this-><a href="#SkBitmap_height">height</a>).
 
 <a href="#SkBitmap_readPixels_dstInfo">dstInfo</a> specifies <a href="#SkBitmap_width">width</a>, <a href="#SkBitmap_height">height</a>, <a href="undocumented#Image_Color_Type">Color Type</a>, <a href="undocumented#Image_Alpha_Type">Alpha Type</a>, and
 <a href="undocumented#Color_Space">Color Space</a> of destination. <a href="#SkBitmap_readPixels_dstRowBytes">dstRowBytes</a> specifics the gap from one destination

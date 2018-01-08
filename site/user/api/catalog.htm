@@ -4771,16 +4771,16 @@
     "SkImage_MakeCrossContextFromEncoded": {
     "code": "void draw(SkCanvas* canvas) {\n    GrContext* context = canvas->getGrContext();\n    sk_sp<SkData> encodedData = image->encodeToData(SkEncodedImageFormat::kJPEG, 100);\n    sk_sp<SkImage> image = SkImage::MakeCrossContextFromEncoded(context,\n                                                                encodedData, false, nullptr);\n    canvas->drawImage(image, 0, 0);\n}",
     "width": 256,
-    "height": 128,
-    "hash": "90202d8b1df605fdb0c84f2c351f9598",
+    "height": 64,
+    "hash": "069c7b116479e3ca46f953f07dcbdd36",
     "file": "SkImage_Reference",
     "name": "SkImage::MakeCrossContextFromEncoded"
 },
     "SkImage_MakeCrossContextFromPixmap": {
     "code": "void draw(SkCanvas* canvas) {\n    GrContext* context = canvas->getGrContext();\n    SkPixmap pixmap;\n    if (source.peekPixels(&pixmap)) {\n        sk_sp<SkImage> image = SkImage::MakeCrossContextFromPixmap(context, pixmap,\n                                                                   false, nullptr);\n        canvas->drawImage(image, 0, 0);\n    }\n}",
     "width": 256,
-    "height": 128,
-    "hash": "bb37de3dc4a0c53d48cdfafb90b9b18e",
+    "height": 64,
+    "hash": "45bca8747b8f49b5be34b520897ef048",
     "file": "SkImage_Reference",
     "name": "SkImage::MakeCrossContextFromPixmap"
 },
@@ -4788,7 +4788,7 @@
     "code": "void draw(SkCanvas* canvas) {\n    if (!canvas->getGrContext()) {\n        return;\n    }\n    canvas->scale(.5f, .5f);\n    canvas->clear(0x7f3f5f7f);\n    int x = 0, y = 0;\n    for (auto origin : { kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin } ) {\n        for (auto alpha : { kOpaque_SkAlphaType, kPremul_SkAlphaType, kUnpremul_SkAlphaType } ) {\n            sk_sp<SkImage> image = SkImage::MakeFromAdoptedTexture(canvas->getGrContext(),\n                                                                   backEndTexture, origin, \n                                                                   kRGBA_8888_SkColorType, alpha);\n            canvas->drawImage(image, x, y);\n            x += 160;\n        }\n        x -= 160 * 3;\n        y += 256;\n    }\n}",
     "width": 256,
     "height": 256,
-    "hash": "aed9b621fdc2135d512b58648d064224",
+    "hash": "b07964ec9c5c8a6febba805f1cf4d071",
     "file": "SkImage_Reference",
     "name": "SkImage::MakeFromAdoptedTexture_2"
 },
@@ -4819,8 +4819,8 @@
     "SkImage_MakeFromGenerator": {
     "code": "void draw(SkCanvas* canvas) {\n    SkPictureRecorder recorder;\n    recorder.beginRecording(100, 100)->drawColor(SK_ColorRED);\n    auto picture = recorder.finishRecordingAsPicture();\n    auto gen = SkImageGenerator::MakeFromPicture({100, 100}, picture, nullptr, nullptr,\n                                                 SkImage::BitDepth::kU8, SkColorSpace::MakeSRGB());\n    sk_sp<SkImage> image = SkImage::MakeFromGenerator(std::move(gen));\n    canvas->drawImage(image, 0, 0);\n}",
     "width": 256,
-    "height": 256,
-    "hash": "ba59d292a18cb0e8a90e1bb143115f1d",
+    "height": 128,
+    "hash": "c2fec0746f88ca34d7dce59dd9bdef9e",
     "file": "SkImage_Reference",
     "name": "SkImage::MakeFromGenerator"
 },
@@ -4844,7 +4844,7 @@
     "code": "void draw(SkCanvas* canvas) {\n    GrContext* context = canvas->getGrContext();\n    if (!context) {\n       return;\n    }\n    auto debugster = [](SkImage::ReleaseContext context) -> void {\n        *((int *) context) += 128;\n    };\n    int x = 0;\n    for (auto origin : { kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin } ) {\n        sk_sp<SkImage> image = SkImage::MakeFromTexture(canvas->getGrContext(), backEndTexture,\n               origin, kRGBA_8888_SkColorType, kOpaque_SkAlphaType, nullptr, debugster, &x);\n        canvas->drawImage(image, x, 0);\n        x += 128;\n    }\n}",
     "width": 256,
     "height": 256,
-    "hash": "6a50c3cb961c23ad9ecbd5caedac0d70",
+    "hash": "d3e5347fdbf9f4a0a56240d16c412413",
     "file": "SkImage_Reference",
     "name": "SkImage::MakeFromTexture_4"
 },
@@ -4865,10 +4865,10 @@
     "name": "SkImage::MakeRasterData"
 },
     "SkImage_alphaType": {
-    "code": "void draw(SkCanvas* canvas) {\n    const char* alphaTypeStr[] = { \"Unknown\", \"Opaque\", \"Premul\", \"Unpremul\" };\n    SkAlphaType alphaType = image->alphaType();\n    canvas->drawImage(image, 0, 0);\n    SkPaint paint;\n    canvas->drawString(alphaTypeStr[(int) alphaType], 20, image->height() + 20, paint);\n}",
+    "code": "void draw(SkCanvas* canvas) {\n    const char* alphaTypeStr[] = { \"Unknown\", \"Opaque\", \"Premul\", \"Unpremul\" };\n    SkAlphaType alphaType = image->alphaType();\n    canvas->drawImage(image, 16, 0);\n    SkPaint paint;\n    canvas->drawString(alphaTypeStr[(int) alphaType], 20, image->height() + 20, paint);\n}",
     "width": 256,
-    "height": 156,
-    "hash": "1c8b8588dbbb1d5df72ee9164ae0aab0",
+    "height": 96,
+    "hash": "dac1403132a42459d6881585efbfe74b",
     "file": "SkImage_Reference",
     "name": "SkImage::alphaType"
 },
@@ -4881,10 +4881,10 @@
     "name": "SkImage::asLegacyBitmap"
 },
     "SkImage_bounds": {
-    "code": "void draw(SkCanvas* canvas) {\n    canvas->scale(.5f, .5f);\n    SkIRect bounds = image->bounds();\n    for (int x : { 0, image->width() } ) {\n        for (int y : { 0, image->height() } ) {\n            canvas->drawImage(image, x, y);\n        }\n    }\n}",
+    "code": "void draw(SkCanvas* canvas) {\n    SkIRect bounds = image->bounds();\n    for (int x : { 0, bounds.width() } ) {\n        for (int y : { 0, bounds.height() } ) {\n            canvas->drawImage(image, x, y);\n        }\n    }\n}",
     "width": 256,
     "height": 128,
-    "hash": "a6617b5d3066aadce2c37ed2184d6098",
+    "hash": "c204b38b3fc08914b0a634aa4eaec894",
     "file": "SkImage_Reference",
     "name": "SkImage::bounds()"
 },
@@ -4921,18 +4921,26 @@
     "name": "SkImage::getDeferredTextureImageData"
 },
     "SkImage_getTextureHandle": {
-    "code": "void draw(SkCanvas* canvas) {\n    GrContext* context = canvas->getGrContext();\n    if (!context) {\n       return;\n    }\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    SkString str;\n    int y = 0;\n    for (auto origin : { kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin } ) {\n        sk_sp<SkImage> srcImage(SkImage::MakeFromTexture(context,\n                backEndTexture, origin, kPremul_SkAlphaType, nullptr));\n        GrSurfaceOrigin readBackOrigin;\n        GrBackendObject readBackHandle = srcImage->getTextureHandle(false, &readBackOrigin);\n        str.printf(\"readBackHandle: %x\", readBackHandle);\n        canvas->drawString(str, 5, y += 20, paint);\n        str.printf(\"origin: k%s_GrSurfaceOrigin\", readBackOrigin ? \"BottomLeft\" : \"TopLeft\");\n        canvas->drawString(str, 5, y += 20, paint);\n    }\n}",
+    "code": "void draw(SkCanvas* canvas) {\n    GrContext* context = canvas->getGrContext();\n    if (!context) {\n       return;\n    }\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    SkString str;\n    int y = -10;\n    for (auto origin : { kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin } ) {\n        sk_sp<SkImage> srcImage(SkImage::MakeFromTexture(context,\n                backEndTexture, origin, kPremul_SkAlphaType, nullptr));\n        GrSurfaceOrigin readBackOrigin;\n        GrBackendObject readBackHandle = srcImage->getTextureHandle(false, &readBackOrigin);\n        str.printf(\"readBackHandle: 0x%x\", readBackHandle);\n        canvas->drawString(str, 5, y += 30, paint);\n        canvas->drawImage(srcImage, 80, y += 10);\n        str.printf(\"origin: k%s_GrSurfaceOrigin\", readBackOrigin ? \"BottomLeft\" : \"TopLeft\");\n        canvas->drawString(str, 5, y += srcImage->height() + 10, paint);\n    }\n}",
     "width": 256,
     "height": 256,
-    "hash": "704b914d622fbff24d7a45647380459e",
+    "hash": "f8943191063bfcc69f29f2b149df5c6d",
     "file": "SkImage_Reference",
     "name": "SkImage::getTextureHandle"
 },
-    "SkImage_height": {
-    "code": "void draw(SkCanvas* canvas) {\n    canvas->translate(10, 10);\n    canvas->drawImage(image, 0, 0);\n    canvas->translate(image->width(), 0);\n    SkPaint paint;\n    paint.setTextAlign(SkPaint::kCenter_Align);\n    paint.setVerticalText(true);\n    canvas->drawLine(10, 0, 10, image->height(), paint);\n}",
+    "SkImage_getTextureHandle_a": {
+    "code": "void draw(SkCanvas* canvas) {\n    auto drawImage = [=](sk_sp<SkImage> image, const char* label) -> void {\n        if (nullptr == image) {\n            return;\n        }\n        SkPaint paint;\n        paint.setAntiAlias(true);\n        paint.setTextAlign(SkPaint::kCenter_Align);\n        canvas->drawImage(image, 0, image->height() / 4);\n        canvas->drawString(label, image->width() / 2, image->height() / 8, paint);\n        GrSurfaceOrigin readBackOrigin;\n        GrBackendObject readBackHandle = image->getTextureHandle(false, &readBackOrigin);\n        canvas->drawString(readBackHandle ? \"has readBackHandle\" : \"no readBackHandle\",\n                           image->width() / 2, image->height() * 11 / 8, paint);\n    };\n    drawImage(image, \"image\");\n    canvas->translate(image->width(), 0);\n    sk_sp<SkImage> textureImage(SkImage::MakeFromTexture(canvas->getGrContext(), backEndTexture,\n                                kTopLeft_GrSurfaceOrigin, kOpaque_SkAlphaType, nullptr));\n    drawImage(textureImage, \"backEndTexture\");\n}",
     "width": 256,
-    "height": 148,
-    "hash": "96c8202a13068e36432006f75b124eee",
+    "height": 256,
+    "hash": "a86c580638fcf83f782047b95c60f43f",
+    "file": "SkImage_Reference",
+    "name": "SkImage::getTextureHandle_2"
+},
+    "SkImage_height": {
+    "code": "void draw(SkCanvas* canvas) {\n    canvas->translate(10, 10);\n    canvas->drawImage(image, 0, 0);\n    canvas->translate(image->width(), 0);\n    SkPaint paint;\n    paint.setTextAlign(SkPaint::kCenter_Align);\n    paint.setVerticalText(true);\n    canvas->drawLine(10, 0, 10, image->height(), paint);\n    canvas->drawString(\"height\", 25, image->height() / 2, paint);\n}",
+    "width": 256,
+    "height": 96,
+    "hash": "6e563cb8351d34bd8af555a51bcd7a96",
     "file": "SkImage_Reference",
     "name": "SkImage::height()"
 },
@@ -5033,10 +5041,10 @@
     "name": "SkImage::makeWithFilter"
 },
     "SkImage_readPixels": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "code": "void draw(SkCanvas* canvas) {\n    canvas->scale(.5f, .5f);\n    const int width = 32;\n    const int height = 32;\n    std::vector<int32_t> dstPixels;\n    dstPixels.resize(height * width * 4);\n    SkImageInfo info = SkImageInfo::MakeN32Premul(width, height);\n    for (int y = 0; y < 512; y += height ) {\n        for (int x = 0; x < 512; x += width ) {\n            if (image->readPixels(info, &dstPixels.front(), width * 4, x, y)) {\n                SkPixmap dstPixmap(info, &dstPixels.front(), width * 4);\n                SkBitmap bitmap;\n                bitmap.installPixels(dstPixmap);\n                canvas->drawBitmap(bitmap, 0, 0);\n            }\n            canvas->translate(48, 0);\n        }\n        canvas->translate(-16 * 48, 48);\n    }\n}",
     "width": 256,
     "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
+    "hash": "8aa8ca63dff4641dfc6ea8a3c555d59c",
     "file": "SkImage_Reference",
     "name": "SkImage::readPixels"
 },
@@ -5091,8 +5099,8 @@
     "SkImage_width": {
     "code": "void draw(SkCanvas* canvas) {\n    canvas->translate(10, 10);\n    canvas->drawImage(image, 0, 0);\n    canvas->translate(0, image->height());\n    SkPaint paint;\n    paint.setTextAlign(SkPaint::kCenter_Align);\n    canvas->drawLine(0, 10, image->width(), 10, paint);\n    canvas->drawString(\"width\", image->width() / 2, 25, paint);\n}",
     "width": 256,
-    "height": 168,
-    "hash": "4fa6c18eb829d8979cfdbbf6f42e4c97",
+    "height": 96,
+    "hash": "39a6d0bbeac6d957c2338e0bff865cf8",
     "file": "SkImage_Reference",
     "name": "SkImage::width()"
 },
@@ -5215,14 +5223,6 @@
     "hash": "f99dcb00296d0c56b6c0e178e94b3534",
     "file": "SkMatrix_Reference",
     "name": "SkMatrix::mapPoints"
-},
-    "SkMatrix_mapPointsWithStride": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkMatrix matrix;\n    matrix.reset();\n    struct PointZ {\n        SkPoint fPt;\n        SkPoint fStationary;\n    } pts[] = {{{40, 70}, {40, 70}}, {{180, 70}, {180, 70}}, {{180, 220}, {180, 220}},\n               {{40, 220}, {40, 220}}};\n    constexpr int count = SK_ARRAY_COUNT(pts);\n    SkPaint paint;\n    paint.setARGB(77, 23, 99, 154);\n    for (int i = 0; i < 5; ++i) {\n        matrix.preRotate(10, 128, 128);\n        matrix.mapPointsWithStride(&pts[0].fPt, sizeof(PointZ), count);\n        canvas->drawPoints(SkCanvas::kPolygon_PointMode, count * 2, &pts[0].fPt, paint);\n    }\n}",
-    "width": 256,
-    "height": 256,
-    "hash": "02c50c7bb5d5dd1fe7e54b0d3bf64c2a",
-    "file": "SkMatrix_Reference",
-    "name": "SkMatrix::mapPointsWithStride"
 },
     "SkMatrix_mapPoints_2": {
     "code": "void draw(SkCanvas* canvas) {\n    SkMatrix matrix;\n    matrix.setRotate(35, 128, 128);\n    const int count = 4;\n    SkPoint pts[count];\n    matrix.mapRectToQuad(pts, {40, 70, 180, 220} );\n    SkPaint paint;\n    paint.setARGB(77, 23, 99, 154);\n    for (int i = 0; i < 5; ++i) {\n        canvas->drawPoints(SkCanvas::kPolygon_PointMode, count, pts, paint);\n        matrix.mapPoints(pts, count);\n    }\n}",

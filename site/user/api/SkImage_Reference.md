@@ -319,7 +319,7 @@ created <a href="#Image">Image</a>, or nullptr
 
 ### Example
 
-<div><fiddle-embed name="ba59d292a18cb0e8a90e1bb143115f1d"><div>The generator returning <a href="undocumented#Picture">Picture</a> cannot be shared; std::move transfers ownership to generated <a href="#Image">Image</a>.</div></fiddle-embed></div>
+<div><fiddle-embed name="c2fec0746f88ca34d7dce59dd9bdef9e"><div>The generator returning <a href="undocumented#Picture">Picture</a> cannot be shared; std::move transfers ownership to generated <a href="#Image">Image</a>.</div></fiddle-embed></div>
 
 ### See Also
 
@@ -534,7 +534,7 @@ created <a href="#Image">Image</a>, or nullptr
 
 ### Example
 
-<div><fiddle-embed name="6a50c3cb961c23ad9ecbd5caedac0d70"></fiddle-embed></div>
+<div><fiddle-embed name="d3e5347fdbf9f4a0a56240d16c412413" gpu="true"></fiddle-embed></div>
 
 ### See Also
 
@@ -587,7 +587,7 @@ created <a href="#Image">Image</a>, or nullptr
 
 ### Example
 
-<div><fiddle-embed name="90202d8b1df605fdb0c84f2c351f9598"></fiddle-embed></div>
+<div><fiddle-embed name="069c7b116479e3ca46f953f07dcbdd36"></fiddle-embed></div>
 
 ### See Also
 
@@ -640,7 +640,7 @@ created <a href="#Image">Image</a>, or nullptr
 
 ### Example
 
-<div><fiddle-embed name="bb37de3dc4a0c53d48cdfafb90b9b18e"></fiddle-embed></div>
+<div><fiddle-embed name="45bca8747b8f49b5be34b520897ef048"></fiddle-embed></div>
 
 ### See Also
 
@@ -728,7 +728,7 @@ created <a href="#Image">Image</a>, or nullptr
 
 ### Example
 
-<div><fiddle-embed name="aed9b621fdc2135d512b58648d064224"></fiddle-embed></div>
+<div><fiddle-embed name="b07964ec9c5c8a6febba805f1cf4d071" gpu="true"></fiddle-embed></div>
 
 ### See Also
 
@@ -1036,7 +1036,7 @@ pixel <a href="#SkImage_width">width</a> in <a href="#Image">Image</a>
 
 ### Example
 
-<div><fiddle-embed name="4fa6c18eb829d8979cfdbbf6f42e4c97"></fiddle-embed></div>
+<div><fiddle-embed name="39a6d0bbeac6d957c2338e0bff865cf8"></fiddle-embed></div>
 
 ### See Also
 
@@ -1059,7 +1059,7 @@ pixel <a href="#SkImage_height">height</a> in <a href="#Image">Image</a>
 
 ### Example
 
-<div><fiddle-embed name="96c8202a13068e36432006f75b124eee"></fiddle-embed></div>
+<div><fiddle-embed name="6e563cb8351d34bd8af555a51bcd7a96"></fiddle-embed></div>
 
 ### See Also
 
@@ -1105,7 +1105,7 @@ integral rectangle from origin to <a href="#SkImage_width">width</a> and <a href
 
 ### Example
 
-<div><fiddle-embed name="a6617b5d3066aadce2c37ed2184d6098"></fiddle-embed></div>
+<div><fiddle-embed name="c204b38b3fc08914b0a634aa4eaec894"></fiddle-embed></div>
 
 ### See Also
 
@@ -1157,7 +1157,7 @@ or was parsed from encoded data.
 
 ### Example
 
-<div><fiddle-embed name="1c8b8588dbbb1d5df72ee9164ae0aab0"></fiddle-embed></div>
+<div><fiddle-embed name="dac1403132a42459d6881585efbfe74b"></fiddle-embed></div>
 
 ### See Also
 
@@ -1502,15 +1502,19 @@ storage for one of: <a href="undocumented#GrSurfaceOrigin">kTopLeft GrSurfaceOri
 
 ### Return Value
 
-back-end API texture handle
+back-end API texture handle, or nullptr
 
 ### Example
 
-<div><fiddle-embed name="704b914d622fbff24d7a45647380459e" gpu="true"></fiddle-embed></div>
+<div><fiddle-embed name="f8943191063bfcc69f29f2b149df5c6d" gpu="true"></fiddle-embed></div>
+
+### Example
+
+<div><fiddle-embed name="a86c580638fcf83f782047b95c60f43f" gpu="true"></fiddle-embed></div>
 
 ### See Also
 
-incomplete
+<a href="#SkImage_MakeFromTexture">MakeFromTexture</a> <a href="#SkImage_isTextureBacked">isTextureBacked</a>
 
 ---
 
@@ -1522,9 +1526,12 @@ enum <a href="#SkImage_CachingHint">CachingHint</a> {
 <a href="#SkImage_kDisallow_CachingHint">kDisallow CachingHint</a>,
 };</pre>
 
-Hints to image calls where the system might cache computed intermediates (e.g. the results
-of decoding or a read-back from the GPU. Passing <a href="#SkImage_kAllow_CachingHint">kAllow CachingHint</a> signals that the system's default
-behavior is fine. Passing <a href="#SkImage_kDisallow_CachingHint">kDisallow CachingHint</a> signals that caching should be avoided.
+Hints to image calls where the system might cache computed intermediates
+(e.g. the results
+of decoding or a read-back from the GPU.
+Passing <a href="#SkImage_kAllow_CachingHint">kAllow CachingHint</a> signals that the system's default
+behavior is fine.
+Passing <a href="#SkImage_kDisallow_CachingHint">kDisallow CachingHint</a> signals that caching should be avoided.
 
 ### Constants
 
@@ -1543,7 +1550,7 @@ behavior is fine. Passing <a href="#SkImage_kDisallow_CachingHint">kDisallow Cac
 
 ### See Also
 
-incomplete
+<a href="#SkImage_readPixels">readPixels</a> <a href="#SkImage_scalePixels">scalePixels</a>
 
 
 
@@ -1555,51 +1562,53 @@ bool readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
                 CachingHint cachingHint = kAllow_CachingHint) const
 </pre>
 
-Copy the pixels from the image into the specified buffer (<a href="#SkImage_readPixels_dstPixels">dstPixels</a> + <a href="#SkImage_readPixels_dstRowBytes">dstRowBytes</a>),
-converting them into the requested format (<a href="#SkImage_readPixels_dstInfo">dstInfo</a>). The image pixels are read
-starting at the specified (<a href="#SkImage_readPixels_srcX">srcX</a>, <a href="#SkImage_readPixels_srcY">srcY</a>) location.
-<a href="#SkImage_readPixels_dstInfo">dstInfo</a> and (<a href="#SkImage_readPixels_srcX">srcX</a>, <a href="#SkImage_readPixels_srcY">srcY</a>) offset specifies a source rectangle:
+Copies <a href="SkRect_Reference#Rect">Rect</a> of pixels from <a href="#Image">Image</a> to <a href="#SkImage_readPixels_dstPixels">dstPixels</a>. Copy starts at offset (<a href="#SkImage_readPixels_srcX">srcX</a>, <a href="#SkImage_readPixels_srcY">srcY</a>),
+and does not exceed (this-><a href="#SkImage_width">width</a>, this-><a href="#SkImage_height">height</a>).
 
-<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-<a href="SkRect_Reference#SkRect">SkRect</a> srcR;
-srcR.setXYWH(srcX, srcY, dstInfo.width(), <a href="#SkImage_readPixels_dstInfo">dstInfo</a>.<a href="#SkImage_height">height</a>);</pre>
+<a href="#SkImage_readPixels_dstInfo">dstInfo</a> specifies <a href="#SkImage_width">width</a>, <a href="#SkImage_height">height</a>, <a href="#Color_Type">Color Type</a>, <a href="#Alpha_Type">Alpha Type</a>, and
+<a href="undocumented#Color_Space">Color Space</a> of destination. <a href="#SkImage_readPixels_dstRowBytes">dstRowBytes</a> specifics the gap from one destination
+row to the next. Returns true if pixels are copied. Returns false if:
 
-The source rectangle is intersected with the <a href="#SkImage_bounds">bounds</a> of the image. If this intersection is not empty,
-then we have two sets of pixels (of equal size). Replace <a href="#SkImage_readPixels_dstPixels">dstPixels</a> with the
-corresponding <a href="#Image">Image</a> pixels, performing any <a href="#Color_Type">Color Type</a>/<a href="#Alpha_Type">Alpha Type</a> transformations needed
-(in the case where <a href="#Image">Image</a> and <a href="#SkImage_readPixels_dstInfo">dstInfo</a> have different <a href="#Color_Type">Color Types</a> or <a href="#Alpha_Type">Alpha Types</a>).
-This call can fail, returning false, for several reasons:
-if source rectangle does not intersect the image <a href="#SkImage_bounds">bounds</a>;
-if the requested <a href="#Color_Type">Color Type</a>/<a href="#Alpha_Type">Alpha Type</a> cannot be converted from the image's types.
+<table>  <tr>
+    <td><a href="#SkImage_readPixels_dstInfo">dstInfo</a>.addr() equals nullptr</td>  </tr>  <tr>
+    <td><a href="#SkImage_readPixels_dstRowBytes">dstRowBytes</a> is less than <a href="#SkImage_readPixels_dstInfo">dstInfo</a>.<a href="undocumented#SkImageInfo">minRowBytes</a></td>  </tr>  <tr>
+    <td><a href="undocumented#Pixel_Ref">Pixel Ref</a> is nullptr</td>  </tr>
+</table>
+
+Pixels are copied only if pixel conversion is possible. If this->abs(srcX) >= this-><a href="#SkImage_width">width</a>,
+or ifabs(srcY) >= this-><a href="#SkImage_height">height</a>.
+
+If <a href="#SkImage_readPixels_cachingHint">cachingHint</a> is <a href="#SkImage_kAllow_CachingHint">kAllow CachingHint</a>, pixels may be retained locally.
+If <a href="#SkImage_readPixels_cachingHint">cachingHint</a> is <a href="#SkImage_kDisallow_CachingHint">kDisallow CachingHint</a>, pixels are not added to the local cache.
 
 ### Parameters
 
 <table>  <tr>    <td><a name="SkImage_readPixels_dstInfo"> <code><strong>dstInfo </strong></code> </a></td> <td>
-incomplete</td>
+destination <a href="#SkImage_width">width</a>, <a href="#SkImage_height">height</a>, <a href="#Color_Type">Color Type</a>, <a href="#Alpha_Type">Alpha Type</a>, <a href="undocumented#Color_Space">Color Space</a></td>
   </tr>  <tr>    <td><a name="SkImage_readPixels_dstPixels"> <code><strong>dstPixels </strong></code> </a></td> <td>
-incomplete</td>
+destination pixel storage</td>
   </tr>  <tr>    <td><a name="SkImage_readPixels_dstRowBytes"> <code><strong>dstRowBytes </strong></code> </a></td> <td>
-incomplete</td>
+destination row length</td>
   </tr>  <tr>    <td><a name="SkImage_readPixels_srcX"> <code><strong>srcX </strong></code> </a></td> <td>
-incomplete</td>
+column index whose absolute value is less than <a href="#SkImage_width">width</a></td>
   </tr>  <tr>    <td><a name="SkImage_readPixels_srcY"> <code><strong>srcY </strong></code> </a></td> <td>
-incomplete</td>
+row index whose absolute value is less than <a href="#SkImage_height">height</a></td>
   </tr>  <tr>    <td><a name="SkImage_readPixels_cachingHint"> <code><strong>cachingHint </strong></code> </a></td> <td>
-incomplete</td>
+one of: <a href="#SkImage_kAllow_CachingHint">kAllow CachingHint</a>, <a href="#SkImage_kDisallow_CachingHint">kDisallow CachingHint</a></td>
   </tr>
 </table>
 
 ### Return Value
 
-incomplete
+true if pixels are copied to <a href="#SkImage_readPixels_dstPixels">dstPixels</a>
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name="8aa8ca63dff4641dfc6ea8a3c555d59c"></fiddle-embed></div>
 
 ### See Also
 
-incomplete
+<a href="#SkImage_scalePixels">scalePixels</a> <a href="#SkBitmap_readPixels">SkBitmap::readPixels</a> <a href="#SkPixmap_readPixels">SkPixmap::readPixels</a> <a href="#SkCanvas_readPixels">SkCanvas::readPixels</a> <a href="#SkSurface_readPixels">SkSurface::readPixels</a>
 
 ---
 
