@@ -298,6 +298,11 @@ config("warnings") {
       # We're pretty sure it's actually 8-byte alignment.
       cflags += [ "-Wno-over-aligned" ]
     }
+    if (target_cpu == "x86" && is_android) {
+      # Clang seems to think new/malloc will only be 4-byte aligned on 32-bit x86 Android builds.
+      # We're pretty sure it's actually 8-byte alignment.  See OverAlignedTest.cpp for more info.
+      cflags += [ "-Wno-over-aligned" ]
+    }
 
     # Shouldn't be necessary for local builds. With distributed Windows builds, files may lose
     # their case during copy, causing case-sensitivity mismatch on remote machines.
