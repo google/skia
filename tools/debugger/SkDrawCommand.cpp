@@ -21,6 +21,7 @@
 #include "SkPathEffect.h"
 #include "SkPicture.h"
 #include "SkReadBuffer.h"
+#include "SkRectPriv.h"
 #include "SkTextBlob.h"
 #include "SkTextBlobRunIterator.h"
 #include "SkTHash.h"
@@ -2741,7 +2742,7 @@ bool SkDrawPointsCommand::render(SkCanvas* canvas) const {
 
     bounds.setEmpty();
     for (unsigned int i = 0; i < fCount; ++i) {
-        bounds.growToInclude(fPts[i]);
+        SkRectPriv::GrowToInclude(&bounds, fPts[i]);
     }
 
     xlate_and_scale_to_bounds(canvas, bounds);
