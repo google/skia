@@ -16,7 +16,7 @@
 #include "GrCoordTransform.h"
 class GrConstColorProcessor : public GrFragmentProcessor {
 public:
-    enum class InputMode { kLast = 2, kModulateA = 2, kIgnore = 0, kModulateRGBA = 1 };
+    enum class InputMode { kIgnore = 0, kLast = 2, kModulateA = 2, kModulateRGBA = 1 };
 
     static const int kInputModeCnt = (int)InputMode::kLast + 1;
 
