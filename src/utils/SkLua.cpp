@@ -37,9 +37,10 @@ extern "C" {
     #include "lauxlib.h"
 }
 
+using SkDoc = decltype(SkDocument::MakePDF(nullptr));
 struct DocHolder {
-    sk_sp<SkDocument>           fDoc;
-    std::unique_ptr<SkWStream>  fStream;
+    sk_sp<SkDocument> fDoc;
+    SkDoc             fStream;
 };
 
 // return the metatable name for a given class
@@ -1896,7 +1897,7 @@ static int lsk_newDocumentPDF(lua_State* L) {
     if (!file->isValid()) {
         return 0;
     }
-    sk_sp<SkDocument> doc = SkDocument::MakePDF(file.get());
+    auto doc = SkDocument::MakePDF(file.get());
     if (!doc) {
         return 0;
     }

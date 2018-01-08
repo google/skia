@@ -131,7 +131,7 @@ a document must include multiple pages.
                void (*draw)(SkCanvas*),
                const char* path) {
         SkFILEWStream pdfStream(path);
-        sk_sp<SkDocument> pdfDoc = SkDocument::MakePDF(&pdfStream);
+        std::unique_ptr<SkDocument> pdfDoc = SkDocument::MakePDF(&pdfStream);
         SkCanvas* pdfCanvas = pdfDoc->beginPage(SkIntToScalar(width),
                                                 SkIntToScalar(height));
         draw(pdfCanvas);
@@ -193,7 +193,7 @@ The (*still experimental*) SkXPS canvas writes into an XPS document.
                void (*draw)(SkCanvas*),
                const char* path) {
         SkFILEWStream xpsStream(path);
-        sk_sp<SkDocument> xpsDoc = SkDocument::MakeXPS(&pdfStream, factory);
+        std::unique_ptr<SkDocument> xpsDoc = SkDocument::MakeXPS(&pdfStream, factory);
         SkCanvas* xpsCanvas = xpsDoc->beginPage(SkIntToScalar(width),
                                                 SkIntToScalar(height));
         draw(xpsCanvas);
