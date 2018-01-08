@@ -12,6 +12,7 @@
 #include "SkPicture.h"
 #include "SkPictureCommon.h"
 #include "SkRecordDraw.h"
+#include "SkRectPriv.h"
 #include "SkTextBlob.h"
 
 using namespace SkRecords;
@@ -29,13 +30,13 @@ public:
 // These are fairly easy because we know they can't be affected by any matrix or saveLayers.
 static SkRect adjust_for_paint(SkRect bounds, const SkPaint& paint) {
     return paint.canComputeFastBounds() ? paint.computeFastBounds(bounds, &bounds)
-                                        : SkRect::MakeLargest();
+                                        : SkRectPriv::MakeLargest();
 }
 static SkRect bounds(const DrawRect& op) {
     return adjust_for_paint(op.rect, op.paint);
 }
 static SkRect bounds(const DrawPath& op) {
-    return op.path.isInverseFillType() ? SkRect::MakeLargest()
+    return op.path.isInverseFillType() ? SkRectPriv::MakeLargest()
                                        : adjust_for_paint(op.path.getBounds(), op.paint);
 }
 static SkRect bounds(const DrawTextBlob& op) {

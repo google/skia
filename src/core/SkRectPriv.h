@@ -19,6 +19,30 @@ public:
     static bool PositiveDimensions(const SkIRect& r) {
         return r.width() > 0 && r.height() > 0;
     }
+
+    static SkRect MakeLargestS32() {
+        const int32_t ihalf = SK_MaxS32 >> 1;
+        const SkScalar half = SkIntToScalar(ihalf);
+
+        return { -half, -half, half, half };
+    }
+
+    static SkRect MakeLargest() {
+        return { SK_ScalarMin, SK_ScalarMin, SK_ScalarMax, SK_ScalarMax };
+    }
+
+    static SkIRect MakeILargest() {
+        return { SK_MinS32, SK_MinS32, SK_MaxS32, SK_MaxS32 };
+    }
+
+    static SkRect MakeLargestInverted() {
+        return { SK_ScalarMax, SK_ScalarMax, SK_ScalarMin, SK_ScalarMin };
+    }
+
+    static SkIRect MakeILargestInverted() {
+        return { SK_MaxS32, SK_MaxS32, SK_MinS32, SK_MinS32 };
+    }
 };
+
 
 #endif

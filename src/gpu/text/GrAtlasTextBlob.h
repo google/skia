@@ -19,6 +19,7 @@
 #include "SkPathEffect.h"
 #include "SkPoint3.h"
 #include "SkRasterizer.h"
+#include "SkRectPriv.h"
 #include "SkSurfaceProps.h"
 #include "SkTInternalLList.h"
 
@@ -363,7 +364,7 @@ private:
                     , fColor(GrColor_ILLEGAL)
                     , fMaskFormat(kA8_GrMaskFormat)
                     , fFlags(0) {
-                fVertexBounds.setLargestInverted();
+                fVertexBounds = SkRectPriv::MakeLargestInverted();
             }
             SubRunInfo(const SubRunInfo& that)
                 : fBulkUseToken(that.fBulkUseToken)
