@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include "SkRectPriv.h"
 #include "SkSGNode.h"
-
 #include "SkSGInvalidationController.h"
 
 namespace sksg {
@@ -40,7 +40,7 @@ private:
 
 Node::Node(uint32_t invalTraits)
     : fInvalReceiver(nullptr)
-    , fBounds(SkRect::MakeLargestS32())
+    , fBounds(SkRectPriv::MakeLargestS32())
     , fInvalTraits(invalTraits)
     , fFlags(kInvalidated_Flag) {}
 

@@ -17,11 +17,12 @@
 #include "SkImageEncoder.h"
 #include "SkImageGenerator.h"
 #include "SkMD5.h"
+#include "SkMiniRecorder.h"
 #include "SkPaint.h"
 #include "SkPicture.h"
 #include "SkPictureRecorder.h"
 #include "SkPixelRef.h"
-#include "SkMiniRecorder.h"
+#include "SkRectPriv.h"
 #include "SkRRect.h"
 #include "SkRandom.h"
 #include "SkRecord.h"
@@ -784,32 +785,32 @@ DEF_TEST(Picture_UpdatedCull_1, r) {
     SkRTreeFactory factory;
     SkPictureRecorder recorder;
 
-    auto canvas = recorder.beginRecording(SkRect::MakeLargest(), &factory);
+    auto canvas = recorder.beginRecording(SkRectPriv::MakeLargest(), &factory);
     canvas->drawRect(SkRect::MakeWH(20,20), SkPaint{});
     auto pic = recorder.finishRecordingAsPicture();
     REPORTER_ASSERT(r, pic->cullRect() == SkRect::MakeWH(20,20));
 
-    canvas = recorder.beginRecording(SkRect::MakeLargest());
+    canvas = recorder.beginRecording(SkRectPriv::MakeLargest());
     canvas->drawRect(SkRect::MakeWH(20,20), SkPaint{});
     pic = recorder.finishRecordingAsPicture();
-    REPORTER_ASSERT(r, pic->cullRect() == SkRect::MakeLargest());
+    REPORTER_ASSERT(r, pic->cullRect() == SkRectPriv::MakeLargest());
 }
 DEF_TEST(Picture_UpdatedCull_2, r) {
     // Testing >1 draw exercises SkBigPicture.
     SkRTreeFactory factory;
     SkPictureRecorder recorder;
 
-    auto canvas = recorder.beginRecording(SkRect::MakeLargest(), &factory);
+    auto canvas = recorder.beginRecording(SkRectPriv::MakeLargest(), &factory);
     canvas->drawRect(SkRect::MakeWH(20,20), SkPaint{});
     canvas->drawRect(SkRect::MakeWH(10,40), SkPaint{});
     auto pic = recorder.finishRecordingAsPicture();
     REPORTER_ASSERT(r, pic->cullRect() == SkRect::MakeWH(20,40));
 
-    canvas = recorder.beginRecording(SkRect::MakeLargest());
+    canvas = recorder.beginRecording(SkRectPriv::MakeLargest());
     canvas->drawRect(SkRect::MakeWH(20,20), SkPaint{});
     canvas->drawRect(SkRect::MakeWH(10,40), SkPaint{});
     pic = recorder.finishRecordingAsPicture();
-    REPORTER_ASSERT(r, pic->cullRect() == SkRect::MakeLargest());
+    REPORTER_ASSERT(r, pic->cullRect() == SkRectPriv::MakeLargest());
 }
 
 DEF_TEST(Picture_RecordsFlush, r) {

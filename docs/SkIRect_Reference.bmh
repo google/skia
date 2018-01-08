@@ -40,7 +40,6 @@ its top, it is considered empty.
 # IntersectsNoEmptyCheck # Returns true if areas overlap. Skips empty check. ##
 # MakeEmpty              # Returns bounds of (0, 0, 0, 0). ##
 # MakeLTRB               # Constructs from int left, top, right, bottom. ##
-# MakeLargest            # Constructs from (SK_MinS32, SK_MinS32, SK_MaxS32, SK_MaxS32). ##
 # MakeSize               # Constructs from ISize returning (0, 0, width, height). ##
 # MakeWH                 # Constructs from int input returning (0, 0, width, height). ##
 # MakeXYWH               # Constructs from int input returning (x, y, width, height). ##
@@ -55,7 +54,6 @@ its top, it is considered empty.
 # intersectNoEmptyCheck  # Sets to shared area; returns true if not empty. Skips empty check. ##
 # is16Bit                # Returns true if members fit in 16-bit word. ##
 # isEmpty                # Returns true if width or height are zero or negative. ##
-# isLargest              # Returns true if equal to (SK_MinS32, SK_MinS32, SK_MaxS32, SK_MaxS32). ##
 # join()                 # Sets to union of bounds. ##
 # left()                 # Returns smaller bounds in x, if sorted. ##
 # makeInset              # Constructs from sides moved symmetrically about the center. ##
@@ -70,8 +68,6 @@ its top, it is considered empty.
 # set()                  # Sets to (left, top, right, bottom). ##
 # setEmpty               # Sets to (0, 0, 0, 0). ##
 # setLTRB                # Sets to SkScalar input (left, top, right, bottom). ##
-# setLargest             # Sets to (SK_MinS32, SK_MinS32, SK_MaxS32, SK_MaxS32). ##
-# setLargestInverted     # Sets to (SK_MaxS32, SK_MaxS32, SK_MinS32, SK_MinS32). ##
 # setXYWH                # Sets to (x, y, width, height). ##
 # size()                 # Returns ISize (width, height). ##
 # sort()                 # Orders sides from smaller to larger. ##
@@ -132,35 +128,7 @@ outset rect isEmpty: false
 ##
 ##
 
-#SeeAlso EmptyIRect isEmpty setEmpty setLargestInverted SkRect::MakeEmpty
-
-##
-
-# ------------------------------------------------------------------------------
-
-#Method static SkIRect SK_WARN_UNUSED_RESULT MakeLargest()
-
-Returns constructed IRect setting left and top to most negative value, and 
-setting right and bottom to most positive value.
-
-#Return bounds (SK_MinS32, SK_MinS32, SK_MaxS32, SK_MaxS32) ##
-
-#Example
-    SkIRect rect = SkIRect::MakeLargest();
-    SkDebugf("MakeLargest isLargest: %s\n", rect.isLargest() ? "true" : "false");
-    SkDebugf("MakeLargest isEmpty: %s\n", rect.isEmpty() ? "true" : "false");
-    rect.outset(1, 1);
-    SkDebugf("outset isLargest: %s\n", rect.isLargest() ? "true" : "false");
-    SkDebugf("outset isEmpty: %s\n", rect.isEmpty() ? "true" : "false");
-#StdOut
-MakeLargest isLargest: true
-MakeLargest isEmpty: false
-outset isLargest: false
-outset isEmpty: true
-##
-##
-
-#SeeAlso isLargest setLargest SkRect::MakeLargest
+#SeeAlso EmptyIRect isEmpty setEmpty SkRect::MakeEmpty
 
 ##
 
@@ -599,34 +567,6 @@ sorted: {20, 40, 20, 50} is empty
 
 # ------------------------------------------------------------------------------
 
-#Method bool isLargest() const
-
-Returns true if IRect encloses largest possible area. 
-
-#Return true if equal to (SK_MinS32, SK_MinS32, SK_MaxS32, SK_MaxS32) ##
-
-#Example
-#Description
-Note that the width is not negative, yet it cannot be represented as a 32-bit
-signed integer.
-##
-    SkIRect large = SkIRect::MakeLargest();
-    SkDebugf("large is largest: %s\n" ,large.isLargest() ? "true" : "false");
-    SkDebugf("large width %d\n", large.width());
-    SkDebugf("large is empty: %s\n", large.isEmpty() ? "true" : "false");
-#StdOut
-large is largest: true
-large width -2
-large is empty: false
-##
-##
-
-#SeeAlso MakeLargest SkRect::isLargest
-
-##
-
-# ------------------------------------------------------------------------------
-
 #Method bool operator==(const SkIRect& a, const SkIRect& b)
 
 Returns true if all members in a: fLeft, fTop, fRight, and fBottom; are 
@@ -816,50 +756,6 @@ rect: -10, 35, 5, 60  isEmpty: false
 ##
 
 #SeeAlso MakeXYWH setLTRB set SkRect::setXYWH
-
-##
-
-# ------------------------------------------------------------------------------
-
-#Method void setLargest()
-
-Sets rectangle left and top to most negative value, and sets
-right and bottom to most positive value.
-
-#Example
-    SkIRect rect;
-    rect.setLargest();
-    SkDebugf("MakeLargest isLargest: %s\n", rect.isLargest() ? "true" : "false");
-    SkDebugf("MakeLargest isEmpty: %s\n", rect.isEmpty() ? "true" : "false");
-    rect.outset(1, 1);
-    SkDebugf("outset isLargest: %s\n", rect.isLargest() ? "true" : "false");
-    SkDebugf("outset isEmpty: %s\n", rect.isEmpty() ? "true" : "false");
-#StdOut
-MakeLargest isLargest: true
-MakeLargest isEmpty: false
-outset isLargest: false
-outset isEmpty: true
-##
-##
-
-#SeeAlso MakeLargest isLargest setLargestInverted SK_MinS32 SK_MaxS32
-
-##
-
-# ------------------------------------------------------------------------------
-
-#Method void setLargestInverted()
-#ToDo move this to private
-##
-
-Sets rectangle left and top to most positive value, and sets
-right and bottom to most negative value. This is used internally to
-flag that a condition is met, but otherwise has no special purpose.
-
-#NoExample
-##
-
-#SeeAlso setEmpty setLargest
 
 ##
 

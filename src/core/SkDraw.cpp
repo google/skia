@@ -25,6 +25,7 @@
 #include "SkPathEffect.h"
 #include "SkRasterClip.h"
 #include "SkRasterizer.h"
+#include "SkRectPriv.h"
 #include "SkRRect.h"
 #include "SkScan.h"
 #include "SkShader.h"
@@ -781,7 +782,7 @@ void SkDraw::drawRect(const SkRect& prePaintRect, const SkPaint& paint,
         }
     }
 
-    if (!SkRect::MakeLargestS32().contains(bbox)) {
+    if (!SkRectPriv::MakeLargestS32().contains(bbox)) {
         // bbox.roundOut() is undefined; use slow path.
         draw_rect_as_path(*this, prePaintRect, paint, matrix);
         return;

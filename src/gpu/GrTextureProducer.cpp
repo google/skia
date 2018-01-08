@@ -10,6 +10,7 @@
 #include "GrProxyProvider.h"
 #include "GrRenderTargetContext.h"
 #include "GrTextureProxy.h"
+#include "SkRectPriv.h"
 #include "effects/GrBicubicEffect.h"
 #include "effects/GrSimpleTextureEffect.h"
 #include "effects/GrTextureDomain.h"
@@ -141,7 +142,7 @@ GrTextureProducer::DomainMode GrTextureProducer::DetermineDomainMode(
         // we check whether the filter would reach across the edge of the proxy.
         // We will only set the sides that are required.
 
-        domainRect->setLargest();
+        *domainRect = SkRectPriv::MakeLargest();
         if (coordsLimitedToConstraintRect) {
             // We may be able to use the fact that the texture coords are limited to the constraint
             // rect in order to avoid having to add a domain.
