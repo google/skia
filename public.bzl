@@ -587,6 +587,7 @@ def base_defines(os_conditions):
       # JPEG is in codec_limited
       "SK_HAS_JPEG_LIBRARY",
       "SK_SUPPORT_LEGACY_RECTMAKELARGEST",
+      "SK_SUPPORT_LEGACY_REFCNT_DOCUMENT",
   ] + skia_select(
       os_conditions,
       [

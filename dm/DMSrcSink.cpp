@@ -1735,7 +1735,7 @@ Error PDFSink::draw(const Src& src, SkBitmap*, SkWStream* dst, SkString*) const 
     metadata.fCreator = "Skia/DM";
     metadata.fRasterDPI = fRasterDpi;
     metadata.fPDFA = fPDFA;
-    sk_sp<SkDocument> doc = SkDocument::MakePDF(dst, metadata);
+    auto doc = SkDocument::MakePDF(dst, metadata);
     if (!doc) {
         return "SkDocument::MakePDF() returned nullptr";
     }
@@ -1765,7 +1765,7 @@ Error XPSSink::draw(const Src& src, SkBitmap*, SkWStream* dst, SkString*) const 
     if (!factory) {
         return "Failed to create XPS Factory.";
     }
-    sk_sp<SkDocument> doc(SkDocument::MakeXPS(dst, factory.get()));
+    auto doc = SkDocument::MakeXPS(dst, factory.get());
     if (!doc) {
         return "SkDocument::MakeXPS() returned nullptr";
     }
