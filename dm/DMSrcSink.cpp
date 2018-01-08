@@ -1320,9 +1320,7 @@ Name DDLSKPSrc::name() const { return SkOSPath::Basename(fPath.c_str()); }
 SkottySrc::SkottySrc(Path path)
     : fName(SkOSPath::Basename(path.c_str())) {
 
-    auto stream = SkStream::MakeFromFile(path.c_str());
-    fAnimation  = skotty::Animation::Make(stream.get());
-
+    fAnimation  = skotty::Animation::MakeFromFile(path.c_str());
     if (!fAnimation) {
         return;
     }
