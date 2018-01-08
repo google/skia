@@ -29,9 +29,18 @@ namespace skotty {
 
 class AnimatorBase;
 
+class ResourceProvider : public SkNoncopyable {
+public:
+    virtual ~ResourceProvider() = default;
+
+    virtual std::unique_ptr<SkStream> openStream(const char resource[]) const = 0;
+};
+
 class Animation : public SkNoncopyable {
 public:
-    static std::unique_ptr<Animation> Make(SkStream*);
+    static std::unique_ptr<Animation> Make(SkStream*, const ResourceProvider&);
+    static std::unique_ptr<Animation> MakeFromFile(const char path[],
+                                                   const ResourceProvider* = nullptr);
 
     ~Animation();
 
@@ -48,7 +57,9 @@ public:
     void setShowInval(bool show) { fShowInval = show; }
 
 private:
-    Animation(SkString ver, const SkSize& size, SkScalar fps, const Json::Value&);
+    Animation(const ResourceProvider&,
+              SkString ver, const SkSize& size, SkScalar fps,
+              const Json::Value&);
 
     SkString                                fVersion;
     SkSize                                  fSize;
