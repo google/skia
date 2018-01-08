@@ -167,6 +167,9 @@ public:
 
     SkTaskGroup* getTaskGroup() { return fContext->fTaskGroup.get(); }
 
+    GrProxyProvider* proxyProvider() { return fContext->fProxyProvider; }
+    const GrProxyProvider* proxyProvider() const { return fContext->fProxyProvider; }
+
 private:
     explicit GrContextPriv(GrContext* context) : fContext(context) {}
     GrContextPriv(const GrContextPriv&); // unimpl

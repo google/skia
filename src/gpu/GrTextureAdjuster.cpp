@@ -9,8 +9,9 @@
 
 #include "GrColorSpaceXform.h"
 #include "GrContext.h"
+#include "GrContextPriv.h"
 #include "GrGpu.h"
-#include "GrResourceProvider.h"
+#include "GrProxyProvider.h"
 #include "SkGr.h"
 
 GrTextureAdjuster::GrTextureAdjuster(GrContext* context, sk_sp<GrTextureProxy> original,
@@ -39,12 +40,13 @@ void GrTextureAdjuster::didCacheCopy(const GrUniqueKey& copyKey) {
 
 sk_sp<GrTextureProxy> GrTextureAdjuster::refTextureProxyCopy(const CopyParams& copyParams,
                                                              bool willBeMipped) {
+    GrProxyProvider* proxyProvider = fContext->contextPriv().proxyProvider();
+
     GrUniqueKey key;
     this->makeCopyKey(copyParams, &key, nullptr);
     if (key.isValid()) {
         sk_sp<GrTextureProxy> cachedCopy =
-                fContext->resourceProvider()->findOrCreateProxyByUniqueKey(
-                                                             key, this->originalProxy()->origin());
+                proxyProvider->findOrCreateProxyByUniqueKey(key, this->originalProxy()->origin());
         if (cachedCopy) {
             return cachedCopy;
         }
@@ -56,7 +58,7 @@ sk_sp<GrTextureProxy> GrTextureAdjuster::refTextureProxyCopy(const CopyParams& c
     if (copy) {
         if (key.isValid()) {
             SkASSERT(copy->origin() == this->originalProxy()->origin());
-            fContext->resourceProvider()->assignUniqueKeyToProxy(key, copy.get());
+            proxyProvider->assignUniqueKeyToProxy(key, copy.get());
             this->didCacheCopy(key);
         }
     }

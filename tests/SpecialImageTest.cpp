@@ -17,6 +17,7 @@
 
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
+#include "GrContextPriv.h"
 #include "GrSurfaceProxy.h"
 #include "GrTextureProxy.h"
 #include "SkGr.h"
@@ -234,9 +235,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialImage_MakeTexture, reporter, ctxInfo) 
         // gpu
         const GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(bm.info(), *context->caps());
 
-        sk_sp<GrTextureProxy> proxy(GrSurfaceProxy::MakeDeferred(context->resourceProvider(),
-                                                                 desc, SkBudgeted::kNo,
-                                                                 bm.getPixels(), bm.rowBytes()));
+        sk_sp<GrTextureProxy> proxy(GrSurfaceProxy::MakeDeferred(
+                                                            context->contextPriv().proxyProvider(),
+                                                            desc, SkBudgeted::kNo,
+                                                            bm.getPixels(), bm.rowBytes()));
         if (!proxy) {
             return;
         }
@@ -267,7 +269,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialImage_Gpu, reporter, ctxInfo) {
 
     const GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(bm.info(), *context->caps());
 
-    sk_sp<GrTextureProxy> proxy(GrSurfaceProxy::MakeDeferred(context->resourceProvider(),
+    sk_sp<GrTextureProxy> proxy(GrSurfaceProxy::MakeDeferred(context->contextPriv().proxyProvider(),
                                                              desc, SkBudgeted::kNo,
                                                              bm.getPixels(), bm.rowBytes()));
     if (!proxy) {
@@ -307,7 +309,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialImage_DeferredGpu, reporter, ctxInfo) 
     desc.fHeight = kFullSize;
     desc.fConfig = kSkia8888_GrPixelConfig;
 
-    sk_sp<GrTextureProxy> proxy(GrSurfaceProxy::MakeDeferred(context->resourceProvider(),
+    sk_sp<GrTextureProxy> proxy(GrSurfaceProxy::MakeDeferred(context->contextPriv().proxyProvider(),
                                                              desc, SkBudgeted::kNo,
                                                              bm.getPixels(), 0));
     if (!proxy) {

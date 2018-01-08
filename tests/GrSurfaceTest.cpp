@@ -70,6 +70,7 @@ DEF_GPUTEST_FOR_NULLGL_CONTEXT(GrSurface, reporter, ctxInfo) {
 // consistent with createTexture's result.
 DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
+    GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
     GrResourceProvider* resourceProvider = context->resourceProvider();
     const GrCaps* caps = context->caps();
 
@@ -125,7 +126,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
                 texels[i].fPixels = pixelData.get();
                 texels[i].fRowBytes = rowBytes >> i;
             }
-            sk_sp<GrTextureProxy> proxy = GrSurfaceProxy::MakeDeferredMipMap(resourceProvider,
+            sk_sp<GrTextureProxy> proxy = GrSurfaceProxy::MakeDeferredMipMap(proxyProvider,
                                                                              desc, SkBudgeted::kNo,
                                                                              texels.get(),
                                                                              levelCount);

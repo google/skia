@@ -132,7 +132,7 @@ DEF_GPUTEST(TessellatingPathRendererCacheTest, reporter, /* options */) {
 // Test that deleting the original path invalidates the textures cached by the SW path renderer
 DEF_GPUTEST(SoftwarePathRendererCacheTest, reporter, /* options */) {
     auto createPR = [](GrContext* ctx) {
-        return new GrSoftwarePathRenderer(ctx->resourceProvider(), true);
+        return new GrSoftwarePathRenderer(ctx->contextPriv().proxyProvider(), true);
     };
 
     // Software path renderer creates a mask texture, but also renders with a non-AA rect, which

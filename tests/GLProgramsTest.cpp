@@ -261,6 +261,7 @@ bool GrDrawingManager::ProgramUnitTest(GrContext*, int) { return true; }
 #else
 bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages, int maxLevels) {
     GrDrawingManager* drawingManager = context->contextPriv().drawingManager();
+    GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
 
     sk_sp<GrTextureProxy> proxies[2];
 
@@ -271,15 +272,13 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages, int ma
     dummyDesc.fWidth = 34;
     dummyDesc.fHeight = 18;
     dummyDesc.fConfig = kRGBA_8888_GrPixelConfig;
-    proxies[0] = GrSurfaceProxy::MakeDeferred(context->resourceProvider(),
-                                              dummyDesc, SkBudgeted::kNo, nullptr, 0);
+    proxies[0] = GrSurfaceProxy::MakeDeferred(proxyProvider, dummyDesc, SkBudgeted::kNo, nullptr, 0);
     dummyDesc.fFlags = kNone_GrSurfaceFlags;
     dummyDesc.fOrigin = kTopLeft_GrSurfaceOrigin;
     dummyDesc.fWidth = 16;
     dummyDesc.fHeight = 22;
     dummyDesc.fConfig = kAlpha_8_GrPixelConfig;
-    proxies[1] = GrSurfaceProxy::MakeDeferred(context->resourceProvider(),
-                                              dummyDesc, SkBudgeted::kNo, nullptr, 0);
+    proxies[1] = GrSurfaceProxy::MakeDeferred(proxyProvider, dummyDesc, SkBudgeted::kNo, nullptr, 0);
 
     if (!proxies[0] || !proxies[1]) {
         SkDebugf("Could not allocate dummy textures");

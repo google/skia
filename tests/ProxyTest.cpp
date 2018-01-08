@@ -12,6 +12,7 @@
 #if SK_SUPPORT_GPU
 
 #include "GrBackendSurface.h"
+#include "GrContextPriv.h"
 #include "GrRenderTargetPriv.h"
 #include "GrRenderTargetProxy.h"
 #include "GrResourceProvider.h"
@@ -109,7 +110,8 @@ static void check_texture(skiatest::Reporter* reporter,
 
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredProxyTest, reporter, ctxInfo) {
-    GrResourceProvider* provider = ctxInfo.grContext()->resourceProvider();
+    GrProxyProvider* proxyProvider = ctxInfo.grContext()->contextPriv().proxyProvider();
+    GrResourceProvider* resourceProvider = ctxInfo.grContext()->resourceProvider();
     const GrCaps& caps = *ctxInfo.grContext()->caps();
 
     const GrGpuResource::UniqueID kInvalidResourceID = GrGpuResource::UniqueID::InvalidID();
@@ -134,13 +136,13 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredProxyTest, reporter, ctxInfo) {
                             {
                                 sk_sp<GrTexture> tex;
                                 if (SkBackingFit::kApprox == fit) {
-                                    tex = provider->createApproxTexture(desc, 0);
+                                    tex = resourceProvider->createApproxTexture(desc, 0);
                                 } else {
-                                    tex = provider->createTexture(desc, budgeted);
+                                    tex = resourceProvider->createTexture(desc, budgeted);
                                 }
 
                                 sk_sp<GrTextureProxy> proxy(GrSurfaceProxy::MakeDeferred(
-                                                                                provider, desc,
+                                                                                proxyProvider, desc,
                                                                                 fit, budgeted));
                                 REPORTER_ASSERT(reporter, SkToBool(tex) == SkToBool(proxy));
                                 if (proxy) {
@@ -156,7 +158,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredProxyTest, reporter, ctxInfo) {
                                                   widthHeight, widthHeight, config,
                                                   kInvalidResourceID, budgeted);
                                     int supportedSamples = caps.getSampleCount(numSamples, config);
-                                    check_rendertarget(reporter, caps, provider,
+                                    check_rendertarget(reporter, caps, resourceProvider,
                                                        proxy->asRenderTargetProxy(),
                                                        supportedSamples,
                                                        fit, caps.maxWindowRectangles(), false);
@@ -168,29 +170,30 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredProxyTest, reporter, ctxInfo) {
                             {
                                 sk_sp<GrTexture> tex;
                                 if (SkBackingFit::kApprox == fit) {
-                                    tex = provider->createApproxTexture(desc, 0);
+                                    tex = resourceProvider->createApproxTexture(desc, 0);
                                 } else {
-                                    tex = provider->createTexture(desc, budgeted);
+                                    tex = resourceProvider->createTexture(desc, budgeted);
                                 }
 
-                                sk_sp<GrTextureProxy> proxy(GrSurfaceProxy::MakeDeferred(provider,
-                                                                                         desc,
-                                                                                         fit,
-                                                                                         budgeted));
+                                sk_sp<GrTextureProxy> proxy(GrSurfaceProxy::MakeDeferred(
+                                                                                    proxyProvider,
+                                                                                    desc,
+                                                                                    fit,
+                                                                                    budgeted));
                                 REPORTER_ASSERT(reporter, SkToBool(tex) == SkToBool(proxy));
                                 if (proxy) {
-                                    // This forces the proxy to compute and cache its pre-instantiation
-                                    // size guess. Later, when it is actually instantiated, it checks
-                                    // that the instantiated size is <= to the pre-computation.
-                                    // If the proxy never computed its pre-instantiation size then the
-                                    // check is skipped.
+                                    // This forces the proxy to compute and cache its
+                                    // pre-instantiation size guess. Later, when it is actually
+                                    // instantiated, it checks that the instantiated size is <= to
+                                    // the pre-computation. If the proxy never computed its
+                                    // pre-instantiation size then the check is skipped.
                                     proxy->gpuMemorySize();
 
                                     check_surface(reporter, proxy.get(), origin,
                                                   widthHeight, widthHeight, config,
                                                   kInvalidResourceID, budgeted);
-                                    check_texture(reporter, provider, proxy->asTextureProxy(),
-                                                  fit, false);
+                                    check_texture(reporter, resourceProvider,
+                                                  proxy->asTextureProxy(), fit, false);
                                 }
                             }
 
@@ -281,7 +284,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ZeroSizedProxyTest, reporter, ctxInfo) {
-    GrResourceProvider* provider = ctxInfo.grContext()->resourceProvider();
+    GrProxyProvider* provider = ctxInfo.grContext()->contextPriv().proxyProvider();
 
     for (auto flags : { kRenderTarget_GrSurfaceFlag, kNone_GrSurfaceFlags }) {
         for (auto fit : { SkBackingFit::kExact, SkBackingFit::kApprox }) {

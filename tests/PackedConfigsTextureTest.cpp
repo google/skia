@@ -97,6 +97,7 @@ static void check_565(skiatest::Reporter* reporter,
 
 static void run_test(skiatest::Reporter* reporter, GrContext* context,
                      int arraySize, GrPixelConfig config) {
+    GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
     SkTDArray<uint16_t> controlPixelData;
     // We will read back into an 8888 buffer since 565/4444 read backs aren't supported
     SkTDArray<GrColor> readBuffer;
@@ -119,7 +120,7 @@ static void run_test(skiatest::Reporter* reporter, GrContext* context,
         desc.fConfig = config;
         desc.fOrigin = origin;
 
-        sk_sp<GrTextureProxy> proxy = GrSurfaceProxy::MakeDeferred(context->resourceProvider(),
+        sk_sp<GrTextureProxy> proxy = GrSurfaceProxy::MakeDeferred(proxyProvider,
                                                                    desc, SkBudgeted::kNo,
                                                                    controlPixelData.begin(), 0);
         SkASSERT(proxy);

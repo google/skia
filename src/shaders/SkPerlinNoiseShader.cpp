@@ -19,6 +19,7 @@
 
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
+#include "GrContextPriv.h"
 #include "GrCoordTransform.h"
 #include "SkGr.h"
 #include "effects/GrConstColorProcessor.h"
@@ -1435,10 +1436,11 @@ std::unique_ptr<GrFragmentProcessor> SkPerlinNoiseShaderImpl::asFragmentProcesso
     }
 
     sk_sp<GrTextureProxy> permutationsProxy = GrMakeCachedBitmapProxy(
-                                                         args.fContext->resourceProvider(),
-                                                         paintingData->getPermutationsBitmap());
-    sk_sp<GrTextureProxy> noiseProxy = GrMakeCachedBitmapProxy(args.fContext->resourceProvider(),
-                                                               paintingData->getNoiseBitmap());
+                                                    args.fContext->contextPriv().proxyProvider(),
+                                                    paintingData->getPermutationsBitmap());
+    sk_sp<GrTextureProxy> noiseProxy = GrMakeCachedBitmapProxy(
+                                                    args.fContext->contextPriv().proxyProvider(),
+                                                    paintingData->getNoiseBitmap());
 
     if (permutationsProxy && noiseProxy) {
         auto inner = GrPerlinNoise2Effect::Make(fType,

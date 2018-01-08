@@ -46,7 +46,7 @@
         desc.fHeight = kSize;
         desc.fConfig = kConfig;
 
-        sk_sp<GrTextureProxy> dataProxy = GrSurfaceProxy::MakeDeferred(context->resourceProvider(),
+        sk_sp<GrTextureProxy> dataProxy = GrSurfaceProxy::MakeDeferred(context->proxyProvider(),
                                                                        desc,
                                                                        SkBudgeted::kYes, data, 0);
         if (!dataProxy) {

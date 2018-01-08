@@ -186,7 +186,7 @@ DEF_TEST(ImageFilterCache_ImageBackedRaster, reporter) {
 #include "GrTexture.h"
 #include "GrTextureProxy.h"
 
-static sk_sp<GrTextureProxy> create_proxy(GrResourceProvider* resourceProvider) {
+static sk_sp<GrTextureProxy> create_proxy(GrProxyProvider* proxyProvider) {
     SkBitmap srcBM = create_bm();
 
     GrSurfaceDesc desc;
@@ -196,16 +196,15 @@ static sk_sp<GrTextureProxy> create_proxy(GrResourceProvider* resourceProvider) 
     desc.fHeight = kFullSize;
     desc.fConfig = kRGBA_8888_GrPixelConfig;
 
-    return GrSurfaceProxy::MakeDeferred(resourceProvider,
+    return GrSurfaceProxy::MakeDeferred(proxyProvider,
                                         desc, SkBudgeted::kYes,
-                                        srcBM.getPixels(),
-                                        srcBM.rowBytes());
+                                        srcBM.getPixels(), srcBM.rowBytes());
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterCache_ImageBackedGPU, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
 
-    sk_sp<GrTextureProxy> srcProxy(create_proxy(context->resourceProvider()));
+    sk_sp<GrTextureProxy> srcProxy(create_proxy(context->contextPriv().proxyProvider()));
     if (!srcProxy) {
         return;
     }
@@ -251,7 +250,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterCache_ImageBackedGPU, reporter, ct
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterCache_GPUBacked, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
 
-    sk_sp<GrTextureProxy> srcProxy(create_proxy(context->resourceProvider()));
+    sk_sp<GrTextureProxy> srcProxy(create_proxy(context->contextPriv().proxyProvider()));
     if (!srcProxy) {
         return;
     }

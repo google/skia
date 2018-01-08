@@ -783,7 +783,7 @@ bool SkBlurMaskFilterImpl::directFilterMaskGPU(GrContext* context,
 
     SkScalar xformedSigma = this->computeXformedSigma(viewMatrix);
 
-    GrResourceProvider* resourceProvider = context->resourceProvider();
+    GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
     std::unique_ptr<GrFragmentProcessor> fp;
 
     SkRect rect;
@@ -791,9 +791,9 @@ bool SkBlurMaskFilterImpl::directFilterMaskGPU(GrContext* context,
         SkScalar pad = 3.0f * xformedSigma;
         rect.outset(pad, pad);
 
-        fp = GrRectBlurEffect::Make(resourceProvider, rect, xformedSigma);
+        fp = GrRectBlurEffect::Make(proxyProvider, rect, xformedSigma);
     } else if (path.isOval(&rect) && SkScalarNearlyEqual(rect.width(), rect.height())) {
-        fp = GrCircleBlurFragmentProcessor::Make(resourceProvider, rect, xformedSigma);
+        fp = GrCircleBlurFragmentProcessor::Make(proxyProvider, rect, xformedSigma);
 
         // expand the rect for the coverage geometry
         int pad = SkScalarCeilToInt(6*xformedSigma)/2;
@@ -835,7 +835,7 @@ bool SkBlurMaskFilterImpl::directFilterRRectMaskGPU(GrContext* context,
         return false;
     }
 
-    GrResourceProvider* resourceProvider = context->resourceProvider();
+    GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
     SkScalar xformedSigma = this->computeXformedSigma(viewMatrix);
 
     if (devRRect.isRect() || devRRect.isCircle()) {
@@ -844,9 +844,9 @@ bool SkBlurMaskFilterImpl::directFilterRRectMaskGPU(GrContext* context,
             SkScalar pad = 3.0f * xformedSigma;
             const SkRect dstCoverageRect = devRRect.rect().makeOutset(pad, pad);
 
-            fp = GrRectBlurEffect::Make(resourceProvider, dstCoverageRect, xformedSigma);
+            fp = GrRectBlurEffect::Make(proxyProvider, dstCoverageRect, xformedSigma);
         } else {
-            fp = GrCircleBlurFragmentProcessor::Make(resourceProvider,
+            fp = GrCircleBlurFragmentProcessor::Make(proxyProvider,
                                                      devRRect.rect(), xformedSigma);
         }
 

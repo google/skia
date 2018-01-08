@@ -481,7 +481,7 @@ sk_sp<GrTextureProxy> pre_create_atlas(GrContext* context) {
     desc.fWidth = 32;
     desc.fHeight = 16;
     desc.fConfig = kSkia8888_GrPixelConfig;
-    return GrSurfaceProxy::MakeDeferred(context->resourceProvider(),
+    return GrSurfaceProxy::MakeDeferred(context->contextPriv().proxyProvider(),
                                         desc, SkBackingFit::kExact,
                                         SkBudgeted::kYes,
                                         GrResourceProvider::kNoPendingIO_Flag);

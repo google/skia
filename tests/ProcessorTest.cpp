@@ -12,6 +12,7 @@
 #include <random>
 #include "GrClip.h"
 #include "GrContext.h"
+#include "GrContextPriv.h"
 #include "GrGpuResource.h"
 #include "GrRenderTargetContext.h"
 #include "GrRenderTargetContextPriv.h"
@@ -155,6 +156,7 @@ void testingOnly_getIORefCnts(GrTextureProxy* proxy, int* refCnt, int* readCnt, 
 
 DEF_GPUTEST_FOR_ALL_CONTEXTS(ProcessorRefTest, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
+    GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
 
     GrSurfaceDesc desc;
     desc.fOrigin = kTopLeft_GrSurfaceOrigin;
@@ -170,19 +172,19 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ProcessorRefTest, reporter, ctxInfo) {
             {
                 bool texelBufferSupport = context->caps()->shaderCaps()->texelBufferSupport();
                 sk_sp<GrTextureProxy> proxy1(
-                        GrSurfaceProxy::MakeDeferred(context->resourceProvider(),
+                        GrSurfaceProxy::MakeDeferred(proxyProvider,
                                                      desc, SkBackingFit::kExact,
                                                      SkBudgeted::kYes));
                 sk_sp<GrTextureProxy> proxy2
-                        (GrSurfaceProxy::MakeDeferred(context->resourceProvider(),
+                        (GrSurfaceProxy::MakeDeferred(proxyProvider,
                                                       desc, SkBackingFit::kExact,
                                                       SkBudgeted::kYes));
                 sk_sp<GrTextureProxy> proxy3(
-                        GrSurfaceProxy::MakeDeferred(context->resourceProvider(),
+                        GrSurfaceProxy::MakeDeferred(proxyProvider,
                                                      desc, SkBackingFit::kExact,
                                                      SkBudgeted::kYes));
                 sk_sp<GrTextureProxy> proxy4(
-                        GrSurfaceProxy::MakeDeferred(context->resourceProvider(),
+                        GrSurfaceProxy::MakeDeferred(proxyProvider,
                                                      desc, SkBackingFit::kExact,
                                                      SkBudgeted::kYes));
                 sk_sp<GrBuffer> buffer(texelBufferSupport
@@ -295,6 +297,8 @@ void test_draw_op(GrRenderTargetContext* rtc, std::unique_ptr<GrFragmentProcesso
 
 /** Initializes the two test texture proxies that are available to the FP test factories. */
 bool init_test_textures(GrContext* context, SkRandom* random, sk_sp<GrTextureProxy> proxies[2]) {
+    GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
+
     static const int kTestTextureSize = 256;
     GrSurfaceDesc desc;
     desc.fOrigin = kBottomLeft_GrSurfaceOrigin;
@@ -310,7 +314,7 @@ bool init_test_textures(GrContext* context, SkRandom* random, sk_sp<GrTexturePro
                     input_texel_color(random->nextULessThan(256), random->nextULessThan(256));
         }
     }
-    proxies[0] = GrSurfaceProxy::MakeDeferred(context->resourceProvider(), desc, SkBudgeted::kYes,
+    proxies[0] = GrSurfaceProxy::MakeDeferred(proxyProvider, desc, SkBudgeted::kYes,
                                               rgbaData.get(), kTestTextureSize * sizeof(GrColor));
 
     // Put random values into the alpha texture that the test FPs can optionally use.
@@ -321,7 +325,7 @@ bool init_test_textures(GrContext* context, SkRandom* random, sk_sp<GrTexturePro
             alphaData[kTestTextureSize * y + x] = random->nextULessThan(256);
         }
     }
-    proxies[1] = GrSurfaceProxy::MakeDeferred(context->resourceProvider(), desc, SkBudgeted::kYes,
+    proxies[1] = GrSurfaceProxy::MakeDeferred(proxyProvider, desc, SkBudgeted::kYes,
                                               alphaData.get(), kTestTextureSize);
 
     return proxies[0] && proxies[1];
@@ -330,6 +334,8 @@ bool init_test_textures(GrContext* context, SkRandom* random, sk_sp<GrTexturePro
 // Creates a texture of premul colors used as the output of the fragment processor that precedes
 // the fragment processor under test. Color values are those provided by input_texel_color().
 sk_sp<GrTextureProxy> make_input_texture(GrContext* context, int width, int height) {
+    GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
+
     std::unique_ptr<GrColor[]> data(new GrColor[width * height]);
     for (int y = 0; y < width; ++y) {
         for (int x = 0; x < height; ++x) {
@@ -341,7 +347,7 @@ sk_sp<GrTextureProxy> make_input_texture(GrContext* context, int width, int heig
     desc.fWidth = width;
     desc.fHeight = height;
     desc.fConfig = kRGBA_8888_GrPixelConfig;
-    return GrSurfaceProxy::MakeDeferred(context->resourceProvider(), desc, SkBudgeted::kYes,
+    return GrSurfaceProxy::MakeDeferred(proxyProvider, desc, SkBudgeted::kYes,
                                         data.get(), width * sizeof(GrColor));
 }
 DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, reporter, ctxInfo) {

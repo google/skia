@@ -1627,7 +1627,7 @@ static sk_sp<GrTexture> make_normal_texture(GrResourceProvider* provider,
     return provider->createTexture(desc, SkBudgeted::kYes);
 }
 
-static sk_sp<GrTextureProxy> make_mipmap_proxy(GrResourceProvider* provider,
+static sk_sp<GrTextureProxy> make_mipmap_proxy(GrProxyProvider* provider,
                                                GrSurfaceFlags flags,
                                                int width, int height,
                                                int sampleCnt) {
@@ -1671,7 +1671,8 @@ static sk_sp<GrTextureProxy> make_mipmap_proxy(GrResourceProvider* provider,
 // Texture-only, both-RT-and-Texture and MIPmapped
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GPUMemorySize, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
-    GrResourceProvider* provider = context->resourceProvider();
+    GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
+    GrResourceProvider* resourceProvider = context->resourceProvider();
 
     static const int kSize = 64;
 
@@ -1679,13 +1680,13 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GPUMemorySize, reporter, ctxInfo) {
     {
         sk_sp<GrTexture> tex;
 
-        tex = make_normal_texture(provider, kRenderTarget_GrSurfaceFlag, kSize, kSize, 0);
+        tex = make_normal_texture(resourceProvider, kRenderTarget_GrSurfaceFlag, kSize, kSize, 0);
         size_t size = tex->gpuMemorySize();
         REPORTER_ASSERT(reporter, kSize*kSize*4 == size);
 
         size_t sampleCount = (size_t)context->caps()->getSampleCount(4, kRGBA_8888_GrPixelConfig);
         if (sampleCount >= 4) {
-            tex = make_normal_texture(provider, kRenderTarget_GrSurfaceFlag, kSize, kSize,
+            tex = make_normal_texture(resourceProvider, kRenderTarget_GrSurfaceFlag, kSize, kSize,
                                       sampleCount);
             size = tex->gpuMemorySize();
             REPORTER_ASSERT(reporter,
@@ -1694,7 +1695,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GPUMemorySize, reporter, ctxInfo) {
                             kSize*kSize*4*(sampleCount+1) == size);   // explicit resolve buffer
         }
 
-        tex = make_normal_texture(provider, kNone_GrSurfaceFlags, kSize, kSize, 0);
+        tex = make_normal_texture(resourceProvider, kNone_GrSurfaceFlags, kSize, kSize, 0);
         size = tex->gpuMemorySize();
         REPORTER_ASSERT(reporter, kSize*kSize*4 == size);
     }
@@ -1704,13 +1705,13 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GPUMemorySize, reporter, ctxInfo) {
     if (context->caps()->mipMapSupport()) {
         sk_sp<GrTextureProxy> proxy;
 
-        proxy = make_mipmap_proxy(provider, kRenderTarget_GrSurfaceFlag, kSize, kSize, 0);
+        proxy = make_mipmap_proxy(proxyProvider, kRenderTarget_GrSurfaceFlag, kSize, kSize, 0);
         size_t size = proxy->gpuMemorySize();
         REPORTER_ASSERT(reporter, kSize*kSize*4+(kSize*kSize*4)/3 == size);
 
         size_t sampleCount = (size_t)context->caps()->getSampleCount(4, kRGBA_8888_GrPixelConfig);
         if (sampleCount >= 4) {
-            proxy = make_mipmap_proxy(provider, kRenderTarget_GrSurfaceFlag, kSize, kSize,
+            proxy = make_mipmap_proxy(proxyProvider, kRenderTarget_GrSurfaceFlag, kSize, kSize,
                                       sampleCount);
             size = proxy->gpuMemorySize();
             REPORTER_ASSERT(reporter,
@@ -1719,7 +1720,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GPUMemorySize, reporter, ctxInfo) {
                kSize*kSize*4*(sampleCount+1)+(kSize*kSize*4)/3 == size);  // explicit resolve buffer
         }
 
-        proxy = make_mipmap_proxy(provider, kNone_GrSurfaceFlags, kSize, kSize, 0);
+        proxy = make_mipmap_proxy(proxyProvider, kNone_GrSurfaceFlags, kSize, kSize, 0);
         size = proxy->gpuMemorySize();
         REPORTER_ASSERT(reporter, kSize*kSize*4+(kSize*kSize*4)/3 == size);
     }

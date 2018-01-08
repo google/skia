@@ -15,6 +15,7 @@
 #if SK_SUPPORT_GPU
 #include "GrBackendSurface.h"
 #include "GrContext.h"
+#include "GrContextPriv.h"
 #include "GrGpu.h"
 #include "GrTest.h"
 #endif
@@ -476,6 +477,7 @@ static sk_sp<SkImage> upload(const sk_sp<SkSurface>& surf, SkColor color) {
 // in between uses of the shared backing resource).
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WritePixelsPendingIO, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
+    GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
 
     static const int kFullSize = 62;
     static const int kHalfSize = 31;
@@ -499,7 +501,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WritePixelsPendingIO, reporter, ctxInfo) {
         desc.fHeight = 64;
         desc.fConfig = kRGBA_8888_GrPixelConfig;
 
-        sk_sp<GrTextureProxy> temp = GrSurfaceProxy::MakeDeferred(context->resourceProvider(), desc,
+        sk_sp<GrTextureProxy> temp = GrSurfaceProxy::MakeDeferred(proxyProvider, desc,
                                                                   SkBackingFit::kApprox,
                                                                   SkBudgeted::kYes);
         temp->instantiate(context->resourceProvider());

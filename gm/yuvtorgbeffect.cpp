@@ -12,6 +12,7 @@
 #if SK_SUPPORT_GPU
 
 #include "GrContext.h"
+#include "GrContextPriv.h"
 #include "GrRenderTargetContextPriv.h"
 #include "GrTextureProxy.h"
 #include "SkBitmap.h"
@@ -92,7 +93,7 @@ protected:
                 desc.fHeight = fBmp[i].height();
                 desc.fConfig = SkImageInfo2GrPixelConfig(fBmp[i].info(), *context->caps());
 
-                proxy[i] = GrSurfaceProxy::MakeDeferred(context->resourceProvider(),
+                proxy[i] = GrSurfaceProxy::MakeDeferred(context->contextPriv().proxyProvider(),
                                                         desc, SkBudgeted::kYes,
                                                         fBmp[i].getPixels(), fBmp[i].rowBytes());
                 if (!proxy[i]) {
@@ -222,7 +223,7 @@ protected:
                 desc.fHeight = fBmp[index].height();
                 desc.fConfig = SkImageInfo2GrPixelConfig(fBmp[index].info(), *context->caps());
 
-                proxy[i] = GrSurfaceProxy::MakeDeferred(context->resourceProvider(),
+                proxy[i] = GrSurfaceProxy::MakeDeferred(context->contextPriv().proxyProvider(),
                                                         desc, SkBudgeted::kYes,
                                                         fBmp[index].getPixels(),
                                                         fBmp[index].rowBytes());

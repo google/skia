@@ -7,6 +7,7 @@
 
 #include "GrProcessor.h"
 #include "GrContext.h"
+#include "GrContextPriv.h"
 #include "GrGeometryProcessor.h"
 #include "GrMemoryPool.h"
 #include "GrSamplerState.h"
@@ -18,6 +19,10 @@
 
 GrResourceProvider* GrProcessorTestData::resourceProvider() {
     return fContext->resourceProvider();
+}
+
+GrProxyProvider* GrProcessorTestData::proxyProvider() {
+    return fContext->contextPriv().proxyProvider();
 }
 
 const GrCaps* GrProcessorTestData::caps() {

@@ -38,6 +38,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(IntTexture, reporter, ctxInfo) {
     if (!context->caps()->isConfigTexturable(kRGBA_8888_sint_GrPixelConfig)) {
         return;
     }
+
+    GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
     static const int kS = UINT8_MAX + 1;
     static const size_t kRowBytes = kS * sizeof(int32_t);
 
@@ -66,18 +68,16 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(IntTexture, reporter, ctxInfo) {
         levels[1].fPixels = testData.get();
         levels[1].fRowBytes = (kS / 2) * sizeof(int32_t);
 
-        sk_sp<GrTextureProxy> temp(GrSurfaceProxy::MakeDeferredMipMap(context->resourceProvider(),
-                                                                      desc,
-                                                                      SkBudgeted::kYes,
+        sk_sp<GrTextureProxy> temp(GrSurfaceProxy::MakeDeferredMipMap(proxyProvider,
+                                                                      desc, SkBudgeted::kYes,
                                                                       levels, 2));
         REPORTER_ASSERT(reporter, !temp);
     }
 
     // Test that we can create an integer texture.
-    sk_sp<GrTextureProxy> proxy = GrSurfaceProxy::MakeDeferred(context->resourceProvider(),
+    sk_sp<GrTextureProxy> proxy = GrSurfaceProxy::MakeDeferred(proxyProvider,
                                                                desc, SkBudgeted::kYes,
-                                                               testData.get(),
-                                                               kRowBytes);
+                                                               testData.get(), kRowBytes);
     REPORTER_ASSERT(reporter, proxy);
     if (!proxy) {
         return;
