@@ -71,7 +71,7 @@ void basic_texture_test(skiatest::Reporter* reporter, GrContext* context, GrPixe
     SkColorType ct;
     SkAssertResult(GrPixelConfigToColorType(config, &ct));
 
-    sk_sp<GrTextureProxy> proxy = GrSurfaceProxy::MakeDeferred(context->resourceProvider(),
+    sk_sp<GrTextureProxy> proxy = GrSurfaceProxy::MakeDeferred(context->proxyProvider(),
                                                                surfDesc, SkBudgeted::kNo,
                                                                srcBuffer, 0);
     REPORTER_ASSERT(reporter, proxy);
@@ -105,7 +105,7 @@ void basic_texture_test(skiatest::Reporter* reporter, GrContext* context, GrPixe
 
     surfDesc.fOrigin = kBottomLeft_GrSurfaceOrigin;
 
-    proxy = GrSurfaceProxy::MakeDeferred(context->resourceProvider(),
+    proxy = GrSurfaceProxy::MakeDeferred(context->proxyProvider(),
                                          surfDesc, SkBudgeted::kNo,
                                          srcBuffer, 0);
     REPORTER_ASSERT(reporter, proxy);

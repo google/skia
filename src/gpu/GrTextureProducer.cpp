@@ -7,8 +7,8 @@
 
 #include "GrTextureProducer.h"
 #include "GrClip.h"
+#include "GrProxyProvider.h"
 #include "GrRenderTargetContext.h"
-#include "GrResourceProvider.h"
 #include "GrTextureProxy.h"
 #include "effects/GrBicubicEffect.h"
 #include "effects/GrSimpleTextureEffect.h"
@@ -39,7 +39,7 @@ sk_sp<GrTextureProxy> GrTextureProducer::CopyOnGpu(GrContext* context,
     if (copyParams.fFilter != GrSamplerState::Filter::kNearest) {
         bool resizing = localRect.width()  != dstRect.width() ||
                         localRect.height() != dstRect.height();
-        needsDomain = resizing && !GrResourceProvider::IsFunctionallyExact(inputProxy.get());
+        needsDomain = resizing && !GrProxyProvider::IsFunctionallyExact(inputProxy.get());
     }
 
     if (needsDomain) {
@@ -84,7 +84,7 @@ GrTextureProducer::DomainMode GrTextureProducer::DetermineDomainMode(
 
     SkASSERT(proxyBounds.contains(constraintRect));
 
-    const bool proxyIsExact = GrResourceProvider::IsFunctionallyExact(proxy);
+    const bool proxyIsExact = GrProxyProvider::IsFunctionallyExact(proxy);
 
     // If the constraint rectangle contains the whole proxy then no need for a domain.
     if (constraintRect.contains(proxyBounds) && proxyIsExact) {

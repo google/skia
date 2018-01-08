@@ -1298,9 +1298,8 @@ GrGradientEffect::GrGradientEffect(ClassID classID, const CreateArgs& args, bool
             // Only the x-tileMode is unknown. However, given all the other knowns we know
             // that GrMakeCachedBitmapProxy is sufficient (i.e., it won't need to be
             // extracted to a subset or mipmapped).
-            sk_sp<GrTextureProxy> proxy = GrMakeCachedBitmapProxy(
-                                                            args.fContext->resourceProvider(),
-                                                            bitmap);
+            sk_sp<GrTextureProxy> proxy = GrMakeCachedBitmapProxy(args.fContext->proxyProvider(),
+                                                                  bitmap);
             if (!proxy) {
                 SkDebugf("Gradient won't draw. Could not create texture.");
                 return;

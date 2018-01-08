@@ -10,7 +10,7 @@
 #include "GrContext.h"
 #include "GrContextPriv.h"
 #include "GrGpuResourcePriv.h"
-#include "GrResourceProvider.h"
+#include "GrProxyProvider.h"
 #include "GrSurfaceContext.h"
 #include "SkBitmap.h"
 #include "SkGr.h"
@@ -40,7 +40,7 @@ sk_sp<GrTextureProxy> GrBitmapTextureMaker::refOriginalTextureProxy(bool willBeM
     sk_sp<GrTextureProxy> proxy;
 
     if (fOriginalKey.isValid()) {
-        proxy = this->context()->resourceProvider()->findOrCreateProxyByUniqueKey(
+        proxy = this->context()->proxyProvider()->findOrCreateProxyByUniqueKey(
                                                             fOriginalKey, kTopLeft_GrSurfaceOrigin);
         if (proxy && (!willBeMipped || GrMipMapped::kYes == proxy->mipMapped())) {
             return proxy;
@@ -53,13 +53,12 @@ sk_sp<GrTextureProxy> GrBitmapTextureMaker::refOriginalTextureProxy(bool willBeM
                                                              dstColorSpace);
         }
         if (!proxy) {
-            proxy = GrUploadBitmapToTextureProxy(this->context()->resourceProvider(), fBitmap,
+            proxy = GrUploadBitmapToTextureProxy(this->context()->proxyProvider(), fBitmap,
                                                  dstColorSpace);
         }
         if (proxy) {
             if (fOriginalKey.isValid()) {
-                this->context()->resourceProvider()->assignUniqueKeyToProxy(fOriginalKey,
-                                                                            proxy.get());
+                this->context()->proxyProvider()->assignUniqueKeyToProxy(fOriginalKey, proxy.get());
             }
             if (!willBeMipped || GrMipMapped::kYes == proxy->mipMapped()) {
                 SkASSERT(proxy->origin() == kTopLeft_GrSurfaceOrigin);
@@ -86,10 +85,10 @@ sk_sp<GrTextureProxy> GrBitmapTextureMaker::refOriginalTextureProxy(bool willBeM
                 // mipmapped version. The texture backing the unmipped version will remain in the
                 // resource cache until the last texture proxy referencing it is deleted at which
                 // time it too will be deleted or recycled.
-                this->context()->resourceProvider()->removeUniqueKeyFromProxy(fOriginalKey,
-                                                                              proxy.get());
-                this->context()->resourceProvider()->assignUniqueKeyToProxy(fOriginalKey,
-                                                                            mippedProxy.get());
+                this->context()->proxyProvider()->removeUniqueKeyFromProxy(fOriginalKey,
+                                                                           proxy.get());
+                this->context()->proxyProvider()->assignUniqueKeyToProxy(fOriginalKey,
+                                                                         mippedProxy.get());
                 GrInstallBitmapUniqueKeyInvalidator(fOriginalKey, fBitmap.pixelRef());
             }
             return mippedProxy;

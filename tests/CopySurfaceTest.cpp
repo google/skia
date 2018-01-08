@@ -74,13 +74,13 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(CopySurface, reporter, ctxInfo) {
                             dstDesc.fFlags = dFlags;
 
                             sk_sp<GrTextureProxy> src(GrSurfaceProxy::MakeDeferred(
-                                                                    context->resourceProvider(),
+                                                                    context->proxyProvider(),
                                                                     srcDesc, SkBudgeted::kNo,
                                                                     srcPixels.get(),
                                                                     kRowBytes));
 
                             sk_sp<GrTextureProxy> dst(GrSurfaceProxy::MakeDeferred(
-                                                                    context->resourceProvider(),
+                                                                    context->proxyProvider(),
                                                                     dstDesc, SkBudgeted::kNo,
                                                                     dstPixels.get(),
                                                                     kRowBytes));

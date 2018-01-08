@@ -119,7 +119,7 @@ static void run_test(skiatest::Reporter* reporter, GrContext* context,
         desc.fConfig = config;
         desc.fOrigin = origin;
 
-        sk_sp<GrTextureProxy> proxy = GrSurfaceProxy::MakeDeferred(context->resourceProvider(),
+        sk_sp<GrTextureProxy> proxy = GrSurfaceProxy::MakeDeferred(context->proxyProvider(),
                                                                    desc, SkBudgeted::kNo,
                                                                    controlPixelData.begin(), 0);
         SkASSERT(proxy);
