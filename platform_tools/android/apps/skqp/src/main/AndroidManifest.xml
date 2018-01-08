@@ -3,7 +3,30 @@
           package="org.skia.skqp"
           android:versionCode="1"
           android:versionName="1.0">
-  <application><uses-library android:name="android.test.runner" /></application>
+  <application
+      android:allowBackup="false"
+      android:theme="@style/AppTheme"
+      android:label="SkQP"
+      android:debuggable="true">
+
+      <activity android:name=".MainActivity">
+          <intent-filter>
+              <action android:name="android.intent.action.MAIN" />
+              <category android:name="android.intent.category.LAUNCHER" />
+          </intent-filter>
+      </activity>
+      <activity
+          android:name=".SkQPActivity"
+          android:label="@string/title_activity_skqp"
+          android:theme="@style/AppTheme.NoActionBar">
+          <intent-filter>
+              <action android:name="com.google.intent.action.TEST_LOOP"/>
+              <category android:name="android.intent.category.DEFAULT"/>
+              <data android:mimeType="application/javascript"/>
+          </intent-filter>
+      </activity>
+      <uses-library android:name="android.test.runner" />
+  </application>
   <instrumentation android:name="android.support.test.runner.AndroidJUnitRunner"
                    android:targetPackage="org.skia.skqp"></instrumentation>
 </manifest>
