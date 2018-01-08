@@ -44,12 +44,8 @@ SkISize SkottySlide::getDimensions() const {
 void SkottySlide::draw(SkCanvas* canvas) {
     if (fAnimation) {
         SkAutoCanvasRestore acr(canvas, true);
-        const auto animationBounds = SkRect::Make(fAnimation->size().toCeil());
-        canvas->concat(SkMatrix::MakeRectToRect(animationBounds,
-                                                SkRect::Make(canvas->imageInfo().bounds()),
-                                                SkMatrix::kCenter_ScaleToFit));
-        canvas->clipRect(animationBounds);
-        fAnimation->render(canvas);
+        const SkRect dstR = SkRect::Make(canvas->imageInfo().bounds());
+        fAnimation->render(canvas, &dstR);
     }
 }
 

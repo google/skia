@@ -1896,6 +1896,7 @@ if (skia_enable_tools) {
         "tools/viewer/SKPSlide.cpp",
         "tools/viewer/SampleSlide.cpp",
         "tools/viewer/SkottySlide.cpp",
+        "tools/viewer/SkottySlide2.cpp",
         "tools/viewer/StatsLayer.cpp",
         "tools/viewer/Viewer.cpp",
       ]

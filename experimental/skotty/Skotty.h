@@ -18,6 +18,7 @@
 #include <memory>
 
 class SkCanvas;
+struct SkRect;
 class SkStream;
 
 namespace Json { class Value; }
@@ -34,7 +35,7 @@ public:
 
     ~Animation();
 
-    void render(SkCanvas*) const;
+    void render(SkCanvas*, const SkRect* dst = nullptr) const;
 
     void animationTick(SkMSec);
 
