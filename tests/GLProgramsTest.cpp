@@ -271,14 +271,14 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages, int ma
     dummyDesc.fWidth = 34;
     dummyDesc.fHeight = 18;
     dummyDesc.fConfig = kRGBA_8888_GrPixelConfig;
-    proxies[0] = GrSurfaceProxy::MakeDeferred(context->resourceProvider(),
+    proxies[0] = GrSurfaceProxy::MakeDeferred(context->proxyProvider(),
                                               dummyDesc, SkBudgeted::kNo, nullptr, 0);
     dummyDesc.fFlags = kNone_GrSurfaceFlags;
     dummyDesc.fOrigin = kTopLeft_GrSurfaceOrigin;
     dummyDesc.fWidth = 16;
     dummyDesc.fHeight = 22;
     dummyDesc.fConfig = kAlpha_8_GrPixelConfig;
-    proxies[1] = GrSurfaceProxy::MakeDeferred(context->resourceProvider(),
+    proxies[1] = GrSurfaceProxy::MakeDeferred(context->proxyProvider(),
                                               dummyDesc, SkBudgeted::kNo, nullptr, 0);
 
     if (!proxies[0] || !proxies[1]) {

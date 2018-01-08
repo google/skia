@@ -499,7 +499,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WritePixelsPendingIO, reporter, ctxInfo) {
         desc.fHeight = 64;
         desc.fConfig = kRGBA_8888_GrPixelConfig;
 
-        sk_sp<GrTextureProxy> temp = GrSurfaceProxy::MakeDeferred(context->resourceProvider(), desc,
+        sk_sp<GrTextureProxy> temp = GrSurfaceProxy::MakeDeferred(context->proxyProvider(), desc,
                                                                   SkBackingFit::kApprox,
                                                                   SkBudgeted::kYes);
         temp->instantiate(context->resourceProvider());

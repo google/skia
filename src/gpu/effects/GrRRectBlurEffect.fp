@@ -9,6 +9,7 @@ uniform half blurRadius;
     #include "GrClip.h"
     #include "GrContext.h"
     #include "GrPaint.h"
+    #include "GrProxyProvider.h"
     #include "GrRenderTargetContext.h"
     #include "GrStyle.h"
     #include "SkBlurMaskFilter.h"
@@ -35,7 +36,7 @@ uniform half blurRadius;
         }
         builder.finish();
 
-        sk_sp<GrTextureProxy> mask(context->resourceProvider()->findOrCreateProxyByUniqueKey(
+        sk_sp<GrTextureProxy> mask(context->proxyProvider()->findOrCreateProxyByUniqueKey(
                                                                  key, kBottomLeft_GrSurfaceOrigin));
         if (!mask) {
             // TODO: this could be approx but the texture coords will need to be updated
@@ -74,7 +75,7 @@ uniform half blurRadius;
                 return nullptr;
             }
             SkASSERT(mask->origin() == kBottomLeft_GrSurfaceOrigin);
-            context->resourceProvider()->assignUniqueKeyToProxy(key, mask.get());
+            context->proxyProvider()->assignUniqueKeyToProxy(key, mask.get());
         }
 
         return mask;

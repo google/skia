@@ -24,9 +24,7 @@ class GrResourceProviderPriv;
 class GrSemaphore;
 class GrSingleOwner;
 class GrStencilAttachment;
-class GrSurfaceProxy;
 class GrTexture;
-class GrTextureProxy;
 
 class GrStyle;
 class SkDescriptor;
@@ -53,29 +51,6 @@ public:
         return sk_sp<T>(static_cast<T*>(this->findResourceByUniqueKey(key).release()));
     }
 
-    /*
-     * Assigns a unique key to a proxy. The proxy will be findable via this key using
-     * findProxyByUniqueKey(). It is an error if an existing proxy already has a key.
-     */
-    void assignUniqueKeyToProxy(const GrUniqueKey&, GrTextureProxy*);
-
-    /*
-     * Removes a unique key from a proxy. If the proxy has already been instantiated, it will
-     * also remove the unique key from the target GrSurface.
-     */
-    void removeUniqueKeyFromProxy(const GrUniqueKey&, GrTextureProxy*);
-
-    /*
-     * Finds a proxy by unique key.
-     */
-    sk_sp<GrTextureProxy> findProxyByUniqueKey(const GrUniqueKey&, GrSurfaceOrigin);
-
-    /*
-     * Finds a proxy by unique key or creates a new one that wraps a resource matching the unique
-     * key.
-     */
-    sk_sp<GrTextureProxy> findOrCreateProxyByUniqueKey(const GrUniqueKey&, GrSurfaceOrigin);
-
     ///////////////////////////////////////////////////////////////////////////
     // Textures
 
@@ -95,7 +70,8 @@ public:
                                    const GrMipLevel texels[], int mipLevelCount,
                                    SkDestinationSurfaceColorMode mipColorMode);
 
-    sk_sp<GrTextureProxy> createTextureProxy(const GrSurfaceDesc&, SkBudgeted, const GrMipLevel&);
+    // Create a potentially loose fit texture with the provided data
+    sk_sp<GrTexture> createTexture(const GrSurfaceDesc&, SkBudgeted, const GrMipLevel&);
 
     ///////////////////////////////////////////////////////////////////////////
     // Wrapped Backend Surfaces
@@ -268,10 +244,6 @@ public:
         fCache = nullptr;
         fGpu = nullptr;
     }
-
-    // 'proxy' is about to be used as a texture src or drawn to. This query can be used to
-    // determine if it is going to need a texture domain or a full clear.
-    static bool IsFunctionallyExact(GrSurfaceProxy* proxy);
 
     const GrCaps* caps() const { return fCaps.get(); }
     bool overBudget() const { return fCache->overBudget(); }

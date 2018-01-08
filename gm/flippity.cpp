@@ -129,7 +129,7 @@ static sk_sp<SkImage> make_reference_image(GrContext* context,
         }
     }
 
-    sk_sp<GrTextureProxy> proxy = GrSurfaceProxy::MakeDeferred(context->resourceProvider(),
+    sk_sp<GrTextureProxy> proxy = GrSurfaceProxy::MakeDeferred(context->proxyProvider(),
                                                                desc, SkBudgeted::kYes,
                                                                bm.getPixels(), bm.rowBytes());
     if (!proxy) {

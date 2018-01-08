@@ -19,6 +19,7 @@
 class SkMatrix;
 class GrCaps;
 class GrContext;
+class GrProxyProvider;
 class GrRenderTargetContext;
 struct GrProcessorTestData;
 class GrTexture;
@@ -63,6 +64,7 @@ struct GrProcessorTestData {
 
     GrContext* context() { return fContext; }
     GrResourceProvider* resourceProvider();
+    GrProxyProvider* proxyProvider();
     const GrCaps* caps();
     sk_sp<GrTextureProxy> textureProxy(int index) { return fProxies[index]; }
 
