@@ -752,7 +752,7 @@ Animation::Animation(SkString version, const SkSize& size, SkScalar fps, const J
 
 Animation::~Animation() = default;
 
-void Animation::render(SkCanvas* canvas) const {
+void Animation::render(SkCanvas* canvas, const SkRect* dstR) const {
     if (!fDom)
         return;
 
@@ -760,6 +760,12 @@ void Animation::render(SkCanvas* canvas) const {
     fDom->revalidate(&ic, SkMatrix::I());
 
     // TODO: proper inval
+    SkAutoCanvasRestore restore(canvas, true);
+    const SkRect srcR = SkRect::MakeSize(this->size());
+    if (dstR) {
+        canvas->concat(SkMatrix::MakeRectToRect(srcR, *dstR, SkMatrix::kCenter_ScaleToFit));
+    }
+    canvas->clipRect(srcR);
     fDom->render(canvas);
 
     if (!fShowInval)
