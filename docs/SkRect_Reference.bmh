@@ -1745,8 +1745,8 @@ fLeft <= pt.fX <= fRight && fTop <= pt.fY <= fBottom
 ##
 .
 
-If Rect is inverted, then Rect will contain bounds of
-Points after one or more calls. In this case, Rect is empty after first call.
+If Rect is inverted, then Rect will preserve the top left, and the result
+will not be inverted.
 
 #Param pt  Point to include ##
 
@@ -1756,7 +1756,7 @@ Points after one or more calls. In this case, Rect is empty after first call.
     SkDebugf("rect: %g, %g, %g, %g  ", rect.left(), rect.top(), rect.right(), rect.bottom());
     SkDebugf("isEmpty: %s\n", rect.isEmpty() ? "true" : "false");
 #StdOut
-rect: 42, 24, 42, 24  isEmpty: true
+rect: 1, 1, 42, 24  isEmpty: false
 ##                                 
 ##
 
@@ -2224,6 +2224,13 @@ rect is equal to copy
 ##
 
 #SeeAlso dump
+
+##
+
+#Method static SkRect SK_WARN_UNUSED_RESULT MakeLargest()
+
+#Deprecated
+##
 
 ##
 

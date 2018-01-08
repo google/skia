@@ -33,7 +33,6 @@ its <a href="#SkIRect_top">top</a>, it is considered empty.
 | <a href="#SkIRect_IntersectsNoEmptyCheck">IntersectsNoEmptyCheck</a> | Returns true if areas overlap. Skips empty check. |
 | <a href="#SkIRect_MakeEmpty">MakeEmpty</a> | Returns bounds of (0, 0, 0, 0). |
 | <a href="#SkIRect_MakeLTRB">MakeLTRB</a> | Constructs from int <a href="#SkIRect_left">left</a>, <a href="#SkIRect_top">top</a>, <a href="#SkIRect_right">right</a>, <a href="#SkIRect_bottom">bottom</a>. |
-| <a href="#SkIRect_MakeLargest">MakeLargest</a> | Constructs from (<a href="undocumented#SK_MinS32">SK MinS32</a>, <a href="undocumented#SK_MinS32">SK MinS32</a>, <a href="undocumented#SK_MaxS32">SK MaxS32</a>, <a href="undocumented#SK_MaxS32">SK MaxS32</a>). |
 | <a href="#SkIRect_MakeSize">MakeSize</a> | Constructs from <a href="undocumented#ISize">ISize</a> returning (0, 0, <a href="#SkIRect_width">width</a>, <a href="#SkIRect_height">height</a>). |
 | <a href="#SkIRect_MakeWH">MakeWH</a> | Constructs from int input returning (0, 0, <a href="#SkIRect_width">width</a>, <a href="#SkIRect_height">height</a>). |
 | <a href="#SkIRect_MakeXYWH">MakeXYWH</a> | Constructs from int input returning (<a href="#SkIRect_x">x</a>, <a href="#SkIRect_y">y</a>, <a href="#SkIRect_width">width</a>, <a href="#SkIRect_height">height</a>). |
@@ -48,7 +47,6 @@ its <a href="#SkIRect_top">top</a>, it is considered empty.
 | <a href="#SkIRect_intersectNoEmptyCheck">intersectNoEmptyCheck</a> | Sets to shared area; returns true if not empty. Skips empty check. |
 | <a href="#SkIRect_is16Bit">is16Bit</a> | Returns true if members fit in 16-bit word. |
 | <a href="#SkIRect_isEmpty">isEmpty</a> | Returns true if <a href="#SkIRect_width">width</a> or <a href="#SkIRect_height">height</a> are zero or negative. |
-| <a href="#SkIRect_isLargest">isLargest</a> | Returns true if equal to (<a href="undocumented#SK_MinS32">SK MinS32</a>, <a href="undocumented#SK_MinS32">SK MinS32</a>, <a href="undocumented#SK_MaxS32">SK MaxS32</a>, <a href="undocumented#SK_MaxS32">SK MaxS32</a>). |
 | <a href="#SkIRect_join">join</a> | Sets to union of bounds. |
 | <a href="#SkIRect_left">left</a> | Returns smaller bounds in <a href="#SkIRect_x">x</a>, if sorted. |
 | <a href="#SkIRect_makeInset">makeInset</a> | Constructs from sides moved symmetrically about the center. |
@@ -63,8 +61,6 @@ its <a href="#SkIRect_top">top</a>, it is considered empty.
 | <a href="#SkIRect_set">set</a> | Sets to (<a href="#SkIRect_left">left</a>, <a href="#SkIRect_top">top</a>, <a href="#SkIRect_right">right</a>, <a href="#SkIRect_bottom">bottom</a>). |
 | <a href="#SkIRect_setEmpty">setEmpty</a> | Sets to (0, 0, 0, 0). |
 | <a href="#SkIRect_setLTRB">setLTRB</a> | Sets to <a href="undocumented#SkScalar">SkScalar</a> input (<a href="#SkIRect_left">left</a>, <a href="#SkIRect_top">top</a>, <a href="#SkIRect_right">right</a>, <a href="#SkIRect_bottom">bottom</a>). |
-| <a href="#SkIRect_setLargest">setLargest</a> | Sets to (<a href="undocumented#SK_MinS32">SK MinS32</a>, <a href="undocumented#SK_MinS32">SK MinS32</a>, <a href="undocumented#SK_MaxS32">SK MaxS32</a>, <a href="undocumented#SK_MaxS32">SK MaxS32</a>). |
-| <a href="#SkIRect_setLargestInverted">setLargestInverted</a> | Sets to (<a href="undocumented#SK_MaxS32">SK MaxS32</a>, <a href="undocumented#SK_MaxS32">SK MaxS32</a>, <a href="undocumented#SK_MinS32">SK MinS32</a>, <a href="undocumented#SK_MinS32">SK MinS32</a>). |
 | <a href="#SkIRect_setXYWH">setXYWH</a> | Sets to (<a href="#SkIRect_x">x</a>, <a href="#SkIRect_y">y</a>, <a href="#SkIRect_width">width</a>, <a href="#SkIRect_height">height</a>). |
 | <a href="#SkIRect_size">size</a> | Returns <a href="undocumented#ISize">ISize</a> (<a href="#SkIRect_width">width</a>, <a href="#SkIRect_height">height</a>). |
 | <a href="#SkIRect_sort">sort</a> | Orders sides from smaller to larger. |
@@ -126,42 +122,7 @@ outset rect isEmpty: false
 
 ### See Also
 
-<a href="#SkIRect_EmptyIRect">EmptyIRect</a> <a href="#SkIRect_isEmpty">isEmpty</a> <a href="#SkIRect_setEmpty">setEmpty</a> <a href="#SkIRect_setLargestInverted">setLargestInverted</a> <a href="#SkRect_MakeEmpty">SkRect::MakeEmpty</a>
-
----
-
-<a name="SkIRect_MakeLargest"></a>
-## MakeLargest
-
-<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-static SkIRect SK_WARN_UNUSED_RESULT MakeLargest()
-</pre>
-
-Returns constructed <a href="#IRect">IRect</a> setting <a href="#SkIRect_left">left</a> and <a href="#SkIRect_top">top</a> to most negative value, and
-setting <a href="#SkIRect_right">right</a> and <a href="#SkIRect_bottom">bottom</a> to most positive value.
-
-### Return Value
-
-bounds (<a href="undocumented#SK_MinS32">SK MinS32</a>, <a href="undocumented#SK_MinS32">SK MinS32</a>, <a href="undocumented#SK_MaxS32">SK MaxS32</a>, <a href="undocumented#SK_MaxS32">SK MaxS32</a>)
-
-### Example
-
-<div><fiddle-embed name="2b32ed04a64cd3d5fb525d404cbb9a09">
-
-#### Example Output
-
-~~~~
-MakeLargest isLargest: true
-MakeLargest isEmpty: false
-outset isLargest: false
-outset isEmpty: true
-~~~~
-
-</fiddle-embed></div>
-
-### See Also
-
-<a href="#SkIRect_isLargest">isLargest</a> <a href="#SkIRect_setLargest">setLargest</a> <a href="#SkRect_MakeLargest">SkRect::MakeLargest</a>
+<a href="#SkIRect_EmptyIRect">EmptyIRect</a> <a href="#SkIRect_isEmpty">isEmpty</a> <a href="#SkIRect_setEmpty">setEmpty</a> <a href="#SkRect_MakeEmpty">SkRect::MakeEmpty</a>
 
 ---
 
@@ -744,40 +705,6 @@ sorted: {20, 40, 20, 50} is empty
 
 ---
 
-<a name="SkIRect_isLargest"></a>
-## isLargest
-
-<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-bool isLargest() const
-</pre>
-
-Returns true if <a href="#IRect">IRect</a> encloses largest possible area.
-
-### Return Value
-
-true if equal to (<a href="undocumented#SK_MinS32">SK MinS32</a>, <a href="undocumented#SK_MinS32">SK MinS32</a>, <a href="undocumented#SK_MaxS32">SK MaxS32</a>, <a href="undocumented#SK_MaxS32">SK MaxS32</a>)
-
-### Example
-
-<div><fiddle-embed name="477e0a7f0aa8aec1d94e1e117041a335"><div>Note that the <a href="#SkIRect_width">width</a> is not negative, yet it cannot be represented as a 32-bit
-signed integer.</div>
-
-#### Example Output
-
-~~~~
-large is largest: true
-large width -2
-large is empty: false
-~~~~
-
-</fiddle-embed></div>
-
-### See Also
-
-<a href="#SkIRect_MakeLargest">MakeLargest</a> <a href="#SkRect_isLargest">SkRect::isLargest</a>
-
----
-
 <a name="SkIRect_equal_operator"></a>
 ## operator==
 
@@ -1052,54 +979,6 @@ rect: -10, 35, 5, 60  isEmpty: false
 ### See Also
 
 <a href="#SkIRect_MakeXYWH">MakeXYWH</a> <a href="#SkIRect_setLTRB">setLTRB</a> <a href="#SkIRect_set">set</a> <a href="#SkRect_setXYWH">SkRect::setXYWH</a>
-
----
-
-<a name="SkIRect_setLargest"></a>
-## setLargest
-
-<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-void setLargest()
-</pre>
-
-Sets rectangle <a href="#SkIRect_left">left</a> and <a href="#SkIRect_top">top</a> to most negative value, and sets
-<a href="#SkIRect_right">right</a> and <a href="#SkIRect_bottom">bottom</a> to most positive value.
-
-### Example
-
-<div><fiddle-embed name="d5d67c6f09a14d06f1ee988cb56525b5">
-
-#### Example Output
-
-~~~~
-MakeLargest isLargest: true
-MakeLargest isEmpty: false
-outset isLargest: false
-outset isEmpty: true
-~~~~
-
-</fiddle-embed></div>
-
-### See Also
-
-<a href="#SkIRect_MakeLargest">MakeLargest</a> <a href="#SkIRect_isLargest">isLargest</a> <a href="#SkIRect_setLargestInverted">setLargestInverted</a> <a href="undocumented#SK_MinS32">SK MinS32</a> <a href="undocumented#SK_MaxS32">SK MaxS32</a>
-
----
-
-<a name="SkIRect_setLargestInverted"></a>
-## setLargestInverted
-
-<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-void setLargestInverted()
-</pre>
-
-Sets rectangle <a href="#SkIRect_left">left</a> and <a href="#SkIRect_top">top</a> to most positive value, and sets
-<a href="#SkIRect_right">right</a> and <a href="#SkIRect_bottom">bottom</a> to most negative value. This is used internally to
-flag that a condition is met, but otherwise has no special purpose.
-
-### See Also
-
-<a href="#SkIRect_setEmpty">setEmpty</a> <a href="#SkIRect_setLargest">setLargest</a>
 
 ---
 
@@ -2192,6 +2071,15 @@ rect: 0, 0, 0, 0
 ### See Also
 
 <a href="#SkIRect_MakeEmpty">MakeEmpty</a>
+
+---
+
+<a name="SkIRect_MakeLargest"></a>
+## MakeLargest
+
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
+static SkIRect SK_WARN_UNUSED_RESULT MakeLargest()
+</pre>
 
 ---
 
