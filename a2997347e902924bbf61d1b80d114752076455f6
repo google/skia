@@ -48,6 +48,30 @@
     },
     {
       "key": {
+        "uuid": "15f4f677_23348413",
+        "filename": "infra/cts/run_testlab.go",
+        "patchSetId": 18
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2018-01-08T15:08:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a19dd1ea_a9ecca0c",
+      "range": {
+        "startLine": 37,
+        "startChar": 4,
+        "endLine": 37,
+        "endChar": 12
+      },
+      "revId": "a2997347e902924bbf61d1b80d114752076455f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d0440be8_c2a55dfc",
         "filename": "infra/cts/run_testlab.go",
         "patchSetId": 18
@@ -59,6 +83,30 @@
       "writtenOn": "2018-01-08T13:45:52Z",
       "side": 1,
       "message": "Why does this need to be a slice?  Future-proofing?",
+      "range": {
+        "startLine": 38,
+        "startChar": 32,
+        "endLine": 38,
+        "endChar": 40
+      },
+      "revId": "a2997347e902924bbf61d1b80d114752076455f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "126cd977_a366d88f",
+        "filename": "infra/cts/run_testlab.go",
+        "patchSetId": 18
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2018-01-08T15:08:26Z",
+      "side": 1,
+      "message": "In theory we might want to run again multiple different API versions.",
+      "parentUuid": "d0440be8_c2a55dfc",
       "range": {
         "startLine": 38,
         "startChar": 32,
@@ -94,6 +142,30 @@
     },
     {
       "key": {
+        "uuid": "77e3dca4_c0ce88e0",
+        "filename": "infra/cts/run_testlab.go",
+        "patchSetId": 18
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2018-01-08T15:08:26Z",
+      "side": 1,
+      "message": "I added a TODO to that effect. The way to see the human readable name of the device you would run \u0027$ gcloud firebase test android models list\u0027. I added documentation to mention that. \nI will replace this hard coded list after we have run a good set of tests.",
+      "parentUuid": "2fc7551a_02dce846",
+      "range": {
+        "startLine": 56,
+        "startChar": 3,
+        "endLine": 56,
+        "endChar": 14
+      },
+      "revId": "a2997347e902924bbf61d1b80d114752076455f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ccd76ec3_bb025bfb",
         "filename": "infra/cts/run_testlab.go",
         "patchSetId": 18
@@ -114,6 +186,30 @@
       "revId": "a2997347e902924bbf61d1b80d114752076455f6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c1b58f17_8717c24e",
+        "filename": "infra/cts/run_testlab.go",
+        "patchSetId": 18
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2018-01-08T15:08:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ccd76ec3_bb025bfb",
+      "range": {
+        "startLine": 67,
+        "startChar": 1,
+        "endLine": 67,
+        "endChar": 17
+      },
+      "revId": "a2997347e902924bbf61d1b80d114752076455f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -140,6 +236,30 @@
     },
     {
       "key": {
+        "uuid": "762087a0_4ad1100d",
+        "filename": "infra/cts/run_testlab.go",
+        "patchSetId": 18
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2018-01-08T15:08:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a5144b2_2e9d5731",
+      "range": {
+        "startLine": 102,
+        "startChar": 47,
+        "endLine": 102,
+        "endChar": 54
+      },
+      "revId": "a2997347e902924bbf61d1b80d114752076455f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "bcfd08a6_22b09b6a",
         "filename": "infra/cts/run_testlab.go",
         "patchSetId": 18
@@ -160,6 +280,30 @@
       "revId": "a2997347e902924bbf61d1b80d114752076455f6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "874f8d15_4fa79a53",
+        "filename": "infra/cts/run_testlab.go",
+        "patchSetId": 18
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2018-01-08T15:08:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bcfd08a6_22b09b6a",
+      "range": {
+        "startLine": 119,
+        "startChar": 56,
+        "endLine": 119,
+        "endChar": 63
+      },
+      "revId": "a2997347e902924bbf61d1b80d114752076455f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -186,6 +330,30 @@
     },
     {
       "key": {
+        "uuid": "cf2dca93_caafc3ae",
+        "filename": "infra/cts/run_testlab.go",
+        "patchSetId": 18
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2018-01-08T15:08:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ca978a16_ce584769",
+      "range": {
+        "startLine": 135,
+        "startChar": 19,
+        "endLine": 135,
+        "endChar": 22
+      },
+      "revId": "a2997347e902924bbf61d1b80d114752076455f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a457930e_b4ecaedd",
         "filename": "infra/cts/run_testlab.go",
         "patchSetId": 18
@@ -197,6 +365,24 @@
       "writtenOn": "2018-01-08T13:45:52Z",
       "side": 1,
       "message": "Would it make sense to store the logs as part of the result?  If not now, maybe in the future?",
+      "revId": "a2997347e902924bbf61d1b80d114752076455f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "eb99a0e2_02e5a38a",
+        "filename": "infra/cts/run_testlab.go",
+        "patchSetId": 18
+      },
+      "lineNbr": 188,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2018-01-08T15:08:26Z",
+      "side": 1,
+      "message": "In this case that would make little sense. This just triggers a run on Firebase Testlab. It either succeeds or fails, everything that happens on the device (down to screen video) is captured on Firebase Testlab.",
+      "parentUuid": "a457930e_b4ecaedd",
       "revId": "a2997347e902924bbf61d1b80d114752076455f6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -226,6 +412,30 @@
     },
     {
       "key": {
+        "uuid": "a137a687_343dd20c",
+        "filename": "infra/cts/run_testlab.go",
+        "patchSetId": 18
+      },
+      "lineNbr": 192,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2018-01-08T15:08:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0ebf726b_91cc9a5b",
+      "range": {
+        "startLine": 192,
+        "startChar": 2,
+        "endLine": 192,
+        "endChar": 33
+      },
+      "revId": "a2997347e902924bbf61d1b80d114752076455f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1f4ebe80_8448a62f",
         "filename": "infra/cts/run_testlab.go",
         "patchSetId": 18
@@ -249,6 +459,30 @@
     },
     {
       "key": {
+        "uuid": "869950a4_ae056088",
+        "filename": "infra/cts/run_testlab.go",
+        "patchSetId": 18
+      },
+      "lineNbr": 205,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2018-01-08T15:08:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1f4ebe80_8448a62f",
+      "range": {
+        "startLine": 205,
+        "startChar": 18,
+        "endLine": 205,
+        "endChar": 44
+      },
+      "revId": "a2997347e902924bbf61d1b80d114752076455f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "688cedf7_1b143ee9",
         "filename": "infra/cts/run_testlab.go",
         "patchSetId": 18
@@ -260,6 +494,30 @@
       "writtenOn": "2018-01-08T13:45:52Z",
       "side": 1,
       "message": "Just curious, why do we care about ignored devices?",
+      "range": {
+        "startLine": 216,
+        "startChar": 18,
+        "endLine": 216,
+        "endChar": 32
+      },
+      "revId": "a2997347e902924bbf61d1b80d114752076455f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c647457d_b52a78dd",
+        "filename": "infra/cts/run_testlab.go",
+        "patchSetId": 18
+      },
+      "lineNbr": 216,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2018-01-08T15:08:26Z",
+      "side": 1,
+      "message": "The devices available on there changes all time. This allows to capture what we ran on and what we ignored off ALL available devices.",
+      "parentUuid": "688cedf7_1b143ee9",
       "range": {
         "startLine": 216,
         "startChar": 18,
