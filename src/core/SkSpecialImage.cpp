@@ -18,7 +18,7 @@
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
 #include "GrContextPriv.h"
-#include "GrResourceProvider.h"
+#include "GrProxyProvider.h"
 #include "GrSurfaceContext.h"
 #include "GrTextureProxy.h"
 #include "SkImage_Gpu.h"
@@ -102,7 +102,8 @@ sk_sp<SkSpecialImage> SkSpecialImage::makeTextureImage(GrContext* context) {
 
     // TODO: this is a tight copy of 'bmp' but it doesn't have to be (given SkSpecialImage's
     // semantics). Since this is cached though we would have to bake the fit into the cache key.
-    sk_sp<GrTextureProxy> proxy = GrMakeCachedBitmapProxy(context->resourceProvider(), bmp);
+    sk_sp<GrTextureProxy> proxy = GrMakeCachedBitmapProxy(context->contextPriv().proxyProvider(),
+                                                          bmp);
     if (!proxy) {
         return nullptr;
     }
@@ -241,7 +242,7 @@ public:
 #if SK_SUPPORT_GPU
     sk_sp<GrTextureProxy> onAsTextureProxyRef(GrContext* context) const override {
         if (context) {
-            return GrMakeCachedBitmapProxy(context->resourceProvider(), fBitmap);
+            return GrMakeCachedBitmapProxy(context->contextPriv().proxyProvider(), fBitmap);
         }
 
         return nullptr;
@@ -455,7 +456,7 @@ public:
         if (subset) {
             // TODO: if this becomes a bottle neck we could base this logic on what the size
             // will be when it is finally instantiated - but that is more fraught.
-            if (GrResourceProvider::IsFunctionallyExact(fTextureProxy.get()) &&
+            if (GrProxyProvider::IsFunctionallyExact(fTextureProxy.get()) &&
                 0 == subset->fLeft && 0 == subset->fTop &&
                 fTextureProxy->width() == subset->width() &&
                 fTextureProxy->height() == subset->height()) {

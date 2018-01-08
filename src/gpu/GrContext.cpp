@@ -12,6 +12,7 @@
 #include "GrContextPriv.h"
 #include "GrDrawingManager.h"
 #include "GrGpu.h"
+#include "GrProxyProvider.h"
 #include "GrRenderTargetContext.h"
 #include "GrRenderTargetProxy.h"
 #include "GrResourceCache.h"
@@ -198,6 +199,7 @@ GrContext::GrContext(GrBackend backend)
         , fBackend(backend) {
     fResourceCache = nullptr;
     fResourceProvider = nullptr;
+    fProxyProvider = nullptr;
     fAtlasGlyphCache = nullptr;
 }
 
@@ -206,6 +208,7 @@ GrContext::GrContext(GrContextThreadSafeProxy* proxy)
         , fBackend(proxy->fBackend) {
     fResourceCache = nullptr;
     fResourceProvider = nullptr;
+    fProxyProvider = nullptr;
     fAtlasGlyphCache = nullptr;
 }
 
@@ -214,6 +217,9 @@ bool GrContext::init(const GrContextOptions& options) {
     fCaps = fGpu->refCaps();
     fResourceCache = new GrResourceCache(fCaps.get(), fUniqueID);
     fResourceProvider = new GrResourceProvider(fGpu.get(), fResourceCache, &fSingleOwner);
+    fProxyProvider = new GrProxyProvider(fResourceProvider, fResourceCache, fCaps, &fSingleOwner);
+    fResourceCache->setProxyProvider(fProxyProvider);
+
     // DDL TODO: we need to think through how the task group & persistent cache
     // get passed on to/shared between all the DDLRecorders created with this context.
     fThreadSafeProxy.reset(new GrContextThreadSafeProxy(fCaps, this->uniqueID(), fBackend,
@@ -293,6 +299,7 @@ GrContext::~GrContext() {
 
     delete fResourceProvider;
     delete fResourceCache;
+    delete fProxyProvider;
     delete fAtlasGlyphCache;
 }
 
@@ -303,6 +310,7 @@ sk_sp<GrContextThreadSafeProxy> GrContext::threadSafeProxy() {
 void GrContext::abandonContext() {
     ASSERT_SINGLE_OWNER
 
+    fProxyProvider->abandon();
     fResourceProvider->abandon();
 
     // Need to abandon the drawing manager first so all the render targets
@@ -322,6 +330,7 @@ void GrContext::abandonContext() {
 void GrContext::releaseResourcesAndAbandonContext() {
     ASSERT_SINGLE_OWNER
 
+    fProxyProvider->abandon();
     fResourceProvider->abandon();
 
     // Need to abandon the drawing manager first so all the render targets
@@ -521,7 +530,7 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceContext* dst,
 
     sk_sp<GrTextureProxy> tempProxy;
     if (GrGpu::kNoDraw_DrawPreference != drawPreference) {
-        tempProxy = GrSurfaceProxy::MakeDeferred(fContext->resourceProvider(),
+        tempProxy = GrSurfaceProxy::MakeDeferred(this->proxyProvider(),
                                                  tempDrawInfo.fTempSurfaceDesc,
                                                  SkBackingFit::kApprox,
                                                  SkBudgeted::kYes);
@@ -812,11 +821,11 @@ sk_sp<GrSurfaceContext> GrContextPriv::makeDeferredSurfaceContext(const GrSurfac
 
     sk_sp<GrTextureProxy> proxy;
     if (GrMipMapped::kNo == mipMapped) {
-        proxy = GrSurfaceProxy::MakeDeferred(fContext->resourceProvider(), dstDesc, fit,
+        proxy = GrSurfaceProxy::MakeDeferred(this->proxyProvider(), dstDesc, fit,
                                              isDstBudgeted);
     } else {
         SkASSERT(SkBackingFit::kExact == fit);
-        proxy = GrSurfaceProxy::MakeDeferredMipMap(fContext->resourceProvider(), dstDesc,
+        proxy = GrSurfaceProxy::MakeDeferredMipMap(this->proxyProvider(), dstDesc,
                                                    isDstBudgeted);
     }
     if (!proxy) {
@@ -978,9 +987,9 @@ sk_sp<GrRenderTargetContext> GrContext::makeDeferredRenderTargetContext(
 
     sk_sp<GrTextureProxy> rtp;
     if (GrMipMapped::kNo == mipMapped) {
-        rtp = GrSurfaceProxy::MakeDeferred(this->resourceProvider(), desc, fit, budgeted);
+        rtp = GrSurfaceProxy::MakeDeferred(fProxyProvider, desc, fit, budgeted);
     } else {
-        rtp = GrSurfaceProxy::MakeDeferredMipMap(this->resourceProvider(), desc, budgeted);
+        rtp = GrSurfaceProxy::MakeDeferredMipMap(fProxyProvider, desc, budgeted);
     }
     if (!rtp) {
         return nullptr;

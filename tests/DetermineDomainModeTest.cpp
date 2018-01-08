@@ -9,6 +9,7 @@
 
 #if SK_SUPPORT_GPU
 
+#include "GrContextPriv.h"
 #include "GrSurfaceProxy.h"
 #include "GrTextureProducer.h"
 #include "GrTextureProxy.h"
@@ -109,7 +110,7 @@ private:
 
 };
 
-static sk_sp<GrTextureProxy> create_proxy(GrResourceProvider* resourceProvider,
+static sk_sp<GrTextureProxy> create_proxy(GrProxyProvider* proxyProvider,
                                           bool isPowerOfTwo,
                                           bool isExact,
                                           RectInfo* rect) {
@@ -132,10 +133,7 @@ static sk_sp<GrTextureProxy> create_proxy(GrResourceProvider* resourceProvider,
               (isPowerOfTwo || isExact) ? RectInfo::kHard : RectInfo::kBad,
               name);
 
-    sk_sp<GrTextureProxy> proxy = GrSurfaceProxy::MakeDeferred(resourceProvider,
-                                                               desc, fit,
-                                                               SkBudgeted::kYes);
-    return proxy;
+    return GrSurfaceProxy::MakeDeferred(proxyProvider, desc, fit, SkBudgeted::kYes);
 }
 
 static RectInfo::EdgeType compute_inset_edgetype(RectInfo::EdgeType previous,
@@ -308,7 +306,7 @@ static const SkRect* no_inset(const RectInfo& enclosing,
                          insetAmount, halfFilterWidth, 0, name);
 }
 
-static void proxy_test(skiatest::Reporter* reporter, GrResourceProvider* resourceProvider) {
+static void proxy_test(skiatest::Reporter* reporter, GrProxyProvider* proxyProvider) {
     GrTextureProducer_TestAccess::DomainMode actualMode, expectedMode;
     SkRect actualDomainRect;
 
@@ -327,7 +325,7 @@ static void proxy_test(skiatest::Reporter* reporter, GrResourceProvider* resourc
         for (auto isExact : { true, false }) {
             RectInfo outermost;
 
-            sk_sp<GrTextureProxy> proxy = create_proxy(resourceProvider, isPowerOfTwoSized,
+            sk_sp<GrTextureProxy> proxy = create_proxy(proxyProvider, isPowerOfTwoSized,
                                                        isExact, &outermost);
             SkASSERT(outermost.isHardOrBadAllAround());
 
@@ -381,7 +379,7 @@ static void proxy_test(skiatest::Reporter* reporter, GrResourceProvider* resourc
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DetermineDomainModeTest, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
 
-    proxy_test(reporter, context->resourceProvider());
+    proxy_test(reporter, context->contextPriv().proxyProvider());
 }
 
 #endif

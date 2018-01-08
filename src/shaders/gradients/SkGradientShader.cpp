@@ -939,6 +939,7 @@ SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_END
 
 #include "GrColorSpaceXform.h"
 #include "GrContext.h"
+#include "GrContextPriv.h"
 #include "GrShaderCaps.h"
 #include "GrTextureStripAtlas.h"
 #include "gl/GrGLContext.h"
@@ -1299,8 +1300,8 @@ GrGradientEffect::GrGradientEffect(ClassID classID, const CreateArgs& args, bool
             // that GrMakeCachedBitmapProxy is sufficient (i.e., it won't need to be
             // extracted to a subset or mipmapped).
             sk_sp<GrTextureProxy> proxy = GrMakeCachedBitmapProxy(
-                                                            args.fContext->resourceProvider(),
-                                                            bitmap);
+                                                     args.fContext->contextPriv().proxyProvider(),
+                                                     bitmap);
             if (!proxy) {
                 SkDebugf("Gradient won't draw. Could not create texture.");
                 return;

@@ -13,7 +13,7 @@
 #include "GrGpuResourcePriv.h"
 #include "GrOpFlushState.h"
 #include "GrOpList.h"
-#include "GrResourceProvider.h"
+#include "GrProxyProvider.h"
 #include "GrSWMaskHelper.h"
 #include "SkMakeUnique.h"
 #include "SkSemaphore.h"
@@ -27,7 +27,7 @@ GrPathRenderer::CanDrawPath
 GrSoftwarePathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
     // Pass on any style that applies. The caller will apply the style if a suitable renderer is
     // not found and try again with the new GrShape.
-    if (!args.fShape->style().applies() && SkToBool(fResourceProvider) &&
+    if (!args.fShape->style().applies() && SkToBool(fProxyProvider) &&
         (args.fAAType == GrAAType::kCoverage || args.fAAType == GrAAType::kNone)) {
         // This is the fallback renderer for when a path is too complicated for the GPU ones.
         return CanDrawPath::kAsBackup;
@@ -176,8 +176,8 @@ static sk_sp<GrTextureProxy> make_deferred_mask_texture_proxy(GrContext* context
     desc.fConfig = kAlpha_8_GrPixelConfig;
     // MDB TODO: We're going to fill this proxy with an ASAP upload (which is out of order wrt to
     // ops), so it can't have any pending IO.
-    return GrSurfaceProxy::MakeDeferred(context->resourceProvider(), desc, fit, SkBudgeted::kYes,
-                                        GrResourceProvider::kNoPendingIO_Flag);
+    return GrSurfaceProxy::MakeDeferred(context->contextPriv().proxyProvider(), desc, fit,
+                                        SkBudgeted::kYes, GrResourceProvider::kNoPendingIO_Flag);
 }
 
 namespace {
@@ -227,7 +227,7 @@ private:
 bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
     GR_AUDIT_TRAIL_AUTO_FRAME(args.fRenderTargetContext->auditTrail(),
                               "GrSoftwarePathRenderer::onDrawPath");
-    if (!fResourceProvider) {
+    if (!fProxyProvider) {
         return false;
     }
 
@@ -311,7 +311,7 @@ bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
 
     sk_sp<GrTextureProxy> proxy;
     if (useCache) {
-        proxy = fResourceProvider->findOrCreateProxyByUniqueKey(maskKey, kTopLeft_GrSurfaceOrigin);
+        proxy = fProxyProvider->findOrCreateProxyByUniqueKey(maskKey, kTopLeft_GrSurfaceOrigin);
     }
     if (!proxy) {
         SkBackingFit fit = useCache ? SkBackingFit::kExact : SkBackingFit::kApprox;
@@ -358,7 +358,7 @@ bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
         }
         if (useCache) {
             SkASSERT(proxy->origin() == kTopLeft_GrSurfaceOrigin);
-            fResourceProvider->assignUniqueKeyToProxy(maskKey, proxy.get());
+            fProxyProvider->assignUniqueKeyToProxy(maskKey, proxy.get());
             args.fShape->addGenIDChangeListener(new PathInvalidator(maskKey));
         }
     }

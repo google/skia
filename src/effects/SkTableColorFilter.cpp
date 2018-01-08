@@ -315,6 +315,7 @@ sk_sp<SkColorFilter> SkTable_ColorFilter::makeComposed(sk_sp<SkColorFilter> inne
 
 #include "GrColorSpaceInfo.h"
 #include "GrContext.h"
+#include "GrContextPriv.h"
 #include "GrFragmentProcessor.h"
 #include "GrTextureStripAtlas.h"
 #include "SkGr.h"
@@ -453,7 +454,7 @@ std::unique_ptr<GrFragmentProcessor> ColorTableEffect::Make(GrContext* context,
     if (-1 == row) {
         atlas = nullptr;
 
-        proxy = GrMakeCachedBitmapProxy(context->resourceProvider(), bitmap);
+        proxy = GrMakeCachedBitmapProxy(context->contextPriv().proxyProvider(), bitmap);
     } else {
         proxy = atlas->asTextureProxyRef();
     }

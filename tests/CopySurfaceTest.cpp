@@ -20,6 +20,7 @@
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(CopySurface, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
+    GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
     static const int kW = 10;
     static const int kH = 10;
     static const size_t kRowBytes = sizeof(uint32_t) * kW;
@@ -74,13 +75,13 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(CopySurface, reporter, ctxInfo) {
                             dstDesc.fFlags = dFlags;
 
                             sk_sp<GrTextureProxy> src(GrSurfaceProxy::MakeDeferred(
-                                                                    context->resourceProvider(),
+                                                                    proxyProvider,
                                                                     srcDesc, SkBudgeted::kNo,
                                                                     srcPixels.get(),
                                                                     kRowBytes));
 
                             sk_sp<GrTextureProxy> dst(GrSurfaceProxy::MakeDeferred(
-                                                                    context->resourceProvider(),
+                                                                    proxyProvider,
                                                                     dstDesc, SkBudgeted::kNo,
                                                                     dstPixels.get(),
                                                                     kRowBytes));

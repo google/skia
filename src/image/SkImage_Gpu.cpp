@@ -608,8 +608,8 @@ sk_sp<SkImage> SkImage::MakeCrossContextFromPixmap(GrContext* context, const SkP
         bmp.installPixels(pixmap);
         proxy = GrGenerateMipMapsAndUploadToTextureProxy(context, bmp, dstColorSpace);
     } else {
-        proxy = GrUploadPixmapToTextureProxy(context->resourceProvider(), pixmap, SkBudgeted::kYes,
-                                             dstColorSpace);
+        proxy = GrUploadPixmapToTextureProxy(context->contextPriv().proxyProvider(),
+                                             pixmap, SkBudgeted::kYes, dstColorSpace);
     }
 
     if (!proxy) {
@@ -997,7 +997,7 @@ sk_sp<SkImage> SkImage::MakeFromDeferredTextureImageData(GrContext* context, con
         // verification.  This is ok because we've already verified the color space in
         // getDeferredTextureImageData().
         sk_sp<GrTextureProxy> proxy(GrUploadPixmapToTextureProxy(
-                context->resourceProvider(), pixmap, budgeted, nullptr));
+                context->contextPriv().proxyProvider(), pixmap, budgeted, nullptr));
         if (!proxy) {
             return nullptr;
         }

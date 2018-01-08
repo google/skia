@@ -10,6 +10,7 @@
 #include "GrBlurUtils.h"
 #include "GrColorSpaceXform.h"
 #include "GrContext.h"
+#include "GrContextPriv.h"
 #include "GrGpu.h"
 #include "GrImageTextureMaker.h"
 #include "GrRenderTargetContextPriv.h"
@@ -1190,7 +1191,8 @@ void SkGpuDevice::drawBitmapRect(const SkBitmap& bitmap,
 sk_sp<SkSpecialImage> SkGpuDevice::makeSpecial(const SkBitmap& bitmap) {
     // TODO: this makes a tight copy of 'bitmap' but it doesn't have to be (given SkSpecialImage's
     // semantics). Since this is cached we would have to bake the fit into the cache key though.
-    sk_sp<GrTextureProxy> proxy = GrMakeCachedBitmapProxy(fContext->resourceProvider(), bitmap);
+    sk_sp<GrTextureProxy> proxy = GrMakeCachedBitmapProxy(fContext->contextPriv().proxyProvider(),
+                                                          bitmap);
     if (!proxy) {
         return nullptr;
     }

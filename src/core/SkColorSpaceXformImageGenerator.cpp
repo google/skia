@@ -56,6 +56,7 @@ bool SkColorSpaceXformImageGenerator::onGetPixels(const SkImageInfo& info, void*
 
 #include "GrClip.h"
 #include "GrContext.h"
+#include "GrContextPriv.h"
 #include "GrPaint.h"
 #include "GrRenderTargetContext.h"
 #include "GrTextureProxy.h"
@@ -71,7 +72,7 @@ sk_sp<GrTextureProxy> SkColorSpaceXformImageGenerator::onGenerateTexture(
 
     SkASSERT(ctx);
 
-    sk_sp<GrTextureProxy> proxy = GrUploadBitmapToTextureProxy(ctx->resourceProvider(),
+    sk_sp<GrTextureProxy> proxy = GrUploadBitmapToTextureProxy(ctx->contextPriv().proxyProvider(),
                                                                fSrc, nullptr);
 
     if (!proxy) {

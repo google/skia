@@ -16,6 +16,7 @@
 class GrBackendTexture;
 class GrCaps;
 class GrOpList;
+class GrProxyProvider;
 class GrRenderTargetOpList;
 class GrRenderTargetProxy;
 class GrResourceProvider;
@@ -184,7 +185,7 @@ public:
     static sk_sp<GrSurfaceProxy> MakeWrapped(sk_sp<GrSurface>, GrSurfaceOrigin);
     static sk_sp<GrTextureProxy> MakeWrapped(sk_sp<GrTexture>, GrSurfaceOrigin);
 
-    static sk_sp<GrTextureProxy> MakeDeferred(GrResourceProvider*,
+    static sk_sp<GrTextureProxy> MakeDeferred(GrProxyProvider*,
                                               const GrSurfaceDesc&, SkBackingFit,
                                               SkBudgeted, uint32_t flags = 0);
 
@@ -196,7 +197,7 @@ public:
      * @param texels        A contiguous array of mipmap levels
      * @param mipLevelCount The amount of elements in the texels array
      */
-    static sk_sp<GrTextureProxy> MakeDeferredMipMap(GrResourceProvider*,
+    static sk_sp<GrTextureProxy> MakeDeferredMipMap(GrProxyProvider*,
                                                     const GrSurfaceDesc& desc, SkBudgeted budgeted,
                                                     const GrMipLevel texels[], int mipLevelCount,
                                                     SkDestinationSurfaceColorMode mipColorMode =
@@ -207,13 +208,13 @@ public:
      * simply has space allocated for the mips. We will allocated the full amount of mip levels
      * based on the width and height in the GrSurfaceDesc.
      */
-    static sk_sp<GrTextureProxy> MakeDeferredMipMap(GrResourceProvider*,
+    static sk_sp<GrTextureProxy> MakeDeferredMipMap(GrProxyProvider*,
                                                     const GrSurfaceDesc& desc, SkBudgeted budgeted);
 
 
     // TODO: need to refine ownership semantics of 'srcData' if we're in completely
     // deferred mode
-    static sk_sp<GrTextureProxy> MakeDeferred(GrResourceProvider*,
+    static sk_sp<GrTextureProxy> MakeDeferred(GrProxyProvider*,
                                               const GrSurfaceDesc&, SkBudgeted,
                                               const void* srcData, size_t rowBytes);
 

@@ -11,6 +11,7 @@
 
 #if SK_SUPPORT_GPU
 #include "GrBackendSurface.h"
+#include "GrContextPriv.h"
 #include "GrRenderTarget.h"
 #include "GrRenderTargetProxy.h"
 #include "GrResourceProvider.h"
@@ -118,7 +119,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyConversionTest, reporter, ctxInfo
 // Test converting between RenderTargetProxies and TextureProxies for deferred
 // Proxies
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DefferredProxyConversionTest, reporter, ctxInfo) {
-    GrResourceProvider* resourceProvider = ctxInfo.grContext()->resourceProvider();
+    GrProxyProvider* proxyProvider = ctxInfo.grContext()->contextPriv().proxyProvider();
 
     GrSurfaceDesc desc;
     desc.fFlags = kRenderTarget_GrSurfaceFlag;
@@ -128,7 +129,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DefferredProxyConversionTest, reporter, ctxIn
     desc.fConfig = kRGBA_8888_GrPixelConfig;
 
     {
-        sk_sp<GrTextureProxy> proxy(GrSurfaceProxy::MakeDeferred(resourceProvider, desc,
+        sk_sp<GrTextureProxy> proxy(GrSurfaceProxy::MakeDeferred(proxyProvider, desc,
                                                                  SkBackingFit::kApprox,
                                                                  SkBudgeted::kYes));
 
@@ -142,7 +143,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DefferredProxyConversionTest, reporter, ctxIn
     }
 
     {
-        sk_sp<GrTextureProxy> proxy(GrSurfaceProxy::MakeDeferred(resourceProvider, desc,
+        sk_sp<GrTextureProxy> proxy(GrSurfaceProxy::MakeDeferred(proxyProvider, desc,
                                                                  SkBackingFit::kApprox,
                                                                  SkBudgeted::kYes));
 
@@ -159,7 +160,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DefferredProxyConversionTest, reporter, ctxIn
         desc.fFlags = kNone_GrSurfaceFlags; // force no-RT
         desc.fOrigin = kTopLeft_GrSurfaceOrigin;
 
-        sk_sp<GrTextureProxy> proxy(GrSurfaceProxy::MakeDeferred(resourceProvider, desc,
+        sk_sp<GrTextureProxy> proxy(GrSurfaceProxy::MakeDeferred(proxyProvider, desc,
                                                                  SkBackingFit::kApprox,
                                                                  SkBudgeted::kYes));
 

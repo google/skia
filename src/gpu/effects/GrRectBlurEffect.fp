@@ -1,5 +1,5 @@
 @header {
-    #include "GrResourceProvider.h"
+    #include "GrProxyProvider.h"
     #include "../effects/SkBlurMask.h"
 }
 
@@ -32,7 +32,7 @@ uniform half profileSize;
 
 
 @class {
-    static sk_sp<GrTextureProxy> CreateBlurProfileTexture(GrResourceProvider* resourceProvider,
+    static sk_sp<GrTextureProxy> CreateBlurProfileTexture(GrProxyProvider* proxyProvider,
                                                           float sigma) {
         unsigned int profileSize = SkScalarCeilToInt(6 * sigma);
 
@@ -42,7 +42,7 @@ uniform half profileSize;
         builder[0] = profileSize;
         builder.finish();
 
-        sk_sp<GrTextureProxy> blurProfile(resourceProvider->findOrCreateProxyByUniqueKey(
+        sk_sp<GrTextureProxy> blurProfile(proxyProvider->findOrCreateProxyByUniqueKey(
                                                                     key, kTopLeft_GrSurfaceOrigin));
         if (!blurProfile) {
             GrSurfaceDesc texDesc;
@@ -53,14 +53,14 @@ uniform half profileSize;
 
             std::unique_ptr<uint8_t[]> profile(SkBlurMask::ComputeBlurProfile(sigma));
 
-            blurProfile = GrSurfaceProxy::MakeDeferred(resourceProvider,
+            blurProfile = GrSurfaceProxy::MakeDeferred(proxyProvider,
                                                        texDesc, SkBudgeted::kYes, profile.get(), 0);
             if (!blurProfile) {
                 return nullptr;
             }
 
             SkASSERT(blurProfile->origin() == kTopLeft_GrSurfaceOrigin);
-            resourceProvider->assignUniqueKeyToProxy(key, blurProfile.get());
+            proxyProvider->assignUniqueKeyToProxy(key, blurProfile.get());
         }
 
         return blurProfile;
@@ -68,7 +68,7 @@ uniform half profileSize;
 }
 
 @make {
-     static std::unique_ptr<GrFragmentProcessor> Make(GrResourceProvider* resourceProvider,
+     static std::unique_ptr<GrFragmentProcessor> Make(GrProxyProvider* proxyProvider,
                                                       const SkRect& rect, float sigma) {
          int doubleProfileSize = SkScalarCeilToInt(12*sigma);
 
@@ -78,7 +78,7 @@ uniform half profileSize;
              return nullptr;
          }
 
-         sk_sp<GrTextureProxy> blurProfile(CreateBlurProfileTexture(resourceProvider, sigma));
+         sk_sp<GrTextureProxy> blurProfile(CreateBlurProfileTexture(proxyProvider, sigma));
          if (!blurProfile) {
             return nullptr;
          }
@@ -127,6 +127,5 @@ void main() {
     float sigma = data->fRandom->nextRangeF(3,8);
     float width = data->fRandom->nextRangeF(200,300);
     float height = data->fRandom->nextRangeF(200,300);
-    return GrRectBlurEffect::Make(data->resourceProvider(),
-                                  SkRect::MakeWH(width, height), sigma);
+    return GrRectBlurEffect::Make(data->proxyProvider(), SkRect::MakeWH(width, height), sigma);
 }

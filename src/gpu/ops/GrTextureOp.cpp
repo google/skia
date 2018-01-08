@@ -615,6 +615,7 @@ std::unique_ptr<GrDrawOp> Make(sk_sp<GrTextureProxy> proxy, GrSamplerState::Filt
 
 #if GR_TEST_UTILS
 #include "GrContext.h"
+#include "GrContextPriv.h"
 
 GR_DRAW_OP_TEST_DEFINE(TextureOp) {
     GrSurfaceDesc desc;
@@ -623,8 +624,9 @@ GR_DRAW_OP_TEST_DEFINE(TextureOp) {
     desc.fWidth = random->nextULessThan(90) + 10;
     desc.fOrigin = random->nextBool() ? kTopLeft_GrSurfaceOrigin : kBottomLeft_GrSurfaceOrigin;
     SkBackingFit fit = random->nextBool() ? SkBackingFit::kApprox : SkBackingFit::kExact;
-    auto proxy =
-            GrSurfaceProxy::MakeDeferred(context->resourceProvider(), desc, fit, SkBudgeted::kNo);
+    sk_sp<GrTextureProxy> proxy = GrSurfaceProxy::MakeDeferred(
+                                              context->contextPriv().proxyProvider(),
+                                              desc, fit, SkBudgeted::kNo);
     SkRect rect = GrTest::TestRect(random);
     SkRect srcRect;
     srcRect.fLeft = random->nextRangeScalar(0.f, proxy->width() / 2.f);

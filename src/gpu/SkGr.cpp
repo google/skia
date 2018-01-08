@@ -13,7 +13,7 @@
 #include "GrContextPriv.h"
 #include "GrGpuResourcePriv.h"
 #include "GrPaint.h"
-#include "GrResourceProvider.h"
+#include "GrProxyProvider.h"
 #include "GrTextureProxy.h"
 #include "GrTypes.h"
 #include "GrXferProcessor.h"
@@ -65,7 +65,7 @@ void GrMakeKeyFromImageID(GrUniqueKey* key, uint32_t imageID, const SkIRect& ima
 }
 
 //////////////////////////////////////////////////////////////////////////////
-sk_sp<GrTextureProxy> GrUploadBitmapToTextureProxy(GrResourceProvider* resourceProvider,
+sk_sp<GrTextureProxy> GrUploadBitmapToTextureProxy(GrProxyProvider* proxyProvider,
                                                    const SkBitmap& bitmap,
                                                    SkColorSpace* dstColorSpace) {
     if (!bitmap.readyToDraw()) {
@@ -75,10 +75,10 @@ sk_sp<GrTextureProxy> GrUploadBitmapToTextureProxy(GrResourceProvider* resourceP
     if (!bitmap.peekPixels(&pixmap)) {
         return nullptr;
     }
-    return GrUploadPixmapToTextureProxy(resourceProvider, pixmap, SkBudgeted::kYes, dstColorSpace);
+    return GrUploadPixmapToTextureProxy(proxyProvider, pixmap, SkBudgeted::kYes, dstColorSpace);
 }
 
-sk_sp<GrTextureProxy> GrUploadPixmapToTextureProxy(GrResourceProvider* resourceProvider,
+sk_sp<GrTextureProxy> GrUploadPixmapToTextureProxy(GrProxyProvider* proxyProvider,
                                                    const SkPixmap& pixmap,
                                                    SkBudgeted budgeted,
                                                    SkColorSpace* dstColorSpace) {
@@ -91,8 +91,8 @@ sk_sp<GrTextureProxy> GrUploadPixmapToTextureProxy(GrResourceProvider* resourceP
     }
 
     ATRACE_ANDROID_FRAMEWORK("Upload Texture [%ux%u]", pixmap.width(), pixmap.height());
-    GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(pixmap.info(), *resourceProvider->caps());
-    return GrSurfaceProxy::MakeDeferred(resourceProvider, desc, budgeted, pixmap.addr(),
+    GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(pixmap.info(), *proxyProvider->caps());
+    return GrSurfaceProxy::MakeDeferred(proxyProvider, desc, budgeted, pixmap.addr(),
                                         pixmap.rowBytes());
 }
 
@@ -151,7 +151,7 @@ sk_sp<GrTextureProxy> GrGenerateMipMapsAndUploadToTextureProxy(GrContext* ctx,
         texels[i].fRowBytes = generatedMipLevel.fPixmap.rowBytes();
     }
 
-    return GrSurfaceProxy::MakeDeferredMipMap(ctx->resourceProvider(),
+    return GrSurfaceProxy::MakeDeferredMipMap(ctx->contextPriv().proxyProvider(),
                                               desc,
                                               SkBudgeted::kYes,
                                               texels.get(),
@@ -175,7 +175,7 @@ sk_sp<GrTextureProxy> GrCopyBaseMipMapToTextureProxy(GrContext* ctx,
     desc.fConfig = baseProxy->config();
     desc.fSampleCnt = 0;
 
-    sk_sp<GrTextureProxy> proxy = GrSurfaceProxy::MakeDeferredMipMap(ctx->resourceProvider(),
+    sk_sp<GrTextureProxy> proxy = GrSurfaceProxy::MakeDeferredMipMap(ctx->contextPriv().proxyProvider(),
                                                                      desc,
                                                                      SkBudgeted::kYes);
     if (!proxy) {
@@ -199,7 +199,7 @@ sk_sp<GrTextureProxy> GrUploadMipMapToTextureProxy(GrContext* ctx, const SkImage
         return nullptr;
     }
 
-    return GrSurfaceProxy::MakeDeferredMipMap(ctx->resourceProvider(),
+    return GrSurfaceProxy::MakeDeferredMipMap(ctx->contextPriv().proxyProvider(),
                                               GrImageInfoToSurfaceDesc(info, *ctx->caps()),
                                               SkBudgeted::kYes, texels,
                                               mipLevelCount, colorMode);
@@ -214,7 +214,7 @@ sk_sp<GrTextureProxy> GrRefCachedBitmapTextureProxy(GrContext* ctx,
                                                                       nullptr, scaleAdjust);
 }
 
-sk_sp<GrTextureProxy> GrMakeCachedBitmapProxy(GrResourceProvider* resourceProvider,
+sk_sp<GrTextureProxy> GrMakeCachedBitmapProxy(GrProxyProvider* proxyProvider,
                                               const SkBitmap& bitmap) {
     GrUniqueKey originalKey;
 
@@ -227,17 +227,16 @@ sk_sp<GrTextureProxy> GrMakeCachedBitmapProxy(GrResourceProvider* resourceProvid
     sk_sp<GrTextureProxy> proxy;
 
     if (originalKey.isValid()) {
-        proxy = resourceProvider->findOrCreateProxyByUniqueKey(originalKey,
-                                                               kTopLeft_GrSurfaceOrigin);
+        proxy = proxyProvider->findOrCreateProxyByUniqueKey(originalKey, kTopLeft_GrSurfaceOrigin);
     }
     if (!proxy) {
         // Pass nullptr for |dstColorSpace|.  This is lenient - we allow a wider range of
         // color spaces in legacy mode.  Unfortunately, we have to be lenient here, since
         // we can't necessarily know the |dstColorSpace| at this time.
-        proxy = GrUploadBitmapToTextureProxy(resourceProvider, bitmap, nullptr);
+        proxy = GrUploadBitmapToTextureProxy(proxyProvider, bitmap, nullptr);
         if (proxy && originalKey.isValid()) {
             SkASSERT(proxy->origin() == kTopLeft_GrSurfaceOrigin);
-            resourceProvider->assignUniqueKeyToProxy(originalKey, proxy.get());
+            proxyProvider->assignUniqueKeyToProxy(originalKey, proxy.get());
             GrInstallBitmapUniqueKeyInvalidator(originalKey, bitmap.pixelRef());
         }
     }

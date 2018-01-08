@@ -30,6 +30,7 @@ class GrIndexBuffer;
 struct GrMockOptions;
 class GrOvalRenderer;
 class GrPath;
+class GrProxyProvider;
 class GrRenderTargetContext;
 class GrResourceEntry;
 class GrResourceCache;
@@ -356,6 +357,7 @@ private:
     sk_sp<const GrCaps>                     fCaps;
     GrResourceCache*                        fResourceCache;
     GrResourceProvider*                     fResourceProvider;
+    GrProxyProvider*                        fProxyProvider;
 
     sk_sp<GrContextThreadSafeProxy>         fThreadSafeProxy;
 

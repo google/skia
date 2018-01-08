@@ -9,6 +9,7 @@
 
 #include "GrBackendSemaphore.h"
 #include "GrContext.h"
+#include "GrContextPriv.h"
 #include "GrGpu.h"
 #include "GrOnFlushResourceProvider.h"
 #include "GrOpList.h"
@@ -377,7 +378,7 @@ GrPathRenderer* GrDrawingManager::getPathRenderer(const GrPathRenderer::CanDrawP
     if (!pr && allowSW) {
         if (!fSoftwarePathRenderer) {
             fSoftwarePathRenderer =
-                    new GrSoftwarePathRenderer(fContext->resourceProvider(),
+                    new GrSoftwarePathRenderer(fContext->contextPriv().proxyProvider(),
                                                fOptionsForPathRendererChain.fAllowPathMaskCaching);
         }
         if (GrPathRenderer::CanDrawPath::kNo != fSoftwarePathRenderer->canDrawPath(args)) {

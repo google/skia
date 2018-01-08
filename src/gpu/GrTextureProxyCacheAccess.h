@@ -15,8 +15,8 @@
  */
 class GrTextureProxy::CacheAccess {
 private:
-    void setUniqueKey(GrResourceCache* cache, const GrUniqueKey& key) {
-        fTextureProxy->setUniqueKey(cache, key);
+    void setUniqueKey(GrProxyProvider* proxyProvider, const GrUniqueKey& key) {
+        fTextureProxy->setUniqueKey(proxyProvider, key);
     }
 
     void clearUniqueKey() {
@@ -34,7 +34,7 @@ private:
     GrTextureProxy* fTextureProxy;
 
     friend class GrTextureProxy;  // to construct/copy this type.
-    friend class GrResourceCache; // to use this type
+    friend class GrProxyProvider; // to use this type
 };
 
 inline GrTextureProxy::CacheAccess GrTextureProxy::cacheAccess() { return CacheAccess(this); }

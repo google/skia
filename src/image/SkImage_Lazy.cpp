@@ -23,7 +23,7 @@
 #include "GrGpuResourcePriv.h"
 #include "GrImageTextureMaker.h"
 #include "GrResourceKey.h"
-#include "GrResourceProvider.h"
+#include "GrProxyProvider.h"
 #include "GrSamplerState.h"
 #include "GrYUVProvider.h"
 #include "SkGr.h"
@@ -695,7 +695,7 @@ public:
     }
 };
 
-static void set_key_on_proxy(GrResourceProvider* resourceProvider,
+static void set_key_on_proxy(GrProxyProvider* proxyProvider,
                              GrTextureProxy* proxy, GrTextureProxy* originalProxy,
                              const GrUniqueKey& key) {
     if (key.isValid()) {
@@ -706,9 +706,9 @@ static void set_key_on_proxy(GrResourceProvider* resourceProvider,
             // If we had an originalProxy, that means there already is a proxy in the cache which
             // matches the key, but it does not have mip levels and we require them. Thus we must
             // remove the unique key from that proxy.
-            resourceProvider->removeUniqueKeyFromProxy(key, originalProxy);
+            proxyProvider->removeUniqueKeyFromProxy(key, originalProxy);
         }
-        resourceProvider->assignUniqueKeyToProxy(key, proxy);
+        proxyProvider->assignUniqueKeyToProxy(key, proxy);
     }
 }
 
@@ -760,12 +760,12 @@ sk_sp<GrTextureProxy> SkImage_Lazy::lockTextureProxy(GrContext* ctx,
     GrUniqueKey key;
     this->makeCacheKeyFromOrigKey(origKey, format, &key);
 
+    GrProxyProvider* proxyProvider = ctx->contextPriv().proxyProvider();
     sk_sp<GrTextureProxy> proxy;
 
     // 1. Check the cache for a pre-existing one
     if (key.isValid()) {
-        proxy = ctx->resourceProvider()->findOrCreateProxyByUniqueKey(key,
-                                                                      kTopLeft_GrSurfaceOrigin);
+        proxy = proxyProvider->findOrCreateProxyByUniqueKey(key, kTopLeft_GrSurfaceOrigin);
         if (proxy) {
             SK_HISTOGRAM_ENUMERATION("LockTexturePath", kPreExisting_LockTexturePath,
                                      kLockTexturePathCount);
@@ -793,7 +793,7 @@ sk_sp<GrTextureProxy> SkImage_Lazy::lockTextureProxy(GrContext* ctx,
                                                 willBeMipped))) {
             SK_HISTOGRAM_ENUMERATION("LockTexturePath", kNative_LockTexturePath,
                                      kLockTexturePathCount);
-            set_key_on_proxy(ctx->resourceProvider(), proxy.get(), nullptr, key);
+            set_key_on_proxy(proxyProvider, proxy.get(), nullptr, key);
             if (!willBeMipped || GrMipMapped::kYes == proxy->mipMapped()) {
                 return proxy;
             }
@@ -820,7 +820,7 @@ sk_sp<GrTextureProxy> SkImage_Lazy::lockTextureProxy(GrContext* ctx,
         if (proxy) {
             SK_HISTOGRAM_ENUMERATION("LockTexturePath", kYUV_LockTexturePath,
                                      kLockTexturePathCount);
-            set_key_on_proxy(ctx->resourceProvider(), proxy.get(), nullptr, key);
+            set_key_on_proxy(proxyProvider, proxy.get(), nullptr, key);
             return proxy;
         }
     }
@@ -832,12 +832,12 @@ sk_sp<GrTextureProxy> SkImage_Lazy::lockTextureProxy(GrContext* ctx,
             proxy = GrGenerateMipMapsAndUploadToTextureProxy(ctx, bitmap, dstColorSpace);
         }
         if (!proxy) {
-            proxy = GrUploadBitmapToTextureProxy(ctx->resourceProvider(), bitmap, dstColorSpace);
+            proxy = GrUploadBitmapToTextureProxy(proxyProvider, bitmap, dstColorSpace);
         }
         if (proxy && (!willBeMipped || GrMipMapped::kYes == proxy->mipMapped())) {
             SK_HISTOGRAM_ENUMERATION("LockTexturePath", kRGBA_LockTexturePath,
                                      kLockTexturePathCount);
-            set_key_on_proxy(ctx->resourceProvider(), proxy.get(), nullptr, key);
+            set_key_on_proxy(proxyProvider, proxy.get(), nullptr, key);
             return proxy;
         }
     }
@@ -850,7 +850,7 @@ sk_sp<GrTextureProxy> SkImage_Lazy::lockTextureProxy(GrContext* ctx,
         SkASSERT(willBeMipped);
         SkASSERT(GrMipMapped::kNo == proxy->mipMapped());
         if (auto mippedProxy = GrCopyBaseMipMapToTextureProxy(ctx, proxy.get())) {
-            set_key_on_proxy(ctx->resourceProvider(), mippedProxy.get(), proxy.get(), key);
+            set_key_on_proxy(proxyProvider, mippedProxy.get(), proxy.get(), key);
             return mippedProxy;
         }
         // We failed to make a mipped proxy with the base copied into it. This could have

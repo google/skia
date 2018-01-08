@@ -14,7 +14,7 @@
 #include "GrFixedClip.h"
 #include "GrGpuResourcePriv.h"
 #include "GrRenderTargetContextPriv.h"
-#include "GrResourceProvider.h"
+#include "GrProxyProvider.h"
 #include "GrStencilAttachment.h"
 #include "GrSWMaskHelper.h"
 #include "GrTextureProxy.h"
@@ -324,12 +324,12 @@ static void add_invalidate_on_pop_message(const SkClipStack& stack, uint32_t cli
 
 sk_sp<GrTextureProxy> GrClipStackClip::createAlphaClipMask(GrContext* context,
                                                            const GrReducedClip& reducedClip) const {
-    GrResourceProvider* resourceProvider = context->resourceProvider();
+    GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
     GrUniqueKey key;
     create_clip_mask_key(reducedClip.maskGenID(), reducedClip.scissor(),
                          reducedClip.numAnalyticFPs(), &key);
 
-    sk_sp<GrTextureProxy> proxy(resourceProvider->findOrCreateProxyByUniqueKey(
+    sk_sp<GrTextureProxy> proxy(proxyProvider->findOrCreateProxyByUniqueKey(
                                                                 key, kBottomLeft_GrSurfaceOrigin));
     if (proxy) {
         return proxy;
@@ -355,7 +355,7 @@ sk_sp<GrTextureProxy> GrClipStackClip::createAlphaClipMask(GrContext* context,
     }
 
     SkASSERT(result->origin() == kBottomLeft_GrSurfaceOrigin);
-    resourceProvider->assignUniqueKeyToProxy(key, result.get());
+    proxyProvider->assignUniqueKeyToProxy(key, result.get());
     add_invalidate_on_pop_message(*fStack, reducedClip.maskGenID(), key);
 
     return result;
@@ -442,7 +442,9 @@ sk_sp<GrTextureProxy> GrClipStackClip::createSoftwareClipMask(
     create_clip_mask_key(reducedClip.maskGenID(), reducedClip.scissor(),
                          reducedClip.numAnalyticFPs(), &key);
 
-    sk_sp<GrTextureProxy> proxy(context->resourceProvider()->findOrCreateProxyByUniqueKey(
+    GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
+
+    sk_sp<GrTextureProxy> proxy(proxyProvider->findOrCreateProxyByUniqueKey(
                                                                   key, kTopLeft_GrSurfaceOrigin));
     if (proxy) {
         return proxy;
@@ -462,7 +464,7 @@ sk_sp<GrTextureProxy> GrClipStackClip::createSoftwareClipMask(
         desc.fConfig = kAlpha_8_GrPixelConfig;
         // MDB TODO: We're going to fill this proxy with an ASAP upload (which is out of order wrt
         // to ops), so it can't have any pending IO.
-        proxy = GrSurfaceProxy::MakeDeferred(context->resourceProvider(), desc,
+        proxy = GrSurfaceProxy::MakeDeferred(proxyProvider, desc,
                                              SkBackingFit::kApprox, SkBudgeted::kYes,
                                              GrResourceProvider::kNoPendingIO_Flag);
 
@@ -496,7 +498,7 @@ sk_sp<GrTextureProxy> GrClipStackClip::createSoftwareClipMask(
     }
 
     SkASSERT(proxy->origin() == kTopLeft_GrSurfaceOrigin);
-    context->resourceProvider()->assignUniqueKeyToProxy(key, proxy.get());
+    proxyProvider->assignUniqueKeyToProxy(key, proxy.get());
     add_invalidate_on_pop_message(*fStack, reducedClip.maskGenID(), key);
     return proxy;
 }

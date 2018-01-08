@@ -13,7 +13,7 @@
 
 class GrCaps;
 class GrDeferredProxyUploader;
-class GrResourceCache;
+class GrProxyProvider;
 class GrResourceProvider;
 class GrTextureOpList;
 class GrTextureProxyPriv;
@@ -84,8 +84,8 @@ private:
     GrMipMapped fMipMapped;
     SkDestinationSurfaceColorMode fMipColorMode;
 
-    GrUniqueKey fUniqueKey;
-    GrResourceCache* fCache; // only set when fUniqueKey is valid
+    GrUniqueKey      fUniqueKey;
+    GrProxyProvider* fProxyProvider; // only set when fUniqueKey is valid
 
     // Only used for proxies whose contents are being prepared on a worker thread. This object
     // stores the texture data, allowing the proxy to remain uninstantiated until flush. At that
@@ -95,7 +95,7 @@ private:
     size_t onUninstantiatedGpuMemorySize() const override;
 
     // Methods made available via GrTextureProxy::CacheAccess
-    void setUniqueKey(GrResourceCache*, const GrUniqueKey&);
+    void setUniqueKey(GrProxyProvider*, const GrUniqueKey&);
     void clearUniqueKey();
 
     SkDEBUGCODE(void validateLazyTexture(const GrTexture*) override;)

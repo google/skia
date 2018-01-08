@@ -205,7 +205,7 @@ sk_sp<GrTextureProxy> GrRefCachedBitmapTextureProxy(GrContext*,
  * The bitmap must have CPU-accessible pixels. Attempts to take advantage of faster paths for
  * yuv planes.
  */
-sk_sp<GrTextureProxy> GrUploadBitmapToTextureProxy(GrResourceProvider*, const SkBitmap&,
+sk_sp<GrTextureProxy> GrUploadBitmapToTextureProxy(GrProxyProvider*, const SkBitmap&,
                                                    SkColorSpace* dstColorSpace);
 
 sk_sp<GrTextureProxy> GrGenerateMipMapsAndUploadToTextureProxy(GrContext*, const SkBitmap&,
@@ -214,7 +214,7 @@ sk_sp<GrTextureProxy> GrGenerateMipMapsAndUploadToTextureProxy(GrContext*, const
 /**
  * Creates a new texture for the pixmap.
  */
-sk_sp<GrTextureProxy> GrUploadPixmapToTextureProxy(GrResourceProvider*,
+sk_sp<GrTextureProxy> GrUploadPixmapToTextureProxy(GrProxyProvider*,
                                                    const SkPixmap&, SkBudgeted, SkColorSpace*);
 
 /**
@@ -242,7 +242,7 @@ sk_sp<GrTextureProxy> GrUploadMipMapToTextureProxy(GrContext*, const SkImageInfo
 //    if (!texture) {
 //        return nullptr;
 //    }
-sk_sp<GrTextureProxy> GrMakeCachedBitmapProxy(GrResourceProvider*, const SkBitmap& bitmap);
+sk_sp<GrTextureProxy> GrMakeCachedBitmapProxy(GrProxyProvider*, const SkBitmap& bitmap);
 
 
 /**

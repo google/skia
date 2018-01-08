@@ -89,7 +89,7 @@ void test_copy_from_surface(skiatest::Reporter* reporter, GrContext* context,
     }
 }
 
-void test_copy_to_surface(skiatest::Reporter* reporter, GrResourceProvider* resourceProvider,
+void test_copy_to_surface(skiatest::Reporter* reporter, GrProxyProvider* proxyProvider,
                           GrSurfaceContext* dstContext, const char* testName) {
 
     int pixelCnt = dstContext->width() * dstContext->height();
@@ -111,7 +111,7 @@ void test_copy_to_surface(skiatest::Reporter* reporter, GrResourceProvider* reso
         copySrcDesc.fOrigin = (kNone_GrSurfaceFlags == flags) ? kTopLeft_GrSurfaceOrigin
                                                               : kBottomLeft_GrSurfaceOrigin;
 
-        sk_sp<GrTextureProxy> src(GrSurfaceProxy::MakeDeferred(resourceProvider,
+        sk_sp<GrTextureProxy> src(GrSurfaceProxy::MakeDeferred(proxyProvider,
                                                                copySrcDesc,
                                                                SkBudgeted::kYes, pixels.get(), 0));
         dstContext->copy(src.get());

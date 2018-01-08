@@ -53,6 +53,8 @@ bool does_full_buffer_contain_correct_color(GrColor* srcBuffer,
 
 void basic_texture_test(skiatest::Reporter* reporter, GrContext* context, GrPixelConfig config,
                         bool renderTarget) {
+    GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
+
     const int kWidth = 16;
     const int kHeight = 16;
     SkAutoTMalloc<GrColor> srcBuffer(kWidth*kHeight);
@@ -71,7 +73,7 @@ void basic_texture_test(skiatest::Reporter* reporter, GrContext* context, GrPixe
     SkColorType ct;
     SkAssertResult(GrPixelConfigToColorType(config, &ct));
 
-    sk_sp<GrTextureProxy> proxy = GrSurfaceProxy::MakeDeferred(context->resourceProvider(),
+    sk_sp<GrTextureProxy> proxy = GrSurfaceProxy::MakeDeferred(proxyProvider,
                                                                surfDesc, SkBudgeted::kNo,
                                                                srcBuffer, 0);
     REPORTER_ASSERT(reporter, proxy);
@@ -105,9 +107,7 @@ void basic_texture_test(skiatest::Reporter* reporter, GrContext* context, GrPixe
 
     surfDesc.fOrigin = kBottomLeft_GrSurfaceOrigin;
 
-    proxy = GrSurfaceProxy::MakeDeferred(context->resourceProvider(),
-                                         surfDesc, SkBudgeted::kNo,
-                                         srcBuffer, 0);
+    proxy = GrSurfaceProxy::MakeDeferred(proxyProvider, surfDesc, SkBudgeted::kNo, srcBuffer, 0);
     REPORTER_ASSERT(reporter, proxy);
     if (proxy) {
         sk_sp<GrSurfaceContext> sContext = context->contextPriv().makeWrappedSurfaceContext(
