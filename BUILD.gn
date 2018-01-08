@@ -25,7 +25,7 @@ declare_args() {
   skia_use_libjpeg_turbo = true
   skia_use_libpng = true
   skia_use_libwebp = !is_fuchsia
-  skia_use_lua = false
+  skia_use_lua = is_skia_dev_build && !is_ios
   skia_use_piex = !is_win
   skia_use_zlib = true
   skia_use_metal = false
