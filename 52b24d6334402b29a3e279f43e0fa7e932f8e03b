@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d50e3456_22c176fc",
+        "filename": "include/core/SkRect.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 616,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-08T15:14:59Z",
+      "side": 1,
+      "message": "Might be nice as\n\nSkIRect that \u003d { left, top, right, bottom };\nif (!this-\u003eisEmpty() \u0026\u0026 !that.isEmpty()) {\n    return this-\u003eintersectNoEmptyCheck(*this, that);\n}\nreturn false;\n\nor some sort of similar sharing across the various intersect functions?",
+      "revId": "52b24d6334402b29a3e279f43e0fa7e932f8e03b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9a2fcaae_53fdb6d5",
+        "filename": "src/core/SkRegion.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-08T15:14:59Z",
+      "side": 1,
+      "message": "Maybe\n\nif (SkIRect{left,right,top,bottom}.isEmpty()) {\n    return this-\u003esetEmpty();\n}\n\n?",
+      "revId": "52b24d6334402b29a3e279f43e0fa7e932f8e03b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
