@@ -37,8 +37,6 @@ integer input cannot convert to <a href="undocumented#SkScalar">SkScalar</a> wit
 | <a href="#SkRect_MakeFromIRect">MakeFromIRect</a> | Deprecated. |
 | <a href="#SkRect_MakeIWH">MakeIWH</a> | Constructs from int input returning (0, 0, <a href="#SkRect_width">width</a>, <a href="#SkRect_height">height</a>). |
 | <a href="#SkRect_MakeLTRB">MakeLTRB</a> | Constructs from <a href="undocumented#SkScalar">SkScalar</a> <a href="#SkRect_left">left</a>, <a href="#SkRect_top">top</a>, <a href="#SkRect_right">right</a>, <a href="#SkRect_bottom">bottom</a>. |
-| <a href="#SkRect_MakeLargest">MakeLargest</a> | Constructs (<a href="undocumented#SK_ScalarMin">SK ScalarMin</a>, <a href="undocumented#SK_ScalarMin">SK ScalarMin</a>, <a href="undocumented#SK_ScalarMax">SK ScalarMax</a>, <a href="undocumented#SK_ScalarMax">SK ScalarMax</a>). |
-| <a href="#SkRect_MakeLargestS32">MakeLargestS32</a> | Constructs largest signed integers that fit in 32-bit float. |
 | <a href="#SkRect_MakeSize">MakeSize</a> | Constructs from <a href="undocumented#Size">Size</a> returning (0, 0, <a href="#SkRect_width">width</a>, <a href="#SkRect_height">height</a>). |
 | <a href="#SkRect_MakeWH">MakeWH</a> | Constructs from <a href="undocumented#SkScalar">SkScalar</a> input returning (0, 0, <a href="#SkRect_width">width</a>, <a href="#SkRect_height">height</a>). |
 | <a href="#SkRect_MakeXYWH">MakeXYWH</a> | Constructs from <a href="undocumented#SkScalar">SkScalar</a> input returning (<a href="#SkRect_x">x</a>, <a href="#SkRect_y">y</a>, <a href="#SkRect_width">width</a>, <a href="#SkRect_height">height</a>). |
@@ -56,7 +54,6 @@ integer input cannot convert to <a href="undocumented#SkScalar">SkScalar</a> wit
 | <a href="#SkRect_intersects">intersects</a> | Returns true if areas overlap. |
 | <a href="#SkRect_isEmpty">isEmpty</a> | Returns true if <a href="#SkRect_width">width</a> or <a href="#SkRect_height">height</a> are zero or negative. |
 | <a href="#SkRect_isFinite">isFinite</a> | Returns true if no member is infinite or NaN. |
-| <a href="#SkRect_isLargest">isLargest</a> | Returns equal to (<a href="undocumented#SK_ScalarMin">SK ScalarMin</a>, <a href="undocumented#SK_ScalarMin">SK ScalarMin</a>, <a href="undocumented#SK_ScalarMax">SK ScalarMax</a>, <a href="undocumented#SK_ScalarMax">SK ScalarMax</a>). |
 | <a href="#SkRect_isSorted">isSorted</a> | Returns true if <a href="#SkRect_width">width</a> or <a href="#SkRect_height">height</a> are zero or positive. |
 | <a href="#SkRect_iset">iset</a> | Sets to int input (<a href="#SkRect_left">left</a>, <a href="#SkRect_top">top</a>, <a href="#SkRect_right">right</a>, <a href="#SkRect_bottom">bottom</a>). |
 | <a href="#SkRect_isetWH">isetWH</a> | Sets to int input (0, 0, <a href="#SkRect_width">width</a>, <a href="#SkRect_height">height</a>). |
@@ -80,8 +77,6 @@ integer input cannot convert to <a href="undocumented#SkScalar">SkScalar</a> wit
 | <a href="#SkRect_setBoundsCheck">setBoundsCheck</a> | Sets to upper and lower limits of <a href="SkPoint_Reference#Point">Point</a> array. |
 | <a href="#SkRect_setEmpty">setEmpty</a> | Sets to (0, 0, 0, 0). |
 | <a href="#SkRect_setLTRB">setLTRB</a> | Sets to <a href="undocumented#SkScalar">SkScalar</a> input (<a href="#SkRect_left">left</a>, <a href="#SkRect_top">top</a>, <a href="#SkRect_right">right</a>, <a href="#SkRect_bottom">bottom</a>). |
-| <a href="#SkRect_setLargest">setLargest</a> | Sets to (<a href="undocumented#SK_ScalarMin">SK ScalarMin</a>, <a href="undocumented#SK_ScalarMin">SK ScalarMin</a>, <a href="undocumented#SK_ScalarMax">SK ScalarMax</a>, <a href="undocumented#SK_ScalarMax">SK ScalarMax</a>). |
-| <a href="#SkRect_setLargestInverted">setLargestInverted</a> | Sets to (<a href="undocumented#SK_ScalarMax">SK ScalarMax</a>, <a href="undocumented#SK_ScalarMax">SK ScalarMax</a>, <a href="undocumented#SK_ScalarMin">SK ScalarMin</a>, <a href="undocumented#SK_ScalarMin">SK ScalarMin</a>). |
 | <a href="#SkRect_setWH">setWH</a> | Sets to <a href="undocumented#SkScalar">SkScalar</a> input (0, 0, <a href="#SkRect_width">width</a>, <a href="#SkRect_height">height</a>). |
 | <a href="#SkRect_setXYWH">setXYWH</a> | Sets to <a href="undocumented#SkScalar">SkScalar</a> input (<a href="#SkRect_x">x</a>, <a href="#SkRect_y">y</a>, <a href="#SkRect_width">width</a>, <a href="#SkRect_height">height</a>). |
 | <a href="#SkRect_sort">sort</a> | Orders sides from smaller to larger. |
@@ -144,81 +139,7 @@ outset rect isEmpty: false
 
 ### See Also
 
-<a href="#SkRect_isEmpty">isEmpty</a> <a href="#SkRect_setEmpty">setEmpty</a> <a href="#SkRect_setLargestInverted">setLargestInverted</a> <a href="#SkIRect_MakeEmpty">SkIRect::MakeEmpty</a>
-
----
-
-<a name="SkRect_MakeLargest"></a>
-## MakeLargest
-
-<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-static SkRect SK_WARN_UNUSED_RESULT MakeLargest()
-</pre>
-
-Returns constructed <a href="#Rect">Rect</a> setting <a href="#SkRect_left">left</a> and <a href="#SkRect_top">top</a> to most negative finite value, and
-setting <a href="#SkRect_right">right</a> and <a href="#SkRect_bottom">bottom</a> to most positive finite value.
-
-### Return Value
-
-bounds (<a href="undocumented#SK_ScalarMin">SK ScalarMin</a>, <a href="undocumented#SK_ScalarMin">SK ScalarMin</a>, <a href="undocumented#SK_ScalarMax">SK ScalarMax</a>, <a href="undocumented#SK_ScalarMax">SK ScalarMax</a>)
-
-### Example
-
-<div><fiddle-embed name="42774381948ce88ec19b5c0d16a84bd7">
-
-#### Example Output
-
-~~~~
-MakeLargest isLargest: true
-MakeLargest isFinite: true
-outset a little isLargest: true
-outset a little isFinite: true
-outset a little more isLargest: false
-outset a little more isFinite: false
-~~~~
-
-</fiddle-embed></div>
-
-### See Also
-
-<a href="#SkRect_MakeLargestS32">MakeLargestS32</a> <a href="#SkRect_isLargest">isLargest</a> <a href="#SkRect_setLargest">setLargest</a> <a href="#SkIRect_MakeLargest">SkIRect::MakeLargest</a>
-
----
-
-<a name="SkRect_MakeLargestS32"></a>
-## MakeLargestS32
-
-<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-static SkRect SK_WARN_UNUSED_RESULT MakeLargestS32()
-</pre>
-
-Returns constructed <a href="#Rect">Rect</a> that can be represented exactly with <a href="SkIRect_Reference#IRect">IRect</a>. The <a href="#SkRect_left">left</a>
-and <a href="#SkRect_top">top</a> are <a href="#SkRect_set">set</a> to the most negative integer value that fits in a 32-bit float,
-and the <a href="#SkRect_right">right</a> and <a href="#SkRect_bottom">bottom</a> are <a href="#SkRect_set">set</a> to the most positive finite value that fits in
-a 32-bit float.
-
-These are the largest values for which <a href="#SkRect_round_2">round</a> is well defined.
-
-### Return Value
-
-bounds (<a href="undocumented#SK_MinS32FitsInFloat">SK MinS32FitsInFloat</a>, <a href="undocumented#SK_MinS32FitsInFloat">SK MinS32FitsInFloat</a>,
-<a href="undocumented#SK_MaxS32FitsInFloat">SK MaxS32FitsInFloat</a>, <a href="undocumented#SK_MaxS32FitsInFloat">SK MaxS32FitsInFloat</a>)
-
-### Example
-
-<div><fiddle-embed name="9dde55347ba15b60166b5a0583c55587">
-
-#### Example Output
-
-~~~~
-f_rect == r_rect
-~~~~
-
-</fiddle-embed></div>
-
-### See Also
-
-<a href="#SkRect_MakeLargest">MakeLargest</a> <a href="#SkRect_isLargest">isLargest</a> <a href="#SkRect_setLargest">setLargest</a> <a href="#SkIRect_MakeLargest">SkIRect::MakeLargest</a>
+<a href="#SkRect_isEmpty">isEmpty</a> <a href="#SkRect_setEmpty">setEmpty</a> <a href="#SkIRect_MakeEmpty">SkIRect::MakeEmpty</a>
 
 ---
 
@@ -610,41 +531,6 @@ sorted: {20, 40, 20, 50} is sorted
 
 ---
 
-<a name="SkRect_isLargest"></a>
-## isLargest
-
-<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-bool isLargest() const
-</pre>
-
-Returns true if <a href="#Rect">Rect</a> encloses largest possible area.
-
-### Return Value
-
-true if equal to (<a href="undocumented#SK_ScalarMin">SK ScalarMin</a>, <a href="undocumented#SK_ScalarMin">SK ScalarMin</a>, <a href="undocumented#SK_ScalarMax">SK ScalarMax</a>, <a href="undocumented#SK_ScalarMax">SK ScalarMax</a>)
-
-### Example
-
-<div><fiddle-embed name="30ef8865ff1ba8789ee1d3be92734ad8"><div>Note that the <a href="#SkRect_width">width</a> cannot be represented as a 32-bit finite value.</div>
-
-#### Example Output
-
-~~~~
-large is largest: true
-large width inf
-large is empty: false
-large is sorted: true
-large is finite: true
-~~~~
-
-</fiddle-embed></div>
-
-### See Also
-
-<a href="#SkRect_MakeLargest">MakeLargest</a> <a href="#SkIRect_isLargest">SkIRect::isLargest</a>
-
----
-
 <a name="SkRect_isFinite"></a>
 ## isFinite
 
@@ -661,7 +547,7 @@ true if no member is infinite or NaN
 
 ### Example
 
-<div><fiddle-embed name="7365c6553b830e6535cea0ce0d07be19">
+<div><fiddle-embed name="443fe5f8296d4cdb19cc9862a9cf77a4">
 
 #### Example Output
 
@@ -1612,70 +1498,6 @@ rect: -15, 0, 0, 25  isEmpty: false
 
 ---
 
-<a name="SkRect_setLargest"></a>
-## setLargest
-
-<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-void setLargest()
-</pre>
-
-Sets rectangle <a href="#SkRect_left">left</a> and <a href="#SkRect_top">top</a> to most negative finite value, and sets
-<a href="#SkRect_right">right</a> and <a href="#SkRect_bottom">bottom</a> to most positive finite value.
-
-### Example
-
-<div><fiddle-embed name="7a07b1914ade5c38cce6be417bc8aa4b">
-
-#### Example Output
-
-~~~~
-MakeLargest isLargest: true
-MakeLargest isFinite: true
-outset a little isLargest: true
-outset a little isFinite: true
-outset a little more isLargest: false
-outset a little more isFinite: false
-~~~~
-
-</fiddle-embed></div>
-
-### See Also
-
-<a href="#SkRect_MakeLargest">MakeLargest</a> <a href="#SkRect_isLargest">isLargest</a> <a href="#SkRect_setLargestInverted">setLargestInverted</a> <a href="undocumented#SK_ScalarMin">SK ScalarMin</a> <a href="undocumented#SK_ScalarMax">SK ScalarMax</a>
-
----
-
-<a name="SkRect_setLargestInverted"></a>
-## setLargestInverted
-
-<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-void setLargestInverted()
-</pre>
-
-Sets rectangle <a href="#SkRect_left">left</a> and <a href="#SkRect_top">top</a> to most positive finite value, and sets
-<a href="#SkRect_right">right</a> and <a href="#SkRect_bottom">bottom</a> to most negative finite value.
-
-Use to initial <a href="#Rect">Rect</a> before one or more calls to <a href="#SkRect_growToInclude">growToInclude</a>.
-
-### Example
-
-<div><fiddle-embed name="394442eedd4f01e42c5a4905e832dd0c">
-
-#### Example Output
-
-~~~~
-original rect: 3.40282e+38, 3.40282e+38, -3.40282e+38, -3.40282e+38  isEmpty: true
-grown rect: 42, 24, 42, 24  isEmpty: true
-~~~~
-
-</fiddle-embed></div>
-
-### See Also
-
-<a href="#SkRect_growToInclude">growToInclude</a> <a href="#SkRect_setEmpty">setEmpty</a> <a href="#SkRect_setLargest">setLargest</a>
-
----
-
 <a name="SkRect_makeOffset"></a>
 ## makeOffset
 
@@ -2447,8 +2269,8 @@ Grows <a href="#Rect">Rect</a> to include (<a href="#SkRect_growToInclude_pt">pt
 
 <a href="#SkRect_fLeft">fLeft</a> <= <a href="#SkRect_growToInclude_pt">pt</a>.fX <= <a href="#SkRect_fRight">fRight</a> && <a href="#SkRect_fTop">fTop</a> <= <a href="#SkRect_growToInclude_pt">pt</a>.fY <= <a href="#SkRect_fBottom">fBottom</a>.
 
-If <a href="#Rect">Rect</a> is initialized with <a href="#SkRect_setLargestInverted">setLargestInverted</a>, then <a href="#Rect">Rect</a> will contain bounds of
-<a href="#Point">Points</a> after one or more calls. In this case, <a href="#Rect">Rect</a> is empty after first call.
+If <a href="#Rect">Rect</a> is inverted, then <a href="#Rect">Rect</a> will preserve the <a href="#SkRect_top">top</a> <a href="#SkRect_left">left</a>, and the result
+will not be inverted.
 
 ### Parameters
 
@@ -2459,19 +2281,19 @@ If <a href="#Rect">Rect</a> is initialized with <a href="#SkRect_setLargestInver
 
 ### Example
 
-<div><fiddle-embed name="c2855b1bc92b4e332f6edd968065e4f0">
+<div><fiddle-embed name="9a2bb963b7bdde80710cac5d148c6ccd">
 
 #### Example Output
 
 ~~~~
-rect: 42, 24, 42, 24  isEmpty: true
+rect: 1, 1, 42, 24  isEmpty: false
 ~~~~
 
 </fiddle-embed></div>
 
 ### See Also
 
-<a href="#SkRect_setLargestInverted">setLargestInverted</a> <a href="#SkRect_join">join</a>
+<a href="#SkRect_join">join</a>
 
 ---
 
@@ -2483,7 +2305,7 @@ For each of <a href="#SkRect_growToInclude_2_count">count</a> <a href="SkPoint_R
 it so that:
 <a href="#SkRect_fLeft">fLeft</a> <= pt.fX <= <a href="#SkRect_fRight">fRight</a> && <a href="#SkRect_fTop">fTop</a> <= pt.fY <= <a href="#SkRect_fBottom">fBottom</a>.
 
-If <a href="#Rect">Rect</a> is initialized with <a href="#SkRect_setLargestInverted">setLargestInverted</a>, then <a href="#Rect">Rect</a> will contain bounds of
+If <a href="#Rect">Rect</a> is inverted, then <a href="#Rect">Rect</a> will contain bounds of
 <a href="#Point">Points</a> after one or more calls. In this case, <a href="#Rect">Rect</a> is empty after first call.
 
 ### Parameters
@@ -2509,7 +2331,7 @@ rect: 30, 50, 40, 60
 
 ### See Also
 
-<a href="#SkRect_setLargestInverted">setLargestInverted</a> <a href="#SkRect_join">join</a>
+<a href="#SkRect_join">join</a>
 
 ---
 
@@ -2525,7 +2347,7 @@ it so that:
 of bytes in element; the interval to skip to advance from one <a href="SkPoint_Reference#Point">Point</a> to
 the next.
 
-If <a href="#Rect">Rect</a> is initialized with <a href="#SkRect_setLargestInverted">setLargestInverted</a>, then <a href="#Rect">Rect</a> will contain bounds of
+If <a href="#Rect">Rect</a> is inverted, then <a href="#Rect">Rect</a> will contain bounds of
 <a href="#Point">Points</a> after one or more calls. In this case, <a href="#Rect">Rect</a> is empty after first call.
 
 ### Parameters
@@ -2541,7 +2363,7 @@ number of elements in array</td>
 
 ### Example
 
-<div><fiddle-embed name="6dbf21017c60b76cae3379fd9101342a">
+<div><fiddle-embed name="1275f2f35d5ca9412bd2ae0e81e9f2e0">
 
 #### Example Output
 
@@ -2554,7 +2376,7 @@ rect: 30, 50, 40, 60
 
 ### See Also
 
-<a href="#SkRect_setLargestInverted">setLargestInverted</a> <a href="#SkRect_join">join</a>
+<a href="#SkRect_join">join</a>
 
 ---
 
@@ -3034,6 +2856,15 @@ rect is equal to copy
 ### See Also
 
 <a href="#SkRect_dump">dump</a>
+
+---
+
+<a name="SkRect_MakeLargest"></a>
+## MakeLargest
+
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
+static SkRect SK_WARN_UNUSED_RESULT MakeLargest()
+</pre>
 
 ---
 

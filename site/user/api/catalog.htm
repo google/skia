@@ -700,13 +700,6 @@
     "name": "SkIRect::MakeLTRB",
         "stdout": "rect: 5, 35, 15, 25  isEmpty: true\\nrect: 5, 25, 15, 35  isEmpty: false\\n"
     },
-        "SkIRect_MakeLargest": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkIRect rect = SkIRect::MakeLargest();\n    SkDebugf(\"MakeLargest isLargest: %s\\n\", rect.isLargest() ? \"true\" : \"false\");\n    SkDebugf(\"MakeLargest isEmpty: %s\\n\", rect.isEmpty() ? \"true\" : \"false\");\n    rect.outset(1, 1);\n    SkDebugf(\"outset isLargest: %s\\n\", rect.isLargest() ? \"true\" : \"false\");\n    SkDebugf(\"outset isEmpty: %s\\n\", rect.isEmpty() ? \"true\" : \"false\");\n}",
-    "hash": "2b32ed04a64cd3d5fb525d404cbb9a09",
-    "file": "SkIRect_Reference",
-    "name": "SkIRect::MakeLargest",
-        "stdout": "MakeLargest isLargest: true\\nMakeLargest isEmpty: false\\noutset isLargest: false\\noutset isEmpty: true\\n"
-    },
         "SkIRect_MakeSize": {
     "code": "void draw(SkCanvas* canvas) {\n    SkSize size = {25.5f, 35.5f};\n    SkIRect rect = SkIRect::MakeSize(size.toRound());\n    SkDebugf(\"round width: %d  height: %d\\n\", rect.width(), rect.height());\n    rect = SkIRect::MakeSize(size.toFloor());\n    SkDebugf(\"floor width: %d  height: %d\\n\", rect.width(), rect.height());\n}",
     "hash": "c6586ff8d24869c780169b0d19c75df6",
@@ -854,13 +847,6 @@
     "name": "SkIRect::isEmpty",
         "stdout": "rect: {20, 40, 10, 50} is empty\\nsorted: {10, 40, 20, 50} is not empty\\nrect: {20, 40, 20, 50} is empty\\nsorted: {20, 40, 20, 50} is empty\\n"
     },
-        "SkIRect_isLargest": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkIRect large = SkIRect::MakeLargest();\n    SkDebugf(\"large is largest: %s\\n\" ,large.isLargest() ? \"true\" : \"false\");\n    SkDebugf(\"large width %d\\n\", large.width());\n    SkDebugf(\"large is empty: %s\\n\", large.isEmpty() ? \"true\" : \"false\");\n}",
-    "hash": "477e0a7f0aa8aec1d94e1e117041a335",
-    "file": "SkIRect_Reference",
-    "name": "SkIRect::isLargest",
-        "stdout": "large is largest: true\\nlarge width -2\\nlarge is empty: false\\n"
-    },
         "SkIRect_join": {
     "code": "void draw(SkCanvas* canvas) {\n    SkIRect rect = { 10, 20, 15, 25};\n    rect.join(50, 60, 55, 65);\n    SkDebugf(\"join: %d, %d, %d, %d\\n\", rect.fLeft, rect.fTop, rect.fRight, rect.fBottom);\n}",
     "hash": "c00ef06289d21db70340e465690e0e08",
@@ -979,13 +965,6 @@
     "file": "SkIRect_Reference",
     "name": "SkIRect::setLTRB",
         "stdout": "rect1: {3, 4, 1, 2}\\nrect2: {3, 4, 1, 2}\\n"
-    },
-        "SkIRect_setLargest": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkIRect rect;\n    rect.setLargest();\n    SkDebugf(\"MakeLargest isLargest: %s\\n\", rect.isLargest() ? \"true\" : \"false\");\n    SkDebugf(\"MakeLargest isEmpty: %s\\n\", rect.isEmpty() ? \"true\" : \"false\");\n    rect.outset(1, 1);\n    SkDebugf(\"outset isLargest: %s\\n\", rect.isLargest() ? \"true\" : \"false\");\n    SkDebugf(\"outset isEmpty: %s\\n\", rect.isEmpty() ? \"true\" : \"false\");\n}",
-    "hash": "d5d67c6f09a14d06f1ee988cb56525b5",
-    "file": "SkIRect_Reference",
-    "name": "SkIRect::setLargest",
-        "stdout": "MakeLargest isLargest: true\\nMakeLargest isEmpty: false\\noutset isLargest: false\\noutset isEmpty: true\\n"
     },
         "SkIRect_setXYWH": {
     "code": "void draw(SkCanvas* canvas) {\n    SkIRect rect;\n    rect.setXYWH(5, 35, -15, 25);\n    SkDebugf(\"rect: %d, %d, %d, %d  isEmpty: %s\\n\", rect.left(), rect.top(), rect.right(),\n              rect.bottom(), rect.isEmpty() ? \"true\" : \"false\");\n    rect.sort();\n    SkDebugf(\"rect: %d, %d, %d, %d  isEmpty: %s\\n\", rect.left(), rect.top(), rect.right(),\n              rect.bottom(), rect.isEmpty() ? \"true\" : \"false\");\n}",
@@ -2688,20 +2667,6 @@
     "name": "SkRect::MakeLTRB",
         "stdout": "rect: 5, 35, 15, 25  isEmpty: true\\nrect: 5, 25, 15, 35  isEmpty: false\\n"
     },
-        "SkRect_MakeLargest": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkRect rect = SkRect::MakeLargest();\n    SkDebugf(\"MakeLargest isLargest: %s\\n\", rect.isLargest() ? \"true\" : \"false\");\n    SkDebugf(\"MakeLargest isFinite: %s\\n\", rect.isFinite() ? \"true\" : \"false\");\n    rect.outset(1e31, 1e31);\n    SkDebugf(\"outset a little isLargest: %s\\n\", rect.isLargest() ? \"true\" : \"false\");\n    SkDebugf(\"outset a little isFinite: %s\\n\", rect.isFinite() ? \"true\" : \"false\");\n    rect.outset(1e32, 1e32);\n    SkDebugf(\"outset a little more isLargest: %s\\n\", rect.isLargest() ? \"true\" : \"false\");\n    SkDebugf(\"outset a little more isFinite: %s\\n\", rect.isFinite() ? \"true\" : \"false\");\n}",
-    "hash": "42774381948ce88ec19b5c0d16a84bd7",
-    "file": "SkRect_Reference",
-    "name": "SkRect::MakeLargest",
-        "stdout": "MakeLargest isLargest: true\\nMakeLargest isFinite: true\\noutset a little isLargest: true\\noutset a little isFinite: true\\noutset a little more isLargest: false\\noutset a little more isFinite: false\\n"
-    },
-        "SkRect_MakeLargestS32": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkRect f_rect = SkRect::MakeLargestS32();\n    SkIRect i_rect = f_rect.round();\n    SkRect r_rect = SkRect::Make(i_rect);\n    SkDebugf(\"f_rect %c= r_rect\\n\", f_rect == r_rect ? '=' : '!');\n}",
-    "hash": "9dde55347ba15b60166b5a0583c55587",
-    "file": "SkRect_Reference",
-    "name": "SkRect::MakeLargestS32",
-        "stdout": "f_rect == r_rect\\n"
-    },
         "SkRect_MakeSize": {
     "code": "void draw(SkCanvas* canvas) {\n    SkSize size = {25.5f, 35.5f};\n    SkRect rect = SkRect::MakeSize(size);\n    SkDebugf(\"rect width: %g  height: %g\\n\", rect.width(), rect.height());\n    SkISize floor = size.toFloor();\n    rect = SkRect::MakeSize(SkSize::Make(floor));\n    SkDebugf(\"floor width: %g  height: %g\\n\", rect.width(), rect.height());\n}",
     "hash": "ab2c1a55016c8de9172b77fdf69e00a2",
@@ -2801,11 +2766,11 @@
         "stdout": "tests are equal\\n{0, 0, 2, 2} == {-0, -0, 2, 2} and are numerically equal\\n{0, 0, 2, 2} == {-0, -0, 2, 2} and are numerically equal\\n{0, 0, 2, 2} == {-0, -0, 2, 2} and are numerically equal\\n"
     },
         "SkRect_growToInclude": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkRect rect;\n    rect.setLargestInverted();\n    rect.growToInclude( { 42, 24 } );\n    SkDebugf(\"rect: %g, %g, %g, %g  \", rect.left(), rect.top(), rect.right(), rect.bottom());\n    SkDebugf(\"isEmpty: %s\\n\", rect.isEmpty() ? \"true\" : \"false\");\n}",
-    "hash": "c2855b1bc92b4e332f6edd968065e4f0",
+    "code": "void draw(SkCanvas* canvas) {\n    SkRect rect = { 1, 1, 0, 0 };\n    rect.growToInclude( { 42, 24 } );\n    SkDebugf(\"rect: %g, %g, %g, %g  \", rect.left(), rect.top(), rect.right(), rect.bottom());\n    SkDebugf(\"isEmpty: %s\\n\", rect.isEmpty() ? \"true\" : \"false\");\n}",
+    "hash": "9a2bb963b7bdde80710cac5d148c6ccd",
     "file": "SkRect_Reference",
     "name": "SkRect::growToInclude",
-        "stdout": "rect: 42, 24, 42, 24  isEmpty: true\\n"
+        "stdout": "rect: 1, 1, 42, 24  isEmpty: false\\n"
     },
         "SkRect_growToInclude_2": {
     "code": "void draw(SkCanvas* canvas) {\n    SkPoint pts[] = { { 30, 50 }, { 40, 50 }, { 30, 60 } };\n    SkRect rect = { pts[0].fX, pts[0].fY, pts[0].fX, pts[0].fY };\n    rect.growToInclude( pts[1] );\n    rect.growToInclude( pts[2] );\n    SkDebugf(\"rect: %g, %g, %g, %g  \", rect.left(), rect.top(), rect.right(), rect.bottom());\n}",
@@ -2815,8 +2780,8 @@
         "stdout": "rect: 30, 50, 40, 60"
     },
         "SkRect_growToInclude_3": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkPoint3 pts[] = { { 30, 50, -1 }, { 40, 50, -1 }, { 30, 60, -1 } };\n    SkRect rect;\n    rect.setLargestInverted();\n    rect.growToInclude((SkPoint* ) &pts[0].fX, sizeof(SkPoint3), SK_ARRAY_COUNT(pts));\n    SkDebugf(\"rect: %g, %g, %g, %g \", rect.left(), rect.top(), rect.right(), rect.bottom());\n}",
-    "hash": "6dbf21017c60b76cae3379fd9101342a",
+    "code": "void draw(SkCanvas* canvas) {\n    SkPoint3 pts[] = { { 30, 50, -1 }, { 40, 50, -1 }, { 30, 60, -1 } };\n    SkRect rect = { 1, 1, 0, 0 };\n    rect.growToInclude((SkPoint* ) &pts[0].fX, sizeof(SkPoint3), SK_ARRAY_COUNT(pts));\n    SkDebugf(\"rect: %g, %g, %g, %g \", rect.left(), rect.top(), rect.right(), rect.bottom());\n}",
+    "hash": "1275f2f35d5ca9412bd2ae0e81e9f2e0",
     "file": "SkRect_Reference",
     "name": "SkRect::growToInclude_3",
         "stdout": "rect: 30, 50, 40, 60  \\n"
@@ -2878,18 +2843,11 @@
         "stdout": "rect: {20, 40, 10, 50} is empty\\nsorted: {10, 40, 20, 50} is not empty\\nrect: {20, 40, 20, 50} is empty\\nsorted: {20, 40, 20, 50} is empty\\n"
     },
         "SkRect_isFinite": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkRect largest = SkRect::MakeLargest();\n    SkDebugf(\"largest is finite: %s\\n\", largest.isFinite() ? \"true\" : \"false\");\n    SkDebugf(\"large width %g\\n\", largest.width());\n    SkRect widest = SkRect::MakeWH(largest.width(), largest.height());\n    SkDebugf(\"widest is finite: %s\\n\", widest.isFinite() ? \"true\" : \"false\");\n}",
-    "hash": "7365c6553b830e6535cea0ce0d07be19",
+    "code": "void draw(SkCanvas* canvas) {\n    SkRect largest = { SK_ScalarMin, SK_ScalarMin, SK_ScalarMax, SK_ScalarMax };\n        SkDebugf(\"largest is finite: %s\\n\", largest.isFinite() ? \"true\" : \"false\");\n        SkDebugf(\"large width %g\\n\", largest.width());\n        SkRect widest = SkRect::MakeWH(largest.width(), largest.height());\n        SkDebugf(\"widest is finite: %s\\n\", widest.isFinite() ? \"true\" : \"false\");\n}",
+    "hash": "443fe5f8296d4cdb19cc9862a9cf77a4",
     "file": "SkRect_Reference",
     "name": "SkRect::isFinite",
         "stdout": "largest is finite: true\\nlarge width inf\\nwidest is finite: false\\n"
-    },
-        "SkRect_isLargest": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkRect large = SkRect::MakeLargest();\n    SkDebugf(\"large is largest: %s\\n\" ,large.isLargest() ? \"true\" : \"false\");\n    SkDebugf(\"large width %g\\n\", large.width());\n    SkDebugf(\"large is empty: %s\\n\", large.isEmpty() ? \"true\" : \"false\");\n    SkDebugf(\"large is sorted: %s\\n\", large.isSorted() ? \"true\" : \"false\");\n    SkDebugf(\"large is finite: %s\\n\", large.isFinite() ? \"true\" : \"false\");\n}",
-    "hash": "30ef8865ff1ba8789ee1d3be92734ad8",
-    "file": "SkRect_Reference",
-    "name": "SkRect::isLargest",
-        "stdout": "large is largest: true\\nlarge width inf\\nlarge is empty: false\\nlarge is sorted: true\\nlarge is finite: true\\n"
     },
         "SkRect_isSorted": {
     "code": "void draw(SkCanvas* canvas) {\n    SkRect tests[] = {{20, 40, 10, 50}, {20, 40, 20, 50}};\n    for (auto rect : tests) {\n        SkDebugf(\"rect: {%g, %g, %g, %g} is\" \"%s sorted\\n\", rect.left(), rect.top(), rect.right(),\n                 rect.bottom(), rect.isSorted() ? \"\" : \" not\");\n        rect.sort();\n        SkDebugf(\"sorted: {%g, %g, %g, %g} is\" \"%s sorted\\n\", rect.left(), rect.top(), rect.right(),\n                 rect.bottom(), rect.isSorted() ? \"\" : \" not\");\n    }\n}",
@@ -3093,20 +3051,6 @@
     "file": "SkRect_Reference",
     "name": "SkRect::setLTRB",
         "stdout": "rect1: {3, 4, 1, 2}\\nrect2: {3, 4, 1, 2}\\n"
-    },
-        "SkRect_setLargest": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkRect rect;\n    rect.setLargest();\n    SkDebugf(\"MakeLargest isLargest: %s\\n\", rect.isLargest() ? \"true\" : \"false\");\n    SkDebugf(\"MakeLargest isFinite: %s\\n\", rect.isFinite() ? \"true\" : \"false\");\n    rect.outset(1e31, 1e31);\n    SkDebugf(\"outset a little isLargest: %s\\n\", rect.isLargest() ? \"true\" : \"false\");\n    SkDebugf(\"outset a little isFinite: %s\\n\", rect.isFinite() ? \"true\" : \"false\");\n    rect.outset(1e32, 1e32);\n    SkDebugf(\"outset a little more isLargest: %s\\n\", rect.isLargest() ? \"true\" : \"false\");\n    SkDebugf(\"outset a little more isFinite: %s\\n\", rect.isFinite() ? \"true\" : \"false\");\n}",
-    "hash": "7a07b1914ade5c38cce6be417bc8aa4b",
-    "file": "SkRect_Reference",
-    "name": "SkRect::setLargest",
-        "stdout": "MakeLargest isLargest: true\\nMakeLargest isFinite: true\\noutset a little isLargest: true\\noutset a little isFinite: true\\noutset a little more isLargest: false\\noutset a little more isFinite: false\\n"
-    },
-        "SkRect_setLargestInverted": {
-    "code": "void draw(SkCanvas* canvas) {\n    auto debugster = [](const char* prefix, const SkRect& rect) -> void {\n        SkDebugf(\"%s \", prefix);\n        SkDebugf(\"rect: %g, %g, %g, %g  \", rect.left(), rect.top(), rect.right(), rect.bottom());\n        SkDebugf(\"isEmpty: %s\\n\", rect.isEmpty() ? \"true\" : \"false\");\n    };\n    SkRect ptBounds;\n    ptBounds.setLargestInverted();\n    debugster(\"original\", ptBounds);\n    ptBounds.growToInclude( { 42, 24 } );\n    debugster(\"grown\", ptBounds);\n}",
-    "hash": "394442eedd4f01e42c5a4905e832dd0c",
-    "file": "SkRect_Reference",
-    "name": "SkRect::setLargestInverted",
-        "stdout": "original rect: 3.40282e+38, 3.40282e+38, -3.40282e+38, -3.40282e+38  isEmpty: true\\ngrown rect: 42, 24, 42, 24  isEmpty: true\\n"
     },
         "SkRect_setWH": {
     "code": "void draw(SkCanvas* canvas) {\n    SkRect rect;\n    rect.setWH(-15, 25);\n    SkDebugf(\"rect: %g, %g, %g, %g  isEmpty: %s\\n\", rect.left(), rect.top(), rect.right(),\n              rect.bottom(), rect.isEmpty() ? \"true\" : \"false\");\n    rect.sort();\n    SkDebugf(\"rect: %g, %g, %g, %g  isEmpty: %s\\n\", rect.left(), rect.top(), rect.right(),\n              rect.bottom(), rect.isEmpty() ? \"true\" : \"false\");\n}",
@@ -5215,14 +5159,6 @@
     "hash": "f99dcb00296d0c56b6c0e178e94b3534",
     "file": "SkMatrix_Reference",
     "name": "SkMatrix::mapPoints"
-},
-    "SkMatrix_mapPointsWithStride": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkMatrix matrix;\n    matrix.reset();\n    struct PointZ {\n        SkPoint fPt;\n        SkPoint fStationary;\n    } pts[] = {{{40, 70}, {40, 70}}, {{180, 70}, {180, 70}}, {{180, 220}, {180, 220}},\n               {{40, 220}, {40, 220}}};\n    constexpr int count = SK_ARRAY_COUNT(pts);\n    SkPaint paint;\n    paint.setARGB(77, 23, 99, 154);\n    for (int i = 0; i < 5; ++i) {\n        matrix.preRotate(10, 128, 128);\n        matrix.mapPointsWithStride(&pts[0].fPt, sizeof(PointZ), count);\n        canvas->drawPoints(SkCanvas::kPolygon_PointMode, count * 2, &pts[0].fPt, paint);\n    }\n}",
-    "width": 256,
-    "height": 256,
-    "hash": "02c50c7bb5d5dd1fe7e54b0d3bf64c2a",
-    "file": "SkMatrix_Reference",
-    "name": "SkMatrix::mapPointsWithStride"
 },
     "SkMatrix_mapPoints_2": {
     "code": "void draw(SkCanvas* canvas) {\n    SkMatrix matrix;\n    matrix.setRotate(35, 128, 128);\n    const int count = 4;\n    SkPoint pts[count];\n    matrix.mapRectToQuad(pts, {40, 70, 180, 220} );\n    SkPaint paint;\n    paint.setARGB(77, 23, 99, 154);\n    for (int i = 0; i < 5; ++i) {\n        canvas->drawPoints(SkCanvas::kPolygon_PointMode, count, pts, paint);\n        matrix.mapPoints(pts, count);\n    }\n}",

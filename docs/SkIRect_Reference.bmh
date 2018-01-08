@@ -1562,6 +1562,13 @@ rect: 0, 0, 0, 0
 
 ##
 
+#Method static SkIRect SK_WARN_UNUSED_RESULT MakeLargest()
+
+#Deprecated
+##
+
+##
+
 #Struct SkIRect ##
 
 #Topic IRect ##
