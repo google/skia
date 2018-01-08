@@ -44,6 +44,11 @@ protected:
     explicit Node(uint32_t invalTraits);
     ~Node() override;
 
+    const SkRect& bounds() const {
+        SkASSERT(!this->hasInval());
+        return fBounds;
+    }
+
     // Tag this node for invalidation and optional damage.
     void invalidate(bool damage = true);
     bool hasInval() const { return fFlags & kInvalidated_Flag; }
