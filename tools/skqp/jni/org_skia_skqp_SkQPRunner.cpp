@@ -19,11 +19,11 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 extern "C" {
-JNIEXPORT void JNICALL Java_org_skia_skqp_SkQPRunner_nInit(JNIEnv*, jobject, jobject, jstring);
-JNIEXPORT jfloat JNICALL Java_org_skia_skqp_SkQPRunner_nExecuteGM(JNIEnv*, jobject, jint, jint);
-JNIEXPORT jobjectArray JNICALL Java_org_skia_skqp_SkQPRunner_nExecuteUnitTest(JNIEnv*, jobject,
+JNIEXPORT void JNICALL Java_org_skia_skqp_SkQP_nInit(JNIEnv*, jobject, jobject, jstring);
+JNIEXPORT jfloat JNICALL Java_org_skia_skqp_SkQP_nExecuteGM(JNIEnv*, jobject, jint, jint);
+JNIEXPORT jobjectArray JNICALL Java_org_skia_skqp_SkQP_nExecuteUnitTest(JNIEnv*, jobject,
                                                                               jint);
-JNIEXPORT void JNICALL Java_org_skia_skqp_SkQPRunner_nMakeReport(JNIEnv*, jobject);
+JNIEXPORT void JNICALL Java_org_skia_skqp_SkQP_nMakeReport(JNIEnv*, jobject);
 }  // extern "C"
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -118,7 +118,7 @@ jobjectArray to_java_string_array(JNIEnv* env,
     return jarray;
 }
 
-void Java_org_skia_skqp_SkQPRunner_nInit(JNIEnv* env, jobject object, jobject assetManager,
+void Java_org_skia_skqp_SkQP_nInit(JNIEnv* env, jobject object, jobject assetManager,
                                          jstring dataDir) {
     jclass clazz = env->GetObjectClass(object);
     jassert(env, assetManager);
@@ -147,7 +147,7 @@ void Java_org_skia_skqp_SkQPRunner_nInit(JNIEnv* env, jobject object, jobject as
                         to_java_string_array(env, gGMs, gm_runner::GetGMName));
 }
 
-jfloat Java_org_skia_skqp_SkQPRunner_nExecuteGM(JNIEnv* env,
+jfloat Java_org_skia_skqp_SkQP_nExecuteGM(JNIEnv* env,
                                                 jobject object,
                                                 jint gmIndex,
                                                 jint backendIndex) {
@@ -173,7 +173,7 @@ jfloat Java_org_skia_skqp_SkQPRunner_nExecuteGM(JNIEnv* env,
     return result;
 }
 
-jobjectArray Java_org_skia_skqp_SkQPRunner_nExecuteUnitTest(JNIEnv* env,
+jobjectArray Java_org_skia_skqp_SkQP_nExecuteUnitTest(JNIEnv* env,
                                                             jobject object,
                                                             jint index) {
     jassert(env, index < (jint)gUnitTests.size());
@@ -193,7 +193,7 @@ jobjectArray Java_org_skia_skqp_SkQPRunner_nExecuteUnitTest(JNIEnv* env,
     return (jobjectArray)env->NewGlobalRef(array);
 }
 
-void Java_org_skia_skqp_SkQPRunner_nMakeReport(JNIEnv*, jobject) {
+void Java_org_skia_skqp_SkQP_nMakeReport(JNIEnv*, jobject) {
     std::string reportDirectoryPath;
     {
         std::lock_guard<std::mutex> lock(gMutex);
