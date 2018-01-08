@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrCCPRAtlas_DEFINED
-#define GrCCPRAtlas_DEFINED
+#ifndef GrCCAtlas_DEFINED
+#define GrCCAtlas_DEFINED
 
 #include "SkRefCnt.h"
 #include "SkSize.h"
@@ -23,18 +23,18 @@ struct SkIPoint16;
  * dependent max texture size. When finalized, it also creates and stores a GrTextureProxy for the
  * underlying atlas.
  */
-class GrCCPRAtlas {
+class GrCCAtlas {
 public:
     static constexpr int kMinSize = 1024;
 
-    GrCCPRAtlas(const GrCaps&, int minWidth, int minHeight);
-    ~GrCCPRAtlas();
+    GrCCAtlas(const GrCaps&, int minWidth, int minHeight);
+    ~GrCCAtlas();
 
     bool addRect(int devWidth, int devHeight, SkIPoint16* loc);
     const SkISize& drawBounds() { return fDrawBounds; }
 
-    sk_sp<GrRenderTargetContext> SK_WARN_UNUSED_RESULT finalize(GrOnFlushResourceProvider*,
-                                                                std::unique_ptr<GrDrawOp> atlasOp);
+    sk_sp<GrRenderTargetContext> SK_WARN_UNUSED_RESULT
+    finalize(GrOnFlushResourceProvider*, std::unique_ptr<GrDrawOp> atlasOp);
 
     GrTextureProxy* textureProxy() const { return fTextureProxy.get(); }
 
@@ -43,14 +43,14 @@ private:
 
     bool internalPlaceRect(int w, int h, SkIPoint16* loc);
 
-    const int                                fMaxAtlasSize;
+    const int fMaxAtlasSize;
 
-    int                                      fWidth;
-    int                                      fHeight;
-    SkISize                                  fDrawBounds;
-    std::unique_ptr<Node>                    fTopNode;
+    int fWidth;
+    int fHeight;
+    SkISize fDrawBounds;
+    std::unique_ptr<Node> fTopNode;
 
-    sk_sp<GrTextureProxy>                    fTextureProxy;
+    sk_sp<GrTextureProxy> fTextureProxy;
 };
 
 #endif
