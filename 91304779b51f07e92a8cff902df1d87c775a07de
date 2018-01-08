@@ -16,6 +16,24 @@
       "revId": "91304779b51f07e92a8cff902df1d87c775a07de",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "868fd5fa_d3ceed33",
+        "filename": "include/private/GrSurfaceProxy.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 234,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-01-08T16:29:38Z",
+      "side": 1,
+      "message": "I agree with Chris. I think any negative number should indicate lack of knowledge.",
+      "parentUuid": "c52fb46a_1547b805",
+      "revId": "91304779b51f07e92a8cff902df1d87c775a07de",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
