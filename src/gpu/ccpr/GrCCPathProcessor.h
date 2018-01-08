@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrCCPRPathProcessor_DEFINED
-#define GrCCPRPathProcessor_DEFINED
+#ifndef GrCCPathProcessor_DEFINED
+#define GrCCPathProcessor_DEFINED
 
 #include "GrGeometryProcessor.h"
 #include "SkPath.h"
@@ -16,7 +16,7 @@ class GrOnFlushResourceProvider;
 class GrShaderCaps;
 
 /**
- * This class draws AA paths using the coverage count masks produced by GrCCPRCoverageProcessor.
+ * This class draws AA paths using the coverage count masks produced by GrCCCoverageProcessor.
  *
  * Paths are drawn as bloated octagons, and coverage is derived from the coverage count mask and
  * fill rule.
@@ -24,7 +24,7 @@ class GrShaderCaps;
  * The caller must set up an instance buffer as detailed below, then draw indexed-instanced
  * triangles using the index and vertex buffers provided by this class.
  */
-class GrCCPRPathProcessor : public GrGeometryProcessor {
+class GrCCPathProcessor : public GrGeometryProcessor {
 public:
     static constexpr int kPerInstanceIndexCount = 6 * 3;
 
@@ -55,10 +55,10 @@ public:
     static sk_sp<const GrBuffer> FindIndexBuffer(GrOnFlushResourceProvider*);
     static sk_sp<const GrBuffer> FindVertexBuffer(GrOnFlushResourceProvider*);
 
-    GrCCPRPathProcessor(GrResourceProvider*, sk_sp<GrTextureProxy> atlas, SkPath::FillType,
-                       const GrShaderCaps&);
+    GrCCPathProcessor(GrResourceProvider*, sk_sp<GrTextureProxy> atlas, SkPath::FillType,
+                      const GrShaderCaps&);
 
-    const char* name() const override { return "GrCCPRPathProcessor"; }
+    const char* name() const override { return "GrCCPathProcessor"; }
     const GrSurfaceProxy* atlasProxy() const { return fAtlasAccess.proxy(); }
     const GrTexture* atlas() const { return fAtlasAccess.peekTexture(); }
     SkPath::FillType fillType() const { return fFillType; }

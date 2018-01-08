@@ -8,27 +8,24 @@
 #ifndef GrCoverageCountingPathRenderer_DEFINED
 #define GrCoverageCountingPathRenderer_DEFINED
 
+#include <map>
 #include "GrAllocator.h"
 #include "GrOnFlushResourceProvider.h"
 #include "GrPathRenderer.h"
 #include "SkTInternalLList.h"
-#include "ccpr/GrCCPRAtlas.h"
-#include "ccpr/GrCCPRCoverageOp.h"
-#include "ccpr/GrCCPRPathProcessor.h"
+#include "ccpr/GrCCAtlas.h"
+#include "ccpr/GrCCCoverageOp.h"
+#include "ccpr/GrCCPathProcessor.h"
 #include "ops/GrDrawOp.h"
-#include <map>
 
 /**
  * This is a path renderer that draws antialiased paths by counting coverage in an offscreen
- * buffer. (See GrCCPRCoverageProcessor, GrCCPRPathProcessor)
+ * buffer. (See GrCCCoverageProcessor, GrCCPathProcessor)
  *
  * It also serves as the per-render-target tracker for pending path draws, and at the start of
  * flush, it compiles GPU buffers and renders a "coverage count atlas" for the upcoming paths.
  */
-class GrCoverageCountingPathRenderer
-    : public GrPathRenderer
-    , public GrOnFlushCallbackObject {
-
+class GrCoverageCountingPathRenderer : public GrPathRenderer, public GrOnFlushCallbackObject {
     struct RTPendingPaths;
 
 public:
@@ -52,7 +49,7 @@ public:
         DrawPathsOp(GrCoverageCountingPathRenderer*, const DrawPathArgs&, GrColor);
         ~DrawPathsOp() override;
 
-        struct SingleDraw  {
+        struct SingleDraw {
             SkIRect fClipIBounds;
             SkMatrix fMatrix;
             SkPath fPath;
@@ -80,8 +77,8 @@ public:
         void onPrepare(GrOpFlushState*) override {}
         void onExecute(GrOpFlushState*) override;
 
-        int setupResources(GrOnFlushResourceProvider*, GrCCPRCoverageOpsBuilder*,
-                           GrCCPRPathProcessor::Instance* pathInstanceData, int pathInstanceIdx);
+        int setupResources(GrOnFlushResourceProvider*, GrCCCoverageOpsBuilder*,
+                           GrCCPathProcessor::Instance* pathInstanceData, int pathInstanceIdx);
 
     private:
         SkPath::FillType getFillType() const {
@@ -90,11 +87,11 @@ public:
         }
 
         struct AtlasBatch {
-            const GrCCPRAtlas* fAtlas;
+            const GrCCAtlas* fAtlas;
             int fEndInstanceIdx;
         };
 
-        void addAtlasBatch(const GrCCPRAtlas* atlas, int endInstanceIdx) {
+        void addAtlasBatch(const GrCCAtlas* atlas, int endInstanceIdx) {
             SkASSERT(endInstanceIdx > fBaseInstance);
             SkASSERT(fAtlasBatches.empty() ||
                      endInstanceIdx > fAtlasBatches.back().fEndInstanceIdx);
@@ -108,8 +105,8 @@ public:
         SingleDraw* fTailDraw;
         RTPendingPaths* fOwningRTPendingPaths;
         int fBaseInstance;
-        SkDEBUGCODE(int fInstanceCount;)
-        SkDEBUGCODE(int fNumSkippedInstances;)
+        SkDEBUGCODE(int fInstanceCount);
+        SkDEBUGCODE(int fNumSkippedInstances);
         SkSTArray<1, AtlasBatch, true> fAtlasBatches;
 
         typedef GrDrawOp INHERITED;
@@ -158,9 +155,12 @@ public:
             return fPathDevIBounds;
         }
         void placePathInAtlas(GrCoverageCountingPathRenderer*, GrOnFlushResourceProvider*,
-                              GrCCPRCoverageOpsBuilder*);
+                              GrCCCoverageOpsBuilder*);
 
-        const SkVector& atlasScale() const { SkASSERT(fHasAtlasTransform); return fAtlasScale; }
+        const SkVector& atlasScale() const {
+            SkASSERT(fHasAtlasTransform);
+            return fAtlasScale;
+        }
         const SkVector& atlasTranslate() const {
             SkASSERT(fHasAtlasTransform);
             return fAtlasTranslate;
@@ -172,7 +172,7 @@ public:
         SkIRect fPathDevIBounds;
         SkIRect fAccessRect;
 
-        const GrCCPRAtlas* fAtlas = nullptr;
+        const GrCCAtlas* fAtlas = nullptr;
         int16_t fAtlasOffsetX;
         int16_t fAtlasOffsetY;
         SkDEBUGCODE(bool fHasAtlas = false);
@@ -186,8 +186,8 @@ public:
 
     std::unique_ptr<GrFragmentProcessor> makeClipProcessor(uint32_t oplistID,
                                                            const SkPath& deviceSpacePath,
-                                                           const SkIRect& accessRect,
-                                                           int rtWidth, int rtHeight);
+                                                           const SkIRect& accessRect, int rtWidth,
+                                                           int rtHeight);
 
     // GrOnFlushCallbackObject overrides.
     void preFlush(GrOnFlushResourceProvider*, const uint32_t* opListIDs, int numOpListIDs,
@@ -198,9 +198,9 @@ private:
     GrCoverageCountingPathRenderer(bool drawCachablePaths)
             : fDrawCachablePaths(drawCachablePaths) {}
 
-    GrCCPRAtlas* placeParsedPathInAtlas(GrOnFlushResourceProvider*, const SkIRect& accessRect,
-                                        const SkIRect& pathIBounds, int16_t* atlasOffsetX,
-                                        int16_t* atlasOffsetY, GrCCPRCoverageOpsBuilder*);
+    GrCCAtlas* placeParsedPathInAtlas(GrOnFlushResourceProvider*, const SkIRect& accessRect,
+                                      const SkIRect& pathIBounds, int16_t* atlasOffsetX,
+                                      int16_t* atlasOffsetY, GrCCCoverageOpsBuilder*);
 
     struct RTPendingPaths {
         ~RTPendingPaths() {
@@ -215,14 +215,14 @@ private:
 
     // A map from render target ID to the individual render target's pending paths.
     std::map<uint32_t, RTPendingPaths> fRTPendingPathsMap;
-    SkDEBUGCODE(int fPendingDrawOpsCount = 0;)
+    SkDEBUGCODE(int fPendingDrawOpsCount = 0);
 
     sk_sp<const GrBuffer> fPerFlushIndexBuffer;
     sk_sp<const GrBuffer> fPerFlushVertexBuffer;
     sk_sp<GrBuffer> fPerFlushInstanceBuffer;
-    GrSTAllocator<4, GrCCPRAtlas> fPerFlushAtlases;
+    GrSTAllocator<4, GrCCAtlas> fPerFlushAtlases;
     bool fPerFlushResourcesAreValid;
-    SkDEBUGCODE(bool fFlushing = false;)
+    SkDEBUGCODE(bool fFlushing = false);
 
     const bool fDrawCachablePaths;
 };
