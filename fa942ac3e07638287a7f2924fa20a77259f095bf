@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "52793b72_7f937355",
+        "filename": "include/gpu/GrContext.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 311,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-01-08T17:47:28Z",
+      "side": 1,
+      "message": "Erg - probably.",
+      "parentUuid": "475b9357_8f86298e",
+      "range": {
+        "startLine": 310,
+        "startChar": 0,
+        "endLine": 311,
+        "endChar": 75
+      },
+      "revId": "fa942ac3e07638287a7f2924fa20a77259f095bf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ac7f06ae_7b623d5e",
         "filename": "src/gpu/effects/GrConstColorProcessor.h",
         "patchSetId": 8
@@ -36,6 +60,30 @@
       "writtenOn": "2018-01-08T16:52:18Z",
       "side": 1,
       "message": "?",
+      "range": {
+        "startLine": 19,
+        "startChar": 19,
+        "endLine": 19,
+        "endChar": 87
+      },
+      "revId": "fa942ac3e07638287a7f2924fa20a77259f095bf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a84913f7_3ce0b355",
+        "filename": "src/gpu/effects/GrConstColorProcessor.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-01-08T17:47:28Z",
+      "side": 1,
+      "message": "Ethan is working on this. It appears that SkSL will reorder these at will whenever the FPs are regenerated from the .fp files.",
+      "parentUuid": "ac7f06ae_7b623d5e",
       "range": {
         "startLine": 19,
         "startChar": 19,

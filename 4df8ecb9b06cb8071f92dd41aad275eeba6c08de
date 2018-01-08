@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "e029cfbc_a30503d9",
+        "filename": "src/gpu/GrResourceCache.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 203,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-01-08T17:47:28Z",
+      "side": 1,
+      "message": "I think we can always assume that when we have a resource cache it will have a proxy provider. Obviously, the reverse will not be true in the future though.",
+      "parentUuid": "0754f358_55fa764f",
+      "range": {
+        "startLine": 203,
+        "startChar": 4,
+        "endLine": 203,
+        "endChar": 42
+      },
+      "revId": "4df8ecb9b06cb8071f92dd41aad275eeba6c08de",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "3d4a01c6_8b51ebd6",
         "filename": "src/gpu/GrResourceCache.cpp",
         "patchSetId": 7
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "04367544_3edac182",
+        "filename": "src/gpu/GrResourceCache.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 589,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-01-08T17:47:28Z",
+      "side": 1,
+      "message": "I push back ...",
+      "parentUuid": "3d4a01c6_8b51ebd6",
+      "range": {
+        "startLine": 589,
+        "startChar": 8,
+        "endLine": 589,
+        "endChar": 22
+      },
+      "revId": "4df8ecb9b06cb8071f92dd41aad275eeba6c08de",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "3618553c_8f0478d2",
         "filename": "src/gpu/GrResourceProvider.cpp",
         "patchSetId": 7
@@ -59,6 +107,30 @@
       "writtenOn": "2018-01-08T16:41:19Z",
       "side": 1,
       "message": "do you think we hit this code path enough to care that an extra proxy is now getting made here and then thrown away?",
+      "range": {
+        "startLine": 136,
+        "startChar": 7,
+        "endLine": 136,
+        "endChar": 85
+      },
+      "revId": "4df8ecb9b06cb8071f92dd41aad275eeba6c08de",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "23fdb6ce_e3944af6",
+        "filename": "src/gpu/GrResourceProvider.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-01-08T17:47:28Z",
+      "side": 1,
+      "message": "From looking at GrContextPriv::writeSurfacePixels, it seems like it is so expensive that this will get lost in the noise.",
+      "parentUuid": "3618553c_8f0478d2",
       "range": {
         "startLine": 136,
         "startChar": 7,
