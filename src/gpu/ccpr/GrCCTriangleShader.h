@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrCCPRTriangleShader_DEFINED
-#define GrCCPRTriangleShader_DEFINED
+#ifndef GrCCTriangleShader_DEFINED
+#define GrCCTriangleShader_DEFINED
 
-#include "ccpr/GrCCPRCoverageProcessor.h"
+#include "ccpr/GrCCCoverageProcessor.h"
 
 /**
  * Steps 1 & 2: Draw the triangle's conservative raster hull with a coverage of +1, then smooth the
@@ -16,7 +16,7 @@
  *              coverage=-1 on the outside to coverage=0 on the inside. The Impl may choose to
  *              implement these steps in either one or two actual render passes.
  */
-class GrCCPRTriangleShader : public GrCCPRCoverageProcessor::Shader {
+class GrCCTriangleShader : public GrCCCoverageProcessor::Shader {
     WindHandling onEmitVaryings(GrGLSLVaryingHandler*, GrGLSLVarying::Scope, SkString* code,
                                 const char* position, const char* coverage,
                                 const char* wind) override;
@@ -30,7 +30,7 @@ class GrCCPRTriangleShader : public GrCCPRCoverageProcessor::Shader {
  *         done previously so that it takes into account the region that is outside both edges at
  *         the same time.
  */
-class GrCCPRTriangleCornerShader : public GrCCPRCoverageProcessor::Shader {
+class GrCCTriangleCornerShader : public GrCCCoverageProcessor::Shader {
     void emitSetupCode(GrGLSLVertexGeoBuilder*, const char* pts, const char* repetitionID,
                        const char* wind, GeometryVars*) const override;
     WindHandling onEmitVaryings(GrGLSLVaryingHandler*, GrGLSLVarying::Scope, SkString* code,
