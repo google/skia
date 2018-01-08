@@ -141,9 +141,9 @@ config("default") {
       "--target=$ndk_target",
     ]
     cflags_cc += [
+      "-isystem$ndk/sources/cxx-stl/llvm-libc++/include",
+      "-isystem$ndk/sources/cxx-stl/llvm-libc++abi/include",
       "-isystem$ndk/sources/android/support/include",
-      "-isystem$ndk/sources/cxx-stl/gnu-libstdc++/4.9/include",
-      "-isystem$ndk/sources/cxx-stl/gnu-libstdc++/4.9/libs/$ndk_stdlib/include",
     ]
     ldflags += [
       "--sysroot=$ndk/platforms/$ndk_platform",
@@ -151,11 +151,15 @@ config("default") {
       "-B$ndk/toolchains/$ndk_gccdir-4.9/prebuilt/$ndk_host/$ndk_target/bin",
     ]
     lib_dirs = [
-      "$ndk/sources/cxx-stl/gnu-libstdc++/4.9/libs/$ndk_stdlib",
+      "$ndk/sources/cxx-stl/llvm-libc++/libs/$ndk_stdlib",
       "$ndk/toolchains/$ndk_gccdir-4.9/prebuilt/$ndk_host/lib/gcc/$ndk_target/4.9.x",
     ]
 
-    libs += [ "gnustl_static" ]
+    libs += [
+      "c++_static",
+      "c++abi",
+      "android_support",
+    ]
   }
 
   if (is_ios) {
