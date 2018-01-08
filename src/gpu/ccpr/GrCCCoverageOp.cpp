@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "GrCCPRCoverageOp.h"
+#include "GrCCCoverageOp.h"
 
 #include "GrCaps.h"
 #include "GrGpuCommandBuffer.h"
@@ -15,13 +15,13 @@
 #include "SkPath.h"
 #include "SkPathPriv.h"
 #include "SkPoint.h"
-#include "ccpr/GrCCPRGeometry.h"
+#include "ccpr/GrCCGeometry.h"
 
-using TriangleInstance = GrCCPRCoverageProcessor::TriangleInstance;
-using CubicInstance = GrCCPRCoverageProcessor::CubicInstance;
+using TriangleInstance = GrCCCoverageProcessor::TriangleInstance;
+using CubicInstance = GrCCCoverageProcessor::CubicInstance;
 
-void GrCCPRCoverageOpsBuilder::parsePath(const SkMatrix& m, const SkPath& path, SkRect* devBounds,
-                                         SkRect* devBounds45) {
+void GrCCCoverageOpsBuilder::parsePath(const SkMatrix& m, const SkPath& path, SkRect* devBounds,
+                                       SkRect* devBounds45) {
     const SkPoint* pts = SkPathPriv::PointData(path);
     int numPts = path.countPoints();
     SkASSERT(numPts + 1 <= fLocalDevPtsBuffer.count());
@@ -69,19 +69,19 @@ void GrCCPRCoverageOpsBuilder::parsePath(const SkMatrix& m, const SkPath& path, 
     SkPoint topLeftPts[2], bottomRightPts[2];
     topLeft.store(topLeftPts);
     bottomRight.store(bottomRightPts);
-    devBounds->setLTRB(topLeftPts[0].x(), topLeftPts[0].y(),
-                       bottomRightPts[0].x(), bottomRightPts[0].y());
-    devBounds45->setLTRB(topLeftPts[1].x(), topLeftPts[1].y(),
-                         bottomRightPts[1].x(), bottomRightPts[1].y());
+    devBounds->setLTRB(topLeftPts[0].x(), topLeftPts[0].y(), bottomRightPts[0].x(),
+                       bottomRightPts[0].y());
+    devBounds45->setLTRB(topLeftPts[1].x(), topLeftPts[1].y(), bottomRightPts[1].x(),
+                         bottomRightPts[1].y());
 
     this->parsePath(path, fLocalDevPtsBuffer.get());
 }
 
-void GrCCPRCoverageOpsBuilder::parseDeviceSpacePath(const SkPath& deviceSpacePath) {
+void GrCCCoverageOpsBuilder::parseDeviceSpacePath(const SkPath& deviceSpacePath) {
     this->parsePath(deviceSpacePath, SkPathPriv::PointData(deviceSpacePath));
 }
 
-void GrCCPRCoverageOpsBuilder::parsePath(const SkPath& path, const SkPoint* deviceSpacePts) {
+void GrCCCoverageOpsBuilder::parsePath(const SkPath& path, const SkPoint* deviceSpacePts) {
     SkASSERT(!fParsingPath);
     SkDEBUGCODE(fParsingPath = true);
     SkASSERT(path.isEmpty() || deviceSpacePts);
@@ -134,36 +134,30 @@ void GrCCPRCoverageOpsBuilder::parsePath(const SkPath& path, const SkPoint* devi
     this->endContourIfNeeded(insideContour);
 }
 
-void GrCCPRCoverageOpsBuilder::endContourIfNeeded(bool insideContour) {
+void GrCCCoverageOpsBuilder::endContourIfNeeded(bool insideContour) {
     if (insideContour) {
         fCurrPathTallies += fGeometry.endContour();
     }
 }
 
-void GrCCPRCoverageOpsBuilder::saveParsedPath(ScissorMode scissorMode,
-                                              const SkIRect& clippedDevIBounds,
-                                              int16_t atlasOffsetX, int16_t atlasOffsetY) {
+void GrCCCoverageOpsBuilder::saveParsedPath(ScissorMode scissorMode,
+                                            const SkIRect& clippedDevIBounds, int16_t atlasOffsetX,
+                                            int16_t atlasOffsetY) {
     SkASSERT(fParsingPath);
 
-    fPathsInfo.push_back() = {
-        scissorMode,
-        atlasOffsetX, atlasOffsetY,
-        std::move(fTerminatingOp)
-    };
+    fPathsInfo.push_back() = {scissorMode, atlasOffsetX, atlasOffsetY, std::move(fTerminatingOp)};
 
     fTallies[(int)scissorMode] += fCurrPathTallies;
 
     if (ScissorMode::kScissored == scissorMode) {
-        fScissorBatches.push_back() = {
-            fCurrPathTallies,
-            clippedDevIBounds.makeOffset(atlasOffsetX, atlasOffsetY)
-        };
+        fScissorBatches.push_back() = {fCurrPathTallies,
+                                       clippedDevIBounds.makeOffset(atlasOffsetX, atlasOffsetY)};
     }
 
     SkDEBUGCODE(fParsingPath = false);
 }
 
-void GrCCPRCoverageOpsBuilder::discardParsedPath() {
+void GrCCCoverageOpsBuilder::discardParsedPath() {
     SkASSERT(fParsingPath);
 
     // The code will still work whether or not the below assertion is true. It is just unlikely that
@@ -175,9 +169,9 @@ void GrCCPRCoverageOpsBuilder::discardParsedPath() {
     SkDEBUGCODE(fParsingPath = false);
 }
 
-void GrCCPRCoverageOpsBuilder::emitOp(SkISize drawBounds) {
+void GrCCCoverageOpsBuilder::emitOp(SkISize drawBounds) {
     SkASSERT(!fTerminatingOp);
-    fTerminatingOp.reset(new GrCCPRCoverageOp(std::move(fScissorBatches), drawBounds));
+    fTerminatingOp.reset(new GrCCCoverageOp(std::move(fScissorBatches), drawBounds));
     SkASSERT(fScissorBatches.empty());
 }
 
@@ -204,8 +198,7 @@ static TriangleInstance* emit_recursive_fan(const SkTArray<SkPoint, true>& pts,
 
     const int32_t oneThirdCount = indexCount / 3;
     const int32_t twoThirdsCount = (2 * indexCount) / 3;
-    out++->set(pts[indices[firstIndex]],
-               pts[indices[firstIndex + oneThirdCount]],
+    out++->set(pts[indices[firstIndex]], pts[indices[firstIndex + oneThirdCount]],
                pts[indices[firstIndex + twoThirdsCount]], atlasOffset);
 
     out = emit_recursive_fan(pts, indices, firstIndex, oneThirdCount + 1, atlasOffset, out);
@@ -222,8 +215,8 @@ static TriangleInstance* emit_recursive_fan(const SkTArray<SkPoint, true>& pts,
     return out;
 }
 
-bool GrCCPRCoverageOpsBuilder::finalize(GrOnFlushResourceProvider* onFlushRP,
-                                        SkTArray<std::unique_ptr<GrCCPRCoverageOp>>* ops) {
+bool GrCCCoverageOpsBuilder::finalize(GrOnFlushResourceProvider* onFlushRP,
+                                      SkTArray<std::unique_ptr<GrCCCoverageOp>>* ops) {
     SkASSERT(!fParsingPath);
 
     // Here we build a single instance buffer to share with every draw call from every CoverageOP we
@@ -252,14 +245,14 @@ bool GrCCPRCoverageOpsBuilder::finalize(GrOnFlushResourceProvider* onFlushRP,
     // Cubics (loops and serpentines) view the same instance buffer as an array of CubicInstance[].
     // So, reinterpreting the instance data as CubicInstance[], we start them on the first index
     // that will not overwrite previous TriangleInstance data.
-    int cubicBaseIdx = GR_CT_DIV_ROUND_UP(triEndIdx * sizeof(TriangleInstance),
-                                          sizeof(CubicInstance));
+    int cubicBaseIdx =
+            GR_CT_DIV_ROUND_UP(triEndIdx * sizeof(TriangleInstance), sizeof(CubicInstance));
     baseInstances[0].fCubics = cubicBaseIdx;
     baseInstances[1].fCubics = baseInstances[0].fCubics + fTallies[0].fCubics;
     int cubicEndIdx = baseInstances[1].fCubics + fTallies[1].fCubics;
 
-    sk_sp<GrBuffer> instanceBuffer = onFlushRP->makeBuffer(kVertex_GrBufferType,
-                                                           cubicEndIdx * sizeof(CubicInstance));
+    sk_sp<GrBuffer> instanceBuffer =
+            onFlushRP->makeBuffer(kVertex_GrBufferType, cubicEndIdx * sizeof(CubicInstance));
     if (!instanceBuffer) {
         return false;
     }
@@ -285,9 +278,9 @@ bool GrCCPRCoverageOpsBuilder::finalize(GrOnFlushResourceProvider* onFlushRP,
     const SkTArray<SkPoint, true>& pts = fGeometry.points();
 
     // Expand the ccpr verbs into GPU instance buffers.
-    for (GrCCPRGeometry::Verb verb : fGeometry.verbs()) {
+    for (GrCCGeometry::Verb verb : fGeometry.verbs()) {
         switch (verb) {
-            case GrCCPRGeometry::Verb::kBeginPath:
+            case GrCCGeometry::Verb::kBeginPath:
                 SkASSERT(currFan.empty());
                 currIndices = &instanceIndices[(int)currPathInfo->fScissorMode];
                 atlasOffsetX = static_cast<float>(currPathInfo->fAtlasOffsetX);
@@ -308,42 +301,42 @@ bool GrCCPRCoverageOpsBuilder::finalize(GrOnFlushResourceProvider* onFlushRP,
                 ++currPathInfo;
                 continue;
 
-            case GrCCPRGeometry::Verb::kBeginContour:
+            case GrCCGeometry::Verb::kBeginContour:
                 SkASSERT(currFan.empty());
                 currFan.push_back(++ptsIdx);
                 continue;
 
-            case GrCCPRGeometry::Verb::kLineTo:
+            case GrCCGeometry::Verb::kLineTo:
                 SkASSERT(!currFan.empty());
                 currFan.push_back(++ptsIdx);
                 continue;
 
-            case GrCCPRGeometry::Verb::kMonotonicQuadraticTo:
+            case GrCCGeometry::Verb::kMonotonicQuadraticTo:
                 SkASSERT(!currFan.empty());
                 triangleInstanceData[currIndices->fQuadratics++].set(&pts[ptsIdx], atlasOffset);
                 currFan.push_back(ptsIdx += 2);
                 continue;
 
-            case GrCCPRGeometry::Verb::kMonotonicCubicTo:
+            case GrCCGeometry::Verb::kMonotonicCubicTo:
                 SkASSERT(!currFan.empty());
-                cubicInstanceData[currIndices->fCubics++].set(&pts[ptsIdx],
-                                                              atlasOffsetX, atlasOffsetY);
+                cubicInstanceData[currIndices->fCubics++].set(&pts[ptsIdx], atlasOffsetX,
+                                                              atlasOffsetY);
                 currFan.push_back(ptsIdx += 3);
                 continue;
 
-            case GrCCPRGeometry::Verb::kEndClosedContour: // endPt == startPt.
+            case GrCCGeometry::Verb::kEndClosedContour:  // endPt == startPt.
                 SkASSERT(!currFan.empty());
                 currFan.pop_back();
-                // fallthru.
-            case GrCCPRGeometry::Verb::kEndOpenContour: // endPt != startPt.
+            // fallthru.
+            case GrCCGeometry::Verb::kEndOpenContour:  // endPt != startPt.
                 if (currFan.count() >= 3) {
                     int fanSize = currFan.count();
                     // Reserve space for emit_recursive_fan. Technically this can grow to
                     // fanSize + log3(fanSize), but we approximate with log2.
                     currFan.push_back_n(SkNextLog2(fanSize));
                     SkDEBUGCODE(TriangleInstance* end =)
-                    emit_recursive_fan(pts, currFan, 0, fanSize, atlasOffset,
-                                       triangleInstanceData + currIndices->fTriangles);
+                            emit_recursive_fan(pts, currFan, 0, fanSize, atlasOffset,
+                                               triangleInstanceData + currIndices->fTriangles);
                     currIndices->fTriangles += fanSize - 2;
                     SkASSERT(triangleInstanceData + currIndices->fTriangles == end);
                 }
@@ -372,9 +365,9 @@ bool GrCCPRCoverageOpsBuilder::finalize(GrOnFlushResourceProvider* onFlushRP,
     return true;
 }
 
-void GrCCPRCoverageOp::setInstanceBuffer(sk_sp<GrBuffer> instanceBuffer,
-                                         const PrimitiveTallies baseInstances[kNumScissorModes],
-                                         const PrimitiveTallies endInstances[kNumScissorModes]) {
+void GrCCCoverageOp::setInstanceBuffer(sk_sp<GrBuffer> instanceBuffer,
+                                       const PrimitiveTallies baseInstances[kNumScissorModes],
+                                       const PrimitiveTallies endInstances[kNumScissorModes]) {
     fInstanceBuffer = std::move(instanceBuffer);
     fBaseInstances[0] = baseInstances[0];
     fBaseInstances[1] = baseInstances[1];
@@ -382,8 +375,8 @@ void GrCCPRCoverageOp::setInstanceBuffer(sk_sp<GrBuffer> instanceBuffer,
     fInstanceCounts[1] = endInstances[1] - baseInstances[1];
 }
 
-void GrCCPRCoverageOp::onExecute(GrOpFlushState* flushState) {
-    using RenderPass = GrCCPRCoverageProcessor::RenderPass;
+void GrCCCoverageOp::onExecute(GrOpFlushState* flushState) {
+    using RenderPass = GrCCCoverageProcessor::RenderPass;
 
     SkASSERT(fInstanceBuffer);
 
@@ -397,7 +390,7 @@ void GrCCPRCoverageOp::onExecute(GrOpFlushState* flushState) {
     this->drawMaskPrimitives(flushState, pipeline, RenderPass::kTriangleHulls,
                              &PrimitiveTallies::fTriangles);
     this->drawMaskPrimitives(flushState, pipeline, RenderPass::kTriangleEdges,
-                             &PrimitiveTallies::fTriangles); // Might get skipped.
+                             &PrimitiveTallies::fTriangles);  // Might get skipped.
     this->drawMaskPrimitives(flushState, pipeline, RenderPass::kTriangleCorners,
                              &PrimitiveTallies::fTriangles);
 
@@ -414,21 +407,21 @@ void GrCCPRCoverageOp::onExecute(GrOpFlushState* flushState) {
                              &PrimitiveTallies::fCubics);
 }
 
-void GrCCPRCoverageOp::drawMaskPrimitives(GrOpFlushState* flushState, const GrPipeline& pipeline,
-                                          GrCCPRCoverageProcessor::RenderPass renderPass,
-                                          int PrimitiveTallies::* instanceType) const {
-    using ScissorMode = GrCCPRCoverageOpsBuilder::ScissorMode;
+void GrCCCoverageOp::drawMaskPrimitives(GrOpFlushState* flushState, const GrPipeline& pipeline,
+                                        GrCCCoverageProcessor::RenderPass renderPass,
+                                        int PrimitiveTallies::*instanceType) const {
+    using ScissorMode = GrCCCoverageOpsBuilder::ScissorMode;
     SkASSERT(pipeline.getScissorState().enabled());
 
-    if (!GrCCPRCoverageProcessor::DoesRenderPass(renderPass, *flushState->caps().shaderCaps())) {
+    if (!GrCCCoverageProcessor::DoesRenderPass(renderPass, *flushState->caps().shaderCaps())) {
         return;
     }
 
     fMeshesScratchBuffer.reset();
     fDynamicStatesScratchBuffer.reset();
 
-    GrCCPRCoverageProcessor proc(flushState->resourceProvider(), renderPass,
-                                 *flushState->caps().shaderCaps());
+    GrCCCoverageProcessor proc(flushState->resourceProvider(), renderPass,
+                               *flushState->caps().shaderCaps());
 
     if (int instanceCount = fInstanceCounts[(int)ScissorMode::kNonScissored].*instanceType) {
         SkASSERT(instanceCount > 0);

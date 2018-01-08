@@ -5,20 +5,20 @@
  * found in the LICENSE file.
  */
 
-#include "GrCCPRCoverageProcessor.h"
+#include "GrCCCoverageProcessor.h"
 
 #include "SkMakeUnique.h"
-#include "ccpr/GrCCPRCubicShader.h"
-#include "ccpr/GrCCPRQuadraticShader.h"
-#include "ccpr/GrCCPRTriangleShader.h"
+#include "ccpr/GrCCCubicShader.h"
+#include "ccpr/GrCCQuadraticShader.h"
+#include "ccpr/GrCCTriangleShader.h"
 #include "glsl/GrGLSLVertexGeoBuilder.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLVertexGeoBuilder.h"
 
-void GrCCPRCoverageProcessor::Shader::emitVaryings(GrGLSLVaryingHandler* varyingHandler,
-                                                   GrGLSLVarying::Scope scope, SkString* code,
-                                                   const char* position, const char* coverage,
-                                                   const char* wind) {
+void GrCCCoverageProcessor::Shader::emitVaryings(GrGLSLVaryingHandler* varyingHandler,
+                                                 GrGLSLVarying::Scope scope, SkString* code,
+                                                 const char* position, const char* coverage,
+                                                 const char* wind) {
     SkASSERT(GrGLSLVarying::Scope::kVertToGeo != scope);
     WindHandling windHandling = this->onEmitVaryings(varyingHandler, scope, code, position,
                                                      coverage, wind);
@@ -29,10 +29,10 @@ void GrCCPRCoverageProcessor::Shader::emitVaryings(GrGLSLVaryingHandler* varying
     }
 }
 
-void GrCCPRCoverageProcessor::Shader::emitFragmentCode(const GrCCPRCoverageProcessor& proc,
-                                                       GrGLSLPPFragmentBuilder* f,
-                                                       const char* skOutputColor,
-                                                       const char* skOutputCoverage) const {
+void GrCCCoverageProcessor::Shader::emitFragmentCode(const GrCCCoverageProcessor& proc,
+                                                     GrGLSLPPFragmentBuilder* f,
+                                                     const char* skOutputColor,
+                                                     const char* skOutputCoverage) const {
     f->codeAppendf("half coverage = 0;");
     this->onEmitFragmentCode(f, "coverage");
     if (fWind.fsIn()) {
@@ -49,10 +49,10 @@ void GrCCPRCoverageProcessor::Shader::emitFragmentCode(const GrCCPRCoverageProce
 #endif
 }
 
-void GrCCPRCoverageProcessor::Shader::EmitEdgeDistanceEquation(GrGLSLVertexGeoBuilder* s,
-                                                               const char* leftPt,
-                                                               const char* rightPt,
-                                                               const char* outputDistanceEquation) {
+void GrCCCoverageProcessor::Shader::EmitEdgeDistanceEquation(GrGLSLVertexGeoBuilder* s,
+                                                             const char* leftPt,
+                                                             const char* rightPt,
+                                                             const char* outputDistanceEquation) {
     s->codeAppendf("float2 n = float2(%s.y - %s.y, %s.x - %s.x);",
                    rightPt, leftPt, leftPt, rightPt);
     s->codeAppend ("float nwidth = (abs(n.x) + abs(n.y)) * (bloat * 2);");
@@ -62,8 +62,8 @@ void GrCCPRCoverageProcessor::Shader::EmitEdgeDistanceEquation(GrGLSLVertexGeoBu
     s->codeAppendf("%s = float3(-n, dot(n, %s) - .5);", outputDistanceEquation, leftPt);
 }
 
-int GrCCPRCoverageProcessor::Shader::DefineSoftSampleLocations(GrGLSLPPFragmentBuilder* f,
-                                                               const char* samplesName) {
+int GrCCCoverageProcessor::Shader::DefineSoftSampleLocations(GrGLSLPPFragmentBuilder* f,
+                                                             const char* samplesName) {
     // Standard DX11 sample locations.
 #if defined(SK_BUILD_FOR_ANDROID) || defined(SK_BUILD_FOR_IOS)
     f->defineConstant("float2[8]", samplesName, "float2[8]("
@@ -82,8 +82,8 @@ int GrCCPRCoverageProcessor::Shader::DefineSoftSampleLocations(GrGLSLPPFragmentB
 #endif
 }
 
-void GrCCPRCoverageProcessor::getGLSLProcessorKey(const GrShaderCaps&,
-                                                  GrProcessorKeyBuilder* b) const {
+void GrCCCoverageProcessor::getGLSLProcessorKey(const GrShaderCaps&,
+                                                GrProcessorKeyBuilder* b) const {
     int key = (int)fRenderPass << 1;
     if (Impl::kGeometryShader == fImpl) {
         key |= 1;
@@ -96,27 +96,27 @@ void GrCCPRCoverageProcessor::getGLSLProcessorKey(const GrShaderCaps&,
     b->add32(key);
 }
 
-GrGLSLPrimitiveProcessor* GrCCPRCoverageProcessor::createGLSLInstance(const GrShaderCaps&) const {
+GrGLSLPrimitiveProcessor* GrCCCoverageProcessor::createGLSLInstance(const GrShaderCaps&) const {
     std::unique_ptr<Shader> shader;
     switch (fRenderPass) {
         case RenderPass::kTriangleHulls:
         case RenderPass::kTriangleEdges:
-            shader = skstd::make_unique<GrCCPRTriangleShader>();
+            shader = skstd::make_unique<GrCCTriangleShader>();
             break;
         case RenderPass::kTriangleCorners:
-            shader = skstd::make_unique<GrCCPRTriangleCornerShader>();
+            shader = skstd::make_unique<GrCCTriangleCornerShader>();
             break;
         case RenderPass::kQuadraticHulls:
-            shader = skstd::make_unique<GrCCPRQuadraticHullShader>();
+            shader = skstd::make_unique<GrCCQuadraticHullShader>();
             break;
         case RenderPass::kQuadraticCorners:
-            shader = skstd::make_unique<GrCCPRQuadraticCornerShader>();
+            shader = skstd::make_unique<GrCCQuadraticCornerShader>();
             break;
         case RenderPass::kCubicHulls:
-            shader = skstd::make_unique<GrCCPRCubicHullShader>();
+            shader = skstd::make_unique<GrCCCubicHullShader>();
             break;
         case RenderPass::kCubicCorners:
-            shader = skstd::make_unique<GrCCPRCubicCornerShader>();
+            shader = skstd::make_unique<GrCCCubicCornerShader>();
             break;
     }
     return Impl::kGeometryShader == fImpl ? this->createGSImpl(std::move(shader))

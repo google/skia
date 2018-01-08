@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "GrCCPRPathProcessor.h"
+#include "GrCCPathProcessor.h"
 
 #include "GrOnFlushResourceProvider.h"
 #include "GrTexture.h"
@@ -36,14 +36,14 @@ static constexpr float kOctoEdgeNorms[8 * 4] = {
 
 GR_DECLARE_STATIC_UNIQUE_KEY(gVertexBufferKey);
 
-sk_sp<const GrBuffer> GrCCPRPathProcessor::FindVertexBuffer(GrOnFlushResourceProvider* onFlushRP) {
+sk_sp<const GrBuffer> GrCCPathProcessor::FindVertexBuffer(GrOnFlushResourceProvider* onFlushRP) {
     GR_DEFINE_STATIC_UNIQUE_KEY(gVertexBufferKey);
     return onFlushRP->findOrMakeStaticBuffer(kVertex_GrBufferType, sizeof(kOctoEdgeNorms),
                                              kOctoEdgeNorms, gVertexBufferKey);
 }
 
 // Index buffer for the octagon defined above.
-static uint16_t kOctoIndices[GrCCPRPathProcessor::kPerInstanceIndexCount] = {
+static uint16_t kOctoIndices[GrCCPathProcessor::kPerInstanceIndexCount] = {
     0, 4, 2,
     0, 6, 4,
     0, 2, 1,
@@ -54,15 +54,15 @@ static uint16_t kOctoIndices[GrCCPRPathProcessor::kPerInstanceIndexCount] = {
 
 GR_DECLARE_STATIC_UNIQUE_KEY(gIndexBufferKey);
 
-sk_sp<const GrBuffer> GrCCPRPathProcessor::FindIndexBuffer(GrOnFlushResourceProvider* onFlushRP) {
+sk_sp<const GrBuffer> GrCCPathProcessor::FindIndexBuffer(GrOnFlushResourceProvider* onFlushRP) {
     GR_DEFINE_STATIC_UNIQUE_KEY(gIndexBufferKey);
     return onFlushRP->findOrMakeStaticBuffer(kIndex_GrBufferType, sizeof(kOctoIndices),
                                              kOctoIndices, gIndexBufferKey);
 }
 
-GrCCPRPathProcessor::GrCCPRPathProcessor(GrResourceProvider* rp, sk_sp<GrTextureProxy> atlas,
-                                         SkPath::FillType fillType, const GrShaderCaps& shaderCaps)
-        : INHERITED(kGrCCPRPathProcessor_ClassID)
+GrCCPathProcessor::GrCCPathProcessor(GrResourceProvider* rp, sk_sp<GrTextureProxy> atlas,
+                                     SkPath::FillType fillType, const GrShaderCaps& shaderCaps)
+        : INHERITED(kGrCCPathProcessor_ClassID)
         , fFillType(fillType)
         , fAtlasAccess(std::move(atlas), GrSamplerState::Filter::kNearest,
                        GrSamplerState::WrapMode::kClamp, kFragment_GrShaderFlag) {
@@ -95,7 +95,7 @@ GrCCPRPathProcessor::GrCCPRPathProcessor(GrResourceProvider* rp, sk_sp<GrTexture
     this->addTextureSampler(&fAtlasAccess);
 }
 
-void GrCCPRPathProcessor::getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const {
+void GrCCPathProcessor::getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const {
     b->add32((fFillType << 16) | this->atlasProxy()->origin());
 }
 
@@ -106,7 +106,7 @@ public:
 private:
     void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor& primProc,
                  FPCoordTransformIter&& transformIter) override {
-        const GrCCPRPathProcessor& proc = primProc.cast<GrCCPRPathProcessor>();
+        const GrCCPathProcessor& proc = primProc.cast<GrCCPathProcessor>();
         pdman.set2f(fAtlasAdjustUniform, 1.0f / proc.atlas()->width(),
                     1.0f / proc.atlas()->height());
         this->setTransformDataHelper(SkMatrix::I(), pdman, &transformIter);
@@ -117,13 +117,13 @@ private:
     typedef GrGLSLGeometryProcessor INHERITED;
 };
 
-GrGLSLPrimitiveProcessor* GrCCPRPathProcessor::createGLSLInstance(const GrShaderCaps&) const {
+GrGLSLPrimitiveProcessor* GrCCPathProcessor::createGLSLInstance(const GrShaderCaps&) const {
     return new GLSLPathProcessor();
 }
 
 void GLSLPathProcessor::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
-    using InstanceAttribs = GrCCPRPathProcessor::InstanceAttribs;
-    const GrCCPRPathProcessor& proc = args.fGP.cast<GrCCPRPathProcessor>();
+    using InstanceAttribs = GrCCPathProcessor::InstanceAttribs;
+    const GrCCPathProcessor& proc = args.fGP.cast<GrCCPathProcessor>();
     GrGLSLUniformHandler* uniHandler = args.fUniformHandler;
     GrGLSLVaryingHandler* varyingHandler = args.fVaryingHandler;
 

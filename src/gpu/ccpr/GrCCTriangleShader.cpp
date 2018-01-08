@@ -5,17 +5,17 @@
  * found in the LICENSE file.
  */
 
-#include "GrCCPRTriangleShader.h"
+#include "GrCCTriangleShader.h"
 
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLVertexGeoBuilder.h"
 
-using Shader = GrCCPRCoverageProcessor::Shader;
+using Shader = GrCCCoverageProcessor::Shader;
 
-Shader::WindHandling GrCCPRTriangleShader::onEmitVaryings(GrGLSLVaryingHandler* varyingHandler,
-                                                          GrGLSLVarying::Scope scope,
-                                                          SkString* code, const char* /*position*/,
-                                                          const char* coverage, const char* wind) {
+Shader::WindHandling GrCCTriangleShader::onEmitVaryings(GrGLSLVaryingHandler* varyingHandler,
+                                                        GrGLSLVarying::Scope scope,
+                                                        SkString* code, const char* /*position*/,
+                                                        const char* coverage, const char* wind) {
     fCoverageTimesWind.reset(kHalf_GrSLType, scope);
     if (!coverage) {
         varyingHandler->addFlatVarying("wind", &fCoverageTimesWind);
@@ -27,14 +27,14 @@ Shader::WindHandling GrCCPRTriangleShader::onEmitVaryings(GrGLSLVaryingHandler* 
     return WindHandling::kHandled;
 }
 
-void GrCCPRTriangleShader::onEmitFragmentCode(GrGLSLPPFragmentBuilder* f,
-                                              const char* outputCoverage) const {
+void GrCCTriangleShader::onEmitFragmentCode(GrGLSLPPFragmentBuilder* f,
+                                            const char* outputCoverage) const {
     f->codeAppendf("%s = %s;", outputCoverage, fCoverageTimesWind.fsIn());
 }
 
-void GrCCPRTriangleCornerShader::emitSetupCode(GrGLSLVertexGeoBuilder* s, const char* pts,
-                                               const char* repetitionID, const char* wind,
-                                               GeometryVars* vars) const {
+void GrCCTriangleCornerShader::emitSetupCode(GrGLSLVertexGeoBuilder* s, const char* pts,
+                                             const char* repetitionID, const char* wind,
+                                             GeometryVars* vars) const {
     s->codeAppendf("float2 corner = %s[%s];", pts, repetitionID);
     vars->fCornerVars.fPoint = "corner";
 
@@ -87,10 +87,10 @@ void GrCCPRTriangleCornerShader::emitSetupCode(GrGLSLVertexGeoBuilder* s, const 
 }
 
 Shader::WindHandling
-GrCCPRTriangleCornerShader::onEmitVaryings(GrGLSLVaryingHandler* varyingHandler,
-                                           GrGLSLVarying::Scope scope, SkString* code,
-                                           const char* position, const char* coverage,
-                                           const char* /*wind*/) {
+GrCCTriangleCornerShader::onEmitVaryings(GrGLSLVaryingHandler* varyingHandler,
+                                         GrGLSLVarying::Scope scope, SkString* code,
+                                         const char* position, const char* coverage,
+                                         const char* /*wind*/) {
     SkASSERT(!coverage);
 
     fCornerLocationInAABoxes.reset(kFloat2x2_GrSLType, scope);
@@ -109,8 +109,8 @@ GrCCPRTriangleCornerShader::onEmitVaryings(GrGLSLVaryingHandler* varyingHandler,
     return WindHandling::kNotHandled;
 }
 
-void GrCCPRTriangleCornerShader::onEmitFragmentCode(GrGLSLPPFragmentBuilder* f,
-                                                    const char* outputCoverage) const {
+void GrCCTriangleCornerShader::onEmitFragmentCode(GrGLSLPPFragmentBuilder* f,
+                                                  const char* outputCoverage) const {
     // By the time we reach this shader, the pixel is in the following state:
     //
     //   1. The hull shader has emitted a coverage of 1.
