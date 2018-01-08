@@ -453,7 +453,7 @@ std::unique_ptr<GrFragmentProcessor> ColorTableEffect::Make(GrContext* context,
     if (-1 == row) {
         atlas = nullptr;
 
-        proxy = GrMakeCachedBitmapProxy(context->resourceProvider(), bitmap);
+        proxy = GrMakeCachedBitmapProxy(context->proxyProvider(), bitmap);
     } else {
         proxy = atlas->asTextureProxyRef();
     }
