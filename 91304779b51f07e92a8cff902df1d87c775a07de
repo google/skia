@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "3e7940a2_2cea58a1",
+        "filename": "include/private/GrRenderTargetProxy.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-01-08T16:44:39Z",
+      "side": 1,
+      "message": "Maybe expand the comment here to something like:\n// There are two main uses cases for lazily-instantiated proxies:\n//   limited knowledge - width, height \u0026 config are known\n//   very limited knowledge - only config is known\n// The first case is used for DDLs ...\n//",
+      "revId": "91304779b51f07e92a8cff902df1d87c775a07de",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c52fb46a_1547b805",
         "filename": "include/private/GrSurfaceProxy.h",
         "patchSetId": 3
@@ -31,6 +48,23 @@
       "side": 1,
       "message": "I agree with Chris. I think any negative number should indicate lack of knowledge.",
       "parentUuid": "c52fb46a_1547b805",
+      "revId": "91304779b51f07e92a8cff902df1d87c775a07de",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e7095c5a_1b63243b",
+        "filename": "src/gpu/GrSurfaceProxy.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-01-08T16:44:39Z",
+      "side": 1,
+      "message": "Can we have and assert here (using predicates) that this provided data either matches the fully or partially lazy requirements?",
       "revId": "91304779b51f07e92a8cff902df1d87c775a07de",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
