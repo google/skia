@@ -54,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "36d06c8a_53dc31d1",
+        "filename": "include/private/GrSurfaceProxy.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 234,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-01-08T16:46:08Z",
+      "side": 1,
+      "message": "Part of me likes the idea of restricting the client to one invalid value. What do you think if a made some static const int kInvalidSize \u003d -1, and then the client can either give valid values greater than 0, or pass in kInvalidSize",
+      "parentUuid": "868fd5fa_d3ceed33",
+      "revId": "91304779b51f07e92a8cff902df1d87c775a07de",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "e7095c5a_1b63243b",
         "filename": "src/gpu/GrSurfaceProxy.cpp",
         "patchSetId": 3
