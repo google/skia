@@ -47,8 +47,8 @@ public:
 
         GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
 
-        sk_sp<GrTextureProxy> mask(proxyProvider->findOrCreateProxyByUniqueKey(
-                key, kBottomLeft_GrSurfaceOrigin));
+        sk_sp<GrTextureProxy> mask(
+                proxyProvider->findOrCreateProxyByUniqueKey(key, kBottomLeft_GrSurfaceOrigin));
         if (!mask) {
             // TODO: this could be approx but the texture coords will need to be updated
             sk_sp<GrRenderTargetContext> rtc(context->makeDeferredRenderTargetContextWithFallback(

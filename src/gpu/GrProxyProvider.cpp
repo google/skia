@@ -131,6 +131,10 @@ sk_sp<GrTextureProxy> GrProxyProvider::createTextureProxy(const GrSurfaceDesc& d
                                                           const GrMipLevel& mipLevel) {
     ASSERT_SINGLE_OWNER
 
+    if (this->isAbandoned()) {
+        return nullptr;
+    }
+
     sk_sp<GrTexture> tex = fResourceProvider->createTexture(desc, budgeted, mipLevel);
     if (!tex) {
         return nullptr;
@@ -143,6 +147,12 @@ sk_sp<GrTextureProxy> GrProxyProvider::createTextureProxy(
                                                     const GrSurfaceDesc& desc, SkBudgeted budgeted,
                                                     const GrMipLevel texels[], int mipLevelCount,
                                                     SkDestinationSurfaceColorMode mipColorMode) {
+    ASSERT_SINGLE_OWNER
+
+    if (this->isAbandoned()) {
+        return nullptr;
+    }
+
     sk_sp<GrTexture> tex(fResourceProvider->createTexture(desc, budgeted,
                                                           texels, mipLevelCount,
                                                           mipColorMode));
