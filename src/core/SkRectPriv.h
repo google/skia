@@ -32,7 +32,8 @@ public:
     }
 
     static SkIRect MakeILargest() {
-        return { SK_MinS32, SK_MinS32, SK_MaxS32, SK_MaxS32 };
+        const int32_t ihalf = SK_MaxS32 >> 1;
+        return { -ihalf, -ihalf, ihalf, ihalf };
     }
 
     static SkRect MakeLargestInverted() {
@@ -40,7 +41,8 @@ public:
     }
 
     static SkIRect MakeILargestInverted() {
-        return { SK_MaxS32, SK_MaxS32, SK_MinS32, SK_MinS32 };
+        const int32_t ihalf = SK_MaxS32 >> 1;
+        return { ihalf, ihalf, -ihalf, -ihalf };
     }
 };
 
