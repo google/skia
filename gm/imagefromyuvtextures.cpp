@@ -118,7 +118,9 @@ protected:
         }
 
         for (int i = 0; i < 3; ++i) {
-            gpu->deleteTestingOnlyBackendTexture(&yuvTextures[i]);
+            if (yuvTextures[i].isValid()) {
+                gpu->deleteTestingOnlyBackendTexture(&yuvTextures[i]);
+            }
         }
 
         context->resetContext();

@@ -58,8 +58,10 @@ public:
         desc.fHeight = kSize;
         desc.fConfig = kConfig;
 
-        sk_sp<GrTextureProxy> dataProxy = GrSurfaceProxy::MakeDeferred(
-                context->contextPriv().proxyProvider(), desc, SkBudgeted::kYes, data, 0);
+        GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
+
+        sk_sp<GrTextureProxy> dataProxy =
+                GrSurfaceProxy::MakeDeferred(proxyProvider, desc, SkBudgeted::kYes, data, 0);
         if (!dataProxy) {
             return false;
         }
