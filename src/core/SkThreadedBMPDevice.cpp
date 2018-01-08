@@ -8,6 +8,7 @@
 #include "SkThreadedBMPDevice.h"
 
 #include "SkPath.h"
+#include "SkRectPriv.h"
 #include "SkTaskGroup.h"
 #include "SkVertices.h"
 
@@ -89,11 +90,11 @@ struct SkThreadedBMPDevice::DrawState {
 };
 
 SkIRect SkThreadedBMPDevice::transformDrawBounds(const SkRect& drawBounds) const {
-    if (drawBounds.isLargest()) {
-        return SkIRect::MakeLargest();
-    }
     SkRect transformedBounds;
     this->ctm().mapRect(&transformedBounds, drawBounds);
+    if (!transformedBounds.isFinite()) {
+        transformedBounds = SkRectPriv::MakeLargestS32();
+    }
     return transformedBounds.roundOut();
 }
 

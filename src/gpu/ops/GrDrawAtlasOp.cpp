@@ -11,6 +11,7 @@
 #include "SkGr.h"
 #include "SkRSXform.h"
 #include "SkRandom.h"
+#include "SkRectPriv.h"
 
 static sk_sp<GrGeometryProcessor> make_gp(bool hasColors,
                                           GrColor color,
@@ -53,7 +54,7 @@ GrDrawAtlasOp::GrDrawAtlasOp(const Helper::MakeArgs& helperArgs, GrColor color,
     uint8_t* currVertex = installedGeo.fVerts.begin();
 
     SkRect bounds;
-    bounds.setLargestInverted();
+    SkRectPriv::SetLargestInverted(&bounds);
     int paintAlpha = GrColorUnpackA(installedGeo.fColor);
     for (int spriteIndex = 0; spriteIndex < spriteCount; ++spriteIndex) {
         // Transform rect
