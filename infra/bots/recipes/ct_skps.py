@@ -37,20 +37,20 @@ TOOL_TO_DEFAULT_SKPS_PER_SLAVE = {
 }
 
 # The SKP repository to use.
-DEFAULT_SKPS_CHROMIUM_BUILD = 'c37e844a6f8708-eee762104c75bd'
+DEFAULT_SKPS_CHROMIUM_BUILD = '2b7e85eb251dc7-a3cf3659ed2c08'
 
 
 def RunSteps(api):
   # Figure out which repository to use.
   buildername = api.properties['buildername']
   if '1k' in buildername:
-    ct_page_type = '10k'
+    ct_page_type = 'All'
     num_pages = 1000
   elif '10k' in buildername:
-    ct_page_type = '10k'
+    ct_page_type = 'All'
     num_pages = 10000
   elif '100k' in buildername:
-    ct_page_type = '100k'
+    ct_page_type = 'All'
     num_pages = 100000
   elif '1m' in buildername:
     ct_page_type = 'All'
