@@ -45,6 +45,7 @@ integer input cannot convert to SkScalar without loss of precision.
 # MakeEmpty             # Constructs from bounds of (0, 0, 0, 0). ##
 # MakeFromIRect         # Deprecated. ##
 # MakeIWH               # Constructs from int input returning (0, 0, width, height). ##
+# MakeLargest           # Deprecated. ##
 # MakeLTRB              # Constructs from SkScalar left, top, right, bottom. ##
 # MakeSize              # Constructs from Size returning (0, 0, width, height). ##
 # MakeWH                # Constructs from SkScalar input returning (0, 0, width, height). ##

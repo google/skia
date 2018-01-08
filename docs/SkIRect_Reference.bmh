@@ -39,6 +39,7 @@ its top, it is considered empty.
 # Intersects             # Returns true if areas overlap. ##
 # IntersectsNoEmptyCheck # Returns true if areas overlap. Skips empty check. ##
 # MakeEmpty              # Returns bounds of (0, 0, 0, 0). ##
+# MakeLargest            # Deprecated. ##
 # MakeLTRB               # Constructs from int left, top, right, bottom. ##
 # MakeSize               # Constructs from ISize returning (0, 0, width, height). ##
 # MakeWH                 # Constructs from int input returning (0, 0, width, height). ##
