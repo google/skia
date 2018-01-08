@@ -6,10 +6,10 @@ Why is Skia Color Correct?
 
 A color space is a **gamut** and a **transfer function**.
 
-Gamut refers to the **available range of colors** of a particular in an image or on a display
-device.  Being gamut correct means that we will display colors as the designer intended and
-consistently across display devices.  A common problem with new “wide gamut” devices and
-uncorrected colors is illustrated below.
+Gamut refers to the **available range of colors** in an image or on a display device.  Being
+gamut correct means that we will display colors as the designer intended and consistently across
+display devices.  A common problem with new “wide gamut” devices and uncorrected colors is 
+illustrated below.
 
 Device Dependent Color (Wrong)
 
@@ -84,7 +84,7 @@ to make color spaces.
 	// Create a color space from an ICC profile
 	sk_sp<SkColorSpace> MakeICC();
 
-Starting with **sources** (the things that draw you draw), there are a number of ways to make sure
+Starting with **sources** (the things that you draw), there are a number of ways to make sure
 that they are tagged with a color space.
 
 **SkColor** (stored on **SkPaint**) is assumed to be in the sRGB color space - meaning that it
@@ -164,8 +164,8 @@ Opting In To Color Correct Skia
 -------------------------------
 
 By itself, **adding a color space tag to a source will not change draw behavior**.  In fact,
-tagging sources with color spaces is always a best practice, regardless of whether we want Skia's
-color correct behavior.
+tagging sources with color spaces is always a best practice, regardless of whether or not we want
+Skia's color correct behavior.
 
 Adding a color space tag to the **destination is the trigger that turns on Skia color correct
 behavior**.

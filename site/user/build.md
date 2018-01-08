@@ -19,7 +19,7 @@ using the ordinary library search path.
 
 In contrast, the developer-oriented default is an unoptimized build with full
 debug symbols and all third-party dependencies built from source and embedded
-into libskia.  This is how do all our manual and automated testing.
+into libskia.  This is how we do all our manual and automated testing.
 
 Skia offers several features that make use of third-party libraries, like
 libpng, libwebp, or libjpeg-turbo to decode images, or ICU and sftnly to subset
