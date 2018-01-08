@@ -9,9 +9,10 @@
 #include "SkTypes.h"
 #if defined(SK_BUILD_FOR_WIN32)
 
-#include "SkXPSDocument.h"
-#include "SkStream.h"
 #include "SkHRESULT.h"
+#include "SkMakeUnique.h"
+#include "SkStream.h"
+#include "SkXPSDocument.h"
 
 SkXPSDocument::SkXPSDocument(SkWStream* stream,
                    SkScalar dpi,
@@ -55,13 +56,21 @@ void SkXPSDocument::onAbort() {}
 
 ///////////////////////////////////////////////////////////////////////////////
 
-sk_sp<SkDocument> SkDocument::MakeXPS(SkWStream* stream,
-                                      IXpsOMObjectFactory* factoryPtr,
-                                      SkScalar dpi) {
+
+using SkDoc = decltype(SkDocument::MakeXPS(nullptr, nullptr, 0));
+SkDoc SkDocument::MakeXPS(SkWStream* stream,
+                          IXpsOMObjectFactory* factoryPtr,
+                          SkScalar dpi) {
     SkTScopedComPtr<IXpsOMObjectFactory> factory(SkSafeRefComPtr(factoryPtr));
+    #ifdef SK_SUPPORT_LEGACY_REFCNT_DOCUMENT
     return stream && factory
            ? sk_make_sp<SkXPSDocument>(stream, dpi, std::move(factory))
            : nullptr;
+    #else
+    return stream && factory
+           ? skstd::make_unique<SkXPSDocument>(stream, dpi, std::move(factory))
+           : nullptr;
+    #endif
 }
 
 #endif//defined(SK_BUILD_FOR_WIN32)

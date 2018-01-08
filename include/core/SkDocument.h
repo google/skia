@@ -36,8 +36,16 @@ struct IXpsOMObjectFactory;
  *      c. doc->endPage();
  *  3. Close the document with doc->close().
  */
+#ifdef SK_SUPPORT_LEGACY_REFCNT_DOCUMENT
 class SK_API SkDocument : public SkRefCnt {
+#else
+class SK_API SkDocument {
+#endif
 public:
+    // note: subclasses must call close() in their destructor, as the base class
+    // cannot do this for them.
+    virtual ~SkDocument();
+
     struct OptionalTimestamp {
         SkTime::DateTime fDateTime;
         bool fEnabled;
@@ -125,8 +133,13 @@ public:
      *
      *  @returns NULL if there is an error, otherwise a newly created PDF-backed SkDocument.
      */
+#ifdef SK_SUPPORT_LEGACY_REFCNT_DOCUMENT
     static sk_sp<SkDocument> MakePDF(SkWStream* stream, const PDFMetadata& metadata);
     static sk_sp<SkDocument> MakePDF(SkWStream* stream);
+#else
+    static std::unique_ptr<SkDocument> MakePDF(SkWStream* stream, const PDFMetadata& metadata);
+    static std::unique_ptr<SkDocument> MakePDF(SkWStream* stream);
+#endif
 
 #ifdef SK_BUILD_FOR_WIN
     /**
@@ -150,9 +163,15 @@ public:
      *
      *  @returns nullptr if XPS is not supported.
      */
+#ifdef SK_SUPPORT_LEGACY_REFCNT_DOCUMENT
     static sk_sp<SkDocument> MakeXPS(SkWStream* stream,
                                      IXpsOMObjectFactory* xpsFactory,
                                      SkScalar dpi = SK_ScalarDefaultRasterDPI);
+#else
+    static std::unique_ptr<SkDocument> MakeXPS(SkWStream* stream,
+                                               IXpsOMObjectFactory* xpsFactory,
+                                               SkScalar dpi = SK_ScalarDefaultRasterDPI);
+#endif
 #endif
 
     /**
@@ -185,10 +204,8 @@ public:
 
 protected:
     SkDocument(SkWStream*);
-
-    // note: subclasses must call close() in their destructor, as the base class
-    // cannot do this for them.
-    virtual ~SkDocument();
+    SkDocument(const SkDocument&) = delete;
+    SkDocument& operator=(const SkDocument&) = delete;
 
     virtual SkCanvas* onBeginPage(SkScalar width, SkScalar height) = 0;
     virtual void onEndPage() = 0;
@@ -208,8 +225,10 @@ protected:
 private:
     SkWStream* fStream;
     State      fState;
+#ifdef SK_SUPPORT_LEGACY_REFCNT_DOCUMENT
 
     typedef SkRefCnt INHERITED;
+#endif
 };
 
 #endif
