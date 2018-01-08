@@ -142,7 +142,7 @@ bool SkRegion::setEmpty() {
 
 bool SkRegion::setRect(int32_t left, int32_t top,
                        int32_t right, int32_t bottom) {
-    if (left >= right || top >= bottom) {
+    if (SkSub32(right, left) <= 0 || SkSub32(bottom, top) <= 0) {
         return this->setEmpty();
     }
     this->freeRuns();
