@@ -130,19 +130,21 @@ public:
         @param stride  size of record starting with SkPoint, in bytes
         @param count   number of points to transform
     */
-    static void MapPointsWithStride(const SkMatrix& mx, SkPoint dst[], const SkPoint src[],
-                                    size_t stride, int count) {
-        SkASSERT(stride >= sizeof(SkPoint));
-        SkASSERT(0 == stride % sizeof(SkScalar));
+    static void MapPointsWithStride(const SkMatrix& mx, SkPoint dst[], size_t dstStride,
+                                    const SkPoint src[], size_t srcStride, int count) {
+        SkASSERT(srcStride >= sizeof(SkPoint));
+        SkASSERT(dstStride >= sizeof(SkPoint));
+        SkASSERT(0 == srcStride % sizeof(SkScalar));
+        SkASSERT(0 == dstStride % sizeof(SkScalar));
         for (int i = 0; i < count; ++i) {
             mx.mapPoints(dst, src, 1);
-            src = (SkPoint*)((intptr_t)src + stride);
-            dst = (SkPoint*)((intptr_t)dst + stride);
+            src = (SkPoint*)((intptr_t)src + srcStride);
+            dst = (SkPoint*)((intptr_t)dst + dstStride);
         }
     }
 
-    static void MapHomogeneousPointsWithStride(const SkMatrix& mx, SkPoint3 dst[],
-                                               const SkPoint3 src[], size_t stride, int count);
+    static void MapHomogeneousPointsWithStride(const SkMatrix& mx, SkPoint3 dst[], size_t dstStride,
+                                               const SkPoint3 src[], size_t srcStride, int count);
 
     static void SetMappedRectTriStrip(const SkMatrix& mx, const SkRect& rect, SkPoint quad[4]) {
         SkMatrix::TypeMask tm = mx.getType();

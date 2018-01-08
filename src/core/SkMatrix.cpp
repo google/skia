@@ -1038,8 +1038,8 @@ const SkMatrix::MapPtsProc SkMatrix::gMapPtsProcs[] = {
 ///////////////////////////////////////////////////////////////////////////////
 
 void SkMatrixPriv::MapHomogeneousPointsWithStride(const SkMatrix& mx, SkPoint3 dst[],
-                                                  const SkPoint3 src[], size_t stride,
-                                                  int count) {
+                                                  size_t dstStride, const SkPoint3 src[],
+                                                  size_t srcStride, int count) {
     SkASSERT((dst && src && count > 0) || 0 == count);
     // no partial overlap
     SkASSERT(src == dst || &dst[count] <= &src[0] || &src[count] <= &dst[0]);
@@ -1047,14 +1047,14 @@ void SkMatrixPriv::MapHomogeneousPointsWithStride(const SkMatrix& mx, SkPoint3 d
     if (count > 0) {
         if (mx.isIdentity()) {
             if (src != dst) {
-                if (stride == sizeof(SkPoint3)) {
+                if (srcStride == sizeof(SkPoint3) && dstStride == sizeof(SkPoint3)) {
                     memcpy(dst, src, count * sizeof(SkPoint3));
                 } else {
                     for (int i = 0; i < count; ++i) {
                         *dst = *src;
-                        dst = reinterpret_cast<SkPoint3*>(reinterpret_cast<char*>(dst) + stride);
+                        dst = reinterpret_cast<SkPoint3*>(reinterpret_cast<char*>(dst) + dstStride);
                         src = reinterpret_cast<const SkPoint3*>(reinterpret_cast<const char*>(src) +
-                                                                stride);
+                                                                srcStride);
                     }
                 }
             }
@@ -1064,7 +1064,7 @@ void SkMatrixPriv::MapHomogeneousPointsWithStride(const SkMatrix& mx, SkPoint3 d
             SkScalar sx = src->fX;
             SkScalar sy = src->fY;
             SkScalar sw = src->fZ;
-            src = reinterpret_cast<const SkPoint3*>(reinterpret_cast<const char*>(src) + stride);
+            src = reinterpret_cast<const SkPoint3*>(reinterpret_cast<const char*>(src) + srcStride);
             const SkScalar* mat = mx.fMat;
             typedef SkMatrix M;
             SkScalar x = sdot(sx, mat[M::kMScaleX], sy, mat[M::kMSkewX],  sw, mat[M::kMTransX]);
@@ -1072,13 +1072,14 @@ void SkMatrixPriv::MapHomogeneousPointsWithStride(const SkMatrix& mx, SkPoint3 d
             SkScalar w = sdot(sx, mat[M::kMPersp0], sy, mat[M::kMPersp1], sw, mat[M::kMPersp2]);
 
             dst->set(x, y, w);
-            dst = reinterpret_cast<SkPoint3*>(reinterpret_cast<char*>(dst) + stride);
+            dst = reinterpret_cast<SkPoint3*>(reinterpret_cast<char*>(dst) + dstStride);
         } while (--count);
     }
 }
 
 void SkMatrix::mapHomogeneousPoints(SkPoint3 dst[], const SkPoint3 src[], int count) const {
-    SkMatrixPriv::MapHomogeneousPointsWithStride(*this, dst, src, sizeof(SkPoint3), count);
+    SkMatrixPriv::MapHomogeneousPointsWithStride(*this, dst, sizeof(SkPoint3), src,
+                                                 sizeof(SkPoint3), count);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

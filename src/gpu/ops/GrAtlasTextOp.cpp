@@ -282,8 +282,9 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
                 // arbitrary transformations would be complicated and accumulate error.
                 if (args.fViewMatrix.hasPerspective()) {
                     auto* pos = reinterpret_cast<SkPoint3*>(currVertex);
-                    SkMatrixPriv::MapHomogeneousPointsWithStride(args.fViewMatrix,
-                            pos, pos, vertexStride, result.fGlyphsRegenerated * kVerticesPerGlyph);
+                    SkMatrixPriv::MapHomogeneousPointsWithStride(
+                            args.fViewMatrix, pos, vertexStride, pos, vertexStride,
+                            result.fGlyphsRegenerated * kVerticesPerGlyph);
                 } else {
                     auto* pos = reinterpret_cast<SkPoint*>(currVertex);
                     SkMatrixPriv::MapPointsWithStride(
