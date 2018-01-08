@@ -16,7 +16,7 @@
 SkXPSDocument::SkXPSDocument(SkWStream* stream,
                    SkScalar dpi,
                    SkTScopedComPtr<IXpsOMObjectFactory> xpsFactory)
-        : SkDocument(stream, nullptr)
+        : SkDocument(stream)
         , fXpsFactory(std::move(xpsFactory))
         , fDevice(SkISize{10000, 10000})
 {

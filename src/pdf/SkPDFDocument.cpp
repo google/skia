@@ -172,9 +172,8 @@ static sk_sp<SkPDFDict> generate_page_tree(SkTArray<sk_sp<SkPDFDict>>* pages) {
 ////////////////////////////////////////////////////////////////////////////////
 
 SkPDFDocument::SkPDFDocument(SkWStream* stream,
-                             void (*doneProc)(SkWStream*, bool),
                              const SkDocument::PDFMetadata& metadata)
-    : SkDocument(stream, doneProc)
+    : SkDocument(stream)
     , fMetadata(metadata) {
 }
 
@@ -425,7 +424,6 @@ void SkPDFDocument::onClose(SkWStream* stream) {
 ///////////////////////////////////////////////////////////////////////////////
 
 sk_sp<SkDocument> SkPDFMakeDocument(SkWStream* stream,
-                                    void (*proc)(SkWStream*, bool),
                                     const SkDocument::PDFMetadata& metadata) {
     SkDocument::PDFMetadata meta = metadata;
     if (meta.fRasterDPI <= 0) {
@@ -434,14 +432,14 @@ sk_sp<SkDocument> SkPDFMakeDocument(SkWStream* stream,
     if (meta.fEncodingQuality < 0) {
         meta.fEncodingQuality = 0;
     }
-    return stream ? sk_make_sp<SkPDFDocument>(stream, proc, meta) : nullptr;
+    return stream ? sk_make_sp<SkPDFDocument>(stream, meta) : nullptr;
 }
 
 sk_sp<SkDocument> SkDocument::MakePDF(SkWStream* stream, const PDFMetadata& metadata) {
-    return SkPDFMakeDocument(stream, nullptr, metadata);
+    return SkPDFMakeDocument(stream, metadata);
 }
 
 sk_sp<SkDocument> SkDocument::MakePDF(SkWStream* stream) {
-    return SkPDFMakeDocument(stream, nullptr, PDFMetadata());
+    return SkPDFMakeDocument(stream, PDFMetadata());
 }
 
