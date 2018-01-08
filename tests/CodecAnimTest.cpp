@@ -216,6 +216,10 @@ DEF_TEST(Codec_frames, r) {
                        rec.fName, expected, rec.fDisposalMethods.size());
                 continue;
             }
+
+            REPORTER_ASSERT(r, codec->isAnimated());
+        } else {
+            REPORTER_ASSERT(r, !codec->isAnimated());
         }
 
         enum class TestMode {
@@ -250,6 +254,7 @@ DEF_TEST(Codec_frames, r) {
             if (1 == frameCount) {
                 continue;
             }
+            REPORTER_ASSERT(r, codec->isAnimated());
 
             for (int i = 0; i < frameCount; i++) {
                 SkCodec::FrameInfo frameInfo;

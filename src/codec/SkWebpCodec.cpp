@@ -229,6 +229,10 @@ int SkWebpCodec::onGetRepetitionCount() {
     return repCount;
 }
 
+bool SkWebpCodec::onIsAnimated() {
+    return this->onGetFrameCount() > 1;
+}
+
 int SkWebpCodec::onGetFrameCount() {
     auto flags = WebPDemuxGetI(fDemux.get(), WEBP_FF_FORMAT_FLAGS);
     if (!(flags & ANIMATION_FLAG)) {
@@ -273,7 +277,6 @@ int SkWebpCodec::onGetFrameCount() {
     }
 
     return fFrameHolder.size();
-
 }
 
 const SkFrame* SkWebpCodec::FrameHolder::onGetFrame(int i) const {

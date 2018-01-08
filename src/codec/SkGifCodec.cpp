@@ -127,6 +127,11 @@ SkGifCodec::SkGifCodec(const SkEncodedInfo& encodedInfo, const SkImageInfo& imag
     reader->setClient(this);
 }
 
+bool SkGifCodec::onIsAnimated() {
+    fReader->parse((SkGifImageReader::SkGIFParseQuery) 1);
+    return fReader->imagesCount() > 1;
+}
+
 int SkGifCodec::onGetFrameCount() {
     fReader->parse(SkGifImageReader::SkGIFFrameCountQuery);
     return fReader->imagesCount();

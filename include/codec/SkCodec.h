@@ -567,6 +567,16 @@ public:
     int outputScanline(int inputScanline) const;
 
     /**
+     *  Return whether this is an animated image.
+     *
+     *  May require reading the stream beyond frame 0 to determine whether there
+     *  is a second frame.
+     */
+    bool isAnimated() {
+        return this->onIsAnimated();
+    }
+
+    /**
      *  Return the number of frames in the image.
      *
      *  May require reading through the stream.
@@ -810,6 +820,10 @@ protected:
 
     SkColorSpaceXform* colorXform() const { return fColorXform.get(); }
     bool xformOnDecode() const { return fXformOnDecode; }
+
+    virtual bool onIsAnimated() {
+        return false;
+    }
 
     virtual int onGetFrameCount() {
         return 1;

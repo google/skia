@@ -49,6 +49,7 @@ protected:
 
     uint64_t onGetFillValue(const SkImageInfo&) const override;
 
+    bool onIsAnimated() override;
     int onGetFrameCount() override;
     bool onGetFrameInfo(int, FrameInfo*) const override;
     int onGetRepetitionCount() override;
