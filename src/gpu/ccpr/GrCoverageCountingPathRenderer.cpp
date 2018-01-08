@@ -38,6 +38,22 @@ static void crop_path(const SkPath& path, const SkIRect& cropbox, SkPath* out) {
 
 bool GrCoverageCountingPathRenderer::IsSupported(const GrCaps& caps) {
     const GrShaderCaps& shaderCaps = *caps.shaderCaps();
+    SkDebugf("@@@> issuppported: %u\n",
+           shaderCaps.integerSupport() &&
+           shaderCaps.flatInterpolationSupport() &&
+           caps.instanceAttribSupport() &&
+           GrCaps::kNone_MapFlags != caps.mapBufferFlags() &&
+           caps.isConfigTexturable(kAlpha_half_GrPixelConfig) &&
+           caps.isConfigRenderable(kAlpha_half_GrPixelConfig, /*withMSAA=*/false) &&
+           !caps.blacklistCoverageCounting());
+    SkDebugf("@@@@@> shaderCaps.integerSupport()=%u\n", shaderCaps.integerSupport());
+    SkDebugf("@@@@@> shaderCaps.flatInterpolationSupport()=%u\n", shaderCaps.flatInterpolationSupport());
+    SkDebugf("@@@@@> caps.instanceAttribSupport()=%u\n", caps.instanceAttribSupport());
+    SkDebugf("@@@@@> caps.mapBufferFlags()=%u\n", caps.mapBufferFlags());
+    SkDebugf("@@@@@> caps.isConfigTexturable(kAlpha_half_GrPixelConfig)=%u\n", caps.isConfigTexturable(kAlpha_half_GrPixelConfig));
+    SkDebugf("@@@@@> caps.isConfigRenderable(kAlpha_half_GrPixelConfig, false)=%u\n", caps.isConfigRenderable(kAlpha_half_GrPixelConfig, false));
+    SkDebugf("@@@@@> !caps.blacklistCoverageCounting=%u\n", !caps.blacklistCoverageCounting());
+    exit(0);
     return shaderCaps.integerSupport() &&
            shaderCaps.flatInterpolationSupport() &&
            caps.instanceAttribSupport() &&

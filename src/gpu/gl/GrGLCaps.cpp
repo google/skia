@@ -349,6 +349,8 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         shaderCaps->fIntegerSupport = ctxInfo.version() >= GR_GL_VER(3, 0) &&
             ctxInfo.glslGeneration() >= k330_GrGLSLGeneration; // We use this value for GLSL ES 3.0.
     }
+    SkDebugf("@@@> integerSupport=%u\n", shaderCaps->fIntegerSupport);
+    SkDebugf("@@@> version=%u.%u\n", ctxInfo.version() >> 16, ctxInfo.version() & 0xffff);
 
     // Protect ourselves against tracking huge amounts of texture state.
     static const uint8_t kMaxSaneSamplers = 32;
