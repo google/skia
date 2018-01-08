@@ -20,6 +20,10 @@ GrResourceProvider* GrProcessorTestData::resourceProvider() {
     return fContext->resourceProvider();
 }
 
+GrProxyProvider* GrProcessorTestData::proxyProvider() {
+    return fContext->proxyProvider();
+}
+
 const GrCaps* GrProcessorTestData::caps() {
     return fContext->caps();
 }

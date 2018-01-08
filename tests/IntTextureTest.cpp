@@ -66,7 +66,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(IntTexture, reporter, ctxInfo) {
         levels[1].fPixels = testData.get();
         levels[1].fRowBytes = (kS / 2) * sizeof(int32_t);
 
-        sk_sp<GrTextureProxy> temp(GrSurfaceProxy::MakeDeferredMipMap(context->resourceProvider(),
+        sk_sp<GrTextureProxy> temp(GrSurfaceProxy::MakeDeferredMipMap(context->proxyProvider(),
                                                                       desc,
                                                                       SkBudgeted::kYes,
                                                                       levels, 2));
@@ -74,7 +74,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(IntTexture, reporter, ctxInfo) {
     }
 
     // Test that we can create an integer texture.
-    sk_sp<GrTextureProxy> proxy = GrSurfaceProxy::MakeDeferred(context->resourceProvider(),
+    sk_sp<GrTextureProxy> proxy = GrSurfaceProxy::MakeDeferred(context->proxyProvider(),
                                                                desc, SkBudgeted::kYes,
                                                                testData.get(),
                                                                kRowBytes);
