@@ -24,6 +24,7 @@
 #include "SkSGImage.h"
 #include "SkSGInvalidationController.h"
 #include "SkSGMerge.h"
+#include "SkSGOpacityEffect.h"
 #include "SkSGPath.h"
 #include "SkSGRect.h"
 #include "SkSGTransform.h"
@@ -138,6 +139,31 @@ sk_sp<sksg::Matrix> AttachMatrix(const Json::Value& t, AttachContext* ctx,
     }
 
     return matrix;
+}
+
+sk_sp<sksg::RenderNode> AttachOpacity(const Json::Value& jtransform, AttachContext* ctx,
+                                      sk_sp<sksg::RenderNode> childNode) {
+    if (!jtransform.isObject() || !childNode)
+        return childNode;
+
+    // This is more peeky than other attachers, because we want to avoid redundant opacity
+    // nodes for the extremely common case of static opaciy == 100.
+    const auto& opacity = jtransform["o"];
+    if (opacity.isObject() &&
+        !ParseBool(opacity["a"], true) &&
+        ParseScalar(opacity["k"], -1) == 100) {
+        // Ignoring static full opacity.
+        return childNode;
+    }
+
+    auto opacityNode = sksg::OpacityEffect::Make(childNode);
+    AttachProperty<ScalarValue, SkScalar>(opacity, ctx, opacityNode,
+        [](const sk_sp<sksg::OpacityEffect>& node, const SkScalar& o) {
+            // BM opacity is [0..100]
+            node->setOpacity(o * 0.01f);
+        });
+
+    return opacityNode;
 }
 
 sk_sp<sksg::RenderNode> AttachShape(const Json::Value&, AttachContext* ctx);
@@ -512,6 +538,7 @@ sk_sp<sksg::RenderNode> AttachShape(const Json::Value& shapeArray, AttachContext
                 xformed_group = sksg::Transform::Make(std::move(xformed_group),
                                                       std::move(matrix));
             }
+            xformed_group = AttachOpacity(s, ctx, std::move(xformed_group));
         } break;
         }
     }
@@ -694,10 +721,11 @@ sk_sp<sksg::RenderNode> AttachLayer(const Json::Value& jlayer,
 
     auto layer       = gLayerAttachers[type](jlayer, layerCtx->fCtx);
     auto layerMatrix = layerCtx->AttachLayerMatrix(jlayer);
+    auto transformed = layerMatrix
+            ? sksg::Transform::Make(std::move(layer), std::move(layerMatrix))
+            : layer;
 
-    return layerMatrix
-        ? sksg::Transform::Make(std::move(layer), std::move(layerMatrix))
-        : layer;
+    return AttachOpacity(jlayer["ks"], layerCtx->fCtx, std::move(transformed));
 }
 
 sk_sp<sksg::RenderNode> AttachComposition(const Json::Value& comp, AttachContext* ctx) {
