@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "20cbde66_76c00d0c",
+        "filename": "src/gpu/ccpr/GrCoverageCountingPathRenderer.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-01-08T21:52:18Z",
+      "side": 1,
+      "message": "fix",
+      "range": {
+        "startLine": 67,
+        "startChar": 13,
+        "endLine": 67,
+        "endChar": 25
+      },
+      "revId": "1f297ca621162818c8071bd68bba59b4c4bda0ef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
