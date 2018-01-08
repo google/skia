@@ -42,10 +42,8 @@ void SkottySlide2::load(SkScalar, SkScalar) {
     SkOSFile::Iter iter(fPath.c_str(), "json");
     while (iter.next(&name)) {
         SkString path = SkOSPath::Join(fPath.c_str(), name.c_str());
-        if (auto stream = SkStream::MakeFromFile(path.c_str())) {
-            if (auto anim  = skotty::Animation::Make(stream.get())) {
-                fAnims.push_back(Rec(std::move(anim))).fName = name;
-            }
+        if (auto anim  = skotty::Animation::MakeFromFile(path.c_str())) {
+            fAnims.push_back(Rec(std::move(anim))).fName = name;
         }
     }
 }

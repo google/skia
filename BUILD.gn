@@ -1379,6 +1379,7 @@ if (skia_enable_tools) {
       "experimental/sksg/SkSGEffectNode.cpp",
       "experimental/sksg/SkSGGeometryNode.cpp",
       "experimental/sksg/SkSGGroup.cpp",
+      "experimental/sksg/SkSGImage.cpp",
       "experimental/sksg/SkSGInvalidationController.cpp",
       "experimental/sksg/SkSGNode.cpp",
       "experimental/sksg/SkSGPaintNode.cpp",

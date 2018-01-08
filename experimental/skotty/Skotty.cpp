@@ -12,14 +12,17 @@
 #include "SkottyPriv.h"
 #include "SkottyProperties.h"
 #include "SkData.h"
+#include "SkImage.h"
 #include "SkMakeUnique.h"
+#include "SkOSPath.h"
 #include "SkPaint.h"
 #include "SkPath.h"
 #include "SkPoint.h"
 #include "SkSGColor.h"
 #include "SkSGDraw.h"
-#include "SkSGInvalidationController.h"
 #include "SkSGGroup.h"
+#include "SkSGImage.h"
+#include "SkSGInvalidationController.h"
 #include "SkSGMerge.h"
 #include "SkSGPath.h"
 #include "SkSGRect.h"
@@ -42,6 +45,7 @@ namespace {
 using AssetMap = SkTHashMap<SkString, const Json::Value*>;
 
 struct AttachContext {
+    const ResourceProvider&                  fResources;
     const AssetMap&                          fAssets;
     SkTArray<std::unique_ptr<AnimatorBase>>& fAnimators;
 };
@@ -550,11 +554,43 @@ sk_sp<sksg::RenderNode> AttachSolidLayer(const Json::Value& layer, AttachContext
     return nullptr;
 }
 
-sk_sp<sksg::RenderNode> AttachImageLayer(const Json::Value& layer, AttachContext*) {
+sk_sp<sksg::RenderNode> AttachImageAsset(const Json::Value& jimage, AttachContext* ctx) {
+    SkASSERT(jimage.isObject());
+
+    const auto name = ParseString(jimage["p"], ""),
+               path = ParseString(jimage["u"], "");
+    if (name.isEmpty())
+        return nullptr;
+
+    // TODO: plumb resource paths explicitly to ResourceProvider?
+    const auto resName    = path.isEmpty() ? name : SkOSPath::Join(path.c_str(), name.c_str());
+    const auto resStream  = ctx->fResources.openStream(resName.c_str());
+    if (!resStream || !resStream->hasLength()) {
+        LOG("!! Could not load image resource: %s\n", resName.c_str());
+        return nullptr;
+    }
+
+    // TODO: non-intrisic image sizing
+    return sksg::Image::Make(
+        SkImage::MakeFromEncoded(SkData::MakeFromStream(resStream.get(), resStream->getLength())));
+}
+
+sk_sp<sksg::RenderNode> AttachImageLayer(const Json::Value& layer, AttachContext* ctx) {
     SkASSERT(layer.isObject());
 
-    LOG("?? Image layer stub\n");
-    return nullptr;
+    auto refId = ParseString(layer["refId"], "");
+    if (refId.isEmpty()) {
+        LOG("!! Image layer missing refId\n");
+        return nullptr;
+    }
+
+    const auto* jimage = ctx->fAssets.find(refId);
+    if (!jimage) {
+        LOG("!! Image asset not found: '%s'\n", refId.c_str());
+        return nullptr;
+    }
+
+    return AttachImageAsset(**jimage, ctx);
 }
 
 sk_sp<sksg::RenderNode> AttachNullLayer(const Json::Value& layer, AttachContext*) {
@@ -699,7 +735,7 @@ sk_sp<sksg::RenderNode> AttachComposition(const Json::Value& comp, AttachContext
 
 } // namespace
 
-std::unique_ptr<Animation> Animation::Make(SkStream* stream) {
+std::unique_ptr<Animation> Animation::Make(SkStream* stream, const ResourceProvider& res) {
     if (!stream->hasLength()) {
         // TODO: handle explicit buffering?
         LOG("!! cannot parse streaming content\n");
@@ -733,10 +769,37 @@ std::unique_ptr<Animation> Animation::Make(SkStream* stream) {
         return nullptr;
     }
 
-    return std::unique_ptr<Animation>(new Animation(std::move(version), size, fps, json));
+    return std::unique_ptr<Animation>(new Animation(res, std::move(version), size, fps, json));
 }
 
-Animation::Animation(SkString version, const SkSize& size, SkScalar fps, const Json::Value& json)
+std::unique_ptr<Animation> Animation::MakeFromFile(const char path[], const ResourceProvider* res) {
+    class DirectoryResourceProvider final : public ResourceProvider {
+    public:
+        explicit DirectoryResourceProvider(SkString dir) : fDir(std::move(dir)) {}
+
+        std::unique_ptr<SkStream> openStream(const char resource[]) const override {
+            const auto resPath = SkOSPath::Join(fDir.c_str(), resource);
+            return SkStream::MakeFromFile(resPath.c_str());
+        }
+
+    private:
+        const SkString fDir;
+    };
+
+    const auto jsonStream =  SkStream::MakeFromFile(path);
+    if (!jsonStream)
+        return nullptr;
+
+    std::unique_ptr<ResourceProvider> defaultProvider;
+    if (!res) {
+        defaultProvider = skstd::make_unique<DirectoryResourceProvider>(SkOSPath::Dirname(path));
+    }
+
+    return Make(jsonStream.get(), res ? *res : *defaultProvider);
+}
+
+Animation::Animation(const ResourceProvider& resources,
+                     SkString version, const SkSize& size, SkScalar fps, const Json::Value& json)
     : fVersion(std::move(version))
     , fSize(size)
     , fFrameRate(fps)
@@ -752,7 +815,7 @@ Animation::Animation(SkString version, const SkSize& size, SkScalar fps, const J
         assets.set(ParseString(asset["id"], ""), &asset);
     }
 
-    AttachContext ctx = { assets, fAnimators };
+    AttachContext ctx = { resources, assets, fAnimators };
     fDom = AttachComposition(json, &ctx);
 
     LOG("** Attached %d animators\n", fAnimators.count());
