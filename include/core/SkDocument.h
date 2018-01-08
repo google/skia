@@ -184,7 +184,7 @@ public:
     void abort();
 
 protected:
-    SkDocument(SkWStream*, void (*)(SkWStream*, bool aborted));
+    SkDocument(SkWStream*);
 
     // note: subclasses must call close() in their destructor, as the base class
     // cannot do this for them.
@@ -207,7 +207,6 @@ protected:
 
 private:
     SkWStream* fStream;
-    void       (*fDoneProc)(SkWStream*, bool aborted);
     State      fState;
 
     typedef SkRefCnt INHERITED;

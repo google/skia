@@ -25,7 +25,6 @@ class SkPDFDevice;
  *         SK_ScalarDefaultRasterDPI(72.0f).
  */
 sk_sp<SkDocument> SkPDFMakeDocument(SkWStream* stream,
-                                    void (*doneProc)(SkWStream*, bool),
                                     const SkDocument::PDFMetadata&);
 
 // Logically part of SkPDFDocument (like SkPDFCanon), but separate to
@@ -52,7 +51,6 @@ struct SkPDFObjectSerializer : SkNoncopyable {
 class SkPDFDocument : public SkDocument {
 public:
     SkPDFDocument(SkWStream*,
-                  void (*)(SkWStream*, bool),
                   const SkDocument::PDFMetadata&);
     ~SkPDFDocument() override;
     SkCanvas* onBeginPage(SkScalar, SkScalar) override;
