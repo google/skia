@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrCCPRQuadraticShader_DEFINED
-#define GrCCPRQuadraticShader_DEFINED
+#ifndef GrCCQuadraticShader_DEFINED
+#define GrCCQuadraticShader_DEFINED
 
-#include "ccpr/GrCCPRCoverageProcessor.h"
+#include "ccpr/GrCCCoverageProcessor.h"
 
 /**
  * This class renders the coverage of closed quadratic curves using the techniques outlined in
@@ -18,9 +18,9 @@
  * https://www.microsoft.com/en-us/research/wp-content/uploads/2005/01/p1000-loop.pdf
  *
  * The provided curves must be monotonic with respect to the vector of their closing edge [P2 - P0].
- * (Use GrCCPRGeometry.)
+ * (Use GrCCGeometry.)
  */
-class GrCCPRQuadraticShader : public GrCCPRCoverageProcessor::Shader {
+class GrCCQuadraticShader : public GrCCCoverageProcessor::Shader {
 protected:
     void emitSetupCode(GrGLSLVertexGeoBuilder*, const char* pts, const char* repetitionID,
                        const char* wind, GeometryVars*) const final;
@@ -44,7 +44,7 @@ protected:
  * uses simple distance-to-edge to subtract out coverage for the flat closing edge [P2 -> P0]. Since
  * the provided curves are monotonic, this will get every pixel right except the two corners.
  */
-class GrCCPRQuadraticHullShader : public GrCCPRQuadraticShader {
+class GrCCQuadraticHullShader : public GrCCQuadraticShader {
     void onEmitSetupCode(GrGLSLVertexGeoBuilder*, const char* pts, const char* repetitionID,
                          GeometryVars*) const override;
     void onEmitVaryings(GrGLSLVaryingHandler*, GrGLSLVarying::Scope, SkString* code) override;
@@ -56,7 +56,7 @@ class GrCCPRQuadraticHullShader : public GrCCPRQuadraticShader {
 /**
  * This pass fixes the corners of a closed quadratic segment with soft MSAA.
  */
-class GrCCPRQuadraticCornerShader : public GrCCPRQuadraticShader {
+class GrCCQuadraticCornerShader : public GrCCQuadraticShader {
     void onEmitSetupCode(GrGLSLVertexGeoBuilder*, const char* pts, const char* repetitionID,
                          GeometryVars*) const override;
     void onEmitVaryings(GrGLSLVaryingHandler*, GrGLSLVarying::Scope, SkString* code) override;

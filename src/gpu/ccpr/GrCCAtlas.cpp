@@ -5,24 +5,22 @@
  * found in the LICENSE file.
  */
 
-#include "GrCCPRAtlas.h"
+#include "GrCCAtlas.h"
 
-#include "GrOnFlushResourceProvider.h"
 #include "GrClip.h"
+#include "GrOnFlushResourceProvider.h"
 #include "GrRectanizer_skyline.h"
-#include "GrTextureProxy.h"
 #include "GrRenderTargetContext.h"
+#include "GrTextureProxy.h"
 #include "SkMakeUnique.h"
 #include "SkMathPriv.h"
-#include "ccpr/GrCCPRCoverageProcessor.h"
+#include "ccpr/GrCCCoverageProcessor.h"
 #include "ops/GrDrawOp.h"
 
-class GrCCPRAtlas::Node {
+class GrCCAtlas::Node {
 public:
     Node(std::unique_ptr<Node> previous, int l, int t, int r, int b)
-            : fPrevious(std::move(previous))
-            , fX(l), fY(t)
-            , fRectanizer(r - l, b - t) {}
+            : fPrevious(std::move(previous)), fX(l), fY(t), fRectanizer(r - l, b - t) {}
 
     Node* previous() const { return fPrevious.get(); }
 
@@ -38,14 +36,13 @@ public:
     }
 
 private:
-    const std::unique_ptr<Node>   fPrevious;
-    const int                     fX, fY;
-    GrRectanizerSkyline           fRectanizer;
+    const std::unique_ptr<Node> fPrevious;
+    const int fX, fY;
+    GrRectanizerSkyline fRectanizer;
 };
 
-GrCCPRAtlas::GrCCPRAtlas(const GrCaps& caps, int minWidth, int minHeight)
-        : fMaxAtlasSize(caps.maxRenderTargetSize())
-        , fDrawBounds{0, 0} {
+GrCCAtlas::GrCCAtlas(const GrCaps& caps, int minWidth, int minHeight)
+        : fMaxAtlasSize(caps.maxRenderTargetSize()), fDrawBounds{0, 0} {
     SkASSERT(fMaxAtlasSize <= caps.maxTextureSize());
     SkASSERT(SkTMax(minWidth, minHeight) <= fMaxAtlasSize);
     int initialSize = GrNextPow2(SkTMax(minWidth, minHeight));
@@ -55,10 +52,9 @@ GrCCPRAtlas::GrCCPRAtlas(const GrCaps& caps, int minWidth, int minHeight)
     fTopNode = skstd::make_unique<Node>(nullptr, 0, 0, initialSize, initialSize);
 }
 
-GrCCPRAtlas::~GrCCPRAtlas() {
-}
+GrCCAtlas::~GrCCAtlas() {}
 
-bool GrCCPRAtlas::addRect(int w, int h, SkIPoint16* loc) {
+bool GrCCAtlas::addRect(int w, int h, SkIPoint16* loc) {
     // This can't be called anymore once finalize() has been called.
     SkASSERT(!fTextureProxy);
 
@@ -71,7 +67,7 @@ bool GrCCPRAtlas::addRect(int w, int h, SkIPoint16* loc) {
     return true;
 }
 
-bool GrCCPRAtlas::internalPlaceRect(int w, int h, SkIPoint16* loc) {
+bool GrCCAtlas::internalPlaceRect(int w, int h, SkIPoint16* loc) {
     SkASSERT(SkTMax(w, h) < fMaxAtlasSize);
 
     for (Node* node = fTopNode.get(); node; node = node->previous()) {
@@ -100,8 +96,8 @@ bool GrCCPRAtlas::internalPlaceRect(int w, int h, SkIPoint16* loc) {
     return true;
 }
 
-sk_sp<GrRenderTargetContext> GrCCPRAtlas::finalize(GrOnFlushResourceProvider* onFlushRP,
-                                                   std::unique_ptr<GrDrawOp> atlasOp) {
+sk_sp<GrRenderTargetContext> GrCCAtlas::finalize(
+        GrOnFlushResourceProvider* onFlushRP, std::unique_ptr<GrDrawOp> atlasOp) {
     SkASSERT(!fTextureProxy);
 
     GrSurfaceDesc desc;

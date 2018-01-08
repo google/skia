@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "GrCCPRClipProcessor.h"
+#include "GrCCClipProcessor.h"
 
 #include "GrTexture.h"
 #include "GrTextureProxy.h"
@@ -13,9 +13,9 @@
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 
-GrCCPRClipProcessor::GrCCPRClipProcessor(const ClipPath* clipPath, MustCheckBounds mustCheckBounds,
+GrCCClipProcessor::GrCCClipProcessor(const ClipPath* clipPath, MustCheckBounds mustCheckBounds,
                                          SkPath::FillType overrideFillType)
-        : INHERITED(kCCPRClipProcessor_ClassID, kCompatibleWithCoverageAsAlpha_OptimizationFlag)
+        : INHERITED(kGrCCClipProcessor_ClassID, kCompatibleWithCoverageAsAlpha_OptimizationFlag)
         , fClipPath(clipPath)
         , fMustCheckBounds((bool)mustCheckBounds)
         , fOverrideFillType(overrideFillType)
@@ -24,18 +24,17 @@ GrCCPRClipProcessor::GrCCPRClipProcessor(const ClipPath* clipPath, MustCheckBoun
     this->addTextureSampler(&fAtlasAccess);
 }
 
-std::unique_ptr<GrFragmentProcessor> GrCCPRClipProcessor::clone() const {
-    return skstd::make_unique<GrCCPRClipProcessor>(fClipPath, MustCheckBounds(fMustCheckBounds),
+std::unique_ptr<GrFragmentProcessor> GrCCClipProcessor::clone() const {
+    return skstd::make_unique<GrCCClipProcessor>(fClipPath, MustCheckBounds(fMustCheckBounds),
                                                    fOverrideFillType);
 }
 
-void GrCCPRClipProcessor::onGetGLSLProcessorKey(const GrShaderCaps&,
-                                                GrProcessorKeyBuilder* b) const {
+void GrCCClipProcessor::onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const {
     b->add32((fOverrideFillType << 1) | (int)fMustCheckBounds);
 }
 
-bool GrCCPRClipProcessor::onIsEqual(const GrFragmentProcessor& fp) const {
-    const GrCCPRClipProcessor& that = fp.cast<GrCCPRClipProcessor>();
+bool GrCCClipProcessor::onIsEqual(const GrFragmentProcessor& fp) const {
+    const GrCCClipProcessor& that = fp.cast<GrCCClipProcessor>();
     // Each ClipPath path has a unique atlas proxy, so hasSameSamplersAndAccesses should have
     // already weeded out FPs with different ClipPaths.
     SkASSERT(that.fClipPath->deviceSpacePath().getGenerationID() ==
@@ -43,10 +42,10 @@ bool GrCCPRClipProcessor::onIsEqual(const GrFragmentProcessor& fp) const {
     return that.fOverrideFillType == fOverrideFillType;
 }
 
-class GrCCPRClipProcessor::Impl : public GrGLSLFragmentProcessor {
+class GrCCClipProcessor::Impl : public GrGLSLFragmentProcessor {
 public:
     void emitCode(EmitArgs& args) override {
-        const GrCCPRClipProcessor& proc = args.fFp.cast<GrCCPRClipProcessor>();
+        const GrCCClipProcessor& proc = args.fFp.cast<GrCCClipProcessor>();
         GrGLSLUniformHandler* uniHandler = args.fUniformHandler;
         GrGLSLFPFragmentBuilder* f = args.fFragBuilder;
 
@@ -93,7 +92,7 @@ public:
 
     void onSetData(const GrGLSLProgramDataManager& pdman,
                    const GrFragmentProcessor& fp) override {
-        const GrCCPRClipProcessor& proc = fp.cast<GrCCPRClipProcessor>();
+        const GrCCClipProcessor& proc = fp.cast<GrCCClipProcessor>();
         if (proc.fMustCheckBounds) {
             const SkRect pathIBounds = SkRect::Make(proc.fClipPath->pathDevIBounds());
             pdman.set4f(fPathIBoundsUniform, pathIBounds.left(), pathIBounds.top(),
@@ -109,6 +108,6 @@ private:
     UniformHandle fAtlasTransformUniform;
 };
 
-GrGLSLFragmentProcessor* GrCCPRClipProcessor::onCreateGLSLInstance() const {
+GrGLSLFragmentProcessor* GrCCClipProcessor::onCreateGLSLInstance() const {
     return new Impl();
 }

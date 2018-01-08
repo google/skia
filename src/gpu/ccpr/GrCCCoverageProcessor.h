@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrCCPRCoverageProcessor_DEFINED
-#define GrCCPRCoverageProcessor_DEFINED
+#ifndef GrCCCoverageProcessor_DEFINED
+#define GrCCCoverageProcessor_DEFINED
 
 #include "GrGeometryProcessor.h"
 #include "GrShaderCaps.h"
@@ -26,11 +26,11 @@ class GrMesh;
  * The caller is responsible to execute all render passes for all applicable primitives into a
  * cleared, floating point, alpha-only render target using SkBlendMode::kPlus (see RenderPass
  * below). Once all of a path's primitives have been drawn, the render target contains a composite
- * coverage count that can then be used to draw the path (see GrCCPRPathProcessor).
+ * coverage count that can then be used to draw the path (see GrCCPathProcessor).
  *
  * To draw a renderer pass, see appendMesh below.
  */
-class GrCCPRCoverageProcessor : public GrGeometryProcessor {
+class GrCCCoverageProcessor : public GrGeometryProcessor {
 public:
     // Defines a single triangle or closed quadratic bezier, with transposed x,y point values.
     struct TriangleInstance {
@@ -91,8 +91,8 @@ public:
         return RenderPass::kTriangleEdges != renderPass || caps.geometryShaderSupport();
     }
 
-    GrCCPRCoverageProcessor(GrResourceProvider* rp, RenderPass pass, const GrShaderCaps& caps)
-            : INHERITED(kGrCCPRCoverageProcessor_ClassID)
+    GrCCCoverageProcessor(GrResourceProvider* rp, RenderPass pass, const GrShaderCaps& caps)
+            : INHERITED(kGrCCCoverageProcessor_ClassID)
             , fRenderPass(pass)
             , fImpl(caps.geometryShaderSupport() ?  Impl::kGeometryShader : Impl::kVertexShader) {
         SkASSERT(DoesRenderPass(pass, caps));
@@ -162,7 +162,7 @@ public:
         void emitVaryings(GrGLSLVaryingHandler*, GrGLSLVarying::Scope, SkString* code,
                           const char* position, const char* coverage, const char* wind);
 
-        void emitFragmentCode(const GrCCPRCoverageProcessor& proc, GrGLSLPPFragmentBuilder*,
+        void emitFragmentCode(const GrCCCoverageProcessor& proc, GrGLSLPPFragmentBuilder*,
                               const char* skOutputColor, const char* skOutputCoverage) const;
 
         // Defines an equation ("dot(float3(pt, 1), distance_equation)") that is -1 on the outside
@@ -246,31 +246,31 @@ private:
     const Impl fImpl;
     sk_sp<const GrBuffer> fVertexBuffer; // Used by VSImpl.
     sk_sp<const GrBuffer> fIndexBuffer; // Used by VSImpl.
-    SkDEBUGCODE(float fDebugBloat = 0;)
+    SkDEBUGCODE(float fDebugBloat = 0);
 
     typedef GrGeometryProcessor INHERITED;
 };
 
-inline void GrCCPRCoverageProcessor::TriangleInstance::set(const SkPoint p[3], const Sk2f& trans) {
+inline void GrCCCoverageProcessor::TriangleInstance::set(const SkPoint p[3], const Sk2f& trans) {
     this->set(p[0], p[1], p[2], trans);
 }
 
-inline void GrCCPRCoverageProcessor::TriangleInstance::set(const SkPoint& p0, const SkPoint& p1,
-                                                           const SkPoint& p2, const Sk2f& trans) {
+inline void GrCCCoverageProcessor::TriangleInstance::set(const SkPoint& p0, const SkPoint& p1,
+                                                         const SkPoint& p2, const Sk2f& trans) {
     Sk2f P0 = Sk2f::Load(&p0) + trans;
     Sk2f P1 = Sk2f::Load(&p1) + trans;
     Sk2f P2 = Sk2f::Load(&p2) + trans;
     Sk2f::Store3(this, P0, P1, P2);
 }
 
-inline void GrCCPRCoverageProcessor::CubicInstance::set(const SkPoint p[4], float dx, float dy) {
+inline void GrCCCoverageProcessor::CubicInstance::set(const SkPoint p[4], float dx, float dy) {
     Sk4f X,Y;
     Sk4f::Load2(p, &X, &Y);
     (X + dx).store(&fX);
     (Y + dy).store(&fY);
 }
 
-inline bool GrCCPRCoverageProcessor::RenderPassIsCubic(RenderPass pass) {
+inline bool GrCCCoverageProcessor::RenderPassIsCubic(RenderPass pass) {
     switch (pass) {
         case RenderPass::kTriangleHulls:
         case RenderPass::kTriangleEdges:
@@ -286,7 +286,7 @@ inline bool GrCCPRCoverageProcessor::RenderPassIsCubic(RenderPass pass) {
     return false;
 }
 
-inline const char* GrCCPRCoverageProcessor::RenderPassName(RenderPass pass) {
+inline const char* GrCCCoverageProcessor::RenderPassName(RenderPass pass) {
     switch (pass) {
         case RenderPass::kTriangleHulls: return "kTriangleHulls";
         case RenderPass::kTriangleEdges: return "kTriangleEdges";

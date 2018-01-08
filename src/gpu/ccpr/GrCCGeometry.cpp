@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "GrCCPRGeometry.h"
+#include "GrCCGeometry.h"
 
 #include "GrTypes.h"
 #include "GrPathUtils.h"
@@ -18,12 +18,12 @@ GR_STATIC_ASSERT(SK_SCALAR_IS_FLOAT);
 GR_STATIC_ASSERT(2 * sizeof(float) == sizeof(SkPoint));
 GR_STATIC_ASSERT(0 == offsetof(SkPoint, fX));
 
-void GrCCPRGeometry::beginPath() {
+void GrCCGeometry::beginPath() {
     SkASSERT(!fBuildingContour);
     fVerbs.push_back(Verb::kBeginPath);
 }
 
-void GrCCPRGeometry::beginContour(const SkPoint& devPt) {
+void GrCCGeometry::beginContour(const SkPoint& devPt) {
     SkASSERT(!fBuildingContour);
 
     fCurrFanPoint = fCurrAnchorPoint = devPt;
@@ -35,10 +35,10 @@ void GrCCPRGeometry::beginContour(const SkPoint& devPt) {
     fPoints.push_back(devPt);
     fVerbs.push_back(Verb::kBeginContour);
 
-    SkDEBUGCODE(fBuildingContour = true;)
+    SkDEBUGCODE(fBuildingContour = true);
 }
 
-void GrCCPRGeometry::lineTo(const SkPoint& devPt) {
+void GrCCGeometry::lineTo(const SkPoint& devPt) {
     SkASSERT(fBuildingContour);
     SkASSERT(fCurrFanPoint == fPoints.back());
     fCurrFanPoint = devPt;
@@ -90,7 +90,7 @@ static inline Sk2f lerp(const Sk2f& a, const Sk2f& b, const Sk2f& t) {
     return SkNx_fma(t, b - a, a);
 }
 
-void GrCCPRGeometry::quadraticTo(const SkPoint& devP0, const SkPoint& devP1) {
+void GrCCGeometry::quadraticTo(const SkPoint& devP0, const SkPoint& devP1) {
     SkASSERT(fBuildingContour);
     SkASSERT(fCurrFanPoint == fPoints.back());
 
@@ -102,8 +102,8 @@ void GrCCPRGeometry::quadraticTo(const SkPoint& devP0, const SkPoint& devP1) {
     this->appendMonotonicQuadratics(p0, p1, p2);
 }
 
-inline void GrCCPRGeometry::appendMonotonicQuadratics(const Sk2f& p0, const Sk2f& p1,
-                                                      const Sk2f& p2) {
+inline void GrCCGeometry::appendMonotonicQuadratics(const Sk2f& p0, const Sk2f& p1,
+                                                    const Sk2f& p2) {
     Sk2f tan0 = p1 - p0;
     Sk2f tan1 = p2 - p1;
 
@@ -141,8 +141,8 @@ inline void GrCCPRGeometry::appendMonotonicQuadratics(const Sk2f& p0, const Sk2f
     this->appendSingleMonotonicQuadratic(p012, p12, p2);
 }
 
-inline void GrCCPRGeometry::appendSingleMonotonicQuadratic(const Sk2f& p0, const Sk2f& p1,
-                                                           const Sk2f& p2) {
+inline void GrCCGeometry::appendSingleMonotonicQuadratic(const Sk2f& p0, const Sk2f& p1,
+                                                         const Sk2f& p2) {
     SkASSERT(fPoints.back() == SkPoint::Make(p0[0], p0[1]));
 
     // Don't send curves to the GPU if we know they are nearly flat (or just very small).
@@ -285,8 +285,8 @@ static inline bool is_cubic_nearly_quadratic(const Sk2f& p0, const Sk2f& p1, con
     return ((c1 - c2).abs() <= 1).allTrue();
 }
 
-void GrCCPRGeometry::cubicTo(const SkPoint& devP1, const SkPoint& devP2, const SkPoint& devP3,
-                             float inflectPad, float loopIntersectPad) {
+void GrCCGeometry::cubicTo(const SkPoint& devP1, const SkPoint& devP2, const SkPoint& devP3,
+                           float inflectPad, float loopIntersectPad) {
     SkASSERT(fBuildingContour);
     SkASSERT(fCurrFanPoint == fPoints.back());
 
@@ -390,15 +390,15 @@ void GrCCPRGeometry::cubicTo(const SkPoint& devP1, const SkPoint& devP2, const S
     // Next we chop the cubic up at all T0..T3 inside 0..1 and store the resulting segments.
     if (T1 >= 1) {
         // Only sections 1 & 2 can be in 0..1.
-        this->chopCubic<&GrCCPRGeometry::appendMonotonicCubics,
-                        &GrCCPRGeometry::appendCubicApproximation>(p0, p1, p2, p3, T0);
+        this->chopCubic<&GrCCGeometry::appendMonotonicCubics,
+                        &GrCCGeometry::appendCubicApproximation>(p0, p1, p2, p3, T0);
         return;
     }
 
     if (T2 <= 0) {
         // Only sections 4 & 5 can be in 0..1.
-        this->chopCubic<&GrCCPRGeometry::appendCubicApproximation,
-                        &GrCCPRGeometry::appendMonotonicCubics>(p0, p1, p2, p3, T3);
+        this->chopCubic<&GrCCGeometry::appendCubicApproximation,
+                        &GrCCGeometry::appendMonotonicCubics>(p0, p1, p2, p3, T3);
         return;
     }
 
@@ -414,8 +414,8 @@ void GrCCPRGeometry::cubicTo(const SkPoint& devP1, const SkPoint& devP2, const S
         Sk2f abcd1 = lerp(abc1, bcd1, T1T1);
 
         // Sections 1 & 2.
-        this->chopCubic<&GrCCPRGeometry::appendMonotonicCubics,
-                        &GrCCPRGeometry::appendCubicApproximation>(p0, ab1, abc1, abcd1, T0/T1);
+        this->chopCubic<&GrCCGeometry::appendMonotonicCubics,
+                        &GrCCGeometry::appendCubicApproximation>(p0, ab1, abc1, abcd1, T0/T1);
 
         if (T2 >= 1) {
             // The rest of the curve is Section 3 (middle section).
@@ -453,14 +453,14 @@ void GrCCPRGeometry::cubicTo(const SkPoint& devP1, const SkPoint& devP2, const S
     }
 
     // Sections 4 & 5.
-    this->chopCubic<&GrCCPRGeometry::appendCubicApproximation,
-                    &GrCCPRGeometry::appendMonotonicCubics>(abcd2, bcd2, cd2, p3, (T3-T2) / (1-T2));
+    this->chopCubic<&GrCCGeometry::appendCubicApproximation,
+                    &GrCCGeometry::appendMonotonicCubics>(abcd2, bcd2, cd2, p3, (T3-T2) / (1-T2));
 }
 
-template<GrCCPRGeometry::AppendCubicFn AppendLeftRight>
-inline void GrCCPRGeometry::chopCubicAtMidTangent(const Sk2f& p0, const Sk2f& p1, const Sk2f& p2,
-                                                  const Sk2f& p3, const Sk2f& tan0,
-                                                  const Sk2f& tan3, int maxFutureSubdivisions) {
+template<GrCCGeometry::AppendCubicFn AppendLeftRight>
+inline void GrCCGeometry::chopCubicAtMidTangent(const Sk2f& p0, const Sk2f& p1, const Sk2f& p2,
+                                                const Sk2f& p3, const Sk2f& tan0,
+                                                const Sk2f& tan3, int maxFutureSubdivisions) {
     // Find the T value whose tangent is perpendicular to the vector that bisects tan0 and -tan3.
     Sk2f n = normalize(tan0) - normalize(tan3);
 
@@ -482,9 +482,9 @@ inline void GrCCPRGeometry::chopCubicAtMidTangent(const Sk2f& p0, const Sk2f& p1
     this->chopCubic<AppendLeftRight, AppendLeftRight>(p0, p1, p2, p3, T, maxFutureSubdivisions);
 }
 
-template<GrCCPRGeometry::AppendCubicFn AppendLeft, GrCCPRGeometry::AppendCubicFn AppendRight>
-inline void GrCCPRGeometry::chopCubic(const Sk2f& p0, const Sk2f& p1, const Sk2f& p2,
-                                      const Sk2f& p3, float T, int maxFutureSubdivisions) {
+template<GrCCGeometry::AppendCubicFn AppendLeft, GrCCGeometry::AppendCubicFn AppendRight>
+inline void GrCCGeometry::chopCubic(const Sk2f& p0, const Sk2f& p1, const Sk2f& p2,
+                                    const Sk2f& p3, float T, int maxFutureSubdivisions) {
     if (T >= 1) {
         (this->*AppendLeft)(p0, p1, p2, p3, maxFutureSubdivisions);
         return;
@@ -506,8 +506,8 @@ inline void GrCCPRGeometry::chopCubic(const Sk2f& p0, const Sk2f& p1, const Sk2f
     (this->*AppendRight)(abcd, bcd, cd, p3, maxFutureSubdivisions);
 }
 
-void GrCCPRGeometry::appendMonotonicCubics(const Sk2f& p0, const Sk2f& p1, const Sk2f& p2,
-                                           const Sk2f& p3, int maxSubdivisions) {
+void GrCCGeometry::appendMonotonicCubics(const Sk2f& p0, const Sk2f& p1, const Sk2f& p2,
+                                         const Sk2f& p3, int maxSubdivisions) {
     SkASSERT(maxSubdivisions >= 0);
     if ((p0 == p3).allTrue()) {
         return;
@@ -518,9 +518,9 @@ void GrCCPRGeometry::appendMonotonicCubics(const Sk2f& p0, const Sk2f& p1, const
         Sk2f tan3 = first_unless_nearly_zero(p3 - p2, p3 - p1);
 
         if (!is_convex_curve_monotonic(p0, tan0, p3, tan3)) {
-            this->chopCubicAtMidTangent<&GrCCPRGeometry::appendMonotonicCubics>(p0, p1, p2, p3,
-                                                                                tan0, tan3,
-                                                                                maxSubdivisions-1);
+            this->chopCubicAtMidTangent<&GrCCGeometry::appendMonotonicCubics>(p0, p1, p2, p3,
+                                                                              tan0, tan3,
+                                                                              maxSubdivisions - 1);
             return;
         }
     }
@@ -542,8 +542,8 @@ void GrCCPRGeometry::appendMonotonicCubics(const Sk2f& p0, const Sk2f& p1, const
     ++fCurrContourTallies.fCubics;
 }
 
-void GrCCPRGeometry::appendCubicApproximation(const Sk2f& p0, const Sk2f& p1, const Sk2f& p2,
-                                              const Sk2f& p3, int maxSubdivisions) {
+void GrCCGeometry::appendCubicApproximation(const Sk2f& p0, const Sk2f& p1, const Sk2f& p2,
+                                            const Sk2f& p3, int maxSubdivisions) {
     SkASSERT(maxSubdivisions >= 0);
     if ((p0 == p3).allTrue()) {
         return;
@@ -561,9 +561,9 @@ void GrCCPRGeometry::appendCubicApproximation(const Sk2f& p0, const Sk2f& p1, co
 
     Sk2f tan0, tan3, c;
     if (!is_cubic_nearly_quadratic(p0, p1, p2, p3, tan0, tan3, c) && maxSubdivisions) {
-        this->chopCubicAtMidTangent<&GrCCPRGeometry::appendCubicApproximation>(p0, p1, p2, p3,
-                                                                               tan0, tan3,
-                                                                               maxSubdivisions - 1);
+        this->chopCubicAtMidTangent<&GrCCGeometry::appendCubicApproximation>(p0, p1, p2, p3,
+                                                                             tan0, tan3,
+                                                                             maxSubdivisions - 1);
         return;
     }
 
@@ -574,7 +574,7 @@ void GrCCPRGeometry::appendCubicApproximation(const Sk2f& p0, const Sk2f& p1, co
     }
 }
 
-GrCCPRGeometry::PrimitiveTallies GrCCPRGeometry::endContour() {
+GrCCGeometry::PrimitiveTallies GrCCGeometry::endContour() {
     SkASSERT(fBuildingContour);
     SkASSERT(fVerbs.count() >= fCurrContourTallies.fTriangles);
 
@@ -590,6 +590,6 @@ GrCCPRGeometry::PrimitiveTallies GrCCPRGeometry::endContour() {
 
     fCurrContourTallies.fTriangles = SkTMax(fanSize - 2, 0);
 
-    SkDEBUGCODE(fBuildingContour = false;)
+    SkDEBUGCODE(fBuildingContour = false);
     return fCurrContourTallies;
 }

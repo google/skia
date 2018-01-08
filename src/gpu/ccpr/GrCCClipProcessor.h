@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrCCPRClipProcessor_DEFINED
-#define GrCCPRClipProcessor_DEFINED
+#ifndef GrCCClipProcessor_DEFINED
+#define GrCCClipProcessor_DEFINED
 
 #include "GrFragmentProcessor.h"
 #include "ccpr/GrCoverageCountingPathRenderer.h"
 
-class GrCCPRClipProcessor : public GrFragmentProcessor {
+class GrCCClipProcessor : public GrFragmentProcessor {
 public:
     using ClipPath = GrCoverageCountingPathRenderer::ClipPath;
 
@@ -20,9 +20,9 @@ public:
         kYes = true
     };
 
-    GrCCPRClipProcessor(const ClipPath*, MustCheckBounds, SkPath::FillType overrideFillType);
+    GrCCClipProcessor(const ClipPath*, MustCheckBounds, SkPath::FillType overrideFillType);
 
-    const char* name() const override { return "GrCCPRClipProcessor"; }
+    const char* name() const override { return "GrCCClipProcessor"; }
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
     bool onIsEqual(const GrFragmentProcessor&) const override;

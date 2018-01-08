@@ -5,19 +5,19 @@
  * found in the LICENSE file.
  */
 
-#include "GrCCPRCoverageProcessor.h"
+#include "GrCCCoverageProcessor.h"
 
 #include "GrMesh.h"
 #include "glsl/GrGLSLVertexGeoBuilder.h"
 
 using InputType = GrGLSLGeometryBuilder::InputType;
 using OutputType = GrGLSLGeometryBuilder::OutputType;
-using Shader = GrCCPRCoverageProcessor::Shader;
+using Shader = GrCCCoverageProcessor::Shader;
 
 /**
  * This class and its subclasses implement the coverage processor with geometry shaders.
  */
-class GrCCPRCoverageProcessor::GSImpl : public GrGLSLGeometryProcessor {
+class GrCCCoverageProcessor::GSImpl : public GrGLSLGeometryProcessor {
 protected:
     GSImpl(std::unique_ptr<Shader> shader) : fShader(std::move(shader)) {}
 
@@ -27,7 +27,7 @@ protected:
     }
 
     void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) final {
-        const GrCCPRCoverageProcessor& proc = args.fGP.cast<GrCCPRCoverageProcessor>();
+        const GrCCCoverageProcessor& proc = args.fGP.cast<GrCCCoverageProcessor>();
 
         // The vertex shader simply forwards transposed x or y values to the geometry shader.
         SkASSERT(1 == proc.numAttribs());
@@ -45,7 +45,7 @@ protected:
         fShader->emitFragmentCode(proc, args.fFragBuilder, args.fOutputColor, args.fOutputCoverage);
     }
 
-    void emitGeometryShader(const GrCCPRCoverageProcessor& proc,
+    void emitGeometryShader(const GrCCCoverageProcessor& proc,
                             GrGLSLVaryingHandler* varyingHandler, GrGLSLGeometryBuilder* g,
                             const char* rtAdjust) const {
         int numInputPoints = proc.numInputPoints();
@@ -102,7 +102,7 @@ protected:
 /**
  * Generates a conservative raster hull around a triangle. (See comments for RenderPass)
  */
-class GSHull3Impl : public GrCCPRCoverageProcessor::GSImpl {
+class GSHull3Impl : public GrCCCoverageProcessor::GSImpl {
 public:
     GSHull3Impl(std::unique_ptr<Shader> shader) : GSImpl(std::move(shader)) {}
 
@@ -175,7 +175,7 @@ public:
 /**
  * Generates a conservative raster hull around a convex quadrilateral. (See comments for RenderPass)
  */
-class GSHull4Impl : public GrCCPRCoverageProcessor::GSImpl {
+class GSHull4Impl : public GrCCCoverageProcessor::GSImpl {
 public:
     GSHull4Impl(std::unique_ptr<Shader> shader) : GSImpl(std::move(shader)) {}
 
@@ -246,7 +246,7 @@ public:
 /**
  * Generates conservatives around each edge of a triangle. (See comments for RenderPass)
  */
-class GSEdgeImpl : public GrCCPRCoverageProcessor::GSImpl {
+class GSEdgeImpl : public GrCCCoverageProcessor::GSImpl {
 public:
     GSEdgeImpl(std::unique_ptr<Shader> shader) : GSImpl(std::move(shader)) {}
 
@@ -295,7 +295,7 @@ public:
 /**
  * Generates conservative rasters around corners. (See comments for RenderPass)
  */
-class GSCornerImpl : public GrCCPRCoverageProcessor::GSImpl {
+class GSCornerImpl : public GrCCCoverageProcessor::GSImpl {
 public:
     GSCornerImpl(std::unique_ptr<Shader> shader, int numCorners)
             : GSImpl(std::move(shader)), fNumCorners(numCorners) {}
@@ -320,7 +320,7 @@ private:
     const int fNumCorners;
 };
 
-void GrCCPRCoverageProcessor::initGS() {
+void GrCCCoverageProcessor::initGS() {
     SkASSERT(Impl::kGeometryShader == fImpl);
     if (RenderPassIsCubic(fRenderPass)) {
         this->addVertexAttrib("x_or_y_values", kFloat4_GrVertexAttribType); // (See appendMesh.)
@@ -332,8 +332,8 @@ void GrCCPRCoverageProcessor::initGS() {
     this->setWillUseGeoShader();
 }
 
-void GrCCPRCoverageProcessor::appendGSMesh(GrBuffer* instanceBuffer, int instanceCount,
-                                           int baseInstance, SkTArray<GrMesh>* out) const {
+void GrCCCoverageProcessor::appendGSMesh(GrBuffer* instanceBuffer, int instanceCount,
+                                         int baseInstance, SkTArray<GrMesh>* out) const {
     // GSImpl doesn't actually make instanced draw calls. Instead, we feed transposed x,y point
     // values to the GPU in a regular vertex array and draw kLines (see initGS). Then, each vertex
     // invocation receives either the shape's x or y values as inputs, which it forwards to the
@@ -344,21 +344,20 @@ void GrCCPRCoverageProcessor::appendGSMesh(GrBuffer* instanceBuffer, int instanc
     mesh.setVertexData(instanceBuffer, baseInstance * 2);
 }
 
-GrGLSLPrimitiveProcessor*
-GrCCPRCoverageProcessor::createGSImpl(std::unique_ptr<Shader> shader) const {
+GrGLSLPrimitiveProcessor* GrCCCoverageProcessor::createGSImpl(std::unique_ptr<Shader> shadr) const {
     switch (fRenderPass) {
         case RenderPass::kTriangleHulls:
-            return new GSHull3Impl(std::move(shader));
+            return new GSHull3Impl(std::move(shadr));
         case RenderPass::kQuadraticHulls:
         case RenderPass::kCubicHulls:
-            return new GSHull4Impl(std::move(shader));
+            return new GSHull4Impl(std::move(shadr));
         case RenderPass::kTriangleEdges:
-            return new GSEdgeImpl(std::move(shader));
+            return new GSEdgeImpl(std::move(shadr));
         case RenderPass::kTriangleCorners:
-            return new GSCornerImpl(std::move(shader), 3);
+            return new GSCornerImpl(std::move(shadr), 3);
         case RenderPass::kQuadraticCorners:
         case RenderPass::kCubicCorners:
-            return new GSCornerImpl(std::move(shader), 2);
+            return new GSCornerImpl(std::move(shadr), 2);
     }
     SK_ABORT("Invalid RenderPass");
     return nullptr;

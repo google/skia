@@ -5,17 +5,17 @@
  * found in the LICENSE file.
  */
 
-#include "GrCCPRQuadraticShader.h"
+#include "GrCCQuadraticShader.h"
 
 #include "glsl/GrGLSLVertexGeoBuilder.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLVertexGeoBuilder.h"
 
-using Shader = GrCCPRCoverageProcessor::Shader;
+using Shader = GrCCCoverageProcessor::Shader;
 
-void GrCCPRQuadraticShader::emitSetupCode(GrGLSLVertexGeoBuilder* s, const char* pts,
-                                          const char* repetitionID, const char* wind,
-                                          GeometryVars* vars) const {
+void GrCCQuadraticShader::emitSetupCode(GrGLSLVertexGeoBuilder* s, const char* pts,
+                                        const char* repetitionID, const char* wind,
+                                        GeometryVars* vars) const {
     s->declareGlobal(fCanonicalMatrix);
     s->codeAppendf("%s = float3x3(0.0, 0, 1, "
                                  "0.5, 0, 1, "
@@ -33,11 +33,11 @@ void GrCCPRQuadraticShader::emitSetupCode(GrGLSLVertexGeoBuilder* s, const char*
     this->onEmitSetupCode(s, pts, repetitionID, vars);
 }
 
-Shader::WindHandling GrCCPRQuadraticShader::onEmitVaryings(GrGLSLVaryingHandler* varyingHandler,
-                                                           GrGLSLVarying::Scope scope,
-                                                           SkString* code, const char* position,
-                                                           const char* coverage,
-                                                           const char* /*wind*/) {
+Shader::WindHandling GrCCQuadraticShader::onEmitVaryings(GrGLSLVaryingHandler* varyingHandler,
+                                                         GrGLSLVarying::Scope scope,
+                                                         SkString* code, const char* position,
+                                                         const char* coverage,
+                                                         const char* /*wind*/) {
     SkASSERT(!coverage);
 
     fXYD.reset(kFloat3_GrSLType, scope);
@@ -52,9 +52,9 @@ Shader::WindHandling GrCCPRQuadraticShader::onEmitVaryings(GrGLSLVaryingHandler*
     return WindHandling::kNotHandled;
 }
 
-void GrCCPRQuadraticHullShader::onEmitSetupCode(GrGLSLVertexGeoBuilder* s, const char* pts,
-                                                const char* /*repetitionID*/,
-                                                GeometryVars* vars) const {
+void GrCCQuadraticHullShader::onEmitSetupCode(GrGLSLVertexGeoBuilder* s, const char* pts,
+                                              const char* /*repetitionID*/,
+                                              GeometryVars* vars) const {
     // Find the T value whose tangent is halfway between the tangents at the endpionts.
     s->codeAppendf("float2 tan0 = %s[1] - %s[0];", pts, pts);
     s->codeAppendf("float2 tan1 = %s[2] - %s[1];", pts, pts);
@@ -71,30 +71,30 @@ void GrCCPRQuadraticHullShader::onEmitSetupCode(GrGLSLVertexGeoBuilder* s, const
     vars->fHullVars.fAlternatePoints = "quadratic_hull";
 }
 
-void GrCCPRQuadraticHullShader::onEmitVaryings(GrGLSLVaryingHandler* varyingHandler,
-                                               GrGLSLVarying::Scope scope, SkString* code) {
+void GrCCQuadraticHullShader::onEmitVaryings(GrGLSLVaryingHandler* varyingHandler,
+                                             GrGLSLVarying::Scope scope, SkString* code) {
     fGrad.reset(kFloat2_GrSLType, scope);
     varyingHandler->addVarying("grad", &fGrad);
     code->appendf("%s = float2(2 * %s.x, -1) * float2x2(%s);",
                   OutName(fGrad), OutName(fXYD), fCanonicalMatrix.c_str());
 }
 
-void GrCCPRQuadraticHullShader::onEmitFragmentCode(GrGLSLPPFragmentBuilder* f,
-                                                   const char* outputCoverage) const {
+void GrCCQuadraticHullShader::onEmitFragmentCode(GrGLSLPPFragmentBuilder* f,
+                                                 const char* outputCoverage) const {
     f->codeAppendf("float d = (%s.x * %s.x - %s.y) * inversesqrt(dot(%s, %s));",
                    fXYD.fsIn(), fXYD.fsIn(), fXYD.fsIn(), fGrad.fsIn(), fGrad.fsIn());
     f->codeAppendf("%s = clamp(0.5 - d, 0, 1);", outputCoverage);
     f->codeAppendf("%s += min(%s.z, 0);", outputCoverage, fXYD.fsIn()); // Flat closing edge.
 }
 
-void GrCCPRQuadraticCornerShader::onEmitSetupCode(GrGLSLVertexGeoBuilder* s, const char* pts,
-                                                  const char* repetitionID,
-                                                  GeometryVars* vars) const {
+void GrCCQuadraticCornerShader::onEmitSetupCode(GrGLSLVertexGeoBuilder* s, const char* pts,
+                                                const char* repetitionID,
+                                                GeometryVars* vars) const {
     s->codeAppendf("float2 corner = %s[%s * 2];", pts, repetitionID);
     vars->fCornerVars.fPoint = "corner";
 }
 
-void GrCCPRQuadraticCornerShader::onEmitVaryings(GrGLSLVaryingHandler* varyingHandler,
+void GrCCQuadraticCornerShader::onEmitVaryings(GrGLSLVaryingHandler* varyingHandler,
                                                  GrGLSLVarying::Scope scope, SkString* code) {
     fdXYDdx.reset(kFloat3_GrSLType, scope);
     varyingHandler->addFlatVarying("dXYDdx", &fdXYDdx);
@@ -109,8 +109,8 @@ void GrCCPRQuadraticCornerShader::onEmitVaryings(GrGLSLVaryingHandler* varyingHa
                   fEdgeDistanceEquation.c_str());
 }
 
-void GrCCPRQuadraticCornerShader::onEmitFragmentCode(GrGLSLPPFragmentBuilder* f,
-                                                     const char* outputCoverage) const {
+void GrCCQuadraticCornerShader::onEmitFragmentCode(GrGLSLPPFragmentBuilder* f,
+                                                   const char* outputCoverage) const {
     f->codeAppendf("float x = %s.x, y = %s.y, d = %s.z;",
                    fXYD.fsIn(), fXYD.fsIn(), fXYD.fsIn());
     f->codeAppendf("float2x3 grad_xyd = float2x3(%s, %s);", fdXYDdx.fsIn(), fdXYDdy.fsIn());

@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrCCPRCubicShader_DEFINED
-#define GrCCPRCubicShader_DEFINED
+#ifndef GrCCCubicShader_DEFINED
+#define GrCCCubicShader_DEFINED
 
-#include "ccpr/GrCCPRCoverageProcessor.h"
+#include "ccpr/GrCCCoverageProcessor.h"
 
 /**
  * This class renders the coverage of convex closed cubic segments using the techniques outlined in
@@ -19,9 +19,9 @@
  *
  * The provided curve segments must be convex, monotonic with respect to the vector of their closing
  * edge [P3 - P0], and must not contain or be near any inflection points or loop intersections.
- * (Use GrCCPRGeometry.)
+ * (Use GrCCGeometry.)
  */
-class GrCCPRCubicShader : public GrCCPRCoverageProcessor::Shader {
+class GrCCCubicShader : public GrCCCoverageProcessor::Shader {
 protected:
     void emitSetupCode(GrGLSLVertexGeoBuilder*, const char* pts, const char* repetitionID,
                        const char* wind, GeometryVars*) const final;
@@ -39,14 +39,14 @@ protected:
     GrGLSLVarying fKLMD;
 };
 
-class GrCCPRCubicHullShader : public GrCCPRCubicShader {
+class GrCCCubicHullShader : public GrCCCubicShader {
     void onEmitVaryings(GrGLSLVaryingHandler*, GrGLSLVarying::Scope, SkString* code) override;
     void onEmitFragmentCode(GrGLSLPPFragmentBuilder*, const char* outputCoverage) const override;
 
     GrGLSLVarying fGradMatrix;
 };
 
-class GrCCPRCubicCornerShader : public GrCCPRCubicShader {
+class GrCCCubicCornerShader : public GrCCCubicShader {
     void onEmitSetupCode(GrGLSLVertexGeoBuilder*, const char* pts, const char* repetitionID,
                          GeometryVars*) const override;
     void onEmitVaryings(GrGLSLVaryingHandler*, GrGLSLVarying::Scope, SkString* code) override;

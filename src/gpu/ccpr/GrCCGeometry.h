@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrGrCCPRGeometry_DEFINED
-#define GrGrCCPRGeometry_DEFINED
+#ifndef GrGrCCGeometry_DEFINED
+#define GrGrCCGeometry_DEFINED
 
 #include "SkGeometry.h"
 #include "SkNx.h"
@@ -15,12 +15,12 @@
 
 /**
  * This class chops device-space contours up into a series of segments that CCPR knows how to
- * render. (See GrCCPRGeometry::Verb.)
+ * render. (See GrCCGeometry::Verb.)
  *
  * NOTE: This must be done in device space, since an affine transformation can change whether a
  * curve is monotonic.
  */
-class GrCCPRGeometry {
+class GrCCGeometry {
 public:
     // These are the verbs that CCPR knows how to draw. If a path has any segments that don't map to
     // this list, then they are chopped into smaller ones that do. A list of these comprise a
@@ -45,7 +45,7 @@ public:
         PrimitiveTallies operator-(const PrimitiveTallies&) const;
     };
 
-    GrCCPRGeometry(int numSkPoints = 0, int numSkVerbs = 0)
+    GrCCGeometry(int numSkPoints = 0, int numSkVerbs = 0)
             : fPoints(numSkPoints * 3) // Reserve for a 3x expansion in points and verbs.
             , fVerbs(numSkVerbs * 3) {}
 
@@ -94,9 +94,9 @@ private:
     inline void appendMonotonicQuadratics(const Sk2f& p0, const Sk2f& p1, const Sk2f& p2);
     inline void appendSingleMonotonicQuadratic(const Sk2f& p0, const Sk2f& p1, const Sk2f& p2);
 
-    using AppendCubicFn = void(GrCCPRGeometry::*)(const Sk2f& p0, const Sk2f& p1,
-                                                  const Sk2f& p2, const Sk2f& p3,
-                                                  int maxSubdivisions);
+    using AppendCubicFn = void(GrCCGeometry::*)(const Sk2f& p0, const Sk2f& p1,
+                                                const Sk2f& p2, const Sk2f& p3,
+                                                int maxSubdivisions);
     static constexpr int kMaxSubdivionsPerCubicSection = 2;
 
     template<AppendCubicFn AppendLeftRight>
@@ -125,14 +125,14 @@ private:
     SkSTArray<128, Verb, true>      fVerbs;
 };
 
-inline void GrCCPRGeometry::PrimitiveTallies::operator+=(const PrimitiveTallies& b) {
+inline void GrCCGeometry::PrimitiveTallies::operator+=(const PrimitiveTallies& b) {
     fTriangles += b.fTriangles;
     fQuadratics += b.fQuadratics;
     fCubics += b.fCubics;
 }
 
-GrCCPRGeometry::PrimitiveTallies
-inline GrCCPRGeometry::PrimitiveTallies::operator-(const PrimitiveTallies& b) const {
+GrCCGeometry::PrimitiveTallies
+inline GrCCGeometry::PrimitiveTallies::operator-(const PrimitiveTallies& b) const {
     return {fTriangles - b.fTriangles,
             fQuadratics - b.fQuadratics,
             fCubics - b.fCubics};

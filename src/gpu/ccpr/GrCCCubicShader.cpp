@@ -5,16 +5,16 @@
  * found in the LICENSE file.
  */
 
-#include "GrCCPRCubicShader.h"
+#include "GrCCCubicShader.h"
 
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLVertexGeoBuilder.h"
 
-using Shader = GrCCPRCoverageProcessor::Shader;
+using Shader = GrCCCoverageProcessor::Shader;
 
-void GrCCPRCubicShader::emitSetupCode(GrGLSLVertexGeoBuilder* s, const char* pts,
-                                      const char* repetitionID, const char* wind,
-                                      GeometryVars* vars) const {
+void GrCCCubicShader::emitSetupCode(GrGLSLVertexGeoBuilder* s, const char* pts,
+                                    const char* repetitionID, const char* wind,
+                                    GeometryVars* vars) const {
     // Find the cubic's power basis coefficients.
     s->codeAppendf("float2x4 C = float4x4(-1,  3, -3,  1, "
                                          " 3, -6,  3,  0, "
@@ -75,10 +75,10 @@ void GrCCPRCubicShader::emitSetupCode(GrGLSLVertexGeoBuilder* s, const char* pts
     this->onEmitSetupCode(s, pts, repetitionID, vars);
 }
 
-Shader::WindHandling GrCCPRCubicShader::onEmitVaryings(GrGLSLVaryingHandler* varyingHandler,
-                                                       GrGLSLVarying::Scope scope,
-                                                       SkString* code, const char* position,
-                                                       const char* coverage, const char* /*wind*/) {
+Shader::WindHandling GrCCCubicShader::onEmitVaryings(GrGLSLVaryingHandler* varyingHandler,
+                                                     GrGLSLVarying::Scope scope,
+                                                     SkString* code, const char* position,
+                                                     const char* coverage, const char* /*wind*/) {
     SkASSERT(!coverage);
 
     fKLMD.reset(kFloat4_GrSLType, scope);
@@ -91,8 +91,8 @@ Shader::WindHandling GrCCPRCubicShader::onEmitVaryings(GrGLSLVaryingHandler* var
     return WindHandling::kNotHandled;
 }
 
-void GrCCPRCubicHullShader::onEmitVaryings(GrGLSLVaryingHandler* varyingHandler,
-                                           GrGLSLVarying::Scope scope, SkString* code) {
+void GrCCCubicHullShader::onEmitVaryings(GrGLSLVaryingHandler* varyingHandler,
+                                         GrGLSLVarying::Scope scope, SkString* code) {
     fGradMatrix.reset(kFloat2x2_GrSLType, scope);
     varyingHandler->addVarying("grad_matrix", &fGradMatrix);
     // "klm" was just defined by the base class.
@@ -101,8 +101,8 @@ void GrCCPRCubicHullShader::onEmitVaryings(GrGLSLVaryingHandler* varyingHandler,
                     OutName(fGradMatrix), fKLMMatrix.c_str(), fKLMMatrix.c_str());
 }
 
-void GrCCPRCubicHullShader::onEmitFragmentCode(GrGLSLPPFragmentBuilder* f,
-                                               const char* outputCoverage) const {
+void GrCCCubicHullShader::onEmitFragmentCode(GrGLSLPPFragmentBuilder* f,
+                                             const char* outputCoverage) const {
     f->codeAppendf("float k = %s.x, l = %s.y, m = %s.z, d = %s.w;",
                    fKLMD.fsIn(), fKLMD.fsIn(), fKLMD.fsIn(), fKLMD.fsIn());
     f->codeAppend ("float f = k*k*k - l*m;");
@@ -111,14 +111,14 @@ void GrCCPRCubicHullShader::onEmitFragmentCode(GrGLSLPPFragmentBuilder* f,
     f->codeAppendf("%s += min(d, 0);", outputCoverage); // Flat closing edge.
 }
 
-void GrCCPRCubicCornerShader::onEmitSetupCode(GrGLSLVertexGeoBuilder* s, const char* pts,
-                                              const char* repetitionID, GeometryVars* vars) const {
+void GrCCCubicCornerShader::onEmitSetupCode(GrGLSLVertexGeoBuilder* s, const char* pts,
+                                            const char* repetitionID, GeometryVars* vars) const {
     s->codeAppendf("float2 corner = %s[%s * 3];", pts, repetitionID);
     vars->fCornerVars.fPoint = "corner";
 }
 
-void GrCCPRCubicCornerShader::onEmitVaryings(GrGLSLVaryingHandler* varyingHandler,
-                                             GrGLSLVarying::Scope scope, SkString* code) {
+void GrCCCubicCornerShader::onEmitVaryings(GrGLSLVaryingHandler* varyingHandler,
+                                           GrGLSLVarying::Scope scope, SkString* code) {
     fdKLMDdx.reset(kFloat4_GrSLType, scope);
     varyingHandler->addFlatVarying("dklmddx", &fdKLMDdx);
     code->appendf("%s = float4(%s[0].x, %s[1].x, %s[2].x, %s.x);",
@@ -132,8 +132,8 @@ void GrCCPRCubicCornerShader::onEmitVaryings(GrGLSLVaryingHandler* varyingHandle
                   fKLMMatrix.c_str(), fEdgeDistanceEquation.c_str());
 }
 
-void GrCCPRCubicCornerShader::onEmitFragmentCode(GrGLSLPPFragmentBuilder* f,
-                                                 const char* outputCoverage) const {
+void GrCCCubicCornerShader::onEmitFragmentCode(GrGLSLPPFragmentBuilder* f,
+                                               const char* outputCoverage) const {
     f->codeAppendf("float2x4 grad_klmd = float2x4(%s, %s);", fdKLMDdx.fsIn(), fdKLMDdy.fsIn());
 
     // Erase what the previous hull shader wrote. We don't worry about the two corners falling on

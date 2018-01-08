@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "GrCCPRCoverageProcessor.h"
+#include "GrCCCoverageProcessor.h"
 
 #include "GrMesh.h"
 #include "glsl/GrGLSLVertexGeoBuilder.h"
 
-using Shader = GrCCPRCoverageProcessor::Shader;
+using Shader = GrCCCoverageProcessor::Shader;
 
 static constexpr int kAttribIdx_X = 0;
 static constexpr int kAttribIdx_Y = 1;
@@ -19,7 +19,7 @@ static constexpr int kAttribIdx_VertexData = 2;
 /**
  * This class and its subclasses implement the coverage processor with vertex shaders.
  */
-class GrCCPRCoverageProcessor::VSImpl : public GrGLSLGeometryProcessor {
+class GrCCCoverageProcessor::VSImpl : public GrGLSLGeometryProcessor {
 protected:
     VSImpl(std::unique_ptr<Shader> shader) : fShader(std::move(shader)) {}
 
@@ -29,7 +29,7 @@ protected:
     }
 
     void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) final {
-        const GrCCPRCoverageProcessor& proc = args.fGP.cast<GrCCPRCoverageProcessor>();
+        const GrCCCoverageProcessor& proc = args.fGP.cast<GrCCCoverageProcessor>();
 
         // Vertex shader.
         GrGLSLVertexBuilder* v = args.fVertBuilder;
@@ -69,7 +69,7 @@ protected:
         fShader->emitFragmentCode(proc, args.fFragBuilder, args.fOutputColor, args.fOutputCoverage);
     }
 
-    virtual const char* emitVertexPosition(const GrCCPRCoverageProcessor&, GrGLSLVertexBuilder*,
+    virtual const char* emitVertexPosition(const GrCCCoverageProcessor&, GrGLSLVertexBuilder*,
                                            GrGPArgs*) const = 0;
 
     virtual ~VSImpl() {}
@@ -208,12 +208,12 @@ GR_DECLARE_STATIC_UNIQUE_KEY(gHull4IndexBufferKey);
  * Generates a conservative raster hull around a convex polygon. For triangles, we also generate
  * independent conservative rasters around each edge. (See comments for RenderPass)
  */
-class VSHullAndEdgeImpl : public GrCCPRCoverageProcessor::VSImpl {
+class VSHullAndEdgeImpl : public GrCCCoverageProcessor::VSImpl {
 public:
     VSHullAndEdgeImpl(std::unique_ptr<Shader> shader, int numSides)
             : VSImpl(std::move(shader)), fNumSides(numSides) {}
 
-    const char* emitVertexPosition(const GrCCPRCoverageProcessor& proc, GrGLSLVertexBuilder* v,
+    const char* emitVertexPosition(const GrCCCoverageProcessor& proc, GrGLSLVertexBuilder* v,
                                    GrGPArgs* gpArgs) const override {
         Shader::GeometryVars vars;
         fShader->emitSetupCode(v, "pts", nullptr, "wind", &vars);
@@ -300,11 +300,11 @@ GR_DECLARE_STATIC_UNIQUE_KEY(gCornerIndexBufferKey);
 /**
  * Generates conservative rasters around corners. (See comments for RenderPass)
  */
-class VSCornerImpl : public GrCCPRCoverageProcessor::VSImpl {
+class VSCornerImpl : public GrCCCoverageProcessor::VSImpl {
 public:
     VSCornerImpl(std::unique_ptr<Shader> shader) : VSImpl(std::move(shader)) {}
 
-    const char* emitVertexPosition(const GrCCPRCoverageProcessor&, GrGLSLVertexBuilder* v,
+    const char* emitVertexPosition(const GrCCCoverageProcessor&, GrGLSLVertexBuilder* v,
                                    GrGPArgs* gpArgs) const override {
         Shader::GeometryVars vars;
         v->codeAppend ("int corner_id = sk_VertexID / 4;");
@@ -319,7 +319,7 @@ public:
     }
 };
 
-void GrCCPRCoverageProcessor::initVS(GrResourceProvider* rp) {
+void GrCCCoverageProcessor::initVS(GrResourceProvider* rp) {
     SkASSERT(Impl::kVertexShader == fImpl);
 
     GrVertexAttribType inputPtsType = RenderPassIsCubic(fRenderPass) ?
@@ -388,9 +388,9 @@ void GrCCPRCoverageProcessor::initVS(GrResourceProvider* rp) {
 #endif
 }
 
-static int num_indices_per_instance(GrCCPRCoverageProcessor::RenderPass pass) {
+static int num_indices_per_instance(GrCCCoverageProcessor::RenderPass pass) {
     switch (pass) {
-        using RenderPass = GrCCPRCoverageProcessor::RenderPass;
+        using RenderPass = GrCCCoverageProcessor::RenderPass;
         case RenderPass::kTriangleHulls:
             return SK_ARRAY_COUNT(kHull3AndEdgeIndices);
         case RenderPass::kQuadraticHulls:
@@ -409,8 +409,8 @@ static int num_indices_per_instance(GrCCPRCoverageProcessor::RenderPass pass) {
     return 0;
 }
 
-void GrCCPRCoverageProcessor::appendVSMesh(GrBuffer* instanceBuffer, int instanceCount,
-                                           int baseInstance, SkTArray<GrMesh>* out) const {
+void GrCCCoverageProcessor::appendVSMesh(GrBuffer* instanceBuffer, int instanceCount,
+                                         int baseInstance, SkTArray<GrMesh>* out) const {
     SkASSERT(Impl::kVertexShader == fImpl);
     GrMesh& mesh = out->emplace_back(GrPrimitiveType::kTriangles);
     mesh.setIndexedInstanced(fIndexBuffer.get(), num_indices_per_instance(fRenderPass),
@@ -420,21 +420,20 @@ void GrCCPRCoverageProcessor::appendVSMesh(GrBuffer* instanceBuffer, int instanc
     }
 }
 
-GrGLSLPrimitiveProcessor*
-GrCCPRCoverageProcessor::createVSImpl(std::unique_ptr<Shader> shader) const {
+GrGLSLPrimitiveProcessor* GrCCCoverageProcessor::createVSImpl(std::unique_ptr<Shader> shadr) const {
     switch (fRenderPass) {
         case RenderPass::kTriangleHulls:
-            return new VSHullAndEdgeImpl(std::move(shader), 3);
+            return new VSHullAndEdgeImpl(std::move(shadr), 3);
         case RenderPass::kQuadraticHulls:
         case RenderPass::kCubicHulls:
-            return new VSHullAndEdgeImpl(std::move(shader), 4);
+            return new VSHullAndEdgeImpl(std::move(shadr), 4);
         case RenderPass::kTriangleEdges:
             SK_ABORT("kTriangleEdges RenderPass is not used by VSImpl.");
             return nullptr;
         case RenderPass::kTriangleCorners:
         case RenderPass::kQuadraticCorners:
         case RenderPass::kCubicCorners:
-            return new VSCornerImpl(std::move(shader));
+            return new VSCornerImpl(std::move(shadr));
     }
     SK_ABORT("Invalid RenderPass");
     return nullptr;
