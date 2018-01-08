@@ -1,0 +1,274 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a98f046e_6719c158",
+        "filename": "infra/cts/run_testlab.go",
+        "patchSetId": 18
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-01-08T13:45:52Z",
+      "side": 1,
+      "message": "nit: 2018\n(Jumanji meme here)",
+      "range": {
+        "startLine": 2,
+        "startChar": 13,
+        "endLine": 2,
+        "endChar": 17
+      },
+      "revId": "a2997347e902924bbf61d1b80d114752076455f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a19dd1ea_a9ecca0c",
+        "filename": "infra/cts/run_testlab.go",
+        "patchSetId": 18
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-01-08T13:45:52Z",
+      "side": 1,
+      "message": "versions here means Android APK version, right?  (please clarify that in docs)",
+      "range": {
+        "startLine": 37,
+        "startChar": 4,
+        "endLine": 37,
+        "endChar": 12
+      },
+      "revId": "a2997347e902924bbf61d1b80d114752076455f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d0440be8_c2a55dfc",
+        "filename": "infra/cts/run_testlab.go",
+        "patchSetId": 18
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-01-08T13:45:52Z",
+      "side": 1,
+      "message": "Why does this need to be a slice?  Future-proofing?",
+      "range": {
+        "startLine": 38,
+        "startChar": 32,
+        "endLine": 38,
+        "endChar": 40
+      },
+      "revId": "a2997347e902924bbf61d1b80d114752076455f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2fc7551a_02dce846",
+        "filename": "infra/cts/run_testlab.go",
+        "patchSetId": 18
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-01-08T13:45:52Z",
+      "side": 1,
+      "message": "Any chance you can add human readable names in a comment to the right?  I don\u0027t recognize a lot of these devices.",
+      "range": {
+        "startLine": 56,
+        "startChar": 3,
+        "endLine": 56,
+        "endChar": 14
+      },
+      "revId": "a2997347e902924bbf61d1b80d114752076455f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ccd76ec3_bb025bfb",
+        "filename": "infra/cts/run_testlab.go",
+        "patchSetId": 18
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-01-08T13:45:52Z",
+      "side": 1,
+      "message": "nit: const all caps",
+      "range": {
+        "startLine": 67,
+        "startChar": 1,
+        "endLine": 67,
+        "endChar": 17
+      },
+      "revId": "a2997347e902924bbf61d1b80d114752076455f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1a5144b2_2e9d5731",
+        "filename": "infra/cts/run_testlab.go",
+        "patchSetId": 18
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-01-08T13:45:52Z",
+      "side": 1,
+      "message": "Maybe include a hint to the user on how to get the service account?",
+      "range": {
+        "startLine": 102,
+        "startChar": 47,
+        "endLine": 102,
+        "endChar": 54
+      },
+      "revId": "a2997347e902924bbf61d1b80d114752076455f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bcfd08a6_22b09b6a",
+        "filename": "infra/cts/run_testlab.go",
+        "patchSetId": 18
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-01-08T13:45:52Z",
+      "side": 1,
+      "message": "Firebase",
+      "range": {
+        "startLine": 119,
+        "startChar": 56,
+        "endLine": 119,
+        "endChar": 63
+      },
+      "revId": "a2997347e902924bbf61d1b80d114752076455f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ca978a16_ce584769",
+        "filename": "infra/cts/run_testlab.go",
+        "patchSetId": 18
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-01-08T13:45:52Z",
+      "side": 1,
+      "message": "Augment this error with \"JSON unmarshal failed\" and the buf.Bytes() so we can see what went wrong.",
+      "range": {
+        "startLine": 135,
+        "startChar": 19,
+        "endLine": 135,
+        "endChar": 22
+      },
+      "revId": "a2997347e902924bbf61d1b80d114752076455f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a457930e_b4ecaedd",
+        "filename": "infra/cts/run_testlab.go",
+        "patchSetId": 18
+      },
+      "lineNbr": 188,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-01-08T13:45:52Z",
+      "side": 1,
+      "message": "Would it make sense to store the logs as part of the result?  If not now, maybe in the future?",
+      "revId": "a2997347e902924bbf61d1b80d114752076455f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0ebf726b_91cc9a5b",
+        "filename": "infra/cts/run_testlab.go",
+        "patchSetId": 18
+      },
+      "lineNbr": 192,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-01-08T13:45:52Z",
+      "side": 1,
+      "message": "Make just a touch more verbose - e.g. [dry run] Would have run this command:",
+      "range": {
+        "startLine": 192,
+        "startChar": 2,
+        "endLine": 192,
+        "endChar": 33
+      },
+      "revId": "a2997347e902924bbf61d1b80d114752076455f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1f4ebe80_8448a62f",
+        "filename": "infra/cts/run_testlab.go",
+        "patchSetId": 18
+      },
+      "lineNbr": 205,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-01-08T13:45:52Z",
+      "side": 1,
+      "message": "Can you add a note why we report the results if error code is 10?  And why not for other error codes?",
+      "range": {
+        "startLine": 205,
+        "startChar": 18,
+        "endLine": 205,
+        "endChar": 44
+      },
+      "revId": "a2997347e902924bbf61d1b80d114752076455f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "688cedf7_1b143ee9",
+        "filename": "infra/cts/run_testlab.go",
+        "patchSetId": 18
+      },
+      "lineNbr": 216,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-01-08T13:45:52Z",
+      "side": 1,
+      "message": "Just curious, why do we care about ignored devices?",
+      "range": {
+        "startLine": 216,
+        "startChar": 18,
+        "endLine": 216,
+        "endChar": 32
+      },
+      "revId": "a2997347e902924bbf61d1b80d114752076455f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
