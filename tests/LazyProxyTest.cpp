@@ -19,6 +19,7 @@
 #include "GrTextureProxy.h"
 #include "GrTextureProxyPriv.h"
 #include "SkMakeUnique.h"
+#include "SkRectPriv.h"
 #include "mock/GrMockTypes.h"
 
 // This test verifies that lazy proxy callbacks get invoked during flush, after onFlush callbacks,
@@ -71,7 +72,7 @@ public:
                     return texture;
                 }
             }, GrSurfaceProxy::Renderable::kNo, kRGB_565_GrPixelConfig);
-            this->setBounds(SkRect::MakeLargest(), GrOp::HasAABloat::kNo, GrOp::IsZeroArea::kNo);
+            this->setBounds(SkRectPriv::MakeLargest(), GrOp::HasAABloat::kNo, GrOp::IsZeroArea::kNo);
         }
 
         void visitProxies(const VisitProxyFunc& func) const override {

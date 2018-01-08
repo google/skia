@@ -19,6 +19,7 @@
 #include "SkMakeUnique.h"
 #include "SkPaint.h"
 #include "SkPath.h"
+#include "SkRectPriv.h"
 #include "SkView.h"
 #include "ccpr/GrCCPRCoverageProcessor.h"
 #include "ccpr/GrCCPRGeometry.h"
@@ -84,7 +85,7 @@ public:
     Op(CCPRGeometryView* view)
             : INHERITED(ClassID())
             , fView(view) {
-        this->setBounds(SkRect::MakeLargest(), GrOp::HasAABloat::kNo, GrOp::IsZeroArea::kNo);
+        this->setBounds(SkRectPriv::MakeLargest(), GrOp::HasAABloat::kNo, GrOp::IsZeroArea::kNo);
     }
 
     const char* name() const override { return "[Testing/Sample code] CCPRGeometryView::Op"; }

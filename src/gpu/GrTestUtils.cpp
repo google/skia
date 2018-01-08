@@ -14,6 +14,7 @@
 #include "SkMakeUnique.h"
 #include "SkMatrix.h"
 #include "SkPath.h"
+#include "SkRectPriv.h"
 #include "SkRRect.h"
 
 #if GR_TEST_UTILS
@@ -125,7 +126,7 @@ const SkRect& TestRect(SkRandom* random) {
         gRects[0] = SkRect::MakeWH(1.f, 1.f);
         gRects[1] = SkRect::MakeWH(1.0f, 256.0f);
         gRects[2] = SkRect::MakeWH(256.0f, 1.0f);
-        gRects[3] = SkRect::MakeLargest();
+        gRects[3] = SkRectPriv::MakeLargest();
         gRects[4] = SkRect::MakeLTRB(-65535.0f, -65535.0f, 65535.0f, 65535.0f);
         gRects[5] = SkRect::MakeLTRB(-10.0f, -10.0f, 10.0f, 10.0f);
     }

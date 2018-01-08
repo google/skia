@@ -46,8 +46,6 @@ integer input cannot convert to SkScalar without loss of precision.
 # MakeFromIRect         # Deprecated. ##
 # MakeIWH               # Constructs from int input returning (0, 0, width, height). ##
 # MakeLTRB              # Constructs from SkScalar left, top, right, bottom. ##
-# MakeLargest           # Constructs (SK_ScalarMin, SK_ScalarMin, SK_ScalarMax, SK_ScalarMax). ##
-# MakeLargestS32        # Constructs largest signed integers that fit in 32-bit float. ##
 # MakeSize              # Constructs from Size returning (0, 0, width, height). ##
 # MakeWH                # Constructs from SkScalar input returning (0, 0, width, height). ##
 # MakeXYWH              # Constructs from SkScalar input returning (x, y, width, height). ##
@@ -65,7 +63,6 @@ integer input cannot convert to SkScalar without loss of precision.
 # intersects()          # Returns true if areas overlap. ##
 # isEmpty               # Returns true if width or height are zero or negative. ##
 # isFinite              # Returns true if no member is infinite or NaN. ##
-# isLargest             # Returns equal to (SK_ScalarMin, SK_ScalarMin, SK_ScalarMax, SK_ScalarMax). ##
 # isSorted              # Returns true if width or height are zero or positive. ##
 # iset()                # Sets to int input (left, top, right, bottom). ##
 # isetWH                # Sets to int input (0, 0, width, height). ##
@@ -89,8 +86,6 @@ integer input cannot convert to SkScalar without loss of precision.
 # setBoundsCheck        # Sets to upper and lower limits of Point array. ##
 # setEmpty              # Sets to (0, 0, 0, 0). ##
 # setLTRB               # Sets to SkScalar input (left, top, right, bottom). ##
-# setLargest            # Sets to (SK_ScalarMin, SK_ScalarMin, SK_ScalarMax, SK_ScalarMax). ##
-# setLargestInverted    # Sets to (SK_ScalarMax, SK_ScalarMax, SK_ScalarMin, SK_ScalarMin). ##
 # setWH                 # Sets to SkScalar input (0, 0, width, height). ##
 # setXYWH               # Sets to SkScalar input (x, y, width, height). ##
 # sort()                # Orders sides from smaller to larger. ##
@@ -152,69 +147,7 @@ outset rect isEmpty: false
 ##
 ##
 
-#SeeAlso isEmpty setEmpty setLargestInverted SkIRect::MakeEmpty
-
-##
-
-# ------------------------------------------------------------------------------
-
-#Method static SkRect SK_WARN_UNUSED_RESULT MakeLargest()
-
-Returns constructed Rect setting left and top to most negative finite value, and 
-setting right and bottom to most positive finite value.
-
-#Return bounds (SK_ScalarMin, SK_ScalarMin, SK_ScalarMax, SK_ScalarMax) ##
-
-#Example
-    SkRect rect = SkRect::MakeLargest();
-    SkDebugf("MakeLargest isLargest: %s\n", rect.isLargest() ? "true" : "false");
-    SkDebugf("MakeLargest isFinite: %s\n", rect.isFinite() ? "true" : "false");
-    rect.outset(1e31, 1e31);
-    SkDebugf("outset a little isLargest: %s\n", rect.isLargest() ? "true" : "false");
-    SkDebugf("outset a little isFinite: %s\n", rect.isFinite() ? "true" : "false");
-    rect.outset(1e32, 1e32);
-    SkDebugf("outset a little more isLargest: %s\n", rect.isLargest() ? "true" : "false");
-    SkDebugf("outset a little more isFinite: %s\n", rect.isFinite() ? "true" : "false");
-#StdOut
-MakeLargest isLargest: true
-MakeLargest isFinite: true
-outset a little isLargest: true
-outset a little isFinite: true
-outset a little more isLargest: false
-outset a little more isFinite: false
-##
-##
-
-#SeeAlso MakeLargestS32 isLargest setLargest SkIRect::MakeLargest
-
-##
-
-# ------------------------------------------------------------------------------
-
-#Method static SkRect SK_WARN_UNUSED_RESULT MakeLargestS32()
-
-Returns constructed Rect that can be represented exactly with IRect. The left
-and top are set to the most negative integer value that fits in a 32-bit float,
-and the right and bottom are set to the most positive finite value that fits in
-a 32-bit float.
-
-These are the largest values for which round() is well defined.
-
-#Return bounds (SK_MinS32FitsInFloat, SK_MinS32FitsInFloat,
-                SK_MaxS32FitsInFloat, SK_MaxS32FitsInFloat)
-##
-
-#Example
-    SkRect f_rect = SkRect::MakeLargestS32();
-    SkIRect i_rect = f_rect.round();
-    SkRect r_rect = SkRect::Make(i_rect);
-    SkDebugf("f_rect %c= r_rect\n", f_rect == r_rect ? '=' : '!');
-#StdOut
-f_rect == r_rect
-##
-##
-
-#SeeAlso MakeLargest isLargest setLargest SkIRect::MakeLargest
+#SeeAlso isEmpty setEmpty SkIRect::MakeEmpty
 
 ##
 
@@ -509,37 +442,6 @@ sorted: {20, 40, 20, 50} is sorted
 
 # ------------------------------------------------------------------------------
 
-#Method bool isLargest() const
-
-Returns true if Rect encloses largest possible area. 
-
-#Return true if equal to (SK_ScalarMin, SK_ScalarMin, SK_ScalarMax, SK_ScalarMax) ##
-
-#Example
-#Description
-Note that the width cannot be represented as a 32-bit finite value.
-##
-    SkRect large = SkRect::MakeLargest();
-    SkDebugf("large is largest: %s\n" ,large.isLargest() ? "true" : "false");
-    SkDebugf("large width %g\n", large.width());
-    SkDebugf("large is empty: %s\n", large.isEmpty() ? "true" : "false");
-    SkDebugf("large is sorted: %s\n", large.isSorted() ? "true" : "false");
-    SkDebugf("large is finite: %s\n", large.isFinite() ? "true" : "false");
-#StdOut
-large is largest: true
-large width inf
-large is empty: false
-large is sorted: true
-large is finite: true
-##
-##
-
-#SeeAlso MakeLargest SkIRect::isLargest
-
-##
-
-# ------------------------------------------------------------------------------
-
 #Method bool isFinite() const
 
 Returns true if all values in the rectangle are finite: SK_ScalarMin or larger,
@@ -548,7 +450,7 @@ and SK_ScalarMax or smaller.
 #Return true if no member is infinite or NaN ##
 
 #Example
-    SkRect largest = SkRect::MakeLargest();
+SkRect largest = { SK_ScalarMin, SK_ScalarMin, SK_ScalarMax, SK_ScalarMax };
     SkDebugf("largest is finite: %s\n", largest.isFinite() ? "true" : "false");
     SkDebugf("large width %g\n", largest.width());
     SkRect widest = SkRect::MakeWH(largest.width(), largest.height());
@@ -1293,68 +1195,6 @@ rect: -15, 0, 0, 25  isEmpty: false
 
 # ------------------------------------------------------------------------------
 
-#Method void setLargest()
-
-Sets rectangle left and top to most negative finite value, and sets
-right and bottom to most positive finite value.
-
-#Example
-    SkRect rect;
-    rect.setLargest();
-    SkDebugf("MakeLargest isLargest: %s\n", rect.isLargest() ? "true" : "false");
-    SkDebugf("MakeLargest isFinite: %s\n", rect.isFinite() ? "true" : "false");
-    rect.outset(1e31, 1e31);
-    SkDebugf("outset a little isLargest: %s\n", rect.isLargest() ? "true" : "false");
-    SkDebugf("outset a little isFinite: %s\n", rect.isFinite() ? "true" : "false");
-    rect.outset(1e32, 1e32);
-    SkDebugf("outset a little more isLargest: %s\n", rect.isLargest() ? "true" : "false");
-    SkDebugf("outset a little more isFinite: %s\n", rect.isFinite() ? "true" : "false");
-#StdOut
-MakeLargest isLargest: true
-MakeLargest isFinite: true
-outset a little isLargest: true
-outset a little isFinite: true
-outset a little more isLargest: false
-outset a little more isFinite: false
-##
-##
-
-#SeeAlso MakeLargest isLargest setLargestInverted SK_ScalarMin SK_ScalarMax
-
-##
-
-# ------------------------------------------------------------------------------
-
-#Method void setLargestInverted()
-
-Sets rectangle left and top to most positive finite value, and sets
-right and bottom to most negative finite value.
-
-Use to initial Rect before one or more calls to growToInclude.
-
-#Example
-    auto debugster = [](const char* prefix, const SkRect& rect) -> void {
-        SkDebugf("%s ", prefix);
-        SkDebugf("rect: %g, %g, %g, %g  ", rect.left(), rect.top(), rect.right(), rect.bottom());
-        SkDebugf("isEmpty: %s\n", rect.isEmpty() ? "true" : "false");
-    };
-    SkRect ptBounds;
-    ptBounds.setLargestInverted();
-    debugster("original", ptBounds);
-    ptBounds.growToInclude( { 42, 24 } );
-    debugster("grown", ptBounds);
-#StdOut
-original rect: 3.40282e+38, 3.40282e+38, -3.40282e+38, -3.40282e+38  isEmpty: true
-grown rect: 42, 24, 42, 24  isEmpty: true
-##
-##
-
-#SeeAlso growToInclude setEmpty setLargest
-
-##
-
-# ------------------------------------------------------------------------------
-
 #Method SkRect makeOffset(SkScalar dx, SkScalar dy) const
 
 Returns Rect offset by (dx, dy).
@@ -1905,14 +1745,13 @@ fLeft <= pt.fX <= fRight && fTop <= pt.fY <= fBottom
 ##
 .
 
-If Rect is initialized with setLargestInverted, then Rect will contain bounds of
+If Rect is inverted, then Rect will contain bounds of
 Points after one or more calls. In this case, Rect is empty after first call.
 
 #Param pt  Point to include ##
 
 #Example
-    SkRect rect;
-    rect.setLargestInverted();
+    SkRect rect = { 1, 1, 0, 0 };
     rect.growToInclude( { 42, 24 } );
     SkDebugf("rect: %g, %g, %g, %g  ", rect.left(), rect.top(), rect.right(), rect.bottom());
     SkDebugf("isEmpty: %s\n", rect.isEmpty() ? "true" : "false");
@@ -1921,7 +1760,7 @@ rect: 42, 24, 42, 24  isEmpty: true
 ##                                 
 ##
 
-#SeeAlso setLargestInverted join
+#SeeAlso join
 
 ##
 
@@ -1936,7 +1775,7 @@ fLeft <= pt.fX <= fRight && fTop <= pt.fY <= fBottom
 ##
 .
 
-If Rect is initialized with setLargestInverted, then Rect will contain bounds of
+If Rect is inverted, then Rect will contain bounds of
 Points after one or more calls. In this case, Rect is empty after first call.
 
 #Param pts  Point array ##
@@ -1953,7 +1792,7 @@ rect: 30, 50, 40, 60
 ##                                 
 ##
 
-#SeeAlso setLargestInverted join
+#SeeAlso join
 
 ##
 
@@ -1972,7 +1811,7 @@ Point may be followed with other data in each array element. stride is number
 of bytes in element; the interval to skip to advance from one Point to
 the next.
 
-If Rect is initialized with setLargestInverted, then Rect will contain bounds of
+If Rect is inverted, then Rect will contain bounds of
 Points after one or more calls. In this case, Rect is empty after first call.
 
 #Param pts     array of elements beginning with Point ##
@@ -1982,8 +1821,7 @@ Points after one or more calls. In this case, Rect is empty after first call.
 #Bug 7142 ##
 #Example
     SkPoint3 pts[] = { { 30, 50, -1 }, { 40, 50, -1 }, { 30, 60, -1 } };
-    SkRect rect;
-    rect.setLargestInverted();
+    SkRect rect = { 1, 1, 0, 0 };
     rect.growToInclude((SkPoint* ) &pts[0].fX, sizeof(SkPoint3), SK_ARRAY_COUNT(pts));
     SkDebugf("rect: %g, %g, %g, %g ", rect.left(), rect.top(), rect.right(), rect.bottom());
 #StdOut
@@ -1992,7 +1830,7 @@ rect: 30, 50, 40, 60
 ##                                 
 ##
 
-#SeeAlso setLargestInverted join
+#SeeAlso join
 
 ##
 

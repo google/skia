@@ -13,6 +13,7 @@
 #include "SkPath.h"
 #include "SkQuadClipper.h"
 #include "SkRasterClip.h"
+#include "SkRectPriv.h"
 #include "SkRegion.h"
 #include "SkTemplates.h"
 #include "SkTSort.h"
@@ -643,8 +644,8 @@ void SkScan::FillPath(const SkPath& path, const SkRegion& origClip,
 
     SkRect bounds = path.getBounds();
     bool irPreClipped = false;
-    if (!SkRect::MakeLargestS32().contains(bounds)) {
-        if (!bounds.intersect(SkRect::MakeLargestS32())) {
+    if (!SkRectPriv::MakeLargestS32().contains(bounds)) {
+        if (!bounds.intersect(SkRectPriv::MakeLargestS32())) {
             bounds.setEmpty();
         }
         irPreClipped = true;
