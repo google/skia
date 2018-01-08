@@ -67,7 +67,7 @@ possible to patch the files manually by adding the following to
       },
 
 Then, copy all 'out of tree' files into \<chromium>/src/patch/, using the same
-directory structure used by Chromium. When 'gclient runhooks' is run, the files
+directory structure used by Chromium. When `gclient runhooks` is run, the files
 in \<chromium>/src/patch/ will be copied to and overwrite corresponding files in
 \<chromium>/src/. For example, if changing \<skia>/include/core/SkPath.h, place
 a copy of the modified SkPath.h at
@@ -80,5 +80,5 @@ https://crrev.com/1866773002/#ps20001 .
 Try the patch
 -------------
 After committing a \<chromium>/src/DEPS or \<chromium>/src/patch/ change
-locally, 'git cl upload' can be used in the usual way. Be sure to add
-'COMMIT=false' to the issue description to avoid accidentally checking it in.
+locally, `git cl upload` can be used in the usual way. Be sure to add
+`COMMIT=false` to the issue description to avoid accidentally checking it in.

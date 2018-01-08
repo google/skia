@@ -20,18 +20,18 @@ may automatically retry tasks within its set limits. Jobs are not retried.
 Multiple jobs may share the same task, for example, tests on two different
 Android devices which use the same compiled code.
 
-Each Skia repository has an infra/bots/tasks.json file which defines the jobs
+Each Skia repository has an `infra/bots/tasks.json` file which defines the jobs
 and tasks for the repo. Most jobs will run at every commit, but it is possible
 to specify nightly and weekly jobs as well. For convenience, most repos also
-have a gen_tasks.go which will generate tasks.json. You will need to
+have a `gen_tasks.go` which will generate `tasks.json`. You will need to
 [install Go](https://golang.org/doc/install). From the repository root:
 
 	$ go get -u go.skia.org/infra/...
 	$ go run infra/bots/gen_tasks.go
 
-It is necessary to run gen_tasks.go every time it is changed or every time an
+It is necessary to run `gen_tasks.go` every time it is changed or every time an
 [asset](https://skia.googlesource.com/skia/+/master/infra/bots/assets/README.md)
-has changed. There is also a test mode which simply verifies that the tasks.json
+has changed. There is also a test mode which simply verifies that the `tasks.json`
 file is up to date:
 
 	$ go run infra/bots/gen_tasks.go --test
@@ -44,12 +44,12 @@ Try Jobs
 Skia's trybots allow testing and verification of changes before they land in the
 repo. You need to have permission to trigger try jobs; if you need permission,
 ask a committer. After uploading your CL to [Gerrit](https://skia-review.googlesource.com/),
-you may trigger a try job for any job listed in tasks.json, either via the
-Gerrit UI, using "git cl try", eg.
+you may trigger a try job for any job listed in `tasks.json`, either via the
+Gerrit UI, using `git cl try`, eg.
 
     git cl try -B skia.primary -b Some-Tryjob-Name
 
-or using bin/try, a small wrapper for "git cl try" which helps to choose try jobs.
+or using `bin/try`, a small wrapper for `git cl try` which helps to choose try jobs.
 From a Skia checkout:
 
     bin/try --list

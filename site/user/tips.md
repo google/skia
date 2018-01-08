@@ -81,29 +81,30 @@ process it with `dm`.
 
 There are two ways Skia takes advantage of specific hardware.
 
-1.  Subclass SkCanvas
+1.  Subclass `SkDevice`
 
-    Since all drawing calls go through SkCanvas, those calls can be
-    redirected to a different graphics API. SkGLCanvas has been
-    written to direct its drawing calls to OpenGL. See src/gl/
+    Since all drawing calls go through `SkCanvas`, those calls can be
+    redirected to a graphics backend via the `SkDevice` with which it is 
+    initialized. See [Creating SkCanvas Objects](./api/creating_skcanvas) for
+    examples of currently supported backends.
 
 2.  Custom bottleneck routines
 
     There are sets of bottleneck routines inside the blits of Skia
     that can be replace on a platform in order to take advantage of
     specific CPU features. One such example is the NEON SIMD
-    instructions on ARM v7 devices. See src/opts/
+    instructions on ARM v7 devices. See [src/opts/](https://skia.googlesource.com/skia/+/master/src/opts/)
 
 * * *
 
 <span id="font-hinting">Does Skia support Font hinting?</span>
 --------------------------------------------------------------
 
-Skia has a built-in font cache, but it does not know how to actual render font
+Skia has a built-in font cache, but it does not know how to actually render font
 files like TrueType into its cache. For that it relies on the platform to
-supply an instance of SkScalerContext. This is Skia's abstract interface for
+supply an instance of `SkScalerContext`. This is Skia's abstract interface for
 communicating with a font scaler engine. In src/ports you can see support
-files for FreeType, Mac OS X, and Windows GDI font engines. Other font
+files for FreeType, macOS, and Windows GDI font engines. Other font
 engines can easily be supported in a like manner.
 
 
@@ -121,7 +122,7 @@ generate the glyphs and their positions, including kerning.
 together](https://github.com/aam/skiaex).  In the example, a
 `SkTypeface` and a `hb_face_t` are created using the same `mmap()`ed
 `.ttf` font file. The HarfBuzz face is used to shape unicode text into
-a sequence of glyphs and positions, and the SkTypeface can then be
+a sequence of glyphs and positions, and the `SkTypeface` can then be
 used to draw those glyphs.
 
 * * *
