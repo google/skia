@@ -10,6 +10,7 @@
 
 #include "GrSurface.h"
 #include "SkRect.h"
+#include "SkRectPriv.h"
 
 class GrCaps;
 class GrRenderTargetOpList;
@@ -77,7 +78,7 @@ public:
      * Call to indicate that GrRenderTarget was externally resolved. This may
      * allow Gr to skip a redundant resolve step.
      */
-    void flagAsResolved() { fResolveRect.setLargestInverted(); }
+    void flagAsResolved() { SkRectPriv::SetLargestInverted(&fResolveRect); }
 
     /**
      * @return true if the GrRenderTarget requires MSAA resolving
