@@ -9,10 +9,7 @@
 #include "SkDocument.h"
 #include "SkStream.h"
 
-SkDocument::SkDocument(SkWStream* stream, void (*doneProc)(SkWStream*, bool))
-        : fStream(stream)  // we do not own this object.
-        , fDoneProc(doneProc)
-        , fState(kBetweenPages_State) {}
+SkDocument::SkDocument(SkWStream* stream) : fStream(stream), fState(kBetweenPages_State) {}
 
 SkDocument::~SkDocument() {
     this->close();
@@ -57,10 +54,6 @@ void SkDocument::close() {
             case kBetweenPages_State: {
                 fState = kClosed_State;
                 this->onClose(fStream);
-
-                if (fDoneProc) {
-                    fDoneProc(fStream, false);
-                }
                 // we don't own the stream, but we mark it nullptr since we can
                 // no longer write to it.
                 fStream = nullptr;
@@ -79,9 +72,6 @@ void SkDocument::abort() {
     this->onAbort();
 
     fState = kClosed_State;
-    if (fDoneProc) {
-        fDoneProc(fStream, true);
-    }
     // we don't own the stream, but we mark it nullptr since we can
     // no longer write to it.
     fStream = nullptr;

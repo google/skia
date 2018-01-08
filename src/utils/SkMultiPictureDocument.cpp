@@ -51,8 +51,8 @@ struct MultiPictureDocument final : public SkDocument {
     SkSize fCurrentPageSize;
     SkTArray<sk_sp<SkPicture>> fPages;
     SkTArray<SkSize> fSizes;
-    MultiPictureDocument(SkWStream* s, void (*d)(SkWStream*, bool), const SkSerialProcs* procs)
-        : SkDocument(s, d)
+    MultiPictureDocument(SkWStream* s, const SkSerialProcs* procs)
+        : SkDocument(s)
         , fProcs(procs ? *procs : SkSerialProcs())
     {}
     ~MultiPictureDocument() override { this->close(); }
@@ -94,7 +94,7 @@ struct MultiPictureDocument final : public SkDocument {
 }
 
 sk_sp<SkDocument> SkMakeMultiPictureDocument(SkWStream* wStream, const SkSerialProcs* procs) {
-    return sk_make_sp<MultiPictureDocument>(wStream, nullptr, procs);
+    return sk_make_sp<MultiPictureDocument>(wStream, procs);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
