@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f2f678df_8ded1c21",
+        "filename": "src/core/SkThreadedBMPDevice.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-01-08T19:54:49Z",
+      "side": 0,
+      "message": "I like that you can remove the macro, but can this part of the change go into a separate CL. It would be nice to isolate the parallel changes from the refactoring.",
+      "range": {
+        "startLine": 101,
+        "startChar": 0,
+        "endLine": 101,
+        "endChar": 100
+      },
+      "revId": "77dd6c28d0903f953999bd55ddb6d3c00b50fd00",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
