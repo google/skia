@@ -46,6 +46,7 @@ struct StringFragment {
     bool operator!=(const char* s) const;
     bool operator==(StringFragment s) const;
     bool operator!=(StringFragment s) const;
+    bool operator<(StringFragment s) const;
 
     const char* fChars;
     size_t fLength;
