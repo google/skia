@@ -307,7 +307,7 @@ int main(int argc, char** argv) {
     }
     if (options.pdf) {
         SkDynamicMemoryWStream pdfStream;
-        sk_sp<SkDocument> document(SkDocument::MakePDF(&pdfStream));
+        auto document = SkDocument::MakePDF(&pdfStream);
         if (document) {
             srand(0);
             draw(prepare_canvas(document->beginPage(options.size.width(), options.size.height())));

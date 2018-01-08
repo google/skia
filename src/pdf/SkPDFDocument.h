@@ -14,6 +14,8 @@
 
 class SkPDFDevice;
 
+using SkDoc = decltype(SkDocument::MakePDF(nullptr));
+
 /*  @param rasterDpi the DPI at which features without native PDF
  *         support will be rasterized (e.g. draw image with
  *         perspective, draw text with perspective, ...).  A
@@ -24,8 +26,7 @@ class SkPDFDevice;
  *         or sent online or to printer.  A good choice is
  *         SK_ScalarDefaultRasterDPI(72.0f).
  */
-sk_sp<SkDocument> SkPDFMakeDocument(SkWStream* stream,
-                                    const SkDocument::PDFMetadata&);
+SkDoc SkPDFMakeDocument(SkWStream*, const SkDocument::PDFMetadata&);
 
 // Logically part of SkPDFDocument (like SkPDFCanon), but separate to
 // keep similar functionality together.
