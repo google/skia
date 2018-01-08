@@ -10,7 +10,7 @@
 #include "GrColorSpaceXform.h"
 #include "GrContext.h"
 #include "GrGpu.h"
-#include "GrResourceProvider.h"
+#include "GrProxyProvider.h"
 #include "SkGr.h"
 
 GrTextureAdjuster::GrTextureAdjuster(GrContext* context, sk_sp<GrTextureProxy> original,
@@ -43,7 +43,7 @@ sk_sp<GrTextureProxy> GrTextureAdjuster::refTextureProxyCopy(const CopyParams& c
     this->makeCopyKey(copyParams, &key, nullptr);
     if (key.isValid()) {
         sk_sp<GrTextureProxy> cachedCopy =
-                fContext->resourceProvider()->findOrCreateProxyByUniqueKey(
+                fContext->proxyProvider()->findOrCreateProxyByUniqueKey(
                                                              key, this->originalProxy()->origin());
         if (cachedCopy) {
             return cachedCopy;
@@ -56,7 +56,7 @@ sk_sp<GrTextureProxy> GrTextureAdjuster::refTextureProxyCopy(const CopyParams& c
     if (copy) {
         if (key.isValid()) {
             SkASSERT(copy->origin() == this->originalProxy()->origin());
-            fContext->resourceProvider()->assignUniqueKeyToProxy(key, copy.get());
+            fContext->proxyProvider()->assignUniqueKeyToProxy(key, copy.get());
             this->didCacheCopy(key);
         }
     }

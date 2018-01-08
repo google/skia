@@ -21,7 +21,7 @@ sk_sp<GrRenderTargetContext> GrOnFlushResourceProvider::makeRenderTargetContext(
     // will, when instantiated, have no pending IO.
     // TODO: fold the kNoPendingIO_Flag into GrSurfaceFlags?
     sk_sp<GrSurfaceProxy> proxy = GrSurfaceProxy::MakeDeferred(
-                                                    fDrawingMgr->getContext()->resourceProvider(),
+                                                    fDrawingMgr->getContext()->proxyProvider(),
                                                     tmpDesc,
                                                     SkBackingFit::kExact,
                                                     SkBudgeted::kYes,

@@ -10,6 +10,7 @@
 
 #include "GrCaps.h"
 #include "GrGpuResourceCacheAccess.h"
+#include "GrProxyProvider.h"
 #include "GrTexture.h"
 #include "GrTextureProxyCacheAccess.h"
 #include "GrTracing.h"
@@ -64,7 +65,8 @@ private:
 
 
 GrResourceCache::GrResourceCache(const GrCaps* caps, uint32_t contextUniqueID)
-    : fTimestamp(0)
+    : fProxyProvider(nullptr)
+    , fTimestamp(0)
     , fMaxCount(kDefaultMaxCount)
     , fMaxBytes(kDefaultMaxSize)
     , fMaxUnusedFlushes(kDefaultMaxUnusedFlushes)
@@ -198,13 +200,7 @@ void GrResourceCache::releaseAll() {
 
     // We must remove the uniqueKeys from the proxies here. While they possess a uniqueKey
     // they also have a raw pointer back to this class (which is presumably going away)!
-    UniquelyKeyedProxyHash::Iter iter(&fUniquelyKeyedProxies);
-    for (UniquelyKeyedProxyHash::Iter iter(&fUniquelyKeyedProxies); !iter.done(); ++iter) {
-        GrTextureProxy& tmp = *iter;
-
-        this->processInvalidProxyUniqueKey(tmp.getUniqueKey(), &tmp, false);
-    }
-    SkASSERT(!fUniquelyKeyedProxies.count());
+    fProxyProvider->removeAllUniqueKeys();
 
     while(fNonpurgeableResources.count()) {
         GrGpuResource* back = *(fNonpurgeableResources.end() - 1);
@@ -590,7 +586,7 @@ void GrResourceCache::purgeUnlockedResources(size_t bytesToPurge, bool preferScr
 void GrResourceCache::processInvalidUniqueKeys(
     const SkTArray<GrUniqueKeyInvalidatedMessage>& msgs) {
     for (int i = 0; i < msgs.count(); ++i) {
-        this->processInvalidProxyUniqueKey(msgs[i].key());
+        fProxyProvider->processInvalidProxyUniqueKey(msgs[i].key());
 
         GrGpuResource* resource = this->findAndRefUniqueResource(msgs[i].key());
         if (resource) {
@@ -862,6 +858,7 @@ bool GrResourceCache::isInCache(const GrGpuResource* resource) const {
 
 #endif
 
+#if 0
 void GrResourceCache::adoptUniqueKeyFromSurface(GrTextureProxy* proxy, const GrSurface* surf) {
     SkASSERT(surf->getUniqueKey().isValid());
     proxy->cacheAccess().setUniqueKey(this, surf->getUniqueKey());
@@ -954,4 +951,4 @@ void GrResourceCache::processInvalidProxyUniqueKey(const GrUniqueKey& key, GrTex
         }
     }
 }
-
+#endif
