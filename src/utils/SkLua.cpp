@@ -38,7 +38,7 @@ extern "C" {
 }
 
 struct DocHolder {
-    sk_sp<SkDocument>           fDoc;
+    decltype(SkDocument::MakePDF(nullptr)) fDoc;
     std::unique_ptr<SkWStream>  fStream;
 };
 
@@ -1896,7 +1896,7 @@ static int lsk_newDocumentPDF(lua_State* L) {
     if (!file->isValid()) {
         return 0;
     }
-    sk_sp<SkDocument> doc = SkDocument::MakePDF(file.get());
+    auto doc = SkDocument::MakePDF(file.get());
     if (!doc) {
         return 0;
     }

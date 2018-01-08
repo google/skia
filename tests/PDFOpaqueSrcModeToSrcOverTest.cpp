@@ -10,7 +10,7 @@
 #include "Test.h"
 
 static void run_test(SkWStream* out, SkBlendMode mode, U8CPU alpha) {
-    sk_sp<SkDocument> pdfDoc(SkDocument::MakePDF(out));
+    auto pdfDoc = SkDocument::MakePDF(out);
     SkCanvas* c = pdfDoc->beginPage(612.0f, 792.0f);
     SkPaint black;
     SkPaint background;

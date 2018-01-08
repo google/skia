@@ -18,7 +18,7 @@
 static void test_empty(skiatest::Reporter* reporter) {
     SkDynamicMemoryWStream stream;
 
-    sk_sp<SkDocument> doc(SkDocument::MakePDF(&stream));
+    auto doc = SkDocument::MakePDF(&stream);
 
     doc->close();
 
@@ -27,7 +27,7 @@ static void test_empty(skiatest::Reporter* reporter) {
 
 static void test_abort(skiatest::Reporter* reporter) {
     SkDynamicMemoryWStream stream;
-    sk_sp<SkDocument> doc(SkDocument::MakePDF(&stream));
+    auto doc = SkDocument::MakePDF(&stream);
 
     SkCanvas* canvas = doc->beginPage(100, 100);
     canvas->drawColor(SK_ColorRED);
@@ -56,7 +56,7 @@ static void test_abortWithFile(skiatest::Reporter* reporter) {
     // Make sure doc's destructor is called to flush.
     {
         SkFILEWStream stream(path.c_str());
-        sk_sp<SkDocument> doc = SkDocument::MakePDF(&stream);
+        auto doc = SkDocument::MakePDF(&stream);
 
         SkCanvas* canvas = doc->beginPage(100, 100);
         canvas->drawColor(SK_ColorRED);
@@ -87,7 +87,7 @@ static void test_file(skiatest::Reporter* reporter) {
 
     {
         SkFILEWStream stream(path.c_str());
-        sk_sp<SkDocument> doc = SkDocument::MakePDF(&stream);
+        auto doc = SkDocument::MakePDF(&stream);
         SkCanvas* canvas = doc->beginPage(100, 100);
 
         canvas->drawColor(SK_ColorRED);
@@ -105,7 +105,7 @@ static void test_file(skiatest::Reporter* reporter) {
 
 static void test_close(skiatest::Reporter* reporter) {
     SkDynamicMemoryWStream stream;
-    sk_sp<SkDocument> doc(SkDocument::MakePDF(&stream));
+    auto doc = SkDocument::MakePDF(&stream);
 
     SkCanvas* canvas = doc->beginPage(100, 100);
     canvas->drawColor(SK_ColorRED);
@@ -128,7 +128,7 @@ DEF_TEST(SkPDF_document_tests, reporter) {
 DEF_TEST(SkPDF_document_skbug_4734, r) {
     REQUIRE_PDF_DOCUMENT(SkPDF_document_skbug_4734, r);
     SkDynamicMemoryWStream stream;
-    sk_sp<SkDocument> doc(SkDocument::MakePDF(&stream));
+    auto doc = SkDocument::MakePDF(&stream);
     SkCanvas* canvas = doc->beginPage(64, 64);
     canvas->scale(10000.0f, 10000.0f);
     canvas->translate(20.0f, 10.0f);

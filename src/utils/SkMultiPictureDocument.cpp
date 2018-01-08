@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "SkMakeUnique.h"
 #include "SkMultiPictureDocument.h"
 #include "SkMultiPictureDocumentPriv.h"
 #include "SkNWayCanvas.h"
@@ -93,9 +94,15 @@ struct MultiPictureDocument final : public SkDocument {
 };
 }
 
+#ifdef SK_SUPPORT_LEGACY_REFCNT_DOCUMENT
 sk_sp<SkDocument> SkMakeMultiPictureDocument(SkWStream* wStream, const SkSerialProcs* procs) {
     return sk_make_sp<MultiPictureDocument>(wStream, procs);
 }
+#else
+std::unique_ptr<SkDocument> SkMakeMultiPictureDocument(SkWStream* wStream, const SkSerialProcs* procs) {
+    return skstd::make_unique<MultiPictureDocument>(wStream, procs);
+}
+#endif
 
 ////////////////////////////////////////////////////////////////////////////////
 
