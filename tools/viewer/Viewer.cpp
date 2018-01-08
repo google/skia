@@ -865,10 +865,6 @@ bool Viewer::onTouch(intptr_t owner, Window::InputState state, float x, float y)
 }
 
 bool Viewer::onMouse(int x, int y, Window::InputState state, uint32_t modifiers) {
-    if (GestureDevice::kTouch == fGestureDevice) {
-        return false;
-    }
-
     if (fSlides[fCurrentSlide]->onMouse(x, y, state, modifiers)) {
         fWindow->inval();
         return true;
