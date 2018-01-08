@@ -1765,6 +1765,15 @@ DEF_FUZZ(RasterN32Canvas, fuzz) {
     fuzz_canvas(fuzz, surface->getCanvas());
 }
 
+DEF_FUZZ(RasterF16Canvas, fuzz) {
+    auto info = SkImageInfo::Make(kCanvasSize.width(), kCanvasSize.height(),
+                                  kRGBA_F16_SkColorType, kPremul_SkAlphaType,
+                                  SkColorSpace::MakeSRGBLinear());
+    auto surface = SkSurface::MakeRaster(info);
+    SkASSERT(surface && surface->getCanvas());
+    fuzz_canvas(fuzz, surface->getCanvas());
+}
+
 DEF_FUZZ(RasterN32CanvasViaSerialization, fuzz) {
     SkPictureRecorder recorder;
     fuzz_canvas(fuzz, recorder.beginRecording(SkIntToScalar(kCanvasSize.width()),
