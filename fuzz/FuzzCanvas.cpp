@@ -1780,6 +1780,28 @@ DEF_FUZZ(RasterN32CanvasViaSerialization, fuzz) {
     surface->getCanvas()->drawPicture(deserialized);
 }
 
+DEF_FUZZ(ImageFilter, fuzz) {
+    auto fil = make_fuzz_imageFilter(fuzz, 20);
+
+    SkPaint paint;
+    paint.setImageFilter(fil);
+    SkBitmap bitmap;
+    SkCanvas canvas(bitmap);
+    canvas.saveLayer(SkRect::MakeWH(500, 500), &paint);
+}
+
+DEF_FUZZ(ImageFilterWithSerialization, fuzz) {
+    auto fil = make_fuzz_imageFilter(fuzz, 20);
+    auto data = fil->serialize();
+    auto deserializedFil = SkImageFilter::Deserialize(data->bytes(), data->size());
+
+    SkPaint paint;
+    paint.setImageFilter(deserializedFil);
+    SkBitmap bitmap;
+    SkCanvas canvas(bitmap);
+    canvas.saveLayer(SkRect::MakeWH(500, 500), &paint);
+}
+
 #if SK_SUPPORT_GPU
 static void fuzz_ganesh(Fuzz* fuzz, GrContext* context) {
     SkASSERT(context);
