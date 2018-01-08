@@ -2796,8 +2796,8 @@ subset: 1000,  100, 1000,  200  success; false
 #Method bool readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
                     int srcX, int srcY, SkTransferFunctionBehavior behavior) const
 
-Copies a Rect of pixels to dstPixels. Copy starts at (srcX, srcY), and does not exceed
-(this->width(), this->height()). 
+Copies Rect of pixels from Bitmap pixels to dstPixels. Copy starts at (srcX, srcY),
+and does not exceed (this->width(), this->height()). 
 
 dstInfo specifies width, height, Color_Type, Alpha_Type, and 
 Color_Space of destination. dstRowBytes specifics the gap from one destination
@@ -2881,12 +2881,12 @@ void draw(SkCanvas* canvas) {
 #Method bool readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
                     int srcX, int srcY) const
 
-Copies a Rect of pixels to dstPixels. Copy starts at (srcX, srcY), and does not exceed
-(this->width(), this->height()). 
+Copies a Rect of pixels from Bitmap to dstPixels. Copy starts at (srcX, srcY),
+and does not exceed Bitmap (width(), height()). 
 
-dstInfo specifies width, height, Color_Type, Alpha_Type, and 
-Color_Space of destination. dstRowBytes specifics the gap from one destination
-row to the next. Returns true if pixels are copied. Returns false if:
+dstInfo specifies width, height, Color_Type, Alpha_Type, and Color_Space of
+destination. dstRowBytes specifics the gap from one destination row to the next.
+Returns true if pixels are copied. Returns false if:
 #List
 # dstInfo.addr() equals nullptr ##
 # dstRowBytes is less than dstInfo.minRowBytes ##
@@ -2956,8 +2956,8 @@ creates visible banding.
 
 #Method bool readPixels(const SkPixmap& dst, int srcX, int srcY) const
 
-Copies a Rect of pixels to dst. Copy starts at (srcX, srcY), and does not exceed
-(this->width(), this->height()). 
+Copies a Rect of pixels from Bitmap to dst. Copy starts at (srcX, srcY), and
+does not exceed Bitmap (width(), height()). 
 
 dst specifies width, height, Color_Type, Alpha_Type, Color_Space, pixel storage,
 and row bytes of destination. dst.rowBytes specifics the gap from one destination
@@ -3020,8 +3020,8 @@ abs(srcY) >= this->height()
 
 #Method bool readPixels(const SkPixmap& dst) const
 
-Copies a Rect of pixels to dst. Copy starts at (0, 0), and does not exceed
-(this->width(), this->height()). 
+Copies a Rect of pixels from Bitmap to dst. Copy starts at (0, 0), and
+does not exceed Bitmap (width(), height()). 
 
 dst specifies width, height, Color_Type, Alpha_Type, Color_Space, pixel storage,
 and row bytes of destination. dst.rowBytes specifics the gap from one destination
@@ -3482,7 +3482,7 @@ SK_DEBUG is defined at compile time.
 macro expands to: void toString(SkString* str) const;
 ##
 
-Creates string representation. The representation is read by
+Creates string representation of Bitmap. The representation is read by
 internal debugging tools. The interface and implementation may be
 suppressed by defining SK_IGNORE_TO_STRING.
 

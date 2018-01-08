@@ -1870,7 +1870,7 @@ true if pixels are copied to <a href="#SkPixmap_readPixels_5_dst">dst</a>
 bool scalePixels(const SkPixmap& dst, SkFilterQuality filterQuality) const
 </pre>
 
-Copies this to <a href="#SkPixmap_scalePixels_dst">dst</a>, scaling pixels to fit <a href="#SkPixmap_scalePixels_dst">dst</a>.<a href="#SkPixmap_width">width</a> and <a href="#SkPixmap_scalePixels_dst">dst</a>.<a href="#SkPixmap_height">height</a>, and
+Copies <a href="SkBitmap_Reference#Bitmap">Bitmap</a> to <a href="#SkPixmap_scalePixels_dst">dst</a>, scaling pixels to fit <a href="#SkPixmap_scalePixels_dst">dst</a>.<a href="#SkPixmap_width">width</a> and <a href="#SkPixmap_scalePixels_dst">dst</a>.<a href="#SkPixmap_height">height</a>, and
 converting pixels to match <a href="#SkPixmap_scalePixels_dst">dst</a>.<a href="#SkPixmap_colorType">colorType</a> and <a href="#SkPixmap_scalePixels_dst">dst</a>.<a href="#SkPixmap_alphaType">alphaType</a>. Returns true if
 pixels are copied. Returns false if <a href="#SkPixmap_scalePixels_dst">dst</a>.<a href="#SkPixmap_addr">addr</a> is nullptr, or <a href="#SkPixmap_scalePixels_dst">dst</a>.<a href="#SkPixmap_rowBytes">rowBytes</a> is
 less than <a href="#SkPixmap_scalePixels_dst">dst</a> <a href="#SkImageInfo_minRowBytes">SkImageInfo::minRowBytes</a>.
@@ -1882,7 +1882,7 @@ If this-><a href="#SkPixmap_alphaType">alphaType</a> is <a href="undocumented#Sk
 match. If this-><a href="#SkPixmap_colorSpace">colorSpace</a> is nullptr, <a href="#SkPixmap_scalePixels_dst">dst</a> <a href="undocumented#Color_Space">Color Space</a> must match. Returns
 false if pixel conversion is not possible.
 
-Returns false if this-><a href="#SkPixmap_width">width</a> or this-><a href="#SkPixmap_height">height</a> is zero or negative.
+Returns false if <a href="SkBitmap_Reference#Bitmap">Bitmap</a> <a href="#SkPixmap_width">width</a> or <a href="#SkPixmap_height">height</a> is zero or negative.
 
 Scales the image, with <a href="#SkPixmap_scalePixels_filterQuality">filterQuality</a>, to match <a href="#SkPixmap_scalePixels_dst">dst</a>.<a href="#SkPixmap_width">width</a> and <a href="#SkPixmap_scalePixels_dst">dst</a>.<a href="#SkPixmap_height">height</a>.
 <a href="#SkPixmap_scalePixels_filterQuality">filterQuality</a> <a href="undocumented#SkFilterQuality">kNone SkFilterQuality</a> is fastest, typically implemented with
@@ -1903,7 +1903,7 @@ one of: <a href="undocumented#SkFilterQuality">kNone SkFilterQuality</a>, <a hre
 
 ### Return Value
 
-true if pixels are copied to <a href="#SkPixmap_scalePixels_dst">dst</a>
+true if pixels are scaled to fit <a href="#SkPixmap_scalePixels_dst">dst</a>
 
 ### Example
 

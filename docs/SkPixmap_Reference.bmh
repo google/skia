@@ -1825,7 +1825,7 @@ void draw(SkCanvas* canvas) {
 
 #Method bool scalePixels(const SkPixmap& dst, SkFilterQuality filterQuality) const
 
-Copies this to dst, scaling pixels to fit dst.width() and dst.height(), and
+Copies Bitmap to dst, scaling pixels to fit dst.width() and dst.height(), and
 converting pixels to match dst.colorType and dst.alphaType. Returns true if
 pixels are copied. Returns false if dst.addr() is nullptr, or dst.rowBytes is
 less than dst SkImageInfo::minRowBytes.
@@ -1837,7 +1837,7 @@ If this->alphaType is kOpaque_SkAlphaType, dst Alpha_Type must
 match. If this->colorSpace is nullptr, dst Color_Space must match. Returns
 false if pixel conversion is not possible.
 
-Returns false if this->width() or this->height() is zero or negative.
+Returns false if Bitmap width() or height() is zero or negative.
 
 Scales the image, with filterQuality, to match dst.width() and dst.height().
 filterQuality kNone_SkFilterQuality is fastest, typically implemented with
@@ -1851,7 +1851,7 @@ kHigh_SkFilterQuality is slowest, typically implemented with Filter_Quality_BiCu
                       kMedium_SkFilterQuality, kHigh_SkFilterQuality
 ##
 
-#Return  true if pixels are copied to dst ##
+#Return  true if pixels are scaled to fit dst ##
 
 #Example
 #Image 3
