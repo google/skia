@@ -1228,6 +1228,14 @@ bool RootDefinition::dumpUnVisited() {
             if ("SkPath::pathRefIsValid" == leaf.first) {
                 continue;
             }
+            // SK_SUPPORT_LEGACY_RECTMAKELARGEST is wrapping MakeLargest
+            // no rule for now to skip defines bracketed by SK_SUPPORT_LEGACY...
+            if ("SkRect::MakeLargest" == leaf.first) {
+                continue;
+            }
+            if ("SkIRect::MakeLargest" == leaf.first) {
+                continue;
+            }
             // FIXME: end of long tail bugs
             SkDebugf("defined in bmh but missing in include: %s\n", leaf.first.c_str());
             success = false;
