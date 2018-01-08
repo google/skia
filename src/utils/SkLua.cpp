@@ -19,6 +19,7 @@
 #include "SkFontStyle.h"
 #include "SkGradientShader.h"
 #include "SkImage.h"
+#include "SkMakeUnique.h"
 #include "SkMatrix.h"
 #include "SkPaint.h"
 #include "SkPath.h"
@@ -36,6 +37,11 @@ extern "C" {
     #include "lauxlib.h"
 }
 
+struct DocHolder {
+    sk_sp<SkDocument>           fDoc;
+    std::unique_ptr<SkWStream>  fStream;
+};
+
 // return the metatable name for a given class
 template <typename T> const char* get_mtname();
 #define DEF_MTNAME(T)                           \
@@ -45,7 +51,7 @@ template <typename T> const char* get_mtname();
 
 DEF_MTNAME(SkCanvas)
 DEF_MTNAME(SkColorFilter)
-DEF_MTNAME(SkDocument)
+DEF_MTNAME(DocHolder)
 DEF_MTNAME(SkImage)
 DEF_MTNAME(SkImageFilter)
 DEF_MTNAME(SkMatrix)
@@ -668,28 +674,28 @@ const struct luaL_Reg gSkCanvas_Methods[] = {
 
 static int ldocument_beginPage(lua_State* L) {
     const SkRect* contentPtr = nullptr;
-    push_ptr(L, get_ref<SkDocument>(L, 1)->beginPage(lua2scalar(L, 2),
-                                                     lua2scalar(L, 3),
-                                                     contentPtr));
+    push_ptr(L, get_obj<DocHolder>(L, 1)->fDoc->beginPage(lua2scalar(L, 2),
+                                                          lua2scalar(L, 3),
+                                                          contentPtr));
     return 1;
 }
 
 static int ldocument_endPage(lua_State* L) {
-    get_ref<SkDocument>(L, 1)->endPage();
+    get_obj<DocHolder>(L, 1)->fDoc->endPage();
     return 0;
 }
 
 static int ldocument_close(lua_State* L) {
-    get_ref<SkDocument>(L, 1)->close();
+    get_obj<DocHolder>(L, 1)->fDoc->close();
     return 0;
 }
 
 static int ldocument_gc(lua_State* L) {
-    get_ref<SkDocument>(L, 1)->unref();
+    get_obj<DocHolder>(L, 1)->~DocHolder();
     return 0;
 }
 
-static const struct luaL_Reg gSkDocument_Methods[] = {
+static const struct luaL_Reg gDocHolder_Methods[] = {
     { "beginPage", ldocument_beginPage },
     { "endPage", ldocument_endPage },
     { "close", ldocument_close },
@@ -1879,19 +1885,23 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 
 static int lsk_newDocumentPDF(lua_State* L) {
-    const char* file = nullptr;
+    const char* filename = nullptr;
     if (lua_gettop(L) > 0 && lua_isstring(L, 1)) {
-        file = lua_tolstring(L, 1, nullptr);
+        filename = lua_tolstring(L, 1, nullptr);
     }
-
-    sk_sp<SkDocument> doc = SkDocument::MakePDF(file);
-    if (nullptr == doc) {
-        // do I need to push a nil on the stack and return 1?
+    if (!filename) {
         return 0;
-    } else {
-        push_ref(L, std::move(doc));
-        return 1;
     }
+    auto file = skstd::make_unique<SkFILEWStream>(filename);
+    if (!file->isValid()) {
+        return 0;
+    }
+    sk_sp<SkDocument> doc = SkDocument::MakePDF(file.get());
+    if (!doc) {
+        return 0;
+    }
+    push_ptr(L, new DocHolder{std::move(doc), std::move(file)});
+    return 1;
 }
 
 static int lsk_newBlurImageFilter(lua_State* L) {
@@ -2076,7 +2086,7 @@ void SkLua::Load(lua_State* L) {
     register_Sk(L);
     REG_CLASS(L, SkCanvas);
     REG_CLASS(L, SkColorFilter);
-    REG_CLASS(L, SkDocument);
+    REG_CLASS(L, DocHolder);
     REG_CLASS(L, SkImage);
     REG_CLASS(L, SkImageFilter);
     REG_CLASS(L, SkMatrix);
