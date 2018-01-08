@@ -77,7 +77,7 @@ public:
      * Call to indicate that GrRenderTarget was externally resolved. This may
      * allow Gr to skip a redundant resolve step.
      */
-    void flagAsResolved() { fResolveRect.setLargestInverted(); }
+    void flagAsResolved();
 
     /**
      * @return true if the GrRenderTarget requires MSAA resolving

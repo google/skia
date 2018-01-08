@@ -8,6 +8,7 @@
 #include "SkThreadedBMPDevice.h"
 
 #include "SkPath.h"
+#include "SkRectPriv.h"
 #include "SkTaskGroup.h"
 #include "SkVertices.h"
 
@@ -89,11 +90,11 @@ struct SkThreadedBMPDevice::DrawState {
 };
 
 SkIRect SkThreadedBMPDevice::transformDrawBounds(const SkRect& drawBounds) const {
-    if (drawBounds.isLargest()) {
-        return SkIRect::MakeLargest();
-    }
     SkRect transformedBounds;
     this->ctm().mapRect(&transformedBounds, drawBounds);
+    if (!transformedBounds.isFinite()) {
+        transformedBounds = SkRectPriv::MakeLargestS32();
+    }
     return transformedBounds.roundOut();
 }
 
@@ -116,19 +117,19 @@ static inline SkRect get_fast_bounds(const SkRect& r, const SkPaint& p) {
     if (p.canComputeFastBounds()) {
         result = p.computeFastBounds(r, &result);
     } else {
-        result = SkRect::MakeLargest();
+        result = SkRectPriv::MakeLargest();
     }
     return result;
 }
 
 void SkThreadedBMPDevice::drawPaint(const SkPaint& paint) {
-    THREADED_DRAW(SkRect::MakeLargest(), drawPaint(paint));
+    THREADED_DRAW(SkRectPriv::MakeLargest(), drawPaint(paint));
 }
 
 void SkThreadedBMPDevice::drawPoints(SkCanvas::PointMode mode, size_t count,
         const SkPoint pts[], const SkPaint& paint) {
     // TODO tighter drawBounds
-    SkRect drawBounds = SkRect::MakeLargest();
+    SkRect drawBounds = SkRectPriv::MakeLargest();
     THREADED_DRAW(drawBounds, drawPoints(mode, count, pts, paint, nullptr));
 }
 
@@ -153,7 +154,7 @@ void SkThreadedBMPDevice::drawRRect(const SkRRect& rrect, const SkPaint& paint) 
 
 void SkThreadedBMPDevice::drawPath(const SkPath& path, const SkPaint& paint,
         const SkMatrix* prePathMatrix, bool pathIsMutable) {
-    SkRect drawBounds = path.isInverseFillType() ? SkRect::MakeLargest()
+    SkRect drawBounds = path.isInverseFillType() ? SkRectPriv::MakeLargest()
                                                  : get_fast_bounds(path.getBounds(), paint);
     // For thread safety, make path imutable
     THREADED_DRAW(drawBounds, drawPath(path, paint, prePathMatrix, false));
@@ -175,20 +176,20 @@ void SkThreadedBMPDevice::drawSprite(const SkBitmap& bitmap, int x, int y, const
 
 void SkThreadedBMPDevice::drawText(const void* text, size_t len, SkScalar x, SkScalar y,
         const SkPaint& paint) {
-    SkRect drawBounds = SkRect::MakeLargest(); // TODO tighter drawBounds
+    SkRect drawBounds = SkRectPriv::MakeLargest(); // TODO tighter drawBounds
     THREADED_DRAW(drawBounds, drawText((const char*)text, len, x, y, paint, &this->surfaceProps()));
 }
 
 void SkThreadedBMPDevice::drawPosText(const void* text, size_t len, const SkScalar xpos[],
         int scalarsPerPos, const SkPoint& offset, const SkPaint& paint) {
-    SkRect drawBounds = SkRect::MakeLargest(); // TODO tighter drawBounds
+    SkRect drawBounds = SkRectPriv::MakeLargest(); // TODO tighter drawBounds
     THREADED_DRAW(drawBounds, drawPosText((const char*)text, len, xpos, scalarsPerPos, offset,
                                           paint, &surfaceProps()));
 }
 
 void SkThreadedBMPDevice::drawVertices(const SkVertices* vertices, SkBlendMode bmode,
         const SkPaint& paint) {
-    SkRect drawBounds = SkRect::MakeLargest(); // TODO tighter drawBounds
+    SkRect drawBounds = SkRectPriv::MakeLargest(); // TODO tighter drawBounds
     THREADED_DRAW(drawBounds, drawVertices(vertices->mode(), vertices->vertexCount(),
                                            vertices->positions(), vertices->texCoords(),
                                            vertices->colors(), bmode, vertices->indices(),
