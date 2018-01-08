@@ -543,7 +543,7 @@ TEST_STEP(NestedSaveRestoreWithFlush, NestedSaveRestoreWithFlushTestStep);
 
 static void TestPdfDevice(skiatest::Reporter* reporter, const TestData& d, CanvasTestStep* step) {
     SkDynamicMemoryWStream outStream;
-    sk_sp<SkDocument> doc(SkDocument::MakePDF(&outStream));
+    auto doc = SkDocument::MakePDF(&outStream);
     REPORTER_ASSERT(reporter, doc);
     if (!doc) {
         return;
