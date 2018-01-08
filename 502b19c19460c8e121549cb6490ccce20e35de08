@@ -65,6 +65,24 @@
     },
     {
       "key": {
+        "uuid": "e49ea67d_809f177d",
+        "filename": "tools/viewer/SkottySlide2.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-01-08T03:46:57Z",
+      "side": 1,
+      "message": "Yes, I saw the aanta arm dangling. If the animations draw \"wrong\" w/o this clip, then I definitely think the player needs to handle it (via a clipRect or whatever).",
+      "parentUuid": "215dffd4_97a1470e",
+      "revId": "502b19c19460c8e121549cb6490ccce20e35de08",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "f2148c01_b51037da",
         "filename": "tools/viewer/Viewer.cpp",
         "patchSetId": 2
@@ -76,6 +94,30 @@
       "writtenOn": "2018-01-08T03:25:42Z",
       "side": 1,
       "message": "I still find it useful to view a single animation at a time for debugging, etc.  If we drop the continue, I think we\u0027ll get both versions, right?",
+      "range": {
+        "startLine": 489,
+        "startChar": 59,
+        "endLine": 489,
+        "endChar": 68
+      },
+      "revId": "502b19c19460c8e121549cb6490ccce20e35de08",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9e89cf4c_4e0cda0c",
+        "filename": "tools/viewer/Viewer.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 489,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-01-08T03:46:57Z",
+      "side": 1,
+      "message": "Ooops, definitely will drop the continue. That was just a hack while I tested my new slide.",
+      "parentUuid": "f2148c01_b51037da",
       "range": {
         "startLine": 489,
         "startChar": 59,
