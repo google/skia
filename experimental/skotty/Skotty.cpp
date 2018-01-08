@@ -60,25 +60,33 @@ bool AttachProperty(const Json::Value& jprop, AttachContext* ctx, const sk_sp<No
     if (!jprop.isObject())
         return false;
 
-    if (!ParseBool(jprop["a"], false)) {
-        // Static property.
+    const auto& jpropA = jprop["a"];
+    const auto& jpropK = jprop["k"];
+
+    // Older Json versions don't have an "a" animation marker.
+    // For those, we attempt to parse both ways.
+    if (jpropA.isNull() || !ParseBool(jpropA, "false")) {
         ValueT val;
-        if (!ValueT::Parse(jprop["k"], &val)) {
-            return LogFail(jprop, "Could not parse static property");
+        if (ValueT::Parse(jpropK, &val)) {
+            // Static property.
+            apply(node, val.template as<AttrT>());
+            return true;
         }
 
-        apply(node, val.template as<AttrT>());
-    } else {
-        // Keyframe property.
-        using AnimatorT = Animator<ValueT, AttrT, NodeT>;
-        auto animator = AnimatorT::Make(jprop["k"], node, std::move(apply));
-
-        if (!animator) {
-            return LogFail(jprop, "Could not instantiate keyframe animator");
+        if (!jpropA.isNull()) {
+            return LogFail(jprop, "Could not parse (explicit) static property");
         }
-
-        ctx->fAnimators.push_back(std::move(animator));
     }
+
+    // Keyframe property.
+    using AnimatorT = Animator<ValueT, AttrT, NodeT>;
+    auto animator = AnimatorT::Make(jpropK, node, std::move(apply));
+
+    if (!animator) {
+        return LogFail(jprop, "Could not parse keyframed property");
+    }
+
+    ctx->fAnimators.push_back(std::move(animator));
 
     return true;
 }
