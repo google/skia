@@ -42,6 +42,13 @@ public:
     static SkIRect MakeILargestInverted() {
         return { SK_MaxS32, SK_MaxS32, SK_MinS32, SK_MinS32 };
     }
+
+    static void GrowToInclude(SkRect* r, const SkPoint& pt) {
+        r->fLeft  =  SkMinScalar(pt.fX, r->fLeft);
+        r->fRight =  SkMaxScalar(pt.fX, r->fRight);
+        r->fTop    = SkMinScalar(pt.fY, r->fTop);
+        r->fBottom = SkMaxScalar(pt.fY, r->fBottom);
+    }
 };
 
 

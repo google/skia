@@ -1411,57 +1411,6 @@ public:
         fBottom = SkMaxScalar(fBottom, r.bottom());
     }
 
-    /** Grows SkRect to include (pt.fX, pt.fY), modifying it so that:
-        fLeft <= pt.fX <= fRight && fTop <= pt.fY <= fBottom.
-
-        If SkRect is inverted, then SkRect will contain bounds of
-        points after one or more calls. In this case, SkRect is empty after first call.
-
-        @param pt  SkPoint to include
-    */
-    void growToInclude(SkPoint pt) {
-        fLeft  =  SkMinScalar(pt.fX, fLeft);
-        fRight =  SkMaxScalar(pt.fX, fRight);
-        fTop    = SkMinScalar(pt.fY, fTop);
-        fBottom = SkMaxScalar(pt.fY, fBottom);
-    }
-
-    /** For each of count SkPoint in pts, grows SkRect to include (pt.fX, pt.fY), modifying
-        it so that: fLeft <= pt.fX <= fRight && fTop <= pt.fY <= fBottom.
-
-        If SkRect is inverted, then SkRect will contain bounds of
-        points after one or more calls. In this case, SkRect is empty after first call.
-
-        @param pts    SkPoint array
-        @param count  number of points in array
-    */
-    void growToInclude(const SkPoint pts[], int count) {
-        this->growToInclude(pts, sizeof(SkPoint), count);
-    }
-
-    /** For each of count SkPoint in pts, grows SkRect to include (pt.fX, pt.fY), modifying
-        it so that: fLeft <= pt.fX <= fRight && fTop <= pt.fY <= fBottom.
-
-        SkPoint may be followed with other data in each array element. stride is number
-        of bytes in element; the interval to skip to advance from one SkPoint to
-        the next.
-
-        If SkRect is inverted, then SkRect will contain bounds of
-        points after one or more calls. In this case, SkRect is empty after first call.
-
-        @param pts     array of elements beginning with SkPoint
-        @param stride  size of pts elements in 32-bit words; zero or greater
-        @param count   number of elements in array
-    */
-    void growToInclude(const SkPoint pts[], size_t stride, int count) {
-        SkASSERT(count >= 0);
-        SkASSERT(stride >= sizeof(SkPoint));
-        const SkPoint* end = (const SkPoint*)((intptr_t)pts + count * stride);
-        for (; pts < end; pts = (const SkPoint*)((intptr_t)pts + stride)) {
-            this->growToInclude(*pts);
-        }
-    }
-
     /** Returns true if SkRect contains r.
         Returns false if SkRect is empty or r is empty.
 
