@@ -21,6 +21,7 @@
 #include "SkMatrixPriv.h"
 #include "SkPoint3.h"
 #include "SkPointPriv.h"
+#include "SkRectPriv.h"
 #include "SkStroke.h"
 #include "SkTemplates.h"
 #include "effects/GrBezierEffect.h"
@@ -750,7 +751,7 @@ bool check_bounds(const SkMatrix& viewMatrix, const SkRect& devBounds, void* ver
             actualBounds.set(pos.fX, pos.fY, pos.fX, pos.fY);
             first = false;
         } else {
-            actualBounds.growToInclude(pos);
+            SkRectPriv::GrowToInclude(&actualBounds, pos);
         }
     }
     if (!first) {

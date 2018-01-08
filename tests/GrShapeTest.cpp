@@ -14,6 +14,7 @@
 #include "SkDashPathEffect.h"
 #include "SkPath.h"
 #include "SkPathOps.h"
+#include "SkRectPriv.h"
 #include "SkSurface.h"
 #include "SkClipOpPriv.h"
 
@@ -1207,8 +1208,8 @@ void test_unknown_path_effect(skiatest::Reporter* reporter, const Geo& geo) {
         }
         void computeFastBounds(SkRect* dst, const SkRect& src) const override {
             *dst = src;
-            dst->growToInclude({0, 0});
-            dst->growToInclude({100, 100});
+            SkRectPriv::GrowToInclude(dst, {0, 0});
+            SkRectPriv::GrowToInclude(dst, {100, 100});
         }
         static sk_sp<SkPathEffect> Make() { return sk_sp<SkPathEffect>(new AddLineTosPathEffect); }
         Factory getFactory() const override { return nullptr; }

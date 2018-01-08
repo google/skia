@@ -88,3 +88,8 @@ DEF_TEST(Rect, reporter) {
     test_stroke_width_clipping(reporter);
     test_skbug4406(reporter);
 }
+
+DEF_TEST(Rect_grow, reporter) {
+    test_stroke_width_clipping(reporter);
+    test_skbug4406(reporter);
+}

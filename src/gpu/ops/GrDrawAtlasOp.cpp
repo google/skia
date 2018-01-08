@@ -82,25 +82,25 @@ GrDrawAtlasOp::GrDrawAtlasOp(const Helper::MakeArgs& helperArgs, GrColor color,
         *(reinterpret_cast<SkPoint*>(currVertex)) = strip[0];
         *(reinterpret_cast<SkPoint*>(currVertex + texOffset)) =
                 SkPoint::Make(currRect.fLeft, currRect.fTop);
-        bounds.growToInclude(strip[0]);
+        SkRectPriv::GrowToInclude(&bounds, strip[0]);
         currVertex += vertexStride;
 
         *(reinterpret_cast<SkPoint*>(currVertex)) = strip[1];
         *(reinterpret_cast<SkPoint*>(currVertex + texOffset)) =
                 SkPoint::Make(currRect.fLeft, currRect.fBottom);
-        bounds.growToInclude(strip[1]);
+        SkRectPriv::GrowToInclude(&bounds, strip[1]);
         currVertex += vertexStride;
 
         *(reinterpret_cast<SkPoint*>(currVertex)) = strip[2];
         *(reinterpret_cast<SkPoint*>(currVertex + texOffset)) =
                 SkPoint::Make(currRect.fRight, currRect.fTop);
-        bounds.growToInclude(strip[2]);
+        SkRectPriv::GrowToInclude(&bounds, strip[2]);
         currVertex += vertexStride;
 
         *(reinterpret_cast<SkPoint*>(currVertex)) = strip[3];
         *(reinterpret_cast<SkPoint*>(currVertex + texOffset)) =
                 SkPoint::Make(currRect.fRight, currRect.fBottom);
-        bounds.growToInclude(strip[3]);
+        SkRectPriv::GrowToInclude(&bounds, strip[3]);
         currVertex += vertexStride;
     }
 
