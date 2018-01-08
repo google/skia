@@ -7,11 +7,11 @@
 
 #include "SkDocument.h"
 
-sk_sp<SkDocument> SkDocument::MakePDF(SkWStream* stream, const PDFMetadata& metadata) {
+using SkDoc = decltype(SkDocument::MakePDF(nullptr));
+SkDoc SkDocument::MakePDF(SkWStream* stream, const PDFMetadata& metadata) {
     return nullptr;
 }
 
-sk_sp<SkDocument> SkDocument::MakePDF(SkWStream* stream) {
+SkDoc SkDocument::MakePDF(SkWStream* stream) {
     return nullptr;
 }
-
