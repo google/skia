@@ -100,14 +100,9 @@ struct SkJumper_GradientCtx {
     float* ts;
 };
 
-// TODO (liyuqian): remove fCoeffA, fInvCoeffA, fR0, fDR once rebaselined
 struct SkJumper_2PtConicalCtx {
     uint32_t fMask[SkJumper_kMaxStride];
-    float    fCoeffA,
-             fInvCoeffA,
-             fR0,
-             fDR,
-             fP0,
+    float    fP0,
              fP1;
 };
 
