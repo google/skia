@@ -339,8 +339,6 @@ private:
                                        // gradients, and only changes behavior for gradients
                                        // that don't use a texture.
 
-    friend class DumpHelper; // to access RandomGradientParams
-
     typedef GrFragmentProcessor INHERITED;
 
 };
