@@ -23,7 +23,7 @@ class AnimatorBase : public SkNoncopyable {
 public:
     virtual ~AnimatorBase() = default;
 
-    virtual void tick(SkMSec) = 0;
+    virtual void tick(float) = 0;
 
 protected:
     AnimatorBase() = default;
@@ -91,7 +91,7 @@ public:
     static std::unique_ptr<Animator> Make(const Json::Value& frames, sk_sp<NodeT> node,
         ApplyFuncT&& applyFunc);
 
-    void tick(SkMSec t) override {
+    void tick(float t) override {
         const auto& frame = this->findInterval(t);
 
         ValT val;

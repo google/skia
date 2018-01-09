@@ -736,7 +736,7 @@ sk_sp<sksg::RenderNode> AttachLayer(const Json::Value& jlayer,
             , fIn(in)
             , fOut(out) {}
 
-        void tick(SkMSec t) override {
+        void tick(float t) override {
             // Keep the layer fully transparent except for its [in..out] lifespan.
             // (note: opacity == 0 disables rendering, while opacity == 1 is a noop)
             fControlNode->setOpacity(t >= fIn && t <= fOut ? 1 : 0);
