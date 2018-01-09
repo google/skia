@@ -291,6 +291,11 @@ public:
         const SkScalerContextRec& rec,
         const SkScalerContextEffects& effects);
 
+    static void DescriptorBufferGiveRec(const SkScalerContextRec& rec, void* buffer);
+    static bool CheckBufferSizeForRec(const SkScalerContextRec& rec,
+                                      const SkScalerContextEffects& effects,
+                                      size_t size);
+
     static SkMaskGamma::PreBlend GetMaskPreBlend(const SkScalerContextRec& rec);
 
     const SkScalerContextRec& getRec() const { return fRec; }
