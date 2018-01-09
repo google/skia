@@ -411,13 +411,13 @@ config("debug_symbols") {
 }
 
 config("no_rtti") {
-  if (sanitize != "ASAN") {  # -fsanitize=vptr requires RTTI
-    if (is_win) {
-      cflags_cc = [ "/GR-" ]
-    } else {
-      cflags_cc = [ "-fno-rtti" ]
-    }
-  }
+#  if (sanitize != "ASAN") {  # -fsanitize=vptr requires RTTI
+#    if (is_win) {
+#      cflags_cc = [ "/GR-" ]
+#    } else {
+#      cflags_cc = [ "-fno-rtti" ]
+#    }
+#  }
 }
 
 config("release") {
