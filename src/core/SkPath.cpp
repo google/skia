@@ -2214,7 +2214,7 @@ size_t SkPath::readFromMemory(const void* storage, size_t length) {
 #include "SkStream.h"
 
 static void append_params(SkString* str, const char label[], const SkPoint pts[],
-                          int count, SkScalarAsStringType strType, SkScalar conicWeight = -1) {
+                          int count, SkScalarAsStringType strType, SkScalar conicWeight = -12345) {
     str->append(label);
     str->append("(");
 
@@ -2227,7 +2227,7 @@ static void append_params(SkString* str, const char label[], const SkPoint pts[]
             str->append(", ");
         }
     }
-    if (conicWeight >= 0) {
+    if (conicWeight != -12345) {
         str->append(", ");
         SkAppendScalar(str, conicWeight, strType);
     }
