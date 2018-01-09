@@ -827,6 +827,7 @@ public:
     string fiddleName() const;
     string formatFunction() const;
     const Definition* hasChild(MarkType markType) const;
+    bool hasMatch(const string& name) const;
     const Definition* hasParam(const string& ref) const;
     bool isClone() const { return fClone; }
 

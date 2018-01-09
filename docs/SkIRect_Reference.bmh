@@ -1567,6 +1567,11 @@ rect: 0, 0, 0, 0
 #Deprecated
 ##
 
+Returns constructed SkIRect setting left and top to most negative value, and
+setting right and bottom to most positive value.
+
+#Return  bounds (SK_MinS32, SK_MinS32, SK_MaxS32, SK_MaxS32) ##
+
 ##
 
 #Struct SkIRect ##

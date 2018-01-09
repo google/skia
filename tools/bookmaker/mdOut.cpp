@@ -182,15 +182,8 @@ string MdOut::addReferences(const char* refStart, const char* refEnd,
                         const Definition* paramType = this->findParamType();
                         if (paramType) {
                             string fullName = paramType->fName + "::" + ref;
-                            bool found = false;
-                            for (auto child : paramType->fChildren) {
-                                if (fullName == child->fName) {
-                                    result += linkRef(leadingSpaces, paramType, ref);
-                                    found = true;
-                                    break;
-                                }
-                            }
-                            if (found) {
+                            if (paramType->hasMatch(fullName)) {
+                                result += linkRef(leadingSpaces, paramType, ref);
                                 continue;
                             }
                         }

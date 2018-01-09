@@ -1035,6 +1035,18 @@ const Definition* Definition::hasParam(const string& ref) const {
     return nullptr;
 }
 
+bool Definition::hasMatch(const string& name) const {
+    for (auto child : fChildren) {
+        if (name == child->fName) {
+            return true;
+        }
+        if (child->hasMatch(name)) {
+            return true;
+        }
+    }
+    return false;
+}
+
 bool Definition::methodHasReturn(const string& name, TextParser* methodParser) const {
     if (methodParser->skipExact("static")) {
         methodParser->skipWhiteSpace();
