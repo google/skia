@@ -10,6 +10,7 @@
 #include "SkColor.h"
 #include "SkottyPriv.h"
 #include "SkPath.h"
+#include "SkSGColor.h"
 #include "SkSGPath.h"
 #include "SkSGRect.h"
 #include "SkSGTransform.h"
@@ -175,6 +176,20 @@ template <>
 template <>
 SkPath ValueTraits<ShapeValue>::As<SkPath>(const ShapeValue& path) {
     return path;
+}
+
+CompositeColor::CompositeColor(sk_sp<sksg::Color> wrapped_node)
+    : fColorNode(std::move(wrapped_node)) {
+    SkASSERT(fColorNode);
+}
+
+void CompositeColor::apply() {
+    // 'opacity' is [0..100]
+    const auto a = SkScalarRoundToInt(SkTPin<float>(fOpacity * .01f, 0, 1) * SkColorGetA(fColor));
+    fColorNode->setColor(SkColorSetARGB(a,
+                                        SkColorGetR(fColor),
+                                        SkColorGetG(fColor),
+                                        SkColorGetB(fColor)));
 }
 
 CompositeRRect::CompositeRRect(sk_sp<sksg::RRect> wrapped_node)

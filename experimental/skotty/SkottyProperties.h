@@ -8,6 +8,7 @@
 #ifndef SkottyProperties_DEFINED
 #define SkottyProperties_DEFINED
 
+#include "SkColor.h"
 #include "SkPath.h"
 #include "SkPoint.h"
 #include "SkSize.h"
@@ -20,6 +21,7 @@
 #include <vector>
 
 namespace sksg {
+class Color;
 class Matrix;
 class Path;
 class RRect;
@@ -52,6 +54,21 @@ using ShapeValue  = SkPath;
   private:                                            \
     p_type f##p_name = p_default;                     \
   public:
+
+class CompositeColor final : public SkRefCnt {
+public:
+    explicit CompositeColor(sk_sp<sksg::Color>);
+
+     COMPOSITE_PROPERTY(Color  , SkColor , SK_ColorBLACK)
+     COMPOSITE_PROPERTY(Opacity, SkScalar, 100          )
+
+private:
+    void apply();
+
+    sk_sp<sksg::Color> fColorNode;
+
+    using INHERITED = SkRefCnt;
+};
 
 class CompositeRRect final : public SkRefCnt {
 public:
