@@ -23,6 +23,7 @@
 #include "SkRegion.h"
 #include "SkSurface.h"
 #include "SkTypeface.h"
+#include "SkOSFile.h"
 
 // EFFECTS
 #include "Sk1DPathEffect.h"
@@ -1778,6 +1779,72 @@ DEF_FUZZ(RasterN32CanvasViaSerialization, fuzz) {
     auto surface = SkSurface::MakeRasterN32Premul(kCanvasSize.width(), kCanvasSize.height());
     SkASSERT(surface && surface->getCanvas());
     surface->getCanvas()->drawPicture(deserialized);
+}
+
+DEF_FUZZ(ImageFilter, fuzz) {
+    auto fil = make_fuzz_imageFilter(fuzz, 20);
+
+    SkPaint paint;
+    paint.setImageFilter(fil);
+    SkBitmap bitmap;
+    SkCanvas canvas(bitmap);
+    canvas.saveLayer(SkRect::MakeWH(500, 500), &paint);
+}
+
+
+//SkRandom _rand;
+#define SK_ADD_RANDOM_BIT_FLIPS
+
+DEF_FUZZ(SerializedImageFilter, fuzz) {
+    auto filter = make_fuzz_imageFilter(fuzz, 20);
+    auto data = filter->serialize();
+    const unsigned char* ptr = static_cast<const unsigned char*>(data->data());
+    size_t len = data->size();
+#ifdef SK_ADD_RANDOM_BIT_FLIPS
+    unsigned char* p = const_cast<unsigned char*>(ptr);
+    for (size_t i = 0; i < len; ++i, ++p) {
+        uint8_t j;
+        fuzz->nextRange(&j, 1, 250);
+        if (j == 1) { // 0.4% of the time, flip a bit or byte
+            uint8_t k;
+            fuzz->nextRange(&k, 1, 10);
+            if (k == 1) { // Then 10% of the time, change a whole byte
+                uint8_t s;
+                fuzz->nextRange(&s, 0, 2);
+                switch(s) {
+                case 0:
+                    *p ^= 0xFF; // Flip entire byte
+                    break;
+                case 1:
+                    *p = 0xFF; // Set all bits to 1
+                    break;
+                case 2:
+                    *p = 0x00; // Set all bits to 0
+                    break;
+                }
+            } else {
+                uint8_t s;
+                fuzz->nextRange(&s, 0, 7);
+                *p ^= (1 << 7);
+            }
+        }
+    }
+#endif // SK_ADD_RANDOM_BIT_FLIPS
+    auto deserializedFil = SkImageFilter::Deserialize(ptr, len);
+
+    // uncomment below to write out a serialized image filter (to make corpus
+    // for -t filter_fuzz)
+    // SkString s("./serialized_filters/sf");
+    // s.appendU32(_rand.nextU());
+    // auto file = sk_fopen(s.c_str(), SkFILE_Flags::kWrite_SkFILE_Flag);
+    // sk_fwrite(data->bytes(), data->size(), file);
+    // sk_fclose(file);
+
+    SkPaint paint;
+    paint.setImageFilter(deserializedFil);
+    SkBitmap bitmap;
+    SkCanvas canvas(bitmap);
+    canvas.saveLayer(SkRect::MakeWH(500, 500), &paint);
 }
 
 #if SK_SUPPORT_GPU
