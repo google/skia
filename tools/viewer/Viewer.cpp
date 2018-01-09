@@ -844,6 +844,12 @@ bool Viewer::onTouch(intptr_t owner, Window::InputState state, float x, float y)
     if (GestureDevice::kMouse == fGestureDevice) {
         return false;
     }
+
+    if (fSlides[fCurrentSlide]->onMouse(x, y, state, 0)) {
+        fWindow->inval();
+        return true;
+    }
+
     void* castedOwner = reinterpret_cast<void*>(owner);
     switch (state) {
         case Window::kUp_InputState: {
