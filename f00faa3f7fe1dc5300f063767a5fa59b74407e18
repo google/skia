@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ad950bbd_5d1957fc",
+        "filename": "src/core/SkRectPriv.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2018-01-09T20:39:13Z",
+      "side": 0,
+      "message": "There are many places using MakeLargestS32. We may need to change them all.\n\nFor example, https://cs.chromium.org/chromium/src/third_party/skia/src/core/SkThreadedBMPDevice.cpp?type\u003dcs\u0026q\u003dMakeLargestS32\u0026sq\u003dpackage:chromium\u0026l\u003d96",
+      "revId": "f00faa3f7fe1dc5300f063767a5fa59b74407e18",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
