@@ -297,12 +297,17 @@ sk_sp<sksg::Color> AttachColorPaint(const Json::Value& obj, AttachContext* ctx) 
     auto color_node = sksg::Color::Make(SK_ColorBLACK);
     color_node->setAntiAlias(true);
 
-    auto color_attached = BindProperty<VectorValue>(obj["c"], ctx, color_node,
-        [](sksg::Color* node, const VectorValue& c) {
+    auto composite = sk_make_sp<CompositeColor>(color_node);
+    auto color_attached = BindProperty<VectorValue>(obj["c"], ctx, composite,
+        [](CompositeColor* node, const VectorValue& c) {
             node->setColor(ValueTraits<VectorValue>::As<SkColor>(c));
         });
+    auto opacity_attached = BindProperty<ScalarValue>(obj["o"], ctx, composite,
+        [](CompositeColor* node, const ScalarValue& o) {
+            node->setOpacity(o);
+        });
 
-    return color_attached ? color_node : nullptr;
+    return (color_attached || opacity_attached) ? color_node : nullptr;
 }
 
 sk_sp<sksg::PaintNode> AttachFillPaint(const Json::Value& jfill, AttachContext* ctx) {
