@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e8b94893_954b389f",
+        "filename": "fuzz/fuzz.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-01-09T16:54:51Z",
+      "side": 1,
+      "message": "Might be nice to have a little table that maps valid names to fuzz functions, { \"api\", fuzz_api }, { \"color_deserialize\", fuzz_color_deserialize }, etc.  Then we could use that to construct the options in the help for -t/--type programmatically, rather than having to keep it in sync.",
+      "revId": "39e5f1c199d0b5a4ab9bec3ff2e7e1383da12cc3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
