@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "429ac748_9f7c2b25",
+        "filename": "site/user/tips.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 5095
+      },
+      "writtenOn": "2018-01-09T16:26:22Z",
+      "side": 1,
+      "message": "Good find on old SkCanvas/SkGLCanvas references, however SkDevice is not what we want to point users to- more likely surfaces and render targets for GPU.  I propose in this CL we just remove this section and file a bug for the experts on our team to rewrite hw acceleration tips.",
+      "range": {
+        "startLine": 84,
+        "startChar": 0,
+        "endLine": 84,
+        "endChar": 23
+      },
+      "revId": "50d75985ce50176a9f1e9eaf0bf6b14b86952134",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
