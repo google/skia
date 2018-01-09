@@ -1274,7 +1274,6 @@ static const SkMaskGamma& cachedMaskGamma(SkScalar contrast, SkScalar paintGamma
     return *gMaskGamma;
 }
 
-
 /**
  * Expands fDeviceGamma, fPaintGamma, fContrast, and fLumBits into a mask pre-blend.
  */

@@ -1253,4 +1253,10 @@ std::unique_ptr<SkDescriptor> SkScalerContext::DescriptorGivenRecAndEffects(
     return desc;
 }
 
+void SkScalerContext::DescriptorBufferGiveRec(const SkScalerContextRec& rec, void* buffer) {
+    SkScalerContextEffects noEffects;
+    SkBinaryWriteBuffer peBuffer, mfBuffer;
+    generate_descriptor(rec, noEffects, &peBuffer, &mfBuffer, (SkDescriptor*)buffer);
+}
+
 
