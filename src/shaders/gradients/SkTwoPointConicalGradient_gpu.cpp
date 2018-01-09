@@ -118,42 +118,6 @@ GR_DEFINE_FRAGMENT_PROCESSOR_TEST(TwoPointConicalEffect);
 
 #if GR_TEST_UTILS
 
-// TODO (liyuqian): remove this and the friend declaration once the bug skia:7436 is fixed.
-class DumpHelper {
-public:
-    static void Dump(GrGradientEffect::RandomGradientParams& params) {
-        if (params.fColorSpace) {
-            auto csData = params.fColorSpace->serialize();
-            DumpData("csData", csData->data(), csData->size());
-            SkDebugf("sk_sp<SkColorSpace> colorSpace = SkColorSpace::Deserialize(csData, %d);\n",
-                     csData->size());
-        } else {
-            SkDebugf("sk_sp<SkColorSpace> colorSpace = nullptr;");
-        }
-
-        auto csBackup = params.fColorSpace;
-        params.fColorSpace = nullptr; // make sure that we won't dump an illegal sk_sp
-        DumpData("paramsData", &params, sizeof(GrGradientEffect::RandomGradientParams));
-        SkDebugf("auto& params = *(RandomGradientParams*)(paramsData);\n");
-        SkDebugf("params.fColorSpace = colorSpace;\n");
-        SkDebugf("if (params.fStops != nullptr) { params.fStops = params.fStopStorage; }\n");
-        params.fColorSpace = csBackup;
-    }
-
-    static void DumpData(const char* name, const void* data, int size) {
-        SkDebugf("char %s[%d] = {", name, size);
-        for(int i = 0; i < size; ++i) {
-            SkDebugf("%s%d", i == 0 ? "" : ", ", static_cast<const char*>(data)[i]);
-        }
-        SkDebugf("};\n");
-    }
-
-    static SkString Hex(float f) {
-        return SkStringPrintf("SkBits2Float(0x%08x)", SkFloat2Bits(f));
-    }
-};
-
-
 std::unique_ptr<GrFragmentProcessor> TwoPointConicalEffect::TestCreate(
         GrProcessorTestData* d) {
     SkPoint center1 = {d->fRandom->nextUScalar1(), d->fRandom->nextUScalar1()};
@@ -222,16 +186,6 @@ std::unique_ptr<GrFragmentProcessor> TwoPointConicalEffect::TestCreate(
                                               params.fColorCount, params.fTileMode);
     GrTest::TestAsFPArgs asFPArgs(d);
     std::unique_ptr<GrFragmentProcessor> fp = as_SB(shader)->asFragmentProcessor(asFPArgs.args());
-
-#ifdef SK_DEBUG
-    if (!fp) {
-        auto h = DumpHelper::Hex;
-        SkDebugf("SkPoint  center1 = {%s, %s};\n", h(center1.fX).c_str(), h(center1.fY).c_str());
-        SkDebugf("SkPoint  center2 = {%s, %s};\n", h(center2.fX).c_str(), h(center2.fY).c_str());
-        SkDebugf("SkScalar radius1 = %s, radius2 = %s;\n", h(radius1).c_str(), h(radius2).c_str());
-        DumpHelper::Dump(params);
-    }
-#endif
 
     GrAlwaysAssert(fp);
     return fp;
