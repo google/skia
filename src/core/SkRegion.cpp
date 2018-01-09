@@ -140,19 +140,14 @@ bool SkRegion::setEmpty() {
     return false;
 }
 
-bool SkRegion::setRect(int32_t left, int32_t top,
-                       int32_t right, int32_t bottom) {
-    if (left >= right || top >= bottom) {
+bool SkRegion::setRect(const SkIRect& r) {
+    if (r.isEmpty()) {
         return this->setEmpty();
     }
     this->freeRuns();
-    fBounds.set(left, top, right, bottom);
+    fBounds = r;
     fRunHead = SkRegion_gRectRunHeadPtr;
     return true;
-}
-
-bool SkRegion::setRect(const SkIRect& r) {
-    return this->setRect(r.fLeft, r.fTop, r.fRight, r.fBottom);
 }
 
 bool SkRegion::setRegion(const SkRegion& src) {
