@@ -9,6 +9,7 @@
 #include "SkVertices.h"
 #include "SkData.h"
 #include "SkReader32.h"
+#include "SkSafeMath.h"
 #include "SkWriter32.h"
 
 static int32_t gNextID = 1;
@@ -22,21 +23,22 @@ static int32_t next_id() {
 
 struct SkVertices::Sizes {
     Sizes(int vertexCount, int indexCount, bool hasTexs, bool hasColors) {
-        int64_t vSize = (int64_t)vertexCount * sizeof(SkPoint);
-        int64_t tSize = hasTexs ? (int64_t)vertexCount * sizeof(SkPoint) : 0;
-        int64_t cSize = hasColors ? (int64_t)vertexCount * sizeof(SkColor) : 0;
-        int64_t iSize = (int64_t)indexCount * sizeof(uint16_t);
+        SkSafeMath safe;
 
-        int64_t total = sizeof(SkVertices) + vSize + tSize + cSize + iSize;
-        if (!sk_64_isS32(total)) {
-            sk_bzero(this, sizeof(*this));
-        } else {
-            fTotal = SkToSizeT(total);
-            fVSize = SkToSizeT(vSize);
-            fTSize = SkToSizeT(tSize);
-            fCSize = SkToSizeT(cSize);
-            fISize = SkToSizeT(iSize);
+        fVSize = safe.mul(vertexCount, sizeof(SkPoint));
+        fTSize = hasTexs ? safe.mul(vertexCount, sizeof(SkPoint)) : 0;
+        fCSize = hasColors ? safe.mul(vertexCount, sizeof(SkColor)) : 0;
+        fISize = safe.mul(indexCount, sizeof(uint16_t));
+        fTotal = safe.add(sizeof(SkVertices),
+                 safe.add(fVSize,
+                 safe.add(fTSize,
+                 safe.add(fCSize,
+                          fISize))));
+
+        if (safe.ok()) {
             fArrays = fTotal - sizeof(SkVertices);  // just the sum of the arrays
+        } else {
+            sk_bzero(this, sizeof(*this));
         }
     }
 
