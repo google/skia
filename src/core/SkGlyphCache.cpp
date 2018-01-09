@@ -41,7 +41,8 @@ SkGlyphCache::SkGlyphCache(const SkDescriptor* desc, std::unique_ptr<SkScalerCon
 
     fPrev = fNext = nullptr;
 
-    fScalerContext->getFontMetrics(&fFontMetrics);
+    // TODO: uncomment this.
+    //fScalerContext->getFontMetrics(&fFontMetrics);
 
     fMemoryUsed = sizeof(*this);
 }

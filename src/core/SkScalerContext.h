@@ -24,6 +24,10 @@ struct SkScalerContextEffects {
     SkScalerContextEffects() : fPathEffect(nullptr), fMaskFilter(nullptr), fRasterizer(nullptr) {}
     SkScalerContextEffects(SkPathEffect* pe, SkMaskFilter* mf, SkRasterizer* ra)
         : fPathEffect(pe), fMaskFilter(mf), fRasterizer(ra) {}
+    explicit SkScalerContextEffects(const SkPaint& paint)
+        : fPathEffect(paint.getPathEffect())
+        , fMaskFilter(paint.getMaskFilter())
+        , fRasterizer(paint.getRasterizer()) {}
 
     SkPathEffect*   fPathEffect;
     SkMaskFilter*   fMaskFilter;
@@ -262,8 +266,11 @@ public:
     static bool   GetGammaLUTData(SkScalar contrast, SkScalar paintGamma, SkScalar deviceGamma,
                                   uint8_t* data);
 
-    static void MakeRec(const SkPaint&, const SkSurfaceProps* surfaceProps,
-                        const SkMatrix*, SkScalerContextRec* rec);
+    static void MakeRec(const SkPaint& paint,
+                        const SkSurfaceProps* surfaceProps,
+                        const SkMatrix* deviceMatrix,
+                        uint32_t scalerContextFlags,
+                        SkScalerContextRec* rec);
     static inline void PostMakeRec(const SkPaint&, SkScalerContextRec*);
 
     static SkMaskGamma::PreBlend GetMaskPreBlend(const SkScalerContextRec& rec);

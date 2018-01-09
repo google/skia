@@ -1223,11 +1223,6 @@ SkRect SkPaint::getFontBounds() const {
     return bounds;
 }
 
-static void add_flattenable(SkDescriptor* desc, uint32_t tag,
-                            SkBinaryWriteBuffer* buffer) {
-    buffer->writeToMemory(desc->addEntry(tag, buffer->bytesWritten(), nullptr));
-}
-
 static SkMask::Format compute_mask_format(const SkPaint& paint) {
     uint32_t flags = paint.getFlags();
 
@@ -1313,6 +1308,7 @@ static SkScalar sk_relax(SkScalar x) {
 void SkScalerContext::MakeRec(const SkPaint& paint,
                               const SkSurfaceProps* surfaceProps,
                               const SkMatrix* deviceMatrix,
+                              uint32_t scalerContextFlags,
                               SkScalerContextRec* rec) {
     SkASSERT(deviceMatrix == nullptr || !deviceMatrix->hasPerspective());
 
@@ -1475,7 +1471,55 @@ void SkScalerContext::MakeRec(const SkPaint& paint,
      */
     typeface->onFilterRec(rec);
 
-    // be sure to call PostMakeRec(rec) before you actually use it!
+    if (!SkToBool(scalerContextFlags & SkPaint::kFakeGamma_ScalerContextFlag)) {
+        rec->ignoreGamma();
+    }
+    if (!SkToBool(scalerContextFlags & SkPaint::kBoostContrast_ScalerContextFlag)) {
+        rec->setContrast(0);
+    }
+
+    if (paint.getPathEffect()) {
+        rec->fMaskFormat = SkMask::kA8_Format;  // force antialiasing when we do the scan conversion
+        // seems like we could support kLCD as well at this point...
+    }
+    if (paint.getMaskFilter()) {
+        rec->fMaskFormat = SkMask::kA8_Format;   // force antialiasing with maskfilters
+        /* Pre-blend is not currently applied to filtered text.
+           The primary filter is blur, for which contrast makes no sense,
+           and for which the destination guess error is more visible.
+           Also, all existing users of blur have calibrated for linear. */
+        rec->ignorePreBlend();
+    }
+    if (paint.getRasterizer()) {
+        rec->fMaskFormat = SkMask::kA8_Format;  // force antialiasing when we do the scan conversion
+    }
+     // If we're asking for A8, we force the colorlum to be gray, since that
+     // limits the number of unique entries, and the scaler will only look at
+     // the lum of one of them.
+    switch (rec->fMaskFormat) {
+        case SkMask::kLCD16_Format: {
+            // filter down the luminance color to a finite number of bits
+            SkColor color = rec->getLuminanceColor();
+            rec->setLuminanceColor(SkMaskGamma::CanonicalColor(color));
+            break;
+        }
+        case SkMask::kA8_Format: {
+            // filter down the luminance to a single component, since A8 can't
+            // use per-component information
+            SkColor color = rec->getLuminanceColor();
+            U8CPU lum = SkComputeLuminance(SkColorGetR(color),
+                                           SkColorGetG(color),
+                                           SkColorGetB(color));
+            // reduce to our finite number of bits
+            color = SkColorSetRGB(lum, lum, lum);
+            rec->setLuminanceColor(SkMaskGamma::CanonicalColor(color));
+            break;
+        }
+        case SkMask::kBW_Format:
+            // No need to differentiate gamma or apply contrast if we're BW
+            rec->ignorePreBlend();
+            break;
+    }
 }
 
 /**
@@ -1553,6 +1597,7 @@ void SkScalerContext::PostMakeRec(const SkPaint&, SkScalerContextRec* rec) {
     #define TEST_DESC
 #endif
 
+#if 0
 static void write_out_descriptor(SkDescriptor* desc, const SkScalerContextRec& rec,
                                  const SkPathEffect* pe, SkBinaryWriteBuffer* peBuffer,
                                  const SkMaskFilter* mf, SkBinaryWriteBuffer* mfBuffer,
@@ -1624,7 +1669,61 @@ static size_t fill_out_rec(const SkPaint& paint, SkScalerContextRec* rec,
     descSize += SkDescriptor::ComputeOverhead(entryCount);
     return descSize;
 }
+#endif
 
+template <typename A>
+static auto create_desc_for_scaler_context(
+        const SkScalerContextRec& rec,
+        const SkScalerContextEffects& effects,
+        A alloc) -> decltype(alloc((size_t)0)) {
+
+    SkBinaryWriteBuffer peBuffer, mfBuffer, raBuffer;
+    int entryCount = 1;
+    size_t descSize = sizeof(rec);
+
+    if (effects.fPathEffect) {
+        effects.fPathEffect->flatten(peBuffer);
+        descSize += peBuffer.bytesWritten();
+        entryCount += 1;
+    }
+    if (effects.fMaskFilter) {
+        effects.fMaskFilter->flatten(mfBuffer);
+        descSize += mfBuffer.bytesWritten();
+        entryCount += 1;
+    }
+    if (effects.fRasterizer) {
+        effects.fRasterizer->flatten(raBuffer);
+        descSize += raBuffer.bytesWritten();
+        entryCount += 1;
+    }
+
+    descSize += SkDescriptor::ComputeOverhead(entryCount);
+
+    auto desc = alloc(descSize);
+
+    desc->init();
+    desc->addEntry(kRec_SkDescriptorTag, sizeof(rec), &rec);
+
+    auto add = [desc](uint32_t tag, SkBinaryWriteBuffer* buffer) {
+        buffer->writeToMemory(desc->addEntry(tag, buffer->bytesWritten(), nullptr));
+    };
+
+    if (effects.fPathEffect) {
+        add(kPathEffect_SkDescriptorTag, &peBuffer);
+    }
+    if (effects.fMaskFilter) {
+        add(kMaskFilter_SkDescriptorTag, &mfBuffer);
+    }
+    if (effects.fRasterizer) {
+        add(kRasterizer_SkDescriptorTag, &raBuffer);
+    }
+
+    desc->computeChecksum();
+    return desc;
+}
+
+#if 0
+// TODO: add to create_desc_for_scaler_context
 #ifdef TEST_DESC
 static void test_desc(const SkScalerContextRec& rec,
                       const SkPathEffect* pe, SkBinaryWriteBuffer* peBuffer,
@@ -1671,6 +1770,7 @@ static void test_desc(const SkScalerContextRec& rec,
     SkASSERT(!memcmp(desc, desc2, descSize));
 }
 #endif
+#endif
 
 /* see the note on ignoreGamma on descriptorProc */
 void SkPaint::getScalerContextDescriptor(SkScalerContextEffects* effects,
@@ -1678,32 +1778,16 @@ void SkPaint::getScalerContextDescriptor(SkScalerContextEffects* effects,
                                          const SkSurfaceProps& surfaceProps,
                                          uint32_t scalerContextFlags,
                                          const SkMatrix* deviceMatrix) const {
+    SkScalerContextEffects e{*this};
     SkScalerContextRec rec;
+    SkScalerContext::MakeRec(*this, &surfaceProps, deviceMatrix, scalerContextFlags, &rec);
+    auto alloc = [ad](size_t size) {
+        ad->reset(size);
+        return ad->getDesc();
+    };
+    create_desc_for_scaler_context(rec, e, alloc);
 
-    SkPathEffect*   pe = this->getPathEffect();
-    SkMaskFilter*   mf = this->getMaskFilter();
-    SkRasterizer*   ra = this->getRasterizer();
-
-    SkBinaryWriteBuffer   peBuffer, mfBuffer, raBuffer;
-    size_t descSize = fill_out_rec(*this, &rec, &surfaceProps,
-                                   SkToBool(scalerContextFlags & kFakeGamma_ScalerContextFlag),
-                                   SkToBool(scalerContextFlags & kBoostContrast_ScalerContextFlag),
-                                   deviceMatrix, pe, &peBuffer, mf, &mfBuffer, ra, &raBuffer);
-
-    ad->reset(descSize);
-    SkDescriptor* desc = ad->getDesc();
-
-    write_out_descriptor(desc, rec, pe, &peBuffer, mf, &mfBuffer, ra, &raBuffer, descSize);
-
-    SkASSERT(descSize == desc->getLength());
-
-#ifdef TEST_DESC
-    test_desc(rec, pe, &peBuffer, mf, &mfBuffer, ra, &raBuffer, desc, descSize);
-#endif
-
-    effects->fPathEffect = pe;
-    effects->fMaskFilter = mf;
-    effects->fRasterizer = ra;
+    *effects = e;
 }
 
 /*
@@ -1717,30 +1801,18 @@ void SkPaint::descriptorProc(const SkSurfaceProps* surfaceProps,
                              void (*proc)(SkTypeface*, const SkScalerContextEffects&,
                                           const SkDescriptor*, void*),
                              void* context) const {
+    SkScalerContextEffects e{*this};
     SkScalerContextRec rec;
+    SkScalerContext::MakeRec(*this, surfaceProps, deviceMatrix, scalerContextFlags, &rec);
+    SkAutoDescriptor ad;
+    auto adp = &ad;
+    auto alloc = [adp](size_t size) {
+        adp->reset(size);
+        return adp->getDesc();
+    };
+    SkDescriptor* desc = create_desc_for_scaler_context(rec, e, alloc);
 
-    SkPathEffect*   pe = this->getPathEffect();
-    SkMaskFilter*   mf = this->getMaskFilter();
-    SkRasterizer*   ra = this->getRasterizer();
-
-    SkBinaryWriteBuffer   peBuffer, mfBuffer, raBuffer;
-    size_t descSize = fill_out_rec(*this, &rec, surfaceProps,
-                                   SkToBool(scalerContextFlags & kFakeGamma_ScalerContextFlag),
-                                   SkToBool(scalerContextFlags & kBoostContrast_ScalerContextFlag),
-                                   deviceMatrix, pe, &peBuffer, mf, &mfBuffer, ra, &raBuffer);
-
-    SkAutoDescriptor    ad(descSize);
-    SkDescriptor*       desc = ad.getDesc();
-
-    write_out_descriptor(desc, rec, pe, &peBuffer, mf, &mfBuffer, ra, &raBuffer, descSize);
-
-    SkASSERT(descSize == desc->getLength());
-
-#ifdef TEST_DESC
-    test_desc(rec, pe, &peBuffer, mf, &mfBuffer, ra, &raBuffer, desc, descSize);
-#endif
-
-    proc(fTypeface.get(), { pe, mf, ra }, desc, context);
+    proc(fTypeface.get(), e, desc, context);
 }
 
 SkGlyphCache* SkPaint::detachCache(const SkSurfaceProps* surfaceProps,
