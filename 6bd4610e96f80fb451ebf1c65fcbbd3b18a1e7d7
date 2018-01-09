@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c1663b5f_96bec89e",
+        "filename": "src/gpu/GrResourceProvider.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 256,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-01-09T15:09:50Z",
+      "side": 1,
+      "message": "nit: I\u0027d prefer \u0027kWillWait\u0027, to mirror kWillSignal (and avoid the dangling preposition)",
+      "revId": "6bd4610e96f80fb451ebf1c65fcbbd3b18a1e7d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0d889978_43e0f3cb",
+        "filename": "src/gpu/GrSemaphore.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-01-09T15:09:50Z",
+      "side": 1,
+      "message": "hasBeenSignaled / hasBeenWaited ? Or not. These are hard to name well.",
+      "range": {
+        "startLine": 22,
+        "startChar": 0,
+        "endLine": 22,
+        "endChar": 58
+      },
+      "revId": "6bd4610e96f80fb451ebf1c65fcbbd3b18a1e7d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
