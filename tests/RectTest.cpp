@@ -8,6 +8,7 @@
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkRect.h"
+#include "SkRectPriv.h"
 #include "Test.h"
 
 static bool has_green_pixels(const SkBitmap& bm) {
@@ -93,3 +94,13 @@ DEF_TEST(Rect_grow, reporter) {
     test_stroke_width_clipping(reporter);
     test_skbug4406(reporter);
 }
+
+DEF_TEST(Rect_largest, reporter) {
+    REPORTER_ASSERT(reporter, !SkRectPriv::MakeILargest().isEmpty());
+    REPORTER_ASSERT(reporter,  SkRectPriv::MakeILargestInverted().isEmpty());
+
+    REPORTER_ASSERT(reporter, !SkRectPriv::MakeLargest().isEmpty());
+    REPORTER_ASSERT(reporter, !SkRectPriv::MakeLargestS32().isEmpty());
+    REPORTER_ASSERT(reporter,  SkRectPriv::MakeLargestInverted().isEmpty());
+}
+
