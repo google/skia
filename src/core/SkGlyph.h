@@ -81,9 +81,9 @@ struct SkPackedID {
 
 // FIXME - This is needed because the Android framework directly accesses fID.
 // Remove when fID accesses are cleaned up.
-#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
+//#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
     operator uint32_t() const { return fID; }
-#endif
+//#endif
 
 private:
     static unsigned ID2SubX(uint32_t id) {

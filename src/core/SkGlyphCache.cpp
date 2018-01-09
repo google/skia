@@ -16,6 +16,7 @@
 #include "SkTypeface.h"
 
 #include <cctype>
+#include <iostream>
 
 //#define SPEW_PURGE_STATUS
 
@@ -182,12 +183,16 @@ SkGlyph* SkGlyphCache::allocateNewGlyph(SkPackedGlyphID packedGlyphID, MetricsTy
 }
 
 const void* SkGlyphCache::findImage(const SkGlyph& glyph) {
+    //std::cerr << "cache - getting image: " << fDesc->getChecksum() << " "
+              //<< (uint32_t)glyph.getPackedID() << std::endl;
     if (glyph.fWidth > 0 && glyph.fWidth < kMaxGlyphWidth) {
         if (nullptr == glyph.fImage) {
             size_t  size = const_cast<SkGlyph&>(glyph).allocImage(&fAlloc);
             // check that alloc() actually succeeded
             if (glyph.fImage) {
-                fScalerContext->getImage(glyph);
+                //std::cerr << "cache - generating image: " << fDesc->getChecksum() << " "
+                //          << (uint32_t)glyph.getPackedID() << std::endl;
+;               fScalerContext->getImage(glyph);
                 // TODO: the scaler may have changed the maskformat during
                 // getImage (e.g. from AA or LCD to BW) which means we may have
                 // overallocated the buffer. Check if the new computedImageSize
