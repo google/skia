@@ -21,6 +21,7 @@ void SkottySlide::load(SkScalar, SkScalar) {
     fTimeBase   = 0; // force a time reset
 
     if (fAnimation) {
+        fAnimation->setShowInval(fShowAnimationInval);
         SkDebugf("loaded Bodymovin animation v: %s, size: [%f %f], fr: %f\n",
                  fAnimation->version().c_str(),
                  fAnimation->size().width(),
