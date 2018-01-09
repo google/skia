@@ -59,9 +59,9 @@ bool LogFail(const Json::Value& json, const char* msg) {
 
 // This is the workhorse for binding properties: depending on whether the property is animated,
 // it will either apply immediately or instantiate and attach a keyframe animator.
-template <typename ValueT, typename AttrT, typename NodeT>
-bool AttachProperty(const Json::Value& jprop, AttachContext* ctx, const sk_sp<NodeT>& node,
-                    typename Animator<ValueT, AttrT, NodeT>::ApplyFuncT&& apply) {
+template <typename ValT, typename NodeT>
+bool BindProperty(const Json::Value& jprop, AttachContext* ctx, const sk_sp<NodeT>& node,
+                  typename Animator<ValT, NodeT>::ApplyFuncT&& apply) {
     if (!jprop.isObject())
         return false;
 
@@ -71,10 +71,10 @@ bool AttachProperty(const Json::Value& jprop, AttachContext* ctx, const sk_sp<No
     // Older Json versions don't have an "a" animation marker.
     // For those, we attempt to parse both ways.
     if (jpropA.isNull() || !ParseBool(jpropA, "false")) {
-        ValueT val;
-        if (ValueTraits<ValueT>::Parse(jpropK, &val)) {
+        ValT val;
+        if (ValueTraits<ValT>::Parse(jpropK, &val)) {
             // Static property.
-            apply(node, ValueTraits<ValueT>::template As<AttrT>(val));
+            apply(node.get(), val);
             return true;
         }
 
@@ -84,8 +84,8 @@ bool AttachProperty(const Json::Value& jprop, AttachContext* ctx, const sk_sp<No
     }
 
     // Keyframe property.
-    using AnimatorT = Animator<ValueT, AttrT, NodeT>;
-    auto animator = AnimatorT::Make(jpropK, node, std::move(apply));
+    using AnimatorT = Animator<ValT, NodeT>;
+    auto animator = AnimatorT::Make(ParseFrames<ValT>(jpropK), node, std::move(apply));
 
     if (!animator) {
         return LogFail(jprop, "Could not parse keyframed property");
@@ -103,28 +103,28 @@ sk_sp<sksg::Matrix> AttachMatrix(const Json::Value& t, AttachContext* ctx,
 
     auto matrix = sksg::Matrix::Make(SkMatrix::I(), std::move(parentMatrix));
     auto composite = sk_make_sp<CompositeTransform>(matrix);
-    auto anchor_attached = AttachProperty<VectorValue, SkPoint>(t["a"], ctx, composite,
-            [](const sk_sp<CompositeTransform>& node, const SkPoint& a) {
-                node->setAnchorPoint(a);
+    auto anchor_attached = BindProperty<VectorValue>(t["a"], ctx, composite,
+            [](CompositeTransform* node, const VectorValue& a) {
+                node->setAnchorPoint(ValueTraits<VectorValue>::As<SkPoint>(a));
             });
-    auto position_attached = AttachProperty<VectorValue, SkPoint>(t["p"], ctx, composite,
-            [](const sk_sp<CompositeTransform>& node, const SkPoint& p) {
-                node->setPosition(p);
+    auto position_attached = BindProperty<VectorValue>(t["p"], ctx, composite,
+            [](CompositeTransform* node, const VectorValue& p) {
+                node->setPosition(ValueTraits<VectorValue>::As<SkPoint>(p));
             });
-    auto scale_attached = AttachProperty<VectorValue, SkVector>(t["s"], ctx, composite,
-            [](const sk_sp<CompositeTransform>& node, const SkVector& s) {
-                node->setScale(s);
+    auto scale_attached = BindProperty<VectorValue>(t["s"], ctx, composite,
+            [](CompositeTransform* node, const VectorValue& s) {
+                node->setScale(ValueTraits<VectorValue>::As<SkVector>(s));
             });
-    auto rotation_attached = AttachProperty<ScalarValue, SkScalar>(t["r"], ctx, composite,
-            [](const sk_sp<CompositeTransform>& node, const SkScalar& r) {
+    auto rotation_attached = BindProperty<ScalarValue>(t["r"], ctx, composite,
+            [](CompositeTransform* node, const ScalarValue& r) {
                 node->setRotation(r);
             });
-    auto skew_attached = AttachProperty<ScalarValue, SkScalar>(t["sk"], ctx, composite,
-            [](const sk_sp<CompositeTransform>& node, const SkScalar& sk) {
+    auto skew_attached = BindProperty<ScalarValue>(t["sk"], ctx, composite,
+            [](CompositeTransform* node, const ScalarValue& sk) {
                 node->setSkew(sk);
             });
-    auto skewaxis_attached = AttachProperty<ScalarValue, SkScalar>(t["sa"], ctx, composite,
-            [](const sk_sp<CompositeTransform>& node, const SkScalar& sa) {
+    auto skewaxis_attached = BindProperty<ScalarValue>(t["sa"], ctx, composite,
+            [](CompositeTransform* node, const ScalarValue& sa) {
                 node->setSkewAxis(sa);
             });
 
@@ -157,8 +157,8 @@ sk_sp<sksg::RenderNode> AttachOpacity(const Json::Value& jtransform, AttachConte
     }
 
     auto opacityNode = sksg::OpacityEffect::Make(childNode);
-    AttachProperty<ScalarValue, SkScalar>(opacity, ctx, opacityNode,
-        [](const sk_sp<sksg::OpacityEffect>& node, const SkScalar& o) {
+    BindProperty<ScalarValue>(opacity, ctx, opacityNode,
+        [](sksg::OpacityEffect* node, const ScalarValue& o) {
             // BM opacity is [0..100]
             node->setOpacity(o * 0.01f);
         });
@@ -179,8 +179,8 @@ sk_sp<sksg::GeometryNode> AttachPathGeometry(const Json::Value& jpath, AttachCon
     SkASSERT(jpath.isObject());
 
     auto path_node = sksg::Path::Make();
-    auto path_attached = AttachProperty<ShapeValue, SkPath>(jpath["ks"], ctx, path_node,
-        [](const sk_sp<sksg::Path>& node, const SkPath& p) { node->setPath(p); });
+    auto path_attached = BindProperty<ShapeValue>(jpath["ks"], ctx, path_node,
+        [](sksg::Path* node, const ShapeValue& p) { node->setPath(p); });
 
     if (path_attached)
         LOG("** Attached path geometry - verbs: %d\n", path_node->getPath().countVerbs());
@@ -194,14 +194,18 @@ sk_sp<sksg::GeometryNode> AttachRRectGeometry(const Json::Value& jrect, AttachCo
     auto rect_node = sksg::RRect::Make();
     auto composite = sk_make_sp<CompositeRRect>(rect_node);
 
-    auto p_attached = AttachProperty<VectorValue, SkPoint>(jrect["p"], ctx, composite,
-            [](const sk_sp<CompositeRRect>& node, const SkPoint& pos) { node->setPosition(pos); });
-    auto s_attached = AttachProperty<VectorValue, SkSize>(jrect["s"], ctx, composite,
-            [](const sk_sp<CompositeRRect>& node, const SkSize& sz) { node->setSize(sz); });
-    auto r_attached = AttachProperty<ScalarValue, SkScalar>(jrect["r"], ctx, composite,
-            [](const sk_sp<CompositeRRect>& node, const SkScalar& radius) {
-                node->setRadius(SkSize::Make(radius, radius));
-            });
+    auto p_attached = BindProperty<VectorValue>(jrect["p"], ctx, composite,
+        [](CompositeRRect* node, const VectorValue& p) {
+                node->setPosition(ValueTraits<VectorValue>::As<SkPoint>(p));
+        });
+    auto s_attached = BindProperty<VectorValue>(jrect["s"], ctx, composite,
+        [](CompositeRRect* node, const VectorValue& s) {
+            node->setSize(ValueTraits<VectorValue>::As<SkSize>(s));
+        });
+    auto r_attached = BindProperty<ScalarValue>(jrect["r"], ctx, composite,
+        [](CompositeRRect* node, const ScalarValue& r) {
+            node->setRadius(SkSize::Make(r, r));
+        });
 
     if (!p_attached && !s_attached && !r_attached) {
         return nullptr;
@@ -218,13 +222,16 @@ sk_sp<sksg::GeometryNode> AttachEllipseGeometry(const Json::Value& jellipse, Att
     auto rect_node = sksg::RRect::Make();
     auto composite = sk_make_sp<CompositeRRect>(rect_node);
 
-    auto p_attached = AttachProperty<VectorValue, SkPoint>(jellipse["p"], ctx, composite,
-            [](const sk_sp<CompositeRRect>& node, const SkPoint& pos) { node->setPosition(pos); });
-    auto s_attached = AttachProperty<VectorValue, SkSize>(jellipse["s"], ctx, composite,
-            [](const sk_sp<CompositeRRect>& node, const SkSize& sz) {
-                node->setSize(sz);
-                node->setRadius(SkSize::Make(sz.width() / 2, sz.height() / 2));
-            });
+    auto p_attached = BindProperty<VectorValue>(jellipse["p"], ctx, composite,
+        [](CompositeRRect* node, const VectorValue& p) {
+            node->setPosition(ValueTraits<VectorValue>::As<SkPoint>(p));
+        });
+    auto s_attached = BindProperty<VectorValue>(jellipse["s"], ctx, composite,
+        [](CompositeRRect* node, const VectorValue& s) {
+            const auto sz = ValueTraits<VectorValue>::As<SkSize>(s);
+            node->setSize(sz);
+            node->setRadius(SkSize::Make(sz.width() / 2, sz.height() / 2));
+        });
 
     if (!p_attached && !s_attached) {
         return nullptr;
@@ -252,26 +259,34 @@ sk_sp<sksg::GeometryNode> AttachPolystarGeometry(const Json::Value& jstar, Attac
     auto path_node = sksg::Path::Make();
     auto composite = sk_make_sp<CompositePolyStar>(path_node, gTypes[type]);
 
-    AttachProperty<VectorValue, SkPoint>(jstar["p"], ctx, composite,
-        [](const sk_sp<CompositePolyStar>& node, const SkPoint& p) { node->setPosition(p); });
-    AttachProperty<ScalarValue, SkScalar>(jstar["pt"], ctx, composite,
-        [](const sk_sp<CompositePolyStar>& node, const SkScalar& pt) { node->setPointCount(pt); });
-    AttachProperty<ScalarValue, SkScalar>(jstar["ir"], ctx, composite,
-        [](const sk_sp<CompositePolyStar>& node, const SkScalar& ir) { node->setInnerRadius(ir); });
-    AttachProperty<ScalarValue, SkScalar>(jstar["or"], ctx, composite,
-        [](const sk_sp<CompositePolyStar>& node, const SkScalar& otr) {
+    BindProperty<VectorValue>(jstar["p"], ctx, composite,
+        [](CompositePolyStar* node, const VectorValue& p) {
+            node->setPosition(ValueTraits<VectorValue>::As<SkPoint>(p));
+        });
+    BindProperty<ScalarValue>(jstar["pt"], ctx, composite,
+        [](CompositePolyStar* node, const ScalarValue& pt) {
+            node->setPointCount(pt);
+        });
+    BindProperty<ScalarValue>(jstar["ir"], ctx, composite,
+        [](CompositePolyStar* node, const ScalarValue& ir) {
+            node->setInnerRadius(ir);
+        });
+    BindProperty<ScalarValue>(jstar["or"], ctx, composite,
+        [](CompositePolyStar* node, const ScalarValue& otr) {
             node->setOuterRadius(otr);
         });
-    AttachProperty<ScalarValue, SkScalar>(jstar["is"], ctx, composite,
-        [](const sk_sp<CompositePolyStar>& node, const SkScalar& is) {
+    BindProperty<ScalarValue>(jstar["is"], ctx, composite,
+        [](CompositePolyStar* node, const ScalarValue& is) {
             node->setInnerRoundness(is);
         });
-    AttachProperty<ScalarValue, SkScalar>(jstar["os"], ctx, composite,
-        [](const sk_sp<CompositePolyStar>& node, const SkScalar& os) {
+    BindProperty<ScalarValue>(jstar["os"], ctx, composite,
+        [](CompositePolyStar* node, const ScalarValue& os) {
             node->setOuterRoundness(os);
         });
-    AttachProperty<ScalarValue, SkScalar>(jstar["r"], ctx, composite,
-        [](const sk_sp<CompositePolyStar>& node, const SkScalar& r) { node->setRotation(r); });
+    BindProperty<ScalarValue>(jstar["r"], ctx, composite,
+        [](CompositePolyStar* node, const ScalarValue& r) {
+            node->setRotation(r);
+        });
 
     return path_node;
 }
@@ -282,8 +297,10 @@ sk_sp<sksg::Color> AttachColorPaint(const Json::Value& obj, AttachContext* ctx) 
     auto color_node = sksg::Color::Make(SK_ColorBLACK);
     color_node->setAntiAlias(true);
 
-    auto color_attached = AttachProperty<VectorValue, SkColor>(obj["c"], ctx, color_node,
-        [](const sk_sp<sksg::Color>& node, const SkColor& c) { node->setColor(c); });
+    auto color_attached = BindProperty<VectorValue>(obj["c"], ctx, color_node,
+        [](sksg::Color* node, const VectorValue& c) {
+            node->setColor(ValueTraits<VectorValue>::As<SkColor>(c));
+        });
 
     return color_attached ? color_node : nullptr;
 }
@@ -309,8 +326,10 @@ sk_sp<sksg::PaintNode> AttachStrokePaint(const Json::Value& jstroke, AttachConte
 
     stroke_node->setStyle(SkPaint::kStroke_Style);
 
-    auto width_attached = AttachProperty<ScalarValue, SkScalar>(jstroke["w"], ctx, stroke_node,
-        [](const sk_sp<sksg::Color>& node, const SkScalar& width) { node->setStrokeWidth(width); });
+    auto width_attached = BindProperty<ScalarValue>(jstroke["w"], ctx, stroke_node,
+        [](sksg::Color* node, const ScalarValue& w) {
+            node->setStrokeWidth(w);
+        });
     if (!width_attached)
         return nullptr;
 
@@ -379,17 +398,17 @@ std::vector<sk_sp<sksg::GeometryNode>> AttachTrimGeometryEffect(
     for (const auto& i : inputs) {
         const auto trim = sksg::TrimEffect::Make(i);
         trimmed.push_back(trim);
-        AttachProperty<ScalarValue, SkScalar>(jtrim["s"], ctx, trim,
-            [](const sk_sp<sksg::TrimEffect>& node, const SkScalar& s) {
+        BindProperty<ScalarValue>(jtrim["s"], ctx, trim,
+            [](sksg::TrimEffect* node, const ScalarValue& s) {
                 node->setStart(s * 0.01f);
             });
-        AttachProperty<ScalarValue, SkScalar>(jtrim["e"], ctx, trim,
-            [](const sk_sp<sksg::TrimEffect>& node, const SkScalar& e) {
+        BindProperty<ScalarValue>(jtrim["e"], ctx, trim,
+            [](sksg::TrimEffect* node, const ScalarValue& e) {
                 node->setEnd(e * 0.01f);
             });
         // TODO: "offset" doesn't currently work the same as BM - figure out what's going on.
-        AttachProperty<ScalarValue, SkScalar>(jtrim["o"], ctx, trim,
-            [](const sk_sp<sksg::TrimEffect>& node, const SkScalar& o) {
+        BindProperty<ScalarValue>(jtrim["o"], ctx, trim,
+            [](sksg::TrimEffect* node, const ScalarValue& o) {
                 node->setOffset(o * 0.01f);
             });
     }
