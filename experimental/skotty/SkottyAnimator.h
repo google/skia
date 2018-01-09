@@ -27,69 +27,60 @@ public:
 
 protected:
     AnimatorBase() = default;
+};
 
-    // Compute a cubic-Bezier-interpolated t relative to [t0..t1].
-    static float ComputeLocalT(float t, float t0, float t1,
-                               const SkCubicMap*);
+class KeyframeIntervalBase : public SkNoncopyable {
+public:
+    KeyframeIntervalBase()                                  = default;
+    KeyframeIntervalBase(KeyframeIntervalBase&&)            = default;
+    KeyframeIntervalBase& operator=(KeyframeIntervalBase&&) = default;
+
+    float t0() const { return fT0; }
+    float t1() const { return fT1; }
+
+    bool isValid() const { return fT0 < fT1; }
+    bool contains(float t) const { return t >= fT0 && t <= fT1; }
+
+protected:
+    // Parse the current interval AND back-fill prev interval t1.
+    bool parse(const Json::Value&, KeyframeIntervalBase* prev);
+
+    // Computes a "local" t (relative to [fT0..fT1]), and mapped
+    // through the cubic (if applicable).
+    float localT(float t) const;
+
+private:
+    // Initialized for non-linear interpolation.
+    std::unique_ptr<SkCubicMap> fCubicMap;
+
+    // Start/end times.
+    float                       fT0 = 0,
+                                fT1 = 0;
 };
 
 // Describes a keyframe interpolation interval (v0@t0) -> (v1@t1).
-// TODO: add interpolation params.
 template <typename T>
-struct KeyframeInterval {
-    // Start/end values.
-    T       fV0,
-            fV1;
-
-    // Start/end times.
-    float   fT0 = 0,
-            fT1 = 0;
-
-    // Initialized for non-linear lerp.
-    std::unique_ptr<SkCubicMap> fCubicMap;
-
+class KeyframeInterval final : public KeyframeIntervalBase {
+public:
     // Parse the current interval AND back-fill prev interval t1.
     bool parse(const Json::Value& k, KeyframeInterval* prev) {
         SkASSERT(k.isObject());
 
-        fT0 = fT1 = ParseScalar(k["t"], SK_ScalarMin);
-        if (fT0 == SK_ScalarMin) {
-            return false;
-        }
-
-        if (prev) {
-            if (prev->fT1 >= fT0) {
-                LOG("!! Dropping out-of-order key frame (t: %f < t: %f)\n", fT0, prev->fT1);
-                return false;
-            }
-            // Back-fill t1 in prev interval.  Note: we do this even if we end up discarding
-            // the current interval (to support "t"-only final frames).
-            prev->fT1 = fT0;
-        }
-
-        if (!T::Parse(k["s"], &fV0) ||
-            !T::Parse(k["e"], &fV1) ||
-            fV0.cardinality() != fV1.cardinality() ||
-            (prev && fV0.cardinality() != prev->fV0.cardinality())) {
-            return false;
-        }
-
-        // default is linear lerp
-        static constexpr SkPoint kDefaultC0 = { 0, 0 },
-                                 kDefaultC1 = { 1, 1 };
-        const auto c0 = ParsePoint(k["i"], kDefaultC0),
-                   c1 = ParsePoint(k["o"], kDefaultC1);
-
-        if (c0 != kDefaultC0 || c1 != kDefaultC1) {
-            fCubicMap = skstd::make_unique<SkCubicMap>();
-            // TODO: why do we have to plug these inverted?
-            fCubicMap->setPts(c1, c0);
-        }
-
-        return true;
+        return this->INHERITED::parse(k, prev) &&
+            ValueTraits<T>::Parse(k["s"], &fV0) &&
+            ValueTraits<T>::Parse(k["e"], &fV1) &&
+            ValueTraits<T>::Cardinality(fV0) == ValueTraits<T>::Cardinality(fV1) &&
+            (!prev || ValueTraits<T>::Cardinality(fV0) == ValueTraits<T>::Cardinality(prev->fV0));
     }
 
     void lerp(float t, T*) const;
+
+private:
+    // Start/end values.
+    T       fV0,
+            fV1;
+
+    using INHERITED = KeyframeIntervalBase;
 };
 
 // Binds an animated/keyframed property to a node attribute.
@@ -104,9 +95,9 @@ public:
         const auto& frame = this->findInterval(t);
 
         ValT val;
-        frame.lerp(ComputeLocalT(t, frame.fT0, frame.fT1, frame.fCubicMap.get()), &val);
+        frame.lerp(t, &val);
 
-        fFunc(fTarget, val.template as<AttrT>());
+        fFunc(fTarget, ValueTraits<ValT>::template As<AttrT>(val));
     }
 
 private:
@@ -118,9 +109,9 @@ private:
 
     const KeyframeInterval<ValT>& findInterval(float t) const;
 
-    const SkTArray<KeyframeInterval<ValT>>                 fIntervals;
-    sk_sp<NodeT>                                           fTarget;
-    ApplyFuncT fFunc;
+    const SkTArray<KeyframeInterval<ValT>> fIntervals;
+    sk_sp<NodeT>                           fTarget;
+    ApplyFuncT                             fFunc;
 };
 
 template <typename ValT, typename AttrT, typename NodeT>
@@ -134,21 +125,20 @@ Animator<ValT, AttrT, NodeT>::Make(const Json::Value& frames, sk_sp<NodeT> node,
     SkTArray<KeyframeInterval<ValT>> intervals;
     intervals.reserve(frames.size());
 
+    KeyframeInterval<ValT>* prev_interval = nullptr;
     for (const auto& frame : frames) {
         if (!frame.isObject())
             return nullptr;
 
-        auto& curr_interval = intervals.push_back();
-        auto* prev_interval = intervals.count() > 1 ? &intervals.fromBack(1) : nullptr;
-        if (!curr_interval.parse(frame, prev_interval)) {
-            // Invalid frame, or "t"-only frame.
-            intervals.pop_back();
-            continue;
+        KeyframeInterval<ValT> curr_interval;
+        if (curr_interval.parse(frame, prev_interval)) {
+            intervals.push_back(std::move(curr_interval));
+            prev_interval = &intervals.back();
         }
     }
 
     // If we couldn't determine a t1 for the last interval, discard it.
-    if (!intervals.empty() && intervals.back().fT0 == intervals.back().fT1) {
+    if (!intervals.empty() && !intervals.back().isValid()) {
         intervals.pop_back();
     }
 
@@ -169,25 +159,25 @@ const KeyframeInterval<ValT>& Animator<ValT, AttrT, NodeT>::findInterval(float t
     auto f0 = fIntervals.begin(),
          f1 = fIntervals.end() - 1;
 
-    SkASSERT(f0->fT0 < f0->fT1);
-    SkASSERT(f1->fT0 < f1->fT1);
+    SkASSERT(f0->isValid());
+    SkASSERT(f1->isValid());
 
-    if (t < f0->fT0) {
+    if (t < f0->t0()) {
         return *f0;
     }
 
-    if (t > f1->fT1) {
+    if (t > f1->t1()) {
         return *f1;
     }
 
     while (f0 != f1) {
         SkASSERT(f0 < f1);
-        SkASSERT(t >= f0->fT0 && t <= f1->fT1);
+        SkASSERT(t >= f0->t0() && t <= f1->t1());
 
         const auto f = f0 + (f1 - f0) / 2;
-        SkASSERT(f->fT0 < f->fT1);
+        SkASSERT(f->isValid());
 
-        if (t > f->fT1) {
+        if (t > f->t1()) {
             f0 = f + 1;
         } else {
             f1 = f;
@@ -195,7 +185,8 @@ const KeyframeInterval<ValT>& Animator<ValT, AttrT, NodeT>::findInterval(float t
     }
 
     SkASSERT(f0 == f1);
-    SkASSERT(t >= f0->fT0 && t <= f1->fT1);
+    SkASSERT(f0->contains(t));
+
     return *f0;
 }
 

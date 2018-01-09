@@ -72,9 +72,9 @@ bool AttachProperty(const Json::Value& jprop, AttachContext* ctx, const sk_sp<No
     // For those, we attempt to parse both ways.
     if (jpropA.isNull() || !ParseBool(jpropA, "false")) {
         ValueT val;
-        if (ValueT::Parse(jpropK, &val)) {
+        if (ValueTraits<ValueT>::Parse(jpropK, &val)) {
             // Static property.
-            apply(node, val.template as<AttrT>());
+            apply(node, ValueTraits<ValueT>::template As<AttrT>(val));
             return true;
         }
 

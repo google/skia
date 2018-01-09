@@ -17,8 +17,7 @@
 #include "SkTypes.h"
 
 #include <memory>
-
-class SkPath;
+#include <vector>
 
 namespace sksg {
 class Matrix;
@@ -29,60 +28,18 @@ class RenderNode;;
 
 namespace  skotty {
 
-struct ScalarValue {
-    float fVal;
+template <typename T>
+struct ValueTraits {
+    static bool   Parse(const Json::Value&, T*);
+    static size_t Cardinality(const T&);
 
-    static bool Parse(const Json::Value&, ScalarValue*);
-
-    ScalarValue() : fVal(0) {}
-    explicit ScalarValue(SkScalar v) : fVal(v) {}
-
-    ScalarValue& operator=(SkScalar v) { fVal = v; return *this; }
-
-    operator SkScalar() const { return fVal; }
-
-    size_t cardinality() const { return 1; }
-
-    template <typename T>
-    T as() const;
+    template <typename U>
+    static U As(const T&);
 };
 
-template <>
-inline SkScalar ScalarValue::as<SkScalar>() const {
-    return fVal;
-}
-
-struct VectorValue {
-    SkTArray<ScalarValue, true> fVals;
-
-    static bool Parse(const Json::Value&, VectorValue*);
-
-    VectorValue()                               = default;
-    VectorValue(const VectorValue&)             = delete;
-    VectorValue(VectorValue&&)                  = default;
-    VectorValue& operator==(const VectorValue&) = delete;
-
-    size_t cardinality() const { return SkTo<size_t>(fVals.count()); }
-
-    template <typename T>
-    T as() const;
-};
-
-struct ShapeValue {
-    SkPath fPath;
-
-    ShapeValue()                              = default;
-    ShapeValue(const ShapeValue&)             = delete;
-    ShapeValue(ShapeValue&&)                  = default;
-    ShapeValue& operator==(const ShapeValue&) = delete;
-
-    static bool Parse(const Json::Value&, ShapeValue*);
-
-    size_t cardinality() const { return SkTo<size_t>(fPath.countVerbs()); }
-
-    template <typename T>
-    T as() const;
-};
+using ScalarValue = SkScalar;
+using VectorValue = std::vector<ScalarValue>;
+using ShapeValue  = SkPath;
 
 // Composite properties.
 
