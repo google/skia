@@ -1341,10 +1341,12 @@ Error SkottySrc::draw(SkCanvas* canvas) const {
 
     canvas->drawColor(SK_ColorWHITE);
 
-    SkPaint paint;
+    SkPaint paint, clockPaint;
     paint.setColor(0xffa0a0a0);
     paint.setStyle(SkPaint::kStroke_Style);
     paint.setStrokeWidth(0);
+
+    clockPaint.setTextSize(12);
 
     const auto ip = fAnimation->inPoint() * 1000 / fAnimation->frameRate(),
                op = fAnimation->outPoint() * 1000 / fAnimation->frameRate(),
@@ -1360,15 +1362,21 @@ Error SkottySrc::draw(SkCanvas* canvas) const {
             canvas->drawLine(x + .5f, 0, x + .5f, canvas_size.height(), paint);
             SkRect dest = SkRect::MakeXYWH(x, y, fTileSize.width(), fTileSize.height());
 
-            SkAutoCanvasRestore acr(canvas, true);
-            canvas->clipRect(dest);
-            canvas->concat(SkMatrix::MakeRectToRect(SkRect::MakeSize(fAnimation->size()),
-                                                    dest,
-                                                    SkMatrix::kFill_ScaleToFit));
-
             const auto t = fr * (i * kTileCount + j);
-            fAnimation->animationTick(t);
-            fAnimation->render(canvas);
+            {
+                SkAutoCanvasRestore acr(canvas, true);
+                canvas->clipRect(dest);
+                canvas->concat(SkMatrix::MakeRectToRect(SkRect::MakeSize(fAnimation->size()),
+                                                        dest,
+                                                        SkMatrix::kFill_ScaleToFit));
+
+                fAnimation->animationTick(t);
+                fAnimation->render(canvas);
+            }
+
+            const auto label = SkStringPrintf("%.3f", t);
+            canvas->drawText(label.c_str(), label.size(), dest.x(),
+                             dest.bottom(), clockPaint);
         }
     }
 
