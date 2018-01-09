@@ -16,6 +16,24 @@
       "revId": "f00faa3f7fe1dc5300f063767a5fa59b74407e18",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5982cfe0_6a5d6496",
+        "filename": "src/core/SkRectPriv.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2018-01-09T21:56:33Z",
+      "side": 0,
+      "message": "Ignore this. I thought that MakeLargestS32 were removed...",
+      "parentUuid": "ad950bbd_5d1957fc",
+      "revId": "f00faa3f7fe1dc5300f063767a5fa59b74407e18",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
