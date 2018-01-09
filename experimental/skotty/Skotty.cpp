@@ -719,13 +719,45 @@ sk_sp<sksg::RenderNode> AttachLayer(const Json::Value& jlayer,
         return nullptr;
     }
 
-    auto layer       = gLayerAttachers[type](jlayer, layerCtx->fCtx);
-    auto layerMatrix = layerCtx->AttachLayerMatrix(jlayer);
-    auto transformed = layerMatrix
-            ? sksg::Transform::Make(std::move(layer), std::move(layerMatrix))
-            : layer;
+    // Layer content.
+    auto layer = gLayerAttachers[type](jlayer, layerCtx->fCtx);
+    if (auto layerMatrix = layerCtx->AttachLayerMatrix(jlayer)) {
+        // Optional layer transform.
+        layer = sksg::Transform::Make(std::move(layer), std::move(layerMatrix));
+    }
+    // Optional layer opacity.
+    layer = AttachOpacity(jlayer["ks"], layerCtx->fCtx, std::move(layer));
 
-    return AttachOpacity(jlayer["ks"], layerCtx->fCtx, std::move(transformed));
+    // TODO: we should also disable related/inactive animators.
+    class Activator final : public AnimatorBase {
+    public:
+        Activator(sk_sp<sksg::OpacityEffect> controlNode, float in, float out)
+            : fControlNode(std::move(controlNode))
+            , fIn(in)
+            , fOut(out) {}
+
+        void tick(SkMSec t) override {
+            // Keep the layer fully transparent except for its [in..out] lifespan.
+            // (note: opacity == 0 disables rendering, while opacity == 1 is a noop)
+            fControlNode->setOpacity(t >= fIn && t <= fOut ? 1 : 0);
+        }
+
+    private:
+        const sk_sp<sksg::OpacityEffect> fControlNode;
+        const float                      fIn,
+                                         fOut;
+    };
+
+    auto layerControl = sksg::OpacityEffect::Make(std::move(layer));
+    const auto  in = ParseScalar(jlayer["ip"], 0),
+               out = ParseScalar(jlayer["op"], in);
+
+    if (in >= out || ! layerControl)
+        return nullptr;
+
+    layerCtx->fCtx->fAnimators.push_back(skstd::make_unique<Activator>(layerControl, in, out));
+
+    return layerControl;
 }
 
 sk_sp<sksg::RenderNode> AttachComposition(const Json::Value& comp, AttachContext* ctx) {
