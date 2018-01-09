@@ -85,8 +85,10 @@ bool AttachProperty(const Json::Value& jprop, AttachContext* ctx, const sk_sp<No
 
     // Keyframe property.
     using AnimatorT = Animator<ValueT, AttrT, NodeT>;
-    auto animator = AnimatorT::Make(jpropK, node, std::move(apply));
+    std::vector<KeyframeInterval<ValueT>> frames;
+    ParseFrames<ValueT>(jpropK, &frames);
 
+    auto animator = AnimatorT::Make(std::move(frames), node, std::move(apply));
     if (!animator) {
         return LogFail(jprop, "Could not parse keyframed property");
     }
@@ -699,6 +701,25 @@ struct AttachLayerContext {
     }
 };
 
+class LayerActivator final : public AnimatorBase {
+public:
+    LayerActivator(sk_sp<sksg::OpacityEffect> layerOpacity, float in, float out)
+        : fLayerOpacity(std::move(layerOpacity))
+        , fIn(in)
+        , fOut(out) {}
+
+    void tick(float t) override {
+        fLayerOpacity->setOpacity(t >= fIn && t <= fOut ? 1 : 0);
+    }
+
+private:
+    sk_sp<sksg::OpacityEffect> fLayerOpacity;
+    float                      fIn,
+                               fOut;
+
+    using INHERITED = AnimatorBase;
+};
+
 sk_sp<sksg::RenderNode> AttachLayer(const Json::Value& jlayer,
                                     AttachLayerContext* layerCtx) {
     if (!jlayer.isObject())
@@ -719,13 +740,21 @@ sk_sp<sksg::RenderNode> AttachLayer(const Json::Value& jlayer,
         return nullptr;
     }
 
-    auto layer       = gLayerAttachers[type](jlayer, layerCtx->fCtx);
-    auto layerMatrix = layerCtx->AttachLayerMatrix(jlayer);
-    auto transformed = layerMatrix
-            ? sksg::Transform::Make(std::move(layer), std::move(layerMatrix))
-            : layer;
+    auto layer = gLayerAttachers[type](jlayer, layerCtx->fCtx);
+    if (auto layerMatrix = layerCtx->AttachLayerMatrix(jlayer)) {
+        layer = sksg::Transform::Make(std::move(layer), std::move(layerMatrix));
+    }
+    layer = AttachOpacity(jlayer["ks"], layerCtx->fCtx, std::move(layer));
+    auto activator = sksg::OpacityEffect::Make(std::move(layer));
 
-    return AttachOpacity(jlayer["ks"], layerCtx->fCtx, std::move(transformed));
+    const auto in  = ParseScalar(jlayer["ip"],  0);
+    const auto out = ParseScalar(jlayer["op"], -1);
+    if (!activator || out <= in)
+        return nullptr;
+
+    layerCtx->fCtx->fAnimators.push_back(skstd::make_unique<LayerActivator>(activator, in, out));
+
+    return activator;
 }
 
 sk_sp<sksg::RenderNode> AttachComposition(const Json::Value& comp, AttachContext* ctx) {
