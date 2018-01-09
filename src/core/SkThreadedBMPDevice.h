@@ -43,11 +43,29 @@ protected:
     void flush() override;
 
 private:
-    struct DrawState;
+    struct DrawState {
+        SkPixmap fDst;
+        SkMatrix fMatrix;
+        SkRasterClip fRC;
+
+        DrawState() {}
+        explicit DrawState(SkThreadedBMPDevice* dev);
+
+        SkDraw getDraw() const;
+    };
+
+    class TileDraw : public SkDraw {
+        public: TileDraw(const DrawState& ds, const SkIRect& tileBounds);
+        private: SkRasterClip fTileRC;
+    };
 
     struct DrawElement {
-        SkIRect fDrawBounds;
-        std::function<void(const SkIRect& threadBounds)> fDrawFn;
+        using DrawFn = std::function<void(SkArenaAlloc* threadAlloc, const DrawState& ds,
+                                          const SkIRect& tileBounds)>;
+
+        DrawFn      fDrawFn;
+        DrawState   fDS;
+        SkIRect     fDrawBounds;
     };
 
     class DrawQueue {
@@ -61,12 +79,17 @@ private:
         // will start new tasks.
         void finish() { fTasks->finish(); }
 
-        SK_ALWAYS_INLINE void push(DrawElement&& element) {
+        SK_ALWAYS_INLINE void push(const SkRect& rawDrawBounds,
+                                   DrawElement::DrawFn&& drawFn) {
             if (fSize == MAX_QUEUE_SIZE) {
                 this->reset();
             }
             SkASSERT(fSize < MAX_QUEUE_SIZE);
-            fElements[fSize++] = std::move(element);
+
+            DrawElement* element = &fElements[fSize++];
+            element->fDS = DrawState(fDevice);
+            element->fDrawFn = std::move(drawFn);
+            element->fDrawBounds = fDevice->transformDrawBounds(rawDrawBounds);
             fTasks->addColumn();
         }
 
