@@ -1686,6 +1686,10 @@ if (skia_enable_tools) {
   }
 
   test_app("fuzz") {
+    include_dirs = [
+      "tools",
+      "tools/debugger",
+    ]
     sources = [
       "fuzz/FilterFuzz.cpp",
       "fuzz/FuzzCanvas.cpp",
@@ -1695,12 +1699,19 @@ if (skia_enable_tools) {
       "fuzz/FuzzPathop.cpp",
       "fuzz/FuzzScaleToSides.cpp",
       "fuzz/fuzz.cpp",
+      "tools/UrlDataManager.cpp",
+      "tools/debugger/SkDebugCanvas.cpp",
+      "tools/debugger/SkDrawCommand.cpp",
+      "tools/debugger/SkJsonWriteBuffer.cpp",
+      "tools/debugger/SkObjectParser.cpp",
+      "tools/picture_utils.cpp",
     ]
     deps = [
       ":flags",
       ":gpu_tool_utils",
       ":skia",
-      ":tool_utils",
+      "//third_party/jsoncpp",
+      "//third_party/libpng",
     ]
   }
 
