@@ -12,10 +12,10 @@
 #include "SkMakeUnique.h"
 #include "SkottyPriv.h"
 #include "SkottyProperties.h"
-#include "SkTArray.h"
 #include "SkTypes.h"
 
 #include <memory>
+#include <vector>
 
 namespace skotty {
 
@@ -62,7 +62,6 @@ private:
 template <typename T>
 class KeyframeInterval final : public KeyframeIntervalBase {
 public:
-    // Parse the current interval AND back-fill prev interval t1.
     bool parse(const Json::Value& k, KeyframeInterval* prev) {
         SkASSERT(k.isObject());
 
@@ -77,87 +76,86 @@ public:
 
 private:
     // Start/end values.
-    T       fV0,
-            fV1;
+    T fV0,
+      fV1;
 
     using INHERITED = KeyframeIntervalBase;
 };
 
-// Binds an animated/keyframed property to a node attribute.
-template <typename ValT, typename AttrT, typename NodeT>
+template <typename T>
+std::vector<KeyframeInterval<T>> ParseFrames(const Json::Value& jframes) {
+    std::vector<KeyframeInterval<T>> frames;
+
+    if (jframes.isArray()) {
+        frames.reserve(jframes.size());
+
+        KeyframeInterval<T>* prev_frame = nullptr;
+        for (const auto& jframe : jframes) {
+            if (!jframe.isObject())
+                continue;
+
+            KeyframeInterval<T> frame;
+            if (frame.parse(jframe, prev_frame)) {
+                frames.push_back(std::move(frame));
+                prev_frame = &frames.back();
+            }
+        }
+    }
+
+    // If we couldn't determine a t1 for the last frame, discard it.
+    if (!frames.empty() && !frames.back().isValid()) {
+        frames.pop_back();
+    }
+
+    return frames;
+}
+
+// Binds an animated/keyframed property to a node attribute setter.
+template <typename ValT, typename NodeT>
 class Animator : public AnimatorBase {
 public:
-    using ApplyFuncT = void(*)(const sk_sp<NodeT>&, const AttrT&);
-    static std::unique_ptr<Animator> Make(const Json::Value& frames, sk_sp<NodeT> node,
-        ApplyFuncT&& applyFunc);
+    using ApplyFuncT = void(*)(NodeT*, const ValT&);
+    static std::unique_ptr<Animator> Make(std::vector<KeyframeInterval<ValT>>&& frames,
+                                          sk_sp<NodeT> node,
+                                          ApplyFuncT&& applyFunc) {
+        return (node && !frames.empty())
+            ? std::unique_ptr<Animator>(new Animator(std::move(frames),
+                                                     std::move(node),
+                                                     std::move(applyFunc)))
+            : nullptr;
+    }
 
     void tick(float t) override {
-        const auto& frame = this->findInterval(t);
+        const auto& frame = this->findFrame(t);
 
         ValT val;
         frame.lerp(t, &val);
 
-        fFunc(fTarget, ValueTraits<ValT>::template As<AttrT>(val));
+        fFunc(fTarget.get(), val);
     }
 
 private:
-    Animator(SkTArray<KeyframeInterval<ValT>>&& intervals, sk_sp<NodeT> node,
+    Animator(std::vector<KeyframeInterval<ValT>>&& frames, sk_sp<NodeT> node,
              ApplyFuncT&& applyFunc)
-        : fIntervals(std::move(intervals))
+        : fFrames(std::move(frames))
         , fTarget(std::move(node))
         , fFunc(std::move(applyFunc)) {}
 
-    const KeyframeInterval<ValT>& findInterval(float t) const;
+    const KeyframeInterval<ValT>& findFrame(float t) const;
 
-    const SkTArray<KeyframeInterval<ValT>> fIntervals;
-    sk_sp<NodeT>                           fTarget;
-    ApplyFuncT                             fFunc;
+    const std::vector<KeyframeInterval<ValT>> fFrames;
+    sk_sp<NodeT>                              fTarget;
+    ApplyFuncT                                fFunc;
 };
 
-template <typename ValT, typename AttrT, typename NodeT>
-std::unique_ptr<Animator<ValT, AttrT, NodeT>>
-Animator<ValT, AttrT, NodeT>::Make(const Json::Value& frames, sk_sp<NodeT> node,
-                                   ApplyFuncT&& applyFunc) {
-
-    if (!frames.isArray())
-        return nullptr;
-
-    SkTArray<KeyframeInterval<ValT>> intervals;
-    intervals.reserve(frames.size());
-
-    KeyframeInterval<ValT>* prev_interval = nullptr;
-    for (const auto& frame : frames) {
-        if (!frame.isObject())
-            return nullptr;
-
-        KeyframeInterval<ValT> curr_interval;
-        if (curr_interval.parse(frame, prev_interval)) {
-            intervals.push_back(std::move(curr_interval));
-            prev_interval = &intervals.back();
-        }
-    }
-
-    // If we couldn't determine a t1 for the last interval, discard it.
-    if (!intervals.empty() && !intervals.back().isValid()) {
-        intervals.pop_back();
-    }
-
-    if (intervals.empty()) {
-        return nullptr;
-    }
-
-    return std::unique_ptr<Animator>(
-        new Animator(std::move(intervals), node, std::move(applyFunc)));
-}
-
-template <typename ValT, typename AttrT, typename NodeT>
-const KeyframeInterval<ValT>& Animator<ValT, AttrT, NodeT>::findInterval(float t) const {
-    SkASSERT(!fIntervals.empty());
+template <typename ValT, typename NodeT>
+const KeyframeInterval<ValT>& Animator<ValT, NodeT>::findFrame(float t) const {
+    SkASSERT(!fFrames.empty());
 
     // TODO: cache last/current frame?
 
-    auto f0 = fIntervals.begin(),
-         f1 = fIntervals.end() - 1;
+    auto f0 = fFrames.begin(),
+         f1 = fFrames.end() - 1;
 
     SkASSERT(f0->isValid());
     SkASSERT(f1->isValid());
