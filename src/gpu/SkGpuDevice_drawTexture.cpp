@@ -94,14 +94,14 @@ static bool can_ignore_bilerp_constraint(const GrTextureProducer& producer,
 static bool can_use_draw_texture_affine(const SkPaint& paint, const SkMatrix& ctm,
                                         SkCanvas::SrcRectConstraint constraint) {
     return (!paint.getColorFilter() && !paint.getShader() && !paint.getMaskFilter() &&
-            !paint.getImageFilter() && !paint.isAntiAlias() &&
+            !paint.getImageFilter() &&
             paint.getFilterQuality() < kMedium_SkFilterQuality &&
             paint.getBlendMode() == SkBlendMode::kSrcOver && !ctm.hasPerspective() &&
             SkCanvas::kFast_SrcRectConstraint == constraint);
 }
 
 static void draw_texture_affine(const SkPaint& paint, const SkMatrix& ctm, const SkRect* src,
-                                const SkRect* dst, sk_sp<GrTextureProxy> proxy,
+                                const SkRect* dst, GrAA aa, sk_sp<GrTextureProxy> proxy,
                                 SkColorSpace* colorSpace, const GrClip& clip,
                                 GrRenderTargetContext* rtc) {
     SkASSERT(!(SkToBool(src) && !SkToBool(dst)));
@@ -131,7 +131,7 @@ static void draw_texture_affine(const SkPaint& paint, const SkMatrix& ctm, const
     GrColor color = GrPixelConfigIsAlphaOnly(proxy->config())
                             ? SkColorToPremulGrColor(paint.getColor())
                             : SkColorAlphaToGrColor(paint.getColor());
-    rtc->drawTextureAffine(clip, std::move(proxy), filter, color, srcRect, dstRect, ctm,
+    rtc->drawTextureAffine(clip, std::move(proxy), filter, color, srcRect, dstRect, aa, ctm,
                            std::move(csxf));
 }
 
@@ -143,7 +143,7 @@ void SkGpuDevice::drawPinnedTextureProxy(sk_sp<GrTextureProxy> proxy, uint32_t p
                                          SkCanvas::SrcRectConstraint constraint,
                                          const SkMatrix& viewMatrix, const SkPaint& paint) {
     if (can_use_draw_texture_affine(paint, this->ctm(), constraint)) {
-        draw_texture_affine(paint, viewMatrix, srcRect, dstRect, std::move(proxy), colorSpace,
+        draw_texture_affine(paint, viewMatrix, srcRect, dstRect, GrAA(paint.isAntiAlias()), std::move(proxy), colorSpace,
                             this->clip(), fRenderTargetContext.get());
         return;
     }
@@ -166,7 +166,7 @@ void SkGpuDevice::drawTextureMaker(GrTextureMaker* maker, int imageW, int imageH
         if (!proxy) {
             return;
         }
-        draw_texture_affine(paint, viewMatrix, srcRect, dstRect, std::move(proxy), cs.get(),
+        draw_texture_affine(paint, viewMatrix, srcRect, dstRect, GrAA(paint.isAntiAlias()), std::move(proxy), cs.get(),
                             this->clip(), fRenderTargetContext.get());
         return;
     }

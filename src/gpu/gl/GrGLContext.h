@@ -38,7 +38,7 @@ public:
     GrGLANGLEBackend angleBackend() const { return fANGLEBackend; }
     GrGLANGLEVendor angleVendor() const { return fANGLEVendor; }
     GrGLANGLERenderer angleRenderer() const { return fANGLERenderer; }
-    /** What driver is running our GL implementation? This is not necessarily related to the vendor.
+    /** What driver is running our GL implementation? This is not neces sarily related to the vendor.
         (e.g. Intel GPU being driven by Mesa) */
     GrGLDriver driver() const { return fDriver; }
     GrGLDriverVersion driverVersion() const { return fDriverVersion; }
