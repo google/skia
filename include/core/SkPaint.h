@@ -1637,6 +1637,17 @@ public:
     */
     SK_TO_STRING_NONVIRT()
 
+    // TODO: move to SkTypeface or SkScalerContext.
+    enum ScalerContextFlags : uint32_t {
+        kNone_ScalerContextFlags = 0,
+
+        kFakeGamma_ScalerContextFlag = 1 << 0,
+        kBoostContrast_ScalerContextFlag = 1 << 1,
+
+        kFakeGammaAndBoostContrast_ScalerContextFlags =
+        kFakeGamma_ScalerContextFlag | kBoostContrast_ScalerContextFlag,
+    };
+
 private:
     typedef const SkGlyph& (*GlyphCacheProc)(SkGlyphCache*, const char**);
 
