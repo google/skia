@@ -954,8 +954,7 @@ def GenTests(api):
       api.properties(buildername=builder,
                      buildbucket_build_id='123454321',
                      revision='abc123',
-                     path_config='kitchen',
-                     swarm_out_dir='[SWARM_OUT_DIR]') +
+                     path_config='kitchen') +
       api.path.exists(
           api.path['start_dir'].join('skia'),
           api.path['start_dir'].join('skia', 'infra', 'bots', 'assets',
@@ -992,8 +991,7 @@ def GenTests(api):
     api.properties(buildername=builder,
                    buildbucket_build_id='123454321',
                    revision='abc123',
-                   path_config='kitchen',
-                   swarm_out_dir='[SWARM_OUT_DIR]') +
+                   path_config='kitchen') +
     api.properties(patch_storage='gerrit') +
     api.properties.tryserver(
           buildername=builder,
@@ -1018,8 +1016,7 @@ def GenTests(api):
     api.properties(buildername=builder,
                    buildbucket_build_id='123454321',
                    revision='abc123',
-                   path_config='kitchen',
-                   swarm_out_dir='[SWARM_OUT_DIR]') +
+                   path_config='kitchen') +
     api.path.exists(
         api.path['start_dir'].join('skia'),
         api.path['start_dir'].join('skia', 'infra', 'bots', 'assets',
@@ -1039,8 +1036,7 @@ def GenTests(api):
     api.properties(buildername=builder,
                    buildbucket_build_id='123454321',
                    revision='abc123',
-                   path_config='kitchen',
-                   swarm_out_dir='[SWARM_OUT_DIR]') +
+                   path_config='kitchen') +
     api.path.exists(
         api.path['start_dir'].join('skia'),
         api.path['start_dir'].join('skia', 'infra', 'bots', 'assets',
@@ -1061,8 +1057,7 @@ def GenTests(api):
     api.properties(buildername=builder,
                    buildbucket_build_id='123454321',
                    revision='abc123',
-                   path_config='kitchen',
-                   swarm_out_dir='[SWARM_OUT_DIR]') +
+                   path_config='kitchen') +
     api.path.exists(
         api.path['start_dir'].join('skia'),
         api.path['start_dir'].join('skia', 'infra', 'bots', 'assets',
@@ -1083,8 +1078,7 @@ def GenTests(api):
     api.properties(buildername=builder,
                    buildbucket_build_id='123454321',
                    revision='abc123',
-                   path_config='kitchen',
-                   swarm_out_dir='[SWARM_OUT_DIR]') +
+                   path_config='kitchen') +
     api.path.exists(
         api.path['start_dir'].join('skia'),
         api.path['start_dir'].join('skia', 'infra', 'bots', 'assets',
@@ -1097,7 +1091,7 @@ def GenTests(api):
     ) +
     api.step_data('dm', retcode=1) +
     api.step_data('pull /sdcard/revenge_of_the_skiabot/dm_out '+
-                  '[CUSTOM_[SWARM_OUT_DIR]]/dm', retcode=1)
+                  '[START_DIR]/isolated_outdir/dm', retcode=1)
   )
 
   yield (
@@ -1106,7 +1100,6 @@ def GenTests(api):
                    buildbucket_build_id='123454321',
                    revision='abc123',
                    path_config='kitchen',
-                   swarm_out_dir='[SWARM_OUT_DIR]',
                    internal_hardware_label=1) +
     api.path.exists(
         api.path['start_dir'].join('skia'),
@@ -1126,7 +1119,6 @@ def GenTests(api):
                    buildbucket_build_id='123454321',
                    revision='abc123',
                    path_config='kitchen',
-                   swarm_out_dir='[SWARM_OUT_DIR]',
                    internal_hardware_label=2) +
     api.path.exists(
         api.path['start_dir'].join('skia'),

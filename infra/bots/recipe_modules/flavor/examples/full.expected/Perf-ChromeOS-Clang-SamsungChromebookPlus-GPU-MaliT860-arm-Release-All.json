@@ -735,7 +735,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "rmtree",
-      "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-ChromeOS-Clang-SamsungChromebookPlus-GPU-MaliT860-arm-Release-All/data"
+      "[START_DIR]/isolated_outdir/perfdata/Perf-ChromeOS-Clang-SamsungChromebookPlus-GPU-MaliT860-arm-Release-All/data"
     ],
     "infra_step": true,
     "name": "rmtree data"
@@ -750,7 +750,7 @@
       "ensure-directory",
       "--mode",
       "0777",
-      "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-ChromeOS-Clang-SamsungChromebookPlus-GPU-MaliT860-arm-Release-All/data"
+      "[START_DIR]/isolated_outdir/perfdata/Perf-ChromeOS-Clang-SamsungChromebookPlus-GPU-MaliT860-arm-Release-All/data"
     ],
     "infra_step": true,
     "name": "makedirs data"
@@ -822,10 +822,10 @@
       "-u",
       "\nimport subprocess\nimport sys\nsrc = sys.argv[1] + '/*'\ndest   = sys.argv[2]\nprint subprocess.check_output('scp -r %s %s' % (src, dest), shell=True)\n",
       "foo@127.0.0.1:/home/chronos/user/perf",
-      "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-ChromeOS-Clang-SamsungChromebookPlus-GPU-MaliT860-arm-Release-All/data"
+      "[START_DIR]/isolated_outdir/perfdata/Perf-ChromeOS-Clang-SamsungChromebookPlus-GPU-MaliT860-arm-Release-All/data"
     ],
     "infra_step": true,
-    "name": "scp -r foo@127.0.0.1:/home/chronos/user/perf [CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-ChromeOS-Clang-SamsungChromebookPlus-GPU-MaliT860-arm-Release-All/data",
+    "name": "scp -r foo@127.0.0.1:/home/chronos/user/perf [START_DIR]/isolated_outdir/perfdata/Perf-ChromeOS-Clang-SamsungChromebookPlus-GPU-MaliT860-arm-Release-All/data",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@@@@",
       "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",

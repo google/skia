@@ -16,7 +16,7 @@ DEPS = [
 
 
 def RunSteps(api):
-  bundle_dir = api.properties['swarm_out_dir'] + '/recipe_bundle'
+  bundle_dir = api.path['start_dir'].join('isolated_outdir', '/recipe_bundle')
   skia_dir = api.path['start_dir'].join('skia')
   recipes_py = api.path['start_dir'].join('skia', 'infra', 'bots', 'recipes.py')
   with api.git.env():
@@ -35,6 +35,5 @@ def RunSteps(api):
 def GenTests(api):
   yield (
     api.test('BundleRecipes') +
-    api.properties(buildername='Housekeeper-PerCommit-BundleRecipes',
-                   swarm_out_dir='[SWARM_OUT_DIR]')
+    api.properties(buildername='Housekeeper-PerCommit-BundleRecipes')
   )

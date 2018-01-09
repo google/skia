@@ -735,7 +735,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "rmtree",
-      "[CUSTOM_[SWARM_OUT_DIR]]/dm"
+      "[START_DIR]/isolated_outdir/dm"
     ],
     "infra_step": true,
     "name": "rmtree dm"
@@ -750,7 +750,7 @@
       "ensure-directory",
       "--mode",
       "0777",
-      "[CUSTOM_[SWARM_OUT_DIR]]/dm"
+      "[START_DIR]/isolated_outdir/dm"
     ],
     "infra_step": true,
     "name": "makedirs dm"
@@ -822,10 +822,10 @@
       "-u",
       "\nimport subprocess\nimport sys\nsrc = sys.argv[1] + '/*'\ndest   = sys.argv[2]\nprint subprocess.check_output('scp -r %s %s' % (src, dest), shell=True)\n",
       "foo@127.0.0.1:/home/chronos/user/dm_out",
-      "[CUSTOM_[SWARM_OUT_DIR]]/dm"
+      "[START_DIR]/isolated_outdir/dm"
     ],
     "infra_step": true,
-    "name": "scp -r foo@127.0.0.1:/home/chronos/user/dm_out [CUSTOM_[SWARM_OUT_DIR]]/dm",
+    "name": "scp -r foo@127.0.0.1:/home/chronos/user/dm_out [START_DIR]/isolated_outdir/dm",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@@@@",
       "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",

@@ -218,7 +218,7 @@
       "--uninterestingHashesFile",
       "[START_DIR]\\tmp\\uninteresting_hashes.txt",
       "--writePath",
-      "[CUSTOM_[SWARM_OUT_DIR]]\\dm",
+      "[START_DIR]\\isolated_outdir\\dm",
       "--dont_write",
       "pdf",
       "--randomProcessorTest",

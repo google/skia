@@ -407,7 +407,6 @@ func bundleRecipes(b *specs.TasksCfgBuilder) string {
 		ExtraArgs: []string{
 			"--workdir", "../../..", "bundle_recipes",
 			fmt.Sprintf("buildername=%s", BUNDLE_RECIPES_NAME),
-			fmt.Sprintf("swarm_out_dir=%s", specs.PLACEHOLDER_ISOLATED_OUTDIR),
 		},
 		Isolate:  relpath("bundle_recipes.isolate"),
 		Priority: 0.7,
@@ -551,7 +550,6 @@ func compile(b *specs.TasksCfgBuilder, name string, parts map[string]string) str
 			"--workdir", "../../..", "compile",
 			fmt.Sprintf("repository=%s", specs.PLACEHOLDER_REPO),
 			fmt.Sprintf("buildername=%s", name),
-			fmt.Sprintf("swarm_out_dir=%s", specs.PLACEHOLDER_ISOLATED_OUTDIR),
 			fmt.Sprintf("revision=%s", specs.PLACEHOLDER_REVISION),
 			fmt.Sprintf("patch_repo=%s", specs.PLACEHOLDER_PATCH_REPO),
 			fmt.Sprintf("patch_storage=%s", specs.PLACEHOLDER_PATCH_STORAGE),
@@ -581,7 +579,6 @@ func compile(b *specs.TasksCfgBuilder, name string, parts map[string]string) str
 				"--workdir", "../../..", "upload_skiaserve",
 				fmt.Sprintf("repository=%s", specs.PLACEHOLDER_REPO),
 				fmt.Sprintf("buildername=%s", name),
-				fmt.Sprintf("swarm_out_dir=%s", specs.PLACEHOLDER_ISOLATED_OUTDIR),
 				fmt.Sprintf("revision=%s", specs.PLACEHOLDER_REVISION),
 				fmt.Sprintf("patch_repo=%s", specs.PLACEHOLDER_PATCH_REPO),
 				fmt.Sprintf("patch_storage=%s", specs.PLACEHOLDER_PATCH_STORAGE),
@@ -610,7 +607,6 @@ func recreateSKPs(b *specs.TasksCfgBuilder, name string) string {
 			"--workdir", "../../..", "recreate_skps",
 			fmt.Sprintf("repository=%s", specs.PLACEHOLDER_REPO),
 			fmt.Sprintf("buildername=%s", name),
-			fmt.Sprintf("swarm_out_dir=%s", specs.PLACEHOLDER_ISOLATED_OUTDIR),
 			fmt.Sprintf("revision=%s", specs.PLACEHOLDER_REVISION),
 			fmt.Sprintf("patch_repo=%s", specs.PLACEHOLDER_PATCH_REPO),
 			fmt.Sprintf("patch_storage=%s", specs.PLACEHOLDER_PATCH_STORAGE),
@@ -635,7 +631,6 @@ func updateMetaConfig(b *specs.TasksCfgBuilder, name string) string {
 			"--workdir", "../../..", "update_meta_config",
 			fmt.Sprintf("repository=%s", specs.PLACEHOLDER_REPO),
 			fmt.Sprintf("buildername=%s", name),
-			fmt.Sprintf("swarm_out_dir=%s", specs.PLACEHOLDER_ISOLATED_OUTDIR),
 			fmt.Sprintf("revision=%s", specs.PLACEHOLDER_REVISION),
 			fmt.Sprintf("patch_repo=%s", specs.PLACEHOLDER_PATCH_REPO),
 			fmt.Sprintf("patch_storage=%s", specs.PLACEHOLDER_PATCH_STORAGE),
@@ -662,7 +657,6 @@ func ctSKPs(b *specs.TasksCfgBuilder, name string) string {
 			"--workdir", "../../..", "ct_skps",
 			fmt.Sprintf("repository=%s", specs.PLACEHOLDER_REPO),
 			fmt.Sprintf("buildername=%s", name),
-			fmt.Sprintf("swarm_out_dir=%s", specs.PLACEHOLDER_ISOLATED_OUTDIR),
 			fmt.Sprintf("revision=%s", specs.PLACEHOLDER_REVISION),
 			fmt.Sprintf("patch_repo=%s", specs.PLACEHOLDER_PATCH_REPO),
 			fmt.Sprintf("patch_storage=%s", specs.PLACEHOLDER_PATCH_STORAGE),
@@ -686,7 +680,6 @@ func checkGeneratedFiles(b *specs.TasksCfgBuilder, name string) string {
 			"--workdir", "../../..", "check_generated_files",
 			fmt.Sprintf("repository=%s", specs.PLACEHOLDER_REPO),
 			fmt.Sprintf("buildername=%s", name),
-			fmt.Sprintf("swarm_out_dir=%s", specs.PLACEHOLDER_ISOLATED_OUTDIR),
 			fmt.Sprintf("revision=%s", specs.PLACEHOLDER_REVISION),
 			fmt.Sprintf("patch_repo=%s", specs.PLACEHOLDER_PATCH_REPO),
 			fmt.Sprintf("patch_storage=%s", specs.PLACEHOLDER_PATCH_STORAGE),
@@ -710,7 +703,6 @@ func housekeeper(b *specs.TasksCfgBuilder, name, compileTaskName string) string 
 			"--workdir", "../../..", "housekeeper",
 			fmt.Sprintf("repository=%s", specs.PLACEHOLDER_REPO),
 			fmt.Sprintf("buildername=%s", name),
-			fmt.Sprintf("swarm_out_dir=%s", specs.PLACEHOLDER_ISOLATED_OUTDIR),
 			fmt.Sprintf("revision=%s", specs.PLACEHOLDER_REVISION),
 			fmt.Sprintf("patch_repo=%s", specs.PLACEHOLDER_PATCH_REPO),
 			fmt.Sprintf("patch_storage=%s", specs.PLACEHOLDER_PATCH_STORAGE),
@@ -734,7 +726,6 @@ func bookmaker(b *specs.TasksCfgBuilder, name, compileTaskName string) string {
 			"--workdir", "../../..", "bookmaker",
 			fmt.Sprintf("repository=%s", specs.PLACEHOLDER_REPO),
 			fmt.Sprintf("buildername=%s", name),
-			fmt.Sprintf("swarm_out_dir=%s", specs.PLACEHOLDER_ISOLATED_OUTDIR),
 			fmt.Sprintf("revision=%s", specs.PLACEHOLDER_REVISION),
 			fmt.Sprintf("patch_repo=%s", specs.PLACEHOLDER_PATCH_REPO),
 			fmt.Sprintf("patch_storage=%s", specs.PLACEHOLDER_PATCH_STORAGE),
@@ -759,7 +750,6 @@ func infra(b *specs.TasksCfgBuilder, name string) string {
 			"--workdir", "../../..", "infra",
 			fmt.Sprintf("repository=%s", specs.PLACEHOLDER_REPO),
 			fmt.Sprintf("buildername=%s", name),
-			fmt.Sprintf("swarm_out_dir=%s", specs.PLACEHOLDER_ISOLATED_OUTDIR),
 			fmt.Sprintf("revision=%s", specs.PLACEHOLDER_REVISION),
 			fmt.Sprintf("patch_repo=%s", specs.PLACEHOLDER_PATCH_REPO),
 			fmt.Sprintf("patch_storage=%s", specs.PLACEHOLDER_PATCH_STORAGE),
@@ -791,7 +781,6 @@ func calmbench(b *specs.TasksCfgBuilder, name string, parts map[string]string, c
 			"--workdir", "../../..", "calmbench",
 			fmt.Sprintf("repository=%s", specs.PLACEHOLDER_REPO),
 			fmt.Sprintf("buildername=%s", name),
-			fmt.Sprintf("swarm_out_dir=%s", specs.PLACEHOLDER_ISOLATED_OUTDIR),
 			fmt.Sprintf("revision=%s", specs.PLACEHOLDER_REVISION),
 			fmt.Sprintf("patch_repo=%s", specs.PLACEHOLDER_PATCH_REPO),
 			fmt.Sprintf("patch_storage=%s", specs.PLACEHOLDER_PATCH_STORAGE),
@@ -816,7 +805,6 @@ func calmbench(b *specs.TasksCfgBuilder, name string, parts map[string]string, c
 				"--workdir", "../../..", "upload_calmbench_results",
 				fmt.Sprintf("repository=%s", specs.PLACEHOLDER_REPO),
 				fmt.Sprintf("buildername=%s", name),
-				fmt.Sprintf("swarm_out_dir=%s", specs.PLACEHOLDER_ISOLATED_OUTDIR),
 				fmt.Sprintf("revision=%s", specs.PLACEHOLDER_REVISION),
 				fmt.Sprintf("patch_repo=%s", specs.PLACEHOLDER_PATCH_REPO),
 				fmt.Sprintf("patch_storage=%s", specs.PLACEHOLDER_PATCH_STORAGE),
@@ -862,7 +850,6 @@ func test(b *specs.TasksCfgBuilder, name string, parts map[string]string, compil
 			fmt.Sprintf("repository=%s", specs.PLACEHOLDER_REPO),
 			fmt.Sprintf("buildbucket_build_id=%s", specs.PLACEHOLDER_BUILDBUCKET_BUILD_ID),
 			fmt.Sprintf("buildername=%s", name),
-			fmt.Sprintf("swarm_out_dir=%s", specs.PLACEHOLDER_ISOLATED_OUTDIR),
 			fmt.Sprintf("revision=%s", specs.PLACEHOLDER_REVISION),
 			fmt.Sprintf("patch_repo=%s", specs.PLACEHOLDER_PATCH_REPO),
 			fmt.Sprintf("patch_storage=%s", specs.PLACEHOLDER_PATCH_STORAGE),
@@ -914,7 +901,6 @@ func test(b *specs.TasksCfgBuilder, name string, parts map[string]string, compil
 				"--workdir", "../../..", "upload_dm_results",
 				fmt.Sprintf("repository=%s", specs.PLACEHOLDER_REPO),
 				fmt.Sprintf("buildername=%s", name),
-				fmt.Sprintf("swarm_out_dir=%s", specs.PLACEHOLDER_ISOLATED_OUTDIR),
 				fmt.Sprintf("revision=%s", specs.PLACEHOLDER_REVISION),
 				fmt.Sprintf("patch_repo=%s", specs.PLACEHOLDER_PATCH_REPO),
 				fmt.Sprintf("patch_storage=%s", specs.PLACEHOLDER_PATCH_STORAGE),
@@ -957,7 +943,6 @@ func coverage(b *specs.TasksCfgBuilder, name string, parts map[string]string, co
 				"--workdir", "../../..", "test",
 				fmt.Sprintf("repository=%s", specs.PLACEHOLDER_REPO),
 				fmt.Sprintf("buildername=%s", n),
-				fmt.Sprintf("swarm_out_dir=%s", specs.PLACEHOLDER_ISOLATED_OUTDIR),
 				fmt.Sprintf("revision=%s", specs.PLACEHOLDER_REVISION),
 				fmt.Sprintf("patch_repo=%s", specs.PLACEHOLDER_PATCH_REPO),
 				fmt.Sprintf("patch_storage=%s", specs.PLACEHOLDER_PATCH_STORAGE),
@@ -1002,7 +987,6 @@ func coverage(b *specs.TasksCfgBuilder, name string, parts map[string]string, co
 			"--workdir", "../../..", "upload_coverage_results",
 			fmt.Sprintf("repository=%s", specs.PLACEHOLDER_REPO),
 			fmt.Sprintf("buildername=%s", name),
-			fmt.Sprintf("swarm_out_dir=%s", specs.PLACEHOLDER_ISOLATED_OUTDIR),
 			fmt.Sprintf("revision=%s", specs.PLACEHOLDER_REVISION),
 			fmt.Sprintf("patch_repo=%s", specs.PLACEHOLDER_PATCH_REPO),
 			fmt.Sprintf("patch_storage=%s", specs.PLACEHOLDER_PATCH_STORAGE),
@@ -1048,7 +1032,6 @@ func perf(b *specs.TasksCfgBuilder, name string, parts map[string]string, compil
 			"--workdir", "../../..", recipe,
 			fmt.Sprintf("repository=%s", specs.PLACEHOLDER_REPO),
 			fmt.Sprintf("buildername=%s", name),
-			fmt.Sprintf("swarm_out_dir=%s", specs.PLACEHOLDER_ISOLATED_OUTDIR),
 			fmt.Sprintf("revision=%s", specs.PLACEHOLDER_REVISION),
 			fmt.Sprintf("patch_repo=%s", specs.PLACEHOLDER_PATCH_REPO),
 			fmt.Sprintf("patch_storage=%s", specs.PLACEHOLDER_PATCH_STORAGE),
@@ -1095,7 +1078,6 @@ func perf(b *specs.TasksCfgBuilder, name string, parts map[string]string, compil
 				"--workdir", "../../..", "upload_nano_results",
 				fmt.Sprintf("repository=%s", specs.PLACEHOLDER_REPO),
 				fmt.Sprintf("buildername=%s", name),
-				fmt.Sprintf("swarm_out_dir=%s", specs.PLACEHOLDER_ISOLATED_OUTDIR),
 				fmt.Sprintf("revision=%s", specs.PLACEHOLDER_REVISION),
 				fmt.Sprintf("patch_repo=%s", specs.PLACEHOLDER_PATCH_REPO),
 				fmt.Sprintf("patch_storage=%s", specs.PLACEHOLDER_PATCH_STORAGE),
@@ -1177,7 +1159,7 @@ func process(b *specs.TasksCfgBuilder, name string) {
 		!strings.Contains(name, "-CT_") &&
 		!strings.Contains(name, "Housekeeper-PerCommit-Isolate") {
 		compile(b, compileTaskName, compileTaskParts)
-		if (parts["role"] == "Calmbench") {
+		if parts["role"] == "Calmbench" {
 			compile(b, compileParentName, compileParentParts)
 		}
 	}
@@ -1382,4 +1364,3 @@ func (s *JobNameSchema) MakeJobName(parts map[string]string) (string, error) {
 	}
 	return strings.Join(rvParts, s.Sep), nil
 }
-

@@ -20,7 +20,7 @@
           '--slave_num', '<(SLAVE_NUM)',
           '--tool', '<(TOOL_NAME)',
           '--git_hash', '<(GIT_HASH)',
-          '--isolated_outdir', '${ISOLATED_OUTDIR}',
+          '--isolated_outdir', 'isolated_outdir',
           '--configuration', '<(CONFIGURATION)',
           '--builder', '<(BUILDER)',
           '--chromium_build', '<(CHROMIUM_BUILD)',

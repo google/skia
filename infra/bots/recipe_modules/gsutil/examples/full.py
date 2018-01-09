@@ -26,8 +26,7 @@ def GenTests(api):
       api.properties(buildername='Housekeeper-PerCommit-InfraTests',
                      repository='https://skia.googlesource.com/skia.git',
                      revision='abc123',
-                     path_config='kitchen',
-                     swarm_out_dir='[SWARM_OUT_DIR]')
+                     path_config='kitchen')
   )
 
   yield (
@@ -35,8 +34,7 @@ def GenTests(api):
       api.properties(buildername='Housekeeper-PerCommit-InfraTests',
                      repository='https://skia.googlesource.com/skia.git',
                      revision='abc123',
-                     path_config='kitchen',
-                     swarm_out_dir='[SWARM_OUT_DIR]') +
+                     path_config='kitchen') +
     api.step_data('upload test file', retcode=1)
   )
 
@@ -45,8 +43,7 @@ def GenTests(api):
       api.properties(buildername='Housekeeper-PerCommit-InfraTests',
                      repository='https://skia.googlesource.com/skia.git',
                      revision='abc123',
-                     path_config='kitchen',
-                     swarm_out_dir='[SWARM_OUT_DIR]') +
+                     path_config='kitchen') +
     api.step_data('upload test file', retcode=1) +
     api.step_data('upload test file (attempt 2)', retcode=1) +
     api.step_data('upload test file (attempt 3)', retcode=1) +

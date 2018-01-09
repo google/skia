@@ -907,7 +907,7 @@
       "ensure-directory",
       "--mode",
       "0777",
-      "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-All-Android_Skpbench"
+      "[START_DIR]/isolated_outdir/perfdata/Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-All-Android_Skpbench"
     ],
     "infra_step": true,
     "name": "makedirs perf_dir"
@@ -917,7 +917,7 @@
       "/usr/bin/adb.1.0.35",
       "pull",
       "/sdcard/revenge_of_the_skiabot/perf",
-      "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-All-Android_Skpbench/data"
+      "[START_DIR]/isolated_outdir/perfdata/Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-All-Android_Skpbench/data"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
@@ -927,7 +927,7 @@
       "SKIA_OUT": "[START_DIR]/out"
     },
     "infra_step": true,
-    "name": "pull /sdcard/revenge_of_the_skiabot/perf [CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-All-Android_Skpbench/data"
+    "name": "pull /sdcard/revenge_of_the_skiabot/perf [START_DIR]/isolated_outdir/perfdata/Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-All-Android_Skpbench/data"
   },
   {
     "cmd": [

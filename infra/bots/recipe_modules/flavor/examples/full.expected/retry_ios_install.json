@@ -576,7 +576,7 @@
     "cmd": [
       "[START_DIR]/skia/platform_tools/ios/bin/ios_pull_if_needed",
       "dm",
-      "[CUSTOM_[SWARM_OUT_DIR]]/dm"
+      "[START_DIR]/isolated_outdir/dm"
     ],
     "env": {
       "BUILDTYPE": "Release",

@@ -602,7 +602,7 @@
       "adb",
       "pull",
       "/cache/skia/dm_out",
-      "[CUSTOM_[SWARM_OUT_DIR]]/dm"
+      "[START_DIR]/isolated_outdir/dm"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
@@ -612,7 +612,7 @@
       "SKIA_OUT": "[START_DIR]/out"
     },
     "infra_step": true,
-    "name": "pull /cache/skia/dm_out [CUSTOM_[SWARM_OUT_DIR]]/dm"
+    "name": "pull /cache/skia/dm_out [START_DIR]/isolated_outdir/dm"
   },
   {
     "cmd": [

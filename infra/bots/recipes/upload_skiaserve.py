@@ -40,7 +40,6 @@ def GenTests(api):
     api.test('normal_bot') +
     api.properties(buildername=builder,
                    repository='https://skia.googlesource.com/skia.git',
-                   swarm_out_dir='[SWARM_OUT_DIR]',
                    revision='abc123',
                    path_config='kitchen')
   )
@@ -49,7 +48,6 @@ def GenTests(api):
     api.test('trybot') +
     api.properties(buildername=builder,
                    repository='https://skia.googlesource.com/skia.git',
-                   swarm_out_dir='[SWARM_OUT_DIR]',
                    revision='abc123',
                    path_config='kitchen',
                    patch_storage='gerrit') +

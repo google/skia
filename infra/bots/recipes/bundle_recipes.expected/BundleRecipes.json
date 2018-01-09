@@ -44,7 +44,7 @@
       "[START_DIR]/skia/infra/bots/recipes.py",
       "bundle",
       "--destination",
-      "[SWARM_OUT_DIR]/recipe_bundle"
+      "/recipe_bundle"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {

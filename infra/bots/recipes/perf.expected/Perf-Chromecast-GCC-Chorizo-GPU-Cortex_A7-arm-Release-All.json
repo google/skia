@@ -435,7 +435,7 @@
       "ensure-directory",
       "--mode",
       "0777",
-      "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-Chromecast-GCC-Chorizo-GPU-Cortex_A7-arm-Release-All"
+      "[START_DIR]/isolated_outdir/perfdata/Perf-Chromecast-GCC-Chorizo-GPU-Cortex_A7-arm-Release-All"
     ],
     "infra_step": true,
     "name": "makedirs perf_dir"
@@ -445,7 +445,7 @@
       "adb",
       "pull",
       "/cache/skia/perf",
-      "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-Chromecast-GCC-Chorizo-GPU-Cortex_A7-arm-Release-All/data"
+      "[START_DIR]/isolated_outdir/perfdata/Perf-Chromecast-GCC-Chorizo-GPU-Cortex_A7-arm-Release-All/data"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
@@ -455,7 +455,7 @@
       "SKIA_OUT": "[START_DIR]/out"
     },
     "infra_step": true,
-    "name": "pull /cache/skia/perf [CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-Chromecast-GCC-Chorizo-GPU-Cortex_A7-arm-Release-All/data"
+    "name": "pull /cache/skia/perf [START_DIR]/isolated_outdir/perfdata/Perf-Chromecast-GCC-Chorizo-GPU-Cortex_A7-arm-Release-All/data"
   },
   {
     "cmd": [

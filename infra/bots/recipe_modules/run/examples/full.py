@@ -70,8 +70,7 @@ def GenTests(api):
       api.properties(buildername=buildername,
                      repository='https://skia.googlesource.com/skia.git',
                      revision='abc123',
-                     path_config='kitchen',
-                     swarm_out_dir='[SWARM_OUT_DIR]') +
+                     path_config='kitchen') +
       api.step_data('fail', retcode=1) +
       api.step_data('fail again', retcode=1) +
       api.step_data('retry fail', retcode=1) +

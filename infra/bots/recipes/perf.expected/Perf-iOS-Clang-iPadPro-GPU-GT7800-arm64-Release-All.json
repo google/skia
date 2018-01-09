@@ -634,7 +634,7 @@
       "ensure-directory",
       "--mode",
       "0777",
-      "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-iOS-Clang-iPadPro-GPU-GT7800-arm64-Release-All"
+      "[START_DIR]/isolated_outdir/perfdata/Perf-iOS-Clang-iPadPro-GPU-GT7800-arm64-Release-All"
     ],
     "env": {
       "IOS_BUNDLE_ID": "com.google.nanobench",
@@ -647,7 +647,7 @@
     "cmd": [
       "[START_DIR]/skia/platform_tools/ios/bin/ios_pull_if_needed",
       "perf",
-      "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-iOS-Clang-iPadPro-GPU-GT7800-arm64-Release-All/data"
+      "[START_DIR]/isolated_outdir/perfdata/Perf-iOS-Clang-iPadPro-GPU-GT7800-arm64-Release-All/data"
     ],
     "env": {
       "BUILDTYPE": "Release",
