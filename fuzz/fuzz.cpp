@@ -546,7 +546,6 @@ static void fuzz_textblob_deserialize(sk_sp<SkData> bytes) {
 }
 
 static void fuzz_filter_fuzz(sk_sp<SkData> bytes) {
-
     const int BitmapSize = 24;
     SkBitmap bitmap;
     bitmap.allocN32Pixels(BitmapSize, BitmapSize);
