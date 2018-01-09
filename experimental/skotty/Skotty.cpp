@@ -897,6 +897,9 @@ Animation::Animation(const ResourceProvider& resources,
     AttachContext ctx = { resources, assets, fAnimators };
     fDom = AttachComposition(json, &ctx);
 
+    // In case the client calls render before the first tick.
+    this->animationTick(0);
+
     LOG("** Attached %d animators\n", fAnimators.count());
 }
 
