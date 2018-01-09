@@ -12,27 +12,27 @@
 
 class SkRectPriv {
 public:
-    static SkRect MakeLargestS32() {
+    static SkIRect MakeILargest() {
         const int32_t ihalf = SK_MaxS32 >> 1;
-        const SkScalar half = SkIntToScalar(ihalf);
+        return { -ihalf, -ihalf, ihalf, ihalf };
+    }
 
-        return { -half, -half, half, half };
+    static SkIRect MakeILargestInverted() {
+        return { SK_MaxS32, SK_MaxS32, SK_MinS32, SK_MinS32 };
+    }
+
+    static SkRect MakeLargestS32() {
+        SkRect r;
+        r.set(MakeILargest());
+        return r;
     }
 
     static SkRect MakeLargest() {
         return { SK_ScalarMin, SK_ScalarMin, SK_ScalarMax, SK_ScalarMax };
     }
 
-    static SkIRect MakeILargest() {
-        return { SK_MinS32, SK_MinS32, SK_MaxS32, SK_MaxS32 };
-    }
-
     static SkRect MakeLargestInverted() {
         return { SK_ScalarMax, SK_ScalarMax, SK_ScalarMin, SK_ScalarMin };
-    }
-
-    static SkIRect MakeILargestInverted() {
-        return { SK_MaxS32, SK_MaxS32, SK_MinS32, SK_MinS32 };
     }
 
     static void GrowToInclude(SkRect* r, const SkPoint& pt) {
