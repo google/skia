@@ -22,6 +22,30 @@
       "revId": "6af5cc63880524200c8a10f13faa80267a84fa56",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f41462cd_cb658633",
+        "filename": "src/core/SkPicturePlayback.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-01-09T18:52:45Z",
+      "side": 1,
+      "message": "never mind, its type is not signed.",
+      "parentUuid": "1773b243_92f8a81b",
+      "range": {
+        "startLine": 81,
+        "startChar": 32,
+        "endLine": 81,
+        "endChar": 36
+      },
+      "revId": "6af5cc63880524200c8a10f13faa80267a84fa56",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
