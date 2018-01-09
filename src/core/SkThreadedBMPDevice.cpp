@@ -73,11 +73,11 @@ SkThreadedBMPDevice::DrawState::DrawState(SkThreadedBMPDevice* dev) {
 }
 
 SkIRect SkThreadedBMPDevice::transformDrawBounds(const SkRect& drawBounds) const {
+    if (drawBounds == SkRectPriv::MakeLargest()) {
+        return SkRectPriv::MakeILargest();
+    }
     SkRect transformedBounds;
     this->ctm().mapRect(&transformedBounds, drawBounds);
-    if (!transformedBounds.isFinite()) {
-        transformedBounds = SkRectPriv::MakeLargestS32();
-    }
     return transformedBounds.roundOut();
 }
 
