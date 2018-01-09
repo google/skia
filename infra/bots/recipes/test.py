@@ -94,6 +94,7 @@ def dm_flags(api, bot):
       configs.remove('pdf')
 
     if '-GCE-' in bot:
+      configs.extend(['g8'])
       configs.extend(['565'])
       configs.extend(['f16'])
       configs.extend(['sp-8888', '2ndpic-8888']) # Test niche uses of SkPicture.
@@ -266,6 +267,10 @@ def dm_flags(api, bot):
   # Not any point to running these.
   blacklist('gbr-8888 image _ _')
   blacklist('gbr-8888 colorImage _ _')
+
+  # --src image --config g8 means "decode into Gray8", which isn't supported.
+  blacklist('g8 image _ _')
+  blacklist('g8 colorImage _ _')
 
   if 'Valgrind' in bot:
     # These take 18+ hours to run.

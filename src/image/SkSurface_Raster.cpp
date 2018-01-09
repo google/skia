@@ -50,6 +50,12 @@ bool SkSurfaceValidateRasterInfo(const SkImageInfo& info, size_t rowBytes) {
             }
             shift = 0;
             break;
+        case kGray_8_SkColorType:
+            if (info.colorSpace()) {
+                return false;
+            }
+            shift = 0;
+            break;
         case kRGB_565_SkColorType:
             if (info.colorSpace()) {
                 return false;
