@@ -1428,7 +1428,8 @@ bool GrRenderTargetContext::waitOnSemaphores(int numSemaphores,
     SkTArray<sk_sp<GrSemaphore>> semaphores(numSemaphores);
     for (int i = 0; i < numSemaphores; ++i) {
         sk_sp<GrSemaphore> sema = fContext->resourceProvider()->wrapBackendSemaphore(
-                waitSemaphores[i], kAdopt_GrWrapOwnership);
+                waitSemaphores[i], GrResourceProvider::SemaphoreWrapType::kWillWait,
+                kAdopt_GrWrapOwnership);
         std::unique_ptr<GrOp> waitOp(GrSemaphoreOp::MakeWait(sema, fRenderTargetProxy.get()));
         this->getRTOpList()->addOp(std::move(waitOp), *this->caps());
     }

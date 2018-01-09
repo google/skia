@@ -228,7 +228,13 @@ public:
 
     sk_sp<GrSemaphore> SK_WARN_UNUSED_RESULT makeSemaphore(bool isOwned = true);
 
+    enum class SemaphoreWrapType {
+        kWillSignal,
+        kWillWait,
+    };
+
     sk_sp<GrSemaphore> wrapBackendSemaphore(const GrBackendSemaphore&,
+                                            SemaphoreWrapType wrapType,
                                             GrWrapOwnership = kBorrow_GrWrapOwnership);
 
     // Takes the GrSemaphore and sets the ownership of the semaphore to the GrGpu object used by

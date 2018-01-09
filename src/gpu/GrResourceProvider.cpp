@@ -472,9 +472,12 @@ sk_sp<GrSemaphore> SK_WARN_UNUSED_RESULT GrResourceProvider::makeSemaphore(bool 
 }
 
 sk_sp<GrSemaphore> GrResourceProvider::wrapBackendSemaphore(const GrBackendSemaphore& semaphore,
+                                                            SemaphoreWrapType wrapType,
                                                             GrWrapOwnership ownership) {
     ASSERT_SINGLE_OWNER
-    return this->isAbandoned() ? nullptr : fGpu->wrapBackendSemaphore(semaphore, ownership);
+    return this->isAbandoned() ? nullptr : fGpu->wrapBackendSemaphore(semaphore,
+                                                                      wrapType,
+                                                                      ownership);
 }
 
 void GrResourceProvider::takeOwnershipOfSemaphore(sk_sp<GrSemaphore> semaphore) {

@@ -13,7 +13,15 @@
 class GrBackendSemaphore;
 class GrGpu;
 
+/*
+ * Wrapper around a semaphore object which must be implemented on each backend. This semaphores can
+ * at most be signaled once and waited upon once.
+ */
 class GrSemaphore : public SkRefCnt {
+public:
+    bool hasSubmittedSignal() const { return fSignaled; }
+    bool hasSubmittedWait() const { return fWaitedOn; }
+
 private:
     // This function should only be used in the case of exporting and importing a GrSemaphore object
     // from one GrContext to another. When exporting, the GrSemaphore should be set to a null GrGpu,
@@ -25,6 +33,9 @@ private:
     // semaphores so we can set the clients GrBackendSemaphore object after we've created the
     // internal semaphore.
     virtual void setBackendSemaphore(GrBackendSemaphore*) const = 0;
+
+    bool fSignaled = false;
+    bool fWaitedOn = false;
 
 protected:
     explicit GrSemaphore(const GrGpu* gpu) : fGpu(gpu) {}
