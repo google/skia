@@ -16,6 +16,7 @@
 #include "SkMakeUnique.h"
 #include "SkOSPath.h"
 #include "SkPaint.h"
+#include "SkParse.h"
 #include "SkPath.h"
 #include "SkPoint.h"
 #include "SkSGColor.h"
@@ -598,11 +599,24 @@ sk_sp<sksg::RenderNode> AttachCompLayer(const Json::Value& layer, AttachContext*
     return AttachComposition(**comp, ctx);
 }
 
-sk_sp<sksg::RenderNode> AttachSolidLayer(const Json::Value& layer, AttachContext*) {
-    SkASSERT(layer.isObject());
+sk_sp<sksg::RenderNode> AttachSolidLayer(const Json::Value& jlayer, AttachContext*) {
+    SkASSERT(jlayer.isObject());
 
-    LOG("?? Solid layer stub\n");
-    return nullptr;
+    const auto size = SkSize::Make(ParseScalar(jlayer["sw"], -1),
+                                   ParseScalar(jlayer["sh"], -1));
+    const auto hex = ParseString(jlayer["sc"], "");
+    uint32_t c;
+    if (size.isEmpty() ||
+        !hex.startsWith("#") ||
+        !SkParse::FindHex(hex.c_str() + 1, &c)) {
+        LogFail(jlayer, "Could not parse solid layer");
+        return nullptr;
+    }
+
+    const SkColor color = 0xff000000 | c;
+
+    return sksg::Draw::Make(sksg::Rect::Make(SkRect::MakeSize(size)),
+                            sksg::Color::Make(color));
 }
 
 sk_sp<sksg::RenderNode> AttachImageAsset(const Json::Value& jimage, AttachContext* ctx) {
