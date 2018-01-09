@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f3332cfc_3008a64d",
+        "filename": "platform_tools/android/apps/skqp/src/main/java/org/skia/skqp/SkQP.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-01-09T20:33:45Z",
+      "side": 1,
+      "message": "only call if (!outputDir.exists())",
+      "revId": "0ccd6c8f0d28fc2c97b2f18513a049d868c64444",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
