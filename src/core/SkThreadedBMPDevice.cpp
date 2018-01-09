@@ -16,18 +16,50 @@ void SkThreadedBMPDevice::DrawQueue::reset() {
         fTasks->finish();
     }
 
+    fThreadAllocs.reset(fDevice->fThreadCnt);
     fSize = 0;
 
     // using TaskGroup2D = SkSpinningTaskGroup2D;
     using TaskGroup2D = SkFlexibleTaskGroup2D;
-    auto draw2D = [this](int row, int column){
-        SkThreadedBMPDevice::DrawElement& drawElement = fElements[column];
-        if (!SkIRect::Intersects(fDevice->fTileBounds[row], drawElement.fDrawBounds)) {
-            return;
+
+    // Calling drawFn(i, j, k) would draw j-th element the i-th tile on k-th thead.
+    // If the element still needs to be initialized, drawFn will return false without drawing.
+    auto drawFn = [this](int row, int column, int threadId){
+        SkThreadedBMPDevice::DrawElement& element = fElements[column];
+        if (!SkIRect::Intersects(fDevice->fTileBounds[row], element.fDrawBounds)) {
+            return true;
         }
-        drawElement.fDrawFn(fDevice->fTileBounds[row]);
+        if (element.fInitialized) {
+            element.fDrawFn(&fThreadAllocs[threadId], element.fDS, fDevice->fTileBounds[row]);
+            return true;
+        }
+        return false;
     };
-    fTasks.reset(new TaskGroup2D(draw2D, fDevice->fTileCnt, fDevice->fExecutor,
+
+    // Calling initFn(j, k) would initialize the j-th element on k-th thread. It returns false if no
+    // initialization is done either because the element is already initialized, or because some
+    // other thread is initializing it.
+    auto initFn = [this](int column, int threadId){
+        SkThreadedBMPDevice::DrawElement& element = fElements[column];
+        // element.fInitialized and element.fNeedInit are two atomic booleans that makes sure that
+        // each element is only initialized once. They are initialized to (false, true) for elements
+        // that need initialization. Once initialized, fInitialized will be set to true. During the
+        // initialization, they'll be (false, false).
+        if (!element.fInitialized && element.fNeedInit) {
+            bool needInit = true;
+            // If there are multiple threads reaching this point simutaneously,
+            // compare_exchange_strong ensures that only one thread can enter the if condition and
+            // do the initialization.
+            if (element.fNeedInit.compare_exchange_strong(needInit, false)) {
+                element.fInitFn(&fThreadAllocs[threadId], &element);
+                element.fInitialized = true;
+                return true;
+            }
+        }
+        return false;
+    };
+
+    fTasks.reset(new TaskGroup2D(drawFn, initFn, fDevice->fTileCnt, fDevice->fExecutor,
                                  fDevice->fThreadCnt));
     fTasks->start();
 }
@@ -61,32 +93,15 @@ void SkThreadedBMPDevice::flush() {
     fQueue.reset();
 }
 
-// Having this captured in lambda seems to be faster than saving this in DrawElement
-struct SkThreadedBMPDevice::DrawState {
-    SkPixmap fDst;
-    SkMatrix fMatrix;
-    SkRasterClip fRC;
-
-    explicit DrawState(SkThreadedBMPDevice* dev) {
-        // we need fDst to be set, and if we're actually drawing, to dirty the genID
-        if (!dev->accessPixels(&fDst)) {
-            // NoDrawDevice uses us (why?) so we have to catch this case w/ no pixels
-            fDst.reset(dev->imageInfo(), nullptr, 0);
-        }
-        fMatrix = dev->ctm();
-        fRC = dev->fRCStack.rc();
+SkThreadedBMPDevice::DrawState::DrawState(SkThreadedBMPDevice* dev) {
+    // we need fDst to be set, and if we're actually drawing, to dirty the genID
+    if (!dev->accessPixels(&fDst)) {
+        // NoDrawDevice uses us (why?) so we have to catch this case w/ no pixels
+        fDst.reset(dev->imageInfo(), nullptr, 0);
     }
-
-    SkDraw getThreadDraw(SkRasterClip& threadRC, const SkIRect& threadBounds) const {
-        SkDraw draw;
-        draw.fDst = fDst;
-        draw.fMatrix = &fMatrix;
-        threadRC = fRC;
-        threadRC.op(threadBounds, SkRegion::kIntersect_Op);
-        draw.fRC = &threadRC;
-        return draw;
-    }
-};
+    fMatrix = dev->ctm();
+    fRC = dev->fRCStack.rc();
+}
 
 SkIRect SkThreadedBMPDevice::transformDrawBounds(const SkRect& drawBounds) const {
     if (drawBounds.isLargest()) {
@@ -97,19 +112,22 @@ SkIRect SkThreadedBMPDevice::transformDrawBounds(const SkRect& drawBounds) const
     return transformedBounds.roundOut();
 }
 
-// The do {...} while (false) is to enforce trailing semicolon as suggested by mtklein@
-#define THREADED_DRAW(drawBounds, actualDrawCall)                                                  \
-    do {                                                                                           \
-        DrawState ds(this);                                                                        \
-        fQueue.push({                                                                              \
-            this->transformDrawBounds(drawBounds),                                                 \
-            [=](const SkIRect& tileBounds) {                                                       \
-                SkRasterClip tileRC;                                                               \
-                SkDraw draw = ds.getThreadDraw(tileRC, tileBounds);                                \
-                draw.actualDrawCall;                                                               \
-            },                                                                                     \
-        });                                                                                        \
-    } while (false)
+
+SkDraw SkThreadedBMPDevice::DrawState::getDraw() const {
+    SkDraw draw;
+    draw.fDst = fDst;
+    draw.fMatrix = &fMatrix;
+    draw.fRC = &fRC;
+    return draw;
+}
+
+SkThreadedBMPDevice::TileDraw::TileDraw(const DrawState& ds, const SkIRect& tileBounds)
+        : fTileRC(ds.fRC) {
+    fDst = ds.fDst;
+    fMatrix = &ds.fMatrix;
+    fTileRC.op(tileBounds, SkRegion::kIntersect_Op);
+    fRC = &fTileRC;
+}
 
 static inline SkRect get_fast_bounds(const SkRect& r, const SkPaint& p) {
     SkRect result;
@@ -122,19 +140,25 @@ static inline SkRect get_fast_bounds(const SkRect& r, const SkPaint& p) {
 }
 
 void SkThreadedBMPDevice::drawPaint(const SkPaint& paint) {
-    THREADED_DRAW(SkRect::MakeLargest(), drawPaint(paint));
+    SkRect drawBounds = SkRect::MakeLargest();
+    fQueue.push(drawBounds, [=](SkArenaAlloc*, const DrawState& ds, const SkIRect& tileBounds){
+        TileDraw(ds, tileBounds).drawPaint(paint);
+    });
 }
 
 void SkThreadedBMPDevice::drawPoints(SkCanvas::PointMode mode, size_t count,
         const SkPoint pts[], const SkPaint& paint) {
-    // TODO tighter drawBounds
-    SkRect drawBounds = SkRect::MakeLargest();
-    THREADED_DRAW(drawBounds, drawPoints(mode, count, pts, paint, nullptr));
+    SkRect drawBounds = SkRect::MakeLargest(); // TODO tighter drawBounds
+    fQueue.push(drawBounds, [=](SkArenaAlloc*, const DrawState& ds, const SkIRect& tileBounds){
+        TileDraw(ds, tileBounds).drawPoints(mode, count, pts, paint, nullptr);
+    });
 }
 
 void SkThreadedBMPDevice::drawRect(const SkRect& r, const SkPaint& paint) {
     SkRect drawBounds = get_fast_bounds(r, paint);
-    THREADED_DRAW(drawBounds, drawRect(r, paint));
+    fQueue.push(drawBounds, [=](SkArenaAlloc*, const DrawState& ds, const SkIRect& tileBounds){
+        TileDraw(ds, tileBounds).drawRect(r, paint);
+    });
 }
 
 void SkThreadedBMPDevice::drawRRect(const SkRRect& rrect, const SkPaint& paint) {
@@ -147,7 +171,9 @@ void SkThreadedBMPDevice::drawRRect(const SkRRect& rrect, const SkPaint& paint) 
     this->drawPath(path, paint, nullptr, false);
 #else
     SkRect drawBounds = get_fast_bounds(rrect.getBounds(), paint);
-    THREADED_DRAW(drawBounds, drawRRect(rrect, paint));
+    fQueue.push(drawBounds, [=](SkArenaAlloc*, const DrawState& ds, const SkIRect& tileBounds){
+        TileDraw(ds, tileBounds).drawRRect(rrect, paint);
+    });
 #endif
 }
 
@@ -155,8 +181,16 @@ void SkThreadedBMPDevice::drawPath(const SkPath& path, const SkPaint& paint,
         const SkMatrix* prePathMatrix, bool pathIsMutable) {
     SkRect drawBounds = path.isInverseFillType() ? SkRect::MakeLargest()
                                                  : get_fast_bounds(path.getBounds(), paint);
-    // For thread safety, make path imutable
-    THREADED_DRAW(drawBounds, drawPath(path, paint, prePathMatrix, false));
+    if (path.countVerbs() < 100) { // when path is small, init-once has too much overhead
+        fQueue.push(drawBounds, [=](SkArenaAlloc*, const DrawState& ds, const SkIRect& tileBounds) {
+            TileDraw(ds, tileBounds).drawPath(path, paint, prePathMatrix, false);
+        });
+    } else {
+        fQueue.push(drawBounds, [=](SkArenaAlloc* alloc, DrawElement* elem) {
+            SkInitOnceData data = {alloc, elem};
+            elem->fDS.getDraw().drawPath(path, paint, prePathMatrix, false, false, nullptr, &data);
+        });
+    }
 }
 
 void SkThreadedBMPDevice::drawBitmap(const SkBitmap& bitmap, SkScalar x, SkScalar y,
@@ -165,39 +199,52 @@ void SkThreadedBMPDevice::drawBitmap(const SkBitmap& bitmap, SkScalar x, SkScala
     LogDrawScaleFactor(SkMatrix::Concat(this->ctm(), matrix), paint.getFilterQuality());
     SkRect drawBounds = SkRect::MakeWH(bitmap.width(), bitmap.height());
     matrix.mapRect(&drawBounds);
-    THREADED_DRAW(drawBounds, drawBitmap(bitmap, matrix, nullptr, paint));
+    fQueue.push(drawBounds, [=](SkArenaAlloc*, const DrawState& ds, const SkIRect& tileBounds){
+        TileDraw(ds, tileBounds).drawBitmap(bitmap, matrix, nullptr, paint);
+    });
 }
 
 void SkThreadedBMPDevice::drawSprite(const SkBitmap& bitmap, int x, int y, const SkPaint& paint) {
     SkRect drawBounds = SkRect::MakeXYWH(x, y, bitmap.width(), bitmap.height());
-    THREADED_DRAW(drawBounds, drawSprite(bitmap, x, y, paint));
+    fQueue.push(drawBounds, [=](SkArenaAlloc*, const DrawState& ds, const SkIRect& tileBounds){
+        TileDraw(ds, tileBounds).drawSprite(bitmap, x, y, paint);
+    });
 }
 
 void SkThreadedBMPDevice::drawText(const void* text, size_t len, SkScalar x, SkScalar y,
         const SkPaint& paint) {
     SkRect drawBounds = SkRect::MakeLargest(); // TODO tighter drawBounds
-    THREADED_DRAW(drawBounds, drawText((const char*)text, len, x, y, paint, &this->surfaceProps()));
+    fQueue.push(drawBounds, [=](SkArenaAlloc*, const DrawState& ds, const SkIRect& tileBounds){
+        TileDraw(ds, tileBounds).drawText((const char*)text, len, x, y, paint,
+                                          &this->surfaceProps());
+    });
 }
 
 void SkThreadedBMPDevice::drawPosText(const void* text, size_t len, const SkScalar xpos[],
         int scalarsPerPos, const SkPoint& offset, const SkPaint& paint) {
     SkRect drawBounds = SkRect::MakeLargest(); // TODO tighter drawBounds
-    THREADED_DRAW(drawBounds, drawPosText((const char*)text, len, xpos, scalarsPerPos, offset,
-                                          paint, &surfaceProps()));
+    fQueue.push(drawBounds, [=](SkArenaAlloc*, const DrawState& ds, const SkIRect& tileBounds){
+        TileDraw(ds, tileBounds).drawPosText((const char*)text, len, xpos, scalarsPerPos, offset,
+                                             paint, &surfaceProps());
+    });
 }
 
 void SkThreadedBMPDevice::drawVertices(const SkVertices* vertices, SkBlendMode bmode,
         const SkPaint& paint) {
     SkRect drawBounds = SkRect::MakeLargest(); // TODO tighter drawBounds
-    THREADED_DRAW(drawBounds, drawVertices(vertices->mode(), vertices->vertexCount(),
-                                           vertices->positions(), vertices->texCoords(),
-                                           vertices->colors(), bmode, vertices->indices(),
-                                           vertices->indexCount(), paint));
+    fQueue.push(drawBounds, [=](SkArenaAlloc*, const DrawState& ds, const SkIRect& tileBounds){
+        TileDraw(ds, tileBounds).drawVertices(vertices->mode(), vertices->vertexCount(),
+                                              vertices->positions(), vertices->texCoords(),
+                                              vertices->colors(), bmode, vertices->indices(),
+                                              vertices->indexCount(), paint);
+    });
 }
 
 void SkThreadedBMPDevice::drawDevice(SkBaseDevice* device, int x, int y, const SkPaint& paint) {
     SkASSERT(!paint.getImageFilter());
     SkRect drawBounds = SkRect::MakeXYWH(x, y, device->width(), device->height());
-    THREADED_DRAW(drawBounds,
-                  drawSprite(static_cast<SkBitmapDevice*>(device)->fBitmap, x, y, paint));
+    fQueue.push(drawBounds, [=](SkArenaAlloc*, const DrawState& ds, const SkIRect& tileBounds){
+        TileDraw(ds, tileBounds).drawSprite(static_cast<SkBitmapDevice*>(device)->fBitmap,
+                                            x, y, paint);
+    });
 }
