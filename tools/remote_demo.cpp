@@ -159,19 +159,38 @@ static sk_sp<SkTypeface> gpu_from_renderer_by_ID(const void* buf, size_t len, vo
 
 std::unordered_map<SkFontID, sk_sp<SkTypeface>> gTypefaceMap;
 
+inline bool operator==(const std::unique_ptr<SkDescriptor>& desc1,
+                       const std::unique_ptr<SkDescriptor>& desc2)
+{
+    return *desc1 == *desc2;
+}
+// TODO: Figure out how to manage the entries.
+std::unordered_map<std::unique_ptr<SkDescriptor>, std::unique_ptr<SkScalerContext>>
+    gScalerContextMap;
 
-static std::unique_ptr<SkScalerContext> scaler_context_from_op(Op* op) {
+static SkScalerContext* scaler_context_from_op(Op* op) {
 
-    auto i = gTypefaceMap.find(op->typeface_id);
-    if (i == gTypefaceMap.end()) {
-        std::cerr << "bad typeface id: " <<  op->typeface_id << std::endl;
-        SK_ABORT("unknown type face");
+    // TODO: figure out a way not to copy.
+    auto desc = ((SkDescriptor*)&op->descriptor)->copy();
+    SkScalerContext* sc;
+    auto j = gScalerContextMap.find(desc);
+    if (j != gScalerContextMap.end()) {
+        sc = j->second.get();
+    } else {
+        auto i = gTypefaceMap.find(op->typeface_id);
+        if (i == gTypefaceMap.end()) {
+            std::cerr << "bad typeface id: " << op->typeface_id << std::endl;
+            SK_ABORT("unknown type face");
+        }
+        auto tf = i->second;
+        std::cerr << "ops - got typeface: " << i->first << " , " << tf.get() << std::endl;
+        SkScalerContextEffects effects;
+        auto mapSc = tf->createScalerContext(effects, (SkDescriptor*)&op->descriptor, false);
+        auto mapDesc = desc->copy();
+        std::cerr << "ops - created sc " << std::endl;
+        sc = mapSc.get();
+        gScalerContextMap.emplace_hint(j, std::move(mapDesc), std::move(mapSc));
     }
-    auto tf = i->second;
-    std::cerr << "ops - got typeface: " << i->first << " , " << tf.get() << std::endl;
-    SkScalerContextEffects effects;
-    auto sc = tf->createScalerContext(effects, (SkDescriptor *)&op->descriptor, false);
-    std::cerr << "ops - created sc " << std::endl;
     return sc;
 
 }
@@ -233,7 +252,6 @@ static void gpu(int readFd, int writeFd) {
     f.write(data->data(), data->size());
     close(writeFd);
     close(readFd);
-
 }
 
 static int renderer(const std::string& skpName, int readFd, int writeFd) {
@@ -353,22 +371,20 @@ int main(int argc, char** argv) {
         close(gpu_to_render[kWrite]);
         std::cerr << "Starting renderer" << std::endl;
         printf("skp: %s\n", skpName.c_str());
-        renderer(skpName, gpu_to_render[kRead], render_to_gpu[kWrite]);
-        //gpu(gpu_to_render[kRead], render_to_gpu[kWrite]);
+        //renderer(skpName, gpu_to_render[kRead], render_to_gpu[kWrite]);
+        gpu(gpu_to_render[kRead], render_to_gpu[kWrite]);
     } else {
         // The parent - GPU
         // Close unused pipe ends.
         std::cerr << "child id - " << child << std::endl;
         close(gpu_to_render[kRead]);
         close(render_to_gpu[kWrite]);
-        gpu(render_to_gpu[kRead], gpu_to_render[kWrite]);
-        //renderer(skpName, render_to_gpu[kRead], gpu_to_render[kWrite]);
-
+        //gpu(render_to_gpu[kRead], gpu_to_render[kWrite]);
+        renderer(skpName, render_to_gpu[kRead], gpu_to_render[kWrite]);
 
         std::cerr << "Waiting for renderer." << std::endl;
         waitpid(child, nullptr, 0);
     }
-
 
     return 0;
 }
