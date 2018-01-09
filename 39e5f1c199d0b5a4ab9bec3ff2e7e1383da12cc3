@@ -16,6 +16,24 @@
       "revId": "39e5f1c199d0b5a4ab9bec3ff2e7e1383da12cc3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d7dacc1c_5532bbef",
+        "filename": "fuzz/fuzz.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-01-09T17:34:29Z",
+      "side": 1,
+      "message": "I\u0027ll keep that in mind - for now I think its fine, but if we add another couple of fuzzers, I\u0027ll probably refactor it to be a bit cleaner.\n\nTo get the items in the flag macro, I\u0027d need to use some sort of dynamic macro then?",
+      "parentUuid": "e8b94893_954b389f",
+      "revId": "39e5f1c199d0b5a4ab9bec3ff2e7e1383da12cc3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
