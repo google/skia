@@ -49,6 +49,7 @@ its top, it is considered empty.
 # contains()             # Returns true if points are equal or inside. ##
 # containsNoEmptyCheck   # Returns true if points are equal or inside. Skips empty check. ##
 # height()               # Returns span in y. ##
+# height64()             # Returns span in y as int64_t. ##
 # inset()                # Moves the sides symmetrically about the center. ##
 # intersect              # Sets to shared area; returns true if not empty. ##
 # intersectNoEmptyCheck  # Sets to shared area; returns true if not empty. Skips empty check. ##
@@ -73,6 +74,7 @@ its top, it is considered empty.
 # sort()                 # Orders sides from smaller to larger. ##
 # top()                  # Returns smaller bounds in y, if sorted. ##
 # width()                # Returns span in x. ##
+# width64()              # Returns span in y as int64_t. ##
 # x()                    # Returns bounds left. ##
 # y()                    # Returns bounds top. ##
 #Table ##
@@ -417,7 +419,29 @@ large width: -5
 ##
 ##
 
-#SeeAlso height() SkRect::width()
+#SeeAlso height() width64() height64() SkRect::width()
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method int64_t width64() const
+
+Returns span on the x-axis. This does not check if IRect is sorted, so the
+result may be negative. This is safer than calling width() since width() might
+overflow in its calculation.
+
+#Return fRight minus fLeft cast to int64_t ##
+
+#Example
+SkIRect large = { -2147483647, 1, 2147483644, 2 };
+SkDebugf("width: %d wdith64: %lld\n", large.width(), large.width64());
+#StdOut
+width: -5 width64: 4294967291
+##
+##
+
+#SeeAlso width() height() height64() SkRect::width()
 
 ##
 
@@ -442,6 +466,28 @@ large height: -5
 ##
 
 #SeeAlso width() SkRect::height()
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method int64_t height64() const
+
+Returns span on the y-axis. This does not check if IRect is sorted, so the
+result may be negative. This is safer than calling height() since height() might
+overflow in its calculation.
+
+#Return fBottom minus fTop cast to int64_t ##
+
+#Example
+SkIRect large = { 1, -2147483647, 2, 2147483644 };
+SkDebugf("height: %d height64: %lld\n", large.height(), large.height64());
+#StdOut
+height: -5 height64: 4294967291
+##
+##
+
+#SeeAlso width() height() width64() SkRect::height()
 
 ##
 

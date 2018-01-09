@@ -117,7 +117,9 @@ public:
      *  If left < right and top < bottom, set this region to that rectangle and
      *  return true, otherwise set this region to empty and return false.
      */
-    bool setRect(int32_t left, int32_t top, int32_t right, int32_t bottom);
+    bool setRect(int32_t left, int32_t top, int32_t right, int32_t bottom) {
+        return this->setRect({ left, top, right, bottom });
+    }
 
     /**
      *  Set this region to the union of an array of rects. This is generally
