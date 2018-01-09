@@ -35,22 +35,28 @@
 #include <signal.h>
 #include "sk_tool_utils.h"
 
-
 DEFINE_string2(bytes, b, "", "A path to a file or a directory. If a file, the "
         "contents will be used as the fuzz bytes. If a directory, all files "
         "in the directory will be used as fuzz bytes for the fuzzer, one at a "
         "time.");
 DEFINE_string2(name, n, "", "If --type is 'api', fuzz the API with this name.");
-
-DEFINE_string2(type, t, "api", "How to interpret --bytes, either 'image_scale'"
-        ", 'image_mode', 'skp', 'icc', or 'api'.");
 DEFINE_string2(dump, d, "", "If not empty, dump 'image*' or 'skp' types as a "
         "PNG with this name.");
+DEFINE_bool2(verbose, v, false, "Print more information while fuzzing.");
+DEFINE_string2(type, t, "", "How to interpret --bytes, one of:\n"
+                            "api\n"
+                            "color_deserialize\n"
+                            "filter_fuzz (equivalent to Chrome's filter_fuzz_stub)\n"
+                            "icc\n"
+                            "image_mode\n"
+                            "image_scale\n"
+                            "path_deserialize\n"
+                            "pipe\n"
+                            "region_deserialize\n"
+                            "skp\n"
+                            "sksl2glsl\n"
+                            "textblob");
 
-static int printUsage() {
-    SkDebugf("Usage: fuzz -t <type> -b <path/to/file> [-n api-to-fuzz]\n");
-    return 1;
-}
 static int fuzz_file(const char* path);
 static uint8_t calculate_option(SkData*);
 
@@ -70,6 +76,8 @@ static void fuzz_sksl2glsl(sk_sp<SkData>);
 #endif
 
 int main(int argc, char** argv) {
+    SkCommandLineFlags::SetUsage("Usage: fuzz -t <type> -b <path/to/file> [-n api-to-fuzz]\n"
+                                 "--help lists the valid types\n");
     SkCommandLineFlags::Parse(argc, argv);
 
     const char* path = FLAGS_bytes.isEmpty() ? argv[0] : FLAGS_bytes[0];
@@ -151,7 +159,8 @@ static int fuzz_file(const char* path) {
         }
 #endif
     }
-    return printUsage();
+    SkCommandLineFlags::PrintUsage();
+    return 1;
 }
 
 // This adds up the first 1024 bytes and returns it as an 8 bit integer.  This allows afl-fuzz to
