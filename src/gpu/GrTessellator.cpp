@@ -711,10 +711,10 @@ void append_quadratic_to_contour(const SkPoint pts[3], SkScalar toleranceSqd, Ve
     Sk2s ab = quad.fA * quad.fB;
     SkScalar t = denom ? (-ab[0] - ab[1]) / denom : 0.0f;
     int nPoints = 1;
-    SkScalar u;
+    SkScalar u = 1.0f;
     // Test possible subdivision values only at the point of maximum curvature.
     // If it passes the flatness metric there, it'll pass everywhere.
-    for (;;) {
+    while (nPoints < GrPathUtils::kMaxPointsPerCurve) {
         u = 1.0f / nPoints;
         if (quad_error_at(pts, t, u) < toleranceSqd) {
             break;

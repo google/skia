@@ -428,6 +428,17 @@ static SkPath create_path_28() {
     path.lineTo(-7.5952312625177475154e+21, -2.6819185100266674911e+24);
     return path;
 }
+
+// A quad which generates a huge number of points (>2B) when uniformly
+// linearized. This should not hang or OOM.
+static SkPath create_path_29() {
+    SkPath path;
+    path.moveTo(10, 0);
+    path.lineTo(0, 0);
+    path.quadTo(10, 0, 0, 8315084722602508288);
+    return path;
+}
+
 static std::unique_ptr<GrFragmentProcessor> create_linear_gradient_processor(GrContext* ctx) {
 
     SkPoint pts[2] = { {0, 0}, {1, 1} };
@@ -519,5 +530,6 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(TessellatingPathRendererTests, reporter, ctxInfo) {
     test_path(ctx, rtc.get(), create_path_26(), SkMatrix(), GrAAType::kCoverage);
     test_path(ctx, rtc.get(), create_path_27(), SkMatrix(), GrAAType::kCoverage);
     test_path(ctx, rtc.get(), create_path_28(), SkMatrix(), GrAAType::kCoverage);
+    test_path(ctx, rtc.get(), create_path_29());
 }
 #endif
