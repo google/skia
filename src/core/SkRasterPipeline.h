@@ -36,8 +36,6 @@ struct SkJumper_Engine;
  * If you'd like to see how this works internally, you want to start digging around src/jumper.
  */
 
-// TODO (liyuqian): remove xy_to_2pt_conical_quadratic_first, xy_to_2pt_conical_quadratic_second,
-// xy_to_2pt_conical_linear, and mask_2pt_conical_degenerates_legacy once rebaselined.
 #define SK_RASTER_PIPELINE_STAGES(M)                               \
     M(callback)                                                    \
     M(move_src_dst) M(move_dst_src)                                \
@@ -89,10 +87,6 @@ struct SkJumper_Engine;
     M(evenly_spaced_2_stop_gradient)                               \
     M(xy_to_unit_angle)                                            \
     M(xy_to_radius)                                                \
-    M(xy_to_2pt_conical_quadratic_first)                           \
-    M(xy_to_2pt_conical_quadratic_second)                          \
-    M(xy_to_2pt_conical_linear)                                    \
-    M(mask_2pt_conical_degenerates_legacy)                         \
     M(xy_to_2pt_conical_strip)                                     \
     M(xy_to_2pt_conical_focal_on_circle)                           \
     M(xy_to_2pt_conical_well_behaved)                              \
