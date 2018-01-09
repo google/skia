@@ -173,7 +173,7 @@ float Check(const uint32_t* pixels,
         std::lock_guard<std::mutex> lock(gMutex);
         gErrors.push_back(Run{SkString(backend), SkString(name), 0, 0});
     }
-    if (report_directory_path && badness > 0 && report_directory_path[0] != '\0') {
+    if (report_directory_path && report_directory_path[0] != '\0') {
         sk_mkdir(report_directory_path);
         if (!backend) {
             backend = "skia";
