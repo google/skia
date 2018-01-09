@@ -78,8 +78,12 @@ public:
             fByteLength = reader->readInt();
             fText = (const char*)reader->skip(fByteLength);
             if (reader->isValid()) {
-                fCount = SkPaintPriv::ValidCountText(fText, fByteLength, paint->getTextEncoding());
-                reader->validate(fCount >= 0);
+                if (fByteLength == 0) {
+                    fCount = 0;
+                } else {
+                    fCount = SkPaintPriv::ValidCountText(fText, fByteLength, paint->getTextEncoding());
+                    reader->validate(fCount > 0);
+                }
             }
         }
     }
