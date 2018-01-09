@@ -120,7 +120,7 @@ protected:
     }
     void onFilterRec(SkScalerContextRec* rec) const override {
         // Add all the device information here.
-        rec->fPost2x2[0][0] = 0.5f;
+        //rec->fPost2x2[0][0] = 0.5f;
 
         // This would be the best place to run the host SkTypeface_* onFilterRec.
         // Can we move onFilterRec to the FongMgr, that way we don't need to cross the boundary to
