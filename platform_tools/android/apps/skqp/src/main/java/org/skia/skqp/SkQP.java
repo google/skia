@@ -25,7 +25,7 @@ public class SkQP {
 
     protected static final String kSkiaGM = "SkiaGM_";
     protected static final String kSkiaUnitTests = "Skia_UnitTests";
-    protected static final String LOG_PREFIX = "org.skis.skqp";
+    protected static final String LOG_PREFIX = "org.skia.skqp";
 
     static {
       System.loadLibrary("skqp_app");
@@ -40,6 +40,11 @@ public class SkQP {
           } catch (IOException e) {
               Log.w(LOG_PREFIX, "DeleteDirectoryContents: " + e.getMessage());
           }
+        }
+
+        if (!outputDir.mkdir()) {
+          Log.w(LOG_PREFIX, "Unable to create output dir " + outputDirPath);
+          return;
         }
 
         // Note: nInit will initialize the mGMs, mBackends and mUnitTests fields.
@@ -68,20 +73,21 @@ public class SkQP {
                 // Record success for this test.
               }
           }
-      }
-      for (int unitTest = 0; unitTest < mUnitTests.length; unitTest++) {
-          String testName = kSkiaUnitTests + "_" + mUnitTests[unitTest];
-          Log.w(LOG_PREFIX, "Running: " + testName);
-          String[] errors = this.nExecuteUnitTest(unitTest);
-          if (errors != null && errors.length > 0) {
-              for (String error : errors) {
-                // Record unit test failures.
-              }
-          } else {
-            // Record success.
-          }
-      }
-      nMakeReport();
+        }
+        for (int unitTest = 0; unitTest < mUnitTests.length; unitTest++) {
+            String testName = kSkiaUnitTests + "_" + mUnitTests[unitTest];
+            Log.w(LOG_PREFIX, "Running: " + testName);
+            String[] errors = this.nExecuteUnitTest(unitTest);
+            if (errors != null && errors.length > 0) {
+                for (String error : errors) {
+                  // Record unit test failures.
+                }
+            } else {
+              // Record success.
+            }
+        }
+        Log.w(LOG_PREFIX, "Finished running all tests.");
+        nMakeReport();
     }
 
     protected static void deleteDirectoryContents(File f) throws IOException {
