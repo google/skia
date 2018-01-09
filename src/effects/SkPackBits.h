@@ -36,7 +36,7 @@ public:
         @param srcSize  Number of bytes of src to unpack
         @param dst      Buffer (allocated by caller) to expand the src[] into.
         @param dstSize  Number of bytes in the output buffer.
-        @return the number of bytes written into dst.
+        @return the number of bytes written into dst, or 0 if srcSize or dstSize are too small.
     */
     static int Unpack8(const uint8_t src[], size_t srcSize, uint8_t dst[],
                        size_t dstSize);
