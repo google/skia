@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "142c0a7f_1f821f8f",
+        "filename": "platform_tools/android/apps/skqp/src/main/java/org/skia/skqp/SkQPRunner.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2018-01-09T18:02:05Z",
+      "side": 1,
+      "message": "why not add a flag to nInit ? i.e. \nnInit(AssetManager assetManager, String dataDir, Boolean experimental);",
+      "range": {
+        "startLine": 28,
+        "startChar": 4,
+        "endLine": 28,
+        "endChar": 47
+      },
+      "revId": "9ef52722b53170249285a643f9eda2fb7e434c22",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b4bfdd45_5671fd10",
         "filename": "tools/skqp/gm_runner.cpp",
         "patchSetId": 1
@@ -36,6 +59,29 @@
       "writtenOn": "2018-01-08T15:10:05Z",
       "side": 1,
       "message": "not thrilled about having to sprinkle in these new flags as global static variables.  Why not just remove initSkia and put it as part of the constructor for some wrapper class called GMRunner?  Then the current static functions just become static functions inside that class?\n\nIt would make the header more C++ like than C, but I\u0027m not sure that has any advantage.",
+      "revId": "9ef52722b53170249285a643f9eda2fb7e434c22",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2f588a56_171837a6",
+        "filename": "tools/skqp/gm_runner.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2018-01-09T18:02:05Z",
+      "side": 1,
+      "message": "Add comments what each mode does ?",
+      "range": {
+        "startLine": 40,
+        "startChar": 0,
+        "endLine": 43,
+        "endChar": 2
+      },
       "revId": "9ef52722b53170249285a643f9eda2fb7e434c22",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
