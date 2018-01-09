@@ -6,6 +6,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 
+import android.content.Intent;
+
 public class SkQPActivity extends AppCompatActivity implements Runnable {
     private SkQP testRunner = new SkQP();
 
@@ -15,6 +17,14 @@ public class SkQPActivity extends AppCompatActivity implements Runnable {
        setContentView(R.layout.activity_skqp);
        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
        setSupportActionBar(toolbar);
+
+       Intent launchIntent = getIntent();
+       if (launchIntent.getAction().equals("com.google.intent.action.TEST_LOOP")) {
+           Log.w(SkQP.LOG_PREFIX, "Received intent for game loop.");
+
+           this.run();
+           return;
+       }
 
        // Start the tests.
        run();
