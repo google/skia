@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "adae57c1_44a0c766",
+        "filename": "src/effects/SkPackBits.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-01-09T18:48:32Z",
+      "side": 1,
+      "message": "nit:\n\n            if (dst \u003e(endDst - n) || src \u003d\u003d stop) {\n                return 0;\n            }\n            memset(dst, *src++, n);\n\ninstead?",
+      "range": {
+        "startLine": 91,
+        "startChar": 0,
+        "endLine": 98,
+        "endChar": 13
+      },
+      "revId": "2e4d20af7f74a8d86aa94234b37c46d63b7833b0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
