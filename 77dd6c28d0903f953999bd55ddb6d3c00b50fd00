@@ -22,6 +22,30 @@
       "revId": "77dd6c28d0903f953999bd55ddb6d3c00b50fd00",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "20df91f9_aab08358",
+        "filename": "src/core/SkThreadedBMPDevice.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2018-01-09T16:23:33Z",
+      "side": 0,
+      "message": "Done. Please see https://skia-review.googlesource.com/c/skia/+/92621",
+      "parentUuid": "f2f678df_8ded1c21",
+      "range": {
+        "startLine": 101,
+        "startChar": 0,
+        "endLine": 101,
+        "endChar": 100
+      },
+      "revId": "77dd6c28d0903f953999bd55ddb6d3c00b50fd00",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }

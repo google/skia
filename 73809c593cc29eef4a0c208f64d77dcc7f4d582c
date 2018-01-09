@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "52e0bee3_74b9cbe9",
+        "filename": "src/core/SkTaskGroup2D.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2018-01-09T16:23:33Z",
+      "side": 1,
+      "message": "Sorry that I misused the term. Changed it to non-thread-safe.",
+      "parentUuid": "27b5a294_f7223282",
+      "range": {
+        "startLine": 40,
+        "startChar": 18,
+        "endLine": 40,
+        "endChar": 31
+      },
+      "revId": "73809c593cc29eef4a0c208f64d77dcc7f4d582c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6e0650ff_5299e7c2",
         "filename": "src/core/SkTaskGroup2D.cpp",
         "patchSetId": 4
@@ -45,6 +69,30 @@
       "revId": "73809c593cc29eef4a0c208f64d77dcc7f4d582c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4b4ba62a_128700e6",
+        "filename": "src/core/SkTaskGroup2D.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2018-01-09T16:23:33Z",
+      "side": 1,
+      "message": "Same as above.",
+      "parentUuid": "6e0650ff_5299e7c2",
+      "range": {
+        "startLine": 88,
+        "startChar": 32,
+        "endLine": 88,
+        "endChar": 39
+      },
+      "revId": "73809c593cc29eef4a0c208f64d77dcc7f4d582c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "138abdaa_3abc8791",
+        "filename": "src/core/SkTaskGroup2D.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2018-01-09T16:23:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e6a0fb69_1bdd6d5f",
+      "range": {
+        "startLine": 29,
+        "startChar": 3,
+        "endLine": 29,
+        "endChar": 7
+      },
+      "revId": "73809c593cc29eef4a0c208f64d77dcc7f4d582c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fef5f403_aa0f3901",
         "filename": "src/core/SkTaskGroup2D.h",
         "patchSetId": 4
@@ -91,6 +163,30 @@
       "revId": "73809c593cc29eef4a0c208f64d77dcc7f4d582c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a8024355_ec9f3a9c",
+        "filename": "src/core/SkTaskGroup2D.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2018-01-09T16:23:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fef5f403_aa0f3901",
+      "range": {
+        "startLine": 65,
+        "startChar": 0,
+        "endLine": 65,
+        "endChar": 35
+      },
+      "revId": "73809c593cc29eef4a0c208f64d77dcc7f4d582c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "71fc8572_d726a405",
+        "filename": "src/core/SkTaskGroup2D.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2018-01-09T16:23:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d2bf097c_af546b61",
+      "range": {
+        "startLine": 66,
+        "startChar": 9,
+        "endLine": 66,
+        "endChar": 22
+      },
+      "revId": "73809c593cc29eef4a0c208f64d77dcc7f4d582c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0f94d4bb_0c0208c6",
         "filename": "src/core/SkThreadedBMPDevice.cpp",
         "patchSetId": 4
@@ -137,6 +257,30 @@
       "revId": "73809c593cc29eef4a0c208f64d77dcc7f4d582c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "48967af7_38e21d98",
+        "filename": "src/core/SkThreadedBMPDevice.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2018-01-09T16:23:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0f94d4bb_0c0208c6",
+      "range": {
+        "startLine": 35,
+        "startChar": 9,
+        "endLine": 35,
+        "endChar": 15
+      },
+      "revId": "73809c593cc29eef4a0c208f64d77dcc7f4d582c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
