@@ -114,7 +114,8 @@ sk_sp<GrTextureProxy> GrBackendTextureImageGenerator::onGenerateTexture(
         } else {
             // Wait on a semaphore when a new context has just started borrowing the texture. This
             // is conservative, but shouldn't be too expensive.
-            if (fSemaphore && fLastBorrowingContextID != context->uniqueID()) {
+            if (fSemaphore && !fSemaphore->hasSubmittedWait() &&
+                fLastBorrowingContextID != context->uniqueID()) {
                 context->getGpu()->waitSemaphore(fSemaphore);
                 fLastBorrowingContextID = context->uniqueID();
             }

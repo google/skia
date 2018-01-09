@@ -488,7 +488,8 @@ GrSemaphoresSubmitted GrGpu::finishFlush(int numSemaphores,
             sk_sp<GrSemaphore> semaphore;
             if (backendSemaphores[i].isInitialized()) {
                 semaphore = fContext->resourceProvider()->wrapBackendSemaphore(
-                        backendSemaphores[i], kBorrow_GrWrapOwnership);
+                        backendSemaphores[i], GrResourceProvider::SemaphoreWrapType::kWillSignal,
+                        kBorrow_GrWrapOwnership);
             } else {
                 semaphore = fContext->resourceProvider()->makeSemaphore(false);
             }
@@ -513,3 +514,49 @@ void GrGpu::dumpJSON(SkJSONWriter* writer) const {
 
     writer->endObject();
 }
+
+void GrGpu::insertSemaphore(sk_sp<GrSemaphore> semaphore, bool flush) {
+    if (!semaphore) {
+        return;
+    }
+
+    SkASSERT(!semaphore->fSignaled);
+    if (semaphore->fSignaled) {
+        this->onInsertSemaphore(nullptr, flush);
+        return;
+    }
+    this->onInsertSemaphore(semaphore, flush);
+    semaphore->fSignaled = true;
+}
+
+void GrGpu::waitSemaphore(sk_sp<GrSemaphore> semaphore) {
+    if (!semaphore) {
+        return;
+    }
+
+    SkASSERT(!semaphore->fWaitedOn);
+    if (!semaphore->fWaitedOn) {
+        this->onWaitSemaphore(semaphore);
+        semaphore->fWaitedOn = true;
+    }
+}
+
+sk_sp<GrSemaphore> GrGpu::wrapBackendSemaphore(const GrBackendSemaphore& semaphore,
+                                               GrResourceProvider::SemaphoreWrapType wrapType,
+                                               GrWrapOwnership ownership) {
+    sk_sp<GrSemaphore> grSema = this->onWrapBackendSemaphore(semaphore, ownership);
+    if (GrResourceProvider::SemaphoreWrapType::kWillSignal == wrapType) {
+        // This is a safety check to make sure we never try to wait on this semaphore since we
+        // assume the client will wait on it themselves if they've asked us to signal it.
+        grSema->fWaitedOn = true;
+    } else {
+        SkASSERT(GrResourceProvider::SemaphoreWrapType::kWillWait == wrapType);
+        // This is a safety check to make sure we never try to signal this semaphore since we assume
+        // the client will signal it themselves if they've asked us wait on it.
+        grSema->fSignaled = true;
+    }
+
+    SkASSERT(this->caps()->fenceSyncSupport());
+    return grSema;
+}
+
