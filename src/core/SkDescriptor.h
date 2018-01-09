@@ -153,12 +153,6 @@ public:
     }
 
     SkDescriptor* getDesc() const { SkASSERT(fDesc); return fDesc; }
-private:
-    void free() {
-        if (fDesc != (SkDescriptor*)(void*)fStorage) {
-            delete fDesc;
-        }
-    }
 
     enum {
         kStorageSize =  sizeof(SkDescriptor)
@@ -166,6 +160,15 @@ private:
                         + sizeof(SkDescriptor::Entry) + sizeof(void*)              // for typeface
                         + 32   // slop for occational small extras
     };
+
+private:
+    void free() {
+        if (fDesc != (SkDescriptor*)(void*)fStorage) {
+            delete fDesc;
+        }
+    }
+
+
     SkDescriptor*   fDesc;
     uint32_t        fStorage[(kStorageSize + 3) >> 2];
 };
