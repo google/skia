@@ -194,14 +194,21 @@ struct SK_API SkIRect {
     */
     int32_t centerY() const { return (fBottom + fTop) >> 1; }
 
-    /** Returns true if fLeft is equal to or greater than fRight, or if fTop is equal
-        to or greater than fBottom. Call sort() to reverse rectangles with negative
-        width() or height().
+    int64_t width64() const { return (int64_t)fRight - (int64_t)fLeft; }
+    int64_t height64() const { return (int64_t)fBottom - (int64_t)fTop; }
 
-        @return  true if width() or height() are zero or negative
-    */
-    bool isEmpty() const { return fLeft >= fRight || fTop >= fBottom; }
-
+    /** Returns true if the rectangle's dimensions are non-positive or if either its width or hieght
+     *  exceeds int32_t.
+     */
+    bool isEmpty() const {
+        int64_t w = this->width64();
+        int64_t h = this->height64();
+        if (w <= 0 || h <= 0) {
+            return true;
+        }
+        // Return true if either exceeds int32_t
+        return !sk_64_isS32(w | h);
+    }
 
     /** Returns true if all members in a: fLeft, fTop, fRight, and fBottom; are
         identical to corresponding members in b.
