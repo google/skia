@@ -18,6 +18,7 @@
 #include "SkTypeface.h"
 #include "SkWriteBuffer.h"
 
+#include <chrono>
 #include <ctype.h>
 #include <err.h>
 #include <memory>
@@ -41,9 +42,46 @@ struct WireTypeface {
     bool            is_fixed;
 };
 
+class ScalerContextRecDescriptor {
+public:
+    explicit ScalerContextRecDescriptor(const SkScalerContextRec& rec) {
+        auto desc = reinterpret_cast<SkDescriptor*>(&fDescriptor);
+        desc->init();
+        desc->addEntry(kRec_SkDescriptorTag, sizeof(rec), &rec);
+    }
+
+    const SkDescriptor& desc() const {
+        return *reinterpret_cast<const SkDescriptor*>(&fDescriptor);
+    }
+
+    struct Hash {
+        size_t operator()(ScalerContextRecDescriptor const& s) const {
+            return SkOpts::hash_fn(&s.desc(), sizeof(s), 0);
+        }
+    };
+
+    struct Equal {
+        bool operator()( const ScalerContextRecDescriptor& lhs,
+                         const ScalerContextRecDescriptor& rhs ) const {
+            return lhs.desc() == rhs.desc();
+        }
+    };
+
+private:
+    // The system only passes descriptors without effects. That is why it uses a fixed size
+    // descriptor. storageFor is needed because some of the constructors below are private.
+    template <typename T>
+    using storageFor = typename std::aligned_storage<sizeof(T), alignof(T)>::type;
+    struct {
+        storageFor<SkDescriptor>        dummy1;
+        storageFor<SkDescriptor::Entry> dummy2;
+        storageFor<SkScalerContextRec>  dummy3;
+    } fDescriptor;
+};
+
 class Op {
 public:
-    Op() {}
+    explicit Op(const SkScalerContextRec& rec) : descriptor{rec} {}
     int32_t op;
     SkFontID typeface_id;
     union {
@@ -57,15 +95,7 @@ public:
             size_t pathSize;
         };
     };
-    // The system only passes descriptors without effects. That is why it uses a fixed size
-    // descriptor. storageFor is needed because some of the constructors below are private.
-    template <typename T>
-    using storageFor = typename std::aligned_storage<sizeof(T), alignof(T)>::type;
-    struct {
-        storageFor<SkDescriptor>        dummy1;
-        storageFor<SkDescriptor::Entry> dummy2;
-        storageFor<SkScalerContextRec>  dummy3;
-    } descriptor;
+    ScalerContextRecDescriptor descriptor;
 };
 
 class RemoteScalerContextPassThread : public SkRemoteScalerContext {
@@ -78,8 +108,7 @@ public:
                              SkPaint::FontMetrics* metrics) override {
         Op* op = this->createOp(0, tf, rec);
         write(fWriteFd, fBuffer, sizeof(*op));
-        ssize_t readSize = read(fReadFd, fBuffer, sizeof(fBuffer));
-        std::cerr << "gpu - op 0 read size: " << readSize << std::endl;
+        read(fReadFd, fBuffer, sizeof(fBuffer));
         memcpy(metrics, &op->fontMetrics, sizeof(op->fontMetrics));
         op->~Op();
     }
@@ -104,7 +133,6 @@ public:
         read(fReadFd, fBuffer, sizeof(fBuffer));
         //memcpy((SkGlyph *)&glyph, &op->glyph, sizeof(op->glyph));
         //((SkGlyph*)&glyph)->fImage = oldImage;
-        std::cerr << "rb: " << glyph.rowBytes() << " h: " << glyph.fHeight << std::endl;
         memcpy(glyph.fImage, fBuffer + sizeof(Op), glyph.rowBytes() * glyph.fHeight);
         op->~Op();
     }
@@ -123,14 +151,9 @@ public:
 private:
     Op* createOp(uint32_t opID, const SkTypefaceProxy& tf,
                  const SkScalerContextRec& rec) {
-        Op* op = new (fBuffer) Op();
+        Op* op = new (fBuffer) Op(rec);
         op->op = opID;
         op->typeface_id = tf.fontID();
-
-        SkASSERT(SkScalerContext::CheckBufferSizeForRec(
-            rec, SkScalerContextEffects{}, sizeof(op->descriptor)));
-
-        SkScalerContext::DescriptorBufferGiveRec(rec, &op->descriptor);
 
         return op;
     }
@@ -142,10 +165,8 @@ private:
 
 static sk_sp<SkTypeface> gpu_from_renderer_by_ID(const void* buf, size_t len, void* ctx) {
     WireTypeface wire;
-    std::cerr << "gpu - typeface from rendere size: " << len << std::endl;
     if (len >= sizeof(wire)) {
         memcpy(&wire, buf, sizeof(wire));
-        std::cerr << wire.thread_id << "  " << wire.typeface_id << std::endl;
         return sk_sp<SkTypeface>(
                 new SkTypefaceProxy(
                         wire.typeface_id,
@@ -160,18 +181,33 @@ static sk_sp<SkTypeface> gpu_from_renderer_by_ID(const void* buf, size_t len, vo
 std::unordered_map<SkFontID, sk_sp<SkTypeface>> gTypefaceMap;
 
 
-static std::unique_ptr<SkScalerContext> scaler_context_from_op(Op* op) {
+// TODO: Figure out how to manage the entries.
+std::unordered_map<ScalerContextRecDescriptor,
+                   std::unique_ptr<SkScalerContext>,
+                   ScalerContextRecDescriptor::Hash,
+                   ScalerContextRecDescriptor::Equal>
+    gScalerContextMap(16,
+                      ScalerContextRecDescriptor::Hash(),
+                      ScalerContextRecDescriptor::Equal());
 
-    auto i = gTypefaceMap.find(op->typeface_id);
-    if (i == gTypefaceMap.end()) {
-        std::cerr << "bad typeface id: " <<  op->typeface_id << std::endl;
-        SK_ABORT("unknown type face");
+static SkScalerContext* scaler_context_from_op(Op* op) {
+
+    SkScalerContext* sc;
+    auto j = gScalerContextMap.find(op->descriptor);
+    if (j != gScalerContextMap.end()) {
+        sc = j->second.get();
+    } else {
+        auto i = gTypefaceMap.find(op->typeface_id);
+        if (i == gTypefaceMap.end()) {
+            std::cerr << "bad typeface id: " << op->typeface_id << std::endl;
+            SK_ABORT("unknown type face");
+        }
+        auto tf = i->second;
+        SkScalerContextEffects effects;
+        auto mapSc = tf->createScalerContext(effects, &op->descriptor.desc(), false);
+        sc = mapSc.get();
+        gScalerContextMap.emplace_hint(j, op->descriptor, std::move(mapSc));
     }
-    auto tf = i->second;
-    std::cerr << "ops - got typeface: " << i->first << " , " << tf.get() << std::endl;
-    SkScalerContextEffects effects;
-    auto sc = tf->createScalerContext(effects, (SkDescriptor *)&op->descriptor, false);
-    std::cerr << "ops - created sc " << std::endl;
     return sc;
 
 }
@@ -185,10 +221,36 @@ static sk_sp<SkData> renderer_to_gpu_by_ID(SkTypeface* tf, void* ctx) {
     };
     auto i = gTypefaceMap.find(SkTypeface::UniqueID(tf));
     if (i == gTypefaceMap.end()) {
-        std::cerr << "font id table - inserting: " << SkTypeface::UniqueID(tf) << std::endl;
         gTypefaceMap.insert({SkTypeface::UniqueID(tf), sk_ref_sp(tf)});
     }
     return SkData::MakeWithCopy(&wire, sizeof(wire));
+}
+
+static void final_draw(std::string outFilename,
+                       SkDeserialProcs* procs,
+                       uint8_t* picData,
+                       size_t picSize) {
+    auto start = std::chrono::high_resolution_clock::now();
+
+    auto pic = SkPicture::MakeFromData(picData, picSize, procs);
+
+    auto cullRect = pic->cullRect();
+    auto r = cullRect.round();
+    auto s = SkSurface::MakeRasterN32Premul(r.width(), r.height());
+
+    auto c = s->getCanvas();
+    c->drawPicture(pic);
+
+    auto end = std::chrono::high_resolution_clock::now();
+
+    std::chrono::duration<double> elapsed_seconds = end-start;
+
+    std::cout << "elapsed time: " << elapsed_seconds.count() << "s\n";
+
+    auto i = s->makeImageSnapshot();
+    auto data = i->encodeToData();
+    SkFILEWStream f(outFilename.c_str());
+    f.write(data->data(), data->size());
 }
 
 static void gpu(int readFd, int writeFd) {
@@ -196,7 +258,6 @@ static void gpu(int readFd, int writeFd) {
     size_t picSize = 0;
     read(readFd, &picSize, sizeof(picSize));
 
-    std::cerr << "gpu - reading pic size: " << picSize << std::endl;
     static constexpr size_t kBufferSize = 10 * 1024 * kPageSize;
     std::unique_ptr<uint8_t[]> picBuffer{new uint8_t[kBufferSize]};
 
@@ -208,15 +269,15 @@ static void gpu(int readFd, int writeFd) {
             err(1, "gpu pic read error %d", errno);
         }
         readSoFar += readSize;
-        //std::cerr << "gpu - recieved so far: " << readSoFar << std::endl;
     }
 
-    std::cerr << "gpu - Receiving picture" << std::endl;
     SkDeserialProcs procs;
     std::unique_ptr<SkRemoteScalerContext> rsc{
             new RemoteScalerContextPassThread{readFd, writeFd}};
     procs.fTypefaceProc = gpu_from_renderer_by_ID;
     procs.fTypefaceCtx = rsc.get();
+    final_draw("test.png", &procs, picBuffer.get(), picSize);
+    /*
     auto pic = SkPicture::MakeFromData(picBuffer.get(), picSize, &procs);
 
     auto cullRect = pic->cullRect();
@@ -226,40 +287,48 @@ static void gpu(int readFd, int writeFd) {
     auto c = s->getCanvas();
     c->drawPicture(pic);
 
-    std::cerr << "gpu - output picture" << std::endl;
     auto i = s->makeImageSnapshot();
     auto data = i->encodeToData();
     SkFILEWStream f("test.png");
     f.write(data->data(), data->size());
+     */
     close(writeFd);
     close(readFd);
-
 }
 
 static int renderer(const std::string& skpName, int readFd, int writeFd) {
     std::string prefix{"skps/"};
     std::string fileName{prefix + skpName + ".skp"};
-    std::cerr << "Reading skp: " << fileName << std::endl;
 
     auto skp = SkData::MakeFromFileName(fileName.c_str());
     auto pic = SkPicture::MakeFromData(skp.get());
 
+    bool toGpu = true;
+
     SkSerialProcs procs;
-    procs.fTypefaceProc = renderer_to_gpu_by_ID;
+    if (toGpu) {
+        procs.fTypefaceProc = renderer_to_gpu_by_ID;
+    }
+
     auto stream = pic->serialize(&procs);
 
     std::cerr << "stream is " << stream->size() << " bytes long" << std::endl;
 
-    std::cerr << "render - Sending stream." << std::endl;
-
     size_t picSize = stream->size();
     uint8_t* picBuffer = (uint8_t*) stream->data();
+
+    if (!toGpu) {
+        final_draw("test-direct.png", nullptr, picBuffer, picSize);
+        close(writeFd);
+        close(readFd);
+        return 0;
+    }
+
     write(writeFd, &picSize, sizeof(picSize));
 
     size_t writeSoFar = 0;
     while (writeSoFar < picSize) {
         ssize_t writeSize = write(writeFd, &picBuffer[writeSoFar], picSize - writeSoFar);
-        std::cerr << "renderer - bytes written: " << writeSize << std::endl;
         if (writeSize <= 0) {
             if (writeSize == 0) {
                 std::cerr << "Exit" << std::endl;
@@ -280,7 +349,6 @@ static int renderer(const std::string& skpName, int readFd, int writeFd) {
         ssize_t size = read(readFd, glyphBuffer.get(), sizeof(*op));
         if (size <= 0) { std::cerr << "Exit op loop" << std::endl; break;}
         size_t writeSize = sizeof(*op);
-        std::cerr << "op: " << op << " op->op: " << op->op << std::endl;
 
             auto sc = scaler_context_from_op(op);
             switch (op->op) {
@@ -310,9 +378,7 @@ static int renderer(const std::string& skpName, int readFd, int writeFd) {
                 default:
                     SkASSERT("Bad op");
             }
-        std::cerr << "ops - writing" << std::endl;
-        ssize_t written = write(writeFd, glyphBuffer.get(), writeSize);
-        std::cerr << " opss - writing : " << writeSize << " written: " << written << std::endl;
+        write(writeFd, glyphBuffer.get(), writeSize);
     }
 
     close(readFd);
@@ -353,22 +419,20 @@ int main(int argc, char** argv) {
         close(gpu_to_render[kWrite]);
         std::cerr << "Starting renderer" << std::endl;
         printf("skp: %s\n", skpName.c_str());
-        renderer(skpName, gpu_to_render[kRead], render_to_gpu[kWrite]);
-        //gpu(gpu_to_render[kRead], render_to_gpu[kWrite]);
+        //renderer(skpName, gpu_to_render[kRead], render_to_gpu[kWrite]);
+        gpu(gpu_to_render[kRead], render_to_gpu[kWrite]);
     } else {
         // The parent - GPU
         // Close unused pipe ends.
         std::cerr << "child id - " << child << std::endl;
         close(gpu_to_render[kRead]);
         close(render_to_gpu[kWrite]);
-        gpu(render_to_gpu[kRead], gpu_to_render[kWrite]);
-        //renderer(skpName, render_to_gpu[kRead], gpu_to_render[kWrite]);
-
+        //gpu(render_to_gpu[kRead], gpu_to_render[kWrite]);
+        renderer(skpName, render_to_gpu[kRead], gpu_to_render[kWrite]);
 
         std::cerr << "Waiting for renderer." << std::endl;
         waitpid(child, nullptr, 0);
     }
-
 
     return 0;
 }
