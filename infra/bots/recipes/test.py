@@ -94,6 +94,7 @@ def dm_flags(api, bot):
       configs.remove('pdf')
 
     if '-GCE-' in bot:
+      configs.extend(['g8'])
       configs.extend(['565'])
       configs.extend(['f16'])
       configs.extend(['sp-8888', '2ndpic-8888']) # Test niche uses of SkPicture.
