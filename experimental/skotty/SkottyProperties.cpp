@@ -42,7 +42,8 @@ bool ParsePoints(const Json::Value& v, PointArray* pts) {
 
 } // namespace
 
-bool ScalarValue::Parse(const Json::Value& v, ScalarValue* scalar) {
+template <>
+bool ValueTraits<ScalarValue>::Parse(const Json::Value& v, ScalarValue* scalar) {
     // Some files appear to wrap keyframes in arrays for no reason.
     if (v.isArray() && v.size() == 1) {
         return Parse(v[0], scalar);
@@ -51,28 +52,77 @@ bool ScalarValue::Parse(const Json::Value& v, ScalarValue* scalar) {
     if (v.isNull() || !v.isConvertibleTo(Json::realValue))
         return false;
 
-    scalar->fVal = ParseScalar(v, 0);
+    *scalar = v.asFloat();
     return true;
 }
 
-bool VectorValue::Parse(const Json::Value& v, VectorValue* vec) {
-    SkASSERT(vec->fVals.empty());
+template <>
+size_t ValueTraits<ScalarValue>::Cardinality(const ScalarValue&) {
+    return 1;
+}
+
+template <>
+template <>
+SkScalar ValueTraits<ScalarValue>::As<SkScalar>(const ScalarValue& v) {
+    return v;
+}
+
+template <>
+bool ValueTraits<VectorValue>::Parse(const Json::Value& v, VectorValue* vec) {
+    SkASSERT(vec->empty());
 
     if (!v.isArray())
         return false;
 
     for (Json::ArrayIndex i = 0; i < v.size(); ++i) {
-        const auto& el = v[i];
-        if (el.isNull() || !el.isConvertibleTo(Json::realValue))
+        ScalarValue scalar;
+        if (!ValueTraits<ScalarValue>::Parse(v[i], &scalar))
             return false;
 
-        vec->fVals.emplace_back(ParseScalar(el, 0));
+        vec->push_back(std::move(scalar));
     }
 
     return true;
 }
 
-bool ShapeValue::Parse(const Json::Value& v, ShapeValue* shape) {
+template <>
+size_t ValueTraits<VectorValue>::Cardinality(const VectorValue& vec) {
+    return vec.size();
+}
+
+template <>
+template <>
+SkColor ValueTraits<VectorValue>::As<SkColor>(const VectorValue& vec) {
+    // best effort to turn this into a color
+    const auto r = vec.size() > 0 ? vec[0] : 0,
+               g = vec.size() > 1 ? vec[1] : 0,
+               b = vec.size() > 2 ? vec[2] : 0,
+               a = vec.size() > 3 ? vec[3] : 1;
+
+    return SkColorSetARGB(SkTPin<SkScalar>(a, 0, 1) * 255,
+                          SkTPin<SkScalar>(r, 0, 1) * 255,
+                          SkTPin<SkScalar>(g, 0, 1) * 255,
+                          SkTPin<SkScalar>(b, 0, 1) * 255);
+}
+
+template <>
+template <>
+SkPoint ValueTraits<VectorValue>::As<SkPoint>(const VectorValue& vec) {
+    // best effort to turn this into a point
+    const auto x = vec.size() > 0 ? vec[0] : 0,
+               y = vec.size() > 1 ? vec[1] : 0;
+    return SkPoint::Make(x, y);
+}
+
+template <>
+template <>
+SkSize ValueTraits<VectorValue>::As<SkSize>(const VectorValue& vec) {
+    const auto pt = ValueTraits::As<SkPoint>(vec);
+    return SkSize::Make(pt.x(), pt.y());
+}
+
+template<>
+bool ValueTraits<ShapeValue>::Parse(const Json::Value& v, ShapeValue* shape) {
     PointArray inPts,  // Cubic Bezier "in" control points, relative to vertices.
                outPts, // Cubic Bezier "out" control points, relative to vertices.
                verts;  // Cubic Bezier vertices.
@@ -92,16 +142,16 @@ bool ShapeValue::Parse(const Json::Value& v, ShapeValue* shape) {
         return false;
     }
 
-    SkASSERT(shape->fPath.isEmpty());
+    SkASSERT(shape->isEmpty());
 
     if (!verts.empty()) {
-        shape->fPath.moveTo(verts.front());
+        shape->moveTo(verts.front());
     }
 
     const auto& addCubic = [&](int from, int to) {
-        shape->fPath.cubicTo(verts[from] + outPts[from],
-                             verts[to]   + inPts[to],
-                             verts[to]);
+        shape->cubicTo(verts[from] + outPts[from],
+                       verts[to]   + inPts[to],
+                       verts[to]);
     };
 
     for (int i = 1; i < verts.count(); ++i) {
@@ -110,55 +160,21 @@ bool ShapeValue::Parse(const Json::Value& v, ShapeValue* shape) {
 
     if (!verts.empty() && ParseBool(v["c"], false)) {
         addCubic(verts.count() - 1, 0);
-        shape->fPath.close();
+        shape->close();
     }
 
     return true;
 }
 
 template <>
-SkColor VectorValue::as<SkColor>() const {
-    // best effort to turn this into a color
-    const auto r = fVals.count() > 0 ? fVals[0].as<SkScalar>() : 0,
-               g = fVals.count() > 1 ? fVals[1].as<SkScalar>() : 0,
-               b = fVals.count() > 2 ? fVals[2].as<SkScalar>() : 0,
-               a = fVals.count() > 3 ? fVals[3].as<SkScalar>() : 1;
-
-    return SkColorSetARGB(SkTPin<SkScalar>(a, 0, 1) * 255,
-                          SkTPin<SkScalar>(r, 0, 1) * 255,
-                          SkTPin<SkScalar>(g, 0, 1) * 255,
-                          SkTPin<SkScalar>(b, 0, 1) * 255);
+size_t ValueTraits<ShapeValue>::Cardinality(const ShapeValue& path) {
+    return SkTo<size_t>(path.countVerbs());
 }
 
 template <>
-SkPoint VectorValue::as<SkPoint>() const {
-    // best effort to turn this into a point
-    const auto x = fVals.count() > 0 ? fVals[0].as<SkScalar>() : 0,
-               y = fVals.count() > 1 ? fVals[1].as<SkScalar>() : 0;
-    return SkPoint::Make(x, y);
-}
-
 template <>
-SkSize VectorValue::as<SkSize>() const {
-    const auto pt = this->as<SkPoint>();
-    return SkSize::Make(pt.x(), pt.y());
-}
-
-template <>
-std::vector<SkScalar> VectorValue::as<std::vector<SkScalar>>() const {
-    std::vector<SkScalar> vec;
-    vec.reserve(fVals.count());
-
-    for (const auto& val : fVals) {
-        vec.push_back(val);
-    }
-
-    return vec;
-}
-
-template <>
-SkPath ShapeValue::as<SkPath>() const {
-    return fPath;
+SkPath ValueTraits<ShapeValue>::As<SkPath>(const ShapeValue& path) {
+    return path;
 }
 
 CompositeRRect::CompositeRRect(sk_sp<sksg::RRect> wrapped_node)
