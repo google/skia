@@ -555,15 +555,13 @@ static void fuzz_textblob_deserialize(sk_sp<SkData> bytes) {
 }
 
 static void fuzz_filter_fuzz(sk_sp<SkData> bytes) {
-
     const int BitmapSize = 24;
     SkBitmap bitmap;
     bitmap.allocN32Pixels(BitmapSize, BitmapSize);
     SkCanvas canvas(bitmap);
     canvas.clear(0x00000000);
 
-    sk_sp<SkImageFilter> flattenable = SkValidatingDeserializeImageFilter(
-        bytes->data(), bytes->size());
+    auto flattenable = SkImageFilter::Deserialize(bytes->data(), bytes->size());
 
     // Adding some info, but the test passed if we got here without any trouble
     if (flattenable != nullptr) {

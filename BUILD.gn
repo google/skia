@@ -1691,7 +1691,6 @@ if (skia_enable_tools) {
       "tools/debugger",
     ]
     sources = [
-      "fuzz/FilterFuzz.cpp",
       "fuzz/FuzzCanvas.cpp",
       "fuzz/FuzzDrawFunctions.cpp",
       "fuzz/FuzzGradients.cpp",
