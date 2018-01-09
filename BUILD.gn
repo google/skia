@@ -1522,6 +1522,15 @@ if (skia_enable_tools) {
     }
   }
 
+  test_app("remote_demo") {
+    sources = [
+      "tools/remote_demo.cpp",
+    ]
+    deps = [
+      ":skia",
+    ]
+  }
+
   test_app("ok") {
     sources = [
       "dm/DMFontMgr.cpp",
