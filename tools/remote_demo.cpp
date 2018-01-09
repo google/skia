@@ -131,8 +131,6 @@ public:
         memcpy(&op->glyph, &glyph, sizeof(glyph));
         write(fWriteFd, fBuffer, sizeof(*op));
         read(fReadFd, fBuffer, sizeof(fBuffer));
-        //memcpy((SkGlyph *)&glyph, &op->glyph, sizeof(op->glyph));
-        //((SkGlyph*)&glyph)->fImage = oldImage;
         memcpy(glyph.fImage, fBuffer + sizeof(Op), glyph.rowBytes() * glyph.fHeight);
         op->~Op();
     }
@@ -164,17 +162,25 @@ private:
 };
 
 static sk_sp<SkTypeface> gpu_from_renderer_by_ID(const void* buf, size_t len, void* ctx) {
+    static std::unordered_map<SkFontID, sk_sp<SkTypefaceProxy>> mapIdToTypeface;
     WireTypeface wire;
     if (len >= sizeof(wire)) {
         memcpy(&wire, buf, sizeof(wire));
-        return sk_sp<SkTypeface>(
-                new SkTypefaceProxy(
-                        wire.typeface_id,
-                        wire.thread_id,
-                        wire.style,
-                        wire.is_fixed,
-                        (SkRemoteScalerContext*) ctx));
+        auto i = mapIdToTypeface.find(wire.typeface_id);
+        if (i == mapIdToTypeface.end()) {
+
+            auto newTypeface = sk_make_sp<SkTypefaceProxy>(
+                wire.typeface_id,
+                wire.thread_id,
+                wire.style,
+                wire.is_fixed,
+                (SkRemoteScalerContext*)ctx);
+
+            i = mapIdToTypeface.emplace_hint(i, wire.typeface_id, newTypeface);
+        }
+        return i->second;
     }
+    SK_ABORT("Bad data");
     return nullptr;
 }
 
@@ -230,16 +236,22 @@ static void final_draw(std::string outFilename,
                        SkDeserialProcs* procs,
                        uint8_t* picData,
                        size_t picSize) {
-    auto start = std::chrono::high_resolution_clock::now();
 
     auto pic = SkPicture::MakeFromData(picData, picSize, procs);
 
     auto cullRect = pic->cullRect();
     auto r = cullRect.round();
-    auto s = SkSurface::MakeRasterN32Premul(r.width(), r.height());
 
+    auto s = SkSurface::MakeRasterN32Premul(r.width(), r.height());
     auto c = s->getCanvas();
-    c->drawPicture(pic);
+
+    auto picUnderTest = SkPicture::MakeFromData(picData, picSize, procs);
+    auto start = std::chrono::high_resolution_clock::now();
+
+    for (int i = 0; i < 40; i++) {
+
+        c->drawPicture(picUnderTest);
+    }
 
     auto end = std::chrono::high_resolution_clock::now();
 
@@ -389,14 +401,28 @@ static int renderer(const std::string& skpName, int readFd, int writeFd) {
     return 0;
 }
 
+enum direction : int {kRead = 0, kWrite = 1};
+
+static void start_gpu(int render_to_gpu[2], int gpu_to_render[2]) {
+    std::cout << "gpu - Starting GPU" << std::endl;
+    close(gpu_to_render[kRead]);
+    close(render_to_gpu[kWrite]);
+    gpu(render_to_gpu[kRead], gpu_to_render[kWrite]);
+}
+
+static void start_render(std::string& skpName, int render_to_gpu[2], int gpu_to_render[2]) {
+    std::cout << "renderer - Starting Renderer" << std::endl;
+    close(render_to_gpu[kRead]);
+    close(gpu_to_render[kWrite]);
+    renderer(skpName, gpu_to_render[kRead], render_to_gpu[kWrite]);
+}
+
 int main(int argc, char** argv) {
     std::string skpName = argc > 1 ? std::string{argv[1]} : std::string{"desk_nytimes"};
     printf("skp: %s\n", skpName.c_str());
 
     int render_to_gpu[2],
         gpu_to_render[2];
-
-    enum direction : int {kRead = 0, kWrite = 1};
 
     int r = pipe(render_to_gpu);
     if (r < 0) {
@@ -409,29 +435,23 @@ int main(int argc, char** argv) {
         return 1;
     }
 
-    pid_t child = fork();
-    SkGraphics::Init();
+    bool useProcess = true;
 
-    if (child == 0) {
-        // The child - renderer
-        // Close unused pipe ends.
-        close(render_to_gpu[kRead]);
-        close(gpu_to_render[kWrite]);
-        std::cerr << "Starting renderer" << std::endl;
-        printf("skp: %s\n", skpName.c_str());
-        //renderer(skpName, gpu_to_render[kRead], render_to_gpu[kWrite]);
-        gpu(gpu_to_render[kRead], render_to_gpu[kWrite]);
+    if (useProcess) {
+        pid_t child = fork();
+        SkGraphics::Init();
+
+        if (child == 0) {
+            start_render(skpName, render_to_gpu, gpu_to_render);
+        } else {
+            start_gpu(render_to_gpu, gpu_to_render);
+            std::cerr << "Waiting for renderer." << std::endl;
+            waitpid(child, nullptr, 0);
+        }
     } else {
-        // The parent - GPU
-        // Close unused pipe ends.
-        std::cerr << "child id - " << child << std::endl;
-        close(gpu_to_render[kRead]);
-        close(render_to_gpu[kWrite]);
-        //gpu(render_to_gpu[kRead], gpu_to_render[kWrite]);
-        renderer(skpName, render_to_gpu[kRead], gpu_to_render[kWrite]);
-
-        std::cerr << "Waiting for renderer." << std::endl;
-        waitpid(child, nullptr, 0);
+        SkGraphics::Init();
+        std::thread(gpu, render_to_gpu[kRead], gpu_to_render[kWrite]).detach();
+        renderer(skpName, gpu_to_render[kRead], render_to_gpu[kWrite]);
     }
 
     return 0;
