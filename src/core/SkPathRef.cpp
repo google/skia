@@ -13,6 +13,16 @@
 #include "SkPathPriv.h"
 #include "SkSafeMath.h"
 
+// Conic weights must be 0 < weight <= finite
+static bool validate_conic_weights(const SkScalar weights[], int count) {
+    for (int i = 0; i < count; ++i) {
+        if (weights[i] <= 0 || !SkScalarIsFinite(weights[i])) {
+            return false;
+        }
+    }
+    return true;
+}
+
 //////////////////////////////////////////////////////////////////////////////
 SkPathRef::Editor::Editor(sk_sp<SkPathRef>* pathRef,
                           int incReserveVerbs,
@@ -287,6 +297,9 @@ SkPathRef* SkPathRef::CreateFromBuffer(SkRBuffer* buffer) {
         int pCount, cCount;
         if (!deduce_pts_conics(ref->verbsMemBegin(), ref->countVerbs(), &pCount, &cCount) ||
             pCount != ref->countPoints() || cCount != ref->fConicWeights.count()) {
+            return nullptr;
+        }
+        if (!validate_conic_weights(ref->fConicWeights.begin(), ref->fConicWeights.count())) {
             return nullptr;
         }
         // Check that the bounds match the serialized bounds.
