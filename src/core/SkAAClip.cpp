@@ -704,7 +704,7 @@ bool SkAAClip::setEmpty() {
 }
 
 bool SkAAClip::setRect(const SkIRect& bounds) {
-    if (!SkRectPriv::PositiveDimensions(bounds)) {
+    if (bounds.isEmpty()) {
         return this->setEmpty();
     }
 
