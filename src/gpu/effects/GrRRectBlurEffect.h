@@ -24,6 +24,7 @@
 #include "SkGpuBlurUtils.h"
 #include "GrFragmentProcessor.h"
 #include "GrCoordTransform.h"
+#include "SkPoint3.h"
 class GrRRectBlurEffect : public GrFragmentProcessor {
 public:
     static sk_sp<GrTextureProxy> find_or_create_rrect_blur_mask(GrContext* context,
