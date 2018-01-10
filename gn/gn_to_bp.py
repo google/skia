@@ -197,6 +197,10 @@ cc_test {
     srcs: [
         $nanobench_srcs
     ],
+
+    data: [
+        "resources/*",
+    ],
 }''')
 
 # We'll run GN to get the main source lists and include directories for Skia.
