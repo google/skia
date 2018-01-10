@@ -67,7 +67,6 @@ GrBackendTextureImageGenerator::GrBackendTextureImageGenerator(const SkImageInfo
     : INHERITED(info)
     , fRefHelper(new RefHelper(texture, owningContextID))
     , fSemaphore(std::move(semaphore))
-    , fLastBorrowingContextID(SK_InvalidGenID)
     , fBackendTexture(backendTex)
     , fSurfaceOrigin(origin) { }
 
@@ -105,20 +104,12 @@ sk_sp<GrTextureProxy> GrBackendTextureImageGenerator::onGenerateTexture(
         // to re-use the borrowed texture we've previously created.
         tex = sk_ref_sp(fRefHelper->fBorrowedTexture);
         SkASSERT(tex);
-    } else {
-        // The texture is available or borrwed by another context. Try for exclusive access.
-        uint32_t expectedID = SK_InvalidGenID;
-        if (!fRefHelper->fBorrowingContextID.compare_exchange(&expectedID, context->uniqueID())) {
-            // Some other context is currently borrowing the texture. We aren't allowed to use it.
-            return nullptr;
-        } else {
-            // Wait on a semaphore when a new context has just started borrowing the texture. This
-            // is conservative, but shouldn't be too expensive.
-            if (fSemaphore && !fSemaphore->hasSubmittedWait() &&
-                fLastBorrowingContextID != context->uniqueID()) {
-                context->getGpu()->waitSemaphore(fSemaphore);
-                fLastBorrowingContextID = context->uniqueID();
-            }
+    } else if (SK_InvalidGenID == fRefHelper->fBorrowingContextID) {
+        fRefHelper->fBorrowingContextID = context->uniqueID();
+
+        // Wait on a semaphore when a new context has just started borrowing the texture.
+        if (fSemaphore && !fSemaphore->hasSubmittedWait()) {
+            context->getGpu()->waitSemaphore(fSemaphore);
         }
 
         // We just gained access to the texture. If we're on the original context, we could use the
@@ -136,6 +127,10 @@ sk_sp<GrTextureProxy> GrBackendTextureImageGenerator::onGenerateTexture(
 
         tex->setRelease(ReleaseRefHelper_TextureReleaseProc, fRefHelper);
         fRefHelper->ref();
+    } else {
+        // Some other context is trying to borrow this texture but another context has already
+        // claimed it. We only ever allow one context to consume the texture.
+        return nullptr;
     }
 
     SkASSERT(fRefHelper->fBorrowingContextID == context->uniqueID());
