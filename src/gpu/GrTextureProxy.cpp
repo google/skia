@@ -26,9 +26,11 @@ GrTextureProxy::GrTextureProxy(const GrSurfaceDesc& srcDesc, SkBackingFit fit, S
 }
 
 // Lazy-callback version
-GrTextureProxy::GrTextureProxy(LazyInstantiateCallback&& callback, GrPixelConfig config)
-        : INHERITED(std::move(callback), config)
-        , fMipMapped(GrMipMapped::kNo)
+GrTextureProxy::GrTextureProxy(LazyInstantiateCallback&& callback, const GrSurfaceDesc& desc,
+                               GrMipMapped mipMapped, SkBackingFit fit, SkBudgeted budgeted,
+                               uint32_t flags)
+        : INHERITED(std::move(callback), desc, fit, budgeted, flags)
+        , fMipMapped(mipMapped)
         , fMipColorMode(SkDestinationSurfaceColorMode::kLegacy)
         , fProxyProvider(nullptr)
         , fDeferredUploader(nullptr) {
