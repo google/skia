@@ -9,11 +9,12 @@
 #define GrTypesPriv_DEFINED
 
 #include <chrono>
+#include "GrSharedEnums.h"
 #include "GrTypes.h"
 #include "SkRefCnt.h"
-#include "GrSharedEnums.h"
 
 class GrCaps;
+class GrPaint;
 
 // The old libstdc++ uses the draft name "monotonic_clock" rather than "steady_clock". This might
 // not actually be monotonic, depending on how libstdc++ was built. However, this is only currently
@@ -88,6 +89,15 @@ enum class GrFSAAType {
 enum class GrAllowMixedSamples : bool { kNo = false, kYes = true };
 
 GrAAType GrChooseAAType(GrAA, GrFSAAType, GrAllowMixedSamples, const GrCaps&);
+
+/**
+ * We have code paths that can draw non-AA using coverage. However, GrChooseAAType will return
+ * kNone or kMSAA when GrAA::kNo is passed to it. This adjusts that functions return value to
+ * determine whether it is correct and performant to use GrAAType::kCoverage to implement GrAA::kNo
+ * (assuming there is such an implementation for the draw type). It should be passed the GrAAType
+ * returned by GrChooseAAType.
+ */
+GrAAType GrAdjustAATypeForNonAAAsCoverageFastPath(GrAAType, const GrPaint&, const GrCaps&);
 
 /**
  * Some pixel configs are inherently clamped to [0,1], while others can hold values outside of that
