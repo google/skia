@@ -129,6 +129,30 @@
       "revId": "1ed93ec2d61f56026dd74d7113a59b36950055ab",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "29fe7bbc_8d80e227",
+        "filename": "src/core/SkPictureData.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 508,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-10T18:19:35Z",
+      "side": 1,
+      "message": "The original code is\n\n        case SK_PICT_PAINT_BUFFER_TAG: {\n            if (!buffer.validate(SkTFitsIn\u003cint\u003e(size))) {\n                return false;\n            }\n            const int count \u003d SkToInt(size);\n            fPaints.reset(count);\n            for (int i \u003d 0; i \u003c count; ++i) {\n                buffer.readPaint(\u0026fPaints[i]);\n            }\n        } break;\n\nAn SkASSERT(SkTFitsIn\u003cint\u003e(size)) is hidden in the SkToInt(size), but we check exactly that before getting to that assert.  We should not be seeing an assert trigger here.  Are you seeing one?",
+      "parentUuid": "e6b3b7eb_3ed92296",
+      "range": {
+        "startLine": 501,
+        "startChar": 0,
+        "endLine": 508,
+        "endChar": 13
+      },
+      "revId": "1ed93ec2d61f56026dd74d7113a59b36950055ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
