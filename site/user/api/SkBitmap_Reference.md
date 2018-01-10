@@ -2886,8 +2886,8 @@ bool readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
                 SkTransferFunctionBehavior behavior) const
 </pre>
 
-Copies a <a href="SkRect_Reference#Rect">Rect</a> of pixels to <a href="#SkBitmap_readPixels_dstPixels">dstPixels</a>. Copy starts at (<a href="#SkBitmap_readPixels_srcX">srcX</a>, <a href="#SkBitmap_readPixels_srcY">srcY</a>), and does not exceed
-(this-><a href="#SkBitmap_width">width</a>, this-><a href="#SkBitmap_height">height</a>).
+Copies <a href="SkRect_Reference#Rect">Rect</a> of pixels from <a href="#Bitmap">Bitmap</a> pixels to <a href="#SkBitmap_readPixels_dstPixels">dstPixels</a>. Copy starts at (<a href="#SkBitmap_readPixels_srcX">srcX</a>, <a href="#SkBitmap_readPixels_srcY">srcY</a>),
+and does not exceed <a href="#Bitmap">Bitmap</a> (<a href="#SkBitmap_width">width</a>, <a href="#SkBitmap_height">height</a>).
 
 <a href="#SkBitmap_readPixels_dstInfo">dstInfo</a> specifies <a href="#SkBitmap_width">width</a>, <a href="#SkBitmap_height">height</a>, <a href="undocumented#Image_Color_Type">Color Type</a>, <a href="undocumented#Image_Alpha_Type">Alpha Type</a>, and
 <a href="undocumented#Color_Space">Color Space</a> of destination. <a href="#SkBitmap_readPixels_dstRowBytes">dstRowBytes</a> specifics the gap from one destination
@@ -2899,16 +2899,16 @@ row to the next. Returns true if pixels are copied. Returns false if:
     <td><a href="undocumented#Pixel_Ref">Pixel Ref</a> is nullptr</td>  </tr>
 </table>
 
-Pixels are copied only if pixel conversion is possible. If this-><a href="#SkBitmap_colorType">colorType</a> is
+Pixels are copied only if pixel conversion is possible. If <a href="#Bitmap">Bitmap</a> <a href="#SkBitmap_colorType">colorType</a> is
 <a href="undocumented#SkColorType">kGray 8 SkColorType</a>, or <a href="undocumented#SkColorType">kAlpha 8 SkColorType</a>; <a href="#SkBitmap_readPixels_dstInfo">dstInfo</a>.<a href="#SkBitmap_colorType">colorType</a> must match.
-If this-><a href="#SkBitmap_colorType">colorType</a> is <a href="undocumented#SkColorType">kGray 8 SkColorType</a>, <a href="#SkBitmap_readPixels_dstInfo">dstInfo</a>.<a href="#SkBitmap_colorSpace">colorSpace</a> must match.
-If this-><a href="#SkBitmap_alphaType">alphaType</a> is <a href="undocumented#SkAlphaType">kOpaque SkAlphaType</a>, <a href="#SkBitmap_readPixels_dstInfo">dstInfo</a>.<a href="#SkBitmap_alphaType">alphaType</a> must
-match. If this-><a href="#SkBitmap_colorSpace">colorSpace</a> is nullptr, <a href="#SkBitmap_readPixels_dstInfo">dstInfo</a>.<a href="#SkBitmap_colorSpace">colorSpace</a> must match. Returns
+If <a href="#Bitmap">Bitmap</a> <a href="#SkBitmap_colorType">colorType</a> is <a href="undocumented#SkColorType">kGray 8 SkColorType</a>, <a href="#SkBitmap_readPixels_dstInfo">dstInfo</a>.<a href="#SkBitmap_colorSpace">colorSpace</a> must match.
+If <a href="#Bitmap">Bitmap</a> <a href="#SkBitmap_alphaType">alphaType</a> is <a href="undocumented#SkAlphaType">kOpaque SkAlphaType</a>, <a href="#SkBitmap_readPixels_dstInfo">dstInfo</a>.<a href="#SkBitmap_alphaType">alphaType</a> must
+match. If <a href="#Bitmap">Bitmap</a> <a href="#SkBitmap_colorSpace">colorSpace</a> is nullptr, <a href="#SkBitmap_readPixels_dstInfo">dstInfo</a>.<a href="#SkBitmap_colorSpace">colorSpace</a> must match. Returns
 false if pixel conversion is not possible.
 <a href="#SkBitmap_readPixels_srcX">srcX</a> and <a href="#SkBitmap_readPixels_srcY">srcY</a> may be negative to copy only top or left of source. Returns
 false if <a href="#SkBitmap_width">width</a> or <a href="#SkBitmap_height">height</a> is zero or negative.
-Returns false ifabs(srcX) >= this-><a href="#SkBitmap_width">width</a>,
-or ifabs(srcY) >= this-><a href="#SkBitmap_height">height</a>.
+Returns false ifabs(srcX) >= <a href="#Bitmap">Bitmap</a> <a href="#SkBitmap_width">width</a>,
+or ifabs(srcY) >= <a href="#Bitmap">Bitmap</a> <a href="#SkBitmap_height">height</a>.
 
 If <a href="#SkBitmap_readPixels_behavior">behavior</a> is <a href="#SkTransferFunctionBehavior_kRespect">SkTransferFunctionBehavior::kRespect</a>: converts source
 pixels to a linear space before converting to <a href="#SkBitmap_readPixels_dstInfo">dstInfo</a>.
@@ -2951,12 +2951,12 @@ true if pixels are copied to <a href="#SkBitmap_readPixels_dstPixels">dstPixels<
 bool readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes, int srcX, int srcY) const
 </pre>
 
-Copies a <a href="SkRect_Reference#Rect">Rect</a> of pixels to <a href="#SkBitmap_readPixels_2_dstPixels">dstPixels</a>. Copy starts at (<a href="#SkBitmap_readPixels_2_srcX">srcX</a>, <a href="#SkBitmap_readPixels_2_srcY">srcY</a>), and does not exceed
-(this-><a href="#SkBitmap_width">width</a>, this-><a href="#SkBitmap_height">height</a>).
+Copies a <a href="SkRect_Reference#Rect">Rect</a> of pixels from <a href="#Bitmap">Bitmap</a> to <a href="#SkBitmap_readPixels_2_dstPixels">dstPixels</a>. Copy starts at (<a href="#SkBitmap_readPixels_2_srcX">srcX</a>, <a href="#SkBitmap_readPixels_2_srcY">srcY</a>),
+and does not exceed <a href="#Bitmap">Bitmap</a> (<a href="#SkBitmap_width">width</a>, <a href="#SkBitmap_height">height</a>).
 
-<a href="#SkBitmap_readPixels_2_dstInfo">dstInfo</a> specifies <a href="#SkBitmap_width">width</a>, <a href="#SkBitmap_height">height</a>, <a href="undocumented#Image_Color_Type">Color Type</a>, <a href="undocumented#Image_Alpha_Type">Alpha Type</a>, and
-<a href="undocumented#Color_Space">Color Space</a> of destination. <a href="#SkBitmap_readPixels_2_dstRowBytes">dstRowBytes</a> specifics the gap from one destination
-row to the next. Returns true if pixels are copied. Returns false if:
+<a href="#SkBitmap_readPixels_2_dstInfo">dstInfo</a> specifies <a href="#SkBitmap_width">width</a>, <a href="#SkBitmap_height">height</a>, <a href="undocumented#Image_Color_Type">Color Type</a>, <a href="undocumented#Image_Alpha_Type">Alpha Type</a>, and <a href="undocumented#Color_Space">Color Space</a> of
+destination. <a href="#SkBitmap_readPixels_2_dstRowBytes">dstRowBytes</a> specifics the gap from one destination row to the next.
+Returns true if pixels are copied. Returns false if:
 
 <table>  <tr>
     <td><a href="#SkBitmap_readPixels_2_dstInfo">dstInfo</a>.addr() equals nullptr</td>  </tr>  <tr>
@@ -2964,16 +2964,16 @@ row to the next. Returns true if pixels are copied. Returns false if:
     <td><a href="undocumented#Pixel_Ref">Pixel Ref</a> is nullptr</td>  </tr>
 </table>
 
-Pixels are copied only if pixel conversion is possible. If this-><a href="#SkBitmap_colorType">colorType</a> is
+Pixels are copied only if pixel conversion is possible. If <a href="#Bitmap">Bitmap</a> <a href="#SkBitmap_colorType">colorType</a> is
 <a href="undocumented#SkColorType">kGray 8 SkColorType</a>, or <a href="undocumented#SkColorType">kAlpha 8 SkColorType</a>; <a href="#SkBitmap_readPixels_2_dstInfo">dstInfo</a>.<a href="#SkBitmap_colorType">colorType</a> must match.
-If this-><a href="#SkBitmap_colorType">colorType</a> is <a href="undocumented#SkColorType">kGray 8 SkColorType</a>, <a href="#SkBitmap_readPixels_2_dstInfo">dstInfo</a>.<a href="#SkBitmap_colorSpace">colorSpace</a> must match.
-If this-><a href="#SkBitmap_alphaType">alphaType</a> is <a href="undocumented#SkAlphaType">kOpaque SkAlphaType</a>, <a href="#SkBitmap_readPixels_2_dstInfo">dstInfo</a>.<a href="#SkBitmap_alphaType">alphaType</a> must
-match. If this-><a href="#SkBitmap_colorSpace">colorSpace</a> is nullptr, <a href="#SkBitmap_readPixels_2_dstInfo">dstInfo</a>.<a href="#SkBitmap_colorSpace">colorSpace</a> must match. Returns
+If <a href="#Bitmap">Bitmap</a> <a href="#SkBitmap_colorType">colorType</a> is <a href="undocumented#SkColorType">kGray 8 SkColorType</a>, <a href="#SkBitmap_readPixels_2_dstInfo">dstInfo</a>.<a href="#SkBitmap_colorSpace">colorSpace</a> must match.
+If <a href="#Bitmap">Bitmap</a> <a href="#SkBitmap_alphaType">alphaType</a> is <a href="undocumented#SkAlphaType">kOpaque SkAlphaType</a>, <a href="#SkBitmap_readPixels_2_dstInfo">dstInfo</a>.<a href="#SkBitmap_alphaType">alphaType</a> must
+match. If <a href="#Bitmap">Bitmap</a> <a href="#SkBitmap_colorSpace">colorSpace</a> is nullptr, <a href="#SkBitmap_readPixels_2_dstInfo">dstInfo</a>.<a href="#SkBitmap_colorSpace">colorSpace</a> must match. Returns
 false if pixel conversion is not possible.
 <a href="#SkBitmap_readPixels_2_srcX">srcX</a> and <a href="#SkBitmap_readPixels_2_srcY">srcY</a> may be negative to copy only top or left of source. Returns
 false if <a href="#SkBitmap_width">width</a> or <a href="#SkBitmap_height">height</a> is zero or negative.
-Returns false ifabs(srcX) >= this-><a href="#SkBitmap_width">width</a>,
-or ifabs(srcY) >= this-><a href="#SkBitmap_height">height</a>.
+Returns false ifabs(srcX) >= <a href="#Bitmap">Bitmap</a> <a href="#SkBitmap_width">width</a>,
+or ifabs(srcY) >= <a href="#Bitmap">Bitmap</a> <a href="#SkBitmap_height">height</a>.
 
 ### Parameters
 
@@ -3009,8 +3009,8 @@ creates visible banding.</div></fiddle-embed></div>
 bool readPixels(const SkPixmap& dst, int srcX, int srcY) const
 </pre>
 
-Copies a <a href="SkRect_Reference#Rect">Rect</a> of pixels to <a href="#SkBitmap_readPixels_3_dst">dst</a>. Copy starts at (<a href="#SkBitmap_readPixels_3_srcX">srcX</a>, <a href="#SkBitmap_readPixels_3_srcY">srcY</a>), and does not exceed
-(this-><a href="#SkBitmap_width">width</a>, this-><a href="#SkBitmap_height">height</a>).
+Copies a <a href="SkRect_Reference#Rect">Rect</a> of pixels from <a href="#Bitmap">Bitmap</a> to <a href="#SkBitmap_readPixels_3_dst">dst</a>. Copy starts at (<a href="#SkBitmap_readPixels_3_srcX">srcX</a>, <a href="#SkBitmap_readPixels_3_srcY">srcY</a>), and
+does not exceed <a href="#Bitmap">Bitmap</a> (<a href="#SkBitmap_width">width</a>, <a href="#SkBitmap_height">height</a>).
 
 <a href="#SkBitmap_readPixels_3_dst">dst</a> specifies <a href="#SkBitmap_width">width</a>, <a href="#SkBitmap_height">height</a>, <a href="undocumented#Image_Color_Type">Color Type</a>, <a href="undocumented#Image_Alpha_Type">Alpha Type</a>, <a href="undocumented#Color_Space">Color Space</a>, pixel storage,
 and row bytes of destination. <a href="#SkBitmap_readPixels_3_dst">dst</a>.<a href="#SkBitmap_rowBytes">rowBytes</a> specifics the gap from one destination
@@ -3022,16 +3022,16 @@ row to the next. Returns true if pixels are copied. Returns false if:
     <td><a href="undocumented#Pixel_Ref">Pixel Ref</a> is nullptr</td>  </tr>
 </table>
 
-Pixels are copied only if pixel conversion is possible. If this-><a href="#SkBitmap_colorType">colorType</a> is
+Pixels are copied only if pixel conversion is possible. If <a href="#Bitmap">Bitmap</a> <a href="#SkBitmap_colorType">colorType</a> is
 <a href="undocumented#SkColorType">kGray 8 SkColorType</a>, or <a href="undocumented#SkColorType">kAlpha 8 SkColorType</a>; <a href="#SkBitmap_readPixels_3_dst">dst</a> <a href="undocumented#Image_Color_Type">Color Type</a> must match.
-If this-><a href="#SkBitmap_colorType">colorType</a> is <a href="undocumented#SkColorType">kGray 8 SkColorType</a>, <a href="#SkBitmap_readPixels_3_dst">dst</a> <a href="undocumented#Color_Space">Color Space</a> must match.
-If this-><a href="#SkBitmap_alphaType">alphaType</a> is <a href="undocumented#SkAlphaType">kOpaque SkAlphaType</a>, <a href="#SkBitmap_readPixels_3_dst">dst</a> <a href="undocumented#Image_Alpha_Type">Alpha Type</a> must
-match. If this-><a href="#SkBitmap_colorSpace">colorSpace</a> is nullptr, <a href="#SkBitmap_readPixels_3_dst">dst</a> <a href="undocumented#Color_Space">Color Space</a> must match. Returns
+If <a href="#Bitmap">Bitmap</a> <a href="#SkBitmap_colorType">colorType</a> is <a href="undocumented#SkColorType">kGray 8 SkColorType</a>, <a href="#SkBitmap_readPixels_3_dst">dst</a> <a href="undocumented#Color_Space">Color Space</a> must match.
+If <a href="#Bitmap">Bitmap</a> <a href="#SkBitmap_alphaType">alphaType</a> is <a href="undocumented#SkAlphaType">kOpaque SkAlphaType</a>, <a href="#SkBitmap_readPixels_3_dst">dst</a> <a href="undocumented#Image_Alpha_Type">Alpha Type</a> must
+match. If <a href="#Bitmap">Bitmap</a> <a href="#SkBitmap_colorSpace">colorSpace</a> is nullptr, <a href="#SkBitmap_readPixels_3_dst">dst</a> <a href="undocumented#Color_Space">Color Space</a> must match. Returns
 false if pixel conversion is not possible.
 <a href="#SkBitmap_readPixels_3_srcX">srcX</a> and <a href="#SkBitmap_readPixels_3_srcY">srcY</a> may be negative to copy only top or left of source. Returns
 false if <a href="#SkBitmap_width">width</a> or <a href="#SkBitmap_height">height</a> is zero or negative.
-Returns false ifabs(srcX) >= this-><a href="#SkBitmap_width">width</a>,
-or ifabs(srcY) >= this-><a href="#SkBitmap_height">height</a>.
+Returns false ifabs(srcX) >= <a href="#Bitmap">Bitmap</a> <a href="#SkBitmap_width">width</a>,
+or ifabs(srcY) >= <a href="#Bitmap">Bitmap</a> <a href="#SkBitmap_height">height</a>.
 
 ### Parameters
 
@@ -3062,8 +3062,8 @@ true if pixels are copied to <a href="#SkBitmap_readPixels_3_dst">dst</a>
 bool readPixels(const SkPixmap& dst) const
 </pre>
 
-Copies a <a href="SkRect_Reference#Rect">Rect</a> of pixels to <a href="#SkBitmap_readPixels_4_dst">dst</a>. Copy starts at (0, 0), and does not exceed
-(this-><a href="#SkBitmap_width">width</a>, this-><a href="#SkBitmap_height">height</a>).
+Copies a <a href="SkRect_Reference#Rect">Rect</a> of pixels from <a href="#Bitmap">Bitmap</a> to <a href="#SkBitmap_readPixels_4_dst">dst</a>. Copy starts at (0, 0), and
+does not exceed <a href="#Bitmap">Bitmap</a> (<a href="#SkBitmap_width">width</a>, <a href="#SkBitmap_height">height</a>).
 
 <a href="#SkBitmap_readPixels_4_dst">dst</a> specifies <a href="#SkBitmap_width">width</a>, <a href="#SkBitmap_height">height</a>, <a href="undocumented#Image_Color_Type">Color Type</a>, <a href="undocumented#Image_Alpha_Type">Alpha Type</a>, <a href="undocumented#Color_Space">Color Space</a>, pixel storage,
 and row bytes of destination. <a href="#SkBitmap_readPixels_4_dst">dst</a>.<a href="#SkBitmap_rowBytes">rowBytes</a> specifics the gap from one destination
@@ -3075,11 +3075,11 @@ row to the next. Returns true if pixels are copied. Returns false if:
     <td><a href="undocumented#Pixel_Ref">Pixel Ref</a> is nullptr</td>  </tr>
 </table>
 
-Pixels are copied only if pixel conversion is possible. If this-><a href="#SkBitmap_colorType">colorType</a> is
+Pixels are copied only if pixel conversion is possible. If <a href="#Bitmap">Bitmap</a> <a href="#SkBitmap_colorType">colorType</a> is
 <a href="undocumented#SkColorType">kGray 8 SkColorType</a>, or <a href="undocumented#SkColorType">kAlpha 8 SkColorType</a>; <a href="#SkBitmap_readPixels_4_dst">dst</a> <a href="undocumented#Image_Color_Type">Color Type</a> must match.
-If this-><a href="#SkBitmap_colorType">colorType</a> is <a href="undocumented#SkColorType">kGray 8 SkColorType</a>, <a href="#SkBitmap_readPixels_4_dst">dst</a> <a href="undocumented#Color_Space">Color Space</a> must match.
-If this-><a href="#SkBitmap_alphaType">alphaType</a> is <a href="undocumented#SkAlphaType">kOpaque SkAlphaType</a>, <a href="#SkBitmap_readPixels_4_dst">dst</a> <a href="undocumented#Image_Alpha_Type">Alpha Type</a> must
-match. If this-><a href="#SkBitmap_colorSpace">colorSpace</a> is nullptr, <a href="#SkBitmap_readPixels_4_dst">dst</a> <a href="undocumented#Color_Space">Color Space</a> must match. Returns
+If <a href="#Bitmap">Bitmap</a> <a href="#SkBitmap_colorType">colorType</a> is <a href="undocumented#SkColorType">kGray 8 SkColorType</a>, <a href="#SkBitmap_readPixels_4_dst">dst</a> <a href="undocumented#Color_Space">Color Space</a> must match.
+If <a href="#Bitmap">Bitmap</a> <a href="#SkBitmap_alphaType">alphaType</a> is <a href="undocumented#SkAlphaType">kOpaque SkAlphaType</a>, <a href="#SkBitmap_readPixels_4_dst">dst</a> <a href="undocumented#Image_Alpha_Type">Alpha Type</a> must
+match. If <a href="#Bitmap">Bitmap</a> <a href="#SkBitmap_colorSpace">colorSpace</a> is nullptr, <a href="#SkBitmap_readPixels_4_dst">dst</a> <a href="undocumented#Color_Space">Color Space</a> must match. Returns
 false if pixel conversion is not possible.
 
 ### Parameters
@@ -3123,16 +3123,16 @@ row to the next. Returns true if pixels are copied. Returns false if:
     <td><a href="undocumented#Pixel_Ref">Pixel Ref</a> is nullptr</td>  </tr>
 </table>
 
-Pixels are copied only if pixel conversion is possible. If this-><a href="#SkBitmap_colorType">colorType</a> is
+Pixels are copied only if pixel conversion is possible. If <a href="#Bitmap">Bitmap</a> <a href="#SkBitmap_colorType">colorType</a> is
 <a href="undocumented#SkColorType">kGray 8 SkColorType</a>, or <a href="undocumented#SkColorType">kAlpha 8 SkColorType</a>; <a href="#SkBitmap_writePixels_src">src</a> <a href="undocumented#Image_Color_Type">Color Type</a> must match.
-If this-><a href="#SkBitmap_colorType">colorType</a> is <a href="undocumented#SkColorType">kGray 8 SkColorType</a>, <a href="#SkBitmap_writePixels_src">src</a> <a href="undocumented#Color_Space">Color Space</a> must match.
-If this-><a href="#SkBitmap_alphaType">alphaType</a> is <a href="undocumented#SkAlphaType">kOpaque SkAlphaType</a>, <a href="#SkBitmap_writePixels_src">src</a> <a href="undocumented#Image_Alpha_Type">Alpha Type</a> must
-match. If this-><a href="#SkBitmap_colorSpace">colorSpace</a> is nullptr, <a href="#SkBitmap_writePixels_src">src</a> <a href="undocumented#Color_Space">Color Space</a> must match. Returns
+If <a href="#Bitmap">Bitmap</a> <a href="#SkBitmap_colorType">colorType</a> is <a href="undocumented#SkColorType">kGray 8 SkColorType</a>, <a href="#SkBitmap_writePixels_src">src</a> <a href="undocumented#Color_Space">Color Space</a> must match.
+If <a href="#Bitmap">Bitmap</a> <a href="#SkBitmap_alphaType">alphaType</a> is <a href="undocumented#SkAlphaType">kOpaque SkAlphaType</a>, <a href="#SkBitmap_writePixels_src">src</a> <a href="undocumented#Image_Alpha_Type">Alpha Type</a> must
+match. If <a href="#Bitmap">Bitmap</a> <a href="#SkBitmap_colorSpace">colorSpace</a> is nullptr, <a href="#SkBitmap_writePixels_src">src</a> <a href="undocumented#Color_Space">Color Space</a> must match. Returns
 false if pixel conversion is not possible.
 <a href="#SkBitmap_writePixels_dstX">dstX</a> and <a href="#SkBitmap_writePixels_dstY">dstY</a> may be negative to copy only top or left of source. Returns
 false if <a href="#SkBitmap_width">width</a> or <a href="#SkBitmap_height">height</a> is zero or negative.
-Returns false ifabs(dstX) >= this-><a href="#SkBitmap_width">width</a>,
-or ifabs(dstY) >= this-><a href="#SkBitmap_height">height</a>.
+Returns false ifabs(dstX) >= <a href="#Bitmap">Bitmap</a> <a href="#SkBitmap_width">width</a>,
+or ifabs(dstY) >= <a href="#Bitmap">Bitmap</a> <a href="#SkBitmap_height">height</a>.
 
 ### Parameters
 
@@ -3176,11 +3176,11 @@ row to the next. Returns true if pixels are copied. Returns false if:
     <td><a href="undocumented#Pixel_Ref">Pixel Ref</a> is nullptr</td>  </tr>
 </table>
 
-Pixels are copied only if pixel conversion is possible. If this-><a href="#SkBitmap_colorType">colorType</a> is
+Pixels are copied only if pixel conversion is possible. If <a href="#Bitmap">Bitmap</a> <a href="#SkBitmap_colorType">colorType</a> is
 <a href="undocumented#SkColorType">kGray 8 SkColorType</a>, or <a href="undocumented#SkColorType">kAlpha 8 SkColorType</a>; <a href="#SkBitmap_writePixels_2_src">src</a> <a href="undocumented#Image_Color_Type">Color Type</a> must match.
-If this-><a href="#SkBitmap_colorType">colorType</a> is <a href="undocumented#SkColorType">kGray 8 SkColorType</a>, <a href="#SkBitmap_writePixels_2_src">src</a> <a href="undocumented#Color_Space">Color Space</a> must match.
-If this-><a href="#SkBitmap_alphaType">alphaType</a> is <a href="undocumented#SkAlphaType">kOpaque SkAlphaType</a>, <a href="#SkBitmap_writePixels_2_src">src</a> <a href="undocumented#Image_Alpha_Type">Alpha Type</a> must
-match. If this-><a href="#SkBitmap_colorSpace">colorSpace</a> is nullptr, <a href="#SkBitmap_writePixels_2_src">src</a> <a href="undocumented#Color_Space">Color Space</a> must match. Returns
+If <a href="#Bitmap">Bitmap</a> <a href="#SkBitmap_colorType">colorType</a> is <a href="undocumented#SkColorType">kGray 8 SkColorType</a>, <a href="#SkBitmap_writePixels_2_src">src</a> <a href="undocumented#Color_Space">Color Space</a> must match.
+If <a href="#Bitmap">Bitmap</a> <a href="#SkBitmap_alphaType">alphaType</a> is <a href="undocumented#SkAlphaType">kOpaque SkAlphaType</a>, <a href="#SkBitmap_writePixels_2_src">src</a> <a href="undocumented#Image_Alpha_Type">Alpha Type</a> must
+match. If <a href="#Bitmap">Bitmap</a> <a href="#SkBitmap_colorSpace">colorSpace</a> is nullptr, <a href="#SkBitmap_writePixels_2_src">src</a> <a href="undocumented#Color_Space">Color Space</a> must match. Returns
 false if pixel conversion is not possible.
 
 ### Parameters
@@ -3221,11 +3221,11 @@ row to the next. Returns true if pixels are copied. Returns false if:
     <td><a href="undocumented#Pixel_Ref">Pixel Ref</a> is nullptr</td>  </tr>
 </table>
 
-Pixels are copied only if pixel conversion is possible. If this-><a href="#SkBitmap_colorType">colorType</a> is
+Pixels are copied only if pixel conversion is possible. If <a href="#Bitmap">Bitmap</a> <a href="#SkBitmap_colorType">colorType</a> is
 <a href="undocumented#SkColorType">kGray 8 SkColorType</a>, or <a href="undocumented#SkColorType">kAlpha 8 SkColorType</a>; <a href="#SkBitmap_writePixels_3_src">src</a> <a href="undocumented#Image_Color_Type">Color Type</a> must match.
-If this-><a href="#SkBitmap_colorType">colorType</a> is <a href="undocumented#SkColorType">kGray 8 SkColorType</a>, <a href="#SkBitmap_writePixels_3_src">src</a> <a href="undocumented#Color_Space">Color Space</a> must match.
-If this-><a href="#SkBitmap_alphaType">alphaType</a> is <a href="undocumented#SkAlphaType">kOpaque SkAlphaType</a>, <a href="#SkBitmap_writePixels_3_src">src</a> <a href="undocumented#Image_Alpha_Type">Alpha Type</a> must
-match. If this-><a href="#SkBitmap_colorSpace">colorSpace</a> is nullptr, <a href="#SkBitmap_writePixels_3_src">src</a> <a href="undocumented#Color_Space">Color Space</a> must match. Returns
+If <a href="#Bitmap">Bitmap</a> <a href="#SkBitmap_colorType">colorType</a> is <a href="undocumented#SkColorType">kGray 8 SkColorType</a>, <a href="#SkBitmap_writePixels_3_src">src</a> <a href="undocumented#Color_Space">Color Space</a> must match.
+If <a href="#Bitmap">Bitmap</a> <a href="#SkBitmap_alphaType">alphaType</a> is <a href="undocumented#SkAlphaType">kOpaque SkAlphaType</a>, <a href="#SkBitmap_writePixels_3_src">src</a> <a href="undocumented#Image_Alpha_Type">Alpha Type</a> must
+match. If <a href="#Bitmap">Bitmap</a> <a href="#SkBitmap_colorSpace">colorSpace</a> is nullptr, <a href="#SkBitmap_writePixels_3_src">src</a> <a href="undocumented#Color_Space">Color Space</a> must match. Returns
 false if pixel conversion is not possible. Returns false if <a href="#SkBitmap_width">width</a> or <a href="#SkBitmap_height">height</a>
 is zero or negative.
 
@@ -3484,7 +3484,7 @@ SK_DEBUG is defined at compile time.
 void toString(SkString* str) const;
 </pre>
 
-Creates string representation. The representation is read by
+Creates string representation of <a href="#Bitmap">Bitmap</a>. The representation is read by
 internal debugging tools. The interface and implementation may be
 suppressed by defining SK_IGNORE_TO_STRING.
 

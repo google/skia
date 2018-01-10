@@ -334,6 +334,7 @@ bool BmhParser::addDefinition(const char* defStart, bool hasEnd, MarkType markTy
         case MarkType::kAlias:
         case MarkType::kAnchor:
         case MarkType::kDefine:
+        case MarkType::kDuration:
         case MarkType::kError:
         case MarkType::kFile:
         case MarkType::kHeight:
@@ -1254,6 +1255,7 @@ vector<string> BmhParser::typeName(MarkType markType, bool* checkEnd) {
         case MarkType::kBug:  // fixme: expect number
         case MarkType::kDefine:
         case MarkType::kDefinedBy:
+        case MarkType::kDuration:
         case MarkType::kError:
         case MarkType::kFile:
         case MarkType::kHeight:
