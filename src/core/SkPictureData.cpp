@@ -499,10 +499,10 @@ bool new_array_from_buffer(SkReadBuffer& buffer, uint32_t inCount,
 bool SkPictureData::parseBufferTag(SkReadBuffer& buffer, uint32_t tag, uint32_t size) {
     switch (tag) {
         case SK_PICT_PAINT_BUFFER_TAG: {
-            if (!buffer.validate(SkTFitsIn<int>(size))) {
+            const int count = (int) size;
+            if (count < 0) {
                 return false;
             }
-            const int count = SkToInt(size);
             fPaints.reset(count);
             for (int i = 0; i < count; ++i) {
                 buffer.readPaint(&fPaints[i]);
@@ -511,6 +511,9 @@ bool SkPictureData::parseBufferTag(SkReadBuffer& buffer, uint32_t tag, uint32_t 
         case SK_PICT_PATH_BUFFER_TAG:
             if (size > 0) {
                 const int count = buffer.readInt();
+                if (count < 0) {
+                    return false;
+                }
                 fPaths.reset(count);
                 for (int i = 0; i < count; i++) {
                     buffer.readPath(&fPaths[i]);
