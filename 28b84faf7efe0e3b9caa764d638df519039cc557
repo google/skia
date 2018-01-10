@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a728d7f_e9aed43a",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 3
+      },
+      "lineNbr": 1178,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-01-10T18:27:32Z",
+      "side": 1,
+      "message": "This diff is from gofmt.",
+      "revId": "28b84faf7efe0e3b9caa764d638df519039cc557",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
