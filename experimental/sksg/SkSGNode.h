@@ -71,6 +71,7 @@ private:
     friend class Draw;
     friend class EffectNode;
     friend class Group;
+    friend class MaskEffect;
     friend class Matrix;
     friend class Merge;
     friend class Stroke;
