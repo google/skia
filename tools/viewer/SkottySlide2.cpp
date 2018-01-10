@@ -38,6 +38,8 @@ SkottySlide2::SkottySlide2(const SkString& path)
 }
 
 void SkottySlide2::load(SkScalar, SkScalar) {
+    fAnims.reset();
+
     SkString name;
     SkOSFile::Iter iter(fPath.c_str(), "json");
     while (iter.next(&name)) {
@@ -61,6 +63,11 @@ SkISize SkottySlide2::getDimensions() const {
 }
 
 void SkottySlide2::draw(SkCanvas* canvas) {
+    if (fFocusCell >= 0) {
+        const SkRect dst = SkRect::Make(canvas->imageInfo().bounds());
+        fAnims[fFocusCell].fAnimation->render(canvas, &dst);
+        return;
+    }
     SkPaint paint;
     paint.setTextSize(12);
     paint.setAntiAlias(true);
@@ -84,26 +91,40 @@ void SkottySlide2::draw(SkCanvas* canvas) {
 }
 
 bool SkottySlide2::animate(const SkAnimTimer& timer) {
-    for (auto& rec : fAnims) {
+    auto proc = [](Rec& rec, const SkAnimTimer& timer) {
         if (rec.fTimeBase == 0) {
-            // Reset the animation time.
             rec.fTimeBase = timer.msec();
         }
         rec.fAnimation->animationTick(timer.msec() - rec.fTimeBase);
+    };
+
+    if (fFocusCell >= 0) {
+        proc(fAnims[fFocusCell], timer);
+    } else {
+        for (auto& rec : fAnims) {
+            proc(rec, timer);
+        }
     }
     return true;
 }
 
 bool SkottySlide2::onMouse(SkScalar x, SkScalar y, sk_app::Window::InputState state,
                            uint32_t modifiers) {
+    if (fFocusCell >= 0) {
+        if (state == sk_app::Window::kDown_InputState) {
+            fFocusCell = -1;
+        }
+        return false;
+    }
     if (fTrackingCell < 0 && state == sk_app::Window::kDown_InputState) {
         fTrackingCell = this->findCell(x, y);
     }
     if (fTrackingCell >= 0 && state == sk_app::Window::kUp_InputState) {
         int index = this->findCell(x, y);
         if (fTrackingCell == index) {
-            fAnims[index].fShowAnimationInval = !fAnims[index].fShowAnimationInval;
-            fAnims[index].fAnimation->setShowInval(fAnims[index].fShowAnimationInval);
+            fFocusCell = index;
+//            fAnims[index].fShowAnimationInval = !fAnims[index].fShowAnimationInval;
+//            fAnims[index].fAnimation->setShowInval(fAnims[index].fShowAnimationInval);
         }
         fTrackingCell = -1;
     }
@@ -118,6 +139,9 @@ int SkottySlide2::findCell(float x, float y) const {
         int ix = (int)x;
         int iy = (int)y;
         int col = ix / (CELL_WIDTH + SPACER_X);
+        if (col >= COL_COUNT) {
+            return -1;
+        }
         int row = iy / (CELL_HEIGHT + SPACER_Y);
         index = row * COL_COUNT + col;
         if (index >= fAnims.count()) {

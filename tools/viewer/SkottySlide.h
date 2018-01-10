@@ -66,6 +66,7 @@ private:
     SkTArray<Rec>   fAnims;
 
     int fTrackingCell = -1;
+    int fFocusCell = -1;
 
     typedef Slide INHERITED;
 };
