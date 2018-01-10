@@ -197,6 +197,12 @@ struct SK_API SkIRect {
     int64_t width64() const { return (int64_t)fRight - (int64_t)fLeft; }
     int64_t height64() const { return (int64_t)fBottom - (int64_t)fTop; }
 
+    /** Returns true if the rectangle's dimensions are non-positive.
+     *  Unlike isEmpty(), this does not worry about the size of the width or height, which could
+     *  exceed int32_t but still be logically non-empty.
+     */
+    bool isEmpty64() const { return fRight <= fLeft || fBottom <= fTop; }
+
     /** Returns true if the rectangle's dimensions are non-positive or if either its width or hieght
      *  exceeds int32_t.
      */
@@ -529,30 +535,7 @@ struct SK_API SkIRect {
         @return   true if r and SkRect have area in common
     */
     bool intersect(const SkIRect& r) {
-        return this->intersect(r.fLeft, r.fTop, r.fRight, r.fBottom);
-    }
-
-    /** Returns true if a intersects b, and sets SkIRect to intersection.
-        Returns false if a does not intersect b, and leaves SkIRect unchanged.
-
-        Returns false if either a or b is empty, leaving SkIRect unchanged.
-
-        @param a  SkIRect to intersect
-        @param b  SkIRect to intersect
-        @return   true if a and b have area in common
-    */
-    bool SK_WARN_UNUSED_RESULT intersect(const SkIRect& a, const SkIRect& b) {
-
-        if (!a.isEmpty() && !b.isEmpty() &&
-                a.fLeft < b.fRight && b.fLeft < a.fRight &&
-                a.fTop < b.fBottom && b.fTop < a.fBottom) {
-            fLeft   = SkMax32(a.fLeft,   b.fLeft);
-            fTop    = SkMax32(a.fTop,    b.fTop);
-            fRight  = SkMin32(a.fRight,  b.fRight);
-            fBottom = SkMin32(a.fBottom, b.fBottom);
-            return true;
-        }
-        return false;
+        return this->intersect(*this, r);
     }
 
     /** Returns true if a intersects b, and sets SkIRect to intersection.
@@ -565,17 +548,34 @@ struct SK_API SkIRect {
         @return   true if a and b have area in common
     */
     bool SK_WARN_UNUSED_RESULT intersectNoEmptyCheck(const SkIRect& a, const SkIRect& b) {
-        SkASSERT(!a.isEmpty() && !b.isEmpty());
-
-        if (a.fLeft < b.fRight && b.fLeft < a.fRight &&
-                a.fTop < b.fBottom && b.fTop < a.fBottom) {
-            fLeft   = SkMax32(a.fLeft,   b.fLeft);
-            fTop    = SkMax32(a.fTop,    b.fTop);
-            fRight  = SkMin32(a.fRight,  b.fRight);
-            fBottom = SkMin32(a.fBottom, b.fBottom);
-            return true;
+        SkASSERT(!a.isEmpty64() && !b.isEmpty64());
+        SkIRect r = {
+            SkMax32(a.fLeft,   b.fLeft),
+            SkMax32(a.fTop,    b.fTop),
+            SkMin32(a.fRight,  b.fRight),
+            SkMin32(a.fBottom, b.fBottom)
+        };
+        if (r.isEmpty()) {
+            return false;
         }
-        return false;
+        *this = r;
+        return true;
+    }
+
+    /** Returns true if a intersects b, and sets SkIRect to intersection.
+     Returns false if a does not intersect b, and leaves SkIRect unchanged.
+
+     Returns false if either a or b is empty, leaving SkIRect unchanged.
+
+     @param a  SkIRect to intersect
+     @param b  SkIRect to intersect
+     @return   true if a and b have area in common
+     */
+    bool SK_WARN_UNUSED_RESULT intersect(const SkIRect& a, const SkIRect& b) {
+        if (a.isEmpty64() || b.isEmpty64()) {
+            return false;
+        }
+        return this->intersectNoEmptyCheck(a, b);
     }
 
     /** Constructs SkIRect to intersect from (left, top, right, bottom). Does not sort
@@ -593,15 +593,7 @@ struct SK_API SkIRect {
         @return        true if construction and SkIRect have area in common
     */
     bool intersect(int32_t left, int32_t top, int32_t right, int32_t bottom) {
-        if (left < right && top < bottom && !this->isEmpty() &&
-                fLeft < right && left < fRight && fTop < bottom && top < fBottom) {
-            if (fLeft < left) fLeft = left;
-            if (fTop < top) fTop = top;
-            if (fRight > right) fRight = right;
-            if (fBottom > bottom) fBottom = bottom;
-            return true;
-        }
-        return false;
+        return this->intersect(*this, {left, top, right, bottom});
     }
 
     /** Returns true if a intersects b.
@@ -612,9 +604,8 @@ struct SK_API SkIRect {
         @return   true if a and b have area in common
     */
     static bool Intersects(const SkIRect& a, const SkIRect& b) {
-        return  !a.isEmpty() && !b.isEmpty() &&              // check for empties
-                a.fLeft < b.fRight && b.fLeft < a.fRight &&
-                a.fTop < b.fBottom && b.fTop < a.fBottom;
+        SkIRect dummy;
+        return dummy.intersect(a, b);
     }
 
     /** Returns true if a intersects b.
@@ -625,10 +616,8 @@ struct SK_API SkIRect {
         @return   true if a and b have area in common
     */
     static bool IntersectsNoEmptyCheck(const SkIRect& a, const SkIRect& b) {
-        SkASSERT(!a.isEmpty());
-        SkASSERT(!b.isEmpty());
-        return  a.fLeft < b.fRight && b.fLeft < a.fRight &&
-                a.fTop < b.fBottom && b.fTop < a.fBottom;
+        SkIRect dummy;
+        return dummy.intersectNoEmptyCheck(a, b);
     }
 
     /** Constructs SkRect to intersect from (left, top, right, bottom). Does not sort
