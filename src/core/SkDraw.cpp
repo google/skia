@@ -34,6 +34,7 @@
 #include "SkStrokeRec.h"
 #include "SkTemplates.h"
 #include "SkTextMapStateProc.h"
+#include "SkThreadedBMPDevice.h"
 #include "SkTLazy.h"
 #include "SkUtils.h"
 
@@ -956,7 +957,7 @@ SkScalar SkDraw::ComputeResScaleForStroking(const SkMatrix& matrix) {
 }
 
 void SkDraw::drawDevPath(const SkPath& devPath, const SkPaint& paint, bool drawCoverage,
-                         SkBlitter* customBlitter, bool doFill) const {
+                         SkBlitter* customBlitter, bool doFill, SkInitOnceData* iData) const {
     // Do a conservative quick-reject test, since a looper or other modifier may have moved us
     // out of range.
     if (!devPath.isInverseFillType()) {
@@ -980,9 +981,15 @@ void SkDraw::drawDevPath(const SkPath& devPath, const SkPaint& paint, bool drawC
 
     SkBlitter* blitter = nullptr;
     SkAutoBlitterChoose blitterStorage;
+    SkAutoBlitterChoose* blitterStoragePtr = &blitterStorage;
+    if (iData) {
+        // we're in the threaded init-once phase; the blitter has to be allocated in the thread
+        // allocator so it will remain valid later during the draw phase.
+        blitterStoragePtr = iData->fAlloc->make<SkAutoBlitterChoose>();
+    }
     if (nullptr == customBlitter) {
-        blitterStorage.choose(fDst, *fMatrix, paint, drawCoverage);
-        blitter = blitterStorage.get();
+        blitterStoragePtr->choose(fDst, *fMatrix, paint, drawCoverage);
+        blitter = blitterStoragePtr->get();
     } else {
         blitter = customBlitter;
     }
@@ -1035,12 +1042,31 @@ void SkDraw::drawDevPath(const SkPath& devPath, const SkPaint& paint, bool drawC
             }
         }
     }
-    proc(devPath, *fRC, blitter);
+
+    if (iData == nullptr) {
+        proc(devPath, *fRC, blitter); // proceed directly if we're not in threaded init-once
+    } else if (true || !doFill || !paint.isAntiAlias()) {
+        // TODO remove true in the if statement above so we can proceed to DAA.
+
+        // We're in threaded init-once but we can't use DAA. Hence we'll stop here and hand all the
+        // remaining work to draw phase. This is a simple example of how to add init-once to
+        // existing drawXXX commands: simply send in SkInitOnceData, do as much init work as
+        // possible, and finally wrap the remaining work into iData->fElement->fDrawFn.
+        iData->fElement->fDrawFn = [proc, devPath, blitter](SkArenaAlloc* alloc,
+                const SkThreadedBMPDevice::DrawState& ds, const SkIRect& tileBounds) {
+            SkThreadedBMPDevice::TileDraw tileDraw(ds, tileBounds);
+            proc(devPath, *tileDraw.fRC, blitter);
+        };
+    } else {
+        // We can use DAA to do scan conversion in the init-once phase.
+        // TODO To be implemented
+    }
 }
 
 void SkDraw::drawPath(const SkPath& origSrcPath, const SkPaint& origPaint,
                       const SkMatrix* prePathMatrix, bool pathIsMutable,
-                      bool drawCoverage, SkBlitter* customBlitter) const {
+                      bool drawCoverage, SkBlitter* customBlitter,
+                      SkInitOnceData* iData) const {
     SkDEBUGCODE(this->validate();)
 
     // nothing to draw
@@ -1050,10 +1076,14 @@ void SkDraw::drawPath(const SkPath& origSrcPath, const SkPaint& origPaint,
 
     SkPath*         pathPtr = (SkPath*)&origSrcPath;
     bool            doFill = true;
-    SkPath          tmpPath;
+    SkPath          tmpPathStorage;
+    SkPath*         tmpPath = &tmpPathStorage;
     SkMatrix        tmpMatrix;
     const SkMatrix* matrix = fMatrix;
-    tmpPath.setIsVolatile(true);
+    if (iData) {
+        tmpPath = iData->fAlloc->make<SkPath>();
+    }
+    tmpPath->setIsVolatile(true);
 
     if (prePathMatrix) {
         if (origPaint.getPathEffect() || origPaint.getStyle() != SkPaint::kFill_Style ||
@@ -1061,7 +1091,7 @@ void SkDraw::drawPath(const SkPath& origSrcPath, const SkPaint& origPaint,
             SkPath* result = pathPtr;
 
             if (!pathIsMutable) {
-                result = &tmpPath;
+                result = tmpPath;
                 pathIsMutable = true;
             }
             pathPtr->transform(*prePathMatrix, result);
@@ -1106,9 +1136,9 @@ void SkDraw::drawPath(const SkPath& origSrcPath, const SkPaint& origPaint,
         if (this->computeConservativeLocalClipBounds(&cullRect)) {
             cullRectPtr = &cullRect;
         }
-        doFill = paint->getFillPath(*pathPtr, &tmpPath, cullRectPtr,
+        doFill = paint->getFillPath(*pathPtr, tmpPath, cullRectPtr,
                                     ComputeResScaleForStroking(*fMatrix));
-        pathPtr = &tmpPath;
+        pathPtr = tmpPath;
     }
 
     if (paint->getRasterizer()) {
@@ -1123,12 +1153,12 @@ void SkDraw::drawPath(const SkPath& origSrcPath, const SkPaint& origPaint,
     }
 
     // avoid possibly allocating a new path in transform if we can
-    SkPath* devPathPtr = pathIsMutable ? pathPtr : &tmpPath;
+    SkPath* devPathPtr = pathIsMutable ? pathPtr : tmpPath;
 
     // transform the path into device space
     pathPtr->transform(*matrix, devPathPtr);
 
-    this->drawDevPath(*devPathPtr, *paint, drawCoverage, customBlitter, doFill);
+    this->drawDevPath(*devPathPtr, *paint, drawCoverage, customBlitter, doFill, iData);
 }
 
 void SkDraw::drawBitmapAsMask(const SkBitmap& bitmap, const SkPaint& paint) const {

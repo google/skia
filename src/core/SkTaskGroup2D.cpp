@@ -24,38 +24,35 @@ void SkTaskGroup2D::finish() {
 }
 
 void SkSpinningTaskGroup2D::work(int threadId) {
-    int& nextColumn = fRowData[threadId].fNextColumn;
+    int workCol = 0;
+    int initCol = 0;
 
     while (true) {
-        SkASSERT(nextColumn <= fWidth);
-        if (this->isFinishing() && nextColumn >= fWidth) {
+        SkASSERT(workCol <= fWidth);
+        if (this->isFinishing() && workCol >= fWidth) {
             return;
         }
 
-        if (nextColumn < fWidth) {
-            fWork(threadId, nextColumn);
-            nextColumn++;
+        // Note that row = threadId
+        if (workCol < fWidth && fWork(threadId, workCol, threadId)) {
+            workCol++;
+        } else {
+            // Initialize something if we can't work
+            this->initAnUninitializedColumn(initCol, threadId);
         }
     }
 }
 
-SkFlexibleTaskGroup2D::SkFlexibleTaskGroup2D(Work2D&& w, int h, SkExecutor* x, int t)
-        : SkTaskGroup2D(std::move(w), h, x, t), fRowData(h), fThreadData(t) {
-    for (int i = 0; i < t; ++i) {
-        fThreadData[i].fRowIndex = i;
-    }
-}
-
-
 void SkFlexibleTaskGroup2D::work(int threadId) {
     int failCnt = 0;
-    int& rowIndex = fThreadData[threadId].fRowIndex;
+    int initCol = 0;
+    int row     = threadId;
 
     // This loop looks for work to do as long as
     // either 1. isFinishing is false
     // or     2. isFinishing is true but some rows still have unfinished tasks
     while (true) {
-        RowData& rowData = fRowData[rowIndex];
+        RowData& rowData = fRowData[row];
         bool processed = false;
 
         // The Android roller somehow gets a false-positive compile warning/error about the try-lock
@@ -66,13 +63,15 @@ void SkFlexibleTaskGroup2D::work(int threadId) {
 #endif
         if (rowData.fMutex.try_lock()) {
             if (rowData.fNextColumn < fWidth) {
-                fWork(rowIndex, rowData.fNextColumn);
-                rowData.fNextColumn++;
-                processed = true;
+                if (fWork(row, rowData.fNextColumn, threadId)) {
+                    rowData.fNextColumn++;
+                    processed = true;
+                }
+                failCnt = 0;
             } else {
                 // isFinishing can never go from true to false. Once it's true, we count how many
-                // times that a row is out of work. If that count reaches fHeight, then we're out of
-                // work for the whole group.
+                // CONSECUTIVE rows are out of work. If that count reaches fHeight, then we're out
+                // of work for the whole group.
                 failCnt += this->isFinishing();
             }
             rowData.fMutex.unlock();
@@ -85,7 +84,10 @@ void SkFlexibleTaskGroup2D::work(int threadId) {
             if (failCnt >= fHeight) {
                 return;
             }
-            rowIndex = (rowIndex + 1) % fHeight;
+            row = (row + 1) % fHeight;
+
+            // Initialize something if we can't work
+            this->initAnUninitializedColumn(initCol, threadId);
         }
     }
 }

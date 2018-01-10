@@ -43,6 +43,7 @@ protected:
     void flush() override;
 
 private:
+    // We store DrawState inside DrawElement because inifFn and drawFn both want to use it
     struct DrawState {
         SkPixmap fDst;
         SkMatrix fMatrix;
@@ -60,12 +61,16 @@ private:
     };
 
     struct DrawElement {
+        using InitFn = std::function<void(SkArenaAlloc* threadAlloc, DrawElement* element)>;
         using DrawFn = std::function<void(SkArenaAlloc* threadAlloc, const DrawState& ds,
                                           const SkIRect& tileBounds)>;
 
-        DrawFn      fDrawFn;
-        DrawState   fDS;
-        SkIRect     fDrawBounds;
+        std::atomic<bool>   fInitialized;
+        std::once_flag      fNeedInit;
+        InitFn              fInitFn;
+        DrawFn              fDrawFn;
+        DrawState           fDS;
+        SkIRect             fDrawBounds;
     };
 
     class DrawQueue {
@@ -79,25 +84,44 @@ private:
         // will start new tasks.
         void finish() { fTasks->finish(); }
 
+        // Push a draw command without the need of initialization
         SK_ALWAYS_INLINE void push(const SkRect& rawDrawBounds,
                                    DrawElement::DrawFn&& drawFn) {
             if (fSize == MAX_QUEUE_SIZE) {
                 this->reset();
             }
             SkASSERT(fSize < MAX_QUEUE_SIZE);
-
             DrawElement* element = &fElements[fSize++];
+            element->fInitialized = true;
             element->fDS = DrawState(fDevice);
             element->fDrawFn = std::move(drawFn);
             element->fDrawBounds = fDevice->transformDrawBounds(rawDrawBounds);
             fTasks->addColumn();
         }
 
+        // Push a draw command with init-once function initFn. Note that initFn is responsible for
+        // setting up drawFn later.
+        SK_ALWAYS_INLINE void push(const SkRect& rawDrawBounds,
+                                   DrawElement::InitFn&& initFn) {
+            if (fSize == MAX_QUEUE_SIZE) {
+                this->reset();
+            }
+            SkASSERT(fSize < MAX_QUEUE_SIZE);
+            DrawElement* element = &fElements[fSize++];
+            element->fInitialized = false;
+            new (&element->fNeedInit) std::once_flag;
+            element->fDS = DrawState(fDevice);
+            element->fInitFn = std::move(initFn);
+            element->fDrawBounds = fDevice->transformDrawBounds(rawDrawBounds);
+            fTasks->addColumn();
+        }
+
     private:
-        SkThreadedBMPDevice*            fDevice;
-        std::unique_ptr<SkTaskGroup2D>  fTasks;
-        DrawElement                     fElements[MAX_QUEUE_SIZE];
-        int                             fSize;
+        SkThreadedBMPDevice*                fDevice;
+        std::unique_ptr<SkTaskGroup2D>      fTasks;
+        SkTArray<SkSTArenaAlloc<8 << 10>>   fThreadAllocs; // 8k stack size
+        DrawElement                         fElements[MAX_QUEUE_SIZE];
+        int                                 fSize;
     };
 
     SkIRect transformDrawBounds(const SkRect& drawBounds) const;
@@ -117,7 +141,17 @@ private:
 
     DrawQueue fQueue;
 
+    friend struct SkInitOnceData;   // to access DrawElement
+    friend class SkDraw;            // to access DrawState
+
     typedef SkBitmapDevice INHERITED;
+};
+
+// Passed to SkDraw::drawXXX to enable threaded draw with init-once. The goal is to reuse as much
+// code as possible from SkDraw. (See SkDraw::drawPath and SkDraw::drawDevPath for an example.)
+struct SkInitOnceData {
+    SkArenaAlloc* fAlloc;
+    SkThreadedBMPDevice::DrawElement* fElement;
 };
 
 #endif // SkThreadedBMPDevice_DEFINED
