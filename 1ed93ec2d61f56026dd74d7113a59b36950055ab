@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "4d3a9eba_114c9671",
+        "filename": "src/core/SkPicture.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-01-10T18:02:14Z",
+      "side": 1,
+      "message": "Yes.  See the linked bug for an example.",
+      "parentUuid": "9e1696ac_0fe62be4",
+      "revId": "1ed93ec2d61f56026dd74d7113a59b36950055ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "f6c1c652_1c3e06fe",
         "filename": "src/core/SkPictureData.cpp",
         "patchSetId": 3
@@ -30,6 +48,30 @@
       "writtenOn": "2018-01-10T17:52:49Z",
       "side": 1,
       "message": "I think this SkTFitsIn\u003cint\u003e(size) check was already trying to check this condition.  The only way a uint32_t doesn\u0027t fit into int would produce a negative int.  Were we getting past the SkTFitsIn check?\n\nI think it\u0027s reasonable to do just\n\n   int count \u003d SkToInt(size);\n   if (count \u003c 0) {\n       return false;\n   }\n\nor if the SkASSERT(SkTFitsIn\u003cint\u003e(...)) inside SkToInt() is going to be an issue, just\n\n   int count \u003d (int)size;\n   if (count \u003c 0) {\n       return false;\n   }",
+      "range": {
+        "startLine": 501,
+        "startChar": 0,
+        "endLine": 508,
+        "endChar": 13
+      },
+      "revId": "1ed93ec2d61f56026dd74d7113a59b36950055ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7e099a36_9c624be9",
+        "filename": "src/core/SkPictureData.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 508,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-01-10T18:02:14Z",
+      "side": 1,
+      "message": "I don\u0027t think this one ever comes up - I just noticed it when I fixed the one below.\nI\u0027ll remove the FitsIn part as you suggested, without the possibility of an assert.",
+      "parentUuid": "f6c1c652_1c3e06fe",
       "range": {
         "startLine": 501,
         "startChar": 0,
