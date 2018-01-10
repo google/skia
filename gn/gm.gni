@@ -162,6 +162,7 @@ gm_sources = [
   "$_gm/hardstop_gradients.cpp",
   "$_gm/highcontrastfilter.cpp",
   "$_gm/hittestpath.cpp",
+  "$_gm/hugepath.cpp",
   "$_gm/hsl.cpp",
   "$_gm/image.cpp",
   "$_gm/image_pict.cpp",

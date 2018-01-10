@@ -54,7 +54,8 @@ its top, it is considered empty.
 # intersect              # Sets to shared area; returns true if not empty. ##
 # intersectNoEmptyCheck  # Sets to shared area; returns true if not empty. Skips empty check. ##
 # is16Bit                # Returns true if members fit in 16-bit word. ##
-# isEmpty                # Returns true if width or height are zero or negative. ##
+# isEmpty                # Returns true if width or height are zero or negative or they exceed int32_t. ##
+# isEmpty64              # Returns true if width or height are zero or negative. ##
 # join()                 # Sets to union of bounds. ##
 # left()                 # Returns smaller bounds in x, if sorted. ##
 # makeInset              # Constructs from sides moved symmetrically about the center. ##
@@ -584,9 +585,7 @@ left: 1073741824 right: 1073741826 centerX: -1073741823 safe mid x: 1073741825
 
 #Method bool isEmpty() const
 
-Returns true if fLeft is equal to or greater than fRight, or if fTop is equal
-to or greater than fBottom. Call sort() to reverse rectangles with negative
-width() or height().
+Returns true if width() or height() .
 
 #Return true if width() or height() are zero or negative ##
 
@@ -599,6 +598,37 @@ width() or height().
         SkDebugf("sorted: {%d, %d, %d, %d} is" "%s empty\n", rect.left(), rect.top(), rect.right(),
                  rect.bottom(), rect.isEmpty() ? "" : " not");
     }
+#StdOut
+rect: {20, 40, 10, 50} is empty
+sorted: {10, 40, 20, 50} is not empty
+rect: {20, 40, 20, 50} is empty
+sorted: {20, 40, 20, 50} is empty
+##
+##
+
+#SeeAlso EmptyIRect MakeEmpty sort SkRect::isEmpty
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method bool isEmpty64() const
+
+Returns true if fLeft is equal to or greater than fRight, or if fTop is equal
+to or greater than fBottom. Call sort() to reverse rectangles with negative
+width64() or height64().
+
+#Return true if width64() or height64() are zero or negative ##
+
+#Example
+SkIRect tests[] = {{20, 40, 10, 50}, {20, 40, 20, 50}};
+for (auto rect : tests) {
+SkDebugf("rect: {%d, %d, %d, %d} is" "%s empty\n", rect.left(), rect.top(), rect.right(),
+rect.bottom(), isEmpty64() ? "" : " not");
+rect.sort();
+SkDebugf("sorted: {%d, %d, %d, %d} is" "%s empty\n", rect.left(), rect.top(), rect.right(),
+rect.bottom(), isEmpty64() ? "" : " not");
+}
 #StdOut
 rect: {20, 40, 10, 50} is empty
 sorted: {10, 40, 20, 50} is not empty
