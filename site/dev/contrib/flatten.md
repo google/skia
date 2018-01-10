@@ -1,13 +1,13 @@
 Flattenables
 ============
 
-Many objects in Skia, such as SkShaders and other effects on SkPaint, need to be 
+Many objects in Skia, such as `SkShaders` and other effects on `SkPaint`, need to be 
 flattened into a data stream for either transport or as part of the key to the 
-font cache. Classes for these objects should derive from SkFlattenable or one of 
+font cache. Classes for these objects should derive from `SkFlattenable` or one of 
 its subclasses. If you create a new flattenable class, you need to make sure you 
 do a few things so that it will work on all platforms:
 
-1: Override the method flatten (the default scope is protected):
+1: Override the method `flatten` (the default scope is protected):
 
 <!--?prettify?-->
 ~~~~
@@ -18,7 +18,7 @@ virtual void flatten(SkFlattenableWriteBuffer& buffer) const override {
 ~~~~
 
 2: Override the (protected) constructor that creates an object from an 
-SkFlattenableReadBuffer:
+`SkFlattenableReadBuffer`:
 
 <!--?prettify?-->
 ~~~~
@@ -39,10 +39,10 @@ public:
 SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkNewClass)
 ~~~~
 
-4: If your class is declared in a .cpp file or in a private header file, create a 
+4: If your class is declared in a `.cpp` file or in a private header file, create a 
 function to register its group:
 This occurs in cases where the classes are hidden behind a factory, like many effects 
-and shaders are.  Then in the parent class header file (such as SkGradientShader) you 
+and shaders are.  Then in the parent class header file (such as `SkGradientShader`) you 
 need to add:
 
 <!--?prettify?-->
@@ -69,9 +69,9 @@ SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_END
 
 
 5: Register your flattenable with the global registrar:
-You need to add one line to SkFlattenable::InitalizeFlattenables(). To register the 
-flattenable in a Skia build, that function is defined in SkGlobalInitialization_default.cpp. 
-For Chromium, it is in SkGlobalInitialization_chromium.cpp.
+You need to add one line to `SkFlattenable::InitalizeFlattenables()`. To register the 
+flattenable in a Skia build, that function is defined in `SkGlobalInitialization_default.cpp`. 
+For Chromium, it is in `SkGlobalInitialization_chromium.cpp`.
 For a single flattenable add
 
 <!--?prettify?-->

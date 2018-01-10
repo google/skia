@@ -14,21 +14,21 @@ MathJax.Hub.Config({
 (Please refresh the page if you see a lot of dollars instead of math symbols.)
 
 We present a fast shading algorithm (compared to bruteforcely solving the quadratic equation of
-gradient $t$) for computing the two-point conical gradient (i.e., createRadialGradient in
+gradient $t$) for computing the two-point conical gradient (i.e., `createRadialGradient` in
 [spec](https://html.spec.whatwg.org/multipage/canvas.html#dom-context-2d-createradialgradient)).
-It reduced the number of multiplications per pixel from ~10 downto 3, and brought a speedup up to
+It reduced the number of multiplications per pixel from ~10 down to 3, and brought a speedup of up to
 26% in our nanobenches.
 
 This document has 3 parts:
 
-1. Problem Statement and Setup
-2. Algorithm
-3. Appendix
+1. [Problem Statement and Setup](#problem-statement)
+2. [Algorithm](#algorithm)
+3. [Appendix](#appendix)
 
 Part 1 and 2 are self-explanatory. Part 3 shows how to geometrically proves our Theorem 1 in part
 2; it's more complicated but it gives us a nice picture about what's going on.
 
-## Problem Statement and Setup
+## <span id="problem-statement">Problem Statement and Setup</span>
 
 Let two circles be $C_0, r_0$ and $C_1, r_1$ where $C$ is the center and $r$ is the radius. For any
 point $P = (x, y)$ we want the shader to quickly compute a gradient $t \in \mathbb R$ such that $p$
@@ -65,9 +65,9 @@ transformation to map $C_f, C_1$ to $(0, 0), (1, 0)$. After the transformation:
 From now on, we'll focus on how to quickly computes $x_t$. Note that $r_t > 0$ so we're only
 interested positive solution $x_t$. Again, if there are multiple $x_t$ solutions, we may want to
 find the bigger one if $1 - f > 0$, and smaller one if $1 - f < 0$, so the corresponding $t$ is
-always the bigger one (note that $f \neq 1$, otherwise we'll swap $c_0, r_0$ with $c_1, r_1$).
+always the bigger one (note that $f \neq 1$, otherwise we'll swap $C_0, r_0$ with $C_1, r_1$).
 
-## Algorithm
+## <span id="algorithm">Algorithm</span>
 
 **Theorem 1.** The solution to $x_t$ is
 
@@ -161,7 +161,7 @@ if it saves the $0.5 \cdot (1/a), 4a, r_0^2$ and $(r_1 - r_0) r_0$ multiplicatio
 6 multiplications. Moreover, it sends in 4 unitofmrs to the shader while our algorithm only needs 2
 uniforms ($1/r_1$ and $f$).
 
-## Appendix
+## <span id="appendix">Appendix</span>
 
 **Lemma 1.** Draw a ray from $C_f = (0, 0)$ to $P = (x, y)$. For every
 intersection points $P_1$ between that ray and circle $C_1 = (1, 0), r_1$, there exists an $x_t$

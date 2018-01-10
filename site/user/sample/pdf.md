@@ -50,7 +50,7 @@ In this document:
 
   + **drop** means to draw nothing.
 
-  + **ignore** mean to draw without the effect
+  + **ignore** means to draw without the effect
 
   + **expand** means to implement something in a non-PDF-ish way.
     This may mean to rasterize vector graphics, to expand paths with

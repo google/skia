@@ -82,30 +82,31 @@ stand alone.  A couple thousand tasks is pretty normal.  Let's look at the
 status line for one of those tasks.
 ~~~
 (  25MB  1857) 1.36ms   8888 image mandrill_132x132_12x12.astc-5-subsets
+   [1]   [2]   [3]      [4]
 ~~~
 
 This status line tells us several things.
 
-First, it tells us that at the time we wrote the status line, the maximum
-amount of memory DM had ever used was 25MB.  Note this is a high water mark,
-not the current memory usage.  This is mostly useful for us to track on our
-buildbots, some of which run perilously close to the system memory limit.
+  1. The maximum amount of memory DM had ever used was 25MB. Note this is a 
+  high water mark, not the current memory usage.  This is mostly useful for us 
+  to track on our buildbots, some of which run perilously close to the system 
+  memory limit.
 
-Next, the status line tells us that there are 1857 unfinished tasks, either
-currently running or waiting to run.  We generally run one task per hardware
-thread available, so on a typical laptop there are probably 4 or 8 running at
-once.  Sometimes the counts appear to show up out of order, particularly at DM
-startup; it's harmless, and doesn't affect the correctness of the run.
+  2. The number of unfinished tasks, in this example there are 1857, either
+  currently running or waiting to run.  We generally run one task per hardware
+  thread available, so on a typical laptop there are probably 4 or 8 running at
+  once.  Sometimes the counts appear to show up out of order, particularly at DM
+  startup; it's harmless, and doesn't affect the correctness of the run.
 
-Next, we see this task took 1.36 milliseconds to run.  Generally, the precision
-of this timer is around 1 microsecond.  The time is purely there for
-informational purposes, to make it easier for us to find slow tests.
+  3. Next, we see this task took 1.36 milliseconds to run.  Generally, the 
+  precision of this timer is around 1 microsecond.  The time is purely there for
+  informational purposes, to make it easier for us to find slow tests.
 
-Finally we see the configuration and name of the test we ran.  We drew the test
-"mandrill_132x132_12x12.astc-5-subsets", which is an "image" source, into an
-"8888" sink.
+  4. The configuration and name of the test we ran.  We drew the test
+  "mandrill_132x132_12x12.astc-5-subsets", which is an "image" source, into an
+  "8888" sink.
 
-When DM finishes running, you should find a directory with file named dm.json,
+When DM finishes running, you should find a directory with file named `dm.json`,
 and some nested directories filled with lots of images.
 ~~~
 $ ls dm_output
@@ -127,9 +128,9 @@ dm_output/8888/gm/bezier_quad_effects.png
 
 The directories are nested first by sink type (`--config`), then by source type (`--src`).
 The image from the task we just looked at, "8888 image mandrill_132x132_12x12.astc-5-subsets",
-can be found at dm_output/8888/image/mandrill_132x132_12x12.astc-5-subsets.png.
+can be found at `dm_output/8888/image/mandrill_132x132_12x12.astc-5-subsets.png`.
 
-dm.json is used by our automated testing system, so you can ignore it if you
+`dm.json` is used by our automated testing system, so you can ignore it if you
 like.  It contains a listing of each test run and a checksum of the image
 generated for that run.
 
@@ -142,7 +143,7 @@ the same exact .png, but have their checksums differ.
 Unit tests don't generally output anything but a status update when they pass.
 If a test fails, DM will print out its assertion failures, both at the time
 they happen and then again all together after everything is done running.
-These failures are also included in the dm.json file.
+These failures are also included in the `dm.json` file.
 
 DM has a simple facility to compare against the results of a previous run:
 

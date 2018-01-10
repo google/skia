@@ -8,7 +8,7 @@ infrastructure.
 <img src=Perf.png style="margin-left:30px" align="left" width="800"/> <br clear="left">
 
 Skia tests across a large number of platforms and configurations, and each
-commit to Skia generates 240,000 individual values are sent to Perf,
+commit to Skia generates 240,000 individual values that are sent to Perf,
 consisting mostly of performance benchmark results, but also including memory
 and coverage data.
 
