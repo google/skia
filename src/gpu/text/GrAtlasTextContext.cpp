@@ -240,12 +240,12 @@ void GrAtlasTextContext::regenerateTextBlob(GrAtlasTextBlob* cacheBlob,
                 case SkTextBlob::kHorizontal_Positioning:
                     DrawBmpPosText(cacheBlob, run, fontCache, props, runPaint, scalerContextFlags,
                                    viewMatrix, (const char*)it.glyphs(), textLen, it.pos(), 1,
-                                   SkPoint::Make(x, y + offset.y()));
+                                   SkPoint::Make(x, y + offset.y()), SK_Scalar1);
                     break;
                 case SkTextBlob::kFull_Positioning:
                     DrawBmpPosText(cacheBlob, run, fontCache, props, runPaint, scalerContextFlags,
                                    viewMatrix, (const char*)it.glyphs(), textLen, it.pos(), 2,
-                                   SkPoint::Make(x, y));
+                                   SkPoint::Make(x, y), SK_Scalar1);
                     break;
             }
         }
@@ -303,7 +303,7 @@ GrAtlasTextContext::makeDrawPosTextBlob(GrTextBlobCache* blobCache,
                             text, byteLength, pos, scalarsPerPosition, offset);
     } else {
         DrawBmpPosText(blob.get(), 0, fontCache, props, paint, scalerContextFlags, viewMatrix, text,
-                       byteLength, pos, scalarsPerPosition, offset);
+                       byteLength, pos, scalarsPerPosition, offset, SK_Scalar1);
     }
     return blob;
 }
@@ -387,7 +387,8 @@ void GrAtlasTextContext::DrawBmpText(GrAtlasTextBlob* blob, int runIndex,
                                          BmpAppendGlyph(blob, runIndex, fontCache, &currStrike,
                                                         glyph, SkScalarFloorToInt(position.fX),
                                                         SkScalarFloorToInt(position.fY),
-                                                        paint.filteredPremulColor(), cache);
+                                                        paint.filteredPremulColor(), cache,
+                                                        SK_Scalar1);
                                      });
 
     SkGlyphCache::AttachCache(cache);
@@ -398,7 +399,8 @@ void GrAtlasTextContext::DrawBmpPosText(GrAtlasTextBlob* blob, int runIndex,
                                         const GrTextUtils::Paint& paint,
                                         uint32_t scalerContextFlags, const SkMatrix& viewMatrix,
                                         const char text[], size_t byteLength, const SkScalar pos[],
-                                        int scalarsPerPosition, const SkPoint& offset) {
+                                        int scalarsPerPosition, const SkPoint& offset,
+                                        SkScalar textRatio) {
     SkASSERT(byteLength == 0 || text != nullptr);
     SkASSERT(1 == scalarsPerPosition || 2 == scalarsPerPosition);
 
@@ -421,7 +423,7 @@ void GrAtlasTextContext::DrawBmpPosText(GrAtlasTextBlob* blob, int runIndex,
                 position += rounding;
                 BmpAppendGlyph(blob, runIndex, fontCache, &currStrike, glyph,
                                SkScalarFloorToInt(position.fX), SkScalarFloorToInt(position.fY),
-                               paint.filteredPremulColor(), cache);
+                               paint.filteredPremulColor(), cache, textRatio);
             });
 
     SkGlyphCache::AttachCache(cache);
@@ -430,34 +432,35 @@ void GrAtlasTextContext::DrawBmpPosText(GrAtlasTextBlob* blob, int runIndex,
 void GrAtlasTextContext::BmpAppendGlyph(GrAtlasTextBlob* blob, int runIndex,
                                         GrAtlasGlyphCache* fontCache, GrAtlasTextStrike** strike,
                                         const SkGlyph& skGlyph, int vx, int vy, GrColor color,
-                                        SkGlyphCache* cache) {
+                                        SkGlyphCache* glyphCache, SkScalar textRatio) {
     if (!*strike) {
-        *strike = fontCache->getStrike(cache);
+        *strike = fontCache->getStrike(glyphCache);
     }
 
     GrGlyph::PackedID id = GrGlyph::Pack(skGlyph.getGlyphID(),
                                          skGlyph.getSubXFixed(),
                                          skGlyph.getSubYFixed(),
                                          GrGlyph::kCoverage_MaskStyle);
-    GrGlyph* glyph = (*strike)->getGlyph(skGlyph, id, cache);
+    GrGlyph* glyph = (*strike)->getGlyph(skGlyph, id, glyphCache);
     if (!glyph) {
         return;
     }
 
-    int x = vx + glyph->fBounds.fLeft;
-    int y = vy + glyph->fBounds.fTop;
+    SkScalar dx = SkIntToScalar(glyph->fBounds.fLeft);
+    SkScalar dy = SkIntToScalar(glyph->fBounds.fTop);
+    SkScalar width = SkIntToScalar(glyph->fBounds.width());
+    SkScalar height = SkIntToScalar(glyph->fBounds.height());
+    SkScalar sx = SkIntToScalar(vx);
+    SkScalar sy = SkIntToScalar(vy);
 
-    int width = glyph->fBounds.width();
-    int height = glyph->fBounds.height();
+    dx *= textRatio;
+    dy *= textRatio;
+    width *= textRatio;
+    height *= textRatio;
+    SkRect glyphRect = SkRect::MakeXYWH(sx + dx, sy + dx, width, height);
 
-    SkRect r;
-    r.fLeft = SkIntToScalar(x);
-    r.fTop = SkIntToScalar(y);
-    r.fRight = r.fLeft + SkIntToScalar(width);
-    r.fBottom = r.fTop + SkIntToScalar(height);
-
-    blob->appendGlyph(runIndex, r, color, *strike, glyph, cache, skGlyph, SkIntToScalar(vx),
-                      SkIntToScalar(vy), 1.0f, true);
+    blob->appendGlyph(runIndex, glyphRect, color, *strike, glyph, glyphCache, skGlyph, sx, sy,
+                      textRatio, true);
 }
 
 bool GrAtlasTextContext::canDrawAsDistanceFields(const SkPaint& skPaint, const SkMatrix& viewMatrix,
@@ -647,6 +650,10 @@ void GrAtlasTextContext::drawDFPosText(GrAtlasTextBlob* blob, int runIndex,
     SkTDArray<char> fallbackTxt;
     SkTDArray<SkScalar> fallbackPos;
 
+    //SkTDArray<char> largeFallbackTxt;
+    //SkTDArray<SkScalar> largeFallbackPos;
+    //SkScalar largeTextRatio = SK_Scalar1;
+
     bool hasWCoord = viewMatrix.hasPerspective() || fDistanceFieldVerticesAlwaysHaveW;
 
     // Setup distance field paint and text ratio
@@ -668,56 +675,47 @@ void GrAtlasTextContext::drawDFPosText(GrAtlasTextBlob* blob, int runIndex,
 
     const char* stop = text + byteLength;
 
-    if (SkPaint::kLeft_Align == dfPaint.getTextAlign()) {
-        while (text < stop) {
-            const char* lastText = text;
-            // the last 2 parameters are ignored
-            const SkGlyph& glyph = glyphCacheProc(cache, &text);
+    SkPaint::Align align = dfPaint.getTextAlign();
+    SkScalar alignMul = SkPaint::kCenter_Align == align ? SK_ScalarHalf :
+                        (SkPaint::kRight_Align == align ? SK_Scalar1 : 0);
+    while (text < stop) {
+        const char* lastText = text;
+        // the last 2 parameters are ignored
+        const SkGlyph& glyph = glyphCacheProc(cache, &text);
 
-            if (glyph.fWidth) {
-                SkScalar x = offset.x() + pos[0];
-                SkScalar y = offset.y() + (2 == scalarsPerPosition ? pos[1] : 0);
+        if (glyph.fWidth) {
+            SkScalar x = offset.x() + pos[0];
+            SkScalar y = offset.y() + (2 == scalarsPerPosition ? pos[1] : 0);
 
-                if (!DfAppendGlyph(blob, runIndex, fontCache, &currStrike, glyph, x, y,
-                                   paint.filteredPremulColor(), cache, textRatio, viewMatrix)) {
-                    // couldn't append, send to fallback
+            SkScalar advanceX = SkFloatToScalar(glyph.fAdvanceX) * alignMul * textRatio;
+            SkScalar advanceY = SkFloatToScalar(glyph.fAdvanceY) * alignMul * textRatio;
+
+            if (glyph.fMaskFormat != SkMask::kARGB32_Format) {
+                DfAppendGlyph(blob, runIndex, fontCache, &currStrike, glyph, x - advanceX,
+                                y - advanceY, paint.filteredPremulColor(), cache, textRatio);
+            } else {
+                //// can't append color glyph to SDF batch, send to fallback
+                //SkScalar textSize = paint.skPaint().getTextSize();
+                //SkScalar scaledTextSize = textSize*viewMatrix.getMaxScale();
+
+                //// TODO: find if we've set this magic number somewhere
+                //if (!viewMatrix.hasPerspective() && scaledTextSize > 256) {
+                //    largeFallbackTxt.append(SkToInt(text - lastText), lastText);
+                //    *largeFallbackPos.append() = pos[0];
+                //    if (2 == scalarsPerPosition) {
+                //        *largeFallbackPos.append() = pos[1];
+                //    }
+                //    largeTextRatio = scaledTextSize / 256;
+                //} else {
                     fallbackTxt.append(SkToInt(text - lastText), lastText);
                     *fallbackPos.append() = pos[0];
                     if (2 == scalarsPerPosition) {
                         *fallbackPos.append() = pos[1];
                     }
-                }
+                //}
             }
-            pos += scalarsPerPosition;
         }
-    } else {
-        SkScalar alignMul =
-                SkPaint::kCenter_Align == dfPaint.getTextAlign() ? SK_ScalarHalf : SK_Scalar1;
-        while (text < stop) {
-            const char* lastText = text;
-            // the last 2 parameters are ignored
-            const SkGlyph& glyph = glyphCacheProc(cache, &text);
-
-            if (glyph.fWidth) {
-                SkScalar x = offset.x() + pos[0];
-                SkScalar y = offset.y() + (2 == scalarsPerPosition ? pos[1] : 0);
-
-                SkScalar advanceX = SkFloatToScalar(glyph.fAdvanceX) * alignMul * textRatio;
-                SkScalar advanceY = SkFloatToScalar(glyph.fAdvanceY) * alignMul * textRatio;
-
-                if (!DfAppendGlyph(blob, runIndex, fontCache, &currStrike, glyph, x - advanceX,
-                                   y - advanceY, paint.filteredPremulColor(), cache, textRatio,
-                                   viewMatrix)) {
-                    // couldn't append, send to fallback
-                    fallbackTxt.append(SkToInt(text - lastText), lastText);
-                    *fallbackPos.append() = pos[0];
-                    if (2 == scalarsPerPosition) {
-                        *fallbackPos.append() = pos[1];
-                    }
-                }
-            }
-            pos += scalarsPerPosition;
-        }
+        pos += scalarsPerPosition;
     }
 
     SkGlyphCache::AttachCache(cache);
@@ -726,15 +724,28 @@ void GrAtlasTextContext::drawDFPosText(GrAtlasTextBlob* blob, int runIndex,
         GrAtlasTextContext::DrawBmpPosText(blob, runIndex, fontCache, props, paint,
                                            scalerContextFlags, viewMatrix, fallbackTxt.begin(),
                                            fallbackTxt.count(), fallbackPos.begin(),
-                                           scalarsPerPosition, offset);
+                                           scalarsPerPosition, offset, SK_Scalar1);
     }
+
+    //if (largeFallbackTxt.count()) {
+    //    // Do stuff
+    //    blob->initOverride(runIndex);
+    //    SkPaint largePaint(paint);
+    //    largePaint.setTextSize(162);
+    //    GrTextUtils::Paint textPaint(&largePaint, paint.dstColorSpaceInfo());
+    //    GrAtlasTextContext::DrawBmpPosText(blob, runIndex, fontCache, props, textPaint,
+    //                                       scalerContextFlags, viewMatrix, largeFallbackTxt.begin(),
+    //                                       largeFallbackTxt.count(), largeFallbackPos.begin(),
+    //                                       scalarsPerPosition, offset, largeTextRatio);
+    //}
 }
 
-bool GrAtlasTextContext::DfAppendGlyph(GrAtlasTextBlob* blob, int runIndex,
+// TODO: merge with BmpAppendGlyph
+void GrAtlasTextContext::DfAppendGlyph(GrAtlasTextBlob* blob, int runIndex,
                                        GrAtlasGlyphCache* cache, GrAtlasTextStrike** strike,
                                        const SkGlyph& skGlyph, SkScalar sx, SkScalar sy,
-                                       GrColor color, SkGlyphCache* glyphCache, SkScalar textRatio,
-                                       const SkMatrix& viewMatrix) {
+                                       GrColor color, SkGlyphCache* glyphCache,
+                                       SkScalar textRatio) {
     if (!*strike) {
         *strike = cache->getStrike(glyphCache);
     }
@@ -745,12 +756,7 @@ bool GrAtlasTextContext::DfAppendGlyph(GrAtlasTextBlob* blob, int runIndex,
                                          GrGlyph::kDistance_MaskStyle);
     GrGlyph* glyph = (*strike)->getGlyph(skGlyph, id, glyphCache);
     if (!glyph) {
-        return true;
-    }
-
-    // fallback to color glyph support
-    if (kA8_GrMaskFormat != glyph->fMaskFormat) {
-        return false;
+        return;
     }
 
     SkScalar dx = SkIntToScalar(glyph->fBounds.fLeft + SK_DistanceFieldInset);
@@ -758,18 +764,14 @@ bool GrAtlasTextContext::DfAppendGlyph(GrAtlasTextBlob* blob, int runIndex,
     SkScalar width = SkIntToScalar(glyph->fBounds.width() - 2 * SK_DistanceFieldInset);
     SkScalar height = SkIntToScalar(glyph->fBounds.height() - 2 * SK_DistanceFieldInset);
 
-    SkScalar scale = textRatio;
-    dx *= scale;
-    dy *= scale;
-    width *= scale;
-    height *= scale;
-    sx += dx;
-    sy += dy;
-    SkRect glyphRect = SkRect::MakeXYWH(sx, sy, width, height);
+    dx *= textRatio;
+    dy *= textRatio;
+    width *= textRatio;
+    height *= textRatio;
+    SkRect glyphRect = SkRect::MakeXYWH(sx + dx, sy + dx, width, height);
 
-    blob->appendGlyph(runIndex, glyphRect, color, *strike, glyph, glyphCache, skGlyph, sx - dx,
-                      sy - dy, scale, false);
-    return true;
+    blob->appendGlyph(runIndex, glyphRect, color, *strike, glyph, glyphCache, skGlyph, sx, sy,
+                      textRatio, false);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
