@@ -95,6 +95,7 @@ enum class MarkType {
     kDeprecated,
     kDescription,
     kDoxygen,
+    kDuration,
     kEnum,
     kEnumClass,
     kError,
@@ -827,6 +828,7 @@ public:
     string fiddleName() const;
     string formatFunction() const;
     const Definition* hasChild(MarkType markType) const;
+    bool hasMatch(const string& name) const;
     const Definition* hasParam(const string& ref) const;
     bool isClone() const { return fClone; }
 
@@ -1211,6 +1213,7 @@ public:
 , { "Deprecated",  nullptr,      MarkType::kDeprecated,   R_Y, E_N, 0 }
 , { "Description", nullptr,      MarkType::kDescription,  R_Y, E_N, M(Example) }
 , { "Doxygen",     nullptr,      MarkType::kDoxygen,      R_Y, E_N, 0 }
+, { "Duration",    nullptr,      MarkType::kDuration,     R_N, E_N, M(Example) }
 , { "Enum",        &fEnumMap,    MarkType::kEnum,         R_Y, E_O, M_CSST | M(Root) }
 , { "EnumClass",   &fClassMap,   MarkType::kEnumClass,    R_Y, E_O, M_CSST | M(Root) }
 , { "Error",       nullptr,      MarkType::kError,        R_N, E_N, M(Example) }
@@ -1403,6 +1406,7 @@ public:
         , { nullptr,        MarkType::kDeprecated }
         , { nullptr,        MarkType::kDescription }
         , { nullptr,        MarkType::kDoxygen }
+        , { nullptr,        MarkType::kDuration }
         , { &fIEnumMap,     MarkType::kEnum }
         , { &fIEnumMap,     MarkType::kEnumClass }
         , { nullptr,        MarkType::kError }
@@ -2115,5 +2119,7 @@ private:
     string fClassName;
     typedef TextParser INHERITED;
 };
+
+bool SelfCheck(const BmhParser& );
 
 #endif

@@ -2081,5 +2081,12 @@ rect: 0, 0, 0, 0
 static SkIRect SK_WARN_UNUSED_RESULT MakeLargest()
 </pre>
 
+Returns constructed <a href="#SkIRect">SkIRect</a> setting <a href="#SkIRect_left">left</a> and <a href="#SkIRect_top">top</a> to most negative value, and
+setting <a href="#SkIRect_right">right</a> and <a href="#SkIRect_bottom">bottom</a> to most positive value.
+
+### Return Value
+
+bounds (<a href="undocumented#SK_MinS32">SK MinS32</a>, <a href="undocumented#SK_MinS32">SK MinS32</a>, <a href="undocumented#SK_MaxS32">SK MaxS32</a>, <a href="undocumented#SK_MaxS32">SK MaxS32</a>)
+
 ---
 
