@@ -32,11 +32,13 @@ void Draw::onRender(SkCanvas* canvas) const {
 SkRect Draw::onRevalidate(InvalidationController* ic, const SkMatrix& ctm) {
     SkASSERT(this->hasInval());
 
-    // TODO: adjust bounds for paint
-    const auto bounds = fGeometry->revalidate(ic, ctm);
+    auto bounds = fGeometry->revalidate(ic, ctm);
     fPaint->revalidate(ic, ctm);
 
-    return bounds;
+    const auto& paint = fPaint->makePaint();
+    SkASSERT(paint.canComputeFastBounds());
+
+    return paint.computeFastBounds(bounds, &bounds);
 }
 
 } // namespace sksg
