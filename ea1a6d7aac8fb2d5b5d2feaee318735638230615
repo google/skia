@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8ab7d14f_9208e6e9",
+        "filename": "fuzz/Fuzz.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-01-10T21:07:13Z",
+      "side": 1,
+      "message": "two lines?",
+      "revId": "ea1a6d7aac8fb2d5b5d2feaee318735638230615",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fc40adf7_0a33f399",
+        "filename": "fuzz/FuzzCommon.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-01-10T21:07:13Z",
+      "side": 1,
+      "message": "This file should probably be FuzzCommon.h.  It\u0027s not going to be compiled into its own object file, right?\n\nBetter yet, why doesn\u0027t this all just go in Fuzz.h?",
+      "revId": "ea1a6d7aac8fb2d5b5d2feaee318735638230615",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1bf09056_63c95871",
+        "filename": "fuzz/fuzz.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-01-10T21:07:13Z",
+      "side": 1,
+      "message": "We don\u0027t usually #include .cpp files.\n\nInstead, we compile them separately and link those object files together into the final executable.",
+      "revId": "ea1a6d7aac8fb2d5b5d2feaee318735638230615",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dbc9f895_bc7eeec4",
+        "filename": "fuzz/oss_fuzz/FuzzRegionSetPath.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-01-10T21:07:13Z",
+      "side": 1,
+      "message": "This one\u0027s probably best named FuzzRegionSetPath().  By our usual style, you\u0027d expect fuzzRegionSetPath() to be a class member function, not a top-level stand-alone function.",
+      "revId": "ea1a6d7aac8fb2d5b5d2feaee318735638230615",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cf8ce2bb_41957f8a",
+        "filename": "fuzz/oss_fuzz/FuzzRegionSetPath.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-01-10T21:07:13Z",
+      "side": 1,
+      "message": "If we always put LLVMFuzzerTestOneInput() in this file, doesn\u0027t that mean fuzzRegionSetPath() is the only function we can ever fuzz with oss-fuzz?",
+      "revId": "ea1a6d7aac8fb2d5b5d2feaee318735638230615",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
