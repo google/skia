@@ -35,6 +35,9 @@
 #include <signal.h>
 #include "sk_tool_utils.h"
 
+#include "oss_fuzz/FuzzRegionSetPath.cpp"
+
+
 DEFINE_string2(bytes, b, "", "A path to a file or a directory. If a file, the "
         "contents will be used as the fuzz bytes. If a directory, all files "
         "in the directory will be used as fuzz bytes for the fuzzer, one at a "
@@ -53,6 +56,7 @@ DEFINE_string2(type, t, "", "How to interpret --bytes, one of:\n"
                             "path_deserialize\n"
                             "pipe\n"
                             "region_deserialize\n"
+                            "region_set_path\n"
                             "skp\n"
                             "sksl2glsl\n"
                             "textblob");
@@ -67,6 +71,7 @@ static void fuzz_icc(sk_sp<SkData>);
 static void fuzz_img(sk_sp<SkData>, uint8_t, uint8_t);
 static void fuzz_path_deserialize(sk_sp<SkData>);
 static void fuzz_region_deserialize(sk_sp<SkData>);
+static void fuzz_region_set_path(sk_sp<SkData>);
 static void fuzz_skp(sk_sp<SkData>);
 static void fuzz_skpipe(sk_sp<SkData>);
 static void fuzz_textblob_deserialize(sk_sp<SkData>);
@@ -134,6 +139,10 @@ static int fuzz_file(const char* path) {
         }
         if (0 == strcmp("region_deserialize", FLAGS_type[0])) {
             fuzz_region_deserialize(bytes);
+            return 0;
+        }
+        if (0 == strcmp("region_set_path", FLAGS_type[0])) {
+            fuzz_region_set_path(bytes);
             return 0;
         }
         if (0 == strcmp("pipe", FLAGS_type[0])) {
@@ -554,6 +563,12 @@ static void fuzz_textblob_deserialize(sk_sp<SkData> bytes) {
     SkDebugf("[terminated] Success! Initialized SkTextBlob.\n");
 }
 
+static void fuzz_region_set_path(sk_sp<SkData> bytes) {
+    Fuzz fuzz(bytes);
+    fuzzRegionSetPath(&fuzz);
+    SkDebugf("[terminated] region_set_path didn't crash!\n");
+}
+
 static void fuzz_filter_fuzz(sk_sp<SkData> bytes) {
     const int BitmapSize = 24;
     SkBitmap bitmap;
@@ -603,13 +618,3 @@ static void fuzz_sksl2glsl(sk_sp<SkData> bytes) {
     SkDebugf("[terminated] Success! Compiled input.\n");
 }
 #endif
-
-Fuzz::Fuzz(sk_sp<SkData> bytes) : fBytes(bytes), fNextByte(0) {}
-
-void Fuzz::signalBug() { SkDebugf("Signal bug\n"); raise(SIGSEGV); }
-
-size_t Fuzz::size() { return fBytes->size(); }
-
-bool Fuzz::exhausted() {
-    return fBytes->size() == fNextByte;
-}
