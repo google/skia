@@ -68,7 +68,17 @@ protected:
                         SkBackingFit, SkBudgeted, uint32_t flags);
 
     // Lazy-callback version
-    GrRenderTargetProxy(LazyInstantiateCallback&&, GrPixelConfig);
+    // There are two main use cases for lazily-instantiated proxies:
+    //   basic knowledge - width, height, config, samples, origin are known
+    //   minimal knowledge - only config is known.
+    //
+    // The basic knowledge version is used for DDL where we know the type of proxy we are going to
+    // use, but we don't have access to the GPU yet to instantiate it.
+    //
+    // The minimal knowledge version is used for CCPR where we are generating an atlas but we do not
+    // know the final size until flush time.
+    GrRenderTargetProxy(LazyInstantiateCallback&&, const GrSurfaceDesc&, SkBackingFit, SkBudgeted,
+                        uint32_t flags);
 
     // Wrapped version
     GrRenderTargetProxy(sk_sp<GrSurface>, GrSurfaceOrigin);
