@@ -15,6 +15,7 @@ deps = {
   "third_party/externals/libjpeg-turbo" : "https://github.com/libjpeg-turbo/libjpeg-turbo.git@1.5.3",
   "third_party/externals/libpng"        : "https://skia.googlesource.com/third_party/libpng.git@v1.6.33",
   "third_party/externals/libwebp"       : "https://chromium.googlesource.com/webm/libwebp.git@v0.6.0",
+  "third_party/externals/lua"           : "https://github.com/lua/lua@v5-3-4",
   "third_party/externals/microhttpd"    : "https://android.googlesource.com/platform/external/libmicrohttpd@748945ec6f1c67b7efc934ab0808e1d32f2fb98d",
   "third_party/externals/piex"          : "https://android.googlesource.com/platform/external/piex.git@8f540f64b6c170a16fb7e6e52d61819705c1522a",
   "third_party/externals/sdl"           : "https://skia.googlesource.com/third_party/sdl@5d7cfcca344034aff9327f77fc181ae3754e7a90",
