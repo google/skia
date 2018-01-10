@@ -22,6 +22,30 @@
       "revId": "9aa85ce481d45dd04b3a7c80a0b305bcd9d07224",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f0d0af2c_b99902f8",
+        "filename": "src/core/SkThreadedBMPDevice.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2018-01-10T16:02:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e469f1c8_56abf827",
+      "range": {
+        "startLine": 54,
+        "startChar": 24,
+        "endLine": 54,
+        "endChar": 31
+      },
+      "revId": "9aa85ce481d45dd04b3a7c80a0b305bcd9d07224",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
