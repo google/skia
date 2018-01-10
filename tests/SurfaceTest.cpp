@@ -592,7 +592,7 @@ static sk_sp<SkSurface> create_gpu_surface_backend_texture(
     *outTexture = context->getGpu()->createTestingOnlyBackendTexture(
         pixels.get(), kWidth, kHeight, kRGBA_8888_GrPixelConfig, true, GrMipMapped::kNo);
 
-    if (!context->getGpu()->isTestingOnlyBackendTexture(*outTexture)) {
+    if (!outTexture->isValid() || !context->getGpu()->isTestingOnlyBackendTexture(*outTexture)) {
         return nullptr;
     }
 
@@ -617,7 +617,7 @@ static sk_sp<SkSurface> create_gpu_surface_backend_texture_as_render_target(
     *outTexture = context->getGpu()->createTestingOnlyBackendTexture(
         pixels.get(), kWidth, kHeight, kRGBA_8888_GrPixelConfig, true, GrMipMapped::kNo);
 
-    if (!context->getGpu()->isTestingOnlyBackendTexture(*outTexture)) {
+    if (!outTexture->isValid() || !context->getGpu()->isTestingOnlyBackendTexture(*outTexture)) {
         return nullptr;
     }
 
@@ -889,7 +889,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceCreationWithColorSpace_Gpu, reporter, 
         GrBackendTexture backendTex = context->getGpu()->createTestingOnlyBackendTexture(
                 nullptr, kSize, kSize, config, true, GrMipMapped::kNo);
 
-        if (!context->getGpu()->isTestingOnlyBackendTexture(backendTex)) {
+        if (!backendTex.isValid() ||
+            !context->getGpu()->isTestingOnlyBackendTexture(backendTex)) {
             return sk_sp<SkSurface>(nullptr);
         }
         backendTextures.push_back(backendTex);

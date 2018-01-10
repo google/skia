@@ -211,6 +211,11 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceCacheWrappedResources, reporter, ctxI
     backendTextures[1] = gpu->createTestingOnlyBackendTexture(nullptr, kW, kH,
                                                               kRGBA_8888_GrPixelConfig,
                                                               false, GrMipMapped::kNo);
+    REPORTER_ASSERT(reporter, backendTextures[0].isValid());
+    REPORTER_ASSERT(reporter, backendTextures[1].isValid());
+    if (!backendTextures[0].isValid() || !backendTextures[1].isValid()) {
+        return;
+    }
 
     context->resetContext();
 
