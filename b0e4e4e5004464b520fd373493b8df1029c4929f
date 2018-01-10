@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7654b7e5_ed34bb8c",
+        "filename": "src/core/SkThreadedBMPDevice.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-01-10T16:50:56Z",
+      "side": 1,
+      "message": "class - there are invariants among the members.",
+      "range": {
+        "startLine": 63,
+        "startChar": 4,
+        "endLine": 63,
+        "endChar": 10
+      },
+      "revId": "b0e4e4e5004464b520fd373493b8df1029c4929f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3288054c_a8c4b452",
+        "filename": "src/core/SkThreadedBMPDevice.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-01-10T16:50:56Z",
+      "side": 1,
+      "message": "Is this needed any more?",
+      "range": {
+        "startLine": 68,
+        "startChar": 28,
+        "endLine": 68,
+        "endChar": 40
+      },
+      "revId": "b0e4e4e5004464b520fd373493b8df1029c4929f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "65d0bbf7_57e2d957",
+        "filename": "src/core/SkThreadedBMPDevice.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-01-10T16:50:56Z",
+      "side": 1,
+      "message": "new (element) DrawElement(fDevice, drawFn, drawBounds)",
+      "range": {
+        "startLine": 95,
+        "startChar": 21,
+        "endLine": 95,
+        "endChar": 33
+      },
+      "revId": "b0e4e4e5004464b520fd373493b8df1029c4929f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7ea9d2a7_0eafa663",
+        "filename": "src/core/SkThreadedBMPDevice.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-01-10T16:50:56Z",
+      "side": 1,
+      "message": "new (elements) DrawElements(....)",
+      "range": {
+        "startLine": 111,
+        "startChar": 12,
+        "endLine": 111,
+        "endChar": 19
+      },
+      "revId": "b0e4e4e5004464b520fd373493b8df1029c4929f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
