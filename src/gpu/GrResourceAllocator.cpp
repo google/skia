@@ -81,7 +81,7 @@ void GrResourceAllocator::addInterval(GrSurfaceProxy* proxy, unsigned int start,
 
 #ifdef SK_DISABLE_EXPLICIT_GPU_RESOURCE_ALLOCATION
     // FIXME: remove this once we can do the lazy instantiation from assign instead.
-    if (proxy->isPendingLazyInstantiation()) {
+    if (GrSurfaceProxy::LazyState::kNot != proxy->lazyInstantiationState()) {
         proxy->priv().doLazyInstantiation(fResourceProvider);
     }
 #endif
@@ -236,7 +236,7 @@ bool GrResourceAllocator::assign(int* startIndex, int* stopIndex) {
             continue;
         }
 
-        if (cur->proxy()->isPendingLazyInstantiation()) {
+        if (GrSurfaceProxy::LazyState::kNot != cur->proxy()->lazyInstantiationState()) {
             cur->proxy()->priv().doLazyInstantiation(fResourceProvider);
         } else if (sk_sp<GrSurface> surface = this->findSurfaceFor(cur->proxy(), needsStencil)) {
             // TODO: make getUniqueKey virtual on GrSurfaceProxy

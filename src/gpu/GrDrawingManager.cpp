@@ -146,7 +146,7 @@ GrSemaphoresSubmitted GrDrawingManager::internalFlush(GrSurfaceProxy*,
                 // handle resource allocation & usage on their own. (No deferred or lazy proxies!)
                 onFlushOpList->visitProxies_debugOnly([](GrSurfaceProxy* p) {
                     SkASSERT(!p->asTextureProxy() || !p->asTextureProxy()->texPriv().isDeferred());
-                    SkASSERT(!p->isPendingLazyInstantiation());
+                    SkASSERT(GrSurfaceProxy::LazyState::kNot == p->lazyInstantiationState());
                 });
 #endif
                 onFlushOpList->makeClosed(*fContext->caps());

@@ -35,11 +35,15 @@ GrRenderTargetProxy::GrRenderTargetProxy(const GrCaps& caps, const GrSurfaceDesc
 }
 
 // Lazy-callback version
-GrRenderTargetProxy::GrRenderTargetProxy(LazyInstantiateCallback&& callback, GrPixelConfig config)
-        : INHERITED(std::move(callback), config)
-        , fSampleCnt(0)
+GrRenderTargetProxy::GrRenderTargetProxy(LazyInstantiateCallback&& callback,
+                                         const GrSurfaceDesc& desc,
+                                         SkBackingFit fit, SkBudgeted budgeted,
+                                         uint32_t flags)
+        : INHERITED(std::move(callback), desc, fit, budgeted, flags)
+        , fSampleCnt(desc.fSampleCnt)
         , fNeedsStencil(false)
         , fRenderTargetFlags(GrRenderTargetFlags::kNone) {
+    SkASSERT(SkToBool(kRenderTarget_GrSurfaceFlag & desc.fFlags));
 }
 
 // Wrapped version
