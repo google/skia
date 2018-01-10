@@ -42,8 +42,7 @@ void SkBlitter::blitAntiH(int x, int y, const SkAlpha antialias[],
  */
 
 inline static SkAlpha ScalarToAlpha(SkScalar a) {
-    SkAlpha alpha = (SkAlpha)(a * 255);
-    return alpha > 247 ? 0xFF : alpha < 8 ? 0 : alpha;
+    return (SkAlpha)(a * 255);
 }
 
 void SkBlitter::blitFatAntiRect(const SkRect& rect) {
