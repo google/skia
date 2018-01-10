@@ -123,7 +123,6 @@ bool SkImageFilter::Common::unflatten(SkReadBuffer& buffer, int expectedCount) {
         return false;
     }
 
-    SkFUZZF(("allocInputs: %d\n", count));
     this->allocInputs(count);
     for (int i = 0; i < count; i++) {
         if (buffer.readBool()) {
