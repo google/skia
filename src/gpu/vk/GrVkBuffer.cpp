@@ -193,7 +193,9 @@ void GrVkBuffer::internalUnmap(GrVkGpu* gpu, size_t size) {
         VK_CALL(gpu, UnmapMemory(gpu->device(), this->alloc().fMemory));
         fMapPtr = nullptr;
     } else {
-        if (size <= 65536) {
+        // vkCmdUpdateBuffer requires size < 64k and 4-byte alignment.
+        // https://bugs.chromium.org/p/skia/issues/detail?id=7488
+        if (size <= 65536 && 0 == (size & 0x3)) {
             gpu->updateBuffer(this, fMapPtr, this->offset(), size);
         } else {
             GrVkTransferBuffer* transferBuffer =
