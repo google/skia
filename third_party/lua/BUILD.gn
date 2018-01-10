@@ -51,5 +51,7 @@ if (skia_use_system_lua) {
       "src/lvm.c",
       "src/lzio.c",
     ]
+
+    defines = [ "LUA_USE_CTYPE" ]
   }
 }
