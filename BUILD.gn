@@ -1384,6 +1384,7 @@ if (skia_enable_tools) {
       "experimental/sksg/SkSGNode.cpp",
       "experimental/sksg/SkSGPaintNode.cpp",
       "experimental/sksg/SkSGRenderNode.cpp",
+      "experimental/sksg/effects/SkSGMaskEffect.cpp",
       "experimental/sksg/effects/SkSGOpacityEffect.cpp",
       "experimental/sksg/effects/SkSGTransform.cpp",
       "experimental/sksg/geometry/SkSGMerge.cpp",

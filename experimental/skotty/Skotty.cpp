@@ -24,6 +24,7 @@
 #include "SkSGGroup.h"
 #include "SkSGImage.h"
 #include "SkSGInvalidationController.h"
+#include "SkSGMaskEffect.h"
 #include "SkSGMerge.h"
 #include "SkSGOpacityEffect.h"
 #include "SkSGPath.h"
@@ -689,6 +690,7 @@ struct AttachLayerContext {
     AttachContext*                                              fCtx;
     std::unordered_map<const Json::Value*, sk_sp<sksg::Matrix>> fLayerMatrixCache;
     std::unordered_map<int, const Json::Value*>                 fLayerIndexCache;
+    sk_sp<sksg::RenderNode>                                     fCurrentMatte;
 
     const Json::Value* findLayer(int index) {
         SkASSERT(fLayerList.isArray());
@@ -794,6 +796,17 @@ sk_sp<sksg::RenderNode> AttachLayer(const Json::Value& jlayer,
         return nullptr;
 
     layerCtx->fCtx->fAnimators.push_back(skstd::make_unique<Activator>(layerControl, in, out));
+
+    if (ParseBool(jlayer["td"], false)) {
+        // This layer is a matte.  We apply it as a mask to the next layer.
+        layerCtx->fCurrentMatte = std::move(layerControl);
+        return nullptr;
+    }
+
+    if (layerCtx->fCurrentMatte) {
+        // There is a pending matte. Apply and reset.
+        return sksg::MaskEffect::Make(std::move(layerControl), std::move(layerCtx->fCurrentMatte));
+    }
 
     return layerControl;
 }
