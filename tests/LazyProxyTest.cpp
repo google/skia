@@ -54,8 +54,8 @@ public:
         DEFINE_OP_CLASS_ID
 
         Op(LazyProxyTest* test, bool nullTexture) : GrDrawOp(ClassID()), fTest(test) {
-            fProxy = GrSurfaceProxy::MakeLazy([this, nullTexture](GrResourceProvider* rp,
-                                                                  GrSurfaceOrigin* origin) {
+            fProxy = GrSurfaceProxy::MakeFullyLazy([this, nullTexture](GrResourceProvider* rp,
+                                                                       GrSurfaceOrigin* origin) {
                 REPORTER_ASSERT(fTest->fReporter, !fTest->fHasOpTexture);
                 fTest->fHasOpTexture = true;
                 *origin = kTopLeft_GrSurfaceOrigin;
@@ -105,8 +105,8 @@ public:
                 : GrFragmentProcessor(kTestFP_ClassID, kNone_OptimizationFlags)
                 , fTest(test)
                 , fAtlas(atlas) {
-            fLazyProxy = GrSurfaceProxy::MakeLazy([this](GrResourceProvider* rp,
-                                                         GrSurfaceOrigin* origin) {
+            fLazyProxy = GrSurfaceProxy::MakeFullyLazy([this](GrResourceProvider* rp,
+                                                              GrSurfaceOrigin* origin) {
                 REPORTER_ASSERT(fTest->fReporter, !fTest->fHasClipTexture);
                 fTest->fHasClipTexture = true;
                 *origin = kBottomLeft_GrSurfaceOrigin;

@@ -231,24 +231,52 @@ public:
 
     /**
      * Creates a texture proxy that will be instantiated by a user-supplied callback during flush.
-     * (Mipmapping, MSAA, and stencil are not supported by this method.)
+     * (Stencil is not supported by this method.) The width and height must either both be greater
+     * than 0 or both less than or equal to zero. A non-positive value is a signal that the width
+     * and height are currently unknown.
      */
-    static sk_sp<GrTextureProxy> MakeLazy(LazyInstantiateCallback&&, Renderable, GrPixelConfig);
+    static sk_sp<GrTextureProxy> MakeLazy(LazyInstantiateCallback&&, const GrSurfaceDesc& desc,
+                                          GrMipMapped, SkBackingFit fit, SkBudgeted budgeted);
+
+    static sk_sp<GrTextureProxy> MakeFullyLazy(LazyInstantiateCallback&&, Renderable,
+                                               GrPixelConfig);
+
+    enum class LazyState {
+        kNot,       // The proxy has no lazy callback that must be made.
+        kPartially, // The proxy has a lazy callback but knows basic information about itself.
+        kFully,     // The proxy has a lazy callback and also doesn't know its width, height, etc.
+    };
+
+    LazyState lazyInstantiationState() const {
+        if (!SkToBool(fLazyInstantiateCallback)) {
+            return LazyState::kNot;
+        } else {
+            if (fWidth <= 0) {
+                SkASSERT(fHeight <= 0);
+                return LazyState::kFully;
+            } else {
+                SkASSERT(fHeight > 0);
+                return LazyState::kPartially;
+            }
+        }
+    }
 
     GrPixelConfig config() const { return fConfig; }
-    int width() const { SkASSERT(!this->isPendingLazyInstantiation()); return fWidth; }
-    int height() const { SkASSERT(!this->isPendingLazyInstantiation()); return fHeight; }
+    int width() const {
+        SkASSERT(LazyState::kFully != this->lazyInstantiationState());
+        return fWidth;
+    }
+    int height() const {
+        SkASSERT(LazyState::kFully != this->lazyInstantiationState());
+        return fHeight;
+    }
     int worstCaseWidth() const;
     int worstCaseHeight() const;
     GrSurfaceOrigin origin() const {
-        SkASSERT(!this->isPendingLazyInstantiation());
+        SkASSERT(LazyState::kFully != this->lazyInstantiationState());
         SkASSERT(kTopLeft_GrSurfaceOrigin == fOrigin || kBottomLeft_GrSurfaceOrigin == fOrigin);
         return fOrigin;
     }
-
-    // If the client gave us a LazyInstantiateCallback (via MakeLazy), then we will invoke that
-    // callback during flush. fWidth, fHeight, and fOrigin will be undefined until that time.
-    bool isPendingLazyInstantiation() const { return SkToBool(fLazyInstantiateCallback); }
 
     class UniqueID {
     public:
@@ -310,7 +338,7 @@ public:
      * Helper that gets the width and height of the surface as a bounding rectangle.
      */
     SkRect getBoundsRect() const {
-        SkASSERT(!this->isPendingLazyInstantiation());
+        SkASSERT(LazyState::kFully != this->lazyInstantiationState());
         return SkRect::MakeIWH(this->width(), this->height());
     }
 
@@ -345,7 +373,7 @@ public:
      * @return the amount of GPU memory used in bytes
      */
     size_t gpuMemorySize() const {
-        SkASSERT(!this->isPendingLazyInstantiation());
+        SkASSERT(LazyState::kFully != this->lazyInstantiationState());
         if (fTarget) {
             return fTarget->gpuMemorySize();
         }
@@ -382,21 +410,13 @@ public:
 protected:
     // Deferred version
     GrSurfaceProxy(const GrSurfaceDesc& desc, SkBackingFit fit, SkBudgeted budgeted, uint32_t flags)
-            : fConfig(desc.fConfig)
-            , fWidth(desc.fWidth)
-            , fHeight(desc.fHeight)
-            , fOrigin(desc.fOrigin)
-            , fFit(fit)
-            , fBudgeted(budgeted)
-            , fFlags(flags)
-            , fNeedsClear(SkToBool(desc.fFlags & kPerformInitialClear_GrSurfaceFlag))
-            , fGpuMemorySize(kInvalidGpuMemorySize)
-            , fLastOpList(nullptr) {
+            : GrSurfaceProxy(nullptr, desc, fit, budgeted, flags) {
         // Note: this ctor pulls a new uniqueID from the same pool at the GrGpuResources
     }
 
     // Lazy-callback version
-    GrSurfaceProxy(LazyInstantiateCallback&& callback, GrPixelConfig config);
+    GrSurfaceProxy(LazyInstantiateCallback&& callback, const GrSurfaceDesc& desc,
+                   SkBackingFit fit, SkBudgeted budgeted, uint32_t flags);
 
     // Wrapped version
     GrSurfaceProxy(sk_sp<GrSurface> surface, GrSurfaceOrigin origin, SkBackingFit fit);
