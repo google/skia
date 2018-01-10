@@ -22,6 +22,30 @@
       "revId": "a8f2befd4ccd5bcae15935ca90062232a460b74b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bd25c228_426a8612",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-10T21:10:21Z",
+      "side": 1,
+      "message": "I\u0027ll give it my best shot.   :)",
+      "parentUuid": "26468ce1_a3175967",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 9,
+        "endChar": 60
+      },
+      "revId": "a8f2befd4ccd5bcae15935ca90062232a460b74b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
