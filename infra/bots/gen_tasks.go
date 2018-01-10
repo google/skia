@@ -371,8 +371,6 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 		} else if d["os"] == DEFAULT_OS_MAC {
 			// Mac CPU bots.
 			d["cpu"] = "x86-64-E5-2697_v2"
-			// skia:7408
-			d["cert"] = "2"
 		}
 	}
 
@@ -1177,7 +1175,7 @@ func process(b *specs.TasksCfgBuilder, name string) {
 		!strings.Contains(name, "-CT_") &&
 		!strings.Contains(name, "Housekeeper-PerCommit-Isolate") {
 		compile(b, compileTaskName, compileTaskParts)
-		if (parts["role"] == "Calmbench") {
+		if parts["role"] == "Calmbench" {
 			compile(b, compileParentName, compileParentParts)
 		}
 	}
@@ -1382,4 +1380,3 @@ func (s *JobNameSchema) MakeJobName(parts map[string]string) (string, error) {
 	}
 	return strings.Join(rvParts, s.Sep), nil
 }
-
