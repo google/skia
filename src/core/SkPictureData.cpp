@@ -511,6 +511,9 @@ bool SkPictureData::parseBufferTag(SkReadBuffer& buffer, uint32_t tag, uint32_t 
         case SK_PICT_PATH_BUFFER_TAG:
             if (size > 0) {
                 const int count = buffer.readInt();
+                if (count < 0) {
+                    return false;
+                }
                 fPaths.reset(count);
                 for (int i = 0; i < count; i++) {
                     buffer.readPath(&fPaths[i]);

@@ -500,7 +500,6 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
             const SkPoint* pos = (const SkPoint*)reader->skip(points, sizeof(SkPoint));
             const SkScalar top = reader->readScalar();
             const SkScalar bottom = reader->readScalar();
-            SkDebugf("postexth count %zu pos %p\n", points, pos);
             BREAK_ON_READ_ERROR(reader);
 
             SkRect clip = canvas->getLocalClipBounds();

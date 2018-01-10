@@ -135,6 +135,9 @@ sk_sp<SkPicture> SkPicture::Forwardport(const SkPictInfo& info,
     if (!data) {
         return nullptr;
     }
+    if (!data->opData()) {
+        return nullptr;
+    }
     SkPicturePlayback playback(data);
     SkPictureRecorder r;
     playback.draw(r.beginRecording(info.fCullRect), nullptr/*no callback*/, buffer);
