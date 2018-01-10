@@ -17,6 +17,7 @@
 class GrCaps;
 class GrResourceProvider;
 class GrSingleOwner;
+class GrBackendRenderTarget;
 
 /*
  * A factory for creating GrSurfaceProxy-derived objects.
@@ -56,6 +57,8 @@ public:
      */
     sk_sp<GrTextureProxy> findOrCreateProxyByUniqueKey(const GrUniqueKey&, GrSurfaceOrigin);
 
+    sk_sp<GrTextureProxy> createFoo(const GrSurfaceDesc&, SkBackingFit, SkBudgeted, uint32_t flags);
+
     /*
      * Create an un-mipmapped texture proxy with data.
      */
@@ -67,6 +70,43 @@ public:
     sk_sp<GrTextureProxy> createTextureProxy(const GrSurfaceDesc&, SkBudgeted,
                                              const GrMipLevel texels[], int mipLevelCount,
                                              SkDestinationSurfaceColorMode mipColorMode);
+
+    /*
+     * Create a GrSurfaceProxy without any data.
+     */
+    sk_sp<GrTextureProxy> createProxy(const GrSurfaceDesc&, SkBackingFit, SkBudgeted,
+                                      uint32_t flags);
+
+
+    /*
+     * Create a mipmapped GrSurfaceProxy without any data.
+     */
+    sk_sp<GrTextureProxy> createMipMapProxy(const GrSurfaceDesc&, SkBudgeted);
+
+    /*
+     * Create a texture proxy that wraps a (non-renderable) backend texture.
+     */
+    sk_sp<GrTextureProxy> createWrappedTextureProxy1(const GrBackendTexture&, GrSurfaceOrigin);
+
+    /*
+     * Create a texture proxy that wraps a backend texture and is both texture-able and renderable
+     */
+    sk_sp<GrTextureProxy> createWrappedTextureProxy2(const GrBackendTexture&,
+                                                    GrSurfaceOrigin,
+                                                    int sampleCnt);
+
+    /*
+     * Create a render target proxy that wraps a backend rendertarget
+     */
+    sk_sp<GrSurfaceProxy> createWrappedRenderTargetProxy1(const GrBackendRenderTarget&,
+                                                        GrSurfaceOrigin);
+
+    /*
+     * Create a render target proxy that wraps a backend texture?
+     */
+    sk_sp<GrSurfaceProxy> createWrappedRenderTargetProxy2(const GrBackendTexture& tex,
+                                                        GrSurfaceOrigin origin,
+                                                        int sampleCnt);
 
     // 'proxy' is about to be used as a texture src or drawn to. This query can be used to
     // determine if it is going to need a texture domain or a full clear.

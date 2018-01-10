@@ -45,6 +45,8 @@ void runFPTest(skiatest::Reporter* reporter, GrContext* context,
         controlPixelData[i + 3] = maxInt;
     }
 
+    const GrMipLevel mipLevel = { controlPixelData.begin(), 0 };
+
     for (int origin = 0; origin < 2; ++origin) {
         GrSurfaceDesc desc;
         desc.fFlags = kRenderTarget_GrSurfaceFlag;
@@ -52,9 +54,15 @@ void runFPTest(skiatest::Reporter* reporter, GrContext* context,
         desc.fWidth = DEV_W;
         desc.fHeight = DEV_H;
         desc.fConfig = config;
+
+#if 0
         sk_sp<GrTextureProxy> fpProxy = GrSurfaceProxy::MakeDeferred(proxyProvider,
                                                                      desc, SkBudgeted::kNo,
                                                                      controlPixelData.begin(), 0);
+#else
+        sk_sp<GrTextureProxy> fpProxy = proxyProvider->createTextureProxy(desc, SkBudgeted::kNo,
+                                                                          mipLevel);
+#endif
         // Floating point textures are NOT supported everywhere
         if (!fpProxy) {
             continue;

@@ -9,6 +9,7 @@
 
 #if SK_SUPPORT_GPU
 
+#include "GrProxyProvider.h"
 #include "GrSurfaceContext.h"
 #include "GrSurfaceProxy.h"
 #include "GrTextureProxy.h"
@@ -101,6 +102,8 @@ void test_copy_to_surface(skiatest::Reporter* reporter, GrProxyProvider* proxyPr
         }
     }
 
+    const GrMipLevel mipLevel = { pixels.get(), 0 };
+
     GrSurfaceDesc copySrcDesc;
     copySrcDesc.fWidth = dstContext->width();
     copySrcDesc.fHeight = dstContext->height();
@@ -111,9 +114,15 @@ void test_copy_to_surface(skiatest::Reporter* reporter, GrProxyProvider* proxyPr
         copySrcDesc.fOrigin = (kNone_GrSurfaceFlags == flags) ? kTopLeft_GrSurfaceOrigin
                                                               : kBottomLeft_GrSurfaceOrigin;
 
+#if 0
         sk_sp<GrTextureProxy> src(GrSurfaceProxy::MakeDeferred(proxyProvider,
                                                                copySrcDesc,
                                                                SkBudgeted::kYes, pixels.get(), 0));
+#else
+        sk_sp<GrTextureProxy> src = proxyProvider->createTextureProxy(copySrcDesc, SkBudgeted::kYes,
+                                                                      mipLevel);
+#endif
+
         dstContext->copy(src.get());
 
         test_read_pixels(reporter, dstContext, pixels.get(), testName);

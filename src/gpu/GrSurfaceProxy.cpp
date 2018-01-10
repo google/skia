@@ -194,7 +194,7 @@ GrTextureOpList* GrSurfaceProxy::getLastTextureOpList() {
     return fLastOpList ? fLastOpList->asTextureOpList() : nullptr;
 }
 
-sk_sp<GrSurfaceProxy> GrSurfaceProxy::MakeWrapped(sk_sp<GrSurface> surf, GrSurfaceOrigin origin) {
+sk_sp<GrSurfaceProxy> GrSurfaceProxy::MakeWrapped1(sk_sp<GrSurface> surf, GrSurfaceOrigin origin) {
     if (!surf) {
         return nullptr;
     }
@@ -223,7 +223,7 @@ sk_sp<GrSurfaceProxy> GrSurfaceProxy::MakeWrapped(sk_sp<GrSurface> surf, GrSurfa
     }
 }
 
-sk_sp<GrTextureProxy> GrSurfaceProxy::MakeWrapped(sk_sp<GrTexture> tex, GrSurfaceOrigin origin) {
+sk_sp<GrTextureProxy> GrSurfaceProxy::MakeWrapped1(sk_sp<GrTexture> tex, GrSurfaceOrigin origin) {
     if (!tex) {
         return nullptr;
     }
@@ -245,7 +245,8 @@ sk_sp<GrTextureProxy> GrSurfaceProxy::MakeWrapped(sk_sp<GrTexture> tex, GrSurfac
     }
 }
 
-sk_sp<GrTextureProxy> GrSurfaceProxy::MakeDeferred(GrProxyProvider* proxyProvider,
+#if 0
+sk_sp<GrTextureProxy> GrSurfaceProxy::MakeDeferred1(GrProxyProvider* proxyProvider,
                                                    const GrSurfaceDesc& desc,
                                                    SkBackingFit fit,
                                                    SkBudgeted budgeted,
@@ -310,8 +311,10 @@ sk_sp<GrTextureProxy> GrSurfaceProxy::MakeDeferred(GrProxyProvider* proxyProvide
     return sk_sp<GrTextureProxy>(new GrTextureProxy(copyDesc, fit, budgeted, nullptr, 0, flags));
 #endif
 }
+#endif
 
-sk_sp<GrTextureProxy> GrSurfaceProxy::MakeDeferred(GrProxyProvider* proxyProvider,
+#if 0
+sk_sp<GrTextureProxy> GrSurfaceProxy::MakeDeferred1(GrProxyProvider* proxyProvider,
                                                    const GrSurfaceDesc& desc,
                                                    SkBudgeted budgeted,
                                                    const void* srcData,
@@ -322,10 +325,12 @@ sk_sp<GrTextureProxy> GrSurfaceProxy::MakeDeferred(GrProxyProvider* proxyProvide
         return proxyProvider->createTextureProxy(desc, budgeted, mipLevel);
     }
 
-    return GrSurfaceProxy::MakeDeferred(proxyProvider, desc, SkBackingFit::kExact, budgeted);
+    return GrSurfaceProxy::MakeDeferred1(proxyProvider, desc, SkBackingFit::kExact, budgeted);
 }
+#endif
 
-sk_sp<GrTextureProxy> GrSurfaceProxy::MakeDeferredMipMap(GrProxyProvider* proxyProvider,
+#if 0
+sk_sp<GrTextureProxy> GrSurfaceProxy::MakeDeferredMipMap1(GrProxyProvider* proxyProvider,
                                                          const GrSurfaceDesc& desc,
                                                          SkBudgeted budgeted) {
     // SkMipMap doesn't include the base level in the level count so we have to add 1
@@ -339,10 +344,11 @@ sk_sp<GrTextureProxy> GrSurfaceProxy::MakeDeferredMipMap(GrProxyProvider* proxyP
         texels[i].fRowBytes = 0;
     }
 
-    return MakeDeferredMipMap(proxyProvider, desc, budgeted, texels.get(), mipCount);
+    return MakeDeferredMipMap1(proxyProvider, desc, budgeted, texels.get(), mipCount);
 }
+#endif
 
-sk_sp<GrTextureProxy> GrSurfaceProxy::MakeDeferredMipMap(
+sk_sp<GrTextureProxy> GrSurfaceProxy::MakeDeferredMipMap1(
                                                     GrProxyProvider* proxyProvider,
                                                     const GrSurfaceDesc& desc,
                                                     SkBudgeted budgeted,
@@ -353,7 +359,8 @@ sk_sp<GrTextureProxy> GrSurfaceProxy::MakeDeferredMipMap(
         if (texels) {
             return nullptr;
         }
-        return GrSurfaceProxy::MakeDeferred(proxyProvider, desc, budgeted, nullptr, 0);
+        return proxyProvider->createProxy(desc, SkBackingFit::kExact, budgeted, 0);
+//        return GrSurfaceProxy::MakeDeferred1(proxyProvider, desc, budgeted, nullptr, 0);
     }
     if (!texels) {
         return nullptr;
@@ -384,14 +391,16 @@ sk_sp<GrTextureProxy> GrSurfaceProxy::MakeDeferredMipMap(
     return proxyProvider->createTextureProxy(desc, budgeted, texels, mipLevelCount, mipColorMode);
 }
 
-sk_sp<GrTextureProxy> GrSurfaceProxy::MakeWrappedBackend(GrContext* context,
+#if 0
+sk_sp<GrTextureProxy> GrSurfaceProxy::MakeWrappedBackend1(GrContext* context,
                                                          const GrBackendTexture& backendTex,
                                                          GrSurfaceOrigin origin) {
     sk_sp<GrTexture> tex(context->resourceProvider()->wrapBackendTexture(backendTex));
-    return GrSurfaceProxy::MakeWrapped(std::move(tex), origin);
+    return GrSurfaceProxy::MakeWrapped1(std::move(tex), origin);
 }
+#endif
 
-sk_sp<GrTextureProxy> GrSurfaceProxy::MakeLazy(LazyInstantiateCallback&& callback,
+sk_sp<GrTextureProxy> GrSurfaceProxy::MakeLazy1(LazyInstantiateCallback&& callback,
                                                Renderable renderable, GrPixelConfig config) {
     return sk_sp<GrTextureProxy>(Renderable::kYes == renderable ?
                                  new GrTextureRenderTargetProxy(std::move(callback), config) :

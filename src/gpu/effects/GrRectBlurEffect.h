@@ -40,8 +40,13 @@ public:
 
             std::unique_ptr<uint8_t[]> profile(SkBlurMask::ComputeBlurProfile(sigma));
 
+#if 0
             blurProfile = GrSurfaceProxy::MakeDeferred(proxyProvider, texDesc, SkBudgeted::kYes,
                                                        profile.get(), 0);
+#else
+            GrMipLevel mipLevel = { profile.get(), 0 };
+            blurProfile = proxyProvider->createTextureProxy(texDesc, SkBudgeted::kYes, mipLevel);
+#endif
             if (!blurProfile) {
                 return nullptr;
             }

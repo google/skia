@@ -13,6 +13,7 @@
 
 #include "GrContext.h"
 #include "GrContextPriv.h"
+#include "GrProxyProvider.h"
 #include "GrRenderTargetContextPriv.h"
 #include "GrTextureProxy.h"
 #include "SkBitmap.h"
@@ -82,6 +83,7 @@ protected:
             return;
         }
 
+        GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
         sk_sp<GrTextureProxy> proxy[3];
 
         {
@@ -93,9 +95,14 @@ protected:
                 desc.fHeight = fBmp[i].height();
                 desc.fConfig = SkImageInfo2GrPixelConfig(fBmp[i].info(), *context->caps());
 
+#if 0
                 proxy[i] = GrSurfaceProxy::MakeDeferred(context->contextPriv().proxyProvider(),
                                                         desc, SkBudgeted::kYes,
                                                         fBmp[i].getPixels(), fBmp[i].rowBytes());
+#else
+                GrMipLevel mipLevel = { fBmp[i].getPixels(), fBmp[i].rowBytes() };
+                proxy[i] = proxyProvider->createTextureProxy(desc, SkBudgeted::kYes, mipLevel);
+#endif
                 if (!proxy[i]) {
                     return;
                 }
@@ -210,6 +217,7 @@ protected:
             return;
         }
 
+        GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
         sk_sp<GrTextureProxy> proxy[3];
 
         {
@@ -223,10 +231,15 @@ protected:
                 desc.fHeight = fBmp[index].height();
                 desc.fConfig = SkImageInfo2GrPixelConfig(fBmp[index].info(), *context->caps());
 
+#if 0
                 proxy[i] = GrSurfaceProxy::MakeDeferred(context->contextPriv().proxyProvider(),
                                                         desc, SkBudgeted::kYes,
                                                         fBmp[index].getPixels(),
                                                         fBmp[index].rowBytes());
+#else
+                GrMipLevel mipLevel = { fBmp[index].getPixels(), fBmp[index].rowBytes() };
+                proxyProvider->createTextureProxy(desc, SkBudgeted::kYes, mipLevel);
+#endif
                 if (!proxy[i]) {
                     return;
                 }

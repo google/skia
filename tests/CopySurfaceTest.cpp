@@ -11,6 +11,7 @@
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
 #include "GrContextPriv.h"
+#include "GrProxyProvider.h"
 #include "GrResourceProvider.h"
 #include "GrSurfaceContext.h"
 #include "GrSurfaceProxy.h"
@@ -35,10 +36,14 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(CopySurface, reporter, ctxInfo) {
         srcPixels.get()[i] = i;
     }
 
+    const GrMipLevel srcMipLevel = { srcPixels.get(), kRowBytes };
+
     SkAutoTMalloc<uint32_t> dstPixels(kW * kH);
     for (int i = 0; i < kW * kH; ++i) {
         dstPixels.get()[i] = ~i;
     }
+
+    const GrMipLevel dstMipLevel = { dstPixels.get(), kRowBytes };
 
     static const SkIRect kSrcRects[] {
         { 0,  0, kW  , kH  },
@@ -74,6 +79,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(CopySurface, reporter, ctxInfo) {
                             dstDesc.fOrigin = dOrigin;
                             dstDesc.fFlags = dFlags;
 
+#if 0
                             sk_sp<GrTextureProxy> src(GrSurfaceProxy::MakeDeferred(
                                                                     proxyProvider,
                                                                     srcDesc, SkBudgeted::kNo,
@@ -85,6 +91,12 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(CopySurface, reporter, ctxInfo) {
                                                                     dstDesc, SkBudgeted::kNo,
                                                                     dstPixels.get(),
                                                                     kRowBytes));
+#else
+                            sk_sp<GrTextureProxy> src = proxyProvider->createTextureProxy(
+                                                            srcDesc, SkBudgeted::kNo, srcMipLevel);
+                            sk_sp<GrTextureProxy> dst = proxyProvider->createTextureProxy(
+                                                            dstDesc, SkBudgeted::kNo, dstMipLevel);
+#endif
                             if (!src || !dst) {
                                 ERRORF(reporter,
                                        "Could not create surfaces for copy surface test.");
