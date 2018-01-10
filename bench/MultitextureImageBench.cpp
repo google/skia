@@ -16,12 +16,16 @@
 
 class MultitextureImages : public Benchmark {
 public:
-    MultitextureImages(int imageSize, int dstRectSize, bool disableMultitexturing)
+    MultitextureImages(int imageSize, int dstRectSize, bool disableMultitexturing, bool aa)
             : fImageSize(imageSize)
             , fDstRectSize(dstRectSize)
-            , fDisableMultitexturing(disableMultitexturing) {
+            , fDisableMultitexturing(disableMultitexturing)
+            , fAA(aa) {
         fName.appendf("multitexture_images_%dx%d_image_%dx%d_rect", imageSize, imageSize,
                       dstRectSize, dstRectSize);
+        if (aa) {
+            fName.append("_aa");
+        }
         if (disableMultitexturing) {
             fName.append("_disable_multitexturing");
         }
@@ -60,6 +64,7 @@ protected:
         SkPaint paint;
         paint.setAlpha(0x40);
         paint.setFilterQuality(kLow_SkFilterQuality);
+        paint.setAntiAlias(fAA);
         for (int i = 0; i < loops; i++) {
             for (int j = 0; j < kNumImages; ++j) {
                 SkVector translate = this->translation(i * kNumImages + j);
@@ -87,8 +92,9 @@ private:
 
     SkVector translation(int i) const {
         SkVector offset;
-        offset.fX = i % kNumColumns * kTranslate;
-        offset.fY = (i / kNumColumns) % kNumRows * kTranslate;
+        // Fractional offsets to ensure we can't ignore antialiasing.
+        offset.fX = i % kNumColumns * kTranslate + 0.1f;
+        offset.fY = (i / kNumColumns) % kNumRows * kTranslate + 0.1f;
         return offset;
     }
 
@@ -102,24 +108,32 @@ private:
     int fImageSize;
     int fDstRectSize;
     bool fDisableMultitexturing;
+    bool fAA;
 
     typedef Benchmark INHERITED;
 };
 
-DEF_BENCH(return new MultitextureImages(128, 32, false));
-DEF_BENCH(return new MultitextureImages(128, 32, true));
-DEF_BENCH(return new MultitextureImages(128, 128, false));
-DEF_BENCH(return new MultitextureImages(128, 128, true));
-DEF_BENCH(return new MultitextureImages(128, 256, false));
-DEF_BENCH(return new MultitextureImages(128, 256, true));
+// Non-AA
+DEF_BENCH(return new MultitextureImages(128, 32, false, false));
+DEF_BENCH(return new MultitextureImages(128, 32, true, false));
+DEF_BENCH(return new MultitextureImages(128, 128, false, false));
+DEF_BENCH(return new MultitextureImages(128, 128, true, false));
+DEF_BENCH(return new MultitextureImages(128, 256, false, false));
+DEF_BENCH(return new MultitextureImages(128, 256, true, false));
 
-DEF_BENCH(return new MultitextureImages(512, 32, false));
-DEF_BENCH(return new MultitextureImages(512, 32, true));
-DEF_BENCH(return new MultitextureImages(512, 128, false));
-DEF_BENCH(return new MultitextureImages(512, 128, true));
-DEF_BENCH(return new MultitextureImages(512, 256, false));
-DEF_BENCH(return new MultitextureImages(512, 256, true));
-DEF_BENCH(return new MultitextureImages(512, 512, false));
-DEF_BENCH(return new MultitextureImages(512, 512, true));
+DEF_BENCH(return new MultitextureImages(512, 32, false, false));
+DEF_BENCH(return new MultitextureImages(512, 32, true, false));
+DEF_BENCH(return new MultitextureImages(512, 128, false, false));
+DEF_BENCH(return new MultitextureImages(512, 128, true, false));
+DEF_BENCH(return new MultitextureImages(512, 256, false, false));
+DEF_BENCH(return new MultitextureImages(512, 256, true, false));
+DEF_BENCH(return new MultitextureImages(512, 512, false, false));
+DEF_BENCH(return new MultitextureImages(512, 512, true, false));
+
+// AA
+DEF_BENCH(return new MultitextureImages(512, 512, true, true));
+DEF_BENCH(return new MultitextureImages(512, 512, false, true));
+DEF_BENCH(return new MultitextureImages(128, 32, true, true));
+DEF_BENCH(return new MultitextureImages(128, 32, false, true));
 
 #endif
