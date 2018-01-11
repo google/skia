@@ -16,6 +16,24 @@
       "revId": "0ccd6c8f0d28fc2c97b2f18513a049d868c64444",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a4b372d1_cb8874c7",
+        "filename": "platform_tools/android/apps/skqp/src/main/java/org/skia/skqp/SkQP.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2018-01-11T13:01:30Z",
+      "side": 1,
+      "message": "you mean remove the if block ?",
+      "parentUuid": "f3332cfc_3008a64d",
+      "revId": "0ccd6c8f0d28fc2c97b2f18513a049d868c64444",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
