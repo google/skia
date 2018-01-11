@@ -47,7 +47,7 @@ void sk_abort_no_print() {
 
 void sk_out_of_memory(void) {
     SkDEBUGFAIL("sk_out_of_memory");
-#if defined(IS_FUZZING)
+#if defined(IS_FUZZING_WITH_AFL)
     exit(1);
 #else
     abort();
