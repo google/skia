@@ -174,6 +174,24 @@
       "revId": "ea1a6d7aac8fb2d5b5d2feaee318735638230615",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6eba334a_595641e3",
+        "filename": "fuzz/oss_fuzz/FuzzRegionSetPath.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-01-11T14:04:53Z",
+      "side": 1,
+      "message": "Let\u0027s not give up on freedom yet.  We may not be able to read command line arguments, but we can probably read the environment to control what to run.  Imagine something like,\n\n  env FUZZ\u003dthis ./skia-oss-fuzz\n  env FUZZ\u003dthat ./skia-oss-fuzz\n\nWe can query this with getenv(\"FUZZ\").\n\nThis scheme you\u0027ve got here isn\u0027t going to work if you want to link more than one of these together, say, into today\u0027s fuzz binary.",
+      "parentUuid": "be244927_28cd7797",
+      "revId": "ea1a6d7aac8fb2d5b5d2feaee318735638230615",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
