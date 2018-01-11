@@ -106,7 +106,7 @@ sk_sp<GrTextureProxy> GrBackendTextureImageGenerator::onGenerateTexture(
         tex = sk_ref_sp(fRefHelper->fBorrowedTexture);
         SkASSERT(tex);
     } else {
-        // The texture is available or borrwed by another context. Try for exclusive access.
+        // The texture is available or borrowed by another context. Try for exclusive access.
         uint32_t expectedID = SK_InvalidGenID;
         if (!fRefHelper->fBorrowingContextID.compare_exchange(&expectedID, context->uniqueID())) {
             // Some other context is currently borrowing the texture. We aren't allowed to use it.

@@ -12,6 +12,7 @@
 #include "GrClip.h"
 #include "GrContext.h"
 #include "GrContextPriv.h"
+#include "GrProxyProvider.h"
 #include "GrRenderTargetContext.h"
 #include "GrTest.h"
 #include "gl/GLTestContext.h"
@@ -85,6 +86,7 @@ static void test_clear(skiatest::Reporter* reporter, GrSurfaceContext* rectConte
 
 DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(RectangleTexture, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
+    GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
     sk_gpu_test::GLTestContext* glContext = ctxInfo.glContext();
     static const int kWidth = 13;
     static const int kHeight = 13;
@@ -125,9 +127,9 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(RectangleTexture, reporter, ctxInfo) {
             }
         }
 
-        sk_sp<GrTextureProxy> rectProxy = GrSurfaceProxy::MakeWrappedBackend(context,
-                                                                             rectangleTex,
-                                                                             origin);
+        sk_sp<GrTextureProxy> rectProxy = proxyProvider->createWrappedTextureProxy(
+                                                                            rectangleTex, origin);
+
         if (!rectProxy) {
             ERRORF(reporter, "Error creating proxy for rectangle texture.");
             GR_GL_CALL(glContext->gl(), DeleteTextures(1, &rectTexID));

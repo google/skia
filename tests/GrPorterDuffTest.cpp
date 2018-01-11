@@ -13,6 +13,7 @@
 #include "GrContextOptions.h"
 #include "GrContextPriv.h"
 #include "GrGpu.h"
+#include "GrProxyProvider.h"
 #include "GrTest.h"
 #include "GrXferProcessor.h"
 #include "effects/GrPorterDuffXferProcessor.h"
@@ -1060,6 +1061,7 @@ DEF_GPUTEST(PorterDuffNoDualSourceBlending, reporter, options) {
         return;
     }
 
+    GrProxyProvider* proxyProvider = ctx->contextPriv().proxyProvider();
     const GrCaps& caps = *ctx->caps();
     if (caps.shaderCaps()->dualSourceBlendingSupport()) {
         SK_ABORT("Null context failed to honor request for no ARB_blend_func_extended.");
@@ -1072,8 +1074,8 @@ DEF_GPUTEST(PorterDuffNoDualSourceBlending, reporter, options) {
 
     GrXferProcessor::DstProxy fakeDstProxy;
     {
-        sk_sp<GrTextureProxy> proxy = GrSurfaceProxy::MakeWrappedBackend(ctx, backendTex,
-                                                                         kTopLeft_GrSurfaceOrigin);
+        sk_sp<GrTextureProxy> proxy = proxyProvider->createWrappedTextureProxy(
+                                                             backendTex, kTopLeft_GrSurfaceOrigin);
         fakeDstProxy.setProxy(std::move(proxy));
     }
 
