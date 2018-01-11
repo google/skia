@@ -1,6 +1,136 @@
 [
   {
     "cmd": [
+      "python",
+      "-u",
+      "[START_DIR]/skia/bin/fetch-gn"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "BUILDTYPE": "Debug",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[START_DIR]/out"
+    },
+    "infra_step": true,
+    "name": "fetch-gn"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/skia/bin/gn",
+      "gen",
+      "[START_DIR]/out/Debug",
+      "--args=extra_cflags=[\"-O1\"] ndk=\"[START_DIR]/android_ndk_linux\" target_cpu=\"None\""
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "BUILDTYPE": "Debug",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[START_DIR]/out"
+    },
+    "name": "gn gen"
+  },
+  {
+    "cmd": [
+      "ninja",
+      "-k",
+      "0",
+      "-C",
+      "[START_DIR]/out/Debug"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "BUILDTYPE": "Debug",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[START_DIR]/out"
+    },
+    "name": "ninja"
+  },
+  {
+    "cmd": [
+      "/opt/infra-android/tools/adb",
+      "push",
+      "file.txt",
+      "file.txt"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "BUILDTYPE": "Debug",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[START_DIR]/out"
+    },
+    "infra_step": true,
+    "name": "push file.txt file.txt"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "rmtree",
+      "results_dir"
+    ],
+    "infra_step": true,
+    "name": "rmtree results_dir"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "ensure-directory",
+      "--mode",
+      "0777",
+      "results_dir"
+    ],
+    "infra_step": true,
+    "name": "makedirs results_dir"
+  },
+  {
+    "cmd": [
+      "/opt/infra-android/tools/adb",
+      "shell",
+      "rm",
+      "-rf",
+      "device_results_dir"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "BUILDTYPE": "Debug",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[START_DIR]/out"
+    },
+    "infra_step": true,
+    "name": "rm device_results_dir"
+  },
+  {
+    "cmd": [
+      "/opt/infra-android/tools/adb",
+      "shell",
+      "mkdir",
+      "-p",
+      "device_results_dir"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "BUILDTYPE": "Debug",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[START_DIR]/out"
+    },
+    "infra_step": true,
+    "name": "mkdir device_results_dir"
+  },
+  {
+    "cmd": [
       "/opt/infra-android/tools/adb",
       "shell",
       "mkdir",
@@ -9,7 +139,7 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
@@ -26,7 +156,7 @@
       "/sdcard/revenge_of_the_skiabot/resources"
     ],
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
@@ -89,7 +219,7 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
@@ -108,7 +238,7 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
@@ -126,7 +256,7 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
@@ -144,7 +274,7 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
@@ -161,7 +291,7 @@
       "/sdcard/revenge_of_the_skiabot/skps"
     ],
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
@@ -196,7 +326,7 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
@@ -241,7 +371,7 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
@@ -260,7 +390,7 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
@@ -278,7 +408,7 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
@@ -296,7 +426,7 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
@@ -313,7 +443,7 @@
       "/sdcard/revenge_of_the_skiabot/images"
     ],
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
@@ -348,7 +478,7 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
@@ -393,7 +523,7 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
@@ -412,7 +542,7 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
@@ -430,7 +560,7 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
@@ -448,7 +578,7 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
@@ -465,7 +595,7 @@
       "/sdcard/revenge_of_the_skiabot/svgs"
     ],
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
@@ -500,77 +630,13 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
     },
     "infra_step": true,
     "name": "push [START_DIR]/tmp/SVG_VERSION /sdcard/revenge_of_the_skiabot/SVG_VERSION"
-  },
-  {
-    "cmd": [
-      "/opt/infra-android/tools/adb",
-      "shell",
-      "rm",
-      "-rf",
-      "/sdcard/revenge_of_the_skiabot/perf"
-    ],
-    "cwd": "[START_DIR]/skia",
-    "env": {
-      "BUILDTYPE": "Release",
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/out"
-    },
-    "infra_step": true,
-    "name": "rm /sdcard/revenge_of_the_skiabot/perf"
-  },
-  {
-    "cmd": [
-      "/opt/infra-android/tools/adb",
-      "shell",
-      "mkdir",
-      "-p",
-      "/sdcard/revenge_of_the_skiabot/perf"
-    ],
-    "cwd": "[START_DIR]/skia",
-    "env": {
-      "BUILDTYPE": "Release",
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/out"
-    },
-    "infra_step": true,
-    "name": "mkdir /sdcard/revenge_of_the_skiabot/perf"
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "import os\nprint os.environ.get('SWARMING_BOT_ID', '')\n"
-    ],
-    "name": "get swarming bot id",
-    "stdout": "/path/to/tmp/",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@python.inline@import os@@@",
-      "@@@STEP_LOG_LINE@python.inline@print os.environ.get('SWARMING_BOT_ID', '')@@@",
-      "@@@STEP_LOG_END@python.inline@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "import os\nprint os.environ.get('SWARMING_TASK_ID', '')\n"
-    ],
-    "name": "get swarming task id",
-    "stdout": "/path/to/tmp/",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@python.inline@import os@@@",
-      "@@@STEP_LOG_LINE@python.inline@print os.environ.get('SWARMING_TASK_ID', '')@@@",
-      "@@@STEP_LOG_END@python.inline@@@"
-    ]
   },
   {
     "cmd": [
@@ -582,7 +648,7 @@
       "userspace"
     ],
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
@@ -626,7 +692,7 @@
       "4"
     ],
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
@@ -702,7 +768,7 @@
       "0"
     ],
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
@@ -754,7 +820,7 @@
       "0"
     ],
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
@@ -806,7 +872,7 @@
       "0"
     ],
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
@@ -858,7 +924,7 @@
       "0"
     ],
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
@@ -909,7 +975,7 @@
       "600000000"
     ],
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
@@ -968,12 +1034,12 @@
     "cmd": [
       "/opt/infra-android/tools/adb",
       "push",
-      "[START_DIR]/out/Release/nanobench",
+      "[START_DIR]/out/Debug/nanobench",
       "/data/local/tmp/"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
@@ -989,15 +1055,9 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "set -x; /data/local/tmp/nanobench -i /sdcard/revenge_of_the_skiabot/resources --skps /sdcard/revenge_of_the_skiabot/skps --images /sdcard/revenge_of_the_skiabot/images/nanobench --svgs /sdcard/revenge_of_the_skiabot/svgs --pre_log --images --gpuStatsDump true --scales 1.0 1.1 --nocpu --config gles glessrgb glesmsaa4 --match ~blurroundrect ~patch_grid ~desk_carsvg ~keymobi_shop_mobileweb_ebay_com.skp ~inc0.gif ~inc1.gif ~incInterlaced.gif ~inc0.jpg ~incGray.jpg ~inc0.wbmp ~inc1.wbmp ~inc0.webp ~inc1.webp ~inc0.ico ~inc1.ico ~inc0.png ~inc1.png ~inc2.png ~inc12.png ~inc13.png ~inc14.png ~inc0.webp ~inc1.webp --outResultsFile /sdcard/revenge_of_the_skiabot/perf/nanobench_abc123_1337000001.json --properties gitHash abc123 swarming_bot_id skia-bot-123 swarming_task_id 123456 --key arch arm64 compiler Clang cpu_or_gpu GPU cpu_or_gpu_value Adreno418 extra_config Android model Nexus5x os Android; echo $? >/data/local/tmp/rc",
+      "set -x; /data/local/tmp/nanobench --some-flag; echo $? >/data/local/tmp/rc",
       "[START_DIR]/tmp/nanobench.sh"
     ],
-    "env": {
-      "BUILDTYPE": "Release",
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/out"
-    },
     "infra_step": true,
     "name": "write nanobench.sh"
   },
@@ -1010,7 +1070,7 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
@@ -1026,7 +1086,7 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
@@ -1042,12 +1102,6 @@
       "/data/local/tmp/",
       "nanobench.sh"
     ],
-    "env": {
-      "BUILDTYPE": "Release",
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/out"
-    },
     "name": "nanobench",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@@@@",
@@ -1067,45 +1121,30 @@
   },
   {
     "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "ensure-directory",
-      "--mode",
-      "0777",
-      "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-Android-Clang-Nexus5x-GPU-Adreno418-arm64-Release-All-Android"
-    ],
-    "infra_step": true,
-    "name": "makedirs perf_dir"
-  },
-  {
-    "cmd": [
       "/opt/infra-android/tools/adb",
       "pull",
       "/sdcard/revenge_of_the_skiabot/perf",
-      "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-Android-Clang-Nexus5x-GPU-Adreno418-arm64-Release-All-Android/data"
+      "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-Android-Clang-Nexus5x-GPU-Adreno418-arm64-Debug-All-Android/data"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
     },
     "infra_step": true,
-    "name": "pull /sdcard/revenge_of_the_skiabot/perf [CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-Android-Clang-Nexus5x-GPU-Adreno418-arm64-Release-All-Android/data"
+    "name": "pull /sdcard/revenge_of_the_skiabot/perf [CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-Android-Clang-Nexus5x-GPU-Adreno418-arm64-Debug-All-Android/data"
   },
   {
     "cmd": [
       "python",
       "-u",
       "\nimport os\nimport subprocess\nimport sys\nout = sys.argv[1]\nlog = subprocess.check_output(['/opt/infra-android/tools/adb', 'logcat', '-d'])\nfor line in log.split('\\n'):\n  tokens = line.split()\n  if len(tokens) == 11 and tokens[-7] == 'F' and tokens[-3] == 'pc':\n    addr, path = tokens[-2:]\n    local = os.path.join(out, os.path.basename(path))\n    if os.path.exists(local):\n      sym = subprocess.check_output(['addr2line', '-Cfpe', local, addr])\n      line = line.replace(addr, addr + ' ' + sym.strip())\n  print line\n",
-      "[START_DIR]/out/Release"
+      "[START_DIR]/out/Debug"
     ],
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
@@ -1139,7 +1178,7 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"

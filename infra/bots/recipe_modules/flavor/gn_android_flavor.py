@@ -102,6 +102,11 @@ class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
     'PixelC': range(0, 2)
   }
 
+  gpu_scaling = {
+    "Nexus5":  450000000,
+    "Nexus5x": 600000000,
+  }
+
   def _scale_for_dm(self):
     device = self.m.vars.builder_cfg.get('model')
     if (device in self.rootable_blacklist or
@@ -139,6 +144,62 @@ class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
     for i in self.disable_for_nanobench.get(device, []):
       self._set_cpu_online(i, 0) # disable
 
+    if device in self.gpu_scaling:
+      #https://developer.qualcomm.com/qfile/28823/lm80-p0436-11_adb_commands.pdf
+      # Section 3.2.1 Commands to put the GPU in performance mode
+      # Nexus 5 is  320000000 by default
+      # Nexus 5x is 180000000 by default
+      gpu_freq = self.gpu_scaling[device]
+      self.m.run.with_retry(self.m.python.inline,
+        "Lock GPU to %d (and other perf tweaks)" % gpu_freq,
+        3, # attempts
+        program="""
+import os
+import subprocess
+import sys
+import time
+ADB = sys.argv[1]
+freq = sys.argv[2]
+idle_timer = "10000"
+
+log = subprocess.check_output([ADB, 'root'])
+# check for message like 'adbd cannot run as root in production builds'
+print log
+if 'cannot' in log:
+  raise Exception('adb root failed')
+
+subprocess.check_output([ADB, 'shell', 'stop', 'thermald'])
+
+subprocess.check_output([ADB, 'shell', 'echo "%s" > '
+    '/sys/class/kgsl/kgsl-3d0/gpuclk' % freq])
+
+actual_freq = subprocess.check_output([ADB, 'shell', 'cat '
+    '/sys/class/kgsl/kgsl-3d0/gpuclk']).strip()
+if actual_freq != freq:
+  raise Exception('Frequency (actual, expected) (%s, %s)'
+                  % (actual_freq, freq))
+
+subprocess.check_output([ADB, 'shell', 'echo "%s" > '
+    '/sys/class/kgsl/kgsl-3d0/idle_timer' % idle_timer])
+
+actual_timer = subprocess.check_output([ADB, 'shell', 'cat '
+    '/sys/class/kgsl/kgsl-3d0/idle_timer']).strip()
+if actual_timer != idle_timer:
+  raise Exception('idle_timer (actual, expected) (%s, %s)'
+                  % (actual_timer, idle_timer))
+
+for s in ['force_bus_on', 'force_rail_on', 'force_clk_on']:
+  subprocess.check_output([ADB, 'shell', 'echo "1" > '
+      '/sys/class/kgsl/kgsl-3d0/%s' % s])
+  actual_set = subprocess.check_output([ADB, 'shell', 'cat '
+      '/sys/class/kgsl/kgsl-3d0/%s' % s]).strip()
+  if actual_set != "1":
+    raise Exception('%s (actual, expected) (%s, 1)'
+                    % (s, actual_set))
+""",
+        args = [self.ADB_BINARY, gpu_freq],
+        infra_step=True,
+        timeout=30)
 
   def _set_governor(self, cpu, gov):
     self._ever_ran_adb = True
