@@ -13,6 +13,7 @@
 
 #include "GrContextFactory.h"
 #include "GrContextPriv.h"
+#include "GrProxyProvider.h"
 #include "GrSurfaceProxy.h"
 #include "GrTest.h"
 #include "SkGr.h"
@@ -58,6 +59,7 @@ void basic_texture_test(skiatest::Reporter* reporter, GrContext* context, GrPixe
     const int kWidth = 16;
     const int kHeight = 16;
     SkAutoTMalloc<GrColor> srcBuffer(kWidth*kHeight);
+    const GrMipLevel srcMipLevel = { srcBuffer, 0 };
     SkAutoTMalloc<GrColor> dstBuffer(kWidth*kHeight);
 
     fill_pixel_data(kWidth, kHeight, srcBuffer.get());
@@ -73,9 +75,14 @@ void basic_texture_test(skiatest::Reporter* reporter, GrContext* context, GrPixe
     SkColorType ct;
     SkAssertResult(GrPixelConfigToColorType(config, &ct));
 
+#if 0
     sk_sp<GrTextureProxy> proxy = GrSurfaceProxy::MakeDeferred(proxyProvider,
                                                                surfDesc, SkBudgeted::kNo,
                                                                srcBuffer, 0);
+#else
+    sk_sp<GrTextureProxy> proxy = proxyProvider->createTextureProxy(surfDesc, SkBudgeted::kNo,
+                                                                    srcMipLevel);
+#endif
     REPORTER_ASSERT(reporter, proxy);
     if (proxy) {
         sk_sp<GrSurfaceContext> sContext = context->contextPriv().makeWrappedSurfaceContext(
@@ -107,7 +114,11 @@ void basic_texture_test(skiatest::Reporter* reporter, GrContext* context, GrPixe
 
     surfDesc.fOrigin = kBottomLeft_GrSurfaceOrigin;
 
+#if 0
     proxy = GrSurfaceProxy::MakeDeferred(proxyProvider, surfDesc, SkBudgeted::kNo, srcBuffer, 0);
+#else
+    proxy = proxyProvider->createTextureProxy(surfDesc, SkBudgeted::kNo, srcMipLevel);
+#endif
     REPORTER_ASSERT(reporter, proxy);
     if (proxy) {
         sk_sp<GrSurfaceContext> sContext = context->contextPriv().makeWrappedSurfaceContext(

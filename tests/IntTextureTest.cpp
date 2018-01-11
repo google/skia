@@ -11,6 +11,7 @@
 #include "GrClip.h"
 #include "GrContext.h"
 #include "GrContextPriv.h"
+#include "GrProxyProvider.h"
 #include "GrRenderTargetContext.h"
 #include "GrResourceProvider.h"
 #include "GrTexture.h"
@@ -68,25 +69,40 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(IntTexture, reporter, ctxInfo) {
         levels[1].fPixels = testData.get();
         levels[1].fRowBytes = (kS / 2) * sizeof(int32_t);
 
+#if 0
         sk_sp<GrTextureProxy> temp(GrSurfaceProxy::MakeDeferredMipMap(proxyProvider,
                                                                       desc, SkBudgeted::kYes,
                                                                       levels, 2));
+#else
+        sk_sp<GrTextureProxy> temp = proxyProvider->createTextureProxy(
+                                                    desc, SkBudgeted::kYes,
+                                                    levels, 2,
+                                                    SkDestinationSurfaceColorMode::kLegacy);
+#endif
         REPORTER_ASSERT(reporter, !temp);
     }
 
-    // Test that we can create an integer texture.
-    sk_sp<GrTextureProxy> proxy = GrSurfaceProxy::MakeDeferred(proxyProvider,
-                                                               desc, SkBudgeted::kYes,
-                                                               testData.get(), kRowBytes);
-    REPORTER_ASSERT(reporter, proxy);
-    if (!proxy) {
-        return;
-    }
+    sk_sp<GrSurfaceContext> sContext;
+    // Test that we can create a non-mipmapped integer texture.
+    {
+#if 0
+        sk_sp<GrTextureProxy> proxy = GrSurfaceProxy::MakeDeferred(proxyProvider,
+                                                                   desc, SkBudgeted::kYes,
+                                                                   testData.get(), kRowBytes);
+#else
+        GrMipLevel mipLevel = { testData.get(), kRowBytes };
+        sk_sp<GrTextureProxy> proxy = proxyProvider->createTextureProxy(desc, SkBudgeted::kYes,
+                                                                        mipLevel);
+#endif
+        REPORTER_ASSERT(reporter, proxy);
+        if (!proxy) {
+            return;
+        }
 
-    sk_sp<GrSurfaceContext> sContext = context->contextPriv().makeWrappedSurfaceContext(
-                                                                    std::move(proxy), nullptr);
-    if (!sContext) {
-        return;
+        sContext = context->contextPriv().makeWrappedSurfaceContext(std::move(proxy), nullptr);
+        if (!sContext) {
+            return;
+        }
     }
 
     std::unique_ptr<int32_t[]> readData(new int32_t[kS * kS]);

@@ -182,10 +182,11 @@ private:
 
 class GrSurfaceProxy : public GrIORefProxy {
 public:
-    static sk_sp<GrSurfaceProxy> MakeWrapped(sk_sp<GrSurface>, GrSurfaceOrigin);
-    static sk_sp<GrTextureProxy> MakeWrapped(sk_sp<GrTexture>, GrSurfaceOrigin);
+//    static sk_sp<GrSurfaceProxy> MakeWrapped1(sk_sp<GrSurface>, GrSurfaceOrigin);
+    static sk_sp<GrTextureProxy> MakeWrapped2(sk_sp<GrTexture>, GrSurfaceOrigin);
 
-    static sk_sp<GrTextureProxy> MakeDeferred(GrProxyProvider*,
+#if 0
+    static sk_sp<GrTextureProxy> MakeDeferred1(GrProxyProvider*,
                                               const GrSurfaceDesc&, SkBackingFit,
                                               SkBudgeted, uint32_t flags = 0);
 
@@ -197,8 +198,8 @@ public:
      * @param texels        A contiguous array of mipmap levels
      * @param mipLevelCount The amount of elements in the texels array
      */
-    static sk_sp<GrTextureProxy> MakeDeferredMipMap(GrProxyProvider*,
-                                                    const GrSurfaceDesc& desc, SkBudgeted budgeted,
+    static sk_sp<GrTextureProxy> MakeDeferredMipMap1(GrProxyProvider*,
+                                                    const GrSurfaceDesc&, SkBudgeted,
                                                     const GrMipLevel texels[], int mipLevelCount,
                                                     SkDestinationSurfaceColorMode mipColorMode =
                                                            SkDestinationSurfaceColorMode::kLegacy);
@@ -208,18 +209,19 @@ public:
      * simply has space allocated for the mips. We will allocated the full amount of mip levels
      * based on the width and height in the GrSurfaceDesc.
      */
-    static sk_sp<GrTextureProxy> MakeDeferredMipMap(GrProxyProvider*,
-                                                    const GrSurfaceDesc& desc, SkBudgeted budgeted);
+    static sk_sp<GrTextureProxy> MakeDeferredMipMap1(GrProxyProvider*,
+                                                    const GrSurfaceDesc&, SkBudgeted);
 
 
     // TODO: need to refine ownership semantics of 'srcData' if we're in completely
     // deferred mode
-    static sk_sp<GrTextureProxy> MakeDeferred(GrProxyProvider*,
+    static sk_sp<GrTextureProxy> MakeDeferred1(GrProxyProvider*,
                                               const GrSurfaceDesc&, SkBudgeted,
                                               const void* srcData, size_t rowBytes);
 
-    static sk_sp<GrTextureProxy> MakeWrappedBackend(GrContext*, const GrBackendTexture&,
+    static sk_sp<GrTextureProxy> MakeWrappedBackend1(GrContext*, const GrBackendTexture&,
                                                     GrSurfaceOrigin);
+#endif
 
     using LazyInstantiateCallback = std::function<sk_sp<GrTexture>(GrResourceProvider*,
                                                                    GrSurfaceOrigin* outOrigin)>;

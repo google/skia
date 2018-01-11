@@ -16,6 +16,7 @@
 #include "GrGpu.h"
 #include "GrGpuResourceCacheAccess.h"
 #include "GrGpuResourcePriv.h"
+#include "GrProxyProvider.h"
 #include "GrRenderTargetPriv.h"
 #include "GrResourceCache.h"
 #include "GrResourceProvider.h"
@@ -219,10 +220,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceCacheWrappedResources, reporter, ctxI
 
     context->resetContext();
 
-    sk_sp<GrTexture> borrowed(context->resourceProvider()->wrapBackendTexture(
+    sk_sp<GrTexture> borrowed(context->resourceProvider()->wrapBackendTexture1(
             backendTextures[0], kBorrow_GrWrapOwnership));
 
-    sk_sp<GrTexture> adopted(context->resourceProvider()->wrapBackendTexture(
+    sk_sp<GrTexture> adopted(context->resourceProvider()->wrapBackendTexture1(
             backendTextures[1], kAdopt_GrWrapOwnership));
 
     REPORTER_ASSERT(reporter, borrowed != nullptr && adopted != nullptr);
@@ -1632,7 +1633,7 @@ static sk_sp<GrTexture> make_normal_texture(GrResourceProvider* provider,
     return provider->createTexture(desc, SkBudgeted::kYes);
 }
 
-static sk_sp<GrTextureProxy> make_mipmap_proxy(GrProxyProvider* provider,
+static sk_sp<GrTextureProxy> make_mipmap_proxy(GrProxyProvider* proxyProvider,
                                                GrSurfaceFlags flags,
                                                int width, int height,
                                                int sampleCnt) {
@@ -1668,8 +1669,13 @@ static sk_sp<GrTextureProxy> make_mipmap_proxy(GrProxyProvider* provider,
     desc.fConfig = kRGBA_8888_GrPixelConfig;
     desc.fSampleCnt = sampleCnt;
 
+#if 0
     return GrSurfaceProxy::MakeDeferredMipMap(provider, desc, SkBudgeted::kYes,
                                               texels.get(), mipLevelCount);
+#else
+    return proxyProvider->createTextureProxy(desc, SkBudgeted::kYes, texels.get(), mipLevelCount,
+                                             SkDestinationSurfaceColorMode::kLegacy);
+#endif
 }
 
 // Exercise GrSurface::gpuMemorySize for different combos of MSAA, RT-only,

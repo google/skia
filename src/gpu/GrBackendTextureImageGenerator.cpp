@@ -106,7 +106,7 @@ sk_sp<GrTextureProxy> GrBackendTextureImageGenerator::onGenerateTexture(
         tex = sk_ref_sp(fRefHelper->fBorrowedTexture);
         SkASSERT(tex);
     } else {
-        // The texture is available or borrwed by another context. Try for exclusive access.
+        // The texture is available or borrowed by another context. Try for exclusive access.
         uint32_t expectedID = SK_InvalidGenID;
         if (!fRefHelper->fBorrowingContextID.compare_exchange(&expectedID, context->uniqueID())) {
             // Some other context is currently borrowing the texture. We aren't allowed to use it.
@@ -126,7 +126,7 @@ sk_sp<GrTextureProxy> GrBackendTextureImageGenerator::onGenerateTexture(
         // always make a wrapped copy, where the release proc informs us that the context is done
         // with it. This is unfortunate - we'll have two texture objects referencing the same GPU
         // object. However, no client can ever see the original texture, so this should be safe.
-        tex = context->resourceProvider()->wrapBackendTexture(fBackendTexture,
+        tex = context->resourceProvider()->wrapBackendTexture1(fBackendTexture,
                                                               kBorrow_GrWrapOwnership);
         if (!tex) {
             fRefHelper->fBorrowingContextID = SK_InvalidGenID;
@@ -140,7 +140,7 @@ sk_sp<GrTextureProxy> GrBackendTextureImageGenerator::onGenerateTexture(
 
     SkASSERT(fRefHelper->fBorrowingContextID == context->uniqueID());
 
-    sk_sp<GrTextureProxy> proxy = GrSurfaceProxy::MakeWrapped(std::move(tex), fSurfaceOrigin);
+    sk_sp<GrTextureProxy> proxy = GrSurfaceProxy::MakeWrapped2(std::move(tex), fSurfaceOrigin);
 
     if (0 == origin.fX && 0 == origin.fY &&
         info.width() == fBackendTexture.width() && info.height() == fBackendTexture.height() &&

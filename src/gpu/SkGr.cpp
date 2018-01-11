@@ -92,8 +92,13 @@ sk_sp<GrTextureProxy> GrUploadPixmapToTextureProxy(GrProxyProvider* proxyProvide
 
     ATRACE_ANDROID_FRAMEWORK("Upload Texture [%ux%u]", pixmap.width(), pixmap.height());
     GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(pixmap.info(), *proxyProvider->caps());
+#if 0
     return GrSurfaceProxy::MakeDeferred(proxyProvider, desc, budgeted, pixmap.addr(),
                                         pixmap.rowBytes());
+#else
+    GrMipLevel mipLevel = { pixmap.addr(), pixmap.rowBytes() };
+    return proxyProvider->createTextureProxy(desc, budgeted, mipLevel);
+#endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -114,6 +119,8 @@ void GrInstallBitmapUniqueKeyInvalidator(const GrUniqueKey& key, SkPixelRef* pix
 sk_sp<GrTextureProxy> GrGenerateMipMapsAndUploadToTextureProxy(GrContext* ctx,
                                                                const SkBitmap& bitmap,
                                                                SkColorSpace* dstColorSpace) {
+    GrProxyProvider* proxyProvider = ctx->contextPriv().proxyProvider();
+
     SkDestinationSurfaceColorMode colorMode = dstColorSpace
         ? SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware
         : SkDestinationSurfaceColorMode::kLegacy;
@@ -151,22 +158,27 @@ sk_sp<GrTextureProxy> GrGenerateMipMapsAndUploadToTextureProxy(GrContext* ctx,
         texels[i].fRowBytes = generatedMipLevel.fPixmap.rowBytes();
     }
 
+#if 0
     return GrSurfaceProxy::MakeDeferredMipMap(ctx->contextPriv().proxyProvider(),
                                               desc,
                                               SkBudgeted::kYes,
                                               texels.get(),
                                               mipLevelCount,
                                               colorMode);
+#else
+    return proxyProvider->createTextureProxy(desc, SkBudgeted::kYes, texels.get(), mipLevelCount,
+                                             colorMode);
+#endif
 }
 
-sk_sp<GrTextureProxy> GrCopyBaseMipMapToTextureProxy(GrContext* ctx,
-                                                     GrTextureProxy* baseProxy) {
+sk_sp<GrTextureProxy> GrCopyBaseMipMapToTextureProxy(GrContext* ctx, GrTextureProxy* baseProxy) {
     SkASSERT(baseProxy);
 
     if (!ctx->caps()->isConfigCopyable(baseProxy->config())) {
         return nullptr;
     }
 
+    GrProxyProvider* proxyProvider = ctx->contextPriv().proxyProvider();
     GrSurfaceDesc desc;
     desc.fFlags = kNone_GrSurfaceFlags;
     desc.fOrigin = baseProxy->origin();
@@ -175,9 +187,13 @@ sk_sp<GrTextureProxy> GrCopyBaseMipMapToTextureProxy(GrContext* ctx,
     desc.fConfig = baseProxy->config();
     desc.fSampleCnt = 0;
 
+#if 0
     sk_sp<GrTextureProxy> proxy = GrSurfaceProxy::MakeDeferredMipMap(ctx->contextPriv().proxyProvider(),
                                                                      desc,
                                                                      SkBudgeted::kYes);
+#else
+    sk_sp<GrTextureProxy> proxy = proxyProvider->createMipMapProxy(desc, SkBudgeted::kYes);
+#endif
     if (!proxy) {
         return nullptr;
     }
@@ -191,7 +207,8 @@ sk_sp<GrTextureProxy> GrCopyBaseMipMapToTextureProxy(GrContext* ctx,
 }
 
 
-sk_sp<GrTextureProxy> GrUploadMipMapToTextureProxy(GrContext* ctx, const SkImageInfo& info,
+sk_sp<GrTextureProxy> GrUploadMipMapToTextureProxy(GrProxyProvider* proxyProvider,
+                                                   const SkImageInfo& info,
                                                    const GrMipLevel texels[],
                                                    int mipLevelCount,
                                                    SkDestinationSurfaceColorMode colorMode) {
@@ -199,10 +216,16 @@ sk_sp<GrTextureProxy> GrUploadMipMapToTextureProxy(GrContext* ctx, const SkImage
         return nullptr;
     }
 
+#if 0
     return GrSurfaceProxy::MakeDeferredMipMap(ctx->contextPriv().proxyProvider(),
                                               GrImageInfoToSurfaceDesc(info, *ctx->caps()),
                                               SkBudgeted::kYes, texels,
                                               mipLevelCount, colorMode);
+#else
+    GrSurfaceDesc desc(GrImageInfoToSurfaceDesc(info, *proxyProvider->caps()));
+    return proxyProvider->createTextureProxy(desc, SkBudgeted::kYes,
+                                             texels, mipLevelCount, colorMode);
+#endif
 }
 
 sk_sp<GrTextureProxy> GrRefCachedBitmapTextureProxy(GrContext* ctx,

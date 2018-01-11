@@ -62,6 +62,7 @@ public:
 
 protected:
     friend class GrSurfaceProxy; // for ctors
+    friend class GrProxyProvider; // for ctors
     friend class GrTextureProxyPriv;
 
     // Deferred version

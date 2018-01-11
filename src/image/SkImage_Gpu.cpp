@@ -19,6 +19,7 @@
 #include "GrContextPriv.h"
 #include "GrGpu.h"
 #include "GrImageTextureMaker.h"
+#include "GrProxyProvider.h"
 #include "GrRenderTargetContext.h"
 #include "GrResourceProvider.h"
 #include "GrSemaphore.h"
@@ -279,7 +280,7 @@ static sk_sp<SkImage> new_wrapped_texture_common(GrContext* ctx,
         return nullptr;
     }
 
-    sk_sp<GrTexture> tex = ctx->resourceProvider()->wrapBackendTexture(backendTex, ownership);
+    sk_sp<GrTexture> tex = ctx->resourceProvider()->wrapBackendTexture1(backendTex, ownership);
     if (!tex) {
         return nullptr;
     }
@@ -287,10 +288,10 @@ static sk_sp<SkImage> new_wrapped_texture_common(GrContext* ctx,
         tex->setRelease(releaseProc, releaseCtx);
     }
 
-    const SkBudgeted budgeted = SkBudgeted::kNo;
-    sk_sp<GrTextureProxy> proxy(GrSurfaceProxy::MakeWrapped(std::move(tex), origin));
+    sk_sp<GrTextureProxy> proxy(GrSurfaceProxy::MakeWrapped2(std::move(tex), origin));
+
     return sk_make_sp<SkImage_Gpu>(ctx, kNeedNewImageUniqueID,
-                                   at, std::move(proxy), std::move(colorSpace), budgeted);
+                                   at, std::move(proxy), std::move(colorSpace), SkBudgeted::kNo);
 }
 
 sk_sp<SkImage> SkImage::MakeFromTexture(GrContext* ctx,
@@ -390,20 +391,34 @@ static sk_sp<SkImage> make_from_yuv_textures_copy(GrContext* ctx, SkYUVColorSpac
                                                   const SkISize yuvSizes[],
                                                   GrSurfaceOrigin origin,
                                                   sk_sp<SkColorSpace> imageColorSpace) {
+    GrProxyProvider* proxyProvider = ctx->contextPriv().proxyProvider();
+
     if (!are_yuv_sizes_valid(yuvSizes, nv12)) {
         return nullptr;
     }
 
+#if 0
     sk_sp<GrTextureProxy> yProxy = GrSurfaceProxy::MakeWrappedBackend(ctx, yuvBackendTextures[0],
                                                                       origin);
     sk_sp<GrTextureProxy> uProxy = GrSurfaceProxy::MakeWrappedBackend(ctx, yuvBackendTextures[1],
                                                                       origin);
+#else
+    sk_sp<GrTextureProxy> yProxy = proxyProvider->createWrappedTextureProxy1(yuvBackendTextures[0],
+                                                                             origin);
+    sk_sp<GrTextureProxy> uProxy = proxyProvider->createWrappedTextureProxy1(yuvBackendTextures[1],
+                                                                             origin);
+#endif
+
     sk_sp<GrTextureProxy> vProxy;
 
     if (nv12) {
         vProxy = uProxy;
     } else {
+#if 0
         vProxy = GrSurfaceProxy::MakeWrappedBackend(ctx, yuvBackendTextures[2], origin);
+#else
+        vProxy = proxyProvider->createWrappedTextureProxy1(yuvBackendTextures[2], origin);
+#endif
     }
     if (!yProxy || !uProxy || !vProxy) {
         return nullptr;
@@ -1085,6 +1100,8 @@ sk_sp<SkImage> SkImage::MakeTextureFromMipMap(GrContext* ctx, const SkImageInfo&
     if (!ctx) {
         return nullptr;
     }
+    GrProxyProvider* proxyProvider = ctx->contextPriv().proxyProvider();
+
     // For images where the client is passing the mip data we require that all the mip levels have
     // valid data.
     for (int i = 0; i < mipLevelCount; ++i) {
@@ -1092,8 +1109,8 @@ sk_sp<SkImage> SkImage::MakeTextureFromMipMap(GrContext* ctx, const SkImageInfo&
             return nullptr;
         }
     }
-    sk_sp<GrTextureProxy> proxy(GrUploadMipMapToTextureProxy(ctx, info, texels, mipLevelCount,
-                                                             colorMode));
+    sk_sp<GrTextureProxy> proxy(GrUploadMipMapToTextureProxy(proxyProvider, info,
+                                                             texels, mipLevelCount, colorMode));
     if (!proxy) {
         return nullptr;
     }

@@ -12,6 +12,7 @@
 
 #include "GrContext.h"
 #include "GrContextPriv.h"
+#include "GrProxyProvider.h"
 #include "GrResourceProvider.h"
 #include "GrSurfaceContext.h"
 #include "GrSurfaceProxy.h"
@@ -60,9 +61,15 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, ctxInfo) {
         // We are initializing the texture with zeros here
         memset(alphaData, 0, X_SIZE * Y_SIZE);
 
+#if 0
         sk_sp<GrTextureProxy> proxy(GrSurfaceProxy::MakeDeferred(proxyProvider,
                                                                  desc, SkBudgeted::kNo,
                                                                  alphaData, 0));
+#else
+        GrMipLevel mipLevel = { alphaData, 0 };
+        sk_sp<GrTextureProxy> proxy = proxyProvider->createTextureProxy(desc, SkBudgeted::kNo,
+                                                                        mipLevel);
+#endif
         if (!proxy) {
             ERRORF(reporter, "Could not create alpha texture.");
             return;
@@ -167,9 +174,16 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, ctxInfo) {
                     rgbaData[y * X_SIZE + x] = GrColorPackRGBA(6, 7, 8, alphaData[y * X_SIZE + x]);
                 }
             }
+
+#if 0
             sk_sp<GrTextureProxy> proxy(GrSurfaceProxy::MakeDeferred(proxyProvider,
                                                                      desc, SkBudgeted::kNo,
                                                                      rgbaData, 0));
+#else
+            GrMipLevel mipLevel = { rgbaData, 0 };
+            sk_sp<GrTextureProxy> proxy = proxyProvider->createTextureProxy(desc, SkBudgeted::kNo,
+                                                                            mipLevel);
+#endif
             if (!proxy) {
                 // We always expect to be able to create a RGBA texture
                 if (!rt  && kRGBA_8888_GrPixelConfig == desc.fConfig) {
