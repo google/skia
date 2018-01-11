@@ -22,6 +22,30 @@
       "revId": "c0b3b87ed183bf1fcc8f7718a3045f1dbd2388f9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "aff2b6bd_268f020a",
+        "filename": "include/private/GrTypesPriv.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-01-11T19:46:09Z",
+      "side": 1,
+      "message": "My only suggestion would be to find a way to get another A around the \"AAAs\"\n\nBut actually, everywhere this function is called you are checking to see if it equals coverage. Can this just return a bool instead and just hard code coverage into the function we then end up calling? In that case you can do CanUseCoverageAAForNonAA or something like that.",
+      "parentUuid": "1d4d7583_4c764ab2",
+      "range": {
+        "startLine": 100,
+        "startChar": 9,
+        "endLine": 100,
+        "endChar": 41
+      },
+      "revId": "c0b3b87ed183bf1fcc8f7718a3045f1dbd2388f9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
