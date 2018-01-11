@@ -92,7 +92,7 @@ public:
      * uses separate MSAA render buffers then a MSAA render buffer is created that resolves
      * to the texture.
      */
-    sk_sp<GrTexture> wrapRenderableBackendTexture(const GrBackendTexture& tex,
+    sk_sp<GrTexture> wrapRenderableBackendTexture1(const GrBackendTexture& tex,
                                                   int sampleCnt,
                                                   GrWrapOwnership = kBorrow_GrWrapOwnership);
 
@@ -105,7 +105,7 @@ public:
      *
      * @return GrRenderTarget object or NULL on failure.
      */
-    sk_sp<GrRenderTarget> wrapBackendRenderTarget(const GrBackendRenderTarget&);
+    sk_sp<GrRenderTarget> wrapBackendRenderTarget1(const GrBackendRenderTarget&);
 
     static const uint32_t kMinScratchTextureSize;
 

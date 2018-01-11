@@ -23,7 +23,9 @@
 // the uniqueID of the RenderTarget/Texture it represents!
 class GrTextureRenderTargetProxy : public GrTextureProxy, public GrRenderTargetProxy {
 private:
+    // DDL TODO: rm the GrSurfaceProxy friending
     friend class GrSurfaceProxy; // for ctors
+    friend class GrProxyProvider; // for ctors
 
     // Deferred version
     GrTextureRenderTargetProxy(const GrCaps&, const GrSurfaceDesc&,
