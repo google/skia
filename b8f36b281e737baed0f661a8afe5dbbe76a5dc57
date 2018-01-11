@@ -22,6 +22,30 @@
       "revId": "b8f36b281e737baed0f661a8afe5dbbe76a5dc57",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f347b0e4_2c02f7e1",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-01-11T18:10:55Z",
+      "side": 1,
+      "message": "I figured it was fine because I ran it (and saw it pass) on the Nexus 5 and 5x - any other tryjobs would just be a waste, IMO.\n\nI can remove this if you prefer.",
+      "parentUuid": "39250f93_3b522cac",
+      "range": {
+        "startLine": 12,
+        "startChar": 0,
+        "endLine": 12,
+        "endChar": 10
+      },
+      "revId": "b8f36b281e737baed0f661a8afe5dbbe76a5dc57",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }

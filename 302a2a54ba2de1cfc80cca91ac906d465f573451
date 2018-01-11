@@ -117,6 +117,30 @@
       "revId": "302a2a54ba2de1cfc80cca91ac906d465f573451",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6a7c7659_757d4b79",
+        "filename": "infra/bots/recipe_modules/flavor/gn_android_flavor.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-01-11T18:10:55Z",
+      "side": 1,
+      "message": "I\u0027d be ok with doing that if it works, that is, if we see our perf results get flatter - otherwise, we\u0027ll probably just revert this.",
+      "parentUuid": "0f637276_b1b612f6",
+      "range": {
+        "startLine": 156,
+        "startChar": 8,
+        "endLine": 156,
+        "endChar": 15
+      },
+      "revId": "302a2a54ba2de1cfc80cca91ac906d465f573451",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
