@@ -46,6 +46,30 @@
       "revId": "b8f36b281e737baed0f661a8afe5dbbe76a5dc57",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ea93a838_2586cafc",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-11T18:13:36Z",
+      "side": 1,
+      "message": "You\u0027ve broken things before by doing this.  Please never use Notry.  Just run the trybots, and if for some reason they don\u0027t all pass but you want to land the CL, submit it manually yourself after inspecting the trybots.",
+      "parentUuid": "f347b0e4_2c02f7e1",
+      "range": {
+        "startLine": 12,
+        "startChar": 0,
+        "endLine": 12,
+        "endChar": 10
+      },
+      "revId": "b8f36b281e737baed0f661a8afe5dbbe76a5dc57",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
