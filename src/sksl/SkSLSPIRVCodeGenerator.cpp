@@ -2109,6 +2109,10 @@ std::unique_ptr<SPIRVCodeGenerator::LValue> SPIRVCodeGenerator::getLValue(const 
 }
 
 SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, OutputStream& out) {
+    if (ref.fVariable.fModifiers.fFlags & Modifiers::kConst_Flag && ref.fVariable.fInitialValue &&
+        ref.fVariable.fInitialValue->isConstant()) {
+        return this->writeExpression(*ref.fVariable.fInitialValue, out);
+    }
     SpvId result = this->nextId();
     auto entry = fVariableMap.find(&ref.fVariable);
     ASSERT(entry != fVariableMap.end());
