@@ -1,0 +1,146 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6488b9d9_262b4374",
+        "filename": "gm/crosscontextimage.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 6190
+      },
+      "writtenOn": "2018-01-11T16:57:06Z",
+      "side": 1,
+      "message": "The old code checked for pixels in release, the new code only in debug. Is that your intention?",
+      "revId": "c6976c23d92049284154299a6e2c93f3183b425d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e78918a7_9bc4d124",
+        "filename": "gm/encode-srgb.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 6190
+      },
+      "writtenOn": "2018-01-11T16:57:06Z",
+      "side": 1,
+      "message": "const SkPixmap\u0026 src \u003d bitmap.pixmap() prior to switch() seems cleaner (although \u0027pixmap\u0027 to me would be more clear than \u0027src\u0027)",
+      "revId": "c6976c23d92049284154299a6e2c93f3183b425d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "03bbe234_276c88d5",
+        "filename": "gm/showmiplevels.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 6190
+      },
+      "writtenOn": "2018-01-11T16:57:06Z",
+      "side": 1,
+      "message": "no const SkPixmap\u0026 on purpose? if so, a brief comment (pixmap will be modified) would be helpful",
+      "revId": "c6976c23d92049284154299a6e2c93f3183b425d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d137eaae_0984b109",
+        "filename": "src/image/SkImage_Raster.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 314,
+      "author": {
+        "id": 6190
+      },
+      "writtenOn": "2018-01-11T16:57:06Z",
+      "side": 1,
+      "message": "surprised that this is equivalent. Maybe add SkASSERT(bm.getPixels()) to make it more clear that you know that it always has a bitmap",
+      "revId": "c6976c23d92049284154299a6e2c93f3183b425d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3403d33b_908f256b",
+        "filename": "src/images/SkImageEncoder.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 6190
+      },
+      "writtenOn": "2018-01-11T16:57:06Z",
+      "side": 1,
+      "message": "seems like there should be a SkPixmap::empty() function or something like it that encapsulates this. Why wasn\u0027t this logic needed before?",
+      "revId": "c6976c23d92049284154299a6e2c93f3183b425d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "598905a7_a6ff361a",
+        "filename": "tests/EncodeTest.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 6190
+      },
+      "writtenOn": "2018-01-11T16:57:06Z",
+      "side": 1,
+      "message": "wha? it returns early on success?",
+      "range": {
+        "startLine": 58,
+        "startChar": 18,
+        "endLine": 58,
+        "endChar": 0
+      },
+      "revId": "c6976c23d92049284154299a6e2c93f3183b425d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "31208508_6631e37e",
+        "filename": "tests/EncodeTest.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 296,
+      "author": {
+        "id": 6190
+      },
+      "writtenOn": "2018-01-11T16:57:06Z",
+      "side": 1,
+      "message": "why use SkPixmap::getPixels() earlier and SkPixmap::addr() here?",
+      "revId": "c6976c23d92049284154299a6e2c93f3183b425d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bfda4bc7_907b3411",
+        "filename": "tools/sk_tool_utils.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 549,
+      "author": {
+        "id": 6190
+      },
+      "writtenOn": "2018-01-11T16:57:06Z",
+      "side": 1,
+      "message": "why remove the null check?",
+      "revId": "c6976c23d92049284154299a6e2c93f3183b425d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
