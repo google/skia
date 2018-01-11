@@ -17,22 +17,38 @@ its <a href="#SkIRect_top">top</a>, it is considered empty.
 | topics | description |
 | --- | ---  |
 
+## <a name="Constructors"></a> Constructors
+
+| name | description |
+| --- | ---  |
+| <a href="#SkIRect_MakeEmpty">MakeEmpty</a> | Returns bounds of (0, 0, 0, 0). |
+| <a href="#SkIRect_MakeLTRB">MakeLTRB</a> | Constructs from int <a href="#SkIRect_left">left</a>, <a href="#SkIRect_top">top</a>, <a href="#SkIRect_right">right</a>, <a href="#SkIRect_bottom">bottom</a>. |
+| <a href="#SkIRect_MakeLargest">MakeLargest</a> | Deprecated. |
+| <a href="#SkIRect_MakeSize">MakeSize</a> | Constructs from <a href="undocumented#ISize">ISize</a> returning (0, 0, <a href="#SkIRect_width">width</a>, <a href="#SkIRect_height">height</a>). |
+| <a href="#SkIRect_MakeWH">MakeWH</a> | Constructs from int input returning (0, 0, <a href="#SkIRect_width">width</a>, <a href="#SkIRect_height">height</a>). |
+| <a href="#SkIRect_MakeXYWH">MakeXYWH</a> | Constructs from int input returning (<a href="#SkIRect_x">x</a>, <a href="#SkIRect_y">y</a>, <a href="#SkIRect_width">width</a>, <a href="#SkIRect_height">height</a>). |
+| <a href="#SkIRect_makeInset">makeInset</a> | Constructs from sides moved symmetrically about the center. |
+| <a href="#SkIRect_makeOffset">makeOffset</a> | Constructs from translated sides. |
+| <a href="#SkIRect_makeOutset">makeOutset</a> | Constructs from sides moved symmetrically about the center. |
+| <a href="#SkIRect_makeSorted">makeSorted</a> | Constructs, ordering sides from smaller to larger. |
+
 ## <a name="Operators"></a> Operators
 
-| description | function |
+| name | description |
 | --- | ---  |
 | bool <a href="#SkIRect_notequal_operator">operator!=(const SkIRect& a, const SkIRect& b)</a> | Returns true if members are unequal. |
 | bool <a href="#SkIRect_equal_operator">operator==(const SkIRect& a, const SkIRect& b)</a> | Returns true if members are equal. |
 
 ## <a name="Member_Functions"></a> Member Functions
 
-| description | function |
+| name | description |
 | --- | ---  |
 | <a href="#SkIRect_EmptyIRect">EmptyIRect</a> | Returns immutable bounds of (0, 0, 0, 0). |
 | <a href="#SkIRect_Intersects">Intersects</a> | Returns true if areas overlap. |
 | <a href="#SkIRect_IntersectsNoEmptyCheck">IntersectsNoEmptyCheck</a> | Returns true if areas overlap. Skips empty check. |
 | <a href="#SkIRect_MakeEmpty">MakeEmpty</a> | Returns bounds of (0, 0, 0, 0). |
 | <a href="#SkIRect_MakeLTRB">MakeLTRB</a> | Constructs from int <a href="#SkIRect_left">left</a>, <a href="#SkIRect_top">top</a>, <a href="#SkIRect_right">right</a>, <a href="#SkIRect_bottom">bottom</a>. |
+| <a href="#SkIRect_MakeLargest">MakeLargest</a> | Deprecated. |
 | <a href="#SkIRect_MakeSize">MakeSize</a> | Constructs from <a href="undocumented#ISize">ISize</a> returning (0, 0, <a href="#SkIRect_width">width</a>, <a href="#SkIRect_height">height</a>). |
 | <a href="#SkIRect_MakeWH">MakeWH</a> | Constructs from int input returning (0, 0, <a href="#SkIRect_width">width</a>, <a href="#SkIRect_height">height</a>). |
 | <a href="#SkIRect_MakeXYWH">MakeXYWH</a> | Constructs from int input returning (<a href="#SkIRect_x">x</a>, <a href="#SkIRect_y">y</a>, <a href="#SkIRect_width">width</a>, <a href="#SkIRect_height">height</a>). |

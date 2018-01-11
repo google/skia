@@ -34,7 +34,7 @@ Multiple colors are drawn either by using multiple paints or with objects like
 
 ## <a name="Subtopics"></a> Subtopics
 
-| topics | description |
+| name | description |
 | --- | ---  |
 | <a href="#Initializers">Initializers</a> | Constructors and initialization. |
 | Destructor | <a href="#Paint">Paint</a> termination. |
@@ -79,7 +79,7 @@ Multiple colors are drawn either by using multiple paints or with objects like
 
 ## <a name="Constants"></a> Constants
 
-| constants | description |
+| name | description |
 | --- | ---  |
 | <a href="#SkPaint_Align">Align</a> | <a href="undocumented#Glyph">Glyph</a> locations relative to text position. |
 | <a href="#SkPaint_Cap">Cap</a> | Start and end geometry on stroked shapes. |
@@ -92,31 +92,31 @@ Multiple colors are drawn either by using multiple paints or with objects like
 
 ## <a name="Structs"></a> Structs
 
-| struct | description |
+| name | description |
 | --- | ---  |
 | <a href="#SkPaint_FontMetrics">FontMetrics</a> | <a href="undocumented#Typeface">Typeface</a> values. |
 
 ## <a name="Constructors"></a> Constructors
 
-|  | description |
+| name | description |
 | --- | ---  |
 | <a href="#SkPaint_empty_constructor">SkPaint()</a> | Constructs with default values. |
-| <a href="#SkPaint_copy_const_SkPaint">SkPaint(const SkPaint& paint)</a> | Makes a shallow copy. |
 | <a href="#SkPaint_move_SkPaint">SkPaint(SkPaint&& paint)</a> | Moves paint without copying it. |
+| <a href="#SkPaint_copy_const_SkPaint">SkPaint(const SkPaint& paint)</a> | Makes a shallow copy. |
 |  | Decreases <a href="undocumented#Reference_Count">Reference Count</a> of owned objects. |
 
 ## <a name="Operators"></a> Operators
 
-| operator | description |
+| name | description |
 | --- | ---  |
-| <a href="#SkPaint_copy_operator">operator=(const SkPaint& paint)</a> | Makes a shallow copy. |
-| <a href="#SkPaint_move_operator">operator=(SkPaint&& paint)</a> | Moves paint without copying it. |
-| <a href="#SkPaint_equal_operator">operator==(const SkPaint& a, const SkPaint& b)</a> | Compares paints for equality. |
 | <a href="#SkPaint_notequal_operator">operator!=(const SkPaint& a, const SkPaint& b)</a> | Compares paints for inequality. |
+| <a href="#SkPaint_move_operator">operator=(SkPaint&& paint)</a> | Moves paint without copying it. |
+| <a href="#SkPaint_copy_operator">operator=(const SkPaint& paint)</a> | Makes a shallow copy. |
+| <a href="#SkPaint_equal_operator">operator==(const SkPaint& a, const SkPaint& b)</a> | Compares paints for equality. |
 
 ## <a name="Member_Functions"></a> Member Functions
 
-| function | description |
+| name | description |
 | --- | ---  |
 | <a href="#SkPaint_breakText">breakText</a> | Returns text that fits in a width. |
 | <a href="#SkPaint_canComputeFastBounds">canComputeFastBounds</a> | Returns true if settings allow for fast bounds computation. |
@@ -142,9 +142,9 @@ Multiple colors are drawn either by using multiple paints or with objects like
 | <a href="#SkPaint_getImageFilter">getImageFilter</a> | Returns <a href="undocumented#Image_Filter">Image Filter</a>, alter pixels; blur. |
 | <a href="#SkPaint_getMaskFilter">getMaskFilter</a> | Returns <a href="undocumented#Mask_Filter">Mask Filter</a>, alterations to <a href="undocumented#Mask_Alpha">Mask Alpha</a>. |
 | <a href="#SkPaint_getPathEffect">getPathEffect</a> | Returns <a href="undocumented#Path_Effect">Path Effect</a>, modifications to path geometry; dashing. |
-| <a href="#SkPaint_getPosTextPath">getPosTextPath</a> | Returns <a href="SkPath_Reference#Path">Path</a> equivalent to positioned text. |
-| <a href="#SkPaint_getPosTextIntercepts">getPosTextIntercepts</a> | Returns where lines intersect positioned text; underlines. |
 | <a href="#SkPaint_getPosTextHIntercepts">getPosTextHIntercepts</a> | Returns where lines intersect horizontally positioned text; underlines. |
+| <a href="#SkPaint_getPosTextIntercepts">getPosTextIntercepts</a> | Returns where lines intersect positioned text; underlines. |
+| <a href="#SkPaint_getPosTextPath">getPosTextPath</a> | Returns <a href="SkPath_Reference#Path">Path</a> equivalent to positioned text. |
 | <a href="#SkPaint_getRasterizer">getRasterizer</a> | Returns <a href="undocumented#Rasterizer">Rasterizer</a>, <a href="undocumented#Mask_Alpha">Mask Alpha</a> generation from <a href="SkPath_Reference#Path">Path</a>. |
 | <a href="#SkPaint_getShader">getShader</a> | Returns <a href="undocumented#Shader">Shader</a>, multiple drawing colors; gradients. |
 | <a href="#SkPaint_getStrokeCap">getStrokeCap</a> | Returns <a href="#SkPaint_Cap">Cap</a>, the area drawn at path ends. |
@@ -158,8 +158,8 @@ Multiple colors are drawn either by using multiple paints or with objects like
 | <a href="#SkPaint_getTextIntercepts">getTextIntercepts</a> | Returns where lines intersect text; underlines. |
 | <a href="#SkPaint_getTextPath">getTextPath</a> | Returns <a href="SkPath_Reference#Path">Path</a> equivalent to text. |
 | <a href="#SkPaint_getTextScaleX">getTextScaleX</a> | Returns the text horizontal scale; condensed text. |
-| <a href="#SkPaint_getTextSkewX">getTextSkewX</a> | Returns the text horizontal skew; oblique text. |
 | <a href="#SkPaint_getTextSize">getTextSize</a> | Returns text size in points. |
+| <a href="#SkPaint_getTextSkewX">getTextSkewX</a> | Returns the text horizontal skew; oblique text. |
 | <a href="#SkPaint_getTextWidths">getTextWidths</a> | Returns advance and bounds for each glyph in text. |
 | <a href="#SkPaint_getTypeface">getTypeface</a> | Returns <a href="undocumented#Typeface">Typeface</a>, font description. |
 | <a href="#SkPaint_glyphsToUnichars">glyphsToUnichars</a> | Converts <a href="#Glyph">Glyphs</a> into text. |
@@ -184,9 +184,9 @@ Multiple colors are drawn either by using multiple paints or with objects like
 | <a href="#SkPaint_refShader">refShader</a> | References <a href="undocumented#Shader">Shader</a>, multiple drawing colors; gradients. |
 | <a href="#SkPaint_refTypeface">refTypeface</a> | References <a href="undocumented#Typeface">Typeface</a>, font description. |
 | <a href="#SkPaint_reset">reset</a> | Sets to default values. |
+| <a href="#SkPaint_setARGB">setARGB</a> | Sets color by component. |
 | <a href="#SkPaint_setAlpha">setAlpha</a> | Sets <a href="#Alpha">Color Alpha</a>, color opacity. |
 | <a href="#SkPaint_setAntiAlias">setAntiAlias</a> | Sets or clears Anti-alias. |
-| <a href="#SkPaint_setARGB">setARGB</a> | Sets color by component. |
 | <a href="#SkPaint_setAutohinted">setAutohinted</a> | Sets <a href="#Glyph">Glyphs</a> to always be hinted. |
 | <a href="#SkPaint_setBlendMode">setBlendMode</a> | Sets <a href="undocumented#Blend_Mode">Blend Mode</a>, how colors combine with destination. |
 | <a href="#SkPaint_setColor">setColor</a> | Sets <a href="#Alpha">Color Alpha</a> and <a href="#RGB">Color RGB</a>, one drawing color. |
@@ -199,11 +199,11 @@ Multiple colors are drawn either by using multiple paints or with objects like
 | <a href="#SkPaint_setFilterQuality">setFilterQuality</a> | Sets <a href="undocumented#Filter_Quality">Filter Quality</a>, the image filtering level. |
 | <a href="#SkPaint_setFlags">setFlags</a> | Sets multiple <a href="#SkPaint_Flags">Flags</a> in a bit field. |
 | <a href="#SkPaint_setHinting">setHinting</a> | Sets <a href="#SkPaint_Hinting">Hinting</a>, glyph outline adjustment level. |
+| <a href="#SkPaint_setImageFilter">setImageFilter</a> | Sets <a href="undocumented#Image_Filter">Image Filter</a>, alter pixels; blur. |
 | <a href="#SkPaint_setLCDRenderText">setLCDRenderText</a> | Sets or clears <a href="SkPaint_Reference#LCD_Text">LCD Text</a>. |
 | <a href="#SkPaint_setMaskFilter">setMaskFilter</a> | Sets <a href="undocumented#Mask_Filter">Mask Filter</a>, alterations to <a href="undocumented#Mask_Alpha">Mask Alpha</a>. |
 | <a href="#SkPaint_setPathEffect">setPathEffect</a> | Sets <a href="undocumented#Path_Effect">Path Effect</a>, modifications to path geometry; dashing. |
 | <a href="#SkPaint_setRasterizer">setRasterizer</a> | Sets <a href="undocumented#Rasterizer">Rasterizer</a>, <a href="undocumented#Mask_Alpha">Mask Alpha</a> generation from <a href="SkPath_Reference#Path">Path</a>. |
-| <a href="#SkPaint_setImageFilter">setImageFilter</a> | Sets <a href="undocumented#Image_Filter">Image Filter</a>, alter pixels; blur. |
 | <a href="#SkPaint_setShader">setShader</a> | Sets <a href="undocumented#Shader">Shader</a>, multiple drawing colors; gradients. |
 | <a href="#SkPaint_setStrokeCap">setStrokeCap</a> | Sets <a href="#SkPaint_Cap">Cap</a>, the area drawn at path ends. |
 | <a href="#SkPaint_setStrokeJoin">setStrokeJoin</a> | Sets <a href="#SkPaint_Join">Join</a>, geometry on path corners. |
@@ -214,8 +214,8 @@ Multiple colors are drawn either by using multiple paints or with objects like
 | <a href="#SkPaint_setTextAlign">setTextAlign</a> | Sets <a href="#SkPaint_Align">Align</a>: left, center, or right. |
 | <a href="#SkPaint_setTextEncoding">setTextEncoding</a> | Sets character or glyph encoded size. |
 | <a href="#SkPaint_setTextScaleX">setTextScaleX</a> | Sets the text horizontal scale; condensed text. |
-| <a href="#SkPaint_setTextSkewX">setTextSkewX</a> | Sets the text horizontal skew; oblique text. |
 | <a href="#SkPaint_setTextSize">setTextSize</a> | Sets text size in points. |
+| <a href="#SkPaint_setTextSkewX">setTextSkewX</a> | Sets the text horizontal skew; oblique text. |
 | <a href="#SkPaint_setTypeface">setTypeface</a> | Sets <a href="undocumented#Typeface">Typeface</a>, font description. |
 | <a href="#SkPaint_setVerticalText">setVerticalText</a> | Sets or clears <a href="#Vertical_Text">Vertical Text</a>. |
 | <a href="#SkPaint_textToGlyphs">textToGlyphs</a> | Converts text into glyph indices. |

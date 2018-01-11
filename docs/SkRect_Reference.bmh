@@ -25,6 +25,27 @@ integer input cannot convert to SkScalar without loss of precision.
 #Table ##
 ##
 
+#Subtopic Constructors
+#Table
+#Legend
+# name                   # description                      ##
+#Legend ##
+# Make                  # Constructs from ISize returning (0, 0, width, height). ##
+# MakeEmpty             # Constructs from bounds of (0, 0, 0, 0). ##
+# MakeFromIRect         # Deprecated. ##
+# MakeIWH               # Constructs from int input returning (0, 0, width, height). ##
+# MakeLTRB              # Constructs from SkScalar left, top, right, bottom. ##
+# MakeLargest           # Deprecated. ##
+# MakeSize              # Constructs from Size returning (0, 0, width, height). ##
+# MakeWH                # Constructs from SkScalar input returning (0, 0, width, height). ##
+# MakeXYWH              # Constructs from SkScalar input returning (x, y, width, height). ##
+# makeInset             # Constructs from sides moved symmetrically about the center. ##
+# makeOffset            # Constructs from translated sides. ##
+# makeOutset            # Constructs from sides moved symmetrically about the center. ##
+# makeSorted            # Constructs, ordering sides from smaller to larger. ##
+#Table ##
+#Subtopic ##
+
 #Subtopic Operators
 #Table
 #Legend
@@ -46,6 +67,7 @@ integer input cannot convert to SkScalar without loss of precision.
 # MakeFromIRect         # Deprecated. ##
 # MakeIWH               # Constructs from int input returning (0, 0, width, height). ##
 # MakeLTRB              # Constructs from SkScalar left, top, right, bottom. ##
+# MakeLargest           # Deprecated. ##
 # MakeSize              # Constructs from Size returning (0, 0, width, height). ##
 # MakeWH                # Constructs from SkScalar input returning (0, 0, width, height). ##
 # MakeXYWH              # Constructs from SkScalar input returning (x, y, width, height). ##
@@ -56,7 +78,7 @@ integer input cannot convert to SkScalar without loss of precision.
 # contains()            # Returns true if points are equal or inside. ##
 # dump()                # Sends text representation using floats to standard output. ##
 # dumpHex               # Sends text representation using hexadecimal to standard output. ##
-# height                # Returns span in y. ##
+# height()              # Returns span in y. ##
 # inset()               # Moves the sides symmetrically about the center. ##
 # intersect()           # Sets to shared area; returns true if not empty. ##
 # intersects()          # Returns true if areas overlap. ##

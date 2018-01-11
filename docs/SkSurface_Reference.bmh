@@ -21,6 +21,25 @@ of the requested dimensions are zero, then nullptr will be returned.
 #Table ##
 ##
 
+#Subtopic Constructors
+#Table
+#Legend
+# name                                 # description                     ##
+#Legend ##
+# MakeFromBackendRenderTarget          # Creates Surface from GPU memory buffer. ##
+# MakeFromBackendTexture               # Creates Surface from GPU-backed texture. ##
+# MakeFromBackendTextureAsRenderTarget # Creates Surface from GPU-backed texture. ##
+# MakeNull                             # Creates Surface without backing pixels. ##
+# MakeRaster                           # Creates Surface from SkImageInfo. ##
+# MakeRasterDirect                     # Creates Surface from SkImageInfo and Pixel_Storage. ##
+# MakeRasterDirectReleaseProc          # Creates Surface from SkImageInfo and Pixel_Storage. ##
+# MakeRasterN32Premul                  # Creates Surface from width, height matching output. ##
+# MakeRenderTarget                     # Creates Surface pointing to new GPU memory buffer. ##
+# SkCanvas::makeSurface                # Creates Surface matching Canvas Image_Info, Surface_Properties. ##
+# makeSurface                          # Creates a compatible Surface. ##
+#Table ##
+#Subtopic ##
+
 #Subtopic Member_Functions
 #Table
 #Legend
@@ -44,8 +63,8 @@ of the requested dimensions are zero, then nullptr will be returned.
 # getRenderTargetHandle                # Returns the GPU reference to render target. ##
 # getTextureHandle                     # Returns the GPU reference to texture. ##
 # height()                             # Returns pixel row count. ##
-# makeImageSnapshot                    # Returns Image capturing Surface contents. ##
-# makeSurface                          # Returns a compatible Surface. ##
+# makeImageSnapshot                    # Creates Image capturing Surface contents. ##
+# makeSurface                          # Creates a compatible Surface. ##
 # notifyContentWillChange              # Notifies that contents will be changed outside of Skia. ##
 # peekPixels                           # Copies Surface parameters to Pixmap. ##
 # prepareForExternalIO                 # To be deprecated. ##

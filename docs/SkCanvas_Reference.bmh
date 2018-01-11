@@ -29,7 +29,7 @@ This approach may be deprecated in the future.
 #Subtopic Subtopics
 #Table
 #Legend
-# topics                 # description                                 ##
+# name                          # description                                 ##
 #Legend ##
 #ToDo generate a TOC here ##
 #Table ##
@@ -38,7 +38,7 @@ This approach may be deprecated in the future.
 #Subtopic Constants
 #Table
 #Legend
-# constants                      # description                                 ##
+# name                           # description                                 ##
 #Legend ##
 # Lattice::Flags                 # Controls Lattice transparency. ##
 # PointMode                      # Sets drawPoints options. ##
@@ -50,7 +50,7 @@ This approach may be deprecated in the future.
 #Subtopic Structs
 #Table
 #Legend
-# struct                         # description                                 ##
+# name                           # description                                 ##
 #Legend ##
 # Lattice                        # Divides Bitmap, Image into a rectangular grid. ##
 # SaveLayerRec                   # Contains state to create Layer. ##
@@ -64,23 +64,27 @@ when no Surface is required, and some helpers implicitly create Raster_Surface.
 
 #Table
 #Legend
-#                                                               # description                                     ##
+# name                                                          # description                                     ##
 #Legend ##
-# SkCanvas()                                                    # No Surface, no dimensions.                      ##
-# SkCanvas(int width, int height, const SkSurfaceProps* props = nullptr) # No Surface, set dimensions, Surface_Properties. ##
-# SkCanvas(SkBaseDevice* device)                                # Existing Device. (SkBaseDevice is private.)     ##
-# SkCanvas(const SkBitmap& bitmap)                              # Uses existing Bitmap.                           ##
-# SkCanvas(const SkBitmap& bitmap, const SkSurfaceProps& props) # Uses existing Bitmap and Surface_Properties.    ##
 # MakeRasterDirect                                              # Creates from SkImageInfo and Pixel_Storage.     ##
 # MakeRasterDirectN32                                           # Creates from image data and Pixel_Storage.      ##
+# SkCanvas()                                                    # No Surface, no dimensions.                      ##
+# SkCanvas(SkBaseDevice* device)                                # Existing Device. (SkBaseDevice is private.)     ##
+# SkCanvas(const SkBitmap& bitmap)                              # Uses existing Bitmap.                           ##
+# SkCanvas(const SkBitmap& bitmap, ColorBehavior behavior)      # Android framework only.                         ##
+# SkCanvas(const SkBitmap& bitmap, const SkSurfaceProps& props) # Uses existing Bitmap and Surface_Properties.    ##
+# SkCanvas(int width, int height, const SkSurfaceProps* props = nullptr) # No Surface, set dimensions, Surface_Properties. ##
+# ~SkCanvas()                                                   # Draws saved Layers, frees resources.            ##
 #Table ##
 #Subtopic ##
 
 #Subtopic Member_Functions
 #Table
 #Legend
-# function                         # description                                                   ##
+# name                             # description                                                   ##
 #Legend ##
+# MakeRasterDirect                 # Creates Canvas from SkImageInfo and pixel data. ##
+# MakeRasterDirectN32              # Creates Canvas from image specifications and pixel data. ##
 # accessTopLayerPixels             # Returns writable pixel access if available. ##
 # accessTopRasterHandle            # Returns context that tracks Clip and Matrix. ##
 # clear()                          # Fills Clip with Color. ##
@@ -120,12 +124,12 @@ when no Surface is required, and some helpers implicitly create Raster_Surface.
 # drawRect                         # Draws Rect using Clip, Matrix, and Paint. ##
 # drawRegion                       # Draws Region using Clip, Matrix, and Paint. ##
 # drawRoundRect                    # Draws Round_Rect using Clip, Matrix, and Paint. ##
+# drawString                       # Draws null terminated string at (x, y) using font advance. ##
 # drawText                         # Draws text at (x, y), using font advance. ##
 # drawTextBlob                     # Draws text with arrays of positions and Paint. ##
 # drawTextOnPath                   # Draws text following Path contour. ##
 # drawTextOnPathHV                 # Draws text following Path with offsets. ##
 # drawTextRSXform                  # Draws text with array of RSXform. ##
-# drawString                       # Draws null terminated string at (x, y) using font advance. ##
 # drawVertices                     # Draws Vertices, a triangle mesh. ##
 # flush()                          # Triggers execution of all pending draw operations. ##
 # getBaseLayerSize                 # Gets size of base Layer in global coordinates. ##
@@ -140,8 +144,6 @@ when no Surface is required, and some helpers implicitly create Raster_Surface.
 # imageInfo                        # Returns Image_Info for Canvas. ##
 # isClipEmpty                      # Returns if Clip is empty. ##
 # isClipRect                       # Returns if Clip is Rect and not empty. ##
-# MakeRasterDirect                 # Creates Canvas from SkImageInfo and pixel data. ##
-# MakeRasterDirectN32              # Creates Canvas from image specifications and pixel data. ##
 # makeSurface                      # Creates Surface matching SkImageInfo and SkSurfaceProps. ##
 # peekPixels                       # Returns if Canvas has direct access to its pixels. ##
 # quickReject                      # Returns if Rect is outside Clip. ##
@@ -584,8 +586,8 @@ The actual output depends on the installed fonts.
 
 #Method virtual ~SkCanvas()
 
-Draw saved Layers, if any.
-Free up resources used by Canvas.
+Draws saved Layers, if any.
+Frees up resources used by Canvas.
 
 #Example
 #Description
@@ -6164,90 +6166,5 @@ Returns false if the clip is empty, or if it is not Rect.
 ##
 
 #Class SkCanvas ##
-
-#Class SkAutoCanvasRestore
-
-Stack helper class calls SkCanvas::restoreToCount() when SkAutoCanvasRestore
-goes out of scope. Use this to guarantee that the canvas is restored to a known
-state.
-
-#Method SkAutoCanvasRestore(SkCanvas* canvas, bool doSave)
-
-Preserves Canvas save count. Optionally saves Canvas Clip and Matrix.
-
-#Param canvas  Canvas to guard ##
-#Param doSave  call SkCanvas::save() ##
-
-#Return utility to restore Canvas state on destructor ##
-
-#Example
-#Height 128
-    SkPaint p;
-    p.setAntiAlias(true);
-    p.setTextSize(64);
-    for (SkScalar sx : { -1, 1 } ) {
-        for (SkScalar sy : { -1, 1 } ) {
-            SkAutoCanvasRestore autoRestore(canvas, true);
-            SkMatrix m = SkMatrix::MakeAll(sx, 1, 96,    0, sy, 64,   0, 0, 1);
-            canvas->concat(m);
-            canvas->drawString("R", 0, 0, p);
-        }
-    }
-##
-
-#SeeAlso SkCanvas::save SkCanvas::restore
-
-##
-
-#Method ~SkAutoCanvasRestore()
-
-Restores Canvas to saved state. Destructor is called when container goes out of
-scope.
-
-#NoExample
-##
-
-#SeeAlso SkCanvas::save SkCanvas::restore
-
-##
-
-#Method void restore()
-
-Restores Canvas to saved state immediately. Subsequent calls and
-~SkAutoCanvasRestore have no effect.
-
-#Example
-for (bool callRestore : { false, true } ) {
-    for (bool saveCanvas : {false, true} ) {
-        SkAutoCanvasRestore autoRestore(canvas, saveCanvas);
-        if (!saveCanvas) {
-            canvas->save();
-        }
-        SkDebugf("saveCanvas: %s  before restore: %d\n",
-               saveCanvas ? "true" : "false", canvas->getSaveCount());
-        if (callRestore) autoRestore.restore();
-        SkDebugf("saveCanvas: %s  after restore: %d\n",
-               saveCanvas ? "true" : "false", canvas->getSaveCount());
-    }
-}
-SkDebugf("final count: %d\n", canvas->getSaveCount());
-#StdOut
-saveCanvas: false  before restore: 2
-saveCanvas: false  after restore: 2
-saveCanvas: true  before restore: 2
-saveCanvas: true  after restore: 2
-saveCanvas: false  before restore: 2
-saveCanvas: false  after restore: 1
-saveCanvas: true  before restore: 2
-saveCanvas: true  after restore: 1
-final count: 1
-##
-##
-
-#SeeAlso SkCanvas::save SkCanvas::restore
-
-##
-
-#Class SkAutoCanvasRestore ##
 
 #Topic Canvas ##

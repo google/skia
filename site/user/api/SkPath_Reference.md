@@ -128,9 +128,9 @@ Internally, <a href="#Path">Path</a> lazily computes metrics likes bounds and co
 
 | operator | description |
 | --- | ---  |
+| <a href="#SkPath_notequal_operator">operator!=(const SkPath& a, const SkPath& b)</a> | Compares paths for inequality. |
 | <a href="#SkPath_copy_operator">operator=(const SkPath& path)</a> | Makes a shallow copy. |
 | <a href="#SkPath_equal_operator">operator==(const SkPath& a, const SkPath& b)</a> | Compares paths for equality. |
-| <a href="#SkPath_notequal_operator">operator!=(const SkPath& a, const SkPath& b)</a> | Compares paths for inequality. |
 
 ## <a name="Member_Functions"></a> Member Functions
 
@@ -189,6 +189,7 @@ Internally, <a href="#Path">Path</a> lazily computes metrics likes bounds and co
 | <a href="#SkPath_lineTo">lineTo</a> | Appends <a href="undocumented#Line">Line</a>. |
 | <a href="#SkPath_moveTo">moveTo</a> | Starts <a href="#Contour">Contour</a>. |
 | <a href="#SkPath_offset">offset</a> | Translates <a href="#Point_Array">Point Array</a>. |
+| <a href="#SkPath_pathRefIsValid">pathRefIsValid</a> | To be deprecated. |
 | <a href="#SkPath_quadTo">quadTo</a> | Appends <a href="#Quad">Quad</a>. |
 | <a href="#SkPath_rArcTo">rArcTo</a> | Appends <a href="#Arc">Arc</a> relative to <a href="#Last_Point">Last Point</a>. |
 | <a href="#SkPath_rConicTo">rConicTo</a> | Appends <a href="#Conic">Conic</a> relative to <a href="#Last_Point">Last Point</a>. |

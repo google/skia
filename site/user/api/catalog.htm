@@ -31,7 +31,7 @@
         "SkAutoCanvasRestore_restore": {
     "code": "void draw(SkCanvas* canvas) {\n    for (bool callRestore : { false, true } ) {\n        for (bool saveCanvas : {false, true} ) {\n            SkAutoCanvasRestore autoRestore(canvas, saveCanvas);\n            if (!saveCanvas) {\n                canvas->save();\n            }\n            SkDebugf(\"saveCanvas: %s  before restore: %d\\n\",\n                   saveCanvas ? \"true\" : \"false\", canvas->getSaveCount());\n            if (callRestore) autoRestore.restore();\n            SkDebugf(\"saveCanvas: %s  after restore: %d\\n\",\n                   saveCanvas ? \"true\" : \"false\", canvas->getSaveCount());\n        }\n    }\n    SkDebugf(\"final count: %d\\n\", canvas->getSaveCount());\n}",
     "hash": "9f459b218ec079c1ada23f4412968f9a",
-    "file": "SkCanvas_Reference",
+    "file": "SkAutoCanvasRestore_Reference",
     "name": "SkAutoCanvasRestore::restore()",
         "stdout": "saveCanvas: false  before restore: 2\\nsaveCanvas: false  after restore: 2\\nsaveCanvas: true  before restore: 2\\nsaveCanvas: true  after restore: 2\\nsaveCanvas: false  before restore: 2\\nsaveCanvas: false  after restore: 1\\nsaveCanvas: true  before restore: 2\\nsaveCanvas: true  after restore: 1\\nfinal count: 1\\n"
     },
@@ -3528,7 +3528,7 @@
     "width": 256,
     "height": 128,
     "hash": "466ef576b88e29d7252422db7adeed1c",
-    "file": "SkCanvas_Reference",
+    "file": "SkAutoCanvasRestore_Reference",
     "name": "SkAutoCanvasRestore::SkAutoCanvasRestore(SkCanvas* canvas, bool doSave)"
 },
     "SkBitmap_allocN32Pixels": {

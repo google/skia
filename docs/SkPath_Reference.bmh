@@ -203,6 +203,29 @@ SkPath::updateBoundsCache to make Path thread safe.
 
 #Topic Overview
 
+#Subtopic Subtopics
+#ToDo manually add subtopics ##
+#Table
+#Legend
+# name                  # description ##
+#Legend ##
+#Table ##
+# Constants             # enum and enum class, const values ##
+# Classes_and_Structs   # embedded struct and class members ##
+# Constructors          # C++ constructors and similar member functions ##
+# Operators             # C++ operator overload methods ##
+# Member_Functions      # static and member methods ##
+# Verb                  # Path line and curve type ##
+# Direction             # Path contour orientation ##
+# Fill_Type             # Path fill rule, normal and inverted ##
+# Convexity             # if Path is concave or convex ##
+# Point_Array           # end points and control points for lines and curves ##
+# Verb_Array            # line and curve type for points ##
+# Quadratic_Bezier      # parabolic section defined by three points ##
+# Conic                 # conic section defined by three points and a weight ##
+# Cubic_Bezier          # third order curve defined by four points ##
+##
+
 #Subtopic Constants
 #Table
 #Legend
@@ -244,9 +267,9 @@ SkPath::updateBoundsCache to make Path thread safe.
 #Legend
 # operator                                     # description                     ##
 #Legend ##
+# operator!=(const SkPath& a, const SkPath& b) # Compares paths for inequality.  ##
 # operator=(const SkPath& path)                # Makes a shallow copy.           ##
 # operator==(const SkPath& a, const SkPath& b) # Compares paths for equality.    ##
-# operator!=(const SkPath& a, const SkPath& b) # Compares paths for inequality.  ##
 #Table ##
 #Subtopic ##
 
@@ -308,6 +331,7 @@ SkPath::updateBoundsCache to make Path thread safe.
 # lineTo                      # Appends Line. ##
 # moveTo                      # Starts Contour. ##
 # offset()                    # Translates Point_Array. ##
+# pathRefIsValid              # To be deprecated. ##
 # quadTo                      # Appends Quad. ##
 # rArcTo                      # Appends Arc relative to Last_Point. ##
 # rConicTo                    # Appends Conic relative to Last_Point. ##
