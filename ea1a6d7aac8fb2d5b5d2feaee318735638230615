@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "f7c63534_ec38a0f2",
+        "filename": "fuzz/Fuzz.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-01-11T13:46:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8ab7d14f_9208e6e9",
+      "revId": "ea1a6d7aac8fb2d5b5d2feaee318735638230615",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fc40adf7_0a33f399",
         "filename": "fuzz/FuzzCommon.cpp",
         "patchSetId": 5
@@ -33,6 +51,24 @@
       "revId": "ea1a6d7aac8fb2d5b5d2feaee318735638230615",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5989960d_5b890aa3",
+        "filename": "fuzz/FuzzCommon.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-01-11T13:46:20Z",
+      "side": 1,
+      "message": "For now, I\u0027d like to keep Fuzz.h as simple as possible - I imagine FuzzCommon.h to get quite long.\n\n(Renamed to .h)",
+      "parentUuid": "fc40adf7_0a33f399",
+      "revId": "ea1a6d7aac8fb2d5b5d2feaee318735638230615",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "163fbd14_a940a1d0",
+        "filename": "fuzz/fuzz.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-01-11T13:46:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1bf09056_63c95871",
+      "revId": "ea1a6d7aac8fb2d5b5d2feaee318735638230615",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "dbc9f895_bc7eeec4",
         "filename": "fuzz/oss_fuzz/FuzzRegionSetPath.cpp",
         "patchSetId": 5
@@ -70,6 +124,24 @@
     },
     {
       "key": {
+        "uuid": "e1dadea2_dc903119",
+        "filename": "fuzz/oss_fuzz/FuzzRegionSetPath.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-01-11T13:46:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "dbc9f895_bc7eeec4",
+      "revId": "ea1a6d7aac8fb2d5b5d2feaee318735638230615",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "cf8ce2bb_41957f8a",
         "filename": "fuzz/oss_fuzz/FuzzRegionSetPath.cpp",
         "patchSetId": 5
@@ -81,6 +153,24 @@
       "writtenOn": "2018-01-10T21:07:13Z",
       "side": 1,
       "message": "If we always put LLVMFuzzerTestOneInput() in this file, doesn\u0027t that mean fuzzRegionSetPath() is the only function we can ever fuzz with oss-fuzz?",
+      "revId": "ea1a6d7aac8fb2d5b5d2feaee318735638230615",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "be244927_28cd7797",
+        "filename": "fuzz/oss_fuzz/FuzzRegionSetPath.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-01-11T13:46:20Z",
+      "side": 1,
+      "message": "oss-fuzz works a bit differently than afl-fuzz in that each fuzz target will have its own build rule and thus its own LLVMFuzzerTestOneInput.  It has to be that way because we don\u0027t get any freedom to add in command line args like we do for fuzz.cpp.",
+      "parentUuid": "cf8ce2bb_41957f8a",
       "revId": "ea1a6d7aac8fb2d5b5d2feaee318735638230615",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
