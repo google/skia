@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "5714cfea_3b0d941a",
+        "filename": "infra/bots/recipe_modules/flavor/examples/full.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-01-11T18:03:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0f86f111_82d7bd9b",
+      "range": {
+        "startLine": 91,
+        "startChar": 0,
+        "endLine": 91,
+        "endChar": 69
+      },
+      "revId": "302a2a54ba2de1cfc80cca91ac906d465f573451",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "78a5bb87_1e3cb04f",
         "filename": "infra/bots/recipe_modules/flavor/gn_android_flavor.py",
         "patchSetId": 3
@@ -36,6 +60,30 @@
       "writtenOn": "2018-01-11T18:00:41Z",
       "side": 1,
       "message": "No comments on the actual contents here, since it\u0027s alien language to me, but would this be useful to have in skia.git so that developers can use it as well?",
+      "range": {
+        "startLine": 156,
+        "startChar": 8,
+        "endLine": 156,
+        "endChar": 15
+      },
+      "revId": "302a2a54ba2de1cfc80cca91ac906d465f573451",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a9e612bb_7f9db388",
+        "filename": "infra/bots/recipe_modules/flavor/gn_android_flavor.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-01-11T18:03:03Z",
+      "side": 1,
+      "message": "What do you mean, in skia.git?  Isn\u0027t that the repo we are in?\n\nP.S. It\u0027s a bit alien to me too.",
+      "parentUuid": "78a5bb87_1e3cb04f",
       "range": {
         "startLine": 156,
         "startChar": 8,
