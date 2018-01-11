@@ -20,6 +20,7 @@
 #include "gl/GLTestContext.h"
 #include "gm.h"
 #include "gm_knowledge.h"
+#include "skqp_blacklist.h"
 #include "vk/VkTestContext.h"
 
 namespace gm_runner {
@@ -57,10 +58,15 @@ std::vector<UnitTest> GetUnitTests() {
     std::vector<UnitTest> tests;
     for (const skiatest::TestRegistry* r = skiatest::TestRegistry::Head(); r; r = r->next()) {
         const skiatest::Test& test = r->factory();
-        if (test.needsGpu) {
+        if (skqp::IsKnownGpuUnitTest(test.name)) {
+            SkASSERT(test.needsGpu);
             tests.push_back(&test);
         }
     }
+    struct {
+        bool operator()(UnitTest u, UnitTest v) const { return strcmp(u->name, v->name) < 0; }
+    } less;
+    std::sort(tests.begin(), tests.end(), less);
     return tests;
 }
 
@@ -162,19 +168,32 @@ static bool evaluate_gm(SkiaBackend backend,
     return true;
 }
 
+
+static Mode gMode = Mode::kCompatibilityTestMode;
+
+void SetMode(Mode m) { gMode = m; }
+
 std::tuple<float, Error> EvaluateGM(SkiaBackend backend,
                                     GMFactory gmFact,
                                     skqp::AssetManager* assetManager,
                                     const char* reportDirectoryPath) {
     std::vector<uint32_t> pixels;
     std::unique_ptr<skiagm::GM> gm(gmFact(nullptr));
+    const char* name = gm->getName();
     int width = 0, height = 0;
     if (!evaluate_gm(backend, gm.get(), &width, &height, &pixels)) {
         return std::make_tuple(FLT_MAX, Error::SkiaFailure);
     }
+
+    if (Mode::kCompatibilityTestMode == gMode &&
+        skqp::DoNotScoreInCompatibilityTestMode(name))
+    {
+        return std::make_tuple(0, Error::None);
+    }
+
     gmkb::Error e;
     float value = gmkb::Check(pixels.data(), width, height,
-                              gm->getName(), GetBackendName(backend), assetManager,
+                              name, GetBackendName(backend), assetManager,
                               reportDirectoryPath, &e);
     Error error = gmkb::Error::kBadInput == e ? Error::BadSkiaOutput
                 : gmkb::Error::kBadData  == e ? Error::BadGMKBData
@@ -191,8 +210,11 @@ std::vector<GMFactory> GetGMFactories(skqp::AssetManager* assetManager) {
     std::vector<GMFactory> result;
     for (const skiagm::GMRegistry* r = skiagm::GMRegistry::Head(); r; r = r->next()) {
         GMFactory f = r->factory();
-
-        if (gmkb::IsGoodGM(GetGMName(f).c_str(), assetManager)) {
+        auto name = GetGMName(f);
+        if (skqp::IsKnownGM(name.c_str()) &&
+            !(Mode::kExperimentalMode == gMode &&
+              skqp::DoNotExecuteInExperimentalMode(name.c_str())))
+        {
             result.push_back(r->factory());
             SkASSERT(result.back());
         }
