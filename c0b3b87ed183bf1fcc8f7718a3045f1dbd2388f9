@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1d4d7583_4c764ab2",
+        "filename": "include/private/GrTypesPriv.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-01-11T18:03:08Z",
+      "side": 1,
+      "message": "This function\u0027s contract and name make me a bit sad. I\u0027d be happy to hear any suggestions on this.",
+      "range": {
+        "startLine": 100,
+        "startChar": 9,
+        "endLine": 100,
+        "endChar": 41
+      },
+      "revId": "c0b3b87ed183bf1fcc8f7718a3045f1dbd2388f9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
