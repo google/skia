@@ -527,8 +527,12 @@ bool Definition::exampleToScript(string* result, ExampleOptions exampleOptions) 
     string code;
     string imageStr = "0";
     string srgbStr = "false";
+    string durationStr = "0";
     for (auto const& iter : fChildren) {
         switch (iter->fMarkType) {
+            case MarkType::kDuration:
+                durationStr = string(iter->fContentStart, iter->fContentEnd - iter->fContentStart);
+                break;
             case MarkType::kError:
                 result->clear();
                 return true;
@@ -579,6 +583,7 @@ bool Definition::exampleToScript(string* result, ExampleOptions exampleOptions) 
                 SkASSERT(0);  // more coding to do
         }
     }
+    string animatedStr = "0" != durationStr ? "true" : "false";
     string textOutStr = textOut ? "true" : "false";
     size_t pos = 0;
     while (pos < text.length() && ' ' > text[pos]) {
@@ -622,8 +627,8 @@ bool Definition::exampleToScript(string* result, ExampleOptions exampleOptions) 
             example += "        \"srgb\": " + srgbStr + ",\n";
             example += "        \"f16\": false,\n";
             example += "        \"textOnly\": " + textOutStr + ",\n";
-            example += "        \"animated\": false,\n";
-            example += "        \"duration\": 0\n";
+            example += "        \"animated\": " + animatedStr + ",\n";
+            example += "        \"duration\": " + durationStr + "\n";
             example += "    },\n";
             example += "    \"fast\": true";
         }
@@ -1033,6 +1038,18 @@ const Definition* Definition::hasParam(const string& ref) const {
 
     }
     return nullptr;
+}
+
+bool Definition::hasMatch(const string& name) const {
+    for (auto child : fChildren) {
+        if (name == child->fName) {
+            return true;
+        }
+        if (child->hasMatch(name)) {
+            return true;
+        }
+    }
+    return false;
 }
 
 bool Definition::methodHasReturn(const string& name, TextParser* methodParser) const {
