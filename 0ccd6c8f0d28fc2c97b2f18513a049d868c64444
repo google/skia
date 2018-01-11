@@ -34,6 +34,24 @@
       "revId": "0ccd6c8f0d28fc2c97b2f18513a049d868c64444",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0a60d44d_d604e6c5",
+        "filename": "platform_tools/android/apps/skqp/src/main/java/org/skia/skqp/SkQP.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-01-11T22:15:02Z",
+      "side": 1,
+      "message": "something like this?\n\n        if (outputDir.isDirectory()) {\n          try {\n              deleteDirectoryContents(outputDir);\n          } catch (IOException e) {\n              Log.w(LOG_PREFIX, \"DeleteDirectoryContents: \" + e.getMessage());\n          }\n        } else if (outputDir.exists()) {\n            outputDir.delete();\n        } else {\n          if (!outputDir.mkdir()) {\n            Log.w(LOG_PREFIX, \"Unable to create output dir \" + outputDirPath);\n            return;\n          }\n        }",
+      "parentUuid": "a4b372d1_cb8874c7",
+      "revId": "0ccd6c8f0d28fc2c97b2f18513a049d868c64444",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
