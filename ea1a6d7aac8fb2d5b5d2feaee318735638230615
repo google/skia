@@ -192,6 +192,24 @@
       "revId": "ea1a6d7aac8fb2d5b5d2feaee318735638230615",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b5ce60ee_70a395e9",
+        "filename": "fuzz/oss_fuzz/FuzzRegionSetPath.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-01-11T14:44:14Z",
+      "side": 1,
+      "message": "There\u0027s no way for us to set environment variables inside the oss-fuzz container either (I tried every hook I could find, to no avail).\nhttps://github.com/google/oss-fuzz/blob/master/docs/fuzzer_environment.md\n\"[The fuzz target run] command uses a clean base-runner docker container and not the base-builder docker container created during build-time.\"\n\nI added in a second endpoint (that we already had in the oss-repo) and a #if to avoid linking errors.  See PS 7 - is that an acceptable set-up?",
+      "parentUuid": "6eba334a_595641e3",
+      "revId": "ea1a6d7aac8fb2d5b5d2feaee318735638230615",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }

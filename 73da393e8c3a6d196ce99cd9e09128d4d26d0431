@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "ceee3973_ecb0e6d2",
+        "filename": "fuzz/fuzz.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 568,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-01-11T14:44:14Z",
+      "side": 1,
+      "message": "Made void, like you suggested",
+      "parentUuid": "6f0a3106_ff507d76",
+      "range": {
+        "startLine": 568,
+        "startChar": 4,
+        "endLine": 568,
+        "endChar": 21
+      },
+      "revId": "73da393e8c3a6d196ce99cd9e09128d4d26d0431",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f0821b2c_440c9b8f",
         "filename": "fuzz/oss_fuzz/FuzzRegionSetPath.cpp",
         "patchSetId": 6
@@ -39,6 +63,24 @@
       "revId": "73da393e8c3a6d196ce99cd9e09128d4d26d0431",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "44de4129_e111dcac",
+        "filename": "fuzz/oss_fuzz/FuzzRegionSetPath.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-01-11T14:44:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f0821b2c_440c9b8f",
+      "revId": "73da393e8c3a6d196ce99cd9e09128d4d26d0431",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
