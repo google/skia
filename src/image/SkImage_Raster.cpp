@@ -161,7 +161,13 @@ bool SkImage_Raster::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, s
 }
 
 bool SkImage_Raster::onPeekPixels(SkPixmap* pm) const {
-    return fBitmap.peekPixels(pm);
+    if (!fBitmap.getPixels()) {
+        return false;
+    }
+    if (pm) {
+        *pm = fBitmap.pixmap();
+    }
+    return true;
 }
 
 bool SkImage_Raster::getROPixels(SkBitmap* dst, SkColorSpace* dstColorSpace, CachingHint) const {
@@ -305,12 +311,7 @@ sk_sp<SkImage> SkImage::MakeFromRaster(const SkPixmap& pmap, RasterReleaseProc p
 sk_sp<SkImage> SkMakeImageFromRasterBitmapPriv(const SkBitmap& bm, SkCopyPixelsMode cpm,
                                                uint32_t idForCopy) {
     if (kAlways_SkCopyPixelsMode == cpm || (!bm.isImmutable() && kNever_SkCopyPixelsMode != cpm)) {
-        SkPixmap pmap;
-        if (bm.peekPixels(&pmap)) {
-            return MakeRasterCopyPriv(pmap, idForCopy);
-        } else {
-            return sk_sp<SkImage>();
-        }
+        return MakeRasterCopyPriv(bm.pixmap(), idForCopy);
     }
 
     return sk_make_sp<SkImage_Raster>(bm, kNever_SkCopyPixelsMode == cpm);
@@ -378,8 +379,8 @@ bool SkImage_Raster::onAsLegacyBitmap(SkBitmap* bitmap, LegacyBitmapMode mode) c
 sk_sp<SkImage> SkImage_Raster::onMakeColorSpace(sk_sp<SkColorSpace> target,
                                                 SkColorType targetColorType,
                                                 SkTransferFunctionBehavior premulBehavior) const {
-    SkPixmap src;
-    SkAssertResult(fBitmap.peekPixels(&src));
+    SkPixmap src = fBitmap.pixmap();
+    SkAssertResult(src.addr());
 
     // Treat nullptr srcs as sRGB.
     if (!src.colorSpace()) {

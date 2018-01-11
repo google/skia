@@ -65,8 +65,7 @@ static void make(SkBitmap* bitmap, SkColorType colorType, SkAlphaType alphaType,
 }
 
 static sk_sp<SkData> encode_data(const SkBitmap& bitmap, SkEncodedImageFormat format) {
-    SkPixmap src;
-    if (!bitmap.peekPixels(&src)) {
+    if (!bitmap.getPixels()) {
         return nullptr;
     }
     SkDynamicMemoryWStream buf;
@@ -80,13 +79,13 @@ static sk_sp<SkData> encode_data(const SkBitmap& bitmap, SkEncodedImageFormat fo
 
     switch (format) {
         case SkEncodedImageFormat::kPNG:
-            SkAssertResult(SkPngEncoder::Encode(&buf, src, pngOptions));
+            SkAssertResult(SkPngEncoder::Encode(&buf, bitmap.pixmap(), pngOptions));
             break;
         case SkEncodedImageFormat::kWEBP:
-            SkAssertResult(SkWebpEncoder::Encode(&buf, src, webpOptions));
+            SkAssertResult(SkWebpEncoder::Encode(&buf, bitmap.pixmap(), webpOptions));
             break;
         case SkEncodedImageFormat::kJPEG:
-            SkAssertResult(SkJpegEncoder::Encode(&buf, src, SkJpegEncoder::Options()));
+            SkAssertResult(SkJpegEncoder::Encode(&buf, bitmap.pixmap(), SkJpegEncoder::Options()));
             break;
         default:
             break;

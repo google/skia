@@ -382,11 +382,11 @@ void ArithmeticImageFilterImpl::drawForeground(SkCanvas* canvas, SkSpecialImage*
 
     if (img) {
         SkBitmap srcBM;
-        SkPixmap src;
         if (!img->getROPixels(&srcBM)) {
             return;
         }
-        if (!srcBM.peekPixels(&src)) {
+        SkPixmap src = srcBM.pixmap();
+        if (!src.addr()) {
             return;
         }
 

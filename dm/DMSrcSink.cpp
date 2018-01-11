@@ -1518,11 +1518,11 @@ Error NullSink::draw(const Src& src, SkBitmap*, SkWStream*, SkString*) const {
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 static bool encode_png_base64(const SkBitmap& bitmap, SkString* dst) {
-    SkPixmap pm;
-    if (!bitmap.peekPixels(&pm)) {
-        dst->set("peekPixels failed");
+    if (!bitmap.getPixels()) {
+        dst->set("bitmap missing pixel address");
         return false;
     }
+    const SkPixmap& pm = bitmap.pixmap();
 
     // We're going to embed this PNG in a data URI, so make it as small as possible
     SkPngEncoder::Options options;

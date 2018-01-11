@@ -468,9 +468,8 @@ static bool generate_pixels(SkImageGenerator* gen, const SkPixmap& pmap, int ori
         if (!full.tryAllocPixels(pmap.info().makeWH(genW, genH))) {
             return false;
         }
-        if (!full.peekPixels(&fullPM)) {
-            return false;
-        }
+        SkASSERT(full.getPixels());
+        fullPM = full.pixmap();
         dstPM = &fullPM;
     }
 
@@ -510,9 +509,8 @@ bool SkImage_Lazy::lockAsBitmap(SkBitmap* bitmap, SkImage::CachingHint chint, Ca
         if (!tmpBitmap.tryAllocPixels(info)) {
             return false;
         }
-        if (!tmpBitmap.peekPixels(&pmap)) {
-            return false;
-        }
+        SkASSERT(tmpBitmap.getPixels());
+        pmap = tmpBitmap.pixmap();
     }
 
     ScopedGenerator generator(fSharedGenerator);

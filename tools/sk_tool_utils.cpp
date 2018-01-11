@@ -398,8 +398,8 @@ SkRect compute_tallest_occluder(const SkRRect& rr) {
 }
 
 bool copy_to(SkBitmap* dst, SkColorType dstColorType, const SkBitmap& src) {
-    SkPixmap srcPM;
-    if (!src.peekPixels(&srcPM)) {
+    const SkPixmap& srcPM = src.pixmap();
+    if (!srcPM.addr()) {
         return false;
     }
 
@@ -413,8 +413,8 @@ bool copy_to(SkBitmap* dst, SkColorType dstColorType, const SkBitmap& src) {
         return false;
     }
 
-    SkPixmap dstPM;
-    if (!tmpDst.peekPixels(&dstPM)) {
+    const SkPixmap dstPM = tmpDst.pixmap();
+    if (!dstPM.addr()) {
         return false;
     }
 
@@ -517,6 +517,9 @@ void copy_to_g8(SkBitmap* dst, const SkBitmap& src) {
 
     bool equal_pixels(const SkPixmap& a, const SkPixmap& b, unsigned maxDiff,
                       bool respectColorSpace) {
+        if (!a.addr() || !b.addr()) {
+            return false;
+        }
         if (a.width() != b.width() ||
             a.height() != b.height() ||
             a.colorType() != b.colorType() ||
@@ -543,9 +546,7 @@ void copy_to_g8(SkBitmap* dst, const SkBitmap& src) {
 
     bool equal_pixels(const SkBitmap& bm0, const SkBitmap& bm1, unsigned maxDiff,
                       bool respectColorSpaces) {
-        SkPixmap pm0, pm1;
-        return bm0.peekPixels(&pm0) && bm1.peekPixels(&pm1) &&
-               equal_pixels(pm0, pm1, maxDiff, respectColorSpaces);
+        return equal_pixels(bm0.pixmap(), bm1.pixmap(), maxDiff, respectColorSpaces);
     }
 
     bool equal_pixels(const SkImage* a, const SkImage* b, unsigned maxDiff,

@@ -917,8 +917,9 @@ DEF_GPUTEST(SkImage_MakeCrossContextFromEncodedRelease, reporter, options) {
 
 DEF_GPUTEST(SkImage_MakeCrossContextFromPixmapRelease, reporter, options) {
     SkBitmap bitmap;
-    SkPixmap pixmap;
-    SkAssertResult(GetResourceAsBitmap("images/mandrill_128.png", &bitmap) && bitmap.peekPixels(&pixmap));
+    SkAssertResult(GetResourceAsBitmap("images/mandrill_128.png", &bitmap));
+    const SkPixmap& pixmap = bitmap.pixmap();;
+    SkASSERT(pixmap.addr());
 
     test_cross_context_image(reporter, options, [&pixmap](GrContext* ctx) {
         return SkImage::MakeCrossContextFromPixmap(ctx, pixmap, false, nullptr);
