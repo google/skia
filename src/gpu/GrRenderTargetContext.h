@@ -415,7 +415,7 @@ private:
     friend void test_draw_op(GrRenderTargetContext*, std::unique_ptr<GrFragmentProcessor>,
                              sk_sp<GrTextureProxy>);
 
-    void internalClear(const GrFixedClip&, const GrColor, CanClearFullscreen);
+    void internalClear(const GrFixedClip&, GrColor, CanClearFullscreen);
 
     // Only consumes the GrPaint if successful.
     bool drawFilledDRRect(const GrClip& clip,

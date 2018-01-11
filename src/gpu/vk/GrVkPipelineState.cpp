@@ -34,6 +34,7 @@ GrVkPipelineState::GrVkPipelineState(GrVkGpu* gpu,
                                      VkPipelineLayout layout,
                                      const GrVkDescriptorSetManager::Handle& samplerDSHandle,
                                      const GrVkDescriptorSetManager::Handle& texelBufferDSHandle,
+                                    const GrVkDescriptorSetManager::Handle& inputAttachmentDSHandle,
                                      const BuiltinUniformHandles& builtinUniformHandles,
                                      const UniformInfoArray& uniforms,
                                      uint32_t geometryUniformSize,
@@ -48,8 +49,10 @@ GrVkPipelineState::GrVkPipelineState(GrVkGpu* gpu,
     , fUniformDescriptorSet(nullptr)
     , fSamplerDescriptorSet(nullptr)
     , fTexelBufferDescriptorSet(nullptr)
+    , fInputAttachmentDescriptorSet(nullptr)
     , fSamplerDSHandle(samplerDSHandle)
     , fTexelBufferDSHandle(texelBufferDSHandle)
+    , fInputAttachmentDSHandle(inputAttachmentDSHandle)
     , fBuiltinUniformHandles(builtinUniformHandles)
     , fGeometryProcessor(std::move(geometryProcessor))
     , fXferProcessor(std::move(xferProcessor))
@@ -82,6 +85,8 @@ GrVkPipelineState::~GrVkPipelineState() {
     SkASSERT(!fTextures.count());
     SkASSERT(!fBufferViews.count());
     SkASSERT(!fTexelBuffers.count());
+    SkASSERT(!fCoverageCountView);
+    SkASSERT(!fCoverageCountImage);
 
     for (int i = 0; i < fFragmentProcessors.count(); ++i) {
         delete fFragmentProcessors[i];
@@ -151,6 +156,15 @@ void GrVkPipelineState::freeGPUResources(const GrVkGpu* gpu) {
         fTexelBufferDescriptorSet = nullptr;
     }
 
+    if (fCoverageCountImage) {
+        fCoverageCountImage->unref(gpu);
+        fCoverageCountImage = nullptr;
+    }
+    if (fCoverageCountView) {
+        fCoverageCountView->unref(gpu);
+        fCoverageCountView = nullptr;
+    }
+
 
     this->freeTempResources(gpu);
 }
@@ -186,6 +200,15 @@ void GrVkPipelineState::abandonGPUResources() {
 
     for (int i = 0; i < fTexelBuffers.count(); ++i) {
         fTexelBuffers[i]->unrefAndAbandon();
+    }
+
+    if (fCoverageCountImage) {
+        fCoverageCountImage->unrefAndAbandon();
+        fCoverageCountImage = nullptr;
+    }
+    if (fCoverageCountView) {
+        fCoverageCountView->unrefAndAbandon();
+        fCoverageCountView = nullptr;
     }
 
     fTexelBuffers.rewind();
@@ -290,6 +313,18 @@ void GrVkPipelineState::setData(GrVkGpu* gpu,
         int texelBufferDSIdx = GrVkUniformHandler::kTexelBufferDescSet;
         fDescriptorSets[texelBufferDSIdx] = fTexelBufferDescriptorSet->descriptorSet();
         this->writeTexelBuffers(gpu, bufferAccesses);
+    }
+
+    GrVkRenderTarget* vkRT = (GrVkRenderTarget*)pipeline.renderTarget();
+    if (vkRT->coverageCountImage()) {
+        if (fInputAttachmentDescriptorSet) {
+            fInputAttachmentDescriptorSet->recycle(gpu);
+        }
+        fInputAttachmentDescriptorSet =
+                gpu->resourceProvider().getSamplerDescriptorSet(fInputAttachmentDSHandle);
+        int inputAttachmentDSIdx = GrVkUniformHandler::kInputAttachmentDescSet;
+        fDescriptorSets[inputAttachmentDSIdx] = fInputAttachmentDescriptorSet->descriptorSet();
+        this->writeInputAttachment(gpu, vkRT);
     }
 
     if (fGeometryUniformBuffer || fFragmentUniformBuffer) {
@@ -416,6 +451,39 @@ void GrVkPipelineState::writeSamplers(
     }
 }
 
+void GrVkPipelineState::writeInputAttachment(GrVkGpu* gpu, GrVkRenderTarget* rt) {
+    fCoverageCountImage = rt->coverageCountImage()->resource();
+    fCoverageCountImage->ref();
+
+    fCoverageCountView = rt->coverageCountView();
+    fCoverageCountView->ref();
+
+    VkDescriptorImageInfo imageInfo;
+    memset(&imageInfo, 0, sizeof(VkDescriptorImageInfo));
+    imageInfo.sampler = VK_NULL_HANDLE;
+    imageInfo.imageView = fCoverageCountView->imageView();
+    imageInfo.imageLayout = VK_IMAGE_LAYOUT_GENERAL;
+
+    VkWriteDescriptorSet writeInfo;
+    memset(&writeInfo, 0, sizeof(VkWriteDescriptorSet));
+    writeInfo.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+    writeInfo.pNext = nullptr;
+    writeInfo.dstSet = fDescriptorSets[GrVkUniformHandler::kInputAttachmentDescSet];
+    writeInfo.dstBinding = 0;
+    writeInfo.dstArrayElement = 0;
+    writeInfo.descriptorCount = 1;
+    writeInfo.descriptorType = VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT;
+    writeInfo.pImageInfo = &imageInfo;
+    writeInfo.pBufferInfo = nullptr;
+    writeInfo.pTexelBufferView = nullptr;
+
+    GR_VK_CALL(gpu->vkInterface(), UpdateDescriptorSets(gpu->device(),
+                                                        1,
+                                                        &writeInfo,
+                                                        0,
+                                                        nullptr));
+}
+
 void GrVkPipelineState::writeTexelBuffers(
         GrVkGpu* gpu,
         const SkTArray<const GrResourceIOProcessor::BufferAccess*>& bufferAccesses) {
@@ -483,7 +551,8 @@ void GrVkPipelineState::setRenderTargetState(const GrRenderTargetProxy* proxy) {
     }
 }
 
-void GrVkPipelineState::bind(const GrVkGpu* gpu, GrVkCommandBuffer* commandBuffer) {
+void GrVkPipelineState::bind(const GrVkGpu* gpu, GrVkCommandBuffer* commandBuffer,
+                             bool hasCoverageCountBuffer) {
     commandBuffer->bindPipeline(gpu, fPipeline);
 
     if (fGeometryUniformBuffer || fFragmentUniformBuffer) {
@@ -500,6 +569,12 @@ void GrVkPipelineState::bind(const GrVkGpu* gpu, GrVkCommandBuffer* commandBuffe
     }
     if (fNumTexelBuffers) {
         int dsIndex = GrVkUniformHandler::kTexelBufferDescSet;
+        commandBuffer->bindDescriptorSets(gpu, this, fPipelineLayout,
+                                          dsIndex, 1,
+                                          &fDescriptorSets[dsIndex], 0, nullptr);
+    }
+    if (hasCoverageCountBuffer) {
+        int dsIndex = GrVkUniformHandler::kInputAttachmentDescSet;
         commandBuffer->bindDescriptorSets(gpu, this, fPipelineLayout,
                                           dsIndex, 1,
                                           &fDescriptorSets[dsIndex], 0, nullptr);

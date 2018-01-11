@@ -71,6 +71,10 @@ GrPipeline::GrPipeline(const InitArgs& args, GrProcessorSet&& processors,
             this->markAsBad();
         }
     }
+
+
+
+    fDrawBuffer = args.fDrawBuffer;
 }
 
 void GrPipeline::addDependenciesTo(GrOpList* opList, const GrCaps& caps) const {
@@ -95,10 +99,12 @@ GrXferBarrierType GrPipeline::xferBarrierType(const GrCaps& caps) const {
     return this->getXferProcessor().xferBarrierType(caps);
 }
 
-GrPipeline::GrPipeline(GrRenderTargetProxy* proxy, ScissorState scissorState, SkBlendMode blendmode)
+GrPipeline::GrPipeline(GrRenderTargetProxy* proxy, ScissorState scissorState, SkBlendMode blendmode,
+                       GrDrawBuffer drawBuffer)
         : fProxy(proxy)
         , fScissorState()
         , fWindowRectsState()
+        , fDrawBuffer(drawBuffer)
         , fUserStencilSettings(&GrUserStencilSettings::kUnused)
         , fFlags()
         , fXferProcessor(GrPorterDuffXPFactory::MakeNoCoverageXP(blendmode))

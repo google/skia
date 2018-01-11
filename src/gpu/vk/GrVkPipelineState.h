@@ -45,7 +45,7 @@ public:
 
     void setData(GrVkGpu*, const GrPrimitiveProcessor&, const GrPipeline&);
 
-    void bind(const GrVkGpu* gpu, GrVkCommandBuffer* commandBuffer);
+    void bind(const GrVkGpu* gpu, GrVkCommandBuffer* commandBuffer, bool hasCoverageCountBuffer);
 
     void addUniformResources(GrVkCommandBuffer&);
 
@@ -94,6 +94,7 @@ private:
                       VkPipelineLayout layout,
                       const GrVkDescriptorSetManager::Handle& samplerDSHandle,
                       const GrVkDescriptorSetManager::Handle& texelBufferDSHandle,
+                      const GrVkDescriptorSetManager::Handle& inputAttachmentDSHandle,
                       const BuiltinUniformHandles& builtinUniformHandles,
                       const UniformInfoArray& uniforms,
                       uint32_t geometryUniformSize,
@@ -114,6 +115,8 @@ private:
     void writeTexelBuffers(
             GrVkGpu* gpu,
             const SkTArray<const GrResourceIOProcessor::BufferAccess*>& bufferAccesses);
+
+    void writeInputAttachment(GrVkGpu* gpu, GrVkRenderTarget*);
 
     /**
     * We use the RT's size and origin to adjust from Skia device space to vulkan normalized device
@@ -166,14 +169,16 @@ private:
     // descriptor pool alive through the draw, the descritor sets will also stay alive. Thus we do
     // not need a GrVkResource versions of VkDescriptorSet. We hold on to these in the
     // GrVkPipelineState since we update the descriptor sets and bind them at separate times;
-    VkDescriptorSet fDescriptorSets[3];
+    VkDescriptorSet fDescriptorSets[4];
 
     const GrVkDescriptorSet* fUniformDescriptorSet;
     const GrVkDescriptorSet* fSamplerDescriptorSet;
     const GrVkDescriptorSet* fTexelBufferDescriptorSet;
+    const GrVkDescriptorSet* fInputAttachmentDescriptorSet;
 
     const GrVkDescriptorSetManager::Handle fSamplerDSHandle;
     const GrVkDescriptorSetManager::Handle fTexelBufferDSHandle;
+    const GrVkDescriptorSetManager::Handle fInputAttachmentDSHandle;
 
     std::unique_ptr<GrVkUniformBuffer> fGeometryUniformBuffer;
     std::unique_ptr<GrVkUniformBuffer> fFragmentUniformBuffer;
@@ -186,6 +191,10 @@ private:
     // GrVkResource used for TexelBuffers
     SkTDArray<const GrVkBufferView*> fBufferViews;
     SkTDArray<const GrVkResource*> fTexelBuffers;
+
+    // GrVkResource used for input attachment
+    const GrVkImageView* fCoverageCountView = nullptr;
+    const GrVkResource* fCoverageCountImage = nullptr;
 
     // Tracks the current render target uniforms stored in the vertex buffer.
     RenderTargetState fRenderTargetState;

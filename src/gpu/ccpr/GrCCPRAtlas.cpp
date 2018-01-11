@@ -15,6 +15,7 @@
 #include "SkMakeUnique.h"
 #include "SkMathPriv.h"
 #include "ccpr/GrCCPRCoverageProcessor.h"
+#include "ccpr/GrCCPathParser.h"
 #include "ops/GrDrawOp.h"
 
 class GrCCPRAtlas::Node {
@@ -43,9 +44,43 @@ private:
     GrRectanizerSkyline           fRectanizer;
 };
 
-GrCCPRAtlas::GrCCPRAtlas(const GrCaps& caps, int minWidth, int minHeight)
+class GrCCPRAtlas::DrawOp : public GrDrawOp {
+public:
+    DEFINE_OP_CLASS_ID
+
+    DrawOp(GrCCPRAtlas* atlas, sk_sp<const GrCCPathParser> parser)
+        : INHERITED(ClassID())
+        , fAtlas(atlas)
+        , fParser(std::move(parser)) {
+        this->setBounds(SkRect::MakeIWH(fAtlas->fDrawBounds.width(), fAtlas->fDrawBounds.height()),
+                        GrOp::HasAABloat::kNo, GrOp::IsZeroArea::kNo);
+    }
+
+    // GrDrawOp interface.
+    const char* name() const override { return "CCAtlasOp"; }
+    FixedFunctionFlags fixedFunctionFlags() const override { return FixedFunctionFlags::kNone; }
+    RequiresDstTexture finalize(const GrCaps&, const GrAppliedClip*,
+                                GrPixelConfigIsClamped) override {
+        return RequiresDstTexture::kNo;
+    }
+    bool onCombineIfPossible(GrOp* other, const GrCaps& caps) override { return false; }
+    void onPrepare(GrOpFlushState*) override {}
+    void onExecute(GrOpFlushState*) override;
+
+private:
+    GrCCPRAtlas* const fAtlas;
+    const sk_sp<const GrCCPathParser> fParser;
+
+    friend class GrCCPRCoverageOpsBuilder;
+
+    typedef GrDrawOp INHERITED;
+};
+
+GrCCPRAtlas::GrCCPRAtlas(const GrCaps& caps, int minWidth, int minHeight,
+                         const PrimitiveTallies instanceStartIndices[kNumScissorModes])
         : fMaxAtlasSize(caps.maxRenderTargetSize())
-        , fDrawBounds{0, 0} {
+        , fDrawBounds{0, 0}
+        , fInstanceStartIndices{instanceStartIndices[0], instanceStartIndices[1]} {
     SkASSERT(fMaxAtlasSize <= caps.maxTextureSize());
     SkASSERT(SkTMax(minWidth, minHeight) <= fMaxAtlasSize);
     int initialSize = GrNextPow2(SkTMax(minWidth, minHeight));
@@ -55,19 +90,34 @@ GrCCPRAtlas::GrCCPRAtlas(const GrCaps& caps, int minWidth, int minHeight)
     fTopNode = skstd::make_unique<Node>(nullptr, 0, 0, initialSize, initialSize);
 }
 
-GrCCPRAtlas::~GrCCPRAtlas() {
-}
+GrCCPRAtlas::~GrCCPRAtlas() {}
 
-bool GrCCPRAtlas::addRect(int w, int h, SkIPoint16* loc) {
-    // This can't be called anymore once finalize() has been called.
+bool GrCCPRAtlas::placeParsedPath(ScissorMode scissorMode, const SkIRect& clippedPathIBounds,
+                                  int16_t* atlasOffsetX, int16_t* atlasOffsetY, 
+                                  GrCCPathParser* parser) {
+    // This can't be called anymore once finalize() have been called.
     SkASSERT(!fTextureProxy);
 
-    if (!this->internalPlaceRect(w, h, loc)) {
+    SkIPoint16 location;
+    if (!this->internalPlaceRect(clippedPathIBounds.width(), clippedPathIBounds.height(),
+                                 &location)) {
         return false;
     }
 
-    fDrawBounds.fWidth = SkTMax(fDrawBounds.width(), loc->x() + w);
-    fDrawBounds.fHeight = SkTMax(fDrawBounds.height(), loc->y() + h);
+    *atlasOffsetX = location.x() - static_cast<int16_t>(clippedPathIBounds.left());
+    *atlasOffsetY = location.y() - static_cast<int16_t>(clippedPathIBounds.top());
+
+    const PrimitiveTallies& instanceCounts = 
+            parser->saveParsedPath(scissorMode, clippedPathIBounds, *atlasOffsetX, *atlasOffsetY);
+    if (GrCCPathParser::ScissorMode::kNonScissored == scissorMode) {
+        fUnscissoredInstanceCounts += instanceCounts;
+    } else {
+        fScissorBatches.emplace_back(instanceCounts,
+                                     clippedPathIBounds.makeOffset(*atlasOffsetX, *atlasOffsetY));
+    }
+
+    fDrawBounds.fWidth = SkTMax(fDrawBounds.width(), location.x() + clippedPathIBounds.width());
+    fDrawBounds.fHeight = SkTMax(fDrawBounds.height(), location.y() + clippedPathIBounds.height());
     return true;
 }
 
@@ -101,7 +151,7 @@ bool GrCCPRAtlas::internalPlaceRect(int w, int h, SkIPoint16* loc) {
 }
 
 sk_sp<GrRenderTargetContext> GrCCPRAtlas::finalize(GrOnFlushResourceProvider* onFlushRP,
-                                                   std::unique_ptr<GrDrawOp> atlasOp) {
+                                                   sk_sp<const GrCCPathParser> parser) {
     SkASSERT(!fTextureProxy);
 
     GrSurfaceDesc desc;
@@ -117,8 +167,16 @@ sk_sp<GrRenderTargetContext> GrCCPRAtlas::finalize(GrOnFlushResourceProvider* on
 
     SkIRect clearRect = SkIRect::MakeSize(fDrawBounds);
     rtc->clear(&clearRect, 0, GrRenderTargetContext::CanClearFullscreen::kYes);
-    rtc->addDrawOp(GrNoClip(), std::move(atlasOp));
+    rtc->addDrawOp(GrNoClip(), skstd::make_unique<DrawOp>(this, std::move(parser)));
 
     fTextureProxy = sk_ref_sp(rtc->asTextureProxy());
     return rtc;
+}
+
+void GrCCPRAtlas::DrawOp::onExecute(GrOpFlushState* flushState) {
+    GrPipeline pipeline(flushState->drawOpArgs().fProxy, GrPipeline::ScissorState::kEnabled,
+                        SkBlendMode::kPlus);
+    fParser->drawCoverageCount(flushState, SkIRect::MakeWH(fAtlas->fDrawBounds.width(), fAtlas->fDrawBounds.height()), pipeline,
+                               fAtlas->fInstanceStartIndices, fAtlas->fUnscissoredInstanceCounts,
+                               fAtlas->fScissorBatches);
 }

@@ -36,11 +36,16 @@ void GrCCPRCoverageProcessor::Shader::emitFragmentCode(const GrCCPRCoverageProce
     f->codeAppendf("half coverage = 0;");
     this->onEmitFragmentCode(f, "coverage");
     if (fWind.fsIn()) {
-        f->codeAppendf("%s.a = coverage * %s;", skOutputColor, fWind.fsIn());
+        f->codeAppendf("coverage *= %s;", fWind.fsIn());
+    }
+    if (Output::kCoverageCount == proc.fOutput) {
+        f->enableSkCoverageCountBuffer("out");
+        f->codeAppend ("sk_CoverageCount = coverage;");
+        f->codeAppendf("%s = %s = half4(0);", skOutputColor, skOutputCoverage);
     } else {
         f->codeAppendf("%s.a = coverage;", skOutputColor);
+        f->codeAppendf("%s = half4(1);", skOutputCoverage);
     }
-    f->codeAppendf("%s = half4(1);", skOutputCoverage);
 #ifdef SK_DEBUG
     if (proc.debugVisualizationsEnabled()) {
         f->codeAppendf("%s = half4(-%s.a, %s.a, 0, 1);",
@@ -84,8 +89,11 @@ int GrCCPRCoverageProcessor::Shader::DefineSoftSampleLocations(GrGLSLPPFragmentB
 
 void GrCCPRCoverageProcessor::getGLSLProcessorKey(const GrShaderCaps&,
                                                   GrProcessorKeyBuilder* b) const {
-    int key = (int)fRenderPass << 1;
+    int key = (int)fRenderPass << 2;
     if (Impl::kGeometryShader == fImpl) {
+        key |= 1 << 1;
+    }
+    if (Output::kCoverageCount == fOutput) {
         key |= 1;
     }
 #ifdef SK_DEBUG

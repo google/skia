@@ -81,6 +81,7 @@ public:
         const GrCaps* fCaps = nullptr;
         GrResourceProvider* fResourceProvider = nullptr;
         GrXferProcessor::DstProxy fDstProxy;
+        GrDrawBuffer fDrawBuffer = GrDrawBuffer::kColor;
     };
 
     /**
@@ -98,7 +99,8 @@ public:
      * must be "Porter Duff" (<= kLastCoeffMode). If using ScissorState::kEnabled, the caller must
      * specify a scissor rectangle through the DynamicState struct.
      **/
-    GrPipeline(GrRenderTargetProxy*, ScissorState, SkBlendMode);
+    GrPipeline(GrRenderTargetProxy*, ScissorState, SkBlendMode,
+               GrDrawBuffer = GrDrawBuffer::kColor);
 
     GrPipeline(const InitArgs&, GrProcessorSet&&, GrAppliedClip&&);
 
@@ -172,6 +174,8 @@ public:
     GrRenderTargetProxy* proxy() const { return fProxy.get(); }
     GrRenderTarget* renderTarget() const { return fProxy.get()->priv().peekRenderTarget(); }
 
+    GrDrawBuffer drawBuffer() const { return fDrawBuffer; }
+
     const GrUserStencilSettings* getUserStencil() const { return fUserStencilSettings; }
 
     const GrScissorState& getScissorState() const { return fScissorState; }
@@ -238,6 +242,7 @@ private:
     RenderTargetProxy fProxy;
     GrScissorState fScissorState;
     GrWindowRectsState fWindowRectsState;
+    GrDrawBuffer fDrawBuffer = GrDrawBuffer::kColor;
     const GrUserStencilSettings* fUserStencilSettings;
     uint16_t fFlags;
     sk_sp<const GrXferProcessor> fXferProcessor;
