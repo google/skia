@@ -208,7 +208,7 @@ sk_sp<GrTextureProxy> GrRefCachedBitmapTextureProxy(GrContext*,
 sk_sp<GrTextureProxy> GrUploadBitmapToTextureProxy(GrProxyProvider*, const SkBitmap&,
                                                    SkColorSpace* dstColorSpace);
 
-sk_sp<GrTextureProxy> GrGenerateMipMapsAndUploadToTextureProxy(GrContext*, const SkBitmap&,
+sk_sp<GrTextureProxy> GrGenerateMipMapsAndUploadToTextureProxy(GrProxyProvider*, const SkBitmap&,
                                                                SkColorSpace* dstColorSpace);
 
 /**
@@ -226,7 +226,7 @@ sk_sp<GrTextureProxy> GrCopyBaseMipMapToTextureProxy(GrContext*,
 /**
  * Creates a new texture populated with the mipmap levels.
  */
-sk_sp<GrTextureProxy> GrUploadMipMapToTextureProxy(GrContext*, const SkImageInfo&,
+sk_sp<GrTextureProxy> GrUploadMipMapToTextureProxy(GrProxyProvider*, const SkImageInfo&,
                                                    const GrMipLevel texels[],
                                                    int mipLevelCount,
                                                    SkDestinationSurfaceColorMode colorMode);

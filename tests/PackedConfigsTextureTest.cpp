@@ -16,7 +16,7 @@
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
 #include "GrContextPriv.h"
-#include "GrResourceProvider.h"
+#include "GrProxyProvider.h"
 #include "GrTextureProxy.h"
 
 static const int DEV_W = 10, DEV_H = 10;
@@ -120,9 +120,8 @@ static void run_test(skiatest::Reporter* reporter, GrContext* context,
         desc.fConfig = config;
         desc.fOrigin = origin;
 
-        sk_sp<GrTextureProxy> proxy = GrSurfaceProxy::MakeDeferred(proxyProvider,
-                                                                   desc, SkBudgeted::kNo,
-                                                                   controlPixelData.begin(), 0);
+        sk_sp<GrTextureProxy> proxy = proxyProvider->createTextureProxy(
+                                                desc, SkBudgeted::kNo, controlPixelData.begin(), 0);
         SkASSERT(proxy);
 
         sk_sp<GrSurfaceContext> sContext = context->contextPriv().makeWrappedSurfaceContext(

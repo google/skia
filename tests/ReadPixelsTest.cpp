@@ -18,6 +18,7 @@
 #include "GrContext.h"
 #include "GrContextFactory.h"
 #include "GrContextPriv.h"
+#include "GrProxyProvider.h"
 #include "SkGr.h"
 #endif
 
@@ -463,10 +464,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadPixels_Texture, reporter, ctxInfo) {
             desc.fConfig = kSkia8888_GrPixelConfig;
             desc.fOrigin = origin;
 
-            sk_sp<GrTextureProxy> proxy = GrSurfaceProxy::MakeDeferred(proxyProvider,
-                                                                       desc, SkBudgeted::kNo,
-                                                                       bmp.getPixels(),
-                                                                       bmp.rowBytes());
+            sk_sp<GrTextureProxy> proxy = proxyProvider->createTextureProxy(desc, SkBudgeted::kNo,
+                                                                            bmp.getPixels(),
+                                                                            bmp.rowBytes());
 
             sk_sp<GrSurfaceContext> sContext = context->contextPriv().makeWrappedSurfaceContext(
                                                                         std::move(proxy), nullptr);

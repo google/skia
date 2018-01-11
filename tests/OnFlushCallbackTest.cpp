@@ -14,6 +14,7 @@
 #include "GrContextPriv.h"
 #include "GrDefaultGeoProcFactory.h"
 #include "GrOnFlushResourceProvider.h"
+#include "GrProxyProvider.h"
 #include "GrRenderTargetContextPriv.h"
 #include "GrResourceProvider.h"
 #include "GrQuad.h"
@@ -474,17 +475,16 @@ sk_sp<GrTextureProxy> pre_create_atlas(GrContext* context) {
 }
 #else
 // TODO: this is unfortunate and must be removed. We want the atlas to be created later.
-sk_sp<GrTextureProxy> pre_create_atlas(GrContext* context) {
+sk_sp<GrTextureProxy> pre_create_atlas(GrProxyProvider* proxyProvider) {
     GrSurfaceDesc desc;
     desc.fFlags = kRenderTarget_GrSurfaceFlag;
     desc.fOrigin = kBottomLeft_GrSurfaceOrigin;
     desc.fWidth = 32;
     desc.fHeight = 16;
     desc.fConfig = kSkia8888_GrPixelConfig;
-    return GrSurfaceProxy::MakeDeferred(context->contextPriv().proxyProvider(),
-                                        desc, SkBackingFit::kExact,
-                                        SkBudgeted::kYes,
-                                        GrResourceProvider::kNoPendingIO_Flag);
+
+    return proxyProvider->createProxy(desc, SkBackingFit::kExact, SkBudgeted::kYes,
+                                      GrResourceProvider::kNoPendingIO_Flag);
 }
 #endif
 
@@ -520,7 +520,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(OnFlushCallbackTest, reporter, ctxInfo) {
 
     // For now (until we add a GrSuperDeferredSimpleTextureEffect), we create the final atlas
     // proxy ahead of time.
-    sk_sp<GrTextureProxy> atlasDest = pre_create_atlas(context);
+    sk_sp<GrTextureProxy> atlasDest = pre_create_atlas(context->contextPriv().proxyProvider());
 
     object.setAtlasDest(atlasDest);
 

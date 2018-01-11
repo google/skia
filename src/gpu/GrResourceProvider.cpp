@@ -15,6 +15,7 @@
 #include "GrGpu.h"
 #include "GrPath.h"
 #include "GrPathRendering.h"
+#include "GrProxyProvider.h"
 #include "GrRenderTargetPriv.h"
 #include "GrResourceCache.h"
 #include "GrResourceKey.h"
@@ -128,19 +129,22 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc,
     }
 
     GrContext* context = fGpu->getContext();
+    GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
 
     SkImageInfo srcInfo;
 
     if (make_info(desc.fWidth, desc.fHeight, desc.fConfig, &srcInfo)) {
-        sk_sp<GrTexture> tex = this->getExactScratch(desc, budgeted, 0);
-        sk_sp<GrTextureProxy> proxy = GrSurfaceProxy::MakeWrapped(tex, desc.fOrigin);
+        // DDL TODO: remove this use of createInstantiatedProxy and convert it to a testing-only
+        // method.
+        sk_sp<GrTextureProxy> proxy = proxyProvider->createInstantiatedProxy(desc,
+                                                                             SkBackingFit::kExact,
+                                                                             budgeted);
         if (proxy) {
             sk_sp<GrSurfaceContext> sContext =
                        context->contextPriv().makeWrappedSurfaceContext(std::move(proxy), nullptr);
             if (sContext) {
                 if (sContext->writePixels(srcInfo, mipLevel.fPixels, mipLevel.fRowBytes, 0, 0)) {
-                    SkASSERT(sContext->asTextureProxy()->priv().peekTexture() == tex.get());
-                    return tex;
+                    return sk_ref_sp(sContext->asTextureProxy()->priv().peekTexture());
                 }
             }
         }
@@ -464,7 +468,7 @@ sk_sp<GrRenderTarget> GrResourceProvider::wrapBackendTextureAsRenderTarget(
     if (this->isAbandoned()) {
         return nullptr;
     }
-    return this->gpu()->wrapBackendTextureAsRenderTarget(tex, sampleCnt);
+    return fGpu->wrapBackendTextureAsRenderTarget(tex, sampleCnt);
 }
 
 sk_sp<GrSemaphore> SK_WARN_UNUSED_RESULT GrResourceProvider::makeSemaphore(bool isOwned) {
