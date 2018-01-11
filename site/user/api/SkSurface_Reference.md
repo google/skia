@@ -1408,7 +1408,7 @@ bool readPixels(const SkPixmap& dst, int srcX, int srcY)
 
 Copies <a href="SkRect_Reference#Rect">Rect</a> of pixels to <a href="#SkSurface_readPixels_dst">dst</a>.
 
-Source <a href="SkRect_Reference#Rect">Rect</a> corners are (<a href="#SkSurface_readPixels_srcX">srcX</a>, <a href="#SkSurface_readPixels_srcY">srcY</a>) and (this-><a href="#SkSurface_width">width</a>, this-><a href="#SkSurface_height">height</a>).
+Source <a href="SkRect_Reference#Rect">Rect</a> corners are (<a href="#SkSurface_readPixels_srcX">srcX</a>, <a href="#SkSurface_readPixels_srcY">srcY</a>) and <a href="#Surface">Surface</a> (<a href="#SkSurface_width">width</a>, <a href="#SkSurface_height">height</a>).
 Destination <a href="SkRect_Reference#Rect">Rect</a> corners are (0, 0) and (<a href="#SkSurface_readPixels_dst">dst</a>.<a href="#SkSurface_width">width</a>, <a href="#SkSurface_readPixels_dst">dst</a>.<a href="#SkSurface_height">height</a>).
 Copies each readable pixel intersecting both rectangles, without scaling,
 converting to <a href="#SkSurface_readPixels_dst">dst</a>.colorType() and <a href="#SkSurface_readPixels_dst">dst</a>.alphaType() if required.
@@ -1462,7 +1462,7 @@ bool readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
 
 Copies <a href="SkRect_Reference#Rect">Rect</a> of pixels from <a href="SkCanvas_Reference#Canvas">Canvas</a> into <a href="#SkSurface_readPixels_2_dstPixels">dstPixels</a>.
 
-Source <a href="SkRect_Reference#Rect">Rect</a> corners are (<a href="#SkSurface_readPixels_2_srcX">srcX</a>, <a href="#SkSurface_readPixels_2_srcY">srcY</a>) and (this-><a href="#SkSurface_width">width</a>, this-><a href="#SkSurface_height">height</a>).
+Source <a href="SkRect_Reference#Rect">Rect</a> corners are (<a href="#SkSurface_readPixels_2_srcX">srcX</a>, <a href="#SkSurface_readPixels_2_srcY">srcY</a>) and <a href="#Surface">Surface</a> (<a href="#SkSurface_width">width</a>, <a href="#SkSurface_height">height</a>).
 Destination <a href="SkRect_Reference#Rect">Rect</a> corners are (0, 0) and (<a href="#SkSurface_readPixels_2_dstInfo">dstInfo</a>.<a href="#SkSurface_width">width</a>, <a href="#SkSurface_readPixels_2_dstInfo">dstInfo</a>.<a href="#SkSurface_height">height</a>).
 Copies each readable pixel intersecting both rectangles, without scaling,
 converting to <a href="#SkSurface_readPixels_2_dstInfo">dstInfo</a>.colorType() and <a href="#SkSurface_readPixels_2_dstInfo">dstInfo</a>.alphaType() if required.
@@ -1522,7 +1522,7 @@ bool readPixels(const SkBitmap& dst, int srcX, int srcY)
 
 Copies <a href="SkRect_Reference#Rect">Rect</a> of pixels from <a href="#Surface">Surface</a> into bitmap.
 
-Source <a href="SkRect_Reference#Rect">Rect</a> corners are (<a href="#SkSurface_readPixels_3_srcX">srcX</a>, <a href="#SkSurface_readPixels_3_srcY">srcY</a>) and (this-><a href="#SkSurface_width">width</a>, this-><a href="#SkSurface_height">height</a>).
+Source <a href="SkRect_Reference#Rect">Rect</a> corners are (<a href="#SkSurface_readPixels_3_srcX">srcX</a>, <a href="#SkSurface_readPixels_3_srcY">srcY</a>) and <a href="#Surface">Surface</a> (<a href="#SkSurface_width">width</a>, <a href="#SkSurface_height">height</a>).
 Destination <a href="SkRect_Reference#Rect">Rect</a> corners are (0, 0) and (bitmap.<a href="#SkSurface_width">width</a>, bitmap.<a href="#SkSurface_height">height</a>).
 Copies each readable pixel intersecting both rectangles, without scaling,
 converting to bitmap.colorType() and bitmap.alphaType() if required.

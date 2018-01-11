@@ -1392,7 +1392,7 @@ pixmap contents become invalid on any future change to Surface.
 
 Copies Rect of pixels to dst.
 
-Source Rect corners are (srcX, srcY) and (this->width(), this->height()).
+Source Rect corners are (srcX, srcY) and Surface (width(), height()).
 Destination Rect corners are (0, 0) and (dst.width(), dst.height()).
 Copies each readable pixel intersecting both rectangles, without scaling,
 converting to dst.colorType() and dst.alphaType() if required.
@@ -1451,7 +1451,7 @@ Does not copy, and returns false if:
 
 Copies Rect of pixels from Canvas into dstPixels.
 
-Source Rect corners are (srcX, srcY) and (this->width(), this->height()).
+Source Rect corners are (srcX, srcY) and Surface (width(), height()).
 Destination Rect corners are (0, 0) and (dstInfo.width(), dstInfo.height()).
 Copies each readable pixel intersecting both rectangles, without scaling,
 converting to dstInfo.colorType() and dstInfo.alphaType() if required.
@@ -1516,7 +1516,7 @@ Does not copy, and returns false if:
 
 Copies Rect of pixels from Surface into bitmap.
 
-Source Rect corners are (srcX, srcY) and (this->width(), this->height()).
+Source Rect corners are (srcX, srcY) and Surface (width(), height()).
 Destination Rect corners are (0, 0) and (bitmap.width(), bitmap.height()).
 Copies each readable pixel intersecting both rectangles, without scaling,
 converting to bitmap.colorType() and bitmap.alphaType() if required.

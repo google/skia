@@ -181,6 +181,8 @@ bool SpellCheck::check(Definition* def) {
             break;
         case MarkType::kDoxygen:
             break;
+        case MarkType::kDuration:
+            break;
         case MarkType::kEnum:
         case MarkType::kEnumClass:
             this->wordCheck(def->fName);
