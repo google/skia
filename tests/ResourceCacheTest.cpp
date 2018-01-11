@@ -16,6 +16,7 @@
 #include "GrGpu.h"
 #include "GrGpuResourceCacheAccess.h"
 #include "GrGpuResourcePriv.h"
+#include "GrProxyProvider.h"
 #include "GrRenderTargetPriv.h"
 #include "GrResourceCache.h"
 #include "GrResourceProvider.h"
@@ -1632,7 +1633,7 @@ static sk_sp<GrTexture> make_normal_texture(GrResourceProvider* provider,
     return provider->createTexture(desc, SkBudgeted::kYes);
 }
 
-static sk_sp<GrTextureProxy> make_mipmap_proxy(GrProxyProvider* provider,
+static sk_sp<GrTextureProxy> make_mipmap_proxy(GrProxyProvider* proxyProvider,
                                                GrSurfaceFlags flags,
                                                int width, int height,
                                                int sampleCnt) {
@@ -1668,8 +1669,7 @@ static sk_sp<GrTextureProxy> make_mipmap_proxy(GrProxyProvider* provider,
     desc.fConfig = kRGBA_8888_GrPixelConfig;
     desc.fSampleCnt = sampleCnt;
 
-    return GrSurfaceProxy::MakeDeferredMipMap(provider, desc, SkBudgeted::kYes,
-                                              texels.get(), mipLevelCount);
+    return proxyProvider->createMipMapProxy(desc, SkBudgeted::kYes, texels.get(), mipLevelCount);
 }
 
 // Exercise GrSurface::gpuMemorySize for different combos of MSAA, RT-only,
