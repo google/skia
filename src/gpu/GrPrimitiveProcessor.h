@@ -49,7 +49,11 @@ public:
             return GrShaderVar(fName, GrVertexAttribTypeToSLType(fType),
                                GrShaderVar::kIn_TypeModifier);
         }
-        const char*          fName;
+        bool isInitialized() const { return SkToBool(fName); }
+        Attribute() = default;
+        Attribute(const char* name, GrVertexAttribType type, int offset, InputRate rate)
+                : fName(name), fType(type), fOffsetInRecord(offset), fInputRate(rate) {}
+        const char*          fName = nullptr;
         GrVertexAttribType   fType;
         int                  fOffsetInRecord;
         InputRate            fInputRate;
