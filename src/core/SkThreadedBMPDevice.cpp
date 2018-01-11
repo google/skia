@@ -17,18 +17,25 @@ void SkThreadedBMPDevice::DrawQueue::reset() {
         fTasks->finish();
     }
 
+    fThreadAllocs.reset(fDevice->fThreadCnt);
     fSize = 0;
 
     // using TaskGroup2D = SkSpinningTaskGroup2D;
     using TaskGroup2D = SkFlexibleTaskGroup2D;
-    auto draw2D = [this](int row, int column){
-        SkThreadedBMPDevice::DrawElement& element = fElements[column];
-        if (!SkIRect::Intersects(fDevice->fTileBounds[row], element.fDrawBounds)) {
-            return;
-        }
-        element.fDrawFn(nullptr, element.fDS, fDevice->fTileBounds[row]);
+
+    // Calling drawFn(i, j, k) would draw j-th element the i-th tile on k-th thead.
+    // If the element still needs to be initialized, drawFn will return false without drawing.
+    auto drawFn = [this](int row, int column, int threadId){
+        return fElements[column].tryDraw(fDevice->fTileBounds[row], &fThreadAllocs[threadId]);
     };
-    fTasks.reset(new TaskGroup2D(draw2D, fDevice->fTileCnt, fDevice->fExecutor,
+
+    // Calling initFn(j, k) would initialize the j-th element on k-th thread. It returns false if
+    // it's already initiailized.
+    auto initFn = [this](int column, int threadId){
+        return fElements[column].tryInitOnce(&fThreadAllocs[threadId]);
+    };
+
+    fTasks.reset(new TaskGroup2D(drawFn, initFn, fDevice->fTileCnt, fDevice->fExecutor,
                                  fDevice->fThreadCnt));
     fTasks->start();
 }
@@ -149,9 +156,16 @@ void SkThreadedBMPDevice::drawPath(const SkPath& path, const SkPaint& paint,
         const SkMatrix* prePathMatrix, bool pathIsMutable) {
     SkRect drawBounds = path.isInverseFillType() ? SkRectPriv::MakeLargest()
                                                  : get_fast_bounds(path.getBounds(), paint);
-    fQueue.push(drawBounds, [=](SkArenaAlloc*, const DrawState& ds, const SkIRect& tileBounds) {
-        TileDraw(ds, tileBounds).drawPath(path, paint, prePathMatrix, false);
-    });
+    if (path.countVerbs() < 100) { // when path is small, init-once has too much overhead
+        fQueue.push(drawBounds, [=](SkArenaAlloc*, const DrawState& ds, const SkIRect& tileBounds) {
+            TileDraw(ds, tileBounds).drawPath(path, paint, prePathMatrix, false);
+        });
+    } else {
+        fQueue.push(drawBounds, [=](SkArenaAlloc* alloc, DrawElement* elem) {
+            SkInitOnceData data = {alloc, elem};
+            elem->getDraw().drawPath(path, paint, prePathMatrix, false, false, nullptr, &data);
+        });
+    }
 }
 
 void SkThreadedBMPDevice::drawBitmap(const SkBitmap& bitmap, SkScalar x, SkScalar y,
