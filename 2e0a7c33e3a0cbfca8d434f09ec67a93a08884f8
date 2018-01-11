@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "417ac4b5_0b6ffd1a",
+        "filename": "tools/bisect_roll.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2018-01-11T18:32:05Z",
+      "side": 1,
+      "message": "Would make sense to make this a flag too.",
+      "revId": "2e0a7c33e3a0cbfca8d434f09ec67a93a08884f8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ad6ab200_9dadee5a",
+        "filename": "tools/bisect_roll.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 207,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2018-01-11T18:32:05Z",
+      "side": 1,
+      "message": "I don\u0027t think you need this since the user\u0027s email is added to the roll and they will receive notifications.",
+      "revId": "2e0a7c33e3a0cbfca8d434f09ec67a93a08884f8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c54cb9de_af36b412",
+        "filename": "tools/bisect_roll.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 208,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2018-01-11T18:32:05Z",
+      "side": 1,
+      "message": "This could be useful I guess. With a prompt saying \u0027Repeat process?\u0027",
+      "revId": "2e0a7c33e3a0cbfca8d434f09ec67a93a08884f8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
