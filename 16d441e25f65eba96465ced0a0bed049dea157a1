@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d689619e_c6cb971e",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 270,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-01-11T16:34:08Z",
+      "side": 1,
+      "message": "const SkRect\u0026 ?",
+      "revId": "16d441e25f65eba96465ced0a0bed049dea157a1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "24cb0059_4b0a49da",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 285,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-01-11T16:34:08Z",
+      "side": 1,
+      "message": "same here",
+      "revId": "16d441e25f65eba96465ced0a0bed049dea157a1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
