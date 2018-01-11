@@ -78,10 +78,10 @@ bool GrTextUtils::ShouldDisableLCD(const SkPaint& paint) {
            paint.isFakeBoldText() || paint.getStyle() != SkPaint::kFill_Style;
 }
 
-void GrTextUtils::DrawTextAsPath(GrContext* context, GrTextUtils::Target* target,
-                                 const GrClip& clip, const SkPaint& paint,
-                                 const SkMatrix& viewMatrix, const char text[], size_t byteLength,
-                                 SkScalar x, SkScalar y, const SkIRect& clipBounds) {
+void GrTextUtils::DrawBigText(GrContext* context, GrTextUtils::Target* target,
+                              const GrClip& clip, const SkPaint& paint,
+                              const SkMatrix& viewMatrix, const char text[], size_t byteLength,
+                              SkScalar x, SkScalar y, const SkIRect& clipBounds) {
     if (!paint.countText(text, byteLength)) {
         return;
     }
@@ -104,12 +104,12 @@ void GrTextUtils::DrawTextAsPath(GrContext* context, GrTextUtils::Target* target
     }
 }
 
-void GrTextUtils::DrawPosTextAsPath(GrContext* context, GrTextUtils::Target* target,
-                                    const SkSurfaceProps& props, const GrClip& clip,
-                                    const SkPaint& origPaint, const SkMatrix& viewMatrix,
-                                    const char text[], size_t byteLength, const SkScalar pos[],
-                                    int scalarsPerPosition, const SkPoint& offset,
-                                    const SkIRect& clipBounds) {
+void GrTextUtils::DrawBigPosText(GrContext* context, GrTextUtils::Target* target,
+                                 const SkSurfaceProps& props, const GrClip& clip,
+                                 const SkPaint& origPaint, const SkMatrix& viewMatrix,
+                                 const char text[], size_t byteLength, const SkScalar pos[],
+                                 int scalarsPerPosition, const SkPoint& offset,
+                                 const SkIRect& clipBounds) {
     if (!origPaint.countText(text, byteLength)) {
         return;
     }
