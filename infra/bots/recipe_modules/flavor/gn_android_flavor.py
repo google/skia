@@ -373,6 +373,11 @@ if actual_freq != str(freq):
     if 'Vulkan' in extra_tokens:
       args['ndk_api'] = 24
       args['skia_enable_vulkan_debug_layers'] = 'false'
+    if 'ASAN' in extra_tokens:
+      args['ndk_api'] = 21
+      args['sanitize'] = "address"
+      extra_cflags.append('-fno-omit-frame-pointer')
+
 
     # If an Android API level is specified, use that.
     for t in extra_tokens:
