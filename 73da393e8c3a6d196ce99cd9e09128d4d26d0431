@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6f0a3106_ff507d76",
+        "filename": "fuzz/fuzz.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 568,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-01-11T14:07:41Z",
+      "side": 1,
+      "message": "Should we check something about what this returns?",
+      "range": {
+        "startLine": 568,
+        "startChar": 4,
+        "endLine": 568,
+        "endChar": 21
+      },
+      "revId": "73da393e8c3a6d196ce99cd9e09128d4d26d0431",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f0821b2c_440c9b8f",
+        "filename": "fuzz/oss_fuzz/FuzzRegionSetPath.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-01-11T14:07:41Z",
+      "side": 1,
+      "message": "How about we make FuzzRegionSetPath void and write\n\n   FuzzRegionSetPath(\u0026fuzz);\n   return 0;\n\n?",
+      "revId": "73da393e8c3a6d196ce99cd9e09128d4d26d0431",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
