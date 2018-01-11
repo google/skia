@@ -319,7 +319,7 @@ created <a href="#Image">Image</a>, or nullptr
 
 ### Example
 
-<div><fiddle-embed name="ba59d292a18cb0e8a90e1bb143115f1d"><div>The generator returning <a href="undocumented#Picture">Picture</a> cannot be shared; std::move transfers ownership to generated <a href="#Image">Image</a>.</div></fiddle-embed></div>
+<div><fiddle-embed name="c2fec0746f88ca34d7dce59dd9bdef9e"><div>The generator returning <a href="undocumented#Picture">Picture</a> cannot be shared; std::move transfers ownership to generated <a href="#Image">Image</a>.</div></fiddle-embed></div>
 
 ### See Also
 
@@ -395,10 +395,6 @@ range of colors; may be nullptr</td>
 
 created <a href="#Image">Image</a>, or nullptr
 
-### See Also
-
-<a href="#SkImage_MakeFromAdoptedTexture">MakeFromAdoptedTexture</a> <a href="#SkSurface_MakeFromBackendTexture">SkSurface::MakeFromBackendTexture</a>
-
 ---
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
@@ -434,10 +430,6 @@ state passed to <a href="#SkImage_MakeFromTexture_2_textureReleaseProc">textureR
 ### Return Value
 
 created <a href="#Image">Image</a>, or nullptr
-
-### See Also
-
-<a href="#SkImage_MakeFromAdoptedTexture">MakeFromAdoptedTexture</a> <a href="#SkSurface_MakeFromBackendTexture">SkSurface::MakeFromBackendTexture</a>
 
 ---
 
@@ -480,7 +472,7 @@ created <a href="#Image">Image</a>, or nullptr
 
 ### Example
 
-<div><fiddle-embed name="2faa98d6a1d578010326af17ee7e4d2a" gpu="true"><div>A back-end texture has been created and uploaded to the GPU outside of this example.</div></fiddle-embed></div>
+<div><fiddle-embed name="d5e43961a54548f445eece91d517381c" gpu="true"><div>A back-end texture has been created and uploaded to the GPU outside of this example.</div></fiddle-embed></div>
 
 ### See Also
 
@@ -534,7 +526,7 @@ created <a href="#Image">Image</a>, or nullptr
 
 ### Example
 
-<div><fiddle-embed name="6a50c3cb961c23ad9ecbd5caedac0d70"></fiddle-embed></div>
+<div><fiddle-embed name="c7be9423f7c2ef819523ba4d607d17b8" gpu="true"></fiddle-embed></div>
 
 ### See Also
 
@@ -587,7 +579,7 @@ created <a href="#Image">Image</a>, or nullptr
 
 ### Example
 
-<div><fiddle-embed name="90202d8b1df605fdb0c84f2c351f9598"></fiddle-embed></div>
+<div><fiddle-embed name="069c7b116479e3ca46f953f07dcbdd36"></fiddle-embed></div>
 
 ### See Also
 
@@ -640,7 +632,7 @@ created <a href="#Image">Image</a>, or nullptr
 
 ### Example
 
-<div><fiddle-embed name="bb37de3dc4a0c53d48cdfafb90b9b18e"></fiddle-embed></div>
+<div><fiddle-embed name="45bca8747b8f49b5be34b520897ef048"></fiddle-embed></div>
 
 ### See Also
 
@@ -728,7 +720,7 @@ created <a href="#Image">Image</a>, or nullptr
 
 ### Example
 
-<div><fiddle-embed name="aed9b621fdc2135d512b58648d064224"></fiddle-embed></div>
+<div><fiddle-embed name="b07964ec9c5c8a6febba805f1cf4d071" gpu="true"></fiddle-embed></div>
 
 ### See Also
 
@@ -1036,7 +1028,7 @@ pixel <a href="#SkImage_width">width</a> in <a href="#Image">Image</a>
 
 ### Example
 
-<div><fiddle-embed name="4fa6c18eb829d8979cfdbbf6f42e4c97"></fiddle-embed></div>
+<div><fiddle-embed name="39a6d0bbeac6d957c2338e0bff865cf8"></fiddle-embed></div>
 
 ### See Also
 
@@ -1059,7 +1051,7 @@ pixel <a href="#SkImage_height">height</a> in <a href="#Image">Image</a>
 
 ### Example
 
-<div><fiddle-embed name="96c8202a13068e36432006f75b124eee"></fiddle-embed></div>
+<div><fiddle-embed name="6e563cb8351d34bd8af555a51bcd7a96"></fiddle-embed></div>
 
 ### See Also
 
@@ -1105,7 +1097,7 @@ integral rectangle from origin to <a href="#SkImage_width">width</a> and <a href
 
 ### Example
 
-<div><fiddle-embed name="a6617b5d3066aadce2c37ed2184d6098"></fiddle-embed></div>
+<div><fiddle-embed name="c204b38b3fc08914b0a634aa4eaec894"></fiddle-embed></div>
 
 ### See Also
 
@@ -1157,7 +1149,7 @@ or was parsed from encoded data.
 
 ### Example
 
-<div><fiddle-embed name="1c8b8588dbbb1d5df72ee9164ae0aab0"></fiddle-embed></div>
+<div><fiddle-embed name="dac1403132a42459d6881585efbfe74b"></fiddle-embed></div>
 
 ### See Also
 
@@ -1502,15 +1494,19 @@ storage for one of: <a href="undocumented#GrSurfaceOrigin">kTopLeft GrSurfaceOri
 
 ### Return Value
 
-back-end API texture handle
+back-end API texture handle, or nullptr
 
 ### Example
 
-<div><fiddle-embed name="704b914d622fbff24d7a45647380459e" gpu="true"></fiddle-embed></div>
+<div><fiddle-embed name="f8943191063bfcc69f29f2b149df5c6d" gpu="true"></fiddle-embed></div>
+
+### Example
+
+<div><fiddle-embed name="a86c580638fcf83f782047b95c60f43f" gpu="true"></fiddle-embed></div>
 
 ### See Also
 
-incomplete
+<a href="#SkImage_MakeFromTexture">MakeFromTexture</a> <a href="#SkImage_isTextureBacked">isTextureBacked</a>
 
 ---
 
@@ -1522,28 +1518,31 @@ enum <a href="#SkImage_CachingHint">CachingHint</a> {
 <a href="#SkImage_kDisallow_CachingHint">kDisallow CachingHint</a>,
 };</pre>
 
-Hints to image calls where the system might cache computed intermediates (e.g. the results
-of decoding or a read-back from the GPU. Passing <a href="#SkImage_kAllow_CachingHint">kAllow CachingHint</a> signals that the system's default
-behavior is fine. Passing <a href="#SkImage_kDisallow_CachingHint">kDisallow CachingHint</a> signals that caching should be avoided.
+<a href="#SkImage_CachingHint">CachingHint</a> selects whether Skia may internally cache <a href="#Bitmap">Bitmaps</a> generated by
+decoding <a href="#Image">Image</a>, or by copying <a href="#Image">Image</a> from GPU to CPU. The default behavior
+allows caching <a href="#Bitmap">Bitmaps</a>.
+
+Choose <a href="#SkImage_kDisallow_CachingHint">kDisallow CachingHint</a> if <a href="#Image">Image</a> pixels are to be used only once, or
+if <a href="#Image">Image</a> pixels reside in a cache outside of Skia, or to reduce memory pressure.
+
+Choosing <a href="#SkImage_kAllow_CachingHint">kAllow CachingHint</a> does not ensure that pixels will be cached.
+<a href="#Image">Image</a> pixels may not be cached if memory requirements are too large or
+pixels are not accessible.
 
 ### Constants
 
 <table>
   <tr>
-    <td><a name="SkImage_kAllow_CachingHint"> <code><strong>SkImage::kAllow_CachingHint </strong></code> </a></td><td>0</td><td></td>
+    <td><a name="SkImage_kAllow_CachingHint"> <code><strong>SkImage::kAllow_CachingHint </strong></code> </a></td><td>0</td><td>Allows Skia to internally cache decoded and copied pixels.</td>
   </tr>
   <tr>
-    <td><a name="SkImage_kDisallow_CachingHint"> <code><strong>SkImage::kDisallow_CachingHint </strong></code> </a></td><td>1</td><td></td>
+    <td><a name="SkImage_kDisallow_CachingHint"> <code><strong>SkImage::kDisallow_CachingHint </strong></code> </a></td><td>1</td><td>Disallows Skia from internally caching decoded and copied pixels.</td>
   </tr>
 </table>
 
-### Example
-
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
-
 ### See Also
 
-incomplete
+<a href="#SkImage_readPixels">readPixels</a> <a href="#SkImage_scalePixels">scalePixels</a>
 
 
 
@@ -1555,51 +1554,62 @@ bool readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
                 CachingHint cachingHint = kAllow_CachingHint) const
 </pre>
 
-Copy the pixels from the image into the specified buffer (<a href="#SkImage_readPixels_dstPixels">dstPixels</a> + <a href="#SkImage_readPixels_dstRowBytes">dstRowBytes</a>),
-converting them into the requested format (<a href="#SkImage_readPixels_dstInfo">dstInfo</a>). The image pixels are read
-starting at the specified (<a href="#SkImage_readPixels_srcX">srcX</a>, <a href="#SkImage_readPixels_srcY">srcY</a>) location.
-<a href="#SkImage_readPixels_dstInfo">dstInfo</a> and (<a href="#SkImage_readPixels_srcX">srcX</a>, <a href="#SkImage_readPixels_srcY">srcY</a>) offset specifies a source rectangle:
+Copies <a href="SkRect_Reference#Rect">Rect</a> of pixels from <a href="#Image">Image</a> to <a href="#SkImage_readPixels_dstPixels">dstPixels</a>. Copy starts at offset (<a href="#SkImage_readPixels_srcX">srcX</a>, <a href="#SkImage_readPixels_srcY">srcY</a>),
+and does not exceed <a href="#Image">Image</a> (<a href="#SkImage_width">width</a>, <a href="#SkImage_height">height</a>).
 
-<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-<a href="SkRect_Reference#SkRect">SkRect</a> srcR;
-srcR.setXYWH(srcX, srcY, dstInfo.width(), <a href="#SkImage_readPixels_dstInfo">dstInfo</a>.<a href="#SkImage_height">height</a>);</pre>
+<a href="#SkImage_readPixels_dstInfo">dstInfo</a> specifies <a href="#SkImage_width">width</a>, <a href="#SkImage_height">height</a>, <a href="#Color_Type">Color Type</a>, <a href="#Alpha_Type">Alpha Type</a>, and <a href="undocumented#Color_Space">Color Space</a> of
+destination. <a href="#SkImage_readPixels_dstRowBytes">dstRowBytes</a> specifics the gap from one destination row to the next.
+Returns true if pixels are copied. Returns false if:
 
-The source rectangle is intersected with the <a href="#SkImage_bounds">bounds</a> of the image. If this intersection is not empty,
-then we have two sets of pixels (of equal size). Replace <a href="#SkImage_readPixels_dstPixels">dstPixels</a> with the
-corresponding <a href="#Image">Image</a> pixels, performing any <a href="#Color_Type">Color Type</a>/<a href="#Alpha_Type">Alpha Type</a> transformations needed
-(in the case where <a href="#Image">Image</a> and <a href="#SkImage_readPixels_dstInfo">dstInfo</a> have different <a href="#Color_Type">Color Types</a> or <a href="#Alpha_Type">Alpha Types</a>).
-This call can fail, returning false, for several reasons:
-if source rectangle does not intersect the image <a href="#SkImage_bounds">bounds</a>;
-if the requested <a href="#Color_Type">Color Type</a>/<a href="#Alpha_Type">Alpha Type</a> cannot be converted from the image's types.
+<table>  <tr>
+    <td><a href="#SkImage_readPixels_dstInfo">dstInfo</a>.addr() equals nullptr</td>  </tr>  <tr>
+    <td><a href="#SkImage_readPixels_dstRowBytes">dstRowBytes</a> is less than <a href="#SkImage_readPixels_dstInfo">dstInfo</a>.<a href="undocumented#SkImageInfo">minRowBytes</a></td>  </tr>  <tr>
+    <td><a href="undocumented#Pixel_Ref">Pixel Ref</a> is nullptr</td>  </tr>
+</table>
+
+Pixels are copied only if pixel conversion is possible. If <a href="#Image">Image</a> <a href="#Color_Type">Color Type</a> is
+<a href="undocumented#SkColorType">kGray 8 SkColorType</a>, or <a href="undocumented#SkColorType">kAlpha 8 SkColorType</a>; <a href="#SkImage_readPixels_dstInfo">dstInfo</a>.<a href="undocumented#SkImageInfo">colorType</a> must match.
+If <a href="#Image">Image</a> <a href="#Color_Type">Color Type</a> is <a href="undocumented#SkColorType">kGray 8 SkColorType</a>, <a href="#SkImage_readPixels_dstInfo">dstInfo</a>.<a href="#SkImage_colorSpace">colorSpace</a> must match.
+If <a href="#Image">Image</a> <a href="#Alpha_Type">Alpha Type</a> is <a href="undocumented#SkAlphaType">kOpaque SkAlphaType</a>, <a href="#SkImage_readPixels_dstInfo">dstInfo</a>.<a href="#SkImage_alphaType">alphaType</a> must
+match. If <a href="#Image">Image</a> <a href="undocumented#Color_Space">Color Space</a> is nullptr, <a href="#SkImage_readPixels_dstInfo">dstInfo</a>.<a href="#SkImage_colorSpace">colorSpace</a> must match. Returns
+false if pixel conversion is not possible.
+
+<a href="#SkImage_readPixels_srcX">srcX</a> and <a href="#SkImage_readPixels_srcY">srcY</a> may be negative to copy only top or left of source. Returns
+false if <a href="#SkImage_width">width</a> or <a href="#SkImage_height">height</a> is zero or negative.
+Returns false ifabs(srcX) >= <a href="#Image">Image</a> <a href="#SkImage_width">width</a>,
+or ifabs(srcY) >= <a href="#Image">Image</a> <a href="#SkImage_height">height</a>.
+
+If <a href="#SkImage_readPixels_cachingHint">cachingHint</a> is <a href="#SkImage_kAllow_CachingHint">kAllow CachingHint</a>, pixels may be retained locally.
+If <a href="#SkImage_readPixels_cachingHint">cachingHint</a> is <a href="#SkImage_kDisallow_CachingHint">kDisallow CachingHint</a>, pixels are not added to the local cache.
 
 ### Parameters
 
 <table>  <tr>    <td><a name="SkImage_readPixels_dstInfo"> <code><strong>dstInfo </strong></code> </a></td> <td>
-incomplete</td>
+destination <a href="#SkImage_width">width</a>, <a href="#SkImage_height">height</a>, <a href="#Color_Type">Color Type</a>, <a href="#Alpha_Type">Alpha Type</a>, <a href="undocumented#Color_Space">Color Space</a></td>
   </tr>  <tr>    <td><a name="SkImage_readPixels_dstPixels"> <code><strong>dstPixels </strong></code> </a></td> <td>
-incomplete</td>
+destination pixel storage</td>
   </tr>  <tr>    <td><a name="SkImage_readPixels_dstRowBytes"> <code><strong>dstRowBytes </strong></code> </a></td> <td>
-incomplete</td>
+destination row length</td>
   </tr>  <tr>    <td><a name="SkImage_readPixels_srcX"> <code><strong>srcX </strong></code> </a></td> <td>
-incomplete</td>
+column index whose absolute value is less than <a href="#SkImage_width">width</a></td>
   </tr>  <tr>    <td><a name="SkImage_readPixels_srcY"> <code><strong>srcY </strong></code> </a></td> <td>
-incomplete</td>
+row index whose absolute value is less than <a href="#SkImage_height">height</a></td>
   </tr>  <tr>    <td><a name="SkImage_readPixels_cachingHint"> <code><strong>cachingHint </strong></code> </a></td> <td>
-incomplete</td>
+one of: <a href="#SkImage_kAllow_CachingHint">kAllow CachingHint</a>, <a href="#SkImage_kDisallow_CachingHint">kDisallow CachingHint</a></td>
   </tr>
 </table>
 
 ### Return Value
 
-incomplete
+true if pixels are copied to <a href="#SkImage_readPixels_dstPixels">dstPixels</a>
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name="8aa8ca63dff4641dfc6ea8a3c555d59c"></fiddle-embed></div>
 
 ### See Also
 
-incomplete
+<a href="#SkImage_scalePixels">scalePixels</a> <a href="#SkBitmap_readPixels">SkBitmap::readPixels</a> <a href="#SkPixmap_readPixels">SkPixmap::readPixels</a> <a href="#SkCanvas_readPixels">SkCanvas::readPixels</a> <a href="#SkSurface_readPixels">SkSurface::readPixels</a>
 
 ---
 
@@ -1607,30 +1617,57 @@ incomplete
 bool readPixels(const SkPixmap& dst, int srcX, int srcY, CachingHint cachingHint = kAllow_CachingHint) const
 </pre>
 
+Copies a <a href="SkRect_Reference#Rect">Rect</a> of pixels from <a href="#Image">Image</a> to <a href="#SkImage_readPixels_2_dst">dst</a>. Copy starts at (<a href="#SkImage_readPixels_2_srcX">srcX</a>, <a href="#SkImage_readPixels_2_srcY">srcY</a>), and
+does not exceed <a href="#Image">Image</a> (<a href="#SkImage_width">width</a>, <a href="#SkImage_height">height</a>).
+
+<a href="#SkImage_readPixels_2_dst">dst</a> specifies <a href="#SkImage_width">width</a>, <a href="#SkImage_height">height</a>, <a href="#Color_Type">Color Type</a>, <a href="#Alpha_Type">Alpha Type</a>, <a href="undocumented#Color_Space">Color Space</a>, pixel storage,
+and row bytes of destination. <a href="#SkImage_readPixels_2_dst">dst</a>.<a href="SkPixmap_Reference#SkPixmap">rowBytes</a> specifics the gap from one destination
+row to the next. Returns true if pixels are copied. Returns false if:
+
+<table>  <tr>
+    <td><a href="#SkImage_readPixels_2_dst">dst</a> pixel storage equals nullptr</td>  </tr>  <tr>
+    <td><a href="#SkImage_readPixels_2_dst">dst</a>.<a href="SkPixmap_Reference#SkPixmap">rowBytes</a> is less than <a href="#SkImageInfo_minRowBytes">SkImageInfo::minRowBytes</a></td>  </tr>  <tr>
+    <td><a href="undocumented#Pixel_Ref">Pixel Ref</a> is nullptr</td>  </tr>
+</table>
+
+Pixels are copied only if pixel conversion is possible. If <a href="#Image">Image</a> <a href="#Color_Type">Color Type</a> is
+<a href="undocumented#SkColorType">kGray 8 SkColorType</a>, or <a href="undocumented#SkColorType">kAlpha 8 SkColorType</a>; <a href="#SkImage_readPixels_2_dst">dst</a>.<a href="SkPixmap_Reference#SkPixmap">colorType</a> must match.
+If <a href="#Image">Image</a> <a href="#Color_Type">Color Type</a> is <a href="undocumented#SkColorType">kGray 8 SkColorType</a>, <a href="#SkImage_readPixels_2_dst">dst</a>.<a href="#SkImage_colorSpace">colorSpace</a> must match.
+If <a href="#Image">Image</a> <a href="#Alpha_Type">Alpha Type</a> is <a href="undocumented#SkAlphaType">kOpaque SkAlphaType</a>, <a href="#SkImage_readPixels_2_dst">dst</a>.<a href="#SkImage_alphaType">alphaType</a> must
+match. If <a href="#Image">Image</a> <a href="undocumented#Color_Space">Color Space</a> is nullptr, <a href="#SkImage_readPixels_2_dst">dst</a>.<a href="#SkImage_colorSpace">colorSpace</a> must match. Returns
+false if pixel conversion is not possible.
+<a href="#SkImage_readPixels_2_srcX">srcX</a> and <a href="#SkImage_readPixels_2_srcY">srcY</a> may be negative to copy only top or left of source. Returns
+false if <a href="#SkImage_width">width</a> or <a href="#SkImage_height">height</a> is zero or negative.
+Returns false ifabs(srcX) >= <a href="#Image">Image</a> <a href="#SkImage_width">width</a>,
+or ifabs(srcY) >= <a href="#Image">Image</a> <a href="#SkImage_height">height</a>.
+
+If <a href="#SkImage_readPixels_2_cachingHint">cachingHint</a> is <a href="#SkImage_kAllow_CachingHint">kAllow CachingHint</a>, pixels may be retained locally.
+If <a href="#SkImage_readPixels_2_cachingHint">cachingHint</a> is <a href="#SkImage_kDisallow_CachingHint">kDisallow CachingHint</a>, pixels are not added to the local cache.
+
 ### Parameters
 
 <table>  <tr>    <td><a name="SkImage_readPixels_2_dst"> <code><strong>dst </strong></code> </a></td> <td>
-incomplete</td>
+destination <a href="SkPixmap_Reference#Pixmap">Pixmap</a>: <a href="#Info">Image Info</a>, pixels, row bytes</td>
   </tr>  <tr>    <td><a name="SkImage_readPixels_2_srcX"> <code><strong>srcX </strong></code> </a></td> <td>
-incomplete</td>
+column index whose absolute value is less than <a href="#SkImage_width">width</a></td>
   </tr>  <tr>    <td><a name="SkImage_readPixels_2_srcY"> <code><strong>srcY </strong></code> </a></td> <td>
-incomplete</td>
+row index whose absolute value is less than <a href="#SkImage_height">height</a></td>
   </tr>  <tr>    <td><a name="SkImage_readPixels_2_cachingHint"> <code><strong>cachingHint </strong></code> </a></td> <td>
-incomplete</td>
+one of: <a href="#SkImage_kAllow_CachingHint">kAllow CachingHint</a>, <a href="#SkImage_kDisallow_CachingHint">kDisallow CachingHint</a></td>
   </tr>
 </table>
 
 ### Return Value
 
-incomplete
+true if pixels are copied to <a href="#SkImage_readPixels_2_dst">dst</a>
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name="b77a73c4baa63a4a8e2a4fdd96144d0b"></fiddle-embed></div>
 
 ### See Also
 
-incomplete
+<a href="#SkImage_scalePixels">scalePixels</a> <a href="#SkBitmap_readPixels">SkBitmap::readPixels</a> <a href="#SkPixmap_readPixels">SkPixmap::readPixels</a> <a href="#SkCanvas_readPixels">SkCanvas::readPixels</a> <a href="#SkSurface_readPixels">SkSurface::readPixels</a>
 
 ---
 
@@ -1642,33 +1679,51 @@ bool scalePixels(const SkPixmap& dst, SkFilterQuality filterQuality,
                  CachingHint cachingHint = kAllow_CachingHint) const
 </pre>
 
-Copies <a href="#Image">Image</a> pixels into <a href="#SkImage_scalePixels_dst">dst</a>, converting to <a href="#SkImage_scalePixels_dst">dst</a> <a href="#Color_Type">Color Type</a> and <a href="#Alpha_Type">Alpha Type</a>.
-If the conversion cannot be performed, false is returned.
-If <a href="#SkImage_scalePixels_dst">dst</a> <a href="#SkImage_dimensions">dimensions</a> differ from <a href="#Image">Image</a> <a href="#SkImage_dimensions">dimensions</a>, <a href="#Image">Image</a> is scaled, applying
-<a href="#SkImage_scalePixels_filterQuality">filterQuality</a>.
+Copies <a href="#Image">Image</a> to <a href="#SkImage_scalePixels_dst">dst</a>, scaling pixels to fit <a href="#SkImage_scalePixels_dst">dst</a>.<a href="#SkImage_width">width</a> and <a href="#SkImage_scalePixels_dst">dst</a>.<a href="#SkImage_height">height</a>, and
+converting pixels to match <a href="#SkImage_scalePixels_dst">dst</a>.<a href="SkPixmap_Reference#SkPixmap">colorType</a> and <a href="#SkImage_scalePixels_dst">dst</a>.<a href="#SkImage_alphaType">alphaType</a>. Returns true if
+pixels are copied. Returns false if <a href="#SkImage_scalePixels_dst">dst</a>.addr() is nullptr, or <a href="#SkImage_scalePixels_dst">dst</a>.<a href="SkPixmap_Reference#SkPixmap">rowBytes</a> is
+less than <a href="#SkImage_scalePixels_dst">dst</a> <a href="#SkImageInfo_minRowBytes">SkImageInfo::minRowBytes</a>.
+
+Pixels are copied only if pixel conversion is possible. If <a href="#Image">Image</a> <a href="#Color_Type">Color Type</a> is
+<a href="undocumented#SkColorType">kGray 8 SkColorType</a>, or <a href="undocumented#SkColorType">kAlpha 8 SkColorType</a>; <a href="#SkImage_scalePixels_dst">dst</a>.<a href="SkPixmap_Reference#SkPixmap">colorType</a> must match.
+If <a href="#Image">Image</a> <a href="#Color_Type">Color Type</a> is <a href="undocumented#SkColorType">kGray 8 SkColorType</a>, <a href="#SkImage_scalePixels_dst">dst</a>.<a href="#SkImage_colorSpace">colorSpace</a> must match.
+If <a href="#Image">Image</a> <a href="#Alpha_Type">Alpha Type</a> is <a href="undocumented#SkAlphaType">kOpaque SkAlphaType</a>, <a href="#SkImage_scalePixels_dst">dst</a>.<a href="#SkImage_alphaType">alphaType</a> must
+match. If <a href="#Image">Image</a> <a href="undocumented#Color_Space">Color Space</a> is nullptr, <a href="#SkImage_scalePixels_dst">dst</a>.<a href="#SkImage_colorSpace">colorSpace</a> must match. Returns
+false if pixel conversion is not possible.
+
+Scales the image, with <a href="#SkImage_scalePixels_filterQuality">filterQuality</a>, to match <a href="#SkImage_scalePixels_dst">dst</a>.<a href="#SkImage_width">width</a> and <a href="#SkImage_scalePixels_dst">dst</a>.<a href="#SkImage_height">height</a>.
+<a href="#SkImage_scalePixels_filterQuality">filterQuality</a> <a href="undocumented#SkFilterQuality">kNone SkFilterQuality</a> is fastest, typically implemented with
+<a href="undocumented#Filter_Quality_Nearest_Neighbor">Filter Quality Nearest Neighbor</a>. <a href="undocumented#SkFilterQuality">kLow SkFilterQuality</a> is typically implemented with
+<a href="undocumented#Filter_Quality_Bilerp">Filter Quality Bilerp</a>. <a href="undocumented#SkFilterQuality">kMedium SkFilterQuality</a> is typically implemented with
+<a href="undocumented#Filter_Quality_Bilerp">Filter Quality Bilerp</a>, and <a href="undocumented#Filter_Quality_MipMap">Filter Quality MipMap</a> when size is reduced.
+<a href="undocumented#SkFilterQuality">kHigh SkFilterQuality</a> is slowest, typically implemented with <a href="undocumented#Filter_Quality_BiCubic">Filter Quality BiCubic</a>.
+
+If <a href="#SkImage_scalePixels_cachingHint">cachingHint</a> is <a href="#SkImage_kAllow_CachingHint">kAllow CachingHint</a>, pixels may be retained locally.
+If <a href="#SkImage_scalePixels_cachingHint">cachingHint</a> is <a href="#SkImage_kDisallow_CachingHint">kDisallow CachingHint</a>, pixels are not added to the local cache.
 
 ### Parameters
 
 <table>  <tr>    <td><a name="SkImage_scalePixels_dst"> <code><strong>dst </strong></code> </a></td> <td>
-incomplete</td>
+destination <a href="SkPixmap_Reference#Pixmap">Pixmap</a>: <a href="#Info">Image Info</a>, pixels, row bytes</td>
   </tr>  <tr>    <td><a name="SkImage_scalePixels_filterQuality"> <code><strong>filterQuality </strong></code> </a></td> <td>
-incomplete</td>
+one of: <a href="undocumented#SkFilterQuality">kNone SkFilterQuality</a>, <a href="undocumented#SkFilterQuality">kLow SkFilterQuality</a>,
+<a href="undocumented#SkFilterQuality">kMedium SkFilterQuality</a>, <a href="undocumented#SkFilterQuality">kHigh SkFilterQuality</a></td>
   </tr>  <tr>    <td><a name="SkImage_scalePixels_cachingHint"> <code><strong>cachingHint </strong></code> </a></td> <td>
-incomplete</td>
+one of: <a href="#SkImage_kAllow_CachingHint">kAllow CachingHint</a>, <a href="#SkImage_kDisallow_CachingHint">kDisallow CachingHint</a></td>
   </tr>
 </table>
 
 ### Return Value
 
-incomplete
+true if pixels are scaled to fit <a href="#SkImage_scalePixels_dst">dst</a>
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name="5949c9a63610cae30019e5b1899ee38f"></fiddle-embed></div>
 
 ### See Also
 
-incomplete
+<a href="#SkCanvas_drawImage">SkCanvas::drawImage</a> <a href="#SkImage_readPixels">readPixels</a> <a href="#SkPixmap_scalePixels">SkPixmap::scalePixels</a>
 
 ---
 
@@ -1681,14 +1736,27 @@ sk_sp&lt;SkData&gt; encodeToData(SkEncodedImageFormat encodedImageFormat, int qu
 
 Encodes <a href="#Image">Image</a> pixels, returning result as <a href="undocumented#SkData">SkData</a>.
 
-Returns nullptr if encoding fails, or <a href="#SkImage_encodeToData_encodedImageFormat">encodedImageFormat</a> is not supported.
+Returns nullptr if encoding fails, or if <a href="#SkImage_encodeToData_encodedImageFormat">encodedImageFormat</a> is not supported.
+
+<a href="#Image">Image</a> encoding in a format requires both building with one or more of:
+SK_HAS_JPEG_LIBRARY, SK_HAS_PNG_LIBRARY, SK_HAS_WEBP_LIBRARY; and platform support
+for the encoded format.
+
+If SK_BUILD_FOR_MAC or SK_BUILD_FOR_IOS is defined, <a href="#SkImage_encodeToData_encodedImageFormat">encodedImageFormat</a> can
+additionally be one of: <a href="#SkEncodedImageFormat_kICO">SkEncodedImageFormat::kICO</a>, <a href="#SkEncodedImageFormat_kBMP">SkEncodedImageFormat::kBMP</a>,
+<a href="#SkEncodedImageFormat_kGIF">SkEncodedImageFormat::kGIF</a>.
+
+<a href="#SkImage_encodeToData_quality">quality</a> is a platform and format specific metric trading off size and encoding
+error. When used, <a href="#SkImage_encodeToData_quality">quality</a> equaling 100 encodes with the least error. <a href="#SkImage_encodeToData_quality">quality</a> may
+be ignored by the encoder.
 
 ### Parameters
 
 <table>  <tr>    <td><a name="SkImage_encodeToData_encodedImageFormat"> <code><strong>encodedImageFormat </strong></code> </a></td> <td>
-incomplete</td>
+one of: <a href="#SkEncodedImageFormat_kJPEG">SkEncodedImageFormat::kJPEG</a>, <a href="#SkEncodedImageFormat_kPNG">SkEncodedImageFormat::kPNG</a>,
+<a href="#SkEncodedImageFormat_kWEBP">SkEncodedImageFormat::kWEBP</a></td>
   </tr>  <tr>    <td><a name="SkImage_encodeToData_quality"> <code><strong>quality </strong></code> </a></td> <td>
-incomplete</td>
+encoder specific metric with 100 equaling best</td>
   </tr>
 </table>
 
@@ -1698,11 +1766,11 @@ encoded <a href="#Image">Image</a>, or nullptr
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name="7a3bf8851bb7160e4e49c48f8c09639d"></fiddle-embed></div>
 
 ### See Also
 
-incomplete
+<a href="#SkImage_refEncodedData">refEncodedData</a> <a href="#SkImage_MakeFromEncoded">MakeFromEncoded</a>
 
 ---
 
@@ -1710,24 +1778,24 @@ incomplete
 sk_sp&lt;SkData&gt; encodeToData() const
 </pre>
 
-Encodes <a href="#Image">Image</a> and returns result as <a href="undocumented#SkData">SkData</a>. Will reuse existing encoded data
-if present, as returned by <a href="#SkImage_refEncodedData">refEncodedData</a>. If encoded data is missing or invalid,
-<a href="#Image">Image</a> is encoded as PNG.
+Encodes <a href="#Image">Image</a> pixels, returning result as <a href="undocumented#SkData">SkData</a>. Returns existing encoded data
+if present; otherwise, <a href="#Image">Image</a> is encoded with <a href="#SkEncodedImageFormat_kPNG">SkEncodedImageFormat::kPNG</a>. Skia
+must be built with SK_HAS_PNG_LIBRARY to encode <a href="#Image">Image</a>.
 
-Returns nullptr if existing encoded data is missing or invalid and
+Returns nullptr if existing encoded data is missing or invalid, and
 encoding fails.
 
 ### Return Value
 
-incomplete
+encoded <a href="#Image">Image</a>, or nullptr
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name="30cee813f6aa476b0a9c8a24283e53a3"></fiddle-embed></div>
 
 ### See Also
 
-incomplete
+<a href="#SkImage_refEncodedData">refEncodedData</a> <a href="#SkImage_MakeFromEncoded">MakeFromEncoded</a>
 
 ---
 
@@ -1738,22 +1806,23 @@ incomplete
 sk_sp&lt;SkData&gt; refEncodedData() const
 </pre>
 
-If the image already has its contents in encoded form (e.g. PNG or JPEG), return that
-as <a href="undocumented#SkData">SkData</a>. If the image does not already has its contents in encoded form, return nullptr.
+Returns encoded <a href="#Image">Image</a> pixels as <a href="undocumented#SkData">SkData</a>, if <a href="#Image">Image</a> was created from supported
+encoded stream format. Platform support for formats vary and may require building
+with one or more of: SK_HAS_JPEG_LIBRARY, SK_HAS_PNG_LIBRARY, SK_HAS_WEBP_LIBRARY.
 
-To force the image to return its contents as encoded data, call <a href="#SkImage_encodeToData">encodeToData</a>.
+Returns nullptr if <a href="#Image">Image</a> contents are not encoded.
 
 ### Return Value
 
-incomplete
+encoded <a href="#Image">Image</a>, or nullptr
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name="91866923b37edd673c18232fdf3eabd8" gpu="true"></fiddle-embed></div>
 
 ### See Also
 
-incomplete
+<a href="#SkImage_encodeToData">encodeToData</a> <a href="#SkImage_MakeFromEncoded">MakeFromEncoded</a>
 
 ---
 
@@ -1764,24 +1833,27 @@ incomplete
 const char* toString(SkString* string) const
 </pre>
 
+Appends <a href="#Image">Image</a> description to <a href="#SkImage_toString_string">string</a>, including unique ID, <a href="#SkImage_width">width</a>, <a href="#SkImage_height">height</a>, and
+whether the image is opaque.
+
 ### Parameters
 
 <table>  <tr>    <td><a name="SkImage_toString_string"> <code><strong>string </strong></code> </a></td> <td>
-incomplete</td>
+storage for description; existing content is preserved</td>
   </tr>
 </table>
 
 ### Return Value
 
-incomplete
+<a href="#SkImage_toString_string">string</a> appended with <a href="#Image">Image</a> description
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name="e5eae6d362434154730e3bacff165ebd"></fiddle-embed></div>
 
 ### See Also
 
-incomplete
+<a href="#SkPaint_toString">SkPaint::toString</a>
 
 ---
 
@@ -1792,29 +1864,30 @@ incomplete
 sk_sp&lt;SkImage&gt; makeSubset(const SkIRect& subset) const
 </pre>
 
-Return a new image that is a <a href="#SkImage_makeSubset_subset">subset</a> of this image. The underlying implementation may
-share the pixels, or it may make a copy.
-If <a href="#SkImage_makeSubset_subset">subset</a> does not intersect the <a href="#SkImage_bounds">bounds</a> of this image, or the copy/share cannot be made,
-nullptr will be returned.
+Returns <a href="#SkImage_makeSubset_subset">subset</a> of <a href="#Image">Image</a>. <a href="#SkImage_makeSubset_subset">subset</a> must be fully contained by <a href="#Image">Image</a> <a href="#SkImage_dimensions">dimensions</a>.
+The implementation may share pixels, or may copy them.
+
+Returns nullptr if <a href="#SkImage_makeSubset_subset">subset</a> is empty, or <a href="#SkImage_makeSubset_subset">subset</a> is not contained by <a href="#SkImage_bounds">bounds</a>, or
+pixels in <a href="#Image">Image</a> could not be read or copied.
 
 ### Parameters
 
 <table>  <tr>    <td><a name="SkImage_makeSubset_subset"> <code><strong>subset </strong></code> </a></td> <td>
-incomplete</td>
+<a href="#SkImage_bounds">bounds</a> of returned <a href="#Image">Image</a></td>
   </tr>
 </table>
 
 ### Return Value
 
-incomplete
+partial or full <a href="#Image">Image</a>, or nullptr
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name="93669037c9eb9d142e7776b9f936fa96"></fiddle-embed></div>
 
 ### See Also
 
-incomplete
+<a href="#SkImage_MakeFromEncoded">MakeFromEncoded</a>
 
 ---
 
@@ -1825,31 +1898,33 @@ incomplete
 sk_sp&lt;SkImage&gt; makeTextureImage(GrContext* context, SkColorSpace* dstColorSpace) const
 </pre>
 
-Ensures that an image is backed by a texture (when <a href="undocumented#GrContext">GrContext</a> is non-null), suitable for use
-with surfaces that have the supplied destination color space. If no transformation is
-required, the returned image may be the same as this image. If this image is from a
-different <a href="undocumented#GrContext">GrContext</a>, this will fail.
+Returns <a href="#Image">Image</a> backed by <a href="undocumented#GPU_Texture">GPU Texture</a> associated with <a href="#SkImage_makeTextureImage_context">context</a>. Returned <a href="#Image">Image</a> is
+compatible with <a href="SkSurface_Reference#Surface">Surface</a> created with <a href="#SkImage_makeTextureImage_dstColorSpace">dstColorSpace</a>. Returns original
+<a href="#Image">Image</a> if <a href="#SkImage_makeTextureImage_context">context</a> and <a href="#SkImage_makeTextureImage_dstColorSpace">dstColorSpace</a> match.
+
+Returns nullptr if <a href="#SkImage_makeTextureImage_context">context</a> is nullptr, or if <a href="#Image">Image</a> was created with another
+<a href="undocumented#GrContext">GrContext</a>.
 
 ### Parameters
 
 <table>  <tr>    <td><a name="SkImage_makeTextureImage_context"> <code><strong>context </strong></code> </a></td> <td>
 <a href="undocumented#GPU_Context">GPU Context</a></td>
   </tr>  <tr>    <td><a name="SkImage_makeTextureImage_dstColorSpace"> <code><strong>dstColorSpace </strong></code> </a></td> <td>
-incomplete</td>
+range of colors of matching <a href="SkSurface_Reference#Surface">Surface</a> on GPU</td>
   </tr>
 </table>
 
 ### Return Value
 
-incomplete
+created <a href="#Image">Image</a>, or nullptr
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name="7d060e137662b233960200b7b2597ba6" gpu="true"></fiddle-embed></div>
 
 ### See Also
 
-incomplete
+<a href="#SkImage_MakeFromTexture">MakeFromTexture</a>
 
 ---
 
@@ -1860,16 +1935,19 @@ incomplete
 sk_sp&lt;SkImage&gt; makeNonTextureImage() const
 </pre>
 
-Creates raster <a href="#Image">Image</a> if <a href="#Image">Image</a> contains <a href="undocumented#GPU_Texture">GPU Texture</a> and raster <a href="#Image">Image</a>  ,  this will make a raster copy of it (or nullptr if reading back
-the pixels fails). Otherwise, it returns the original image.
+Returns <a href="SkImage_Reference#Raster_Image">Raster Image</a> or <a href="#Lazy_Image">Lazy Image</a>. Copies <a href="#Image">Image</a> backed by <a href="undocumented#GPU_Texture">GPU Texture</a> into
+CPU memory if needed. Returns original <a href="#Image">Image</a> if unencoded in <a href="undocumented#Raster_Bitmap">Raster Bitmap</a>,
+or if encoded in a stream.
+
+Returns nullptr if backed by <a href="undocumented#GPU_Texture">GPU Texture</a> and copy fails.
 
 ### Return Value
 
-incomplete
+<a href="SkImage_Reference#Raster_Image">Raster Image</a>, <a href="#Lazy_Image">Lazy Image</a>, or nullptr
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name="220d369551a553f8ba4cd1c21b97a793" gpu="true"></fiddle-embed></div>
 
 ### See Also
 
@@ -1884,20 +1962,23 @@ incomplete
 sk_sp&lt;SkImage&gt; makeRasterImage() const
 </pre>
 
-If the image is texture-backed this will make a raster copy of it (or nullptr if reading back
-the pixels fails). Otherwise, it returns the original image.
+Returns <a href="SkImage_Reference#Raster_Image">Raster Image</a>. Copies <a href="#Image">Image</a> backed by <a href="undocumented#GPU_Texture">GPU Texture</a> into CPU memory,
+or decodes <a href="#Image">Image</a> from <a href="#Lazy_Image">Lazy Image</a>. Returns original <a href="#Image">Image</a> if unencoded in
+<a href="undocumented#Raster_Bitmap">Raster Bitmap</a>.
+
+Returns nullptr if copy, decode, or pixel read fails.
 
 ### Return Value
 
-incomplete
+<a href="SkImage_Reference#Raster_Image">Raster Image</a>, or nullptr
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name="d821b8e345df9ff0c8cbb6d91c588c02" gpu="true"></fiddle-embed></div>
 
 ### See Also
 
-incomplete
+<a href="#SkImage_isTextureBacked">isTextureBacked</a> <a href="#SkImage_isLazyGenerated">isLazyGenerated</a> <a href="#SkImage_MakeFromRaster">MakeFromRaster</a>
 
 ---
 
@@ -1909,20 +1990,27 @@ sk_sp&lt;SkImage&gt; makeWithFilter(const SkImageFilter* filter, const SkIRect& 
                               const SkIRect& clipBounds, SkIRect* outSubset, SkIPoint* offset) const
 </pre>
 
-Apply a given image <a href="#SkImage_makeWithFilter_filter">filter</a> to this image, and return the filtered result.
-The <a href="#SkImage_makeWithFilter_subset">subset</a> represents the active portion of this image. The return value is similarly an
-<a href="#SkImage">SkImage</a>, with an active <a href="#SkImage_makeWithFilter_subset">subset</a> (<a href="#SkImage_makeWithFilter_outSubset">outSubset</a>). This is usually used with texture-backed
-images, where the texture may be approx-match and thus larger than the required size.
-<a href="#SkImage_makeWithFilter_clipBounds">clipBounds</a> constrains the device-space extent of the image, stored in <a href="#SkImage_makeWithFilter_outSubset">outSubset</a>.
-<a href="#SkImage_makeWithFilter_offset">offset</a> is storage, set to the amount to translate the result when drawn.
-If the result image cannot be created, or the result would be transparent black, null
-is returned, in which case the <a href="#SkImage_makeWithFilter_offset">offset</a> and <a href="#SkImage_makeWithFilter_outSubset">outSubset</a> parameters should be ignored by the
-caller.
+Creates filtered <a href="#Image">Image</a>. <a href="#SkImage_makeWithFilter_filter">filter</a> processes original <a href="#Image">Image</a>, potentially changing
+color, position, and size. <a href="#SkImage_makeWithFilter_subset">subset</a> is the <a href="#SkImage_bounds">bounds</a> of original <a href="#Image">Image</a> processed
+by <a href="#SkImage_makeWithFilter_filter">filter</a>. <a href="#SkImage_makeWithFilter_clipBounds">clipBounds</a> is the expected <a href="#SkImage_bounds">bounds</a> of the filtered <a href="#Image">Image</a>. <a href="#SkImage_makeWithFilter_outSubset">outSubset</a>
+is required storage for the actual <a href="#SkImage_bounds">bounds</a> of the filtered <a href="#Image">Image</a>. <a href="#SkImage_makeWithFilter_offset">offset</a> is
+required storage for translation of returned <a href="#Image">Image</a>.
+
+Returns nullptr if <a href="#Image">Image</a> could not be created. If nullptr is returned, <a href="#SkImage_makeWithFilter_outSubset">outSubset</a>
+and <a href="#SkImage_makeWithFilter_offset">offset</a> are undefined.
+
+<a href="#SkImage_makeWithFilter">makeWithFilter</a> is optimized to support <a href="#Image">Image</a> backed by <a href="undocumented#GPU_Texture">GPU Texture</a> drawn in an
+animation with <a href="undocumented#SkImageFilter">SkImageFilter</a> that vary in size from one frame to the next. The
+created <a href="#Image">Image</a> is drawn at an increased size so that <a href="undocumented#GPU_Texture">GPU Texture</a> can be reused
+with different sized effects. <a href="#SkImage_makeWithFilter_outSubset">outSubset</a> describes the valid <a href="#SkImage_bounds">bounds</a> of <a href="undocumented#GPU_Texture">GPU Texture</a>
+returned. The returned <a href="#Image">Image</a> may be much larger than required for the <a href="#SkImage_makeWithFilter_filter">filter</a>.
+<a href="#SkImage_makeWithFilter_offset">offset</a> translates the returned <a href="#Image">Image</a> to keep subsequent animation frames
+aligned with respect to each other.
 
 ### Parameters
 
 <table>  <tr>    <td><a name="SkImage_makeWithFilter_filter"> <code><strong>filter </strong></code> </a></td> <td>
-incomplete</td>
+how <a href="#Image">Image</a> is sampled when transformed</td>
   </tr>  <tr>    <td><a name="SkImage_makeWithFilter_subset"> <code><strong>subset </strong></code> </a></td> <td>
 incomplete</td>
   </tr>  <tr>    <td><a name="SkImage_makeWithFilter_clipBounds"> <code><strong>clipBounds </strong></code> </a></td> <td>
@@ -1936,19 +2024,21 @@ incomplete</td>
 
 ### Return Value
 
-incomplete
+filtered <a href="#Image">Image</a>, or nullptr
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name="eabb12543886ace5e1212af220a19c6d" gpu="true"><div>In each frame of the animation, filtered <a href="#Image">Image</a> is drawn in a different location.
+By translating canvas by returned <a href="#SkImage_makeWithFilter_offset">offset</a>, <a href="#Image">Image</a> appears stationary.</div></fiddle-embed></div>
 
 ### See Also
 
-incomplete
+<a href="#SkPaint_setImageFilter">SkPaint::setImageFilter</a>
 
 ---
 
 # <a name="SkImage_DeferredTextureImageUsageParams"></a> Struct SkImage::DeferredTextureImageUsageParams
+Used only by Chrome; to be deprecated.
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 struct <a href="#SkImage_DeferredTextureImageUsageParams_DeferredTextureImageUsageParams">DeferredTextureImageUsageParams</a> {
@@ -2016,6 +2106,8 @@ size_t getDeferredTextureImageData(const GrContextThreadSafeProxy& contextThread
                  SkColorType dstColorType = kN32_SkColorType) const
 </pre>
 
+Used only by Chrome; to be deprecated.
+
 This method allows clients to capture the data necessary to turn a <a href="#SkImage">SkImage</a> into a texture-
 backed image. If the original image is codec-backed this will decode into a format optimized
 for the context represented by the proxy. This method is thread safe with respect to the
@@ -2035,43 +2127,43 @@ When <a href="#SkImage_getDeferredTextureImageData_buffer">buffer</a> is not nul
 provided <a href="#SkImage_getDeferredTextureImageData_buffer">buffer</a> (assuming this is an appropriate candidate image and the <a href="#SkImage_getDeferredTextureImageData_buffer">buffer</a> is
 appropriately aligned). Upon success the size written is returned, otherwise 0.
 
-<a href="#SkImage_getDeferredTextureImageData_dstColorSpace">dstColorSpace</a> is the color space of the surface where this texture will ultimately be used.
+<a href="#SkImage_getDeferredTextureImageData_dstColorSpace">dstColorSpace</a> is the <a href="undocumented#Color_Space">Color Space</a> of the surface where this texture will ultimately be used.
 If the method determines that mip-maps are needed, this helps determine the correct strategy
 for building them (gamma-correct or not).
 
 <a href="#SkImage_getDeferredTextureImageData_dstColorType">dstColorType</a> is the color type of the surface where this texture will ultimately be used.
 This determines the format with which the image will be uploaded to the GPU. If <a href="#SkImage_getDeferredTextureImageData_dstColorType">dstColorType</a>
-does not support color spaces (low bit depth types such as <a href="undocumented#SkColorType">kARGB 4444 SkColorType</a>),
+does not support <a href="undocumented#Color_Space">Color Space</a> (low bit depth types such as <a href="undocumented#SkColorType">kARGB 4444 SkColorType</a>),
 then <a href="#SkImage_getDeferredTextureImageData_dstColorSpace">dstColorSpace</a> must be null.
 
 ### Parameters
 
 <table>  <tr>    <td><a name="SkImage_getDeferredTextureImageData_contextThreadSafeProxy"> <code><strong>contextThreadSafeProxy </strong></code> </a></td> <td>
-incomplete</td>
+thread safe GPU context</td>
   </tr>  <tr>    <td><a name="SkImage_getDeferredTextureImageData_deferredTextureImageUsageParams"> <code><strong>deferredTextureImageUsageParams </strong></code> </a></td> <td>
-incomplete</td>
+array of <a href="#Image">Image</a> transformations</td>
   </tr>  <tr>    <td><a name="SkImage_getDeferredTextureImageData_paramCnt"> <code><strong>paramCnt </strong></code> </a></td> <td>
-incomplete</td>
+entries in <a href="#SkImage_getDeferredTextureImageData_deferredTextureImageUsageParams">deferredTextureImageUsageParams</a> array</td>
   </tr>  <tr>    <td><a name="SkImage_getDeferredTextureImageData_buffer"> <code><strong>buffer </strong></code> </a></td> <td>
-incomplete</td>
+storage for <a href="undocumented#GPU_Texture">GPU Texture</a> data, or nullptr</td>
   </tr>  <tr>    <td><a name="SkImage_getDeferredTextureImageData_dstColorSpace"> <code><strong>dstColorSpace </strong></code> </a></td> <td>
-incomplete</td>
+<a href="SkSurface_Reference#Surface">Surface</a> <a href="undocumented#Color_Space">Color Space</a>, or nullptr</td>
   </tr>  <tr>    <td><a name="SkImage_getDeferredTextureImageData_dstColorType"> <code><strong>dstColorType </strong></code> </a></td> <td>
-incomplete</td>
+<a href="SkSurface_Reference#Surface">Surface</a> <a href="#Color_Type">Color Type</a></td>
   </tr>
 </table>
 
 ### Return Value
 
-incomplete
+size of storage for <a href="undocumented#GPU_Texture">GPU Texture</a> data
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name="31d224ac4d22ba60221c565f9a12ad50" gpu="true"></fiddle-embed></div>
 
 ### See Also
 
-incomplete
+<a href="#SkImage_MakeFromDeferredTextureImageData">MakeFromDeferredTextureImageData</a>
 
 ---
 
@@ -2082,6 +2174,8 @@ incomplete
 static sk_sp&lt;SkImage&gt; MakeFromDeferredTextureImageData(GrContext* context, const void* data,
                                                 SkBudgeted budgeted)
 </pre>
+
+Used only by Chrome; to be deprecated.
 
 Returns a texture-backed image from <a href="#SkImage_MakeFromDeferredTextureImageData_data">data</a> produced in <a href="#SkImage_getDeferredTextureImageData">SkImage::getDeferredTextureImageData</a>.
 The <a href="#SkImage_MakeFromDeferredTextureImageData_context">context</a> must be the <a href="#SkImage_MakeFromDeferredTextureImageData_context">context</a> that provided the proxy passed to
@@ -2202,10 +2296,10 @@ incomplete
 bool asLegacyBitmap(SkBitmap* bitmap, LegacyBitmapMode legacyBitmapMode) const
 </pre>
 
-Creates raster <a href="SkBitmap_Reference#Bitmap">Bitmap</a> with same pixels as <a href="#Image">Image</a>. If <a href="#SkImage_asLegacyBitmap_legacyBitmapMode">legacyBitmapMode</a> is <a href="#SkImage_kRO_LegacyBitmapMode">kRO LegacyBitmapMode</a>,
-returned <a href="#SkImage_asLegacyBitmap_bitmap">bitmap</a> is read-only and immutable.
-Returns true if <a href="SkBitmap_Reference#Bitmap">Bitmap</a> is stored in <a href="#SkImage_asLegacyBitmap_bitmap">bitmap</a>. Returns false and resets <a href="#SkImage_asLegacyBitmap_bitmap">bitmap</a> if <a href="SkBitmap_Reference#Bitmap">Bitmap</a>
-write did not succeed.
+Creates raster <a href="SkBitmap_Reference#Bitmap">Bitmap</a> with same pixels as <a href="#Image">Image</a>. If <a href="#SkImage_asLegacyBitmap_legacyBitmapMode">legacyBitmapMode</a> is
+<a href="#SkImage_kRO_LegacyBitmapMode">kRO LegacyBitmapMode</a>, returned <a href="#SkImage_asLegacyBitmap_bitmap">bitmap</a> is read-only and immutable.
+Returns true if <a href="SkBitmap_Reference#Bitmap">Bitmap</a> is stored in <a href="#SkImage_asLegacyBitmap_bitmap">bitmap</a>. Returns false and resets <a href="#SkImage_asLegacyBitmap_bitmap">bitmap</a> if
+<a href="SkBitmap_Reference#Bitmap">Bitmap</a> write did not succeed.
 
 ### Parameters
 
@@ -2254,7 +2348,7 @@ true if <a href="#Image">Image</a> is created as needed
 
 ### See Also
 
-incomplete
+<a href="#SkImage_isTextureBacked">isTextureBacked</a> MakeNonTextureImage
 
 ---
 
@@ -2265,39 +2359,44 @@ incomplete
 sk_sp&lt;SkImage&gt; makeColorSpace(sk_sp&lt;SkColorSpace&gt; target, SkTransferFunctionBehavior premulBehavior) const
 </pre>
 
-If <a href="#SkImage_makeColorSpace_target">target</a> is supported, returns an <a href="#SkImage">SkImage</a> in <a href="#SkImage_makeColorSpace_target">target</a> color space.
-Otherwise, returns nullptr.
-This will leave the image as is if it already in <a href="#SkImage_makeColorSpace_target">target</a> color space.
-Otherwise, it will convert the pixels from <a href="#Image">Image</a> color space to <a href="#SkImage_makeColorSpace_target">target</a>
-color space.  If this-><a href="#SkImage_colorSpace">colorSpace</a> is nullptr, <a href="#Image">Image</a> color space will be
-treated as sRGB.
+Creates <a href="#Image">Image</a> in <a href="#SkImage_makeColorSpace_target">target</a> <a href="undocumented#Color_Space">Color Space</a>.
+Returns nullptr if <a href="#Image">Image</a> could not be created.
 
-If <a href="#SkImage_makeColorSpace_premulBehavior">premulBehavior</a> is <a href="#SkTransferFunctionBehavior_kRespect">SkTransferFunctionBehavior::kRespect</a>: converts <a href="#Image">Image</a>
-pixels to a linear space before converting to match destination <a href="#Color_Type">Color Type</a>
+Returns original <a href="#Image">Image</a> if it is in <a href="#SkImage_makeColorSpace_target">target</a> <a href="undocumented#Color_Space">Color Space</a>.
+Otherwise, converts pixels from <a href="#Image">Image</a> <a href="undocumented#Color_Space">Color Space</a> to <a href="#SkImage_makeColorSpace_target">target</a> <a href="undocumented#Color_Space">Color Space</a>.
+If <a href="#Image">Image</a> <a href="#SkImage_colorSpace">colorSpace</a> returns nullptr, <a href="#Image">Image</a> <a href="undocumented#Color_Space">Color Space</a> is assumed to be sRGB.
+
+<a href="undocumented#SkTransferFunctionBehavior">SkTransferFunctionBehavior</a> is to be deprecated.
+
+Set <a href="#SkImage_makeColorSpace_premulBehavior">premulBehavior</a> to <a href="#SkTransferFunctionBehavior_kRespect">SkTransferFunctionBehavior::kRespect</a> to convert <a href="#Image">Image</a>
+pixels to a linear space, before converting to destination <a href="#Color_Type">Color Type</a>
 and <a href="undocumented#Color_Space">Color Space</a>.
-If <a href="#SkImage_makeColorSpace_premulBehavior">premulBehavior</a> is <a href="#SkTransferFunctionBehavior_kIgnore">SkTransferFunctionBehavior::kIgnore</a>: <a href="#Image">Image</a>
-pixels are treated as if they are linear, regardless of how they are encoded.
+
+Set <a href="#SkImage_makeColorSpace_premulBehavior">premulBehavior</a> to <a href="#SkTransferFunctionBehavior_kIgnore">SkTransferFunctionBehavior::kIgnore</a> to treat <a href="#Image">Image</a>
+pixels as linear, when converting to destination <a href="#Color_Type">Color Type</a>
+and <a href="undocumented#Color_Space">Color Space</a>, ignoring pixel encoding.
 
 ### Parameters
 
 <table>  <tr>    <td><a name="SkImage_makeColorSpace_target"> <code><strong>target </strong></code> </a></td> <td>
-incomplete</td>
+<a href="undocumented#Color_Space">Color Space</a> describing color range of returned <a href="#Image">Image</a></td>
   </tr>  <tr>    <td><a name="SkImage_makeColorSpace_premulBehavior"> <code><strong>premulBehavior </strong></code> </a></td> <td>
-incomplete</td>
+one of: <a href="#SkTransferFunctionBehavior_kRespect">SkTransferFunctionBehavior::kRespect</a>,
+<a href="#SkTransferFunctionBehavior_kIgnore">SkTransferFunctionBehavior::kIgnore</a></td>
   </tr>
 </table>
 
 ### Return Value
 
-incomplete
+created <a href="#Image">Image</a> in <a href="#SkImage_makeColorSpace_target">target</a> <a href="undocumented#Color_Space">Color Space</a>
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name="ab8bcb9acecbee444019a724d2b0503c"></fiddle-embed></div>
 
 ### See Also
 
-incomplete
+MakeFromPixture <a href="#SkImage_MakeFromTexture">MakeFromTexture</a>
 
 ---
 

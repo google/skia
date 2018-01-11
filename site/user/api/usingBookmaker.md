@@ -2,6 +2,7 @@ usingBookmaker
 ===
 
 # <a name="Bookmaker"></a> Bookmaker
+How to use the <a href="#Bookmaker">Bookmaker</a> utility.
 
 ## <a name="Broken_Build"></a> Broken Build
 
@@ -13,6 +14,18 @@ To fix this, edit the docs file corresponding to the changed include file.
 
 For instance, if the change was made to <a href="SkIRect_Reference#SkIRect">SkIRect</a>, edit docs/SkIRect_Reference.bmh.
 Checking in the edited docs/SkIRect_Reference.bmh will fix the bot.
+
+If the interface is deprecated, but still present in the interface, mark-up the
+documentation to be deprecated as well.
+
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
+# void someMethodThatIsNowDeprecated()
+
+#Deprecated
+##
+
+##
+</pre>
 
 To regenerate the documentation, follow the <a href="#Installing">Installing</a> and <a href="#Regenerate">Regenerate</a> steps below.
 
@@ -52,7 +65,24 @@ wrote updated <a href="SkSurface_Reference#SkSurface">SkSurface</a>.h</pre>
 The updated SkSurface.h is written to the root to avoid subsequent runs of
 <a href="#Bookmaker">Bookmaker</a> from recompiling. if SkSurface.h was not changed, it is not written,
 and <a href="#Bookmaker">Bookmaker</a> will not generate any output.
-How to use the <a href="#Bookmaker">Bookmaker</a> utility.
+
+## <a name="Broken_Example"></a> Broken Example
+
+An example may cause <a href="#Bookmaker">Bookmaker</a> or a bot running <a href="#Bookmaker">Bookmaker</a> to fail if it can't
+be compiled by fiddle. If the example cannot be fixed, it can be commented out
+by changing
+
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
+#Example</pre>
+
+to
+
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
+#NoExample</pre>
+
+.
+The disabled example can contain additional markup,
+which will be ignored.
 
 ## <a name="Installing"></a> Installing
 

@@ -42,11 +42,13 @@ its <a href="#SkIRect_top">top</a>, it is considered empty.
 | <a href="#SkIRect_contains">contains</a> | Returns true if points are equal or inside. |
 | <a href="#SkIRect_containsNoEmptyCheck">containsNoEmptyCheck</a> | Returns true if points are equal or inside. Skips empty check. |
 | <a href="#SkIRect_height">height</a> | Returns span in <a href="#SkIRect_y">y</a>. |
+| <a href="#SkIRect_height64">height64</a> | Returns span in <a href="#SkIRect_y">y</a> as int64_t. |
 | <a href="#SkIRect_inset">inset</a> | Moves the sides symmetrically about the center. |
 | <a href="#SkIRect_intersect">intersect</a> | Sets to shared area; returns true if not empty. |
 | <a href="#SkIRect_intersectNoEmptyCheck">intersectNoEmptyCheck</a> | Sets to shared area; returns true if not empty. Skips empty check. |
 | <a href="#SkIRect_is16Bit">is16Bit</a> | Returns true if members fit in 16-bit word. |
-| <a href="#SkIRect_isEmpty">isEmpty</a> | Returns true if <a href="#SkIRect_width">width</a> or <a href="#SkIRect_height">height</a> are zero or negative. |
+| <a href="#SkIRect_isEmpty">isEmpty</a> | Returns true if <a href="#SkIRect_width">width</a> or <a href="#SkIRect_height">height</a> are zero or negative or they exceed int32_t. |
+| <a href="#SkIRect_isEmpty64">isEmpty64</a> | Returns true if <a href="#SkIRect_width">width</a> or <a href="#SkIRect_height">height</a> are zero or negative. |
 | <a href="#SkIRect_join">join</a> | Sets to union of bounds. |
 | <a href="#SkIRect_left">left</a> | Returns smaller bounds in <a href="#SkIRect_x">x</a>, if sorted. |
 | <a href="#SkIRect_makeInset">makeInset</a> | Constructs from sides moved symmetrically about the center. |
@@ -66,6 +68,7 @@ its <a href="#SkIRect_top">top</a>, it is considered empty.
 | <a href="#SkIRect_sort">sort</a> | Orders sides from smaller to larger. |
 | <a href="#SkIRect_top">top</a> | Returns smaller bounds in <a href="#SkIRect_y">y</a>, if sorted. |
 | <a href="#SkIRect_width">width</a> | Returns span in <a href="#SkIRect_x">x</a>. |
+| <a href="#SkIRect_width64">width64</a> | Returns span in <a href="#SkIRect_y">y</a> as int64_t. |
 | <a href="#SkIRect_x">x</a> | Returns bounds <a href="#SkIRect_left">left</a>. |
 | <a href="#SkIRect_y">y</a> | Returns bounds <a href="#SkIRect_top">top</a>. |
 
@@ -528,7 +531,36 @@ large width: -5
 
 ### See Also
 
-<a href="#SkIRect_height">height</a> <a href="#SkRect_width">SkRect::width()</a>
+<a href="#SkIRect_height">height</a> <a href="#SkIRect_width64">width64</a> <a href="#SkIRect_height64">height64</a> <a href="#SkRect_width">SkRect::width()</a>
+
+---
+
+<a name="SkIRect_width64"></a>
+## width64
+
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
+int64_t width64() const
+</pre>
+
+Returns span on the <a href="#SkIRect_x">x</a>-axis. This does not check if <a href="#IRect">IRect</a> is sorted, so the
+result may be negative. This is safer than calling <a href="#SkIRect_width">width</a> since <a href="#SkIRect_width">width</a> might
+overflow in its calculation.
+
+### Return Value
+
+<a href="#SkIRect_fRight">fRight</a> minus <a href="#SkIRect_fLeft">fLeft</a> cast to int64_t
+
+<a href="#SkIRect">SkIRect</a> large = { -2147483647, 1, 2147483644, 2 };
+
+#### Example Output
+
+~~~~
+width: -5 width64: 4294967291
+~~~~
+
+### See Also
+
+<a href="#SkIRect_width">width</a> <a href="#SkIRect_height">height</a> <a href="#SkIRect_height64">height64</a> <a href="#SkRect_width">SkRect::width()</a>
 
 ---
 
@@ -562,6 +594,35 @@ large height: -5
 ### See Also
 
 <a href="#SkIRect_width">width</a> <a href="#SkRect_height">SkRect::height()</a>
+
+---
+
+<a name="SkIRect_height64"></a>
+## height64
+
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
+int64_t height64() const
+</pre>
+
+Returns span on the <a href="#SkIRect_y">y</a>-axis. This does not check if <a href="#IRect">IRect</a> is sorted, so the
+result may be negative. This is safer than calling <a href="#SkIRect_height">height</a> since <a href="#SkIRect_height">height</a> might
+overflow in its calculation.
+
+### Return Value
+
+<a href="#SkIRect_fBottom">fBottom</a> minus <a href="#SkIRect_fTop">fTop</a> cast to int64_t
+
+<a href="#SkIRect">SkIRect</a> large = { 1, -2147483647, 2, 2147483644 };
+
+#### Example Output
+
+~~~~
+height: -5 height64: 4294967291
+~~~~
+
+### See Also
+
+<a href="#SkIRect_width">width</a> <a href="#SkIRect_height">height</a> <a href="#SkIRect_width64">width64</a> <a href="#SkRect_height">SkRect::height()</a>
 
 ---
 
@@ -676,9 +737,7 @@ left: 1073741824 right: 1073741826 centerX: -1073741823 safe mid x: 1073741825
 bool isEmpty() const
 </pre>
 
-Returns true if <a href="#SkIRect_fLeft">fLeft</a> is equal to or greater than <a href="#SkIRect_fRight">fRight</a>, or if <a href="#SkIRect_fTop">fTop</a> is equal
-to or greater than <a href="#SkIRect_fBottom">fBottom</a>. Call <a href="#SkIRect_sort">sort</a> to reverse rectangles with negative
-<a href="#SkIRect_width">width</a> or <a href="#SkIRect_height">height</a>.
+Returns true if <a href="#SkIRect_width">width</a> or <a href="#SkIRect_height">height</a> .
 
 ### Return Value
 
@@ -698,6 +757,39 @@ sorted: {20, 40, 20, 50} is empty
 ~~~~
 
 </fiddle-embed></div>
+
+### See Also
+
+<a href="#SkIRect_EmptyIRect">EmptyIRect</a> <a href="#SkIRect_MakeEmpty">MakeEmpty</a> <a href="#SkIRect_sort">sort</a> <a href="#SkRect_isEmpty">SkRect::isEmpty</a>
+
+---
+
+<a name="SkIRect_isEmpty64"></a>
+## isEmpty64
+
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
+bool isEmpty64() const
+</pre>
+
+Returns true if <a href="#SkIRect_fLeft">fLeft</a> is equal to or greater than <a href="#SkIRect_fRight">fRight</a>, or if <a href="#SkIRect_fTop">fTop</a> is equal
+to or greater than <a href="#SkIRect_fBottom">fBottom</a>. Call <a href="#SkIRect_sort">sort</a> to reverse rectangles with negative
+<a href="#SkIRect_width64">width64</a> or <a href="#SkIRect_height64">height64</a>.
+
+### Return Value
+
+true if <a href="#SkIRect_width64">width64</a> or <a href="#SkIRect_height64">height64</a> are zero or negative
+
+<a href="#SkIRect">SkIRect</a> tests[] = {{20, 40, 10, 50}, {20, 40, 20, 50}};
+for (auto rect : tests) {
+
+#### Example Output
+
+~~~~
+rect: {20, 40, 10, 50} is empty
+sorted: {10, 40, 20, 50} is not empty
+rect: {20, 40, 20, 50} is empty
+sorted: {20, 40, 20, 50} is empty
+~~~~
 
 ### See Also
 
@@ -2080,6 +2172,13 @@ rect: 0, 0, 0, 0
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 static SkIRect SK_WARN_UNUSED_RESULT MakeLargest()
 </pre>
+
+Returns constructed <a href="#SkIRect">SkIRect</a> setting <a href="#SkIRect_left">left</a> and <a href="#SkIRect_top">top</a> to most negative value, and
+setting <a href="#SkIRect_right">right</a> and <a href="#SkIRect_bottom">bottom</a> to most positive value.
+
+### Return Value
+
+bounds (<a href="undocumented#SK_MinS32">SK MinS32</a>, <a href="undocumented#SK_MinS32">SK MinS32</a>, <a href="undocumented#SK_MaxS32">SK MaxS32</a>, <a href="undocumented#SK_MaxS32">SK MaxS32</a>)
 
 ---
 
