@@ -470,6 +470,7 @@
       "--randomProcessorTest",
       "--threads",
       "0",
+      "--ignoreSigInt",
       "--nocpu",
       "--config",
       "gles",
