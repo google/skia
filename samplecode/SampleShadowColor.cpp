@@ -155,7 +155,7 @@ protected:
     void onDrawContent(SkCanvas* canvas) override {
         const SkScalar kLightWidth = 600;
         const SkScalar kAmbientAlpha = 0.03f;
-        const SkScalar kSpotAlpha = 0.25f;
+        const SkScalar kSpotAlpha = 1.0f;
 
         const SkScalar kZValues[10] = { 1, 2, 3, 4, 6, 8, 9, 12, 16, 24 };
 

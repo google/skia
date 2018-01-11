@@ -78,22 +78,18 @@ protected:
 
         SkPaint paint;
         paint.setTypeface(emojiFont.typeface);
-        const char* text = emojiFont.text;
+        const char* text = "\xF0\x9F\x8F\xA1";
 
         // draw text at different point sizes
-        constexpr SkScalar textSizes[] = { 10, 30, 50, };
         SkPaint::FontMetrics metrics;
         SkScalar y = 0;
-        for (const bool& fakeBold : { false, true }) {
-            paint.setFakeBoldText(fakeBold);
-            for (const SkScalar& textSize : textSizes) {
-                paint.setTextSize(textSize);
+                paint.setTextSize(257);
                 paint.getFontMetrics(&metrics);
                 y += -metrics.fAscent;
-                canvas->drawString(text, 10, y, paint);
+                canvas->drawString(text, 1, y, paint);
                 y += metrics.fDescent + metrics.fLeading;
-            }
-        }
+
+        return;
 
         y += 20;
         SkScalar savedY = y;
