@@ -22,6 +22,30 @@
       "revId": "8560ce9fd49a9e1f62a3f18b28b035615c9a98a1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ed5dc401_b95b2478",
+        "filename": "fuzz/oss_fuzz/FuzzRegionDeserialize.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-01-11T15:16:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f46e25ca_cbbf5a58",
+      "range": {
+        "startLine": 33,
+        "startChar": 12,
+        "endLine": 33,
+        "endChar": 32
+      },
+      "revId": "8560ce9fd49a9e1f62a3f18b28b035615c9a98a1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
