@@ -2859,6 +2859,7 @@ void SPIRVCodeGenerator::writeLayout(const Layout& layout, SpvId target) {
     if (layout.fInputAttachmentIndex >= 0) {
         this->writeInstruction(SpvOpDecorate, target, SpvDecorationInputAttachmentIndex,
                                layout.fInputAttachmentIndex, fDecorationBuffer);
+        fCapabilities |= (((uint64_t) 1) << SpvCapabilityInputAttachment);
     }
     if (layout.fBuiltin >= 0 && layout.fBuiltin != SK_FRAGCOLOR_BUILTIN &&
         layout.fBuiltin != SK_IN_BUILTIN) {
