@@ -143,8 +143,8 @@ public:
         subRun.setHasWCoord(hasWCoord);
     }
 
-    void setRunDrawAsPaths(int runIndex) {
-        fRuns[runIndex].fDrawAsPaths = true;
+    void setRunTooBigForAtlas(int runIndex) {
+        fRuns[runIndex].fTooBigForAtlas = true;
     }
 
     void setMinAndMaxScale(SkScalar scaledMax, SkScalar scaledMin) {
@@ -286,8 +286,8 @@ private:
         , fMinMaxScale(SK_ScalarMax)
         , fTextType(0) {}
 
-    void appendLargeGlyph(GrGlyph* glyph, SkGlyphCache* cache, const SkGlyph& skGlyph,
-                          SkScalar x, SkScalar y, SkScalar scale, bool treatAsBMP);
+    void appendBigGlyph(GrGlyph* glyph, SkGlyphCache* cache, const SkGlyph& skGlyph,
+                        SkScalar x, SkScalar y, SkScalar scale, bool treatAsBMP);
 
     inline void flushRun(GrTextUtils::Target*, const GrClip&, int run, const SkMatrix& viewMatrix,
                          SkScalar x, SkScalar y, const GrTextUtils::Paint& paint,
@@ -299,11 +299,11 @@ private:
                         const SkPaint& paint, const SkMatrix& viewMatrix, SkScalar x, SkScalar y,
                         const SkIRect& clipBounds);
 
-    void flushRunAsPaths(GrContext* context, GrTextUtils::Target*, const SkSurfaceProps& props,
-                         const SkTextBlobRunIterator& it, const GrClip& clip,
-                         const GrTextUtils::Paint& paint, SkDrawFilter* drawFilter,
-                         const SkMatrix& viewMatrix, const SkIRect& clipBounds, SkScalar x,
-                         SkScalar y);
+    void flushBigRun(GrContext* context, GrTextUtils::Target*, const SkSurfaceProps& props,
+                     const SkTextBlobRunIterator& it, const GrClip& clip,
+                     const GrTextUtils::Paint& paint, SkDrawFilter* drawFilter,
+                     const SkMatrix& viewMatrix, const SkIRect& clipBounds, SkScalar x,
+                     SkScalar y);
 
     // This function will only be called when we are generating a blob from scratch. We record the
     // initial view matrix and initial offsets(x,y), because we record vertex bounds relative to
@@ -338,19 +338,19 @@ private:
      * practice, the vast majority of runs have only a single subrun.
      *
      * Finally, for runs where the entire thing is too large for the GrAtlasTextContext to
-     * handle, we have a bit to mark the run as flushable via rendering as paths.  It is worth
-     * pointing. It would be a bit expensive to figure out ahead of time whether or not a run
+     * handle, we have a bit to mark the run as flushable via rendering as paths or as scaled
+     * glyphs. It would be a bit expensive to figure out ahead of time whether or not a run
      * can flush in this manner, so we always allocate vertices for the run, regardless of
      * whether or not it is too large.  The benefit of this strategy is that we can always reuse
      * a blob allocation regardless of viewmatrix changes.  We could store positions for these
-     * glyphs.  However, its not clear if this is a win because we'd still have to either go the
+     * glyphs, however, it's not clear if this is a win because we'd still have to either go to the
      * glyph cache to get the path at flush time, or hold onto the path in the cache, which
      * would greatly increase the memory of these cached items.
      */
     struct Run {
         Run()
             : fInitialized(false)
-            , fDrawAsPaths(false) {
+            , fTooBigForAtlas(false) {
             // To ensure we always have one subrun, we push back a fresh run here
             fSubRunInfo.push_back();
         }
@@ -498,7 +498,7 @@ private:
         // will be used in place of the run's descriptor to regen texture coords
         std::unique_ptr<SkAutoDescriptor> fOverrideDescriptor; // df properties
         bool fInitialized;
-        bool fDrawAsPaths;
+        bool fTooBigForAtlas;
     };  // Run
 
     inline std::unique_ptr<GrAtlasTextOp> makeOp(

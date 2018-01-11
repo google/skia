@@ -128,13 +128,13 @@ public:
 
     static bool ShouldDisableLCD(const SkPaint& paint);
 
-    // Functions for drawing text as paths
-    static void DrawTextAsPath(GrContext*, GrTextUtils::Target*, const GrClip& clip,
+    // Functions for drawing large text either as paths or (for color emoji) as scaled glyphs
+    static void DrawBigText(GrContext*, GrTextUtils::Target*, const GrClip& clip,
                                const SkPaint& paint, const SkMatrix& viewMatrix, const char text[],
                                size_t byteLength, SkScalar x, SkScalar y,
                                const SkIRect& clipBounds);
 
-    static void DrawPosTextAsPath(GrContext* context, GrTextUtils::Target*,
+    static void DrawBigPosText(GrContext* context, GrTextUtils::Target*,
                                   const SkSurfaceProps& props, const GrClip& clip,
                                   const SkPaint& paint, const SkMatrix& viewMatrix,
                                   const char text[], size_t byteLength, const SkScalar pos[],
