@@ -89,6 +89,12 @@ enum class GrAllowMixedSamples : bool { kNo = false, kYes = true };
 
 GrAAType GrChooseAAType(GrAA, GrFSAAType, GrAllowMixedSamples, const GrCaps&);
 
+enum class GrDrawBuffer {
+    kColor,
+    kCoverageCount,
+    kBoth
+};
+
 /**
  * Some pixel configs are inherently clamped to [0,1], while others can hold values outside of that
  * range. This is important for blending - the latter category may require manual clamping.

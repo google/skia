@@ -31,6 +31,8 @@
 #include <cmath>
 #include <vector>
 
+static constexpr float kScale = 1;
+
 /**
  * This is a minimalist program whose sole purpose is to open an skp file, benchmark it on a single
  * config, and exit. It is intended to be used through skpbench.py rather than invoked directly.
@@ -95,7 +97,7 @@ enum class ExitErr {
 
 static void draw_skp_and_flush(SkCanvas*, const SkPicture*);
 static sk_sp<SkPicture> create_warmup_skp();
-static bool mkdir_p(const SkString& name);
+// static bool mkdir_p(const SkString& name);
 static SkString join(const SkCommandLineFlags::StringArray&);
 static void exitf(ExitErr, const char* format, ...);
 
@@ -265,10 +267,10 @@ int main(int argc, char** argv) {
         }
         skpname = SkOSPath::Basename(skpfile);
     }
-    int width = SkTMin(SkScalarCeilToInt(skp->cullRect().width()), 2048),
-        height = SkTMin(SkScalarCeilToInt(skp->cullRect().height()), 2048);
+    int width = SkTMin(SkScalarCeilToInt(skp->cullRect().width()*kScale), 8192),
+        height = SkTMin(SkScalarCeilToInt(skp->cullRect().height()*kScale), 8192);
     if (FLAGS_verbosity >= 3 &&
-        (width != skp->cullRect().width() || height != skp->cullRect().height())) {
+        (width != skp->cullRect().width()*kScale || height != skp->cullRect().height()*kScale)) {
         fprintf(stderr, "%s is too large (%ix%i), cropping to %ix%i.\n",
                         skpname.c_str(), SkScalarCeilToInt(skp->cullRect().width()),
                         SkScalarCeilToInt(skp->cullRect().height()), width, height);
@@ -327,6 +329,7 @@ int main(int argc, char** argv) {
         samples.reserve(2 * FLAGS_duration);
     }
     SkCanvas* canvas = surface->getCanvas();
+    canvas->scale(kScale, kScale);
     canvas->translate(-skp->cullRect().x(), -skp->cullRect().y());
     if (!FLAGS_gpuClock) {
         run_benchmark(testCtx->fenceSync(), canvas, skp.get(), &samples);
@@ -348,9 +351,9 @@ int main(int argc, char** argv) {
         }
         const SkString &dirname = SkOSPath::Dirname(FLAGS_png[0]),
                        &basename = SkOSPath::Basename(FLAGS_png[0]);
-        if (!mkdir_p(dirname)) {
-            exitf(ExitErr::kIO, "failed to create directory \"%s\" for png", dirname.c_str());
-        }
+        // if (!mkdir_p(dirname)) {
+        //     exitf(ExitErr::kIO, "failed to create directory \"%s\" for png", dirname.c_str());
+        // }
         if (!sk_tools::write_bitmap_to_disk(bmp, dirname, nullptr, basename)) {
             exitf(ExitErr::kIO, "failed to save png to \"%s\"", FLAGS_png[0]);
         }
@@ -388,12 +391,12 @@ static sk_sp<SkPicture> create_warmup_skp() {
     return recorder.finishRecordingAsPicture();
 }
 
-bool mkdir_p(const SkString& dirname) {
-    if (dirname.isEmpty()) {
-        return true;
-    }
-    return mkdir_p(SkOSPath::Dirname(dirname.c_str())) && sk_mkdir(dirname.c_str());
-}
+// bool mkdir_p(const skstring& dirname) {
+//     if (dirname.isEmpty()) {
+//         return true;
+//     }
+//     return mkdir_p(SkOSPath::Dirname(dirname.c_str())) && sk_mkdir(dirname.c_str());
+// }
 
 static SkString join(const SkCommandLineFlags::StringArray& stringArray) {
     SkString joined;

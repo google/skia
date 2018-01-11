@@ -2109,6 +2109,10 @@ std::unique_ptr<SPIRVCodeGenerator::LValue> SPIRVCodeGenerator::getLValue(const 
 }
 
 SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, OutputStream& out) {
+    if (ref.fVariable.fModifiers.fFlags & Modifiers::kConst_Flag && ref.fVariable.fInitialValue &&
+        ref.fVariable.fInitialValue->isConstant()) {
+        return this->writeExpression(*ref.fVariable.fInitialValue, out);
+    }
     SpvId result = this->nextId();
     auto entry = fVariableMap.find(&ref.fVariable);
     ASSERT(entry != fVariableMap.end());
@@ -2859,6 +2863,7 @@ void SPIRVCodeGenerator::writeLayout(const Layout& layout, SpvId target) {
     if (layout.fInputAttachmentIndex >= 0) {
         this->writeInstruction(SpvOpDecorate, target, SpvDecorationInputAttachmentIndex,
                                layout.fInputAttachmentIndex, fDecorationBuffer);
+        fCapabilities |= (((uint64_t) 1) << SpvCapabilityInputAttachment);
     }
     if (layout.fBuiltin >= 0 && layout.fBuiltin != SK_FRAGCOLOR_BUILTIN &&
         layout.fBuiltin != SK_IN_BUILTIN) {

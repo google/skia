@@ -91,9 +91,16 @@ public:
         return RenderPass::kTriangleEdges != renderPass || caps.geometryShaderSupport();
     }
 
-    GrCCPRCoverageProcessor(GrResourceProvider* rp, RenderPass pass, const GrShaderCaps& caps)
+    enum class Output {
+        kAlpha,
+        kCoverageCount
+    };
+
+    GrCCPRCoverageProcessor(GrResourceProvider* rp, RenderPass pass, Output output,
+                            const GrShaderCaps& caps)
             : INHERITED(kGrCCPRCoverageProcessor_ClassID)
             , fRenderPass(pass)
+            , fOutput(output)
             , fImpl(caps.geometryShaderSupport() ?  Impl::kGeometryShader : Impl::kVertexShader) {
         SkASSERT(DoesRenderPass(pass, caps));
         if (Impl::kGeometryShader == fImpl) {
@@ -243,6 +250,7 @@ private:
     GrGLSLPrimitiveProcessor* createVSImpl(std::unique_ptr<Shader>) const;
 
     const RenderPass fRenderPass;
+    const Output fOutput;
     const Impl fImpl;
     sk_sp<const GrBuffer> fVertexBuffer; // Used by VSImpl.
     sk_sp<const GrBuffer> fIndexBuffer; // Used by VSImpl.

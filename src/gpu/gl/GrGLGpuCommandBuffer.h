@@ -62,7 +62,7 @@ public:
     ~GrGLGpuRTCommandBuffer() override {}
 
     void begin() override;
-    void end() override {}
+    void end() override;
 
     void discard() override { }
 
@@ -96,6 +96,16 @@ private:
 
     void onClear(const GrFixedClip& clip, GrColor color) override {
         fGpu->clear(clip, color, fRenderTarget, fOrigin);
+    }
+
+    void coverageCountReadBarrier() override;
+
+    void clearCoverageCountBuffer(const SkIRect& clearRect) override {
+        fGpu->clearCoverageCountBuffer(fRenderTarget, &clearRect, fOrigin);
+    }
+
+    void discardCoverageCountBuffer() override {
+        fGpu->discardCoverageCountBuffer(fRenderTarget);
     }
 
     void onClearStencilClip(const GrFixedClip& clip, bool insideStencilMask) override {

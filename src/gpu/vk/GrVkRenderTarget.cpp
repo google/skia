@@ -15,6 +15,7 @@
 #include "GrVkImageView.h"
 #include "GrVkResourceProvider.h"
 #include "GrVkUtil.h"
+#include "SkMakeUnique.h"
 
 #include "vk/GrVkTypes.h"
 
@@ -213,6 +214,39 @@ bool GrVkRenderTarget::completeStencilAttachment() {
     return true;
 }
 
+bool GrVkRenderTarget::onAttachCoverageCountBuffer() {
+    GrVkGpu* vkgpu = this->getVkGpu();
+
+    GrVkImage::ImageDesc ccdesc;
+    ccdesc.fImageType = VK_IMAGE_TYPE_2D;
+    ccdesc.fFormat = VK_FORMAT_R16_SFLOAT;
+    ccdesc.fWidth = this->width();
+    ccdesc.fHeight = this->height();
+    ccdesc.fLevels = 1;
+    ccdesc.fSamples = 1;
+    ccdesc.fImageTiling = VK_IMAGE_TILING_OPTIMAL;
+    ccdesc.fUsageFlags = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT;// |
+                            //VK_IMAGE_USAGE_TRANSFER_DST_BIT;
+    ccdesc.fMemProps = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
+
+    GrVkImageInfo ccinfo;
+    if (!GrVkImage::InitImageInfo(vkgpu, ccdesc, &ccinfo)) {
+        return false;
+    }
+
+    fCoverageCountView = GrVkImageView::Create(vkgpu, ccinfo.fImage, ccdesc.fFormat,
+                                               GrVkImageView::kColor_Type, 1);
+    if (!fCoverageCountView) {
+        GrVkImage::DestroyImageInfo(vkgpu, &ccinfo);
+        return false;
+    }
+
+    fCoverageCountImage = skstd::make_unique<GrVkImage>(ccinfo,
+                                                        GrBackendObjectOwnership::kOwned);
+    this->createFramebuffer(this->getVkGpu());
+    return true;
+}
+
 void GrVkRenderTarget::createFramebuffer(GrVkGpu* gpu) {
     if (fFramebuffer) {
         fFramebuffer->unref(gpu);
@@ -230,7 +264,7 @@ void GrVkRenderTarget::createFramebuffer(GrVkGpu* gpu) {
     const GrVkImageView* stencilView = this->stencilAttachmentView();
     fFramebuffer = GrVkFramebuffer::Create(gpu, this->width(), this->height(),
                                            fCachedSimpleRenderPass, fColorAttachmentView,
-                                           stencilView);
+                                           fCoverageCountView, stencilView);
     SkASSERT(fFramebuffer);
 }
 
@@ -245,6 +279,14 @@ void GrVkRenderTarget::getAttachmentsDescriptor(
     *attachmentFlags = GrVkRenderPass::kColor_AttachmentFlag;
     uint32_t attachmentCount = 1;
 
+    if (fCoverageCountImage) {
+        desc->fCoverageCount.fFormat = VK_FORMAT_R16_SFLOAT;
+        desc->fStencil.fSamples = 1;
+        SkASSERT(desc->fColor.fSamples == 1);
+        *attachmentFlags |= GrVkRenderPass::kCoverageCount_AttachmentFlag;
+        ++attachmentCount;
+    }
+
     const GrStencilAttachment* stencil = this->renderTargetPriv().getStencilAttachment();
     if (stencil) {
         const GrVkStencilAttachment* vkStencil = static_cast<const GrVkStencilAttachment*>(stencil);
@@ -255,6 +297,7 @@ void GrVkRenderTarget::getAttachmentsDescriptor(
         *attachmentFlags |= GrVkRenderPass::kStencil_AttachmentFlag;
         ++attachmentCount;
     }
+
     desc->fAttachmentCount = attachmentCount;
 }
 
@@ -262,6 +305,8 @@ GrVkRenderTarget::~GrVkRenderTarget() {
     // either release or abandon should have been called by the owner of this object.
     SkASSERT(!fMSAAImage);
     SkASSERT(!fResolveAttachmentView);
+    SkASSERT(!fCoverageCountImage);
+    SkASSERT(!fCoverageCountView);
     SkASSERT(!fColorAttachmentView);
     SkASSERT(!fFramebuffer);
     SkASSERT(!fCachedSimpleRenderPass);
@@ -285,10 +330,17 @@ void GrVkRenderTarget::releaseInternalObjects() {
         fMSAAImage->releaseImage(gpu);
         fMSAAImage.reset();
     }
-
     if (fResolveAttachmentView) {
         fResolveAttachmentView->unref(gpu);
         fResolveAttachmentView = nullptr;
+    }
+    if (fCoverageCountImage) {
+        fCoverageCountImage->releaseImage(gpu);
+        fCoverageCountImage.reset();
+    }
+    if (fCoverageCountView) {
+        fCoverageCountView->unref(gpu);
+        fCoverageCountView = nullptr;
     }
     if (fColorAttachmentView) {
         fColorAttachmentView->unref(gpu);
@@ -309,10 +361,17 @@ void GrVkRenderTarget::abandonInternalObjects() {
         fMSAAImage->abandonImage();
         fMSAAImage.reset();
     }
-
     if (fResolveAttachmentView) {
         fResolveAttachmentView->unrefAndAbandon();
         fResolveAttachmentView = nullptr;
+    }
+    if (fCoverageCountImage) {
+        fCoverageCountImage->abandonImage();
+        fCoverageCountImage.reset();
+    }
+    if (fCoverageCountView) {
+        fCoverageCountView->unrefAndAbandon();
+        fCoverageCountView = nullptr;
     }
     if (fColorAttachmentView) {
         fColorAttachmentView->unrefAndAbandon();

@@ -59,8 +59,15 @@ public:
                        const GrShaderCaps&);
 
     const char* name() const override { return "GrCCPRPathProcessor"; }
-    const GrSurfaceProxy* atlasProxy() const { return fAtlasAccess.proxy(); }
-    const GrTexture* atlas() const { return fAtlasAccess.peekTexture(); }
+    bool hasAtlas() const { return fAtlasAccess.isInitialized(); }
+    const GrSurfaceProxy* atlasProxy() const {
+        SkASSERT(this->hasAtlas());
+        return fAtlasAccess.proxy();
+    }
+    const GrTexture* atlas() const {
+        SkASSERT(this->hasAtlas());
+        return fAtlasAccess.peekTexture();
+    }
     SkPath::FillType fillType() const { return fFillType; }
     const Attribute& getInstanceAttrib(InstanceAttribs attribID) const {
         const Attribute& attrib = this->getAttrib((int)attribID);
@@ -79,7 +86,7 @@ public:
 
 private:
     const SkPath::FillType fFillType;
-    const TextureSampler fAtlasAccess;
+    TextureSampler fAtlasAccess;
 
     typedef GrGeometryProcessor INHERITED;
 };

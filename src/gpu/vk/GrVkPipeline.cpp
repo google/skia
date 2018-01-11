@@ -9,6 +9,7 @@
 
 #include "GrGeometryProcessor.h"
 #include "GrPipeline.h"
+#include "GrRenderTargetPriv.h"
 #include "GrVkCommandBuffer.h"
 #include "GrVkGpu.h"
 #include "GrVkRenderTarget.h"
@@ -351,7 +352,7 @@ static bool blend_coeff_refs_constant(GrBlendCoeff coeff) {
 
 static void setup_color_blend_state(const GrPipeline& pipeline,
                                     VkPipelineColorBlendStateCreateInfo* colorBlendInfo,
-                                    VkPipelineColorBlendAttachmentState* attachmentState) {
+                                    VkPipelineColorBlendAttachmentState* attachmentStates) {
     GrXferProcessor::BlendInfo blendInfo;
     pipeline.getXferProcessor().getBlendInfo(&blendInfo);
 
@@ -361,22 +362,43 @@ static void setup_color_blend_state(const GrPipeline& pipeline,
     bool blendOff = (kAdd_GrBlendEquation == equation || kSubtract_GrBlendEquation == equation) &&
                     kOne_GrBlendCoeff == srcCoeff && kZero_GrBlendCoeff == dstCoeff;
 
-    memset(attachmentState, 0, sizeof(VkPipelineColorBlendAttachmentState));
-    attachmentState->blendEnable = !blendOff;
+    memset(attachmentStates, 0, sizeof(VkPipelineColorBlendAttachmentState));
+    attachmentStates->blendEnable = !blendOff;
     if (!blendOff) {
-        attachmentState->srcColorBlendFactor = blend_coeff_to_vk_blend(srcCoeff);
-        attachmentState->dstColorBlendFactor = blend_coeff_to_vk_blend(dstCoeff);
-        attachmentState->colorBlendOp = blend_equation_to_vk_blend_op(equation);
-        attachmentState->srcAlphaBlendFactor = blend_coeff_to_vk_blend(srcCoeff);
-        attachmentState->dstAlphaBlendFactor = blend_coeff_to_vk_blend(dstCoeff);
-        attachmentState->alphaBlendOp = blend_equation_to_vk_blend_op(equation);
+        attachmentStates->srcColorBlendFactor = blend_coeff_to_vk_blend(srcCoeff);
+        attachmentStates->dstColorBlendFactor = blend_coeff_to_vk_blend(dstCoeff);
+        attachmentStates->colorBlendOp = blend_equation_to_vk_blend_op(equation);
+        attachmentStates->srcAlphaBlendFactor = blend_coeff_to_vk_blend(srcCoeff);
+        attachmentStates->dstAlphaBlendFactor = blend_coeff_to_vk_blend(dstCoeff);
+        attachmentStates->alphaBlendOp = blend_equation_to_vk_blend_op(equation);
     }
 
     if (!blendInfo.fWriteColor) {
-        attachmentState->colorWriteMask = 0;
+        attachmentStates->colorWriteMask = 0;
     } else {
-        attachmentState->colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT |
+        attachmentStates->colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT |
                                           VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
+    }
+
+    int numAttachments = 1;
+    if (pipeline.renderTarget()->renderTargetPriv().hasCoverageCountBuffer()) {
+        attachmentStates[1] = attachmentStates[0];
+        ++numAttachments;
+    }
+
+    // HAAAAAAAACK
+    switch (pipeline.drawBuffer()) {
+        case GrDrawBuffer::kColor:
+            attachmentStates[1].blendEnable = false;
+            attachmentStates[1].colorWriteMask = 0;
+            break;
+        case GrDrawBuffer::kCoverageCount:
+            attachmentStates[0].blendEnable = false;
+            attachmentStates[0].colorWriteMask = 0;
+            break;
+        case GrDrawBuffer::kBoth:
+            attachmentStates[1].blendEnable = false;
+            break;
     }
 
     memset(colorBlendInfo, 0, sizeof(VkPipelineColorBlendStateCreateInfo));
@@ -384,8 +406,8 @@ static void setup_color_blend_state(const GrPipeline& pipeline,
     colorBlendInfo->pNext = nullptr;
     colorBlendInfo->flags = 0;
     colorBlendInfo->logicOpEnable = VK_FALSE;
-    colorBlendInfo->attachmentCount = 1;
-    colorBlendInfo->pAttachments = attachmentState;
+    colorBlendInfo->attachmentCount = numAttachments;
+    colorBlendInfo->pAttachments = attachmentStates;
     // colorBlendInfo->blendConstants is set dynamically
 }
 
@@ -451,7 +473,7 @@ GrVkPipeline* GrVkPipeline::Create(GrVkGpu* gpu, const GrPipeline& pipeline,
     setup_multisample_state(pipeline, primProc, gpu->caps(), &multisampleInfo);
 
     // We will only have one color attachment per pipeline.
-    VkPipelineColorBlendAttachmentState attachmentStates[1];
+    VkPipelineColorBlendAttachmentState attachmentStates[2];
     VkPipelineColorBlendStateCreateInfo colorBlendInfo;
     setup_color_blend_state(pipeline, &colorBlendInfo, attachmentStates);
 

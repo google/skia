@@ -13,7 +13,6 @@
 #include "GrPathRenderer.h"
 #include "SkTInternalLList.h"
 #include "ccpr/GrCCPRAtlas.h"
-#include "ccpr/GrCCPRCoverageOp.h"
 #include "ccpr/GrCCPRPathProcessor.h"
 #include "ops/GrDrawOp.h"
 #include <map>
@@ -26,8 +25,8 @@
  * flush, it compiles GPU buffers and renders a "coverage count atlas" for the upcoming paths.
  */
 class GrCoverageCountingPathRenderer
-    : public GrPathRenderer
-    , public GrOnFlushCallbackObject {
+        : public GrPathRenderer
+        , public GrOnFlushCallbackObject {
 
     struct RTPendingPaths;
 
@@ -46,16 +45,16 @@ public:
     // generate at flush time.
     class DrawPathsOp : public GrDrawOp {
     public:
-        DEFINE_OP_CLASS_ID
         SK_DECLARE_INTERNAL_LLIST_INTERFACE(DrawPathsOp);
 
-        DrawPathsOp(GrCoverageCountingPathRenderer*, const DrawPathArgs&, GrColor);
-        ~DrawPathsOp() override;
+        DrawPathsOp(uint32_t classID, GrCoverageCountingPathRenderer*, const DrawPathArgs&,
+                    GrColor);
+        ~DrawPathsOp() override { SkDEBUGCODE(--fCCPR->fPendingDrawOpsCount); }
 
         struct SingleDraw  {
-            SkIRect fClipIBounds;
             SkMatrix fMatrix;
             SkPath fPath;
+            SkIRect fClippedPathIBounds;
             GrColor fColor;
             SingleDraw* fNext = nullptr;
         };
@@ -68,38 +67,30 @@ public:
         SkDEBUGCODE(int numSkippedInstances_debugOnly() const { return fNumSkippedInstances; })
 
         // GrDrawOp overrides.
-        const char* name() const override { return "GrCoverageCountingPathRenderer::DrawPathsOp"; }
-        FixedFunctionFlags fixedFunctionFlags() const override { return FixedFunctionFlags::kNone; }
+        FixedFunctionFlags fixedFunctionFlags() const final { return FixedFunctionFlags::kNone; }
         RequiresDstTexture finalize(const GrCaps&, const GrAppliedClip*,
-                                    GrPixelConfigIsClamped) override;
-        void wasRecorded(GrRenderTargetOpList*) override;
-        bool onCombineIfPossible(GrOp* other, const GrCaps& caps) override;
-        void visitProxies(const VisitProxyFunc& func) const override {
+                                    GrPixelConfigIsClamped) final;
+        bool onCombineIfPossible(GrOp* other, const GrCaps& caps) final;
+        void visitProxies(const VisitProxyFunc& func) const final {
             fProcessors.visitProxies(func);
         }
         void onPrepare(GrOpFlushState*) override {}
-        void onExecute(GrOpFlushState*) override;
+        void onExecute(GrOpFlushState*) final;
 
-        int setupResources(GrOnFlushResourceProvider*, GrCCPRCoverageOpsBuilder*,
+        int setupResources(GrOnFlushResourceProvider*,
                            GrCCPRPathProcessor::Instance* pathInstanceData, int pathInstanceIdx);
 
-    private:
+    protected:
         SkPath::FillType getFillType() const {
             SkASSERT(fInstanceCount >= 1);
             return fHeadDraw.fPath.getFillType();
         }
 
-        struct AtlasBatch {
-            const GrCCPRAtlas* fAtlas;
-            int fEndInstanceIdx;
-        };
-
-        void addAtlasBatch(const GrCCPRAtlas* atlas, int endInstanceIdx) {
-            SkASSERT(endInstanceIdx > fBaseInstance);
-            SkASSERT(fAtlasBatches.empty() ||
-                     endInstanceIdx > fAtlasBatches.back().fEndInstanceIdx);
-            fAtlasBatches.push_back() = {atlas, endInstanceIdx};
-        }
+        virtual bool canCombine(const DrawPathsOp&) const { return true; }
+        virtual void saveParsedPath(GrOnFlushResourceProvider*, int pathInstanceIdx, const
+                                    GrCCPathParser::ScissorMode&, const SkIRect& clippedPathIBounds,
+                                    int16_t* offsetX, int16_t* offsetY) = 0;
+        virtual void onExecute(GrOpFlushState*, GrPipeline::InitArgs*) = 0;
 
         GrCoverageCountingPathRenderer* const fCCPR;
         const uint32_t fSRGBFlags;
@@ -110,9 +101,80 @@ public:
         int fBaseInstance;
         SkDEBUGCODE(int fInstanceCount;)
         SkDEBUGCODE(int fNumSkippedInstances;)
-        SkSTArray<1, AtlasBatch, true> fAtlasBatches;
 
         typedef GrDrawOp INHERITED;
+    };
+
+    class AtlasPathsOp : public DrawPathsOp {
+    public:
+        DEFINE_OP_CLASS_ID
+
+        AtlasPathsOp(GrCoverageCountingPathRenderer* ccpr, const DrawPathArgs& args, GrColor color)
+                : DrawPathsOp(ClassID(), ccpr, args, color) {}
+
+        ~AtlasPathsOp() override {
+            if (fOwningRTPendingPaths) {
+                // Remove CCPR's dangling pointer to this Op before deleting it.
+                fOwningRTPendingPaths->fAtlasPaths.remove(this);
+            }
+        }
+
+        // GrDrawOp overrides.
+        const char* name() const override { return "GrCoverageCountingPathRenderer::AtlasPathsOp"; }
+        void wasRecorded(GrRenderTargetOpList*) override;
+
+    private:
+        void saveParsedPath(GrOnFlushResourceProvider*, int pathInstanceIdx,
+                            const GrCCPathParser::ScissorMode&, const SkIRect& clippedPathIBounds,
+                            int16_t* offsetX, int16_t* offsetY) override;
+        void onExecute(GrOpFlushState*, GrPipeline::InitArgs*) override;
+
+        struct AtlasBatch {
+            const GrCCPRAtlas* fAtlas;
+            int fEndInstanceIdx;
+        };
+
+        SkSTArray<1, AtlasBatch, true> fAtlasBatches;
+    };
+
+    class FramebufferPathsOp : public DrawPathsOp {
+    public:
+        DEFINE_OP_CLASS_ID
+
+        FramebufferPathsOp(GrCoverageCountingPathRenderer* ccpr, const DrawPathArgs& args,
+                           GrColor color)
+                : DrawPathsOp(ClassID(), ccpr, args, color) {}
+
+        ~FramebufferPathsOp() override {
+            if (fOwningRTPendingPaths) {
+                // Remove CCPR's dangling pointer to this Op before deleting it.
+                fOwningRTPendingPaths->fFramebufferPaths.remove(this);
+            }
+        }
+
+        // GrDrawOp overrides.
+        const char* name() const override {
+            return "GrCoverageCountingPathRenderer::FramebufferPathsOp";
+        }
+        void wasRecorded(GrRenderTargetOpList*) override;
+
+    private:
+        using PrimitiveTallies = GrCCPRGeometry::PrimitiveTallies;
+        using ScissorBatch = GrCCPathParser::ScissorBatch;
+
+        static constexpr int kNumScissorModes = 2;
+
+        bool canCombine(const DrawPathsOp&) const override;
+        void saveParsedPath(GrOnFlushResourceProvider*, int pathInstanceIdx,
+                            const GrCCPathParser::ScissorMode&, const SkIRect& clippedPathIBounds,
+                            int16_t* offsetX, int16_t* offsetY) override;
+        void onExecute(GrOpFlushState*, GrPipeline::InitArgs*) override;
+
+        PrimitiveTallies fInstanceStartIndices[kNumScissorModes];
+        PrimitiveTallies fUnscissoredInstanceCounts = PrimitiveTallies();
+        SkTArray<ScissorBatch, true> fScissorBatches;
+
+        int fRealInstanceCount = 0;
     };
 
     // GrPathRenderer overrides.
@@ -158,7 +220,7 @@ public:
             return fPathDevIBounds;
         }
         void placePathInAtlas(GrCoverageCountingPathRenderer*, GrOnFlushResourceProvider*,
-                              GrCCPRCoverageOpsBuilder*);
+                              GrCCPathParser*);
 
         const SkVector& atlasScale() const { SkASSERT(fHasAtlasTransform); return fAtlasScale; }
         const SkVector& atlasTranslate() const {
@@ -198,17 +260,20 @@ private:
     GrCoverageCountingPathRenderer(bool drawCachablePaths)
             : fDrawCachablePaths(drawCachablePaths) {}
 
-    GrCCPRAtlas* placeParsedPathInAtlas(GrOnFlushResourceProvider*, const SkIRect& accessRect,
-                                        const SkIRect& pathIBounds, int16_t* atlasOffsetX,
-                                        int16_t* atlasOffsetY, GrCCPRCoverageOpsBuilder*);
+    GrCCPRAtlas* placeParsedPathInAtlas(GrOnFlushResourceProvider*,
+                                        const GrCCPathParser::ScissorMode&,
+                                        const SkIRect& clippedPathIBounds, int16_t* atlasOffsetX,
+                                        int16_t* atlasOffsetY);
 
     struct RTPendingPaths {
         ~RTPendingPaths() {
             // Ensure all DrawPathsOps in this opList have been deleted.
-            SkASSERT(fDrawOps.isEmpty());
+            SkASSERT(fAtlasPaths.isEmpty());
+            SkASSERT(fFramebufferPaths.isEmpty());
         }
 
-        SkTInternalLList<DrawPathsOp> fDrawOps;
+        SkTInternalLList<DrawPathsOp> fAtlasPaths;
+        SkTInternalLList<DrawPathsOp> fFramebufferPaths;
         std::map<uint32_t, ClipPath> fClipPaths;
         GrSTAllocator<256, DrawPathsOp::SingleDraw> fDrawsAllocator;
     };
@@ -220,6 +285,7 @@ private:
     sk_sp<const GrBuffer> fPerFlushIndexBuffer;
     sk_sp<const GrBuffer> fPerFlushVertexBuffer;
     sk_sp<GrBuffer> fPerFlushInstanceBuffer;
+    sk_sp<GrCCPathParser> fPerFlushPathParser;
     GrSTAllocator<4, GrCCPRAtlas> fPerFlushAtlases;
     bool fPerFlushResourcesAreValid;
     SkDEBUGCODE(bool fFlushing = false;)

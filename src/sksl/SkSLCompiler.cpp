@@ -1141,6 +1141,8 @@ void Compiler::scanCFG(FunctionDefinition& f) {
 
 std::unique_ptr<Program> Compiler::convertProgram(Program::Kind kind, String text,
                                                   const Program::Settings& settings) {
+    // SkSL::String sksl = GrSKSLPrettyPrint::PrettyPrint(skslStrings, lengths, count, false);
+    // SkDebugf("%s\n", text.c_str());
     fErrorText = "";
     fErrorCount = 0;
     fIRGenerator->start(&settings);

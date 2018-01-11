@@ -10,8 +10,15 @@
 
 #include "SkRefCnt.h"
 #include "SkSize.h"
+#include "ccpr/GrCCPRGeometry.h"
+
+
+//ugh
+#include "ccpr/GrCCPathParser.h"
+
 
 class GrCaps;
+class GrCCPathParser;
 class GrDrawOp;
 class GrOnFlushResourceProvider;
 class GrRenderTargetContext;
@@ -26,31 +33,43 @@ struct SkIPoint16;
 class GrCCPRAtlas {
 public:
     static constexpr int kMinSize = 1024;
+    static constexpr int kNumScissorModes = 2;
 
-    GrCCPRAtlas(const GrCaps&, int minWidth, int minHeight);
+    using ScissorMode = GrCCPathParser::ScissorMode;
+    using PrimitiveTallies = GrCCPRGeometry::PrimitiveTallies;
+
+    GrCCPRAtlas(const GrCaps&, int minWidth, int minHeight,
+                const PrimitiveTallies fInstanceStartIndices[kNumScissorModes]);
     ~GrCCPRAtlas();
 
-    bool addRect(int devWidth, int devHeight, SkIPoint16* loc);
+    bool placeParsedPath(ScissorMode, const SkIRect& clippedPathIBounds, int16_t* atlasOffsetX,
+                         int16_t* atlasOffsetY, GrCCPathParser*);
     const SkISize& drawBounds() { return fDrawBounds; }
 
     sk_sp<GrRenderTargetContext> SK_WARN_UNUSED_RESULT finalize(GrOnFlushResourceProvider*,
-                                                                std::unique_ptr<GrDrawOp> atlasOp);
+                                                                sk_sp<const GrCCPathParser>);
 
     GrTextureProxy* textureProxy() const { return fTextureProxy.get(); }
 
 private:
+    using ScissorBatch = GrCCPathParser::ScissorBatch;
+
     class Node;
+    class DrawOp;
 
     bool internalPlaceRect(int w, int h, SkIPoint16* loc);
 
-    const int                                fMaxAtlasSize;
+    const int fMaxAtlasSize;
+    int fWidth;
+    int fHeight;
+    SkISize fDrawBounds;
+    std::unique_ptr<Node> fTopNode;
 
-    int                                      fWidth;
-    int                                      fHeight;
-    SkISize                                  fDrawBounds;
-    std::unique_ptr<Node>                    fTopNode;
+    PrimitiveTallies fInstanceStartIndices[kNumScissorModes];
+    PrimitiveTallies fUnscissoredInstanceCounts = PrimitiveTallies();
+    SkTArray<ScissorBatch, true> fScissorBatches;
 
-    sk_sp<GrTextureProxy>                    fTextureProxy;
+    sk_sp<GrTextureProxy> fTextureProxy;
 };
 
 #endif

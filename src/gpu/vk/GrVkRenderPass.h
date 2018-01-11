@@ -73,13 +73,15 @@ public:
             }
         };
         AttachmentDesc fColor;
+        AttachmentDesc fCoverageCount;
         AttachmentDesc fStencil;
         uint32_t       fAttachmentCount;
     };
 
     enum AttachmentFlags {
         kColor_AttachmentFlag = 0x1,
-        kStencil_AttachmentFlag = 0x2,
+        kCoverageCount_AttachmentFlag = 0x2,
+        kStencil_AttachmentFlag = 0x4,
     };
     GR_DECL_BITFIELD_OPS_FRIENDS(AttachmentFlags);
 
@@ -87,6 +89,7 @@ public:
     // If the render pass does not have the given attachment it will return false and not set the
     // index value.
     bool colorAttachmentIndex(uint32_t* index) const;
+    bool coverageCountAttachmentIndex(uint32_t* index) const;
     bool stencilAttachmentIndex(uint32_t* index) const;
 
     // Returns whether or not the structure of a RenderTarget matches that of the VkRenderPass in
