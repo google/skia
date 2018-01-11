@@ -1774,6 +1774,7 @@ if (skia_enable_tools) {
         "dm/DMGpuTestProcs.cpp",
         "tools/skqp/gm_knowledge.cpp",
         "tools/skqp/gm_runner.cpp",
+        "tools/skqp/skqp_blacklist.cpp",
       ]
       deps = [
         ":gm",
@@ -1806,6 +1807,26 @@ if (skia_enable_tools) {
       ]
       libs = [ "android" ]
     }
+  }
+
+  test_app("list_gms") {
+    sources = [
+      "tools/list_gms.cpp",
+    ]
+    deps = [
+      ":gm",
+      ":skia",
+    ]
+  }
+  test_app("list_gpu_unit_tests") {
+    sources = [
+      "dm/DMGpuTestProcs.cpp",
+      "tools/list_gpu_unit_tests.cpp",
+    ]
+    deps = [
+      ":skia",
+      ":tests",
+    ]
   }
 
   if (skia_enable_gpu) {

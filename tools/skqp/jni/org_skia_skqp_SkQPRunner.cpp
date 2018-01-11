@@ -19,7 +19,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 extern "C" {
-JNIEXPORT void JNICALL Java_org_skia_skqp_SkQP_nInit(JNIEnv*, jobject, jobject, jstring);
+JNIEXPORT void JNICALL Java_org_skia_skqp_SkQP_nInit(JNIEnv*, jobject, jobject, jstring, jboolean);
 JNIEXPORT jfloat JNICALL Java_org_skia_skqp_SkQP_nExecuteGM(JNIEnv*, jobject, jint, jint);
 JNIEXPORT jobjectArray JNICALL Java_org_skia_skqp_SkQP_nExecuteUnitTest(JNIEnv*, jobject,
                                                                               jint);
@@ -119,11 +119,12 @@ jobjectArray to_java_string_array(JNIEnv* env,
 }
 
 void Java_org_skia_skqp_SkQP_nInit(JNIEnv* env, jobject object, jobject assetManager,
-                                         jstring dataDir) {
+                                         jstring dataDir, jboolean experimentalMode) {
     jclass clazz = env->GetObjectClass(object);
     jassert(env, assetManager);
 
-    gm_runner::InitSkia();
+    gm_runner::InitSkia(experimentalMode ? gm_runner::Mode::kExperimentalMode
+                                         : gm_runner::Mode::kCompatibilityTestMode);
 
     std::lock_guard<std::mutex> lock(gMutex);
     gAssetManager.fMgr = AAssetManager_fromJava(env, assetManager);

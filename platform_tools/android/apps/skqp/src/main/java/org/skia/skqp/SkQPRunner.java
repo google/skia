@@ -42,14 +42,15 @@ public class SkQPRunner extends Runner {
 
         Resources resources = context.getResources();
         AssetManager mAssetManager = resources.getAssets();
-        impl.nInit(mAssetManager, filesDir.getAbsolutePath());
+        impl.nInit(mAssetManager, filesDir.getAbsolutePath(), false);
 
         mDescription = Description.createSuiteDescription(testClass);
         Annotation annots[] = new Annotation[0];
         for (int backend = 0; backend < impl.mBackends.length; backend++) {
             String classname = SkQP.kSkiaGM + impl.mBackends[backend];
             for (int gm = 0; gm < impl.mGMs.length; gm++) {
-                mDescription.addChild(Description.createTestDescription(classname, impl.mGMs[gm], annots));
+                mDescription.addChild(
+                        Description.createTestDescription(classname, impl.mGMs[gm], annots));
             }
         }
         for (int unitTest = 0; unitTest < impl.mUnitTests.length; unitTest++) {
@@ -62,7 +63,9 @@ public class SkQPRunner extends Runner {
     public Description getDescription() { return mDescription; }
 
     @Override
-    public int testCount() { return impl.mUnitTests.length + impl.mGMs.length * impl.mBackends.length; }
+    public int testCount() {
+        return impl.mUnitTests.length + impl.mGMs.length * impl.mBackends.length;
+    }
 
     @Override
     public void run(RunNotifier notifier) {
@@ -70,7 +73,8 @@ public class SkQPRunner extends Runner {
         for (int backend = 0; backend < impl.mBackends.length; backend++) {
             String classname = SkQP.kSkiaGM + impl.mBackends[backend];
             for (int gm = 0; gm < impl.mGMs.length; gm++) {
-                Description desc = Description.createTestDescription(classname, impl.mGMs[gm], annots);
+                Description desc =
+                        Description.createTestDescription(classname, impl.mGMs[gm], annots);
                 notifier.fireTestStarted(desc);
                 float value = java.lang.Float.MAX_VALUE;
                 String error = null;
