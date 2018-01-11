@@ -262,6 +262,55 @@ void draw(SkCanvas*, const SkMatrix* = NULL)
 
 # <a name="SkDumpCanvas"></a> Class SkDumpCanvas
 
+# <a name="Encoded_Image_Format"></a> Encoded Image Format
+
+## <a name="SkEncodedImageFormat"></a> Enum SkEncodedImageFormat
+
+### Constants
+
+<table>
+  <tr>
+    <td><a name="SkEncodedImageFormat_kUnknown"> <code><strong>SkEncodedImageFormat::kUnknown </strong></code> </a></td><td>0</td><td></td>
+  </tr>
+  <tr>
+    <td><a name="SkEncodedImageFormat_kBMP"> <code><strong>SkEncodedImageFormat::kBMP </strong></code> </a></td><td>1</td><td></td>
+  </tr>
+  <tr>
+    <td><a name="SkEncodedImageFormat_kGIF"> <code><strong>SkEncodedImageFormat::kGIF </strong></code> </a></td><td>2</td><td></td>
+  </tr>
+  <tr>
+    <td><a name="SkEncodedImageFormat_kICO"> <code><strong>SkEncodedImageFormat::kICO </strong></code> </a></td><td>3</td><td></td>
+  </tr>
+  <tr>
+    <td><a name="SkEncodedImageFormat_kJPEG"> <code><strong>SkEncodedImageFormat::kJPEG </strong></code> </a></td><td>4</td><td></td>
+  </tr>
+  <tr>
+    <td><a name="SkEncodedImageFormat_kPNG"> <code><strong>SkEncodedImageFormat::kPNG </strong></code> </a></td><td>5</td><td></td>
+  </tr>
+  <tr>
+    <td><a name="SkEncodedImageFormat_kWBMP"> <code><strong>SkEncodedImageFormat::kWBMP </strong></code> </a></td><td>6</td><td></td>
+  </tr>
+  <tr>
+    <td><a name="SkEncodedImageFormat_kWEBP"> <code><strong>SkEncodedImageFormat::kWEBP </strong></code> </a></td><td>7</td><td></td>
+  </tr>
+  <tr>
+    <td><a name="SkEncodedImageFormat_kPKM"> <code><strong>SkEncodedImageFormat::kPKM </strong></code> </a></td><td>8</td><td></td>
+  </tr>
+  <tr>
+    <td><a name="SkEncodedImageFormat_kKTX"> <code><strong>SkEncodedImageFormat::kKTX </strong></code> </a></td><td>9</td><td></td>
+  </tr>
+  <tr>
+    <td><a name="SkEncodedImageFormat_kASTC"> <code><strong>SkEncodedImageFormat::kASTC </strong></code> </a></td><td>10</td><td></td>
+  </tr>
+  <tr>
+    <td><a name="SkEncodedImageFormat_kDNG"> <code><strong>SkEncodedImageFormat::kDNG </strong></code> </a></td><td>11</td><td></td>
+  </tr>
+  <tr>
+    <td><a name="SkEncodedImageFormat_kHEIF"> <code><strong>SkEncodedImageFormat::kHEIF </strong></code> </a></td><td>12</td><td></td>
+  </tr>
+
+</table>
+
 # <a name="Filter_Quality"></a> Filter Quality
 
 ## <a name="SkFilterQuality"></a> Enum SkFilterQuality

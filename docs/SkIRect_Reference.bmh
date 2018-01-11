@@ -434,7 +434,9 @@ overflow in its calculation.
 
 #Return fRight minus fLeft cast to int64_t ##
 
-#Example
+#Bug 7489 ##
+# width64 is not yet visible to fiddle
+#NoExample
 SkIRect large = { -2147483647, 1, 2147483644, 2 };
 SkDebugf("width: %d wdith64: %lld\n", large.width(), large.width64());
 #StdOut
@@ -480,7 +482,9 @@ overflow in its calculation.
 
 #Return fBottom minus fTop cast to int64_t ##
 
-#Example
+#Bug 7489 ##
+# height64 not yet visible to fiddle
+#NoExample
 SkIRect large = { 1, -2147483647, 2, 2147483644 };
 SkDebugf("height: %d height64: %lld\n", large.height(), large.height64());
 #StdOut
@@ -620,7 +624,9 @@ width64() or height64().
 
 #Return true if width64() or height64() are zero or negative ##
 
-#Example
+#Bug 7489 ##
+# isEmpty64 not yet visible to fiddle
+#NoExample
 SkIRect tests[] = {{20, 40, 10, 50}, {20, 40, 20, 50}};
 for (auto rect : tests) {
 SkDebugf("rect: {%d, %d, %d, %d} is" "%s empty\n", rect.left(), rect.top(), rect.right(),
@@ -1642,6 +1648,11 @@ rect: 0, 0, 0, 0
 
 #Deprecated
 ##
+
+Returns constructed SkIRect setting left and top to most negative value, and
+setting right and bottom to most positive value.
+
+#Return  bounds (SK_MinS32, SK_MinS32, SK_MaxS32, SK_MaxS32) ##
 
 ##
 
