@@ -79,7 +79,7 @@ void GrAtlasTextBlob::appendGlyph(int runIndex,
 
     // If the glyph is too large we fall back to paths
     if (glyph->fTooLargeForAtlas) {
-        this->appendLargeGlyph(glyph, cache, skGlyph, x, y, scale, treatAsBMP);
+        this->appendBigGlyph(glyph, cache, skGlyph, x, y, scale, treatAsBMP);
         return;
     }
 
@@ -139,7 +139,7 @@ void GrAtlasTextBlob::appendGlyph(int runIndex,
     subRun->glyphAppended();
 }
 
-void GrAtlasTextBlob::appendLargeGlyph(GrGlyph* glyph, SkGlyphCache* cache, const SkGlyph& skGlyph,
+void GrAtlasTextBlob::appendBigGlyph(GrGlyph* glyph, SkGlyphCache* cache, const SkGlyph& skGlyph,
                                        SkScalar x, SkScalar y, SkScalar scale, bool treatAsBMP) {
     if (nullptr == glyph->fPath) {
         const SkPath* glyphPath = cache->findPath(skGlyph);
@@ -367,11 +367,11 @@ void GrAtlasTextBlob::flushBigGlyphs(GrContext* context, GrTextUtils::Target* ta
     }
 }
 
-void GrAtlasTextBlob::flushRunAsPaths(GrContext* context, GrTextUtils::Target* target,
-                                      const SkSurfaceProps& props, const SkTextBlobRunIterator& it,
-                                      const GrClip& clip, const GrTextUtils::Paint& paint,
-                                      SkDrawFilter* drawFilter, const SkMatrix& viewMatrix,
-                                      const SkIRect& clipBounds, SkScalar x, SkScalar y) {
+void GrAtlasTextBlob::flushBigRun(GrContext* context, GrTextUtils::Target* target,
+                                    const SkSurfaceProps& props, const SkTextBlobRunIterator& it,
+                                    const GrClip& clip, const GrTextUtils::Paint& paint,
+                                    SkDrawFilter* drawFilter, const SkMatrix& viewMatrix,
+                                    const SkIRect& clipBounds, SkScalar x, SkScalar y) {
     size_t textLen = it.glyphCount() * sizeof(uint16_t);
     const SkPoint& offset = it.offset();
 
@@ -382,19 +382,19 @@ void GrAtlasTextBlob::flushRunAsPaths(GrContext* context, GrTextUtils::Target* t
 
     switch (it.positioning()) {
         case SkTextBlob::kDefault_Positioning:
-            GrTextUtils::DrawTextAsPath(context, target, clip, runPaint, viewMatrix,
-                                        (const char*)it.glyphs(), textLen, x + offset.x(),
-                                        y + offset.y(), clipBounds);
+            GrTextUtils::DrawBigText(context, target, clip, runPaint, viewMatrix,
+                                     (const char*)it.glyphs(), textLen, x + offset.x(),
+                                     y + offset.y(), clipBounds);
             break;
         case SkTextBlob::kHorizontal_Positioning:
-            GrTextUtils::DrawPosTextAsPath(context, target, props, clip, runPaint, viewMatrix,
-                                           (const char*)it.glyphs(), textLen, it.pos(), 1,
-                                           SkPoint::Make(x, y + offset.y()), clipBounds);
+            GrTextUtils::DrawBigPosText(context, target, props, clip, runPaint, viewMatrix,
+                                        (const char*)it.glyphs(), textLen, it.pos(), 1,
+                                        SkPoint::Make(x, y + offset.y()), clipBounds);
             break;
         case SkTextBlob::kFull_Positioning:
-            GrTextUtils::DrawPosTextAsPath(context, target, props, clip, runPaint, viewMatrix,
-                                           (const char*)it.glyphs(), textLen, it.pos(), 2,
-                                           SkPoint::Make(x, y), clipBounds);
+            GrTextUtils::DrawBigPosText(context, target, props, clip, runPaint, viewMatrix,
+                                        (const char*)it.glyphs(), textLen, it.pos(), 2,
+                                        SkPoint::Make(x, y), clipBounds);
             break;
     }
 }
@@ -409,9 +409,9 @@ void GrAtlasTextBlob::flushCached(GrContext* context, GrTextUtils::Target* targe
     // it as paths
     SkTextBlobRunIterator it(blob);
     for (int run = 0; !it.done(); it.next(), run++) {
-        if (fRuns[run].fDrawAsPaths) {
-            this->flushRunAsPaths(context, target, props, it, clip, paint, drawFilter, viewMatrix,
-                                  clipBounds, x, y);
+        if (fRuns[run].fTooBigForAtlas) {
+            this->flushBigRun(context, target, props, it, clip, paint, drawFilter, viewMatrix,
+                              clipBounds, x, y);
             continue;
         }
         this->flushRun(target, clip, run, viewMatrix, x, y, paint, props, distanceAdjustTable,
@@ -504,7 +504,7 @@ void GrAtlasTextBlob::AssertEqual(const GrAtlasTextBlob& l, const GrAtlasTextBlo
         // color can be changed
         //SkASSERT(lRun.fColor == rRun.fColor);
         SkASSERT_RELEASE(lRun.fInitialized == rRun.fInitialized);
-        SkASSERT_RELEASE(lRun.fDrawAsPaths == rRun.fDrawAsPaths);
+        SkASSERT_RELEASE(lRun.fTooBigForAtlas == rRun.fTooBigForAtlas);
 
         SkASSERT_RELEASE(lRun.fSubRunInfo.count() == rRun.fSubRunInfo.count());
         for(int j = 0; j < lRun.fSubRunInfo.count(); j++) {
