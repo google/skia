@@ -93,6 +93,30 @@
       "revId": "302a2a54ba2de1cfc80cca91ac906d465f573451",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0f637276_b1b612f6",
+        "filename": "infra/bots/recipe_modules/flavor/gn_android_flavor.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-01-11T18:06:16Z",
+      "side": 1,
+      "message": "Facepalm.  Right.  The question still applies though; we could out this script into bin/ or tools/ or somewhere that makes sense so that developers can use it, and then call the script here.  Would that be worth doing?",
+      "parentUuid": "a9e612bb_7f9db388",
+      "range": {
+        "startLine": 156,
+        "startChar": 8,
+        "endLine": 156,
+        "endChar": 15
+      },
+      "revId": "302a2a54ba2de1cfc80cca91ac906d465f573451",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
