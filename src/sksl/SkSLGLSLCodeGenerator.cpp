@@ -1246,6 +1246,12 @@ bool GLSLCodeGenerator::generateCode() {
     fOut = &fHeader;
     fProgramKind = fProgram.fKind;
     this->writeHeader();
+    if (Program::kGeometry_Kind == fProgramKind &&
+        fProgram.fSettings.fCaps->geometryShaderExtensionString()) {
+        fHeader.writeText("#extension ");
+        fHeader.writeText(fProgram.fSettings.fCaps->geometryShaderExtensionString());
+        fHeader.writeText(" : require\n");
+    }
     StringStream body;
     fOut = &body;
     for (const auto& e : fProgram.fElements) {

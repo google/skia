@@ -155,6 +155,10 @@ public:
         return nullptr;
     }
 
+    const char* geometryShaderExtensionString() const {
+        return nullptr;
+    }
+
     const char* gsInvocationsExtensionString() const {
         return nullptr;
     }
@@ -184,7 +188,6 @@ public:
         sk_sp<GrShaderCaps> result = sk_make_sp<GrShaderCaps>(GrContextOptions());
         result->fVersionDeclString = "#version 400";
         result->fShaderDerivativeSupport = true;
-        result->fGSInvocationsSupport = true;
         return result;
     }
 
@@ -253,11 +256,28 @@ public:
         return result;
     }
 
+    static sk_sp<GrShaderCaps> GeometryShaderSupport() {
+        sk_sp<GrShaderCaps> result = sk_make_sp<GrShaderCaps>(GrContextOptions());
+        result->fVersionDeclString = "#version 400";
+        result->fGeometryShaderSupport = true;
+        result->fGSInvocationsSupport = true;
+        return result;
+    }
+
     static sk_sp<GrShaderCaps> NoGSInvocationsSupport() {
         sk_sp<GrShaderCaps> result = sk_make_sp<GrShaderCaps>(GrContextOptions());
         result->fVersionDeclString = "#version 400";
         result->fGeometryShaderSupport = true;
         result->fGSInvocationsSupport = false;
+        return result;
+    }
+
+    static sk_sp<GrShaderCaps> GeometryShaderExtensionString() {
+        sk_sp<GrShaderCaps> result = sk_make_sp<GrShaderCaps>(GrContextOptions());
+        result->fVersionDeclString = "#version 310es";
+        result->fGeometryShaderSupport = true;
+        result->fGeometryShaderExtensionString = "GL_EXT_geometry_shader";
+        result->fGSInvocationsSupport = true;
         return result;
     }
 

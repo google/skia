@@ -139,6 +139,14 @@ public:
         return fShaderDerivativeExtensionString;
     }
 
+    // Returns the string of an extension that must be enabled in the shader to support geometry
+    // shaders. If nullptr is returned then no extension needs to be enabled. Before calling this
+    // function, the caller must verify that geometryShaderSupport exists.
+    const char* geometryShaderExtensionString() const {
+        SkASSERT(this->geometryShaderSupport());
+        return fGeometryShaderExtensionString;
+    }
+
     // Returns the string of an extension that must be enabled in the shader to support
     // geometry shader invocations. If nullptr is returned then no extension needs to be enabled.
     // Before calling this function, the caller must verify that gsInvocationsSupport exists.
@@ -271,6 +279,7 @@ private:
     const char* fVersionDeclString;
 
     const char* fShaderDerivativeExtensionString;
+    const char* fGeometryShaderExtensionString;
     const char* fGSInvocationsExtensionString;
     const char* fFragCoordConventionsExtensionString;
     const char* fSecondaryOutputExtensionString;

@@ -331,14 +331,18 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
 
         shaderCaps->fIntegerSupport = ctxInfo.version() >= GR_GL_VER(3, 0) &&
             ctxInfo.glslGeneration() >= k130_GrGLSLGeneration;
-    }
-    else {
+    } else {
         shaderCaps->fDualSourceBlendingSupport = ctxInfo.hasExtension("GL_EXT_blend_func_extended");
 
         shaderCaps->fShaderDerivativeSupport = ctxInfo.version() >= GR_GL_VER(3, 0) ||
             ctxInfo.hasExtension("GL_OES_standard_derivatives");
 
-        shaderCaps->fGeometryShaderSupport = ctxInfo.hasExtension("GL_EXT_geometry_shader");
+        if (ctxInfo.version() >= GR_GL_VER(3,2)) {
+            shaderCaps->fGeometryShaderSupport = true;
+        } else if (ctxInfo.hasExtension("GL_EXT_geometry_shader")) {
+            shaderCaps->fGeometryShaderSupport = true;
+            shaderCaps->fGeometryShaderExtensionString = "GL_EXT_geometry_shader";
+        }
         if (shaderCaps->fGeometryShaderSupport && kQualcomm_GrGLDriver == ctxInfo.driver()) {
             // Qualcomm driver @103.0 has been observed to crash compiling ccpr geometry shaders.
             // @127.0 is the earliest verified driver to not crash.
