@@ -62,6 +62,7 @@ public:
 
 protected:
     friend class GrSurfaceProxy;  // for ctors
+    friend class GrProxyProvider;  // for ctors
 
     // Deferred version
     GrRenderTargetProxy(const GrCaps&, const GrSurfaceDesc&,

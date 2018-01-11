@@ -464,9 +464,14 @@ sk_sp<GrTextureProxy> GrClipStackClip::createSoftwareClipMask(
         desc.fConfig = kAlpha_8_GrPixelConfig;
         // MDB TODO: We're going to fill this proxy with an ASAP upload (which is out of order wrt
         // to ops), so it can't have any pending IO.
+#if 0
         proxy = GrSurfaceProxy::MakeDeferred(proxyProvider, desc,
                                              SkBackingFit::kApprox, SkBudgeted::kYes,
                                              GrResourceProvider::kNoPendingIO_Flag);
+#else
+        proxy = proxyProvider->createProxy(desc, SkBackingFit::kApprox, SkBudgeted::kYes,
+                                           GrResourceProvider::kNoPendingIO_Flag);
+#endif
 
         auto uploader = skstd::make_unique<GrTDeferredProxyUploader<ClipMaskData>>(reducedClip);
         GrTDeferredProxyUploader<ClipMaskData>* uploaderRaw = uploader.get();

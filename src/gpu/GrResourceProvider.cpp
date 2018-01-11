@@ -15,6 +15,7 @@
 #include "GrGpu.h"
 #include "GrPath.h"
 #include "GrPathRendering.h"
+#include "GrProxyProvider.h"
 #include "GrRenderTargetPriv.h"
 #include "GrResourceCache.h"
 #include "GrResourceKey.h"
@@ -128,19 +129,25 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc,
     }
 
     GrContext* context = fGpu->getContext();
+    GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
 
     SkImageInfo srcInfo;
 
     if (make_info(desc.fWidth, desc.fHeight, desc.fConfig, &srcInfo)) {
+#if 0
         sk_sp<GrTexture> tex = this->getExactScratch(desc, budgeted, 0);
         sk_sp<GrTextureProxy> proxy = GrSurfaceProxy::MakeWrapped(tex, desc.fOrigin);
+#else
+        sk_sp<GrTextureProxy> proxy = proxyProvider->createInstantiatedProxy(desc,
+                                                                             SkBackingFit::kApprox,
+                                                                             budgeted, 0);
+#endif
         if (proxy) {
             sk_sp<GrSurfaceContext> sContext =
                        context->contextPriv().makeWrappedSurfaceContext(std::move(proxy), nullptr);
             if (sContext) {
                 if (sContext->writePixels(srcInfo, mipLevel.fPixels, mipLevel.fRowBytes, 0, 0)) {
-                    SkASSERT(sContext->asTextureProxy()->priv().peekTexture() == tex.get());
-                    return tex;
+                    return sk_ref_sp(sContext->asTextureProxy()->priv().peekTexture());
                 }
             }
         }
@@ -236,7 +243,7 @@ sk_sp<GrTexture> GrResourceProvider::refScratchTexture(const GrSurfaceDesc& desc
     return nullptr;
 }
 
-sk_sp<GrTexture> GrResourceProvider::wrapBackendTexture(const GrBackendTexture& tex,
+sk_sp<GrTexture> GrResourceProvider::wrapBackendTexture1(const GrBackendTexture& tex,
                                                         GrWrapOwnership ownership) {
     ASSERT_SINGLE_OWNER
     if (this->isAbandoned()) {
@@ -245,7 +252,7 @@ sk_sp<GrTexture> GrResourceProvider::wrapBackendTexture(const GrBackendTexture& 
     return fGpu->wrapBackendTexture(tex, ownership);
 }
 
-sk_sp<GrTexture> GrResourceProvider::wrapRenderableBackendTexture(const GrBackendTexture& tex,
+sk_sp<GrTexture> GrResourceProvider::wrapRenderableBackendTexture1(const GrBackendTexture& tex,
                                                                   int sampleCnt,
                                                                   GrWrapOwnership ownership) {
     ASSERT_SINGLE_OWNER
@@ -255,7 +262,7 @@ sk_sp<GrTexture> GrResourceProvider::wrapRenderableBackendTexture(const GrBacken
     return fGpu->wrapRenderableBackendTexture(tex, sampleCnt, ownership);
 }
 
-sk_sp<GrRenderTarget> GrResourceProvider::wrapBackendRenderTarget(
+sk_sp<GrRenderTarget> GrResourceProvider::wrapBackendRenderTarget1(
         const GrBackendRenderTarget& backendRT)
 {
     ASSERT_SINGLE_OWNER
@@ -464,7 +471,7 @@ sk_sp<GrRenderTarget> GrResourceProvider::wrapBackendTextureAsRenderTarget(
     if (this->isAbandoned()) {
         return nullptr;
     }
-    return this->gpu()->wrapBackendTextureAsRenderTarget(tex, sampleCnt);
+    return fGpu->wrapBackendTextureAsRenderTarget(tex, sampleCnt);
 }
 
 sk_sp<GrSemaphore> SK_WARN_UNUSED_RESULT GrResourceProvider::makeSemaphore(bool isOwned) {

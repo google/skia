@@ -24,6 +24,7 @@
 class GrTextureRenderTargetProxy : public GrTextureProxy, public GrRenderTargetProxy {
 private:
     friend class GrSurfaceProxy; // for ctors
+    friend class GrProxyProvider; // for ctors
 
     // Deferred version
     GrTextureRenderTargetProxy(const GrCaps&, const GrSurfaceDesc&,
