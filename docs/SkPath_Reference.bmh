@@ -740,7 +740,7 @@ Interpolate between Paths with Point_Array of equal size.
 Copy Verb_Array and Weights to out, and set out Point_Array to a weighted
 average of this Point_Array and ending Point_Array, using the formula:
 #Formula
-(this->points * weight) + ending->points * (1 - weight)
+(Path Point * weight) + ending Point * (1 - weight)
 ##
 .
 
