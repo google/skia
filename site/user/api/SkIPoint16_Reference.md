@@ -13,9 +13,15 @@ SkIPoint16 Reference
 | topics | description |
 | --- | ---  |
 
+## <a name="Constructors"></a> Constructors
+
+| name | description |
+| --- | ---  |
+| <a href="#SkIPoint16_Make">Make</a> | Constructs from integer inputs. |
+
 ## <a name="Member_Functions"></a> Member Functions
 
-| description | function |
+| name | description |
 | --- | ---  |
 | <a href="#SkIPoint16_Make">Make</a> | Constructs from integer inputs. |
 | <a href="#SkIPoint16_set">set</a> | Sets to integer input. |

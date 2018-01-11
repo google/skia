@@ -16,10 +16,19 @@ SkIPoint holds two 16 bit integer coordinates
 #Table ##
 ##
 
+#Subtopic Constructors
+#Table
+#Legend
+# name  # description                     ##
+#Legend ##
+# Make  # Constructs from integer inputs. ##
+#Table ##
+#Subtopic ##
+
 #Subtopic Member_Functions
 #Table
 #Legend
-# description # function ##
+# name  # description                     ##
 #Legend ##
 # Make  # Constructs from integer inputs. ##
 # set() # Sets to integer input.          ##

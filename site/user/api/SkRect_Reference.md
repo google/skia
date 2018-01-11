@@ -20,6 +20,24 @@ integer input cannot convert to <a href="undocumented#SkScalar">SkScalar</a> wit
 | topics | description |
 | --- | ---  |
 
+## <a name="Constructors"></a> Constructors
+
+| name | description |
+| --- | ---  |
+| <a href="#SkRect_Make">Make</a> | Constructs from <a href="undocumented#ISize">ISize</a> returning (0, 0, <a href="#SkRect_width">width</a>, <a href="#SkRect_height">height</a>). |
+| <a href="#SkRect_MakeEmpty">MakeEmpty</a> | Constructs from bounds of (0, 0, 0, 0). |
+| <a href="#SkRect_MakeFromIRect">MakeFromIRect</a> | Deprecated. |
+| <a href="#SkRect_MakeIWH">MakeIWH</a> | Constructs from int input returning (0, 0, <a href="#SkRect_width">width</a>, <a href="#SkRect_height">height</a>). |
+| <a href="#SkRect_MakeLTRB">MakeLTRB</a> | Constructs from <a href="undocumented#SkScalar">SkScalar</a> <a href="#SkRect_left">left</a>, <a href="#SkRect_top">top</a>, <a href="#SkRect_right">right</a>, <a href="#SkRect_bottom">bottom</a>. |
+| <a href="#SkRect_MakeLargest">MakeLargest</a> | Deprecated. |
+| <a href="#SkRect_MakeSize">MakeSize</a> | Constructs from <a href="undocumented#Size">Size</a> returning (0, 0, <a href="#SkRect_width">width</a>, <a href="#SkRect_height">height</a>). |
+| <a href="#SkRect_MakeWH">MakeWH</a> | Constructs from <a href="undocumented#SkScalar">SkScalar</a> input returning (0, 0, <a href="#SkRect_width">width</a>, <a href="#SkRect_height">height</a>). |
+| <a href="#SkRect_MakeXYWH">MakeXYWH</a> | Constructs from <a href="undocumented#SkScalar">SkScalar</a> input returning (<a href="#SkRect_x">x</a>, <a href="#SkRect_y">y</a>, <a href="#SkRect_width">width</a>, <a href="#SkRect_height">height</a>). |
+| <a href="#SkRect_makeInset">makeInset</a> | Constructs from sides moved symmetrically about the center. |
+| <a href="#SkRect_makeOffset">makeOffset</a> | Constructs from translated sides. |
+| <a href="#SkRect_makeOutset">makeOutset</a> | Constructs from sides moved symmetrically about the center. |
+| <a href="#SkRect_makeSorted">makeSorted</a> | Constructs, ordering sides from smaller to larger. |
+
 ## <a name="Operators"></a> Operators
 
 | description | function |
@@ -37,6 +55,7 @@ integer input cannot convert to <a href="undocumented#SkScalar">SkScalar</a> wit
 | <a href="#SkRect_MakeFromIRect">MakeFromIRect</a> | Deprecated. |
 | <a href="#SkRect_MakeIWH">MakeIWH</a> | Constructs from int input returning (0, 0, <a href="#SkRect_width">width</a>, <a href="#SkRect_height">height</a>). |
 | <a href="#SkRect_MakeLTRB">MakeLTRB</a> | Constructs from <a href="undocumented#SkScalar">SkScalar</a> <a href="#SkRect_left">left</a>, <a href="#SkRect_top">top</a>, <a href="#SkRect_right">right</a>, <a href="#SkRect_bottom">bottom</a>. |
+| <a href="#SkRect_MakeLargest">MakeLargest</a> | Deprecated. |
 | <a href="#SkRect_MakeSize">MakeSize</a> | Constructs from <a href="undocumented#Size">Size</a> returning (0, 0, <a href="#SkRect_width">width</a>, <a href="#SkRect_height">height</a>). |
 | <a href="#SkRect_MakeWH">MakeWH</a> | Constructs from <a href="undocumented#SkScalar">SkScalar</a> input returning (0, 0, <a href="#SkRect_width">width</a>, <a href="#SkRect_height">height</a>). |
 | <a href="#SkRect_MakeXYWH">MakeXYWH</a> | Constructs from <a href="undocumented#SkScalar">SkScalar</a> input returning (<a href="#SkRect_x">x</a>, <a href="#SkRect_y">y</a>, <a href="#SkRect_width">width</a>, <a href="#SkRect_height">height</a>). |

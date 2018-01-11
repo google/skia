@@ -15,15 +15,24 @@
 #Table ##
 ##
 
+#Subtopic Constructors
+#Table
+#Legend
+# name  # description                      ##
+#Legend ##
+# Make  # Constructs from SkScalar inputs. ##
+#Table ##
+#Subtopic ##
+
 #Subtopic Operators
 #Table
 #Legend
-# description                                             # function                           ##
+# name                                                    # description                        ##
 #Legend ##
 # SkPoint operator*(SkScalar scale)_const                 # Returns Point multiplied by scale. ##
+# SkPoint operator+(const SkPoint& a, const SkVector& b)  # Returns Point offset by Vector.    ##
 # SkPoint operator-()_const                               # Reverses sign of Point.            ##
 # SkPoint& operator*=(SkScalar scale)                     # Multiplies Point by scale factor.  ##
-# SkPoint operator+(const SkPoint& a, const SkVector& b)  # Returns Point offset by Vector.    ##
 # SkVector operator-(const SkPoint& a, const SkPoint& b)  # Returns Vector between Points.     ##
 # bool operator!=(const SkPoint& a, const SkPoint& b)     # Returns true if Point are unequal. ##
 # bool operator==(const SkPoint& a, const SkPoint& b)     # Returns true if Point are equal.   ##
@@ -35,7 +44,7 @@
 #Subtopic Member_Functions
 #Table
 #Legend
-# description      # function                                       ##
+# name             # description                                    ##
 #Legend ##
 # CrossProduct     # Returns cross product.                         ##
 # Distance         # Returns straight-line distance between points. ##
