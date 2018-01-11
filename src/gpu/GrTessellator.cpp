@@ -1996,12 +1996,11 @@ void stroke_boundary(EdgeList* boundary, VertexList* innerMesh, VertexList* oute
                                      prevV->fPoint + SkVector::Make(prevOuter.fA, prevOuter.fB));
                     Line nextTangent(nextV->fPoint,
                                      nextV->fPoint + SkVector::Make(outer.fA, outer.fB));
-                    Line b(innerPoint, outerPoint);
                     if (prevTangent.dist(outerPoint) > 0) {
-                        b.intersect(prevTangent, &outerPoint);
+                        bisector.intersect(prevTangent, &outerPoint);
                     }
                     if (nextTangent.dist(outerPoint) < 0) {
-                        b.intersect(nextTangent, &outerPoint);
+                        bisector.intersect(nextTangent, &outerPoint);
                     }
                     outerPoint1 = outerPoint2 = outerPoint;
                 } else {
@@ -2014,12 +2013,11 @@ void stroke_boundary(EdgeList* boundary, VertexList* innerMesh, VertexList* oute
                                      prevV->fPoint + SkVector::Make(prevInner.fA, prevInner.fB));
                     Line nextTangent(nextV->fPoint,
                                      nextV->fPoint + SkVector::Make(inner.fA, inner.fB));
-                    Line b(innerPoint, outerPoint);
                     if (prevTangent.dist(innerPoint) > 0) {
-                        b.intersect(prevTangent, &innerPoint);
+                        bisector.intersect(prevTangent, &innerPoint);
                     }
                     if (nextTangent.dist(innerPoint) < 0) {
-                        b.intersect(nextTangent, &innerPoint);
+                        bisector.intersect(nextTangent, &innerPoint);
                     }
                     innerPoint1 = innerPoint2 = innerPoint;
                 }
