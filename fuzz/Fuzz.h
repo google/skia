@@ -14,15 +14,18 @@
 #include "SkTypes.h"
 
 #include <cmath>
+#include <signal.h>
 
 class Fuzz : SkNoncopyable {
 public:
-    explicit Fuzz(sk_sp<SkData>);
+    explicit Fuzz(sk_sp<SkData> bytes) : fBytes(bytes), fNextByte(0) {}
 
     // Returns the total number of "random" bytes available.
-    size_t size();
+    size_t size() { return fBytes->size(); }
     // Returns if there are no bytes remaining for fuzzing.
-    bool exhausted();
+    bool exhausted(){
+        return fBytes->size() == fNextByte;
+    }
 
     // next() loads fuzzed bytes into the variable passed in by pointer.
     // We use this approach instead of T next() because different compilers
@@ -47,7 +50,11 @@ public:
     template <typename T>
     void nextN(T* ptr, int n);
 
-    void signalBug();  // Tell afl-fuzz these inputs found a bug.
+    void signalBug(){
+        // Tell the fuzzer that these inputs found a bug.
+        SkDebugf("Signal bug\n");
+        raise(SIGSEGV);
+    }
 
 private:
     template <typename T>
