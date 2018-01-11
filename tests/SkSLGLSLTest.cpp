@@ -1146,7 +1146,7 @@ DEF_TEST(SkSLGeometry, r) {
          "EmitVertex();"
          "EndPrimitive();"
          "}",
-         *SkSL::ShaderCapsFactory::Default(),
+         *SkSL::ShaderCapsFactory::GeometryShaderSupport(),
          "#version 400\n"
          "layout (points) in ;\n"
          "layout (invocations = 2) in ;\n"
@@ -1485,7 +1485,7 @@ DEF_TEST(SkSLDeadLoopVar, r) {
          );
 }
 
-DEF_TEST(SkSLInvocations, r) {
+DEF_TEST(SkSLGeometryShaders, r) {
     test(r,
          "layout(points) in;"
          "layout(invocations = 2) in;"
@@ -1530,6 +1530,27 @@ DEF_TEST(SkSLInvocations, r) {
          *SkSL::ShaderCapsFactory::GSInvocationsExtensionString(),
          "#version 400\n"
          "#extension GL_ARB_gpu_shader5 : require\n"
+         "layout (points, invocations = 2) in ;\n"
+         "layout (invocations = 3) in ;\n"
+         "layout (line_strip, max_vertices = 2) out ;\n"
+         "void main() {\n"
+         "    gl_Position = gl_in[0].gl_Position + vec4(-0.5, 0.0, 0.0, float(gl_InvocationID));\n"
+         "    EmitVertex();\n"
+         "    EndPrimitive();\n"
+         "}\n",
+         SkSL::Program::kGeometry_Kind);
+    test(r,
+         "layout(points, invocations = 2) in;"
+         "layout(invocations = 3) in;"
+         "layout(line_strip, max_vertices = 2) out;"
+         "void main() {"
+         "sk_Position = sk_in[0].sk_Position + float4(-0.5, 0, 0, sk_InvocationID);"
+         "EmitVertex();"
+         "EndPrimitive();"
+         "}",
+         *SkSL::ShaderCapsFactory::GeometryShaderExtensionString(),
+         "#version 310es\n"
+         "#extension GL_EXT_geometry_shader : require\n"
          "layout (points, invocations = 2) in ;\n"
          "layout (invocations = 3) in ;\n"
          "layout (line_strip, max_vertices = 2) out ;\n"
@@ -1719,7 +1740,7 @@ DEF_TEST(SkSLNormalization, r) {
          "EmitVertex();"
          "EndPrimitive();"
          "}",
-         *SkSL::ShaderCapsFactory::Default(),
+         *SkSL::ShaderCapsFactory::GeometryShaderSupport(),
          "#version 400\n"
          "uniform vec4 sk_RTAdjust;\n"
          "layout (points) in ;\n"
