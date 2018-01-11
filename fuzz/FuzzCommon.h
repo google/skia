@@ -65,6 +65,7 @@ static void fuzz_path(Fuzz* fuzz, SkPath* path, int maxOps) {
                 path->close();
                 break;
             default:
+                SkASSERT(false);
                 break;
         }
     }

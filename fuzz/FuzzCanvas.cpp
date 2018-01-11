@@ -135,6 +135,7 @@ inline void Fuzz::next(SkMatrix* m) {
             m->set9(buffer);
             return;
         default:
+            SkASSERT(false);
             return;
     }
 }
@@ -223,6 +224,9 @@ static sk_sp<SkColorFilter> make_fuzz_colorfilter(Fuzz* fuzz, int depth) {
             fuzz->nextN(tableB, SK_ARRAY_COUNT(tableB));
             return SkTableColorFilter::MakeARGB(tableA, tableR, tableG, tableB);
         }
+        default:
+            SkASSERT(false);
+            break;
     }
     return nullptr;
 }
@@ -411,6 +415,7 @@ static sk_sp<SkShader> make_fuzz_shader(Fuzz* fuzz, int depth) {
             }
         }
         default:
+            SkASSERT(false);
             break;
     }
     return nullptr;
@@ -608,7 +613,7 @@ static sk_sp<SkImageFilter> make_fuzz_imageFilter(Fuzz* fuzz, int depth) {
         return nullptr;
     }
     uint8_t imageFilterType;
-    fuzz->nextRange(&imageFilterType, 0, 24);
+    fuzz->nextRange(&imageFilterType, 0, 23);
     switch (imageFilterType) {
         case 0:
             return nullptr;
@@ -1023,6 +1028,7 @@ static SkTDArray<uint8_t> make_fuzz_text(Fuzz* fuzz, const SkPaint& paint) {
             break;
         default:
             SkASSERT(false);
+            break;
     }
     return array;
 }
@@ -1065,6 +1071,7 @@ static sk_sp<SkTextBlob> make_fuzz_textblob(Fuzz* fuzz) {
                 break;
             default:
                 SkASSERT(false);
+                break;
         }
     }
     return textBlobBuilder.make();
@@ -1663,6 +1670,7 @@ static void fuzz_canvas(Fuzz* fuzz, SkCanvas* canvas, int depth = 9) {
                 break;
             }
             default:
+                SkASSERT(false);
                 break;
         }
     }
