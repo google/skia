@@ -585,9 +585,6 @@ void IncludeWriter::enumSizeItems(const Definition& child) {
 
 // walk children and output complete method doxygen description
 void IncludeWriter::methodOut(const Definition* method, const Definition& child) {
-    if (string::npos != method->fName.find("validate")) {
-        SkDebugf("");
-    }
     if (fPendingMethod) {
         fIndent -= 4;
         fPendingMethod = false;

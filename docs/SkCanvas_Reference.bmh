@@ -1249,8 +1249,8 @@ Does not copy, and returns false if:
 
 #List
 # Source and destination rectangles do not intersect. ##
-# pixels could not be converted to this->imageInfo().colorType() or
-this->imageInfo().alphaType(). ##
+# pixels could not be converted to Canvas imageInfo().colorType() or
+  imageInfo().alphaType(). ##
 # Canvas pixels are not writable; for instance, Canvas is document-based. ##
 # rowBytes is too small to contain one row of pixels. ##
 ##
@@ -1308,8 +1308,8 @@ Does not copy, and returns false if:
 #List
 # Source and destination rectangles do not intersect. ##
 # bitmap does not have allocated pixels. ##
-# bitmap pixels could not be converted to this->imageInfo().colorType() or
-this->imageInfo().alphaType(). ##
+# bitmap pixels could not be converted to Canvas imageInfo().colorType() or
+  imageInfo().alphaType(). ##
 # Canvas pixels are not writable; for instance, Canvas is document based. ##
 # bitmap pixels are inaccessible; for instance, bitmap wraps a texture. ##
 ##

@@ -26,8 +26,13 @@
  SK_USE_FREETYPE_EMBOLDEN # ditto
  SK_SUPPORT_LEGACY_PAINT_TEXTDECORATION # ditto
  SK_BUILD_FOR_ANDROID_FRAMEWORK # ditto
+ SK_BUILD_FOR_MAC # ditto
+ SK_BUILD_FOR_IOS # ditto
  SK_IGNORE_TO_STRING #  ditto
  SK_SUPPORT_GPU # ditto
+ SK_HAS_JPEG_LIBRARY # ditto
+ SK_HAS_PNG_LIBRARY # ditto
+ SK_HAS_WEBP_LIBRARY # ditto
 
 # FreeType related
 FT_LOAD_TARGET_LIGHT
@@ -240,6 +245,37 @@ FT_Load_Glyph
 
 #Topic Dump_Canvas
 #Class SkDumpCanvas
+##
+#Topic ##
+
+#Topic Encoded_Image_Format
+#EnumClass SkEncodedImageFormat
+    #Const kUnknown 0
+    ##
+    #Const kBMP 1
+    ##
+    #Const kGIF 2
+    ##
+    #Const kICO 3
+    ##
+    #Const kJPEG 4
+    ##
+    #Const kPNG 5
+    ##
+    #Const kWBMP 6
+    ##
+    #Const kWEBP 7
+    ##
+    #Const kPKM 8
+    ##
+    #Const kKTX 9
+    ##
+    #Const kASTC 10
+    ##
+    #Const kDNG 11
+    ##
+    #Const kHEIF 12
+    ##
 ##
 #Topic ##
 

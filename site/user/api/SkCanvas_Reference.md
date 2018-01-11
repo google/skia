@@ -1185,8 +1185,8 @@ Does not copy, and returns false if:
 
 <table>  <tr>
     <td>Source and destination rectangles do not intersect.</td>  </tr>  <tr>
-    <td><a href="#SkCanvas_writePixels_pixels">pixels</a> could not be converted to this-><a href="#SkCanvas_imageInfo">imageInfo</a>.colorType() or
-this-><a href="#SkCanvas_imageInfo">imageInfo</a>.alphaType().</td>  </tr>  <tr>
+    <td><a href="#SkCanvas_writePixels_pixels">pixels</a> could not be converted to <a href="#Canvas">Canvas</a> <a href="#SkCanvas_imageInfo">imageInfo</a>.colorType() or
+<a href="#SkCanvas_imageInfo">imageInfo</a>.alphaType().</td>  </tr>  <tr>
     <td><a href="#Canvas">Canvas</a> <a href="#SkCanvas_writePixels_pixels">pixels</a> are not writable; for instance, <a href="#Canvas">Canvas</a> is document-based.</td>  </tr>  <tr>
     <td><a href="#SkCanvas_writePixels_rowBytes">rowBytes</a> is too small to contain one row of <a href="#SkCanvas_writePixels_pixels">pixels</a>.</td>  </tr>
 </table>
@@ -1250,8 +1250,8 @@ Does not copy, and returns false if:
 <table>  <tr>
     <td>Source and destination rectangles do not intersect.</td>  </tr>  <tr>
     <td><a href="#SkCanvas_writePixels_2_bitmap">bitmap</a> does not have allocated pixels.</td>  </tr>  <tr>
-    <td><a href="#SkCanvas_writePixels_2_bitmap">bitmap</a> pixels could not be converted to this-><a href="#SkCanvas_imageInfo">imageInfo</a>.colorType() or
-this-><a href="#SkCanvas_imageInfo">imageInfo</a>.alphaType().</td>  </tr>  <tr>
+    <td><a href="#SkCanvas_writePixels_2_bitmap">bitmap</a> pixels could not be converted to <a href="#Canvas">Canvas</a> <a href="#SkCanvas_imageInfo">imageInfo</a>.colorType() or
+<a href="#SkCanvas_imageInfo">imageInfo</a>.alphaType().</td>  </tr>  <tr>
     <td><a href="#Canvas">Canvas</a> pixels are not writable; for instance, <a href="#Canvas">Canvas</a> is document based.</td>  </tr>  <tr>
     <td><a href="#SkCanvas_writePixels_2_bitmap">bitmap</a> pixels are inaccessible; for instance, <a href="#SkCanvas_writePixels_2_bitmap">bitmap</a> wraps a texture.</td>  </tr>
 </table>

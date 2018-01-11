@@ -617,7 +617,7 @@ bool interpolate(const SkPath& ending, SkScalar weight, SkPath* out) const
 Interpolate between <a href="#Path">Paths</a> with <a href="#Point_Array">Point Array</a> of equal size.
 Copy <a href="#Verb_Array">Verb Array</a> and <a href="#Weight">Weights</a> to <a href="#SkPath_interpolate_out">out</a>, and set <a href="#SkPath_interpolate_out">out</a> <a href="#Point_Array">Point Array</a> to a weighted
 average of this <a href="#Point_Array">Point Array</a> and <a href="#SkPath_interpolate_ending">ending</a> <a href="#Point_Array">Point Array</a>, using the formula:
-(this->points * <a href="#SkPath_interpolate_weight">weight</a>) + <a href="#SkPath_interpolate_ending">ending</a>->points * (1 - <a href="#SkPath_interpolate_weight">weight</a>).
+(<a href="#Path">Path</a> <a href="SkPoint_Reference#Point">Point</a> * <a href="#SkPath_interpolate_weight">weight</a>) + <a href="#SkPath_interpolate_ending">ending</a> <a href="SkPoint_Reference#Point">Point</a> * (1 - <a href="#SkPath_interpolate_weight">weight</a>).
 
 <a href="#SkPath_interpolate_weight">weight</a> is most useful when between zero (<a href="#SkPath_interpolate_ending">ending</a> <a href="#Point_Array">Point Array</a>) and
 one (this <a href="#Point_Array">Point Array</a>); will work with values outside of this

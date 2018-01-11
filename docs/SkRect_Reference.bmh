@@ -2131,6 +2131,11 @@ rect is equal to copy
 #Deprecated
 ##
 
+Returns constructed SkRect setting left and top to most negative finite value, and
+setting right and bottom to most positive finite value.
+
+#Return  bounds (SK_ScalarMin, SK_ScalarMin, SK_ScalarMax, SK_ScalarMax) ##
+
 ##
 
 #Struct SkRect ##

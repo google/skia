@@ -2743,5 +2743,12 @@ rect is equal to copy
 static SkRect SK_WARN_UNUSED_RESULT MakeLargest()
 </pre>
 
+Returns constructed <a href="#SkRect">SkRect</a> setting <a href="#SkRect_left">left</a> and <a href="#SkRect_top">top</a> to most negative finite value, and
+setting <a href="#SkRect_right">right</a> and <a href="#SkRect_bottom">bottom</a> to most positive finite value.
+
+### Return Value
+
+bounds (<a href="undocumented#SK_ScalarMin">SK ScalarMin</a>, <a href="undocumented#SK_ScalarMin">SK ScalarMin</a>, <a href="undocumented#SK_ScalarMax">SK ScalarMax</a>, <a href="undocumented#SK_ScalarMax">SK ScalarMax</a>)
+
 ---
 

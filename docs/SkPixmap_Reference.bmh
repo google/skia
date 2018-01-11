@@ -1511,29 +1511,29 @@ is drawn after overwriting bottom half float color with top half float color.
                     int srcX, int srcY, SkTransferFunctionBehavior behavior) const
 
 Copies a Rect of pixels to dstPixels. Copy starts at (srcX, srcY), and does not
-exceed (this->width(), this->height()). 
+exceed Pixmap (width(), height()). 
 
 dstInfo specifies width, height, Color_Type, Alpha_Type, and 
 Color_Space of destination. dstRowBytes specifics the gap from one destination
 row to the next. Returns true if pixels are copied. Returns false if
 dstInfo.addr() equals nullptr, or dstRowBytes is less than dstInfo.minRowBytes.
 
-Pixels are copied only if pixel conversion is possible. If this->colorType is
+Pixels are copied only if pixel conversion is possible. If Pixmap colorType is
 kGray_8_SkColorType, or kAlpha_8_SkColorType; dstInfo.colorType must match.
-If this->colorType is kGray_8_SkColorType, dstInfo.colorSpace must match.
-If this->alphaType is kOpaque_SkAlphaType, dstInfo.alphaType must
-match. If this->colorSpace is nullptr, dstInfo.colorSpace must match. Returns
+If Pixmap colorType is kGray_8_SkColorType, dstInfo.colorSpace must match.
+If Pixmap alphaType is kOpaque_SkAlphaType, dstInfo.alphaType must
+match. If Pixmap colorSpace is nullptr, dstInfo.colorSpace must match. Returns
 false if pixel conversion is not possible.
  
 srcX and srcY may be negative to copy only top or left of source. Returns
 false if width() or height() is zero or negative. Returns false if:
 
 #Formula
-abs(srcX) >= this->width()
+abs(srcX) >= Pixmap width()
 ##
 , or if
 #Formula
-abs(srcY) >= this->height()
+abs(srcY) >= Pixmap height()
 ##
 .
 
@@ -1589,21 +1589,21 @@ void draw(SkCanvas* canvas) {
 #Method bool readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes) const 
 
 Copies a Rect of pixels to dstPixels. Copy starts at (0, 0), and does not
-exceed (this->width(), this->height()).
+exceed Pixmap (width(), height()).
 
 dstInfo specifies width, height, Color_Type, Alpha_Type, and 
 Color_Space of destination. dstRowBytes specifics the gap from one destination
 row to the next. Returns true if pixels are copied. Returns false if
 dstInfo.addr() equals nullptr, or dstRowBytes is less than dstInfo.minRowBytes.
 
-Pixels are copied only if pixel conversion is possible. If this->colorType is
+Pixels are copied only if pixel conversion is possible. If Pixmap colorType is
 kGray_8_SkColorType, or kAlpha_8_SkColorType; dstInfo.colorType must match.
-If this->colorType is kGray_8_SkColorType, dstInfo.colorSpace must match.
-If this->alphaType is kOpaque_SkAlphaType, dstInfo.alphaType must
-match. If this->colorSpace is nullptr, dstInfo.colorSpace must match. Returns
+If Pixmap colorType is kGray_8_SkColorType, dstInfo.colorSpace must match.
+If Pixmap alphaType is kOpaque_SkAlphaType, dstInfo.alphaType must
+match. If Pixmap colorSpace is nullptr, dstInfo.colorSpace must match. Returns
 false if pixel conversion is not possible.
 
-Returns false if this->width() or this->height() is zero or negative.
+Returns false if Pixmap width() or height() is zero or negative.
 
 #Param dstInfo  destination width, height, Color_Type, Alpha_Type, Color_Space ##
 #Param dstPixels  destination pixel storage ##
@@ -1652,29 +1652,29 @@ creates visible banding.
                     int srcY) const 
 
 Copies a Rect of pixels to dstPixels. Copy starts at (srcX, srcY), and does not
-exceed (this->width(), this->height()).
+exceed Pixmap (width(), height()).
 
 dstInfo specifies width, height, Color_Type, Alpha_Type, and 
 Color_Space of destination. dstRowBytes specifics the gap from one destination
 row to the next. Returns true if pixels are copied. Returns false if
 dstInfo.addr() equals nullptr, or dstRowBytes is less than dstInfo.minRowBytes.
 
-Pixels are copied only if pixel conversion is possible. If this->colorType is
+Pixels are copied only if pixel conversion is possible. If Pixmap colorType is
 kGray_8_SkColorType, or kAlpha_8_SkColorType; dstInfo.colorType must match.
-If this->colorType is kGray_8_SkColorType, dstInfo.colorSpace must match.
-If this->alphaType is kOpaque_SkAlphaType, dstInfo.alphaType must
-match. If this->colorSpace is nullptr, dstInfo.colorSpace must match. Returns
+If Pixmap colorType is kGray_8_SkColorType, dstInfo.colorSpace must match.
+If Pixmap alphaType is kOpaque_SkAlphaType, dstInfo.alphaType must
+match. If Pixmap colorSpace is nullptr, dstInfo.colorSpace must match. Returns
 false if pixel conversion is not possible.
  
 srcX and srcY may be negative to copy only top or left of source. Returns
-false if this->width() or this->height() is zero or negative. Returns false if:
+false if Pixmap width() or height() is zero or negative. Returns false if:
 
 #Formula
-abs(srcX) >= this->width()
+abs(srcX) >= Pixmap width()
 ##
 , or if
 #Formula
-abs(srcY) >= this->height()
+abs(srcY) >= Pixmap height()
 ##
 .
 
@@ -1717,27 +1717,27 @@ void draw(SkCanvas* canvas) {
 #Method bool readPixels(const SkPixmap& dst, int srcX, int srcY) const 
 
 Copies a Rect of pixels to dst. Copy starts at (srcX, srcY), and does not
-exceed (this->width(), this->height()). dst specifies width, height, Color_Type,
+exceed Pixmap (width(), height()). dst specifies width, height, Color_Type,
 Alpha_Type, and Color_Space of destination.  Returns true if pixels are copied.
 Returns false if dst.addr() equals nullptr, or dst.rowBytes is less than
 dst SkImageInfo::minRowBytes.
 
-Pixels are copied only if pixel conversion is possible. If this->colorType is
+Pixels are copied only if pixel conversion is possible. If Pixmap colorType is
 kGray_8_SkColorType, or kAlpha_8_SkColorType; dst.info().colorType must match.
-If this->colorType is kGray_8_SkColorType, dst.info().colorSpace must match.
-If this->alphaType is kOpaque_SkAlphaType, dst.info().alphaType must
-match. If this->colorSpace is nullptr, dst.info().colorSpace must match. Returns
+If Pixmap colorType is kGray_8_SkColorType, dst.info().colorSpace must match.
+If Pixmap alphaType is kOpaque_SkAlphaType, dst.info().alphaType must
+match. If Pixmap colorSpace is nullptr, dst.info().colorSpace must match. Returns
 false if pixel conversion is not possible.
  
 srcX and srcY may be negative to copy only top or left of source. Returns
-false this->width() or this->height() is zero or negative. Returns false if:
+false Pixmap width() or height() is zero or negative. Returns false if:
 
 #Formula
-abs(srcX) >= this->width()
+abs(srcX) >= Pixmap width()
 ##
 , or if
 #Formula
-abs(srcY) >= this->height()
+abs(srcY) >= Pixmap height()
 ##
 .
 
@@ -1782,14 +1782,14 @@ Alpha_Type, and Color_Space of destination.  Returns true if pixels are copied.
 Returns false if dst.addr() equals nullptr, or dst.rowBytes is less than
 dst SkImageInfo::minRowBytes.
 
-Pixels are copied only if pixel conversion is possible. If this->colorType is
+Pixels are copied only if pixel conversion is possible. If Pixmap colorType is
 kGray_8_SkColorType, or kAlpha_8_SkColorType; dst Color_Type must match.
-If this->colorType is kGray_8_SkColorType, dst Color_Space must match.
-If this->alphaType is kOpaque_SkAlphaType, dst Alpha_Type must
-match. If this->colorSpace is nullptr, dst Color_Space must match. Returns
+If Pixmap colorType is kGray_8_SkColorType, dst Color_Space must match.
+If Pixmap alphaType is kOpaque_SkAlphaType, dst Alpha_Type must
+match. If Pixmap colorSpace is nullptr, dst Color_Space must match. Returns
 false if pixel conversion is not possible.
  
-Returns false if this->width() or this->height() is zero or negative.
+Returns false if Pixmap width() or height() is zero or negative.
 
 #Param dst  Image_Info and pixel address to write to ##
 
@@ -1825,19 +1825,19 @@ void draw(SkCanvas* canvas) {
 
 #Method bool scalePixels(const SkPixmap& dst, SkFilterQuality filterQuality) const
 
-Copies this to dst, scaling pixels to fit dst.width() and dst.height(), and
+Copies Bitmap to dst, scaling pixels to fit dst.width() and dst.height(), and
 converting pixels to match dst.colorType and dst.alphaType. Returns true if
 pixels are copied. Returns false if dst.addr() is nullptr, or dst.rowBytes is
 less than dst SkImageInfo::minRowBytes.
 
-Pixels are copied only if pixel conversion is possible. If this->colorType is
+Pixels are copied only if pixel conversion is possible. If Pixmap colorType is
 kGray_8_SkColorType, or kAlpha_8_SkColorType; dst Color_Type must match.
-If this->colorType is kGray_8_SkColorType, dst Color_Space must match.
-If this->alphaType is kOpaque_SkAlphaType, dst Alpha_Type must
-match. If this->colorSpace is nullptr, dst Color_Space must match. Returns
+If Pixmap colorType is kGray_8_SkColorType, dst Color_Space must match.
+If Pixmap alphaType is kOpaque_SkAlphaType, dst Alpha_Type must
+match. If Pixmap colorSpace is nullptr, dst Color_Space must match. Returns
 false if pixel conversion is not possible.
 
-Returns false if this->width() or this->height() is zero or negative.
+Returns false if Bitmap width() or height() is zero or negative.
 
 Scales the image, with filterQuality, to match dst.width() and dst.height().
 filterQuality kNone_SkFilterQuality is fastest, typically implemented with
@@ -1851,7 +1851,7 @@ kHigh_SkFilterQuality is slowest, typically implemented with Filter_Quality_BiCu
                       kMedium_SkFilterQuality, kHigh_SkFilterQuality
 ##
 
-#Return  true if pixels are copied to dst ##
+#Return  true if pixels are scaled to fit dst ##
 
 #Example
 #Image 3
