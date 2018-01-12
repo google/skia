@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "99c0bc9e_86c90acc",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 7
+      },
+      "lineNbr": 854,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-01-12T19:32:08Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "c80c346e_b08e63b7",
+      "revId": "075e82afd443c6f9431e28791d7ea30c6f7507f7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "efe2da17_1c4935f6",
         "filename": "infra/bots/recipe_modules/flavor/gn_android_flavor.py",
         "patchSetId": 7
@@ -33,6 +51,24 @@
       "revId": "075e82afd443c6f9431e28791d7ea30c6f7507f7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0ad2a665_0f1ac388",
+        "filename": "infra/bots/recipe_modules/flavor/gn_android_flavor.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 377,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-01-12T19:32:08Z",
+      "side": 1,
+      "message": "Removed, but with a comment to remind us about 32 bit Android in the future.",
+      "parentUuid": "efe2da17_1c4935f6",
+      "revId": "075e82afd443c6f9431e28791d7ea30c6f7507f7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -59,6 +95,30 @@
     },
     {
       "key": {
+        "uuid": "dd7268be_9967059b",
+        "filename": "infra/bots/recipe_modules/flavor/gn_android_flavor.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 378,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-01-12T19:32:08Z",
+      "side": 1,
+      "message": "UBSAN gives linking errors.  Using just address for now, but I moved it to gn/BUILD.gn",
+      "parentUuid": "49a207d8_aa63a6eb",
+      "range": {
+        "startLine": 378,
+        "startChar": 27,
+        "endLine": 378,
+        "endChar": 34
+      },
+      "revId": "075e82afd443c6f9431e28791d7ea30c6f7507f7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "788f065f_4259455d",
         "filename": "infra/bots/recipe_modules/flavor/gn_android_flavor.py",
         "patchSetId": 7
@@ -73,6 +133,24 @@
       "revId": "075e82afd443c6f9431e28791d7ea30c6f7507f7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d7940840_f950e7dd",
+        "filename": "infra/bots/recipe_modules/flavor/gn_android_flavor.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 379,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-01-12T19:32:08Z",
+      "side": 1,
+      "message": "Moved to gn/BUILD.gn with comment",
+      "parentUuid": "788f065f_4259455d",
+      "revId": "075e82afd443c6f9431e28791d7ea30c6f7507f7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }

@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "4351c59a_5350ec65",
+        "filename": "infra/bots/recipe_modules/flavor/gn_android_flavor.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-01-12T19:32:08Z",
+      "side": 1,
+      "message": "I\u0027ll wait to rebase once your CL lands.",
+      "parentUuid": "14e745ba_f39abfa5",
+      "range": {
+        "startLine": 31,
+        "startChar": 0,
+        "endLine": 69,
+        "endChar": 0
+      },
+      "revId": "05f05ea4b102088d923bbcaee58999e4acf1463e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "fd91d153_08ea9bd4",
         "filename": "infra/bots/recipe_modules/flavor/gn_android_flavor.py",
         "patchSetId": 8
@@ -45,6 +69,30 @@
       "revId": "05f05ea4b102088d923bbcaee58999e4acf1463e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d9891656_5d721b18",
+        "filename": "infra/bots/recipe_modules/flavor/gn_android_flavor.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 431,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-01-12T19:32:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fd91d153_08ea9bd4",
+      "range": {
+        "startLine": 431,
+        "startChar": 3,
+        "endLine": 431,
+        "endChar": 51
+      },
+      "revId": "05f05ea4b102088d923bbcaee58999e4acf1463e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
