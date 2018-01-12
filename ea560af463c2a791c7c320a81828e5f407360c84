@@ -22,6 +22,30 @@
       "revId": "ea560af463c2a791c7c320a81828e5f407360c84",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f1d93c94_2bca0619",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-01-12T14:39:33Z",
+      "side": 1,
+      "message": "We\u0027re reverting for Google3 failures.",
+      "parentUuid": "4e9bfc0e_47b21ab5",
+      "range": {
+        "startLine": 10,
+        "startChar": 0,
+        "endLine": 11,
+        "endChar": 62
+      },
+      "revId": "ea560af463c2a791c7c320a81828e5f407360c84",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
