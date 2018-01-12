@@ -10,6 +10,7 @@
 #if SK_SUPPORT_GPU
 
 #include "GrContextPriv.h"
+#include "GrProxyProvider.h"
 #include "GrSurfaceProxy.h"
 #include "GrTextureProducer.h"
 #include "GrTextureProxy.h"
@@ -133,7 +134,7 @@ static sk_sp<GrTextureProxy> create_proxy(GrProxyProvider* proxyProvider,
               (isPowerOfTwo || isExact) ? RectInfo::kHard : RectInfo::kBad,
               name);
 
-    return GrSurfaceProxy::MakeDeferred(proxyProvider, desc, fit, SkBudgeted::kYes);
+    return proxyProvider->createProxy(desc, fit, SkBudgeted::kYes);
 }
 
 static RectInfo::EdgeType compute_inset_edgetype(RectInfo::EdgeType previous,
