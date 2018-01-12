@@ -58,8 +58,6 @@ private:
                                           const GrCaps&,
                                           GrPixelConfigIsClamped) const override;
 
-    bool asBlendMode(SkBlendMode* mode) const override;
-
     GR_DECLARE_XP_FACTORY_TEST
     static void TestGetXPOutputTypes(const GrXferProcessor*, int* outPrimary, int* outSecondary);
 

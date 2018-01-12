@@ -301,9 +301,6 @@ public:
                                                     const GrCaps&,
                                                     GrPixelConfigIsClamped);
 
-    /** If true mode will be the equivalent SkBlendMode for the XPFactory. */
-    static bool AsBlendMode(const GrXPFactory*, SkBlendMode* mode);
-
 protected:
     constexpr GrXPFactory() {}
 
@@ -322,8 +319,6 @@ private:
                                                   const GrProcessorAnalysisCoverage&,
                                                   const GrCaps&,
                                                   GrPixelConfigIsClamped) const = 0;
-
-    virtual bool asBlendMode(SkBlendMode*) const { return false; }
 };
 #if defined(__GNUC__)
 #pragma GCC diagnostic pop
