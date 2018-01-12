@@ -55,7 +55,7 @@ static sk_sp<GrSurfaceProxy> make_wrapped_texture(GrResourceProvider* provider,
 // Test converting between RenderTargetProxies and TextureProxies for wrapped
 // Proxies
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyConversionTest, reporter, ctxInfo) {
-    GrResourceProvider* provider = ctxInfo.grContext()->resourceProvider();
+    GrResourceProvider* provider = ctxInfo.grContext()->contextPriv().resourceProvider();
 
     GrSurfaceDesc desc;
     desc.fFlags = kRenderTarget_GrSurfaceFlag;

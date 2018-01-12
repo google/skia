@@ -8,6 +8,7 @@
 #include "GrDrawOpAtlas.h"
 
 #include "GrContext.h"
+#include "GrContextPriv.h"
 #include "GrOpFlushState.h"
 #include "GrRectanizer.h"
 #include "GrResourceProvider.h"
@@ -186,7 +187,7 @@ inline bool GrDrawOpAtlas::updatePlot(GrDeferredUploadTarget* target, AtlasID* i
 
         // MDB TODO: this is currently fine since the atlas' proxy is always pre-instantiated.
         // Once it is deferred more care must be taken upon instantiation failure.
-        if (!fProxies[pageIdx]->instantiate(fContext->resourceProvider())) {
+        if (!fProxies[pageIdx]->instantiate(fContext->contextPriv().resourceProvider())) {
             return false;
         }
 
@@ -307,7 +308,7 @@ bool GrDrawOpAtlas::addToAtlas(AtlasID* id, GrDeferredUploadTarget* target, int 
     sk_sp<Plot> plotsp(SkRef(newPlot.get()));
     // MDB TODO: this is currently fine since the atlas' proxy is always pre-instantiated.
     // Once it is deferred more care must be taken upon instantiation failure.
-    if (!fProxies[pageIdx]->instantiate(fContext->resourceProvider())) {
+    if (!fProxies[pageIdx]->instantiate(fContext->contextPriv().resourceProvider())) {
         return false;
     }
     GrTextureProxy* proxy = fProxies[pageIdx].get();
@@ -452,6 +453,8 @@ bool GrDrawOpAtlas::createNewPage() {
         return false;
     }
 
+    auto resourceProvider = fContext->contextPriv().resourceProvider();
+
     GrSurfaceDesc desc;
     desc.fFlags = kNone_GrSurfaceFlags;
     desc.fOrigin = kTopLeft_GrSurfaceOrigin;
@@ -463,7 +466,7 @@ bool GrDrawOpAtlas::createNewPage() {
     // guarantee we do not recieve a texture with pending IO
     // TODO: Determine how to avoid having to do this. (https://bug.skia.org/4156)
     static const uint32_t kFlags = GrResourceProvider::kNoPendingIO_Flag;
-    sk_sp<GrTexture> texture(fContext->resourceProvider()->createApproxTexture(desc, kFlags));
+    sk_sp<GrTexture> texture(resourceProvider->createApproxTexture(desc, kFlags));
     if (texture) {
         // MDB TODO: for now, wrap an instantiated texture. Having the deferred instantiation
         // possess the correct properties (e.g., no pendingIO) should fall out of the system but

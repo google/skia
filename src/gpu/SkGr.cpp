@@ -128,7 +128,7 @@ sk_sp<GrTextureProxy> GrGenerateMipMapsAndUploadToTextureProxy(GrContext* ctx,
     }
 
     ATRACE_ANDROID_FRAMEWORK("Upload MipMap Texture [%ux%u]", pixmap.width(), pixmap.height());
-    GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(pixmap.info(), *ctx->resourceProvider()->caps());
+    GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(pixmap.info(), *ctx->caps());
     std::unique_ptr<SkMipMap> mipmaps(SkMipMap::Build(pixmap, colorMode, nullptr));
     if (!mipmaps) {
         return nullptr;

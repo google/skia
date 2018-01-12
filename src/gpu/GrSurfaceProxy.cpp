@@ -387,7 +387,7 @@ sk_sp<GrTextureProxy> GrSurfaceProxy::MakeDeferredMipMap(
 sk_sp<GrTextureProxy> GrSurfaceProxy::MakeWrappedBackend(GrContext* context,
                                                          const GrBackendTexture& backendTex,
                                                          GrSurfaceOrigin origin) {
-    sk_sp<GrTexture> tex(context->resourceProvider()->wrapBackendTexture(backendTex));
+    sk_sp<GrTexture> tex(context->contextPriv().resourceProvider()->wrapBackendTexture(backendTex));
     return GrSurfaceProxy::MakeWrapped(std::move(tex), origin);
 }
 

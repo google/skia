@@ -111,7 +111,7 @@ static void check_texture(skiatest::Reporter* reporter,
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredProxyTest, reporter, ctxInfo) {
     GrProxyProvider* proxyProvider = ctxInfo.grContext()->contextPriv().proxyProvider();
-    GrResourceProvider* resourceProvider = ctxInfo.grContext()->resourceProvider();
+    GrResourceProvider* resourceProvider = ctxInfo.grContext()->contextPriv().resourceProvider();
     const GrCaps& caps = *ctxInfo.grContext()->caps();
 
     const GrGpuResource::UniqueID kInvalidResourceID = GrGpuResource::UniqueID::InvalidID();
@@ -207,7 +207,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredProxyTest, reporter, ctxInfo) {
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
-    GrResourceProvider* provider = ctxInfo.grContext()->resourceProvider();
+    GrResourceProvider* provider = ctxInfo.grContext()->contextPriv().resourceProvider();
     const GrCaps& caps = *ctxInfo.grContext()->caps();
 
     static const int kWidthHeight = 100;

@@ -45,12 +45,14 @@ static sk_sp<GrSurfaceProxy> make_deferred(GrProxyProvider* proxyProvider, const
 
 static sk_sp<GrSurfaceProxy> make_backend(GrContext* context, const ProxyParams& p,
                                           GrBackendTexture* backendTex) {
+    GrResourceProvider* resourceProvider = context->contextPriv().resourceProvider();
+
     *backendTex = context->getGpu()->createTestingOnlyBackendTexture(nullptr, p.fSize, p.fSize,
                                                                      p.fConfig, false,
                                                                      GrMipMapped::kNo);
 
-    sk_sp<GrSurface> tex = context->resourceProvider()->wrapBackendTexture(*backendTex,
-                                                                           kBorrow_GrWrapOwnership);
+    sk_sp<GrSurface> tex = resourceProvider->wrapBackendTexture(*backendTex,
+                                                                kBorrow_GrWrapOwnership);
     return GrSurfaceProxy::MakeWrapped(std::move(tex), p.fOrigin);
 }
 
@@ -100,7 +102,7 @@ static void non_overlap_test(skiatest::Reporter* reporter, GrResourceProvider* r
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceAllocatorTest, reporter, ctxInfo) {
     GrProxyProvider* proxyProvider = ctxInfo.grContext()->contextPriv().proxyProvider();
-    GrResourceProvider* resourceProvider = ctxInfo.grContext()->resourceProvider();
+    GrResourceProvider* resourceProvider = ctxInfo.grContext()->contextPriv().resourceProvider();
 
     struct TestCase {
         ProxyParams   fP1;

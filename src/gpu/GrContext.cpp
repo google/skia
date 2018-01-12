@@ -484,7 +484,7 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceContext* dst,
     ASSERT_OWNED_PROXY_PRIV(dst->asSurfaceProxy());
     GR_CREATE_TRACE_MARKER_CONTEXT("GrContextPriv", "writeSurfacePixels", fContext);
 
-    if (!dst->asSurfaceProxy()->instantiate(fContext->resourceProvider())) {
+    if (!dst->asSurfaceProxy()->instantiate(this->resourceProvider())) {
         return false;
     }
 
@@ -564,7 +564,7 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceContext* dst,
             return false;
         }
 
-        if (!tempProxy->instantiate(fContext->resourceProvider())) {
+        if (!tempProxy->instantiate(this->resourceProvider())) {
             return false;
         }
         GrTexture* texture = tempProxy->priv().peekTexture();
@@ -617,7 +617,7 @@ bool GrContextPriv::readSurfacePixels(GrSurfaceContext* src,
     GR_CREATE_TRACE_MARKER_CONTEXT("GrContextPriv", "readSurfacePixels", fContext);
 
     // MDB TODO: delay this instantiation until later in the method
-    if (!src->asSurfaceProxy()->instantiate(fContext->resourceProvider())) {
+    if (!src->asSurfaceProxy()->instantiate(this->resourceProvider())) {
         return false;
     }
 
@@ -725,7 +725,7 @@ bool GrContextPriv::readSurfacePixels(GrSurfaceContext* src,
         configToRead = tempDrawInfo.fReadConfig;
     }
 
-    if (!proxyToRead->instantiate(fContext->resourceProvider())) {
+    if (!proxyToRead->instantiate(this->resourceProvider())) {
         return false;
     }
 
@@ -840,7 +840,7 @@ sk_sp<GrTextureContext> GrContextPriv::makeBackendTextureContext(const GrBackend
                                                                  sk_sp<SkColorSpace> colorSpace) {
     ASSERT_SINGLE_OWNER_PRIV
 
-    sk_sp<GrSurface> surface(fContext->resourceProvider()->wrapBackendTexture(tex));
+    sk_sp<GrSurface> surface(this->resourceProvider()->wrapBackendTexture(tex));
     if (!surface) {
         return nullptr;
     }
@@ -862,7 +862,7 @@ sk_sp<GrRenderTargetContext> GrContextPriv::makeBackendTextureRenderTargetContex
     ASSERT_SINGLE_OWNER_PRIV
 
     sk_sp<GrSurface> surface(
-            fContext->resourceProvider()->wrapRenderableBackendTexture(tex, sampleCnt));
+         this->resourceProvider()->wrapRenderableBackendTexture(tex, sampleCnt));
     if (!surface) {
         return nullptr;
     }
@@ -883,7 +883,7 @@ sk_sp<GrRenderTargetContext> GrContextPriv::makeBackendRenderTargetRenderTargetC
                                                 const SkSurfaceProps* surfaceProps) {
     ASSERT_SINGLE_OWNER_PRIV
 
-    sk_sp<GrRenderTarget> rt(fContext->resourceProvider()->wrapBackendRenderTarget(backendRT));
+    sk_sp<GrRenderTarget> rt(this->resourceProvider()->wrapBackendRenderTarget(backendRT));
     if (!rt) {
         return nullptr;
     }
@@ -906,8 +906,7 @@ sk_sp<GrRenderTargetContext> GrContextPriv::makeBackendTextureAsRenderTargetRend
                                                      const SkSurfaceProps* surfaceProps) {
     ASSERT_SINGLE_OWNER_PRIV
 
-    sk_sp<GrSurface> surface(fContext->resourceProvider()->wrapBackendTextureAsRenderTarget(
-                                                                                        tex,
+    sk_sp<GrSurface> surface(this->resourceProvider()->wrapBackendTextureAsRenderTarget(tex,
                                                                                         sampleCnt));
     if (!surface) {
         return nullptr;
