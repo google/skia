@@ -150,6 +150,45 @@ bool GrGLRenderTarget::completeStencilAttachment() {
     }
 }
 
+bool GrGLRenderTarget::onAttachCoverageCountBuffer() {
+    GL_CALL(Enable(GR_GL_FRAMEBUFFER_FETCH_NONCOHERENT));
+
+    // Only modify the FBO's attachments if we have created the FBO. Public APIs do not currently
+    // allow for borrowed FBO ownership, so we can safely assume that if an object is owned,
+    // Skia created it.
+    if (this->fRTFBOOwnership != GrBackendObjectOwnership::kOwned) {
+        return false;
+    }
+
+    GrGLGpu* gpu = this->getGLGpu();
+
+    GL_CALL(GenRenderbuffers(1, &fCoverageCountRBOID));
+    GL_CALL(BindRenderbuffer(GR_GL_RENDERBUFFER, fCoverageCountRBOID));
+    GL_CALL(RenderbufferStorage(GR_GL_RENDERBUFFER, GR_GL_R16F, this->width(), this->height()));
+
+    gpu->invalidateBoundRenderTarget();
+    gpu->stats()->incRenderTargetBinds();
+    GL_CALL(BindFramebuffer(GR_GL_FRAMEBUFFER, this->renderFBOID()));
+    GL_CALL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER, GR_GL_COLOR_ATTACHMENT1, GR_GL_RENDERBUFFER,
+                                    fCoverageCountRBOID));
+
+#ifdef SK_DEBUG
+    if (kChromium_GrGLDriver != gpu->glContext().driver()) {
+
+        // This check can cause problems in Chromium if the context has been asynchronously
+        // abandoned (see skbug.com/5200)
+        GrGLenum status;
+        GR_GL_CALL_RET(gpu->glInterface(), status, CheckFramebufferStatus(GR_GL_FRAMEBUFFER));
+        SkASSERT(GR_GL_FRAMEBUFFER_COMPLETE == status);
+    }
+#endif
+
+    // TODO: count cov buffsize.
+    this->didChangeGpuMemorySize();
+
+    return true;
+}
+
 void GrGLRenderTarget::onRelease() {
     if (GrBackendObjectOwnership::kBorrowed != fRTFBOOwnership) {
         if (fTexFBOID) {
@@ -161,17 +200,22 @@ void GrGLRenderTarget::onRelease() {
         if (fMSColorRenderbufferID) {
             GL_CALL(DeleteRenderbuffers(1, &fMSColorRenderbufferID));
         }
+        if (fCoverageCountRBOID) {
+            GL_CALL(DeleteRenderbuffers(1, &fCoverageCountRBOID));
+        }
     }
-    fRTFBOID                = 0;
-    fTexFBOID               = 0;
-    fMSColorRenderbufferID  = 0;
+    fRTFBOID = 0;
+    fTexFBOID = 0;
+    fMSColorRenderbufferID = 0;
+    fCoverageCountRBOID = 0;
     INHERITED::onRelease();
 }
 
 void GrGLRenderTarget::onAbandon() {
-    fRTFBOID                = 0;
-    fTexFBOID               = 0;
-    fMSColorRenderbufferID  = 0;
+    fRTFBOID = 0;
+    fTexFBOID = 0;
+    fMSColorRenderbufferID = 0;
+    fCoverageCountRBOID = 0;
     INHERITED::onAbandon();
 }
 

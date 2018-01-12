@@ -57,6 +57,10 @@ private:
     void onClear(const GrFixedClip&, GrColor) override {}
     void onClearStencilClip(const GrFixedClip&, bool insideStencilMask) override {}
 
+    void coverageCountReadBarrier() override {}
+    void clearCoverageCountBuffer(const SkIRect&) override {}
+    void discardCoverageCountBuffer() override {}
+
     GrMockGpu* fGpu;
     int fNumDraws = 0;
 

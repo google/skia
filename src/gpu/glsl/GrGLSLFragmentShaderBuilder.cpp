@@ -203,6 +203,21 @@ const char* GrGLSLFragmentShaderBuilder::dstColor() {
     return kDstColorName;
 }
 
+#include <string.h>
+void GrGLSLFragmentShaderBuilder::enableSkCoverageCountBuffer(const char* inorout) {
+    // const GrShaderCaps* shaderCaps = fProgramBuilder->shaderCaps();
+    // SkASSERT(shaderCaps->fbFetchSupport());
+    // if (!!strcmp(inorout, "out")) {
+    //     this->addFeature(1 << kFramebufferFetch_GLSLPrivateFeature,
+    //                      shaderCaps->fbFetchExtensionString());
+    // }
+    // this->outputs().appendf("layout(location=1) %s half sk_CoverageCount;", inorout);
+    this->inputs().appendf("layout(input_attachment_index=1, set=3, binding=0) "
+                           "uniform mediump subpassInput sk_CoverageCountAttachment;");
+    this->inputs().appendf("layout(location=1, index=0) out half sk_CoverageCount;");
+    this->code().appendf("half sk_CoverageCountIn = subpassLoad(sk_CoverageCountAttachment).r;");
+}
+
 void GrGLSLFragmentShaderBuilder::enableAdvancedBlendEquationIfNeeded(GrBlendEquation equation) {
     SkASSERT(GrBlendEquationIsAdvanced(equation));
 

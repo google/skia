@@ -16,12 +16,17 @@
 #include "SkPathOps.h"
 #include "GrOpFlushState.h"
 #include "GrRenderTargetOpList.h"
+#include "GrRenderTargetPriv.h"
+#include "GrSurfaceProxyPriv.h"
 #include "GrTexture.h"
 #include "GrStyle.h"
 #include "ccpr/GrCCPRClipProcessor.h"
+#include "ccpr/GrCCPathParser.h"
 
 // Shorthand for keeping line lengths under control with nested classes...
 using CCPR = GrCoverageCountingPathRenderer;
+
+using ScissorMode = GrCCPathParser::ScissorMode;
 
 // If a path spans more pixels than this, we need to crop it or else analytic AA can run out of fp32
 // precision.
@@ -98,14 +103,28 @@ GrCoverageCountingPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const
 
 bool GrCoverageCountingPathRenderer::onDrawPath(const DrawPathArgs& args) {
     SkASSERT(!fFlushing);
-    auto op = skstd::make_unique<DrawPathsOp>(this, args, args.fPaint.getColor());
+    SkRect devBounds;
+    SkIRect devIBounds;
+    args.fViewMatrix->mapRect(&devBounds, args.fShape->bounds());
+    devBounds.roundOut(&devIBounds);
+    if (!devIBounds.intersect(*args.fClipConservativeBounds)) {
+        devIBounds.setEmpty();
+    }
+
+    std::unique_ptr<DrawPathsOp> op;
+    if (devIBounds.height() * devIBounds.width() > 0) {
+        op = skstd::make_unique<FramebufferPathsOp>(this, args, args.fPaint.getColor());
+        args.fRenderTargetContext->asRenderTargetProxy()->setNeedsCoverageCount();
+    } else {
+        op = skstd::make_unique<AtlasPathsOp>(this, args, args.fPaint.getColor());
+    }
     args.fRenderTargetContext->addDrawOp(*args.fClip, std::move(op));
     return true;
 }
 
-CCPR::DrawPathsOp::DrawPathsOp(GrCoverageCountingPathRenderer* ccpr, const DrawPathArgs& args,
-                               GrColor color)
-        : INHERITED(ClassID())
+CCPR::DrawPathsOp::DrawPathsOp(uint32_t classID, GrCoverageCountingPathRenderer* ccpr,
+                               const DrawPathArgs& args, GrColor color)
+        : INHERITED(classID)
         , fCCPR(ccpr)
         , fSRGBFlags(GrPipeline::SRGBFlagsFromPaint(args.fPaint))
         , fProcessors(std::move(args.fPaint))
@@ -119,33 +138,31 @@ CCPR::DrawPathsOp::DrawPathsOp(GrCoverageCountingPathRenderer* ccpr, const DrawP
 
     SkRect devBounds;
     args.fViewMatrix->mapRect(&devBounds, args.fShape->bounds());
-    args.fClip->getConservativeBounds(rtc->width(), rtc->height(), &fHeadDraw.fClipIBounds,
-                                      nullptr);
+
+    SkIRect clipIBounds;
+    args.fClip->getConservativeBounds(rtc->width(), rtc->height(), &clipIBounds, nullptr);
+
     if (SkTMax(devBounds.height(), devBounds.width()) > kPathCropThreshold) {
         // The path is too large. We need to crop it or analytic AA can run out of fp32 precision.
         SkPath path;
         args.fShape->asPath(&path);
         path.transform(*args.fViewMatrix);
         fHeadDraw.fMatrix.setIdentity();
-        crop_path(path, fHeadDraw.fClipIBounds, &fHeadDraw.fPath);
+        crop_path(path, clipIBounds, &fHeadDraw.fPath);
         devBounds = fHeadDraw.fPath.getBounds();
     } else {
         fHeadDraw.fMatrix = *args.fViewMatrix;
         args.fShape->asPath(&fHeadDraw.fPath);
+    }
+    devBounds.roundOut(&fHeadDraw.fClippedPathIBounds);
+    if (!fHeadDraw.fClippedPathIBounds.intersect(clipIBounds)) {
+        fHeadDraw.fClippedPathIBounds.setEmpty();
     }
     fHeadDraw.fColor = color; // Can't call args.fPaint.getColor() because it has been std::move'd.
 
     // FIXME: intersect with clip bounds to (hopefully) improve batching.
     // (This is nontrivial due to assumptions in generating the octagon cover geometry.)
     this->setBounds(devBounds, GrOp::HasAABloat::kYes, GrOp::IsZeroArea::kNo);
-}
-
-CCPR::DrawPathsOp::~DrawPathsOp() {
-    if (fOwningRTPendingPaths) {
-        // Remove CCPR's dangling pointer to this Op before deleting it.
-        fOwningRTPendingPaths->fDrawOps.remove(this);
-    }
-    SkDEBUGCODE(--fCCPR->fPendingDrawOpsCount);
 }
 
 GrDrawOp::RequiresDstTexture CCPR::DrawPathsOp::finalize(const GrCaps& caps,
@@ -162,7 +179,7 @@ GrDrawOp::RequiresDstTexture CCPR::DrawPathsOp::finalize(const GrCaps& caps,
 }
 
 bool CCPR::DrawPathsOp::onCombineIfPossible(GrOp* op, const GrCaps& caps) {
-    DrawPathsOp* that = op->cast<DrawPathsOp>();
+    DrawPathsOp* that = static_cast<DrawPathsOp*>(op);
     SkASSERT(fCCPR == that->fCCPR);
     SkASSERT(!fCCPR->fFlushing);
     SkASSERT(fOwningRTPendingPaths);
@@ -172,7 +189,8 @@ bool CCPR::DrawPathsOp::onCombineIfPossible(GrOp* op, const GrCaps& caps) {
 
     if (this->getFillType() != that->getFillType() ||
         fSRGBFlags != that->fSRGBFlags ||
-        fProcessors != that->fProcessors) {
+        fProcessors != that->fProcessors ||
+        !this->canCombine(*that)) {
         return false;
     }
 
@@ -186,11 +204,30 @@ bool CCPR::DrawPathsOp::onCombineIfPossible(GrOp* op, const GrCaps& caps) {
     return true;
 }
 
-void CCPR::DrawPathsOp::wasRecorded(GrRenderTargetOpList* opList) {
+bool CCPR::FramebufferPathsOp::canCombine(const DrawPathsOp& drawPathsOp) const {
+    const FramebufferPathsOp& that = drawPathsOp.cast<FramebufferPathsOp>();
+    for (const SingleDraw* thisDraw = this->head(); thisDraw; thisDraw = thisDraw->fNext) {
+        for (const SingleDraw* thatDraw = that.head(); thatDraw; thatDraw = thatDraw->fNext) {
+            if (SkIRect::Intersects(thisDraw->fClippedPathIBounds, thatDraw->fClippedPathIBounds)) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+void CCPR::AtlasPathsOp::wasRecorded(GrRenderTargetOpList* opList) {
     SkASSERT(!fCCPR->fFlushing);
     SkASSERT(!fOwningRTPendingPaths);
     fOwningRTPendingPaths = &fCCPR->fRTPendingPathsMap[opList->uniqueID()];
-    fOwningRTPendingPaths->fDrawOps.addToTail(this);
+    fOwningRTPendingPaths->fAtlasPaths.addToTail(this);
+}
+
+void CCPR::FramebufferPathsOp::wasRecorded(GrRenderTargetOpList* opList) {
+    SkASSERT(!fCCPR->fFlushing);
+    SkASSERT(!fOwningRTPendingPaths);
+    fOwningRTPendingPaths = &fCCPR->fRTPendingPathsMap[opList->uniqueID()];
+    fOwningRTPendingPaths->fFramebufferPaths.addToTail(this);
 }
 
 bool GrCoverageCountingPathRenderer::canMakeClipProcessor(const SkPath& deviceSpacePath) const {
@@ -294,17 +331,18 @@ void GrCoverageCountingPathRenderer::preFlush(GrOnFlushResourceProvider* onFlush
         }
         const RTPendingPaths& rtPendingPaths = it->second;
 
-        SkTInternalLList<DrawPathsOp>::Iter drawOpsIter;
-        drawOpsIter.init(rtPendingPaths.fDrawOps,
-                         SkTInternalLList<DrawPathsOp>::Iter::kHead_IterStart);
-        while (DrawPathsOp* op = drawOpsIter.get()) {
-            for (const DrawPathsOp::SingleDraw* draw = op->head(); draw; draw = draw->fNext) {
-                ++maxTotalPaths;
-                maxPathPoints = SkTMax(draw->fPath.countPoints(), maxPathPoints);
-                numSkPoints += draw->fPath.countPoints();
-                numSkVerbs += draw->fPath.countVerbs();
+        for (const auto* paths : {&rtPendingPaths.fAtlasPaths, &rtPendingPaths.fFramebufferPaths}) {
+            SkTInternalLList<DrawPathsOp>::Iter pathsIter;
+            pathsIter.init(*paths, SkTInternalLList<DrawPathsOp>::Iter::kHead_IterStart);
+            while (DrawPathsOp* op = pathsIter.get()) {
+                for (const DrawPathsOp::SingleDraw* draw = op->head(); draw; draw = draw->fNext) {
+                    ++maxTotalPaths;
+                    maxPathPoints = SkTMax(draw->fPath.countPoints(), maxPathPoints);
+                    numSkPoints += draw->fPath.countPoints();
+                    numSkVerbs += draw->fPath.countVerbs();
+                }
+                pathsIter.next();
             }
-            drawOpsIter.next();
         }
 
         maxTotalPaths += rtPendingPaths.fClipPaths.size();
@@ -345,7 +383,8 @@ void GrCoverageCountingPathRenderer::preFlush(GrOnFlushResourceProvider* onFlush
     SkASSERT(pathInstanceData);
     int pathInstanceIdx = 0;
 
-    GrCCPRCoverageOpsBuilder atlasOpsBuilder(maxTotalPaths, maxPathPoints, numSkPoints, numSkVerbs);
+    fPerFlushPathParser = sk_make_sp<GrCCPathParser>(maxTotalPaths, maxPathPoints, numSkPoints,
+                                                     numSkVerbs);
     SkDEBUGCODE(int skippedTotalPaths = 0;)
 
     // Allocate atlas(es) and fill out GPU instance buffers.
@@ -356,18 +395,26 @@ void GrCoverageCountingPathRenderer::preFlush(GrOnFlushResourceProvider* onFlush
         }
         RTPendingPaths& rtPendingPaths = it->second;
 
-        SkTInternalLList<DrawPathsOp>::Iter drawOpsIter;
-        drawOpsIter.init(rtPendingPaths.fDrawOps,
-                         SkTInternalLList<DrawPathsOp>::Iter::kHead_IterStart);
-        while (DrawPathsOp* op = drawOpsIter.get()) {
-            pathInstanceIdx = op->setupResources(onFlushRP, &atlasOpsBuilder, pathInstanceData,
-                                                 pathInstanceIdx);
-            drawOpsIter.next();
+        SkTInternalLList<DrawPathsOp>::Iter atlasPathsIter;
+        atlasPathsIter.init(rtPendingPaths.fAtlasPaths,
+                            SkTInternalLList<DrawPathsOp>::Iter::kHead_IterStart);
+        while (AtlasPathsOp* op = atlasPathsIter.get()->cast<AtlasPathsOp>()) {
+            pathInstanceIdx = op->setupResources(onFlushRP, pathInstanceData, pathInstanceIdx);
+            atlasPathsIter.next();
+            SkDEBUGCODE(skippedTotalPaths += op->numSkippedInstances_debugOnly();)
+        }
+
+        SkTInternalLList<DrawPathsOp>::Iter framebufferPathsIter;
+        framebufferPathsIter.init(rtPendingPaths.fFramebufferPaths,
+                                  SkTInternalLList<DrawPathsOp>::Iter::kHead_IterStart);
+        while (FramebufferPathsOp* op = framebufferPathsIter.get()->cast<FramebufferPathsOp>()) {
+            pathInstanceIdx = op->setupResources(onFlushRP, pathInstanceData, pathInstanceIdx);
+            framebufferPathsIter.next();
             SkDEBUGCODE(skippedTotalPaths += op->numSkippedInstances_debugOnly();)
         }
 
         for (auto& clipsIter : rtPendingPaths.fClipPaths) {
-            clipsIter.second.placePathInAtlas(this, onFlushRP, &atlasOpsBuilder);
+            clipsIter.second.placePathInAtlas(this, onFlushRP, fPerFlushPathParser.get());
         }
     }
 
@@ -375,25 +422,16 @@ void GrCoverageCountingPathRenderer::preFlush(GrOnFlushResourceProvider* onFlush
 
     SkASSERT(pathInstanceIdx == maxTotalPaths - skippedTotalPaths - numClipPaths);
 
-    if (!fPerFlushAtlases.empty()) {
-        atlasOpsBuilder.emitOp(fPerFlushAtlases.back().drawBounds());
-    }
-
-    SkSTArray<4, std::unique_ptr<GrCCPRCoverageOp>> atlasOps(fPerFlushAtlases.count());
-    if (!atlasOpsBuilder.finalize(onFlushRP, &atlasOps)) {
+    if (!fPerFlushPathParser->finalize(onFlushRP)) {
         SkDebugf("WARNING: failed to allocate ccpr atlas buffers. No paths will be drawn.\n");
         return;
     }
-    SkASSERT(atlasOps.count() == fPerFlushAtlases.count());
 
     // Draw the coverage ops into their respective atlases.
     GrTAllocator<GrCCPRAtlas>::Iter atlasIter(&fPerFlushAtlases);
-    for (std::unique_ptr<GrCCPRCoverageOp>& atlasOp : atlasOps) {
-        SkAssertResult(atlasIter.next());
+    while (atlasIter.next()) {
         GrCCPRAtlas* atlas = atlasIter.get();
-        SkASSERT(atlasOp->bounds() == SkRect::MakeIWH(atlas->drawBounds().width(),
-                                                      atlas->drawBounds().height()));
-        if (auto rtc = atlas->finalize(onFlushRP, std::move(atlasOp))) {
+        if (auto rtc = atlas->finalize(onFlushRP, fPerFlushPathParser)) {
             results->push_back(std::move(rtc));
         }
     }
@@ -402,11 +440,26 @@ void GrCoverageCountingPathRenderer::preFlush(GrOnFlushResourceProvider* onFlush
     fPerFlushResourcesAreValid = true;
 }
 
+static bool SK_WARN_UNUSED_RESULT get_path_clipped_bounds(const SkIRect& clipIBounds,
+                                                          const SkIRect& pathIBounds,
+                                                          ScissorMode* scissorMode,
+                                                          SkIRect* clippedPathIBounds) {
+    if (clipIBounds.contains(pathIBounds)) {
+        *clippedPathIBounds = pathIBounds;
+        *scissorMode = ScissorMode::kNonScissored;
+        return true;
+    } else if (clippedPathIBounds->intersect(clipIBounds, pathIBounds)) {
+        *scissorMode = ScissorMode::kScissored;
+        return true;
+    } else {
+        return false;
+    }
+}
+
 int CCPR::DrawPathsOp::setupResources(GrOnFlushResourceProvider* onFlushRP,
-                                      GrCCPRCoverageOpsBuilder* atlasOpsBuilder,
                                       GrCCPRPathProcessor::Instance* pathInstanceData,
                                       int pathInstanceIdx) {
-    const GrCCPRAtlas* currentAtlas = nullptr;
+    GrCCPathParser* parser = fCCPR->fPerFlushPathParser.get();
     SkASSERT(fInstanceCount > 0);
     SkASSERT(-1 == fBaseInstance);
     fBaseInstance = pathInstanceIdx;
@@ -416,25 +469,23 @@ int CCPR::DrawPathsOp::setupResources(GrOnFlushResourceProvider* onFlushRP,
         // one rotated an additional 45 degrees. The path vertex shader uses these two bounding
         // boxes to generate an octagon that circumscribes the path.
         SkRect devBounds, devBounds45;
-        atlasOpsBuilder->parsePath(draw->fMatrix, draw->fPath, &devBounds, &devBounds45);
+        parser->parsePath(draw->fMatrix, draw->fPath, &devBounds, &devBounds45);
 
-        SkIRect devIBounds;
-        devBounds.roundOut(&devIBounds);
+        SkIRect tightIBounds;
+        devBounds.roundOut(&tightIBounds);
 
-        int16_t offsetX, offsetY;
-        GrCCPRAtlas* atlas = fCCPR->placeParsedPathInAtlas(onFlushRP, draw->fClipIBounds,
-                                                           devIBounds, &offsetX, &offsetY,
-                                                           atlasOpsBuilder);
-        if (!atlas) {
+        ScissorMode scissorMode;
+        SkIRect clippedPathIBounds;
+        if (!get_path_clipped_bounds(draw->fClippedPathIBounds, tightIBounds, &scissorMode,
+                                     &clippedPathIBounds)) {
+            parser->discardParsedPath();
             SkDEBUGCODE(++fNumSkippedInstances);
             continue;
         }
-        if (currentAtlas != atlas) {
-            if (currentAtlas) {
-                this->addAtlasBatch(currentAtlas, pathInstanceIdx);
-            }
-            currentAtlas = atlas;
-        }
+
+        int16_t offsetX, offsetY;
+        this->saveParsedPath(onFlushRP, pathInstanceIdx, scissorMode, clippedPathIBounds,
+                             &offsetX, &offsetY);
 
         const SkMatrix& m = draw->fMatrix;
         pathInstanceData[pathInstanceIdx++] = {
@@ -448,58 +499,75 @@ int CCPR::DrawPathsOp::setupResources(GrOnFlushResourceProvider* onFlushRP,
     }
 
     SkASSERT(pathInstanceIdx == fBaseInstance + fInstanceCount - fNumSkippedInstances);
-    if (currentAtlas) {
-        this->addAtlasBatch(currentAtlas, pathInstanceIdx);
-    }
-
     return pathInstanceIdx;
 }
 
+void CCPR::AtlasPathsOp::saveParsedPath(GrOnFlushResourceProvider* onFlushRP, int pathInstanceIdx,
+                                        const ScissorMode& scissorMode,
+                                        const SkIRect& clippedPathIBounds, int16_t* offsetX,
+                                        int16_t* offsetY) {
+    GrCCPRAtlas* atlas = fCCPR->placeParsedPathInAtlas(onFlushRP, scissorMode, clippedPathIBounds,
+                                                       offsetX, offsetY);
+    if (fAtlasBatches.empty() || fAtlasBatches.back().fAtlas != atlas) {
+        fAtlasBatches.push_back() = {atlas, pathInstanceIdx};
+    }
+    ++fAtlasBatches.back().fEndInstanceIdx;
+}
+
+void CCPR::FramebufferPathsOp::saveParsedPath(GrOnFlushResourceProvider* onFlushRP, int
+                                              pathInstanceIdx, const ScissorMode& scissorMode,
+                                              const SkIRect& clippedPathIBounds, int16_t* offsetX,
+                                              int16_t* offsetY) {
+    GrCCPathParser* parser = fCCPR->fPerFlushPathParser.get();
+    if (fBaseInstance == pathInstanceIdx) {
+        fInstanceStartIndices[0] = parser->instanceCounts()[0];
+        fInstanceStartIndices[1] = parser->instanceCounts()[1];
+    }
+    const auto& instanceCounts = parser->saveParsedPath(scissorMode, clippedPathIBounds, 0, 0);
+    if (ScissorMode::kNonScissored == scissorMode) {
+        fUnscissoredInstanceCounts += instanceCounts;
+    } else {
+        fScissorBatches.emplace_back(instanceCounts, clippedPathIBounds);
+    }
+    ++fRealInstanceCount;
+    *offsetX = *offsetY = 0;
+}
+
 void CCPR::ClipPath::placePathInAtlas(GrCoverageCountingPathRenderer* ccpr,
-                                      GrOnFlushResourceProvider* onFlushRP,
-                                      GrCCPRCoverageOpsBuilder* atlasOpsBuilder) {
+                                      GrOnFlushResourceProvider* onFlushRP, GrCCPathParser* parser)
+{
     SkASSERT(!this->isUninitialized());
     SkASSERT(!fHasAtlas);
-    atlasOpsBuilder->parseDeviceSpacePath(fDeviceSpacePath);
-    fAtlas = ccpr->placeParsedPathInAtlas(onFlushRP, fAccessRect, fPathDevIBounds, &fAtlasOffsetX,
-                                          &fAtlasOffsetY, atlasOpsBuilder);
+    parser->parseDeviceSpacePath(fDeviceSpacePath);
+
+    ScissorMode scissorMode;
+    SkIRect clippedPathIBounds;
+    if (get_path_clipped_bounds(fAccessRect, fPathDevIBounds, &scissorMode, &clippedPathIBounds)) {
+        fAtlas = ccpr->placeParsedPathInAtlas(onFlushRP, scissorMode, clippedPathIBounds,
+                                              &fAtlasOffsetX, &fAtlasOffsetY);
+    } else {
+        parser->discardParsedPath();
+        SkASSERT(!fAtlas);
+    }
     SkDEBUGCODE(fHasAtlas = true);
 }
 
 GrCCPRAtlas*
 GrCoverageCountingPathRenderer::placeParsedPathInAtlas(GrOnFlushResourceProvider* onFlushRP,
-                                                        const SkIRect& clipIBounds,
-                                                        const SkIRect& pathIBounds,
-                                                        int16_t* atlasOffsetX,
-                                                        int16_t* atlasOffsetY,
-                                                        GrCCPRCoverageOpsBuilder* atlasOpsBuilder) {
-    using ScissorMode = GrCCPRCoverageOpsBuilder::ScissorMode;
-
-    ScissorMode scissorMode;
-    SkIRect clippedPathIBounds;
-    if (clipIBounds.contains(pathIBounds)) {
-        clippedPathIBounds = pathIBounds;
-        scissorMode = ScissorMode::kNonScissored;
-    } else if (clippedPathIBounds.intersect(clipIBounds, pathIBounds)) {
-        scissorMode = ScissorMode::kScissored;
-    } else {
-        atlasOpsBuilder->discardParsedPath();
-        return nullptr;
+                                                       const ScissorMode& scissorMode,
+                                                       const SkIRect& clippedPathIBounds,
+                                                       int16_t* atlasOffsetX,
+                                                       int16_t* atlasOffsetY) {
+    if (fPerFlushAtlases.empty() ||
+        !fPerFlushAtlases.back().placeParsedPath(scissorMode, clippedPathIBounds, atlasOffsetX,
+                                                 atlasOffsetY, fPerFlushPathParser.get())) {
+        GrCCPRAtlas& atlas = fPerFlushAtlases.emplace_back(*onFlushRP->caps(),
+                                                           clippedPathIBounds.width(),
+                                                           clippedPathIBounds.width(),
+                                                           fPerFlushPathParser->instanceCounts());
+        SkAssertResult(atlas.placeParsedPath(scissorMode, clippedPathIBounds, atlasOffsetX,
+                                             atlasOffsetY, fPerFlushPathParser.get()));
     }
-
-    SkIPoint16 atlasLocation;
-    const int h = clippedPathIBounds.height(), w = clippedPathIBounds.width();
-    if (fPerFlushAtlases.empty() || !fPerFlushAtlases.back().addRect(w, h, &atlasLocation)) {
-        if (!fPerFlushAtlases.empty()) {
-            // The atlas is out of room and can't grow any bigger.
-            atlasOpsBuilder->emitOp(fPerFlushAtlases.back().drawBounds());
-        }
-        fPerFlushAtlases.emplace_back(*onFlushRP->caps(), w, h).addRect(w, h, &atlasLocation);
-    }
-
-    *atlasOffsetX = atlasLocation.x() - static_cast<int16_t>(clippedPathIBounds.left());
-    *atlasOffsetY = atlasLocation.y() - static_cast<int16_t>(clippedPathIBounds.top());
-    atlasOpsBuilder->saveParsedPath(scissorMode, clippedPathIBounds, *atlasOffsetX, *atlasOffsetY);
 
     return &fPerFlushAtlases.back();
 }
@@ -520,7 +588,12 @@ void CCPR::DrawPathsOp::onExecute(GrOpFlushState* flushState) {
     initArgs.fCaps = &flushState->caps();
     initArgs.fResourceProvider = flushState->resourceProvider();
     initArgs.fDstProxy = flushState->drawOpArgs().fDstProxy;
-    GrPipeline pipeline(initArgs, std::move(fProcessors), flushState->detachAppliedClip());
+
+    this->onExecute(flushState, &initArgs);
+}
+
+void CCPR::AtlasPathsOp::onExecute(GrOpFlushState* flushState, GrPipeline::InitArgs* initArgs) {
+    GrPipeline pipeline(*initArgs, std::move(fProcessors), flushState->detachAppliedClip());
 
     int baseInstance = fBaseInstance;
 
@@ -532,9 +605,9 @@ void CCPR::DrawPathsOp::onExecute(GrOpFlushState* flushState) {
             continue; // Atlas failed to allocate.
         }
 
-        GrCCPRPathProcessor coverProc(flushState->resourceProvider(),
-                                      sk_ref_sp(batch.fAtlas->textureProxy()), this->getFillType(),
-                                      *flushState->gpu()->caps()->shaderCaps());
+        GrCCPRPathProcessor proc(flushState->resourceProvider(),
+                                 sk_ref_sp(batch.fAtlas->textureProxy()), this->getFillType(),
+                                 *flushState->gpu()->caps()->shaderCaps());
 
         GrMesh mesh(GrPrimitiveType::kTriangles);
         mesh.setIndexedInstanced(fCCPR->fPerFlushIndexBuffer.get(),
@@ -543,16 +616,59 @@ void CCPR::DrawPathsOp::onExecute(GrOpFlushState* flushState) {
                                  batch.fEndInstanceIdx - baseInstance, baseInstance);
         mesh.setVertexData(fCCPR->fPerFlushVertexBuffer.get());
 
-        flushState->rtCommandBuffer()->draw(pipeline, coverProc, &mesh, nullptr, 1, this->bounds());
+        flushState->rtCommandBuffer()->draw(pipeline, proc, &mesh, nullptr, 1, this->bounds());
     }
 
     SkASSERT(baseInstance == fBaseInstance + fInstanceCount - fNumSkippedInstances);
+}
+
+void CCPR::FramebufferPathsOp::onExecute(GrOpFlushState* flushState,
+                                         GrPipeline::InitArgs* initArgs) {
+    if (!fRealInstanceCount) {
+        return;
+    }
+
+
+    initArgs->fDrawBuffer = GrDrawBuffer::kBoth;
+    GrPipeline pipeline(*initArgs, std::move(fProcessors), flushState->detachAppliedClip());
+    SkASSERT(flushState->proxy()->priv().peekRenderTarget()->
+                           renderTargetPriv().hasCoverageCountBuffer());
+
+    SkIRect drawBounds = SkIRect::MakeEmpty();
+    for (const SingleDraw* draw = this->head(); draw; draw = draw->fNext) {
+        // flushState->rtCommandBuffer()->clearCoverageCountBuffer(draw->fClippedPathIBounds);
+        drawBounds.join(draw->fClippedPathIBounds);
+    }
+
+    GrPipeline coverageCountPipeline(flushState->drawOpArgs().fProxy,
+                                     GrPipeline::ScissorState::kEnabled, SkBlendMode::kPlus,
+                                     GrDrawBuffer::kCoverageCount);
+    // GrPipeline coverageCountPipeline(flushState->drawOpArgs().fProxy,
+    //                                  GrPipeline::ScissorState::kEnabled, SkBlendMode::kSrcOver);
+     fCCPR->fPerFlushPathParser->drawCoverageCount(flushState, drawBounds, coverageCountPipeline,
+                                                   fInstanceStartIndices, fUnscissoredInstanceCounts,
+                                                   fScissorBatches);
+    flushState->rtCommandBuffer()->coverageCountReadBarrier();
+
+
+    GrCCPRPathProcessor proc(flushState->resourceProvider(), nullptr, this->getFillType(),
+                             *flushState->gpu()->caps()->shaderCaps());
+
+    GrMesh mesh(GrPrimitiveType::kTriangles);
+    mesh.setIndexedInstanced(fCCPR->fPerFlushIndexBuffer.get(),
+                             GrCCPRPathProcessor::kPerInstanceIndexCount,
+                             fCCPR->fPerFlushInstanceBuffer.get(), fRealInstanceCount,
+                             fBaseInstance);
+    mesh.setVertexData(fCCPR->fPerFlushVertexBuffer.get());
+
+    flushState->rtCommandBuffer()->draw(pipeline, proc, &mesh, nullptr, 1, this->bounds());
 }
 
 void GrCoverageCountingPathRenderer::postFlush(GrDeferredUploadToken, const uint32_t* opListIDs,
                                                int numOpListIDs) {
     SkASSERT(fFlushing);
     fPerFlushAtlases.reset();
+    fPerFlushPathParser.reset();
     fPerFlushInstanceBuffer.reset();
     fPerFlushVertexBuffer.reset();
     fPerFlushIndexBuffer.reset();

@@ -9,19 +9,20 @@
 #define GrCCPRCoverageOp_DEFINED
 
 #include "GrMesh.h"
+#include "GrNonAtomicRef.h"
 #include "SkRect.h"
 #include "SkRefCnt.h"
 #include "ccpr/GrCCPRCoverageProcessor.h"
 #include "ccpr/GrCCPRGeometry.h"
 #include "ops/GrDrawOp.h"
 
-class GrCCPRCoverageOp;
+class GrCCPRAtlas;
 class GrOnFlushResourceProvider;
 class SkMatrix;
 class SkPath;
 
 /**
- * This class produces GrCCPRCoverageOps that render coverage count masks and atlases. A path is
+ * This class produces BLAH BLAH BLAH that render coverage count masks and atlases. A path is
  * added to the current op in two steps:
  *
  *   1) parsePath(ScissorMode, viewMatrix, path, &devBounds, &devBounds45);
@@ -33,7 +34,7 @@ class SkPath;
  * The client can flush the currently saved paths to a GrCCPRCoverageOp by calling emitOp, and
  * retrieve all emitted ops after calling finalize().
  */
-class GrCCPRCoverageOpsBuilder {
+class GrCCPathParser : public GrNonAtomicRef<GrCCPathParser> {
 public:
     // Indicates whether a path should enforce a scissor clip when rendering its mask. (Specified
     // as an int because these values get used directly as indices into arrays.)
@@ -43,18 +44,21 @@ public:
     };
     static constexpr int kNumScissorModes = 2;
 
-    GrCCPRCoverageOpsBuilder(int maxTotalPaths, int maxPathPoints, int numSkPoints, int numSkVerbs)
+    using PrimitiveTallies = GrCCPRGeometry::PrimitiveTallies;
+
+    GrCCPathParser(int maxTotalPaths, int maxPathPoints, int numSkPoints, int numSkVerbs)
             : fPathsInfo(maxTotalPaths)
             , fLocalDevPtsBuffer(maxPathPoints + 1) // Overallocate by one point to accomodate for
                                                     // overflow with Sk4f. (See parsePath.)
             , fGeometry(numSkPoints, numSkVerbs)
-            , fTallies{PrimitiveTallies(), PrimitiveTallies()}
-            , fScissorBatches(maxTotalPaths) {}
+            , fInstanceCounts{PrimitiveTallies(), PrimitiveTallies()} {}
 
-    ~GrCCPRCoverageOpsBuilder() {
+    ~GrCCPathParser() {
         // Enforce the contract that the client always calls saveParsedPath or discardParsedPath.
         SkASSERT(!fParsingPath);
     }
+
+    const PrimitiveTallies* instanceCounts() const { return fInstanceCounts; }
 
     // Parses an SkPath into a temporary staging area. The path will not yet be included in the next
     // Op unless there is a matching call to saveParsedPath. The user must complement this with a
@@ -72,37 +76,41 @@ public:
     // Commits the currently-parsed path from staging to the next Op, and specifies whether the mask
     // should be rendered with a scissor clip in effect. Accepts an optional post-device-space
     // translate for placement in an atlas.
-    void saveParsedPath(ScissorMode, const SkIRect& clippedDevIBounds,
-                        int16_t atlasOffsetX, int16_t atlasOffsetY);
+    const PrimitiveTallies& saveParsedPath(ScissorMode, const SkIRect& clippedDevIBounds,
+                                           int16_t atlasOffsetX, int16_t atlasOffsetY);
     void discardParsedPath();
 
-    // Flushes all currently-saved paths internally to a GrCCPRCoverageOp.
-    //
-    // NOTE: if there is a parsed path in the staging area, it will not be included. But the client
-    // may still call saveParsedPath to include it in a future Op.
-    void emitOp(SkISize drawBounds);
+    // Blah blah blah.
+    bool finalize(GrOnFlushResourceProvider*);
 
-    // Builds GPU buffers and returns the list of GrCCPRCoverageOps as specified by calls to emitOp.
-    bool finalize(GrOnFlushResourceProvider*, SkTArray<std::unique_ptr<GrCCPRCoverageOp>>*);
-
-private:
-    using PrimitiveTallies = GrCCPRGeometry::PrimitiveTallies;
-
-    // Every kBeginPath verb has a corresponding PathInfo entry.
-    struct PathInfo {
-        ScissorMode fScissorMode;
-        int16_t fAtlasOffsetX, fAtlasOffsetY;
-        std::unique_ptr<GrCCPRCoverageOp> fTerminatingOp;
-    };
-
-    // Every PathInfo with a mode of kScissored has a corresponding ScissorBatch.
     struct ScissorBatch {
+        ScissorBatch(const PrimitiveTallies& instanceCounts, const SkIRect& scissor)
+                : fInstanceCounts(instanceCounts), fScissor(scissor) {}
         PrimitiveTallies fInstanceCounts;
         SkIRect fScissor;
     };
 
+    void drawCoverageCount(GrOpFlushState*, const SkIRect& drawBounds, const GrPipeline&,
+                           const PrimitiveTallies startIndices[kNumScissorModes],
+                           const PrimitiveTallies& unscissoredInstanceCounts,
+                           const SkTArray<ScissorBatch, true>&) const;
+
+private:
+    // Every kBeginPath verb has a corresponding PathInfo entry.
+    struct PathInfo {
+        ScissorMode fScissorMode;
+        int16_t fAtlasOffsetX, fAtlasOffsetY;
+    };
+
     void parsePath(const SkPath&, const SkPoint* deviceSpacePts);
     void endContourIfNeeded(bool insideContour);
+
+    void drawRenderPass(GrCCPRCoverageProcessor::RenderPass, GrOpFlushState*,
+                        const SkIRect& drawBounds, const GrPipeline&,
+                        const PrimitiveTallies startIndices[kNumScissorModes],
+                        const PrimitiveTallies& unscissoredInstanceCounts,
+                        const SkTArray<ScissorBatch, true>&,
+                        int PrimitiveTallies::* instanceType) const;
 
     // Staging area for the path being parsed.
     SkDEBUGCODE(int fParsingPath = false);
@@ -115,64 +123,15 @@ private:
     const SkAutoSTArray<32, SkPoint> fLocalDevPtsBuffer;
     GrCCPRGeometry fGeometry;
 
-    PrimitiveTallies fTallies[kNumScissorModes];
-    SkTArray<ScissorBatch, true> fScissorBatches;
-
-    std::unique_ptr<GrCCPRCoverageOp>  fTerminatingOp;
-
-    friend class GrCCPRCoverageOp; // For ScissorBatch.
-};
-
-/**
- * This Op renders coverage count masks and atlases. Create it using GrCCPRCoverageOpsBuilder.
- */
-class GrCCPRCoverageOp : public GrDrawOp {
-public:
-    DEFINE_OP_CLASS_ID
-
-    // GrDrawOp interface.
-    const char* name() const override { return "GrCCPRCoverageOp"; }
-    FixedFunctionFlags fixedFunctionFlags() const override { return FixedFunctionFlags::kNone; }
-    RequiresDstTexture finalize(const GrCaps&, const GrAppliedClip*,
-                                GrPixelConfigIsClamped) override {
-        return RequiresDstTexture::kNo;
-    }
-    bool onCombineIfPossible(GrOp* other, const GrCaps& caps) override { return false; }
-    void onPrepare(GrOpFlushState*) override {}
-    void onExecute(GrOpFlushState*) override;
-
-private:
-    static constexpr int kNumScissorModes = GrCCPRCoverageOpsBuilder::kNumScissorModes;
-    using PrimitiveTallies = GrCCPRGeometry::PrimitiveTallies;
-    using ScissorBatch = GrCCPRCoverageOpsBuilder::ScissorBatch;
-
-    GrCCPRCoverageOp(SkTArray<ScissorBatch, true>&& scissorBatches, const SkISize& drawBounds)
-        : INHERITED(ClassID())
-        , fScissorBatches(std::move(scissorBatches))
-        , fDrawBounds(drawBounds) {
-        this->setBounds(SkRect::MakeIWH(fDrawBounds.width(), fDrawBounds.height()),
-                        GrOp::HasAABloat::kNo, GrOp::IsZeroArea::kNo);
-    }
-
-    void setInstanceBuffer(sk_sp<GrBuffer> instanceBuffer,
-                           const PrimitiveTallies baseInstances[kNumScissorModes],
-                           const PrimitiveTallies endInstances[kNumScissorModes]);
-
-    void drawMaskPrimitives(GrOpFlushState*, const GrPipeline&, GrCCPRCoverageProcessor::RenderPass,
-                            int PrimitiveTallies::* instanceType) const;
-
-    sk_sp<GrBuffer> fInstanceBuffer;
-    PrimitiveTallies fBaseInstances[kNumScissorModes];
     PrimitiveTallies fInstanceCounts[kNumScissorModes];
-    const SkTArray<ScissorBatch, true> fScissorBatches;
-    const SkISize fDrawBounds;
+
+    PrimitiveTallies fBaseInstances[kNumScissorModes];
+    sk_sp<GrBuffer> fInstanceBuffer;
 
     mutable SkTArray<GrMesh> fMeshesScratchBuffer;
     mutable SkTArray<GrPipeline::DynamicState, true> fDynamicStatesScratchBuffer;
 
-    friend class GrCCPRCoverageOpsBuilder;
-
-    typedef GrDrawOp INHERITED;
+    friend class GrCCPRCoverageOp; // For ScissorBatch.
 };
 
 #endif

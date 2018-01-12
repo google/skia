@@ -259,7 +259,8 @@ void CCPRGeometryView::Op::onExecute(GrOpFlushState* state) {
         return;
     }
 
-    GrCCPRCoverageProcessor proc(rp, fView->fRenderPass, *state->caps().shaderCaps());
+    GrCCPRCoverageProcessor proc(rp, fView->fRenderPass, GrCCPRCoverageProcessor::Output::kAlpha,
+                                 *state->caps().shaderCaps());
     SkDEBUGCODE(proc.enableDebugVisualizations(kDebugBloat);)
 
     SkSTArray<1, GrMesh> mesh;

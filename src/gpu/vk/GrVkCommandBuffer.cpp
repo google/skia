@@ -408,7 +408,8 @@ void GrVkPrimaryCommandBuffer::beginRenderPass(const GrVkGpu* gpu,
     // requires a clear instead of the number of total clears.
     uint32_t stencilIndex;
     if (renderPass->stencilAttachmentIndex(&stencilIndex)) {
-        beginInfo.clearValueCount = renderPass->clearValueCount() ? 2 : 0;
+        beginInfo.clearValueCount = renderPass->clearValueCount() ?
+                                    renderPass->clearValueCount() + 1 : 0;
     } else {
         beginInfo.clearValueCount = renderPass->clearValueCount();
     }

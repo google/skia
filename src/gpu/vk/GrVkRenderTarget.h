@@ -77,6 +77,9 @@ public:
 
     void addResources(GrVkCommandBuffer& commandBuffer) const;
 
+    GrVkImage* coverageCountImage() const { return fCoverageCountImage.get(); }
+    const GrVkImageView* coverageCountView() const { return fCoverageCountView; }
+
 protected:
     GrVkRenderTarget(GrVkGpu* gpu,
                      const GrSurfaceDesc& desc,
@@ -110,6 +113,8 @@ protected:
     const GrVkImageView*       fColorAttachmentView;
     std::unique_ptr<GrVkImage> fMSAAImage;
     const GrVkImageView*       fResolveAttachmentView;
+    std::unique_ptr<GrVkImage> fCoverageCountImage;
+    const GrVkImageView*       fCoverageCountView = nullptr;
 
 private:
     GrVkRenderTarget(GrVkGpu* gpu,
@@ -132,6 +137,8 @@ private:
                                     const GrVkImageInfo&, GrBackendObjectOwnership);
 
     bool completeStencilAttachment() override;
+
+    bool onAttachCoverageCountBuffer() override;
 
     void releaseInternalObjects();
     void abandonInternalObjects();

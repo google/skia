@@ -9,6 +9,7 @@
 
 #include "GrTexture.h"
 #include "GrRenderTarget.h"
+#include "GrRenderTargetPriv.h"
 #include "GrSurfaceProxyPriv.h"
 
 // Deferred version
@@ -72,6 +73,12 @@ bool GrTextureRenderTargetProxy::instantiate(GrResourceProvider* resourceProvide
     SkASSERT(fTarget->asRenderTarget());
     SkASSERT(fTarget->asTexture());
 
+    if (this->needsCoverageCount()) {
+        if (!fTarget->asRenderTarget()->renderTargetPriv().attachCoverageCountBuffer()) {
+            return false;
+        }
+    }
+
     return true;
 }
 
@@ -87,6 +94,12 @@ sk_sp<GrSurface> GrTextureRenderTargetProxy::createSurface(
     }
     SkASSERT(surface->asRenderTarget());
     SkASSERT(surface->asTexture());
+
+    if (this->needsCoverageCount()) {
+        if (!surface->asRenderTarget()->renderTargetPriv().attachCoverageCountBuffer()) {
+            return nullptr;
+        }
+    }
 
     return surface;
 }

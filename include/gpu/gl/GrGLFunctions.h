@@ -29,6 +29,7 @@ typedef GrGLvoid (* GrGLBindFragDataLocationProc)(GrGLuint program, GrGLuint col
 typedef GrGLvoid (* GrGLBindFragDataLocationIndexedProc)(GrGLuint program, GrGLuint colorNumber, GrGLuint index, const GrGLchar * name);
 typedef GrGLvoid (* GrGLBindVertexArrayProc)(GrGLuint array);
 typedef GrGLvoid (* GrGLBlendBarrierProc)();
+typedef GrGLvoid (* GrGLFramebufferFetchBarrierProc)();
 typedef GrGLvoid (* GrGLBlendColorProc)(GrGLclampf red, GrGLclampf green, GrGLclampf blue, GrGLclampf alpha);
 typedef GrGLvoid (* GrGLBlendEquationProc)(GrGLenum mode);
 typedef GrGLvoid (* GrGLBlendFuncProc)(GrGLenum sfactor, GrGLenum dfactor);
@@ -37,6 +38,7 @@ typedef GrGLvoid (* GrGLBufferDataProc)(GrGLenum target, GrGLsizeiptr size, cons
 typedef GrGLvoid (* GrGLBufferSubDataProc)(GrGLenum target, GrGLintptr offset, GrGLsizeiptr size, const GrGLvoid* data);
 typedef GrGLenum (* GrGLCheckFramebufferStatusProc)(GrGLenum target);
 typedef GrGLvoid (* GrGLClearProc)(GrGLbitfield mask);
+typedef GrGLvoid (* GrGLClearBufferfvProc)(GrGLenum buffer, GrGLint drawbuffer, const GrGLfloat* value);
 typedef GrGLvoid (* GrGLClearColorProc)(GrGLclampf red, GrGLclampf green, GrGLclampf blue, GrGLclampf alpha);
 typedef GrGLvoid (* GrGLClearStencilProc)(GrGLint s);
 typedef GrGLvoid (* GrGLClearTexImageProc)(GrGLuint texture, GrGLint level, GrGLenum format, GrGLenum type,const GrGLvoid * data);
@@ -59,6 +61,7 @@ typedef GrGLvoid (* GrGLDeleteTexturesProc)(GrGLsizei n, const GrGLuint* texture
 typedef GrGLvoid (* GrGLDeleteVertexArraysProc)(GrGLsizei n, const GrGLuint *arrays);
 typedef GrGLvoid (* GrGLDepthMaskProc)(GrGLboolean flag);
 typedef GrGLvoid (* GrGLDisableProc)(GrGLenum cap);
+typedef GrGLvoid (* GrGLDisableiProc)(GrGLenum cap, GrGLuint index);
 typedef GrGLvoid (* GrGLDisableVertexAttribArrayProc)(GrGLuint index);
 typedef GrGLvoid (* GrGLDrawArraysProc)(GrGLenum mode, GrGLint first, GrGLsizei count);
 typedef GrGLvoid (* GrGLDrawArraysInstancedProc)(GrGLenum mode, GrGLint first, GrGLsizei count, GrGLsizei primcount);
@@ -70,6 +73,7 @@ typedef GrGLvoid (* GrGLDrawElementsInstancedProc)(GrGLenum mode, GrGLsizei coun
 typedef GrGLvoid (* GrGLDrawElementsIndirectProc)(GrGLenum mode, GrGLenum type, const GrGLvoid* indirect);
 typedef GrGLvoid (* GrGLDrawRangeElementsProc)(GrGLenum mode, GrGLuint start, GrGLuint end, GrGLsizei count, GrGLenum type, const GrGLvoid* indices);
 typedef GrGLvoid (* GrGLEnableProc)(GrGLenum cap);
+typedef GrGLvoid (* GrGLEnableiProc)(GrGLenum cap, GrGLuint index);
 typedef GrGLvoid (* GrGLEnableVertexAttribArrayProc)(GrGLuint index);
 typedef GrGLvoid (* GrGLEndQueryProc)(GrGLenum target);
 typedef GrGLvoid (* GrGLFinishProc)();
@@ -374,6 +378,10 @@ typedef GrGLvoid (* GrGLObjectLabelProc)(GrGLenum identifier, GrGLuint name, GrG
 
 /** EXT_window_rectangles */
 typedef GrGLvoid (* GrGLWindowRectanglesProc)(GrGLenum mode, GrGLsizei count, const GrGLint box[]);
+
+/** QCOM_tiled_rendering */
+typedef GrGLvoid (* GrGLStartTilingProc)(GrGLuint x, GrGLuint y, GrGLuint width, GrGLuint height, GrGLbitfield preserveMask);
+typedef GrGLvoid (* GrGLEndTilingProc)(GrGLbitfield preserveMask);
 
 /** EGL functions */
 typedef const char* (* GrEGLQueryStringProc)(GrEGLDisplay dpy, GrEGLint name);

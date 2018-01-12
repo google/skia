@@ -29,8 +29,13 @@ public:
      * function returns false if there were any failure in attaching the GrStencilAttachment.
      */
     bool attachStencilAttachment(sk_sp<GrStencilAttachment> stencil);
-
     int numStencilBits() const;
+
+    bool attachCoverageCountBuffer() const;
+    bool hasCoverageCountBuffer() const {
+        using HasCoverageCountBuffer = GrRenderTarget::HasCoverageCountBuffer;
+        return HasCoverageCountBuffer::kYes == fRenderTarget->fHasCoverageCountBuffer;
+    }
 
     // Finds a render target's multisample specs. The pipeline is only needed in case the info isn't
     // cached and we need to flush the draw state in order to query it. The pipeline is not expected
