@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "459dc664_5a6b571b",
+        "filename": "samplecode/SampleAnimatedImage.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-01-12T15:42:46Z",
+      "side": 1,
+      "message": "I\u0027m drawing it twice, side by side. Once as is, and once captured as a recorded drawable. The first draws on the left, and the latter draws to the right.",
+      "parentUuid": "7bb257f9_22f3b313",
+      "range": {
+        "startLine": 58,
+        "startChar": 46,
+        "endLine": 58,
+        "endChar": 73
+      },
+      "revId": "2f723a3f048e9a2c80d61f8995be35d85775056a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "cd90d7b7_e3487268",
         "filename": "src/codec/SkAnimatedImage.cpp",
         "patchSetId": 1
@@ -36,6 +60,24 @@
       "writtenOn": "2018-01-12T14:48:04Z",
       "side": 1,
       "message": "why do we need to sanitize the input?",
+      "revId": "2f723a3f048e9a2c80d61f8995be35d85775056a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cdb05a55_c4de20dc",
+        "filename": "src/codec/SkAnimatedImage.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-01-12T15:42:46Z",
+      "side": 1,
+      "message": "Actually, I don\u0027t know that we do. We correct the alpha type on each frame, and the color type should always be N32, for now. (I thought maybe we\u0027d have frames with different color types, but even with APNG that should not be an issue.)\n\nRemoved this.",
+      "parentUuid": "cd90d7b7_e3487268",
       "revId": "2f723a3f048e9a2c80d61f8995be35d85775056a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -59,6 +101,24 @@
     },
     {
       "key": {
+        "uuid": "c2f68a39_6be4b6eb",
+        "filename": "src/codec/SkAnimatedImage.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-01-12T15:42:46Z",
+      "side": 1,
+      "message": "It cannot, because it does not know the time. Or do you think this should take the time as a parameter?",
+      "parentUuid": "de1df22b_efb07099",
+      "revId": "2f723a3f048e9a2c80d61f8995be35d85775056a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b050f0eb_c46bc4af",
         "filename": "src/codec/SkAnimatedImage.cpp",
         "patchSetId": 1
@@ -70,6 +130,30 @@
       "writtenOn": "2018-01-12T14:48:04Z",
       "side": 1,
       "message": "isRestorePrevious?",
+      "range": {
+        "startLine": 88,
+        "startChar": 12,
+        "endLine": 88,
+        "endChar": 28
+      },
+      "revId": "2f723a3f048e9a2c80d61f8995be35d85775056a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "39d22386_af750d50",
+        "filename": "src/codec/SkAnimatedImage.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-01-12T15:42:46Z",
+      "side": 1,
+      "message": "camel_case is what the style guide suggests for static functions, but I\u0027m happy to add \"is_\". Done.",
+      "parentUuid": "b050f0eb_c46bc4af",
       "range": {
         "startLine": 88,
         "startChar": 12,
@@ -105,6 +189,30 @@
     },
     {
       "key": {
+        "uuid": "1c628853_4cb0d847",
+        "filename": "src/codec/SkAnimatedImage.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-01-12T15:42:46Z",
+      "side": 1,
+      "message": "\u003e I find this comment very confusing.  If a frame is restore_previous it won\u0027t be used again so why shouldn\u0027t we overwrite it?\n\nYes, this comment is confusing. It\u0027s saying we shouldn\u0027t overwrite a frame that is *not* restore_previous, but that is digging into the weeds a bit, and reduces clarity rather than improves it.\n\n\u003e \n\u003e If a frame is restore_previous it will not be use again, therefore we should not ever overwrite fRestoreFrame with a frame tagged as restore_previous.\n\nI don\u0027t think we should mention fRestoreFrame; the general process is that if fActiveFrame should not be overwritten, we copy it to fRestoreFrame. I\u0027ve written a new comment that I think is more clear. WDYT?",
+      "parentUuid": "b1c59059_eb5bddc1",
+      "range": {
+        "startLine": 173,
+        "startChar": 22,
+        "endLine": 174,
+        "endChar": 73
+      },
+      "revId": "2f723a3f048e9a2c80d61f8995be35d85775056a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9b382592_3820b0ef",
         "filename": "src/codec/SkAnimatedImage.cpp",
         "patchSetId": 1
@@ -116,6 +224,24 @@
       "writtenOn": "2018-01-12T14:48:04Z",
       "side": 1,
       "message": "why do a copyTo and not just a swap? The only difference seems that fActiveFrame may now have no backing pixel allocation.",
+      "revId": "2f723a3f048e9a2c80d61f8995be35d85775056a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "44880bea_6032757b",
+        "filename": "src/codec/SkAnimatedImage.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-01-12T15:42:46Z",
+      "side": 1,
+      "message": "Because the following frame may depend on fActiveFrame. We have the following frames:\n\ni - 1: Currently stored in fActiveFrame. Let\u0027s say it\u0027s KEEP\ni    : About to decode into fActiveFrame.  This is RESTORE_PREVIOUS and independent\ni + 1: This frame may depend on i - 1\n\nWhen it comes time to decode |i + 1|, we want to start with |i - 1|, rather than having to go back further.",
+      "parentUuid": "9b382592_3820b0ef",
       "revId": "2f723a3f048e9a2c80d61f8995be35d85775056a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
