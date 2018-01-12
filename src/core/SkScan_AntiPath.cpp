@@ -630,6 +630,12 @@ void SkScan::SAAFillPath(const SkPath& path, SkBlitter* blitter, const SkIRect& 
     }
 }
 
+static bool fitsInsideLimit(const SkRect& r, SkScalar max) {
+    const SkScalar min = -max;
+    return  r.fLeft > min && r.fTop > min &&
+            r.fRight < max && r.fBottom < max;
+}
+
 static int overflows_short_shift(int value, int shift) {
     const int s = 16 + shift;
     return (SkLeftShift(value, s) >> s) - value;
@@ -653,17 +659,14 @@ static int rect_overflows_short_shift(SkIRect rect, int shift) {
            overflows_short_shift(rect.fBottom, shift);
 }
 
-static SkIRect safeRoundOut(const SkRect& src) {
-    // roundOut will pin huge floats to max/min int
-    SkIRect dst = src.roundOut();
+static bool safeRoundOut(const SkRect& src, SkIRect* dst, int32_t maxInt) {
+    const SkScalar maxScalar = SkIntToScalar(maxInt);
 
-    // intersect with a smaller huge rect, so the rect will not be considered empty for being
-    // too large. e.g. { -SK_MaxS32 ... SK_MaxS32 } is considered empty because its width
-    // exceeds signed 32bit.
-    const int32_t limit = SK_MaxS32 >> 1;
-    (void)dst.intersect({ -limit, -limit, limit, limit});
-
-    return dst;
+    if (fitsInsideLimit(src, maxScalar)) {
+        src.roundOut(dst);
+        return true;
+    }
+    return false;
 }
 
 void SkScan::AntiFillPath(const SkPath& path, const SkRegion& origClip,
@@ -673,7 +676,12 @@ void SkScan::AntiFillPath(const SkPath& path, const SkRegion& origClip,
     }
 
     const bool isInverse = path.isInverseFillType();
-    SkIRect ir = safeRoundOut(path.getBounds());
+    SkIRect ir;
+
+    if (!safeRoundOut(path.getBounds(), &ir, SK_MaxS32 >> SHIFT)) {
+        // Bounds can't fit in SkIRect; we'll return without drawing
+        return;
+    }
     if (ir.isEmpty()) {
         if (isInverse) {
             blitter->blitRegion(origClip);
@@ -736,6 +744,8 @@ void SkScan::AntiFillPath(const SkPath& path, const SkRegion& origClip,
     if (isInverse) {
         sk_blit_above(blitter, ir, *clipRgn);
     }
+
+    SkASSERT(SkIntToScalar(ir.fTop) <= path.getBounds().fTop);
 
     if (forceDAA || ShouldUseDAA(path)) {
         SkScan::DAAFillPath(path, blitter, ir, clipRgn->getBounds(), forceRLE);
