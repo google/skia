@@ -211,13 +211,9 @@ bool SkImage_Gpu::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, size
     // with arbitrary color spaces. Unfortunately, this is one spot where we go from image to
     // surface (rather than the opposite), and our lenient image rules break our (currently) more
     // strict surface rules.
-    // We treat null-dst color space as always equal to fColorSpace for this kind of read-back.
     sk_sp<SkColorSpace> surfaceColorSpace = fColorSpace;
-    if (!flags) {
-        if (!dstInfo.colorSpace() ||
-                SkColorSpace::Equals(fColorSpace.get(), dstInfo.colorSpace())) {
-            surfaceColorSpace = nullptr;
-        }
+    if (!flags && SkColorSpace::Equals(fColorSpace.get(), dstInfo.colorSpace())) {
+        surfaceColorSpace = nullptr;
     }
 
     sk_sp<GrSurfaceContext> sContext = fContext->contextPriv().makeWrappedSurfaceContext(

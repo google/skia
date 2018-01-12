@@ -334,7 +334,7 @@ sk_sp<SkImage> SkImage::makeRasterImage() const {
     }
 
     sk_sp<SkData> data = SkData::MakeUninitialized(size);
-    pm = { info.makeColorSpace(nullptr), data->writable_data(), info.minRowBytes() };
+    pm = { info, data->writable_data(), info.minRowBytes() };
     if (!this->readPixels(pm, 0, 0)) {
         return nullptr;
     }
