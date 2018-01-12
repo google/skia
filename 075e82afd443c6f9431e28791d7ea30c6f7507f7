@@ -1,0 +1,78 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c80c346e_b08e63b7",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 7
+      },
+      "lineNbr": 854,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-12T16:33:07Z",
+      "side": 1,
+      "message": "As a follow up, it might make more sense to copy out the support libraries in the build step and carry them around in parallel to dm,nanobench,etc.  There may also be a way to statically link that support library into the binaries, which would be even easier.",
+      "revId": "075e82afd443c6f9431e28791d7ea30c6f7507f7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "efe2da17_1c4935f6",
+        "filename": "infra/bots/recipe_modules/flavor/gn_android_flavor.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 377,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-12T16:33:07Z",
+      "side": 1,
+      "message": "Just keep the ndk_api\u003d24 for Vulkan bots in mind.\n\nI don\u0027t think we\u0027d mind sticking to ASAN on only 64-bit Android for now, which would make this ndk_api\u003d21 redundant.  Or, let\u0027s move this logic into gn/BUILD.gn?",
+      "revId": "075e82afd443c6f9431e28791d7ea30c6f7507f7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "49a207d8_aa63a6eb",
+        "filename": "infra/bots/recipe_modules/flavor/gn_android_flavor.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 378,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-12T16:33:07Z",
+      "side": 1,
+      "message": "Did you happen to try \"ASAN\" here?  That\u0027s our lingo for ASAN + all the ubsan checks we think we\u0027re clean for.",
+      "range": {
+        "startLine": 378,
+        "startChar": 27,
+        "endLine": 378,
+        "endChar": 34
+      },
+      "revId": "075e82afd443c6f9431e28791d7ea30c6f7507f7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "788f065f_4259455d",
+        "filename": "infra/bots/recipe_modules/flavor/gn_android_flavor.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 379,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-12T16:33:07Z",
+      "side": 1,
+      "message": "Remind us why?  This seems like something that should go in gn/BUILD.gn, not here.  FWIW, I don\u0027t think we\u0027re actively setting -fomit-frame-pointer.",
+      "revId": "075e82afd443c6f9431e28791d7ea30c6f7507f7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
