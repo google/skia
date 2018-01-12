@@ -76,7 +76,7 @@ public:
     }
 
     static sk_sp<GrGeometryProcessor> Make(sk_sp<GrTextureProxy> proxies[], int proxyCnt,
-                                           sk_sp<GrColorSpaceXform> csxf, GrAA aa,
+                                           sk_sp<GrColorSpaceXform> csxf, bool coverageAA,
                                            const GrSamplerState::Filter filters[],
                                            const GrShaderCaps& caps) {
         // We use placement new to avoid always allocating space for kMaxTextures TextureSampler
@@ -85,7 +85,7 @@ public:
         size_t size = sizeof(TextureGeometryProcessor) + sizeof(TextureSampler) * (samplerCnt - 1);
         void* mem = GrGeometryProcessor::operator new(size);
         return sk_sp<TextureGeometryProcessor>(new (mem) TextureGeometryProcessor(
-                proxies, proxyCnt, samplerCnt, std::move(csxf), aa, filters, caps));
+                proxies, proxyCnt, samplerCnt, std::move(csxf), coverageAA, filters, caps));
     }
 
     ~TextureGeometryProcessor() override {
@@ -99,7 +99,7 @@ public:
 
     void getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const override {
         b->add32(GrColorSpaceXform::XformKey(fColorSpaceXform.get()));
-        b->add32(static_cast<uint32_t>(this->aa()));
+        b->add32(static_cast<uint32_t>(this->usesCoverageEdgeAA()));
     }
 
     GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps& caps) const override {
@@ -167,7 +167,7 @@ public:
                                                                       &fColorSpaceXformHelper);
                 }
                 args.fFragBuilder->codeAppend(";");
-                if (GrAA::kYes == textureGP.aa()) {
+                if (textureGP.usesCoverageEdgeAA()) {
                     GrGLSLVarying aaDistVarying(kFloat4_GrSLType,
                                                 GrGLSLVarying::Scope::kVertToFrag);
                     args.fVaryingHandler->addVarying("aaDists", &aaDistVarying);
@@ -195,7 +195,7 @@ public:
         return new GLSLProcessor;
     }
 
-    GrAA aa() const { return GrAA(fAAEdges[0].isInitialized()); }
+    bool usesCoverageEdgeAA() const { return SkToBool(fAAEdges[0].isInitialized()); }
 
 private:
     // This exists to reduce the number of shaders generated. It does some rounding of sampler
@@ -214,7 +214,7 @@ private:
     }
 
     TextureGeometryProcessor(sk_sp<GrTextureProxy> proxies[], int proxyCnt, int samplerCnt,
-                             sk_sp<GrColorSpaceXform> csxf, GrAA aa,
+                             sk_sp<GrColorSpaceXform> csxf, bool coverageAA,
                              const GrSamplerState::Filter filters[], const GrShaderCaps& caps)
             : INHERITED(kTextureGeometryProcessor_ClassID), fColorSpaceXform(std::move(csxf)) {
         SkASSERT(proxyCnt > 0 && samplerCnt >= proxyCnt);
@@ -240,7 +240,7 @@ private:
         }
 
         fTextureCoords = this->addVertexAttrib("textureCoords", kFloat2_GrVertexAttribType);
-        if (GrAA::kYes == aa) {
+        if (coverageAA) {
             fAAEdges[0] = this->addVertexAttrib("aaEdge0", kFloat3_GrVertexAttribType);
             fAAEdges[1] = this->addVertexAttrib("aaEdge1", kFloat3_GrVertexAttribType);
             fAAEdges[2] = this->addVertexAttrib("aaEdge2", kFloat3_GrVertexAttribType);
@@ -403,11 +403,11 @@ class TextureOp final : public GrMeshDrawOp {
 public:
     static std::unique_ptr<GrDrawOp> Make(sk_sp<GrTextureProxy> proxy,
                                           GrSamplerState::Filter filter, GrColor color,
-                                          const SkRect& srcRect, const SkRect& dstRect, GrAA aa,
-                                          const SkMatrix& viewMatrix, sk_sp<GrColorSpaceXform> csxf,
-                                          bool allowSRBInputs) {
+                                          const SkRect& srcRect, const SkRect& dstRect,
+                                          GrAAType aaType, const SkMatrix& viewMatrix,
+                                          sk_sp<GrColorSpaceXform> csxf, bool allowSRBInputs) {
         return std::unique_ptr<GrDrawOp>(new TextureOp(std::move(proxy), filter, color, srcRect,
-                                                       dstRect, aa, viewMatrix, std::move(csxf),
+                                                       dstRect, aaType, viewMatrix, std::move(csxf),
                                                        allowSRBInputs));
     }
 
@@ -469,7 +469,10 @@ public:
         return RequiresDstTexture::kNo;
     }
 
-    FixedFunctionFlags fixedFunctionFlags() const override { return FixedFunctionFlags::kNone; }
+    FixedFunctionFlags fixedFunctionFlags() const override {
+        return this->aaType() == GrAAType::kMSAA ? FixedFunctionFlags::kUsesHWAA
+                                                 : FixedFunctionFlags::kNone;
+    }
 
     DEFINE_OP_CLASS_ID
 
@@ -487,16 +490,17 @@ __attribute__((no_sanitize("float-cast-overflow")))
     static constexpr int kMaxTextures = TextureGeometryProcessor::kMaxTextures;
 
     TextureOp(sk_sp<GrTextureProxy> proxy, GrSamplerState::Filter filter, GrColor color,
-              const SkRect& srcRect, const SkRect& dstRect, GrAA aa, const SkMatrix& viewMatrix,
-              sk_sp<GrColorSpaceXform> csxf, bool allowSRGBInputs)
+              const SkRect& srcRect, const SkRect& dstRect, GrAAType aaType,
+              const SkMatrix& viewMatrix, sk_sp<GrColorSpaceXform> csxf, bool allowSRGBInputs)
             : INHERITED(ClassID())
             , fColorSpaceXform(std::move(csxf))
             , fProxy0(proxy.release())
             , fFilter0(filter)
             , fProxyCnt(1)
-            , fAA(aa == GrAA::kYes ? 1 : 0)
+            , fAAType(static_cast<unsigned>(aaType))
             , fFinalized(0)
             , fAllowSRGBInputs(allowSRGBInputs ? 1 : 0) {
+        SkASSERT(aaType != GrAAType::kMixedSamples);
         Draw& draw = fDraws.push_back();
         draw.fSrcRect = srcRect;
         draw.fTextureIdx = 0;
@@ -520,14 +524,22 @@ __attribute__((no_sanitize("float-cast-overflow")))
             proxiesSPs[i] = sk_ref_sp(proxies[i]);
         }
 
+        bool coverageAA = GrAAType::kCoverage == this->aaType();
         sk_sp<GrGeometryProcessor> gp =
                 TextureGeometryProcessor::Make(proxiesSPs, fProxyCnt, std::move(fColorSpaceXform),
-                                               this->aa(), filters, *target->caps().shaderCaps());
+                                               coverageAA, filters, *target->caps().shaderCaps());
         GrPipeline::InitArgs args;
         args.fProxy = target->proxy();
         args.fCaps = &target->caps();
         args.fResourceProvider = target->resourceProvider();
-        args.fFlags = fAllowSRGBInputs ? GrPipeline::kAllowSRGBInputs_Flag : 0;
+        args.fFlags = 0;
+        if (fAllowSRGBInputs) {
+            args.fFlags |= GrPipeline::kAllowSRGBInputs_Flag;
+        }
+        if (GrAAType::kMSAA == this->aaType()) {
+            args.fFlags |= GrPipeline::kHWAntialias_Flag;
+        }
+
         const GrPipeline* pipeline = target->allocPipeline(args, GrProcessorSet::MakeEmptySet(),
                                                            target->detachAppliedClip());
         int vstart;
@@ -543,7 +555,7 @@ __attribute__((no_sanitize("float-cast-overflow")))
             GrTexture* texture = proxies[0]->priv().peekTexture();
             float iw = 1.f / texture->width();
             float ih = 1.f / texture->height();
-            if (GrAA::kYes == this->aa()) {
+            if (coverageAA) {
                 SkASSERT(gp->getVertexStride() == sizeof(TextureGeometryProcessor::AAVertex));
                 auto vertices = static_cast<TextureGeometryProcessor::AAVertex*>(vdata);
                 for (int i = 0; i < fDraws.count(); ++i) {
@@ -569,7 +581,7 @@ __attribute__((no_sanitize("float-cast-overflow")))
                 iw[t] = 1.f / textures[t]->width();
                 ih[t] = 1.f / textures[t]->height();
             }
-            if (GrAA::kYes == this->aa()) {
+            if (coverageAA) {
                 SkASSERT(gp->getVertexStride() ==
                          sizeof(TextureGeometryProcessor::AAMultiTextureVertex));
                 auto vertices = static_cast<TextureGeometryProcessor::AAMultiTextureVertex*>(vdata);
@@ -618,7 +630,7 @@ __attribute__((no_sanitize("float-cast-overflow")))
         if (!GrColorSpaceXform::Equals(fColorSpaceXform.get(), that->fColorSpaceXform.get())) {
             return false;
         }
-        if (this->fAA != that->fAA) {
+        if (this->aaType() != that->aaType()) {
             return false;
         }
         // Because of an issue where GrColorSpaceXform adds the same function every time it is used
@@ -735,7 +747,7 @@ __attribute__((no_sanitize("float-cast-overflow")))
         return newProxyCnt;
     }
 
-    GrAA aa() const { return static_cast<GrAA>(fAA); }
+    GrAAType aaType() const { return static_cast<GrAAType>(fAAType); }
 
     GrTextureProxy* const* proxies() const { return fProxyCnt > 1 ? fProxyArray : &fProxy0; }
 
@@ -764,7 +776,7 @@ __attribute__((no_sanitize("float-cast-overflow")))
     size_t fMaxApproxDstPixelArea;
     GrSamplerState::Filter fFilter0;
     uint8_t fProxyCnt;
-    unsigned fAA : 1;
+    unsigned fAAType : 2;
     // Used to track whether fProxy is ref'ed or has a pending IO after finalize() is called.
     unsigned fFinalized : 1;
     unsigned fAllowSRGBInputs : 1;
@@ -780,11 +792,11 @@ constexpr int TextureOp::kMaxTextures;
 namespace GrTextureOp {
 
 std::unique_ptr<GrDrawOp> Make(sk_sp<GrTextureProxy> proxy, GrSamplerState::Filter filter,
-                               GrColor color, const SkRect& srcRect, const SkRect& dstRect, GrAA aa,
-                               const SkMatrix& viewMatrix, sk_sp<GrColorSpaceXform> csxf,
-                               bool allowSRGBInputs) {
+                               GrColor color, const SkRect& srcRect, const SkRect& dstRect,
+                               GrAAType aaType, const SkMatrix& viewMatrix,
+                               sk_sp<GrColorSpaceXform> csxf, bool allowSRGBInputs) {
     SkASSERT(!viewMatrix.hasPerspective());
-    return TextureOp::Make(std::move(proxy), filter, color, srcRect, dstRect, aa, viewMatrix,
+    return TextureOp::Make(std::move(proxy), filter, color, srcRect, dstRect, aaType, viewMatrix,
                            std::move(csxf), allowSRGBInputs);
 }
 
@@ -818,8 +830,11 @@ GR_DRAW_OP_TEST_DEFINE(TextureOp) {
             static_cast<uint32_t>(GrSamplerState::Filter::kMipMap) + 1);
     auto csxf = GrTest::TestColorXform(random);
     bool allowSRGBInputs = random->nextBool();
-    GrAA aa = GrAA(random->nextBool());
-    return GrTextureOp::Make(std::move(proxy), filter, color, srcRect, rect, aa, viewMatrix,
+    GrAAType aaType = GrAAType::kNone;
+    if (random->nextBool()) {
+        aaType = (fsaaType == GrFSAAType::kUnifiedMSAA) ? GrAAType::kMSAA : GrAAType::kCoverage;
+    }
+    return GrTextureOp::Make(std::move(proxy), filter, color, srcRect, rect, aaType, viewMatrix,
                              std::move(csxf), allowSRGBInputs);
 }
 

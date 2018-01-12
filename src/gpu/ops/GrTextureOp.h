@@ -7,6 +7,7 @@
 
 #include "GrColor.h"
 #include "GrSamplerState.h"
+#include "GrTypesPriv.h"
 #include "SkRefCnt.h"
 
 class GrColorSpaceXform;
@@ -23,7 +24,7 @@ namespace GrTextureOp {
  * space. 'viewMatrix' must be affine.
  */
 std::unique_ptr<GrDrawOp> Make(sk_sp<GrTextureProxy>, GrSamplerState::Filter, GrColor,
-                               const SkRect& srcRect, const SkRect& dstRect, GrAA aa,
+                               const SkRect& srcRect, const SkRect& dstRect, GrAAType,
                                const SkMatrix& viewMatrix, sk_sp<GrColorSpaceXform>,
                                bool allowSRGBInputs);
 }

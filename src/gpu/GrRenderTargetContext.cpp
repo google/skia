@@ -783,11 +783,11 @@ void GrRenderTargetContext::drawTextureAffine(const GrClip& clip, sk_sp<GrTextur
                           &clippedSrcRect)) {
         return;
     }
-
+    GrAAType aaType = this->chooseAAType(aa, GrAllowMixedSamples::kNo);
     bool allowSRGB = SkToBool(this->colorSpaceInfo().colorSpace());
     this->addDrawOp(
             clip, GrTextureOp::Make(std::move(proxy), filter, color, clippedSrcRect, clippedDstRect,
-                                    aa, viewMatrix, std::move(colorSpaceXform), allowSRGB));
+                                    aaType, viewMatrix, std::move(colorSpaceXform), allowSRGB));
 }
 
 void GrRenderTargetContext::fillRectWithLocalMatrix(const GrClip& clip,
