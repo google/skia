@@ -132,6 +132,8 @@ void GrTextureProxy::setUniqueKey(GrProxyProvider* proxyProvider, const GrUnique
     if (fTarget && !fTarget->getUniqueKey().isValid()) {
         fTarget->resourcePriv().setUniqueKey(key);
         SkASSERT(fTarget->getUniqueKey() == key);
+    } else if (fTarget) {
+        SkASSERT(fTarget->getUniqueKey() == key);
     }
 
     fUniqueKey = key;
