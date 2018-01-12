@@ -1059,42 +1059,6 @@ DEF_TEST(SkSLFragCoord, r) {
          "}\n",
          &inputs);
     REPORTER_ASSERT(r, !inputs.fRTHeight);
-
-    test(r,
-         "in float4 pos; void main() { sk_Position = pos; }",
-         *SkSL::ShaderCapsFactory::CannotUseFragCoord(),
-         "#version 400\n"
-         "out vec4 sk_FragCoord_Workaround;\n"
-         "in vec4 pos;\n"
-         "void main() {\n"
-         "    sk_FragCoord_Workaround = (gl_Position = pos);\n"
-         "}\n",
-         SkSL::Program::kVertex_Kind);
-
-    test(r,
-         "in uniform float4 sk_RTAdjust; in float4 pos; void main() { sk_Position = pos; }",
-         *SkSL::ShaderCapsFactory::CannotUseFragCoord(),
-         "#version 400\n"
-         "out vec4 sk_FragCoord_Workaround;\n"
-         "in uniform vec4 sk_RTAdjust;\n"
-         "in vec4 pos;\n"
-         "void main() {\n"
-         "    sk_FragCoord_Workaround = (gl_Position = pos);\n"
-         "    gl_Position = vec4(gl_Position.x * sk_RTAdjust.x + gl_Position.w * sk_RTAdjust.y, "
-              "gl_Position.y * sk_RTAdjust.z + gl_Position.w * sk_RTAdjust.w, 0, gl_Position.w);\n"
-         "}\n",
-         SkSL::Program::kVertex_Kind);
-
-    test(r,
-         "void main() { sk_FragColor.xy = sk_FragCoord.xy; }",
-         *SkSL::ShaderCapsFactory::CannotUseFragCoord(),
-         "#version 400\n"
-         "in vec4 sk_FragCoord_Workaround;\n"
-         "out vec4 sk_FragColor;\n"
-         "void main() {\n"
-         "    sk_FragColor.xy = vec4(sk_FragCoord_Workaround.xyz / sk_FragCoord_Workaround.w, "
-             "1.0 / sk_FragCoord_Workaround.w).xy;\n"
-         "}\n");
 }
 
 DEF_TEST(SkSLVertexID, r) {
