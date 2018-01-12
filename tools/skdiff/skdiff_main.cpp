@@ -330,10 +330,16 @@ public:
         SkASSERT(drp != nullptr);
     }
     ~AutoReleasePixels() {
+#if 0
         fDrp->fBase.fBitmap.setPixelRef(nullptr, 0, 0);
         fDrp->fComparison.fBitmap.setPixelRef(nullptr, 0, 0);
         fDrp->fDifference.fBitmap.setPixelRef(nullptr, 0, 0);
         fDrp->fWhite.fBitmap.setPixelRef(nullptr, 0, 0);
+#endif
+        fDrp->fBase.fBitmap.reset();
+        fDrp->fComparison.fBitmap.reset();
+        fDrp->fDifference.fBitmap.reset();
+        fDrp->fWhite.fBitmap.reset();
     }
 
 private:
