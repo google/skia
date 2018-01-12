@@ -13,12 +13,18 @@ SkIPoint Reference
 | topics | description |
 | --- | ---  |
 
+## <a name="Constructors"></a> Constructors
+
+| name | description |
+| --- | ---  |
+| <a href="#SkIPoint_Make">Make</a> | Constructs from integer inputs. |
+
 ## <a name="Operators"></a> Operators
 
-| description | function |
+| name | description |
 | --- | ---  |
-| <a href="#SkIPoint">SkIPoint</a> <a href="#SkIPoint_minus_operator">operator-() const</a> | Reverses sign of <a href="#IPoint">IPoint</a>. |
 | <a href="#SkIPoint">SkIPoint</a> <a href="#SkIPoint_add_operator">operator+(const SkIPoint& a, const SkIVector& b)</a> | Returns <a href="#IPoint">IPoint</a> offset by <a href="SkIPoint_Reference#IVector">IVector</a>. |
+| <a href="#SkIPoint">SkIPoint</a> <a href="#SkIPoint_minus_operator">operator-() const</a> | Reverses sign of <a href="#IPoint">IPoint</a>. |
 | <a href="SkIPoint_Reference#SkIVector">SkIVector</a> <a href="#SkIPoint_subtract_operator">operator-(const SkIPoint& a, const SkIPoint& b)</a> | Returns <a href="SkIPoint_Reference#IVector">IVector</a> between <a href="#IPoint">IPoints</a>. |
 | bool <a href="#SkIPoint_notequal_operator">operator!=(const SkIPoint& a, const SkIPoint& b)</a> | Returns true if <a href="#IPoint">IPoints</a> are unequal. |
 | bool <a href="#SkIPoint_equal_operator">operator==(const SkIPoint& a, const SkIPoint& b)</a> | Returns true if <a href="#IPoint">IPoints</a> are equal. |
@@ -27,7 +33,7 @@ SkIPoint Reference
 
 ## <a name="Member_Functions"></a> Member Functions
 
-| description | function |
+| name | description |
 | --- | ---  |
 | <a href="#SkIPoint_Make">Make</a> | Constructs from integer inputs. |
 | <a href="#SkIPoint_equals">equals</a> | Returns true if members are equal. |

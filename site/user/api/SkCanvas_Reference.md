@@ -29,12 +29,12 @@ This approach may be deprecated in the future.
 
 ## <a name="Subtopics"></a> Subtopics
 
-| topics | description |
+| name | description |
 | --- | ---  |
 
 ## <a name="Constants"></a> Constants
 
-| constants | description |
+| name | description |
 | --- | ---  |
 | Lattice::Flags | Controls <a href="#SkCanvas_Lattice">Lattice</a> transparency. |
 | <a href="#SkCanvas_PointMode">PointMode</a> | Sets <a href="#SkCanvas_drawPoints">drawPoints</a> options. |
@@ -43,7 +43,7 @@ This approach may be deprecated in the future.
 
 ## <a name="Structs"></a> Structs
 
-| struct | description |
+| name | description |
 | --- | ---  |
 | <a href="#SkCanvas_Lattice">Lattice</a> | Divides <a href="SkBitmap_Reference#Bitmap">Bitmap</a>, <a href="SkImage_Reference#Image">Image</a> into a rectangular grid. |
 | <a href="#SkCanvas_SaveLayerRec">SaveLayerRec</a> | Contains state to create <a href="#Layer">Layer</a>. |
@@ -53,20 +53,24 @@ This approach may be deprecated in the future.
 Create the desired type of <a href="SkSurface_Reference#Surface">Surface</a> to obtain its <a href="#Canvas">Canvas</a> when possible. <a href="#Overview_Constructors">Constructors</a> are useful
 when no <a href="SkSurface_Reference#Surface">Surface</a> is required, and some helpers implicitly create <a href="undocumented#Raster_Surface">Raster Surface</a>.
 
-|  | description |
+| name | description |
 | --- | ---  |
-| <a href="#SkCanvas_empty_constructor">SkCanvas()</a> | No <a href="SkSurface_Reference#Surface">Surface</a>, no dimensions. |
-| <a href="#SkCanvas_int_int_const_SkSurfaceProps_star">SkCanvas(int width, int height, const SkSurfaceProps* props = nullptr)</a> | No <a href="SkSurface_Reference#Surface">Surface</a>, set dimensions, <a href="undocumented#Surface_Properties">Surface Properties</a>. |
-| <a href="#SkCanvas_copy_SkBaseDevice_star">SkCanvas(SkBaseDevice* device)</a> | Existing <a href="undocumented#Device">Device</a>. (<a href="undocumented#SkBaseDevice">SkBaseDevice</a> is private.) |
-| <a href="#SkCanvas_copy_const_SkBitmap">SkCanvas(const SkBitmap& bitmap)</a> | Uses existing <a href="SkBitmap_Reference#Bitmap">Bitmap</a>. |
-| <a href="#SkCanvas_const_SkBitmap_const_SkSurfaceProps">SkCanvas(const SkBitmap& bitmap, const SkSurfaceProps& props)</a> | Uses existing <a href="SkBitmap_Reference#Bitmap">Bitmap</a> and <a href="undocumented#Surface_Properties">Surface Properties</a>. |
 | <a href="#SkCanvas_MakeRasterDirect">MakeRasterDirect</a> | Creates from <a href="undocumented#SkImageInfo">SkImageInfo</a> and <a href="#Storage">Pixel Storage</a>. |
 | <a href="#SkCanvas_MakeRasterDirectN32">MakeRasterDirectN32</a> | Creates from image data and <a href="#Storage">Pixel Storage</a>. |
+| <a href="#SkCanvas_empty_constructor">SkCanvas()</a> | No <a href="SkSurface_Reference#Surface">Surface</a>, no dimensions. |
+| <a href="#SkCanvas_copy_SkBaseDevice_star">SkCanvas(SkBaseDevice* device)</a> | Existing <a href="undocumented#Device">Device</a>. (<a href="undocumented#SkBaseDevice">SkBaseDevice</a> is private.) |
+| <a href="#SkCanvas_copy_const_SkBitmap">SkCanvas(const SkBitmap& bitmap)</a> | Uses existing <a href="SkBitmap_Reference#Bitmap">Bitmap</a>. |
+| <a href="#SkCanvas_const_SkBitmap">SkCanvas(const SkBitmap& bitmap, ColorBehavior behavior)</a> | Android framework only. |
+| <a href="#SkCanvas_const_SkBitmap_const_SkSurfaceProps">SkCanvas(const SkBitmap& bitmap, const SkSurfaceProps& props)</a> | Uses existing <a href="SkBitmap_Reference#Bitmap">Bitmap</a> and <a href="undocumented#Surface_Properties">Surface Properties</a>. |
+| <a href="#SkCanvas_int_int_const_SkSurfaceProps_star">SkCanvas(int width, int height, const SkSurfaceProps* props = nullptr)</a> | No <a href="SkSurface_Reference#Surface">Surface</a>, set dimensions, <a href="undocumented#Surface_Properties">Surface Properties</a>. |
+|  | Draws saved <a href="#Layer">Layers</a>, frees resources. |
 
 ## <a name="Member_Functions"></a> Member Functions
 
-| function | description |
+| name | description |
 | --- | ---  |
+| <a href="#SkCanvas_MakeRasterDirect">MakeRasterDirect</a> | Creates <a href="#Canvas">Canvas</a> from <a href="undocumented#SkImageInfo">SkImageInfo</a> and pixel data. |
+| <a href="#SkCanvas_MakeRasterDirectN32">MakeRasterDirectN32</a> | Creates <a href="#Canvas">Canvas</a> from image specifications and pixel data. |
 | <a href="#SkCanvas_accessTopLayerPixels">accessTopLayerPixels</a> | Returns writable pixel access if available. |
 | <a href="#SkCanvas_accessTopRasterHandle">accessTopRasterHandle</a> | Returns context that tracks <a href="#Clip">Clip</a> and <a href="#Matrix">Matrix</a>. |
 | <a href="#SkCanvas_clear">clear</a> | Fills <a href="#Clip">Clip</a> with <a href="undocumented#Color">Color</a>. |
@@ -106,12 +110,12 @@ when no <a href="SkSurface_Reference#Surface">Surface</a> is required, and some 
 | <a href="#SkCanvas_drawRect">drawRect</a> | Draws <a href="SkRect_Reference#Rect">Rect</a> using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and <a href="SkPaint_Reference#Paint">Paint</a>. |
 | <a href="#SkCanvas_drawRegion">drawRegion</a> | Draws <a href="undocumented#Region">Region</a> using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and <a href="SkPaint_Reference#Paint">Paint</a>. |
 | <a href="#SkCanvas_drawRoundRect">drawRoundRect</a> | Draws <a href="undocumented#Round_Rect">Round Rect</a> using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and <a href="SkPaint_Reference#Paint">Paint</a>. |
+| <a href="#SkCanvas_drawString">drawString</a> | Draws null terminated string at (x, y) using font advance. |
 | <a href="#SkCanvas_drawText">drawText</a> | Draws text at (x, y), using font advance. |
 | <a href="#SkCanvas_drawTextBlob">drawTextBlob</a> | Draws text with arrays of positions and <a href="SkPaint_Reference#Paint">Paint</a>. |
 | <a href="#SkCanvas_drawTextOnPath">drawTextOnPath</a> | Draws text following <a href="SkPath_Reference#Path">Path</a> contour. |
 | <a href="#SkCanvas_drawTextOnPathHV">drawTextOnPathHV</a> | Draws text following <a href="SkPath_Reference#Path">Path</a> with offsets. |
 | <a href="#SkCanvas_drawTextRSXform">drawTextRSXform</a> | Draws text with array of <a href="undocumented#RSXform">RSXform</a>. |
-| <a href="#SkCanvas_drawString">drawString</a> | Draws null terminated string at (x, y) using font advance. |
 | <a href="#SkCanvas_drawVertices">drawVertices</a> | Draws <a href="undocumented#Vertices">Vertices</a>, a triangle mesh. |
 | <a href="#SkCanvas_flush">flush</a> | Triggers execution of all pending draw operations. |
 | <a href="#SkCanvas_getBaseLayerSize">getBaseLayerSize</a> | Gets size of base <a href="#Layer">Layer</a> in global coordinates. |
@@ -126,8 +130,6 @@ when no <a href="SkSurface_Reference#Surface">Surface</a> is required, and some 
 | <a href="#SkCanvas_imageInfo">imageInfo</a> | Returns <a href="undocumented#Image_Info">Image Info</a> for <a href="#Canvas">Canvas</a>. |
 | <a href="#SkCanvas_isClipEmpty">isClipEmpty</a> | Returns if <a href="#Clip">Clip</a> is empty. |
 | <a href="#SkCanvas_isClipRect">isClipRect</a> | Returns if <a href="#Clip">Clip</a> is <a href="SkRect_Reference#Rect">Rect</a> and not empty. |
-| <a href="#SkCanvas_MakeRasterDirect">MakeRasterDirect</a> | Creates <a href="#Canvas">Canvas</a> from <a href="undocumented#SkImageInfo">SkImageInfo</a> and pixel data. |
-| <a href="#SkCanvas_MakeRasterDirectN32">MakeRasterDirectN32</a> | Creates <a href="#Canvas">Canvas</a> from image specifications and pixel data. |
 | <a href="#SkCanvas_makeSurface">makeSurface</a> | Creates <a href="SkSurface_Reference#Surface">Surface</a> matching <a href="undocumented#SkImageInfo">SkImageInfo</a> and <a href="undocumented#SkSurfaceProps">SkSurfaceProps</a>. |
 | <a href="#SkCanvas_peekPixels">peekPixels</a> | Returns if <a href="#Canvas">Canvas</a> has direct access to its pixels. |
 | <a href="#SkCanvas_quickReject">quickReject</a> | Returns if <a href="SkRect_Reference#Rect">Rect</a> is outside <a href="#Clip">Clip</a>. |
@@ -550,8 +552,8 @@ device independent fonts</td>
 virtual ~SkCanvas()
 </pre>
 
-Draw saved <a href="#Layer">Layers</a>, if any.
-Free up resources used by <a href="#Canvas">Canvas</a>.
+Draws saved <a href="#Layer">Layers</a>, if any.
+Frees up resources used by <a href="#Canvas">Canvas</a>.
 
 ### Example
 
@@ -5714,93 +5716,6 @@ clip is not rect
 ### See Also
 
 <a href="#SkCanvas_isClipEmpty">isClipEmpty</a> <a href="#SkCanvas_getLocalClipBounds">getLocalClipBounds</a> <a href="#SkCanvas_getDeviceClipBounds">getDeviceClipBounds</a>
-
----
-
-# <a name="SkAutoCanvasRestore"></a> Class SkAutoCanvasRestore
-Stack helper class calls
-
-<a name="SkAutoCanvasRestore_SkCanvas_star"></a>
-## SkAutoCanvasRestore
-
-<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-SkAutoCanvasRestore(SkCanvas* canvas, bool doSave)
-</pre>
-
-Preserves <a href="#Canvas">Canvas</a> save count. Optionally saves <a href="#Canvas">Canvas</a> <a href="#Clip">Clip</a> and <a href="#Matrix">Matrix</a>.
-
-### Parameters
-
-<table>  <tr>    <td><a name="SkAutoCanvasRestore_SkCanvas_star_canvas"> <code><strong>canvas </strong></code> </a></td> <td>
-<a href="#Canvas">Canvas</a> to guard</td>
-  </tr>  <tr>    <td><a name="SkAutoCanvasRestore_SkCanvas_star_doSave"> <code><strong>doSave </strong></code> </a></td> <td>
-call <a href="#SkCanvas_save">SkCanvas::save()</a></td>
-  </tr>
-</table>
-
-### Return Value
-
-utility to <a href="#SkAutoCanvasRestore_restore">restore</a> <a href="#Canvas">Canvas</a> state on destructor
-
-### Example
-
-<div><fiddle-embed name="466ef576b88e29d7252422db7adeed1c"></fiddle-embed></div>
-
-### See Also
-
-<a href="#SkCanvas_save">SkCanvas::save</a> <a href="#SkCanvas_restore">SkCanvas::restore</a>
-
----
-
-<a name="SkAutoCanvasRestore_destructor"></a>
-## ~SkAutoCanvasRestore
-
-<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-~SkAutoCanvasRestore()
-</pre>
-
-Restores <a href="#Canvas">Canvas</a> to saved state. Destructor is called when container goes out of
-scope.
-
-### See Also
-
-<a href="#SkCanvas_save">SkCanvas::save</a> <a href="#SkCanvas_restore">SkCanvas::restore</a>
-
----
-
-<a name="SkAutoCanvasRestore_restore"></a>
-## restore
-
-<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-void restore()
-</pre>
-
-Restores <a href="#Canvas">Canvas</a> to saved state immediately. Subsequent calls and
-<a href="#SkAutoCanvasRestore_destructor">~SkAutoCanvasRestore</a> have no effect.
-
-### Example
-
-<div><fiddle-embed name="9f459b218ec079c1ada23f4412968f9a">
-
-#### Example Output
-
-~~~~
-saveCanvas: false  before restore: 2
-saveCanvas: false  after restore: 2
-saveCanvas: true  before restore: 2
-saveCanvas: true  after restore: 2
-saveCanvas: false  before restore: 2
-saveCanvas: false  after restore: 1
-saveCanvas: true  before restore: 2
-saveCanvas: true  after restore: 1
-final count: 1
-~~~~
-
-</fiddle-embed></div>
-
-### See Also
-
-<a href="#SkCanvas_save">SkCanvas::save</a> <a href="#SkCanvas_restore">SkCanvas::restore</a>
 
 ---
 
