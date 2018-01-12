@@ -188,6 +188,7 @@ public:
     using LazyInstantiateCallback = std::function<sk_sp<GrTexture>(GrResourceProvider*,
                                                                    GrSurfaceOrigin* outOrigin)>;
 
+#if 0
     enum class Renderable : bool {
         kNo = false,
         kYes = true
@@ -199,6 +200,7 @@ public:
      * DDL TODO: remove this entry point
      */
     static sk_sp<GrTextureProxy> MakeLazy(LazyInstantiateCallback&&, Renderable, GrPixelConfig);
+#endif
 
     GrPixelConfig config() const { return fConfig; }
     int width() const { SkASSERT(!this->isPendingLazyInstantiation()); return fWidth; }

@@ -128,6 +128,18 @@ public:
                                                          GrSurfaceOrigin origin,
                                                          int sampleCnt);
 
+    using LazyInstantiateCallback = std::function<sk_sp<GrTexture>(GrResourceProvider*,
+                                                                   GrSurfaceOrigin* outOrigin)>;
+
+    enum class Renderable : bool { kNo = false, kYes = true };
+
+    /**
+     * Creates a texture proxy that will be instantiated by a user-supplied callback during flush.
+     * (Mipmapping, MSAA, and stencil are not supported by this method.)
+     * DDL TODO: remove this entry point
+     */
+    sk_sp<GrTextureProxy> createLazy(LazyInstantiateCallback&&, Renderable, GrPixelConfig);
+
     // 'proxy' is about to be used as a texture src or drawn to. This query can be used to
     // determine if it is going to need a texture domain or a full clear.
     static bool IsFunctionallyExact(GrSurfaceProxy* proxy);
