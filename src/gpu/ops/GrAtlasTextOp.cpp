@@ -233,9 +233,12 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
         flushInfo.fGeometryProcessor = this->setupDfProcessor();
         SkDEBUGCODE(dfPerspective = fGeoData[0].fViewMatrix.hasPerspective());
     } else {
+        const GrSamplerState& samplerState = kARGB_GrMaskFormat == maskFormat ?
+                                             GrSamplerState::ClampBilerp() :
+                                             GrSamplerState::ClampNearest();
         flushInfo.fGeometryProcessor = GrBitmapTextGeoProc::Make(
-            this->color(), proxies, GrSamplerState::ClampNearest(), maskFormat,
-            localMatrix, this->usesLocalCoords());
+            this->color(), proxies, samplerState, maskFormat, localMatrix,
+            this->usesLocalCoords());
     }
 
     flushInfo.fGlyphsToFlush = 0;
