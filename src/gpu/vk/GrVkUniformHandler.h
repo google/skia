@@ -20,6 +20,8 @@ public:
         kUniformBufferDescSet = 0,
         kSamplerDescSet = 1,
         kTexelBufferDescSet = 2,
+        kInputAttachmentDescSet = 3,
+        kNumDescSets
     };
     enum {
         kGeometryBinding = 0,

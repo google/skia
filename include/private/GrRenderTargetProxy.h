@@ -35,6 +35,9 @@ public:
                                                              : GrFSAAType::kUnifiedMSAA;
     }
 
+    void setNeedsCoverageCount() { fNeedsCoverageCount = true; }
+    bool needsCoverageCount() const { return fNeedsCoverageCount; }
+
     /*
      * When instantiated does this proxy require a stencil buffer?
      */
@@ -81,6 +84,7 @@ private:
 
     int                 fSampleCnt;
     bool                fNeedsStencil;
+    bool                fNeedsCoverageCount = false;
 
     // For wrapped render targets the actual GrRenderTarget is stored in the GrIORefProxy class.
     // For deferred proxies that pointer is filled in when we need to instantiate the

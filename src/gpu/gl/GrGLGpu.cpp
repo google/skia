@@ -1854,7 +1854,8 @@ bool GrGLGpu::flushGLState(const GrPipeline& pipeline, const GrPrimitiveProcesso
 
     // This must come after textures are flushed because a texture may need
     // to be msaa-resolved (which will modify bound FBO state).
-    this->flushRenderTarget(glRT, nullptr, pipeline.getDisableOutputConversionToSRGB());
+    this->flushRenderTarget(glRT, nullptr, pipeline.drawBuffer(),
+                            pipeline.getDisableOutputConversionToSRGB());
 
     return true;
 }
@@ -1987,6 +1988,7 @@ void GrGLGpu::clear(const GrFixedClip& clip, GrColor color,
 
     GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(target);
 
+    // TODO: drawbuffer
     this->flushRenderTarget(glRT, clip.scissorEnabled() ? &clip.scissorRect() : nullptr);
     this->flushScissor(clip.scissorState(), glRT->getViewport(), origin);
     this->flushWindowRectangles(clip.windowRectsState(), glRT, origin);
@@ -2002,6 +2004,36 @@ void GrGLGpu::clear(const GrFixedClip& clip, GrColor color,
     }
     GL_CALL(ClearColor(r, g, b, a));
     GL_CALL(Clear(GR_GL_COLOR_BUFFER_BIT));
+}
+
+void GrGLGpu::clearCoverageCountBuffer(GrRenderTarget* rt, const SkIRect* clearRect,
+                                       GrSurfaceOrigin origin) {
+    SkASSERT(rt);
+
+    this->handleDirtyContext();
+
+    GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(rt);
+
+    this->flushRenderTarget(glRT, clearRect, GrDrawBuffer::kCoverageCount);
+    if (clearRect) {
+        this->flushScissor(GrScissorState(*clearRect), glRT->getViewport(), origin);
+    } else {
+        this->disableScissor();
+    }
+    this->disableWindowRectangles();
+
+    GL_CALL(ColorMask(GR_GL_TRUE, GR_GL_TRUE, GR_GL_TRUE, GR_GL_TRUE));
+    fHWWriteToColor = kYes_TriState;
+
+    GrGLfloat zero = 0;
+    GL_CALL(ClearBufferfv(GR_GL_COLOR, 1, &zero));
+}
+
+void GrGLGpu::discardCoverageCountBuffer(GrRenderTarget* rt) {
+    GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(rt);
+    this->flushRenderTarget(glRT, nullptr);
+    GrGLenum attachment1 = GR_GL_COLOR_ATTACHMENT1;
+    GL_CALL(InvalidateFramebuffer(GR_GL_FRAMEBUFFER, 1, &attachment1));
 }
 
 void GrGLGpu::clearStencil(GrRenderTarget* target, int clearValue) {
@@ -2496,7 +2528,8 @@ GrGpuTextureCommandBuffer* GrGLGpu::createCommandBuffer(GrTexture* texture,
     return new GrGLGpuTextureCommandBuffer(this, texture, origin);
 }
 
-void GrGLGpu::flushRenderTarget(GrGLRenderTarget* target, const SkIRect* bounds, bool disableSRGB) {
+void GrGLGpu::flushRenderTarget(GrGLRenderTarget* target, const SkIRect* bounds,
+                                GrDrawBuffer drawBuffer, bool disableSRGB) {
     SkASSERT(target);
 
     GrGpuResource::UniqueID rtID = target->uniqueID();
@@ -2518,6 +2551,28 @@ void GrGLGpu::flushRenderTarget(GrGLRenderTarget* target, const SkIRect* bounds,
 #endif
         fHWBoundRenderTargetUniqueID = rtID;
         this->flushViewport(target->getViewport());
+    }
+
+    if (target->getCachedDrawBuffer() != drawBuffer) {
+        GrGLenum attachments[2];
+        switch (drawBuffer) {
+            case GrDrawBuffer::kColor:
+                attachments[0] = GR_GL_COLOR_ATTACHMENT0;
+                attachments[1] = GR_GL_NONE;
+                break;
+            case GrDrawBuffer::kCoverageCount:
+                attachments[0] = GR_GL_NONE;
+                attachments[1] = GR_GL_COLOR_ATTACHMENT1;
+                GL_CALL(Enablei(GR_GL_BLEND, 1));
+                break;
+            case GrDrawBuffer::kBoth:
+                attachments[0] = GR_GL_COLOR_ATTACHMENT0;
+                attachments[1] = GR_GL_COLOR_ATTACHMENT1;
+                GL_CALL(Disablei(GR_GL_BLEND, 1));
+                break;
+        }
+        GL_CALL(DrawBuffers(2, attachments));
+        target->setCachedDrawBuffer(drawBuffer);
     }
 
     if (this->glCaps().srgbWriteControl()) {

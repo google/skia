@@ -31,7 +31,8 @@ namespace GrVkMemory {
     bool AllocAndBindImageMemory(const GrVkGpu* gpu,
                                  VkImage image,
                                  bool linearTiling,
-                                 GrVkAlloc* alloc);
+                                 GrVkAlloc* alloc,
+                                 VkMemoryPropertyFlags);
     void FreeImageMemory(const GrVkGpu* gpu, bool linearTiling, const GrVkAlloc& alloc);
 
     VkPipelineStageFlags LayoutToPipelineStageFlags(const VkImageLayout layout);

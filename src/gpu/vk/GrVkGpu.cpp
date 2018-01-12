@@ -1218,6 +1218,13 @@ GrBackendTexture GrVkGpu::createTestingOnlyBackendTexture(void* srcData, int w, 
                                 ? VK_IMAGE_LAYOUT_PREINITIALIZED
                                 : VK_IMAGE_LAYOUT_UNDEFINED;
 
+    VkMemoryPropertyFlags memProps;
+    if (linearTiling) {
+        memProps = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_CACHED_BIT;
+    } else {
+        memProps = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
+    }
+
     // Create Image
     VkSampleCountFlagBits vkSamples;
     if (!GrSampleCountToVkSampleCount(1, &vkSamples)) {
@@ -1250,7 +1257,7 @@ GrBackendTexture GrVkGpu::createTestingOnlyBackendTexture(void* srcData, int w, 
 
     GR_VK_CALL_ERRCHECK(this->vkInterface(), CreateImage(this->device(), &imageCreateInfo, nullptr, &image));
 
-    if (!GrVkMemory::AllocAndBindImageMemory(this, image, linearTiling, &alloc)) {
+    if (!GrVkMemory::AllocAndBindImageMemory(this, image, linearTiling, &alloc, memProps)) {
         VK_CALL(DestroyImage(this->device(), image, nullptr));
         return GrBackendTexture(); // invalid
     }
@@ -2118,10 +2125,15 @@ void GrVkGpu::submitSecondaryCommandBuffer(const SkTArray<GrVkSecondaryCommandBu
         SkASSERT(1 == index);
     }
 #endif
-    VkClearValue clears[2];
+    VkClearValue clears[3];
     clears[0].color = colorClear->color;
-    clears[1].depthStencil.depth = 0.0f;
-    clears[1].depthStencil.stencil = 0;
+    memset(&clears[1].color, 0, sizeof(clears[1].color));
+    // clears[1].color.float32[0] = .5;
+    // clears[1].color.float32[1] = .5;
+    // clears[1].color.float32[2] = .5;
+    // clears[1].color.float32[3] = .5;
+    clears[2].depthStencil.depth = 0.0f;
+    clears[2].depthStencil.stencil = 0;
 
     fCurrentCmdBuffer->beginRenderPass(this, renderPass, clears, *target, *pBounds, true);
     for (int i = 0; i < buffers.count(); ++i) {

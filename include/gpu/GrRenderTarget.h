@@ -130,12 +130,21 @@ private:
     // stencil attachment.
     virtual bool completeStencilAttachment() = 0;
 
+    virtual bool onAttachCoverageCountBuffer() { return false; }
+
     friend class GrRenderTargetPriv;
 
-    int                  fSampleCnt;
+    enum class HasCoverageCountBuffer {
+        kNo,
+        kYes,
+        kTriedAndFailed
+    };
+
+    int fSampleCnt;
     GrStencilAttachment* fStencilAttachment;
-    uint8_t              fMultisampleSpecsID;
-    GrRenderTargetFlags  fFlags;
+    HasCoverageCountBuffer fHasCoverageCountBuffer = HasCoverageCountBuffer::kNo;
+    uint8_t fMultisampleSpecsID;
+    GrRenderTargetFlags fFlags;
 
     SkIRect              fResolveRect;
 

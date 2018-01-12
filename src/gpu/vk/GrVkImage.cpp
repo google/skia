@@ -59,6 +59,7 @@ void GrVkImage::setImageLayout(const GrVkGpu* gpu, VkImageLayout newLayout,
         { aspectFlags, 0, fInfo.fLevelCount, 0, 1 }      // subresourceRange
     };
 
+//    SkDebugf("calling addImageBarrier with: %d\n", fInfo.fImage);
     gpu->addImageMemoryBarrier(srcStageMask, dstStageMask, byRegion, &imageMemoryBarrier);
 
     fInfo.fImageLayout = newLayout;
@@ -109,7 +110,7 @@ bool GrVkImage::InitImageInfo(const GrVkGpu* gpu, const ImageDesc& imageDesc, Gr
     GR_VK_CALL_ERRCHECK(gpu->vkInterface(), CreateImage(gpu->device(), &imageCreateInfo, nullptr,
                                                         &image));
 
-    if (!GrVkMemory::AllocAndBindImageMemory(gpu, image, isLinear, &alloc)) {
+    if (!GrVkMemory::AllocAndBindImageMemory(gpu, image, isLinear, &alloc, imageDesc.fMemProps)) {
         VK_CALL(gpu, DestroyImage(gpu->device(), image, nullptr));
         return false;
     }

@@ -127,8 +127,11 @@ private:
                                        int baseInstance) final;
 
     void onClear(const GrFixedClip&, GrColor color) override;
-
     void onClearStencilClip(const GrFixedClip&, bool insideStencilMask) override;
+
+    void coverageCountReadBarrier() override;
+    void clearCoverageCountBuffer(const SkIRect&) override {}
+    void discardCoverageCountBuffer() override {}
 
     void addAdditionalCommandBuffer();
     void addAdditionalRenderPass();

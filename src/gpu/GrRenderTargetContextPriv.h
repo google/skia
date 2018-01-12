@@ -45,8 +45,7 @@ public:
 
     using CanClearFullscreen = GrRenderTargetContext::CanClearFullscreen;
 
-    void clear(const GrFixedClip&, const GrColor, CanClearFullscreen);
-
+    void clear(const GrFixedClip&, GrColor, CanClearFullscreen);
     void clearStencilClip(const GrFixedClip&, bool insideStencilMask);
 
     /*

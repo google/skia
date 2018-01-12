@@ -23,6 +23,7 @@ void setup_vk_attachment_description(VkAttachmentDescription* attachment,
     SkAssertResult(GrSampleCountToVkSampleCount(desc.fSamples, &attachment->samples));
     switch (layout) {
         case VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL:
+        case VK_IMAGE_LAYOUT_GENERAL:
             attachment->loadOp = desc.fLoadStoreOps.fLoadOp;
             attachment->storeOp = desc.fLoadStoreOps.fStoreOp;
             attachment->stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
@@ -60,7 +61,8 @@ void GrVkRenderPass::init(const GrVkGpu* gpu,
 
     // Refs to attachments on the render pass (as described by teh VkAttachmentDescription above),
     // that are used by the subpass.
-    VkAttachmentReference colorRef;
+    VkAttachmentReference colorRefs[2];
+    VkAttachmentReference inputRef;
     VkAttachmentReference stencilRef;
     uint32_t currentAttachment = 0;
 
@@ -74,8 +76,10 @@ void GrVkRenderPass::init(const GrVkGpu* gpu,
     subpassDesc.pInputAttachments = nullptr;
     subpassDesc.pResolveAttachments = nullptr;
 
+    subpassDesc.colorAttachmentCount = 0;
     if (fAttachmentFlags & kColor_AttachmentFlag) {
         // set up color attachment
+        VkAttachmentReference& colorRef = colorRefs[subpassDesc.colorAttachmentCount++];
         fAttachmentsDescriptor.fColor.fLoadStoreOps = colorOp;
         setup_vk_attachment_description(&attachments[currentAttachment],
                                         fAttachmentsDescriptor.fColor,
@@ -83,19 +87,44 @@ void GrVkRenderPass::init(const GrVkGpu* gpu,
         // setup subpass use of attachment
         colorRef.attachment = currentAttachment++;
         colorRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-        subpassDesc.colorAttachmentCount = 1;
 
         if (VK_ATTACHMENT_LOAD_OP_CLEAR == colorOp.fLoadOp) {
             fClearValueCount++;
         }
-    } else {
-        // I don't think there should ever be a time where we don't have a color attachment
-        SkASSERT(false);
-        colorRef.attachment = VK_ATTACHMENT_UNUSED;
-        colorRef.layout = VK_IMAGE_LAYOUT_UNDEFINED;
-        subpassDesc.colorAttachmentCount = 0;
     }
-    subpassDesc.pColorAttachments = &colorRef;
+
+    VkSubpassDependency ccdep;
+    if (fAttachmentFlags & kCoverageCount_AttachmentFlag) {
+        // set up cover att
+        VkAttachmentReference& coverageCountRef = colorRefs[subpassDesc.colorAttachmentCount++];
+        fAttachmentsDescriptor.fCoverageCount.fLoadStoreOps.fLoadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+        fAttachmentsDescriptor.fCoverageCount.fLoadStoreOps.fStoreOp =
+                VK_ATTACHMENT_STORE_OP_DONT_CARE;
+        setup_vk_attachment_description(&attachments[currentAttachment],
+                                        fAttachmentsDescriptor.fCoverageCount,
+                                        VK_IMAGE_LAYOUT_GENERAL);
+#if 1
+        // setup subpass use of attachment
+        coverageCountRef.attachment = currentAttachment++;
+        coverageCountRef.layout = VK_IMAGE_LAYOUT_GENERAL;
+        inputRef.attachment = coverageCountRef.attachment;
+        inputRef.layout = VK_IMAGE_LAYOUT_GENERAL;
+#else
+        currentAttachment++;
+#endif
+
+        ccdep.srcSubpass = ccdep.dstSubpass = 0;
+        ccdep.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+        ccdep.dstStageMask = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+        ccdep.dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
+        ccdep.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_INPUT_ATTACHMENT_READ_BIT;
+        ccdep.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+        fClearValueCount++;
+    }
+    // I don't think there should ever be a time where we don't have a color attachment
+    SkASSERT(subpassDesc.colorAttachmentCount);
+    subpassDesc.pColorAttachments = colorRefs;
+    subpassDesc.pInputAttachments = &inputRef;
 
     if (fAttachmentFlags & kStencil_AttachmentFlag) {
         // set up stencil attachment
@@ -131,7 +160,7 @@ void GrVkRenderPass::init(const GrVkGpu* gpu,
     createInfo.subpassCount = 1;
     createInfo.pSubpasses = &subpassDesc;
     createInfo.dependencyCount = 0;
-    createInfo.pDependencies = nullptr;
+    createInfo.pDependencies = (fAttachmentFlags & kCoverageCount_AttachmentFlag) ? &ccdep : 0;
 
     GR_VK_CALL_ERRCHECK(gpu->vkInterface(), CreateRenderPass(gpu->device(),
                                                              &createInfo,
@@ -201,6 +230,11 @@ bool GrVkRenderPass::isCompatible(const AttachmentsDescriptor& desc,
             return false;
         }
     }
+    if (fAttachmentFlags & kCoverageCount_AttachmentFlag) {
+        if (!fAttachmentsDescriptor.fCoverageCount.isCompatible(desc.fCoverageCount)) {
+            return false;
+        }
+    }
     if (fAttachmentFlags & kStencil_AttachmentFlag) {
         if (!fAttachmentsDescriptor.fStencil.isCompatible(desc.fStencil)) {
             return false;
@@ -234,6 +268,9 @@ bool GrVkRenderPass::equalLoadStoreOps(const LoadStoreOps& colorOps,
             return false;
         }
     }
+    if (fAttachmentFlags & kCoverageCount_AttachmentFlag) {
+        // TODO: fill this out
+    }
     return true;
 }
 
@@ -246,5 +283,8 @@ void GrVkRenderPass::genKey(GrProcessorKeyBuilder* b) const {
     if (fAttachmentFlags & kStencil_AttachmentFlag) {
         b->add32(fAttachmentsDescriptor.fStencil.fFormat);
         b->add32(fAttachmentsDescriptor.fStencil.fSamples);
+    }
+    if (fAttachmentFlags & kCoverageCount_AttachmentFlag) {
+        b->add32(fAttachmentsDescriptor.fCoverageCount.fFormat);
     }
 }

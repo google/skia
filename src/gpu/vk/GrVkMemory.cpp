@@ -142,7 +142,8 @@ static VkDeviceSize align_size(VkDeviceSize size, VkDeviceSize alignment) {
 bool GrVkMemory::AllocAndBindImageMemory(const GrVkGpu* gpu,
                                          VkImage image,
                                          bool linearTiling,
-                                         GrVkAlloc* alloc) {
+                                         GrVkAlloc* alloc,
+                                         VkMemoryPropertyFlags desiredMemProps) {
     const GrVkInterface* iface = gpu->vkInterface();
     VkDevice device = gpu->device();
 
@@ -154,8 +155,10 @@ bool GrVkMemory::AllocAndBindImageMemory(const GrVkGpu* gpu,
     GrVkHeap* heap;
     const VkPhysicalDeviceMemoryProperties& phDevMemProps = gpu->physicalDeviceMemoryProperties();
     if (linearTiling) {
+        /*
         VkMemoryPropertyFlags desiredMemProps = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
                                                 VK_MEMORY_PROPERTY_HOST_CACHED_BIT;
+                                                */
         if (!get_valid_memory_type_index(phDevMemProps,
                                          memReqs.memoryTypeBits,
                                          desiredMemProps,
@@ -174,11 +177,18 @@ bool GrVkMemory::AllocAndBindImageMemory(const GrVkGpu* gpu,
                                                                    : GrVkAlloc::kNoncoherent_Flag;
     } else {
         // this memory type should always be available
-        SkASSERT_RELEASE(get_valid_memory_type_index(phDevMemProps,
-                                                     memReqs.memoryTypeBits,
-                                                     VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-                                                     &typeIndex,
-                                                     &heapIndex));
+        if (!get_valid_memory_type_index(phDevMemProps,
+                                         memReqs.memoryTypeBits,
+                                         desiredMemProps,
+                                         &typeIndex,
+                                         &heapIndex)) {
+            SkDebugf("Falling back to device local and no lazy\n");
+            SkASSERT_RELEASE(get_valid_memory_type_index(phDevMemProps,
+                                                         memReqs.memoryTypeBits,
+                                                         VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+                                                         &typeIndex,
+                                                         &heapIndex));
+        }
         if (memReqs.size <= kMaxSmallImageSize) {
             heap = gpu->getHeap(GrVkGpu::kSmallOptimalImage_Heap);
         } else {
@@ -273,7 +283,8 @@ VkAccessFlags GrVkMemory::LayoutToSrcAccessMask(const VkImageLayout layout) {
     } else if (VK_IMAGE_LAYOUT_PREINITIALIZED == layout) {
         flags = VK_ACCESS_HOST_WRITE_BIT;
     } else if (VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL == layout) {
-        flags = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+        flags = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT |
+                VK_ACCESS_COLOR_ATTACHMENT_READ_BIT;
     } else if (VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL == layout) {
         flags = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
     } else if (VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL == layout) {

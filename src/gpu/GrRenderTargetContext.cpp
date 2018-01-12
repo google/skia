@@ -27,6 +27,7 @@
 #include "SkDrawShadowInfo.h"
 #include "SkGr.h"
 #include "SkLatticeIter.h"
+#include "SkMakeUnique.h"
 #include "SkMatrixPriv.h"
 #include "SkShadowUtils.h"
 #include "SkSurfacePriv.h"

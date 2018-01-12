@@ -67,6 +67,22 @@ struct Expression : public IRNode {
     }
 
     /**
+     * For an expression which evaluates to a constant int, returns the value. Otherwise calls
+     * ABORT.
+     */
+    virtual int64_t getConstantInt() const {
+        ABORT("not a constant int");
+    }
+
+    /**
+     * For an expression which evaluates to a constant float, returns the value. Otherwise calls
+     * ABORT.
+     */
+    virtual double getConstantFloat() const {
+        ABORT("not a constant float");
+    }
+
+    /**
      * Returns true if evaluating the expression potentially has side effects. Expressions may never
      * return false if they actually have side effects, but it is legal (though suboptimal) to
      * return true if there are not actually any side effects.

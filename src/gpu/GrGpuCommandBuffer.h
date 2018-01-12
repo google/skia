@@ -111,7 +111,6 @@ public:
      * Clear the owned render target. Ignores the draw state and clip.
      */
     void clear(const GrFixedClip&, GrColor);
-
     void clearStencilClip(const GrFixedClip&, bool insideStencilMask);
 
     /**
@@ -119,6 +118,10 @@ public:
      */
     // TODO: This should be removed in the future to favor using the load and store ops for discard
     virtual void discard() = 0;
+
+    virtual void coverageCountReadBarrier() = 0;
+    virtual void clearCoverageCountBuffer(const SkIRect&) = 0;
+    virtual void discardCoverageCountBuffer() = 0;
 
 protected:
     GrGpuRTCommandBuffer(GrRenderTarget* rt, GrSurfaceOrigin origin)
@@ -141,7 +144,6 @@ private:
 
     // overridden by backend-specific derived class to perform the clear.
     virtual void onClear(const GrFixedClip&, GrColor) = 0;
-
     virtual void onClearStencilClip(const GrFixedClip&, bool insideStencilMask) = 0;
 
     typedef GrGpuCommandBuffer INHERITED;

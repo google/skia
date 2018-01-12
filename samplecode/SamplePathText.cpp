@@ -19,7 +19,7 @@
 // Static text from paths.
 class PathText : public SampleView {
 public:
-    constexpr static int kNumPaths = 1500;
+    constexpr static int kNumPaths = 10;
     virtual const char* getName() const { return "PathText"; }
 
     PathText() {
@@ -122,7 +122,7 @@ void PathText::Glyph::reset(SkRandom& rand, int w, int h) {
 
     fPosition = {rand.nextF() * w, rand.nextF() * h};
     t = pow(rand.nextF(), 100);
-    fZoom = ((1 - t) * screensize / 50 + t * screensize / 3) /
+    fZoom = ((1 - t) * screensize / 5 + t * screensize / 3) /
             SkTMax(bounds.width(), bounds.height());
     fSpin = rand.nextF() * 360;
     fMidpt = {bounds.centerX(), bounds.centerY()};

@@ -92,6 +92,7 @@ public:
         GrGLFunction<GrGLBindImageTextureProc> fBindImageTexture;
         GrGLFunction<GrGLBindVertexArrayProc> fBindVertexArray;
         GrGLFunction<GrGLBlendBarrierProc> fBlendBarrier;
+        GrGLFunction<GrGLFramebufferFetchBarrierProc> fFramebufferFetchBarrier;
         GrGLFunction<GrGLBlendColorProc> fBlendColor;
         GrGLFunction<GrGLBlendEquationProc> fBlendEquation;
         GrGLFunction<GrGLBlendFuncProc> fBlendFunc;
@@ -100,6 +101,7 @@ public:
         GrGLFunction<GrGLBufferSubDataProc> fBufferSubData;
         GrGLFunction<GrGLCheckFramebufferStatusProc> fCheckFramebufferStatus;
         GrGLFunction<GrGLClearProc> fClear;
+        GrGLFunction<GrGLClearBufferfvProc> fClearBufferfv;
         GrGLFunction<GrGLClearColorProc> fClearColor;
         GrGLFunction<GrGLClearStencilProc> fClearStencil;
         GrGLFunction<GrGLClearTexImageProc> fClearTexImage;
@@ -122,6 +124,7 @@ public:
         GrGLFunction<GrGLDeleteVertexArraysProc> fDeleteVertexArrays;
         GrGLFunction<GrGLDepthMaskProc> fDepthMask;
         GrGLFunction<GrGLDisableProc> fDisable;
+        GrGLFunction<GrGLDisableiProc> fDisablei;
         GrGLFunction<GrGLDisableVertexAttribArrayProc> fDisableVertexAttribArray;
         GrGLFunction<GrGLDrawArraysProc> fDrawArrays;
         GrGLFunction<GrGLDrawArraysIndirectProc> fDrawArraysIndirect;
@@ -133,6 +136,7 @@ public:
         GrGLFunction<GrGLDrawElementsInstancedProc> fDrawElementsInstanced;
         GrGLFunction<GrGLDrawRangeElementsProc> fDrawRangeElements;
         GrGLFunction<GrGLEnableProc> fEnable;
+        GrGLFunction<GrGLEnableiProc> fEnablei;
         GrGLFunction<GrGLEnableVertexAttribArrayProc> fEnableVertexAttribArray;
         GrGLFunction<GrGLEndQueryProc> fEndQuery;
         GrGLFunction<GrGLFinishProc> fFinish;
@@ -455,6 +459,11 @@ public:
 
         /* EXT_window_rectangles */
         GrGLFunction<GrGLWindowRectanglesProc> fWindowRectangles;
+
+
+        /* QCOM_tiled_rendering */
+        GrGLFunction<GrGLStartTilingProc> fStartTiling;
+        GrGLFunction<GrGLEndTilingProc> fEndTiling;
 
         /* EGL functions */
         GrGLFunction<GrEGLCreateImageProc> fEGLCreateImage;

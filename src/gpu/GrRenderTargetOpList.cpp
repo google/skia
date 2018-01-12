@@ -196,7 +196,7 @@ void GrRenderTargetOpList::discard() {
 }
 
 void GrRenderTargetOpList::fullClear(const GrCaps& caps, GrColor color) {
-
+#if 0
     // This is conservative. If the opList is marked as needing a stencil buffer then there
     // may be a prior op that writes to the stencil buffer. Although the clear will ignore the
     // stencil buffer, following draw ops may not so we can't get rid of all the preceding ops.
@@ -209,6 +209,7 @@ void GrRenderTargetOpList::fullClear(const GrCaps& caps, GrColor color) {
         fLoadClearColor = color;
         return;
     }
+#endif
 
     std::unique_ptr<GrClearOp> op(GrClearOp::Make(GrFixedClip::Disabled(), color, fTarget.get()));
     if (!op) {

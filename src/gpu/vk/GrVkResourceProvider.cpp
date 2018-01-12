@@ -209,7 +209,8 @@ void GrVkResourceProvider::getSamplerDescriptorSetHandle(VkDescriptorType type,
                                                          GrVkDescriptorSetManager::Handle* handle) {
     SkASSERT(handle);
     SkASSERT(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER == type ||
-             VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER == type);
+             VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER == type ||
+             VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT == type);
     for (int i = 0; i < fDescriptorSetManagers.count(); ++i) {
         if (fDescriptorSetManagers[i]->isCompatible(type, visibilities)) {
             *handle = GrVkDescriptorSetManager::Handle(i);

@@ -103,6 +103,9 @@ sk_sp<const GrGLInterface> GrGLMakeAssembledGLInterface(void *ctx, GrGLGetProc g
     GET_PROC(BufferData);
     GET_PROC(BufferSubData);
     GET_PROC(Clear);
+    if (glVer >= GR_GL_VER(3,0)) {
+        GET_PROC(ClearBufferfv);
+    }
     GET_PROC(ClearColor);
     GET_PROC(ClearStencil);
     if (glVer >= GR_GL_VER(4,4) || extensions.has("GL_ARB_clear_texture")) {
@@ -124,6 +127,7 @@ sk_sp<const GrGLInterface> GrGLMakeAssembledGLInterface(void *ctx, GrGLGetProc g
     GET_PROC(DeleteTextures);
     GET_PROC(DepthMask);
     GET_PROC(Disable);
+    GET_PROC(Disablei);
     GET_PROC(DisableVertexAttribArray);
     GET_PROC(DrawArrays);
     GET_PROC(DrawBuffer);
@@ -142,6 +146,7 @@ sk_sp<const GrGLInterface> GrGLMakeAssembledGLInterface(void *ctx, GrGLGetProc g
     }
     GET_PROC(DrawRangeElements);
     GET_PROC(Enable);
+    GET_PROC(Enablei);
     GET_PROC(EnableVertexAttribArray);
     GET_PROC(EndQuery);
     GET_PROC(Finish);
@@ -591,12 +596,19 @@ sk_sp<const GrGLInterface> GrGLMakeAssembledGLESInterface(void *ctx, GrGLGetProc
         GET_PROC_SUFFIX(BlendBarrier, NV);
     }
 
+    if (extensions.has("GL_QCOM_shader_framebuffer_fetch_noncoherent")) {
+        GET_PROC_SUFFIX(FramebufferFetchBarrier, QCOM);
+    }
+
     GET_PROC(BlendColor);
     GET_PROC(BlendEquation);
     GET_PROC(BlendFunc);
     GET_PROC(BufferData);
     GET_PROC(BufferSubData);
     GET_PROC(Clear);
+    if (version >= GR_GL_VER(3,0)) {
+        GET_PROC(ClearBufferfv);
+    }
     GET_PROC(ClearColor);
     GET_PROC(ClearStencil);
     if (extensions.has("GL_EXT_clear_texture")) {
@@ -618,6 +630,7 @@ sk_sp<const GrGLInterface> GrGLMakeAssembledGLESInterface(void *ctx, GrGLGetProc
     GET_PROC_SUFFIX(DeleteVertexArrays, OES);
     GET_PROC(DepthMask);
     GET_PROC(Disable);
+    GET_PROC(Disablei);
     GET_PROC(DisableVertexAttribArray);
     GET_PROC(DrawArrays);
 
@@ -640,6 +653,7 @@ sk_sp<const GrGLInterface> GrGLMakeAssembledGLESInterface(void *ctx, GrGLGetProc
         GET_PROC(DrawRangeElements);
     }
     GET_PROC(Enable);
+    GET_PROC(Enablei);
     GET_PROC(EnableVertexAttribArray);
     GET_PROC(Finish);
     GET_PROC(Flush);
@@ -947,6 +961,11 @@ sk_sp<const GrGLInterface> GrGLMakeAssembledGLESInterface(void *ctx, GrGLGetProc
 
     if (extensions.has("GL_EXT_window_rectangles")) {
         GET_PROC_SUFFIX(WindowRectangles, EXT);
+    }
+
+    if (extensions.has("GL_QCOM_tiled_rendering")) {
+        GET_PROC_SUFFIX(StartTiling, QCOM);
+        GET_PROC_SUFFIX(EndTiling, QCOM);
     }
 
     if (extensions.has("EGL_KHR_image") || extensions.has("EGL_KHR_image_base")) {

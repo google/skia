@@ -739,11 +739,12 @@ void Viewer::drawSlide(SkCanvas* canvas) {
     sk_sp<SkSurface> offscreenSurface = nullptr;
     std::unique_ptr<SkThreadedBMPDevice> threadedDevice;
     std::unique_ptr<SkCanvas> threadedCanvas;
-    if (Window::kRaster_BackendType == fBackendType ||
-        ColorMode::kColorManagedLinearF16 == fColorMode ||
-        fShowZoomWindow ||
-        (ColorMode::kColorManagedSRGB8888 == fColorMode &&
-         !primaries_equal(fColorSpacePrimaries, gSrgbPrimaries))) {
+    if (1) {
+    // if (Window::kRaster_BackendType == fBackendType ||
+    //     ColorMode::kColorManagedLinearF16 == fColorMode ||
+    //     fShowZoomWindow ||
+    //     (ColorMode::kColorManagedSRGB8888 == fColorMode &&
+    //      !primaries_equal(fColorSpacePrimaries, gSrgbPrimaries))) {
 
         SkColorType colorType = (ColorMode::kColorManagedLinearF16 == fColorMode)
             ? kRGBA_F16_SkColorType : kN32_SkColorType;

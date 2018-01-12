@@ -161,9 +161,21 @@ void GrVkGpuRTCommandBuffer::submit() {
     // Change layout of our render target so it can be used as the color attachment
     targetImage->setImageLayout(fGpu,
                                 VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
-                                VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
+                                VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT |VK_ACCESS_COLOR_ATTACHMENT_READ_BIT,
                                 VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT,
                                 false);
+
+    // If we are using a cc attachment we also need to update its layout
+    if (GrVkImage* ccimage = ((GrVkRenderTarget*)fRenderTarget)->coverageCountImage()) {
+//        SkDebugf("calling this, image: %d\n", ccimage->image());
+        ccimage->setImageLayout(fGpu,
+                                //VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+                                VK_IMAGE_LAYOUT_GENERAL,
+                                VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_COLOR_ATTACHMENT_READ_BIT |
+                                0/* VK_ACCESS_INPUT_ATTACHMENT_READ_BIT */,
+                                VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT,
+                                false);
+    }
 
     // If we are using a stencil attachment we also need to update its layout
     if (GrStencilAttachment* stencil = fRenderTarget->renderTargetPriv().getStencilAttachment()) {
@@ -391,23 +403,52 @@ void GrVkGpuRTCommandBuffer::onClear(const GrFixedClip& clip, GrColor color) {
     return;
 }
 
+
+void GrVkGpuRTCommandBuffer::coverageCountReadBarrier() {
+    GrVkImage* ccimage = ((GrVkRenderTarget*)fRenderTarget)->coverageCountImage();
+    SkASSERT(ccimage);
+
+    VkAccessFlags srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT |
+                                  VK_ACCESS_COLOR_ATTACHMENT_READ_BIT;
+
+    VkAccessFlags dstAccessMask = VK_ACCESS_INPUT_ATTACHMENT_READ_BIT;
+
+    VkPipelineStageFlags srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+    VkPipelineStageFlags dstStageMask = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+
+    VkImageMemoryBarrier imageMemoryBarrier = {
+        VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,          // sType
+        nullptr,                                         // pNext
+        srcAccessMask,                                   // outputMask
+        dstAccessMask,                                   // inputMask
+        VK_IMAGE_LAYOUT_GENERAL,                         // oldLayout
+        VK_IMAGE_LAYOUT_GENERAL,                         // newLayout
+        VK_QUEUE_FAMILY_IGNORED,                         // srcQueueFamilyIndex
+        VK_QUEUE_FAMILY_IGNORED,                         // dstQueueFamilyIndex
+        ccimage->image(),                                // image
+        { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 }      // subresourceRange
+    };
+
+    fGpu->addImageMemoryBarrier(srcStageMask, dstStageMask, true, &imageMemoryBarrier);
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 void GrVkGpuRTCommandBuffer::addAdditionalCommandBuffer() {
-    GrVkRenderTarget* vkRT = static_cast<GrVkRenderTarget*>(fRenderTarget);
+GrVkRenderTarget* vkRT = static_cast<GrVkRenderTarget*>(fRenderTarget);
 
-    CommandBufferInfo& cbInfo = fCommandBufferInfos[fCurrentCmdInfo];
-    cbInfo.currentCmdBuf()->end(fGpu);
-    cbInfo.fCommandBuffers.push_back(fGpu->resourceProvider().findOrCreateSecondaryCommandBuffer());
-    cbInfo.currentCmdBuf()->begin(fGpu, vkRT->framebuffer(), cbInfo.fRenderPass);
+CommandBufferInfo& cbInfo = fCommandBufferInfos[fCurrentCmdInfo];
+cbInfo.currentCmdBuf()->end(fGpu);
+cbInfo.fCommandBuffers.push_back(fGpu->resourceProvider().findOrCreateSecondaryCommandBuffer());
+cbInfo.currentCmdBuf()->begin(fGpu, vkRT->framebuffer(), cbInfo.fRenderPass);
 }
 
 void GrVkGpuRTCommandBuffer::addAdditionalRenderPass() {
-    GrVkRenderTarget* vkRT = static_cast<GrVkRenderTarget*>(fRenderTarget);
+GrVkRenderTarget* vkRT = static_cast<GrVkRenderTarget*>(fRenderTarget);
 
-    fCommandBufferInfos[fCurrentCmdInfo].currentCmdBuf()->end(fGpu);
+fCommandBufferInfos[fCurrentCmdInfo].currentCmdBuf()->end(fGpu);
 
-    CommandBufferInfo& cbInfo = fCommandBufferInfos.push_back();
+CommandBufferInfo& cbInfo = fCommandBufferInfos.push_back();
     fCurrentCmdInfo++;
 
     GrVkRenderPass::LoadStoreOps vkColorOps(VK_ATTACHMENT_LOAD_OP_LOAD,
@@ -523,7 +564,9 @@ GrVkPipelineState* GrVkGpuRTCommandBuffer::prepareDrawState(const GrPipeline& pi
 
     pipelineState->setData(fGpu, primProc, pipeline);
 
-    pipelineState->bind(fGpu, cbInfo.currentCmdBuf());
+    bool hasCovCount =  pipeline.drawBuffer() == GrDrawBuffer::kBoth;
+
+    pipelineState->bind(fGpu, cbInfo.currentCmdBuf(), hasCovCount);
 
     GrRenderTarget* rt = pipeline.renderTarget();
 

@@ -42,6 +42,9 @@ public:
     void setViewport(const GrGLIRect& rect) { fViewport = rect; }
     const GrGLIRect& getViewport() const { return fViewport; }
 
+    void setCachedDrawBuffer(GrDrawBuffer drawBuffer) { fCachedDrawBuffer = drawBuffer; }
+    GrDrawBuffer getCachedDrawBuffer() { return fCachedDrawBuffer; }
+
     // The following two functions return the same ID when a texture/render target is not
     // multisampled, and different IDs when it is multisampled.
     // FBO ID used to render into
@@ -91,27 +94,32 @@ private:
     GrGLGpu* getGLGpu() const;
     bool completeStencilAttachment() override;
 
+    bool onAttachCoverageCountBuffer() override;
+
     size_t onGpuMemorySize() const override;
 
     int msaaSamples() const;
     // The number total number of samples, including both MSAA and resolve texture samples.
     int totalSamples() const;
 
-    GrGLuint    fRTFBOID;
-    GrGLuint    fTexFBOID;
-    GrGLuint    fMSColorRenderbufferID;
+    GrGLuint fRTFBOID;
+    GrGLuint fTexFBOID;
+    GrGLuint fMSColorRenderbufferID;
+    GrGLuint fCoverageCountRBOID = 0;
 
     GrBackendObjectOwnership fRTFBOOwnership;
 
     // when we switch to this render target we want to set the viewport to
     // only render to content area (as opposed to the whole allocation) and
     // we want the rendering to be at top left (GL has origin in bottom left)
-    GrGLIRect   fViewport;
+    GrGLIRect fViewport;
 
     // The RenderTarget needs to be able to report its VRAM footprint even after abandon and
     // release have potentially zeroed out the IDs (e.g., so the cache can reset itself). Since
     // the IDs are just required for the computation in totalSamples we cache that result here.
-    int         fNumSamplesOwnedPerPixel;
+    int fNumSamplesOwnedPerPixel;
+
+    GrDrawBuffer fCachedDrawBuffer = GrDrawBuffer::kColor;
 
     typedef GrRenderTarget INHERITED;
 };

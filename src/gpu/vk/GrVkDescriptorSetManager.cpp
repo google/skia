@@ -132,7 +132,8 @@ bool GrVkDescriptorSetManager::isCompatible(VkDescriptorType type,
     }
 
     if (VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER == type ||
-        VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER == type) {
+        VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER == type ||
+        VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT == type) {
         if (fBindingVisibilities.count() != visibilities.count()) {
             return false;
         }
@@ -172,7 +173,8 @@ GrVkDescriptorSetManager::DescriptorPoolManager::DescriptorPoolManager(
 
 
     if (VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER == type ||
-        VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER == type) {
+        VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER == type ||
+        VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT == type) {
         uint32_t numBindings = visibilities.count();
         std::unique_ptr<VkDescriptorSetLayoutBinding[]> dsSamplerBindings(
                 new VkDescriptorSetLayoutBinding[numBindings]);

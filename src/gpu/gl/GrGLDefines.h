@@ -67,6 +67,8 @@
 #define GR_GL_HSL_COLOR                      0x92AF
 #define GR_GL_HSL_LUMINOSITY                 0x92B0
 
+#define GR_GL_FRAMEBUFFER_FETCH_NONCOHERENT                     0x96A2
+
 /* BlendingFactorDest */
 #define GR_GL_ZERO                           0
 #define GR_GL_ONE                            1
@@ -917,6 +919,7 @@
 #define GR_GL_FRAMEBUFFER_ATTACHMENT_STENCIL_SIZE          0x8217
 
 #define GR_GL_COLOR_ATTACHMENT0              0x8CE0
+#define GR_GL_COLOR_ATTACHMENT1              0x8CE1
 #define GR_GL_DEPTH_ATTACHMENT               0x8D00
 #define GR_GL_STENCIL_ATTACHMENT             0x8D20
 

@@ -69,6 +69,12 @@ bool GrRenderTargetProxy::instantiate(GrResourceProvider* resourceProvider) {
     // Check that our a priori computation matched the ultimate reality
     SkASSERT(fRenderTargetFlags == fTarget->asRenderTarget()->renderTargetPriv().flags());
 
+    if (this->needsCoverageCount()) {
+        if (!fTarget->asRenderTarget()->renderTargetPriv().attachCoverageCountBuffer()) {
+            return false;
+        }
+    }
+
     return true;
 }
 
@@ -85,6 +91,12 @@ sk_sp<GrSurface> GrRenderTargetProxy::createSurface(GrResourceProvider* resource
     SkASSERT(!surface->asTexture());
     // Check that our a priori computation matched the ultimate reality
     SkASSERT(fRenderTargetFlags == surface->asRenderTarget()->renderTargetPriv().flags());
+
+    if (this->needsCoverageCount()) {
+        if (!surface->asRenderTarget()->renderTargetPriv().attachCoverageCountBuffer()) {
+            return nullptr;
+        }
+    }
 
     return surface;
 }

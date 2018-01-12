@@ -132,6 +132,10 @@ public:
     void clearColorAsDraw(const GrFixedClip&, GrGLfloat r, GrGLfloat g, GrGLfloat b, GrGLfloat a,
                           GrRenderTarget*, GrSurfaceOrigin);
 
+    void clearCoverageCountBuffer(GrRenderTarget*, const SkIRect* = nullptr,
+                                  GrSurfaceOrigin = kTopLeft_GrSurfaceOrigin);
+    void discardCoverageCountBuffer(GrRenderTarget*);
+
     // The GrGLGpuRTCommandBuffer does not buffer up draws before submitting them to the gpu.
     // Thus this is the implementation of the clearStencil call for the corresponding passthrough
     // function on GrGLGpuRTCommandBuffer.
@@ -363,7 +367,8 @@ private:
 
     // bounds is region that may be modified.
     // nullptr means whole target. Can be an empty rect.
-    void flushRenderTarget(GrGLRenderTarget*, const SkIRect* bounds, bool disableSRGB = false);
+    void flushRenderTarget(GrGLRenderTarget*, const SkIRect* bounds,
+                           GrDrawBuffer = GrDrawBuffer::kColor, bool disableSRGB = false);
 
     // Need not be called if flushRenderTarget is used.
     void flushViewport(const GrGLIRect&);
@@ -542,7 +547,7 @@ private:
 
         // This is used when we're using a core profile.
         GrGLVertexArray*     fCoreProfileVertexArray;
-    }                                       fHWVertexArrayState;
+    } fHWVertexArrayState;
 
     struct {
         GrGLenum                fGLTarget;
@@ -553,7 +558,7 @@ private:
             fBoundBufferUniqueID.makeInvalid();
             fBufferZeroKnownBound = false;
         }
-    }                                       fHWBufferState[kGrBufferTypeCount];
+    } fHWBufferState[kGrBufferTypeCount];
 
     struct {
         GrBlendEquation fEquation;
@@ -570,17 +575,17 @@ private:
             fConstColorValid = false;
             fEnabled = kUnknown_TriState;
         }
-    }                                       fHWBlendState;
+    } fHWBlendState;
 
     TriState fMSAAEnabled;
 
-    GrStencilSettings                       fHWStencilSettings;
-    TriState                                fHWStencilTestEnabled;
+    GrStencilSettings fHWStencilSettings;
+    TriState fHWStencilTestEnabled;
 
 
-    TriState                                fHWWriteToColor;
-    GrGpuResource::UniqueID                 fHWBoundRenderTargetUniqueID;
-    TriState                                fHWSRGBFramebuffer;
+    TriState fHWWriteToColor;
+    GrGpuResource::UniqueID fHWBoundRenderTargetUniqueID;
+    TriState fHWSRGBFramebuffer;
     SkTArray<GrGpuResource::UniqueID, true> fHWBoundTextureUniqueIDs;
 
     struct BufferTexture {
