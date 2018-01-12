@@ -16,6 +16,7 @@ samples_sources = [
   "$_samplecode/SampleAARects.cpp",
   "$_samplecode/SampleAll.cpp",
   "$_samplecode/SampleAndroidShadows.cpp",
+  "$_samplecode/SampleAnimatedImage.cpp",
   "$_samplecode/SampleAnimatedText.cpp",
   "$_samplecode/SampleAnimBlur.cpp",
   "$_samplecode/SampleArc.cpp",

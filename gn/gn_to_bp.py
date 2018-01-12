@@ -268,6 +268,7 @@ cflags = cflags.union([
     "-DSKIA_DLL",
     "-DSKIA_IMPLEMENTATION=1",
     "-DATRACE_TAG=ATRACE_TAG_VIEW",
+    "-DSK_PRINT_CODEC_MESSAGES",
 ])
 cflags_cc.add("-fexceptions")
 
