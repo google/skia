@@ -175,7 +175,7 @@ void SkBitmap::setPixelRef(sk_sp<SkPixelRef> pr, int dx, int dy) {
 #endif
     fPixelRef = kUnknown_SkColorType != this->colorType() ? std::move(pr) : nullptr;
     void* p = nullptr;
-    size_t rowBytes = 0;
+    size_t rowBytes = this->rowBytes();
     // ignore dx,dy if there is no pixelref
     if (fPixelRef) {
         rowBytes = fPixelRef->rowBytes();
