@@ -21,6 +21,7 @@
 #include "SkPoint.h"
 #include "SkSGColor.h"
 #include "SkSGDraw.h"
+#include "SkSGGradient.h"
 #include "SkSGGroup.h"
 #include "SkSGImage.h"
 #include "SkSGInvalidationController.h"
@@ -293,13 +294,11 @@ sk_sp<sksg::GeometryNode> AttachPolystarGeometry(const Json::Value& jstar, Attac
     return path_node;
 }
 
-sk_sp<sksg::Color> AttachColorPaint(const Json::Value& obj, AttachContext* ctx) {
+sk_sp<sksg::Color> AttachColor(const Json::Value& obj, AttachContext* ctx) {
     SkASSERT(obj.isObject());
 
     auto color_node = sksg::Color::Make(SK_ColorBLACK);
-    color_node->setAntiAlias(true);
-
-    auto composite = sk_make_sp<CompositeColor>(color_node);
+    auto composite  = sk_make_sp<CompositeColor>(color_node);
     auto color_attached = BindProperty<VectorValue>(obj["c"], ctx, composite,
         [](CompositeColor* node, const VectorValue& c) {
             node->setColor(ValueTraits<VectorValue>::As<SkColor>(c));
@@ -312,29 +311,70 @@ sk_sp<sksg::Color> AttachColorPaint(const Json::Value& obj, AttachContext* ctx) 
     return (color_attached || opacity_attached) ? color_node : nullptr;
 }
 
-sk_sp<sksg::PaintNode> AttachFillPaint(const Json::Value& jfill, AttachContext* ctx) {
-    SkASSERT(jfill.isObject());
+sk_sp<sksg::Gradient> AttachGradient(const Json::Value& obj, AttachContext* ctx) {
+    SkASSERT(obj.isObject());
 
-    auto color = AttachColorPaint(jfill, ctx);
-    if (color) {
-        LOG("** Attached color fill: 0x%x\n", color->getColor());
-    }
-    return color;
-}
-
-sk_sp<sksg::PaintNode> AttachStrokePaint(const Json::Value& jstroke, AttachContext* ctx) {
-    SkASSERT(jstroke.isObject());
-
-    auto stroke_node = AttachColorPaint(jstroke, ctx);
-    if (!stroke_node)
+    const auto& stops = obj["g"];
+    if (!stops.isObject())
         return nullptr;
 
-    LOG("** Attached color stroke: 0x%x\n", stroke_node->getColor());
+    const auto stopCount = ParseInt(stops["p"], -1);
+    if (stopCount < 0)
+        return nullptr;
+
+    sk_sp<sksg::Gradient> gradient_node;
+    sk_sp<CompositeGradient> composite;
+
+    if (ParseInt(obj["t"], 1) == 1) {
+        auto linear_node = sksg::LinearGradient::Make();
+        composite = sk_make_sp<CompositeLinearGradient>(linear_node, stopCount);
+        gradient_node = std::move(linear_node);
+    } else {
+        auto radial_node = sksg::RadialGradient::Make();
+        composite = sk_make_sp<CompositeRadialGradient>(radial_node, stopCount);
+
+        // TODO: highlight, angle
+        gradient_node = std::move(radial_node);
+    }
+
+    BindProperty<VectorValue>(stops["k"], ctx, composite,
+        [](CompositeGradient* node, const VectorValue& stops) {
+            node->setColorStops(stops);
+        });
+    BindProperty<VectorValue>(obj["s"], ctx, composite,
+        [](CompositeGradient* node, const VectorValue& s) {
+            node->setStartPoint(ValueTraits<VectorValue>::As<SkPoint>(s));
+        });
+    BindProperty<VectorValue>(obj["e"], ctx, composite,
+        [](CompositeGradient* node, const VectorValue& e) {
+            node->setEndPoint(ValueTraits<VectorValue>::As<SkPoint>(e));
+        });
+
+    return gradient_node;
+}
+
+sk_sp<sksg::PaintNode> AttachPaint(const Json::Value& jfill, AttachContext* ctx,
+                                   sk_sp<sksg::PaintNode> paint_node) {
+    if (paint_node) {
+        paint_node->setAntiAlias(true);
+
+        // TODO: refactor opacity
+    }
+
+    return paint_node;
+}
+
+sk_sp<sksg::PaintNode> AttachStroke(const Json::Value& jstroke, AttachContext* ctx,
+                                    sk_sp<sksg::PaintNode> stroke_node) {
+    SkASSERT(jstroke.isObject());
+
+    if (!stroke_node)
+        return nullptr;
 
     stroke_node->setStyle(SkPaint::kStroke_Style);
 
     auto width_attached = BindProperty<ScalarValue>(jstroke["w"], ctx, stroke_node,
-        [](sksg::Color* node, const ScalarValue& w) {
+        [](sksg::PaintNode* node, const ScalarValue& w) {
             node->setStrokeWidth(w);
         });
     if (!width_attached)
@@ -359,6 +399,30 @@ sk_sp<sksg::PaintNode> AttachStrokePaint(const Json::Value& jstroke, AttachConte
                                                 0, SK_ARRAY_COUNT(gCaps) - 1)]);
 
     return stroke_node;
+}
+
+sk_sp<sksg::PaintNode> AttachColorFill(const Json::Value& jfill, AttachContext* ctx) {
+    SkASSERT(jfill.isObject());
+
+    return AttachPaint(jfill, ctx, AttachColor(jfill, ctx));
+}
+
+sk_sp<sksg::PaintNode> AttachGradientFill(const Json::Value& jfill, AttachContext* ctx) {
+    SkASSERT(jfill.isObject());
+
+    return AttachPaint(jfill, ctx, AttachGradient(jfill, ctx));
+}
+
+sk_sp<sksg::PaintNode> AttachColorStroke(const Json::Value& jstroke, AttachContext* ctx) {
+    SkASSERT(jstroke.isObject());
+
+    return AttachStroke(jstroke, ctx, AttachPaint(jstroke, ctx, AttachColor(jstroke, ctx)));
+}
+
+sk_sp<sksg::PaintNode> AttachGradientStroke(const Json::Value& jstroke, AttachContext* ctx) {
+    SkASSERT(jstroke.isObject());
+
+    return AttachStroke(jstroke, ctx, AttachPaint(jstroke, ctx, AttachGradient(jstroke, ctx)));
 }
 
 std::vector<sk_sp<sksg::GeometryNode>> AttachMergeGeometryEffect(
@@ -433,8 +497,10 @@ static constexpr GeometryAttacherT gGeometryAttachers[] = {
 
 using PaintAttacherT = sk_sp<sksg::PaintNode> (*)(const Json::Value&, AttachContext*);
 static constexpr PaintAttacherT gPaintAttachers[] = {
-    AttachFillPaint,
-    AttachStrokePaint,
+    AttachColorFill,
+    AttachColorStroke,
+    AttachGradientFill,
+    AttachGradientStroke,
 };
 
 using GroupAttacherT = sk_sp<sksg::RenderNode> (*)(const Json::Value&, AttachContext*);
@@ -468,13 +534,15 @@ struct ShapeInfo {
 const ShapeInfo* FindShapeInfo(const Json::Value& shape) {
     static constexpr ShapeInfo gShapeInfo[] = {
         { "el", ShapeType::kGeometry      , 2 }, // ellipse   -> AttachEllipseGeometry
-        { "fl", ShapeType::kPaint         , 0 }, // fill      -> AttachFillPaint
+        { "fl", ShapeType::kPaint         , 0 }, // fill      -> AttachColorFill
+        { "gf", ShapeType::kPaint         , 2 }, // gfill     -> AttachGradientFill
         { "gr", ShapeType::kGroup         , 0 }, // group     -> AttachShapeGroup
+        { "gs", ShapeType::kPaint         , 3 }, // gstroke   -> AttachGradientStroke
         { "mm", ShapeType::kGeometryEffect, 0 }, // merge     -> AttachMergeGeometryEffect
         { "rc", ShapeType::kGeometry      , 1 }, // rrect     -> AttachRRectGeometry
         { "sh", ShapeType::kGeometry      , 0 }, // shape     -> AttachPathGeometry
         { "sr", ShapeType::kGeometry      , 3 }, // polystar  -> AttachPolyStarGeometry
-        { "st", ShapeType::kPaint         , 1 }, // stroke    -> AttachStrokePaint
+        { "st", ShapeType::kPaint         , 1 }, // stroke    -> AttachColorStroke
         { "tm", ShapeType::kGeometryEffect, 1 }, // trim      -> AttachTrimGeometryEffect
         { "tr", ShapeType::kTransform     , 0 }, // transform -> In-place handler
     };
