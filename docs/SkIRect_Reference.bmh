@@ -20,10 +20,28 @@ its top, it is considered empty.
 #Table ##
 ##
 
+#Subtopic Constructors
+#Table
+#Legend
+# name                   # description                      ##
+#Legend ##
+# MakeEmpty              # Returns bounds of (0, 0, 0, 0). ##
+# MakeLTRB               # Constructs from int left, top, right, bottom. ##
+# MakeLargest            # Deprecated. ##
+# MakeSize               # Constructs from ISize returning (0, 0, width, height). ##
+# MakeWH                 # Constructs from int input returning (0, 0, width, height). ##
+# MakeXYWH               # Constructs from int input returning (x, y, width, height). ##
+# makeInset              # Constructs from sides moved symmetrically about the center. ##
+# makeOffset             # Constructs from translated sides. ##
+# makeOutset             # Constructs from sides moved symmetrically about the center. ##
+# makeSorted             # Constructs, ordering sides from smaller to larger. ##
+#Table ##
+#Subtopic ##
+
 #Subtopic Operators
 #Table
 #Legend
-# description                                         # function ##
+# name                                                # description ##
 #Legend ##
 # bool operator!=(const SkIRect& a, const SkIRect& b) # Returns true if members are unequal. ##
 # bool operator==(const SkIRect& a, const SkIRect& b) # Returns true if members are equal. ##
@@ -33,13 +51,14 @@ its top, it is considered empty.
 #Subtopic Member_Functions
 #Table
 #Legend
-# description            # function ##
+# name                   # description ##
 #Legend ##
 # EmptyIRect             # Returns immutable bounds of (0, 0, 0, 0). ##
 # Intersects             # Returns true if areas overlap. ##
 # IntersectsNoEmptyCheck # Returns true if areas overlap. Skips empty check. ##
 # MakeEmpty              # Returns bounds of (0, 0, 0, 0). ##
 # MakeLTRB               # Constructs from int left, top, right, bottom. ##
+# MakeLargest            # Deprecated. ##
 # MakeSize               # Constructs from ISize returning (0, 0, width, height). ##
 # MakeWH                 # Constructs from int input returning (0, 0, width, height). ##
 # MakeXYWH               # Constructs from int input returning (x, y, width, height). ##
@@ -49,7 +68,7 @@ its top, it is considered empty.
 # contains()             # Returns true if points are equal or inside. ##
 # containsNoEmptyCheck   # Returns true if points are equal or inside. Skips empty check. ##
 # height()               # Returns span in y. ##
-# height64()             # Returns span in y as int64_t. ##
+# height64               # Returns span in y as int64_t. ##
 # inset()                # Moves the sides symmetrically about the center. ##
 # intersect              # Sets to shared area; returns true if not empty. ##
 # intersectNoEmptyCheck  # Sets to shared area; returns true if not empty. Skips empty check. ##
@@ -75,7 +94,7 @@ its top, it is considered empty.
 # sort()                 # Orders sides from smaller to larger. ##
 # top()                  # Returns smaller bounds in y, if sorted. ##
 # width()                # Returns span in x. ##
-# width64()              # Returns span in y as int64_t. ##
+# width64                # Returns span in y as int64_t. ##
 # x()                    # Returns bounds left. ##
 # y()                    # Returns bounds top. ##
 #Table ##
