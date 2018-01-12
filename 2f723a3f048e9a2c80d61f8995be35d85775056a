@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "477f4f7f_18a026d5",
+        "filename": "samplecode/SampleAnimatedImage.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-01-12T16:09:25Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "459dc664_5a6b571b",
+      "range": {
+        "startLine": 58,
+        "startChar": 46,
+        "endLine": 58,
+        "endChar": 73
+      },
+      "revId": "2f723a3f048e9a2c80d61f8995be35d85775056a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "cd90d7b7_e3487268",
         "filename": "src/codec/SkAnimatedImage.cpp",
         "patchSetId": 1
@@ -84,6 +108,24 @@
     },
     {
       "key": {
+        "uuid": "bc302050_ba0cefa2",
+        "filename": "src/codec/SkAnimatedImage.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-01-12T16:09:25Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "cdb05a55_c4de20dc",
+      "revId": "2f723a3f048e9a2c80d61f8995be35d85775056a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "de1df22b_efb07099",
         "filename": "src/codec/SkAnimatedImage.cpp",
         "patchSetId": 1
@@ -113,6 +155,24 @@
       "side": 1,
       "message": "It cannot, because it does not know the time. Or do you think this should take the time as a parameter?",
       "parentUuid": "de1df22b_efb07099",
+      "revId": "2f723a3f048e9a2c80d61f8995be35d85775056a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8a88e433_ada28d12",
+        "filename": "src/codec/SkAnimatedImage.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-01-12T16:09:25Z",
+      "side": 1,
+      "message": "I\u0027m fine with leaving as is for now",
+      "parentUuid": "c2f68a39_6be4b6eb",
       "revId": "2f723a3f048e9a2c80d61f8995be35d85775056a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -166,6 +226,30 @@
     },
     {
       "key": {
+        "uuid": "d2dd6dad_1eb2bd6c",
+        "filename": "src/codec/SkAnimatedImage.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-01-12T16:09:25Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "39d22386_af750d50",
+      "range": {
+        "startLine": 88,
+        "startChar": 12,
+        "endLine": 88,
+        "endChar": 28
+      },
+      "revId": "2f723a3f048e9a2c80d61f8995be35d85775056a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b1c59059_eb5bddc1",
         "filename": "src/codec/SkAnimatedImage.cpp",
         "patchSetId": 1
@@ -213,6 +297,30 @@
     },
     {
       "key": {
+        "uuid": "ae3642fe_c1af50dd",
+        "filename": "src/codec/SkAnimatedImage.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-01-12T16:09:25Z",
+      "side": 1,
+      "message": "I like the new comment much better. Thanks!",
+      "parentUuid": "1c628853_4cb0d847",
+      "range": {
+        "startLine": 173,
+        "startChar": 22,
+        "endLine": 174,
+        "endChar": 73
+      },
+      "revId": "2f723a3f048e9a2c80d61f8995be35d85775056a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9b382592_3820b0ef",
         "filename": "src/codec/SkAnimatedImage.cpp",
         "patchSetId": 1
@@ -242,6 +350,24 @@
       "side": 1,
       "message": "Because the following frame may depend on fActiveFrame. We have the following frames:\n\ni - 1: Currently stored in fActiveFrame. Let\u0027s say it\u0027s KEEP\ni    : About to decode into fActiveFrame.  This is RESTORE_PREVIOUS and independent\ni + 1: This frame may depend on i - 1\n\nWhen it comes time to decode |i + 1|, we want to start with |i - 1|, rather than having to go back further.",
       "parentUuid": "9b382592_3820b0ef",
+      "revId": "2f723a3f048e9a2c80d61f8995be35d85775056a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1e9fb03f_d94cd154",
+        "filename": "src/codec/SkAnimatedImage.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-01-12T16:09:25Z",
+      "side": 1,
+      "message": "great example, but I believe my suggestion still applies.",
+      "parentUuid": "44880bea_6032757b",
       "revId": "2f723a3f048e9a2c80d61f8995be35d85775056a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true

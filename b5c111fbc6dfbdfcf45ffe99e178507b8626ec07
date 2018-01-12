@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c73aa400_662cf2a1",
+        "filename": "include/codec/SkAnimatedImage.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-01-12T16:09:25Z",
+      "side": 1,
+      "message": "I agree that you\u0027ll need to report the time until the next frame so we can schedule an invalidate event appropriately.",
+      "revId": "b5c111fbc6dfbdfcf45ffe99e178507b8626ec07",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
