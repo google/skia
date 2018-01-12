@@ -227,6 +227,15 @@ config("default") {
       if (sanitize == "ASAN") {
         sanitizers += ",address"
       }
+      if (is_android) {
+        # Android only easily supports address for now
+        # UBSAN runs into linking errors
+        sanitizers = "address"
+
+        # recommended by
+        # https://github.com/google/sanitizers/wiki/AddressSanitizerOnAndroid
+        cflags += [ "-fno-omit-frame-pointer" ]
+      }
     } else if (sanitize == "TSAN") {
       sanitizers = "thread"
     } else if (sanitize == "MSAN") {

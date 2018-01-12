@@ -79,6 +79,7 @@ TEST_BUILDERS = [
   'Build-Debian9-Clang-arm-Release-Chromebook_GLES',
   'Build-Debian9-Clang-arm64-Release-Android',
   'Build-Debian9-Clang-arm64-Release-Android_Vulkan',
+  'Build-Debian9-Clang-arm64-Release-Android_ASAN',
   'Build-Debian9-Clang-x86_64-Debug',
   'Build-Debian9-Clang-x86_64-Debug-ASAN',
   'Build-Debian9-Clang-x86_64-Debug-Coverage',
