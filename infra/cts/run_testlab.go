@@ -43,20 +43,20 @@ var (
 		"A0001": {"22"},
 		// "E5803":       {"22"},    deprecated
 		// "F5121":       {"23"},    deprecated
-		"G8142":       {"25"},
-		"HWMHA":       {"24"},
-		"SH-04H":      {"23"},
-		"athene":      {"23"},
-		"athene_f":    {"23"},
-		"hammerhead":  {"23"},
-		"harpia":      {"23"},
-		"hero2lte":    {"23"},
-		"herolte":     {"24v"},
-		"j1acevelte":  {"22"},
-		"j5lte":       {"23"},
-		"j7xelte":     {"23"},
-		"lucye":       {"24"},
-		"mako":        {"22"},
+		"G8142":      {"25"},
+		"HWMHA":      {"24"},
+		"SH-04H":     {"23"},
+		"athene":     {"23"},
+		"athene_f":   {"23"},
+		"hammerhead": {"23"},
+		"harpia":     {"23"},
+		"hero2lte":   {"23"},
+		"herolte":    {"24v"},
+		"j1acevelte": {"22"},
+		"j5lte":      {"23"},
+		"j7xelte":    {"23"},
+		"lucye":      {"24"},
+		// "mako":        {"22"},   deprecated
 		"osprey_umts": {"22"},
 		"p1":          {"22"},
 		"sailfish":    {"26"},
@@ -83,7 +83,8 @@ const (
 	--app=%s
 	--results-bucket=%s
 	--results-dir=%s
-	--directories-to-pull=/sdcard/Android/data/org.skia.skqpapp
+	--directories-to-pull=/sdcard/Android/data/org.skia.skqp
+	--timeout 30m
 	%s
 `
 	MODEL_VERSION_TMPL   = "--device model=%s,version=%s,orientation=portrait"
