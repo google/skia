@@ -52,6 +52,24 @@
       "revId": "0ccd6c8f0d28fc2c97b2f18513a049d868c64444",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fe82f23e_a27abcbd",
+        "filename": "platform_tools/android/apps/skqp/src/main/java/org/skia/skqp/SkQP.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2018-01-12T16:11:35Z",
+      "side": 1,
+      "message": "PTAL\nI replaced deleteContentDirectory with \u0027ensureEmptyDirectory\u0027, hiding the details in SkQP.java",
+      "parentUuid": "0a60d44d_d604e6c5",
+      "revId": "0ccd6c8f0d28fc2c97b2f18513a049d868c64444",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
