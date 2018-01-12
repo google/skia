@@ -131,7 +131,7 @@ private:
                                 const SkMatrix& viewMatrix) const;
 
     static void BmpAppendGlyph(GrAtlasTextBlob*, int runIndex, GrAtlasGlyphCache*,
-                               GrAtlasTextStrike**, const SkGlyph&, int left, int top,
+                               GrAtlasTextStrike**, const SkGlyph&, SkScalar sx, SkScalar sy,
                                GrColor color, SkGlyphCache*, SkScalar textRatio);
 
     static void DfAppendGlyph(GrAtlasTextBlob*, int runIndex, GrAtlasGlyphCache*,
