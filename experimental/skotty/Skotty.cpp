@@ -298,17 +298,12 @@ sk_sp<sksg::Color> AttachColor(const Json::Value& obj, AttachContext* ctx) {
     SkASSERT(obj.isObject());
 
     auto color_node = sksg::Color::Make(SK_ColorBLACK);
-    auto composite  = sk_make_sp<CompositeColor>(color_node);
-    auto color_attached = BindProperty<VectorValue>(obj["c"], ctx, composite,
-        [](CompositeColor* node, const VectorValue& c) {
+    auto color_attached = BindProperty<VectorValue>(obj["c"], ctx, color_node,
+        [](sksg::Color* node, const VectorValue& c) {
             node->setColor(ValueTraits<VectorValue>::As<SkColor>(c));
         });
-    auto opacity_attached = BindProperty<ScalarValue>(obj["o"], ctx, composite,
-        [](CompositeColor* node, const ScalarValue& o) {
-            node->setOpacity(o);
-        });
 
-    return (color_attached || opacity_attached) ? color_node : nullptr;
+    return color_attached ? color_node : nullptr;
 }
 
 sk_sp<sksg::Gradient> AttachGradient(const Json::Value& obj, AttachContext* ctx) {
@@ -353,12 +348,16 @@ sk_sp<sksg::Gradient> AttachGradient(const Json::Value& obj, AttachContext* ctx)
     return gradient_node;
 }
 
-sk_sp<sksg::PaintNode> AttachPaint(const Json::Value& jfill, AttachContext* ctx,
+sk_sp<sksg::PaintNode> AttachPaint(const Json::Value& jpaint, AttachContext* ctx,
                                    sk_sp<sksg::PaintNode> paint_node) {
     if (paint_node) {
         paint_node->setAntiAlias(true);
 
-        // TODO: refactor opacity
+        BindProperty<ScalarValue>(jpaint["o"], ctx, paint_node,
+            [](sksg::PaintNode* node, const ScalarValue& o) {
+                // BM opacity is [0..100]
+                node->setOpacity(o * 0.01f);
+        });
     }
 
     return paint_node;

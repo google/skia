@@ -183,20 +183,6 @@ SkPath ValueTraits<ShapeValue>::As<SkPath>(const ShapeValue& path) {
     return path;
 }
 
-CompositeColor::CompositeColor(sk_sp<sksg::Color> wrapped_node)
-    : fColorNode(std::move(wrapped_node)) {
-    SkASSERT(fColorNode);
-}
-
-void CompositeColor::apply() {
-    // 'opacity' is [0..100]
-    const auto a = SkScalarRoundToInt(SkTPin<float>(fOpacity * .01f, 0, 1) * SkColorGetA(fColor));
-    fColorNode->setColor(SkColorSetARGB(a,
-                                        SkColorGetR(fColor),
-                                        SkColorGetG(fColor),
-                                        SkColorGetB(fColor)));
-}
-
 CompositeRRect::CompositeRRect(sk_sp<sksg::RRect> wrapped_node)
     : fRRectNode(std::move(wrapped_node)) {}
 

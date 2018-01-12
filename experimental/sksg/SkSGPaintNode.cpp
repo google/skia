@@ -31,6 +31,9 @@ SkRect PaintNode::onRevalidate(InvalidationController*, const SkMatrix&) {
 
     this->onApplyToPaint(&fPaint);
 
+    // Compose opacity on top of the subclass value.
+    fPaint.setAlpha(SkScalarRoundToInt(fPaint.getAlpha() * SkTPin<SkScalar>(fOpacity, 0, 1)));
+
     return SkRect::MakeEmpty();
 }
 
