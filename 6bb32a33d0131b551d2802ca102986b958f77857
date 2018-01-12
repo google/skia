@@ -1,0 +1,188 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7e73090e_432d944d",
+        "filename": "src/gpu/vk/GrVkGpuCommandBuffer.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-01-12T02:13:07Z",
+      "side": 1,
+      "message": "this has to be general",
+      "range": {
+        "startLine": 171,
+        "startChar": 32,
+        "endLine": 171,
+        "endChar": 72
+      },
+      "revId": "6bb32a33d0131b551d2802ca102986b958f77857",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c15d8521_f3ce8ed4",
+        "filename": "src/gpu/vk/GrVkGpuCommandBuffer.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 413,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-01-12T02:13:07Z",
+      "side": 1,
+      "message": "lets try and get this and the dependency setup on subpass to be more efficient",
+      "range": {
+        "startLine": 408,
+        "startChar": 5,
+        "endLine": 413,
+        "endChar": 32
+      },
+      "revId": "6bb32a33d0131b551d2802ca102986b958f77857",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7b09fe11_f0f260ef",
+        "filename": "src/gpu/vk/GrVkPipelineState.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 329,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-01-12T02:13:07Z",
+      "side": 1,
+      "message": "this check should probably be queried off of pipeline to know if we\u0027re the draw that actually needs the input attachment since the render target will always have one attached",
+      "range": {
+        "startLine": 329,
+        "startChar": 9,
+        "endLine": 329,
+        "endChar": 34
+      },
+      "revId": "6bb32a33d0131b551d2802ca102986b958f77857",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9689d237_2efd3fb2",
+        "filename": "src/gpu/vk/GrVkPipelineState.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 494,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-01-12T02:13:07Z",
+      "side": 1,
+      "message": "If we really wanted to be effecient, I think we would make this the first descriptor set and then have a cached value for the last RT we used here. That way if we\u0027re drawing to the same one we don\u0027t need to update it (which is going to be very common). Also by this being the first descriptor set, it is not forced to update if we update the samplers and/or uniforms",
+      "range": {
+        "startLine": 489,
+        "startChar": 0,
+        "endLine": 494,
+        "endChar": 66
+      },
+      "revId": "6bb32a33d0131b551d2802ca102986b958f77857",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d82f231c_c7b3ee37",
+        "filename": "src/gpu/vk/GrVkPipelineStateBuilder.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-01-12T02:13:07Z",
+      "side": 1,
+      "message": "shouldn\u0027t really matter since for our test we\u0027re always needing one, but we really shouldn\u0027t be getting a handle here all them time if we aren\u0027t using them",
+      "range": {
+        "startLine": 116,
+        "startChar": 3,
+        "endLine": 121,
+        "endChar": 73
+      },
+      "revId": "6bb32a33d0131b551d2802ca102986b958f77857",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "94b6b35b_c7bc6393",
+        "filename": "src/gpu/vk/GrVkRenderPass.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 261,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-01-12T02:13:07Z",
+      "side": 1,
+      "message": "not sure if we need to update this, i don\u0027t think so",
+      "range": {
+        "startLine": 261,
+        "startChar": 21,
+        "endLine": 261,
+        "endChar": 41
+      },
+      "revId": "6bb32a33d0131b551d2802ca102986b958f77857",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "753a0180_f7f1c02f",
+        "filename": "src/gpu/vk/GrVkRenderPass.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 277,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-01-12T02:13:07Z",
+      "side": 1,
+      "message": "we need to update this",
+      "range": {
+        "startLine": 276,
+        "startChar": 8,
+        "endLine": 277,
+        "endChar": 31
+      },
+      "revId": "6bb32a33d0131b551d2802ca102986b958f77857",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "45f3e16a_a839fa7d",
+        "filename": "src/gpu/vk/GrVkRenderTarget.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 230,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-01-12T02:13:07Z",
+      "side": 1,
+      "message": "I want to look into doing VK_MEMORY_PROPERTY_LAZILY_ALLOCATED here as well. Requires\nVK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT to be set on image",
+      "range": {
+        "startLine": 230,
+        "startChar": 23,
+        "endLine": 230,
+        "endChar": 58
+      },
+      "revId": "6bb32a33d0131b551d2802ca102986b958f77857",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
