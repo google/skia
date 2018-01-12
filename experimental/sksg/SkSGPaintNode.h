@@ -25,6 +25,7 @@ public:
     const SkPaint& makePaint();
 
     SG_ATTRIBUTE(AntiAlias  , bool          , fAntiAlias  )
+    SG_ATTRIBUTE(Opacity    , SkScalar      , fOpacity    )
     SG_ATTRIBUTE(StrokeWidth, SkScalar      , fStrokeWidth)
     SG_ATTRIBUTE(StrokeMiter, SkScalar      , fStrokeMiter)
     SG_ATTRIBUTE(Style      , SkPaint::Style, fStyle      )
@@ -41,7 +42,8 @@ protected:
 private:
     SkPaint        fPaint;
 
-    SkScalar       fStrokeWidth = 1,
+    SkScalar       fOpacity     = 1,
+                   fStrokeWidth = 1,
                    fStrokeMiter = 4;
     bool           fAntiAlias   = false;
     SkPaint::Style fStyle       = SkPaint::kFill_Style;

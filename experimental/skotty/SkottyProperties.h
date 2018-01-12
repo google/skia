@@ -58,21 +58,6 @@ using ShapeValue  = SkPath;
     p_type f##p_name = p_default;                     \
   public:
 
-class CompositeColor final : public SkRefCnt {
-public:
-    explicit CompositeColor(sk_sp<sksg::Color>);
-
-     COMPOSITE_PROPERTY(Color  , SkColor , SK_ColorBLACK)
-     COMPOSITE_PROPERTY(Opacity, SkScalar, 100          )
-
-private:
-    void apply();
-
-    sk_sp<sksg::Color> fColorNode;
-
-    using INHERITED = SkRefCnt;
-};
-
 class CompositeRRect final : public SkRefCnt {
 public:
     explicit CompositeRRect(sk_sp<sksg::RRect>);
