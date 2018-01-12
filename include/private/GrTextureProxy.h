@@ -97,7 +97,7 @@ private:
     size_t onUninstantiatedGpuMemorySize() const override;
 
     // Methods made available via GrTextureProxy::CacheAccess
-    void setUniqueKey(GrProxyProvider*, const GrUniqueKey&);
+    void setUniqueKey1(GrProxyProvider*, const GrUniqueKey&);
     void clearUniqueKey();
 
     SkDEBUGCODE(void validateLazyTexture(const GrTexture*) override;)

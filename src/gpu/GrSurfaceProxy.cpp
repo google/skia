@@ -194,7 +194,8 @@ GrTextureOpList* GrSurfaceProxy::getLastTextureOpList() {
     return fLastOpList ? fLastOpList->asTextureOpList() : nullptr;
 }
 
-sk_sp<GrTextureProxy> GrSurfaceProxy::MakeWrapped(sk_sp<GrTexture> tex, GrSurfaceOrigin origin) {
+#if 0
+sk_sp<GrTextureProxy> GrSurfaceProxy::MakeWrapped1(sk_sp<GrTexture> tex, GrSurfaceOrigin origin) {
     if (!tex) {
         return nullptr;
     }
@@ -215,6 +216,7 @@ sk_sp<GrTextureProxy> GrSurfaceProxy::MakeWrapped(sk_sp<GrTexture> tex, GrSurfac
         return sk_sp<GrTextureProxy>(new GrTextureProxy(std::move(tex), origin));
     }
 }
+#endif
 
 sk_sp<GrTextureProxy> GrSurfaceProxy::MakeLazy(LazyInstantiateCallback&& callback,
                                                Renderable renderable, GrPixelConfig config) {

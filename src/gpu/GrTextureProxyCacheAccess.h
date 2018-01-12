@@ -15,8 +15,8 @@
  */
 class GrTextureProxy::CacheAccess {
 private:
-    void setUniqueKey(GrProxyProvider* proxyProvider, const GrUniqueKey& key) {
-        fTextureProxy->setUniqueKey(proxyProvider, key);
+    void setUniqueKey2(GrProxyProvider* proxyProvider, const GrUniqueKey& key) {
+        fTextureProxy->setUniqueKey1(proxyProvider, key);
     }
 
     void clearUniqueKey() {

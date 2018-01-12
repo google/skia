@@ -125,12 +125,14 @@ size_t GrTextureProxy::onUninstantiatedGpuMemorySize() const {
                                   this->mipMapped(), !this->priv().isExact());
 }
 
-void GrTextureProxy::setUniqueKey(GrProxyProvider* proxyProvider, const GrUniqueKey& key) {
+void GrTextureProxy::setUniqueKey1(GrProxyProvider* proxyProvider, const GrUniqueKey& key) {
     SkASSERT(key.isValid());
     SkASSERT(!fUniqueKey.isValid()); // proxies can only ever get one uniqueKey
 
     if (fTarget && !fTarget->getUniqueKey().isValid()) {
         fTarget->resourcePriv().setUniqueKey(key);
+        SkASSERT(fTarget->getUniqueKey() == key);
+    } else if (fTarget) {
         SkASSERT(fTarget->getUniqueKey() == key);
     }
 
@@ -139,6 +141,7 @@ void GrTextureProxy::setUniqueKey(GrProxyProvider* proxyProvider, const GrUnique
 }
 
 void GrTextureProxy::clearUniqueKey() {
+    // Hmmm - what about the GrTexture's key?
     fUniqueKey.reset();
     fProxyProvider = nullptr;
 }
