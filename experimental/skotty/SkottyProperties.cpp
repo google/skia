@@ -11,6 +11,7 @@
 #include "SkottyPriv.h"
 #include "SkPath.h"
 #include "SkSGColor.h"
+#include "SkSGGradient.h"
 #include "SkSGPath.h"
 #include "SkSGRect.h"
 #include "SkSGTransform.h"
@@ -39,6 +40,19 @@ bool ParsePoints(const Json::Value& v, PointArray* pts) {
         pts->push_back(SkPoint::Make(ParseScalar(pt[0], 0), ParseScalar(pt[1], 0)));
     }
     return true;
+}
+
+SkColor VecToColor(const float* v, size_t size) {
+    // best effort to turn this into a color
+    const auto r = size > 0 ? v[0] : 0,
+               g = size > 1 ? v[1] : 0,
+               b = size > 2 ? v[2] : 0,
+               a = size > 3 ? v[3] : 1;
+
+    return SkColorSetARGB(SkTPin<SkScalar>(a, 0, 1) * 255,
+                          SkTPin<SkScalar>(r, 0, 1) * 255,
+                          SkTPin<SkScalar>(g, 0, 1) * 255,
+                          SkTPin<SkScalar>(b, 0, 1) * 255);
 }
 
 } // namespace
@@ -94,16 +108,7 @@ size_t ValueTraits<VectorValue>::Cardinality(const VectorValue& vec) {
 template <>
 template <>
 SkColor ValueTraits<VectorValue>::As<SkColor>(const VectorValue& vec) {
-    // best effort to turn this into a color
-    const auto r = vec.size() > 0 ? vec[0] : 0,
-               g = vec.size() > 1 ? vec[1] : 0,
-               b = vec.size() > 2 ? vec[2] : 0,
-               a = vec.size() > 3 ? vec[3] : 1;
-
-    return SkColorSetARGB(SkTPin<SkScalar>(a, 0, 1) * 255,
-                          SkTPin<SkScalar>(r, 0, 1) * 255,
-                          SkTPin<SkScalar>(g, 0, 1) * 255,
-                          SkTPin<SkScalar>(b, 0, 1) * 255);
+    return VecToColor(vec.data(), vec.size());
 }
 
 template <>
@@ -249,6 +254,51 @@ void CompositePolyStar::apply() {
 
     poly.close();
     fPathNode->setPath(poly);
+}
+
+CompositeGradient::CompositeGradient(sk_sp<sksg::Gradient> grad, size_t stopCount)
+    : fGradient(std::move(grad))
+    , fStopCount(stopCount) {}
+
+void CompositeGradient::apply() {
+    this->onApply();
+
+    // |fColorStops| holds |fStopCount| x [ pos, r, g, g ] + ? x [ pos, alpha ]
+
+    if (fColorStops.size() < fStopCount * 4 || ((fColorStops.size() - fStopCount * 4) % 2)) {
+        LOG("!! Invalid gradient stop array size: %zu", fColorStops.size());
+        return;
+    }
+
+    std::vector<sksg::Gradient::ColorStop> stops;
+
+    // TODO: merge/lerp opacity stops
+    const auto csEnd = fColorStops.cbegin() + fStopCount * 4;
+    for (auto cs = fColorStops.cbegin(); cs != csEnd; cs += 4) {
+        stops.push_back({ *cs, VecToColor(&*(cs + 1), 3) });
+    }
+
+    fGradient->setColorStops(std::move(stops));
+}
+
+CompositeLinearGradient::CompositeLinearGradient(sk_sp<sksg::LinearGradient> grad, size_t stopCount)
+    : INHERITED(std::move(grad), stopCount) {}
+
+void CompositeLinearGradient::onApply() {
+    auto* grad = static_cast<sksg::LinearGradient*>(fGradient.get());
+    grad->setStartPoint(this->startPoint());
+    grad->setEndPoint(this->endPoint());
+}
+
+CompositeRadialGradient::CompositeRadialGradient(sk_sp<sksg::RadialGradient> grad, size_t stopCount)
+    : INHERITED(std::move(grad), stopCount) {}
+
+void CompositeRadialGradient::onApply() {
+    auto* grad = static_cast<sksg::RadialGradient*>(fGradient.get());
+    grad->setStartCenter(this->startPoint());
+    grad->setEndCenter(this->startPoint());
+    grad->setStartRadius(0);
+    grad->setEndRadius(SkPoint::Distance(this->startPoint(), this->endPoint()));
 }
 
 } // namespace skotty
