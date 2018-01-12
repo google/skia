@@ -216,13 +216,6 @@ sk_sp<GrTextureProxy> GrSurfaceProxy::MakeWrapped(sk_sp<GrTexture> tex, GrSurfac
     }
 }
 
-sk_sp<GrTextureProxy> GrSurfaceProxy::MakeLazy(LazyInstantiateCallback&& callback,
-                                               Renderable renderable, GrPixelConfig config) {
-    return sk_sp<GrTextureProxy>(Renderable::kYes == renderable ?
-                                 new GrTextureRenderTargetProxy(std::move(callback), config) :
-                                 new GrTextureProxy(std::move(callback), config));
-}
-
 int GrSurfaceProxy::worstCaseWidth() const {
     SkASSERT(!this->isPendingLazyInstantiation());
     if (fTarget) {

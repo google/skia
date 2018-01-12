@@ -359,6 +359,13 @@ sk_sp<GrSurfaceProxy> GrProxyProvider::createWrappedRenderTargetProxy(const GrBa
     return sk_sp<GrSurfaceProxy>(new GrRenderTargetProxy(std::move(rt), origin));
 }
 
+sk_sp<GrTextureProxy> GrProxyProvider::createLazy(LazyInstantiateCallback&& callback,
+                                                  Renderable renderable, GrPixelConfig config) {
+    return sk_sp<GrTextureProxy>(Renderable::kYes == renderable ?
+                                 new GrTextureRenderTargetProxy(std::move(callback), config) :
+                                 new GrTextureProxy(std::move(callback), config));
+}
+
 bool GrProxyProvider::IsFunctionallyExact(GrSurfaceProxy* proxy) {
     return proxy->priv().isExact() || (SkIsPow2(proxy->width()) && SkIsPow2(proxy->height()));
 }

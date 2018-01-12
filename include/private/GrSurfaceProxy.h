@@ -185,21 +185,6 @@ public:
     // DDL TODO: remove this entry point
     static sk_sp<GrTextureProxy> MakeWrapped(sk_sp<GrTexture>, GrSurfaceOrigin);
 
-    using LazyInstantiateCallback = std::function<sk_sp<GrTexture>(GrResourceProvider*,
-                                                                   GrSurfaceOrigin* outOrigin)>;
-
-    enum class Renderable : bool {
-        kNo = false,
-        kYes = true
-    };
-
-    /**
-     * Creates a texture proxy that will be instantiated by a user-supplied callback during flush.
-     * (Mipmapping, MSAA, and stencil are not supported by this method.)
-     * DDL TODO: remove this entry point
-     */
-    static sk_sp<GrTextureProxy> MakeLazy(LazyInstantiateCallback&&, Renderable, GrPixelConfig);
-
     GrPixelConfig config() const { return fConfig; }
     int width() const { SkASSERT(!this->isPendingLazyInstantiation()); return fWidth; }
     int height() const { SkASSERT(!this->isPendingLazyInstantiation()); return fHeight; }
@@ -359,6 +344,9 @@ protected:
             , fLastOpList(nullptr) {
         // Note: this ctor pulls a new uniqueID from the same pool at the GrGpuResources
     }
+
+    using LazyInstantiateCallback = std::function<sk_sp<GrTexture>(GrResourceProvider*,
+                                                                   GrSurfaceOrigin* outOrigin)>;
 
     // Lazy-callback version
     GrSurfaceProxy(LazyInstantiateCallback&& callback, GrPixelConfig config);
