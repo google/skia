@@ -4,7 +4,7 @@
 
 #Struct SkIPoint
 
-SkIPoint holds two 32 bit integer coordinates
+SkIPoint holds two 32 bit integer coordinates.
 
 #Topic Overview
 
@@ -12,41 +12,53 @@ SkIPoint holds two 32 bit integer coordinates
 #ToDo manually add subtopics ##
 #Table
 #Legend
-# topics # description ##
+# name             # description                          ##
 #Legend ##
+# Constructors     # functions that construct SkIPoint16  ##
+# Member_Functions # static functions and member methods  ##
+# Operators        # operator overloading methods         ##
 #Table ##
-##
+#Subtopic ##
+
+#Subtopic Constructors
+#Table
+#Legend
+# name  # description                    ##
+#Legend ##
+# Make  # constructs from integer inputs ##
+#Table ##
+#Subtopic ##
 
 #Subtopic Operators
 #Table
 #Legend
-# description                                               # function                             ##
+# name                                                      # description                         ##
 #Legend ##
-# SkIPoint operator-()_const                                # Reverses sign of IPoint.             ##
-# SkIPoint operator+(const SkIPoint& a, const SkIVector& b) # Returns IPoint offset by IVector.    ##
-# SkIVector operator-(const SkIPoint& a, const SkIPoint& b) # Returns IVector between IPoints.     ##
-# bool operator!=(const SkIPoint& a, const SkIPoint& b)     # Returns true if IPoints are unequal. ##
-# bool operator==(const SkIPoint& a, const SkIPoint& b)     # Returns true if IPoints are equal.   ##
-# void operator+=(const SkIVector& v)                       # Adds IVector to IPoint.              ##
-# void operator-=(const SkIVector& v)                       # Subtracts IVector from IPoint.       ##
+# SkIPoint operator+(const SkIPoint& a, const SkIVector& b) # returns IPoint offset by IVector    ##
+# SkIPoint operator-()_const                                # reverses sign of IPoint             ##
+# SkIVector operator-(const SkIPoint& a, const SkIPoint& b) # returns IVector between IPoints     ##
+# bool operator!=(const SkIPoint& a, const SkIPoint& b)     # returns true if IPoints are unequal ##
+# bool operator==(const SkIPoint& a, const SkIPoint& b)     # returns true if IPoints are equal   ##
+# void operator+=(const SkIVector& v)                       # adds IVector to IPoint              ##
+# void operator-=(const SkIVector& v)                       # subtracts IVector from IPoint       ##
 #Table ##
 #Subtopic ##
 
 #Subtopic Member_Functions
 #Table
 #Legend
-# description  # function ##
+# name         # description                             ##
 #Legend ##
-# Make         # Constructs from integer inputs.          ##
-# equals()     # Returns true if members are equal.       ##
-# isZero       # Returns true if both members equal zero. ##
-# set()        # Sets to integer input.                   ##
-# x()          # Returns fX.                              ##
-# y()          # Returns fY.                              ##
+# Make         # constructs from integer inputs          ##
+# equals()     # returns true if members are equal       ##
+# isZero       # returns true if both members equal zero ##
+# set()        # sets to integer input                   ##
+# x()          # returns fX                              ##
+# y()          # returns fY                              ##
 #Table ##
 #Subtopic ##
 
-#Topic ##
+#Topic Overview ##
 
 #Member int32_t  fX
 x-axis value used by IPoint.

@@ -12,21 +12,25 @@ DEFINE_string2(bmh, b, "", "Path to a *.bmh file or a directory.");
 DEFINE_bool2(catalog, c, false, "Write example catalog.htm. (Requires -b -f -r)");
 DEFINE_string2(examples, e, "", "File of fiddlecli input, usually fiddle.json (For now, disables -r -f -s)");
 DEFINE_string2(fiddle, f, "", "File of fiddlecli output, usually fiddleout.json.");
-DEFINE_bool2(hack, h, false, "Do a find/replace hack to update all *.bmh files. (Requires -b)");
+DEFINE_bool2(hack, H, false, "Do a find/replace hack to update all *.bmh files. (Requires -b)");
+// h is reserved for help
 DEFINE_string2(include, i, "", "Path to a *.h file or a directory.");
 DEFINE_bool2(selfcheck, k, false, "Check bmh against itself. (Requires -b)");
 DEFINE_bool2(stdout, o, false, "Write file out to standard out.");
 DEFINE_bool2(populate, p, false, "Populate include from bmh. (Requires -b -i)");
+// q is reserved for quiet
 DEFINE_string2(ref, r, "", "Resolve refs and write *.md files to path. (Requires -b -f)");
 DEFINE_string2(spellcheck, s, "", "Spell-check [once, all, mispelling]. (Requires -b)");
 DEFINE_bool2(tokens, t, false, "Write bmh from include. (Requires -b -i)");
 DEFINE_bool2(crosscheck, x, false, "Check bmh against includes. (Requires -b -i)");
+// v is reserved for verbose
 DEFINE_bool2(skip, z, false, "Skip degenerate missed in legacy preprocessor.");
 
 /*  recipe for generating timestamps for existing doxygen comments
 find include/core -type f -name '*.h' -print -exec git blame {} \; > ~/all.blame.txt
 
 todos:
+check column 1 of subtopic tables to see that they start lowercase and don't have a trailing period
 space table better for Constants
 should Return be on same line as 'Return Value'?
 remove anonymous header, e.g. Enum SkPaint::::anonymous_2
@@ -186,6 +190,9 @@ bool BmhParser::addDefinition(const char* defStart, bool hasEnd, MarkType markTy
                 }
                 definition->fFiddle = parent ? parent->fFiddle + '_' : "";
                 definition->fFiddle += Definition::NormalizedName(typeNameBuilder[0]);
+                if (string::npos != typeNameBuilder[0].find("Member_Functions")) {
+                    SkDebugf("");
+                }
                 this->setAsParent(definition);
             }
             {

@@ -4,37 +4,46 @@ SkIPoint Reference
 # <a name="IPoint"></a> IPoint
 
 # <a name="SkIPoint"></a> Struct SkIPoint
-<a href="#SkIPoint">SkIPoint</a> holds two 32 bit integer coordinates
+<a href="#SkIPoint">SkIPoint</a> holds two 32 bit integer coordinates.
 
 # <a name="Overview"></a> Overview
 
 ## <a name="Subtopics"></a> Subtopics
 
-| topics | description |
+| name | description |
 | --- | ---  |
+| <a href="#Overview_Constructors">Constructors</a> | functions that construct <a href="SkIPoint16_Reference#SkIPoint16">SkIPoint16</a> |
+| <a href="#Overview_Member_Functions">Member Functions</a> | static functions and member methods |
+| <a href="#Overview_Operators">Operators</a> | operator overloading methods |
+
+## <a name="Constructors"></a> Constructors
+
+| name | description |
+| --- | ---  |
+| <a href="#SkIPoint_Make">Make</a> | constructs from integer inputs |
 
 ## <a name="Operators"></a> Operators
 
-| description | function |
+| name | description |
 | --- | ---  |
-| <a href="#SkIPoint">SkIPoint</a> <a href="#SkIPoint_minus_operator">operator-() const</a> | Reverses sign of <a href="#IPoint">IPoint</a>. |
-| <a href="#SkIPoint">SkIPoint</a> <a href="#SkIPoint_add_operator">operator+(const SkIPoint& a, const SkIVector& b)</a> | Returns <a href="#IPoint">IPoint</a> offset by <a href="SkIPoint_Reference#IVector">IVector</a>. |
-| <a href="SkIPoint_Reference#SkIVector">SkIVector</a> <a href="#SkIPoint_subtract_operator">operator-(const SkIPoint& a, const SkIPoint& b)</a> | Returns <a href="SkIPoint_Reference#IVector">IVector</a> between <a href="#IPoint">IPoints</a>. |
-| bool <a href="#SkIPoint_notequal_operator">operator!=(const SkIPoint& a, const SkIPoint& b)</a> | Returns true if <a href="#IPoint">IPoints</a> are unequal. |
-| bool <a href="#SkIPoint_equal_operator">operator==(const SkIPoint& a, const SkIPoint& b)</a> | Returns true if <a href="#IPoint">IPoints</a> are equal. |
-| void <a href="#SkIPoint_addto_operator">operator+=(const SkIVector& v)</a> | Adds <a href="SkIPoint_Reference#IVector">IVector</a> to <a href="#IPoint">IPoint</a>. |
-| void <a href="#SkIPoint_subtractfrom_operator">operator-=(const SkIVector& v)</a> | Subtracts <a href="SkIPoint_Reference#IVector">IVector</a> from <a href="#IPoint">IPoint</a>. |
+| <a href="#SkIPoint">SkIPoint</a> <a href="#SkIPoint_add_operator">operator+(const SkIPoint& a, const SkIVector& b)</a> | returns <a href="#IPoint">IPoint</a> offset by <a href="SkIPoint_Reference#IVector">IVector</a> |
+| <a href="#SkIPoint">SkIPoint</a> <a href="#SkIPoint_minus_operator">operator-() const</a> | reverses sign of <a href="#IPoint">IPoint</a> |
+| <a href="SkIPoint_Reference#SkIVector">SkIVector</a> <a href="#SkIPoint_subtract_operator">operator-(const SkIPoint& a, const SkIPoint& b)</a> | returns <a href="SkIPoint_Reference#IVector">IVector</a> between <a href="#IPoint">IPoints</a> |
+| bool <a href="#SkIPoint_notequal_operator">operator!=(const SkIPoint& a, const SkIPoint& b)</a> | returns true if <a href="#IPoint">IPoints</a> are unequal |
+| bool <a href="#SkIPoint_equal_operator">operator==(const SkIPoint& a, const SkIPoint& b)</a> | returns true if <a href="#IPoint">IPoints</a> are equal |
+| void <a href="#SkIPoint_addto_operator">operator+=(const SkIVector& v)</a> | adds <a href="SkIPoint_Reference#IVector">IVector</a> to <a href="#IPoint">IPoint</a> |
+| void <a href="#SkIPoint_subtractfrom_operator">operator-=(const SkIVector& v)</a> | subtracts <a href="SkIPoint_Reference#IVector">IVector</a> from <a href="#IPoint">IPoint</a> |
 
 ## <a name="Member_Functions"></a> Member Functions
 
-| description | function |
+| name | description |
 | --- | ---  |
-| <a href="#SkIPoint_Make">Make</a> | Constructs from integer inputs. |
-| <a href="#SkIPoint_equals">equals</a> | Returns true if members are equal. |
-| <a href="#SkIPoint_isZero">isZero</a> | Returns true if both members equal zero. |
-| <a href="#SkIPoint_set">set</a> | Sets to integer input. |
-| <a href="#SkIPoint_x">x</a> | Returns <a href="#SkIPoint_fX">fX</a>. |
-| <a href="#SkIPoint_y">y</a> | Returns <a href="#SkIPoint_fY">fY</a>. |
+| <a href="#SkIPoint_Make">Make</a> | constructs from integer inputs |
+| <a href="#SkIPoint_equals">equals</a> | returns true if members are equal |
+| <a href="#SkIPoint_isZero">isZero</a> | returns true if both members equal zero |
+| <a href="#SkIPoint_set">set</a> | sets to integer input |
+| <a href="#SkIPoint_x">x</a> | returns <a href="#SkIPoint_fX">fX</a> |
+| <a href="#SkIPoint_y">y</a> | returns <a href="#SkIPoint_fY">fY</a> |
 
 <a name="SkIPoint_fX"> <code><strong>int32_t  fX</strong></code> </a>
 

@@ -19,58 +19,66 @@ to manage pixel memory; <a href="undocumented#Pixel_Ref">Pixel Ref</a> is safe a
 
 ## <a name="Subtopics"></a> Subtopics
 
-| topics | description |
+| name | description |
 | --- | ---  |
-| <a href="#Image_Info_Access">Image Info Access</a> | Returns all or part of <a href="undocumented#Image_Info">Image Info</a>. |
-| <a href="#Initialization">Initialization</a> | Sets fields for use. |
-| <a href="#Reader">Reader</a> | Examine pixel value. |
-| <a href="#Writer">Writer</a> | Copy to pixel values. |
-| <a href="#Readable_Address">Readable Address</a> | Returns read only pixels. |
-| <a href="#Writable_Address">Writable Address</a> | Returns writable pixels. |
+| <a href="#Overview_Constructors">Constructors</a> | list of functions that construct <a href="SkPath_Reference#SkPath">SkPath</a> |
+| <a href="#Overview_Member_Functions">Member Functions</a> | list of static functions and member methods |
+| <a href="#Overview_Related_Functions">Related Functions</a> | similar methods grouped together |
+
+## <a name="Related_Functions"></a> Related Functions
+
+| name | description |
+| --- | ---  |
+| <a href="#Image_Info_Access">Image Info Access</a> | returns all or part of <a href="undocumented#Image_Info">Image Info</a> |
+| <a href="#Initialization">Initialization</a> | sets fields for use |
+| <a href="#Readable_Address">Readable Address</a> | returns read only pixels |
+| <a href="#Reader">Reader</a> | examine pixel value |
+| <a href="#Writable_Address">Writable Address</a> | returns writable pixels |
+| <a href="#Writer">Writer</a> | copy to pixel values |
 
 ## <a name="Constructors"></a> Constructors
 
 |  | description |
 | --- | ---  |
-| <a href="#SkPixmap_empty_constructor">SkPixmap()</a> | Constructs with default values. |
-| <a href="#SkPixmap_const_SkImageInfo_const_star">SkPixmap(const SkImageInfo& info, const void* addr, size t rowBytes)</a> | Constructs from <a href="undocumented#Image_Info">Image Info</a>, pixels. |
+| <a href="#SkPixmap_empty_constructor">SkPixmap()</a> | constructs with default values |
+| <a href="#SkPixmap_const_SkImageInfo_const_star">SkPixmap(const SkImageInfo& info, const void* addr, size t rowBytes)</a> | constructs from <a href="undocumented#Image_Info">Image Info</a>, pixels |
 
 ## <a name="Member_Functions"></a> Member Functions
 
-| function | description |
+| name | description |
 | --- | ---  |
-| <a href="#SkPixmap_addr">addr</a> | Returns readable pixel address as void pointer. |
-| <a href="#SkPixmap_addr16">addr16</a> | Returns readable pixel address as 16-bit pointer. |
-| <a href="#SkPixmap_addr32">addr32</a> | Returns readable pixel address as 32-bit pointer. |
-| <a href="#SkPixmap_addr64">addr64</a> | Returns readable pixel address as 64-bit pointer. |
-| <a href="#SkPixmap_addr8">addr8</a> | Returns readable pixel address as 8-bit pointer. |
-| <a href="#SkPixmap_addrF16">addrF16</a> | Returns readable pixel component address as 16-bit pointer. |
-| <a href="#SkPixmap_alphaType">alphaType</a> | Returns <a href="undocumented#Image_Info">Image Info</a> <a href="undocumented#Image_Alpha_Type">Alpha Type</a>. |
-| <a href="#SkPixmap_bounds">bounds</a> | Returns <a href="#SkPixmap_width">width</a> and <a href="#SkPixmap_height">height</a> as Rectangle. |
-| <a href="#SkPixmap_colorSpace">colorSpace</a> | Returns <a href="undocumented#Image_Info">Image Info</a> <a href="undocumented#Color_Space">Color Space</a>. |
-| <a href="#SkPixmap_colorType">colorType</a> | Returns <a href="undocumented#Image_Info">Image Info</a> <a href="undocumented#Image_Color_Type">Color Type</a>. |
-| <a href="#SkPixmap_computeByteSize">computeByteSize</a> | Returns size required for pixels. |
-| <a href="#SkPixmap_computeIsOpaque">computeIsOpaque</a> | Returns true if all pixels are opaque. |
-| <a href="#SkPixmap_erase">erase</a> | Writes <a href="undocumented#Color">Color</a> to pixels. |
-| <a href="#SkPixmap_extractSubset">extractSubset</a> | Sets pointer to portion of original. |
-| <a href="#SkPixmap_getColor">getColor</a> | Returns one pixel as <a href="#Unpremultiply">Unpremultiplied</a> <a href="undocumented#Color">Color</a>. |
-| <a href="#SkPixmap_height">height</a> | Returns pixel row count. |
-| <a href="#SkPixmap_info">info</a> | Returns <a href="undocumented#Image_Info">Image Info</a>. |
-| <a href="#SkPixmap_isOpaque">isOpaque</a> | Returns true if <a href="undocumented#Image_Info">Image Info</a> describes opaque pixels. |
-| <a href="#SkPixmap_readPixels">readPixels</a> | Copies and converts pixels. |
-| <a href="#SkPixmap_reset">reset</a> | Reuses existing <a href="#Pixmap">Pixmap</a> with replacement values. |
-| <a href="#SkPixmap_rowBytes">rowBytes</a> | Returns interval between rows in bytes. |
-| <a href="#SkPixmap_rowBytesAsPixels">rowBytesAsPixels</a> | Returns interval between rows in pixels. |
-| <a href="#SkPixmap_scalePixels">scalePixels</a> | Scales and converts pixels. |
-| <a href="#SkPixmap_setColorSpace">setColorSpace</a> | Sets <a href="undocumented#Image_Info">Image Info</a> <a href="undocumented#Color_Space">Color Space</a>. |
-| <a href="#SkPixmap_shiftPerPixel">shiftPerPixel</a> | Returns bit shift from pixels to bytes. |
-| <a href="#SkPixmap_width">width</a> | Returns pixel column count. |
-| <a href="#SkPixmap_writable_addr">writable addr</a> | Returns writable pixel address as void pointer. |
-| <a href="#SkPixmap_writable_addr16">writable addr16</a> | Returns writable pixel address as 16-bit pointer. |
-| <a href="#SkPixmap_writable_addr32">writable addr32</a> | Returns writable pixel address as 32-bit pointer. |
-| <a href="#SkPixmap_writable_addr64">writable addr64</a> | Returns writable pixel address as 64-bit pointer. |
-| <a href="#SkPixmap_writable_addr8">writable addr8</a> | Returns writable pixel address as 8-bit pointer. |
-| <a href="#SkPixmap_writable_addrF16">writable addrF16</a> | Returns writable pixel component address as 16-bit pointer. |
+| <a href="#SkPixmap_addr">addr</a> | returns readable pixel address as void pointer |
+| <a href="#SkPixmap_addr16">addr16</a> | returns readable pixel address as 16-bit pointer |
+| <a href="#SkPixmap_addr32">addr32</a> | returns readable pixel address as 32-bit pointer |
+| <a href="#SkPixmap_addr64">addr64</a> | returns readable pixel address as 64-bit pointer |
+| <a href="#SkPixmap_addr8">addr8</a> | returns readable pixel address as 8-bit pointer |
+| <a href="#SkPixmap_addrF16">addrF16</a> | returns readable pixel component address as 16-bit pointer |
+| <a href="#SkPixmap_alphaType">alphaType</a> | returns <a href="undocumented#Image_Info">Image Info</a> <a href="undocumented#Image_Alpha_Type">Alpha Type</a> |
+| <a href="#SkPixmap_bounds">bounds</a> | returns <a href="#SkPixmap_width">width</a> and <a href="#SkPixmap_height">height</a> as Rectangle |
+| <a href="#SkPixmap_colorSpace">colorSpace</a> | returns <a href="undocumented#Image_Info">Image Info</a> <a href="undocumented#Color_Space">Color Space</a> |
+| <a href="#SkPixmap_colorType">colorType</a> | returns <a href="undocumented#Image_Info">Image Info</a> <a href="undocumented#Image_Color_Type">Color Type</a> |
+| <a href="#SkPixmap_computeByteSize">computeByteSize</a> | returns size required for pixels |
+| <a href="#SkPixmap_computeIsOpaque">computeIsOpaque</a> | returns true if all pixels are opaque |
+| <a href="#SkPixmap_erase">erase</a> | writes <a href="undocumented#Color">Color</a> to pixels |
+| <a href="#SkPixmap_extractSubset">extractSubset</a> | sets pointer to portion of original |
+| <a href="#SkPixmap_getColor">getColor</a> | returns one pixel as <a href="#Unpremultiply">Unpremultiplied</a> <a href="undocumented#Color">Color</a> |
+| <a href="#SkPixmap_height">height</a> | returns pixel row count |
+| <a href="#SkPixmap_info">info</a> | returns <a href="undocumented#Image_Info">Image Info</a> |
+| <a href="#SkPixmap_isOpaque">isOpaque</a> | returns true if <a href="undocumented#Image_Info">Image Info</a> describes opaque pixels |
+| <a href="#SkPixmap_readPixels">readPixels</a> | copies and converts pixels |
+| <a href="#SkPixmap_reset">reset</a> | reuses existing <a href="#Pixmap">Pixmap</a> with replacement values |
+| <a href="#SkPixmap_rowBytes">rowBytes</a> | returns interval between rows in bytes |
+| <a href="#SkPixmap_rowBytesAsPixels">rowBytesAsPixels</a> | returns interval between rows in pixels |
+| <a href="#SkPixmap_scalePixels">scalePixels</a> | scales and converts pixels |
+| <a href="#SkPixmap_setColorSpace">setColorSpace</a> | sets <a href="undocumented#Image_Info">Image Info</a> <a href="undocumented#Color_Space">Color Space</a> |
+| <a href="#SkPixmap_shiftPerPixel">shiftPerPixel</a> | returns bit shift from pixels to bytes |
+| <a href="#SkPixmap_width">width</a> | returns pixel column count |
+| <a href="#SkPixmap_writable_addr">writable addr</a> | returns writable pixel address as void pointer |
+| <a href="#SkPixmap_writable_addr16">writable addr16</a> | returns writable pixel address as 16-bit pointer |
+| <a href="#SkPixmap_writable_addr32">writable addr32</a> | returns writable pixel address as 32-bit pointer |
+| <a href="#SkPixmap_writable_addr64">writable addr64</a> | returns writable pixel address as 64-bit pointer |
+| <a href="#SkPixmap_writable_addr8">writable addr8</a> | returns writable pixel address as 8-bit pointer |
+| <a href="#SkPixmap_writable_addrF16">writable addrF16</a> | returns writable pixel component address as 16-bit pointer |
 
 ## <a name="Initialization"></a> Initialization
 

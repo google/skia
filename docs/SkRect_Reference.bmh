@@ -22,16 +22,40 @@ integer input cannot convert to SkScalar without loss of precision.
 #Legend
 # topics # description ##
 #Legend ##
+# Constructors          # functions that construct SkPath                    ##
+# Member_Functions      # static functions and member methods                ##
+# Operators             # operator overloading methods                       ##
 #Table ##
 ##
+
+#Subtopic Constructors
+#Table
+#Legend
+# name                   # description                      ##
+#Legend ##
+# Make                  # constructs from ISize returning (0, 0, width, height) ##
+# MakeEmpty             # constructs from bounds of (0, 0, 0, 0) ##
+# MakeFromIRect         # deprecated ##
+# MakeIWH               # constructs from int input returning (0, 0, width, height) ##
+# MakeLTRB              # constructs from SkScalar left, top, right, bottom ##
+# MakeLargest           # deprecated ##
+# MakeSize              # constructs from Size returning (0, 0, width, height) ##
+# MakeWH                # constructs from SkScalar input returning (0, 0, width, height) ##
+# MakeXYWH              # constructs from SkScalar input returning (x, y, width, height) ##
+# makeInset             # constructs from sides moved symmetrically about the center ##
+# makeOffset            # constructs from translated sides ##
+# makeOutset            # constructs from sides moved symmetrically about the center ##
+# makeSorted            # constructs, ordering sides from smaller to larger ##
+#Table ##
+#Subtopic ##
 
 #Subtopic Operators
 #Table
 #Legend
 # description                                       # function ##
 #Legend ##
-# bool operator!=(const SkRect& a, const SkRect& b) # Returns true if members are unequal. ##
-# bool operator==(const SkRect& a, const SkRect& b) # Returns true if members are equal. ##
+# bool operator!=(const SkRect& a, const SkRect& b) # returns true if members are unequal ##
+# bool operator==(const SkRect& a, const SkRect& b) # returns true if members are equal ##
 #Table ##
 #Subtopic ##
 
@@ -40,59 +64,60 @@ integer input cannot convert to SkScalar without loss of precision.
 #Legend
 # description           # function ##
 #Legend ##
-# Intersects            # Returns true if areas overlap. ##
-# Make                  # Constructs from ISize returning (0, 0, width, height). ##
-# MakeEmpty             # Constructs from bounds of (0, 0, 0, 0). ##
-# MakeFromIRect         # Deprecated. ##
-# MakeIWH               # Constructs from int input returning (0, 0, width, height). ##
-# MakeLTRB              # Constructs from SkScalar left, top, right, bottom. ##
-# MakeSize              # Constructs from Size returning (0, 0, width, height). ##
-# MakeWH                # Constructs from SkScalar input returning (0, 0, width, height). ##
-# MakeXYWH              # Constructs from SkScalar input returning (x, y, width, height). ##
-# asScalars             # Returns pointer to members as array. ##
-# bottom()              # Returns larger bounds in y, if sorted. ##
-# centerX               # Returns midpoint in x. ##
-# centerY               # Returns midpoint in y. ##
-# contains()            # Returns true if points are equal or inside. ##
-# dump()                # Sends text representation using floats to standard output. ##
-# dumpHex               # Sends text representation using hexadecimal to standard output. ##
-# height                # Returns span in y. ##
-# inset()               # Moves the sides symmetrically about the center. ##
-# intersect()           # Sets to shared area; returns true if not empty. ##
-# intersects()          # Returns true if areas overlap. ##
-# isEmpty               # Returns true if width or height are zero or negative. ##
-# isFinite              # Returns true if no member is infinite or NaN. ##
-# isSorted              # Returns true if width or height are zero or positive. ##
-# iset()                # Sets to int input (left, top, right, bottom). ##
-# isetWH                # Sets to int input (0, 0, width, height). ##
-# join()                # Sets to union of bounds. ##
-# joinNonEmptyArg       # Sets to union of bounds, asserting that argument is not empty. ##
-# joinPossiblyEmptyRect # Sets to union of bounds. Skips empty check for both. ##
-# left()                # Returns smaller bounds in x, if sorted. ##
-# makeInset             # Constructs from sides moved symmetrically about the center. ##
-# makeOffset            # Constructs from translated sides. ##
-# makeOutset            # Constructs from sides moved symmetrically about the center. ##
-# makeSorted            # Constructs, ordering sides from smaller to larger. ##
-# offset()              # Translates sides without changing width and height. ##
-# offsetTo              # Translates to (x, y) without changing width and height. ##
-# outset()              # Moves the sides symmetrically about the center. ##
-# right()               # Returns larger bounds in x, if sorted. ##
-# round()               # Sets members to nearest integer value. ##
-# roundIn               # Sets members to nearest integer value towards opposite. ##
-# roundOut              # Sets members to nearest integer value away from opposite. ##
-# set()                 # Sets to SkScalar input (left, top, right, bottom) and others. ##
-# setBounds             # Sets to upper and lower limits of Point array. ##
-# setBoundsCheck        # Sets to upper and lower limits of Point array. ##
-# setEmpty              # Sets to (0, 0, 0, 0). ##
-# setLTRB               # Sets to SkScalar input (left, top, right, bottom). ##
-# setWH                 # Sets to SkScalar input (0, 0, width, height). ##
-# setXYWH               # Sets to SkScalar input (x, y, width, height). ##
-# sort()                # Orders sides from smaller to larger. ##
-# toQuad                # Returns four corners as Point. ##
-# top()                 # Returns smaller bounds in y, if sorted. ##
-# width()               # Returns span in x. ##
-# x()                   # Returns bounds left. ##
-# y()                   # Returns bounds top. ##
+# Intersects            # returns true if areas overlap ##
+# Make                  # constructs from ISize returning (0, 0, width, height) ##
+# MakeEmpty             # constructs from bounds of (0, 0, 0, 0) ##
+# MakeFromIRect         # deprecated ##
+# MakeIWH               # constructs from int input returning (0, 0, width, height) ##
+# MakeLTRB              # constructs from SkScalar left, top, right, bottom ##
+# MakeLargest           # deprecated ##
+# MakeSize              # constructs from Size returning (0, 0, width, height) ##
+# MakeWH                # constructs from SkScalar input returning (0, 0, width, height) ##
+# MakeXYWH              # constructs from SkScalar input returning (x, y, width, height) ##
+# asScalars             # returns pointer to members as array ##
+# bottom()              # returns larger bounds in y, if sorted ##
+# centerX               # returns midpoint in x ##
+# centerY               # returns midpoint in y ##
+# contains()            # returns true if points are equal or inside ##
+# dump()                # sends text representation to standard output using floats ##
+# dumpHex               # sends text representation to standard output using hexadecimal ##
+# height()              # returns span in y ##
+# inset()               # moves the sides symmetrically about the center ##
+# intersect()           # sets to shared area; returns true if not empty ##
+# intersects()          # returns true if areas overlap ##
+# isEmpty               # returns true if width or height are zero or negative ##
+# isFinite              # returns true if no member is infinite or NaN ##
+# isSorted              # returns true if width or height are zero or positive ##
+# iset()                # sets to int input (left, top, right, bottom) ##
+# isetWH                # sets to int input (0, 0, width, height) ##
+# join()                # sets to union of bounds ##
+# joinNonEmptyArg       # sets to union of bounds, asserting that argument is not empty ##
+# joinPossiblyEmptyRect # sets to union of bounds. Skips empty check for both ##
+# left()                # returns smaller bounds in x, if sorted ##
+# makeInset             # constructs from sides moved symmetrically about the center ##
+# makeOffset            # constructs from translated sides ##
+# makeOutset            # constructs from sides moved symmetrically about the center ##
+# makeSorted            # constructs, ordering sides from smaller to larger ##
+# offset()              # translates sides without changing width and height ##
+# offsetTo              # translates to (x, y) without changing width and height ##
+# outset()              # moves the sides symmetrically about the center ##
+# right()               # returns larger bounds in x, if sorted ##
+# round()               # sets members to nearest integer value ##
+# roundIn               # sets members to nearest integer value towards opposite ##
+# roundOut              # sets members to nearest integer value away from opposite ##
+# set()                 # sets to SkScalar input (left, top, right, bottom) and others ##
+# setBounds             # sets to upper and lower limits of Point array ##
+# setBoundsCheck        # sets to upper and lower limits of Point array ##
+# setEmpty              # sets to (0, 0, 0, 0) ##
+# setLTRB               # sets to SkScalar input (left, top, right, bottom) ##
+# setWH                 # sets to SkScalar input (0, 0, width, height) ##
+# setXYWH               # sets to SkScalar input (x, y, width, height) ##
+# sort()                # orders sides from smaller to larger ##
+# toQuad                # returns four corners as Point ##
+# top()                 # returns smaller bounds in y, if sorted ##
+# width()               # returns span in x ##
+# x()                   # returns bounds left ##
+# y()                   # returns bounds top ##
 #Table ##
 #Subtopic ##
 
