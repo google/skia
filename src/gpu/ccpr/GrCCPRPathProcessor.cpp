@@ -63,9 +63,7 @@ sk_sp<const GrBuffer> GrCCPRPathProcessor::FindIndexBuffer(GrOnFlushResourceProv
 GrCCPRPathProcessor::GrCCPRPathProcessor(GrResourceProvider* rp, sk_sp<GrTextureProxy> atlas,
                                          SkPath::FillType fillType, const GrShaderCaps& shaderCaps)
         : INHERITED(kGrCCPRPathProcessor_ClassID)
-        , fFillType(fillType)
-        , fAtlasAccess(std::move(atlas), GrSamplerState::Filter::kNearest,
-                       GrSamplerState::WrapMode::kClamp, kFragment_GrShaderFlag) {
+        , fFillType(fillType) {
     this->addInstanceAttrib("devbounds", kFloat4_GrVertexAttribType);
     this->addInstanceAttrib("devbounds45", kFloat4_GrVertexAttribType);
     this->addInstanceAttrib("view_matrix", kFloat4_GrVertexAttribType);
@@ -91,12 +89,21 @@ GrCCPRPathProcessor::GrCCPRPathProcessor(GrResourceProvider* rp, sk_sp<GrTexture
 
     this->addVertexAttrib("edge_norms", kFloat4_GrVertexAttribType);
 
-    fAtlasAccess.instantiate(rp);
-    this->addTextureSampler(&fAtlasAccess);
+    if (atlas) {
+        fAtlasAccess.reset(std::move(atlas), GrSamplerState::Filter::kNearest,
+                           GrSamplerState::WrapMode::kClamp, kFragment_GrShaderFlag);
+        fAtlasAccess.instantiate(rp);
+        this->addTextureSampler(&fAtlasAccess);
+    }
 }
 
 void GrCCPRPathProcessor::getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const {
-    b->add32((fFillType << 16) | this->atlasProxy()->origin());
+    uint32_t key = fFillType << 2;
+    if (this->hasAtlas()) {
+        key |= 1 << 1;
+        key |= this->atlasProxy()->origin();
+    }
+    b->add32(key);
 }
 
 class GLSLPathProcessor : public GrGLSLGeometryProcessor {
@@ -107,9 +114,11 @@ private:
     void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor& primProc,
                  FPCoordTransformIter&& transformIter) override {
         const GrCCPRPathProcessor& proc = primProc.cast<GrCCPRPathProcessor>();
-        pdman.set2f(fAtlasAdjustUniform, 1.0f / proc.atlas()->width(),
-                    1.0f / proc.atlas()->height());
-        this->setTransformDataHelper(SkMatrix::I(), pdman, &transformIter);
+        if (proc.hasAtlas()) {
+            pdman.set2f(fAtlasAdjustUniform, 1.0f / proc.atlas()->width(),
+                        1.0f / proc.atlas()->height());
+            this->setTransformDataHelper(SkMatrix::I(), pdman, &transformIter);
+        }
     }
 
     GrGLSLUniformHandler::UniformHandle fAtlasAdjustUniform;
@@ -127,16 +136,9 @@ void GLSLPathProcessor::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     GrGLSLUniformHandler* uniHandler = args.fUniformHandler;
     GrGLSLVaryingHandler* varyingHandler = args.fVaryingHandler;
 
-    const char* atlasAdjust;
-    fAtlasAdjustUniform = uniHandler->addUniform(
-            kVertex_GrShaderFlag,
-            kFloat2_GrSLType, "atlas_adjust", &atlasAdjust);
-
     varyingHandler->emitAttributes(proc);
 
-    GrGLSLVarying texcoord(kFloat2_GrSLType);
     GrGLSLVarying color(kHalf4_GrSLType);
-    varyingHandler->addVarying("texcoord", &texcoord);
     varyingHandler->addFlatPassThroughAttribute(&proc.getInstanceAttrib(InstanceAttribs::kColor),
                                                 args.fOutputColor);
 
@@ -168,17 +170,6 @@ void GLSLPathProcessor::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
 
     gpArgs->fPositionVar.set(kFloat2_GrSLType, "octocoord");
 
-    // Convert to atlas coordinates in order to do our texture lookup.
-    v->codeAppendf("float2 atlascoord = octocoord + float2(%s);",
-                   proc.getInstanceAttrib(InstanceAttribs::kAtlasOffset).fName);
-    if (kTopLeft_GrSurfaceOrigin == proc.atlasProxy()->origin()) {
-        v->codeAppendf("%s = atlascoord * %s;", texcoord.vsOut(), atlasAdjust);
-    } else {
-        SkASSERT(kBottomLeft_GrSurfaceOrigin == proc.atlasProxy()->origin());
-        v->codeAppendf("%s = float2(atlascoord.x * %s.x, 1 - atlascoord.y * %s.y);",
-                       texcoord.vsOut(), atlasAdjust, atlasAdjust);
-    }
-
     // Convert to (local) path cordinates.
     v->codeAppendf("float2 pathcoord = inverse(float2x2(%s)) * (octocoord - %s);",
                    proc.getInstanceAttrib(InstanceAttribs::kViewMatrix).fName,
@@ -187,18 +178,45 @@ void GLSLPathProcessor::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     this->emitTransforms(v, varyingHandler, uniHandler, GrShaderVar("pathcoord", kFloat2_GrSLType),
                          args.fFPCoordTransformHandler);
 
-    // Fragment shader.
     GrGLSLPPFragmentBuilder* f = args.fFragBuilder;
+    const char* coverageCount;
+    if (proc.hasAtlas()) {
+        const char* atlasAdjust;
+        fAtlasAdjustUniform = uniHandler->addUniform(kVertex_GrShaderFlag, kFloat2_GrSLType,
+                                                     "atlas_adjust", &atlasAdjust);
 
-    f->codeAppend ("half coverage_count = ");
-    f->appendTextureLookup(args.fTexSamplers[0], texcoord.fsIn(), kFloat2_GrSLType);
-    f->codeAppend (".a;");
+        GrGLSLVarying texcoord(kFloat2_GrSLType);
+        varyingHandler->addVarying("texcoord", &texcoord);
+
+        // Convert to atlas coordinates in order to do our texture lookup.
+        v->codeAppendf("float2 atlascoord = octocoord + float2(%s);",
+                       proc.getInstanceAttrib(InstanceAttribs::kAtlasOffset).fName);
+        if (kTopLeft_GrSurfaceOrigin == proc.atlasProxy()->origin()) {
+            v->codeAppendf("%s = atlascoord * %s;", texcoord.vsOut(), atlasAdjust);
+        } else {
+            SkASSERT(kBottomLeft_GrSurfaceOrigin == proc.atlasProxy()->origin());
+            v->codeAppendf("%s = float2(atlascoord.x * %s.x, 1 - atlascoord.y * %s.y);",
+                           texcoord.vsOut(), atlasAdjust, atlasAdjust);
+        }
+
+        f->codeAppend ("half coverage_count = ");
+        f->appendTextureLookup(args.fTexSamplers[0], texcoord.fsIn(), kFloat2_GrSLType);
+        f->codeAppend (".a;");
+        coverageCount = "coverage_count";
+    } else {
+        f->enableSkCoverageCountBuffer("inout");
+        coverageCount = "sk_CoverageCountIn";
+    }
 
     if (SkPath::kWinding_FillType == proc.fillType()) {
-        f->codeAppendf("%s = half4(min(abs(coverage_count), 1));", args.fOutputCoverage);
+        f->codeAppendf("%s = half4(min(abs(%s), 1));", args.fOutputCoverage, coverageCount);
     } else {
         SkASSERT(SkPath::kEvenOdd_FillType == proc.fillType());
-        f->codeAppend ("half t = mod(abs(coverage_count), 2);");
+        f->codeAppendf("half t = mod(abs(%s), 2);", coverageCount);
         f->codeAppendf("%s = half4(1 - abs(t - 1));", args.fOutputCoverage);
+    }
+
+    if (!proc.hasAtlas()) {
+        f->codeAppend ("sk_CoverageCount = 0;");
     }
 }

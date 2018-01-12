@@ -122,6 +122,8 @@ public:
      * Requires NV_sample_mask_override_coverage.
      */
     virtual void overrideSampleCoverage(const char* mask) = 0;
+
+    virtual void enableSkCoverageCountBuffer(const char* inorout) {}
 };
 
 /*
@@ -173,6 +175,7 @@ public:
     bool hasCustomColorOutput() const override { return fHasCustomColorOutput; }
     bool hasSecondaryOutput() const override { return fHasSecondaryOutput; }
     const char* dstColor() override;
+    void enableSkCoverageCountBuffer(const char* inorout) override;
     void enableAdvancedBlendEquationIfNeeded(GrBlendEquation) override;
 
 private:

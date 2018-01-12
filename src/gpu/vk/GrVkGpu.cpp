@@ -2118,10 +2118,15 @@ void GrVkGpu::submitSecondaryCommandBuffer(const SkTArray<GrVkSecondaryCommandBu
         SkASSERT(1 == index);
     }
 #endif
-    VkClearValue clears[2];
+    VkClearValue clears[3];
     clears[0].color = colorClear->color;
-    clears[1].depthStencil.depth = 0.0f;
-    clears[1].depthStencil.stencil = 0;
+    memset(&clears[1].color, 0, sizeof(clears[1].color));
+    // clears[1].color.float32[0] = .5;
+    // clears[1].color.float32[1] = .5;
+    // clears[1].color.float32[2] = .5;
+    // clears[1].color.float32[3] = .5;
+    clears[2].depthStencil.depth = 0.0f;
+    clears[2].depthStencil.stencil = 0;
 
     fCurrentCmdBuffer->beginRenderPass(this, renderPass, clears, *target, *pBounds, true);
     for (int i = 0; i < buffers.count(); ++i) {

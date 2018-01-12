@@ -89,6 +89,17 @@ int GrRenderTargetPriv::numStencilBits() const {
     return this->getStencilAttachment()->bits();
 }
 
+bool GrRenderTargetPriv::attachCoverageCountBuffer() const {
+    using HasCoverageCountBuffer = GrRenderTarget::HasCoverageCountBuffer;
+    if (HasCoverageCountBuffer::kNo != fRenderTarget->fHasCoverageCountBuffer) {
+        return HasCoverageCountBuffer::kTriedAndFailed != fRenderTarget->fHasCoverageCountBuffer;
+    }
+    bool success = fRenderTarget->onAttachCoverageCountBuffer();
+    fRenderTarget->fHasCoverageCountBuffer = success ? HasCoverageCountBuffer::kYes
+                                                     : HasCoverageCountBuffer::kTriedAndFailed;
+    return success;
+}
+
 const GrGpu::MultisampleSpecs&
 GrRenderTargetPriv::getMultisampleSpecs(const GrPipeline& pipeline) const {
     SkASSERT(fRenderTarget == pipeline.renderTarget()); // TODO: remove RT from pipeline.
