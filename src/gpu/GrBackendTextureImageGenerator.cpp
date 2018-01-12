@@ -22,7 +22,6 @@
 
 GrBackendTextureImageGenerator::RefHelper::~RefHelper() {
     SkASSERT(nullptr == fBorrowedTexture);
-    SkASSERT(SK_InvalidGenID == fBorrowingContextID);
 
     // Generator has been freed, and no one is borrowing the texture. Notify the original cache
     // that it can free the last ref, so it happens on the correct thread.
@@ -67,7 +66,6 @@ GrBackendTextureImageGenerator::GrBackendTextureImageGenerator(const SkImageInfo
     : INHERITED(info)
     , fRefHelper(new RefHelper(texture, owningContextID))
     , fSemaphore(std::move(semaphore))
-    , fLastBorrowingContextID(SK_InvalidGenID)
     , fBackendTexture(backendTex)
     , fSurfaceOrigin(origin) { }
 
@@ -82,9 +80,7 @@ void GrBackendTextureImageGenerator::ReleaseRefHelper_TextureReleaseProc(void* c
     RefHelper* refHelper = static_cast<RefHelper*>(ctx);
     SkASSERT(refHelper);
 
-    // Release texture so another context can use it
     refHelper->fBorrowedTexture = nullptr;
-    refHelper->fBorrowingContextID = SK_InvalidGenID;
     refHelper->unref();
 }
 
@@ -99,28 +95,25 @@ sk_sp<GrTextureProxy> GrBackendTextureImageGenerator::onGenerateTexture(
 
     sk_sp<GrTexture> tex;
 
-    if (fRefHelper->fBorrowingContextID == context->uniqueID()) {
+    uint32_t expectedID = SK_InvalidGenID;
+    if (!fRefHelper->fBorrowingContextID.compare_exchange(&expectedID, context->uniqueID())) {
+        if (fRefHelper->fBorrowingContextID != context->uniqueID()) {
+            // Some other context is currently borrowing the texture. We aren't allowed to use it.
+            return nullptr;
+        }
+    } else {
+        if (fSemaphore && !fSemaphore->hasSubmittedWait()) {
+            context->getGpu()->waitSemaphore(fSemaphore);
+        }
+    }
+
+    if (fRefHelper->fBorrowedTexture) {
         // If a client re-draws the same image multiple times, the texture we return will be cached
         // and re-used. If they draw a subset, though, we may be re-called. In that case, we want
         // to re-use the borrowed texture we've previously created.
         tex = sk_ref_sp(fRefHelper->fBorrowedTexture);
         SkASSERT(tex);
     } else {
-        // The texture is available or borrwed by another context. Try for exclusive access.
-        uint32_t expectedID = SK_InvalidGenID;
-        if (!fRefHelper->fBorrowingContextID.compare_exchange(&expectedID, context->uniqueID())) {
-            // Some other context is currently borrowing the texture. We aren't allowed to use it.
-            return nullptr;
-        } else {
-            // Wait on a semaphore when a new context has just started borrowing the texture. This
-            // is conservative, but shouldn't be too expensive.
-            if (fSemaphore && !fSemaphore->hasSubmittedWait() &&
-                fLastBorrowingContextID != context->uniqueID()) {
-                context->getGpu()->waitSemaphore(fSemaphore);
-                fLastBorrowingContextID = context->uniqueID();
-            }
-        }
-
         // We just gained access to the texture. If we're on the original context, we could use the
         // original texture, but we'd have no way of detecting that it's no longer in-use. So we
         // always make a wrapped copy, where the release proc informs us that the context is done
@@ -129,7 +122,6 @@ sk_sp<GrTextureProxy> GrBackendTextureImageGenerator::onGenerateTexture(
         tex = context->resourceProvider()->wrapBackendTexture(fBackendTexture,
                                                               kBorrow_GrWrapOwnership);
         if (!tex) {
-            fRefHelper->fBorrowingContextID = SK_InvalidGenID;
             return nullptr;
         }
         fRefHelper->fBorrowedTexture = tex.get();
