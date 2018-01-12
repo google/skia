@@ -28,6 +28,45 @@ class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
         svg_dir       = self.m.vars.android_data_dir + 'svgs',
         tmp_dir       = self.m.vars.android_data_dir)
 
+    # A list of devices we can't root.  If rooting fails and a device is not
+    # on the list, we fail the task to avoid perf inconsistencies.
+    self.rootable_blacklist = ['GalaxyS6', 'GalaxyS7_G930A', 'GalaxyS7_G930FD',
+                               'MotoG4', 'NVIDIA_Shield']
+
+    # Maps device type -> CPU ids that should be scaled for nanobench.
+    # Many devices have two (or more) different CPUs (e.g. big.LITTLE
+    # on Nexus5x). The CPUs listed are the biggest cpus on the device.
+    # The CPUs are grouped together, so we only need to scale one of them
+    # (the one listed) in order to scale them all.
+    # E.g. Nexus5x has cpu0-3 as one chip and cpu4-5 as the other. Thus,
+    # if one wants to run a single-threaded application (e.g. nanobench), one
+    # can disable cpu0-3 and scale cpu 4 to have only cpu4 and 5 at the same
+    # frequency.  See also disable_for_nanobench.
+    self.cpus_to_scale = {
+      'Nexus5x': [4],
+      'NexusPlayer': [0, 2], # has 2 identical chips, so scale them both.
+      'Pixel': [2],
+      'Pixel2XL': [4]
+    }
+
+    # Maps device type -> CPU ids that should be turned off when running
+    # single-threaded applications like nanobench. The devices listed have
+    # multiple, differnt CPUs. We notice a lot of noise that seems to be
+    # caused by nanobench running on the slow CPU, then the big CPU. By
+    # disabling this, we see less of that noise by forcing the same CPU
+    # to be used for the performance testing every time.
+    self.disable_for_nanobench = {
+      'Nexus5x': range(0, 4),
+      'Pixel': range(0, 2),
+      'Pixel2XL': range(0, 4),
+      'PixelC': range(0, 2)
+    }
+
+    self.gpu_scaling = {
+      "Nexus5":  450000000,
+      "Nexus5x": 600000000,
+    }
+
   def _run(self, title, *cmd, **kwargs):
     with self.m.context(cwd=self.m.vars.skia_dir):
       return self.m.run(self.m.step, title, cmd=list(cmd), **kwargs)
@@ -67,45 +106,6 @@ class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
                                    cmd=[self.ADB_BINARY]+list(cmd),
                                    between_attempts_fn=wait_for_device,
                                    **kwargs)
-
-  # A list of devices we can't root.  If rooting fails and a device is not
-  # on the list, we fail the task to avoid perf inconsistencies.
-  rootable_blacklist = ['GalaxyS6', 'GalaxyS7_G930A', 'GalaxyS7_G930FD',
-                        'MotoG4', 'NVIDIA_Shield']
-
-  # Maps device type -> CPU ids that should be scaled for nanobench.
-  # Many devices have two (or more) different CPUs (e.g. big.LITTLE
-  # on Nexus5x). The CPUs listed are the biggest cpus on the device.
-  # The CPUs are grouped together, so we only need to scale one of them
-  # (the one listed) in order to scale them all.
-  # E.g. Nexus5x has cpu0-3 as one chip and cpu4-5 as the other. Thus,
-  # if one wants to run a single-threaded application (e.g. nanobench), one
-  # can disable cpu0-3 and scale cpu 4 to have only cpu4 and 5 at the same
-  # frequency.  See also disable_for_nanobench.
-  cpus_to_scale = {
-    'Nexus5x': [4],
-    'NexusPlayer': [0, 2], # has 2 identical chips, so scale them both.
-    'Pixel': [2],
-    'Pixel2XL': [4]
-  }
-
-  # Maps device type -> CPU ids that should be turned off when running
-  # single-threaded applications like nanobench. The devices listed have
-  # multiple, differnt CPUs. We notice a lot of noise that seems to be
-  # caused by nanobench running on the slow CPU, then the big CPU. By
-  # disabling this, we see less of that noise by forcing the same CPU
-  # to be used for the performance testing every time.
-  disable_for_nanobench = {
-    'Nexus5x': range(0, 4),
-    'Pixel': range(0, 2),
-    'Pixel2XL': range(0, 4),
-    'PixelC': range(0, 2)
-  }
-
-  gpu_scaling = {
-    "Nexus5":  450000000,
-    "Nexus5x": 600000000,
-  }
 
   def _scale_for_dm(self):
     device = self.m.vars.builder_cfg.get('model')
@@ -373,6 +373,11 @@ if actual_freq != str(freq):
     if 'Vulkan' in extra_tokens:
       args['ndk_api'] = 24
       args['skia_enable_vulkan_debug_layers'] = 'false'
+    if 'ASAN' in extra_tokens:
+      # Note: if one day we do ASAN on 32 bit arm, we need to
+      # make sure we use at least SDK 21
+      # args['ndk_api'] = 21
+      args['sanitize'] = '"ASAN"'
 
     # If an Android API level is specified, use that.
     for t in extra_tokens:
@@ -397,7 +402,68 @@ if actual_freq != str(freq):
   def install(self):
     self._adb('mkdir ' + self.device_dirs.resource_dir,
               'shell', 'mkdir', '-p', self.device_dirs.resource_dir)
+    if 'ASAN' in self.m.vars.extra_tokens:
+      asan_setup = self.m.vars.slave_dir.join(
+            'android_ndk_linux', 'toolchains', 'llvm', 'prebuilt',
+            'linux-x86_64', 'bin', 'asan_device_setup')
+      self.m.run(self.m.python.inline, 'Setting up device to run ASAN',
+        program="""
+import os
+import subprocess
+import sys
+import time
+ADB = sys.argv[1]
+ASAN_SETUP = sys.argv[2]
 
+def wait_for_device():
+  while True:
+    time.sleep(5)
+    print 'Waiting for device'
+    subprocess.check_output([ADB, 'wait-for-device'])
+    bit1 = subprocess.check_output([ADB, 'shell', 'getprop',
+                                   'dev.bootcomplete'])
+    bit2 = subprocess.check_output([ADB, 'shell', 'getprop',
+                                   'sys.boot_completed'])
+    if '1' in bit1 and '1' in bit2:
+      print 'Device detected'
+      break
+
+log = subprocess.check_output([ADB, 'root'])
+# check for message like 'adbd cannot run as root in production builds'
+print log
+if 'cannot' in log:
+  raise Exception('adb root failed')
+
+output = subprocess.check_output([ADB, 'disable-verity'])
+print output
+
+if 'already disabled' not in output:
+  print 'Rebooting device'
+  subprocess.check_output([ADB, 'reboot'])
+  wait_for_device()
+
+# ASAN setup script is idempotent, either it installs it or says it's installed
+output = subprocess.check_output([ADB, 'wait-for-device'])
+process = subprocess.Popen([ASAN_SETUP], env={'ADB': ADB},
+                           stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+# this also blocks until command finishes
+(stdout, stderr) = process.communicate()
+print stdout
+print 'Stderr: %s' % stderr
+if process.returncode:
+  raise Exception('setup ASAN returned with non-zero exit code: %d' %
+                  process.returncode)
+
+if 'Please wait until the device restarts' in stdout:
+  # Sleep because device does not reboot instantly
+  time.sleep(30)
+wait_for_device()
+""",
+        args = [self.ADB_BINARY, asan_setup],
+          infra_step=True,
+          timeout=300,
+          abort_on_failure=True)
 
   def cleanup_steps(self):
     if self._ever_ran_adb:

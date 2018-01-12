@@ -849,9 +849,14 @@ func doUpload(name string) bool {
 // test generates a Test task. Returns the name of the last task in the
 // generated chain of tasks, which the Job should add as a dependency.
 func test(b *specs.TasksCfgBuilder, name string, parts map[string]string, compileTaskName string, pkgs []*specs.CipdPackage) string {
+	deps := []string{compileTaskName}
+	if strings.Contains(name, "Android_ASAN") {
+		deps = append(deps, isolateCIPDAsset(b, ISOLATE_NDK_LINUX_NAME))
+	}
+
 	s := &specs.TaskSpec{
 		CipdPackages:     pkgs,
-		Dependencies:     []string{compileTaskName},
+		Dependencies:     deps,
 		Dimensions:       swarmDimensions(parts),
 		ExecutionTimeout: 4 * time.Hour,
 		Expiration:       20 * time.Hour,
