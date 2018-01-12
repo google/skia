@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e8efeda9_79b4d0ad",
+        "filename": "tests/BitmapTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 224,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-01-12T16:14:06Z",
+      "side": 1,
+      "message": "to make it clear *why* we have this test, it prolly needs a comment, and/or some assert to check a post-condition.",
+      "range": {
+        "startLine": 224,
+        "startChar": 7,
+        "endLine": 224,
+        "endChar": 18
+      },
+      "revId": "0aad9a090f60e08b5e17afdfff6323875a7ebb3c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
