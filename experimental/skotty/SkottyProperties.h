@@ -22,8 +22,11 @@
 
 namespace sksg {
 class Color;
+class Gradient;
+class LinearGradient;
 class Matrix;
 class Path;
+class RadialGradient;
 class RRect;
 class RenderNode;;
 }
@@ -54,21 +57,6 @@ using ShapeValue  = SkPath;
   private:                                            \
     p_type f##p_name = p_default;                     \
   public:
-
-class CompositeColor final : public SkRefCnt {
-public:
-    explicit CompositeColor(sk_sp<sksg::Color>);
-
-     COMPOSITE_PROPERTY(Color  , SkColor , SK_ColorBLACK)
-     COMPOSITE_PROPERTY(Opacity, SkScalar, 100          )
-
-private:
-    void apply();
-
-    sk_sp<sksg::Color> fColorNode;
-
-    using INHERITED = SkRefCnt;
-};
 
 class CompositeRRect final : public SkRefCnt {
 public:
@@ -128,6 +116,49 @@ private:
     sk_sp<sksg::Matrix> fMatrixNode;
 
     using INHERITED = SkRefCnt;
+};
+
+class CompositeGradient : public SkRefCnt {
+public:
+    COMPOSITE_PROPERTY(StartPoint, SkPoint              , SkPoint::Make(0, 0)    )
+    COMPOSITE_PROPERTY(EndPoint  , SkPoint              , SkPoint::Make(0, 0)    )
+    COMPOSITE_PROPERTY(ColorStops, std::vector<SkScalar>, std::vector<SkScalar>())
+
+protected:
+    CompositeGradient(sk_sp<sksg::Gradient>, size_t stopCount);
+
+    const SkPoint& startPoint() const { return fStartPoint; }
+    const SkPoint& endPoint()   const { return fEndPoint;   }
+
+    sk_sp<sksg::Gradient> fGradient;
+    size_t                fStopCount;
+
+    virtual void onApply() = 0;
+
+private:
+    void apply();
+
+    using INHERITED = SkRefCnt;
+};
+
+class CompositeLinearGradient final : public CompositeGradient {
+public:
+    CompositeLinearGradient(sk_sp<sksg::LinearGradient>, size_t stopCount);
+
+private:
+    void onApply() override;
+
+    using INHERITED = CompositeGradient;
+};
+
+class CompositeRadialGradient final : public CompositeGradient {
+public:
+    CompositeRadialGradient(sk_sp<sksg::RadialGradient>, size_t stopCount);
+
+private:
+    void onApply() override;
+
+    using INHERITED = CompositeGradient;
 };
 
 #undef COMPOSITE_PROPERTY
