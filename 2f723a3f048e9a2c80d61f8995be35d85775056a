@@ -1,0 +1,124 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7bb257f9_22f3b313",
+        "filename": "samplecode/SampleAnimatedImage.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-01-12T14:48:04Z",
+      "side": 1,
+      "message": "why translate the width of the image?",
+      "range": {
+        "startLine": 58,
+        "startChar": 46,
+        "endLine": 58,
+        "endChar": 73
+      },
+      "revId": "2f723a3f048e9a2c80d61f8995be35d85775056a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cd90d7b7_e3487268",
+        "filename": "src/codec/SkAnimatedImage.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-01-12T14:48:04Z",
+      "side": 1,
+      "message": "why do we need to sanitize the input?",
+      "revId": "2f723a3f048e9a2c80d61f8995be35d85775056a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "de1df22b_efb07099",
+        "filename": "src/codec/SkAnimatedImage.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-01-12T14:48:04Z",
+      "side": 1,
+      "message": "should this start the timer?",
+      "revId": "2f723a3f048e9a2c80d61f8995be35d85775056a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b050f0eb_c46bc4af",
+        "filename": "src/codec/SkAnimatedImage.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-01-12T14:48:04Z",
+      "side": 1,
+      "message": "isRestorePrevious?",
+      "range": {
+        "startLine": 88,
+        "startChar": 12,
+        "endLine": 88,
+        "endChar": 28
+      },
+      "revId": "2f723a3f048e9a2c80d61f8995be35d85775056a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b1c59059_eb5bddc1",
+        "filename": "src/codec/SkAnimatedImage.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-01-12T14:48:04Z",
+      "side": 1,
+      "message": "I find this comment very confusing.  If a frame is restore_previous it won\u0027t be used again so why shouldn\u0027t we overwrite it?\n\nIf a frame is restore_previous it will not be use again, therefore we should not ever overwrite fRestoreFrame with a frame tagged as restore_previous.",
+      "range": {
+        "startLine": 173,
+        "startChar": 22,
+        "endLine": 174,
+        "endChar": 73
+      },
+      "revId": "2f723a3f048e9a2c80d61f8995be35d85775056a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9b382592_3820b0ef",
+        "filename": "src/codec/SkAnimatedImage.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-01-12T14:48:04Z",
+      "side": 1,
+      "message": "why do a copyTo and not just a swap? The only difference seems that fActiveFrame may now have no backing pixel allocation.",
+      "revId": "2f723a3f048e9a2c80d61f8995be35d85775056a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
