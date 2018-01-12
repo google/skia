@@ -553,13 +553,6 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         GR_GL_GetIntegerv(gli, GR_GL_MAX_WINDOW_RECTANGLES, &fMaxWindowRectangles);
     }
 
-    if (kPowerVRRogue_GrGLRenderer == ctxInfo.renderer()) {
-        // Temporarily disabling clip analytic fragments processors on Nexus player while we work
-        // around a driver bug related to gl_FragCoord.
-        // https://bugs.chromium.org/p/skia/issues/detail?id=7286
-        fMaxClipAnalyticFPs = 0;
-    }
-
 #ifndef SK_BUILD_FOR_IOS
     if (kPowerVR54x_GrGLRenderer == ctxInfo.renderer() ||
         kPowerVRRogue_GrGLRenderer == ctxInfo.renderer() ||
@@ -1048,6 +1041,13 @@ void GrGLCaps::initGLSL(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli
         shaderCaps->fMustGuardDivisionEvenAfterExplicitZeroCheck = true;
     }
 #endif
+
+    // We've seen devices produce incorrect (flipped) values for gl_FragCoord, in some (rare)
+    // situations. It's been reported on Adreno and Mali devices, but sproadically (and mostly on
+    // older drviers). To be safe, we're casting a wide net. Hopefully the perf impact isn't huge.
+    if (kARM_GrGLVendor == ctxInfo.vendor() || kQualcomm_GrGLVendor == ctxInfo.vendor()) {
+        shaderCaps->fCanUseFragCoord = false;
+    }
 }
 
 bool GrGLCaps::hasPathRenderingSupport(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
