@@ -1775,6 +1775,7 @@ private:
     friend class SkAutoGlyphCacheNoGamma;
     friend class SkCanvas;
     friend class SkDraw;
+    friend class DrawOneGlyph;
     friend class SkPDFDevice;
     friend class GrAtlasTextBlob;
     friend class GrAtlasTextContext;

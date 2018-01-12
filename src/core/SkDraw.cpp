@@ -1404,6 +1404,7 @@ public:
     DrawOneGlyph(const SkDraw& draw, const SkPaint& paint, SkGlyphCache* cache, SkBlitter* blitter)
         : fUseRegionToDraw(UsingRegionToDraw(draw.fRC))
         , fGlyphCache(cache)
+        , fCanonicalCache(nullptr)
         , fBlitter(blitter)
         , fClip(fUseRegionToDraw ? &draw.fRC->bwRgn() : nullptr)
         , fDraw(draw)
@@ -1436,6 +1437,11 @@ public:
         SkMask mask;
         mask.fBounds.set(left, top, right, bottom);
         SkASSERT(!mask.fBounds.isEmpty());
+
+        if (SkMask::kARGB32_Format == static_cast<SkMask::Format>(glyph.fMaskFormat)) {
+            this->drawImage(glyph, position);
+            return;
+        }
 
         if (fUseRegionToDraw) {
             SkRegion::Cliperator clipper(*fClip, mask.fBounds);
@@ -1504,8 +1510,36 @@ private:
         }
     }
 
+    void drawImage(const SkGlyph& glyph, SkPoint position) {
+        const SkScalar canonical = 128;
+        if (!fCanonicalCache) {
+            SkPaint paint;
+            paint.setTextSize(canonical);
+            paint.setTypeface(fPaint.refTypeface());
+            paint.setMaskFilter(fPaint.refMaskFilter());
+            fCanonicalCache = paint.detachCache(nullptr, 0, nullptr);
+        }
+
+        uint8_t* bits = (uint8_t*)(fGlyphCache->findImage(glyph));
+        if (nullptr == bits) {
+            return;
+        }
+
+        SkBitmap bm;
+        bm.installPixels(SkImageInfo::MakeN32Premul(glyph.fWidth, glyph.fHeight),
+                         (SkPMColor*)bits, glyph.rowBytes());
+
+        SkDraw draw = fDraw;
+        SkMatrix matrix = *fDraw.fMatrix;
+        SkScalar scale = fPaint.getTextSize() / canonical;
+        matrix.preScale(scale, scale);
+        draw.fMatrix = &matrix;
+        draw.drawBitmap(bm, SkMatrix::MakeScale(scale), nullptr, fPaint);
+    }
+
     const bool            fUseRegionToDraw;
     SkGlyphCache  * const fGlyphCache;
+    SkGlyphCache  *       fCanonicalCache;  // for images (and paths?)
     SkBlitter     * const fBlitter;
     const SkRegion* const fClip;
     const SkDraw&         fDraw;
