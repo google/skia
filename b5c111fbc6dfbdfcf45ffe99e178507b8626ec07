@@ -16,6 +16,24 @@
       "revId": "b5c111fbc6dfbdfcf45ffe99e178507b8626ec07",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f466b619_a44a6916",
+        "filename": "include/codec/SkAnimatedImage.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-01-12T16:25:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c73aa400_662cf2a1",
+      "revId": "b5c111fbc6dfbdfcf45ffe99e178507b8626ec07",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }

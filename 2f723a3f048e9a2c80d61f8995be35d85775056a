@@ -371,6 +371,24 @@
       "revId": "2f723a3f048e9a2c80d61f8995be35d85775056a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9a620372_2025a151",
+        "filename": "src/codec/SkAnimatedImage.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-01-12T16:25:45Z",
+      "side": 1,
+      "message": "Haha, you\u0027re right!",
+      "parentUuid": "1e9fb03f_d94cd154",
+      "revId": "2f723a3f048e9a2c80d61f8995be35d85775056a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
