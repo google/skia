@@ -14,6 +14,13 @@
 
 class GrSemaphore;
 
+/*
+ * This ImageGenerator is used to wrap a texture in one GrContext and can then be used as a source
+ * in another GrContext. It holds onto a semaphore which the producing Grontext will signal and the
+ * consuming GrContext will wait on before using the texture. Only one GrContext can ever be used
+ * as a consumer (this is mostly because Vulkan can't allow multiple things to wait on the same
+ * semaphore).
+ */
 class GrBackendTextureImageGenerator : public SkImageGenerator {
 public:
     static std::unique_ptr<SkImageGenerator> Make(sk_sp<GrTexture>, GrSurfaceOrigin,
@@ -64,7 +71,6 @@ private:
     RefHelper* fRefHelper;
 
     sk_sp<GrSemaphore> fSemaphore;
-    uint32_t fLastBorrowingContextID;
 
     GrBackendTexture fBackendTexture;
     GrSurfaceOrigin fSurfaceOrigin;
