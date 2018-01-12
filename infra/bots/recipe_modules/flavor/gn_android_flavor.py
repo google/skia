@@ -373,6 +373,11 @@ if actual_freq != str(freq):
     if 'Vulkan' in extra_tokens:
       args['ndk_api'] = 24
       args['skia_enable_vulkan_debug_layers'] = 'false'
+    if 'ASAN' in extra_tokens:
+      # Note: if one day we do ASAN on 32 bit arm, we need to
+      # make sure we use at least SDK 21
+      # args['ndk_api'] = 21
+      args['sanitize'] = '"ASAN"'
 
     # If an Android API level is specified, use that.
     for t in extra_tokens:
@@ -397,7 +402,68 @@ if actual_freq != str(freq):
   def install(self):
     self._adb('mkdir ' + self.device_dirs.resource_dir,
               'shell', 'mkdir', '-p', self.device_dirs.resource_dir)
+    if 'ASAN' in self.m.vars.extra_tokens:
+      asan_setup = self.m.vars.slave_dir.join(
+            'android_ndk_linux', 'toolchains', 'llvm', 'prebuilt',
+            'linux-x86_64', 'bin', 'asan_device_setup')
+      self.m.run(self.m.python.inline, 'Setting up device to run ASAN',
+        program="""
+import os
+import subprocess
+import sys
+import time
+ADB = sys.argv[1]
+ASAN_SETUP = sys.argv[2]
 
+def wait_for_device():
+  while True:
+    time.sleep(5)
+    print 'Waiting for device'
+    subprocess.check_output([ADB, 'wait-for-device'])
+    bit1 = subprocess.check_output([ADB, 'shell', 'getprop',
+                                   'dev.bootcomplete'])
+    bit2 = subprocess.check_output([ADB, 'shell', 'getprop',
+                                   'sys.boot_completed'])
+    if '1' in bit1 and '1' in bit2:
+      print 'Device detected'
+      break
+
+log = subprocess.check_output([ADB, 'root'])
+# check for message like 'adbd cannot run as root in production builds'
+print log
+if 'cannot' in log:
+  raise Exception('adb root failed')
+
+output = subprocess.check_output([ADB, 'disable-verity'])
+print output
+
+if 'already disabled' not in output:
+  print 'Rebooting device'
+  subprocess.check_output([ADB, 'reboot'])
+  wait_for_device()
+
+# ASAN setup script is idempotent, either it installs it or says it's installed
+output = subprocess.check_output([ADB, 'wait-for-device'])
+process = subprocess.Popen([ASAN_SETUP], env={'ADB': ADB},
+                           stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+# this also blocks until command finishes
+(stdout, stderr) = process.communicate()
+print stdout
+print 'Stderr: %s' % stderr
+if process.returncode:
+  raise Exception('setup ASAN returned with non-zero exit code: %d' %
+                  process.returncode)
+
+if 'Please wait until the device restarts' in stdout:
+  # Sleep because device does not reboot instantly
+  time.sleep(30)
+wait_for_device()
+""",
+        args = [self.ADB_BINARY, asan_setup],
+          infra_step=True,
+          timeout=300,
+          abort_on_failure=True)
 
   def cleanup_steps(self):
     if self._ever_ran_adb:
