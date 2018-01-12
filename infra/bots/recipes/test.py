@@ -79,7 +79,8 @@ def dm_flags(api, bot):
   # is ignored and dm will keep attempting to proceed until we actually
   # exhaust the available resources.
   if ('NexusPlayer' in bot or
-      'PixelC' in bot):
+      'PixelC' in bot or
+      'Chromecast' in bot):
     args.append('--ignoreSigInt')
 
   if api.vars.builder_cfg.get('cpu_or_gpu') == 'CPU':
@@ -420,7 +421,7 @@ def dm_flags(api, bot):
     for test in ['bleed_alpha_image', 'bleed_alpha_image_shader']:
       blacklist(['serialize-8888', 'gm', '_', test])
   # It looks like we skip these only for out-of-memory concerns.
-  if 'Win' in bot or 'Android' in bot or 'Chromecast' in bot:
+  if 'Win' in bot or 'Android' in bot:
     for test in ['verylargebitmap', 'verylarge_picture_image']:
       blacklist(['serialize-8888', 'gm', '_', test])
   if 'Mac' in bot and 'CPU' in bot:
@@ -529,6 +530,8 @@ def dm_flags(api, bot):
     match.append('~blur_image_filter')
     match.append('~blur_0.01')
     match.append('~GM_animated-image-blurs')
+    match.append('~verylarge')
+    match.append('~ImageFilterBlurLargeImage')
 
   if 'GalaxyS6' in bot:
     match.append('~SpecialImage') # skia:6338
@@ -837,10 +840,6 @@ def test_steps(api):
 
   args.append('--key')
   args.extend(key_params(api))
-  if use_hash_file:
-    args.extend(['--uninterestingHashesFile', hashes_file])
-  if api.vars.upload_dm_results:
-    args.extend(['--writePath', api.flavor.device_dirs.dm_dir])
 
   if 'Chromecast' in api.vars.builder_cfg.get('os', ''):
     # Due to limited disk space, we only deal with skps and one image.
@@ -852,6 +851,11 @@ def test_steps(api):
       '--images', api.flavor.device_path_join(
           api.flavor.device_dirs.resource_dir, 'color_wheel.jpg'),
     ]
+
+  if use_hash_file:
+    args.extend(['--uninterestingHashesFile', hashes_file])
+  if api.vars.upload_dm_results:
+    args.extend(['--writePath', api.flavor.device_dirs.dm_dir])
 
   args.extend(dm_flags(api, api.vars.builder_name))
 
