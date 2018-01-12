@@ -46,6 +46,30 @@
       "revId": "c0b3b87ed183bf1fcc8f7718a3045f1dbd2388f9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "69f577a9_ca33b36f",
+        "filename": "include/private/GrTypesPriv.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-01-12T17:05:51Z",
+      "side": 1,
+      "message": "I moved this implementation into GrChooseAAType",
+      "parentUuid": "aff2b6bd_268f020a",
+      "range": {
+        "startLine": 100,
+        "startChar": 9,
+        "endLine": 100,
+        "endChar": 41
+      },
+      "revId": "c0b3b87ed183bf1fcc8f7718a3045f1dbd2388f9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }

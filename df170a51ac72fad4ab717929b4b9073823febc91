@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "de819304_13089407",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-01-12T17:05:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "eaaa23c7_5442a355",
+      "range": {
+        "startLine": 136,
+        "startChar": 8,
+        "endLine": 136,
+        "endChar": 74
+      },
+      "revId": "df170a51ac72fad4ab717929b4b9073823febc91",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "975005a3_d4a1a538",
         "filename": "src/gpu/ops/GrOvalOpFactory.cpp",
         "patchSetId": 4
@@ -36,6 +60,30 @@
       "writtenOn": "2018-01-11T19:46:09Z",
       "side": 1,
       "message": "so are we going to start a team betting pool on when we get our first bug about the double hits here?",
+      "range": {
+        "startLine": 185,
+        "startChar": 43,
+        "endLine": 185,
+        "endChar": 86
+      },
+      "revId": "df170a51ac72fad4ab717929b4b9073823febc91",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "14674237_f0464d2f",
+        "filename": "src/gpu/ops/GrOvalOpFactory.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 185,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-01-12T17:05:51Z",
+      "side": 1,
+      "message": "Transparent non-antialiased pie charts FTW.",
+      "parentUuid": "975005a3_d4a1a538",
       "range": {
         "startLine": 185,
         "startChar": 43,
