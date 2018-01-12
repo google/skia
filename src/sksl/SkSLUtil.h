@@ -174,10 +174,6 @@ public:
     bool canUseFractForNegativeValues() const {
         return true;
     }
-
-    bool canUseFragCoord() const {
-        return true;
-    }
 };
 
 extern StandaloneShaderCaps standaloneCaps;
@@ -302,13 +298,6 @@ public:
         result->fDropsTileOnZeroDivide = true;
         result->fTexelFetchSupport = true;
         result->fCanUseAnyFunctionInShader = false;
-        return result;
-    }
-
-    static sk_sp<GrShaderCaps> CannotUseFragCoord() {
-        sk_sp<GrShaderCaps> result = sk_make_sp<GrShaderCaps>(GrContextOptions());
-        result->fVersionDeclString = "#version 400";
-        result->fCanUseFragCoord = false;
         return result;
     }
 };
