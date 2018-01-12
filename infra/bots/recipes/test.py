@@ -672,6 +672,7 @@ def dm_flags(api, bot):
     match.append('~XfermodeImageFilterCroppedInput_Gpu')
     match.append('~GrDefaultPathRendererTest') #skia:7244
     match.append('~GrMSAAPathRendererTest') #skia:7244
+    match.append('~SkImage_makeNonTextureImage')
 
   if (('RadeonR9M470X' in bot or 'RadeonHD7770' in bot) and 'ANGLE' in bot):
     # skia:7096
