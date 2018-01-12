@@ -1392,6 +1392,7 @@ if (skia_enable_tools) {
       "experimental/sksg/geometry/SkSGRect.cpp",
       "experimental/sksg/geometry/SkSGTrimEffect.cpp",
       "experimental/sksg/paint/SkSGColor.cpp",
+      "experimental/sksg/paint/SkSGGradient.cpp",
     ]
     deps = [
       ":skia",
