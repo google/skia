@@ -218,3 +218,11 @@ DEF_TEST(Bitmap_erase_f16_erase_getColor, r) {
     }
 }
 
+// Make sure that the bitmap remains valid when pixelref is removed.
+DEF_TEST(Bitmap_clear_pixelref_keep_info, r) {
+    SkBitmap bm;
+    bm.allocPixels(SkImageInfo::MakeN32Premul(100,100));
+    bm.setPixelRef(nullptr, 0, 0);
+    SkDEBUGCODE(bm.validate();)
+}
+
