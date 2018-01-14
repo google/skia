@@ -5,12 +5,13 @@
  * found in the LICENSE file.
  */
 
+#include "SkAndroidCodec.h"
 #include "SkAnimatedImage.h"
 #include "SkCanvas.h"
 #include "SkCodec.h"
 #include "SkCodecPriv.h"
 
-sk_sp<SkAnimatedImage> SkAnimatedImage::MakeFromCodec(std::unique_ptr<SkCodec> codec) {
+sk_sp<SkAnimatedImage> SkAnimatedImage::Make(std::unique_ptr<SkAndroidCodec> codec) {
     if (!codec) {
         return nullptr;
     }
@@ -27,7 +28,7 @@ sk_sp<SkAnimatedImage> SkAnimatedImage::MakeFromCodec(std::unique_ptr<SkCodec> c
 // Sentinel value for starting at the beginning.
 static constexpr double kInit = -1.0;
 
-SkAnimatedImage::SkAnimatedImage(std::unique_ptr<SkCodec> codec)
+SkAnimatedImage::SkAnimatedImage(std::unique_ptr<SkAndroidCodec> codec)
     : fCodec(std::move(codec))
     , fFinished(false)
     , fRunning(false)
@@ -93,7 +94,7 @@ double SkAnimatedImage::update(double msecs) {
     fNowMS = msecs;
     const double msSinceLastUpdate = fNowMS - lastUpdateMS;
 
-    const int frameCount = fCodec->getFrameCount();
+    const int frameCount = fCodec->codec()->getFrameCount();
     int frameToDecode = SkCodec::kNone;
     if (kInit == msecs) {
         frameToDecode = 0;
@@ -110,7 +111,7 @@ double SkAnimatedImage::update(double msecs) {
     }
 
     SkCodec::FrameInfo frameInfo;
-    if (fCodec->getFrameInfo(frameToDecode, &frameInfo)) {
+    if (fCodec->codec()->getFrameInfo(frameToDecode, &frameInfo)) {
         if (!frameInfo.fFullyReceived) {
             SkCodecPrintf("Frame %i not fully received\n", frameToDecode);
             fFinished = true;
@@ -126,7 +127,7 @@ double SkAnimatedImage::update(double msecs) {
                 SkCodecPrintf("Skipping frame %i\n", frameToDecode);
                 pastUpdate -= frameInfo.fDuration;
                 frameToDecode = (frameToDecode + 1) % frameCount;
-                if (!fCodec->getFrameInfo(frameToDecode, &frameInfo)) {
+                if (!fCodec->codec()->getFrameInfo(frameToDecode, &frameInfo)) {
                     SkCodecPrintf("Could not getFrameInfo for frame %i",
                                   frameToDecode);
                     // Prior call to getFrameInfo succeeded, so use that one.
@@ -222,9 +223,10 @@ double SkAnimatedImage::update(double msecs) {
         }
     }
 
-    auto result = fCodec->getPixels(dst->info(), dst->getPixels(), dst->rowBytes(), &options);
+    auto result = fCodec->codec()->getPixels(dst->info(), dst->getPixels(), dst->rowBytes(),
+                                             &options);
     if (result != SkCodec::kSuccess) {
-        SkCodecPrintf("error %i, frame %i of %i\n", result, frameToDecode, fCodec->getFrameCount());
+        SkCodecPrintf("error %i, frame %i of %i\n", result, frameToDecode, frameCount);
         // Reset to the beginning.
         fActiveFrame.fIndex = SkCodec::kNone;
         return 0.0;

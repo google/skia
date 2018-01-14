@@ -231,11 +231,11 @@ public:
         return this->getAndroidPixels(info, pixels, rowBytes);
     }
 
+    SkCodec* codec() const { return fCodec.get(); }
+
 protected:
 
     SkAndroidCodec(SkCodec*);
-
-    SkCodec* codec() const { return fCodec.get(); }
 
     virtual SkISize onGetSampledDimensions(int sampleSize) const = 0;
 
