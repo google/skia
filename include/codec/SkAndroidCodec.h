@@ -13,6 +13,8 @@
 #include "SkStream.h"
 #include "SkTypes.h"
 
+#include <vector>
+
 /**
  *  Abstract interface defining image codec functionality that is necessary for
  *  Android.
@@ -89,6 +91,17 @@ public:
      */
     sk_sp<SkColorSpace> computeOutputColorSpace(SkColorType outputColorType,
                                                 sk_sp<SkColorSpace> prefColorSpace = nullptr);
+
+    /**
+     *  Compute the appropriate sample size to get to |size|.
+     *
+     *  @param size As an input parameter, the desired output size of
+     *      the decode. As an output parameter, the smallest sampled size
+     *      larger than the input.
+     *  @return the sample size to set AndroidOptions::fSampleSize to decode
+     *      to the output |size|.
+     */
+    int computeSampleSize(SkISize* size) const;
 
     /**
      *  Returns the dimensions of the scaled output image, for an input
@@ -251,5 +264,11 @@ private:
     const SkImageInfo& fInfo;
 
     std::unique_ptr<SkCodec> fCodec;
+
+    // Simple list of values passed to getSampledDimensions. A client is likely
+    // to call that method once (or a few times) and pass a returned value to
+    // computeSampledSize. This ensures that the latter method returns the
+    // requested sample size.
+    mutable std::vector<int> fQueriedSampleSizes;
 };
 #endif // SkAndroidCodec_DEFINED
