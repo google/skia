@@ -186,6 +186,45 @@ sk_sp<SkColorSpace> SkAndroidCodec::computeOutputColorSpace(SkColorType outputCo
     }
 }
 
+static bool supports_any_down_scale(const SkCodec* codec) {
+    return codec->getEncodedFormat() == SkEncodedImageFormat::kWEBP;
+}
+
+int SkAndroidCodec::computeSampleSize(SkISize* desiredSize) const {
+    SkASSERT(desiredSize);
+
+    if (*desiredSize == fInfo.dimensions()) {
+        return 1;
+    }
+
+    if (desiredSize->width() > fInfo.width() || desiredSize->height() > fInfo.height()) {
+        *desiredSize = fInfo.dimensions();
+        return 1;
+    }
+
+    if (supports_any_down_scale(fCodec.get())) {
+        return 1;
+    }
+
+    // First check to see if the client is using a value previously returned by
+    // getSampledDimensions.
+    for (int sampleSize : fQueriedSampleSizes) {
+        auto sampledSize = this->onGetSampledDimensions(sampleSize);
+        if (sampledSize == *desiredSize) {
+            return sampleSize;
+        }
+    }
+
+    int sampleX = fInfo.width()  / desiredSize->width();
+    int sampleY = fInfo.height() / desiredSize->height();
+    int sampleSize = std::min(sampleX, sampleY);
+    *desiredSize = this->getSampledDimensions(sampleSize);
+
+    sampleX = fInfo.width()  / desiredSize->width();
+    sampleY = fInfo.height() / desiredSize->height();
+    return std::min(sampleX, sampleY);
+}
+
 SkISize SkAndroidCodec::getSampledDimensions(int sampleSize) const {
     if (!is_valid_sample_size(sampleSize)) {
         return {0, 0};
@@ -194,6 +233,10 @@ SkISize SkAndroidCodec::getSampledDimensions(int sampleSize) const {
     // Fast path for when we are not scaling.
     if (1 == sampleSize) {
         return fInfo.dimensions();
+    }
+
+    if (!supports_any_down_scale(fCodec.get())) {
+        fQueriedSampleSizes.push_back(sampleSize);
     }
 
     return this->onGetSampledDimensions(sampleSize);
