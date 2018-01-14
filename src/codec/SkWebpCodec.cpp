@@ -402,7 +402,7 @@ SkCodec::Result SkWebpCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst, 
     SkASSERT(0 == index || index < fFrameHolder.size());
 
     const auto& srcInfo = this->getInfo();
-    SkASSERT(0 == index || (!options.fSubset && dstInfo.dimensions() == srcInfo.dimensions()));
+    SkASSERT(0 == index || !options.fSubset);
 
     WebPDecoderConfig config;
     if (0 == WebPInitDecoderConfig(&config)) {

@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
+#include "SkAndroidCodec.h"
 #include "SkAnimatedImage.h"
 #include "SkAnimTimer.h"
 #include "SkCanvas.h"
-#include "SkCodec.h"
 #include "SkPaint.h"
 #include "SkPictureRecorder.h"
 #include "SkRect.h"
@@ -74,7 +74,7 @@ protected:
             return;
         }
 
-        fImage = SkAnimatedImage::MakeFromCodec(std::move(codec));
+        fImage = SkAnimatedImage::Make(SkAndroidCodec::MakeFromCodec(std::move(codec)));
         if (!fImage) {
             return;
         }

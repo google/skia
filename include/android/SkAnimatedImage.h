@@ -12,7 +12,7 @@
 #include "SkCodecAnimation.h"
 #include "SkDrawable.h"
 
-class SkCodec;
+class SkAndroidCodec;
 
 /**
  *  Thread unsafe drawable for drawing animated images (e.g. GIF).
@@ -20,12 +20,12 @@ class SkCodec;
 class SK_API SkAnimatedImage : public SkDrawable {
 public:
     /**
-     *  Create an SkAnimatedImage from the SkCodec.
+     *  Create an SkAnimatedImage from the SkAndroidCodec.
      *
      *  Returns null on failure to allocate pixels. On success, this will
      *  decode the first frame. It will not animate until start() is called.
      */
-    static sk_sp<SkAnimatedImage> MakeFromCodec(std::unique_ptr<SkCodec>);
+    static sk_sp<SkAnimatedImage> Make(std::unique_ptr<SkAndroidCodec>);
 
     ~SkAnimatedImage() override;
 
@@ -70,15 +70,15 @@ private:
         bool copyTo(Frame*) const;
     };
 
-    std::unique_ptr<SkCodec> fCodec;
-    bool                     fFinished;
-    bool                     fRunning;
-    double                   fNowMS;
-    double                   fRemainingMS;
-    Frame                    fActiveFrame;
-    Frame                    fRestoreFrame;
+    std::unique_ptr<SkAndroidCodec> fCodec;
+    bool                            fFinished;
+    bool                            fRunning;
+    double                          fNowMS;
+    double                          fRemainingMS;
+    Frame                           fActiveFrame;
+    Frame                           fRestoreFrame;
 
-    SkAnimatedImage(std::unique_ptr<SkCodec>);
+    SkAnimatedImage(std::unique_ptr<SkAndroidCodec>);
 
     typedef SkDrawable INHERITED;
 };
