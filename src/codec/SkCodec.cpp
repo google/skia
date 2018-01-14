@@ -237,8 +237,8 @@ SkCodec::Result SkCodec::handleFrameIndex(const SkImageInfo& info, void* pixels,
         return kInvalidParameters;
     }
 
-    if (options.fSubset || info.dimensions() != fSrcInfo.dimensions()) {
-        // If we add support for these, we need to update the code that zeroes
+    if (options.fSubset) {
+        // If we add support for this, we need to update the code that zeroes
         // a kRestoreBGColor frame.
         return kInvalidParameters;
     }
@@ -275,7 +275,29 @@ SkCodec::Result SkCodec::handleFrameIndex(const SkImageInfo& info, void* pixels,
                     // If a frame after the required frame is provided, there is no
                     // need to clear, since it must be covered by the desired frame.
                     if (options.fPriorFrame == requiredFrame) {
-                        zero_rect(info, pixels, rowBytes, prevFrame->frameRect());
+                        SkIRect prevRect = prevFrame->frameRect();
+                        if (info.dimensions() != fSrcInfo.dimensions()) {
+                            auto src = SkRect::Make(fSrcInfo.dimensions());
+                            auto dst = SkRect::Make(info.dimensions());
+                            SkMatrix map = SkMatrix::MakeRectToRect(src, dst,
+                                    SkMatrix::kCenter_ScaleToFit);
+                            SkRect asRect = SkRect::Make(prevRect);
+                            if (!map.mapRect(&asRect)) {
+                                return kInternalError;
+                            }
+                            asRect.roundIn(&prevRect);
+                            if (prevRect.isEmpty()) {
+                                // Down-scaling shrank the empty portion to nothing,
+                                // so nothing to zero.
+                                break;
+                            }
+                            if (!prevRect.intersect(SkIRect::MakeSize(info.dimensions()))) {
+                                SkCodecPrintf("rectangles do not intersect!");
+                                SkASSERT(false);
+                                break;
+                            }
+                        }
+                        zero_rect(info, pixels, rowBytes, prevRect);
                     }
                     break;
                 default:
