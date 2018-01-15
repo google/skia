@@ -10,7 +10,9 @@
 #include "GLFW/glfw3.h"
 #include "GrBackendSurface.h"
 #include "GrContext.h"
+#include "GrGLDefines.h"
 #include "SkCanvas.h"
+#include "SkBitmap.h"
 #include "SkImage.h"
 #include "SkRSXform.h"
 #include "SkSurface.h"
@@ -49,7 +51,7 @@ static void init_skia(int w, int h) {
                                               framebufferInfo);
 
     sSurface = SkSurface::MakeFromBackendRenderTarget(sContext, backendRenderTarget,
-                                                      kBottomLeft_GrSurfaceOrigin, colortype,
+                                                      kBottomLeft_GrSurfaceOrigin, colorType,
                                                       nullptr, nullptr).release();
 }
 
@@ -92,7 +94,7 @@ int main(void) {
     int         currentTime;
 
     sk_sp<SkData> imageData(SkData::MakeFromFileName("images/ship.png"));
-    atlas.reset(SkImage::NewFromEncoded(imageData.get()));
+    SkImage::MakeFromEncoded(imageData).swap(atlas);
     if (!atlas) {
         SkDebugf("\nCould not decode file ship.png\n");
 
@@ -166,7 +168,7 @@ int main(void) {
         }
 
         canvas->clear(SK_ColorBLACK);
-        canvas->drawAtlas(atlas, xform, tex, nullptr, kGrid*kGrid+1, SkXfermode::kSrcOver_Mode,
+        canvas->drawAtlas(atlas, xform, tex, nullptr, kGrid*kGrid+1, SkBlendMode::kSrcOver,
                           nullptr, &paint);
         canvas->drawText(outString, strlen(outString), 100.f, 100.f, paint);
 
