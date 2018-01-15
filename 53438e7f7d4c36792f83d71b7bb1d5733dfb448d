@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "43acd7dd_3a4cc266",
+        "filename": "experimental/GLFWTest/glfw_main.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 7922
+      },
+      "writtenOn": "2018-01-15T19:08:20Z",
+      "side": 1,
+      "message": "To be quite honest - I am not sure about this one - since this comes from src\nBut I don\u0027t see any other way than this to have a valid GR_GL_RGBA8 replacement",
+      "revId": "53438e7f7d4c36792f83d71b7bb1d5733dfb448d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
