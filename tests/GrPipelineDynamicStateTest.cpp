@@ -146,7 +146,7 @@ private:
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrPipelineDynamicStateTest, reporter, ctxInfo) {
     GrContext* const context = ctxInfo.grContext();
-    GrResourceProvider* rp = context->resourceProvider();
+    GrResourceProvider* rp = context->contextPriv().resourceProvider();
 
     sk_sp<GrRenderTargetContext> rtc(
         context->makeDeferredRenderTargetContext(SkBackingFit::kExact, kScreenSize, kScreenSize,
