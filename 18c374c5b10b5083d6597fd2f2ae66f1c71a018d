@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "0e3ee6e1_449b53d5",
+        "filename": "platform_tools/android/apps/skqp/src/main/java/org/skia/skqp/SkQP.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2018-01-16T20:56:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0c8ef508_b5bd894e",
+      "revId": "18c374c5b10b5083d6597fd2f2ae66f1c71a018d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5d25e7d0_8b3fd011",
         "filename": "platform_tools/android/apps/skqp/src/main/java/org/skia/skqp/SkQP.java",
         "patchSetId": 8
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "c6bb77ff_4341bb88",
+        "filename": "platform_tools/android/apps/skqp/src/main/java/org/skia/skqp/SkQP.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2018-01-16T20:56:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5d25e7d0_8b3fd011",
+      "revId": "18c374c5b10b5083d6597fd2f2ae66f1c71a018d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "603bf312_1504579a",
         "filename": "platform_tools/android/apps/skqp/src/main/java/org/skia/skqp/SkQP.java",
         "patchSetId": 8
@@ -50,6 +86,24 @@
       "revId": "18c374c5b10b5083d6597fd2f2ae66f1c71a018d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7d1a598f_8eee4305",
+        "filename": "platform_tools/android/apps/skqp/src/main/java/org/skia/skqp/SkQP.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2018-01-16T20:56:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "603bf312_1504579a",
+      "revId": "18c374c5b10b5083d6597fd2f2ae66f1c71a018d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
