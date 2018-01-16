@@ -59,6 +59,8 @@ private:
 
     void writeProgramElement(const ProgramElement& p) override;
 
+    const char* getUniformType(const Type& type);
+
     void addUniform(const Variable& var);
 
     // writes a printf escape that will be filled in at runtime by the given C++ expression string
@@ -69,6 +71,8 @@ private:
     void writePrivateVars();
 
     void writePrivateVarValues();
+
+    void writePrivateVarInits();
 
     void writeCodeAppend(const String& code);
 

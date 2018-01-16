@@ -37,13 +37,19 @@ public:
 
     bool generateCode() override;
 
-    static String ParameterType(const Context& context, const Type& type, const Layout& layout);
+    static String ReturnType(const Context& context, const Type& type, const Layout& layout);
 
-    static String FieldType(const Context& context, const Type& type, const Layout& layout);
+    static String ParameterDeclaration(const Context& context, const Type& type,
+                                       const Layout& layout, const char* name);
+
+    static String FieldDeclaration(const Context& context, const Variable& v, const char* name);
 
     static String FieldName(const char* varName) {
         return String::printf("f%c%s", toupper(varName[0]), varName + 1);
     }
+
+    static void WriteConstants(const Program& program, OutputStream* out);
+
 
 private:
     void writef(const char* s, va_list va) SKSL_PRINTF_LIKE(2, 0);

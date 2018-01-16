@@ -302,8 +302,10 @@ std::unique_ptr<VarDeclarations> IRGenerator::convertVarDeclarations(const ASTVa
             Variable* old = (Variable*) (*fSymbolTable)[varDecl.fName];
             old->fModifiers = var->fModifiers;
         } else {
-            variables.emplace_back(new VarDeclaration(var.get(), std::move(sizes),
-                                                      std::move(value)));
+            VarDeclaration* decl = new VarDeclaration(var.get(), std::move(value),
+                                                      std::move(sizes));
+            variables.emplace_back(decl);
+            var->fSizes = &decl->fSizes;
             fSymbolTable->add(varDecl.fName, std::move(var));
         }
     }

@@ -20,6 +20,7 @@
 #include "GrRenderTargetContext.h"
 #include "GrFragmentProcessor.h"
 #include "GrCoordTransform.h"
+#include "SkPoint3.h"
 class GrConfigConversionEffect : public GrFragmentProcessor {
 public:
     static bool TestForPreservingPMConversions(GrContext* context) {

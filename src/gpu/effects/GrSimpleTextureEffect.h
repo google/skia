@@ -14,6 +14,7 @@
 #if SK_SUPPORT_GPU
 #include "GrFragmentProcessor.h"
 #include "GrCoordTransform.h"
+#include "SkPoint3.h"
 class GrSimpleTextureEffect : public GrFragmentProcessor {
 public:
     SkMatrix44 matrix() const { return fMatrix; }
