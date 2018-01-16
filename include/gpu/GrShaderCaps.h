@@ -121,6 +121,9 @@ public:
     // the shader.
     bool mustDoOpBetweenFloorAndAbs() const { return fMustDoOpBetweenFloorAndAbs; }
 
+    // If false, SkSL uses a workaround so that sk_FragCoord doesn't actually query gl_FragCoord
+    bool canUseFragCoord() const { return fCanUseFragCoord; }
+
     bool requiresLocalOutputColorForFBFetch() const { return fRequiresLocalOutputColorForFBFetch; }
 
     bool mustObfuscateUniformColor() const { return fMustObfuscateUniformColor; }
@@ -275,6 +278,7 @@ private:
     bool fRequiresLocalOutputColorForFBFetch : 1;
     bool fMustObfuscateUniformColor : 1;
     bool fMustGuardDivisionEvenAfterExplicitZeroCheck : 1;
+    bool fCanUseFragCoord : 1;
 
     const char* fVersionDeclString;
 
