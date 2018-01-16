@@ -65,7 +65,7 @@ Click on any image below to see the source code that generated the image.
 
 Roadmap
 -------
-For a look at high level items we have on tap the next 6-12 months, view our
-roadmap [here](https://docs.google.com/document/d/1C9w8qpPpdgNGThqmgNnTToLZ5UYK4TsUGl5X3B_q6oM/edit?usp=sharing).
+For a look at high level themes we have on tap the next 6-12 months, view our
+roadmap [here](https://docs.google.com/document/d/1LSdO3I-IdZVZCtEnW9pu3k_32gfPIcB_YeSn-OJBGZI/edit?usp=sharing).
 Note it is a living document that changes based on the requirements of our users.
 
