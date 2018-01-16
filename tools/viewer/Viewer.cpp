@@ -173,7 +173,8 @@ const char* kOFF = "OFF";
 const char* kRefreshStateName = "Refresh";
 
 Viewer::Viewer(int argc, char** argv, void* platformData)
-    : fRefresh(false)
+    : fCurrentSlide(-1)
+    , fRefresh(false)
     , fSaveToSKP(false)
     , fShowImGuiDebugWindow(false)
     , fShowSlidePicker(false)
@@ -287,20 +288,10 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
         }
     });
     fCommands.addCommand(Window::Key::kRight, "Right", "Navigation", "Next slide", [this]() {
-        int previousSlide = fCurrentSlide;
-        fCurrentSlide++;
-        if (fCurrentSlide >= fSlides.count()) {
-            fCurrentSlide = 0;
-        }
-        this->setupCurrentSlide(previousSlide);
+        this->setCurrentSlide(fCurrentSlide < fSlides.count() - 1 ? fCurrentSlide + 1 : 0);
     });
     fCommands.addCommand(Window::Key::kLeft, "Left", "Navigation", "Previous slide", [this]() {
-        int previousSlide = fCurrentSlide;
-        fCurrentSlide--;
-        if (fCurrentSlide < 0) {
-            fCurrentSlide = fSlides.count() - 1;
-        }
-        this->setupCurrentSlide(previousSlide);
+        this->setCurrentSlide(fCurrentSlide > 0 ? fCurrentSlide - 1 : fSlides.count() - 1);
     });
     fCommands.addCommand(Window::Key::kUp, "Up", "Transform", "Zoom in", [this]() {
         this->changeZoomLevel(1.f / 32.f);
@@ -389,7 +380,7 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
 
     // set up slides
     this->initSlides();
-    this->setStartupSlide();
+    this->setCurrentSlide(this->startupSlide());
     if (FLAGS_list) {
         this->listNames();
     }
@@ -583,14 +574,13 @@ void Viewer::updateTitle() {
     fWindow->setTitle(title.c_str());
 }
 
-void Viewer::setStartupSlide() {
+int Viewer::startupSlide() const {
 
     if (!FLAGS_slide.isEmpty()) {
         int count = fSlides.count();
         for (int i = 0; i < count; i++) {
             if (fSlides[i]->getName().equals(FLAGS_slide[0])) {
-                fCurrentSlide = i;
-                return;
+                return i;
             }
         }
 
@@ -598,24 +588,35 @@ void Viewer::setStartupSlide() {
         this->listNames();
     }
 
-    fCurrentSlide = 0;
+    return 0;
 }
 
-void Viewer::listNames() {
-    int count = fSlides.count();
+void Viewer::listNames() const {
     SkDebugf("All Slides:\n");
-    for (int i = 0; i < count; i++) {
-        SkDebugf("    %s\n", fSlides[i]->getName().c_str());
+    for (const auto& slide : fSlides) {
+        SkDebugf("    %s\n", slide->getName().c_str());
     }
 }
 
-void Viewer::setupCurrentSlide(int previousSlide) {
-    if (fCurrentSlide == previousSlide) {
-        return; // no change; do nothing
-    }
-    // prepare dimensions for image slides
-    fSlides[fCurrentSlide]->load(SkIntToScalar(fWindow->width()), SkIntToScalar(fWindow->height()));
+void Viewer::setCurrentSlide(int slide) {
+    SkASSERT(slide >= 0 && slide < fSlides.count());
 
+    if (slide == fCurrentSlide) {
+        return;
+    }
+
+    if (fCurrentSlide >= 0) {
+        fSlides[fCurrentSlide]->unload();
+    }
+
+    fSlides[slide]->load(SkIntToScalar(fWindow->width()),
+                         SkIntToScalar(fWindow->height()));
+    fCurrentSlide = slide;
+    this->setupCurrentSlide();
+}
+
+void Viewer::setupCurrentSlide() {
+    // prepare dimensions for image slides
     fGesture.resetTouchState();
     fDefaultMatrix.reset();
 
@@ -635,9 +636,6 @@ void Viewer::setupCurrentSlide(int previousSlide) {
 
     this->updateTitle();
     this->updateUIState();
-    if (previousSlide >= 0) {
-        fSlides[previousSlide]->unload();
-    }
 
     fStatsLayer.resetMeasurements();
 
@@ -823,7 +821,7 @@ void Viewer::drawSlide(SkCanvas* canvas) {
 void Viewer::onBackendCreated() {
     this->updateTitle();
     this->updateUIState();
-    this->setupCurrentSlide(-1);
+    this->setupCurrentSlide();
     fStatsLayer.resetMeasurements();
     fWindow->show();
     fWindow->inval();
@@ -1076,11 +1074,9 @@ void Viewer::drawImGui() {
                     }
                 }
 
-                int previousSlide = fCurrentSlide;
                 if (ImGui::ListBox("", &filteredIndex, filteredSlideNames.begin(),
                                    filteredSlideNames.size(), 20)) {
-                    fCurrentSlide = filteredSlideIndices[filteredIndex];
-                    setupCurrentSlide(previousSlide);
+                    this->setCurrentSlide(filteredSlideIndices[filteredIndex]);
                 }
             }
 
@@ -1310,19 +1306,14 @@ void Viewer::onUIStateChanged(const SkString& stateName, const SkString& stateVa
     // For example, after slide change, updateUIState is called inside setupCurrentSlide;
     // after backend change, updateUIState is called in this function.
     if (stateName.equals(kSlideStateName)) {
-        int previousSlide = fCurrentSlide;
-        fCurrentSlide = 0;
-        for(auto slide : fSlides) {
-            if (slide->getName().equals(stateValue)) {
-                this->setupCurrentSlide(previousSlide);
-                break;
+        for (int i = 0; i < fSlides.count(); ++i) {
+            if (fSlides[i]->getName().equals(stateValue)) {
+                this->setCurrentSlide(i);
+                return;
             }
-            fCurrentSlide++;
         }
-        if (fCurrentSlide >= fSlides.count()) {
-            fCurrentSlide = previousSlide;
-            SkDebugf("Slide not found: %s", stateValue.c_str());
-        }
+
+        SkDebugf("Slide not found: %s", stateValue.c_str());
     } else if (stateName.equals(kBackendStateName)) {
         for (int i = 0; i < sk_app::Window::kBackendTypeCount; i++) {
             if (stateValue.equals(kBackendTypeStrings[i])) {
