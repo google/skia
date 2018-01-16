@@ -312,6 +312,10 @@ sk_sp<GrTextureProxy> GrProxyProvider::createProxy(const GrSurfaceDesc& desc,
 
 sk_sp<GrTextureProxy> GrProxyProvider::createWrappedTextureProxy(const GrBackendTexture& backendTex,
                                                                  GrSurfaceOrigin origin) {
+    if (this->isAbandoned()) {
+        return nullptr;
+    }
+
     sk_sp<GrTexture> texture(fResourceProvider->wrapBackendTexture(backendTex));
     if (!texture) {
         return nullptr;
@@ -324,6 +328,10 @@ sk_sp<GrTextureProxy> GrProxyProvider::createWrappedTextureProxy(const GrBackend
 sk_sp<GrTextureProxy> GrProxyProvider::createWrappedTextureProxy(const GrBackendTexture& tex,
                                                                  GrSurfaceOrigin origin,
                                                                  int sampleCnt) {
+    if (this->isAbandoned()) {
+        return nullptr;
+    }
+
     sk_sp<GrTexture> texture(fResourceProvider->wrapRenderableBackendTexture(tex, sampleCnt));
     if (!texture) {
         return nullptr;
@@ -336,6 +344,10 @@ sk_sp<GrTextureProxy> GrProxyProvider::createWrappedTextureProxy(const GrBackend
 sk_sp<GrSurfaceProxy> GrProxyProvider::createWrappedRenderTargetProxy(
                                                              const GrBackendRenderTarget& backendRT,
                                                              GrSurfaceOrigin origin) {
+    if (this->isAbandoned()) {
+        return nullptr;
+    }
+
     sk_sp<GrRenderTarget> rt(fResourceProvider->wrapBackendRenderTarget(backendRT));
     if (!rt) {
         return nullptr;
@@ -349,6 +361,10 @@ sk_sp<GrSurfaceProxy> GrProxyProvider::createWrappedRenderTargetProxy(
 sk_sp<GrSurfaceProxy> GrProxyProvider::createWrappedRenderTargetProxy(const GrBackendTexture& tex,
                                                                       GrSurfaceOrigin origin,
                                                                       int sampleCnt) {
+    if (this->isAbandoned()) {
+        return nullptr;
+    }
+
     sk_sp<GrRenderTarget> rt(fResourceProvider->wrapBackendTextureAsRenderTarget(tex, sampleCnt));
     if (!rt) {
         return nullptr;
