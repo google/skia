@@ -16,6 +16,24 @@
       "revId": "856d7a33ca3e58d49001e5bc43a6e3bc080392c5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6d2ae864_30507457",
+        "filename": "src/codec/SkAndroidCodec.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 259,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-01-16T20:48:48Z",
+      "side": 1,
+      "message": "It\u0027s intended as documentation - I don\u0027t think we should ever reach here.",
+      "parentUuid": "b600d90f_7a590526",
+      "revId": "856d7a33ca3e58d49001e5bc43a6e3bc080392c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
