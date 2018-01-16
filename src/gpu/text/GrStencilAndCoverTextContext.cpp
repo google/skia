@@ -560,7 +560,7 @@ void GrStencilAndCoverTextContext::TextRun::draw(GrContext* ctx,
     SkASSERT(fInstanceData);
 
     if (fInstanceData->count()) {
-        sk_sp<GrPathRange> glyphs(this->createGlyphs(ctx->contextPriv().resourceProvider()));
+        sk_sp<GrPathRange> glyphs(this->createGlyphs(ctx->resourceProvider()));
         if (fLastDrawnGlyphsID != glyphs->uniqueID()) {
             // Either this is the first draw or the glyphs object was purged since last draw.
             glyphs->loadPathsIfNeeded(fInstanceData->indices(), fInstanceData->count());

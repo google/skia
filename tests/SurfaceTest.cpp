@@ -783,8 +783,6 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SurfaceAttachStencil_Gpu, reporter, ctxInf
     }
     static const uint32_t kOrigColor = 0xFFAABBCC;
 
-    auto resourceProvider = ctxInfo.grContext()->contextPriv().resourceProvider();
-
     for (auto& surfaceFunc : {&create_gpu_surface_backend_texture,
                               &create_gpu_surface_backend_texture_as_render_target}) {
         for (int sampleCnt : {0, 4, 8}) {
@@ -800,7 +798,8 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SurfaceAttachStencil_Gpu, reporter, ctxInf
             // our surface functions.
             GrRenderTarget* rt = surface->getCanvas()
                 ->internal_private_accessTopLayerRenderTargetContext()->accessRenderTarget();
-            REPORTER_ASSERT(reporter, resourceProvider->attachStencilAttachment(rt));
+            REPORTER_ASSERT(reporter,
+                            ctxInfo.grContext()->resourceProvider()->attachStencilAttachment(rt));
             gpu->deleteTestingOnlyBackendTexture(&backendTex);
         }
     }

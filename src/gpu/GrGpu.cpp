@@ -13,7 +13,6 @@
 #include "GrBuffer.h"
 #include "GrCaps.h"
 #include "GrContext.h"
-#include "GrContextPriv.h"
 #include "GrGpuResourcePriv.h"
 #include "GrMesh.h"
 #include "GrPathRendering.h"
@@ -484,17 +483,15 @@ bool GrGpu::SamplePatternComparator::operator()(const SamplePattern& a,
 
 GrSemaphoresSubmitted GrGpu::finishFlush(int numSemaphores,
                                          GrBackendSemaphore backendSemaphores[]) {
-    GrResourceProvider* resourceProvider = fContext->contextPriv().resourceProvider();
-
     if (this->caps()->fenceSyncSupport()) {
         for (int i = 0; i < numSemaphores; ++i) {
             sk_sp<GrSemaphore> semaphore;
             if (backendSemaphores[i].isInitialized()) {
-                semaphore = resourceProvider->wrapBackendSemaphore(
+                semaphore = fContext->resourceProvider()->wrapBackendSemaphore(
                         backendSemaphores[i], GrResourceProvider::SemaphoreWrapType::kWillSignal,
                         kBorrow_GrWrapOwnership);
             } else {
-                semaphore = resourceProvider->makeSemaphore(false);
+                semaphore = fContext->resourceProvider()->makeSemaphore(false);
             }
             this->insertSemaphore(semaphore, false);
 

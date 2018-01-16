@@ -504,7 +504,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WritePixelsPendingIO, reporter, ctxInfo) {
 
         sk_sp<GrTextureProxy> temp = proxyProvider->createProxy(desc, SkBackingFit::kApprox,
                                                                 SkBudgeted::kYes);
-        temp->instantiate(context->contextPriv().resourceProvider());
+        temp->instantiate(context->resourceProvider());
     }
 
     // Create the surfaces and flush them to ensure there is no lingering pendingIO

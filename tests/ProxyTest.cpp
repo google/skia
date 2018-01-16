@@ -107,7 +107,7 @@ static void check_texture(skiatest::Reporter* reporter,
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredProxyTest, reporter, ctxInfo) {
     GrProxyProvider* proxyProvider = ctxInfo.grContext()->contextPriv().proxyProvider();
-    GrResourceProvider* resourceProvider = ctxInfo.grContext()->contextPriv().resourceProvider();
+    GrResourceProvider* resourceProvider = ctxInfo.grContext()->resourceProvider();
     const GrCaps& caps = *ctxInfo.grContext()->caps();
 
     int attempt = 0; // useful for debugging
@@ -196,7 +196,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredProxyTest, reporter, ctxInfo) {
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
     GrProxyProvider* proxyProvider = ctxInfo.grContext()->contextPriv().proxyProvider();
-    GrResourceProvider* resourceProvider = ctxInfo.grContext()->contextPriv().resourceProvider();
+    GrResourceProvider* provider = ctxInfo.grContext()->resourceProvider();
     const GrCaps& caps = *ctxInfo.grContext()->caps();
 
     static const int kWidthHeight = 100;
@@ -227,8 +227,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
                                                                                 backendRT, origin));
                         check_surface(reporter, sProxy.get(), origin,
                                       kWidthHeight, kWidthHeight, config, SkBudgeted::kNo);
-                        check_rendertarget(reporter, caps, resourceProvider,
-                                           sProxy->asRenderTargetProxy(),
+                        check_rendertarget(reporter, caps, provider, sProxy->asRenderTargetProxy(),
                                            supportedNumSamples, SkBackingFit::kExact, 0, true);
                     }
 
@@ -244,8 +243,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
 
                         check_surface(reporter, sProxy.get(), origin,
                                       kWidthHeight, kWidthHeight, config, budgeted);
-                        check_rendertarget(reporter, caps, resourceProvider,
-                                           sProxy->asRenderTargetProxy(),
+                        check_rendertarget(reporter, caps, provider, sProxy->asRenderTargetProxy(),
                                            supportedNumSamples, SkBackingFit::kExact,
                                            caps.maxWindowRectangles(), true);
                     } else {
@@ -261,7 +259,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
 
                         check_surface(reporter, sProxy.get(), origin,
                                       kWidthHeight, kWidthHeight, config, budgeted);
-                        check_texture(reporter, resourceProvider, sProxy->asTextureProxy(),
+                        check_texture(reporter, provider, sProxy->asTextureProxy(),
                                       SkBackingFit::kExact, true);
                     }
                 }

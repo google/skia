@@ -188,7 +188,7 @@ inline bool GrDrawOpAtlas::updatePlot(GrDeferredUploadTarget* target, AtlasID* i
 
         // MDB TODO: this is currently fine since the atlas' proxy is always pre-instantiated.
         // Once it is deferred more care must be taken upon instantiation failure.
-        if (!fProxies[pageIdx]->instantiate(fContext->contextPriv().resourceProvider())) {
+        if (!fProxies[pageIdx]->instantiate(fContext->resourceProvider())) {
             return false;
         }
 
@@ -309,7 +309,7 @@ bool GrDrawOpAtlas::addToAtlas(AtlasID* id, GrDeferredUploadTarget* target, int 
     sk_sp<Plot> plotsp(SkRef(newPlot.get()));
     // MDB TODO: this is currently fine since the atlas' proxy is always pre-instantiated.
     // Once it is deferred more care must be taken upon instantiation failure.
-    if (!fProxies[pageIdx]->instantiate(fContext->contextPriv().resourceProvider())) {
+    if (!fProxies[pageIdx]->instantiate(fContext->resourceProvider())) {
         return false;
     }
     GrTextureProxy* proxy = fProxies[pageIdx].get();

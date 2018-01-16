@@ -7,7 +7,6 @@
 
 #include "GrGpuResource.h"
 #include "GrContext.h"
-#include "GrContextPriv.h"
 #include "GrResourceCache.h"
 #include "GrGpu.h"
 #include "GrGpuResourcePriv.h"
@@ -16,8 +15,8 @@
 static inline GrResourceCache* get_resource_cache(GrGpu* gpu) {
     SkASSERT(gpu);
     SkASSERT(gpu->getContext());
-    SkASSERT(gpu->getContext()->contextPriv().getResourceCache());
-    return gpu->getContext()->contextPriv().getResourceCache();
+    SkASSERT(gpu->getContext()->getResourceCache());
+    return gpu->getContext()->getResourceCache();
 }
 
 GrGpuResource::GrGpuResource(GrGpu* gpu)

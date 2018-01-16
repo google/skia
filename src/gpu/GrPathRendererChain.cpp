@@ -34,7 +34,7 @@ GrPathRendererChain::GrPathRendererChain(GrContext* context, const Options& opti
     }
     if (options.fGpuPathRenderers & GpuPathRenderers::kStencilAndCover) {
         sk_sp<GrPathRenderer> pr(
-           GrStencilAndCoverPathRenderer::Create(context->contextPriv().resourceProvider(), caps));
+            GrStencilAndCoverPathRenderer::Create(context->resourceProvider(), caps));
         if (pr) {
             fChain.push_back(std::move(pr));
         }

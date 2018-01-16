@@ -24,8 +24,6 @@
 // and render targets to GrSurface all work as expected.
 DEF_GPUTEST_FOR_NULLGL_CONTEXT(GrSurface, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
-    auto resourceProvider = context->contextPriv().resourceProvider();
-
     GrSurfaceDesc desc;
     desc.fFlags = kRenderTarget_GrSurfaceFlag;
     desc.fOrigin = kBottomLeft_GrSurfaceOrigin;
@@ -33,7 +31,7 @@ DEF_GPUTEST_FOR_NULLGL_CONTEXT(GrSurface, reporter, ctxInfo) {
     desc.fHeight = 256;
     desc.fConfig = kRGBA_8888_GrPixelConfig;
     desc.fSampleCnt = 0;
-    sk_sp<GrSurface> texRT1 = resourceProvider->createTexture(desc, SkBudgeted::kNo);
+    sk_sp<GrSurface> texRT1 = context->resourceProvider()->createTexture(desc, SkBudgeted::kNo);
 
     REPORTER_ASSERT(reporter, texRT1.get() == texRT1->asRenderTarget());
     REPORTER_ASSERT(reporter, texRT1.get() == texRT1->asTexture());
@@ -46,7 +44,7 @@ DEF_GPUTEST_FOR_NULLGL_CONTEXT(GrSurface, reporter, ctxInfo) {
 
     desc.fFlags = kNone_GrSurfaceFlags;
     desc.fOrigin = kTopLeft_GrSurfaceOrigin;
-    sk_sp<GrTexture> tex1 = resourceProvider->createTexture(desc, SkBudgeted::kNo);
+    sk_sp<GrTexture> tex1 = context->resourceProvider()->createTexture(desc, SkBudgeted::kNo);
     REPORTER_ASSERT(reporter, nullptr == tex1->asRenderTarget());
     REPORTER_ASSERT(reporter, tex1.get() == tex1->asTexture());
     REPORTER_ASSERT(reporter, static_cast<GrSurface*>(tex1.get()) == tex1->asTexture());
@@ -54,8 +52,8 @@ DEF_GPUTEST_FOR_NULLGL_CONTEXT(GrSurface, reporter, ctxInfo) {
     GrBackendTexture backendTex = context->getGpu()->createTestingOnlyBackendTexture(
         nullptr, 256, 256, kRGBA_8888_GrPixelConfig, false, GrMipMapped::kNo);
 
-    sk_sp<GrSurface> texRT2 = resourceProvider->wrapRenderableBackendTexture(
-                                                    backendTex, 0, kBorrow_GrWrapOwnership);
+    sk_sp<GrSurface> texRT2 = context->resourceProvider()->wrapRenderableBackendTexture(
+            backendTex, 0, kBorrow_GrWrapOwnership);
 
     REPORTER_ASSERT(reporter, texRT2.get() == texRT2->asRenderTarget());
     REPORTER_ASSERT(reporter, texRT2.get() == texRT2->asTexture());
@@ -74,7 +72,7 @@ DEF_GPUTEST_FOR_NULLGL_CONTEXT(GrSurface, reporter, ctxInfo) {
 DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
     GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
-    GrResourceProvider* resourceProvider = context->contextPriv().resourceProvider();
+    GrResourceProvider* resourceProvider = context->resourceProvider();
     const GrCaps* caps = context->caps();
 
     GrPixelConfig configs[] = {

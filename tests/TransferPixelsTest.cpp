@@ -68,8 +68,6 @@ void basic_transfer_test(skiatest::Reporter* reporter, GrContext* context, GrPix
         return;
     }
 
-    auto resourceProvider = context->contextPriv().resourceProvider();
-
     // set up the data
     const int kTextureWidth = 16;
     const int kTextureHeight = 16;
@@ -84,10 +82,10 @@ void basic_transfer_test(skiatest::Reporter* reporter, GrContext* context, GrPix
     // create and fill transfer buffer
     size_t size = rowBytes*kBufferHeight;
     uint32_t bufferFlags = GrResourceProvider::kNoPendingIO_Flag;
-    sk_sp<GrBuffer> buffer(resourceProvider->createBuffer(size,
-                                                          kXferCpuToGpu_GrBufferType,
-                                                          kDynamic_GrAccessPattern,
-                                                          bufferFlags));
+    sk_sp<GrBuffer> buffer(context->resourceProvider()->createBuffer(size,
+                                                                     kXferCpuToGpu_GrBufferType,
+                                                                     kDynamic_GrAccessPattern,
+                                                                     bufferFlags));
     if (!buffer) {
         return;
     }
@@ -104,7 +102,7 @@ void basic_transfer_test(skiatest::Reporter* reporter, GrContext* context, GrPix
     desc.fHeight = kTextureHeight;
     desc.fConfig = config;
     desc.fSampleCnt = 0;
-    sk_sp<GrTexture> tex = resourceProvider->createTexture(desc, SkBudgeted::kNo);
+    sk_sp<GrTexture> tex = context->resourceProvider()->createTexture(desc, SkBudgeted::kNo);
 
     //////////////////////////
     // transfer full data

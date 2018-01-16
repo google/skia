@@ -8,7 +8,6 @@
 #include "GrVkPipelineState.h"
 
 #include "GrContext.h"
-#include "GrContextPriv.h"
 #include "GrPipeline.h"
 #include "GrTexturePriv.h"
 #include "GrVkBufferView.h"
@@ -264,12 +263,10 @@ void GrVkPipelineState::setData(GrVkGpu* gpu,
         fXferProcessor->setData(fDataManager, pipeline.getXferProcessor(), dstTexture, offset);
     }
 
-    GrResourceProvider* resourceProvider = gpu->getContext()->contextPriv().resourceProvider();
-
     GrResourceIOProcessor::TextureSampler dstTextureSampler;
     if (GrTextureProxy* dstTextureProxy = pipeline.dstTextureProxy()) {
         dstTextureSampler.reset(sk_ref_sp(dstTextureProxy));
-        SkAssertResult(dstTextureSampler.instantiate(resourceProvider));
+        SkAssertResult(dstTextureSampler.instantiate(gpu->getContext()->resourceProvider()));
         textureBindings.push_back(&dstTextureSampler);
     }
 
