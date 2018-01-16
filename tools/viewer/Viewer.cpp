@@ -609,12 +609,16 @@ void Viewer::listNames() {
     }
 }
 
-void Viewer::setupCurrentSlide(int previousSlide) {
-    if (fCurrentSlide == previousSlide) {
+void Viewer::setupCurrentSlide(int previousSlide, bool force) {
+    if (fCurrentSlide == previousSlide && !force) {
         return; // no change; do nothing
     }
+
     // prepare dimensions for image slides
-    fSlides[fCurrentSlide]->load(SkIntToScalar(fWindow->width()), SkIntToScalar(fWindow->height()));
+    if (fCurrentSlide != previousSlide) {
+        fSlides[fCurrentSlide]->load(SkIntToScalar(fWindow->width()),
+                                     SkIntToScalar(fWindow->height()));
+    }
 
     fGesture.resetTouchState();
     fDefaultMatrix.reset();
@@ -635,7 +639,7 @@ void Viewer::setupCurrentSlide(int previousSlide) {
 
     this->updateTitle();
     this->updateUIState();
-    if (previousSlide >= 0) {
+    if (previousSlide >= 0 && fCurrentSlide != previousSlide) {
         fSlides[previousSlide]->unload();
     }
 
@@ -823,7 +827,8 @@ void Viewer::drawSlide(SkCanvas* canvas) {
 void Viewer::onBackendCreated() {
     this->updateTitle();
     this->updateUIState();
-    this->setupCurrentSlide(-1);
+    // Force slide setup without reload.
+    this->setupCurrentSlide(fCurrentSlide, true);
     fStatsLayer.resetMeasurements();
     fWindow->show();
     fWindow->inval();
