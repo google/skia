@@ -10,13 +10,26 @@
 #include "SkCanvas.h"
 #include "SkCodec.h"
 #include "SkCodecPriv.h"
+#include "SkPicture.h"
+#include "SkPictureRecorder.h"
 
-sk_sp<SkAnimatedImage> SkAnimatedImage::Make(std::unique_ptr<SkAndroidCodec> codec) {
+sk_sp<SkAnimatedImage> SkAnimatedImage::Make(std::unique_ptr<SkAndroidCodec> codec,
+        SkISize scaledSize, SkIRect cropRect, sk_sp<SkPicture> postProcess) {
     if (!codec) {
         return nullptr;
     }
 
-    auto image = sk_sp<SkAnimatedImage>(new SkAnimatedImage(std::move(codec)));
+    SkISize decodeSize = scaledSize;
+    auto decodeInfo = codec->getInfo();
+    if (codec->getEncodedFormat() == SkEncodedImageFormat::kWEBP
+            && scaledSize.width()  < decodeInfo.width()
+            && scaledSize.height() < decodeInfo.height()) {
+        // libwebp can decode to arbitrary smaller sizes.
+        decodeInfo = decodeInfo.makeWH(decodeSize.width(), decodeSize.height());
+    }
+
+    auto image = sk_sp<SkAnimatedImage>(new SkAnimatedImage(std::move(codec), scaledSize,
+                decodeInfo, cropRect, std::move(postProcess)));
     if (!image->fActiveFrame.fBitmap.getPixels()) {
         // tryAllocPixels failed.
         return nullptr;
@@ -25,31 +38,60 @@ sk_sp<SkAnimatedImage> SkAnimatedImage::Make(std::unique_ptr<SkAndroidCodec> cod
     return image;
 }
 
+sk_sp<SkAnimatedImage> SkAnimatedImage::Make(std::unique_ptr<SkAndroidCodec> codec) {
+    if (!codec) {
+        return nullptr;
+    }
+
+    const auto decodeInfo = codec->getInfo();
+    const auto scaledSize = decodeInfo.dimensions();
+    const auto cropRect   = SkIRect::MakeSize(scaledSize);
+    auto image = sk_sp<SkAnimatedImage>(new SkAnimatedImage(std::move(codec), scaledSize,
+                decodeInfo, cropRect, nullptr));
+
+    if (!image->fActiveFrame.fBitmap.getPixels()) {
+        // tryAllocPixels failed.
+        return nullptr;
+    }
+
+    SkASSERT(image->fSimple);
+    return image;
+}
+
 // Sentinel value for starting at the beginning.
 static constexpr double kInit = -1.0;
 
-SkAnimatedImage::SkAnimatedImage(std::unique_ptr<SkAndroidCodec> codec)
+SkAnimatedImage::SkAnimatedImage(std::unique_ptr<SkAndroidCodec> codec, SkISize scaledSize,
+        SkImageInfo decodeInfo, SkIRect cropRect, sk_sp<SkPicture> postProcess)
     : fCodec(std::move(codec))
+    , fScaledSize(scaledSize)
+    , fDecodeInfo(decodeInfo)
+    , fCropRect(cropRect)
+    , fPostProcess(std::move(postProcess))
+    , fSimple(fScaledSize == fDecodeInfo.dimensions() && !fPostProcess
+              && fCropRect == fDecodeInfo.bounds())
     , fFinished(false)
     , fRunning(false)
     , fNowMS(kInit)
     , fRemainingMS(kInit)
 {
-    if (!fActiveFrame.fBitmap.tryAllocPixels(fCodec->getInfo())) {
+    if (!fActiveFrame.fBitmap.tryAllocPixels(fDecodeInfo)) {
         return;
     }
 
+    if (!fSimple) {
+        fMatrix = SkMatrix::MakeTrans(-fCropRect.fLeft, -fCropRect.fTop);
+        float scaleX = (float) fScaledSize.width()  / fDecodeInfo.width();
+        float scaleY = (float) fScaledSize.height() / fDecodeInfo.height();
+        fMatrix.preConcat(SkMatrix::MakeScale(scaleX, scaleY));
+    }
     this->update(kInit);
 }
 
 SkAnimatedImage::~SkAnimatedImage() { }
 
 SkRect SkAnimatedImage::onGetBounds() {
-    return SkRect::Make(fCodec->getInfo().bounds());
-}
-
-void SkAnimatedImage::onDraw(SkCanvas* canvas) {
-    canvas->drawBitmap(fActiveFrame.fBitmap, 0, 0);
+    return SkRect::MakeIWH(fCropRect.width(), fCropRect.height());
 }
 
 SkAnimatedImage::Frame::Frame()
@@ -216,7 +258,7 @@ double SkAnimatedImage::update(double msecs) {
     if (dst->getPixels()) {
         SkAssertResult(dst->setAlphaType(alphaType));
     } else {
-        auto info = fCodec->getInfo().makeAlphaType(alphaType);
+        auto info = fDecodeInfo.makeAlphaType(alphaType);
         if (!dst->tryAllocPixels(info)) {
             fFinished = true;
             return std::numeric_limits<double>::max();
@@ -235,4 +277,28 @@ double SkAnimatedImage::update(double msecs) {
     fActiveFrame.fIndex = frameToDecode;
     fActiveFrame.fDisposalMethod = frameInfo.fDisposalMethod;
     return fRemainingMS + fNowMS;
+}
+
+void SkAnimatedImage::onDraw(SkCanvas* canvas) {
+    if (fSimple) {
+        canvas->drawBitmap(fActiveFrame.fBitmap, 0, 0);
+        return;
+    }
+
+    SkRect bounds = this->getBounds();
+    if (fPostProcess) {
+        canvas->saveLayer(&bounds, nullptr);
+    }
+    {
+        SkAutoCanvasRestore acr(canvas, fPostProcess);
+        canvas->concat(fMatrix);
+        SkPaint paint;
+        paint.setBlendMode(SkBlendMode::kSrc);
+        paint.setFilterQuality(kLow_SkFilterQuality);
+        canvas->drawBitmap(fActiveFrame.fBitmap, 0, 0, &paint);
+    }
+    if (fPostProcess) {
+        canvas->drawPicture(fPostProcess);
+        canvas->restore();
+    }
 }

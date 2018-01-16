@@ -11,8 +11,11 @@
 #include "SkBitmap.h"
 #include "SkCodecAnimation.h"
 #include "SkDrawable.h"
+#include "SkMatrix.h"
+#include "SkRect.h"
 
 class SkAndroidCodec;
+class SkPicture;
 
 /**
  *  Thread unsafe drawable for drawing animated images (e.g. GIF).
@@ -24,6 +27,16 @@ public:
      *
      *  Returns null on failure to allocate pixels. On success, this will
      *  decode the first frame. It will not animate until start() is called.
+     *
+     *  @param scaledSize Size to draw the image, possibly requiring scaling.
+     *  @param cropRect Rectangle to crop to after scaling.
+     *  @param postProcess Picture to apply after scaling and cropping.
+     */
+    static sk_sp<SkAnimatedImage> Make(std::unique_ptr<SkAndroidCodec>,
+            SkISize scaledSize, SkIRect cropRect, sk_sp<SkPicture> postProcess);
+
+    /**
+     *  Simpler version that uses the default size, no cropping, and no postProcess.
      */
     static sk_sp<SkAnimatedImage> Make(std::unique_ptr<SkAndroidCodec>);
 
@@ -45,6 +58,13 @@ public:
      *  Reset the animation to the beginning.
      */
     void reset();
+
+    /**
+     *  Whether the animation is active.
+     *
+     *  If true, update() can be called to animate.
+     */
+    bool isRunning() const { return fRunning && !fFinished; }
 
     /**
      *  Update the current time. If the image is animating, this may decode
@@ -71,6 +91,13 @@ private:
     };
 
     std::unique_ptr<SkAndroidCodec> fCodec;
+    const SkISize                   fScaledSize;
+    const SkImageInfo               fDecodeInfo;
+    const SkIRect                   fCropRect;
+    const sk_sp<SkPicture>          fPostProcess;
+    const bool                      fSimple;     // no crop, scale, or postprocess
+    SkMatrix                        fMatrix;     // used only if !fSimple
+
     bool                            fFinished;
     bool                            fRunning;
     double                          fNowMS;
@@ -78,7 +105,8 @@ private:
     Frame                           fActiveFrame;
     Frame                           fRestoreFrame;
 
-    SkAnimatedImage(std::unique_ptr<SkAndroidCodec>);
+    SkAnimatedImage(std::unique_ptr<SkAndroidCodec>, SkISize scaledSize,
+            SkImageInfo decodeInfo, SkIRect cropRect, sk_sp<SkPicture> postProcess);
 
     typedef SkDrawable INHERITED;
 };
