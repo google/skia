@@ -141,6 +141,12 @@ void SkPicturePlayback::draw(SkCanvas* canvas,
     }
 }
 
+static void validate_offsetToRestore(SkReadBuffer* reader, size_t offsetToRestore) {
+    if (offsetToRestore) {
+        reader->validate(SkIsAlign4(offsetToRestore) && offsetToRestore >= reader->offset());
+    }
+}
+
 void SkPicturePlayback::handleOp(SkReadBuffer* reader,
                                  DrawType op,
                                  uint32_t size,
@@ -162,9 +168,9 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
             SkClipOp clipOp = ClipParams_unpackRegionOp(reader, packed);
             bool doAA = ClipParams_unpackDoAA(packed);
             size_t offsetToRestore = reader->readInt();
+            validate_offsetToRestore(reader, offsetToRestore);
             BREAK_ON_READ_ERROR(reader);
 
-            SkASSERT(!offsetToRestore || offsetToRestore >= reader->offset());
             canvas->clipPath(path, clipOp, doAA);
             if (canvas->isClipEmpty() && offsetToRestore) {
                 reader->skip(offsetToRestore - reader->offset());
@@ -176,9 +182,9 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
             uint32_t packed = reader->readInt();
             SkClipOp clipOp = ClipParams_unpackRegionOp(reader, packed);
             size_t offsetToRestore = reader->readInt();
+            validate_offsetToRestore(reader, offsetToRestore);
             BREAK_ON_READ_ERROR(reader);
 
-            SkASSERT(!offsetToRestore || offsetToRestore >= reader->offset());
             canvas->clipRegion(region, clipOp);
             if (canvas->isClipEmpty() && offsetToRestore) {
                 reader->skip(offsetToRestore - reader->offset());
@@ -191,9 +197,9 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
             SkClipOp clipOp = ClipParams_unpackRegionOp(reader, packed);
             bool doAA = ClipParams_unpackDoAA(packed);
             size_t offsetToRestore = reader->readInt();
+            validate_offsetToRestore(reader, offsetToRestore);
             BREAK_ON_READ_ERROR(reader);
 
-            SkASSERT(!offsetToRestore || offsetToRestore >= reader->offset());
             canvas->clipRect(rect, clipOp, doAA);
             if (canvas->isClipEmpty() && offsetToRestore) {
                 reader->skip(offsetToRestore - reader->offset());
@@ -206,9 +212,9 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
             SkClipOp clipOp = ClipParams_unpackRegionOp(reader, packed);
             bool doAA = ClipParams_unpackDoAA(packed);
             size_t offsetToRestore = reader->readInt();
+            validate_offsetToRestore(reader, offsetToRestore);
             BREAK_ON_READ_ERROR(reader);
 
-            SkASSERT(!offsetToRestore || offsetToRestore >= reader->offset());
             canvas->clipRRect(rrect, clipOp, doAA);
             if (canvas->isClipEmpty() && offsetToRestore) {
                 reader->skip(offsetToRestore - reader->offset());
