@@ -11,7 +11,7 @@
 #include "ImageSlide.h"
 #include "Resources.h"
 #include "SampleSlide.h"
-#include "SkottySlide.h"
+#include "SkottieSlide.h"
 #include "SKPSlide.h"
 
 #include "GrContext.h"
@@ -486,7 +486,7 @@ void Viewer::initSlides() {
 
     // JSONs
     for (const auto& json : FLAGS_jsons) {
-        fSlides.push_back(sk_make_sp<SkottySlide2>(json));
+        fSlides.push_back(sk_make_sp<SkottieSlide2>(json));
 
         SkOSFile::Iter it(json.c_str(), ".json");
         SkString jsonName;
@@ -494,8 +494,8 @@ void Viewer::initSlides() {
             if (SkCommandLineFlags::ShouldSkip(FLAGS_match, jsonName.c_str())) {
                 continue;
             }
-            fSlides.push_back(sk_make_sp<SkottySlide>(jsonName, SkOSPath::Join(json.c_str(),
-                                                                               jsonName.c_str())));
+            fSlides.push_back(sk_make_sp<SkottieSlide>(jsonName, SkOSPath::Join(json.c_str(),
+                                                                                jsonName.c_str())));
         }
     }
 }

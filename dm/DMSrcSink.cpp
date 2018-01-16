@@ -61,7 +61,7 @@
 #endif
 
 #if !defined(SK_BUILD_FOR_GOOGLE3)
-    #include "Skotty.h"
+    #include "Skottie.h"
 #endif
 
 #if defined(SK_XML)
@@ -1317,10 +1317,10 @@ Name DDLSKPSrc::name() const { return SkOSPath::Basename(fPath.c_str()); }
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 #if !defined(SK_BUILD_FOR_GOOGLE3)
-SkottySrc::SkottySrc(Path path)
+SkottieSrc::SkottieSrc(Path path)
     : fName(SkOSPath::Basename(path.c_str())) {
 
-    fAnimation  = skotty::Animation::MakeFromFile(path.c_str());
+    fAnimation  = skottie::Animation::MakeFromFile(path.c_str());
     if (!fAnimation) {
         return;
     }
@@ -1334,7 +1334,7 @@ SkottySrc::SkottySrc(Path path)
 
 }
 
-Error SkottySrc::draw(SkCanvas* canvas) const {
+Error SkottieSrc::draw(SkCanvas* canvas) const {
     if (!fAnimation) {
         return SkStringPrintf("Unable to parse file: %s", fName.c_str());
     }
@@ -1383,15 +1383,15 @@ Error SkottySrc::draw(SkCanvas* canvas) const {
     return "";
 }
 
-SkISize SkottySrc::size() const {
+SkISize SkottieSrc::size() const {
     // Padding for grid.
     return SkISize::Make(kTileCount * (fTileSize.width()  + 1),
                          kTileCount * (fTileSize.height() + 1));
 }
 
-Name SkottySrc::name() const { return fName; }
+Name SkottieSrc::name() const { return fName; }
 
-bool SkottySrc::veto(SinkFlags flags) const {
+bool SkottieSrc::veto(SinkFlags flags) const {
     // No need to test to non-(raster||gpu||vector) or indirect backends.
     bool type_ok = flags.type == SinkFlags::kRaster
                 || flags.type == SinkFlags::kGPU

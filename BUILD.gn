@@ -1321,13 +1321,13 @@ if (skia_enable_tools) {
     ]
   }
 
-  test_lib("experimental_skotty") {
-    public_include_dirs = [ "experimental/skotty" ]
+  test_lib("experimental_skottie") {
+    public_include_dirs = [ "experimental/skottie" ]
     include_dirs = [ "tools" ]
     sources = [
-      "experimental/skotty/Skotty.cpp",
-      "experimental/skotty/SkottyAnimator.cpp",
-      "experimental/skotty/SkottyProperties.cpp",
+      "experimental/skottie/Skottie.cpp",
+      "experimental/skottie/SkottieAnimator.cpp",
+      "experimental/skottie/SkottieProperties.cpp",
     ]
     deps = [
       ":experimental_sksg",
@@ -1511,7 +1511,7 @@ if (skia_enable_tools) {
       include_dirs = [ "tests" ]
       deps = [
         ":common_flags",
-        ":experimental_skotty",
+        ":experimental_skottie",
         ":experimental_sksg",
         ":experimental_svg_model",
         ":flags",
@@ -1913,8 +1913,8 @@ if (skia_enable_tools) {
         "tools/viewer/ImageSlide.cpp",
         "tools/viewer/SKPSlide.cpp",
         "tools/viewer/SampleSlide.cpp",
-        "tools/viewer/SkottySlide.cpp",
-        "tools/viewer/SkottySlide2.cpp",
+        "tools/viewer/SkottieSlide.cpp",
+        "tools/viewer/SkottieSlide2.cpp",
         "tools/viewer/StatsLayer.cpp",
         "tools/viewer/Viewer.cpp",
       ]
@@ -1922,7 +1922,7 @@ if (skia_enable_tools) {
 
       include_dirs = []
       deps = [
-        ":experimental_skotty",
+        ":experimental_skottie",
         ":flags",
         ":gm",
         ":gpu_tool_utils",

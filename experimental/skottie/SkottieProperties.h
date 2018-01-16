@@ -5,14 +5,14 @@
  * found in the LICENSE file.
  */
 
-#ifndef SkottyProperties_DEFINED
-#define SkottyProperties_DEFINED
+#ifndef SkottieProperties_DEFINED
+#define SkottieProperties_DEFINED
 
 #include "SkColor.h"
 #include "SkPath.h"
 #include "SkPoint.h"
 #include "SkSize.h"
-#include "SkottyPriv.h"
+#include "SkottiePriv.h"
 #include "SkRefCnt.h"
 #include "SkTArray.h"
 #include "SkTypes.h"
@@ -31,7 +31,7 @@ class RRect;
 class RenderNode;;
 }
 
-namespace  skotty {
+namespace  skottie {
 
 template <typename T>
 struct ValueTraits {
@@ -163,6 +163,6 @@ private:
 
 #undef COMPOSITE_PROPERTY
 
-} // namespace skotty
+} // namespace skottie
 
-#endif // SkottyProperties_DEFINED
+#endif // SkottieProperties_DEFINED

@@ -21,7 +21,7 @@
 
 //#define TEST_VIA_SVG
 
-namespace skotty { class Animation; }
+namespace skottie { class Animation; }
 
 namespace DM {
 
@@ -263,9 +263,9 @@ private:
 };
 
 #if !defined(SK_BUILD_FOR_GOOGLE3)
-class SkottySrc final : public Src {
+class SkottieSrc final : public Src {
 public:
-    explicit SkottySrc(Path path);
+    explicit SkottieSrc(Path path);
 
     Error draw(SkCanvas*) const override;
     SkISize size() const override;
@@ -278,7 +278,7 @@ private:
 
     Name                               fName;
     SkISize                            fTileSize = SkISize::MakeEmpty();
-    std::unique_ptr<skotty::Animation> fAnimation;
+    std::unique_ptr<skottie::Animation> fAnimation;
 };
 #endif
 
