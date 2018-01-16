@@ -51,7 +51,12 @@ GrContextFactory::~GrContextFactory() {
 }
 
 void GrContextFactory::destroyContexts() {
-    for (Context& context : fContexts) {
+    // We must delete the test contexts in reverse order so that any child context is finished and
+    // deleted before a parent context. This relies on the fact that when we make a new context we
+    // append it to the end of fContexts array.
+    // TODO: Look into keeping a dependency dag for contexts and deletion order
+    for (int i = fContexts.count() - 1; i >= 0; --i) {
+        Context& context = fContexts[i];
         SkScopeExit restore(nullptr);
         if (context.fTestContext) {
             restore = context.fTestContext->makeCurrentAndAutoRestore();
@@ -67,7 +72,12 @@ void GrContextFactory::destroyContexts() {
 }
 
 void GrContextFactory::abandonContexts() {
-    for (Context& context : fContexts) {
+    // We must abandon the test contexts in reverse order so that any child context is finished and
+    // abandoned before a parent context. This relies on the fact that when we make a new context we
+    // append it to the end of fContexts array.
+    // TODO: Look into keeping a dependency dag for contexts and deletion order
+    for (int i = fContexts.count() - 1; i >= 0; --i) {
+        Context& context = fContexts[i];
         if (!context.fAbandoned) {
             if (context.fTestContext) {
                 auto restore = context.fTestContext->makeCurrentAndAutoRestore();
@@ -82,7 +92,12 @@ void GrContextFactory::abandonContexts() {
 }
 
 void GrContextFactory::releaseResourcesAndAbandonContexts() {
-    for (Context& context : fContexts) {
+    // We must abandon the test contexts in reverse order so that any child context is finished and
+    // abandoned before a parent context. This relies on the fact that when we make a new context we
+    // append it to the end of fContexts array.
+    // TODO: Look into keeping a dependency dag for contexts and deletion order
+    for (int i = fContexts.count() - 1; i >= 0; --i) {
+        Context& context = fContexts[i];
         SkScopeExit restore(nullptr);
         if (!context.fAbandoned) {
             if (context.fTestContext) {
@@ -270,6 +285,8 @@ ContextInfo GrContextFactory::getContextInfoInternal(ContextType type, ContextOv
         }
     }
 
+    // We must always add new contexts by pushing to the back so that when we delete them we delete
+    // them in reverse order in which they were made.
     Context& context = fContexts.push_back();
     context.fBackend = backend;
     context.fTestContext = testCtx.release();
