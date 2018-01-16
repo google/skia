@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b600d90f_7a590526",
+        "filename": "src/codec/SkAndroidCodec.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 259,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-01-16T20:46:07Z",
+      "side": 1,
+      "message": "seems like overkill.",
+      "revId": "856d7a33ca3e58d49001e5bc43a6e3bc080392c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
