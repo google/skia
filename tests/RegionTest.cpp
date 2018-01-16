@@ -396,3 +396,26 @@ DEF_TEST(Region_readFromMemory_bad, r) {
         REPORTER_ASSERT(r, 0 == region.readFromMemory(data, sizeof(data)));
     }
 }
+
+DEF_TEST(region_toobig, reporter) {
+    const int big = 1 << 30;
+    const SkIRect neg = SkIRect::MakeXYWH(-big, -big, 10, 10);
+    const SkIRect pos = SkIRect::MakeXYWH( big,  big, 10, 10);
+
+    REPORTER_ASSERT(reporter, !neg.isEmpty());
+    REPORTER_ASSERT(reporter, !pos.isEmpty());
+
+    SkRegion negR(neg);
+    SkRegion posR(pos);
+
+    REPORTER_ASSERT(reporter, !negR.isEmpty());
+    REPORTER_ASSERT(reporter, !posR.isEmpty());
+
+    SkRegion rgn;
+    rgn.op(negR, posR, SkRegion::kUnion_Op);
+
+    // If we union those to rectangles, the resulting coordinates span more than int32_t, so
+    // we must mark the region as empty.
+    REPORTER_ASSERT(reporter, rgn.isEmpty());
+}
+
