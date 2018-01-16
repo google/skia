@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6a434be5_9e84ee4d",
+        "filename": "include/codec/SkAndroidCodec.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-01-16T15:06:33Z",
+      "side": 1,
+      "message": "should this file be in include/android?",
+      "revId": "def3bd5b88ac4508b71a09451370c1acf3ca5303",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "179debbe_e6685898",
+        "filename": "tests/CodecAnimTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 433,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-01-16T15:06:33Z",
+      "side": 1,
+      "message": "Should we validate the pixels have the correct values to ensure that we did the erase correctly?",
+      "revId": "def3bd5b88ac4508b71a09451370c1acf3ca5303",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
