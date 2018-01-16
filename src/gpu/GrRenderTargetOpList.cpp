@@ -26,7 +26,7 @@ static const int kMaxOpLookahead = 10;
 
 GrRenderTargetOpList::GrRenderTargetOpList(GrRenderTargetProxy* proxy, GrGpu* gpu,
                                            GrAuditTrail* auditTrail)
-        : INHERITED(gpu->getContext()->resourceProvider(), proxy, auditTrail)
+        : INHERITED(gpu->getContext()->contextPriv().resourceProvider(), proxy, auditTrail)
         , fLastClipStackGenID(SK_InvalidUniqueID)
         SkDEBUGCODE(, fNumClips(0)) {
 }
