@@ -53,8 +53,8 @@ uniform half profileSize;
 
             std::unique_ptr<uint8_t[]> profile(SkBlurMask::ComputeBlurProfile(sigma));
 
-            blurProfile = GrSurfaceProxy::MakeDeferred(proxyProvider,
-                                                       texDesc, SkBudgeted::kYes, profile.get(), 0);
+            blurProfile = proxyProvider->createTextureProxy(texDesc, SkBudgeted::kYes,
+                                                            profile.get(), 0);
             if (!blurProfile) {
                 return nullptr;
             }
