@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4bbccc3d_0ce3b167",
+        "filename": "src/android/SkAnimatedImage.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 289,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-01-16T15:13:50Z",
+      "side": 1,
+      "message": "We needs to pass a bounds here.  I think this should be the bounds of fActiveFrame.fBitmap.",
+      "range": {
+        "startLine": 289,
+        "startChar": 26,
+        "endLine": 289,
+        "endChar": 33
+      },
+      "revId": "411b136042e823df9d5dff319a88e2cb567f1067",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8674c83e_2e87f1e1",
+        "filename": "src/android/SkAnimatedImage.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 292,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-01-16T15:13:50Z",
+      "side": 1,
+      "message": "move this and the concat to above the fPostProcess logic",
+      "revId": "411b136042e823df9d5dff319a88e2cb567f1067",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
