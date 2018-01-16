@@ -144,6 +144,8 @@ public:
         return 0;
     }
 
+    SkScalar getGlyphSizeLimit() const { return fGlyphSizeLimit; }
+
     bool hasGlyph(GrGlyph* glyph) {
         SkASSERT(glyph);
         return this->getAtlas(glyph->fMaskFormat)->hasID(glyph->fID);
@@ -261,6 +263,7 @@ private:
     std::unique_ptr<GrDrawOpAtlas> fAtlases[kMaskFormatCount];
     GrAtlasTextStrike* fPreserveStrike;
     GrDrawOpAtlasConfig fAtlasConfigs[kMaskFormatCount];
+    SkScalar fGlyphSizeLimit;
 };
 
 #endif
