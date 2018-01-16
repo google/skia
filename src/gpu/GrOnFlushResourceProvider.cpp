@@ -9,6 +9,7 @@
 
 #include "GrContextPriv.h"
 #include "GrDrawingManager.h"
+#include "GrProxyProvider.h"
 #include "GrSurfaceProxy.h"
 
 sk_sp<GrRenderTargetContext> GrOnFlushResourceProvider::makeRenderTargetContext(
@@ -21,12 +22,10 @@ sk_sp<GrRenderTargetContext> GrOnFlushResourceProvider::makeRenderTargetContext(
     // Because this is being allocated at the start of a flush we must ensure the proxy
     // will, when instantiated, have no pending IO.
     // TODO: fold the kNoPendingIO_Flag into GrSurfaceFlags?
-    sk_sp<GrSurfaceProxy> proxy = GrSurfaceProxy::MakeDeferred(
-                                        fDrawingMgr->getContext()->contextPriv().proxyProvider(),
-                                        tmpDesc,
-                                        SkBackingFit::kExact,
-                                        SkBudgeted::kYes,
-                                        GrResourceProvider::kNoPendingIO_Flag);
+    GrProxyProvider* proxyProvider = fDrawingMgr->getContext()->contextPriv().proxyProvider();
+    sk_sp<GrSurfaceProxy> proxy = proxyProvider->createProxy(tmpDesc, SkBackingFit::kExact,
+                                                             SkBudgeted::kYes,
+                                                             GrResourceProvider::kNoPendingIO_Flag);
     if (!proxy->asRenderTargetProxy()) {
         return nullptr;
     }

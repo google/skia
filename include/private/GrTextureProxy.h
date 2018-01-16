@@ -61,7 +61,9 @@ public:
     const GrTextureProxyPriv texPriv() const;
 
 protected:
+    // DDL TODO: rm the GrSurfaceProxy friending
     friend class GrSurfaceProxy; // for ctors
+    friend class GrProxyProvider; // for ctors
     friend class GrTextureProxyPriv;
 
     // Deferred version

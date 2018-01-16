@@ -49,8 +49,7 @@ sk_sp<GrTextureProxy> GrBitmapTextureMaker::refOriginalTextureProxy(bool willBeM
 
     if (!proxy) {
         if (willBeMipped) {
-            proxy = GrGenerateMipMapsAndUploadToTextureProxy(this->context(), fBitmap,
-                                                             dstColorSpace);
+            proxy = GrGenerateMipMapsAndUploadToTextureProxy(proxyProvider, fBitmap, dstColorSpace);
         }
         if (!proxy) {
             proxy = GrUploadBitmapToTextureProxy(proxyProvider, fBitmap, dstColorSpace);

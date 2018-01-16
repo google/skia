@@ -182,44 +182,8 @@ private:
 
 class GrSurfaceProxy : public GrIORefProxy {
 public:
-    static sk_sp<GrSurfaceProxy> MakeWrapped(sk_sp<GrSurface>, GrSurfaceOrigin);
+    // DDL TODO: remove this entry point
     static sk_sp<GrTextureProxy> MakeWrapped(sk_sp<GrTexture>, GrSurfaceOrigin);
-
-    static sk_sp<GrTextureProxy> MakeDeferred(GrProxyProvider*,
-                                              const GrSurfaceDesc&, SkBackingFit,
-                                              SkBudgeted, uint32_t flags = 0);
-
-    /**
-     * Creates a proxy that will be mipmapped.
-     *
-     * @param desc          Description of the texture properties.
-     * @param budgeted      Does the texture count against the resource cache budget?
-     * @param texels        A contiguous array of mipmap levels
-     * @param mipLevelCount The amount of elements in the texels array
-     */
-    static sk_sp<GrTextureProxy> MakeDeferredMipMap(GrProxyProvider*,
-                                                    const GrSurfaceDesc& desc, SkBudgeted budgeted,
-                                                    const GrMipLevel texels[], int mipLevelCount,
-                                                    SkDestinationSurfaceColorMode mipColorMode =
-                                                           SkDestinationSurfaceColorMode::kLegacy);
-
-    /**
-     * Like the call above but there are no texels to upload. A texture proxy is returned that
-     * simply has space allocated for the mips. We will allocated the full amount of mip levels
-     * based on the width and height in the GrSurfaceDesc.
-     */
-    static sk_sp<GrTextureProxy> MakeDeferredMipMap(GrProxyProvider*,
-                                                    const GrSurfaceDesc& desc, SkBudgeted budgeted);
-
-
-    // TODO: need to refine ownership semantics of 'srcData' if we're in completely
-    // deferred mode
-    static sk_sp<GrTextureProxy> MakeDeferred(GrProxyProvider*,
-                                              const GrSurfaceDesc&, SkBudgeted,
-                                              const void* srcData, size_t rowBytes);
-
-    static sk_sp<GrTextureProxy> MakeWrappedBackend(GrContext*, const GrBackendTexture&,
-                                                    GrSurfaceOrigin);
 
     using LazyInstantiateCallback = std::function<sk_sp<GrTexture>(GrResourceProvider*,
                                                                    GrSurfaceOrigin* outOrigin)>;
@@ -234,6 +198,7 @@ public:
      * (Stencil is not supported by this method.) The width and height must either both be greater
      * than 0 or both less than or equal to zero. A non-positive value is a signal that the width
      * and height are currently unknown.
+     * DDL TODO: remove this entry point
      */
     static sk_sp<GrTextureProxy> MakeLazy(LazyInstantiateCallback&&, const GrSurfaceDesc& desc,
                                           GrMipMapped, SkBackingFit fit, SkBudgeted budgeted);

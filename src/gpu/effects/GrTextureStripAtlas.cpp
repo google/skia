@@ -218,10 +218,8 @@ void GrTextureStripAtlas::lockTexture() {
         texDesc.fHeight = fDesc.fHeight;
         texDesc.fConfig = fDesc.fConfig;
 
-        proxy = GrSurfaceProxy::MakeDeferred(proxyProvider,
-                                             texDesc, SkBackingFit::kExact,
-                                             SkBudgeted::kYes,
-                                             GrResourceProvider::kNoPendingIO_Flag);
+        proxy = proxyProvider->createProxy(texDesc, SkBackingFit::kExact, SkBudgeted::kYes,
+                                           GrResourceProvider::kNoPendingIO_Flag);
         if (!proxy) {
             return;
         }

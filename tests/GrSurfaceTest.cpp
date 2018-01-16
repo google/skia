@@ -12,6 +12,7 @@
 #include "GrContext.h"
 #include "GrContextPriv.h"
 #include "GrGpu.h"
+#include "GrProxyProvider.h"
 #include "GrRenderTarget.h"
 #include "GrResourceProvider.h"
 #include "GrTest.h"
@@ -126,10 +127,10 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
                 texels[i].fPixels = pixelData.get();
                 texels[i].fRowBytes = rowBytes >> i;
             }
-            sk_sp<GrTextureProxy> proxy = GrSurfaceProxy::MakeDeferredMipMap(proxyProvider,
-                                                                             desc, SkBudgeted::kNo,
-                                                                             texels.get(),
-                                                                             levelCount);
+
+            sk_sp<GrTextureProxy> proxy = proxyProvider->createMipMapProxy(
+                                                            desc, SkBudgeted::kNo,
+                                                            texels.get(), levelCount);
             REPORTER_ASSERT(reporter, SkToBool(proxy.get()) ==
                             (caps->isConfigTexturable(desc.fConfig) &&
                              caps->mipMapSupport() &&
@@ -155,7 +156,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(InitialTextureClear, reporter, context_info) 
     GrSurfaceDesc desc;
     desc.fWidth = desc.fHeight = kSize;
     std::unique_ptr<uint32_t[]> data(new uint32_t[kSize * kSize]);
+
     GrContext* context = context_info.grContext();
+    GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
+
     for (int c = 0; c <= kLast_GrPixelConfig; ++c) {
         desc.fConfig = static_cast<GrPixelConfig>(c);
         if (!context_info.grContext()->caps()->isConfigTexturable(desc.fConfig)) {
@@ -170,22 +174,16 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(InitialTextureClear, reporter, context_info) 
             for (GrSurfaceOrigin origin :
                  {kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin}) {
                 desc.fOrigin = origin;
-                for (bool approx : {false, true}) {
-                    auto resourceProvider = context->resourceProvider();
+                for (auto fit : { SkBackingFit::kApprox, SkBackingFit::kExact }) {
                     // Try directly creating the texture.
                     // Do this twice in an attempt to hit the cache on the second time through.
                     for (int i = 0; i < 2; ++i) {
-                        sk_sp<GrTexture> tex;
-                        if (approx) {
-                            tex = sk_sp<GrTexture>(
-                                    resourceProvider->createApproxTexture(desc, 0));
-                        } else {
-                            tex = resourceProvider->createTexture(desc, SkBudgeted::kYes);
-                        }
-                        if (!tex) {
+                        sk_sp<GrTextureProxy> proxy = proxyProvider->createInstantiatedProxy(
+                                                                    desc, fit, SkBudgeted::kYes);
+                        if (!proxy) {
                             continue;
                         }
-                        auto proxy = GrSurfaceProxy::MakeWrapped(std::move(tex), desc.fOrigin);
+
                         auto texCtx = context->contextPriv().makeWrappedSurfaceContext(
                                 std::move(proxy), nullptr);
                         SkImageInfo info = SkImageInfo::Make(
@@ -212,9 +210,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(InitialTextureClear, reporter, context_info) 
                     // Try creating the texture as a deferred proxy.
                     for (int i = 0; i < 2; ++i) {
                         auto surfCtx = context->contextPriv().makeDeferredSurfaceContext(
-                                desc, GrMipMapped::kNo,
-                                approx ? SkBackingFit::kApprox : SkBackingFit::kExact,
-                                SkBudgeted::kYes);
+                                desc, GrMipMapped::kNo, fit, SkBudgeted::kYes);
                         if (!surfCtx) {
                             continue;
                         }

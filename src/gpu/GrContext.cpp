@@ -530,10 +530,9 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceContext* dst,
 
     sk_sp<GrTextureProxy> tempProxy;
     if (GrGpu::kNoDraw_DrawPreference != drawPreference) {
-        tempProxy = GrSurfaceProxy::MakeDeferred(this->proxyProvider(),
-                                                 tempDrawInfo.fTempSurfaceDesc,
-                                                 SkBackingFit::kApprox,
-                                                 SkBudgeted::kYes);
+        tempProxy = this->proxyProvider()->createProxy(tempDrawInfo.fTempSurfaceDesc,
+                                                       SkBackingFit::kApprox,
+                                                       SkBudgeted::kYes);
         if (!tempProxy && GrGpu::kRequireDraw_DrawPreference == drawPreference) {
             return false;
         }
@@ -821,12 +820,10 @@ sk_sp<GrSurfaceContext> GrContextPriv::makeDeferredSurfaceContext(const GrSurfac
 
     sk_sp<GrTextureProxy> proxy;
     if (GrMipMapped::kNo == mipMapped) {
-        proxy = GrSurfaceProxy::MakeDeferred(this->proxyProvider(), dstDesc, fit,
-                                             isDstBudgeted);
+        proxy = this->proxyProvider()->createProxy(dstDesc, fit, isDstBudgeted);
     } else {
         SkASSERT(SkBackingFit::kExact == fit);
-        proxy = GrSurfaceProxy::MakeDeferredMipMap(this->proxyProvider(), dstDesc,
-                                                   isDstBudgeted);
+        proxy = this->proxyProvider()->createMipMapProxy(dstDesc, isDstBudgeted);
     }
     if (!proxy) {
         return nullptr;
@@ -840,12 +837,7 @@ sk_sp<GrTextureContext> GrContextPriv::makeBackendTextureContext(const GrBackend
                                                                  sk_sp<SkColorSpace> colorSpace) {
     ASSERT_SINGLE_OWNER_PRIV
 
-    sk_sp<GrSurface> surface(fContext->resourceProvider()->wrapBackendTexture(tex));
-    if (!surface) {
-        return nullptr;
-    }
-
-    sk_sp<GrSurfaceProxy> proxy(GrSurfaceProxy::MakeWrapped(std::move(surface), origin));
+    sk_sp<GrSurfaceProxy> proxy = this->proxyProvider()->createWrappedTextureProxy(tex, origin);
     if (!proxy) {
         return nullptr;
     }
@@ -861,13 +853,8 @@ sk_sp<GrRenderTargetContext> GrContextPriv::makeBackendTextureRenderTargetContex
                                                                    const SkSurfaceProps* props) {
     ASSERT_SINGLE_OWNER_PRIV
 
-    sk_sp<GrSurface> surface(
-            fContext->resourceProvider()->wrapRenderableBackendTexture(tex, sampleCnt));
-    if (!surface) {
-        return nullptr;
-    }
-
-    sk_sp<GrSurfaceProxy> proxy(GrSurfaceProxy::MakeWrapped(std::move(surface), origin));
+    sk_sp<GrTextureProxy> proxy(this->proxyProvider()->createWrappedTextureProxy(tex, origin,
+                                                                                 sampleCnt));
     if (!proxy) {
         return nullptr;
     }
@@ -883,12 +870,8 @@ sk_sp<GrRenderTargetContext> GrContextPriv::makeBackendRenderTargetRenderTargetC
                                                 const SkSurfaceProps* surfaceProps) {
     ASSERT_SINGLE_OWNER_PRIV
 
-    sk_sp<GrRenderTarget> rt(fContext->resourceProvider()->wrapBackendRenderTarget(backendRT));
-    if (!rt) {
-        return nullptr;
-    }
-
-    sk_sp<GrSurfaceProxy> proxy(GrSurfaceProxy::MakeWrapped(std::move(rt), origin));
+    sk_sp<GrSurfaceProxy> proxy = this->proxyProvider()->createWrappedRenderTargetProxy(backendRT,
+                                                                                        origin);
     if (!proxy) {
         return nullptr;
     }
@@ -903,24 +886,18 @@ sk_sp<GrRenderTargetContext> GrContextPriv::makeBackendTextureAsRenderTargetRend
                                                      GrSurfaceOrigin origin,
                                                      int sampleCnt,
                                                      sk_sp<SkColorSpace> colorSpace,
-                                                     const SkSurfaceProps* surfaceProps) {
+                                                     const SkSurfaceProps* props) {
     ASSERT_SINGLE_OWNER_PRIV
 
-    sk_sp<GrSurface> surface(fContext->resourceProvider()->wrapBackendTextureAsRenderTarget(
-                                                                                        tex,
-                                                                                        sampleCnt));
-    if (!surface) {
-        return nullptr;
-    }
-
-    sk_sp<GrSurfaceProxy> proxy(GrSurfaceProxy::MakeWrapped(std::move(surface), origin));
+    sk_sp<GrSurfaceProxy> proxy(this->proxyProvider()->createWrappedRenderTargetProxy(tex, origin,
+                                                                                      sampleCnt));
     if (!proxy) {
         return nullptr;
     }
 
     return this->drawingManager()->makeRenderTargetContext(std::move(proxy),
                                                            std::move(colorSpace),
-                                                           surfaceProps);
+                                                           props);
 }
 
 void GrContextPriv::addOnFlushCallbackObject(GrOnFlushCallbackObject* onFlushCBObject) {
@@ -987,9 +964,9 @@ sk_sp<GrRenderTargetContext> GrContext::makeDeferredRenderTargetContext(
 
     sk_sp<GrTextureProxy> rtp;
     if (GrMipMapped::kNo == mipMapped) {
-        rtp = GrSurfaceProxy::MakeDeferred(fProxyProvider, desc, fit, budgeted);
+        rtp = fProxyProvider->createProxy(desc, fit, budgeted);
     } else {
-        rtp = GrSurfaceProxy::MakeDeferredMipMap(fProxyProvider, desc, budgeted);
+        rtp = fProxyProvider->createMipMapProxy(desc, budgeted);
     }
     if (!rtp) {
         return nullptr;

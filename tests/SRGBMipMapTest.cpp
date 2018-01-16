@@ -11,6 +11,7 @@
 #include "GrClip.h"
 #include "GrContext.h"
 #include "GrContextPriv.h"
+#include "GrProxyProvider.h"
 #include "GrRenderTargetContext.h"
 #include "SkCanvas.h"
 #include "SkGr.h"
@@ -131,9 +132,8 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SRGBMipMaps, reporter, ctxInfo) {
     desc.fConfig = kSRGBA_8888_GrPixelConfig;
 
     GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
-    sk_sp<GrTextureProxy> proxy = GrSurfaceProxy::MakeDeferred(proxyProvider,
-                                                               desc, SkBudgeted::kNo,
-                                                               texData, 0);
+    sk_sp<GrTextureProxy> proxy = proxyProvider->createTextureProxy(
+                                                                desc, SkBudgeted::kNo, texData, 0);
 
     // Create two render target contexts (L32 and S32)
     sk_sp<SkColorSpace> srgbColorSpace = SkColorSpace::MakeSRGB();

@@ -169,15 +169,18 @@ void GrSoftwarePathRenderer::DrawToTargetWithShapeMask(
 
 static sk_sp<GrTextureProxy> make_deferred_mask_texture_proxy(GrContext* context, SkBackingFit fit,
                                                               int width, int height) {
+    GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
+
     GrSurfaceDesc desc;
     desc.fOrigin = kTopLeft_GrSurfaceOrigin;
     desc.fWidth = width;
     desc.fHeight = height;
     desc.fConfig = kAlpha_8_GrPixelConfig;
+
     // MDB TODO: We're going to fill this proxy with an ASAP upload (which is out of order wrt to
     // ops), so it can't have any pending IO.
-    return GrSurfaceProxy::MakeDeferred(context->contextPriv().proxyProvider(), desc, fit,
-                                        SkBudgeted::kYes, GrResourceProvider::kNoPendingIO_Flag);
+    return proxyProvider->createProxy(desc, fit, SkBudgeted::kYes,
+                                      GrResourceProvider::kNoPendingIO_Flag);
 }
 
 namespace {

@@ -14,6 +14,7 @@
 
 #include "GrContextPriv.h"
 #include "GrGpu.h"
+#include "GrProxyProvider.h"
 #include "GrResourceAllocator.h"
 #include "GrResourceProvider.h"
 #include "GrSurfaceProxyPriv.h"
@@ -40,18 +41,18 @@ static sk_sp<GrSurfaceProxy> make_deferred(GrProxyProvider* proxyProvider, const
     desc.fConfig = p.fConfig;
     desc.fSampleCnt = p.fSampleCnt;
 
-    return GrSurfaceProxy::MakeDeferred(proxyProvider, desc, p.fFit, SkBudgeted::kNo);
+    return proxyProvider->createProxy(desc, p.fFit, SkBudgeted::kNo);
 }
 
 static sk_sp<GrSurfaceProxy> make_backend(GrContext* context, const ProxyParams& p,
                                           GrBackendTexture* backendTex) {
+    GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
+
     *backendTex = context->getGpu()->createTestingOnlyBackendTexture(nullptr, p.fSize, p.fSize,
                                                                      p.fConfig, false,
                                                                      GrMipMapped::kNo);
 
-    sk_sp<GrSurface> tex = context->resourceProvider()->wrapBackendTexture(*backendTex,
-                                                                           kBorrow_GrWrapOwnership);
-    return GrSurfaceProxy::MakeWrapped(std::move(tex), p.fOrigin);
+    return proxyProvider->createWrappedTextureProxy(*backendTex, p.fOrigin);
 }
 
 static void cleanup_backend(GrContext* context, GrBackendTexture* backendTex) {

@@ -17,6 +17,7 @@
 #include "GrContext.h"
 #include "GrContextPriv.h"
 #include "GrGpu.h"
+#include "GrProxyProvider.h"
 #include "GrTest.h"
 #endif
 
@@ -501,9 +502,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WritePixelsPendingIO, reporter, ctxInfo) {
         desc.fHeight = 64;
         desc.fConfig = kRGBA_8888_GrPixelConfig;
 
-        sk_sp<GrTextureProxy> temp = GrSurfaceProxy::MakeDeferred(proxyProvider, desc,
-                                                                  SkBackingFit::kApprox,
-                                                                  SkBudgeted::kYes);
+        sk_sp<GrTextureProxy> temp = proxyProvider->createProxy(desc, SkBackingFit::kApprox,
+                                                                SkBudgeted::kYes);
         temp->instantiate(context->resourceProvider());
     }
 

@@ -180,6 +180,7 @@ DEF_TEST(ImageFilterCache_ImageBackedRaster, reporter) {
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
 #include "GrContextPriv.h"
+#include "GrProxyProvider.h"
 #include "GrResourceProvider.h"
 #include "GrSurfaceProxyPriv.h"
 #include "GrTest.h"
@@ -196,9 +197,8 @@ static sk_sp<GrTextureProxy> create_proxy(GrProxyProvider* proxyProvider) {
     desc.fHeight = kFullSize;
     desc.fConfig = kRGBA_8888_GrPixelConfig;
 
-    return GrSurfaceProxy::MakeDeferred(proxyProvider,
-                                        desc, SkBudgeted::kYes,
-                                        srcBM.getPixels(), srcBM.rowBytes());
+    return proxyProvider->createTextureProxy(desc, SkBudgeted::kYes,
+                                             srcBM.getPixels(), srcBM.rowBytes());
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterCache_ImageBackedGPU, reporter, ctxInfo) {
