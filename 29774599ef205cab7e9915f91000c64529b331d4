@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dcbf2763_57fae92d",
+        "filename": "src/codec/SkAndroidCodec.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 221,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-01-16T14:55:56Z",
+      "side": 1,
+      "message": "SkISize sampledSize \u003d this-\u003egetSampledDimensions(sampleSize);\nif (desiredSize \u003c sampleSize) {\n  // try sampleSize + 1 to see if it is a better fit\nelse if (desiredSize \u003e sampleSize)\n  // try sampleSize -1 to see if it is a better fit.",
+      "revId": "29774599ef205cab7e9915f91000c64529b331d4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b0abb8ea_7cba49c0",
+        "filename": "tests/AndroidCodecTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-01-16T14:55:56Z",
+      "side": 1,
+      "message": "nit: make this an else if with the previous line",
+      "range": {
+        "startLine": 64,
+        "startChar": 16,
+        "endLine": 64,
+        "endChar": 18
+      },
+      "revId": "29774599ef205cab7e9915f91000c64529b331d4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
