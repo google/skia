@@ -91,6 +91,17 @@ public:
                                                 sk_sp<SkColorSpace> prefColorSpace = nullptr);
 
     /**
+     *  Compute the appropriate sample size to get to |size|.
+     *
+     *  @param size As an input parameter, the desired output size of
+     *      the decode. As an output parameter, the smallest sampled size
+     *      larger than the input.
+     *  @return the sample size to set AndroidOptions::fSampleSize to decode
+     *      to the output |size|.
+     */
+    int computeSampleSize(SkISize* size) const;
+
+    /**
      *  Returns the dimensions of the scaled output image, for an input
      *  sampleSize.
      *
