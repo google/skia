@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "8de18cdd_b7b02b23",
+        "filename": "include/codec/SkAndroidCodec.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-01-16T18:02:57Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "3f0bfb40_d26ccc11",
+      "revId": "def3bd5b88ac4508b71a09451370c1acf3ca5303",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "179debbe_e6685898",
         "filename": "tests/CodecAnimTest.cpp",
         "patchSetId": 1
@@ -69,6 +87,24 @@
       "revId": "def3bd5b88ac4508b71a09451370c1acf3ca5303",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e07ec6af_102b308f",
+        "filename": "tests/CodecAnimTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 433,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-01-16T18:02:57Z",
+      "side": 1,
+      "message": "ASAN is sufficient for me",
+      "parentUuid": "28253b5d_85bf90d2",
+      "revId": "def3bd5b88ac4508b71a09451370c1acf3ca5303",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
