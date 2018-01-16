@@ -336,6 +336,7 @@ skia_core_sources = [
   "$_src/core/SkVertState.cpp",
   "$_src/core/SkWriteBuffer.cpp",
   "$_src/core/SkWriter32.cpp",
+  "$_src/core/SkWriter32.h",
   "$_src/core/SkXfermode.cpp",
   "$_src/core/SkXfermodeInterpretation.cpp",
   "$_src/core/SkXfermodeInterpretation.h",
@@ -434,7 +435,6 @@ skia_core_sources = [
   "$_include/core/SkTypes.h",
   "$_include/core/SkUnPreMultiply.h",
   "$_include/core/SkVertices.h",
-  "$_include/core/SkWriter32.h",
 
   # private
   "$_include/private/SkAtomics.h",
