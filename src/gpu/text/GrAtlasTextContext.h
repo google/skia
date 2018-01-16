@@ -44,8 +44,8 @@ public:
 
     static std::unique_ptr<GrAtlasTextContext> Make(const Options& options);
 
-    bool canDraw(const SkPaint&, const SkMatrix& viewMatrix, const SkSurfaceProps&,
-                 const GrShaderCaps&);
+    bool canDraw(const GrAtlasGlyphCache* fontCache, const SkPaint&, const SkMatrix& viewMatrix,
+                 const SkSurfaceProps&, const GrShaderCaps&);
 
     void drawText(GrContext*, GrTextUtils::Target*, const GrClip&, const SkPaint&,
                   const SkMatrix& viewMatrix, const SkSurfaceProps&, const char text[],
@@ -131,7 +131,7 @@ private:
                                 const SkMatrix& viewMatrix) const;
 
     static void BmpAppendGlyph(GrAtlasTextBlob*, int runIndex, GrAtlasGlyphCache*,
-                               GrAtlasTextStrike**, const SkGlyph&, int left, int top,
+                               GrAtlasTextStrike**, const SkGlyph&, SkScalar sx, SkScalar sy,
                                GrColor color, SkGlyphCache*, SkScalar textRatio);
 
     static void DfAppendGlyph(GrAtlasTextBlob*, int runIndex, GrAtlasGlyphCache*,

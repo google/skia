@@ -384,18 +384,18 @@ static bool tooBig(const SkMatrix& m, SkScalar ma2max) {
             mag2(m[SkMatrix::kMSkewX], m[SkMatrix::kMScaleY]) > ma2max;
 }
 
-bool SkPaint::TooBigToUseCache(const SkMatrix& ctm, const SkMatrix& textM) {
+bool SkPaint::TooBigToUseCache(const SkMatrix& ctm, const SkMatrix& textM, SkScalar maxLimit) {
     SkASSERT(!ctm.hasPerspective());
     SkASSERT(!textM.hasPerspective());
 
     SkMatrix matrix;
     matrix.setConcat(ctm, textM);
-    return tooBig(matrix, MaxCacheSize2());
+    return tooBig(matrix, MaxCacheSize2(maxLimit));
 }
 
-SkScalar SkPaint::MaxCacheSize2() {
+SkScalar SkPaint::MaxCacheSize2(SkScalar maxLimit) {
     // we have a self-imposed maximum, just for memory-usage sanity
-    const int limit = SkMin32(SkGraphics::GetFontCachePointSizeLimit(), 1024);
+    const int limit = SkMin32(SkGraphics::GetFontCachePointSizeLimit(), maxLimit);
     const SkScalar maxSize = SkIntToScalar(limit);
     return maxSize * maxSize;
 }
