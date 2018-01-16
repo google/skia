@@ -396,3 +396,15 @@ DEF_TEST(Region_readFromMemory_bad, r) {
         REPORTER_ASSERT(r, 0 == region.readFromMemory(data, sizeof(data)));
     }
 }
+
+DEF_TEST(region_rand, reporter) {
+    SkRandom rand;
+    SkRegion rgn;
+
+    // make sure we don't crash/assert
+    for (int i = 0; i < 1000 * 1000; ++i) {
+        SkIRect r = { rand.nextS(), rand.nextS(), rand.nextS(), rand.nextS() };
+        rgn.op(r, SkRegion::kUnion_Op);
+    }
+}
+
