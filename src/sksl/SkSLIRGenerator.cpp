@@ -629,7 +629,7 @@ std::unique_ptr<Statement> IRGenerator::getNormalizeSkPositionCode() {
     children.push_back(OP(OP(SWIZZLE(POS, 1), Token::STAR, SWIZZLE(ADJUST, 2)),
                           Token::PLUS,
                           OP(SWIZZLE(POS, 3), Token::STAR, SWIZZLE(ADJUST, 3))));
-    children.push_back(std::unique_ptr<Expression>(new IntLiteral(fContext, -1, 0)));
+    children.push_back(std::unique_ptr<Expression>(new FloatLiteral(fContext, -1, 0.0)));
     children.push_back(SWIZZLE(POS, 3));
     std::unique_ptr<Expression> result = OP(POS, Token::EQ,
                                  std::unique_ptr<Expression>(new Constructor(-1,
