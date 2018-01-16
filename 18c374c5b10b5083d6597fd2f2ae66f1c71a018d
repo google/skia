@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0c8ef508_b5bd894e",
+        "filename": "platform_tools/android/apps/skqp/src/main/java/org/skia/skqp/SkQP.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-01-16T16:33:18Z",
+      "side": 1,
+      "message": "Log.w(LOG_PREFIX, \"error....\")",
+      "revId": "18c374c5b10b5083d6597fd2f2ae66f1c71a018d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5d25e7d0_8b3fd011",
+        "filename": "platform_tools/android/apps/skqp/src/main/java/org/skia/skqp/SkQP.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-01-16T16:33:18Z",
+      "side": 1,
+      "message": "Log.i(...);",
+      "revId": "18c374c5b10b5083d6597fd2f2ae66f1c71a018d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "603bf312_1504579a",
+        "filename": "platform_tools/android/apps/skqp/src/main/java/org/skia/skqp/SkQP.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-01-16T16:33:18Z",
+      "side": 1,
+      "message": "Simplify!\n\n    protected static void EnsureEmtpyDirectory(File f) throws IOException {\n        if (f.exists()) {\n            Delete(f);\n        }\n        if (!f.mkdirs()) {\n            throw new IOException(\"Unable to create directory:\" + f.getAbsolutePath());\n        }\n    }\n    protected static void Delete(File f) throws IOException {\n        if (f.isDirectory()) {\n            for (File s : f.listFiles()) {\n                Delete(s);\n            }\n        }\n        // Note: We are not using java.nio.Files.delete because we want this\n        // to work before API v26.\n        if (!s.delete()) {\n            throw new IOException(\"Unable to delete file:\" + s.getAbsolutePath());\n        }\n    }",
+      "revId": "18c374c5b10b5083d6597fd2f2ae66f1c71a018d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
