@@ -5,13 +5,15 @@
  * found in the LICENSE file.
  */
 
-
 #ifndef SkScanPriv_DEFINED
 #define SkScanPriv_DEFINED
 
 #include "SkPath.h"
 #include "SkScan.h"
 #include "SkBlitter.h"
+
+// controls how much we super-sample (when we use that scan convertion)
+#define SK_SUPERSAMPLE_SHIFT    2
 
 class SkScanClipper {
 public:
