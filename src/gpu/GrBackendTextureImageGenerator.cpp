@@ -43,7 +43,7 @@ GrBackendTextureImageGenerator::Make(sk_sp<GrTexture> texture, GrSurfaceOrigin o
     // Attach our texture to this context's resource cache. This ensures that deletion will happen
     // in the correct thread/context. This adds the only ref to the texture that will persist from
     // this point. That ref will be released when the generator's RefHelper is freed.
-    context->getResourceCache()->insertCrossContextGpuResource(texture.get());
+    context->contextPriv().getResourceCache()->insertCrossContextGpuResource(texture.get());
 
     GrBackendTexture backendTexture = texture->getBackendTexture();
 
@@ -115,8 +115,8 @@ sk_sp<GrTextureProxy> GrBackendTextureImageGenerator::onGenerateTexture(
         // always make a wrapped copy, where the release proc informs us that the context is done
         // with it. This is unfortunate - we'll have two texture objects referencing the same GPU
         // object. However, no client can ever see the original texture, so this should be safe.
-        tex = context->resourceProvider()->wrapBackendTexture(fBackendTexture,
-                                                              kBorrow_GrWrapOwnership);
+        tex = context->contextPriv().resourceProvider()->wrapBackendTexture(
+                                fBackendTexture, kBorrow_GrWrapOwnership);
         if (!tex) {
             return nullptr;
         }
