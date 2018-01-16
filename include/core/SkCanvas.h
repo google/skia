@@ -1881,6 +1881,16 @@ public:
     void drawImageLattice(const SkImage* image, const Lattice& lattice, const SkRect& dst,
                           const SkPaint* paint = nullptr);
 
+    /**
+     *  Draw the image, treating its alpha-channel as a mask for the color(s) specified
+     *  in the paint.
+     *
+     *  IDEA: take an optional colorfilter, that is applied to the mask (RGBA) and then we just
+     *        use the alpha of the colorfilter's output...
+     */
+    void drawMask(const SkImage* mask, const SkPaint&);
+    void drawMask(sk_sp<SkImage> mask, const SkPaint&);
+
     /** Draw text, with origin at (x, y), using clip, SkMatrix, and SkPaint paint.
 
         text meaning depends on SkPaint::TextEncoding; by default, text is encoded as
