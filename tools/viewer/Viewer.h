@@ -49,9 +49,10 @@ private:
     void updateTitle();
     void setBackend(sk_app::Window::BackendType);
     void setColorMode(ColorMode);
-    void setStartupSlide();
-    void setupCurrentSlide(int previousSlide);
-    void listNames();
+    int startupSlide() const;
+    void setCurrentSlide(int);
+    void setupCurrentSlide();
+    void listNames() const;
 
     void updateUIState();
 
