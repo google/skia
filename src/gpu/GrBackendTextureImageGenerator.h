@@ -53,7 +53,7 @@ private:
         RefHelper(GrTexture* texture, uint32_t owningContextID)
             : fOriginalTexture(texture)
             , fOwningContextID(owningContextID)
-            , fBorrowedTexture(nullptr)
+            , fBorrowedTextureProxy(nullptr)
             , fBorrowingContextID(SK_InvalidGenID) { }
 
         ~RefHelper();
@@ -64,7 +64,7 @@ private:
         // There is never a ref associated with this pointer. We rely on our atomic bookkeeping
         // with the context ID to know when this pointer is valid and safe to use. This lets us
         // avoid releasing a ref from another thread, or get into races during context shutdown.
-        GrTexture* fBorrowedTexture;
+        GrTextureProxy* fBorrowedTextureProxy;
         SkAtomic<uint32_t> fBorrowingContextID;
     };
 
