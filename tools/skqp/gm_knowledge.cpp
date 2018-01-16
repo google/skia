@@ -126,7 +126,8 @@ bool IsGoodGM(const char* name, skqp::AssetManager* assetManager) {
         && asset_exists(assetManager, SkOSPath::Join(name, PATH_MIN_PNG).c_str());
 }
 
-// Assumes that for each GM foo, asset_manager has files foo/{max,min}.png
+// Assumes that for each GM foo, asset_manager has files foo/{max,min}.png and
+// that the report_directory_path already exists on disk.
 float Check(const uint32_t* pixels,
             int width,
             int height,
@@ -174,7 +175,6 @@ float Check(const uint32_t* pixels,
         gErrors.push_back(Run{SkString(backend), SkString(name), 0, 0});
     }
     if (report_directory_path && badness > 0 && report_directory_path[0] != '\0') {
-        sk_mkdir(report_directory_path);
         if (!backend) {
             backend = "skia";
         }
