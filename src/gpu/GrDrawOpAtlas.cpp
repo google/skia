@@ -8,8 +8,10 @@
 #include "GrDrawOpAtlas.h"
 
 #include "GrContext.h"
+#include "GrContextPriv.h"
 #include "GrOpFlushState.h"
 #include "GrRectanizer.h"
+#include "GrProxyProvider.h"
 #include "GrResourceProvider.h"
 #include "GrTexture.h"
 #include "GrTracing.h"
@@ -452,6 +454,8 @@ bool GrDrawOpAtlas::createNewPage() {
         return false;
     }
 
+    GrProxyProvider* proxyProvider = fContext->contextPriv().proxyProvider();
+
     GrSurfaceDesc desc;
     desc.fFlags = kNone_GrSurfaceFlags;
     desc.fOrigin = kTopLeft_GrSurfaceOrigin;
@@ -463,16 +467,14 @@ bool GrDrawOpAtlas::createNewPage() {
     // guarantee we do not recieve a texture with pending IO
     // TODO: Determine how to avoid having to do this. (https://bug.skia.org/4156)
     static const uint32_t kFlags = GrResourceProvider::kNoPendingIO_Flag;
-    sk_sp<GrTexture> texture(fContext->resourceProvider()->createApproxTexture(desc, kFlags));
-    if (texture) {
-        // MDB TODO: for now, wrap an instantiated texture. Having the deferred instantiation
-        // possess the correct properties (e.g., no pendingIO) should fall out of the system but
-        // should receive special attention.
-        // Note: When switching over to the deferred proxy, use the kExact flag to create
-        // the atlas and assert that the width & height are powers of 2.
-        fProxies[fNumPages] = GrSurfaceProxy::MakeWrapped(std::move(texture),
-                                                          kTopLeft_GrSurfaceOrigin);
-    }
+    // MDB TODO: for now, wrap an instantiated texture. Having the deferred instantiation
+    // possess the correct properties (e.g., no pendingIO) should fall out of the system but
+    // should receive special attention.
+    // Note: When switching over to the deferred proxy, use the kExact flag to create
+    // the atlas and assert that the width & height are powers of 2.
+    // DDL TODO: remove this use of createInstantitateProxy & convert it to a testing-only method.
+    fProxies[fNumPages] = proxyProvider->createInstantiatedProxy(desc, SkBackingFit::kApprox,
+                                                                 SkBudgeted::kYes, kFlags);
     if (!fProxies[fNumPages]) {
         return false;
     }

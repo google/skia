@@ -13,6 +13,7 @@
 
 #include "GrContextFactory.h"
 #include "GrContextPriv.h"
+#include "GrProxyProvider.h"
 #include "GrSurfaceProxy.h"
 #include "GrTest.h"
 #include "SkGr.h"
@@ -73,9 +74,8 @@ void basic_texture_test(skiatest::Reporter* reporter, GrContext* context, GrPixe
     SkColorType ct;
     SkAssertResult(GrPixelConfigToColorType(config, &ct));
 
-    sk_sp<GrTextureProxy> proxy = GrSurfaceProxy::MakeDeferred(proxyProvider,
-                                                               surfDesc, SkBudgeted::kNo,
-                                                               srcBuffer, 0);
+    sk_sp<GrTextureProxy> proxy = proxyProvider->createTextureProxy(surfDesc, SkBudgeted::kNo,
+                                                                    srcBuffer, 0);
     REPORTER_ASSERT(reporter, proxy);
     if (proxy) {
         sk_sp<GrSurfaceContext> sContext = context->contextPriv().makeWrappedSurfaceContext(
@@ -107,7 +107,7 @@ void basic_texture_test(skiatest::Reporter* reporter, GrContext* context, GrPixe
 
     surfDesc.fOrigin = kBottomLeft_GrSurfaceOrigin;
 
-    proxy = GrSurfaceProxy::MakeDeferred(proxyProvider, surfDesc, SkBudgeted::kNo, srcBuffer, 0);
+    proxy = proxyProvider->createTextureProxy(surfDesc, SkBudgeted::kNo, srcBuffer, 0);
     REPORTER_ASSERT(reporter, proxy);
     if (proxy) {
         sk_sp<GrSurfaceContext> sContext = context->contextPriv().makeWrappedSurfaceContext(

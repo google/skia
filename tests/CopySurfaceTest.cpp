@@ -11,6 +11,7 @@
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
 #include "GrContextPriv.h"
+#include "GrProxyProvider.h"
 #include "GrResourceProvider.h"
 #include "GrSurfaceContext.h"
 #include "GrSurfaceProxy.h"
@@ -74,17 +75,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(CopySurface, reporter, ctxInfo) {
                             dstDesc.fOrigin = dOrigin;
                             dstDesc.fFlags = dFlags;
 
-                            sk_sp<GrTextureProxy> src(GrSurfaceProxy::MakeDeferred(
-                                                                    proxyProvider,
-                                                                    srcDesc, SkBudgeted::kNo,
-                                                                    srcPixels.get(),
-                                                                    kRowBytes));
-
-                            sk_sp<GrTextureProxy> dst(GrSurfaceProxy::MakeDeferred(
-                                                                    proxyProvider,
-                                                                    dstDesc, SkBudgeted::kNo,
-                                                                    dstPixels.get(),
-                                                                    kRowBytes));
+                            sk_sp<GrTextureProxy> src = proxyProvider->createTextureProxy(
+                                             srcDesc, SkBudgeted::kNo, srcPixels.get(), kRowBytes);
+                            sk_sp<GrTextureProxy> dst = proxyProvider->createTextureProxy(
+                                             dstDesc, SkBudgeted::kNo, dstPixels.get(), kRowBytes);
                             if (!src || !dst) {
                                 ERRORF(reporter,
                                        "Could not create surfaces for copy surface test.");

@@ -12,6 +12,7 @@
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
 #include "GrContextPriv.h"
+#include "GrProxyProvider.h"
 #include "GrRenderTargetContext.h"
 #include "GrTextureContext.h"
 #include "GrFixedClip.h"
@@ -76,6 +77,7 @@ DEF_SIMPLE_GM_BG(texdata, canvas, 2 * S, 2 * S, SK_ColorBLACK) {
         return;
     }
 
+    GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
     const SkImageInfo ii = SkImageInfo::Make(S, S, kBGRA_8888_SkColorType, kPremul_SkAlphaType);
 
     SkAutoTArray<SkPMColor> gTextureData((2 * S) * (2 * S));
@@ -91,10 +93,8 @@ DEF_SIMPLE_GM_BG(texdata, canvas, 2 * S, 2 * S, SK_ColorBLACK) {
         desc.fHeight    = 2 * S;
         desc.fConfig    = SkImageInfo2GrPixelConfig(ii, *context->caps());
 
-        sk_sp<GrTextureProxy> proxy = GrSurfaceProxy::MakeDeferred(
-                                                            context->contextPriv().proxyProvider(),
-                                                            desc, SkBudgeted::kNo,
-                                                            gTextureData.get(), 0);
+        sk_sp<GrTextureProxy> proxy = proxyProvider->createTextureProxy(desc, SkBudgeted::kNo,
+                                                                        gTextureData.get(), 0);
         if (!proxy) {
             return;
         }
