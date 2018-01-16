@@ -186,6 +186,100 @@ sk_sp<SkColorSpace> SkAndroidCodec::computeOutputColorSpace(SkColorType outputCo
     }
 }
 
+static bool supports_any_down_scale(const SkCodec* codec) {
+    return codec->getEncodedFormat() == SkEncodedImageFormat::kWEBP;
+}
+
+// There are a variety of ways two SkISizes could be compared. This method
+// returns true if either dimensions of a is < that of b.
+// computeSampleSize also uses the opposite, which means that both
+// dimensions of a >= b.
+static inline bool smaller_than(const SkISize& a, const SkISize& b) {
+    return a.width() < b.width() || a.height() < b.height();
+}
+
+// Both dimensions of a > that of b.
+static inline bool strictly_bigger_than(const SkISize& a, const SkISize& b) {
+    return a.width() > b.width() && a.height() > b.height();
+}
+
+int SkAndroidCodec::computeSampleSize(SkISize* desiredSize) const {
+    SkASSERT(desiredSize);
+
+    if (!desiredSize || *desiredSize == fInfo.dimensions()) {
+        return 1;
+    }
+
+    if (smaller_than(fInfo.dimensions(), *desiredSize)) {
+        *desiredSize = fInfo.dimensions();
+        return 1;
+    }
+
+    // Handle bad input:
+    if (desiredSize->width() < 1 || desiredSize->height() < 1) {
+        *desiredSize = SkISize::Make(std::max(1, desiredSize->width()),
+                                     std::max(1, desiredSize->height()));
+    }
+
+    if (supports_any_down_scale(fCodec.get())) {
+        return 1;
+    }
+
+    int sampleX = fInfo.width()  / desiredSize->width();
+    int sampleY = fInfo.height() / desiredSize->height();
+    int sampleSize = std::min(sampleX, sampleY);
+    auto computedSize = this->getSampledDimensions(sampleSize);
+    if (computedSize == *desiredSize) {
+        return sampleSize;
+    }
+
+    if (computedSize == fInfo.dimensions() || sampleSize == 1) {
+        // Cannot downscale
+        *desiredSize = computedSize;
+        return 1;
+    }
+
+    if (strictly_bigger_than(computedSize, *desiredSize)) {
+        // See if there is a tighter fit.
+        while (true) {
+            auto smaller = this->getSampledDimensions(sampleSize + 1);
+            if (smaller == *desiredSize) {
+                return sampleSize + 1;
+            }
+            if (smaller == computedSize || smaller_than(smaller, *desiredSize)) {
+                // Cannot get any smaller without being smaller than desired.
+                *desiredSize = computedSize;
+                return sampleSize;
+            }
+
+            sampleSize++;
+            computedSize = smaller;
+        }
+
+        SkASSERT(false);
+    }
+
+    if (!smaller_than(computedSize, *desiredSize)) {
+        // This means one of the computed dimensions is equal to desired, and
+        // the other is bigger. This is as close as we can get.
+        *desiredSize = computedSize;
+        return sampleSize;
+    }
+
+    // computedSize is too small. Make it larger.
+    while (sampleSize > 2) {
+        auto bigger = this->getSampledDimensions(sampleSize - 1);
+        if (bigger == *desiredSize || !smaller_than(bigger, *desiredSize)) {
+            *desiredSize = bigger;
+            return sampleSize - 1;
+        }
+        sampleSize--;
+    }
+
+    *desiredSize = fInfo.dimensions();
+    return 1;
+}
+
 SkISize SkAndroidCodec::getSampledDimensions(int sampleSize) const {
     if (!is_valid_sample_size(sampleSize)) {
         return {0, 0};
