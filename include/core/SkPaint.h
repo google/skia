@@ -63,6 +63,7 @@ class SkTypeface;
     SkShader attached to SkPaint.
 */
 class SK_API SkPaint {
+test
 public:
 
     /** Constructs SkPaint with default values.
