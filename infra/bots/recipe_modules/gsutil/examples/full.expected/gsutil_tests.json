@@ -2,6 +2,7 @@
   {
     "cmd": [
       "gsutil",
+      "-m",
       "cp",
       "-Z",
       "/foo/file",
