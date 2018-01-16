@@ -198,6 +198,10 @@ public:
      * (Stencil is not supported by this method.) The width and height must either both be greater
      * than 0 or both less than or equal to zero. A non-positive value is a signal that the width
      * and height are currently unknown.
+     *
+     * When called, the callback must be able to cleanup any resources that it captured at creation.
+     * It also must support being passed in a null GrResourceProvider. When this happens, the
+     * callback should cleanup any resources it captured and return an empty sk_sp<GrTextureProxy>.
      * DDL TODO: remove this entry point
      */
     static sk_sp<GrTextureProxy> MakeLazy(LazyInstantiateCallback&&, const GrSurfaceDesc& desc,
