@@ -76,26 +76,6 @@
   },
   {
     "cmd": [
-      "ssh",
-      "-oConnectTimeout=15",
-      "-oBatchMode=yes",
-      "-t",
-      "-t",
-      "root@192.168.1.2",
-      "rm",
-      "/cache/skia/nanobench"
-    ],
-    "env": {
-      "BUILDTYPE": "Release",
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/out"
-    },
-    "infra_step": true,
-    "name": "Delete old nanobench"
-  },
-  {
-    "cmd": [
       "python",
       "-u",
       "\nimport os\nimport subprocess\nimport sys\nhost   = sys.argv[1]\ndevice = sys.argv[2]\nfor d, _, fs in os.walk(host):\n  p = os.path.relpath(d, host)\n  if p != '.' and p.startswith('.'):\n    continue\n  for f in fs:\n    print os.path.join(p,f)\n    hp = os.path.realpath(os.path.join(host, p, f))\n    if os.stat(hp).st_size > (1.5 * 1024 * 1024):\n      print \"Skipping because it is too big\"\n    else:\n      subprocess.check_call(['adb', 'push',\n                            hp, os.path.join(device, p, f)])\n",
@@ -293,7 +273,7 @@
       "shell",
       "rm",
       "-r",
-      "/cache/skia/dm_out"
+      "/dev/shm/skia/dm_out"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
@@ -303,7 +283,7 @@
       "SKIA_OUT": "[START_DIR]/out"
     },
     "infra_step": true,
-    "name": "rm /cache/skia/dm_out"
+    "name": "rm /dev/shm/skia/dm_out"
   },
   {
     "cmd": [
@@ -311,7 +291,7 @@
       "shell",
       "mkdir",
       "-p",
-      "/cache/skia/dm_out"
+      "/dev/shm/skia/dm_out"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
@@ -321,7 +301,7 @@
       "SKIA_OUT": "[START_DIR]/out"
     },
     "infra_step": true,
-    "name": "mkdir /cache/skia/dm_out"
+    "name": "mkdir /dev/shm/skia/dm_out"
   },
   {
     "cmd": [
@@ -458,22 +438,37 @@
       "-t",
       "root@192.168.1.2",
       "/cache/skia/bin/dm",
-      "--undefok",
       "--resourcePath",
       "/cache/skia/resources",
       "--skps",
       "/cache/skia/skps",
       "--images",
       "/cache/skia/resources/color_wheel.jpg",
+      "--nameByHash",
+      "--properties",
+      "gitHash",
+      "abc123",
+      "builder",
+      "Test-Chromecast-GCC-Chorizo-GPU-Cortex_A7-arm-Release-All",
+      "buildbucket_build_id",
+      "123454321",
+      "swarming_bot_id",
+      "skia-bot-123",
+      "swarming_task_id",
+      "123456",
+      "--uninterestingHashesFile",
+      "/cache/skia/uninteresting_hashes.txt",
+      "--writePath",
+      "/dev/shm/skia/dm_out",
       "--dont_write",
       "pdf",
       "--randomProcessorTest",
       "--threads",
       "0",
+      "--ignoreSigInt",
       "--nocpu",
       "--config",
       "gles",
-      "8888",
       "--src",
       "tests",
       "gm",
@@ -585,7 +580,16 @@
       "~matrixconvolution",
       "~blur_image_filter",
       "~blur_0.01",
+      "~readpixels",
+      "~F16Stages",
+      "~SkRasterPipeline_tail",
       "~GM_animated-image-blurs",
+      "~verylarge",
+      "~ImageFilterBlurLargeImage",
+      "~TextBlobCache",
+      "~bigbitmaprect_",
+      "~savelayer_clipmask",
+      "~DrawBitmapRect",
       "--nonativeFonts",
       "--verbose"
     ],
@@ -601,7 +605,7 @@
     "cmd": [
       "adb",
       "pull",
-      "/cache/skia/dm_out",
+      "/dev/shm/skia/dm_out",
       "[CUSTOM_[SWARM_OUT_DIR]]/dm"
     ],
     "cwd": "[START_DIR]/skia",
@@ -612,7 +616,7 @@
       "SKIA_OUT": "[START_DIR]/out"
     },
     "infra_step": true,
-    "name": "pull /cache/skia/dm_out [CUSTOM_[SWARM_OUT_DIR]]/dm"
+    "name": "pull /dev/shm/skia/dm_out [CUSTOM_[SWARM_OUT_DIR]]/dm"
   },
   {
     "cmd": [
