@@ -3,7 +3,7 @@
 
 #Struct SkIPoint16
 
-SkIPoint holds two 16 bit integer coordinates
+SkIPoint holds two 16 bit integer coordinates.
 
 #Topic Overview
 
@@ -11,31 +11,42 @@ SkIPoint holds two 16 bit integer coordinates
 #ToDo manually add subtopics ##
 #Table
 #Legend
-# topics # description ##
+# name             # description                          ##
 #Legend ##
+# Constructors     # functions that construct SkIPoint16  ##
+# Member_Functions # static functions and member methods  ##
 #Table ##
-##
+#Subtopic ##
+
+#Subtopic Constructors
+#Table
+#Legend
+# name  # description                    ##
+#Legend ##
+# Make  # constructs from integer inputs ##
+#Table ##
+#Subtopic ##
 
 #Subtopic Member_Functions
 #Table
 #Legend
-# description # function ##
+# name  # description                    ##
 #Legend ##
-# Make  # Constructs from integer inputs. ##
-# set() # Sets to integer input.          ##
-# x()   # Returns fX.                     ##
-# y()   # Returns fY.                     ##
+# Make  # constructs from integer inputs ##
+# set() # sets to integer input          ##
+# x()   # returns fX                     ##
+# y()   # returns fY                     ##
 #Table ##
 #Subtopic ##
 
-#Topic ##
+#Topic Overview ##
 
 #Member int16_t  fX
-x-axis value used by IPoint16.
+x-axis value used by IPoint16
 ##
 
 #Member int16_t  fY
-y-axis value used by IPoint16.
+y-axis value used by IPoint16
 ##
 
 # ------------------------------------------------------------------------------

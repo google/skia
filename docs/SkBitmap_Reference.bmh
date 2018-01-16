@@ -38,15 +38,19 @@ is useful to position one or more Bitmaps within a shared pixel array.
 #ToDo manually add subtopics ##
 #Table
 #Legend
-# topics # description ##
+# name # description ##
 #Legend ##
+# Classes_and_Structs   # embedded struct and class members                  ##
+# Constructors          # functions that construct SkPath                    ##
+# Member_Functions      # static functions and member methods                ##
+# Operators             # operator overloading methods                       ##
 #Table ##
 ##
 
-#Subtopic Structs
+#Subtopic Classes_and_Structs
 #Table
 #Legend
-# description   # struct ##
+# name          # description ##
 #Legend ##
 # Allocator     # ##
 # HeapAllocator # ##
@@ -56,95 +60,95 @@ is useful to position one or more Bitmaps within a shared pixel array.
 #Subtopic Constructors
 #Table
 #Legend
-# description                   # function ##
+# name                          # description                     ##
 #Legend ##
-# SkBitmap()                    # Constructs with default values.  ##
-# SkBitmap(SkBitmap&& src)      # Takes ownership of pixels.       ##
-# SkBitmap(const SkBitmap& src) # Shares ownership of pixels.      ##
-# ~SkBitmap()                   # Releases ownership of pixels.    ##
+# SkBitmap()                    # constructs with default values  ##
+# SkBitmap(SkBitmap&& src)      # takes ownership of pixels       ##
+# SkBitmap(const SkBitmap& src) # shares ownership of pixels      ##
+# ~SkBitmap()                   # releases ownership of pixels    ##
 #Table ##
 #Subtopic ##
 
 #Subtopic Operators
 #Table
 #Legend
-# description                              # function ##
+# name                                     # description                ##
 #Legend ##
-# SkBitmap& operator=(SkBitmap&& src)      # Takes ownership of pixels.  ##
-# SkBitmap& operator=(const SkBitmap& src) # Shares ownership of pixels. ##
+# SkBitmap& operator=(SkBitmap&& src)      # takes ownership of pixels  ##
+# SkBitmap& operator=(const SkBitmap& src) # shares ownership of pixels ##
 #Table ##
 #Subtopic ##
 
 #Subtopic Member_Functions
 #Table
 #Legend
-# description          # function ##
+# name                 # description ##
 #Legend ##
-# ComputeIsOpaque      # Returns true if all pixels are opaque. ##
-# allocN32Pixels       # Allocates compatible Color_ARGB pixels, or aborts. ##
-# allocPixels          # Allocates pixels from Image_Info, or aborts. ##
-# allocPixelsFlags     # Allocates pixels from Image_Info with options, or aborts. ##
-# alphaType            # Returns Image_Info Alpha_Type. ##
-# bounds()             # Returns width() and height() as Rectangle. ##
-# bytesPerPixel        # Returns number of bytes in pixel based on Color_Type. ##
-# colorSpace           # Returns Image_Info Color_Space. ##
-# colorType            # Returns Image_Info Color_Type. ##
-# computeByteSize      # Returns size required for pixels. ##
-# dimensions()         # Returns width() and height(). ##
-# drawsNothing         # Returns true if no width(), no height(), or no Pixel_Ref. ##
-# empty()              # Returns true if Image_Info has zero width() or height(). ##
-# erase()              # Writes Color to rectangle of pixels. ##
-# eraseARGB            # Writes Color to pixels. ##
-# eraseArea            # Deprecated ##
-# eraseColor           # Writes Color to pixels. ##
-# eraseRGB             # Deprecated ##
-# extractAlpha         # Creates Bitmap containing Alpha of pixels. ##
-# extractSubset        # Creates Bitmap, sharing pixels if possible. ##
-# getAddr              # Returns readable pixel address as void pointer. ##
-# getAddr16            # Returns readable pixel address as 16-bit pointer. ##
-# getAddr32            # Returns readable pixel address as 32-bit pointer. ##
-# getAddr8             # Returns readable pixel address as 8-bit pointer. ##
-# getBounds            # Returns width() and height() as Rectangle. ##
-# getColor             # Returns one pixel as Unpremultiplied Color. ##
-# getGenerationID      # Returns unique ID. ##
-# getPixels            # Returns address of pixels. ##
-# getSubset            # Returns bounds offset by origin. ##
-# hasHardwareMipMap    # Returns Mip_Map support present; Android only. ##
-# height()             # Returns pixel row count. ##
-# info()               # Returns Image_Info. ##
-# installMaskPixels    # Creates Pixel_Ref from Mask. ##
-# installPixels        # Creates Pixel_Ref, with optional release function. ##
-# isImmutable          # Returns true if pixels will not change. ##
-# isNull               # Returns true if Pixel_Ref is nullptr. ##
-# isOpaque             # Returns true if Image_Info describes opaque pixels. ##
-# isVolatile           # Returns true if pixels should not be cached. ##
-# notifyPixelsChanged  # Marks pixels as changed, altering the unique ID. ##
-# peekPixels           # Returns Pixmap if possible. ##
-# pixelRef             # Returns Pixel_Ref, or nullptr. ##
-# pixelRefOrigin       # Returns offset within Pixel_Ref. ##
-# pixmap()             # Returns Pixmap. ##
-# readPixels           # Copies and converts pixels. ##
-# readyToDraw          # Returns true if address of pixels is not nullptr. ##
-# refColorSpace        # Returns Image_Info Color_Space. ##
-# reset()              # Sets to default values, releases pixel ownership. ##
-# rowBytes             # Returns interval between rows in bytes. ##
-# rowBytesAsPixels     # Returns interval between rows in pixels. ##
-# setAlphaType         # Sets Alpha_Type of shared pixels. ##
-# setHasHardwareMipMap # Sets Mip_Map support present; Android only. ##
-# setImmutable         # Marks that pixels will not change. ##
-# setInfo              # Sets height, width, Color_Type, and so on, releasing pixels. ##
-# setIsVolatile        # Marks if pixels should not be cached. ##
-# setPixelRef          # Sets Pixel_Ref and offset. ##
-# setPixels            # Sets Pixel_Ref without an offset. ##
-# shiftPerPixel        # Returns bit shift from pixels to bytes. ##
-# swap()               # Exchanges Bitmap pair. ##
-# toString             # Converts Bitmap to machine readable form. ##
-# tryAllocN32Pixels    # Allocates compatible Color_ARGB pixels if possible. ##
-# tryAllocPixels       # Allocates pixels from Image_Info if possible. ##
-# tryAllocPixelsFlags  # Allocates pixels from Image_Info with options if possible. ##
-# validate()           # Asserts if Bitmap is invalid (debug only). ##
-# width()              # Returns pixel column count. ##
-# writePixels          # Copies and converts pixels. ##
+# ComputeIsOpaque      # returns true if all pixels are opaque ##
+# allocN32Pixels       # allocates compatible Color_ARGB pixels, or aborts ##
+# allocPixels          # allocates pixels from Image_Info, or aborts ##
+# allocPixelsFlags     # allocates pixels from Image_Info with options, or aborts ##
+# alphaType            # returns Image_Info Alpha_Type ##
+# bounds()             # returns width() and height() as Rectangle ##
+# bytesPerPixel        # returns number of bytes in pixel based on Color_Type ##
+# colorSpace           # returns Image_Info Color_Space ##
+# colorType            # returns Image_Info Color_Type ##
+# computeByteSize      # returns size required for pixels ##
+# dimensions()         # returns width() and height() ##
+# drawsNothing         # returns true if no width(), no height(), or no Pixel_Ref ##
+# empty()              # returns true if Image_Info has zero width() or height() ##
+# erase()              # writes Color to rectangle of pixels ##
+# eraseARGB            # writes Color to pixels ##
+# eraseArea            # deprecated ##
+# eraseColor           # writes Color to pixels ##
+# eraseRGB             # deprecated ##
+# extractAlpha         # creates Bitmap containing Alpha of pixels ##
+# extractSubset        # creates Bitmap, sharing pixels if possible ##
+# getAddr              # returns readable pixel address as void pointer ##
+# getAddr16            # returns readable pixel address as 16-bit pointer ##
+# getAddr32            # returns readable pixel address as 32-bit pointer ##
+# getAddr8             # returns readable pixel address as 8-bit pointer ##
+# getBounds            # returns width() and height() as Rectangle ##
+# getColor             # returns one pixel as Unpremultiplied Color ##
+# getGenerationID      # returns unique ID ##
+# getPixels            # returns address of pixels ##
+# getSubset            # returns bounds offset by origin ##
+# hasHardwareMipMap    # returns Mip_Map support present; Android only ##
+# height()             # returns pixel row count ##
+# info()               # returns Image_Info ##
+# installMaskPixels    # creates Pixel_Ref from Mask ##
+# installPixels        # creates Pixel_Ref, with optional release function ##
+# isImmutable          # returns true if pixels will not change ##
+# isNull               # returns true if Pixel_Ref is nullptr ##
+# isOpaque             # returns true if Image_Info describes opaque pixels ##
+# isVolatile           # returns true if pixels should not be cached ##
+# notifyPixelsChanged  # marks pixels as changed, altering the unique ID ##
+# peekPixels           # returns Pixmap if possible ##
+# pixelRef             # returns Pixel_Ref, or nullptr ##
+# pixelRefOrigin       # returns offset within Pixel_Ref ##
+# pixmap()             # returns Pixmap ##
+# readPixels           # copies and converts pixels ##
+# readyToDraw          # returns true if address of pixels is not nullptr ##
+# refColorSpace        # returns Image_Info Color_Space ##
+# reset()              # sets to default values, releases pixel ownership ##
+# rowBytes             # returns interval between rows in bytes ##
+# rowBytesAsPixels     # returns interval between rows in pixels ##
+# setAlphaType         # sets Alpha_Type of shared pixels ##
+# setHasHardwareMipMap # sets Mip_Map support present; Android only ##
+# setImmutable         # marks that pixels will not change ##
+# setInfo              # sets height, width, Color_Type, and so on, releasing pixels ##
+# setIsVolatile        # marks if pixels should not be cached ##
+# setPixelRef          # sets Pixel_Ref and offset ##
+# setPixels            # sets Pixel_Ref without an offset ##
+# shiftPerPixel        # returns bit shift from pixels to bytes ##
+# swap()               # exchanges Bitmap pair ##
+# toString             # converts Bitmap to machine readable form ##
+# tryAllocN32Pixels    # allocates compatible Color_ARGB pixels if possible ##
+# tryAllocPixels       # allocates pixels from Image_Info if possible ##
+# tryAllocPixelsFlags  # allocates pixels from Image_Info with options if possible ##
+# validate()           # asserts if Bitmap is invalid (debug only) ##
+# width()              # returns pixel column count ##
+# writePixels          # copies and converts pixels ##
 #Table ##
 #Subtopic ##
 
