@@ -289,6 +289,11 @@ bool SkRegion::setRuns(RunType runs[], int count) {
     memcpy(fRunHead->writable_runs(), runs, count * sizeof(RunType));
     fRunHead->computeRunBounds(&fBounds);
 
+    // Our computed bounds might be too large, so we have to check here.
+    if (fBounds.isEmpty()) {
+        return this->setEmpty();
+    }
+
     SkDEBUGCODE(this->validate();)
 
     return true;
