@@ -33,10 +33,6 @@ std::unique_ptr<SkImageGenerator>
 GrBackendTextureImageGenerator::Make(sk_sp<GrTexture> texture, GrSurfaceOrigin origin,
                                      sk_sp<GrSemaphore> semaphore,
                                      SkAlphaType alphaType, sk_sp<SkColorSpace> colorSpace) {
-    if (colorSpace && (!colorSpace->gammaCloseToSRGB() && !colorSpace->gammaIsLinear())) {
-        return nullptr;
-    }
-
     SkColorType colorType = kUnknown_SkColorType;
     if (!GrPixelConfigToColorType(texture->config(), &colorType)) {
         return nullptr;
