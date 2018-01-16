@@ -65,7 +65,7 @@ public:
     GrCoverageCountingPathRenderer* getCoverageCountingPathRenderer();
 
     void flushIfNecessary() {
-        if (fContext->getResourceCache()->requestsFlush()) {
+        if (fContext->contextPriv().getResourceCache()->requestsFlush()) {
             this->internalFlush(nullptr, GrResourceCache::kCacheRequested, 0, nullptr);
         }
     }
@@ -92,7 +92,7 @@ private:
             , fAtlasTextContext(nullptr)
             , fPathRendererChain(nullptr)
             , fSoftwarePathRenderer(nullptr)
-            , fFlushState(context->getGpu(), context->resourceProvider())
+            , fFlushState(context->getGpu(), context->contextPriv().resourceProvider())
             , fFlushing(false) {}
 
     void abandon();

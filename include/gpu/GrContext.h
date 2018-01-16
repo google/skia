@@ -305,9 +305,6 @@ public:
     GrAtlasGlyphCache* getAtlasGlyphCache() { return fAtlasGlyphCache; }
     GrTextBlobCache* getTextBlobCache() { return fTextBlobCache.get(); }
     bool abandoned() const;
-    GrResourceProvider* resourceProvider() { return fResourceProvider; }
-    const GrResourceProvider* resourceProvider() const { return fResourceProvider; }
-    GrResourceCache* getResourceCache() { return fResourceCache; }
 
     /** Reset GPU stats */
     void resetGpuStats() const ;

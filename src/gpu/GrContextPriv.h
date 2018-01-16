@@ -170,6 +170,11 @@ public:
     GrProxyProvider* proxyProvider() { return fContext->fProxyProvider; }
     const GrProxyProvider* proxyProvider() const { return fContext->fProxyProvider; }
 
+    GrResourceProvider* resourceProvider() { return fContext->fResourceProvider; }
+    const GrResourceProvider* resourceProvider() const { return fContext->fResourceProvider; }
+
+    GrResourceCache* getResourceCache() { return fContext->fResourceCache; }
+
 private:
     explicit GrContextPriv(GrContext* context) : fContext(context) {}
     GrContextPriv(const GrContextPriv&); // unimpl

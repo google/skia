@@ -9,10 +9,11 @@
 
 #if SK_SUPPORT_GPU
 
+#include "GrContext.h"
+#include "GrContextPriv.h"
+#include "GrGpu.h"
 #include "GrGpuResource.h"
 #include "GrGpuResourcePriv.h"
-#include "GrContext.h"
-#include "GrGpu.h"
 #include "GrResourceCache.h"
 #include "SkCanvas.h"
 
@@ -76,7 +77,7 @@ protected:
         // Set the cache budget to be very large so no purging occurs.
         context->setResourceCacheLimits(CACHE_SIZE_COUNT, 1 << 30);
 
-        GrResourceCache* cache = context->getResourceCache();
+        GrResourceCache* cache = context->contextPriv().getResourceCache();
 
         // Make sure the cache is empty.
         cache->purgeAllUnlocked();
@@ -122,7 +123,7 @@ protected:
         // Set the cache budget to be very large so no purging occurs.
         fContext->setResourceCacheLimits(CACHE_SIZE_COUNT, 1 << 30);
 
-        GrResourceCache* cache = fContext->getResourceCache();
+        GrResourceCache* cache = fContext->contextPriv().getResourceCache();
 
         // Make sure the cache is empty.
         cache->purgeAllUnlocked();
@@ -137,7 +138,7 @@ protected:
         if (!fContext) {
             return;
         }
-        GrResourceCache* cache = fContext->getResourceCache();
+        GrResourceCache* cache = fContext->contextPriv().getResourceCache();
         SkASSERT(CACHE_SIZE_COUNT == cache->getResourceCount());
         for (int i = 0; i < loops; ++i) {
             for (int k = 0; k < CACHE_SIZE_COUNT; ++k) {
