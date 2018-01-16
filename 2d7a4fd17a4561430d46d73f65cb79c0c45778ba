@@ -16,6 +16,24 @@
       "revId": "2d7a4fd17a4561430d46d73f65cb79c0c45778ba",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2bbbb4e6_8d28109d",
+        "filename": "infra/bots/recipe_modules/flavor/gn_chromecast_flavor.py",
+        "patchSetId": 16
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-01-16T21:16:09Z",
+      "side": 1,
+      "message": "Updated docs to reflect this.",
+      "parentUuid": "91ee6073_454925da",
+      "revId": "2d7a4fd17a4561430d46d73f65cb79c0c45778ba",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
