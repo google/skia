@@ -158,6 +158,7 @@ void testingOnly_getIORefCnts(GrTextureProxy* proxy, int* refCnt, int* readCnt, 
 DEF_GPUTEST_FOR_ALL_CONTEXTS(ProcessorRefTest, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
     GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
+    GrResourceProvider* resourceProvider = context->contextPriv().resourceProvider();
 
     GrSurfaceDesc desc;
     desc.fOrigin = kTopLeft_GrSurfaceOrigin;
@@ -181,7 +182,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ProcessorRefTest, reporter, ctxInfo) {
                 sk_sp<GrTextureProxy> proxy4 =
                         proxyProvider->createProxy(desc, SkBackingFit::kExact, SkBudgeted::kYes);
                 sk_sp<GrBuffer> buffer(texelBufferSupport
-                        ? context->resourceProvider()->createBuffer(
+                        ? resourceProvider->createBuffer(
                                   1024, GrBufferType::kTexel_GrBufferType,
                                   GrAccessPattern::kStatic_GrAccessPattern, 0)
                         : nullptr);
@@ -352,6 +353,7 @@ sk_sp<GrTextureProxy> make_input_texture(GrProxyProvider* proxyProvider, int wid
 DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
     GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
+    auto resourceProvider = context->contextPriv().resourceProvider();
     using FPFactory = GrFragmentProcessorTestFactory;
 
     uint32_t seed = 0;
@@ -391,7 +393,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, repor
         }
         for (int j = 0; j < timesToInvokeFactory; ++j) {
             fp = FPFactory::MakeIdx(i, &testData);
-            if (!fp->instantiate(context->resourceProvider())) {
+            if (!fp->instantiate(resourceProvider)) {
                 continue;
             }
 
@@ -490,6 +492,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, repor
 DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorCloneTest, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
     GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
+    auto resourceProvider = context->contextPriv().resourceProvider();
 
     SkRandom random;
 
@@ -522,8 +525,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorCloneTest, reporter, ctxInfo) {
                 continue;
             }
             const char* name = fp->name();
-            if (!fp->instantiate(context->resourceProvider()) ||
-                !clone->instantiate(context->resourceProvider())) {
+            if (!fp->instantiate(resourceProvider) || !clone->instantiate(resourceProvider)) {
                 continue;
             }
             REPORTER_ASSERT(reporter, !strcmp(fp->name(), clone->name()));
