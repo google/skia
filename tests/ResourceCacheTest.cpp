@@ -127,14 +127,15 @@ DEF_GPUTEST_FOR_CONTEXTS(ResourceCacheStencilBuffers, &is_rendering_and_not_angl
         return;
     }
 
-    GrResourceProvider* provider = context->resourceProvider();
+    GrResourceProvider* resourceProvider = context->contextPriv().resourceProvider();
 
-    sk_sp<GrRenderTarget> smallRT0 = create_RT_with_SB(provider, 4, 0, SkBudgeted::kYes);
+    sk_sp<GrRenderTarget> smallRT0 = create_RT_with_SB(resourceProvider, 4, 0, SkBudgeted::kYes);
     REPORTER_ASSERT(reporter, smallRT0);
 
     {
        // Two budgeted RTs with the same desc should share a stencil buffer.
-        sk_sp<GrRenderTarget> smallRT1 = create_RT_with_SB(provider, 4, 0, SkBudgeted::kYes);
+        sk_sp<GrRenderTarget> smallRT1 = create_RT_with_SB(resourceProvider, 4, 0,
+                                                           SkBudgeted::kYes);
         REPORTER_ASSERT(reporter, smallRT1);
 
         REPORTER_ASSERT(reporter, get_SB(smallRT0.get()) == get_SB(smallRT1.get()));
@@ -142,7 +143,7 @@ DEF_GPUTEST_FOR_CONTEXTS(ResourceCacheStencilBuffers, &is_rendering_and_not_angl
 
     {
         // An unbudgeted RT with the same desc should also share.
-        sk_sp<GrRenderTarget> smallRT2 = create_RT_with_SB(provider, 4, 0, SkBudgeted::kNo);
+        sk_sp<GrRenderTarget> smallRT2 = create_RT_with_SB(resourceProvider, 4, 0, SkBudgeted::kNo);
         REPORTER_ASSERT(reporter, smallRT2);
 
         REPORTER_ASSERT(reporter, get_SB(smallRT0.get()) == get_SB(smallRT2.get()));
@@ -150,7 +151,7 @@ DEF_GPUTEST_FOR_CONTEXTS(ResourceCacheStencilBuffers, &is_rendering_and_not_angl
 
     {
         // An RT with a much larger size should not share.
-        sk_sp<GrRenderTarget> bigRT = create_RT_with_SB(provider, 400, 0, SkBudgeted::kNo);
+        sk_sp<GrRenderTarget> bigRT = create_RT_with_SB(resourceProvider, 400, 0, SkBudgeted::kNo);
         REPORTER_ASSERT(reporter, bigRT);
 
         REPORTER_ASSERT(reporter, get_SB(smallRT0.get()) != get_SB(bigRT.get()));
@@ -159,8 +160,8 @@ DEF_GPUTEST_FOR_CONTEXTS(ResourceCacheStencilBuffers, &is_rendering_and_not_angl
     int smallSampleCount = context->caps()->getSampleCount(4, kRGBA_8888_GrPixelConfig);
     if (smallSampleCount > 0) {
         // An RT with a different sample count should not share.
-        sk_sp<GrRenderTarget> smallMSAART0 = create_RT_with_SB(provider, 4, smallSampleCount,
-                                                               SkBudgeted::kNo);
+        sk_sp<GrRenderTarget> smallMSAART0 = create_RT_with_SB(resourceProvider, 4,
+                                                               smallSampleCount, SkBudgeted::kNo);
 #ifdef SK_BUILD_FOR_ANDROID
         if (!smallMSAART0) {
             // The nexus player seems to fail to create MSAA textures.
@@ -174,7 +175,8 @@ DEF_GPUTEST_FOR_CONTEXTS(ResourceCacheStencilBuffers, &is_rendering_and_not_angl
 
         {
             // A second MSAA RT should share with the first MSAA RT.
-            sk_sp<GrRenderTarget> smallMSAART1 = create_RT_with_SB(provider, 4, smallSampleCount,
+            sk_sp<GrRenderTarget> smallMSAART1 = create_RT_with_SB(resourceProvider, 4,
+                                                                   smallSampleCount,
                                                                    SkBudgeted::kNo);
             REPORTER_ASSERT(reporter, smallMSAART1);
 
@@ -185,7 +187,8 @@ DEF_GPUTEST_FOR_CONTEXTS(ResourceCacheStencilBuffers, &is_rendering_and_not_angl
         // samples didn't get rounded up to >= 8 or else they could share.).
         int bigSampleCount = context->caps()->getSampleCount(8, kRGBA_8888_GrPixelConfig);
         if (bigSampleCount != smallSampleCount) {
-            sk_sp<GrRenderTarget> smallMSAART2 = create_RT_with_SB(provider, 4, bigSampleCount,
+            sk_sp<GrRenderTarget> smallMSAART2 = create_RT_with_SB(resourceProvider, 4,
+                                                                   bigSampleCount,
                                                                    SkBudgeted::kNo);
             REPORTER_ASSERT(reporter, smallMSAART2);
 
@@ -196,6 +199,7 @@ DEF_GPUTEST_FOR_CONTEXTS(ResourceCacheStencilBuffers, &is_rendering_and_not_angl
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceCacheWrappedResources, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
+    GrResourceProvider* resourceProvider = context->contextPriv().resourceProvider();
     GrGpu* gpu = context->getGpu();
     // this test is only valid for GL
     if (!gpu || !gpu->glContextForTesting()) {
@@ -220,10 +224,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceCacheWrappedResources, reporter, ctxI
 
     context->resetContext();
 
-    sk_sp<GrTexture> borrowed(context->resourceProvider()->wrapBackendTexture(
+    sk_sp<GrTexture> borrowed(resourceProvider->wrapBackendTexture(
             backendTextures[0], kBorrow_GrWrapOwnership));
 
-    sk_sp<GrTexture> adopted(context->resourceProvider()->wrapBackendTexture(
+    sk_sp<GrTexture> adopted(resourceProvider->wrapBackendTexture(
             backendTextures[1], kAdopt_GrWrapOwnership));
 
     REPORTER_ASSERT(reporter, borrowed != nullptr && adopted != nullptr);
@@ -349,12 +353,12 @@ public:
         fContext = GrContext::MakeMock(nullptr);
         SkASSERT(fContext);
         fContext->setResourceCacheLimits(maxCnt, maxBytes);
-        GrResourceCache* cache = fContext->getResourceCache();
+        GrResourceCache* cache = fContext->contextPriv().getResourceCache();
         cache->purgeAllUnlocked();
         SkASSERT(0 == cache->getResourceCount() && 0 == cache->getResourceBytes());
     }
 
-    GrResourceCache* cache() { return fContext->getResourceCache(); }
+    GrResourceCache* cache() { return fContext->contextPriv().getResourceCache(); }
 
     GrContext* context() { return fContext.get(); }
 
@@ -1677,7 +1681,7 @@ static sk_sp<GrTextureProxy> make_mipmap_proxy(GrProxyProvider* proxyProvider,
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GPUMemorySize, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
     GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
-    GrResourceProvider* resourceProvider = context->resourceProvider();
+    GrResourceProvider* resourceProvider = context->contextPriv().resourceProvider();
 
     static const int kSize = 64;
 
