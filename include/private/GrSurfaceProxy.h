@@ -188,10 +188,7 @@ public:
     using LazyInstantiateCallback = std::function<sk_sp<GrTexture>(GrResourceProvider*,
                                                                    GrSurfaceOrigin* outOrigin)>;
 
-    enum class Renderable : bool {
-        kNo = false,
-        kYes = true
-    };
+    using LazyReleaseProc = std::function<void()>;
 
     /**
      * Creates a texture proxy that will be instantiated by a user-supplied callback during flush.
@@ -200,11 +197,16 @@ public:
      * and height are currently unknown.
      * DDL TODO: remove this entry point
      */
-    static sk_sp<GrTextureProxy> MakeLazy(LazyInstantiateCallback&&, const GrSurfaceDesc& desc,
-                                          GrMipMapped, SkBackingFit fit, SkBudgeted budgeted);
+    static sk_sp<GrTextureProxy> MakeLazy(LazyInstantiateCallback&&, LazyReleaseProc&&,
+                                          const GrSurfaceDesc& desc, GrMipMapped, SkBackingFit fit,
+                                          SkBudgeted budgeted);
 
-    static sk_sp<GrTextureProxy> MakeFullyLazy(LazyInstantiateCallback&&, Renderable,
-                                               GrPixelConfig);
+    enum class Renderable : bool {
+        kNo = false,
+        kYes = true
+    };
+    static sk_sp<GrTextureProxy> MakeFullyLazy(LazyInstantiateCallback&&, LazyReleaseProc&&,
+                                               Renderable, GrPixelConfig);
 
     enum class LazyState {
         kNot,       // The proxy has no lazy callback that must be made.
@@ -375,13 +377,14 @@ public:
 protected:
     // Deferred version
     GrSurfaceProxy(const GrSurfaceDesc& desc, SkBackingFit fit, SkBudgeted budgeted, uint32_t flags)
-            : GrSurfaceProxy(nullptr, desc, fit, budgeted, flags) {
+            : GrSurfaceProxy(nullptr, nullptr, desc, fit, budgeted, flags) {
         // Note: this ctor pulls a new uniqueID from the same pool at the GrGpuResources
     }
 
     // Lazy-callback version
-    GrSurfaceProxy(LazyInstantiateCallback&& callback, const GrSurfaceDesc& desc,
-                   SkBackingFit fit, SkBudgeted budgeted, uint32_t flags);
+    GrSurfaceProxy(LazyInstantiateCallback&& callback, LazyReleaseProc&& releaseProc,
+                   const GrSurfaceDesc& desc, SkBackingFit fit, SkBudgeted budgeted,
+                   uint32_t flags);
 
     // Wrapped version
     GrSurfaceProxy(sk_sp<GrSurface> surface, GrSurfaceOrigin origin, SkBackingFit fit);
@@ -428,7 +431,10 @@ private:
 
     const UniqueID       fUniqueID; // set from the backing resource for wrapped resources
 
+    // This LazyInstantiateCallback must also free any resources it captured in creation
     LazyInstantiateCallback fLazyInstantiateCallback;
+    // This will be called in the dtor of the proxy if it has not been instantiated.
+    LazyReleaseProc fLazyReleaseProc;
     SkDEBUGCODE(virtual void validateLazyTexture(const GrTexture*) = 0;)
 
     static const size_t kInvalidGpuMemorySize = ~static_cast<size_t>(0);

@@ -32,7 +32,8 @@ private:
                                SkBackingFit, SkBudgeted, uint32_t flags);
 
     // Lazy-callback version
-    GrTextureRenderTargetProxy(LazyInstantiateCallback&&, const GrSurfaceDesc& desc, GrMipMapped,
+    GrTextureRenderTargetProxy(LazyInstantiateCallback&&, LazyReleaseProc&&,
+                               const GrSurfaceDesc& desc, GrMipMapped,
                                SkBackingFit, SkBudgeted, uint32_t flags);
 
     // Wrapped version

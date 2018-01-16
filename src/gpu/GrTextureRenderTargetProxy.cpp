@@ -28,16 +28,19 @@ GrTextureRenderTargetProxy::GrTextureRenderTargetProxy(const GrCaps& caps,
 
 // Lazy-callback version
 GrTextureRenderTargetProxy::GrTextureRenderTargetProxy(LazyInstantiateCallback&& callback,
+                                                       LazyReleaseProc&& releaseProc,
                                                        const GrSurfaceDesc& desc,
                                                        GrMipMapped mipMapped,
                                                        SkBackingFit fit,
                                                        SkBudgeted budgeted,
                                                        uint32_t flags)
-        : GrSurfaceProxy(std::move(callback), desc, fit, budgeted, flags)
+        : GrSurfaceProxy(std::move(callback), std::move(releaseProc), desc, fit, budgeted, flags)
         // Since we have virtual inheritance, we initialize GrSurfaceProxy directly. Send null
         // callbacks to the texture and RT proxies simply to route to the appropriate constructors.
-        , GrTextureProxy(LazyInstantiateCallback(), desc, mipMapped, fit, budgeted, flags)
-        , GrRenderTargetProxy(LazyInstantiateCallback(), desc, fit, budgeted, flags) {
+        , GrTextureProxy(LazyInstantiateCallback(), LazyReleaseProc(), desc, mipMapped, fit,
+                         budgeted, flags)
+        , GrRenderTargetProxy(LazyInstantiateCallback(), LazyReleaseProc(), desc, fit, budgeted,
+                              flags) {
 }
 
 // Wrapped version

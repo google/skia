@@ -44,8 +44,9 @@ static bool is_valid_non_lazy(const GrSurfaceDesc& desc) {
 #endif
 
 // Lazy-callback version
-GrSurfaceProxy::GrSurfaceProxy(LazyInstantiateCallback&& callback, const GrSurfaceDesc& desc,
-                               SkBackingFit fit, SkBudgeted budgeted, uint32_t flags)
+GrSurfaceProxy::GrSurfaceProxy(LazyInstantiateCallback&& callback, LazyReleaseProc&& releaseProc,
+                               const GrSurfaceDesc& desc, SkBackingFit fit, SkBudgeted budgeted,
+                               uint32_t flags)
         : fConfig(desc.fConfig)
         , fWidth(desc.fWidth)
         , fHeight(desc.fHeight)
@@ -54,10 +55,12 @@ GrSurfaceProxy::GrSurfaceProxy(LazyInstantiateCallback&& callback, const GrSurfa
         , fBudgeted(budgeted)
         , fFlags(flags)
         , fLazyInstantiateCallback(std::move(callback))
+        , fLazyReleaseProc(std::move(releaseProc))
         , fNeedsClear(SkToBool(desc.fFlags & kPerformInitialClear_GrSurfaceFlag))
         , fGpuMemorySize(kInvalidGpuMemorySize)
         , fLastOpList(nullptr) {
     // NOTE: the default fUniqueID ctor pulls a value from the same pool as the GrGpuResources.
+    SkASSERT(releaseProc && !callback);
     if (fLazyInstantiateCallback) {
         SkASSERT(is_valid_fully_lazy(desc, fit) || is_valid_partially_lazy(desc));
     } else {
@@ -83,6 +86,13 @@ GrSurfaceProxy::GrSurfaceProxy(sk_sp<GrSurface> surface, GrSurfaceOrigin origin,
 }
 
 GrSurfaceProxy::~GrSurfaceProxy() {
+    if (fLazyInstantiateCallback) {
+        // We have an uninstantiated lazy proxy. If it has a release proc we must call it now to
+        // free any resources that might be held by fLazyInstantiateCallback
+        if (fLazyReleaseProc) {
+            this->fLazyReleaseProc();
+        }
+    }
     // For this to be deleted the opList that held a ref on it (if there was one) must have been
     // deleted. Which would have cleared out this back pointer.
     SkASSERT(!fLastOpList);
@@ -246,6 +256,7 @@ sk_sp<GrTextureProxy> GrSurfaceProxy::MakeWrapped(sk_sp<GrTexture> tex, GrSurfac
 }
 
 sk_sp<GrTextureProxy> GrSurfaceProxy::MakeLazy(LazyInstantiateCallback&& callback,
+                                               LazyReleaseProc&& releaseProc,
                                                const GrSurfaceDesc& desc,
                                                GrMipMapped mipMapped,
                                                SkBackingFit fit,
@@ -254,13 +265,16 @@ sk_sp<GrTextureProxy> GrSurfaceProxy::MakeLazy(LazyInstantiateCallback&& callbac
              (desc.fWidth > 0 && desc.fHeight > 0));
     uint32_t flags = GrResourceProvider::kNoPendingIO_Flag;
     return sk_sp<GrTextureProxy>(SkToBool(kRenderTarget_GrSurfaceFlag & desc.fFlags) ?
-                                 new GrTextureRenderTargetProxy(std::move(callback), desc,
+                                 new GrTextureRenderTargetProxy(std::move(callback),
+                                                                std::move(releaseProc), desc,
                                                                 mipMapped, fit, budgeted, flags) :
-                                 new GrTextureProxy(std::move(callback), desc, mipMapped, fit,
+                                 new GrTextureProxy(std::move(callback), std::move(releaseProc),
+                                                    desc, mipMapped, fit,
                                                     budgeted, flags));
 }
 
 sk_sp<GrTextureProxy> GrSurfaceProxy::MakeFullyLazy(LazyInstantiateCallback&& callback,
+                                                    LazyReleaseProc&& releaseProc,
                                                     Renderable renderable, GrPixelConfig config) {
     GrSurfaceDesc desc;
     if (Renderable::kYes == renderable) {
@@ -272,8 +286,8 @@ sk_sp<GrTextureProxy> GrSurfaceProxy::MakeFullyLazy(LazyInstantiateCallback&& ca
     desc.fConfig = config;
     desc.fSampleCnt = 0;
 
-    return MakeLazy(std::move(callback), desc, GrMipMapped::kNo, SkBackingFit::kApprox,
-                    SkBudgeted::kYes);
+    return MakeLazy(std::move(callback), std::move(releaseProc), desc, GrMipMapped::kNo,
+                    SkBackingFit::kApprox, SkBudgeted::kYes);
 }
 
 int GrSurfaceProxy::worstCaseWidth() const {

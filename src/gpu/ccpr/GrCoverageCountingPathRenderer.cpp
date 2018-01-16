@@ -249,7 +249,7 @@ void CCPR::ClipPath::init(const SkPath& deviceSpacePath, const SkIRect& accessRe
                 *outOrigin = textureProxy->origin();
                 return sk_ref_sp(textureProxy->priv().peekTexture());
             },
-            GrSurfaceProxy::Renderable::kYes, kAlpha_half_GrPixelConfig);
+            nullptr, GrSurfaceProxy::Renderable::kYes, kAlpha_half_GrPixelConfig);
 
     const SkRect& pathDevBounds = deviceSpacePath.getBounds();
     if (SkTMax(pathDevBounds.height(), pathDevBounds.width()) > kPathCropThreshold) {

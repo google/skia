@@ -71,7 +71,7 @@ public:
                     REPORTER_ASSERT(fTest->fReporter, texture);
                     return texture;
                 }
-            }, GrSurfaceProxy::Renderable::kNo, kRGB_565_GrPixelConfig);
+            }, nullptr, GrSurfaceProxy::Renderable::kNo, kRGB_565_GrPixelConfig);
             this->setBounds(SkRectPriv::MakeLargest(), GrOp::HasAABloat::kNo, GrOp::IsZeroArea::kNo);
         }
 
@@ -112,7 +112,7 @@ public:
                 *origin = kBottomLeft_GrSurfaceOrigin;
                 fAtlas->instantiate(rp);
                 return sk_ref_sp(fAtlas->priv().peekTexture());
-            }, GrSurfaceProxy::Renderable::kYes, kAlpha_half_GrPixelConfig);
+            }, nullptr, GrSurfaceProxy::Renderable::kYes, kAlpha_half_GrPixelConfig);
             fAccess.reset(fLazyProxy, GrSamplerState::Filter::kNearest,
                           GrSamplerState::WrapMode::kClamp, kFragment_GrShaderFlag);
             this->addTextureSampler(&fAccess);
