@@ -79,7 +79,8 @@ def dm_flags(api, bot):
   # is ignored and dm will keep attempting to proceed until we actually
   # exhaust the available resources.
   if ('NexusPlayer' in bot or
-      'PixelC' in bot):
+      'PixelC' in bot or
+      'Chromecast' in bot):
     args.append('--ignoreSigInt')
 
   if api.vars.builder_cfg.get('cpu_or_gpu') == 'CPU':
@@ -113,6 +114,10 @@ def dm_flags(api, bot):
       configs = ['8888', 'tiles_rt-8888']
 
     if 'NativeFonts' in bot:
+      configs = ['8888']
+
+    # Just do the basic config on Chromecast to avoid OOM.
+    if 'Chromecast' in bot:
       configs = ['8888']
 
   elif api.vars.builder_cfg.get('cpu_or_gpu') == 'GPU':
@@ -219,7 +224,7 @@ def dm_flags(api, bot):
       configs = ['gles']
 
     if 'Chromecast' in bot:
-      configs = ['gles', '8888']
+      configs = ['gles']
 
     # Test coverage counting path renderer.
     if 'CCPR' in bot:
@@ -420,7 +425,7 @@ def dm_flags(api, bot):
     for test in ['bleed_alpha_image', 'bleed_alpha_image_shader']:
       blacklist(['serialize-8888', 'gm', '_', test])
   # It looks like we skip these only for out-of-memory concerns.
-  if 'Win' in bot or 'Android' in bot or 'Chromecast' in bot:
+  if 'Win' in bot or 'Android' in bot:
     for test in ['verylargebitmap', 'verylarge_picture_image']:
       blacklist(['serialize-8888', 'gm', '_', test])
   if 'Mac' in bot and 'CPU' in bot:
@@ -524,11 +529,23 @@ def dm_flags(api, bot):
   if 'AndroidOne' in bot:  # skia:4711
     match.append('~WritePixels')
 
-  if 'Chromecast' in bot: # skia:6581
+  if 'Chromecast' in bot:
+    # skia:6581
     match.append('~matrixconvolution')
     match.append('~blur_image_filter')
     match.append('~blur_0.01')
+    # skia:7497
+    match.append('~readpixels') # dies with "Caught signal 7 [Bus error]"
+    match.append('~F16Stages')
+    match.append('~SkRasterPipeline_tail')
+    # Blacklisted to avoid OOM (we see DM just end with "broken pipe")
     match.append('~GM_animated-image-blurs')
+    match.append('~verylarge')
+    match.append('~ImageFilterBlurLargeImage')
+    match.append('~TextBlobCache')
+    match.append('~bigbitmaprect_')
+    match.append('~savelayer_clipmask')
+    match.append('~DrawBitmapRect')
 
   if 'GalaxyS6' in bot:
     match.append('~SpecialImage') # skia:6338
@@ -838,21 +855,23 @@ def test_steps(api):
 
   args.append('--key')
   args.extend(key_params(api))
-  if use_hash_file:
-    args.extend(['--uninterestingHashesFile', hashes_file])
-  if api.vars.upload_dm_results:
-    args.extend(['--writePath', api.flavor.device_dirs.dm_dir])
 
   if 'Chromecast' in api.vars.builder_cfg.get('os', ''):
     # Due to limited disk space, we only deal with skps and one image.
     args = [
       'dm',
-      '--undefok',   # This helps branches that may not know new flags.
       '--resourcePath', api.flavor.device_dirs.resource_dir,
       '--skps', api.flavor.device_dirs.skp_dir,
       '--images', api.flavor.device_path_join(
           api.flavor.device_dirs.resource_dir, 'color_wheel.jpg'),
-    ]
+      '--nameByHash',
+      '--properties'
+    ] + properties
+
+  if use_hash_file:
+    args.extend(['--uninterestingHashesFile', hashes_file])
+  if api.vars.upload_dm_results:
+    args.extend(['--writePath', api.flavor.device_dirs.dm_dir])
 
   args.extend(dm_flags(api, api.vars.builder_name))
 
@@ -910,6 +929,7 @@ TEST_BUILDERS = [
   'Test-ChromeOS-Clang-ASUSChromebookFlipC100-GPU-MaliT764-arm-Debug-All',
   ('Test-ChromeOS-Clang-AcerChromebookR13Convertible-GPU-PowerVRGX6250-'
    'arm-Debug-All'),
+  'Test-Chromecast-GCC-Chorizo-CPU-Cortex_A7-arm-Release-All',
   'Test-Chromecast-GCC-Chorizo-GPU-Cortex_A7-arm-Release-All',
   'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-ASAN',
   'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-shard_00_10-Coverage',
