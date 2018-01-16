@@ -227,6 +227,9 @@ void CCPR::ClipPath::init(const SkPath& deviceSpacePath, const SkIRect& accessRe
 
     fAtlasLazyProxy = GrSurfaceProxy::MakeFullyLazy(
             [this](GrResourceProvider* resourceProvider, GrSurfaceOrigin* outOrigin) {
+                if (!resourceProvider) {
+                    return sk_sp<GrTexture>();
+                }
                 SkASSERT(fHasAtlas);
                 SkASSERT(!fHasAtlasTransform);
 

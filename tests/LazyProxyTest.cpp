@@ -15,6 +15,7 @@
 #include "GrRenderTargetContext.h"
 #include "GrRenderTargetContextPriv.h"
 #include "GrSurfaceProxy.h"
+#include "GrSurfaceProxyPriv.h"
 #include "GrTexture.h"
 #include "GrTextureProxy.h"
 #include "GrTextureProxyPriv.h"
@@ -184,6 +185,42 @@ DEF_GPUTEST(LazyProxyTest, reporter, /* options */) {
         rtc->priv().testingOnly_addDrawOp(LazyProxyTest::Clip(&test, mockAtlas->asTextureProxy()),
                                          skstd::make_unique<LazyProxyTest::Op>(&test, nullTexture));
         ctx->contextPriv().testingOnly_flushAndRemoveOnFlushCallbackObject(&test);
+    }
+}
+
+DEF_GPUTEST(LazyProxyReleaseTest, reporter, /* options */) {
+    GrMockOptions mockOptions;
+    sk_sp<GrContext> ctx = GrContext::MakeMock(&mockOptions, GrContextOptions());
+
+    GrSurfaceDesc desc;
+    desc.fWidth = 16;
+    desc.fHeight = 16;
+    desc.fConfig = kRGBA_8888_GrPixelConfig;
+
+    for (bool doInstantiate : {true, false}) {
+        int testCount = 0;
+        int* testCountPtr = &testCount;
+        sk_sp<GrTextureProxy> proxy = GrSurfaceProxy::MakeLazy(
+                [testCountPtr](GrResourceProvider* resourceProvider, GrSurfaceOrigin* outOrigin) {
+                    if (!resourceProvider) {
+                        *testCountPtr = -1;
+                        return sk_sp<GrTexture>();
+                    }
+                    *testCountPtr = 1;
+                    return sk_sp<GrTexture>();
+                }, desc, GrMipMapped::kNo, SkBackingFit::kExact, SkBudgeted::kNo);
+
+        REPORTER_ASSERT(reporter, 0 == testCount);
+
+        if (doInstantiate) {
+            proxy->priv().doLazyInstantiation(ctx->contextPriv().resourceProvider());
+            REPORTER_ASSERT(reporter, 1 == testCount);
+            proxy.reset();
+            REPORTER_ASSERT(reporter, 1 == testCount);
+        } else {
+            proxy.reset();
+            REPORTER_ASSERT(reporter, -1 == testCount);
+        }
     }
 }
 
