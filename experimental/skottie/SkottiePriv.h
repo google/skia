@@ -5,15 +5,15 @@
  * found in the LICENSE file.
  */
 
-#ifndef SkottyPriv_DEFINED
-#define SkottyPriv_DEFINED
+#ifndef SkottiePriv_DEFINED
+#define SkottiePriv_DEFINED
 
 #include "SkJSONCPP.h"
 #include "SkPoint.h"
 #include "SkScalar.h"
 #include "SkString.h"
 
-namespace skotty {
+namespace skottie {
 
 #define LOG SkDebugf
 
@@ -46,4 +46,4 @@ static inline SkPoint ParsePoint(const Json::Value& v, const SkPoint& defaultVal
 
 } // namespace
 
-#endif // SkottyPriv_DEFINED
+#endif // SkottiePriv_DEFINED

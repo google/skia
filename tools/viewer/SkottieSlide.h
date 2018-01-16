@@ -5,17 +5,17 @@
  * found in the LICENSE file.
  */
 
-#ifndef SkottySlide_DEFINED
-#define SkottySlide_DEFINED
+#ifndef SkottieSlide_DEFINED
+#define SkottieSlide_DEFINED
 
 #include "Slide.h"
 
-namespace skotty { class Animation; }
+namespace skottie { class Animation; }
 
-class SkottySlide : public Slide {
+class SkottieSlide : public Slide {
 public:
-    SkottySlide(const SkString& name, const SkString& path);
-    ~SkottySlide() override = default;
+    SkottieSlide(const SkString& name, const SkString& path);
+    ~SkottieSlide() override = default;
 
     void load(SkScalar winWidth, SkScalar winHeight) override;
     void unload() override;
@@ -28,18 +28,18 @@ public:
     bool onChar(SkUnichar) override;
 
 private:
-    SkString                           fPath;
-    std::unique_ptr<skotty::Animation> fAnimation;
-    SkMSec                             fTimeBase  = 0;
-    bool                               fShowAnimationInval = false;
+    SkString                            fPath;
+    std::unique_ptr<skottie::Animation> fAnimation;
+    SkMSec                              fTimeBase  = 0;
+    bool                                fShowAnimationInval = false;
 
     typedef Slide INHERITED;
 };
 
-class SkottySlide2 : public Slide {
+class SkottieSlide2 : public Slide {
 public:
-    SkottySlide2(const SkString& path);
-    ~SkottySlide2() override = default;
+    SkottieSlide2(const SkString& path);
+    ~SkottieSlide2() override = default;
 
     void load(SkScalar winWidth, SkScalar winHeight) override;
     void unload() override;
@@ -51,12 +51,12 @@ public:
     bool onMouse(SkScalar x, SkScalar y, sk_app::Window::InputState, uint32_t modifiers) override;
 private:
     struct Rec {
-        std::unique_ptr<skotty::Animation> fAnimation;
-        SkMSec                             fTimeBase = 0;
-        SkString                           fName;
-        bool                               fShowAnimationInval = false;
+        std::unique_ptr<skottie::Animation> fAnimation;
+        SkMSec                              fTimeBase = 0;
+        SkString                            fName;
+        bool                                fShowAnimationInval = false;
 
-        Rec(std::unique_ptr<skotty::Animation> anim);
+        Rec(std::unique_ptr<skottie::Animation> anim);
         Rec(Rec&& o);
     };
 
@@ -70,4 +70,4 @@ private:
     typedef Slide INHERITED;
 };
 
-#endif // SkottySlide_DEFINED
+#endif // SkottieSlide_DEFINED

@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef Skotty_DEFINED
-#define Skotty_DEFINED
+#ifndef Skottie_DEFINED
+#define Skottie_DEFINED
 
 #include "SkRefCnt.h"
 #include "SkSize.h"
@@ -25,7 +25,7 @@ namespace Json { class Value; }
 
 namespace sksg { class RenderNode;  }
 
-namespace skotty {
+namespace skottie {
 
 class AnimatorBase;
 
@@ -75,6 +75,6 @@ private:
     typedef SkNoncopyable INHERITED;
 };
 
-} // namespace skotty
+} // namespace skottie
 
-#endif // Skotty_DEFINED
+#endif // Skottie_DEFINED

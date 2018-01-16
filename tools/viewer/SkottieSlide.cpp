@@ -5,19 +5,19 @@
  * found in the LICENSE file.
  */
 
-#include "SkottySlide.h"
+#include "SkottieSlide.h"
 
 #include "SkAnimTimer.h"
 #include "SkCanvas.h"
-#include "Skotty.h"
+#include "Skottie.h"
 
-SkottySlide::SkottySlide(const SkString& name, const SkString& path)
+SkottieSlide::SkottieSlide(const SkString& name, const SkString& path)
     : fPath(path) {
     fName = name;
 }
 
-void SkottySlide::load(SkScalar, SkScalar) {
-    fAnimation  = skotty::Animation::MakeFromFile(fPath.c_str());
+void SkottieSlide::load(SkScalar, SkScalar) {
+    fAnimation  = skottie::Animation::MakeFromFile(fPath.c_str());
     fTimeBase   = 0; // force a time reset
 
     if (fAnimation) {
@@ -32,15 +32,15 @@ void SkottySlide::load(SkScalar, SkScalar) {
     }
 }
 
-void SkottySlide::unload() {
+void SkottieSlide::unload() {
     fAnimation.reset();
 }
 
-SkISize SkottySlide::getDimensions() const {
+SkISize SkottieSlide::getDimensions() const {
     return fAnimation? fAnimation->size().toCeil() : SkISize::Make(0, 0);
 }
 
-void SkottySlide::draw(SkCanvas* canvas) {
+void SkottieSlide::draw(SkCanvas* canvas) {
     if (fAnimation) {
         SkAutoCanvasRestore acr(canvas, true);
         const SkRect dstR = SkRect::Make(canvas->imageInfo().bounds());
@@ -48,7 +48,7 @@ void SkottySlide::draw(SkCanvas* canvas) {
     }
 }
 
-bool SkottySlide::animate(const SkAnimTimer& timer) {
+bool SkottieSlide::animate(const SkAnimTimer& timer) {
     if (fTimeBase == 0) {
         // Reset the animation time.
         fTimeBase = timer.msec();
@@ -61,7 +61,7 @@ bool SkottySlide::animate(const SkAnimTimer& timer) {
     return true;
 }
 
-bool SkottySlide::onChar(SkUnichar c) {
+bool SkottieSlide::onChar(SkUnichar c) {
     switch (c) {
     case 'I':
         if (fAnimation) {

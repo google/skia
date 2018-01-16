@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "SkottySlide.h"
+#include "SkottieSlide.h"
 
 #include "SkAnimTimer.h"
 #include "SkCanvas.h"
-#include "Skotty.h"
+#include "Skottie.h"
 #include "SkOSFile.h"
 #include "SkOSPath.h"
 #include "SkStream.h"
@@ -21,38 +21,38 @@ const int SPACER_X    = 12;
 const int SPACER_Y    = 24;
 const int MARGIN      = 8;
 
-SkottySlide2::Rec::Rec(std::unique_ptr<skotty::Animation> anim) : fAnimation(std::move(anim))
+SkottieSlide2::Rec::Rec(std::unique_ptr<skottie::Animation> anim) : fAnimation(std::move(anim))
 {}
 
-SkottySlide2::Rec::Rec(Rec&& o)
+SkottieSlide2::Rec::Rec(Rec&& o)
     : fAnimation(std::move(o.fAnimation))
     , fTimeBase(o.fTimeBase)
     , fName(o.fName)
     , fShowAnimationInval(o.fShowAnimationInval)
 {}
 
-SkottySlide2::SkottySlide2(const SkString& path)
+SkottieSlide2::SkottieSlide2(const SkString& path)
     : fPath(path)
 {
-    fName.set("skotty-dir");
+    fName.set("skottie-dir");
 }
 
-void SkottySlide2::load(SkScalar, SkScalar) {
+void SkottieSlide2::load(SkScalar, SkScalar) {
     SkString name;
     SkOSFile::Iter iter(fPath.c_str(), "json");
     while (iter.next(&name)) {
         SkString path = SkOSPath::Join(fPath.c_str(), name.c_str());
-        if (auto anim  = skotty::Animation::MakeFromFile(path.c_str())) {
+        if (auto anim  = skottie::Animation::MakeFromFile(path.c_str())) {
             fAnims.push_back(Rec(std::move(anim))).fName = name;
         }
     }
 }
 
-void SkottySlide2::unload() {
+void SkottieSlide2::unload() {
     fAnims.reset();
 }
 
-SkISize SkottySlide2::getDimensions() const {
+SkISize SkottieSlide2::getDimensions() const {
     const int rows = (fAnims.count() + COL_COUNT - 1) / COL_COUNT;
     return {
         MARGIN + (COL_COUNT - 1) * SPACER_X + COL_COUNT * CELL_WIDTH + MARGIN,
@@ -60,7 +60,7 @@ SkISize SkottySlide2::getDimensions() const {
     };
 }
 
-void SkottySlide2::draw(SkCanvas* canvas) {
+void SkottieSlide2::draw(SkCanvas* canvas) {
     SkPaint paint;
     paint.setTextSize(12);
     paint.setAntiAlias(true);
@@ -83,7 +83,7 @@ void SkottySlide2::draw(SkCanvas* canvas) {
     }
 }
 
-bool SkottySlide2::animate(const SkAnimTimer& timer) {
+bool SkottieSlide2::animate(const SkAnimTimer& timer) {
     for (auto& rec : fAnims) {
         if (rec.fTimeBase == 0) {
             // Reset the animation time.
@@ -94,7 +94,7 @@ bool SkottySlide2::animate(const SkAnimTimer& timer) {
     return true;
 }
 
-bool SkottySlide2::onMouse(SkScalar x, SkScalar y, sk_app::Window::InputState state,
+bool SkottieSlide2::onMouse(SkScalar x, SkScalar y, sk_app::Window::InputState state,
                            uint32_t modifiers) {
     if (fTrackingCell < 0 && state == sk_app::Window::kDown_InputState) {
         fTrackingCell = this->findCell(x, y);
@@ -110,7 +110,7 @@ bool SkottySlide2::onMouse(SkScalar x, SkScalar y, sk_app::Window::InputState st
     return fTrackingCell >= 0;
 }
 
-int SkottySlide2::findCell(float x, float y) const {
+int SkottieSlide2::findCell(float x, float y) const {
     x -= MARGIN;
     y -= MARGIN;
     int index = -1;
@@ -126,4 +126,3 @@ int SkottySlide2::findCell(float x, float y) const {
     }
     return index;
 }
-

@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkottyProperties.h"
+#include "SkottieProperties.h"
 
 #include "SkColor.h"
-#include "SkottyPriv.h"
+#include "SkottiePriv.h"
 #include "SkPath.h"
 #include "SkSGColor.h"
 #include "SkSGGradient.h"
@@ -18,7 +18,7 @@
 
 #include <cmath>
 
-namespace  skotty {
+namespace  skottie {
 
 namespace {
 
@@ -287,4 +287,4 @@ void CompositeRadialGradient::onApply() {
     grad->setEndRadius(SkPoint::Distance(this->startPoint(), this->endPoint()));
 }
 
-} // namespace skotty
+} // namespace skottie

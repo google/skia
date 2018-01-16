@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "SkottyAnimator.h"
+#include "SkottieAnimator.h"
 
-namespace skotty {
+namespace skottie {
 
 namespace {
 
@@ -91,4 +91,4 @@ void KeyframeInterval<ShapeValue>::lerp(float t, ShapeValue* v) const {
     v->setIsVolatile(true);
 }
 
-} // namespace skotty
+} // namespace skottie

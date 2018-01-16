@@ -78,4 +78,4 @@ SkRect Merge::onRevalidate(InvalidationController* ic, const SkMatrix& ctm) {
     return fMerged.computeTightBounds();
 }
 
-} // namespace skotty
+} // namespace sksg

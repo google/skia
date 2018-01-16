@@ -5,19 +5,19 @@
  * found in the LICENSE file.
  */
 
-#ifndef SkottyAnimator_DEFINED
-#define SkottyAnimator_DEFINED
+#ifndef SkottieAnimator_DEFINED
+#define SkottieAnimator_DEFINED
 
 #include "SkCubicMap.h"
 #include "SkMakeUnique.h"
-#include "SkottyPriv.h"
-#include "SkottyProperties.h"
+#include "SkottiePriv.h"
+#include "SkottieProperties.h"
 #include "SkTypes.h"
 
 #include <memory>
 #include <vector>
 
-namespace skotty {
+namespace skottie {
 
 class AnimatorBase : public SkNoncopyable {
 public:
@@ -188,6 +188,6 @@ const KeyframeInterval<ValT>& Animator<ValT, NodeT>::findFrame(float t) const {
     return *f0;
 }
 
-} // namespace skotty
+} // namespace skottie
 
-#endif // SkottyAnimator_DEFINED
+#endif // SkottieAnimator_DEFINED

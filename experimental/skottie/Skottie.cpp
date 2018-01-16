@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "Skotty.h"
+#include "Skottie.h"
 
 #include "SkCanvas.h"
-#include "SkottyAnimator.h"
-#include "SkottyPriv.h"
-#include "SkottyProperties.h"
+#include "SkottieAnimator.h"
+#include "SkottiePriv.h"
+#include "SkottieProperties.h"
 #include "SkData.h"
 #include "SkImage.h"
 #include "SkMakeUnique.h"
@@ -42,7 +42,7 @@
 
 #include "stdlib.h"
 
-namespace skotty {
+namespace skottie {
 
 namespace {
 
@@ -1048,4 +1048,4 @@ void Animation::animationTick(SkMSec ms) {
     }
 }
 
-} // namespace skotty
+} // namespace skottie
