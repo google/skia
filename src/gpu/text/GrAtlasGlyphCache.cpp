@@ -72,6 +72,8 @@ GrAtlasGlyphCache::GrAtlasGlyphCache(GrContext* context, float maxTextureBytes,
     fAtlasConfigs[kARGB_GrMaskFormat].fHeight = maxDim;
     fAtlasConfigs[kARGB_GrMaskFormat].fPlotWidth = minPlot;
     fAtlasConfigs[kARGB_GrMaskFormat].fPlotHeight = minPlot;
+
+    fGlyphSizeLimit = minPlot;
 }
 
 GrAtlasGlyphCache::~GrAtlasGlyphCache() {
