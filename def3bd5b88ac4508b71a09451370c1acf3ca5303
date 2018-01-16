@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "3f0bfb40_d26ccc11",
+        "filename": "include/codec/SkAndroidCodec.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-01-16T17:05:42Z",
+      "side": 1,
+      "message": "I considered it, but then I wasn\u0027t sure where to draw the line. Should we also move its subclasses into src/android? (Or do you mean to just move the header, and not even the cpp file into src/android?) It seems sensible to me to keep them with the rest of SkCodec, though I don\u0027t have a strong feeling about it. (Would probably prefer to do it as a separate CL though.) SkAnimatedImage is about to get very Android specific in the next CL, so it seemed more urgent.",
+      "parentUuid": "6a434be5_9e84ee4d",
+      "revId": "def3bd5b88ac4508b71a09451370c1acf3ca5303",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "179debbe_e6685898",
         "filename": "tests/CodecAnimTest.cpp",
         "patchSetId": 1
@@ -30,6 +48,24 @@
       "writtenOn": "2018-01-16T15:06:33Z",
       "side": 1,
       "message": "Should we validate the pixels have the correct values to ensure that we did the erase correctly?",
+      "revId": "def3bd5b88ac4508b71a09451370c1acf3ca5303",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "28253b5d_85bf90d2",
+        "filename": "tests/CodecAnimTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 433,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-01-16T17:05:42Z",
+      "side": 1,
+      "message": "Which pixels would you check? I don\u0027t want to rewrite the math I did in SkCodec to figure this out. Also, when we scale down, I\u0027m not too upset if we erased the wrong pixels one way or another. But our ASAN bot should catch me if I erased outside the bounds (which I do care about). (And it didn\u0027t complain on the try-job.)",
+      "parentUuid": "179debbe_e6685898",
       "revId": "def3bd5b88ac4508b71a09451370c1acf3ca5303",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
