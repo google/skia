@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "cc8856b9_2a4cb913",
+        "filename": "src/android/SkAnimatedImage.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 289,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-01-16T20:27:45Z",
+      "side": 1,
+      "message": "\u003e We needs to pass a bounds here. \n\nI assume this will (or might) make us more efficient?\n\n\u003e I think this should be the bounds of fActiveFrame.fBitmap.\n\nI don\u0027t think so - we don\u0027t necessarily want the whole bitmap if there\u0027s a crop, and we do want to make sure we take the scale into account. So I think we want \u0026this-\u003egetBounds()",
+      "parentUuid": "4bbccc3d_0ce3b167",
+      "range": {
+        "startLine": 289,
+        "startChar": 26,
+        "endLine": 289,
+        "endChar": 33
+      },
+      "revId": "411b136042e823df9d5dff319a88e2cb567f1067",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "8674c83e_2e87f1e1",
         "filename": "src/android/SkAnimatedImage.cpp",
         "patchSetId": 1
@@ -36,6 +60,24 @@
       "writtenOn": "2018-01-16T15:13:50Z",
       "side": 1,
       "message": "move this and the concat to above the fPostProcess logic",
+      "revId": "411b136042e823df9d5dff319a88e2cb567f1067",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d3fdfce2_48312e5c",
+        "filename": "src/android/SkAnimatedImage.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 292,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-01-16T20:27:45Z",
+      "side": 1,
+      "message": "I don\u0027t think so - the fPostProcess actually needs to be applied without modifying the matrix. We captured it assuming that we were drawing at 0,0 with the width and height post scaling/cropping.",
+      "parentUuid": "8674c83e_2e87f1e1",
       "revId": "411b136042e823df9d5dff319a88e2cb567f1067",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
