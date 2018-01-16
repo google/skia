@@ -35,9 +35,9 @@ public class SkQPRunner extends Runner {
         Context context = InstrumentationRegistry.getTargetContext();
         File filesDir = context.getFilesDir();
         try {
-            SkQP.deleteDirectoryContents(filesDir);
+            SkQP.ensureEmtpyDirectory(filesDir);
         } catch (IOException e) {
-            Log.w("org.skis.skqp", "DeleteDirectoryContents: " + e.getMessage());
+            Log.w("org.skis.skqp", "ensureEmtpyDirectory: " + e.getMessage());
         }
 
         Resources resources = context.getResources();
