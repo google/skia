@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dd5bd4d3_e2870c4a",
+        "filename": "tests/RegionTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 400,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-01-16T18:01:04Z",
+      "side": 1,
+      "message": "Does this hit the fBounds.isEmpty() condition?\n\nMight be nice to leave a note?\n\n// This hits the if (fBounds.isEmpty()) { return this-\u003esetEmpty(); } case at the bottom of SkRegion::setRuns().",
+      "revId": "15b96ded538a98ce6f0ee4178b09106e38407ca2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
