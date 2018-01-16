@@ -242,8 +242,8 @@ uniform half4 circleData;
                                                     kProfileTextureWidth));
             }
 
-            blurProfile = GrSurfaceProxy::MakeDeferred(proxyProvider,
-                                                       texDesc, SkBudgeted::kYes, profile.get(), 0);
+            blurProfile = proxyProvider->createTextureProxy(texDesc, SkBudgeted::kYes,
+                                                            profile.get(), 0);
             if (!blurProfile) {
                 return nullptr;
             }

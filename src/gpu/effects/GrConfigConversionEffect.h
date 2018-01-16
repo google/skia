@@ -61,8 +61,8 @@ public:
 
         GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
 
-        sk_sp<GrTextureProxy> dataProxy = proxyProvider->createTextureProxy(desc, SkBudgeted::kYes,
-                                                                            data, 0);
+        sk_sp<GrTextureProxy> dataProxy =
+                proxyProvider->createTextureProxy(desc, SkBudgeted::kYes, data, 0);
         if (!dataProxy) {
             return false;
         }
