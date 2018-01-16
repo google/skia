@@ -1762,14 +1762,14 @@ private:
         kCanonicalTextSizeForPaths  = 64,
     };
 
-    static bool TooBigToUseCache(const SkMatrix& ctm, const SkMatrix& textM);
+    static bool TooBigToUseCache(const SkMatrix& ctm, const SkMatrix& textM, SkScalar maxLimit);
 
     // Set flags/hinting/textSize up to use for drawing text as paths.
     // Returns scale factor to restore the original textSize, since will will
     // have change it to kCanonicalTextSizeForPaths.
     SkScalar setupForAsPaths();
 
-    static SkScalar MaxCacheSize2();
+    static SkScalar MaxCacheSize2(SkScalar maxLimit);
 
     friend class SkAutoGlyphCache;
     friend class SkAutoGlyphCacheNoGamma;

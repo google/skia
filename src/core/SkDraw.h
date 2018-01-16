@@ -114,7 +114,7 @@ public:
     static RectType ComputeRectType(const SkPaint&, const SkMatrix&,
                                     SkPoint* strokeSize);
 
-    static bool ShouldDrawTextAsPaths(const SkPaint&, const SkMatrix&);
+    static bool ShouldDrawTextAsPaths(const SkPaint&, const SkMatrix&, SkScalar sizeLimit = 1024);
     void        drawText_asPaths(const char text[], size_t byteLength, SkScalar x, SkScalar y,
                                  const SkPaint&) const;
     void        drawPosText_asPaths(const char text[], size_t byteLength, const SkScalar pos[],
