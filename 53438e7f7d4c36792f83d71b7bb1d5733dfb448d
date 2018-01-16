@@ -16,6 +16,24 @@
       "revId": "53438e7f7d4c36792f83d71b7bb1d5733dfb448d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0b6590d8_b8a88549",
+        "filename": "experimental/GLFWTest/glfw_main.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-01-16T13:37:43Z",
+      "side": 1,
+      "message": "Does GLFW/glfw3.h include the platform\u0027s OpenGL header? If so we can just use GL_RGBA8.",
+      "parentUuid": "43acd7dd_3a4cc266",
+      "revId": "53438e7f7d4c36792f83d71b7bb1d5733dfb448d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
