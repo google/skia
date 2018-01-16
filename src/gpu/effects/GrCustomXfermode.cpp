@@ -185,7 +185,8 @@ bool CustomXP::onIsEqual(const GrXferProcessor& other) const {
 }
 
 GrXferBarrierType CustomXP::xferBarrierType(const GrCaps& caps) const {
-    if (this->hasHWBlendEquation() && !caps.advancedCoherentBlendEquationSupport()) {
+    if (this->hasHWBlendEquation() && !caps.advancedCoherentBlendEquationSupport() &&
+        caps.textureBarrierSupport()) {
         return kBlend_GrXferBarrierType;
     }
     return kNone_GrXferBarrierType;

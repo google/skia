@@ -1286,10 +1286,11 @@ void GrGLCaps::initBlendEqationSupport(const GrGLContextInfo& ctxInfo) {
                ctxInfo.driverVersion() < GR_GL_DRIVER_VER(337,00)) {
         // Non-coherent advanced blend has an issue on NVIDIA pre 337.00.
         return;
-    } else if (ctxInfo.hasExtension("GL_NV_blend_equation_advanced")) {
+    } else if (ctxInfo.hasExtension("GL_NV_blend_equation_advanced") && fTextureBarrierSupport) {
         fBlendEquationSupport = kAdvanced_BlendEquationSupport;
         shaderCaps->fAdvBlendEqInteraction = GrShaderCaps::kAutomatic_AdvBlendEqInteraction;
-    } else if (ctxInfo.hasExtension("GL_KHR_blend_equation_advanced") && layoutQualifierSupport) {
+    } else if (ctxInfo.hasExtension("GL_KHR_blend_equation_advanced") && layoutQualifierSupport &&
+               fTextureBarrierSupport) {
         fBlendEquationSupport = kAdvanced_BlendEquationSupport;
         shaderCaps->fAdvBlendEqInteraction = GrShaderCaps::kGeneralEnable_AdvBlendEqInteraction;
         // TODO: Use kSpecificEnables_AdvBlendEqInteraction if "blend_support_all_equations" is

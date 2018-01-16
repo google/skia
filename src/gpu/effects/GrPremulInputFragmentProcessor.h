@@ -14,6 +14,7 @@
 #if SK_SUPPORT_GPU
 #include "GrFragmentProcessor.h"
 #include "GrCoordTransform.h"
+#include "SkPoint3.h"
 class GrPremulInputFragmentProcessor : public GrFragmentProcessor {
 public:
     GrColor4f constantOutputForConstantInput(GrColor4f input) const override {

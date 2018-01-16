@@ -14,6 +14,7 @@
 #if SK_SUPPORT_GPU
 #include "GrFragmentProcessor.h"
 #include "GrCoordTransform.h"
+#include "SkPoint3.h"
 class GrOverdrawFragmentProcessor : public GrFragmentProcessor {
 public:
     SkPMColor color0() const { return fColor0; }
