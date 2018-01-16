@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "87e2d62a_1812cec3",
+        "filename": "gm/orientation.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-01-16T21:53:08Z",
+      "side": 1,
+      "message": "Can you comment here what is expected? Should they all \"look\" the same?",
+      "range": {
+        "startLine": 15,
+        "startChar": 14,
+        "endLine": 15,
+        "endChar": 25
+      },
+      "revId": "1405589c95c0ba593215f8558ab2eb083169df40",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
