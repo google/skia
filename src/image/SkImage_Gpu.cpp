@@ -156,7 +156,7 @@ GrBackendObject SkImage_Gpu::onGetTextureHandle(bool flushPendingGrContextIO,
                                                 GrSurfaceOrigin* origin) const {
     SkASSERT(fProxy);
 
-    if (!fProxy->instantiate(fContext->contextPriv().resourceProvider())) {
+    if (!fProxy->instantiate(fContext->resourceProvider())) {
         return 0;
     }
 
@@ -180,7 +180,7 @@ GrTexture* SkImage_Gpu::onGetTexture() const {
         return nullptr;
     }
 
-    if (!proxy->instantiate(fContext->contextPriv().resourceProvider())) {
+    if (!proxy->instantiate(fContext->resourceProvider())) {
         return nullptr;
     }
 
@@ -284,9 +284,7 @@ static sk_sp<SkImage> new_wrapped_texture_common(GrContext* ctx,
         return nullptr;
     }
 
-    GrResourceProvider* resourceProvider = ctx->contextPriv().resourceProvider();
-
-    sk_sp<GrTexture> tex = resourceProvider->wrapBackendTexture(backendTex, ownership);
+    sk_sp<GrTexture> tex = ctx->resourceProvider()->wrapBackendTexture(backendTex, ownership);
     if (!tex) {
         return nullptr;
     }
@@ -587,7 +585,7 @@ sk_sp<SkImage> SkImage::MakeCrossContextFromEncoded(GrContext* context, sk_sp<Sk
         return codecImage;
     }
 
-    if (!proxy->instantiate(context->contextPriv().resourceProvider())) {
+    if (!proxy->instantiate(context->resourceProvider())) {
         return codecImage;
     }
     sk_sp<GrTexture> texture = sk_ref_sp(proxy->priv().peekTexture());

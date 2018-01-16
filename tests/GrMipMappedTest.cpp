@@ -211,8 +211,6 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrImageSnapshotMipMappedTest, reporter, ctxIn
         return;
     }
 
-    auto resourceProvider = context->contextPriv().resourceProvider();
-
     for (auto willUseMips : {false, true}) {
         for (auto isWrapped : {false, true}) {
             GrMipMapped mipMapped = willUseMips ? GrMipMapped::kYes : GrMipMapped::kNo;
@@ -242,7 +240,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrImageSnapshotMipMappedTest, reporter, ctxIn
             GrTextureProxy* texProxy = device->accessRenderTargetContext()->asTextureProxy();
             REPORTER_ASSERT(reporter, mipMapped == texProxy->mipMapped());
 
-            texProxy->instantiate(resourceProvider);
+            texProxy->instantiate(context->resourceProvider());
             GrTexture* texture = texProxy->priv().peekTexture();
             REPORTER_ASSERT(reporter, mipMapped == texture->texturePriv().mipMapped());
 
@@ -254,7 +252,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrImageSnapshotMipMappedTest, reporter, ctxIn
             texProxy = as_IB(image)->peekProxy();
             REPORTER_ASSERT(reporter, mipMapped == texProxy->mipMapped());
 
-            texProxy->instantiate(resourceProvider);
+            texProxy->instantiate(context->resourceProvider());
             texture = texProxy->priv().peekTexture();
             REPORTER_ASSERT(reporter, mipMapped == texture->texturePriv().mipMapped());
 

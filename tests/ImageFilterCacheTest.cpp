@@ -209,7 +209,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterCache_ImageBackedGPU, reporter, ct
         return;
     }
 
-    if (!srcProxy->instantiate(context->contextPriv().resourceProvider())) {
+    if (!srcProxy->instantiate(context->resourceProvider())) {
         return;
     }
     GrTexture* tex = srcProxy->priv().peekTexture();

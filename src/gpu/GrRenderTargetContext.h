@@ -11,7 +11,6 @@
 #include "../private/GrRenderTargetProxy.h"
 #include "GrColor.h"
 #include "GrContext.h"
-#include "GrContextPriv.h"
 #include "GrPaint.h"
 #include "GrSurfaceContext.h"
 #include "GrTypesPriv.h"
@@ -350,7 +349,7 @@ public:
     GrRenderTarget* accessRenderTarget() {
         // TODO: usage of this entry point needs to be reduced and potentially eliminated
         // since it ends the deferral of the GrRenderTarget's allocation
-        if (!fRenderTargetProxy->instantiate(fContext->contextPriv().resourceProvider())) {
+        if (!fRenderTargetProxy->instantiate(fContext->resourceProvider())) {
             return nullptr;
         }
         return fRenderTargetProxy->priv().peekRenderTarget();

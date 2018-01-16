@@ -46,9 +46,8 @@ bool GrGpuRTCommandBuffer::draw(const GrPipeline& pipeline,
         SkASSERT(primProc.hasInstanceAttribs() == meshes[i].isInstanced());
     }
 #endif
-    auto resourceProvider = this->gpu()->getContext()->contextPriv().resourceProvider();
 
-    if (pipeline.isBad() || !primProc.instantiate(resourceProvider)) {
+    if (pipeline.isBad() || !primProc.instantiate(this->gpu()->getContext()->resourceProvider())) {
         return false;
     }
 

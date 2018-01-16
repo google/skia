@@ -41,8 +41,6 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(IntTexture, reporter, ctxInfo) {
     }
 
     GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
-    auto resourceProvider = context->contextPriv().resourceProvider();
-
     static const int kS = UINT8_MAX + 1;
     static const size_t kRowBytes = kS * sizeof(int32_t);
 
@@ -280,7 +278,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(IntTexture, reporter, ctxInfo) {
         // No rendering to integer textures.
         GrSurfaceDesc intRTDesc = desc;
         intRTDesc.fFlags = kRenderTarget_GrSurfaceFlag;
-        sk_sp<GrTexture> temp(resourceProvider->createTexture(intRTDesc, SkBudgeted::kYes));
+        sk_sp<GrTexture> temp(context->resourceProvider()->createTexture(intRTDesc,
+                                                                         SkBudgeted::kYes));
         REPORTER_ASSERT(reporter, !temp);
     }
 }

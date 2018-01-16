@@ -18,7 +18,7 @@
 #if GR_TEST_UTILS
 
 GrResourceProvider* GrProcessorTestData::resourceProvider() {
-    return fContext->contextPriv().resourceProvider();
+    return fContext->resourceProvider();
 }
 
 GrProxyProvider* GrProcessorTestData::proxyProvider() {

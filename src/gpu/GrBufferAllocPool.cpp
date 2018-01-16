@@ -10,7 +10,6 @@
 #include "GrBuffer.h"
 #include "GrCaps.h"
 #include "GrContext.h"
-#include "GrContextPriv.h"
 #include "GrGpu.h"
 #include "GrResourceProvider.h"
 #include "GrTypes.h"
@@ -369,11 +368,11 @@ void GrBufferAllocPool::flushCpuData(const BufferBlock& block, size_t flushSize)
 
 GrBuffer* GrBufferAllocPool::getBuffer(size_t size) {
 
-    auto resourceProvider = fGpu->getContext()->contextPriv().resourceProvider();
+    GrResourceProvider* rp = fGpu->getContext()->resourceProvider();
 
     // Shouldn't have to use this flag (https://bug.skia.org/4156)
     static const uint32_t kFlags = GrResourceProvider::kNoPendingIO_Flag;
-    return resourceProvider->createBuffer(size, fBufferType, kDynamic_GrAccessPattern, kFlags);
+    return rp->createBuffer(size, fBufferType, kDynamic_GrAccessPattern, kFlags);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

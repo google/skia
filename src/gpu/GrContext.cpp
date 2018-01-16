@@ -484,7 +484,7 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceContext* dst,
     ASSERT_OWNED_PROXY_PRIV(dst->asSurfaceProxy());
     GR_CREATE_TRACE_MARKER_CONTEXT("GrContextPriv", "writeSurfacePixels", fContext);
 
-    if (!dst->asSurfaceProxy()->instantiate(this->resourceProvider())) {
+    if (!dst->asSurfaceProxy()->instantiate(fContext->resourceProvider())) {
         return false;
     }
 
@@ -563,7 +563,7 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceContext* dst,
             return false;
         }
 
-        if (!tempProxy->instantiate(this->resourceProvider())) {
+        if (!tempProxy->instantiate(fContext->resourceProvider())) {
             return false;
         }
         GrTexture* texture = tempProxy->priv().peekTexture();
@@ -616,7 +616,7 @@ bool GrContextPriv::readSurfacePixels(GrSurfaceContext* src,
     GR_CREATE_TRACE_MARKER_CONTEXT("GrContextPriv", "readSurfacePixels", fContext);
 
     // MDB TODO: delay this instantiation until later in the method
-    if (!src->asSurfaceProxy()->instantiate(this->resourceProvider())) {
+    if (!src->asSurfaceProxy()->instantiate(fContext->resourceProvider())) {
         return false;
     }
 
@@ -724,7 +724,7 @@ bool GrContextPriv::readSurfacePixels(GrSurfaceContext* src,
         configToRead = tempDrawInfo.fReadConfig;
     }
 
-    if (!proxyToRead->instantiate(this->resourceProvider())) {
+    if (!proxyToRead->instantiate(fContext->resourceProvider())) {
         return false;
     }
 

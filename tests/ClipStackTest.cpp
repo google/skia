@@ -1486,7 +1486,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ClipMaskCache, reporter, ctxInfo) {
     path.setFillType(SkPath::kEvenOdd_FillType);
 
     static const char* kTag = GrClipStackClip::kMaskTestTag;
-    GrResourceCache* cache = context->contextPriv().getResourceCache();
+    GrResourceCache* cache = context->getResourceCache();
 
     static constexpr int kN = 5;
 
@@ -1496,7 +1496,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ClipMaskCache, reporter, ctxInfo) {
         stack.save();
         stack.clipPath(path, m, SkClipOp::kIntersect, true);
         sk_sp<GrTextureProxy> mask = GrClipStackClip(&stack).testingOnly_createClipMask(context);
-        mask->instantiate(context->contextPriv().resourceProvider());
+        mask->instantiate(context->resourceProvider());
         GrTexture* tex = mask->priv().peekTexture();
         REPORTER_ASSERT(reporter, 0 == strcmp(tex->getUniqueKey().tag(), kTag));
         // Make sure mask isn't pinned in cache.
