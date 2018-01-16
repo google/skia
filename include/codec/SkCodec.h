@@ -108,6 +108,11 @@ public:
     };
 
     /**
+     *  Readable string representing the error code.
+     */
+    static const char* ResultToString(Result);
+
+    /**
      *  If this stream represents an encoded image that we know how to decode,
      *  return an SkCodec that can decode it. Otherwise return NULL.
      *

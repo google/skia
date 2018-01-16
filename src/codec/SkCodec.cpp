@@ -684,3 +684,31 @@ std::vector<SkCodec::FrameInfo> SkCodec::getFrameInfo() {
     }
     return result;
 }
+
+const char* SkCodec::ResultToString(Result result) {
+    switch (result) {
+        case kSuccess:
+            return "success";
+        case kIncompleteInput:
+            return "incomplete input";
+        case kErrorInInput:
+            return "error in input";
+        case kInvalidConversion:
+            return "invalid conversion";
+        case kInvalidScale:
+            return "invalid scale";
+        case kInvalidParameters:
+            return "invalid parameters";
+        case kInvalidInput:
+            return "invalid input";
+        case kCouldNotRewind:
+            return "could not rewind";
+        case kInternalError:
+            return "internal error";
+        case kUnimplemented:
+            return "unimplemented";
+        default:
+            SkASSERT(false);
+            return "bogus result value";
+    }
+}
