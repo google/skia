@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "91ee6073_454925da",
+        "filename": "infra/bots/recipe_modules/flavor/gn_chromecast_flavor.py",
+        "patchSetId": 16
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-16T20:54:35Z",
+      "side": 1,
+      "message": "(Because it\u0027s in RAM.  It _is_ RAM.)",
+      "revId": "2d7a4fd17a4561430d46d73f65cb79c0c45778ba",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
