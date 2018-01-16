@@ -2,6 +2,7 @@
   {
     "cmd": [
       "gsutil",
+      "-m",
       "cp",
       "-Z",
       "/foo/file",
@@ -16,6 +17,7 @@
   {
     "cmd": [
       "gsutil",
+      "-m",
       "cp",
       "-Z",
       "/foo/file",
@@ -30,6 +32,7 @@
   {
     "cmd": [
       "gsutil",
+      "-m",
       "cp",
       "-Z",
       "/foo/file",
@@ -44,6 +47,7 @@
   {
     "cmd": [
       "gsutil",
+      "-m",
       "cp",
       "-Z",
       "/foo/file",
@@ -58,6 +62,7 @@
   {
     "cmd": [
       "gsutil",
+      "-m",
       "cp",
       "-Z",
       "/foo/file",
