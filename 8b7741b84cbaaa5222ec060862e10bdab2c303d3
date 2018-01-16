@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e9a3af0d_f2180d56",
+        "filename": "tools/gpu/GrContextFactory.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-01-16T15:57:26Z",
+      "side": 1,
+      "message": "nit: \"dependency\"",
+      "revId": "8b7741b84cbaaa5222ec060862e10bdab2c303d3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a77f4766_369858e7",
+        "filename": "tools/gpu/GrContextFactory.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-01-16T15:57:26Z",
+      "side": 1,
+      "message": "same here",
+      "revId": "8b7741b84cbaaa5222ec060862e10bdab2c303d3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
