@@ -61,7 +61,7 @@ struct InterfaceBlock : public ProgramElement {
     const Variable& fVariable;
     const String fTypeName;
     const String fInstanceName;
-    const std::vector<std::unique_ptr<Expression>> fSizes;
+    std::vector<std::unique_ptr<Expression>> fSizes;
     const std::shared_ptr<SymbolTable> fTypeOwner;
 
     typedef ProgramElement INHERITED;
