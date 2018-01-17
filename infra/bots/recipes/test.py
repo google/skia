@@ -857,9 +857,6 @@ def test_steps(api):
 
   args.extend(['--svgs', api.flavor.device_dirs.svg_dir])
 
-  args.append('--key')
-  args.extend(key_params(api))
-
   if 'Chromecast' in api.vars.builder_cfg.get('os', ''):
     # Due to limited disk space, we only deal with skps and one image.
     args = [
@@ -871,6 +868,9 @@ def test_steps(api):
       '--nameByHash',
       '--properties'
     ] + properties
+
+  args.append('--key')
+  args.extend(key_params(api))
 
   if use_hash_file:
     args.extend(['--uninterestingHashesFile', hashes_file])
