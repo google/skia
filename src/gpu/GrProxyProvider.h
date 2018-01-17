@@ -14,6 +14,8 @@
 #include "SkRefCnt.h"
 #include "SkTDynamicHash.h"
 
+#include "GrSurfaceProxy.h"
+
 class GrCaps;
 class GrResourceProvider;
 class GrSingleOwner;
@@ -87,7 +89,6 @@ public:
                                             SkDestinationSurfaceColorMode mipColorMode =
                                                             SkDestinationSurfaceColorMode::kLegacy);
 
-
     /*
      * Create a mipmapped texture proxy without any data.
      *
@@ -127,6 +128,38 @@ public:
     sk_sp<GrSurfaceProxy> createWrappedRenderTargetProxy(const GrBackendTexture& tex,
                                                          GrSurfaceOrigin origin,
                                                          int sampleCnt);
+
+    using LazyInstantiateCallback = std::function<sk_sp<GrTexture>(GrResourceProvider*,
+                                                                   GrSurfaceOrigin* outOrigin)>;
+
+    using LazyInstantiateCallback = std::function<sk_sp<GrTexture>(GrResourceProvider*,
+                                                                   GrSurfaceOrigin* outOrigin)>;
+
+    enum class Renderable : bool {
+        kNo = false,
+        kYes = true
+    };
+
+    /**
+     * Creates a texture proxy that will be instantiated by a user-supplied callback during flush.
+     * (Stencil is not supported by this method.) The width and height must either both be greater
+     * than 0 or both less than or equal to zero. A non-positive value is a signal that the width
+     * and height are currently unknown.
+     */
+    sk_sp<GrTextureProxy> createLazyProxy(LazyInstantiateCallback&& callback,
+                                          const GrSurfaceDesc& desc,
+                                          GrMipMapped mipmap, SkBackingFit fit, SkBudgeted budgeted) {
+        return GrSurfaceProxy::MakeLazy(std::move(callback), desc, mipmap, fit, budgeted);
+    }
+
+    sk_sp<GrTextureProxy> createFullyLazyProxy(LazyInstantiateCallback&& callback,
+                                               Renderable renderable,
+                                               GrPixelConfig config) {
+        return GrSurfaceProxy::MakeFullyLazy(std::move(callback),
+                                             renderable == Renderable::kYes ? GrSurfaceProxy::Renderable::kYes : GrSurfaceProxy::Renderable::kNo,
+                                             config);
+    }
+
 
     // 'proxy' is about to be used as a texture src or drawn to. This query can be used to
     // determine if it is going to need a texture domain or a full clear.
