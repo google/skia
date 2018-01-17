@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8b720dbf_19c783e6",
+        "filename": "src/gpu/GrBackendTextureImageGenerator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-01-17T15:37:24Z",
+      "side": 1,
+      "message": "I think everything is correct, although putting a comment here to explain that this is releasing the ref from when *this* proxy was created above, but the texture itself still has a ref on the helper might help future readers?",
+      "revId": "53c15b82067372f989ab00c0b2f59de05c277346",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
