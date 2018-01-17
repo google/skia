@@ -10,6 +10,7 @@
 #include "GrContext.h"
 #include "GrContextPriv.h"
 #include "GrGpu.h"
+#include "GrProxyProvider.h"
 #include "GrRenderTargetContext.h"
 #include "GrResourceCache.h"
 #include "GrResourceProvider.h"
@@ -89,6 +90,7 @@ sk_sp<GrTextureProxy> GrBackendTextureImageGenerator::onGenerateTexture(
         return nullptr;
     }
 
+    GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
     sk_sp<GrTexture> tex;
 
     uint32_t expectedID = SK_InvalidGenID;
@@ -120,15 +122,15 @@ sk_sp<GrTextureProxy> GrBackendTextureImageGenerator::onGenerateTexture(
         if (!tex) {
             return nullptr;
         }
-        fRefHelper->fBorrowedTexture = tex.get();
-
         tex->setRelease(ReleaseRefHelper_TextureReleaseProc, fRefHelper);
+
+        fRefHelper->fBorrowedTexture = tex.get();
         fRefHelper->ref();
     }
 
     SkASSERT(fRefHelper->fBorrowingContextID == context->uniqueID());
 
-    sk_sp<GrTextureProxy> proxy = GrSurfaceProxy::MakeWrapped(std::move(tex), fSurfaceOrigin);
+    sk_sp<GrTextureProxy> proxy = proxyProvider->createWrapped(std::move(tex), fSurfaceOrigin);
 
     if (0 == origin.fX && 0 == origin.fY &&
         info.width() == fBackendTexture.width() && info.height() == fBackendTexture.height() &&
