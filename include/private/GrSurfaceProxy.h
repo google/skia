@@ -182,9 +182,6 @@ private:
 
 class GrSurfaceProxy : public GrIORefProxy {
 public:
-    // DDL TODO: remove this entry point
-    static sk_sp<GrTextureProxy> MakeWrapped(sk_sp<GrTexture>, GrSurfaceOrigin);
-
     using LazyInstantiateCallback = std::function<sk_sp<GrTexture>(GrResourceProvider*,
                                                                    GrSurfaceOrigin* outOrigin)>;
 
