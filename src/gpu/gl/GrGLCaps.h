@@ -288,9 +288,6 @@ public:
     /// Is there support for texture parameter GL_TEXTURE_USAGE
     bool textureUsageSupport() const { return fTextureUsageSupport; }
 
-    /// Is there support for GL_RED and GL_R8
-    bool textureRedSupport() const { return fTextureRedSupport; }
-
     /// Is GL_ALPHA8 renderable
     bool alpha8IsRenderable() const { return fAlpha8IsRenderable; }
 
@@ -462,7 +459,6 @@ private:
     bool fPackRowLengthSupport : 1;
     bool fPackFlipYSupport : 1;
     bool fTextureUsageSupport : 1;
-    bool fTextureRedSupport : 1;
     bool fAlpha8IsRenderable: 1;
     bool fImagingSupport  : 1;
     bool fVertexArrayObjectSupport : 1;
