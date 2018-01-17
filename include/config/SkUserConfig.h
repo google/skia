@@ -118,6 +118,10 @@
 #endif
 
 
+#ifndef SK_DISABLE_EXPLICIT_GPU_RESOURCE_ALLOCATION
+#define SK_DISABLE_EXPLICIT_GPU_RESOURCE_ALLOCATION
+#endif
+
 /* Determines whether to build code that supports the GPU backend. Some classes
    that are not GPU-specific, such as SkShader subclasses, have optional code
    that is used allows them to interact with the GPU backend. If you'd like to

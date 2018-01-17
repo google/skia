@@ -22,29 +22,33 @@ class SkStrokeRec;
 
 /*
  * This namespace wraps helper functions that draw ovals, rrects, and arcs (filled & stroked)
+ * The ops always use coverage even when their non-AA.
  */
 class GrOvalOpFactory {
 public:
-    static std::unique_ptr<GrDrawOp> MakeOvalOp(GrPaint&&,
-                                                const SkMatrix&,
-                                                const SkRect& oval,
-                                                const SkStrokeRec&,
-                                                const GrShaderCaps*);
+    static std::unique_ptr<GrDrawOp> MakeCoverageOvalOp(GrPaint&&,
+                                                        GrAA,
+                                                        const SkMatrix&,
+                                                        const SkRect& oval,
+                                                        const SkStrokeRec&,
+                                                        const GrShaderCaps*);
 
-    static std::unique_ptr<GrDrawOp> MakeRRectOp(GrPaint&&,
-                                                 const SkMatrix&,
-                                                 const SkRRect&,
-                                                 const SkStrokeRec&,
-                                                 const GrShaderCaps*);
+    static std::unique_ptr<GrDrawOp> MakeCoverageRRectOp(GrPaint&&,
+                                                         GrAA,
+                                                         const SkMatrix&,
+                                                         const SkRRect&,
+                                                         const SkStrokeRec&,
+                                                         const GrShaderCaps*);
 
-    static std::unique_ptr<GrDrawOp> MakeArcOp(GrPaint&&,
-                                               const SkMatrix&,
-                                               const SkRect& oval,
-                                               SkScalar startAngle,
-                                               SkScalar sweepAngle,
-                                               bool useCenter,
-                                               const GrStyle&,
-                                               const GrShaderCaps*);
+    static std::unique_ptr<GrDrawOp> MakeCoverageArcOp(GrPaint&&,
+                                                       GrAA,
+                                                       const SkMatrix&,
+                                                       const SkRect& oval,
+                                                       SkScalar startAngle,
+                                                       SkScalar sweepAngle,
+                                                       bool useCenter,
+                                                       const GrStyle&,
+                                                       const GrShaderCaps*);
 };
 
 #endif  // GrOvalOpFactory_DEFINED
