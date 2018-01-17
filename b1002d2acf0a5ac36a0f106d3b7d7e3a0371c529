@@ -16,6 +16,24 @@
       "revId": "b1002d2acf0a5ac36a0f106d3b7d7e3a0371c529",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "34ae0cd3_45f13230",
+        "filename": "infra/bots/recipes/test.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 860,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-01-17T16:20:11Z",
+      "side": 1,
+      "message": "Done - several commits ago, these branches were very different, but now your suggestion makes things clearer in that regard.",
+      "parentUuid": "a3ae8827_fd4d1ebf",
+      "revId": "b1002d2acf0a5ac36a0f106d3b7d7e3a0371c529",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
