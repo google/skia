@@ -96,11 +96,11 @@ DEF_TEST(Rect_grow, reporter) {
 }
 
 DEF_TEST(Rect_largest, reporter) {
-    REPORTER_ASSERT(reporter, !SkRectPriv::MakeILargest().isEmpty());
+    REPORTER_ASSERT(reporter, !SkRectPriv::MakeILarge().isEmpty());
     REPORTER_ASSERT(reporter,  SkRectPriv::MakeILargestInverted().isEmpty());
 
     REPORTER_ASSERT(reporter, !SkRectPriv::MakeLargest().isEmpty());
-    REPORTER_ASSERT(reporter, !SkRectPriv::MakeLargestS32().isEmpty());
+    REPORTER_ASSERT(reporter, !SkRectPriv::MakeLargeS32().isEmpty());
     REPORTER_ASSERT(reporter,  SkRectPriv::MakeLargestInverted().isEmpty());
 }
 
