@@ -19,6 +19,47 @@
     },
     {
       "key": {
+        "uuid": "604ec26c_8ef156a2",
+        "filename": "src/codec/SkAndroidCodec.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-01-17T17:37:09Z",
+      "side": 1,
+      "message": "D\u0027oh - search and replace overkill...",
+      "range": {
+        "startLine": 109,
+        "startChar": 52,
+        "endLine": 109,
+        "endChar": 71
+      },
+      "revId": "fe84c4898982b954093f314b159f2f89ded63246",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0aed83d2_f30d6389",
+        "filename": "src/codec/SkAndroidCodec.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-01-17T17:37:09Z",
+      "side": 1,
+      "message": "Not sure. I suspect that they are infrequently used. JPEGs often have EXIF data because they come from cameras, but I\u0027m not aware of any cameras that output WebP. But someone could convert an image from JPEG, and then it should probably preserve the orientation (or apply it?).\n\nCome to think of it, I don\u0027t know that Chromium\u0027s the best guide (the web situation regarding when and whether to apply the orientation is under heated debate).\n\nInvestigating this further...",
+      "parentUuid": "ca56faed_a42fd259",
+      "revId": "fe84c4898982b954093f314b159f2f89ded63246",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "af994681_04a90a68",
         "filename": "src/codec/SkAndroidCodec.cpp",
         "patchSetId": 3
@@ -36,6 +77,24 @@
     },
     {
       "key": {
+        "uuid": "47139c32_b7cbaf2c",
+        "filename": "src/codec/SkAndroidCodec.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 403,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-01-17T17:37:09Z",
+      "side": 1,
+      "message": "What do you mean? We\u0027d have to update the swizzler code to support writing in the reverse order, and update the codecs to traverse the rows in the reverse order. It\u0027s doable, but not trivial, and I don\u0027t think it would be the best place to optimize.",
+      "parentUuid": "af994681_04a90a68",
+      "revId": "fe84c4898982b954093f314b159f2f89ded63246",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "dc6497e1_b98c0f87",
         "filename": "tests/AndroidCodecTest.cpp",
         "patchSetId": 3
@@ -47,6 +106,24 @@
       "writtenOn": "2018-01-17T16:39:27Z",
       "side": 1,
       "message": "can we also test a rotated webp image?",
+      "revId": "fe84c4898982b954093f314b159f2f89ded63246",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1c405ba9_8b9245b7",
+        "filename": "tests/AndroidCodecTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-01-17T17:37:09Z",
+      "side": 1,
+      "message": "I\u0027ll see if I can find/make one.",
+      "parentUuid": "dc6497e1_b98c0f87",
       "revId": "fe84c4898982b954093f314b159f2f89ded63246",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
