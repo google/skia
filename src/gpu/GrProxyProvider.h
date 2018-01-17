@@ -32,7 +32,7 @@ public:
      * Assigns a unique key to a proxy. The proxy will be findable via this key using
      * findProxyByUniqueKey(). It is an error if an existing proxy already has a key.
      */
-    void assignUniqueKeyToProxy(const GrUniqueKey&, GrTextureProxy*);
+    bool assignUniqueKeyToProxy(const GrUniqueKey&, GrTextureProxy*);
 
     /*
      * Sets the unique key of the provided proxy to the unique key of the surface. The surface must
@@ -103,10 +103,17 @@ public:
     sk_sp<GrTextureProxy> createProxy(const GrSurfaceDesc&, SkBackingFit, SkBudgeted,
                                       uint32_t flags = 0);
 
+    // These match the definitions in SkImage & GrTexture.h, for whence they came
+    typedef void* ReleaseContext;
+    typedef void (*ReleaseProc)(ReleaseContext);
+
     /*
      * Create a texture proxy that wraps a (non-renderable) backend texture.
      */
-    sk_sp<GrTextureProxy> createWrappedTextureProxy(const GrBackendTexture&, GrSurfaceOrigin);
+    sk_sp<GrTextureProxy> createWrappedTextureProxy(const GrBackendTexture&, GrSurfaceOrigin,
+                                                    GrWrapOwnership = kBorrow_GrWrapOwnership,
+                                                    ReleaseProc = nullptr,
+                                                    ReleaseContext = nullptr);
 
     /*
      * Create a texture proxy that wraps a backend texture and is both texture-able and renderable
@@ -163,6 +170,9 @@ public:
     int numUniqueKeyProxies_TestOnly() const;
 
     void removeAllUniqueKeys();
+
+    // DDL: make this private once GrBackendTextureGenerator changes have landed
+    sk_sp<GrTextureProxy> createWrapped(sk_sp<GrTexture> tex, GrSurfaceOrigin origin);
 
 private:
     struct UniquelyKeyedProxyHashTraits {
