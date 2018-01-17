@@ -74,7 +74,7 @@ SkThreadedBMPDevice::DrawState::DrawState(SkThreadedBMPDevice* dev) {
 
 SkIRect SkThreadedBMPDevice::transformDrawBounds(const SkRect& drawBounds) const {
     if (drawBounds == SkRectPriv::MakeLargest()) {
-        return SkRectPriv::MakeILargest();
+        return SkRectPriv::MakeILarge();
     }
     SkRect transformedBounds;
     this->ctm().mapRect(&transformedBounds, drawBounds);

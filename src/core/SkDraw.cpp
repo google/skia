@@ -782,7 +782,7 @@ void SkDraw::drawRect(const SkRect& prePaintRect, const SkPaint& paint,
         }
     }
 
-    if (!SkRectPriv::MakeLargestS32().contains(bbox)) {
+    if (!SkRectPriv::MakeLargeS32().contains(bbox)) {
         // bbox.roundOut() is undefined; use slow path.
         draw_rect_as_path(*this, prePaintRect, paint, matrix);
         return;

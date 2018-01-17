@@ -12,8 +12,11 @@
 
 class SkRectPriv {
 public:
-    static SkIRect MakeILargest() {
-        const int32_t ihalf = SK_MaxS32 >> 1;
+    // Returns an irect that is very large, and can be safely round-trip with SkRect and still
+    // be considered non-empty (i.e. width/height > 0) even if we round-out the SkRect.
+    // SK_MaxS32 >> 1 seems better, but it does not survive round-trip with SkRect and rounding.
+    static SkIRect MakeILarge() {
+        const int32_t ihalf = 1 << 29;
         return { -ihalf, -ihalf, ihalf, ihalf };
     }
 
@@ -21,9 +24,9 @@ public:
         return { SK_MaxS32, SK_MaxS32, SK_MinS32, SK_MinS32 };
     }
 
-    static SkRect MakeLargestS32() {
+    static SkRect MakeLargeS32() {
         SkRect r;
-        r.set(MakeILargest());
+        r.set(MakeILarge());
         return r;
     }
 
