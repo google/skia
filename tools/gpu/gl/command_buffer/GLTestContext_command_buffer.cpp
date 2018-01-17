@@ -11,6 +11,7 @@
 #include "SkMutex.h"
 #include "SkOnce.h"
 #include "SkTLS.h"
+#include "gl/GrGLDefines.h"
 #include "gl/GrGLInterface.h"
 #include "gl/GrGLAssembleInterface.h"
 #include "gl/command_buffer/GLTestContext_command_buffer.h"
@@ -301,6 +302,7 @@ CommandBufferGLTestContext::CommandBufferGLTestContext(CommandBufferGLTestContex
         return;
     }
 
+    SkDebugf("%s\n", (const char*)gl->fFunctions.fGetString(GR_GL_VERSION));
     this->init(std::move(gl));
 }
 
