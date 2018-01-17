@@ -284,17 +284,9 @@ static sk_sp<SkImage> new_wrapped_texture_common(GrContext* ctx,
         return nullptr;
     }
 
-    GrResourceProvider* resourceProvider = ctx->contextPriv().resourceProvider();
-
-    sk_sp<GrTexture> tex = resourceProvider->wrapBackendTexture(backendTex, ownership);
-    if (!tex) {
-        return nullptr;
-    }
-    if (releaseProc) {
-        tex->setRelease(releaseProc, releaseCtx);
-    }
-
-    sk_sp<GrTextureProxy> proxy(GrSurfaceProxy::MakeWrapped(std::move(tex), origin));
+    GrProxyProvider* proxyProvider = ctx->contextPriv().proxyProvider();
+    sk_sp<GrTextureProxy> proxy = proxyProvider->createWrappedTextureProxy(
+                                        backendTex, origin, ownership, releaseProc, releaseCtx);
 
     return sk_make_sp<SkImage_Gpu>(ctx, kNeedNewImageUniqueID,
                                    at, std::move(proxy), std::move(colorSpace), SkBudgeted::kNo);
