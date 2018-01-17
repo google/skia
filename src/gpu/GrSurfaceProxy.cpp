@@ -228,6 +228,28 @@ GrTextureOpList* GrSurfaceProxy::getLastTextureOpList() {
     return fLastOpList ? fLastOpList->asTextureOpList() : nullptr;
 }
 
+sk_sp<GrTextureProxy> GrSurfaceProxy::MakeWrapped(sk_sp<GrTexture> tex, GrSurfaceOrigin origin) {
+    if (!tex) {
+        return nullptr;
+    }
+
+    if (tex->getUniqueKey().isValid()) {
+        // The proxy may already be in the hash. Thus we need to look for it first before creating
+        // new one.
+        GrProxyProvider* provider = tex->getContext()->contextPriv().proxyProvider();
+        sk_sp<GrTextureProxy> proxy = provider->findProxyByUniqueKey(tex->getUniqueKey(), origin);
+        if (proxy) {
+            return proxy;
+        }
+    }
+
+    if (tex->asRenderTarget()) {
+        return sk_sp<GrTextureProxy>(new GrTextureRenderTargetProxy(std::move(tex), origin));
+    } else {
+        return sk_sp<GrTextureProxy>(new GrTextureProxy(std::move(tex), origin));
+    }
+}
+
 int GrSurfaceProxy::worstCaseWidth() const {
     SkASSERT(LazyState::kFully != this->lazyInstantiationState());
     if (fTarget) {

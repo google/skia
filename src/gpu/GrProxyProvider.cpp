@@ -40,11 +40,11 @@ GrProxyProvider::~GrProxyProvider() {
     SkASSERT(!fUniquelyKeyedProxies.count());
 }
 
-bool GrProxyProvider::assignUniqueKeyToProxy(const GrUniqueKey& key, GrTextureProxy* proxy) {
+void GrProxyProvider::assignUniqueKeyToProxy(const GrUniqueKey& key, GrTextureProxy* proxy) {
     ASSERT_SINGLE_OWNER
     SkASSERT(key.isValid());
     if (this->isAbandoned() || !proxy) {
-        return false;
+        return;
     }
 
     // If there is already a GrResource with this key then the caller has violated the normal
@@ -59,7 +59,7 @@ bool GrProxyProvider::assignUniqueKeyToProxy(const GrUniqueKey& key, GrTexturePr
     if (SkBudgeted::kNo == proxy->isBudgeted() &&
                     (!proxy->priv().isInstantiated() ||
                      !proxy->priv().peekSurface()->resourcePriv().refsWrappedObjects())) {
-        return false;
+        return;
     }
 
     SkASSERT(!fUniquelyKeyedProxies.find(key));     // multiple proxies can't get the same key
@@ -67,7 +67,6 @@ bool GrProxyProvider::assignUniqueKeyToProxy(const GrUniqueKey& key, GrTexturePr
     proxy->cacheAccess().setUniqueKey(this, key);
     SkASSERT(proxy->getUniqueKey() == key);
     fUniquelyKeyedProxies.add(proxy);
-    return true;
 }
 
 void GrProxyProvider::adoptUniqueKeyFromSurface(GrTextureProxy* proxy, const GrSurface* surf) {
@@ -102,20 +101,6 @@ sk_sp<GrTextureProxy> GrProxyProvider::findProxyByUniqueKey(const GrUniqueKey& k
     return result;
 }
 
-sk_sp<GrTextureProxy> GrProxyProvider::createWrapped(sk_sp<GrTexture> tex, GrSurfaceOrigin origin) {
-#ifdef SK_DEBUG
-    if (tex->getUniqueKey().isValid()) {
-        SkASSERT(!this->findProxyByUniqueKey(tex->getUniqueKey(), origin));
-    }
-#endif
-
-    if (tex->asRenderTarget()) {
-        return sk_sp<GrTextureProxy>(new GrTextureRenderTargetProxy(std::move(tex), origin));
-    } else {
-        return sk_sp<GrTextureProxy>(new GrTextureProxy(std::move(tex), origin));
-    }
-}
-
 sk_sp<GrTextureProxy> GrProxyProvider::findOrCreateProxyByUniqueKey(const GrUniqueKey& key,
                                                                     GrSurfaceOrigin origin) {
     ASSERT_SINGLE_OWNER
@@ -137,9 +122,9 @@ sk_sp<GrTextureProxy> GrProxyProvider::findOrCreateProxyByUniqueKey(const GrUniq
     sk_sp<GrTexture> texture(static_cast<GrSurface*>(resource)->asTexture());
     SkASSERT(texture);
 
-    result = this->createWrapped(std::move(texture), origin);
+    result = GrSurfaceProxy::MakeWrapped(std::move(texture), origin);
     SkASSERT(result->getUniqueKey() == key);
-    // createWrapped should've added this for us
+    // MakeWrapped should've added this for us
     SkASSERT(fUniquelyKeyedProxies.find(key));
     return result;
 }
@@ -159,7 +144,13 @@ sk_sp<GrTextureProxy> GrProxyProvider::createInstantiatedProxy(const GrSurfaceDe
         return nullptr;
     }
 
-    return this->createWrapped(std::move(tex), desc.fOrigin);
+    SkASSERT(!tex->getUniqueKey().isValid());
+
+    if (tex->asRenderTarget()) {
+        return sk_sp<GrTextureProxy>(new GrTextureRenderTargetProxy(std::move(tex), desc.fOrigin));
+    }
+
+    return sk_sp<GrTextureProxy>(new GrTextureProxy(std::move(tex), desc.fOrigin));
 }
 
 sk_sp<GrTextureProxy> GrProxyProvider::createTextureProxy(const GrSurfaceDesc& desc,
@@ -179,7 +170,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::createTextureProxy(const GrSurfaceDesc& d
             return nullptr;
         }
 
-        return this->createWrapped(std::move(tex), desc.fOrigin);
+        return GrSurfaceProxy::MakeWrapped(std::move(tex), desc.fOrigin);
     }
 
     return this->createProxy(desc, SkBackingFit::kExact, budgeted);
@@ -234,7 +225,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::createMipMapProxy(
         return nullptr;
     }
 
-    return this->createWrapped(std::move(tex), desc.fOrigin);
+    return GrSurfaceProxy::MakeWrapped(std::move(tex), desc.fOrigin);
 }
 
 sk_sp<GrTextureProxy> GrProxyProvider::createMipMapProxy(const GrSurfaceDesc& desc,
@@ -319,27 +310,19 @@ sk_sp<GrTextureProxy> GrProxyProvider::createProxy(const GrSurfaceDesc& desc,
 #endif
 }
 
-sk_sp<GrTextureProxy> GrProxyProvider::createWrappedTextureProxy(
-                                                         const GrBackendTexture& backendTex,
-                                                         GrSurfaceOrigin origin,
-                                                         GrWrapOwnership ownership,
-                                                         ReleaseProc releaseProc,
-                                                         ReleaseContext releaseCtx) {
+sk_sp<GrTextureProxy> GrProxyProvider::createWrappedTextureProxy(const GrBackendTexture& backendTex,
+                                                                 GrSurfaceOrigin origin) {
     if (this->isAbandoned()) {
         return nullptr;
     }
 
-    sk_sp<GrTexture> texture(fResourceProvider->wrapBackendTexture(backendTex, ownership));
+    sk_sp<GrTexture> texture(fResourceProvider->wrapBackendTexture(backendTex));
     if (!texture) {
         return nullptr;
     }
-    if (releaseProc) {
-        texture->setRelease(releaseProc, releaseCtx);
-    }
-
     SkASSERT(!texture->asRenderTarget());   // Strictly a GrTexture
 
-    return this->createWrapped(std::move(texture), origin);
+    return GrSurfaceProxy::MakeWrapped(std::move(texture), origin);
 }
 
 sk_sp<GrTextureProxy> GrProxyProvider::createWrappedTextureProxy(const GrBackendTexture& tex,
@@ -355,7 +338,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::createWrappedTextureProxy(const GrBackend
     }
     SkASSERT(texture->asRenderTarget());  // A GrTextureRenderTarget
 
-    return this->createWrapped(std::move(texture), origin);
+    return GrSurfaceProxy::MakeWrapped(std::move(texture), origin);
 }
 
 sk_sp<GrSurfaceProxy> GrProxyProvider::createWrappedRenderTargetProxy(
