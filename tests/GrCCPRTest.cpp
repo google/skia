@@ -33,9 +33,11 @@ public:
     CCPRClip(GrCoverageCountingPathRenderer* ccpr, const SkPath& path) : fCCPR(ccpr), fPath(path) {}
 
 private:
-    bool apply(GrContext*, GrRenderTargetContext* rtc, bool, bool, GrAppliedClip* out,
+    bool apply(GrContext* context, GrRenderTargetContext* rtc, bool, bool, GrAppliedClip* out,
                SkRect* bounds) const override {
-        out->addCoverageFP(fCCPR->makeClipProcessor(rtc->priv().testingOnly_getOpListID(), fPath,
+        GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
+        out->addCoverageFP(fCCPR->makeClipProcessor(proxyProvider,
+                                                    rtc->priv().testingOnly_getOpListID(), fPath,
                                                     SkIRect::MakeWH(rtc->width(), rtc->height()),
                                                     rtc->width(), rtc->height()));
         return true;

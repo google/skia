@@ -135,8 +135,9 @@ public:
         }
 
         bool isUninitialized() const { return !fAtlasLazyProxy; }
-        void init(const SkPath& deviceSpacePath, const SkIRect& accessRect, int rtWidth,
-                  int rtHeight);
+        void init(GrProxyProvider* proxyProvider,
+                  const SkPath& deviceSpacePath, const SkIRect& accessRect,
+                  int rtWidth, int rtHeight);
         void addAccess(const SkIRect& accessRect) {
             SkASSERT(!this->isUninitialized());
             fAccessRect.join(accessRect);
@@ -184,10 +185,10 @@ public:
 
     bool canMakeClipProcessor(const SkPath& deviceSpacePath) const;
 
-    std::unique_ptr<GrFragmentProcessor> makeClipProcessor(uint32_t oplistID,
+    std::unique_ptr<GrFragmentProcessor> makeClipProcessor(GrProxyProvider*, uint32_t oplistID,
                                                            const SkPath& deviceSpacePath,
-                                                           const SkIRect& accessRect, int rtWidth,
-                                                           int rtHeight);
+                                                           const SkIRect& accessRect,
+                                                           int rtWidth, int rtHeight);
 
     // GrOnFlushCallbackObject overrides.
     void preFlush(GrOnFlushResourceProvider*, const uint32_t* opListIDs, int numOpListIDs,

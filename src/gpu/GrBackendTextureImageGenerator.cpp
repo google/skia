@@ -10,6 +10,7 @@
 #include "GrContext.h"
 #include "GrContextPriv.h"
 #include "GrGpu.h"
+#include "GrProxyProvider.h"
 #include "GrRenderTargetContext.h"
 #include "GrResourceCache.h"
 #include "GrResourceProvider.h"
@@ -91,6 +92,8 @@ sk_sp<GrTextureProxy> GrBackendTextureImageGenerator::onGenerateTexture(
         return nullptr;
     }
 
+    auto proxyProvider = context->contextPriv().proxyProvider();
+
     uint32_t expectedID = SK_InvalidGenID;
     if (!fRefHelper->fBorrowingContextID.compare_exchange(&expectedID, context->uniqueID())) {
         if (fRefHelper->fBorrowingContextID != context->uniqueID()) {
@@ -116,7 +119,7 @@ sk_sp<GrTextureProxy> GrBackendTextureImageGenerator::onGenerateTexture(
     RefHelper* refHelper = fRefHelper;
     refHelper->ref();
 
-    sk_sp<GrTextureProxy> proxy = GrSurfaceProxy::MakeLazy(
+    sk_sp<GrTextureProxy> proxy = proxyProvider->createLazyProxy(
             [refHelper, semaphore, backendTexture, surfaceOrigin]
             (GrResourceProvider* resourceProvider, GrSurfaceOrigin* outOrigin) {
                 if (!resourceProvider) {

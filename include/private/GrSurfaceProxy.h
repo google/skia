@@ -185,31 +185,6 @@ public:
     // DDL TODO: remove this entry point
     static sk_sp<GrTextureProxy> MakeWrapped(sk_sp<GrTexture>, GrSurfaceOrigin);
 
-    using LazyInstantiateCallback = std::function<sk_sp<GrTexture>(GrResourceProvider*,
-                                                                   GrSurfaceOrigin* outOrigin)>;
-
-    enum class Renderable : bool {
-        kNo = false,
-        kYes = true
-    };
-
-    /**
-     * Creates a texture proxy that will be instantiated by a user-supplied callback during flush.
-     * (Stencil is not supported by this method.) The width and height must either both be greater
-     * than 0 or both less than or equal to zero. A non-positive value is a signal that the width
-     * and height are currently unknown.
-     *
-     * When called, the callback must be able to cleanup any resources that it captured at creation.
-     * It also must support being passed in a null GrResourceProvider. When this happens, the
-     * callback should cleanup any resources it captured and return an empty sk_sp<GrTextureProxy>.
-     * DDL TODO: remove this entry point
-     */
-    static sk_sp<GrTextureProxy> MakeLazy(LazyInstantiateCallback&&, const GrSurfaceDesc& desc,
-                                          GrMipMapped, SkBackingFit fit, SkBudgeted budgeted);
-
-    static sk_sp<GrTextureProxy> MakeFullyLazy(LazyInstantiateCallback&&, Renderable,
-                                               GrPixelConfig);
-
     enum class LazyState {
         kNot,       // The proxy has no lazy callback that must be made.
         kPartially, // The proxy has a lazy callback but knows basic information about itself.
@@ -382,6 +357,9 @@ protected:
             : GrSurfaceProxy(nullptr, desc, fit, budgeted, flags) {
         // Note: this ctor pulls a new uniqueID from the same pool at the GrGpuResources
     }
+
+    using LazyInstantiateCallback = std::function<sk_sp<GrTexture>(GrResourceProvider*,
+                                                                   GrSurfaceOrigin* outOrigin)>;
 
     // Lazy-callback version
     GrSurfaceProxy(LazyInstantiateCallback&& callback, const GrSurfaceDesc& desc,
