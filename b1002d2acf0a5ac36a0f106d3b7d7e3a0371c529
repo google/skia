@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a3ae8827_fd4d1ebf",
+        "filename": "infra/bots/recipes/test.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 860,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2018-01-17T16:16:02Z",
+      "side": 1,
+      "message": "IMO this should be somehow combined with the \u0027args \u003d [\u0027 statement above to make it clearer that this completely resets the args that were previously defined. e.g.\n\nif \u0027Chromecast\u0027 ... :\n   args \u003d ....\nelse: \n   args \u003d ... \n\n# args common to all runs \nargs.append(\u0027--key\u0027)\nargs.extend(key_params(api))",
+      "revId": "b1002d2acf0a5ac36a0f106d3b7d7e3a0371c529",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
