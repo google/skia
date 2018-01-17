@@ -182,9 +182,6 @@ private:
 
 class GrSurfaceProxy : public GrIORefProxy {
 public:
-    // DDL TODO: remove this entry point
-    static sk_sp<GrTextureProxy> MakeWrapped(sk_sp<GrTexture>, GrSurfaceOrigin);
-
     enum class LazyState {
         kNot,       // The proxy has no lazy callback that must be made.
         kPartially, // The proxy has a lazy callback but knows basic information about itself.

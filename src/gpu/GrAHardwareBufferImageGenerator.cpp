@@ -17,6 +17,7 @@
 #include "GrBackendSurface.h"
 #include "GrContext.h"
 #include "GrContextPriv.h"
+#include "GrProxyProvider.h"
 #include "GrResourceCache.h"
 #include "GrResourceProvider.h"
 #include "GrTexture.h"
@@ -151,9 +152,12 @@ sk_sp<GrTextureProxy> GrAHardwareBufferImageGenerator::makeProxy(GrContext* cont
         return nullptr;
     }
 
+    auto proxyProvider = context->contextPriv().proxyProvider();
+
     // return a cached GrTexture if invoked with the same context
     if (fOriginalTexture && fOwningContextID == context->uniqueID()) {
-        return GrSurfaceProxy::MakeWrapped(sk_ref_sp(fOriginalTexture), kTopLeft_GrSurfaceOrigin);
+        return proxyProvider->createWrapped(sk_ref_sp(fOriginalTexture),
+                                            kTopLeft_GrSurfaceOrigin);
     }
 
     while (GL_NO_ERROR != glGetError()) {} //clear GL errors
@@ -241,7 +245,7 @@ sk_sp<GrTextureProxy> GrAHardwareBufferImageGenerator::makeProxy(GrContext* cont
     //TODO: GrResourceCache should delete GrTexture, when GrContext is deleted. Currently
     //TODO: SkMessageBus ignores messages for deleted contexts and GrTexture will leak.
     context->contextPriv().getResourceCache()->insertCrossContextGpuResource(fOriginalTexture);
-    return GrSurfaceProxy::MakeWrapped(std::move(tex), kTopLeft_GrSurfaceOrigin);
+    return proxyProvider->createWrapped(std::move(tex), kTopLeft_GrSurfaceOrigin);
 }
 
 bool GrAHardwareBufferImageGenerator::onIsValid(GrContext* context) const {
