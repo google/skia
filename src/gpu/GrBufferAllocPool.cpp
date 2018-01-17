@@ -14,7 +14,7 @@
 #include "GrGpu.h"
 #include "GrResourceProvider.h"
 #include "GrTypes.h"
-
+#include "SkSafeMath.h"
 #include "SkTraceEvent.h"
 
 #ifdef SK_DEBUG
@@ -392,7 +392,7 @@ void* GrVertexBufferAllocPool::makeSpace(size_t vertexSize,
     SkASSERT(startVertex);
 
     size_t offset SK_INIT_TO_AVOID_WARNING;
-    void* ptr = INHERITED::makeSpace(vertexSize * vertexCount,
+    void* ptr = INHERITED::makeSpace(SkSafeMath::Mul(vertexSize, vertexCount),
                                      vertexSize,
                                      buffer,
                                      &offset);
@@ -414,8 +414,8 @@ void* GrVertexBufferAllocPool::makeSpaceAtLeast(size_t vertexSize, int minVertex
 
     size_t offset SK_INIT_TO_AVOID_WARNING;
     size_t actualSize SK_INIT_TO_AVOID_WARNING;
-    void* ptr = INHERITED::makeSpaceAtLeast(vertexSize * minVertexCount,
-                                            vertexSize * fallbackVertexCount,
+    void* ptr = INHERITED::makeSpaceAtLeast(SkSafeMath::Mul(vertexSize, minVertexCount),
+                                            SkSafeMath::Mul(vertexSize, fallbackVertexCount),
                                             vertexSize,
                                             buffer,
                                             &offset,
@@ -446,7 +446,7 @@ void* GrIndexBufferAllocPool::makeSpace(int indexCount,
     SkASSERT(startIndex);
 
     size_t offset SK_INIT_TO_AVOID_WARNING;
-    void* ptr = INHERITED::makeSpace(indexCount * sizeof(uint16_t),
+    void* ptr = INHERITED::makeSpace(SkSafeMath::Mul(indexCount, sizeof(uint16_t)),
                                      sizeof(uint16_t),
                                      buffer,
                                      &offset);
@@ -467,8 +467,8 @@ void* GrIndexBufferAllocPool::makeSpaceAtLeast(int minIndexCount, int fallbackIn
 
     size_t offset SK_INIT_TO_AVOID_WARNING;
     size_t actualSize SK_INIT_TO_AVOID_WARNING;
-    void* ptr = INHERITED::makeSpaceAtLeast(minIndexCount * sizeof(uint16_t),
-                                            fallbackIndexCount * sizeof(uint16_t),
+    void* ptr = INHERITED::makeSpaceAtLeast(SkSafeMath::Mul(minIndexCount, sizeof(uint16_t)),
+                                            SkSafeMath::Mul(fallbackIndexCount, sizeof(uint16_t)),
                                             sizeof(uint16_t),
                                             buffer,
                                             &offset,
