@@ -48,7 +48,7 @@ DEF_TEST(WindowRectangles, reporter) {
         REPORTER_ASSERT(reporter, B.data() != A.data());
         REPORTER_ASSERT(reporter, B != A);
 
-        B.addWindow(SkRectPriv::MakeILargest());
+        B.addWindow(SkRectPriv::MakeILarge());
         REPORTER_ASSERT(reporter, B != A);
 
         REPORTER_ASSERT(reporter, !memcmp(A.data(), windowData,
@@ -56,7 +56,7 @@ DEF_TEST(WindowRectangles, reporter) {
         REPORTER_ASSERT(reporter, !memcmp(B.data(), windowData,
                                           (GrWindowRectangles::kMaxWindows - 1) * sizeof(SkIRect)));
         REPORTER_ASSERT(reporter,
-                        B.data()[GrWindowRectangles::kMaxWindows - 1] == SkRectPriv::MakeILargest());
+                        B.data()[GrWindowRectangles::kMaxWindows - 1] == SkRectPriv::MakeILarge());
     }
     {
         GrWindowRectangles A(wr), B(wr);
