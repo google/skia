@@ -913,10 +913,20 @@ static inline void align_thin_stroke(FDot8& edge1, FDot8& edge2) {
     }
 }
 
-void SkScan::AntiFrameRect(const SkRect& r, const SkPoint& strokeSize,
+void SkScan::AntiFrameRect(const SkRect& preClippedR, const SkPoint& strokeSize,
                            const SkRegion* clip, SkBlitter* blitter) {
     SkASSERT(strokeSize.fX >= 0 && strokeSize.fY >= 0);
 
+    // roughly clip to bounds of clip, to keep the coordinates small enough to fit in FDot8
+    SkRect r = preClippedR;
+    if (clip) {
+        SkRect clipR = SkRect::Make(clip->getBounds());
+        // need plenty of room, since we also need subpixel space for aa
+        clipR.outset(strokeSize.fX + 1, strokeSize.fY + 1);
+        if (!r.intersect(clipR)) {
+            return;
+        }
+    }
     SkScalar rx = SkScalarHalf(strokeSize.fX);
     SkScalar ry = SkScalarHalf(strokeSize.fY);
 
