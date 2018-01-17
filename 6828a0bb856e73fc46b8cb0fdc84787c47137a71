@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "1f3e0f6e_69470d76",
+        "filename": "src/core/SkRectPriv.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-01-17T17:20:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2a07012b_334b71f4",
+      "revId": "6828a0bb856e73fc46b8cb0fdc84787c47137a71",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b1a18371_c21d6950",
         "filename": "src/core/SkScan_Antihair.cpp",
         "patchSetId": 2
@@ -30,6 +48,24 @@
       "writtenOn": "2018-01-17T15:09:41Z",
       "side": 1,
       "message": "Maybe some comments on why clipping with clipR would make them fit in FDot8? Can strokeSizes be very large? Can the clip-\u003egetBounds() be very large?",
+      "revId": "6828a0bb856e73fc46b8cb0fdc84787c47137a71",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "677ff14a_34ff2b0d",
+        "filename": "src/core/SkScan_Antihair.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 920,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-01-17T17:20:38Z",
+      "side": 1,
+      "message": "turns out this change is not needed",
+      "parentUuid": "b1a18371_c21d6950",
       "revId": "6828a0bb856e73fc46b8cb0fdc84787c47137a71",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
