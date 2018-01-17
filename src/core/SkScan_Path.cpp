@@ -644,8 +644,8 @@ void SkScan::FillPath(const SkPath& path, const SkRegion& origClip,
 
     SkRect bounds = path.getBounds();
     bool irPreClipped = false;
-    if (!SkRectPriv::MakeLargestS32().contains(bounds)) {
-        if (!bounds.intersect(SkRectPriv::MakeLargestS32())) {
+    if (!SkRectPriv::MakeLargeS32().contains(bounds)) {
+        if (!bounds.intersect(SkRectPriv::MakeLargeS32())) {
             bounds.setEmpty();
         }
         irPreClipped = true;

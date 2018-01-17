@@ -68,7 +68,7 @@ static void inval_test1(skiatest::Reporter* reporter) {
         // Initial revalidation.
         check_inval(reporter, root,
                     SkRect::MakeWH(100, 100),
-                    SkRectPriv::MakeLargestS32(),
+                    SkRectPriv::MakeLargeS32(),
                     nullptr);
     }
 
@@ -138,7 +138,7 @@ static void inval_test2(skiatest::Reporter* reporter) {
         // Initial revalidation.
         check_inval(reporter, root,
                     SkRect::MakeWH(100, 100),
-                    SkRectPriv::MakeLargestS32(),
+                    SkRectPriv::MakeLargeS32(),
                     nullptr);
     }
 

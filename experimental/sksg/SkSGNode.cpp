@@ -40,7 +40,7 @@ private:
 
 Node::Node(uint32_t invalTraits)
     : fInvalReceiver(nullptr)
-    , fBounds(SkRectPriv::MakeLargestS32())
+    , fBounds(SkRectPriv::MakeLargeS32())
     , fInvalTraits(invalTraits)
     , fFlags(kInvalidated_Flag) {}
 
