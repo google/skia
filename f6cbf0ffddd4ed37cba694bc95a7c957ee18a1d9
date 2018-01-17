@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e0949184_fe5a9340",
+        "filename": "src/gpu/GrBackendTextureImageGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-01-17T12:53:52Z",
+      "side": 1,
+      "message": "typo: actually",
+      "revId": "f6cbf0ffddd4ed37cba694bc95a7c957ee18a1d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
