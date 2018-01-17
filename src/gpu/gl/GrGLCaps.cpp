@@ -1620,12 +1620,6 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
                               ctxInfo.hasExtension("GL_EXT_texture_storage");
     }
 
-    // TODO: remove after command buffer supports full ES 3.0
-    if (kGLES_GrGLStandard == standard && version >= GR_GL_VER(3,0) &&
-        kChromium_GrGLDriver == ctxInfo.driver()) {
-        texStorageSupported = false;
-    }
-
     bool texelBufferSupport = this->shaderCaps()->texelBufferSupport();
 
     bool textureRedSupport = false;
