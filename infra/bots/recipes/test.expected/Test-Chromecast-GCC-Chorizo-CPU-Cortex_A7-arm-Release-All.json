@@ -469,7 +469,6 @@
       "--nogpu",
       "--config",
       "8888",
-      "srgb",
       "--src",
       "tests",
       "gm",

@@ -118,7 +118,7 @@ def dm_flags(api, bot):
 
     # Just do the basic config on Chromecast to avoid OOM.
     if 'Chromecast' in bot:
-      configs = ['8888', 'srgb']
+      configs = ['8888']
 
   elif api.vars.builder_cfg.get('cpu_or_gpu') == 'GPU':
     args.append('--nocpu')
