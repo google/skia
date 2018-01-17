@@ -483,7 +483,7 @@ static SkColor compute_render_color(SkColor color, float alpha, bool useTonalCol
 // Draw an offset spot shadow and outlining ambient shadow for the given path.
 void SkShadowUtils::DrawShadow(SkCanvas* canvas, const SkPath& path, const SkPoint3& zPlaneParams,
                                const SkPoint3& devLightPos, SkScalar lightRadius,
-                               SkScalar ambientAlpha, SkScalar spotAlpha, SkColor color,
+                               SkColor ambientColor, SkColor spotColor,
                                uint32_t flags) {
     SkMatrix inverse;
     if (!canvas->getTotalMatrix().invert(&inverse)) {
@@ -495,9 +495,8 @@ void SkShadowUtils::DrawShadow(SkCanvas* canvas, const SkPath& path, const SkPoi
     rec.fZPlaneParams   = zPlaneParams;
     rec.fLightPos       = { pt.fX, pt.fY, devLightPos.fZ };
     rec.fLightRadius    = lightRadius;
-    rec.fAmbientAlpha   = SkScalarToFloat(ambientAlpha);
-    rec.fSpotAlpha      = SkScalarToFloat(spotAlpha);
-    rec.fColor          = color;
+    rec.fAmbientColor   = ambientColor;
+    rec.fSpotColor      = spotColor;
     rec.fFlags          = flags;
 
     canvas->private_draw_shadow_rec(path, rec);
@@ -519,22 +518,12 @@ void SkBaseDevice::drawShadow(const SkPath& path, const SkDrawShadowRec& rec) {
     bool tiltZPlane = tilted(rec.fZPlaneParams);
     bool transparent = SkToBool(rec.fFlags & SkShadowFlags::kTransparentOccluder_ShadowFlag);
     bool uncached = tiltZPlane || path.isVolatile();
-    bool useTonalColor = !SkToBool(rec.fFlags & kDisableTonalColor_ShadowFlag);
 
-    SkColor color = rec.fColor;
     SkPoint3 zPlaneParams = rec.fZPlaneParams;
     SkPoint3 devLightPos = map(viewMatrix, rec.fLightPos);
     float lightRadius = rec.fLightRadius;
 
-    float ambientAlpha = rec.fAmbientAlpha;
-    if (ambientAlpha > 0) {
-        ambientAlpha = SkTMin(ambientAlpha, 1.f);
-        SkColor renderColor;
-        if (useTonalColor) {
-            renderColor = compute_render_color(SK_ColorBLACK, ambientAlpha, false);
-        } else {
-            renderColor = compute_render_color(color, ambientAlpha, false);
-        }
+    if (SkColorGetA(rec.fAmbientColor) > 0) {
         if (uncached) {
             sk_sp<SkVertices> vertices = SkShadowTessellator::MakeAmbient(path, viewMatrix,
                                                                           zPlaneParams,
@@ -559,13 +548,11 @@ void SkBaseDevice::drawShadow(const SkPath& path, const SkDrawShadowRec& rec) {
                 factory.fOffset.fY = viewMatrix.getTranslateY();
             }
 
-            draw_shadow(factory, drawVertsProc, shadowedPath, renderColor);
+            draw_shadow(factory, drawVertsProc, shadowedPath, rec.fAmbientColor);
         }
     }
 
-    float spotAlpha = rec.fSpotAlpha;
-    if (spotAlpha > 0) {
-        spotAlpha = SkTMin(spotAlpha, 1.f);
+    if (SkColorGetA(rec.fSpotColor) > 0) {
         SkColor renderColor = compute_render_color(color, spotAlpha, useTonalColor);
         if (uncached) {
             sk_sp<SkVertices> vertices = SkShadowTessellator::MakeSpot(path, viewMatrix,
@@ -627,7 +614,7 @@ void SkBaseDevice::drawShadow(const SkPath& path, const SkDrawShadowRec& rec) {
                     break;
             }
 #endif
-            draw_shadow(factory, drawVertsProc, shadowedPath, renderColor);
+            draw_shadow(factory, drawVertsProc, shadowedPath, rec.fSpotColor);
         }
     }
 }
