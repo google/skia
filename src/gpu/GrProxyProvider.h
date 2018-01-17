@@ -87,7 +87,6 @@ public:
                                             SkDestinationSurfaceColorMode mipColorMode =
                                                             SkDestinationSurfaceColorMode::kLegacy);
 
-
     /*
      * Create a mipmapped texture proxy without any data.
      *
@@ -127,6 +126,30 @@ public:
     sk_sp<GrSurfaceProxy> createWrappedRenderTargetProxy(const GrBackendTexture& tex,
                                                          GrSurfaceOrigin origin,
                                                          int sampleCnt);
+
+    using LazyInstantiateCallback = std::function<sk_sp<GrTexture>(GrResourceProvider*,
+                                                                   GrSurfaceOrigin* outOrigin)>;
+
+    enum class Renderable : bool {
+        kNo = false,
+        kYes = true
+    };
+
+    /**
+     * Creates a texture proxy that will be instantiated by a user-supplied callback during flush.
+     * (Stencil is not supported by this method.) The width and height must either both be greater
+     * than 0 or both less than or equal to zero. A non-positive value is a signal that the width
+     * and height are currently unknown.
+     *
+     * When called, the callback must be able to cleanup any resources that it captured at creation.
+     * It also must support being passed in a null GrResourceProvider. When this happens, the
+     * callback should cleanup any resources it captured and return an empty sk_sp<GrTextureProxy>.
+     */
+    sk_sp<GrTextureProxy> createLazyProxy(LazyInstantiateCallback&&, const GrSurfaceDesc&,
+                                          GrMipMapped, SkBackingFit, SkBudgeted);
+
+    sk_sp<GrTextureProxy> createFullyLazyProxy(LazyInstantiateCallback&&,
+                                               Renderable, GrPixelConfig);
 
     // 'proxy' is about to be used as a texture src or drawn to. This query can be used to
     // determine if it is going to need a texture domain or a full clear.

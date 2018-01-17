@@ -97,8 +97,9 @@ public:
      * the render target context, surface allocations, and even switching render targets (pre MDB)
      * may cause flushes or otherwise change which opList the actual draw is going into.
      */
-    std::unique_ptr<GrFragmentProcessor> finishAndDetachAnalyticFPs(uint32_t opListID, int rtWidth,
-                                                                    int rtHeight);
+    std::unique_ptr<GrFragmentProcessor> finishAndDetachAnalyticFPs(GrProxyProvider*,
+                                                                    uint32_t opListID,
+                                                                    int rtWidth, int rtHeight);
 
 private:
     void walkStack(const SkClipStack&, const SkRect& queryBounds);

@@ -375,6 +375,39 @@ sk_sp<GrSurfaceProxy> GrProxyProvider::createWrappedRenderTargetProxy(const GrBa
     return sk_sp<GrSurfaceProxy>(new GrRenderTargetProxy(std::move(rt), origin));
 }
 
+sk_sp<GrTextureProxy> GrProxyProvider::createLazyProxy(LazyInstantiateCallback&& callback,
+                                                       const GrSurfaceDesc& desc,
+                                                       GrMipMapped mipMapped,
+                                                       SkBackingFit fit, SkBudgeted budgeted) {
+    SkASSERT((desc.fWidth <= 0 && desc.fHeight <= 0) ||
+             (desc.fWidth > 0 && desc.fHeight > 0));
+    uint32_t flags = GrResourceProvider::kNoPendingIO_Flag;
+    return sk_sp<GrTextureProxy>(SkToBool(kRenderTarget_GrSurfaceFlag & desc.fFlags) ?
+                                 new GrTextureRenderTargetProxy(std::move(callback), desc,
+                                                                mipMapped, fit, budgeted, flags) :
+                                 new GrTextureProxy(std::move(callback), desc, mipMapped, fit,
+                                                    budgeted, flags));
+
+}
+
+sk_sp<GrTextureProxy> GrProxyProvider::createFullyLazyProxy(LazyInstantiateCallback&& callback,
+                                                            Renderable renderable,
+                                                            GrPixelConfig config) {
+    GrSurfaceDesc desc;
+    if (Renderable::kYes == renderable) {
+        desc.fFlags = kRenderTarget_GrSurfaceFlag;
+    }
+    desc.fOrigin = kTopLeft_GrSurfaceOrigin;
+    desc.fWidth = -1;
+    desc.fHeight = -1;
+    desc.fConfig = config;
+    desc.fSampleCnt = 0;
+
+    return this->createLazyProxy(std::move(callback), desc, GrMipMapped::kNo,
+                                 SkBackingFit::kApprox, SkBudgeted::kYes);
+
+}
+
 bool GrProxyProvider::IsFunctionallyExact(GrSurfaceProxy* proxy) {
     return proxy->priv().isExact() || (SkIsPow2(proxy->width()) && SkIsPow2(proxy->height()));
 }
