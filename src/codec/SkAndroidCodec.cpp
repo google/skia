@@ -9,6 +9,8 @@
 #include "SkCodec.h"
 #include "SkCodecPriv.h"
 #include "SkMakeUnique.h"
+#include "SkPixmap.h"
+#include "SkPixmapPriv.h"
 #include "SkRawAdapterCodec.h"
 #include "SkSampledCodec.h"
 #include "SkWebpAdapterCodec.h"
@@ -325,24 +327,43 @@ SkISize SkAndroidCodec::getSampledSubsetDimensions(int sampleSize, const SkIRect
             get_scaled_dimension(subset.height(), sampleSize)};
 }
 
-SkCodec::Result SkAndroidCodec::getAndroidPixels(const SkImageInfo& info, void* pixels,
-        size_t rowBytes, const AndroidOptions* options) {
-    if (!pixels) {
+static bool acceptable_result(SkCodec::Result result) {
+    switch (result) {
+        // These results mean a partial or complete image. They should be considered
+        // a success by SkPixmapPriv.
+        case SkCodec::kSuccess:
+        case SkCodec::kIncompleteInput:
+        case SkCodec::kErrorInInput:
+            return true;
+        default:
+            return false;
+    }
+}
+
+SkCodec::Result SkAndroidCodec::getAndroidPixels(const SkImageInfo& requestInfo,
+        void* requestPixels, size_t requestRowBytes, const AndroidOptions* options) {
+    if (!requestPixels) {
         return SkCodec::kInvalidParameters;
     }
-    if (rowBytes < info.minRowBytes()) {
+    if (requestRowBytes < requestInfo.minRowBytes()) {
         return SkCodec::kInvalidParameters;
+    }
+
+    SkImageInfo adjustedInfo = fInfo;
+    if (SkPixmapPriv::ShouldSwapWidthHeight(fCodec->getOrigin())
+            && options && options->fRespectEncodedOrigin) {
+        adjustedInfo = SkPixmapPriv::SwapWidthHeight(adjustedInfo);
     }
 
     AndroidOptions defaultOptions;
     if (!options) {
         options = &defaultOptions;
     } else if (options->fSubset) {
-        if (!is_valid_subset(*options->fSubset, fInfo.dimensions())) {
+        if (!is_valid_subset(*options->fSubset, adjustedInfo.dimensions())) {
             return SkCodec::kInvalidParameters;
         }
 
-        if (SkIRect::MakeSize(fInfo.dimensions()) == *options->fSubset) {
+        if (SkIRect::MakeSize(adjustedInfo.dimensions()) == *options->fSubset) {
             // The caller wants the whole thing, rather than a subset. Modify
             // the AndroidOptions passed to onGetAndroidPixels to not specify
             // a subset.
@@ -352,7 +373,27 @@ SkCodec::Result SkAndroidCodec::getAndroidPixels(const SkImageInfo& info, void* 
         }
     }
 
-    return this->onGetAndroidPixels(info, pixels, rowBytes, *options);
+    if (!options->fRespectEncodedOrigin) {
+        return this->onGetAndroidPixels(requestInfo, requestPixels, requestRowBytes, *options);
+    }
+
+    SkCodec::Result result;
+    auto decode = [this, options, &result](const SkPixmap& pm) {
+        result = this->onGetAndroidPixels(pm.info(), pm.writable_addr(), pm.rowBytes(), *options);
+        return acceptable_result(result);
+    };
+
+    SkPixmap dst(requestInfo, requestPixels, requestRowBytes);
+    if (SkPixmapPriv::Orient(dst, fCodec->getOrigin(), decode)) {
+        return result;
+    }
+
+    // Orient returned false. If onGetAndroidPixels succeeded, then Orient failed internally.
+    if (acceptable_result(result)) {
+        return SkCodec::kInternalError;
+    }
+
+    return result;
 }
 
 SkCodec::Result SkAndroidCodec::getAndroidPixels(const SkImageInfo& info, void* pixels,

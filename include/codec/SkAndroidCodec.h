@@ -51,6 +51,16 @@ public:
     const SkImageInfo& getInfo() const { return fInfo; }
 
     /**
+     *  Return whether the image has an SkEncodedOrigin which swaps the width and height.
+     *
+     *  getInfo() reports the width and height of the image without considering any
+     *  rotation. So if this returns true, and AndroidOptions::fRespectEncodedOrigin is
+     *  set to true, the SkImageInfo passed to getAndroidPixels must have its width and
+     *  height swapped relative to getInfo().
+     */
+    bool encodedOriginSwapsWidthHeight() const;
+
+    /**
      *  Format of the encoded data.
      */
     SkEncodedImageFormat getEncodedFormat() const { return fCodec->getEncodedFormat(); }
@@ -168,6 +178,7 @@ public:
             : fZeroInitialized(SkCodec::kNo_ZeroInitialized)
             , fSubset(nullptr)
             , fSampleSize(1)
+            , fRespectEncodedOrigin(false)
         {}
 
         /**
@@ -197,6 +208,14 @@ public:
          *  The default is 1, representing no downscaling.
          */
         int fSampleSize;
+
+        /**
+         *  Whether to respect the SkEncodedOrigin of the SkCodec.
+         *
+         *  If true, an extra step may be required internally to apply the
+         *  origin. It also may require swapped width and height.
+         */
+        bool fRespectEncodedOrigin;
     };
 
     /**
