@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4d200d48_b336a36d",
+        "filename": "include/codec/SkAndroidCodec.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-01-17T02:28:55Z",
+      "side": 1,
+      "message": "I\u0027m not in love with this API. Some other options I\u0027ve considered:\n- Add an extra parameter to the factory which determines the info and whether we apply the origin. This is cleaner and clearer, and it supports the differing behaviors of BitmapFactory versus ImageDecoder, until you add the option to let ImageDecoder *not* respect the rotation. This is necessary to implement BitmapFactory with ImageDecoder (though John seems to think that is unnecessary/bad anyway). Sam has requested that we allow an option to not respect the origin [1], but that doesn\u0027t necessarily mean we have to include it.\n- Handle the rotation outside of SkAndroidCodec. That means we either need to expose the logic currently in SkPixmapPriv, or re-write it in Android.\n\nWhat do you think?\n\n[1] https://docs.google.com/a/google.com/document/d/1IWSdXb5O9lu-Zbj7SaNWo5pS7-FHlonFnqazjnecozM/edit?disco\u003dAAAABT1e6jo",
+      "range": {
+        "startLine": 61,
+        "startChar": 9,
+        "endLine": 61,
+        "endChar": 38
+      },
+      "revId": "70f5398ce9bb6d335d78ad505a41079775073c8c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
