@@ -91,8 +91,14 @@ static bool can_ignore_bilerp_constraint(const GrTextureProducer& producer,
  * GrRenderTargetContext::drawTextureAffine. It is more effecient than the GrTextureProducer
  * general case.
  */
-static bool can_use_draw_texture_affine(const SkPaint& paint, const SkMatrix& ctm,
+static bool can_use_draw_texture_affine(const SkPaint& paint, GrAA aa, const SkMatrix& ctm,
                                         SkCanvas::SrcRectConstraint constraint) {
+// This is disabled in Chrome until crbug.com/802408 and crbug.com/801783 can be sorted out.
+#ifdef SK_DISABLE_TEXTURE_OP_AA
+    if (GrAA::kYes == aa) {
+        return false;
+    }
+#endif
     return (!paint.getColorFilter() && !paint.getShader() && !paint.getMaskFilter() &&
             !paint.getImageFilter() && paint.getFilterQuality() < kMedium_SkFilterQuality &&
             paint.getBlendMode() == SkBlendMode::kSrcOver && !ctm.hasPerspective() &&
@@ -141,9 +147,10 @@ void SkGpuDevice::drawPinnedTextureProxy(sk_sp<GrTextureProxy> proxy, uint32_t p
                                          const SkRect* srcRect, const SkRect* dstRect,
                                          SkCanvas::SrcRectConstraint constraint,
                                          const SkMatrix& viewMatrix, const SkPaint& paint) {
-    if (can_use_draw_texture_affine(paint, this->ctm(), constraint)) {
-        draw_texture_affine(paint, viewMatrix, srcRect, dstRect, GrAA(paint.isAntiAlias()),
-                            std::move(proxy), colorSpace, this->clip(), fRenderTargetContext.get());
+    GrAA aa = GrAA(paint.isAntiAlias());
+    if (can_use_draw_texture_affine(paint, aa, this->ctm(), constraint)) {
+        draw_texture_affine(paint, viewMatrix, srcRect, dstRect, aa, std::move(proxy), colorSpace,
+                            this->clip(), fRenderTargetContext.get());
         return;
     }
     GrTextureAdjuster adjuster(this->context(), std::move(proxy), alphaType, pinnedUniqueID,
@@ -155,7 +162,8 @@ void SkGpuDevice::drawTextureMaker(GrTextureMaker* maker, int imageW, int imageH
                                    const SkRect* srcRect, const SkRect* dstRect,
                                    SkCanvas::SrcRectConstraint constraint,
                                    const SkMatrix& viewMatrix, const SkPaint& paint) {
-    if (can_use_draw_texture_affine(paint, viewMatrix, constraint)) {
+    GrAA aa = GrAA(paint.isAntiAlias());
+    if (can_use_draw_texture_affine(paint, aa, viewMatrix, constraint)) {
         sk_sp<SkColorSpace> cs;
         // We've done enough checks above to allow us to pass ClampNearest() and not check for
         // scaling adjustments.
@@ -165,8 +173,8 @@ void SkGpuDevice::drawTextureMaker(GrTextureMaker* maker, int imageW, int imageH
         if (!proxy) {
             return;
         }
-        draw_texture_affine(paint, viewMatrix, srcRect, dstRect, GrAA(paint.isAntiAlias()),
-                            std::move(proxy), cs.get(), this->clip(), fRenderTargetContext.get());
+        draw_texture_affine(paint, viewMatrix, srcRect, dstRect, aa, std::move(proxy), cs.get(),
+                            this->clip(), fRenderTargetContext.get());
         return;
     }
     this->drawTextureProducer(maker, srcRect, dstRect, constraint, viewMatrix, paint);
