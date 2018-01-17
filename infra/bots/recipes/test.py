@@ -843,23 +843,6 @@ def test_steps(api):
   properties.extend(['swarming_bot_id', api.vars.swarming_bot_id])
   properties.extend(['swarming_task_id', api.vars.swarming_task_id])
 
-  args = [
-    'dm',
-    '--resourcePath', api.flavor.device_dirs.resource_dir,
-    '--skps', api.flavor.device_dirs.skp_dir,
-    '--images', api.flavor.device_path_join(
-        api.flavor.device_dirs.images_dir, 'dm'),
-    '--colorImages', api.flavor.device_path_join(
-        api.flavor.device_dirs.images_dir, 'colorspace'),
-    '--nameByHash',
-    '--properties'
-  ] + properties
-
-  args.extend(['--svgs', api.flavor.device_dirs.svg_dir])
-
-  args.append('--key')
-  args.extend(key_params(api))
-
   if 'Chromecast' in api.vars.builder_cfg.get('os', ''):
     # Due to limited disk space, we only deal with skps and one image.
     args = [
@@ -871,6 +854,23 @@ def test_steps(api):
       '--nameByHash',
       '--properties'
     ] + properties
+  else:
+    args = [
+      'dm',
+      '--resourcePath', api.flavor.device_dirs.resource_dir,
+      '--skps', api.flavor.device_dirs.skp_dir,
+      '--images', api.flavor.device_path_join(
+          api.flavor.device_dirs.images_dir, 'dm'),
+      '--colorImages', api.flavor.device_path_join(
+          api.flavor.device_dirs.images_dir, 'colorspace'),
+      '--nameByHash',
+      '--properties'
+    ] + properties
+
+    args.extend(['--svgs', api.flavor.device_dirs.svg_dir])
+
+  args.append('--key')
+  args.extend(key_params(api))
 
   if use_hash_file:
     args.extend(['--uninterestingHashesFile', hashes_file])
