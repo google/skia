@@ -22,6 +22,30 @@
       "revId": "5ec0ba4a62153cca8ddd79a282feb310fef2e5f9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "25b62696_221792b6",
+        "filename": "src/shaders/gradients/SkTwoPointConicalGradient_gpu.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 263,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2018-01-17T15:56:30Z",
+      "side": 1,
+      "message": "I\u0027m not 100% sure what \"ge\" means as it\u0027s just copied from the old code. Probably \"gradient effect\"?\n\nAnyway, I agree that \"ge\" is a little confusing. How about renaming it to \"effect\"?",
+      "parentUuid": "0dc862d0_5ffd64d8",
+      "range": {
+        "startLine": 263,
+        "startChar": 37,
+        "endLine": 263,
+        "endChar": 39
+      },
+      "revId": "5ec0ba4a62153cca8ddd79a282feb310fef2e5f9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
