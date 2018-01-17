@@ -20,35 +20,56 @@ typedef GrGLSLProgramDataManager::UniformHandle UniformHandle;
 // Please see https://skia.org/dev/design/conical for how our shader works.
 class TwoPointConicalEffect : public GrGradientEffect {
 public:
+    using Type = SkTwoPointConicalGradient::Type;
     class DegeneratedGLSLProcessor; // radial (center0 == center1) or strip (r0 == r1) case
     class FocalGLSLProcessor; // all other cases where we can derive a focal point
 
-    enum Type {
-        kRadial_Type,
-        kStrip_Type,
-        kFocal_Type
-    };
-
     struct Data {
+        Type        fType;
         SkScalar    fRadius0;
         SkScalar    fDiffRadius;
-        Type        fType;
-        bool        fIsSwapped;
+        SkTwoPointConicalGradient::FocalData fFocalData;
 
         // Construct from the shader, and set the matrix accordingly
         Data(const SkTwoPointConicalGradient& shader, SkMatrix& matrix);
 
         bool operator== (const Data& d) const {
-            return fRadius0 == d.fRadius0 && fDiffRadius == d.fDiffRadius && fType == d.fType &&
-                   fIsSwapped == d.fIsSwapped;
+            if (fType != d.fType) {
+                return false;
+            }
+            switch (fType) {
+                case Type::kRadial:
+                case Type::kStrip:
+                    return fRadius0 == d.fRadius0 && fDiffRadius == d.fDiffRadius;
+                case Type::kFocal:
+                    return fFocalData.fR1 == d.fFocalData.fR1 &&
+                            fFocalData.fFocalX == d.fFocalData.fFocalX &&
+                            fFocalData.fIsSwapped == d.fFocalData.fIsSwapped;
+            }
+            SkDEBUGFAIL("This return should be unreachable; it's here just for compile warning");
+            return false;
         }
     };
 
     static std::unique_ptr<GrFragmentProcessor> Make(const CreateArgs& args, const Data& data);
 
-    SkScalar diffRadius() const { return fData.fDiffRadius; }
-    SkScalar r0() const { return fData.fRadius0; }
-    SkScalar r1() const { return fData.fRadius0 + fData.fDiffRadius; }
+    SkScalar diffRadius() const {
+        SkASSERT(!this->isFocal()); // fDiffRadius is uninitialized for focal cases
+        return fData.fDiffRadius;
+    }
+    SkScalar r0() const {
+        SkASSERT(!this->isFocal()); // fRadius0 is uninitialized for focal cases
+        return fData.fRadius0;
+    }
+
+    SkScalar r1() const {
+        SkASSERT(this->isFocal()); // fFocalData is uninitialized for non-focal cases
+        return fData.fFocalData.fR1;
+    }
+    SkScalar focalX() const {
+        SkASSERT(this->isFocal()); // fFocalData is uninitialized for non-focal cases
+        return fData.fFocalData.fFocalX;
+    }
 
     const char* name() const override { return "Two-Point Conical Gradient"; }
 
@@ -58,24 +79,26 @@ public:
     // edge case where the inside circle touches the outside circle (on the focal point). If we were
     // to solve for t bruteforcely using a quadratic equation, this case implies that the quadratic
     // equation degenerates to a linear equation.
-    bool isFocalOnCircle() const { return SkScalarNearlyZero(1 - this->r1()); }
-    bool isSwapped() const { return fData.fIsSwapped; }
+    bool isFocalOnCircle() const { return this->isFocal() && fData.fFocalData.isFocalOnCircle(); }
+    bool isSwapped() const { return this->isFocal() && fData.fFocalData.isSwapped(); }
 
     Type getType() const { return fData.fType; }
+    bool isFocal() const { return fData.fType == Type::kFocal; }
 
     // Whether the t we solved is always valid (so we don't need to check r(t) > 0).
-    bool isWellBehaved() const { return !this->isFocalOnCircle() && this->r1() > 1; }
+    bool isWellBehaved() const { return this->isFocal() && fData.fFocalData.isWellBehaved(); }
 
     // Whether r0 == 0 so it's focal without any transformation
-    bool isNativelyFocal() const { return SkScalarNearlyZero(fData.fRadius0); }
+    bool isNativelyFocal() const { return this->isFocal() && fData.fFocalData.isNativelyFocal(); }
 
-    bool isRadiusIncreasing() const { return fData.fDiffRadius > 0; }
+    // Note that focalX = f = r0 / (r0 - r1), so 1 - focalX > 0 == r0 < r1
+    bool isRadiusIncreasing() const { return this->isFocal() && 1 - fData.fFocalData.fFocalX > 0; }
 
 protected:
     void onGetGLSLProcessorKey(const GrShaderCaps& c, GrProcessorKeyBuilder* b) const override {
         INHERITED::onGetGLSLProcessorKey(c, b);
         uint32_t key = 0;
-        key |= fData.fType;
+        key |= static_cast<int>(fData.fType);
         SkASSERT(key < (1 << 2));
         key |= (this->isFocalOnCircle() << 2);
         key |= (this->isWellBehaved() << 3);
@@ -135,13 +158,13 @@ std::unique_ptr<GrFragmentProcessor> TwoPointConicalEffect::TestCreate(
 
     int mask = d->fRandom->nextU();
     int type = mask & kTestTypeMask;
-    if (type == TwoPointConicalEffect::kRadial_Type) {
+    if (type == static_cast<int>(TwoPointConicalEffect::Type::kRadial)) {
         center2 = center1;
         // Make sure that the radii are different
         if (SkScalarNearlyZero(radius1 - radius2)) {
             radius2 += .1f;
         }
-    } else if (type == TwoPointConicalEffect::kStrip_Type) {
+    } else if (type == static_cast<int>(TwoPointConicalEffect::Type::kStrip)) {
         radius1 = SkTMax(radius1, .1f); // Make sure that the radius is non-zero
         radius2 = radius1;
         // Make sure that the centers are different
@@ -199,9 +222,9 @@ std::unique_ptr<GrFragmentProcessor> TwoPointConicalEffect::TestCreate(
 class TwoPointConicalEffect::DegeneratedGLSLProcessor : public GrGradientEffect::GLSLProcessor {
 protected:
     void emitCode(EmitArgs& args) override {
-        const TwoPointConicalEffect& ge = args.fFp.cast<TwoPointConicalEffect>();
+        const TwoPointConicalEffect& effect = args.fFp.cast<TwoPointConicalEffect>();
         GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
-        this->emitUniforms(uniformHandler, ge);
+        this->emitUniforms(uniformHandler, effect);
         fParamUni = uniformHandler->addUniform(kFragment_GrShaderFlag, kHalf_GrSLType,
                                                "Conical2FSParams");
 
@@ -213,7 +236,7 @@ protected:
         SkString coords2D = fragBuilder->ensureCoords2D(args.fTransformedCoords[0]);
         const char* p = coords2D.c_str();
 
-        if (ge.getType() == kRadial_Type) {
+        if (effect.getType() == Type::kRadial) {
             fragBuilder->codeAppendf("half %s = length(%s) - %s;", tName, p, p0.c_str());
         } else {
             // output will default to transparent black (we simply won't write anything
@@ -226,23 +249,24 @@ protected:
         this->emitColor(fragBuilder,
                         uniformHandler,
                         args.fShaderCaps,
-                        ge,
+                        effect,
                         tName,
                         args.fOutputColor,
                         args.fInputColor,
                         args.fTexSamplers);
 
-        if (ge.getType() != kRadial_Type) {
+        if (effect.getType() != Type::kRadial) {
             fragBuilder->codeAppendf("}");
         }
     }
 
     void onSetData(const GrGLSLProgramDataManager& pdman, const GrFragmentProcessor& p) override {
         INHERITED::onSetData(pdman, p);
-        const TwoPointConicalEffect& data = p.cast<TwoPointConicalEffect>();
+        const TwoPointConicalEffect& effect = p.cast<TwoPointConicalEffect>();
         // kRadialType should imply r1 - r0 = 1 (after our transformation) so r0 = r0 / (r1 - r0)
-        SkASSERT(data.getType() == kStrip_Type || SkScalarNearlyZero(data.r1() - data.r0() - 1));
-        pdman.set1f(fParamUni, data.getType() == kRadial_Type ? data.r0() : data.r0() * data.r0());
+        SkASSERT(effect.getType() == Type::kStrip || SkScalarNearlyZero(effect.diffRadius() - 1));
+        pdman.set1f(fParamUni, effect.getType() == Type::kRadial ? effect.r0()
+                                                                 : effect.r0() * effect.r0());
     }
 
     UniformHandle fParamUni;
@@ -259,14 +283,14 @@ private:
 class TwoPointConicalEffect::FocalGLSLProcessor : public GrGradientEffect::GLSLProcessor {
 protected:
     void emitCode(EmitArgs& args) override {
-        const TwoPointConicalEffect& ge = args.fFp.cast<TwoPointConicalEffect>();
+        const TwoPointConicalEffect& effect = args.fFp.cast<TwoPointConicalEffect>();
         GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
-        this->emitUniforms(uniformHandler, ge);
+        this->emitUniforms(uniformHandler, effect);
         fParamUni = uniformHandler->addUniform(kFragment_GrShaderFlag, kHalf2_GrSLType,
                                                "Conical2FSParams");
 
         SkString p0; // 1 / r1
-        SkString p1; // r0 / (r1 - r0)
+        SkString p1; // f = focalX = r0 / (r0 - r1)
         p0.appendf("%s.x", uniformHandler->getUniformVariable(fParamUni).getName().c_str());
         p1.appendf("%s.y", uniformHandler->getUniformVariable(fParamUni).getName().c_str());
         const char* tName = "t"; // the gradient
@@ -275,12 +299,12 @@ protected:
         SkString coords2D = fragBuilder->ensureCoords2D(args.fTransformedCoords[0]);
         const char* p = coords2D.c_str();
 
-        if (ge.isFocalOnCircle()) {
+        if (effect.isFocalOnCircle()) {
             fragBuilder->codeAppendf("half x_t = dot(%s, %s) / %s.x;", p, p, p);
-        } else if (ge.isWellBehaved()) {
+        } else if (effect.isWellBehaved()) {
             fragBuilder->codeAppendf("half x_t = length(%s) - %s.x * %s;", p, p, p0.c_str());
         } else {
-            char sign = (ge.isSwapped() || !ge.isRadiusIncreasing()) ? '-' : ' ';
+            char sign = (effect.isSwapped() || !effect.isRadiusIncreasing()) ? '-' : ' ';
             fragBuilder->codeAppendf("half temp = %s.x * %s.x - %s.y * %s.y;", p, p, p, p);
             // Initialize x_t to illegal state
             fragBuilder->codeAppendf("half x_t = -1;");
@@ -297,42 +321,40 @@ protected:
         }
 
         // empty sign is positive
-        char sign = ge.isRadiusIncreasing() ? ' ' : '-';
+        char sign = effect.isRadiusIncreasing() ? ' ' : '-';
 
-        // "- 0" is much faster than "- p1" so we specialize the natively focal case where p1 = 0.
-        fragBuilder->codeAppendf("half %s = %cx_t - %s;", tName, sign,
-                ge.isNativelyFocal() ? "0" : p1.c_str());
+        // "+ 0" is much faster than "+ p1" so we specialize the natively focal case where p1 = 0.
+        fragBuilder->codeAppendf("half %s = %cx_t + %s;", tName, sign,
+                effect.isNativelyFocal() ? "0" : p1.c_str());
 
-        if (!ge.isWellBehaved()) {
+        if (!effect.isWellBehaved()) {
             // output will default to transparent black (we simply won't write anything
             // else to it if invalid, instead of discarding or returning prematurely)
             fragBuilder->codeAppendf("%s = half4(0.0,0.0,0.0,0.0);", args.fOutputColor);
             fragBuilder->codeAppendf("if (x_t > 0.0) {");
         }
 
-        if (ge.isSwapped()) {
+        if (effect.isSwapped()) {
             fragBuilder->codeAppendf("%s = 1 - %s;", tName, tName);
         }
 
         this->emitColor(fragBuilder,
                         uniformHandler,
                         args.fShaderCaps,
-                        ge,
+                        effect,
                         tName,
                         args.fOutputColor,
                         args.fInputColor,
                         args.fTexSamplers);
-        if (!ge.isWellBehaved()) {
+        if (!effect.isWellBehaved()) {
             fragBuilder->codeAppend("};");
         }
     }
 
     void onSetData(const GrGLSLProgramDataManager& pdman, const GrFragmentProcessor& p) override {
         INHERITED::onSetData(pdman, p);
-        const TwoPointConicalEffect& data = p.cast<TwoPointConicalEffect>();
-        SkScalar r0 = data.r0();
-        SkScalar r1 = data.r1();
-        pdman.set2f(fParamUni, 1 / r1, r0 / (r1 - r0));
+        const TwoPointConicalEffect& effect = p.cast<TwoPointConicalEffect>();
+        pdman.set2f(fParamUni, 1 / effect.r1(), effect.focalX());
     }
 
     UniformHandle fParamUni;
@@ -344,7 +366,7 @@ private:
 //////////////////////////////////////////////////////////////////////////////
 
 GrGLSLFragmentProcessor* TwoPointConicalEffect::onCreateGLSLInstance() const {
-    if (fData.fType == kRadial_Type || fData.fType == kStrip_Type) {
+    if (fData.fType == Type::kRadial || fData.fType == Type::kStrip) {
         return new DegeneratedGLSLProcessor;
     }
     return new FocalGLSLProcessor;
@@ -383,74 +405,21 @@ std::unique_ptr<GrFragmentProcessor> Gr2PtConicalGradientEffect::Make(
 }
 
 TwoPointConicalEffect::Data::Data(const SkTwoPointConicalGradient& shader, SkMatrix& matrix) {
-    fIsSwapped = false;
-    if (SkScalarNearlyZero(shader.getCenterX1())) {
-        fType = kRadial_Type;
+    fType = shader.getType();
+    if (fType == Type::kRadial) {
         SkScalar dr = shader.getDiffRadius();
         // Map center to (0, 0) and scale dr to 1
         matrix.postTranslate(-shader.getStartCenter().fX, -shader.getStartCenter().fY);
         matrix.postScale(1 / dr, 1 / dr);
         fRadius0 = shader.getStartRadius() / dr;
         fDiffRadius = 1;
-    } else {
-        // Map centers to (0, 0), (1, 0)
-        const SkPoint centers[2] = { shader.getStartCenter(), shader.getEndCenter() };
-        const SkPoint unitvec[2] = { { 0, 0 },{ 1, 0 } };
-        SkMatrix gradientMatrix;
-        // The radial case is already handled so this must succeed
-        SkAssertResult(gradientMatrix.setPolyToPoly(centers, unitvec, 2));
-        matrix.postConcat(gradientMatrix);
+    } else if (fType == Type::kStrip) {
         fRadius0 = shader.getStartRadius() / shader.getCenterX1();
-        fDiffRadius = shader.getDiffRadius() / shader.getCenterX1();
-
-        if (SkScalarNearlyZero(shader.getDiffRadius())) {
-            fType = kStrip_Type;
-        } else { // focal case
-            fType = kFocal_Type;
-            SkScalar focalX = - fRadius0 / fDiffRadius;
-
-            // We want to check if the end radius is zero. If so, dr = -r0 and focalX will be 1.
-            // That makes our mapping from {focal_point, (1, 0)} to {(0, 0), {1, 0)} invalid. Hence
-            // we have to swap r0 and r1 to make sure focalX != 1. Due to precision limit, checking
-            // focalX == 1 is better than checking r1 == 0 or r0 + (r1 - r0) for large r0 (e.g., r0
-            // = 1e6, r1 = 1).
-            if (SkScalarNearlyZero(focalX - 1)) {
-                // swap r0, r1
-                matrix.postTranslate(-1, 0);
-                matrix.postScale(-1, 1);
-                fRadius0 = 0;
-                fDiffRadius = -fDiffRadius;
-                fIsSwapped = true;
-                focalX = 0; // - fRadius0 / fDiffRadius;
-            }
-
-            // Map {focal point, (1, 0)} to {(0, 0), (1, 0)}
-            const SkPoint from[2]   = { {focalX, 0}, {1, 0} };
-            const SkPoint to[2]     = { {0, 0}, {1, 0} };
-            SkMatrix focalMatrix;
-            if (!focalMatrix.setPolyToPoly(from, to, 2)) {
-                SkDEBUGFAILF("Mapping focal point failed unexpectedly for focalX = %f.\n", focalX);
-                // We won't be able to draw the gradient; at least make sure that we initialize the
-                // memory to prevent security issues.
-                focalMatrix = SkMatrix::MakeScale(1, 1);
-            }
-            matrix.postConcat(focalMatrix);
-            fRadius0 /= SkScalarAbs(1 - focalX);
-            fDiffRadius /= SkScalarAbs(1 - focalX);
-
-            SkScalar r0 = fRadius0;
-            SkScalar r1 = fRadius0 + fDiffRadius;
-            // The following transformations are not reflected on data; they're just to accelerate
-            // the shader computation by saving some arithmatic operations.
-            bool isFocalOnCircle = SkScalarNearlyZero(1 - r1);
-            if (isFocalOnCircle) {
-                matrix.postScale(0.5, 0.5); // r1 = 1 so r1 + 1 = 2 and 0.5 = 1 / (r1 + 1)
-            } else {
-                matrix.postScale(r1 / (r1 * r1 - 1), 1 / sqrt(SkScalarAbs(r1 * r1 - 1)));
-            }
-            SkScalar scale = SkScalarAbs(r1 / (r1 - r0)); // |1 - f|
-            matrix.postScale(scale, scale);
-        }
+        fDiffRadius = 0;
+        matrix.postConcat(shader.getGradientMatrix());
+    } else if (fType == Type::kFocal) {
+        fFocalData = shader.getFocalData();
+        matrix.postConcat(shader.getGradientMatrix());
     }
 }
 
