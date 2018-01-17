@@ -148,7 +148,6 @@ void GrTextureProxy::clearUniqueKey() {
 #ifdef SK_DEBUG
 void GrTextureProxy::validateLazyTexture(const GrTexture* texture) {
     SkASSERT(!texture->asRenderTarget());
-    SkASSERT(GrMipMapped::kNo == this->mipMapped());
 }
 #endif
 
