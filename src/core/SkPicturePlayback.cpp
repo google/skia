@@ -579,9 +579,8 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
             reader->readPoint3(&rec.fZPlaneParams);
             reader->readPoint3(&rec.fLightPos);
             rec.fLightRadius = reader->readScalar();
-            rec.fAmbientAlpha = reader->readScalar();
-            rec.fSpotAlpha = reader->readScalar();
-            rec.fColor = reader->read32();
+            rec.fAmbientColor = reader->read32();
+            rec.fSpotColor = reader->read32();
             rec.fFlags = reader->read32();
             BREAK_ON_READ_ERROR(reader);
 

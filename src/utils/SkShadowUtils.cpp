@@ -483,7 +483,7 @@ static SkColor compute_render_color(SkColor color, float alpha, bool useTonalCol
 // Draw an offset spot shadow and outlining ambient shadow for the given path.
 void SkShadowUtils::DrawShadow(SkCanvas* canvas, const SkPath& path, const SkPoint3& zPlaneParams,
                                const SkPoint3& devLightPos, SkScalar lightRadius,
-                               SkScalar ambientAlpha, SkScalar spotAlpha, SkColor color,
+                               SkColor ambientColor, SkColor spotColor,
                                uint32_t flags) {
     SkMatrix inverse;
     if (!canvas->getTotalMatrix().invert(&inverse)) {
@@ -495,9 +495,8 @@ void SkShadowUtils::DrawShadow(SkCanvas* canvas, const SkPath& path, const SkPoi
     rec.fZPlaneParams   = zPlaneParams;
     rec.fLightPos       = { pt.fX, pt.fY, devLightPos.fZ };
     rec.fLightRadius    = lightRadius;
-    rec.fAmbientAlpha   = SkScalarToFloat(ambientAlpha);
-    rec.fSpotAlpha      = SkScalarToFloat(spotAlpha);
-    rec.fColor          = color;
+    rec.fAmbientColor   = ambientColor;
+    rec.fSpotColor      = spotColor;
     rec.fFlags          = flags;
 
     canvas->private_draw_shadow_rec(path, rec);
