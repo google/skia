@@ -9,8 +9,8 @@
 #include "SkCodecPriv.h"
 #include "SkRawAdapterCodec.h"
 
-SkRawAdapterCodec::SkRawAdapterCodec(SkRawCodec* codec)
-    : INHERITED(codec)
+SkRawAdapterCodec::SkRawAdapterCodec(SkRawCodec* codec, ExifOrientationBehavior behavior)
+    : INHERITED(codec, behavior)
 {}
 
 SkISize SkRawAdapterCodec::onGetSampledDimensions(int sampleSize) const {
