@@ -12,6 +12,7 @@
 #include "GrGpu.h"
 #include "GrGpuCommandBuffer.h"
 #include "GrOpFlushState.h"
+#include "GrProxyProvider.h"
 #include "GrRenderTargetOpList.h"
 #include "GrStyle.h"
 #include "GrTexture.h"
@@ -201,8 +202,9 @@ bool GrCoverageCountingPathRenderer::canMakeClipProcessor(const SkPath& deviceSp
 }
 
 std::unique_ptr<GrFragmentProcessor> GrCoverageCountingPathRenderer::makeClipProcessor(
-        uint32_t opListID, const SkPath& deviceSpacePath, const SkIRect& accessRect, int rtWidth,
-        int rtHeight) {
+        GrProxyProvider* proxyProvider,
+        uint32_t opListID, const SkPath& deviceSpacePath, const SkIRect& accessRect,
+        int rtWidth, int rtHeight) {
     using MustCheckBounds = GrCCClipProcessor::MustCheckBounds;
 
     SkASSERT(!fFlushing);
@@ -211,7 +213,7 @@ std::unique_ptr<GrFragmentProcessor> GrCoverageCountingPathRenderer::makeClipPro
     ClipPath& clipPath = fRTPendingPathsMap[opListID].fClipPaths[deviceSpacePath.getGenerationID()];
     if (clipPath.isUninitialized()) {
         // This ClipPath was just created during lookup. Initialize it.
-        clipPath.init(deviceSpacePath, accessRect, rtWidth, rtHeight);
+        clipPath.init(proxyProvider, deviceSpacePath, accessRect, rtWidth, rtHeight);
     } else {
         clipPath.addAccess(accessRect);
     }
@@ -221,11 +223,12 @@ std::unique_ptr<GrFragmentProcessor> GrCoverageCountingPathRenderer::makeClipPro
                                                  deviceSpacePath.getFillType());
 }
 
-void CCPR::ClipPath::init(const SkPath& deviceSpacePath, const SkIRect& accessRect, int rtWidth,
-                          int rtHeight) {
+void CCPR::ClipPath::init(GrProxyProvider* proxyProvider,
+                          const SkPath& deviceSpacePath, const SkIRect& accessRect,
+                          int rtWidth, int rtHeight) {
     SkASSERT(this->isUninitialized());
 
-    fAtlasLazyProxy = GrSurfaceProxy::MakeFullyLazy(
+    fAtlasLazyProxy = proxyProvider->createFullyLazyProxy(
             [this](GrResourceProvider* resourceProvider, GrSurfaceOrigin* outOrigin) {
                 if (!resourceProvider) {
                     return sk_sp<GrTexture>();
@@ -252,7 +255,7 @@ void CCPR::ClipPath::init(const SkPath& deviceSpacePath, const SkIRect& accessRe
                 *outOrigin = textureProxy->origin();
                 return sk_ref_sp(textureProxy->priv().peekTexture());
             },
-            GrSurfaceProxy::Renderable::kYes, kAlpha_half_GrPixelConfig);
+            GrProxyProvider::Renderable::kYes, kAlpha_half_GrPixelConfig);
 
     const SkRect& pathDevBounds = deviceSpacePath.getBounds();
     if (SkTMax(pathDevBounds.height(), pathDevBounds.width()) > kPathCropThreshold) {
