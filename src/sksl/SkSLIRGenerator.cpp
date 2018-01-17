@@ -291,6 +291,7 @@ std::unique_ptr<VarDeclarations> IRGenerator::convertVarDeclarations(const ASTVa
             }
             value = this->coerce(std::move(value), *type);
             var->fWriteCount = 1;
+            var->fInitialValue = value.get();
         }
         if (storage == Variable::kGlobal_Storage && varDecl.fName == "sk_FragColor" &&
             (*fSymbolTable)[varDecl.fName]) {
