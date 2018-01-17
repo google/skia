@@ -195,6 +195,8 @@ public:
     void removeAllUniqueKeys();
 
 private:
+    friend class GrAHardwareBufferImageGenerator; // for createWrapped
+
     sk_sp<GrTextureProxy> createWrapped(sk_sp<GrTexture> tex, GrSurfaceOrigin origin);
 
     struct UniquelyKeyedProxyHashTraits {
