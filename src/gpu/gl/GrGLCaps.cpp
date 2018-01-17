@@ -32,7 +32,6 @@ GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
     fPackRowLengthSupport = false;
     fPackFlipYSupport = false;
     fTextureUsageSupport = false;
-    fTextureRedSupport = false;
     fAlpha8IsRenderable = false;
     fImagingSupport = false;
     fVertexArrayObjectSupport = false;
@@ -125,17 +124,6 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         fSampleLocationsSupport = version >= GR_GL_VER(3,1);
     }
 
-    // ARB_texture_rg is part of OpenGL 3.0, but osmesa doesn't support GL_RED
-    // and GL_RG on FBO textures.
-    if (kOSMesa_GrGLRenderer != ctxInfo.renderer()) {
-        if (kGL_GrGLStandard == standard) {
-            fTextureRedSupport = version >= GR_GL_VER(3,0) ||
-                                 ctxInfo.hasExtension("GL_ARB_texture_rg");
-        } else {
-            fTextureRedSupport =  version >= GR_GL_VER(3,0) ||
-                                  ctxInfo.hasExtension("GL_EXT_texture_rg");
-        }
-    }
     fImagingSupport = kGL_GrGLStandard == standard &&
                       ctxInfo.hasExtension("GL_ARB_imaging");
 
@@ -1434,7 +1422,6 @@ void GrGLCaps::onDumpJSON(SkJSONWriter* writer) const {
     writer->appendBool("Pack Flip Y support", fPackFlipYSupport);
 
     writer->appendBool("Texture Usage support", fTextureUsageSupport);
-    writer->appendBool("GL_R support", fTextureRedSupport);
     writer->appendBool("Alpha8 is renderable", fAlpha8IsRenderable);
     writer->appendBool("GL_ARB_imaging support", fImagingSupport);
     writer->appendBool("Vertex array object support", fVertexArrayObjectSupport);
@@ -1533,8 +1520,7 @@ bool GrGLCaps::getExternalFormat(GrPixelConfig surfaceConfig, GrPixelConfig memo
     // surface is not alpha-only and we want alpha to really mean the alpha component of the
     // texture, not the red component.
     if (memoryIsAlphaOnly && !surfaceIsAlphaOnly) {
-        if (this->textureRedSupport()) {
-            SkASSERT(GR_GL_RED == *externalFormat);
+        if (GR_GL_RED == *externalFormat) {
             *externalFormat = GR_GL_ALPHA;
         }
     }
@@ -1641,6 +1627,19 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
     }
 
     bool texelBufferSupport = this->shaderCaps()->texelBufferSupport();
+
+    bool textureRedSupport = false;
+    // ARB_texture_rg is part of OpenGL 3.0, but osmesa doesn't support GL_RED
+    // and GL_RG on FBO textures.
+    if (kOSMesa_GrGLRenderer != ctxInfo.renderer()) {
+        if (kGL_GrGLStandard == standard) {
+            textureRedSupport =
+                    version >= GR_GL_VER(3, 0) || ctxInfo.hasExtension("GL_ARB_texture_rg");
+        } else {
+            textureRedSupport =
+                    version >= GR_GL_VER(3, 0) || ctxInfo.hasExtension("GL_EXT_texture_rg");
+        }
+    }
 
     fConfigTable[kUnknown_GrPixelConfig].fFormats.fBaseInternalFormat = 0;
     fConfigTable[kUnknown_GrPixelConfig].fFormats.fSizedInternalFormat = 0;
@@ -1935,7 +1934,7 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
         redInfo.fFlags |= ConfigInfo::kCanUseTexStorage_Flag;
     }
 
-    if (this->textureRedSupport()) {
+    if (textureRedSupport) {
         redInfo.fFlags |= ConfigInfo::kTextureable_Flag | allRenderFlags;
         if (texelBufferSupport) {
             redInfo.fFlags |= ConfigInfo::kCanUseWithTexelBuffer_Flag;
@@ -1987,7 +1986,7 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
         grayRedInfo.fFlags |= ConfigInfo::kCanUseTexStorage_Flag;
     }
 
-    if (this->textureRedSupport()) {
+    if (textureRedSupport) {
         if (texelBufferSupport) {
             grayRedInfo.fFlags |= ConfigInfo::kCanUseWithTexelBuffer_Flag;
         }
@@ -2069,12 +2068,11 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
     redHalf.fFormats.fSizedInternalFormat = GR_GL_R16F;
     redHalf.fFormats.fExternalFormat[kOther_ExternalFormatUsage] = GR_GL_RED;
     redHalf.fSwizzle = GrSwizzle::RRRR();
-    if (this->textureRedSupport() && hasHalfFPTextures) {
+    if (textureRedSupport && hasHalfFPTextures) {
         redHalf.fFlags = ConfigInfo::kTextureable_Flag;
 
         if (kGL_GrGLStandard == standard || version >= GR_GL_VER(3, 2) ||
-            (this->textureRedSupport() &&
-             ctxInfo.hasExtension("GL_EXT_color_buffer_half_float"))) {
+            (textureRedSupport && ctxInfo.hasExtension("GL_EXT_color_buffer_half_float"))) {
             redHalf.fFlags |= fpRenderFlags;
         }
 
@@ -2138,7 +2136,7 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
     // Gallium llvmpipe renderer on ES 3.0 does not have R8 so we use Alpha for
     // kAlpha_8_GrPixelConfig. Alpha8 is not a valid signed internal format so we must use the base
     // internal format for that config when doing TexImage calls.
-    if(kGalliumLLVM_GrGLRenderer == ctxInfo.renderer() && !this->textureRedSupport()) {
+    if (kGalliumLLVM_GrGLRenderer == ctxInfo.renderer() && textureRedSupport) {
         SkASSERT(fConfigTable[kAlpha_8_GrPixelConfig].fFormats.fBaseInternalFormat ==
                  fConfigTable[kAlpha_8_as_Alpha_GrPixelConfig].fFormats.fBaseInternalFormat);
         fConfigTable[kAlpha_8_GrPixelConfig].fFormats.fInternalFormatTexImage =
@@ -2186,7 +2184,7 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
     // Shader output swizzles will default to RGBA. When we've use GL_RED instead of GL_ALPHA to
     // implement kAlpha_8_GrPixelConfig we need to swizzle the shader outputs so the alpha channel
     // gets written to the single component.
-    if (this->textureRedSupport()) {
+    if (textureRedSupport) {
         for (int i = 0; i < kGrPixelConfigCnt; ++i) {
             GrPixelConfig config = static_cast<GrPixelConfig>(i);
             if (GrPixelConfigIsAlphaOnly(config) &&
