@@ -43,6 +43,7 @@ public:
 
         void operator+=(const PrimitiveTallies&);
         PrimitiveTallies operator-(const PrimitiveTallies&) const;
+        bool operator==(const PrimitiveTallies&);
     };
 
     GrCCGeometry(int numSkPoints = 0, int numSkVerbs = 0)
@@ -136,6 +137,10 @@ inline GrCCGeometry::PrimitiveTallies::operator-(const PrimitiveTallies& b) cons
     return {fTriangles - b.fTriangles,
             fQuadratics - b.fQuadratics,
             fCubics - b.fCubics};
+}
+
+inline bool GrCCGeometry::PrimitiveTallies::operator==(const PrimitiveTallies& b) {
+    return fTriangles == b.fTriangles && fQuadratics == b.fQuadratics && fCubics == b.fCubics;
 }
 
 #endif
