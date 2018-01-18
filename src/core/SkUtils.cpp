@@ -279,7 +279,9 @@ int SkUTF16_CountUnichars(const void* text, size_t byteLength) {
                 return -1;
             }
             c = *src++;
-            SkASSERT(SkUTF16_IsLowSurrogate(c));
+            if (!SkUTF16_IsLowSurrogate(c)) {
+                return -1;
+            }
         }
         count += 1;
     }
