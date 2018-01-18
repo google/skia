@@ -134,7 +134,7 @@ public:
     void readRegion(SkRegion* region);
 
     void readPath(SkPath* path);
-    virtual void readPaint(SkPaint* paint) { paint->unflatten(*this); }
+    virtual bool readPaint(SkPaint* paint) { return paint->unflatten(*this); }
 
     SkFlattenable* readFlattenable(SkFlattenable::Type);
     template <typename T> sk_sp<T> readFlattenable() {

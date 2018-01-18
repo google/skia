@@ -177,8 +177,10 @@ public:
         by the client.
 
         @param buffer  serialized data describing SkPaint content
+        @return false if the buffer contained invalid data to initialize the paint, in which case
+                      the paint will be reset().
     */
-    void unflatten(SkReadBuffer& buffer);
+    bool unflatten(SkReadBuffer& buffer);
 
     /** Sets all SkPaint contents to their initial values. This is equivalent to replacing
         SkPaint with the result of SkPaint().
