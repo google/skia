@@ -380,35 +380,34 @@ bool PtProcRec::init(SkCanvas::PointMode mode, const SkPaint& paint,
     if ((unsigned)mode > (unsigned)SkCanvas::kPolygon_PointMode) {
         return false;
     }
-
     if (paint.getPathEffect()) {
         return false;
     }
     SkScalar width = paint.getStrokeWidth();
+    SkScalar radius = -1;   // sentinel value, a "valid" value must be > 0
+
     if (0 == width) {
+        radius = 0.5f;
+    } else if (paint.getStrokeCap() != SkPaint::kRound_Cap &&
+               matrix->isScaleTranslate() && SkCanvas::kPoints_PointMode == mode) {
+        SkScalar sx = matrix->get(SkMatrix::kMScaleX);
+        SkScalar sy = matrix->get(SkMatrix::kMScaleY);
+        if (SkScalarNearlyZero(sx - sy)) {
+            radius = SkScalarHalf(width * SkScalarAbs(sx));
+        }
+    }
+    if (radius > 0) {
+        // if we return true, the caller may assume that the constructed shapes can be represented
+        // using SkFixed, so we preflight that here, looking at the radius and clip-bounds
+        if (!SkRectPriv::FitsInFixed(SkRect::Make(rc->getBounds()).makeOutset(radius, radius))) {
+            return false;
+        }
         fMode = mode;
         fPaint = &paint;
         fClip = nullptr;
         fRC = rc;
-        fRadius = SK_FixedHalf;
+        fRadius = SkScalarToFixed(radius);
         return true;
-    }
-    if (paint.getStrokeCap() != SkPaint::kRound_Cap &&
-        matrix->isScaleTranslate() && SkCanvas::kPoints_PointMode == mode) {
-        SkScalar sx = matrix->get(SkMatrix::kMScaleX);
-        SkScalar sy = matrix->get(SkMatrix::kMScaleY);
-        if (SkScalarNearlyZero(sx - sy)) {
-            if (sx < 0) {
-                sx = -sx;
-            }
-
-            fMode = mode;
-            fPaint = &paint;
-            fClip = nullptr;
-            fRC = rc;
-            fRadius = SkScalarToFixed(width * sx) >> 1;
-            return true;
-        }
     }
     return false;
 }

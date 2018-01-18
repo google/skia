@@ -215,4 +215,9 @@ static inline size_t GrNextSizePow2(size_t n) {
     return n + 1;
 }
 
+// conservative check. will return false for very large values that "could" fit
+template <typename T> static inline bool SkFitsInFixed(T x) {
+    return SkTAbs(x) <= 32767.0f;
+}
+
 #endif
