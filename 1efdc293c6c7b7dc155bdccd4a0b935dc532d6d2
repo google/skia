@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a8a88b4b_b56bb72f",
+        "filename": "src/core/SkPaint.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1914,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-01-18T19:13:57Z",
+      "side": 1,
+      "message": "SkSafeRange? --- to go along with the theme.",
+      "range": {
+        "startLine": 1914,
+        "startChar": 6,
+        "endLine": 1914,
+        "endChar": 15
+      },
+      "revId": "1efdc293c6c7b7dc155bdccd4a0b935dc532d6d2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "805e05a9_d94719a6",
+        "filename": "src/core/SkPaint.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1916,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-01-18T19:13:57Z",
+      "side": 1,
+      "message": "explicit operator bool() const { return fOK; }\n\nDo you want to add cast to bool so you can do things like.\nSkChecker check;\n\n....\n\nif (!check) {\n}",
+      "range": {
+        "startLine": 1916,
+        "startChar": 9,
+        "endLine": 1916,
+        "endChar": 11
+      },
+      "revId": "1efdc293c6c7b7dc155bdccd4a0b935dc532d6d2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bf632311_e3e580df",
+        "filename": "src/core/SkPaint.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1929,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-01-18T19:13:57Z",
+      "side": 1,
+      "message": "inRange?\n\nThis is slightly strange because most ranges are [), but this checks []. Do are enums do last element or count?",
+      "range": {
+        "startLine": 1929,
+        "startChar": 28,
+        "endLine": 1929,
+        "endChar": 33
+      },
+      "revId": "1efdc293c6c7b7dc155bdccd4a0b935dc532d6d2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
