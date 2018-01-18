@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "ca6bb26a_f13bdc6f",
+        "filename": "include/core/SkDeferredDisplayListRecorder.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-01-18T21:06:00Z",
+      "side": 1,
+      "message": "Getting DDL to work when the raster recorder is disabled is what I\u0027m working on in: https://skia-review.googlesource.com/c/skia/+/84863\n\nRight now - it doesn\u0027t crash when rendering the car svg but crashes whenever some text is drawn.",
+      "parentUuid": "9d2bd842_0525cbfc",
+      "range": {
+        "startLine": 21,
+        "startChar": 8,
+        "endLine": 21,
+        "endChar": 43
+      },
+      "revId": "66dbc269bbef7d2b8047ba73ac664c5201397927",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "49d9f0d3_857e0da0",
         "filename": "src/gpu/GrProxyProvider.cpp",
         "patchSetId": 2
@@ -36,6 +60,30 @@
       "writtenOn": "2018-01-18T20:36:05Z",
       "side": 1,
       "message": "So I am able to handle the case where we have a releaseProc,but he case I can\u0027t handle is when ownership is set to adopt. If someone makes an SkImage using the DDL GrContext, sets adopt, and then either never used the SkImage or only records it into DDLs but never playsback the DDL we need to be able to delete the underlying texture.\n\nDo we want to support this use case? Do we want to limit the API to only allow lazy SkImage\u0027s with BackendTextures to be borrowed? Or maybe this is a sign we should not support this API for a DDL GrContext (and find a way to hide it from the SkCavans of a recorder).",
+      "range": {
+        "startLine": 343,
+        "startChar": 19,
+        "endLine": 345,
+        "endChar": 21
+      },
+      "revId": "66dbc269bbef7d2b8047ba73ac664c5201397927",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "80511b1c_8837e5b0",
+        "filename": "src/gpu/GrProxyProvider.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 345,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-01-18T21:06:00Z",
+      "side": 1,
+      "message": "Does anyone actually use the adopt behavior? Can we just remove it?",
+      "parentUuid": "49d9f0d3_857e0da0",
       "range": {
         "startLine": 343,
         "startChar": 19,
