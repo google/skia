@@ -115,7 +115,7 @@ public:
     }
 
     /**
-     * Abandons all GPU resources and assumes the underlying backend 3D API context is not longer
+     * Abandons all GPU resources and assumes the underlying backend 3D API context is no longer
      * usable. Call this if you have lost the associated GPU context, and thus internal texture,
      * buffer, etc. references/IDs are now invalid. Calling this ensures that the destructors of the
      * GrContext and any of its created resource objects will not make backend 3D API calls. Content
@@ -349,6 +349,10 @@ public:
     GrContextPriv contextPriv();
     const GrContextPriv contextPriv() const;
 
+protected:
+    GrContext(GrContextThreadSafeProxy*);
+    GrContext(GrBackend);
+
 private:
     sk_sp<GrGpu>                            fGpu;
     sk_sp<const GrCaps>                     fCaps;
@@ -393,9 +397,7 @@ private:
     // TODO: have the GrClipStackClip use renderTargetContexts and rm this friending
     friend class GrContextPriv;
 
-    GrContext(GrBackend); // init must be called after the constructor.
-    GrContext(GrContextThreadSafeProxy*);
-    bool init(const GrContextOptions&);
+    bool init1(const GrContextOptions&); // init must be called after either constructor.
 
     /**
      * These functions create premul <-> unpremul effects. If the second argument is 'true', they
@@ -422,6 +424,16 @@ private:
     typedef SkRefCnt INHERITED;
 };
 
+class SK_API GrNormalContext : public GrContext {
+public:
+    GrNormalContext(GrBackend backend) : INHERITED(backend) { }
+
+protected:
+
+private:
+    typedef GrContext INHERITED;
+};
+
 /**
  * Can be used to perform actions related to the generating GrContext in a thread safe manner. The
  * proxy does not access the 3D API (e.g. OpenGL) that backs the generating GrContext.
@@ -436,13 +448,13 @@ private:
                              uint32_t uniqueID,
                              GrBackend backend,
                              const GrContextOptions& options)
-        : fCaps(std::move(caps))
+        : fCaps1(std::move(caps))
         , fContextUniqueID(uniqueID)
         , fBackend(backend)
         , fOptions(options) {
     }
 
-    sk_sp<const GrCaps>    fCaps;
+    sk_sp<const GrCaps>    fCaps1;
     const uint32_t         fContextUniqueID;
     const GrBackend        fBackend;
     const GrContextOptions fOptions;

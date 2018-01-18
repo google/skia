@@ -769,7 +769,7 @@ size_t SkImage::getDeferredTextureImageData(const GrContextThreadSafeProxy& prox
         scaleFilterQuality = kMedium_SkFilterQuality;
     }
 
-    const int maxTextureSize = proxy.fCaps->maxTextureSize();
+    const int maxTextureSize = proxy.fCaps1->maxTextureSize();
     if (scaledSize.width() > maxTextureSize || scaledSize.height() > maxTextureSize) {
         return 0;
     }
@@ -791,7 +791,7 @@ size_t SkImage::getDeferredTextureImageData(const GrContextThreadSafeProxy& prox
         if (SkImageCacherator* cacher = as_IB(this)->peekCacherator()) {
             // Generator backed image. Tweak info to trigger correct kind of decode.
             SkImageCacherator::CachedFormat cacheFormat = cacher->chooseCacheFormat(
-                dstColorSpace, proxy.fCaps.get());
+                dstColorSpace, proxy.fCaps1.get());
             info = cacher->buildCacheInfo(cacheFormat).makeWH(scaledSize.width(),
                                                               scaledSize.height());
         } else {
@@ -891,7 +891,7 @@ size_t SkImage::getDeferredTextureImageData(const GrContextThreadSafeProxy& prox
     // color space, and the image has an sRGB-like color space attached, then use our gamma (sRGB)
     // aware mip-mapping.
     SkDestinationSurfaceColorMode colorMode = SkDestinationSurfaceColorMode::kLegacy;
-    if (proxy.fCaps->srgbSupport() && SkToBool(dstColorSpace) &&
+    if (proxy.fCaps1->srgbSupport() && SkToBool(dstColorSpace) &&
         info.colorSpace() && info.colorSpace()->gammaCloseToSRGB()) {
         SkASSERT(supportsColorSpace);
         colorMode = SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware;

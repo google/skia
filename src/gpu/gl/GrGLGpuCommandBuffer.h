@@ -71,7 +71,7 @@ public:
     }
 
     void inlineUpload(GrOpFlushState* state, GrDeferredTextureUploadFn& upload) override {
-        state->doUpload(upload);
+        state->doUpload1(upload);
     }
 
     void copy(GrSurface* src, GrSurfaceOrigin srcOrigin, const SkIRect& srcRect,

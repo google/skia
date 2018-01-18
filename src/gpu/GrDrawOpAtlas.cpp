@@ -464,6 +464,7 @@ bool GrDrawOpAtlas::createNewPage() {
     desc.fHeight = fTextureHeight;
     desc.fConfig = fPixelConfig;
 
+#if 0
     // We don't want to flush the context so we claim we're in the middle of flushing so as to
     // guarantee we do not recieve a texture with pending IO
     // TODO: Determine how to avoid having to do this. (https://bug.skia.org/4156)
@@ -474,8 +475,14 @@ bool GrDrawOpAtlas::createNewPage() {
     // Note: When switching over to the deferred proxy, use the kExact flag to create
     // the atlas and assert that the width & height are powers of 2.
     // DDL TODO: remove this use of createInstantitateProxy & convert it to a testing-only method.
+
     fProxies[fNumPages] = proxyProvider->createInstantiatedProxy(desc, SkBackingFit::kApprox,
                                                                  SkBudgeted::kYes, kFlags);
+#else
+    SkASSERT(SkIsPow2(fTextureWidth) && SkIsPow2(fTextureHeight));
+    fProxies[fNumPages] = proxyProvider->createProxy(desc, SkBackingFit::kExact, SkBudgeted::kYes,
+                                                     GrResourceProvider::kNoPendingIO_Flag);
+#endif
     if (!fProxies[fNumPages]) {
         return false;
     }

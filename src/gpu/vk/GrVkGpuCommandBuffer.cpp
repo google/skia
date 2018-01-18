@@ -181,7 +181,7 @@ void GrVkGpuRTCommandBuffer::submit() {
 
         for (int j = 0; j < cbInfo.fPreDrawUploads.count(); ++j) {
             InlineUploadInfo& iuInfo = cbInfo.fPreDrawUploads[j];
-            iuInfo.fFlushState->doUpload(iuInfo.fUpload);
+            iuInfo.fFlushState->doUpload1(iuInfo.fUpload);
         }
 
         for (int j = 0; j < cbInfo.fPreCopies.count(); ++j) {

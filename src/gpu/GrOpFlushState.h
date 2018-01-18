@@ -32,7 +32,7 @@ public:
         executed. */
     void preExecuteDraws();
 
-    void doUpload(GrDeferredTextureUploadFn&);
+    void doUpload1(GrDeferredTextureUploadFn&);
 
     /** Called as ops are executed. Must be called in the same order as the ops were prepared. */
     void executeDrawsAndUploadsForMeshDrawOp(uint32_t opID, const SkRect& opBounds);

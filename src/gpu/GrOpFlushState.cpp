@@ -55,7 +55,7 @@ void GrOpFlushState::preExecuteDraws() {
     fVertexPool.unmap();
     fIndexPool.unmap();
     for (auto& upload : fASAPUploads) {
-        this->doUpload(upload);
+        this->doUpload1(upload);
     }
     // Setup execution iterators.
     fCurrDraw = fDraws.begin();
@@ -77,34 +77,38 @@ void GrOpFlushState::reset() {
     fBaseDrawToken = GrDeferredUploadToken::AlreadyFlushedToken();
 }
 
-void GrOpFlushState::doUpload(GrDeferredTextureUploadFn& upload) {
-    GrDeferredTextureUploadWritePixelsFn wp = [this](GrTextureProxy* proxy, int left, int top,
-                                                     int width, int height, GrPixelConfig config,
+void GrOpFlushState::doUpload1(GrDeferredTextureUploadFn& upload) {
+    GrDeferredTextureUploadWritePixelsFn wp = [this](GrTextureProxy* dstProxy, int left, int top,
+                                                     int width, int height, GrPixelConfig srcConfig,
                                                      const void* buffer, size_t rowBytes) {
-        GrSurface* surface = proxy->priv().peekSurface();
+        GrSurface* dstSurface = dstProxy->priv().peekSurface();
         GrGpu::DrawPreference drawPreference = GrGpu::kNoDraw_DrawPreference;
         GrGpu::WritePixelTempDrawInfo tempInfo;
-        fGpu->getWritePixelsInfo(surface, proxy->origin(), width, height, proxy->config(),
-                                 &drawPreference, &tempInfo);
+        if (!fGpu->getWritePixelsInfo(dstSurface, dstProxy->origin(),
+                                      width, height, srcConfig,
+                                      &drawPreference, &tempInfo)) {
+            return false;
+        }
         if (GrGpu::kNoDraw_DrawPreference == drawPreference) {
-            return this->fGpu->writePixels(surface, proxy->origin(), left, top, width, height,
-                                           config, buffer, rowBytes);
+            return this->fGpu->writePixels(dstSurface, dstProxy->origin(),
+                                           left, top, width, height,
+                                           srcConfig, buffer, rowBytes);
         }
         GrSurfaceDesc desc;
-        desc.fOrigin = proxy->origin();
+        desc.fOrigin = dstProxy->origin();
         desc.fWidth = width;
         desc.fHeight = height;
-        desc.fConfig = proxy->config();
+        desc.fConfig = dstProxy->config();
         sk_sp<GrTexture> temp(this->fResourceProvider->createApproxTexture(
                 desc, GrResourceProvider::kNoPendingIO_Flag));
         if (!temp) {
             return false;
         }
-        if (!fGpu->writePixels(temp.get(), proxy->origin(), 0, 0, width, height, desc.fConfig,
+        if (!fGpu->writePixels(temp.get(), dstProxy->origin(), 0, 0, width, height, desc.fConfig,
                                buffer, rowBytes)) {
             return false;
         }
-        return fGpu->copySurface(surface, proxy->origin(), temp.get(), proxy->origin(),
+        return fGpu->copySurface(dstSurface, dstProxy->origin(), temp.get(), dstProxy->origin(),
                                  SkIRect::MakeWH(width, height), {left, top});
     };
     upload(wp);
