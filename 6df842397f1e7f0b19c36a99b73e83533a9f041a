@@ -55,6 +55,24 @@
     },
     {
       "key": {
+        "uuid": "1506bfb7_99d7870a",
+        "filename": "src/core/SkFlattenable.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5376
+      },
+      "writtenOn": "2018-01-18T20:39:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "13011943_62066b30",
+      "revId": "6df842397f1e7f0b19c36a99b73e83533a9f041a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "235b9d49_9843213a",
         "filename": "src/core/SkFlattenable.cpp",
         "patchSetId": 2
