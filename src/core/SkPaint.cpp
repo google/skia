@@ -24,6 +24,7 @@
 #include "SkPaintDefaults.h"
 #include "SkPathEffect.h"
 #include "SkRasterizer.h"
+#include "SkSafeRange.h"
 #include "SkScalar.h"
 #include "SkScalerContext.h"
 #include "SkShader.h"
@@ -1911,7 +1912,9 @@ void SkPaint::flatten(SkWriteBuffer& buffer) const {
     }
 }
 
-void SkPaint::unflatten(SkReadBuffer& buffer) {
+bool SkPaint::unflatten(SkReadBuffer& buffer) {
+    SkSafeRange safe;
+
     this->setTextSize(buffer.readScalar());
     this->setTextScaleX(buffer.readScalar());
     this->setTextSkewX(buffer.readScalar());
@@ -1922,11 +1925,11 @@ void SkPaint::unflatten(SkReadBuffer& buffer) {
     unsigned flatFlags = unpack_paint_flags(this, buffer.readUInt());
 
     uint32_t tmp = buffer.readUInt();
-    this->setStrokeCap(static_cast<Cap>((tmp >> 24) & 0xFF));
-    this->setStrokeJoin(static_cast<Join>((tmp >> 16) & 0xFF));
-    this->setStyle(static_cast<Style>((tmp >> 12) & 0xF));
-    this->setTextEncoding(static_cast<TextEncoding>((tmp >> 8) & 0xF));
-    this->setBlendMode((SkBlendMode)(tmp & 0xFF));
+    this->setStrokeCap(safe.checkLE((tmp >> 24) & 0xFF, kLast_Cap));
+    this->setStrokeJoin(safe.checkLE((tmp >> 16) & 0xFF, kLast_Join));
+    this->setStyle(safe.checkLE((tmp >> 12) & 0xF, kStrokeAndFill_Style));
+    this->setTextEncoding(safe.checkLE((tmp >> 8) & 0xF, kGlyphID_TextEncoding));
+    this->setBlendMode(safe.checkLE(tmp & 0xFF, SkBlendMode::kLastMode));
 
     if (flatFlags & kHasTypeface_FlatFlag) {
         this->setTypeface(buffer.readTypeface());
@@ -1951,6 +1954,12 @@ void SkPaint::unflatten(SkReadBuffer& buffer) {
         this->setLooper(nullptr);
         this->setImageFilter(nullptr);
     }
+
+    if (!buffer.validate(safe)) {
+        this->reset();
+        return false;
+    }
+    return true;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
