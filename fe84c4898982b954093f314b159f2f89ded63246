@@ -60,6 +60,24 @@
     },
     {
       "key": {
+        "uuid": "46f7877a_e6a37cd9",
+        "filename": "src/codec/SkAndroidCodec.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-01-18T14:11:48Z",
+      "side": 1,
+      "message": "Seems like more of an oversight than deliberate, but the fact that it hasn\u0027t come up (as far as I can tell) seems to indicate that this is rare. In [1], a couple of other issues were brought up:\n- EXIF comes at the end, so they\u0027d have to wait until the image was fully/mostly received before they could apply the rotation. (This doesn\u0027t apply to ImageDecoder, since it\u0027s not supporting progressive.)\n- behavior change for existing sites. (Arguably this doesn\u0027t apply to ImageDecoder either, since it\u0027s a new API.)\n\n[1] https://groups.google.com/a/webmproject.org/forum/#!topic/webp-discuss/eHa1fZSzskE",
+      "parentUuid": "0aed83d2_f30d6389",
+      "revId": "fe84c4898982b954093f314b159f2f89ded63246",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "af994681_04a90a68",
         "filename": "src/codec/SkAndroidCodec.cpp",
         "patchSetId": 3
