@@ -77,6 +77,7 @@ public:
         k2PtConicalNoFlip_Version          = 58,
         kRemovePictureImageFilterLocalSpace = 59,
         kRemoveHeaderFlags_Version         = 60,
+        kTwoColorDrawShadow_Version        = 61,
     };
 
     /**

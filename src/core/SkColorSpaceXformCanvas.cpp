@@ -238,7 +238,8 @@ public:
     }
     void onDrawShadowRec(const SkPath& path, const SkDrawShadowRec& rec) override {
         SkDrawShadowRec newRec(rec);
-        newRec.fColor = fXformer->apply(rec.fColor);
+        newRec.fAmbientColor = fXformer->apply(rec.fAmbientColor);
+        newRec.fSpotColor = fXformer->apply(rec.fSpotColor);
         fTarget->private_draw_shadow_rec(path, newRec);
     }
     void onDrawPicture(const SkPicture* pic,
