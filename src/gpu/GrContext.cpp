@@ -70,14 +70,14 @@ GrContext* GrContext::Create(GrBackend backend, GrBackendContext backendContext)
 GrContext* GrContext::Create(GrBackend backend, GrBackendContext backendContext,
                              const GrContextOptions& options) {
 
-    sk_sp<GrContext> context(new GrContext(backend));
+    sk_sp<GrContext> context(new GrNormalContext(backend));
 
     context->fGpu = GrGpu::Make(backend, backendContext, options, context.get());
     if (!context->fGpu) {
         return nullptr;
     }
 
-    if (!context->init(options)) {
+    if (!context->init1(options)) {
         return nullptr;
     }
 
@@ -91,13 +91,13 @@ sk_sp<GrContext> GrContext::MakeGL(sk_sp<const GrGLInterface> interface) {
 
 sk_sp<GrContext> GrContext::MakeGL(sk_sp<const GrGLInterface> interface,
                                    const GrContextOptions& options) {
-    sk_sp<GrContext> context(new GrContext(kOpenGL_GrBackend));
+    sk_sp<GrContext> context(new GrNormalContext(kOpenGL_GrBackend));
 
     context->fGpu = GrGLGpu::Make(std::move(interface), options, context.get());
     if (!context->fGpu) {
         return nullptr;
     }
-    if (!context->init(options)) {
+    if (!context->init1(options)) {
         return nullptr;
     }
     return context;
@@ -119,13 +119,13 @@ sk_sp<GrContext> GrContext::MakeMock(const GrMockOptions* mockOptions) {
 
 sk_sp<GrContext> GrContext::MakeMock(const GrMockOptions* mockOptions,
                                      const GrContextOptions& options) {
-    sk_sp<GrContext> context(new GrContext(kMock_GrBackend));
+    sk_sp<GrContext> context(new GrNormalContext(kMock_GrBackend));
 
     context->fGpu = GrMockGpu::Make(mockOptions, options, context.get());
     if (!context->fGpu) {
         return nullptr;
     }
-    if (!context->init(options)) {
+    if (!context->init1(options)) {
         return nullptr;
     }
     return context;
@@ -139,13 +139,13 @@ sk_sp<GrContext> GrContext::MakeVulkan(sk_sp<const GrVkBackendContext> backendCo
 
 sk_sp<GrContext> GrContext::MakeVulkan(sk_sp<const GrVkBackendContext> backendContext,
                                        const GrContextOptions& options) {
-    sk_sp<GrContext> context(new GrContext(kVulkan_GrBackend));
+    sk_sp<GrContext> context(new GrNormalContext(kVulkan_GrBackend));
 
     context->fGpu = GrVkGpu::Make(std::move(backendContext), options, context.get());
     if (!context->fGpu) {
         return nullptr;
     }
-    if (!context->init(options)) {
+    if (!context->init1(options)) {
         return nullptr;
     }
     return context;
@@ -181,14 +181,22 @@ static int32_t next_id() {
     return id;
 }
 
-sk_sp<GrContext> GrContextPriv::MakeDDL(GrContextThreadSafeProxy* proxy) {
-    sk_sp<GrContext> context(new GrContext(proxy));
+class SK_API GrDLLContext : public GrContext {
+public:
+    GrDLLContext(GrContextThreadSafeProxy* proxy) : INHERITED(proxy) {}
 
-    context->fGpu = GrDDLGpu::Make(context.get(), proxy->fCaps);
-    if (!context->fGpu) {
-        return nullptr;
-    }
-    if (!context->init(proxy->fOptions)) {
+protected:
+
+private:
+    typedef GrContext INHERITED;
+};
+
+sk_sp<GrContext> GrContextPriv::MakeDDL(GrContextThreadSafeProxy* proxy) {
+    sk_sp<GrContext> context(new GrDLLContext(proxy));
+
+    // Note: we aren't creating a Gpu here. This causes the resource provider & cache to
+    // also not be created
+    if (!context->init1(proxy->fOptions)) {
         return nullptr;
     }
     return context;
@@ -212,7 +220,7 @@ GrContext::GrContext(GrContextThreadSafeProxy* proxy)
     fAtlasGlyphCache = nullptr;
 }
 
-bool GrContext::init(const GrContextOptions& options) {
+bool GrContext::init1(const GrContextOptions& options) {
     ASSERT_SINGLE_OWNER
     fCaps = fGpu->refCaps();
     fResourceCache = new GrResourceCache(fCaps.get(), fUniqueID);

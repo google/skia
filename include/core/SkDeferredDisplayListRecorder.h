@@ -18,7 +18,7 @@ class GrContext;
 class SkCanvas;
 class SkSurface;
 
-#define SK_RASTER_RECORDER_IMPLEMENTATION 1
+//#define SK_RASTER_RECORDER_IMPLEMENTATION 1
 
 /*
  * This class is intended to be used as:
