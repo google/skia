@@ -1803,4 +1803,44 @@ DEF_TEST(SkSLNormalization, r) {
          SkSL::Program::kGeometry_Kind);
 }
 
+DEF_TEST(SkSLTernaryLValue, r) {
+    test(r,
+         "void main() { half r, g; (true ? r : g) = 1; (false ? r : g) = 0; "
+         "sk_FragColor = half4(r, g, 1, 1); }",
+         *SkSL::ShaderCapsFactory::Default(),
+         "#version 400\n"
+         "out vec4 sk_FragColor;\n"
+         "void main() {\n"
+         "    sk_FragColor = vec4(1.0, 0.0, 1.0, 1.0);\n"
+         "}\n");
+    test(r,
+         "void main() { half r, g; (true ? r : g) = sqrt(1); (false ? r : g) = sqrt(0); "
+         "sk_FragColor = half4(r, g, 1, 1); }",
+         *SkSL::ShaderCapsFactory::Default(),
+         "#version 400\n"
+         "out vec4 sk_FragColor;\n"
+         "void main() {\n"
+         "    float r, g;\n"
+         "    r = sqrt(1.0);\n"
+         "    g = sqrt(0.0);\n"
+         "    sk_FragColor = vec4(r, g, 1.0, 1.0);\n"
+         "}\n");
+    test(r,
+         "void main() {"
+         "half r, g;"
+         "(sqrt(1) > 0 ? r : g) = sqrt(1);"
+         "(sqrt(0) > 0 ? r : g) = sqrt(0);"
+         "sk_FragColor = half4(r, g, 1, 1);"
+         "}",
+         *SkSL::ShaderCapsFactory::Default(),
+         "#version 400\n"
+         "out vec4 sk_FragColor;\n"
+         "void main() {\n"
+         "    float r, g;\n"
+         "    sqrt(1.0) > 0.0 ? r : g = sqrt(1.0);\n"
+         "    sqrt(0.0) > 0.0 ? r : g = sqrt(0.0);\n"
+         "    sk_FragColor = vec4(r, g, 1.0, 1.0);\n"
+         "}\n");
+}
+
 #endif
