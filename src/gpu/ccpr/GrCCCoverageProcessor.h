@@ -94,7 +94,7 @@ public:
     GrCCCoverageProcessor(GrResourceProvider* rp, RenderPass pass, const GrShaderCaps& caps)
             : INHERITED(kGrCCCoverageProcessor_ClassID)
             , fRenderPass(pass)
-            , fImpl(caps.geometryShaderSupport() ?  Impl::kGeometryShader : Impl::kVertexShader) {
+            , fImpl(caps.geometryShaderSupport() ? Impl::kGeometryShader : Impl::kVertexShader) {
         SkASSERT(DoesRenderPass(pass, caps));
         if (Impl::kGeometryShader == fImpl) {
             this->initGS();
