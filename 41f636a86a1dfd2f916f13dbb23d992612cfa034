@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "171c6998_7bc7d0f7",
+        "filename": "platform_tools/android/apps/skqp/src/main/AndroidManifest.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-01-18T17:18:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ac4a7907_0772bd02",
+      "revId": "41f636a86a1dfd2f916f13dbb23d992612cfa034",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b7d6ad65_91986bd4",
         "filename": "platform_tools/android/apps/skqp/src/main/java/org/skia/skqp/SkQPRunner.java",
         "patchSetId": 2
@@ -54,6 +72,24 @@
     },
     {
       "key": {
+        "uuid": "74e3555b_0cef8246",
+        "filename": "platform_tools/android/apps/skqp/src/main/java/org/skia/skqp/SkQPRunner.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-01-18T17:18:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "33b6cfa4_d645ff1e",
+      "revId": "41f636a86a1dfd2f916f13dbb23d992612cfa034",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c32291da_7dba618b",
         "filename": "platform_tools/android/apps/skqp/src/main/java/org/skia/skqp/SkQPRunner.java",
         "patchSetId": 2
@@ -74,6 +110,30 @@
       "revId": "41f636a86a1dfd2f916f13dbb23d992612cfa034",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d81d546a_3162e540",
+        "filename": "platform_tools/android/apps/skqp/src/main/java/org/skia/skqp/SkQPRunner.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-01-18T17:18:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c32291da_7dba618b",
+      "range": {
+        "startLine": 49,
+        "startChar": 14,
+        "endLine": 49,
+        "endChar": 29
+      },
+      "revId": "41f636a86a1dfd2f916f13dbb23d992612cfa034",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
