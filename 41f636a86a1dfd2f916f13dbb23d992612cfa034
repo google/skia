@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ac4a7907_0772bd02",
+        "filename": "platform_tools/android/apps/skqp/src/main/AndroidManifest.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-01-18T13:36:26Z",
+      "side": 1,
+      "message": "this is already on line 7 and is supposed to be a child of the manifest element.\n\nhttps://developer.android.com/guide/topics/manifest/uses-permission-element.html",
+      "revId": "41f636a86a1dfd2f916f13dbb23d992612cfa034",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b7d6ad65_91986bd4",
+        "filename": "platform_tools/android/apps/skqp/src/main/java/org/skia/skqp/SkQPRunner.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-01-18T13:36:26Z",
+      "side": 1,
+      "message": "Can you update your CL description to state that this CL switches over to writing output to the sd card?",
+      "revId": "41f636a86a1dfd2f916f13dbb23d992612cfa034",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
