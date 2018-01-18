@@ -329,17 +329,35 @@ sk_sp<GrTextureProxy> GrProxyProvider::createWrappedTextureProxy(
         return nullptr;
     }
 
-    sk_sp<GrTexture> texture(fResourceProvider->wrapBackendTexture(backendTex, ownership));
-    if (!texture) {
-        return nullptr;
-    }
-    if (releaseProc) {
-        texture->setRelease(releaseProc, releaseCtx);
-    }
+    GrSurfaceDesc desc;
+    desc.fOrigin = origin;
+    desc.fWidth = backendTex.width();
+    desc.fHeight = backendTex.height();
+    desc.fConfig = backendTex.config();
+    GrMipMapped mipMapped = backendTex.hasMipMaps() ? GrMipMapped::kYes : GrMipMapped::kNo;
 
-    SkASSERT(!texture->asRenderTarget());   // Strictly a GrTexture
+    sk_sp<GrTextureProxy> proxy = this->createLazyProxy(
+            [backendTex, origin, ownership, releaseProc, releaseCtx]
+            (GrResourceProvider* resourceProvider, GrSurfaceOrigin* outOrigin) {
 
-    return this->createWrapped(std::move(texture), origin);
+                sk_sp<GrTexture> tex = resourceProvider->wrapBackendTexture(backendTex,
+                                                                            ownership);
+                if (!tex) {
+                    return sk_sp<GrTexture>();
+                }
+                if (releaseProc) {
+                    tex->setRelease(releaseProc, releaseCtx);
+                }
+                SkASSERT(!tex->asRenderTarget());   // Strictly a GrTexture
+
+                *outOrigin = origin;
+                return tex;
+            }, desc, mipMapped, SkBackingFit::kExact, SkBudgeted::kNo);
+
+    if (fResourceProvider) {
+        proxy->priv().doLazyInstantiation(fResourceProvider);
+    }
+    return proxy;
 }
 
 sk_sp<GrTextureProxy> GrProxyProvider::createWrappedTextureProxy(const GrBackendTexture& tex,

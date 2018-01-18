@@ -51,7 +51,7 @@ private:
     bool init();
 
     const SkSurfaceCharacterization fCharacterization;
-#ifndef SK_RASTER_RECORDER_IMPLEMENTATION
+#if !SK_RASTER_RECORDER_IMPLEMENTATION
     sk_sp<GrContext> fContext;
 #endif
     sk_sp<SkSurface> fSurface;
