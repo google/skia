@@ -51,6 +51,29 @@
       "revId": "41f636a86a1dfd2f916f13dbb23d992612cfa034",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c32291da_7dba618b",
+        "filename": "platform_tools/android/apps/skqp/src/main/java/org/skia/skqp/SkQPRunner.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2018-01-18T15:35:13Z",
+      "side": 1,
+      "message": "nit: Use LOG_PREFIX constant in SkQP.java.",
+      "range": {
+        "startLine": 49,
+        "startChar": 14,
+        "endLine": 49,
+        "endChar": 29
+      },
+      "revId": "41f636a86a1dfd2f916f13dbb23d992612cfa034",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
