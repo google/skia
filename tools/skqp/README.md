@@ -23,7 +23,7 @@ How To Use SkQP on your Android device:
         mkdir -p out/${arch}-rel
         cat > out/${arch}-rel/args.gn << EOF
             ndk = "$android_ndk"
-            ndk_api = 24
+            ndk_api = 26
             target_cpu = "$arch"
             skia_embed_resources = true
             is_debug = false
