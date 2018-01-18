@@ -103,14 +103,16 @@ void GrOpFlushState::doUpload(GrDeferredTextureUploadFn& upload) {
     upload(wp);
 }
 
-GrDeferredUploadToken GrOpFlushState::addInlineUpload(GrDeferredTextureUploadFn&& upload) {
-    return fInlineUploads.append(&fArena, std::move(upload), this->nextDrawToken())
+GrDeferredUploadToken GrOpFlushState::addInlineUpload(GrFoo* foo,
+                                                      GrDeferredTextureUploadFn&& upload) {
+    return fInlineUploads.append(&fArena, std::move(upload), foo->nextDrawToken())
             .fUploadBeforeToken;
 }
 
-GrDeferredUploadToken GrOpFlushState::addASAPUpload(GrDeferredTextureUploadFn&& upload) {
+GrDeferredUploadToken GrOpFlushState::addASAPUpload(GrFoo* foo,
+                                                    GrDeferredTextureUploadFn&& upload) {
     fAsapUploads.append(&fArena, std::move(upload));
-    return this->nextTokenToFlush();
+    return foo->nextTokenToFlush();
 }
 
 void GrOpFlushState::draw(const GrGeometryProcessor* gp, const GrPipeline* pipeline,

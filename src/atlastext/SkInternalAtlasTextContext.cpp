@@ -50,16 +50,18 @@ GrTextBlobCache* SkInternalAtlasTextContext::textBlobCache() {
 }
 
 GrDeferredUploadToken SkInternalAtlasTextContext::addInlineUpload(
+        GrFoo* foo,
         GrDeferredTextureUploadFn&& upload) {
-    auto token = this->nextDrawToken();
+    auto token = foo->nextDrawToken();
     fInlineUploads.append(&fArena, InlineUpload{std::move(upload), token});
     return token;
 }
 
 GrDeferredUploadToken SkInternalAtlasTextContext::addASAPUpload(
+        GrFoo* foo,
         GrDeferredTextureUploadFn&& upload) {
     fASAPUploads.append(&fArena, std::move(upload));
-    return this->nextTokenToFlush();
+    return foo->nextTokenToFlush();
 }
 
 void SkInternalAtlasTextContext::recordDraw(const void* srcVertexData, int glyphCnt,

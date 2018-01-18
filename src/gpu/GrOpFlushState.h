@@ -67,8 +67,8 @@ public:
 
     /** Overrides of GrDeferredUploadTarget. */
 
-    GrDeferredUploadToken addInlineUpload(GrDeferredTextureUploadFn&&) final;
-    GrDeferredUploadToken addASAPUpload(GrDeferredTextureUploadFn&&) final;
+    GrDeferredUploadToken addInlineUpload(GrFoo*, GrDeferredTextureUploadFn&&) final;
+    GrDeferredUploadToken addASAPUpload(GrFoo*, GrDeferredTextureUploadFn&&) final;
 
     /** Overrides of GrMeshDrawOp::Target. */
 

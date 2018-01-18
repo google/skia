@@ -8,7 +8,6 @@
 #ifndef GrDrawingManager_DEFINED
 #define GrDrawingManager_DEFINED
 
-#include "GrOpFlushState.h"
 #include "GrPathRenderer.h"
 #include "GrPathRendererChain.h"
 #include "GrRenderTargetOpList.h"
@@ -92,7 +91,7 @@ private:
             , fAtlasTextContext(nullptr)
             , fPathRendererChain(nullptr)
             , fSoftwarePathRenderer(nullptr)
-            , fFlushState(context->getGpu(), context->contextPriv().resourceProvider())
+//            , fFlushState(context->getGpu(), context->contextPriv().resourceProvider())
             , fFlushing(false) {}
 
     void abandon();
@@ -138,7 +137,7 @@ private:
     GrPathRendererChain*              fPathRendererChain;
     GrSoftwarePathRenderer*           fSoftwarePathRenderer;
 
-    GrOpFlushState                    fFlushState;
+    GrFoo                             fFoo;
     bool                              fFlushing;
 
     SkTArray<GrOnFlushCallbackObject*> fOnFlushCBObjects;

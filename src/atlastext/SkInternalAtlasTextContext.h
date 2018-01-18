@@ -35,9 +35,9 @@ public:
     GrAtlasGlyphCache* atlasGlyphCache();
     GrTextBlobCache* textBlobCache();
 
-    GrDeferredUploadToken addInlineUpload(GrDeferredTextureUploadFn&&) override;
+    GrDeferredUploadToken addInlineUpload(GrFoo*, GrDeferredTextureUploadFn&&) override;
 
-    GrDeferredUploadToken addASAPUpload(GrDeferredTextureUploadFn&&) override;
+    GrDeferredUploadToken addASAPUpload(GrFoo*, GrDeferredTextureUploadFn&&) override;
 
     void recordDraw(const void* vertexData, int glyphCnt, const SkMatrix&, void* targetHandle);
 
