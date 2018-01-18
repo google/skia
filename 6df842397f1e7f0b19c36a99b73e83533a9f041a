@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "cbefbac3_4c2256f5",
+        "filename": "src/core/SkFlattenable.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5376
+      },
+      "writtenOn": "2018-01-18T19:54:51Z",
+      "side": 1,
+      "message": "Hmm. Yeah as it stands now it\u0027s not thread safe. I considered doing the sort as a part of InitializeFlattenablesIfNeeded call, but it wasn\u0027t clear to me whether the entries can be modified after the initial initialization. Do you by any chance know if that\u0027s possible? If not, then adding something like SkFlattenable::Finalize which sorts at the end of InitializeFlattenablesIfNeeded (or the once initialization rather) is better. WDYT?",
+      "parentUuid": "f31da27b_94f2631b",
+      "revId": "6df842397f1e7f0b19c36a99b73e83533a9f041a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "235b9d49_9843213a",
         "filename": "src/core/SkFlattenable.cpp",
         "patchSetId": 2
@@ -66,6 +84,30 @@
     },
     {
       "key": {
+        "uuid": "c20382b5_58ae990d",
+        "filename": "src/core/SkFlattenable.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 5376
+      },
+      "writtenOn": "2018-01-18T19:54:51Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "eee347da_d8d2acd5",
+      "range": {
+        "startLine": 114,
+        "startChar": 16,
+        "endLine": 114,
+        "endChar": 32
+      },
+      "revId": "6df842397f1e7f0b19c36a99b73e83533a9f041a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a345143f_0f7c1bd3",
         "filename": "tests/FlattenableNameToFactory.cpp",
         "patchSetId": 2
@@ -86,6 +128,30 @@
       "revId": "6df842397f1e7f0b19c36a99b73e83533a9f041a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0c1764ef_179e3bae",
+        "filename": "tests/FlattenableNameToFactory.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5376
+      },
+      "writtenOn": "2018-01-18T19:54:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a345143f_0f7c1bd3",
+      "range": {
+        "startLine": 16,
+        "startChar": 50,
+        "endLine": 16,
+        "endChar": 55
+      },
+      "revId": "6df842397f1e7f0b19c36a99b73e83533a9f041a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
