@@ -55,3 +55,15 @@ DEF_SIMPLE_GM(blurimagevmask, canvas, 700, 1200) {
     }
 
 }
+
+#include "Resources.h"
+DEF_SIMPLE_GM(blur_image, canvas, 500, 500) {
+    auto image = GetResourceAsImage("images/mandrill_128.png");
+
+    SkPaint paint;
+    paint.setMaskFilter(SkBlurMaskFilter::Make(kNormal_SkBlurStyle, 4));
+
+    canvas->drawImage(image, 10, 10, &paint);
+    canvas->scale(1.01f, 1.01f);
+    canvas->drawImage(image, 10 + image->width() + 10.f, 10, &paint);
+}
