@@ -14,7 +14,7 @@
 #include "GrPathRenderer.h"
 #include "SkTInternalLList.h"
 #include "ccpr/GrCCAtlas.h"
-#include "ccpr/GrCCCoverageOp.h"
+#include "ccpr/GrCCPathParser.h"
 #include "ccpr/GrCCPathProcessor.h"
 #include "ops/GrDrawOp.h"
 
@@ -77,7 +77,7 @@ public:
         void onPrepare(GrOpFlushState*) override {}
         void onExecute(GrOpFlushState*) override;
 
-        int setupResources(GrOnFlushResourceProvider*, GrCCCoverageOpsBuilder*,
+        int setupResources(GrOnFlushResourceProvider*,
                            GrCCPathProcessor::Instance* pathInstanceData, int pathInstanceIdx);
 
     private:
@@ -156,7 +156,7 @@ public:
             return fPathDevIBounds;
         }
         void placePathInAtlas(GrCoverageCountingPathRenderer*, GrOnFlushResourceProvider*,
-                              GrCCCoverageOpsBuilder*);
+                              GrCCPathParser*);
 
         const SkVector& atlasScale() const {
             SkASSERT(fHasAtlasTransform);
@@ -201,7 +201,7 @@ private:
 
     GrCCAtlas* placeParsedPathInAtlas(GrOnFlushResourceProvider*, const SkIRect& accessRect,
                                       const SkIRect& pathIBounds, int16_t* atlasOffsetX,
-                                      int16_t* atlasOffsetY, GrCCCoverageOpsBuilder*);
+                                      int16_t* atlasOffsetY);
 
     struct RTPendingPaths {
         ~RTPendingPaths() {
@@ -221,6 +221,7 @@ private:
     sk_sp<const GrBuffer> fPerFlushIndexBuffer;
     sk_sp<const GrBuffer> fPerFlushVertexBuffer;
     sk_sp<GrBuffer> fPerFlushInstanceBuffer;
+    sk_sp<GrCCPathParser> fPerFlushPathParser;
     GrSTAllocator<4, GrCCAtlas> fPerFlushAtlases;
     bool fPerFlushResourcesAreValid;
     SkDEBUGCODE(bool fFlushing = false);

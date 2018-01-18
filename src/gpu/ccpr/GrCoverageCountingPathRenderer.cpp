@@ -277,6 +277,7 @@ void GrCoverageCountingPathRenderer::preFlush(GrOnFlushResourceProvider* onFlush
     SkASSERT(!fPerFlushIndexBuffer);
     SkASSERT(!fPerFlushVertexBuffer);
     SkASSERT(!fPerFlushInstanceBuffer);
+    SkASSERT(!fPerFlushPathParser);
     SkASSERT(fPerFlushAtlases.empty());
     SkDEBUGCODE(fFlushing = true);
 
@@ -347,7 +348,8 @@ void GrCoverageCountingPathRenderer::preFlush(GrOnFlushResourceProvider* onFlush
     SkASSERT(pathInstanceData);
     int pathInstanceIdx = 0;
 
-    GrCCCoverageOpsBuilder atlasOpsBuilder(maxTotalPaths, maxPathPoints, numSkPoints, numSkVerbs);
+    fPerFlushPathParser = sk_make_sp<GrCCPathParser>(maxTotalPaths, maxPathPoints, numSkPoints,
+                                                     numSkVerbs);
     SkDEBUGCODE(int skippedTotalPaths = 0);
 
     // Allocate atlas(es) and fill out GPU instance buffers.
@@ -362,14 +364,13 @@ void GrCoverageCountingPathRenderer::preFlush(GrOnFlushResourceProvider* onFlush
         drawOpsIter.init(rtPendingPaths.fDrawOps,
                          SkTInternalLList<DrawPathsOp>::Iter::kHead_IterStart);
         while (DrawPathsOp* op = drawOpsIter.get()) {
-            pathInstanceIdx = op->setupResources(onFlushRP, &atlasOpsBuilder, pathInstanceData,
-                                                 pathInstanceIdx);
+            pathInstanceIdx = op->setupResources(onFlushRP, pathInstanceData, pathInstanceIdx);
             drawOpsIter.next();
             SkDEBUGCODE(skippedTotalPaths += op->numSkippedInstances_debugOnly());
         }
 
         for (auto& clipsIter : rtPendingPaths.fClipPaths) {
-            clipsIter.second.placePathInAtlas(this, onFlushRP, &atlasOpsBuilder);
+            clipsIter.second.placePathInAtlas(this, onFlushRP, fPerFlushPathParser.get());
         }
     }
 
@@ -378,36 +379,30 @@ void GrCoverageCountingPathRenderer::preFlush(GrOnFlushResourceProvider* onFlush
     SkASSERT(pathInstanceIdx == maxTotalPaths - skippedTotalPaths - numClipPaths);
 
     if (!fPerFlushAtlases.empty()) {
-        atlasOpsBuilder.emitOp(fPerFlushAtlases.back().drawBounds());
+        auto coverageCountBatchID = fPerFlushPathParser->closeCurrentBatch();
+        fPerFlushAtlases.back().setCoverageCountBatchID(coverageCountBatchID);
     }
 
-    SkSTArray<4, std::unique_ptr<GrCCCoverageOp>> atlasOps(fPerFlushAtlases.count());
-    if (!atlasOpsBuilder.finalize(onFlushRP, &atlasOps)) {
-        SkDebugf("WARNING: failed to allocate ccpr atlas buffers. No paths will be drawn.\n");
+    if (!fPerFlushPathParser->finalize(onFlushRP)) {
+        SkDebugf("WARNING: failed to allocate GPU buffers for CCPR. No paths will be drawn.\n");
         return;
     }
-    SkASSERT(atlasOps.count() == fPerFlushAtlases.count());
 
-    // Draw the coverage ops into their respective atlases.
+    // Draw the atlas(es).
     GrTAllocator<GrCCAtlas>::Iter atlasIter(&fPerFlushAtlases);
-    for (std::unique_ptr<GrCCCoverageOp>& atlasOp : atlasOps) {
-        SkAssertResult(atlasIter.next());
-        GrCCAtlas* atlas = atlasIter.get();
-        SkASSERT(atlasOp->bounds() ==
-                 SkRect::MakeIWH(atlas->drawBounds().width(), atlas->drawBounds().height()));
-        if (auto rtc = atlas->finalize(onFlushRP, std::move(atlasOp))) {
+    while (atlasIter.next()) {
+        if (auto rtc = atlasIter.get()->finalize(onFlushRP, fPerFlushPathParser)) {
             results->push_back(std::move(rtc));
         }
     }
-    SkASSERT(!atlasIter.next());
 
     fPerFlushResourcesAreValid = true;
 }
 
 int CCPR::DrawPathsOp::setupResources(GrOnFlushResourceProvider* onFlushRP,
-                                      GrCCCoverageOpsBuilder* atlasOpsBuilder,
                                       GrCCPathProcessor::Instance* pathInstanceData,
                                       int pathInstanceIdx) {
+    GrCCPathParser* parser = fCCPR->fPerFlushPathParser.get();
     const GrCCAtlas* currentAtlas = nullptr;
     SkASSERT(fInstanceCount > 0);
     SkASSERT(-1 == fBaseInstance);
@@ -418,14 +413,14 @@ int CCPR::DrawPathsOp::setupResources(GrOnFlushResourceProvider* onFlushRP,
         // one rotated an additional 45 degrees. The path vertex shader uses these two bounding
         // boxes to generate an octagon that circumscribes the path.
         SkRect devBounds, devBounds45;
-        atlasOpsBuilder->parsePath(draw->fMatrix, draw->fPath, &devBounds, &devBounds45);
+        parser->parsePath(draw->fMatrix, draw->fPath, &devBounds, &devBounds45);
 
         SkIRect devIBounds;
         devBounds.roundOut(&devIBounds);
 
         int16_t offsetX, offsetY;
         GrCCAtlas* atlas = fCCPR->placeParsedPathInAtlas(onFlushRP, draw->fClipIBounds, devIBounds,
-                                                         &offsetX, &offsetY, atlasOpsBuilder);
+                                                         &offsetX, &offsetY);
         if (!atlas) {
             SkDEBUGCODE(++fNumSkippedInstances);
             continue;
@@ -457,12 +452,12 @@ int CCPR::DrawPathsOp::setupResources(GrOnFlushResourceProvider* onFlushRP,
 
 void CCPR::ClipPath::placePathInAtlas(GrCoverageCountingPathRenderer* ccpr,
                                       GrOnFlushResourceProvider* onFlushRP,
-                                      GrCCCoverageOpsBuilder* atlasOpsBuilder) {
+                                      GrCCPathParser* parser) {
     SkASSERT(!this->isUninitialized());
     SkASSERT(!fHasAtlas);
-    atlasOpsBuilder->parseDeviceSpacePath(fDeviceSpacePath);
+    parser->parseDeviceSpacePath(fDeviceSpacePath);
     fAtlas = ccpr->placeParsedPathInAtlas(onFlushRP, fAccessRect, fPathDevIBounds, &fAtlasOffsetX,
-                                          &fAtlasOffsetY, atlasOpsBuilder);
+                                          &fAtlasOffsetY);
     SkDEBUGCODE(fHasAtlas = true);
 }
 
@@ -471,9 +466,8 @@ GrCCAtlas* GrCoverageCountingPathRenderer::placeParsedPathInAtlas(
         const SkIRect& clipIBounds,
         const SkIRect& pathIBounds,
         int16_t* atlasOffsetX,
-        int16_t* atlasOffsetY,
-        GrCCCoverageOpsBuilder* atlasOpsBuilder) {
-    using ScissorMode = GrCCCoverageOpsBuilder::ScissorMode;
+        int16_t* atlasOffsetY) {
+    using ScissorMode = GrCCPathParser::ScissorMode;
 
     ScissorMode scissorMode;
     SkIRect clippedPathIBounds;
@@ -483,23 +477,25 @@ GrCCAtlas* GrCoverageCountingPathRenderer::placeParsedPathInAtlas(
     } else if (clippedPathIBounds.intersect(clipIBounds, pathIBounds)) {
         scissorMode = ScissorMode::kScissored;
     } else {
-        atlasOpsBuilder->discardParsedPath();
+        fPerFlushPathParser->discardParsedPath();
         return nullptr;
     }
 
     SkIPoint16 atlasLocation;
-    const int h = clippedPathIBounds.height(), w = clippedPathIBounds.width();
+    int h = clippedPathIBounds.height(), w = clippedPathIBounds.width();
     if (fPerFlushAtlases.empty() || !fPerFlushAtlases.back().addRect(w, h, &atlasLocation)) {
         if (!fPerFlushAtlases.empty()) {
             // The atlas is out of room and can't grow any bigger.
-            atlasOpsBuilder->emitOp(fPerFlushAtlases.back().drawBounds());
+            auto coverageCountBatchID = fPerFlushPathParser->closeCurrentBatch();
+            fPerFlushAtlases.back().setCoverageCountBatchID(coverageCountBatchID);
         }
         fPerFlushAtlases.emplace_back(*onFlushRP->caps(), w, h).addRect(w, h, &atlasLocation);
     }
 
     *atlasOffsetX = atlasLocation.x() - static_cast<int16_t>(clippedPathIBounds.left());
     *atlasOffsetY = atlasLocation.y() - static_cast<int16_t>(clippedPathIBounds.top());
-    atlasOpsBuilder->saveParsedPath(scissorMode, clippedPathIBounds, *atlasOffsetX, *atlasOffsetY);
+    fPerFlushPathParser->saveParsedPath(scissorMode, clippedPathIBounds, *atlasOffsetX,
+                                        *atlasOffsetY);
 
     return &fPerFlushAtlases.back();
 }
@@ -553,6 +549,7 @@ void GrCoverageCountingPathRenderer::postFlush(GrDeferredUploadToken, const uint
                                                int numOpListIDs) {
     SkASSERT(fFlushing);
     fPerFlushAtlases.reset();
+    fPerFlushPathParser.reset();
     fPerFlushInstanceBuffer.reset();
     fPerFlushVertexBuffer.reset();
     fPerFlushIndexBuffer.reset();
