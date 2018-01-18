@@ -92,9 +92,10 @@ enum class GrGLANGLEVendor {
     kIntel
 };
 
-enum class GrGLANGLERenderer{
+enum class GrGLANGLERenderer {
     kUnknown,
-    kIvyBridge
+    kIvyBridge,
+    kSkylake
 };
 
 ////////////////////////////////////////////////////////////////////////////////
