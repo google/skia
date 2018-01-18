@@ -182,7 +182,7 @@ void GrAtlasTextOp::finalizeForTextTarget(uint32_t color, const GrCaps& caps) {
 void GrAtlasTextOp::executeForTextTarget(SkAtlasTextTarget* target) {
     FlushInfo flushInfo;
     SkAutoGlyphCache glyphCache;
-    auto& context = target->context()->internal();
+    SkInternalAtlasTextContext& context = target->context()->internal();
     auto* atlasGlyphCache = context.grContext()->getAtlasGlyphCache();
     for (int i = 0; i < fGeoCount; ++i) {
         GrAtlasTextBlob::VertexRegenerator regenerator(

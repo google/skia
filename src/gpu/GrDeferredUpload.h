@@ -96,22 +96,8 @@ using GrDeferredTextureUploadWritePixelsFn =
  */
 using GrDeferredTextureUploadFn = std::function<void(GrDeferredTextureUploadWritePixelsFn&)>;
 
-/**
- * An interface for scheduling deferred uploads. It provides sequence tokens and accepts asap and
- * deferred inline uploads.
- */
-class GrDeferredUploadTarget {
+class GrFoo {
 public:
-    virtual ~GrDeferredUploadTarget() {}
-
-    /** Returns the token of the draw that this upload will occur before. */
-    virtual GrDeferredUploadToken addInlineUpload(GrDeferredTextureUploadFn&&) = 0;
-
-    /** Returns the token of the draw that this upload will occur before. Since ASAP uploads
-        are done first during a flush, this will be the first token since the most recent
-        flush. */
-    virtual GrDeferredUploadToken addASAPUpload(GrDeferredTextureUploadFn&& upload) = 0;
-
     /** Gets the token one beyond the last token that has been flushed. */
     GrDeferredUploadToken nextTokenToFlush() const { return fLastFlushedToken.next(); }
 
@@ -120,9 +106,9 @@ public:
         that draw. */
     GrDeferredUploadToken nextDrawToken() const { return fLastIssuedToken.next(); }
 
-protected:
-    // Methods that advance the internal tokens are protected so that the subclass can determine
-    // access.
+private:
+    friend class SkInternalAtlasTextContext;
+    friend class GrOpFlushState;
 
     /** Issues the next token for a draw. */
     GrDeferredUploadToken issueDrawToken() { return ++fLastIssuedToken; }
@@ -130,9 +116,27 @@ protected:
     /** Advances the last flushed token by one. */
     GrDeferredUploadToken flushToken() { return ++fLastFlushedToken; }
 
-private:
     GrDeferredUploadToken fLastIssuedToken = GrDeferredUploadToken::AlreadyFlushedToken();
     GrDeferredUploadToken fLastFlushedToken = GrDeferredUploadToken::AlreadyFlushedToken();
+};
+
+/**
+ * An interface for scheduling deferred uploads. It provides sequence tokens and accepts asap and
+ * deferred inline uploads.
+ */
+class GrDeferredUploadTarget {
+public:
+    virtual ~GrDeferredUploadTarget() {}
+
+    virtual GrFoo* foo() = 0;
+
+    /** Returns the token of the draw that this upload will occur before. */
+    virtual GrDeferredUploadToken addInlineUpload(GrDeferredTextureUploadFn&&) = 0;
+
+    /** Returns the token of the draw that this upload will occur before. Since ASAP uploads
+        are done first during a flush, this will be the first token since the most recent
+        flush. */
+    virtual GrDeferredUploadToken addASAPUpload(GrDeferredTextureUploadFn&& upload) = 0;
 };
 
 #endif

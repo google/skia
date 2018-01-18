@@ -14,8 +14,8 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
-GrOpFlushState::GrOpFlushState(GrGpu* gpu, GrResourceProvider* resourceProvider)
-        : fVertexPool(gpu), fIndexPool(gpu), fGpu(gpu), fResourceProvider(resourceProvider) {}
+GrOpFlushState::GrOpFlushState(GrGpu* gpu, GrResourceProvider* resourceProvider, GrFoo* foo)
+        : fVertexPool(gpu), fIndexPool(gpu), fGpu(gpu), fResourceProvider(resourceProvider), fFoo(foo) {}
 
 const GrCaps& GrOpFlushState::caps() const {
     return *fGpu->caps();
@@ -28,7 +28,7 @@ GrGpuRTCommandBuffer* GrOpFlushState::rtCommandBuffer() {
 void GrOpFlushState::executeDrawsAndUploadsForMeshDrawOp(uint32_t opID, const SkRect& opBounds) {
     SkASSERT(this->rtCommandBuffer());
     while (fCurrDraw != fDraws.end() && fCurrDraw->fOpID == opID) {
-        GrDeferredUploadToken drawToken = this->nextTokenToFlush();
+        GrDeferredUploadToken drawToken = fFoo->nextTokenToFlush();
         while (fCurrUpload != fInlineUploads.end() &&
                fCurrUpload->fUploadBeforeToken == drawToken) {
             this->rtCommandBuffer()->inlineUpload(this, fCurrUpload->fUpload);
@@ -39,7 +39,7 @@ void GrOpFlushState::executeDrawsAndUploadsForMeshDrawOp(uint32_t opID, const Sk
                                       fMeshes.begin() + fCurrMesh, nullptr, fCurrDraw->fMeshCnt,
                                       opBounds);
         fCurrMesh += fCurrDraw->fMeshCnt;
-        this->flushToken();
+        fFoo->flushToken();
         ++fCurrDraw;
     }
 }
@@ -47,7 +47,7 @@ void GrOpFlushState::executeDrawsAndUploadsForMeshDrawOp(uint32_t opID, const Sk
 void GrOpFlushState::preExecuteDraws() {
     fVertexPool.unmap();
     fIndexPool.unmap();
-    for (auto& upload : fAsapUploads) {
+    for (auto& upload : fASAPUploads) {
         this->doUpload(upload);
     }
     // Setup execution iterators.
@@ -62,7 +62,7 @@ void GrOpFlushState::reset() {
     fVertexPool.reset();
     fIndexPool.reset();
     fArena.reset();
-    fAsapUploads.reset();
+    fASAPUploads.reset();
     fInlineUploads.reset();
     fDraws.reset();
     fMeshes.reset();
@@ -104,13 +104,13 @@ void GrOpFlushState::doUpload(GrDeferredTextureUploadFn& upload) {
 }
 
 GrDeferredUploadToken GrOpFlushState::addInlineUpload(GrDeferredTextureUploadFn&& upload) {
-    return fInlineUploads.append(&fArena, std::move(upload), this->nextDrawToken())
+    return fInlineUploads.append(&fArena, std::move(upload), fFoo->nextDrawToken())
             .fUploadBeforeToken;
 }
 
 GrDeferredUploadToken GrOpFlushState::addASAPUpload(GrDeferredTextureUploadFn&& upload) {
-    fAsapUploads.append(&fArena, std::move(upload));
-    return this->nextTokenToFlush();
+    fASAPUploads.append(&fArena, std::move(upload));
+    return fFoo->nextTokenToFlush();
 }
 
 void GrOpFlushState::draw(const GrGeometryProcessor* gp, const GrPipeline* pipeline,
@@ -125,14 +125,14 @@ void GrOpFlushState::draw(const GrGeometryProcessor* gp, const GrPipeline* pipel
         // uploads, add this mesh to it.
         if (lastDraw.fGeometryProcessor == gp && lastDraw.fPipeline == pipeline) {
             if (fInlineUploads.begin() == fInlineUploads.end() ||
-                fInlineUploads.tail()->fUploadBeforeToken != this->nextDrawToken()) {
+                fInlineUploads.tail()->fUploadBeforeToken != fFoo->nextDrawToken()) {
                 ++lastDraw.fMeshCnt;
                 return;
             }
         }
     }
     auto& draw = fDraws.append(&fArena);
-    GrDeferredUploadToken token = this->issueDrawToken();
+    GrDeferredUploadToken token = fFoo->issueDrawToken();
 
     draw.fGeometryProcessor.reset(gp);
     draw.fPipeline = pipeline;
