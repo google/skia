@@ -17,15 +17,12 @@ extern const SkBitmapProcState::SampleProc32 gSkBitmapProcStateSample32_neon[];
 
 #define   NAME_WRAP(x)  x ## _neon
 #include "SkBitmapProcState_filter_neon.h"
+#include "SkBitmapProcState_opts_neon.h"
 #include "SkBitmapProcState_procs.h"
 
 const SkBitmapProcState::SampleProc32 gSkBitmapProcStateSample32_neon[] = {
-    S32_opaque_D32_nofilter_DXDY_neon,
-    S32_alpha_D32_nofilter_DXDY_neon,
-    S32_opaque_D32_nofilter_DX_neon,
-    S32_alpha_D32_nofilter_DX_neon,
-    S32_opaque_D32_filter_DXDY_neon,
-    S32_alpha_D32_filter_DXDY_neon,
-    S32_opaque_D32_filter_DX_neon,
-    S32_alpha_D32_filter_DX_neon,
+        S32_opaque_D32_nofilter_DXDY_neon,  S32_alpha_D32_nofilter_DXDY_neon,
+        S32_opaque_D32_nofilter_DX_neon,    S32_alpha_D32_nofilter_DX_neon,
+        S32_opaque_D32_filter_DXDY_neon_4x, S32_alpha_D32_filter_DXDY_neon_4x,
+        S32_opaque_D32_filter_DX_neon_4x,   S32_alpha_D32_filter_DX_neon_4x,
 };

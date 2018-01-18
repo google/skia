@@ -19,6 +19,7 @@ armv7 = [
 ]
 
 neon = [
+  "$_src/opts/SkBitmapProcState_opts_neon.cpp",
   "$_src/opts/SkBitmapProcState_arm_neon.cpp",
   "$_src/opts/SkBitmapProcState_matrixProcs_neon.cpp",
   "$_src/opts/SkBlitMask_opts_arm_neon.cpp",
