@@ -12,6 +12,7 @@
       android:label="SkQP"
       android:debuggable="true">
 
+      <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
       <activity android:name=".MainActivity">
           <intent-filter>
               <action android:name="android.intent.action.MAIN" />
