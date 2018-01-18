@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "96248ade_878ea3a5",
+        "filename": "src/core/SkMathPriv.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 219,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-01-18T18:20:33Z",
+      "side": 1,
+      "message": "Probably a good idea to make this static inline.",
+      "revId": "0dc0e76b77cc97a05d7d86c340dd135bf70a2bcb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
