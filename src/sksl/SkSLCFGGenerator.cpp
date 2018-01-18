@@ -137,6 +137,15 @@ bool BasicBlock::tryRemoveLValueBefore(std::vector<BasicBlock::Node>::iterator* 
                 return false;
             }
             return this->tryRemoveExpressionBefore(iter, ((IndexExpression*) lvalue)->fIndex.get());
+        case Expression::kTernary_Kind:
+            if (!this->tryRemoveExpressionBefore(iter,
+                                                 ((TernaryExpression*) lvalue)->fTest.get())) {
+                return false;
+            }
+            if (!this->tryRemoveLValueBefore(iter, ((TernaryExpression*) lvalue)->fIfTrue.get())) {
+                return false;
+            }
+            return this->tryRemoveLValueBefore(iter, ((TernaryExpression*) lvalue)->fIfFalse.get());
         default:
             ABORT("invalid lvalue: %s\n", lvalue->description().c_str());
     }
@@ -424,6 +433,14 @@ void CFGGenerator::addLValue(CFG& cfg, std::unique_ptr<Expression>* e) {
             this->addLValue(cfg, &((Swizzle&) **e).fBase);
             break;
         case Expression::kVariableReference_Kind:
+            break;
+        case Expression::kTernary_Kind:
+            this->addExpression(cfg, &((TernaryExpression&) **e).fTest, true);
+            // Technically we will of course only evaluate one or the other, but if the test turns
+            // out to be constant, the ternary will get collapsed down to just one branch anyway. So
+            // it should be ok to pretend that we always evaluate both branches here.
+            this->addLValue(cfg, &((TernaryExpression&) **e).fIfTrue);
+            this->addLValue(cfg, &((TernaryExpression&) **e).fIfFalse);
             break;
         default:
             // not an lvalue, can't happen

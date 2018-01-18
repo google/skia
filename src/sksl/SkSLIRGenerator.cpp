@@ -2094,6 +2094,12 @@ void IRGenerator::markWrittenTo(const Expression& expr, bool readWrite) {
         case Expression::kIndex_Kind:
             this->markWrittenTo(*((IndexExpression&) expr).fBase, readWrite);
             break;
+        case Expression::kTernary_Kind: {
+            TernaryExpression& t = (TernaryExpression&) expr;
+            this->markWrittenTo(*t.fIfTrue, readWrite);
+            this->markWrittenTo(*t.fIfFalse, readWrite);
+            break;
+        }
         default:
             fErrors.error(expr.fOffset, "cannot assign to '" + expr.description() + "'");
             break;

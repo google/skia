@@ -247,6 +247,17 @@ void Compiler::addDefinition(const Expression* lvalue, std::unique_ptr<Expressio
                                 (std::unique_ptr<Expression>*) &fContext.fDefined_Expression,
                                 definitions);
             break;
+        case Expression::kTernary_Kind:
+            // To simplify analysis, we just pretend that we write to both sides of the ternary.
+            // This allows for false positives (meaning we fail to detect that a variable might not
+            // have been assigned), but is preferable to false negatives.
+            this->addDefinition(((TernaryExpression*) lvalue)->fIfTrue.get(),
+                                (std::unique_ptr<Expression>*) &fContext.fDefined_Expression,
+                                definitions);
+            this->addDefinition(((TernaryExpression*) lvalue)->fIfFalse.get(),
+                                (std::unique_ptr<Expression>*) &fContext.fDefined_Expression,
+                                definitions);
+            break;
         default:
             // not an lvalue, can't happen
             ASSERT(false);
@@ -395,6 +406,10 @@ static bool is_dead(const Expression& lvalue) {
         case Expression::kIndex_Kind: {
             const IndexExpression& idx = (IndexExpression&) lvalue;
             return is_dead(*idx.fBase) && !idx.fIndex->hasSideEffects();
+        }
+        case Expression::kTernary_Kind: {
+            const TernaryExpression& t = (TernaryExpression&) lvalue;
+            return !t.fTest->hasSideEffects() && is_dead(*t.fIfTrue) && is_dead(*t.fIfFalse);
         }
         default:
             ABORT("invalid lvalue: %s\n", lvalue.description().c_str());

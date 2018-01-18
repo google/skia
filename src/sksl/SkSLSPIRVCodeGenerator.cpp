@@ -1452,7 +1452,6 @@ std::unique_ptr<SPIRVCodeGenerator::LValue> SPIRVCodeGenerator::getLValue(const 
                                                                        member,
                                                                        this->getType(expr.fType)));
         }
-
         case Expression::kSwizzle_Kind: {
             Swizzle& swizzle = (Swizzle&) expr;
             size_t count = swizzle.fComponents.size();
@@ -1481,7 +1480,31 @@ std::unique_ptr<SPIRVCodeGenerator::LValue> SPIRVCodeGenerator::getLValue(const 
                                                                               expr.fType));
             }
         }
-
+        case Expression::kTernary_Kind: {
+            TernaryExpression& t = (TernaryExpression&) expr;
+            SpvId test = this->writeExpression(*t.fTest, out);
+            SpvId end = this->nextId();
+            SpvId ifTrueLabel = this->nextId();
+            SpvId ifFalseLabel = this->nextId();
+            this->writeInstruction(SpvOpSelectionMerge, end, SpvSelectionControlMaskNone, out);
+            this->writeInstruction(SpvOpBranchConditional, test, ifTrueLabel, ifFalseLabel, out);
+            this->writeLabel(ifTrueLabel, out);
+            SpvId ifTrue = this->getLValue(*t.fIfTrue, out)->getPointer();
+            ASSERT(ifTrue);
+            this->writeInstruction(SpvOpBranch, end, out);
+            ifTrueLabel = fCurrentBlock;
+            SpvId ifFalse = this->getLValue(*t.fIfFalse, out)->getPointer();
+            ASSERT(ifFalse);
+            ifFalseLabel = fCurrentBlock;
+            this->writeInstruction(SpvOpBranch, end, out);
+            SpvId result = this->nextId();
+            this->writeInstruction(SpvOpPhi, this->getType(*fContext.fBool_Type), result, ifTrue,
+                       ifTrueLabel, ifFalse, ifFalseLabel, out);
+            return std::unique_ptr<SPIRVCodeGenerator::LValue>(new PointerLValue(
+                                                                       *this,
+                                                                       result,
+                                                                       this->getType(expr.fType)));
+        }
         default:
             // expr isn't actually an lvalue, create a dummy variable for it. This case happens due
             // to the need to store values in temporary variables during function calls (see
