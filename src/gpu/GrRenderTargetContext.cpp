@@ -943,7 +943,6 @@ static SkPoint3 map(const SkMatrix& m, const SkPoint3& pt) {
 }
 
 bool GrRenderTargetContext::drawFastShadow(const GrClip& clip,
-                                           GrColor color4ub,
                                            const SkMatrix& viewMatrix,
                                            const SkPath& path,
                                            const SkDrawShadowRec& rec) {
@@ -998,11 +997,9 @@ bool GrRenderTargetContext::drawFastShadow(const GrClip& clip,
                        viewMatrix[SkMatrix::kMSkewX] * viewMatrix[SkMatrix::kMSkewX]);
 
     SkScalar occluderHeight = rec.fZPlaneParams.fZ;
-    GrColor4f color = GrColor4f::FromGrColor(color4ub);
     bool transparent = SkToBool(rec.fFlags & SkShadowFlags::kTransparentOccluder_ShadowFlag);
-    bool tonalColor = !SkToBool(rec.fFlags & SkShadowFlags::kDisableTonalColor_ShadowFlag);
 
-    if (rec.fAmbientAlpha > 0) {
+    if (SkColorGetA(rec.fAmbientColor) > 0) {
         SkScalar devSpaceInsetWidth = SkDrawShadowMetrics::AmbientBlurRadius(occluderHeight);
         const SkScalar umbraRecipAlpha = SkDrawShadowMetrics::AmbientRecipAlpha(occluderHeight);
         const SkScalar devSpaceAmbientBlur = devSpaceInsetWidth * umbraRecipAlpha;
@@ -1020,13 +1017,7 @@ bool GrRenderTargetContext::drawFastShadow(const GrClip& clip,
             ambientRRect = SkRRect::MakeRectXY(outsetRect, outsetRad, outsetRad);
         }
 
-        GrColor ambientColor;
-        if (tonalColor) {
-            // with tonal color, the color only applies to the spot shadow
-            ambientColor = GrColorPackRGBA(0, 0, 0, 255.999f*rec.fAmbientAlpha);
-        } else {
-            ambientColor = color.mulByScalar(rec.fAmbientAlpha).toGrColor();
-        }
+        GrColor ambientColor = SkColorToPremulGrColor(rec.fAmbientColor);
         if (transparent) {
             // set a large inset to force a fill
             devSpaceInsetWidth = ambientRRect.width();
@@ -1044,7 +1035,7 @@ bool GrRenderTargetContext::drawFastShadow(const GrClip& clip,
         this->addDrawOp(clip, std::move(op));
     }
 
-    if (rec.fSpotAlpha > 0) {
+    if (SkColorGetA(rec.fSpotColor) > 0) {
         SkScalar devSpaceSpotBlur;
         SkScalar spotScale;
         SkVector spotOffset;
@@ -1129,21 +1120,7 @@ bool GrRenderTargetContext::drawFastShadow(const GrClip& clip,
             spotShadowRRect = SkRRect::MakeRectXY(outsetRect, outsetRad, outsetRad);
         }
 
-        GrColor spotColor;
-        if (tonalColor) {
-            SkScalar colorScale;
-            SkScalar tonalAlpha;
-            SkShadowUtils::ComputeTonalColorParams(color.fRGBA[0], color.fRGBA[1],
-                                                   color.fRGBA[2], color.fRGBA[3]*rec.fSpotAlpha,
-                                                   &colorScale, &tonalAlpha);
-            color.fRGBA[0] *= colorScale;
-            color.fRGBA[1] *= colorScale;
-            color.fRGBA[2] *= colorScale;
-            color.fRGBA[3] = tonalAlpha;
-            spotColor = color.toGrColor();
-        } else {
-            spotColor = color.mulByScalar(rec.fSpotAlpha).toGrColor();
-        }
+        GrColor spotColor = SkColorToPremulGrColor(rec.fSpotColor);
 
         std::unique_ptr<GrDrawOp> op = GrShadowRRectOp::Make(spotColor, viewMatrix,
                                                              spotShadowRRect,
