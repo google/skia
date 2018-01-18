@@ -81,6 +81,34 @@ private:
     uint64_t fSequenceNumber;
 };
 
+/*
+ * The GrTokenTracker encapsulates the incrementing and distribution of tokens.
+ */
+class GrTokenTracker {
+public:
+    /** Gets the token one beyond the last token that has been flushed. */
+    GrDeferredUploadToken nextTokenToFlush() const { return fLastFlushedToken.next(); }
+
+    /** Gets the next draw token that will be issued by this target. This can be used by an op
+        to record that the next draw it issues will use a resource (e.g. texture) while preparing
+        that draw. */
+    GrDeferredUploadToken nextDrawToken() const { return fLastIssuedToken.next(); }
+
+private:
+    // Only these two classes get to increment the token counters
+    friend class SkInternalAtlasTextContext;
+    friend class GrOpFlushState;
+
+    /** Issues the next token for a draw. */
+    GrDeferredUploadToken issueDrawToken() { return ++fLastIssuedToken; }
+
+    /** Advances the last flushed token by one. */
+    GrDeferredUploadToken flushToken() { return ++fLastFlushedToken; }
+
+    GrDeferredUploadToken fLastIssuedToken = GrDeferredUploadToken::AlreadyFlushedToken();
+    GrDeferredUploadToken fLastFlushedToken = GrDeferredUploadToken::AlreadyFlushedToken();
+};
+
 /**
  * Passed to a deferred upload when it is executed, this method allows the deferred upload to
  * actually write its pixel data into a texture.
@@ -97,12 +125,13 @@ using GrDeferredTextureUploadWritePixelsFn =
 using GrDeferredTextureUploadFn = std::function<void(GrDeferredTextureUploadWritePixelsFn&)>;
 
 /**
- * An interface for scheduling deferred uploads. It provides sequence tokens and accepts asap and
- * deferred inline uploads.
+ * An interface for scheduling deferred uploads. It accepts asap and deferred inline uploads.
  */
 class GrDeferredUploadTarget {
 public:
     virtual ~GrDeferredUploadTarget() {}
+
+    virtual const GrTokenTracker* tokenTracker() = 0;
 
     /** Returns the token of the draw that this upload will occur before. */
     virtual GrDeferredUploadToken addInlineUpload(GrDeferredTextureUploadFn&&) = 0;
@@ -111,28 +140,6 @@ public:
         are done first during a flush, this will be the first token since the most recent
         flush. */
     virtual GrDeferredUploadToken addASAPUpload(GrDeferredTextureUploadFn&& upload) = 0;
-
-    /** Gets the token one beyond the last token that has been flushed. */
-    GrDeferredUploadToken nextTokenToFlush() const { return fLastFlushedToken.next(); }
-
-    /** Gets the next draw token that will be issued by this target. This can be used by an op
-        to record that the next draw it issues will use a resource (e.g. texture) while preparing
-        that draw. */
-    GrDeferredUploadToken nextDrawToken() const { return fLastIssuedToken.next(); }
-
-protected:
-    // Methods that advance the internal tokens are protected so that the subclass can determine
-    // access.
-
-    /** Issues the next token for a draw. */
-    GrDeferredUploadToken issueDrawToken() { return ++fLastIssuedToken; }
-
-    /** Advances the last flushed token by one. */
-    GrDeferredUploadToken flushToken() { return ++fLastFlushedToken; }
-
-private:
-    GrDeferredUploadToken fLastIssuedToken = GrDeferredUploadToken::AlreadyFlushedToken();
-    GrDeferredUploadToken fLastFlushedToken = GrDeferredUploadToken::AlreadyFlushedToken();
 };
 
 #endif

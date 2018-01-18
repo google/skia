@@ -241,8 +241,9 @@ Regenerator::Result Regenerator::doRegen() {
                 result.fFinished = false;
                 return result;
             }
+            auto tokenTracker = fUploadTarget->tokenTracker();
             fGlyphCache->addGlyphToBulkAndSetUseToken(fSubRun->bulkUseToken(), glyph,
-                                                      fUploadTarget->nextDrawToken());
+                                                      tokenTracker->nextDrawToken());
         }
 
         regen_vertices<regenPos, regenCol, regenTexCoords>(currVertex, glyph, vertexStride,
@@ -310,7 +311,8 @@ Regenerator::Result Regenerator::regenerate() {
 
             // set use tokens for all of the glyphs in our subrun.  This is only valid if we
             // have a valid atlas generation
-            fGlyphCache->setUseTokenBulk(*fSubRun->bulkUseToken(), fUploadTarget->nextDrawToken(),
+            fGlyphCache->setUseTokenBulk(*fSubRun->bulkUseToken(),
+                                         fUploadTarget->tokenTracker()->nextDrawToken(),
                                          fSubRun->maskFormat());
             return result;
         }

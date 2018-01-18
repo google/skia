@@ -182,7 +182,7 @@ inline bool GrDrawOpAtlas::updatePlot(GrDeferredUploadTarget* target, AtlasID* i
     // If our most recent upload has already occurred then we have to insert a new
     // upload. Otherwise, we already have a scheduled upload that hasn't yet ocurred.
     // This new update will piggy back on that previously scheduled update.
-    if (plot->lastUploadToken() < target->nextTokenToFlush()) {
+    if (plot->lastUploadToken() < target->tokenTracker()->nextTokenToFlush()) {
         // With c+14 we could move sk_sp into lamba to only ref once.
         sk_sp<Plot> plotsp(SkRef(plot));
 
@@ -244,7 +244,8 @@ bool GrDrawOpAtlas::addToAtlas(AtlasID* id, GrDeferredUploadTarget* target, int 
     for (unsigned int pageIdx = 0; pageIdx < fNumPages; ++pageIdx) {
         Plot* plot = fPages[pageIdx].fPlotList.tail();
         SkASSERT(plot);
-        if ((fNumPages == this->maxPages() && plot->lastUseToken() < target->nextTokenToFlush()) ||
+        if ((fNumPages == this->maxPages() &&
+             plot->lastUseToken() < target->tokenTracker()->nextTokenToFlush()) ||
             plot->flushesSinceLastUsed() >= kRecentlyUsedCount) {
             this->processEvictionAndResetRects(plot);
             SkASSERT(GrBytesPerPixel(fProxies[pageIdx]->config()) == plot->bpp());
@@ -277,7 +278,7 @@ bool GrDrawOpAtlas::addToAtlas(AtlasID* id, GrDeferredUploadTarget* target, int 
     Plot* plot = nullptr;
     for (int pageIdx = (int)(fNumPages-1); pageIdx >= 0; --pageIdx) {
         Plot* currentPlot = fPages[pageIdx].fPlotList.tail();
-        if (currentPlot->lastUseToken() != target->nextDrawToken()) {
+        if (currentPlot->lastUseToken() != target->tokenTracker()->nextDrawToken()) {
             plot = currentPlot;
             break;
         }
