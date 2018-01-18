@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "GrCCCoverageOp.h"
+#include "GrCCPathParser.h"
 
 #include "GrCaps.h"
 #include "GrGpuCommandBuffer.h"
@@ -20,8 +20,23 @@
 using TriangleInstance = GrCCCoverageProcessor::TriangleInstance;
 using CubicInstance = GrCCCoverageProcessor::CubicInstance;
 
-void GrCCCoverageOpsBuilder::parsePath(const SkMatrix& m, const SkPath& path, SkRect* devBounds,
-                                       SkRect* devBounds45) {
+GrCCPathParser::GrCCPathParser(int maxTotalPaths, int maxPathPoints, int numSkPoints,
+                               int numSkVerbs)
+        : fLocalDevPtsBuffer(maxPathPoints + 1)  // Overallocate by one point to accomodate for
+                                                 // overflow with Sk4f. (See parsePath.)
+        , fGeometry(numSkPoints, numSkVerbs)
+        , fPathsInfo(maxTotalPaths)
+        , fScissorSubBatches(maxTotalPaths)
+        , fTotalPrimitiveCounts{PrimitiveTallies(), PrimitiveTallies()} {
+    // Batches decide what to draw by looking where the previous one ended. Define initial batches
+    // that "end" at the beginning of the data. These will not be drawn, but will only be be read by
+    // the first actual batch.
+    fScissorSubBatches.push_back() = {PrimitiveTallies(), SkIRect::MakeEmpty()};
+    fCoverageCountBatches.push_back() = {PrimitiveTallies(), fScissorSubBatches.count()};
+}
+
+void GrCCPathParser::parsePath(const SkMatrix& m, const SkPath& path, SkRect* devBounds,
+                               SkRect* devBounds45) {
     const SkPoint* pts = SkPathPriv::PointData(path);
     int numPts = path.countPoints();
     SkASSERT(numPts + 1 <= fLocalDevPtsBuffer.count());
@@ -77,18 +92,19 @@ void GrCCCoverageOpsBuilder::parsePath(const SkMatrix& m, const SkPath& path, Sk
     this->parsePath(path, fLocalDevPtsBuffer.get());
 }
 
-void GrCCCoverageOpsBuilder::parseDeviceSpacePath(const SkPath& deviceSpacePath) {
+void GrCCPathParser::parseDeviceSpacePath(const SkPath& deviceSpacePath) {
     this->parsePath(deviceSpacePath, SkPathPriv::PointData(deviceSpacePath));
 }
 
-void GrCCCoverageOpsBuilder::parsePath(const SkPath& path, const SkPoint* deviceSpacePts) {
-    SkASSERT(!fParsingPath);
+void GrCCPathParser::parsePath(const SkPath& path, const SkPoint* deviceSpacePts) {
+    SkASSERT(!fInstanceBuffer); // Can't call after finalize().
+    SkASSERT(!fParsingPath); // Call saveParsedPath() or discardParsedPath() for the last one first.
     SkDEBUGCODE(fParsingPath = true);
     SkASSERT(path.isEmpty() || deviceSpacePts);
 
     fCurrPathPointsIdx = fGeometry.points().count();
     fCurrPathVerbsIdx = fGeometry.verbs().count();
-    fCurrPathTallies = PrimitiveTallies();
+    fCurrPathPrimitiveCounts = PrimitiveTallies();
 
     fGeometry.beginPath();
 
@@ -134,45 +150,46 @@ void GrCCCoverageOpsBuilder::parsePath(const SkPath& path, const SkPoint* device
     this->endContourIfNeeded(insideContour);
 }
 
-void GrCCCoverageOpsBuilder::endContourIfNeeded(bool insideContour) {
+void GrCCPathParser::endContourIfNeeded(bool insideContour) {
     if (insideContour) {
-        fCurrPathTallies += fGeometry.endContour();
+        fCurrPathPrimitiveCounts += fGeometry.endContour();
     }
 }
 
-void GrCCCoverageOpsBuilder::saveParsedPath(ScissorMode scissorMode,
-                                            const SkIRect& clippedDevIBounds, int16_t atlasOffsetX,
-                                            int16_t atlasOffsetY) {
+void GrCCPathParser::saveParsedPath(ScissorMode scissorMode, const SkIRect& clippedDevIBounds,
+                                    int16_t atlasOffsetX, int16_t atlasOffsetY) {
     SkASSERT(fParsingPath);
 
-    fPathsInfo.push_back() = {scissorMode, atlasOffsetX, atlasOffsetY, std::move(fTerminatingOp)};
-
-    fTallies[(int)scissorMode] += fCurrPathTallies;
+    fPathsInfo.push_back() = {scissorMode, atlasOffsetX, atlasOffsetY};
+    fTotalPrimitiveCounts[(int)scissorMode] += fCurrPathPrimitiveCounts;
 
     if (ScissorMode::kScissored == scissorMode) {
-        fScissorBatches.push_back() = {fCurrPathTallies,
-                                       clippedDevIBounds.makeOffset(atlasOffsetX, atlasOffsetY)};
+        fScissorSubBatches.push_back() = {fTotalPrimitiveCounts[(int)ScissorMode::kScissored],
+                                          clippedDevIBounds.makeOffset(atlasOffsetX, atlasOffsetY)};
     }
 
     SkDEBUGCODE(fParsingPath = false);
 }
 
-void GrCCCoverageOpsBuilder::discardParsedPath() {
+void GrCCPathParser::discardParsedPath() {
     SkASSERT(fParsingPath);
-
-    // The code will still work whether or not the below assertion is true. It is just unlikely that
-    // the caller would want this, and probably indicative of of a mistake. (Why emit an
-    // intermediate Op (to switch to a new atlas?), just to then throw the path away?)
-    SkASSERT(!fTerminatingOp);
-
     fGeometry.resize_back(fCurrPathPointsIdx, fCurrPathVerbsIdx);
     SkDEBUGCODE(fParsingPath = false);
 }
 
-void GrCCCoverageOpsBuilder::emitOp(SkISize drawBounds) {
-    SkASSERT(!fTerminatingOp);
-    fTerminatingOp.reset(new GrCCCoverageOp(std::move(fScissorBatches), drawBounds));
-    SkASSERT(fScissorBatches.empty());
+GrCCPathParser::CoverageCountBatchID GrCCPathParser::closeCurrentBatch() {
+    SkASSERT(!fInstanceBuffer);
+    SkASSERT(!fCoverageCountBatches.empty());
+
+    int maxMeshes = 1 + fScissorSubBatches.count() -
+                        fCoverageCountBatches.back().fEndScissorSubBatchIdx;
+    fMaxMeshesPerDraw = SkTMax(fMaxMeshesPerDraw, maxMeshes);
+
+    fCoverageCountBatches.push_back() = {
+        fTotalPrimitiveCounts[(int)ScissorMode::kNonScissored],
+        fScissorSubBatches.count()
+    };
+    return fCoverageCountBatches.count() - 1;
 }
 
 // Emits a contour's triangle fan.
@@ -196,8 +213,8 @@ static TriangleInstance* emit_recursive_fan(const SkTArray<SkPoint, true>& pts,
         return out;
     }
 
-    const int32_t oneThirdCount = indexCount / 3;
-    const int32_t twoThirdsCount = (2 * indexCount) / 3;
+    int32_t oneThirdCount = indexCount / 3;
+    int32_t twoThirdsCount = (2 * indexCount) / 3;
     out++->set(pts[indices[firstIndex]], pts[indices[firstIndex + oneThirdCount]],
                pts[indices[firstIndex + twoThirdsCount]], atlasOffset);
 
@@ -215,49 +232,50 @@ static TriangleInstance* emit_recursive_fan(const SkTArray<SkPoint, true>& pts,
     return out;
 }
 
-bool GrCCCoverageOpsBuilder::finalize(GrOnFlushResourceProvider* onFlushRP,
-                                      SkTArray<std::unique_ptr<GrCCCoverageOp>>* ops) {
-    SkASSERT(!fParsingPath);
+bool GrCCPathParser::finalize(GrOnFlushResourceProvider* onFlushRP) {
+    SkASSERT(!fParsingPath); // Call saveParsedPath() or discardParsedPath().
+    SkASSERT(fCoverageCountBatches.back().fEndNonScissorIndices == // Call closeCurrentBatch().
+             fTotalPrimitiveCounts[(int)ScissorMode::kNonScissored]);
+    SkASSERT(fCoverageCountBatches.back().fEndScissorSubBatchIdx == fScissorSubBatches.count());
 
-    // Here we build a single instance buffer to share with every draw call from every CoverageOP we
-    // plan to produce.
+    // Here we build a single instance buffer to share with every internal batch.
     //
-    // CoverageOps process 4 different types of primitives (triangles, quadratics, serpentines,
-    // loops), and each primitive type is further divided into instances that require a scissor and
-    // those that don't. This leaves us with 8 independent instance arrays to build for the GPU.
+    // CCPR processs 3 different types of primitives: triangles, quadratics, cubics. Each primitive
+    // type is further divided into instances that require a scissor and those that don't. This
+    // leaves us with 3*2 = 6 independent instance arrays to build for the GPU.
     //
-    // Rather than placing each instance array in its own GPU buffer, we allocate a single
+    // Rather than place each instance array in its own GPU buffer, we allocate a single
     // megabuffer and lay them all out side-by-side. We can offset the "baseInstance" parameter in
     // our draw calls to direct the GPU to the applicable elements within a given array.
     //
-    // We already know how big to make each of the 8 arrays from fTallies[kNumScissorModes], so
-    // layout is straightforward.
-    PrimitiveTallies baseInstances[kNumScissorModes];
+    // We already know how big to make each of the 6 arrays from fTotalPrimitiveCounts, so layout is
+    // straightforward. Start with triangles and quadratics. They both view the instance buffer as
+    // an array of TriangleInstance[], so we can begin at zero and lay them out one after the other.
+    fBaseInstances[0].fTriangles = 0;
+    fBaseInstances[1].fTriangles = fBaseInstances[0].fTriangles +
+                                   fTotalPrimitiveCounts[0].fTriangles;
+    fBaseInstances[0].fQuadratics = fBaseInstances[1].fTriangles +
+                                    fTotalPrimitiveCounts[1].fTriangles;
+    fBaseInstances[1].fQuadratics = fBaseInstances[0].fQuadratics +
+                                    fTotalPrimitiveCounts[0].fQuadratics;
+    int triEndIdx = fBaseInstances[1].fQuadratics + fTotalPrimitiveCounts[1].fQuadratics;
 
-    // Start with triangles and quadratics. They both view the instance buffer as an array of
-    // TriangleInstance[], so we can just start at zero and lay them out one after the other.
-    baseInstances[0].fTriangles = 0;
-    baseInstances[1].fTriangles = baseInstances[0].fTriangles + fTallies[0].fTriangles;
-    baseInstances[0].fQuadratics = baseInstances[1].fTriangles + fTallies[1].fTriangles;
-    baseInstances[1].fQuadratics = baseInstances[0].fQuadratics + fTallies[0].fQuadratics;
-    int triEndIdx = baseInstances[1].fQuadratics + fTallies[1].fQuadratics;
-
-    // Cubics (loops and serpentines) view the same instance buffer as an array of CubicInstance[].
-    // So, reinterpreting the instance data as CubicInstance[], we start them on the first index
-    // that will not overwrite previous TriangleInstance data.
+    // Cubics view the same instance buffer as an array of CubicInstance[]. So, reinterpreting the
+    // instance data as CubicInstance[], we start them on the first index that will not overwrite
+    // previous TriangleInstance data.
     int cubicBaseIdx =
             GR_CT_DIV_ROUND_UP(triEndIdx * sizeof(TriangleInstance), sizeof(CubicInstance));
-    baseInstances[0].fCubics = cubicBaseIdx;
-    baseInstances[1].fCubics = baseInstances[0].fCubics + fTallies[0].fCubics;
-    int cubicEndIdx = baseInstances[1].fCubics + fTallies[1].fCubics;
+    fBaseInstances[0].fCubics = cubicBaseIdx;
+    fBaseInstances[1].fCubics = fBaseInstances[0].fCubics + fTotalPrimitiveCounts[0].fCubics;
+    int cubicEndIdx = fBaseInstances[1].fCubics + fTotalPrimitiveCounts[1].fCubics;
 
-    sk_sp<GrBuffer> instanceBuffer =
-            onFlushRP->makeBuffer(kVertex_GrBufferType, cubicEndIdx * sizeof(CubicInstance));
-    if (!instanceBuffer) {
+    fInstanceBuffer = onFlushRP->makeBuffer(kVertex_GrBufferType,
+                                            cubicEndIdx * sizeof(CubicInstance));
+    if (!fInstanceBuffer) {
         return false;
     }
 
-    TriangleInstance* triangleInstanceData = static_cast<TriangleInstance*>(instanceBuffer->map());
+    TriangleInstance* triangleInstanceData = static_cast<TriangleInstance*>(fInstanceBuffer->map());
     CubicInstance* cubicInstanceData = reinterpret_cast<CubicInstance*>(triangleInstanceData);
     SkASSERT(cubicInstanceData);
 
@@ -265,15 +283,9 @@ bool GrCCCoverageOpsBuilder::finalize(GrOnFlushResourceProvider* onFlushRP,
     float atlasOffsetX = 0.0, atlasOffsetY = 0.0;
     Sk2f atlasOffset;
     int ptsIdx = -1;
-    PrimitiveTallies instanceIndices[2] = {baseInstances[0], baseInstances[1]};
+    PrimitiveTallies instanceIndices[2] = {fBaseInstances[0], fBaseInstances[1]};
     PrimitiveTallies* currIndices = nullptr;
     SkSTArray<256, int32_t, true> currFan;
-
-#ifdef SK_DEBUG
-    int numScissoredPaths = 0;
-    int numScissorBatches = 0;
-    PrimitiveTallies initialBaseInstances[] = {baseInstances[0], baseInstances[1]};
-#endif
 
     const SkTArray<SkPoint, true>& pts = fGeometry.points();
 
@@ -286,18 +298,6 @@ bool GrCCCoverageOpsBuilder::finalize(GrOnFlushResourceProvider* onFlushRP,
                 atlasOffsetX = static_cast<float>(currPathInfo->fAtlasOffsetX);
                 atlasOffsetY = static_cast<float>(currPathInfo->fAtlasOffsetY);
                 atlasOffset = {atlasOffsetX, atlasOffsetY};
-#ifdef SK_DEBUG
-                if (ScissorMode::kScissored == currPathInfo->fScissorMode) {
-                    ++numScissoredPaths;
-                }
-#endif
-                if (auto op = std::move(currPathInfo->fTerminatingOp)) {
-                    op->setInstanceBuffer(instanceBuffer, baseInstances, instanceIndices);
-                    baseInstances[0] = instanceIndices[0];
-                    baseInstances[1] = instanceIndices[1];
-                    SkDEBUGCODE(numScissorBatches += op->fScissorBatches.count());
-                    ops->push_back(std::move(op));
-                }
                 ++currPathInfo;
                 continue;
 
@@ -345,37 +345,25 @@ bool GrCCCoverageOpsBuilder::finalize(GrOnFlushResourceProvider* onFlushRP,
         }
     }
 
-    instanceBuffer->unmap();
-
-    if (auto op = std::move(fTerminatingOp)) {
-        op->setInstanceBuffer(std::move(instanceBuffer), baseInstances, instanceIndices);
-        SkDEBUGCODE(numScissorBatches += op->fScissorBatches.count());
-        ops->push_back(std::move(op));
-    }
+    fInstanceBuffer->unmap();
 
     SkASSERT(currPathInfo == fPathsInfo.end());
     SkASSERT(ptsIdx == pts.count() - 1);
-    SkASSERT(numScissoredPaths == numScissorBatches);
-    SkASSERT(instanceIndices[0].fTriangles == initialBaseInstances[1].fTriangles);
-    SkASSERT(instanceIndices[1].fTriangles == initialBaseInstances[0].fQuadratics);
-    SkASSERT(instanceIndices[0].fQuadratics == initialBaseInstances[1].fQuadratics);
+    SkASSERT(instanceIndices[0].fTriangles == fBaseInstances[1].fTriangles);
+    SkASSERT(instanceIndices[1].fTriangles == fBaseInstances[0].fQuadratics);
+    SkASSERT(instanceIndices[0].fQuadratics == fBaseInstances[1].fQuadratics);
     SkASSERT(instanceIndices[1].fQuadratics == triEndIdx);
-    SkASSERT(instanceIndices[0].fCubics == initialBaseInstances[1].fCubics);
+    SkASSERT(instanceIndices[0].fCubics == fBaseInstances[1].fCubics);
     SkASSERT(instanceIndices[1].fCubics == cubicEndIdx);
+
+    fMeshesScratchBuffer.reserve(fMaxMeshesPerDraw);
+    fDynamicStatesScratchBuffer.reserve(fMaxMeshesPerDraw);
+
     return true;
 }
 
-void GrCCCoverageOp::setInstanceBuffer(sk_sp<GrBuffer> instanceBuffer,
-                                       const PrimitiveTallies baseInstances[kNumScissorModes],
-                                       const PrimitiveTallies endInstances[kNumScissorModes]) {
-    fInstanceBuffer = std::move(instanceBuffer);
-    fBaseInstances[0] = baseInstances[0];
-    fBaseInstances[1] = baseInstances[1];
-    fInstanceCounts[0] = endInstances[0] - baseInstances[0];
-    fInstanceCounts[1] = endInstances[1] - baseInstances[1];
-}
-
-void GrCCCoverageOp::onExecute(GrOpFlushState* flushState) {
+void GrCCPathParser::drawCoverageCount(GrOpFlushState* flushState, CoverageCountBatchID batchID,
+                                       const SkIRect& drawBounds) const {
     using RenderPass = GrCCCoverageProcessor::RenderPass;
 
     SkASSERT(fInstanceBuffer);
@@ -383,76 +371,84 @@ void GrCCCoverageOp::onExecute(GrOpFlushState* flushState) {
     GrPipeline pipeline(flushState->drawOpArgs().fProxy, GrPipeline::ScissorState::kEnabled,
                         SkBlendMode::kPlus);
 
-    fMeshesScratchBuffer.reserve(1 + fScissorBatches.count());
-    fDynamicStatesScratchBuffer.reserve(1 + fScissorBatches.count());
-
     // Triangles.
-    this->drawMaskPrimitives(flushState, pipeline, RenderPass::kTriangleHulls,
-                             &PrimitiveTallies::fTriangles);
-    this->drawMaskPrimitives(flushState, pipeline, RenderPass::kTriangleEdges,
-                             &PrimitiveTallies::fTriangles);  // Might get skipped.
-    this->drawMaskPrimitives(flushState, pipeline, RenderPass::kTriangleCorners,
-                             &PrimitiveTallies::fTriangles);
+    this->drawRenderPass(flushState, pipeline, batchID, RenderPass::kTriangleHulls,
+                         &PrimitiveTallies::fTriangles, drawBounds);
+    this->drawRenderPass(flushState, pipeline, batchID, RenderPass::kTriangleEdges,
+                         &PrimitiveTallies::fTriangles, drawBounds);  // Might get skipped.
+    this->drawRenderPass(flushState, pipeline, batchID, RenderPass::kTriangleCorners,
+                         &PrimitiveTallies::fTriangles, drawBounds);
 
     // Quadratics.
-    this->drawMaskPrimitives(flushState, pipeline, RenderPass::kQuadraticHulls,
-                             &PrimitiveTallies::fQuadratics);
-    this->drawMaskPrimitives(flushState, pipeline, RenderPass::kQuadraticCorners,
-                             &PrimitiveTallies::fQuadratics);
+    this->drawRenderPass(flushState, pipeline, batchID, RenderPass::kQuadraticHulls,
+                         &PrimitiveTallies::fQuadratics, drawBounds);
+    this->drawRenderPass(flushState, pipeline, batchID, RenderPass::kQuadraticCorners,
+                         &PrimitiveTallies::fQuadratics, drawBounds);
 
     // Cubics.
-    this->drawMaskPrimitives(flushState, pipeline, RenderPass::kCubicHulls,
-                             &PrimitiveTallies::fCubics);
-    this->drawMaskPrimitives(flushState, pipeline, RenderPass::kCubicCorners,
-                             &PrimitiveTallies::fCubics);
+    this->drawRenderPass(flushState, pipeline, batchID, RenderPass::kCubicHulls,
+                         &PrimitiveTallies::fCubics, drawBounds);
+    this->drawRenderPass(flushState, pipeline, batchID, RenderPass::kCubicCorners,
+                         &PrimitiveTallies::fCubics, drawBounds);
 }
 
-void GrCCCoverageOp::drawMaskPrimitives(GrOpFlushState* flushState, const GrPipeline& pipeline,
-                                        GrCCCoverageProcessor::RenderPass renderPass,
-                                        int PrimitiveTallies::*instanceType) const {
-    using ScissorMode = GrCCCoverageOpsBuilder::ScissorMode;
+void GrCCPathParser::drawRenderPass(GrOpFlushState* flushState, const GrPipeline& pipeline,
+                                    CoverageCountBatchID batchID,
+                                    GrCCCoverageProcessor::RenderPass renderPass,
+                                    int PrimitiveTallies::*instanceType,
+                                    const SkIRect& drawBounds) const {
     SkASSERT(pipeline.getScissorState().enabled());
 
     if (!GrCCCoverageProcessor::DoesRenderPass(renderPass, *flushState->caps().shaderCaps())) {
         return;
     }
 
-    fMeshesScratchBuffer.reset();
-    fDynamicStatesScratchBuffer.reset();
+    // Don't call reset(), as that also resets the reserve count.
+    fMeshesScratchBuffer.pop_back_n(fMeshesScratchBuffer.count());
+    fDynamicStatesScratchBuffer.pop_back_n(fDynamicStatesScratchBuffer.count());
 
     GrCCCoverageProcessor proc(flushState->resourceProvider(), renderPass,
                                *flushState->caps().shaderCaps());
 
-    if (int instanceCount = fInstanceCounts[(int)ScissorMode::kNonScissored].*instanceType) {
+    SkASSERT(batchID > 0);
+    SkASSERT(batchID < fCoverageCountBatches.count());
+    const CoverageCountBatch& previousBatch = fCoverageCountBatches[batchID - 1];
+    const CoverageCountBatch& batch = fCoverageCountBatches[batchID];
+
+    if (int instanceCount = batch.fEndNonScissorIndices.*instanceType -
+                            previousBatch.fEndNonScissorIndices.*instanceType) {
         SkASSERT(instanceCount > 0);
-        int baseInstance = fBaseInstances[(int)ScissorMode::kNonScissored].*instanceType;
+        int baseInstance = fBaseInstances[(int)ScissorMode::kNonScissored].*instanceType +
+                           previousBatch.fEndNonScissorIndices.*instanceType;
         proc.appendMesh(fInstanceBuffer.get(), instanceCount, baseInstance, &fMeshesScratchBuffer);
-        fDynamicStatesScratchBuffer.push_back().fScissorRect.setXYWH(0, 0, fDrawBounds.width(),
-                                                                     fDrawBounds.height());
+        fDynamicStatesScratchBuffer.push_back().fScissorRect.setXYWH(0, 0, drawBounds.width(),
+                                                                     drawBounds.height());
     }
 
-    if (fInstanceCounts[(int)ScissorMode::kScissored].*instanceType) {
-        int baseInstance = fBaseInstances[(int)ScissorMode::kScissored].*instanceType;
-        for (const ScissorBatch& batch : fScissorBatches) {
-            SkASSERT(this->bounds().contains(batch.fScissor));
-            const int instanceCount = batch.fInstanceCounts.*instanceType;
-            if (!instanceCount) {
-                continue;
-            }
-            SkASSERT(instanceCount > 0);
-            proc.appendMesh(fInstanceBuffer.get(), instanceCount, baseInstance,
-                            &fMeshesScratchBuffer);
-            fDynamicStatesScratchBuffer.push_back().fScissorRect = batch.fScissor;
-            baseInstance += instanceCount;
+    SkASSERT(previousBatch.fEndScissorSubBatchIdx > 0);
+    SkASSERT(batch.fEndScissorSubBatchIdx <= fScissorSubBatches.count());
+    int baseScissorInstance = fBaseInstances[(int)ScissorMode::kScissored].*instanceType;
+    for (int i = previousBatch.fEndScissorSubBatchIdx; i < batch.fEndScissorSubBatchIdx; ++i) {
+        const ScissorSubBatch& previousSubBatch = fScissorSubBatches[i - 1];
+        const ScissorSubBatch& scissorSubBatch = fScissorSubBatches[i];
+        int startIndex = previousSubBatch.fEndPrimitiveIndices.*instanceType;
+        int instanceCount = scissorSubBatch.fEndPrimitiveIndices.*instanceType - startIndex;
+        if (!instanceCount) {
+            continue;
         }
+        SkASSERT(instanceCount > 0);
+        proc.appendMesh(fInstanceBuffer.get(), instanceCount,
+                        baseScissorInstance + startIndex, &fMeshesScratchBuffer);
+        fDynamicStatesScratchBuffer.push_back().fScissorRect = scissorSubBatch.fScissor;
     }
 
     SkASSERT(fMeshesScratchBuffer.count() == fDynamicStatesScratchBuffer.count());
+    SkASSERT(fMeshesScratchBuffer.count() <= fMaxMeshesPerDraw);
 
     if (!fMeshesScratchBuffer.empty()) {
         SkASSERT(flushState->rtCommandBuffer());
         flushState->rtCommandBuffer()->draw(pipeline, proc, fMeshesScratchBuffer.begin(),
                                             fDynamicStatesScratchBuffer.begin(),
-                                            fMeshesScratchBuffer.count(), this->bounds());
+                                            fMeshesScratchBuffer.count(), SkRect::Make(drawBounds));
     }
 }
