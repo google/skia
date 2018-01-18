@@ -505,7 +505,9 @@ bool SkPictureData::parseBufferTag(SkReadBuffer& buffer, uint32_t tag, uint32_t 
             const int count = SkToInt(size);
             fPaints.reset(count);
             for (int i = 0; i < count; ++i) {
-                buffer.readPaint(&fPaints[i]);
+                if (!buffer.readPaint(&fPaints[i])) {
+                    return false;
+                }
             }
         } break;
         case SK_PICT_PATH_BUFFER_TAG:

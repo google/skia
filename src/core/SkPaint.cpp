@@ -1911,7 +1911,38 @@ void SkPaint::flatten(SkWriteBuffer& buffer) const {
     }
 }
 
-void SkPaint::unflatten(SkReadBuffer& buffer) {
+class SkChecker {
+public:
+    bool ok() const { return fOK; }
+#if 0
+    template <typename T> T range(T value, T min, T max) {
+        int64_t V = static_cast<int64_t>(value);
+        int64_t minV = static_cast<int64_t>(min);
+        int64_t maxV = static_cast<int64_t>(max);
+        if (V < minV || V > maxV) {
+            fOK = false;
+            V = minV;
+        }
+        return V;
+    }
+#endif
+    template <typename T> T range(int64_t value, T min, T max) {
+        int64_t minV = static_cast<int64_t>(min);
+        int64_t maxV = static_cast<int64_t>(max);
+        if (value < minV || value > maxV) {
+            fOK = false;
+            value = minV;
+        }
+        return static_cast<T>(value);
+    }
+
+private:
+    bool fOK = true;
+};
+
+bool SkPaint::unflatten(SkReadBuffer& buffer) {
+    SkChecker ch;
+
     this->setTextSize(buffer.readScalar());
     this->setTextScaleX(buffer.readScalar());
     this->setTextSkewX(buffer.readScalar());
@@ -1922,11 +1953,11 @@ void SkPaint::unflatten(SkReadBuffer& buffer) {
     unsigned flatFlags = unpack_paint_flags(this, buffer.readUInt());
 
     uint32_t tmp = buffer.readUInt();
-    this->setStrokeCap(static_cast<Cap>((tmp >> 24) & 0xFF));
-    this->setStrokeJoin(static_cast<Join>((tmp >> 16) & 0xFF));
-    this->setStyle(static_cast<Style>((tmp >> 12) & 0xF));
-    this->setTextEncoding(static_cast<TextEncoding>((tmp >> 8) & 0xF));
-    this->setBlendMode((SkBlendMode)(tmp & 0xFF));
+    this->setStrokeCap(ch.range((tmp >> 24) & 0xFF, kButt_Cap, kLast_Cap));
+    this->setStrokeJoin(ch.range((tmp >> 16) & 0xFF, kMiter_Join, kLast_Join));
+    this->setStyle(ch.range((tmp >> 12) & 0xF, kFill_Style, kStrokeAndFill_Style));
+    this->setTextEncoding(ch.range((tmp >> 8) & 0xF, kUTF8_TextEncoding, kGlyphID_TextEncoding));
+    this->setBlendMode(ch.range(tmp & 0xFF, SkBlendMode::kLastMode, SkBlendMode::kLastMode));
 
     if (flatFlags & kHasTypeface_FlatFlag) {
         this->setTypeface(buffer.readTypeface());
@@ -1951,6 +1982,12 @@ void SkPaint::unflatten(SkReadBuffer& buffer) {
         this->setLooper(nullptr);
         this->setImageFilter(nullptr);
     }
+
+    if (!buffer.validate(ch.ok())) {
+        this->reset();
+        return false;
+    }
+    return true;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
