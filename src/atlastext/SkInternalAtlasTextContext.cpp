@@ -51,7 +51,7 @@ GrTextBlobCache* SkInternalAtlasTextContext::textBlobCache() {
 
 GrDeferredUploadToken SkInternalAtlasTextContext::addInlineUpload(
         GrDeferredTextureUploadFn&& upload) {
-    auto token = this->nextDrawToken();
+    auto token = fTokenTracker.nextDrawToken();
     fInlineUploads.append(&fArena, InlineUpload{std::move(upload), token});
     return token;
 }
@@ -59,7 +59,7 @@ GrDeferredUploadToken SkInternalAtlasTextContext::addInlineUpload(
 GrDeferredUploadToken SkInternalAtlasTextContext::addASAPUpload(
         GrDeferredTextureUploadFn&& upload) {
     fASAPUploads.append(&fArena, std::move(upload));
-    return this->nextTokenToFlush();
+    return fTokenTracker.nextTokenToFlush();
 }
 
 void SkInternalAtlasTextContext::recordDraw(const void* srcVertexData, int glyphCnt,
@@ -75,7 +75,8 @@ void SkInternalAtlasTextContext::recordDraw(const void* srcVertexData, int glyph
         vertex->fTextureCoord.fY /= 2;
         matrix.mapHomogeneousPoints(&vertex->fPosition, &vertex->fPosition, 1);
     }
-    fDraws.append(&fArena, Draw{glyphCnt, this->issueDrawToken(), targetHandle, vertexData});
+    fDraws.append(&fArena,
+                  Draw{glyphCnt, fTokenTracker.issueDrawToken(), targetHandle, vertexData});
 }
 
 void SkInternalAtlasTextContext::flush() {
@@ -109,7 +110,7 @@ void SkInternalAtlasTextContext::flush() {
         auto vertices = reinterpret_cast<const SkAtlasTextRenderer::SDFVertex*>(draw.fVertexData);
         fRenderer->drawSDFGlyphs(draw.fTargetHandle, fDistanceFieldAtlas.fTextureHandle, vertices,
                                  draw.fGlyphCnt);
-        this->flushToken();
+        fTokenTracker.flushToken();
     }
     fASAPUploads.reset();
     fInlineUploads.reset();

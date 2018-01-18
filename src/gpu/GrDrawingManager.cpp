@@ -121,6 +121,10 @@ GrSemaphoresSubmitted GrDrawingManager::internalFlush(GrSurfaceProxy*,
     SkASSERT(result);
 #endif
 
+    GrOpFlushState flushState(fContext->getGpu(),
+                              fContext->contextPriv().resourceProvider(),
+                              &fTokenTracker);
+
     GrOnFlushResourceProvider onFlushProvider(this);
     // TODO: AFAICT the only reason fFlushState is on GrDrawingManager rather than on the
     // stack here is to preserve the flush tokens.
@@ -150,7 +154,7 @@ GrSemaphoresSubmitted GrDrawingManager::internalFlush(GrSurfaceProxy*,
                 });
 #endif
                 onFlushOpList->makeClosed(*fContext->caps());
-                onFlushOpList->prepare(&fFlushState);
+                onFlushOpList->prepare(&flushState);
                 fOnFlushCBOpLists.push_back(std::move(onFlushOpList));
             }
             renderTargetContexts.reset();
@@ -181,7 +185,7 @@ GrSemaphoresSubmitted GrDrawingManager::internalFlush(GrSurfaceProxy*,
         while (alloc.assign(&startIndex, &stopIndex))
 #endif
         {
-            if (this->executeOpLists(startIndex, stopIndex, &fFlushState)) {
+            if (this->executeOpLists(startIndex, stopIndex, &flushState)) {
                 flushed = true;
             }
         }
@@ -197,7 +201,7 @@ GrSemaphoresSubmitted GrDrawingManager::internalFlush(GrSurfaceProxy*,
         fContext->contextPriv().getResourceCache()->notifyFlushOccurred(type);
     }
     for (GrOnFlushCallbackObject* onFlushCBObject : fOnFlushCBObjects) {
-        onFlushCBObject->postFlush(fFlushState.nextTokenToFlush(), fFlushingOpListIDs.begin(),
+        onFlushCBObject->postFlush(fTokenTracker.nextTokenToFlush(), fFlushingOpListIDs.begin(),
                                    fFlushingOpListIDs.count());
     }
     fFlushingOpListIDs.reset();
@@ -257,7 +261,7 @@ bool GrDrawingManager::executeOpLists(int startIndex, int stopIndex, GrOpFlushSt
     }
 
     SkASSERT(!flushState->commandBuffer());
-    SkASSERT(flushState->nextDrawToken() == flushState->nextTokenToFlush());
+    SkASSERT(fTokenTracker.nextDrawToken() == fTokenTracker.nextTokenToFlush());
 
     // We reset the flush state before the OpLists so that the last resources to be freed are those
     // that are written to in the OpLists. This helps to make sure the most recently used resources

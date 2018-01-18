@@ -381,7 +381,8 @@ private:
                 }
             }
 
-            atlas->setLastUseToken(shapeData->fID, target->deferredUploadTarget()->nextDrawToken());
+            auto uploadTarget = target->deferredUploadTarget();
+            atlas->setLastUseToken(shapeData->fID, uploadTarget->tokenTracker()->nextDrawToken());
 
             this->writePathVertices(atlas,
                                     offset,
