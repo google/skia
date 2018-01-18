@@ -207,8 +207,9 @@ public:
         return factory;
     }
 
-    void readPaint(SkPaint* paint) override {
+    bool readPaint(SkPaint* paint) override {
         *paint = read_paint(*this);
+        return this->isValid();
     }
 };
 
