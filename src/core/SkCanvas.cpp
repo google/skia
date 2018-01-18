@@ -953,6 +953,9 @@ bool SkCanvas::clipRectBounds(const SkRect* bounds, SaveLayerFlags saveLayerFlag
 
     if (imageFilter) {
         clipBounds = imageFilter->filterBounds(clipBounds, ctm);
+        if (clipBounds.isEmpty()) {
+            return false;
+        }
         if (bounds && !imageFilter->canComputeFastBounds()) {
             bounds = nullptr;
         }
