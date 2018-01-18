@@ -33,6 +33,24 @@
       "revId": "41f636a86a1dfd2f916f13dbb23d992612cfa034",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "33b6cfa4_d645ff1e",
+        "filename": "platform_tools/android/apps/skqp/src/main/java/org/skia/skqp/SkQPRunner.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-01-18T13:38:59Z",
+      "side": 1,
+      "message": "looks like you already updated the description to something more accurate.  Would be great if subsquent lines of the description provided some additional rationale.",
+      "parentUuid": "b7d6ad65_91986bd4",
+      "revId": "41f636a86a1dfd2f916f13dbb23d992612cfa034",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
