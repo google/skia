@@ -24,7 +24,7 @@ class GrResourceProvider;
 /** Tracks the state across all the GrOps (really just the GrDrawOps) in a GrOpList flush. */
 class GrOpFlushState final : public GrDeferredUploadTarget, public GrMeshDrawOp::Target {
 public:
-    GrOpFlushState(GrGpu*, GrResourceProvider*);
+    GrOpFlushState(GrGpu*, GrResourceProvider*, GrTokenTracker*);
 
     ~GrOpFlushState() final { this->reset(); }
 
@@ -67,6 +67,7 @@ public:
 
     /** Overrides of GrDeferredUploadTarget. */
 
+    const GrTokenTracker* tokenTracker() final { return fTokenTracker; }
     GrDeferredUploadToken addInlineUpload(GrDeferredTextureUploadFn&&) final;
     GrDeferredUploadToken addASAPUpload(GrDeferredTextureUploadFn&&) final;
 
@@ -119,7 +120,7 @@ private:
     GrIndexBufferAllocPool fIndexPool;
 
     // Data stored on behalf of the ops being flushed.
-    SkArenaAllocList<GrDeferredTextureUploadFn> fAsapUploads;
+    SkArenaAllocList<GrDeferredTextureUploadFn> fASAPUploads;
     SkArenaAllocList<InlineUpload> fInlineUploads;
     SkArenaAllocList<Draw> fDraws;
     // TODO: These should go in the arena. However, GrGpuCommandBuffer and other classes currently
@@ -134,6 +135,7 @@ private:
     // an op is not currently preparing of executing.
     OpArgs* fOpArgs = nullptr;
 
+    GrTokenTracker* fTokenTracker;
     GrGpu* fGpu;
     GrResourceProvider* fResourceProvider;
     GrGpuCommandBuffer* fCommandBuffer = nullptr;
