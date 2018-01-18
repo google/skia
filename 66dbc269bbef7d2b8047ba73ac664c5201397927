@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9d2bd842_0525cbfc",
+        "filename": "include/core/SkDeferredDisplayListRecorder.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-01-18T20:36:05Z",
+      "side": 1,
+      "message": "should this work to make this 0? When I try to it crashes. But if we are using raster, I\u0027ll never actually end up running my unit test below.",
+      "range": {
+        "startLine": 21,
+        "startChar": 8,
+        "endLine": 21,
+        "endChar": 43
+      },
+      "revId": "66dbc269bbef7d2b8047ba73ac664c5201397927",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "49d9f0d3_857e0da0",
+        "filename": "src/gpu/GrProxyProvider.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 345,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-01-18T20:36:05Z",
+      "side": 1,
+      "message": "So I am able to handle the case where we have a releaseProc,but he case I can\u0027t handle is when ownership is set to adopt. If someone makes an SkImage using the DDL GrContext, sets adopt, and then either never used the SkImage or only records it into DDLs but never playsback the DDL we need to be able to delete the underlying texture.\n\nDo we want to support this use case? Do we want to limit the API to only allow lazy SkImage\u0027s with BackendTextures to be borrowed? Or maybe this is a sign we should not support this API for a DDL GrContext (and find a way to hide it from the SkCavans of a recorder).",
+      "range": {
+        "startLine": 343,
+        "startChar": 19,
+        "endLine": 345,
+        "endChar": 21
+      },
+      "revId": "66dbc269bbef7d2b8047ba73ac664c5201397927",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
