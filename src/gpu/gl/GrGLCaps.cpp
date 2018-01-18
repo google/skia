@@ -392,11 +392,6 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         fPreferClientSideDynamicBuffers = true;
     }
 
-    if (kARM_GrGLVendor == ctxInfo.vendor()) {
-        // Mali GPUs have rendering issues with CCPR. Blacklisting until we look into workarounds.
-        fBlacklistCoverageCounting = true;
-    }
-
     if (!contextOptions.fAvoidStencilBuffers) {
         // To reduce surface area, if we avoid stencil buffers, we also disable MSAA.
         this->initFSAASupport(contextOptions, ctxInfo, gli);
