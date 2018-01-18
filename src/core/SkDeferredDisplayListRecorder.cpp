@@ -25,7 +25,7 @@ SkDeferredDisplayListRecorder::SkDeferredDisplayListRecorder(
 bool SkDeferredDisplayListRecorder::init() {
     SkASSERT(!fSurface);
 
-#ifdef SK_RASTER_RECORDER_IMPLEMENTATION
+#if SK_RASTER_RECORDER_IMPLEMENTATION
     // Use raster right now to allow threading
     const SkImageInfo ii = SkImageInfo::Make(fCharacterization.width(), fCharacterization.height(),
                                              kN32_SkColorType, kOpaque_SkAlphaType,
@@ -34,7 +34,7 @@ bool SkDeferredDisplayListRecorder::init() {
     fSurface = SkSurface::MakeRaster(ii, &fCharacterization.surfaceProps());
 #else
     if (!fContext) {
-        fContext = GrContextPriv::MakeStubbedOut(fCharacterization.contextInfo());
+        fContext = GrContextPriv::MakeDDL(fCharacterization.contextInfo());
         if (!fContext) {
             return false;
         }
