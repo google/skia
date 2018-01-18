@@ -397,10 +397,38 @@ void GrGLGetANGLEInfoFromString(const char* rendererString, GrGLANGLEBackend* ba
     }
     if (strstr(rendererString, "Intel")) {
         *vendor = GrGLANGLEVendor::kIntel;
+
+        int modelNumber;
+        if (1 == sscanf(rendererString, "HD Graphics %i", &modelNumber) ||
+            1 == sscanf(rendererString, "HD Graphics P%i", &modelNumber)) {
+            switch (modelNumber) {
+                case 4000:
+                case 2500:
+                    *renderer = GrGLANGLERenderer::kIvyBridge;
+                    break;
+                case 510:
+                case 515:
+                case 520:
+                case 530:
+                    *renderer = GrGLANGLERenderer::kSkylake;
+                    break;
+            }
+        } else if (1 == sscanf(rendererString, "Iris Graphics %i", &modelNumber) ||
+                   1 == sscanf(rendererString, "Iris Pro Graphics %i", &modelNumber) ||
+                   1 == sscanf(rendererString, "Iris Pro Graphics P%i", &modelNumber)) {
+            switch (modelNumber) {
+                case 540:
+                case 550:
+                case 555:
+                case 580:
+                    *renderer = GrGLANGLERenderer::kSkylake;
+                    break;
+            }
+        }
     }
-    if (strstr(rendererString, "HD Graphics 4000") || strstr(rendererString, "HD Graphics 2500")) {
-        *renderer = GrGLANGLERenderer::kIvyBridge;
-    }
+    SkDebugf("rendererString=%s\n", rendererString);
+    SkDebugf("GrGLANGLERenderer=%u\n", *renderer);
+    exit(0);
     if (strstr(rendererString, "Direct3D11")) {
         *backend = GrGLANGLEBackend::kD3D11;
     } else if (strstr(rendererString, "Direct3D9")) {
