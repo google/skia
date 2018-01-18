@@ -94,7 +94,8 @@ enum class GrGLANGLEVendor {
 
 enum class GrGLANGLERenderer{
     kUnknown,
-    kIvyBridge
+    kIvyBridge,
+    kSkylake
 };
 
 ////////////////////////////////////////////////////////////////////////////////
