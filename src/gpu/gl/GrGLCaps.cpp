@@ -716,6 +716,13 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
 
     this->applyOptionsOverrides(contextOptions);
     shaderCaps->applyOptionsOverrides(contextOptions);
+
+    // After applying overrides, check for geometry shader support on ANGLE/Skylake. The ccpr
+    // vertex-shader implementation does not work on this platform.
+    if (kANGLE_GrGLRenderer == ctxInfo.renderer() &&
+        GrGLANGLERenderer::kSkylake == ctxInfo.angleRenderer()) {
+        fBlacklistCoverageCounting = !fShaderCaps->geometryShaderSupport();
+    }
 }
 
 const char* get_glsl_version_decl_string(GrGLStandard standard, GrGLSLGeneration generation,
