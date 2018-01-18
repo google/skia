@@ -579,9 +579,16 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
             reader->readPoint3(&rec.fZPlaneParams);
             reader->readPoint3(&rec.fLightPos);
             rec.fLightRadius = reader->readScalar();
-            rec.fAmbientAlpha = reader->readScalar();
-            rec.fSpotAlpha = reader->readScalar();
-            rec.fColor = reader->read32();
+            if (reader->isVersionLT(SkReadBuffer::kTwoColorDrawShadow_Version)) {
+                SkScalar ambientAlpha = reader->readScalar();
+                SkScalar spotAlpha = reader->readScalar();
+                SkColor color = reader->read32();
+                rec.fAmbientColor = SkColorSetA(color, SkColorGetA(color)*ambientAlpha);
+                rec.fSpotColor = SkColorSetA(color, SkColorGetA(color)*spotAlpha);
+            } else {
+                rec.fAmbientColor = reader->read32();
+                rec.fSpotColor = reader->read32();
+            }
             rec.fFlags = reader->read32();
             BREAK_ON_READ_ERROR(reader);
 

@@ -159,10 +159,11 @@ private:
     // V58: No more 2pt conical flipping.
     // V59: No more LocalSpace option on PictureImageFilter
     // V60: Remove flags in picture header
+    // V61: Change SkDrawPictureRec to take two colors rather than two alphas
 
     // Only SKPs within the min/current picture version range (inclusive) can be read.
     static const uint32_t     MIN_PICTURE_VERSION = 56;     // august 2017
-    static const uint32_t CURRENT_PICTURE_VERSION = 60;
+    static const uint32_t CURRENT_PICTURE_VERSION = 61;
 
     static bool IsValidPictInfo(const SkPictInfo& info);
     static sk_sp<SkPicture> Forwardport(const SkPictInfo&,

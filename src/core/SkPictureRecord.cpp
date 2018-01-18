@@ -795,9 +795,8 @@ void SkPictureRecord::onDrawShadowRec(const SkPath& path, const SkDrawShadowRec&
     fWriter.writePoint3(rec.fZPlaneParams);
     fWriter.writePoint3(rec.fLightPos);
     fWriter.writeScalar(rec.fLightRadius);
-    fWriter.writeScalar(rec.fAmbientAlpha);
-    fWriter.writeScalar(rec.fSpotAlpha);
-    fWriter.write32(rec.fColor);
+    fWriter.write32(rec.fAmbientColor);
+    fWriter.write32(rec.fSpotColor);
     fWriter.write32(rec.fFlags);
 
     this->validate(initialOffset, size);
