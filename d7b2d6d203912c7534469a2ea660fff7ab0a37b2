@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "baf7ef2b_8a600e31",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 981,
+      "author": {
+        "id": 7734
+      },
+      "writtenOn": "2018-01-18T20:34:53Z",
+      "side": 1,
+      "message": "This is the assert.",
+      "revId": "d7b2d6d203912c7534469a2ea660fff7ab0a37b2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
