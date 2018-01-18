@@ -15,6 +15,7 @@
 #include "SkMakeUnique.h"
 #include "SkMathPriv.h"
 #include "ccpr/GrCCCoverageProcessor.h"
+#include "ccpr/GrCCPathParser.h"
 #include "ops/GrDrawOp.h"
 
 class GrCCAtlas::Node {
@@ -41,6 +42,40 @@ private:
     GrRectanizerSkyline fRectanizer;
 };
 
+class GrCCAtlas::DrawCoverageCountOp : public GrDrawOp {
+public:
+    DEFINE_OP_CLASS_ID
+
+    DrawCoverageCountOp(sk_sp<const GrCCPathParser> parser, CoverageCountBatchID batchID,
+                        const SkISize& drawBounds)
+            : INHERITED(ClassID())
+            , fParser(std::move(parser))
+            , fBatchID(batchID)
+            , fDrawBounds(drawBounds) {
+        this->setBounds(SkRect::MakeIWH(fDrawBounds.width(), fDrawBounds.height()),
+                        GrOp::HasAABloat::kNo, GrOp::IsZeroArea::kNo);
+    }
+
+    // GrDrawOp interface.
+    const char* name() const override { return "GrCCAtlas::DrawCoverageCountOp"; }
+    FixedFunctionFlags fixedFunctionFlags() const override { return FixedFunctionFlags::kNone; }
+    RequiresDstTexture finalize(const GrCaps&, const GrAppliedClip*,
+                                GrPixelConfigIsClamped) override { return RequiresDstTexture::kNo; }
+    bool onCombineIfPossible(GrOp* other, const GrCaps& caps) override { return false; }
+    void onPrepare(GrOpFlushState*) override {}
+    void onExecute(GrOpFlushState* flushState) override {
+        fParser->drawCoverageCount(flushState, fBatchID,
+                                   SkIRect::MakeWH(fDrawBounds.width(), fDrawBounds.height()));
+    }
+
+private:
+    const sk_sp<const GrCCPathParser> fParser;
+    const CoverageCountBatchID fBatchID;
+    const SkISize fDrawBounds;
+
+    typedef GrDrawOp INHERITED;
+};
+
 GrCCAtlas::GrCCAtlas(const GrCaps& caps, int minWidth, int minHeight)
         : fMaxAtlasSize(caps.maxRenderTargetSize()), fDrawBounds{0, 0} {
     SkASSERT(fMaxAtlasSize <= caps.maxTextureSize());
@@ -55,7 +90,8 @@ GrCCAtlas::GrCCAtlas(const GrCaps& caps, int minWidth, int minHeight)
 GrCCAtlas::~GrCCAtlas() {}
 
 bool GrCCAtlas::addRect(int w, int h, SkIPoint16* loc) {
-    // This can't be called anymore once finalize() has been called.
+    // This can't be called anymore once setCoverageCountBatchID() has been called.
+    SkASSERT(!fCoverageCountBatchID);
     SkASSERT(!fTextureProxy);
 
     if (!this->internalPlaceRect(w, h, loc)) {
@@ -96,8 +132,9 @@ bool GrCCAtlas::internalPlaceRect(int w, int h, SkIPoint16* loc) {
     return true;
 }
 
-sk_sp<GrRenderTargetContext> GrCCAtlas::finalize(
-        GrOnFlushResourceProvider* onFlushRP, std::unique_ptr<GrDrawOp> atlasOp) {
+sk_sp<GrRenderTargetContext> GrCCAtlas::finalize(GrOnFlushResourceProvider* onFlushRP,
+                                                 sk_sp<const GrCCPathParser> parser) {
+    SkASSERT(fCoverageCountBatchID);
     SkASSERT(!fTextureProxy);
 
     GrSurfaceDesc desc;
@@ -113,7 +150,10 @@ sk_sp<GrRenderTargetContext> GrCCAtlas::finalize(
 
     SkIRect clearRect = SkIRect::MakeSize(fDrawBounds);
     rtc->clear(&clearRect, 0, GrRenderTargetContext::CanClearFullscreen::kYes);
-    rtc->addDrawOp(GrNoClip(), std::move(atlasOp));
+
+    auto op = skstd::make_unique<DrawCoverageCountOp>(std::move(parser), fCoverageCountBatchID,
+                                                      fDrawBounds);
+    rtc->addDrawOp(GrNoClip(), std::move(op));
 
     fTextureProxy = sk_ref_sp(rtc->asTextureProxy());
     return rtc;
