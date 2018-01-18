@@ -71,6 +71,7 @@ tests_sources = [
   "$_tests/FitsInTest.cpp",
   "$_tests/FlattenableCustomFactory.cpp",
   "$_tests/FlattenableFactoryToName.cpp",
+  "$_tests/FlattenableNameToFactory.cpp",
   "$_tests/FlattenDrawableTest.cpp",
   "$_tests/Float16Test.cpp",
   "$_tests/FloatingPointTextureTest.cpp",
