@@ -199,7 +199,7 @@ SkBlitter* SkBlitter::ChooseSprite(const SkPixmap& dst, const SkPaint& paint,
                 break;
         }
     }
-    if (!blitter) {
+    if (!blitter && !paint.getMaskFilter()) {
         blitter = allocator->make<SkRasterPipelineSpriteBlitter>(source, allocator);
     }
 
