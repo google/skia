@@ -102,6 +102,30 @@
     },
     {
       "key": {
+        "uuid": "577652f0_d33d6dc9",
+        "filename": "src/codec/SkAndroidCodec.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-01-18T15:02:08Z",
+      "side": 1,
+      "message": "libwebp has a converter that copies over the exif data from a JPEG, so that will probably be the way to go.\n\nNo, it would be up to us to handle the exif data, just like we do for jpeg. Right now I\u0027m thinking that we probably should handle the webp orientation (at least in theory), but no one will notice if we don\u0027t.",
+      "parentUuid": "80182d13_6f04e39d",
+      "range": {
+        "startLine": 109,
+        "startChar": 52,
+        "endLine": 109,
+        "endChar": 71
+      },
+      "revId": "fe84c4898982b954093f314b159f2f89ded63246",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "af994681_04a90a68",
         "filename": "src/codec/SkAndroidCodec.cpp",
         "patchSetId": 3
