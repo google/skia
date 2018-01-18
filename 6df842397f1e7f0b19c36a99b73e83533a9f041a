@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "13011943_62066b30",
+        "filename": "src/core/SkFlattenable.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-18T20:00:24Z",
+      "side": 1,
+      "message": "I would be pretty surprised if they were ever added after \"early in process startup\" intentionally.  I think some sort of explicit sort-and-freeze call sgtm.",
+      "parentUuid": "cbefbac3_4c2256f5",
+      "revId": "6df842397f1e7f0b19c36a99b73e83533a9f041a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "235b9d49_9843213a",
         "filename": "src/core/SkFlattenable.cpp",
         "patchSetId": 2
