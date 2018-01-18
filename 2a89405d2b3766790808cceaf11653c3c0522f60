@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5f637cd9_8092c139",
+        "filename": "platform_tools/android/apps/skqp/src/main/java/org/skia/skqp/SkQPRunner.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-01-18T18:56:41Z",
+      "side": 1,
+      "message": "how did you determine what was a warning and what was info?  You logged passing unit tests as i (info) and passing gms as w (warning).",
+      "range": {
+        "startLine": 122,
+        "startChar": 20,
+        "endLine": 122,
+        "endChar": 21
+      },
+      "revId": "2a89405d2b3766790808cceaf11653c3c0522f60",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
