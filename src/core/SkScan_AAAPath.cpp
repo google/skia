@@ -1441,7 +1441,6 @@ static void aaa_walk_edges(SkAnalyticEdge* prevHead, SkAnalyticEdge* nextTail,
         // Even if next - y == SK_Fixed1, we can still break the left-to-right order requirement
         // of the SKAAClip: |\| (two trapezoids with overlapping middle wedges)
         bool noRealBlitter = forceRLE; // forceRLE && (nextY - y != SK_Fixed1);
-
         while (currE->fUpperY <= y) {
             SkASSERT(currE->fLowerY >= nextY);
             SkASSERT(currE->fY == y);
