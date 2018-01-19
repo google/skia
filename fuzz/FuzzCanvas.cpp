@@ -1289,6 +1289,7 @@ static void fuzz_canvas(Fuzz* fuzz, SkCanvas* canvas, int depth = 9) {
                 canvas->drawOval(r, paint);
                 break;
             }
+            case 28: break; // must have deleted this some time earlier
             case 29: {
                 fuzz_paint(fuzz, &paint, depth - 1);
                 SkRRect rr;
