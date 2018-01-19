@@ -183,7 +183,7 @@ void GrAtlasTextOp::executeForTextTarget(SkAtlasTextTarget* target) {
     FlushInfo flushInfo;
     SkAutoGlyphCache glyphCache;
     auto& context = target->context()->internal();
-    auto* atlasGlyphCache = context.grContext()->getAtlasGlyphCache();
+    auto* atlasGlyphCache = context.grContext()->contextPriv().getAtlasGlyphCache();
     for (int i = 0; i < fGeoCount; ++i) {
         GrAtlasTextBlob::VertexRegenerator regenerator(
                 fGeoData[i].fBlob, fGeoData[i].fRun, fGeoData[i].fSubRun, fGeoData[i].fViewMatrix,

@@ -11,6 +11,7 @@
 
 #if SK_SUPPORT_GPU && defined(SK_VULKAN)
 
+#include "GrContextPriv.h"
 #include "GrContextFactory.h"
 #include "GrRenderTarget.h"
 #include "GrTest.h"
@@ -30,7 +31,7 @@ const GrPixelConfig kPixelConfig = kRGBA_8888_GrPixelConfig;
 
 void wrap_tex_test(skiatest::Reporter* reporter, GrContext* context) {
 
-    GrVkGpu* gpu = static_cast<GrVkGpu*>(context->getGpu());
+    GrVkGpu* gpu = static_cast<GrVkGpu*>(context->contextPriv().getGpu());
 
     GrBackendTexture origBackendTex = gpu->createTestingOnlyBackendTexture(nullptr, kW, kH,
                                                                            kPixelConfig, false,
@@ -75,7 +76,7 @@ void wrap_tex_test(skiatest::Reporter* reporter, GrContext* context) {
 }
 
 void wrap_rt_test(skiatest::Reporter* reporter, GrContext* context) {
-    GrVkGpu* gpu = static_cast<GrVkGpu*>(context->getGpu());
+    GrVkGpu* gpu = static_cast<GrVkGpu*>(context->contextPriv().getGpu());
 
     GrBackendTexture origBackendTex = gpu->createTestingOnlyBackendTexture(nullptr, kW, kH,
                                                                            kPixelConfig, true,
@@ -112,7 +113,7 @@ void wrap_rt_test(skiatest::Reporter* reporter, GrContext* context) {
 }
 
 void wrap_trt_test(skiatest::Reporter* reporter, GrContext* context) {
-    GrVkGpu* gpu = static_cast<GrVkGpu*>(context->getGpu());
+    GrVkGpu* gpu = static_cast<GrVkGpu*>(context->contextPriv().getGpu());
 
     GrBackendTexture origBackendTex = gpu->createTestingOnlyBackendTexture(nullptr, kW, kH,
                                                                            kPixelConfig, true,

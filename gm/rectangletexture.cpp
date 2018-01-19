@@ -13,6 +13,7 @@
 
 #include "GrBackendSurface.h"
 #include "GrContext.h"
+#include "GrContextPriv.h"
 #include "GrGpu.h"
 #include "GrTest.h"
 #include "gl/GrGLContext.h"
@@ -61,7 +62,7 @@ protected:
         if (!context) {
             return nullptr;
         }
-        GrGpu* gpu = context->getGpu();
+        GrGpu* gpu = context->contextPriv().getGpu();
         if (!gpu) {
             return nullptr;
         }

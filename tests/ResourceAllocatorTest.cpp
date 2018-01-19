@@ -47,16 +47,17 @@ static sk_sp<GrSurfaceProxy> make_deferred(GrProxyProvider* proxyProvider, const
 static sk_sp<GrSurfaceProxy> make_backend(GrContext* context, const ProxyParams& p,
                                           GrBackendTexture* backendTex) {
     GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
+    GrGpu* gpu = context->contextPriv().getGpu();
 
-    *backendTex = context->getGpu()->createTestingOnlyBackendTexture(nullptr, p.fSize, p.fSize,
-                                                                     p.fConfig, false,
-                                                                     GrMipMapped::kNo);
+    *backendTex = gpu->createTestingOnlyBackendTexture(nullptr, p.fSize, p.fSize,
+                                                       p.fConfig, false,
+                                                       GrMipMapped::kNo);
 
     return proxyProvider->createWrappedTextureProxy(*backendTex, p.fOrigin);
 }
 
 static void cleanup_backend(GrContext* context, GrBackendTexture* backendTex) {
-    context->getGpu()->deleteTestingOnlyBackendTexture(backendTex);
+    context->contextPriv().getGpu()->deleteTestingOnlyBackendTexture(backendTex);
 }
 
 // Basic test that two proxies with overlapping intervals and compatible descriptors are
