@@ -382,7 +382,7 @@ static inline bool skpaint_to_grpaint_impl(GrContext* context,
         if (shaderProcessor) {
             shaderFP = std::move(*shaderProcessor);
         } else if (const auto* shader = as_SB(skPaint.getShader())) {
-            shaderFP = shader->asFragmentProcessor(SkShaderBase::AsFPArgs(
+            shaderFP = shader->asFragmentProcessor(GrFPArgs(
                     context, &viewM, nullptr, skPaint.getFilterQuality(), &colorSpaceInfo));
         }
     }
@@ -559,7 +559,7 @@ bool SkPaintToGrPaintWithTexture(GrContext* context,
     std::unique_ptr<GrFragmentProcessor> shaderFP;
     if (textureIsAlphaOnly) {
         if (const auto* shader = as_SB(paint.getShader())) {
-            shaderFP = shader->asFragmentProcessor(SkShaderBase::AsFPArgs(
+            shaderFP = shader->asFragmentProcessor(GrFPArgs(
                     context, &viewM, nullptr, paint.getFilterQuality(), &colorSpaceInfo));
             if (!shaderFP) {
                 return false;
