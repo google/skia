@@ -156,6 +156,10 @@ GrBackendObject SkImage_Gpu::onGetTextureHandle(bool flushPendingGrContextIO,
                                                 GrSurfaceOrigin* origin) const {
     SkASSERT(fProxy);
 
+    if (GrSurfaceProxy::LazyState::kNot != fProxy->lazyInstantiationState()) {
+        return 0;
+    }
+
     if (!fProxy->instantiate(fContext->contextPriv().resourceProvider())) {
         return 0;
     }
@@ -275,6 +279,7 @@ sk_sp<SkImage> SkImage_Gpu::onMakeSubset(const SkIRect& subset) const {
 
 static sk_sp<SkImage> new_wrapped_texture_common(GrContext* ctx,
                                                  const GrBackendTexture& backendTex,
+                                                 GrPixelConfig config,
                                                  GrSurfaceOrigin origin,
                                                  SkAlphaType at, sk_sp<SkColorSpace> colorSpace,
                                                  GrWrapOwnership ownership,
@@ -302,8 +307,8 @@ sk_sp<SkImage> SkImage::MakeFromTexture(GrContext* ctx,
     if (!ctx) {
         return nullptr;
     }
-    return new_wrapped_texture_common(ctx, tex, origin, at, std::move(cs), kBorrow_GrWrapOwnership,
-                                      releaseP, releaseC);
+    return new_wrapped_texture_common(ctx, tex, tex.fConfig, origin, at, std::move(cs),
+                                      kBorrow_GrWrapOwnership, releaseP, releaseC);
 }
 
 bool validate_backend_texture(GrContext* ctx, const GrBackendTexture& tex, GrPixelConfig* config,
@@ -335,8 +340,12 @@ sk_sp<SkImage> SkImage::MakeFromTexture(GrContext* ctx,
 sk_sp<SkImage> SkImage::MakeFromAdoptedTexture(GrContext* ctx,
                                                const GrBackendTexture& tex, GrSurfaceOrigin origin,
                                                SkAlphaType at, sk_sp<SkColorSpace> cs) {
-    return new_wrapped_texture_common(ctx, tex, origin, at, std::move(cs), kAdopt_GrWrapOwnership,
-                                      nullptr, nullptr);
+    if (!ctx->contextPriv().resourceProvider()) {
+        // We have a DDL context and we don't support adopted textures for them.
+        return nullptr;
+    }
+    return new_wrapped_texture_common(ctx, tex, tex.fConfig, origin, at, std::move(cs),
+                                      kAdopt_GrWrapOwnership, nullptr, nullptr);
 }
 
 sk_sp<SkImage> SkImage::MakeFromAdoptedTexture(GrContext* ctx,
