@@ -148,7 +148,7 @@ void GrContext::printGpuStats() const {
 }
 
 sk_sp<SkImage> GrContext::getFontAtlasImage_ForTesting(GrMaskFormat format) {
-    GrAtlasGlyphCache* cache = this->getAtlasGlyphCache();
+    GrAtlasGlyphCache* cache = this->contextPriv().getAtlasGlyphCache();
 
     const sk_sp<GrTextureProxy>* proxies = cache->getProxies(format);
     if (!proxies[0]) {
