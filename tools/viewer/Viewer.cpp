@@ -609,8 +609,6 @@ void Viewer::setCurrentSlide(int slide) {
         fSlides[fCurrentSlide]->unload();
     }
 
-    fSlides[slide]->load(SkIntToScalar(fWindow->width()),
-                         SkIntToScalar(fWindow->height()));
     fCurrentSlide = slide;
     this->setupCurrentSlide();
 }
@@ -620,6 +618,8 @@ void Viewer::setupCurrentSlide() {
     fGesture.resetTouchState();
     fDefaultMatrix.reset();
 
+    fSlides[fCurrentSlide]->load(SkIntToScalar(fWindow->width()),
+                                 SkIntToScalar(fWindow->height()));
     const SkISize slideSize = fSlides[fCurrentSlide]->getDimensions();
     const SkRect slideBounds = SkRect::MakeIWH(slideSize.width(), slideSize.height());
     const SkRect windowRect = SkRect::MakeIWH(fWindow->width(), fWindow->height());
