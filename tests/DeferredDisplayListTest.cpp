@@ -9,6 +9,8 @@
 
 #if SK_SUPPORT_GPU
 
+#include "GrBackendSurface.h"
+#include "GrGpu.h"
 #include "SkCanvas.h"
 #include "SkDeferredDisplayListRecorder.h"
 #include "SkGpuDevice.h"
@@ -177,5 +179,70 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(SkSurfaceCharacterization, reporter, ctxInfo) {
         REPORTER_ASSERT(reporter, !rasterSurface->characterize(&c));
     }
 }
+
+static constexpr int kSize = 8;
+
+// This tests the ability to create and use wrapped textures in a DDL world
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLWrapBackendTest, reporter, ctxInfo) {
+    GrContext* context = ctxInfo.grContext();
+    GrBackendTexture backendTex = context->getGpu()->createTestingOnlyBackendTexture(
+            nullptr, kSize, kSize, kRGBA_8888_GrPixelConfig, false, GrMipMapped::kNo);
+    if (!backendTex.isValid()) {
+        return;
+    }
+
+    std::unique_ptr<SkDeferredDisplayList> ddl;
+
+    SurfaceParameters params;
+
+    sk_sp<SkSurface> s = params.make(context);
+    if (!s) {
+        context->getGpu()->deleteTestingOnlyBackendTexture(&backendTex);
+        return;
+    }
+
+    SkSurfaceCharacterization c;
+    SkAssertResult(s->characterize(&c));
+
+    SkDeferredDisplayListRecorder r(c);
+
+    SkCanvas* canvas = r.getCanvas();
+    if (!canvas) {
+        context->getGpu()->deleteTestingOnlyBackendTexture(&backendTex);
+        return;
+    }
+
+    GrContext* deferredContext = canvas->getGrContext();
+    if (!deferredContext) {
+        context->getGpu()->deleteTestingOnlyBackendTexture(&backendTex);
+        return;
+    }
+
+    sk_sp<SkImage> image = SkImage::MakeFromAdoptedTexture(deferredContext, backendTex,
+                                                           kTopLeft_GrSurfaceOrigin,
+                                                           kRGBA_8888_SkColorType,
+                                                           kPremul_SkAlphaType, nullptr);
+    // Adopted Textures are not supported in DDL
+    REPORTER_ASSERT(reporter, !image);
+
+    image = SkImage::MakeFromTexture(deferredContext, backendTex,
+                                     kTopLeft_GrSurfaceOrigin,
+                                     kRGBA_8888_SkColorType,
+                                     kPremul_SkAlphaType, nullptr,
+                                     nullptr, nullptr);
+
+    REPORTER_ASSERT(reporter, image);
+    if (!image) {
+        context->getGpu()->deleteTestingOnlyBackendTexture(&backendTex);
+        return;
+    }
+
+    canvas->drawImage(image.get(), 0, 0);
+    ddl = r.detach();
+
+    REPORTER_ASSERT(reporter, s->draw(ddl.get()));
+    context->getGpu()->deleteTestingOnlyBackendTexture(&backendTex);
+}
+
 
 #endif
