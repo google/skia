@@ -953,6 +953,9 @@ bool SkCanvas::clipRectBounds(const SkRect* bounds, SaveLayerFlags saveLayerFlag
 
     if (imageFilter) {
         clipBounds = imageFilter->filterBounds(clipBounds, ctm);
+        if (clipBounds.isEmpty()) {
+            return false;
+        }
         if (bounds && !imageFilter->canComputeFastBounds()) {
             bounds = nullptr;
         }
@@ -1395,6 +1398,9 @@ void SkCanvas::resetMatrix() {
 //////////////////////////////////////////////////////////////////////////////
 
 void SkCanvas::clipRect(const SkRect& rect, SkClipOp op, bool doAA) {
+    if (!rect.isFinite()) {
+        return;
+    }
     this->checkForDeferredSave();
     ClipEdgeStyle edgeStyle = doAA ? kSoft_ClipEdgeStyle : kHard_ClipEdgeStyle;
     this->onClipRect(rect, op, edgeStyle);
