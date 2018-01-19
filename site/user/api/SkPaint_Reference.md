@@ -619,7 +619,7 @@ can reconstitute the paint at a later time.
 ## unflatten
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-void unflatten(SkReadBuffer& buffer)
+bool unflatten(SkReadBuffer& buffer)
 </pre>
 
 Populates <a href="#Paint">Paint</a>, typically from a serialized stream, created by calling
@@ -634,6 +634,8 @@ by the client.
 serialized data describing <a href="#Paint">Paint</a> content</td>
   </tr>
 </table>
+
+### Return Value
 
 ### See Also
 
