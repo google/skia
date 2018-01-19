@@ -183,11 +183,16 @@ public:
     void abandon() {
         fResourceCache = nullptr;
         fResourceProvider = nullptr;
+        fAbandoned = true;
     }
 
     bool isAbandoned() const {
-        SkASSERT(SkToBool(fResourceCache) == SkToBool(fResourceProvider));
-        return !SkToBool(fResourceCache);
+#ifdef SK_DEBUG
+        if (fAbandoned) {
+            SkASSERT(!fResourceCache && !fResourceProvider);
+        }
+#endif
+        return fAbandoned;
     }
 
     int numUniqueKeyProxies_TestOnly() const;
@@ -212,6 +217,7 @@ private:
 
     GrResourceProvider*    fResourceProvider;
     GrResourceCache*       fResourceCache;
+    bool                   fAbandoned;
     sk_sp<const GrCaps>    fCaps;
 
     // In debug builds we guard against improper thread handling

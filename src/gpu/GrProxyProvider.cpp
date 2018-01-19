@@ -28,6 +28,7 @@ GrProxyProvider::GrProxyProvider(GrResourceProvider* resourceProvider,
                                  GrSingleOwner* owner)
         : fResourceProvider(resourceProvider)
         , fResourceCache(resourceCache)
+        , fAbandoned(false)
         , fCaps(caps)
 #ifdef SK_DEBUG
         , fSingleOwner(owner)
