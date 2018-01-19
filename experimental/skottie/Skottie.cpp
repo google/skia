@@ -21,6 +21,7 @@
 #include "SkPoint.h"
 #include "SkSGColor.h"
 #include "SkSGDraw.h"
+#include "SkSGGeometryTransform.h"
 #include "SkSGGradient.h"
 #include "SkSGGroup.h"
 #include "SkSGImage.h"
@@ -169,14 +170,7 @@ sk_sp<sksg::RenderNode> AttachOpacity(const Json::Value& jtransform, AttachConte
     return opacityNode;
 }
 
-sk_sp<sksg::RenderNode> AttachShape(const Json::Value&, AttachContext* ctx);
 sk_sp<sksg::RenderNode> AttachComposition(const Json::Value&, AttachContext* ctx);
-
-sk_sp<sksg::RenderNode> AttachShapeGroup(const Json::Value& jgroup, AttachContext* ctx) {
-    SkASSERT(jgroup.isObject());
-
-    return AttachShape(jgroup["it"], ctx);
-}
 
 sk_sp<sksg::GeometryNode> AttachPathGeometry(const Json::Value& jpath, AttachContext* ctx) {
     SkASSERT(jpath.isObject());
@@ -502,11 +496,6 @@ static constexpr PaintAttacherT gPaintAttachers[] = {
     AttachGradientStroke,
 };
 
-using GroupAttacherT = sk_sp<sksg::RenderNode> (*)(const Json::Value&, AttachContext*);
-static constexpr GroupAttacherT gGroupAttachers[] = {
-    AttachShapeGroup,
-};
-
 using GeometryEffectAttacherT =
     std::vector<sk_sp<sksg::GeometryNode>> (*)(const Json::Value&,
                                                AttachContext*,
@@ -535,7 +524,7 @@ const ShapeInfo* FindShapeInfo(const Json::Value& shape) {
         { "el", ShapeType::kGeometry      , 2 }, // ellipse   -> AttachEllipseGeometry
         { "fl", ShapeType::kPaint         , 0 }, // fill      -> AttachColorFill
         { "gf", ShapeType::kPaint         , 2 }, // gfill     -> AttachGradientFill
-        { "gr", ShapeType::kGroup         , 0 }, // group     -> AttachShapeGroup
+        { "gr", ShapeType::kGroup         , 0 }, // group     -> Inline handler
         { "gs", ShapeType::kPaint         , 3 }, // gstroke   -> AttachGradientStroke
         { "mm", ShapeType::kGeometryEffect, 0 }, // merge     -> AttachMergeGeometryEffect
         { "rc", ShapeType::kGeometry      , 1 }, // rrect     -> AttachRRectGeometry
@@ -543,7 +532,7 @@ const ShapeInfo* FindShapeInfo(const Json::Value& shape) {
         { "sr", ShapeType::kGeometry      , 3 }, // polystar  -> AttachPolyStarGeometry
         { "st", ShapeType::kPaint         , 1 }, // stroke    -> AttachColorStroke
         { "tm", ShapeType::kGeometryEffect, 1 }, // trim      -> AttachTrimGeometryEffect
-        { "tr", ShapeType::kTransform     , 0 }, // transform -> In-place handler
+        { "tr", ShapeType::kTransform     , 0 }, // transform -> Inline handler
     };
 
     if (!shape.isObject())
@@ -565,87 +554,136 @@ const ShapeInfo* FindShapeInfo(const Json::Value& shape) {
     return static_cast<const ShapeInfo*>(info);
 }
 
-sk_sp<sksg::RenderNode> AttachShape(const Json::Value& shapeArray, AttachContext* ctx) {
-    if (!shapeArray.isArray())
+struct GeometryEffectRec {
+    const Json::Value&      fJson;
+    GeometryEffectAttacherT fAttach;
+};
+
+sk_sp<sksg::RenderNode> AttachShape(const Json::Value& jshape, AttachContext* ctx,
+                                    std::vector<sk_sp<sksg::GeometryNode>>* geometryStack,
+                                    std::vector<GeometryEffectRec>* geometryEffectStack) {
+    if (!jshape.isArray())
         return nullptr;
 
-    // (https://helpx.adobe.com/after-effects/using/overview-shape-layers-paths-vector.html#groups_and_render_order_for_shapes_and_shape_attributes)
-    //
-    // Render order for shapes within a shape layer
-    //
-    // The rules for rendering a shape layer are similar to the rules for rendering a composition
-    // that contains nested compositions:
-    //
-    //   * Within a group, the shape at the bottom of the Timeline panel stacking order is rendered
-    //     first.
-    //
-    //   * All path operations within a group are performed before paint operations. This means,
-    //     for example, that the stroke follows the distortions in the path made by the Wiggle Paths
-    //     path operation. Path operations within a group are performed from top to bottom.
-    //
-    //   * Paint operations within a group are performed from the bottom to the top in the Timeline
-    //     panel stacking order. This means, for example, that a stroke is rendered on top of
-    //     (in front of) a stroke that appears after it in the Timeline panel.
-    //
-    sk_sp<sksg::Group>        shape_group = sksg::Group::Make();
-    sk_sp<sksg::RenderNode> xformed_group = shape_group;
+    SkDEBUGCODE(const auto initialGeometryEffects = geometryEffectStack->size();)
 
-    std::vector<sk_sp<sksg::GeometryNode>> geos;
-    std::vector<sk_sp<sksg::RenderNode>> draws;
+    sk_sp<sksg::Group> shape_group = sksg::Group::Make();
+    sk_sp<sksg::RenderNode> shape_wrapper = shape_group;
+    sk_sp<sksg::Matrix> shape_matrix;
 
-    for (const auto& s : shapeArray) {
+    struct ShapeRec {
+        const Json::Value& fJson;
+        const ShapeInfo&   fInfo;
+    };
+
+    // First pass (bottom->top):
+    //
+    //   * pick up the group transform and opacity
+    //   * push local geometry effects onto the stack
+    //   * store recs for next pass
+    //
+    std::vector<ShapeRec> recs;
+    for (Json::ArrayIndex i = 0; i < jshape.size(); ++i) {
+        const auto& s = jshape[jshape.size() - 1 - i];
         const auto* info = FindShapeInfo(s);
         if (!info) {
             LogFail(s.isObject() ? s["ty"] : s, "Unknown shape");
             continue;
         }
 
+        recs.push_back({ s, *info });
+
         switch (info->fShapeType) {
+        case ShapeType::kTransform:
+            if ((shape_matrix = AttachMatrix(s, ctx, nullptr))) {
+                shape_wrapper = sksg::Transform::Make(std::move(shape_wrapper), shape_matrix);
+            }
+            shape_wrapper = AttachOpacity(s, ctx, std::move(shape_wrapper));
+            break;
+        case ShapeType::kGeometryEffect:
+            SkASSERT(info->fAttacherIndex < SK_ARRAY_COUNT(gGeometryEffectAttachers));
+            geometryEffectStack->push_back(
+                { s, gGeometryEffectAttachers[info->fAttacherIndex] });
+            break;
+        default:
+            break;
+        }
+    }
+
+    // Second pass (top -> bottom, after 2x reverse):
+    //
+    //   * track local geometry
+    //   * emit local paints
+    //
+    std::vector<sk_sp<sksg::GeometryNode>> geos;
+    std::vector<sk_sp<sksg::RenderNode  >> draws;
+    for (auto rec = recs.rbegin(); rec != recs.rend(); ++rec) {
+        switch (rec->fInfo.fShapeType) {
         case ShapeType::kGeometry: {
-            SkASSERT(info->fAttacherIndex < SK_ARRAY_COUNT(gGeometryAttachers));
-            if (auto geo = gGeometryAttachers[info->fAttacherIndex](s, ctx)) {
+            SkASSERT(rec->fInfo.fAttacherIndex < SK_ARRAY_COUNT(gGeometryAttachers));
+            if (auto geo = gGeometryAttachers[rec->fInfo.fAttacherIndex](rec->fJson, ctx)) {
                 geos.push_back(std::move(geo));
             }
         } break;
         case ShapeType::kGeometryEffect: {
-            SkASSERT(info->fAttacherIndex < SK_ARRAY_COUNT(gGeometryEffectAttachers));
-            geos = gGeometryEffectAttachers[info->fAttacherIndex](s, ctx, std::move(geos));
-        } break;
-        case ShapeType::kPaint: {
-            SkASSERT(info->fAttacherIndex < SK_ARRAY_COUNT(gPaintAttachers));
-            if (auto paint = gPaintAttachers[info->fAttacherIndex](s, ctx)) {
-                for (const auto& geo : geos) {
-                    draws.push_back(sksg::Draw::Make(geo, paint));
-                }
-            }
+            // Apply the current effect and pop from the stack.
+            SkASSERT(rec->fInfo.fAttacherIndex < SK_ARRAY_COUNT(gGeometryEffectAttachers));
+            geos = gGeometryEffectAttachers[rec->fInfo.fAttacherIndex](rec->fJson,
+                                                                       ctx,
+                                                                       std::move(geos));
+
+            SkASSERT(geometryEffectStack->back().fJson == rec->fJson);
+            SkASSERT(geometryEffectStack->back().fAttach ==
+                     gGeometryEffectAttachers[rec->fInfo.fAttacherIndex]);
+            geometryEffectStack->pop_back();
         } break;
         case ShapeType::kGroup: {
-            SkASSERT(info->fAttacherIndex < SK_ARRAY_COUNT(gGroupAttachers));
-            if (auto group = gGroupAttachers[info->fAttacherIndex](s, ctx)) {
-                draws.push_back(std::move(group));
+            if (auto subgroup = AttachShape(rec->fJson["it"], ctx, &geos, geometryEffectStack)) {
+                draws.push_back(std::move(subgroup));
             }
         } break;
-        case ShapeType::kTransform: {
-            // TODO: BM appears to transform the geometry, not the draw op itself.
-            if (auto matrix = AttachMatrix(s, ctx, nullptr)) {
-                xformed_group = sksg::Transform::Make(std::move(xformed_group),
-                                                      std::move(matrix));
+        case ShapeType::kPaint: {
+            SkASSERT(rec->fInfo.fAttacherIndex < SK_ARRAY_COUNT(gPaintAttachers));
+            auto paint = gPaintAttachers[rec->fInfo.fAttacherIndex](rec->fJson, ctx);
+            if (!paint || geos.empty())
+                break;
+
+            auto drawGeos = geos;
+
+            // Apply all pending effects from the stack.
+            for (auto it = geometryEffectStack->rbegin(); it != geometryEffectStack->rend(); ++it) {
+                drawGeos = it->fAttach(it->fJson, ctx, std::move(drawGeos));
             }
-            xformed_group = AttachOpacity(s, ctx, std::move(xformed_group));
+
+            // If we still have multiple geos, reduce using 'merge'.
+            auto geo = drawGeos.size() > 1
+                ? sksg::Merge::Make(std::move(drawGeos), sksg::Merge::Mode::kMerge)
+                : drawGeos[0];
+
+            SkASSERT(geo);
+            draws.push_back(sksg::Draw::Make(std::move(geo), std::move(paint)));
         } break;
+        default:
+            break;
         }
     }
 
-    if (draws.empty()) {
-        return nullptr;
+    // By now we should have popped all local geometry effects.
+    SkASSERT(geometryEffectStack->size() == initialGeometryEffects);
+
+    // Push transformed local geometries to parent list, for subsequent paints.
+    for (const auto& geo : geos) {
+        geometryStack->push_back(shape_matrix
+            ? sksg::GeometryTransform::Make(std::move(geo), shape_matrix)
+            : std::move(geo));
     }
 
-    for (auto draw = draws.rbegin(); draw != draws.rend(); ++draw) {
-        shape_group->addChild(std::move(*draw));
+    // Emit local draws reversed (bottom->top, per spec).
+    for (auto it = draws.rbegin(); it != draws.rend(); ++it) {
+        shape_group->addChild(std::move(*it));
     }
 
-    LOG("** Attached shape: %zd draws.\n", draws.size());
-    return xformed_group;
+    return draws.empty() ? nullptr : shape_wrapper;
 }
 
 sk_sp<sksg::RenderNode> AttachCompLayer(const Json::Value& layer, AttachContext* ctx) {
@@ -739,7 +777,9 @@ sk_sp<sksg::RenderNode> AttachShapeLayer(const Json::Value& layer, AttachContext
 
     LOG("** Attaching shape layer ind: %d\n", ParseInt(layer["ind"], 0));
 
-    return AttachShape(layer["shapes"], ctx);
+    std::vector<sk_sp<sksg::GeometryNode>> geometryStack;
+    std::vector<GeometryEffectRec> geometryEffectStack;
+    return AttachShape(layer["shapes"], ctx, &geometryStack, &geometryEffectStack);
 }
 
 sk_sp<sksg::RenderNode> AttachTextLayer(const Json::Value& layer, AttachContext*) {
