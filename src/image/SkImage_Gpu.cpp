@@ -1039,7 +1039,10 @@ bool SkImage::MakeBackendTextureFromSkImage(GrContext* ctx,
         }
     }
     GrTexture* texture = image->getTexture();
-    SkASSERT(texture);
+    if (!texture) {
+        // In context-loss cases, we may not have a texture.
+        return false;
+    }
 
     // If the image's context doesn't match the provided context, fail.
     if (texture->getContext() != ctx) {
@@ -1061,7 +1064,9 @@ bool SkImage::MakeBackendTextureFromSkImage(GrContext* ctx,
         }
 
         texture = image->getTexture();
-        SkASSERT(texture);
+        if (!texture) {
+            return false;
+        }
 
         // Flush to ensure that the copy is completed before we return the texture.
         ctx->contextPriv().prepareSurfaceForExternalIO(as_IB(image)->peekProxy());
