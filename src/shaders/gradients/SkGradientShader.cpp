@@ -81,6 +81,11 @@ bool SkGradientShaderBase::DescriptorScope::unflatten(SkReadBuffer& buffer) {
     fCount = buffer.getArrayCount();
     if (fCount > kStorageCount) {
         size_t allocSize = (sizeof(SkColor4f) + sizeof(SkScalar)) * fCount;
+#if defined(IS_FUZZING)
+    if (allocSize > 1000000) {
+        return nullptr;
+    }
+#endif
         fDynamicStorage.reset(allocSize);
         fColors = (SkColor4f*)fDynamicStorage.get();
         fPos = (SkScalar*)(fColors + fCount);

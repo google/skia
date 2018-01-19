@@ -729,6 +729,7 @@ static void draw_rect_as_path(const SkDraw& orig, const SkRect& prePaintRect,
     SkPath  tmp;
     tmp.addRect(prePaintRect);
     tmp.setFillType(SkPath::kWinding_FillType);
+ //   SkDebugf("path countPoints, countVerbs %d, %d", tmp.countPoints(), tmp.countVerbs());
     draw.drawPath(tmp, paint, nullptr, true);
 }
 

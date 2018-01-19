@@ -15,6 +15,11 @@
 bool Sk1DPathEffect::filterPath(SkPath* dst, const SkPath& src,
                                 SkStrokeRec*, const SkRect*) const {
     SkPathMeasure   meas(src, false);
+#if defined(IS_FUZZING)
+    if (meas.getLength() < 0 || meas.getLength() > 100) {
+        return false;
+    }
+#endif
     do {
         SkScalar    length = meas.getLength();
         SkScalar    distance = this->begin(length);
@@ -23,6 +28,11 @@ bool Sk1DPathEffect::filterPath(SkPath* dst, const SkPath& src,
             if (delta <= 0) {
                 break;
             }
+#if defined(IS_FUZZING)
+            if (delta <= SK_ScalarNearlyZero) {
+                return false;
+            }
+#endif
             distance += delta;
         }
     } while (meas.nextContour());
@@ -65,6 +75,11 @@ SkPath1DPathEffect::SkPath1DPathEffect(const SkPath& path, SkScalar advance,
 
 bool SkPath1DPathEffect::filterPath(SkPath* dst, const SkPath& src,
                             SkStrokeRec* rec, const SkRect* cullRect) const {
+#if defined(IS_FUZZING)
+    if (dst->countVerbs() > 100 || dst->countPoints() > 100) {
+        return false;
+    }
+#endif
     if (fAdvance > 0) {
         rec->setFillStyle();
         return this->INHERITED::filterPath(dst, src, rec, cullRect);
@@ -109,6 +124,7 @@ static void morphpath(SkPath* dst, const SkPath& src, SkPathMeasure& meas,
     SkPoint         srcP[4], dstP[3];
     SkPath::Verb    verb;
 
+    //SkDebugf("morphpath Measure %d\n", meas.getLength());
     while ((verb = iter.next(srcP)) != SkPath::kDone_Verb) {
         switch (verb) {
             case SkPath::kMove_Verb:
