@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "186af91a_efce86cb",
+        "filename": "include/gpu/GrContext.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 427,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-01-19T17:05:20Z",
+      "side": 1,
+      "message": "Does this class need to be public?\n\nGrDirectContext? I don\u0027t know...",
+      "range": {
+        "startLine": 427,
+        "startChar": 13,
+        "endLine": 427,
+        "endChar": 28
+      },
+      "revId": "bd5b17a5888c061e23fc6b2fd030ad0e3517f833",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b5fa318e_111cdf1e",
+        "filename": "src/gpu/GrContext.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 186,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-01-19T17:05:20Z",
+      "side": 1,
+      "message": "DDL? Or is this windows-only? :)",
+      "range": {
+        "startLine": 186,
+        "startChar": 6,
+        "endLine": 186,
+        "endChar": 9
+      },
+      "revId": "bd5b17a5888c061e23fc6b2fd030ad0e3517f833",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "855d4380_8a6fb276",
+        "filename": "src/gpu/GrContext.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 303,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-01-19T17:05:20Z",
+      "side": 1,
+      "message": "I assume that as this evolved we\u0027ll be moving this to the normal subclass and overriding ~?",
+      "range": {
+        "startLine": 303,
+        "startChar": 8,
+        "endLine": 303,
+        "endChar": 12
+      },
+      "revId": "bd5b17a5888c061e23fc6b2fd030ad0e3517f833",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
