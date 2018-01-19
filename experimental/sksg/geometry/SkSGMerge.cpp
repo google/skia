@@ -27,7 +27,6 @@ Merge::~Merge() {
 }
 
 void Merge::onDraw(SkCanvas* canvas, const SkPaint& paint) const {
-    SkASSERT(!this->hasInval());
     canvas->drawPath(fMerged, paint);
 }
 

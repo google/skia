@@ -47,7 +47,7 @@ private:
 /**
  * Concrete Effect node, binding a Matrix to a RenderNode.
  */
-class Transform : public EffectNode {
+class Transform final : public EffectNode {
 public:
     static sk_sp<Transform> Make(sk_sp<RenderNode> child, sk_sp<Matrix> matrix) {
         return child && matrix
@@ -64,14 +64,14 @@ public:
     const sk_sp<Matrix>& getMatrix() const { return fMatrix; }
 
 protected:
-    Transform(sk_sp<RenderNode>, sk_sp<Matrix>);
-
     void onRender(SkCanvas*) const override;
 
     SkRect onRevalidate(InvalidationController*, const SkMatrix&) override;
 
 private:
-    sk_sp<Matrix> fMatrix;
+    Transform(sk_sp<RenderNode>, sk_sp<Matrix>);
+
+    const sk_sp<Matrix> fMatrix;
 
     typedef EffectNode INHERITED;
 };

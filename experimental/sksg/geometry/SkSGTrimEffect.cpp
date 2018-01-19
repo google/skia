@@ -26,8 +26,6 @@ TrimEffect::~TrimEffect() {
 //   This is a quick hack to get something on the screen.  What we really want here is to apply
 //   the geometry transformation and cache the result on revalidation. Or an SkTrimPathEffect.
 void TrimEffect::onDraw(SkCanvas* canvas, const SkPaint& paint) const {
-    SkASSERT(!this->hasInval());
-
     SkASSERT(!paint.getPathEffect());
 
     const auto path = fChild->asPath();
