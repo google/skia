@@ -739,21 +739,17 @@ static void test_issue_2696(skiatest::Reporter* reporter) {
     }
 }
 
-void test_read_rrect(skiatest::Reporter* reporter, const SkRRect& rrect, bool shouldSucceed) {
+void test_read_rrect(skiatest::Reporter* reporter, const SkRRect& rrect, bool shouldEqualSrc) {
     // It would be cleaner to call rrect.writeToMemory into a buffer. However, writeToMemory asserts
     // that the rrect is valid and our caller may have fiddled with the internals of rrect to make
     // it invalid.
     const void* buffer = reinterpret_cast<const void*>(&rrect);
     SkRRect deserialized;
     size_t size = deserialized.readFromMemory(buffer, sizeof(SkRRect));
-    if (shouldSucceed) {
-        REPORTER_ASSERT(reporter, size == SkRRect::kSizeInMemory);
-        if (size) {
-           REPORTER_ASSERT(reporter, rrect == deserialized);
-           REPORTER_ASSERT(reporter, rrect.getType() == deserialized.getType());
-        }
-    } else {
-        REPORTER_ASSERT(reporter, !size);
+    REPORTER_ASSERT(reporter, size == SkRRect::kSizeInMemory);
+    REPORTER_ASSERT(reporter, deserialized.isValid());
+    if (shouldEqualSrc) {
+       REPORTER_ASSERT(reporter, rrect == deserialized);
     }
 }
 
