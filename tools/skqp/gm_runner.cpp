@@ -22,6 +22,48 @@
 #include "gm_knowledge.h"
 #include "vk/VkTestContext.h"
 
+static SkTHashSet<SkString> gDoNotScoreInCompatibilityTestMode;
+static SkTHashSet<SkString> gDoNotExecuteInExperimentalMode;
+static SkTHashSet<SkString> gKnownGpuUnitTests;
+static SkTHashSet<SkString> gKnownGMs;
+static gm_runner::Mode gMode = gm_runner::Mode::kCompatibilityTestMode;
+
+static bool is_empty(const SkTHashSet<SkString>& set) {
+    return 0 == set.count();
+}
+static bool in_set(const char* s, const SkTHashSet<SkString>& set) {
+    return !is_empty(set) && nullptr != set.find(SkString(s));
+}
+
+static void readlist(skqp::AssetManager* mgr, const char* path, SkTHashSet<SkString>* dst) {
+    auto asset = mgr->open(path);
+    SkASSERT_RELEASE(asset);
+    if (!asset || asset->getLength() == 0) {
+        return;
+    }
+    std::vector<char> buffer(asset->getLength() + 1);
+    asset->read(buffer.data(), buffer.size());
+    buffer.back() = '\0';
+    const char* ptr = buffer.data();
+    const char* end = &buffer.back();
+    SkASSERT(ptr < end);
+    while (true) {
+        while (*ptr == '\n' && ptr < end) {
+            ++ptr;
+        }
+        if (ptr == end) {
+            return;
+        }
+        const char* find = strchr(ptr, '\n');
+        if (!find) {
+            find = end;
+        }
+        SkASSERT(find > ptr);
+        dst->add(SkString(ptr, find - ptr));
+        ptr = find;
+    }
+}
+
 namespace gm_runner {
 
 const char* GetErrorString(Error e) {
@@ -57,10 +99,15 @@ std::vector<UnitTest> GetUnitTests() {
     std::vector<UnitTest> tests;
     for (const skiatest::TestRegistry* r = skiatest::TestRegistry::Head(); r; r = r->next()) {
         const skiatest::Test& test = r->factory();
-        if (test.needsGpu) {
+        if ((is_empty(gKnownGpuUnitTests) || in_set(test.name, gKnownGpuUnitTests))
+            && test.needsGpu) {
             tests.push_back(&test);
         }
     }
+    struct {
+        bool operator()(UnitTest u, UnitTest v) const { return strcmp(u->name, v->name) < 0; }
+    } less;
+    std::sort(tests.begin(), tests.end(), less);
     return tests;
 }
 
@@ -118,6 +165,7 @@ std::vector<SkiaBackend> GetSupportedBackends() {
             }
         }
     }
+    SkASSERT_RELEASE(result.size() > 0);
     return result;
 }
 
@@ -167,14 +215,21 @@ std::tuple<float, Error> EvaluateGM(SkiaBackend backend,
                                     skqp::AssetManager* assetManager,
                                     const char* reportDirectoryPath) {
     std::vector<uint32_t> pixels;
+    SkASSERT(gmFact);
     std::unique_ptr<skiagm::GM> gm(gmFact(nullptr));
+    SkASSERT(gm);
+    const char* name = gm->getName();
     int width = 0, height = 0;
     if (!evaluate_gm(backend, gm.get(), &width, &height, &pixels)) {
         return std::make_tuple(FLT_MAX, Error::SkiaFailure);
     }
+    if (Mode::kCompatibilityTestMode == gMode && in_set(name, gDoNotScoreInCompatibilityTestMode)) {
+        return std::make_tuple(0, Error::None);
+    }
+
     gmkb::Error e;
     float value = gmkb::Check(pixels.data(), width, height,
-                              gm->getName(), GetBackendName(backend), assetManager,
+                              name, GetBackendName(backend), assetManager,
                               reportDirectoryPath, &e);
     Error error = gmkb::Error::kBadInput == e ? Error::BadSkiaOutput
                 : gmkb::Error::kBadData  == e ? Error::BadGMKBData
@@ -182,19 +237,29 @@ std::tuple<float, Error> EvaluateGM(SkiaBackend backend,
     return std::make_tuple(value, error);
 }
 
-void InitSkia() {
+void InitSkia(Mode mode, skqp::AssetManager* mgr) {
     SkGraphics::Init();
     gSkFontMgr_DefaultFactory = &DM::MakeFontMgr;
+
+    gMode = mode;
+    readlist(mgr, "skqp/DoNotScoreInCompatibilityTestMode.txt",
+             &gDoNotScoreInCompatibilityTestMode);
+    readlist(mgr, "skqp/DoNotExecuteInExperimentalMode.txt", &gDoNotExecuteInExperimentalMode);
+    readlist(mgr, "skqp/KnownGpuUnitTests.txt", &gKnownGpuUnitTests);
+    readlist(mgr, "skqp/KnownGMs.txt", &gKnownGMs);
 }
 
 std::vector<GMFactory> GetGMFactories(skqp::AssetManager* assetManager) {
     std::vector<GMFactory> result;
     for (const skiagm::GMRegistry* r = skiagm::GMRegistry::Head(); r; r = r->next()) {
         GMFactory f = r->factory();
-
-        if (gmkb::IsGoodGM(GetGMName(f).c_str(), assetManager)) {
-            result.push_back(r->factory());
-            SkASSERT(result.back());
+        SkASSERT(f);
+        auto name = GetGMName(f);
+        if ((is_empty(gKnownGMs) || in_set(name.c_str(), gKnownGMs)) &&
+            !(Mode::kExperimentalMode == gMode &&
+              in_set(name.c_str(), gDoNotExecuteInExperimentalMode)))
+        {
+            result.push_back(f);
         }
     }
     struct {

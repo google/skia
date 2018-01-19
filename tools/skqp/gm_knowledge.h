@@ -57,16 +57,6 @@ float Check(const uint32_t* pixels,
             Error* error_out);
 
 /**
-Check to see if the given test has expected results.
-
-@param name          The name of a rendering test.
-@param assetManager  GM KnowledgeBase data files
-
-@return true of expected results are known for the given test.
-*/
-bool IsGoodGM(const char* name, skqp::AssetManager* assetManager);
-
-/**
 Call this after running all checks.
 
 @param report_directory_path  locatation to write report to.
