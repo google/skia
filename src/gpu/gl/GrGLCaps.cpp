@@ -2130,7 +2130,7 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
     // Gallium llvmpipe renderer on ES 3.0 does not have R8 so we use Alpha for
     // kAlpha_8_GrPixelConfig. Alpha8 is not a valid signed internal format so we must use the base
     // internal format for that config when doing TexImage calls.
-    if (kGalliumLLVM_GrGLRenderer == ctxInfo.renderer() && textureRedSupport) {
+    if (kGalliumLLVM_GrGLRenderer == ctxInfo.renderer() && !textureRedSupport) {
         SkASSERT(fConfigTable[kAlpha_8_GrPixelConfig].fFormats.fBaseInternalFormat ==
                  fConfigTable[kAlpha_8_as_Alpha_GrPixelConfig].fFormats.fBaseInternalFormat);
         fConfigTable[kAlpha_8_GrPixelConfig].fFormats.fInternalFormatTexImage =
