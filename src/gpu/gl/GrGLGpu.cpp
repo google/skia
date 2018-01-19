@@ -3367,6 +3367,14 @@ static inline bool can_blit_framebuffer_for_copy_surface(
     return true;
 }
 
+static bool rt_has_msaa_render_buffer(const GrGLRenderTarget* rt, const GrGLCaps& glCaps) {
+    // A RT has a separate MSAA renderbuffer if:
+    // 1) It's multisampled
+    // 2) We're using an extension with separate MSAA renderbuffers
+    // 3) It's not FBO 0, which is special and always auto-resolves
+    return rt->numColorSamples() > 0 && glCaps.usesMSAARenderBuffers() && rt->renderFBOID() != 0;
+}
+
 static inline bool can_copy_texsubimage(const GrSurface* dst, GrSurfaceOrigin dstOrigin,
                                         const GrSurface* src, GrSurfaceOrigin srcOrigin,
                                         const GrGLGpu* gpu) {
@@ -3380,13 +3388,13 @@ static inline bool can_copy_texsubimage(const GrSurface* dst, GrSurfaceOrigin ds
     const GrGLRenderTarget* dstRT = static_cast<const GrGLRenderTarget*>(dst->asRenderTarget());
     // If dst is multisampled (and uses an extension where there is a separate MSAA renderbuffer)
     // then we don't want to copy to the texture but to the MSAA buffer.
-    if (dstRT && dstRT->renderFBOID() != dstRT->textureFBOID()) {
+    if (dstRT && rt_has_msaa_render_buffer(dstRT, gpu->glCaps())) {
         return false;
     }
     const GrGLRenderTarget* srcRT = static_cast<const GrGLRenderTarget*>(src->asRenderTarget());
     // If the src is multisampled (and uses an extension where there is a separate MSAA
     // renderbuffer) then it is an invalid operation to call CopyTexSubImage
-    if (srcRT && srcRT->renderFBOID() != srcRT->textureFBOID()) {
+    if (srcRT && rt_has_msaa_render_buffer(srcRT, gpu->glCaps())) {
         return false;
     }
 
