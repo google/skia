@@ -496,7 +496,6 @@
       "GrShape",
       "--match",
       "~readpixels",
-      "~F16Stages",
       "~SkRasterPipeline_tail",
       "~GM_animated-image-blurs",
       "~verylarge",
