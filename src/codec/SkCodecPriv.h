@@ -16,7 +16,7 @@
 #include "SkImageInfo.h"
 #include "SkTypes.h"
 
-#if defined(SK_PRINT_CODEC_MESSAGES) || defined(SK_DEBUG)
+#ifdef SK_PRINT_CODEC_MESSAGES
     #define SkCodecPrintf SkDebugf
 #else
     #define SkCodecPrintf(...)
