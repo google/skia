@@ -335,6 +335,5 @@ gm_sources = [
   "$_gm/xfermodes.cpp",
   "$_gm/xfermodes2.cpp",
   "$_gm/xfermodes3.cpp",
-  "$_gm/xform_image_gen.cpp",
   "$_gm/yuvtorgbeffect.cpp",
 ]
