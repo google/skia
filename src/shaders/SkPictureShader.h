@@ -32,7 +32,7 @@ public:
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkPictureShader)
 
 #if SK_SUPPORT_GPU
-    std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const AsFPArgs&) const override;
+    std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const GrFPArgs&) const override;
 #endif
 
 protected:

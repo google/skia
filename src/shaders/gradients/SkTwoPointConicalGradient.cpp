@@ -174,7 +174,7 @@ void SkTwoPointConicalGradient::flatten(SkWriteBuffer& buffer) const {
 #include "SkTwoPointConicalGradient_gpu.h"
 
 std::unique_ptr<GrFragmentProcessor> SkTwoPointConicalGradient::asFragmentProcessor(
-        const AsFPArgs& args) const {
+        const GrFPArgs& args) const {
     SkASSERT(args.fContext);
     return Gr2PtConicalGradientEffect::Make(
             GrGradientEffect::CreateArgs(args.fContext, this, args.fLocalMatrix, fTileMode,

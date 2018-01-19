@@ -357,7 +357,7 @@ void SkPictureShader::toString(SkString* str) const {
 
 #if SK_SUPPORT_GPU
 std::unique_ptr<GrFragmentProcessor> SkPictureShader::asFragmentProcessor(
-        const AsFPArgs& args) const {
+        const GrFPArgs& args) const {
     int maxTextureSize = 0;
     if (args.fContext) {
         maxTextureSize = args.fContext->caps()->maxTextureSize();
@@ -369,8 +369,7 @@ std::unique_ptr<GrFragmentProcessor> SkPictureShader::asFragmentProcessor(
         return nullptr;
     }
     return as_SB(bitmapShader)
-            ->asFragmentProcessor(SkShaderBase::AsFPArgs(args.fContext, args.fViewMatrix, nullptr,
-                                                         args.fFilterQuality,
-                                                         args.fDstColorSpaceInfo));
+            ->asFragmentProcessor(GrFPArgs(args.fContext, args.fViewMatrix, nullptr,
+                                           args.fFilterQuality, args.fDstColorSpaceInfo));
 }
 #endif
