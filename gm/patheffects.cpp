@@ -167,3 +167,12 @@ static GM* PathEffectFactory(void*) { return new PathEffectGM; }
 static GMRegistry regPathEffect(PathEffectFactory);
 
 }
+
+DEF_SIMPLE_GM(onedpatheffect, canvas, 256, 256) {
+    SkPaint paint;
+    SkPath path;
+    path.addRect(0, 0, 1, 1);
+    paint.setPathEffect(SkPath1DPathEffect::Make(path, 1e-4f, 0,
+                                                  SkPath1DPathEffect::kRotate_Style));
+    canvas->drawLine(0, 0, 1e30f, 0, paint);
+}
