@@ -9,6 +9,7 @@
 #include "SkRRect.h"
 #include "SkScopeExit.h"
 #include "SkBuffer.h"
+#include "SkMalloc.h"
 #include "SkMatrix.h"
 #include "SkScaleToSides.h"
 
@@ -387,6 +388,10 @@ bool SkRRect::transform(const SkMatrix& matrix, SkRRect* dst) const {
     // remains unchanged.
     dst->fType = fType;
 
+    if (kRect_Type == fType) {
+        SkASSERT(dst->isValid());
+        return true;
+    }
     if (kOval_Type == fType) {
         for (int i = 0; i < 4; ++i) {
             dst->fRadii[i].fX = SkScalarHalf(newRect.width());
@@ -495,16 +500,10 @@ size_t SkRRect::readFromMemory(const void* buffer, size_t length) {
     if (length < kSizeInMemory) {
         return 0;
     }
-    // Note that the buffer may be smaller than SkRRect. It is important not to access
-    // bufferAsRRect->fType.
-    const SkRRect* bufferAsRRect = reinterpret_cast<const SkRRect*>(buffer);
-    if (!AreRectAndRadiiValid(bufferAsRRect->fRect, bufferAsRRect->fRadii)) {
-        return 0;
-    }
-    // Deserialize rect and corners, then rederive the type tag.
-    memcpy(this, buffer, kSizeInMemory);
-    this->computeType();
 
+    SkRRect raw;
+    memcpy(&raw, buffer, kSizeInMemory);
+    this->setRectRadii(raw.fRect, raw.fRadii);
     return kSizeInMemory;
 }
 
@@ -512,14 +511,9 @@ bool SkRRect::readFromBuffer(SkRBuffer* buffer) {
     if (buffer->available() < kSizeInMemory) {
         return false;
     }
-    SkRRect readData;
-    buffer->read(&readData, kSizeInMemory);
-    if (!AreRectAndRadiiValid(readData.fRect, readData.fRadii)) {
-        return false;
-    }
-    memcpy(this, &readData, kSizeInMemory);
-    this->computeType();
-    return true;
+    SkRRect storage;
+    return buffer->read(&storage, kSizeInMemory) &&
+           (this->readFromMemory(&storage, kSizeInMemory) == kSizeInMemory);
 }
 
 #include "SkString.h"
