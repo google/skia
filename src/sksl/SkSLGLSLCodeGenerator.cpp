@@ -598,8 +598,19 @@ void GLSLCodeGenerator::writeConstructor(const Constructor& c, Precedence parent
 
 void GLSLCodeGenerator::writeFragCoord() {
     if (!fProgram.fSettings.fCaps->canUseFragCoord()) {
-        this->write("vec4(sk_FragCoord_Workaround.xyz / sk_FragCoord_Workaround.w, "
-                    "1.0 / sk_FragCoord_Workaround.w)");
+        if (!fSetupFragCoordWorkaround) {
+            const char* precision = usesPrecisionModifiers() ? "highp " : "";
+            fFunctionHeader += precision;
+            fFunctionHeader += "    float sk_FragCoord_InvW = 1. / sk_FragCoord_Workaround.w;\n";
+            fFunctionHeader += precision;
+            fFunctionHeader += "    vec4 sk_FragCoord_Resolved = "
+                "vec4(sk_FragCoord_Workaround.xyz * sk_FragCoord_InvW, sk_FragCoord_InvW);\n";
+            // Ensure that we get exact .5 values for x and y.
+            fFunctionHeader += "    sk_FragCoord_Resolved.xy = floor(sk_FragCoord_Resolved.xy) + "
+                               "vec2(.5);\n";
+            fSetupFragCoordWorkaround = true;
+        }
+        this->write("sk_FragCoord_Resolved");
         return;
     }
 
