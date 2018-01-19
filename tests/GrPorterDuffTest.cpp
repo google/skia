@@ -30,7 +30,7 @@ static void test_lcd_coverage(skiatest::Reporter* reporter, const GrCaps& caps);
 static void test_lcd_coverage_fallback_case(skiatest::Reporter* reporter, const GrCaps& caps);
 
 DEF_GPUTEST_FOR_NULLGL_CONTEXT(GrPorterDuff, reporter, ctxInfo) {
-    const GrCaps& caps = *ctxInfo.grContext()->contextPriv().getGpu()->caps();
+    const GrCaps& caps = *ctxInfo.grContext()->getGpu()->caps();
     if (!caps.shaderCaps()->dualSourceBlendingSupport()) {
         SK_ABORT("Null context does not support dual source blending.");
         return;
@@ -1061,7 +1061,6 @@ DEF_GPUTEST(PorterDuffNoDualSourceBlending, reporter, options) {
         return;
     }
 
-    GrGpu* gpu = ctx->contextPriv().getGpu();
     GrProxyProvider* proxyProvider = ctx->contextPriv().proxyProvider();
     const GrCaps& caps = *ctx->caps();
     if (caps.shaderCaps()->dualSourceBlendingSupport()) {
@@ -1070,8 +1069,8 @@ DEF_GPUTEST(PorterDuffNoDualSourceBlending, reporter, options) {
     }
 
     GrBackendTexture backendTex =
-        gpu->createTestingOnlyBackendTexture(nullptr, 100, 100, kRGBA_8888_GrPixelConfig,
-                                             false, GrMipMapped::kNo);
+        ctx->getGpu()->createTestingOnlyBackendTexture(nullptr, 100, 100, kRGBA_8888_GrPixelConfig,
+                                                       false, GrMipMapped::kNo);
 
     GrXferProcessor::DstProxy fakeDstProxy;
     {
@@ -1102,7 +1101,7 @@ DEF_GPUTEST(PorterDuffNoDualSourceBlending, reporter, options) {
             }
         }
     }
-    gpu->deleteTestingOnlyBackendTexture(&backendTex);
+    ctx->getGpu()->deleteTestingOnlyBackendTexture(&backendTex);
 }
 
 #endif

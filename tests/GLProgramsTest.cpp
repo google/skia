@@ -348,7 +348,7 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages, int ma
 
 static int get_glprograms_max_stages(const sk_gpu_test::ContextInfo& ctxInfo) {
     GrContext* context = ctxInfo.grContext();
-    GrGLGpu* gpu = static_cast<GrGLGpu*>(context->contextPriv().getGpu());
+    GrGLGpu* gpu = static_cast<GrGLGpu*>(context->getGpu());
     int maxStages = 6;
     if (kGLES_GrGLStandard == gpu->glStandard()) {
     // We've had issues with driver crashes and HW limits being exceeded with many effects on
