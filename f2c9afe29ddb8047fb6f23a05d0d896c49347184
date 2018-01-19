@@ -1,0 +1,191 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d0538739_7e0bece8",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 208,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-01-19T20:03:51Z",
+      "side": 1,
+      "message": "is a -\u003e was obtained from a ?",
+      "revId": "f2c9afe29ddb8047fb6f23a05d0d896c49347184",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1603a92a_5c7d0d2d",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 231,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-01-19T20:03:51Z",
+      "side": 1,
+      "message": "same here ?",
+      "revId": "f2c9afe29ddb8047fb6f23a05d0d896c49347184",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d6ba80de_edc81bb7",
+        "filename": "src/gpu/GrProxyProvider.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 331,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-01-19T20:03:51Z",
+      "side": 1,
+      "message": "Don\u0027t we need something like:\nif (!releaseProc \u0026\u0026 !fResourceProvider) {\n   return nullptr;\n}\n?\nDo we need a unit test for that case?",
+      "revId": "f2c9afe29ddb8047fb6f23a05d0d896c49347184",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "21475197_da15d037",
+        "filename": "src/gpu/GrProxyProvider.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 343,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-01-19T20:03:51Z",
+      "side": 1,
+      "message": "// This lazy proxy was never instantiated but we need to free up the wrapped backendTex here\n\n?",
+      "revId": "f2c9afe29ddb8047fb6f23a05d0d896c49347184",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2c81329b_ab6af8d9",
+        "filename": "src/gpu/GrProxyProvider.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 357,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-01-19T20:03:51Z",
+      "side": 1,
+      "message": "assert here that tex isn\u0027t budgeted (to match what we say on the lazy proxy?",
+      "revId": "f2c9afe29ddb8047fb6f23a05d0d896c49347184",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6abe8f02_08b07972",
+        "filename": "src/gpu/GrProxyProvider.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 359,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-01-19T20:03:51Z",
+      "side": 1,
+      "message": "In the not-fully-lazy case do we have an assert that the \u0027outOrigin\u0027 matches what was provided in the \u0027desc\u0027 ?",
+      "revId": "f2c9afe29ddb8047fb6f23a05d0d896c49347184",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f9a1d49e_f28c7d2d",
+        "filename": "src/gpu/GrProxyProvider.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 364,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-01-19T20:03:51Z",
+      "side": 1,
+      "message": "// In order to reuse code we always create a lazy proxy. When we aren\u0027t in DDL mode however, we\u0027re better off instantiating the proxy here.\n?",
+      "revId": "f2c9afe29ddb8047fb6f23a05d0d896c49347184",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ac9974f5_25c0377d",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-01-19T20:03:51Z",
+      "side": 1,
+      "message": "Is this right? If so, add a comment?",
+      "revId": "f2c9afe29ddb8047fb6f23a05d0d896c49347184",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ae1762fb_e900e3a5",
+        "filename": "tests/DeferredDisplayListTest.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 194,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-01-19T20:03:51Z",
+      "side": 1,
+      "message": "Move this down to where we actually use it ?",
+      "revId": "f2c9afe29ddb8047fb6f23a05d0d896c49347184",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "33929e1b_483b1478",
+        "filename": "tests/DeferredDisplayListTest.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 217,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-01-19T20:03:51Z",
+      "side": 1,
+      "message": "missing contextPriv here",
+      "revId": "f2c9afe29ddb8047fb6f23a05d0d896c49347184",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dc2ae43e_f1926252",
+        "filename": "tests/DeferredDisplayListTest.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 243,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-01-19T20:03:51Z",
+      "side": 1,
+      "message": "Can we also test the variant where we delete the ddl w/o ever drawing it?",
+      "revId": "f2c9afe29ddb8047fb6f23a05d0d896c49347184",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
