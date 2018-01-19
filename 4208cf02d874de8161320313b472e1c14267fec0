@@ -34,6 +34,24 @@
       "revId": "4208cf02d874de8161320313b472e1c14267fec0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4dd71942_41d4a97c",
+        "filename": "tools/viewer/Viewer.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 621,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-01-19T22:30:37Z",
+      "side": 1,
+      "message": "It is, but the window isn\u0027t initialized yet and hence the width and height passed in to SampleSlide::load() are 0. So nothing gets drawn until you switch to the next slide. I\u0027ll see if I can find another way.",
+      "parentUuid": "50ce76cf_79367698",
+      "revId": "4208cf02d874de8161320313b472e1c14267fec0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
