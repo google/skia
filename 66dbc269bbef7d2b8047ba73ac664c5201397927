@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "eb3f8869_a7d817ba",
+        "filename": "include/core/SkDeferredDisplayListRecorder.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-01-19T14:15:13Z",
+      "side": 1,
+      "message": "hmmm it seems to crash just trying to do my test which doesn\u0027t do any draws. It looks like its trying to set up a RenderTargetContext which ends up making some sort of calls on resourceProvider (which seems wrong) and eventually hitting an assert in GrDDLGpu on a virtual we don\u0027t think should ever be called.",
+      "parentUuid": "ca6bb26a_f13bdc6f",
+      "range": {
+        "startLine": 21,
+        "startChar": 8,
+        "endLine": 21,
+        "endChar": 43
+      },
+      "revId": "66dbc269bbef7d2b8047ba73ac664c5201397927",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "49d9f0d3_857e0da0",
         "filename": "src/gpu/GrProxyProvider.cpp",
         "patchSetId": 2
@@ -84,6 +108,30 @@
       "side": 1,
       "message": "Does anyone actually use the adopt behavior? Can we just remove it?",
       "parentUuid": "49d9f0d3_857e0da0",
+      "range": {
+        "startLine": 343,
+        "startChar": 19,
+        "endLine": 345,
+        "endChar": 21
+      },
+      "revId": "66dbc269bbef7d2b8047ba73ac664c5201397927",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a1ea52d9_5d62fed0",
+        "filename": "src/gpu/GrProxyProvider.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 345,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-01-19T14:15:13Z",
+      "side": 1,
+      "message": "So chrome uses it in a few places and android uses it. Haven\u0027t looked at other clients but seems like it is going to have to stay :(",
+      "parentUuid": "80511b1c_8837e5b0",
       "range": {
         "startLine": 343,
         "startChar": 19,
