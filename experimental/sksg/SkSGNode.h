@@ -70,6 +70,7 @@ private:
     // TODO: too friendly, find another way.
     friend class Draw;
     friend class EffectNode;
+    friend class GeometryTransform;
     friend class Group;
     friend class MaskEffect;
     friend class Matrix;
@@ -95,12 +96,12 @@ private:
 };
 
 // Helper for defining attribute getters/setters in subclasses.
-#define SG_ATTRIBUTE(attr_name, attr_type, attr_container)      \
-    attr_type get##attr_name() const { return attr_container; } \
-    void set##attr_name(attr_type v) {                          \
-        if (attr_container == v) return;                        \
-        attr_container = v;                                     \
-        this->invalidate();                                 \
+#define SG_ATTRIBUTE(attr_name, attr_type, attr_container)             \
+    const attr_type& get##attr_name() const { return attr_container; } \
+    void set##attr_name(const attr_type& v) {                          \
+        if (attr_container == v) return;                               \
+        attr_container = v;                                            \
+        this->invalidate();                                            \
    }
 
 } // namespace sksg
