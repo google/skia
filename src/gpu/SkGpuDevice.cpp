@@ -403,8 +403,10 @@ void SkGpuDevice::drawRRect(const SkRRect& rrect, const SkPaint& paint) {
     }
 
     SkMaskFilter* mf = paint.getMaskFilter();
-    if (mf && mf->asFragmentProcessor(nullptr)) {
-        mf = nullptr; // already handled in SkPaintToGrPaint
+    if (mf) {
+        if (mf->hasFragmentProcessor()) {
+            mf = nullptr; // already handled in SkPaintToGrPaint
+        }
     }
 
     GrStyle style(paint);

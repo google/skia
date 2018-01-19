@@ -298,7 +298,7 @@ void GrBlurUtils::drawPathWithMaskFilter(GrContext* context,
     }
     GrAA aa = GrAA(paint.isAntiAlias());
     SkMaskFilter* mf = paint.getMaskFilter();
-    if (mf && !mf->asFragmentProcessor(nullptr)) {
+    if (mf && !mf->hasFragmentProcessor()) {
         // The MaskFilter wasn't already handled in SkPaintToGrPaint
         draw_path_with_mask_filter(context, renderTargetContext, clip, std::move(grPaint), aa,
                                    viewMatrix, mf, style, path, pathIsMutable);
