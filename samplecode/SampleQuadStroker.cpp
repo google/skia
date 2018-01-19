@@ -15,7 +15,7 @@
 #include "SkRandom.h"
 #include "SkRRect.h"
 #include "SkColorPriv.h"
-#include "SkStrokerPriv.h"
+#include "SkStroke.h"
 #include "SkSurface.h"
 
 static bool hittest(const SkPoint& target, SkScalar x, SkScalar y) {

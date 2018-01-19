@@ -9,7 +9,9 @@
 #ifndef SkStrokerPriv_DEFINED
 #define SkStrokerPriv_DEFINED
 
-#include "SkStroke.h"
+#include "SkPath.h"
+#include "SkPoint.h"
+#include "SkPaint.h"
 
 #define CWX(x, y)   (-y)
 #define CWY(x, y)   (x)
