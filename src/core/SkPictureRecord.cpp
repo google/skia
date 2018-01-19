@@ -273,8 +273,6 @@ void SkPictureRecord::fillRestoreOffsetPlaceholdersForCurrentStackLevel(uint32_t
         // assert that the final offset value points to a save verb
         uint32_t opSize;
         DrawType drawOp = peek_op_and_size(&fWriter, -offset, &opSize);
-        SkASSERT(SAVE_LAYER_SAVEFLAGS_DEPRECATED != drawOp);
-        SkASSERT(SAVE_LAYER_SAVELAYERFLAGS_DEPRECATED_JAN_2016 != drawOp);
         SkASSERT(SAVE == drawOp || SAVE_LAYER_SAVELAYERREC == drawOp);
     }
 #endif
