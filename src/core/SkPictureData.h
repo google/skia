@@ -116,9 +116,8 @@ public:
     }
 
     SkDrawable* getDrawable(SkReadBuffer* reader) const {
-        int index = reader->readInt();
-        SkASSERT(index > 0 && index <= fDrawableCount);
-        return fDrawableRefs[index - 1];
+        int index = reader->readInt() - 1;
+        return reader->validateIndex(index, fDrawableCount) ? fDrawableRefs[index] : nullptr;
     }
 
     const SkPaint* getPaint(SkReadBuffer* reader) const {
