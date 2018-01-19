@@ -33,7 +33,7 @@ public:
                     SkIPoint* margin) const override;
 
 #if SK_SUPPORT_GPU
-    bool asFragmentProcessor(GrFragmentProcessor**) const override;
+    std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const GrFPArgs& args) const override;
 #endif
 
     SK_TO_STRING_OVERRIDE()
@@ -509,12 +509,10 @@ private:
 };
 
 ////////////////////////////////////////////////////////////////////////////
-bool SkRRectsGaussianEdgeMaskFilterImpl::asFragmentProcessor(GrFragmentProcessor** fp) const {
-    if (fp) {
-        *fp = RRectsGaussianEdgeFP::Make(fFirst, fSecond, fRadius).release();
-    }
 
-    return true;
+std::unique_ptr<GrFragmentProcessor>
+SkRRectsGaussianEdgeMaskFilterImpl::asFragmentProcessor(const GrFPArgs& args) const {
+    return RRectsGaussianEdgeFP::Make(fFirst, fSecond, fRadius);
 }
 
 #endif
