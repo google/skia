@@ -115,7 +115,7 @@ public:
     }
 
     /**
-     * Abandons all GPU resources and assumes the underlying backend 3D API context is not longer
+     * Abandons all GPU resources and assumes the underlying backend 3D API context is no longer
      * usable. Call this if you have lost the associated GPU context, and thus internal texture,
      * buffer, etc. references/IDs are now invalid. Calling this ensures that the destructors of the
      * GrContext and any of its created resource objects will not make backend 3D API calls. Content
@@ -349,6 +349,10 @@ public:
     GrContextPriv contextPriv();
     const GrContextPriv contextPriv() const;
 
+protected:
+    GrContext(GrContextThreadSafeProxy*);
+    GrContext(GrBackend);
+
 private:
     sk_sp<GrGpu>                            fGpu;
     sk_sp<const GrCaps>                     fCaps;
@@ -393,9 +397,7 @@ private:
     // TODO: have the GrClipStackClip use renderTargetContexts and rm this friending
     friend class GrContextPriv;
 
-    GrContext(GrBackend); // init must be called after the constructor.
-    GrContext(GrContextThreadSafeProxy*);
-    bool init(const GrContextOptions&);
+    bool init(const GrContextOptions&); // init must be called after either constructor.
 
     /**
      * These functions create premul <-> unpremul effects. If the second argument is 'true', they
