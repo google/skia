@@ -13,6 +13,7 @@
 #include "SkDrawable.h"
 #include "SkMatrix.h"
 #include "SkRect.h"
+#include "SkRefCnt.h"
 
 class SkAndroidCodec;
 class SkPicture;
@@ -76,6 +77,39 @@ public:
      */
     double update(double msecs);
 
+    /**
+     *  Change the repetition count.
+     *
+     *  By default, the image will repeat the number of times indicated in the
+     *  encoded data.
+     *
+     *  Use SkCodec::kRepetitionCountInfinite for infinite, and 0 to show all
+     *  frames once and then stop.
+     */
+    void setRepetitionCount(int count);
+
+    /**
+     *  Callback for when the animation ends.
+     *
+     *  If there is an error that stops the animation, this will be called.
+     *
+     *  Else, if the repetition count is SkCodec::kRepetitionCountInfinite, this
+     *  will never be called. Otherwise it will be called when the final
+     *  repetition ends.
+     */
+    class OnAnimationEndListener : public SkRefCnt {
+    public:
+        /**
+         *  @param SkAnimatedImage that ended.
+         */
+        virtual void onAnimationEnd(SkAnimatedImage*) = 0;
+    };
+
+    /**
+     *  Replace the listener.
+     */
+    void setOnAnimationEndListener(sk_sp<OnAnimationEndListener>);
+
 protected:
     SkRect onGetBounds() override;
     void onDraw(SkCanvas*) override;
@@ -104,9 +138,16 @@ private:
     double                          fRemainingMS;
     Frame                           fActiveFrame;
     Frame                           fRestoreFrame;
+    int                             fRepetitionCount;
+    int                             fRepetitionsCompleted;
+    sk_sp<OnAnimationEndListener>   fListener;
 
     SkAnimatedImage(std::unique_ptr<SkAndroidCodec>, SkISize scaledSize,
             SkImageInfo decodeInfo, SkIRect cropRect, sk_sp<SkPicture> postProcess);
+    SkAnimatedImage(std::unique_ptr<SkAndroidCodec>);
+
+    int computeNextFrame(int current, bool* animationEnded);
+    double finish();
 
     typedef SkDrawable INHERITED;
 };
