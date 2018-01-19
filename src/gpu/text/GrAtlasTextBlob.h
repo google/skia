@@ -202,7 +202,7 @@ public:
                      const SkMatrix& viewMatrix, const SkIRect& clipBounds, SkScalar x, SkScalar y);
 
     // flush a throwaway GrAtlasTextBlob *not* associated with an SkTextBlob
-    void flushThrowaway(GrContext* context, GrTextUtils::Target*, const SkSurfaceProps& props,
+    void flushThrowaway(GrAtlasGlyphCache*, GrTextUtils::Target*, const SkSurfaceProps& props,
                         const GrDistanceFieldAdjustTable* distanceAdjustTable,
                         const GrTextUtils::Paint& paint, const GrClip& clip,
                         const SkMatrix& viewMatrix, const SkIRect& clipBounds, SkScalar x,
@@ -295,7 +295,7 @@ private:
                          const GrDistanceFieldAdjustTable* distanceAdjustTable,
                          GrAtlasGlyphCache* cache);
 
-    void flushBigGlyphs(GrContext* context, GrTextUtils::Target*, const GrClip& clip,
+    void flushBigGlyphs(GrTextUtils::Target*, const GrClip& clip,
                         const SkPaint& paint, const SkMatrix& viewMatrix, SkScalar x, SkScalar y,
                         const SkIRect& clipBounds);
 

@@ -104,7 +104,7 @@ void GrTextUtils::DrawBigText(GrContext* context, GrTextUtils::Target* target,
     }
 }
 
-void GrTextUtils::DrawBigPosText(GrContext* context, GrTextUtils::Target* target,
+void GrTextUtils::DrawBigPosText(GrTextUtils::Target* target,
                                  const SkSurfaceProps& props, const GrClip& clip,
                                  const SkPaint& origPaint, const SkMatrix& viewMatrix,
                                  const char text[], size_t byteLength, const SkScalar pos[],

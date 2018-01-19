@@ -175,6 +175,12 @@ public:
 
     GrResourceCache* getResourceCache() { return fContext->fResourceCache; }
 
+    GrGpu* getGpu() { return fContext->fGpu.get(); }
+    const GrGpu* getGpu() const { return fContext->fGpu.get(); }
+
+    GrAtlasGlyphCache* getAtlasGlyphCache() { return fContext->fAtlasGlyphCache; }
+    GrTextBlobCache* getTextBlobCache() { return fContext->fTextBlobCache.get(); }
+
 private:
     explicit GrContextPriv(GrContext* context) : fContext(context) {}
     GrContextPriv(const GrContextPriv&); // unimpl

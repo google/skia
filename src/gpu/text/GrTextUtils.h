@@ -130,16 +130,16 @@ public:
 
     // Functions for drawing large text either as paths or (for color emoji) as scaled glyphs
     static void DrawBigText(GrContext*, GrTextUtils::Target*, const GrClip& clip,
-                               const SkPaint& paint, const SkMatrix& viewMatrix, const char text[],
-                               size_t byteLength, SkScalar x, SkScalar y,
-                               const SkIRect& clipBounds);
+                            const SkPaint& paint, const SkMatrix& viewMatrix, const char text[],
+                            size_t byteLength, SkScalar x, SkScalar y,
+                            const SkIRect& clipBounds);
 
-    static void DrawBigPosText(GrContext* context, GrTextUtils::Target*,
-                                  const SkSurfaceProps& props, const GrClip& clip,
-                                  const SkPaint& paint, const SkMatrix& viewMatrix,
-                                  const char text[], size_t byteLength, const SkScalar pos[],
-                                  int scalarsPerPosition, const SkPoint& offset,
-                                  const SkIRect& clipBounds);
+    static void DrawBigPosText(GrTextUtils::Target*,
+                               const SkSurfaceProps& props, const GrClip& clip,
+                               const SkPaint& paint, const SkMatrix& viewMatrix,
+                               const char text[], size_t byteLength, const SkScalar pos[],
+                               int scalarsPerPosition, const SkPoint& offset,
+                               const SkIRect& clipBounds);
 };
 
 #endif
