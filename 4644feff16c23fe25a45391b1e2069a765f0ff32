@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7d917bd8_6e93a526",
+        "filename": "src/gpu/GrOpFlushState.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-01-19T18:10:08Z",
+      "side": 1,
+      "message": "is this right? Old code had dstProxy-\u003econfig() here.",
+      "range": {
+        "startLine": 88,
+        "startChar": 53,
+        "endLine": 88,
+        "endChar": 62
+      },
+      "revId": "4644feff16c23fe25a45391b1e2069a765f0ff32",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
