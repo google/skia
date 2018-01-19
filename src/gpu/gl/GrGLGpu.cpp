@@ -2711,6 +2711,7 @@ void GrGLGpu::onResolveRenderTarget(GrRenderTarget* target, GrSurfaceOrigin orig
         // Some extensions automatically resolves the texture when it is read.
         if (this->glCaps().usesMSAARenderBuffers()) {
             SkASSERT(rt->textureFBOID() != rt->renderFBOID());
+            SkASSERT(rt->textureFBOID() != 0 && rt->renderFBOID() != 0);
             fStats.incRenderTargetBinds();
             fStats.incRenderTargetBinds();
             GL_CALL(BindFramebuffer(GR_GL_READ_FRAMEBUFFER, rt->renderFBOID()));
@@ -4376,6 +4377,7 @@ void GrGLGpu::xferBarrier(GrRenderTarget* rt, GrXferBarrierType type) {
     switch (type) {
         case kTexture_GrXferBarrierType: {
             GrGLRenderTarget* glrt = static_cast<GrGLRenderTarget*>(rt);
+            SkASSERT(glrt->textureFBOID() != 0 && glrt->renderFBOID() != 0);
             if (glrt->textureFBOID() != glrt->renderFBOID()) {
                 // The render target uses separate storage so no need for glTextureBarrier.
                 // FIXME: The render target will resolve automatically when its texture is bound,
