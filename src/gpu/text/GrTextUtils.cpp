@@ -78,7 +78,7 @@ bool GrTextUtils::ShouldDisableLCD(const SkPaint& paint) {
            paint.isFakeBoldText() || paint.getStyle() != SkPaint::kFill_Style;
 }
 
-void GrTextUtils::DrawBigText(GrTextUtils::Target* target,
+void GrTextUtils::DrawBigText(GrContext* context, GrTextUtils::Target* target,
                               const GrClip& clip, const SkPaint& paint,
                               const SkMatrix& viewMatrix, const char text[], size_t byteLength,
                               SkScalar x, SkScalar y, const SkIRect& clipBounds) {
@@ -104,7 +104,7 @@ void GrTextUtils::DrawBigText(GrTextUtils::Target* target,
     }
 }
 
-void GrTextUtils::DrawBigPosText(GrTextUtils::Target* target,
+void GrTextUtils::DrawBigPosText(GrContext* context, GrTextUtils::Target* target,
                                  const SkSurfaceProps& props, const GrClip& clip,
                                  const SkPaint& origPaint, const SkMatrix& viewMatrix,
                                  const char text[], size_t byteLength, const SkScalar pos[],

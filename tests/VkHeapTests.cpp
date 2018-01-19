@@ -11,7 +11,6 @@
 
 #if SK_SUPPORT_GPU && defined(SK_VULKAN)
 
-#include "GrContextPriv.h"
 #include "GrContextFactory.h"
 #include "GrTest.h"
 #include "Test.h"
@@ -20,7 +19,7 @@
 using sk_gpu_test::GrContextFactory;
 
 void subheap_test(skiatest::Reporter* reporter, GrContext* context) {
-    GrVkGpu* gpu = static_cast<GrVkGpu*>(context->contextPriv().getGpu());
+    GrVkGpu* gpu = static_cast<GrVkGpu*>(context->getGpu());
 
     // memtype doesn't matter, we're just testing the suballocation algorithm so we'll use 0
     GrVkSubHeap heap(gpu, 0, 0, 64 * 1024, 32);
@@ -117,7 +116,7 @@ void subheap_test(skiatest::Reporter* reporter, GrContext* context) {
 }
 
 void suballoc_test(skiatest::Reporter* reporter, GrContext* context) {
-    GrVkGpu* gpu = static_cast<GrVkGpu*>(context->contextPriv().getGpu());
+    GrVkGpu* gpu = static_cast<GrVkGpu*>(context->getGpu());
 
     // memtype/heap index don't matter, we're just testing the allocation algorithm so we'll use 0
     GrVkHeap heap(gpu, GrVkHeap::kSubAlloc_Strategy, 64 * 1024);
@@ -177,7 +176,7 @@ void suballoc_test(skiatest::Reporter* reporter, GrContext* context) {
 }
 
 void singlealloc_test(skiatest::Reporter* reporter, GrContext* context) {
-    GrVkGpu* gpu = static_cast<GrVkGpu*>(context->contextPriv().getGpu());
+    GrVkGpu* gpu = static_cast<GrVkGpu*>(context->getGpu());
 
     // memtype/heap index don't matter, we're just testing the allocation algorithm so we'll use 0
     GrVkHeap heap(gpu, GrVkHeap::kSingleAlloc_Strategy, 64 * 1024);

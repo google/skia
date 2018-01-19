@@ -723,9 +723,8 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkImage_NewFromTextureRelease, reporter, c
     std::unique_ptr<uint32_t[]> pixels(new uint32_t[kWidth * kHeight]);
 
     GrContext* ctx = ctxInfo.grContext();
-    GrGpu* gpu = ctx->contextPriv().getGpu();
 
-    GrBackendTexture backendTex = gpu->createTestingOnlyBackendTexture(
+    GrBackendTexture backendTex = ctxInfo.grContext()->getGpu()->createTestingOnlyBackendTexture(
                pixels.get(), kWidth, kHeight, kRGBA_8888_GrPixelConfig, true, GrMipMapped::kNo);
 
     TextureReleaseChecker releaseChecker;
@@ -757,7 +756,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkImage_NewFromTextureRelease, reporter, c
     refImg.reset(nullptr); // force a release of the image
     REPORTER_ASSERT(reporter, 1 == releaseChecker.fReleaseCount);
 
-    gpu->deleteTestingOnlyBackendTexture(&backendTex);
+    ctxInfo.grContext()->getGpu()->deleteTestingOnlyBackendTexture(&backendTex);
 }
 
 static void test_cross_context_image(skiatest::Reporter* reporter, const GrContextOptions& options,

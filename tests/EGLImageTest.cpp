@@ -28,7 +28,7 @@ static void cleanup(GLTestContext* glctx0, GrGLuint texID0, GLTestContext* glctx
         glctx1->makeCurrent();
         if (grctx1) {
             if (backendTex1 && backendTex1->isValid()) {
-                GrGLGpu* gpu1 = static_cast<GrGLGpu*>(grctx1->contextPriv().getGpu());
+                GrGLGpu* gpu1 = static_cast<GrGLGpu*>(grctx1->getGpu());
                 gpu1->deleteTestingOnlyBackendTexture(backendTex1);
             }
         }
@@ -53,7 +53,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(EGLImageTest, reporter, ctxInfo) {
     if (kGLES_GrGLStandard != glCtx0->gl()->fStandard) {
         return;
     }
-    GrGLGpu* gpu0 = static_cast<GrGLGpu*>(context0->contextPriv().getGpu());
+    GrGLGpu* gpu0 = static_cast<GrGLGpu*>(context0->getGpu());
     if (!gpu0->glCaps().shaderCaps()->externalTextureSupport()) {
         return;
     }
@@ -83,7 +83,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(EGLImageTest, reporter, ctxInfo) {
 
     // Use GL Context 1 to create a texture unknown to GrContext.
     context1->flush();
-    GrGpu* gpu1 = context1->contextPriv().getGpu();
+    GrGpu* gpu1 = context1->getGpu();
     static const int kSize = 100;
     backendTexture1 =
         gpu1->createTestingOnlyBackendTexture(nullptr, kSize, kSize, kRGBA_8888_GrPixelConfig,

@@ -169,7 +169,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SRGBMipMaps, reporter, ctxInfo) {
     //
     // TODO: Once Vulkan supports legacy mip-mapping, we can promote this to GrCaps. Right now,
     // Vulkan has most of the functionality, but not the mip-mapping part that's being tested here.
-    GrGLGpu* glGpu = static_cast<GrGLGpu*>(context->contextPriv().getGpu());
+    GrGLGpu* glGpu = static_cast<GrGLGpu*>(context->getGpu());
     if (glGpu->glCaps().srgbDecodeDisableSupport() &&
         glGpu->glCaps().srgbDecodeDisableAffectsMipmaps()) {
         read_and_check_pixels(reporter, l32RenderTargetContext.get(), expectedLinear, iiRGBA,
