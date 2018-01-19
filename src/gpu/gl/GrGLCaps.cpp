@@ -1773,10 +1773,6 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
         fSRGBSupport = false;
     }
 
-    // ES2 Command Buffer has several TexStorage restrictions. It appears to fail for any format
-    // not explicitly allowed by GL_EXT_texture_storage, particularly those from other extensions.
-    bool isCommandBufferES2 = kChromium_GrGLDriver == ctxInfo.driver() && version < GR_GL_VER(3, 0);
-
     uint32_t srgbRenderFlags = allRenderFlags;
     // MacPro devices with AMD cards fail to create MSAA sRGB render buffers
 #if defined(SK_BUILD_FOR_MAC)
@@ -1797,8 +1793,7 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
         fConfigTable[kSRGBA_8888_GrPixelConfig].fFlags = ConfigInfo::kTextureable_Flag |
                                                          srgbRenderFlags;
     }
-    // ES2 Command Buffer does not allow TexStorage with SRGB8_ALPHA8_EXT
-    if (texStorageSupported && !isCommandBufferES2) {
+    if (texStorageSupported) {
         fConfigTable[kSRGBA_8888_GrPixelConfig].fFlags |= ConfigInfo::kCanUseTexStorage_Flag;
     }
     fConfigTable[kSRGBA_8888_GrPixelConfig].fSwizzle = GrSwizzle::RGBA();
@@ -1924,8 +1919,7 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
     redInfo.fFormats.fExternalFormat[kOther_ExternalFormatUsage] = GR_GL_RED;
     redInfo.fSwizzle = GrSwizzle::RRRR();
 
-    // ES2 Command Buffer does not allow TexStorage with R8_EXT (so Alpha_8 and Gray_8)
-    if (texStorageSupported && !isCommandBufferES2) {
+    if (texStorageSupported) {
         // Angle with es2->GL has a bug where it will hang trying to call TexSubImage on Alpha8
         // formats on miplevels > 0. We already disable texturing on gles > 2.0 so just need to
         // check that we are not going to OpenGL.
@@ -1980,7 +1974,7 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
         fConfigTable[kGray_8_GrPixelConfig].fFlags |= allRenderFlags;
     }
 #endif
-    if (texStorageSupported && !isCommandBufferES2) {
+    if (texStorageSupported) {
         if (GrGLANGLEBackend::kOpenGL != ctxInfo.angleBackend()) {
             grayLumInfo.fFlags |= ConfigInfo::kCanUseTexStorage_Flag;
         }
@@ -2077,7 +2071,7 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
             redHalf.fFlags |= fpRenderFlags;
         }
 
-        if (texStorageSupported && !isCommandBufferES2) {
+        if (texStorageSupported) {
             redHalf.fFlags |= ConfigInfo::kCanUseTexStorage_Flag;
         }
 
