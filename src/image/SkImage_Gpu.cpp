@@ -156,6 +156,10 @@ GrBackendObject SkImage_Gpu::onGetTextureHandle(bool flushPendingGrContextIO,
                                                 GrSurfaceOrigin* origin) const {
     SkASSERT(fProxy);
 
+    if (GrSurfaceProxy::LazyState::kNot != fProxy->lazyInstantiationState()) {
+        return 0;
+    }
+
     if (!fProxy->instantiate(fContext->contextPriv().resourceProvider())) {
         return 0;
     }
@@ -335,6 +339,10 @@ sk_sp<SkImage> SkImage::MakeFromTexture(GrContext* ctx,
 sk_sp<SkImage> SkImage::MakeFromAdoptedTexture(GrContext* ctx,
                                                const GrBackendTexture& tex, GrSurfaceOrigin origin,
                                                SkAlphaType at, sk_sp<SkColorSpace> cs) {
+    if (!ctx->contextPriv().resourceProvider()) {
+        // We have a DDL context and we don't support adopted textures for them.
+        return nullptr;
+    }
     return new_wrapped_texture_common(ctx, tex, origin, at, std::move(cs), kAdopt_GrWrapOwnership,
                                       nullptr, nullptr);
 }
