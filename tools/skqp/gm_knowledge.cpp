@@ -72,10 +72,6 @@ static SkPixmap rgba8888_to_pixmap(const uint32_t* pixels, int width, int height
     return SkPixmap(info, pixels, width * sizeof(uint32_t));
 }
 
-static bool asset_exists(skqp::AssetManager* mgr, const char* path) {
-    return mgr && nullptr != mgr->open(path);
-}
-
 static bool copy(skqp::AssetManager* mgr, const char* path, const char* dst) {
     if (mgr) {
         if (auto stream = mgr->open(path)) {
@@ -114,13 +110,6 @@ static std::vector<Run> gErrors;
 static std::mutex gMutex;
 
 namespace gmkb {
-bool IsGoodGM(const char* name, skqp::AssetManager* assetManager) {
-    return asset_exists(assetManager, SkOSPath::Join(name, PATH_MAX_PNG).c_str())
-        && asset_exists(assetManager, SkOSPath::Join(name, PATH_MIN_PNG).c_str());
-}
-
-// Assumes that for each GM foo, asset_manager has files foo/{max,min}.png and
-// that the report_directory_path already exists on disk.
 float Check(const uint32_t* pixels,
             int width,
             int height,
@@ -129,19 +118,25 @@ float Check(const uint32_t* pixels,
             skqp::AssetManager* assetManager,
             const char* report_directory_path,
             Error* error_out) {
+    if (report_directory_path && report_directory_path[0]) {
+        SkASSERT_RELEASE(sk_isdir(report_directory_path));
+    }
     if (width <= 0 || height <= 0) {
         return set_error_code(error_out, Error::kBadInput);
     }
     size_t N = (unsigned)width * (unsigned)height;
-    SkString max_path = SkOSPath::Join(name, PATH_MAX_PNG);
-    SkString min_path = SkOSPath::Join(name, PATH_MIN_PNG);
+    constexpr char PATH_ROOT[] = "gmkb";
+    SkString img_path = SkOSPath::Join(PATH_ROOT, name);
+    SkString max_path = SkOSPath::Join(img_path.c_str(), PATH_MAX_PNG);
+    SkString min_path = SkOSPath::Join(img_path.c_str(), PATH_MIN_PNG);
     SkBitmap max_image = ReadPngRgba8888FromFile(assetManager, max_path.c_str());
-    if (max_image.isNull()) {
-        return set_error_code(error_out, Error::kBadData);
-    }
     SkBitmap min_image = ReadPngRgba8888FromFile(assetManager, min_path.c_str());
-    if (min_image.isNull()) {
-        return set_error_code(error_out, Error::kBadData);
+    if (max_image.isNull() || min_image.isNull()) {
+        // No data.
+        if (error_out) {
+            *error_out = Error::kNone;
+        }
+        return 0;
     }
     if (max_image.width()  != min_image.width() ||
         max_image.height() != min_image.height())
@@ -168,7 +163,6 @@ float Check(const uint32_t* pixels,
         gErrors.push_back(Run{SkString(backend), SkString(name), 0, 0});
     }
     if (report_directory_path && badness > 0 && report_directory_path[0] != '\0') {
-        sk_mkdir(report_directory_path);
         if (!backend) {
             backend = "skia";
         }
@@ -206,9 +200,11 @@ float Check(const uint32_t* pixels,
 }
 
 bool MakeReport(const char* report_directory_path) {
+    SkASSERT_RELEASE(sk_isdir(report_directory_path));
     std::lock_guard<std::mutex> lock(gMutex);
     {
         SkFILEWStream csvOut(SkOSPath::Join(report_directory_path, "out.csv").c_str());
+        SkASSERT_RELEASE(csvOut.isValid());
         if (!csvOut.isValid()) {
             return false;
         }
@@ -220,7 +216,6 @@ bool MakeReport(const char* report_directory_path) {
         }
     }
 
-    sk_mkdir(report_directory_path);
     SkFILEWStream out(SkOSPath::Join(report_directory_path, PATH_REPORT).c_str());
     if (!out.isValid()) {
         return false;
