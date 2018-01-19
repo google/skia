@@ -44,39 +44,6 @@ func in(v string, a []string) bool {
 	return false
 }
 
-// TODO(halcanary): clean up this blacklist.
-var blacklist = []string{
-	"circular-clips",
-	"colorcomposefilter_wacky",
-	"coloremoji_blendmodes",
-	"colormatrix",
-	"complexclip_bw",
-	"complexclip_bw_invert",
-	"complexclip_bw_layer",
-	"complexclip_bw_layer_invert",
-	"convex-lineonly-paths-stroke-and-fill",
-	"dftext",
-	"downsamplebitmap_image_high_mandrill_512.png",
-	"downsamplebitmap_image_medium_mandrill_512.png",
-	"filterbitmap_image_mandrill_16.png",
-	"filterbitmap_image_mandrill_64.png",
-	"filterbitmap_image_mandrill_64.png_g8",
-	"gradients_degenerate_2pt",
-	"gradients_degenerate_2pt_nodither",
-	"gradients_local_perspective",
-	"gradients_local_perspective_nodither",
-	"imagefilterstransformed",
-	"image_scale_aligned",
-	"lattice",
-	"linear_gradient",
-	"mipmap_srgb",
-	"mixedtextblobs",
-	"OverStroke",
-	"simple-offsetimagefilter",
-	"strokerect",
-	"textblobmixedsizes",
-	"textblobmixedsizes_df"}
-
 func processTest(testName string, imgUrls []string, output string) error {
 	if strings.ContainsRune(testName, '/') {
 		return nil
@@ -190,9 +157,6 @@ func main() {
 
 	var wg sync.WaitGroup
 	for _, record := range records {
-		if in(record.TestName, blacklist) {
-			continue
-		}
 		var goodUrls []string
 		for _, digest := range record.Digests {
 			if (in("vk", digest.ParamSet["config"]) ||
