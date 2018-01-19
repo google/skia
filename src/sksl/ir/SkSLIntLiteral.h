@@ -47,10 +47,6 @@ struct IntLiteral : public Expression {
         return INHERITED::coercionCost(target);
     }
 
-    int64_t getConstantInt() const override {
-        return fValue;
-    }
-
     const int64_t fValue;
 
     typedef Expression INHERITED;

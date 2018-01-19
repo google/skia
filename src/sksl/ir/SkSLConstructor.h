@@ -146,11 +146,15 @@ struct Constructor : public Expression {
     }
 
     double getFVecComponent(int index) const {
-        return this->getVecComponent(index).getConstantFloat();
+        const Expression& c = this->getVecComponent(index);
+        ASSERT(c.fKind == Expression::kFloatLiteral_Kind);
+        return ((FloatLiteral&) c).fValue;
     }
 
     int64_t getIVecComponent(int index) const {
-        return this->getVecComponent(index).getConstantInt();
+        const Expression& c = this->getVecComponent(index);
+        ASSERT(c.fKind == Expression::kIntLiteral_Kind);
+        return ((IntLiteral&) c).fValue;
     }
 
     // null return should be interpreted as zero
