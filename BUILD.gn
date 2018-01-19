@@ -1812,6 +1812,26 @@ if (skia_enable_tools) {
     }
   }
 
+  test_app("list_gms") {
+    sources = [
+      "tools/list_gms.cpp",
+    ]
+    deps = [
+      ":gm",
+      ":skia",
+    ]
+  }
+  test_app("list_gpu_unit_tests") {
+    sources = [
+      "dm/DMGpuTestProcs.cpp",
+      "tools/list_gpu_unit_tests.cpp",
+    ]
+    deps = [
+      ":skia",
+      ":tests",
+    ]
+  }
+
   if (skia_enable_gpu) {
     test_lib("sk_app") {
       public_include_dirs = [ "tools/sk_app" ]
