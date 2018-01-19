@@ -16,6 +16,24 @@
       "revId": "4208cf02d874de8161320313b472e1c14267fec0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "50ce76cf_79367698",
+        "filename": "tools/viewer/Viewer.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 621,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-01-19T22:21:26Z",
+      "side": 1,
+      "message": "Yeah, setupCurrentSlide() is being called for every backend change and we don\u0027t want to load repeatedly in that case.\n\nLike Brian said, I would expect setCurrentSlide() to be called on startup for the first slide - is it not?",
+      "parentUuid": "982fcc87_31d72b5d",
+      "revId": "4208cf02d874de8161320313b472e1c14267fec0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
