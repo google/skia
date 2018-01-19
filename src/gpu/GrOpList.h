@@ -14,7 +14,7 @@
 #include "SkTDArray.h"
 
 
-// Turn on/off the explicit distribution of GPU resources at flush time
+ Turn on/off the explicit distribution of GPU resources at flush time
 #ifndef SK_DISABLE_EXPLICIT_GPU_RESOURCE_ALLOCATION
    #define SK_DISABLE_EXPLICIT_GPU_RESOURCE_ALLOCATION
 #endif
