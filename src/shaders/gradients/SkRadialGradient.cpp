@@ -161,7 +161,7 @@ void GrRadialGradient::GLSLRadialProcessor::emitCode(EmitArgs& args) {
 /////////////////////////////////////////////////////////////////////
 
 std::unique_ptr<GrFragmentProcessor> SkRadialGradient::asFragmentProcessor(
-        const AsFPArgs& args) const {
+        const GrFPArgs& args) const {
     SkASSERT(args.fContext);
 
     SkMatrix matrix;

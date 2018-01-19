@@ -90,7 +90,7 @@ SkShader::GradientType SkColorShader::asAGradient(GradientInfo* info) const {
 #include "SkGr.h"
 #include "effects/GrConstColorProcessor.h"
 std::unique_ptr<GrFragmentProcessor> SkColorShader::asFragmentProcessor(
-        const AsFPArgs& args) const {
+        const GrFPArgs& args) const {
     GrColor4f color = SkColorToPremulGrColor4f(fColor, *args.fDstColorSpaceInfo);
     return GrConstColorProcessor::Make(color, GrConstColorProcessor::InputMode::kModulateA);
 }
@@ -210,7 +210,7 @@ SkShader::GradientType SkColor4Shader::asAGradient(GradientInfo* info) const {
 #include "effects/GrConstColorProcessor.h"
 
 std::unique_ptr<GrFragmentProcessor> SkColor4Shader::asFragmentProcessor(
-        const AsFPArgs& args) const {
+        const GrFPArgs& args) const {
     // Construct an xform assuming float inputs. The color space can have a transfer function on
     // it, which will be applied below.
     auto colorSpaceXform = GrColorSpaceXform::Make(fColorSpace.get(), kRGBA_float_GrPixelConfig,

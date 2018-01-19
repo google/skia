@@ -8,6 +8,7 @@
 #ifndef SkShaderBase_DEFINED
 #define SkShaderBase_DEFINED
 
+#include "GrFPArgs.h"
 #include "SkFilterQuality.h"
 #include "SkMatrix.h"
 #include "SkShader.h"
@@ -135,26 +136,6 @@ public:
     Context* makeBurstPipelineContext(const ContextRec&, SkArenaAlloc*) const;
 
 #if SK_SUPPORT_GPU
-    struct AsFPArgs {
-        AsFPArgs() {}
-        AsFPArgs(GrContext* context,
-                 const SkMatrix* viewMatrix,
-                 const SkMatrix* localMatrix,
-                 SkFilterQuality filterQuality,
-                 const GrColorSpaceInfo* dstColorSpaceInfo)
-                : fContext(context)
-                , fViewMatrix(viewMatrix)
-                , fLocalMatrix(localMatrix)
-                , fFilterQuality(filterQuality)
-                , fDstColorSpaceInfo(dstColorSpaceInfo) {}
-
-        GrContext* fContext;
-        const SkMatrix* fViewMatrix;
-        const SkMatrix* fLocalMatrix;
-        SkFilterQuality fFilterQuality;
-        const GrColorSpaceInfo* fDstColorSpaceInfo;
-    };
-
     /**
      *  Returns a GrFragmentProcessor that implements the shader for the GPU backend. NULL is
      *  returned if there is no GPU implementation.
@@ -168,7 +149,7 @@ public:
      *  The returned GrFragmentProcessor should expect an unpremultiplied input color and
      *  produce a premultiplied output.
      */
-    virtual std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const AsFPArgs&) const;
+    virtual std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const GrFPArgs&) const;
 #endif
 
     /**
