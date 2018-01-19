@@ -92,7 +92,7 @@ static void reg_test(const char* test, const char* testCase,
 
 
 void register_skia_tests() {
-    gm_runner::InitSkia();
+    gm_runner::InitSkia(gm_runner::Mode::kCompatibilityTestMode, gAssetMgr.get());
 
     // Rendering Tests
     std::vector<gm_runner::SkiaBackend> backends = gm_runner::GetSupportedBackends();

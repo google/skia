@@ -51,7 +51,7 @@ public class SkQPRunner extends Runner {
 
         Resources resources = InstrumentationRegistry.getTargetContext().getResources();
         AssetManager mAssetManager = resources.getAssets();
-        impl.nInit(mAssetManager, filesDir.getAbsolutePath());
+        impl.nInit(mAssetManager, filesDir.getAbsolutePath(), false);
 
         mDescription = Description.createSuiteDescription(testClass);
         Annotation annots[] = new Annotation[0];
