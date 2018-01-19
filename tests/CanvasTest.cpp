@@ -61,10 +61,11 @@
 #include "SkRect.h"
 #include "SkRegion.h"
 #include "SkShader.h"
+#include "SkSpecialImage.h"
 #include "SkStream.h"
 #include "SkSurface.h"
-#include "SkTemplates.h"
 #include "SkTDArray.h"
+#include "SkTemplates.h"
 #include "SkVertices.h"
 #include "Test.h"
 
@@ -812,3 +813,50 @@ DEF_TEST(Canvas_LegacyColorBehavior, r) {
     REPORTER_ASSERT(r, SK_ColorRED == SkSwizzle_BGRA_to_PMColor(*bitmap.getAddr32(0, 0)));
 }
 #endif
+
+namespace {
+
+class ZeroBoundsImageFilter : public SkImageFilter {
+public:
+    static sk_sp<SkImageFilter> Make() { return sk_sp<SkImageFilter>(new ZeroBoundsImageFilter); }
+
+    SK_TO_STRING_OVERRIDE()
+    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(ZeroBoundsImageFilter)
+
+protected:
+    sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage*, const Context&, SkIPoint*) const override {
+        return nullptr;
+    }
+    sk_sp<SkImageFilter> onMakeColorSpace(SkColorSpaceXformer*) const override { return nullptr; }
+    SkIRect onFilterNodeBounds(const SkIRect&, const SkMatrix&, MapDirection) const override {
+        return SkIRect::MakeEmpty();
+    }
+
+private:
+    ZeroBoundsImageFilter() : INHERITED(nullptr, 0, nullptr) {}
+
+    typedef SkImageFilter INHERITED;
+};
+
+sk_sp<SkFlattenable> ZeroBoundsImageFilter::CreateProc(SkReadBuffer& buffer) {
+    SkDEBUGFAIL("Should never get here");
+    return nullptr;
+}
+
+#ifndef SK_IGNORE_TO_STRING
+void ZeroBoundsImageFilter::toString(SkString* str) const {
+    str->appendf("ZeroBoundsImageFilter: ()");
+}
+#endif
+
+}  // anonymous namespace
+
+DEF_TEST(Canvas_SaveLayerWithNullBoundsAndZeroBoundsImageFilter, r) {
+    SkCanvas canvas(10, 10);
+    SkPaint p;
+    p.setImageFilter(ZeroBoundsImageFilter::Make());
+    // This should not fail any assert.
+    canvas.saveLayer(nullptr, &p);
+    REPORTER_ASSERT(r, canvas.getDeviceClipBounds().isEmpty());
+    canvas.restore();
+}
