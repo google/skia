@@ -1045,9 +1045,11 @@ void GrGLCaps::initGLSL(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli
 #endif
 
     // We've seen Adreno 3xx devices produce incorrect (flipped) values for gl_FragCoord, in some
-    // (rare) situations. It's sporadic, and mostly on older drviers.
+    // (rare) situations. It's sporadic, and mostly on older drviers. It also seems to the case
+    // that varying interpolation is quite inaccurate.
     if (kAdreno3xx_GrGLRenderer == ctxInfo.renderer()) {
         shaderCaps->fCanUseFragCoord = false;
+        shaderCaps->fInterpolantsAreInaccurate = true;
     }
 }
 

@@ -138,3 +138,35 @@ private:
 
 DEF_GM( return new DrawMiniBitmapRectGM(true); )
 DEF_GM( return new DrawMiniBitmapRectGM(false); )
+
+static constexpr int kImgS = 800;
+DEF_SIMPLE_GM(n5, canvas, kImgS + 200, kImgS + 200) {
+    if (!canvas->getGrContext()) {
+        return;
+    }
+    canvas->clear(SK_ColorGREEN);
+    auto surf = SkSurface::MakeRaster(SkImageInfo::MakeN32Premul(kImgS, kImgS), nullptr);
+    surf->getCanvas()->clear(SK_ColorRED);
+    auto img = surf->makeImageSnapshot()->makeTextureImage(canvas->getGrContext(), nullptr);
+    sk_sp<SkImage> result;
+    auto doit = [img] (SkCanvas* canvas) {
+        canvas->clear(SK_ColorWHITE);
+        canvas->scale(1.1020407677, 1.1020407677);
+        SkPaint paint;
+        paint.setAntiAlias(true);
+        canvas->drawImage(img, 0, 0, &paint);
+    };
+    if (1) {
+        auto s = SkSurface::MakeRenderTarget(canvas->getGrContext(), SkBudgeted::kNo, SkImageInfo::MakeN32Premul(400, 400), 0, kTopLeft_GrSurfaceOrigin, nullptr);
+        doit(s->getCanvas());
+        uint32_t pixel;
+        if (s->makeImageSnapshot()->readPixels(SkImageInfo::MakeN32Premul(1, 1), &pixel, 4, 200, 0)) {
+            SkDebugf("0x%08x\n", pixel);
+        } else {
+            SkDebugf("Read failed!\n");
+        }
+        canvas->drawImage(s->makeImageSnapshot(), 0, 0);
+    } else {
+        doit(canvas);
+    }
+}
