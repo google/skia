@@ -124,6 +124,9 @@ public:
     // If false, SkSL uses a workaround so that sk_FragCoord doesn't actually query gl_FragCoord
     bool canUseFragCoord() const { return fCanUseFragCoord; }
 
+    // If true interpolated vertex shader outputs are inaccurate.
+    bool interpolantsAreInaccurate() const { return fInterpolantsAreInaccurate; }
+
     bool requiresLocalOutputColorForFBFetch() const { return fRequiresLocalOutputColorForFBFetch; }
 
     bool mustObfuscateUniformColor() const { return fMustObfuscateUniformColor; }
@@ -279,6 +282,7 @@ private:
     bool fMustObfuscateUniformColor : 1;
     bool fMustGuardDivisionEvenAfterExplicitZeroCheck : 1;
     bool fCanUseFragCoord : 1;
+    bool fInterpolantsAreInaccurate : 1;
 
     const char* fVersionDeclString;
 

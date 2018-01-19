@@ -212,6 +212,7 @@ protected:
     bool fFoundGSInvocations = false;
     bool fSetupFragPositionGlobal = false;
     bool fSetupFragPositionLocal = false;
+    bool fSetupFragCoordWorkaround = false;
 
     typedef CodeGenerator INHERITED;
 };
