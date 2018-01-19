@@ -58,9 +58,9 @@ public:
     const GrFPArgs& args() const { return fArgs; }
 
 private:
-    GrFPArgs fArgs;
     SkMatrix fViewMatrixStorage;
     std::unique_ptr<GrColorSpaceInfo> fColorSpaceInfoStorage;
+    GrFPArgs fArgs;
 };
 
 // We have a simplified dash path effect here to avoid relying on SkDashPathEffect which
