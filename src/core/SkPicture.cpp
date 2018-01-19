@@ -16,12 +16,6 @@
 #include "SkPictureRecorder.h"
 #include "SkSerialProcs.h"
 
-#if defined(SK_DISALLOW_CROSSPROCESS_PICTUREIMAGEFILTERS)
-static bool g_AllPictureIOSecurityPrecautionsEnabled = true;
-#else
-static bool g_AllPictureIOSecurityPrecautionsEnabled = false;
-#endif
-
 // When we read/write the SkPictInfo via a stream, we have a sentinel byte right after the info.
 // Note: in the read/write buffer versions, we have a slightly different convention:
 //      We have a sentinel int32_t:
@@ -322,7 +316,3 @@ void SkPicture::flatten(SkWriteBuffer& buffer) const {
     }
 }
 
-// Global setting to disable security precautions for serialization.
-bool SkPicture::PictureIOSecurityPrecautionsEnabled() {
-    return g_AllPictureIOSecurityPrecautionsEnabled;
-}
