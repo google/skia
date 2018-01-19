@@ -37,10 +37,20 @@ enum class SkiaBackend {
     kVulkan,
 };
 
+enum class Mode {
+    /** This mode is set when used by Android CTS.  All known tests are executed.  */
+    kCompatibilityTestMode,
+    /** This mode is set when used in the test lab.  Some tests are skipped, if
+        they are known to cause crashes in older devices.  All GMs are evaluated
+        with stricter requirements. */
+    kExperimentalMode,
+
+};
+
 /**
 Initialize Skia
 */
-void InitSkia();
+void InitSkia(Mode, skqp::AssetManager*);
 
 std::vector<SkiaBackend> GetSupportedBackends();
 
