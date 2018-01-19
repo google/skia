@@ -303,6 +303,7 @@ SkMaskFilter::filterRectsToNine(const SkRect[], int count, const SkMatrix&,
 
 #if SK_SUPPORT_GPU
 std::unique_ptr<GrFragmentProcessor> SkMaskFilter::asFragmentProcessor(const GrFPArgs& args) const {
+    SkASSERT(args.fLocalMatrix == nullptr);
     auto fp = this->onAsFragmentProcessor(args);
     if (fp) {
         SkASSERT(this->hasFragmentProcessor());
