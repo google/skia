@@ -64,7 +64,8 @@ public:
     GrCoverageCountingPathRenderer* getCoverageCountingPathRenderer();
 
     void flushIfNecessary() {
-        if (fContext->contextPriv().getResourceCache()->requestsFlush()) {
+        GrResourceCache* resourceCache = fContext->contextPriv().getResourceCache();
+        if (resourceCache && resourceCache->requestsFlush()) {
             this->internalFlush(nullptr, GrResourceCache::kCacheRequested, 0, nullptr);
         }
     }

@@ -322,9 +322,10 @@ sk_sp<GrRenderTargetOpList> GrDrawingManager::newRTOpList(GrRenderTargetProxy* r
         fOpLists.back()->makeClosed(*fContext->caps());
     }
 
-    sk_sp<GrRenderTargetOpList> opList(new GrRenderTargetOpList(rtp,
-                                                                fContext->getGpu(),
-                                                                fContext->getAuditTrail()));
+    sk_sp<GrRenderTargetOpList> opList(new GrRenderTargetOpList(
+                                                    rtp,
+                                                    fContext->contextPriv().resourceProvider(),
+                                                    fContext->getAuditTrail()));
     SkASSERT(rtp->getLastOpList() == opList.get());
 
     if (managedOpList) {
