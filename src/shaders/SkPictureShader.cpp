@@ -162,13 +162,9 @@ sk_sp<SkFlattenable> SkPictureShader::CreateProc(SkReadBuffer& buffer) {
 
     sk_sp<SkPicture> picture;
 
-    if (SkPicture::PictureIOSecurityPrecautionsEnabled()) {
-        buffer.validate(!buffer.readBool());
-    } else {
-        bool didSerialize = buffer.readBool();
-        if (didSerialize) {
-            picture = SkPicture::MakeFromBuffer(buffer);
-        }
+    bool didSerialize = buffer.readBool();
+    if (didSerialize) {
+        picture = SkPicture::MakeFromBuffer(buffer);
     }
     return SkPictureShader::Make(picture, mx, my, &lm, &tile);
 }
@@ -179,14 +175,8 @@ void SkPictureShader::flatten(SkWriteBuffer& buffer) const {
     buffer.write32(fTmy);
     buffer.writeRect(fTile);
 
-    // The deserialization code won't trust that our serialized picture is safe to deserialize.
-    // So write a 'false' telling it that we're not serializing a picture.
-    if (SkPicture::PictureIOSecurityPrecautionsEnabled()) {
-        buffer.writeBool(false);
-    } else {
-        buffer.writeBool(true);
-        fPicture->flatten(buffer);
-    }
+    buffer.writeBool(true);
+    fPicture->flatten(buffer);
 }
 
 sk_sp<SkShader> SkPictureShader::refBitmapShader(const SkMatrix& viewMatrix, const SkMatrix* localM,

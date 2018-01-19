@@ -108,8 +108,6 @@ public:
     // Returns NULL if this is not an SkBigPicture.
     virtual const SkBigPicture* asSkBigPicture() const { return nullptr; }
 
-    static bool PictureIOSecurityPrecautionsEnabled();
-
 private:
     // Subclass whitelist.
     SkPicture();
