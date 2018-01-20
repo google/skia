@@ -973,7 +973,6 @@ static int lpaint_getEffects(lua_State* L) {
     lua_newtable(L);
     setfield_bool_if(L, "looper",      !!paint->getLooper());
     setfield_bool_if(L, "pathEffect",  !!paint->getPathEffect());
-    setfield_bool_if(L, "rasterizer",  !!paint->getRasterizer());
     setfield_bool_if(L, "maskFilter",  !!paint->getMaskFilter());
     setfield_bool_if(L, "shader",      !!paint->getShader());
     setfield_bool_if(L, "colorFilter", !!paint->getColorFilter());

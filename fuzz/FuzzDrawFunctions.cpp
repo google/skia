@@ -9,7 +9,6 @@
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkImage.h"
-#include "SkLayerRasterizer.h"
 #include "SkPath.h"
 #include "SkSurface.h"
 #include "SkTypeface.h"
@@ -299,18 +298,6 @@ static void fuzz_drawPaint(Fuzz* fuzz) {
     init_paint(fuzz, &p);
     sk_sp<SkSurface> surface;
     init_surface(fuzz, &surface);
-
-    // add layers
-    uint8_t x;
-    fuzz->nextRange(&x, 1, 3); // max 3 layers
-    SkLayerRasterizer::Builder builder;
-    for (int i = 0; i < x; i++) {
-        init_paint(fuzz, &l);
-        builder.addLayer(l);
-    }
-
-    sk_sp<SkLayerRasterizer> raster(builder.detach());
-    p.setRasterizer(raster);
 
     surface->getCanvas()->drawPaint(p);
 }

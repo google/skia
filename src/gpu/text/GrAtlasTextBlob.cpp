@@ -61,7 +61,6 @@ SkGlyphCache* GrAtlasTextBlob::setupCache(int runIndex,
     skPaint.getScalerContextDescriptor(&effects, desc, props, scalerContextFlags, viewMatrix);
     run->fTypeface.reset(SkSafeRef(skPaint.getTypeface()));
     run->fPathEffect = sk_ref_sp(effects.fPathEffect);
-    run->fRasterizer = sk_ref_sp(effects.fRasterizer);
     run->fMaskFilter = sk_ref_sp(effects.fMaskFilter);
     return SkGlyphCache::DetachCache(run->fTypeface.get(), effects, desc->getDesc());
 }

@@ -133,7 +133,6 @@ static bool fold_opacity_layer_color_to_paint(const SkPaint* layerPaint,
             !layerPaint->isSrcOver()     ||
             layerPaint->getMaskFilter()  ||
             layerPaint->getColorFilter() ||
-            layerPaint->getRasterizer()  ||
             layerPaint->getLooper()      ||
             layerPaint->getImageFilter()) {
             return false;

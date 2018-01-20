@@ -199,7 +199,6 @@ Regenerator::Result Regenerator::doRegen() {
         if (!*fLazyCache || (*fLazyCache)->getDescriptor() != *desc) {
             SkScalerContextEffects effects;
             effects.fPathEffect = fRun->fPathEffect.get();
-            effects.fRasterizer = fRun->fRasterizer.get();
             effects.fMaskFilter = fRun->fMaskFilter.get();
             fLazyCache->reset(SkGlyphCache::DetachCache(fRun->fTypeface.get(), effects, desc));
         }

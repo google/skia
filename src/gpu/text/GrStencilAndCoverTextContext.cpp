@@ -53,9 +53,6 @@ GrStencilAndCoverTextContext::~GrStencilAndCoverTextContext() {
 }
 
 bool GrStencilAndCoverTextContext::internalCanDraw(const SkPaint& skPaint) {
-    if (skPaint.getRasterizer()) {
-        return false;
-    }
     if (skPaint.getMaskFilter()) {
         return false;
     }

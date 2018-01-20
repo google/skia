@@ -20,7 +20,6 @@
 #include "SkPaintPriv.h"
 #include "SkPathEffect.h"
 #include "SkRasterClip.h"
-#include "SkRasterizer.h"
 #include "SkReadBuffer.h"
 #include "SkStroke.h"
 #include "SkStrokeRec.h"
@@ -70,9 +69,8 @@ SkScalerContext::SkScalerContext(sk_sp<SkTypeface> typeface, const SkScalerConte
     , fTypeface(std::move(typeface))
     , fPathEffect(sk_ref_sp(effects.fPathEffect))
     , fMaskFilter(sk_ref_sp(effects.fMaskFilter))
-    , fRasterizer(sk_ref_sp(effects.fRasterizer))
       // Initialize based on our settings. Subclasses can also force this.
-    , fGenerateImageFromPath(fRec.fFrameWidth > 0 || fPathEffect != nullptr || fRasterizer != nullptr)
+    , fGenerateImageFromPath(fRec.fFrameWidth > 0 || fPathEffect != nullptr)
 
     , fPreBlend(fMaskFilter ? SkMaskGamma::PreBlend() : SkScalerContext::GetMaskPreBlend(fRec))
     , fPreBlendForFilter(fMaskFilter ? SkScalerContext::GetMaskPreBlend(fRec)
@@ -135,19 +133,6 @@ void SkScalerContext::getMetrics(SkGlyph* glyph) {
         this->internalGetPath(glyph->getPackedID(), &fillPath, &devPath, &fillToDevMatrix);
         if (fillPath.isEmpty()) {
             generatingImageFromPath = false;
-        } else if (fRasterizer) {
-            SkMask  mask;
-
-            if (fRasterizer->rasterize(fillPath, fillToDevMatrix, nullptr,
-                                       fMaskFilter.get(), &mask,
-                                       SkMask::kJustComputeBounds_CreateMode)) {
-                glyph->fLeft    = mask.fBounds.fLeft;
-                glyph->fTop     = mask.fBounds.fTop;
-                glyph->fWidth   = SkToU16(mask.fBounds.width());
-                glyph->fHeight  = SkToU16(mask.fBounds.height());
-            } else {
-                goto SK_ERROR;
-            }
         } else {
             // just use devPath
             const SkIRect ir = devPath.getBounds().roundOut();
@@ -487,21 +472,6 @@ void SkScalerContext::getImage(const SkGlyph& origGlyph) {
 
         if (fillPath.isEmpty()) {
             generateImage(*glyph);
-        } else if (fRasterizer) {
-            // Paths do not have color information, so we should not have a color mask here.
-            // This case should have been caught up in generateMetrics().
-            SkASSERT(SkMask::kARGB32_Format != origGlyph.fMaskFormat);
-            mask.fFormat = SkMask::kA8_Format;
-            sk_bzero(glyph->fImage, mask.computeImageSize());
-
-            if (!fRasterizer->rasterize(fillPath, fillToDevMatrix, nullptr,
-                                        fMaskFilter.get(), &mask,
-                                        SkMask::kJustRenderImage_CreateMode)) {
-                return;
-            }
-            if (fPreBlend.isApplicable()) {
-                applyLUTToA8Mask(mask, fPreBlend.fG);
-            }
         } else {
             SkASSERT(SkMask::kARGB32_Format != origGlyph.fMaskFormat);
             SkASSERT(SkMask::kARGB32_Format != mask.fFormat);

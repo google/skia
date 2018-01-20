@@ -18,7 +18,6 @@
 #include "SkOpts.h"
 #include "SkPathEffect.h"
 #include "SkPoint3.h"
-#include "SkRasterizer.h"
 #include "SkRectPriv.h"
 #include "SkSurfaceProps.h"
 #include "SkTInternalLList.h"
@@ -489,7 +488,6 @@ private:
 
         // Effects from the paint that are used to build a SkScalerContext.
         sk_sp<SkPathEffect> fPathEffect;
-        sk_sp<SkRasterizer> fRasterizer;
         sk_sp<SkMaskFilter> fMaskFilter;
 
         // Distance field text cannot draw coloremoji, and so has to fall back.  However,

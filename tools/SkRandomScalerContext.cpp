@@ -12,7 +12,6 @@
 #include "SkMakeUnique.h"
 #include "SkPath.h"
 #include "SkRandomScalerContext.h"
-#include "SkRasterizer.h"
 
 class SkDescriptor;
 

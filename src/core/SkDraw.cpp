@@ -24,7 +24,6 @@
 #include "SkPaint.h"
 #include "SkPathEffect.h"
 #include "SkRasterClip.h"
-#include "SkRasterizer.h"
 #include "SkRectPriv.h"
 #include "SkRRect.h"
 #include "SkScan.h"
@@ -699,8 +698,7 @@ SkDraw::RectType SkDraw::ComputeRectType(const SkPaint& paint,
     }
 
     if (paint.getPathEffect() || paint.getMaskFilter() ||
-        paint.getRasterizer() || !matrix.rectStaysRect() ||
-        SkPaint::kStrokeAndFill_Style == style) {
+        !matrix.rectStaysRect() || SkPaint::kStrokeAndFill_Style == style) {
         rtype = kPath_RectType;
     } else if (SkPaint::kFill_Style == style) {
         rtype = kFill_RectType;
@@ -916,10 +914,6 @@ void SkDraw::drawRRect(const SkRRect& rrect, const SkPaint& paint) const {
         if (paint.getPathEffect() || paint.getStyle() != SkPaint::kFill_Style) {
             goto DRAW_PATH;
         }
-
-        if (paint.getRasterizer()) {
-            goto DRAW_PATH;
-        }
     }
 
     if (paint.getMaskFilter()) {
@@ -1055,8 +1049,7 @@ void SkDraw::drawPath(const SkPath& origSrcPath, const SkPaint& origPaint,
     tmpPath.setIsVolatile(true);
 
     if (prePathMatrix) {
-        if (origPaint.getPathEffect() || origPaint.getStyle() != SkPaint::kFill_Style ||
-                origPaint.getRasterizer()) {
+        if (origPaint.getPathEffect() || origPaint.getStyle() != SkPaint::kFill_Style) {
             SkPath* result = pathPtr;
 
             if (!pathIsMutable) {
@@ -1108,17 +1101,6 @@ void SkDraw::drawPath(const SkPath& origSrcPath, const SkPaint& origPaint,
         doFill = paint->getFillPath(*pathPtr, &tmpPath, cullRectPtr,
                                     ComputeResScaleForStroking(*fMatrix));
         pathPtr = &tmpPath;
-    }
-
-    if (paint->getRasterizer()) {
-        SkMask  mask;
-        if (paint->getRasterizer()->rasterize(*pathPtr, *matrix,
-                            &fRC->getBounds(), paint->getMaskFilter(), &mask,
-                            SkMask::kComputeBoundsAndRenderImage_CreateMode)) {
-            this->drawDevMask(mask, *paint);
-            SkMask::FreeImage(mask.fImage);
-        }
-        return;
     }
 
     // avoid possibly allocating a new path in transform if we can
@@ -1340,7 +1322,6 @@ void SkDraw::drawSprite(const SkBitmap& bitmap, int x, int y, const SkPaint& ori
     matrix.reset();
     draw.fMatrix = &matrix;
     // call ourself with a rect
-    // is this OK if paint has a rasterizer?
     draw.drawRect(r, paintWithShader);
 }
 

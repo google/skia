@@ -181,7 +181,6 @@ static SkPaint read_paint(SkReadBuffer& reader) {
     CHECK_SET_FLATTENABLE(Shader);
     CHECK_SET_FLATTENABLE(MaskFilter);
     CHECK_SET_FLATTENABLE(ColorFilter);
-    CHECK_SET_FLATTENABLE(Rasterizer);
     CHECK_SET_FLATTENABLE(ImageFilter);
     CHECK_SET_FLATTENABLE(DrawLooper);
 

@@ -18,16 +18,14 @@
 class SkDescriptor;
 class SkMaskFilter;
 class SkPathEffect;
-class SkRasterizer;
 
 struct SkScalerContextEffects {
-    SkScalerContextEffects() : fPathEffect(nullptr), fMaskFilter(nullptr), fRasterizer(nullptr) {}
-    SkScalerContextEffects(SkPathEffect* pe, SkMaskFilter* mf, SkRasterizer* ra)
-        : fPathEffect(pe), fMaskFilter(mf), fRasterizer(ra) {}
+    SkScalerContextEffects() : fPathEffect(nullptr), fMaskFilter(nullptr) {}
+    SkScalerContextEffects(SkPathEffect* pe, SkMaskFilter* mf)
+        : fPathEffect(pe), fMaskFilter(mf) {}
 
     SkPathEffect*   fPathEffect;
     SkMaskFilter*   fMaskFilter;
-    SkRasterizer*   fRasterizer;
 };
 
 enum SkAxisAlignment {
@@ -271,7 +269,7 @@ public:
     const SkScalerContextRec& getRec() const { return fRec; }
 
     SkScalerContextEffects getEffects() const {
-        return { fPathEffect.get(), fMaskFilter.get(), fRasterizer.get() };
+        return { fPathEffect.get(), fMaskFilter.get() };
     }
 
     /**
@@ -341,7 +339,6 @@ private:
     // optional objects, which may be null
     sk_sp<SkPathEffect> fPathEffect;
     sk_sp<SkMaskFilter> fMaskFilter;
-    sk_sp<SkRasterizer> fRasterizer;
 
     // if this is set, we draw the image from a path, rather than
     // calling generateImage.
@@ -363,7 +360,6 @@ private:
 #define kRec_SkDescriptorTag            SkSetFourByteTag('s', 'r', 'e', 'c')
 #define kPathEffect_SkDescriptorTag     SkSetFourByteTag('p', 't', 'h', 'e')
 #define kMaskFilter_SkDescriptorTag     SkSetFourByteTag('m', 's', 'k', 'f')
-#define kRasterizer_SkDescriptorTag     SkSetFourByteTag('r', 'a', 's', 't')
 
 ///////////////////////////////////////////////////////////////////////////////
 
