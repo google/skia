@@ -23,7 +23,6 @@
 #include "SkHighContrastFilter.h"
 #include "SkImageSource.h"
 #include "SkLayerDrawLooper.h"
-#include "SkLayerRasterizer.h"
 #include "SkLightingImageFilter.h"
 #include "SkLocalMatrixImageFilter.h"
 #include "SkLumaColorFilter.h"
@@ -69,9 +68,6 @@ void SkFlattenable::PrivateInitializer::InitEffects() {
 
     // DrawLooper
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkLayerDrawLooper)
-
-    // Rasterizer
-    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkLayerRasterizer)
 
     // ColorFilter
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkColorMatrixFilterRowMajor255)

@@ -74,7 +74,7 @@ uint32_t GrTextUtils::FilterTextFlags(const SkSurfaceProps& surfaceProps, const 
 }
 
 bool GrTextUtils::ShouldDisableLCD(const SkPaint& paint) {
-    return paint.getMaskFilter() || paint.getRasterizer() || paint.getPathEffect() ||
+    return paint.getMaskFilter() || paint.getPathEffect() ||
            paint.isFakeBoldText() || paint.getStyle() != SkPaint::kFill_Style;
 }
 

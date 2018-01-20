@@ -13,7 +13,6 @@
 #include "SkCornerPathEffect.h"
 #include "SkDrawable.h"
 #include "SkGradientShader.h"
-#include "SkLayerRasterizer.h"
 #include "SkPath.h"
 #include "SkPathMeasure.h"
 #include "SkPictureRecorder.h"

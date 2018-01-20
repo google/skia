@@ -1098,7 +1098,7 @@ public:
     */
     void discard() { this->onDiscard(); }
 
-    /** Fill clip with SkPaint paint. SkPaint components SkRasterizer, SkMaskFilter, SkShader,
+    /** Fill clip with SkPaint paint. SkPaint components SkMaskFilter, SkShader,
         SkColorFilter, SkImageFilter, and SkBlendMode affect drawing;
         SkPathEffect in paint is ignored.
 
@@ -1890,7 +1890,7 @@ public:
         text draws left to right, positioning the first glyph left side bearing at x
         and its baseline at y. Text size is affected by SkMatrix and SkPaint text size.
 
-        All elements of paint: SkPathEffect, SkRasterizer, SkMaskFilter, SkShader,
+        All elements of paint: SkPathEffect, SkMaskFilter, SkShader,
         SkColorFilter, SkImageFilter, and SkDrawLooper; apply to text. By default, draws
         filled 12 point black glyphs.
 
@@ -1914,7 +1914,7 @@ public:
         string draws left to right, positioning the first glyph left side bearing at x
         and its baseline at y. Text size is affected by SkMatrix and SkPaint text size.
 
-        All elements of paint: SkPathEffect, SkRasterizer, SkMaskFilter, SkShader,
+        All elements of paint: SkPathEffect, SkMaskFilter, SkShader,
         SkColorFilter, SkImageFilter, and SkDrawLooper; apply to text. By default, draws
         filled 12 point black glyphs.
 
@@ -1942,7 +1942,7 @@ public:
         string draws left to right, positioning the first glyph left side bearing at x
         and its baseline at y. Text size is affected by SkMatrix and SkPaint text size.
 
-        All elements of paint: SkPathEffect, SkRasterizer, SkMaskFilter, SkShader,
+        All elements of paint: SkPathEffect, SkMaskFilter, SkShader,
         SkColorFilter, SkImageFilter, and SkDrawLooper; apply to text. By default, draws
         filled 12 point black glyphs.
 
@@ -1964,7 +1964,7 @@ public:
         baseline is positioned at y. Text size is affected by SkMatrix and
         SkPaint text size.
 
-        All elements of paint: SkPathEffect, SkRasterizer, SkMaskFilter, SkShader,
+        All elements of paint: SkPathEffect, SkMaskFilter, SkShader,
         SkColorFilter, SkImageFilter, and SkDrawLooper; apply to text. By default, draws
         filled 12 point black glyphs.
 
@@ -1989,7 +1989,7 @@ public:
         its baseline is positioned at constY. Text size is affected by SkMatrix and
         SkPaint text size.
 
-        All elements of paint: SkPathEffect, SkRasterizer, SkMaskFilter, SkShader,
+        All elements of paint: SkPathEffect, SkMaskFilter, SkShader,
         SkColorFilter, SkImageFilter, and SkDrawLooper; apply to text. By default, draws
         filled 12 point black glyphs.
 
@@ -2019,7 +2019,7 @@ public:
         default text positions the first glyph left side bearing at origin x and its
         baseline at origin y. Text size is affected by SkMatrix and SkPaint text size.
 
-        All elements of paint: SkPathEffect, SkRasterizer, SkMaskFilter, SkShader,
+        All elements of paint: SkPathEffect, SkMaskFilter, SkShader,
         SkColorFilter, SkImageFilter, and SkDrawLooper; apply to text. By default, draws
         filled 12 point black glyphs.
 
@@ -2046,7 +2046,7 @@ public:
         default text positions the first glyph left side bearing at origin x and its
         baseline at origin y. Text size is affected by SkMatrix and SkPaint text size.
 
-        All elements of paint: SkPathEffect, SkRasterizer, SkMaskFilter, SkShader,
+        All elements of paint: SkPathEffect, SkMaskFilter, SkShader,
         SkColorFilter, SkImageFilter, and SkDrawLooper; apply to text. By default, draws
         filled 12 point black glyphs.
 
@@ -2069,7 +2069,7 @@ public:
         Optional SkRect cullRect is a conservative bounds of text, taking into account
         SkRSXform and paint. If cullRect is outside of clip, canvas can skip drawing.
 
-        All elements of paint: SkPathEffect, SkRasterizer, SkMaskFilter, SkShader,
+        All elements of paint: SkPathEffect, SkMaskFilter, SkShader,
         SkColorFilter, SkImageFilter, and SkDrawLooper; apply to text. By default, draws
         filled 12 point black glyphs.
 
@@ -2092,7 +2092,7 @@ public:
 
         SkPaint::TextEncoding must be set to SkPaint::kGlyphID_TextEncoding.
 
-        Elements of paint: SkPathEffect, SkRasterizer, SkMaskFilter, SkShader, SkColorFilter,
+        Elements of paint: SkPathEffect, SkMaskFilter, SkShader, SkColorFilter,
         SkImageFilter, and SkDrawLooper; apply to blob.
 
         @param blob   glyphs, positions, and their paints' text size, typeface, and so on
@@ -2112,7 +2112,7 @@ public:
 
         SkPaint::TextEncoding must be set to SkPaint::kGlyphID_TextEncoding.
 
-        Elements of paint: SkPathEffect, SkRasterizer, SkMaskFilter, SkShader, SkColorFilter,
+        Elements of paint: SkPathEffect, SkMaskFilter, SkShader, SkColorFilter,
         SkImageFilter, and SkDrawLooper; apply to blob.
 
         @param blob   glyphs, positions, and their paints' text size, typeface, and so on
