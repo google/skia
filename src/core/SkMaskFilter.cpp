@@ -17,7 +17,6 @@
 
 #if SK_SUPPORT_GPU
 #include "GrTextureProxy.h"
-#include "GrFragmentProcessor.h"
 #endif
 
 SkMaskFilter::NinePatch::~NinePatch() {
@@ -302,24 +301,6 @@ SkMaskFilter::filterRectsToNine(const SkRect[], int count, const SkMatrix&,
 }
 
 #if SK_SUPPORT_GPU
-std::unique_ptr<GrFragmentProcessor> SkMaskFilter::asFragmentProcessor(const GrFPArgs& args) const {
-    auto fp = this->onAsFragmentProcessor(args);
-    if (fp) {
-        SkASSERT(this->hasFragmentProcessor());
-    } else {
-        SkASSERT(!this->hasFragmentProcessor());
-    }
-    return fp;
-}
-bool SkMaskFilter::hasFragmentProcessor() const {
-    return this->onHasFragmentProcessor();
-}
-
-std::unique_ptr<GrFragmentProcessor> SkMaskFilter::onAsFragmentProcessor(const GrFPArgs&) const {
-    return nullptr;
-}
-bool SkMaskFilter::onHasFragmentProcessor() const { return false; }
-
 bool SkMaskFilter::canFilterMaskGPU(const SkRRect& devRRect,
                                     const SkIRect& clipBounds,
                                     const SkMatrix& ctm,

@@ -6,6 +6,7 @@
  * found in the LICENSE file.
  */
 
+
 #ifndef SkMaskFilter_DEFINED
 #define SkMaskFilter_DEFINED
 
@@ -17,7 +18,6 @@
 
 class GrClip;
 class GrContext;
-struct GrFPArgs;
 class GrRenderTargetContext;
 class GrPaint;
 class GrFragmentProcessor;
@@ -69,18 +69,16 @@ public:
 
 #if SK_SUPPORT_GPU
     /**
-     *  Returns a processor if the filter can be expressed a single-pass GrProcessor without
-     *  requiring an explicit input mask. Per-pixel, the effect receives the incoming mask's
-     *  coverage as the input color and outputs the filtered covereage value. This means that each
-     *  pixel's filtered coverage must only depend on the unfiltered mask value for that pixel and
-     *  not on surrounding values.
+     *  Returns true if the filter can be expressed a single-pass GrProcessor without requiring an
+     *  explicit input mask. Per-pixel, the effect receives the incoming mask's coverage as
+     *  the input color and outputs the filtered covereage value. This means that each pixel's
+     *  filtered coverage must only depend on the unfiltered mask value for that pixel and not on
+     *  surrounding values.
+     *
+     * If effect is non-NULL, a new GrProcessor instance is stored in it. The caller assumes
+     * ownership of the effect and must unref it.
      */
-    std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const GrFPArgs& args) const;
-
-    /**
-     *  Returns true iff asFragmentProcessor() will return a processor
-     */
-    bool hasFragmentProcessor() const;
+    virtual bool asFragmentProcessor(GrFragmentProcessor**) const { return false; }
 
     /**
      *  If asFragmentProcessor() fails the filter may be implemented on the GPU by a subclass
@@ -180,11 +178,6 @@ public:
 
 protected:
     SkMaskFilter() {}
-
-#if SK_SUPPORT_GPU
-    virtual std::unique_ptr<GrFragmentProcessor> onAsFragmentProcessor(const GrFPArgs&) const;
-    virtual bool onHasFragmentProcessor() const;
-#endif
 
     enum FilterReturn {
         kFalse_FilterReturn,
