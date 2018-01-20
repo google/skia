@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f7791564_448b7bc3",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1048,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-01-20T14:37:50Z",
+      "side": 1,
+      "message": "Do you mind fixing my typo that I just noticed? (drviers)",
+      "revId": "57b990d4682490e40e7a58fe636ce03d5c2ebeb3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9d48a5cb_fcbd813c",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 196,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-01-20T14:37:50Z",
+      "side": 1,
+      "message": "Seems like it would be cleaner to just make the edge equations fragment uniforms, rather than vertex uniforms, in this case?",
+      "revId": "57b990d4682490e40e7a58fe636ce03d5c2ebeb3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
