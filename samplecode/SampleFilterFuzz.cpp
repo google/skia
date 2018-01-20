@@ -24,7 +24,6 @@
 #include "SkEmbossMaskFilter.h"
 #include "SkFlattenableSerialization.h"
 #include "SkImageSource.h"
-#include "SkLayerRasterizer.h"
 #include "SkLightingImageFilter.h"
 #include "SkLumaColorFilter.h"
 #include "SkMagnifierImageFilter.h"
@@ -512,13 +511,6 @@ static SkPaint make_paint() {
                                                    make_typeface_style()));
     }
 
-    SkLayerRasterizer::Builder rasterizerBuilder;
-    SkPaint paintForRasterizer;
-    if (R(2) == 1) {
-        paintForRasterizer = make_paint();
-    }
-    rasterizerBuilder.addLayer(paintForRasterizer);
-    paint.setRasterizer(rasterizerBuilder.detach());
     paint.setImageFilter(make_image_filter());
     sk_sp<SkData> data(make_3Dlut(nullptr, make_bool(), make_bool(), make_bool()));
     paint.setTextAlign(make_paint_align());

@@ -3095,7 +3095,7 @@ any cached data is deleted when owning Surface or Device is deleted.
 
 #Method void drawPaint(const SkPaint& paint)
 
-Fill Clip with Paint paint. Paint components Rasterizer, Mask_Filter, Shader,
+Fill Clip with Paint paint. Paint components Mask_Filter, Shader,
 Color_Filter, Image_Filter, and Blend_Mode affect drawing;
 Path_Effect in paint is ignored.
 
@@ -4985,7 +4985,7 @@ x and y meaning depends on Paint_Text_Align and Paint_Vertical_Text; by default
 text draws left to right, positioning the first glyph left side bearing at x
 and its baseline at y. Text size is affected by Matrix and Paint_Text_Size. 
 
-All elements of paint: Path_Effect, Rasterizer, Mask_Filter, Shader,
+All elements of paint: Path_Effect, Mask_Filter, Shader,
 Color_Filter, Image_Filter, and Draw_Looper; apply to text. By default, draws
 filled 12 point black Glyphs.
 
@@ -5041,7 +5041,7 @@ x and y meaning depends on Paint_Text_Align and Paint_Vertical_Text; by default
 string draws left to right, positioning the first glyph left side bearing at x
 and its baseline at y. Text size is affected by Matrix and Paint_Text_Size. 
 
-All elements of paint: Path_Effect, Rasterizer, Mask_Filter, Shader,
+All elements of paint: Path_Effect, Mask_Filter, Shader,
 Color_Filter, Image_Filter, and Draw_Looper; apply to text. By default, draws
 filled 12 point black Glyphs.
 
@@ -5074,7 +5074,7 @@ x and y meaning depends on Paint_Text_Align and Paint_Vertical_Text; by default
 string draws left to right, positioning the first glyph left side bearing at x
 and its baseline at y. Text size is affected by Matrix and Paint_Text_Size. 
 
-All elements of paint: Path_Effect, Rasterizer, Mask_Filter, Shader,
+All elements of paint: Path_Effect, Mask_Filter, Shader,
 Color_Filter, Image_Filter, and Draw_Looper; apply to text. By default, draws
 filled 12 point black Glyphs.
 
@@ -5110,7 +5110,7 @@ by default each glyph left side bearing is positioned at x and its
 baseline is positioned at y. Text size is affected by Matrix and
 Paint_Text_Size. 
 
-All elements of paint: Path_Effect, Rasterizer, Mask_Filter, Shader,
+All elements of paint: Path_Effect, Mask_Filter, Shader,
 Color_Filter, Image_Filter, and Draw_Looper; apply to text. By default, draws
 filled 12 point black Glyphs.
 
@@ -5153,7 +5153,7 @@ by default each glyph left side bearing is positioned at an xpos element and
 its baseline is positioned at constY. Text size is affected by Matrix and
 Paint_Text_Size. 
 
-All elements of paint: Path_Effect, Rasterizer, Mask_Filter, Shader,
+All elements of paint: Path_Effect, Mask_Filter, Shader,
 Color_Filter, Image_Filter, and Draw_Looper; apply to text. By default, draws
 filled 12 point black Glyphs.
 
@@ -5198,7 +5198,7 @@ UTF-8. Origin meaning depends on Paint_Text_Align and Paint_Vertical_Text; by
 default text positions the first glyph left side bearing at origin x and its
 baseline at origin y. Text size is affected by Matrix and Paint_Text_Size. 
 
-All elements of paint: Path_Effect, Rasterizer, Mask_Filter, Shader,
+All elements of paint: Path_Effect, Mask_Filter, Shader,
 Color_Filter, Image_Filter, and Draw_Looper; apply to text. By default, draws
 filled 12 point black Glyphs.
 
@@ -5246,7 +5246,7 @@ UTF-8. Origin meaning depends on Paint_Text_Align and Paint_Vertical_Text; by
 default text positions the first glyph left side bearing at origin x and its
 baseline at origin y. Text size is affected by Matrix and Paint_Text_Size. 
 
-All elements of paint: Path_Effect, Rasterizer, Mask_Filter, Shader,
+All elements of paint: Path_Effect, Mask_Filter, Shader,
 Color_Filter, Image_Filter, and Draw_Looper; apply to text. By default, draws
 filled 12 point black Glyphs.
 
@@ -5296,7 +5296,7 @@ each glyph.
 Optional Rect cullRect is a conservative bounds of text, taking into account
 RSXform and paint. If cullRect is outside of Clip, canvas can skip drawing.
 
-All elements of paint: Path_Effect, Rasterizer, Mask_Filter, Shader,
+All elements of paint: Path_Effect, Mask_Filter, Shader,
 Color_Filter, Image_Filter, and Draw_Looper; apply to text. By default, draws
 filled 12 point black Glyphs.
 
@@ -5346,7 +5346,7 @@ Subpixel_Text, and Paint_Vertical_Text.
 
 Paint_Text_Encoding must be set to SkPaint::kGlyphID_TextEncoding.
 
-Elements of paint: Path_Effect, Rasterizer, Mask_Filter, Shader, Color_Filter, 
+Elements of paint: Path_Effect, Mask_Filter, Shader, Color_Filter,
 Image_Filter, and Draw_Looper; apply to blob.
 
 #Param  blob     Glyphs, positions, and their paints' text size, typeface, and so on ##
@@ -5399,7 +5399,7 @@ Subpixel_Text, and Paint_Vertical_Text.
 
 Paint_Text_Encoding must be set to SkPaint::kGlyphID_TextEncoding.
 
-Elements of paint: Path_Effect, Rasterizer, Mask_Filter, Shader, Color_Filter, 
+Elements of paint: Path_Effect, Mask_Filter, Shader, Color_Filter, 
 Image_Filter, and Draw_Looper; apply to blob.
 
 #Param  blob     Glyphs, positions, and their paints' text size, typeface, and so on ##
