@@ -16,6 +16,24 @@
       "revId": "353fe1eb17b814a306ff79c542a9fe91395b269a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7c585200_9b7edf40",
+        "filename": "include/android/SkAnimatedImage.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-01-20T15:36:10Z",
+      "side": 1,
+      "message": "Good point. The way I originally wrote it, it fired after the time to show the last frame expired. But maybe we don\u0027t need this listener at all? If I let you query for fFinished, you could fire the callback from there? (You could also use the existing isRunning, but that might be less clear if someone had called stop.)",
+      "parentUuid": "858a1f47_8089cc1b",
+      "revId": "353fe1eb17b814a306ff79c542a9fe91395b269a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
