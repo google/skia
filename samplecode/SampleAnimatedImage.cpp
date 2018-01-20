@@ -25,7 +25,6 @@ class SampleAnimatedImage : public SampleView {
 public:
     SampleAnimatedImage()
         : INHERITED()
-        , fRunning(false)
         , fYOffset(0)
     {}
 
@@ -95,12 +94,10 @@ protected:
         if (fImage && SampleCode::CharQ(*evt, &uni)) {
             switch (uni) {
                 case kPauseKey:
-                    if (fRunning) {
+                    if (fImage->isRunning()) {
                         fImage->stop();
-                        fRunning = false;
                     } else {
                         fImage->start();
-                        fRunning = true;
                     }
                     return true;
                 case kResetKey:
@@ -116,7 +113,6 @@ protected:
 private:
     sk_sp<SkAnimatedImage>  fImage;
     sk_sp<SkDrawable>       fDrawable;
-    bool                    fRunning;
     SkScalar                fYOffset;
     typedef SampleView INHERITED;
 };

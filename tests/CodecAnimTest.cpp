@@ -8,30 +8,15 @@
 #include "SkAndroidCodec.h"
 #include "SkBitmap.h"
 #include "SkCodec.h"
-#include "SkCommonFlags.h"
-#include "SkImageEncoder.h"
-#include "SkOSPath.h"
 #include "SkStream.h"
 
+#include "CodecPriv.h"
 #include "Resources.h"
 #include "Test.h"
 #include "sk_tool_utils.h"
 
 #include <initializer_list>
 #include <vector>
-
-static void write_bm(const char* name, const SkBitmap& bm) {
-    if (FLAGS_writePath.isEmpty()) {
-        return;
-    }
-
-    SkString filename = SkOSPath::Join(FLAGS_writePath[0], name);
-    filename.appendf(".png");
-    SkFILEWStream file(filename.c_str());
-    if (!SkEncodeImage(&file, bm, SkEncodedImageFormat::kPNG, 100)) {
-        SkDebugf("failed to write '%s'\n", filename.c_str());
-    }
-}
 
 DEF_TEST(Codec_trunc, r) {
     sk_sp<SkData> data(GetResourceAsData("images/box.gif"));
