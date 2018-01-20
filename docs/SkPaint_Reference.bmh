@@ -65,7 +65,6 @@ Shader attached to Paint.
 # Path_Effect_Methods    # Get and set Path_Effect.                    ##
 # Mask_Filter_Methods    # Get and set Mask_Filter.                    ##
 # Typeface_Methods       # Get and set Typeface.                       ##
-# Rasterizer_Methods     # Get and set Rasterizer.                     ##
 # Image_Filter_Methods   # Get and set Image_Filter.                   ##
 # Draw_Looper_Methods    # Get and set Draw_Looper.                    ##
 # Text_Align             # Text placement relative to position.        ##
@@ -162,8 +161,7 @@ Shader attached to Paint.
 # getPosTextPath        # Returns Path equivalent to positioned text.           ##
 # getPosTextIntercepts  # Returns where lines intersect positioned text; underlines. ##
 # getPosTextHIntercepts # Returns where lines intersect horizontally positioned text; underlines. ##
-# getRasterizer         # Returns Rasterizer, Mask_Alpha generation from Path.  ##
-# getShader             # Returns Shader, multiple drawing colors; gradients.   ##  
+# getShader             # Returns Shader, multiple drawing colors; gradients.   ##
 # getStrokeCap          # Returns Cap, the area drawn at path ends.             ##
 # getStrokeJoin         # Returns Join, geometry on path corners.               ##
 # getStrokeMiter        # Returns Miter_Limit, angles with sharp corners.       ##
@@ -197,8 +195,7 @@ Shader attached to Paint.
 # refImageFilter        # References Image_Filter, alter pixels; blur.          ##
 # refMaskFilter         # References Mask_Filter, alterations to Mask_Alpha.    ##
 # refPathEffect         # References Path_Effect, modifications to path geometry; dashing. ##
-# refRasterizer         # References Rasterizer, mask generation from path.     ##
-# refShader             # References Shader, multiple drawing colors; gradients. ##  
+# refShader             # References Shader, multiple drawing colors; gradients. ##
 # refTypeface           # References Typeface, font description.                ##
 # reset()               # Sets to default values.                               ##
 # setAlpha              # Sets Color_Alpha, color opacity.                      ##
@@ -219,7 +216,6 @@ Shader attached to Paint.
 # setLCDRenderText      # Sets or clears LCD_Text.                              ##
 # setMaskFilter         # Sets Mask_Filter, alterations to Mask_Alpha.          ##
 # setPathEffect         # Sets Path_Effect, modifications to path geometry; dashing. ##
-# setRasterizer         # Sets Rasterizer, Mask_Alpha generation from Path.     ##
 # setImageFilter        # Sets Image_Filter, alter pixels; blur.                ##
 # setShader             # Sets Shader, multiple drawing colors; gradients.      ##  
 # setStrokeCap          # Sets Cap, the area drawn at path ends.                ##
@@ -273,7 +269,6 @@ Constructs Paint with default values.
 # Miter_Limit            # 4                        ##
 # Mask_Filter            # nullptr                  ##
 # Path_Effect            # nullptr                  ##
-# Rasterizer             # nullptr                  ##
 # Shader                 # nullptr                  ##
 # Style                  # kFill_Style              ##
 # Text_Align             # kLeft_Align              ##
@@ -317,11 +312,11 @@ $$$#  # restore original markup character
 #Method SkPaint(const SkPaint& paint)
 
 Makes a shallow copy of Paint. Typeface, Path_Effect, Shader,
-Mask_Filter, Color_Filter, Rasterizer, Draw_Looper, and Image_Filter are shared
+Mask_Filter, Color_Filter, Draw_Looper, and Image_Filter are shared
 between the original paint and the copy. Objects containing Reference_Count increment
 their references by one.
 
-The referenced objects Path_Effect, Shader, Mask_Filter, Color_Filter, Rasterizer,
+The referenced objects Path_Effect, Shader, Mask_Filter, Color_Filter,
 Draw_Looper, and Image_Filter cannot be modified after they are created.
 This prevents objects with Reference_Count from being modified once Paint refers to them.
 
@@ -399,7 +394,7 @@ Paint with the result of SkPaint().
 #Method ~SkPaint()
 
 Decreases Paint Reference_Count of owned objects: Typeface, Path_Effect, Shader,
-Mask_Filter, Color_Filter, Rasterizer, Draw_Looper, and Image_Filter. If the
+Mask_Filter, Color_Filter, Draw_Looper, and Image_Filter. If the
 objects containing Reference_Count go to zero, they are deleted.
 
 #NoExample 
@@ -414,7 +409,7 @@ objects containing Reference_Count go to zero, they are deleted.
 #Method SkPaint& operator=(const SkPaint& paint)
 
 Makes a shallow copy of Paint. Typeface, Path_Effect, Shader,
-Mask_Filter, Color_Filter, Rasterizer, Draw_Looper, and Image_Filter are shared
+Mask_Filter, Color_Filter, Draw_Looper, and Image_Filter are shared
 between the original paint and the copy. Objects containing Reference_Count in the
 prior destination are decreased by one, and the referenced objects are deleted if the
 resulting count is zero. Objects containing Reference_Count in the parameter paint
@@ -472,7 +467,7 @@ After the call, paint is undefined, and can be safely destructed.
 #Method bool operator==(const SkPaint& a, const SkPaint& b)
 
     Compares a and b, and returns true if a and b are equivalent. May return false
-    if Typeface, Path_Effect, Shader, Mask_Filter, Color_Filter, Rasterizer,
+    if Typeface, Path_Effect, Shader, Mask_Filter, Color_Filter,
     Draw_Looper, or Image_Filter have identical contents but different pointers.
 
     #Param a  Paint to compare ##
@@ -503,7 +498,7 @@ After the call, paint is undefined, and can be safely destructed.
 #Method bool operator!=(const SkPaint& a, const SkPaint& b)
 
     Compares a and b, and returns true if a and b are not equivalent. May return true
-    if Typeface, Path_Effect, Shader, Mask_Filter, Color_Filter, Rasterizer,
+    if Typeface, Path_Effect, Shader, Mask_Filter, Color_Filter,
     Draw_Looper, or Image_Filter have identical contents but different pointers.
 
     #Param a  Paint to compare ##
@@ -3114,8 +3109,7 @@ Increments pathEffect Reference_Count by one.
 #Topic Mask_Filter_Methods
 
 Mask_Filter uses coverage of the shape drawn to create Mask_Alpha.
-Mask_Filter operates at a lower level than Rasterizer; Mask_Filter takes a Mask,
-and returns a Mask.
+Mask_Filter takes a Mask, and returns a Mask.
 
 Mask_Filter may change the geometry and transparency of the shape, such as
 creating a blur effect. Set Mask_Filter to nullptr to prevent Mask_Filter from
@@ -3183,7 +3177,6 @@ Sets Mask_Filter to maskFilter, decreasing Reference_Count of the previous
 Mask_Filter. Pass nullptr to clear Mask_Filter and leave Mask_Filter effect on
 Mask_Alpha unaltered.
 
-Does not affect Rasterizer.
 Increments maskFilter Reference_Count by one.
 
     #Param maskFilter   modifies clipping mask generated from drawn geometry ##
@@ -3296,132 +3289,6 @@ typeface Reference_Count by one.
 
 #Topic ##
 # ------------------------------------------------------------------------------
-#Topic Rasterizer_Methods
-
-Rasterizer controls how shapes are converted to Mask_Alpha. 
-Rasterizer operates at a higher level than Mask_Filter; Rasterizer takes a Path,
-and returns a Mask.
-
-Rasterizer may change the geometry and transparency of the shape, such as
-creating a shadow effect. Rasterizer forms the base of Rasterizer_Layer, which
-creates effects like embossing and outlining.
-
-Rasterizer applies to Rect, Region, Round_Rect, Arcs, Circles, Ovals,
-Path, and Text.
-
-#Example
-#Height 64
-    void draw(SkCanvas* canvas) {
-        SkLayerRasterizer::Builder layerBuilder;
-        SkPaint paint;
-        paint.setAntiAlias(true);
-        paint.setStyle(SkPaint::kStroke_Style);
-        paint.setStrokeWidth(1);
-        layerBuilder.addLayer(paint);
-        paint.setAlpha(0x10);
-        paint.setStyle(SkPaint::kFill_Style);
-        paint.setBlendMode(SkBlendMode::kSrc);
-        layerBuilder.addLayer(paint);
-        paint.reset();
-        paint.setAntiAlias(true);
-        paint.setTextSize(50);
-        paint.setRasterizer(layerBuilder.detach());
-        canvas->drawString("outline", 10, 50, paint);
-    }
-##
-
-#Method SkRasterizer* getRasterizer() const
-
-    Returns Rasterizer if set, or nullptr.
-    Does not alter Rasterizer Reference_Count.
-    
-    #Return  Rasterizer if previously set, nullptr otherwise ##
-
-    #Example
-    #Function
-        class DummyRasterizer : public SkRasterizer {
-        public:
-            SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(DummyRasterizer)
-        };
-
-        sk_sp<SkFlattenable> DummyRasterizer::CreateProc(SkReadBuffer&) {
-            return sk_make_sp<DummyRasterizer>();
-        }
-
-    #Function ##
-        void draw(SkCanvas* canvas) {
-            SkPaint paint;
-            DummyRasterizer dummy;
-            SkDebugf("nullptr %c= rasterizer\n", paint.getRasterizer() ? '!' : '=');
-            paint.setRasterizer(sk_make_sp<DummyRasterizer>());
-            SkDebugf("nullptr %c= rasterizer\n", paint.getRasterizer() ? '!' : '=');
-        }
-
-        #StdOut
-            nullptr == rasterizer
-            nullptr != rasterizer
-        ##
-    ##
-
-##
-
-#Method sk_sp<SkRasterizer> refRasterizer() const
-
-    Returns Rasterizer if set, or nullptr.
-    Increases Rasterizer Reference_Count by one.
-
-    #Return  Rasterizer if previously set, nullptr otherwise ##
-
-    #Example
-        void draw(SkCanvas* canvas) {
-           SkLayerRasterizer::Builder layerBuilder;
-           SkPaint paint1, paint2;
-           layerBuilder.addLayer(paint2);
-           paint1.setRasterizer(layerBuilder.detach());
-           SkDebugf("rasterizer unique: %s\n", paint1.getRasterizer()->unique() ? "true" : "false");
-           paint2.setRasterizer(paint1.refRasterizer());
-           SkDebugf("rasterizer unique: %s\n", paint1.getRasterizer()->unique() ? "true" : "false");
-        }
-
-        #StdOut
-            rasterizer unique: true
-            rasterizer unique: false
-        ##
-    ##
-
-##
-
-#Method void setRasterizer(sk_sp<SkRasterizer> rasterizer)
-
-Sets Rasterizer to rasterizer, decreasing Reference_Count of the previous
-Rasterizer. Pass nullptr to clear Rasterizer and leave Rasterizer effect on
-Mask_Alpha unaltered.
-
-Does not affect Mask_Filter.
-Increments rasterizer Reference_Count by one.
-
-    #Param rasterizer  how geometry is converted to Mask_Alpha ##
-
-    #Example
-    #Height 64
-        SkLayerRasterizer::Builder layerBuilder;
-        SkPaint paint;
-        paint.setAntiAlias(true);
-        paint.setStyle(SkPaint::kStroke_Style);
-        paint.setStrokeWidth(2);
-        layerBuilder.addLayer(paint);
-        paint.reset();
-        paint.setAntiAlias(true);
-        paint.setTextSize(50);
-        paint.setMaskFilter(SkBlurMaskFilter::Make(kNormal_SkBlurStyle, 3));
-        paint.setRasterizer(layerBuilder.detach());
-        canvas->drawString("blurry out", 0, 50, paint);
-    ##
-
-##
-
-#Topic ##
-# ------------------------------------------------------------------------------
 #Topic Image_Filter_Methods
 
 Image_Filter operates on the pixel representation of the shape, as modified by Paint
@@ -3431,7 +3298,7 @@ which is drawn to the device using the set Blend_Mode.
 Image_Filter is higher level than Mask_Filter; for instance, an Image_Filter
 can operate on all channels of Color, while Mask_Filter generates Alpha only.
 Image_Filter operates independently of and can be used in combination with
-Mask_Filter and Rasterizer.
+Mask_Filter.
 
 #Example
     #ToDo explain why the two draws are so different ##
@@ -3504,7 +3371,6 @@ Sets Image_Filter to imageFilter, decreasing Reference_Count of the previous
 Image_Filter. Pass nullptr to clear Image_Filter, and remove Image_Filter effect
 on drawing.
 
-Does not affect Rasterizer or Mask_Filter.
 Increments imageFilter Reference_Count by one.
 
     #Param imageFilter  how Image is sampled when transformed ##

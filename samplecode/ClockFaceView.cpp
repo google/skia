@@ -20,7 +20,6 @@
 #include "SkTypeface.h"
 
 #include "SkGradientShader.h"
-#include "SkLayerRasterizer.h"
 #include "SkBlurMaskFilter.h"
 
 #include "Sk2DPathEffect.h"
@@ -110,31 +109,6 @@ static sk_sp<SkPathEffect> makepe(float interp, SkTDArray<SkPoint>* pts) {
     return sk_make_sp<Dot2DPathEffect>(rad, lattice, pts);
 }
 
-static void r7(SkLayerRasterizer::Builder* rastBuilder, SkPaint& p, SkScalar interp) {
-    p.setPathEffect(makepe(SkScalarToFloat(interp), nullptr));
-    rastBuilder->addLayer(p);
-#if 0
-    p.setPathEffect(new InverseFillPE())->unref();
-    p.setXfermodeMode(SkXfermode::kSrcIn_Mode);
-    p.setXfermodeMode(SkXfermode::kClear_Mode);
-    p.setAlpha((1 - interp) * 255);
-    rastBuilder->addLayer(p);
-#endif
-}
-
-typedef void (*raster_proc)(SkLayerRasterizer*, SkPaint&);
-
-static void apply_shader(SkPaint* paint, float scale) {
-    SkPaint p;
-    SkLayerRasterizer::Builder rastBuilder;
-
-    p.setAntiAlias(true);
-    r7(&rastBuilder, p, scale);
-    paint->setRasterizer(rastBuilder.detach());
-
-    paint->setColor(SK_ColorBLUE);
-}
-
 class ClockFaceView : public SkView {
     sk_sp<SkTypeface> fFace;
     SkScalar fInterp;
@@ -193,7 +167,6 @@ protected:
 
         paint.setTypeface(fFace);
 
-        apply_shader(&paint, SkScalarToFloat(fInterp));
         canvas->drawString(str, x, y, paint);
 
     //    drawdots(canvas, paint);

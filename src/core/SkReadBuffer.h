@@ -17,7 +17,6 @@
 #include "SkPath.h"
 #include "SkPathEffect.h"
 #include "SkPicture.h"
-#include "SkRasterizer.h"
 #include "SkReadBuffer.h"
 #include "SkReader32.h"
 #include "SkRefCnt.h"
@@ -146,7 +145,6 @@ public:
     sk_sp<SkImageFilter> readImageFilter() { return this->readFlattenable<SkImageFilter>(); }
     sk_sp<SkMaskFilter> readMaskFilter() { return this->readFlattenable<SkMaskFilter>(); }
     sk_sp<SkPathEffect> readPathEffect() { return this->readFlattenable<SkPathEffect>(); }
-    sk_sp<SkRasterizer> readRasterizer() { return this->readFlattenable<SkRasterizer>(); }
     sk_sp<SkShader> readShader() { return this->readFlattenable<SkShaderBase>(); }
 
     // Reads SkAlign4(bytes), but will only copy bytes into the buffer.
