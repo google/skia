@@ -584,17 +584,15 @@ DEF_TEST(surface_raster_zeroinitialized, reporter) {
 #if SK_SUPPORT_GPU
 static sk_sp<SkSurface> create_gpu_surface_backend_texture(
     GrContext* context, int sampleCnt, uint32_t color, GrBackendTexture* outTexture) {
-    GrGpu* gpu = context->contextPriv().getGpu();
-
     const int kWidth = 10;
     const int kHeight = 10;
     std::unique_ptr<uint32_t[]> pixels(new uint32_t[kWidth * kHeight]);
     sk_memset32(pixels.get(), color, kWidth * kHeight);
 
-    *outTexture = gpu->createTestingOnlyBackendTexture(
+    *outTexture = context->getGpu()->createTestingOnlyBackendTexture(
         pixels.get(), kWidth, kHeight, kRGBA_8888_GrPixelConfig, true, GrMipMapped::kNo);
 
-    if (!outTexture->isValid() || !gpu->isTestingOnlyBackendTexture(*outTexture)) {
+    if (!outTexture->isValid() || !context->getGpu()->isTestingOnlyBackendTexture(*outTexture)) {
         return nullptr;
     }
 
@@ -603,7 +601,7 @@ static sk_sp<SkSurface> create_gpu_surface_backend_texture(
                                                                  kRGBA_8888_SkColorType,
                                                                  nullptr, nullptr);
     if (!surface) {
-        gpu->deleteTestingOnlyBackendTexture(outTexture);
+        context->getGpu()->deleteTestingOnlyBackendTexture(outTexture);
         return nullptr;
     }
     return surface;
@@ -611,17 +609,15 @@ static sk_sp<SkSurface> create_gpu_surface_backend_texture(
 
 static sk_sp<SkSurface> create_gpu_surface_backend_texture_as_render_target(
     GrContext* context, int sampleCnt, uint32_t color, GrBackendTexture* outTexture) {
-    GrGpu* gpu = context->contextPriv().getGpu();
-
     const int kWidth = 10;
     const int kHeight = 10;
     std::unique_ptr<uint32_t[]> pixels(new uint32_t[kWidth * kHeight]);
     sk_memset32(pixels.get(), color, kWidth * kHeight);
 
-    *outTexture = gpu->createTestingOnlyBackendTexture(
+    *outTexture = context->getGpu()->createTestingOnlyBackendTexture(
         pixels.get(), kWidth, kHeight, kRGBA_8888_GrPixelConfig, true, GrMipMapped::kNo);
 
-    if (!outTexture->isValid() || !gpu->isTestingOnlyBackendTexture(*outTexture)) {
+    if (!outTexture->isValid() || !context->getGpu()->isTestingOnlyBackendTexture(*outTexture)) {
         return nullptr;
     }
 
@@ -630,7 +626,7 @@ static sk_sp<SkSurface> create_gpu_surface_backend_texture_as_render_target(
             nullptr, nullptr);
 
     if (!surface) {
-        gpu->deleteTestingOnlyBackendTexture(outTexture);
+        context->getGpu()->deleteTestingOnlyBackendTexture(outTexture);
         return nullptr;
     }
     return surface;
@@ -678,7 +674,6 @@ static void test_surface_clear(skiatest::Reporter* reporter, sk_sp<SkSurface> su
 
 DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SurfaceClear_Gpu, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
-    GrGpu* gpu = context->contextPriv().getGpu();
 
     std::function<sk_sp<GrSurfaceContext>(SkSurface*)> grSurfaceContextGetters[] = {
         [] (SkSurface* s){
@@ -708,7 +703,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SurfaceClear_Gpu, reporter, ctxInfo) {
             auto surface = surfaceFunc(context, 0, kOrigColor, &backendTex);
             test_surface_clear(reporter, surface, grSurfaceGetter, kOrigColor);
             surface.reset();
-            gpu->deleteTestingOnlyBackendTexture(&backendTex);
+            context->getGpu()->deleteTestingOnlyBackendTexture(&backendTex);
         }
     }
 }
@@ -756,7 +751,7 @@ static void test_surface_draw_partially(
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfacePartialDraw_Gpu, reporter, ctxInfo) {
-    GrGpu* gpu = ctxInfo.grContext()->contextPriv().getGpu();
+    GrGpu* gpu = ctxInfo.grContext()->getGpu();
     if (!gpu) {
         return;
     }
@@ -779,7 +774,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfacePartialDraw_Gpu, reporter, ctxInfo) {
 
 
 DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SurfaceAttachStencil_Gpu, reporter, ctxInfo) {
-    GrGpu* gpu = ctxInfo.grContext()->contextPriv().getGpu();
+    GrGpu* gpu = ctxInfo.grContext()->getGpu();
     if (!gpu) {
         return;
     }
@@ -880,7 +875,6 @@ DEF_TEST(SurfaceCreationWithColorSpace, reporter) {
 #if SK_SUPPORT_GPU
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceCreationWithColorSpace_Gpu, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
-
     bool f16Support = context->caps()->isConfigRenderable(kRGBA_half_GrPixelConfig, false);
     auto surfaceMaker = [context](const SkImageInfo& info) {
         return SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, info);
@@ -890,16 +884,14 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceCreationWithColorSpace_Gpu, reporter, 
 
     std::vector<GrBackendTexture> backendTextures;
     auto wrappedSurfaceMaker = [ context, &backendTextures ](const SkImageInfo& info) {
-        GrGpu* gpu = context->contextPriv().getGpu();
-
         static const int kSize = 10;
         GrPixelConfig config = SkImageInfo2GrPixelConfig(info, *context->caps());
 
-        GrBackendTexture backendTex = gpu->createTestingOnlyBackendTexture(
+        GrBackendTexture backendTex = context->getGpu()->createTestingOnlyBackendTexture(
                 nullptr, kSize, kSize, config, true, GrMipMapped::kNo);
 
         if (!backendTex.isValid() ||
-            !gpu->isTestingOnlyBackendTexture(backendTex)) {
+            !context->getGpu()->isTestingOnlyBackendTexture(backendTex)) {
             return sk_sp<SkSurface>(nullptr);
         }
         backendTextures.push_back(backendTex);
@@ -915,9 +907,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceCreationWithColorSpace_Gpu, reporter, 
 
     context->flush();
 
-    GrGpu* gpu = context->contextPriv().getGpu();
     for (auto backendTex : backendTextures) {
-        gpu->deleteTestingOnlyBackendTexture(&backendTex);
+        context->getGpu()->deleteTestingOnlyBackendTexture(&backendTex);
     }
 }
 #endif

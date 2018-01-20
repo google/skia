@@ -121,9 +121,8 @@ GrSemaphoresSubmitted GrDrawingManager::internalFlush(GrSurfaceProxy*,
     SkASSERT(result);
 #endif
 
-    GrGpu* gpu = fContext->contextPriv().getGpu();
-
-    GrOpFlushState flushState(gpu, fContext->contextPriv().resourceProvider(),
+    GrOpFlushState flushState(fContext->getGpu(),
+                              fContext->contextPriv().resourceProvider(),
                               &fTokenTracker);
 
     GrOnFlushResourceProvider onFlushProvider(this);
@@ -194,7 +193,8 @@ GrSemaphoresSubmitted GrDrawingManager::internalFlush(GrSurfaceProxy*,
 
     fOpLists.reset();
 
-    GrSemaphoresSubmitted result = gpu->finishFlush(numSemaphores, backendSemaphores);
+    GrSemaphoresSubmitted result = fContext->getGpu()->finishFlush(numSemaphores,
+                                                                   backendSemaphores);
 
     // We always have to notify the cache when it requested a flush so it can reset its state.
     if (flushed || type == GrResourceCache::FlushType::kCacheRequested) {
@@ -299,11 +299,10 @@ GrSemaphoresSubmitted GrDrawingManager::prepareSurfaceForExternalIO(
         return result;
     }
 
-    GrGpu* gpu = fContext->contextPriv().getGpu();
     GrSurface* surface = proxy->priv().peekSurface();
 
-    if (gpu && surface->asRenderTarget()) {
-        gpu->resolveRenderTarget(surface->asRenderTarget(), proxy->origin());
+    if (fContext->getGpu() && surface->asRenderTarget()) {
+        fContext->getGpu()->resolveRenderTarget(surface->asRenderTarget(), proxy->origin());
     }
     return result;
 }
@@ -323,11 +322,10 @@ sk_sp<GrRenderTargetOpList> GrDrawingManager::newRTOpList(GrRenderTargetProxy* r
         fOpLists.back()->makeClosed(*fContext->caps());
     }
 
-    auto resourceProvider = fContext->contextPriv().resourceProvider();
-
-    sk_sp<GrRenderTargetOpList> opList(new GrRenderTargetOpList(rtp,
-                                                                resourceProvider,
-                                                                fContext->getAuditTrail()));
+    sk_sp<GrRenderTargetOpList> opList(new GrRenderTargetOpList(
+                                                    rtp,
+                                                    fContext->contextPriv().resourceProvider(),
+                                                    fContext->getAuditTrail()));
     SkASSERT(rtp->getLastOpList() == opList.get());
 
     if (managedOpList) {
