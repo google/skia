@@ -15,6 +15,7 @@ class GrContext;
 class GrColorSpaceInfo;
 
 struct GrFPArgs {
+    GrFPArgs() {}
     GrFPArgs(GrContext* context,
              const SkMatrix* viewMatrix,
              const SkMatrix* localMatrix,
@@ -25,16 +26,6 @@ struct GrFPArgs {
         , fLocalMatrix(localMatrix)
         , fFilterQuality(filterQuality)
         , fDstColorSpaceInfo(dstColorSpaceInfo) {}
-
-    GrFPArgs(GrContext* context,
-             const SkMatrix* viewMatrix,
-             SkFilterQuality filterQuality,
-             const GrColorSpaceInfo* dstColorSpaceInfo)
-    : fContext(context)
-    , fViewMatrix(viewMatrix)
-    , fLocalMatrix(nullptr)
-    , fFilterQuality(filterQuality)
-    , fDstColorSpaceInfo(dstColorSpaceInfo) {}
 
     GrContext* fContext;
     const SkMatrix* fViewMatrix;

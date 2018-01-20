@@ -369,7 +369,7 @@ std::unique_ptr<GrFragmentProcessor> SkPictureShader::asFragmentProcessor(
         return nullptr;
     }
     return as_SB(bitmapShader)
-            ->asFragmentProcessor(GrFPArgs(args.fContext, args.fViewMatrix,
+            ->asFragmentProcessor(GrFPArgs(args.fContext, args.fViewMatrix, nullptr,
                                            args.fFilterQuality, args.fDstColorSpaceInfo));
 }
 #endif
