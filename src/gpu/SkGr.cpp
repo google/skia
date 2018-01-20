@@ -375,7 +375,7 @@ static inline bool skpaint_to_grpaint_impl(GrContext* context,
     // Convert SkPaint color to 4f format, including optional linearizing and gamut conversion.
     GrColor4f origColor = SkColorToUnpremulGrColor4f(skPaint.getColor(), colorSpaceInfo);
 
-    const GrFPArgs fpArgs(context, &viewM, skPaint.getFilterQuality(), &colorSpaceInfo);
+    const GrFPArgs fpArgs(context, &viewM, nullptr, skPaint.getFilterQuality(), &colorSpaceInfo);
 
     // Setup the initial color considering the shader, the SkPaint color, and the presence or not
     // of per-vertex colors.
