@@ -251,7 +251,7 @@ bool SkRasterClip::op(const SkRRect& rrect, const SkMatrix& matrix, const SkIRec
     return this->op(path, matrix, bounds, op, doAA);
 }
 
-bool SkRasterClip::op(const SkPath& path, const SkMatrix& matrix, const SkIRect& devBounds,
+bool SkRasterClip::op(const SkPath& origPath, const SkMatrix& matrix, const SkIRect& devBounds,
                       SkRegion::Op op, bool doAA) {
     AUTO_RASTERCLIP_VALIDATE(*this);
     SkIRect bounds(devBounds);
@@ -261,13 +261,17 @@ bool SkRasterClip::op(const SkPath& path, const SkMatrix& matrix, const SkIRect&
     // region that results from scan converting devPath.
     SkRegion base;
 
-    SkPath devPath;
-    if (matrix.isIdentity()) {
-        devPath = path;
-    } else {
-        path.transform(matrix, &devPath);
-        devPath.setIsVolatile(true);
+    SkPath devPathStorage;
+    const SkPath* path = &origPath;
+    if (!matrix.isIdentity()) {
+        origPath.transform(matrix, &devPathStorage);
+        if (!devPathStorage.isFinite()) {
+            return this->setEmpty();
+        }
+        devPathStorage.setIsVolatile(true);
+        path = &devPathStorage;
     }
+
     if (SkRegion::kIntersect_Op == op) {
         // since we are intersect, we can do better (tighter) with currRgn's
         // bounds, than just using the device. However, if currRgn is complex,
@@ -276,21 +280,21 @@ bool SkRasterClip::op(const SkPath& path, const SkMatrix& matrix, const SkIRect&
             // FIXME: we should also be able to do this when this->isBW(),
             // but relaxing the test above triggers GM asserts in
             // SkRgnBuilder::blitH(). We need to investigate what's going on.
-            return this->setPath(devPath, this->bwRgn(), doAA);
+            return this->setPath(*path, this->bwRgn(), doAA);
         } else {
             base.setRect(this->getBounds());
             SkRasterClip clip;
-            clip.setPath(devPath, base, doAA);
+            clip.setPath(*path, base, doAA);
             return this->op(clip, op);
         }
     } else {
         base.setRect(bounds);
 
         if (SkRegion::kReplace_Op == op) {
-            return this->setPath(devPath, base, doAA);
+            return this->setPath(*path, base, doAA);
         } else {
             SkRasterClip clip;
-            clip.setPath(devPath, base, doAA);
+            clip.setPath(*path, base, doAA);
             return this->op(clip, op);
         }
     }
