@@ -32,15 +32,16 @@ public:
     bool filterMask(SkMask* dst, const SkMask& src, const SkMatrix&,
                     SkIPoint* margin) const override;
 
-#if SK_SUPPORT_GPU
-    bool asFragmentProcessor(GrFragmentProcessor**) const override;
-#endif
-
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkRRectsGaussianEdgeMaskFilterImpl)
 
 protected:
     void flatten(SkWriteBuffer&) const override;
+
+#if SK_SUPPORT_GPU
+    std::unique_ptr<GrFragmentProcessor> onAsFragmentProcessor(const GrFPArgs& args) const override;
+    bool onHasFragmentProcessor() const override { return true; }
+#endif
 
 private:
     SkRRect  fFirst;
@@ -509,12 +510,10 @@ private:
 };
 
 ////////////////////////////////////////////////////////////////////////////
-bool SkRRectsGaussianEdgeMaskFilterImpl::asFragmentProcessor(GrFragmentProcessor** fp) const {
-    if (fp) {
-        *fp = RRectsGaussianEdgeFP::Make(fFirst, fSecond, fRadius).release();
-    }
 
-    return true;
+std::unique_ptr<GrFragmentProcessor>
+SkRRectsGaussianEdgeMaskFilterImpl::onAsFragmentProcessor(const GrFPArgs& args) const {
+    return RRectsGaussianEdgeFP::Make(fFirst, fSecond, fRadius);
 }
 
 #endif
