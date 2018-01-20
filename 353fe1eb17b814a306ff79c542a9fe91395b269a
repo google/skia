@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "858a1f47_8089cc1b",
+        "filename": "include/android/SkAnimatedImage.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-01-20T04:13:44Z",
+      "side": 1,
+      "message": "not sure if this is what we are going to need if Android is always going to requesting one frame in advance as this method would fire when we request to decode the last frame and not when we actually show it.",
+      "revId": "353fe1eb17b814a306ff79c542a9fe91395b269a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
