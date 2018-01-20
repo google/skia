@@ -375,8 +375,6 @@ static inline bool skpaint_to_grpaint_impl(GrContext* context,
     // Convert SkPaint color to 4f format, including optional linearizing and gamut conversion.
     GrColor4f origColor = SkColorToUnpremulGrColor4f(skPaint.getColor(), colorSpaceInfo);
 
-    const GrFPArgs fpArgs(context, &viewM, nullptr, skPaint.getFilterQuality(), &colorSpaceInfo);
-
     // Setup the initial color considering the shader, the SkPaint color, and the presence or not
     // of per-vertex colors.
     std::unique_ptr<GrFragmentProcessor> shaderFP;
@@ -384,7 +382,8 @@ static inline bool skpaint_to_grpaint_impl(GrContext* context,
         if (shaderProcessor) {
             shaderFP = std::move(*shaderProcessor);
         } else if (const auto* shader = as_SB(skPaint.getShader())) {
-            shaderFP = shader->asFragmentProcessor(fpArgs);
+            shaderFP = shader->asFragmentProcessor(GrFPArgs(
+                    context, &viewM, nullptr, skPaint.getFilterQuality(), &colorSpaceInfo));
         }
     }
 
@@ -479,8 +478,9 @@ static inline bool skpaint_to_grpaint_impl(GrContext* context,
 
     SkMaskFilter* maskFilter = skPaint.getMaskFilter();
     if (maskFilter) {
-        if (auto mfFP = maskFilter->asFragmentProcessor(fpArgs)) {
-            grPaint->addCoverageFragmentProcessor(std::move(mfFP));
+        GrFragmentProcessor* mfFP;
+        if (maskFilter->asFragmentProcessor(&mfFP)) {
+            grPaint->addCoverageFragmentProcessor(std::unique_ptr<GrFragmentProcessor>(mfFP));
         }
     }
 
