@@ -427,11 +427,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WritePixels_Gpu, reporter, ctxInfo) {
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WritePixelsNonTexture_Gpu, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
-    GrGpu* gpu = context->contextPriv().getGpu();
 
     for (auto& origin : { kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin }) {
         for (int sampleCnt : {0, 4}) {
-            GrBackendTexture backendTex = gpu->createTestingOnlyBackendTexture(
+            GrBackendTexture backendTex = context->getGpu()->createTestingOnlyBackendTexture(
                     nullptr, DEV_W, DEV_H, kSkia8888_GrPixelConfig, true, GrMipMapped::kNo);
             SkColorType colorType;
             if (kRGBA_8888_GrPixelConfig == kSkia8888_GrPixelConfig) {
@@ -442,14 +441,14 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WritePixelsNonTexture_Gpu, reporter, ctxInfo)
             sk_sp<SkSurface> surface(SkSurface::MakeFromBackendTextureAsRenderTarget(
                     context, backendTex, origin, sampleCnt, colorType, nullptr, nullptr));
             if (!surface) {
-                gpu->deleteTestingOnlyBackendTexture(&backendTex);
+                context->getGpu()->deleteTestingOnlyBackendTexture(&backendTex);
                 continue;
             }
 
             test_write_pixels(reporter, surface.get());
 
             surface.reset();
-            gpu->deleteTestingOnlyBackendTexture(&backendTex);
+            context->getGpu()->deleteTestingOnlyBackendTexture(&backendTex);
         }
     }
 }

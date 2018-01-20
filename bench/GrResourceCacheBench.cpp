@@ -83,7 +83,7 @@ protected:
         cache->purgeAllUnlocked();
         SkASSERT(0 == cache->getResourceCount() && 0 == cache->getResourceBytes());
 
-        GrGpu* gpu = context->contextPriv().getGpu();
+        GrGpu* gpu = context->getGpu();
 
         for (int i = 0; i < loops; ++i) {
             populate_cache(gpu, CACHE_SIZE_COUNT, fKeyData32Count);
@@ -129,7 +129,7 @@ protected:
         cache->purgeAllUnlocked();
         SkASSERT(0 == cache->getResourceCount() && 0 == cache->getResourceBytes());
 
-        GrGpu* gpu = fContext->contextPriv().getGpu();
+        GrGpu* gpu = fContext->getGpu();
 
         populate_cache(gpu, CACHE_SIZE_COUNT, fKeyData32Count);
     }
