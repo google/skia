@@ -67,6 +67,14 @@ public:
     bool isRunning() const { return fRunning && !fFinished; }
 
     /**
+     *  Whether the animation completed.
+     *
+     *  Returns true after all repetitions are complete, or an error stops the
+     *  animation. Gets reset to false if the animation is restarted.
+     */
+    bool isFinished() const { return fFinished; }
+
+    /**
      *  Update the current time. If the image is animating, this may decode
      *  a new frame.
      *
