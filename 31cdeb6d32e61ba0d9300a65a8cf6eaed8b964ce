@@ -16,6 +16,24 @@
       "revId": "31cdeb6d32e61ba0d9300a65a8cf6eaed8b964ce",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "41add7b1_75a55239",
+        "filename": "platform_tools/android/apps/skqp/src/main/assets/skqp/KnownGMs.txt",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-01-21T14:23:57Z",
+      "side": 1,
+      "message": "Exactly.\n\nIw will execute if:\n\n    (is_empty(gKnownGMs) || in_set(name.c_str(), gKnownGMs))",
+      "parentUuid": "69c7fb0c_992f2f67",
+      "revId": "31cdeb6d32e61ba0d9300a65a8cf6eaed8b964ce",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
