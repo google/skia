@@ -38,11 +38,17 @@ void TrimEffect::onDraw(SkCanvas* canvas, const SkPaint& paint) const {
     const auto start  = SkScalarPin(fStart , 0, 1) * pathLen,
                end    = SkScalarPin(fEnd   , 0, 1) * pathLen,
                offset = SkScalarPin(fOffset, 0, 1) * pathLen,
-               len    = SkTMax<SkScalar>(end - start, 0);
+               len    = end - start;
 
-    const SkScalar dashes[4] = { 0, start, len, pathLen - end };
+    if (len <= 0) {
+        return;
+    }
+
+    const SkScalar dashes[] = { len, pathLen - len };
     SkPaint dashedPaint(paint);
-    dashedPaint.setPathEffect(SkDashPathEffect::Make(dashes, 4, -offset));
+    dashedPaint.setPathEffect(SkDashPathEffect::Make(dashes,
+                                                     SK_ARRAY_COUNT(dashes),
+                                                     -start - offset));
 
     canvas->drawPath(path, dashedPaint);
 }
