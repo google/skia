@@ -637,11 +637,6 @@ FT_Load_Glyph
 ##
 ##
 
-#Topic Pixel_Serializer
-#Class SkPixelSerializer
-##
-##
-
 #Enum SkPixelGeometry
 ##
 
