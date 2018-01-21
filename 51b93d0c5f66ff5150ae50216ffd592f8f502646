@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e4591e34_f7cfba5f",
+        "filename": "include/core/SkFlattenable.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-01-21T14:20:15Z",
+      "side": 1,
+      "message": "nit: at this point I think assigning explicit values to the remaining/used enums is cleaner.",
+      "range": {
+        "startLine": 91,
+        "startChar": 8,
+        "endLine": 91,
+        "endChar": 23
+      },
+      "revId": "51b93d0c5f66ff5150ae50216ffd592f8f502646",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c7b33178_4b55289e",
+        "filename": "include/core/SkFlattenable.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-01-21T14:20:15Z",
+      "side": 1,
+      "message": "Do these trailing values serve any purpose?",
+      "range": {
+        "startLine": 93,
+        "startChar": 0,
+        "endLine": 95,
+        "endChar": 56
+      },
+      "revId": "51b93d0c5f66ff5150ae50216ffd592f8f502646",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
