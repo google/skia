@@ -628,9 +628,11 @@ sk_sp<sksg::RenderNode> AttachShape(const Json::Value& jshape, AttachContext* ct
         case ShapeType::kGeometryEffect: {
             // Apply the current effect and pop from the stack.
             SkASSERT(rec->fInfo.fAttacherIndex < SK_ARRAY_COUNT(gGeometryEffectAttachers));
-            geos = gGeometryEffectAttachers[rec->fInfo.fAttacherIndex](rec->fJson,
-                                                                       ctx,
-                                                                       std::move(geos));
+            if (!geos.empty()) {
+                geos = gGeometryEffectAttachers[rec->fInfo.fAttacherIndex](rec->fJson,
+                                                                           ctx,
+                                                                           std::move(geos));
+            }
 
             SkASSERT(geometryEffectStack->back().fJson == rec->fJson);
             SkASSERT(geometryEffectStack->back().fAttach ==
