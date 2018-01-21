@@ -132,8 +132,10 @@ DEF_TEST(AnimatedImage, r) {
             if (i == frameInfos.size() - 1 && defaultRepetitionCount == 0) {
                 REPORTER_ASSERT(r, next == std::numeric_limits<double>::max());
                 REPORTER_ASSERT(r, !animatedImage->isRunning());
+                REPORTER_ASSERT(r, animatedImage->isFinished());
             } else {
                 REPORTER_ASSERT(r, animatedImage->isRunning());
+                REPORTER_ASSERT(r, !animatedImage->isFinished());
                 double expectedNext = currentTime + frameInfos[i].fDuration;
                 if (next != expectedNext) {
                     ERRORF(r, "Time did not match for frame %i: next: %g expected: %g",
@@ -182,6 +184,7 @@ DEF_TEST(AnimatedImage, r) {
             double interval = next - currentTime;
             animatedImage->stop();
             REPORTER_ASSERT(r, !animatedImage->isRunning());
+            REPORTER_ASSERT(r, !animatedImage->isFinished());
 
             currentTime = next;
             double stoppedNext = animatedImage->update(currentTime);
@@ -201,6 +204,7 @@ DEF_TEST(AnimatedImage, r) {
         }
 
         REPORTER_ASSERT(r, animatedImage->isRunning());
+        REPORTER_ASSERT(r, !animatedImage->isFinished());
         animatedImage->reset();
         if (!testDraw(animatedImage, 0)) {
             ERRORF(r, "reset failed");
@@ -214,6 +218,7 @@ DEF_TEST(AnimatedImage, r) {
             animatedImage->setRepetitionCount(loopCount);
             for (int loops = 0; loops <= loopCount; loops++) {
                 REPORTER_ASSERT(r, animatedImage->isRunning());
+                REPORTER_ASSERT(r, !animatedImage->isFinished());
                 for (size_t i = 0; i < frameInfos.size(); ++i) {
                     double next = animatedImage->update(currentTime);
                     if (animatedImage->isRunning()) {
@@ -223,6 +228,11 @@ DEF_TEST(AnimatedImage, r) {
             }
             if (animatedImage->isRunning()) {
                 ERRORF(r, "%s animation still running after %i loops", file, loopCount);
+            }
+
+            if (!animatedImage->isFinished()) {
+                ERRORF(r, "%s animation should have finished with specified loop count (%i)",
+                          file, loopCount);
             }
         }
     }
