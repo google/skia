@@ -371,3 +371,52 @@ void SkMaskFilter::computeFastBounds(const SkRect& src, SkRect* dst) const {
         dst->set(srcM.fBounds);
     }
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+class SkComposeMF : public SkMaskFilter {
+public:
+    SkComposeMF(sk_sp<SkMaskFilter> outer, sk_sp<SkMaskFilter> inner)
+        : fOuter(std::move(outer))
+        , fInner(std::move(inner))
+    {
+        SkASSERT(fOuter->getFormat() == SkMask::kA8_Format);
+        SkASSERT(fInner->getFormat() == SkMask::kA8_Format);
+    }
+
+    bool filterMask(SkMask* dst, const SkMask& src, const SkMatrix&, SkIPoint*) const override;
+
+    void computeFastBounds(const SkRect& src, SkRect* dst) const override {
+        SkRect tmp;
+        fInner->computeFastBounds(src, &tmp);
+        fOuter->computeFastBounds(tmp, dst);
+    }
+
+    SkMask::Format getFormat() const override { return SkMask::kA8_Format; }
+    bool asABlur(BlurRec*) const override { return false; }
+
+private:
+    sk_sp<SkMaskFilter> fOuter;
+    sk_sp<SkMaskFilter> fInner;
+
+    typedef SkMaskFilter INHERITED;
+};
+
+bool SkComposeMF::filterMask(SkMask* dst, const SkMask& src, const SkMatrix& ctm,
+                             SkIPoint* margin) const {
+    SkIPoint innerMargin;
+    SkMask innerMask;
+
+    if (!fInner->filterMask(&innerMask, src, ctm, &innerMargin)) {
+        return false;
+    }
+    if (!fOuter->filterMask(dst, innerMask, ctm, margin)) {
+        return false;
+    }
+    if (margin) {
+        margin->fX += innerMargin.fX;
+        margin->fY += innerMargin.fY;
+    }
+    sk_free(innerMask.fImage);
+    return true;
+}

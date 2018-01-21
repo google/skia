@@ -46,6 +46,20 @@ class SkRRect;
 */
 class SK_API SkMaskFilter : public SkFlattenable {
 public:
+#if 0
+    /**
+     *  Construct a maskfilter whose effect is to first apply the inner filter and then apply
+     *  the outer filter to the result of the inner's.
+     */
+    static sk_sp<SkColorFilter> MakeCompose(sk_sp<SkMaskFilter> outer, sk_sp<SkMaskFilter> inner);
+
+    /**
+     *  Compose two maskfilters together using a blendmode.
+     */
+    static sk_sp<SkColorFilter> MakeCombine(sk_sp<SkMaskFilter> dst, sk_sp<SkMaskFilter> src,
+                                            SkBlendMode);
+#endif
+
     /** Returns the format of the resulting mask that this subclass will return
         when its filterMask() method is called.
     */
