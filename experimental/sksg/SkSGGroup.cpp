@@ -13,7 +13,7 @@ Group::Group() {}
 
 Group::~Group() {
     for (const auto& child : fChildren) {
-        child->removeInvalReceiver(this);
+        this->unobserveInval(child);
     }
 }
 
@@ -25,7 +25,7 @@ void Group::addChild(sk_sp<RenderNode> node) {
         }
     }
 
-    node->addInvalReceiver(this);
+    this->observeInval(node);
     fChildren.push_back(std::move(node));
 
     this->invalidate();
@@ -36,7 +36,7 @@ void Group::removeChild(const sk_sp<RenderNode>& node) {
     for (int i = 0; i < origCount; ++i) {
         if (fChildren[i] == node) {
             fChildren.removeShuffle(i);
-            node->removeInvalReceiver(this);
+            this->unobserveInval(node);
             break;
         }
     }

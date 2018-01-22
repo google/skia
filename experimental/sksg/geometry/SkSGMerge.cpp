@@ -16,13 +16,13 @@ Merge::Merge(std::vector<sk_sp<GeometryNode>>&& geos, Mode mode)
     : fGeos(std::move(geos))
     , fMode(mode) {
     for (const auto& geo : fGeos) {
-        geo->addInvalReceiver(this);
+        this->observeInval(geo);
     }
 }
 
 Merge::~Merge() {
     for (const auto& geo : fGeos) {
-        geo->removeInvalReceiver(this);
+        this->unobserveInval(geo);
     }
 }
 
