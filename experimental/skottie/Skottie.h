@@ -23,11 +23,9 @@ class SkStream;
 
 namespace Json { class Value; }
 
-namespace sksg { class RenderNode;  }
+namespace sksg { class Scene;  }
 
 namespace skottie {
-
-class AnimatorBase;
 
 class ResourceProvider : public SkNoncopyable {
 public:
@@ -54,23 +52,20 @@ public:
          SkScalar   inPoint() const { return fInPoint;   }
          SkScalar  outPoint() const { return fOutPoint;  }
 
-    void setShowInval(bool show) { fShowInval = show; }
+    void setShowInval(bool show);
 
 private:
     Animation(const ResourceProvider&,
               SkString ver, const SkSize& size, SkScalar fps,
               const Json::Value&);
 
-    SkString                                fVersion;
-    SkSize                                  fSize;
-    SkScalar                                fFrameRate,
-                                            fInPoint,
-                                            fOutPoint;
+    SkString                     fVersion;
+    SkSize                       fSize;
+    SkScalar                     fFrameRate,
+                                 fInPoint,
+                                 fOutPoint;
 
-    sk_sp<sksg::RenderNode>                 fDom;
-    SkTArray<std::unique_ptr<AnimatorBase>> fAnimators;
-
-    bool                    fShowInval = false;
+    std::unique_ptr<sksg::Scene> fScene;
 
     typedef SkNoncopyable INHERITED;
 };
