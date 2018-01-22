@@ -314,7 +314,9 @@ GrContext::~GrContext() {
         this->flush();
     }
 
-    fDrawingManager->cleanup();
+    if (fDrawingManager) {
+        fDrawingManager->cleanup();
+    }
 
     for (int i = 0; i < fCleanUpData.count(); ++i) {
         (*fCleanUpData[i].fFunc)(this, fCleanUpData[i].fInfo);
