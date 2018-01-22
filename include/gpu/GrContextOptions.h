@@ -140,6 +140,8 @@ struct GrContextOptions {
      */
     Enable fUseDrawInsteadOfGLClear = Enable::kDefault;
 
+    bool fDisableDriverCorrectnessWorkarounds = false;
+
     /**
      * Cache in which to store compiled shader binaries between runs.
      */
