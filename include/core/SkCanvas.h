@@ -41,8 +41,6 @@ class SkSurface_Base;
 class SkTextBlob;
 class SkVertices;
 
-class SkRasterizer; // for android
-
 /** \class SkCanvas
     SkCanvas provides an interface for drawing, and how the drawing is clipped and transformed.
     SkCanvas contains a stack of SkMatrix and clip values.
