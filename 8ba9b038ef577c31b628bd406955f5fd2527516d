@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2b947616_7b2fa142",
+        "filename": "src/core/SkBlurImageFilter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-01-22T21:58:36Z",
+      "side": 1,
+      "message": "now or later, consider using SkSafeRange.h",
+      "range": {
+        "startLine": 116,
+        "startChar": 19,
+        "endLine": 116,
+        "endChar": 78
+      },
+      "revId": "8ba9b038ef577c31b628bd406955f5fd2527516d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
