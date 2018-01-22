@@ -51,6 +51,9 @@ public:
     // These saturate to their results
     static size_t Add(size_t x, size_t y);
     static size_t Mul(size_t x, size_t y);
+    static size_t Align4(size_t x) {
+        return Add(x, 3) >> 2 << 2;
+    }
 
 private:
     uint32_t mul32(uint32_t x, uint32_t y) {

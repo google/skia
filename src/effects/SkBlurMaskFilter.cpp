@@ -347,13 +347,10 @@ static bool prepare_to_draw_into_mask(const SkRect& bounds, SkMask* mask) {
     mask->fRowBytes = SkAlign4(mask->fBounds.width());
     mask->fFormat = SkMask::kA8_Format;
     const size_t size = mask->computeImageSize();
-    mask->fImage = SkMask::AllocImage(size);
+    mask->fImage = SkMask::AllocImage(size, SkMask::kZeroInit_Alloc);
     if (nullptr == mask->fImage) {
         return false;
     }
-
-    // FIXME: use sk_calloc in AllocImage?
-    sk_bzero(mask->fImage, size);
     return true;
 }
 

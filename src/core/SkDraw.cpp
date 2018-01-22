@@ -1730,8 +1730,7 @@ bool SkDraw::DrawToMask(const SkPath& devPath, const SkIRect* clipBounds,
             // we're too big to allocate the mask, abort
             return false;
         }
-        mask->fImage = SkMask::AllocImage(size);
-        memset(mask->fImage, 0, mask->computeImageSize());
+        mask->fImage = SkMask::AllocImage(size, SkMask::kZeroInit_Alloc);
     }
 
     if (SkMask::kJustComputeBounds_CreateMode != mode) {
