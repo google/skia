@@ -380,7 +380,6 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
 
     // set up slides
     this->initSlides();
-    this->setCurrentSlide(this->startupSlide());
     if (FLAGS_list) {
         this->listNames();
     }
@@ -609,9 +608,9 @@ void Viewer::setCurrentSlide(int slide) {
         fSlides[fCurrentSlide]->unload();
     }
 
-    fSlides[slide]->load(SkIntToScalar(fWindow->width()),
-                         SkIntToScalar(fWindow->height()));
     fCurrentSlide = slide;
+    fSlides[fCurrentSlide]->load(SkIntToScalar(fWindow->width()),
+                                 SkIntToScalar(fWindow->height()));
     this->setupCurrentSlide();
 }
 
@@ -819,9 +818,9 @@ void Viewer::drawSlide(SkCanvas* canvas) {
 }
 
 void Viewer::onBackendCreated() {
+    this->setCurrentSlide(this->startupSlide());
     this->updateTitle();
     this->updateUIState();
-    this->setupCurrentSlide();
     fStatsLayer.resetMeasurements();
     fWindow->show();
     fWindow->inval();
