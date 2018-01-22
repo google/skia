@@ -171,7 +171,7 @@ public:
      *  Decodes and uploads the encoded data to a GPU backed image using the supplied GrContext.
      *  That image can be safely used by other GrContexts, across thread boundaries. The GrContext
      *  used here, and the ones used to draw this image later must be in the same GL share group,
-     *  or otherwise be able to share resources.
+     *  or use the same Vulkan VkDevice and VkQueue, or otherwise be able to share resources.
      *
      *  When the image's ref count reaches zero, the original GrContext will destroy the texture,
      *  asynchronously.
@@ -187,7 +187,7 @@ public:
      *  Uploads the pixmap to a GPU backed image using the supplied GrContext.
      *  That image can be safely used by other GrContexts, across thread boundaries. The GrContext
      *  used here, and the ones used to draw this image later must be in the same GL share group,
-     *  or otherwise be able to share resources.
+     *  or use the same Vulkan VkDevice and VkQueue, or otherwise be able to share resources.
      *
      *  When the image's ref count reaches zero, the original GrContext will destroy the texture,
      *  asynchronously.
