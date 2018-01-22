@@ -380,7 +380,6 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
 
     // set up slides
     this->initSlides();
-    this->setCurrentSlide(this->startupSlide());
     if (FLAGS_list) {
         this->listNames();
     }
@@ -395,6 +394,7 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     fImGuiGamutPaint.setFilterQuality(kLow_SkFilterQuality);
 
     fWindow->attach(backend_type_for_window(fBackendType));
+    this->setCurrentSlide(this->startupSlide());
 }
 
 void Viewer::initSlides() {
@@ -616,30 +616,32 @@ void Viewer::setCurrentSlide(int slide) {
 }
 
 void Viewer::setupCurrentSlide() {
-    // prepare dimensions for image slides
-    fGesture.resetTouchState();
-    fDefaultMatrix.reset();
+    if (fCurrentSlide >= 0) {
+        // prepare dimensions for image slides
+        fGesture.resetTouchState();
+        fDefaultMatrix.reset();
 
-    const SkISize slideSize = fSlides[fCurrentSlide]->getDimensions();
-    const SkRect slideBounds = SkRect::MakeIWH(slideSize.width(), slideSize.height());
-    const SkRect windowRect = SkRect::MakeIWH(fWindow->width(), fWindow->height());
+        const SkISize slideSize = fSlides[fCurrentSlide]->getDimensions();
+        const SkRect slideBounds = SkRect::MakeIWH(slideSize.width(), slideSize.height());
+        const SkRect windowRect = SkRect::MakeIWH(fWindow->width(), fWindow->height());
 
-    // Start with a matrix that scales the slide to the available screen space
-    if (fWindow->scaleContentToFit()) {
-        if (windowRect.width() > 0 && windowRect.height() > 0) {
-            fDefaultMatrix.setRectToRect(slideBounds, windowRect, SkMatrix::kStart_ScaleToFit);
+        // Start with a matrix that scales the slide to the available screen space
+        if (fWindow->scaleContentToFit()) {
+            if (windowRect.width() > 0 && windowRect.height() > 0) {
+                fDefaultMatrix.setRectToRect(slideBounds, windowRect, SkMatrix::kStart_ScaleToFit);
+            }
         }
+
+        // Prevent the user from dragging content so far outside the window they can't find it again
+        fGesture.setTransLimit(slideBounds, windowRect, fDefaultMatrix);
+
+        this->updateTitle();
+        this->updateUIState();
+
+        fStatsLayer.resetMeasurements();
+
+        fWindow->inval();
     }
-
-    // Prevent the user from dragging content so far outside the window they can't find it again
-    fGesture.setTransLimit(slideBounds, windowRect, fDefaultMatrix);
-
-    this->updateTitle();
-    this->updateUIState();
-
-    fStatsLayer.resetMeasurements();
-
-    fWindow->inval();
 }
 
 #define MAX_ZOOM_LEVEL  8
