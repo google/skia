@@ -23,14 +23,23 @@ improve performance. <a href="#Matrix">Matrix</a> is not thread safe unless <a h
 | topics | description |
 | --- | ---  |
 
+## <a name="Constructors"></a> Constructors
+
+| name | description |
+| --- | ---  |
+| <a href="#SkMatrix_MakeAll">MakeAll</a> | Constructs all nine values. |
+| <a href="#SkMatrix_MakeRectToRect">MakeRectToRect</a> | Constructs from source <a href="SkRect_Reference#Rect">Rect</a> to destination <a href="SkRect_Reference#Rect">Rect</a>. |
+| <a href="#SkMatrix_MakeScale">MakeScale</a> | Constructs from scale in x and y. |
+| <a href="#SkMatrix_MakeTrans">MakeTrans</a> | Constructs from translate in x and y. |
+
 ## <a name="Operators"></a> Operators
 
 | function | description |
 | --- | ---  |
 | <a href="#SkMatrix_notequal_operator">operator!=(const SkMatrix& a, const SkMatrix& b)</a> | Returns true if members are unequal. |
 | <a href="#SkMatrix_equal_operator">operator==(const SkMatrix& a, const SkMatrix& b)</a> | Returns true if members are equal. |
-| <a href="#SkMatrix_array_operator">operator[](int index) const</a> | Returns <a href="#Matrix">Matrix</a> value. |
 | <a href="#SkMatrix_array1_operator">operator[](int index)</a> | Returns writable reference to <a href="#Matrix">Matrix</a> value. |
+| <a href="#SkMatrix_array_operator">operator[](int index) const</a> | Returns <a href="#Matrix">Matrix</a> value. |
 
 ## <a name="Member_Functions"></a> Member Functions
 
