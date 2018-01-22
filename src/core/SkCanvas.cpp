@@ -953,9 +953,6 @@ bool SkCanvas::clipRectBounds(const SkRect* bounds, SaveLayerFlags saveLayerFlag
 
     if (imageFilter) {
         clipBounds = imageFilter->filterBounds(clipBounds, ctm);
-        if (clipBounds.isEmpty()) {
-            return false;
-        }
         if (bounds && !imageFilter->canComputeFastBounds()) {
             bounds = nullptr;
         }
@@ -963,20 +960,20 @@ bool SkCanvas::clipRectBounds(const SkRect* bounds, SaveLayerFlags saveLayerFlag
     SkIRect ir;
     if (bounds) {
         SkRect r;
-
         ctm.mapRect(&r, *bounds);
         r.roundOut(&ir);
-        // early exit if the layer's bounds are clipped out
-        if (!ir.intersect(clipBounds)) {
-            if (BoundsAffectsClip(saveLayerFlags)) {
-                fMCRec->fTopLayer->fDevice->clipRegion(SkRegion(), SkClipOp::kIntersect); // empty
-                fMCRec->fRasterClip.setEmpty();
-                fDeviceClipBounds.setEmpty();
-            }
-            return false;
-        }
     } else {    // no user bounds, so just use the clip
         ir = clipBounds;
+    }
+
+    // early exit if the layer's bounds are clipped out
+    if (!ir.intersect(clipBounds)) {
+        if (BoundsAffectsClip(saveLayerFlags)) {
+            fMCRec->fTopLayer->fDevice->clipRegion(SkRegion(), SkClipOp::kIntersect); // empty
+            fMCRec->fRasterClip.setEmpty();
+            fDeviceClipBounds.setEmpty();
+        }
+        return false;
     }
     SkASSERT(!ir.isEmpty());
 
