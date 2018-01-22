@@ -1093,8 +1093,11 @@ DEF_TEST(SkSLFragCoord, r) {
          "in vec4 sk_FragCoord_Workaround;\n"
          "out vec4 sk_FragColor;\n"
          "void main() {\n"
-         "    sk_FragColor.xy = vec4(sk_FragCoord_Workaround.xyz / sk_FragCoord_Workaround.w, "
-             "1.0 / sk_FragCoord_Workaround.w).xy;\n"
+         "    float sk_FragCoord_InvW = 1. / sk_FragCoord_Workaround.w;\n"
+         "    vec4 sk_FragCoord_Resolved = vec4(sk_FragCoord_Workaround.xyz * "
+              "sk_FragCoord_InvW, sk_FragCoord_InvW);\n"
+         "    sk_FragCoord_Resolved.xy = floor(sk_FragCoord_Resolved.xy) + vec2(.5);\n"
+         "    sk_FragColor.xy = sk_FragCoord_Resolved.xy;\n"
          "}\n");
 }
 
