@@ -95,7 +95,7 @@ enum class ExitErr {
 
 static void draw_skp_and_flush(SkCanvas*, const SkPicture*);
 static sk_sp<SkPicture> create_warmup_skp();
-static bool mkdir_p(const SkString& name);
+// static bool mkdir_p(const SkString& name);
 static SkString join(const SkCommandLineFlags::StringArray&);
 static void exitf(ExitErr, const char* format, ...);
 
@@ -348,9 +348,9 @@ int main(int argc, char** argv) {
         }
         const SkString &dirname = SkOSPath::Dirname(FLAGS_png[0]),
                        &basename = SkOSPath::Basename(FLAGS_png[0]);
-        if (!mkdir_p(dirname)) {
-            exitf(ExitErr::kIO, "failed to create directory \"%s\" for png", dirname.c_str());
-        }
+        // if (!mkdir_p(dirname)) {
+        //     exitf(ExitErr::kIO, "failed to create directory \"%s\" for png", dirname.c_str());
+        // }
         if (!sk_tools::write_bitmap_to_disk(bmp, dirname, nullptr, basename)) {
             exitf(ExitErr::kIO, "failed to save png to \"%s\"", FLAGS_png[0]);
         }
@@ -388,12 +388,12 @@ static sk_sp<SkPicture> create_warmup_skp() {
     return recorder.finishRecordingAsPicture();
 }
 
-bool mkdir_p(const SkString& dirname) {
-    if (dirname.isEmpty()) {
-        return true;
-    }
-    return mkdir_p(SkOSPath::Dirname(dirname.c_str())) && sk_mkdir(dirname.c_str());
-}
+// bool mkdir_p(const SkString& dirname) {
+//     if (dirname.isEmpty()) {
+//         return true;
+//     }
+//     return mkdir_p(SkOSPath::Dirname(dirname.c_str())) && sk_mkdir(dirname.c_str());
+// }
 
 static SkString join(const SkCommandLineFlags::StringArray& stringArray) {
     SkString joined;
