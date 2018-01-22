@@ -1908,6 +1908,7 @@ if (skia_enable_tools) {
         bundle_ios_data = true
       }
       sources = [
+        "tests/PathOpsDebug.cpp",
         "tools/viewer/GMSlide.cpp",
         "tools/viewer/ImGuiLayer.cpp",
         "tools/viewer/ImageSlide.cpp",

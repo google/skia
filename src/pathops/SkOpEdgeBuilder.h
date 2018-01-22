@@ -12,13 +12,19 @@
 
 class SkOpEdgeBuilder {
 public:
+    enum Allow {
+        kOpen,
+    };
+
     SkOpEdgeBuilder(const SkPathWriter& path, SkOpContourHead* contours2,
             SkOpGlobalState* globalState)
         : fGlobalState(globalState)
         , fPath(path.nativePath())
         , fContourBuilder(contours2)
         , fContoursHead(contours2)
-        , fAllowOpenContours(true) {
+        , fAllowOpenContours(true)
+        , fOpenIntersect(false)
+    {
         init();
     }
 
@@ -27,18 +33,35 @@ public:
         , fPath(&path)
         , fContourBuilder(contours2)
         , fContoursHead(contours2)
-        , fAllowOpenContours(false) {
+        , fAllowOpenContours(false)
+        , fOpenIntersect(false)
+    {
         init();
     }
 
+    SkOpEdgeBuilder(const SkPath& path1, SkOpContourHead* contours2, SkOpGlobalState* globalState,
+            Allow open)
+        : fGlobalState(globalState)
+        , fPath(&path1)
+        , fContourBuilder(contours2)
+        , fContoursHead(contours2)
+        , fAllowOpenContours(true)
+        , fOpenIntersect(true)
+    {
+        init();
+    }
+
+
     void addOperand(const SkPath& path);
 
-    void complete() {
+    void complete(bool openIntersect) {
         fContourBuilder.flush();
         SkOpContour* contour = fContourBuilder.contour();
         if (contour && contour->count()) {
             contour->complete();
-            fContourBuilder.setContour(nullptr);
+            if (!openIntersect) {
+                fContourBuilder.setContour(nullptr);
+            }
         }
     }
 
@@ -70,6 +93,7 @@ private:
     bool fOperand;
     bool fAllowOpenContours;
     bool fUnparseable;
+    bool fOpenIntersect;
 };
 
 #endif

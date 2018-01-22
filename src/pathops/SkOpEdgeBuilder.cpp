@@ -50,7 +50,7 @@ bool SkOpEdgeBuilder::finish() {
     if (fUnparseable || !walk()) {
         return false;
     }
-    complete();
+    this->complete(false);
     SkOpContour* contour = fContourBuilder.contour();
     if (contour && !contour->count()) {
         fContoursHead->remove(contour);
@@ -168,7 +168,7 @@ int SkOpEdgeBuilder::preFetch() {
 }
 
 bool SkOpEdgeBuilder::close() {
-    complete();
+    this->complete(false);
     return true;
 }
 
@@ -188,7 +188,7 @@ bool SkOpEdgeBuilder::walk() {
             case SkPath::kMove_Verb:
                 if (contour && contour->count()) {
                     if (fAllowOpenContours) {
-                        complete();
+                        this->complete(fOpenIntersect);
                     } else if (!close()) {
                         return false;
                     }
