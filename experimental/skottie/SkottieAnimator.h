@@ -12,22 +12,13 @@
 #include "SkMakeUnique.h"
 #include "SkottiePriv.h"
 #include "SkottieProperties.h"
+#include "SkSGScene.h"
 #include "SkTypes.h"
 
 #include <memory>
 #include <vector>
 
 namespace skottie {
-
-class AnimatorBase : public SkNoncopyable {
-public:
-    virtual ~AnimatorBase() = default;
-
-    virtual void tick(float) = 0;
-
-protected:
-    AnimatorBase() = default;
-};
 
 class KeyframeIntervalBase : public SkNoncopyable {
 public:
@@ -112,7 +103,7 @@ std::vector<KeyframeInterval<T>> ParseFrames(const Json::Value& jframes) {
 
 // Binds an animated/keyframed property to a node attribute setter.
 template <typename ValT, typename NodeT>
-class Animator : public AnimatorBase {
+class Animator final : public sksg::Animator {
 public:
     using ApplyFuncT = void(*)(NodeT*, const ValT&);
     static std::unique_ptr<Animator> Make(std::vector<KeyframeInterval<ValT>>&& frames,
@@ -125,7 +116,7 @@ public:
             : nullptr;
     }
 
-    void tick(float t) override {
+    void onTick(float t) override {
         const auto& frame = this->findFrame(t);
 
         ValT val;
