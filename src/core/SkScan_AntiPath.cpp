@@ -756,9 +756,8 @@ void SkScan::AntiFillPath(const SkPath& path, const SkRegion& origClip,
 
 #include "SkRasterClip.h"
 
-void SkScan::FillPath(const SkPath& path, const SkRasterClip& clip,
-                          SkBlitter* blitter) {
-    if (clip.isEmpty()) {
+void SkScan::FillPath(const SkPath& path, const SkRasterClip& clip, SkBlitter* blitter) {
+    if (clip.isEmpty() || !path.isFinite()) {
         return;
     }
 
@@ -776,7 +775,7 @@ void SkScan::FillPath(const SkPath& path, const SkRasterClip& clip,
 
 void SkScan::AntiFillPath(const SkPath& path, const SkRasterClip& clip,
                           SkBlitter* blitter, bool forceDAA) {
-    if (clip.isEmpty()) {
+    if (clip.isEmpty() || !path.isFinite()) {
         return;
     }
 
