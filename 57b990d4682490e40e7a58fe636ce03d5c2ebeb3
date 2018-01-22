@@ -69,6 +69,24 @@
       "revId": "57b990d4682490e40e7a58fe636ce03d5c2ebeb3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ff709eb2_1af3a909",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 196,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-01-22T13:48:31Z",
+      "side": 1,
+      "message": "Ah, right. Forgot about batching.",
+      "parentUuid": "10ba7748_be495c67",
+      "revId": "57b990d4682490e40e7a58fe636ce03d5c2ebeb3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
