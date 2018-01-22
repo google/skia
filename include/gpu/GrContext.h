@@ -300,10 +300,6 @@ public:
 
     ///////////////////////////////////////////////////////////////////////////
     // Functions intended for internal use only.
-    GrGpu* getGpu() { return fGpu.get(); }
-    const GrGpu* getGpu() const { return fGpu.get(); }
-    GrAtlasGlyphCache* getAtlasGlyphCache() { return fAtlasGlyphCache; }
-    GrTextBlobCache* getTextBlobCache() { return fTextBlobCache.get(); }
     bool abandoned() const;
 
     /** Reset GPU stats */
