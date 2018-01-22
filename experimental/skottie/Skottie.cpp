@@ -31,6 +31,7 @@
 #include "SkSGOpacityEffect.h"
 #include "SkSGPath.h"
 #include "SkSGRect.h"
+#include "SkSGScene.h"
 #include "SkSGTransform.h"
 #include "SkSGTrimEffect.h"
 #include "SkStream.h"
@@ -50,9 +51,9 @@ namespace {
 using AssetMap = SkTHashMap<SkString, const Json::Value*>;
 
 struct AttachContext {
-    const ResourceProvider&                  fResources;
-    const AssetMap&                          fAssets;
-    SkTArray<std::unique_ptr<AnimatorBase>>& fAnimators;
+    const ResourceProvider&    fResources;
+    const AssetMap&            fAssets;
+    sksg::Scene::AnimatorList& fAnimators;
 };
 
 bool LogFail(const Json::Value& json, const char* msg) {
@@ -878,14 +879,14 @@ sk_sp<sksg::RenderNode> AttachLayer(const Json::Value& jlayer,
     layer = AttachOpacity(jlayer["ks"], layerCtx->fCtx, std::move(layer));
 
     // TODO: we should also disable related/inactive animators.
-    class Activator final : public AnimatorBase {
+    class Activator final : public sksg::Animator {
     public:
         Activator(sk_sp<sksg::OpacityEffect> controlNode, float in, float out)
             : fControlNode(std::move(controlNode))
             , fIn(in)
             , fOut(out) {}
 
-        void tick(float t) override {
+        void onTick(float t) override {
             // Keep the layer fully transparent except for its [in..out] lifespan.
             // (note: opacity == 0 disables rendering, while opacity == 1 is a noop)
             fControlNode->setOpacity(t >= fIn && t <= fOut ? 1 : 0);
@@ -1035,59 +1036,49 @@ Animation::Animation(const ResourceProvider& resources,
         assets.set(ParseString(asset["id"], ""), &asset);
     }
 
-    AttachContext ctx = { resources, assets, fAnimators };
-    fDom = AttachComposition(json, &ctx);
+    sksg::Scene::AnimatorList animators;
+    AttachContext ctx = { resources, assets, animators };
+    auto root = AttachComposition(json, &ctx);
+
+    LOG("** Attached %d animators\n", animators.size());
+
+    fScene = sksg::Scene::Make(std::move(root), std::move(animators));
 
     // In case the client calls render before the first tick.
     this->animationTick(0);
-
-    LOG("** Attached %d animators\n", fAnimators.count());
 }
 
 Animation::~Animation() = default;
 
+void Animation::setShowInval(bool show) {
+    if (fScene) {
+        fScene->setShowInval(show);
+    }
+}
+
 void Animation::render(SkCanvas* canvas, const SkRect* dstR) const {
-    if (!fDom)
+    if (!fScene)
         return;
 
-    sksg::InvalidationController ic;
-    fDom->revalidate(&ic, SkMatrix::I());
-
-    // TODO: proper inval
     SkAutoCanvasRestore restore(canvas, true);
     const SkRect srcR = SkRect::MakeSize(this->size());
     if (dstR) {
         canvas->concat(SkMatrix::MakeRectToRect(srcR, *dstR, SkMatrix::kCenter_ScaleToFit));
     }
     canvas->clipRect(srcR);
-    fDom->render(canvas);
-
-    if (!fShowInval)
-        return;
-
-    SkPaint fill, stroke;
-    fill.setAntiAlias(true);
-    fill.setColor(0x40ff0000);
-    stroke.setAntiAlias(true);
-    stroke.setColor(0xffff0000);
-    stroke.setStyle(SkPaint::kStroke_Style);
-
-    for (const auto& r : ic) {
-        canvas->drawRect(r, fill);
-        canvas->drawRect(r, stroke);
-    }
+    fScene->render(canvas);
 }
 
 void Animation::animationTick(SkMSec ms) {
+    if (!fScene)
+        return;
+
     // 't' in the BM model really means 'frame #'
     auto t = static_cast<float>(ms) * fFrameRate / 1000;
 
     t = fInPoint + std::fmod(t, fOutPoint - fInPoint);
 
-    // TODO: this can be optimized quite a bit with some sorting/state tracking.
-    for (const auto& a : fAnimators) {
-        a->tick(t);
-    }
+    fScene->animate(t);
 }
 
 } // namespace skottie
