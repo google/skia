@@ -31,6 +31,18 @@ public:
         init();
     }
 
+    SkOpEdgeBuilder(const SkPath& path1, const SkPath& path2, SkOpContourHead* contours2,
+            SkOpGlobalState* globalState)
+        : fGlobalState(globalState)
+        , fPath(&path1)
+        , fContourBuilder(contours2)
+        , fContoursHead(contours2)
+        , fAllowOpenContours(true) {
+        init();
+        addOperand(path2);
+    }
+
+
     void addOperand(const SkPath& path);
 
     void complete() {

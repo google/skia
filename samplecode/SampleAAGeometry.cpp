@@ -5,111 +5,23 @@
  * found in the LICENSE file.
  */
 
+#include "PerfectStroke.h"
 #include "SampleCode.h"
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkGeometry.h"
 #include "SkIntersections.h"
 #include "SkOpEdgeBuilder.h"
-// #include "SkPathOpsSimplifyAA.h"
-// #include "SkPathStroker.h"
+#include "SkPathMeasure.h"
 #include "SkPointPriv.h"
 #include "SkString.h"
 #include "SkView.h"
 
-#if 0
-void SkStrokeSegment::dump() const {
-    SkDebugf("{{{%1.9g,%1.9g}, {%1.9g,%1.9g}", fPts[0].fX, fPts[0].fY, fPts[1].fX, fPts[1].fY);
-    if (SkPath::kQuad_Verb == fVerb) {
-        SkDebugf(", {%1.9g,%1.9g}", fPts[2].fX, fPts[2].fY);
-    }
-    SkDebugf("}}");
-#ifdef SK_DEBUG
-    SkDebugf(" id=%d", fDebugID);
-#endif
-    SkDebugf("\n");
+static inline bool degenerate_vector(const SkVector& v) {
+    return !SkPointPriv::CanNormalize(v.fX, v.fY);
 }
-
-void SkStrokeSegment::dumpAll() const {
-    const SkStrokeSegment* segment = this;
-    while (segment) {
-        segment->dump();
-        segment = segment->fNext;
-    }
-}
-
-void SkStrokeTriple::dump() const {
-    SkDebugf("{{{%1.9g,%1.9g}, {%1.9g,%1.9g}", fPts[0].fX, fPts[0].fY, fPts[1].fX, fPts[1].fY);
-    if (SkPath::kQuad_Verb <= fVerb) {
-        SkDebugf(", {%1.9g,%1.9g}", fPts[2].fX, fPts[2].fY);
-    }
-    if (SkPath::kCubic_Verb == fVerb) {
-        SkDebugf(", {%1.9g,%1.9g}", fPts[3].fX, fPts[3].fY);
-    } else if (SkPath::kConic_Verb == fVerb) {
-        SkDebugf(", %1.9g", weight());
-    }
-    SkDebugf("}}");
-#ifdef SK_DEBUG
-    SkDebugf(" triple id=%d", fDebugID);
-#endif
-    SkDebugf("\ninner:\n");
-    fInner->dumpAll();
-    SkDebugf("outer:\n");
-    fOuter->dumpAll();
-    SkDebugf("join:\n");
-    fJoin->dumpAll();
-}
-
-void SkStrokeTriple::dumpAll() const {
-    const SkStrokeTriple* triple = this;
-    while (triple) {
-        triple->dump();
-        triple = triple->fNext;
-    }
-}
-
-void SkStrokeContour::dump() const {
-#ifdef SK_DEBUG
-    SkDebugf("id=%d ", fDebugID);
-#endif
-    SkDebugf("head:\n");
-    fHead->dumpAll();
-    SkDebugf("head cap:\n");
-    fHeadCap->dumpAll();
-    SkDebugf("tail cap:\n");
-    fTailCap->dumpAll();
-}
-
-void SkStrokeContour::dumpAll() const {
-    const SkStrokeContour* contour = this;
-    while (contour) {
-        contour->dump();
-        contour = contour->fNext;
-    }
-}
-#endif
 
 SkScalar gCurveDistance = 10;
-
-#if 0  // unused
-static SkPath::Verb get_path_verb(int index, const SkPath& path) {
-    if (index < 0) {
-        return SkPath::kMove_Verb;
-    }
-    SkPoint pts[4];
-    SkPath::Verb verb;
-    SkPath::Iter iter(path, true);
-    int counter = -1;
-    while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
-        if (++counter < index) {
-            continue;
-        }
-        return verb;
-    }
-    SkASSERT(0);
-    return SkPath::kMove_Verb;
-}
-#endif
 
 static SkScalar get_path_weight(int index, const SkPath& path) {
     SkPoint pts[4];
@@ -487,7 +399,7 @@ static void construct_path(SkPath& path) {
 }
 
 struct ButtonPaints {
-    static const int kMaxStateCount = 3;
+    static const int kMaxStateCount = 4;
     SkPaint fDisabled;
     SkPaint fStates[kMaxStateCount];
     SkPaint fLabel;
@@ -722,19 +634,15 @@ public:
     }
 };
 
-enum {
-    kControlCount = MyClick::kLastControl - MyClick::kFirstControl + 1,
-};
+constexpr int kControlCount = MyClick::kLastControl - MyClick::kFirstControl + 1;
 
 static struct ControlPair {
     UniControl* fControl;
     MyClick::ControlType fControlType;
 } kControlList[kControlCount];
 
-enum {
-    kButtonCount = MyClick::kLastButton - MyClick::kFirstButton + 1,
-    kVerbCount = MyClick::kLastVerbButton - MyClick::kFirstButton + 1,
-};
+constexpr int kButtonCount = MyClick::kLastButton - MyClick::kFirstButton + 1;
+constexpr int kVerbCount = MyClick::kLastVerbButton - MyClick::kFirstButton + 1;
 
 static struct ButtonPair {
     Button* fButton;
@@ -751,32 +659,6 @@ static void enable_verb_button(MyClick::ControlType type) {
     }
 }
 
-struct Stroke;
-
-struct Active {
-    Active* fNext;
-    Stroke* fParent;
-    SkScalar fStart;
-    SkScalar fEnd;
-
-    void reset() {
-        fNext = nullptr;
-        fStart = 0;
-        fEnd = 1;
-    }
-};
-
-struct Stroke {
-    SkPath fPath;
-    Active fActive;
-    bool fInner;
-
-    void reset() {
-        fPath.reset();
-        fActive.reset();
-    }
-};
-
 struct PathUndo {
     SkPath fPath;
     PathUndo* fNext;
@@ -790,8 +672,8 @@ class AAGeometryView : public SampleView {
     SkPaint fLegendRightPaint;
     SkPaint fPointPaint;
     SkPaint fSkeletonPaint;
+    SkPaint fDebugSkeletonPaint;
     SkPaint fLightSkeletonPaint;
-    SkPath fPath;
     ControlPaints fControlPaints;
     UniControl fResControl;
     UniControl fWeightControl;
@@ -810,15 +692,21 @@ class AAGeometryView : public SampleView {
     Button fBisectButton;
     Button fJoinButton;
     Button fInOutButton;
-    SkTArray<Stroke> fStrokes;
     PathUndo* fUndo;
+    SkPoint fFirstBisect[2];
+    SkPoint fLastBisect[2];
+    SkPoint fLastPt;
+    SkScalar fBallInterval;
     int fActivePt;
     int fActiveVerb;
+    SkPath::Verb fFirstVerb;
+    SkPath::Verb fLastVerb;
     bool fHandlePathMove;
     bool fShowLegend;
     bool fHideAll;
     const int kHitToleranace = 25;
-
+    SkPath fPath;
+    StrokePath fStrokePath;
 public:
 
     AAGeometryView()
@@ -834,11 +722,12 @@ public:
         , fDeleteButton('x')
         , fFillButton('p')
         , fSkeletonButton('s')
-        , fFilterButton('f', 3)
+        , fFilterButton('f', 4)
         , fBisectButton('b')
         , fJoinButton('j')
         , fInOutButton('|')
         , fUndo(nullptr)
+        , fBallInterval(5)
         , fActivePt(-1)
         , fActiveVerb(-1)
         , fHandlePathMove(true)
@@ -854,6 +743,8 @@ public:
         fPointPaint.setColor(0x99ee3300);
         fSkeletonPaint = strokePaint;
         fSkeletonPaint.setColor(SK_ColorRED);
+        fDebugSkeletonPaint = fSkeletonPaint;
+        fDebugSkeletonPaint.setColor(SK_ColorBLUE);
         fLightSkeletonPaint = fSkeletonPaint;
         fLightSkeletonPaint.setColor(0xFFFF7f7f);
         fActivePaint = strokePaint;
@@ -1036,29 +927,24 @@ public:
         return true;
     }
 
-    void draw_bisect(SkCanvas* canvas, const SkVector& lastVector, const SkVector& vector,
-                const SkPoint& pt) {
-        SkVector lastV = lastVector;
-        SkScalar lastLen = lastVector.length();
-        SkVector nextV = vector;
-        SkScalar nextLen = vector.length();
-        if (lastLen < nextLen) {
-            lastV.setLength(nextLen);
-        } else {
-            nextV.setLength(lastLen);
+    void draw_bisect(SkCanvas* canvas, const CurveData* curve) {
+        const CurveData* prev = curve->fPrev;
+        if (!prev) {
+            return;
         }
-
-        SkVector bisect = { (lastV.fX + nextV.fX) / 2, (lastV.fY + nextV.fY) / 2 };
-        bisect.setLength(fWidthControl.fValLo * 2);
+        const StrokeData& innerPrev = prev->fInner;
+        const StrokeData& outerPrev = prev->fOuter;
+        const SkPoint& pt = curve->lastPt();
         if (fBisectButton.enabled()) {
-            canvas->drawLine(pt, pt + bisect, fSkeletonPaint);
+            canvas->drawLine(pt, curve->fInner.fBisect, fSkeletonPaint);
+            canvas->drawLine(innerPrev.fBisect, curve->fInner.fBisect, fDebugSkeletonPaint);
+            canvas->drawLine(pt, curve->fOuter.fBisect, fSkeletonPaint);
+            canvas->drawLine(outerPrev.fBisect, curve->fOuter.fBisect, fSkeletonPaint);
         }
-        lastV.setLength(fWidthControl.fValLo);
+        const SkVector& lastV = curve->fPrev->fTangents[1];
+        const SkVector& nextV = curve->fTangents[0];
         if (fBisectButton.enabled()) {
             canvas->drawLine(pt, {pt.fX - lastV.fY, pt.fY + lastV.fX}, fSkeletonPaint);
-        }
-        nextV.setLength(fWidthControl.fValLo);
-        if (fBisectButton.enabled()) {
             canvas->drawLine(pt, {pt.fX + nextV.fY, pt.fY - nextV.fX}, fSkeletonPaint);
         }
         if (fJoinButton.enabled()) {
@@ -1072,114 +958,62 @@ public:
                 canvas->drawArc(oval, startAngle, 360 - (startAngle - endAngle), false,
                         fSkeletonPaint);
             }
+            canvas->drawLine(curve->fOuter.fBisect.fX, curve->fOuter.fBisect.fY,
+                pt.fX - lastV.fY, pt.fY + lastV.fX, fSkeletonPaint);
+            canvas->drawLine(curve->fOuter.fBisect.fX, curve->fOuter.fBisect.fY,
+                pt.fX + nextV.fY, pt.fY - nextV.fX, fSkeletonPaint);
         }
     }
 
     void draw_bisects(SkCanvas* canvas, bool activeOnly) {
-        SkVector firstVector, lastVector, nextLast, vector;
-        SkPoint pts[4];
-        SkPoint firstPt = { 0, 0 };  // init to avoid warning;
-        SkPath::Verb verb;
-        SkPath::Iter iter(fPath, true);
-        bool foundFirst = false;
         int counter = -1;
-        while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
+        for (int ptIndex = 0; ptIndex < fStrokePath.fCurveData.count(); ++ptIndex) {
+            CurveData* curPtData = &fStrokePath.fCurveData[ptIndex];
             ++counter;
             if (activeOnly && counter != fActiveVerb && counter - 1 != fActiveVerb
                     && counter + 1 != fActiveVerb
                     && (fActiveVerb != 1 || counter != fPath.countVerbs())) {
                 continue;
             }
-            switch (verb) {
-                case SkPath::kLine_Verb:
-                    nextLast = pts[0] - pts[1];
-                    vector = pts[1] - pts[0];
-                    break;
-                case SkPath::kQuad_Verb: {
-                    nextLast = pts[1] - pts[2];
-                    if (SkScalarNearlyZero(nextLast.length())) {
-                        nextLast = pts[0] - pts[2];
-                    }
-                    vector = pts[1] - pts[0];
-                    if (SkScalarNearlyZero(vector.length())) {
-                        vector = pts[2] - pts[0];
-                    }
-                    if (!fBisectButton.enabled()) {
-                        break;
-                    }
-                    SkScalar t = SkFindQuadMaxCurvature(pts);
-                    if (0 < t && t < 1) {
-                        SkPoint maxPt = SkEvalQuadAt(pts, t);
-                        SkVector tangent = SkEvalQuadTangentAt(pts, t);
-                        tangent.setLength(fWidthControl.fValLo * 2);
-                        canvas->drawLine(maxPt, {maxPt.fX + tangent.fY, maxPt.fY - tangent.fX},
-                                         fSkeletonPaint);
-                    }
-                    } break;
-                case SkPath::kConic_Verb:
-                    nextLast = pts[1] - pts[2];
-                    if (SkScalarNearlyZero(nextLast.length())) {
-                        nextLast = pts[0] - pts[2];
-                    }
-                    vector = pts[1] - pts[0];
-                    if (SkScalarNearlyZero(vector.length())) {
-                        vector = pts[2] - pts[0];
-                    }
-                    if (!fBisectButton.enabled()) {
-                        break;
-                    }
-                    // FIXME : need max curvature or equivalent here
-                    break;
-                case SkPath::kCubic_Verb: {
-                    nextLast = pts[2] - pts[3];
-                    if (SkScalarNearlyZero(nextLast.length())) {
-                        nextLast = pts[1] - pts[3];
-                        if (SkScalarNearlyZero(nextLast.length())) {
-                            nextLast = pts[0] - pts[3];
-                        }
-                    }
-                    vector = pts[0] - pts[1];
-                    if (SkScalarNearlyZero(vector.length())) {
-                        vector = pts[0] - pts[2];
-                        if (SkScalarNearlyZero(vector.length())) {
-                            vector = pts[0] - pts[3];
-                        }
-                    }
-                    if (!fBisectButton.enabled()) {
-                        break;
-                    }
-                    SkScalar tMax[2];
-                    int tMaxCount = SkFindCubicMaxCurvature(pts, tMax);
-                    for (int tIndex = 0; tIndex < tMaxCount; ++tIndex) {
-                        if (0 >= tMax[tIndex] || tMax[tIndex] >= 1) {
-                            continue;
-                        }
-                        SkPoint maxPt;
-                        SkVector tangent;
-                        SkEvalCubicAt(pts, tMax[tIndex], &maxPt, &tangent, nullptr);
-                        tangent.setLength(fWidthControl.fValLo * 2);
-                        canvas->drawLine(maxPt, {maxPt.fX + tangent.fY, maxPt.fY - tangent.fX},
-                                         fSkeletonPaint);
-                    }
-                    } break;
-                case SkPath::kClose_Verb:
-                    if (foundFirst) {
-                        draw_bisect(canvas, lastVector, firstVector, firstPt);
-                        foundFirst = false;
-                    }
-                    break;
-                default:
-                    break;
+            if (!fBisectButton.enabled()) {
+                continue;
             }
-            if (SkPath::kLine_Verb <= verb && verb <= SkPath::kCubic_Verb) {
-                if (!foundFirst) {
-                    firstPt = pts[0];
-                    firstVector = vector;
-                    foundFirst = true;
-                } else {
-                    draw_bisect(canvas, lastVector, vector, pts[0]);
+            canvas->drawPath(curPtData->fInner.fPath, fSkeletonPaint);
+            canvas->drawPath(curPtData->fOuter.fPath, fSkeletonPaint);
+            if (SkPath::kQuad_Verb == curPtData->fVerb) {
+                const SkPoint* pts = curPtData->fPts;
+                SkScalar t = SkFindQuadMaxCurvature(pts);
+                if (0 < t && t < 1) {
+                    SkPoint maxPt = SkEvalQuadAt(pts, t);
+                    SkVector tangent = SkEvalQuadTangentAt(pts, t);
+                    tangent.setLength(fWidthControl.fValLo);
+                    canvas->drawLine(maxPt, {maxPt.fX + tangent.fY, maxPt.fY - tangent.fX},
+                                        fSkeletonPaint);
+                    canvas->drawLine(maxPt, {maxPt.fX - tangent.fY, maxPt.fY + tangent.fX},
+                                        fSkeletonPaint);
                 }
-                lastVector = nextLast;
+            } else if (SkPath::kConic_Verb == curPtData->fVerb) {
+                ;
+                // FIXME : need max curvature or equivalent here ?
+            } else if (SkPath::kCubic_Verb == curPtData->fVerb) {
+                SkScalar tMax[2];
+                int tMaxCount = SkFindCubicMaxCurvature(curPtData->fPts, tMax);
+                for (int tIndex = 0; tIndex < tMaxCount; ++tIndex) {
+                    if (0 >= tMax[tIndex] || tMax[tIndex] >= 1) {
+                        continue;
+                    }
+                    SkPoint maxPt;
+                    SkVector tangent;
+                    SkEvalCubicAt(curPtData->fPts, tMax[tIndex], &maxPt, &tangent,
+                            nullptr);
+                    tangent.setLength(fWidthControl.fValLo * 2);
+                    canvas->drawLine(maxPt, {maxPt.fX + tangent.fY, maxPt.fY - tangent.fX},
+                            fSkeletonPaint);
+                }
+            }
+            if (SkPath::kLine_Verb == curPtData->fPrev->fVerb &&
+                    SkPath::kLine_Verb == curPtData->fVerb) {
+                draw_bisect(canvas, curPtData);
             }
         }
     }
@@ -1409,119 +1243,7 @@ public:
         return distMap->getAddr8(0, 0);
     }
 
-    void path_stroke(int index, SkPath* inner, SkPath* outer) {
-        #if 0
-        SkPathStroker stroker(fPath, fWidthControl.fValLo, 0,
-                SkPaint::kRound_Cap, SkPaint::kRound_Join, fResControl.fValLo);
-        SkPoint pts[4], firstPt, lastPt;
-        SkPath::Verb verb;
-        SkPath::Iter iter(fPath, true);
-        int counter = -1;
-        while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
-            ++counter;
-            switch (verb) {
-                case SkPath::kMove_Verb:
-                    firstPt = pts[0];
-                    break;
-                case SkPath::kLine_Verb:
-                    if (counter == index) {
-                        stroker.moveTo(pts[0]);
-                        stroker.lineTo(pts[1]);
-                        goto done;
-                    }
-                    lastPt = pts[1];
-                    break;
-                case SkPath::kQuad_Verb:
-                    if (counter == index) {
-                        stroker.moveTo(pts[0]);
-                        stroker.quadTo(pts[1], pts[2]);
-                        goto done;
-                    }
-                    lastPt = pts[2];
-                    break;
-                case SkPath::kConic_Verb:
-                    if (counter == index) {
-                        stroker.moveTo(pts[0]);
-                        stroker.conicTo(pts[1], pts[2], iter.conicWeight());
-                        goto done;
-                    }
-                    lastPt = pts[2];
-                    break;
-                case SkPath::kCubic_Verb:
-                    if (counter == index) {
-                        stroker.moveTo(pts[0]);
-                        stroker.cubicTo(pts[1], pts[2], pts[3]);
-                        goto done;
-                    }
-                    lastPt = pts[3];
-                    break;
-                case SkPath::kClose_Verb:
-                    if (counter == index) {
-                        stroker.moveTo(lastPt);
-                        stroker.lineTo(firstPt);
-                        goto done;
-                    }
-                    break;
-                case SkPath::kDone_Verb:
-                    break;
-                default:
-                    SkASSERT(0);
-            }
-        }
-    done:
-        *inner = stroker.fInner;
-        *outer = stroker.fOuter;
-#endif
-    }
-
-    void draw_stroke(SkCanvas* canvas, int active) {
-        SkPath inner, outer;
-        path_stroke(active, &inner, &outer);
-        canvas->drawPath(inner, fSkeletonPaint);
-        canvas->drawPath(outer, fSkeletonPaint);
-    }
-
-    void gather_strokes() {
-        fStrokes.reset();
-        for (int index = 0; index < fPath.countVerbs(); ++index) {
-            Stroke& inner = fStrokes.push_back();
-            inner.reset();
-            inner.fInner = true;
-            Stroke& outer = fStrokes.push_back();
-            outer.reset();
-            outer.fInner = false;
-            path_stroke(index, &inner.fPath, &outer.fPath);
-        }
-    }
-
-    void trim_strokes() {
-        // eliminate self-itersecting loops
-        // trim outside edges
-        gather_strokes();
-        for (int index = 0; index < fStrokes.count(); ++index) {
-            SkPath& outPath = fStrokes[index].fPath;
-            for (int inner = 0; inner < fStrokes.count(); ++inner) {
-                if (index == inner) {
-                    continue;
-                }
-                SkPath& inPath = fStrokes[inner].fPath;
-                if (!outPath.getBounds().intersects(inPath.getBounds())) {
-                    continue;
-                }
-
-            }
-        }
-    }
-
-    void onDrawContent(SkCanvas* canvas) override {
-#if 0
-        SkDEBUGCODE(SkDebugStrokeGlobals debugGlobals);
-        SkOpAA aaResult(fPath, fWidthControl.fValLo, fResControl.fValLo
-                SkDEBUGPARAMS(&debugGlobals));
-#endif
-        SkPath strokePath;
-//        aaResult.simplify(&strokePath);
-        canvas->drawPath(strokePath, fSkeletonPaint);
+    void draw_coverage(SkCanvas* canvas) {
         SkRect bounds = fPath.getBounds();
         SkScalar radius = fWidthControl.fValLo;
         int w = (int) (bounds.fRight + radius + 1);
@@ -1543,6 +1265,55 @@ public:
         } else if (fFilterButton.enabled()) {
             canvas->drawBitmap(distMap, 0, 0, &fCoveragePaint);
         }
+    }
+
+    void draw_ball(SkCanvas* canvas) {
+        // get dash positions along path
+        // for each color in gradient
+        // draw ball at the desired diameter and translucency to its own bitmap
+        // keep max value
+        // compute partial pixel coverage as well
+        SkPath fWidth;
+        fWidth.moveTo(0, .3f);
+        fWidth.lineTo(1, .3f);
+        fWidth.quadTo(1.5f, .6f, 2, .3f);
+        fWidth.quadTo(2.5f, .8f, 3, .4f);
+        fWidth.quadTo(3.5f, .9f, 4, .3f);
+        fWidth.lineTo(5, .3f);
+        SkPathMeasure measure(fPath, false);
+        SkPathMeasure wMeasure(fWidth, false);
+        SkScalar length = measure.getLength();
+        SkScalar wLength = wMeasure.getLength();
+        SkPaint paint(fCoveragePaint);
+        for (SkScalar interval = 0; interval < length; interval += fBallInterval) {
+            SkPoint position;
+            if (!measure.getPosTan(interval, &position, nullptr)) {
+                break;
+            }
+            SkPoint wPos;
+            wMeasure.getPosTan(interval * wLength / length, &wPos, nullptr);
+            int r = (int) (255 * interval * 4 / length) % 510;
+            if (r > 255) r = 510 - r;
+            int g = (int) (255 * wPos.fY * 6) % 510;
+            if (g > 255) g = 510 - g;
+            paint.setARGB(0xFF,  SkTMin(255, r), SkTMin(255, g), 0);
+            canvas->drawCircle(position, fWidthControl.fValLo * wPos.fY, paint);
+        }
+    }
+
+    void onDrawContent(SkCanvas* canvas) override {
+#if 0
+        SkDEBUGCODE(SkDebugStrokeGlobals debugGlobals);
+        SkOpAA aaResult(fPath, fWidthControl.fValLo, fResControl.fValLo
+                SkDEBUGPARAMS(&debugGlobals));
+#endif
+        fStrokePath.setPointArray(fPath, fWidthControl.fValLo);
+        fStrokePath.calcBisects(fWidthControl.fValLo);
+        if (fFilterButton.fState == 1 || fFillButton.fState == 2) {
+            draw_coverage(canvas);
+        } else if (fFilterButton.fState == 3) {
+            draw_ball(canvas);
+        }
         if (fSkeletonButton.enabled()) {
             canvas->drawPath(fPath, fActiveVerb >= 0 ? fLightSkeletonPaint : fSkeletonPaint);
         }
@@ -1551,15 +1322,6 @@ public:
         }
         if (fBisectButton.enabled() || fJoinButton.enabled()) {
             draw_bisects(canvas, fActiveVerb >= 0);
-        }
-        if (fInOutButton.enabled()) {
-            if (fActiveVerb >= 0) {
-                draw_stroke(canvas, fActiveVerb);
-            } else {
-                for (int index = 0; index < fPath.countVerbs(); ++index) {
-                    draw_stroke(canvas, index);
-                }
-            }
         }
         if (fHideAll) {
             return;
