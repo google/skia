@@ -433,6 +433,9 @@ private:
     void initGLSL(const GrGLContextInfo&, const GrGLInterface*);
     bool hasPathRenderingSupport(const GrGLContextInfo&, const GrGLInterface*);
 
+    void applyDriverCorrectnessWorkarounds(const GrGLContextInfo&, const GrContextOptions&,
+                                           GrShaderCaps*);
+
     void onApplyOptionsOverrides(const GrContextOptions& options) override;
 
     void initFSAASupport(const GrContextOptions& contextOptions, const GrGLContextInfo&,
@@ -480,20 +483,22 @@ private:
     bool fTextureSwizzleSupport : 1;
     bool fMipMapLevelAndLodControlSupport : 1;
     bool fRGBAToBGRAReadbackConversionsAreSlow : 1;
+    bool fClearTextureSupport : 1;
+    bool fProgramBinarySupport : 1;
+
+    // Driver workarounds
     bool fDoManualMipmapping : 1;
     bool fSRGBDecodeDisableAffectsMipmaps : 1;
     bool fClearToBoundaryValuesIsBroken : 1;
-    bool fClearTextureSupport : 1;
     bool fDrawArraysBaseVertexIsBroken : 1;
     bool fUseDrawToClearColor : 1;
     bool fUseDrawToClearStencilClip : 1;
     bool fDisallowTexSubImageForUnormConfigTexturesEverBoundToFBO : 1;
     bool fUseDrawInsteadOfAllRenderTargetWrites : 1;
     bool fRequiresCullFaceEnableDisableWhenDrawingLinesAfterNonLines : 1;
-    bool fProgramBinarySupport : 1;
+    int fMaxInstancesPerDrawArraysWithoutCrashing;
 
     uint32_t fBlitFramebufferFlags;
-    int fMaxInstancesPerDrawArraysWithoutCrashing;
 
     /** Number type of the components (with out considering number of bits.) */
     enum FormatType {

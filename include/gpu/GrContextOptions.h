@@ -141,6 +141,13 @@ struct GrContextOptions {
     Enable fUseDrawInsteadOfGLClear = Enable::kDefault;
 
     /**
+     * Disables correctness workarounds that are enabled for particular GPUs, OSes, or drivers.
+     * This does not affect code path choices that are made for perfomance reasons nor does it
+     * override other GrContextOption settings.
+     */
+    bool fDisableDriverCorrectnessWorkarounds = false;
+
+    /**
      * Cache in which to store compiled shader binaries between runs.
      */
     PersistentCache* fPersistentCache = nullptr;
