@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bc32404f_4c9661bb",
+        "filename": "src/core/SkMatrixImageFilter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-01-22T22:02:22Z",
+      "side": 1,
+      "message": "1. defer check until after here\n2. consider using SkSafeRange (and/or extending it)",
+      "range": {
+        "startLine": 42,
+        "startChar": 0,
+        "endLine": 42,
+        "endChar": 77
+      },
+      "revId": "f12b00b982419f9fda1aa884a71d74987075eead",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
