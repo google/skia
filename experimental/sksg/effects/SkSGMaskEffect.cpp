@@ -14,11 +14,11 @@ namespace sksg {
 MaskEffect::MaskEffect(sk_sp<RenderNode> child, sk_sp<RenderNode> mask)
     : INHERITED(std::move(child))
     , fMaskNode(std::move(mask)) {
-    fMaskNode->addInvalReceiver(this);
+    this->observeInval(fMaskNode);
 }
 
 MaskEffect::~MaskEffect() {
-    fMaskNode->removeInvalReceiver(this);
+    this->unobserveInval(fMaskNode);
 }
 
 void MaskEffect::onRender(SkCanvas* canvas) const {
