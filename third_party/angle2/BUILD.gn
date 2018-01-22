@@ -50,6 +50,7 @@ config("common") {
     defines += [
       "ANGLE_USE_X11",
       "GL_APICALL=__attribute__((visibility(\"default\")))",
+      "GL_API=__attribute__((visibility(\"default\")))",
       "EGLAPI=__attribute__((visibility(\"default\")))",
     ]
     cflags_cc += [ "-std=c++14" ]
@@ -58,6 +59,7 @@ config("common") {
       "ANGLE_ENABLE_D3D11",
       "ANGLE_ENABLE_D3D9",
       "GL_APICALL=",
+      "GL_API=",
       "EGLAPI=",
     ]
 
