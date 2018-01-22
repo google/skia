@@ -130,7 +130,7 @@ DEF_TEST(AnimatedImage, r) {
         for (size_t i = 0; i < frameInfos.size(); ++i) {
             double next = animatedImage->update(currentTime);
             if (i == frameInfos.size() - 1 && defaultRepetitionCount == 0) {
-                REPORTER_ASSERT(r, next == std::numeric_limits<double>::max());
+                REPORTER_ASSERT(r, next == SkAnimatedImage::kNotRunning);
                 REPORTER_ASSERT(r, !animatedImage->isRunning());
                 REPORTER_ASSERT(r, animatedImage->isFinished());
             } else {
@@ -188,7 +188,7 @@ DEF_TEST(AnimatedImage, r) {
 
             currentTime = next;
             double stoppedNext = animatedImage->update(currentTime);
-            REPORTER_ASSERT(r, stoppedNext == std::numeric_limits<double>::max());
+            REPORTER_ASSERT(r, stoppedNext == SkAnimatedImage::kNotRunning);
             if (!testDraw(animatedImage, i)) {
                 ERRORF(r, "Advanced the frame while stopped?");
                 failed = true;
@@ -223,9 +223,12 @@ DEF_TEST(AnimatedImage, r) {
                     double next = animatedImage->update(currentTime);
                     if (animatedImage->isRunning()) {
                         currentTime = next;
+                    } else {
+                        REPORTER_ASSERT(r, next == SkAnimatedImage::kNotRunning);
                     }
                 }
             }
+
             if (animatedImage->isRunning()) {
                 ERRORF(r, "%s animation still running after %i loops", file, loopCount);
             }
