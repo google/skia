@@ -10,11 +10,14 @@
 #include "SkColor.h"
 #include "SkRandom.h"
 #include "SkRRect.h"
-#include "SkSVGDOM.h"
-#include "SkSVGG.h"
-#include "SkSVGPath.h"
-#include "SkSVGRect.h"
-#include "SkSVGSVG.h"
+
+#include "SkSGColor.h"
+#include "SkSGDraw.h"
+#include "SkSGGroup.h"
+#include "SkSGPath.h"
+#include "SkSGRect.h"
+#include "SkSGScene.h"
+#include "SkSGTransform.h"
 
 namespace {
 
@@ -61,23 +64,20 @@ std::tuple<SkScalar, SkScalar> find_yintercept(const SkPoint& pos, const SkVecto
     return std::make_tuple(t, box_reflect(pos.fY + dY, box.fTop, box.fBottom));
 }
 
-sk_sp<SkSVGRect> make_svg_rrect(const SkRRect& rrect) {
-    sk_sp<SkSVGRect> node = SkSVGRect::Make();
-    node->setX(SkSVGLength(rrect.rect().x()));
-    node->setY(SkSVGLength(rrect.rect().y()));
-    node->setWidth(SkSVGLength(rrect.width()));
-    node->setHeight(SkSVGLength(rrect.height()));
-    node->setRx(SkSVGLength(rrect.getSimpleRadii().x()));
-    node->setRy(SkSVGLength(rrect.getSimpleRadii().y()));
+void update_pos(const sk_sp<sksg::RRect>& rr, const SkPoint& pos) {
+    // TODO: position setters on RRect?
 
-    return node;
+    const auto r = rr->getRRect().rect();
+    const auto offsetX = pos.x() - r.x(),
+               offsetY = pos.y() - r.y();
+    rr->setRRect(rr->getRRect().makeOffset(offsetX, offsetY));
 }
 
 } // anonymous ns
 
-class SVGPongView final : public SampleView {
+class PongView final : public SampleView {
 public:
-    SVGPongView() {}
+    PongView() = default;
 
 protected:
     void onOnceBeforeDraw() override {
@@ -88,17 +88,14 @@ protected:
                                                    kPaddleSize.width() / 2,
                                                    kPaddleSize.width() / 2);
         fBall.initialize(ball,
-                         SK_ColorGREEN,
                          SkPoint::Make(kBounds.centerX(), kBounds.centerY()),
                          SkVector::Make(fRand.nextRangeScalar(kBallSpeedMin, kBallSpeedMax),
                                         fRand.nextRangeScalar(kBallSpeedMin, kBallSpeedMax)));
         fPaddle0.initialize(paddle,
-                            SK_ColorBLUE,
                             SkPoint::Make(fieldBounds.left() - kPaddleSize.width() / 2,
                                           fieldBounds.centerY()),
                             SkVector::Make(0, 0));
         fPaddle1.initialize(paddle,
-                            SK_ColorRED,
                             SkPoint::Make(fieldBounds.right() + kPaddleSize.width() / 2,
                                           fieldBounds.centerY()),
                             SkVector::Make(0, 0));
@@ -117,28 +114,38 @@ protected:
                           kBounds.top() + (i + 0.75f) * kBounds.height() / kBackgroundDashCount);
         }
 
-        sk_sp<SkSVGPath> bg = SkSVGPath::Make();
-        bg->setPath(bgPath);
-        bg->setFill(SkSVGPaint(SkSVGPaint::Type::kNone));
-        bg->setStroke(SkSVGPaint(SkSVGColorType(SK_ColorBLACK)));
-        bg->setStrokeWidth(SkSVGLength(kBackgroundStroke));
+        auto bg_path  = sksg::Path::Make(bgPath);
+        auto bg_paint = sksg::Color::Make(SK_ColorBLACK);
+        bg_paint->setStyle(SkPaint::kStroke_Style);
+        bg_paint->setStrokeWidth(kBackgroundStroke);
 
-        // Build the SVG DOM tree.
-        sk_sp<SkSVGSVG> root = SkSVGSVG::Make();
-        root->appendChild(std::move(bg));
-        root->appendChild(fPaddle0.shadowNode);
-        root->appendChild(fPaddle1.shadowNode);
-        root->appendChild(fBall.shadowNode);
-        root->appendChild(fPaddle0.objectNode);
-        root->appendChild(fPaddle1.objectNode);
-        root->appendChild(fBall.objectNode);
+        auto ball_paint    = sksg::Color::Make(SK_ColorGREEN),
+             paddle0_paint = sksg::Color::Make(SK_ColorBLUE),
+             paddle1_paint = sksg::Color::Make(SK_ColorRED),
+             shadow_paint  = sksg::Color::Make(SK_ColorBLACK);
+        ball_paint->setAntiAlias(true);
+        paddle0_paint->setAntiAlias(true);
+        paddle1_paint->setAntiAlias(true);
+        shadow_paint->setAntiAlias(true);
+        shadow_paint->setOpacity(kShadowOpacity);
+
+        // Build the scene graph.
+        auto group = sksg::Group::Make();
+        group->addChild(sksg::Draw::Make(std::move(bg_path), std::move(bg_paint)));
+        group->addChild(sksg::Draw::Make(fPaddle0.shadowNode, shadow_paint));
+        group->addChild(sksg::Draw::Make(fPaddle1.shadowNode, shadow_paint));
+        group->addChild(sksg::Draw::Make(fBall.shadowNode, shadow_paint));
+        group->addChild(sksg::Draw::Make(fPaddle0.objectNode, paddle0_paint));
+        group->addChild(sksg::Draw::Make(fPaddle1.objectNode, paddle1_paint));
+        group->addChild(sksg::Draw::Make(fBall.objectNode, ball_paint));
 
         // Handle everything in a normalized 1x1 space.
-        root->setViewBox(SkSVGViewBoxType(SkRect::MakeWH(1, 1)));
-
-        fDom = sk_sp<SkSVGDOM>(new SkSVGDOM());
-        fDom->setContainerSize(SkSize::Make(this->width(), this->height()));
-        fDom->setRoot(std::move(root));
+        fContentMatrix = sksg::Matrix::Make(
+            SkMatrix::MakeRectToRect(SkRect::MakeWH(1, 1),
+                                     SkRect::MakeIWH(this->width(), this->height()),
+                                     SkMatrix::kFill_ScaleToFit));
+        auto root = sksg::Transform::Make(std::move(group), fContentMatrix);
+        fScene = sksg::Scene::Make(std::move(root), sksg::Scene::AnimatorList());
 
         // Off we go.
         this->updatePaddleStrategy();
@@ -146,7 +153,7 @@ protected:
 
     bool onQuery(SkEvent* evt) override {
         if (SampleCode::TitleQ(*evt)) {
-            SampleCode::TitleR(evt, "SVGPong");
+            SampleCode::TitleR(evt, "SGPong");
             return true;
         }
 
@@ -159,6 +166,10 @@ protected:
                 case ']':
                     fTimeScale = SkTPin(fTimeScale + 0.1f, kTimeScaleMin, kTimeScaleMax);
                     return true;
+                case 'I':
+                    fShowInval = !fShowInval;
+                    fScene->setShowInval(fShowInval);
+                    return true;
                 default:
                     break;
             }
@@ -167,20 +178,23 @@ protected:
     }
 
     void onSizeChange() override {
-        if (fDom) {
-            fDom->setContainerSize(SkSize::Make(this->width(), this->height()));
+        if (fContentMatrix) {
+            fContentMatrix->setMatrix(SkMatrix::MakeRectToRect(SkRect::MakeWH(1, 1),
+                                                               SkRect::MakeIWH(this->width(),
+                                                                               this->height()),
+                                                               SkMatrix::kFill_ScaleToFit));
         }
 
         this->INHERITED::onSizeChange();
     }
 
     void onDrawContent(SkCanvas* canvas) override {
-        fDom->render(canvas);
+        fScene->render(canvas);
     }
 
     bool onAnimate(const SkAnimTimer& timer) override {
         // onAnimate may fire before the first draw.
-        if (fDom) {
+        if (fScene) {
             SkScalar dt = (timer.msec() - fLastTick) * fTimeScale;
             fLastTick = timer.msec();
 
@@ -199,13 +213,9 @@ protected:
 
 private:
     struct Object {
-        void initialize(const SkRRect& rrect, SkColor color,
-                        const SkPoint& p, const SkVector& s) {
-            objectNode = make_svg_rrect(rrect);
-            objectNode->setFill(SkSVGPaint(SkSVGColorType(color)));
-
-            shadowNode = make_svg_rrect(rrect);
-            shadowNode->setFillOpacity(SkSVGNumberType(kShadowOpacity));
+        void initialize(const SkRRect& rrect, const SkPoint& p, const SkVector& s) {
+            objectNode = sksg::RRect::Make(rrect);
+            shadowNode = sksg::RRect::Make(rrect);
 
             pos = p;
             spd = s;
@@ -218,23 +228,21 @@ private:
 
         void updateDom() {
             const SkPoint corner = pos - SkPoint::Make(size.width() / 2, size.height() / 2);
-            objectNode->setX(SkSVGLength(corner.x()));
-            objectNode->setY(SkSVGLength(corner.y()));
+            update_pos(objectNode, corner);
 
             // Simulate parallax shadow for a centered light source.
             SkPoint shadowOffset = pos - SkPoint::Make(kBounds.centerX(), kBounds.centerY());
             shadowOffset.scale(kShadowParallax);
             const SkPoint shadowCorner = corner + shadowOffset;
 
-            shadowNode->setX(SkSVGLength(shadowCorner.x()));
-            shadowNode->setY(SkSVGLength(shadowCorner.y()));
+            update_pos(shadowNode, shadowCorner);
         }
 
-        sk_sp<SkSVGRect> objectNode;
-        sk_sp<SkSVGRect> shadowNode;
-        SkPoint          pos;
-        SkVector         spd;
-        SkSize           size;
+        sk_sp<sksg::RRect> objectNode,
+                           shadowNode;
+        SkPoint            pos;
+        SkVector           spd;
+        SkSize             size;
     };
 
     void enforceConstraints() {
@@ -275,15 +283,17 @@ private:
         catcher->spd.fY = (yIntercept - catcher->pos.fY) / t;
     }
 
-    sk_sp<SkSVGDOM> fDom;
-    Object          fPaddle0, fPaddle1, fBall;
-    SkRandom        fRand;
+    std::unique_ptr<sksg::Scene> fScene;
+    sk_sp<sksg::Matrix>          fContentMatrix;
+    Object                       fPaddle0, fPaddle1, fBall;
+    SkRandom                     fRand;
 
-    SkMSec          fLastTick  = 0;
-    SkScalar        fTimeScale = 1.0f;
+    SkMSec                       fLastTick  = 0;
+    SkScalar                     fTimeScale = 1.0f;
+    bool                         fShowInval = false;
 
     typedef SampleView INHERITED;
 };
 
-static SkView* SVGPongFactory() { return new SVGPongView; }
-static SkViewRegister reg(SVGPongFactory);
+static SkView* PongFactory() { return new PongView; }
+static SkViewRegister reg(PongFactory);
