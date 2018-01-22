@@ -12,6 +12,7 @@
 #if SK_SUPPORT_GPU
 
 #include "GrContext.h"
+#include "GrContextPriv.h"
 #include "GrGpu.h"
 #include "GrTest.h"
 #include "SkBitmap.h"
@@ -94,7 +95,7 @@ protected:
     }
 
     void createYUVTextures(GrContext* context, GrBackendTexture yuvTextures[3]) {
-        GrGpu* gpu = context->getGpu();
+        GrGpu* gpu = context->contextPriv().getGpu();
         if (!gpu) {
             return;
         }
@@ -112,7 +113,7 @@ protected:
 
     void deleteYUVTextures(GrContext* context, GrBackendTexture yuvTextures[3]) {
 
-        GrGpu* gpu = context->getGpu();
+        GrGpu* gpu = context->contextPriv().getGpu();
         if (!gpu) {
             return;
         }

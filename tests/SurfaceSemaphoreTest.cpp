@@ -8,6 +8,7 @@
 #include "SkTypes.h"
 
 #if SK_SUPPORT_GPU
+#include "GrContextPriv.h"
 #include "GrContextFactory.h"
 #include "GrTest.h"
 #include "Test.h"
@@ -132,7 +133,7 @@ void surface_semaphore_test(skiatest::Reporter* reporter,
 #ifdef SK_VULKAN
     if (kVulkan_GrBackend == mainInfo.backend()) {
         // Initialize the secondary semaphore instead of having Ganesh create one internally
-        GrVkGpu* gpu = static_cast<GrVkGpu*>(mainCtx->getGpu());
+        GrVkGpu* gpu = static_cast<GrVkGpu*>(mainCtx->contextPriv().getGpu());
         const GrVkInterface* interface = gpu->vkInterface();
         VkDevice device = gpu->device();
 
@@ -235,7 +236,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(EmptySurfaceSemaphoreTest, reporter, ctxInfo)
     REPORTER_ASSERT(reporter, GrSemaphoresSubmitted::kYes == submitted);
 
     if (kOpenGL_GrBackend == ctxInfo.backend()) {
-        GrGLGpu* gpu = static_cast<GrGLGpu*>(ctx->getGpu());
+        GrGLGpu* gpu = static_cast<GrGLGpu*>(ctx->contextPriv().getGpu());
         const GrGLInterface* interface = gpu->glInterface();
         GrGLsync sync = semaphore.glSync();
         REPORTER_ASSERT(reporter, sync);
@@ -246,7 +247,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(EmptySurfaceSemaphoreTest, reporter, ctxInfo)
 
 #ifdef SK_VULKAN
     if (kVulkan_GrBackend == ctxInfo.backend()) {
-        GrVkGpu* gpu = static_cast<GrVkGpu*>(ctx->getGpu());
+        GrVkGpu* gpu = static_cast<GrVkGpu*>(ctx->contextPriv().getGpu());
         const GrVkInterface* interface = gpu->vkInterface();
         VkDevice device = gpu->device();
         VkQueue queue = gpu->queue();
