@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9fa91474_dbe1836c",
+        "filename": "site/skqp.md",
+        "patchSetId": 3
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-01-22T21:23:03Z",
+      "side": 1,
+      "message": "what is this variable set to?",
+      "range": {
+        "startLine": 37,
+        "startChar": 40,
+        "endLine": 37,
+        "endChar": 55
+      },
+      "revId": "1adc2a80f9d40361a7eb87a4b3fe1c6bf627e59e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
