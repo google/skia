@@ -80,6 +80,7 @@ void GrBackendTextureImageGenerator::ReleaseRefHelper_TextureReleaseProc(void* c
     SkASSERT(refHelper);
 
     refHelper->fBorrowedTexture = nullptr;
+    refHelper->fBorrowingContextID = SK_InvalidGenID;
     refHelper->unref();
 }
 
@@ -125,11 +126,12 @@ sk_sp<GrTextureProxy> GrBackendTextureImageGenerator::onGenerateTexture(
                 if (!resourceProvider) {
                     // If we get here then we never created a texture to pass the refHelper ref off
                     // to. Thus we must unref it ourselves.
+                    refHelper->fBorrowingContextID = SK_InvalidGenID;
                     refHelper->unref();
                     return sk_sp<GrTexture>();
                 }
 
-                if (semaphore && !semaphore->hasSubmittedWait()) {
+                if (semaphore) {
                     resourceProvider->priv().gpu()->waitSemaphore(semaphore);
                 }
 
@@ -155,6 +157,7 @@ sk_sp<GrTextureProxy> GrBackendTextureImageGenerator::onGenerateTexture(
                     tex = resourceProvider->wrapBackendTexture(backendTexture,
                                                                kBorrow_GrWrapOwnership);
                     if (!tex) {
+                        refHelper->fBorrowingContextID = SK_InvalidGenID;
                         refHelper->unref();
                         return sk_sp<GrTexture>();
                     }

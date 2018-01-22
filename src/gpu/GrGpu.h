@@ -377,11 +377,11 @@ public:
     virtual void deleteFence(GrFence) const = 0;
 
     virtual sk_sp<GrSemaphore> SK_WARN_UNUSED_RESULT makeSemaphore(bool isOwned = true) = 0;
-    sk_sp<GrSemaphore> wrapBackendSemaphore(const GrBackendSemaphore& semaphore,
-                                            GrResourceProvider::SemaphoreWrapType wrapType,
-                                            GrWrapOwnership ownership);
-    void insertSemaphore(sk_sp<GrSemaphore> semaphore, bool flush = false);
-    void waitSemaphore(sk_sp<GrSemaphore> semaphore);
+    virtual sk_sp<GrSemaphore> wrapBackendSemaphore(const GrBackendSemaphore& semaphore,
+                                                    GrResourceProvider::SemaphoreWrapType wrapType,
+                                                    GrWrapOwnership ownership) = 0;
+    virtual void insertSemaphore(sk_sp<GrSemaphore> semaphore, bool flush = false) = 0;
+    virtual void waitSemaphore(sk_sp<GrSemaphore> semaphore) = 0;
 
     /**
      *  Put this texture in a safe and known state for use across multiple GrContexts. Depending on
@@ -605,11 +605,6 @@ private:
                                          int* effectiveSampleCnt, SamplePattern*) = 0;
 
     virtual void onFinishFlush(bool insertedSemaphores) = 0;
-
-    virtual void onInsertSemaphore(sk_sp<GrSemaphore> semaphore, bool flush = false) = 0;
-    virtual void onWaitSemaphore(sk_sp<GrSemaphore> semaphore) = 0;
-    virtual sk_sp<GrSemaphore> onWrapBackendSemaphore(const GrBackendSemaphore& semaphore,
-                                                      GrWrapOwnership ownership) = 0;
 
     virtual void onDumpJSON(SkJSONWriter*) const {}
 

@@ -67,6 +67,11 @@ public:
     sk_sp<GrSemaphore> SK_WARN_UNUSED_RESULT makeSemaphore(bool isOwned) override {
         return nullptr;
     }
+    sk_sp<GrSemaphore> wrapBackendSemaphore(const GrBackendSemaphore& semaphore,
+                                            GrResourceProvider::SemaphoreWrapType wrapType,
+                                            GrWrapOwnership ownership) override { return nullptr; }
+    void insertSemaphore(sk_sp<GrSemaphore> semaphore, bool flush) override {}
+    void waitSemaphore(sk_sp<GrSemaphore> semaphore) override {}
     sk_sp<GrSemaphore> prepareTextureForCrossContextUsage(GrTexture*) override { return nullptr; }
 
 private:
@@ -128,11 +133,6 @@ private:
     void onResolveRenderTarget(GrRenderTarget* target, GrSurfaceOrigin) override { return; }
 
     void onFinishFlush(bool insertedSemaphores) override {}
-
-    sk_sp<GrSemaphore> onWrapBackendSemaphore(const GrBackendSemaphore& semaphore,
-                                            GrWrapOwnership ownership) override { return nullptr; }
-    void onInsertSemaphore(sk_sp<GrSemaphore> semaphore, bool flush) override {}
-    void onWaitSemaphore(sk_sp<GrSemaphore> semaphore) override {}
 
     GrStencilAttachment* createStencilAttachmentForRenderTarget(const GrRenderTarget*,
                                                                 int width,

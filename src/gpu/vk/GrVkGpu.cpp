@@ -2162,16 +2162,17 @@ sk_sp<GrSemaphore> SK_WARN_UNUSED_RESULT GrVkGpu::makeSemaphore(bool isOwned) {
     return GrVkSemaphore::Make(this, isOwned);
 }
 
-sk_sp<GrSemaphore> GrVkGpu::onWrapBackendSemaphore(const GrBackendSemaphore& semaphore,
-                                                   GrWrapOwnership ownership) {
-    return GrVkSemaphore::MakeWrapped(this, semaphore.vkSemaphore(), ownership);
+sk_sp<GrSemaphore> GrVkGpu::wrapBackendSemaphore(const GrBackendSemaphore& semaphore,
+                                                 GrResourceProvider::SemaphoreWrapType wrapType,
+                                                 GrWrapOwnership ownership) {
+    return GrVkSemaphore::MakeWrapped(this, semaphore.vkSemaphore(), wrapType, ownership);
 }
 
-void GrVkGpu::onInsertSemaphore(sk_sp<GrSemaphore> semaphore, bool flush) {
+void GrVkGpu::insertSemaphore(sk_sp<GrSemaphore> semaphore, bool flush) {
     GrVkSemaphore* vkSem = static_cast<GrVkSemaphore*>(semaphore.get());
 
-    if (vkSem) {
-        const GrVkSemaphore::Resource* resource = vkSem->getResource();
+    GrVkSemaphore::Resource* resource = vkSem->getResource();
+    if (resource->shouldSignal()) {
         resource->ref();
         fSemaphoresToSignal.push_back(resource);
     }
@@ -2181,13 +2182,14 @@ void GrVkGpu::onInsertSemaphore(sk_sp<GrSemaphore> semaphore, bool flush) {
     }
 }
 
-void GrVkGpu::onWaitSemaphore(sk_sp<GrSemaphore> semaphore) {
+void GrVkGpu::waitSemaphore(sk_sp<GrSemaphore> semaphore) {
     GrVkSemaphore* vkSem = static_cast<GrVkSemaphore*>(semaphore.get());
-    SkASSERT(vkSem);
 
-    const GrVkSemaphore::Resource* resource = vkSem->getResource();
-    resource->ref();
-    fSemaphoresToWaitOn.push_back(resource);
+    GrVkSemaphore::Resource* resource = vkSem->getResource();
+    if (resource->shouldWait()) {
+        resource->ref();
+        fSemaphoresToWaitOn.push_back(resource);
+    }
 }
 
 sk_sp<GrSemaphore> GrVkGpu::prepareTextureForCrossContextUsage(GrTexture* texture) {
