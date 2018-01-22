@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "035a50a9_1b886797",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1048,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-01-22T13:44:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f7791564_448b7bc3",
+      "revId": "57b990d4682490e40e7a58fe636ce03d5c2ebeb3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9d48a5cb_fcbd813c",
         "filename": "src/gpu/ops/GrTextureOp.cpp",
         "patchSetId": 3
@@ -30,6 +48,24 @@
       "writtenOn": "2018-01-20T14:37:50Z",
       "side": 1,
       "message": "Seems like it would be cleaner to just make the edge equations fragment uniforms, rather than vertex uniforms, in this case?",
+      "revId": "57b990d4682490e40e7a58fe636ce03d5c2ebeb3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "10ba7748_be495c67",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 196,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-01-22T13:44:04Z",
+      "side": 1,
+      "message": "So this never actually uses uniforms. In both cases the edges are vertex attributes. This means each is specified 4x but allows for batching. I\u0027d like to try an instanced version to see if it improves perf on GPUs that support it.",
+      "parentUuid": "9d48a5cb_fcbd813c",
       "revId": "57b990d4682490e40e7a58fe636ce03d5c2ebeb3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
