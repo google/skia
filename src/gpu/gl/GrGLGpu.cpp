@@ -1865,6 +1865,8 @@ void GrGLGpu::setupGeometry(const GrPrimitiveProcessor& primProc,
                             int baseVertex,
                             const GrBuffer* instanceBuffer,
                             int baseInstance) {
+    using EnablePrimitiveRestart = GrGLAttribArrayState::EnablePrimitiveRestart;
+
     GrGLAttribArrayState* attribState;
     if (indexBuffer) {
         SkASSERT(indexBuffer && !indexBuffer->isMapped());
@@ -1893,7 +1895,8 @@ void GrGLGpu::setupGeometry(const GrPrimitiveProcessor& primProc,
     }
 
     int numAttribs = primProc.numAttribs();
-    attribState->enableVertexArrays(this, numAttribs);
+    auto enableRestart = EnablePrimitiveRestart(primProc.willUsePrimitiveRestart() && indexBuffer);
+    attribState->enableVertexArrays(this, numAttribs, enableRestart);
 
     for (int i = 0; i < numAttribs; ++i) {
         using InputRate = GrPrimitiveProcessor::Attribute::InputRate;
