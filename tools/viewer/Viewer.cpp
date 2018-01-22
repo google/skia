@@ -819,12 +819,8 @@ void Viewer::drawSlide(SkCanvas* canvas) {
 }
 
 void Viewer::onBackendCreated() {
-    this->updateTitle();
-    this->updateUIState();
     this->setupCurrentSlide();
-    fStatsLayer.resetMeasurements();
     fWindow->show();
-    fWindow->inval();
 }
 
 void Viewer::onPaint(SkCanvas* canvas) {

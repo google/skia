@@ -147,17 +147,17 @@ void GrContext::printGpuStats() const {
     SkDebugf("%s", out.c_str());
 }
 
-sk_sp<SkImage> GrContext::getFontAtlasImage_ForTesting(GrMaskFormat format) {
+sk_sp<SkImage> GrContext::getFontAtlasImage_ForTesting(GrMaskFormat format, uint32_t index) {
     GrAtlasGlyphCache* cache = this->contextPriv().getAtlasGlyphCache();
 
     const sk_sp<GrTextureProxy>* proxies = cache->getProxies(format);
-    if (!proxies[0]) {
+    if (index >= cache->getAtlasPageCount(format) || !proxies[index]) {
         return nullptr;
     }
 
-    SkASSERT(proxies[0]->priv().isExact());
+    SkASSERT(proxies[index]->priv().isExact());
     sk_sp<SkImage> image(new SkImage_Gpu(this, kNeedNewImageUniqueID, kPremul_SkAlphaType,
-                                         std::move(proxies[0]), nullptr, SkBudgeted::kNo));
+                                         std::move(proxies[index]), nullptr, SkBudgeted::kNo));
     return image;
 }
 
