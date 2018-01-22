@@ -111,6 +111,9 @@ private:
 
 DEF_GPUTEST_FOR_ALL_CONTEXTS(VertexAttributeCount, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
+#if GR_GPU_STATS
+    GrGpu* gpu = context->contextPriv().getGpu();
+#endif
 
     sk_sp<GrRenderTargetContext> renderTargetContext(context->makeDeferredRenderTargetContext(
                                                                      SkBackingFit::kApprox,
@@ -128,23 +131,23 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(VertexAttributeCount, reporter, ctxInfo) {
     context->flush();
     context->resetGpuStats();
 #if GR_GPU_STATS
-    REPORTER_ASSERT(reporter, context->getGpu()->stats()->numDraws() == 0);
-    REPORTER_ASSERT(reporter, context->getGpu()->stats()->numFailedDraws() == 0);
+    REPORTER_ASSERT(reporter, gpu->stats()->numDraws() == 0);
+    REPORTER_ASSERT(reporter, gpu->stats()->numFailedDraws() == 0);
 #endif
     GrPaint grPaint;
     // This one should succeed.
     renderTargetContext->priv().testingOnly_addDrawOp(Op::Make(attribCnt));
     context->flush();
 #if GR_GPU_STATS
-    REPORTER_ASSERT(reporter, context->getGpu()->stats()->numDraws() == 1);
-    REPORTER_ASSERT(reporter, context->getGpu()->stats()->numFailedDraws() == 0);
+    REPORTER_ASSERT(reporter, gpu->stats()->numDraws() == 1);
+    REPORTER_ASSERT(reporter, gpu->stats()->numFailedDraws() == 0);
 #endif
     context->resetGpuStats();
     renderTargetContext->priv().testingOnly_addDrawOp(Op::Make(attribCnt + 1));
     context->flush();
 #if GR_GPU_STATS
-    REPORTER_ASSERT(reporter, context->getGpu()->stats()->numDraws() == 0);
-    REPORTER_ASSERT(reporter, context->getGpu()->stats()->numFailedDraws() == 1);
+    REPORTER_ASSERT(reporter, gpu->stats()->numDraws() == 0);
+    REPORTER_ASSERT(reporter, gpu->stats()->numFailedDraws() == 1);
 #endif
 }
 #endif

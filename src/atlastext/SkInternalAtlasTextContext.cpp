@@ -7,6 +7,7 @@
 
 #include "SkInternalAtlasTextContext.h"
 #include "GrContext.h"
+#include "GrContextPriv.h"
 #include "SkAtlasTextContext.h"
 #include "SkAtlasTextRenderer.h"
 #include "text/GrAtlasGlyphCache.h"
@@ -36,17 +37,20 @@ SkInternalAtlasTextContext::SkInternalAtlasTextContext(sk_sp<SkAtlasTextRenderer
 
 SkInternalAtlasTextContext::~SkInternalAtlasTextContext() {
     if (fDistanceFieldAtlas.fProxy) {
-        SkASSERT(1 == fGrContext->getAtlasGlyphCache()->getAtlasPageCount(kA8_GrMaskFormat));
+#ifdef SK_DEBUG
+        auto atlasGlyphCache = fGrContext->contextPriv().getAtlasGlyphCache();
+        SkASSERT(1 == atlasGlyphCache->getAtlasPageCount(kA8_GrMaskFormat));
+#endif
         fRenderer->deleteTexture(fDistanceFieldAtlas.fTextureHandle);
     }
 }
 
 GrAtlasGlyphCache* SkInternalAtlasTextContext::atlasGlyphCache() {
-    return fGrContext->getAtlasGlyphCache();
+    return fGrContext->contextPriv().getAtlasGlyphCache();
 }
 
 GrTextBlobCache* SkInternalAtlasTextContext::textBlobCache() {
-    return fGrContext->getTextBlobCache();
+    return fGrContext->contextPriv().getTextBlobCache();
 }
 
 GrDeferredUploadToken SkInternalAtlasTextContext::addInlineUpload(
@@ -80,7 +84,7 @@ void SkInternalAtlasTextContext::recordDraw(const void* srcVertexData, int glyph
 }
 
 void SkInternalAtlasTextContext::flush() {
-    auto* atlasGlyphCache = fGrContext->getAtlasGlyphCache();
+    auto* atlasGlyphCache = fGrContext->contextPriv().getAtlasGlyphCache();
     if (!fDistanceFieldAtlas.fProxy) {
         SkASSERT(1 == atlasGlyphCache->getAtlasPageCount(kA8_GrMaskFormat));
         fDistanceFieldAtlas.fProxy = atlasGlyphCache->getProxies(kA8_GrMaskFormat)->get();
