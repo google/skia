@@ -27,6 +27,18 @@ improve performance. Matrix is not thread safe unless getType is called first.
 #Table ##
 ##
 
+#Subtopic Constructors
+#Table
+#Legend
+# name                   # description                      ##
+#Legend ##
+# MakeAll                # Constructs all nine values. ##
+# MakeRectToRect         # Constructs from source Rect to destination Rect. ##
+# MakeScale              # Constructs from scale in x and y. ##
+# MakeTrans              # Constructs from translate in x and y. ##
+#Table ##
+#Subtopic ##
+
 #Subtopic Operators
 #Table
 #Legend
@@ -34,8 +46,8 @@ improve performance. Matrix is not thread safe unless getType is called first.
 #Legend ##
 # operator!=(const SkMatrix& a, const SkMatrix& b) # Returns true if members are unequal. ##
 # operator==(const SkMatrix& a, const SkMatrix& b) # Returns true if members are equal. ##
-# operator[](int index)_const                      # Returns Matrix value. ##
 # operator[](int index)                            # Returns writable reference to Matrix value. ##
+# operator[](int index)_const                      # Returns Matrix value. ##
 #Table ##
 #Subtopic ##
 

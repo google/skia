@@ -12,72 +12,93 @@ its top, it is considered empty.
 #Topic Overview
 
 #Subtopic Subtopics
-#ToDo manually add subtopics ##
 #Table
 #Legend
-# topics # description ##
+# name                   # description                                 ##
 #Legend ##
+# Constructors           # list of functions that construct SkPath     ##
+# Member_Functions       # list of static functions and member methods ##
+# Operators              # operator overloading methods                ##
 #Table ##
 ##
+
+#Subtopic Constructors
+#Table
+#Legend
+# name                   # description                      ##
+#Legend ##
+# MakeEmpty              # returns bounds of (0, 0, 0, 0) ##
+# MakeLTRB               # constructs from int left, top, right, bottom ##
+# MakeLargest            # deprecated ##
+# MakeSize               # constructs from ISize returning (0, 0, width, height) ##
+# MakeWH                 # constructs from int input returning (0, 0, width, height) ##
+# MakeXYWH               # constructs from int input returning (x, y, width, height) ##
+# makeInset              # constructs from sides moved symmetrically about the center ##
+# makeOffset             # constructs from translated sides ##
+# makeOutset             # constructs from sides moved symmetrically about the center ##
+# makeSorted             # constructs, ordering sides from smaller to larger ##
+#Table ##
+#Subtopic ##
 
 #Subtopic Operators
 #Table
 #Legend
-# description                                         # function ##
+# name                                                # description ##
 #Legend ##
-# bool operator!=(const SkIRect& a, const SkIRect& b) # Returns true if members are unequal. ##
-# bool operator==(const SkIRect& a, const SkIRect& b) # Returns true if members are equal. ##
+# bool operator!=(const SkIRect& a, const SkIRect& b) # returns true if members are unequal ##
+# bool operator==(const SkIRect& a, const SkIRect& b) # returns true if members are equal ##
 #Table ##
 #Subtopic ##
 
 #Subtopic Member_Functions
 #Table
 #Legend
-# description            # function ##
+# name                   # description ##
 #Legend ##
-# EmptyIRect             # Returns immutable bounds of (0, 0, 0, 0). ##
-# Intersects             # Returns true if areas overlap. ##
-# IntersectsNoEmptyCheck # Returns true if areas overlap. Skips empty check. ##
-# MakeEmpty              # Returns bounds of (0, 0, 0, 0). ##
-# MakeLTRB               # Constructs from int left, top, right, bottom. ##
-# MakeSize               # Constructs from ISize returning (0, 0, width, height). ##
-# MakeWH                 # Constructs from int input returning (0, 0, width, height). ##
-# MakeXYWH               # Constructs from int input returning (x, y, width, height). ##
-# bottom()               # Returns larger bounds in y, if sorted. ##
-# centerX                # Returns midpoint in x. ##
-# centerY                # Returns midpoint in y. ##
-# contains()             # Returns true if points are equal or inside. ##
-# containsNoEmptyCheck   # Returns true if points are equal or inside. Skips empty check. ##
-# height()               # Returns span in y. ##
-# height64()             # Returns span in y as int64_t. ##
-# inset()                # Moves the sides symmetrically about the center. ##
-# intersect              # Sets to shared area; returns true if not empty. ##
-# intersectNoEmptyCheck  # Sets to shared area; returns true if not empty. Skips empty check. ##
-# is16Bit                # Returns true if members fit in 16-bit word. ##
-# isEmpty                # Returns true if width or height are zero or negative or they exceed int32_t. ##
-# isEmpty64              # Returns true if width or height are zero or negative. ##
-# join()                 # Sets to union of bounds. ##
-# left()                 # Returns smaller bounds in x, if sorted. ##
-# makeInset              # Constructs from sides moved symmetrically about the center. ##
-# makeOffset             # Constructs from translated sides. ##
-# makeOutset             # Constructs from sides moved symmetrically about the center. ##
-# makeSorted             # Constructs, ordering sides from smaller to larger. ##
-# offset()               # Translates sides without changing width and height. ##
-# offsetTo               # Translates to (x, y) without changing width and height. ##
-# outset()               # Moves the sides symmetrically about the center. ##
-# quickReject            # Returns true if rectangles do not intersect. ##
-# right()                # Returns larger bounds in x, if sorted. ##
-# set()                  # Sets to (left, top, right, bottom). ##
-# setEmpty               # Sets to (0, 0, 0, 0). ##
-# setLTRB                # Sets to SkScalar input (left, top, right, bottom). ##
-# setXYWH                # Sets to (x, y, width, height). ##
-# size()                 # Returns ISize (width, height). ##
-# sort()                 # Orders sides from smaller to larger. ##
-# top()                  # Returns smaller bounds in y, if sorted. ##
-# width()                # Returns span in x. ##
-# width64()              # Returns span in y as int64_t. ##
-# x()                    # Returns bounds left. ##
-# y()                    # Returns bounds top. ##
+# EmptyIRect             # returns immutable bounds of (0, 0, 0, 0) ##
+# Intersects             # returns true if areas overlap ##
+# IntersectsNoEmptyCheck # returns true if areas overlap skips empty check ##
+# MakeEmpty              # returns bounds of (0, 0, 0, 0) ##
+# MakeLTRB               # constructs from int left, top, right, bottom ##
+# MakeLargest            # deprecated ##
+# MakeSize               # constructs from ISize returning (0, 0, width, height) ##
+# MakeWH                 # constructs from int input returning (0, 0, width, height) ##
+# MakeXYWH               # constructs from int input returning (x, y, width, height) ##
+# bottom()               # returns larger bounds in y, if sorted ##
+# centerX                # returns midpoint in x ##
+# centerY                # returns midpoint in y ##
+# contains()             # returns true if points are equal or inside ##
+# containsNoEmptyCheck   # returns true if points are equal or inside skips empty check ##
+# height()               # returns span in y ##
+# height64               # returns span in y as int64_t ##
+# inset()                # moves the sides symmetrically about the center ##
+# intersect              # sets to shared area; returns true if not empty ##
+# intersectNoEmptyCheck  # sets to shared area; returns true if not empty skips empty check ##
+# is16Bit                # returns true if members fit in 16-bit word ##
+# isEmpty                # returns true if width or height are zero or negative or they exceed int32_t ##
+# isEmpty64              # returns true if width or height are zero or negative ##
+# join()                 # sets to union of bounds ##
+# left()                 # returns smaller bounds in x, if sorted ##
+# makeInset              # constructs from sides moved symmetrically about the center ##
+# makeOffset             # constructs from translated sides ##
+# makeOutset             # constructs from sides moved symmetrically about the center ##
+# makeSorted             # constructs, ordering sides from smaller to larger ##
+# offset()               # translates sides without changing width and height ##
+# offsetTo               # translates to (x, y) without changing width and height ##
+# outset()               # moves the sides symmetrically about the center ##
+# quickReject            # returns true if rectangles do not intersect ##
+# right()                # returns larger bounds in x, if sorted ##
+# set()                  # sets to (left, top, right, bottom) ##
+# setEmpty               # sets to (0, 0, 0, 0) ##
+# setLTRB                # sets to SkScalar input (left, top, right, bottom) ##
+# setXYWH                # sets to (x, y, width, height) ##
+# size()                 # returns ISize (width, height) ##
+# sort()                 # orders sides from smaller to larger ##
+# top()                  # returns smaller bounds in y, if sorted ##
+# width()                # returns span in x ##
+# width64                # returns span in y as int64_t ##
+# x()                    # returns bounds left ##
+# y()                    # returns bounds top ##
 #Table ##
 #Subtopic ##
 

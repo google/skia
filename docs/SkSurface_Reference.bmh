@@ -18,41 +18,62 @@ of the requested dimensions are zero, then nullptr will be returned.
 #Legend
 # topics # description ##
 #Legend ##
+# Constructors     # functions that construct SkIPoint16  ##
+# Member_Functions # static functions and member methods  ##
 #Table ##
 ##
+
+#Subtopic Constructors
+#Table
+#Legend
+# name                                 # description                     ##
+#Legend ##
+# MakeFromBackendRenderTarget          # creates Surface from GPU memory buffer ##
+# MakeFromBackendTexture               # creates Surface from GPU-backed texture ##
+# MakeFromBackendTextureAsRenderTarget # creates Surface from GPU-backed texture ##
+# MakeNull                             # creates Surface without backing pixels ##
+# MakeRaster                           # creates Surface from SkImageInfo ##
+# MakeRasterDirect                     # creates Surface from SkImageInfo and Pixel_Storage ##
+# MakeRasterDirectReleaseProc          # creates Surface from SkImageInfo and Pixel_Storage ##
+# MakeRasterN32Premul                  # creates Surface from width, height matching output ##
+# MakeRenderTarget                     # creates Surface pointing to new GPU memory buffer ##
+# SkCanvas::makeSurface                # creates Surface matching Canvas Image_Info, Surface_Properties ##
+# makeSurface                          # creates a compatible Surface ##
+#Table ##
+#Subtopic ##
 
 #Subtopic Member_Functions
 #Table
 #Legend
 # description                          # function ##
 #Legend ##
-# MakeFromBackendRenderTarget          # Creates Surface from GPU memory buffer. ##
-# MakeFromBackendTexture               # Creates Surface from GPU-backed texture. ##
-# MakeFromBackendTextureAsRenderTarget # Creates Surface from GPU-backed texture. ##
-# MakeNull                             # Creates Surface without backing pixels. ##
-# MakeRaster                           # Creates Surface from SkImageInfo. ##
-# MakeRasterDirect                     # Creates Surface from SkImageInfo and Pixel_Storage. ##
-# MakeRasterDirectReleaseProc          # Creates Surface from SkImageInfo and Pixel_Storage. ##
-# MakeRasterN32Premul                  # Creates Surface from width, height matching output. ##
-# MakeRenderTarget                     # Creates Surface pointing to new GPU memory buffer. ##
-# characterize()                       # Set up Surface_Characterization for threaded pre-processing. ##
-# draw()                               # Draws Surface contents to canvas. ##
-# flush()                              # Resolve pending I/O. ##
-# flushAndSignalSemaphores             # Resolve pending I/O, and signal. ##
-# generationID                         # Returns unique ID. ##
-# getCanvas                            # Returns Canvas that draws into Surface. ##
-# getRenderTargetHandle                # Returns the GPU reference to render target. ##
-# getTextureHandle                     # Returns the GPU reference to texture. ##
-# height()                             # Returns pixel row count. ##
-# makeImageSnapshot                    # Returns Image capturing Surface contents. ##
-# makeSurface                          # Returns a compatible Surface. ##
-# notifyContentWillChange              # Notifies that contents will be changed outside of Skia. ##
-# peekPixels                           # Copies Surface parameters to Pixmap. ##
-# prepareForExternalIO                 # To be deprecated. ##
-# props()                              # Returns Surface_Properties. ##
-# readPixels                           # Copies Rect of pixels. ##
-# wait()                               # Pause commands until signaled. ##
-# width()                              # Returns pixel column count. ##
+# MakeFromBackendRenderTarget          # creates Surface from GPU memory buffer ##
+# MakeFromBackendTexture               # creates Surface from GPU-backed texture ##
+# MakeFromBackendTextureAsRenderTarget # creates Surface from GPU-backed texture ##
+# MakeNull                             # creates Surface without backing pixels ##
+# MakeRaster                           # creates Surface from SkImageInfo ##
+# MakeRasterDirect                     # creates Surface from SkImageInfo and Pixel_Storage ##
+# MakeRasterDirectReleaseProc          # creates Surface from SkImageInfo and Pixel_Storage ##
+# MakeRasterN32Premul                  # creates Surface from width, height matching output ##
+# MakeRenderTarget                     # creates Surface pointing to new GPU memory buffer ##
+# characterize()                       # sets Surface_Characterization for threaded pre-processing ##
+# draw()                               # draws Surface contents to canvas ##
+# flush()                              # resolve pending I/O ##
+# flushAndSignalSemaphores             # resolve pending I/O, and signal ##
+# generationID                         # returns unique ID ##
+# getCanvas                            # returns Canvas that draws into Surface ##
+# getRenderTargetHandle                # returns the GPU reference to render target ##
+# getTextureHandle                     # returns the GPU reference to texture ##
+# height()                             # returns pixel row count ##
+# makeImageSnapshot                    # creates Image capturing Surface contents ##
+# makeSurface                          # creates a compatible Surface ##
+# notifyContentWillChange              # notifies that contents will be changed outside of Skia ##
+# peekPixels                           # copies Surface parameters to Pixmap ##
+# prepareForExternalIO                 # to be deprecated ##
+# props()                              # returns Surface_Properties ##
+# readPixels                           # copies Rect of pixels ##
+# wait()                               # rause commands until signaled ##
+# width()                              # returns pixel column count ##
 #Table ##
 #Subtopic ##
 

@@ -31,7 +31,7 @@
         "SkAutoCanvasRestore_restore": {
     "code": "void draw(SkCanvas* canvas) {\n    for (bool callRestore : { false, true } ) {\n        for (bool saveCanvas : {false, true} ) {\n            SkAutoCanvasRestore autoRestore(canvas, saveCanvas);\n            if (!saveCanvas) {\n                canvas->save();\n            }\n            SkDebugf(\"saveCanvas: %s  before restore: %d\\n\",\n                   saveCanvas ? \"true\" : \"false\", canvas->getSaveCount());\n            if (callRestore) autoRestore.restore();\n            SkDebugf(\"saveCanvas: %s  after restore: %d\\n\",\n                   saveCanvas ? \"true\" : \"false\", canvas->getSaveCount());\n        }\n    }\n    SkDebugf(\"final count: %d\\n\", canvas->getSaveCount());\n}",
     "hash": "9f459b218ec079c1ada23f4412968f9a",
-    "file": "SkCanvas_Reference",
+    "file": "SkAutoCanvasRestore_Reference",
     "name": "SkAutoCanvasRestore::restore()",
         "stdout": "saveCanvas: false  before restore: 2\\nsaveCanvas: false  after restore: 2\\nsaveCanvas: true  before restore: 2\\nsaveCanvas: true  after restore: 2\\nsaveCanvas: false  before restore: 2\\nsaveCanvas: false  after restore: 1\\nsaveCanvas: true  before restore: 2\\nsaveCanvas: true  after restore: 1\\nfinal count: 1\\n"
     },
@@ -1470,13 +1470,6 @@
     "name": "SkPaint::getPathEffect",
         "stdout": "nullptr == path effect\\nnullptr != path effect\\n"
     },
-        "SkPaint_getRasterizer": {
-    "code": "class DummyRasterizer : public SkRasterizer {\npublic:\n    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(DummyRasterizer)\n};\nsk_sp<SkFlattenable> DummyRasterizer::CreateProc(SkReadBuffer&) {\n    return sk_make_sp<DummyRasterizer>();\n}\n\nvoid draw(SkCanvas* canvas) {\n    SkPaint paint;\n    DummyRasterizer dummy;\n    SkDebugf(\"nullptr %c= rasterizer\\n\", paint.getRasterizer() ? '!' : '=');\n    paint.setRasterizer(sk_make_sp<DummyRasterizer>());\n    SkDebugf(\"nullptr %c= rasterizer\\n\", paint.getRasterizer() ? '!' : '=');\n}\n",
-    "hash": "0707d407c3a14388b107af8ae5873e55",
-    "file": "SkPaint_Reference",
-    "name": "SkPaint::getRasterizer",
-        "stdout": "nullptr == rasterizer\\nnullptr != rasterizer\\n"
-    },
         "SkPaint_getShader": {
     "code": "void draw(SkCanvas* canvas) {\n   SkPaint paint;\n   SkDebugf(\"nullptr %c= shader\\n\", paint.getShader() ? '!' : '=');\n   paint.setShader(SkShader::MakeEmptyShader());\n   SkDebugf(\"nullptr %c= shader\\n\", paint.getShader() ? '!' : '=');\n}\n",
     "hash": "09f15b9fd88882850da2d235eb86292f",
@@ -1700,13 +1693,6 @@
     "file": "SkPaint_Reference",
     "name": "SkPaint::refPathEffect",
         "stdout": "path effect unique: true\\npath effect unique: false\\n"
-    },
-        "SkPaint_refRasterizer": {
-    "code": "void draw(SkCanvas* canvas) {\n   SkLayerRasterizer::Builder layerBuilder;\n   SkPaint paint1, paint2;\n   layerBuilder.addLayer(paint2);\n   paint1.setRasterizer(layerBuilder.detach());\n   SkDebugf(\"rasterizer unique: %s\\n\", paint1.getRasterizer()->unique() ? \"true\" : \"false\");\n   paint2.setRasterizer(paint1.refRasterizer());\n   SkDebugf(\"rasterizer unique: %s\\n\", paint1.getRasterizer()->unique() ? \"true\" : \"false\");\n}\n",
-    "hash": "c0855ce19a33cb7e5747750ef341b7b3",
-    "file": "SkPaint_Reference",
-    "name": "SkPaint::refRasterizer",
-        "stdout": "rasterizer unique: true\\nrasterizer unique: false\\n"
     },
         "SkPaint_refShader": {
     "code": "void draw(SkCanvas* canvas) {\n   SkPaint paint1, paint2;\n   paint1.setShader(SkShader::MakeEmptyShader());\n   SkDebugf(\"shader unique: %s\\n\", paint1.getShader()->unique() ? \"true\" : \"false\");\n   paint2.setShader(paint1.refShader());\n   SkDebugf(\"shader unique: %s\\n\", paint1.getShader()->unique() ? \"true\" : \"false\");\n}\n",
@@ -3331,14 +3317,6 @@
     "file": "SkPaint_Reference",
     "name": "Path_Effect_Methods"
 },
-    "Paint_Rasterizer_Methods": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkLayerRasterizer::Builder layerBuilder;\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    paint.setStyle(SkPaint::kStroke_Style);\n    paint.setStrokeWidth(1);\n    layerBuilder.addLayer(paint);\n    paint.setAlpha(0x10);\n    paint.setStyle(SkPaint::kFill_Style);\n    paint.setBlendMode(SkBlendMode::kSrc);\n    layerBuilder.addLayer(paint);\n    paint.reset();\n    paint.setAntiAlias(true);\n    paint.setTextSize(50);\n    paint.setRasterizer(layerBuilder.detach());\n    canvas->drawString(\"outline\", 10, 50, paint);\n}\n",
-    "width": 256,
-    "height": 64,
-    "hash": "e63f8a50996699342a14c6e54d684108",
-    "file": "SkPaint_Reference",
-    "name": "Rasterizer_Methods"
-},
     "Paint_Shader_Methods": {
     "code": "void draw(SkCanvas* canvas) {\n   SkPaint paint;\n   SkPoint center = { 50, 50 };\n   SkScalar radius = 50;\n   const SkColor colors[] = { 0xFFFFFFFF, 0xFF000000 };\n   paint.setShader(SkGradientShader::MakeRadial(center, radius, colors,\n        nullptr, SK_ARRAY_COUNT(colors), SkShader::kClamp_TileMode));\n   for (SkScalar a : { 0.3f, 0.6f, 1.0f } ) {\n       paint.setAlpha((int) (a * 255));\n       canvas->drawCircle(center.fX, center.fY, radius, paint);\n       canvas->translate(70, 70);\n   }\n}\n",
     "width": 256,
@@ -3528,7 +3506,7 @@
     "width": 256,
     "height": 128,
     "hash": "466ef576b88e29d7252422db7adeed1c",
-    "file": "SkCanvas_Reference",
+    "file": "SkAutoCanvasRestore_Reference",
     "name": "SkAutoCanvasRestore::SkAutoCanvasRestore(SkCanvas* canvas, bool doSave)"
 },
     "SkBitmap_allocN32Pixels": {
@@ -5746,14 +5724,6 @@
     "hash": "52dd55074ca0b7d520d04e750ca2a0d7",
     "file": "SkPaint_Reference",
     "name": "SkPaint::setPathEffect"
-},
-    "SkPaint_setRasterizer": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkLayerRasterizer::Builder layerBuilder;\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    paint.setStyle(SkPaint::kStroke_Style);\n    paint.setStrokeWidth(2);\n    layerBuilder.addLayer(paint);\n    paint.reset();\n    paint.setAntiAlias(true);\n    paint.setTextSize(50);\n    paint.setMaskFilter(SkBlurMaskFilter::Make(kNormal_SkBlurStyle, 3));\n    paint.setRasterizer(layerBuilder.detach());\n    canvas->drawString(\"blurry out\", 0, 50, paint);\n}",
-    "width": 256,
-    "height": 64,
-    "hash": "aec8ed9296c1628073086a33039f62b7",
-    "file": "SkPaint_Reference",
-    "name": "SkPaint::setRasterizer"
 },
     "SkPaint_setShader": {
     "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setColor(SK_ColorBLUE);\n    paint.setShader(SkShader::MakeColorShader(SK_ColorRED));\n    canvas->drawRect(SkRect::MakeWH(40, 40), paint);\n    paint.setShader(nullptr);\n    canvas->translate(50, 0);\n    canvas->drawRect(SkRect::MakeWH(40, 40), paint);\n}\n",

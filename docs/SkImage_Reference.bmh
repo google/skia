@@ -49,6 +49,37 @@ drawing.
 #Table ##
 ##
 
+#Subtopic Constructors
+#Table
+#Legend
+# name                                 # description                     ##
+#Legend ##
+# MakeBackendTextureFromSkImage    # Creates GPU_Texture from Image. ##
+# MakeCrossContextFromEncoded      # Creates Image from encoded data, and uploads to GPU. ##
+# MakeCrossContextFromPixmap       # Creates Image from Pixmap, and uploads to GPU. ##
+# MakeFromAHardwareBuffer          # Creates Image from Android hardware buffer. ##
+# MakeFromAdoptedTexture           # Creates Image from GPU_Texture, managed internally. ##
+# MakeFromBitmap                   # Creates Image from Bitmap, sharing or copying pixels. ##
+# MakeFromDeferredTextureImageData # To be deprecated. ##
+# MakeFromEncoded                  # Creates Image from encoded data. ##
+# MakeFromGenerator                # Creates Image from a stream of data. ##
+# MakeFromNV12TexturesCopy         # Creates Image from YUV_ColorSpace data in two planes. ##
+# MakeFromPicture                  # Creates Image from Picture. ##
+# MakeFromRaster                   # Creates Image from Pixmap, with release. ##
+# MakeFromTexture                  # Creates Image from GPU_Texture, managed externally. ##
+# MakeFromYUVTexturesCopy          # Creates Image from YUV_ColorSpace data in three planes. ##
+# MakeRasterCopy                   # Creates Image from Pixmap and copied pixels. ##
+# MakeRasterData                   # Creates Image from Image_Info and shared pixels. ##
+# SkSurface::makeImageSnapshot     # Creates Image capturing Surface contents. ##
+# makeColorSpace                   # Creates Image matching Color_Space if possible. ##
+# makeNonTextureImage              # Creates Image without dependency on GPU_Texture. ##
+# makeRasterImage                  # Creates Image compatible with Raster_Surface if possible. ##
+# makeSubset                       # Creates Image containing part of original. ##
+# makeTextureImage                 # Creates Image matching Color_Space if possible. ##
+# makeWithFilter                   # Creates filtered, clipped Image. ##
+#Table ##
+#Subtopic ##
+
 #Subtopic Member_Functions
 #Table
 #Legend
@@ -56,10 +87,11 @@ drawing.
 #Legend ##
 # MakeBackendTextureFromSkImage    # Creates GPU_Texture from Image. ##
 # MakeCrossContextFromEncoded      # Creates Image from encoded data, and uploads to GPU. ##
+# MakeCrossContextFromPixmap       # Creates Image from Pixmap, and uploads to GPU. ##
 # MakeFromAHardwareBuffer          # Creates Image from Android hardware buffer. ##
 # MakeFromAdoptedTexture           # Creates Image from GPU_Texture, managed internally. ##
 # MakeFromBitmap                   # Creates Image from Bitmap, sharing or copying pixels. ##
-# MakeFromDeferredTextureImageData # ##
+# MakeFromDeferredTextureImageData # To be deprecated. ##
 # MakeFromEncoded                  # Creates Image from encoded data. ##
 # MakeFromGenerator                # Creates Image from a stream of data. ##
 # MakeFromNV12TexturesCopy         # Creates Image from YUV_ColorSpace data in two planes. ##
@@ -75,7 +107,7 @@ drawing.
 # colorSpace                       # Returns Color_Space. ##
 # dimensions()                     # Returns width() and height(). ##
 # encodeToData                     # Returns encoded Image as SkData. ##
-# getDeferredTextureImageData      # ##
+# getDeferredTextureImageData      # To be deprecated. ##
 # getTexture                       # Deprecated. ##
 # getTextureHandle                 # Returns GPU reference to Image as texture. ##
 # height()                         # Returns pixel row count. ##

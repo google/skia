@@ -943,10 +943,6 @@ void setImmutable()
 
 ---
 
-# <a name="Pixel_Serializer"></a> Pixel Serializer
-
-# <a name="SkPixelSerializer"></a> Class SkPixelSerializer
-
 # <a name="Point3"></a> Point3
 
 # <a name="SkPoint3"></a> Struct SkPoint3

@@ -29,123 +29,130 @@ This approach may be deprecated in the future.
 
 ## <a name="Subtopics"></a> Subtopics
 
-| topics | description |
+| name | description |
 | --- | ---  |
+| <a href="#Overview_Classes_and_Structs">Classes and Structs</a> | embedded struct and class members |
+| <a href="#Overview_Constants">Constants</a> | enum and enum class, const values |
+| <a href="#Overview_Constructors">Constructors</a> | functions that construct <a href="SkPath_Reference#SkPath">SkPath</a> |
+| <a href="#Overview_Member_Functions">Member Functions</a> | static functions and member methods |
+| Operators | operator overloading methods |
 
 ## <a name="Constants"></a> Constants
 
-| constants | description |
+| name | description |
 | --- | ---  |
-| Lattice::Flags | Controls <a href="#SkCanvas_Lattice">Lattice</a> transparency. |
-| <a href="#SkCanvas_PointMode">PointMode</a> | Sets <a href="#SkCanvas_drawPoints">drawPoints</a> options. |
-| <a href="#SkCanvas_SaveLayerFlags">SaveLayerFlags</a> | Sets <a href="#SkCanvas_SaveLayerRec">SaveLayerRec</a> options. |
-| <a href="#SkCanvas_SrcRectConstraint">SrcRectConstraint</a> | Sets <a href="#SkCanvas_drawImageRect">drawImageRect</a> options. |
+| Lattice::Flags | controls <a href="#SkCanvas_Lattice">Lattice</a> transparency |
+| <a href="#SkCanvas_PointMode">PointMode</a> | sets <a href="#SkCanvas_drawPoints">drawPoints</a> options |
+| <a href="#SkCanvas_SaveLayerFlags">SaveLayerFlags</a> | sets <a href="#SkCanvas_SaveLayerRec">SaveLayerRec</a> options |
+| <a href="#SkCanvas_SrcRectConstraint">SrcRectConstraint</a> | sets <a href="#SkCanvas_drawImageRect">drawImageRect</a> options |
 
-## <a name="Structs"></a> Structs
+## <a name="Classes_and_Structs"></a> Classes and Structs
 
-| struct | description |
+| name | description |
 | --- | ---  |
-| <a href="#SkCanvas_Lattice">Lattice</a> | Divides <a href="SkBitmap_Reference#Bitmap">Bitmap</a>, <a href="SkImage_Reference#Image">Image</a> into a rectangular grid. |
-| <a href="#SkCanvas_SaveLayerRec">SaveLayerRec</a> | Contains state to create <a href="#Layer">Layer</a>. |
+| <a href="#SkCanvas_Lattice">Lattice</a> | divides <a href="SkBitmap_Reference#Bitmap">Bitmap</a>, <a href="SkImage_Reference#Image">Image</a> into a rectangular grid |
+| <a href="#SkCanvas_SaveLayerRec">SaveLayerRec</a> | contains state to create <a href="#Layer">Layer</a> |
 
 ## <a name="Constructors"></a> Constructors
 
 Create the desired type of <a href="SkSurface_Reference#Surface">Surface</a> to obtain its <a href="#Canvas">Canvas</a> when possible. <a href="#Overview_Constructors">Constructors</a> are useful
 when no <a href="SkSurface_Reference#Surface">Surface</a> is required, and some helpers implicitly create <a href="undocumented#Raster_Surface">Raster Surface</a>.
 
-|  | description |
+| name | description |
 | --- | ---  |
-| <a href="#SkCanvas_empty_constructor">SkCanvas()</a> | No <a href="SkSurface_Reference#Surface">Surface</a>, no dimensions. |
-| <a href="#SkCanvas_int_int_const_SkSurfaceProps_star">SkCanvas(int width, int height, const SkSurfaceProps* props = nullptr)</a> | No <a href="SkSurface_Reference#Surface">Surface</a>, set dimensions, <a href="undocumented#Surface_Properties">Surface Properties</a>. |
-| <a href="#SkCanvas_copy_SkBaseDevice_star">SkCanvas(SkBaseDevice* device)</a> | Existing <a href="undocumented#Device">Device</a>. (<a href="undocumented#SkBaseDevice">SkBaseDevice</a> is private.) |
-| <a href="#SkCanvas_copy_const_SkBitmap">SkCanvas(const SkBitmap& bitmap)</a> | Uses existing <a href="SkBitmap_Reference#Bitmap">Bitmap</a>. |
-| <a href="#SkCanvas_const_SkBitmap_const_SkSurfaceProps">SkCanvas(const SkBitmap& bitmap, const SkSurfaceProps& props)</a> | Uses existing <a href="SkBitmap_Reference#Bitmap">Bitmap</a> and <a href="undocumented#Surface_Properties">Surface Properties</a>. |
-| <a href="#SkCanvas_MakeRasterDirect">MakeRasterDirect</a> | Creates from <a href="undocumented#SkImageInfo">SkImageInfo</a> and <a href="#Storage">Pixel Storage</a>. |
-| <a href="#SkCanvas_MakeRasterDirectN32">MakeRasterDirectN32</a> | Creates from image data and <a href="#Storage">Pixel Storage</a>. |
+| <a href="#SkCanvas_MakeRasterDirect">MakeRasterDirect</a> | creates from <a href="undocumented#SkImageInfo">SkImageInfo</a> and <a href="#Storage">Pixel Storage</a> |
+| <a href="#SkCanvas_MakeRasterDirectN32">MakeRasterDirectN32</a> | creates from image data and <a href="#Storage">Pixel Storage</a> |
+| <a href="#SkCanvas_empty_constructor">SkCanvas()</a> | creates with no <a href="SkSurface_Reference#Surface">Surface</a>, no dimensions |
+| <a href="#SkCanvas_copy_SkBaseDevice_star">SkCanvas(SkBaseDevice* device)</a> | to be deprecated |
+| <a href="#SkCanvas_copy_const_SkBitmap">SkCanvas(const SkBitmap& bitmap)</a> | uses existing <a href="SkBitmap_Reference#Bitmap">Bitmap</a> |
+| <a href="#SkCanvas_const_SkBitmap">SkCanvas(const SkBitmap& bitmap, ColorBehavior behavior)</a> | Android framework only |
+| <a href="#SkCanvas_const_SkBitmap_const_SkSurfaceProps">SkCanvas(const SkBitmap& bitmap, const SkSurfaceProps& props)</a> | uses existing <a href="SkBitmap_Reference#Bitmap">Bitmap</a> and <a href="undocumented#Surface_Properties">Surface Properties</a> |
+| <a href="#SkCanvas_int_int_const_SkSurfaceProps_star">SkCanvas(int width, int height, const SkSurfaceProps* props = nullptr)</a> | no <a href="SkSurface_Reference#Surface">Surface</a>, set dimensions, <a href="undocumented#Surface_Properties">Surface Properties</a> |
+|  | draws saved <a href="#Layer">Layers</a>, frees resources |
 
 ## <a name="Member_Functions"></a> Member Functions
 
-| function | description |
+| name | description |
 | --- | ---  |
-| <a href="#SkCanvas_accessTopLayerPixels">accessTopLayerPixels</a> | Returns writable pixel access if available. |
-| <a href="#SkCanvas_accessTopRasterHandle">accessTopRasterHandle</a> | Returns context that tracks <a href="#Clip">Clip</a> and <a href="#Matrix">Matrix</a>. |
-| <a href="#SkCanvas_clear">clear</a> | Fills <a href="#Clip">Clip</a> with <a href="undocumented#Color">Color</a>. |
-| <a href="#SkCanvas_clipPath">clipPath</a> | Combines <a href="#Clip">Clip</a> with <a href="SkPath_Reference#Path">Path</a>. |
-| <a href="#SkCanvas_clipRRect">clipRRect</a> | Combines <a href="#Clip">Clip</a> with <a href="undocumented#Round_Rect">Round Rect</a>. |
-| <a href="#SkCanvas_clipRect">clipRect</a> | Combines <a href="#Clip">Clip</a> with <a href="SkRect_Reference#Rect">Rect</a>. |
-| <a href="#SkCanvas_clipRegion">clipRegion</a> | Combines <a href="#Clip">Clip</a> with <a href="undocumented#Region">Region</a>. |
-| <a href="#SkCanvas_concat">concat</a> | Multiplies <a href="#Matrix">Matrix</a> by <a href="#Matrix">Matrix</a>. |
-| <a href="#SkCanvas_discard">discard</a> | Makes <a href="#Canvas">Canvas</a> contents undefined. |
-| <a href="#SkCanvas_drawAnnotation">drawAnnotation</a> | Associates a <a href="SkRect_Reference#Rect">Rect</a> with a key-value pair. |
-| <a href="#SkCanvas_drawArc">drawArc</a> | Draws <a href="undocumented#Arc">Arc</a> using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and <a href="SkPaint_Reference#Paint">Paint</a>. |
-| <a href="#SkCanvas_drawAtlas">drawAtlas</a> | Draws sprites using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and <a href="SkPaint_Reference#Paint">Paint</a>. |
-| <a href="#SkCanvas_drawBitmap">drawBitmap</a> | Draws <a href="SkBitmap_Reference#Bitmap">Bitmap</a> at (x, y) position. |
-| <a href="#SkCanvas_drawBitmapLattice">drawBitmapLattice</a> | Draws proportionally stretched <a href="SkBitmap_Reference#Bitmap">Bitmap</a>. |
-| <a href="#SkCanvas_drawBitmapNine">drawBitmapNine</a> | Draws <a href="undocumented#Nine_Patch">Nine Patch</a> <a href="SkBitmap_Reference#Bitmap">Bitmap</a>. |
-| <a href="#SkCanvas_drawBitmapRect">drawBitmapRect</a> | Draws <a href="SkBitmap_Reference#Bitmap">Bitmap</a>, source <a href="SkRect_Reference#Rect">Rect</a> to destination <a href="SkRect_Reference#Rect">Rect</a>. |
-| <a href="#SkCanvas_drawCircle">drawCircle</a> | Draws <a href="undocumented#Circle">Circle</a> using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and <a href="SkPaint_Reference#Paint">Paint</a>. |
-| <a href="#SkCanvas_drawColor">drawColor</a> | Fills <a href="#Clip">Clip</a> with <a href="undocumented#Color">Color</a> and <a href="undocumented#Blend_Mode">Blend Mode</a>. |
-| <a href="#SkCanvas_drawDRRect">drawDRRect</a> | Draws double <a href="undocumented#Round_Rect">Round Rect</a> stroked or filled. |
-| <a href="#SkCanvas_drawDrawable">drawDrawable</a> | Draws <a href="undocumented#Drawable">Drawable</a>, encapsulated drawing commands. |
-| <a href="#SkCanvas_drawIRect">drawIRect</a> | Draws <a href="SkIRect_Reference#IRect">IRect</a> using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and <a href="SkPaint_Reference#Paint">Paint</a>. |
-| <a href="#SkCanvas_drawImage">drawImage</a> | Draws <a href="SkImage_Reference#Image">Image</a> at (x, y) position. |
-| <a href="#SkCanvas_drawImageLattice">drawImageLattice</a> | Draws proportionally stretched <a href="SkImage_Reference#Image">Image</a>. |
-| <a href="#SkCanvas_drawImageNine">drawImageNine</a> | Draws <a href="undocumented#Nine_Patch">Nine Patch</a> <a href="SkImage_Reference#Image">Image</a>. |
-| <a href="#SkCanvas_drawImageRect">drawImageRect</a> | Draws <a href="SkImage_Reference#Image">Image</a>, source <a href="SkRect_Reference#Rect">Rect</a> to destination <a href="SkRect_Reference#Rect">Rect</a>. |
-| <a href="#SkCanvas_drawLine">drawLine</a> | Draws line segment between two points. |
-| <a href="#SkCanvas_drawOval">drawOval</a> | Draws <a href="undocumented#Oval">Oval</a> using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and <a href="SkPaint_Reference#Paint">Paint</a>. |
-| <a href="#SkCanvas_drawPaint">drawPaint</a> | Fills <a href="#Clip">Clip</a> with <a href="SkPaint_Reference#Paint">Paint</a>. |
-| <a href="#SkCanvas_drawPatch">drawPatch</a> | Draws Coons_Patch. |
-| <a href="#SkCanvas_drawPath">drawPath</a> | Draws <a href="SkPath_Reference#Path">Path</a> using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and <a href="SkPaint_Reference#Paint">Paint</a>. |
-| <a href="#SkCanvas_drawPicture">drawPicture</a> | Draws <a href="undocumented#Picture">Picture</a> using <a href="#Clip">Clip</a> and <a href="#Matrix">Matrix</a>. |
-| <a href="#SkCanvas_drawPoint">drawPoint</a> | Draws point at (x, y) position. |
-| <a href="#SkCanvas_drawPoints">drawPoints</a> | Draws array as points, lines, polygon. |
-| <a href="#SkCanvas_drawPosText">drawPosText</a> | Draws text at array of (x, y) positions. |
-| <a href="#SkCanvas_drawPosTextH">drawPosTextH</a> | Draws text at x positions with common baseline. |
-| <a href="#SkCanvas_drawRRect">drawRRect</a> | Draws <a href="undocumented#Round_Rect">Round Rect</a> using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and <a href="SkPaint_Reference#Paint">Paint</a>. |
-| <a href="#SkCanvas_drawRect">drawRect</a> | Draws <a href="SkRect_Reference#Rect">Rect</a> using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and <a href="SkPaint_Reference#Paint">Paint</a>. |
-| <a href="#SkCanvas_drawRegion">drawRegion</a> | Draws <a href="undocumented#Region">Region</a> using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and <a href="SkPaint_Reference#Paint">Paint</a>. |
-| <a href="#SkCanvas_drawRoundRect">drawRoundRect</a> | Draws <a href="undocumented#Round_Rect">Round Rect</a> using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and <a href="SkPaint_Reference#Paint">Paint</a>. |
-| <a href="#SkCanvas_drawText">drawText</a> | Draws text at (x, y), using font advance. |
-| <a href="#SkCanvas_drawTextBlob">drawTextBlob</a> | Draws text with arrays of positions and <a href="SkPaint_Reference#Paint">Paint</a>. |
-| <a href="#SkCanvas_drawTextOnPath">drawTextOnPath</a> | Draws text following <a href="SkPath_Reference#Path">Path</a> contour. |
-| <a href="#SkCanvas_drawTextOnPathHV">drawTextOnPathHV</a> | Draws text following <a href="SkPath_Reference#Path">Path</a> with offsets. |
-| <a href="#SkCanvas_drawTextRSXform">drawTextRSXform</a> | Draws text with array of <a href="undocumented#RSXform">RSXform</a>. |
-| <a href="#SkCanvas_drawString">drawString</a> | Draws null terminated string at (x, y) using font advance. |
-| <a href="#SkCanvas_drawVertices">drawVertices</a> | Draws <a href="undocumented#Vertices">Vertices</a>, a triangle mesh. |
-| <a href="#SkCanvas_flush">flush</a> | Triggers execution of all pending draw operations. |
-| <a href="#SkCanvas_getBaseLayerSize">getBaseLayerSize</a> | Gets size of base <a href="#Layer">Layer</a> in global coordinates. |
-| <a href="#SkCanvas_getDeviceClipBounds">getDeviceClipBounds</a> | Returns <a href="SkIRect_Reference#IRect">IRect</a> bounds of <a href="#Clip">Clip</a>. |
-| <a href="#SkCanvas_getDrawFilter">getDrawFilter</a> | Legacy; to be deprecated. |
-| <a href="#SkCanvas_getGrContext">getGrContext</a> | Returns <a href="undocumented#GPU_Context">GPU Context</a> of the <a href="undocumented#GPU_Surface">GPU Surface</a>. |
-| <a href="#SkCanvas_getLocalClipBounds">getLocalClipBounds</a> | Returns <a href="#Clip">Clip</a> bounds in source coordinates. |
-| <a href="#SkCanvas_getMetaData">getMetaData</a> | Associates additional data with the canvas. |
-| <a href="#SkCanvas_getProps">getProps</a> | Copies <a href="undocumented#Surface_Properties">Surface Properties</a> if available. |
-| <a href="#SkCanvas_getSaveCount">getSaveCount</a> | Returns depth of stack containing <a href="#Clip">Clip</a> and <a href="#Matrix">Matrix</a>. |
-| <a href="#SkCanvas_getTotalMatrix">getTotalMatrix</a> | Returns <a href="#Matrix">Matrix</a>. |
-| <a href="#SkCanvas_imageInfo">imageInfo</a> | Returns <a href="undocumented#Image_Info">Image Info</a> for <a href="#Canvas">Canvas</a>. |
-| <a href="#SkCanvas_isClipEmpty">isClipEmpty</a> | Returns if <a href="#Clip">Clip</a> is empty. |
-| <a href="#SkCanvas_isClipRect">isClipRect</a> | Returns if <a href="#Clip">Clip</a> is <a href="SkRect_Reference#Rect">Rect</a> and not empty. |
-| <a href="#SkCanvas_MakeRasterDirect">MakeRasterDirect</a> | Creates <a href="#Canvas">Canvas</a> from <a href="undocumented#SkImageInfo">SkImageInfo</a> and pixel data. |
-| <a href="#SkCanvas_MakeRasterDirectN32">MakeRasterDirectN32</a> | Creates <a href="#Canvas">Canvas</a> from image specifications and pixel data. |
-| <a href="#SkCanvas_makeSurface">makeSurface</a> | Creates <a href="SkSurface_Reference#Surface">Surface</a> matching <a href="undocumented#SkImageInfo">SkImageInfo</a> and <a href="undocumented#SkSurfaceProps">SkSurfaceProps</a>. |
-| <a href="#SkCanvas_peekPixels">peekPixels</a> | Returns if <a href="#Canvas">Canvas</a> has direct access to its pixels. |
-| <a href="#SkCanvas_quickReject">quickReject</a> | Returns if <a href="SkRect_Reference#Rect">Rect</a> is outside <a href="#Clip">Clip</a>. |
-| <a href="#SkCanvas_readPixels">readPixels</a> | Copies and converts rectangle of pixels from <a href="#Canvas">Canvas</a>. |
-| <a href="#SkCanvas_resetMatrix">resetMatrix</a> | Resets <a href="#Matrix">Matrix</a> to identity. |
-| <a href="#SkCanvas_restore">restore</a> | Restores changes to <a href="#Clip">Clip</a> and <a href="#Matrix">Matrix</a>, pops <a href="#SkCanvas_save">save</a> stack. |
-| <a href="#SkCanvas_restoreToCount">restoreToCount</a> | Restores changes to <a href="#Clip">Clip</a> and <a href="#Matrix">Matrix</a> to given depth. |
-| <a href="#SkCanvas_rotate">rotate</a> | Rotates <a href="#Matrix">Matrix</a>. |
-| <a href="#SkCanvas_save">save</a> | Saves <a href="#Clip">Clip</a> and <a href="#Matrix">Matrix</a> on stack. |
-| <a href="#SkCanvas_saveLayer">saveLayer</a> | Saves <a href="#Clip">Clip</a> and <a href="#Matrix">Matrix</a> on stack; creates <a href="#Layer">Layer</a>. |
-| <a href="#SkCanvas_saveLayerAlpha">saveLayerAlpha</a> | Saves <a href="#Clip">Clip</a> and <a href="#Matrix">Matrix</a> on stack; creates <a href="#Layer">Layer</a>; sets opacity. |
-| <a href="#SkCanvas_saveLayerPreserveLCDTextRequests">saveLayerPreserveLCDTextRequests</a> | Saves <a href="#Clip">Clip</a> and <a href="#Matrix">Matrix</a> on stack; creates <a href="#Layer">Layer</a> for LCD text. |
-| <a href="#SkCanvas_scale">scale</a> | Scales <a href="#Matrix">Matrix</a>. |
-| <a href="#SkCanvas_setAllowSimplifyClip">setAllowSimplifyClip</a> | Experimental. |
-| <a href="#SkCanvas_setDrawFilter">setDrawFilter</a> | Legacy; to be deprecated. |
-| <a href="#SkCanvas_setMatrix">setMatrix</a> | Sets <a href="#Matrix">Matrix</a>. |
-| <a href="#SkCanvas_skew">skew</a> | Skews <a href="#Matrix">Matrix</a>. | <a href="#SkCanvas_translate">translate</a> | Translates <a href="#Matrix">Matrix</a>. |
-| <a href="#SkCanvas_writePixels">writePixels</a> | Copies and converts rectangle of pixels to <a href="#Canvas">Canvas</a>. |
+| <a href="#SkCanvas_MakeRasterDirect">MakeRasterDirect</a> | creates <a href="#Canvas">Canvas</a> from <a href="undocumented#SkImageInfo">SkImageInfo</a> and pixel data |
+| <a href="#SkCanvas_MakeRasterDirectN32">MakeRasterDirectN32</a> | creates <a href="#Canvas">Canvas</a> from image specifications and pixel data |
+| <a href="#SkCanvas_accessTopLayerPixels">accessTopLayerPixels</a> | returns writable pixel access if available |
+| <a href="#SkCanvas_accessTopRasterHandle">accessTopRasterHandle</a> | returns context that tracks <a href="#Clip">Clip</a> and <a href="#Matrix">Matrix</a> |
+| <a href="#SkCanvas_clear">clear</a> | fills <a href="#Clip">Clip</a> with <a href="undocumented#Color">Color</a> |
+| <a href="#SkCanvas_clipPath">clipPath</a> | combines <a href="#Clip">Clip</a> with <a href="SkPath_Reference#Path">Path</a> |
+| <a href="#SkCanvas_clipRRect">clipRRect</a> | combines <a href="#Clip">Clip</a> with <a href="undocumented#Round_Rect">Round Rect</a> |
+| <a href="#SkCanvas_clipRect">clipRect</a> | combines <a href="#Clip">Clip</a> with <a href="SkRect_Reference#Rect">Rect</a> |
+| <a href="#SkCanvas_clipRegion">clipRegion</a> | combines <a href="#Clip">Clip</a> with <a href="undocumented#Region">Region</a> |
+| <a href="#SkCanvas_concat">concat</a> | multiplies <a href="#Matrix">Matrix</a> by <a href="#Matrix">Matrix</a> |
+| <a href="#SkCanvas_discard">discard</a> | makes <a href="#Canvas">Canvas</a> contents undefined |
+| <a href="#SkCanvas_drawAnnotation">drawAnnotation</a> | associates a <a href="SkRect_Reference#Rect">Rect</a> with a key-value pair |
+| <a href="#SkCanvas_drawArc">drawArc</a> | draws <a href="undocumented#Arc">Arc</a> using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and <a href="SkPaint_Reference#Paint">Paint</a> |
+| <a href="#SkCanvas_drawAtlas">drawAtlas</a> | draws sprites using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and <a href="SkPaint_Reference#Paint">Paint</a> |
+| <a href="#SkCanvas_drawBitmap">drawBitmap</a> | draws <a href="SkBitmap_Reference#Bitmap">Bitmap</a> at (x, y) position |
+| <a href="#SkCanvas_drawBitmapLattice">drawBitmapLattice</a> | draws proportionally stretched <a href="SkBitmap_Reference#Bitmap">Bitmap</a> |
+| <a href="#SkCanvas_drawBitmapNine">drawBitmapNine</a> | draws <a href="undocumented#Nine_Patch">Nine Patch</a> <a href="SkBitmap_Reference#Bitmap">Bitmap</a> |
+| <a href="#SkCanvas_drawBitmapRect">drawBitmapRect</a> | draws <a href="SkBitmap_Reference#Bitmap">Bitmap</a>, source <a href="SkRect_Reference#Rect">Rect</a> to destination <a href="SkRect_Reference#Rect">Rect</a> |
+| <a href="#SkCanvas_drawCircle">drawCircle</a> | draws <a href="undocumented#Circle">Circle</a> using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and <a href="SkPaint_Reference#Paint">Paint</a> |
+| <a href="#SkCanvas_drawColor">drawColor</a> | fills <a href="#Clip">Clip</a> with <a href="undocumented#Color">Color</a> and <a href="undocumented#Blend_Mode">Blend Mode</a> |
+| <a href="#SkCanvas_drawDRRect">drawDRRect</a> | draws double <a href="undocumented#Round_Rect">Round Rect</a> stroked or filled |
+| <a href="#SkCanvas_drawDrawable">drawDrawable</a> | draws <a href="undocumented#Drawable">Drawable</a>, encapsulated drawing commands |
+| <a href="#SkCanvas_drawIRect">drawIRect</a> | draws <a href="SkIRect_Reference#IRect">IRect</a> using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and <a href="SkPaint_Reference#Paint">Paint</a> |
+| <a href="#SkCanvas_drawImage">drawImage</a> | draws <a href="SkImage_Reference#Image">Image</a> at (x, y) position |
+| <a href="#SkCanvas_drawImageLattice">drawImageLattice</a> | draws proportionally stretched <a href="SkImage_Reference#Image">Image</a> |
+| <a href="#SkCanvas_drawImageNine">drawImageNine</a> | draws <a href="undocumented#Nine_Patch">Nine Patch</a> <a href="SkImage_Reference#Image">Image</a> |
+| <a href="#SkCanvas_drawImageRect">drawImageRect</a> | draws <a href="SkImage_Reference#Image">Image</a>, source <a href="SkRect_Reference#Rect">Rect</a> to destination <a href="SkRect_Reference#Rect">Rect</a> |
+| <a href="#SkCanvas_drawLine">drawLine</a> | draws line segment between two points |
+| <a href="#SkCanvas_drawOval">drawOval</a> | draws <a href="undocumented#Oval">Oval</a> using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and <a href="SkPaint_Reference#Paint">Paint</a> |
+| <a href="#SkCanvas_drawPaint">drawPaint</a> | fills <a href="#Clip">Clip</a> with <a href="SkPaint_Reference#Paint">Paint</a> |
+| <a href="#SkCanvas_drawPatch">drawPatch</a> | draws Coons_Patch |
+| <a href="#SkCanvas_drawPath">drawPath</a> | draws <a href="SkPath_Reference#Path">Path</a> using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and <a href="SkPaint_Reference#Paint">Paint</a> |
+| <a href="#SkCanvas_drawPicture">drawPicture</a> | draws <a href="undocumented#Picture">Picture</a> using <a href="#Clip">Clip</a> and <a href="#Matrix">Matrix</a> |
+| <a href="#SkCanvas_drawPoint">drawPoint</a> | draws point at (x, y) position |
+| <a href="#SkCanvas_drawPoints">drawPoints</a> | draws array as points, lines, polygon |
+| <a href="#SkCanvas_drawPosText">drawPosText</a> | draws text at array of (x, y) positions |
+| <a href="#SkCanvas_drawPosTextH">drawPosTextH</a> | draws text at x positions with common baseline |
+| <a href="#SkCanvas_drawRRect">drawRRect</a> | draws <a href="undocumented#Round_Rect">Round Rect</a> using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and <a href="SkPaint_Reference#Paint">Paint</a> |
+| <a href="#SkCanvas_drawRect">drawRect</a> | draws <a href="SkRect_Reference#Rect">Rect</a> using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and <a href="SkPaint_Reference#Paint">Paint</a> |
+| <a href="#SkCanvas_drawRegion">drawRegion</a> | draws <a href="undocumented#Region">Region</a> using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and <a href="SkPaint_Reference#Paint">Paint</a> |
+| <a href="#SkCanvas_drawRoundRect">drawRoundRect</a> | draws <a href="undocumented#Round_Rect">Round Rect</a> using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and <a href="SkPaint_Reference#Paint">Paint</a> |
+| <a href="#SkCanvas_drawString">drawString</a> | draws null terminated string at (x, y) using font advance |
+| <a href="#SkCanvas_drawText">drawText</a> | draws text at (x, y), using font advance |
+| <a href="#SkCanvas_drawTextBlob">drawTextBlob</a> | draws text with arrays of positions and <a href="SkPaint_Reference#Paint">Paint</a> |
+| <a href="#SkCanvas_drawTextOnPath">drawTextOnPath</a> | draws text following <a href="SkPath_Reference#Path">Path</a> contour |
+| <a href="#SkCanvas_drawTextOnPathHV">drawTextOnPathHV</a> | draws text following <a href="SkPath_Reference#Path">Path</a> with offsets |
+| <a href="#SkCanvas_drawTextRSXform">drawTextRSXform</a> | draws text with array of <a href="undocumented#RSXform">RSXform</a> |
+| <a href="#SkCanvas_drawVertices">drawVertices</a> | draws <a href="undocumented#Vertices">Vertices</a>, a triangle mesh |
+| <a href="#SkCanvas_flush">flush</a> | triggers execution of all pending draw operations |
+| <a href="#SkCanvas_getBaseLayerSize">getBaseLayerSize</a> | returns size of base <a href="#Layer">Layer</a> in global coordinates |
+| <a href="#SkCanvas_getDeviceClipBounds">getDeviceClipBounds</a> | returns <a href="SkIRect_Reference#IRect">IRect</a> bounds of <a href="#Clip">Clip</a> |
+| <a href="#SkCanvas_getDrawFilter">getDrawFilter</a> | legacy; to be deprecated |
+| <a href="#SkCanvas_getGrContext">getGrContext</a> | returns <a href="undocumented#GPU_Context">GPU Context</a> of the <a href="undocumented#GPU_Surface">GPU Surface</a> |
+| <a href="#SkCanvas_getLocalClipBounds">getLocalClipBounds</a> | returns <a href="#Clip">Clip</a> bounds in source coordinates |
+| <a href="#SkCanvas_getMetaData">getMetaData</a> | associates additional data with the canvas |
+| <a href="#SkCanvas_getProps">getProps</a> | copies <a href="undocumented#Surface_Properties">Surface Properties</a> if available |
+| <a href="#SkCanvas_getSaveCount">getSaveCount</a> | returns depth of stack containing <a href="#Clip">Clip</a> and <a href="#Matrix">Matrix</a> |
+| <a href="#SkCanvas_getTotalMatrix">getTotalMatrix</a> | returns <a href="#Matrix">Matrix</a> |
+| <a href="#SkCanvas_imageInfo">imageInfo</a> | returns <a href="undocumented#Image_Info">Image Info</a> for <a href="#Canvas">Canvas</a> |
+| <a href="#SkCanvas_isClipEmpty">isClipEmpty</a> | returns if <a href="#Clip">Clip</a> is empty |
+| <a href="#SkCanvas_isClipRect">isClipRect</a> | returns if <a href="#Clip">Clip</a> is <a href="SkRect_Reference#Rect">Rect</a> and not empty |
+| <a href="#SkCanvas_makeSurface">makeSurface</a> | creates <a href="SkSurface_Reference#Surface">Surface</a> matching <a href="undocumented#SkImageInfo">SkImageInfo</a> and <a href="undocumented#SkSurfaceProps">SkSurfaceProps</a> |
+| <a href="#SkCanvas_peekPixels">peekPixels</a> | returns if <a href="#Canvas">Canvas</a> has direct access to its pixels |
+| <a href="#SkCanvas_quickReject">quickReject</a> | returns if <a href="SkRect_Reference#Rect">Rect</a> is outside <a href="#Clip">Clip</a> |
+| <a href="#SkCanvas_readPixels">readPixels</a> | copies and converts rectangle of pixels from <a href="#Canvas">Canvas</a> |
+| <a href="#SkCanvas_resetMatrix">resetMatrix</a> | resets <a href="#Matrix">Matrix</a> to identity |
+| <a href="#SkCanvas_restore">restore</a> | restores changes to <a href="#Clip">Clip</a> and <a href="#Matrix">Matrix</a>, pops <a href="#SkCanvas_save">save</a> stack |
+| <a href="#SkCanvas_restoreToCount">restoreToCount</a> | restores changes to <a href="#Clip">Clip</a> and <a href="#Matrix">Matrix</a> to given depth |
+| <a href="#SkCanvas_rotate">rotate</a> | rotates <a href="#Matrix">Matrix</a> |
+| <a href="#SkCanvas_save">save</a> | saves <a href="#Clip">Clip</a> and <a href="#Matrix">Matrix</a> on stack |
+| <a href="#SkCanvas_saveLayer">saveLayer</a> | saves <a href="#Clip">Clip</a> and <a href="#Matrix">Matrix</a> on stack; creates <a href="#Layer">Layer</a> |
+| <a href="#SkCanvas_saveLayerAlpha">saveLayerAlpha</a> | saves <a href="#Clip">Clip</a> and <a href="#Matrix">Matrix</a> on stack; creates <a href="#Layer">Layer</a>; sets opacity |
+| <a href="#SkCanvas_saveLayerPreserveLCDTextRequests">saveLayerPreserveLCDTextRequests</a> | saves <a href="#Clip">Clip</a> and <a href="#Matrix">Matrix</a> on stack; creates <a href="#Layer">Layer</a> for LCD text |
+| <a href="#SkCanvas_scale">scale</a> | scales <a href="#Matrix">Matrix</a> |
+| <a href="#SkCanvas_setAllowSimplifyClip">setAllowSimplifyClip</a> | experimental |
+| <a href="#SkCanvas_setDrawFilter">setDrawFilter</a> | legacy; to be deprecated |
+| <a href="#SkCanvas_setMatrix">setMatrix</a> | sets <a href="#Matrix">Matrix</a> |
+| <a href="#SkCanvas_skew">skew</a> | skews <a href="#Matrix">Matrix</a>. | <a href="#SkCanvas_translate">translate</a> | translates <a href="#Matrix">Matrix</a> |
+| <a href="#SkCanvas_writePixels">writePixels</a> | copies and converts rectangle of pixels to <a href="#Canvas">Canvas</a> |
 
 <a name="SkCanvas_MakeRasterDirect"></a>
 ## MakeRasterDirect
@@ -550,8 +557,8 @@ device independent fonts</td>
 virtual ~SkCanvas()
 </pre>
 
-Draw saved <a href="#Layer">Layers</a>, if any.
-Free up resources used by <a href="#Canvas">Canvas</a>.
+Draws saved <a href="#Layer">Layers</a>, if any.
+Frees up resources used by <a href="#Canvas">Canvas</a>.
 
 ### Example
 
@@ -5714,93 +5721,6 @@ clip is not rect
 ### See Also
 
 <a href="#SkCanvas_isClipEmpty">isClipEmpty</a> <a href="#SkCanvas_getLocalClipBounds">getLocalClipBounds</a> <a href="#SkCanvas_getDeviceClipBounds">getDeviceClipBounds</a>
-
----
-
-# <a name="SkAutoCanvasRestore"></a> Class SkAutoCanvasRestore
-Stack helper class calls
-
-<a name="SkAutoCanvasRestore_SkCanvas_star"></a>
-## SkAutoCanvasRestore
-
-<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-SkAutoCanvasRestore(SkCanvas* canvas, bool doSave)
-</pre>
-
-Preserves <a href="#Canvas">Canvas</a> save count. Optionally saves <a href="#Canvas">Canvas</a> <a href="#Clip">Clip</a> and <a href="#Matrix">Matrix</a>.
-
-### Parameters
-
-<table>  <tr>    <td><a name="SkAutoCanvasRestore_SkCanvas_star_canvas"> <code><strong>canvas </strong></code> </a></td> <td>
-<a href="#Canvas">Canvas</a> to guard</td>
-  </tr>  <tr>    <td><a name="SkAutoCanvasRestore_SkCanvas_star_doSave"> <code><strong>doSave </strong></code> </a></td> <td>
-call <a href="#SkCanvas_save">SkCanvas::save()</a></td>
-  </tr>
-</table>
-
-### Return Value
-
-utility to <a href="#SkAutoCanvasRestore_restore">restore</a> <a href="#Canvas">Canvas</a> state on destructor
-
-### Example
-
-<div><fiddle-embed name="466ef576b88e29d7252422db7adeed1c"></fiddle-embed></div>
-
-### See Also
-
-<a href="#SkCanvas_save">SkCanvas::save</a> <a href="#SkCanvas_restore">SkCanvas::restore</a>
-
----
-
-<a name="SkAutoCanvasRestore_destructor"></a>
-## ~SkAutoCanvasRestore
-
-<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-~SkAutoCanvasRestore()
-</pre>
-
-Restores <a href="#Canvas">Canvas</a> to saved state. Destructor is called when container goes out of
-scope.
-
-### See Also
-
-<a href="#SkCanvas_save">SkCanvas::save</a> <a href="#SkCanvas_restore">SkCanvas::restore</a>
-
----
-
-<a name="SkAutoCanvasRestore_restore"></a>
-## restore
-
-<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-void restore()
-</pre>
-
-Restores <a href="#Canvas">Canvas</a> to saved state immediately. Subsequent calls and
-<a href="#SkAutoCanvasRestore_destructor">~SkAutoCanvasRestore</a> have no effect.
-
-### Example
-
-<div><fiddle-embed name="9f459b218ec079c1ada23f4412968f9a">
-
-#### Example Output
-
-~~~~
-saveCanvas: false  before restore: 2
-saveCanvas: false  after restore: 2
-saveCanvas: true  before restore: 2
-saveCanvas: true  after restore: 2
-saveCanvas: false  before restore: 2
-saveCanvas: false  after restore: 1
-saveCanvas: true  before restore: 2
-saveCanvas: true  after restore: 1
-final count: 1
-~~~~
-
-</fiddle-embed></div>
-
-### See Also
-
-<a href="#SkCanvas_save">SkCanvas::save</a> <a href="#SkCanvas_restore">SkCanvas::restore</a>
 
 ---
 

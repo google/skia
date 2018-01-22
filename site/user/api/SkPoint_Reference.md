@@ -12,14 +12,20 @@ SkPoint Reference
 | topics | description |
 | --- | ---  |
 
+## <a name="Constructors"></a> Constructors
+
+| name | description |
+| --- | ---  |
+| <a href="#SkPoint_Make">Make</a> | Constructs from <a href="undocumented#SkScalar">SkScalar</a> inputs. |
+
 ## <a name="Operators"></a> Operators
 
-| description | function |
+| name | description |
 | --- | ---  |
 | <a href="#SkPoint">SkPoint</a> <a href="#SkPoint_multiply_operator">operator*(SkScalar scale) const</a> | Returns <a href="#Point">Point</a> multiplied by <a href="#SkPoint_scale">scale</a>. |
+| <a href="#SkPoint">SkPoint</a> <a href="#SkPoint_add_operator">operator+(const SkPoint& a, const SkVector& b)</a> | Returns <a href="#Point">Point</a> <a href="#SkPoint_offset">offset</a> by <a href="SkPoint_Reference#Vector">Vector</a>. |
 | <a href="#SkPoint">SkPoint</a> <a href="#SkPoint_minus_operator">operator-() const</a> | Reverses sign of <a href="#Point">Point</a>. |
 | <a href="#SkPoint">SkPoint</a>& <a href="#SkPoint_multiplyby_operator">operator*=(SkScalar scale)</a> | Multiplies <a href="#Point">Point</a> by <a href="#SkPoint_scale">scale</a> factor. |
-| <a href="#SkPoint">SkPoint</a> <a href="#SkPoint_add_operator">operator+(const SkPoint& a, const SkVector& b)</a> | Returns <a href="#Point">Point</a> <a href="#SkPoint_offset">offset</a> by <a href="SkPoint_Reference#Vector">Vector</a>. |
 | <a href="SkPoint_Reference#SkVector">SkVector</a> <a href="#SkPoint_subtract_operator">operator-(const SkPoint& a, const SkPoint& b)</a> | Returns <a href="SkPoint_Reference#Vector">Vector</a> between <a href="#Point">Points</a>. |
 | bool <a href="#SkPoint_notequal_operator">operator!=(const SkPoint& a, const SkPoint& b)</a> | Returns true if <a href="#Point">Point</a> are unequal. |
 | bool <a href="#SkPoint_equal_operator">operator==(const SkPoint& a, const SkPoint& b)</a> | Returns true if <a href="#Point">Point</a> are equal. |
@@ -28,7 +34,7 @@ SkPoint Reference
 
 ## <a name="Member_Functions"></a> Member Functions
 
-| description | function |
+| name | description |
 | --- | ---  |
 | <a href="#SkPoint_CrossProduct">CrossProduct</a> | Returns <a href="#SkPoint_cross">cross</a> product. |
 | <a href="#SkPoint_Distance">Distance</a> | Returns straight-line distance between points. |

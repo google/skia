@@ -502,6 +502,11 @@ const Definition* MdOut::isDefined(const TextParser& parser, const string& ref, 
                     }
                 }
             }
+            string fiddlePrefixed = root->fFiddle + "_" + ref;
+            auto topicIter = fBmhParser.fTopicMap.find(fiddlePrefixed);
+            if (topicIter != fBmhParser.fTopicMap.end()) {
+                return topicIter->second;
+            }
         } while ((test = test->fParent));
     }
     size_t doubleColon = ref.find("::");
