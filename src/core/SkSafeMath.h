@@ -51,6 +51,10 @@ public:
     // These saturate to their results
     static size_t Add(size_t x, size_t y);
     static size_t Mul(size_t x, size_t y);
+    static size_t Align4(size_t x) {
+        SkSafeMath safe;
+        return safe.alignUp(x, 4);
+    }
 
 private:
     uint32_t mul32(uint32_t x, uint32_t y) {
