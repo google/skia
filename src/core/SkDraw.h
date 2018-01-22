@@ -16,6 +16,7 @@
 #include "SkPixmap.h"
 #include "SkStrokeRec.h"
 #include "SkVertices.h"
+#include "SkScalerContext.h"
 
 class SkBitmap;
 class SkClipStack;
@@ -143,7 +144,7 @@ private:
     computeConservativeLocalClipBounds(SkRect* bounds) const;
 
     /** Returns the current setting for using fake gamma and contrast. */
-    uint32_t SK_WARN_UNUSED_RESULT scalerContextFlags() const;
+    SkScalerContextFlags SK_WARN_UNUSED_RESULT scalerContextFlags() const;
 
 public:
     SkPixmap        fDst;

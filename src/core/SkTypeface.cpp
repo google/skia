@@ -84,7 +84,7 @@ protected:
     }
 };
 
-}
+}  // namespace
 
 SkFontStyle SkTypeface::FromOldStyle(Style oldStyle) {
     return SkFontStyle((oldStyle & SkTypeface::kBold) ? SkFontStyle::kBold_Weight
@@ -340,7 +340,9 @@ bool SkTypeface::onComputeBounds(SkRect* bounds) const {
     paint.setLinearText(true);
 
     SkScalerContextRec rec;
-    SkScalerContext::MakeRec(paint, nullptr, nullptr, &rec);
+    SkScalerContextEffects effects;
+    SkScalerContext::MakeRecAndEffects(
+        paint, nullptr, nullptr, SkScalerContextFlags::kNone, &rec, &effects);
 
     SkAutoDescriptor ad(sizeof(rec) + SkDescriptor::ComputeOverhead(1));
     SkDescriptor*    desc = ad.getDesc();

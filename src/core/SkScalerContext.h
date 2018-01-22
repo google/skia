@@ -10,19 +10,31 @@
 
 #include "SkGlyph.h"
 #include "SkMask.h"
+#include "SkMaskFilter.h"
 #include "SkMaskGamma.h"
 #include "SkMatrix.h"
 #include "SkPaint.h"
 #include "SkTypeface.h"
+#include "SkWriteBuffer.h"
 
 class SkDescriptor;
 class SkMaskFilter;
 class SkPathEffect;
 
+enum SkScalerContextFlags : uint32_t {
+    kNone                      = 0,
+    kFakeGamma                 = 1 << 0,
+    kBoostContrast             = 1 << 1,
+    kFakeGammaAndBoostContrast = kFakeGamma | kBoostContrast,
+};
+
 struct SkScalerContextEffects {
     SkScalerContextEffects() : fPathEffect(nullptr), fMaskFilter(nullptr) {}
     SkScalerContextEffects(SkPathEffect* pe, SkMaskFilter* mf)
         : fPathEffect(pe), fMaskFilter(mf) {}
+    explicit SkScalerContextEffects(const SkPaint& paint)
+        : fPathEffect(paint.getPathEffect())
+        , fMaskFilter(paint.getMaskFilter()) {}
 
     SkPathEffect*   fPathEffect;
     SkMaskFilter*   fMaskFilter;
@@ -33,6 +45,7 @@ enum SkAxisAlignment {
     kX_SkAxisAlignment,
     kY_SkAxisAlignment
 };
+
 
 /*
  *  To allow this to be forward-declared, it must be its own typename, rather
@@ -101,7 +114,7 @@ struct SkScalerContextRec {
     // Warning: when adding members note that the size of this structure
     // must be a multiple of 4. SkDescriptor requires that its arguments be
     // multiples of four and this structure is put in an SkDescriptor in
-    // SkPaint::MakeRec.
+    // SkPaint::MakeRecAndEffects.
 
     void    getMatrixFrom2x2(SkMatrix*) const;
     void    getLocalMatrix(SkMatrix*) const;
@@ -260,9 +273,18 @@ public:
     static bool   GetGammaLUTData(SkScalar contrast, SkScalar paintGamma, SkScalar deviceGamma,
                                   uint8_t* data);
 
-    static void MakeRec(const SkPaint&, const SkSurfaceProps* surfaceProps,
-                        const SkMatrix*, SkScalerContextRec* rec);
-    static inline void PostMakeRec(const SkPaint&, SkScalerContextRec*);
+    static void MakeRecAndEffects(const SkPaint& paint,
+                                  const SkSurfaceProps* surfaceProps,
+                                  const SkMatrix* deviceMatrix,
+                                  SkScalerContextFlags scalerContextFlags,
+                                  SkScalerContextRec* rec,
+                                  SkScalerContextEffects* effects);
+
+    template <typename A>
+    static auto CreateDescriptorGivenRecAndEffects(
+            const SkScalerContextRec &rec,
+            const SkScalerContextEffects &effects,
+            A alloc) -> decltype(alloc((size_t)0));
 
     static SkMaskGamma::PreBlend GetMaskPreBlend(const SkScalerContextRec& rec);
 
@@ -331,6 +353,16 @@ protected:
     void forceOffGenerateImageFromPath() { fGenerateImageFromPath = false; }
 
 private:
+    static size_t CalculateSizeAndFlatten(const SkScalerContextRec& rec,
+                                          const SkScalerContextEffects& effects,
+                                          SkBinaryWriteBuffer* pathEffectBuffer,
+                                          SkBinaryWriteBuffer* maskFilterBuffer);
+    static void GenerateDescriptor(const SkScalerContextRec& rec,
+                                   const SkScalerContextEffects& effects,
+                                   SkBinaryWriteBuffer* pathEffectBuffer,
+                                   SkBinaryWriteBuffer* maskFilterBuffer,
+                                   SkDescriptor* desc);
+
     friend class SkRandomScalerContext; // For debug purposes
 
     // never null
@@ -356,6 +388,22 @@ private:
     // and the pre-blend applied as a final step.
     const SkMaskGamma::PreBlend fPreBlendForFilter;
 };
+
+template <typename A>
+inline auto SkScalerContext::CreateDescriptorGivenRecAndEffects(
+        const SkScalerContextRec &rec,
+        const SkScalerContextEffects &effects,
+        A alloc) -> decltype(alloc((size_t)0))  {
+
+    SkBinaryWriteBuffer peBuffer, mfBuffer;
+
+    auto desc = alloc(CalculateSizeAndFlatten(rec, effects, &peBuffer, &mfBuffer));
+
+    GenerateDescriptor(rec, effects, &peBuffer, &mfBuffer, &(*desc));
+
+    return desc;
+}
+
 
 #define kRec_SkDescriptorTag            SkSetFourByteTag('s', 'r', 'e', 'c')
 #define kPathEffect_SkDescriptorTag     SkSetFourByteTag('p', 't', 'h', 'e')
