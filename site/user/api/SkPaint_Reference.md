@@ -63,7 +63,6 @@ Multiple colors are drawn either by using multiple paints or with objects like
 | <a href="#Path_Effect_Methods">Path Effect Methods</a> | Get and set <a href="undocumented#Path_Effect">Path Effect</a>. |
 | <a href="#Mask_Filter_Methods">Mask Filter Methods</a> | Get and set <a href="undocumented#Mask_Filter">Mask Filter</a>. |
 | <a href="#Typeface_Methods">Typeface Methods</a> | Get and set <a href="undocumented#Typeface">Typeface</a>. |
-| <a href="#Rasterizer_Methods">Rasterizer Methods</a> | Get and set <a href="undocumented#Rasterizer">Rasterizer</a>. |
 | <a href="#Image_Filter_Methods">Image Filter Methods</a> | Get and set <a href="undocumented#Image_Filter">Image Filter</a>. |
 | <a href="#Draw_Looper_Methods">Draw Looper Methods</a> | Get and set <a href="undocumented#Draw_Looper">Draw Looper</a>. |
 | <a href="#Text_Align">Text Align</a> | <a href="undocumented#Text">Text</a> placement relative to position. |
@@ -145,7 +144,6 @@ Multiple colors are drawn either by using multiple paints or with objects like
 | <a href="#SkPaint_getPosTextPath">getPosTextPath</a> | Returns <a href="SkPath_Reference#Path">Path</a> equivalent to positioned text. |
 | <a href="#SkPaint_getPosTextIntercepts">getPosTextIntercepts</a> | Returns where lines intersect positioned text; underlines. |
 | <a href="#SkPaint_getPosTextHIntercepts">getPosTextHIntercepts</a> | Returns where lines intersect horizontally positioned text; underlines. |
-| <a href="#SkPaint_getRasterizer">getRasterizer</a> | Returns <a href="undocumented#Rasterizer">Rasterizer</a>, <a href="undocumented#Mask_Alpha">Mask Alpha</a> generation from <a href="SkPath_Reference#Path">Path</a>. |
 | <a href="#SkPaint_getShader">getShader</a> | Returns <a href="undocumented#Shader">Shader</a>, multiple drawing colors; gradients. |
 | <a href="#SkPaint_getStrokeCap">getStrokeCap</a> | Returns <a href="#SkPaint_Cap">Cap</a>, the area drawn at path ends. |
 | <a href="#SkPaint_getStrokeJoin">getStrokeJoin</a> | Returns <a href="#SkPaint_Join">Join</a>, geometry on path corners. |
@@ -180,7 +178,6 @@ Multiple colors are drawn either by using multiple paints or with objects like
 | <a href="#SkPaint_refImageFilter">refImageFilter</a> | References <a href="undocumented#Image_Filter">Image Filter</a>, alter pixels; blur. |
 | <a href="#SkPaint_refMaskFilter">refMaskFilter</a> | References <a href="undocumented#Mask_Filter">Mask Filter</a>, alterations to <a href="undocumented#Mask_Alpha">Mask Alpha</a>. |
 | <a href="#SkPaint_refPathEffect">refPathEffect</a> | References <a href="undocumented#Path_Effect">Path Effect</a>, modifications to path geometry; dashing. |
-| <a href="#SkPaint_refRasterizer">refRasterizer</a> | References <a href="undocumented#Rasterizer">Rasterizer</a>, mask generation from path. |
 | <a href="#SkPaint_refShader">refShader</a> | References <a href="undocumented#Shader">Shader</a>, multiple drawing colors; gradients. |
 | <a href="#SkPaint_refTypeface">refTypeface</a> | References <a href="undocumented#Typeface">Typeface</a>, font description. |
 | <a href="#SkPaint_reset">reset</a> | Sets to default values. |
@@ -202,7 +199,6 @@ Multiple colors are drawn either by using multiple paints or with objects like
 | <a href="#SkPaint_setLCDRenderText">setLCDRenderText</a> | Sets or clears <a href="SkPaint_Reference#LCD_Text">LCD Text</a>. |
 | <a href="#SkPaint_setMaskFilter">setMaskFilter</a> | Sets <a href="undocumented#Mask_Filter">Mask Filter</a>, alterations to <a href="undocumented#Mask_Alpha">Mask Alpha</a>. |
 | <a href="#SkPaint_setPathEffect">setPathEffect</a> | Sets <a href="undocumented#Path_Effect">Path Effect</a>, modifications to path geometry; dashing. |
-| <a href="#SkPaint_setRasterizer">setRasterizer</a> | Sets <a href="undocumented#Rasterizer">Rasterizer</a>, <a href="undocumented#Mask_Alpha">Mask Alpha</a> generation from <a href="SkPath_Reference#Path">Path</a>. |
 | <a href="#SkPaint_setImageFilter">setImageFilter</a> | Sets <a href="undocumented#Image_Filter">Image Filter</a>, alter pixels; blur. |
 | <a href="#SkPaint_setShader">setShader</a> | Sets <a href="undocumented#Shader">Shader</a>, multiple drawing colors; gradients. |
 | <a href="#SkPaint_setStrokeCap">setStrokeCap</a> | Sets <a href="#SkPaint_Cap">Cap</a>, the area drawn at path ends. |
@@ -254,7 +250,6 @@ Constructs <a href="#Paint">Paint</a> with default values.
 | <a href="#Miter_Limit">Miter Limit</a> | 4 |
 | <a href="undocumented#Mask_Filter">Mask Filter</a> | nullptr |
 | <a href="undocumented#Path_Effect">Path Effect</a> | nullptr |
-| <a href="undocumented#Rasterizer">Rasterizer</a> | nullptr |
 | <a href="undocumented#Shader">Shader</a> | nullptr |
 | <a href="#SkPaint_Style">Style</a> | <a href="#SkPaint_kFill_Style">kFill Style</a> |
 | <a href="#Text_Align">Text Align</a> | <a href="#SkPaint_kLeft_Align">kLeft Align</a> |
@@ -291,11 +286,11 @@ SkPaint(const SkPaint& paint)
 </pre>
 
 Makes a shallow copy of <a href="#Paint">Paint</a>. <a href="undocumented#Typeface">Typeface</a>, <a href="undocumented#Path_Effect">Path Effect</a>, <a href="undocumented#Shader">Shader</a>,
-<a href="undocumented#Mask_Filter">Mask Filter</a>, <a href="undocumented#Color_Filter">Color Filter</a>, <a href="undocumented#Rasterizer">Rasterizer</a>, <a href="undocumented#Draw_Looper">Draw Looper</a>, and <a href="undocumented#Image_Filter">Image Filter</a> are shared
+<a href="undocumented#Mask_Filter">Mask Filter</a>, <a href="undocumented#Color_Filter">Color Filter</a>, <a href="undocumented#Draw_Looper">Draw Looper</a>, and <a href="undocumented#Image_Filter">Image Filter</a> are shared
 between the original <a href="#SkPaint_copy_const_SkPaint_paint">paint</a> and the copy. Objects containing <a href="undocumented#Reference_Count">Reference Count</a> increment
 their references by one.
 
-The referenced objects <a href="undocumented#Path_Effect">Path Effect</a>, <a href="undocumented#Shader">Shader</a>, <a href="undocumented#Mask_Filter">Mask Filter</a>, <a href="undocumented#Color_Filter">Color Filter</a>, <a href="undocumented#Rasterizer">Rasterizer</a>,
+The referenced objects <a href="undocumented#Path_Effect">Path Effect</a>, <a href="undocumented#Shader">Shader</a>, <a href="undocumented#Mask_Filter">Mask Filter</a>, <a href="undocumented#Color_Filter">Color Filter</a>,
 <a href="undocumented#Draw_Looper">Draw Looper</a>, and <a href="undocumented#Image_Filter">Image Filter</a> cannot be modified after they are created.
 This prevents objects with <a href="undocumented#Reference_Count">Reference Count</a> from being modified once <a href="#Paint">Paint</a> refers to them.
 
@@ -396,7 +391,7 @@ paint1 == paint2
 </pre>
 
 Decreases <a href="#Paint">Paint</a> <a href="undocumented#Reference_Count">Reference Count</a> of owned objects: <a href="undocumented#Typeface">Typeface</a>, <a href="undocumented#Path_Effect">Path Effect</a>, <a href="undocumented#Shader">Shader</a>,
-<a href="undocumented#Mask_Filter">Mask Filter</a>, <a href="undocumented#Color_Filter">Color Filter</a>, <a href="undocumented#Rasterizer">Rasterizer</a>, <a href="undocumented#Draw_Looper">Draw Looper</a>, and <a href="undocumented#Image_Filter">Image Filter</a>. If the
+<a href="undocumented#Mask_Filter">Mask Filter</a>, <a href="undocumented#Color_Filter">Color Filter</a>, <a href="undocumented#Draw_Looper">Draw Looper</a>, and <a href="undocumented#Image_Filter">Image Filter</a>. If the
 objects containing <a href="undocumented#Reference_Count">Reference Count</a> go to zero, they are deleted.
 
 ---
@@ -411,7 +406,7 @@ SkPaint& operator=(const SkPaint& paint)
 </pre>
 
 Makes a shallow copy of <a href="#Paint">Paint</a>. <a href="undocumented#Typeface">Typeface</a>, <a href="undocumented#Path_Effect">Path Effect</a>, <a href="undocumented#Shader">Shader</a>,
-<a href="undocumented#Mask_Filter">Mask Filter</a>, <a href="undocumented#Color_Filter">Color Filter</a>, <a href="undocumented#Rasterizer">Rasterizer</a>, <a href="undocumented#Draw_Looper">Draw Looper</a>, and <a href="undocumented#Image_Filter">Image Filter</a> are shared
+<a href="undocumented#Mask_Filter">Mask Filter</a>, <a href="undocumented#Color_Filter">Color Filter</a>, <a href="undocumented#Draw_Looper">Draw Looper</a>, and <a href="undocumented#Image_Filter">Image Filter</a> are shared
 between the original <a href="#SkPaint_copy_operator_paint">paint</a> and the copy. Objects containing <a href="undocumented#Reference_Count">Reference Count</a> in the
 prior destination are decreased by one, and the referenced objects are deleted if the
 resulting count is zero. Objects containing <a href="undocumented#Reference_Count">Reference Count</a> in the parameter <a href="#SkPaint_copy_operator_paint">paint</a>
@@ -490,7 +485,7 @@ bool operator==(const SkPaint& a, const SkPaint& b)
 </pre>
 
 Compares <a href="#SkPaint_equal_operator_a">a</a> and <a href="#SkPaint_equal_operator_b">b</a>, and returns true if <a href="#SkPaint_equal_operator_a">a</a> and <a href="#SkPaint_equal_operator_b">b</a> are equivalent. May return false
-if <a href="undocumented#Typeface">Typeface</a>, <a href="undocumented#Path_Effect">Path Effect</a>, <a href="undocumented#Shader">Shader</a>, <a href="undocumented#Mask_Filter">Mask Filter</a>, <a href="undocumented#Color_Filter">Color Filter</a>, <a href="undocumented#Rasterizer">Rasterizer</a>,
+if <a href="undocumented#Typeface">Typeface</a>, <a href="undocumented#Path_Effect">Path Effect</a>, <a href="undocumented#Shader">Shader</a>, <a href="undocumented#Mask_Filter">Mask Filter</a>, <a href="undocumented#Color_Filter">Color Filter</a>,
 <a href="undocumented#Draw_Looper">Draw Looper</a>, or <a href="undocumented#Image_Filter">Image Filter</a> have identical contents but different pointers.
 
 ### Parameters
@@ -529,7 +524,7 @@ bool operator!=(const SkPaint& a, const SkPaint& b)
 </pre>
 
 Compares <a href="#SkPaint_notequal_operator_a">a</a> and <a href="#SkPaint_notequal_operator_b">b</a>, and returns true if <a href="#SkPaint_notequal_operator_a">a</a> and <a href="#SkPaint_notequal_operator_b">b</a> are not equivalent. May return true
-if <a href="undocumented#Typeface">Typeface</a>, <a href="undocumented#Path_Effect">Path Effect</a>, <a href="undocumented#Shader">Shader</a>, <a href="undocumented#Mask_Filter">Mask Filter</a>, <a href="undocumented#Color_Filter">Color Filter</a>, <a href="undocumented#Rasterizer">Rasterizer</a>,
+if <a href="undocumented#Typeface">Typeface</a>, <a href="undocumented#Path_Effect">Path Effect</a>, <a href="undocumented#Shader">Shader</a>, <a href="undocumented#Mask_Filter">Mask Filter</a>, <a href="undocumented#Color_Filter">Color Filter</a>,
 <a href="undocumented#Draw_Looper">Draw Looper</a>, or <a href="undocumented#Image_Filter">Image Filter</a> have identical contents but different pointers.
 
 ### Parameters
@@ -3145,8 +3140,7 @@ replace <a href="SkPath_Reference#Path">Path</a> with a modification when drawn<
 
 # <a name="Mask_Filter_Methods"></a> Mask Filter Methods
 <a href="undocumented#Mask_Filter">Mask Filter</a> uses coverage of the shape drawn to create <a href="undocumented#Mask_Alpha">Mask Alpha</a>.
-<a href="undocumented#Mask_Filter">Mask Filter</a> operates at a lower level than <a href="undocumented#Rasterizer">Rasterizer</a>; <a href="undocumented#Mask_Filter">Mask Filter</a> takes a <a href="undocumented#Mask">Mask</a>,
-and returns a <a href="undocumented#Mask">Mask</a>.
+<a href="undocumented#Mask_Filter">Mask Filter</a> takes a <a href="undocumented#Mask">Mask</a>, and returns a <a href="undocumented#Mask">Mask</a>.
 
 <a href="undocumented#Mask_Filter">Mask Filter</a> may change the geometry and transparency of the shape, such as
 creating a blur effect. Set <a href="undocumented#Mask_Filter">Mask Filter</a> to nullptr to prevent <a href="undocumented#Mask_Filter">Mask Filter</a> from
@@ -3226,7 +3220,6 @@ Sets <a href="undocumented#Mask_Filter">Mask Filter</a> to <a href="#SkPaint_set
 <a href="undocumented#Mask_Filter">Mask Filter</a>. Pass nullptr to clear <a href="undocumented#Mask_Filter">Mask Filter</a> and leave <a href="undocumented#Mask_Filter">Mask Filter</a> effect on
 <a href="undocumented#Mask_Alpha">Mask Alpha</a> unaltered.
 
-Does not affect <a href="undocumented#Rasterizer">Rasterizer</a>.
 Increments <a href="#SkPaint_setMaskFilter_maskFilter">maskFilter</a> <a href="undocumented#Reference_Count">Reference Count</a> by one.
 
 ### Parameters
@@ -3333,107 +3326,6 @@ font and style used to draw text</td>
 
 ---
 
-# <a name="Rasterizer_Methods"></a> Rasterizer Methods
-<a href="undocumented#Rasterizer">Rasterizer</a> controls how shapes are converted to <a href="undocumented#Mask_Alpha">Mask Alpha</a>.
-<a href="undocumented#Rasterizer">Rasterizer</a> operates at a higher level than <a href="undocumented#Mask_Filter">Mask Filter</a>; <a href="undocumented#Rasterizer">Rasterizer</a> takes a <a href="SkPath_Reference#Path">Path</a>,
-and returns a <a href="undocumented#Mask">Mask</a>.
-
-<a href="undocumented#Rasterizer">Rasterizer</a> may change the geometry and transparency of the shape, such as
-creating a shadow effect. <a href="undocumented#Rasterizer">Rasterizer</a> forms the base of <a href="#Layer">Rasterizer Layer</a>, which
-creates effects like embossing and outlining.
-
-<a href="undocumented#Rasterizer">Rasterizer</a> applies to <a href="SkRect_Reference#Rect">Rect</a>, <a href="undocumented#Region">Region</a>, <a href="undocumented#Round_Rect">Round Rect</a>, <a href="#Arc">Arcs</a>, <a href="#Circle">Circles</a>, <a href="#Oval">Ovals</a>,
-<a href="SkPath_Reference#Path">Path</a>, and <a href="undocumented#Text">Text</a>.
-
-### Example
-
-<div><fiddle-embed name="e63f8a50996699342a14c6e54d684108"></fiddle-embed></div>
-
-<a name="SkPaint_getRasterizer"></a>
-## getRasterizer
-
-<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-SkRasterizer* getRasterizer() const
-</pre>
-
-Returns <a href="undocumented#Rasterizer">Rasterizer</a> if set, or nullptr.
-Does not alter <a href="undocumented#Rasterizer">Rasterizer</a> <a href="undocumented#Reference_Count">Reference Count</a>.
-
-### Return Value
-
-<a href="undocumented#Rasterizer">Rasterizer</a> if previously set, nullptr otherwise
-
-### Example
-
-<div><fiddle-embed name="0707d407c3a14388b107af8ae5873e55">
-
-#### Example Output
-
-~~~~
-nullptr == rasterizer
-nullptr != rasterizer
-~~~~
-
-</fiddle-embed></div>
-
----
-
-<a name="SkPaint_refRasterizer"></a>
-## refRasterizer
-
-<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-sk_sp&lt;SkRasterizer&gt; refRasterizer() const
-</pre>
-
-Returns <a href="undocumented#Rasterizer">Rasterizer</a> if set, or nullptr.
-Increases <a href="undocumented#Rasterizer">Rasterizer</a> <a href="undocumented#Reference_Count">Reference Count</a> by one.
-
-### Return Value
-
-<a href="undocumented#Rasterizer">Rasterizer</a> if previously set, nullptr otherwise
-
-### Example
-
-<div><fiddle-embed name="c0855ce19a33cb7e5747750ef341b7b3">
-
-#### Example Output
-
-~~~~
-rasterizer unique: true
-rasterizer unique: false
-~~~~
-
-</fiddle-embed></div>
-
----
-
-<a name="SkPaint_setRasterizer"></a>
-## setRasterizer
-
-<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-void setRasterizer(sk_sp&lt;SkRasterizer&gt; rasterizer)
-</pre>
-
-Sets <a href="undocumented#Rasterizer">Rasterizer</a> to <a href="#SkPaint_setRasterizer_rasterizer">rasterizer</a>, decreasing <a href="undocumented#Reference_Count">Reference Count</a> of the previous
-<a href="undocumented#Rasterizer">Rasterizer</a>. Pass nullptr to clear <a href="undocumented#Rasterizer">Rasterizer</a> and leave <a href="undocumented#Rasterizer">Rasterizer</a> effect on
-<a href="undocumented#Mask_Alpha">Mask Alpha</a> unaltered.
-
-Does not affect <a href="undocumented#Mask_Filter">Mask Filter</a>.
-Increments <a href="#SkPaint_setRasterizer_rasterizer">rasterizer</a> <a href="undocumented#Reference_Count">Reference Count</a> by one.
-
-### Parameters
-
-<table>  <tr>    <td><a name="SkPaint_setRasterizer_rasterizer"> <code><strong>rasterizer </strong></code> </a></td> <td>
-how geometry is converted to <a href="undocumented#Mask_Alpha">Mask Alpha</a></td>
-  </tr>
-</table>
-
-### Example
-
-<div><fiddle-embed name="aec8ed9296c1628073086a33039f62b7"></fiddle-embed></div>
-
----
-
 # <a name="Image_Filter_Methods"></a> Image Filter Methods
 <a href="undocumented#Image_Filter">Image Filter</a> operates on the pixel representation of the shape, as modified by <a href="#Paint">Paint</a>
 with <a href="undocumented#Blend_Mode">Blend Mode</a> set to <a href="#SkBlendMode_kSrcOver">SkBlendMode::kSrcOver</a>. <a href="undocumented#Image_Filter">Image Filter</a> creates a new bitmap,
@@ -3442,7 +3334,7 @@ which is drawn to the device using the set <a href="undocumented#Blend_Mode">Ble
 <a href="undocumented#Image_Filter">Image Filter</a> is higher level than <a href="undocumented#Mask_Filter">Mask Filter</a>; for instance, an <a href="undocumented#Image_Filter">Image Filter</a>
 can operate on all channels of <a href="undocumented#Color">Color</a>, while <a href="undocumented#Mask_Filter">Mask Filter</a> generates <a href="#Alpha">Alpha</a> only.
 <a href="undocumented#Image_Filter">Image Filter</a> operates independently of and can be used in combination with
-<a href="undocumented#Mask_Filter">Mask Filter</a> and <a href="undocumented#Rasterizer">Rasterizer</a>.
+<a href="undocumented#Mask_Filter">Mask Filter</a>.
 
 ### Example
 
@@ -3517,7 +3409,6 @@ Sets <a href="undocumented#Image_Filter">Image Filter</a> to <a href="#SkPaint_s
 <a href="undocumented#Image_Filter">Image Filter</a>. Pass nullptr to clear <a href="undocumented#Image_Filter">Image Filter</a>, and remove <a href="undocumented#Image_Filter">Image Filter</a> effect
 on drawing.
 
-Does not affect <a href="undocumented#Rasterizer">Rasterizer</a> or <a href="undocumented#Mask_Filter">Mask Filter</a>.
 Increments <a href="#SkPaint_setImageFilter_imageFilter">imageFilter</a> <a href="undocumented#Reference_Count">Reference Count</a> by one.
 
 ### Parameters
