@@ -538,6 +538,7 @@ def dm_flags(api, bot):
       match.append('~lighting')
       match.append('~imageblur2')
       match.append('~animated-image-blurs')
+      match.append('~desk_carsvg.skp_1_mpd')
     # skia:7497
     match.append('~readpixels') # dies with "Caught signal 7 [Bus error]"
     match.append('~F16Stages')
