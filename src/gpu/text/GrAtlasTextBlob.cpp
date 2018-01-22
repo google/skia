@@ -49,7 +49,7 @@ sk_sp<GrAtlasTextBlob> GrAtlasTextBlob::Make(GrMemoryPool* pool, int glyphCount,
 
 SkGlyphCache* GrAtlasTextBlob::setupCache(int runIndex,
                                           const SkSurfaceProps& props,
-                                          uint32_t scalerContextFlags,
+                                          SkScalerContextFlags scalerContextFlags,
                                           const SkPaint& skPaint,
                                           const SkMatrix* viewMatrix) {
     GrAtlasTextBlob::Run* run = &fRuns[runIndex];
@@ -58,7 +58,7 @@ SkGlyphCache* GrAtlasTextBlob::setupCache(int runIndex,
     SkAutoDescriptor* desc = run->fOverrideDescriptor.get() ? run->fOverrideDescriptor.get() :
                                                               &run->fDescriptor;
     SkScalerContextEffects effects;
-    skPaint.getScalerContextDescriptor(&effects, desc, props, scalerContextFlags, viewMatrix);
+    skPaint.getScalerContextDescriptor(&effects, desc, &props, scalerContextFlags, viewMatrix);
     run->fTypeface.reset(SkSafeRef(skPaint.getTypeface()));
     run->fPathEffect = sk_ref_sp(effects.fPathEffect);
     run->fMaskFilter = sk_ref_sp(effects.fMaskFilter);

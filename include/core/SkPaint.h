@@ -36,6 +36,7 @@ class SkSurfaceProps;
 class SkTextBlob;
 class SkTypeface;
 
+
 /** \class SkPaint
     SkPaint controls options applied when drawing and measuring. SkPaint collects all
     options outside of the SkCanvas clip and SkCanvas matrix.
@@ -1679,25 +1680,12 @@ private:
     SkScalar measure_text(SkGlyphCache*, const char* text, size_t length,
                           int* count, SkRect* bounds) const;
 
-    enum ScalerContextFlags : uint32_t {
-        kNone_ScalerContextFlags = 0,
-
-        kFakeGamma_ScalerContextFlag = 1 << 0,
-        kBoostContrast_ScalerContextFlag = 1 << 1,
-
-        kFakeGammaAndBoostContrast_ScalerContextFlags =
-            kFakeGamma_ScalerContextFlag | kBoostContrast_ScalerContextFlag,
-    };
-
-    /*
-     * Allocs an SkDescriptor on the heap and return it to the caller as a refcnted
-     * SkData.  Caller is responsible for managing the lifetime of this object.
-     */
     void getScalerContextDescriptor(SkScalerContextEffects*, SkAutoDescriptor*,
-                                    const SkSurfaceProps& surfaceProps,
+                                    const SkSurfaceProps* surfaceProps,
                                     uint32_t scalerContextFlags, const SkMatrix*) const;
 
-    SkGlyphCache* detachCache(const SkSurfaceProps* surfaceProps, uint32_t scalerContextFlags,
+    SkGlyphCache* detachCache(const SkSurfaceProps* surfaceProps,
+                              uint32_t scalerContextFlags,
                               const SkMatrix*) const;
 
     void descriptorProc(const SkSurfaceProps* surfaceProps, uint32_t scalerContextFlags,

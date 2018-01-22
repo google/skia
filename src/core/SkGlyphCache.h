@@ -263,12 +263,12 @@ public:
                      const SkSurfaceProps* surfaceProps,
                      const SkMatrix* matrix)
         : INHERITED(paint.detachCache(surfaceProps,
-                                      SkPaint::kFakeGammaAndBoostContrast_ScalerContextFlags,
+                                      SkScalerContextFlags::kFakeGammaAndBoostContrast,
                                       matrix))
     {}
     SkAutoGlyphCache(const SkPaint& paint,
                      const SkSurfaceProps* surfaceProps,
-                     uint32_t scalerContextFlags,
+                     SkScalerContextFlags scalerContextFlags,
                      const SkMatrix* matrix)
         : INHERITED(paint.detachCache(surfaceProps, scalerContextFlags, matrix))
     {}
@@ -281,7 +281,7 @@ public:
     SkAutoGlyphCacheNoGamma(const SkPaint& paint,
                             const SkSurfaceProps* surfaceProps,
                             const SkMatrix* matrix)
-        : SkAutoGlyphCache(paint, surfaceProps, SkPaint::kNone_ScalerContextFlags, matrix)
+        : SkAutoGlyphCache(paint, surfaceProps, SkScalerContextFlags::kNone, matrix)
     {}
 };
 #define SkAutoGlyphCache(...) SK_REQUIRE_LOCAL_VAR(SkAutoGlyphCache)
