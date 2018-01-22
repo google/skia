@@ -214,7 +214,7 @@ protected:
     bool fBlacklistCoverageCounting                  : 1;
     bool fAvoidStencilBuffers                        : 1;
 
-    // ANGLE workaround
+    // ANGLE performance workaround
     bool fPreferVRAMUseOverFlushes                   : 1;
 
     bool fSampleShadingSupport                       : 1;
