@@ -129,7 +129,7 @@ sk_sp<GrTextureProxy> GrBackendTextureImageGenerator::onGenerateTexture(
                     return sk_sp<GrTexture>();
                 }
 
-                if (semaphore && !semaphore->hasSubmittedWait()) {
+                if (semaphore) {
                     resourceProvider->priv().gpu()->waitSemaphore(semaphore);
                 }
 

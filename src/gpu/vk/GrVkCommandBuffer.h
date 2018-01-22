@@ -269,8 +269,8 @@ public:
                       const VkImageResolve* regions);
 
     void submitToQueue(const GrVkGpu* gpu, VkQueue queue, GrVkGpu::SyncQueue sync,
-                       SkTArray<const GrVkSemaphore::Resource*>& signalSemaphores,
-                       SkTArray<const GrVkSemaphore::Resource*>& waitSemaphores);
+                       SkTArray<GrVkSemaphore::Resource*>& signalSemaphores,
+                       SkTArray<GrVkSemaphore::Resource*>& waitSemaphores);
     bool finished(const GrVkGpu* gpu) const;
 
 #ifdef SK_TRACE_VK_RESOURCES

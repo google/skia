@@ -135,6 +135,12 @@ public:
     void deleteFence(GrFence) const override;
 
     sk_sp<GrSemaphore> SK_WARN_UNUSED_RESULT makeSemaphore(bool isOwned) override;
+    sk_sp<GrSemaphore> wrapBackendSemaphore(const GrBackendSemaphore& semaphore,
+                                            GrResourceProvider::SemaphoreWrapType wrapType,
+                                            GrWrapOwnership ownership) override;
+    void insertSemaphore(sk_sp<GrSemaphore> semaphore, bool flush) override;
+    void waitSemaphore(sk_sp<GrSemaphore> semaphore) override;
+
     sk_sp<GrSemaphore> prepareTextureForCrossContextUsage(GrTexture*) override;
 
     void generateMipmap(GrVkTexture* tex, GrSurfaceOrigin texOrigin);
@@ -204,11 +210,6 @@ private:
 
     void onFinishFlush(bool insertedSemaphores) override;
 
-    void onInsertSemaphore(sk_sp<GrSemaphore> semaphore, bool flush) override;
-    void onWaitSemaphore(sk_sp<GrSemaphore> semaphore) override;
-    sk_sp<GrSemaphore> onWrapBackendSemaphore(const GrBackendSemaphore& semaphore,
-                                              GrWrapOwnership ownership) override;
-
     // Ends and submits the current command buffer to the queue and then creates a new command
     // buffer and begins it. If sync is set to kForce_SyncQueue, the function will wait for all
     // work in the queue to finish before returning. If this GrVkGpu object has any semaphores in
@@ -265,8 +266,8 @@ private:
 
     GrVkPrimaryCommandBuffer*                    fCurrentCmdBuffer;
 
-    SkSTArray<1, const GrVkSemaphore::Resource*> fSemaphoresToWaitOn;
-    SkSTArray<1, const GrVkSemaphore::Resource*> fSemaphoresToSignal;
+    SkSTArray<1, GrVkSemaphore::Resource*>       fSemaphoresToWaitOn;
+    SkSTArray<1, GrVkSemaphore::Resource*>       fSemaphoresToSignal;
 
     VkPhysicalDeviceMemoryProperties             fPhysDevMemProps;
 
