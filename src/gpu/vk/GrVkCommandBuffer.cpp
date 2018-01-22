@@ -445,12 +445,36 @@ void GrVkPrimaryCommandBuffer::executeCommands(const GrVkGpu* gpu,
     this->invalidateState();
 }
 
+static void submit_to_queue(const GrVkInterface* interface,
+                            VkQueue queue,
+                            VkFence fence,
+                            uint32_t waitCount,
+                            const VkSemaphore* waitSemaphores,
+                            const VkPipelineStageFlags* waitStages,
+                            uint32_t commandBufferCount,
+                            const VkCommandBuffer* commandBuffers,
+                            uint32_t signalCount,
+                            const VkSemaphore* signalSemaphores) {
+    VkSubmitInfo submitInfo;
+    memset(&submitInfo, 0, sizeof(VkSubmitInfo));
+    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+    submitInfo.pNext = nullptr;
+    submitInfo.waitSemaphoreCount = waitCount;
+    submitInfo.pWaitSemaphores = waitSemaphores;
+    submitInfo.pWaitDstStageMask = waitStages;
+    submitInfo.commandBufferCount = commandBufferCount;
+    submitInfo.pCommandBuffers = commandBuffers;
+    submitInfo.signalSemaphoreCount = signalCount;
+    submitInfo.pSignalSemaphores = signalSemaphores;
+    GR_VK_CALL_ERRCHECK(interface, QueueSubmit(queue, 1, &submitInfo, fence));
+}
+
 void GrVkPrimaryCommandBuffer::submitToQueue(
         const GrVkGpu* gpu,
         VkQueue queue,
         GrVkGpu::SyncQueue sync,
-        SkTArray<const GrVkSemaphore::Resource*>& signalSemaphores,
-        SkTArray<const GrVkSemaphore::Resource*>& waitSemaphores) {
+        SkTArray<GrVkSemaphore::Resource*>& signalSemaphores,
+        SkTArray<GrVkSemaphore::Resource*>& waitSemaphores) {
     SkASSERT(!fIsActive);
 
     VkResult err;
@@ -466,33 +490,51 @@ void GrVkPrimaryCommandBuffer::submitToQueue(
     }
 
     int signalCount = signalSemaphores.count();
-    SkTArray<VkSemaphore> vkSignalSem(signalCount);
-    for (int i = 0; i < signalCount; ++i) {
-        this->addResource(signalSemaphores[i]);
-        vkSignalSem.push_back(signalSemaphores[i]->semaphore());
-    }
-
     int waitCount = waitSemaphores.count();
-    SkTArray<VkSemaphore> vkWaitSems(waitCount);
-    SkTArray<VkPipelineStageFlags> vkWaitStages(waitCount);
-    for (int i = 0; i < waitCount; ++i) {
-        this->addResource(waitSemaphores[i]);
-        vkWaitSems.push_back(waitSemaphores[i]->semaphore());
-        vkWaitStages.push_back(VK_PIPELINE_STAGE_ALL_COMMANDS_BIT);
-    }
 
-    VkSubmitInfo submitInfo;
-    memset(&submitInfo, 0, sizeof(VkSubmitInfo));
-    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-    submitInfo.pNext = nullptr;
-    submitInfo.waitSemaphoreCount = waitCount;
-    submitInfo.pWaitSemaphores = vkWaitSems.begin();
-    submitInfo.pWaitDstStageMask = vkWaitStages.begin();
-    submitInfo.commandBufferCount = 1;
-    submitInfo.pCommandBuffers = &fCmdBuffer;
-    submitInfo.signalSemaphoreCount = vkSignalSem.count();
-    submitInfo.pSignalSemaphores = vkSignalSem.begin();
-    GR_VK_CALL_ERRCHECK(gpu->vkInterface(), QueueSubmit(queue, 1, &submitInfo, fSubmitFence));
+    if (0 == signalCount && 0 == waitCount) {
+        // This command buffer has no dependent semaphores so we can simply just submit it to the
+        // queue with no worries.
+        submit_to_queue(gpu->vkInterface(), queue, fSubmitFence, 0, nullptr, nullptr,
+                        1, &fCmdBuffer, 0, nullptr);
+    } else {
+        GrVkSemaphore::Resource::AcquireMutex();
+
+        SkTArray<VkSemaphore> vkSignalSems(signalCount);
+        for (int i = 0; i < signalCount; ++i) {
+            if (signalSemaphores[i]->shouldSignal()) {
+                this->addResource(signalSemaphores[i]);
+                vkSignalSems.push_back(signalSemaphores[i]->semaphore());
+            }
+        }
+
+        SkTArray<VkSemaphore> vkWaitSems(waitCount);
+        SkTArray<VkPipelineStageFlags> vkWaitStages(waitCount);
+        for (int i = 0; i < waitCount; ++i) {
+            if (waitSemaphores[i]->shouldWait()) {
+                this->addResource(waitSemaphores[i]);
+                vkWaitSems.push_back(waitSemaphores[i]->semaphore());
+                vkWaitStages.push_back(VK_PIPELINE_STAGE_ALL_COMMANDS_BIT);
+            }
+        }
+        submit_to_queue(gpu->vkInterface(), queue, fSubmitFence,
+                        vkWaitSems.count(), vkWaitSems.begin(), vkWaitStages.begin(),
+                        1, &fCmdBuffer,
+                        vkSignalSems.count(), vkSignalSems.begin());
+        // Since shouldSignal/Wait do not require a mutex to be held, we must make sure that we mark
+        // the semaphores after we've submitted. Thus in the worst case another submit grabs the
+        // mutex and then realizes it doesn't need to submit the semaphore. We will never end up
+        // where a semaphore doesn't think it needs to be submitted (cause of querying
+        // shouldSignal/Wait), but it should need to.
+        for (int i = 0; i < signalCount; ++i) {
+            signalSemaphores[i]->markAsSignaled();
+        }
+        for (int i = 0; i < waitCount; ++i) {
+            waitSemaphores[i]->markAsWaited();
+        }
+
+        GrVkSemaphore::Resource::ReleaseMutex();
+    }
 
     if (GrVkGpu::kForce_SyncQueue == sync) {
         err = GR_VK_CALL(gpu->vkInterface(),
