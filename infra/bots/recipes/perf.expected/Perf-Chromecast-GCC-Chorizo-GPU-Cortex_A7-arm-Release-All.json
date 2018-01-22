@@ -373,6 +373,7 @@
       "~blur_0.01",
       "~GM_animated-image-blurs",
       "~blendmode_mask_",
+      "~desk_carsvg.skp",
       "~^path_text_clipped",
       "--outResultsFile",
       "/cache/skia/perf/nanobench_abc123_1337000001.json",

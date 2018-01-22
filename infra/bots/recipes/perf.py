@@ -267,12 +267,13 @@ def perf_steps(api):
           api.flavor.device_dirs.resource_dir, 'color_wheel.jpg'),
       '--skps',  api.flavor.device_dirs.skp_dir,
       '--pre_log',
-      '--match', # skia:6581
+      '--match', # skia:6687
       '~matrixconvolution',
       '~blur_image_filter',
       '~blur_0.01',
       '~GM_animated-image-blurs',
       '~blendmode_mask_',
+      '~desk_carsvg.skp',
       '~^path_text_clipped', # Bot times out; skia:7190
     ])
 
