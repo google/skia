@@ -4949,3 +4949,25 @@ DEF_TEST(AndroidArc, reporter) {
     }
 }
 #endif
+
+DEF_TEST(HugeGeometry, reporter) {
+    auto surf = SkSurface::MakeRasterN32Premul(100, 100);
+    auto canvas = surf->getCanvas();
+
+    SkPaint paint0, paint1;
+    paint1.setAntiAlias(true);
+
+    const SkPaint* paints[] = { &paint0, &paint1 };
+    const SkScalar values[] = {
+        1000, 1000 * 1000, 1000.f * 1000 * 10000, SK_ScalarMax / 2, SK_ScalarMax, SK_ScalarInfinity
+    };
+    for (auto x : values) {
+        SkRect r = { -x, -x, x, x };
+        for (auto p : paints) {
+            canvas->drawRect(r, *p);
+            canvas->drawOval(r, *p);
+        }
+    }
+
+}
+
