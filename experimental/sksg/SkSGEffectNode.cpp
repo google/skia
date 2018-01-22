@@ -11,11 +11,11 @@ namespace sksg {
 
 EffectNode::EffectNode(sk_sp<RenderNode> child)
     : fChild(std::move(child)) {
-    fChild->addInvalReceiver(this);
+    this->observeInval(fChild);
 }
 
 EffectNode::~EffectNode() {
-    fChild->removeInvalReceiver(this);
+    this->unobserveInval(fChild);
 }
 
 void EffectNode::onRender(SkCanvas* canvas) const {

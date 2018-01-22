@@ -16,13 +16,13 @@ Matrix::Matrix(const SkMatrix& m, sk_sp<Matrix> parent)
     , fParent(std::move(parent))
     , fLocalMatrix(m) {
     if (fParent) {
-        fParent->addInvalReceiver(this);
+        this->observeInval(fParent);
     }
 }
 
 Matrix::~Matrix() {
     if (fParent) {
-        fParent->removeInvalReceiver(this);
+        this->unobserveInval(fParent);
     }
 }
 
@@ -40,11 +40,11 @@ SkRect Matrix::onRevalidate(InvalidationController* ic, const SkMatrix& ctm) {
 Transform::Transform(sk_sp<RenderNode> child, sk_sp<Matrix> matrix)
     : INHERITED(std::move(child))
     , fMatrix(std::move(matrix)) {
-    fMatrix->addInvalReceiver(this);
+    this->observeInval(fMatrix);
 }
 
 Transform::~Transform() {
-    fMatrix->removeInvalReceiver(this);
+    this->unobserveInval(fMatrix);
 }
 
 void Transform::onRender(SkCanvas* canvas) const {

@@ -16,13 +16,13 @@ namespace sksg {
 Draw::Draw(sk_sp<GeometryNode> geometry, sk_sp<PaintNode> paint)
     : fGeometry(std::move(geometry))
     , fPaint(std::move(paint)) {
-    fGeometry->addInvalReceiver(this);
-    fPaint->addInvalReceiver(this);
+    this->observeInval(fGeometry);
+    this->observeInval(fPaint);
 }
 
 Draw::~Draw() {
-    fGeometry->removeInvalReceiver(this);
-    fPaint->removeInvalReceiver(this);
+    this->unobserveInval(fGeometry);
+    this->unobserveInval(fPaint);
 }
 
 void Draw::onRender(SkCanvas* canvas) const {

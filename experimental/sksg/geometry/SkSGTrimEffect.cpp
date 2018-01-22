@@ -15,11 +15,11 @@ namespace sksg {
 
 TrimEffect::TrimEffect(sk_sp<GeometryNode> child)
     : fChild(std::move(child)) {
-    fChild->addInvalReceiver(this);
+    this->observeInval(fChild);
 }
 
 TrimEffect::~TrimEffect() {
-    fChild->removeInvalReceiver(this);
+    this->unobserveInval(fChild);
 }
 
 // TODO

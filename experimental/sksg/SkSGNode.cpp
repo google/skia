@@ -39,64 +39,66 @@ private:
         return
 
 Node::Node(uint32_t invalTraits)
-    : fInvalReceiver(nullptr)
+    : fInvalObserver(nullptr)
     , fBounds(SkRectPriv::MakeLargeS32())
     , fInvalTraits(invalTraits)
     , fFlags(kInvalidated_Flag) {}
 
 Node::~Node() {
-    if (fFlags & kReceiverArray_Flag) {
-        SkASSERT(fInvalReceiverArray->isEmpty());
-        delete fInvalReceiverArray;
+    if (fFlags & kObserverArray_Flag) {
+        SkASSERT(fInvalObserverArray->isEmpty());
+        delete fInvalObserverArray;
     } else {
-        SkASSERT(!fInvalReceiver);
+        SkASSERT(!fInvalObserver);
     }
 }
 
-void Node::addInvalReceiver(Node* receiver) {
-    if (!(fFlags & kReceiverArray_Flag)) {
-        if (!fInvalReceiver) {
-            fInvalReceiver = receiver;
+void Node::observeInval(const sk_sp<Node>& node) {
+    SkASSERT(node);
+    if (!(node->fFlags & kObserverArray_Flag)) {
+        if (!node->fInvalObserver) {
+            node->fInvalObserver = this;
             return;
         }
 
-        auto receivers = new SkTDArray<Node*>();
-        receivers->setReserve(2);
-        receivers->push(fInvalReceiver);
+        auto observers = new SkTDArray<Node*>();
+        observers->setReserve(2);
+        observers->push(node->fInvalObserver);
 
-        fInvalReceiverArray = receivers;
-        fFlags |= kReceiverArray_Flag;
+        node->fInvalObserverArray = observers;
+        node->fFlags |= kObserverArray_Flag;
     }
 
-    // No duplicate receivers.
-    SkASSERT(fInvalReceiverArray->find(receiver) < 0);
+    // No duplicate observers.
+    SkASSERT(node->fInvalObserverArray->find(this) < 0);
 
-    fInvalReceiverArray->push(receiver);
+    node->fInvalObserverArray->push(this);
 }
 
-void Node::removeInvalReceiver(Node* receiver) {
-    if (!(fFlags & kReceiverArray_Flag)) {
-        SkASSERT(fInvalReceiver == receiver);
-        fInvalReceiver = nullptr;
+void Node::unobserveInval(const sk_sp<Node>& node) {
+    SkASSERT(node);
+    if (!(node->fFlags & kObserverArray_Flag)) {
+        SkASSERT(node->fInvalObserver == this);
+        node->fInvalObserver = nullptr;
         return;
     }
 
-    const auto idx = fInvalReceiverArray->find(receiver);
+    const auto idx = node->fInvalObserverArray->find(this);
     SkASSERT(idx >= 0);
-    fInvalReceiverArray->remove(idx);
+    node->fInvalObserverArray->remove(idx);
 }
 
 template <typename Func>
-void Node::forEachInvalReceiver(Func&& func) const {
-    if (fFlags & kReceiverArray_Flag) {
-        for (const auto& parent : *fInvalReceiverArray) {
+void Node::forEachInvalObserver(Func&& func) const {
+    if (fFlags & kObserverArray_Flag) {
+        for (const auto& parent : *fInvalObserverArray) {
             func(parent);
         }
         return;
     }
 
-    if (fInvalReceiver) {
-        func(fInvalReceiver);
+    if (fInvalObserver) {
+        func(fInvalObserver);
     }
 }
 
@@ -109,15 +111,15 @@ void Node::invalidate(bool damageBubbling) {
     }
 
     if (damageBubbling && !(fInvalTraits & kBubbleDamage_Trait)) {
-        // Found a damage receiver.
+        // Found a damage observer.
         fFlags |= kDamage_Flag;
         damageBubbling = false;
     }
 
     fFlags |= kInvalidated_Flag;
 
-    forEachInvalReceiver([&](Node* receiver) {
-        receiver->invalidate(damageBubbling);
+    forEachInvalObserver([&](Node* observer) {
+        observer->invalidate(damageBubbling);
     });
 }
 

@@ -14,13 +14,13 @@ namespace sksg {
 GeometryTransform::GeometryTransform(sk_sp<GeometryNode> child, sk_sp<Matrix> matrix)
     : fChild(std::move(child))
     , fMatrix(std::move(matrix)) {
-    fChild->addInvalReceiver(this);
-    fMatrix->addInvalReceiver(this);
+    this->observeInval(fChild);
+    this->observeInval(fMatrix);
 }
 
 GeometryTransform::~GeometryTransform() {
-    fChild->removeInvalReceiver(this);
-    fMatrix->removeInvalReceiver(this);
+    this->unobserveInval(fChild);
+    this->unobserveInval(fMatrix);
 }
 
 SkRect GeometryTransform::onRevalidate(InvalidationController* ic, const SkMatrix& ctm) {

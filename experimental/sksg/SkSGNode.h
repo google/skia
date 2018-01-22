@@ -57,36 +57,26 @@ protected:
     // and return their bounding box in local coordinates.
     virtual SkRect onRevalidate(InvalidationController*, const SkMatrix& ctm) = 0;
 
+    // Register/unregister |this| to receive invalidation events from a descendant.
+    void observeInval(const sk_sp<Node>&);
+    void unobserveInval(const sk_sp<Node>&);
+
 private:
     enum Flags {
         kInvalidated_Flag   = 1 << 0, // the node or its descendants require revalidation
         kDamage_Flag        = 1 << 1, // the node contributes damage during revalidation
-        kReceiverArray_Flag = 1 << 2, // the node has more than one inval receiver
+        kObserverArray_Flag = 1 << 2, // the node has more than one inval observer
         kInTraversal_Flag   = 1 << 3, // the node is part of a traversal (cycle detection)
     };
 
-    void addInvalReceiver(Node*);
-    void removeInvalReceiver(Node*);
-    // TODO: too friendly, find another way.
-    friend class Draw;
-    friend class EffectNode;
-    friend class GeometryTransform;
-    friend class Group;
-    friend class MaskEffect;
-    friend class Matrix;
-    friend class Merge;
-    friend class Stroke;
-    friend class Transform;
-    friend class TrimEffect;
-
     template <typename Func>
-    void forEachInvalReceiver(Func&&) const;
+    void forEachInvalObserver(Func&&) const;
 
     class ScopedFlag;
 
     union {
-        Node*             fInvalReceiver;
-        SkTDArray<Node*>* fInvalReceiverArray;
+        Node*             fInvalObserver;
+        SkTDArray<Node*>* fInvalObserverArray;
     };
     SkRect                fBounds;
     const uint32_t        fInvalTraits : 16;
