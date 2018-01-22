@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1c1bf5ea_85588b66",
+        "filename": "tools/viewer/Viewer.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 822,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-01-22T16:09:30Z",
+      "side": 0,
+      "message": "All of these calls are already done in setupCurrentSlide().",
+      "range": {
+        "startLine": 822,
+        "startChar": 10,
+        "endLine": 822,
+        "endChar": 21
+      },
+      "revId": "dba65f95e40fb1a4ea936b453b9bcb3fdbe178e1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
