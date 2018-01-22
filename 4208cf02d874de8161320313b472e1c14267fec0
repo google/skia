@@ -52,6 +52,24 @@
       "revId": "4208cf02d874de8161320313b472e1c14267fec0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "77e78001_b6483ba4",
+        "filename": "tools/viewer/Viewer.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 621,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-01-22T15:23:36Z",
+      "side": 1,
+      "message": "Try this on for size. I moved setCurrentSlide to the backend creation callback.",
+      "parentUuid": "4dd71942_41d4a97c",
+      "revId": "4208cf02d874de8161320313b472e1c14267fec0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
