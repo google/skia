@@ -72,6 +72,11 @@ sk_sp<SkPixelRef> SkMallocPixelRef::MakeUsing(void*(*allocProc)(size_t),
         if (SkImageInfo::ByteSizeOverflowed(size)) {
             return nullptr;
         }
+#if defined(IS_FUZZING)
+        if (size > 100000) {
+            return nullptr;
+        }
+#endif
     }
     void* addr = allocProc(size);
     if (nullptr == addr) {
