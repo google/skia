@@ -15,6 +15,10 @@
 #include "SkTypeface.h"
 #include "SkTextBlob.h"
 
+#if SK_SUPPORT_GPU
+#include "GrContext.h"
+#endif
+
 static void make_paint(SkPaint* paint, sk_sp<SkTypeface> typeface) {
   static const int kTextSize = 56;
 
@@ -124,7 +128,134 @@ private:
     typedef SkView INHERITED;
 };
 
+class ChineseZoomView : public SampleView {
+public:
+    ChineseZoomView() : fBlobs(kNumBlobs), fScale(1.0f) {}
+
+protected:
+    bool onQuery(SkEvent* evt) override {
+        if (SampleCode::TitleQ(*evt)) {
+            SampleCode::TitleR(evt, "chinese-zoom");
+            return true;
+        }
+        SkUnichar uni;
+        if (SampleCode::CharQ(*evt, &uni)) {
+            if ('>' == uni) {
+                fScale += 0.125f;
+                return true;
+            }
+            if ('<' == uni) {
+                fScale -= 0.125f;
+                return true;
+            }
+        }
+        return this->INHERITED::onQuery(evt);
+    }
+
+    void onDrawContent(SkCanvas* canvas) override {
+        if (!fInitialized) {
+            this->init();
+            fInitialized = true;
+        }
+
+        canvas->clear(0xFFDDDDDD);
+
+        SkPaint paint;
+        paint.setAntiAlias(true);
+        paint.setColor(0xDE000000);
+        paint.setTypeface(fTypeface);
+        paint.setTextSize(11);
+        paint.setTextEncoding(SkPaint::kUTF32_TextEncoding);
+
+#if SK_SUPPORT_GPU
+        GrContext* grContext = canvas->getGrContext();
+        if (grContext) {
+            sk_sp<SkImage> image =
+            grContext->getFontAtlasImage_ForTesting(GrMaskFormat::kA8_GrMaskFormat, 0);
+            canvas->drawImageRect(image,
+                                  SkRect::MakeXYWH(512.0f, 10.0f, 512.0f, 512.0), &paint);
+            image = grContext->getFontAtlasImage_ForTesting(GrMaskFormat::kA8_GrMaskFormat, 1);
+            canvas->drawImageRect(image,
+                                  SkRect::MakeXYWH(1024.0f, 10.0f, 512.f, 512.0f), &paint);
+            image = grContext->getFontAtlasImage_ForTesting(GrMaskFormat::kA8_GrMaskFormat, 2);
+            canvas->drawImageRect(image,
+                                  SkRect::MakeXYWH(512.0f, 522.0f, 512.0f, 512.0f), &paint);
+            image = grContext->getFontAtlasImage_ForTesting(GrMaskFormat::kA8_GrMaskFormat, 3);
+            canvas->drawImageRect(image,
+                                  SkRect::MakeXYWH(1024.0f, 522.0f, 512.0f, 512.0f), &paint);
+        }
+#endif
+
+        canvas->scale(fScale, fScale);
+
+        // draw a consistent run of the 'words' - one word per line
+        SkScalar y = 0;
+        for (int index = 0; index < kNumBlobs; ++index) {
+            y += -fMetrics.fAscent;
+            canvas->drawTextBlob(fBlobs[index], 0, y, paint);
+
+            y += 3*(fMetrics.fDescent - fMetrics.fAscent + fMetrics.fLeading);
+        }
+    }
+
+private:
+    static constexpr auto kNumBlobs = 8;
+    static constexpr auto kParagraphLength = 175;
+
+    void init() {
+        fTypeface = chinese_typeface();
+
+        SkPaint paint;
+        paint.setAntiAlias(true);
+        paint.setColor(0xDE000000);
+        paint.setTypeface(fTypeface);
+        paint.setTextSize(11);
+        paint.setTextEncoding(SkPaint::kUTF32_TextEncoding);
+
+        paint.getFontMetrics(&fMetrics);
+
+        SkUnichar glyphs[45];
+        for (int32_t i = 0; i < kNumBlobs; ++i) {
+            SkTextBlobBuilder builder;
+            auto paragraphLength = kParagraphLength;
+            SkScalar y = 0;
+            while (paragraphLength - 45 > 0) {
+                auto currentLineLength = SkTMin(45, paragraphLength - 45);
+                this->createRandomLine(glyphs, currentLineLength);
+
+                sk_tool_utils::add_to_text_blob_w_len(&builder, (const char*) glyphs,
+                                                      currentLineLength*4, paint, 0, y);
+                y += fMetrics.fDescent - fMetrics.fAscent + fMetrics.fLeading;
+                paragraphLength -= 45;
+            }
+            fBlobs.emplace_back(builder.make());
+        }
+
+        fIndex = 0;
+    }
+
+    // Construct a random kWordLength character 'word' drawing from the full Chinese set
+    void createRandomLine(SkUnichar glyphs[45], int lineLength) {
+        for (auto i = 0; i < lineLength; ++i) {
+            glyphs[i] = fRand.nextRangeU(0x4F00, 0x9FA0);
+        }
+    }
+
+    bool                        fInitialized = false;
+    sk_sp<SkTypeface>           fTypeface;
+    SkPaint::FontMetrics        fMetrics;
+    SkTArray<sk_sp<SkTextBlob>> fBlobs;
+    SkRandom                    fRand;
+    SkScalar                    fScale;
+    int                         fIndex;
+
+    typedef SkView INHERITED;
+};
+
 //////////////////////////////////////////////////////////////////////////////
 
-static SkView* MyFactory() { return new ChineseFlingView; }
-static SkViewRegister reg(MyFactory);
+static SkView* FlingFactory() { return new ChineseFlingView; }
+static SkViewRegister regFling(FlingFactory);
+
+static SkView* ZoomFactory() { return new ChineseZoomView; }
+static SkViewRegister regZoom(ZoomFactory);
