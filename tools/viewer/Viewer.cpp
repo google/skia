@@ -395,6 +395,10 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     fImGuiGamutPaint.setFilterQuality(kLow_SkFilterQuality);
 
     fWindow->attach(backend_type_for_window(fBackendType));
+    // for samples, need to reload after backend creation
+    // because width and height are 0 until then
+    fSlides[fCurrentSlide]->load(SkIntToScalar(fWindow->width()),
+                                 SkIntToScalar(fWindow->height()));
 }
 
 void Viewer::initSlides() {
@@ -819,12 +823,8 @@ void Viewer::drawSlide(SkCanvas* canvas) {
 }
 
 void Viewer::onBackendCreated() {
-    this->updateTitle();
-    this->updateUIState();
     this->setupCurrentSlide();
-    fStatsLayer.resetMeasurements();
     fWindow->show();
-    fWindow->inval();
 }
 
 void Viewer::onPaint(SkCanvas* canvas) {
