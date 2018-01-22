@@ -2942,7 +2942,7 @@ any cached data is deleted when owning <a href="SkSurface_Reference#Surface">Sur
 void drawPaint(const SkPaint& paint)
 </pre>
 
-Fill <a href="#Clip">Clip</a> with <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawPaint_paint">paint</a>. <a href="SkPaint_Reference#Paint">Paint</a> components <a href="undocumented#Rasterizer">Rasterizer</a>, <a href="undocumented#Mask_Filter">Mask Filter</a>, <a href="undocumented#Shader">Shader</a>,
+Fill <a href="#Clip">Clip</a> with <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawPaint_paint">paint</a>. <a href="SkPaint_Reference#Paint">Paint</a> components <a href="undocumented#Mask_Filter">Mask Filter</a>, <a href="undocumented#Shader">Shader</a>,
 <a href="undocumented#Color_Filter">Color Filter</a>, <a href="undocumented#Image_Filter">Image Filter</a>, and <a href="undocumented#Blend_Mode">Blend Mode</a> affect drawing;
 <a href="undocumented#Path_Effect">Path Effect</a> in <a href="#SkCanvas_drawPaint_paint">paint</a> is ignored.
 
@@ -4579,7 +4579,7 @@ UTF-8.
 <a href="#SkCanvas_drawText_text">text</a> draws left to right, positioning the first glyph left side bearing at <a href="#SkCanvas_drawText_x">x</a>
 and its baseline at <a href="#SkCanvas_drawText_y">y</a>. <a href="undocumented#Text">Text</a> size is affected by <a href="#Matrix">Matrix</a> and <a href="#Text_Size">Paint Text Size</a>.
 
-All elements of <a href="#SkCanvas_drawText_paint">paint</a>: <a href="undocumented#Path_Effect">Path Effect</a>, <a href="undocumented#Rasterizer">Rasterizer</a>, <a href="undocumented#Mask_Filter">Mask Filter</a>, <a href="undocumented#Shader">Shader</a>,
+All elements of <a href="#SkCanvas_drawText_paint">paint</a>: <a href="undocumented#Path_Effect">Path Effect</a>, <a href="undocumented#Mask_Filter">Mask Filter</a>, <a href="undocumented#Shader">Shader</a>,
 <a href="undocumented#Color_Filter">Color Filter</a>, <a href="undocumented#Image_Filter">Image Filter</a>, and <a href="undocumented#Draw_Looper">Draw Looper</a>; apply to <a href="#SkCanvas_drawText_text">text</a>. By default, draws
 filled 12 point black <a href="#Glyph">Glyphs</a>.
 
@@ -4627,7 +4627,7 @@ results, since zero bytes may be embedded in the <a href="#SkCanvas_drawString_s
 <a href="#SkCanvas_drawString_string">string</a> draws left to right, positioning the first glyph left side bearing at <a href="#SkCanvas_drawString_x">x</a>
 and its baseline at <a href="#SkCanvas_drawString_y">y</a>. <a href="undocumented#Text">Text</a> size is affected by <a href="#Matrix">Matrix</a> and <a href="#Text_Size">Paint Text Size</a>.
 
-All elements of <a href="#SkCanvas_drawString_paint">paint</a>: <a href="undocumented#Path_Effect">Path Effect</a>, <a href="undocumented#Rasterizer">Rasterizer</a>, <a href="undocumented#Mask_Filter">Mask Filter</a>, <a href="undocumented#Shader">Shader</a>,
+All elements of <a href="#SkCanvas_drawString_paint">paint</a>: <a href="undocumented#Path_Effect">Path Effect</a>, <a href="undocumented#Mask_Filter">Mask Filter</a>, <a href="undocumented#Shader">Shader</a>,
 <a href="undocumented#Color_Filter">Color Filter</a>, <a href="undocumented#Image_Filter">Image Filter</a>, and <a href="undocumented#Draw_Looper">Draw Looper</a>; apply to text. By default, draws
 filled 12 point black <a href="#Glyph">Glyphs</a>.
 
@@ -4670,7 +4670,7 @@ results, since zero bytes may be embedded in the <a href="#SkCanvas_drawString_2
 <a href="#SkCanvas_drawString_2_string">string</a> draws left to right, positioning the first glyph left side bearing at <a href="#SkCanvas_drawString_2_x">x</a>
 and its baseline at <a href="#SkCanvas_drawString_2_y">y</a>. <a href="undocumented#Text">Text</a> size is affected by <a href="#Matrix">Matrix</a> and <a href="#Text_Size">Paint Text Size</a>.
 
-All elements of <a href="#SkCanvas_drawString_2_paint">paint</a>: <a href="undocumented#Path_Effect">Path Effect</a>, <a href="undocumented#Rasterizer">Rasterizer</a>, <a href="undocumented#Mask_Filter">Mask Filter</a>, <a href="undocumented#Shader">Shader</a>,
+All elements of <a href="#SkCanvas_drawString_2_paint">paint</a>: <a href="undocumented#Path_Effect">Path Effect</a>, <a href="undocumented#Mask_Filter">Mask Filter</a>, <a href="undocumented#Shader">Shader</a>,
 <a href="undocumented#Color_Filter">Color Filter</a>, <a href="undocumented#Image_Filter">Image Filter</a>, and <a href="undocumented#Draw_Looper">Draw Looper</a>; apply to text. By default, draws
 filled 12 point black <a href="#Glyph">Glyphs</a>.
 
@@ -4715,7 +4715,7 @@ by default each glyph left side bearing is positioned at x and its
 baseline is positioned at y. <a href="undocumented#Text">Text</a> size is affected by <a href="#Matrix">Matrix</a> and
 <a href="#Text_Size">Paint Text Size</a>.
 
-All elements of <a href="#SkCanvas_drawPosText_paint">paint</a>: <a href="undocumented#Path_Effect">Path Effect</a>, <a href="undocumented#Rasterizer">Rasterizer</a>, <a href="undocumented#Mask_Filter">Mask Filter</a>, <a href="undocumented#Shader">Shader</a>,
+All elements of <a href="#SkCanvas_drawPosText_paint">paint</a>: <a href="undocumented#Path_Effect">Path Effect</a>, <a href="undocumented#Mask_Filter">Mask Filter</a>, <a href="undocumented#Shader">Shader</a>,
 <a href="undocumented#Color_Filter">Color Filter</a>, <a href="undocumented#Image_Filter">Image Filter</a>, and <a href="undocumented#Draw_Looper">Draw Looper</a>; apply to <a href="#SkCanvas_drawPosText_text">text</a>. By default, draws
 filled 12 point black <a href="#Glyph">Glyphs</a>.
 
@@ -4763,7 +4763,7 @@ by default each glyph left side bearing is positioned at an <a href="#SkCanvas_d
 its baseline is positioned at <a href="#SkCanvas_drawPosTextH_constY">constY</a>. <a href="undocumented#Text">Text</a> size is affected by <a href="#Matrix">Matrix</a> and
 <a href="#Text_Size">Paint Text Size</a>.
 
-All elements of <a href="#SkCanvas_drawPosTextH_paint">paint</a>: <a href="undocumented#Path_Effect">Path Effect</a>, <a href="undocumented#Rasterizer">Rasterizer</a>, <a href="undocumented#Mask_Filter">Mask Filter</a>, <a href="undocumented#Shader">Shader</a>,
+All elements of <a href="#SkCanvas_drawPosTextH_paint">paint</a>: <a href="undocumented#Path_Effect">Path Effect</a>, <a href="undocumented#Mask_Filter">Mask Filter</a>, <a href="undocumented#Shader">Shader</a>,
 <a href="undocumented#Color_Filter">Color Filter</a>, <a href="undocumented#Image_Filter">Image Filter</a>, and <a href="undocumented#Draw_Looper">Draw Looper</a>; apply to <a href="#SkCanvas_drawPosTextH_text">text</a>. By default, draws
 filled 12 point black <a href="#Glyph">Glyphs</a>.
 
@@ -4817,7 +4817,7 @@ UTF-8. Origin meaning depends on <a href="#Text_Align">Paint Text Align</a> and 
 default <a href="#SkCanvas_drawTextOnPathHV_text">text</a> positions the first glyph left side bearing at origin x and its
 baseline at origin y. <a href="undocumented#Text">Text</a> size is affected by <a href="#Matrix">Matrix</a> and <a href="#Text_Size">Paint Text Size</a>.
 
-All elements of <a href="#SkCanvas_drawTextOnPathHV_paint">paint</a>: <a href="undocumented#Path_Effect">Path Effect</a>, <a href="undocumented#Rasterizer">Rasterizer</a>, <a href="undocumented#Mask_Filter">Mask Filter</a>, <a href="undocumented#Shader">Shader</a>,
+All elements of <a href="#SkCanvas_drawTextOnPathHV_paint">paint</a>: <a href="undocumented#Path_Effect">Path Effect</a>, <a href="undocumented#Mask_Filter">Mask Filter</a>, <a href="undocumented#Shader">Shader</a>,
 <a href="undocumented#Color_Filter">Color Filter</a>, <a href="undocumented#Image_Filter">Image Filter</a>, and <a href="undocumented#Draw_Looper">Draw Looper</a>; apply to <a href="#SkCanvas_drawTextOnPathHV_text">text</a>. By default, draws
 filled 12 point black <a href="#Glyph">Glyphs</a>.
 
@@ -4869,7 +4869,7 @@ UTF-8. Origin meaning depends on <a href="#Text_Align">Paint Text Align</a> and 
 default <a href="#SkCanvas_drawTextOnPath_text">text</a> positions the first glyph left side bearing at origin x and its
 baseline at origin y. <a href="undocumented#Text">Text</a> size is affected by <a href="#Matrix">Matrix</a> and <a href="#Text_Size">Paint Text Size</a>.
 
-All elements of <a href="#SkCanvas_drawTextOnPath_paint">paint</a>: <a href="undocumented#Path_Effect">Path Effect</a>, <a href="undocumented#Rasterizer">Rasterizer</a>, <a href="undocumented#Mask_Filter">Mask Filter</a>, <a href="undocumented#Shader">Shader</a>,
+All elements of <a href="#SkCanvas_drawTextOnPath_paint">paint</a>: <a href="undocumented#Path_Effect">Path Effect</a>, <a href="undocumented#Mask_Filter">Mask Filter</a>, <a href="undocumented#Shader">Shader</a>,
 <a href="undocumented#Color_Filter">Color Filter</a>, <a href="undocumented#Image_Filter">Image Filter</a>, and <a href="undocumented#Draw_Looper">Draw Looper</a>; apply to <a href="#SkCanvas_drawTextOnPath_text">text</a>. By default, draws
 filled 12 point black <a href="#Glyph">Glyphs</a>.
 
@@ -4916,7 +4916,7 @@ each glyph.
 Optional <a href="SkRect_Reference#Rect">Rect</a> <a href="#SkCanvas_drawTextRSXform_cullRect">cullRect</a> is a conservative bounds of <a href="#SkCanvas_drawTextRSXform_text">text</a>, taking into account
 <a href="undocumented#RSXform">RSXform</a> and <a href="#SkCanvas_drawTextRSXform_paint">paint</a>. If <a href="#SkCanvas_drawTextRSXform_cullRect">cullRect</a> is outside of <a href="#Clip">Clip</a>, canvas can skip drawing.
 
-All elements of <a href="#SkCanvas_drawTextRSXform_paint">paint</a>: <a href="undocumented#Path_Effect">Path Effect</a>, <a href="undocumented#Rasterizer">Rasterizer</a>, <a href="undocumented#Mask_Filter">Mask Filter</a>, <a href="undocumented#Shader">Shader</a>,
+All elements of <a href="#SkCanvas_drawTextRSXform_paint">paint</a>: <a href="undocumented#Path_Effect">Path Effect</a>, <a href="undocumented#Mask_Filter">Mask Filter</a>, <a href="undocumented#Shader">Shader</a>,
 <a href="undocumented#Color_Filter">Color Filter</a>, <a href="undocumented#Image_Filter">Image Filter</a>, and <a href="undocumented#Draw_Looper">Draw Looper</a>; apply to <a href="#SkCanvas_drawTextRSXform_text">text</a>. By default, draws
 filled 12 point black <a href="#Glyph">Glyphs</a>.
 
@@ -4962,7 +4962,7 @@ Draw <a href="undocumented#Text_Blob">Text Blob</a> <a href="#SkCanvas_drawTextB
 
 <a href="#Text_Encoding">Paint Text Encoding</a> must be set to <a href="#SkPaint_kGlyphID_TextEncoding">SkPaint::kGlyphID TextEncoding</a>.
 
-Elements of <a href="#SkCanvas_drawTextBlob_paint">paint</a>: <a href="undocumented#Path_Effect">Path Effect</a>, <a href="undocumented#Rasterizer">Rasterizer</a>, <a href="undocumented#Mask_Filter">Mask Filter</a>, <a href="undocumented#Shader">Shader</a>, <a href="undocumented#Color_Filter">Color Filter</a>,
+Elements of <a href="#SkCanvas_drawTextBlob_paint">paint</a>: <a href="undocumented#Path_Effect">Path Effect</a>, <a href="undocumented#Mask_Filter">Mask Filter</a>, <a href="undocumented#Shader">Shader</a>, <a href="undocumented#Color_Filter">Color Filter</a>,
 <a href="undocumented#Image_Filter">Image Filter</a>, and <a href="undocumented#Draw_Looper">Draw Looper</a>; apply to <a href="#SkCanvas_drawTextBlob_blob">blob</a>.
 
 ### Parameters
@@ -5002,7 +5002,7 @@ Draw <a href="undocumented#Text_Blob">Text Blob</a> <a href="#SkCanvas_drawTextB
 
 <a href="#Text_Encoding">Paint Text Encoding</a> must be set to <a href="#SkPaint_kGlyphID_TextEncoding">SkPaint::kGlyphID TextEncoding</a>.
 
-Elements of <a href="#SkCanvas_drawTextBlob_2_paint">paint</a>: <a href="undocumented#Path_Effect">Path Effect</a>, <a href="undocumented#Rasterizer">Rasterizer</a>, <a href="undocumented#Mask_Filter">Mask Filter</a>, <a href="undocumented#Shader">Shader</a>, <a href="undocumented#Color_Filter">Color Filter</a>,
+Elements of <a href="#SkCanvas_drawTextBlob_2_paint">paint</a>: <a href="undocumented#Path_Effect">Path Effect</a>, <a href="undocumented#Mask_Filter">Mask Filter</a>, <a href="undocumented#Shader">Shader</a>, <a href="undocumented#Color_Filter">Color Filter</a>,
 <a href="undocumented#Image_Filter">Image Filter</a>, and <a href="undocumented#Draw_Looper">Draw Looper</a>; apply to <a href="#SkCanvas_drawTextBlob_2_blob">blob</a>.
 
 ### Parameters
