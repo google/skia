@@ -36,6 +36,9 @@ sk_sp<SkFlattenable> SkLocalMatrixImageFilter::CreateProc(SkReadBuffer& buffer) 
     SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 1);
     SkMatrix lm;
     buffer.readMatrix(&lm);
+    if (!buffer.isValid()) {
+        return nullptr;
+    }
     return SkLocalMatrixImageFilter::Make(lm, common.getInput(0));
 }
 
