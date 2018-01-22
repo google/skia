@@ -156,12 +156,12 @@ int SkAnimatedImage::computeNextFrame(int current, bool* animationEnded) {
 double SkAnimatedImage::finish() {
     fFinished = true;
     fRunning = false;
-    return std::numeric_limits<double>::max();
+    return kNotRunning;
 }
 
 double SkAnimatedImage::update(double msecs) {
     if (fFinished) {
-        return std::numeric_limits<double>::max();
+        return kNotRunning;
     }
 
     const double lastUpdateMS = fNowMS;
@@ -175,7 +175,7 @@ double SkAnimatedImage::update(double msecs) {
         fNowMS = lastUpdateMS;
     } else {
         if (!fRunning) {
-            return std::numeric_limits<double>::max();
+            return kNotRunning;
         }
 
         if (lastUpdateMS == kInit) {
