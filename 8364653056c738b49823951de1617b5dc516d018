@@ -16,6 +16,24 @@
       "revId": "8364653056c738b49823951de1617b5dc516d018",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a307374f_6e3b9701",
+        "filename": "tools/viewer/Viewer.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 400,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-01-22T16:18:32Z",
+      "side": 1,
+      "message": "No, because then onBackendCreated asserts in setupCurrentSlide() because there is no current slide. And that can\u0027t be changed because we need to call setupCurrentSlide() when we switch backends.",
+      "parentUuid": "8fdd525a_d462ecb4",
+      "revId": "8364653056c738b49823951de1617b5dc516d018",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }

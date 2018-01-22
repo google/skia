@@ -70,6 +70,24 @@
       "revId": "4208cf02d874de8161320313b472e1c14267fec0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3ff54f4d_0fea7658",
+        "filename": "tools/viewer/Viewer.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 621,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-01-22T16:18:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "77e78001_b6483ba4",
+      "revId": "4208cf02d874de8161320313b472e1c14267fec0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
