@@ -75,12 +75,16 @@ public:
     bool isFinished() const { return fFinished; }
 
     /**
+     * Returned by update if the animation is not running.
+     */
+    static constexpr double kNotRunning = -2.0;
+
+    /**
      *  Update the current time. If the image is animating, this may decode
      *  a new frame.
      *
-     *  @return the time to show the next frame.
-     *      Returns numeric_limits<double>::max() if there is no max frame to
-     *      show, and -1.0 if the animation is not running.
+     *  @return the time to show the next frame, or kNotRunning if the animation
+     *      is not running.
      */
     double update(double msecs);
 
