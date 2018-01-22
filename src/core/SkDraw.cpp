@@ -26,6 +26,7 @@
 #include "SkRasterClip.h"
 #include "SkRectPriv.h"
 #include "SkRRect.h"
+#include "SkScalerContext.h"
 #include "SkScan.h"
 #include "SkShader.h"
 #include "SkString.h"
@@ -1495,10 +1496,10 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-uint32_t SkDraw::scalerContextFlags() const {
-    uint32_t flags = SkPaint::kBoostContrast_ScalerContextFlag;
+SkScalerContextFlags SkDraw::scalerContextFlags() const {
+    SkScalerContextFlags flags = SkScalerContextFlags::kBoostContrast;
     if (!fDst.colorSpace()) {
-        flags |= SkPaint::kFakeGamma_ScalerContextFlag;
+        flags = kFakeGammaAndBoostContrast;
     }
     return flags;
 }

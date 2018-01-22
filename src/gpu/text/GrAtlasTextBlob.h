@@ -163,7 +163,7 @@ public:
 
     SkGlyphCache* setupCache(int runIndex,
                              const SkSurfaceProps& props,
-                             uint32_t scalerContextFlags,
+                             SkScalerContextFlags scalerContextFlags,
                              const SkPaint& skPaint,
                              const SkMatrix* viewMatrix);
 
