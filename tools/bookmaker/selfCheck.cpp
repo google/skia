@@ -7,14 +7,10 @@
 
 #include "bookmaker.h"
 
-// Check that summary contains all methods
 
 // Check that mutiple like-named methods are under one Subtopic
 
 // Check that all subtopics are in table of contents
-
-// Check that all constructors are in a table of contents
-//          should be 'creators' instead of constructors?
 
 // Check that SeeAlso reference each other
 
@@ -43,10 +39,13 @@ public:
             if (!this->checkMethodSubtopic()) {
                 return false;
             }
-            if (!this->checkSubtopicContents()) {
+            if (!this->checkSubtopicSummary()) {
                 return false;
             }
-            if (!this->checkConstructors()) {
+            if (!this->checkConstructorsSummary()) {
+                return false;
+            }
+            if (!this->checkOperatorsSummary()) {
                 return false;
             }
             if (!this->checkSeeAlso()) {
@@ -60,7 +59,74 @@ public:
     }
 
 protected:
-    bool checkConstructors() {
+    // Check that all constructors are in a table of contents
+    //          should be 'creators' instead of constructors?
+    bool checkConstructorsSummary() {
+        for (auto& rootChild : fRoot->fChildren) {
+            if (!this->isStructOrClass(rootChild)) {
+                continue;
+            }
+            auto& cs = rootChild;
+            auto overview = this->findOverview(cs);
+            if (!overview) {
+                return false;
+            }
+            Definition* constructors = nullptr;
+            for (auto& overChild : overview->fChildren) {
+                if ("Constructors" == overChild->fName) {
+                    constructors = overChild;
+                    break;
+                }
+            }
+            if (constructors && MarkType::kSubtopic != constructors->fMarkType) {
+                return constructors->reportError<bool>("expected #Subtopic Constructors");
+            }
+            vector<string> constructorEntries;
+            if (constructors) {
+                if (!this->collectEntries(constructors, &constructorEntries)) {
+                    return false;
+                }
+            }
+            // mark corresponding methods as visited (may be more than one per entry)
+            for (auto& csChild : cs->fChildren) {
+                if (MarkType::kMethod != csChild->fMarkType) {
+                    // only check methods for now
+                    continue;
+                }
+                string name;
+                if (!this->childName(csChild, &name)) {
+                    return false;
+                }
+                string returnType;
+                if (Definition::MethodType::kConstructor != csChild->fMethodType &&
+                        Definition::MethodType::kDestructor != csChild->fMethodType) {
+                    string makeCheck = name.substr(0, 4);
+                    if ("Make" != makeCheck && "make" != makeCheck) {
+                        continue;
+                    }
+                    // for now, assume return type of interest is first word to start Sk
+                    string search(csChild->fStart, csChild->fContentStart - csChild->fStart);
+                    auto end = search.find(makeCheck);
+                    if (string::npos == end) {
+                        return csChild->reportError<bool>("expected Make in content");
+                    }
+                    search = search.substr(0, end);
+                    if (string::npos == search.find(cs->fName)) {
+                        // if return value doesn't match current struct or class, look in
+                        // returned struct / class instead
+                        auto sk = search.find("Sk");
+                        if (string::npos != sk) {
+                            // todo: build class name, find it, search for match in its overview
+                            continue;
+                        }
+                    }
+                }
+                if (constructorEntries.end() ==
+                        std::find(constructorEntries.begin(), constructorEntries.end(), name)) {
+                    return csChild->reportError<bool>("missing constructor in Constructors");
+                }
+            }
+        }
         return true;
     }
 
@@ -72,94 +138,108 @@ protected:
         return true;
     }
 
+    // Check that summary contains all methods
     bool checkMethodSummary() {
-        SkDebugf("");
         // look for struct or class in fChildren
         for (auto& rootChild : fRoot->fChildren) {
-            if (MarkType::kStruct == rootChild->fMarkType ||
-                    MarkType::kClass == rootChild->fMarkType) {
-                auto& cs = rootChild;
-                // expect Overview as Topic in every main class or struct
-                Definition* overview = nullptr;
-                for (auto& csChild : cs->fChildren) {
-                    if ("Overview" == csChild->fName) {
-                        if (!overview) {
-                            return cs->reportError<bool>("expected only one Overview");
-                        }
-                        overview = csChild;
-                    }
+            if (!this->isStructOrClass(rootChild)) {
+                continue;
+            }
+            auto& cs = rootChild;
+            // expect Overview as Topic in every main class or struct
+            auto overview = this->findOverview(cs);
+            if (!overview) {
+                return false;
+            }
+            Definition* memberFunctions = nullptr;
+            for (auto& overChild : overview->fChildren) {
+                if ("Member_Functions" == overChild->fName) {
+                    memberFunctions = overChild;
+                    break;
                 }
-                if (!overview) {
-                    return cs->reportError<bool>("missing #Topic Overview");
+            }
+            if (!memberFunctions) {
+                return overview->reportError<bool>("missing #Subtopic Member_Functions");
+            }
+            if (MarkType::kSubtopic != memberFunctions->fMarkType) {
+                return memberFunctions->reportError<bool>("expected #Subtopic Member_Functions");
+            }
+            vector<string> overviewEntries; // build map of overview entries
+            if (!this->collectEntries(memberFunctions, &overviewEntries)) {
+                return false;
+            }
+            // mark corresponding methods as visited (may be more than one per entry)
+            for (auto& csChild : cs->fChildren) {
+                if (MarkType::kMethod != csChild->fMarkType) {
+                    // only check methods for now
+                    continue;
                 }
-                Definition* memberFunctions = nullptr;
-                for (auto& overChild : overview->fChildren) {
-                    if ("Member_Functions" == overChild->fName) {
-                        memberFunctions = overChild;
+                if (Definition::MethodType::kConstructor == csChild->fMethodType) {
+                    continue;
+                }
+                if (Definition::MethodType::kDestructor == csChild->fMethodType) {
+                    continue;
+                }
+                if (Definition::MethodType::kOperator == csChild->fMethodType) {
+                    continue;
+                }
+                string name;
+                if (!this->childName(csChild, &name)) {
+                    return false;
+                }
+                if (overviewEntries.end() ==
+                        std::find(overviewEntries.begin(), overviewEntries.end(), name)) {
+                    return csChild->reportError<bool>("missing method in Member_Functions");
+                }
+            }
+        }
+        return true;
+    }
+
+    // Check that all operators are in a table of contents
+    bool checkOperatorsSummary() {
+        for (auto& rootChild : fRoot->fChildren) {
+            if (!this->isStructOrClass(rootChild)) {
+                continue;
+            }
+            auto& cs = rootChild;
+            auto overview = this->findOverview(cs);
+            if (!overview) {
+                return false;
+            }
+            Definition* operators = nullptr;
+            for (auto& overChild : overview->fChildren) {
+                if ("Operators" == overChild->fName) {
+                    operators = overChild;
+                    break;
+                }
+            }
+            if (operators && MarkType::kSubtopic != operators->fMarkType) {
+                return operators->reportError<bool>("expected #Subtopic Operators");
+            }
+            vector<string> operatorEntries;
+            if (operators) {
+                if (!this->collectEntries(operators, &operatorEntries)) {
+                    return false;
+                }
+            }
+            for (auto& csChild : cs->fChildren) {
+                if (Definition::MethodType::kOperator != csChild->fMethodType) {
+                    continue;
+                }
+                string name;
+                if (!this->childName(csChild, &name)) {
+                    return false;
+                }
+                bool found = false;
+                for (auto str : operatorEntries) {
+                    if (string::npos != str.find(name)) {
+                        found = true;
                         break;
                     }
                 }
-                if (!memberFunctions) {
-                    return overview->reportError<bool>("missing #Subtopic Member_Functions");
-                }
-                if (MarkType::kSubtopic != memberFunctions->fMarkType) {
-                    return memberFunctions->reportError<bool>("expected #Subtopic Member_Functions");
-                }
-                Definition* memberTable = nullptr;
-                for (auto& memberChild : memberFunctions->fChildren) {
-                    if (MarkType::kTable == memberChild->fMarkType &&
-                            memberChild->fName == memberFunctions->fName) {
-                        memberTable = memberChild;
-                        break;
-                    }
-                }
-                if (!memberTable) {
-                    return memberFunctions->reportError<bool>("missing #Table in Member_Functions");
-                }
-                vector<string> overviewEntries; // build map of overview entries
-                bool expectLegend = true;
-                string prior = " ";  // expect entries to be alphabetical
-                for (auto& memberRow : memberTable->fChildren) {
-                    if (MarkType::kLegend == memberRow->fMarkType) {
-                        if (!expectLegend) {
-                            return memberRow->reportError<bool>("expect #Legend only once");
-                        }
-                        // todo: check if legend format matches table's rows' format
-                        expectLegend = false;
-                    } else if (expectLegend) {
-                        return memberRow->reportError<bool>("expect #Legend first");
-                    }
-                    if (MarkType::kRow != memberRow->fMarkType) {
-                        continue;  // let anything through for now; can tighten up in the future
-                    }
-                    // expect column 0 to point to function name
-                    // todo: content end points past space; could tighten that up
-                    Definition* column0 = memberRow->fChildren[0];
-                    string name = string(column0->fContentStart,
-                            column0->fTerminator - column0->fContentStart);
-                    if (prior > name) {
-                        return memberRow->reportError<bool>("expect alphabetical order");
-                    }
-                    if (prior == name) {
-                        return memberRow->reportError<bool>("expect unique names");
-                    }
-                    // todo: error if name is all lower case and doesn't end in ()
-                    overviewEntries.push_back(name);
-                    prior = name;
-                }
-                // mark corresponding methods as visited (may be more than one per entry)
-                for (auto& csChild : cs->fChildren) {
-                    if (MarkType::kMethod != csChild->fMarkType) {
-                        // only check methods for now
-                        continue;
-                    }
-                    auto start = csChild->fName.find_last_of(':');
-                    start = string::npos == start ? 0 : start + 1;
-                    string name = csChild->fName.substr(start);
-                    if (overviewEntries.end() ==
-                            std::find(overviewEntries.begin(), overviewEntries.end(), name)) {
-                        return csChild->reportError<bool>("missing in Overview");
-                    }
+                if (!found) {
+                    return csChild->reportError<bool>("missing operator in Operators");
                 }
             }
         }
@@ -170,7 +250,161 @@ protected:
         return true;
     }
 
-    bool checkSubtopicContents() {
+    bool checkSubtopicSummary() {
+        for (auto& rootChild : fRoot->fChildren) {
+            if (!this->isStructOrClass(rootChild)) {
+                continue;
+            }
+            auto& cs = rootChild;
+            auto overview = this->findOverview(cs);
+            if (!overview) {
+                return false;
+            }
+            Definition* subtopics = nullptr;
+            Definition* relatedFunctions = nullptr;
+            for (auto& overChild : overview->fChildren) {
+                if ("Subtopics" == overChild->fName) {
+                    subtopics = overChild;
+                } else if ("Related_Functions" == overChild->fName) {
+                    relatedFunctions = overChild;
+                }
+            }
+            if (!subtopics) {
+                return overview->reportError<bool>("missing #Subtopic Subtopics");
+            }
+            if (MarkType::kSubtopic != subtopics->fMarkType) {
+                return subtopics->reportError<bool>("expected #Subtopic Subtopics");
+            }
+            if (relatedFunctions && MarkType::kSubtopic != relatedFunctions->fMarkType) {
+                return relatedFunctions->reportError<bool>("expected #Subtopic Related_Functions");
+            }
+            vector<string> subtopicEntries;
+            if (!this->collectEntries(subtopics, &subtopicEntries)) {
+                return false;
+            }
+            if (relatedFunctions && !this->collectEntries(relatedFunctions, &subtopicEntries)) {
+                return false;
+            }
+            for (auto& csChild : cs->fChildren) {
+                if (MarkType::kSubtopic != csChild->fMarkType) {
+                    continue;
+                }
+                string name;
+                if (!this->childName(csChild, &name)) {
+                    return false;
+                }
+                bool found = false;
+                for (auto str : subtopicEntries) {
+                    if (string::npos != str.find(name)) {
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+                    return csChild->reportError<bool>("missing SubTopic in SubTopics");
+                }
+            }
+        }
+        return true;
+    }
+
+    bool childName(const Definition* def, string* name) {
+        auto start = def->fName.find_last_of(':');
+        start = string::npos == start ? 0 : start + 1;
+        *name = def->fName.substr(start);
+        if (def->fClone) {
+            auto lastUnderline = name->find_last_of('_');
+            if (string::npos == lastUnderline) {
+                return def->reportError<bool>("expect _ in name");
+            }
+            if (lastUnderline + 1 >= name->length()) {
+                return def->reportError<bool>("expect char after _ in name");
+            }
+            for (auto index = lastUnderline + 1; index < name->length(); ++index) {
+                if (!isdigit((*name)[index])) {
+                    return def->reportError<bool>("expect digit after _ in name");
+                }
+            }
+            *name = name->substr(0, lastUnderline);
+            bool allLower = true;
+            for (auto ch : *name) {
+                allLower &= (bool) islower(ch);
+            }
+            if (allLower) {
+                *name += "()";
+            }
+        }
+        return true;
+    }
+
+    const Definition* findOverview(const Definition* parent) {
+        // expect Overview as Topic in every main class or struct
+        Definition* overview = nullptr;
+        for (auto& csChild : parent->fChildren) {
+            if ("Overview" == csChild->fName) {
+                if (overview) {
+                    return csChild->reportError<const Definition*>("expected only one Overview");
+                }
+                overview = csChild;
+            }
+        }
+        if (!overview) {
+            return parent->reportError<const Definition*>("missing #Topic Overview");
+        }
+        return overview;
+    }
+
+    bool collectEntries(const Definition* entries, vector<string>* strings) {
+        const Definition* table = nullptr;
+        for (auto& child : entries->fChildren) {
+            if (MarkType::kTable == child->fMarkType && child->fName == entries->fName) {
+                table = child;
+                break;
+            }
+        }
+        if (!table) {
+            return entries->reportError<bool>("missing #Table in Overview Subtopic");
+        }
+        bool expectLegend = true;
+        string prior = " ";  // expect entries to be alphabetical
+        for (auto& row : table->fChildren) {
+            if (MarkType::kLegend == row->fMarkType) {
+                if (!expectLegend) {
+                    return row->reportError<bool>("expect #Legend only once");
+                }
+                // todo: check if legend format matches table's rows' format
+                expectLegend = false;
+            } else if (expectLegend) {
+                return row->reportError<bool>("expect #Legend first");
+            }
+            if (MarkType::kRow != row->fMarkType) {
+                continue;  // let anything through for now; can tighten up in the future
+            }
+            // expect column 0 to point to function name
+            Definition* column0 = row->fChildren[0];
+            string name = string(column0->fContentStart,
+                    column0->fContentEnd - column0->fContentStart);
+            if (prior > name) {
+                return row->reportError<bool>("expect alphabetical order");
+            }
+            if (prior == name) {
+                return row->reportError<bool>("expect unique names");
+            }
+            // todo: error if name is all lower case and doesn't end in ()
+            strings->push_back(name);
+            prior = name;
+        }
+        return true;
+    }
+
+    bool isStructOrClass(const Definition* definition) {
+        if (MarkType::kStruct != definition->fMarkType &&
+                MarkType::kClass != definition->fMarkType) {
+            return false;
+        }
+        if (string::npos != definition->fFileName.find("undocumented.bmh")) {
+            return false;
+        }
         return true;
     }
 

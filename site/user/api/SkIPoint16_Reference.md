@@ -4,31 +4,39 @@ SkIPoint16 Reference
 # <a name="IPoint16"></a> IPoint16
 
 # <a name="SkIPoint16"></a> Struct SkIPoint16
-<a href="SkIPoint_Reference#SkIPoint">SkIPoint</a> holds two 16 bit integer coordinates
+<a href="SkIPoint_Reference#SkIPoint">SkIPoint</a> holds two 16 bit integer coordinates.
 
 # <a name="Overview"></a> Overview
 
 ## <a name="Subtopics"></a> Subtopics
 
-| topics | description |
+| name | description |
 | --- | ---  |
+| <a href="#Overview_Constructors">Constructors</a> | functions that construct <a href="#SkIPoint16">SkIPoint16</a> |
+| <a href="#Overview_Member_Functions">Member Functions</a> | static functions and member methods |
+
+## <a name="Constructors"></a> Constructors
+
+| name | description |
+| --- | ---  |
+| <a href="#SkIPoint16_Make">Make</a> | constructs from integer inputs |
 
 ## <a name="Member_Functions"></a> Member Functions
 
-| description | function |
+| name | description |
 | --- | ---  |
-| <a href="#SkIPoint16_Make">Make</a> | Constructs from integer inputs. |
-| <a href="#SkIPoint16_set">set</a> | Sets to integer input. |
-| <a href="#SkIPoint16_x">x</a> | Returns <a href="#SkIPoint16_fX">fX</a>. |
-| <a href="#SkIPoint16_y">y</a> | Returns <a href="#SkIPoint16_fY">fY</a>. |
+| <a href="#SkIPoint16_Make">Make</a> | constructs from integer inputs |
+| <a href="#SkIPoint16_set">set</a> | sets to integer input |
+| <a href="#SkIPoint16_x">x</a> | returns <a href="#SkIPoint16_fX">fX</a> |
+| <a href="#SkIPoint16_y">y</a> | returns <a href="#SkIPoint16_fY">fY</a> |
 
 <a name="SkIPoint16_fX"> <code><strong>int16_t  fX</strong></code> </a>
 
-<a href="#SkIPoint16_x">x</a>-axis value used by <a href="#IPoint16">IPoint16</a>.
+<a href="#SkIPoint16_x">x</a>-axis value used by <a href="#IPoint16">IPoint16</a>
 
 <a name="SkIPoint16_fY"> <code><strong>int16_t  fY</strong></code> </a>
 
-<a href="#SkIPoint16_y">y</a>-axis value used by <a href="#IPoint16">IPoint16</a>.
+<a href="#SkIPoint16_y">y</a>-axis value used by <a href="#IPoint16">IPoint16</a>
 
 <a name="SkIPoint16_Make"></a>
 ## Make

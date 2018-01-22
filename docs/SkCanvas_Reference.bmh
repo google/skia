@@ -29,31 +29,35 @@ This approach may be deprecated in the future.
 #Subtopic Subtopics
 #Table
 #Legend
-# topics                 # description                                 ##
+# name                  # description                                        ##
 #Legend ##
-#ToDo generate a TOC here ##
+# Classes_and_Structs   # embedded struct and class members                  ##
+# Constants             # enum and enum class, const values                  ##
+# Constructors          # functions that construct SkPath                    ##
+# Member_Functions      # static functions and member methods                ##
+# Operators             # operator overloading methods                       ##
 #Table ##
 #Subtopic ##
 
 #Subtopic Constants
 #Table
 #Legend
-# constants                      # description                                 ##
+# name                           # description                                 ##
 #Legend ##
-# Lattice::Flags                 # Controls Lattice transparency. ##
-# PointMode                      # Sets drawPoints options. ##
-# SaveLayerFlags                 # Sets SaveLayerRec options. ##
-# SrcRectConstraint              # Sets drawImageRect options. ##
+# Lattice::Flags                 # controls Lattice transparency ##
+# PointMode                      # sets drawPoints options ##
+# SaveLayerFlags                 # sets SaveLayerRec options ##
+# SrcRectConstraint              # sets drawImageRect options ##
 #Table ##
 #Subtopic ##
 
-#Subtopic Structs
+#Subtopic Classes_and_Structs
 #Table
 #Legend
-# struct                         # description                                 ##
+# name                           # description                                   ##
 #Legend ##
-# Lattice                        # Divides Bitmap, Image into a rectangular grid. ##
-# SaveLayerRec                   # Contains state to create Layer. ##
+# Lattice                        # divides Bitmap, Image into a rectangular grid ##
+# SaveLayerRec                   # contains state to create Layer                ##
 #Table ##
 #Subtopic ##
 
@@ -64,103 +68,105 @@ when no Surface is required, and some helpers implicitly create Raster_Surface.
 
 #Table
 #Legend
-#                                                               # description                                     ##
+# name                                                          # description                                    ##
 #Legend ##
-# SkCanvas()                                                    # No Surface, no dimensions.                      ##
-# SkCanvas(int width, int height, const SkSurfaceProps* props = nullptr) # No Surface, set dimensions, Surface_Properties. ##
-# SkCanvas(SkBaseDevice* device)                                # Existing Device. (SkBaseDevice is private.)     ##
-# SkCanvas(const SkBitmap& bitmap)                              # Uses existing Bitmap.                           ##
-# SkCanvas(const SkBitmap& bitmap, const SkSurfaceProps& props) # Uses existing Bitmap and Surface_Properties.    ##
-# MakeRasterDirect                                              # Creates from SkImageInfo and Pixel_Storage.     ##
-# MakeRasterDirectN32                                           # Creates from image data and Pixel_Storage.      ##
+# MakeRasterDirect                                              # creates from SkImageInfo and Pixel_Storage     ##
+# MakeRasterDirectN32                                           # creates from image data and Pixel_Storage      ##
+# SkCanvas()                                                    # creates with no Surface, no dimensions         ##
+# SkCanvas(SkBaseDevice* device)                                # to be deprecated                               ##
+# SkCanvas(const SkBitmap& bitmap)                              # uses existing Bitmap                           ##
+# SkCanvas(const SkBitmap& bitmap, ColorBehavior behavior)      # Android framework only                         ##
+# SkCanvas(const SkBitmap& bitmap, const SkSurfaceProps& props) # uses existing Bitmap and Surface_Properties    ##
+# SkCanvas(int width, int height, const SkSurfaceProps* props = nullptr) # no Surface, set dimensions, Surface_Properties ##
+# ~SkCanvas()                                                   # draws saved Layers, frees resources            ##
 #Table ##
 #Subtopic ##
 
 #Subtopic Member_Functions
 #Table
 #Legend
-# function                         # description                                                   ##
+# name                             # description                                                   ##
 #Legend ##
-# accessTopLayerPixels             # Returns writable pixel access if available. ##
-# accessTopRasterHandle            # Returns context that tracks Clip and Matrix. ##
-# clear()                          # Fills Clip with Color. ##
-# clipPath                         # Combines Clip with Path. ##
-# clipRRect                        # Combines Clip with Round_Rect. ##
-# clipRect                         # Combines Clip with Rect. ##
-# clipRegion                       # Combines Clip with Region. ##
-# concat()                         # Multiplies Matrix by Matrix. ##
-# discard()                        # Makes Canvas contents undefined. ##
-# drawAnnotation                   # Associates a Rect with a key-value pair.##
-# drawArc                          # Draws Arc using Clip, Matrix, and Paint.##
-# drawAtlas                        # Draws sprites using Clip, Matrix, and Paint.##
-# drawBitmap                       # Draws Bitmap at (x, y) position. ##
-# drawBitmapLattice                # Draws proportionally stretched Bitmap. ##
-# drawBitmapNine                   # Draws Nine_Patch Bitmap. ##
-# drawBitmapRect                   # Draws Bitmap, source Rect to destination Rect. ##
-# drawCircle                       # Draws Circle using Clip, Matrix, and Paint. ##
-# drawColor                        # Fills Clip with Color and Blend_Mode. ##
-# drawDRRect                       # Draws double Round_Rect stroked or filled. ##
-# drawDrawable                     # Draws Drawable, encapsulated drawing commands. ##
-# drawIRect                        # Draws IRect using Clip, Matrix, and Paint. ##
-# drawImage                        # Draws Image at (x, y) position. ##
-# drawImageLattice                 # Draws proportionally stretched Image. ##
-# drawImageNine                    # Draws Nine_Patch Image. ##
-# drawImageRect                    # Draws Image, source Rect to destination Rect. ##
-# drawLine                         # Draws line segment between two points.##
-# drawOval                         # Draws Oval using Clip, Matrix, and Paint. ##
-# drawPaint                        # Fills Clip with Paint. ##
-# drawPatch                        # Draws Coons_Patch. ##
-# drawPath                         # Draws Path using Clip, Matrix, and Paint. ##
-# drawPicture                      # Draws Picture using Clip and Matrix. ##
-# drawPoint                        # Draws point at (x, y) position. ##
-# drawPoints                       # Draws array as points, lines, polygon. ##
-# drawPosText                      # Draws text at array of (x, y) positions. ##
-# drawPosTextH                     # Draws text at x positions with common baseline. ##
-# drawRRect                        # Draws Round_Rect using Clip, Matrix, and Paint. ##
-# drawRect                         # Draws Rect using Clip, Matrix, and Paint. ##
-# drawRegion                       # Draws Region using Clip, Matrix, and Paint. ##
-# drawRoundRect                    # Draws Round_Rect using Clip, Matrix, and Paint. ##
-# drawText                         # Draws text at (x, y), using font advance. ##
-# drawTextBlob                     # Draws text with arrays of positions and Paint. ##
-# drawTextOnPath                   # Draws text following Path contour. ##
-# drawTextOnPathHV                 # Draws text following Path with offsets. ##
-# drawTextRSXform                  # Draws text with array of RSXform. ##
-# drawString                       # Draws null terminated string at (x, y) using font advance. ##
-# drawVertices                     # Draws Vertices, a triangle mesh. ##
-# flush()                          # Triggers execution of all pending draw operations. ##
-# getBaseLayerSize                 # Gets size of base Layer in global coordinates. ##
-# getDeviceClipBounds              # Returns IRect bounds of Clip. ##
-# getDrawFilter                    # Legacy; to be deprecated. ##
-# getGrContext                     # Returns GPU_Context of the GPU_Surface. ##
-# getLocalClipBounds               # Returns Clip bounds in source coordinates. ##
-# getMetaData                      # Associates additional data with the canvas. ##
-# getProps                         # Copies Surface_Properties if available. ##
-# getSaveCount                     # Returns depth of stack containing Clip and Matrix. ##
-# getTotalMatrix                   # Returns Matrix. ##
-# imageInfo                        # Returns Image_Info for Canvas. ##
-# isClipEmpty                      # Returns if Clip is empty. ##
-# isClipRect                       # Returns if Clip is Rect and not empty. ##
-# MakeRasterDirect                 # Creates Canvas from SkImageInfo and pixel data. ##
-# MakeRasterDirectN32              # Creates Canvas from image specifications and pixel data. ##
-# makeSurface                      # Creates Surface matching SkImageInfo and SkSurfaceProps. ##
-# peekPixels                       # Returns if Canvas has direct access to its pixels. ##
-# quickReject                      # Returns if Rect is outside Clip. ##
-# readPixels                       # Copies and converts rectangle of pixels from Canvas. ##
-# resetMatrix                      # Resets Matrix to identity. ##
-# restore()                        # Restores changes to Clip and Matrix, pops save stack. ##
-# restoreToCount                   # Restores changes to Clip and Matrix to given depth. ##
-# rotate()                         # Rotates Matrix. ##
-# save()                           # Saves Clip and Matrix on stack. ##
-# saveLayer                        # Saves Clip and Matrix on stack; creates Layer. ##
-# saveLayerAlpha                   # Saves Clip and Matrix on stack; creates Layer; sets opacity. ##
-# saveLayerPreserveLCDTextRequests # Saves Clip and Matrix on stack; creates Layer for LCD text. ##
-# scale()                          # Scales Matrix. ##
-# setAllowSimplifyClip             # Experimental. ##
-# setDrawFilter                    # Legacy; to be deprecated. ##
-# setMatrix                        # Sets Matrix. ##
-# skew()                           # Skews Matrix. #
-# translate()                      # Translates Matrix. ##
-# writePixels                      # Copies and converts rectangle of pixels to Canvas. ##
+# MakeRasterDirect                 # creates Canvas from SkImageInfo and pixel data ##
+# MakeRasterDirectN32              # creates Canvas from image specifications and pixel data ##
+# accessTopLayerPixels             # returns writable pixel access if available ##
+# accessTopRasterHandle            # returns context that tracks Clip and Matrix ##
+# clear()                          # fills Clip with Color ##
+# clipPath                         # combines Clip with Path ##
+# clipRRect                        # combines Clip with Round_Rect ##
+# clipRect                         # combines Clip with Rect ##
+# clipRegion                       # combines Clip with Region ##
+# concat()                         # multiplies Matrix by Matrix ##
+# discard()                        # makes Canvas contents undefined ##
+# drawAnnotation                   # associates a Rect with a key-value pair ##
+# drawArc                          # draws Arc using Clip, Matrix, and Paint ##
+# drawAtlas                        # draws sprites using Clip, Matrix, and Paint ##
+# drawBitmap                       # draws Bitmap at (x, y) position ##
+# drawBitmapLattice                # draws proportionally stretched Bitmap ##
+# drawBitmapNine                   # draws Nine_Patch Bitmap ##
+# drawBitmapRect                   # draws Bitmap, source Rect to destination Rect ##
+# drawCircle                       # draws Circle using Clip, Matrix, and Paint ##
+# drawColor                        # fills Clip with Color and Blend_Mode ##
+# drawDRRect                       # draws double Round_Rect stroked or filled ##
+# drawDrawable                     # draws Drawable, encapsulated drawing commands ##
+# drawIRect                        # draws IRect using Clip, Matrix, and Paint ##
+# drawImage                        # draws Image at (x, y) position ##
+# drawImageLattice                 # draws proportionally stretched Image ##
+# drawImageNine                    # draws Nine_Patch Image ##
+# drawImageRect                    # draws Image, source Rect to destination Rect ##
+# drawLine                         # draws line segment between two points ##
+# drawOval                         # draws Oval using Clip, Matrix, and Paint ##
+# drawPaint                        # fills Clip with Paint ##
+# drawPatch                        # draws Coons_Patch ##
+# drawPath                         # draws Path using Clip, Matrix, and Paint ##
+# drawPicture                      # draws Picture using Clip and Matrix ##
+# drawPoint                        # draws point at (x, y) position ##
+# drawPoints                       # draws array as points, lines, polygon ##
+# drawPosText                      # draws text at array of (x, y) positions ##
+# drawPosTextH                     # draws text at x positions with common baseline ##
+# drawRRect                        # draws Round_Rect using Clip, Matrix, and Paint ##
+# drawRect                         # draws Rect using Clip, Matrix, and Paint ##
+# drawRegion                       # draws Region using Clip, Matrix, and Paint ##
+# drawRoundRect                    # draws Round_Rect using Clip, Matrix, and Paint ##
+# drawString                       # draws null terminated string at (x, y) using font advance ##
+# drawText                         # draws text at (x, y), using font advance ##
+# drawTextBlob                     # draws text with arrays of positions and Paint ##
+# drawTextOnPath                   # draws text following Path contour ##
+# drawTextOnPathHV                 # draws text following Path with offsets ##
+# drawTextRSXform                  # draws text with array of RSXform ##
+# drawVertices                     # draws Vertices, a triangle mesh ##
+# flush()                          # triggers execution of all pending draw operations ##
+# getBaseLayerSize                 # returns size of base Layer in global coordinates ##
+# getDeviceClipBounds              # returns IRect bounds of Clip ##
+# getDrawFilter                    # legacy; to be deprecated ##
+# getGrContext                     # returns GPU_Context of the GPU_Surface ##
+# getLocalClipBounds               # returns Clip bounds in source coordinates ##
+# getMetaData                      # associates additional data with the canvas ##
+# getProps                         # copies Surface_Properties if available ##
+# getSaveCount                     # returns depth of stack containing Clip and Matrix ##
+# getTotalMatrix                   # returns Matrix ##
+# imageInfo                        # returns Image_Info for Canvas ##
+# isClipEmpty                      # returns if Clip is empty ##
+# isClipRect                       # returns if Clip is Rect and not empty ##
+# makeSurface                      # creates Surface matching SkImageInfo and SkSurfaceProps ##
+# peekPixels                       # returns if Canvas has direct access to its pixels ##
+# quickReject                      # returns if Rect is outside Clip ##
+# readPixels                       # copies and converts rectangle of pixels from Canvas ##
+# resetMatrix                      # resets Matrix to identity ##
+# restore()                        # restores changes to Clip and Matrix, pops save stack ##
+# restoreToCount                   # restores changes to Clip and Matrix to given depth ##
+# rotate()                         # rotates Matrix ##
+# save()                           # saves Clip and Matrix on stack ##
+# saveLayer                        # saves Clip and Matrix on stack; creates Layer ##
+# saveLayerAlpha                   # saves Clip and Matrix on stack; creates Layer; sets opacity ##
+# saveLayerPreserveLCDTextRequests # saves Clip and Matrix on stack; creates Layer for LCD text ##
+# scale()                          # scales Matrix ##
+# setAllowSimplifyClip             # experimental ##
+# setDrawFilter                    # legacy; to be deprecated ##
+# setMatrix                        # sets Matrix ##
+# skew()                           # skews Matrix. #
+# translate()                      # translates Matrix ##
+# writePixels                      # copies and converts rectangle of pixels to Canvas ##
 #Table ##
 #Subtopic ##
 
@@ -584,8 +590,8 @@ The actual output depends on the installed fonts.
 
 #Method virtual ~SkCanvas()
 
-Draw saved Layers, if any.
-Free up resources used by Canvas.
+Draws saved Layers, if any.
+Frees up resources used by Canvas.
 
 #Example
 #Description
@@ -6164,90 +6170,5 @@ Returns false if the clip is empty, or if it is not Rect.
 ##
 
 #Class SkCanvas ##
-
-#Class SkAutoCanvasRestore
-
-Stack helper class calls SkCanvas::restoreToCount() when SkAutoCanvasRestore
-goes out of scope. Use this to guarantee that the canvas is restored to a known
-state.
-
-#Method SkAutoCanvasRestore(SkCanvas* canvas, bool doSave)
-
-Preserves Canvas save count. Optionally saves Canvas Clip and Matrix.
-
-#Param canvas  Canvas to guard ##
-#Param doSave  call SkCanvas::save() ##
-
-#Return utility to restore Canvas state on destructor ##
-
-#Example
-#Height 128
-    SkPaint p;
-    p.setAntiAlias(true);
-    p.setTextSize(64);
-    for (SkScalar sx : { -1, 1 } ) {
-        for (SkScalar sy : { -1, 1 } ) {
-            SkAutoCanvasRestore autoRestore(canvas, true);
-            SkMatrix m = SkMatrix::MakeAll(sx, 1, 96,    0, sy, 64,   0, 0, 1);
-            canvas->concat(m);
-            canvas->drawString("R", 0, 0, p);
-        }
-    }
-##
-
-#SeeAlso SkCanvas::save SkCanvas::restore
-
-##
-
-#Method ~SkAutoCanvasRestore()
-
-Restores Canvas to saved state. Destructor is called when container goes out of
-scope.
-
-#NoExample
-##
-
-#SeeAlso SkCanvas::save SkCanvas::restore
-
-##
-
-#Method void restore()
-
-Restores Canvas to saved state immediately. Subsequent calls and
-~SkAutoCanvasRestore have no effect.
-
-#Example
-for (bool callRestore : { false, true } ) {
-    for (bool saveCanvas : {false, true} ) {
-        SkAutoCanvasRestore autoRestore(canvas, saveCanvas);
-        if (!saveCanvas) {
-            canvas->save();
-        }
-        SkDebugf("saveCanvas: %s  before restore: %d\n",
-               saveCanvas ? "true" : "false", canvas->getSaveCount());
-        if (callRestore) autoRestore.restore();
-        SkDebugf("saveCanvas: %s  after restore: %d\n",
-               saveCanvas ? "true" : "false", canvas->getSaveCount());
-    }
-}
-SkDebugf("final count: %d\n", canvas->getSaveCount());
-#StdOut
-saveCanvas: false  before restore: 2
-saveCanvas: false  after restore: 2
-saveCanvas: true  before restore: 2
-saveCanvas: true  after restore: 2
-saveCanvas: false  before restore: 2
-saveCanvas: false  after restore: 1
-saveCanvas: true  before restore: 2
-saveCanvas: true  after restore: 1
-final count: 1
-##
-##
-
-#SeeAlso SkCanvas::save SkCanvas::restore
-
-##
-
-#Class SkAutoCanvasRestore ##
 
 #Topic Canvas ##

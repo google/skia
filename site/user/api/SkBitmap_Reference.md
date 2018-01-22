@@ -35,101 +35,105 @@ is useful to position one or more <a href="#Bitmap">Bitmaps</a> within a shared 
 
 ## <a name="Subtopics"></a> Subtopics
 
-| topics | description |
+| name | description |
 | --- | ---  |
+| <a href="#Overview_Classes_and_Structs">Classes and Structs</a> | embedded struct and class members |
+| <a href="#Overview_Constructors">Constructors</a> | functions that construct <a href="SkPath_Reference#SkPath">SkPath</a> |
+| <a href="#Overview_Member_Functions">Member Functions</a> | static functions and member methods |
+| <a href="#Overview_Operators">Operators</a> | operator overloading methods |
 
-## <a name="Structs"></a> Structs
+## <a name="Classes_and_Structs"></a> Classes and Structs
 
-| description | struct |
+| name | description |
 | --- | ---  |
 | <a href="#SkBitmap_Allocator">Allocator</a> |  |
 | <a href="#SkBitmap_HeapAllocator">HeapAllocator</a> |  |
 
 ## <a name="Constructors"></a> Constructors
 
-| description | function |
+| name | description |
 | --- | ---  |
-| <a href="#SkBitmap_empty_constructor">SkBitmap()</a> | Constructs with default values. |
-| <a href="#SkBitmap_move_SkBitmap">SkBitmap(SkBitmap&& src)</a> | Takes ownership of pixels. |
-| <a href="#SkBitmap_copy_const_SkBitmap">SkBitmap(const SkBitmap& src)</a> | Shares ownership of pixels. |
-|  | Releases ownership of pixels. |
+| <a href="#SkBitmap_empty_constructor">SkBitmap()</a> | constructs with default values |
+| <a href="#SkBitmap_move_SkBitmap">SkBitmap(SkBitmap&& src)</a> | takes ownership of pixels |
+| <a href="#SkBitmap_copy_const_SkBitmap">SkBitmap(const SkBitmap& src)</a> | shares ownership of pixels |
+|  | releases ownership of pixels |
 
 ## <a name="Operators"></a> Operators
 
-| description | function |
+| name | description |
 | --- | ---  |
-| <a href="#SkBitmap">SkBitmap</a>& <a href="#SkBitmap_move_operator">operator=(SkBitmap&& src)</a> | Takes ownership of pixels. |
-| <a href="#SkBitmap">SkBitmap</a>& <a href="#SkBitmap_copy_operator">operator=(const SkBitmap& src)</a> | Shares ownership of pixels. |
+| <a href="#SkBitmap">SkBitmap</a>& <a href="#SkBitmap_move_operator">operator=(SkBitmap&& src)</a> | takes ownership of pixels |
+| <a href="#SkBitmap">SkBitmap</a>& <a href="#SkBitmap_copy_operator">operator=(const SkBitmap& src)</a> | shares ownership of pixels |
 
 ## <a name="Member_Functions"></a> Member Functions
 
-| description | function |
+| name | description |
 | --- | ---  |
-| <a href="#SkBitmap_ComputeIsOpaque">ComputeIsOpaque</a> | Returns true if all pixels are opaque. |
-| <a href="#SkBitmap_allocN32Pixels">allocN32Pixels</a> | Allocates compatible <a href="#ARGB">Color ARGB</a> pixels, or aborts. |
-| <a href="#SkBitmap_allocPixels">allocPixels</a> | Allocates pixels from <a href="undocumented#Image_Info">Image Info</a>, or aborts. |
-| <a href="#SkBitmap_allocPixelsFlags">allocPixelsFlags</a> | Allocates pixels from <a href="undocumented#Image_Info">Image Info</a> with options, or aborts. |
-| <a href="#SkBitmap_alphaType">alphaType</a> | Returns <a href="undocumented#Image_Info">Image Info</a> <a href="undocumented#Image_Alpha_Type">Alpha Type</a>. |
-| <a href="#SkBitmap_bounds">bounds</a> | Returns <a href="#SkBitmap_width">width</a> and <a href="#SkBitmap_height">height</a> as Rectangle. |
-| <a href="#SkBitmap_bytesPerPixel">bytesPerPixel</a> | Returns number of bytes in pixel based on <a href="undocumented#Image_Color_Type">Color Type</a>. |
-| <a href="#SkBitmap_colorSpace">colorSpace</a> | Returns <a href="undocumented#Image_Info">Image Info</a> <a href="undocumented#Color_Space">Color Space</a>. |
-| <a href="#SkBitmap_colorType">colorType</a> | Returns <a href="undocumented#Image_Info">Image Info</a> <a href="undocumented#Image_Color_Type">Color Type</a>. |
-| <a href="#SkBitmap_computeByteSize">computeByteSize</a> | Returns size required for pixels. |
-| <a href="#SkBitmap_dimensions">dimensions</a> | Returns <a href="#SkBitmap_width">width</a> and <a href="#SkBitmap_height">height</a>. |
-| <a href="#SkBitmap_drawsNothing">drawsNothing</a> | Returns true if no <a href="#SkBitmap_width">width</a>, no <a href="#SkBitmap_height">height</a>, or no <a href="undocumented#Pixel_Ref">Pixel Ref</a>. |
-| <a href="#SkBitmap_empty">empty</a> | Returns true if <a href="undocumented#Image_Info">Image Info</a> has zero <a href="#SkBitmap_width">width</a> or <a href="#SkBitmap_height">height</a>. |
-| <a href="#SkBitmap_erase">erase</a> | Writes <a href="undocumented#Color">Color</a> to rectangle of pixels. |
-| <a href="#SkBitmap_eraseARGB">eraseARGB</a> | Writes <a href="undocumented#Color">Color</a> to pixels. |
-| <a href="#SkBitmap_eraseArea">eraseArea</a> | Deprecated |
-| <a href="#SkBitmap_eraseColor">eraseColor</a> | Writes <a href="undocumented#Color">Color</a> to pixels. |
-| <a href="#SkBitmap_eraseRGB">eraseRGB</a> | Deprecated |
-| <a href="#SkBitmap_extractAlpha">extractAlpha</a> | Creates <a href="#Bitmap">Bitmap</a> containing <a href="#Alpha">Alpha</a> of pixels. |
-| <a href="#SkBitmap_extractSubset">extractSubset</a> | Creates <a href="#Bitmap">Bitmap</a>, sharing pixels if possible. |
-| <a href="#SkBitmap_getAddr">getAddr</a> | Returns readable pixel address as void pointer. |
-| <a href="#SkBitmap_getAddr16">getAddr16</a> | Returns readable pixel address as 16-bit pointer. |
-| <a href="#SkBitmap_getAddr32">getAddr32</a> | Returns readable pixel address as 32-bit pointer. |
-| <a href="#SkBitmap_getAddr8">getAddr8</a> | Returns readable pixel address as 8-bit pointer. |
-| <a href="#SkBitmap_getBounds">getBounds</a> | Returns <a href="#SkBitmap_width">width</a> and <a href="#SkBitmap_height">height</a> as Rectangle. |
-| <a href="#SkBitmap_getColor">getColor</a> | Returns one pixel as <a href="#Unpremultiply">Unpremultiplied</a> <a href="undocumented#Color">Color</a>. |
-| <a href="#SkBitmap_getGenerationID">getGenerationID</a> | Returns unique ID. |
-| <a href="#SkBitmap_getPixels">getPixels</a> | Returns address of pixels. |
-| <a href="#SkBitmap_getSubset">getSubset</a> | Returns <a href="#SkBitmap_bounds">bounds</a> offset by origin. |
-| <a href="#SkBitmap_hasHardwareMipMap">hasHardwareMipMap</a> | Returns <a href="undocumented#Mip_Map">Mip Map</a> support present; Android only. |
-| <a href="#SkBitmap_height">height</a> | Returns pixel row count. |
-| <a href="#SkBitmap_info">info</a> | Returns <a href="undocumented#Image_Info">Image Info</a>. |
-| <a href="#SkBitmap_installMaskPixels">installMaskPixels</a> | Creates <a href="undocumented#Pixel_Ref">Pixel Ref</a> from <a href="undocumented#Mask">Mask</a>. |
-| <a href="#SkBitmap_installPixels">installPixels</a> | Creates <a href="undocumented#Pixel_Ref">Pixel Ref</a>, with optional release function. |
-| <a href="#SkBitmap_isImmutable">isImmutable</a> | Returns true if pixels will not change. |
-| <a href="#SkBitmap_isNull">isNull</a> | Returns true if <a href="undocumented#Pixel_Ref">Pixel Ref</a> is nullptr. |
-| <a href="#SkBitmap_isOpaque">isOpaque</a> | Returns true if <a href="undocumented#Image_Info">Image Info</a> describes opaque pixels. |
-| <a href="#SkBitmap_isVolatile">isVolatile</a> | Returns true if pixels should not be cached. |
-| <a href="#SkBitmap_notifyPixelsChanged">notifyPixelsChanged</a> | Marks pixels as changed, altering the unique ID. |
-| <a href="#SkBitmap_peekPixels">peekPixels</a> | Returns <a href="SkPixmap_Reference#Pixmap">Pixmap</a> if possible. |
-| <a href="#SkBitmap_pixelRef">pixelRef</a> | Returns <a href="undocumented#Pixel_Ref">Pixel Ref</a>, or nullptr. |
-| <a href="#SkBitmap_pixelRefOrigin">pixelRefOrigin</a> | Returns offset within <a href="undocumented#Pixel_Ref">Pixel Ref</a>. |
-| <a href="#SkBitmap_pixmap">pixmap</a> | Returns <a href="SkPixmap_Reference#Pixmap">Pixmap</a>. |
-| <a href="#SkBitmap_readPixels">readPixels</a> | Copies and converts pixels. |
-| <a href="#SkBitmap_readyToDraw">readyToDraw</a> | Returns true if address of pixels is not nullptr. |
-| <a href="#SkBitmap_refColorSpace">refColorSpace</a> | Returns <a href="undocumented#Image_Info">Image Info</a> <a href="undocumented#Color_Space">Color Space</a>. |
-| <a href="#SkBitmap_reset">reset</a> | Sets to default values, releases pixel ownership. |
-| <a href="#SkBitmap_rowBytes">rowBytes</a> | Returns interval between rows in bytes. |
-| <a href="#SkBitmap_rowBytesAsPixels">rowBytesAsPixels</a> | Returns interval between rows in pixels. |
-| <a href="#SkBitmap_setAlphaType">setAlphaType</a> | Sets <a href="undocumented#Image_Alpha_Type">Alpha Type</a> of shared pixels. |
-| <a href="#SkBitmap_setHasHardwareMipMap">setHasHardwareMipMap</a> | Sets <a href="undocumented#Mip_Map">Mip Map</a> support present; Android only. |
-| <a href="#SkBitmap_setImmutable">setImmutable</a> | Marks that pixels will not change. |
-| <a href="#SkBitmap_setInfo">setInfo</a> | Sets <a href="#SkBitmap_height">height</a>, <a href="#SkBitmap_width">width</a>, <a href="undocumented#Image_Color_Type">Color Type</a>, and so on, releasing pixels. |
-| <a href="#SkBitmap_setIsVolatile">setIsVolatile</a> | Marks if pixels should not be cached. |
-| <a href="#SkBitmap_setPixelRef">setPixelRef</a> | Sets <a href="undocumented#Pixel_Ref">Pixel Ref</a> and offset. |
-| <a href="#SkBitmap_setPixels">setPixels</a> | Sets <a href="undocumented#Pixel_Ref">Pixel Ref</a> without an offset. |
-| <a href="#SkBitmap_shiftPerPixel">shiftPerPixel</a> | Returns bit shift from pixels to bytes. |
-| <a href="#SkBitmap_swap">swap</a> | Exchanges <a href="#Bitmap">Bitmap</a> pair. |
-| <a href="#SkBitmap_toString">toString</a> | Converts <a href="#Bitmap">Bitmap</a> to machine readable form. |
-| <a href="#SkBitmap_tryAllocN32Pixels">tryAllocN32Pixels</a> | Allocates compatible <a href="#ARGB">Color ARGB</a> pixels if possible. |
-| <a href="#SkBitmap_tryAllocPixels">tryAllocPixels</a> | Allocates pixels from <a href="undocumented#Image_Info">Image Info</a> if possible. |
-| <a href="#SkBitmap_tryAllocPixelsFlags">tryAllocPixelsFlags</a> | Allocates pixels from <a href="undocumented#Image_Info">Image Info</a> with options if possible. |
-| <a href="#SkBitmap_validate">validate</a> | Asserts if <a href="#Bitmap">Bitmap</a> is invalid (debug only). |
-| <a href="#SkBitmap_width">width</a> | Returns pixel column count. |
-| <a href="#SkBitmap_writePixels">writePixels</a> | Copies and converts pixels. |
+| <a href="#SkBitmap_ComputeIsOpaque">ComputeIsOpaque</a> | returns true if all pixels are opaque |
+| <a href="#SkBitmap_allocN32Pixels">allocN32Pixels</a> | allocates compatible <a href="#ARGB">Color ARGB</a> pixels, or aborts |
+| <a href="#SkBitmap_allocPixels">allocPixels</a> | allocates pixels from <a href="undocumented#Image_Info">Image Info</a>, or aborts |
+| <a href="#SkBitmap_allocPixelsFlags">allocPixelsFlags</a> | allocates pixels from <a href="undocumented#Image_Info">Image Info</a> with options, or aborts |
+| <a href="#SkBitmap_alphaType">alphaType</a> | returns <a href="undocumented#Image_Info">Image Info</a> <a href="undocumented#Image_Alpha_Type">Alpha Type</a> |
+| <a href="#SkBitmap_bounds">bounds</a> | returns <a href="#SkBitmap_width">width</a> and <a href="#SkBitmap_height">height</a> as Rectangle |
+| <a href="#SkBitmap_bytesPerPixel">bytesPerPixel</a> | returns number of bytes in pixel based on <a href="undocumented#Image_Color_Type">Color Type</a> |
+| <a href="#SkBitmap_colorSpace">colorSpace</a> | returns <a href="undocumented#Image_Info">Image Info</a> <a href="undocumented#Color_Space">Color Space</a> |
+| <a href="#SkBitmap_colorType">colorType</a> | returns <a href="undocumented#Image_Info">Image Info</a> <a href="undocumented#Image_Color_Type">Color Type</a> |
+| <a href="#SkBitmap_computeByteSize">computeByteSize</a> | returns size required for pixels |
+| <a href="#SkBitmap_dimensions">dimensions</a> | returns <a href="#SkBitmap_width">width</a> and <a href="#SkBitmap_height">height</a> |
+| <a href="#SkBitmap_drawsNothing">drawsNothing</a> | returns true if no <a href="#SkBitmap_width">width</a>, no <a href="#SkBitmap_height">height</a>, or no <a href="undocumented#Pixel_Ref">Pixel Ref</a> |
+| <a href="#SkBitmap_empty">empty</a> | returns true if <a href="undocumented#Image_Info">Image Info</a> has zero <a href="#SkBitmap_width">width</a> or <a href="#SkBitmap_height">height</a> |
+| <a href="#SkBitmap_erase">erase</a> | writes <a href="undocumented#Color">Color</a> to rectangle of pixels |
+| <a href="#SkBitmap_eraseARGB">eraseARGB</a> | writes <a href="undocumented#Color">Color</a> to pixels |
+| <a href="#SkBitmap_eraseArea">eraseArea</a> | deprecated |
+| <a href="#SkBitmap_eraseColor">eraseColor</a> | writes <a href="undocumented#Color">Color</a> to pixels |
+| <a href="#SkBitmap_eraseRGB">eraseRGB</a> | deprecated |
+| <a href="#SkBitmap_extractAlpha">extractAlpha</a> | creates <a href="#Bitmap">Bitmap</a> containing <a href="#Alpha">Alpha</a> of pixels |
+| <a href="#SkBitmap_extractSubset">extractSubset</a> | creates <a href="#Bitmap">Bitmap</a>, sharing pixels if possible |
+| <a href="#SkBitmap_getAddr">getAddr</a> | returns readable pixel address as void pointer |
+| <a href="#SkBitmap_getAddr16">getAddr16</a> | returns readable pixel address as 16-bit pointer |
+| <a href="#SkBitmap_getAddr32">getAddr32</a> | returns readable pixel address as 32-bit pointer |
+| <a href="#SkBitmap_getAddr8">getAddr8</a> | returns readable pixel address as 8-bit pointer |
+| <a href="#SkBitmap_getBounds">getBounds</a> | returns <a href="#SkBitmap_width">width</a> and <a href="#SkBitmap_height">height</a> as Rectangle |
+| <a href="#SkBitmap_getColor">getColor</a> | returns one pixel as <a href="#Unpremultiply">Unpremultiplied</a> <a href="undocumented#Color">Color</a> |
+| <a href="#SkBitmap_getGenerationID">getGenerationID</a> | returns unique ID |
+| <a href="#SkBitmap_getPixels">getPixels</a> | returns address of pixels |
+| <a href="#SkBitmap_getSubset">getSubset</a> | returns <a href="#SkBitmap_bounds">bounds</a> offset by origin |
+| <a href="#SkBitmap_hasHardwareMipMap">hasHardwareMipMap</a> | returns <a href="undocumented#Mip_Map">Mip Map</a> support present; Android only |
+| <a href="#SkBitmap_height">height</a> | returns pixel row count |
+| <a href="#SkBitmap_info">info</a> | returns <a href="undocumented#Image_Info">Image Info</a> |
+| <a href="#SkBitmap_installMaskPixels">installMaskPixels</a> | creates <a href="undocumented#Pixel_Ref">Pixel Ref</a> from <a href="undocumented#Mask">Mask</a> |
+| <a href="#SkBitmap_installPixels">installPixels</a> | creates <a href="undocumented#Pixel_Ref">Pixel Ref</a>, with optional release function |
+| <a href="#SkBitmap_isImmutable">isImmutable</a> | returns true if pixels will not change |
+| <a href="#SkBitmap_isNull">isNull</a> | returns true if <a href="undocumented#Pixel_Ref">Pixel Ref</a> is nullptr |
+| <a href="#SkBitmap_isOpaque">isOpaque</a> | returns true if <a href="undocumented#Image_Info">Image Info</a> describes opaque pixels |
+| <a href="#SkBitmap_isVolatile">isVolatile</a> | returns true if pixels should not be cached |
+| <a href="#SkBitmap_notifyPixelsChanged">notifyPixelsChanged</a> | marks pixels as changed, altering the unique ID |
+| <a href="#SkBitmap_peekPixels">peekPixels</a> | returns <a href="SkPixmap_Reference#Pixmap">Pixmap</a> if possible |
+| <a href="#SkBitmap_pixelRef">pixelRef</a> | returns <a href="undocumented#Pixel_Ref">Pixel Ref</a>, or nullptr |
+| <a href="#SkBitmap_pixelRefOrigin">pixelRefOrigin</a> | returns offset within <a href="undocumented#Pixel_Ref">Pixel Ref</a> |
+| <a href="#SkBitmap_pixmap">pixmap</a> | returns <a href="SkPixmap_Reference#Pixmap">Pixmap</a> |
+| <a href="#SkBitmap_readPixels">readPixels</a> | copies and converts pixels |
+| <a href="#SkBitmap_readyToDraw">readyToDraw</a> | returns true if address of pixels is not nullptr |
+| <a href="#SkBitmap_refColorSpace">refColorSpace</a> | returns <a href="undocumented#Image_Info">Image Info</a> <a href="undocumented#Color_Space">Color Space</a> |
+| <a href="#SkBitmap_reset">reset</a> | sets to default values, releases pixel ownership |
+| <a href="#SkBitmap_rowBytes">rowBytes</a> | returns interval between rows in bytes |
+| <a href="#SkBitmap_rowBytesAsPixels">rowBytesAsPixels</a> | returns interval between rows in pixels |
+| <a href="#SkBitmap_setAlphaType">setAlphaType</a> | sets <a href="undocumented#Image_Alpha_Type">Alpha Type</a> of shared pixels |
+| <a href="#SkBitmap_setHasHardwareMipMap">setHasHardwareMipMap</a> | sets <a href="undocumented#Mip_Map">Mip Map</a> support present; Android only |
+| <a href="#SkBitmap_setImmutable">setImmutable</a> | marks that pixels will not change |
+| <a href="#SkBitmap_setInfo">setInfo</a> | sets <a href="#SkBitmap_height">height</a>, <a href="#SkBitmap_width">width</a>, <a href="undocumented#Image_Color_Type">Color Type</a>, and so on, releasing pixels |
+| <a href="#SkBitmap_setIsVolatile">setIsVolatile</a> | marks if pixels should not be cached |
+| <a href="#SkBitmap_setPixelRef">setPixelRef</a> | sets <a href="undocumented#Pixel_Ref">Pixel Ref</a> and offset |
+| <a href="#SkBitmap_setPixels">setPixels</a> | sets <a href="undocumented#Pixel_Ref">Pixel Ref</a> without an offset |
+| <a href="#SkBitmap_shiftPerPixel">shiftPerPixel</a> | returns bit shift from pixels to bytes |
+| <a href="#SkBitmap_swap">swap</a> | exchanges <a href="#Bitmap">Bitmap</a> pair |
+| <a href="#SkBitmap_toString">toString</a> | converts <a href="#Bitmap">Bitmap</a> to machine readable form |
+| <a href="#SkBitmap_tryAllocN32Pixels">tryAllocN32Pixels</a> | allocates compatible <a href="#ARGB">Color ARGB</a> pixels if possible |
+| <a href="#SkBitmap_tryAllocPixels">tryAllocPixels</a> | allocates pixels from <a href="undocumented#Image_Info">Image Info</a> if possible |
+| <a href="#SkBitmap_tryAllocPixelsFlags">tryAllocPixelsFlags</a> | allocates pixels from <a href="undocumented#Image_Info">Image Info</a> with options if possible |
+| <a href="#SkBitmap_validate">validate</a> | asserts if <a href="#Bitmap">Bitmap</a> is invalid (debug only) |
+| <a href="#SkBitmap_width">width</a> | returns pixel column count |
+| <a href="#SkBitmap_writePixels">writePixels</a> | copies and converts pixels |
 
 # <a name="SkBitmap::Allocator"></a> Class SkBitmap::Allocator
 

@@ -19,14 +19,25 @@ to manage pixel memory; Pixel_Ref is safe across threads.
 #Subtopic Subtopics
 #Table
 #Legend
-# topics                 # description                                  ##
+# name                   # description                                 ##
 #Legend ##
-# Image_Info_Access      # Returns all or part of Image_Info.           ##
-# Initialization         # Sets fields for use.                         ##
-# Reader                 # Examine pixel value.                         ##
-# Writer                 # Copy to pixel values.                        ##
-# Readable_Address       # Returns read only pixels.                    ##
-# Writable_Address       # Returns writable pixels.                     ##
+# Constructors           # list of functions that construct SkPath     ##
+# Member_Functions       # list of static functions and member methods ##
+# Related_Functions      # similar methods grouped together            ##
+#Table ##
+##
+
+#Subtopic Related_Functions
+#Table
+#Legend
+# name                   # description                                  ##
+#Legend ##
+# Image_Info_Access      # returns all or part of Image_Info           ##
+# Initialization         # sets fields for use                         ##
+# Readable_Address       # returns read only pixels                    ##
+# Reader                 # examine pixel value                         ##
+# Writable_Address       # returns writable pixels                     ##
+# Writer                 # copy to pixel values                        ##
 #Table ##
 #Subtopic ##
 
@@ -35,48 +46,48 @@ to manage pixel memory; Pixel_Ref is safe across threads.
 #Legend
 #                                                                      # description                         ##
 #Legend ##
-# SkPixmap()                                                           # Constructs with default values.     ##
-# SkPixmap(const SkImageInfo& info, const void* addr, size_t rowBytes) # Constructs from Image_Info, pixels. ##
+# SkPixmap()                                                           # constructs with default values     ##
+# SkPixmap(const SkImageInfo& info, const void* addr, size_t rowBytes) # constructs from Image_Info, pixels ##
 #Table ##
 #Subtopic ##
 
 #Subtopic Member_Functions
 #Table
 #Legend
-# function         # description   ##
+# name             # description   ##
 #Legend ##
-# addr()           # Returns readable pixel address as void pointer. ##
-# addr16           # Returns readable pixel address as 16-bit pointer. ##
-# addr32           # Returns readable pixel address as 32-bit pointer. ##
-# addr64           # Returns readable pixel address as 64-bit pointer. ##
-# addr8            # Returns readable pixel address as 8-bit pointer. ##
-# addrF16          # Returns readable pixel component address as 16-bit pointer. ##
-# alphaType        # Returns Image_Info Alpha_Type. ##
-# bounds()         # Returns width and height as Rectangle. ##
-# colorSpace       # Returns Image_Info Color_Space. ##
-# colorType        # Returns Image_Info Color_Type. ##
-# computeByteSize  # Returns size required for pixels. ##
-# computeIsOpaque  # Returns true if all pixels are opaque. ##
-# erase()          # Writes Color to pixels. ##
-# extractSubset    # Sets pointer to portion of original. ##
-# getColor         # Returns one pixel as Unpremultiplied Color. ##
-# height()         # Returns pixel row count. ##
-# info()           # Returns Image_Info. ##
-# isOpaque         # Returns true if Image_Info describes opaque pixels. ##
-# readPixels       # Copies and converts pixels. ##
-# reset()          # Reuses existing Pixmap with replacement values. ##
-# rowBytes         # Returns interval between rows in bytes. ##
-# rowBytesAsPixels # Returns interval between rows in pixels. ##
-# scalePixels      # Scales and converts pixels. ##
-# setColorSpace    # Sets Image_Info Color_Space. ##
-# shiftPerPixel    # Returns bit shift from pixels to bytes. ##
-# width()          # Returns pixel column count. ##
-# writable_addr    # Returns writable pixel address as void pointer. ##
-# writable_addr16  # Returns writable pixel address as 16-bit pointer. ##
-# writable_addr32  # Returns writable pixel address as 32-bit pointer. ##
-# writable_addr64  # Returns writable pixel address as 64-bit pointer. ##
-# writable_addr8   # Returns writable pixel address as 8-bit pointer. ##
-# writable_addrF16 # Returns writable pixel component address as 16-bit pointer. ##
+# addr()           # returns readable pixel address as void pointer ##
+# addr16           # returns readable pixel address as 16-bit pointer ##
+# addr32           # returns readable pixel address as 32-bit pointer ##
+# addr64           # returns readable pixel address as 64-bit pointer ##
+# addr8            # returns readable pixel address as 8-bit pointer ##
+# addrF16          # returns readable pixel component address as 16-bit pointer ##
+# alphaType        # returns Image_Info Alpha_Type ##
+# bounds()         # returns width and height as Rectangle ##
+# colorSpace       # returns Image_Info Color_Space ##
+# colorType        # returns Image_Info Color_Type ##
+# computeByteSize  # returns size required for pixels ##
+# computeIsOpaque  # returns true if all pixels are opaque ##
+# erase()          # writes Color to pixels ##
+# extractSubset    # sets pointer to portion of original ##
+# getColor         # returns one pixel as Unpremultiplied Color ##
+# height()         # returns pixel row count ##
+# info()           # returns Image_Info ##
+# isOpaque         # returns true if Image_Info describes opaque pixels ##
+# readPixels       # copies and converts pixels ##
+# reset()          # reuses existing Pixmap with replacement values ##
+# rowBytes         # returns interval between rows in bytes ##
+# rowBytesAsPixels # returns interval between rows in pixels ##
+# scalePixels      # scales and converts pixels ##
+# setColorSpace    # sets Image_Info Color_Space ##
+# shiftPerPixel    # returns bit shift from pixels to bytes ##
+# width()          # returns pixel column count ##
+# writable_addr    # returns writable pixel address as void pointer ##
+# writable_addr16  # returns writable pixel address as 16-bit pointer ##
+# writable_addr32  # returns writable pixel address as 32-bit pointer ##
+# writable_addr64  # returns writable pixel address as 64-bit pointer ##
+# writable_addr8   # returns writable pixel address as 8-bit pointer ##
+# writable_addrF16 # returns writable pixel component address as 16-bit pointer ##
 #Table ##
 #Subtopic ##
 

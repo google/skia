@@ -75,25 +75,6 @@ Path contents are never shared. Copying Path by value effectively creates
 a new Path independent of the original. Internally, the copy does not duplicate
 its contents until it is edited, to reduce memory use and improve performance.
 
-#Subtopic Subtopics
-#ToDo not all methods are in topics ##
-#ToDo subtopics are not in topics ##
-#Table
-#Legend
-# topics                 # description                                 ##
-#Legend ##
-#Table ##
-# Contour                # A loop of lines and curves.                 ##
-# Convexity              # Whether Path contains simple loop.          ##
-# Last_Point             # Final Point in Contour.                     ##
-# Point_Array            # All Points in Path.                         ##
-# Verb                   # How Points and Contours are defined.        ##
-# Verb_Array             # All Verbs in Path.                          ##
-# Verb                   # How Points and Contours are defined.        ##
-# Conic_Weight           # Strength of control Point in Conic.         ##
-#Subtopic ##
-
-
 #Subtopic Contour
 #Alias Contours
 Contour contains one or more Verbs, and as many Points as
@@ -203,134 +184,171 @@ SkPath::updateBoundsCache to make Path thread safe.
 
 #Topic Overview
 
+#Subtopic Subtopics
+#Table
+#Legend
+# name                  # description                                        ##
+#Legend ##
+# Classes_and_Structs   # embedded struct and class members                  ##
+# Constants             # enum and enum class, const values                  ##
+# Constructors          # functions that construct SkPath                    ##
+# Member_Functions      # static functions and member methods                ##
+# Operators             # operator overloading methods                       ##
+# Related_Functions     # similar methods grouped together                   ##
+#Table ##
+#Subtopic ##
+
+
+#Subtopic Related_Functions
+#Table
+#Legend
+# name                  # description                                        ##
+#Legend ##
+# Conic                 # conic section defined by three points and a weight ##
+# Conic_Weight          # strength of control Point in Conic                 ##
+# Contour               # loop of lines and curves                           ##
+# Convexity             # if Path is concave or convex                       ##
+# Cubic_Bezier          # third order curve defined by four points           ##
+# Direction             # Path contour orientation                           ##
+# Fill_Type             # Path fill rule, normal and inverted                ##
+# Last_Point            # final Point in Contour                             ##
+# Point_Array           # end points and control points for lines and curves ##
+# Quadratic_Bezier      # parabolic section defined by three points          ##
+# Verb_Array            # line and curve type for points                     ##
+# Verbs                 # Path line and curve type                           ##
+# Zero_Length_Contour   # consideration when contour has no length           ##
+#Table ##
+#Subtopic ##
+
 #Subtopic Constants
 #Table
 #Legend
-# constants                      # description                                 ##
+# name         # description                                 ##
 #Legend ##
-# AddPathMode                    # Sets addPath options.                       ##
-# ArcSize                        # Used by arcTo(SkScalar rx, SkScalar ry, SkScalar xAxisRotate, ArcSize largeArc, Direction sweep, SkScalar x, SkScalar y).##
-# Convexity                      # Returns if Path is convex or concave.       ##
-# Direction                      # Sets Contour clockwise or counterclockwise. ##
-# FillType                       # Sets winding rule and inverse fill.         ##
-# SegmentMask                    # Returns Verb types in Path.                 ##  
-# Verb                           # Controls how Path Points are interpreted.   ##
+# AddPathMode  # sets addPath options                        ##
+# ArcSize      # used by arcTo variation                     ##
+# Convexity    # returns if Path is convex or concave        ##
+# Direction    # sets Contour clockwise or counterclockwise  ##
+# FillType     # sets winding rule and inverse fill          ##
+# SegmentMask  # returns Verb types in Path                  ##  
+# Verb         # controls how Path Points are interpreted    ##
 #Table ##
 #Subtopic ##
 
 #Subtopic Classes_and_Structs
 #Table
 #Legend
-# class or struct                # description                                  ##
+# name         # description                                              ##
 #Legend ##
-# Iter                           # Iterates through lines and curves, skipping degenerates.  ##
-# RawIter                        # Iterates through lines and curves, including degenerates. ##
+# Iter         # iterates through lines and curves, skipping degenerates  ##
+# RawIter      # iterates through lines and curves, including degenerates ##
 #Table ##
 #Subtopic ##
 
 #Subtopic Constructors
 #Table
 #Legend
-#                                # description                                 ##
+# name                           # description                                ##
 #Legend ##
-# SkPath()                       # Constructs with default values.             ##
-# SkPath(const SkPath& path)     # Makes a shallow copy.                       ##
-# ~SkPath()                      # Decreases Reference_Count of owned objects. ##
+# SkPath()                       # constructs with default values             ##
+# SkPath(const SkPath& path)     # makes a shallow copy                       ##
+# ~SkPath()                      # decreases Reference_Count of owned objects ##
 #Table ##
 #Subtopic ##
 
 #Subtopic Operators
 #Table
 #Legend
-# operator                                     # description                     ##
+# name                                         # description                    ##
 #Legend ##
-# operator=(const SkPath& path)                # Makes a shallow copy.           ##
-# operator==(const SkPath& a, const SkPath& b) # Compares paths for equality.    ##
-# operator!=(const SkPath& a, const SkPath& b) # Compares paths for inequality.  ##
+# operator!=(const SkPath& a, const SkPath& b) # compares paths for inequality  ##
+# operator=(const SkPath& path)                # makes a shallow copy           ##
+# operator==(const SkPath& a, const SkPath& b) # compares paths for equality    ##
 #Table ##
 #Subtopic ##
 
 #Subtopic Member_Functions
 #Table
 #Legend
-# function                    # description                                                   ##
+# name                        # description                                                     ##
 #Legend ##
-# ConvertConicToQuads         # Approximates Conic with Quad array. ##
-# ConvertToNonInverseFillType # Returns Fill_Type representing inside geometry. ##
-# IsCubicDegenerate           # Returns if Cubic is very small. ##
-# IsInverseFillType           # Returns if Fill_Type represents outside geometry. ##
-# IsLineDegenerate            # Returns if Line is very small. ##
-# IsQuadDegenerate            # Returns if Quad is very small. ##
-# addArc                      # Adds one Contour containing Arc. ##
-# addCircle                   # Adds one Contour containing Circle. ##
-# addOval                     # Adds one Contour containing Oval. ##
-# addPath                     # Adds contents of Path. ##
-# addPoly                     # Adds one Contour containing connected lines. ##
-# addRRect                    # Adds one Contour containing Round_Rect. ##
-# addRect                     # Adds one Contour containing Rect. ##
-# addRoundRect                # Adds one Contour containing Round_Rect with common corner radii. ##
-# arcTo                       # Appends Arc. ##
-# close()                     # Makes last Contour a loop. ##
-# computeTightBounds          # Returns extent of geometry. ##
-# conicTo                     # Appends Conic. ##
-# conservativelyContainsRect  # Returns true if Rect may be inside. ##
-# contains()                  # Returns if Point is in fill area. ##
-# countPoints                 # Returns Point_Array length. ##
-# countVerbs                  # Returns Verb_Array length. ##
-# cubicTo                     # Appends Cubic. ##
-# dump()                      # Sends text representation using floats to standard output. ##
-# dumpHex                     # Sends text representation using hexadecimal to standard output. ##
-# getBounds                   # Returns maximum and minimum of Point_Array. ##
-# getConvexity                # Returns geometry convexity, computing if necessary. ##
-# getConvexityOrUnknown       # Returns geometry convexity if known. ##
-# getFillType                 # Returns Fill_Type: winding, even-odd, inverse. ##
-# getGenerationID             # Returns unique ID. ##
-# getLastPt                   # Returns Last_Point. ##
-# getPoint                    # Returns entry from Point_Array. ##
-# getPoints                   # Returns Point_Array. ##
-# getSegmentMasks             # Returns types in Verb_Array. ##
-# getVerbs                    # Returns Verb_Array. ##
-# incReserve                  # Hint to reserve space for additional data. ##
-# interpolate()               # Interpolates between Path pair. ##
-# isConvex                    # Returns if geometry is convex. ##
-# isEmpty                     # Returns if verb count is zero. ##
-# isFinite                    # Returns if all Point values are finite. ##
-# isInterpolatable            # Returns if pair contains equal counts of Verb_Array and Weights. ##
-# isInverseFillType           # Returns if Fill_Type fills outside geometry. ##
-# isLastContourClosed         # Returns if final Contour forms a loop. ##
-# isLine                      # Returns if describes Line. ##
-# isNestedFillRects           # Returns if describes Rect pair, one inside the other. ##
-# isOval                      # Returns if describes Oval. ##
-# isRRect                     # Returns if describes Round_Rect. ##
-# isRect                      # Returns if describes Rect. ##
-# isValid                     # Returns if data is internally consistent. ##
-# isVolatile                  # Returns if Device should not cache. ##
-# lineTo                      # Appends Line. ##
-# moveTo                      # Starts Contour. ##
-# offset()                    # Translates Point_Array. ##
-# quadTo                      # Appends Quad. ##
-# rArcTo                      # Appends Arc relative to Last_Point. ##
-# rConicTo                    # Appends Conic relative to Last_Point. ##
-# rCubicTo                    # Appends Cubic relative to Last_Point. ##
-# rLineTo                     # Appends Line relative to Last_Point. ##
-# rMoveTo                     # Starts Contour relative to Last_Point. ##
-# rQuadTo                     # Appends Quad relative to Last_Point. ##
-# readFromMemory              # Initializes from buffer. ##
-# reset()                     # Removes Verb_Array, Point_Array, and Weights; frees memory. ##
-# reverseAddPath              # Adds contents of Path back to front. ##
-# rewind()                    # Removes Verb_Array, Point_Array, and Weights; leaves memory allocated. ##
-# serialize()                 # Copies data to buffer. ##
-# setConvexity                # Sets if geometry is convex to avoid future computation. ##
-# setFillType                 # Sets Fill_Type: winding, even-odd, inverse. ##
-# setIsConvex                 # Deprecated. ##
-# setIsVolatile               # Sets if Device should not cache. ##
-# setLastPt                   # Replaces Last_Point. ##
-# swap()                      # Exchanges Path pair. ##
-# toggleInverseFillType       # Toggles Fill_Type between inside and outside geometry. ##
-# transform()                 # Applies Matrix to Point_Array and Weights. ##
-# unique()                    # Returns if data has single owner. ##
-# updateBoundsCache           # Refreshes result of getBounds. ##
-# writeToMemory               # Copies data to buffer. ##
+# ConvertConicToQuads         # approximates Conic with Quad array                              ##
+# ConvertToNonInverseFillType # returns Fill_Type representing inside geometry                  ##
+# IsCubicDegenerate           # returns if Cubic is very small                                  ##
+# IsInverseFillType           # returns if Fill_Type represents outside geometry                ##
+# IsLineDegenerate            # returns if Line is very small                                   ##
+# IsQuadDegenerate            # returns if Quad is very small                                   ##
+# addArc                      # adds one Contour containing Arc                                 ##
+# addCircle                   # adds one Contour containing Circle                              ##
+# addOval                     # adds one Contour containing Oval                                ##
+# addPath                     # adds contents of Path                                           ##
+# addPoly                     # adds one Contour containing connected lines                     ##
+# addRRect                    # adds one Contour containing Round_Rect                          ##
+# addRect                     # adds one Contour containing Rect                                ##
+# addRoundRect                # adds one Contour containing Round_Rect with common corner radii ##
+# arcTo                       # appends Arc                                                     ##
+# close()                     # makes last Contour a loop                                       ##
+# computeTightBounds          # returns extent of geometry                                      ##
+# conicTo                     # appends Conic                                                   ##
+# conservativelyContainsRect  # returns true if Rect may be inside                              ##
+# contains()                  # returns if Point is in fill area                                ##
+# countPoints                 # returns Point_Array length                                      ##
+# countVerbs                  # returns Verb_Array length                                       ##
+# cubicTo                     # appends Cubic                                                   ##
+# dump()                      # sends text representation using floats to standard output       ##
+# dumpHex                     # sends text representation using hexadecimal to standard output  ##
+# getBounds                   # returns maximum and minimum of Point_Array                      ##
+# getConvexity                # returns geometry convexity, computing if necessary              ##
+# getConvexityOrUnknown       # returns geometry convexity if known                             ##
+# getFillType                 # returns Fill_Type: winding, even-odd, inverse                   ##
+# getGenerationID             # returns unique ID                                               ##
+# getLastPt                   # returns Last_Point                                              ##
+# getPoint                    # returns entry from Point_Array                                  ##
+# getPoints                   # returns Point_Array                                             ##
+# getSegmentMasks             # returns types in Verb_Array                                     ##
+# getVerbs                    # returns Verb_Array                                              ##
+# incReserve                  # reserves space for additional data                              ##
+# interpolate()               # interpolates between Path pair                                  ##
+# isConvex                    # returns if geometry is convex                                   ##
+# isEmpty                     # returns if verb count is zero                                   ##
+# isFinite                    # returns if all Point values are finite                          ##
+# isInterpolatable            # returns if pair contains equal counts of Verb_Array and Weights ##
+# isInverseFillType           # returns if Fill_Type fills outside geometry                     ##
+# isLastContourClosed         # returns if final Contour forms a loop                           ##
+# isLine                      # returns if describes Line                                       ##
+# isNestedFillRects           # returns if describes Rect pair, one inside the other            ##
+# isOval                      # returns if describes Oval                                       ##
+# isRRect                     # returns if describes Round_Rect                                 ##
+# isRect                      # returns if describes Rect                                       ##
+# isValid                     # returns if data is internally consistent                        ##
+# isVolatile                  # returns if Device should not cache                              ##
+# lineTo                      # appends Line                                                    ##
+# moveTo                      # starts Contour                                                  ##
+# offset()                    # translates Point_Array                                          ##
+# pathRefIsValid              # to be deprecated                                                ##
+# quadTo                      # appends Quad                                                    ##
+# rArcTo                      # appends Arc relative to Last_Point                              ##
+# rConicTo                    # appends Conic relative to Last_Point                            ##
+# rCubicTo                    # appends Cubic relative to Last_Point                            ##
+# rLineTo                     # appends Line relative to Last_Point                             ##
+# rMoveTo                     # starts Contour relative to Last_Point                           ##
+# rQuadTo                     # appends Quad relative to Last_Point                             ##
+# readFromMemory              # Initializes from buffer                                         ##
+# reset()                     # removes Verb_Array, Point_Array, and Weights; frees memory      ##
+# reverseAddPath              # adds contents of Path back to front                             ##
+# rewind()                    # removes Verb_Array, Point_Array, and Weights, keeping memory    ##
+# serialize()                 # copies data to buffer                                           ##
+# setConvexity                # sets if geometry is convex to avoid future computation          ##
+# setFillType                 # sets Fill_Type: winding, even-odd, inverse                      ##
+# setIsConvex                 # deprecated                                                      ##
+# setIsVolatile               # sets if Device should not cache                                 ##
+# setLastPt                   # replaces Last_Point                                             ##
+# swap()                      # exchanges Path pair                                             ##
+# toggleInverseFillType       # toggles Fill_Type between inside and outside geometry           ##
+# transform()                 # applies Matrix to Point_Array and Weights                       ##
+# unique()                    # returns if data has single owner                                ##
+# updateBoundsCache           # refreshes result of getBounds                                   ##
+# writeToMemory               # copies data to buffer                                           ##
 #Table ##
 #Subtopic Path_Member_Functions ##
 #Topic Overview ##
@@ -3050,7 +3068,7 @@ constructions are converted to Conic data when added to Path.
 #List
 # <sup>1</sup> arcTo(const SkRect& oval, SkScalar startAngle, SkScalar sweepAngle, bool forceMoveTo) ##
 # <sup>2</sup> parameter sets force MoveTo  ##
-# <sup>3</sup> start angle must be multiple of 90 degrees. ##
+# <sup>3</sup> start angle must be multiple of 90 degrees ##
 # <sup>4</sup> arcTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2, SkScalar radius) ##
 # <sup>5</sup> arcTo(SkScalar rx, SkScalar ry, SkScalar xAxisRotate, ArcSize largeArc,
                Direction sweep, SkScalar x, SkScalar y) ##
