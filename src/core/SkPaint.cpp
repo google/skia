@@ -1957,6 +1957,11 @@ void SkPaint::unflatten(SkReadBuffer& buffer) {
 
 bool SkPaint::getFillPath(const SkPath& src, SkPath* dst, const SkRect* cullRect,
                           SkScalar resScale) const {
+    if (!src.isFinite()) {
+        dst->reset();
+        return false;
+    }
+
     SkStrokeRec rec(*this, resScale);
 
     const SkPath* srcPtr = &src;
@@ -1976,6 +1981,11 @@ bool SkPaint::getFillPath(const SkPath& src, SkPath* dst, const SkRect* cullRect
         } else {
             *dst = *srcPtr;
         }
+    }
+
+    if (!dst->isFinite()) {
+        dst->reset();
+        return false;
     }
     return !rec.isHairlineStyle();
 }
