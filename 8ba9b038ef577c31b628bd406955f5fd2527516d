@@ -22,6 +22,29 @@
       "revId": "8ba9b038ef577c31b628bd406955f5fd2527516d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "249a51c9_9daff7f0",
+        "filename": "src/shaders/SkPerlinNoiseShader.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 421,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-01-22T21:59:27Z",
+      "side": 1,
+      "message": "nits:\n1. named constant for 256\n2. consider using SkSafeRange.h",
+      "range": {
+        "startLine": 421,
+        "startChar": 23,
+        "endLine": 421,
+        "endChar": 30
+      },
+      "revId": "8ba9b038ef577c31b628bd406955f5fd2527516d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
