@@ -114,10 +114,13 @@ sk_sp<SkFlattenable> SkBlurImageFilterImpl::CreateProc(SkReadBuffer& buffer) {
         tileMode = SkBlurImageFilter::kClampToBlack_TileMode;
     } else {
         tileMode = static_cast<SkBlurImageFilter::TileMode>(buffer.readInt());
+        if (tileMode > SkBlurImageFilter::kMax_TileMode) {
+            buffer.validate(false);
+            return nullptr;
+        }
     }
 
     static_assert(SkBlurImageFilter::kMax_TileMode == 2, "CreateProc");
-    SkASSERT(tileMode <= SkBlurImageFilter::kMax_TileMode);
 
     return SkBlurImageFilter::Make(
           sigmaX, sigmaY, common.getInput(0), &common.cropRect(), tileMode);

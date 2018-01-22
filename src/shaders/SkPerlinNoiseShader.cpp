@@ -418,6 +418,11 @@ sk_sp<SkFlattenable> SkPerlinNoiseShaderImpl::CreateProc(SkReadBuffer& buffer) {
     SkScalar freqX = buffer.readScalar();
     SkScalar freqY = buffer.readScalar();
     int octaves = buffer.readInt();
+    if (octaves < 0 || octaves >= 256) {
+        buffer.validate(false);
+        return nullptr;
+    }
+
     SkScalar seed = buffer.readScalar();
     SkISize tileSize;
     tileSize.fWidth = buffer.readInt();
@@ -431,6 +436,7 @@ sk_sp<SkFlattenable> SkPerlinNoiseShaderImpl::CreateProc(SkReadBuffer& buffer) {
         case kImprovedNoise_Type:
             return SkPerlinNoiseShader::MakeImprovedNoise(freqX, freqY, octaves, seed);
         default:
+            buffer.validate(false);
             return nullptr;
     }
 }
