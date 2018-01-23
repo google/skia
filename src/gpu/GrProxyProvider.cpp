@@ -330,17 +330,46 @@ sk_sp<GrTextureProxy> GrProxyProvider::createWrappedTextureProxy(
         return nullptr;
     }
 
-    sk_sp<GrTexture> texture(fResourceProvider->wrapBackendTexture(backendTex, ownership));
-    if (!texture) {
-        return nullptr;
-    }
-    if (releaseProc) {
-        texture->setRelease(releaseProc, releaseCtx);
-    }
+    GrSurfaceDesc desc;
+    desc.fOrigin = origin;
+    desc.fWidth = backendTex.width();
+    desc.fHeight = backendTex.height();
+    desc.fConfig = backendTex.config();
+    GrMipMapped mipMapped = backendTex.hasMipMaps() ? GrMipMapped::kYes : GrMipMapped::kNo;
 
-    SkASSERT(!texture->asRenderTarget());   // Strictly a GrTexture
+    sk_sp<GrTextureProxy> proxy = this->createLazyProxy(
+            [backendTex, ownership, releaseProc, releaseCtx]
+            (GrResourceProvider* resourceProvider, GrSurfaceOrigin* /*outOrigin*/) {
+                if (!resourceProvider) {
+                    // This lazy proxy was never initialized. If it has a releaseProc we must call
+                    // it now so that the client knows they can free the underlying backend object.
+                    if (releaseProc) {
+                        releaseProc(releaseCtx);
+                    }
+                    return sk_sp<GrTexture>();
+                }
 
-    return this->createWrapped(std::move(texture), origin);
+                sk_sp<GrTexture> tex = resourceProvider->wrapBackendTexture(backendTex,
+                                                                            ownership);
+                if (!tex) {
+                    return sk_sp<GrTexture>();
+                }
+                if (releaseProc) {
+                    tex->setRelease(releaseProc, releaseCtx);
+                }
+                SkASSERT(!tex->asRenderTarget());   // Strictly a GrTexture
+                // Make sure we match how we created the proxy with SkBudgeted::kNo
+                SkASSERT(SkBudgeted::kNo == tex->resourcePriv().isBudgeted());
+
+                return tex;
+            }, desc, mipMapped, SkBackingFit::kExact, SkBudgeted::kNo);
+
+    if (fResourceProvider) {
+        // In order to reuse code we always create a lazy proxy. When we aren't in DDL mode however,
+        // we're better off instantiating the proxy immediately here.
+        proxy->priv().doLazyInstantiation(fResourceProvider);
+    }
+    return proxy;
 }
 
 sk_sp<GrTextureProxy> GrProxyProvider::createWrappedTextureProxy(const GrBackendTexture& tex,

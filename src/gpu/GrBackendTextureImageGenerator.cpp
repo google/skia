@@ -114,15 +114,14 @@ sk_sp<GrTextureProxy> GrBackendTextureImageGenerator::onGenerateTexture(
 
     // Must make copies of member variables to capture in the lambda since this image generator may
     // be deleted before we actuallly execute the lambda.
-    GrSurfaceOrigin surfaceOrigin = fSurfaceOrigin;
     sk_sp<GrSemaphore> semaphore = fSemaphore;
     GrBackendTexture backendTexture = fBackendTexture;
     RefHelper* refHelper = fRefHelper;
     refHelper->ref();
 
     sk_sp<GrTextureProxy> proxy = proxyProvider->createLazyProxy(
-            [refHelper, semaphore, backendTexture, surfaceOrigin]
-            (GrResourceProvider* resourceProvider, GrSurfaceOrigin* outOrigin) {
+            [refHelper, semaphore, backendTexture]
+            (GrResourceProvider* resourceProvider, GrSurfaceOrigin* /*outOrigin*/) {
                 if (!resourceProvider) {
                     // If we get here then we never created a texture to pass the refHelper ref off
                     // to. Thus we must unref it ourselves.
@@ -168,7 +167,6 @@ sk_sp<GrTextureProxy> GrBackendTextureImageGenerator::onGenerateTexture(
                     tex->setRelease(ReleaseRefHelper_TextureReleaseProc, refHelper);
                 }
 
-                *outOrigin = surfaceOrigin;
                 return tex;
 
             }, desc, mipMapped, SkBackingFit::kExact, SkBudgeted::kNo);

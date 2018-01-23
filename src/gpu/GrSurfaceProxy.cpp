@@ -351,7 +351,19 @@ void GrSurfaceProxyPriv::doLazyInstantiation(GrResourceProvider* resourceProvide
     SkASSERT(fProxy->fLazyInstantiateCallback);
     SkASSERT(!fProxy->fTarget);
 
-    sk_sp<GrTexture> texture = fProxy->fLazyInstantiateCallback(resourceProvider, &fProxy->fOrigin);
+    GrSurfaceOrigin* outOrigin;
+    if (GrSurfaceProxy::LazyState::kPartially == fProxy->lazyInstantiationState()) {
+        // In the partially instantiated case, we set the origin on the SurfaceProxy at creation
+        // time (via a GrSurfaceDesc). In the lambda, the creation of the texture never needs to
+        // know the origin, and it also can't change or have any effect on it. Thus we just pass in
+        // nullptr in this case since it should never be set.
+        outOrigin = nullptr;
+    } else {
+        outOrigin = &fProxy->fOrigin;
+    }
+
+    sk_sp<GrTexture> texture = fProxy->fLazyInstantiateCallback(resourceProvider, outOrigin);
+
 
     // Indicate we are no longer pending lazy instantiation.
     fProxy->fLazyInstantiateCallback = nullptr;

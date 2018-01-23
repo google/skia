@@ -156,6 +156,22 @@ GrBackendObject SkImage_Gpu::onGetTextureHandle(bool flushPendingGrContextIO,
                                                 GrSurfaceOrigin* origin) const {
     SkASSERT(fProxy);
 
+    if (!fContext->contextPriv().resourceProvider() && !fProxy->priv().isInstantiated()) {
+        // This image was created with a DDL context and cannot be instantiated. Thus we return 0
+        // here which is considered invalid for all backends.
+        return 0;
+    }
+
+    if (GrSurfaceProxy::LazyState::kNot != fProxy->lazyInstantiationState()) {
+        SkASSERT(fContext->contextPriv().resourceProvider());
+        fProxy->priv().doLazyInstantiation(fContext->contextPriv().resourceProvider());
+        if (!fProxy->priv().isInstantiated()) {
+            // We failed to instantiate the lazy proxy. Thus we return 0 here which is considered
+            // invalid for all backends.
+            return 0;
+        }
+    }
+
     if (!fProxy->instantiate(fContext->contextPriv().resourceProvider())) {
         return 0;
     }
@@ -335,6 +351,10 @@ sk_sp<SkImage> SkImage::MakeFromTexture(GrContext* ctx,
 sk_sp<SkImage> SkImage::MakeFromAdoptedTexture(GrContext* ctx,
                                                const GrBackendTexture& tex, GrSurfaceOrigin origin,
                                                SkAlphaType at, sk_sp<SkColorSpace> cs) {
+    if (!ctx->contextPriv().resourceProvider()) {
+        // We have a DDL context and we don't support adopted textures for them.
+        return nullptr;
+    }
     return new_wrapped_texture_common(ctx, tex, origin, at, std::move(cs), kAdopt_GrWrapOwnership,
                                       nullptr, nullptr);
 }

@@ -206,6 +206,10 @@ public:
      *
      *  Will return NULL if the specified backend texture is unsupported.
      *
+     *  This is not supported if the GrContext was obtained from a deferred display list canvas
+     *  since if the SkImage never gets used and flushed to a real GrContext, we have no way to be
+     *  able to delete the underlying backend texture.
+     *
      *  DEPRECATED: This factory is deprecated and clients should use the factory below which takes
      *  an SkColorType.
      */
@@ -224,6 +228,10 @@ public:
      *  interpret the backend format supplied by the GrBackendTexture. If the format in the
      *  GrBackendTexture is not compitable with the SkColorType, SkAlphaType, and SkColorSpace we
      *  will return nullptr.
+     *
+     *  This is not supported if the GrContext was obtained from a deferred display list canvas
+     *  since if the SkImage never gets used and flushed to a real GrContext, we have no way to be
+     *  able to delete the underlying backend texture.
      */
     static sk_sp<SkImage> MakeFromAdoptedTexture(GrContext* context,
                                                  const GrBackendTexture& backendTexture,
