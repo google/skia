@@ -47,5 +47,6 @@ find * -type f | sort | while IFS= read -r FILENAME; do
 done
 printf '\rdone          \n'
 upload "$FILES" > files.checksum
+wait
 
 rm "$FILES" "$EXTANT"
