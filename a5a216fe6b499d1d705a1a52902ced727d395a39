@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f90ef647_99b6746a",
+        "filename": "src/core/SkScalerContext.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 392,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-01-23T15:45:37Z",
+      "side": 1,
+      "message": "Is this generic template really needed? It appears this is used in exactly one place (in SkPaint.cpp) and no where else. As a result making it generic like this doesn\u0027t seem to add anything except extra complexity?",
+      "range": {
+        "startLine": 392,
+        "startChar": 0,
+        "endLine": 392,
+        "endChar": 8
+      },
+      "revId": "a5a216fe6b499d1d705a1a52902ced727d395a39",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
