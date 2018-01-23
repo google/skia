@@ -193,3 +193,11 @@ sk_sp<const GrXferProcessor> GrXPFactory::MakeXferProcessor(const GrXPFactory* f
                                                                caps);
     }
 }
+
+bool GrXPFactory::AsBlendMode(const GrXPFactory* factory, SkBlendMode* mode) {
+    if (factory) {
+        return factory->asBlendMode(mode);
+    }
+    *mode = SkBlendMode::kSrcOver;
+    return true;
+}

@@ -861,6 +861,11 @@ GrXPFactory::AnalysisProperties GrPorterDuffXPFactory::analysisProperties(
     return analysis_properties(color, coverage, caps, dstIsClamped, fBlendMode);
 }
 
+bool GrPorterDuffXPFactory::asBlendMode(SkBlendMode* mode) const {
+    *mode = fBlendMode;
+    return true;
+}
+
 GR_DEFINE_XP_FACTORY_TEST(GrPorterDuffXPFactory);
 
 #if GR_TEST_UTILS
