@@ -6,6 +6,7 @@
  */
 
 #include "Test.h"
+#include "SkBitmap.h"
 
 #if SK_SUPPORT_GPU
 #include "GrClip.h"

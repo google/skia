@@ -8,6 +8,7 @@
 #include "SampleCode.h"
 #include "SkAnimTimer.h"
 #include "SkView.h"
+#include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkGradientShader.h"
 #include "SkGraphics.h"

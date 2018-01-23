@@ -21,6 +21,7 @@
 
 class SkData;
 class SkCanvas;
+class SkImageFilter;
 class SkImageGenerator;
 class SkPaint;
 class SkPicture;

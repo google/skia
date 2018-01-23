@@ -6,6 +6,7 @@
  */
 
 #include "Benchmark.h"
+#include "SkBitmap.h"
 #include "SkBlurImageFilter.h"
 #include "SkOffsetImageFilter.h"
 #include "SkCanvas.h"

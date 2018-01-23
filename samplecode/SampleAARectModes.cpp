@@ -7,6 +7,7 @@
 
 #include "SampleCode.h"
 #include "SkView.h"
+#include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkColorPriv.h"
 #include "SkShader.h"
