@@ -6,6 +6,7 @@
  */
 
 #include "SampleCode.h"
+#include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkGradientShader.h"
 #include "SkPath.h"
