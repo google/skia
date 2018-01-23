@@ -35,7 +35,6 @@ This approach may be deprecated in the future.
 | <a href="#Overview_Constants">Constants</a> | enum and enum class, const values |
 | <a href="#Overview_Constructors">Constructors</a> | functions that construct <a href="SkPath_Reference#SkPath">SkPath</a> |
 | <a href="#Overview_Member_Functions">Member Functions</a> | static functions and member methods |
-| Operators | operator overloading methods |
 
 ## <a name="Constants"></a> Constants
 
@@ -60,7 +59,7 @@ when no <a href="SkSurface_Reference#Surface">Surface</a> is required, and some 
 
 | name | description |
 | --- | ---  |
-| <a href="#SkCanvas_MakeRasterDirect">MakeRasterDirect</a> | creates from <a href="undocumented#SkImageInfo">SkImageInfo</a> and <a href="#Storage">Pixel Storage</a> |
+| <a href="#SkCanvas_MakeRasterDirect">MakeRasterDirect</a> | creates from <a href="SkImageInfo_Reference#SkImageInfo">SkImageInfo</a> and <a href="#Storage">Pixel Storage</a> |
 | <a href="#SkCanvas_MakeRasterDirectN32">MakeRasterDirectN32</a> | creates from image data and <a href="#Storage">Pixel Storage</a> |
 | <a href="#SkCanvas_empty_constructor">SkCanvas()</a> | creates with no <a href="SkSurface_Reference#Surface">Surface</a>, no dimensions |
 | <a href="#SkCanvas_copy_SkBaseDevice_star">SkCanvas(SkBaseDevice* device)</a> | to be deprecated |
@@ -74,7 +73,7 @@ when no <a href="SkSurface_Reference#Surface">Surface</a> is required, and some 
 
 | name | description |
 | --- | ---  |
-| <a href="#SkCanvas_MakeRasterDirect">MakeRasterDirect</a> | creates <a href="#Canvas">Canvas</a> from <a href="undocumented#SkImageInfo">SkImageInfo</a> and pixel data |
+| <a href="#SkCanvas_MakeRasterDirect">MakeRasterDirect</a> | creates <a href="#Canvas">Canvas</a> from <a href="SkImageInfo_Reference#SkImageInfo">SkImageInfo</a> and pixel data |
 | <a href="#SkCanvas_MakeRasterDirectN32">MakeRasterDirectN32</a> | creates <a href="#Canvas">Canvas</a> from image specifications and pixel data |
 | <a href="#SkCanvas_accessTopLayerPixels">accessTopLayerPixels</a> | returns writable pixel access if available |
 | <a href="#SkCanvas_accessTopRasterHandle">accessTopRasterHandle</a> | returns context that tracks <a href="#Clip">Clip</a> and <a href="#Matrix">Matrix</a> |
@@ -132,10 +131,10 @@ when no <a href="SkSurface_Reference#Surface">Surface</a> is required, and some 
 | <a href="#SkCanvas_getProps">getProps</a> | copies <a href="undocumented#Surface_Properties">Surface Properties</a> if available |
 | <a href="#SkCanvas_getSaveCount">getSaveCount</a> | returns depth of stack containing <a href="#Clip">Clip</a> and <a href="#Matrix">Matrix</a> |
 | <a href="#SkCanvas_getTotalMatrix">getTotalMatrix</a> | returns <a href="#Matrix">Matrix</a> |
-| <a href="#SkCanvas_imageInfo">imageInfo</a> | returns <a href="undocumented#Image_Info">Image Info</a> for <a href="#Canvas">Canvas</a> |
+| <a href="#SkCanvas_imageInfo">imageInfo</a> | returns <a href="SkImageInfo_Reference#Image_Info">Image Info</a> for <a href="#Canvas">Canvas</a> |
 | <a href="#SkCanvas_isClipEmpty">isClipEmpty</a> | returns if <a href="#Clip">Clip</a> is empty |
 | <a href="#SkCanvas_isClipRect">isClipRect</a> | returns if <a href="#Clip">Clip</a> is <a href="SkRect_Reference#Rect">Rect</a> and not empty |
-| <a href="#SkCanvas_makeSurface">makeSurface</a> | creates <a href="SkSurface_Reference#Surface">Surface</a> matching <a href="undocumented#SkImageInfo">SkImageInfo</a> and <a href="undocumented#SkSurfaceProps">SkSurfaceProps</a> |
+| <a href="#SkCanvas_makeSurface">makeSurface</a> | creates <a href="SkSurface_Reference#Surface">Surface</a> matching <a href="SkImageInfo_Reference#SkImageInfo">SkImageInfo</a> and <a href="undocumented#SkSurfaceProps">SkSurfaceProps</a> |
 | <a href="#SkCanvas_peekPixels">peekPixels</a> | returns if <a href="#Canvas">Canvas</a> has direct access to its pixels |
 | <a href="#SkCanvas_quickReject">quickReject</a> | returns if <a href="SkRect_Reference#Rect">Rect</a> is outside <a href="#Clip">Clip</a> |
 | <a href="#SkCanvas_readPixels">readPixels</a> | copies and converts rectangle of pixels from <a href="#Canvas">Canvas</a> |
@@ -168,13 +167,13 @@ Allocates raster <a href="#Canvas">Canvas</a> that will draw directly into <a hr
 <a href="#Canvas">Canvas</a> is returned if all parameters are valid.
 Valid parameters include:
 <a href="#SkCanvas_MakeRasterDirect_info">info</a> dimensions are zero or positive;
-<a href="#SkCanvas_MakeRasterDirect_info">info</a> contains <a href="undocumented#Image_Color_Type">Image Color Type</a> and <a href="undocumented#Image_Alpha_Type">Image Alpha Type</a> supported by <a href="undocumented#Raster_Surface">Raster Surface</a>;
+<a href="#SkCanvas_MakeRasterDirect_info">info</a> contains <a href="SkImageInfo_Reference#Image_Color_Type">Image Color Type</a> and <a href="SkImageInfo_Reference#Image_Alpha_Type">Image Alpha Type</a> supported by <a href="undocumented#Raster_Surface">Raster Surface</a>;
 <a href="#SkCanvas_MakeRasterDirect_pixels">pixels</a> is not nullptr;
-<a href="#SkCanvas_MakeRasterDirect_rowBytes">rowBytes</a> is zero or large enough to contain <a href="#SkCanvas_MakeRasterDirect_info">info</a> width <a href="#SkCanvas_MakeRasterDirect_pixels">pixels</a> of <a href="undocumented#Image_Color_Type">Image Color Type</a>.
+<a href="#SkCanvas_MakeRasterDirect_rowBytes">rowBytes</a> is zero or large enough to contain <a href="#SkCanvas_MakeRasterDirect_info">info</a> width <a href="#SkCanvas_MakeRasterDirect_pixels">pixels</a> of <a href="SkImageInfo_Reference#Image_Color_Type">Image Color Type</a>.
 
 Pass zero for <a href="#SkCanvas_MakeRasterDirect_rowBytes">rowBytes</a> to compute <a href="#SkCanvas_MakeRasterDirect_rowBytes">rowBytes</a> from <a href="#SkCanvas_MakeRasterDirect_info">info</a> width and size of pixel.
 If <a href="#SkCanvas_MakeRasterDirect_rowBytes">rowBytes</a> is greater than zero, it must be equal to or greater than
-<a href="#SkCanvas_MakeRasterDirect_info">info</a> width times bytes required for <a href="undocumented#Image_Color_Type">Image Color Type</a>.
+<a href="#SkCanvas_MakeRasterDirect_info">info</a> width times bytes required for <a href="SkImageInfo_Reference#Image_Color_Type">Image Color Type</a>.
 
 <a href="undocumented#Pixel">Pixel</a> buffer size should be <a href="#SkCanvas_MakeRasterDirect_info">info</a> height times computed <a href="#SkCanvas_MakeRasterDirect_rowBytes">rowBytes</a>.
 Pixels are not initialized.
@@ -183,7 +182,7 @@ To access <a href="#SkCanvas_MakeRasterDirect_pixels">pixels</a> after drawing, 
 ### Parameters
 
 <table>  <tr>    <td><a name="SkCanvas_MakeRasterDirect_info"> <code><strong>info </strong></code> </a></td> <td>
-width, height, <a href="undocumented#Image_Color_Type">Image Color Type</a>, <a href="undocumented#Image_Alpha_Type">Image Alpha Type</a>, <a href="undocumented#Color_Space">Color Space</a>, of <a href="undocumented#Raster_Surface">Raster Surface</a>;
+width, height, <a href="SkImageInfo_Reference#Image_Color_Type">Image Color Type</a>, <a href="SkImageInfo_Reference#Image_Alpha_Type">Image Alpha Type</a>, <a href="undocumented#Color_Space">Color Space</a>, of <a href="undocumented#Raster_Surface">Raster Surface</a>;
 width, or height, or both, may be zero</td>
   </tr>  <tr>    <td><a name="SkCanvas_MakeRasterDirect_pixels"> <code><strong>pixels </strong></code> </a></td> <td>
 pointer to destination <a href="#SkCanvas_MakeRasterDirect_pixels">pixels</a> buffer</td>
@@ -230,19 +229,19 @@ static std::unique_ptr&lt;SkCanvas&gt; MakeRasterDirectN32(int width, int height
 
 Allocates raster <a href="#Canvas">Canvas</a> specified by inline image specification. Subsequent <a href="#Canvas">Canvas</a>
 calls draw into <a href="#SkCanvas_MakeRasterDirectN32_pixels">pixels</a>.
-<a href="undocumented#Image_Color_Type">Image Color Type</a> is set to <a href="undocumented#SkColorType">kN32 SkColorType</a>.
-<a href="undocumented#Image_Alpha_Type">Image Alpha Type</a> is set to <a href="undocumented#SkAlphaType">kPremul SkAlphaType</a>.
+<a href="SkImageInfo_Reference#Image_Color_Type">Image Color Type</a> is set to <a href="SkImageInfo_Reference#SkColorType">kN32 SkColorType</a>.
+<a href="SkImageInfo_Reference#Image_Alpha_Type">Image Alpha Type</a> is set to <a href="SkImageInfo_Reference#SkAlphaType">kPremul SkAlphaType</a>.
 To access <a href="#SkCanvas_MakeRasterDirectN32_pixels">pixels</a> after drawing, call <a href="#SkCanvas_flush">flush</a> or <a href="#SkCanvas_peekPixels">peekPixels</a>.
 
 <a href="#Canvas">Canvas</a> is returned if all parameters are valid.
 Valid parameters include:
 <a href="#SkCanvas_MakeRasterDirectN32_width">width</a> and <a href="#SkCanvas_MakeRasterDirectN32_height">height</a> are zero or positive;
 <a href="#SkCanvas_MakeRasterDirectN32_pixels">pixels</a> is not nullptr;
-<a href="#SkCanvas_MakeRasterDirectN32_rowBytes">rowBytes</a> is zero or large enough to contain <a href="#SkCanvas_MakeRasterDirectN32_width">width</a> <a href="#SkCanvas_MakeRasterDirectN32_pixels">pixels</a> of <a href="undocumented#SkColorType">kN32 SkColorType</a>.
+<a href="#SkCanvas_MakeRasterDirectN32_rowBytes">rowBytes</a> is zero or large enough to contain <a href="#SkCanvas_MakeRasterDirectN32_width">width</a> <a href="#SkCanvas_MakeRasterDirectN32_pixels">pixels</a> of <a href="SkImageInfo_Reference#SkColorType">kN32 SkColorType</a>.
 
 Pass zero for <a href="#SkCanvas_MakeRasterDirectN32_rowBytes">rowBytes</a> to compute <a href="#SkCanvas_MakeRasterDirectN32_rowBytes">rowBytes</a> from <a href="#SkCanvas_MakeRasterDirectN32_width">width</a> and size of pixel.
 If <a href="#SkCanvas_MakeRasterDirectN32_rowBytes">rowBytes</a> is greater than zero, it must be equal to or greater than
-<a href="#SkCanvas_MakeRasterDirectN32_width">width</a> times bytes required for <a href="undocumented#Image_Color_Type">Image Color Type</a>.
+<a href="#SkCanvas_MakeRasterDirectN32_width">width</a> times bytes required for <a href="SkImageInfo_Reference#Image_Color_Type">Image Color Type</a>.
 
 <a href="undocumented#Pixel">Pixel</a> buffer size should be <a href="#SkCanvas_MakeRasterDirectN32_height">height</a> times <a href="#SkCanvas_MakeRasterDirectN32_rowBytes">rowBytes</a>.
 
@@ -419,7 +418,7 @@ May be deprecated in the future.
 ### Parameters
 
 <table>  <tr>    <td><a name="SkCanvas_copy_const_SkBitmap_bitmap"> <code><strong>bitmap </strong></code> </a></td> <td>
-width, height, <a href="undocumented#Image_Color_Type">Image Color Type</a>, <a href="undocumented#Image_Alpha_Type">Image Alpha Type</a>, and pixel
+width, height, <a href="SkImageInfo_Reference#Image_Color_Type">Image Color Type</a>, <a href="SkImageInfo_Reference#Image_Alpha_Type">Image Alpha Type</a>, and pixel
 storage of <a href="undocumented#Raster_Surface">Raster Surface</a></td>
   </tr>
 </table>
@@ -510,7 +509,7 @@ constructed <a href="#Canvas">Canvas</a>.
 ### Parameters
 
 <table>  <tr>    <td><a name="SkCanvas_const_SkBitmap_const_SkSurfaceProps_bitmap"> <code><strong>bitmap </strong></code> </a></td> <td>
-width, height, <a href="undocumented#Image_Color_Type">Image Color Type</a>, <a href="undocumented#Image_Alpha_Type">Image Alpha Type</a>,
+width, height, <a href="SkImageInfo_Reference#Image_Color_Type">Image Color Type</a>, <a href="SkImageInfo_Reference#Image_Alpha_Type">Image Alpha Type</a>,
 and pixel storage of <a href="undocumented#Raster_Surface">Raster Surface</a></td>
   </tr>  <tr>    <td><a name="SkCanvas_const_SkBitmap_const_SkSurfaceProps_props"> <code><strong>props </strong></code> </a></td> <td>
 order and orientation of RGB striping; and whether to use
@@ -614,12 +613,12 @@ after: (null)
 SkImageInfo imageInfo() const
 </pre>
 
-Returns <a href="undocumented#Image_Info">Image Info</a> for <a href="#Canvas">Canvas</a>. If <a href="#Canvas">Canvas</a> is not associated with <a href="undocumented#Raster_Surface">Raster Surface</a> or
-<a href="undocumented#GPU_Surface">GPU Surface</a>, returned <a href="undocumented#Image_Color_Type">Image Color Type</a> is set to <a href="undocumented#SkColorType">kUnknown SkColorType</a>.
+Returns <a href="SkImageInfo_Reference#Image_Info">Image Info</a> for <a href="#Canvas">Canvas</a>. If <a href="#Canvas">Canvas</a> is not associated with <a href="undocumented#Raster_Surface">Raster Surface</a> or
+<a href="undocumented#GPU_Surface">GPU Surface</a>, returned <a href="SkImageInfo_Reference#Image_Color_Type">Image Color Type</a> is set to <a href="SkImageInfo_Reference#SkColorType">kUnknown SkColorType</a>.
 
 ### Return Value
 
-dimensions and <a href="undocumented#Image_Color_Type">Image Color Type</a> of <a href="#Canvas">Canvas</a>
+dimensions and <a href="SkImageInfo_Reference#Image_Color_Type">Image Color Type</a> of <a href="#Canvas">Canvas</a>
 
 ### Example
 
@@ -635,7 +634,7 @@ emptyInfo == canvasInfo
 
 ### See Also
 
-<a href="undocumented#SkImageInfo">SkImageInfo</a> <a href="#SkCanvas_MakeRasterDirect">MakeRasterDirect</a> <a href="#SkCanvas_makeSurface">makeSurface</a>
+<a href="SkImageInfo_Reference#SkImageInfo">SkImageInfo</a> <a href="#SkCanvas_MakeRasterDirect">MakeRasterDirect</a> <a href="#SkCanvas_makeSurface">makeSurface</a>
 
 ---
 
@@ -753,7 +752,7 @@ does not have <a href="undocumented#Surface_Properties">Surface Properties</a>, 
 ### Parameters
 
 <table>  <tr>    <td><a name="SkCanvas_makeSurface_info"> <code><strong>info </strong></code> </a></td> <td>
-width, height, <a href="undocumented#Image_Color_Type">Image Color Type</a>, <a href="undocumented#Image_Alpha_Type">Image Alpha Type</a>, and <a href="undocumented#Color_Space">Color Space</a></td>
+width, height, <a href="SkImageInfo_Reference#Image_Color_Type">Image Color Type</a>, <a href="SkImageInfo_Reference#Image_Alpha_Type">Image Alpha Type</a>, and <a href="undocumented#Color_Space">Color Space</a></td>
   </tr>  <tr>    <td><a name="SkCanvas_makeSurface_props"> <code><strong>props </strong></code> </a></td> <td>
 <a href="undocumented#Surface_Properties">Surface Properties</a> to match; may be nullptr to match <a href="#Canvas">Canvas</a></td>
   </tr>
@@ -778,7 +777,7 @@ size = 3, 4
 
 ### See Also
 
-<a href="SkSurface_Reference#SkSurface">SkSurface</a> <a href="#SkSurface_makeSurface">SkSurface::makeSurface</a> <a href="undocumented#SkImageInfo">SkImageInfo</a> <a href="undocumented#SkSurfaceProps">SkSurfaceProps</a>
+<a href="SkSurface_Reference#SkSurface">SkSurface</a> <a href="#SkSurface_makeSurface">SkSurface::makeSurface</a> <a href="SkImageInfo_Reference#SkImageInfo">SkImageInfo</a> <a href="undocumented#SkSurfaceProps">SkSurfaceProps</a>
 
 ---
 
@@ -812,7 +811,7 @@ Returns <a href="undocumented#GPU_Context">GPU Context</a> of the <a href="undoc
 void* accessTopLayerPixels(SkImageInfo* info, size_t* rowBytes, SkIPoint* origin = nullptr)
 </pre>
 
-Returns the pixel base address, <a href="undocumented#Image_Info">Image Info</a>, <a href="#SkCanvas_accessTopLayerPixels_rowBytes">rowBytes</a>, and <a href="#SkCanvas_accessTopLayerPixels_origin">origin</a> if the pixels
+Returns the pixel base address, <a href="SkImageInfo_Reference#Image_Info">Image Info</a>, <a href="#SkCanvas_accessTopLayerPixels_rowBytes">rowBytes</a>, and <a href="#SkCanvas_accessTopLayerPixels_origin">origin</a> if the pixels
 can be read directly. The returned address is only valid
 while <a href="#Canvas">Canvas</a> is in scope and unchanged. Any <a href="#Canvas">Canvas</a> call or <a href="SkSurface_Reference#Surface">Surface</a> call
 may invalidate the returned address and other returned values.
@@ -822,7 +821,7 @@ If pixels are inaccessible, <a href="#SkCanvas_accessTopLayerPixels_info">info</
 ### Parameters
 
 <table>  <tr>    <td><a name="SkCanvas_accessTopLayerPixels_info"> <code><strong>info </strong></code> </a></td> <td>
-storage for writable pixels' <a href="undocumented#Image_Info">Image Info</a>; may be nullptr</td>
+storage for writable pixels' <a href="SkImageInfo_Reference#Image_Info">Image Info</a>; may be nullptr</td>
   </tr>  <tr>    <td><a name="SkCanvas_accessTopLayerPixels_rowBytes"> <code><strong>rowBytes </strong></code> </a></td> <td>
 storage for writable pixels' row bytes; may be nullptr</td>
   </tr>  <tr>    <td><a name="SkCanvas_accessTopLayerPixels_origin"> <code><strong>origin </strong></code> </a></td> <td>
@@ -850,7 +849,7 @@ The <a href="#Layer">Layer</a> and blended result appear on the CPU and GPU but 
 
 ### See Also
 
-<a href="undocumented#SkImageInfo">SkImageInfo</a> <a href="SkPixmap_Reference#SkPixmap">SkPixmap</a>
+<a href="SkImageInfo_Reference#SkImageInfo">SkImageInfo</a> <a href="SkPixmap_Reference#SkPixmap">SkPixmap</a>
 
 ---
 
@@ -958,7 +957,7 @@ class like <a href="undocumented#SkDumpCanvas">SkDumpCanvas</a>.
 
 The destination pixel storage must be allocated by the caller.
 
-<a href="undocumented#Pixel">Pixel</a> values are converted only if <a href="undocumented#Image_Color_Type">Image Color Type</a> and <a href="undocumented#Image_Alpha_Type">Image Alpha Type</a>
+<a href="undocumented#Pixel">Pixel</a> values are converted only if <a href="SkImageInfo_Reference#Image_Color_Type">Image Color Type</a> and <a href="SkImageInfo_Reference#Image_Alpha_Type">Image Alpha Type</a>
 do not match. Only pixels within both source and destination rectangles
 are copied. <a href="#SkCanvas_readPixels_dstPixels">dstPixels</a> contents outside <a href="SkRect_Reference#Rect">Rect</a> intersection are unchanged.
 
@@ -976,7 +975,7 @@ Does not copy, and returns false if:
 ### Parameters
 
 <table>  <tr>    <td><a name="SkCanvas_readPixels_dstInfo"> <code><strong>dstInfo </strong></code> </a></td> <td>
-width, height, <a href="undocumented#Image_Color_Type">Image Color Type</a>, and <a href="undocumented#Image_Alpha_Type">Image Alpha Type</a> of <a href="#SkCanvas_readPixels_dstPixels">dstPixels</a></td>
+width, height, <a href="SkImageInfo_Reference#Image_Color_Type">Image Color Type</a>, and <a href="SkImageInfo_Reference#Image_Alpha_Type">Image Alpha Type</a> of <a href="#SkCanvas_readPixels_dstPixels">dstPixels</a></td>
   </tr>  <tr>    <td><a name="SkCanvas_readPixels_dstPixels"> <code><strong>dstPixels </strong></code> </a></td> <td>
 storage for pixels; <a href="#SkCanvas_readPixels_dstInfo">dstInfo</a>.height() times <a href="#SkCanvas_readPixels_dstRowBytes">dstRowBytes</a>, or larger</td>
   </tr>  <tr>    <td><a name="SkCanvas_readPixels_dstRowBytes"> <code><strong>dstRowBytes </strong></code> </a></td> <td>
@@ -1040,7 +1039,7 @@ class like <a href="undocumented#SkDumpCanvas">SkDumpCanvas</a>.
 
 Caller must allocate pixel storage in <a href="#SkCanvas_readPixels_2_pixmap">pixmap</a> if needed.
 
-<a href="undocumented#Pixel">Pixel</a> values are converted only if <a href="undocumented#Image_Color_Type">Image Color Type</a> and <a href="undocumented#Image_Alpha_Type">Image Alpha Type</a>
+<a href="undocumented#Pixel">Pixel</a> values are converted only if <a href="SkImageInfo_Reference#Image_Color_Type">Image Color Type</a> and <a href="SkImageInfo_Reference#Image_Alpha_Type">Image Alpha Type</a>
 do not match. Only pixels within both source and destination <a href="#Rect">Rects</a>
 are copied. <a href="#SkCanvas_readPixels_2_pixmap">pixmap</a> pixels contents outside <a href="SkRect_Reference#Rect">Rect</a> intersection are unchanged.
 
@@ -1110,7 +1109,7 @@ class like <a href="undocumented#SkDumpCanvas">SkDumpCanvas</a>.
 
 Caller must allocate pixel storage in <a href="#SkCanvas_readPixels_3_bitmap">bitmap</a> if needed.
 
-<a href="SkBitmap_Reference#Bitmap">Bitmap</a> values are converted only if <a href="undocumented#Image_Color_Type">Image Color Type</a> and <a href="undocumented#Image_Alpha_Type">Image Alpha Type</a>
+<a href="SkBitmap_Reference#Bitmap">Bitmap</a> values are converted only if <a href="SkImageInfo_Reference#Image_Color_Type">Image Color Type</a> and <a href="SkImageInfo_Reference#Image_Alpha_Type">Image Alpha Type</a>
 do not match. Only pixels within both source and destination rectangles
 are copied. <a href="SkBitmap_Reference#Bitmap">Bitmap</a> pixels outside <a href="SkRect_Reference#Rect">Rect</a> intersection are unchanged.
 
@@ -1181,7 +1180,7 @@ Pixels are not writable when <a href="#SkCanvas">SkCanvas</a> is returned by <a 
 returned by <a href="#SkPictureRecorder_beginRecording">SkPictureRecorder::beginRecording</a>, or <a href="#Canvas">Canvas</a> is the base of a utility
 class like <a href="undocumented#SkDumpCanvas">SkDumpCanvas</a>.
 
-<a href="undocumented#Pixel">Pixel</a> values are converted only if <a href="undocumented#Image_Color_Type">Image Color Type</a> and <a href="undocumented#Image_Alpha_Type">Image Alpha Type</a>
+<a href="undocumented#Pixel">Pixel</a> values are converted only if <a href="SkImageInfo_Reference#Image_Color_Type">Image Color Type</a> and <a href="SkImageInfo_Reference#Image_Alpha_Type">Image Alpha Type</a>
 do not match. Only <a href="#SkCanvas_writePixels_pixels">pixels</a> within both source and destination rectangles
 are copied. <a href="#Canvas">Canvas</a> <a href="#SkCanvas_writePixels_pixels">pixels</a> outside <a href="SkRect_Reference#Rect">Rect</a> intersection are unchanged.
 
@@ -1201,7 +1200,7 @@ Does not copy, and returns false if:
 ### Parameters
 
 <table>  <tr>    <td><a name="SkCanvas_writePixels_info"> <code><strong>info </strong></code> </a></td> <td>
-width, height, <a href="undocumented#Image_Color_Type">Image Color Type</a>, and <a href="undocumented#Image_Alpha_Type">Image Alpha Type</a> of <a href="#SkCanvas_writePixels_pixels">pixels</a></td>
+width, height, <a href="SkImageInfo_Reference#Image_Color_Type">Image Color Type</a>, and <a href="SkImageInfo_Reference#Image_Alpha_Type">Image Alpha Type</a> of <a href="#SkCanvas_writePixels_pixels">pixels</a></td>
   </tr>  <tr>    <td><a name="SkCanvas_writePixels_pixels"> <code><strong>pixels </strong></code> </a></td> <td>
 <a href="#SkCanvas_writePixels_pixels">pixels</a> to copy, of size <a href="#SkCanvas_writePixels_info">info</a>.height() times <a href="#SkCanvas_writePixels_rowBytes">rowBytes</a>, or larger</td>
   </tr>  <tr>    <td><a name="SkCanvas_writePixels_rowBytes"> <code><strong>rowBytes </strong></code> </a></td> <td>
@@ -1245,7 +1244,7 @@ Pixels are not writable when <a href="#SkCanvas">SkCanvas</a> is returned by <a 
 returned by <a href="#SkPictureRecorder_beginRecording">SkPictureRecorder::beginRecording</a>, or <a href="#Canvas">Canvas</a> is the base of a utility
 class like <a href="undocumented#SkDumpCanvas">SkDumpCanvas</a>.
 
-<a href="undocumented#Pixel">Pixel</a> values are converted only if <a href="undocumented#Image_Color_Type">Image Color Type</a> and <a href="undocumented#Image_Alpha_Type">Image Alpha Type</a>
+<a href="undocumented#Pixel">Pixel</a> values are converted only if <a href="SkImageInfo_Reference#Image_Color_Type">Image Color Type</a> and <a href="SkImageInfo_Reference#Image_Alpha_Type">Image Alpha Type</a>
 do not match. Only pixels within both source and destination rectangles
 are copied. <a href="#Canvas">Canvas</a> pixels outside <a href="SkRect_Reference#Rect">Rect</a> intersection are unchanged.
 
@@ -3626,7 +3625,7 @@ Draw <a href="SkImage_Reference#Image">Image</a> <a href="#SkCanvas_drawImage_im
 using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and optional <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawImage_paint">paint</a>.
 
 If <a href="#SkCanvas_drawImage_paint">paint</a> is supplied, apply <a href="undocumented#Color_Filter">Color Filter</a>, <a href="#Alpha">Color Alpha</a>, <a href="undocumented#Image_Filter">Image Filter</a>, <a href="undocumented#Blend_Mode">Blend Mode</a>,
-and <a href="undocumented#Draw_Looper">Draw Looper</a>. If <a href="#SkCanvas_drawImage_image">image</a> is <a href="undocumented#SkColorType">kAlpha 8 SkColorType</a>, apply <a href="undocumented#Shader">Shader</a>.
+and <a href="undocumented#Draw_Looper">Draw Looper</a>. If <a href="#SkCanvas_drawImage_image">image</a> is <a href="SkImageInfo_Reference#SkColorType">kAlpha 8 SkColorType</a>, apply <a href="undocumented#Shader">Shader</a>.
 If <a href="#SkCanvas_drawImage_paint">paint</a> contains <a href="undocumented#Mask_Filter">Mask Filter</a>, generate mask from <a href="#SkCanvas_drawImage_image">image</a> bounds. If generated
 mask extends beyond <a href="#SkCanvas_drawImage_image">image</a> bounds, replicate <a href="#SkCanvas_drawImage_image">image</a> edge colors, just as <a href="undocumented#Shader">Shader</a>
 made from <a href="#SkImage_makeShader">SkImage::makeShader</a> with <a href="#SkShader_kClamp_TileMode">SkShader::kClamp TileMode</a> set replicates the
@@ -3665,7 +3664,7 @@ Draw <a href="SkImage_Reference#Image">Image</a> <a href="#SkCanvas_drawImage_2_
 using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and optional <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawImage_2_paint">paint</a>.
 
 If <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawImage_2_paint">paint</a> is supplied, apply <a href="undocumented#Color_Filter">Color Filter</a>, <a href="#Alpha">Color Alpha</a>, <a href="undocumented#Image_Filter">Image Filter</a>,
-<a href="undocumented#Blend_Mode">Blend Mode</a>, and <a href="undocumented#Draw_Looper">Draw Looper</a>. If <a href="#SkCanvas_drawImage_2_image">image</a> is <a href="undocumented#SkColorType">kAlpha 8 SkColorType</a>, apply <a href="undocumented#Shader">Shader</a>.
+<a href="undocumented#Blend_Mode">Blend Mode</a>, and <a href="undocumented#Draw_Looper">Draw Looper</a>. If <a href="#SkCanvas_drawImage_2_image">image</a> is <a href="SkImageInfo_Reference#SkColorType">kAlpha 8 SkColorType</a>, apply <a href="undocumented#Shader">Shader</a>.
 If <a href="#SkCanvas_drawImage_2_paint">paint</a> contains <a href="undocumented#Mask_Filter">Mask Filter</a>, generate mask from <a href="#SkCanvas_drawImage_2_image">image</a> bounds. If generated
 mask extends beyond <a href="#SkCanvas_drawImage_2_image">image</a> bounds, replicate <a href="#SkCanvas_drawImage_2_image">image</a> edge colors, just as <a href="undocumented#Shader">Shader</a>
 made from <a href="#SkImage_makeShader">SkImage::makeShader</a> with <a href="#SkShader_kClamp_TileMode">SkShader::kClamp TileMode</a> set replicates the
@@ -3750,7 +3749,7 @@ Draw <a href="SkRect_Reference#Rect">Rect</a> <a href="#SkCanvas_drawImageRect_s
 Additionally transform draw using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and optional <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawImageRect_paint">paint</a>.
 
 If <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawImageRect_paint">paint</a> is supplied, apply <a href="undocumented#Color_Filter">Color Filter</a>, <a href="#Alpha">Color Alpha</a>, <a href="undocumented#Image_Filter">Image Filter</a>,
-<a href="undocumented#Blend_Mode">Blend Mode</a>, and <a href="undocumented#Draw_Looper">Draw Looper</a>. If <a href="#SkCanvas_drawImageRect_image">image</a> is <a href="undocumented#SkColorType">kAlpha 8 SkColorType</a>, apply <a href="undocumented#Shader">Shader</a>.
+<a href="undocumented#Blend_Mode">Blend Mode</a>, and <a href="undocumented#Draw_Looper">Draw Looper</a>. If <a href="#SkCanvas_drawImageRect_image">image</a> is <a href="SkImageInfo_Reference#SkColorType">kAlpha 8 SkColorType</a>, apply <a href="undocumented#Shader">Shader</a>.
 If <a href="#SkCanvas_drawImageRect_paint">paint</a> contains <a href="undocumented#Mask_Filter">Mask Filter</a>, generate mask from <a href="#SkCanvas_drawImageRect_image">image</a> bounds.
 
 If generated mask extends beyond <a href="#SkCanvas_drawImageRect_image">image</a> bounds, replicate <a href="#SkCanvas_drawImageRect_image">image</a> edge colors, just
@@ -3802,7 +3801,7 @@ boundaries. Additionally transform draw using <a href="#Clip">Clip</a>, <a href=
 <a href="#SkCanvas_drawImageRect_2_paint">paint</a>.
 
 If <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawImageRect_2_paint">paint</a> is supplied, apply <a href="undocumented#Color_Filter">Color Filter</a>, <a href="#Alpha">Color Alpha</a>, <a href="undocumented#Image_Filter">Image Filter</a>,
-<a href="undocumented#Blend_Mode">Blend Mode</a>, and <a href="undocumented#Draw_Looper">Draw Looper</a>. If <a href="#SkCanvas_drawImageRect_2_image">image</a> is <a href="undocumented#SkColorType">kAlpha 8 SkColorType</a>, apply <a href="undocumented#Shader">Shader</a>.
+<a href="undocumented#Blend_Mode">Blend Mode</a>, and <a href="undocumented#Draw_Looper">Draw Looper</a>. If <a href="#SkCanvas_drawImageRect_2_image">image</a> is <a href="SkImageInfo_Reference#SkColorType">kAlpha 8 SkColorType</a>, apply <a href="undocumented#Shader">Shader</a>.
 If <a href="#SkCanvas_drawImageRect_2_paint">paint</a> contains <a href="undocumented#Mask_Filter">Mask Filter</a>, generate mask from <a href="#SkCanvas_drawImageRect_2_image">image</a> bounds.
 
 If generated mask extends beyond <a href="#SkCanvas_drawImageRect_2_image">image</a> bounds, replicate <a href="#SkCanvas_drawImageRect_2_image">image</a> edge colors, just
@@ -3848,7 +3847,7 @@ Draw <a href="SkImage_Reference#Image">Image</a> <a href="#SkCanvas_drawImageRec
 and optional <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawImageRect_3_paint">paint</a>.
 
 If <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawImageRect_3_paint">paint</a> is supplied, apply <a href="undocumented#Color_Filter">Color Filter</a>, <a href="#Alpha">Color Alpha</a>, <a href="undocumented#Image_Filter">Image Filter</a>,
-<a href="undocumented#Blend_Mode">Blend Mode</a>, and <a href="undocumented#Draw_Looper">Draw Looper</a>. If <a href="#SkCanvas_drawImageRect_3_image">image</a> is <a href="undocumented#SkColorType">kAlpha 8 SkColorType</a>, apply <a href="undocumented#Shader">Shader</a>.
+<a href="undocumented#Blend_Mode">Blend Mode</a>, and <a href="undocumented#Draw_Looper">Draw Looper</a>. If <a href="#SkCanvas_drawImageRect_3_image">image</a> is <a href="SkImageInfo_Reference#SkColorType">kAlpha 8 SkColorType</a>, apply <a href="undocumented#Shader">Shader</a>.
 If <a href="#SkCanvas_drawImageRect_3_paint">paint</a> contains <a href="undocumented#Mask_Filter">Mask Filter</a>, generate mask from <a href="#SkCanvas_drawImageRect_3_image">image</a> bounds.
 
 If generated mask extends beyond <a href="#SkCanvas_drawImageRect_3_image">image</a> bounds, replicate <a href="#SkCanvas_drawImageRect_3_image">image</a> edge colors, just
@@ -3892,7 +3891,7 @@ Draw <a href="SkRect_Reference#Rect">Rect</a> <a href="#SkCanvas_drawImageRect_4
 Additionally transform draw using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and optional <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawImageRect_4_paint">paint</a>.
 
 If <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawImageRect_4_paint">paint</a> is supplied, apply <a href="undocumented#Color_Filter">Color Filter</a>, <a href="#Alpha">Color Alpha</a>, <a href="undocumented#Image_Filter">Image Filter</a>,
-<a href="undocumented#Blend_Mode">Blend Mode</a>, and <a href="undocumented#Draw_Looper">Draw Looper</a>. If <a href="#SkCanvas_drawImageRect_4_image">image</a> is <a href="undocumented#SkColorType">kAlpha 8 SkColorType</a>, apply <a href="undocumented#Shader">Shader</a>.
+<a href="undocumented#Blend_Mode">Blend Mode</a>, and <a href="undocumented#Draw_Looper">Draw Looper</a>. If <a href="#SkCanvas_drawImageRect_4_image">image</a> is <a href="SkImageInfo_Reference#SkColorType">kAlpha 8 SkColorType</a>, apply <a href="undocumented#Shader">Shader</a>.
 If <a href="#SkCanvas_drawImageRect_4_paint">paint</a> contains <a href="undocumented#Mask_Filter">Mask Filter</a>, generate mask from <a href="#SkCanvas_drawImageRect_4_image">image</a> bounds.
 
 If generated mask extends beyond <a href="#SkCanvas_drawImageRect_4_image">image</a> bounds, replicate <a href="#SkCanvas_drawImageRect_4_image">image</a> edge colors, just
@@ -3940,7 +3939,7 @@ Draw <a href="SkIRect_Reference#IRect">IRect</a> <a href="#SkCanvas_drawImageRec
 Additionally transform draw using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and optional <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawImageRect_5_paint">paint</a>.
 
 If <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawImageRect_5_paint">paint</a> is supplied, apply <a href="undocumented#Color_Filter">Color Filter</a>, <a href="#Alpha">Color Alpha</a>, <a href="undocumented#Image_Filter">Image Filter</a>,
-<a href="undocumented#Blend_Mode">Blend Mode</a>, and <a href="undocumented#Draw_Looper">Draw Looper</a>. If <a href="#SkCanvas_drawImageRect_5_image">image</a> is <a href="undocumented#SkColorType">kAlpha 8 SkColorType</a>, apply <a href="undocumented#Shader">Shader</a>.
+<a href="undocumented#Blend_Mode">Blend Mode</a>, and <a href="undocumented#Draw_Looper">Draw Looper</a>. If <a href="#SkCanvas_drawImageRect_5_image">image</a> is <a href="SkImageInfo_Reference#SkColorType">kAlpha 8 SkColorType</a>, apply <a href="undocumented#Shader">Shader</a>.
 If <a href="#SkCanvas_drawImageRect_5_paint">paint</a> contains <a href="undocumented#Mask_Filter">Mask Filter</a>, generate mask from <a href="#SkCanvas_drawImageRect_5_image">image</a> bounds.
 
 If generated mask extends beyond <a href="#SkCanvas_drawImageRect_5_image">image</a> bounds, replicate <a href="#SkCanvas_drawImageRect_5_image">image</a> edge colors, just
@@ -3986,7 +3985,7 @@ Draw <a href="SkImage_Reference#Image">Image</a> <a href="#SkCanvas_drawImageRec
 using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and optional <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawImageRect_6_paint">paint</a>.
 
 If <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawImageRect_6_paint">paint</a> is supplied, apply <a href="undocumented#Color_Filter">Color Filter</a>, <a href="#Alpha">Color Alpha</a>, <a href="undocumented#Image_Filter">Image Filter</a>,
-<a href="undocumented#Blend_Mode">Blend Mode</a>, and <a href="undocumented#Draw_Looper">Draw Looper</a>. If <a href="#SkCanvas_drawImageRect_6_image">image</a> is <a href="undocumented#SkColorType">kAlpha 8 SkColorType</a>, apply <a href="undocumented#Shader">Shader</a>.
+<a href="undocumented#Blend_Mode">Blend Mode</a>, and <a href="undocumented#Draw_Looper">Draw Looper</a>. If <a href="#SkCanvas_drawImageRect_6_image">image</a> is <a href="SkImageInfo_Reference#SkColorType">kAlpha 8 SkColorType</a>, apply <a href="undocumented#Shader">Shader</a>.
 If <a href="#SkCanvas_drawImageRect_6_paint">paint</a> contains <a href="undocumented#Mask_Filter">Mask Filter</a>, generate mask from <a href="#SkCanvas_drawImageRect_6_image">image</a> bounds.
 
 If generated mask extends beyond <a href="#SkCanvas_drawImageRect_6_image">image</a> bounds, replicate <a href="#SkCanvas_drawImageRect_6_image">image</a> edge colors, just
@@ -4037,7 +4036,7 @@ are larger than <a href="#SkCanvas_drawImageNine_dst">dst</a>; <a href="#SkCanva
 Additionally transform draw using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and optional <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawImageNine_paint">paint</a>.
 
 If <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawImageNine_paint">paint</a> is supplied, apply <a href="undocumented#Color_Filter">Color Filter</a>, <a href="#Alpha">Color Alpha</a>, <a href="undocumented#Image_Filter">Image Filter</a>,
-<a href="undocumented#Blend_Mode">Blend Mode</a>, and <a href="undocumented#Draw_Looper">Draw Looper</a>. If <a href="#SkCanvas_drawImageNine_image">image</a> is <a href="undocumented#SkColorType">kAlpha 8 SkColorType</a>, apply <a href="undocumented#Shader">Shader</a>.
+<a href="undocumented#Blend_Mode">Blend Mode</a>, and <a href="undocumented#Draw_Looper">Draw Looper</a>. If <a href="#SkCanvas_drawImageNine_image">image</a> is <a href="SkImageInfo_Reference#SkColorType">kAlpha 8 SkColorType</a>, apply <a href="undocumented#Shader">Shader</a>.
 If <a href="#SkCanvas_drawImageNine_paint">paint</a> contains <a href="undocumented#Mask_Filter">Mask Filter</a>, generate mask from <a href="#SkCanvas_drawImageNine_image">image</a> bounds.
 
 If generated mask extends beyond <a href="#SkCanvas_drawImageNine_image">image</a> bounds, replicate <a href="#SkCanvas_drawImageNine_image">image</a> edge colors, just
@@ -4084,7 +4083,7 @@ are larger than <a href="#SkCanvas_drawImageNine_2_dst">dst</a>; <a href="#SkCan
 Additionally transform draw using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and optional <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawImageNine_2_paint">paint</a>.
 
 If <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawImageNine_2_paint">paint</a> is supplied, apply <a href="undocumented#Color_Filter">Color Filter</a>, <a href="#Alpha">Color Alpha</a>, <a href="undocumented#Image_Filter">Image Filter</a>,
-<a href="undocumented#Blend_Mode">Blend Mode</a>, and <a href="undocumented#Draw_Looper">Draw Looper</a>. If <a href="#SkCanvas_drawImageNine_2_image">image</a> is <a href="undocumented#SkColorType">kAlpha 8 SkColorType</a>, apply <a href="undocumented#Shader">Shader</a>.
+<a href="undocumented#Blend_Mode">Blend Mode</a>, and <a href="undocumented#Draw_Looper">Draw Looper</a>. If <a href="#SkCanvas_drawImageNine_2_image">image</a> is <a href="SkImageInfo_Reference#SkColorType">kAlpha 8 SkColorType</a>, apply <a href="undocumented#Shader">Shader</a>.
 If <a href="#SkCanvas_drawImageNine_2_paint">paint</a> contains <a href="undocumented#Mask_Filter">Mask Filter</a>, generate mask from <a href="#SkCanvas_drawImageNine_2_image">image</a> bounds.
 
 If generated mask extends beyond <a href="#SkCanvas_drawImageNine_2_image">image</a> bounds, replicate <a href="#SkCanvas_drawImageNine_2_image">image</a> edge colors, just
@@ -4131,7 +4130,7 @@ Draw <a href="SkBitmap_Reference#Bitmap">Bitmap</a> <a href="#SkCanvas_drawBitma
 using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and optional <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawBitmap_paint">paint</a>.
 
 If <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawBitmap_paint">paint</a> is not nullptr, apply <a href="undocumented#Color_Filter">Color Filter</a>, <a href="#Alpha">Color Alpha</a>, <a href="undocumented#Image_Filter">Image Filter</a>,
-<a href="undocumented#Blend_Mode">Blend Mode</a>, and <a href="undocumented#Draw_Looper">Draw Looper</a>. If <a href="#SkCanvas_drawBitmap_bitmap">bitmap</a> is <a href="undocumented#SkColorType">kAlpha 8 SkColorType</a>, apply <a href="undocumented#Shader">Shader</a>.
+<a href="undocumented#Blend_Mode">Blend Mode</a>, and <a href="undocumented#Draw_Looper">Draw Looper</a>. If <a href="#SkCanvas_drawBitmap_bitmap">bitmap</a> is <a href="SkImageInfo_Reference#SkColorType">kAlpha 8 SkColorType</a>, apply <a href="undocumented#Shader">Shader</a>.
 If <a href="#SkCanvas_drawBitmap_paint">paint</a> contains <a href="undocumented#Mask_Filter">Mask Filter</a>, generate mask from <a href="#SkCanvas_drawBitmap_bitmap">bitmap</a> bounds.
 
 If generated mask extends beyond <a href="#SkCanvas_drawBitmap_bitmap">bitmap</a> bounds, replicate <a href="#SkCanvas_drawBitmap_bitmap">bitmap</a> edge colors,
@@ -4175,7 +4174,7 @@ Draw <a href="SkRect_Reference#Rect">Rect</a> <a href="#SkCanvas_drawBitmapRect_
 Additionally transform draw using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and optional <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawBitmapRect_paint">paint</a>.
 
 If <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawBitmapRect_paint">paint</a> is supplied, apply <a href="undocumented#Color_Filter">Color Filter</a>, <a href="#Alpha">Color Alpha</a>, <a href="undocumented#Image_Filter">Image Filter</a>,
-<a href="undocumented#Blend_Mode">Blend Mode</a>, and <a href="undocumented#Draw_Looper">Draw Looper</a>. If <a href="#SkCanvas_drawBitmapRect_bitmap">bitmap</a> is <a href="undocumented#SkColorType">kAlpha 8 SkColorType</a>, apply <a href="undocumented#Shader">Shader</a>.
+<a href="undocumented#Blend_Mode">Blend Mode</a>, and <a href="undocumented#Draw_Looper">Draw Looper</a>. If <a href="#SkCanvas_drawBitmapRect_bitmap">bitmap</a> is <a href="SkImageInfo_Reference#SkColorType">kAlpha 8 SkColorType</a>, apply <a href="undocumented#Shader">Shader</a>.
 If <a href="#SkCanvas_drawBitmapRect_paint">paint</a> contains <a href="undocumented#Mask_Filter">Mask Filter</a>, generate mask from <a href="#SkCanvas_drawBitmapRect_bitmap">bitmap</a> bounds.
 
 If generated mask extends beyond <a href="#SkCanvas_drawBitmapRect_bitmap">bitmap</a> bounds, replicate <a href="#SkCanvas_drawBitmapRect_bitmap">bitmap</a> edge colors,
@@ -4223,7 +4222,7 @@ Draw <a href="SkIRect_Reference#IRect">IRect</a> <a href="#SkCanvas_drawBitmapRe
 Additionally transform draw using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and optional <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawBitmapRect_2_paint">paint</a>.
 
 If <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawBitmapRect_2_paint">paint</a> is supplied, apply <a href="undocumented#Color_Filter">Color Filter</a>, <a href="#Alpha">Color Alpha</a>, <a href="undocumented#Image_Filter">Image Filter</a>,
-<a href="undocumented#Blend_Mode">Blend Mode</a>, and <a href="undocumented#Draw_Looper">Draw Looper</a>. If <a href="#SkCanvas_drawBitmapRect_2_bitmap">bitmap</a> is <a href="undocumented#SkColorType">kAlpha 8 SkColorType</a>, apply <a href="undocumented#Shader">Shader</a>.
+<a href="undocumented#Blend_Mode">Blend Mode</a>, and <a href="undocumented#Draw_Looper">Draw Looper</a>. If <a href="#SkCanvas_drawBitmapRect_2_bitmap">bitmap</a> is <a href="SkImageInfo_Reference#SkColorType">kAlpha 8 SkColorType</a>, apply <a href="undocumented#Shader">Shader</a>.
 If <a href="#SkCanvas_drawBitmapRect_2_paint">paint</a> contains <a href="undocumented#Mask_Filter">Mask Filter</a>, generate mask from <a href="#SkCanvas_drawBitmapRect_2_bitmap">bitmap</a> bounds.
 
 If generated mask extends beyond <a href="#SkCanvas_drawBitmapRect_2_bitmap">bitmap</a> bounds, replicate <a href="#SkCanvas_drawBitmapRect_2_bitmap">bitmap</a> edge colors,
@@ -4271,7 +4270,7 @@ Draw <a href="SkBitmap_Reference#Bitmap">Bitmap</a> <a href="#SkCanvas_drawBitma
 Additionally transform draw using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and optional <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawBitmapRect_3_paint">paint</a>.
 
 If <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawBitmapRect_3_paint">paint</a> is supplied, apply <a href="undocumented#Color_Filter">Color Filter</a>, <a href="#Alpha">Color Alpha</a>, <a href="undocumented#Image_Filter">Image Filter</a>,
-<a href="undocumented#Blend_Mode">Blend Mode</a>, and <a href="undocumented#Draw_Looper">Draw Looper</a>. If <a href="#SkCanvas_drawBitmapRect_3_bitmap">bitmap</a> is <a href="undocumented#SkColorType">kAlpha 8 SkColorType</a>, apply <a href="undocumented#Shader">Shader</a>.
+<a href="undocumented#Blend_Mode">Blend Mode</a>, and <a href="undocumented#Draw_Looper">Draw Looper</a>. If <a href="#SkCanvas_drawBitmapRect_3_bitmap">bitmap</a> is <a href="SkImageInfo_Reference#SkColorType">kAlpha 8 SkColorType</a>, apply <a href="undocumented#Shader">Shader</a>.
 If <a href="#SkCanvas_drawBitmapRect_3_paint">paint</a> contains <a href="undocumented#Mask_Filter">Mask Filter</a>, generate mask from <a href="#SkCanvas_drawBitmapRect_3_bitmap">bitmap</a> bounds.
 
 If generated mask extends beyond <a href="#SkCanvas_drawBitmapRect_3_bitmap">bitmap</a> bounds, replicate <a href="#SkCanvas_drawBitmapRect_3_bitmap">bitmap</a> edge colors,
@@ -4324,7 +4323,7 @@ space, if any.
 Additionally transform draw using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and optional <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawBitmapNine_paint">paint</a>.
 
 If <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawBitmapNine_paint">paint</a> is supplied, apply <a href="undocumented#Color_Filter">Color Filter</a>, <a href="#Alpha">Color Alpha</a>, <a href="undocumented#Image_Filter">Image Filter</a>,
-<a href="undocumented#Blend_Mode">Blend Mode</a>, and <a href="undocumented#Draw_Looper">Draw Looper</a>. If <a href="#SkCanvas_drawBitmapNine_bitmap">bitmap</a> is <a href="undocumented#SkColorType">kAlpha 8 SkColorType</a>, apply <a href="undocumented#Shader">Shader</a>.
+<a href="undocumented#Blend_Mode">Blend Mode</a>, and <a href="undocumented#Draw_Looper">Draw Looper</a>. If <a href="#SkCanvas_drawBitmapNine_bitmap">bitmap</a> is <a href="SkImageInfo_Reference#SkColorType">kAlpha 8 SkColorType</a>, apply <a href="undocumented#Shader">Shader</a>.
 If <a href="#SkCanvas_drawBitmapNine_paint">paint</a> contains <a href="undocumented#Mask_Filter">Mask Filter</a>, generate mask from <a href="#SkCanvas_drawBitmapNine_bitmap">bitmap</a> bounds.
 
 If generated mask extends beyond <a href="#SkCanvas_drawBitmapNine_bitmap">bitmap</a> bounds, replicate <a href="#SkCanvas_drawBitmapNine_bitmap">bitmap</a> edge colors,
@@ -4479,7 +4478,7 @@ dimension. All other grid elements <a href="#SkCanvas_scale">scale</a> to fill t
 Additionally transform draw using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and optional <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawBitmapLattice_paint">paint</a>.
 
 If <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawBitmapLattice_paint">paint</a> is supplied, apply <a href="undocumented#Color_Filter">Color Filter</a>, <a href="#Alpha">Color Alpha</a>, <a href="undocumented#Image_Filter">Image Filter</a>,
-<a href="undocumented#Blend_Mode">Blend Mode</a>, and <a href="undocumented#Draw_Looper">Draw Looper</a>. If <a href="#SkCanvas_drawBitmapLattice_bitmap">bitmap</a> is <a href="undocumented#SkColorType">kAlpha 8 SkColorType</a>, apply <a href="undocumented#Shader">Shader</a>.
+<a href="undocumented#Blend_Mode">Blend Mode</a>, and <a href="undocumented#Draw_Looper">Draw Looper</a>. If <a href="#SkCanvas_drawBitmapLattice_bitmap">bitmap</a> is <a href="SkImageInfo_Reference#SkColorType">kAlpha 8 SkColorType</a>, apply <a href="undocumented#Shader">Shader</a>.
 If <a href="#SkCanvas_drawBitmapLattice_paint">paint</a> contains <a href="undocumented#Mask_Filter">Mask Filter</a>, generate mask from <a href="#SkCanvas_drawBitmapLattice_bitmap">bitmap</a> bounds.
 
 If generated mask extends beyond <a href="#SkCanvas_drawBitmapLattice_bitmap">bitmap</a> bounds, replicate <a href="#SkCanvas_drawBitmapLattice_bitmap">bitmap</a> edge colors,
@@ -4535,7 +4534,7 @@ dimension. All other grid elements <a href="#SkCanvas_scale">scale</a> to fill t
 Additionally transform draw using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and optional <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawImageLattice_paint">paint</a>.
 
 If <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawImageLattice_paint">paint</a> is supplied, apply <a href="undocumented#Color_Filter">Color Filter</a>, <a href="#Alpha">Color Alpha</a>, <a href="undocumented#Image_Filter">Image Filter</a>,
-<a href="undocumented#Blend_Mode">Blend Mode</a>, and <a href="undocumented#Draw_Looper">Draw Looper</a>. If bitmap is <a href="undocumented#SkColorType">kAlpha 8 SkColorType</a>, apply <a href="undocumented#Shader">Shader</a>.
+<a href="undocumented#Blend_Mode">Blend Mode</a>, and <a href="undocumented#Draw_Looper">Draw Looper</a>. If bitmap is <a href="SkImageInfo_Reference#SkColorType">kAlpha 8 SkColorType</a>, apply <a href="undocumented#Shader">Shader</a>.
 If <a href="#SkCanvas_drawImageLattice_paint">paint</a> contains <a href="undocumented#Mask_Filter">Mask Filter</a>, generate mask from bitmap bounds.
 
 If generated mask extends beyond bitmap bounds, replicate bitmap edge colors,

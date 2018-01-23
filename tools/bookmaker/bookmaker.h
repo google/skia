@@ -53,6 +53,7 @@ enum class KeyWord {
     kElse,
     kEndif,
     kEnum,
+    kError,
     kFloat,
     kFriend,
     kIf,
@@ -1475,7 +1476,7 @@ public:
     IClassDefinition* defineClass(const Definition& includeDef, const string& className);
     void dumpClassTokens(IClassDefinition& classDef);
     void dumpComment(const Definition& );
-    void dumpEnum(const Definition& );
+    void dumpEnum(const Definition& , const string& name);
     void dumpMethod(const Definition& );
     void dumpMember(const Definition& );
     bool dumpTokens(const string& directory);
@@ -1523,7 +1524,7 @@ public:
             return false;
         }
         string name(path);
-        return parseInclude(name);
+        return this->parseInclude(name);
     }
 
     bool parseInclude(const string& name);
@@ -1548,6 +1549,9 @@ public:
         Definition* container = &fParent->fTokens.back();
         this->addDefinition(container);
     }
+
+    static void RemoveFile(const char* docs, const char* includes);
+    static void RemoveOneFile(const char* docs, const char* includesFileOrPath);
 
     void reset() override {
         INHERITED::resetCommon();
@@ -1675,6 +1679,14 @@ public:
     void writeTableRow(size_t pad, const string& col1) {
         this->lf(1);
         string row = "# " + col1 + string(pad - col1.length(), ' ') + " # ##";
+        this->writeString(row);
+        this->lf(1);
+    }
+
+    void writeTableRow(size_t pad1, const string& col1, size_t pad2, const string& col2) {
+        this->lf(1);
+        string row = "# " + col1 + string(pad1 - col1.length(), ' ') + " # " +
+                col2 + string(pad2 - col2.length(), ' ') + " ##";
         this->writeString(row);
         this->lf(1);
     }
