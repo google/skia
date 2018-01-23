@@ -21,7 +21,7 @@
 #include "SkImageFilterCache.h"
 #include "SkJpegEncoder.h"
 #include "SkMakeUnique.h"
-#include "SkMaskFilter.h"
+#include "SkMaskFilterBase.h"
 #include "SkPDFBitmap.h"
 #include "SkPDFCanon.h"
 #include "SkPDFDocument.h"
@@ -841,7 +841,7 @@ void SkPDFDevice::internalDrawPathWithFilter(const SkClipStack& clipStack,
     SkAutoMaskFreeImage srcAutoMaskFreeImage(sourceMask.fImage);
     SkMask dstMask;
     SkIPoint margin;
-    if (!paint->getMaskFilter()->filterMask(&dstMask, sourceMask, ctm, &margin)) {
+    if (!as_MFB(paint->getMaskFilter())->filterMask(&dstMask, sourceMask, ctm, &margin)) {
         return;
     }
     SkIRect dstMaskBounds = dstMask.fBounds;

@@ -15,7 +15,7 @@
 #include "SkDashPathEffect.h"
 #include "SkImageFilter.h"
 #include "SkJsonWriteBuffer.h"
-#include "SkMaskFilter.h"
+#include "SkMaskFilterBase.h"
 #include "SkObjectParser.h"
 #include "SkPaintDefaults.h"
 #include "SkPathEffect.h"
@@ -1071,8 +1071,8 @@ static void apply_paint_maskfilter(const SkPaint& paint, Json::Value* target,
                                    UrlDataManager& urlDataManager) {
     SkMaskFilter* maskFilter = paint.getMaskFilter();
     if (maskFilter != nullptr) {
-        SkMaskFilter::BlurRec blurRec;
-        if (maskFilter->asABlur(&blurRec)) {
+        SkMaskFilterBase::BlurRec blurRec;
+        if (as_MFB(maskFilter)->asABlur(&blurRec)) {
             Json::Value blur(Json::objectValue);
             blur[SKDEBUGCANVAS_ATTRIBUTE_SIGMA] = Json::Value(blurRec.fSigma);
             switch (blurRec.fStyle) {

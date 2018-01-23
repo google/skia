@@ -24,7 +24,7 @@
 #include "SkConvertPixels.h"
 #include "SkData.h"
 #include "SkImageInfoPriv.h"
-#include "SkMaskFilter.h"
+#include "SkMaskFilterBase.h"
 #include "SkMessageBus.h"
 #include "SkMipMap.h"
 #include "SkPM4fPriv.h"
@@ -477,7 +477,7 @@ static inline bool skpaint_to_grpaint_impl(GrContext* context,
         }
     }
 
-    SkMaskFilter* maskFilter = skPaint.getMaskFilter();
+    SkMaskFilterBase* maskFilter = as_MFB(skPaint.getMaskFilter());
     if (maskFilter) {
         if (auto mfFP = maskFilter->asFragmentProcessor(fpArgs)) {
             grPaint->addCoverageFragmentProcessor(std::move(mfFP));
