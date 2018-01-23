@@ -85,7 +85,7 @@ public:
         kSkDrawable_Type,
         kSkDrawLooper_Type,
         kSkImageFilter_Type,
-        kSkMaskFilter_Type,
+        kSkMaskFilterBase_Type,
         kSkPathEffect_Type,
         kSkPixelRef_Type,
         kSkUnused_Type4,    // used to be SkRasterizer

@@ -13,6 +13,7 @@
 #include "SkColorFilter.h"
 #include "SkDrawFilter.h"
 #include "SkGlyphCache.h"
+#include "SkMaskFilterBase.h"
 #include "SkTextBlobRunIterator.h"
 #include "ops/GrAtlasTextOp.h"
 
@@ -152,7 +153,7 @@ void GrAtlasTextBlob::appendBigGlyph(GrGlyph* glyph, SkGlyphCache* cache, const 
 }
 
 bool GrAtlasTextBlob::mustRegenerate(const GrTextUtils::Paint& paint,
-                                     const SkMaskFilter::BlurRec& blurRec,
+                                     const SkMaskFilterBase::BlurRec& blurRec,
                                      const SkMatrix& viewMatrix, SkScalar x, SkScalar y) {
     // If we have LCD text then our canonical color will be set to transparent, in this case we have
     // to regenerate the blob on any color change
