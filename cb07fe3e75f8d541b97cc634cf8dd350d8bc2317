@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4de194ea_2ad568df",
+        "filename": "include/gpu/GrCaps.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 210,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-01-23T14:01:18Z",
+      "side": 1,
+      "message": "This feels a little funny. For basic API features it seems like we usually have a cap that expresses the API\u0027s support for a feature and then each drawing code path decides whether/how to make use of it. In practice, that may be how this is used so maybe it\u0027s just the name that seems unusual to me.",
+      "range": {
+        "startLine": 210,
+        "startChar": 9,
+        "endLine": 210,
+        "endChar": 29
+      },
+      "revId": "cb07fe3e75f8d541b97cc634cf8dd350d8bc2317",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3ac8c420_e358eb37",
+        "filename": "src/gpu/gl/GrGLDefines.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 835,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-01-23T14:01:18Z",
+      "side": 1,
+      "message": "GR_...",
+      "range": {
+        "startLine": 835,
+        "startChar": 8,
+        "endLine": 835,
+        "endChar": 40
+      },
+      "revId": "cb07fe3e75f8d541b97cc634cf8dd350d8bc2317",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
