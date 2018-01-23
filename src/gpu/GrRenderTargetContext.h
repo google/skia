@@ -385,8 +385,12 @@ protected:
 private:
     class TextTarget;
 
-    inline GrAAType chooseAAType(GrAA aa, GrAllowMixedSamples allowMixedSamples) {
-        return GrChooseAAType(aa, this->fsaaType(), allowMixedSamples, *this->caps());
+    GrAAType chooseAAType(
+            GrAA aa, GrAllowMixedSamples allowMixedSamples,
+            GrAllowNonAABinaryCoverage allowNonAABinaryCoverage = GrAllowNonAABinaryCoverage::kNo,
+            const GrPaint* paint = nullptr) {
+        return GrChooseAAType(aa, this->fsaaType(), allowMixedSamples, allowNonAABinaryCoverage,
+                              paint, *this->caps());
     }
 
     friend class GrAtlasTextBlob;               // for access to add[Mesh]DrawOp
