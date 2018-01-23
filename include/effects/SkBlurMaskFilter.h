@@ -10,8 +10,11 @@
 
 // we include this since our callers will need to at least be able to ref/unref
 #include "SkMaskFilter.h"
+#include "SkRect.h"
 #include "SkScalar.h"
 #include "SkBlurTypes.h"
+
+class SkRRect;
 
 class SK_API SkBlurMaskFilter {
 public:

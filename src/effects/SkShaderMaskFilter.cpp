@@ -6,12 +6,13 @@
  */
 
 #include "SkCanvas.h"
+#include "SkMaskFilterBase.h"
 #include "SkReadBuffer.h"
 #include "SkShaderMaskFilter.h"
 #include "SkShader.h"
 #include "SkString.h"
 
-class SkShaderMF : public SkMaskFilter {
+class SkShaderMF : public SkMaskFilterBase {
 public:
     SkShaderMF(sk_sp<SkShader> shader) : fShader(std::move(shader)) {}
 

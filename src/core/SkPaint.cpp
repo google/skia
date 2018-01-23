@@ -1967,7 +1967,7 @@ const SkRect& SkPaint::doComputeFastBounds(const SkRect& origSrc,
     *storage = src->makeOutset(radius, radius);
 
     if (this->getMaskFilter()) {
-        this->getMaskFilter()->computeFastBounds(*storage, storage);
+        as_MFB(this->getMaskFilter())->computeFastBounds(*storage, storage);
     }
 
     if (this->getImageFilter()) {
@@ -2034,7 +2034,7 @@ void SkPaint::toString(SkString* str) const {
     SkMaskFilter* maskFilter = this->getMaskFilter();
     if (maskFilter) {
         str->append("<dt>MaskFilter:</dt><dd>");
-        maskFilter->toString(str);
+        as_MFB(maskFilter)->toString(str);
         str->append("</dd>");
     }
 

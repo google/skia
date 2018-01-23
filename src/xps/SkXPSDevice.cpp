@@ -34,7 +34,7 @@
 #include "SkImage.h"
 #include "SkImageEncoder.h"
 #include "SkImagePriv.h"
-#include "SkMaskFilter.h"
+#include "SkMaskFilterBase.h"
 #include "SkPaint.h"
 #include "SkPathEffect.h"
 #include "SkPathOps.h"
@@ -1615,7 +1615,7 @@ void SkXPSDevice::drawPath(const SkPath& platonicPath,
 
             //[Mask -> Mask]
             SkMask filteredMask;
-            if (filter->filterMask(&filteredMask, rasteredMask, matrix, nullptr)) {
+            if (as_MFB(filter)->filterMask(&filteredMask, rasteredMask, matrix, nullptr)) {
                 mask = &filteredMask;
             }
             SkAutoMaskFreeImage filteredAmi(filteredMask.fImage);

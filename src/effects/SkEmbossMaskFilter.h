@@ -8,13 +8,13 @@
 #ifndef SkEmbossMaskFilter_DEFINED
 #define SkEmbossMaskFilter_DEFINED
 
-#include "SkMaskFilter.h"
+#include "SkMaskFilterBase.h"
 
 /** \class SkEmbossMaskFilter
 
     This mask filter creates a 3D emboss look, by specifying a light and blur amount.
 */
-class SK_API SkEmbossMaskFilter : public SkMaskFilter {
+class SK_API SkEmbossMaskFilter : public SkMaskFilterBase {
 public:
     struct Light {
         SkScalar    fDirection[3];  // x,y,z

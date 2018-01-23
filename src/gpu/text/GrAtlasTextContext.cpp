@@ -15,6 +15,7 @@
 #include "SkGr.h"
 #include "SkGraphics.h"
 #include "SkMakeUnique.h"
+#include "SkMaskFilterBase.h"
 #include "ops/GrMeshDrawOp.h"
 
 // DF sizes and thresholds for usage of the small and medium sizes. For example, above
@@ -113,13 +114,13 @@ void GrAtlasTextContext::drawTextBlob(GrContext* context, GrTextUtils::Target* t
     }
 
     sk_sp<GrAtlasTextBlob> cacheBlob;
-    SkMaskFilter::BlurRec blurRec;
+    SkMaskFilterBase::BlurRec blurRec;
     GrAtlasTextBlob::Key key;
     // It might be worth caching these things, but its not clear at this time
     // TODO for animated mask filters, this will fill up our cache.  We need a safeguard here
     const SkMaskFilter* mf = skPaint.getMaskFilter();
     bool canCache = !(skPaint.getPathEffect() ||
-                      (mf && !mf->asABlur(&blurRec)) ||
+                      (mf && !as_MFB(mf)->asABlur(&blurRec)) ||
                       drawFilter);
     SkScalerContextFlags scalerContextFlags = ComputeScalerContextFlags(target->colorSpaceInfo());
 
