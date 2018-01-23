@@ -15,7 +15,6 @@
 #include "glsl/GrGLSLGeometryProcessor.h"
 #include "glsl/GrGLSLVarying.h"
 #include "glsl/GrGLSLXferProcessor.h"
-#include "SkSLCompiler.h"
 
 const int GrGLSLProgramBuilder::kVarsPerBlock = 8;
 
@@ -75,16 +74,13 @@ void GrGLSLProgramBuilder::emitAndInstallPrimProc(const GrPrimitiveProcessor& pr
     this->nameExpression(outputCoverage, "outputCoverage");
 
     SkASSERT(!fUniformHandles.fRTAdjustmentUni.isValid());
-    GrShaderFlags rtAdjustVisibility;
+    GrShaderFlags rtAdjustVisibility = kVertex_GrShaderFlag;
     if (proc.willUseGeoShader()) {
-        rtAdjustVisibility = kGeometry_GrShaderFlag;
-    } else {
-        rtAdjustVisibility = kVertex_GrShaderFlag;
+        rtAdjustVisibility |= kGeometry_GrShaderFlag;
     }
-    fUniformHandles.fRTAdjustmentUni = this->uniformHandler()->addUniform(
-                                                                     rtAdjustVisibility,
-                                                                     kFloat4_GrSLType,
-                                                                     SkSL::Compiler::RTADJUST_NAME);
+    fUniformHandles.fRTAdjustmentUni = this->uniformHandler()->addUniform(rtAdjustVisibility,
+                                                                          kFloat4_GrSLType,
+                                                                          "rtAdjustment");
     const char* rtAdjustName =
         this->uniformHandler()->getUniformCStr(fUniformHandles.fRTAdjustmentUni);
 

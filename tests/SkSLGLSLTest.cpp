@@ -1072,21 +1072,6 @@ DEF_TEST(SkSLFragCoord, r) {
          SkSL::Program::kVertex_Kind);
 
     test(r,
-         "in uniform float4 sk_RTAdjust; in float4 pos; void main() { sk_Position = pos; }",
-         *SkSL::ShaderCapsFactory::CannotUseFragCoord(),
-         "#version 400\n"
-         "out vec4 sk_FragCoord_Workaround;\n"
-         "in uniform vec4 sk_RTAdjust;\n"
-         "in vec4 pos;\n"
-         "void main() {\n"
-         "    sk_FragCoord_Workaround = (gl_Position = pos);\n"
-         "    gl_Position = vec4(gl_Position.x * sk_RTAdjust.x + gl_Position.w * sk_RTAdjust.y, "
-              "gl_Position.y * sk_RTAdjust.z + gl_Position.w * sk_RTAdjust.w, 0.0, "
-              "gl_Position.w);\n"
-         "}\n",
-         SkSL::Program::kVertex_Kind);
-
-    test(r,
          "void main() { sk_FragColor.xy = sk_FragCoord.xy; }",
          *SkSL::ShaderCapsFactory::CannotUseFragCoord(),
          "#version 400\n"
@@ -1752,58 +1737,6 @@ DEF_TEST(SkSLForceHighPrecision, r) {
          "    sk_FragColor = y;\n"
          "}\n",
          &inputs);
-}
-
-DEF_TEST(SkSLNormalization, r) {
-    test(r,
-         "uniform float4 sk_RTAdjust; void main() { sk_Position = half4(1); }",
-         *SkSL::ShaderCapsFactory::Default(),
-         "#version 400\n"
-         "uniform vec4 sk_RTAdjust;\n"
-         "void main() {\n"
-         "    gl_Position = vec4(1.0);\n"
-         "    gl_Position = vec4(gl_Position.x * sk_RTAdjust.x + gl_Position.w * sk_RTAdjust.y, "
-                                "gl_Position.y * sk_RTAdjust.z + gl_Position.w * sk_RTAdjust.w, "
-                                "0.0, "
-                                "gl_Position.w);\n"
-         "}\n",
-         SkSL::Program::kVertex_Kind);
-    test(r,
-         "uniform float4 sk_RTAdjust;"
-         "layout(points) in;"
-         "layout(invocations = 2) in;"
-         "layout(line_strip, max_vertices = 2) out;"
-         "void main() {"
-         "sk_Position = sk_in[0].sk_Position + float4(-0.5, 0, 0, sk_InvocationID);"
-         "EmitVertex();"
-         "sk_Position = sk_in[0].sk_Position + float4(0.5, 0, 0, sk_InvocationID);"
-         "EmitVertex();"
-         "EndPrimitive();"
-         "}",
-         *SkSL::ShaderCapsFactory::GeometryShaderSupport(),
-         "#version 400\n"
-         "uniform vec4 sk_RTAdjust;\n"
-         "layout (points) in ;\n"
-         "layout (invocations = 2) in ;\n"
-         "layout (line_strip, max_vertices = 2) out ;\n"
-         "void main() {\n"
-         "    gl_Position = gl_in[0].gl_Position + vec4(-0.5, 0.0, 0.0, float(gl_InvocationID));\n"
-         "    {\n"
-         "        gl_Position = vec4(gl_Position.x * sk_RTAdjust.x + gl_Position.w * "
-                               "sk_RTAdjust.y, gl_Position.y * sk_RTAdjust.z + gl_Position.w * "
-                               "sk_RTAdjust.w, 0.0, gl_Position.w);\n"
-         "        EmitVertex();\n"
-         "    }\n"
-         "    gl_Position = gl_in[0].gl_Position + vec4(0.5, 0.0, 0.0, float(gl_InvocationID));\n"
-         "    {\n"
-         "        gl_Position = vec4(gl_Position.x * sk_RTAdjust.x + gl_Position.w * "
-                               "sk_RTAdjust.y, gl_Position.y * sk_RTAdjust.z + gl_Position.w * "
-                               "sk_RTAdjust.w, 0.0, gl_Position.w);\n"
-         "        EmitVertex();\n"
-         "    }\n"
-         "    EndPrimitive();\n"
-         "}\n",
-         SkSL::Program::kGeometry_Kind);
 }
 
 DEF_TEST(SkSLTernaryLValue, r) {

@@ -12,9 +12,6 @@
 #include "GrShaderVar.h"
 #include "GrSwizzle.h"
 
-// variable names beginning with this prefix will not be mangled
-#define GR_NO_MANGLE_PREFIX "sk_"
-
 class GrGLSLProgramBuilder;
 
 class GrGLSLUniformHandler {
@@ -54,8 +51,7 @@ public:
                                   int arrayCount,
                                   const char** outName = nullptr) {
         SkASSERT(!GrSLTypeIsCombinedSamplerType(type));
-        bool mangle = strncmp(name, GR_NO_MANGLE_PREFIX, strlen(GR_NO_MANGLE_PREFIX));
-        return this->internalAddUniformArray(visibility, type, precision, name, mangle, arrayCount,
+        return this->internalAddUniformArray(visibility, type, precision, name, true, arrayCount,
                                              outName);
     }
 
@@ -65,8 +61,7 @@ public:
                                   int arrayCount,
                                   const char** outName = nullptr) {
         SkASSERT(!GrSLTypeIsCombinedSamplerType(type));
-        bool mangle = strncmp(name, GR_NO_MANGLE_PREFIX, strlen(GR_NO_MANGLE_PREFIX));
-        return this->internalAddUniformArray(visibility, type, kDefault_GrSLPrecision, name, mangle,
+        return this->internalAddUniformArray(visibility, type, kDefault_GrSLPrecision, name, true,
                                              arrayCount, outName);
     }
 
