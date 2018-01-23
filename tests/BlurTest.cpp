@@ -12,6 +12,7 @@
 #include "SkColorFilter.h"
 #include "SkEmbossMaskFilter.h"
 #include "SkLayerDrawLooper.h"
+#include "SkMaskFilterBase.h"
 #include "SkMath.h"
 #include "SkPaint.h"
 #include "SkPath.h"
@@ -456,8 +457,8 @@ DEF_TEST(BlurAsABlur, reporter) {
                     REPORTER_ASSERT(reporter, sigma <= 0);
                 } else {
                     REPORTER_ASSERT(reporter, sigma > 0);
-                    SkMaskFilter::BlurRec rec;
-                    bool success = mf->asABlur(&rec);
+                    SkMaskFilterBase::BlurRec rec;
+                    bool success = as_MFB(mf)->asABlur(&rec);
                     if (flags & SkBlurMaskFilter::kIgnoreTransform_BlurFlag) {
                         REPORTER_ASSERT(reporter, !success);
                     } else {
@@ -483,8 +484,8 @@ DEF_TEST(BlurAsABlur, reporter) {
             const SkScalar sigma = sigmas[j];
             auto mf(SkEmbossMaskFilter::Make(sigma, light));
             if (mf) {
-                SkMaskFilter::BlurRec rec;
-                bool success = mf->asABlur(&rec);
+                SkMaskFilterBase::BlurRec rec;
+                bool success = as_MFB(mf)->asABlur(&rec);
                 REPORTER_ASSERT(reporter, !success);
             }
         }

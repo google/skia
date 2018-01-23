@@ -48,7 +48,7 @@ public:
 
     sk_sp<GrAtlasTextBlob> makeCachedBlob(const SkTextBlob* blob,
                                           const GrAtlasTextBlob::Key& key,
-                                          const SkMaskFilter::BlurRec& blurRec,
+                                          const SkMaskFilterBase::BlurRec& blurRec,
                                           const SkPaint& paint) {
         sk_sp<GrAtlasTextBlob> cacheBlob(this->makeBlob(blob));
         cacheBlob->setupKey(key, blurRec, paint);
