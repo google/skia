@@ -22,7 +22,6 @@
 #include "SkDisplacementMapEffect.h"
 #include "SkDropShadowImageFilter.h"
 #include "SkEmbossMaskFilter.h"
-#include "SkFlattenableSerialization.h"
 #include "SkImageSource.h"
 #include "SkLightingImageFilter.h"
 #include "SkLumaColorFilter.h"
@@ -715,7 +714,7 @@ static sk_sp<SkImageFilter> make_image_filter(bool canBeNull) {
 
 static sk_sp<SkImageFilter> make_serialized_image_filter() {
     sk_sp<SkImageFilter> filter(make_image_filter(false));
-    sk_sp<SkData> data(SkValidatingSerializeFlattenable(filter.get()));
+    sk_sp<SkData> data(filter->serialize());
     const unsigned char* ptr = static_cast<const unsigned char*>(data->data());
     size_t len = data->size();
 #ifdef SK_ADD_RANDOM_BIT_FLIPS
@@ -740,7 +739,7 @@ static sk_sp<SkImageFilter> make_serialized_image_filter() {
         }
     }
 #endif // SK_ADD_RANDOM_BIT_FLIPS
-    return SkValidatingDeserializeImageFilter(ptr, len);
+    return SkImageFilter::Deserialize(ptr, len);
 }
 
 static void drawClippedBitmap(SkCanvas* canvas, int x, int y, const SkPaint& paint) {
