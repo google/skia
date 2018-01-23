@@ -16,6 +16,18 @@ SkScalar lerp_scalar(float v0, float v1, float t) {
     return v0 * (1 - t) + v1 * t;
 }
 
+static inline SkPoint ParsePoint(const Json::Value& v, const SkPoint& defaultValue) {
+    if (!v.isObject())
+        return defaultValue;
+
+    const auto& vx = v["x"];
+    const auto& vy = v["y"];
+
+    // Some BM versions seem to store x/y as single-element arrays.
+    return SkPoint::Make(ParseScalar(vx.isArray() ? vx[0] : vx, defaultValue.x()),
+                         ParseScalar(vy.isArray() ? vy[0] : vy, defaultValue.y()));
+}
+
 } // namespace
 
 bool KeyframeIntervalBase::parse(const Json::Value& k, KeyframeIntervalBase* prev) {
