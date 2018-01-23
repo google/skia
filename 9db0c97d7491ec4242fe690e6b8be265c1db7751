@@ -1,0 +1,165 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "97535853_788819d1",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 2087,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-01-23T15:15:43Z",
+      "side": 1,
+      "message": "this doesn\u0027t let use use GL_EXT_discard_framebuffer on Adreno4xx where before we were just not using invalidate_subdata",
+      "range": {
+        "startLine": 2085,
+        "startChar": 7,
+        "endLine": 2087,
+        "endChar": 5
+      },
+      "revId": "9db0c97d7491ec4242fe690e6b8be265c1db7751",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ac1c8791_9c97dc0d",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 2091,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-01-23T15:15:43Z",
+      "side": 1,
+      "message": "Does kNVIDIA also mean kGL_GrGLStandard is the standard? If so maybe add an assert that is the case or at least add to the comment. If not I think this breaks the else if clause to use GL_EXT_clear_texture",
+      "range": {
+        "startLine": 2090,
+        "startChar": 25,
+        "endLine": 2091,
+        "endChar": 46
+      },
+      "revId": "9db0c97d7491ec4242fe690e6b8be265c1db7751",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cbfe1c10_14f8a26f",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 2127,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-01-23T15:15:43Z",
+      "side": 1,
+      "message": "nit: no we really need to check qualcomm if we just checked Adreno?",
+      "range": {
+        "startLine": 2127,
+        "startChar": 8,
+        "endLine": 2127,
+        "endChar": 97
+      },
+      "revId": "9db0c97d7491ec4242fe690e6b8be265c1db7751",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fa114666_a2073ffb",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 2185,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-01-23T15:15:43Z",
+      "side": 1,
+      "message": "Nit: again is there a need to check qualcomm here?",
+      "range": {
+        "startLine": 2185,
+        "startChar": 13,
+        "endLine": 2185,
+        "endChar": 52
+      },
+      "revId": "9db0c97d7491ec4242fe690e6b8be265c1db7751",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f57aa715_974255fa",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 2200,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-01-23T15:15:43Z",
+      "side": 1,
+      "message": "and here",
+      "range": {
+        "startLine": 2200,
+        "startChar": 55,
+        "endLine": 2200,
+        "endChar": 97
+      },
+      "revId": "9db0c97d7491ec4242fe690e6b8be265c1db7751",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3b75d1f9_9acc31d1",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 2255,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-01-23T15:15:43Z",
+      "side": 1,
+      "message": "what happens if contextOptions.fSuppressGeometryShaders \u003d\u003d true. That will cause this blacklist to be false, but will also force us to use vertex-shader impl since geom shaders will be disabled.\n\nShould this be:\nfBlacklistCoverageCount \u003d !fShaderCaps-\u003egeometryShaderSupport() || contextOptions.fSupressGeometryShaders();",
+      "range": {
+        "startLine": 2254,
+        "startChar": 8,
+        "endLine": 2255,
+        "endChar": 53
+      },
+      "revId": "9db0c97d7491ec4242fe690e6b8be265c1db7751",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "74f6e1a2_81e7b3ac",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 2385,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-01-23T15:15:43Z",
+      "side": 1,
+      "message": "this check does drop the:\n\n#if GR_TEST_UTILS\n        \u0026\u0026 (contextOptions.fGpuPathRenderers \u0026 GpuPathRenderers::kStencilAndCover)\n#endif\n\ndo we want that part of the check?",
+      "range": {
+        "startLine": 2384,
+        "startChar": 8,
+        "endLine": 2385,
+        "endChar": 28
+      },
+      "revId": "9db0c97d7491ec4242fe690e6b8be265c1db7751",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
