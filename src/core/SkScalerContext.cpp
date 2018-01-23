@@ -5,6 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include "SkGlyphCache.h"
+#include "SkPaint.h"
 #include "SkScalerContext.h"
 
 #include "SkAutoMalloc.h"
@@ -834,4 +836,15 @@ std::unique_ptr<SkScalerContext> SkTypeface::createScalerContext(
                                                       effects, desc);
     }
     return c;
+}
+
+SkDescriptor* SkScalerContext::CreateDescriptorAndEffectsUsingPaint(
+    const SkPaint& paint, const SkSurfaceProps* surfaceProps,
+    SkScalerContextFlags scalerContextFlags,
+    const SkMatrix* deviceMatrix, SkAutoDescriptor* ad,
+    SkScalerContextEffects* effects) {
+
+    SkScalerContextRec rec;
+    MakeRecAndEffects(paint, surfaceProps, deviceMatrix, scalerContextFlags, &rec, effects);
+    return AutoDescriptorGivenRecAndEffects(rec, *effects, ad);
 }

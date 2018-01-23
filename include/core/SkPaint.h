@@ -30,7 +30,6 @@ class SkMaskFilter;
 class SkPath;
 class SkPathEffect;
 struct SkPoint;
-struct SkScalerContextEffects;
 class SkShader;
 class SkSurfaceProps;
 class SkTextBlob;
@@ -1680,20 +1679,6 @@ private:
     SkScalar measure_text(SkGlyphCache*, const char* text, size_t length,
                           int* count, SkRect* bounds) const;
 
-    void getScalerContextDescriptor(SkScalerContextEffects*, SkAutoDescriptor*,
-                                    const SkSurfaceProps* surfaceProps,
-                                    uint32_t scalerContextFlags, const SkMatrix*) const;
-
-    SkGlyphCache* detachCache(const SkSurfaceProps* surfaceProps,
-                              uint32_t scalerContextFlags,
-                              const SkMatrix*) const;
-
-    void descriptorProc(const SkSurfaceProps* surfaceProps, uint32_t scalerContextFlags,
-                        const SkMatrix* deviceMatrix,
-                        void (*proc)(SkTypeface*, const SkScalerContextEffects&,
-                                     const SkDescriptor*, void*),
-                        void* context) const;
-
     /*
      * The luminance color is used to determine which Gamma Canonical color to map to.  This is
      * really only used by backends which want to cache glyph masks, and need some way to know if
@@ -1728,20 +1713,20 @@ private:
 
     static SkScalar MaxCacheSize2(SkScalar maxLimit);
 
+    friend class GrAtlasTextBlob;
+    friend class GrAtlasTextContext;
+    friend class GrGLPathRendering;
+    friend class GrPathRendering;
+    friend class GrStencilAndCoverTextContext;
+    friend class GrTextUtils;
     friend class SkAutoGlyphCache;
     friend class SkAutoGlyphCacheNoGamma;
+    friend class SkCanonicalizePaint;
     friend class SkCanvas;
     friend class SkDraw;
     friend class SkPDFDevice;
-    friend class GrAtlasTextBlob;
-    friend class GrAtlasTextContext;
-    friend class GrStencilAndCoverTextContext;
-    friend class GrPathRendering;
-    friend class GrTextUtils;
-    friend class GrGLPathRendering;
-    friend class SkScalerContext;
+    friend class SkScalerContext;  // for computeLuminanceColor()
     friend class SkTextBaseIter;
-    friend class SkCanonicalizePaint;
 };
 
 #endif
