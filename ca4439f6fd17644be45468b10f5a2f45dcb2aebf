@@ -46,6 +46,30 @@
       "revId": "ca4439f6fd17644be45468b10f5a2f45dcb2aebf",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8baf2878_59dcf705",
+        "filename": "include/effects/SkTableMaskFilter.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-01-23T19:11:02Z",
+      "side": 0,
+      "message": "Shouldn\u0027t we prevent instantiation in order to elude this very question?\n\nno mechanism to instantiate \u003e\u003e no reason to instantiate",
+      "parentUuid": "218d2b12_5ffcf615",
+      "range": {
+        "startLine": 57,
+        "startChar": 0,
+        "endLine": 58,
+        "endChar": 24
+      },
+      "revId": "ca4439f6fd17644be45468b10f5a2f45dcb2aebf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
