@@ -9,6 +9,8 @@
 
 #if SK_SUPPORT_GPU
 
+#include "GrBackendSurface.h"
+#include "GrGpu.h"
 #include "SkCanvas.h"
 #include "SkDeferredDisplayListRecorder.h"
 #include "SkGpuDevice.h"
@@ -177,5 +179,161 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(SkSurfaceCharacterization, reporter, ctxInfo) {
         REPORTER_ASSERT(reporter, !rasterSurface->characterize(&c));
     }
 }
+
+static constexpr int kSize = 8;
+
+struct TextureReleaseChecker {
+    TextureReleaseChecker() : fReleaseCount(0) {}
+    int fReleaseCount;
+    static void Release(void* self) {
+        static_cast<TextureReleaseChecker*>(self)->fReleaseCount++;
+    }
+};
+
+enum class DDLStage { kMakeImage, kDrawImage, kDetach, kDrawDDL };
+
+// This tests the ability to create and use wrapped textures in a DDL world
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLWrapBackendTest, reporter, ctxInfo) {
+    GrContext* context = ctxInfo.grContext();
+    GrGpu* gpu = context->contextPriv().getGpu();
+    for (auto lastStage : { DDLStage::kMakeImage, DDLStage::kDrawImage,
+                            DDLStage::kDetach, DDLStage::kDrawDDL } ) {
+        for (auto earlyImageReset : { false , true } ) {
+            GrBackendTexture backendTex = gpu->createTestingOnlyBackendTexture(
+                    nullptr, kSize, kSize, kRGBA_8888_GrPixelConfig, false, GrMipMapped::kNo);
+            if (!backendTex.isValid()) {
+                continue;
+            }
+
+            SurfaceParameters params;
+
+            sk_sp<SkSurface> s = params.make(context);
+            if (!s) {
+                gpu->deleteTestingOnlyBackendTexture(&backendTex);
+                continue;
+            }
+
+            SkSurfaceCharacterization c;
+            SkAssertResult(s->characterize(&c));
+
+            std::unique_ptr<SkDeferredDisplayListRecorder> recorder(
+                    new SkDeferredDisplayListRecorder(c));
+
+            SkCanvas* canvas = recorder->getCanvas();
+            if (!canvas) {
+                gpu->deleteTestingOnlyBackendTexture(&backendTex);
+                continue;
+            }
+
+            GrContext* deferredContext = canvas->getGrContext();
+            if (!deferredContext) {
+                gpu->deleteTestingOnlyBackendTexture(&backendTex);
+                continue;
+            }
+
+            sk_sp<SkImage> image = SkImage::MakeFromAdoptedTexture(deferredContext, backendTex,
+                                                                   kTopLeft_GrSurfaceOrigin,
+                                                                   kRGBA_8888_SkColorType,
+                                                                   kPremul_SkAlphaType, nullptr);
+            // Adopted Textures are not supported in DDL
+            REPORTER_ASSERT(reporter, !image);
+
+            TextureReleaseChecker releaseChecker;
+            image = SkImage::MakeFromTexture(deferredContext, backendTex,
+                                             kTopLeft_GrSurfaceOrigin,
+                                             kRGBA_8888_SkColorType,
+                                             kPremul_SkAlphaType, nullptr,
+                                             TextureReleaseChecker::Release, &releaseChecker);
+
+            REPORTER_ASSERT(reporter, image);
+            if (!image) {
+                gpu->deleteTestingOnlyBackendTexture(&backendTex);
+                continue;
+            }
+
+            if (DDLStage::kMakeImage == lastStage) {
+                REPORTER_ASSERT(reporter, 0 == releaseChecker.fReleaseCount);
+                image.reset();
+                REPORTER_ASSERT(reporter, 1 == releaseChecker.fReleaseCount);
+                recorder.reset();
+                REPORTER_ASSERT(reporter, 1 == releaseChecker.fReleaseCount);
+                gpu->deleteTestingOnlyBackendTexture(&backendTex);
+                continue;
+            }
+
+            canvas->drawImage(image.get(), 0, 0);
+
+            if (earlyImageReset) {
+                REPORTER_ASSERT(reporter, 0 == releaseChecker.fReleaseCount);
+                image.reset();
+                // Ref should still be held by DDL recorder since we did the draw
+                REPORTER_ASSERT(reporter, 0 == releaseChecker.fReleaseCount);
+            }
+
+            if (DDLStage::kDrawImage == lastStage) {
+                REPORTER_ASSERT(reporter, 0 == releaseChecker.fReleaseCount);
+                recorder.reset();
+                if (earlyImageReset) {
+                    REPORTER_ASSERT(reporter, 1 == releaseChecker.fReleaseCount);
+                } else {
+                    REPORTER_ASSERT(reporter, 0 == releaseChecker.fReleaseCount);
+                    image.reset();
+                    REPORTER_ASSERT(reporter, 1 == releaseChecker.fReleaseCount);
+                }
+                gpu->deleteTestingOnlyBackendTexture(&backendTex);
+                continue;
+            }
+
+            std::unique_ptr<SkDeferredDisplayList> ddl = recorder->detach();
+            if (DDLStage::kDetach == lastStage) {
+                REPORTER_ASSERT(reporter, 0 == releaseChecker.fReleaseCount);
+                recorder.reset();
+                // DDL TODO: Once copies of OpLists from the recorder to DDL are implemented we can
+                // uncomment this check. Currently the texture is getting reset when the recorder
+                // goes away (assuming we did an earlyImageReset).
+                // REPORTER_ASSERT(reporter, 0 == releaseChecker.fReleaseCount);
+                ddl.reset();
+                if (earlyImageReset) {
+                    REPORTER_ASSERT(reporter, 1 == releaseChecker.fReleaseCount);
+                } else {
+                    REPORTER_ASSERT(reporter, 0 == releaseChecker.fReleaseCount);
+                    image.reset();
+                    REPORTER_ASSERT(reporter, 1 == releaseChecker.fReleaseCount);
+                }
+                gpu->deleteTestingOnlyBackendTexture(&backendTex);
+                continue;
+            }
+
+            REPORTER_ASSERT(reporter, s->draw(ddl.get()));
+
+            REPORTER_ASSERT(reporter, 0 == releaseChecker.fReleaseCount);
+            recorder.reset();
+            // DDL TODO: Once copies of OpLists from the recorder to DDL are implemented we can
+            // uncomment these checks. Currently the texture is getting released when the recorder
+            // goes away (assuming we did an earlyImageReset).
+            // REPORTER_ASSERT(reporter, 0 == releaseChecker.fReleaseCount);
+            ddl.reset();
+            // REPORTER_ASSERT(reporter, 0 == releaseChecker.fReleaseCount);
+
+            // Force all draws to flush and sync by calling a read pixels
+            SkImageInfo imageInfo = SkImageInfo::Make(kSize, kSize, kRGBA_8888_SkColorType,
+                                                      kPremul_SkAlphaType);
+            SkBitmap bitmap;
+            bitmap.allocPixels(imageInfo);
+            s->readPixels(imageInfo, bitmap.getPixels(), 0, 0, 0);
+
+            if (earlyImageReset) {
+                REPORTER_ASSERT(reporter, 1 == releaseChecker.fReleaseCount);
+            } else {
+                REPORTER_ASSERT(reporter, 0 == releaseChecker.fReleaseCount);
+                image.reset();
+                REPORTER_ASSERT(reporter, 1 == releaseChecker.fReleaseCount);
+            }
+
+            gpu->deleteTestingOnlyBackendTexture(&backendTex);
+        }
+    }
+}
+
 
 #endif
