@@ -193,6 +193,8 @@ with open(sys.argv[1], 'w') as f:
         # only Goma warns about this.
         extra_cflags.append('-Wno-nonportable-include-path')
       ninja_args.extend(['-j', '100'])
+    else:
+      ninja_args.extend(['-j', '200'])
 
     sanitize = ''
     for t in extra_tokens:

@@ -57,7 +57,9 @@
       "-k",
       "0",
       "-C",
-      "[CUSTOM_/_B_WORK]/skia/out/Build-Mac-Clang-x86_64-Debug-CommandBuffer/Debug"
+      "[CUSTOM_/_B_WORK]/skia/out/Build-Mac-Clang-x86_64-Debug-CommandBuffer/Debug",
+      "-j",
+      "200"
     ],
     "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {
