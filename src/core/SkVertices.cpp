@@ -10,6 +10,7 @@
 #include "SkData.h"
 #include "SkReader32.h"
 #include "SkSafeMath.h"
+#include "SkSafeRange.h"
 #include "SkWriter32.h"
 
 static int32_t gNextID = 1;
@@ -195,12 +196,17 @@ sk_sp<SkVertices> SkVertices::Decode(const void* data, size_t length) {
     }
 
     SkReader32 reader(data, length);
+    SkSafeRange safe;
 
     const uint32_t packed = reader.readInt();
     const int vertexCount = reader.readInt();
     const int indexCount = reader.readInt();
 
-    const VertexMode mode = static_cast<VertexMode>(packed & kMode_Mask);
+    const VertexMode mode = safe.checkLE<VertexMode>(packed & kMode_Mask,
+                                                     SkVertices::kLast_VertexMode);
+    if (!safe) {
+        return nullptr;
+    }
     const bool hasTexs = SkToBool(packed & kHasTexs_Mask);
     const bool hasColors = SkToBool(packed & kHasColors_Mask);
     Sizes sizes(vertexCount, indexCount, hasTexs, hasColors);
