@@ -1,7 +1,7 @@
 Infra Trooper Documentation
 ===========================
 
-### Contents ###
+### Contentsss ###
 
 *   [What does an Infra trooper do?](#what_is_a_trooper)
 *   [View current and upcoming troopers](#view_current_upcoming_troopers)
