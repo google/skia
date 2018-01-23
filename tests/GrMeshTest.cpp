@@ -18,6 +18,7 @@
 #include "GrRenderTargetContextPriv.h"
 #include "GrResourceProvider.h"
 #include "GrResourceKey.h"
+#include "SkBitmap.h"
 #include "SkMakeUnique.h"
 #include "glsl/GrGLSLVertexGeoBuilder.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"

@@ -6,6 +6,7 @@
  */
 
 #include "SampleCode.h"
+#include "SkBitmap.h"
 #include "SkBlurMask.h"
 #include "SkBlurMaskFilter.h"
 #include "SkCanvas.h"

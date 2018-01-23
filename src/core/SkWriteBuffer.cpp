@@ -9,6 +9,7 @@
 #include "SkBitmap.h"
 #include "SkData.h"
 #include "SkDeduper.h"
+#include "SkPaint.h"
 #include "SkPixelRef.h"
 #include "SkPtrRecorder.h"
 #include "SkStream.h"
