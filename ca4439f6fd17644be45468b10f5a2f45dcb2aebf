@@ -22,6 +22,30 @@
       "revId": "ca4439f6fd17644be45468b10f5a2f45dcb2aebf",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "218d2b12_5ffcf615",
+        "filename": "include/effects/SkTableMaskFilter.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-01-23T19:04:43Z",
+      "side": 0,
+      "message": "What will they have created?",
+      "parentUuid": "cad8fbe1_b5f65ed5",
+      "range": {
+        "startLine": 57,
+        "startChar": 0,
+        "endLine": 58,
+        "endChar": 24
+      },
+      "revId": "ca4439f6fd17644be45468b10f5a2f45dcb2aebf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
