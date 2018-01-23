@@ -57,50 +57,54 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyConversionTest, reporter, ctxInfo
     if (kOpenGL_GrBackend == ctxInfo.backend()) {
         // External on-screen render target.
         sk_sp<GrSurfaceProxy> sProxy(make_wrapped_FBO0(proxyProvider, reporter, desc));
-
-        // RenderTarget-only
-        GrRenderTargetProxy* rtProxy = sProxy->asRenderTargetProxy();
-        REPORTER_ASSERT(reporter, rtProxy);
-        REPORTER_ASSERT(reporter, !rtProxy->asTextureProxy());
-        REPORTER_ASSERT(reporter, rtProxy->asRenderTargetProxy() == rtProxy);
+        if (sProxy) {
+            // RenderTarget-only
+            GrRenderTargetProxy* rtProxy = sProxy->asRenderTargetProxy();
+            REPORTER_ASSERT(reporter, rtProxy);
+            REPORTER_ASSERT(reporter, !rtProxy->asTextureProxy());
+            REPORTER_ASSERT(reporter, rtProxy->asRenderTargetProxy() == rtProxy);
+        }
     }
 
     {
         // Internal offscreen render target.
         sk_sp<GrSurfaceProxy> sProxy(make_wrapped_offscreen_rt(proxyProvider, desc));
-
-        // Both RenderTarget and Texture
-        GrRenderTargetProxy* rtProxy = sProxy->asRenderTargetProxy();
-        REPORTER_ASSERT(reporter, rtProxy);
-        GrTextureProxy* tProxy = rtProxy->asTextureProxy();
-        REPORTER_ASSERT(reporter, tProxy);
-        REPORTER_ASSERT(reporter, tProxy->asRenderTargetProxy() == rtProxy);
-        REPORTER_ASSERT(reporter, rtProxy->asRenderTargetProxy() == rtProxy);
+        if (sProxy) {
+            // Both RenderTarget and Texture
+            GrRenderTargetProxy* rtProxy = sProxy->asRenderTargetProxy();
+            REPORTER_ASSERT(reporter, rtProxy);
+            GrTextureProxy* tProxy = rtProxy->asTextureProxy();
+            REPORTER_ASSERT(reporter, tProxy);
+            REPORTER_ASSERT(reporter, tProxy->asRenderTargetProxy() == rtProxy);
+            REPORTER_ASSERT(reporter, rtProxy->asRenderTargetProxy() == rtProxy);
+        }
     }
 
     {
         // Internal offscreen render target - but through GrTextureProxy
         sk_sp<GrSurfaceProxy> sProxy(make_wrapped_texture(proxyProvider, desc));
-
-        // Both RenderTarget and Texture
-        GrTextureProxy* tProxy = sProxy->asTextureProxy();
-        REPORTER_ASSERT(reporter, tProxy);
-        GrRenderTargetProxy* rtProxy = tProxy->asRenderTargetProxy();
-        REPORTER_ASSERT(reporter, rtProxy);
-        REPORTER_ASSERT(reporter, rtProxy->asTextureProxy() == tProxy);
-        REPORTER_ASSERT(reporter, tProxy->asTextureProxy() == tProxy);
+        if (sProxy) {
+            // Both RenderTarget and Texture
+            GrTextureProxy* tProxy = sProxy->asTextureProxy();
+            REPORTER_ASSERT(reporter, tProxy);
+            GrRenderTargetProxy* rtProxy = tProxy->asRenderTargetProxy();
+            REPORTER_ASSERT(reporter, rtProxy);
+            REPORTER_ASSERT(reporter, rtProxy->asTextureProxy() == tProxy);
+            REPORTER_ASSERT(reporter, tProxy->asTextureProxy() == tProxy);
+        }
     }
 
     {
         desc.fFlags = kNone_GrSurfaceFlags; // force no-RT
 
         sk_sp<GrSurfaceProxy> sProxy(make_wrapped_texture(proxyProvider, desc));
-
-        // Texture-only
-        GrTextureProxy* tProxy = sProxy->asTextureProxy();
-        REPORTER_ASSERT(reporter, tProxy);
-        REPORTER_ASSERT(reporter, tProxy->asTextureProxy() == tProxy);
-        REPORTER_ASSERT(reporter, !tProxy->asRenderTargetProxy());
+        if (sProxy) {
+            // Texture-only
+            GrTextureProxy* tProxy = sProxy->asTextureProxy();
+            REPORTER_ASSERT(reporter, tProxy);
+            REPORTER_ASSERT(reporter, tProxy->asTextureProxy() == tProxy);
+            REPORTER_ASSERT(reporter, !tProxy->asRenderTargetProxy());
+        }
     }
 }
 
