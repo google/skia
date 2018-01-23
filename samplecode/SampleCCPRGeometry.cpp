@@ -249,15 +249,14 @@ void CCPRGeometryView::Op::onExecute(GrOpFlushState* state) {
                              ? static_cast<GrGLGpu*>(state->gpu())
                              : nullptr;
 
-    if (!GrCCCoverageProcessor::DoesRenderPass(fView->fRenderPass, *state->caps().shaderCaps())) {
+    if (!GrCCCoverageProcessor::DoesRenderPass(fView->fRenderPass, state->caps())) {
         return;
     }
 
-    GrCCCoverageProcessor proc(rp, fView->fRenderPass, *state->caps().shaderCaps());
-    SkDEBUGCODE(proc.enableDebugVisualizations(kDebugBloat);)
+    GrCCCoverageProcessor proc(rp, fView->fRenderPass, state->caps());
+    SkDEBUGCODE(proc.enableDebugVisualizations(kDebugBloat));
 
-            SkSTArray<1, GrMesh>
-                    mesh;
+    SkSTArray<1, GrMesh> mesh;
     if (GrCCCoverageProcessor::RenderPassIsCubic(fView->fRenderPass)) {
         sk_sp<GrBuffer> instBuff(rp->createBuffer(
                 fView->fCubicInstances.count() * sizeof(CubicInstance), kVertex_GrBufferType,

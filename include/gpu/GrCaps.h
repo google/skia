@@ -56,6 +56,7 @@ public:
     bool multisampleDisableSupport() const { return fMultisampleDisableSupport; }
     bool instanceAttribSupport() const { return fInstanceAttribSupport; }
     bool usesMixedSamples() const { return fUsesMixedSamples; }
+    bool usePrimitiveRestart() const { return fUsePrimitiveRestart; }
     bool preferClientSideDynamicBuffers() const { return fPreferClientSideDynamicBuffers; }
 
     // On tilers, an initial fullscreen clear is an OPTIMIZATION. It allows the hardware to
@@ -206,6 +207,7 @@ protected:
     bool fMultisampleDisableSupport                  : 1;
     bool fInstanceAttribSupport                      : 1;
     bool fUsesMixedSamples                           : 1;
+    bool fUsePrimitiveRestart                        : 1;
     bool fPreferClientSideDynamicBuffers             : 1;
     bool fPreferFullscreenClears                     : 1;
     bool fMustClearUploadedBufferData                : 1;

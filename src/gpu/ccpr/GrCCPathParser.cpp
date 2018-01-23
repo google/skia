@@ -399,7 +399,7 @@ void GrCCPathParser::drawRenderPass(GrOpFlushState* flushState, const GrPipeline
                                     const SkIRect& drawBounds) const {
     SkASSERT(pipeline.getScissorState().enabled());
 
-    if (!GrCCCoverageProcessor::DoesRenderPass(renderPass, *flushState->caps().shaderCaps())) {
+    if (!GrCCCoverageProcessor::DoesRenderPass(renderPass, flushState->caps())) {
         return;
     }
 
@@ -407,8 +407,7 @@ void GrCCPathParser::drawRenderPass(GrOpFlushState* flushState, const GrPipeline
     fMeshesScratchBuffer.pop_back_n(fMeshesScratchBuffer.count());
     fDynamicStatesScratchBuffer.pop_back_n(fDynamicStatesScratchBuffer.count());
 
-    GrCCCoverageProcessor proc(flushState->resourceProvider(), renderPass,
-                               *flushState->caps().shaderCaps());
+    GrCCCoverageProcessor proc(flushState->resourceProvider(), renderPass, flushState->caps());
 
     SkASSERT(batchID > 0);
     SkASSERT(batchID < fCoverageCountBatches.count());
