@@ -18,7 +18,7 @@ public:
                               /*!< This re-weights the filter so samples outside have no effect */
       kRepeat_TileMode,       /*!< Wrap around to the image's opposite edge. */
       kClampToBlack_TileMode, /*!< Fill with transparent black. */
-      kMax_TileMode = kClampToBlack_TileMode
+      kLast_TileMode = kClampToBlack_TileMode
     };
 
     static sk_sp<SkImageFilter> Make(SkScalar sigmaX, SkScalar sigmaY,
