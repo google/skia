@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cad8fbe1_b5f65ed5",
+        "filename": "include/effects/SkTableMaskFilter.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-01-23T19:02:56Z",
+      "side": 0,
+      "message": "Let\u0027s keep the ctor private (or \u003d delete).",
+      "range": {
+        "startLine": 57,
+        "startChar": 0,
+        "endLine": 58,
+        "endChar": 24
+      },
+      "revId": "ca4439f6fd17644be45468b10f5a2f45dcb2aebf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
