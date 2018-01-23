@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "2cd50820_96a70f39",
+        "filename": "include/gpu/GrCaps.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 210,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-01-23T16:00:55Z",
+      "side": 1,
+      "message": "The motivation for the name was that we only want to use it on platforms where it\u0027s advantageous. It causes a 3x(!) slow down on Qualcomm, for example.\n\nI\u0027m open to brainstorming new names, or even just using a standard \"fPrimitiveRestartSupport\".\n\nfCanUsePrimitiveRestart\nfShouldUsePrimitiveRestart\nfPrimitiveRestartIsFast\n?",
+      "parentUuid": "4de194ea_2ad568df",
+      "range": {
+        "startLine": 210,
+        "startChar": 9,
+        "endLine": 210,
+        "endChar": 29
+      },
+      "revId": "cb07fe3e75f8d541b97cc634cf8dd350d8bc2317",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "3ac8c420_e358eb37",
         "filename": "src/gpu/gl/GrGLDefines.h",
         "patchSetId": 2
@@ -45,6 +69,30 @@
       "revId": "cb07fe3e75f8d541b97cc634cf8dd350d8bc2317",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0e15c2d3_487f6414",
+        "filename": "src/gpu/gl/GrGLDefines.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 835,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-01-23T16:00:55Z",
+      "side": 1,
+      "message": "Oops",
+      "parentUuid": "3ac8c420_e358eb37",
+      "range": {
+        "startLine": 835,
+        "startChar": 8,
+        "endLine": 835,
+        "endChar": 40
+      },
+      "revId": "cb07fe3e75f8d541b97cc634cf8dd350d8bc2317",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
