@@ -1354,6 +1354,48 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
           ES 3.2
             Adds R16F, RG16F, RGBA16F, R32F, RG32F, RGBA32F, R11F_G11F_B10F.
     */
+
+    // Correctness workarounds.
+    bool disableTextureRedForMesa = false;
+    bool disableBGRATexStorageForDriver = false;
+    bool disableSRGBForX86PowerVR = false;
+    bool disableSRGBWriteControlForAdreno4xx = false;
+    bool disableR8TexStorageForANGLEGL = false;
+    bool disableSRGBRenderWithMSAAForMacAMD = false;
+
+    if (!contextOptions.fDisableDriverCorrectnessWorkarounds) {
+        // ARB_texture_rg is part of OpenGL 3.0, but osmesa doesn't support GL_RED
+        // and GL_RG on FBO textures.
+        disableTextureRedForMesa = kOSMesa_GrGLRenderer == ctxInfo.renderer();
+
+        bool isX86PowerVR = false;
+#if defined(SK_CPU_X86)
+        if (kPowerVRRogue_GrGLRenderer == ctxInfo.renderer()) {
+            isX86PowerVR = true;
+        }
+#endif
+        // Adreno 3xx, 4xx, 5xx, and NexusPlayer all fail if we try to use TexStorage with BGRA
+        disableBGRATexStorageForDriver = kAdreno3xx_GrGLRenderer == ctxInfo.renderer() ||
+                                         kAdreno4xx_GrGLRenderer == ctxInfo.renderer() ||
+                                         kAdreno5xx_GrGLRenderer == ctxInfo.renderer() ||
+                                         isX86PowerVR;
+
+        // NexusPlayer has strange bugs with sRGB (skbug.com/4148). This is a targeted fix to
+        // blacklist that device (and any others that might be sharing the same driver).
+        disableSRGBForX86PowerVR = isX86PowerVR;
+        disableSRGBWriteControlForAdreno4xx = kAdreno4xx_GrGLRenderer == ctxInfo.renderer();
+
+        // Angle with es2->GL has a bug where it will hang trying to call TexSubImage on GL_R8
+        // formats on miplevels > 0. We already disable texturing on gles > 2.0 so just need to
+        // check that we are not going to OpenGL.
+        disableR8TexStorageForANGLEGL = GrGLANGLEBackend::kOpenGL == ctxInfo.angleBackend();
+
+        // MacPro devices with AMD cards fail to create MSAA sRGB render buffers.
+#if defined(SK_BUILD_FOR_MAC)
+        disableSRGBRenderWithMSAAForMacAMD = kATI_GrGLVendor == ctxInfo.vendor();
+#endif
+    }
+
     uint32_t nonMSAARenderFlags = ConfigInfo::kRenderable_Flag |
                                   ConfigInfo::kFBOColorAttachment_Flag;
     uint32_t allRenderFlags = nonMSAARenderFlags;
@@ -1377,9 +1419,8 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
     bool texelBufferSupport = this->shaderCaps()->texelBufferSupport();
 
     bool textureRedSupport = false;
-    // ARB_texture_rg is part of OpenGL 3.0, but osmesa doesn't support GL_RED
-    // and GL_RG on FBO textures.
-    if (kOSMesa_GrGLRenderer != ctxInfo.renderer()) {
+
+    if (!disableTextureRedForMesa) {
         if (kGL_GrGLStandard == standard) {
             textureRedSupport =
                     version >= GR_GL_VER(3, 0) || ctxInfo.hasExtension("GL_ARB_texture_rg");
@@ -1458,20 +1499,8 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
         }
     }
 
-    bool isX86PowerVR = false;
-#if defined(SK_CPU_X86)
-    if (kPowerVRRogue_GrGLRenderer == ctxInfo.renderer()) {
-        isX86PowerVR = true;
-    }
-#endif
-
-    // Adreno 3xx, 4xx, 5xx, and NexusPlayer all fail if we try to use TexStorage with BGRA
-    if (texStorageSupported &&
-        kAdreno3xx_GrGLRenderer != ctxInfo.renderer() &&
-        kAdreno4xx_GrGLRenderer != ctxInfo.renderer() &&
-        kAdreno5xx_GrGLRenderer != ctxInfo.renderer() &&
-        !isX86PowerVR) {
-            fConfigTable[kBGRA_8888_GrPixelConfig].fFlags |= ConfigInfo::kCanUseTexStorage_Flag;
+    if (texStorageSupported && !disableBGRATexStorageForDriver) {
+        fConfigTable[kBGRA_8888_GrPixelConfig].fFlags |= ConfigInfo::kCanUseTexStorage_Flag;
     }
     fConfigTable[kBGRA_8888_GrPixelConfig].fSwizzle = GrSwizzle::RGBA();
 
@@ -1492,15 +1521,13 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
         }
     } else {
         fSRGBSupport = ctxInfo.version() >= GR_GL_VER(3,0) || ctxInfo.hasExtension("GL_EXT_sRGB");
-        // NexusPlayer has strange bugs with sRGB (skbug.com/4148). This is a targeted fix to
-        // blacklist that device (and any others that might be sharing the same driver).
-        if (isX86PowerVR) {
+        if (disableSRGBForX86PowerVR) {
             fSRGBSupport = false;
         }
         // ES through 3.1 requires EXT_srgb_write_control to support toggling
         // sRGB writing for destinations.
         // See https://bug.skia.org/5329 for Adreno4xx issue.
-        fSRGBWriteControl = kAdreno4xx_GrGLRenderer != ctxInfo.renderer() &&
+        fSRGBWriteControl = !disableSRGBWriteControlForAdreno4xx &&
             ctxInfo.hasExtension("GL_EXT_sRGB_write_control");
     }
     if (contextOptions.fRequireDecodeDisableForSRGB && !fSRGBDecodeDisableSupport) {
@@ -1525,12 +1552,9 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
     bool isCommandBufferES2 = kChromium_GrGLDriver == ctxInfo.driver() && version < GR_GL_VER(3, 0);
 
     uint32_t srgbRenderFlags = allRenderFlags;
-    // MacPro devices with AMD cards fail to create MSAA sRGB render buffers
-#if defined(SK_BUILD_FOR_MAC)
-    if (kATI_GrGLVendor == ctxInfo.vendor()) {
+    if (disableSRGBRenderWithMSAAForMacAMD) {
         srgbRenderFlags &= ~ConfigInfo::kRenderableWithMSAA_Flag;
     }
-#endif
 
     fConfigTable[kSRGBA_8888_GrPixelConfig].fFormats.fBaseInternalFormat = GR_GL_SRGB_ALPHA;
     fConfigTable[kSRGBA_8888_GrPixelConfig].fFormats.fSizedInternalFormat = GR_GL_SRGB8_ALPHA8;
@@ -1673,10 +1697,7 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
 
     // ES2 Command Buffer does not allow TexStorage with R8_EXT (so Alpha_8 and Gray_8)
     if (texStorageSupported && !isCommandBufferES2) {
-        // Angle with es2->GL has a bug where it will hang trying to call TexSubImage on Alpha8
-        // formats on miplevels > 0. We already disable texturing on gles > 2.0 so just need to
-        // check that we are not going to OpenGL.
-        if (GrGLANGLEBackend::kOpenGL != ctxInfo.angleBackend()) {
+        if (!disableR8TexStorageForANGLEGL) {
             alphaInfo.fFlags |= ConfigInfo::kCanUseTexStorage_Flag;
         }
         redInfo.fFlags |= ConfigInfo::kCanUseTexStorage_Flag;
@@ -1728,7 +1749,7 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
     }
 #endif
     if (texStorageSupported && !isCommandBufferES2) {
-        if (GrGLANGLEBackend::kOpenGL != ctxInfo.angleBackend()) {
+        if (!disableR8TexStorageForANGLEGL) {
             grayLumInfo.fFlags |= ConfigInfo::kCanUseTexStorage_Flag;
         }
         grayRedInfo.fFlags |= ConfigInfo::kCanUseTexStorage_Flag;
@@ -1881,12 +1902,14 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
             fConfigTable[i].fFormats.fSizedInternalFormat :
             fConfigTable[i].fFormats.fBaseInternalFormat;
     }
-    // Gallium llvmpipe renderer on ES 3.0 does not have R8 so we use Alpha for
-    // kAlpha_8_GrPixelConfig. Alpha8 is not a valid signed internal format so we must use the base
-    // internal format for that config when doing TexImage calls.
-    if (kGalliumLLVM_GrGLRenderer == ctxInfo.renderer() && !textureRedSupport) {
-        SkASSERT(fConfigTable[kAlpha_8_GrPixelConfig].fFormats.fBaseInternalFormat ==
-                 fConfigTable[kAlpha_8_as_Alpha_GrPixelConfig].fFormats.fBaseInternalFormat);
+    // If we're on ES 3.0+ but because of a driver workaround selected GL_ALPHA to implement the
+    // kAlpha_8_GrPixelConfig then we actually have to use a base internal format rather than a
+    // sized internal format. This is because there is no valid 8 bit alpha sized internal format
+    // in ES.
+    if (useSizedTexFormats && kGLES_GrGLStandard == ctxInfo.standard() && !textureRedSupport) {
+        SkASSERT(fConfigTable[kAlpha_8_GrPixelConfig].fFormats.fBaseInternalFormat == GR_GL_ALPHA8);
+        SkASSERT(fConfigTable[kAlpha_8_as_Alpha_GrPixelConfig].fFormats.fBaseInternalFormat ==
+                     GR_GL_ALPHA8);
         fConfigTable[kAlpha_8_GrPixelConfig].fFormats.fInternalFormatTexImage =
             fConfigTable[kAlpha_8_GrPixelConfig].fFormats.fBaseInternalFormat;
         fConfigTable[kAlpha_8_as_Alpha_GrPixelConfig].fFormats.fInternalFormatTexImage =
