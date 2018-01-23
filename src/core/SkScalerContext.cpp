@@ -175,7 +175,7 @@ void SkScalerContext::getMetrics(SkGlyph* glyph) {
         fRec.getMatrixFrom2x2(&matrix);
 
         src.fImage = nullptr;  // only want the bounds from the filter
-        if (fMaskFilter->filterMask(&dst, src, matrix, nullptr)) {
+        if (as_MFB(fMaskFilter)->filterMask(&dst, src, matrix, nullptr)) {
             if (dst.fBounds.isEmpty() || !dst.fBounds.is16Bit()) {
                 goto SK_ERROR;
             }
@@ -504,7 +504,7 @@ void SkScalerContext::getImage(const SkGlyph& origGlyph) {
 
         fRec.getMatrixFrom2x2(&matrix);
 
-        if (fMaskFilter->filterMask(&dstM, srcM, matrix, nullptr)) {
+        if (as_MFB(fMaskFilter)->filterMask(&dstM, srcM, matrix, nullptr)) {
             int width = SkFastMin32(origGlyph.fWidth, dstM.fBounds.width());
             int height = SkFastMin32(origGlyph.fHeight, dstM.fBounds.height());
             int dstRB = origGlyph.rowBytes();

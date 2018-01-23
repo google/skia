@@ -14,7 +14,7 @@
 #include "GrMemoryPool.h"
 #include "GrTextUtils.h"
 #include "SkDescriptor.h"
-#include "SkMaskFilter.h"
+#include "SkMaskFilterBase.h"
 #include "SkOpts.h"
 #include "SkPathEffect.h"
 #include "SkPoint3.h"
@@ -81,7 +81,7 @@ public:
     };
 
     void setupKey(const GrAtlasTextBlob::Key& key,
-                  const SkMaskFilter::BlurRec& blurRec,
+                  const SkMaskFilterBase::BlurRec& blurRec,
                   const SkPaint& paint) {
         fKey = key;
         if (key.fHasBlur) {
@@ -190,7 +190,7 @@ public:
         }
     }
 
-    bool mustRegenerate(const GrTextUtils::Paint&, const SkMaskFilter::BlurRec& blurRec,
+    bool mustRegenerate(const GrTextUtils::Paint&, const SkMaskFilterBase::BlurRec& blurRec,
                         const SkMatrix& viewMatrix, SkScalar x, SkScalar y);
 
     // flush a GrAtlasTextBlob associated with a SkTextBlob
@@ -536,7 +536,7 @@ private:
     GrGlyph** fGlyphs;
     Run* fRuns;
     GrMemoryPool* fPool;
-    SkMaskFilter::BlurRec fBlurRec;
+    SkMaskFilterBase::BlurRec fBlurRec;
     StrokeInfo fStrokeInfo;
     SkTArray<BigGlyph> fBigGlyphs;
     Key fKey;
