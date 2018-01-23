@@ -225,8 +225,6 @@ private:
                                           const GrCaps&,
                                           GrPixelConfigIsClamped) const override;
 
-    bool asBlendMode(SkBlendMode* mode) const override;
-
     GR_DECLARE_XP_FACTORY_TEST
 
     SkBlendMode fMode;
@@ -362,11 +360,6 @@ GrXPFactory::AnalysisProperties CustomXPFactory::analysisProperties(
     }
     return AnalysisProperties::kCompatibleWithAlphaAsCoverage |
            AnalysisProperties::kReadsDstInShader;
-}
-
-bool CustomXPFactory::asBlendMode(SkBlendMode* mode) const {
-    *mode = fMode;
-    return true;
 }
 
 GR_DEFINE_XP_FACTORY_TEST(CustomXPFactory);
