@@ -64,6 +64,11 @@ static inline void* sk_calloc_throw(size_t size) {
 }
 
 static inline void* sk_calloc_canfail(size_t size) {
+#if defined(IS_FUZZING)
+    if (size > 100000) {
+        return nullptr;
+    }
+#endif
     return sk_malloc_flags(size, SK_MALLOC_ZERO_INITIALIZE);
 }
 
@@ -76,6 +81,11 @@ SK_API extern void* sk_realloc_throw(void* buffer, size_t count, size_t elemSize
  *  These variants return nullptr on failure
  */
 static inline void* sk_malloc_canfail(size_t size) {
+#if defined(IS_FUZZING)
+    if (size > 100000) {
+        return nullptr;
+    }
+#endif
     return sk_malloc_flags(size, 0);
 }
 SK_API extern void* sk_malloc_canfail(size_t count, size_t elemSize);
