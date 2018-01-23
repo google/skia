@@ -23,14 +23,16 @@ void GrGLSLVertexGeoBuilder::emitNormalizedSkPosition(SkString* out, const char*
             out->appendf("{float2 _posTmp = %s;", devPos);
         }
         out->appendf("_posTmp = floor(_posTmp) + half2(0.5, 0.5);"
-                     "sk_Position = float4(_posTmp, 0, 1);}");
+                     "sk_Position = float4(_posTmp.x * %s.x + %s.y,"
+                                          "_posTmp.y * %s.z + %s.w, 0, 1);}",
+                     rtAdjustName, rtAdjustName, rtAdjustName, rtAdjustName);
     } else if (kFloat3_GrSLType == devPosType) {
-        out->appendf("sk_Position = float4(%s.x , %s.y, 0, %s.z);",
-                     devPos, devPos, devPos);
+        out->appendf("sk_Position = float4(dot(%s.xz, %s.xy), dot(%s.yz, %s.zw), 0, %s.z);",
+                     devPos, rtAdjustName, devPos, rtAdjustName, devPos);
     } else {
         SkASSERT(kFloat2_GrSLType == devPosType);
-        out->appendf("sk_Position = float4(%s.x , %s.y, 0, 1);",
-                     devPos, devPos);
+        out->appendf("sk_Position = float4(%s.x * %s.x + %s.y, %s.y * %s.z + %s.w, 0, 1);",
+                     devPos, rtAdjustName, rtAdjustName, devPos, rtAdjustName, rtAdjustName);
     }
 }
 
