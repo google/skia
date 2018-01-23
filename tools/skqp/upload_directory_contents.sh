@@ -13,7 +13,7 @@ upload() {
     MD5=$(md5sum < "$1" | head -c 32)
     if ! grep -q "$MD5" "$EXTANT"; then
         URL="gs://skia-skqp-assets/$MD5"
-        gsutil cp "$1" "$URL" > /dev/null 2>&1
+        gsutil cp "$1" "$URL" > /dev/null 2>&1 &
     fi
     echo $MD5
 }
@@ -28,9 +28,10 @@ FILES="$(mktemp "${TMPDIR:-/tmp}/files.XXXXXXXXXX")"
 
 COUNT=$(find * -type f | wc -l)
 INDEX=1
+SHARD_COUNT=32
+
 find * -type f | sort | while IFS= read -r FILENAME; do
     printf '\r %d / %d   ' "$INDEX" "$COUNT"
-    INDEX=$(( $INDEX + 1))
     if ! [ -f "$FILENAME" ]; then
         echo error [${FILENAME}] >&2;
         exit 1;
@@ -38,8 +39,13 @@ find * -type f | sort | while IFS= read -r FILENAME; do
     case "$FILENAME" in *\;*) echo bad filename: $FILENAME >&2; exit 1;; esac
     MD5=$(upload "$FILENAME")
     printf '%s;%s\n' "$MD5" "$FILENAME" >> "$FILES"
-done
 
+    if [ $(($INDEX % $SHARD_COUNT)) = 0 ]; then
+        wait
+    fi
+    INDEX=$(( $INDEX + 1))
+done
+printf '\rdone          \n'
 upload "$FILES" > files.checksum
 
 rm "$FILES" "$EXTANT"
