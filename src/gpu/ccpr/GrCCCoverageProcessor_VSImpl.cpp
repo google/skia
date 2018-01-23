@@ -134,7 +134,17 @@ static constexpr int32_t kHull3AndEdgeVertices[] = {
 
 GR_DECLARE_STATIC_UNIQUE_KEY(gHull3AndEdgeVertexBufferKey);
 
-static constexpr uint16_t kHull3AndEdgeIndices[] =  {
+static constexpr uint16_t kRestartStrip = 0xffff;
+
+static constexpr uint16_t kHull3AndEdgeIndicesAsStrips[] =  {
+    1, 2, 0, 3, 8, kRestartStrip, // First corner and main body of the hull.
+    4, 5, 3, 6, 8, 7, kRestartStrip, // Opposite side and corners of the hull.
+    10, 9, 11, 14, 12, 13, kRestartStrip, // First edge.
+    16, 15, 17, 20, 18, 19, kRestartStrip, // Second edge.
+    22, 21, 23, 26, 24, 25 // Third edge.
+};
+
+static constexpr uint16_t kHull3AndEdgeIndicesAsTris[] =  {
     // First corner and main body of the hull.
     1, 2, 0,
     2, 3, 0,
@@ -186,7 +196,12 @@ static constexpr int32_t kHull4Vertices[] = {
 
 GR_DECLARE_STATIC_UNIQUE_KEY(gHull4VertexBufferKey);
 
-static constexpr uint16_t kHull4Indices[] =  {
+static constexpr uint16_t kHull4IndicesAsStrips[] =  {
+    1, 0, 2, 11, 3, 5, 4, kRestartStrip, // First half of the hull (split diagonally).
+    7, 6, 8, 5, 9, 11, 10 // Second half of the hull.
+};
+
+static constexpr uint16_t kHull4IndicesAsTris[] =  {
     // First half of the hull (split diagonally).
      1,  0,  2,
      0, 11,  2,
@@ -281,7 +296,13 @@ private:
     const int fNumSides;
 };
 
-static constexpr uint16_t kCornerIndices[] =  {
+static constexpr uint16_t kCornerIndicesAsStrips[] =  {
+    0, 1, 2, 3, kRestartStrip, // First corner.
+    4, 5, 6, 7, kRestartStrip, // Second corner.
+    8, 9, 10, 11 // Third corner.
+};
+
+static constexpr uint16_t kCornerIndicesAsTris[] =  {
     // First corner.
     0,  1,  2,
     1,  3,  2,
@@ -319,7 +340,7 @@ public:
     }
 };
 
-void GrCCCoverageProcessor::initVS(GrResourceProvider* rp) {
+void GrCCCoverageProcessor::initVS(GrResourceProvider* rp, const GrCaps& caps) {
     SkASSERT(Impl::kVertexShader == fImpl);
 
     GrVertexAttribType inputPtsType = RenderPassIsCubic(fRenderPass) ?
@@ -339,10 +360,19 @@ void GrCCCoverageProcessor::initVS(GrResourceProvider* rp) {
                                                        kHull3AndEdgeVertices,
                                                        gHull3AndEdgeVertexBufferKey);
             GR_DEFINE_STATIC_UNIQUE_KEY(gHull3AndEdgeIndexBufferKey);
-            fIndexBuffer = rp->findOrMakeStaticBuffer(kIndex_GrBufferType,
-                                                      sizeof(kHull3AndEdgeIndices),
-                                                      kHull3AndEdgeIndices,
-                                                      gHull3AndEdgeIndexBufferKey);
+            if (caps.usePrimitiveRestart()) {
+                fIndexBuffer = rp->findOrMakeStaticBuffer(kIndex_GrBufferType,
+                                                          sizeof(kHull3AndEdgeIndicesAsStrips),
+                                                          kHull3AndEdgeIndicesAsStrips,
+                                                          gHull3AndEdgeIndexBufferKey);
+                fNumIndicesPerInstance = SK_ARRAY_COUNT(kHull3AndEdgeIndicesAsStrips);
+            } else {
+                fIndexBuffer = rp->findOrMakeStaticBuffer(kIndex_GrBufferType,
+                                                          sizeof(kHull3AndEdgeIndicesAsTris),
+                                                          kHull3AndEdgeIndicesAsTris,
+                                                          gHull3AndEdgeIndexBufferKey);
+                fNumIndicesPerInstance = SK_ARRAY_COUNT(kHull3AndEdgeIndicesAsTris);
+            }
             SkASSERT(kAttribIdx_VertexData == this->numAttribs());
             this->addVertexAttrib("vertexdata", kInt_GrVertexAttribType);
             break;
@@ -353,8 +383,19 @@ void GrCCCoverageProcessor::initVS(GrResourceProvider* rp) {
             fVertexBuffer = rp->findOrMakeStaticBuffer(kVertex_GrBufferType, sizeof(kHull4Vertices),
                                                        kHull4Vertices, gHull4VertexBufferKey);
             GR_DEFINE_STATIC_UNIQUE_KEY(gHull4IndexBufferKey);
-            fIndexBuffer = rp->findOrMakeStaticBuffer(kIndex_GrBufferType, sizeof(kHull4Indices),
-                                                      kHull4Indices, gHull4IndexBufferKey);
+            if (caps.usePrimitiveRestart()) {
+                fIndexBuffer = rp->findOrMakeStaticBuffer(kIndex_GrBufferType,
+                                                          sizeof(kHull4IndicesAsStrips),
+                                                          kHull4IndicesAsStrips,
+                                                          gHull4IndexBufferKey);
+                fNumIndicesPerInstance = SK_ARRAY_COUNT(kHull4IndicesAsStrips);
+            } else {
+                fIndexBuffer = rp->findOrMakeStaticBuffer(kIndex_GrBufferType,
+                                                          sizeof(kHull4IndicesAsTris),
+                                                          kHull4IndicesAsTris,
+                                                          gHull4IndexBufferKey);
+                fNumIndicesPerInstance = SK_ARRAY_COUNT(kHull4IndicesAsTris);
+            }
             SkASSERT(kAttribIdx_VertexData == this->numAttribs());
             this->addVertexAttrib("vertexdata", kInt_GrVertexAttribType);
             break;
@@ -366,8 +407,22 @@ void GrCCCoverageProcessor::initVS(GrResourceProvider* rp) {
         case RenderPass::kQuadraticCorners:
         case RenderPass::kCubicCorners: {
             GR_DEFINE_STATIC_UNIQUE_KEY(gCornerIndexBufferKey);
-            fIndexBuffer = rp->findOrMakeStaticBuffer(kIndex_GrBufferType, sizeof(kCornerIndices),
-                                                      kCornerIndices, gCornerIndexBufferKey);
+            if (caps.usePrimitiveRestart()) {
+                fIndexBuffer = rp->findOrMakeStaticBuffer(kIndex_GrBufferType,
+                                                          sizeof(kCornerIndicesAsStrips),
+                                                          kCornerIndicesAsStrips,
+                                                          gCornerIndexBufferKey);
+                fNumIndicesPerInstance = SK_ARRAY_COUNT(kCornerIndicesAsStrips);
+            } else {
+                fIndexBuffer = rp->findOrMakeStaticBuffer(kIndex_GrBufferType,
+                                                          sizeof(kCornerIndicesAsTris),
+                                                          kCornerIndicesAsTris,
+                                                          gCornerIndexBufferKey);
+                fNumIndicesPerInstance = SK_ARRAY_COUNT(kCornerIndicesAsTris);
+            }
+            if (RenderPass::kTriangleCorners != fRenderPass) {
+                fNumIndicesPerInstance = fNumIndicesPerInstance * 2/3;
+            }
             break;
         }
     }
@@ -386,35 +441,21 @@ void GrCCCoverageProcessor::initVS(GrResourceProvider* rp) {
         SkASSERT(sizeof(int32_t) == this->getVertexStride());
     }
 #endif
-}
 
-static int num_indices_per_instance(GrCCCoverageProcessor::RenderPass pass) {
-    switch (pass) {
-        using RenderPass = GrCCCoverageProcessor::RenderPass;
-        case RenderPass::kTriangleHulls:
-            return SK_ARRAY_COUNT(kHull3AndEdgeIndices);
-        case RenderPass::kQuadraticHulls:
-        case RenderPass::kCubicHulls:
-            return SK_ARRAY_COUNT(kHull4Indices);
-        case RenderPass::kTriangleEdges:
-            SK_ABORT("kTriangleEdges RenderPass is not used by VSImpl.");
-            return 0;
-        case RenderPass::kTriangleCorners:
-            return SK_ARRAY_COUNT(kCornerIndices);
-        case RenderPass::kQuadraticCorners:
-        case RenderPass::kCubicCorners:
-            return SK_ARRAY_COUNT(kCornerIndices) * 2/3;
+    if (caps.usePrimitiveRestart()) {
+        this->setWillUsePrimitiveRestart();
+        fPrimitiveType = GrPrimitiveType::kTriangleStrip;
+    } else {
+        fPrimitiveType = GrPrimitiveType::kTriangles;
     }
-    SK_ABORT("Invalid RenderPass");
-    return 0;
 }
 
 void GrCCCoverageProcessor::appendVSMesh(GrBuffer* instanceBuffer, int instanceCount,
                                          int baseInstance, SkTArray<GrMesh>* out) const {
     SkASSERT(Impl::kVertexShader == fImpl);
-    GrMesh& mesh = out->emplace_back(GrPrimitiveType::kTriangles);
-    mesh.setIndexedInstanced(fIndexBuffer.get(), num_indices_per_instance(fRenderPass),
-                             instanceBuffer, instanceCount, baseInstance);
+    GrMesh& mesh = out->emplace_back(fPrimitiveType);
+    mesh.setIndexedInstanced(fIndexBuffer.get(), fNumIndicesPerInstance, instanceBuffer,
+                             instanceCount, baseInstance);
     if (fVertexBuffer) {
         mesh.setVertexData(fVertexBuffer.get(), 0);
     }

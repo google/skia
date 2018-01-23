@@ -137,6 +137,17 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         fInvalidateFBType = kDiscard_InvalidateFBType;
     }
 
+    // For future reference on Desktop GL, GL_PRIMITIVE_RESTART_FIXED_INDEX appears in 4.3, and
+    // GL_PRIMITIVE_RESTART (where the client must call glPrimitiveRestartIndex) appears in 3.1.
+    if (kGLES_GrGLStandard == standard) {
+        // Primitive restart can cause a 3x slowdown on Adreno. Enable conservatively.
+        // TODO: Evaluate on PowerVR.
+        // FIXME: Primitive restart would likely be a win on iOS if we had an enum value for it.
+        if (kARM_GrGLVendor == ctxInfo.vendor()) {
+            fUsePrimitiveRestart = version >= GR_GL_VER(3,0);
+        }
+    }
+
     if (kARM_GrGLVendor == ctxInfo.vendor() ||
         kImagination_GrGLVendor == ctxInfo.vendor() ||
         kQualcomm_GrGLVendor == ctxInfo.vendor() ) {

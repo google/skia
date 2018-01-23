@@ -8,6 +8,7 @@
 #ifndef GrCCCoverageProcessor_DEFINED
 #define GrCCCoverageProcessor_DEFINED
 
+#include "GrCaps.h"
 #include "GrGeometryProcessor.h"
 #include "GrShaderCaps.h"
 #include "SkNx.h"
@@ -87,19 +88,21 @@ public:
     static bool RenderPassIsCubic(RenderPass);
     static const char* RenderPassName(RenderPass);
 
-    constexpr static bool DoesRenderPass(RenderPass renderPass, const GrShaderCaps& caps) {
-        return RenderPass::kTriangleEdges != renderPass || caps.geometryShaderSupport();
+    constexpr static bool DoesRenderPass(RenderPass renderPass, const GrCaps& caps) {
+        return RenderPass::kTriangleEdges != renderPass ||
+               caps.shaderCaps()->geometryShaderSupport();
     }
 
-    GrCCCoverageProcessor(GrResourceProvider* rp, RenderPass pass, const GrShaderCaps& caps)
+    GrCCCoverageProcessor(GrResourceProvider* rp, RenderPass pass, const GrCaps& caps)
             : INHERITED(kGrCCCoverageProcessor_ClassID)
             , fRenderPass(pass)
-            , fImpl(caps.geometryShaderSupport() ? Impl::kGeometryShader : Impl::kVertexShader) {
+            , fImpl(caps.shaderCaps()->geometryShaderSupport() ? Impl::kGeometryShader
+                                                               : Impl::kVertexShader) {
         SkASSERT(DoesRenderPass(pass, caps));
         if (Impl::kGeometryShader == fImpl) {
             this->initGS();
         } else {
-            this->initVS(rp);
+            this->initVS(rp, caps);
         }
     }
 
@@ -232,7 +235,7 @@ private:
     };
 
     void initGS();
-    void initVS(GrResourceProvider*);
+    void initVS(GrResourceProvider*, const GrCaps&);
 
     void appendGSMesh(GrBuffer* instanceBuffer, int instanceCount, int baseInstance,
                       SkTArray<GrMesh>* out) const;
@@ -244,9 +247,13 @@ private:
 
     const RenderPass fRenderPass;
     const Impl fImpl;
-    sk_sp<const GrBuffer> fVertexBuffer; // Used by VSImpl.
-    sk_sp<const GrBuffer> fIndexBuffer; // Used by VSImpl.
     SkDEBUGCODE(float fDebugBloat = 0);
+
+    // Used by VSImpl.
+    sk_sp<const GrBuffer> fVertexBuffer;
+    sk_sp<const GrBuffer> fIndexBuffer;
+    int fNumIndicesPerInstance;
+    GrPrimitiveType fPrimitiveType;
 
     typedef GrGeometryProcessor INHERITED;
 };

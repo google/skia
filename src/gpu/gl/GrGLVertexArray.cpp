@@ -149,24 +149,39 @@ void GrGLAttribArrayState::set(GrGLGpu* gpu,
     }
 }
 
-void GrGLAttribArrayState::enableVertexArrays(const GrGLGpu* gpu, int enabledCount) {
+void GrGLAttribArrayState::enableVertexArrays(const GrGLGpu* gpu, int enabledCount,
+                                              EnablePrimitiveRestart enablePrimitiveRestart) {
     SkASSERT(enabledCount <= fAttribArrayStates.count());
-    if (fEnabledCountIsValid && enabledCount == fNumEnabledArrays) {
-        return;
+
+    if (!fEnableStateIsValid || enabledCount != fNumEnabledArrays) {
+        int firstIdxToEnable = fEnableStateIsValid ? fNumEnabledArrays : 0;
+        for (int i = firstIdxToEnable; i < enabledCount; ++i) {
+            GR_GL_CALL(gpu->glInterface(), EnableVertexAttribArray(i));
+        }
+
+        int endIdxToDisable = fEnableStateIsValid ? fNumEnabledArrays : fAttribArrayStates.count();
+        for (int i = enabledCount; i < endIdxToDisable; ++i) {
+            GR_GL_CALL(gpu->glInterface(), DisableVertexAttribArray(i));
+        }
+
+        fNumEnabledArrays = enabledCount;
     }
 
-    int firstIdxToEnable = fEnabledCountIsValid ? fNumEnabledArrays : 0;
-    for (int i = firstIdxToEnable; i < enabledCount; ++i) {
-        GR_GL_CALL(gpu->glInterface(), EnableVertexAttribArray(i));
+    SkASSERT(EnablePrimitiveRestart::kNo == enablePrimitiveRestart ||
+             gpu->caps()->usePrimitiveRestart());
+
+    if (gpu->caps()->usePrimitiveRestart() &&
+        (!fEnableStateIsValid || enablePrimitiveRestart != fPrimitiveRestartEnabled)) {
+        if (EnablePrimitiveRestart::kYes == enablePrimitiveRestart) {
+            GR_GL_CALL(gpu->glInterface(), Enable(GR_GL_PRIMITIVE_RESTART_FIXED_INDEX));
+        } else {
+            GR_GL_CALL(gpu->glInterface(), Disable(GR_GL_PRIMITIVE_RESTART_FIXED_INDEX));
+        }
+
+        fPrimitiveRestartEnabled = enablePrimitiveRestart;
     }
 
-    int endIdxToDisable = fEnabledCountIsValid ? fNumEnabledArrays : fAttribArrayStates.count();
-    for (int i = enabledCount; i < endIdxToDisable; ++i) {
-        GR_GL_CALL(gpu->glInterface(), DisableVertexAttribArray(i));
-    }
-
-    fNumEnabledArrays = enabledCount;
-    fEnabledCountIsValid = true;
+    fEnableStateIsValid = true;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

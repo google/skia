@@ -528,18 +528,17 @@ void CCPR::DrawPathsOp::onExecute(GrOpFlushState* flushState) {
             continue;  // Atlas failed to allocate.
         }
 
-        GrCCPathProcessor coverProc(flushState->resourceProvider(),
-                                    sk_ref_sp(batch.fAtlas->textureProxy()), this->getFillType(),
-                                    *flushState->gpu()->caps()->shaderCaps());
+        GrCCPathProcessor pathProc(flushState->resourceProvider(),
+                                   sk_ref_sp(batch.fAtlas->textureProxy()), this->getFillType());
 
-        GrMesh mesh(GrPrimitiveType::kTriangles);
+        GrMesh mesh(GrCCPathProcessor::MeshPrimitiveType(flushState->caps()));
         mesh.setIndexedInstanced(fCCPR->fPerFlushIndexBuffer.get(),
-                                 GrCCPathProcessor::kPerInstanceIndexCount,
+                                 GrCCPathProcessor::NumIndicesPerInstance(flushState->caps()),
                                  fCCPR->fPerFlushInstanceBuffer.get(),
                                  batch.fEndInstanceIdx - baseInstance, baseInstance);
         mesh.setVertexData(fCCPR->fPerFlushVertexBuffer.get());
 
-        flushState->rtCommandBuffer()->draw(pipeline, coverProc, &mesh, nullptr, 1, this->bounds());
+        flushState->rtCommandBuffer()->draw(pipeline, pathProc, &mesh, nullptr, 1, this->bounds());
     }
 
     SkASSERT(baseInstance == fBaseInstance + fInstanceCount - fNumSkippedInstances);

@@ -42,13 +42,22 @@ sk_sp<const GrBuffer> GrCCPathProcessor::FindVertexBuffer(GrOnFlushResourceProvi
                                              kOctoEdgeNorms, gVertexBufferKey);
 }
 
-// Index buffer for the octagon defined above.
-static uint16_t kOctoIndices[GrCCPathProcessor::kPerInstanceIndexCount] = {
+static constexpr uint16_t kRestartStrip = 0xffff;
+
+static constexpr uint16_t kOctoIndicesAsStrips[] = {
+    1, 0, 2, 4, 3, kRestartStrip, // First half.
+    5, 4, 6, 0, 7 // Second half.
+};
+
+static constexpr uint16_t kOctoIndicesAsTris[] = {
+    // First half.
+    1, 0, 2,
     0, 4, 2,
-    0, 6, 4,
-    0, 2, 1,
     2, 4, 3,
-    4, 6, 5,
+
+    // Second half.
+    5, 4, 6,
+    4, 0, 6,
     6, 0, 7,
 };
 
@@ -56,12 +65,22 @@ GR_DECLARE_STATIC_UNIQUE_KEY(gIndexBufferKey);
 
 sk_sp<const GrBuffer> GrCCPathProcessor::FindIndexBuffer(GrOnFlushResourceProvider* onFlushRP) {
     GR_DEFINE_STATIC_UNIQUE_KEY(gIndexBufferKey);
-    return onFlushRP->findOrMakeStaticBuffer(kIndex_GrBufferType, sizeof(kOctoIndices),
-                                             kOctoIndices, gIndexBufferKey);
+    if (onFlushRP->caps()->usePrimitiveRestart()) {
+        return onFlushRP->findOrMakeStaticBuffer(kIndex_GrBufferType, sizeof(kOctoIndicesAsStrips),
+                                                 kOctoIndicesAsStrips, gIndexBufferKey);
+    } else {
+        return onFlushRP->findOrMakeStaticBuffer(kIndex_GrBufferType, sizeof(kOctoIndicesAsTris),
+                                                 kOctoIndicesAsTris, gIndexBufferKey);
+    }
 }
 
-GrCCPathProcessor::GrCCPathProcessor(GrResourceProvider* rp, sk_sp<GrTextureProxy> atlas,
-                                     SkPath::FillType fillType, const GrShaderCaps& shaderCaps)
+int GrCCPathProcessor::NumIndicesPerInstance(const GrCaps& caps) {
+    return caps.usePrimitiveRestart() ? SK_ARRAY_COUNT(kOctoIndicesAsStrips)
+                                      : SK_ARRAY_COUNT(kOctoIndicesAsTris);
+}
+
+GrCCPathProcessor::GrCCPathProcessor(GrResourceProvider* resourceProvider,
+                                     sk_sp<GrTextureProxy> atlas, SkPath::FillType fillType)
         : INHERITED(kGrCCPathProcessor_ClassID)
         , fFillType(fillType)
         , fAtlasAccess(std::move(atlas), GrSamplerState::Filter::kNearest,
@@ -91,8 +110,12 @@ GrCCPathProcessor::GrCCPathProcessor(GrResourceProvider* rp, sk_sp<GrTextureProx
 
     this->addVertexAttrib("edge_norms", kFloat4_GrVertexAttribType);
 
-    fAtlasAccess.instantiate(rp);
+    fAtlasAccess.instantiate(resourceProvider);
     this->addTextureSampler(&fAtlasAccess);
+
+    if (resourceProvider->caps()->usePrimitiveRestart()) {
+        this->setWillUsePrimitiveRestart();
+    }
 }
 
 void GrCCPathProcessor::getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const {
