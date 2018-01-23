@@ -471,10 +471,9 @@ std::vector<sk_sp<sksg::GeometryNode>> AttachTrimGeometryEffect(
             [](sksg::TrimEffect* node, const ScalarValue& e) {
                 node->setEnd(e * 0.01f);
             });
-        // TODO: "offset" doesn't currently work the same as BM - figure out what's going on.
         BindProperty<ScalarValue>(jtrim["o"], ctx, trim,
             [](sksg::TrimEffect* node, const ScalarValue& o) {
-                node->setOffset(o * 0.01f);
+                node->setOffset(o / 360);
             });
     }
 
