@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "2f71b34e_494aa61c",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 208,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-01-23T20:22:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d0538739_7e0bece8",
+      "revId": "f2c9afe29ddb8047fb6f23a05d0d896c49347184",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1603a92a_5c7d0d2d",
         "filename": "include/core/SkImage.h",
         "patchSetId": 6
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "ebf581a8_e9dbff91",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 231,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-01-23T20:22:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1603a92a_5c7d0d2d",
+      "revId": "f2c9afe29ddb8047fb6f23a05d0d896c49347184",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d6ba80de_edc81bb7",
         "filename": "src/gpu/GrProxyProvider.cpp",
         "patchSetId": 6
@@ -47,6 +83,24 @@
       "writtenOn": "2018-01-19T20:03:51Z",
       "side": 1,
       "message": "Don\u0027t we need something like:\nif (!releaseProc \u0026\u0026 !fResourceProvider) {\n   return nullptr;\n}\n?\nDo we need a unit test for that case?",
+      "revId": "f2c9afe29ddb8047fb6f23a05d0d896c49347184",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "209a4157_cd53da1d",
+        "filename": "src/gpu/GrProxyProvider.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 331,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-01-23T20:22:36Z",
+      "side": 1,
+      "message": "We allow having a borrowed wrappedTexture without a releaseProc",
+      "parentUuid": "d6ba80de_edc81bb7",
       "revId": "f2c9afe29ddb8047fb6f23a05d0d896c49347184",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -70,6 +124,24 @@
     },
     {
       "key": {
+        "uuid": "44d54f0d_bd7d91e8",
+        "filename": "src/gpu/GrProxyProvider.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 343,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-01-23T20:22:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "21475197_da15d037",
+      "revId": "f2c9afe29ddb8047fb6f23a05d0d896c49347184",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2c81329b_ab6af8d9",
         "filename": "src/gpu/GrProxyProvider.cpp",
         "patchSetId": 6
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "862852f8_10b2577a",
+        "filename": "src/gpu/GrProxyProvider.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 357,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-01-23T20:22:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2c81329b_ab6af8d9",
+      "revId": "f2c9afe29ddb8047fb6f23a05d0d896c49347184",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6abe8f02_08b07972",
         "filename": "src/gpu/GrProxyProvider.cpp",
         "patchSetId": 6
@@ -98,6 +188,24 @@
       "writtenOn": "2018-01-19T20:03:51Z",
       "side": 1,
       "message": "In the not-fully-lazy case do we have an assert that the \u0027outOrigin\u0027 matches what was provided in the \u0027desc\u0027 ?",
+      "revId": "f2c9afe29ddb8047fb6f23a05d0d896c49347184",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "89a09521_22a37740",
+        "filename": "src/gpu/GrProxyProvider.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 359,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-01-23T20:22:36Z",
+      "side": 1,
+      "message": "Removed the outOrigin from being passed into PartiallyLazy proxys",
+      "parentUuid": "6abe8f02_08b07972",
       "revId": "f2c9afe29ddb8047fb6f23a05d0d896c49347184",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -121,6 +229,24 @@
     },
     {
       "key": {
+        "uuid": "fec76b17_c2e037f4",
+        "filename": "src/gpu/GrProxyProvider.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 364,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-01-23T20:22:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f9a1d49e_f28c7d2d",
+      "revId": "f2c9afe29ddb8047fb6f23a05d0d896c49347184",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ac9974f5_25c0377d",
         "filename": "src/image/SkImage_Gpu.cpp",
         "patchSetId": 6
@@ -132,6 +258,24 @@
       "writtenOn": "2018-01-19T20:03:51Z",
       "side": 1,
       "message": "Is this right? If so, add a comment?",
+      "revId": "f2c9afe29ddb8047fb6f23a05d0d896c49347184",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7b972bc2_a7a84800",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-01-23T20:22:36Z",
+      "side": 1,
+      "message": "Add comments and handle the cases where the SkImage belongs to a DDL context, as well as the case where we have a lazy proxy that is part of normal context",
+      "parentUuid": "ac9974f5_25c0377d",
       "revId": "f2c9afe29ddb8047fb6f23a05d0d896c49347184",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -155,6 +299,24 @@
     },
     {
       "key": {
+        "uuid": "cf1a19eb_42d80030",
+        "filename": "tests/DeferredDisplayListTest.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 194,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-01-23T20:22:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ae1762fb_e900e3a5",
+      "revId": "f2c9afe29ddb8047fb6f23a05d0d896c49347184",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "33929e1b_483b1478",
         "filename": "tests/DeferredDisplayListTest.cpp",
         "patchSetId": 6
@@ -172,6 +334,24 @@
     },
     {
       "key": {
+        "uuid": "06b871f0_faa5c005",
+        "filename": "tests/DeferredDisplayListTest.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 217,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-01-23T20:22:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "33929e1b_483b1478",
+      "revId": "f2c9afe29ddb8047fb6f23a05d0d896c49347184",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "dc2ae43e_f1926252",
         "filename": "tests/DeferredDisplayListTest.cpp",
         "patchSetId": 6
@@ -183,6 +363,24 @@
       "writtenOn": "2018-01-19T20:03:51Z",
       "side": 1,
       "message": "Can we also test the variant where we delete the ddl w/o ever drawing it?",
+      "revId": "f2c9afe29ddb8047fb6f23a05d0d896c49347184",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a4f378ce_d6498d05",
+        "filename": "tests/DeferredDisplayListTest.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 243,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-01-23T20:22:36Z",
+      "side": 1,
+      "message": "Added lots of variations to this test including that one",
+      "parentUuid": "dc2ae43e_f1926252",
       "revId": "f2c9afe29ddb8047fb6f23a05d0d896c49347184",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
