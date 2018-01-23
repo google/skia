@@ -153,6 +153,7 @@ public:
     }
 
     SkDescriptor* getDesc() const { SkASSERT(fDesc); return fDesc; }
+
 private:
     void free() {
         if (fDesc != (SkDescriptor*)(void*)fStorage) {
@@ -172,4 +173,4 @@ private:
 #define SkAutoDescriptor(...) SK_REQUIRE_LOCAL_VAR(SkAutoDescriptor)
 
 
-#endif
+#endif  // SkDescriptor_DEFINED

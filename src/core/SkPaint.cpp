@@ -398,11 +398,6 @@ SkScalar SkPaint::MaxCacheSize2(SkScalar maxLimit) {
 #include "SkGlyphCache.h"
 #include "SkUtils.h"
 
-static void DetachDescProc(SkTypeface* typeface, const SkScalerContextEffects& effects,
-                           const SkDescriptor* desc, void* context) {
-    *((SkGlyphCache**)context) = SkGlyphCache::DetachCache(typeface, effects, desc);
-}
-
 int SkPaint::textToGlyphs(const void* textData, size_t byteLength, uint16_t glyphs[]) const {
     if (byteLength == 0) {
         return 0;
@@ -915,11 +910,6 @@ static bool FontMetricsCacheProc(const SkGlyphCache* cache, void* context) {
     return false;   // don't detach the cache
 }
 
-static void FontMetricsDescProc(SkTypeface* typeface, const SkScalerContextEffects& effects,
-                                const SkDescriptor* desc, void* context) {
-    SkGlyphCache::VisitCache(typeface, effects, desc, FontMetricsCacheProc, context);
-}
-
 SkScalar SkPaint::getFontMetrics(FontMetrics* metrics, SkScalar zoom) const {
     SkCanonicalizePaint canon(*this);
     const SkPaint& paint = canon.getPaint();
@@ -936,8 +926,13 @@ SkScalar SkPaint::getFontMetrics(FontMetrics* metrics, SkScalar zoom) const {
         metrics = &storage;
     }
 
-    paint.descriptorProc(nullptr, SkScalerContextFlags::kNone, zoomPtr,
-                         FontMetricsDescProc, metrics);
+    SkAutoDescriptor ad;
+    SkScalerContextEffects effects;
+
+    auto desc = SkScalerContext::CreateDescriptorAndEffectsUsingPaint(
+        paint, nullptr, SkScalerContextFlags::kNone, zoomPtr, &ad, &effects);
+
+    SkGlyphCache::VisitCache(paint.getTypeface(), effects, desc, FontMetricsCacheProc, metrics);
 
     if (scale) {
         SkPaintPriv::ScaleFontMetrics(metrics, scale);
@@ -1548,46 +1543,6 @@ static const SkMaskGamma& cachedMaskGamma(SkScalar contrast, SkScalar paintGamma
     return *gMaskGamma;
 }
 
-void SkPaint::getScalerContextDescriptor(SkScalerContextEffects* effects,
-                                         SkAutoDescriptor* ad,
-                                         const SkSurfaceProps* surfaceProps,
-                                         uint32_t scalerContextFlags,
-                                         const SkMatrix* deviceMatrix) const {
-    SkScalerContextRec rec;
-
-    SkScalerContext::MakeRecAndEffects(
-            *this, surfaceProps, deviceMatrix, (SkScalerContextFlags)scalerContextFlags, &rec, effects);
-    auto alloc = [ad](size_t size) {
-        ad->reset(size);
-        return ad->getDesc();
-    };
-    SkScalerContext::CreateDescriptorGivenRecAndEffects(rec, *effects, alloc);
-}
-
-void SkPaint::descriptorProc(const SkSurfaceProps* surfaceProps,
-                             uint32_t scalerContextFlags,
-                             const SkMatrix* deviceMatrix,
-                             void (*proc)(SkTypeface*, const SkScalerContextEffects&,
-                                          const SkDescriptor*, void*),
-                             void* context) const {
-    SkAutoDescriptor ad;
-    SkScalerContextEffects effects;
-
-    this->getScalerContextDescriptor(&effects, &ad, surfaceProps, scalerContextFlags,
-                                     deviceMatrix);
-
-    auto desc = ad.getDesc();
-    proc(fTypeface.get(), effects, desc, context);
-}
-
-SkGlyphCache* SkPaint::detachCache(const SkSurfaceProps* surfaceProps,
-                                   uint32_t scalerContextFlags,
-                                   const SkMatrix* deviceMatrix) const {
-    SkGlyphCache* cache;
-    this->descriptorProc(surfaceProps, scalerContextFlags, deviceMatrix, DetachDescProc, &cache);
-    return cache;
-}
-
 
 /**
  * Expands fDeviceGamma, fPaintGamma, fContrast, and fLumBits into a mask pre-blend.
@@ -1632,11 +1587,12 @@ bool SkScalerContext::GetGammaLUTData(SkScalar contrast, SkScalar paintGamma, Sk
     return true;
 }
 
-size_t SkScalerContext::CalculateSizeAndFlatten(
+static size_t calculate_size_and_flatten(
         const SkScalerContextRec& rec,
         const SkScalerContextEffects& effects,
         SkBinaryWriteBuffer* pathEffectBuffer,
-        SkBinaryWriteBuffer* maskFilterBuffer) {
+        SkBinaryWriteBuffer* maskFilterBuffer)
+{
     size_t descSize = sizeof(rec);
     int entryCount = 1;
 
@@ -1707,11 +1663,13 @@ static void test_desc(const SkScalerContextRec& rec,
 }
 #endif
 
-void SkScalerContext::GenerateDescriptor(const SkScalerContextRec& rec,
-                                         const SkScalerContextEffects& effects,
-                                         SkBinaryWriteBuffer* pathEffectBuffer,
-                                         SkBinaryWriteBuffer* maskFilterBuffer,
-                                         SkDescriptor* desc) {
+void generate_descriptor(
+    const SkScalerContextRec& rec,
+    const SkScalerContextEffects& effects,
+    SkBinaryWriteBuffer* pathEffectBuffer,
+    SkBinaryWriteBuffer* maskFilterBuffer,
+    SkDescriptor* desc)
+{
     desc->init();
     desc->addEntry(kRec_SkDescriptorTag, sizeof(rec), &rec);
 
@@ -1730,6 +1688,33 @@ void SkScalerContext::GenerateDescriptor(const SkScalerContextRec& rec,
     #ifdef TEST_DESC
         test_desc(rec, effects, pathEffectBuffer, maskFilterBuffer, desc);
     #endif
+}
+
+SkDescriptor* SkScalerContext::AutoDescriptorGivenRecAndEffects(
+    const SkScalerContextRec& rec,
+    const SkScalerContextEffects& effects,
+    SkAutoDescriptor* ad)
+{
+    SkBinaryWriteBuffer peBuffer, mfBuffer;
+
+    ad->reset(calculate_size_and_flatten(rec, effects, &peBuffer, &mfBuffer));
+
+    generate_descriptor(rec, effects, &peBuffer, &mfBuffer, ad->getDesc());
+
+    return ad->getDesc();
+}
+
+std::unique_ptr<SkDescriptor> SkScalerContext::DescriptorGivenRecAndEffects(
+    const SkScalerContextRec& rec,
+    const SkScalerContextEffects& effects)
+{
+    SkBinaryWriteBuffer peBuffer, mfBuffer;
+
+    auto desc = SkDescriptor::Alloc(calculate_size_and_flatten(rec, effects, &peBuffer, &mfBuffer));
+
+    generate_descriptor(rec, effects, &peBuffer, &mfBuffer, desc.get());
+
+    return desc;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -2171,7 +2156,9 @@ SkTextBaseIter::SkTextBaseIter(const char text[], size_t length,
     }
 
     // SRGBTODO: Is this correct?
-    fCache = fPaint.detachCache(nullptr, SkScalerContextFlags::kFakeGammaAndBoostContrast, nullptr);
+    fCache = SkGlyphCache::DetachCacheUsingPaint(fPaint, nullptr,
+                                                 SkScalerContextFlags::kFakeGammaAndBoostContrast,
+                                                 nullptr);
 
     SkPaint::Style  style = SkPaint::kFill_Style;
     sk_sp<SkPathEffect> pe;
