@@ -1231,6 +1231,9 @@ bool IncludeParser::parseDefine() {
 }
 
 bool IncludeParser::parseEnum(Definition* child, Definition* markupDef) {
+    if (!markupDef) {
+        return child->reportError<bool>("no support for global enum declaration");
+    }
     string nameStr;
     if (child->fTokens.size() > 0) {
         auto token = child->fTokens.begin();
