@@ -28,6 +28,9 @@ public:
       kClamp_TileMode = 0,         /*!< Clamp to the image's edge pixels. */
       kRepeat_TileMode,        /*!< Wrap around to the image's opposite edge. */
       kClampToBlack_TileMode,  /*!< Fill with transparent black. */
+      kLast_TileMode = kClampToBlack_TileMode,
+
+      // TODO: remove kMax - it is non-standard but used by Chromium!
       kMax_TileMode = kClampToBlack_TileMode
     };
 

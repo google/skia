@@ -12,6 +12,7 @@
 #include "SkColorFilter.h"
 #include "SkMakeUnique.h"
 #include "SkReadBuffer.h"
+#include "SkSafeRange.h"
 #include "SkWriteBuffer.h"
 #include "SkShader.h"
 #include "SkUnPreMultiply.h"
@@ -321,9 +322,10 @@ public:
         kFractalNoise_Type,
         kTurbulence_Type,
         kImprovedNoise_Type,
-        kFirstType = kFractalNoise_Type,
-        kLastType = kImprovedNoise_Type
+        kLast_Type = kImprovedNoise_Type
     };
+
+    static const int kMaxOctaves = 255; // numOctaves must be <= 0 and <= kMaxOctaves
 
     SkPerlinNoiseShaderImpl(SkPerlinNoiseShaderImpl::Type type, SkScalar baseFrequencyX,
                       SkScalar baseFrequencyY, int numOctaves, SkScalar seed,
@@ -397,31 +399,40 @@ inline SkScalar smoothCurve(SkScalar t) {
 } // end namespace
 
 SkPerlinNoiseShaderImpl::SkPerlinNoiseShaderImpl(SkPerlinNoiseShaderImpl::Type type,
-                                         SkScalar baseFrequencyX,
-                                         SkScalar baseFrequencyY,
-                                         int numOctaves,
-                                         SkScalar seed,
-                                         const SkISize* tileSize)
+                                                 SkScalar baseFrequencyX,
+                                                 SkScalar baseFrequencyY,
+                                                 int numOctaves,
+                                                 SkScalar seed,
+                                                 const SkISize* tileSize)
   : fType(type)
   , fBaseFrequencyX(baseFrequencyX)
   , fBaseFrequencyY(baseFrequencyY)
-  , fNumOctaves(numOctaves > 255 ? 255 : numOctaves/*[0,255] octaves allowed*/)
+  , fNumOctaves(numOctaves > kMaxOctaves ? kMaxOctaves : numOctaves/*[0,255] octaves allowed*/)
   , fSeed(seed)
   , fTileSize(nullptr == tileSize ? SkISize::Make(0, 0) : *tileSize)
   , fStitchTiles(!fTileSize.isEmpty())
 {
-    SkASSERT(numOctaves >= 0 && numOctaves < 256);
+    SkASSERT(numOctaves >= 0 && numOctaves <= kMaxOctaves);
 }
 
 sk_sp<SkFlattenable> SkPerlinNoiseShaderImpl::CreateProc(SkReadBuffer& buffer) {
-    Type type = (Type)buffer.readInt();
+    SkSafeRange safe;
+
+    Type type = safe.checkLE<Type>(buffer.readInt(), kLast_Type);
+
     SkScalar freqX = buffer.readScalar();
     SkScalar freqY = buffer.readScalar();
-    int octaves = buffer.readInt();
+
+    int octaves = safe.checkLE<int>(buffer.readInt(), kMaxOctaves);
+
     SkScalar seed = buffer.readScalar();
     SkISize tileSize;
     tileSize.fWidth = buffer.readInt();
     tileSize.fHeight = buffer.readInt();
+
+    if (!buffer.validate(safe)) {
+        return nullptr;
+    }
 
     switch (type) {
         case kFractalNoise_Type:
@@ -431,6 +442,8 @@ sk_sp<SkFlattenable> SkPerlinNoiseShaderImpl::CreateProc(SkReadBuffer& buffer) {
         case kImprovedNoise_Type:
             return SkPerlinNoiseShader::MakeImprovedNoise(freqX, freqY, octaves, seed);
         default:
+            // Really shouldn't get here b.c. of earlier checkLE on type
+            buffer.validate(false);
             return nullptr;
     }
 }

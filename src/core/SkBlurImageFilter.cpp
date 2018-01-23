@@ -15,6 +15,7 @@
 #include "SkColorData.h"
 #include "SkColorSpaceXformer.h"
 #include "SkImageFilterPriv.h"
+#include "SkSafeRange.h"
 #include "SkTFitsIn.h"
 #include "SkGpuBlurUtils.h"
 #include "SkNx.h"
@@ -106,6 +107,8 @@ SkBlurImageFilterImpl::SkBlurImageFilterImpl(SkScalar sigmaX,
         : INHERITED(&input, 1, cropRect), fSigma{sigmaX, sigmaY}, fTileMode(tileMode) {}
 
 sk_sp<SkFlattenable> SkBlurImageFilterImpl::CreateProc(SkReadBuffer& buffer) {
+    SkSafeRange safe;
+
     SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 1);
     SkScalar sigmaX = buffer.readScalar();
     SkScalar sigmaY = buffer.readScalar();
@@ -113,11 +116,15 @@ sk_sp<SkFlattenable> SkBlurImageFilterImpl::CreateProc(SkReadBuffer& buffer) {
     if (buffer.isVersionLT(SkReadBuffer::kTileModeInBlurImageFilter_Version)) {
         tileMode = SkBlurImageFilter::kClampToBlack_TileMode;
     } else {
-        tileMode = static_cast<SkBlurImageFilter::TileMode>(buffer.readInt());
+        tileMode = safe.checkLE<SkBlurImageFilter::TileMode>(buffer.readInt(),
+                                                             SkBlurImageFilter::kLast_TileMode);
     }
 
-    static_assert(SkBlurImageFilter::kMax_TileMode == 2, "CreateProc");
-    SkASSERT(tileMode <= SkBlurImageFilter::kMax_TileMode);
+    static_assert(SkBlurImageFilter::kLast_TileMode == 2, "CreateProc");
+
+    if (!buffer.validate(safe)) {
+        return nullptr;
+    }
 
     return SkBlurImageFilter::Make(
           sigmaX, sigmaY, common.getInput(0), &common.cropRect(), tileMode);
@@ -128,8 +135,8 @@ void SkBlurImageFilterImpl::flatten(SkWriteBuffer& buffer) const {
     buffer.writeScalar(fSigma.fWidth);
     buffer.writeScalar(fSigma.fHeight);
 
-    static_assert(SkBlurImageFilter::kMax_TileMode == 2, "flatten");
-    SkASSERT(fTileMode <= SkBlurImageFilter::kMax_TileMode);
+    static_assert(SkBlurImageFilter::kLast_TileMode == 2, "flatten");
+    SkASSERT(fTileMode <= SkBlurImageFilter::kLast_TileMode);
 
     buffer.writeInt(static_cast<int>(fTileMode));
 }

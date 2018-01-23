@@ -132,7 +132,7 @@ protected:
         canvas->translate(10, 10);
 
         SkPaint paint;
-        install(&paint, Type::kFractalNoise, 0.1f, 0.1f, 2, 0, false);
+        this->install(&paint, Type::kFractalNoise, 0.1f, 0.1f, 2, 0, false);
 
         const SkScalar w = SkIntToScalar(fSize.width());
         const SkScalar h = SkIntToScalar(fSize.height());
