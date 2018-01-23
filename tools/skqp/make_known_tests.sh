@@ -6,14 +6,21 @@
 
 set -e -x
 
-tools/git-sync-deps
-bin/bn gen out/default
-ninja -C out/default list_gms list_gpu_unit_tests
-out/default/list_gms > \
-    platform_tools/android/apps/skqp/src/main/assets/skqp/KnownGMs.txt
-out/default/list_gpu_unit_tests > \
-    platform_tools/android/apps/skqp/src/main/assets/skqp/KnownGpuUnitTests.txt
-git add \
-    platform_tools/android/apps/skqp/src/main/assets/skqp/KnownGMs.txt \
-    platform_tools/android/apps/skqp/src/main/assets/skqp/KnownGpuUnitTests.txt
+cd "$(dirname "$0")/../.."
+
+BUILD=out/default
+
+python tools/git-sync-deps
+
+bin/gn gen $BUILD
+
+ninja -C $BUILD list_gms list_gpu_unit_tests
+
+DIR=platform_tools/android/apps/skqp/src/main/assets/skqp
+
+mkdir -p $DIR
+
+$BUILD/list_gms > $DIR/KnownGMs.txt
+
+$BUILD/list_gpu_unit_tests > $DIR/KnownGpuUnitTests.txt
 

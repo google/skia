@@ -31,26 +31,19 @@ ARCH=${SKQP_ARCH:-arm}
 
 cd "$(dirname "$0")/../.."
 
-mkdir -p out/skqp-${ARCH}
+BUILD=out/skqp-${ARCH}
 
-cat > out/skqp-${ARCH}/args.gn << EOF
-  ndk = "$ANDROID_NDK"
-  ndk_api = 26
-  target_cpu = "${ARCH}"
-  skia_embed_resources = true
-  is_debug = false
-  skia_enable_pdf = false
-EOF
+tools/skqp/generate_gn_args.sh $BUILD "$ANDROID_NDK" $ARCH
 
 GIT_SYNC_DEPS_QUIET=Y tools/git-sync-deps
 
-bin/gn gen out/skqp-${ARCH}
+bin/gn gen $BUILD
 
-rm -rf out/skqp-${ARCH}/gen
+rm -rf $BUILD/gen
 
-platform_tools/android/bin/android_build_app -C out/skqp-${ARCH} skqp
+platform_tools/android/bin/android_build_app -C $BUILD skqp
 
 set +x
 
-printf '\n\nAPK built: "%s/skqp.apk"\n\n' "$(pwd)/out/skqp-${ARCH}"
+printf '\n\nAPK built: "%s/skqp.apk"\n\n' "$(pwd)/$BUILD"
 

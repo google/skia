@@ -20,14 +20,8 @@ How To Use SkQP on your Android device:
 
         arch='arm64'  # Also valid: 'arm', 'x68', 'x64'
         android_ndk="${HOME}/android-ndk"  # Or wherever you installed the NDK.
-        mkdir -p out/${arch}-rel
-        cat > out/${arch}-rel/args.gn << EOF
-            ndk = "$android_ndk"
-            ndk_api = 26
-            target_cpu = "$arch"
-            skia_embed_resources = true
-            is_debug = false
-        EOF
+
+        tools/skqp/generate_gn_args.sh out/${arch}-rel "$android_ndk" $arch
         tools/git-sync-deps
         bin/gn gen out/${arch}-rel
         ninja -C out/${arch}-rel skqp_lib
@@ -37,9 +31,7 @@ How To Use SkQP on your Android device:
 
 5.  Generate the validation model data:
 
-        go get -u go.skia.org/infra/golden/go/search
-        go run tools/skqp/make_gmkb.go ~/Downloads/meta.json \
-            platform_tools/android/apps/skqp/src/main/assets/gmkb
+        tools/skqp/make_model.sh ~/Downloads/meta.json
 
 Run as an executable
 --------------------
