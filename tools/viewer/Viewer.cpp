@@ -226,7 +226,7 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     fWindow->setRequestedDisplayParams(displayParams);
 
     // Configure timers
-    fStatsLayer.setActive(false);
+    fStatsLayer.setActive(true);
     fAnimateTimer = fStatsLayer.addTimer("Animate", SK_ColorMAGENTA, 0xffff66ff);
     fPaintTimer = fStatsLayer.addTimer("Paint", SK_ColorGREEN);
     fFlushTimer = fStatsLayer.addTimer("Flush", SK_ColorRED, 0xffff6666);

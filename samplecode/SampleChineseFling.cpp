@@ -37,7 +37,7 @@ static sk_sp<SkTypeface> chinese_typeface() {
 #elif defined(SK_BUILD_FOR_MAC)
     return SkTypeface::MakeFromName("Hiragino Sans GB W3", SkFontStyle());
 #elif defined(SK_BUILD_FOR_IOS)
-    return SkTypeface::MakeFromName("Hiragino Sans GB W3", SkFontStyle());
+    return MakeResourceAsTypeface("fonts/NotoSansCJK-Regular.ttc");//SkTypeface::MakeFromName("Hiragino Sans GB W3", SkFontStyle());
 #elif defined(SK_BUILD_FOR_UNIX)
     return SkTypeface::MakeFromName("Noto Sans CJK SC", SkFontStyle());
 #else
@@ -130,7 +130,7 @@ private:
 
 class ChineseZoomView : public SampleView {
 public:
-    ChineseZoomView() : fBlobs(kNumBlobs), fScale(1.0f) {}
+    ChineseZoomView() : fBlobs(kNumBlobs), fScale(15.0f), fTranslate(0.0f) {}
 
 protected:
     bool onQuery(SkEvent* evt) override {
@@ -173,20 +173,22 @@ protected:
             sk_sp<SkImage> image =
             grContext->getFontAtlasImage_ForTesting(GrMaskFormat::kA8_GrMaskFormat, 0);
             canvas->drawImageRect(image,
-                                  SkRect::MakeXYWH(512.0f, 10.0f, 512.0f, 512.0), &paint);
+                                  SkRect::MakeXYWH(10.0f, 10.0f, 512.0f, 512.0), &paint);
             image = grContext->getFontAtlasImage_ForTesting(GrMaskFormat::kA8_GrMaskFormat, 1);
             canvas->drawImageRect(image,
-                                  SkRect::MakeXYWH(1024.0f, 10.0f, 512.f, 512.0f), &paint);
+                                  SkRect::MakeXYWH(522.0f, 10.0f, 512.f, 512.0f), &paint);
             image = grContext->getFontAtlasImage_ForTesting(GrMaskFormat::kA8_GrMaskFormat, 2);
             canvas->drawImageRect(image,
-                                  SkRect::MakeXYWH(512.0f, 522.0f, 512.0f, 512.0f), &paint);
+                                  SkRect::MakeXYWH(10.0f, 522.0f, 512.0f, 512.0f), &paint);
             image = grContext->getFontAtlasImage_ForTesting(GrMaskFormat::kA8_GrMaskFormat, 3);
             canvas->drawImageRect(image,
-                                  SkRect::MakeXYWH(1024.0f, 522.0f, 512.0f, 512.0f), &paint);
+                                  SkRect::MakeXYWH(522.0f, 522.0f, 512.0f, 512.0f), &paint);
         }
 #endif
 
         canvas->scale(fScale, fScale);
+        canvas->translate(0, fTranslate);
+        fTranslate -= 0.5f;
 
         // draw a consistent run of the 'words' - one word per line
         SkScalar y = 0;
@@ -247,6 +249,7 @@ private:
     SkTArray<sk_sp<SkTextBlob>> fBlobs;
     SkRandom                    fRand;
     SkScalar                    fScale;
+    SkScalar                    fTranslate;
     int                         fIndex;
 
     typedef SkView INHERITED;
