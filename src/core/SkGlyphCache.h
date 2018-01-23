@@ -33,6 +33,7 @@ class SkGlyphCache_Globals;
     either VisitCache() or DetachCache().
 */
 class SkGlyphCache {
+
 public:
     /** Returns a glyph with valid fAdvance and fDevKern fields. The remaining fields may be
         valid, but that is not guaranteed. If you require those, call getUnicharMetrics or
@@ -137,6 +138,11 @@ public:
                                      const SkDescriptor* desc) {
         return VisitCache(typeface, effects, desc, DetachProc, nullptr);
     }
+
+    static SkGlyphCache* DetachCacheUsingPaint(const SkPaint &paint,
+                                               const SkSurfaceProps *surfaceProps,
+                                               SkScalerContextFlags scalerContextFlags,
+                                               const SkMatrix *deviceMatrix);
 
     static void Dump();
 
@@ -262,15 +268,16 @@ public:
     SkAutoGlyphCache(const SkPaint& paint,
                      const SkSurfaceProps* surfaceProps,
                      const SkMatrix* matrix)
-        : INHERITED(paint.detachCache(surfaceProps,
-                                      SkScalerContextFlags::kFakeGammaAndBoostContrast,
-                                      matrix))
+        : INHERITED(SkGlyphCache::DetachCacheUsingPaint(paint, surfaceProps,
+                                                        SkScalerContextFlags::kFakeGammaAndBoostContrast,
+                                                        matrix))
     {}
     SkAutoGlyphCache(const SkPaint& paint,
                      const SkSurfaceProps* surfaceProps,
                      SkScalerContextFlags scalerContextFlags,
                      const SkMatrix* matrix)
-        : INHERITED(paint.detachCache(surfaceProps, scalerContextFlags, matrix))
+        : INHERITED(
+            SkGlyphCache::DetachCacheUsingPaint(paint, surfaceProps, scalerContextFlags, matrix))
     {}
 private:
     using INHERITED = std::unique_ptr<SkGlyphCache, SkGlyphCache::AttachCacheFunctor>;

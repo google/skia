@@ -589,8 +589,9 @@ void GrAtlasTextContext::drawDFText(GrAtlasTextBlob* blob, int runIndex,
     SkScalerContextEffects effects;
     // We apply the fake-gamma by altering the distance in the shader, so we ignore the
     // passed-in scaler context flags. (It's only used when we fall-back to bitmap text).
-    skPaint.getScalerContextDescriptor(&effects, &desc, &props, SkScalerContextFlags::kNone,
-                                       nullptr);
+    SkScalerContext::CreateDescriptorAndEffectsUsingPaint(skPaint, &effects, &desc, &props,
+                                                          SkScalerContextFlags::kNone,
+                                                          nullptr);
     SkGlyphCache* origPaintCache =
             SkGlyphCache::DetachCache(skPaint.getTypeface(), effects, desc.getDesc());
 
