@@ -28,7 +28,7 @@
 #include "SkImageInfoPriv.h"
 #include "SkImage_Base.h"
 #include "SkLatticeIter.h"
-#include "SkMaskFilter.h"
+#include "SkMaskFilterBase.h"
 #include "SkPathEffect.h"
 #include "SkPicture.h"
 #include "SkPictureData.h"
@@ -402,7 +402,7 @@ void SkGpuDevice::drawRRect(const SkRRect& rrect, const SkPaint& paint) {
         return;
     }
 
-    SkMaskFilter* mf = paint.getMaskFilter();
+    SkMaskFilterBase* mf = as_MFB(paint.getMaskFilter());
     if (mf) {
         if (mf->hasFragmentProcessor()) {
             mf = nullptr; // already handled in SkPaintToGrPaint

@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "SkMaskFilterBase.h"
 #include "SkRRectsGaussianEdgeMaskFilter.h"
 #include "SkReadBuffer.h"
 #include "SkRRect.h"
@@ -19,7 +20,7 @@
   * The round rects must have the same radii at each corner and the x&y radii
   * must also be equal.
   */
-class SkRRectsGaussianEdgeMaskFilterImpl : public SkMaskFilter {
+class SkRRectsGaussianEdgeMaskFilterImpl : public SkMaskFilterBase {
 public:
     SkRRectsGaussianEdgeMaskFilterImpl(const SkRRect& first, const SkRRect& second,
                                        SkScalar radius)

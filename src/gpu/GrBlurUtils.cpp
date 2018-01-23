@@ -17,7 +17,7 @@
 #include "GrTextureProxy.h"
 #include "SkDraw.h"
 #include "SkGr.h"
-#include "SkMaskFilter.h"
+#include "SkMaskFilterBase.h"
 #include "SkPaint.h"
 #include "SkTLazy.h"
 
@@ -65,7 +65,7 @@ static bool sw_draw_with_mask_filter(GrContext* context,
     }
     SkAutoMaskFreeImage autoSrc(srcM.fImage);
 
-    if (!filter->filterMask(&dstM, srcM, viewMatrix, nullptr)) {
+    if (!as_MFB(filter)->filterMask(&dstM, srcM, viewMatrix, nullptr)) {
         return false;
     }
     // this will free-up dstM when we're done (allocated in filterMask())
@@ -144,7 +144,7 @@ static void draw_path_with_mask_filter(GrContext* context,
                                        GrPaint&& paint,
                                        GrAA aa,
                                        const SkMatrix& viewMatrix,
-                                       const SkMaskFilter* maskFilter,
+                                       const SkMaskFilterBase* maskFilter,
                                        const GrStyle& style,
                                        const SkPath* path,
                                        bool pathIsMutable) {
@@ -252,7 +252,7 @@ void GrBlurUtils::drawPathWithMaskFilter(GrContext* context,
                                          const GrStyle& style,
                                          bool pathIsMutable) {
     draw_path_with_mask_filter(context, renderTargetContext, clip, std::move(paint), aa, viewMatrix,
-                               mf, style, &path, pathIsMutable);
+                               as_MFB(mf), style, &path, pathIsMutable);
 }
 
 void GrBlurUtils::drawPathWithMaskFilter(GrContext* context,
@@ -297,7 +297,7 @@ void GrBlurUtils::drawPathWithMaskFilter(GrContext* context,
         return;
     }
     GrAA aa = GrAA(paint.isAntiAlias());
-    SkMaskFilter* mf = paint.getMaskFilter();
+    SkMaskFilterBase* mf = as_MFB(paint.getMaskFilter());
     if (mf && !mf->hasFragmentProcessor()) {
         // The MaskFilter wasn't already handled in SkPaintToGrPaint
         draw_path_with_mask_filter(context, renderTargetContext, clip, std::move(grPaint), aa,
