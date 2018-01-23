@@ -85,6 +85,7 @@ std::vector<std::string> ExecuteTest(UnitTest test) {
         }
     } r;
     GrContextOptions options;
+    options.fDisableDriverCorrectnessWorkarounds = true;
     if (test->fContextOptionsProc) {
         test->fContextOptionsProc(&options);
     }
@@ -140,6 +141,7 @@ static GrContextOptions context_options(skiagm::GM* gm = nullptr) {
     GrContextOptions grContextOptions;
     grContextOptions.fAllowPathMaskCaching = true;
     grContextOptions.fSuppressPathRendering = true;
+    grContextOptions.fDisableDriverCorrectnessWorkarounds = true;
     if (gm) {
         gm->modifyGrContextOptions(&grContextOptions);
     }
