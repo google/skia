@@ -11,6 +11,7 @@
 #include "SkColorSpaceXformer.h"
 #include "SkImageFilterPriv.h"
 #include "SkReadBuffer.h"
+#include "SkSafeRange.h"
 #include "SkSpecialImage.h"
 #include "SkSpecialSurface.h"
 #include "SkWriteBuffer.h"
@@ -34,9 +35,19 @@ sk_sp<SkImageFilter> SkMatrixImageFilter::Make(const SkMatrix& transform,
 
 sk_sp<SkFlattenable> SkMatrixImageFilter::CreateProc(SkReadBuffer& buffer) {
     SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 1);
+
     SkMatrix matrix;
     buffer.readMatrix(&matrix);
-    SkFilterQuality quality = static_cast<SkFilterQuality>(buffer.readInt());
+
+    SkSafeRange safe;
+
+    SkFilterQuality quality = safe.checkLE<SkFilterQuality>(buffer.readInt(),
+                                                            kLast_SkFilterQuality);
+
+    if (buffer.validate(safe)) { // This also checks if readMatrix invalidated the buffer
+        return nullptr;
+    }
+
     return Make(matrix, quality, common.getInput(0));
 }
 
