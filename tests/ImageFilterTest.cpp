@@ -15,7 +15,6 @@
 #include "SkComposeImageFilter.h"
 #include "SkDisplacementMapEffect.h"
 #include "SkDropShadowImageFilter.h"
-#include "SkFlattenableSerialization.h"
 #include "SkGradientShader.h"
 #include "SkImage.h"
 #include "SkImageFilterPriv.h"
@@ -1644,9 +1643,8 @@ DEF_TEST(ImageFilterImageSourceSerialization, reporter) {
     sk_sp<SkImage> image(surface->makeImageSnapshot());
     sk_sp<SkImageFilter> filter(SkImageSource::Make(std::move(image)));
 
-    sk_sp<SkData> data(SkValidatingSerializeFlattenable(filter.get()));
-    sk_sp<SkImageFilter> unflattenedFilter = SkValidatingDeserializeImageFilter(data->data(),
-                                                                                data->size());
+    sk_sp<SkData> data(filter->serialize());
+    sk_sp<SkImageFilter> unflattenedFilter = SkImageFilter::Deserialize(data->data(), data->size());
     REPORTER_ASSERT(reporter, unflattenedFilter);
 
     SkBitmap bm;
@@ -1666,8 +1664,7 @@ DEF_TEST(ImageFilterImageSourceUninitialized, r) {
     if (!data) {
         return;
     }
-    sk_sp<SkImageFilter> unflattenedFilter = SkValidatingDeserializeImageFilter(data->data(),
-                                                                                data->size());
+    sk_sp<SkImageFilter> unflattenedFilter = SkImageFilter::Deserialize(data->data(), data->size());
     // This will fail. More importantly, msan will verify that we did not
     // compare against uninitialized memory.
     REPORTER_ASSERT(r, !unflattenedFilter);

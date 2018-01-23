@@ -10,7 +10,6 @@
 #include "SkCodec.h"
 #include "SkCommandLineFlags.h"
 #include "SkData.h"
-#include "SkFlattenableSerialization.h"
 #include "SkImage.h"
 #include "SkImageEncoder.h"
 #include "SkImageFilter.h"
