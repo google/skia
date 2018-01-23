@@ -8,6 +8,8 @@
 #ifndef SkScalerContext_DEFINED
 #define SkScalerContext_DEFINED
 
+#include <memory>
+
 #include "SkGlyph.h"
 #include "SkMask.h"
 #include "SkMaskFilter.h"
@@ -17,6 +19,7 @@
 #include "SkTypeface.h"
 #include "SkWriteBuffer.h"
 
+class SkAutoDescriptor;
 class SkDescriptor;
 class SkMaskFilter;
 class SkPathEffect;
@@ -45,7 +48,6 @@ enum SkAxisAlignment {
     kX_SkAxisAlignment,
     kY_SkAxisAlignment
 };
-
 
 /*
  *  To allow this to be forward-declared, it must be its own typename, rather
@@ -280,11 +282,14 @@ public:
                                   SkScalerContextRec* rec,
                                   SkScalerContextEffects* effects);
 
-    template <typename A>
-    static auto CreateDescriptorGivenRecAndEffects(
-            const SkScalerContextRec &rec,
-            const SkScalerContextEffects &effects,
-            A alloc) -> decltype(alloc((size_t)0));
+    static SkDescriptor* AutoDescriptorGivenRecAndEffects(
+        const SkScalerContextRec& rec,
+        const SkScalerContextEffects& effects,
+        SkAutoDescriptor* ad);
+
+    static std::unique_ptr<SkDescriptor> DescriptorGivenRecAndEffects(
+        const SkScalerContextRec& rec,
+        const SkScalerContextEffects& effects);
 
     static SkMaskGamma::PreBlend GetMaskPreBlend(const SkScalerContextRec& rec);
 
@@ -299,6 +304,12 @@ public:
     *  As an example, the identity matrix will return kX_SkAxisAlignment
     */
     SkAxisAlignment computeAxisAlignmentForHText();
+
+    static SkDescriptor* CreateDescriptorAndEffectsUsingPaint(
+        const SkPaint& paint, const SkSurfaceProps* surfaceProps,
+        SkScalerContextFlags scalerContextFlags,
+        const SkMatrix* deviceMatrix, SkAutoDescriptor* ad,
+        SkScalerContextEffects* effects);
 
 protected:
     SkScalerContextRec fRec;
@@ -353,16 +364,6 @@ protected:
     void forceOffGenerateImageFromPath() { fGenerateImageFromPath = false; }
 
 private:
-    static size_t CalculateSizeAndFlatten(const SkScalerContextRec& rec,
-                                          const SkScalerContextEffects& effects,
-                                          SkBinaryWriteBuffer* pathEffectBuffer,
-                                          SkBinaryWriteBuffer* maskFilterBuffer);
-    static void GenerateDescriptor(const SkScalerContextRec& rec,
-                                   const SkScalerContextEffects& effects,
-                                   SkBinaryWriteBuffer* pathEffectBuffer,
-                                   SkBinaryWriteBuffer* maskFilterBuffer,
-                                   SkDescriptor* desc);
-
     friend class SkRandomScalerContext; // For debug purposes
 
     // never null
@@ -388,22 +389,6 @@ private:
     // and the pre-blend applied as a final step.
     const SkMaskGamma::PreBlend fPreBlendForFilter;
 };
-
-template <typename A>
-inline auto SkScalerContext::CreateDescriptorGivenRecAndEffects(
-        const SkScalerContextRec &rec,
-        const SkScalerContextEffects &effects,
-        A alloc) -> decltype(alloc((size_t)0))  {
-
-    SkBinaryWriteBuffer peBuffer, mfBuffer;
-
-    auto desc = alloc(CalculateSizeAndFlatten(rec, effects, &peBuffer, &mfBuffer));
-
-    GenerateDescriptor(rec, effects, &peBuffer, &mfBuffer, &(*desc));
-
-    return desc;
-}
-
 
 #define kRec_SkDescriptorTag            SkSetFourByteTag('s', 'r', 'e', 'c')
 #define kPathEffect_SkDescriptorTag     SkSetFourByteTag('p', 't', 'h', 'e')

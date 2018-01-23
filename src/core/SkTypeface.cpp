@@ -341,16 +341,15 @@ bool SkTypeface::onComputeBounds(SkRect* bounds) const {
 
     SkScalerContextRec rec;
     SkScalerContextEffects effects;
+
     SkScalerContext::MakeRecAndEffects(
         paint, nullptr, nullptr, SkScalerContextFlags::kNone, &rec, &effects);
 
-    SkAutoDescriptor ad(sizeof(rec) + SkDescriptor::ComputeOverhead(1));
-    SkDescriptor*    desc = ad.getDesc();
-    desc->init();
-    desc->addEntry(kRec_SkDescriptorTag, sizeof(rec), &rec);
-
+    SkAutoDescriptor ad;
     SkScalerContextEffects noeffects;
-    std::unique_ptr<SkScalerContext> ctx = this->createScalerContext(noeffects, desc, true);
+    SkScalerContext::AutoDescriptorGivenRecAndEffects(rec, noeffects, &ad);
+
+    std::unique_ptr<SkScalerContext> ctx = this->createScalerContext(noeffects, ad.getDesc(), true);
     if (!ctx) {
         return false;
     }
