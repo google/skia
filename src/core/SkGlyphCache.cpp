@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+
 #include "SkGlyphCache.h"
 #include "SkGlyphCache_Globals.h"
 #include "SkGraphics.h"
@@ -810,3 +811,16 @@ void SkGraphics::PurgeFontCache() {
 // TODO(herb): clean up TLS apis.
 size_t SkGraphics::GetTLSFontCacheLimit() { return 0; }
 void SkGraphics::SetTLSFontCacheLimit(size_t bytes) { }
+
+SkGlyphCache* SkGlyphCache::DetachCacheUsingPaint(const SkPaint& paint,
+                                                  const SkSurfaceProps* surfaceProps,
+                                                  SkScalerContextFlags scalerContextFlags,
+                                                  const SkMatrix* deviceMatrix) {
+    SkAutoDescriptor ad;
+    SkScalerContextEffects effects;
+
+    auto desc = SkScalerContext::CreateDescriptorAndEffectsUsingPaint(
+        paint, surfaceProps, scalerContextFlags, deviceMatrix, &ad, &effects);
+
+    return SkGlyphCache::DetachCache(paint.getTypeface(), effects, desc);
+}
