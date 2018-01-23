@@ -22,6 +22,30 @@
       "revId": "786c6aaec4013d097c3cbf9094fc82387c6bc986",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b224e530_94e4faf5",
+        "filename": "src/core/SkMaskFilterBase.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-01-23T19:50:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "24a7ad05_4d0310fe",
+      "range": {
+        "startLine": 2,
+        "startChar": 12,
+        "endLine": 2,
+        "endChar": 17
+      },
+      "revId": "786c6aaec4013d097c3cbf9094fc82387c6bc986",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
