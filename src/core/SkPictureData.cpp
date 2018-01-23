@@ -117,6 +117,8 @@ void SkPictureData::init() {
     fVerticesCount = 0;
     fImageRefs = nullptr;
     fImageCount = 0;
+    fBitmapImageCount = 0;
+    fBitmapImageRefs = nullptr;
     fFactoryPlayback = nullptr;
 }
 
