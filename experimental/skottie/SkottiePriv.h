@@ -37,13 +37,6 @@ static inline bool ParseBool(const Json::Value& v, bool defaultValue) {
         ? v.asBool() : defaultValue;
 }
 
-static inline SkPoint ParsePoint(const Json::Value& v, const SkPoint& defaultValue) {
-    return v.isObject()
-        ? SkPoint::Make(ParseScalar(v["x"], defaultValue.x()),
-                        ParseScalar(v["y"], defaultValue.y()))
-        : defaultValue;
-}
-
 } // namespace
 
 #endif // SkottiePriv_DEFINED
