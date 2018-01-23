@@ -1288,10 +1288,6 @@ sk_sp<SkFlattenable> SkDiffuseLightingImageFilter::CreateProc(SkReadBuffer& buff
     SkScalar surfaceScale = buffer.readScalar();
     SkScalar kd = buffer.readScalar();
 
-    if (!buffer.isValid()) {
-        return nullptr;
-    }
-
     return Make(std::move(light), surfaceScale, kd, common.getInput(0), &common.cropRect());
 }
 
@@ -1444,10 +1440,6 @@ sk_sp<SkFlattenable> SkSpecularLightingImageFilter::CreateProc(SkReadBuffer& buf
     SkScalar surfaceScale = buffer.readScalar();
     SkScalar ks = buffer.readScalar();
     SkScalar shine = buffer.readScalar();
-
-    if (!buffer.isValid()) {
-        return nullptr;
-    }
 
     return Make(std::move(light), surfaceScale, ks, shine, common.getInput(0),
                 &common.cropRect());
