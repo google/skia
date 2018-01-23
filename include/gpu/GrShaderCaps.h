@@ -259,7 +259,6 @@ private:
     bool fFBFetchNeedsCustomOutput : 1;
     bool fBindlessTextureSupport : 1;
     bool fUsesPrecisionModifiers : 1;
-    bool fCanUseAnyFunctionInShader : 1;
     bool fFlatInterpolationSupport : 1;
     bool fPreferFlatInterpolation : 1;
     bool fNoPerspectiveInterpolationSupport : 1;
@@ -273,6 +272,7 @@ private:
     bool fHalfIs32Bits : 1;
 
     // Used for specific driver bug work arounds
+    bool fCanUseAnyFunctionInShader : 1;
     bool fCanUseMinAndAbsTogether : 1;
     bool fCanUseFractForNegativeValues : 1;
     bool fMustForceNegatedAtanParamToFloat : 1;

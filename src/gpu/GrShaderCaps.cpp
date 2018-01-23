@@ -142,6 +142,19 @@ void GrShaderCaps::dumpJSON(SkJSONWriter* writer) const {
 }
 
 void GrShaderCaps::applyOptionsOverrides(const GrContextOptions& options) {
+    if (options.fDisableDriverCorrectnessWorkarounds) {
+        SkASSERT(fCanUseAnyFunctionInShader);
+        SkASSERT(fCanUseMinAndAbsTogether);
+        SkASSERT(fCanUseFractForNegativeValues);
+        SkASSERT(!fMustForceNegatedAtanParamToFloat);
+        SkASSERT(!fAtan2ImplementedAsAtanYOverX);
+        SkASSERT(!fMustDoOpBetweenFloorAndAbs);
+        SkASSERT(!fRequiresLocalOutputColorForFBFetch);
+        SkASSERT(!fMustObfuscateUniformColor);
+        SkASSERT(!fMustGuardDivisionEvenAfterExplicitZeroCheck);
+        SkASSERT(fCanUseFragCoord);
+        SkASSERT(!fInterpolantsAreInaccurate);
+    }
 #if GR_TEST_UTILS
     fDualSourceBlendingSupport = fDualSourceBlendingSupport && !options.fSuppressDualSourceBlending;
     if (options.fDisableImageMultitexturing) {

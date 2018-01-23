@@ -97,6 +97,12 @@ GrCaps::GrCaps(const GrContextOptions& options) {
 
 void GrCaps::applyOptionsOverrides(const GrContextOptions& options) {
     this->onApplyOptionsOverrides(options);
+    if (options.fDisableDriverCorrectnessWorkarounds) {
+        SkASSERT(!fBlacklistCoverageCounting);
+        SkASSERT(!fAvoidStencilBuffers);
+        SkASSERT(!fAdvBlendEqBlacklist);
+    }
+
     fMaxTextureSize = SkTMin(fMaxTextureSize, options.fMaxTextureSizeOverride);
     fMaxTileSize = fMaxTextureSize;
 #if GR_TEST_UTILS

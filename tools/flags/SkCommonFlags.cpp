@@ -50,6 +50,9 @@ DEFINE_bool(releaseAndAbandonGpuContext, false,
             "Test releasing all gpu resources and abandoning the GrContext after running each "
             "test");
 
+DEFINE_bool(disableDriverCorrectnessWorkarounds, false, "Disables all GPU driver correctness "
+            "workarounds");
+
 DEFINE_string(skps, "skps", "Directory to read skps from.");
 
 DEFINE_string(jsons, "", "Directory to read Bodymovin JSONs from, or a single JSON file.");
@@ -156,6 +159,7 @@ void SetCtxOptionsFromCommonFlags(GrContextOptions* ctxOptions) {
     ctxOptions->fAllowPathMaskCaching = FLAGS_cachePathMasks;
     ctxOptions->fSuppressGeometryShaders = FLAGS_noGS;
     ctxOptions->fGpuPathRenderers = CollectGpuPathRenderersFromFlags();
+    ctxOptions->fDisableDriverCorrectnessWorkarounds = FLAGS_disableDriverCorrectnessWorkarounds;
 }
 
 #endif
