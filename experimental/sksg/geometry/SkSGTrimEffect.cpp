@@ -35,9 +35,9 @@ void TrimEffect::onDraw(SkCanvas* canvas, const SkPaint& paint) const {
         pathLen += measure.getLength();
     } while (measure.nextContour());
 
-    const auto start  = SkScalarPin(fStart , 0, 1) * pathLen,
-               end    = SkScalarPin(fEnd   , 0, 1) * pathLen,
-               offset = SkScalarPin(fOffset, 0, 1) * pathLen,
+    const auto start  = pathLen * fStart,
+               end    = pathLen * fEnd,
+               offset = pathLen * fOffset,
                len    = end - start;
 
     if (len <= 0) {
