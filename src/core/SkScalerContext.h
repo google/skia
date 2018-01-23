@@ -189,6 +189,7 @@ struct SkScalerContextRec {
 typedef SkTMaskGamma<3, 3, 3> SkMaskGamma;
 
 class SkScalerContext {
+
 public:
     enum Flags {
         kFrameAndFill_Flag        = 0x0001,
@@ -286,6 +287,8 @@ public:
             const SkScalerContextEffects &effects,
             A alloc) -> decltype(alloc((size_t)0));
 
+
+
     static SkMaskGamma::PreBlend GetMaskPreBlend(const SkScalerContextRec& rec);
 
     const SkScalerContextRec& getRec() const { return fRec; }
@@ -299,6 +302,11 @@ public:
     *  As an example, the identity matrix will return kX_SkAxisAlignment
     */
     SkAxisAlignment computeAxisAlignmentForHText();
+
+    static SkDescriptor* CreateDescriptorAndEffectsUsingPaint(
+            const SkPaint &paint, SkScalerContextEffects *, SkAutoDescriptor *,
+            const SkSurfaceProps *surfaceProps,
+            SkScalerContextFlags scalerContextFlags, const SkMatrix *);
 
 protected:
     SkScalerContextRec fRec;
@@ -391,8 +399,8 @@ private:
 
 template <typename A>
 inline auto SkScalerContext::CreateDescriptorGivenRecAndEffects(
-        const SkScalerContextRec &rec,
-        const SkScalerContextEffects &effects,
+        const SkScalerContextRec& rec,
+        const SkScalerContextEffects& effects,
         A alloc) -> decltype(alloc((size_t)0))  {
 
     SkBinaryWriteBuffer peBuffer, mfBuffer;
