@@ -559,13 +559,27 @@ struct GeometryEffectRec {
     GeometryEffectAttacherT fAttach;
 };
 
-sk_sp<sksg::RenderNode> AttachShape(const Json::Value& jshape, AttachContext* ctx,
-                                    std::vector<sk_sp<sksg::GeometryNode>>* geometryStack,
-                                    std::vector<GeometryEffectRec>* geometryEffectStack) {
+struct AttachShapeContext {
+    AttachShapeContext(AttachContext* ctx,
+                       std::vector<sk_sp<sksg::GeometryNode>>* geos,
+                       std::vector<GeometryEffectRec>* effects,
+                       size_t committedAnimators)
+        : fCtx(ctx)
+        , fGeometryStack(geos)
+        , fGeometryEffectStack(effects)
+        , fCommittedAnimators(committedAnimators) {}
+
+    AttachContext*                          fCtx;
+    std::vector<sk_sp<sksg::GeometryNode>>* fGeometryStack;
+    std::vector<GeometryEffectRec>*         fGeometryEffectStack;
+    size_t                                  fCommittedAnimators;
+};
+
+sk_sp<sksg::RenderNode> AttachShape(const Json::Value& jshape, AttachShapeContext* shapeCtx) {
     if (!jshape.isArray())
         return nullptr;
 
-    SkDEBUGCODE(const auto initialGeometryEffects = geometryEffectStack->size();)
+    SkDEBUGCODE(const auto initialGeometryEffects = shapeCtx->fGeometryEffectStack->size();)
 
     sk_sp<sksg::Group> shape_group = sksg::Group::Make();
     sk_sp<sksg::RenderNode> shape_wrapper = shape_group;
@@ -595,14 +609,14 @@ sk_sp<sksg::RenderNode> AttachShape(const Json::Value& jshape, AttachContext* ct
 
         switch (info->fShapeType) {
         case ShapeType::kTransform:
-            if ((shape_matrix = AttachMatrix(s, ctx, nullptr))) {
+            if ((shape_matrix = AttachMatrix(s, shapeCtx->fCtx, nullptr))) {
                 shape_wrapper = sksg::Transform::Make(std::move(shape_wrapper), shape_matrix);
             }
-            shape_wrapper = AttachOpacity(s, ctx, std::move(shape_wrapper));
+            shape_wrapper = AttachOpacity(s, shapeCtx->fCtx, std::move(shape_wrapper));
             break;
         case ShapeType::kGeometryEffect:
             SkASSERT(info->fAttacherIndex < SK_ARRAY_COUNT(gGeometryEffectAttachers));
-            geometryEffectStack->push_back(
+            shapeCtx->fGeometryEffectStack->push_back(
                 { s, gGeometryEffectAttachers[info->fAttacherIndex] });
             break;
         default:
@@ -621,7 +635,8 @@ sk_sp<sksg::RenderNode> AttachShape(const Json::Value& jshape, AttachContext* ct
         switch (rec->fInfo.fShapeType) {
         case ShapeType::kGeometry: {
             SkASSERT(rec->fInfo.fAttacherIndex < SK_ARRAY_COUNT(gGeometryAttachers));
-            if (auto geo = gGeometryAttachers[rec->fInfo.fAttacherIndex](rec->fJson, ctx)) {
+            if (auto geo = gGeometryAttachers[rec->fInfo.fAttacherIndex](rec->fJson,
+                                                                         shapeCtx->fCtx)) {
                 geos.push_back(std::move(geo));
             }
         } break;
@@ -630,31 +645,38 @@ sk_sp<sksg::RenderNode> AttachShape(const Json::Value& jshape, AttachContext* ct
             SkASSERT(rec->fInfo.fAttacherIndex < SK_ARRAY_COUNT(gGeometryEffectAttachers));
             if (!geos.empty()) {
                 geos = gGeometryEffectAttachers[rec->fInfo.fAttacherIndex](rec->fJson,
-                                                                           ctx,
+                                                                           shapeCtx->fCtx,
                                                                            std::move(geos));
             }
 
-            SkASSERT(geometryEffectStack->back().fJson == rec->fJson);
-            SkASSERT(geometryEffectStack->back().fAttach ==
+            SkASSERT(shapeCtx->fGeometryEffectStack->back().fJson == rec->fJson);
+            SkASSERT(shapeCtx->fGeometryEffectStack->back().fAttach ==
                      gGeometryEffectAttachers[rec->fInfo.fAttacherIndex]);
-            geometryEffectStack->pop_back();
+            shapeCtx->fGeometryEffectStack->pop_back();
         } break;
         case ShapeType::kGroup: {
-            if (auto subgroup = AttachShape(rec->fJson["it"], ctx, &geos, geometryEffectStack)) {
+            AttachShapeContext groupShapeCtx(shapeCtx->fCtx,
+                                             &geos,
+                                             shapeCtx->fGeometryEffectStack,
+                                             shapeCtx->fCommittedAnimators);
+            if (auto subgroup = AttachShape(rec->fJson["it"], &groupShapeCtx)) {
                 draws.push_back(std::move(subgroup));
+                SkASSERT(groupShapeCtx.fCommittedAnimators >= shapeCtx->fCommittedAnimators);
+                shapeCtx->fCommittedAnimators = groupShapeCtx.fCommittedAnimators;
             }
         } break;
         case ShapeType::kPaint: {
             SkASSERT(rec->fInfo.fAttacherIndex < SK_ARRAY_COUNT(gPaintAttachers));
-            auto paint = gPaintAttachers[rec->fInfo.fAttacherIndex](rec->fJson, ctx);
+            auto paint = gPaintAttachers[rec->fInfo.fAttacherIndex](rec->fJson, shapeCtx->fCtx);
             if (!paint || geos.empty())
                 break;
 
             auto drawGeos = geos;
 
             // Apply all pending effects from the stack.
-            for (auto it = geometryEffectStack->rbegin(); it != geometryEffectStack->rend(); ++it) {
-                drawGeos = it->fAttach(it->fJson, ctx, std::move(drawGeos));
+            for (auto it = shapeCtx->fGeometryEffectStack->rbegin();
+                 it != shapeCtx->fGeometryEffectStack->rend(); ++it) {
+                drawGeos = it->fAttach(it->fJson, shapeCtx->fCtx, std::move(drawGeos));
             }
 
             // If we still have multiple geos, reduce using 'merge'.
@@ -664,6 +686,7 @@ sk_sp<sksg::RenderNode> AttachShape(const Json::Value& jshape, AttachContext* ct
 
             SkASSERT(geo);
             draws.push_back(sksg::Draw::Make(std::move(geo), std::move(paint)));
+            shapeCtx->fCommittedAnimators = shapeCtx->fCtx->fAnimators.size();
         } break;
         default:
             break;
@@ -671,11 +694,11 @@ sk_sp<sksg::RenderNode> AttachShape(const Json::Value& jshape, AttachContext* ct
     }
 
     // By now we should have popped all local geometry effects.
-    SkASSERT(geometryEffectStack->size() == initialGeometryEffects);
+    SkASSERT(shapeCtx->fGeometryEffectStack->size() == initialGeometryEffects);
 
     // Push transformed local geometries to parent list, for subsequent paints.
     for (const auto& geo : geos) {
-        geometryStack->push_back(shape_matrix
+        shapeCtx->fGeometryStack->push_back(shape_matrix
             ? sksg::GeometryTransform::Make(std::move(geo), shape_matrix)
             : std::move(geo));
     }
@@ -781,7 +804,17 @@ sk_sp<sksg::RenderNode> AttachShapeLayer(const Json::Value& layer, AttachContext
 
     std::vector<sk_sp<sksg::GeometryNode>> geometryStack;
     std::vector<GeometryEffectRec> geometryEffectStack;
-    return AttachShape(layer["shapes"], ctx, &geometryStack, &geometryEffectStack);
+    AttachShapeContext shapeCtx(ctx, &geometryStack, &geometryEffectStack, ctx->fAnimators.size());
+    auto shapeNode = AttachShape(layer["shapes"], &shapeCtx);
+
+    // Trim uncommitted animators: AttachShape consumes effects on the fly, and greedily attaches
+    // geometries => at the end, we can end up with unused geometries, which are nevertheless alive
+    // due to attached animators.  To avoid this, we track committed animators and discard the
+    // orphans here.
+    SkASSERT(shapeCtx.fCommittedAnimators <= ctx->fAnimators.size());
+    ctx->fAnimators.resize(shapeCtx.fCommittedAnimators);
+
+    return shapeNode;
 }
 
 sk_sp<sksg::RenderNode> AttachTextLayer(const Json::Value& layer, AttachContext*) {
