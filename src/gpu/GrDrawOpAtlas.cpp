@@ -165,6 +165,8 @@ GrDrawOpAtlas::GrDrawOpAtlas(GrContext* context, GrPixelConfig config, int width
 
     SkDEBUGCODE(fNumPlots = numPlotsX * numPlotsY;)
 
+    fAllowMultitexturing = AllowMultitexturing::kYes;
+            
     this->createNewPage();
 }
 
@@ -327,10 +329,10 @@ bool GrDrawOpAtlas::addToAtlas(AtlasID* id, GrDeferredUploadTarget* target, int 
 }
 
 void GrDrawOpAtlas::compact(GrDeferredUploadToken startTokenForNextFlush) {
-    if (fNumPages <= 1) {
+//    if (fNumPages <= 1) {
         fPrevFlushToken = startTokenForNextFlush;
         return;
-    }
+ //   }
 
     // For all plots, reset number of flushes since used if used this frame.
     PlotList::Iter plotIter;

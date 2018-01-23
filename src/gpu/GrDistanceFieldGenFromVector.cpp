@@ -741,7 +741,7 @@ bool GrGenerateDistanceFieldFromPath(unsigned char* distanceField,
                                      const SkPath& path, const SkMatrix& drawMatrix,
                                      int width, int height, size_t rowBytes) {
     SkASSERT(distanceField);
-
+/////////
     SkDEBUGCODE(SkPath xformPath;);
     SkDEBUGCODE(path.transform(drawMatrix, &xformPath));
     SkDEBUGCODE(SkIRect pathBounds = xformPath.getBounds().roundOut());
