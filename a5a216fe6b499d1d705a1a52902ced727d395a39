@@ -22,6 +22,30 @@
       "revId": "a5a216fe6b499d1d705a1a52902ced727d395a39",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d8efbfa5_b7bf707f",
+        "filename": "src/core/SkScalerContext.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 392,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-01-23T16:03:38Z",
+      "side": 1,
+      "message": "Not for this CL, but my very next CL will use it in a different way. In addition, there are three different storage context that a descriptor is created. 1) AutoDescriptor - this is how it used now and returns a bare pointer. 2) Using SkDescriptor::Alloc which returns unique_ptr\u003cSkDescriptor\u003e which I anticipate using in the future. 3) As part of a chunk of memory which is how I\u0027m going to use it in my next CL. Because the 3 different use-cases have different return-type needs, this required a template parameter.",
+      "parentUuid": "f90ef647_99b6746a",
+      "range": {
+        "startLine": 392,
+        "startChar": 0,
+        "endLine": 392,
+        "endChar": 8
+      },
+      "revId": "a5a216fe6b499d1d705a1a52902ced727d395a39",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
