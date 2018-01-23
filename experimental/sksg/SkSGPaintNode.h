@@ -26,6 +26,7 @@ public:
 
     SG_ATTRIBUTE(AntiAlias  , bool          , fAntiAlias  )
     SG_ATTRIBUTE(Opacity    , SkScalar      , fOpacity    )
+    SG_ATTRIBUTE(BlendMode  , SkBlendMode   , fBlendMode  )
     SG_ATTRIBUTE(StrokeWidth, SkScalar      , fStrokeWidth)
     SG_ATTRIBUTE(StrokeMiter, SkScalar      , fStrokeMiter)
     SG_ATTRIBUTE(Style      , SkPaint::Style, fStyle      )
@@ -46,6 +47,7 @@ private:
                    fStrokeWidth = 1,
                    fStrokeMiter = 4;
     bool           fAntiAlias   = false;
+    SkBlendMode    fBlendMode   = SkBlendMode::kSrcOver;
     SkPaint::Style fStyle       = SkPaint::kFill_Style;
     SkPaint::Join  fStrokeJoin  = SkPaint::kMiter_Join;
     SkPaint::Cap   fStrokeCap   = SkPaint::kButt_Cap;

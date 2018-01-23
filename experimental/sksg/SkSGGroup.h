@@ -26,6 +26,9 @@ public:
     void addChild(sk_sp<RenderNode>);
     void removeChild(const sk_sp<RenderNode>&);
 
+    size_t size() const { return SkTo<size_t>(fChildren.count()); }
+    bool  empty() const { return fChildren.empty(); }
+
 protected:
     Group();
     ~Group() override;
