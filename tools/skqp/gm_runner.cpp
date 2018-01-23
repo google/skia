@@ -37,9 +37,8 @@ static bool in_set(const char* s, const SkTHashSet<SkString>& set) {
 
 static void readlist(skqp::AssetManager* mgr, const char* path, SkTHashSet<SkString>* dst) {
     auto asset = mgr->open(path);
-    SkASSERT_RELEASE(asset);
     if (!asset || asset->getLength() == 0) {
-        return;
+        return;  // missing file same as empty file.
     }
     std::vector<char> buffer(asset->getLength() + 1);
     asset->read(buffer.data(), buffer.size());
