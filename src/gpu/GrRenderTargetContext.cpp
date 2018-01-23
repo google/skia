@@ -99,41 +99,12 @@ private:
 //////////////////////////////////////////////////////////////////////////////
 
 GrAAType GrChooseAAType(GrAA aa, GrFSAAType fsaaType, GrAllowMixedSamples allowMixedSamples,
-                        GrAllowNonAABinaryCoverage allowNonAABinaryCoverage, const GrPaint* paint,
                         const GrCaps& caps) {
     if (GrAA::kNo == aa) {
         // On some devices we cannot disable MSAA if it is enabled so we make the AA type reflect
         // that.
         if (fsaaType == GrFSAAType::kUnifiedMSAA && !caps.multisampleDisableSupport()) {
             return GrAAType::kMSAA;
-        }
-        if (GrAllowNonAABinaryCoverage::kYes == allowNonAABinaryCoverage) {
-            SkASSERT(paint);
-            // If we already have a coverage FP then we won't make anything worse.
-            if (paint->numCoverageFragmentProcessors()) {
-                return GrAAType::kCoverage;
-            }
-            // Shader based blending isn't so expensive with these extensions.
-            if (caps.shaderCaps()->fbFetchSupport() || caps.textureBarrierSupport()) {
-                return GrAAType::kCoverage;
-            }
-            SkBlendMode mode;
-            if (GrXPFactory::AsBlendMode(paint->getXPFactory(), &mode)) {
-                // If we have dual source blending then all Porter-Duff modes can use HW blending
-                // with coverage.
-                if (mode <= SkBlendMode::kLastCoeffMode &&
-                    caps.shaderCaps()->dualSourceBlendingSupport()) {
-                    return GrAAType::kCoverage;
-                }
-                if (SkBlendMode_SupportsCoverageAsAlpha(mode)) {
-                    return GrAAType::kCoverage;
-                }
-                // If the mode is "advanced" then either we will already be doing dst copies or we
-                // have advanced blending support and it is ok to conflate coverage with alpha.
-                if (mode > SkBlendMode::kLastCoeffMode) {
-                    return GrAAType::kCoverage;
-                }
-            }
         }
         return GrAAType::kNone;
     }
@@ -944,16 +915,14 @@ void GrRenderTargetContext::drawRRect(const GrClip& origClip,
     AutoCheckFlush acf(this->drawingManager());
     const SkStrokeRec stroke = style.strokeRec();
 
-    GrAAType aaType = this->chooseAAType(aa, GrAllowMixedSamples::kNo,
-                                         GrAllowNonAABinaryCoverage::kYes, &paint);
+    GrAAType aaType = this->chooseAAType(aa, GrAllowMixedSamples::kNo);
     if (GrAAType::kCoverage == aaType) {
         const GrShaderCaps* shaderCaps = fContext->caps()->shaderCaps();
-        std::unique_ptr<GrDrawOp> op = GrOvalOpFactory::MakeCoverageRRectOp(std::move(paint),
-                                                                            aa,
-                                                                            viewMatrix,
-                                                                            rrect,
-                                                                            stroke,
-                                                                            shaderCaps);
+        std::unique_ptr<GrDrawOp> op = GrOvalOpFactory::MakeRRectOp(std::move(paint),
+                                                                    viewMatrix,
+                                                                    rrect,
+                                                                    stroke,
+                                                                    shaderCaps);
         if (op) {
             this->addDrawOp(*clip, std::move(op));
             return;
@@ -1194,9 +1163,8 @@ bool GrRenderTargetContext::drawFilledDRRect(const GrClip& clip,
             auto circleBounds = SkRect::MakeLTRB(cx - avgR, cy - avgR, cx + avgR, cy + avgR);
             SkStrokeRec stroke(SkStrokeRec::kFill_InitStyle);
             stroke.setStrokeStyle(outerR - innerR);
-            auto op = GrOvalOpFactory::MakeCoverageOvalOp(std::move(paint), aa, viewMatrix,
-                                                          circleBounds, stroke,
-                                                          this->caps()->shaderCaps());
+            auto op = GrOvalOpFactory::MakeOvalOp(std::move(paint), viewMatrix, circleBounds,
+                                                  stroke, this->caps()->shaderCaps());
             if (op) {
                 this->addDrawOp(clip, std::move(op));
                 return true;
@@ -1337,12 +1305,11 @@ void GrRenderTargetContext::drawOval(const GrClip& clip,
     AutoCheckFlush acf(this->drawingManager());
     const SkStrokeRec& stroke = style.strokeRec();
 
-    GrAAType aaType = this->chooseAAType(aa, GrAllowMixedSamples::kNo,
-                                         GrAllowNonAABinaryCoverage::kYes, &paint);
+    GrAAType aaType = this->chooseAAType(aa, GrAllowMixedSamples::kNo);
     if (GrAAType::kCoverage == aaType) {
         const GrShaderCaps* shaderCaps = fContext->caps()->shaderCaps();
-        std::unique_ptr<GrDrawOp> op = GrOvalOpFactory::MakeCoverageOvalOp(
-                std::move(paint), aa, viewMatrix, oval, stroke, shaderCaps);
+        std::unique_ptr<GrDrawOp> op =
+                GrOvalOpFactory::MakeOvalOp(std::move(paint), viewMatrix, oval, stroke, shaderCaps);
         if (op) {
             this->addDrawOp(clip, std::move(op));
             return;
@@ -1369,19 +1336,17 @@ void GrRenderTargetContext::drawArc(const GrClip& clip,
 
     AutoCheckFlush acf(this->drawingManager());
 
-    GrAAType aaType = this->chooseAAType(aa, GrAllowMixedSamples::kNo,
-                                         GrAllowNonAABinaryCoverage::kYes, &paint);
+    GrAAType aaType = this->chooseAAType(aa, GrAllowMixedSamples::kNo);
     if (GrAAType::kCoverage == aaType) {
         const GrShaderCaps* shaderCaps = fContext->caps()->shaderCaps();
-        std::unique_ptr<GrDrawOp> op = GrOvalOpFactory::MakeCoverageArcOp(std::move(paint),
-                                                                          aa,
-                                                                          viewMatrix,
-                                                                          oval,
-                                                                          startAngle,
-                                                                          sweepAngle,
-                                                                          useCenter,
-                                                                          style,
-                                                                          shaderCaps);
+        std::unique_ptr<GrDrawOp> op = GrOvalOpFactory::MakeArcOp(std::move(paint),
+                                                                  viewMatrix,
+                                                                  oval,
+                                                                  startAngle,
+                                                                  sweepAngle,
+                                                                  useCenter,
+                                                                  style,
+                                                                  shaderCaps);
         if (op) {
             this->addDrawOp(clip, std::move(op));
             return;

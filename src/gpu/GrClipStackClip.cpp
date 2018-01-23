@@ -124,8 +124,6 @@ bool GrClipStackClip::PathNeedsSWRenderer(GrContext* context,
         canDrawArgs.fAAType = GrChooseAAType(GrAA(element->isAA()),
                                              renderTargetContext->fsaaType(),
                                              GrAllowMixedSamples::kYes,
-                                             GrAllowNonAABinaryCoverage::kNo,
-                                             nullptr,
                                              *context->caps());
         canDrawArgs.fHasUserStencilSettings = hasUserStencilSettings;
 
