@@ -23,6 +23,7 @@ SkRect PaintNode::onRevalidate(InvalidationController*, const SkMatrix&) {
 
     fPaint.reset();
     fPaint.setAntiAlias(fAntiAlias);
+    fPaint.setBlendMode(fBlendMode);
     fPaint.setStyle(fStyle);
     fPaint.setStrokeWidth(fStrokeWidth);
     fPaint.setStrokeMiter(fStrokeMiter);

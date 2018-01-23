@@ -173,17 +173,18 @@ sk_sp<sksg::RenderNode> AttachOpacity(const Json::Value& jtransform, AttachConte
 
 sk_sp<sksg::RenderNode> AttachComposition(const Json::Value&, AttachContext* ctx);
 
+sk_sp<sksg::Path> AttachPath(const Json::Value& jpath, AttachContext* ctx) {
+    auto path_node = sksg::Path::Make();
+    return BindProperty<ShapeValue>(jpath, ctx, path_node,
+                                    [](sksg::Path* node, const ShapeValue& p) { node->setPath(p); })
+        ? path_node
+        : nullptr;
+}
+
 sk_sp<sksg::GeometryNode> AttachPathGeometry(const Json::Value& jpath, AttachContext* ctx) {
     SkASSERT(jpath.isObject());
 
-    auto path_node = sksg::Path::Make();
-    auto path_attached = BindProperty<ShapeValue>(jpath["ks"], ctx, path_node,
-        [](sksg::Path* node, const ShapeValue& p) { node->setPath(p); });
-
-    if (path_attached)
-        LOG("** Attached path geometry - verbs: %d\n", path_node->getPath().countVerbs());
-
-    return path_attached ? path_node : nullptr;
+    return AttachPath(jpath["ks"], ctx);
 }
 
 sk_sp<sksg::GeometryNode> AttachRRectGeometry(const Json::Value& jrect, AttachContext* ctx) {
@@ -881,6 +882,62 @@ struct AttachLayerContext {
     }
 };
 
+SkBlendMode MaskBlendMode(char mode) {
+    switch (mode) {
+    case 'a': return SkBlendMode::kSrcOver;    // Additive
+    case 's': return SkBlendMode::kExclusion;  // Subtract
+    case 'i': return SkBlendMode::kDstIn;      // Intersect
+    case 'l': return SkBlendMode::kLighten;    // Lighten
+    case 'd': return SkBlendMode::kDarken;     // Darken
+    case 'f': return SkBlendMode::kDifference; // Difference
+    default: break;
+    }
+
+    return SkBlendMode::kSrcOver;
+}
+
+sk_sp<sksg::RenderNode> AttachMask(const Json::Value& jmask,
+                                   AttachContext* ctx,
+                                   sk_sp<sksg::RenderNode> childNode) {
+    if (!jmask.isArray())
+        return childNode;
+
+    auto mask_group = sksg::Group::Make();
+
+    for (const auto& m : jmask) {
+        if (!m.isObject())
+            continue;
+
+        const auto inverted = ParseBool(m["inv"], false);
+        // TODO
+        if (inverted) {
+            LogFail(m, "Unsupported inverse mask");
+            continue;
+        }
+
+        auto mask_path = AttachPath(m["pt"], ctx);
+        if (!mask_path) {
+            LogFail(m, "Could not parse mask path");
+            continue;
+        }
+
+        auto mode = ParseString(m["mode"], "");
+        if (mode.size() != 1 || !strcmp(mode.c_str(), "n")) // "None" masks have no effect.
+            continue;
+
+        auto mask_paint = sksg::Color::Make(SK_ColorBLACK);
+        mask_paint->setBlendMode(MaskBlendMode(mode.c_str()[0]));
+        BindProperty<ScalarValue>(m["o"], ctx, mask_paint,
+            [](sksg::Color* node, const ScalarValue& o) { node->setOpacity(o * 0.01f); });
+
+        mask_group->addChild(sksg::Draw::Make(std::move(mask_path), std::move(mask_paint)));
+    }
+
+    return mask_group->empty()
+        ? childNode
+        : sksg::MaskEffect::Make(std::move(childNode), std::move(mask_group));
+}
+
 sk_sp<sksg::RenderNode> AttachLayer(const Json::Value& jlayer,
                                     AttachLayerContext* layerCtx) {
     if (!jlayer.isObject())
@@ -903,8 +960,10 @@ sk_sp<sksg::RenderNode> AttachLayer(const Json::Value& jlayer,
 
     // Layer content.
     auto layer = gLayerAttachers[type](jlayer, layerCtx->fCtx);
+    // Optional layer mask.
+    layer = AttachMask(jlayer["masksProperties"], layerCtx->fCtx, std::move(layer));
+    // Optional layer transform.
     if (auto layerMatrix = layerCtx->AttachLayerMatrix(jlayer)) {
-        // Optional layer transform.
         layer = sksg::Transform::Make(std::move(layer), std::move(layerMatrix));
     }
     // Optional layer opacity.
