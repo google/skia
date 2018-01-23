@@ -182,7 +182,9 @@ void SkReadBuffer::readMatrix(SkMatrix* matrix) {
     size_t size = 0;
     if (this->isValid()) {
         size = SkMatrixPriv::ReadFromMemory(matrix, fReader.peek(), fReader.available());
-        this->validate((SkAlign4(size) == size) && (0 != size));
+        if (!this->validate((SkAlign4(size) == size) && (0 != size))) {
+            matrix->reset();
+        }
     }
     (void)this->skip(size);
 }
@@ -209,7 +211,9 @@ void SkReadBuffer::readRegion(SkRegion* region) {
     size_t size = 0;
     if (!fError) {
         size = region->readFromMemory(fReader.peek(), fReader.available());
-        this->validate((SkAlign4(size) == size) && (0 != size));
+        if (!this->validate((SkAlign4(size) == size) && (0 != size))) {
+            region->setEmpty();
+        }
     }
     (void)this->skip(size);
 }
@@ -218,7 +222,9 @@ void SkReadBuffer::readPath(SkPath* path) {
     size_t size = 0;
     if (!fError) {
         size = path->readFromMemory(fReader.peek(), fReader.available());
-        this->validate((SkAlign4(size) == size) && (0 != size));
+        if (!this->validate((SkAlign4(size) == size) && (0 != size))) {
+            path->reset();
+        }
     }
     (void)this->skip(size);
 }
