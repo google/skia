@@ -8,6 +8,7 @@
 #include "SkBlurMaskFilter.h"
 #include "SkBlurMask.h"
 #include "SkGpuBlurUtils.h"
+#include "SkMaskFilterBase.h"
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"
 #include "SkMaskFilter.h"
@@ -40,7 +41,7 @@ SkScalar SkBlurMaskFilter::ConvertRadiusToSigma(SkScalar radius) {
     return SkBlurMask::ConvertRadiusToSigma(radius);
 }
 
-class SkBlurMaskFilterImpl : public SkMaskFilter {
+class SkBlurMaskFilterImpl : public SkMaskFilterBase {
 public:
     SkBlurMaskFilterImpl(SkScalar sigma, SkBlurStyle, const SkRect& occluder, uint32_t flags);
 
@@ -459,7 +460,7 @@ static SkCachedData* add_cached_rects(SkMask* mask, SkScalar sigma, SkBlurStyle 
   static const bool c_analyticBlurRRect{true};
 #endif
 
-SkMaskFilter::FilterReturn
+SkMaskFilterBase::FilterReturn
 SkBlurMaskFilterImpl::filterRRectToNine(const SkRRect& rrect, const SkMatrix& matrix,
                                         const SkIRect& clipBounds,
                                         NinePatch* patch) const {
@@ -596,7 +597,7 @@ SkBlurMaskFilterImpl::filterRRectToNine(const SkRRect& rrect, const SkMatrix& ma
 // Use the faster analytic blur approach for ninepatch rects
 static const bool c_analyticBlurNinepatch{true};
 
-SkMaskFilter::FilterReturn
+SkMaskFilterBase::FilterReturn
 SkBlurMaskFilterImpl::filterRectsToNine(const SkRect rects[], int count,
                                         const SkMatrix& matrix,
                                         const SkIRect& clipBounds,

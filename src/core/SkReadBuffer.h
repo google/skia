@@ -13,7 +13,7 @@
 #include "SkSerialProcs.h"
 #include "SkDrawLooper.h"
 #include "SkImageFilter.h"
-#include "SkMaskFilter.h"
+#include "SkMaskFilterBase.h"
 #include "SkPath.h"
 #include "SkPathEffect.h"
 #include "SkPicture.h"
@@ -143,7 +143,7 @@ public:
     sk_sp<SkColorFilter> readColorFilter() { return this->readFlattenable<SkColorFilter>(); }
     sk_sp<SkDrawLooper> readDrawLooper() { return this->readFlattenable<SkDrawLooper>(); }
     sk_sp<SkImageFilter> readImageFilter() { return this->readFlattenable<SkImageFilter>(); }
-    sk_sp<SkMaskFilter> readMaskFilter() { return this->readFlattenable<SkMaskFilter>(); }
+    sk_sp<SkMaskFilter> readMaskFilter() { return this->readFlattenable<SkMaskFilterBase>(); }
     sk_sp<SkPathEffect> readPathEffect() { return this->readFlattenable<SkPathEffect>(); }
     sk_sp<SkShader> readShader() { return this->readFlattenable<SkShaderBase>(); }
 
