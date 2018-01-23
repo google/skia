@@ -713,7 +713,8 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
                     }
                     else if (is_constant(*bin->fLeft, 0)) {
                         if (bin->fLeft->fType.kind() == Type::kScalar_Kind &&
-                            bin->fRight->fType.kind() == Type::kVector_Kind) {
+                            bin->fRight->fType.kind() == Type::kVector_Kind &&
+                            !bin->fRight->hasSideEffects()) {
                             // 0 * float4(x) -> float4(0)
                             vectorize_left(&b, iter, outUpdated, outNeedsRescan);
                         } else {
@@ -739,7 +740,8 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
                     }
                     else if (is_constant(*bin->fRight, 0)) {
                         if (bin->fLeft->fType.kind() == Type::kVector_Kind &&
-                            bin->fRight->fType.kind() == Type::kScalar_Kind) {
+                            bin->fRight->fType.kind() == Type::kScalar_Kind &&
+                            !bin->fLeft->hasSideEffects()) {
                             // float4(x) * 0 -> float4(0)
                             vectorize_right(&b, iter, outUpdated, outNeedsRescan);
                         } else {
@@ -805,7 +807,8 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
                         }
                     } else if (is_constant(*bin->fLeft, 0)) {
                         if (bin->fLeft->fType.kind() == Type::kScalar_Kind &&
-                            bin->fRight->fType.kind() == Type::kVector_Kind) {
+                            bin->fRight->fType.kind() == Type::kVector_Kind &&
+                            !bin->fRight->hasSideEffects()) {
                             // 0 / float4(x) -> float4(0)
                             vectorize_left(&b, iter, outUpdated, outNeedsRescan);
                         } else {
