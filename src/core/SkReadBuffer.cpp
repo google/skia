@@ -262,7 +262,12 @@ bool SkReadBuffer::readScalarArray(SkScalar* values, size_t size) {
 uint32_t SkReadBuffer::getArrayCount() {
     const size_t inc = sizeof(uint32_t);
     fError = fError || !IsPtrAlign4(fReader.peek()) || !fReader.isAvailable(inc);
+#if defined(IS_FUZZING)
+    uint32_t retVal = fError ? 0 : *(uint32_t*)fReader.peek();
+    return retVal < 1000 ? retVal: 1000;
+#else
     return fError ? 0 : *(uint32_t*)fReader.peek();
+#endif
 }
 
 sk_sp<SkImage> SkReadBuffer::readImage() {
@@ -297,6 +302,12 @@ sk_sp<SkImage> SkReadBuffer::readImage() {
     }
 
     size_t size = SkAbs32(encoded_size);
+#if defined(IS_FUZZING)
+    if (size > 100000) {
+        this->validate(false);
+        return nullptr;
+    }
+#endif
     sk_sp<SkData> data = SkData::MakeUninitialized(size);
     if (!this->readPad32(data->writable_data(), size)) {
         this->validate(false);

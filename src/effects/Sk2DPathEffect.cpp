@@ -51,6 +51,11 @@ void Sk2DPathEffect::nextSpan(int x, int y, int count, SkPath* path) const {
     if (!fMatrixIsInvertible) {
         return;
     }
+#if defined(IS_FUZZING)
+    if (count > 100) {
+        return;
+    }
+#endif
 
     const SkMatrix& mat = this->getMatrix();
     SkPoint src, dst;
@@ -111,6 +116,10 @@ sk_sp<SkFlattenable> SkLine2DPathEffect::CreateProc(SkReadBuffer& buffer) {
     SkMatrix matrix;
     buffer.readMatrix(&matrix);
     SkScalar width = buffer.readScalar();
+    // Avoid MSAN complaint if buffer is invalid after making matrix and width.
+    if (!buffer.isValid()) {
+        return nullptr;
+    }
     return SkLine2DPathEffect::Make(width, matrix);
 }
 
@@ -140,6 +149,10 @@ sk_sp<SkFlattenable> SkPath2DPathEffect::CreateProc(SkReadBuffer& buffer) {
     buffer.readMatrix(&matrix);
     SkPath path;
     buffer.readPath(&path);
+    // Avoid MSAN complaint if buffer is invalid after making matrix and path.
+    if (!buffer.isValid()) {
+        return nullptr;
+    }
     return SkPath2DPathEffect::Make(matrix, path);
 }
 
