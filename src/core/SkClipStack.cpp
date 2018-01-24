@@ -963,26 +963,13 @@ void SkClipStack::getConservativeBounds(int offsetX,
 }
 
 bool SkClipStack::isRRect(const SkRect& bounds, SkRRect* rrect, bool* aa) const {
-    const Element* back = static_cast<const Element*>(fDeque.back());
-    if (!back) {
-        return false;
-    }
-    if (back->fIsIntersectionOfRects) {
-        const SkRect backRect = back->asDeviceSpaceRRect().rect();
-        if (!SkRect::Intersects(bounds, backRect)) {
-            return false;
-        }
-        rrect->setRect(backRect);
-        *aa = back->fDoAA;
-        return true;
-    }
-
-    // We limit to 17 elements. This means the back element will be bounds checked at most 16 times
-    // if it is an rrect.
+    // We limit to 5 elements. This means the back element will be bounds checked at most 4 times if
+    // it is an rrect.
     int cnt = fDeque.count();
-    if (cnt > 17) {
+    if (!cnt || cnt > 5) {
         return false;
     }
+    const Element* back = static_cast<const Element*>(fDeque.back());
     if (back->getDeviceSpaceType() != SkClipStack::Element::DeviceSpaceType::kRect &&
         back->getDeviceSpaceType() != SkClipStack::Element::DeviceSpaceType::kRRect) {
         return false;
