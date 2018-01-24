@@ -143,6 +143,8 @@ private:
         GrAppliedClip* fAppliedClip;
     };
 
+    void purgeUninstantiatedProxies() override;
+
     void gatherProxyIntervals(GrResourceAllocator*) const override;
 
     void recordOp(std::unique_ptr<GrOp>, const GrCaps& caps,
