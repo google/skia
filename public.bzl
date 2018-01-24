@@ -55,7 +55,11 @@ def skia_glob(srcs):
 ## skia_{all,public}_hdrs()
 ################################################################################
 def skia_all_hdrs():
-  return native.glob(["src/**/*.h", "include/**/*.h"])
+  return native.glob([
+      "src/**/*.h",
+      "include/**/*.h",
+      "third_party/**/*.h",
+  ])
 
 def skia_public_hdrs():
   return native.glob(["include/**/*.h"],
