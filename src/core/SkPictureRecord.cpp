@@ -785,7 +785,7 @@ void SkPictureRecord::onDrawAtlas(const SkImage* atlas, const SkRSXform xform[],
 
 void SkPictureRecord::onDrawShadowRec(const SkPath& path, const SkDrawShadowRec& rec) {
     // op + path index + zParams + lightPos + lightRadius + spot/ambient alphas + color + flags
-    size_t size = 2 * kUInt32Size + 2 * sizeof(SkPoint3) + 3 * sizeof(SkScalar) + 2 * kUInt32Size;
+    size_t size = 2 * kUInt32Size + 2 * sizeof(SkPoint3) + 1 * sizeof(SkScalar) + 3 * kUInt32Size;
     size_t initialOffset = this->addDraw(DRAW_SHADOW_REC, &size);
 
     this->addPath(path);
