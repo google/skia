@@ -47,6 +47,7 @@ samples_sources = [
   "$_samplecode/SampleFilter2.cpp",
   "$_samplecode/SampleFilterFuzz.cpp",
   "$_samplecode/SampleFilterQuality.cpp",
+  "$_samplecode/SampleFlutterAnimate.cpp",
   "$_samplecode/SampleFontScalerTest.cpp",
   "$_samplecode/SampleFuzz.cpp",
   "$_samplecode/SampleGradients.cpp",
