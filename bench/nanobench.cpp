@@ -53,7 +53,7 @@
 
 extern bool gSkForceRasterPipelineBlitter;
 
-#ifndef SK_BUILD_FOR_WIN32
+#ifndef SK_BUILD_FOR_WIN
     #include <unistd.h>
 #endif
 

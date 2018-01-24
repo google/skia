@@ -29,7 +29,7 @@ void SkPDFObjectSerializer::addObjectRecursively(const sk_sp<SkPDFObject>& objec
 }
 
 #define SKPDF_MAGIC "\xD3\xEB\xE9\xE1"
-#ifndef SK_BUILD_FOR_WIN32
+#ifndef SK_BUILD_FOR_WIN
 static_assert((SKPDF_MAGIC[0] & 0x7F) == "Skia"[0], "");
 static_assert((SKPDF_MAGIC[1] & 0x7F) == "Skia"[1], "");
 static_assert((SKPDF_MAGIC[2] & 0x7F) == "Skia"[2], "");

@@ -43,7 +43,7 @@ SkString skiatest::GetTmpDir() {
 #elif defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_UNIX)
     const char* environmentVariable = "TMPDIR";
     const char* defaultValue = "/tmp";
-#elif defined(SK_BUILD_FOR_WIN32)
+#elif defined(SK_BUILD_FOR_WIN)
     const char* environmentVariable = "TEMP";
     const char* defaultValue = nullptr;
 #else
