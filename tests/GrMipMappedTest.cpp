@@ -164,6 +164,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrBackendTextureImageMipMappedTest, reporter,
             }
 
             REPORTER_ASSERT(reporter, genProxy->priv().isInstantiated());
+            if (!genProxy->priv().isInstantiated()) {
+                gpu->deleteTestingOnlyBackendTexture(&backendTex);
+                return;
+            }
 
             GrTexture* genTexture = genProxy->priv().peekTexture();
             REPORTER_ASSERT(reporter, genTexture);

@@ -347,7 +347,7 @@ void GrSurfaceProxyPriv::exactify() {
     // exact amount.
 }
 
-void GrSurfaceProxyPriv::doLazyInstantiation(GrResourceProvider* resourceProvider) {
+bool GrSurfaceProxyPriv::doLazyInstantiation(GrResourceProvider* resourceProvider) {
     SkASSERT(fProxy->fLazyInstantiateCallback);
     SkASSERT(!fProxy->fTarget);
 
@@ -372,7 +372,7 @@ void GrSurfaceProxyPriv::doLazyInstantiation(GrResourceProvider* resourceProvide
         fProxy->fWidth = 0;
         fProxy->fHeight = 0;
         fProxy->fOrigin = kTopLeft_GrSurfaceOrigin;
-        return;
+        return false;
     }
 
     fProxy->fWidth = texture->width();
@@ -381,5 +381,6 @@ void GrSurfaceProxyPriv::doLazyInstantiation(GrResourceProvider* resourceProvide
     SkASSERT(texture->config() == fProxy->fConfig);
     SkDEBUGCODE(fProxy->validateLazyTexture(texture.get());)
     this->assign(std::move(texture));
+    return true;
 }
 
