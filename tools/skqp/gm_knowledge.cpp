@@ -245,17 +245,18 @@ static constexpr char kDocHead[] =
     "  ac(b, ma(i.src, i));\n"
     "  br(b);\n"
     "  ac(b, ma(t + \"/max.png\", ct(\"max\")));\n"
+    "  ac(b, ct(\" | \"));\n"
     "  ac(b, ma(t + \"/min.png\", ct(\"min\")));\n"
     "  ac(b, ce(\"hr\"));\n"
     "  ac(document.body, b);\n"
     "}\n"
-    "function bar() {\n";
+    "function main() {\n";
 
 static constexpr char kDocTail[] =
     "}\n"
     "</script>\n"
     "</head>\n"
-    "<body onload=\"bar()\">\n"
+    "<body onload=\"main()\">\n"
     "<h1>SkQP Report</h1>\n"
     "<hr>\n"
     "</body>\n"
