@@ -1,0 +1,141 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "94d7cbaf_f98bfb5a",
+        "filename": "BUILD.gn",
+        "patchSetId": 19
+      },
+      "lineNbr": 1536,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-24T16:19:09Z",
+      "side": 1,
+      "message": "Probably don\u0027t need this anymore.",
+      "revId": "d7d23855fcd5e0c0bfdcabed4625a5919a9de990",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f214a1c2_6096af41",
+        "filename": "src/core/SkTypeface_remote.h",
+        "patchSetId": 19
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-24T16:19:09Z",
+      "side": 1,
+      "message": "Probably needs an Sk?",
+      "revId": "d7d23855fcd5e0c0bfdcabed4625a5919a9de990",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1c5529db_3c8a1fe3",
+        "filename": "src/core/SkTypeface_remote.h",
+        "patchSetId": 19
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-24T16:19:09Z",
+      "side": 1,
+      "message": "Is the idea this will be filtered by the real typeface on the other side?",
+      "range": {
+        "startLine": 121,
+        "startChar": 59,
+        "endLine": 121,
+        "endChar": 89
+      },
+      "revId": "d7d23855fcd5e0c0bfdcabed4625a5919a9de990",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7f0533eb_7821d81b",
+        "filename": "src/core/SkTypeface_remote.h",
+        "patchSetId": 19
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-24T16:19:09Z",
+      "side": 1,
+      "message": "We probably don\u0027t want to take the global name Op either.  Or does Op really go in the demo?",
+      "revId": "d7d23855fcd5e0c0bfdcabed4625a5919a9de990",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "692cbd7f_51ee9d42",
+        "filename": "src/core/SkTypeface_remote.h",
+        "patchSetId": 19
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-24T16:19:09Z",
+      "side": 1,
+      "message": "How is this different than laying it out as struct fields?\n\n  SkDescriptor         descriptor;\n  SkDescriptor::Entry  entry;\n  SkScalerContextRec   rec;\n  uint32_t             someBytes, \n                       otherBytes;\n\n?",
+      "revId": "d7d23855fcd5e0c0bfdcabed4625a5919a9de990",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "39bd6535_0b47e875",
+        "filename": "src/core/SkTypeface_remote.h",
+        "patchSetId": 19
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-24T16:19:09Z",
+      "side": 1,
+      "message": "Should this be the max alignof of the components?",
+      "range": {
+        "startLine": 168,
+        "startChar": 12,
+        "endLine": 168,
+        "endChar": 20
+      },
+      "revId": "d7d23855fcd5e0c0bfdcabed4625a5919a9de990",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a02d6bb1_c5331f1a",
+        "filename": "src/core/SkTypeface_remote.h",
+        "patchSetId": 19
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-24T16:19:09Z",
+      "side": 1,
+      "message": "Might be nice to leave a note here about what the 8 is?",
+      "range": {
+        "startLine": 171,
+        "startChar": 43,
+        "endLine": 171,
+        "endChar": 44
+      },
+      "revId": "d7d23855fcd5e0c0bfdcabed4625a5919a9de990",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
