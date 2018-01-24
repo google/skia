@@ -245,7 +245,7 @@ void print_diff_page(const int matchCount,
     if (outputDir.size() > 0 && PATH_DIV_CHAR == outputDir[0]) {
         isPathAbsolute = true;
     }
-#ifdef SK_BUILD_FOR_WIN32
+#ifdef SK_BUILD_FOR_WIN
     // On Windows, absolute paths can also start with "x:", where x is any
     // drive letter.
     if (outputDir.size() > 1 && ':' == outputDir[1]) {
