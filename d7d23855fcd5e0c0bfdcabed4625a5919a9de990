@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "26bc285a_1692b395",
+        "filename": "BUILD.gn",
+        "patchSetId": 19
+      },
+      "lineNbr": 1536,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-01-24T17:06:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "94d7cbaf_f98bfb5a",
+      "revId": "d7d23855fcd5e0c0bfdcabed4625a5919a9de990",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f214a1c2_6096af41",
         "filename": "src/core/SkTypeface_remote.h",
         "patchSetId": 19
@@ -59,6 +77,30 @@
     },
     {
       "key": {
+        "uuid": "18aa5515_e7d7eca2",
+        "filename": "src/core/SkTypeface_remote.h",
+        "patchSetId": 19
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-01-24T17:06:31Z",
+      "side": 1,
+      "message": "This is not well thought out. I guess I would have to run on filter on the Render side, but I have to run some additional code after the on filter to maintain some invariants like in the existing code.",
+      "parentUuid": "1c5529db_3c8a1fe3",
+      "range": {
+        "startLine": 121,
+        "startChar": 59,
+        "endLine": 121,
+        "endChar": 89
+      },
+      "revId": "d7d23855fcd5e0c0bfdcabed4625a5919a9de990",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "7f0533eb_7821d81b",
         "filename": "src/core/SkTypeface_remote.h",
         "patchSetId": 19
@@ -73,6 +115,24 @@
       "revId": "d7d23855fcd5e0c0bfdcabed4625a5919a9de990",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e3dd878e_bb6a1d40",
+        "filename": "src/core/SkTypeface_remote.h",
+        "patchSetId": 19
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-01-24T17:06:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7f0533eb_7821d81b",
+      "revId": "d7d23855fcd5e0c0bfdcabed4625a5919a9de990",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -116,6 +176,48 @@
     },
     {
       "key": {
+        "uuid": "02318565_188a3517",
+        "filename": "src/core/SkTypeface_remote.h",
+        "patchSetId": 19
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-01-24T17:06:31Z",
+      "side": 1,
+      "message": "The existing code seems to only worry about 4 byte alignment.",
+      "parentUuid": "39bd6535_0b47e875",
+      "range": {
+        "startLine": 168,
+        "startChar": 12,
+        "endLine": 168,
+        "endChar": 20
+      },
+      "revId": "d7d23855fcd5e0c0bfdcabed4625a5919a9de990",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9224ea90_4a7c5f1c",
+        "filename": "src/core/SkTypeface_remote.h",
+        "patchSetId": 19
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-01-24T17:06:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "692cbd7f_51ee9d42",
+      "revId": "d7d23855fcd5e0c0bfdcabed4625a5919a9de990",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a02d6bb1_c5331f1a",
         "filename": "src/core/SkTypeface_remote.h",
         "patchSetId": 19
@@ -127,6 +229,30 @@
       "writtenOn": "2018-01-24T16:19:09Z",
       "side": 1,
       "message": "Might be nice to leave a note here about what the 8 is?",
+      "range": {
+        "startLine": 171,
+        "startChar": 43,
+        "endLine": 171,
+        "endChar": 44
+      },
+      "revId": "d7d23855fcd5e0c0bfdcabed4625a5919a9de990",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "92636adf_95a28e5e",
+        "filename": "src/core/SkTypeface_remote.h",
+        "patchSetId": 19
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-01-24T17:06:31Z",
+      "side": 1,
+      "message": "Paranoia.",
+      "parentUuid": "a02d6bb1_c5331f1a",
       "range": {
         "startLine": 171,
         "startChar": 43,
