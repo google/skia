@@ -504,7 +504,7 @@ if (skia_compile_processors) {
     ]
     outputs = [
       "$target_out_dir/" +
-          rebase_path("src/sksl/sksl_enums.include", target_out_dir),
+          rebase_path("src/sksl/sksl_enums.inc", target_out_dir),
     ]
     args = [
       rebase_path(sources[0]),
