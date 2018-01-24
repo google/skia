@@ -9,6 +9,7 @@
 #include "SkPM4f.h"
 #include "SkArenaAlloc.h"
 #include "SkRasterPipeline.h"
+#include "SkSafeRange.h"
 #include "SkReadBuffer.h"
 #include "SkString.h"
 #include "SkWriteBuffer.h"
@@ -141,10 +142,17 @@ void SkHighContrast_Filter::flatten(SkWriteBuffer& buffer) const {
 }
 
 sk_sp<SkFlattenable> SkHighContrast_Filter::CreateProc(SkReadBuffer& buffer) {
+    SkSafeRange safe;
+
     SkHighContrastConfig config;
     config.fGrayscale = buffer.readBool();
-    config.fInvertStyle = static_cast<InvertStyle>(buffer.readInt());
+    config.fInvertStyle = safe.checkLE<InvertStyle>(buffer.readInt(), InvertStyle::kLast);
     config.fContrast = buffer.readScalar();
+
+    if (!buffer.validate(safe)) {
+        return nullptr;
+    }
+
     return SkHighContrastFilter::Make(config);
 }
 

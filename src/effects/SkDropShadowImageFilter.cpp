@@ -12,6 +12,7 @@
 #include "SkColorSpaceXformer.h"
 #include "SkImageFilterPriv.h"
 #include "SkReadBuffer.h"
+#include "SkSafeRange.h"
 #include "SkSpecialImage.h"
 #include "SkSpecialSurface.h"
 #include "SkWriteBuffer.h"
@@ -41,13 +42,21 @@ SkDropShadowImageFilter::SkDropShadowImageFilter(SkScalar dx, SkScalar dy,
 }
 
 sk_sp<SkFlattenable> SkDropShadowImageFilter::CreateProc(SkReadBuffer& buffer) {
+    SkSafeRange safe;
+
     SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 1);
     SkScalar dx = buffer.readScalar();
     SkScalar dy = buffer.readScalar();
     SkScalar sigmaX = buffer.readScalar();
     SkScalar sigmaY = buffer.readScalar();
     SkColor color = buffer.readColor();
-    ShadowMode shadowMode = static_cast<ShadowMode>(buffer.readInt());
+
+    ShadowMode shadowMode = safe.checkLE<ShadowMode>(buffer.readInt(), kLast_ShadowMode);
+
+    if (!buffer.validate(safe)) {
+        return nullptr;
+    }
+
     return Make(dx, dy, sigmaX, sigmaY, color, shadowMode, common.getInput(0), &common.cropRect());
 }
 
