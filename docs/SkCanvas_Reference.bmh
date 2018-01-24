@@ -35,7 +35,6 @@ This approach may be deprecated in the future.
 # Constants             # enum and enum class, const values                  ##
 # Constructors          # functions that construct SkPath                    ##
 # Member_Functions      # static functions and member methods                ##
-# Operators             # operator overloading methods                       ##
 #Table ##
 #Subtopic ##
 
