@@ -94,6 +94,30 @@
       "revId": "938888c977b9f2dc8dee9adcbde1f8775833dd45",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "40d56968_b46eef7a",
+        "filename": "src/core/SkMaskFilter.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 382,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-01-24T22:57:25Z",
+      "side": 1,
+      "message": "\u003e inline doesn\u0027t have anything to do with inlining, sadly.  It means only \"if you see two copies of this function, take either one instead of failing\".  That\u0027s what generally makes it possible to put implementations of functions in headers.\n\n*Click*  Aha, I recall now inline is mostly an ODR crutch for template functions.  Thanks for explaining.",
+      "parentUuid": "87a88d5f_9d0ec64b",
+      "range": {
+        "startLine": 382,
+        "startChar": 22,
+        "endLine": 382,
+        "endChar": 35
+      },
+      "revId": "938888c977b9f2dc8dee9adcbde1f8775833dd45",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
