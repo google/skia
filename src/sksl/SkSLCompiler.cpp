@@ -34,24 +34,24 @@
 #define STRINGIFY(x) #x
 
 static const char* SKSL_INCLUDE =
-#include "sksl.include"
+#include "sksl.inc"
 ;
 
 static const char* SKSL_VERT_INCLUDE =
-#include "sksl_vert.include"
+#include "sksl_vert.inc"
 ;
 
 static const char* SKSL_FRAG_INCLUDE =
-#include "sksl_frag.include"
+#include "sksl_frag.inc"
 ;
 
 static const char* SKSL_GEOM_INCLUDE =
-#include "sksl_geom.include"
+#include "sksl_geom.inc"
 ;
 
 static const char* SKSL_FP_INCLUDE =
-#include "sksl_enums.include"
-#include "sksl_fp.include"
+#include "sksl_enums.inc"
+#include "sksl_fp.inc"
 ;
 
 namespace SkSL {
