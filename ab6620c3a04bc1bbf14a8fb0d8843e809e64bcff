@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dac342ba_7f4fc06b",
+        "filename": "tools/skqp/make_gmkb.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2018-01-24T18:33:49Z",
+      "side": 1,
+      "message": "I\u0027d make this a map \n  type slack map[string]int \nit also need documentation what each field or the key/value is.",
+      "range": {
+        "startLine": 32,
+        "startChar": 0,
+        "endLine": 36,
+        "endChar": 0
+      },
+      "revId": "ab6620c3a04bc1bbf14a8fb0d8843e809e64bcff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
