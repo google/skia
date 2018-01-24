@@ -51,7 +51,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-#if defined(SK_BUILD_FOR_WIN32)
+#if defined(SK_BUILD_FOR_WIN)
 // VC8 doesn't support stdint.h, so we define those types here.
 typedef signed char int8_t;
 typedef unsigned char uint8_t;
@@ -116,7 +116,7 @@ typedef unsigned __int64 uint64_t;
  *  GR_ALWAYSBREAK is an unconditional break in all builds.
  */
 #if !defined(GR_ALWAYSBREAK)
-    #if     defined(SK_BUILD_FOR_WIN32)
+    #if     defined(SK_BUILD_FOR_WIN)
         #define GR_ALWAYSBREAK SkNO_RETURN_HINT(); __debugbreak()
     #else
         // TODO: do other platforms really not have continuable breakpoints?

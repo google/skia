@@ -14,7 +14,7 @@
 #include <deque>
 #include <thread>
 
-#if defined(SK_BUILD_FOR_WIN32)
+#if defined(SK_BUILD_FOR_WIN)
     #include <windows.h>
     static int num_cores() {
         SYSTEM_INFO sysinfo;

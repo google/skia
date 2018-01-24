@@ -111,7 +111,7 @@ static inline float SkPinToUnitFloat(float x) {
 int SkCLZ_portable(uint32_t);
 
 #ifndef SkCLZ
-    #if defined(SK_BUILD_FOR_WIN32)
+    #if defined(SK_BUILD_FOR_WIN)
         #include <intrin.h>
 
         static inline int SkCLZ(uint32_t mask) {

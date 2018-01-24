@@ -2552,7 +2552,7 @@ void GrGLGpu::flushViewport(const GrGLIRect& viewport) {
 #if SWAP_PER_DRAW
     #if defined(SK_BUILD_FOR_MAC)
         #include <AGL/agl.h>
-    #elif defined(SK_BUILD_FOR_WIN32)
+    #elif defined(SK_BUILD_FOR_WIN)
         #include <gl/GL.h>
         void SwapBuf() {
             DWORD procID = GetCurrentProcessId();
@@ -2615,7 +2615,7 @@ void GrGLGpu::draw(const GrPipeline& pipeline,
         aglSwapBuffers(aglGetCurrentContext());
         int set_a_break_pt_here = 9;
         aglSwapBuffers(aglGetCurrentContext());
-    #elif defined(SK_BUILD_FOR_WIN32)
+    #elif defined(SK_BUILD_FOR_WIN)
         SwapBuf();
         int set_a_break_pt_here = 9;
         SwapBuf();

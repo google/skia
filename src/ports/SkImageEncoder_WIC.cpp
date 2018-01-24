@@ -7,7 +7,7 @@
 
 #include "SkTypes.h"
 
-#if defined(SK_BUILD_FOR_WIN32)
+#if defined(SK_BUILD_FOR_WIN)
 
 // Workaround for:
 // http://connect.microsoft.com/VisualStudio/feedback/details/621653/
@@ -214,4 +214,4 @@ bool SkEncodeImageWithWIC(SkWStream* stream, const SkPixmap& pixmap,
     return SUCCEEDED(hr);
 }
 
-#endif // defined(SK_BUILD_FOR_WIN32)
+#endif // defined(SK_BUILD_FOR_WIN)
