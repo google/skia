@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e4f263a6_d7ab33d3",
+        "filename": "src/effects/SkDisplacementMapEffect.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-01-24T19:23:31Z",
+      "side": 1,
+      "message": "we need to validate the buffer on safe.\n\nbuffer.validate(safe);",
+      "range": {
+        "startLine": 159,
+        "startChar": 13,
+        "endLine": 159,
+        "endChar": 18
+      },
+      "revId": "093e6b3d0519caf9e6668d4ef1dd51f4450ea059",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
