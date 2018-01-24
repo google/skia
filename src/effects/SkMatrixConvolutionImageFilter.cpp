@@ -11,6 +11,7 @@
 #include "SkColorSpaceXformer.h"
 #include "SkImageFilterPriv.h"
 #include "SkReadBuffer.h"
+#include "SkSafeRange.h"
 #include "SkSpecialImage.h"
 #include "SkWriteBuffer.h"
 #include "SkRect.h"
@@ -79,7 +80,10 @@ sk_sp<SkImageFilter> SkMatrixConvolutionImageFilter::Make(const SkISize& kernelS
 }
 
 sk_sp<SkFlattenable> SkMatrixConvolutionImageFilter::CreateProc(SkReadBuffer& buffer) {
+    SkSafeRange safe;
+
     SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 1);
+
     SkISize kernelSize;
     kernelSize.fWidth = buffer.readInt();
     kernelSize.fHeight = buffer.readInt();
@@ -98,8 +102,14 @@ sk_sp<SkFlattenable> SkMatrixConvolutionImageFilter::CreateProc(SkReadBuffer& bu
     SkIPoint kernelOffset;
     kernelOffset.fX = buffer.readInt();
     kernelOffset.fY = buffer.readInt();
-    TileMode tileMode = (TileMode)buffer.readInt();
+
+    TileMode tileMode = safe.checkLE<TileMode>(buffer.readInt(), kLast_TileMode);
     bool convolveAlpha = buffer.readBool();
+
+    if (!buffer.validate(safe)) {
+        return nullptr;
+    }
+
     return Make(kernelSize, kernel.get(), gain, bias, kernelOffset, tileMode,
                 convolveAlpha, common.getInput(0), &common.cropRect());
 }
