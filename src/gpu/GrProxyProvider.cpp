@@ -367,7 +367,9 @@ sk_sp<GrTextureProxy> GrProxyProvider::createWrappedTextureProxy(
     if (fResourceProvider) {
         // In order to reuse code we always create a lazy proxy. When we aren't in DDL mode however,
         // we're better off instantiating the proxy immediately here.
-        proxy->priv().doLazyInstantiation(fResourceProvider);
+        if (!proxy->priv().doLazyInstantiation(fResourceProvider)) {
+            return nullptr;
+        }
     }
     return proxy;
 }
