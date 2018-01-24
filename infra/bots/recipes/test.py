@@ -849,7 +849,7 @@ def test_steps(api):
       '--resourcePath', api.flavor.device_dirs.resource_dir,
       '--skps', api.flavor.device_dirs.skp_dir,
       '--images', api.flavor.device_path_join(
-          api.flavor.device_dirs.resource_dir, 'color_wheel.jpg'),
+          api.flavor.device_dirs.resource_dir, 'images', 'color_wheel.jpg'),
       '--nameByHash',
       '--properties'
     ] + properties

@@ -443,7 +443,7 @@
       "--skps",
       "/cache/skia/skps",
       "--images",
-      "/cache/skia/resources/color_wheel.jpg",
+      "/cache/skia/resources/images/color_wheel.jpg",
       "--nameByHash",
       "--properties",
       "gitHash",
