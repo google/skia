@@ -72,7 +72,9 @@ static void overlap_test(skiatest::Reporter* reporter, GrResourceProvider* resou
     alloc.markEndOfOpList(0);
 
     int startIndex, stopIndex;
-    alloc.assign(&startIndex, &stopIndex);
+    GrResourceAllocator::AssignError error;
+    alloc.assign(&startIndex, &stopIndex, &error);
+    REPORTER_ASSERT(reporter, GrResourceAllocator::AssignError::kNoError == error);
 
     REPORTER_ASSERT(reporter, p1->priv().peekSurface());
     REPORTER_ASSERT(reporter, p2->priv().peekSurface());
@@ -92,7 +94,9 @@ static void non_overlap_test(skiatest::Reporter* reporter, GrResourceProvider* r
     alloc.markEndOfOpList(0);
 
     int startIndex, stopIndex;
-    alloc.assign(&startIndex, &stopIndex);
+    GrResourceAllocator::AssignError error;
+    alloc.assign(&startIndex, &stopIndex, &error);
+    REPORTER_ASSERT(reporter, GrResourceAllocator::AssignError::kNoError == error);
 
     REPORTER_ASSERT(reporter, p1->priv().peekSurface());
     REPORTER_ASSERT(reporter, p2->priv().peekSurface());

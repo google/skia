@@ -61,6 +61,8 @@ public:
     SkDEBUGCODE(int numOps() const override { return fRecordedOps.count(); })
 
 private:
+    void purgeUninstantiatedProxies() override;
+
     void gatherProxyIntervals(GrResourceAllocator*) const override;
 
     void recordOp(std::unique_ptr<GrOp>);
