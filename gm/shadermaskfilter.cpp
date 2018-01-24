@@ -7,16 +7,21 @@
 
 #include "gm.h"
 #include "sk_tool_utils.h"
+#include "SkBlurMaskFilter.h"
 #include "SkCanvas.h"
 #include "SkImage.h"
 #include "SkShaderMaskFilter.h"
 
 static void draw_masked_image(SkCanvas* canvas, const SkImage* image, SkScalar x, SkScalar y,
-                              const SkImage* mask) {
+                              const SkImage* mask, sk_sp<SkMaskFilter> outer = nullptr) {
     SkMatrix matrix = SkMatrix::MakeScale(SkIntToScalar(image->width()) / mask->width(),
                                           SkIntToScalar(image->height() / mask->height()));
     SkPaint paint;
-    paint.setMaskFilter(SkShaderMaskFilter::Make(mask->makeShader(&matrix)));
+    auto mf = SkShaderMaskFilter::Make(mask->makeShader(&matrix));
+    if (outer) {
+        mf = SkMaskFilter::MakeCompose(outer, mf);
+    }
+    paint.setMaskFilter(mf);
     canvas->drawImage(image, x, y, &paint);
 }
 
@@ -49,9 +54,13 @@ DEF_SIMPLE_GM(shadermaskfilter_image, canvas, 512, 512) {
 
     auto image = GetResourceAsImage("images/mandrill_128.png");
     auto mask = GetResourceAsImage("images/color_wheel.png");
+    auto blurmf = SkBlurMaskFilter::Make(kNormal_SkBlurStyle, 5);
 
     canvas->drawImage(image, 10, 10, nullptr);
     canvas->drawImage(mask, 10 + image->width() + 10.f, 10, nullptr);
 
     draw_masked_image(canvas, image.get(), 10, 10 + image->height() + 10.f, mask.get());
+    draw_masked_image(canvas, image.get(), 10 + image->width() + 10.f, 10 + image->height() + 10.f,
+                      mask.get(), blurmf);
 }
+
