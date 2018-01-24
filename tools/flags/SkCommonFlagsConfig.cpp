@@ -59,6 +59,7 @@ static const struct {
     { "glwide",                "gpu", "api=gl,color=f16_wide" },
     { "glnarrow",              "gpu", "api=gl,color=f16_narrow" },
     { "glnostencils",          "gpu", "api=gl,stencils=false" },
+    { "gles4444",              "gpu", "api=gles,color=4444" },
     { "glessrgb",              "gpu", "api=gles,color=srgb" },
     { "gleswide",              "gpu", "api=gles,color=f16_wide" },
     { "glesnarrow",            "gpu", "api=gles,color=f16_narrow" },
