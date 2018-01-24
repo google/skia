@@ -363,7 +363,7 @@
       "-i",
       "/cache/skia/resources",
       "--images",
-      "/cache/skia/resources/color_wheel.jpg",
+      "/cache/skia/resources/images/color_wheel.jpg",
       "--skps",
       "/cache/skia/skps",
       "--pre_log",

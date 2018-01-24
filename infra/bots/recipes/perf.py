@@ -264,7 +264,7 @@ def perf_steps(api):
     args.extend([
       '-i', api.flavor.device_dirs.resource_dir,
       '--images', api.flavor.device_path_join(
-          api.flavor.device_dirs.resource_dir, 'color_wheel.jpg'),
+          api.flavor.device_dirs.resource_dir, 'images', 'color_wheel.jpg'),
       '--skps',  api.flavor.device_dirs.skp_dir,
       '--pre_log',
       '--match', # skia:6687
