@@ -29,7 +29,7 @@ public:
     float t0() const { return fT0; }
     float t1() const { return fT1; }
 
-    bool isValid() const { return fT0 < fT1; }
+    bool isValid() const { return fT0 < fT1 || fHold; }
     bool contains(float t) const { return t >= fT0 && t <= fT1; }
 
 protected:
@@ -40,6 +40,8 @@ protected:
     // through the cubic (if applicable).
     float localT(float t) const;
 
+    bool isHold() const { return fHold; }
+
 private:
     // Initialized for non-linear interpolation.
     std::unique_ptr<SkCubicMap> fCubicMap;
@@ -47,6 +49,8 @@ private:
     // Start/end times.
     float                       fT0 = 0,
                                 fT1 = 0;
+
+    bool                        fHold = false;
 };
 
 // Describes a keyframe interpolation interval (v0@t0) -> (v1@t1).
@@ -56,10 +60,20 @@ public:
     bool parse(const Json::Value& k, KeyframeInterval* prev) {
         SkASSERT(k.isObject());
 
-        return this->INHERITED::parse(k, prev) &&
-            ValueTraits<T>::Parse(k["s"], &fV0) &&
-            ValueTraits<T>::Parse(k["e"], &fV1) &&
-            ValueTraits<T>::Cardinality(fV0) == ValueTraits<T>::Cardinality(fV1) &&
+        if (!this->INHERITED::parse(k, prev) ||
+            !ValueTraits<T>::Parse(k["s"], &fV0)) {
+            return false;
+        }
+
+        if (this->isHold()) {
+            // Hold v1 == v0.
+            fV1 = fV0;
+        } else if (!ValueTraits<T>::Parse(k["e"], &fV1)) {
+            return false;
+        }
+
+
+        return ValueTraits<T>::Cardinality(fV0) == ValueTraits<T>::Cardinality(fV1) &&
             (!prev || ValueTraits<T>::Cardinality(fV0) == ValueTraits<T>::Cardinality(prev->fV0));
     }
 

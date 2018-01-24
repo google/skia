@@ -48,16 +48,20 @@ bool KeyframeIntervalBase::parse(const Json::Value& k, KeyframeIntervalBase* pre
         prev->fT1 = fT0;
     }
 
-    // default is linear lerp
-    static constexpr SkPoint kDefaultC0 = { 0, 0 },
-                             kDefaultC1 = { 1, 1 };
-    const auto c0 = ParsePoint(k["i"], kDefaultC0),
-               c1 = ParsePoint(k["o"], kDefaultC1);
+    fHold = ParseBool(k["h"], false);
 
-    if (c0 != kDefaultC0 || c1 != kDefaultC1) {
-        fCubicMap = skstd::make_unique<SkCubicMap>();
-        // TODO: why do we have to plug these inverted?
-        fCubicMap->setPts(c1, c0);
+    if (!fHold) {
+        // default is linear lerp
+        static constexpr SkPoint kDefaultC0 = { 0, 0 },
+                                 kDefaultC1 = { 1, 1 };
+        const auto c0 = ParsePoint(k["i"], kDefaultC0),
+                   c1 = ParsePoint(k["o"], kDefaultC1);
+
+        if (c0 != kDefaultC0 || c1 != kDefaultC1) {
+            fCubicMap = skstd::make_unique<SkCubicMap>();
+            // TODO: why do we have to plug these inverted?
+            fCubicMap->setPts(c1, c0);
+        }
     }
 
     return true;
@@ -65,6 +69,12 @@ bool KeyframeIntervalBase::parse(const Json::Value& k, KeyframeIntervalBase* pre
 
 float KeyframeIntervalBase::localT(float t) const {
     SkASSERT(this->isValid());
+
+    // 'hold' pins to v0
+    if (fHold) {
+        return 0;
+    }
+
     auto lt = (t - fT0) / (fT1 - fT0);
 
     if (fCubicMap) {
