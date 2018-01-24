@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dfdae2d6_3dd6b280",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 3
+      },
+      "lineNbr": 365,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-01-24T14:45:02Z",
+      "side": 1,
+      "message": "I guess I know the answer, since you\u0027re making this change, but it\u0027s surprising to me that more cores helps much when we\u0027re using Goma; shouldn\u0027t Goma itself be doing most of the work?",
+      "range": {
+        "startLine": 365,
+        "startChar": 3,
+        "endLine": 365,
+        "endChar": 38
+      },
+      "revId": "09a02185682627f95af84026f92c75899e897caf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "88d030d6_4d5da6ce",
+        "filename": "infra/bots/recipe_modules/flavor/gn_flavor.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 256,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-01-24T14:45:02Z",
+      "side": 1,
+      "message": "This seems racy.  Can we do something like \"ps aux | grep goma\" in a loop until it exits?  We may have access to the pid somewhere since we started the subprocess.",
+      "range": {
+        "startLine": 256,
+        "startChar": 32,
+        "endLine": 256,
+        "endChar": 58
+      },
+      "revId": "09a02185682627f95af84026f92c75899e897caf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
