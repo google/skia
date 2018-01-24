@@ -69,19 +69,12 @@ bool KeyframeIntervalBase::parse(const Json::Value& k, KeyframeIntervalBase* pre
 
 float KeyframeIntervalBase::localT(float t) const {
     SkASSERT(this->isValid());
-
-    // 'hold' pins to v0
-    if (fHold) {
-        return 0;
-    }
+    SkASSERT(!this->isHold());
+    SkASSERT(t > fT0 && t < fT1);
 
     auto lt = (t - fT0) / (fT1 - fT0);
 
-    if (fCubicMap) {
-        lt = fCubicMap->computeYFromX(lt);
-    }
-
-    return SkTPin<float>(lt, 0, 1);
+    return fCubicMap ? fCubicMap->computeYFromX(lt) : lt;
 }
 
 template <>

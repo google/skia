@@ -65,21 +65,28 @@ public:
             return false;
         }
 
-        if (this->isHold()) {
-            // Hold v1 == v0.
-            fV1 = fV0;
-        } else if (!ValueTraits<T>::Parse(k["e"], &fV1)) {
+        if (!this->isHold() &&
+            (!ValueTraits<T>::Parse(k["e"], &fV1) ||
+             ValueTraits<T>::Cardinality(fV0) != ValueTraits<T>::Cardinality(fV1))) {
             return false;
         }
 
-
-        return ValueTraits<T>::Cardinality(fV0) == ValueTraits<T>::Cardinality(fV1) &&
-            (!prev || ValueTraits<T>::Cardinality(fV0) == ValueTraits<T>::Cardinality(prev->fV0));
+        return !prev || ValueTraits<T>::Cardinality(fV0) == ValueTraits<T>::Cardinality(prev->fV0);
     }
 
-    void lerp(float t, T*) const;
+    void eval(float t, T* v) const {
+        if (this->isHold() || t <= this->t0()) {
+            *v = fV0;
+        } else if (t >= this->t1()) {
+            *v = fV1;
+        } else {
+            this->lerp(t, v);
+        }
+    }
 
 private:
+    void lerp(float t, T*) const;
+
     // Start/end values.
     T fV0,
       fV1;
@@ -134,7 +141,7 @@ public:
         const auto& frame = this->findFrame(t);
 
         ValT val;
-        frame.lerp(t, &val);
+        frame.eval(t, &val);
 
         fFunc(fTarget.get(), val);
     }
