@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "606749b6_aa738755",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 3
+      },
+      "lineNbr": 365,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-01-24T22:17:24Z",
+      "side": 1,
+      "message": "Thanks for keeping me honest. It\u0027s difficult to tell whether more cores makes things faster using tryjobs because of Swarming and ninja caching. It seems like the difference between 16 cores and 64 cores is minimal, so I\u0027ve reverted this part of the CL.",
+      "parentUuid": "df7d7dff_40902f38",
+      "range": {
+        "startLine": 365,
+        "startChar": 3,
+        "endLine": 365,
+        "endChar": 38
+      },
+      "revId": "09a02185682627f95af84026f92c75899e897caf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "88d030d6_4d5da6ce",
         "filename": "infra/bots/recipe_modules/flavor/gn_flavor.py",
         "patchSetId": 3
@@ -69,6 +93,30 @@
       "revId": "09a02185682627f95af84026f92c75899e897caf",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "04c61de1_5f723fe6",
+        "filename": "infra/bots/recipe_modules/flavor/gn_flavor.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 256,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-01-24T22:17:24Z",
+      "side": 1,
+      "message": "Indeed, it\u0027s a hack. I updated the comment to point to the bug that was filed.\n\nI\u0027m hopeful that the bug will be addressed. If this were running on Linux, I definitely would do the \"ps aux | grep goma\" thing, but I have no idea how to do something like that on Windows and if the bug is fixed soon, it doesn\u0027t seem like a good use of time to get that working reliably.",
+      "parentUuid": "88d030d6_4d5da6ce",
+      "range": {
+        "startLine": 256,
+        "startChar": 32,
+        "endLine": 256,
+        "endChar": 58
+      },
+      "revId": "09a02185682627f95af84026f92c75899e897caf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
