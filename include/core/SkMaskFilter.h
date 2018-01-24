@@ -8,6 +8,7 @@
 #ifndef SkMaskFilter_DEFINED
 #define SkMaskFilter_DEFINED
 
+#include "SkBlendMode.h"
 #include "SkFlattenable.h"
 
 class SkString;
@@ -19,8 +20,24 @@ class SkString;
 */
 class SK_API SkMaskFilter : public SkFlattenable {
 public:
+    /**
+     *  Construct a maskfilter whose effect is to first apply the inner filter and then apply
+     *  the outer filter to the result of the inner's. Returns nullptr on failure.
+     */
+    static sk_sp<SkMaskFilter> MakeCompose(sk_sp<SkMaskFilter> outer, sk_sp<SkMaskFilter> inner);
+
+    /**
+     *  Compose two maskfilters together using a blendmode. Returns nullptr on failure.
+     */
+    static sk_sp<SkMaskFilter> MakeCombine(sk_sp<SkMaskFilter> dst, sk_sp<SkMaskFilter> src,
+                                           SkBlendMode);
+
     SK_TO_STRING_PUREVIRT()
     SK_DEFINE_FLATTENABLE_TYPE(SkMaskFilter)
+
+private:
+    static void InitializeFlattenables();
+    friend class SkFlattenable;
 };
 
 #endif
