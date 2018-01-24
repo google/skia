@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ecf19980_a901c3fc",
+        "filename": "src/core/SkMaskFilter.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 382,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-01-24T22:19:17Z",
+      "side": 1,
+      "message": "nit: I think these qualifiers are redundant for templates.",
+      "range": {
+        "startLine": 382,
+        "startChar": 22,
+        "endLine": 382,
+        "endChar": 35
+      },
+      "revId": "938888c977b9f2dc8dee9adcbde1f8775833dd45",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
