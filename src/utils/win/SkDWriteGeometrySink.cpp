@@ -6,7 +6,7 @@
  */
 
 #include "SkTypes.h"
-#if defined(SK_BUILD_FOR_WIN32)
+#if defined(SK_BUILD_FOR_WIN)
 
 #include "SkDWriteGeometrySink.h"
 #include "SkFloatUtils.h"
@@ -146,4 +146,4 @@ HRESULT SkDWriteGeometrySink::Create(SkPath* path, IDWriteGeometrySink** geometr
     return S_OK;
 }
 
-#endif//defined(SK_BUILD_FOR_WIN32)
+#endif//defined(SK_BUILD_FOR_WIN)

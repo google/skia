@@ -13,7 +13,7 @@
 #endif
 
 #if defined(SK_CPU_X86)
-    #if defined(SK_BUILD_FOR_WIN32)
+    #if defined(SK_BUILD_FOR_WIN)
         #include <intrin.h>
         static void cpuid (uint32_t abcd[4]) { __cpuid  ((int*)abcd, 1);    }
         static void cpuid7(uint32_t abcd[4]) { __cpuidex((int*)abcd, 7, 0); }

@@ -10,10 +10,6 @@
 #ifndef SkPostConfig_DEFINED
 #define SkPostConfig_DEFINED
 
-#if defined(SK_BUILD_FOR_WIN32)
-#  define SK_BUILD_FOR_WIN
-#endif
-
 #if !defined(SK_DEBUG) && !defined(SK_RELEASE)
     #ifdef NDEBUG
         #define SK_RELEASE
@@ -207,7 +203,7 @@
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-#if defined SK_DEBUG && defined SK_BUILD_FOR_WIN32
+#if defined SK_DEBUG && defined SK_BUILD_FOR_WIN
 #  ifdef free
 #    undef free
 #  endif

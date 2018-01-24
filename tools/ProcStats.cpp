@@ -19,7 +19,7 @@
         return static_cast<int>(ru.ru_maxrss / 1024);  // Linux reports kilobytes.
     #endif
     }
-#elif defined(SK_BUILD_FOR_WIN32)
+#elif defined(SK_BUILD_FOR_WIN)
     #include <windows.h>
     #include <psapi.h>
     int sk_tools::getMaxResidentSetSizeMB() {
@@ -59,7 +59,7 @@
         return rssPages * pageSize / 1024 / 1024;
     }
 
-#elif defined(SK_BUILD_FOR_WIN32)
+#elif defined(SK_BUILD_FOR_WIN)
     int sk_tools::getCurrResidentSetSizeMB() {
         PROCESS_MEMORY_COUNTERS info;
         GetProcessMemoryInfo(GetCurrentProcess(), &info, sizeof(info));

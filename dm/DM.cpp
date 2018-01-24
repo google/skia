@@ -56,7 +56,7 @@ extern void SkPDFImageDumpStats();
 
 #include <stdlib.h>
 
-#ifndef SK_BUILD_FOR_WIN32
+#ifndef SK_BUILD_FOR_WIN
     #include <unistd.h>
 #endif
 
@@ -212,7 +212,7 @@ static void find_culprit() {
     }
 }
 
-#if defined(SK_BUILD_FOR_WIN32)
+#if defined(SK_BUILD_FOR_WIN)
     static LONG WINAPI crash_handler(EXCEPTION_POINTERS* e) {
         static const struct {
             const char* name;
@@ -339,7 +339,7 @@ static void gather_gold() {
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-#if defined(SK_BUILD_FOR_WIN32)
+#if defined(SK_BUILD_FOR_WIN)
     static const char* kNewline = "\r\n";
 #else
     static const char* kNewline = "\n";

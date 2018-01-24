@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 #include "SkTypes.h"
-#if defined(SK_BUILD_FOR_WIN32)
+#if defined(SK_BUILD_FOR_WIN)
 
 #include "SkLeanWindows.h"
 
@@ -89,4 +89,4 @@ sk_sp<const GrGLInterface> GrGLMakeNativeInterface() {
 
 const GrGLInterface* GrGLCreateNativeInterface() { return GrGLMakeNativeInterface().release(); }
 
-#endif//defined(SK_BUILD_FOR_WIN32)
+#endif//defined(SK_BUILD_FOR_WIN)

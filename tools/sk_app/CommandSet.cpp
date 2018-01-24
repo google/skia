@@ -78,7 +78,7 @@ void CommandSet::addCommand(Window::Key k, const char* keyName, const char* grou
     fCommands.push_back(Command(k, keyName, group, description, function));
 }
 
-#if defined(SK_BUILD_FOR_WIN32)
+#if defined(SK_BUILD_FOR_WIN)
     #define SK_strcasecmp   _stricmp
 #else
     #define SK_strcasecmp   strcasecmp
