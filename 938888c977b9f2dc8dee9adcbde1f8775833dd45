@@ -46,6 +46,30 @@
       "revId": "938888c977b9f2dc8dee9adcbde1f8775833dd45",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "01b2678f_a9b0ef52",
+        "filename": "src/core/SkMaskFilter.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 382,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-01-24T22:34:41Z",
+      "side": 1,
+      "message": "Ok, I see how the general statement is incorrect, adjusting my grokage here:\n\n  * \u0027static\u0027 affects external visibility, iff the compiler decides to not inline\n  * \u0027inline\u0027 is a hint, but doesn\u0027t really guarantee inlining\n\nSince this is CU-local and we only instantiate once (per type), is it correct to reduce the statement to \"in this particular case, the qualifiers will make no difference\"?  Or is it still a stretch?\n\n(not arguing for dropping them anymore, just clarifying my understanding)",
+      "parentUuid": "66b62b54_c0d50e1e",
+      "range": {
+        "startLine": 382,
+        "startChar": 22,
+        "endLine": 382,
+        "endChar": 35
+      },
+      "revId": "938888c977b9f2dc8dee9adcbde1f8775833dd45",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
