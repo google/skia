@@ -29,6 +29,20 @@ const (
 	max_png = "max.png"
 )
 
+type slack struct {
+	gm    string
+	delta int
+}
+
+var slacks = []slack{
+	slack{"imagemagnifier", 1},
+	slack{"xfermodes", 1},
+	slack{"xfermodes2", 1},
+	slack{"xfermodes3", 1},
+	slack{"dashcircle", 1},
+	slack{"encode-srgb-jpg", 1},
+}
+
 type ExportTestRecordArray []search.ExportTestRecord
 
 func (a ExportTestRecordArray) Len() int           { return len(a) }
@@ -84,6 +98,28 @@ func processTest(testName string, imgUrls []string, output string) error {
 	if img_max.Rect.Max.X == 0 {
 		return nil
 	}
+	for _, s := range slacks {
+		if s.gm == testName {
+			for i, v := range img_min.Pix {
+				value := int(v) - s.delta
+				if value < 0 {
+					img_min.Pix[i] = 0
+				} else {
+					img_min.Pix[i] = uint8(value)
+				}
+			}
+			for i, v := range img_max.Pix {
+				value := int(v) + s.delta
+				if value > 255 {
+					img_max.Pix[i] = 255
+				} else {
+					img_max.Pix[i] = uint8(value)
+				}
+			}
+			break
+		}
+	}
+
 	if err := os.Mkdir(output_directory, os.ModePerm); err != nil && !os.IsExist(err) {
 		return err
 	}
