@@ -29,6 +29,15 @@ const (
 	max_png = "max.png"
 )
 
+var slacks = map[string]int{
+	"imagemagnifier":  1,
+	"xfermodes":       1,
+	"xfermodes2":      1,
+	"xfermodes3":      1,
+	"dashcircle":      1,
+	"encode-srgb-jpg": 1,
+}
+
 type ExportTestRecordArray []search.ExportTestRecord
 
 func (a ExportTestRecordArray) Len() int           { return len(a) }
@@ -42,6 +51,15 @@ func in(v string, a []string) bool {
 		}
 	}
 	return false
+}
+
+func clampU8(v int) uint8 {
+	if v < 0 {
+		return 0
+	} else if v > 255 {
+		return 255
+	}
+	return uint8(v)
 }
 
 func processTest(testName string, imgUrls []string, output string) error {
@@ -84,6 +102,15 @@ func processTest(testName string, imgUrls []string, output string) error {
 	if img_max.Rect.Max.X == 0 {
 		return nil
 	}
+	if delta, ok := slacks[testName]; ok {
+		for i, v := range img_min.Pix {
+			img_min.Pix[i] = clampU8(int(v) - delta)
+		}
+		for i, v := range img_max.Pix {
+			img_max.Pix[i] = clampU8(int(v) + delta)
+		}
+	}
+
 	if err := os.Mkdir(output_directory, os.ModePerm); err != nil && !os.IsExist(err) {
 		return err
 	}
