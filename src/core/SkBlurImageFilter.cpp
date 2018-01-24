@@ -122,6 +122,10 @@ sk_sp<SkFlattenable> SkBlurImageFilterImpl::CreateProc(SkReadBuffer& buffer) {
 
     static_assert(SkBlurImageFilter::kLast_TileMode == 2, "CreateProc");
 
+    if (!buffer.validate(safe)) {
+        return nullptr;
+    }
+
     return SkBlurImageFilter::Make(
           sigmaX, sigmaY, common.getInput(0), &common.cropRect(), tileMode);
 }

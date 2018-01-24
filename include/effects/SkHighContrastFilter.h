@@ -21,6 +21,8 @@ struct SkHighContrastConfig {
         kNoInvert,
         kInvertBrightness,
         kInvertLightness,
+
+        kLast = kInvertLightness
     };
 
     SkHighContrastConfig() {
