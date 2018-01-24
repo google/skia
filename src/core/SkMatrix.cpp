@@ -1655,10 +1655,8 @@ size_t SkMatrix::readFromMemory(const void* buffer, size_t length) {
     if (length < sizeInMemory) {
         return 0;
     }
-    if (buffer) {
-        memcpy(fMat, buffer, sizeInMemory);
-        this->setTypeMask(kUnknown_Mask);
-    }
+    memcpy(fMat, buffer, sizeInMemory);
+    this->setTypeMask(kUnknown_Mask);
     return sizeInMemory;
 }
 
