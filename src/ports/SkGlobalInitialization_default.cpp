@@ -61,6 +61,7 @@
  */
 void SkFlattenable::PrivateInitializer::InitEffects() {
     // MaskFilter
+    SkMaskFilter::InitializeFlattenables();
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkEmbossMaskFilter)
     SkBlurMaskFilter::InitializeFlattenables();
     SkRRectsGaussianEdgeMaskFilter::InitializeFlattenables();

@@ -14,6 +14,9 @@
 #include "SkPath.h"
 #include "SkRRect.h"
 #include "SkRasterClip.h"
+#include "SkReadBuffer.h"
+#include "SkSafeRange.h"
+#include "SkWriteBuffer.h"
 
 #if SK_SUPPORT_GPU
 #include "GrTextureProxy.h"
@@ -373,3 +376,256 @@ void SkMaskFilterBase::computeFastBounds(const SkRect& src, SkRect* dst) const {
         dst->set(srcM.fBounds);
     }
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+template <typename T> static inline T join(const T& a, const T& b) {
+    T r = a;
+    r.join(b);
+    return r;
+}
+
+class SkComposeMF : public SkMaskFilterBase {
+public:
+    SkComposeMF(sk_sp<SkMaskFilter> outer, sk_sp<SkMaskFilter> inner)
+        : fOuter(std::move(outer))
+        , fInner(std::move(inner))
+    {
+        SkASSERT(as_MFB(fOuter)->getFormat() == SkMask::kA8_Format);
+        SkASSERT(as_MFB(fInner)->getFormat() == SkMask::kA8_Format);
+    }
+
+    bool filterMask(SkMask* dst, const SkMask& src, const SkMatrix&, SkIPoint*) const override;
+
+    void computeFastBounds(const SkRect& src, SkRect* dst) const override {
+        SkRect tmp;
+        as_MFB(fInner)->computeFastBounds(src, &tmp);
+        as_MFB(fOuter)->computeFastBounds(tmp, dst);
+    }
+
+    SkMask::Format getFormat() const override { return SkMask::kA8_Format; }
+    SK_TO_STRING_OVERRIDE()
+    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkComposeMF)
+
+private:
+    sk_sp<SkMaskFilter> fOuter;
+    sk_sp<SkMaskFilter> fInner;
+
+    void flatten(SkWriteBuffer&) const override;
+
+    friend class SkMaskFilter;
+
+    typedef SkMaskFilterBase INHERITED;
+};
+
+bool SkComposeMF::filterMask(SkMask* dst, const SkMask& src, const SkMatrix& ctm,
+                             SkIPoint* margin) const {
+    SkIPoint innerMargin;
+    SkMask innerMask;
+
+    if (!as_MFB(fInner)->filterMask(&innerMask, src, ctm, &innerMargin)) {
+        return false;
+    }
+    if (!as_MFB(fOuter)->filterMask(dst, innerMask, ctm, margin)) {
+        return false;
+    }
+    if (margin) {
+        margin->fX += innerMargin.fX;
+        margin->fY += innerMargin.fY;
+    }
+    sk_free(innerMask.fImage);
+    return true;
+}
+
+void SkComposeMF::flatten(SkWriteBuffer & buffer) const {
+    buffer.writeFlattenable(fOuter.get());
+    buffer.writeFlattenable(fInner.get());
+}
+
+sk_sp<SkFlattenable> SkComposeMF::CreateProc(SkReadBuffer& buffer) {
+    auto outer = buffer.readMaskFilter();
+    auto inner = buffer.readMaskFilter();
+    if (!buffer.validate(outer && inner)) {
+        return nullptr;
+    }
+    return SkMaskFilter::MakeCompose(std::move(outer), std::move(inner));
+}
+
+#ifndef SK_IGNORE_TO_STRING
+void SkComposeMF::toString(SkString* str) const {
+    str->set("SkComposeMF:");
+}
+#endif
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+class SkCombineMF : public SkMaskFilterBase {
+public:
+
+    SkCombineMF(sk_sp<SkMaskFilter> dst, sk_sp<SkMaskFilter> src, SkBlendMode mode)
+        : fDst(std::move(dst))
+        , fSrc(std::move(src))
+        , fMode(mode)
+    {
+        SkASSERT(as_MFB(fSrc)->getFormat() == SkMask::kA8_Format);
+        SkASSERT(as_MFB(fDst)->getFormat() == SkMask::kA8_Format);
+    }
+
+    bool filterMask(SkMask* dst, const SkMask& src, const SkMatrix&, SkIPoint*) const override;
+
+    void computeFastBounds(const SkRect& src, SkRect* dst) const override {
+        SkRect srcR, dstR;
+        as_MFB(fSrc)->computeFastBounds(src, &srcR);
+        as_MFB(fDst)->computeFastBounds(src, &dstR);
+        *dst = join(srcR, dstR);
+    }
+
+    SkMask::Format getFormat() const override { return SkMask::kA8_Format; }
+    SK_TO_STRING_OVERRIDE()
+    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkCombineMF)
+
+private:
+    sk_sp<SkMaskFilter> fDst;
+    sk_sp<SkMaskFilter> fSrc;
+    const SkBlendMode   fMode;
+
+    void flatten(SkWriteBuffer&) const override;
+
+    friend class SkMaskFilter;
+
+    typedef SkMaskFilterBase INHERITED;
+};
+
+#include "SkSafeMath.h"
+
+class DrawIntoMask : public SkDraw {
+    SkMatrix        fMatrixStorage;
+    SkRasterClip    fRCStorage;
+    SkIPoint        fOffset;
+
+public:
+    DrawIntoMask(SkMask* mask) {
+        int w = mask->fBounds.width();
+        int h = mask->fBounds.height();
+        size_t size = SkSafeMath::Mul(w, h);
+        mask->fFormat = SkMask::kA8_Format;
+        mask->fImage = SkMask::AllocImage(size, SkMask::kZeroInit_Alloc);
+        mask->fRowBytes = w;
+
+        SkAssertResult(fDst.reset(*mask));
+
+        fMatrixStorage.reset();
+        fMatrix = &fMatrixStorage;
+
+        fRCStorage.setRect({ 0, 0, w, h });
+        fRC = &fRCStorage;
+
+        fOffset.set(mask->fBounds.left(), mask->fBounds.top());
+    }
+
+    void drawMaskAsImage(const SkMask& m, const SkPaint& p) {
+        SkBitmap bm;
+        bm.installMaskPixels(m);
+        this->drawSprite(bm, m.fBounds.left() - fOffset.x(), m.fBounds.top() - fOffset.y(), p);
+    }
+};
+
+bool SkCombineMF::filterMask(SkMask* dst, const SkMask& src, const SkMatrix& ctm,
+                             SkIPoint* margin) const {
+    SkIPoint srcP, dstP;
+    SkMask srcM, dstM;
+
+    if (!as_MFB(fSrc)->filterMask(&srcM, src, ctm, &srcP)) {
+        return false;
+    }
+    if (!as_MFB(fDst)->filterMask(&dstM, src, ctm, &dstP)) {
+        return false;
+    }
+
+    dst->fBounds = join(srcM.fBounds, dstM.fBounds);
+    dst->fFormat = SkMask::kA8_Format;
+    if (src.fImage == nullptr) {
+        dst->fImage = nullptr;
+        return true;
+    }
+
+    DrawIntoMask md(dst);
+    SkPaint      p;
+
+    p.setBlendMode(SkBlendMode::kSrc);
+    md.drawMaskAsImage(dstM, p);
+    p.setBlendMode(fMode);
+    md.drawMaskAsImage(srcM, p);
+
+    sk_free(srcM.fImage);
+    sk_free(dstM.fImage);
+    return true;
+}
+
+void SkCombineMF::flatten(SkWriteBuffer & buffer) const {
+    buffer.writeFlattenable(fDst.get());
+    buffer.writeFlattenable(fSrc.get());
+    buffer.write32(static_cast<uint32_t>(fMode));
+}
+
+sk_sp<SkFlattenable> SkCombineMF::CreateProc(SkReadBuffer& buffer) {
+    SkSafeRange safe;
+    auto dst = buffer.readMaskFilter();
+    auto src = buffer.readMaskFilter();
+    SkBlendMode mode = safe.checkLE(buffer.read32(), SkBlendMode::kLastMode);
+    if (!buffer.validate(dst && src && safe)) {
+        return nullptr;
+    }
+    return SkMaskFilter::MakeCombine(std::move(dst), std::move(src), mode);
+}
+
+#ifndef SK_IGNORE_TO_STRING
+void SkCombineMF::toString(SkString* str) const {
+    str->set("SkCombineMF:");
+}
+#endif
+
+////////////////////////////////////////
+
+sk_sp<SkMaskFilter> SkMaskFilter::MakeCompose(sk_sp<SkMaskFilter> outer, sk_sp<SkMaskFilter> inner) {
+    if (!outer) {
+        return inner;
+    }
+    if (!inner) {
+        return outer;
+    }
+    if (as_MFB(inner)->getFormat() != SkMask::kA8_Format ||
+        as_MFB(outer)->getFormat() != SkMask::kA8_Format) {
+        return nullptr;
+    }
+    return sk_sp<SkMaskFilter>(new SkComposeMF(std::move(outer), std::move(inner)));
+}
+
+sk_sp<SkMaskFilter> SkMaskFilter::MakeCombine(sk_sp<SkMaskFilter> dst, sk_sp<SkMaskFilter> src,
+                                              SkBlendMode mode) {
+    if (mode == SkBlendMode::kClear) {
+      //  return sk_sp<SkMaskFilter>(new ClearMF);
+    }
+    if (!dst || mode == SkBlendMode::kSrc || mode == SkBlendMode::kDstATop) {
+        return src;
+    }
+    if (!src || mode == SkBlendMode::kDst || mode == SkBlendMode::kSrcATop) {
+        return dst;
+    }
+    // This step isn't really needed, but it documents that we don't need any modes after kModulate
+    if (mode > SkBlendMode::kModulate) {
+        mode = SkBlendMode::kSrcOver;
+    }
+
+    if (as_MFB(dst)->getFormat() != SkMask::kA8_Format ||
+        as_MFB(src)->getFormat() != SkMask::kA8_Format) {
+        return nullptr;
+    }
+    return sk_sp<SkMaskFilter>(new SkCombineMF(std::move(dst), std::move(src), mode));
+}
+
+void SkMaskFilter::InitializeFlattenables() {
+    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkComposeMF)
+    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkCombineMF)
+}
+
