@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "df7d7dff_40902f38",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 3
+      },
+      "lineNbr": 365,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-01-24T14:51:00Z",
+      "side": 1,
+      "message": "Yeah, but it also helps to have lots of cores to spin out the work to Goma.",
+      "parentUuid": "dfdae2d6_3dd6b280",
+      "range": {
+        "startLine": 365,
+        "startChar": 3,
+        "endLine": 365,
+        "endChar": 38
+      },
+      "revId": "09a02185682627f95af84026f92c75899e897caf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "88d030d6_4d5da6ce",
         "filename": "infra/bots/recipe_modules/flavor/gn_flavor.py",
         "patchSetId": 3
