@@ -45,7 +45,7 @@ enum SkAlphaType {
      */
     kUnpremul_SkAlphaType,
 
-    kLastEnum_SkAlphaType = kUnpremul_SkAlphaType
+    kLastEnum_SkAlphaType = kUnpremul_SkAlphaType,
 };
 
 static inline bool SkAlphaTypeIsOpaque(SkAlphaType at) {
@@ -82,7 +82,7 @@ enum SkColorType {
 #elif SK_PMCOLOR_BYTE_ORDER(R,G,B,A)
     kN32_SkColorType = kRGBA_8888_SkColorType,
 #else
-    #error "SK_*32_SHFIT values must correspond to BGRA or RGBA byte order"
+    #error "SK_*32_SHIFT values must correspond to BGRA or RGBA byte order"
 #endif
 };
 
@@ -161,7 +161,7 @@ enum SkYUVColorSpace {
        range. See http://en.wikipedia.org/wiki/Rec._709 for details. */
     kRec709_SkYUVColorSpace,
 
-    kLastEnum_SkYUVColorSpace = kRec709_SkYUVColorSpace
+    kLastEnum_SkYUVColorSpace = kRec709_SkYUVColorSpace,
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -297,8 +297,8 @@ public:
         return !(*this == other);
     }
 
-    void unflatten(SkReadBuffer&);
-    void flatten(SkWriteBuffer&) const;
+    void unflatten(SkReadBuffer& buffer);
+    void flatten(SkWriteBuffer& buffer) const;
 
     /**
      *  Returns the size (in bytes) of the image buffer that this info needs, given the specified
