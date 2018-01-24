@@ -32,11 +32,11 @@ SkIPoint16 Reference
 
 <a name="SkIPoint16_fX"> <code><strong>int16_t  fX</strong></code> </a>
 
-<a href="#SkIPoint16_x">x</a>-axis value used by <a href="#IPoint16">IPoint16</a>
+x-axis value used by <a href="#IPoint16">IPoint16</a>
 
 <a name="SkIPoint16_fY"> <code><strong>int16_t  fY</strong></code> </a>
 
-<a href="#SkIPoint16_y">y</a>-axis value used by <a href="#IPoint16">IPoint16</a>
+y-axis value used by <a href="#IPoint16">IPoint16</a>
 
 <a name="SkIPoint16_Make"></a>
 ## Make
@@ -45,21 +45,21 @@ SkIPoint16 Reference
 static constexpr SkIPoint16 Make(int x, int y)
 </pre>
 
-Sets <a href="#SkIPoint16_fX">fX</a> to <a href="#SkIPoint16_x">x</a>, <a href="#SkIPoint16_fY">fY</a> to <a href="#SkIPoint16_y">y</a>. If SK_DEBUG is defined, asserts
-if <a href="#SkIPoint16_x">x</a> or <a href="#SkIPoint16_y">y</a> does not fit in 16 bits.
+Sets <a href="#SkIPoint16_fX">fX</a> to x, <a href="#SkIPoint16_fY">fY</a> to y. If SK_DEBUG is defined, asserts
+if x or y does not fit in 16 bits.
 
 ### Parameters
 
 <table>  <tr>    <td><a name="SkIPoint16_Make_x"> <code><strong>x </strong></code> </a></td> <td>
-integer <a href="#SkIPoint16_x">x</a>-axis value of constructed <a href="SkIPoint_Reference#IPoint">IPoint</a></td>
+integer x-axis value of constructed <a href="SkIPoint_Reference#IPoint">IPoint</a></td>
   </tr>  <tr>    <td><a name="SkIPoint16_Make_y"> <code><strong>y </strong></code> </a></td> <td>
-integer <a href="#SkIPoint16_y">y</a>-axis value of constructed <a href="SkIPoint_Reference#IPoint">IPoint</a></td>
+integer y-axis value of constructed <a href="SkIPoint_Reference#IPoint">IPoint</a></td>
   </tr>
 </table>
 
 ### Return Value
 
-<a href="#IPoint16">IPoint16</a> (<a href="#SkIPoint16_x">x</a>, <a href="#SkIPoint16_y">y</a>)
+<a href="#IPoint16">IPoint16</a> (x, y)
 
 ### Example
 
@@ -76,7 +76,7 @@ pt1.fY == pt2.fY
 
 ### See Also
 
-<a href="#SkIPoint16_set">set</a> <a href="#SkPoint_iset">SkPoint::iset()</a> <a href="#SkIPoint_Make">SkIPoint::Make</a>
+<a href="#SkIPoint16_set">set</a> <a href="#SkPoint_iset">SkPoint::iset()</a><sup><a href="#SkPoint_iset_2">[2]</a></sup> <a href="#SkIPoint_Make">SkIPoint::Make</a>
 
 ---
 
@@ -87,7 +87,7 @@ pt1.fY == pt2.fY
 int16_t x() const
 </pre>
 
-Returns <a href="#SkIPoint16_x">x</a>-axis value of <a href="#IPoint16">IPoint16</a>.
+Returns x-axis value of <a href="#IPoint16">IPoint16</a>.
 
 ### Return Value
 
@@ -118,7 +118,7 @@ pt1.fX == pt1.x()
 int16_t y() const
 </pre>
 
-Returns <a href="#SkIPoint16_y">y</a>-axis value of <a href="SkIPoint_Reference#IPoint">IPoint</a>.
+Returns y-axis value of <a href="SkIPoint_Reference#IPoint">IPoint</a>.
 
 ### Return Value
 
@@ -149,7 +149,7 @@ pt1.fY == pt1.y()
 void set(int x, int y)
 </pre>
 
-Sets <a href="#SkIPoint16_fX">fX</a> to <a href="#SkIPoint16_x">x</a> and <a href="#SkIPoint16_fY">fY</a> to <a href="#SkIPoint16_y">y</a>.
+Sets <a href="#SkIPoint16_fX">fX</a> to x and <a href="#SkIPoint16_fY">fY</a> to y.
 
 ### Parameters
 
