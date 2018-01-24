@@ -192,7 +192,7 @@ with open(sys.argv[1], 'w') as f:
         # ANGLE uses case-insensitive include paths in D3D code. Not sure why
         # only Goma warns about this.
         extra_cflags.append('-Wno-nonportable-include-path')
-      ninja_args.extend(['-j', '100'])
+      ninja_args.extend(['-j', '2000'])
 
     sanitize = ''
     for t in extra_tokens:
@@ -247,6 +247,14 @@ with open(sys.argv[1], 'w') as f:
                      abort_on_failure=False, fail_build_on_failure=False)
           self.m.run(self.m.python, 'stop goma',
                      script='goma_ctl.py', args=['stop'], infra_step=True,
+                     abort_on_failure=False, fail_build_on_failure=False)
+          # Hack: goma_ctl stop is asynchronous, so the process often does not
+          # stop before the recipe exits, which causes Swarming to freak out.
+          # Wait a couple seconds for it to exit normally.
+          # TODO(dogben): Remove after internal b/72128121 is resolved.
+          self.m.run(self.m.python.inline, 'wait for goma_ctl stop',
+                     program="""import time; time.sleep(2)""",
+                     infra_step=True,
                      abort_on_failure=False, fail_build_on_failure=False)
 
   def copy_extra_build_products(self, swarming_out_dir):
