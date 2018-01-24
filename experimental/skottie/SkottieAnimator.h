@@ -13,10 +13,11 @@
 #include "SkottiePriv.h"
 #include "SkottieProperties.h"
 #include "SkSGScene.h"
+#include "SkTArray.h"
 #include "SkTypes.h"
 
+#include <functional>
 #include <memory>
-#include <vector>
 
 namespace skottie {
 
@@ -94,12 +95,17 @@ private:
     using INHERITED = KeyframeIntervalBase;
 };
 
+// Binds an animated/keyframed property to a node attribute setter.
 template <typename T>
-std::vector<KeyframeInterval<T>> ParseFrames(const Json::Value& jframes) {
-    std::vector<KeyframeInterval<T>> frames;
+class Animator final : public sksg::Animator {
+public:
+    using ApplyFuncT = std::function<void(const T&)>;
 
-    if (jframes.isArray()) {
-        frames.reserve(jframes.size());
+    static std::unique_ptr<Animator> Make(const Json::Value& jframes, ApplyFuncT&& applyFunc) {
+        if (!jframes.isArray())
+            return nullptr;
+
+        SkTArray<KeyframeInterval<T>, true> frames(jframes.size());
 
         KeyframeInterval<T>* prev_frame = nullptr;
         for (const auto& jframe : jframes) {
@@ -112,56 +118,39 @@ std::vector<KeyframeInterval<T>> ParseFrames(const Json::Value& jframes) {
                 prev_frame = &frames.back();
             }
         }
-    }
 
-    // If we couldn't determine a t1 for the last frame, discard it.
-    if (!frames.empty() && !frames.back().isValid()) {
-        frames.pop_back();
-    }
+        // If we couldn't determine a t1 for the last frame, discard it.
+        if (!frames.empty() && !frames.back().isValid()) {
+            frames.pop_back();
+        }
 
-    return frames;
-}
-
-// Binds an animated/keyframed property to a node attribute setter.
-template <typename ValT, typename NodeT>
-class Animator final : public sksg::Animator {
-public:
-    using ApplyFuncT = void(*)(NodeT*, const ValT&);
-    static std::unique_ptr<Animator> Make(std::vector<KeyframeInterval<ValT>>&& frames,
-                                          sk_sp<NodeT> node,
-                                          ApplyFuncT&& applyFunc) {
-        return (node && !frames.empty())
-            ? std::unique_ptr<Animator>(new Animator(std::move(frames),
-                                                     std::move(node),
-                                                     std::move(applyFunc)))
-            : nullptr;
+        return frames.empty()
+            ? nullptr
+            : std::unique_ptr<Animator>(new Animator(std::move(frames), std::move(applyFunc)));
     }
 
     void onTick(float t) override {
         const auto& frame = this->findFrame(t);
 
-        ValT val;
+        T val;
         frame.eval(t, &val);
 
-        fFunc(fTarget.get(), val);
+        fFunc(val);
     }
 
 private:
-    Animator(std::vector<KeyframeInterval<ValT>>&& frames, sk_sp<NodeT> node,
-             ApplyFuncT&& applyFunc)
+    Animator(SkTArray<KeyframeInterval<T>, true>&& frames, ApplyFuncT&& applyFunc)
         : fFrames(std::move(frames))
-        , fTarget(std::move(node))
         , fFunc(std::move(applyFunc)) {}
 
-    const KeyframeInterval<ValT>& findFrame(float t) const;
+    const KeyframeInterval<T>& findFrame(float t) const;
 
-    const std::vector<KeyframeInterval<ValT>> fFrames;
-    sk_sp<NodeT>                              fTarget;
-    ApplyFuncT                                fFunc;
+    const SkTArray<KeyframeInterval<T>, true> fFrames;
+    const ApplyFuncT                             fFunc;
 };
 
-template <typename ValT, typename NodeT>
-const KeyframeInterval<ValT>& Animator<ValT, NodeT>::findFrame(float t) const {
+template <typename T>
+const KeyframeInterval<T>& Animator<T>::findFrame(float t) const {
     SkASSERT(!fFrames.empty());
 
     // TODO: cache last/current frame?
