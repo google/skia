@@ -10,9 +10,12 @@ Key features:
 
 * Baselines are managed in Gold outside of Git, but in lockstep with Git commits.
 * Each commit creates >500k images.
-* Deviations from the baseline are triaged after a CL lands and images are triaged
-  as either `positive` or `negative`. If a CL causes Skia to break it is reverted
-  or an additional CL is landed to fix the problem.
+* Deviations from the baseline are triaged after a CL lands and images are
+  triaged as either `positive` or `negative`.  'Positive' means the diff is
+  considered acceptable.  'Negative' means the diff is considered unacceptable
+  and requires a fix.
+  If a CL causes Skia to break it is reverted or an additional CL is landed to
+  fix the problem.
 * We test across a range of dimensions, e.g.:
 
   - OS (Windows, Linux, Mac, Android, iOS)
