@@ -70,6 +70,30 @@
       "revId": "938888c977b9f2dc8dee9adcbde1f8775833dd45",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "87a88d5f_9d0ec64b",
+        "filename": "src/core/SkMaskFilter.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 382,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-01-24T22:44:03Z",
+      "side": 1,
+      "message": "Yeah, static affects visibility.  It means the same things for templates and not.  Template specializations inherit their base template\u0027s externality, so if we were to write\n\n  template \u003c\u003e inline SkRect join(const SkRect\u0026 a, const SkRect\u0026 b) { ... }\n\nit\u0027d also be static.  I usually write /*static*/ to remind us that it\u0027s inherited.  It\u0027s weird.\n\ninline doesn\u0027t have anything to do with inlining, sadly.  It means only \"if you see two copies of this function, take either one instead of failing\".  That\u0027s what generally makes it possible to put implementations of functions in headers.  Inlining can happen any time a compiler can see the definition of a function.\n\nNon-fully-resolved templates like this are inline implicitly, but their specializations are not.  These are the same,\n\n  template \u003ctypename T\u003e static        T foo() { ... }\n  template \u003ctypename T\u003e static inline T foo() { ... }\n\nbut these are different,\n\n  template \u003c\u003e static        int foo() { ... }\n  template \u003c\u003e static inline int foo() { ... }\n\nso it\u0027s really least confusing to always write inline, always write static.  In this case, inline is redundant, both because it\u0027s in a .cpp file and because there are no specializations.  But those are both constraints that are easy to change, and if you write static inline this will continue to be safe no matter where it\u0027s moved or what specializations appear later.",
+      "parentUuid": "01b2678f_a9b0ef52",
+      "range": {
+        "startLine": 382,
+        "startChar": 22,
+        "endLine": 382,
+        "endChar": 35
+      },
+      "revId": "938888c977b9f2dc8dee9adcbde1f8775833dd45",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
