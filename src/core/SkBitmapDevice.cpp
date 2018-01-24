@@ -50,6 +50,8 @@ static bool valid_for_bitmap_device(const SkImageInfo& info,
         case kRGB_565_SkColorType:
             canonicalAlphaType = kOpaque_SkAlphaType;
             break;
+        case kARGB_4444_SkColorType:
+            break;
         case kN32_SkColorType:
             break;
         case kRGBA_F16_SkColorType:
