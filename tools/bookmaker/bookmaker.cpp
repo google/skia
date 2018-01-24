@@ -1598,6 +1598,9 @@ int main(int argc, char** const argv) {
     }
     bmhParser.reset();
     if (!FLAGS_bmh.isEmpty()) {
+        if (FLAGS_tokens)  {
+            IncludeParser::RemoveFile(FLAGS_bmh[0], FLAGS_include[0]);
+        }
         if (!bmhParser.parseFile(FLAGS_bmh[0], ".bmh")) {
             return -1;
         }
