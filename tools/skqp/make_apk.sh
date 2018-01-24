@@ -33,7 +33,7 @@ cd "$(dirname "$0")/../.."
 
 BUILD=out/skqp-${ARCH}
 
-tools/skqp/generate_gn_args.sh $BUILD "$ANDROID_NDK" $ARCH
+python tools/skqp/generate_gn_args $BUILD "$ANDROID_NDK" $ARCH
 
 GIT_SYNC_DEPS_QUIET=Y tools/git-sync-deps
 

@@ -1,0 +1,39 @@
+#! /usr/bin/env python
+
+# Copyright 2018 Google Inc.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+import os
+import sys
+
+fmt = '''ndk = "{ndk}"
+ndk_api = 26
+target_cpu = "{arch}"
+skia_embed_resources = true
+is_debug = false
+skia_enable_pdf = false
+'''
+
+def make_args_gn(out_dir, ndk, arch):
+    if not os.path.exists(out_dir):
+        os.makedirs(out_dir)
+    with open(os.path.join(out_dir, 'args.gn'), 'w') as o:
+        o.write(fmt.format(ndk=os.path.abspath(ndk), arch=arch))
+
+def usage():
+    sys.stderr.write(
+            'Usage:\n' +
+            '  {} TARGET_BUILD_DIR ANDROID_NDK_DIR ARCHITECTURE\n\n'.format(sys.argv[0]) +
+            'ARCHITECTURE should be "arm" "arm64" "x86" or "x64"\n\n')
+    exit(1)
+
+if __name__ == '__main__':
+    if len(sys.argv) != 4:
+        usage()
+    build, android_ndk, arch = sys.argv[1:4]
+    if len(build) == 0 or len(arch) == 0 or not os.path.isdir(android_ndk):
+        usage()
+    make_args_gn(build, android_ndk, arch)
+
+
