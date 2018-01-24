@@ -48,7 +48,7 @@ call <a href="#SkCanvas_save">SkCanvas::save()</a></td>
 
 ### Return Value
 
-utility to <a href="#SkAutoCanvasRestore_restore">restore</a> <a href="SkCanvas_Reference#Canvas">Canvas</a> state on destructor
+utility to restore <a href="SkCanvas_Reference#Canvas">Canvas</a> state on destructor
 
 ### Example
 
