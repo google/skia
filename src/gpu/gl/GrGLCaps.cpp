@@ -2374,7 +2374,8 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
 
     // Non-coherent advanced blend has an issue on NVIDIA pre 337.00.
     if (kNVIDIA_GrGLDriver == ctxInfo.driver() &&
-        ctxInfo.driverVersion() < GR_GL_DRIVER_VER(337,00)) {
+        ctxInfo.driverVersion() < GR_GL_DRIVER_VER(337,00) &&
+        kAdvanced_BlendEquationSupport == fBlendEquationSupport) {
         fBlendEquationSupport = kBasic_BlendEquationSupport;
         shaderCaps->fAdvBlendEqInteraction = GrShaderCaps::kNotSupported_AdvBlendEqInteraction;
     }
