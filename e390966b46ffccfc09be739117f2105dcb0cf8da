@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "411ce38b_8ea33c25",
+        "filename": "src/core/SkDescriptor.h",
+        "patchSetId": 24
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-24T21:38:48Z",
+      "side": 1,
+      "message": "??",
+      "revId": "e390966b46ffccfc09be739117f2105dcb0cf8da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "772e1078_81a5c30e",
+        "filename": "src/core/SkTypeface_remote.h",
+        "patchSetId": 24
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-24T21:38:48Z",
+      "side": 1,
+      "message": "mv to remote_demo?",
+      "revId": "e390966b46ffccfc09be739117f2105dcb0cf8da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
