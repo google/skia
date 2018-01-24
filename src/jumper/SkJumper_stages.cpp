@@ -866,7 +866,7 @@ SI void from_8888(U32 _8888, F* r, F* g, F* b, F* a) {
 
 // Used by load_ and store_ stages to get to the right (dx,dy) starting point of contiguous memory.
 template <typename T>
-SI T* ptr_at_xy(const SkJumper_MemoryCtx* ctx, int dx, int dy) {
+SI T* ptr_at_xy(const SkJumper_MemoryCtx* ctx, size_t dx, size_t dy) {
     return (T*)ctx->pixels + dy*ctx->stride + dx;
 }
 
