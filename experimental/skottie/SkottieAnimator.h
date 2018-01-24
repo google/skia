@@ -56,10 +56,20 @@ public:
     bool parse(const Json::Value& k, KeyframeInterval* prev) {
         SkASSERT(k.isObject());
 
-        return this->INHERITED::parse(k, prev) &&
-            ValueTraits<T>::Parse(k["s"], &fV0) &&
-            ValueTraits<T>::Parse(k["e"], &fV1) &&
-            ValueTraits<T>::Cardinality(fV0) == ValueTraits<T>::Cardinality(fV1) &&
+        if (!this->INHERITED::parse(k, prev) ||
+            !ValueTraits<T>::Parse(k["s"], &fV0)) {
+            return false;
+        }
+
+        if (ParseBool(k["h"], false)) {
+            // Hold v1 == v0.
+            fV1 = fV0;
+        } else if (!ValueTraits<T>::Parse(k["e"], &fV1)) {
+            return false;
+        }
+
+
+        return ValueTraits<T>::Cardinality(fV0) == ValueTraits<T>::Cardinality(fV1) &&
             (!prev || ValueTraits<T>::Cardinality(fV0) == ValueTraits<T>::Cardinality(prev->fV0));
     }
 
