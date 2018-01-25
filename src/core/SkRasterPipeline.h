@@ -41,6 +41,7 @@ struct SkJumper_Engine;
     M(move_src_dst) M(move_dst_src)                                \
     M(clamp_0) M(clamp_1) M(clamp_a) M(clamp_a_dst)                \
     M(unpremul) M(premul) M(premul_dst)                            \
+    M(force_opaque) M(force_opaque_dst)                            \
     M(set_rgb) M(swap_rb) M(invert)                                \
     M(from_srgb) M(from_srgb_dst) M(to_srgb)                       \
     M(black_color) M(white_color) M(uniform_color)                 \
@@ -53,6 +54,7 @@ struct SkJumper_Engine;
     M(load_f32)  M(load_f32_dst)  M(store_f32)                     \
     M(load_8888) M(load_8888_dst) M(store_8888) M(gather_8888)     \
     M(load_bgra) M(load_bgra_dst) M(store_bgra) M(gather_bgra)     \
+    M(load_1010102) M(load_1010102_dst) M(store_1010102) M(gather_1010102) \
     M(bilerp_clamp_8888)                                           \
     M(load_u16_be) M(load_rgb_u16_be) M(store_u16_be)              \
     M(load_tables_u16_be) M(load_tables_rgb_u16_be) M(load_tables) \

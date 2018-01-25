@@ -311,6 +311,9 @@ STAGE_PP(premul_dst, Ctx::None) {
     db = div255(db * da);
 }
 
+STAGE_PP(force_opaque    , Ctx::None) {  a = 255; }
+STAGE_PP(force_opaque_dst, Ctx::None) { da = 255; }
+
 STAGE_PP(swap_rb, Ctx::None) {
     auto tmp = r;
     r = b;

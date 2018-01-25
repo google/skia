@@ -267,6 +267,64 @@ static inline void transform_scanline_4444(char* SK_RESTRICT dst, const char* SK
     }
 }
 
+// 888x is opaque RGB in four bytes, with 8 junk bits.  We convert that to 3 byte RGB.
+static inline void transform_scanline_888x(char* dst, const char* src,
+                                           int width, int, const SkPMColor*) {
+    while (width --> 0) {
+        dst[0] = src[0];
+        dst[1] = src[1];
+        dst[2] = src[2];
+        dst += 3;
+        src += 4;
+    }
+}
+
+// 101010x is opaque RGB in four bytes, with 2 bits junk.  We convert to 6 byte RGB (big endian).
+static inline void transform_scanline_101010x(char* dst, const char* src,
+                                              int width, int, const SkPMColor*) {
+    auto d = (      uint16_t*)dst;
+    auto s = (const uint32_t*)src;
+    while (width --> 0) {
+        uint32_t r = (*s >>  0) & 1023,
+                 g = (*s >> 10) & 1023,
+                 b = (*s >> 20) & 1023;
+
+        // Scale 10-bit unorms to 16-bit by replicating the most significant bits.
+        r = (r << 6) | (r >> 4);
+        g = (g << 6) | (g >> 4);
+        b = (b << 6) | (b >> 4);
+
+        // Store big-endian.
+        d[0] = (r >> 8) | (r << 8);
+        d[1] = (g >> 8) | (g << 8);
+        d[2] = (b >> 8) | (b << 8);
+
+        d += 3;  // 3 channels
+        s += 1;  // 1 whole pixel
+    }
+}
+
+static inline void transform_scanline_1010102(char* dst, const char* src,
+                                              int width, int, const SkPMColor*) {
+    SkJumper_MemoryCtx src_ctx = { (void*)src, 0 },
+                       dst_ctx = { (void*)dst, 0 };
+    SkRasterPipeline_<256> p;
+    p.append(SkRasterPipeline::load_1010102, &src_ctx);
+    p.append(SkRasterPipeline::store_u16_be, &dst_ctx);
+    p.run(0,0, width,1);
+}
+
+static inline void transform_scanline_1010102_premul(char* dst, const char* src,
+                                                     int width, int, const SkPMColor*) {
+    SkJumper_MemoryCtx src_ctx = { (void*)src, 0 },
+                       dst_ctx = { (void*)dst, 0 };
+    SkRasterPipeline_<256> p;
+    p.append(SkRasterPipeline::load_1010102, &src_ctx);
+    p.append(SkRasterPipeline::unpremul);
+    p.append(SkRasterPipeline::store_u16_be, &dst_ctx);
+    p.run(0,0, width,1);
+}
+
 /**
  * Transform from kRGBA_F16 to 8-bytes-per-pixel RGBA.
  */
