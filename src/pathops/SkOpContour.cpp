@@ -32,17 +32,13 @@ void SkOpContour::toReversePath(SkPathWriter* path) const {
 
 SkOpSpan* SkOpContour::undoneSpan() {
     SkOpSegment* testSegment = &fHead;
-    bool allDone = true;
     do {
         if (testSegment->done()) {
             continue;
         }
-        allDone = false;
         return testSegment->undoneSpan();
     } while ((testSegment = testSegment->next()));
-    if (allDone) {
-      fDone = true;
-    }
+    fDone = true;
     return nullptr;
 }
 
