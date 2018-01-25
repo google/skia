@@ -66,36 +66,9 @@ DEF_SIMPLE_GM(shadermaskfilter_image, canvas, 512, 512) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace {
-enum class SkAlphaBlendMode {
-    kClear,    // 0
-    kSrc,      // src
-    kDst,      // dst
-    kOver,     // src + dst - src*dst
-    kIn,       // src * dst
-    kSrcOut,   // src * (1 - dst)
-    kDstOut,   // dst * (1 - src)
-    kXor,      // src + dst - 2*src*dst
-    kPlus,     // src + dst
-
-    kLast = kPlus,
-};
-
-const SkBlendMode gAlphaToBlendMode[] = {
-    SkBlendMode::kClear,    // SkAlphaBlendMode::kClear
-    SkBlendMode::kSrc,      // SkAlphaBlendMode::kSrc
-    SkBlendMode::kDst,      // SkAlphaBlendMode::kDst
-    SkBlendMode::kSrcOver,  // SkAlphaBlendMode::kOver
-    SkBlendMode::kSrcIn,    // SkAlphaBlendMode::kIn
-    SkBlendMode::kSrcOut,   // SkAlphaBlendMode::kSrcOut
-    SkBlendMode::kDstOut,   // SkAlphaBlendMode::kDstOut
-    SkBlendMode::kXor,      // SkAlphaBlendMode::kXor
-    SkBlendMode::kPlus,     // SkAlphaBlendMode::kPlus
-};
-}
-
 #include "SkPictureRecorder.h"
 #include "SkPath.h"
+
 static sk_sp<SkMaskFilter> make_path_mf(const SkPath& path, unsigned alpha) {
     SkPaint paint;
     paint.setAntiAlias(true);
@@ -130,17 +103,13 @@ DEF_SIMPLE_GM(combinemaskfilter, canvas, 340, 340) {
 
     canvas->translate(10, 10);
     canvas->save();
-    for (int i = 0; i < 9; ++i) {
+    for (int i = 0; i < 8; ++i) {
+        SkCoverageMode mode = static_cast<SkCoverageMode>(i);
         SkPaint paint;
-        paint.setMaskFilter(SkMaskFilter::MakeCombine(mfA, mfB, gAlphaToBlendMode[i]));
+        paint.setMaskFilter(SkMaskFilter::MakeCombine(mfA, mfB, mode));
         canvas->drawRect(r2, paint2);
         canvas->drawRect(r, paint);
         canvas->translate(r.width() + 10, 0);
-        if ((i % 3) == 2) {
-            canvas->restore();
-            canvas->translate(0, r.height() + 10);
-            canvas->save();
-        }
     }
     canvas->restore();
 }
