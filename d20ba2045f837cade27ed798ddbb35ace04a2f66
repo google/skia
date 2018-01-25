@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "8c36d5c9_a429b7a8",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 193,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-01-25T18:59:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4be8c12a_39e7519c",
+      "revId": "d20ba2045f837cade27ed798ddbb35ace04a2f66",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a909862_1813b1a9",
         "filename": "src/gpu/GrOpList.h",
         "patchSetId": 2
@@ -33,6 +51,24 @@
       "revId": "d20ba2045f837cade27ed798ddbb35ace04a2f66",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "250c8abc_7cf5f21a",
+        "filename": "src/gpu/GrOpList.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-01-25T18:59:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a909862_1813b1a9",
+      "revId": "d20ba2045f837cade27ed798ddbb35ace04a2f66",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "4971841c_dd61b368",
+        "filename": "src/gpu/GrRenderTargetOpList.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 252,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-01-25T18:59:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1b17597b_76f5bcc9",
+      "revId": "d20ba2045f837cade27ed798ddbb35ace04a2f66",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f76ced18_79610813",
         "filename": "src/gpu/GrResourceAllocator.cpp",
         "patchSetId": 2
@@ -67,6 +121,24 @@
       "revId": "d20ba2045f837cade27ed798ddbb35ace04a2f66",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d4a97b41_f4f72800",
+        "filename": "src/gpu/GrResourceAllocator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 255,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-01-25T18:59:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f76ced18_79610813",
+      "revId": "d20ba2045f837cade27ed798ddbb35ace04a2f66",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "78480548_ae9109b6",
+        "filename": "src/gpu/GrResourceAllocator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 257,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-01-25T18:59:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b9f088e3_9068998d",
+      "revId": "d20ba2045f837cade27ed798ddbb35ace04a2f66",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "531554eb_7b7b38cd",
         "filename": "src/gpu/GrTextureOpList.cpp",
         "patchSetId": 2
@@ -101,6 +191,24 @@
       "revId": "d20ba2045f837cade27ed798ddbb35ace04a2f66",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3ffdbe0e_4cbd4a18",
+        "filename": "src/gpu/GrTextureOpList.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-01-25T18:59:08Z",
+      "side": 1,
+      "message": "I don\u0027t think this is the spot in the code to check for that since the copy that might fail here may not have covered the whole dst so we can\u0027t go and clear the entire thing with a clear on load.",
+      "parentUuid": "531554eb_7b7b38cd",
+      "revId": "d20ba2045f837cade27ed798ddbb35ace04a2f66",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
