@@ -130,10 +130,12 @@ public:
     }
 
     void onTick(float t) override {
-        const auto& frame = this->findFrame(t);
+        if (!fCurrentFrame || !fCurrentFrame->contains(t)) {
+            fCurrentFrame = this->findFrame(t);
+        }
 
         T val;
-        frame.eval(t, &val);
+        fCurrentFrame->eval(t, &val);
 
         fFunc(val);
     }
@@ -143,17 +145,16 @@ private:
         : fFrames(std::move(frames))
         , fFunc(std::move(applyFunc)) {}
 
-    const KeyframeInterval<T>& findFrame(float t) const;
+    const KeyframeInterval<T>* findFrame(float t) const;
 
     const SkTArray<KeyframeInterval<T>, true> fFrames;
-    const ApplyFuncT                             fFunc;
+    const ApplyFuncT                          fFunc;
+    const KeyframeInterval<T>*                fCurrentFrame = nullptr;
 };
 
 template <typename T>
-const KeyframeInterval<T>& Animator<T>::findFrame(float t) const {
+const KeyframeInterval<T>* Animator<T>::findFrame(float t) const {
     SkASSERT(!fFrames.empty());
-
-    // TODO: cache last/current frame?
 
     auto f0 = fFrames.begin(),
          f1 = fFrames.end() - 1;
@@ -162,11 +163,11 @@ const KeyframeInterval<T>& Animator<T>::findFrame(float t) const {
     SkASSERT(f1->isValid());
 
     if (t < f0->t0()) {
-        return *f0;
+        return f0;
     }
 
     if (t > f1->t1()) {
-        return *f1;
+        return f1;
     }
 
     while (f0 != f1) {
@@ -186,7 +187,7 @@ const KeyframeInterval<T>& Animator<T>::findFrame(float t) const {
     SkASSERT(f0 == f1);
     SkASSERT(f0->contains(t));
 
-    return *f0;
+    return f0;
 }
 
 } // namespace skottie
