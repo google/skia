@@ -472,20 +472,17 @@ bool SkShaper::good() const {
            fImpl->fBreakIterator;
 }
 
-SkScalar SkShaper::shape(SkTextBlobBuilder* builder,
-                         const SkPaint& srcPaint,
-                         const char* utf8,
-                         size_t utf8Bytes,
-                         bool leftToRight,
-                         SkPoint point,
-                         SkScalar width) const {
+SkPoint SkShaper::shape(SkTextBlobBuilder* builder,
+                        const SkPaint& srcPaint,
+                        const char* utf8,
+                        size_t utf8Bytes,
+                        bool leftToRight,
+                        SkPoint point,
+                        SkScalar width) const {
     sk_sp<SkFontMgr> fontMgr = SkFontMgr::RefDefault();
     SkASSERT(builder);
     UBiDiLevel defaultLevel = leftToRight ? UBIDI_DEFAULT_LTR : UBIDI_DEFAULT_RTL;
     //hb_script_t script = ...
-    double x = point.x();
-    //double y = point.y();
-    SkPoint currentPoint = point;
 
     SkTArray<ShapedRun> runs;
 {
@@ -494,7 +491,7 @@ SkScalar SkShaper::shape(SkTextBlobBuilder* builder,
     SkTLazy<BiDiRunIterator> maybeBidi(BiDiRunIterator::Make(utf8, utf8Bytes, defaultLevel));
     BiDiRunIterator* bidi = maybeBidi.getMaybeNull();
     if (!bidi) {
-        return (SkScalar)x;
+        return point;
     }
     runSegmenter.insert(bidi);
 
@@ -502,7 +499,7 @@ SkScalar SkShaper::shape(SkTextBlobBuilder* builder,
     SkTLazy<ScriptRunIterator> maybeScript(ScriptRunIterator::Make(utf8, utf8Bytes, hbUnicode));
     ScriptRunIterator* script = maybeScript.getMaybeNull();
     if (!script) {
-        return (SkScalar)x;
+        return point;
     }
     runSegmenter.insert(script);
 
@@ -512,7 +509,7 @@ SkScalar SkShaper::shape(SkTextBlobBuilder* builder,
                                                              std::move(fontMgr)));
     FontRunIterator* font = maybeFont.getMaybeNull();
     if (!font) {
-        return (SkScalar)x;
+        return point;
     }
     runSegmenter.insert(font);
 
@@ -524,13 +521,13 @@ SkScalar SkShaper::shape(SkTextBlobBuilder* builder,
         std::unique_ptr<UText, SkFunctionWrapper<UText*, UText, utext_close>> autoClose(&utf8UText);
         if (U_FAILURE(status)) {
             SkDebugf("Could not create utf8UText: %s", u_errorName(status));
-            return (SkScalar)x;
+            return point;
         }
         breakIterator.setText(&utf8UText, status);
         //utext_close(&utf8UText);
         if (U_FAILURE(status)) {
             SkDebugf("Could not setText on break iterator: %s", u_errorName(status));
-            return (SkScalar)x;
+            return point;
         }
     }
 
@@ -556,7 +553,7 @@ SkScalar SkShaper::shape(SkTextBlobBuilder* builder,
         size_t utf8runLength = utf8End - utf8Start;
         if (!SkTFitsIn<int>(utf8runLength)) {
             SkDebugf("Shaping error: utf8 too long");
-            return (SkScalar)x;
+            return point;
         }
         hb_buffer_set_script(buffer, script->currentScript());
         hb_direction_t direction = is_LTR(bidi->currentLevel()) ? HB_DIRECTION_LTR:HB_DIRECTION_RTL;
@@ -580,7 +577,7 @@ SkScalar SkShaper::shape(SkTextBlobBuilder* builder,
 
         if (!SkTFitsIn<int>(len)) {
             SkDebugf("Shaping error: too many glyphs");
-            return (SkScalar)x;
+            return point;
         }
 
         SkPaint paint(srcPaint);
@@ -663,6 +660,7 @@ SkScalar SkShaper::shape(SkTextBlobBuilder* builder,
 }
 
 // Reorder the runs and glyphs per line and write them out.
+    SkPoint currentPoint = point;
 {
     ShapedRunGlyphIterator previousBreak(runs);
     ShapedRunGlyphIterator glyphIterator(runs);
@@ -721,5 +719,5 @@ SkScalar SkShaper::shape(SkTextBlobBuilder* builder,
     }
 }
 
-    return (SkScalar)x;
+    return currentPoint;
 }

@@ -28,7 +28,7 @@ public:
     ~SkShaper();
 
     bool good() const;
-    SkScalar shape(SkTextBlobBuilder* dest,
+    SkPoint shape(SkTextBlobBuilder* dest,
                    const SkPaint& srcPaint,
                    const char* utf8text,
                    size_t textBytes,
