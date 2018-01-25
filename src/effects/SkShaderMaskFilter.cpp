@@ -8,13 +8,16 @@
 #include "SkCanvas.h"
 #include "SkMaskFilterBase.h"
 #include "SkReadBuffer.h"
+#include "SkSafeRange.h"
 #include "SkShaderMaskFilter.h"
 #include "SkShader.h"
 #include "SkString.h"
 
 class SkShaderMF : public SkMaskFilterBase {
 public:
-    SkShaderMF(sk_sp<SkShader> shader) : fShader(std::move(shader)) {}
+    SkShaderMF(sk_sp<SkShader> shader)
+        : fShader(std::move(shader))
+    {}
 
     SkMask::Format getFormat() const override { return SkMask::kA8_Format; }
 
