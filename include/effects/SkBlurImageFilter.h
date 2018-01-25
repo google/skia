@@ -19,9 +19,6 @@ public:
       kRepeat_TileMode,       /*!< Wrap around to the image's opposite edge. */
       kClampToBlack_TileMode, /*!< Fill with transparent black. */
       kLast_TileMode = kClampToBlack_TileMode,
-
-      // TODO: remove kMax - it is non-standard but Chromium uses it
-      kMax_TileMode = kClampToBlack_TileMode
     };
 
     static sk_sp<SkImageFilter> Make(SkScalar sigmaX, SkScalar sigmaY,
