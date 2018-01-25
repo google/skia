@@ -25,6 +25,8 @@ enum Stored_SkColorType {
     kRGB_888x_Stored_SkColorType            = 9,
     kRGBA_1010102_Stored_SkColorType        = 10,
     kRGB_101010x_Stored_SkColorType         = 11,
+
+    kLast_Stored_SkColorType                = kRGBA_101010x_Stored_SkColorType,
 };
 
 static uint8_t live_to_stored(unsigned ct) {
@@ -140,6 +142,7 @@ bool SkColorTypeValidateAlphaType(SkColorType colorType, SkAlphaType alphaType,
         case kRGBA_8888_SkColorType:
         case kBGRA_8888_SkColorType:
         case kRGBA_F16_SkColorType:
+        case kRGBA_1010102_SkColorType:
             if (kUnknown_SkAlphaType == alphaType) {
                 return false;
             }

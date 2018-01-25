@@ -273,6 +273,7 @@ GrPixelConfig SkImageInfo2GrPixelConfig(const SkColorType type, SkColorSpace* cs
                                         const GrCaps& caps) {
     switch (type) {
         case kUnknown_SkColorType:
+        case kRGBA_1010102_SkColorType:
             return kUnknown_GrPixelConfig;
         case kAlpha_8_SkColorType:
             return kAlpha_8_GrPixelConfig;
