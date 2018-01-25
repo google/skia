@@ -424,6 +424,7 @@ bool validate_image_info(const GrVkImageInfo* imageInfo, SkColorType ct, GrPixel
 
     switch (ct) {
         case kUnknown_SkColorType:
+        case kRGBA_1010102_SkColorType:
             return false;
         case kAlpha_8_SkColorType:
             if (VK_FORMAT_R8_UNORM == format) {

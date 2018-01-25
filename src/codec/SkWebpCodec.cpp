@@ -340,6 +340,10 @@ static void pick_memory_stages(SkColorType ct, SkRasterPipeline::StockStage* loa
             if (load) *load = SkRasterPipeline::load_bgra;
             if (store) *store = SkRasterPipeline::store_bgra;
             break;
+        case kRGBA_1010102_SkColorType:
+            if (load) *load = SkRasterPipeline::load_1010102;
+            if (store) *store = SkRasterPipeline::store_1010102;
+            break;
         case kRGBA_F16_SkColorType:
             if (load) *load = SkRasterPipeline::load_f16;
             if (store) *store = SkRasterPipeline::store_f16;
