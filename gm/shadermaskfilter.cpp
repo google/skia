@@ -66,36 +66,9 @@ DEF_SIMPLE_GM(shadermaskfilter_image, canvas, 512, 512) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace {
-enum class SkAlphaBlendMode {
-    kClear,    // 0
-    kSrc,      // src
-    kDst,      // dst
-    kOver,     // src + dst - src*dst
-    kIn,       // src * dst
-    kSrcOut,   // src * (1 - dst)
-    kDstOut,   // dst * (1 - src)
-    kXor,      // src + dst - 2*src*dst
-    kPlus,     // src + dst
-
-    kLast = kPlus,
-};
-
-const SkBlendMode gAlphaToBlendMode[] = {
-    SkBlendMode::kClear,    // SkAlphaBlendMode::kClear
-    SkBlendMode::kSrc,      // SkAlphaBlendMode::kSrc
-    SkBlendMode::kDst,      // SkAlphaBlendMode::kDst
-    SkBlendMode::kSrcOver,  // SkAlphaBlendMode::kOver
-    SkBlendMode::kSrcIn,    // SkAlphaBlendMode::kIn
-    SkBlendMode::kSrcOut,   // SkAlphaBlendMode::kSrcOut
-    SkBlendMode::kDstOut,   // SkAlphaBlendMode::kDstOut
-    SkBlendMode::kXor,      // SkAlphaBlendMode::kXor
-    SkBlendMode::kPlus,     // SkAlphaBlendMode::kPlus
-};
-}
-
 #include "SkPictureRecorder.h"
 #include "SkPath.h"
+
 static sk_sp<SkMaskFilter> make_path_mf(const SkPath& path, unsigned alpha) {
     SkPaint paint;
     paint.setAntiAlias(true);
@@ -109,6 +82,8 @@ static sk_sp<SkMaskFilter> make_path_mf(const SkPath& path, unsigned alpha) {
     return SkShaderMaskFilter::Make(shader);
 }
 
+typedef void (*MakePathsProc)(const SkRect&, SkPath*, SkPath*);
+
 DEF_SIMPLE_GM(combinemaskfilter, canvas, 340, 340) {
     const SkRect r = { 0, 0, 100, 100 };
 
@@ -116,31 +91,42 @@ DEF_SIMPLE_GM(combinemaskfilter, canvas, 340, 340) {
     SkPaint paint2;
     paint2.setStyle(SkPaint::kStroke_Style);
 
-    SkPath pathA;
-    pathA.moveTo(r.fLeft, r.fBottom);
-    pathA.lineTo(r.fRight, r.fTop);
-    pathA.lineTo(r.fRight, r.fBottom);
-    auto mfA = make_path_mf(pathA, 1 * 0xFF / 3);
+    auto proc0 = [](const SkRect& r, SkPath* pathA, SkPath* pathB) {
+        pathA->moveTo(r.fLeft, r.fBottom);
+        pathA->lineTo(r.fRight, r.fTop);
+        pathA->lineTo(r.fRight, r.fBottom);
+        pathB->moveTo(r.fLeft, r.fTop);
+        pathB->lineTo(r.fRight, r.fBottom);
+        pathB->lineTo(r.fLeft, r.fBottom);
+    };
+    auto proc1 = [](const SkRect& r, SkPath* pathA, SkPath* pathB) {
+        pathA->addCircle(r.width()*0.25f, r.height()*0.25f, r.width()*0.5f);
+        pathB->addCircle(r.width()*0.75f, r.height()*0.75f, r.width()*0.5f);
+    };
+    MakePathsProc procs[] = { proc0, proc1 };
 
-    SkPath pathB;
-    pathB.moveTo(r.fLeft, r.fTop);
-    pathB.lineTo(r.fRight, r.fBottom);
-    pathB.lineTo(r.fLeft, r.fBottom);
-    auto mfB = make_path_mf(pathB, 2 * 0xFF / 3);
+    sk_sp<SkMaskFilter> mfA[2], mfB[2];
+    for (int i = 0; i < 2; ++i) {
+        SkPath a, b;
+        procs[i](r, &a, &b);
+        mfA[i] = make_path_mf(a, 1 * 0xFF / 3);
+        mfB[i] = make_path_mf(b, 2 * 0xFF / 3);
+    }
 
     canvas->translate(10, 10);
     canvas->save();
-    for (int i = 0; i < 9; ++i) {
+    for (int i = 0; i < 8; ++i) {
+        SkCoverageMode mode = static_cast<SkCoverageMode>(i);
         SkPaint paint;
-        paint.setMaskFilter(SkMaskFilter::MakeCombine(mfA, mfB, gAlphaToBlendMode[i]));
-        canvas->drawRect(r2, paint2);
-        canvas->drawRect(r, paint);
-        canvas->translate(r.width() + 10, 0);
-        if ((i % 3) == 2) {
-            canvas->restore();
+        canvas->save();
+        for (int j = 0; j < 2; ++j) {
+            paint.setMaskFilter(SkMaskFilter::MakeCombine(mfA[j], mfB[j], mode));
+            canvas->drawRect(r2, paint2);
+            canvas->drawRect(r, paint);
             canvas->translate(0, r.height() + 10);
-            canvas->save();
         }
+        canvas->restore();
+        canvas->translate(r.width() + 10, 0);
     }
     canvas->restore();
 }
