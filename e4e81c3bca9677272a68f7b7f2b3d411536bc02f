@@ -1,0 +1,174 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1304240c_a570580d",
+        "filename": "samplecode/SampleFlutterAnimate.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-01-25T20:39:08Z",
+      "side": 1,
+      "message": "// Create an animation of a bunch of letters that rotate in place. This is intended to test ...\n?",
+      "revId": "e4e81c3bca9677272a68f7b7f2b3d411536bc02f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "20720d45_31d495ff",
+        "filename": "samplecode/SampleFlutterAnimate.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-01-25T20:39:08Z",
+      "side": 1,
+      "message": "this-\u003e ?",
+      "revId": "e4e81c3bca9677272a68f7b7f2b3d411536bc02f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ec014525_61e0950f",
+        "filename": "samplecode/SampleFlutterAnimate.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-01-25T20:39:08Z",
+      "side": 1,
+      "message": "Should be just make the typeface once ?",
+      "revId": "e4e81c3bca9677272a68f7b7f2b3d411536bc02f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d6b3cc69_e2522326",
+        "filename": "samplecode/SampleFlutterAnimate.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-01-25T20:39:08Z",
+      "side": 1,
+      "message": "wrap ?\nIs there no linearInterp function somewhere ?",
+      "revId": "e4e81c3bca9677272a68f7b7f2b3d411536bc02f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "51b0d853_06f90125",
+        "filename": "samplecode/SampleFlutterAnimate.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-01-25T20:39:08Z",
+      "side": 1,
+      "message": "Do 35 \u0026 50 deserve constants ?\nI\u0027m guessing this is to have the characters roughly rotate about their center-bottom point, so kHalfCharWidth, fCharHeight?",
+      "revId": "e4e81c3bca9677272a68f7b7f2b3d411536bc02f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "738238de_b52cbe88",
+        "filename": "samplecode/SampleFlutterAnimate.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-01-25T20:39:08Z",
+      "side": 1,
+      "message": "Don\u0027t we have a macro for this ?",
+      "revId": "e4e81c3bca9677272a68f7b7f2b3d411536bc02f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0a48b416_56a99420",
+        "filename": "samplecode/SampleFlutterAnimate.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-01-25T20:39:08Z",
+      "side": 1,
+      "message": "one line ?",
+      "revId": "e4e81c3bca9677272a68f7b7f2b3d411536bc02f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f74547f8_30f3b254",
+        "filename": "samplecode/SampleFlutterAnimate.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-01-25T20:39:08Z",
+      "side": 1,
+      "message": "char fCharString[2]; ? and always set [1] \u003d \u0027\\0\u0027 ?",
+      "revId": "e4e81c3bca9677272a68f7b7f2b3d411536bc02f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dfab521b_dcabe3f5",
+        "filename": "src/gpu/effects/GrAtlasedShaderHelpers.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-01-25T20:39:08Z",
+      "side": 1,
+      "message": "intCoords seems badly named. Shouldn\u0027t it be something like unormTexCoords?",
+      "revId": "e4e81c3bca9677272a68f7b7f2b3d411536bc02f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5f71d018_1e1c14c0",
+        "filename": "src/gpu/text/GrAtlasTextBlobVertexRegenerator.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-01-25T20:39:08Z",
+      "side": 1,
+      "message": "// Enable this to visualize the page from which each glyph is being drawn. GRMC -\u003e 0123\n\n?",
+      "revId": "e4e81c3bca9677272a68f7b7f2b3d411536bc02f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
