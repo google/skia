@@ -5,6 +5,13 @@
  * found in the LICENSE file.
  */
 
+// GM to stress the GPU font cache
+// It's not necessary to run this with CPU configs
+
+#include "gm.h"
+
+#if SK_SUPPORT_GPU
+
 #include "GrContext.h"
 #include "GrContextOptions.h"
 #include "SkCanvas.h"
@@ -14,8 +21,6 @@
 #include "gm.h"
 #include "sk_tool_utils.h"
 
-// GM to stress the GPU font cache
-
 static SkScalar draw_string(SkCanvas* canvas, const SkString& text, SkScalar x,
                            SkScalar y, const SkPaint& paint) {
     canvas->drawString(text, x, y, paint);
@@ -24,16 +29,23 @@ static SkScalar draw_string(SkCanvas* canvas, const SkString& text, SkScalar x,
 
 class FontCacheGM : public skiagm::GM {
 public:
-    FontCacheGM() { this->setBGColor(SK_ColorLTGRAY); }
+    FontCacheGM(GrContextOptions::Enable allowMultipleTextures)
+        : fAllowMultipleTextures(allowMultipleTextures) {
+        this->setBGColor(SK_ColorLTGRAY);
+    }
 
     void modifyGrContextOptions(GrContextOptions* options) override {
         options->fGlyphCacheTextureMaximumBytes = 0;
-        options->fAllowMultipleGlyphCacheTextures = GrContextOptions::Enable::kNo;
+        options->fAllowMultipleGlyphCacheTextures = fAllowMultipleTextures;
     }
 
 protected:
     SkString onShortName() override {
-        return SkString("fontcache");
+        SkString name("fontcache");
+        if (GrContextOptions::Enable::kYes == fAllowMultipleTextures) {
+            name.append("-mt");
+        }
+        return name;
     }
 
     SkISize onISize() override { return SkISize::Make(kSize, kSize); }
@@ -49,9 +61,15 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
+        GrRenderTargetContext* renderTargetContext =
+            canvas->internal_private_accessTopLayerRenderTargetContext();
+        if (!renderTargetContext) {
+            skiagm::GM::DrawGpuOnlyMessage(canvas);
+            return;
+        }
+
         canvas->clear(SK_ColorLTGRAY);
         this->drawText(canvas);
-#if SK_SUPPORT_GPU
         //  Debugging tool for GPU.
         static const bool kShowAtlas = false;
         if (kShowAtlas) {
@@ -60,7 +78,6 @@ protected:
                 canvas->drawImage(img, 0, 0);
             }
         }
-#endif
     }
 
 private:
@@ -82,6 +99,10 @@ private:
         SkScalar subpixelX = 0;
         SkScalar subpixelY = 0;
         bool offsetX = true;
+
+        if (GrContextOptions::Enable::kYes == fAllowMultipleTextures) {
+            canvas->scale(10, 10);
+        }
 
         do {
             for (auto s : kSizes) {
@@ -109,6 +130,7 @@ private:
 
     static constexpr SkScalar kSize = 1280;
 
+    GrContextOptions::Enable fAllowMultipleTextures;
     sk_sp<SkTypeface> fTypefaces[6];
     typedef GM INHERITED;
 };
@@ -117,4 +139,7 @@ constexpr SkScalar FontCacheGM::kSize;
 
 //////////////////////////////////////////////////////////////////////////////
 
-DEF_GM(return new FontCacheGM;)
+DEF_GM(return new FontCacheGM(GrContextOptions::Enable::kNo))
+DEF_GM(return new FontCacheGM(GrContextOptions::Enable::kYes))
+
+#endif
