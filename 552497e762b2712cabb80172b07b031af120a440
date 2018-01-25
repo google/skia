@@ -2,6 +2,40 @@
   "comments": [
     {
       "key": {
+        "uuid": "e8c4bcf8_426c71da",
+        "filename": "src/gpu/GrProxyProvider.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-01-25T16:18:36Z",
+      "side": 1,
+      "message": "Why a desc? Can\u0027t we always figure it out from the image?",
+      "revId": "552497e762b2712cabb80172b07b031af120a440",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "831067ad_b6fc078b",
+        "filename": "src/gpu/GrProxyProvider.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 216,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-01-25T16:18:36Z",
+      "side": 1,
+      "message": "It seems odd that we would never want mip mapping",
+      "revId": "552497e762b2712cabb80172b07b031af120a440",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "cbc62e85_7eabbc01",
         "filename": "src/gpu/GrProxyProvider.h",
         "patchSetId": 2
