@@ -16,6 +16,24 @@
       "revId": "6a509f45f50bf249c874be2dc8c93fe18ff1f062",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2b41953f_a0a0dd53",
+        "filename": "tools/remote_demo.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 187,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-01-25T22:31:20Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "3a6677b1_6abffb35",
+      "revId": "6a509f45f50bf249c874be2dc8c93fe18ff1f062",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
