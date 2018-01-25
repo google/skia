@@ -455,7 +455,7 @@ void SkPngCodec::allocateStorage(const SkImageInfo& dstInfo) {
 
 static SkColorSpaceXform::ColorFormat png_select_xform_format(const SkEncodedInfo& info) {
     // We use kRGB and kRGBA formats because color PNGs are always RGB or RGBA.
-    if (16 == info.bitsPerComponent()) {
+    if (8 < info.bitsPerComponent()) {
         if (SkEncodedInfo::kRGBA_Color == info.color()) {
             return SkColorSpaceXform::kRGBA_U16_BE_ColorFormat;
         } else if (SkEncodedInfo::kRGB_Color == info.color()) {
