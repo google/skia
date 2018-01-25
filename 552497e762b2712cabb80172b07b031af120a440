@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "8465831d_c26deb81",
+        "filename": "src/gpu/GrProxyProvider.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-01-25T20:07:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e8c4bcf8_426c71da",
+      "revId": "552497e762b2712cabb80172b07b031af120a440",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "831067ad_b6fc078b",
         "filename": "src/gpu/GrProxyProvider.cpp",
         "patchSetId": 2
@@ -30,6 +48,24 @@
       "writtenOn": "2018-01-25T16:18:36Z",
       "side": 1,
       "message": "It seems odd that we would never want mip mapping",
+      "revId": "552497e762b2712cabb80172b07b031af120a440",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2a9540eb_9a5be24d",
+        "filename": "src/gpu/GrProxyProvider.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 216,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-01-25T20:07:15Z",
+      "side": 1,
+      "message": "As discussed we\u0027ll probably add a mode in the future for the case where we are uploading 0 or 1 mip levels, but we want to allocate the whole mip stack. However, till we get that that stage we\u0027ll keep this as is.",
+      "parentUuid": "831067ad_b6fc078b",
       "revId": "552497e762b2712cabb80172b07b031af120a440",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
