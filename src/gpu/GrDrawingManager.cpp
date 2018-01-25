@@ -183,9 +183,17 @@ GrSemaphoresSubmitted GrDrawingManager::internalFlush(GrSurfaceProxy*,
         startIndex = 0;
         stopIndex = fOpLists.count();
 #else
-        while (alloc.assign(&startIndex, &stopIndex))
+        GrResourceAllocator::AssignError error = GrResourceAllocator::AssignError::kNoError;
+        while (alloc.assign(&startIndex, &stopIndex, &error))
 #endif
         {
+#ifndef SK_DISABLE_EXPLICIT_GPU_RESOURCE_ALLOCATION
+            if (GrResourceAllocator::AssignError::kFailedProxyInstantiation == error) {
+                for (int i = startIndex; i < stopIndex; ++i) {
+                    fOpLists[i]->purgeOpsWithUninstantiatedProxies();
+                }
+            }
+#endif
             if (this->executeOpLists(startIndex, stopIndex, &flushState)) {
                 flushed = true;
             }
