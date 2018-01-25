@@ -186,6 +186,48 @@ sk_sp<GrTextureProxy> GrProxyProvider::createTextureProxy(const GrSurfaceDesc& d
     return this->createProxy(desc, SkBackingFit::kExact, budgeted);
 }
 
+sk_sp<GrTextureProxy> GrProxyProvider::createTextureProxy(const GrSurfaceDesc& desc,
+                                                          SkBudgeted budgeted,
+                                                          sk_sp<SkImage> srcData) {
+    ASSERT_SINGLE_OWNER
+
+    if (this->isAbandoned()) {
+        return nullptr;
+    }
+
+    if (srcData) {
+        SkASSERT(srcData->peekPixels(nullptr));
+        sk_sp<GrTextureProxy> proxy = this->createLazyProxy(
+                [srcData]
+                (GrResourceProvider* resourceProvider, GrSurfaceOrigin* /*outOrigin*/) {
+                    if (!resourceProvider) {
+                        return sk_sp<GrTexture>();
+                    }
+                    SkPixmap pixMap;
+                    srcData->peekPixels(&pixMap);
+                    GrMipLevel mipLevel = { pixMap.addr(), pixMap.rowBytes() };
+
+                    sk_sp<GrTexture> tex = fResourceProvider->createTexture(desc, budgeted,
+                                                                            mipLevel);
+                    if (!tex) {
+                        return sk_sp<GrTexture>();
+                    }
+
+                }, desc, GrMipMapped:kNo, SkBackingFit::kExact, budgeted);
+
+        if (fResourceProvider) {
+            // In order to reuse code we always create a lazy proxy. When we aren't in DDL mode
+            // however we're better off instantiating the proxy immediately here.
+            if(!proxy->priv().doLazyInstantiation(fResourceProvider)) {
+                return nullptr;
+            }
+        }
+        return proxy;
+    }
+
+    return this->createProxy(desc, SkBackingFit::kExact, budgeted);
+}
+
 sk_sp<GrTextureProxy> GrProxyProvider::createMipMapProxy(
                                                     const GrSurfaceDesc& desc, SkBudgeted budgeted,
                                                     const GrMipLevel texels[], int mipLevelCount,
