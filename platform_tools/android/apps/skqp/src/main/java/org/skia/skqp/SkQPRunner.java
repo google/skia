@@ -83,6 +83,7 @@ public class SkQPRunner extends Runner {
             String classname = SkQP.kSkiaGM + impl.mBackends[backend];
             for (int gm = 0; gm < impl.mGMs.length; gm++) {
                 String gmName = String.format("%s/%s", impl.mBackends[backend], impl.mGMs[gm]);
+                Log.v(TAG, String.format("Rendering Test %s started", gmName));
                 Description desc =
                         Description.createTestDescription(classname, impl.mGMs[gm], annots);
                 notifier.fireTestStarted(desc);
@@ -108,6 +109,7 @@ public class SkQPRunner extends Runner {
         }
         for (int unitTest = 0; unitTest < impl.mUnitTests.length; unitTest++) {
             String utName = impl.mUnitTests[unitTest];
+            Log.v(TAG, String.format("Test %s started.", utName));
             Description desc = Description.createTestDescription(
                           SkQP.kSkiaUnitTests, utName, annots);
             notifier.fireTestStarted(desc);
