@@ -9,8 +9,9 @@
 #define SkottieAnimator_DEFINED
 
 #include "SkCubicMap.h"
+#include "SkJSONCPP.h"
 #include "SkMakeUnique.h"
-#include "SkottiePriv.h"
+#include "SkottieParser.h"
 #include "SkottieProperties.h"
 #include "SkSGScene.h"
 #include "SkTArray.h"
@@ -62,12 +63,12 @@ public:
         SkASSERT(k.isObject());
 
         if (!this->INHERITED::parse(k, prev) ||
-            !ValueTraits<T>::Parse(k["s"], &fV0)) {
+            !Parse<T>(k["s"], &fV0)) {
             return false;
         }
 
         if (!this->isHold() &&
-            (!ValueTraits<T>::Parse(k["e"], &fV1) ||
+            (!Parse<T>(k["e"], &fV1) ||
              ValueTraits<T>::Cardinality(fV0) != ValueTraits<T>::Cardinality(fV1))) {
             return false;
         }
