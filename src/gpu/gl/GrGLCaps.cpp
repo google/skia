@@ -2459,6 +2459,8 @@ bool validate_sized_format(GrGLenum format, SkColorType ct, GrPixelConfig* confi
                 *config = kSRGBA_8888_GrPixelConfig;
             }
             break;
+        case kRGB_888x_SkColorType:
+            return false;
         case kBGRA_8888_SkColorType:
             if (GR_GL_RGBA8 == format) {
                 if (kGL_GrGLStandard == standard) {
@@ -2472,6 +2474,10 @@ bool validate_sized_format(GrGLenum format, SkColorType ct, GrPixelConfig* confi
                 *config = kSBGRA_8888_GrPixelConfig;
             }
             break;
+        case kRGBA_1010102_SkColorType:
+            return false;
+        case kRGB_101010x_SkColorType:
+            return false;
         case kGray_8_SkColorType:
             if (GR_GL_LUMINANCE8 == format) {
                 *config = kGray_8_as_Lum_GrPixelConfig;
