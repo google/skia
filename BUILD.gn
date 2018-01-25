@@ -30,6 +30,7 @@ declare_args() {
   skia_use_zlib = true
   skia_use_metal = false
   skia_use_libheif = is_skia_dev_build
+  skia_use_skcms = is_skia_dev_build
   skia_embed_resources = false
 
   skia_android_serial = ""
@@ -689,6 +690,17 @@ optional("raw") {
   ]
 }
 
+optional("skcms") {
+  enabled = skia_use_skcms
+
+  deps = [
+    "//third_party/skcms",
+  ]
+  sources = [
+    # TODO
+  ]
+}
+
 optional("typeface_freetype") {
   enabled = skia_use_freetype
 
@@ -752,6 +764,7 @@ component("skia") {
     ":pdf",
     ":png",
     ":raw",
+    ":skcms",
     ":sse2",
     ":sse41",
     ":sse42",
