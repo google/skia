@@ -38,7 +38,8 @@ public:
                                                           &atlasSizeInvName);
 
         GrGLSLVarying uv(kFloat2_GrSLType);
-        GrGLSLVarying texIdx(kHalf_GrSLType);
+        GrSLType texIdxType = args.fShaderCaps->integerSupport() ? kInt_GrSLType : kFloat_GrSLType;
+        GrGLSLVarying texIdx(texIdxType);
         append_index_uv_varyings(args, btgp.inTextureCoords()->fName, atlasSizeInvName,
                                  &uv, &texIdx, nullptr);
 
