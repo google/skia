@@ -2526,6 +2526,8 @@ bool validate_sized_format(GrGLenum format, SkColorType ct, GrPixelConfig* confi
                 *config = kRGBA_half_GrPixelConfig;
             }
             break;
+        case kRGBX_8888_SkColorType:
+            return false;
     }
 
     return kUnknown_GrPixelConfig != *config;
