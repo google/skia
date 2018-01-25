@@ -208,8 +208,6 @@ BASE_SRCS_ALL = struct(
         "src/jumper/SkJumper_generated.S",
 
         # Third Party
-        "third_party/etc1/*.cpp",
-        "third_party/etc1/*.h",
         "third_party/gif/*.cpp",
         "third_party/gif/*.h",
     ],
@@ -416,7 +414,6 @@ INCLUDES = [
     "src/shaders",
     "src/sksl",
     "src/utils",
-    "third_party/etc1",
     "third_party/gif",
 ]
 
