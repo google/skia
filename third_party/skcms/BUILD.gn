@@ -1,0 +1,18 @@
+# Copyright 2018 Google Inc.
+#
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+declare_args() {
+}
+
+import("../third_party.gni")
+
+third_party("skcms") {
+  public_include_dirs = [ "../externals/skcms" ]
+
+  defines = []
+  sources = [
+    "../externals/skcms/skcms.c",
+  ]
+}
