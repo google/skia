@@ -147,7 +147,6 @@ DEF_TEST(SkSLOperators, r) {
          "}",
          *SkSL::ShaderCapsFactory::Default(),
          "#version 400\n"
-         "out vec4 sk_FragColor;\n"
          "void main() {\n"
          "    float x = 1.0, y = 2.0;\n"
          "    int z = 3;\n"
@@ -267,7 +266,6 @@ DEF_TEST(SkSLStructs, r) {
          "}",
          *SkSL::ShaderCapsFactory::Default(),
          "#version 400\n"
-         "out vec4 sk_FragColor;\n"
          "struct A {\n"
          "    int x;\n"
          "    int y;\n"
@@ -427,7 +425,6 @@ DEF_TEST(SkSLModifiersDeclaration, r) {
          "void main() { }",
          *SkSL::ShaderCapsFactory::Default(),
          "#version 400\n"
-         "out vec4 sk_FragColor;\n"
          "layout (blend_support_all_equations) out ;\n"
          "layout (blend_support_all_equations) out ;\n"
          "layout (blend_support_multiply) out ;\n"
@@ -475,7 +472,6 @@ DEF_TEST(SkSLHex, r) {
          "}",
          *SkSL::ShaderCapsFactory::Default(),
          "#version 400\n"
-         "out vec4 sk_FragColor;\n"
          "void main() {\n"
          "    int i1 = 0;\n"
          "    i1++;\n"
@@ -511,7 +507,6 @@ DEF_TEST(SkSLVectorConstructors, r) {
          "float2 v7 = float2(int2(1, 2));",
          *SkSL::ShaderCapsFactory::Default(),
          "#version 400\n"
-         "out vec4 sk_FragColor;\n"
          "vec2 v1 = vec2(1.0);\n"
          "vec2 v2 = vec2(1.0, 2.0);\n"
          "vec2 v3 = vec2(1.0);\n"
@@ -528,7 +523,6 @@ DEF_TEST(SkSLArrayConstructors, r) {
          "float4x4 test3[] = float4x4[]();",
          *SkSL::ShaderCapsFactory::Default(),
          "#version 400\n"
-         "out vec4 sk_FragColor;\n"
          "float test1[] = float[](1.0, 2.0, 3.0, 4.0);\n"
          "vec2 test2[] = vec2[](vec2(1.0, 2.0), vec2(3.0, 4.0));\n"
          "mat4 test3[] = mat4[]();\n");
@@ -992,7 +986,6 @@ DEF_TEST(SkSLOffset, r) {
          "} test;",
          *SkSL::ShaderCapsFactory::Default(),
          "#version 400\n"
-         "out vec4 sk_FragColor;\n"
          "struct Test {\n"
          "    layout (offset = 0) int x;\n"
          "    layout (offset = 4) int y;\n"
@@ -1516,7 +1509,6 @@ DEF_TEST(SkSLDeadLoopVar, r) {
          "}",
          *SkSL::ShaderCapsFactory::Default(),
          "#version 400\n"
-         "out vec4 sk_FragColor;\n"
          "void main() {\n"
          "    for (; true; ) {\n"
          "        break;\n"
@@ -1615,7 +1607,6 @@ DEF_TEST(SkSLTypePrecision, r) {
          "double4x2 d42 = double4x2(1, 2, 3, 4, 5, 6, 7, 8);",
          *SkSL::ShaderCapsFactory::Default(),
          "#version 400\n"
-         "out vec4 sk_FragColor;\n"
          "float f = 1.0;\n"
          "float h = 2.0;\n"
          "double d = 3.0;\n"
@@ -1635,7 +1626,6 @@ DEF_TEST(SkSLTypePrecision, r) {
          *SkSL::ShaderCapsFactory::UsesPrecisionModifiers(),
          "#version 400\n"
          "precision mediump float;\n"
-         "out mediump vec4 sk_FragColor;\n"
          "highp float f = 1.0;\n"
          "mediump float h = 2.0;\n"
          "highp vec2 f2 = vec2(1.0, 2.0);\n"
@@ -1684,7 +1674,6 @@ DEF_TEST(SkSLNumberConversions, r) {
          "float f2f = f;",
          *SkSL::ShaderCapsFactory::Default(),
          "#version 400\n"
-         "out vec4 sk_FragColor;\n"
          "int s = int(sqrt(1.0));\n"
          "int i = int(sqrt(1.0));\n"
          "uint us = uint(sqrt(1.0));\n"
