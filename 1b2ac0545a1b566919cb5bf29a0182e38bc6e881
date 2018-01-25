@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1f953495_72b99a65",
+        "filename": "include/core/SkCoverageMode.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-01-25T22:22:05Z",
+      "side": 1,
+      "message": "It seems like this could use a little more user friendly documentation :)",
+      "range": {
+        "startLine": 13,
+        "startChar": 0,
+        "endLine": 33,
+        "endChar": 0
+      },
+      "revId": "1b2ac0545a1b566919cb5bf29a0182e38bc6e881",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "14007946_196a76eb",
+        "filename": "include/core/SkMaskFilter.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-01-25T22:22:05Z",
+      "side": 1,
+      "message": "wondering if src and dst are the right names now that there is no longer a SkBlendMode. Maybe a and b? 1 and 2?, first and second?",
+      "range": {
+        "startLine": 32,
+        "startChar": 43,
+        "endLine": 32,
+        "endChar": 91
+      },
+      "revId": "1b2ac0545a1b566919cb5bf29a0182e38bc6e881",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
