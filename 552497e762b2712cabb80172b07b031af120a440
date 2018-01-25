@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cbc62e85_7eabbc01",
+        "filename": "src/gpu/GrProxyProvider.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-01-25T14:28:07Z",
+      "side": 1,
+      "message": "The SkImage here can either be created with an SkBitmap or using raw PixMap data with ReleaseCallback. I think this should be usable for all our internal uses with little overhead (assuming bitmap is marked immutable). Also given the ref count nature of SkImage and think this works better for figure out the contract with a client about who owns the data and needs to keep it alive.",
+      "range": {
+        "startLine": 83,
+        "startChar": 45,
+        "endLine": 83,
+        "endChar": 67
+      },
+      "revId": "552497e762b2712cabb80172b07b031af120a440",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
