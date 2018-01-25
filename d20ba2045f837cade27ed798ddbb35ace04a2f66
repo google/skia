@@ -1,0 +1,106 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4be8c12a_39e7519c",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 193,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-01-25T14:03:49Z",
+      "side": 1,
+      "message": "purgeBadOps ?",
+      "revId": "d20ba2045f837cade27ed798ddbb35ace04a2f66",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7a909862_1813b1a9",
+        "filename": "src/gpu/GrOpList.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-01-25T14:03:49Z",
+      "side": 1,
+      "message": "purgeOpsWithUninstantiatedProxies ?",
+      "revId": "d20ba2045f837cade27ed798ddbb35ace04a2f66",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1b17597b_76f5bcc9",
+        "filename": "src/gpu/GrRenderTargetOpList.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 252,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-01-25T14:03:49Z",
+      "side": 1,
+      "message": "// When instantiation fails we drop the draw\n?",
+      "revId": "d20ba2045f837cade27ed798ddbb35ace04a2f66",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f76ced18_79610813",
+        "filename": "src/gpu/GrResourceAllocator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 255,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-01-25T14:03:49Z",
+      "side": 1,
+      "message": "Do we need/could we have this here?\n\nelse {\n   *outError \u003d AssignError::kFailedProxyInstantiation;\n}",
+      "revId": "d20ba2045f837cade27ed798ddbb35ace04a2f66",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b9f088e3_9068998d",
+        "filename": "src/gpu/GrResourceAllocator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 257,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-01-25T14:03:49Z",
+      "side": 1,
+      "message": "I think we can delete this comment now",
+      "revId": "d20ba2045f837cade27ed798ddbb35ace04a2f66",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "531554eb_7b7b38cd",
+        "filename": "src/gpu/GrTextureOpList.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-01-25T14:03:49Z",
+      "side": 1,
+      "message": "// comment here too \n?\nI would have to check but in this case (the TextureOpList) we might also want to for a clear on load",
+      "revId": "d20ba2045f837cade27ed798ddbb35ace04a2f66",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
