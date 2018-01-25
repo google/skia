@@ -112,7 +112,7 @@ struct Config {
     DoubleOption font_size = DoubleOption("-z", "Font size", 8.0f);
     DoubleOption left_margin = DoubleOption("-m", "Left margin", 20.0f);
     DoubleOption line_spacing_ratio =
-            DoubleOption("-h", "Line spacing ratio", 1.5f);
+            DoubleOption("-h", "Line spacing ratio", 0.25f);
     StringOption output_file_name =
             StringOption("-o", ".pdf output file name", "out-skiahf.pdf");
 
@@ -150,14 +150,15 @@ public:
             current_y = config->line_spacing_ratio.value * config->font_size.value;
         }
         SkTextBlobBuilder textBlobBuilder;
-        shaper.shape(&textBlobBuilder, glyph_paint, text, textBytes, true, SkPoint{0, 0},
-                     config->page_width.value - 2*config->left_margin.value);
+        SkPoint endPoint = shaper.shape(&textBlobBuilder, glyph_paint, text, textBytes, true,
+                                        SkPoint{0, 0},
+                                        config->page_width.value - 2*config->left_margin.value);
         sk_sp<const SkTextBlob> blob = textBlobBuilder.make();
         pageCanvas->drawTextBlob(
                 blob.get(), SkDoubleToScalar(current_x),
                 SkDoubleToScalar(current_y), glyph_paint);
         // Advance to the next line.
-        current_y += config->line_spacing_ratio.value * config->font_size.value;
+        current_y += endPoint.y() + config->line_spacing_ratio.value * config->font_size.value;
     }
 
 private:

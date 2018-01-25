@@ -29,13 +29,13 @@ unsigned utf8_lead_byte_to_count(const char* ptr) {
     return (((0xE5 << 24) >> ((unsigned)c >> 4 << 1)) & 3) + 1;
 }
 
-SkScalar SkShaper::shape(SkTextBlobBuilder* builder,
-                         const SkPaint& srcPaint,
-                         const char* utf8text,
-                         size_t textBytes,
-                         bool leftToRight,
-                         SkPoint point,
-                         SkScalar width) const {
+SkPoint SkShaper::shape(SkTextBlobBuilder* builder,
+                        const SkPaint& srcPaint,
+                        const char* utf8text,
+                        size_t textBytes,
+                        bool leftToRight,
+                        SkPoint point,
+                        SkScalar width) const {
     sk_ignore_unused_variable(leftToRight);
 
     SkPaint paint(srcPaint);
@@ -43,9 +43,12 @@ SkScalar SkShaper::shape(SkTextBlobBuilder* builder,
     paint.setTextEncoding(SkPaint::kUTF8_TextEncoding);
     int glyphCount = paint.countText(utf8text, textBytes);
     if (glyphCount <= 0) {
-        return 0;
+        return point;
     }
     SkRect bounds;
+    SkPaint::FontMetrics metrics;
+    paint.getFontMetrics(&metrics);
+    point.fY -= metrics.fAscent;
     (void)paint.measureText(utf8text, textBytes, &bounds);
     paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
     const SkTextBlobBuilder::RunBuffer& runBuffer =
@@ -67,5 +70,7 @@ SkScalar SkShaper::shape(SkTextBlobBuilder* builder,
         runBuffer.pos[i] = x;
         x += w;
     }
-    return (SkScalar)x;
+    point.fY += metrics.fDescent + metrics.fLeading;
+
+    return point;
 }
