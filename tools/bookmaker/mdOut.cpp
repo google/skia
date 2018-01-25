@@ -34,6 +34,15 @@ static string preformat(const string& orig) {
     return result;
 }
 
+static bool all_lower(const string& ref) {
+	for (auto ch : ref) {
+		if (!islower(ch)) {
+			return false;
+		}
+	}
+	return true;
+}
+
 // FIXME: preserve inter-line spaces and don't add new ones
 string MdOut::addReferences(const char* refStart, const char* refEnd,
         BmhParser::Resolvable resolvable) {
@@ -128,8 +137,12 @@ string MdOut::addReferences(const char* refStart, const char* refEnd,
                     }
                     ref = fullRef;
                 }
-            }
-            result += linkRef(leadingSpaces, def, ref);
+			} else if (BmhParser::Resolvable::kClone != resolvable &&
+					all_lower(ref) && (t.eof() || '(' != t.peek())) {
+				add_ref(leadingSpaces, ref, &result);
+				continue;
+			}
+			result += linkRef(leadingSpaces, def, ref, resolvable);
             continue;
         }
         if (!t.eof() && '(' == t.peek()) {
@@ -141,7 +154,7 @@ string MdOut::addReferences(const char* refStart, const char* refEnd,
             ref = string(start, t.fChar - start);
             if (const Definition* def = this->isDefined(t, ref, true)) {
                 SkASSERT(def->fFiddle.length());
-                result += linkRef(leadingSpaces, def, ref);
+				result += linkRef(leadingSpaces, def, ref, resolvable);
                 continue;
             }
         }
@@ -168,7 +181,7 @@ string MdOut::addReferences(const char* refStart, const char* refEnd,
             // will also need to see if Example Description matches var in example
             const Definition* def;
             if (fMethod && (def = fMethod->hasParam(ref))) {
-                result += linkRef(leadingSpaces, def, ref);
+				result += linkRef(leadingSpaces, def, ref, resolvable);
                 fLastParam = def;
                 distFromParam = 0;
                 continue;
@@ -183,7 +196,7 @@ string MdOut::addReferences(const char* refStart, const char* refEnd,
                         if (paramType) {
                             string fullName = paramType->fName + "::" + ref;
                             if (paramType->hasMatch(fullName)) {
-                                result += linkRef(leadingSpaces, paramType, ref);
+								result += linkRef(leadingSpaces, paramType, ref, resolvable);
                                 continue;
                             }
                         }
@@ -199,23 +212,23 @@ string MdOut::addReferences(const char* refStart, const char* refEnd,
         }
         auto topicIter = fBmhParser.fTopicMap.find(ref);
         if (topicIter != fBmhParser.fTopicMap.end()) {
-            result += linkRef(leadingSpaces, topicIter->second, ref);
+			result += linkRef(leadingSpaces, topicIter->second, ref, resolvable);
             continue;
         }
         bool startsSentence = t.sentenceEnd(start);
         if (!t.eof() && ' ' != t.peek()) {
-            add_ref(leadingSpaces, ref, &result);
+			add_ref(leadingSpaces, ref, &result);
             continue;
         }
         if (t.fChar + 1 >= t.fEnd || (!isupper(t.fChar[1]) && startsSentence)) {
-            add_ref(leadingSpaces, ref, &result);
+			add_ref(leadingSpaces, ref, &result);
             continue;
         }
         if (isupper(t.fChar[1]) && startsSentence) {
             TextParser next(t.fFileName, &t.fChar[1], t.fEnd, t.fLineCount);
             string nextWord(next.fChar, next.wordEnd() - next.fChar);
             if (this->isDefined(t, nextWord, true)) {
-                add_ref(leadingSpaces, ref, &result);
+				add_ref(leadingSpaces, ref, &result);
                 continue;
             }
         }
@@ -229,7 +242,7 @@ string MdOut::addReferences(const char* refStart, const char* refEnd,
                 string prefixed = root->fName + prefix + ref;
                 if (const Definition* def = root->find(prefixed,
                         RootDefinition::AllowParens::kYes)) {
-                    result += linkRef(leadingSpaces, def, ref);
+					result += linkRef(leadingSpaces, def, ref, resolvable);
                     goto found;
                 }
             }
@@ -608,8 +621,8 @@ string MdOut::linkName(const Definition* ref) const {
 // for now, hard-code to html links
 // def should not include SkXXX_
 string MdOut::linkRef(const string& leadingSpaces, const Definition* def,
-        const string& ref) const {
-    string buildup;
+        const string& ref, BmhParser::Resolvable resolvable) const {
+	string buildup;
     const string* str = &def->fFiddle;
     SkASSERT(str->length() > 0);
     size_t under = str->find('_');
@@ -659,7 +672,32 @@ string MdOut::linkRef(const string& leadingSpaces, const Definition* def,
     if (ref.length() > 2 && islower(ref[0]) && "()" == ref.substr(ref.length() - 2)) {
         refOut = refOut.substr(0, refOut.length() - 2);
     }
-    return leadingSpaces + "<a href=\"" + buildup + "\">" + refOut + "</a>";
+    string result = leadingSpaces + "<a href=\"" + buildup + "\">" + refOut + "</a>";
+	if (BmhParser::Resolvable::kClone == resolvable && MarkType::kMethod == def->fMarkType &&
+			def->fCloned && !def->fClone) {
+		bool found = false;
+		string match = def->fName;
+		if ("()" == match.substr(match.length() - 2)) {
+			match = match.substr(0, match.length() - 2);
+		}
+		match += '_';
+		auto classIter = fBmhParser.fClassMap.find(classPart);
+		if (fBmhParser.fClassMap.end() != classIter) {
+			for (char num = '2'; num <= '9'; ++num) {
+				string clone = match + num;
+				const auto& leafIter = classIter->second.fLeaves.find(clone);
+				if (leafIter != classIter->second.fLeaves.end()) {
+					result += "<sup><a href=\"" + buildup + "_" + num + "\">[" + num + "]</a></sup>";
+					found = true;
+				}
+			}
+
+		}
+		if (!found) {
+			SkDebugf("");
+		}
+	}
+	return result;
 }
 
 void MdOut::markTypeOut(Definition* def) {
@@ -842,13 +880,13 @@ void MdOut::markTypeOut(Definition* def) {
             string method_name = def->methodName();
             string formattedStr = def->formatFunction();
 
-            if (!def->isClone()) {
-                this->lfAlways(2);
-                FPRINTF("<a name=\"%s\"></a>", def->fFiddle.c_str());
+			this->lfAlways(2);
+			FPRINTF("<a name=\"%s\"></a>", def->fFiddle.c_str());
+			if (!def->isClone()) {
                 this->mdHeaderOutLF(2, 1);
                 FPRINTF("%s", method_name.c_str());
-                this->lf(2);
-            }
+			}
+			this->lf(2);
 
             // TODO: put in css spec that we can define somewhere else (if markup supports that)
             // TODO: 50em below should match limit = 80 in formatFunction()
