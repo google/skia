@@ -268,6 +268,27 @@ static inline void transform_scanline_4444(char* SK_RESTRICT dst, const char* SK
     }
 }
 
+static inline void transform_scanline_1010102(char* dst, const char* src,
+                                              int width, int, const SkPMColor*) {
+    SkJumper_MemoryCtx src_ctx = { (void*)src, 0 },
+                       dst_ctx = { (void*)dst, 0 };
+    SkRasterPipeline_<256> p;
+    p.append(SkRasterPipeline::load_1010102, &src_ctx);
+    p.append(SkRasterPipeline::store_u16_be, &dst_ctx);
+    p.run(0,0, width,1);
+}
+
+static inline void transform_scanline_1010102_premul(char* dst, const char* src,
+                                                     int width, int, const SkPMColor*) {
+    SkJumper_MemoryCtx src_ctx = { (void*)src, 0 },
+                       dst_ctx = { (void*)dst, 0 };
+    SkRasterPipeline_<256> p;
+    p.append(SkRasterPipeline::load_1010102, &src_ctx);
+    p.append(SkRasterPipeline::unpremul);
+    p.append(SkRasterPipeline::store_u16_be, &dst_ctx);
+    p.run(0,0, width,1);
+}
+
 /**
  * Transform from kRGBA_F16 to 8-bytes-per-pixel RGBA.
  */
