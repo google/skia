@@ -12,7 +12,6 @@
 #include "SkPath.h"
 #include "SkPoint.h"
 #include "SkSize.h"
-#include "SkottiePriv.h"
 #include "SkRefCnt.h"
 #include "SkTArray.h"
 #include "SkTypes.h"
@@ -31,11 +30,12 @@ class RRect;
 class RenderNode;;
 }
 
+namespace Json { class Value; }
+
 namespace  skottie {
 
 template <typename T>
 struct ValueTraits {
-    static bool   Parse(const Json::Value&, T*);
     static size_t Cardinality(const T&);
 
     template <typename U>

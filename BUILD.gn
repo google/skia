@@ -1327,6 +1327,7 @@ if (skia_enable_tools) {
     sources = [
       "experimental/skottie/Skottie.cpp",
       "experimental/skottie/SkottieAnimator.cpp",
+      "experimental/skottie/SkottieParser.cpp",
       "experimental/skottie/SkottieProperties.cpp",
     ]
     deps = [
