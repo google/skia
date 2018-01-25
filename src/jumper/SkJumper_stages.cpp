@@ -863,6 +863,12 @@ SI void from_8888(U32 _8888, F* r, F* g, F* b, F* a) {
     *b = cast((_8888 >> 16) & 0xff) * (1/255.0f);
     *a = cast((_8888 >> 24)       ) * (1/255.0f);
 }
+SI void from_1010102(U32 rgba, F* r, F* g, F* b, F* a) {
+    *r = cast((rgba      ) & 0x3ff) * (1/1023.0f);
+    *g = cast((rgba >> 10) & 0x3ff) * (1/1023.0f);
+    *b = cast((rgba >> 20) & 0x3ff) * (1/1023.0f);
+    *a = cast((rgba >> 30)        ) * (1/   3.0f);
+}
 
 // Used by load_ and store_ stages to get to the right (dx,dy) starting point of contiguous memory.
 template <typename T>
@@ -1292,6 +1298,9 @@ STAGE(unpremul, Ctx::None) {
     b *= scale;
 }
 
+STAGE(force_opaque    , Ctx::None) {  a = 1; }
+STAGE(force_opaque_dst, Ctx::None) { da = 1; }
+
 SI F from_srgb(F s) {
     auto lo = s * (1/12.92f);
     auto hi = mad(s*s, mad(s, 0.3000f, 0.6975f), 0.0025f);
@@ -1687,6 +1696,29 @@ STAGE(store_bgra, const SkJumper_MemoryCtx* ctx) {
            | to_unorm(g, 255) <<  8
            | to_unorm(r, 255) << 16
            | to_unorm(a, 255) << 24;
+    store(ptr, px, tail);
+}
+
+STAGE(load_1010102, const SkJumper_MemoryCtx* ctx) {
+    auto ptr = ptr_at_xy<const uint32_t>(ctx, dx,dy);
+    from_1010102(load<U32>(ptr, tail), &r,&g,&b,&a);
+}
+STAGE(load_1010102_dst, const SkJumper_MemoryCtx* ctx) {
+    auto ptr = ptr_at_xy<const uint32_t>(ctx, dx,dy);
+    from_1010102(load<U32>(ptr, tail), &dr,&dg,&db,&da);
+}
+STAGE(gather_1010102, const SkJumper_GatherCtx* ctx) {
+    const uint32_t* ptr;
+    U32 ix = ix_and_ptr(&ptr, ctx, r,g);
+    from_1010102(gather(ptr, ix), &r,&g,&b,&a);
+}
+STAGE(store_1010102, const SkJumper_MemoryCtx* ctx) {
+    auto ptr = ptr_at_xy<uint32_t>(ctx, dx,dy);
+
+    U32 px = to_unorm(r, 1023)
+           | to_unorm(g, 1023) << 10
+           | to_unorm(b, 1023) << 20
+           | to_unorm(a,    3) << 30;
     store(ptr, px, tail);
 }
 
