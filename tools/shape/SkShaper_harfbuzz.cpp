@@ -134,16 +134,16 @@ public:
         SkASSERT(fUTF16LogicalPosition < ubidi_getLength(fBidi.get()));
         int32_t endPosition = ubidi_getLength(fBidi.get());
         fLevel = ubidi_getLevelAt(fBidi.get(), fUTF16LogicalPosition);
-        ++fUTF16LogicalPosition;
-        SkUTF8_NextUnichar(&fEndOfCurrentRun);
+        SkUnichar u = SkUTF8_NextUnichar(&fEndOfCurrentRun);
+        fUTF16LogicalPosition += SkUTF16_FromUnichar(u);
         UBiDiLevel level;
         while (fUTF16LogicalPosition < endPosition) {
             level = ubidi_getLevelAt(fBidi.get(), fUTF16LogicalPosition);
             if (level != fLevel) {
                 break;
             }
-            ++fUTF16LogicalPosition;
-            SkUTF8_NextUnichar(&fEndOfCurrentRun);
+            u = SkUTF8_NextUnichar(&fEndOfCurrentRun);
+            fUTF16LogicalPosition += SkUTF16_FromUnichar(u);
         }
     }
     const char* endOfCurrentRun() const override {
