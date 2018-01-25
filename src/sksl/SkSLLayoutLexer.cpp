@@ -551,4 +551,4 @@ LayoutToken LayoutLexer::next() {
     return LayoutToken(lastAccept, startOffset, lastAcceptEnd - startOffset);
 }
 
-}  // namespace
+}  // namespace SkSL

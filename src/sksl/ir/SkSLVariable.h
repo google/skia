@@ -25,6 +25,7 @@ struct Expression;
 struct Variable : public Symbol {
     enum Storage {
         kGlobal_Storage,
+        kInterfaceBlock_Storage,
         kLocal_Storage,
         kParameter_Storage
     };
