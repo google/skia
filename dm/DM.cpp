@@ -899,6 +899,11 @@ static Sink* create_sink(const GrContextOptions& grCtxOptions, const SkCommandLi
         SINK("4444",    RasterSink, kARGB_4444_SkColorType);
         SINK("8888",    RasterSink, kN32_SkColorType);
         SINK("srgb",    RasterSink, kN32_SkColorType, srgbColorSpace);
+        SINK("rgba",    RasterSink, kRGBA_8888_SkColorType);
+        SINK("bgra",    RasterSink, kBGRA_8888_SkColorType);
+        SINK("rgbx",    RasterSink, kRGB_888x_SkColorType);
+        SINK("1010102", RasterSink, kRGBA_1010102_SkColorType);
+        SINK("101010x", RasterSink, kRGB_101010x_SkColorType);
         SINK("f16",     RasterSink, kRGBA_F16_SkColorType, srgbLinearColorSpace);
         SINK("pdf",     PDFSink, false, SK_ScalarDefaultRasterDPI);
         SINK("skp",     SKPSink);
