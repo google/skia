@@ -126,6 +126,24 @@
     },
     {
       "key": {
+        "uuid": "c14ccbbb_aca43ed3",
+        "filename": "src/codec/SkAndroidCodec.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-01-25T02:19:32Z",
+      "side": 1,
+      "message": "I came around on this. Added support and images for webp. We should respect it.",
+      "parentUuid": "46f7877a_e6a37cd9",
+      "revId": "fe84c4898982b954093f314b159f2f89ded63246",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "af994681_04a90a68",
         "filename": "src/codec/SkAndroidCodec.cpp",
         "patchSetId": 3
@@ -190,6 +208,24 @@
       "side": 1,
       "message": "I\u0027ll see if I can find/make one.",
       "parentUuid": "dc6497e1_b98c0f87",
+      "revId": "fe84c4898982b954093f314b159f2f89ded63246",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "11fb814f_6e296d1d",
+        "filename": "tests/AndroidCodecTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-01-25T02:19:32Z",
+      "side": 1,
+      "message": "I used libwebp\u0027s converter, cwebp, which lets you convert from jpeg to webp while keeping the EXIF data. I\u0027ve added support and tests for webp",
+      "parentUuid": "1c405ba9_8b9245b7",
       "revId": "fe84c4898982b954093f314b159f2f89ded63246",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
