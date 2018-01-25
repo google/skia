@@ -74,8 +74,9 @@ enum SkColorType {
     kBGRA_8888_SkColorType,
     kGray_8_SkColorType,
     kRGBA_F16_SkColorType,
+    kRGBX_8888_SkColorType,
 
-    kLastEnum_SkColorType = kRGBA_F16_SkColorType,
+    kLastEnum_SkColorType = kRGBX_8888_SkColorType,
 
 #if SK_PMCOLOR_BYTE_ORDER(B,G,R,A)
     kN32_SkColorType = kBGRA_8888_SkColorType,
@@ -87,39 +88,33 @@ enum SkColorType {
 };
 
 static int SkColorTypeBytesPerPixel(SkColorType ct) {
-    static const uint8_t gSize[] = {
-        0,  // Unknown
-        1,  // Alpha_8
-        2,  // RGB_565
-        2,  // ARGB_4444
-        4,  // RGBA_8888
-        4,  // BGRA_8888
-        1,  // kGray_8
-        8,  // kRGBA_F16
-    };
-    static_assert(SK_ARRAY_COUNT(gSize) == (size_t)(kLastEnum_SkColorType + 1),
-                  "size_mismatch_with_SkColorType_enum");
-
-    SkASSERT((size_t)ct < SK_ARRAY_COUNT(gSize));
-    return gSize[ct];
+    switch (ct) {
+        case kUnknown_SkColorType:   return 0;
+        case kAlpha_8_SkColorType:   return 1;
+        case kRGB_565_SkColorType:   return 2;
+        case kARGB_4444_SkColorType: return 2;
+        case kRGBA_8888_SkColorType: return 4;
+        case kBGRA_8888_SkColorType: return 4;
+        case kRGBX_8888_SkColorType: return 4;
+        case kGray_8_SkColorType:    return 1;
+        case kRGBA_F16_SkColorType:  return 8;
+    }
+    return 0;
 }
 
 static int SkColorTypeShiftPerPixel(SkColorType ct) {
-    static const uint8_t gShift[] = {
-        0,  // Unknown
-        0,  // Alpha_8
-        1,  // RGB_565
-        1,  // ARGB_4444
-        2,  // RGBA_8888
-        2,  // BGRA_8888
-        0,  // kGray_8
-        3,  // kRGBA_F16
-    };
-    static_assert(SK_ARRAY_COUNT(gShift) == (size_t)(kLastEnum_SkColorType + 1),
-                  "size_mismatch_with_SkColorType_enum");
-
-    SkASSERT((size_t)ct < SK_ARRAY_COUNT(gShift));
-    return gShift[ct];
+    switch (ct) {
+        case kUnknown_SkColorType:   return 0;
+        case kAlpha_8_SkColorType:   return 0;
+        case kRGB_565_SkColorType:   return 1;
+        case kARGB_4444_SkColorType: return 1;
+        case kRGBA_8888_SkColorType: return 2;
+        case kBGRA_8888_SkColorType: return 2;
+        case kRGBX_8888_SkColorType: return 2;
+        case kGray_8_SkColorType:    return 0;
+        case kRGBA_F16_SkColorType:  return 3;
+    }
+    return 0;
 }
 
 static inline size_t SkColorTypeMinRowBytes(SkColorType ct, int width) {

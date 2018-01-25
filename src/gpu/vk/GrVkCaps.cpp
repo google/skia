@@ -464,6 +464,8 @@ bool validate_image_info(const GrVkImageInfo* imageInfo, SkColorType ct, GrPixel
                 *config = kRGBA_half_GrPixelConfig;
             }
             break;
+        case kRGBX_8888_SkColorType:
+            return false;
     }
 
     return kUnknown_GrPixelConfig != *config;
