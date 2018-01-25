@@ -63,6 +63,7 @@ struct Layout {
         kR8,
         kRGBA8I,
         kR8I,
+        kRG16,
     };
 
     // used by SkSL processors
@@ -86,6 +87,7 @@ struct Layout {
             case Format::kR8:           return "r8";
             case Format::kRGBA8I:       return "rgba8i";
             case Format::kR8I:          return "r8i";
+            case Format::kRG16:         return "rg16";
         }
         ABORT("Unexpected format");
     }
@@ -114,6 +116,9 @@ struct Layout {
             return true;
         } else if (str == "r8i") {
             *format = Format::kR8I;
+            return true;
+        } else if (str == "rg16") {
+            *format = Format::kRG16;
             return true;
         }
         return false;
