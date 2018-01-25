@@ -75,6 +75,14 @@ public:
                                              const void* srcData, size_t rowBytes);
 
     /*
+     * Create an un-mipmapped texture proxy with data. The SkImage must be a raster backend image.
+     * Since the SkImage is ref counted, we simply take a ref on it to keep the data alive until we
+     * actually upload the data to the gpu.
+     */
+    sk_sp<GrTextureProxy> createTextureProxy(const GrSurfaceDesc&, SkBudgeted,
+                                             sk_sp<SkImage> srcData);
+
+    /*
      * Create a mipmapped texture proxy with data.
      *
      * @param desc          Description of the texture properties.
