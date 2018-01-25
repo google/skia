@@ -2476,6 +2476,7 @@ bool validate_sized_format(GrGLenum format, SkColorType ct, GrPixelConfig* confi
 
     switch (ct) {
         case kUnknown_SkColorType:
+        case kRGBA_1010102_SkColorType:
             return false;
         case kAlpha_8_SkColorType:
             if (GR_GL_ALPHA8 == format) {

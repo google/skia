@@ -22,8 +22,9 @@ enum Stored_SkColorType {
     kIndex_8_Stored_SkColorType_DEPRECATED  = 6,
     kGray_8_Stored_SkColorType              = 7,
     kRGBA_F16_Stored_SkColorType            = 8,
+    kRGBA_1010102_Stored_SkColorType        = 9,
 
-    kLast_Stored_SkColorType                = kRGBA_F16_Stored_SkColorType,
+    kLast_Stored_SkColorType                = kRGBA_1010102_Stored_SkColorType,
 };
 
 // Index with Stored_SkColorType
@@ -37,6 +38,7 @@ const SkColorType gStoredToLive[] = {
     kUnknown_SkColorType,       // was kIndex_8
     kGray_8_SkColorType,
     kRGBA_F16_SkColorType,
+    kRGBA_1010102_SkColorType,
 };
 
 // Index with SkColorType
@@ -49,6 +51,7 @@ const Stored_SkColorType gLiveToStored[] = {
     kBGRA_8888_Stored_SkColorType,
     kGray_8_Stored_SkColorType,
     kRGBA_F16_Stored_SkColorType,
+    kRGBA_1010102_Stored_SkColorType,
 };
 
 static uint8_t live_to_stored(unsigned ct) {
@@ -147,6 +150,7 @@ bool SkColorTypeValidateAlphaType(SkColorType colorType, SkAlphaType alphaType,
         case kRGBA_8888_SkColorType:
         case kBGRA_8888_SkColorType:
         case kRGBA_F16_SkColorType:
+        case kRGBA_1010102_SkColorType:
             if (kUnknown_SkAlphaType == alphaType) {
                 return false;
             }
