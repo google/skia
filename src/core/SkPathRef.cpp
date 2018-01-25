@@ -771,9 +771,6 @@ bool SkPathRef::isValid() const {
     if (nullptr == fPoints && 0 != fFreeSpace) {
         return false;
     }
-    if (nullptr == fPoints && 0 != fFreeSpace) {
-        return false;
-    }
     if (nullptr == fPoints && fPointCnt) {
         return false;
     }
