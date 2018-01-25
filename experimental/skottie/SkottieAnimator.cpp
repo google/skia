@@ -16,31 +16,19 @@ SkScalar lerp_scalar(float v0, float v1, float t) {
     return v0 * (1 - t) + v1 * t;
 }
 
-static inline SkPoint ParsePoint(const Json::Value& v, const SkPoint& defaultValue) {
-    if (!v.isObject())
-        return defaultValue;
-
-    const auto& vx = v["x"];
-    const auto& vy = v["y"];
-
-    // Some BM versions seem to store x/y as single-element arrays.
-    return SkPoint::Make(ParseScalar(vx.isArray() ? vx[0] : vx, defaultValue.x()),
-                         ParseScalar(vy.isArray() ? vy[0] : vy, defaultValue.y()));
-}
-
 } // namespace
 
 bool KeyframeIntervalBase::parse(const Json::Value& k, KeyframeIntervalBase* prev) {
     SkASSERT(k.isObject());
 
-    fT0 = fT1 = ParseScalar(k["t"], SK_ScalarMin);
+    fT0 = fT1 = ParseDefault(k["t"], SK_ScalarMin);
     if (fT0 == SK_ScalarMin) {
         return false;
     }
 
     if (prev) {
         if (prev->fT1 >= fT0) {
-            LOG("!! Dropping out-of-order key frame (t: %f < t: %f)\n", fT0, prev->fT1);
+            SkDebugf("!! Dropping out-of-order key frame (t: %f < t: %f)\n", fT0, prev->fT1);
             return false;
         }
         // Back-fill t1 in prev interval.  Note: we do this even if we end up discarding
@@ -48,14 +36,14 @@ bool KeyframeIntervalBase::parse(const Json::Value& k, KeyframeIntervalBase* pre
         prev->fT1 = fT0;
     }
 
-    fHold = ParseBool(k["h"], false);
+    fHold = ParseDefault(k["h"], false);
 
     if (!fHold) {
         // default is linear lerp
         static constexpr SkPoint kDefaultC0 = { 0, 0 },
                                  kDefaultC1 = { 1, 1 };
-        const auto c0 = ParsePoint(k["i"], kDefaultC0),
-                   c1 = ParsePoint(k["o"], kDefaultC1);
+        const auto c0 = ParseDefault(k["i"], kDefaultC0),
+                   c1 = ParseDefault(k["o"], kDefaultC1);
 
         if (c0 != kDefaultC0 || c1 != kDefaultC1) {
             fCubicMap = skstd::make_unique<SkCubicMap>();

@@ -8,7 +8,7 @@
 #include "SkottieProperties.h"
 
 #include "SkColor.h"
-#include "SkottiePriv.h"
+#include "SkJSONCPP.h"
 #include "SkPath.h"
 #include "SkSGColor.h"
 #include "SkSGGradient.h"
@@ -21,26 +21,6 @@
 namespace  skottie {
 
 namespace {
-
-using PointArray = SkSTArray<64, SkPoint, true>;
-
-bool ParsePoints(const Json::Value& v, PointArray* pts) {
-    if (!v.isArray()) {
-        return false;
-    }
-
-    for (Json::ArrayIndex i = 0; i < v.size(); ++i) {
-        const auto& pt = v[i];
-        if (!pt.isArray() || pt.size() != 2 ||
-            !pt[0].isConvertibleTo(Json::realValue) ||
-            !pt[1].isConvertibleTo(Json::realValue)) {
-            return false;
-        }
-
-        pts->push_back(SkPoint::Make(ParseScalar(pt[0], 0), ParseScalar(pt[1], 0)));
-    }
-    return true;
-}
 
 SkColor VecToColor(const float* v, size_t size) {
     // best effort to turn this into a color
@@ -58,20 +38,6 @@ SkColor VecToColor(const float* v, size_t size) {
 } // namespace
 
 template <>
-bool ValueTraits<ScalarValue>::Parse(const Json::Value& v, ScalarValue* scalar) {
-    // Some files appear to wrap keyframes in arrays for no reason.
-    if (v.isArray() && v.size() == 1) {
-        return Parse(v[0], scalar);
-    }
-
-    if (v.isNull() || !v.isConvertibleTo(Json::realValue))
-        return false;
-
-    *scalar = v.asFloat();
-    return true;
-}
-
-template <>
 size_t ValueTraits<ScalarValue>::Cardinality(const ScalarValue&) {
     return 1;
 }
@@ -80,24 +46,6 @@ template <>
 template <>
 SkScalar ValueTraits<ScalarValue>::As<SkScalar>(const ScalarValue& v) {
     return v;
-}
-
-template <>
-bool ValueTraits<VectorValue>::Parse(const Json::Value& v, VectorValue* vec) {
-    SkASSERT(vec->empty());
-
-    if (!v.isArray())
-        return false;
-
-    for (Json::ArrayIndex i = 0; i < v.size(); ++i) {
-        ScalarValue scalar;
-        if (!ValueTraits<ScalarValue>::Parse(v[i], &scalar))
-            return false;
-
-        vec->push_back(std::move(scalar));
-    }
-
-    return true;
 }
 
 template <>
@@ -125,51 +73,6 @@ template <>
 SkSize ValueTraits<VectorValue>::As<SkSize>(const VectorValue& vec) {
     const auto pt = ValueTraits::As<SkPoint>(vec);
     return SkSize::Make(pt.x(), pt.y());
-}
-
-template<>
-bool ValueTraits<ShapeValue>::Parse(const Json::Value& v, ShapeValue* shape) {
-    PointArray inPts,  // Cubic Bezier "in" control points, relative to vertices.
-               outPts, // Cubic Bezier "out" control points, relative to vertices.
-               verts;  // Cubic Bezier vertices.
-
-    // Some files appear to wrap keyframes in arrays for no reason.
-    if (v.isArray() && v.size() == 1) {
-        return Parse(v[0], shape);
-    }
-
-    if (!v.isObject() ||
-        !ParsePoints(v["i"], &inPts) ||
-        !ParsePoints(v["o"], &outPts) ||
-        !ParsePoints(v["v"], &verts) ||
-        inPts.count() != outPts.count() ||
-        inPts.count() != verts.count()) {
-
-        return false;
-    }
-
-    SkASSERT(shape->isEmpty());
-
-    if (!verts.empty()) {
-        shape->moveTo(verts.front());
-    }
-
-    const auto& addCubic = [&](int from, int to) {
-        shape->cubicTo(verts[from] + outPts[from],
-                       verts[to]   + inPts[to],
-                       verts[to]);
-    };
-
-    for (int i = 1; i < verts.count(); ++i) {
-        addCubic(i - 1, i);
-    }
-
-    if (!verts.empty() && ParseBool(v["c"], false)) {
-        addCubic(verts.count() - 1, 0);
-        shape->close();
-    }
-
-    return true;
 }
 
 template <>
@@ -252,7 +155,7 @@ void CompositeGradient::apply() {
     // |fColorStops| holds |fStopCount| x [ pos, r, g, g ] + ? x [ pos, alpha ]
 
     if (fColorStops.size() < fStopCount * 4 || ((fColorStops.size() - fStopCount * 4) % 2)) {
-        LOG("!! Invalid gradient stop array size: %zu", fColorStops.size());
+        SkDebugf("!! Invalid gradient stop array size: %zu", fColorStops.size());
         return;
     }
 
