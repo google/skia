@@ -64,6 +64,6 @@ public:
 };
 
 inline bool operator==(const SkPDFCanon::BitmapGlyphKey& u, const SkPDFCanon::BitmapGlyphKey& v) {
-    return memcmp(&u, &u, sizeof(SkPDFCanon::BitmapGlyphKey)) == 0;
+    return memcmp(&u, &v, sizeof(SkPDFCanon::BitmapGlyphKey)) == 0;
 }
 #endif  // SkPDFCanon_DEFINED
