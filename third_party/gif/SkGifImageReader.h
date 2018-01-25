@@ -202,7 +202,6 @@ public:
         , m_dataSize(0)
         , m_progressiveDisplay(false)
         , m_interlaced(false)
-        , m_delayTime(0)
         , m_currentLzwBlock(0)
         , m_isComplete(false)
         , m_isHeaderDefined(false)
@@ -224,8 +223,6 @@ public:
     int transparentPixel() const { return m_transparentPixel; }
     void setTransparentPixel(int pixel) { m_transparentPixel = pixel; }
 
-    unsigned delayTime() const { return m_delayTime; }
-    void setDelayTime(unsigned delay) { m_delayTime = delay; }
     bool isComplete() const { return m_isComplete; }
     void setComplete() { m_isComplete = true; }
     bool isHeaderDefined() const { return m_isHeaderDefined; }
@@ -255,8 +252,6 @@ private:
 
     bool m_progressiveDisplay; // If true, do Haeberli interlace hack.
     bool m_interlaced; // True, if scanlines arrive interlaced order.
-
-    unsigned m_delayTime; // Display time, in milliseconds, for this image in a multi-image GIF.
 
     std::unique_ptr<SkGIFLZWContext> m_lzwContext;
     // LZW blocks for this frame.
