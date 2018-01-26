@@ -316,3 +316,19 @@ void SkPicture::flatten(SkWriteBuffer& buffer) const {
     }
 }
 
+sk_sp<SkPicture> SkPicture::MakePlaceholder(SkRect cull) {
+    struct Placeholder : public SkPicture {
+          explicit Placeholder(SkRect cull) : fCull(cull) {}
+
+          void playback(SkCanvas*, AbortCallback*) const override { }
+
+          // approximateOpCount() needs to be greater than kMaxPictureOpsToUnrollInsteadOfRef
+          // in SkCanvas.cpp to avoid that unrolling.  SK_MaxS32 can't not be big enough!
+          int    approximateOpCount()   const override { return SK_MaxS32; }
+          size_t approximateBytesUsed() const override { return sizeof(*this); }
+          SkRect cullRect()             const override { return fCull; }
+
+          SkRect fCull;
+    };
+    return sk_make_sp<Placeholder>(cull);
+}
