@@ -8,7 +8,6 @@
 #include "SkBitmap.h"
 #include "SkBitmapCache.h"
 #include "SkCanvas.h"
-#include "SkColorSpace_Base.h"
 #include "SkData.h"
 #include "SkImageEncoder.h"
 #include "SkImageFilter.h"

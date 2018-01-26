@@ -53,6 +53,7 @@ enum class KeyWord {
     kElse,
     kEndif,
     kEnum,
+    kError,
     kFloat,
     kFriend,
     kIf,
@@ -1163,6 +1164,7 @@ public:
         kYes,   // resolved, output
         kOut,   // not resolved, but output
         kLiteral, // output untouched (FIXME: is this really different from kOut?)
+		kClone, // resolved, output, with references to clones as well
     };
 
     enum class Exemplary {
@@ -1190,6 +1192,7 @@ public:
 #define R_Y Resolvable::kYes
 #define R_N Resolvable::kNo
 #define R_O Resolvable::kOut
+#define R_C Resolvable::kClone
 
 #define E_Y Exemplary::kYes
 #define E_N Exemplary::kNo
@@ -1231,7 +1234,7 @@ public:
 , { "List",        nullptr,      MarkType::kList,         R_Y, E_N, M(Method) | M_CSST | M_E | M_D }
 , { "Literal",     nullptr,      MarkType::kLiteral,      R_N, E_N, M(Code) }
 , { "",            nullptr,      MarkType::kMarkChar,     R_N, E_N, 0 }
-, { "Member",      nullptr,      MarkType::kMember,       R_Y, E_N, M(Class) | M(Struct) }
+, { "Member",      nullptr,      MarkType::kMember,       R_Y, E_N, M_CSST }
 , { "Method",      &fMethodMap,  MarkType::kMethod,       R_Y, E_Y, M_CSST }
 , { "NoExample",   nullptr,      MarkType::kNoExample,    R_O, E_N, M_CSST | M_E | M(Method) }
 , { "Outdent",     nullptr,      MarkType::kOutdent,      R_N, E_N, M(Code) }
@@ -1241,7 +1244,7 @@ public:
 , { "Return",      nullptr,      MarkType::kReturn,       R_Y, E_N, M(Method) }
 , { "",            nullptr,      MarkType::kRoot,         R_Y, E_N, 0 }
 , { "",            nullptr,      MarkType::kRow,          R_Y, E_N, M(Table) | M(List) }
-, { "SeeAlso",     nullptr,      MarkType::kSeeAlso,      R_Y, E_N,
+, { "SeeAlso",     nullptr,      MarkType::kSeeAlso,      R_C, E_N,
                                                              M_CSST | M_E | M(Method) | M(Typedef) }
 , { "Set",         nullptr,      MarkType::kSet,          R_N, E_N, M(Example) | M(NoExample) }
 , { "StdOut",      nullptr,      MarkType::kStdOut,       R_N, E_N, M(Example) | M(NoExample) }
@@ -1475,7 +1478,7 @@ public:
     IClassDefinition* defineClass(const Definition& includeDef, const string& className);
     void dumpClassTokens(IClassDefinition& classDef);
     void dumpComment(const Definition& );
-    void dumpEnum(const Definition& );
+    void dumpEnum(const Definition& , const string& name);
     void dumpMethod(const Definition& );
     void dumpMember(const Definition& );
     bool dumpTokens(const string& directory);
@@ -1523,7 +1526,7 @@ public:
             return false;
         }
         string name(path);
-        return parseInclude(name);
+        return this->parseInclude(name);
     }
 
     bool parseInclude(const string& name);
@@ -1548,6 +1551,9 @@ public:
         Definition* container = &fParent->fTokens.back();
         this->addDefinition(container);
     }
+
+    static void RemoveFile(const char* docs, const char* includes);
+    static void RemoveOneFile(const char* docs, const char* includesFileOrPath);
 
     void reset() override {
         INHERITED::resetCommon();
@@ -1675,6 +1681,14 @@ public:
     void writeTableRow(size_t pad, const string& col1) {
         this->lf(1);
         string row = "# " + col1 + string(pad - col1.length(), ' ') + " # ##";
+        this->writeString(row);
+        this->lf(1);
+    }
+
+    void writeTableRow(size_t pad1, const string& col1, size_t pad2, const string& col2) {
+        this->lf(1);
+        string row = "# " + col1 + string(pad1 - col1.length(), ' ') + " # " +
+                col2 + string(pad2 - col2.length(), ' ') + " ##";
         this->writeString(row);
         this->lf(1);
     }
@@ -1816,6 +1830,7 @@ public:
     void enumHeaderOut(const RootDefinition* root, const Definition& child);
     void enumMembersOut(const RootDefinition* root, Definition& child);
     void enumSizeItems(const Definition& child);
+	Definition* findMemberCommentBlock(const vector<Definition*>& bmhChildren, const string& name) const;
     int lookupMethod(const PunctuationState punctuation, const Word word,
             const int start, const int run, int lastWrite,
             const char* data, bool hasIndirection);
@@ -1991,7 +2006,8 @@ private:
     const Definition* findParamType();
     const Definition* isDefined(const TextParser& parser, const string& ref, bool report) const;
     string linkName(const Definition* ) const;
-    string linkRef(const string& leadingSpaces, const Definition*, const string& ref) const;
+    string linkRef(const string& leadingSpaces, const Definition*, const string& ref,
+			BmhParser::Resolvable ) const;
     void markTypeOut(Definition* );
     void mdHeaderOut(int depth) { mdHeaderOutLF(depth, 2); }
     void mdHeaderOutLF(int depth, int lf);

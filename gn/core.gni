@@ -217,8 +217,6 @@ skia_core_sources = [
   "$_src/core/SkPathRef.cpp",
   "$_src/core/SkPicture.cpp",
   "$_src/core/SkPictureCommon.h",
-  "$_src/core/SkPictureContentInfo.cpp",
-  "$_src/core/SkPictureContentInfo.h",
   "$_src/core/SkPictureData.cpp",
   "$_src/core/SkPictureData.h",
   "$_src/core/SkPictureFlat.cpp",

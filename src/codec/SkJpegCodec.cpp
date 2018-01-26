@@ -10,7 +10,6 @@
 #include "SkJpegDecoderMgr.h"
 #include "SkCodecPriv.h"
 #include "SkColorData.h"
-#include "SkColorSpace_Base.h"
 #include "SkStream.h"
 #include "SkTemplates.h"
 #include "SkTypes.h"
@@ -50,32 +49,36 @@ static bool is_orientation_marker(jpeg_marker_struct* marker, SkEncodedOrigin* o
         return false;
     }
 
-    const uint8_t* data = marker->data;
     constexpr uint8_t kExifSig[] { 'E', 'x', 'i', 'f', '\0' };
-    if (memcmp(data, kExifSig, sizeof(kExifSig))) {
+    if (memcmp(marker->data, kExifSig, sizeof(kExifSig))) {
         return false;
     }
 
+    // Account for 'E', 'x', 'i', 'f', '\0', '<fill byte>'.
+    constexpr size_t kOffset = 6;
+    return is_orientation_marker(marker->data + kOffset, marker->data_length - kOffset,
+            orientation);
+}
+
+bool is_orientation_marker(const uint8_t* data, size_t data_length, SkEncodedOrigin* orientation) {
     bool littleEndian;
-    if (!is_valid_endian_marker(data + 6, &littleEndian)) {
+    if (!is_valid_endian_marker(data, &littleEndian)) {
         return false;
     }
 
     // Get the offset from the start of the marker.
-    // Account for 'E', 'x', 'i', 'f', '\0', '<fill byte>'.
     // Though this only reads four bytes, use a larger int in case it overflows.
-    uint64_t offset = get_endian_int(data + 10, littleEndian);
-    offset += sizeof(kExifSig) + 1;
+    uint64_t offset = get_endian_int(data + 4, littleEndian);
 
     // Require that the marker is at least large enough to contain the number of entries.
-    if (marker->data_length < offset + 2) {
+    if (data_length < offset + 2) {
         return false;
     }
     uint32_t numEntries = get_endian_short(data + offset, littleEndian);
 
     // Tag (2 bytes), Datatype (2 bytes), Number of elements (4 bytes), Data (4 bytes)
     const uint32_t kEntrySize = 12;
-    const auto max = SkTo<uint32_t>((marker->data_length - offset - 2) / kEntrySize);
+    const auto max = SkTo<uint32_t>((data_length - offset - 2) / kEntrySize);
     numEntries = SkTMin(numEntries, max);
 
     // Advance the data to the start of the entries.

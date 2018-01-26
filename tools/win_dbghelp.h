@@ -8,7 +8,7 @@
 #ifndef win_dbghelp_DEFINED
 #define win_dbghelp_DEFINED
 
-#ifdef SK_BUILD_FOR_WIN32
+#ifdef SK_BUILD_FOR_WIN
 
 #include <dbghelp.h>
 #include <shellapi.h>
@@ -30,6 +30,6 @@ void setUpDebuggingFromArgs(const char* vargs0);
 
 int GenerateDumpAndPrintCallstack(EXCEPTION_POINTERS* pExceptionPointers);
 
-#endif  // SK_BUILD_FOR_WIN32
+#endif  // SK_BUILD_FOR_WIN
 
 #endif  // win_dbghelp_DEFINED

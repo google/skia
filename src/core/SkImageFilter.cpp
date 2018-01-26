@@ -8,7 +8,6 @@
 #include "SkImageFilter.h"
 
 #include "SkCanvas.h"
-#include "SkColorSpace_Base.h"
 #include "SkFuzzLogging.h"
 #include "SkImageFilterCache.h"
 #include "SkLocalMatrixImageFilter.h"

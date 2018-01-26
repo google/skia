@@ -20,7 +20,6 @@
 #include "SkArenaAlloc.h"
 #include "SkCoreBlitters.h"
 #include "SkColorSpaceXform.h"
-#include "SkColorSpace_Base.h"
 
 struct Matrix43 {
     float fMat[12];    // column major

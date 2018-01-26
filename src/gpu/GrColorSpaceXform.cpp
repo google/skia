@@ -8,7 +8,6 @@
 #include "GrColorSpaceXform.h"
 #include "SkColorSpace.h"
 #include "SkColorSpacePriv.h"
-#include "SkColorSpace_Base.h"
 #include "SkMatrix44.h"
 #include "SkSpinlock.h"
 #include "glsl/GrGLSLColorSpaceXformHelper.h"

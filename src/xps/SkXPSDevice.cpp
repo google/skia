@@ -6,7 +6,7 @@
  */
 
 #include "SkTypes.h"
-#if defined(SK_BUILD_FOR_WIN32)
+#if defined(SK_BUILD_FOR_WIN)
 
 #include "SkLeanWindows.h"
 
@@ -2233,4 +2233,4 @@ void SkXPSDevice::drawBitmapRect(const SkBitmap& bitmap,
     paintWithShader.setShader(std::move(bitmapShader));
     this->drawRect(actualDst, paintWithShader);
 }
-#endif//defined(SK_BUILD_FOR_WIN32)
+#endif//defined(SK_BUILD_FOR_WIN)

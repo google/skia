@@ -10,7 +10,6 @@
 #include "Resources.h"
 #include "SkCanvas.h"
 #include "SkCodec.h"
-#include "SkColorSpace_Base.h"
 #include "SkData.h"
 #include "SkImage.h"
 #include "SkImageEncoderPriv.h"

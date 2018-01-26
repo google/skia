@@ -35,7 +35,6 @@ This approach may be deprecated in the future.
 # Constants             # enum and enum class, const values                  ##
 # Constructors          # functions that construct SkPath                    ##
 # Member_Functions      # static functions and member methods                ##
-# Operators             # operator overloading methods                       ##
 #Table ##
 #Subtopic ##
 
@@ -183,19 +182,19 @@ Allocates raster Canvas that will draw directly into pixels.
 Canvas is returned if all parameters are valid.
 Valid parameters include:
 info dimensions are zero or positive;
-info contains Image_Color_Type and Image_Alpha_Type supported by Raster_Surface;
+info contains Color_Type and Alpha_Type supported by Raster_Surface;
 pixels is not nullptr;
-rowBytes is zero or large enough to contain info width pixels of Image_Color_Type.
+rowBytes is zero or large enough to contain info width pixels of Color_Type.
 
 Pass zero for rowBytes to compute rowBytes from info width and size of pixel. 
 If rowBytes is greater than zero, it must be equal to or greater than
-info width times bytes required for Image_Color_Type.
+info width times bytes required for Color_Type.
 
 Pixel buffer size should be info height times computed rowBytes.
 Pixels are not initialized.
 To access pixels after drawing, call flush() or peekPixels.
 
-#Param info  width, height, Image_Color_Type, Image_Alpha_Type, Color_Space, of Raster_Surface;
+#Param info  width, height, Color_Type, Alpha_Type, Color_Space, of Raster_Surface;
              width, or height, or both, may be zero
 ##
 #Param pixels  pointer to destination pixels buffer
@@ -253,8 +252,8 @@ void draw(SkCanvas* ) {
 
 Allocates raster Canvas specified by inline image specification. Subsequent Canvas
 calls draw into pixels.
-Image_Color_Type is set to kN32_SkColorType.
-Image_Alpha_Type is set to kPremul_SkAlphaType.
+Color_Type is set to kN32_SkColorType.
+Alpha_Type is set to kPremul_SkAlphaType.
 To access pixels after drawing, call flush() or peekPixels.
 
 Canvas is returned if all parameters are valid.
@@ -265,7 +264,7 @@ rowBytes is zero or large enough to contain width pixels of kN32_SkColorType.
 
 Pass zero for rowBytes to compute rowBytes from width and size of pixel. 
 If rowBytes is greater than zero, it must be equal to or greater than
-width times bytes required for Image_Color_Type.
+width times bytes required for Color_Type.
 
 Pixel buffer size should be height times rowBytes.
 
@@ -445,7 +444,7 @@ May be deprecated in the future.
 
 #ToDo Should be deprecated? ##
 
-#Param bitmap   width, height, Image_Color_Type, Image_Alpha_Type, and pixel
+#Param bitmap   width, height, Color_Type, Alpha_Type, and pixel
                 storage of Raster_Surface
 ##
 
@@ -534,7 +533,7 @@ Use props to match the device characteristics, like LCD striping.
 bitmap is copied so that subsequently editing bitmap will not affect
 constructed Canvas.
 
-#Param bitmap   width, height, Image_Color_Type, Image_Alpha_Type,
+#Param bitmap   width, height, Color_Type, Alpha_Type,
                 and pixel storage of Raster_Surface 
 ##
 #Param props    order and orientation of RGB striping; and whether to use
@@ -656,9 +655,9 @@ The storage is freed when Canvas is deleted.
 #Method SkImageInfo imageInfo() const
 
 Returns Image_Info for Canvas. If Canvas is not associated with Raster_Surface or
-GPU_Surface, returned Image_Color_Type is set to kUnknown_SkColorType.
+GPU_Surface, returned Color_Type is set to kUnknown_SkColorType.
 
-#Return  dimensions and Image_Color_Type of Canvas ##
+#Return  dimensions and Color_Type of Canvas ##
 
 #Example
     SkCanvas emptyCanvas;
@@ -788,7 +787,7 @@ Returns nullptr if no match found.
 If props is nullptr, matches Surface_Properties in Canvas. If props is nullptr and Canvas
 does not have Surface_Properties, creates Surface with default Surface_Properties.
 
-#Param info  width, height, Image_Color_Type, Image_Alpha_Type, and Color_Space ##
+#Param info  width, height, Color_Type, Alpha_Type, and Color_Space ##
 #Param props  Surface_Properties to match; may be nullptr to match Canvas ##
 
 #Return  Surface matching info and props, or nullptr if no match is available ##
@@ -1028,7 +1027,7 @@ class like SkDumpCanvas.
 
 The destination pixel storage must be allocated by the caller.
 
-Pixel values are converted only if Image_Color_Type and Image_Alpha_Type
+Pixel values are converted only if Color_Type and Alpha_Type
 do not match. Only pixels within both source and destination rectangles
 are copied. dstPixels contents outside Rect intersection are unchanged.
 
@@ -1043,7 +1042,7 @@ Does not copy, and returns false if:
 # dstRowBytes is too small to contain one row of pixels. ##
 ##
 
-#Param dstInfo  width, height, Image_Color_Type, and Image_Alpha_Type of dstPixels ##
+#Param dstInfo  width, height, Color_Type, and Alpha_Type of dstPixels ##
 #Param dstPixels  storage for pixels; dstInfo.height() times dstRowBytes, or larger ##
 #Param dstRowBytes  size of one destination row; dstInfo.width() times pixel size, or larger ##
 #Param srcX  offset into readable pixels in x; may be negative ##
@@ -1120,7 +1119,7 @@ class like SkDumpCanvas.
 
 Caller must allocate pixel storage in pixmap if needed.
 
-Pixel values are converted only if Image_Color_Type and Image_Alpha_Type
+Pixel values are converted only if Color_Type and Alpha_Type
 do not match. Only pixels within both source and destination Rects
 are copied. pixmap pixels contents outside Rect intersection are unchanged.
 
@@ -1183,7 +1182,7 @@ class like SkDumpCanvas.
 
 Caller must allocate pixel storage in bitmap if needed.
 
-Bitmap values are converted only if Image_Color_Type and Image_Alpha_Type
+Bitmap values are converted only if Color_Type and Alpha_Type
 do not match. Only pixels within both source and destination rectangles
 are copied. Bitmap pixels outside Rect intersection are unchanged.
 
@@ -1244,7 +1243,7 @@ Pixels are not writable when SkCanvas is returned by SkDocument::beginPage,
 returned by SkPictureRecorder::beginRecording, or Canvas is the base of a utility
 class like SkDumpCanvas.
 
-Pixel values are converted only if Image_Color_Type and Image_Alpha_Type
+Pixel values are converted only if Color_Type and Alpha_Type
 do not match. Only pixels within both source and destination rectangles
 are copied. Canvas pixels outside Rect intersection are unchanged.
 
@@ -1261,7 +1260,7 @@ Does not copy, and returns false if:
 # rowBytes is too small to contain one row of pixels. ##
 ##
 
-#Param info  width, height, Image_Color_Type, and Image_Alpha_Type of pixels ##
+#Param info  width, height, Color_Type, and Alpha_Type of pixels ##
 #Param pixels  pixels to copy, of size info.height() times rowBytes, or larger ##
 #Param rowBytes  size of one row of pixels; info.width() times pixel size, or larger ##
 #Param x  offset into Canvas writable pixels in x; may be negative ##
@@ -1302,7 +1301,7 @@ Pixels are not writable when SkCanvas is returned by SkDocument::beginPage,
 returned by SkPictureRecorder::beginRecording, or Canvas is the base of a utility
 class like SkDumpCanvas.
 
-Pixel values are converted only if Image_Color_Type and Image_Alpha_Type
+Pixel values are converted only if Color_Type and Alpha_Type
 do not match. Only pixels within both source and destination rectangles
 are copied. Canvas pixels outside Rect intersection are unchanged.
 

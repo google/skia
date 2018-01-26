@@ -3501,6 +3501,14 @@
     "file": "SkPath_Reference",
     "name": "Path_2"
 },
+    "SkAlphaType": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkImageInfo_Reference",
+    "name": "SkAlphaType"
+},
     "SkAutoCanvasRestore_SkCanvas_star": {
     "code": "void draw(SkCanvas* canvas) {\n    SkPaint p;\n    p.setAntiAlias(true);\n    p.setTextSize(64);\n    for (SkScalar sx : { -1, 1 } ) {\n        for (SkScalar sy : { -1, 1 } ) {\n            SkAutoCanvasRestore autoRestore(canvas, true);\n            SkMatrix m = SkMatrix::MakeAll(sx, 1, 96,    0, sy, 64,   0, 0, 1);\n            canvas->concat(m);\n            canvas->drawString(\"R\", 0, 0, p);\n        }\n    }\n}",
     "width": 256,
@@ -4597,6 +4605,22 @@
     "file": "SkCanvas_Reference",
     "name": "SkCanvas::writePixels_2"
 },
+    "SkColorType": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkImageInfo_Reference",
+    "name": "SkColorType"
+},
+    "SkDestinationSurfaceColorMode": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkImageInfo_Reference",
+    "name": "SkDestinationSurfaceColorMode"
+},
     "SkIPoint_add_operator": {
     "code": "void draw(SkCanvas* canvas) {\n    auto draw_lines = [=](const SkIPoint pts[], size_t count, SkPaint& paint) -> void {\n        for (size_t i = 0; i < count - 1; ++i) {\n            SkPoint p0, p1;\n            p0.iset(pts[i]);\n            p1.iset(pts[i + 1]);\n            canvas->drawLine(p0, p1, paint);\n        }\n    };\n    SkIPoint points[] = { { 3, 1 }, { 4, 2 }, { 5, 1 }, { 7, 3 } };\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    paint.setStyle(SkPaint::kStroke_Style);\n    canvas->scale(30, 15);\n    draw_lines(points, SK_ARRAY_COUNT(points), paint);\n    SkIPoint mod = {4, 1};\n    for (auto& point : points) {\n        point = point + mod;\n        mod.fX -= 1;\n        mod.fY += 1;\n    }\n    paint.setColor(SK_ColorRED);\n    draw_lines(points, SK_ARRAY_COUNT(points), paint);\n}",
     "width": 256,
@@ -4628,6 +4652,318 @@
     "hash": "a01e533dc7ab34ed728dc4e7a5f1f0ee",
     "file": "SkIPoint_Reference",
     "name": "SkIPoint::operator-=(const SkIVector& v)"
+},
+    "SkImageInfo_ByteSizeOverflowed": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkImageInfo_Reference",
+    "name": "SkImageInfo::ByteSizeOverflowed"
+},
+    "SkImageInfo_Make": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkImageInfo_Reference",
+    "name": "SkImageInfo::Make"
+},
+    "SkImageInfo_MakeA8": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkImageInfo_Reference",
+    "name": "SkImageInfo::MakeA8"
+},
+    "SkImageInfo_MakeN32": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkImageInfo_Reference",
+    "name": "SkImageInfo::MakeN32"
+},
+    "SkImageInfo_MakeN32Premul": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkImageInfo_Reference",
+    "name": "SkImageInfo::MakeN32Premul"
+},
+    "SkImageInfo_MakeN32Premul_2": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkImageInfo_Reference",
+    "name": "SkImageInfo::MakeN32Premul_2"
+},
+    "SkImageInfo_MakeS32": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkImageInfo_Reference",
+    "name": "SkImageInfo::MakeS32"
+},
+    "SkImageInfo_MakeUnknown": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkImageInfo_Reference",
+    "name": "SkImageInfo::MakeUnknown"
+},
+    "SkImageInfo_MakeUnknown_2": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkImageInfo_Reference",
+    "name": "SkImageInfo::MakeUnknown_2"
+},
+    "SkImageInfo_alphaType": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkImageInfo_Reference",
+    "name": "SkImageInfo::alphaType"
+},
+    "SkImageInfo_bounds": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkImageInfo_Reference",
+    "name": "SkImageInfo::bounds()"
+},
+    "SkImageInfo_bytesPerPixel": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkImageInfo_Reference",
+    "name": "SkImageInfo::bytesPerPixel"
+},
+    "SkImageInfo_colorSpace": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkImageInfo_Reference",
+    "name": "SkImageInfo::colorSpace"
+},
+    "SkImageInfo_colorType": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkImageInfo_Reference",
+    "name": "SkImageInfo::colorType"
+},
+    "SkImageInfo_computeByteSize": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkImageInfo_Reference",
+    "name": "SkImageInfo::computeByteSize"
+},
+    "SkImageInfo_computeMinByteSize": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkImageInfo_Reference",
+    "name": "SkImageInfo::computeMinByteSize"
+},
+    "SkImageInfo_computeOffset": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkImageInfo_Reference",
+    "name": "SkImageInfo::computeOffset"
+},
+    "SkImageInfo_dimensions": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkImageInfo_Reference",
+    "name": "SkImageInfo::dimensions()"
+},
+    "SkImageInfo_empty_constructor": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkImageInfo_Reference",
+    "name": "SkImageInfo::SkImageInfo()"
+},
+    "SkImageInfo_equal1_operator": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkImageInfo_Reference",
+    "name": "SkImageInfo::operator==(const SkImageInfo& other)_const"
+},
+    "SkImageInfo_flatten": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkImageInfo_Reference",
+    "name": "SkImageInfo::flatten()"
+},
+    "SkImageInfo_gammaCloseToSRGB": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkImageInfo_Reference",
+    "name": "SkImageInfo::gammaCloseToSRGB"
+},
+    "SkImageInfo_height": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkImageInfo_Reference",
+    "name": "SkImageInfo::height()"
+},
+    "SkImageInfo_isEmpty": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkImageInfo_Reference",
+    "name": "SkImageInfo::isEmpty"
+},
+    "SkImageInfo_isOpaque": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkImageInfo_Reference",
+    "name": "SkImageInfo::isOpaque"
+},
+    "SkImageInfo_makeAlphaType": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkImageInfo_Reference",
+    "name": "SkImageInfo::makeAlphaType"
+},
+    "SkImageInfo_makeColorSpace": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkImageInfo_Reference",
+    "name": "SkImageInfo::makeColorSpace"
+},
+    "SkImageInfo_makeColorType": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkImageInfo_Reference",
+    "name": "SkImageInfo::makeColorType"
+},
+    "SkImageInfo_makeWH": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkImageInfo_Reference",
+    "name": "SkImageInfo::makeWH"
+},
+    "SkImageInfo_minRowBytes": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkImageInfo_Reference",
+    "name": "SkImageInfo::minRowBytes"
+},
+    "SkImageInfo_minRowBytes64": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkImageInfo_Reference",
+    "name": "SkImageInfo::minRowBytes64"
+},
+    "SkImageInfo_notequal1_operator": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkImageInfo_Reference",
+    "name": "SkImageInfo::operator!=(const SkImageInfo& other)_const"
+},
+    "SkImageInfo_refColorSpace": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkImageInfo_Reference",
+    "name": "SkImageInfo::refColorSpace"
+},
+    "SkImageInfo_reset": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkImageInfo_Reference",
+    "name": "SkImageInfo::reset()"
+},
+    "SkImageInfo_shiftPerPixel": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkImageInfo_Reference",
+    "name": "SkImageInfo::shiftPerPixel"
+},
+    "SkImageInfo_unflatten": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkImageInfo_Reference",
+    "name": "SkImageInfo::unflatten()"
+},
+    "SkImageInfo_validRowBytes": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkImageInfo_Reference",
+    "name": "SkImageInfo::validRowBytes"
+},
+    "SkImageInfo_validate": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkImageInfo_Reference",
+    "name": "SkImageInfo::validate()"
+},
+    "SkImageInfo_width": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkImageInfo_Reference",
+    "name": "SkImageInfo::width()"
 },
     "SkImage_DeferredTextureImageUsageParams": {
     "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
@@ -6716,6 +7052,14 @@
     "hash": "c9033080af68efc0f270d748f1c0e011",
     "file": "SkSurface_Reference",
     "name": "SkSurface::wait()"
+},
+    "SkYUVColorSpace": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkImageInfo_Reference",
+    "name": "SkYUVColorSpace"
 }
     }
     var canvas

@@ -67,18 +67,8 @@ protected:
                 continue;
             }
             auto& cs = rootChild;
-            auto overview = this->findOverview(cs);
-            if (!overview) {
-                return false;
-            }
-            Definition* constructors = nullptr;
-            for (auto& overChild : overview->fChildren) {
-                if ("Constructors" == overChild->fName) {
-                    constructors = overChild;
-                    break;
-                }
-            }
-            if (constructors && MarkType::kSubtopic != constructors->fMarkType) {
+			auto constructors = this->findTopic("Constructors", Optional::kYes);
+			if (constructors && MarkType::kSubtopic != constructors->fMarkType) {
                 return constructors->reportError<bool>("expected #Subtopic Constructors");
             }
             vector<string> constructorEntries;
@@ -141,56 +131,47 @@ protected:
     // Check that summary contains all methods
     bool checkMethodSummary() {
         // look for struct or class in fChildren
-        for (auto& rootChild : fRoot->fChildren) {
-            if (!this->isStructOrClass(rootChild)) {
+		Definition* cs = nullptr;
+		for (auto& rootChild : fRoot->fChildren) {
+			if (!this->isStructOrClass(rootChild)) {
+				continue;
+			}
+			cs = rootChild;
+			// expect Overview as Topic in every main class or struct or its parent
+		}
+		if (!cs) {
+			return true;  // topics may not have included classes or structs
+		}
+		auto memberFunctions = this->findTopic("Member_Functions", Optional::kNo);
+        if (MarkType::kSubtopic != memberFunctions->fMarkType) {
+            return memberFunctions->reportError<bool>("expected #Subtopic Member_Functions");
+        }
+        vector<string> methodEntries; // build map of overview entries
+        if (!this->collectEntries(memberFunctions, &methodEntries)) {
+            return false;
+        }
+        // mark corresponding methods as visited (may be more than one per entry)
+        for (auto& csChild : cs->fChildren) {
+            if (MarkType::kMethod != csChild->fMarkType) {
+                // only check methods for now
                 continue;
             }
-            auto& cs = rootChild;
-            // expect Overview as Topic in every main class or struct
-            auto overview = this->findOverview(cs);
-            if (!overview) {
+            if (Definition::MethodType::kConstructor == csChild->fMethodType) {
+                continue;
+            }
+            if (Definition::MethodType::kDestructor == csChild->fMethodType) {
+                continue;
+            }
+            if (Definition::MethodType::kOperator == csChild->fMethodType) {
+                continue;
+            }
+            string name;
+            if (!this->childName(csChild, &name)) {
                 return false;
             }
-            Definition* memberFunctions = nullptr;
-            for (auto& overChild : overview->fChildren) {
-                if ("Member_Functions" == overChild->fName) {
-                    memberFunctions = overChild;
-                    break;
-                }
-            }
-            if (!memberFunctions) {
-                return overview->reportError<bool>("missing #Subtopic Member_Functions");
-            }
-            if (MarkType::kSubtopic != memberFunctions->fMarkType) {
-                return memberFunctions->reportError<bool>("expected #Subtopic Member_Functions");
-            }
-            vector<string> overviewEntries; // build map of overview entries
-            if (!this->collectEntries(memberFunctions, &overviewEntries)) {
-                return false;
-            }
-            // mark corresponding methods as visited (may be more than one per entry)
-            for (auto& csChild : cs->fChildren) {
-                if (MarkType::kMethod != csChild->fMarkType) {
-                    // only check methods for now
-                    continue;
-                }
-                if (Definition::MethodType::kConstructor == csChild->fMethodType) {
-                    continue;
-                }
-                if (Definition::MethodType::kDestructor == csChild->fMethodType) {
-                    continue;
-                }
-                if (Definition::MethodType::kOperator == csChild->fMethodType) {
-                    continue;
-                }
-                string name;
-                if (!this->childName(csChild, &name)) {
-                    return false;
-                }
-                if (overviewEntries.end() ==
-                        std::find(overviewEntries.begin(), overviewEntries.end(), name)) {
-                    return csChild->reportError<bool>("missing method in Member_Functions");
-                }
+            if (methodEntries.end() ==
+                    std::find(methodEntries.begin(), methodEntries.end(), name)) {
+                return csChild->reportError<bool>("missing method in Member_Functions");
             }
         }
         return true;
@@ -203,17 +184,7 @@ protected:
                 continue;
             }
             auto& cs = rootChild;
-            auto overview = this->findOverview(cs);
-            if (!overview) {
-                return false;
-            }
-            Definition* operators = nullptr;
-            for (auto& overChild : overview->fChildren) {
-                if ("Operators" == overChild->fName) {
-                    operators = overChild;
-                    break;
-                }
-            }
+            const Definition* operators = this->findTopic("Operators", Optional::kYes);
             if (operators && MarkType::kSubtopic != operators->fMarkType) {
                 return operators->reportError<bool>("expected #Subtopic Operators");
             }
@@ -260,22 +231,12 @@ protected:
             if (!overview) {
                 return false;
             }
-            Definition* subtopics = nullptr;
-            Definition* relatedFunctions = nullptr;
-            for (auto& overChild : overview->fChildren) {
-                if ("Subtopics" == overChild->fName) {
-                    subtopics = overChild;
-                } else if ("Related_Functions" == overChild->fName) {
-                    relatedFunctions = overChild;
-                }
-            }
-            if (!subtopics) {
-                return overview->reportError<bool>("missing #Subtopic Subtopics");
-            }
+            const Definition* subtopics = this->findTopic("Subtopics", Optional::kNo);
             if (MarkType::kSubtopic != subtopics->fMarkType) {
                 return subtopics->reportError<bool>("expected #Subtopic Subtopics");
             }
-            if (relatedFunctions && MarkType::kSubtopic != relatedFunctions->fMarkType) {
+			const Definition* relatedFunctions = this->findTopic("Related_Functions", Optional::kYes);
+			if (relatedFunctions && MarkType::kSubtopic != relatedFunctions->fMarkType) {
                 return relatedFunctions->reportError<bool>("expected #Subtopic Related_Functions");
             }
             vector<string> subtopicEntries;
@@ -337,22 +298,56 @@ protected:
         return true;
     }
 
+	static const Definition* overview_def(const Definition* parent) {
+		Definition* overview = nullptr;
+		if (parent) {
+			for (auto& csChild : parent->fChildren) {
+				if ("Overview" == csChild->fName) {
+					if (overview) {
+						return csChild->reportError<const Definition*>("expected only one Overview");
+					}
+					overview = csChild;
+				}
+			}
+		}
+		return overview;
+	}
+
     const Definition* findOverview(const Definition* parent) {
         // expect Overview as Topic in every main class or struct
-        Definition* overview = nullptr;
-        for (auto& csChild : parent->fChildren) {
-            if ("Overview" == csChild->fName) {
-                if (overview) {
-                    return csChild->reportError<const Definition*>("expected only one Overview");
-                }
-                overview = csChild;
-            }
-        }
+        const Definition* overview = overview_def(parent);
+		const Definition* parentOverview = overview_def(parent->fParent);
+		if (overview && parentOverview) {
+			return overview->reportError<const Definition*>("expected only one Overview 2");
+		}
+		overview = overview ? overview : parentOverview;
         if (!overview) {
             return parent->reportError<const Definition*>("missing #Topic Overview");
         }
         return overview;
     }
+
+	enum class Optional {
+		kNo,
+		kYes,
+	};
+
+	const Definition* findTopic(string name, Optional optional) {
+		string topicKey = fRoot->fName + '_' + name;
+		auto topicKeyIter = fBmhParser.fTopicMap.find(topicKey);
+		if (fBmhParser.fTopicMap.end() == topicKeyIter) {
+			// TODO: remove this and require member functions outside of overview
+			topicKey = fRoot->fName + "_Overview_" + name;  // legacy form for now
+			topicKeyIter = fBmhParser.fTopicMap.find(topicKey);
+			if (fBmhParser.fTopicMap.end() == topicKeyIter) {
+				if (Optional::kNo == optional) {
+					return fRoot->reportError<Definition*>("missing subtopic");
+				}
+				return nullptr;
+			}
+		}
+		return topicKeyIter->second;
+	}
 
     bool collectEntries(const Definition* entries, vector<string>* strings) {
         const Definition* table = nullptr;

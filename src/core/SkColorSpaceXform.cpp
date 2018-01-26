@@ -11,7 +11,6 @@
 #include "SkColorSpaceXform_A2B.h"
 #include "SkColorSpaceXform_Base.h"
 #include "SkColorSpace_A2B.h"
-#include "SkColorSpace_Base.h"
 #include "SkColorSpace_XYZ.h"
 #include "SkHalf.h"
 #include "SkMakeUnique.h"
@@ -312,18 +311,18 @@ std::unique_ptr<SkColorSpaceXform> SkColorSpaceXform_Base::New(
         return nullptr;
     }
 
-    if (SkColorSpace_Base::Type::kA2B == as_CSB(dst)->type()) {
-        SkCSXformPrintf("A2B destinations not supported\n");
+    if (!dst->toXYZD50()) {
+        SkCSXformPrintf("only XYZ destinations supported\n");
         return nullptr;
     }
 
-    if (SkColorSpace_Base::Type::kA2B == as_CSB(src)->type()) {
-        return skstd::make_unique<SkColorSpaceXform_A2B>(static_cast<SkColorSpace_A2B*>(src),
-                                                         static_cast<SkColorSpace_XYZ*>(dst));
+    if (src->toXYZD50()) {
+        return skstd::make_unique<SkColorSpaceXform_XYZ>(static_cast<SkColorSpace_XYZ*>(src),
+                                                         static_cast<SkColorSpace_XYZ*>(dst),
+                                                         premulBehavior);
     }
-    return skstd::make_unique<SkColorSpaceXform_XYZ>(static_cast<SkColorSpace_XYZ*>(src),
-                                                     static_cast<SkColorSpace_XYZ*>(dst),
-                                                     premulBehavior);
+    return skstd::make_unique<SkColorSpaceXform_A2B>(static_cast<SkColorSpace_A2B*>(src),
+                                                     static_cast<SkColorSpace_XYZ*>(dst));
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -338,14 +337,9 @@ static inline int num_tables(SkColorSpace_XYZ* space) {
             const SkGammas* gammas = space->gammas();
             SkASSERT(gammas);
 
-            bool gammasAreMatching = (gammas->type(0) == gammas->type(1)) &&
-                                     (gammas->data(0) == gammas->data(1)) &&
-                                     (gammas->type(0) == gammas->type(2)) &&
-                                     (gammas->data(0) == gammas->data(2));
-
             // It's likely that each component will have the same gamma.  In this case,
             // we only need to build one table.
-            return gammasAreMatching ? 1 : 3;
+            return gammas->allChannelsSame() ? 1 : 3;
         }
     }
 }

@@ -17,7 +17,7 @@
 // This is deprecated and all clients should define their own custum header shim that sets up
 // defines and includes the vulkan.h header. Then they should define SK_VULKAN_HEADER or set the
 // skia_vulkan_header in gn to point to their custom header.
-#  if defined(SK_BUILD_FOR_WIN) || defined(SK_BUILD_FOR_WIN32)
+#  if defined(SK_BUILD_FOR_WIN)
 #     if !defined(VK_USE_PLATFORM_WIN32_KHR)
 #        define VK_USE_PLATFORM_WIN32_KHR
 #     endif

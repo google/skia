@@ -8,7 +8,6 @@
 #include "gm.h"
 #include "Resources.h"
 #include "SkCodec.h"
-#include "SkColorSpace_Base.h"
 #include "SkImage.h"
 #include "SkImagePriv.h"
 

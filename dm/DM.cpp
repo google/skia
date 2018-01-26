@@ -56,7 +56,7 @@ extern void SkPDFImageDumpStats();
 
 #include <stdlib.h>
 
-#ifndef SK_BUILD_FOR_WIN32
+#ifndef SK_BUILD_FOR_WIN
     #include <unistd.h>
 #endif
 
@@ -212,7 +212,7 @@ static void find_culprit() {
     }
 }
 
-#if defined(SK_BUILD_FOR_WIN32)
+#if defined(SK_BUILD_FOR_WIN)
     static LONG WINAPI crash_handler(EXCEPTION_POINTERS* e) {
         static const struct {
             const char* name;
@@ -339,7 +339,7 @@ static void gather_gold() {
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-#if defined(SK_BUILD_FOR_WIN32)
+#if defined(SK_BUILD_FOR_WIN)
     static const char* kNewline = "\r\n";
 #else
     static const char* kNewline = "\n";
@@ -929,14 +929,11 @@ static Sink* create_via(const SkString& tag, Sink* wrapped) {
     VIA("gbr",       ViaCSXform,           wrapped, rgb_to_gbr(), true);
     VIA("lite",      ViaLite,              wrapped);
     VIA("pipe",      ViaPipe,              wrapped);
-    VIA("twice",     ViaTwice,             wrapped);
 #ifdef TEST_VIA_SVG
     VIA("svg",       ViaSVG,               wrapped);
 #endif
     VIA("serialize", ViaSerialization,     wrapped);
     VIA("pic",       ViaPicture,           wrapped);
-    VIA("2ndpic",    ViaSecondPicture,     wrapped);
-    VIA("sp",        ViaSingletonPictures, wrapped);
     VIA("tiles",     ViaTiles, 256, 256, nullptr,            wrapped);
     VIA("tiles_rt",  ViaTiles, 256, 256, new SkRTreeFactory, wrapped);
 

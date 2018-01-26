@@ -163,9 +163,11 @@ vertical scale factor</td>
 
 ### See Also
 
-<a href="#SkMatrix_setScale">setScale</a> <a href="#SkMatrix_postScale">postScale</a> <a href="#SkMatrix_preScale">preScale</a>
+<a href="#SkMatrix_setScale">setScale</a><sup><a href="#SkMatrix_setScale_2">[2]</a></sup> <a href="#SkMatrix_postScale">postScale</a><sup><a href="#SkMatrix_postScale_2">[2]</a></sup> <a href="#SkMatrix_preScale">preScale</a><sup><a href="#SkMatrix_preScale_2">[2]</a></sup>
 
 ---
+
+<a name="SkMatrix_MakeScale_2"></a>
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 static SkMatrix SK_WARN_UNUSED_RESULT MakeScale(SkScalar scale)
@@ -195,7 +197,7 @@ horizontal and vertical <a href="#SkMatrix_MakeScale_2_scale">scale</a> factor</
 
 ### See Also
 
-<a href="#SkMatrix_setScale">setScale</a> <a href="#SkMatrix_postScale">postScale</a> <a href="#SkMatrix_preScale">preScale</a>
+<a href="#SkMatrix_setScale">setScale</a><sup><a href="#SkMatrix_setScale_2">[2]</a></sup> <a href="#SkMatrix_postScale">postScale</a><sup><a href="#SkMatrix_postScale_2">[2]</a></sup> <a href="#SkMatrix_preScale">preScale</a><sup><a href="#SkMatrix_preScale_2">[2]</a></sup>
 
 ---
 
@@ -232,7 +234,7 @@ vertical translation</td>
 
 ### See Also
 
-<a href="#SkMatrix_setTranslate">setTranslate</a> <a href="#SkMatrix_postTranslate">postTranslate</a> <a href="#SkMatrix_preTranslate">preTranslate</a>
+<a href="#SkMatrix_setTranslate">setTranslate</a><sup><a href="#SkMatrix_setTranslate_2">[2]</a></sup> <a href="#SkMatrix_postTranslate">postTranslate</a> <a href="#SkMatrix_preTranslate">preTranslate</a>
 
 ---
 
@@ -310,16 +312,16 @@ Used to identify the complexity of <a href="#Matrix">Matrix</a>, to optimize per
     <td><a name="SkMatrix_kIdentity_Mask"> <code><strong>SkMatrix::kIdentity_Mask </strong></code> </a></td><td>0</td><td>all bits clear if <a href="#Matrix">Matrix</a> is identity</td>
   </tr>
   <tr>
-    <td><a name="SkMatrix_kTranslate_Mask"> <code><strong>SkMatrix::kTranslate_Mask </strong></code> </a></td><td>1</td><td><a href="#SkMatrix_set">set</a> if <a href="#Matrix">Matrix</a> has translation</td>
+    <td><a name="SkMatrix_kTranslate_Mask"> <code><strong>SkMatrix::kTranslate_Mask </strong></code> </a></td><td>1</td><td>set if <a href="#Matrix">Matrix</a> has translation</td>
   </tr>
   <tr>
-    <td><a name="SkMatrix_kScale_Mask"> <code><strong>SkMatrix::kScale_Mask </strong></code> </a></td><td>2</td><td><a href="#SkMatrix_set">set</a> if <a href="#Matrix">Matrix</a> has x or y scale</td>
+    <td><a name="SkMatrix_kScale_Mask"> <code><strong>SkMatrix::kScale_Mask </strong></code> </a></td><td>2</td><td>set if <a href="#Matrix">Matrix</a> has x or y scale</td>
   </tr>
   <tr>
-    <td><a name="SkMatrix_kAffine_Mask"> <code><strong>SkMatrix::kAffine_Mask </strong></code> </a></td><td>4</td><td><a href="#SkMatrix_set">set</a> if <a href="#Matrix">Matrix</a> skews or rotates</td>
+    <td><a name="SkMatrix_kAffine_Mask"> <code><strong>SkMatrix::kAffine_Mask </strong></code> </a></td><td>4</td><td>set if <a href="#Matrix">Matrix</a> skews or rotates</td>
   </tr>
   <tr>
-    <td><a name="SkMatrix_kPerspective_Mask"> <code><strong>SkMatrix::kPerspective_Mask </strong></code> </a></td><td>8</td><td><a href="#SkMatrix_set">set</a> if <a href="#Matrix">Matrix</a> has perspective</td>
+    <td><a name="SkMatrix_kPerspective_Mask"> <code><strong>SkMatrix::kPerspective_Mask </strong></code> </a></td><td>8</td><td>set if <a href="#Matrix">Matrix</a> has perspective</td>
   </tr>
 </table>
 
@@ -354,8 +356,8 @@ TypeMask getType() const
 
 Returns a bit field describing the transformations the matrix may
 perform. The bit field is computed conservatively, so it may include
-false positives. For example, when <a href="#SkMatrix_kPerspective_Mask">kPerspective Mask</a> is <a href="#SkMatrix_set">set</a>, all
-other bits are <a href="#SkMatrix_set">set</a>.
+false positives. For example, when <a href="#SkMatrix_kPerspective_Mask">kPerspective Mask</a> is set, all
+other bits are set.
 
 ### Return Value
 
@@ -454,7 +456,7 @@ is scale-translate: true
 
 ### See Also
 
-<a href="#SkMatrix_setScale">setScale</a> <a href="#SkMatrix_isTranslate">isTranslate</a> <a href="#SkMatrix_setTranslate">setTranslate</a> <a href="#SkMatrix_getType">getType</a>
+<a href="#SkMatrix_setScale">setScale</a><sup><a href="#SkMatrix_setScale_2">[2]</a></sup> <a href="#SkMatrix_isTranslate">isTranslate</a> <a href="#SkMatrix_setTranslate">setTranslate</a><sup><a href="#SkMatrix_setTranslate_2">[2]</a></sup> <a href="#SkMatrix_getType">getType</a>
 
 ---
 
@@ -493,7 +495,7 @@ is translate: false
 
 ### See Also
 
-<a href="#SkMatrix_setTranslate">setTranslate</a> <a href="#SkMatrix_getType">getType</a>
+<a href="#SkMatrix_setTranslate">setTranslate</a><sup><a href="#SkMatrix_setTranslate_2">[2]</a></sup> <a href="#SkMatrix_getType">getType</a>
 
 ---
 
@@ -926,7 +928,7 @@ matrix.getScaleX() == 42
 
 ### See Also
 
-<a href="#SkMatrix_get">get</a> <a href="#SkMatrix_getScaleY">getScaleY</a> <a href="#SkMatrix_setScaleX">setScaleX</a> <a href="#SkMatrix_setScale">setScale</a>
+<a href="#SkMatrix_get">get</a> <a href="#SkMatrix_getScaleY">getScaleY</a> <a href="#SkMatrix_setScaleX">setScaleX</a> <a href="#SkMatrix_setScale">setScale</a><sup><a href="#SkMatrix_setScale_2">[2]</a></sup>
 
 ---
 
@@ -958,7 +960,7 @@ matrix.getScaleY() == 24
 
 ### See Also
 
-<a href="#SkMatrix_get">get</a> <a href="#SkMatrix_getScaleX">getScaleX</a> <a href="#SkMatrix_setScaleY">setScaleY</a> <a href="#SkMatrix_setScale">setScale</a>
+<a href="#SkMatrix_get">get</a> <a href="#SkMatrix_getScaleX">getScaleX</a> <a href="#SkMatrix_setScaleY">setScaleY</a> <a href="#SkMatrix_setScale">setScale</a><sup><a href="#SkMatrix_setScale_2">[2]</a></sup>
 
 ---
 
@@ -991,7 +993,7 @@ matrix.getSkewY() == 24
 
 ### See Also
 
-<a href="#SkMatrix_get">get</a> <a href="#SkMatrix_getSkewX">getSkewX</a> <a href="#SkMatrix_setSkewY">setSkewY</a> <a href="#SkMatrix_setSkew">setSkew</a>
+<a href="#SkMatrix_get">get</a> <a href="#SkMatrix_getSkewX">getSkewX</a> <a href="#SkMatrix_setSkewY">setSkewY</a> <a href="#SkMatrix_setSkew">setSkew</a><sup><a href="#SkMatrix_setSkew_2">[2]</a></sup>
 
 ---
 
@@ -1024,7 +1026,7 @@ matrix.getSkewX() == 42
 
 ### See Also
 
-<a href="#SkMatrix_get">get</a> <a href="#SkMatrix_getSkewY">getSkewY</a> <a href="#SkMatrix_setSkewX">setSkewX</a> <a href="#SkMatrix_setSkew">setSkew</a>
+<a href="#SkMatrix_get">get</a> <a href="#SkMatrix_getSkewY">getSkewY</a> <a href="#SkMatrix_setSkewX">setSkewX</a> <a href="#SkMatrix_setSkew">setSkew</a><sup><a href="#SkMatrix_setSkew_2">[2]</a></sup>
 
 ---
 
@@ -1056,7 +1058,7 @@ matrix.getTranslateX() == 42
 
 ### See Also
 
-<a href="#SkMatrix_get">get</a> <a href="#SkMatrix_getTranslateY">getTranslateY</a> <a href="#SkMatrix_setTranslateX">setTranslateX</a> <a href="#SkMatrix_setTranslate">setTranslate</a>
+<a href="#SkMatrix_get">get</a> <a href="#SkMatrix_getTranslateY">getTranslateY</a> <a href="#SkMatrix_setTranslateX">setTranslateX</a> <a href="#SkMatrix_setTranslate">setTranslate</a><sup><a href="#SkMatrix_setTranslate_2">[2]</a></sup>
 
 ---
 
@@ -1088,7 +1090,7 @@ matrix.getTranslateY() == 24
 
 ### See Also
 
-<a href="#SkMatrix_get">get</a> <a href="#SkMatrix_getTranslateX">getTranslateX</a> <a href="#SkMatrix_setTranslateY">setTranslateY</a> <a href="#SkMatrix_setTranslate">setTranslate</a>
+<a href="#SkMatrix_get">get</a> <a href="#SkMatrix_getTranslateX">getTranslateX</a> <a href="#SkMatrix_setTranslateY">setTranslateY</a> <a href="#SkMatrix_setTranslate">setTranslate</a><sup><a href="#SkMatrix_setTranslate_2">[2]</a></sup>
 
 ---
 
@@ -1246,7 +1248,7 @@ horizontal scale factor to store</td>
 
 ### See Also
 
-<a href="#SkMatrix_set">set</a> <a href="#SkMatrix_setScale">setScale</a> <a href="#SkMatrix_setScaleY">setScaleY</a>
+<a href="#SkMatrix_set">set</a> <a href="#SkMatrix_setScale">setScale</a><sup><a href="#SkMatrix_setScale_2">[2]</a></sup> <a href="#SkMatrix_setScaleY">setScaleY</a>
 
 ---
 
@@ -1272,7 +1274,7 @@ vertical scale factor to store</td>
 
 ### See Also
 
-<a href="#SkMatrix_set">set</a> <a href="#SkMatrix_setScale">setScale</a> <a href="#SkMatrix_setScaleX">setScaleX</a>
+<a href="#SkMatrix_set">set</a> <a href="#SkMatrix_setScale">setScale</a><sup><a href="#SkMatrix_setScale_2">[2]</a></sup> <a href="#SkMatrix_setScaleX">setScaleX</a>
 
 ---
 
@@ -1298,7 +1300,7 @@ vertical skew factor to store</td>
 
 ### See Also
 
-<a href="#SkMatrix_set">set</a> <a href="#SkMatrix_setSkew">setSkew</a> <a href="#SkMatrix_setSkewX">setSkewX</a>
+<a href="#SkMatrix_set">set</a> <a href="#SkMatrix_setSkew">setSkew</a><sup><a href="#SkMatrix_setSkew_2">[2]</a></sup> <a href="#SkMatrix_setSkewX">setSkewX</a>
 
 ---
 
@@ -1324,7 +1326,7 @@ horizontal skew factor to store</td>
 
 ### See Also
 
-<a href="#SkMatrix_set">set</a> <a href="#SkMatrix_setSkew">setSkew</a> <a href="#SkMatrix_setSkewX">setSkewX</a>
+<a href="#SkMatrix_set">set</a> <a href="#SkMatrix_setSkew">setSkew</a><sup><a href="#SkMatrix_setSkew_2">[2]</a></sup> <a href="#SkMatrix_setSkewX">setSkewX</a>
 
 ---
 
@@ -1350,7 +1352,7 @@ horizontal translation to store</td>
 
 ### See Also
 
-<a href="#SkMatrix_set">set</a> <a href="#SkMatrix_setTranslate">setTranslate</a> <a href="#SkMatrix_setTranslateY">setTranslateY</a>
+<a href="#SkMatrix_set">set</a> <a href="#SkMatrix_setTranslate">setTranslate</a><sup><a href="#SkMatrix_setTranslate_2">[2]</a></sup> <a href="#SkMatrix_setTranslateY">setTranslateY</a>
 
 ---
 
@@ -1376,7 +1378,7 @@ vertical translation to store</td>
 
 ### See Also
 
-<a href="#SkMatrix_set">set</a> <a href="#SkMatrix_setTranslate">setTranslate</a> <a href="#SkMatrix_setTranslateX">setTranslateX</a>
+<a href="#SkMatrix_set">set</a> <a href="#SkMatrix_setTranslate">setTranslate</a><sup><a href="#SkMatrix_setTranslate_2">[2]</a></sup> <a href="#SkMatrix_setTranslateX">setTranslateX</a>
 
 ---
 
@@ -1657,6 +1659,8 @@ vertical translation</td>
 
 ---
 
+<a name="SkMatrix_setTranslate_2"></a>
+
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 void setTranslate(const SkVector& v)
 </pre>
@@ -1709,9 +1713,11 @@ pivot y</td>
 
 ### See Also
 
-<a href="#SkMatrix_setScaleX">setScaleX</a> <a href="#SkMatrix_setScaleY">setScaleY</a> <a href="#SkMatrix_MakeScale">MakeScale</a> <a href="#SkMatrix_preScale">preScale</a> <a href="#SkMatrix_postScale">postScale</a>
+<a href="#SkMatrix_setScaleX">setScaleX</a> <a href="#SkMatrix_setScaleY">setScaleY</a> <a href="#SkMatrix_MakeScale">MakeScale</a><sup><a href="#SkMatrix_MakeScale_2">[2]</a></sup> <a href="#SkMatrix_preScale">preScale</a><sup><a href="#SkMatrix_preScale_2">[2]</a></sup> <a href="#SkMatrix_postScale">postScale</a><sup><a href="#SkMatrix_postScale_2">[2]</a></sup>
 
 ---
+
+<a name="SkMatrix_setScale_2"></a>
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 void setScale(SkScalar sx, SkScalar sy)
@@ -1734,7 +1740,7 @@ vertical scale factor</td>
 
 ### See Also
 
-<a href="#SkMatrix_setScaleX">setScaleX</a> <a href="#SkMatrix_setScaleY">setScaleY</a> <a href="#SkMatrix_MakeScale">MakeScale</a> <a href="#SkMatrix_preScale">preScale</a> <a href="#SkMatrix_postScale">postScale</a>
+<a href="#SkMatrix_setScaleX">setScaleX</a> <a href="#SkMatrix_setScaleY">setScaleY</a> <a href="#SkMatrix_MakeScale">MakeScale</a><sup><a href="#SkMatrix_MakeScale_2">[2]</a></sup> <a href="#SkMatrix_preScale">preScale</a><sup><a href="#SkMatrix_preScale_2">[2]</a></sup> <a href="#SkMatrix_postScale">postScale</a><sup><a href="#SkMatrix_postScale_2">[2]</a></sup>
 
 ---
 
@@ -1767,9 +1773,11 @@ pivot y</td>
 
 ### See Also
 
-<a href="#SkMatrix_setSinCos">setSinCos</a> <a href="#SkMatrix_preRotate">preRotate</a> <a href="#SkMatrix_postRotate">postRotate</a>
+<a href="#SkMatrix_setSinCos">setSinCos</a><sup><a href="#SkMatrix_setSinCos_2">[2]</a></sup> <a href="#SkMatrix_preRotate">preRotate</a><sup><a href="#SkMatrix_preRotate_2">[2]</a></sup> <a href="#SkMatrix_postRotate">postRotate</a><sup><a href="#SkMatrix_postRotate_2">[2]</a></sup>
 
 ---
+
+<a name="SkMatrix_setRotate_2"></a>
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 void setRotate(SkScalar degrees)
@@ -1791,7 +1799,7 @@ angle of axes relative to upright axes</td>
 
 ### See Also
 
-<a href="#SkMatrix_setSinCos">setSinCos</a> <a href="#SkMatrix_preRotate">preRotate</a> <a href="#SkMatrix_postRotate">postRotate</a>
+<a href="#SkMatrix_setSinCos">setSinCos</a><sup><a href="#SkMatrix_setSinCos_2">[2]</a></sup> <a href="#SkMatrix_preRotate">preRotate</a><sup><a href="#SkMatrix_preRotate_2">[2]</a></sup> <a href="#SkMatrix_postRotate">postRotate</a><sup><a href="#SkMatrix_postRotate_2">[2]</a></sup>
 
 ---
 
@@ -1827,9 +1835,11 @@ pivot y</td>
 
 ### See Also
 
-<a href="#SkMatrix_setRotate">setRotate</a> <a href="#SkMatrix_setScale">setScale</a> <a href="#SkMatrix_setRSXform">setRSXform</a>
+<a href="#SkMatrix_setRotate">setRotate</a><sup><a href="#SkMatrix_setRotate_2">[2]</a></sup> <a href="#SkMatrix_setScale">setScale</a><sup><a href="#SkMatrix_setScale_2">[2]</a></sup> <a href="#SkMatrix_setRSXform">setRSXform</a>
 
 ---
+
+<a name="SkMatrix_setSinCos_2"></a>
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 void setSinCos(SkScalar sinValue, SkScalar cosValue)
@@ -1855,7 +1865,7 @@ rotation vector y component</td>
 
 ### See Also
 
-<a href="#SkMatrix_setRotate">setRotate</a> <a href="#SkMatrix_setScale">setScale</a> <a href="#SkMatrix_setRSXform">setRSXform</a>
+<a href="#SkMatrix_setRotate">setRotate</a><sup><a href="#SkMatrix_setRotate_2">[2]</a></sup> <a href="#SkMatrix_setScale">setScale</a><sup><a href="#SkMatrix_setScale_2">[2]</a></sup> <a href="#SkMatrix_setRSXform">setRSXform</a>
 
 ---
 
@@ -1889,7 +1899,7 @@ reference to <a href="#Matrix">Matrix</a>
 
 ### See Also
 
-<a href="#SkMatrix_setSinCos">setSinCos</a> <a href="#SkMatrix_setScale">setScale</a> <a href="#SkMatrix_setTranslate">setTranslate</a>
+<a href="#SkMatrix_setSinCos">setSinCos</a><sup><a href="#SkMatrix_setSinCos_2">[2]</a></sup> <a href="#SkMatrix_setScale">setScale</a><sup><a href="#SkMatrix_setScale_2">[2]</a></sup> <a href="#SkMatrix_setTranslate">setTranslate</a><sup><a href="#SkMatrix_setTranslate_2">[2]</a></sup>
 
 ---
 
@@ -1922,9 +1932,11 @@ pivot y</td>
 
 ### See Also
 
-<a href="#SkMatrix_setSkewX">setSkewX</a> <a href="#SkMatrix_setSkewY">setSkewY</a> <a href="#SkMatrix_preSkew">preSkew</a> <a href="#SkMatrix_postSkew">postSkew</a>
+<a href="#SkMatrix_setSkewX">setSkewX</a> <a href="#SkMatrix_setSkewY">setSkewY</a> <a href="#SkMatrix_preSkew">preSkew</a><sup><a href="#SkMatrix_preSkew_2">[2]</a></sup> <a href="#SkMatrix_postSkew">postSkew</a><sup><a href="#SkMatrix_postSkew_2">[2]</a></sup>
 
 ---
+
+<a name="SkMatrix_setSkew_2"></a>
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 void setSkew(SkScalar kx, SkScalar ky)
@@ -1947,7 +1959,7 @@ vertical skew factor</td>
 
 ### See Also
 
-<a href="#SkMatrix_setSkewX">setSkewX</a> <a href="#SkMatrix_setSkewY">setSkewY</a> <a href="#SkMatrix_preSkew">preSkew</a> <a href="#SkMatrix_postSkew">postSkew</a>
+<a href="#SkMatrix_setSkewX">setSkewX</a> <a href="#SkMatrix_setSkewY">setSkewY</a> <a href="#SkMatrix_preSkew">preSkew</a><sup><a href="#SkMatrix_preSkew_2">[2]</a></sup> <a href="#SkMatrix_postSkew">postSkew</a><sup><a href="#SkMatrix_postSkew_2">[2]</a></sup>
 
 ---
 
@@ -2033,7 +2045,7 @@ y translation before applying <a href="#Matrix">Matrix</a></td>
 
 ### See Also
 
-<a href="#SkMatrix_postTranslate">postTranslate</a> <a href="#SkMatrix_setTranslate">setTranslate</a> <a href="#SkMatrix_MakeTrans">MakeTrans</a>
+<a href="#SkMatrix_postTranslate">postTranslate</a> <a href="#SkMatrix_setTranslate">setTranslate</a><sup><a href="#SkMatrix_setTranslate_2">[2]</a></sup> <a href="#SkMatrix_MakeTrans">MakeTrans</a>
 
 ---
 
@@ -2087,9 +2099,11 @@ pivot y</td>
 
 ### See Also
 
-<a href="#SkMatrix_postScale">postScale</a> <a href="#SkMatrix_setScale">setScale</a> <a href="#SkMatrix_MakeScale">MakeScale</a>
+<a href="#SkMatrix_postScale">postScale</a><sup><a href="#SkMatrix_postScale_2">[2]</a></sup> <a href="#SkMatrix_setScale">setScale</a><sup><a href="#SkMatrix_setScale_2">[2]</a></sup> <a href="#SkMatrix_MakeScale">MakeScale</a><sup><a href="#SkMatrix_MakeScale_2">[2]</a></sup>
 
 ---
+
+<a name="SkMatrix_preScale_2"></a>
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 void preScale(SkScalar sx, SkScalar sy)
@@ -2128,7 +2142,7 @@ vertical scale factor</td>
 
 ### See Also
 
-<a href="#SkMatrix_postScale">postScale</a> <a href="#SkMatrix_setScale">setScale</a> <a href="#SkMatrix_MakeScale">MakeScale</a>
+<a href="#SkMatrix_postScale">postScale</a><sup><a href="#SkMatrix_postScale_2">[2]</a></sup> <a href="#SkMatrix_setScale">setScale</a><sup><a href="#SkMatrix_setScale_2">[2]</a></sup> <a href="#SkMatrix_MakeScale">MakeScale</a><sup><a href="#SkMatrix_MakeScale_2">[2]</a></sup>
 
 ---
 
@@ -2184,9 +2198,11 @@ pivot y</td>
 
 ### See Also
 
-<a href="#SkMatrix_postRotate">postRotate</a> <a href="#SkMatrix_setRotate">setRotate</a>
+<a href="#SkMatrix_postRotate">postRotate</a><sup><a href="#SkMatrix_postRotate_2">[2]</a></sup> <a href="#SkMatrix_setRotate">setRotate</a><sup><a href="#SkMatrix_setRotate_2">[2]</a></sup>
 
 ---
+
+<a name="SkMatrix_preRotate_2"></a>
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 void preRotate(SkScalar degrees)
@@ -2231,7 +2247,7 @@ angle of axes relative to upright axes</td>
 
 ### See Also
 
-<a href="#SkMatrix_postRotate">postRotate</a> <a href="#SkMatrix_setRotate">setRotate</a>
+<a href="#SkMatrix_postRotate">postRotate</a><sup><a href="#SkMatrix_postRotate_2">[2]</a></sup> <a href="#SkMatrix_setRotate">setRotate</a><sup><a href="#SkMatrix_setRotate_2">[2]</a></sup>
 
 ---
 
@@ -2285,9 +2301,11 @@ pivot y</td>
 
 ### See Also
 
-<a href="#SkMatrix_postSkew">postSkew</a> <a href="#SkMatrix_setSkew">setSkew</a>
+<a href="#SkMatrix_postSkew">postSkew</a><sup><a href="#SkMatrix_postSkew_2">[2]</a></sup> <a href="#SkMatrix_setSkew">setSkew</a><sup><a href="#SkMatrix_setSkew_2">[2]</a></sup>
 
 ---
+
+<a name="SkMatrix_preSkew_2"></a>
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 void preSkew(SkScalar kx, SkScalar ky)
@@ -2326,7 +2344,7 @@ vertical skew factor</td>
 
 ### See Also
 
-<a href="#SkMatrix_postSkew">postSkew</a> <a href="#SkMatrix_setSkew">setSkew</a>
+<a href="#SkMatrix_postSkew">postSkew</a><sup><a href="#SkMatrix_postSkew_2">[2]</a></sup> <a href="#SkMatrix_setSkew">setSkew</a><sup><a href="#SkMatrix_setSkew_2">[2]</a></sup>
 
 ---
 
@@ -2411,7 +2429,7 @@ y translation after applying <a href="#Matrix">Matrix</a></td>
 
 ### See Also
 
-<a href="#SkMatrix_preTranslate">preTranslate</a> <a href="#SkMatrix_setTranslate">setTranslate</a> <a href="#SkMatrix_MakeTrans">MakeTrans</a>
+<a href="#SkMatrix_preTranslate">preTranslate</a> <a href="#SkMatrix_setTranslate">setTranslate</a><sup><a href="#SkMatrix_setTranslate_2">[2]</a></sup> <a href="#SkMatrix_MakeTrans">MakeTrans</a>
 
 ---
 
@@ -2465,9 +2483,11 @@ pivot y</td>
 
 ### See Also
 
-<a href="#SkMatrix_preScale">preScale</a> <a href="#SkMatrix_setScale">setScale</a> <a href="#SkMatrix_MakeScale">MakeScale</a>
+<a href="#SkMatrix_preScale">preScale</a><sup><a href="#SkMatrix_preScale_2">[2]</a></sup> <a href="#SkMatrix_setScale">setScale</a><sup><a href="#SkMatrix_setScale_2">[2]</a></sup> <a href="#SkMatrix_MakeScale">MakeScale</a><sup><a href="#SkMatrix_MakeScale_2">[2]</a></sup>
 
 ---
+
+<a name="SkMatrix_postScale_2"></a>
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 void postScale(SkScalar sx, SkScalar sy)
@@ -2506,7 +2526,7 @@ vertical scale factor</td>
 
 ### See Also
 
-<a href="#SkMatrix_preScale">preScale</a> <a href="#SkMatrix_setScale">setScale</a> <a href="#SkMatrix_MakeScale">MakeScale</a>
+<a href="#SkMatrix_preScale">preScale</a><sup><a href="#SkMatrix_preScale_2">[2]</a></sup> <a href="#SkMatrix_setScale">setScale</a><sup><a href="#SkMatrix_setScale_2">[2]</a></sup> <a href="#SkMatrix_MakeScale">MakeScale</a><sup><a href="#SkMatrix_MakeScale_2">[2]</a></sup>
 
 ---
 
@@ -2560,7 +2580,7 @@ true on successful scale
 
 ### See Also
 
-<a href="#SkMatrix_postScale">postScale</a> <a href="#SkMatrix_MakeScale">MakeScale</a>
+<a href="#SkMatrix_postScale">postScale</a><sup><a href="#SkMatrix_postScale_2">[2]</a></sup> <a href="#SkMatrix_MakeScale">MakeScale</a><sup><a href="#SkMatrix_MakeScale_2">[2]</a></sup>
 
 ---
 
@@ -2616,9 +2636,11 @@ pivot y</td>
 
 ### See Also
 
-<a href="#SkMatrix_preRotate">preRotate</a> <a href="#SkMatrix_setRotate">setRotate</a>
+<a href="#SkMatrix_preRotate">preRotate</a><sup><a href="#SkMatrix_preRotate_2">[2]</a></sup> <a href="#SkMatrix_setRotate">setRotate</a><sup><a href="#SkMatrix_setRotate_2">[2]</a></sup>
 
 ---
+
+<a name="SkMatrix_postRotate_2"></a>
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 void postRotate(SkScalar degrees)
@@ -2663,7 +2685,7 @@ angle of axes relative to upright axes</td>
 
 ### See Also
 
-<a href="#SkMatrix_preRotate">preRotate</a> <a href="#SkMatrix_setRotate">setRotate</a>
+<a href="#SkMatrix_preRotate">preRotate</a><sup><a href="#SkMatrix_preRotate_2">[2]</a></sup> <a href="#SkMatrix_setRotate">setRotate</a><sup><a href="#SkMatrix_setRotate_2">[2]</a></sup>
 
 ---
 
@@ -2717,9 +2739,11 @@ pivot y</td>
 
 ### See Also
 
-<a href="#SkMatrix_preSkew">preSkew</a> <a href="#SkMatrix_setSkew">setSkew</a>
+<a href="#SkMatrix_preSkew">preSkew</a><sup><a href="#SkMatrix_preSkew_2">[2]</a></sup> <a href="#SkMatrix_setSkew">setSkew</a><sup><a href="#SkMatrix_setSkew_2">[2]</a></sup>
 
 ---
+
+<a name="SkMatrix_postSkew_2"></a>
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 void postSkew(SkScalar kx, SkScalar ky)
@@ -2758,7 +2782,7 @@ vertical skew factor</td>
 
 ### See Also
 
-<a href="#SkMatrix_preSkew">preSkew</a> <a href="#SkMatrix_setSkew">setSkew</a>
+<a href="#SkMatrix_preSkew">preSkew</a><sup><a href="#SkMatrix_preSkew_2">[2]</a></sup> <a href="#SkMatrix_setSkew">setSkew</a><sup><a href="#SkMatrix_setSkew_2">[2]</a></sup>
 
 ---
 
@@ -2918,10 +2942,10 @@ src: 1, 2, 3, 4  dst: 5, 6, 8, 9  success: true
 static SkMatrix MakeRectToRect(const SkRect& src, const SkRect& dst, ScaleToFit stf)
 </pre>
 
-Returns <a href="#Matrix">Matrix</a> <a href="#SkMatrix_set">set</a> to scale and translate <a href="#SkMatrix_MakeRectToRect_src">src</a> <a href="SkRect_Reference#Rect">Rect</a> to <a href="#SkMatrix_MakeRectToRect_dst">dst</a> <a href="SkRect_Reference#Rect">Rect</a>. <a href="#SkMatrix_MakeRectToRect_stf">stf</a> selects
+Returns <a href="#Matrix">Matrix</a> set to scale and translate <a href="#SkMatrix_MakeRectToRect_src">src</a> <a href="SkRect_Reference#Rect">Rect</a> to <a href="#SkMatrix_MakeRectToRect_dst">dst</a> <a href="SkRect_Reference#Rect">Rect</a>. <a href="#SkMatrix_MakeRectToRect_stf">stf</a> selects
 whether mapping completely fills <a href="#SkMatrix_MakeRectToRect_dst">dst</a> or preserves the aspect ratio, and how to
 align <a href="#SkMatrix_MakeRectToRect_src">src</a> within <a href="#SkMatrix_MakeRectToRect_dst">dst</a>. Returns the identity <a href="#Matrix">Matrix</a> if <a href="#SkMatrix_MakeRectToRect_src">src</a> is empty. If <a href="#SkMatrix_MakeRectToRect_dst">dst</a> is
-empty, returns <a href="#Matrix">Matrix</a> <a href="#SkMatrix_set">set</a> to:
+empty, returns <a href="#Matrix">Matrix</a> set to:
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 | 0 0 0 |
@@ -3141,7 +3165,7 @@ column, then row, as:
 | scale-x  skew-x translate-x |
 |  skew-y scale-y translate-y |</pre>
 
-<a href="#Matrix">Matrix</a> is <a href="#SkMatrix_set">set</a>, row, then column, to:
+<a href="#Matrix">Matrix</a> is set, row, then column, to:
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 | scale-x  skew-x translate-x |
@@ -3223,9 +3247,11 @@ number of <a href="#Point">Points</a> to transform</td>
 
 ### See Also
 
-<a href="#SkMatrix_mapXY">mapXY</a> <a href="#SkMatrix_mapHomogeneousPoints">mapHomogeneousPoints</a> <a href="#SkMatrix_mapVectors">mapVectors</a>
+<a href="#SkMatrix_mapXY">mapXY</a><sup><a href="#SkMatrix_mapXY_2">[2]</a></sup> <a href="#SkMatrix_mapHomogeneousPoints">mapHomogeneousPoints</a> <a href="#SkMatrix_mapVectors">mapVectors</a><sup><a href="#SkMatrix_mapVectors_2">[2]</a></sup>
 
 ---
+
+<a name="SkMatrix_mapPoints_2"></a>
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 void mapPoints(SkPoint pts[], int count) const
@@ -3269,7 +3295,7 @@ number of <a href="#Point">Points</a> to transform</td>
 
 ### See Also
 
-<a href="#SkMatrix_mapXY">mapXY</a> <a href="#SkMatrix_mapHomogeneousPoints">mapHomogeneousPoints</a> <a href="#SkMatrix_mapVectors">mapVectors</a>
+<a href="#SkMatrix_mapXY">mapXY</a><sup><a href="#SkMatrix_mapXY_2">[2]</a></sup> <a href="#SkMatrix_mapHomogeneousPoints">mapHomogeneousPoints</a> <a href="#SkMatrix_mapVectors">mapVectors</a><sup><a href="#SkMatrix_mapVectors_2">[2]</a></sup>
 
 ---
 
@@ -3312,7 +3338,7 @@ items in <a href="undocumented#Point3">Point3</a> array to transform</td>
 
 ### See Also
 
-<a href="#SkMatrix_mapPoints">mapPoints</a> <a href="#SkMatrix_mapXY">mapXY</a> <a href="#SkMatrix_mapVectors">mapVectors</a>
+<a href="#SkMatrix_mapPoints">mapPoints</a><sup><a href="#SkMatrix_mapPoints_2">[2]</a></sup> <a href="#SkMatrix_mapXY">mapXY</a><sup><a href="#SkMatrix_mapXY_2">[2]</a></sup> <a href="#SkMatrix_mapVectors">mapVectors</a><sup><a href="#SkMatrix_mapVectors_2">[2]</a></sup>
 
 ---
 
@@ -3354,9 +3380,11 @@ storage for mapped <a href="SkPoint_Reference#Point">Point</a></td>
 
 ### See Also
 
-<a href="#SkMatrix_mapPoints">mapPoints</a> <a href="#SkMatrix_mapVectors">mapVectors</a>
+<a href="#SkMatrix_mapPoints">mapPoints</a><sup><a href="#SkMatrix_mapPoints_2">[2]</a></sup> <a href="#SkMatrix_mapVectors">mapVectors</a><sup><a href="#SkMatrix_mapVectors_2">[2]</a></sup>
 
 ---
+
+<a name="SkMatrix_mapXY_2"></a>
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 SkPoint mapXY(SkScalar x, SkScalar y) const
@@ -3395,7 +3423,7 @@ mapped <a href="SkPoint_Reference#Point">Point</a>
 
 ### See Also
 
-<a href="#SkMatrix_mapPoints">mapPoints</a> <a href="#SkMatrix_mapVectors">mapVectors</a>
+<a href="#SkMatrix_mapPoints">mapPoints</a><sup><a href="#SkMatrix_mapPoints_2">[2]</a></sup> <a href="#SkMatrix_mapVectors">mapVectors</a><sup><a href="#SkMatrix_mapVectors_2">[2]</a></sup>
 
 ---
 
@@ -3449,9 +3477,11 @@ number of <a href="#Vector">Vectors</a> to transform</td>
 
 ### See Also
 
-<a href="#SkMatrix_mapVector">mapVector</a> <a href="#SkMatrix_mapPoints">mapPoints</a> <a href="#SkMatrix_mapXY">mapXY</a>
+<a href="#SkMatrix_mapVector">mapVector</a><sup><a href="#SkMatrix_mapVector_2">[2]</a></sup> <a href="#SkMatrix_mapPoints">mapPoints</a><sup><a href="#SkMatrix_mapPoints_2">[2]</a></sup> <a href="#SkMatrix_mapXY">mapXY</a><sup><a href="#SkMatrix_mapXY_2">[2]</a></sup>
 
 ---
+
+<a name="SkMatrix_mapVectors_2"></a>
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 void mapVectors(SkVector vecs[], int count) const
@@ -3495,7 +3525,7 @@ number of <a href="#Vector">Vectors</a> to transform</td>
 
 ### See Also
 
-<a href="#SkMatrix_mapVector">mapVector</a> <a href="#SkMatrix_mapPoints">mapPoints</a> <a href="#SkMatrix_mapXY">mapXY</a>
+<a href="#SkMatrix_mapVector">mapVector</a><sup><a href="#SkMatrix_mapVector_2">[2]</a></sup> <a href="#SkMatrix_mapPoints">mapPoints</a><sup><a href="#SkMatrix_mapPoints_2">[2]</a></sup> <a href="#SkMatrix_mapXY">mapXY</a><sup><a href="#SkMatrix_mapXY_2">[2]</a></sup>
 
 ---
 
@@ -3538,9 +3568,11 @@ storage for mapped <a href="SkPoint_Reference#Vector">Vector</a></td>
 
 ### See Also
 
-<a href="#SkMatrix_mapVectors">mapVectors</a> <a href="#SkMatrix_mapPoints">mapPoints</a> <a href="#SkMatrix_mapXY">mapXY</a>
+<a href="#SkMatrix_mapVectors">mapVectors</a><sup><a href="#SkMatrix_mapVectors_2">[2]</a></sup> <a href="#SkMatrix_mapPoints">mapPoints</a><sup><a href="#SkMatrix_mapPoints_2">[2]</a></sup> <a href="#SkMatrix_mapXY">mapXY</a><sup><a href="#SkMatrix_mapXY_2">[2]</a></sup>
 
 ---
+
+<a name="SkMatrix_mapVector_2"></a>
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 SkVector mapVector(SkScalar dx, SkScalar dy) const
@@ -3580,7 +3612,7 @@ mapped <a href="SkPoint_Reference#Vector">Vector</a>
 
 ### See Also
 
-<a href="#SkMatrix_mapVectors">mapVectors</a> <a href="#SkMatrix_mapPoints">mapPoints</a> <a href="#SkMatrix_mapXY">mapXY</a>
+<a href="#SkMatrix_mapVectors">mapVectors</a><sup><a href="#SkMatrix_mapVectors_2">[2]</a></sup> <a href="#SkMatrix_mapPoints">mapPoints</a><sup><a href="#SkMatrix_mapPoints_2">[2]</a></sup> <a href="#SkMatrix_mapXY">mapXY</a><sup><a href="#SkMatrix_mapXY_2">[2]</a></sup>
 
 ---
 
@@ -3615,9 +3647,11 @@ true if <a href="#SkMatrix_mapRect_dst">dst</a> is equivalent to mapped <a href=
 
 ### See Also
 
-<a href="#SkMatrix_mapPoints">mapPoints</a> <a href="#SkMatrix_rectStaysRect">rectStaysRect</a>
+<a href="#SkMatrix_mapPoints">mapPoints</a><sup><a href="#SkMatrix_mapPoints_2">[2]</a></sup> <a href="#SkMatrix_rectStaysRect">rectStaysRect</a>
 
 ---
+
+<a name="SkMatrix_mapRect_2"></a>
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 bool mapRect(SkRect* rect) const
@@ -3645,7 +3679,7 @@ true if result is equivalent to mapped src
 
 ### See Also
 
-<a href="#SkMatrix_mapRectScaleTranslate">mapRectScaleTranslate</a> <a href="#SkMatrix_mapPoints">mapPoints</a> <a href="#SkMatrix_rectStaysRect">rectStaysRect</a>
+<a href="#SkMatrix_mapRectScaleTranslate">mapRectScaleTranslate</a> <a href="#SkMatrix_mapPoints">mapPoints</a><sup><a href="#SkMatrix_mapPoints_2">[2]</a></sup> <a href="#SkMatrix_rectStaysRect">rectStaysRect</a>
 
 ---
 
@@ -3695,7 +3729,7 @@ storage for mapped corner <a href="#Point">Points</a></td>
 
 ### See Also
 
-<a href="#SkMatrix_mapRect">mapRect</a> <a href="#SkMatrix_mapRectScaleTranslate">mapRectScaleTranslate</a>
+<a href="#SkMatrix_mapRect">mapRect</a><sup><a href="#SkMatrix_mapRect_2">[2]</a></sup> <a href="#SkMatrix_mapRectScaleTranslate">mapRectScaleTranslate</a>
 
 ---
 
@@ -3725,7 +3759,7 @@ storage for bounds of mapped <a href="#Point">Points</a></td>
 
 ### See Also
 
-<a href="#SkMatrix_mapRect">mapRect</a> <a href="#SkMatrix_mapRectToQuad">mapRectToQuad</a> <a href="#SkMatrix_isScaleTranslate">isScaleTranslate</a> <a href="#SkMatrix_rectStaysRect">rectStaysRect</a>
+<a href="#SkMatrix_mapRect">mapRect</a><sup><a href="#SkMatrix_mapRect_2">[2]</a></sup> <a href="#SkMatrix_mapRectToQuad">mapRectToQuad</a> <a href="#SkMatrix_isScaleTranslate">isScaleTranslate</a> <a href="#SkMatrix_rectStaysRect">rectStaysRect</a>
 
 ---
 
@@ -3759,7 +3793,7 @@ the area enclosed by the ellipse major and minor axes.</div></fiddle-embed></div
 
 ### See Also
 
-<a href="#SkMatrix_mapVector">mapVector</a>
+<a href="#SkMatrix_mapVector">mapVector</a><sup><a href="#SkMatrix_mapVector_2">[2]</a></sup>
 
 ---
 
@@ -4198,7 +4232,7 @@ success: true  scale: 0.5, 0.25
 
 ### See Also
 
-<a href="#SkMatrix_setScale">setScale</a> <a href="#SkMatrix_MakeScale">MakeScale</a>
+<a href="#SkMatrix_setScale">setScale</a><sup><a href="#SkMatrix_setScale_2">[2]</a></sup> <a href="#SkMatrix_MakeScale">MakeScale</a><sup><a href="#SkMatrix_MakeScale_2">[2]</a></sup>
 
 ---
 
@@ -4209,7 +4243,7 @@ success: true  scale: 0.5, 0.25
 static const SkMatrix& I()
 </pre>
 
-Returns reference to const identity <a href="#Matrix">Matrix</a>. Returned <a href="#Matrix">Matrix</a> is <a href="#SkMatrix_set">set</a> to:
+Returns reference to const identity <a href="#Matrix">Matrix</a>. Returned <a href="#Matrix">Matrix</a> is set to:
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 | 1 0 0 |
@@ -4246,7 +4280,7 @@ m2 == m3
 static const SkMatrix& InvalidMatrix()
 </pre>
 
-Returns reference to a const <a href="#Matrix">Matrix</a> with invalid values. Returned <a href="#Matrix">Matrix</a> is <a href="#SkMatrix_set">set</a>
+Returns reference to a const <a href="#Matrix">Matrix</a> with invalid values. Returned <a href="#Matrix">Matrix</a> is set
 to:
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
@@ -4395,7 +4429,7 @@ vertical translation to store</td>
 
 ### See Also
 
-<a href="#SkMatrix_setScale">setScale</a> <a href="#SkMatrix_preTranslate">preTranslate</a> <a href="#SkMatrix_postTranslate">postTranslate</a>
+<a href="#SkMatrix_setScale">setScale</a><sup><a href="#SkMatrix_setScale_2">[2]</a></sup> <a href="#SkMatrix_preTranslate">preTranslate</a> <a href="#SkMatrix_postTranslate">postTranslate</a>
 
 ---
 

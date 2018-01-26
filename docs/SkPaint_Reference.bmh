@@ -5112,7 +5112,7 @@ Paint may draw to.
 #Topic Fast_Bounds ##
 
 # ------------------------------------------------------------------------------
-#Method void toString(SkString* str) const;
+#Method void toString(SkString* str) const
 
 #DefinedBy SK_TO_STRING_NONVIRT() ##
 

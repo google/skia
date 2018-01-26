@@ -344,86 +344,6 @@ FT_Load_Glyph
     ##
 ##
 
-#Topic Image_Alpha_Type
-#Alias Alpha_Type
-#Alias Alpha_Types
-    #Enum SkAlphaType
-        #Const kUnknown_SkAlphaType 0
-        ##
-        #Const kOpaque_SkAlphaType 1
-        ##
-        #Const kPremul_SkAlphaType 2
-        ##
-        #Const kUnpremul_SkAlphaType 3
-        ##
-    ##
-#Topic ##
-#Topic Image_Color_Type
-#Subtopic Native_Color_Type
-#Alias Native_Color_Type
-#Substitute native SkColorType
-##
-#Alias Color_Type
-#Alias Color_Types
-    #Enum SkColorType
-        #Const kUnknown_SkColorType 0
-        ##
-        #Const kAlpha_8_SkColorType 1
-        ##
-        #Const kRGB_565_SkColorType 2
-        ##
-        #Const kARGB_4444_SkColorType 3
-        ##
-        #Const kRGBA_8888_SkColorType 4
-        ##
-        #Const kBGRA_8888_SkColorType 5
-        ##
-        #Const kIndex_8_SkColorType 6
-        ##
-        #Const kGray_8_SkColorType 7
-        ##
-        #Const kRGBA_F16_SkColorType 8
-        ##
-        #ToDo   this is a lie; need to not require values for consts ##
-        #Const kN32_SkColorType 4
-        ##
-    #Enum ##
-#Topic ##
-#Topic Image_Info
-    #Struct SkImageInfo
-        #Method SkImageInfo()
-        ##
-        #Method static SkImageInfo MakeN32Premul(int width, int height, sk_sp<SkColorSpace> cs = nullptr)
-        ##
-        #Method SkImageInfo makeColorSpace(sk_sp<SkColorSpace> cs) const
-        ##
-        #Method size_t minRowBytes() const
-        ##
-        #Method bool isOpaque() const
-        ##
-        #Method int bytesPerPixel() const
-        ##
-        #Method int height() const
-        ##
-        #Method int width() const
-        ##
-        #Method SkColorType colorType() const
-        ##
-        #Method SkAlphaType alphaType() const
-        ##
-        #Method SkColorSpace* colorSpace() const
-        ##
-        #Method bool isOpaque() const
-        ##
-        #Method size_t minRowBytes() const
-        ##
-        #Method size_t computeByteSize(size_t rowBytes) const
-        ##
-        #Method void validate() const
-        ##
-    ## 
-#Topic ##
-
 #Topic Image_Filter
 #Subtopic Scaling
 #Subtopic ##
@@ -554,6 +474,9 @@ FT_Load_Glyph
     to be written
     ##
     #Const SK_MaxS32
+    to be written
+    ##
+    #Const SK_MaxSizeT
     to be written
     ##
     #Typedef int32_t SkUnichar

@@ -6,7 +6,6 @@
  */
 
 #include "SkColorSpace.h"
-#include "SkColorSpace_Base.h"
 #include "SkColorSpace_XYZ.h"
 #include "SkColorSpacePriv.h"
 #include "SkPoint3.h"
@@ -336,8 +335,8 @@ size_t SkColorSpace::writeToMemory(void* memory) const {
     // Start by trying the serialization fast path.  If we haven't saved ICC profile data,
     // we must have a profile that we can serialize easily.
     if (!this->onProfileData()) {
-        // Profile data is mandatory for A2B0 color spaces.
-        SkASSERT(SkColorSpace_Base::Type::kA2B != as_CSB(this)->type());
+        // Profile data is mandatory for A2B0 color spaces, so we must be XYZ.
+        SkASSERT(this->toXYZD50());
         // If we have a named profile, only write the enum.
         const SkGammaNamed gammaNamed = this->gammaNamed();
         if (this == srgb()) {

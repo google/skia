@@ -12,8 +12,8 @@
 #include "SkSampler.h"
 #include "SkTemplates.h"
 
-SkSampledCodec::SkSampledCodec(SkCodec* codec)
-    : INHERITED(codec)
+SkSampledCodec::SkSampledCodec(SkCodec* codec, ExifOrientationBehavior behavior)
+    : INHERITED(codec, behavior)
 {}
 
 SkISize SkSampledCodec::accountForNativeScaling(int* sampleSizePtr, int* nativeSampleSize) const {

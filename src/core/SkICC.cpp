@@ -8,7 +8,6 @@
 #include "SkAutoMalloc.h"
 #include "SkColorSpacePriv.h"
 #include "SkColorSpaceXformPriv.h"
-#include "SkColorSpace_Base.h"
 #include "SkColorSpace_XYZ.h"
 #include "SkEndian.h"
 #include "SkFixed.h"
@@ -62,8 +61,8 @@ void copy_to_table(float* tablePtr, const SkGammas* gammas, int index) {
 }
 
 bool SkICC::rawTransferFnData(Tables* tables) const {
-    if (SkColorSpace_Base::Type::kA2B == as_CSB(fColorSpace)->type()) {
-        return false;
+    if (!fColorSpace->toXYZD50()) {
+        return false;  // Can't even dream of handling A2B here...
     }
     SkColorSpace_XYZ* colorSpace = (SkColorSpace_XYZ*) fColorSpace.get();
 
@@ -78,7 +77,7 @@ bool SkICC::rawTransferFnData(Tables* tables) const {
 
     const SkGammas* gammas = colorSpace->gammas();
     SkASSERT(gammas);
-    if (gammas->data(0) == gammas->data(1) && gammas->data(0) == gammas->data(2)) {
+    if (gammas->allChannelsSame()) {
         SkASSERT(gammas->isTable(0));
         tables->fStorage = SkData::MakeUninitialized(gammas->tableSize(0) * sizeof(float));
         copy_to_table((float*) tables->fStorage->writable_data(), gammas, 0);

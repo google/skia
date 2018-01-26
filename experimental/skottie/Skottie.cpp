@@ -84,7 +84,14 @@ sk_sp<sksg::Matrix> AttachMatrix(const Json::Value& t, AttachContext* ctx,
             [composite](const VectorValue& s) {
                 composite->setScale(ValueTraits<VectorValue>::As<SkVector>(s));
             });
-    auto rotation_attached = BindProperty<ScalarValue>(t["r"], &ctx->fAnimators,
+
+    auto* jrotation = &t["r"];
+    if (jrotation->isNull()) {
+        // 3d rotations have separate rx,ry,rz components.  While we don't fully support them,
+        // we can still make use of rz.
+        jrotation = &t["rz"];
+    }
+    auto rotation_attached = BindProperty<ScalarValue>(*jrotation, &ctx->fAnimators,
             [composite](const ScalarValue& r) {
                 composite->setRotation(r);
             });

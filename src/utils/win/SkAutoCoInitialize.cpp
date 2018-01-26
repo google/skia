@@ -6,7 +6,7 @@
  */
 
 #include "SkTypes.h"
-#if defined(SK_BUILD_FOR_WIN32)
+#if defined(SK_BUILD_FOR_WIN)
 
 #include "SkAutoCoInitialize.h"
 
@@ -29,4 +29,4 @@ bool SkAutoCoInitialize::succeeded() {
     return SUCCEEDED(this->fHR) || RPC_E_CHANGED_MODE == this->fHR;
 }
 
-#endif//defined(SK_BUILD_FOR_WIN32)
+#endif//defined(SK_BUILD_FOR_WIN)

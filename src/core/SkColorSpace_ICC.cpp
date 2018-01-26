@@ -9,7 +9,6 @@
 #include "SkColorSpace.h"
 #include "SkColorSpacePriv.h"
 #include "SkColorSpace_A2B.h"
-#include "SkColorSpace_Base.h"
 #include "SkColorSpace_XYZ.h"
 #include "SkEndian.h"
 #include "SkFixed.h"

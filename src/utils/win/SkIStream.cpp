@@ -6,7 +6,7 @@
  */
 
 #include "SkTypes.h"
-#if defined(SK_BUILD_FOR_WIN32)
+#if defined(SK_BUILD_FOR_WIN)
 
 #include "SkIStream.h"
 #include "SkStream.h"
@@ -271,4 +271,4 @@ HRESULT STDMETHODCALLTYPE SkWIStream::Stat(STATSTG* pStatstg
     pStatstg->grfMode = STGM_WRITE;
     return S_OK;
 }
-#endif//defined(SK_BUILD_FOR_WIN32)
+#endif//defined(SK_BUILD_FOR_WIN)

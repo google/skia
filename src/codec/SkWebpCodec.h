@@ -48,7 +48,7 @@ protected:
 
 private:
     SkWebpCodec(int width, int height, const SkEncodedInfo&, sk_sp<SkColorSpace>,
-                std::unique_ptr<SkStream>, WebPDemuxer*, sk_sp<SkData>);
+                std::unique_ptr<SkStream>, WebPDemuxer*, sk_sp<SkData>, SkEncodedOrigin);
 
     SkAutoTCallVProc<WebPDemuxer, WebPDemuxDelete> fDemux;
 
