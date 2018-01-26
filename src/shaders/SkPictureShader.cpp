@@ -15,7 +15,7 @@
 #include "SkImage.h"
 #include "SkImageShader.h"
 #include "SkMatrixUtils.h"
-#include "SkPicture.h"
+#include "SkPicturePriv.h"
 #include "SkPictureImageGenerator.h"
 #include "SkReadBuffer.h"
 #include "SkResourceCache.h"
@@ -176,7 +176,7 @@ void SkPictureShader::flatten(SkWriteBuffer& buffer) const {
     buffer.writeRect(fTile);
 
     buffer.writeBool(true);
-    fPicture->flatten(buffer);
+    SkPicturePriv::Flatten(buffer, fPicture.get());
 }
 
 sk_sp<SkShader> SkPictureShader::refBitmapShader(const SkMatrix& viewMatrix, const SkMatrix* localM,

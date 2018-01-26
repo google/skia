@@ -11,6 +11,7 @@
 #include "SkColorSpaceXformCanvas.h"
 #include "SkColorSpaceXformer.h"
 #include "SkImageSource.h"
+#include "SkPicturePriv.h"
 #include "SkReadBuffer.h"
 #include "SkSpecialImage.h"
 #include "SkSpecialSurface.h"
@@ -76,7 +77,7 @@ void SkPictureImageFilter::flatten(SkWriteBuffer& buffer) const {
     bool hasPicture = (fPicture != nullptr);
     buffer.writeBool(hasPicture);
     if (hasPicture) {
-        fPicture->flatten(buffer);
+        SkPicturePriv::Flatten(buffer, fPicture.get());
     }
     buffer.writeRect(fCropRect);
 }

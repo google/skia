@@ -38,6 +38,7 @@
 #include "SkLeanWindows.h"
 #include "SkOSFile.h"
 #include "SkOSPath.h"
+#include "SkPicturePriv.h"
 #include "SkPictureRecorder.h"
 #include "SkSVGDOM.h"
 #include "SkScan.h"
@@ -738,8 +739,7 @@ public:
             SkString name = SkOSPath::Basename(path.c_str());
             fSourceType = "skp";
             fBenchType  = "recording";
-            fSKPBytes = static_cast<double>(pic->approximateBytesUsed());
-            fSKPOps   = pic->approximateOpCount();
+            fSKPBytes = static_cast<double>(SkPicturePriv::ApproxBytesUsed(pic.get()));
             return new RecordingBench(name.c_str(), pic.get(), FLAGS_bbh, FLAGS_lite);
         }
 
@@ -753,8 +753,7 @@ public:
             SkString name = SkOSPath::Basename(path.c_str());
             fSourceType = "skp";
             fBenchType  = "piping";
-            fSKPBytes = static_cast<double>(pic->approximateBytesUsed());
-            fSKPOps   = pic->approximateOpCount();
+            fSKPBytes = static_cast<double>(SkPicturePriv::ApproxBytesUsed(pic.get()));
             return new PipingBench(name.c_str(), pic.get());
         }
 
@@ -769,7 +768,6 @@ public:
             fSourceType = "skp";
             fBenchType  = "deserial";
             fSKPBytes = static_cast<double>(data->size());
-            fSKPOps   = 0;
             return new DeserializePictureBench(name.c_str(), std::move(data));
         }
 
@@ -1063,7 +1061,6 @@ public:
         }
         if (0 == strcmp(fBenchType, "recording")) {
             log->metric("bytes", fSKPBytes);
-            log->metric("ops",   fSKPOps);
         }
     }
 
@@ -1093,7 +1090,7 @@ private:
     SkScalar           fZoomMax;
     double             fZoomPeriodMs;
 
-    double fSKPBytes, fSKPOps;
+    double fSKPBytes;
 
     const char* fSourceType;  // What we're benching: bench, GM, SKP, ...
     const char* fBenchType;   // How we bench it: micro, recording, playback, ...

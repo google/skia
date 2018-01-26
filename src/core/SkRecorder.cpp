@@ -9,7 +9,7 @@
 #include "SkCanvasPriv.h"
 #include "SkImage.h"
 #include "SkPatchUtils.h"
-#include "SkPicture.h"
+#include "SkPicturePriv.h"
 #include "SkRecorder.h"
 #include "SkSurface.h"
 
@@ -302,7 +302,7 @@ void SkRecorder::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
 
 void SkRecorder::onDrawPicture(const SkPicture* pic, const SkMatrix* matrix, const SkPaint* paint) {
     if (fDrawPictureMode == Record_DrawPictureMode) {
-        fApproxBytesUsedBySubPictures += pic->approximateBytesUsed();
+        fApproxBytesUsedBySubPictures += SkPicturePriv::ApproxBytesUsed(pic);
         APPEND(DrawPicture, this->copy(paint), sk_ref_sp(pic), matrix ? *matrix : SkMatrix::I());
     } else {
         SkASSERT(fDrawPictureMode == Playback_DrawPictureMode);

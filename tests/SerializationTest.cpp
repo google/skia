@@ -17,6 +17,7 @@
 #include "SkMatrixPriv.h"
 #include "SkOSFile.h"
 #include "SkReadBuffer.h"
+#include "SkPicturePriv.h"
 #include "SkPictureRecorder.h"
 #include "SkShaderBase.h"
 #include "SkTableColorFilter.h"
@@ -542,7 +543,7 @@ DEF_TEST(Serialization, reporter) {
 
         // Serialize picture
         SkBinaryWriteBuffer writer;
-        pict->flatten(writer);
+        SkPicturePriv::Flatten(writer, pict.get());
         size_t size = writer.bytesWritten();
         SkAutoTMalloc<unsigned char> data(size);
         writer.writeToMemory(static_cast<void*>(data.get()));
