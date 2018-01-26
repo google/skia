@@ -93,6 +93,30 @@
       "revId": "1b2ac0545a1b566919cb5bf29a0182e38bc6e881",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0e1aa20d_92ee5402",
+        "filename": "include/core/SkMaskFilter.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-01-26T14:16:59Z",
+      "side": 1,
+      "message": "I think NVIDIA uses them because they use the blend names rather than set names and one really is a src and the other really is a dst in their API. I always find it a bit confusing when we refer to dsts that are actually just inputs.",
+      "parentUuid": "5a806ef5_94d5c803",
+      "range": {
+        "startLine": 32,
+        "startChar": 43,
+        "endLine": 32,
+        "endChar": 91
+      },
+      "revId": "1b2ac0545a1b566919cb5bf29a0182e38bc6e881",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
