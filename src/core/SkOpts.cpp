@@ -107,7 +107,7 @@ namespace SkOpts {
             if (SkCpu::Supports(SkCpu::AVX  )) { Init_avx();   }
         #endif
 
-    #elif defined(SK_CPU_ARM64)
+    #elif defined(SK_CPU_ARM64) || defined(SK_CPU_ARM32)
         if (SkCpu::Supports(SkCpu::CRC32)) { Init_crc32(); }
 
     #endif
