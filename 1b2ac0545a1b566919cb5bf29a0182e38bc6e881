@@ -141,6 +141,30 @@
       "revId": "1b2ac0545a1b566919cb5bf29a0182e38bc6e881",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c2254afb_7a146bf9",
+        "filename": "include/core/SkMaskFilter.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-01-26T16:02:19Z",
+      "side": 1,
+      "message": "I\u0027d just call them something generic like maskA/maskB.",
+      "parentUuid": "99f55704_626487a2",
+      "range": {
+        "startLine": 32,
+        "startChar": 43,
+        "endLine": 32,
+        "endChar": 91
+      },
+      "revId": "1b2ac0545a1b566919cb5bf29a0182e38bc6e881",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
