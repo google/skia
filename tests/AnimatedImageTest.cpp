@@ -82,6 +82,8 @@ DEF_TEST(AnimatedImage, r) {
             continue;
         }
 
+        REPORTER_ASSERT(r, defaultRepetitionCount == animatedImage->getRepetitionCount());
+
         auto testDraw = [r, &frames, &imageInfo, file](const sk_sp<SkAnimatedImage>& animatedImage,
                                                        int expectedFrame) {
             SkBitmap test;
@@ -216,6 +218,8 @@ DEF_TEST(AnimatedImage, r) {
                         SkCodec::MakeFromData(data)));
             animatedImage->start();
             animatedImage->setRepetitionCount(loopCount);
+            REPORTER_ASSERT(r, animatedImage->getRepetitionCount() == loopCount);
+
             for (int loops = 0; loops <= loopCount; loops++) {
                 REPORTER_ASSERT(r, animatedImage->isRunning());
                 REPORTER_ASSERT(r, !animatedImage->isFinished());
