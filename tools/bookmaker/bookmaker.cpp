@@ -350,7 +350,9 @@ bool BmhParser::addDefinition(const char* defStart, bool hasEnd, MarkType markTy
         case MarkType::kFile:
         case MarkType::kHeight:
         case MarkType::kImage:
-        case MarkType::kLiteral:
+		case MarkType::kIn:
+		case MarkType::kLine:
+		case MarkType::kLiteral:
         case MarkType::kOutdent:
         case MarkType::kPlatform:
         case MarkType::kSeeAlso:
@@ -359,7 +361,7 @@ bool BmhParser::addDefinition(const char* defStart, bool hasEnd, MarkType markTy
         case MarkType::kTime:
         case MarkType::kVolatile:
         case MarkType::kWidth:
-            if (hasEnd && MarkType::kAnchor != markType) {
+            if (hasEnd && MarkType::kAnchor != markType && MarkType::kLine != markType) {
                 return this->reportError<bool>("one liners omit end element");
             } else if (!hasEnd && MarkType::kAnchor == markType) {
                 return this->reportError<bool>("anchor line must have end element last");
@@ -396,7 +398,25 @@ bool BmhParser::addDefinition(const char* defStart, bool hasEnd, MarkType markTy
                     return this->reportError<bool>("duplicate alias");
                 }
                 fAliasMap[alias] = definition;
-            }
+			}
+			else if (MarkType::kLine == markType) {
+				const char* nextLF = this->strnchr('\n', this->fEnd);
+				const char* start = fChar;
+				const char* end = this->trimmedBracketEnd(fMC);
+				this->skipToEndBracket(fMC, nextLF);
+				if (fMC != this->next() || fMC != this->next()) {
+					return this->reportError<bool>("expected ## to delineate line");
+				}
+				fMarkup.emplace_front(MarkType::kText, start, fLineCount, definition);
+				Definition* text = &fMarkup.front();
+				text->fContentStart = start;
+				text->fContentEnd = end;
+				text->fTerminator = fChar;
+				definition->fContentEnd = text->fContentEnd;
+				definition->fTerminator = fChar;
+				definition->fChildren.emplace_back(text);
+				SkDebugf("");
+			}
             break;
         case MarkType::kExternal:
             (void) this->collectExternals();  // FIXME: detect errors in external defs?
@@ -735,7 +755,8 @@ bool BmhParser::findDefinitions() {
             } else if (this->peek() == ' ') {
                 if (!fParent || (MarkType::kTable != fParent->fMarkType
                         && MarkType::kLegend != fParent->fMarkType
-                        && MarkType::kList != fParent->fMarkType)) {
+                        && MarkType::kList != fParent->fMarkType
+						&& MarkType::kLine != fParent->fMarkType)) {
                     int endHashes = this->endHashCount();
                     if (endHashes <= 1) {
                         if (fParent) {
@@ -832,7 +853,9 @@ bool HackParser::hackFiles() {
         --len;
     }
     filename = filename.substr(len + 1);
-    // remove trailing period from #Param and #Return
+    // write #In to show containing #Topic
+	// write #Line with one liner from Member_Functions, Constructors, Operators if method, 
+	//    from Constants if enum, otherwise from #Subtopic containing match 
     FILE* out = fopen(filename.c_str(), "wb");
     if (!out) {
         SkDebugf("could not open output file %s\n", filename.c_str());
@@ -846,23 +869,23 @@ bool HackParser::hackFiles() {
         }
         this->skipTo(match);
         this->next();
-        if (!this->startsWith("Param") && !this->startsWith("Return")) {
+        if (!this->startsWith("Method") && !this->startsWith("Topic") && !this->startsWith("Subtopic") &&
+				!this->startsWith("Enum") && !this->startsWith("Class") && !this->startsWith("Struct")) {
             continue;
         }
-        const char* end = this->strnstr("##", fEnd);
-        while (true) {
-            TextParser::Save lastPeriod(this);
-            this->next();
-            if (!this->skipToEndBracket('.', end)) {
-                lastPeriod.restore();
-                break;
-            }
-        }
-        if ('.' == this->peek()) {
-            fprintf(out, "%.*s", (int) (fChar - start), start);
-            this->next();
-            start = fChar;
-        }
+		// write markup to next # or \n\n
+
+		// if #Topic or #Subtopic, write #Alias, #Substitute
+
+		// if next markup is #In, write it
+		// else, generate and write #In
+
+		// if next markup is #Line, write it
+		// else, generate and write #Line
+
+
+        fprintf(out, "%.*s", (int) (fChar - start), start);
+        start = fChar;
     } while (!this->eof());
     fprintf(out, "%.*s", (int) (fEnd - start), start);
     fclose(out);
@@ -1206,6 +1229,18 @@ bool BmhParser::skipToDefinitionEnd(MarkType markType) {
     return this->reportError<bool>("unbalanced stack");
 }
 
+bool BmhParser::skipToString() {
+	this->skipSpace();
+	if (fMC != this->peek()) {
+		return this->reportError<bool>("expected end mark");
+	}
+	this->next();
+	this->skipSpace();
+	// body is text from here to double fMC
+		// no single fMC allowed, no linefeed allowed
+	return true;
+}
+
 vector<string> BmhParser::topicName() {
     vector<string> result;
     this->skipWhiteSpace();
@@ -1271,6 +1306,9 @@ vector<string> BmhParser::typeName(MarkType markType, bool* checkEnd) {
         case MarkType::kTrack:
             this->skipNoName();
             break;
+		case MarkType::kLine:
+			this->skipToString();
+			break;
         case MarkType::kAlias:
         case MarkType::kAnchor:
         case MarkType::kBug:  // fixme: expect number
@@ -1281,6 +1319,7 @@ vector<string> BmhParser::typeName(MarkType markType, bool* checkEnd) {
         case MarkType::kFile:
         case MarkType::kHeight:
         case MarkType::kImage:
+		case MarkType::kIn:
         case MarkType::kLiteral:
         case MarkType::kOutdent:
         case MarkType::kPlatform:

@@ -197,7 +197,7 @@ Shader attached to Paint.
 # isEmbeddedBitmapText  # returns true if Font_Embedded_Bitmaps is set         ##
 # isFakeBoldText        # returns true if Fake_Bold is set                     ##
 # isLCDRenderText       # returns true if LCD_Text is set                      ##
-# isSrcOver             # returns true if Blend_Mode is SkBlendMode::kSrcOver   ##
+# isSrcOver             # returns true if Blend_Mode is SkBlendMode::kSrcOver  ##
 # isSubpixelText        # returns true if Subpixel_Text is set                 ##
 # isVerticalText        # returns true if Vertical_Text is set                 ##
 # measureText           # returns advance width and bounds of text             ##
@@ -868,6 +868,8 @@ All Flags members may be cleared, or one or more may be set.
 # ------------------------------------------------------------------------------
 #Topic Anti-alias
 #Alias Anti-alias  # permit hyphen in topic name, should probably not substitute hyphen with _
+#In Related_Functions
+#Line # approximating coverage with transparency ##
 
 Anti-alias drawing approximates partial pixel coverage with transparency.
 If kAntiAlias_Flag is clear, pixel centers contained by the shape edge are drawn opaque.
@@ -891,7 +893,7 @@ Anti-alias is disabled by default.
 Anti-alias can be enabled by default by setting SkPaintDefaults_Flags to kAntiAlias_Flag
 at compile time.
 
-    #Example
+#Example
     #Width 512
     #Description
         A red line is drawn with transparency on the edges to make it look smoother.
@@ -920,9 +922,11 @@ at compile time.
             canvas->translate(15, 0);
         }
     }
-    ##
+##
 
 #Method bool isAntiAlias() const
+#In Anti-alias
+#Line # returns true if Anti-alias is set ##
 
     If true, pixels on the active edges of Path may be drawn with partial transparency.
 
@@ -1816,16 +1820,25 @@ Does not check to see if quality is valid.
 # ------------------------------------------------------------------------------
 #Topic Color_Methods
 
-Color specifies the Color_RGB_Red, Color_RGB_Blue, Color_RGB_Green, and Color_Alpha values used to draw a filled
-or stroked shape in a
-32-bit value. Each component occupies 8-bits, ranging from zero: no contribution;
-to 255: full intensity. All values in any combination are valid.
+#Table
+#Legend
+# name                  # description                                          ##
+#Legend ##
+# getColor              # returns Color_Alpha and Color_RGB, one drawing color ##
+# setColor              # sets Color_Alpha and Color_RGB, one drawing color    ##
+#Table ##
 
-Color is not Premultiplied;
-Color_Alpha sets the transparency independent of Color_RGB: Color_RGB_Red, Color_RGB_Blue, and Color_RGB_Green.
+Color specifies the Color_RGB_Red, Color_RGB_Blue, Color_RGB_Green, and Color_Alpha
+values used to draw a filled or stroked shape in a 32-bit value. Each component
+occupies 8-bits, ranging from zero: no contribution; to 255: full intensity.
+All values in any combination are valid.
 
-The bit positions of Color_Alpha and Color_RGB are independent of the bit positions
-on the output device, which may have more or fewer bits, and may have a different arrangement.
+Color is not Premultiplied; Color_Alpha sets the transparency independent of
+Color_RGB: Color_RGB_Red, Color_RGB_Blue, and Color_RGB_Green.
+
+The bit positions of Color_Alpha and Color_RGB are independent of the bit
+positions on the output device, which may have more or fewer bits, and may have
+a different arrangement.
 
 #Table
 #Legend

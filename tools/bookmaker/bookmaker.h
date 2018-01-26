@@ -108,7 +108,9 @@ enum class MarkType {
     kFunction,
     kHeight,
     kImage,
+	kIn,
     kLegend,
+	kLine,
     kLink,
     kList,
     kLiteral,  // don't lookup hyperlinks, do substitution, etc
@@ -1229,7 +1231,11 @@ public:
 , { "Function",    nullptr,      MarkType::kFunction,     R_O, E_N, M(Example) | M(NoExample) }
 , { "Height",      nullptr,      MarkType::kHeight,       R_N, E_N, M(Example) | M(NoExample) }
 , { "Image",       nullptr,      MarkType::kImage,        R_N, E_N, M(Example) | M(NoExample) }
+, { "In",          nullptr,      MarkType::kIn,           R_N, E_N, 
+                                                             M_CSST | M_E | M(Method) | M(Typedef) }
 , { "Legend",      nullptr,      MarkType::kLegend,       R_Y, E_N, M(Table) }
+, { "Line",        nullptr,      MarkType::kLine,         R_N, E_N,
+                                                             M_CSST | M_E | M(Method) | M(Typedef) }
 , { "",            nullptr,      MarkType::kLink,         R_N, E_N, M(Anchor) }
 , { "List",        nullptr,      MarkType::kList,         R_Y, E_N, M(Method) | M_CSST | M_E | M_D }
 , { "Literal",     nullptr,      MarkType::kLiteral,      R_N, E_N, M(Code) }
@@ -1334,6 +1340,7 @@ public:
 
     bool skipNoName();
     bool skipToDefinitionEnd(MarkType markType);
+	bool skipToString();
     void spellCheck(const char* match, SkCommandLineFlags::StringArray report) const;
     void spellStatus(const char* match, SkCommandLineFlags::StringArray report) const;
     vector<string> topicName();
@@ -1420,9 +1427,11 @@ public:
         , { nullptr,        MarkType::kFormula }
         , { nullptr,        MarkType::kFunction }
         , { nullptr,        MarkType::kHeight }
-        , { nullptr,        MarkType::kImage }
-        , { nullptr,        MarkType::kLegend }
-        , { nullptr,        MarkType::kLink }
+		, { nullptr,        MarkType::kImage }
+		, { nullptr,        MarkType::kIn }
+		, { nullptr,        MarkType::kLegend }
+		, { nullptr,        MarkType::kLine }
+		, { nullptr,        MarkType::kLink }
         , { nullptr,        MarkType::kList }
         , { nullptr,        MarkType::kLiteral }
         , { nullptr,        MarkType::kMarkChar }
@@ -1959,6 +1968,9 @@ private:
 
     typedef FiddleBase INHERITED;
 };
+
+start here;
+// pass bmhParser to HackParser so it can lookup one line descriptions and find topic containers
 
 class HackParser : public ParserCommon {
 public:
