@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f76ea3bd_65748e58",
+        "filename": "tests/LazyProxyTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 236,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-01-26T15:02:04Z",
+      "side": 1,
+      "message": "typo: instantiation ?\n\n// A GrOp that just holds a SurfaceProxy and can sit in an oplist. Used to test various proxy behaviors.\n\n?",
+      "revId": "811ad79a5f3d95d6f65c3eb3023ea7f25844f89b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8b51b0af_b5da4b60",
+        "filename": "tests/LazyProxyTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 242,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-01-26T15:02:04Z",
+      "side": 1,
+      "message": "Don\u0027t we tab the initialization list twice and the body once ?",
+      "revId": "811ad79a5f3d95d6f65c3eb3023ea7f25844f89b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "91f7d2d9_ba637778",
+        "filename": "tests/LazyProxyTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 286,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-01-26T15:02:04Z",
+      "side": 1,
+      "message": "dropt he -\u003e drop the ?",
+      "revId": "811ad79a5f3d95d6f65c3eb3023ea7f25844f89b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
