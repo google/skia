@@ -32,52 +32,10 @@
 #include <unistd.h>
 #include <sys/mman.h>
 #include "SkTypeface_remote.h"
+#include "SkRemoteGlyphCache.h"
+#include "SkMakeUnique.h"
 
 static const size_t kPageSize = 4096;
-
-struct WireTypeface {
-    std::thread::id thread_id;
-    SkFontID        typeface_id;
-    SkFontStyle     style;
-    bool            is_fixed;
-};
-
-class ScalerContextRecDescriptor {
-public:
-    explicit ScalerContextRecDescriptor(const SkScalerContextRec& rec) {
-        auto desc = reinterpret_cast<SkDescriptor*>(&fDescriptor);
-        desc->init();
-        desc->addEntry(kRec_SkDescriptorTag, sizeof(rec), &rec);
-    }
-
-    const SkDescriptor& desc() const {
-        return *reinterpret_cast<const SkDescriptor*>(&fDescriptor);
-    }
-
-    struct Hash {
-        size_t operator()(ScalerContextRecDescriptor const& s) const {
-            return SkOpts::hash_fn(&s.desc(), sizeof(s), 0);
-        }
-    };
-
-    struct Equal {
-        bool operator()( const ScalerContextRecDescriptor& lhs,
-                         const ScalerContextRecDescriptor& rhs ) const {
-            return lhs.desc() == rhs.desc();
-        }
-    };
-
-private:
-    // The system only passes descriptors without effects. That is why it uses a fixed size
-    // descriptor. storageFor is needed because some of the constructors below are private.
-    template <typename T>
-    using storageFor = typename std::aligned_storage<sizeof(T), alignof(T)>::type;
-    struct {
-        storageFor<SkDescriptor>        dummy1;
-        storageFor<SkDescriptor::Entry> dummy2;
-        storageFor<SkScalerContextRec>  dummy3;
-    } fDescriptor;
-};
 
 class Op {
 public:
@@ -95,12 +53,12 @@ public:
             size_t pathSize;
         };
     };
-    ScalerContextRecDescriptor descriptor;
+    SkScalerContextRecDescriptor descriptor;
 };
 
-class RemoteScalerContextPassThread : public SkRemoteScalerContext {
+class RemoteScalerContextFIFO : public SkRemoteScalerContext {
 public:
-    explicit RemoteScalerContextPassThread(int readFd, int writeFd)
+    explicit RemoteScalerContextFIFO(int readFd, int writeFd)
         : fReadFd{readFd}
         , fWriteFd{writeFd} { }
     void generateFontMetrics(const SkTypefaceProxy& tf,
@@ -157,80 +115,9 @@ private:
     }
 
     const int fReadFd,
-              fWriteFd;
+        fWriteFd;
     uint8_t   fBuffer[1024 * kPageSize];
 };
-
-static sk_sp<SkTypeface> gpu_from_renderer_by_ID(const void* buf, size_t len, void* ctx) {
-    static std::unordered_map<SkFontID, sk_sp<SkTypefaceProxy>> mapIdToTypeface;
-    WireTypeface wire;
-    if (len >= sizeof(wire)) {
-        memcpy(&wire, buf, sizeof(wire));
-        auto i = mapIdToTypeface.find(wire.typeface_id);
-        if (i == mapIdToTypeface.end()) {
-
-            auto newTypeface = sk_make_sp<SkTypefaceProxy>(
-                wire.typeface_id,
-                wire.thread_id,
-                wire.style,
-                wire.is_fixed,
-                (SkRemoteScalerContext*)ctx);
-
-            i = mapIdToTypeface.emplace_hint(i, wire.typeface_id, newTypeface);
-        }
-        return i->second;
-    }
-    SK_ABORT("Bad data");
-    return nullptr;
-}
-
-std::unordered_map<SkFontID, sk_sp<SkTypeface>> gTypefaceMap;
-
-
-// TODO: Figure out how to manage the entries.
-std::unordered_map<ScalerContextRecDescriptor,
-                   std::unique_ptr<SkScalerContext>,
-                   ScalerContextRecDescriptor::Hash,
-                   ScalerContextRecDescriptor::Equal>
-    gScalerContextMap(16,
-                      ScalerContextRecDescriptor::Hash(),
-                      ScalerContextRecDescriptor::Equal());
-
-static SkScalerContext* scaler_context_from_op(Op* op) {
-
-    SkScalerContext* sc;
-    auto j = gScalerContextMap.find(op->descriptor);
-    if (j != gScalerContextMap.end()) {
-        sc = j->second.get();
-    } else {
-        auto i = gTypefaceMap.find(op->typeface_id);
-        if (i == gTypefaceMap.end()) {
-            std::cerr << "bad typeface id: " << op->typeface_id << std::endl;
-            SK_ABORT("unknown type face");
-        }
-        auto tf = i->second;
-        SkScalerContextEffects effects;
-        auto mapSc = tf->createScalerContext(effects, &op->descriptor.desc(), false);
-        sc = mapSc.get();
-        gScalerContextMap.emplace_hint(j, op->descriptor, std::move(mapSc));
-    }
-    return sc;
-
-}
-
-static sk_sp<SkData> renderer_to_gpu_by_ID(SkTypeface* tf, void* ctx) {
-    WireTypeface wire = {
-            std::this_thread::get_id(),
-            SkTypeface::UniqueID(tf),
-            tf->fontStyle(),
-            tf->isFixedPitch()
-    };
-    auto i = gTypefaceMap.find(SkTypeface::UniqueID(tf));
-    if (i == gTypefaceMap.end()) {
-        gTypefaceMap.insert({SkTypeface::UniqueID(tf), sk_ref_sp(tf)});
-    }
-    return SkData::MakeWithCopy(&wire, sizeof(wire));
-}
 
 static void final_draw(std::string outFilename,
                        SkDeserialProcs* procs,
@@ -283,32 +170,22 @@ static void gpu(int readFd, int writeFd) {
         readSoFar += readSize;
     }
 
+    SkRemoteGlyphCacheGPU rc{
+        skstd::make_unique<RemoteScalerContextFIFO>(readFd, writeFd)
+    };
+
     SkDeserialProcs procs;
-    std::unique_ptr<SkRemoteScalerContext> rsc{
-            new RemoteScalerContextPassThread{readFd, writeFd}};
-    procs.fTypefaceProc = gpu_from_renderer_by_ID;
-    procs.fTypefaceCtx = rsc.get();
+    rc.prepareDeserializeProcs(&procs);
+
     final_draw("test.png", &procs, picBuffer.get(), picSize);
-    /*
-    auto pic = SkPicture::MakeFromData(picBuffer.get(), picSize, &procs);
 
-    auto cullRect = pic->cullRect();
-    auto r = cullRect.round();
-    auto s = SkSurface::MakeRasterN32Premul(r.width(), r.height());
-
-    auto c = s->getCanvas();
-    c->drawPicture(pic);
-
-    auto i = s->makeImageSnapshot();
-    auto data = i->encodeToData();
-    SkFILEWStream f("test.png");
-    f.write(data->data(), data->size());
-     */
     close(writeFd);
     close(readFd);
 }
 
-static int renderer(const std::string& skpName, int readFd, int writeFd) {
+static int renderer(
+    const std::string& skpName, int readFd, int writeFd)
+{
     std::string prefix{"skps/"};
     std::string fileName{prefix + skpName + ".skp"};
 
@@ -317,9 +194,10 @@ static int renderer(const std::string& skpName, int readFd, int writeFd) {
 
     bool toGpu = true;
 
+    SkRemoteGlyphCacheRenderer rc;
     SkSerialProcs procs;
     if (toGpu) {
-        procs.fTypefaceProc = renderer_to_gpu_by_ID;
+        rc.prepareSerializeProcs(&procs);
     }
 
     auto stream = pic->serialize(&procs);
@@ -362,7 +240,7 @@ static int renderer(const std::string& skpName, int readFd, int writeFd) {
         if (size <= 0) { std::cerr << "Exit op loop" << std::endl; break;}
         size_t writeSize = sizeof(*op);
 
-            auto sc = scaler_context_from_op(op);
+            auto sc = rc.generateScalerContext(op->descriptor, op->typeface_id);
             switch (op->op) {
                 case 0: {
                     sc->getFontMetrics(&op->fontMetrics);
@@ -442,10 +320,9 @@ int main(int argc, char** argv) {
         SkGraphics::Init();
 
         if (child == 0) {
-            start_render(skpName, render_to_gpu, gpu_to_render);
-        } else {
             start_gpu(render_to_gpu, gpu_to_render);
-            std::cerr << "Waiting for renderer." << std::endl;
+        } else {
+            start_render(skpName, render_to_gpu, gpu_to_render);
             waitpid(child, nullptr, 0);
         }
     } else {
