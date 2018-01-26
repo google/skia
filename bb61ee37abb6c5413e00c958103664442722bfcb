@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0935e9b1_bc2b1ab3",
+        "filename": "src/gpu/GrProxyProvider.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 211,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-01-26T13:20:00Z",
+      "side": 1,
+      "message": "I think we just assume there is an image (we dereference it above after all)",
+      "revId": "bb61ee37abb6c5413e00c958103664442722bfcb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a27808b0_1d107b4b",
+        "filename": "src/gpu/GrProxyProvider.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 220,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-01-26T13:20:00Z",
+      "side": 1,
+      "message": "SkAssertResult ?",
+      "revId": "bb61ee37abb6c5413e00c958103664442722bfcb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e5acabd5_97d07a91",
+        "filename": "src/gpu/GrProxyProvider.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 225,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-01-26T13:20:00Z",
+      "side": 1,
+      "message": "just return the result of \"resourceProvider-\u003ecreateTexture(...);\" ?",
+      "revId": "bb61ee37abb6c5413e00c958103664442722bfcb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0ba1e31e_0d3ca332",
+        "filename": "src/gpu/GrProxyProvider.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 234,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-01-26T13:20:00Z",
+      "side": 1,
+      "message": "\"if (!\" - i.e., add a space ?",
+      "revId": "bb61ee37abb6c5413e00c958103664442722bfcb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "36602811_08e51388",
+        "filename": "src/gpu/GrProxyProvider.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 241,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-01-26T13:20:00Z",
+      "side": 1,
+      "message": "rm this line ?",
+      "revId": "bb61ee37abb6c5413e00c958103664442722bfcb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
