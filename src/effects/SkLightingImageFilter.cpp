@@ -12,7 +12,6 @@
 #include "SkImageFilterPriv.h"
 #include "SkPoint3.h"
 #include "SkReadBuffer.h"
-#include "SkSafeRange.h"
 #include "SkSpecialImage.h"
 #include "SkTypes.h"
 #include "SkWriteBuffer.h"
@@ -1128,15 +1127,7 @@ void SkImageFilterLight::flattenLight(SkWriteBuffer& buffer) const {
 }
 
 /*static*/ SkImageFilterLight* SkImageFilterLight::UnflattenLight(SkReadBuffer& buffer) {
-    // Read type first.
-    SkSafeRange safe;
-
-    SkImageFilterLight::LightType type = safe.checkLE<SkImageFilterLight::LightType>(
-                                            buffer.readInt(), SkImageFilterLight::kLast_LightType);
-
-    if (!buffer.validate(safe)) {
-        return nullptr;
-    }
+    SkImageFilterLight::LightType type = buffer.read32LE(SkImageFilterLight::kLast_LightType);
 
     switch (type) {
         // Each of these constructors must first call SkLight's, so we'll read the baseclass

@@ -116,6 +116,14 @@ public:
     uint32_t readUInt();
     int32_t read32();
 
+    template <typename T> T read32LE(T max) {
+        uint32_t value = this->readUInt();
+        if (!this->validate(value <= static_cast<uint32_t>(max))) {
+            value = 0;
+        }
+        return static_cast<T>(value);
+    }
+
     // peek
     uint8_t peekByte();
 
