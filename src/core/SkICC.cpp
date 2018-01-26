@@ -77,7 +77,7 @@ bool SkICC::rawTransferFnData(Tables* tables) const {
 
     const SkGammas* gammas = colorSpace->gammas();
     SkASSERT(gammas);
-    if (gammas->data(0) == gammas->data(1) && gammas->data(0) == gammas->data(2)) {
+    if (gammas->allChannelsSame()) {
         SkASSERT(gammas->isTable(0));
         tables->fStorage = SkData::MakeUninitialized(gammas->tableSize(0) * sizeof(float));
         copy_to_table((float*) tables->fStorage->writable_data(), gammas, 0);

@@ -65,7 +65,7 @@ bool SkColorSpace_XYZ::onIsNumericalTransferFn(SkColorSpaceTransferFn* coeffs) c
     }
 
     SkASSERT(fGammas);
-    if (fGammas->data(0) != fGammas->data(1) || fGammas->data(0) != fGammas->data(2)) {
+    if (!fGammas->allChannelsSame()) {
         return false;
     }
 
