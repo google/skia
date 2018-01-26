@@ -7,7 +7,6 @@
 
 #include "SkCanvas.h"
 #include "SkColorData.h"
-#include "SkColorSpace_Base.h"
 #include "SkHalf.h"
 #include "SkImageInfoPriv.h"
 #include "SkMathPriv.h"

@@ -9,7 +9,6 @@
 #include "Resources.h"
 #include "SkCodec.h"
 #include "SkColorSpace.h"
-#include "SkColorSpace_Base.h"
 #include "SkColorSpaceXform.h"
 #include "SkColorSpaceXformPriv.h"
 #include "SkHalf.h"

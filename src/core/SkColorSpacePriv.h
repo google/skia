@@ -9,7 +9,7 @@
 
 #include <math.h>
 
-#include "SkColorSpace_Base.h"
+#include "SkColorSpace.h"
 #include "SkFixed.h"
 
 #define SkColorSpacePrintf(...)

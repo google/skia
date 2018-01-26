@@ -8,7 +8,6 @@
 #include "gm.h"
 #include "SkCanvas.h"
 #include "SkColorPriv.h"
-#include "SkColorSpace_Base.h"
 #include "SkShader.h"
 #include "SkSurface.h"
 

@@ -10,7 +10,6 @@
 
 #include "SkColorData.h"
 #include "SkColorSpace.h"
-#include "SkColorSpace_Base.h"
 #include "SkArenaAlloc.h"
 #include "SkPM4f.h"
 #include "SkRasterPipeline.h"

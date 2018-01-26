@@ -8,7 +8,6 @@
 #include "gm.h"
 #include "sk_tool_utils.h"
 
-#include "SkColorSpace_Base.h"
 #include "SkGradientShader.h"
 #include "SkImagePriv.h"
 #include "SkPM4fPriv.h"

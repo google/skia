@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include "SkColorSpace_Base.h"
 #include "SkPM4fPriv.h"
 #include "SkRasterPipeline.h"
 #include "SkReadBuffer.h"
