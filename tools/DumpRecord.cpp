@@ -7,6 +7,7 @@
 
 #include <stdio.h>
 
+#include "SkPicturePriv.h"
 #include "SkRecord.h"
 #include "SkRecordDraw.h"
 
@@ -63,7 +64,7 @@ public:
     void print(const SkRecords::DrawPicture& command, double ns) {
         this->printNameAndTime(command, ns);
 
-        if (auto bp = command.picture->asSkBigPicture()) {
+        if (auto bp = SkPicturePriv::AsBigPicture(command.picture.get())) {
             ++fIndent;
 
             const SkRecord& record = *bp->record();

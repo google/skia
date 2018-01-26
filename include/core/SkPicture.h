@@ -90,18 +90,7 @@ public:
     sk_sp<SkData> serialize(const SkSerialProcs* = nullptr) const;
     void serialize(SkWStream*, const SkSerialProcs* = nullptr) const;
 
-    /**
-     *  Serialize to a buffer.
-     */
-    void flatten(SkWriteBuffer&) const;
-
-    /** Return the approximate number of operations in this picture.  This
-     *  number may be greater or less than the number of SkCanvas calls
-     *  recorded: some calls may be recorded as more than one operation, or some
-     *  calls may be optimized away.
-     */
-    virtual int approximateOpCount() const = 0;
-
+protected:
     /** Returns the approximate byte size of this picture, not including large ref'd objects. */
     virtual size_t approximateBytesUsed() const = 0;
 
@@ -113,6 +102,8 @@ private:
     SkPicture();
     friend class SkBigPicture;
     friend class SkEmptyPicture;
+    friend class SkPicturePriv;
+    friend class SkPictureRecorder;
     template <typename> friend class SkMiniPicture;
 
     void serialize(SkWStream*, const SkSerialProcs*, SkRefCntSet* typefaces) const;
@@ -172,6 +163,7 @@ private:
 
     SkPictInfo createHeader() const;
     SkPictureData* backport() const;
+    void flatten(SkWriteBuffer&) const;
 
     mutable uint32_t fUniqueID;
 };

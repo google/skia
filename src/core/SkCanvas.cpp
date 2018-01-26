@@ -28,7 +28,7 @@
 #include "SkNx.h"
 #include "SkPaintPriv.h"
 #include "SkPatchUtils.h"
-#include "SkPicture.h"
+#include "SkPicturePriv.h"
 #include "SkRasterClip.h"
 #include "SkRasterHandleAllocator.h"
 #include "SkRRect.h"
@@ -2786,15 +2786,6 @@ void SkCanvas::drawTextOnPathHV(const void* text, size_t byteLength,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-/**
- *  This constant is trying to balance the speed of ref'ing a subpicture into a parent picture,
- *  against the playback cost of recursing into the subpicture to get at its actual ops.
- *
- *  For now we pick a conservatively small value, though measurement (and other heuristics like
- *  the type of ops contained) may justify changing this value.
- */
-#define kMaxPictureOpsToUnrollInsteadOfRef  1
-
 void SkCanvas::drawPicture(const SkPicture* picture, const SkMatrix* matrix, const SkPaint* paint) {
     TRACE_EVENT0("skia", TRACE_FUNC);
     RETURN_ON_NULL(picture);
@@ -2802,12 +2793,7 @@ void SkCanvas::drawPicture(const SkPicture* picture, const SkMatrix* matrix, con
     if (matrix && matrix->isIdentity()) {
         matrix = nullptr;
     }
-    if (picture->approximateOpCount() <= kMaxPictureOpsToUnrollInsteadOfRef) {
-        SkAutoCanvasMatrixPaint acmp(this, matrix, paint, picture->cullRect());
-        picture->playback(this);
-    } else {
-        this->onDrawPicture(picture, matrix, paint);
-    }
+    this->onDrawPicture(picture, matrix, paint);
 }
 
 void SkCanvas::onDrawPicture(const SkPicture* picture, const SkMatrix* matrix,
