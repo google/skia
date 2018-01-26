@@ -16,7 +16,6 @@
 #include "SkRRect.h"
 #include "SkRasterClip.h"
 #include "SkReadBuffer.h"
-#include "SkSafeRange.h"
 #include "SkWriteBuffer.h"
 
 #if SK_SUPPORT_GPU
@@ -587,11 +586,10 @@ void SkCombineMF::flatten(SkWriteBuffer & buffer) const {
 }
 
 sk_sp<SkFlattenable> SkCombineMF::CreateProc(SkReadBuffer& buffer) {
-    SkSafeRange safe;
     auto dst = buffer.readMaskFilter();
     auto src = buffer.readMaskFilter();
-    SkCoverageMode mode = safe.checkLE(buffer.read32(), SkCoverageMode::kLast);
-    if (!buffer.validate(dst && src && safe)) {
+    SkCoverageMode mode = buffer.read32LE(SkCoverageMode::kLast);
+    if (!buffer.validate(dst && src)) {
         return nullptr;
     }
     return SkMaskFilter::MakeCombine(std::move(dst), std::move(src), mode);

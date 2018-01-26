@@ -16,7 +16,6 @@
 #include "SkReadBuffer.h"
 #include "SkRSXform.h"
 #include "SkSafeMath.h"
-#include "SkSafeRange.h"
 #include "SkTextBlob.h"
 #include "SkTDArray.h"
 #include "SkTypes.h"
@@ -671,12 +670,9 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
             }
         } break;
         case DRAW_VERTICES_OBJECT: {
-            SkSafeRange safe;
             const SkPaint* paint = fPictureData->getPaint(reader);
             const SkVertices* vertices = fPictureData->getVertices(reader);
-            SkBlendMode bmode = safe.checkLE<SkBlendMode>(reader->readInt(),
-                                                          SkBlendMode::kLastMode);
-            reader->validate(safe);
+            SkBlendMode bmode = reader->read32LE(SkBlendMode::kLastMode);
             BREAK_ON_READ_ERROR(reader);
 
             if (paint && vertices) {
