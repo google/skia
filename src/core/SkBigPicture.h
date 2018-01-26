@@ -46,6 +46,7 @@ public:
     int approximateOpCount() const override;
     size_t approximateBytesUsed() const override;
     const SkBigPicture* asSkBigPicture() const override { return this; }
+    bool shouldUnrollForDrawPicture() const override;
 
 // Used by GrLayerHoister
     void partialPlayback(SkCanvas*,

@@ -38,6 +38,7 @@
 #include "SkLeanWindows.h"
 #include "SkOSFile.h"
 #include "SkOSPath.h"
+#include "SkPicturePriv.h"
 #include "SkPictureRecorder.h"
 #include "SkSVGDOM.h"
 #include "SkScan.h"
@@ -738,8 +739,8 @@ public:
             SkString name = SkOSPath::Basename(path.c_str());
             fSourceType = "skp";
             fBenchType  = "recording";
-            fSKPBytes = static_cast<double>(pic->approximateBytesUsed());
-            fSKPOps   = pic->approximateOpCount();
+            fSKPBytes = static_cast<double>(SkPicturePriv::ApproxBytesUsed(pic.get()));
+            fSKPOps   = SkPicturePriv::ApproxOpCount(pic.get());
             return new RecordingBench(name.c_str(), pic.get(), FLAGS_bbh, FLAGS_lite);
         }
 
@@ -753,8 +754,8 @@ public:
             SkString name = SkOSPath::Basename(path.c_str());
             fSourceType = "skp";
             fBenchType  = "piping";
-            fSKPBytes = static_cast<double>(pic->approximateBytesUsed());
-            fSKPOps   = pic->approximateOpCount();
+            fSKPBytes = static_cast<double>(SkPicturePriv::ApproxBytesUsed(pic.get()));
+            fSKPOps   = SkPicturePriv::ApproxOpCount(pic.get());
             return new PipingBench(name.c_str(), pic.get());
         }
 
