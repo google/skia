@@ -11,7 +11,6 @@
 #include "SkBitmap.h"
 #include "SkDrawable.h"
 #include "SkPicture.h"
-#include "SkPictureContentInfo.h"
 #include "SkPictureFlat.h"
 
 class SkData;
@@ -80,10 +79,6 @@ public:
 
     void serialize(SkWStream*, const SkSerialProcs&, SkRefCntSet*) const;
     void flatten(SkWriteBuffer&) const;
-
-    bool hasText() const { return fContentInfo.hasText(); }
-
-    int opCount() const { return fContentInfo.numOperations(); }
 
     const sk_sp<SkData>& opData() const { return fOpData; }
 
@@ -168,8 +163,6 @@ private:
     int fImageCount;
     const SkImage** fBitmapImageRefs;
     int fBitmapImageCount;
-
-    SkPictureContentInfo fContentInfo;
 
     SkTypefacePlayback fTFPlayback;
     SkFactoryPlayback* fFactoryPlayback;

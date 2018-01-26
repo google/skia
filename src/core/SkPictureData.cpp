@@ -44,8 +44,6 @@ SkPictureData::SkPictureData(const SkPictureRecord& record,
 
     fOpData = record.opData();
 
-    fContentInfo.set(record.fContentInfo);
-
     fPaints  = record.fPaints;
 
     fPaths.reset(record.fPaths.count());
