@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cc8d8e91_d9bf6b6c",
+        "filename": "src/core/SkPictureContentInfo.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-01-26T16:22:57Z",
+      "side": 1,
+      "message": "So, does Chrome even still use this class ?",
+      "revId": "a3885d42968b781a48e6cccaf38e392f5e9360c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
