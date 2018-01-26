@@ -46,7 +46,7 @@ public:
     /**
      *  Recreate a picture that was serialized into a buffer. If the creation requires bitmap
      *  decoding, the decoder must be set on the SkReadBuffer parameter by calling
-     *  SkReadBuffer::setBitmapDecoder() before calling SkPicture::CreateFromBuffer().
+     *  SkReadBuffer::setBitmapDecoder() before calling SkPicture::MakeFromBuffer().
      *  @param SkReadBuffer Serialized picture data.
      *  @return A new SkPicture representing the serialized data, or NULL if the buffer is
      *          invalid.
@@ -91,6 +91,14 @@ public:
     void serialize(SkWStream*, const SkSerialProcs* = nullptr) const;
 
     /**
+     * Return a placeholder SkPicture.
+     * This placeholder does not draw anything itself.  It has a distinct uniqueID()
+     * (just like all SkPictures) and will always be visible to SkSerialProcs.
+     * @param cull the placeholder's dimensions
+     */
+    static sk_sp<SkPicture> MakePlaceholder(SkRect cull);
+
+    /**
      *  Serialize to a buffer.
      */
     void flatten(SkWriteBuffer&) const;
@@ -122,8 +130,8 @@ private:
     /** Return true if the SkStream/Buffer represents a serialized picture, and
      fills out SkPictInfo. After this function returns, the data source is not
      rewound so it will have to be manually reset before passing to
-     CreateFromStream or CreateFromBuffer. Note, CreateFromStream and
-     CreateFromBuffer perform this check internally so these entry points are
+     MakeFromStream or MakeFromBuffer. Note, MakeFromStream and
+     MakeFromBuffer perform this check internally so these entry points are
      intended for stand alone tools.
      If false is returned, SkPictInfo is unmodified.
      */
