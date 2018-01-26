@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f0dff78d_94ca384e",
+        "filename": "tools/remote_demo.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 169,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-26T18:06:35Z",
+      "side": 1,
+      "message": "might be nice to name this \u0027it\u0027 so it\u0027s clear it\u0027s an iterator and not an int index.",
+      "range": {
+        "startLine": 169,
+        "startChar": 13,
+        "endLine": 169,
+        "endChar": 14
+      },
+      "revId": "c69322d6fd9990b69dd47b4aa74bcf5955640357",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8da3d9e0_2d6acf5a",
+        "filename": "tools/remote_demo.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 183,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-26T18:06:35Z",
+      "side": 1,
+      "message": "There is a pattern I like for this sort of thing that makes it less error prone:\n\n        auto i \u003d mapIdToTypeface.find(wire.typeface_id);\n        if (i \u003d\u003d mapIdToTypeface.end()) {\n\n            auto newTypeface \u003d sk_make_sp\u003cSkTypefaceProxy\u003e(\n                wire.typeface_id,\n                wire.thread_id,\n                wire.style,\n                wire.is_fixed,\n                (SkRemoteScalerContext*)ctx);\n\n            mapIdToTypeface.emplace_hint(i, wire.typeface_id, newTypeface);\n        }\n        return mapIDToTypeface[wire.typeface_id];\n\nThat is, if we\u0027re going to have a cache, always return from the cache.",
+      "range": {
+        "startLine": 180,
+        "startChar": 2,
+        "endLine": 183,
+        "endChar": 9
+      },
+      "revId": "c69322d6fd9990b69dd47b4aa74bcf5955640357",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
