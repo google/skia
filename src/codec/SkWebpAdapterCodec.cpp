@@ -9,8 +9,8 @@
 #include "SkCodecPriv.h"
 #include "SkWebpAdapterCodec.h"
 
-SkWebpAdapterCodec::SkWebpAdapterCodec(SkWebpCodec* codec)
-    : INHERITED(codec)
+SkWebpAdapterCodec::SkWebpAdapterCodec(SkWebpCodec* codec, ExifOrientationBehavior behavior)
+    : INHERITED(codec, behavior)
 {}
 
 SkISize SkWebpAdapterCodec::onGetSampledDimensions(int sampleSize) const {
