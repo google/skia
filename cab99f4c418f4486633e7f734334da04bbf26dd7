@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cf1f7742_a0aa17bb",
+        "filename": "tools/remote_demo.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 184,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-26T16:59:41Z",
+      "side": 1,
+      "message": "shouldn\u0027t ever return nullptr, right?",
+      "revId": "cab99f4c418f4486633e7f734334da04bbf26dd7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
