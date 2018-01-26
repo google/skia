@@ -325,6 +325,27 @@ static void ft_face_setup_axes(SkFaceRec* rec, const SkFontData& data) {
     }
 }
 
+#ifdef SK_DEBUG
+static const char* err_string(FT_Error e) {
+    switch (e) {
+        #undef FTERRORS_H_
+        #define FT_ERRORDEF( e, v, s ) case v: return s;
+        #define FT_ERROR_START_LIST
+        #define FT_ERROR_END_LIST
+        #include FT_ERRORS_H
+        #undef FT_ERRORDEF
+        #undef FT_ERROR_START_LIST
+        #undef FT_ERROR_END_LIST
+        default: return "";
+    }
+}
+#define SK_TRACE_FTR(err, MSG, ...) \
+    SkDebugf("%s:%lu:1: error: 0x%x '%s' " MSG "\n", __FILE__, __LINE__, err, \
+             err_string(err), __VA_ARGS__)
+#else
+#define SK_TRACE_FTR(...)
+#endif
+
 // Will return nullptr on failure
 // Caller must lock gFTMutex before calling this function.
 static SkFaceRec* ref_ft_face(const SkTypeface* typeface) {
@@ -364,7 +385,7 @@ static SkFaceRec* ref_ft_face(const SkTypeface* typeface) {
         FT_Face rawFace;
         FT_Error err = FT_Open_Face(gFTLibrary->library(), &args, data->getIndex(), &rawFace);
         if (err) {
-            SkDEBUGF(("ERROR: unable to open font '%x'\n", fontID));
+            SK_TRACE_FTR(err, "unable to open font '%x'", fontID);
             return nullptr;
         }
         rec->fFace.reset(rawFace);
@@ -852,7 +873,7 @@ SkScalerContext_FreeType::SkScalerContext_FreeType(sk_sp<SkTypeface> typeface,
         FT_Size size;
         FT_Error err = FT_New_Size(fFaceRec->fFace.get(), &size);
         if (err != 0) {
-            SkDEBUGF(("FT_New_Size(%s) returned 0x%x.\n", fFaceRec->fFace->family_name, err));
+            SK_TRACE_FTR(err, "FT_New_Size(%s) failed.", fFaceRec->fFace->family_name);
             return nullptr;
         }
         return size;
@@ -864,15 +885,15 @@ SkScalerContext_FreeType::SkScalerContext_FreeType(sk_sp<SkTypeface> typeface,
 
     FT_Error err = FT_Activate_Size(ftSize.get());
     if (err != 0) {
-        SkDEBUGF(("FT_Activate_Size(%s) returned 0x%x.\n", fFaceRec->fFace->family_name, err));
+        SK_TRACE_FTR(err, "FT_Activate_Size(%s) failed.", fFaceRec->fFace->family_name);
         return;
     }
 
     if (FT_IS_SCALABLE(fFaceRec->fFace)) {
         err = FT_Set_Char_Size(fFaceRec->fFace.get(), scaleX, scaleY, 72, 72);
         if (err != 0) {
-            SkDEBUGF(("FT_Set_CharSize(%s, %f, %f) returned 0x%x.\n",
-                      fFaceRec->fFace->family_name, fScale.fX, fScale.fY, err));
+            SK_TRACE_FTR(err, "FT_Set_CharSize(%s, %f, %f) failed.",
+                         fFaceRec->fFace->family_name, fScale.fX, fScale.fY);
             return;
         }
     } else if (FT_HAS_FIXED_SIZES(fFaceRec->fFace)) {
@@ -885,8 +906,8 @@ SkScalerContext_FreeType::SkScalerContext_FreeType(sk_sp<SkTypeface> typeface,
 
         err = FT_Select_Size(fFaceRec->fFace.get(), fStrikeIndex);
         if (err != 0) {
-            SkDEBUGF(("FT_Select_Size(%s, %d) returned 0x%x.\n",
-                      fFaceRec->fFace->family_name, fStrikeIndex, err));
+            SK_TRACE_FTR(err, "FT_Select_Size(%s, %d) failed.",
+                         fFaceRec->fFace->family_name, fStrikeIndex);
             fStrikeIndex = -1;
             return;
         }
@@ -1210,8 +1231,10 @@ void SkScalerContext_FreeType::generateImage(const SkGlyph& glyph) {
 
     FT_Error err = FT_Load_Glyph(fFace, glyph.getGlyphID(), fLoadGlyphFlags);
     if (err != 0) {
-        SkDEBUGF(("SkScalerContext_FreeType::generateImage: FT_Load_Glyph(glyph:%d width:%d height:%d rb:%d flags:%d) returned 0x%x\n",
-                  glyph.getGlyphID(), glyph.fWidth, glyph.fHeight, glyph.rowBytes(), fLoadGlyphFlags, err));
+        SK_TRACE_FTR(err, "SkScalerContext_FreeType::generateImage: FT_Load_Glyph(glyph:%d "
+                     "width:%d height:%d rb:%d flags:%d) failed.",
+                     glyph.getGlyphID(), glyph.fWidth, glyph.fHeight, glyph.rowBytes(),
+                     fLoadGlyphFlags);
         clear_glyph_image(glyph);
         return;
     }
@@ -1246,8 +1269,8 @@ void SkScalerContext_FreeType::generatePath(SkGlyphID glyphID, SkPath* path) {
     FT_Error err = FT_Load_Glyph(fFace, glyphID, flags);
 
     if (err != 0) {
-        SkDEBUGF(("SkScalerContext_FreeType::generatePath: FT_Load_Glyph(glyph:%d flags:%d) returned 0x%x\n",
-                  glyphID, flags, err));
+        SK_TRACE_FTR(err, "SkScalerContext_FreeType::generatePath: FT_Load_Glyph(glyph:%d "
+                     "flags:%d) failed.", glyphID, flags);
         path->reset();
         return;
     }
