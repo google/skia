@@ -11,7 +11,6 @@
 #include "SkColorPriv.h"
 #include "SkColorSpace.h"
 #include "SkColorSpace_A2B.h"
-#include "SkColorSpace_Base.h"
 #include "SkColorSpace_XYZ.h"
 #include "SkColorSpaceXform_Base.h"
 #include "Test.h"

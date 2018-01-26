@@ -9,7 +9,6 @@
 #define SkColorSpaceXform_Base_DEFINED
 
 #include "SkColorSpace.h"
-#include "SkColorSpace_Base.h"
 #include "SkColorSpaceXform.h"
 #include "SkResourceCache.h"
 

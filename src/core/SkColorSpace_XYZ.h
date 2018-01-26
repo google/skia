@@ -8,11 +8,12 @@
 #ifndef SkColorSpace_XYZ_DEFINED
 #define SkColorSpace_XYZ_DEFINED
 
-#include "SkColorSpace_Base.h"
+#include "SkColorSpace.h"
 #include "SkData.h"
+#include "SkGammas.h"
 #include "SkOnce.h"
 
-class SkColorSpace_XYZ : public SkColorSpace_Base {
+class SkColorSpace_XYZ : public SkColorSpace {
 public:
     const SkMatrix44* onToXYZD50() const override { return &fToXYZD50; }
     uint32_t onToXYZD50Hash() const override { return fToXYZD50Hash; }
@@ -24,8 +25,6 @@ public:
     bool onIsNumericalTransferFn(SkColorSpaceTransferFn* coeffs) const override;
 
     const SkData* onProfileData() const override { return fProfileData.get(); }
-
-    Type type() const override { return Type::kXYZ; }
 
     sk_sp<SkColorSpace> makeLinearGamma() const override;
     sk_sp<SkColorSpace> makeSRGBGamma() const override;
@@ -58,9 +57,7 @@ private:
     mutable SkOnce         fToDstGammaOnce;
 
     friend class SkColorSpace;
-    friend class SkColorSpace_Base;
     friend class ColorSpaceXformTest;
-    typedef SkColorSpace_Base INHERITED;
 };
 
 #endif

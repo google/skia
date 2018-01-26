@@ -14,7 +14,6 @@
 #include "GrTexture.h"
 
 #include "SkCanvas.h"
-#include "SkColorSpace_Base.h"
 #include "SkDeferredDisplayList.h"
 #include "SkGpuDevice.h"
 #include "SkImage_Base.h"

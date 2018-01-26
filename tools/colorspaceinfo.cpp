@@ -518,7 +518,7 @@ int main(int argc, char** argv) {
         return ss.str();
     };
 
-    if (SkColorSpace_Base::Type::kXYZ == as_CSB(colorSpace)->type()) {
+    if (colorSpace->toXYZD50()) {
         SkDebugf("XYZ/TRC color space\n");
 
         // Load a graph of the CIE XYZ color gamut.

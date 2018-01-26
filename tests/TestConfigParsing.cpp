@@ -6,7 +6,6 @@
  */
 
 #include "SkCommonFlagsConfig.h"
-#include "SkColorSpace_Base.h"
 #include "Test.h"
 #include <initializer_list>
 

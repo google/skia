@@ -15,7 +15,6 @@
 #include "SkBitmap.h"
 #include "SkColor.h"
 #include "SkColorData.h"
-#include "SkColorSpace_Base.h"
 #include "SkICC.h"
 #include "SkOpts.h"
 #include "SkPreConfig.h"

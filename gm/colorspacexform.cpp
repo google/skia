@@ -7,7 +7,6 @@
 
 #include "gm.h"
 #include "SkColor.h"
-#include "SkColorSpace_Base.h"
 #include "SkColorSpaceXform.h"
 #include "SkRect.h"
 #include "SkShader.h"
