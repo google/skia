@@ -32,6 +32,22 @@
 
 //#define SK_SHOW_TEXT_BLIT_COVERAGE
 
+#ifdef SK_DEBUG
+const char* SkTraceFtrGetError(int e) {
+    switch ((FT_Error)e) {
+        #undef FTERRORS_H_
+        #define FT_ERRORDEF( e, v, s ) case v: return s;
+        #define FT_ERROR_START_LIST
+        #define FT_ERROR_END_LIST
+        #include FT_ERRORS_H
+        #undef FT_ERRORDEF
+        #undef FT_ERROR_START_LIST
+        #undef FT_ERROR_END_LIST
+        default: return "";
+    }
+}
+#endif  // SK_DEBUG
+
 namespace {
 
 FT_Pixel_Mode compute_pixel_mode(SkMask::Format format) {
@@ -346,42 +362,6 @@ inline SkColorType SkColorType_for_SkMaskFormat(SkMask::Format format) {
     }
 }
 
-#ifdef SK_DEBUG
-
-#  define SK_STRING(X) SK_STRING_IMPL(X)
-#  define SK_STRING_IMPL(X) #X
-
-#  undef __FTERRORS_H__
-#  define FT_ERROR_START_LIST
-#  define FT_ERRORDEF(e, v, s)  { SK_STRING(e), s },
-#  define FT_ERROR_END_LIST
-
-const struct {
-  const char* err_code;
-  const char* err_msg;
-} sk_ft_errors[] = {
-#  include FT_ERRORS_H
-};
-
-void SkTraceFTR(const char* file, unsigned long line, FT_Error err, const char* msg) {
-    SkString s;
-    s.printf("%s:%lu:1: error: 0x%x ", file, line, err);
-    if (0 <= err && (unsigned)err < SK_ARRAY_COUNT(sk_ft_errors)) {
-        s.appendf("%s '%s' ", sk_ft_errors[err].err_code, sk_ft_errors[err].err_msg);
-    } else {
-        s.appendf("<unknown> ");
-    }
-    if (msg) {
-        s.appendf("%s", msg);
-    }
-    SkDebugf("%s\n", s.c_str());
-}
-
-#  define SK_TRACEFTR(_err, _msg) SkTraceFTR(__FILE__, __LINE__, _err, _msg)
-#else
-#  define SK_TRACEFTR(_err, _msg) sk_ignore_unused_variable(_err)
-#endif
-
 }  // namespace
 
 void SkScalerContext_FreeType_Base::generateGlyphImage(
@@ -411,7 +391,7 @@ void SkScalerContext_FreeType_Base::generateGlyphImage(
                 FT_Error err = FT_Render_Glyph(face->glyph, doVert ? FT_RENDER_MODE_LCD_V :
                                                                      FT_RENDER_MODE_LCD);
                 if (err) {
-                    SK_TRACEFTR(err, "Could not render glyph.");
+                    SK_TRACEFTR(err, "Could not render glyph %x.", face->glyph);
                     return;
                 }
 
