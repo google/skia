@@ -10,6 +10,7 @@
 #include "SkAutoMalloc.h"
 #include "SkBlitter.h"
 #include "SkCachedData.h"
+#include "SkCoverageModePriv.h"
 #include "SkDraw.h"
 #include "SkPath.h"
 #include "SkRRect.h"
@@ -384,6 +385,10 @@ template <typename T> static inline T join(const T& a, const T& b) {
     r.join(b);
     return r;
 }
+template <typename T> static inline T sect(const T& a, const T& b) {
+    T r = a;
+    return r.intersect(b) ? r : T::MakeEmpty();
+}
 
 class SkComposeMF : public SkMaskFilterBase {
 public:
@@ -461,8 +466,7 @@ void SkComposeMF::toString(SkString* str) const {
 
 class SkCombineMF : public SkMaskFilterBase {
 public:
-
-    SkCombineMF(sk_sp<SkMaskFilter> dst, sk_sp<SkMaskFilter> src, SkBlendMode mode)
+    SkCombineMF(sk_sp<SkMaskFilter> dst, sk_sp<SkMaskFilter> src, SkCoverageMode mode)
         : fDst(std::move(dst))
         , fSrc(std::move(src))
         , fMode(mode)
@@ -481,13 +485,14 @@ public:
     }
 
     SkMask::Format getFormat() const override { return SkMask::kA8_Format; }
+
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkCombineMF)
 
 private:
     sk_sp<SkMaskFilter> fDst;
     sk_sp<SkMaskFilter> fSrc;
-    const SkBlendMode   fMode;
+    SkCoverageMode      fMode;
 
     void flatten(SkWriteBuffer&) const override;
 
@@ -499,11 +504,8 @@ private:
 #include "SkSafeMath.h"
 
 class DrawIntoMask : public SkDraw {
-    SkMatrix        fMatrixStorage;
-    SkRasterClip    fRCStorage;
-    SkIPoint        fOffset;
-
 public:
+    // we ignore the offset of the mask->fBounds
     DrawIntoMask(SkMask* mask) {
         int w = mask->fBounds.width();
         int h = mask->fBounds.height();
@@ -519,16 +521,30 @@ public:
 
         fRCStorage.setRect({ 0, 0, w, h });
         fRC = &fRCStorage;
-
-        fOffset.set(mask->fBounds.left(), mask->fBounds.top());
     }
 
-    void drawMaskAsImage(const SkMask& m, const SkPaint& p) {
-        SkBitmap bm;
-        bm.installMaskPixels(m);
-        this->drawSprite(bm, m.fBounds.left() - fOffset.x(), m.fBounds.top() - fOffset.y(), p);
+    void drawAsBitmap(const SkMask& m, const SkPaint& p) {
+        SkBitmap b;
+        b.installMaskPixels(m);
+        this->drawSprite(b, m.fBounds.fLeft, m.fBounds.fTop, p);
     }
+
+private:
+    SkMatrix        fMatrixStorage;
+    SkRasterClip    fRCStorage;
 };
+
+static SkIRect join(const SkIRect& src, const SkIRect& dst, SkCoverageMode mode) {
+    switch (mode) {
+        case SkCoverageMode::kUnion:                return join(src, dst);
+        case SkCoverageMode::kIntersect:            return sect(src, dst);
+        case SkCoverageMode::kDifference:           return src;
+        case SkCoverageMode::kReverseDifference:    return dst;
+        case SkCoverageMode::kXor:                  return join(src, dst);
+    }
+    // not reached
+    return { 0, 0, 0, 0 };
+}
 
 bool SkCombineMF::filterMask(SkMask* dst, const SkMask& src, const SkMatrix& ctm,
                              SkIPoint* margin) const {
@@ -542,7 +558,7 @@ bool SkCombineMF::filterMask(SkMask* dst, const SkMask& src, const SkMatrix& ctm
         return false;
     }
 
-    dst->fBounds = join(srcM.fBounds, dstM.fBounds);
+    dst->fBounds = join(srcM.fBounds, dstM.fBounds, fMode);
     dst->fFormat = SkMask::kA8_Format;
     if (src.fImage == nullptr) {
         dst->fImage = nullptr;
@@ -553,9 +569,11 @@ bool SkCombineMF::filterMask(SkMask* dst, const SkMask& src, const SkMatrix& ctm
     SkPaint      p;
 
     p.setBlendMode(SkBlendMode::kSrc);
-    md.drawMaskAsImage(dstM, p);
-    p.setBlendMode(fMode);
-    md.drawMaskAsImage(srcM, p);
+    dstM.fBounds.offset(-dst->fBounds.fLeft, -dst->fBounds.fTop);
+    md.drawAsBitmap(dstM, p);
+    p.setBlendMode(gUncorrelatedCoverageToBlend[static_cast<int>(fMode)]);
+    srcM.fBounds.offset(-dst->fBounds.fLeft, -dst->fBounds.fTop);
+    md.drawAsBitmap(srcM, p);
 
     sk_free(srcM.fImage);
     sk_free(dstM.fImage);
@@ -572,7 +590,7 @@ sk_sp<SkFlattenable> SkCombineMF::CreateProc(SkReadBuffer& buffer) {
     SkSafeRange safe;
     auto dst = buffer.readMaskFilter();
     auto src = buffer.readMaskFilter();
-    SkBlendMode mode = safe.checkLE(buffer.read32(), SkBlendMode::kLastMode);
+    SkCoverageMode mode = safe.checkLE(buffer.read32(), SkCoverageMode::kLast);
     if (!buffer.validate(dst && src && safe)) {
         return nullptr;
     }
@@ -587,7 +605,8 @@ void SkCombineMF::toString(SkString* str) const {
 
 ////////////////////////////////////////
 
-sk_sp<SkMaskFilter> SkMaskFilter::MakeCompose(sk_sp<SkMaskFilter> outer, sk_sp<SkMaskFilter> inner) {
+sk_sp<SkMaskFilter> SkMaskFilter::MakeCompose(sk_sp<SkMaskFilter> outer,
+                                              sk_sp<SkMaskFilter> inner) {
     if (!outer) {
         return inner;
     }
@@ -602,19 +621,12 @@ sk_sp<SkMaskFilter> SkMaskFilter::MakeCompose(sk_sp<SkMaskFilter> outer, sk_sp<S
 }
 
 sk_sp<SkMaskFilter> SkMaskFilter::MakeCombine(sk_sp<SkMaskFilter> dst, sk_sp<SkMaskFilter> src,
-                                              SkBlendMode mode) {
-    if (mode == SkBlendMode::kClear) {
-      //  return sk_sp<SkMaskFilter>(new ClearMF);
-    }
-    if (!dst || mode == SkBlendMode::kSrc || mode == SkBlendMode::kDstATop) {
+                                              SkCoverageMode mode) {
+    if (!dst) {
         return src;
     }
-    if (!src || mode == SkBlendMode::kDst || mode == SkBlendMode::kSrcATop) {
+    if (!src) {
         return dst;
-    }
-    // This step isn't really needed, but it documents that we don't need any modes after kModulate
-    if (mode > SkBlendMode::kModulate) {
-        mode = SkBlendMode::kSrcOver;
     }
 
     if (as_MFB(dst)->getFormat() != SkMask::kA8_Format ||
