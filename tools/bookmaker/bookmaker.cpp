@@ -7,6 +7,10 @@
 
 #include "bookmaker.h"
 
+#ifdef SK_BUILD_FOR_WIN
+#include <Windows.h>
+#endif
+
 DEFINE_string2(status, a, "", "File containing status of documentation. (Use in place of -b -i)");
 DEFINE_string2(bmh, b, "", "Path to a *.bmh file or a directory.");
 DEFINE_bool2(catalog, c, false, "Write example catalog.htm. (Requires -b -f -r)");
@@ -1054,7 +1058,17 @@ void TextParser::reportWarning(const char* errorStr) const {
         spaces -= lineLen;
         lineLen = err.lineLength();
     }
-    SkDebugf("\n%s(%zd): error: %s\n", fFileName.c_str(), err.fLineCount, errorStr);
+	string fileName;
+#ifdef SK_BUILD_FOR_WIN
+	TCHAR pathChars[MAX_PATH];
+	DWORD pathLen = GetCurrentDirectory(MAX_PATH, pathChars);
+	for (DWORD index = 0; index < pathLen; ++index) {
+		fileName += pathChars[index] == (char)pathChars[index] ? (char)pathChars[index] : '?';
+	}
+	fileName += '\\';
+#endif
+	fileName += fFileName;
+    SkDebugf("\n%s(%zd): error: %s\n", fileName.c_str(), err.fLineCount, errorStr);
     if (0 == lineLen) {
         SkDebugf("[blank line]\n");
     } else {
@@ -1598,6 +1612,9 @@ int main(int argc, char** const argv) {
     }
     bmhParser.reset();
     if (!FLAGS_bmh.isEmpty()) {
+        if (FLAGS_tokens)  {
+            IncludeParser::RemoveFile(FLAGS_bmh[0], FLAGS_include[0]);
+        }
         if (!bmhParser.parseFile(FLAGS_bmh[0], ".bmh")) {
             return -1;
         }

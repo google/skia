@@ -90,15 +90,15 @@ Allocates raster Surface. Canvas returned by Surface draws directly into pixels.
 Surface is returned if all parameters are valid.
 Valid parameters include:
 info dimensions are greater than zero;
-info contains Image_Color_Type and Image_Alpha_Type supported by Raster_Surface;
+info contains Color_Type and Alpha_Type supported by Raster_Surface;
 pixels is not nullptr;
-rowBytes is large enough to contain info width pixels of Image_Color_Type.
+rowBytes is large enough to contain info width pixels of Color_Type.
 
 Pixel buffer size should be info height times computed rowBytes.
 Pixels are not initialized.
 To access pixels after drawing, call flush() or peekPixels.
 
-#Param imageInfo  width, height, Image_Color_Type, Image_Alpha_Type, Color_Space,
+#Param imageInfo  width, height, Color_Type, Alpha_Type, Color_Space,
                   of Raster_Surface; width and height must be greater than zero
 ##
 #Param pixels  pointer to destination pixels buffer ##
@@ -153,15 +153,15 @@ releaseProc is called with pixels and context when Surface is deleted.
 Surface is returned if all parameters are valid.
 Valid parameters include:
 info dimensions are greater than zero;
-info contains Image_Color_Type and Image_Alpha_Type supported by Raster_Surface;
+info contains Color_Type and Alpha_Type supported by Raster_Surface;
 pixels is not nullptr;
-rowBytes is large enough to contain info width pixels of Image_Color_Type.
+rowBytes is large enough to contain info width pixels of Color_Type.
 
 Pixel buffer size should be info height times computed rowBytes.
 Pixels are not initialized.
 To access pixels after drawing, call flush() or peekPixels.
 
-#Param imageInfo  width, height, Image_Color_Type, Image_Alpha_Type, Color_Space,
+#Param imageInfo  width, height, Color_Type, Alpha_Type, Color_Space,
                   of Raster_Surface; width and height must be greater than zero
 ##
 #Param pixels  pointer to destination pixels buffer ##
@@ -229,13 +229,13 @@ Pixel memory is deleted when Surface is deleted.
 Surface is returned if all parameters are valid.
 Valid parameters include:
 info dimensions are greater than zero;
-info contains Image_Color_Type and Image_Alpha_Type supported by Raster_Surface;
-rowBytes is large enough to contain info width pixels of Image_Color_Type, or is zero.
+info contains Color_Type and Alpha_Type supported by Raster_Surface;
+rowBytes is large enough to contain info width pixels of Color_Type, or is zero.
 
 If rowBytes is not zero, subsequent images returned by makeImageSnapshot
 have the same rowBytes.
 
-#Param imageInfo  width, height, Image_Color_Type, Image_Alpha_Type, Color_Space,
+#Param imageInfo  width, height, Color_Type, Alpha_Type, Color_Space,
                   of Raster_Surface; width and height must be greater than zero
 ##
 #Param rowBytes  interval from one Surface row to the next; may be zero ##
@@ -292,9 +292,9 @@ Pixel memory is deleted when Surface is deleted.
 Surface is returned if all parameters are valid.
 Valid parameters include:
 info dimensions are greater than zero;
-info contains Image_Color_Type and Image_Alpha_Type supported by Raster_Surface.
+info contains Color_Type and Alpha_Type supported by Raster_Surface.
 
-#Param imageInfo  width, height, Image_Color_Type, Image_Alpha_Type, Color_Space,
+#Param imageInfo  width, height, Color_Type, Alpha_Type, Color_Space,
                   of Raster_Surface; width and height must be greater than zero
 ##
 #Param props  LCD striping orientation and setting for device independent fonts;
@@ -735,10 +735,10 @@ If SK_SUPPORT_GPU is defined as zero, has no effect and returns nullptr.
                                              bool shouldCreateWithMips = false)
 
 Returns offscreen Surface on GPU indicated by context. Allocates memory for
-pixels, based on the width, height, and Image_Color_Type in ImageInfo.  budgeted
+pixels, based on the width, height, and Color_Type in ImageInfo.  budgeted
 selects whether allocation for offscreen pixels is tracked by context. imageInfo
-describes the pixel format in Image_Color_Type, and transparency in
-Image_Alpha_Type, and color matching in Color_Space.
+describes the pixel format in Color_Type, and transparency in
+Alpha_Type, and color matching in Color_Space.
 
 sampleCount requests the number of samples per pixel. 
 Pass zero to disable Multi_Sample_Anti_Aliasing.  The request is rounded
@@ -753,7 +753,7 @@ If SK_SUPPORT_GPU is defined as zero, has no effect and returns nullptr.
 
 #Param context  GPU_Context ##
 #Param budgeted  one of: SkBudgeted::kNo, SkBudgeted::kYes ##
-#Param imageInfo  width, height, Image_Color_Type, Image_Alpha_Type, Color_Space;
+#Param imageInfo  width, height, Color_Type, Alpha_Type, Color_Space;
                   width, or height, or both, may be zero
 ##
 #Param sampleCount  samples per pixel, or 0 to disable full scene anti-aliasing ##
@@ -800,10 +800,10 @@ If SK_SUPPORT_GPU is defined as zero, has no effect and returns nullptr.
                                              const SkSurfaceProps* props)
 
 Returns offscreen Surface on GPU indicated by context. Allocates memory for
-pixels, based on the width, height, and Image_Color_Type in ImageInfo.  budgeted
+pixels, based on the width, height, and Color_Type in ImageInfo.  budgeted
 selects whether allocation for offscreen pixels is tracked by context. imageInfo
-describes the pixel format in Image_Color_Type, and transparency in
-Image_Alpha_Type, and color matching in Color_Space.
+describes the pixel format in Color_Type, and transparency in
+Alpha_Type, and color matching in Color_Space.
 
 sampleCount requests the number of samples per pixel. 
 Pass zero to disable Multi_Sample_Anti_Aliasing.  The request is rounded
@@ -814,7 +814,7 @@ Surface bottom-left corner is pinned to the origin.
 
 #Param context  GPU_Context ##
 #Param budgeted  one of: SkBudgeted::kNo, SkBudgeted::kYes ##
-#Param imageInfo  width, height, Image_Color_Type, Image_Alpha_Type, Color_Space,
+#Param imageInfo  width, height, Color_Type, Alpha_Type, Color_Space,
                   of Raster_Surface; width, or height, or both, may be zero
 ##
 #Param sampleCount  samples per pixel, or 0 to disable Multi_Sample_Anti_Aliasing ##
@@ -872,16 +872,16 @@ void draw(SkCanvas* canvas) {
                                              const SkImageInfo& imageInfo)
 
 Returns offscreen Surface on GPU indicated by context. Allocates memory for
-pixels, based on the width, height, and Image_Color_Type in ImageInfo.  budgeted
+pixels, based on the width, height, and Color_Type in ImageInfo.  budgeted
 selects whether allocation for offscreen pixels is tracked by context. imageInfo
-describes the pixel format in Image_Color_Type, and transparency in
-Image_Alpha_Type, and color matching in Color_Space.
+describes the pixel format in Color_Type, and transparency in
+Alpha_Type, and color matching in Color_Space.
 
 Surface bottom-left corner is pinned to the origin.
 
 #Param context  GPU_Context ##
 #Param budgeted  one of: SkBudgeted::kNo, SkBudgeted::kYes ##
-#Param imageInfo  width, height, Image_Color_Type, Image_Alpha_Type, Color_Space,
+#Param imageInfo  width, height, Color_Type, Alpha_Type, Color_Space,
                   of Raster_Surface; width, or height, or both, may be zero
 ##
 
@@ -1282,7 +1282,7 @@ does not share the same pixels.
 Returns nullptr if imageInfo width or height are zero, or if imageInfo
 is incompatible with Surface.
  
-#Param imageInfo  width, height, Image_Color_Type, Image_Alpha_Type, Color_Space,
+#Param imageInfo  width, height, Color_Type, Alpha_Type, Color_Space,
                   of Surface; width and height must be greater than zero
 ##
 
@@ -1422,7 +1422,7 @@ Pixels are readable when Surface is raster, or backed by a GPU.
 
 The destination pixel storage must be allocated by the caller.
 
-Pixel values are converted only if Image_Color_Type and Image_Alpha_Type
+Pixel values are converted only if Color_Type and Alpha_Type
 do not match. Only pixels within both source and destination rectangles
 are copied. dst contents outside Rect intersection are unchanged.
 
@@ -1481,7 +1481,7 @@ Pixels are readable when Surface is raster, or backed by a GPU.
 
 The destination pixel storage must be allocated by the caller.
 
-Pixel values are converted only if Image_Color_Type and Image_Alpha_Type
+Pixel values are converted only if Color_Type and Alpha_Type
 do not match. Only pixels within both source and destination rectangles
 are copied. dstPixels contents outside Rect intersection are unchanged.
 
@@ -1495,7 +1495,7 @@ Does not copy, and returns false if:
 # dstRowBytes is too small to contain one row of pixels. ##
 ##
 
-#Param dstInfo  width, height, Image_Color_Type, and Image_Alpha_Type of dstPixels ##
+#Param dstInfo  width, height, Color_Type, and Alpha_Type of dstPixels ##
 #Param dstPixels  storage for pixels; dstInfo.height() times dstRowBytes, or larger ##
 #Param dstRowBytes  size of one destination row; dstInfo.width() times pixel size, or larger ##
 #Param srcX  offset into readable pixels in x; may be negative ##
@@ -1546,7 +1546,7 @@ Pixels are readable when Surface is raster, or backed by a GPU.
 
 The destination pixel storage must be allocated by the caller.
 
-Pixel values are converted only if Image_Color_Type and Image_Alpha_Type
+Pixel values are converted only if Color_Type and Alpha_Type
 do not match. Only pixels within both source and destination rectangles
 are copied. dst contents outside Rect intersection are unchanged.
 

@@ -669,6 +669,24 @@ void IncludeWriter::structOut(const Definition* root, const Definition& child,
     this->writeCommentTrailer();
 }
 
+Definition* IncludeWriter::findMemberCommentBlock(const vector<Definition*>& bmhChildren,
+		const string& name) const {
+	for (auto memberDef : bmhChildren) {
+		if (memberDef->fName.length() - name.length() == memberDef->fName.find(name)) {
+			return memberDef;
+		}
+	}
+	for (auto memberDef : bmhChildren) {
+		if (MarkType::kSubtopic == memberDef->fMarkType || MarkType::kTopic == memberDef->fMarkType) {
+			Definition* result = this->findMemberCommentBlock(memberDef->fChildren, name);
+			if (result) {
+				return result;
+			}
+		}
+	}
+	return nullptr;
+}
+
 Definition* IncludeWriter::structMemberOut(const Definition* memberStart, const Definition& child) {
     const char* blockStart = !fWroteMethod && fDeferComment ? fLastComment->fContentEnd : fStart;
     const char* blockEnd = fWroteMethod && fDeferComment ? fDeferComment->fStart - 1 :
@@ -679,21 +697,16 @@ Definition* IncludeWriter::structMemberOut(const Definition* memberStart, const 
         fIndentNext = false;
     }
     fWroteMethod = false;
-    const char* commentStart = nullptr;
-    ptrdiff_t commentLen = 0;
     string name(child.fContentStart, (int) (child.fContentEnd - child.fContentStart));
-    bool isShort = false;
-    Definition* commentBlock = nullptr;
-    for (auto memberDef : fBmhStructDef->fChildren)  {
-        if (memberDef->fName.length() - name.length() == memberDef->fName.find(name)) {
-            commentStart = memberDef->fContentStart;
-            commentLen = memberDef->fContentEnd - commentStart;
-            isShort = memberDef->fShort;
-            commentBlock = memberDef;
-            SkASSERT(!isShort || memberDef->fChildren.size() == 0);
-            break;
-        }
-    }
+    Definition* commentBlock = this->findMemberCommentBlock(fBmhStructDef->fChildren, name);
+	if (!commentBlock) {
+		return memberStart->reportError<Definition*>("member missing comment block");
+	}
+	const char* commentStart = commentBlock->fContentStart;
+	ptrdiff_t commentLen = commentBlock->fContentEnd - commentStart;
+	bool isShort = commentBlock->fShort;
+	SkASSERT(!isShort || commentBlock->fChildren.size() == 0);
+
     if (!isShort) {
         this->writeCommentHeader();
         bool wroteLineFeed = false;

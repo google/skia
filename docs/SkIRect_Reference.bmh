@@ -1,5 +1,23 @@
 #Topic IRect
+#Alias IRects
 #Alias IRect_Reference
+
+#Topic Overview
+
+#Subtopic Subtopics
+#Table
+#Legend
+# name              # description                         ##
+#Legend ##
+# Constructors      # functions that construct SkIRect    ##
+# Member_Functions  # static functions and member methods ##
+# Members           # member values                       ##
+# Operators         # operator overloading methods        ##
+# Related_Functions # similar methods grouped together    ##
+#Table ##
+##
+
+#Topic Overview ##
 
 #Struct SkIRect
 
@@ -9,44 +27,18 @@ from position, width, and height. SkIRect describes an area; if its right
 is less than or equal to its left, or if its bottom is less than or equal to
 its top, it is considered empty. 
 
-#Topic Overview
-
-#Subtopic Subtopics
+#Subtopic Related_Functions
 #Table
 #Legend
-# name                   # description                                 ##
+# name                   # description                                ##
 #Legend ##
-# Constructors           # list of functions that construct SkPath     ##
-# Member_Functions       # list of static functions and member methods ##
-# Operators              # operator overloading methods                ##
-#Table ##
-##
-
-#Subtopic Constructors
-#Table
-#Legend
-# name                   # description                      ##
-#Legend ##
-# MakeEmpty              # returns bounds of (0, 0, 0, 0) ##
-# MakeLTRB               # constructs from int left, top, right, bottom ##
-# MakeLargest            # deprecated ##
-# MakeSize               # constructs from ISize returning (0, 0, width, height) ##
-# MakeWH                 # constructs from int input returning (0, 0, width, height) ##
-# MakeXYWH               # constructs from int input returning (x, y, width, height) ##
-# makeInset              # constructs from sides moved symmetrically about the center ##
-# makeOffset             # constructs from translated sides ##
-# makeOutset             # constructs from sides moved symmetrically about the center ##
-# makeSorted             # constructs, ordering sides from smaller to larger ##
-#Table ##
-#Subtopic ##
-
-#Subtopic Operators
-#Table
-#Legend
-# name                                                # description ##
-#Legend ##
-# bool operator!=(const SkIRect& a, const SkIRect& b) # returns true if members are unequal ##
-# bool operator==(const SkIRect& a, const SkIRect& b) # returns true if members are equal ##
+# Inset_Outset_Offset    # moves sides                                ##
+# Intersection           # set to shared bounds                       ##
+# Join                   # set to union of bounds                     ##
+# Properties             # side values, center, validity              ##
+# Rounding               # adjust to integer bounds                   ##
+# Set                    # replaces all values                        ##
+# Sorting                # orders sides                               ##
 #Table ##
 #Subtopic ##
 
@@ -72,7 +64,7 @@ its top, it is considered empty.
 # height()               # returns span in y ##
 # height64               # returns span in y as int64_t ##
 # inset()                # moves the sides symmetrically about the center ##
-# intersect              # sets to shared area; returns true if not empty ##
+# intersect()            # sets to shared area; returns true if not empty ##
 # intersectNoEmptyCheck  # sets to shared area; returns true if not empty skips empty check ##
 # is16Bit                # returns true if members fit in 16-bit word ##
 # isEmpty                # returns true if width or height are zero or negative or they exceed int32_t ##
@@ -102,7 +94,7 @@ its top, it is considered empty.
 #Table ##
 #Subtopic ##
 
-#Topic ##
+#Subtopic Members
 
 #Member int32_t  fLeft
 May contain any value. The smaller of the horizontal values when sorted.
@@ -123,6 +115,25 @@ When equal to or less than fLeft, IRect is empty.
 May contain any value. The larger of the vertical values when sorted.
 When equal to or less than fTop, IRect is empty.
 ##
+
+#Subtopic Members ##
+
+#Subtopic Constructors
+#Table
+#Legend
+# name                   # description                      ##
+#Legend ##
+# MakeEmpty              # returns bounds of (0, 0, 0, 0) ##
+# MakeLTRB               # constructs from int left, top, right, bottom ##
+# MakeLargest            # deprecated ##
+# MakeSize               # constructs from ISize returning (0, 0, width, height) ##
+# MakeWH                 # constructs from int input returning (0, 0, width, height) ##
+# MakeXYWH               # constructs from int input returning (x, y, width, height) ##
+# makeInset              # constructs from sides moved symmetrically about the center ##
+# makeOffset             # constructs from translated sides ##
+# makeOutset             # constructs from sides moved symmetrically about the center ##
+# makeSorted             # constructs, ordering sides from smaller to larger ##
+#Table ##
 
 # ------------------------------------------------------------------------------
 
@@ -163,8 +174,8 @@ outset rect isEmpty: false
 Returns constructed IRect set to (0, 0, w, h). Does not validate input; w or h
 may be negative.
 
-#Param w  width of constructed Rect  ##
-#Param h  height of constructed Rect ##
+#Param w  width of constructed IRect  ##
+#Param h  height of constructed IRect ##
 
 #Return bounds (0, 0, w, h) ##
 
@@ -191,7 +202,7 @@ all equal
 Returns constructed IRect set to (0, 0, size.width(), size.height()). 
 Does not validate input; size.width() or size.height() may be negative.
 
-#Param size  values for Rect width and height ##
+#Param size  values for IRect width and height ##
 
 #Return bounds (0, 0, size.width(), size.height()) ##
 
@@ -215,7 +226,7 @@ floor width: 25  height: 35
 
 #Method static constexpr SkIRect SK_WARN_UNUSED_RESULT MakeLTRB(int32_t l, int32_t t, int32_t r, int32_t b)
 
-Returns constructed IRect set to (l, t, r, b). Does not sort input; Rect may
+Returns constructed IRect set to (l, t, r, b). Does not sort input; IRect may
 result in fLeft greater than fRight, or fTop greater than fBottom.
 
 #Param l  integer stored in fLeft ##
@@ -276,6 +287,9 @@ rect: -10, 35, 5, 60  isEmpty: false
 #SeeAlso MakeLTRB SkRect::MakeXYWH
 
 ##
+
+#Subtopic Constructors ##
+
 
 # ------------------------------------------------------------------------------
 
@@ -554,8 +568,8 @@ original rect: 20, 30, 40, 50  size: 20, 20
 
 #Method int32_t centerX() const
 
-Returns average of left edge and right edge. Result does not change if Rect
-is sorted. Result may be incorrect if Rect is far from the origin.
+Returns average of left edge and right edge. Result does not change if IRect
+is sorted. Result may be incorrect if IRect is far from the origin.
 
 Result is rounded down.
 
@@ -585,8 +599,8 @@ left: -10 right:  11 centerX:   0 div2:   0
 
 #Method int32_t centerY() const
 
-Returns average of top edge and bottom edge. Result does not change if Rect
-is sorted. Result may be incorrect if Rect is far from the origin. 
+Returns average of top edge and bottom edge. Result does not change if IRect
+is sorted. Result may be incorrect if IRect is far from the origin. 
 
 Result is rounded down.
 
@@ -668,6 +682,15 @@ sorted: {20, 40, 20, 50} is empty
 
 ##
 
+#Subtopic Operators
+#Table
+#Legend
+# name                                                # description ##
+#Legend ##
+# bool operator!=(const SkIRect& a, const SkIRect& b) # returns true if members are unequal ##
+# bool operator==(const SkIRect& a, const SkIRect& b) # returns true if members are equal ##
+#Table ##
+
 # ------------------------------------------------------------------------------
 
 #Method bool operator==(const SkIRect& a, const SkIRect& b)
@@ -717,6 +740,8 @@ test != sorted
 #SeeAlso operator==(const SkIRect& a, const SkIRect& b)
 
 ##
+
+#Subtopic ##
 
 # ------------------------------------------------------------------------------
 
@@ -862,6 +887,23 @@ rect: -10, 35, 5, 60  isEmpty: false
 
 ##
 
+#Subtopic Inset_Outset_Offset
+
+#Table
+#Legend
+# name                  # description                                                ##
+#Legend ##
+# inset()               # moves the sides symmetrically about the center             ##
+# makeInset             # constructs from sides moved symmetrically about the center ##
+# makeOffset            # constructs from translated sides                           ##
+# makeOutset            # constructs from sides moved symmetrically about the center ##
+# offset()              # translates sides without changing width and height         ##
+#                       # void offset(int32_t dx, int32_t dy)                        ##
+#                       # void offset(const SkIPoint& delta)                         ##
+# offsetTo              # translates to (x, y) without changing width and height     ##
+# outset()              # moves the sides symmetrically about the center             ##
+#Table ##
+
 # ------------------------------------------------------------------------------
 
 #Method SkIRect makeOffset(int32_t dx, int32_t dy) const
@@ -876,7 +918,7 @@ If dy is positive, IRect returned is moved downward.
 #Param dx  offset added to fLeft and fRight ##
 #Param dy  offset added to fTop and fBottom ##
 
-#Return Rect offset in x or y, with original width and height ##
+#Return IRect offset in x or y, with original width and height ##
 
 #Example
     SkIRect rect = { 10, 50, 20, 60 };
@@ -909,7 +951,7 @@ If dy is positive, IRect returned is shorter.
 #Param dx  offset added to fLeft and subtracted from fRight ##
 #Param dy  offset added to fTop and subtracted from fBottom ##
 
-#Return Rect inset symmetrically left and right, top and bottom ##
+#Return IRect inset symmetrically left and right, top and bottom ##
 
 #Example
     SkIRect rect = { 10, 50, 20, 60 };
@@ -942,7 +984,7 @@ If dy is positive, IRect returned is taller.
 #Param dx  offset subtracted to fLeft and added from fRight ##
 #Param dy  offset subtracted to fTop and added from fBottom ##
 
-#Return Rect outset symmetrically left and right, top and bottom ##
+#Return IRect outset symmetrically left and right, top and bottom ##
 
 #Example
     SkIRect rect = { 10, 50, 20, 60 };
@@ -1071,10 +1113,10 @@ rect: 15, 27, 45, 60
 
 Outsets IRect by (dx, dy).
 
-If dx is positive, makes Rect wider.
-If dx is negative, makes Rect narrower.
-If dy is positive, makes Rect taller.
-If dy is negative, makes Rect shorter.
+If dx is positive, makes IRect wider.
+If dx is negative, makes IRect narrower.
+If dy is positive, makes IRect taller.
+If dy is negative, makes IRect shorter.
 
 #Param dx  subtracted to fLeft and added from fRight ##
 #Param dy  subtracted to fTop and added from fBottom ##
@@ -1092,6 +1134,42 @@ rect: 5, 1, 55, 86
 
 ##
 
+#Subtopic Inset_Outset_Offset ##
+
+#Subtopic Intersection
+
+IRects intersect when they enclose a common area. To intersect, each of the pair 
+must describe area; fLeft is less than fRight, and fTop is less than fBottom;
+empty() returns false. The intersection of IRect pair can be described by:
+
+#Formula
+(max(a.fLeft, b.fLeft), max(a.fTop, b.fTop),
+ min(a.fRight, b.fRight), min(a.fBottom, b.fBottom))
+##
+.
+
+The intersection is only meaningful if the resulting IRect is not empty and
+describes an area: fLeft is less than fRight, and fTop is less than fBottom.
+
+#Table
+#Legend
+# name                   # description                                                        ##
+#Legend ##
+# Intersects             # returns true if areas overlap                                      ##
+# IntersectsNoEmptyCheck # returns true if areas overlap skips empty check                    ##
+# contains()             # returns true if points are equal or inside                         ##
+#                        # bool contains(int32_t x, int32_t y) const                          ##
+#                        # bool contains(int32_t left, int32_t top, int32_t right, int32_t bottom) const ##
+#                        # bool contains(const SkIRect& r) const                              ##
+# intersect()            # sets to shared area; returns true if not empty                     ##
+#                        # bool intersect(const SkIRect& r)                                   ##
+#                        # bool intersect(const SkIRect& a, const SkIRect& b)                 ##
+#                        # bool intersect(int32_t left, int32_t top, int32_t right, int32_t bottom) ##
+# intersectNoEmptyCheck  # sets to shared area; returns true if not empty skips empty check   ##
+# quickReject            # returns true if rectangles do not intersect                        ##
+#Table ##
+
+
 # ------------------------------------------------------------------------------
 
 #Method bool quickReject(int l, int t, int r, int b) const
@@ -1102,10 +1180,10 @@ intersect IRect. Does not check to see if construction or IRect is empty.
 Is implemented with short circuit logic so that true can be returned after
 a single compare.
 
-#Param l  x minimum of constructed Rect ##
-#Param t  y minimum of constructed Rect ##
-#Param r  x maximum of constructed Rect ##
-#Param b  y maximum of constructed Rect ##
+#Param l  x minimum of constructed IRect ##
+#Param t  y minimum of constructed IRect ##
+#Param r  x maximum of constructed IRect ##
+#Param b  y maximum of constructed IRect ##
 
 #Return true if construction and IRect have no area in common ##
 
@@ -1143,7 +1221,7 @@ Returns true if:
 fLeft <= x < fRight && fTop <= y < fBottom
 ##
 .
-Returns false if Rect is empty.
+Returns false if IRect is empty.
 
 Considers input to describe constructed IRect:
 #Formula
@@ -1180,16 +1258,16 @@ rect: (30, 50, 40, 60) does not contain (30, 60)
 
 #Method bool contains(int32_t left, int32_t top, int32_t right, int32_t bottom) const
 
-Constructs Rect to intersect from (left, top, right, bottom). Does not sort
+Constructs IRect to intersect from (left, top, right, bottom). Does not sort
 construction.
 
-Returns true if Rect contains construction.
-Returns false if Rect is empty or construction is empty.
+Returns true if IRect contains construction.
+Returns false if IRect is empty or construction is empty.
 
-#Param left  x minimum of constructed Rect ##
-#Param top  y minimum of constructed Rect ##
-#Param right  x maximum of constructed Rect ##
-#Param bottom  y maximum of constructed Rect ##
+#Param left  x minimum of constructed IRect ##
+#Param top  y minimum of constructed IRect ##
+#Param right  x maximum of constructed IRect ##
+#Param bottom  y maximum of constructed IRect ##
 
 #Return true if all sides of IRect are outside construction ##
 
@@ -1219,10 +1297,10 @@ rect: (30, 50, 40, 60) does not contain (29, 59, 30, 60)
 
 #Method bool contains(const SkIRect& r) const
 
-Returns true if Rect contains r.
-Returns false if Rect is empty or r is empty.
+Returns true if IRect contains r.
+Returns false if IRect is empty or r is empty.
 
-Rect contains r when Rect area completely includes r area.
+IRect contains r when IRect area completely includes r area.
 
 #Param r  IRect contained ##
 
@@ -1252,10 +1330,10 @@ rect: (30, 50, 40, 60) does not contain (29, 59, 30, 60)
 
 #Method bool contains(const SkRect& r) const
 
-Returns true if Rect contains r.
-Returns false if Rect is empty or r is empty.
+Returns true if IRect contains r.
+Returns false if IRect is empty or r is empty.
 
-Rect contains r when Rect area completely includes r area.
+IRect contains r when IRect area completely includes r area.
 
 #Param r  Rect contained ##
 
@@ -1289,15 +1367,15 @@ rect: (30, 50, 40, 60) does not contain (29, 59, 30, 60)
 Constructs IRect from (left, top, right, bottom). Does not sort
 construction.
 
-Returns true if Rect contains construction.
+Returns true if IRect contains construction.
 Asserts if IRect is empty or construction is empty, and if SK_DEBUG is defined.
 
-Return is undefined if Rect is empty or construction is empty.
+Return is undefined if IRect is empty or construction is empty.
 
-#Param left  x minimum of constructed Rect ##
-#Param top  y minimum of constructed Rect ##
-#Param right  x maximum of constructed Rect ##
-#Param bottom  y maximum of constructed Rect ##
+#Param left  x minimum of constructed IRect ##
+#Param top  y minimum of constructed IRect ##
+#Param right  x maximum of constructed IRect ##
+#Param bottom  y maximum of constructed IRect ##
 
 #Return true if all sides of IRect are outside construction ##
 
@@ -1327,12 +1405,12 @@ rect: (30, 50, 40, 60) does not contain (29, 59, 30, 60)
 
 #Method bool containsNoEmptyCheck(const SkIRect& r) const
 
-Returns true if Rect contains construction.
+Returns true if IRect contains construction.
 Asserts if IRect is empty or construction is empty, and if SK_DEBUG is defined.
 
-Return is undefined if Rect is empty or construction is empty.
+Return is undefined if IRect is empty or construction is empty.
 
-#Param r  Rect contained ##
+#Param r  IRect contained ##
 
 #Return true if all sides of IRect are outside r ##
 
@@ -1356,18 +1434,6 @@ rect: (30, 50, 40, 60) does not contain (29, 59, 30, 60)
 
 ##
 
-#Topic Intersection
-
-IRects intersect when they enclose a common area. To intersect, each of the pair 
-must describe area; fLeft is less than fRight, and fTop is less than fBottom;
-empty() returns false. The intersection of IRect pair can be described by:
-#Formula
-(max(a.fLeft, b.fLeft), max(a.fTop, b.fTop),
- min(a.fRight, b.fRight), min(a.fBottom, b.fBottom))
-##
-The intersection is only meaningful if the resulting IRect is not empty and
-describes an area: fLeft is less than fRight, and fTop is less than fBottom.
-
 # ------------------------------------------------------------------------------
 
 #Method bool intersect(const SkIRect& r)
@@ -1379,7 +1445,7 @@ Returns false if either r or IRect is empty, leaving IRect unchanged.
 
 #Param r  limit of result ##
 
-#Return true if r and Rect have area in common ##
+#Return true if r and IRect have area in common ##
 
 #Example
 #Description
@@ -1542,24 +1608,24 @@ Asserts if either a or b is empty, and if SK_DEBUG is defined.
 
 ##
 
-#Topic Intersection ##
+#Subtopic Intersection ##
 
 # ------------------------------------------------------------------------------
 
 #Method void join(int32_t left, int32_t top, int32_t right, int32_t bottom)
 
-Constructs Rect to intersect from (left, top, right, bottom). Does not sort
+Constructs IRect to intersect from (left, top, right, bottom). Does not sort
 construction.
 
-Sets Rect to the union of itself and the construction.
+Sets IRect to the union of itself and the construction.
 
-Has no effect if construction is empty. Otherwise, if Rect is empty, sets
-Rect to construction.
+Has no effect if construction is empty. Otherwise, if IRect is empty, sets
+IRect to construction.
 
-#Param left  x minimum of constructed Rect ##
-#Param top  y minimum of constructed Rect ##
-#Param right  x maximum of constructed Rect ##
-#Param bottom  y maximum of constructed Rect ##
+#Param left  x minimum of constructed IRect ##
+#Param top  y minimum of constructed IRect ##
+#Param right  x maximum of constructed IRect ##
+#Param bottom  y maximum of constructed IRect ##
 
 #Example
     SkIRect rect = { 10, 20, 15, 25};
@@ -1578,11 +1644,11 @@ Rect to construction.
 
 #Method void join(const SkIRect& r)
 
-Sets Rect to the union of itself and r.
+Sets IRect to the union of itself and r.
 
-Has no effect if r is empty. Otherwise, if Rect is empty, sets Rect to r.
+Has no effect if r is empty. Otherwise, if IRect is empty, sets IRect to r.
 
-#Param r  expansion Rect ##
+#Param r  expansion IRect ##
 
 #Example
     SkIRect rect = { 10, 20, 15, 25};
@@ -1624,7 +1690,7 @@ sorted: 20, 10, 30, 50
 
 #Method SkIRect makeSorted() const
 
-Returns Rect with fLeft and fRight swapped if fLeft is greater than fRight; and
+Returns IRect with fLeft and fRight swapped if fLeft is greater than fRight; and
 with fTop and fBottom swapped if fTop is greater than fBottom. Result may be empty;
 and width() and height() will be zero or positive.
 
