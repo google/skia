@@ -626,29 +626,3 @@ bool SkPictureData::parseBuffer(SkReadBuffer& buffer) {
     }
     return true;
 }
-
-///////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////
-
-#if SK_SUPPORT_GPU
-bool SkPictureData::suitableForGpuRasterization(GrContext* context, const char **reason,
-                                                int sampleCount) const {
-    return fContentInfo.suitableForGpuRasterization(context, reason, sampleCount);
-}
-
-bool SkPictureData::suitableForGpuRasterization(GrContext* context, const char **reason,
-                                                GrPixelConfig config, SkScalar dpi) const {
-
-    if (context != nullptr) {
-        return this->suitableForGpuRasterization(context, reason,
-                                                 context->getRecommendedSampleCount(config, dpi));
-    } else {
-        return this->suitableForGpuRasterization(nullptr, reason);
-    }
-}
-
-bool SkPictureData::suitableForLayerOptimization() const {
-    return fContentInfo.numLayers() > 0;
-}
-#endif
-///////////////////////////////////////////////////////////////////////////////

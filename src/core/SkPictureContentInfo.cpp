@@ -9,41 +9,6 @@
 #include "SkPathEffect.h"
 #include "SkPictureContentInfo.h"
 
-bool SkPictureContentInfo::suitableForGpuRasterization(GrContext* context, const char **reason,
-                                                       int sampleCount) const {
-    // TODO: the heuristic used here needs to be refined
-    static const int kNumPaintWithPathEffectUsesTol = 1;
-    static const int kNumAAConcavePaths = 5;
-
-    SkASSERT(fNumAAHairlineConcavePaths <= fNumAAConcavePaths);
-
-    int numNonDashedPathEffects = fNumPaintWithPathEffectUses -
-                                  fNumFastPathDashEffects;
-
-    bool suitableForDash = (0 == fNumPaintWithPathEffectUses) ||
-                           (numNonDashedPathEffects < kNumPaintWithPathEffectUsesTol
-                            && 0 == sampleCount);
-
-    bool ret = suitableForDash &&
-                    (fNumAAConcavePaths - fNumAAHairlineConcavePaths - fNumAADFEligibleConcavePaths)
-                    < kNumAAConcavePaths;
-    if (!ret && reason) {
-        if (!suitableForDash) {
-            if (0 != sampleCount) {
-                *reason = "Can't use multisample on dash effect.";
-            } else {
-                *reason = "Too many non dashed path effects.";
-            }
-        } else if ((fNumAAConcavePaths - fNumAAHairlineConcavePaths - fNumAADFEligibleConcavePaths)
-                    >= kNumAAConcavePaths) {
-            *reason = "Too many anti-aliased concave paths.";
-        } else {
-            *reason = "Unknown reason for GPU unsuitability.";
-        }
-    }
-    return ret;
-}
-
 void SkPictureContentInfo::onDrawPoints(size_t count, const SkPaint& paint) {
     if (paint.getPathEffect() != nullptr) {
         SkPathEffect::DashInfo info;
