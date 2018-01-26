@@ -182,6 +182,13 @@ void GrGpu::Stats::dumpKeyValuePairs(SkTArray<SkString>* keys, SkTArray<double>*
 
 #endif
 
+GrBackendTexture GrGpu::createTestingOnlyBackendTexture(void* pixels, int w, int h,
+                                                        SkColorType colorType, bool isRenderTarget,
+                                                        GrMipMapped mipMapped) {
+    GrPixelConfig config = SkImageInfo2GrPixelConfig(colorType, nullptr, *this->caps());
+    return this->createTestingOnlyBackendTexture(pixels, w, h, config, isRenderTarget, mipMapped);
+}
+
 #if GR_CACHE_STATS
 void GrResourceCache::getStats(Stats* stats) const {
     stats->reset();

@@ -216,6 +216,17 @@ public:
     /** Access the context capabilities */
     const GrCaps* caps() const { return fCaps.get(); }
 
+    /**
+     * Can a SkSurface be created with the given color type. The answer depends upon whether the
+     * surface will be multisampled or not.
+     */
+    bool colorTypeSupportedAsSurface(SkColorType, bool withMSAA) const;
+
+    /**
+     * Can a SkImage be created with the given color type.
+     */
+    bool colorTypeSupportedAsImage(SkColorType) const;
+
     /*
      * Create a new render target context backed by a deferred-style
      * GrRenderTargetProxy. We guarantee that "asTextureProxy" will succeed for

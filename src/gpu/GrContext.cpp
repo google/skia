@@ -411,6 +411,18 @@ size_t GrContext::getResourceCachePurgeableBytes() const {
 
 ////////////////////////////////////////////////////////////////////////////////
 
+bool GrContext::colorTypeSupportedAsSurface(SkColorType colorType, bool withMSAA) const {
+    GrPixelConfig config = SkImageInfo2GrPixelConfig(colorType, nullptr, *this->caps());
+    return this->caps()->isConfigRenderable(config, withMSAA);
+}
+
+bool GrContext::colorTypeSupportedAsImage(SkColorType colorType) const {
+    GrPixelConfig config = SkImageInfo2GrPixelConfig(colorType, nullptr, *this->caps());
+    return this->caps()->isConfigTexturable(config);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 void GrContext::TextBlobCacheOverBudgetCB(void* data) {
     SkASSERT(data);
     // TextBlobs are drawn at the SkGpuDevice level, therefore they cannot rely on
