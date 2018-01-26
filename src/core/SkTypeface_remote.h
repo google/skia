@@ -71,13 +71,11 @@ class SkTypefaceProxy : public SkTypeface {
 public:
     SkTypefaceProxy(
             SkFontID fontId,
-            std::thread::id threadId,
             const SkFontStyle& style,
             bool isFixed,
             SkRemoteScalerContext* rsc)
             : INHERITED{style, false}
             , fFontId{fontId}
-            , fThreadId{threadId}
             , fRsc{rsc} { }
     SkFontID fontID() const {return fFontId;}
 protected:
@@ -150,7 +148,7 @@ protected:
 
 private:
     const SkFontID fFontId;
-    const std::thread::id fThreadId;
+    // const std::thread::id fThreadId;  // TODO: figure out a good solutions for this.
     SkRemoteScalerContext* const fRsc;
 
     typedef SkTypeface INHERITED;
