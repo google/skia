@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6abd12e3_b5523688",
+        "filename": "src/core/SkCpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-26T20:44:53Z",
+      "side": 1,
+      "message": "hwcaps2?",
+      "range": {
+        "startLine": 107,
+        "startChar": 12,
+        "endLine": 107,
+        "endChar": 18
+      },
+      "revId": "a853930eecb6f38669dcc1a1221ecf7b3b18cecf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
