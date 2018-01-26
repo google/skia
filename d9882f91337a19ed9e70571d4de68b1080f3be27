@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3419f62c_df685c81",
+        "filename": "src/sksl/SkSLSPIRVCodeGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1206,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-01-26T16:00:17Z",
+      "side": 1,
+      "message": "Looks like you need to init op to make Mac happy.",
+      "range": {
+        "startLine": 1206,
+        "startChar": 15,
+        "endLine": 1206,
+        "endChar": 17
+      },
+      "revId": "d9882f91337a19ed9e70571d4de68b1080f3be27",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
