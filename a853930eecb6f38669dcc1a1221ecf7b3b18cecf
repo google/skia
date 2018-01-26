@@ -22,6 +22,30 @@
       "revId": "a853930eecb6f38669dcc1a1221ecf7b3b18cecf",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9a1ae2d7_e311dffc",
+        "filename": "src/core/SkCpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 5870
+      },
+      "writtenOn": "2018-01-26T20:51:21Z",
+      "side": 1,
+      "message": "My jaw dropped.\nThank you.",
+      "parentUuid": "6abd12e3_b5523688",
+      "range": {
+        "startLine": 107,
+        "startChar": 12,
+        "endLine": 107,
+        "endChar": 18
+      },
+      "revId": "a853930eecb6f38669dcc1a1221ecf7b3b18cecf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
