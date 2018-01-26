@@ -33,11 +33,13 @@
     "InProgress": {
         "include": {
             "core": [
-                "SkImage.h"
+                "SkImage.h",
+                "SkImageInfo.h"
             ]
         },
         "docs": [
             "SkImage_Reference.bmh",
+            "SkImageInfo_Reference.bmh",
             "overview.bmh",
             "usingBookmaker.bmh"
         ]

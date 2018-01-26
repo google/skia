@@ -1025,14 +1025,14 @@ paint1 == paint2
 # <a name="Dither"></a> Dither
 <a href="#Dither">Dither</a> increases fidelity by adjusting the color of adjacent pixels.
 This can help to smooth color transitions and reducing banding in gradients.
-Dithering lessens visible banding from <a href="undocumented#SkColorType">kRGB 565 SkColorType</a>
-and <a href="undocumented#SkColorType">kRGBA 8888 SkColorType</a> gradients,
-and improves rendering into a <a href="undocumented#SkColorType">kRGB 565 SkColorType</a> <a href="SkSurface_Reference#Surface">Surface</a>.
+Dithering lessens visible banding from <a href="SkImageInfo_Reference#SkColorType">kRGB 565 SkColorType</a>
+and <a href="SkImageInfo_Reference#SkColorType">kRGBA 8888 SkColorType</a> gradients,
+and improves rendering into a <a href="SkImageInfo_Reference#SkColorType">kRGB 565 SkColorType</a> <a href="SkSurface_Reference#Surface">Surface</a>.
 
 Dithering is always enabled for linear gradients drawing into
-<a href="undocumented#SkColorType">kRGB 565 SkColorType</a> <a href="SkSurface_Reference#Surface">Surface</a> and <a href="undocumented#SkColorType">kRGBA 8888 SkColorType</a> <a href="SkSurface_Reference#Surface">Surface</a>.
-<a href="#Dither">Dither</a> cannot be enabled for <a href="undocumented#SkColorType">kAlpha 8 SkColorType</a> <a href="SkSurface_Reference#Surface">Surface</a> and
-<a href="undocumented#SkColorType">kRGBA F16 SkColorType</a> <a href="SkSurface_Reference#Surface">Surface</a>.
+<a href="SkImageInfo_Reference#SkColorType">kRGB 565 SkColorType</a> <a href="SkSurface_Reference#Surface">Surface</a> and <a href="SkImageInfo_Reference#SkColorType">kRGBA 8888 SkColorType</a> <a href="SkSurface_Reference#Surface">Surface</a>.
+<a href="#Dither">Dither</a> cannot be enabled for <a href="SkImageInfo_Reference#SkColorType">kAlpha 8 SkColorType</a> <a href="SkSurface_Reference#Surface">Surface</a> and
+<a href="SkImageInfo_Reference#SkColorType">kRGBA F16 SkColorType</a> <a href="SkSurface_Reference#Surface">Surface</a>.
 
 <a href="#Dither">Dither</a> is disabled by default.
 <a href="#Dither">Dither</a> can be enabled by default by setting <a href="undocumented#SkPaintDefaults_Flags">SkPaintDefaults Flags</a> to <a href="#SkPaint_kDither_Flag">kDither Flag</a>
@@ -1113,7 +1113,7 @@ paint1 == paint2
 
 ### See Also
 
-<a href="undocumented#SkColorType">kRGB 565 SkColorType</a>
+<a href="SkImageInfo_Reference#SkColorType">kRGB 565 SkColorType</a>
 
 ---
 
@@ -2720,6 +2720,8 @@ At the lowest precision, the <a href="#Quad">Quad</a> stroke is approximated by 
 At the highest precision, the filled path has high fidelity compared to the original stroke.</div></fiddle-embed></div>
 
 ---
+
+<a name="SkPaint_getFillPath_2"></a>
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 bool getFillPath(const SkPath& src, SkPath* dst) const
@@ -4573,6 +4575,8 @@ advance width or height
 
 ---
 
+<a name="SkPaint_measureText_2"></a>
+
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 SkScalar measureText(const void* text, size_t length) const
 </pre>
@@ -5089,7 +5093,7 @@ fast computed bounds
 ## toString
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-void toString(SkString* str) const;
+void toString(SkString* str) const
 </pre>
 
 Creates string representation of <a href="#Paint">Paint</a>. The representation is read by
