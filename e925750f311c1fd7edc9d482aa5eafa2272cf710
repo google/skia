@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4a53f1d4_b89987ec",
+        "filename": "src/core/SkPicturePriv.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-26T18:15:16Z",
+      "side": 1,
+      "message": "kill off?",
+      "revId": "e925750f311c1fd7edc9d482aa5eafa2272cf710",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
