@@ -77,6 +77,7 @@ all_header_args = [
     '-Itools/flags',
     '-Itools/gpu',
     '-Itools/timer',
+    '-Ithird_party/etc1',
     '-Ithird_party/externals/jsoncpp/include',
     '-Ithird_party/externals/libjpeg-turbo',
     '-Ithird_party/externals/sfntly/cpp/src',
