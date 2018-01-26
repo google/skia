@@ -7,91 +7,335 @@
 
 #include "SkottieAnimator.h"
 
+#include "SkCubicMap.h"
+#include "SkJSONCPP.h"
+#include "SkottieProperties.h"
+#include "SkottieParser.h"
+
+#include <memory>
+
 namespace skottie {
 
 namespace {
 
-SkScalar lerp_scalar(float v0, float v1, float t) {
+#define LOG SkDebugf
+
+bool LogFail(const Json::Value& json, const char* msg) {
+    const auto dump = json.toStyledString();
+    LOG("!! %s: %s", msg, dump.c_str());
+    return false;
+}
+
+template <typename T>
+static inline T lerp(const T&, const T&, float);
+
+template <>
+ScalarValue lerp(const ScalarValue& v0, const ScalarValue& v1, float t) {
     SkASSERT(t >= 0 && t <= 1);
     return v0 * (1 - t) + v1 * t;
 }
 
-} // namespace
+template <>
+VectorValue lerp(const VectorValue& v0, const VectorValue& v1, float t) {
+    SkASSERT(v0.size() == v1.size());
 
-bool KeyframeIntervalBase::parse(const Json::Value& k, KeyframeIntervalBase* prev) {
-    SkASSERT(k.isObject());
+    VectorValue v;
+    v.reserve(v0.size());
 
-    fT0 = fT1 = ParseDefault(k["t"], SK_ScalarMin);
-    if (fT0 == SK_ScalarMin) {
+    for (size_t i = 0; i < v0.size(); ++i) {
+        v.push_back(lerp(v0[i], v1[i], t));
+    }
+
+    return v;
+}
+
+template <>
+ShapeValue lerp(const ShapeValue& v0, const ShapeValue& v1, float t) {
+    SkASSERT(t >= 0 && t <= 1);
+    SkASSERT(v1.isInterpolatable(v0));
+
+    ShapeValue v;
+    SkAssertResult(v1.interpolate(v0, t, &v));
+    v.setIsVolatile(true);
+
+    return v;
+}
+
+class KeyframeAnimatorBase : public sksg::Animator {
+public:
+    size_t size() const { return fRecs.size(); }
+
+protected:
+    KeyframeAnimatorBase() = default;
+
+    struct KeyframeRec {
+        float t0, t1;
+        size_t vidx0, vidx1, cmidx;
+
+        bool contains(float t) const { return t0 <= t && t <= t1; }
+        bool isConstant() const { return vidx1 == kInvalidIndex; }
+        bool isValid() const { return t0 < t1 || this->isConstant(); }
+    };
+
+    static constexpr size_t kInvalidIndex = std::numeric_limits<size_t>::max();
+
+    const KeyframeRec& frame(float t) {
+        if (!fCachedRec || !fCachedRec->contains(t)) {
+            fCachedRec = findFrame(t);
+        }
+        return *fCachedRec;
+    }
+
+    float localT(const KeyframeRec& rec, float t) const {
+        SkASSERT(rec.isValid());
+        SkASSERT(!rec.isConstant());
+        SkASSERT(t > rec.t0 && t < rec.t1);
+
+        auto lt = (t -rec.t0) / (rec.t1 - rec.t0);
+
+        return rec.cmidx != kInvalidIndex
+            ? fCubicMaps[rec.cmidx].computeYFromX(lt)
+            : lt;
+    }
+
+    virtual size_t parseValue(const Json::Value&) = 0;
+
+    void parseKeyFrames(const Json::Value& jframes) {
+        if (!jframes.isArray())
+            return;
+
+        for (const auto& jframe : jframes) {
+            if (!jframe.isObject())
+                continue;
+
+            float t0;
+            if (!Parse(jframe["t"], &t0)) {
+                continue;
+            }
+
+            if (!fRecs.empty()) {
+                if (fRecs.back().t1 >= t0) {
+                    LOG("!! Ignoring out-of-order key frame (t:%f < t:%f)\n", t0, fRecs.back().t1);
+                    continue;
+                }
+                // Back-fill t1 in prev interval.  Note: we do this even if we end up discarding
+                // the current interval (to support "t"-only final frames).
+                fRecs.back().t1 = t0;
+            }
+
+            const auto vidx0 = this->parseValue(jframe["s"]);
+            if (vidx0 == kInvalidIndex) {
+                continue;
+            }
+
+            // Defaults for "hold" frames.
+            size_t vidx1 = kInvalidIndex, cmidx = kInvalidIndex;
+
+            if (!ParseDefault(jframe["h"], false)) {
+                // Regular frame, requires and end value.
+                vidx1 = this->parseValue(jframe["e"]);
+                if (vidx1 == kInvalidIndex) {
+                    continue;
+                }
+
+                // default is linear lerp
+                static constexpr SkPoint kDefaultC0 = { 0, 0 },
+                                         kDefaultC1 = { 1, 1 };
+                const auto c0 = ParseDefault(jframe["i"], kDefaultC0),
+                           c1 = ParseDefault(jframe["o"], kDefaultC1);
+
+                if (c0 != kDefaultC0 || c1 != kDefaultC1) {
+                    // TODO: is it worth de-duping these?
+                    cmidx = fCubicMaps.size();
+                    fCubicMaps.emplace_back();
+                    // TODO: why do we have to plug these inverted?
+                    fCubicMaps.back().setPts(c1, c0);
+                }
+            }
+
+            fRecs.push_back({t0, t0, vidx0, vidx1, cmidx });
+        }
+
+        // If we couldn't determine a t1 for the last frame, discard it.
+        if (!fRecs.empty() && !fRecs.back().isValid()) {
+            fRecs.pop_back();
+        }
+
+        SkASSERT(fRecs.empty() || fRecs.back().isValid());
+    }
+
+private:
+    const KeyframeRec* findFrame(float t) const {
+        SkASSERT(!fRecs.empty());
+
+        auto f0 = &fRecs.front(),
+             f1 = &fRecs.back();
+
+        SkASSERT(f0->isValid());
+        SkASSERT(f1->isValid());
+
+        if (t < f0->t0) {
+            return f0;
+        }
+
+        if (t > f1->t1) {
+            return f1;
+        }
+
+        while (f0 != f1) {
+            SkASSERT(f0 < f1);
+            SkASSERT(t >= f0->t0 && t <= f1->t1);
+
+            const auto f = f0 + (f1 - f0) / 2;
+            SkASSERT(f->isValid());
+
+            if (t > f->t1) {
+                f0 = f + 1;
+            } else {
+                f1 = f;
+            }
+        }
+
+        SkASSERT(f0 == f1);
+        SkASSERT(f0->contains(t));
+
+        return f0;
+    }
+
+    std::vector<KeyframeRec> fRecs;
+    std::vector<SkCubicMap>  fCubicMaps;
+    const KeyframeRec*       fCachedRec = nullptr;
+
+    using INHERITED = sksg::Animator;
+};
+
+template <typename T>
+class KeyframeAnimator final : public KeyframeAnimatorBase {
+public:
+    static std::unique_ptr<KeyframeAnimator> Make(const Json::Value& jframes,
+                                                  std::function<void(const T&)>&& apply) {
+        std::unique_ptr<KeyframeAnimator> animator(new KeyframeAnimator(jframes, std::move(apply)));
+        if (!animator->size())
+            return nullptr;
+
+        return animator;
+    }
+
+protected:
+    void onTick(float t) override {
+        T val;
+        this->eval(this->frame(t), t, &val);
+
+        fApplyFunc(val);
+    }
+
+private:
+    KeyframeAnimator(const Json::Value& jframes,
+                     std::function<void(const T&)>&& apply)
+        : fApplyFunc(std::move(apply)) {
+        this->parseKeyFrames(jframes);
+    }
+
+    size_t parseValue(const Json::Value& jv) override {
+        T val;
+        if (!Parse(jv, &val) || (!fVs.empty() &&
+                ValueTraits<T>::Cardinality(val) != ValueTraits<T>::Cardinality(fVs.back()))) {
+            return kInvalidIndex;
+        }
+
+        // TODO: full deduping?
+        if (fVs.empty() || val != fVs.back()) {
+            fVs.push_back(std::move(val));
+        }
+        return fVs.size() - 1;
+    }
+
+    void eval(const KeyframeRec& rec, float t, T* v) const {
+        SkASSERT(rec.isValid());
+        if (rec.isConstant() || t <= rec.t0) {
+            *v = fVs[rec.vidx0];
+        } else if (t >= rec.t1) {
+            *v = fVs[rec.vidx1];
+        } else {
+            const auto lt = this->localT(rec, t);
+            const auto& v0 = fVs[rec.vidx0];
+            const auto& v1 = fVs[rec.vidx1];
+            *v = lerp(v0, v1, lt);
+        }
+    }
+
+    const std::function<void(const T&)> fApplyFunc;
+    std::vector<T>                      fVs;
+
+
+    using INHERITED = KeyframeAnimatorBase;
+};
+
+template <typename T>
+static inline bool BindPropertyImpl(const Json::Value& jprop,
+                                    sksg::Scene::AnimatorList* animators,
+                                    std::function<void(const T&)>&& apply,
+                                    const T* noop) {
+    if (!jprop.isObject())
         return false;
-    }
 
-    if (prev) {
-        if (prev->fT1 >= fT0) {
-            SkDebugf("!! Dropping out-of-order key frame (t: %f < t: %f)\n", fT0, prev->fT1);
-            return false;
+    const auto& jpropA = jprop["a"];
+    const auto& jpropK = jprop["k"];
+
+    // Older Json versions don't have an "a" animation marker.
+    // For those, we attempt to parse both ways.
+    if (!ParseDefault(jpropA, false)) {
+        T val;
+        if (Parse<T>(jpropK, &val)) {
+            // Static property.
+            if (noop && val == *noop)
+                return false;
+
+            apply(val);
+            return true;
         }
-        // Back-fill t1 in prev interval.  Note: we do this even if we end up discarding
-        // the current interval (to support "t"-only final frames).
-        prev->fT1 = fT0;
-    }
 
-    fHold = ParseDefault(k["h"], false);
-
-    if (!fHold) {
-        // default is linear lerp
-        static constexpr SkPoint kDefaultC0 = { 0, 0 },
-                                 kDefaultC1 = { 1, 1 };
-        const auto c0 = ParseDefault(k["i"], kDefaultC0),
-                   c1 = ParseDefault(k["o"], kDefaultC1);
-
-        if (c0 != kDefaultC0 || c1 != kDefaultC1) {
-            fCubicMap = skstd::make_unique<SkCubicMap>();
-            // TODO: why do we have to plug these inverted?
-            fCubicMap->setPts(c1, c0);
+        if (!jpropA.isNull()) {
+            return LogFail(jprop, "Could not parse (explicit) static property");
         }
     }
+
+    // Keyframe property.
+    auto animator = KeyframeAnimator<T>::Make(jpropK, std::move(apply));
+
+    if (!animator) {
+        return LogFail(jprop, "Could not parse keyframed property");
+    }
+
+    animators->push_back(std::move(animator));
 
     return true;
 }
 
-float KeyframeIntervalBase::localT(float t) const {
-    SkASSERT(this->isValid());
-    SkASSERT(!this->isHold());
-    SkASSERT(t > fT0 && t < fT1);
+} // namespace
 
-    auto lt = (t - fT0) / (fT1 - fT0);
-
-    return fCubicMap ? fCubicMap->computeYFromX(lt) : lt;
+template <>
+bool BindProperty(const Json::Value& jprop,
+                  sksg::Scene::AnimatorList* animators,
+                  std::function<void(const ScalarValue&)>&& apply,
+                  const ScalarValue* noop) {
+    return BindPropertyImpl(jprop, animators, std::move(apply), noop);
 }
 
 template <>
-void KeyframeInterval<ScalarValue>::lerp(float t, ScalarValue* v) const {
-    const auto lt = this->localT(t);
-    *v = lerp_scalar(fV0, fV1, lt);
+bool BindProperty(const Json::Value& jprop,
+                  sksg::Scene::AnimatorList* animators,
+                  std::function<void(const VectorValue&)>&& apply,
+                  const VectorValue* noop) {
+    return BindPropertyImpl(jprop, animators, std::move(apply), noop);
 }
 
 template <>
-void KeyframeInterval<VectorValue>::lerp(float t, VectorValue* v) const {
-    SkASSERT(fV0.size() == fV1.size());
-    SkASSERT(v->size() == 0);
-
-    const auto lt = this->localT(t);
-
-    v->reserve(fV0.size());
-    for (size_t i = 0; i < fV0.size(); ++i) {
-        v->push_back(lerp_scalar(fV0[i], fV1[i], lt));
-    }
-}
-
-template <>
-void KeyframeInterval<ShapeValue>::lerp(float t, ShapeValue* v) const {
-    SkASSERT(fV0.countVerbs() == fV1.countVerbs());
-    SkASSERT(v->isEmpty());
-
-    const auto lt = this->localT(t);
-    SkAssertResult(fV1.interpolate(fV0, lt, v));
-    v->setIsVolatile(true);
+bool BindProperty(const Json::Value& jprop,
+                  sksg::Scene::AnimatorList* animators,
+                  std::function<void(const ShapeValue&)>&& apply,
+                  const ShapeValue* noop) {
+    return BindPropertyImpl(jprop, animators, std::move(apply), noop);
 }
 
 } // namespace skottie
