@@ -90,11 +90,7 @@ public:
     sk_sp<SkData> serialize(const SkSerialProcs* = nullptr) const;
     void serialize(SkWStream*, const SkSerialProcs* = nullptr) const;
 
-    /**
-     *  Serialize to a buffer.
-     */
-    void flatten(SkWriteBuffer&) const;
-
+protected:
     /** Return the approximate number of operations in this picture.  This
      *  number may be greater or less than the number of SkCanvas calls
      *  recorded: some calls may be recorded as more than one operation, or some
@@ -108,11 +104,15 @@ public:
     // Returns NULL if this is not an SkBigPicture.
     virtual const SkBigPicture* asSkBigPicture() const { return nullptr; }
 
+    virtual bool shouldUnrollForDrawPicture() const { return true; }
+
 private:
     // Subclass whitelist.
     SkPicture();
     friend class SkBigPicture;
     friend class SkEmptyPicture;
+    friend class SkPicturePriv;
+    friend class SkPictureRecorder;
     template <typename> friend class SkMiniPicture;
 
     void serialize(SkWStream*, const SkSerialProcs*, SkRefCntSet* typefaces) const;
@@ -172,6 +172,7 @@ private:
 
     SkPictInfo createHeader() const;
     SkPictureData* backport() const;
+    void flatten(SkWriteBuffer&) const;
 
     mutable uint32_t fUniqueID;
 };

@@ -19,7 +19,7 @@
 #include "SkMD5.h"
 #include "SkMiniRecorder.h"
 #include "SkPaint.h"
-#include "SkPicture.h"
+#include "SkPicturePriv.h"
 #include "SkPictureRecorder.h"
 #include "SkPixelRef.h"
 #include "SkRectPriv.h"
@@ -446,7 +446,7 @@ static void test_cull_rect_reset(skiatest::Reporter* reporter) {
     canvas->drawRect(bounds, paint);
     canvas->drawRect(bounds, paint);
     sk_sp<SkPicture> p(recorder.finishRecordingAsPictureWithCull(bounds));
-    const SkBigPicture* picture = p->asSkBigPicture();
+    const SkBigPicture* picture = SkPicturePriv::AsBigPicture(p.get());
     REPORTER_ASSERT(reporter, picture);
 
     SkRect finalCullRect = picture->cullRect();
@@ -827,10 +827,11 @@ DEF_TEST(Picture_RecordsFlush, r) {
 
     // Did we record the flushes?
     auto pic = recorder.finishRecordingAsPicture();
-    REPORTER_ASSERT(r, pic->approximateOpCount() == 120);  // 10 clears, 100 draws, 10 flushes
+    REPORTER_ASSERT(r, SkPicturePriv::ApproxOpCount(pic.get()) == 120);  // 10 clears, 100 draws, 10 flushes
 
     // Do we serialize and deserialize flushes?
     auto skp = pic->serialize();
     auto back = SkPicture::MakeFromData(skp->data(), skp->size());
-    REPORTER_ASSERT(r, back->approximateOpCount() == pic->approximateOpCount());
+    REPORTER_ASSERT(r, SkPicturePriv::ApproxOpCount(back.get()) ==
+                       SkPicturePriv::ApproxOpCount(pic.get()));
 }

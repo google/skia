@@ -12,6 +12,15 @@
 #include "SkRecordDraw.h"
 #include "SkTraceEvent.h"
 
+/**
+ *  This constant is trying to balance the speed of ref'ing a subpicture into a parent picture,
+ *  against the playback cost of recursing into the subpicture to get at its actual ops.
+ *
+ *  For now we pick a conservatively small value, though measurement (and other heuristics like
+ *  the type of ops contained) may justify changing this value.
+ */
+#define kMaxPictureOpsToUnrollInsteadOfRef  1
+
 SkBigPicture::SkBigPicture(const SkRect& cull,
                            SkRecord* record,
                            SnapshotArray* drawablePicts,
@@ -69,3 +78,6 @@ SkPicture const* const* SkBigPicture::drawablePicts() const {
     return fDrawablePicts ? fDrawablePicts->begin() : nullptr;
 }
 
+bool SkBigPicture::shouldUnrollForDrawPicture() const {
+    return kMaxPictureOpsToUnrollInsteadOfRef;
+}
