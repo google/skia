@@ -1,0 +1,123 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4f483a65_d94419c2",
+        "filename": "src/core/SkBlurImageFilter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-01-26T19:47:31Z",
+      "side": 1,
+      "message": "Do we even need this anymore ?",
+      "revId": "1b12e4b05b94dedb64c389a700f46765fadb1417",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bbdac36d_9f80860f",
+        "filename": "src/core/SkMaskFilter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 592,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-01-26T19:47:31Z",
+      "side": 1,
+      "message": "Do we need this ?",
+      "revId": "1b12e4b05b94dedb64c389a700f46765fadb1417",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "36e38fce_3d275044",
+        "filename": "src/effects/SkBlurMaskFilter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 743,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-01-26T19:47:31Z",
+      "side": 1,
+      "message": "Remove ?",
+      "revId": "1b12e4b05b94dedb64c389a700f46765fadb1417",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4cc05a5e_8b25396c",
+        "filename": "src/effects/SkDisplacementMapEffect.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 154,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-01-26T19:47:31Z",
+      "side": 1,
+      "message": "remove ?",
+      "revId": "1b12e4b05b94dedb64c389a700f46765fadb1417",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6e223988_2236ef15",
+        "filename": "src/effects/SkHighContrastFilter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-01-26T19:47:31Z",
+      "side": 1,
+      "message": "rm ?",
+      "revId": "1b12e4b05b94dedb64c389a700f46765fadb1417",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "44a860eb_363e1458",
+        "filename": "src/effects/SkHighContrastFilter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-01-26T19:47:31Z",
+      "side": 1,
+      "message": "move up a line ?",
+      "revId": "1b12e4b05b94dedb64c389a700f46765fadb1417",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3b912b83_9d8b796f",
+        "filename": "src/effects/SkLightingImageFilter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1130,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-01-26T19:47:31Z",
+      "side": 1,
+      "message": "rm the template arg ?",
+      "revId": "1b12e4b05b94dedb64c389a700f46765fadb1417",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
