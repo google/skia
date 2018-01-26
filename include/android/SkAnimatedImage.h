@@ -99,6 +99,13 @@ public:
      */
     void setRepetitionCount(int count);
 
+    /**
+     *  Return the currently set repetition count.
+     */
+    int getRepetitionCount() const {
+        return fRepetitionCount;
+    }
+
 protected:
     SkRect onGetBounds() override;
     void onDraw(SkCanvas*) override;
