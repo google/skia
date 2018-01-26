@@ -95,13 +95,16 @@
     static uint32_t read_cpu_features() {
         const uint32_t kHWCAP_NEON  = (1<<12);
         const uint32_t kHWCAP_VFPv4 = (1<<16);
+        const uint32_t kHWCAP2_CRC32 = (1<<4);
 
         uint32_t features = 0;
         uint32_t hwcaps = getauxval(AT_HWCAP);
-        if (hwcaps & kHWCAP_NEON ) {
+        if (hwcaps & kHWCAP_NEON) {
             features |= SkCpu::NEON;
             if (hwcaps & kHWCAP_VFPv4) { features |= SkCpu::NEON_FMA|SkCpu::VFP_FP16; }
         }
+        uint32_t hwcaps2 = getauxval(AT_HWCAP2);
+        if (hwcaps & kHWCAP2_CRC32) { features |= SkCpu::CRC32; }
         return features;
     }
 
@@ -114,6 +117,7 @@
         if (cpu_features & ANDROID_CPU_ARM_FEATURE_NEON)     { features |= SkCpu::NEON; }
         if (cpu_features & ANDROID_CPU_ARM_FEATURE_NEON_FMA) { features |= SkCpu::NEON_FMA; }
         if (cpu_features & ANDROID_CPU_ARM_FEATURE_VFP_FP16) { features |= SkCpu::VFP_FP16; }
+        if (cpu_features & ANDROID_CPU_ARM_FEATURE_CRC32)    { features |= SkCpu::CRC32; }
         return features;
     }
 
