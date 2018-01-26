@@ -798,24 +798,6 @@ void GrContextPriv::flushSurfaceIO(GrSurfaceProxy* proxy) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-int GrContext::getRecommendedSampleCount(GrPixelConfig config,
-                                         SkScalar dpi) const {
-    ASSERT_SINGLE_OWNER
-
-    if (!this->caps()->isConfigRenderable(config, true)) {
-        return 0;
-    }
-    int chosenSampleCount = 0;
-    if (fGpu->caps()->shaderCaps()->pathRenderingSupport()) {
-        if (dpi >= 250.0f) {
-            chosenSampleCount = 4;
-        } else {
-            chosenSampleCount = 16;
-        }
-    }
-    int supportedSampleCount = fGpu->caps()->getSampleCount(chosenSampleCount, config);
-    return chosenSampleCount <= supportedSampleCount ? supportedSampleCount : 0;
-}
 
 sk_sp<GrSurfaceContext> GrContextPriv::makeWrappedSurfaceContext(sk_sp<GrSurfaceProxy> proxy,
                                                                  sk_sp<SkColorSpace> colorSpace) {

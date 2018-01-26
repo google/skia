@@ -138,24 +138,6 @@ public:
         return reader->validateIndex(index, fVerticesCount) ? fVerticesRefs[index] : nullptr;
     }
 
-#if SK_SUPPORT_GPU
-    /**
-     * sampleCount is the number of samples-per-pixel or zero if non-MSAA.
-     * It is defaulted to be zero.
-     */
-    bool suitableForGpuRasterization(GrContext* context, const char **reason,
-                                     int sampleCount = 0) const;
-
-    /**
-     * Calls getRecommendedSampleCount with GrPixelConfig and dpi to calculate sampleCount
-     * and then calls the above version of suitableForGpuRasterization
-     */
-    bool suitableForGpuRasterization(GrContext* context, const char **reason,
-                                     GrPixelConfig config, SkScalar dpi) const;
-
-    bool suitableForLayerOptimization() const;
-#endif
-
 private:
     void init();
 

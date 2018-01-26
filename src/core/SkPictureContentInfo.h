@@ -25,9 +25,6 @@ public:
     int numInteriorLayers() const { return fNumInteriorLayers; }
     int numLeafLayers() const { return fNumLeafLayers; }
 
-    bool suitableForGpuRasterization(GrContext* context, const char **reason,
-                                     int sampleCount) const;
-
     void addOperation() { ++fNumOperations; }
 
     void onDrawPoints(size_t count, const SkPaint& paint);
