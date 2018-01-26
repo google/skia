@@ -8,7 +8,6 @@
 #include "GrNonlinearColorSpaceXformEffect.h"
 #include "GrColorSpaceXform.h"
 #include "GrProcessor.h"
-#include "SkColorSpace_Base.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 

@@ -8,8 +8,9 @@
 #ifndef SkColorSpace_A2B_DEFINED
 #define SkColorSpace_A2B_DEFINED
 
-#include "SkColorSpace_Base.h"
-
+#include "SkColorLookUpTable.h"
+#include "SkColorSpace.h"
+#include "SkGammas.h"
 #include <vector>
 
 // An alternative SkColorSpace that represents all the color space data that
@@ -25,7 +26,7 @@
 // you to combine these 3 primitives (TRC, CLUT, matrix) in any order/quantity.
 // MPET tags are currently unsupported by the MakeICC parser, could be supported
 // here by the nature of the design.
-class SkColorSpace_A2B : public SkColorSpace_Base {
+class SkColorSpace_A2B : public SkColorSpace {
 public:
     const SkMatrix44* onToXYZD50() const override {
         // the matrix specified in A2B0 profiles is not necessarily
@@ -67,8 +68,6 @@ public:
         // See comment in makeLinearGamma
         return SkColorSpace::MakeSRGB();
     }
-
-    Type type() const override { return Type::kA2B; }
 
     class Element {
     public:
@@ -176,9 +175,7 @@ private:
     std::vector<Element> fElements;
     PCS                  fPCS;
 
-    friend class SkColorSpace_Base;
     friend class ColorSpaceXformTest;
-    typedef SkColorSpace_Base INHERITED;
 };
 
 #endif

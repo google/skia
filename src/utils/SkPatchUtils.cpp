@@ -8,7 +8,6 @@
 #include "SkPatchUtils.h"
 
 #include "SkColorData.h"
-#include "SkColorSpace_Base.h"
 #include "SkGeometry.h"
 #include "SkPM4f.h"
 
@@ -211,7 +210,6 @@ void SkPatchUtils::GetRightCubic(const SkPoint cubics[12], SkPoint points[4]) {
 }
 
 #include "SkPM4fPriv.h"
-#include "SkColorSpace_Base.h"
 #include "SkColorSpaceXform.h"
 
 struct SkRGBAf {
