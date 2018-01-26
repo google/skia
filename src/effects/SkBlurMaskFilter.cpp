@@ -10,7 +10,6 @@
 #include "SkGpuBlurUtils.h"
 #include "SkMaskFilterBase.h"
 #include "SkReadBuffer.h"
-#include "SkSafeRange.h"
 #include "SkWriteBuffer.h"
 #include "SkMaskFilter.h"
 #include "SkRRect.h"
@@ -734,19 +733,12 @@ void SkBlurMaskFilterImpl::computeFastBounds(const SkRect& src,
 }
 
 sk_sp<SkFlattenable> SkBlurMaskFilterImpl::CreateProc(SkReadBuffer& buffer) {
-    SkSafeRange safe;
-
     const SkScalar sigma = buffer.readScalar();
-
-    SkBlurStyle style = safe.checkLE(buffer.readUInt(), kLastEnum_SkBlurStyle);
-    unsigned flags = safe.checkLE(buffer.readUInt(), SkBlurMaskFilter::kAll_BlurFlag);
+    SkBlurStyle style = buffer.read32LE(kLastEnum_SkBlurStyle);
+    unsigned flags = buffer.read32LE(SkBlurMaskFilter::kAll_BlurFlag);
 
     SkRect occluder;
     buffer.readRect(&occluder);
-
-    if (!buffer.validate(safe)) {
-        return nullptr;
-    }
 
     return SkBlurMaskFilter::Make((SkBlurStyle)style, sigma, occluder, flags);
 }

@@ -12,7 +12,6 @@
 #include "SkColorFilter.h"
 #include "SkMakeUnique.h"
 #include "SkReadBuffer.h"
-#include "SkSafeRange.h"
 #include "SkWriteBuffer.h"
 #include "SkShader.h"
 #include "SkUnPreMultiply.h"
@@ -416,23 +415,17 @@ SkPerlinNoiseShaderImpl::SkPerlinNoiseShaderImpl(SkPerlinNoiseShaderImpl::Type t
 }
 
 sk_sp<SkFlattenable> SkPerlinNoiseShaderImpl::CreateProc(SkReadBuffer& buffer) {
-    SkSafeRange safe;
-
-    Type type = safe.checkLE<Type>(buffer.readInt(), kLast_Type);
+    Type type = buffer.read32LE(kLast_Type);
 
     SkScalar freqX = buffer.readScalar();
     SkScalar freqY = buffer.readScalar();
 
-    int octaves = safe.checkLE<int>(buffer.readInt(), kMaxOctaves);
+    int octaves = buffer.read32LE<int>(kMaxOctaves);
 
     SkScalar seed = buffer.readScalar();
     SkISize tileSize;
     tileSize.fWidth = buffer.readInt();
     tileSize.fHeight = buffer.readInt();
-
-    if (!buffer.validate(safe)) {
-        return nullptr;
-    }
 
     switch (type) {
         case kFractalNoise_Type:
@@ -442,7 +435,7 @@ sk_sp<SkFlattenable> SkPerlinNoiseShaderImpl::CreateProc(SkReadBuffer& buffer) {
         case kImprovedNoise_Type:
             return SkPerlinNoiseShader::MakeImprovedNoise(freqX, freqY, octaves, seed);
         default:
-            // Really shouldn't get here b.c. of earlier checkLE on type
+            // Really shouldn't get here b.c. of earlier check on type
             buffer.validate(false);
             return nullptr;
     }
