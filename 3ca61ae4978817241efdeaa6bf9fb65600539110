@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bb5bb369_98dce4d5",
+        "filename": "include/codec/SkAndroidCodec.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-01-26T20:24:03Z",
+      "side": 1,
+      "message": "can you add to the dox if the pixels themselves (as output by the codec) will be affected in this mode?",
+      "range": {
+        "startLine": 36,
+        "startChar": 24,
+        "endLine": 36,
+        "endChar": 26
+      },
+      "revId": "3ca61ae4978817241efdeaa6bf9fb65600539110",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
