@@ -16,7 +16,7 @@ struct SkGammas : SkRefCnt {
 
     // There are four possible representations for gamma curves.  kNone_Type is used
     // as a placeholder until the struct is initialized.  It is not a valid value.
-    enum class Type : uint8_t {
+    enum class Type {
         kNone_Type,
         kNamed_Type,
         kValue_Type,
@@ -37,45 +37,55 @@ struct SkGammas : SkRefCnt {
     // Contains the actual gamma curve information.  Should be interpreted
     // based on the type of the gamma curve.
     union Data {
-        Data()
-            : fTable{ 0, 0 }
-        {}
+        Data() : fTable{0, 0} {}
 
-        inline bool operator==(const Data& that) const {
-            return this->fTable.fOffset == that.fTable.fOffset &&
-                   this->fTable.fSize == that.fTable.fSize;
-        }
-
-        inline bool operator!=(const Data& that) const {
-            return !(*this == that);
-        }
-
-        SkGammaNamed             fNamed;
-        float                    fValue;
-        Table                    fTable;
-        size_t                   fParamOffset;
+        SkGammaNamed fNamed;
+        float        fValue;
+        Table        fTable;
+        size_t       fParamOffset;
 
         const SkColorSpaceTransferFn& params(const SkGammas* base) const {
-            return *SkTAddOffset<const SkColorSpaceTransferFn>(
-                    base, sizeof(SkGammas) + fParamOffset);
+            return *SkTAddOffset<const SkColorSpaceTransferFn>(base,
+                                                               sizeof(SkGammas) + fParamOffset);
         }
     };
 
-    bool isNamed(int i) const {
-        return Type::kNamed_Type == this->type(i);
+    bool allChannelsSame() const {
+        // All channels are the same type?
+        Type type = this->type(0);
+        for (int i = 1; i < this->channels(); i++) {
+            if (type != this->type(i)) {
+                return false;
+            }
+        }
+
+        // All data the same?
+        auto& first = this->data(0);
+        for (int i = 1; i < this->channels(); i++) {
+            auto& data = this->data(i);
+            switch (type) {
+                case Type:: kNone_Type:                                                    break;
+                case Type::kNamed_Type: if (first.fNamed != data.fNamed) { return false; } break;
+                case Type::kValue_Type: if (first.fValue != data.fValue) { return false; } break;
+                case Type::kTable_Type:
+                    if (first.fTable.fOffset != data.fTable.fOffset) { return false; }
+                    if (first.fTable.fSize   != data.fTable.fSize  ) { return false; }
+                    break;
+                case Type::kParam_Type:
+                    if (0 != memcmp(&first.params(this), &data.params(this),
+                                    sizeof(SkColorSpaceTransferFn))) {
+                        return false;
+                    }
+                    break;
+            }
+        }
+        return true;
     }
 
-    bool isValue(int i) const {
-        return Type::kValue_Type == this->type(i);
-    }
-
-    bool isTable(int i) const {
-        return Type::kTable_Type == this->type(i);
-    }
-
-    bool isParametric(int i) const {
-        return Type::kParam_Type == this->type(i);
-    }
+    bool isNamed     (int i) const { return Type::kNamed_Type == this->type(i); }
+    bool isValue     (int i) const { return Type::kValue_Type == this->type(i); }
+    bool isTable     (int i) const { return Type::kTable_Type == this->type(i); }
+    bool isParametric(int i) const { return Type::kParam_Type == this->type(i); }
 
     const Data& data(int i) const {
         SkASSERT(i >= 0 && i < fChannels);
@@ -83,17 +93,17 @@ struct SkGammas : SkRefCnt {
     }
 
     const float* table(int i) const {
-        SkASSERT(isTable(i));
+        SkASSERT(this->isTable(i));
         return this->data(i).fTable.table(this);
     }
 
     int tableSize(int i) const {
-        SkASSERT(isTable(i));
+        SkASSERT(this->isTable(i));
         return this->data(i).fTable.fSize;
     }
 
     const SkColorSpaceTransferFn& params(int i) const {
-        SkASSERT(isParametric(i));
+        SkASSERT(this->isParametric(i));
         return this->data(i).params(this);
     }
 
@@ -102,19 +112,19 @@ struct SkGammas : SkRefCnt {
         return fType[i];
     }
 
-    uint8_t channels() const { return fChannels; }
+    int channels() const { return fChannels; }
 
-    SkGammas(uint8_t channels) : fChannels(channels) {
-        SkASSERT(channels <= SK_ARRAY_COUNT(fType));
+    SkGammas(int channels) : fChannels(channels) {
+        SkASSERT(channels <= (int)SK_ARRAY_COUNT(fType));
         for (Type& t : fType) {
             t = Type::kNone_Type;
         }
     }
 
     // These fields should only be modified when initializing the struct.
-    uint8_t fChannels;
-    Data    fData[4];
-    Type    fType[4];
+    int  fChannels;
+    Data fData[4];
+    Type fType[4];
 
     // Objects of this type are sometimes created in a custom fashion using
     // sk_malloc_throw and therefore must be sk_freed.  We overload new to

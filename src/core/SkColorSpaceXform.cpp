@@ -337,14 +337,9 @@ static inline int num_tables(SkColorSpace_XYZ* space) {
             const SkGammas* gammas = space->gammas();
             SkASSERT(gammas);
 
-            bool gammasAreMatching = (gammas->type(0) == gammas->type(1)) &&
-                                     (gammas->data(0) == gammas->data(1)) &&
-                                     (gammas->type(0) == gammas->type(2)) &&
-                                     (gammas->data(0) == gammas->data(2));
-
             // It's likely that each component will have the same gamma.  In this case,
             // we only need to build one table.
-            return gammasAreMatching ? 1 : 3;
+            return gammas->allChannelsSame() ? 1 : 3;
         }
     }
 }
