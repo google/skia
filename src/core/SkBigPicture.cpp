@@ -54,6 +54,7 @@ void SkBigPicture::partialPlayback(SkCanvas* canvas,
 }
 
 SkRect SkBigPicture::cullRect()            const { return fCullRect; }
+int    SkBigPicture::approximateOpCount()   const { return fRecord->count(); }
 size_t SkBigPicture::approximateBytesUsed() const {
     size_t bytes = sizeof(*this) + fRecord->bytesUsed() + fApproxBytesUsedBySubPictures;
     if (fBBH) { bytes += fBBH->bytesUsed(); }

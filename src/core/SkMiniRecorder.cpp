@@ -22,6 +22,7 @@ public:
     void playback(SkCanvas*, AbortCallback*) const override { }
 
     size_t approximateBytesUsed() const override { return sizeof(*this); }
+    int    approximateOpCount()   const override { return 0; }
     SkRect cullRect()             const override { return SkRect::MakeEmpty(); }
 };
 
@@ -54,6 +55,7 @@ public:
     }
 
     size_t approximateBytesUsed() const override { return sizeof(*this); }
+    int    approximateOpCount()   const override { return 1; }
     SkRect cullRect()             const override { return fCull; }
 
 private:
