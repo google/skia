@@ -233,6 +233,7 @@ DEF_TEST(Image_Serialize_Encoding_Failure, reporter) {
     canvas->drawImage(image, 0, 0);
     sk_sp<SkPicture> picture(recorder.finishRecordingAsPicture());
     REPORTER_ASSERT(reporter, picture);
+    REPORTER_ASSERT(reporter, picture->approximateOpCount() > 0);
 
     bool was_called = false;
     SkSerialProcs procs;
@@ -249,6 +250,7 @@ DEF_TEST(Image_Serialize_Encoding_Failure, reporter) {
 
     auto deserialized = SkPicture::MakeFromData(data->data(), data->size());
     REPORTER_ASSERT(reporter, deserialized);
+    REPORTER_ASSERT(reporter, deserialized->approximateOpCount() > 0);
 }
 
 // Test that a draw that only partially covers the drawing surface isn't
