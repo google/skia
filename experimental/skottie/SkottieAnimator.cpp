@@ -11,6 +11,7 @@
 #include "SkJSONCPP.h"
 #include "SkottieProperties.h"
 #include "SkottieParser.h"
+#include "SkTArray.h"
 
 #include <memory>
 
@@ -63,21 +64,24 @@ ShapeValue lerp(const ShapeValue& v0, const ShapeValue& v1, float t) {
 
 class KeyframeAnimatorBase : public sksg::Animator {
 public:
-    size_t size() const { return fRecs.size(); }
+    int count() const { return fRecs.count(); }
 
 protected:
     KeyframeAnimatorBase() = default;
 
     struct KeyframeRec {
         float t0, t1;
-        size_t vidx0, vidx1, cmidx;
+        int   vidx0, vidx1, // v0/v1 indices
+              cmidx;        // cubic map index
 
         bool contains(float t) const { return t0 <= t && t <= t1; }
-        bool isConstant() const { return vidx1 == kInvalidIndex; }
-        bool isValid() const { return t0 < t1 || this->isConstant(); }
+        bool isConstant() const { return vidx0 == vidx1; }
+        bool isValid() const {
+            SkASSERT(t0 <= t1);
+            // Constant frames don't need/use t1 and vidx1.
+            return t0 < t1 || this->isConstant();
+        }
     };
-
-    static constexpr size_t kInvalidIndex = std::numeric_limits<size_t>::max();
 
     const KeyframeRec& frame(float t) {
         if (!fCachedRec || !fCachedRec->contains(t)) {
@@ -93,12 +97,10 @@ protected:
 
         auto lt = (t -rec.t0) / (rec.t1 - rec.t0);
 
-        return rec.cmidx != kInvalidIndex
-            ? fCubicMaps[rec.cmidx].computeYFromX(lt)
-            : lt;
+        return rec.cmidx < 0 ? lt : fCubicMaps[rec.cmidx].computeYFromX(lt);
     }
 
-    virtual size_t parseValue(const Json::Value&) = 0;
+    virtual int parseValue(const Json::Value&) = 0;
 
     void parseKeyFrames(const Json::Value& jframes) {
         if (!jframes.isArray())
@@ -124,17 +126,17 @@ protected:
             }
 
             const auto vidx0 = this->parseValue(jframe["s"]);
-            if (vidx0 == kInvalidIndex) {
+            if (vidx0 < 0) {
                 continue;
             }
 
-            // Defaults for "hold" frames.
-            size_t vidx1 = kInvalidIndex, cmidx = kInvalidIndex;
+            // Defaults for constant frames.
+            int vidx1 = vidx0, cmidx = -1;
 
             if (!ParseDefault(jframe["h"], false)) {
-                // Regular frame, requires and end value.
+                // Regular frame, requires an end value.
                 vidx1 = this->parseValue(jframe["e"]);
-                if (vidx1 == kInvalidIndex) {
+                if (vidx1 < 0) {
                     continue;
                 }
 
@@ -146,7 +148,7 @@ protected:
 
                 if (c0 != kDefaultC0 || c1 != kDefaultC1) {
                     // TODO: is it worth de-duping these?
-                    cmidx = fCubicMaps.size();
+                    cmidx = fCubicMaps.count();
                     fCubicMaps.emplace_back();
                     // TODO: why do we have to plug these inverted?
                     fCubicMaps.back().setPts(c1, c0);
@@ -156,7 +158,7 @@ protected:
             fRecs.push_back({t0, t0, vidx0, vidx1, cmidx });
         }
 
-        // If we couldn't determine a t1 for the last frame, discard it.
+        // If we couldn't determine a valid t1 for the last frame, discard it.
         if (!fRecs.empty() && !fRecs.back().isValid()) {
             fRecs.pop_back();
         }
@@ -202,9 +204,9 @@ private:
         return f0;
     }
 
-    std::vector<KeyframeRec> fRecs;
-    std::vector<SkCubicMap>  fCubicMaps;
-    const KeyframeRec*       fCachedRec = nullptr;
+    SkTArray<KeyframeRec> fRecs;
+    SkTArray<SkCubicMap>  fCubicMaps;
+    const KeyframeRec*    fCachedRec = nullptr;
 
     using INHERITED = sksg::Animator;
 };
@@ -215,7 +217,7 @@ public:
     static std::unique_ptr<KeyframeAnimator> Make(const Json::Value& jframes,
                                                   std::function<void(const T&)>&& apply) {
         std::unique_ptr<KeyframeAnimator> animator(new KeyframeAnimator(jframes, std::move(apply)));
-        if (!animator->size())
+        if (!animator->count())
             return nullptr;
 
         return animator;
@@ -236,18 +238,18 @@ private:
         this->parseKeyFrames(jframes);
     }
 
-    size_t parseValue(const Json::Value& jv) override {
+    int parseValue(const Json::Value& jv) override {
         T val;
         if (!Parse(jv, &val) || (!fVs.empty() &&
                 ValueTraits<T>::Cardinality(val) != ValueTraits<T>::Cardinality(fVs.back()))) {
-            return kInvalidIndex;
+            return -1;
         }
 
         // TODO: full deduping?
         if (fVs.empty() || val != fVs.back()) {
             fVs.push_back(std::move(val));
         }
-        return fVs.size() - 1;
+        return fVs.count() - 1;
     }
 
     void eval(const KeyframeRec& rec, float t, T* v) const {
@@ -265,7 +267,7 @@ private:
     }
 
     const std::function<void(const T&)> fApplyFunc;
-    std::vector<T>                      fVs;
+    SkTArray<T>                         fVs;
 
 
     using INHERITED = KeyframeAnimatorBase;
