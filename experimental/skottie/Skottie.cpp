@@ -40,7 +40,6 @@
 #include "SkTHash.h"
 
 #include <cmath>
-#include <unordered_map>
 #include <vector>
 
 #include "stdlib.h"
@@ -798,32 +797,29 @@ struct AttachLayerContext {
     AttachLayerContext(const Json::Value& jlayers, AttachContext* ctx)
         : fLayerList(jlayers), fCtx(ctx) {}
 
-    const Json::Value&                                          fLayerList;
-    AttachContext*                                              fCtx;
-    std::unordered_map<const Json::Value*, sk_sp<sksg::Matrix>> fLayerMatrixCache;
-    std::unordered_map<int, const Json::Value*>                 fLayerIndexCache;
-    sk_sp<sksg::RenderNode>                                     fCurrentMatte;
+    const Json::Value&                   fLayerList;
+    AttachContext*                       fCtx;
+    SkTHashMap<int, sk_sp<sksg::Matrix>> fLayerMatrixMap;
+    sk_sp<sksg::RenderNode>              fCurrentMatte;
 
-    const Json::Value* findLayer(int index) {
+    sk_sp<sksg::Matrix> AttachParentLayerMatrix(const Json::Value& jlayer) {
+        SkASSERT(jlayer.isObject());
         SkASSERT(fLayerList.isArray());
 
-        if (index < 0) {
+        const auto parent_index = ParseDefault(jlayer["parent"], -1);
+        if (parent_index < 0)
             return nullptr;
-        }
 
-        const auto cached = fLayerIndexCache.find(index);
-        if (cached != fLayerIndexCache.end()) {
-            return cached->second;
-        }
+        if (auto* m = fLayerMatrixMap.find(parent_index))
+            return *m;
 
         for (const auto& l : fLayerList) {
             if (!l.isObject()) {
                 continue;
             }
 
-            if (ParseDefault(l["ind"], -1) == index) {
-                fLayerIndexCache.insert(std::make_pair(index, &l));
-                return &l;
+            if (ParseDefault(l["ind"], -1) == parent_index) {
+                return this->AttachLayerMatrix(l);
             }
         }
 
@@ -833,21 +829,22 @@ struct AttachLayerContext {
     sk_sp<sksg::Matrix> AttachLayerMatrix(const Json::Value& jlayer) {
         SkASSERT(jlayer.isObject());
 
-        const auto cached = fLayerMatrixCache.find(&jlayer);
-        if (cached != fLayerMatrixCache.end()) {
-            return cached->second;
-        }
+        const auto layer_index = ParseDefault(jlayer["ind"], -1);
+        if (layer_index < 0)
+            return nullptr;
 
-        const auto* parentLayer = this->findLayer(ParseDefault(jlayer["parent"], -1));
+        if (auto* m = fLayerMatrixMap.find(layer_index))
+            return *m;
 
-        // TODO: cycle detection?
-        auto parentMatrix = (parentLayer && parentLayer != &jlayer)
-            ? this->AttachLayerMatrix(*parentLayer) : nullptr;
+        // Add a stub entry to break recursion cycles.
+        fLayerMatrixMap.set(layer_index, nullptr);
 
-        auto layerMatrix = AttachMatrix(jlayer["ks"], fCtx, std::move(parentMatrix));
-        fLayerMatrixCache.insert(std::make_pair(&jlayer, layerMatrix));
+        auto parent_matrix = this->AttachParentLayerMatrix(jlayer);
 
-        return layerMatrix;
+        return *fLayerMatrixMap.set(layer_index,
+                                    AttachMatrix(jlayer["ks"],
+                                                 fCtx,
+                                                 this->AttachParentLayerMatrix(jlayer)));
     }
 };
 
