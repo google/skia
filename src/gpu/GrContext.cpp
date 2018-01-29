@@ -25,7 +25,9 @@
 #include "GrTexture.h"
 #include "GrTextureContext.h"
 #include "GrTracing.h"
+
 #include "SkConvertPixels.h"
+#include "SkDeferredDisplayList.h"
 #include "SkGr.h"
 #include "SkJSONWriter.h"
 #include "SkMakeUnique.h"
@@ -903,6 +905,13 @@ void GrContextPriv::addOnFlushCallbackObject(GrOnFlushCallbackObject* onFlushCBO
     fContext->fDrawingManager->addOnFlushCallbackObject(onFlushCBObject);
 }
 
+std::unique_ptr<SkDeferredDisplayList> GrContextPriv::detachDDL(const SkSurfaceCharacterization& c) {
+    return fContext->fDrawingManager->detachDDL(c);
+}
+
+bool GrContextPriv::insertDDL(const SkDeferredDisplayList* ddl) {
+    return fContext->fDrawingManager->insertDDL(ddl);
+}
 
 static inline GrPixelConfig GrPixelConfigFallback(GrPixelConfig config) {
     switch (config) {

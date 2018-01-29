@@ -24,6 +24,8 @@
 #include "GrTextureOpList.h"
 #include "GrTextureProxy.h"
 #include "GrTextureProxyPriv.h"
+
+#include "SkDeferredDisplayList.h"
 #include "SkSurface_Gpu.h"
 #include "SkTTopoSort.h"
 
@@ -318,6 +320,15 @@ GrSemaphoresSubmitted GrDrawingManager::prepareSurfaceForExternalIO(
 
 void GrDrawingManager::addOnFlushCallbackObject(GrOnFlushCallbackObject* onFlushCBObject) {
     fOnFlushCBObjects.push_back(onFlushCBObject);
+}
+
+std::unique_ptr<SkDeferredDisplayList> GrDrawingManager::detachDDL(const SkSurfaceCharacterization& c) {
+    return std::unique_ptr<SkDeferredDisplayList>(new SkDeferredDisplayList(c, std::move(fOpLists)));
+}
+
+bool GrDrawingManager::insertDDL(const SkDeferredDisplayList* ddl) {
+    fOpLists.push_back_n(ddl->fOpLists.count(), ddl->fOpLists.begin());
+    return true;
 }
 
 sk_sp<GrRenderTargetOpList> GrDrawingManager::newRTOpList(GrRenderTargetProxy* rtp,

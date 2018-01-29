@@ -25,6 +25,8 @@ class GrSoftwarePathRenderer;
 class GrTextureContext;
 class GrTextureOpList;
 
+class SkSurfaceCharacterization;
+
 // The GrDrawingManager allocates a new GrRenderTargetContext for each GrRenderTarget
 // but all of them still land in the same GrOpList!
 //
@@ -78,6 +80,9 @@ public:
 
     void addOnFlushCallbackObject(GrOnFlushCallbackObject*);
     void testingOnly_removeOnFlushCallbackObject(GrOnFlushCallbackObject*);
+
+    std::unique_ptr<SkDeferredDisplayList> detachDDL(const SkSurfaceCharacterization& c);
+    bool insertDDL(const SkDeferredDisplayList*);
 
 private:
     GrDrawingManager(GrContext* context,

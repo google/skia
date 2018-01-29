@@ -10,7 +10,14 @@
 
 #include "SkSurfaceCharacterization.h"
 
-class SkImage; // TODO: rm this since it is just for the temporary placeholder implementation
+#if SK_SUPPORT_GPU
+#include "GrOpList.h"
+#endif
+
+#ifdef SK_RASTER_RECORDER_IMPLEMENTATION
+class SkImage; // DDL TODO: rm this since it is just for the temporary placeholder implementation
+#endif
+
 class SkSurface;
 
 /*
@@ -21,24 +28,38 @@ class SkSurface;
  */
 class SkDeferredDisplayList {
 public:
-    SkDeferredDisplayList(const SkSurfaceCharacterization& characterization,
-                          sk_sp<SkImage> image)  // TODO rm this parameter
+
+#ifdef SK_RASTER_RECORDER_IMPLEMENTATION
+    SkDeferredDisplayList(const SkSurfaceCharacterization& characterization, sk_sp<SkImage> image)
             : fCharacterization(characterization)
             , fImage(std::move(image)) {
     }
+#else
+    SkDeferredDisplayList(const SkSurfaceCharacterization& characterization,
+                          SkTArray<sk_sp<GrOpList>>&& opLists)
+            : fCharacterization(characterization)
+            , fOpLists(std::move(opLists)) {
+    }
+#endif
 
     const SkSurfaceCharacterization& characterization() const {
         return fCharacterization;
     }
 
-    // TODO: remove this. It is just scaffolding to get something up & running
+    // DDL TODO: remove this. It is just scaffolding to get something up & running
     bool draw(SkSurface*);
 
 private:
+    friend class GrDrawingManager; // for access to 'fOpLists'
+
     const SkSurfaceCharacterization fCharacterization;
 
-    // TODO: actually store the GPU opLists
-    sk_sp<SkImage> fImage;
+#ifdef SK_RASTER_RECORDER_IMPLEMENTATION
+    // DDL TODO: actually store the GPU opLists
+    sk_sp<SkImage>            fImage;
+#else
+    const SkTArray<sk_sp<GrOpList>> fOpLists;
+#endif
 };
 
 #endif
