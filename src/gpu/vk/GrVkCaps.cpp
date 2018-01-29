@@ -46,8 +46,6 @@ GrVkCaps::GrVkCaps(const GrContextOptions& contextOptions, const GrVkInterface* 
 
     fMaxRenderTargetSize = 4096; // minimum required by spec
     fMaxTextureSize = 4096; // minimum required by spec
-    fMaxColorSampleCount = 4; // minimum required by spec
-    fMaxStencilSampleCount = 4; // minimum required by spec
 
     fShaderCaps.reset(new GrShaderCaps(contextOptions));
 
@@ -151,12 +149,6 @@ int get_max_sample_count(VkSampleCountFlags flags) {
 void GrVkCaps::initSampleCount(const VkPhysicalDeviceProperties& properties) {
     VkSampleCountFlags colorSamples = properties.limits.framebufferColorSampleCounts;
     VkSampleCountFlags stencilSamples = properties.limits.framebufferStencilSampleCounts;
-
-    fMaxColorSampleCount = get_max_sample_count(colorSamples);
-    if (kImagination_VkVendor == properties.vendorID) {
-        fMaxColorSampleCount = 0;
-    }
-    fMaxStencilSampleCount = get_max_sample_count(stencilSamples);
 }
 
 void GrVkCaps::initGrCaps(const VkPhysicalDeviceProperties& properties,
