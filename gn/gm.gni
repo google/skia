@@ -99,7 +99,6 @@ gm_sources = [
   "$_gm/dashcircle.cpp",
   "$_gm/dashcubics.cpp",
   "$_gm/dashing.cpp",
-  "$_gm/deferredtextureimage.cpp",
   "$_gm/degeneratesegments.cpp",
   "$_gm/dftext.cpp",
   "$_gm/dftext_blob_persp.cpp",
