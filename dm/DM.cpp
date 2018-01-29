@@ -773,14 +773,19 @@ void gather_file_srcs(const SkCommandLineFlags::StringArray& flags, const char* 
     }
 }
 
-static bool gather_srcs() {
+template <typename T>
+void gather_gm_srcs() {
     for (const skiagm::GMRegistry* r = skiagm::GMRegistry::Head(); r; r = r->next()) {
-        push_src("gm", "", new GMSrc(r->factory()));
+        push_src("gm", "", new T(r->factory()));
     }
+}
 
+static bool gather_srcs() {
     if (FLAGS_ddl) {
+        gather_gm_srcs<DDLGMSrc>();
         gather_file_srcs<DDLSKPSrc>(FLAGS_skps, "skp");
     } else {
+        gather_gm_srcs<GMSrc>();
         gather_file_srcs<SKPSrc>(FLAGS_skps, "skp");
     }
     gather_file_srcs<MSKPSrc>(FLAGS_mskps, "mskp");
@@ -871,6 +876,7 @@ static Sink* create_sink(const GrContextOptions& grCtxOptions, const SkCommandLi
                      "GM tests will be skipped.\n", gpuConfig->getTag().c_str());
                 return nullptr;
             }
+
             if (gpuConfig->getTestThreading()) {
                 return new GPUThreadTestingSink(contextType, contextOverrides,
                                                 gpuConfig->getSamples(), gpuConfig->getUseDIText(),

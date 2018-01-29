@@ -20,6 +20,14 @@ GM::GM() {
 
 GM::~GM() {}
 
+void GM::warmup() {
+    TRACE_EVENT0("GM", TRACE_FUNC);
+    if (!fHaveCalledOnceBeforeDraw) {
+        fHaveCalledOnceBeforeDraw = true;
+        this->onOnceBeforeDraw();
+    }
+}
+
 void GM::draw(SkCanvas* canvas) {
     TRACE_EVENT1("GM", TRACE_FUNC, "name", TRACE_STR_COPY(this->getName()));
     this->drawBackground(canvas);
@@ -28,19 +36,13 @@ void GM::draw(SkCanvas* canvas) {
 
 void GM::drawContent(SkCanvas* canvas) {
     TRACE_EVENT0("GM", TRACE_FUNC);
-    if (!fHaveCalledOnceBeforeDraw) {
-        fHaveCalledOnceBeforeDraw = true;
-        this->onOnceBeforeDraw();
-    }
+    this->warmup();
     this->onDraw(canvas);
 }
 
 void GM::drawBackground(SkCanvas* canvas) {
     TRACE_EVENT0("GM", TRACE_FUNC);
-    if (!fHaveCalledOnceBeforeDraw) {
-        fHaveCalledOnceBeforeDraw = true;
-        this->onOnceBeforeDraw();
-    }
+    this->warmup();
     this->onDrawBackground(canvas);
 }
 

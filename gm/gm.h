@@ -56,6 +56,7 @@ namespace skiagm {
         void setMode(Mode mode) { fMode = mode; }
         Mode getMode() const { return fMode; }
 
+        void warmup();
         void draw(SkCanvas*);
         void drawBackground(SkCanvas*);
         void drawContent(SkCanvas*);

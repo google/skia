@@ -109,8 +109,21 @@ public:
     Name name() const override;
     void modifyGrContextOptions(GrContextOptions* options) const override;
 
-private:
+protected:
     skiagm::GMRegistry::Factory fFactory;
+
+private:
+    typedef Src INHERITED;
+};
+
+class DDLGMSrc : public GMSrc {
+public:
+    explicit DDLGMSrc(skiagm::GMRegistry::Factory);
+
+    Error draw(SkCanvas*) const override;
+
+private:
+    typedef GMSrc INHERITED;
 };
 
 class CodecSrc : public Src {
@@ -385,6 +398,21 @@ public:
 
 private:
     std::unique_ptr<SkExecutor> fExecutor;
+
+    typedef GPUSink INHERITED;
+};
+
+class DDLSink : public GPUSink {
+public:
+    DDLSink(sk_gpu_test::GrContextFactory::ContextType,
+            sk_gpu_test::GrContextFactory::ContextOverrides, int samples, bool diText,
+            SkColorType colorType, SkAlphaType alphaType,
+            sk_sp<SkColorSpace> colorSpace, bool threaded,
+            const GrContextOptions& grCtxOptions);
+
+    Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
+
+private:
 
     typedef GPUSink INHERITED;
 };

@@ -100,6 +100,116 @@ void GMSrc::modifyGrContextOptions(GrContextOptions* options) const {
     gm->modifyGrContextOptions(options);
 }
 
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+static const int kNumDDLXTiles = 4;
+static const int kNumDDLYTiles = 4;
+
+class DDLTileData {
+public:
+    // Note: we could just pass in surface characterization
+    DDLTileData(sk_sp<SkSurface> surf, const SkIRect& clip)
+            : fSurface(std::move(surf))
+            , fClip(clip) {
+        SkAssertResult(fSurface->characterize(&fCharacterization));
+    }
+
+    // This method operates in parallel
+    void preprocess(std::function<void(SkCanvas*)> drawMthd) {
+        SkDeferredDisplayListRecorder recorder(fCharacterization);
+
+        SkCanvas* subCanvas = recorder.getCanvas();
+
+        subCanvas->clipRect(SkRect::MakeWH(fClip.width(), fClip.height()));
+        subCanvas->translate(-fClip.fLeft, -fClip.fTop);
+
+        drawMthd(subCanvas);
+
+        fDisplayList = recorder.detach();
+    }
+
+    // This method operates serially
+    void draw() {
+        fSurface->draw(fDisplayList.get());
+    }
+
+    // This method also operates serially
+    void compose(SkCanvas* dst) {
+        sk_sp<SkImage> img = fSurface->makeImageSnapshot();
+        dst->save();
+        dst->clipRect(SkRect::Make(fClip));
+        dst->drawImage(std::move(img), fClip.fLeft, fClip.fTop);
+        dst->restore();
+    }
+
+private:
+    sk_sp<SkSurface>                       fSurface;
+    SkIRect                                fClip;        // in the device space of the dst canvas
+    std::unique_ptr<SkDeferredDisplayList> fDisplayList;
+    SkSurfaceCharacterization              fCharacterization;
+};
+
+static void ddl_draw(SkCanvas* canvas, const SkIRect& contentRect,
+                     std::function<void(SkCanvas*)> drawMthd) {
+    SkTArray<DDLTileData> tileData;
+    tileData.reserve(kNumDDLXTiles * kNumDDLYTiles);
+
+    int tileW = contentRect.width() / kNumDDLXTiles;
+    int tileH = contentRect.height() / kNumDDLYTiles;
+
+    // First, create the destination tiles
+    SkIRect clip = SkIRect::MakeLTRB((kNumDDLXTiles-1) * tileW, (kNumDDLYTiles-1) * tileH,
+                                     contentRect.width(), contentRect.height());
+    for (int y = 0; y < kNumDDLYTiles; ++y) {
+        clip.fRight = contentRect.width();
+        clip.fLeft = (kNumDDLXTiles-1) * tileW;
+
+        for (int x = 0; x < kNumDDLXTiles; ++x) {
+            const SkImageInfo tileII = SkImageInfo::MakeN32Premul(clip.width(), clip.height());
+
+            tileData.push_back(DDLTileData(canvas->makeSurface(tileII), clip));
+
+            clip.fRight = clip.fLeft;
+            clip.fLeft -= tileW;
+        }
+
+        clip.fBottom = clip.fTop;
+        clip.fTop -= tileH;
+    }
+
+    // Second, run the cpu pre-processing in threads
+    SkTaskGroup().batch(tileData.count(), [&](int i) {
+        tileData[i].preprocess(drawMthd);
+    });
+
+    // Third, synchronously render the display lists into the dest tiles
+    // TODO: it would be cool to not wait until all the tiles are drawn to begin
+    // drawing to the GPU
+    for (int i = 0; i < tileData.count(); ++i) {
+        tileData[i].draw();
+    }
+
+    // Finally, compose the drawn tiles into the result
+    // Note: the separation between the tiles and the final composition better
+    // matches Chrome but costs us a copy
+    for (int i = 0; i < tileData.count(); ++i) {
+        tileData[i].compose(canvas);
+    }
+}
+
+DDLGMSrc::DDLGMSrc(skiagm::GMRegistry::Factory factory) : INHERITED(factory) {}
+
+Error DDLGMSrc::draw(SkCanvas* canvas) const {
+    skiagm::GM* gm(fFactory(nullptr));
+
+    gm->warmup();
+    SkIRect contentRect =  SkIRect::MakeSize(gm->getISize());
+    ddl_draw(canvas, contentRect, [gm](SkCanvas* canvas) { gm->draw(canvas); });
+    delete gm;
+    return "";
+}
+
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 BRDSrc::BRDSrc(Path path, Mode mode, CodecSrc::DstColorType dstColorType, uint32_t sampleSize)
@@ -1199,117 +1309,32 @@ Name SKPSrc::name() const { return SkOSPath::Basename(fPath.c_str()); }
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-static const int kNumDDLXTiles = 4;
-static const int kNumDDLYTiles = 4;
 static const int kDDLTileSize = 1024;
-static const SkRect kDDLSKPViewport = { 0, 0,
-                                        kNumDDLXTiles * kDDLTileSize,
-                                        kNumDDLYTiles * kDDLTileSize };
+static const SkIRect kDDLSKPViewport = { 0, 0,
+                                         kNumDDLXTiles * kDDLTileSize,
+                                         kNumDDLYTiles * kDDLTileSize };
 
 DDLSKPSrc::DDLSKPSrc(Path path) : fPath(path) { }
 
 Error DDLSKPSrc::draw(SkCanvas* canvas) const {
-    class TileData {
-    public:
-        // Note: we could just pass in surface characterization
-        TileData(sk_sp<SkSurface> surf, const SkIRect& clip)
-                : fSurface(std::move(surf))
-                , fClip(clip) {
-            SkAssertResult(fSurface->characterize(&fCharacterization));
-        }
-
-        // This method operates in parallel
-        void preprocess(SkPicture* pic) {
-            SkDeferredDisplayListRecorder recorder(fCharacterization);
-
-            SkCanvas* subCanvas = recorder.getCanvas();
-
-            subCanvas->clipRect(SkRect::MakeWH(fClip.width(), fClip.height()));
-            subCanvas->translate(-fClip.fLeft, -fClip.fTop);
-
-            // Note: in this use case we only render a picture to the deferred canvas
-            // but, more generally, clients will use arbitrary draw calls.
-            subCanvas->drawPicture(pic);
-
-            fDisplayList = recorder.detach();
-        }
-
-        // This method operates serially
-        void draw() {
-            fSurface->draw(fDisplayList.get());
-        }
-
-        // This method also operates serially
-        void compose(SkCanvas* dst) {
-            sk_sp<SkImage> img = fSurface->makeImageSnapshot();
-            dst->save();
-            dst->clipRect(SkRect::Make(fClip));
-            dst->drawImage(std::move(img), fClip.fLeft, fClip.fTop);
-            dst->restore();
-        }
-
-    private:
-        sk_sp<SkSurface> fSurface;
-        SkIRect          fClip;    // in the device space of the destination canvas
-        std::unique_ptr<SkDeferredDisplayList> fDisplayList;
-        SkSurfaceCharacterization              fCharacterization;
-    };
-
-    SkTArray<TileData> tileData;
-    tileData.reserve(16);
-
     sk_sp<SkPicture> pic = read_skp(fPath.c_str());
     if (!pic) {
         return SkStringPrintf("Couldn't read %s.", fPath.c_str());
     }
 
-    const SkRect cullRect = pic->cullRect();
+    SkIRect contentRect = pic->cullRect().roundOut();
+    SkAssertResult(contentRect.intersect(kDDLSKPViewport));
 
-    // All the destination tiles are the same size
-    const SkImageInfo tileII = SkImageInfo::MakeN32Premul(kDDLTileSize, kDDLTileSize);
-
-    // First, create the destination tiles
-    for (int y = 0; y < kNumDDLYTiles; ++y) {
-        for (int x = 0; x < kNumDDLXTiles; ++x) {
-            SkRect clip = SkRect::MakeXYWH(x * kDDLTileSize, y * kDDLTileSize,
-                                           kDDLTileSize, kDDLTileSize);
-
-            if (!clip.intersect(cullRect)) {
-                continue;
-            }
-
-            tileData.push_back(TileData(canvas->makeSurface(tileII), clip.roundOut()));
-        }
-    }
-
-    // Second, run the cpu pre-processing in threads
-    SkTaskGroup().batch(tileData.count(), [&](int i) {
-        tileData[i].preprocess(pic.get());
-    });
-
-    // Third, synchronously render the display lists into the dest tiles
-    // TODO: it would be cool to not wait until all the tiles are drawn to begin
-    // drawing to the GPU
-    for (int i = 0; i < tileData.count(); ++i) {
-        tileData[i].draw();
-    }
-
-    // Finally, compose the drawn tiles into the result
-    // Note: the separation between the tiles and the final composition better
-    // matches Chrome but costs us a copy
-    for (int i = 0; i < tileData.count(); ++i) {
-        tileData[i].compose(canvas);
-    }
-
+    ddl_draw(canvas, contentRect, [pic](SkCanvas* canvas) { canvas->drawPicture(pic); });
     return "";
 }
 
 SkISize DDLSKPSrc::size() const {
-    SkRect viewport = get_cull_rect_for_skp(fPath.c_str());
+    SkIRect viewport = get_cull_rect_for_skp(fPath.c_str()).roundOut();
     if (!viewport.intersect(kDDLSKPViewport)) {
         return {0, 0};
     }
-    return viewport.roundOut().size();
+    return viewport.size();
 }
 
 Name DDLSKPSrc::name() const { return SkOSPath::Basename(fPath.c_str()); }
