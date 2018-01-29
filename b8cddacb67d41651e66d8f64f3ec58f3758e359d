@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "5d31849e_7003934f",
+        "filename": "include/private/GrTypesPriv.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 1051,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-01-29T20:14:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e55b40db_378eb44e",
+      "revId": "b8cddacb67d41651e66d8f64f3ec58f3758e359d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b822628d_3d763ffc",
         "filename": "include/private/GrTypesPriv.h",
         "patchSetId": 1
@@ -33,6 +51,24 @@
       "revId": "b8cddacb67d41651e66d8f64f3ec58f3758e359d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3b3a1330_49fcaf27",
+        "filename": "include/private/GrTypesPriv.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 1052,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-01-29T20:14:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b822628d_3d763ffc",
+      "revId": "b8cddacb67d41651e66d8f64f3ec58f3758e359d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "2f173c76_bf602d04",
+        "filename": "include/private/GrTypesPriv.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 1067,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-01-29T20:14:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "34fe30d4_e6576311",
+      "revId": "b8cddacb67d41651e66d8f64f3ec58f3758e359d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a64f3b86_dbfb6248",
         "filename": "src/gpu/GrBackendTextureImageGenerator.cpp",
         "patchSetId": 1
@@ -67,6 +121,24 @@
       "revId": "b8cddacb67d41651e66d8f64f3ec58f3758e359d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1942af53_0625bf57",
+        "filename": "src/gpu/GrBackendTextureImageGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-01-29T20:14:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a64f3b86_dbfb6248",
+      "revId": "b8cddacb67d41651e66d8f64f3ec58f3758e359d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "d5784e03_2b55d5cc",
+        "filename": "src/gpu/gl/GrGLTexture.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-01-29T20:14:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "692c3214_9f514b66",
+      "revId": "b8cddacb67d41651e66d8f64f3ec58f3758e359d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f7056f68_3365fa9d",
         "filename": "src/gpu/gl/GrGLTexture.h",
         "patchSetId": 1
@@ -101,6 +191,24 @@
       "revId": "b8cddacb67d41651e66d8f64f3ec58f3758e359d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c3994be3_fb619805",
+        "filename": "src/gpu/gl/GrGLTexture.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-01-29T20:14:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f7056f68_3365fa9d",
+      "revId": "b8cddacb67d41651e66d8f64f3ec58f3758e359d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -121,6 +229,24 @@
     },
     {
       "key": {
+        "uuid": "0562a458_12789e96",
+        "filename": "src/gpu/mock/GrMockTexture.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-01-29T20:14:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "21dfeb94_d1131651",
+      "revId": "b8cddacb67d41651e66d8f64f3ec58f3758e359d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "26b7ae1e_9fd8f173",
         "filename": "src/gpu/vk/GrVkImage.cpp",
         "patchSetId": 1
@@ -138,6 +264,24 @@
     },
     {
       "key": {
+        "uuid": "b909f7fb_ef181d18",
+        "filename": "src/gpu/vk/GrVkImage.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-01-29T20:14:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "26b7ae1e_9fd8f173",
+      "revId": "b8cddacb67d41651e66d8f64f3ec58f3758e359d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5aac8cab_31ddd076",
         "filename": "src/gpu/vk/GrVkImage.h",
         "patchSetId": 1
@@ -149,6 +293,24 @@
       "writtenOn": "2018-01-29T19:17:18Z",
       "side": 1,
       "message": "Why is this const ?",
+      "revId": "b8cddacb67d41651e66d8f64f3ec58f3758e359d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bf4c62e3_fe71fd5b",
+        "filename": "src/gpu/vk/GrVkImage.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-01-29T20:14:38Z",
+      "side": 1,
+      "message": "So I was able to remove the const from this, but I still need the mutable data member cause of a whole stack of decisions that basically lead to unref being const and freeGPUData being const. So for now leaving that as is",
+      "parentUuid": "5aac8cab_31ddd076",
       "revId": "b8cddacb67d41651e66d8f64f3ec58f3758e359d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -172,6 +334,24 @@
     },
     {
       "key": {
+        "uuid": "b4002d67_b4aca820",
+        "filename": "src/gpu/vk/GrVkImage.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-01-29T20:14:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "233ecc71_4f245523",
+      "revId": "b8cddacb67d41651e66d8f64f3ec58f3758e359d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "16fbfe73_a2648070",
         "filename": "src/gpu/vk/GrVkTexture.h",
         "patchSetId": 1
@@ -186,6 +366,24 @@
       "revId": "b8cddacb67d41651e66d8f64f3ec58f3758e359d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b0916bda_435feb96",
+        "filename": "src/gpu/vk/GrVkTexture.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-01-29T20:14:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "16fbfe73_a2648070",
+      "revId": "b8cddacb67d41651e66d8f64f3ec58f3758e359d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
