@@ -195,14 +195,21 @@ bool SkSurface_Gpu::isCompatible(const SkSurfaceCharacterization& data) const {
            data.surfaceProps() == rtc->surfaceProps();
 }
 
-bool SkSurface_Gpu::onDraw(SkDeferredDisplayList* dl) {
-    if (!this->isCompatible(dl->characterization())) {
+bool SkSurface_Gpu::onDraw(const SkDeferredDisplayList* ddl) {
+    if (!this->isCompatible(ddl->characterization())) {
         return false;
     }
 
+#ifdef SK_RASTER_RECORDER_IMPLEMENTATION
     // Ultimately need to pass opLists from the DeferredDisplayList on to the
     // SkGpuDevice's renderTargetContext.
-    return dl->draw(this);
+    return ddl->draw(this);
+#else
+    GrRenderTargetContext* rtc = fDevice->accessRenderTargetContext();
+    GrContext* ctx = fDevice->context();
+
+    return ctx->contextPriv().insertDDL(ddl, rtc->asRenderTargetProxy());
+#endif
 }
 
 

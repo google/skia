@@ -9,7 +9,11 @@
 
 #if SK_SUPPORT_GPU
 #include "GrContextPriv.h"
+#include "GrProxyProvider.h"
+
+#include "SkGpuDevice.h"
 #include "SkGr.h"
+#include "SkSurface_Gpu.h"
 #endif
 
 #include "SkCanvas.h" // TODO: remove
@@ -21,6 +25,15 @@ SkDeferredDisplayListRecorder::SkDeferredDisplayListRecorder(
                     const SkSurfaceCharacterization& characterization)
         : fCharacterization(characterization) {
 }
+
+SkDeferredDisplayListRecorder::~SkDeferredDisplayListRecorder() {
+    auto proxyProvider = fContext->contextPriv().proxyProvider();
+
+    // DDL TODO: Remove this. DDL contexts should allow for deletion while still having live
+    // uniquely keyed proxies.
+    proxyProvider->removeAllUniqueKeys();
+}
+
 
 bool SkDeferredDisplayListRecorder::init() {
     SkASSERT(!fSurface);
@@ -68,6 +81,7 @@ SkCanvas* SkDeferredDisplayListRecorder::getCanvas() {
 }
 
 std::unique_ptr<SkDeferredDisplayList> SkDeferredDisplayListRecorder::detach() {
+#ifdef SK_RASTER_RECORDER_IMPLEMENTATION
     sk_sp<SkImage> img = fSurface->makeImageSnapshot();
     fSurface.reset();
 
@@ -75,11 +89,10 @@ std::unique_ptr<SkDeferredDisplayList> SkDeferredDisplayListRecorder::detach() {
     // in the SkDeferredDisplayList.
     return std::unique_ptr<SkDeferredDisplayList>(
                             new SkDeferredDisplayList(fCharacterization, std::move(img)));
-}
+#else
+    SkSurface_Gpu* gpuSurf = static_cast<SkSurface_Gpu*>(fSurface.get());
+    GrRenderTargetProxy* proxy = gpuSurf->getDevice()->accessRenderTargetContext()->asRenderTargetProxy();
 
-// Placeholder. Ultimately, the SkSurface_Gpu will pass the wrapped opLists to its
-// renderTargetContext.
-bool SkDeferredDisplayList::draw(SkSurface* surface) {
-    surface->getCanvas()->drawImage(fImage.get(), 0, 0);
-    return true;
+    return fContext->contextPriv().detachDDL(fCharacterization, proxy);
+#endif
 }

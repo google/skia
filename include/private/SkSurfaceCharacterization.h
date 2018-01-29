@@ -14,10 +14,12 @@
 
 class SkColorSpace;
 
-#if SK_SUPPORT_GPU
-#include "GrTypesPriv.h"
+// This define can be used to swap between the default (raster) DDL implementation and the
+// gpu implementation.
+//#define SK_RASTER_RECORDER_IMPLEMENTATION 1
 
-class GrContextThreadSafeProxy;
+#if SK_SUPPORT_GPU
+#include "GrContext.h"
 
 /** \class SkSurfaceCharacterization
     A surface characterization contains all the information Ganesh requires to makes its internal

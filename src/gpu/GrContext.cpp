@@ -25,7 +25,9 @@
 #include "GrTexture.h"
 #include "GrTextureContext.h"
 #include "GrTracing.h"
+
 #include "SkConvertPixels.h"
+#include "SkDeferredDisplayList.h"
 #include "SkGr.h"
 #include "SkJSONWriter.h"
 #include "SkMakeUnique.h"
@@ -260,6 +262,13 @@ bool GrContext::init(const GrContextOptions& options) {
     prcOptions.fGpuPathRenderers = options.fGpuPathRenderers;
 #endif
     if (options.fDisableDistanceFieldPaths) {
+        prcOptions.fGpuPathRenderers &= ~GpuPathRenderers::kSmall;
+    }
+
+    if (!fResourceCache) {
+        // DDL TODO: remove this crippling of the path renderer chain
+        // Disable the small path renderer bc of the proxies in the atlas. They need to be
+        // unified when the opLists are added back to the destination drawing manager.
         prcOptions.fGpuPathRenderers &= ~GpuPathRenderers::kSmall;
     }
 
@@ -903,6 +912,14 @@ void GrContextPriv::addOnFlushCallbackObject(GrOnFlushCallbackObject* onFlushCBO
     fContext->fDrawingManager->addOnFlushCallbackObject(onFlushCBObject);
 }
 
+std::unique_ptr<SkDeferredDisplayList> GrContextPriv::detachDDL(const SkSurfaceCharacterization& c,
+                                                                GrRenderTargetProxy* origDest) {
+    return fContext->fDrawingManager->detachDDL(c, origDest);
+}
+
+bool GrContextPriv::insertDDL(const SkDeferredDisplayList* ddl, GrRenderTargetProxy* newDest) {
+    return fContext->fDrawingManager->insertDDL(ddl, newDest);
+}
 
 static inline GrPixelConfig GrPixelConfigFallback(GrPixelConfig config) {
     switch (config) {
