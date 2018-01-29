@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "3a778b94_71cd0146",
+        "filename": "src/gpu/GrProxyProvider.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 211,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-01-29T14:35:31Z",
+      "side": 1,
+      "message": "Okay. We can just use the old API to create \"empty\" texture proxies and this one will only be used for updating data.",
+      "parentUuid": "0935e9b1_bc2b1ab3",
+      "revId": "bb61ee37abb6c5413e00c958103664442722bfcb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "a27808b0_1d107b4b",
         "filename": "src/gpu/GrProxyProvider.cpp",
         "patchSetId": 3
@@ -33,6 +51,24 @@
       "revId": "bb61ee37abb6c5413e00c958103664442722bfcb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a09d573a_52bd3a0d",
+        "filename": "src/gpu/GrProxyProvider.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 220,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-01-29T14:35:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a27808b0_1d107b4b",
+      "revId": "bb61ee37abb6c5413e00c958103664442722bfcb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "92c94db6_fc3345d3",
+        "filename": "src/gpu/GrProxyProvider.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 225,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-01-29T14:35:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e5acabd5_97d07a91",
+      "revId": "bb61ee37abb6c5413e00c958103664442722bfcb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0ba1e31e_0d3ca332",
         "filename": "src/gpu/GrProxyProvider.cpp",
         "patchSetId": 3
@@ -70,6 +124,24 @@
     },
     {
       "key": {
+        "uuid": "be7fd854_eb67a2e9",
+        "filename": "src/gpu/GrProxyProvider.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 234,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-01-29T14:35:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0ba1e31e_0d3ca332",
+      "revId": "bb61ee37abb6c5413e00c958103664442722bfcb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "36602811_08e51388",
         "filename": "src/gpu/GrProxyProvider.cpp",
         "patchSetId": 3
@@ -81,6 +153,24 @@
       "writtenOn": "2018-01-26T13:20:00Z",
       "side": 1,
       "message": "rm this line ?",
+      "revId": "bb61ee37abb6c5413e00c958103664442722bfcb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c8bdaf7d_31074331",
+        "filename": "src/gpu/GrProxyProvider.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 241,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-01-29T14:35:31Z",
+      "side": 1,
+      "message": "removed for same reason as srcImage change above.",
+      "parentUuid": "36602811_08e51388",
       "revId": "bb61ee37abb6c5413e00c958103664442722bfcb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
