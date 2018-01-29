@@ -341,7 +341,7 @@ class GLSLMeshTestProcessor : public GrGLSLGeometryProcessor {
         }
         gpArgs->fPositionVar.set(kFloat2_GrSLType, "vertex");
 
-        GrGLSLPPFragmentBuilder* f = args.fFragBuilder;
+        GrGLSLFragmentBuilder* f = args.fFragBuilder;
         f->codeAppendf("%s = half4(1);", args.fOutputCoverage);
     }
 };

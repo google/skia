@@ -79,8 +79,7 @@ bool GrVkPipelineStateBuilder::createVkShaderModule(VkShaderStageFlagBits stage,
         this->addRTHeightUniform(SKSL_RTHEIGHT_NAME);
     }
     if (inputs.fFlipY) {
-        desc->setSurfaceOriginKey(GrGLSLFragmentShaderBuilder::KeyForSurfaceOrigin(
-                                                     this->pipeline().proxy()->origin()));
+        desc->setSurfaceOriginKey(this->pipeline().proxy()->origin());
         desc->finalize();
     }
     return result;
