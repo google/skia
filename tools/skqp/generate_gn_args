@@ -7,19 +7,20 @@
 import os
 import sys
 
-fmt = '''ndk = "{ndk}"
-ndk_api = 26
-target_cpu = "{arch}"
-skia_embed_resources = true
-is_debug = false
-skia_enable_pdf = false
-'''
+def generate_gn_args(ndk, arch):
+    return [('ndk', '"%s"' % os.path.abspath(ndk)),
+            ('ndk_api', '26'),
+            ('target_cpu', '"%s"' % arch),
+            ('skia_embed_resources', 'true'),
+            ('is_debug', 'false'),
+            ('skia_enable_pdf', 'false')]
 
 def make_args_gn(out_dir, ndk, arch):
     if not os.path.exists(out_dir):
         os.makedirs(out_dir)
     with open(os.path.join(out_dir, 'args.gn'), 'w') as o:
-        o.write(fmt.format(ndk=os.path.abspath(ndk), arch=arch))
+        for arg in generate_gn_args(ndk, arch):
+            o.write('%s = %s\n' % arg)
 
 def usage():
     sys.stderr.write(
