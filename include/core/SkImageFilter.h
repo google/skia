@@ -66,6 +66,8 @@ public:
         SkImageFilterCache* cache() const { return fCache; }
         const OutputProperties& outputProperties() const { return fOutputProperties; }
 
+        bool isValid() const { return fCTM.isFinite(); }
+
     private:
         SkMatrix               fCTM;
         SkIRect                fClipBounds;
