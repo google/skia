@@ -24,12 +24,15 @@ namespace sksg {
  */
 class GeometryNode : public Node {
 public:
+    void clip(SkCanvas*, bool antiAlias) const;
     void draw(SkCanvas*, const SkPaint&) const;
 
     SkPath asPath() const;
 
 protected:
     GeometryNode();
+
+    virtual void onClip(SkCanvas*, bool antiAlias) const = 0;
 
     virtual void onDraw(SkCanvas*, const SkPaint&) const = 0;
 
