@@ -211,22 +211,34 @@ static bool deduce_pts_conics(const uint8_t verbs[], int vCount, int* ptCountPtr
     SkSafeMath safe;
     int ptCount = 0;
     int conicCount = 0;
+    bool hadMoveTo = false;
     for (int i = 0; i < vCount; ++i) {
         switch (verbs[i]) {
             case SkPath::kMove_Verb:
+                hadMoveTo = true;   // fall-through
             case SkPath::kLine_Verb:
+                if (!hadMoveTo) {
+                    return false;
+                }
                 ptCount = safe.addInt(ptCount, 1);
                 break;
             case SkPath::kConic_Verb:
                 conicCount += 1;
                 // fall-through
             case SkPath::kQuad_Verb:
+                if (!hadMoveTo) {
+                    return false;
+                }
                 ptCount = safe.addInt(ptCount, 2);
                 break;
             case SkPath::kCubic_Verb:
+                if (!hadMoveTo) {
+                    return false;
+                }
                 ptCount = safe.addInt(ptCount, 3);
                 break;
             case SkPath::kClose_Verb:
+                hadMoveTo = false;  // now we need another moveTo before a line/quad/etc.
                 break;
             default:
                 return false;
