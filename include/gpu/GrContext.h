@@ -339,8 +339,8 @@ protected:
 private:
     sk_sp<GrGpu>                            fGpu;
     sk_sp<const GrCaps>                     fCaps;
-    GrResourceCache*                        fResourceCache;
-    GrResourceProvider*                     fResourceProvider;
+    GrResourceCache*                        fResourceCache1;
+    GrResourceProvider*                     fResourceProvider1;
     GrProxyProvider*                        fProxyProvider;
 
     sk_sp<GrContextThreadSafeProxy>         fThreadSafeProxy;

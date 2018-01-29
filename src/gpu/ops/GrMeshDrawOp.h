@@ -140,7 +140,7 @@ public:
         pipelineArgs.fProxy = this->proxy();
         pipelineArgs.fDstProxy = this->dstProxy();
         pipelineArgs.fCaps = &this->caps();
-        pipelineArgs.fResourceProvider = this->resourceProvider();
+        pipelineArgs.fResourceProvider3 = this->resourceProvider2();
         return this->allocPipeline(pipelineArgs, std::move(processorSet), std::move(clip));
     }
 
@@ -150,7 +150,7 @@ public:
 
     virtual const GrXferProcessor::DstProxy& dstProxy() const = 0;
 
-    virtual GrResourceProvider* resourceProvider() const = 0;
+    virtual GrResourceProvider* resourceProvider2() const = 0;
 
     virtual const GrCaps& caps() const = 0;
 

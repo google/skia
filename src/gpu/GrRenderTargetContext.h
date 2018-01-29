@@ -345,7 +345,9 @@ public:
 
     void setNeedsStencil() { fRenderTargetProxy->setNeedsStencil(); }
 
-    GrRenderTarget* accessRenderTarget() {
+    GrRenderTarget* accessRenderTarget1() {
+        SkASSERT(fContext->resourceProvider1());
+
         // TODO: usage of this entry point needs to be reduced and potentially eliminated
         // since it ends the deferral of the GrRenderTarget's allocation
         if (!fRenderTargetProxy->instantiate(fContext->contextPriv().resourceProvider())) {

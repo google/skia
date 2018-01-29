@@ -24,8 +24,11 @@ uint32_t GrOpList::CreateUniqueID() {
     return id;
 }
 
-GrOpList::GrOpList(GrResourceProvider* resourceProvider,
-                   GrSurfaceProxy* surfaceProxy, GrAuditTrail* auditTrail)
+GrOpList::GrOpList(GrSurfaceProxy* surfaceProxy, GrAuditTrail* auditTrail
+#ifdef SK_DISABLE_EXPLICIT_GPU_RESOURCE_ALLOCATION
+                   , GrResourceProvider* resourceProvider
+#endif
+                    )
     : fAuditTrail(auditTrail)
     , fUniqueID(CreateUniqueID())
     , fFlags(0) {

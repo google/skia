@@ -39,7 +39,11 @@ struct SkIRect;
 
 class GrOpList : public SkRefCnt {
 public:
-    GrOpList(GrResourceProvider*, GrSurfaceProxy*, GrAuditTrail*);
+    GrOpList(GrSurfaceProxy*, GrAuditTrail*
+#ifdef SK_DISABLE_EXPLICIT_GPU_RESOURCE_ALLOCATION
+                   , GrResourceProvider*
+#endif
+    );
     ~GrOpList() override;
 
     // These four methods are invoked at flush time

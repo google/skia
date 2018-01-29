@@ -514,7 +514,7 @@ void CCPR::DrawPathsOp::onExecute(GrOpFlushState* flushState) {
     initArgs.fFlags = fSRGBFlags;
     initArgs.fProxy = flushState->drawOpArgs().fProxy;
     initArgs.fCaps = &flushState->caps();
-    initArgs.fResourceProvider = flushState->resourceProvider();
+    initArgs.fResourceProvider3 = flushState->resourceProvider2();
     initArgs.fDstProxy = flushState->drawOpArgs().fDstProxy;
     GrPipeline pipeline(initArgs, std::move(fProcessors), flushState->detachAppliedClip());
 

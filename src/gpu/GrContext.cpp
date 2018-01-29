@@ -97,7 +97,7 @@ GrContext* GrContext::Create(GrBackend backend, GrBackendContext backendContext,
         return nullptr;
     }
 
-    if (!context->init(options)) {
+    if (!context->init(options, false)) {
         return nullptr;
     }
 
@@ -117,7 +117,7 @@ sk_sp<GrContext> GrContext::MakeGL(sk_sp<const GrGLInterface> interface,
     if (!context->fGpu) {
         return nullptr;
     }
-    if (!context->init(options)) {
+    if (!context->init(options, false)) {
         return nullptr;
     }
     return context;
@@ -145,7 +145,7 @@ sk_sp<GrContext> GrContext::MakeMock(const GrMockOptions* mockOptions,
     if (!context->fGpu) {
         return nullptr;
     }
-    if (!context->init(options)) {
+    if (!context->init(options, false)) {
         return nullptr;
     }
     return context;
@@ -165,7 +165,7 @@ sk_sp<GrContext> GrContext::MakeVulkan(sk_sp<const GrVkBackendContext> backendCo
     if (!context->fGpu) {
         return nullptr;
     }
-    if (!context->init(options)) {
+    if (!context->init(options, false)) {
         return nullptr;
     }
     return context;
@@ -215,8 +215,8 @@ sk_sp<GrContext> GrContextPriv::MakeDDL(GrContextThreadSafeProxy* proxy) {
 GrContext::GrContext(GrBackend backend)
         : fUniqueID(next_id())
         , fBackend(backend) {
-    fResourceCache = nullptr;
-    fResourceProvider = nullptr;
+    fResourceCache1 = nullptr;
+    fResourceProvider1 = nullptr;
     fProxyProvider = nullptr;
     fAtlasGlyphCache = nullptr;
 }
@@ -225,13 +225,13 @@ GrContext::GrContext(GrContextThreadSafeProxy* proxy)
         : fCaps(proxy->fCaps)
         , fUniqueID(proxy->fContextUniqueID)
         , fBackend(proxy->fBackend) {
-    fResourceCache = nullptr;
-    fResourceProvider = nullptr;
+    fResourceCache1 = nullptr;
+    fResourceProvider1 = nullptr;
     fProxyProvider = nullptr;
     fAtlasGlyphCache = nullptr;
 }
 
-bool GrContext::init(const GrContextOptions& options) {
+bool GrContext::init(const GrContextOptions& options, bool ddl) {
     ASSERT_SINGLE_OWNER
 
     if (fGpu) {
@@ -314,8 +314,8 @@ GrContext::~GrContext() {
         (*fCleanUpData[i].fFunc)(this, fCleanUpData[i].fInfo);
     }
 
-    delete fResourceProvider;
-    delete fResourceCache;
+    delete fResourceProvider1;
+    delete fResourceCache1;
     delete fProxyProvider;
     delete fAtlasGlyphCache;
 }
@@ -328,7 +328,9 @@ void GrContext::abandonContext() {
     ASSERT_SINGLE_OWNER
 
     fProxyProvider->abandon();
-    fResourceProvider->abandon();
+    if (fResourceProvider1) {
+        fResourceProvider1->abandon();
+    }
 
     // Need to abandon the drawing manager first so all the render targets
     // will be released/forgotten before they too are abandoned.
@@ -336,7 +338,9 @@ void GrContext::abandonContext() {
 
     // abandon first to so destructors
     // don't try to free the resources in the API.
-    fResourceCache->abandonAll();
+    if (fResourceCache1) {
+        fResourceCache1->abandonAll();
+    }
 
     fGpu->disconnect(GrGpu::DisconnectType::kAbandon);
 
@@ -348,14 +352,18 @@ void GrContext::releaseResourcesAndAbandonContext() {
     ASSERT_SINGLE_OWNER
 
     fProxyProvider->abandon();
-    fResourceProvider->abandon();
+    if (fResourceProvider1) {
+        fResourceProvider1->abandon();
+    }
 
     // Need to abandon the drawing manager first so all the render targets
     // will be released/forgotten before they too are abandoned.
     fDrawingManager->abandon();
 
     // Release all resources in the backend 3D API.
-    fResourceCache->releaseAll();
+    if (fResourceCache1) {
+        fResourceCache1->releaseAll();
+    }
 
     fGpu->disconnect(GrGpu::DisconnectType::kCleanup);
 
@@ -377,36 +385,42 @@ void GrContext::freeGpuResources() {
 
     fDrawingManager->freeGpuResources();
 
-    fResourceCache->purgeAllUnlocked();
+    if (fResourceCache1) {
+        fResourceCache1->purgeAllUnlocked();
+    }
 }
 
 void GrContext::performDeferredCleanup(std::chrono::milliseconds msNotUsed) {
     ASSERT_SINGLE_OWNER
-    fResourceCache->purgeAsNeeded();
-    fResourceCache->purgeResourcesNotUsedSince(GrStdSteadyClock::now() - msNotUsed);
+    if (fResourceCache1) {
+        fResourceCache1->purgeAsNeeded();
+        fResourceCache1->purgeResourcesNotUsedSince(GrStdSteadyClock::now() - msNotUsed);
+    }
 
     fTextBlobCache->purgeStaleBlobs();
 }
 
 void GrContext::purgeUnlockedResources(size_t bytesToPurge, bool preferScratchResources) {
     ASSERT_SINGLE_OWNER
-    fResourceCache->purgeUnlockedResources(bytesToPurge, preferScratchResources);
+    if (fResourceCache1) {
+        fResourceCache1->purgeUnlockedResources(bytesToPurge, preferScratchResources);
+    }
 }
 
 void GrContext::getResourceCacheUsage(int* resourceCount, size_t* resourceBytes) const {
     ASSERT_SINGLE_OWNER
 
     if (resourceCount) {
-        *resourceCount = fResourceCache->getBudgetedResourceCount();
+        *resourceCount = fResourceCache1 ? fResourceCache1->getBudgetedResourceCount() : 0;
     }
     if (resourceBytes) {
-        *resourceBytes = fResourceCache->getBudgetedResourceBytes();
+        *resourceBytes = fResourceCache1 ? fResourceCache1->getBudgetedResourceBytes() : 0;
     }
 }
 
 size_t GrContext::getResourceCachePurgeableBytes() const {
     ASSERT_SINGLE_OWNER
-    return fResourceCache->getPurgeableBytes();
+    return fResourceCache1 ? fResourceCache1->getPurgeableBytes() : 0;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1041,23 +1055,29 @@ bool GrContext::validPMUPMConversionExists() {
 void GrContext::getResourceCacheLimits(int* maxResources, size_t* maxResourceBytes) const {
     ASSERT_SINGLE_OWNER
     if (maxResources) {
-        *maxResources = fResourceCache->getMaxResourceCount();
+        *maxResources = fResourceCache1 ? fResourceCache1->getMaxResourceCount() : 0;
     }
     if (maxResourceBytes) {
-        *maxResourceBytes = fResourceCache->getMaxResourceBytes();
+        *maxResourceBytes = fResourceCache1 ? fResourceCache1->getMaxResourceBytes() : 0;
     }
 }
 
 void GrContext::setResourceCacheLimits(int maxResources, size_t maxResourceBytes) {
     ASSERT_SINGLE_OWNER
-    fResourceCache->setLimits(maxResources, maxResourceBytes);
+    if (fResourceCache1) {
+        // DDL TODO: signal to user that they can't change the resource cache limits on the
+        // fly in DDL-land
+        fResourceCache1->setLimits(maxResources, maxResourceBytes);
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
 void GrContext::dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) const {
     ASSERT_SINGLE_OWNER
-    fResourceCache->dumpMemoryStatistics(traceMemoryDump);
+    if (fResourceCache1) {
+        fResourceCache1->dumpMemoryStatistics(traceMemoryDump);
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////////

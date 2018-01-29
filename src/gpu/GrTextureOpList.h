@@ -23,7 +23,11 @@ struct SkIRect;
 
 class GrTextureOpList final : public GrOpList {
 public:
-    GrTextureOpList(GrResourceProvider*, GrTextureProxy*, GrAuditTrail*);
+    GrTextureOpList(GrTextureProxy*, GrAuditTrail*
+#ifdef SK_DISABLE_EXPLICIT_GPU_RESOURCE_ALLOCATION
+                    , GrResourceProvider*
+#endif
+    );
     ~GrTextureOpList() override;
 
     /**

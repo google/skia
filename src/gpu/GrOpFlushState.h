@@ -88,7 +88,7 @@ public:
     const GrXferProcessor::DstProxy& dstProxy() const final { return fOpArgs->fDstProxy; }
     GrDeferredUploadTarget* deferredUploadTarget() final { return this; }
     const GrCaps& caps() const final;
-    GrResourceProvider* resourceProvider() const final { return fResourceProvider; }
+    GrResourceProvider* resourceProvider2() const final { return fResourceProvider2; }
 
 private:
     /** GrMeshDrawOp::Target override. */

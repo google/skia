@@ -79,7 +79,7 @@ public:
         const GrUserStencilSettings* fUserStencil = &GrUserStencilSettings::kUnused;
         GrRenderTargetProxy* fProxy = nullptr;
         const GrCaps* fCaps = nullptr;
-        GrResourceProvider* fResourceProvider = nullptr;
+        GrResourceProvider* fResourceProvider3 = nullptr;
         GrXferProcessor::DstProxy fDstProxy;
     };
 

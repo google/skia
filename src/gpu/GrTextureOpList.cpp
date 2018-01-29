@@ -16,10 +16,16 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-GrTextureOpList::GrTextureOpList(GrResourceProvider* resourceProvider,
-                                 GrTextureProxy* proxy,
-                                 GrAuditTrail* auditTrail)
-    : INHERITED(resourceProvider, proxy, auditTrail) {
+GrTextureOpList::GrTextureOpList(GrTextureProxy* proxy, GrAuditTrail* auditTrail
+#ifdef SK_DISABLE_EXPLICIT_GPU_RESOURCE_ALLOCATION
+                         , GrResourceProvider* resourceProvider
+#endif
+    )
+    : INHERITED(proxy, auditTrail
+#ifdef SK_DISABLE_EXPLICIT_GPU_RESOURCE_ALLOCATION
+                         , resourceProvider
+#endif
+    ) {
 }
 
 GrTextureOpList::~GrTextureOpList() {
