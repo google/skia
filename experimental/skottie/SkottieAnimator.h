@@ -20,7 +20,7 @@ namespace skottie {
 // it will either apply immediately or instantiate and attach a keyframe animator.
 template <typename T>
 bool BindProperty(const Json::Value&,
-                  sksg::Scene::AnimatorList*,
+                  sksg::AnimatorList*,
                   std::function<void(const T&)>&&,
                   const T* noop = nullptr);
 

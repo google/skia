@@ -39,6 +39,20 @@ private:
     using INHERITED = SkNoncopyable;
 };
 
+using AnimatorList = std::vector<std::unique_ptr<Animator>>;
+
+class GroupAnimator : public Animator {
+protected:
+    explicit GroupAnimator(AnimatorList&&);
+
+    void onTick(float t) override;
+
+private:
+    const AnimatorList fAnimators;
+
+    using INHERITED = Animator;
+};
+
 /**
  * Holds a scene root and a list of animators.
  *
@@ -47,8 +61,6 @@ private:
  */
 class Scene final : SkNoncopyable {
 public:
-    using AnimatorList = std::vector<std::unique_ptr<Animator>>;
-
     static std::unique_ptr<Scene> Make(sk_sp<RenderNode> root, AnimatorList&& animators);
     ~Scene();
 
