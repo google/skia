@@ -65,6 +65,7 @@ public:
 
     void flushIfNecessary() {
         GrResourceCache* resourceCache = fContext->contextPriv().getResourceCache();
+        // DDL TODO: alter this so the resourcecache will pro-actively mark the drawing manager?
         if (resourceCache && resourceCache->requestsFlush()) {
             this->internalFlush(nullptr, GrResourceCache::kCacheRequested, 0, nullptr);
         }

@@ -355,9 +355,9 @@ sk_sp<GrTextureOpList> GrDrawingManager::newTextureOpList(GrTextureProxy* textur
         fOpLists.back()->makeClosed(*fContext->caps());
     }
 
-    sk_sp<GrTextureOpList> opList(new GrTextureOpList(fContext->contextPriv().resourceProvider(),
-                                                      textureProxy,
-                                                      fContext->getAuditTrail()));
+    sk_sp<GrTextureOpList> opList(new GrTextureOpList(textureProxy,
+                                                      fContext->getAuditTrail(),
+                                                      fContext->contextPriv().resourceProvider()));
 
     SkASSERT(textureProxy->getLastOpList() == opList.get());
 

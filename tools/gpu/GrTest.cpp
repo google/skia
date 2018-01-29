@@ -100,7 +100,9 @@ void GrContext::setTextContextAtlasSizes_ForTesting(const GrDrawOpAtlasConfig* c
 ///////////////////////////////////////////////////////////////////////////////
 
 void GrContext::purgeAllUnlockedResources() {
-    fResourceCache->purgeAllUnlocked();
+    if (fResourceCache) {
+        fResourceCache->purgeAllUnlocked();
+    }
 }
 
 void GrContext::resetGpuStats() const {
@@ -111,14 +113,18 @@ void GrContext::resetGpuStats() const {
 
 void GrContext::dumpCacheStats(SkString* out) const {
 #if GR_CACHE_STATS
-    fResourceCache->dumpStats(out);
+    if (fResourceCache) {
+        fResourceCache->dumpStats(out);
+    }
 #endif
 }
 
 void GrContext::dumpCacheStatsKeyValuePairs(SkTArray<SkString>* keys,
                                             SkTArray<double>* values) const {
 #if GR_CACHE_STATS
-    fResourceCache->dumpStatsKeyValuePairs(keys, values);
+    if (fResourceCache) {
+        fResourceCache->dumpStatsKeyValuePairs(keys, values);
+    }
 #endif
 }
 
