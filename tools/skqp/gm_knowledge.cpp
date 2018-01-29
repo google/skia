@@ -50,6 +50,60 @@ static int get_error(uint32_t value, uint32_t value_max, uint32_t value_min) {
     return error;
 }
 
+static int get_error_with_nearby(int x, int y, const SkPixmap& pm,
+                                 const SkPixmap& pm_max, const SkPixmap& pm_min) {
+    struct NearbyPixels {
+        const int x, y, w, h;
+        struct Iter {
+            const int x, y, w, h;
+            int8_t curr;
+            SkIPoint operator*() const { return this->get(); }
+            SkIPoint get() const {
+                switch (curr) {
+                    case 0: return {x - 1, y - 1};
+                    case 1: return {x    , y - 1};
+                    case 2: return {x + 1, y - 1};
+                    case 3: return {x - 1, y    };
+                    case 4: return {x + 1, y    };
+                    case 5: return {x - 1, y + 1};
+                    case 6: return {x    , y + 1};
+                    case 7: return {x + 1, y + 1};
+                    default: SkASSERT(false); return {0, 0};
+                }
+            }
+            void skipBad() {
+                do {
+                    SkIPoint p = this->get();
+                    if (p.x() >= 0 && p.y() >= 0 && p.x() < w && p.y() < h) {
+                        return;
+                    }
+                    ++curr;
+                } while (curr < 8);
+                curr = -1;
+            }
+            void operator++() {
+                if (-1 == curr) { return; }
+                ++curr;
+                this->skipBad();
+            }
+            bool operator!=(const Iter& other) const { return curr != other.curr; }
+        };
+        Iter begin() const { Iter i{x, y, w, h, 0}; i.skipBad(); return i; }
+        Iter end() const { return Iter{x, y, w, h, -1}; }
+    };
+
+    uint32_t c = *pm.addr32(x, y);
+    int error = get_error(c, *pm_max.addr32(x, y), *pm_min.addr32(x, y));
+    for (SkIPoint p : NearbyPixels{x, y, pm.width(), pm.height()}) {
+        if (error == 0) {
+            return 0;
+        }
+        error = SkTMin(error, get_error(
+                    c, *pm_max.addr32(p.x(), p.y()), *pm_min.addr32(p.x(), p.y())));
+    }
+    return error;
+}
+
 static float set_error_code(gmkb::Error* error_out, gmkb::Error error) {
     SkASSERT(error != gmkb::Error::kNone);
     if (error_out) {
@@ -125,7 +179,6 @@ float Check(const uint32_t* pixels,
     if (width <= 0 || height <= 0) {
         return set_error_code(error_out, Error::kBadInput);
     }
-    size_t N = (unsigned)width * (unsigned)height;
     constexpr char PATH_ROOT[] = "gmkb";
     SkString img_path = SkOSPath::Join(PATH_ROOT, name);
     SkString max_path = SkOSPath::Join(img_path.c_str(), PATH_MAX_PNG);
@@ -147,18 +200,23 @@ float Check(const uint32_t* pixels,
     if (max_image.width() != width || max_image.height() != height) {
         return set_error_code(error_out, Error::kBadInput);
     }
+
     int badness = 0;
     int badPixelCount = 0;
-    const uint32_t* max_pixels = (uint32_t*)max_image.getPixels();
-    const uint32_t* min_pixels = (uint32_t*)min_image.getPixels();
-
-    for (size_t i = 0; i < N; ++i) {
-        int error = get_error(pixels[i], max_pixels[i], min_pixels[i]);
-        if (error > 0) {
-            badness = SkTMax(error, badness);
-            ++badPixelCount;
+    SkPixmap pm(SkImageInfo::Make(width, height, kColorType, kAlphaType),
+                pixels, width * sizeof(uint32_t));
+    SkPixmap pm_max = max_image.pixmap();
+    SkPixmap pm_min = min_image.pixmap();
+    for (int y = 0; y < pm.height(); ++y) {
+        for (int x = 0; x < pm.width(); ++x) {
+            int error = get_error_with_nearby(x, y, pm, pm_max, pm_min) ;
+            if (error > 0) {
+                badness = SkTMax(error, badness);
+                ++badPixelCount;
+            }
         }
     }
+
     if (badness == 0) {
         std::lock_guard<std::mutex> lock(gMutex);
         gErrors.push_back(Run{SkString(backend), SkString(name), 0, 0});
@@ -176,11 +234,15 @@ float Check(const uint32_t* pixels,
                                          error_path.c_str()));
         SkBitmap errorBitmap;
         errorBitmap.allocPixels(SkImageInfo::Make(width, height, kColorType, kAlphaType));
-        uint32_t* errors = (uint32_t*)errorBitmap.getPixels();
-        for (size_t i = 0; i < N; ++i) {
-            int error = get_error(pixels[i], max_pixels[i], min_pixels[i]);
-            errors[i] = error > 0 ? 0xFF000000 + (unsigned)error : 0xFFFFFFFF;
+
+        for (int y = 0; y < pm.height(); ++y) {
+            for (int x = 0; x < pm.width(); ++x) {
+                int error = get_error_with_nearby(x, y, pm, pm_max, pm_min);
+                *errorBitmap.getAddr32(x, y) =
+                         error > 0 ? 0xFF000000 + (unsigned)error : 0xFFFFFFFF;
+            }
         }
+
         error_path = SkOSPath::Join(report_subdirectory.c_str(), PATH_ERR_PNG);
         SkAssertResult(WritePixmapToFile(errorBitmap.pixmap(), error_path.c_str()));
 
