@@ -90,7 +90,7 @@ class SkiaVarsApi(recipe_api.RecipeApi):
     self.resource_dir = self.skia_dir.join('resources')
     self.images_dir = self.slave_dir.join('skimage')
     self.skia_out = self.skia_dir.join('out', self.builder_name)
-    self.swarming_out_dir = self.make_path(self.m.properties['swarm_out_dir'])
+    self.swarming_out_dir = self.slave_dir.join('isolated_outdir')
     if 'ParentRevision' in self.builder_name:
       # Tasks that depend on ParentRevision builds usually also depend on a
       # second build task. Use a different path for build results so that the

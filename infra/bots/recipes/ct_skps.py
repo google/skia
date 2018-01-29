@@ -255,7 +255,6 @@ def GenTests(api):
         buildername=('Test-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Debug-All-' +
                      'CT_DM_10k_SKPs'),
         path_config=path_config,
-        swarm_out_dir='[SWARM_OUT_DIR]',
         ct_num_slaves=ct_num_slaves,
         num_per_slave=num_per_slave,
         repository='https://skia.googlesource.com/skia.git',
@@ -269,7 +268,6 @@ def GenTests(api):
         buildername='Test-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Debug-All-'
                     'CT_IMG_DECODE_10k_SKPs',
         path_config=path_config,
-        swarm_out_dir='[SWARM_OUT_DIR]',
         ct_num_slaves=ct_num_slaves,
         num_per_slave=num_per_slave,
         repository='https://skia.googlesource.com/skia.git',
@@ -283,7 +281,6 @@ def GenTests(api):
         buildername=('Test-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Debug-All-' +
                      'CT_DM_100k_SKPs'),
         path_config=path_config,
-        swarm_out_dir='[SWARM_OUT_DIR]',
         ct_num_slaves=ct_num_slaves,
         num_per_slave=num_per_slave,
         repository='https://skia.googlesource.com/skia.git',
@@ -297,7 +294,6 @@ def GenTests(api):
         buildername='Test-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Debug-All-'
                     'CT_IMG_DECODE_100k_SKPs',
         path_config=path_config,
-        swarm_out_dir='[SWARM_OUT_DIR]',
         ct_num_slaves=ct_num_slaves,
         num_per_slave=num_per_slave,
         repository='https://skia.googlesource.com/skia.git',
@@ -311,7 +307,6 @@ def GenTests(api):
         buildername=('Perf-Ubuntu14-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-'
                      'CT_BENCH_1k_SKPs'),
         path_config=path_config,
-        swarm_out_dir='[SWARM_OUT_DIR]',
         ct_num_slaves=ct_num_slaves,
         num_per_slave=num_per_slave,
         repository='https://skia.googlesource.com/skia.git',
@@ -329,7 +324,6 @@ def GenTests(api):
         buildername=('Perf-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Release-All-'
                      'CT_BENCH_10k_SKPs'),
         path_config=path_config,
-        swarm_out_dir='[SWARM_OUT_DIR]',
         ct_num_slaves=ct_num_slaves,
         num_per_slave=num_per_slave,
         repository='https://skia.googlesource.com/skia.git',
@@ -347,7 +341,6 @@ def GenTests(api):
         buildername=('Perf-Ubuntu14-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-'
                      'CT_BENCH_10k_SKPs'),
         path_config=path_config,
-        swarm_out_dir='[SWARM_OUT_DIR]',
         ct_num_slaves=ct_num_slaves,
         num_per_slave=num_per_slave,
         repository='https://skia.googlesource.com/skia.git',
@@ -365,7 +358,6 @@ def GenTests(api):
         buildername=('Test-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Debug-All-'
                      'CT_DM_1m_SKPs'),
         path_config=path_config,
-        swarm_out_dir='[SWARM_OUT_DIR]',
         ct_num_slaves=ct_num_slaves,
         num_per_slave=num_per_slave,
         repository='https://skia.googlesource.com/skia.git',
@@ -379,7 +371,6 @@ def GenTests(api):
         buildername=('Test-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Debug-All-' +
                      'CT_DM_UnknownRepo_SKPs'),
         path_config=path_config,
-        swarm_out_dir='[SWARM_OUT_DIR]',
         ct_num_slaves=ct_num_slaves,
         num_per_slave=num_per_slave,
         repository='https://skia.googlesource.com/skia.git',
@@ -394,7 +385,6 @@ def GenTests(api):
         buildername=('Test-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Debug-All-' +
                      'CT_UnknownTool_10k_SKPs'),
         path_config=path_config,
-        swarm_out_dir='[SWARM_OUT_DIR]',
         ct_num_slaves=ct_num_slaves,
         num_per_slave=num_per_slave,
         repository='https://skia.googlesource.com/skia.git',
@@ -410,7 +400,6 @@ def GenTests(api):
         buildername=('Test-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Debug-All-' +
                      'CT_DM_1m_SKPs'),
         path_config=path_config,
-        swarm_out_dir='[SWARM_OUT_DIR]',
         ct_num_slaves=ct_num_slaves,
         num_per_slave=num_per_slave,
         repository='https://skia.googlesource.com/skia.git',
@@ -426,7 +415,6 @@ def GenTests(api):
         buildername=('Test-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Debug-All'+
                      '-CT_DM_1m_SKPs'),
         path_config=path_config,
-        swarm_out_dir='[SWARM_OUT_DIR]',
         ct_num_slaves=ct_num_slaves,
         num_per_slave=num_per_slave,
         repository='https://skia.googlesource.com/skia.git',
@@ -440,7 +428,6 @@ def GenTests(api):
     api.properties(
         buildername=builder,
         path_config=path_config,
-        swarm_out_dir='[SWARM_OUT_DIR]',
         ct_num_slaves=ct_num_slaves,
         num_per_slave=num_per_slave,
         repository='https://skia.googlesource.com/skia.git',
@@ -459,7 +446,6 @@ def GenTests(api):
     api.properties(
         buildername=builder,
         path_config=path_config,
-        swarm_out_dir='[SWARM_OUT_DIR]',
         ct_num_slaves=ct_num_slaves,
         num_per_slave=num_per_slave,
         repository='https://skia.googlesource.com/skia.git',

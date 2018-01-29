@@ -61,8 +61,7 @@ def GenTests(api):
       api.properties(buildername=builder,
                      repository='https://skia.googlesource.com/skia.git',
                      revision='abc123',
-                     path_config='kitchen',
-                     swarm_out_dir='[SWARM_OUT_DIR]')
+                     path_config='kitchen')
   )
 
   yield (
@@ -70,8 +69,7 @@ def GenTests(api):
       api.properties(buildername=builder,
                      repository='https://skia.googlesource.com/skia.git',
                      revision='abc123',
-                     path_config='kitchen',
-                     swarm_out_dir='[SWARM_OUT_DIR]') +
+                     path_config='kitchen') +
       api.step_data('Update meta/config', retcode=1)
   )
 
@@ -81,7 +79,6 @@ def GenTests(api):
                      repository='https://skia.googlesource.com/skia.git',
                      revision='abc123',
                      path_config='kitchen',
-                     swarm_out_dir='[SWARM_OUT_DIR]',
                      patch_issue=123,
                      patch_set=3) +
       api.expect_exception('Exception')

@@ -146,8 +146,7 @@ def GenTests(api):
       api.properties(buildername='Housekeeper-PerCommit-Bookmaker',
                      repository='https://skia.googlesource.com/skia.git',
                      revision='abc123',
-                     path_config='kitchen',
-                     swarm_out_dir='[SWARM_OUT_DIR]')
+                     path_config='kitchen')
   )
 
   yield (
@@ -155,8 +154,7 @@ def GenTests(api):
       api.properties(buildername='Housekeeper-PerCommit-Bookmaker',
                      repository='https://skia.googlesource.com/skia.git',
                      revision='abc123',
-                     path_config='kitchen',
-                     swarm_out_dir='[SWARM_OUT_DIR]') +
+                     path_config='kitchen') +
       api.step_data('Validate docs match include/core/*.h', retcode=1)
   )
 
@@ -166,8 +164,7 @@ def GenTests(api):
                      repository='https://skia.googlesource.com/skia.git',
                      revision='abc123',
                      path_config='kitchen',
-                     fiddleout_test_data=fiddleout_no_errors_test_data,
-                     swarm_out_dir='[SWARM_OUT_DIR]') +
+                     fiddleout_test_data=fiddleout_no_errors_test_data) +
       api.path.exists(api.path['start_dir'].join('fiddleout.json'),
                       api.path['start_dir'].join(UPDATE_DOCS_GITCOOKIES_FILE))
   )
@@ -178,8 +175,7 @@ def GenTests(api):
                      repository='https://skia.googlesource.com/skia.git',
                      revision='abc123',
                      path_config='kitchen',
-                     fiddleout_test_data=fiddleout_with_errors_test_data,
-                     swarm_out_dir='[SWARM_OUT_DIR]') +
+                     fiddleout_test_data=fiddleout_with_errors_test_data) +
       api.path.exists(api.path['start_dir'].join('fiddleout.json'))
   )
 
@@ -188,8 +184,7 @@ def GenTests(api):
       api.properties(buildername='Housekeeper-Nightly-Bookmaker',
                      repository='https://skia.googlesource.com/skia.git',
                      revision='abc123',
-                     path_config='kitchen',
-                     swarm_out_dir='[SWARM_OUT_DIR]') +
+                     path_config='kitchen') +
       api.step_data('Extract all fiddles out of md files', retcode=1)
   )
 
@@ -198,8 +193,7 @@ def GenTests(api):
       api.properties(buildername='Housekeeper-Nightly-Bookmaker',
                      repository='https://skia.googlesource.com/skia.git',
                      revision='abc123',
-                     path_config='kitchen',
-                     swarm_out_dir='[SWARM_OUT_DIR]') +
+                     path_config='kitchen') +
       api.step_data('Force fiddle to compile all examples', retcode=1)
   )
 
@@ -208,7 +202,6 @@ def GenTests(api):
       api.properties(buildername='Housekeeper-Nightly-Bookmaker',
                      repository='https://skia.googlesource.com/skia.git',
                      revision='abc123',
-                     path_config='kitchen',
-                     swarm_out_dir='[SWARM_OUT_DIR]') +
+                     path_config='kitchen') +
       api.step_data('Generate and Upload Markdown files', retcode=1)
   )

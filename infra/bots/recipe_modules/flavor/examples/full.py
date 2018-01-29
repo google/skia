@@ -121,8 +121,7 @@ def GenTests(api):
       api.properties(buildername=buildername,
                      repository='https://skia.googlesource.com/skia.git',
                      revision='abc123',
-                     path_config='kitchen',
-                     swarm_out_dir='[SWARM_OUT_DIR]')
+                     path_config='kitchen')
     )
     if 'Chromebook' in buildername and not 'Build' in buildername:
       test += api.step_data(
@@ -141,7 +140,6 @@ def GenTests(api):
                      repository='https://skia.googlesource.com/skia.git',
                      revision='abc123',
                      path_config='kitchen',
-                     swarm_out_dir='[SWARM_OUT_DIR]',
                      is_testing_exceptions='True')
   )
 
@@ -151,8 +149,7 @@ def GenTests(api):
       api.properties(buildername=builder,
                      repository='https://skia.googlesource.com/skia.git',
                      revision='abc123',
-                     path_config='kitchen',
-                     swarm_out_dir='[SWARM_OUT_DIR]') +
+                     path_config='kitchen') +
       api.step_data('dump log', retcode=1)
   )
 
@@ -162,8 +159,7 @@ def GenTests(api):
       api.properties(buildername=builder,
                      repository='https://skia.googlesource.com/skia.git',
                      revision='abc123',
-                     path_config='kitchen',
-                     swarm_out_dir='[SWARM_OUT_DIR]') +
+                     path_config='kitchen') +
       api.step_data('read /sdcard/revenge_of_the_skiabot/SK_IMAGE_VERSION',
                     retcode=1)
   )
@@ -174,8 +170,7 @@ def GenTests(api):
       api.properties(buildername=builder,
                      repository='https://skia.googlesource.com/skia.git',
                      revision='abc123',
-                     path_config='kitchen',
-                     swarm_out_dir='[SWARM_OUT_DIR]') +
+                     path_config='kitchen') +
       api.step_data('mkdir /sdcard/revenge_of_the_skiabot/resources',
                     retcode=1)
   )
@@ -187,8 +182,7 @@ def GenTests(api):
       api.properties(buildername=builder,
                      repository='https://skia.googlesource.com/skia.git',
                      revision='abc123',
-                     path_config='kitchen',
-                     swarm_out_dir='[SWARM_OUT_DIR]') +
+                     path_config='kitchen') +
       api.step_data(fail_step_name, retcode=1) +
       api.step_data(fail_step_name + ' (attempt 2)', retcode=1) +
       api.step_data(fail_step_name + ' (attempt 3)', retcode=1)
@@ -199,8 +193,7 @@ def GenTests(api):
       api.properties(buildername=builder,
                      repository='https://skia.googlesource.com/skia.git',
                      revision='abc123',
-                     path_config='kitchen',
-                     swarm_out_dir='[SWARM_OUT_DIR]') +
+                     path_config='kitchen') +
       api.step_data('Scale CPU 0 to 0.600000', retcode=1)
   )
 
@@ -211,8 +204,7 @@ def GenTests(api):
       api.properties(buildername=builder,
                      repository='https://skia.googlesource.com/skia.git',
                      revision='abc123',
-                     path_config='kitchen',
-                     swarm_out_dir='[SWARM_OUT_DIR]') +
+                     path_config='kitchen') +
       api.step_data(fail_step_name, retcode=1)
   )
 
@@ -221,8 +213,7 @@ def GenTests(api):
       api.properties(buildername=builder,
                      repository='https://skia.googlesource.com/skia.git',
                      revision='abc123',
-                     path_config='kitchen',
-                     swarm_out_dir='[SWARM_OUT_DIR]') +
+                     path_config='kitchen') +
       api.step_data(fail_step_name, retcode=1) +
       api.step_data(fail_step_name + ' (attempt 2)', retcode=1)
   )

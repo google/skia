@@ -74,7 +74,7 @@
     "cmd": [
       "python",
       "[START_DIR]/skia/tools/calmbench/ab.py",
-      "[CUSTOM_[SWARM_OUT_DIR]]",
+      "[START_DIR]/isolated_outdir",
       "modified",
       "master",
       "[START_DIR]/out/Release/nanobench",

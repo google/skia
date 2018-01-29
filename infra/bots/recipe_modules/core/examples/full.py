@@ -21,8 +21,7 @@ def GenTests(api):
       api.properties(buildername=buildername,
                      repository='https://skia.googlesource.com/skia.git',
                      revision='abc123',
-                     path_config='kitchen',
-                     swarm_out_dir='[SWARM_OUT_DIR]') +
+                     path_config='kitchen') +
       api.properties(patch_storage='gerrit') +
       api.properties.tryserver(
           buildername=buildername,
@@ -37,8 +36,7 @@ def GenTests(api):
       api.properties(buildername=buildername,
                      repository='https://skia.googlesource.com/skia.git',
                      revision='abc123',
-                     path_config='kitchen',
-                     swarm_out_dir='[SWARM_OUT_DIR]')
+                     path_config='kitchen')
   )
 
   yield (
@@ -47,7 +45,6 @@ def GenTests(api):
                      repository='https://skia.googlesource.com/skia.git',
                      revision='abc123',
                      path_config='kitchen',
-                     swarm_out_dir='[SWARM_OUT_DIR]',
                      patch_issue=500,
                      patch_set=1,
                      patch_storage='gerrit') +
@@ -65,8 +62,7 @@ def GenTests(api):
       api.properties(buildername=buildername,
                      repository='https://skia.googlesource.com/skia.git',
                      revision='abc123',
-                     path_config='kitchen',
-                     swarm_out_dir='[SWARM_OUT_DIR]') +
+                     path_config='kitchen') +
       api.properties(patch_storage='gerrit') +
       api.properties.tryserver(
           buildername=buildername,
@@ -82,7 +78,6 @@ def GenTests(api):
           repository='https://skia.googlesource.com/skia.git',
           buildername=buildername,
           path_config='kitchen',
-          swarm_out_dir='[SWARM_OUT_DIR]',
           revision='abc123',
           patch_issue=500,
           patch_set=1,
@@ -104,7 +99,6 @@ def GenTests(api):
           repository='https://skia.googlesource.com/skia.git',
           buildername=buildername,
           path_config='kitchen',
-          swarm_out_dir='[SWARM_OUT_DIR]',
           revision='abc123',
           patch_issue=500,
           patch_set=1,
@@ -125,8 +119,7 @@ def GenTests(api):
       api.properties(buildername=builder,
                      repository='https://skia.googlesource.com/skia.git',
                      revision='abc123',
-                     path_config='kitchen',
-                     swarm_out_dir='[SWARM_OUT_DIR]') +
+                     path_config='kitchen') +
       api.path.exists(api.path['start_dir'].join('skp_output'))
   )
 
@@ -137,7 +130,6 @@ def GenTests(api):
           repository='https://skia.googlesource.com/parent_repo.git',
           buildername=buildername,
           path_config='kitchen',
-          swarm_out_dir='[SWARM_OUT_DIR]',
           revision='abc123',
           patch_issue=500,
           patch_repo='https://skia.googlesource.com/skia.git',

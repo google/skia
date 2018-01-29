@@ -368,8 +368,7 @@ def GenTests(api):
       api.test(builder) +
       api.properties(buildername=builder,
                      revision='abc123',
-                     path_config='kitchen',
-                     swarm_out_dir='[SWARM_OUT_DIR]') +
+                     path_config='kitchen') +
       api.path.exists(
           api.path['start_dir'].join('skia'),
           api.path['start_dir'].join('skia', 'infra', 'bots', 'assets',
@@ -403,8 +402,7 @@ def GenTests(api):
     api.test('trybot') +
     api.properties(buildername=builder,
                    revision='abc123',
-                   path_config='kitchen',
-                   swarm_out_dir='[SWARM_OUT_DIR]') +
+                   path_config='kitchen') +
     api.properties(patch_storage='gerrit') +
     api.properties.tryserver(
           buildername=builder,
@@ -429,8 +427,7 @@ def GenTests(api):
     api.test('failed_push') +
     api.properties(buildername=builder,
                    revision='abc123',
-                   path_config='kitchen',
-                   swarm_out_dir='[SWARM_OUT_DIR]') +
+                   path_config='kitchen') +
     api.path.exists(
         api.path['start_dir'].join('skia'),
         api.path['start_dir'].join('skia', 'infra', 'bots', 'assets',
@@ -449,8 +446,7 @@ def GenTests(api):
     api.test('cpu_scale_failed_once') +
     api.properties(buildername=builder,
                    revision='abc123',
-                   path_config='kitchen',
-                   swarm_out_dir='[SWARM_OUT_DIR]') +
+                   path_config='kitchen') +
     api.path.exists(
         api.path['start_dir'].join('skia'),
         api.path['start_dir'].join('skia', 'infra', 'bots', 'assets',
@@ -468,8 +464,7 @@ def GenTests(api):
     api.test('cpu_scale_failed') +
     api.properties(buildername=builder,
                    revision='abc123',
-                   path_config='kitchen',
-                   swarm_out_dir='[SWARM_OUT_DIR]') +
+                   path_config='kitchen') +
     api.path.exists(
         api.path['start_dir'].join('skia'),
         api.path['start_dir'].join('skia', 'infra', 'bots', 'assets',
@@ -491,8 +486,7 @@ def GenTests(api):
     api.test('cpu_scale_failed_golo') +
     api.properties(buildername=builder,
                    revision='abc123',
-                   path_config='kitchen',
-                   swarm_out_dir='[SWARM_OUT_DIR]') +
+                   path_config='kitchen') +
     api.path.exists(
         api.path['start_dir'].join('skia'),
         api.path['start_dir'].join('skia', 'infra', 'bots', 'assets',

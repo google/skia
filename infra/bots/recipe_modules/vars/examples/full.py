@@ -45,8 +45,7 @@ def GenTests(api):
         api.properties(buildername=buildername,
                        repository='https://skia.googlesource.com/skia.git',
                        revision='abc123',
-                       path_config='kitchen',
-                       swarm_out_dir='[SWARM_OUT_DIR]')
+                       path_config='kitchen')
     )
 
   buildername = 'Test-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Debug-All'
@@ -56,7 +55,6 @@ def GenTests(api):
                      repository='https://skia.googlesource.com/skia.git',
                      revision='abc123',
                      path_config='kitchen',
-                     swarm_out_dir='[SWARM_OUT_DIR]',
                      patch_storage='gerrit') +
       api.properties.tryserver(
           buildername=buildername,

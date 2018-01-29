@@ -211,7 +211,7 @@
       "--adb_binary",
       "adb.1.0.35",
       "--resultsfile",
-      "[CUSTOM_[SWARM_OUT_DIR]]/table",
+      "[START_DIR]/isolated_outdir/table",
       "--config",
       "vk",
       "-v5",
@@ -263,7 +263,7 @@
       "ensure-directory",
       "--mode",
       "0777",
-      "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-All-Android_Vulkan_Skpbench/data"
+      "[START_DIR]/isolated_outdir/perfdata/Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-All-Android_Vulkan_Skpbench/data"
     ],
     "infra_step": true,
     "name": "makedirs perf_dir"
@@ -273,7 +273,7 @@
       "python",
       "-u",
       "[START_DIR]/skia/tools/skpbench/skiaperf.py",
-      "[CUSTOM_[SWARM_OUT_DIR]]/table",
+      "[START_DIR]/isolated_outdir/table",
       "--properties",
       "gitHash",
       "abc123",
@@ -282,7 +282,7 @@
       "swarming_task_id",
       "123456",
       "--outfile",
-      "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-All-Android_Vulkan_Skpbench/data/skpbench_abc123_1337000001.json",
+      "[START_DIR]/isolated_outdir/perfdata/Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-All-Android_Vulkan_Skpbench/data/skpbench_abc123_1337000001.json",
       "--key",
       "arch",
       "arm64",

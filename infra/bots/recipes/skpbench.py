@@ -135,8 +135,7 @@ def GenTests(api):
       api.test(builder) +
       api.properties(buildername=builder,
                      revision='abc123',
-                     path_config='kitchen',
-                     swarm_out_dir='[SWARM_OUT_DIR]') +
+                     path_config='kitchen') +
       api.path.exists(
           api.path['start_dir'].join('skia'),
           api.path['start_dir'].join('skia', 'infra', 'bots', 'assets',
@@ -156,8 +155,7 @@ def GenTests(api):
     api.test('trybot') +
     api.properties(buildername=b,
                    revision='abc123',
-                   path_config='kitchen',
-                   swarm_out_dir='[SWARM_OUT_DIR]') +
+                   path_config='kitchen') +
     api.path.exists(
         api.path['start_dir'].join('skia'),
         api.path['start_dir'].join('skia', 'infra', 'bots', 'assets',

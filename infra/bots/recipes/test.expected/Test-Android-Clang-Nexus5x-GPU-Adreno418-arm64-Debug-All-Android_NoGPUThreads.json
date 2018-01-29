@@ -1055,7 +1055,7 @@
       "/opt/infra-android/tools/adb",
       "pull",
       "/sdcard/revenge_of_the_skiabot/dm_out",
-      "[CUSTOM_[SWARM_OUT_DIR]]/dm"
+      "[START_DIR]/isolated_outdir/dm"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
@@ -1065,7 +1065,7 @@
       "SKIA_OUT": "[START_DIR]/out"
     },
     "infra_step": true,
-    "name": "pull /sdcard/revenge_of_the_skiabot/dm_out [CUSTOM_[SWARM_OUT_DIR]]/dm"
+    "name": "pull /sdcard/revenge_of_the_skiabot/dm_out [START_DIR]/isolated_outdir/dm"
   },
   {
     "cmd": [
