@@ -241,8 +241,6 @@ protected:
     int fMaxVertexAttributes;
     int fMaxTextureSize;
     int fMaxTileSize;
-    int fMaxColorSampleCount;
-    int fMaxStencilSampleCount;
     int fMaxRasterSamples;
     int fMaxWindowRectangles;
     int fMaxClipAnalyticFPs;
