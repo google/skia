@@ -179,14 +179,14 @@ void SkReadBuffer::readPoint3(SkPoint3* point) {
 }
 
 void SkReadBuffer::readMatrix(SkMatrix* matrix) {
-    size_t size = 0;
     if (this->isValid()) {
         size = SkMatrixPriv::ReadFromMemory(matrix, fReader.peek(), fReader.available());
         if (!this->validate((SkAlign4(size) == size) && (0 != size))) {
             matrix->reset();
         }
     }
-    (void)this->skip(size);
+
+    matrix->setIdentity();
 }
 
 void SkReadBuffer::readIRect(SkIRect* rect) {

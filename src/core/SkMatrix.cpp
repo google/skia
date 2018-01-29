@@ -1652,7 +1652,7 @@ size_t SkMatrix::writeToMemory(void* buffer) const {
 
 size_t SkMatrix::readFromMemory(const void* buffer, size_t length) {
     static const size_t sizeInMemory = 9 * sizeof(SkScalar);
-    if (length < sizeInMemory) {
+    if (length < sizeInMemory || !buffer) {
         return 0;
     }
     memcpy(fMat, buffer, sizeInMemory);

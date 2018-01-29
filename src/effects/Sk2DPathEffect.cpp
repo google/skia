@@ -111,6 +111,11 @@ sk_sp<SkFlattenable> SkLine2DPathEffect::CreateProc(SkReadBuffer& buffer) {
     SkMatrix matrix;
     buffer.readMatrix(&matrix);
     SkScalar width = buffer.readScalar();
+
+    if (!buffer.isValid()) {
+        return nullptr;
+    }
+
     return SkLine2DPathEffect::Make(width, matrix);
 }
 
@@ -140,6 +145,11 @@ sk_sp<SkFlattenable> SkPath2DPathEffect::CreateProc(SkReadBuffer& buffer) {
     buffer.readMatrix(&matrix);
     SkPath path;
     buffer.readPath(&path);
+
+    if (!buffer.isValid()) {
+        return nullptr;
+    }
+
     return SkPath2DPathEffect::Make(matrix, path);
 }
 
