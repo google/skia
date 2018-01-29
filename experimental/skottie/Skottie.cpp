@@ -19,6 +19,7 @@
 #include "SkPaint.h"
 #include "SkParse.h"
 #include "SkPoint.h"
+#include "SkSGClipEffect.h"
 #include "SkSGColor.h"
 #include "SkSGDraw.h"
 #include "SkSGGeometryTransform.h"
@@ -944,12 +945,23 @@ sk_sp<sksg::RenderNode> AttachLayer(const Json::Value& jlayer,
 
     // Layer content.
     auto layer = gLayerAttachers[type](jlayer, &local_ctx, &time_bias, &time_scale);
+
+    // Clip layers with explicit dimensions.
+    float w, h;
+    if (Parse(jlayer["w"], &w) && Parse(jlayer["h"], &h)) {
+        layer = sksg::ClipEffect::Make(std::move(layer),
+                                       sksg::Rect::Make(SkRect::MakeWH(w, h)),
+                                       true);
+    }
+
     // Optional layer mask.
     layer = AttachMask(jlayer["masksProperties"], &local_ctx, std::move(layer));
+
     // Optional layer transform.
     if (auto layerMatrix = layerCtx->AttachLayerMatrix(jlayer)) {
         layer = sksg::Transform::Make(std::move(layer), std::move(layerMatrix));
     }
+
     // Optional layer opacity.
     layer = AttachOpacity(jlayer["ks"], &local_ctx, std::move(layer));
 

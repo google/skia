@@ -1400,6 +1400,7 @@ if (skia_enable_tools) {
       "experimental/sksg/SkSGPaintNode.cpp",
       "experimental/sksg/SkSGRenderNode.cpp",
       "experimental/sksg/SkSGScene.cpp",
+      "experimental/sksg/effects/SkSGClipEffect.cpp",
       "experimental/sksg/effects/SkSGMaskEffect.cpp",
       "experimental/sksg/effects/SkSGOpacityEffect.cpp",
       "experimental/sksg/effects/SkSGTransform.cpp",

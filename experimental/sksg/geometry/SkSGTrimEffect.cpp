@@ -22,6 +22,10 @@ TrimEffect::~TrimEffect() {
     this->unobserveInval(fChild);
 }
 
+void TrimEffect::onClip(SkCanvas* canvas, bool antiAlias) const {
+    canvas->clipPath(fChild->asPath(), SkClipOp::kIntersect, antiAlias);
+}
+
 // TODO
 //   This is a quick hack to get something on the screen.  What we really want here is to apply
 //   the geometry transformation and cache the result on revalidation. Or an SkTrimPathEffect.

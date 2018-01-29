@@ -14,6 +14,10 @@ namespace sksg {
 
 Path::Path(const SkPath& path) : fPath(path) {}
 
+void Path::onClip(SkCanvas* canvas, bool antiAlias) const {
+    canvas->clipPath(fPath, SkClipOp::kIntersect, antiAlias);
+}
+
 void Path::onDraw(SkCanvas* canvas, const SkPaint& paint) const {
     canvas->drawPath(fPath, paint);
 }
