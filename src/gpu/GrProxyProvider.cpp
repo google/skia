@@ -17,6 +17,9 @@
 #include "GrTextureProxyCacheAccess.h"
 #include "GrTextureRenderTargetProxy.h"
 #include "../private/GrSingleOwner.h"
+#include "SkGr.h"
+#include "SkImage.h"
+#include "SkImage_Base.h"
 #include "SkMipMap.h"
 
 #define ASSERT_SINGLE_OWNER \
@@ -184,6 +187,49 @@ sk_sp<GrTextureProxy> GrProxyProvider::createTextureProxy(const GrSurfaceDesc& d
     }
 
     return this->createProxy(desc, SkBackingFit::kExact, budgeted);
+}
+
+sk_sp<GrTextureProxy> GrProxyProvider::createTextureProxy(sk_sp<SkImage> srcImage,
+                                                          GrSurfaceFlags flags,
+                                                          GrSurfaceOrigin origin,
+                                                          int sampleCnt,
+                                                          SkBudgeted budgeted) {
+    ASSERT_SINGLE_OWNER
+    SkASSERT(srcImage);
+
+    if (this->isAbandoned()) {
+        return nullptr;
+    }
+
+    GrSurfaceDesc desc;
+    desc.fWidth = srcImage->width();
+    desc.fHeight = srcImage->height();
+    desc.fFlags = flags;
+    desc.fOrigin = origin;
+    desc.fSampleCnt = sampleCnt;
+    desc.fConfig = SkImageInfo2GrPixelConfig(as_IB(srcImage)->onImageInfo(), *this->caps());
+
+    sk_sp<GrTextureProxy> proxy = this->createLazyProxy(
+            [desc, budgeted, srcImage]
+            (GrResourceProvider* resourceProvider, GrSurfaceOrigin* /*outOrigin*/) {
+                if (!resourceProvider) {
+                    return sk_sp<GrTexture>();
+                }
+                SkPixmap pixMap;
+                SkAssertResult(srcImage->peekPixels(&pixMap));
+                GrMipLevel mipLevel = { pixMap.addr(), pixMap.rowBytes() };
+
+                return resourceProvider->createTexture(desc, budgeted, mipLevel);
+            }, desc, GrMipMapped::kNo, SkBackingFit::kExact, budgeted);
+
+    if (fResourceProvider) {
+        // In order to reuse code we always create a lazy proxy. When we aren't in DDL mode however
+        // we're better off instantiating the proxy immediately here.
+        if (!proxy->priv().doLazyInstantiation(fResourceProvider)) {
+            return nullptr;
+        }
+    }
+    return proxy;
 }
 
 sk_sp<GrTextureProxy> GrProxyProvider::createMipMapProxy(
