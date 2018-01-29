@@ -42,8 +42,17 @@ std::unique_ptr<SkStreamAsset> GetResourceAsStream(const char* resource) {
 }
 
 #ifdef SK_EMBED_RESOURCES
+
+#include "ResourceFactory.h"
+
+sk_sp<SkData> (*gResourceFactory)(const char*) = nullptr;
+
 extern BinaryAsset gResources[];
+
 sk_sp<SkData> GetResourceAsData(const char* resource) {
+    if (gResourceFactory) {
+        return gResourceFactory(resource);
+    }
     for (const BinaryAsset* ptr = gResources; ptr->name; ++ptr) {
         if (0 == strcmp(resource, ptr->name)) {
             return SkData::MakeWithoutCopy(ptr->data, ptr->len);
