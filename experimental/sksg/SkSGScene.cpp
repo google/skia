@@ -22,6 +22,15 @@ void Animator::tick(float t) {
     this->onTick(t);
 }
 
+GroupAnimator::GroupAnimator(AnimatorList&& animators)
+    : fAnimators(std::move(animators)) {}
+
+void GroupAnimator::onTick(float t) {
+    for (const auto& a : fAnimators) {
+        a->tick(t);
+    }
+}
+
 std::unique_ptr<Scene> Scene::Make(sk_sp<RenderNode> root, AnimatorList&& anims) {
     return root ? std::unique_ptr<Scene>(new Scene(std::move(root), std::move(anims))) : nullptr;
 }

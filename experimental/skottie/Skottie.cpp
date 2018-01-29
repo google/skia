@@ -18,7 +18,6 @@
 #include "SkOSPath.h"
 #include "SkPaint.h"
 #include "SkParse.h"
-#include "SkPath.h"
 #include "SkPoint.h"
 #include "SkSGColor.h"
 #include "SkSGDraw.h"
@@ -53,9 +52,9 @@ namespace {
 using AssetMap = SkTHashMap<SkString, const Json::Value*>;
 
 struct AttachContext {
-    const ResourceProvider&    fResources;
-    const AssetMap&            fAssets;
-    sksg::Scene::AnimatorList& fAnimators;
+    const ResourceProvider& fResources;
+    const AssetMap&         fAssets;
+    sksg::AnimatorList&     fAnimators;
 };
 
 bool LogFail(const Json::Value& json, const char* msg) {
@@ -921,58 +920,72 @@ sk_sp<sksg::RenderNode> AttachLayer(const Json::Value& jlayer,
         return nullptr;
     }
 
+    sksg::AnimatorList layer_animators;
+    AttachContext local_ctx =
+        { layerCtx->fCtx->fResources, layerCtx->fCtx->fAssets, layer_animators};
+
     // Layer content.
-    auto layer = gLayerAttachers[type](jlayer, layerCtx->fCtx);
+    auto layer = gLayerAttachers[type](jlayer, &local_ctx);
     // Optional layer mask.
-    layer = AttachMask(jlayer["masksProperties"], layerCtx->fCtx, std::move(layer));
+    layer = AttachMask(jlayer["masksProperties"], &local_ctx, std::move(layer));
     // Optional layer transform.
     if (auto layerMatrix = layerCtx->AttachLayerMatrix(jlayer)) {
         layer = sksg::Transform::Make(std::move(layer), std::move(layerMatrix));
     }
     // Optional layer opacity.
-    layer = AttachOpacity(jlayer["ks"], layerCtx->fCtx, std::move(layer));
+    layer = AttachOpacity(jlayer["ks"], &local_ctx, std::move(layer));
 
-    // TODO: we should also disable related/inactive animators.
-    class Activator final : public sksg::Animator {
+    class Activator final : public sksg::GroupAnimator {
     public:
-        Activator(sk_sp<sksg::OpacityEffect> controlNode, float in, float out)
-            : fControlNode(std::move(controlNode))
+        Activator(sksg::AnimatorList&& layer_animators,
+                  sk_sp<sksg::OpacityEffect> controlNode, float in, float out)
+            : INHERITED(std::move(layer_animators))
+            , fControlNode(std::move(controlNode))
             , fIn(in)
             , fOut(out) {}
 
         void onTick(float t) override {
+            const auto active = (t >= fIn && t <= fOut);
+
             // Keep the layer fully transparent except for its [in..out] lifespan.
             // (note: opacity == 0 disables rendering, while opacity == 1 is a noop)
-            fControlNode->setOpacity(t >= fIn && t <= fOut ? 1 : 0);
+            fControlNode->setOpacity(active ? 1 : 0);
+
+            // Dispatch ticks only while active.
+            if (active)
+                this->INHERITED::onTick(t);
         }
 
     private:
         const sk_sp<sksg::OpacityEffect> fControlNode;
         const float                      fIn,
                                          fOut;
+
+        using INHERITED = sksg::GroupAnimator;
     };
 
-    auto layerControl = sksg::OpacityEffect::Make(std::move(layer));
-    const auto  in = ParseDefault(jlayer["ip"], 0.0f),
-               out = ParseDefault(jlayer["op"], in);
+    auto controller = sksg::OpacityEffect::Make(std::move(layer));
+    const auto   in = ParseDefault(jlayer["ip"], 0.0f),
+                out = ParseDefault(jlayer["op"], in);
 
-    if (in >= out || ! layerControl)
+    if (in >= out || !controller)
         return nullptr;
 
-    layerCtx->fCtx->fAnimators.push_back(skstd::make_unique<Activator>(layerControl, in, out));
+    layerCtx->fCtx->fAnimators.push_back(
+        skstd::make_unique<Activator>(std::move(layer_animators), controller, in, out));
 
     if (ParseDefault(jlayer["td"], false)) {
         // This layer is a matte.  We apply it as a mask to the next layer.
-        layerCtx->fCurrentMatte = std::move(layerControl);
+        layerCtx->fCurrentMatte = std::move(controller);
         return nullptr;
     }
 
     if (layerCtx->fCurrentMatte) {
         // There is a pending matte. Apply and reset.
-        return sksg::MaskEffect::Make(std::move(layerControl), std::move(layerCtx->fCurrentMatte));
+        return sksg::MaskEffect::Make(std::move(controller), std::move(layerCtx->fCurrentMatte));
     }
 
-    return layerControl;
+    return controller;
 }
 
 sk_sp<sksg::RenderNode> AttachComposition(const Json::Value& comp, AttachContext* ctx) {
@@ -1091,7 +1104,7 @@ Animation::Animation(const ResourceProvider& resources,
         assets.set(ParseDefault(asset["id"], SkString()), &asset);
     }
 
-    sksg::Scene::AnimatorList animators;
+    sksg::AnimatorList animators;
     AttachContext ctx = { resources, assets, animators };
     auto root = AttachComposition(json, &ctx);
 
