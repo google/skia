@@ -374,10 +374,9 @@ if actual_freq != str(freq):
       args['ndk_api'] = 24
       args['skia_enable_vulkan_debug_layers'] = 'false'
     if 'ASAN' in extra_tokens:
-      # Note: if one day we do ASAN on 32 bit arm, we need to
-      # make sure we use at least SDK 21
-      # args['ndk_api'] = 21
       args['sanitize'] = '"ASAN"'
+      if target_arch == 'arm' and 'ndk_api' not in args:
+        args['ndk_api'] = 21
 
     # If an Android API level is specified, use that.
     for t in extra_tokens:
