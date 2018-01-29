@@ -16,6 +16,24 @@
       "revId": "048a39f4fcf787710dcfab317ca5b10dcf9a2300",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7b201a89_d886e435",
+        "filename": "src/core/SkPathRef.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 204,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-01-29T16:49:25Z",
+      "side": 1,
+      "message": "only via fuzzer, since we enforce the leading-moveTo in our public path constructors. The noted bug is such a fuzz.",
+      "parentUuid": "fd8b1650_780027f1",
+      "revId": "048a39f4fcf787710dcfab317ca5b10dcf9a2300",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
