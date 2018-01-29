@@ -185,8 +185,6 @@ sk_sp<sksg::GeometryNode> AttachRRectGeometry(const Json::Value& jrect, AttachCo
         return nullptr;
     }
 
-    LOG("** Attached (r)rect geometry\n");
-
     return rect_node;
 }
 
@@ -210,8 +208,6 @@ sk_sp<sksg::GeometryNode> AttachEllipseGeometry(const Json::Value& jellipse, Att
     if (!p_attached && !s_attached) {
         return nullptr;
     }
-
-    LOG("** Attached ellipse geometry\n");
 
     return rect_node;
 }
@@ -410,8 +406,6 @@ std::vector<sk_sp<sksg::GeometryNode>> AttachMergeGeometryEffect(
     const auto mode = gModes[SkTPin<int>(ParseDefault(jmerge["mm"], 1) - 1,
                                          0, SK_ARRAY_COUNT(gModes) - 1)];
     merged.push_back(sksg::Merge::Make(std::move(geos), mode));
-
-    LOG("** Attached merge path effect, mode: %d\n", mode);
 
     return merged;
 }
