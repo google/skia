@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "ed52609e_d2143c2f",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1998,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-01-29T19:26:02Z",
+      "side": 1,
+      "message": "yep",
+      "parentUuid": "eac1b5a3_a5523083",
+      "range": {
+        "startLine": 1985,
+        "startChar": 16,
+        "endLine": 1998,
+        "endChar": 17
+      },
+      "revId": "99d058e7253ff78320d80d551978f1b35b869e78",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c97b979b_066fe5a6",
         "filename": "src/gpu/gl/GrGLCaps.cpp",
         "patchSetId": 1
@@ -36,6 +60,30 @@
       "writtenOn": "2018-01-29T18:54:25Z",
       "side": 1,
       "message": "do we ever actually expect count to be \u003c\u003d0? Can those GL queries ever return a negative number? If not maybe change this to an assert?",
+      "range": {
+        "startLine": 1999,
+        "startChar": 16,
+        "endLine": 1999,
+        "endChar": 32
+      },
+      "revId": "99d058e7253ff78320d80d551978f1b35b869e78",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "77526965_02cd8f35",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1999,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-01-29T19:26:02Z",
+      "side": 1,
+      "message": "I don\u0027t think so. However, my stack of things to cleanup is getting too deep. Going to leave as is for now.",
+      "parentUuid": "c97b979b_066fe5a6",
       "range": {
         "startLine": 1999,
         "startChar": 16,
