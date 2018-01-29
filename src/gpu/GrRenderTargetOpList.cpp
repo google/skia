@@ -45,7 +45,7 @@ void GrRenderTargetOpList::dump() const {
     for (int i = 0; i < fRecordedOps.count(); ++i) {
         SkDebugf("*******************************\n");
         if (!fRecordedOps[i].fOp) {
-            SkDebugf("%d: <combined forward>\n", i);
+            SkDebugf("%d: <combined forward or failed instantiation>\n", i);
         } else {
             SkDebugf("%d: %s\n", i, fRecordedOps[i].fOp->name());
             SkString str = fRecordedOps[i].fOp->dumpInfo();
@@ -236,6 +236,23 @@ bool GrRenderTargetOpList::copySurface(const GrCaps& caps,
 
     this->addOp(std::move(op), caps);
     return true;
+}
+
+void GrRenderTargetOpList::purgeOpsWithUninstantiatedProxies() {
+    bool hasUninstantiatedProxy = false;
+    auto checkInstantiation = [ &hasUninstantiatedProxy ] (GrSurfaceProxy* p) {
+        if (!p->priv().isInstantiated()) {
+            hasUninstantiatedProxy = true;
+        }
+    };
+    for (RecordedOp& recordedOp : fRecordedOps) {
+        hasUninstantiatedProxy = false;
+        recordedOp.visitProxies(checkInstantiation);
+        if (hasUninstantiatedProxy) {
+            // When instantiation of the proxy fails we drop the Op
+            recordedOp.fOp = nullptr;
+        }
+    }
 }
 
 void GrRenderTargetOpList::gatherProxyIntervals(GrResourceAllocator* alloc) const {

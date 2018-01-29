@@ -33,14 +33,18 @@ void GrTextureOpList::dump() const {
 
     SkDebugf("ops (%d):\n", fRecordedOps.count());
     for (int i = 0; i < fRecordedOps.count(); ++i) {
-        SkDebugf("*******************************\n");
-        SkDebugf("%d: %s\n", i, fRecordedOps[i]->name());
-        SkString str = fRecordedOps[i]->dumpInfo();
-        SkDebugf("%s\n", str.c_str());
-        const SkRect& clippedBounds = fRecordedOps[i]->bounds();
-        SkDebugf("ClippedBounds: [L: %.2f, T: %.2f, R: %.2f, B: %.2f]\n",
-                    clippedBounds.fLeft, clippedBounds.fTop, clippedBounds.fRight,
-                    clippedBounds.fBottom);
+        if (!fRecordedOps[i]) {
+            SkDebugf("%d: <failed instantiation>\n", i);
+        } else {
+            SkDebugf("*******************************\n");
+            SkDebugf("%d: %s\n", i, fRecordedOps[i]->name());
+            SkString str = fRecordedOps[i]->dumpInfo();
+            SkDebugf("%s\n", str.c_str());
+            const SkRect& clippedBounds = fRecordedOps[i]->bounds();
+            SkDebugf("ClippedBounds: [L: %.2f, T: %.2f, R: %.2f, B: %.2f]\n",
+                     clippedBounds.fLeft, clippedBounds.fTop, clippedBounds.fRight,
+                     clippedBounds.fBottom);
+        }
     }
 }
 
@@ -121,6 +125,26 @@ bool GrTextureOpList::copySurface(const GrCaps& caps,
 
     this->recordOp(std::move(op));
     return true;
+}
+
+void GrTextureOpList::purgeOpsWithUninstantiatedProxies() {
+    bool hasUninstantiatedProxy = false;
+    auto checkInstantiation = [ &hasUninstantiatedProxy ] (GrSurfaceProxy* p) {
+        if (!p->priv().isInstantiated()) {
+            hasUninstantiatedProxy = true;
+        }
+    };
+    for (int i = 0; i < fRecordedOps.count(); ++i) {
+        const GrOp* op = fRecordedOps[i].get(); // only diff from the GrRenderTargetOpList version
+        hasUninstantiatedProxy = false;
+        if (op) {
+            op->visitProxies(checkInstantiation);
+        }
+        if (hasUninstantiatedProxy) {
+            // When instantiation of the proxy fails we drop the Op
+            fRecordedOps[i] = nullptr;
+        }
+    }
 }
 
 void GrTextureOpList::gatherProxyIntervals(GrResourceAllocator* alloc) const {
