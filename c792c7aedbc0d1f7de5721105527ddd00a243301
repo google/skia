@@ -22,6 +22,30 @@
       "revId": "c792c7aedbc0d1f7de5721105527ddd00a243301",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f3a6f2e5_4050d02d",
+        "filename": "tests/Test.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 184,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-01-29T14:51:20Z",
+      "side": 1,
+      "message": "Good point. Done.",
+      "parentUuid": "9d909b02_bc1ce6f5",
+      "range": {
+        "startLine": 184,
+        "startChar": 37,
+        "endLine": 184,
+        "endChar": 64
+      },
+      "revId": "c792c7aedbc0d1f7de5721105527ddd00a243301",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
