@@ -6,6 +6,12 @@
         "Build-Debian9-Clang-arm-Debug-Android"
       ]
     },
+    "Build-Debian9-Clang-arm-Debug-Android_Vulkan": {
+      "priority": 0.8,
+      "tasks": [
+        "Build-Debian9-Clang-arm-Debug-Android_Vulkan"
+      ]
+    },
     "Build-Debian9-Clang-arm-Debug-Chromebook_GLES": {
       "priority": 0.8,
       "tasks": [
@@ -22,6 +28,24 @@
       "priority": 0.8,
       "tasks": [
         "Build-Debian9-Clang-arm-Release-Android_API26"
+      ]
+    },
+    "Build-Debian9-Clang-arm-Release-Android_ASAN": {
+      "priority": 0.8,
+      "tasks": [
+        "Build-Debian9-Clang-arm-Release-Android_ASAN"
+      ]
+    },
+    "Build-Debian9-Clang-arm-Release-Android_ASAN_Vulkan": {
+      "priority": 0.8,
+      "tasks": [
+        "Build-Debian9-Clang-arm-Release-Android_ASAN_Vulkan"
+      ]
+    },
+    "Build-Debian9-Clang-arm-Release-Android_Vulkan": {
+      "priority": 0.8,
+      "tasks": [
+        "Build-Debian9-Clang-arm-Release-Android_Vulkan"
       ]
     },
     "Build-Debian9-Clang-arm-Release-Chromebook_GLES": {
@@ -747,6 +771,18 @@
         "Upload-Perf-Android-Clang-Nexus5-GPU-Adreno330-arm-Release-All-Android"
       ]
     },
+    "Perf-Android-Clang-Nexus5x-CPU-Snapdragon808-arm-Debug-All-Android": {
+      "priority": 0.8,
+      "tasks": [
+        "Perf-Android-Clang-Nexus5x-CPU-Snapdragon808-arm-Debug-All-Android"
+      ]
+    },
+    "Perf-Android-Clang-Nexus5x-CPU-Snapdragon808-arm-Release-All-Android": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Perf-Android-Clang-Nexus5x-CPU-Snapdragon808-arm-Release-All-Android"
+      ]
+    },
     "Perf-Android-Clang-Nexus5x-CPU-Snapdragon808-arm64-Debug-All-Android": {
       "priority": 0.8,
       "tasks": [
@@ -757,6 +793,30 @@
       "priority": 0.8,
       "tasks": [
         "Upload-Perf-Android-Clang-Nexus5x-CPU-Snapdragon808-arm64-Release-All-Android"
+      ]
+    },
+    "Perf-Android-Clang-Nexus5x-GPU-Adreno418-arm-Debug-All-Android": {
+      "priority": 0.8,
+      "tasks": [
+        "Perf-Android-Clang-Nexus5x-GPU-Adreno418-arm-Debug-All-Android"
+      ]
+    },
+    "Perf-Android-Clang-Nexus5x-GPU-Adreno418-arm-Debug-All-Android_Vulkan": {
+      "priority": 0.8,
+      "tasks": [
+        "Perf-Android-Clang-Nexus5x-GPU-Adreno418-arm-Debug-All-Android_Vulkan"
+      ]
+    },
+    "Perf-Android-Clang-Nexus5x-GPU-Adreno418-arm-Release-All-Android": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Perf-Android-Clang-Nexus5x-GPU-Adreno418-arm-Release-All-Android"
+      ]
+    },
+    "Perf-Android-Clang-Nexus5x-GPU-Adreno418-arm-Release-All-Android_Vulkan": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Perf-Android-Clang-Nexus5x-GPU-Adreno418-arm-Release-All-Android_Vulkan"
       ]
     },
     "Perf-Android-Clang-Nexus5x-GPU-Adreno418-arm64-Debug-All-Android": {
@@ -1858,6 +1918,24 @@
         "Upload-Test-Android-Clang-Nexus5-GPU-Adreno330-arm-Release-All-Android"
       ]
     },
+    "Test-Android-Clang-Nexus5x-CPU-Snapdragon808-arm-Debug-All-Android": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Android-Clang-Nexus5x-CPU-Snapdragon808-arm-Debug-All-Android"
+      ]
+    },
+    "Test-Android-Clang-Nexus5x-CPU-Snapdragon808-arm-Release-All-Android": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Android-Clang-Nexus5x-CPU-Snapdragon808-arm-Release-All-Android"
+      ]
+    },
+    "Test-Android-Clang-Nexus5x-CPU-Snapdragon808-arm-Release-All-Android_ASAN": {
+      "priority": 0.8,
+      "tasks": [
+        "Test-Android-Clang-Nexus5x-CPU-Snapdragon808-arm-Release-All-Android_ASAN"
+      ]
+    },
     "Test-Android-Clang-Nexus5x-CPU-Snapdragon808-arm64-Debug-All-Android": {
       "priority": 0.8,
       "tasks": [
@@ -1874,6 +1952,66 @@
       "priority": 0.8,
       "tasks": [
         "Test-Android-Clang-Nexus5x-CPU-Snapdragon808-arm64-Release-All-Android_ASAN"
+      ]
+    },
+    "Test-Android-Clang-Nexus5x-GPU-Adreno418-arm-Debug-All-Android": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Android-Clang-Nexus5x-GPU-Adreno418-arm-Debug-All-Android"
+      ]
+    },
+    "Test-Android-Clang-Nexus5x-GPU-Adreno418-arm-Debug-All-Android_NoGPUThreads": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Android-Clang-Nexus5x-GPU-Adreno418-arm-Debug-All-Android_NoGPUThreads"
+      ]
+    },
+    "Test-Android-Clang-Nexus5x-GPU-Adreno418-arm-Debug-All-Android_Vulkan": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Android-Clang-Nexus5x-GPU-Adreno418-arm-Debug-All-Android_Vulkan"
+      ]
+    },
+    "Test-Android-Clang-Nexus5x-GPU-Adreno418-arm-Debug-All-Android_Vulkan_NoGPUThreads": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Android-Clang-Nexus5x-GPU-Adreno418-arm-Debug-All-Android_Vulkan_NoGPUThreads"
+      ]
+    },
+    "Test-Android-Clang-Nexus5x-GPU-Adreno418-arm-Release-All-Android": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Android-Clang-Nexus5x-GPU-Adreno418-arm-Release-All-Android"
+      ]
+    },
+    "Test-Android-Clang-Nexus5x-GPU-Adreno418-arm-Release-All-Android_ASAN": {
+      "priority": 0.8,
+      "tasks": [
+        "Test-Android-Clang-Nexus5x-GPU-Adreno418-arm-Release-All-Android_ASAN"
+      ]
+    },
+    "Test-Android-Clang-Nexus5x-GPU-Adreno418-arm-Release-All-Android_ASAN_Vulkan": {
+      "priority": 0.8,
+      "tasks": [
+        "Test-Android-Clang-Nexus5x-GPU-Adreno418-arm-Release-All-Android_ASAN_Vulkan"
+      ]
+    },
+    "Test-Android-Clang-Nexus5x-GPU-Adreno418-arm-Release-All-Android_NoGPUThreads": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Android-Clang-Nexus5x-GPU-Adreno418-arm-Release-All-Android_NoGPUThreads"
+      ]
+    },
+    "Test-Android-Clang-Nexus5x-GPU-Adreno418-arm-Release-All-Android_Vulkan": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Android-Clang-Nexus5x-GPU-Adreno418-arm-Release-All-Android_Vulkan"
+      ]
+    },
+    "Test-Android-Clang-Nexus5x-GPU-Adreno418-arm-Release-All-Android_Vulkan_NoGPUThreads": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Android-Clang-Nexus5x-GPU-Adreno418-arm-Release-All-Android_Vulkan_NoGPUThreads"
       ]
     },
     "Test-Android-Clang-Nexus5x-GPU-Adreno418-arm64-Debug-All-Android": {
@@ -3076,6 +3214,32 @@
       "isolate": "compile_skia.isolate",
       "priority": 0.8
     },
+    "Build-Debian9-Clang-arm-Debug-Android_Vulkan": {
+      "dependencies": [
+        "Housekeeper-PerCommit-IsolateAndroidNDKLinux"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "os:Debian-9.2",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "compile",
+        "repository=<(REPO)",
+        "buildername=Build-Debian9-Clang-arm-Debug-Android_Vulkan",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "compile_skia.isolate",
+      "priority": 0.8
+    },
     "Build-Debian9-Clang-arm-Debug-Chromebook_GLES": {
       "cipd_packages": [
         {
@@ -3158,6 +3322,84 @@
         "compile",
         "repository=<(REPO)",
         "buildername=Build-Debian9-Clang-arm-Release-Android_API26",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "compile_skia.isolate",
+      "priority": 0.8
+    },
+    "Build-Debian9-Clang-arm-Release-Android_ASAN": {
+      "dependencies": [
+        "Housekeeper-PerCommit-IsolateAndroidNDKLinux"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "os:Debian-9.2",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "compile",
+        "repository=<(REPO)",
+        "buildername=Build-Debian9-Clang-arm-Release-Android_ASAN",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "compile_skia.isolate",
+      "priority": 0.8
+    },
+    "Build-Debian9-Clang-arm-Release-Android_ASAN_Vulkan": {
+      "dependencies": [
+        "Housekeeper-PerCommit-IsolateAndroidNDKLinux"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "os:Debian-9.2",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "compile",
+        "repository=<(REPO)",
+        "buildername=Build-Debian9-Clang-arm-Release-Android_ASAN_Vulkan",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "compile_skia.isolate",
+      "priority": 0.8
+    },
+    "Build-Debian9-Clang-arm-Release-Android_Vulkan": {
+      "dependencies": [
+        "Housekeeper-PerCommit-IsolateAndroidNDKLinux"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "os:Debian-9.2",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "compile",
+        "repository=<(REPO)",
+        "buildername=Build-Debian9-Clang-arm-Release-Android_Vulkan",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -6730,6 +6972,76 @@
       "max_attempts": 1,
       "priority": 0.8
     },
+    "Perf-Android-Clang-Nexus5x-CPU-Snapdragon808-arm-Debug-All-Android": {
+      "dependencies": [
+        "Build-Debian9-Clang-arm-Debug-Android",
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
+      ],
+      "dimensions": [
+        "device_os:OPR6.170623.023",
+        "device_type:bullhead",
+        "os:Android",
+        "pool:Skia",
+        "python:2.7.12"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "perf",
+        "repository=<(REPO)",
+        "buildername=Perf-Android-Clang-Nexus5x-CPU-Snapdragon808-arm-Debug-All-Android",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "perf_skia_bundled_unix.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
+    "Perf-Android-Clang-Nexus5x-CPU-Snapdragon808-arm-Release-All-Android": {
+      "dependencies": [
+        "Build-Debian9-Clang-arm-Release-Android",
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
+      ],
+      "dimensions": [
+        "device_os:OPR6.170623.023",
+        "device_type:bullhead",
+        "os:Android",
+        "pool:Skia",
+        "python:2.7.12"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "perf",
+        "repository=<(REPO)",
+        "buildername=Perf-Android-Clang-Nexus5x-CPU-Snapdragon808-arm-Release-All-Android",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "perf_skia_bundled_unix.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
     "Perf-Android-Clang-Nexus5x-CPU-Snapdragon808-arm64-Debug-All-Android": {
       "dependencies": [
         "Build-Debian9-Clang-arm64-Debug-Android",
@@ -6788,6 +7100,146 @@
         "perf",
         "repository=<(REPO)",
         "buildername=Perf-Android-Clang-Nexus5x-CPU-Snapdragon808-arm64-Release-All-Android",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "perf_skia_bundled_unix.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
+    "Perf-Android-Clang-Nexus5x-GPU-Adreno418-arm-Debug-All-Android": {
+      "dependencies": [
+        "Build-Debian9-Clang-arm-Debug-Android",
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
+      ],
+      "dimensions": [
+        "device_os:OPR6.170623.023",
+        "device_type:bullhead",
+        "os:Android",
+        "pool:Skia",
+        "python:2.7.12"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "perf",
+        "repository=<(REPO)",
+        "buildername=Perf-Android-Clang-Nexus5x-GPU-Adreno418-arm-Debug-All-Android",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "perf_skia_bundled_unix.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
+    "Perf-Android-Clang-Nexus5x-GPU-Adreno418-arm-Debug-All-Android_Vulkan": {
+      "dependencies": [
+        "Build-Debian9-Clang-arm-Debug-Android_Vulkan",
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
+      ],
+      "dimensions": [
+        "device_os:OPR6.170623.023",
+        "device_type:bullhead",
+        "os:Android",
+        "pool:Skia",
+        "python:2.7.12"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "perf",
+        "repository=<(REPO)",
+        "buildername=Perf-Android-Clang-Nexus5x-GPU-Adreno418-arm-Debug-All-Android_Vulkan",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "perf_skia_bundled_unix.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
+    "Perf-Android-Clang-Nexus5x-GPU-Adreno418-arm-Release-All-Android": {
+      "dependencies": [
+        "Build-Debian9-Clang-arm-Release-Android",
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
+      ],
+      "dimensions": [
+        "device_os:OPR6.170623.023",
+        "device_type:bullhead",
+        "os:Android",
+        "pool:Skia",
+        "python:2.7.12"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "perf",
+        "repository=<(REPO)",
+        "buildername=Perf-Android-Clang-Nexus5x-GPU-Adreno418-arm-Release-All-Android",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "perf_skia_bundled_unix.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
+    "Perf-Android-Clang-Nexus5x-GPU-Adreno418-arm-Release-All-Android_Vulkan": {
+      "dependencies": [
+        "Build-Debian9-Clang-arm-Release-Android_Vulkan",
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
+      ],
+      "dimensions": [
+        "device_os:OPR6.170623.023",
+        "device_type:bullhead",
+        "os:Android",
+        "pool:Skia",
+        "python:2.7.12"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "perf",
+        "repository=<(REPO)",
+        "buildername=Perf-Android-Clang-Nexus5x-GPU-Adreno418-arm-Release-All-Android_Vulkan",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -14641,6 +15093,115 @@
       "max_attempts": 1,
       "priority": 0.8
     },
+    "Test-Android-Clang-Nexus5x-CPU-Snapdragon808-arm-Debug-All-Android": {
+      "dependencies": [
+        "Build-Debian9-Clang-arm-Debug-Android",
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
+      ],
+      "dimensions": [
+        "device_os:OPR6.170623.023",
+        "device_type:bullhead",
+        "os:Android",
+        "pool:Skia",
+        "python:2.7.12"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "test",
+        "repository=<(REPO)",
+        "buildbucket_build_id=<(BUILDBUCKET_BUILD_ID)",
+        "buildername=Test-Android-Clang-Nexus5x-CPU-Snapdragon808-arm-Debug-All-Android",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia_bundled_unix.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
+    "Test-Android-Clang-Nexus5x-CPU-Snapdragon808-arm-Release-All-Android": {
+      "dependencies": [
+        "Build-Debian9-Clang-arm-Release-Android",
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
+      ],
+      "dimensions": [
+        "device_os:OPR6.170623.023",
+        "device_type:bullhead",
+        "os:Android",
+        "pool:Skia",
+        "python:2.7.12"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "test",
+        "repository=<(REPO)",
+        "buildbucket_build_id=<(BUILDBUCKET_BUILD_ID)",
+        "buildername=Test-Android-Clang-Nexus5x-CPU-Snapdragon808-arm-Release-All-Android",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia_bundled_unix.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
+    "Test-Android-Clang-Nexus5x-CPU-Snapdragon808-arm-Release-All-Android_ASAN": {
+      "dependencies": [
+        "Build-Debian9-Clang-arm-Release-Android_ASAN",
+        "Housekeeper-PerCommit-IsolateAndroidNDKLinux",
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
+      ],
+      "dimensions": [
+        "device_os:OPR6.170623.023",
+        "device_type:bullhead",
+        "os:Android",
+        "pool:Skia",
+        "python:2.7.12"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "test",
+        "repository=<(REPO)",
+        "buildbucket_build_id=<(BUILDBUCKET_BUILD_ID)",
+        "buildername=Test-Android-Clang-Nexus5x-CPU-Snapdragon808-arm-Release-All-Android_ASAN",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia_bundled_unix.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
     "Test-Android-Clang-Nexus5x-CPU-Snapdragon808-arm64-Debug-All-Android": {
       "dependencies": [
         "Build-Debian9-Clang-arm64-Debug-Android",
@@ -14738,6 +15299,368 @@
         "repository=<(REPO)",
         "buildbucket_build_id=<(BUILDBUCKET_BUILD_ID)",
         "buildername=Test-Android-Clang-Nexus5x-CPU-Snapdragon808-arm64-Release-All-Android_ASAN",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia_bundled_unix.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
+    "Test-Android-Clang-Nexus5x-GPU-Adreno418-arm-Debug-All-Android": {
+      "dependencies": [
+        "Build-Debian9-Clang-arm-Debug-Android",
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
+      ],
+      "dimensions": [
+        "device_os:OPR6.170623.023",
+        "device_type:bullhead",
+        "os:Android",
+        "pool:Skia",
+        "python:2.7.12"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "test",
+        "repository=<(REPO)",
+        "buildbucket_build_id=<(BUILDBUCKET_BUILD_ID)",
+        "buildername=Test-Android-Clang-Nexus5x-GPU-Adreno418-arm-Debug-All-Android",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia_bundled_unix.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
+    "Test-Android-Clang-Nexus5x-GPU-Adreno418-arm-Debug-All-Android_NoGPUThreads": {
+      "dependencies": [
+        "Build-Debian9-Clang-arm-Debug-Android",
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
+      ],
+      "dimensions": [
+        "device_os:OPR6.170623.023",
+        "device_type:bullhead",
+        "os:Android",
+        "pool:Skia",
+        "python:2.7.12"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "test",
+        "repository=<(REPO)",
+        "buildbucket_build_id=<(BUILDBUCKET_BUILD_ID)",
+        "buildername=Test-Android-Clang-Nexus5x-GPU-Adreno418-arm-Debug-All-Android_NoGPUThreads",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia_bundled_unix.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
+    "Test-Android-Clang-Nexus5x-GPU-Adreno418-arm-Debug-All-Android_Vulkan": {
+      "dependencies": [
+        "Build-Debian9-Clang-arm-Debug-Android_Vulkan",
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
+      ],
+      "dimensions": [
+        "device_os:OPR6.170623.023",
+        "device_type:bullhead",
+        "os:Android",
+        "pool:Skia",
+        "python:2.7.12"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "test",
+        "repository=<(REPO)",
+        "buildbucket_build_id=<(BUILDBUCKET_BUILD_ID)",
+        "buildername=Test-Android-Clang-Nexus5x-GPU-Adreno418-arm-Debug-All-Android_Vulkan",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia_bundled_unix.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
+    "Test-Android-Clang-Nexus5x-GPU-Adreno418-arm-Debug-All-Android_Vulkan_NoGPUThreads": {
+      "dependencies": [
+        "Build-Debian9-Clang-arm-Debug-Android_Vulkan",
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
+      ],
+      "dimensions": [
+        "device_os:OPR6.170623.023",
+        "device_type:bullhead",
+        "os:Android",
+        "pool:Skia",
+        "python:2.7.12"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "test",
+        "repository=<(REPO)",
+        "buildbucket_build_id=<(BUILDBUCKET_BUILD_ID)",
+        "buildername=Test-Android-Clang-Nexus5x-GPU-Adreno418-arm-Debug-All-Android_Vulkan_NoGPUThreads",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia_bundled_unix.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
+    "Test-Android-Clang-Nexus5x-GPU-Adreno418-arm-Release-All-Android": {
+      "dependencies": [
+        "Build-Debian9-Clang-arm-Release-Android",
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
+      ],
+      "dimensions": [
+        "device_os:OPR6.170623.023",
+        "device_type:bullhead",
+        "os:Android",
+        "pool:Skia",
+        "python:2.7.12"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "test",
+        "repository=<(REPO)",
+        "buildbucket_build_id=<(BUILDBUCKET_BUILD_ID)",
+        "buildername=Test-Android-Clang-Nexus5x-GPU-Adreno418-arm-Release-All-Android",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia_bundled_unix.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
+    "Test-Android-Clang-Nexus5x-GPU-Adreno418-arm-Release-All-Android_ASAN": {
+      "dependencies": [
+        "Build-Debian9-Clang-arm-Release-Android_ASAN",
+        "Housekeeper-PerCommit-IsolateAndroidNDKLinux",
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
+      ],
+      "dimensions": [
+        "device_os:OPR6.170623.023",
+        "device_type:bullhead",
+        "os:Android",
+        "pool:Skia",
+        "python:2.7.12"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "test",
+        "repository=<(REPO)",
+        "buildbucket_build_id=<(BUILDBUCKET_BUILD_ID)",
+        "buildername=Test-Android-Clang-Nexus5x-GPU-Adreno418-arm-Release-All-Android_ASAN",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia_bundled_unix.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
+    "Test-Android-Clang-Nexus5x-GPU-Adreno418-arm-Release-All-Android_ASAN_Vulkan": {
+      "dependencies": [
+        "Build-Debian9-Clang-arm-Release-Android_ASAN_Vulkan",
+        "Housekeeper-PerCommit-IsolateAndroidNDKLinux",
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
+      ],
+      "dimensions": [
+        "device_os:OPR6.170623.023",
+        "device_type:bullhead",
+        "os:Android",
+        "pool:Skia",
+        "python:2.7.12"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "test",
+        "repository=<(REPO)",
+        "buildbucket_build_id=<(BUILDBUCKET_BUILD_ID)",
+        "buildername=Test-Android-Clang-Nexus5x-GPU-Adreno418-arm-Release-All-Android_ASAN_Vulkan",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia_bundled_unix.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
+    "Test-Android-Clang-Nexus5x-GPU-Adreno418-arm-Release-All-Android_NoGPUThreads": {
+      "dependencies": [
+        "Build-Debian9-Clang-arm-Release-Android",
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
+      ],
+      "dimensions": [
+        "device_os:OPR6.170623.023",
+        "device_type:bullhead",
+        "os:Android",
+        "pool:Skia",
+        "python:2.7.12"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "test",
+        "repository=<(REPO)",
+        "buildbucket_build_id=<(BUILDBUCKET_BUILD_ID)",
+        "buildername=Test-Android-Clang-Nexus5x-GPU-Adreno418-arm-Release-All-Android_NoGPUThreads",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia_bundled_unix.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
+    "Test-Android-Clang-Nexus5x-GPU-Adreno418-arm-Release-All-Android_Vulkan": {
+      "dependencies": [
+        "Build-Debian9-Clang-arm-Release-Android_Vulkan",
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
+      ],
+      "dimensions": [
+        "device_os:OPR6.170623.023",
+        "device_type:bullhead",
+        "os:Android",
+        "pool:Skia",
+        "python:2.7.12"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "test",
+        "repository=<(REPO)",
+        "buildbucket_build_id=<(BUILDBUCKET_BUILD_ID)",
+        "buildername=Test-Android-Clang-Nexus5x-GPU-Adreno418-arm-Release-All-Android_Vulkan",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia_bundled_unix.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
+    "Test-Android-Clang-Nexus5x-GPU-Adreno418-arm-Release-All-Android_Vulkan_NoGPUThreads": {
+      "dependencies": [
+        "Build-Debian9-Clang-arm-Release-Android_Vulkan",
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
+      ],
+      "dimensions": [
+        "device_os:OPR6.170623.023",
+        "device_type:bullhead",
+        "os:Android",
+        "pool:Skia",
+        "python:2.7.12"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "test",
+        "repository=<(REPO)",
+        "buildbucket_build_id=<(BUILDBUCKET_BUILD_ID)",
+        "buildername=Test-Android-Clang-Nexus5x-GPU-Adreno418-arm-Release-All-Android_Vulkan_NoGPUThreads",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -24476,6 +25399,33 @@
       "isolate": "upload_nano_results.isolate",
       "priority": 0.8
     },
+    "Upload-Perf-Android-Clang-Nexus5x-CPU-Snapdragon808-arm-Release-All-Android": {
+      "dependencies": [
+        "Perf-Android-Clang-Nexus5x-CPU-Snapdragon808-arm-Release-All-Android"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "os:Debian-9.2",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_nano_results",
+        "repository=<(REPO)",
+        "buildername=Perf-Android-Clang-Nexus5x-CPU-Snapdragon808-arm-Release-All-Android",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-perf"
+      ],
+      "isolate": "upload_nano_results.isolate",
+      "priority": 0.8
+    },
     "Upload-Perf-Android-Clang-Nexus5x-CPU-Snapdragon808-arm64-Release-All-Android": {
       "dependencies": [
         "Perf-Android-Clang-Nexus5x-CPU-Snapdragon808-arm64-Release-All-Android"
@@ -24492,6 +25442,60 @@
         "upload_nano_results",
         "repository=<(REPO)",
         "buildername=Perf-Android-Clang-Nexus5x-CPU-Snapdragon808-arm64-Release-All-Android",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-perf"
+      ],
+      "isolate": "upload_nano_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Perf-Android-Clang-Nexus5x-GPU-Adreno418-arm-Release-All-Android": {
+      "dependencies": [
+        "Perf-Android-Clang-Nexus5x-GPU-Adreno418-arm-Release-All-Android"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "os:Debian-9.2",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_nano_results",
+        "repository=<(REPO)",
+        "buildername=Perf-Android-Clang-Nexus5x-GPU-Adreno418-arm-Release-All-Android",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-perf"
+      ],
+      "isolate": "upload_nano_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Perf-Android-Clang-Nexus5x-GPU-Adreno418-arm-Release-All-Android_Vulkan": {
+      "dependencies": [
+        "Perf-Android-Clang-Nexus5x-GPU-Adreno418-arm-Release-All-Android_Vulkan"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "os:Debian-9.2",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_nano_results",
+        "repository=<(REPO)",
+        "buildername=Perf-Android-Clang-Nexus5x-GPU-Adreno418-arm-Release-All-Android_Vulkan",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -27068,6 +28072,60 @@
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
     },
+    "Upload-Test-Android-Clang-Nexus5x-CPU-Snapdragon808-arm-Debug-All-Android": {
+      "dependencies": [
+        "Test-Android-Clang-Nexus5x-CPU-Snapdragon808-arm-Debug-All-Android"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "os:Debian-9.2",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Android-Clang-Nexus5x-CPU-Snapdragon808-arm-Debug-All-Android",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-Android-Clang-Nexus5x-CPU-Snapdragon808-arm-Release-All-Android": {
+      "dependencies": [
+        "Test-Android-Clang-Nexus5x-CPU-Snapdragon808-arm-Release-All-Android"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "os:Debian-9.2",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Android-Clang-Nexus5x-CPU-Snapdragon808-arm-Release-All-Android",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
     "Upload-Test-Android-Clang-Nexus5x-CPU-Snapdragon808-arm64-Debug-All-Android": {
       "dependencies": [
         "Test-Android-Clang-Nexus5x-CPU-Snapdragon808-arm64-Debug-All-Android"
@@ -27111,6 +28169,222 @@
         "upload_dm_results",
         "repository=<(REPO)",
         "buildername=Test-Android-Clang-Nexus5x-CPU-Snapdragon808-arm64-Release-All-Android",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-Android-Clang-Nexus5x-GPU-Adreno418-arm-Debug-All-Android": {
+      "dependencies": [
+        "Test-Android-Clang-Nexus5x-GPU-Adreno418-arm-Debug-All-Android"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "os:Debian-9.2",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Android-Clang-Nexus5x-GPU-Adreno418-arm-Debug-All-Android",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-Android-Clang-Nexus5x-GPU-Adreno418-arm-Debug-All-Android_NoGPUThreads": {
+      "dependencies": [
+        "Test-Android-Clang-Nexus5x-GPU-Adreno418-arm-Debug-All-Android_NoGPUThreads"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "os:Debian-9.2",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Android-Clang-Nexus5x-GPU-Adreno418-arm-Debug-All-Android_NoGPUThreads",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-Android-Clang-Nexus5x-GPU-Adreno418-arm-Debug-All-Android_Vulkan": {
+      "dependencies": [
+        "Test-Android-Clang-Nexus5x-GPU-Adreno418-arm-Debug-All-Android_Vulkan"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "os:Debian-9.2",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Android-Clang-Nexus5x-GPU-Adreno418-arm-Debug-All-Android_Vulkan",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-Android-Clang-Nexus5x-GPU-Adreno418-arm-Debug-All-Android_Vulkan_NoGPUThreads": {
+      "dependencies": [
+        "Test-Android-Clang-Nexus5x-GPU-Adreno418-arm-Debug-All-Android_Vulkan_NoGPUThreads"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "os:Debian-9.2",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Android-Clang-Nexus5x-GPU-Adreno418-arm-Debug-All-Android_Vulkan_NoGPUThreads",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-Android-Clang-Nexus5x-GPU-Adreno418-arm-Release-All-Android": {
+      "dependencies": [
+        "Test-Android-Clang-Nexus5x-GPU-Adreno418-arm-Release-All-Android"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "os:Debian-9.2",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Android-Clang-Nexus5x-GPU-Adreno418-arm-Release-All-Android",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-Android-Clang-Nexus5x-GPU-Adreno418-arm-Release-All-Android_NoGPUThreads": {
+      "dependencies": [
+        "Test-Android-Clang-Nexus5x-GPU-Adreno418-arm-Release-All-Android_NoGPUThreads"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "os:Debian-9.2",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Android-Clang-Nexus5x-GPU-Adreno418-arm-Release-All-Android_NoGPUThreads",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-Android-Clang-Nexus5x-GPU-Adreno418-arm-Release-All-Android_Vulkan": {
+      "dependencies": [
+        "Test-Android-Clang-Nexus5x-GPU-Adreno418-arm-Release-All-Android_Vulkan"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "os:Debian-9.2",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Android-Clang-Nexus5x-GPU-Adreno418-arm-Release-All-Android_Vulkan",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-Android-Clang-Nexus5x-GPU-Adreno418-arm-Release-All-Android_Vulkan_NoGPUThreads": {
+      "dependencies": [
+        "Test-Android-Clang-Nexus5x-GPU-Adreno418-arm-Release-All-Android_Vulkan_NoGPUThreads"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "os:Debian-9.2",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Android-Clang-Nexus5x-GPU-Adreno418-arm-Release-All-Android_Vulkan_NoGPUThreads",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
