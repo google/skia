@@ -1832,6 +1832,7 @@ if (skia_enable_tools) {
       deps = [
         ":skia",
         ":skqp_lib",
+        ":tool_utils",
       ]
       libs = [ "android" ]
     }
