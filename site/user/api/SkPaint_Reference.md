@@ -238,7 +238,7 @@ Multiple colors are drawn either by using multiple paints or with objects like
 SkPaint()
 </pre>
 
-Constructs <a href="#Paint">Paint</a> with default values.
+constructs with default valuesConstructs <a href="#Paint">Paint</a> with default values.
 
 | attribute | default value |
 | --- | ---  |
@@ -296,7 +296,7 @@ default initialized <a href="#Paint">Paint</a>
 SkPaint(const SkPaint& paint)
 </pre>
 
-Makes a shallow copy of <a href="#Paint">Paint</a>. <a href="undocumented#Typeface">Typeface</a>, <a href="undocumented#Path_Effect">Path Effect</a>, <a href="undocumented#Shader">Shader</a>,
+makes a shallow copyMakes a shallow copy of <a href="#Paint">Paint</a>. <a href="undocumented#Typeface">Typeface</a>, <a href="undocumented#Path_Effect">Path Effect</a>, <a href="undocumented#Shader">Shader</a>,
 <a href="undocumented#Mask_Filter">Mask Filter</a>, <a href="undocumented#Color_Filter">Color Filter</a>, <a href="undocumented#Draw_Looper">Draw Looper</a>, and <a href="undocumented#Image_Filter">Image Filter</a> are shared
 between the original <a href="#SkPaint_copy_const_SkPaint_paint">paint</a> and the copy. Objects containing <a href="undocumented#Reference_Count">Reference Count</a> increment
 their references by one.
@@ -338,7 +338,7 @@ SK_ColorBLUE == paint2.getColor()
 SkPaint(SkPaint&& paint)
 </pre>
 
-Implements a move constructor to avoid increasing the reference counts
+moves <a href="#SkPaint_move_SkPaint_paint">paint</a> without copying itImplements a move constructor to avoid increasing the reference counts
 of objects referenced by the <a href="#SkPaint_move_SkPaint_paint">paint</a>.
 
 After the call, <a href="#SkPaint_move_SkPaint_paint">paint</a> is undefined, and can be safely destructed.
@@ -375,7 +375,7 @@ path effect unique: true
 void reset()
 </pre>
 
-Sets all <a href="#Paint">Paint</a> contents to their initial values. This is equivalent to replacing
+sets to default valuesSets all <a href="#Paint">Paint</a> contents to their initial values. This is equivalent to replacing
 <a href="#Paint">Paint</a> with the result of <a href="#SkPaint_empty_constructor">SkPaint()</a>.
 
 ### Example
@@ -401,7 +401,7 @@ paint1 == paint2
 ~SkPaint()
 </pre>
 
-Decreases <a href="#Paint">Paint</a> <a href="undocumented#Reference_Count">Reference Count</a> of owned objects: <a href="undocumented#Typeface">Typeface</a>, <a href="undocumented#Path_Effect">Path Effect</a>, <a href="undocumented#Shader">Shader</a>,
+decreases <a href="undocumented#Reference_Count">Reference Count</a> of owned objectsDecreases <a href="#Paint">Paint</a> <a href="undocumented#Reference_Count">Reference Count</a> of owned objects: <a href="undocumented#Typeface">Typeface</a>, <a href="undocumented#Path_Effect">Path Effect</a>, <a href="undocumented#Shader">Shader</a>,
 <a href="undocumented#Mask_Filter">Mask Filter</a>, <a href="undocumented#Color_Filter">Color Filter</a>, <a href="undocumented#Draw_Looper">Draw Looper</a>, and <a href="undocumented#Image_Filter">Image Filter</a>. If the
 objects containing <a href="undocumented#Reference_Count">Reference Count</a> go to zero, they are deleted.
 
@@ -416,7 +416,7 @@ objects containing <a href="undocumented#Reference_Count">Reference Count</a> go
 SkPaint& operator=(const SkPaint& paint)
 </pre>
 
-Makes a shallow copy of <a href="#Paint">Paint</a>. <a href="undocumented#Typeface">Typeface</a>, <a href="undocumented#Path_Effect">Path Effect</a>, <a href="undocumented#Shader">Shader</a>,
+makes a shallow copyMakes a shallow copy of <a href="#Paint">Paint</a>. <a href="undocumented#Typeface">Typeface</a>, <a href="undocumented#Path_Effect">Path Effect</a>, <a href="undocumented#Shader">Shader</a>,
 <a href="undocumented#Mask_Filter">Mask Filter</a>, <a href="undocumented#Color_Filter">Color Filter</a>, <a href="undocumented#Draw_Looper">Draw Looper</a>, and <a href="undocumented#Image_Filter">Image Filter</a> are shared
 between the original <a href="#SkPaint_copy_operator_paint">paint</a> and the copy. Objects containing <a href="undocumented#Reference_Count">Reference Count</a> in the
 prior destination are decreased by one, and the referenced objects are deleted if the
@@ -456,7 +456,7 @@ SK_ColorRED == paint2.getColor()
 SkPaint& operator=(SkPaint&& paint)
 </pre>
 
-Moves the <a href="#SkPaint_move_operator_paint">paint</a> to avoid increasing the reference counts
+moves <a href="#SkPaint_move_operator_paint">paint</a> without copying itMoves the <a href="#SkPaint_move_operator_paint">paint</a> to avoid increasing the reference counts
 of objects referenced by the <a href="#SkPaint_move_operator_paint">paint</a> parameter. Objects containing <a href="undocumented#Reference_Count">Reference Count</a> in the
 prior destination are decreased by one; those objects are deleted if the resulting count
 is zero.
@@ -495,7 +495,7 @@ SK_ColorRED == paint2.getColor()
 bool operator==(const SkPaint& a, const SkPaint& b)
 </pre>
 
-Compares <a href="#SkPaint_equal_operator_a">a</a> and <a href="#SkPaint_equal_operator_b">b</a>, and returns true if <a href="#SkPaint_equal_operator_a">a</a> and <a href="#SkPaint_equal_operator_b">b</a> are equivalent. May return false
+compares paints for equalityCompares <a href="#SkPaint_equal_operator_a">a</a> and <a href="#SkPaint_equal_operator_b">b</a>, and returns true if <a href="#SkPaint_equal_operator_a">a</a> and <a href="#SkPaint_equal_operator_b">b</a> are equivalent. May return false
 if <a href="undocumented#Typeface">Typeface</a>, <a href="undocumented#Path_Effect">Path Effect</a>, <a href="undocumented#Shader">Shader</a>, <a href="undocumented#Mask_Filter">Mask Filter</a>, <a href="undocumented#Color_Filter">Color Filter</a>,
 <a href="undocumented#Draw_Looper">Draw Looper</a>, or <a href="undocumented#Image_Filter">Image Filter</a> have identical contents but different pointers.
 
@@ -534,7 +534,7 @@ paint1 != paint2
 bool operator!=(const SkPaint& a, const SkPaint& b)
 </pre>
 
-Compares <a href="#SkPaint_notequal_operator_a">a</a> and <a href="#SkPaint_notequal_operator_b">b</a>, and returns true if <a href="#SkPaint_notequal_operator_a">a</a> and <a href="#SkPaint_notequal_operator_b">b</a> are not equivalent. May return true
+compares paints for inequalityCompares <a href="#SkPaint_notequal_operator_a">a</a> and <a href="#SkPaint_notequal_operator_b">b</a>, and returns true if <a href="#SkPaint_notequal_operator_a">a</a> and <a href="#SkPaint_notequal_operator_b">b</a> are not equivalent. May return true
 if <a href="undocumented#Typeface">Typeface</a>, <a href="undocumented#Path_Effect">Path Effect</a>, <a href="undocumented#Shader">Shader</a>, <a href="undocumented#Mask_Filter">Mask Filter</a>, <a href="undocumented#Color_Filter">Color Filter</a>,
 <a href="undocumented#Draw_Looper">Draw Looper</a>, or <a href="undocumented#Image_Filter">Image Filter</a> have identical contents but different pointers.
 
@@ -573,7 +573,7 @@ paint1 == paint2
 uint32_t getHash() const
 </pre>
 
-Returns a hash generated from <a href="#Paint">Paint</a> values and pointers.
+returns a shallow hash for equality checksReturns a hash generated from <a href="#Paint">Paint</a> values and pointers.
 Identical hashes guarantee that the paints are
 equivalent, but differing hashes do not guarantee that the paints have differing
 contents.
@@ -609,7 +609,7 @@ paint1.getHash() == paint2.getHash()
 void flatten(SkWriteBuffer& buffer) const
 </pre>
 
-Serializes <a href="#Paint">Paint</a> into a <a href="#SkPaint_flatten_buffer">buffer</a>. A companion <a href="#SkPaint_unflatten">unflatten</a> call
+serializes into a <a href="#SkPaint_flatten_buffer">buffer</a>Serializes <a href="#Paint">Paint</a> into a <a href="#SkPaint_flatten_buffer">buffer</a>. A companion <a href="#SkPaint_unflatten">unflatten</a> call
 can reconstitute the paint at a later time.
 
 ### Parameters
@@ -628,7 +628,7 @@ can reconstitute the paint at a later time.
 bool unflatten(SkReadBuffer& buffer)
 </pre>
 
-Populates <a href="#Paint">Paint</a>, typically from a serialized stream, created by calling
+populates from a serialized streamPopulates <a href="#Paint">Paint</a>, typically from a serialized stream, created by calling
 <a href="#SkPaint_flatten">flatten</a> at an earlier time.
 
 <a href="undocumented#SkReadBuffer">SkReadBuffer</a> class is not public, so <a href="#SkPaint_unflatten">unflatten</a> cannot be meaningfully called
@@ -716,7 +716,7 @@ Set <a href="undocumented#SkPaintDefaults_Hinting">SkPaintDefaults Hinting</a> a
 Hinting getHinting() const
 </pre>
 
-Returns level of glyph outline adjustment.
+returns <a href="#Hinting">Hinting</a>, glyph outline adjustment levelReturns level of glyph outline adjustment.
 
 ### Return Value
 
@@ -743,7 +743,7 @@ SkPaint::kNormal_Hinting == paint.getHinting()
 void setHinting(Hinting hintingLevel)
 </pre>
 
-Sets level of glyph outline adjustment.
+sets <a href="#Hinting">Hinting</a>, glyph outline adjustment levelSets level of glyph outline adjustment.
 Does not check for valid values of <a href="#SkPaint_setHinting_hintingLevel">hintingLevel</a>.
 
 | <a href="#Hinting">Hinting</a> | value | effect on generated glyph outlines |
@@ -877,7 +877,7 @@ enum <a href="#SkPaint_ReserveFlags">ReserveFlags</a> {
 uint32_t getFlags() const
 </pre>
 
-Returns paint settings described by <a href="#Flags">Flags</a>. Each setting uses one
+returns <a href="#Flags">Flags</a> stored in a bit fieldReturns paint settings described by <a href="#Flags">Flags</a>. Each setting uses one
 bit, and can be tested with <a href="#Flags">Flags</a> members.
 
 ### Return Value
@@ -905,7 +905,7 @@ zero, one, or more bits described by <a href="#Flags">Flags</a>
 void setFlags(uint32_t flags)
 </pre>
 
-Replaces <a href="#Flags">Flags</a> with <a href="#SkPaint_setFlags_flags">flags</a>, the union of the <a href="#Flags">Flags</a> members.
+sets multiple <a href="#Flags">Flags</a> in a bit fieldReplaces <a href="#Flags">Flags</a> with <a href="#SkPaint_setFlags_flags">flags</a>, the union of the <a href="#Flags">Flags</a> members.
 All <a href="#Flags">Flags</a> members may be cleared, or one or more may be set.
 
 ### Parameters
@@ -931,7 +931,7 @@ paint.isDither()
 ---
 
 # <a name="Anti-alias"></a> Anti-alias
-Anti-alias drawing approximates partial pixel coverage with transparency.
+approximating coverage with transparencyAnti-alias drawing approximates partial pixel coverage with transparency.
 If <a href="#SkPaint_kAntiAlias_Flag">kAntiAlias Flag</a> is clear, pixel centers contained by the shape edge are drawn opaque.
 If <a href="#SkPaint_kAntiAlias_Flag">kAntiAlias Flag</a> is set, pixels are drawn with <a href="#Alpha">Color Alpha</a> equal to their coverage.
 
@@ -965,7 +965,7 @@ The lines are drawn into <a href="SkBitmap_Reference#Bitmap">Bitmap</a>, then dr
 bool isAntiAlias() const
 </pre>
 
-If true, pixels on the active edges of <a href="SkPath_Reference#Path">Path</a> may be drawn with partial transparency.
+returns true if Anti-alias is setIf true, pixels on the active edges of <a href="SkPath_Reference#Path">Path</a> may be drawn with partial transparency.
 
 Equivalent to <a href="#SkPaint_getFlags">getFlags</a> masked with <a href="#SkPaint_kAntiAlias_Flag">kAntiAlias Flag</a>.
 
@@ -995,7 +995,7 @@ paint.isAntiAlias() == !!(paint.getFlags() & SkPaint::kAntiAlias_Flag)
 void setAntiAlias(bool aa)
 </pre>
 
-Requests, but does not require, that <a href="SkPath_Reference#Path">Path</a> edge pixels draw opaque or with
+sets or clears Anti-aliasRequests, but does not require, that <a href="SkPath_Reference#Path">Path</a> edge pixels draw opaque or with
 partial transparency.
 
 Sets <a href="#SkPaint_kAntiAlias_Flag">kAntiAlias Flag</a> if <a href="#SkPaint_setAntiAlias_aa">aa</a> is true.
@@ -1058,7 +1058,7 @@ dither, making it easier to see.</div></fiddle-embed></div>
 bool isDither() const
 </pre>
 
-If true, color error may be distributed to smooth color transition.
+returns true if <a href="#Dither">Dither</a> is setIf true, color error may be distributed to smooth color transition.
 Equivalent to <a href="#SkPaint_getFlags">getFlags</a> masked with <a href="#SkPaint_kDither_Flag">kDither Flag</a>.
 
 ### Return Value
@@ -1087,7 +1087,7 @@ paint.isDither() == !!(paint.getFlags() & SkPaint::kDither_Flag)
 void setDither(bool dither)
 </pre>
 
-Requests, but does not require, to distribute color error.
+sets or clears <a href="#Dither">Dither</a>Requests, but does not require, to distribute color error.
 
 Sets <a href="#SkPaint_kDither_Flag">kDither Flag</a> if <a href="#SkPaint_setDither_dither">dither</a> is true.
 Clears <a href="#SkPaint_kDither_Flag">kDither Flag</a> if <a href="#SkPaint_setDither_dither">dither</a> is false.
@@ -1219,7 +1219,7 @@ of the color increases, the edge of the glyph appears to move towards the outsid
 bool isSubpixelText() const
 </pre>
 
-If true, <a href="#Glyph">Glyphs</a> at different sub-pixel positions may differ on pixel edge coverage.
+returns true if <a href="SkPaint_Reference#Subpixel_Text">Subpixel Text</a> is setIf true, <a href="#Glyph">Glyphs</a> at different sub-pixel positions may differ on pixel edge coverage.
 
 Equivalent to <a href="#SkPaint_getFlags">getFlags</a> masked with <a href="#SkPaint_kSubpixelText_Flag">kSubpixelText Flag</a>.
 
@@ -1249,7 +1249,7 @@ paint.isSubpixelText() == !!(paint.getFlags() & SkPaint::kSubpixelText_Flag)
 void setSubpixelText(bool subpixelText)
 </pre>
 
-Requests, but does not require, that <a href="#Glyph">Glyphs</a> respect sub-pixel positioning.
+sets or clears <a href="SkPaint_Reference#Subpixel_Text">Subpixel Text</a>Requests, but does not require, that <a href="#Glyph">Glyphs</a> respect sub-pixel positioning.
 
 Sets <a href="#SkPaint_kSubpixelText_Flag">kSubpixelText Flag</a> if <a href="#SkPaint_setSubpixelText_subpixelText">subpixelText</a> is true.
 Clears <a href="#SkPaint_kSubpixelText_Flag">kSubpixelText Flag</a> if <a href="#SkPaint_setSubpixelText_subpixelText">subpixelText</a> is false.
@@ -1290,7 +1290,7 @@ the color components as <a href="#RGB">Color RGB</a> or <a href="#RBG">Color RBG
 bool isLCDRenderText() const
 </pre>
 
-If true, <a href="#Glyph">Glyphs</a> may use LCD striping to improve glyph edges.
+returns true if <a href="SkPaint_Reference#LCD_Text">LCD Text</a> is setIf true, <a href="#Glyph">Glyphs</a> may use LCD striping to improve glyph edges.
 
 Returns true if <a href="#SkPaint_Flags">Flags</a> <a href="#SkPaint_kLCDRenderText_Flag">kLCDRenderText Flag</a> is set.
 
@@ -1320,7 +1320,7 @@ paint.isLCDRenderText() == !!(paint.getFlags() & SkPaint::kLCDRenderText_Flag)
 void setLCDRenderText(bool lcdText)
 </pre>
 
-Requests, but does not require, that <a href="#Glyph">Glyphs</a> use LCD striping for glyph edges.
+sets or clears <a href="SkPaint_Reference#LCD_Text">LCD Text</a>Requests, but does not require, that <a href="#Glyph">Glyphs</a> use LCD striping for glyph edges.
 
 Sets <a href="#SkPaint_kLCDRenderText_Flag">kLCDRenderText Flag</a> if <a href="#SkPaint_setLCDRenderText_lcdText">lcdText</a> is true.
 Clears <a href="#SkPaint_kLCDRenderText_Flag">kLCDRenderText Flag</a> if <a href="#SkPaint_setLCDRenderText_lcdText">lcdText</a> is false.
@@ -1392,7 +1392,7 @@ void draw(SkCanvas* canvas) {<div>The "hintgasp" TrueType font in the Skia resou
 bool isEmbeddedBitmapText() const
 </pre>
 
-If true, <a href="#Engine">Font Engine</a> may return <a href="#Glyph">Glyphs</a> from font bitmaps instead of from outlines.
+returns true if <a href="SkPaint_Reference#Font_Embedded_Bitmaps">Font Embedded Bitmaps</a> is setIf true, <a href="#Engine">Font Engine</a> may return <a href="#Glyph">Glyphs</a> from font bitmaps instead of from outlines.
 
 Equivalent to <a href="#SkPaint_getFlags">getFlags</a> masked with <a href="#SkPaint_kEmbeddedBitmapText_Flag">kEmbeddedBitmapText Flag</a>.
 
@@ -1422,7 +1422,7 @@ paint.isEmbeddedBitmapText() == !!(paint.getFlags() & SkPaint::kEmbeddedBitmapTe
 void setEmbeddedBitmapText(bool useEmbeddedBitmapText)
 </pre>
 
-Requests, but does not require, to use bitmaps in fonts instead of outlines.
+sets or clears <a href="SkPaint_Reference#Font_Embedded_Bitmaps">Font Embedded Bitmaps</a>Requests, but does not require, to use bitmaps in fonts instead of outlines.
 
 Sets <a href="#SkPaint_kEmbeddedBitmapText_Flag">kEmbeddedBitmapText Flag</a> if <a href="#SkPaint_setEmbeddedBitmapText_useEmbeddedBitmapText">useEmbeddedBitmapText</a> is true.
 Clears <a href="#SkPaint_kEmbeddedBitmapText_Flag">kEmbeddedBitmapText Flag</a> if <a href="#SkPaint_setEmbeddedBitmapText_useEmbeddedBitmapText">useEmbeddedBitmapText</a> is false.
@@ -1463,7 +1463,7 @@ instructs the <a href="undocumented#Font_Manager">Font Manager</a> to always hin
 bool isAutohinted() const
 </pre>
 
-If true, and if <a href="#SkPaint_Hinting">Hinting</a> is set to <a href="#SkPaint_kNormal_Hinting">kNormal Hinting</a> or <a href="#SkPaint_kFull_Hinting">kFull Hinting</a>, and if
+returns true if <a href="#Glyph">Glyphs</a> are always hintedIf true, and if <a href="#SkPaint_Hinting">Hinting</a> is set to <a href="#SkPaint_kNormal_Hinting">kNormal Hinting</a> or <a href="#SkPaint_kFull_Hinting">kFull Hinting</a>, and if
 platform uses FreeType as the <a href="undocumented#Font_Manager">Font Manager</a>, instruct the <a href="undocumented#Font_Manager">Font Manager</a> to always hint
 <a href="#Glyph">Glyphs</a>.
 
@@ -1499,7 +1499,7 @@ paint.isAutohinted() == !!(paint.getFlags() & SkPaint::kAutoHinting_Flag)
 void setAutohinted(bool useAutohinter)
 </pre>
 
-If <a href="#SkPaint_Hinting">Hinting</a> is set to <a href="#SkPaint_kNormal_Hinting">kNormal Hinting</a> or <a href="#SkPaint_kFull_Hinting">kFull Hinting</a> and <a href="#SkPaint_setAutohinted_useAutohinter">useAutohinter</a> is set,
+sets <a href="#Glyph">Glyphs</a> to always be hintedIf <a href="#SkPaint_Hinting">Hinting</a> is set to <a href="#SkPaint_kNormal_Hinting">kNormal Hinting</a> or <a href="#SkPaint_kFull_Hinting">kFull Hinting</a> and <a href="#SkPaint_setAutohinted_useAutohinter">useAutohinter</a> is set,
 instruct the <a href="undocumented#Font_Manager">Font Manager</a> to always hint <a href="#Glyph">Glyphs</a>.
 <a href="#Automatic_Hinting">Automatic Hinting</a> has no effect if <a href="#SkPaint_Hinting">Hinting</a> is set to <a href="#SkPaint_kNo_Hinting">kNo Hinting</a> or
 <a href="#SkPaint_kSlight_Hinting">kSlight Hinting</a>.
@@ -1558,7 +1558,7 @@ into glyph series.
 bool isVerticalText() const
 </pre>
 
-If true, <a href="#Glyph">Glyphs</a> are drawn top to bottom instead of left to right.
+returns true if <a href="#Vertical_Text">Vertical Text</a> is setIf true, <a href="#Glyph">Glyphs</a> are drawn top to bottom instead of left to right.
 
 Equivalent to <a href="#SkPaint_getFlags">getFlags</a> masked with <a href="#SkPaint_kVerticalText_Flag">kVerticalText Flag</a>.
 
@@ -1588,7 +1588,7 @@ paint.isVerticalText() == !!(paint.getFlags() & SkPaint::kVerticalText_Flag)
 void setVerticalText(bool verticalText)
 </pre>
 
-If true, text advance positions the next glyph below the previous glyph instead of to the
+sets or clears <a href="#Vertical_Text">Vertical Text</a>If true, text advance positions the next glyph below the previous glyph instead of to the
 right of previous glyph.
 
 Sets <a href="#SkPaint_kVerticalText_Flag">kVerticalText Flag</a> if vertical is true.
@@ -1640,7 +1640,7 @@ by increasing the stroke width and setting the <a href="#SkPaint_Style">Style</a
 bool isFakeBoldText() const
 </pre>
 
-If true, approximate bold by increasing the stroke width when creating glyph bitmaps
+returns true if <a href="#Fake_Bold">Fake Bold</a> is setIf true, approximate bold by increasing the stroke width when creating glyph bitmaps
 from outlines.
 
 Equivalent to <a href="#SkPaint_getFlags">getFlags</a> masked with <a href="#SkPaint_kFakeBoldText_Flag">kFakeBoldText Flag</a>.
@@ -1671,7 +1671,7 @@ paint.isFakeBoldText() == !!(paint.getFlags() & SkPaint::kFakeBoldText_Flag)
 void setFakeBoldText(bool fakeBoldText)
 </pre>
 
-Use increased stroke width when creating glyph bitmaps to approximate a bold typeface.
+sets or clears <a href="#Fake_Bold">Fake Bold</a>Use increased stroke width when creating glyph bitmaps to approximate a bold typeface.
 
 Sets <a href="#SkPaint_kFakeBoldText_Flag">kFakeBoldText Flag</a> if <a href="#SkPaint_setFakeBoldText_fakeBoldText">fakeBoldText</a> is true.
 Clears <a href="#SkPaint_kFakeBoldText_Flag">kFakeBoldText Flag</a> if <a href="#SkPaint_setFakeBoldText_fakeBoldText">fakeBoldText</a> is false.
@@ -1713,7 +1713,7 @@ a specific pair of characters is adjusted using data in the font Kerning tables.
 bool isDevKernText() const
 </pre>
 
-Returns if character spacing may be adjusted by the hinting difference.
+returns true if <a href="SkPaint_Reference#Full_Hinting_Spacing">Full Hinting Spacing</a> is setReturns if character spacing may be adjusted by the hinting difference.
 
 Equivalent to <a href="#SkPaint_getFlags">getFlags</a> masked with <a href="#SkPaint_kDevKernText_Flag">kDevKernText Flag</a>.
 
@@ -1734,7 +1734,7 @@ Equivalent to <a href="#SkPaint_getFlags">getFlags</a> masked with <a href="#SkP
 void setDevKernText(bool devKernText)
 </pre>
 
-Requests, but does not require, to use hinting to adjust glyph spacing.
+sets or clears <a href="SkPaint_Reference#Full_Hinting_Spacing">Full Hinting Spacing</a>Requests, but does not require, to use hinting to adjust glyph spacing.
 
 Sets <a href="#SkPaint_kDevKernText_Flag">kDevKernText Flag</a> if <a href="#SkPaint_setDevKernText_devKernText">devKernText</a> is true.
 Clears <a href="#SkPaint_kDevKernText_Flag">kDevKernText Flag</a> if <a href="#SkPaint_setDevKernText_devKernText">devKernText</a> is false.
@@ -1791,7 +1791,7 @@ and when <a href="#Paint">Paint</a> has a <a href="undocumented#Shader">Shader</
 SkFilterQuality getFilterQuality() const
 </pre>
 
-Returns <a href="undocumented#Filter_Quality">Filter Quality</a>, the image filtering level. A lower setting
+returns <a href="undocumented#Filter_Quality">Filter Quality</a>, image filtering levelReturns <a href="undocumented#Filter_Quality">Filter Quality</a>, the image filtering level. A lower setting
 draws faster; a higher setting looks better when the image is scaled.
 
 ### Return Value
@@ -1820,7 +1820,7 @@ kNone_SkFilterQuality == paint.getFilterQuality()
 void setFilterQuality(SkFilterQuality quality)
 </pre>
 
-Sets <a href="undocumented#Filter_Quality">Filter Quality</a>, the image filtering level. A lower setting
+sets <a href="undocumented#Filter_Quality">Filter Quality</a>, the image filtering levelSets <a href="undocumented#Filter_Quality">Filter Quality</a>, the image filtering level. A lower setting
 draws faster; a higher setting looks better when the image is scaled.
 Does not check to see if <a href="#SkPaint_setFilterQuality_quality">quality</a> is valid.
 
@@ -1851,16 +1851,23 @@ kHigh_SkFilterQuality == paint.getFilterQuality()
 ---
 
 # <a name="Color_Methods"></a> Color Methods
-<a href="undocumented#Color">Color</a> specifies the <a href="#RGB_Red">Color RGB Red</a>, <a href="#RGB_Blue">Color RGB Blue</a>, <a href="#RGB_Green">Color RGB Green</a>, and <a href="#Alpha">Color Alpha</a> values used to draw a filled
-or stroked shape in a
-32-bit value. Each component occupies 8-bits, ranging from zero: no contribution;
-to 255: full intensity. All values in any combination are valid.
 
-<a href="undocumented#Color">Color</a> is not <a href="#Premultiply">Premultiplied</a>;
-<a href="#Alpha">Color Alpha</a> sets the transparency independent of <a href="#RGB">Color RGB</a>: <a href="#RGB_Red">Color RGB Red</a>, <a href="#RGB_Blue">Color RGB Blue</a>, and <a href="#RGB_Green">Color RGB Green</a>.
+| name | description |
+| --- | ---  |
+| <a href="#SkPaint_getColor">getColor</a> | returns <a href="#Alpha">Color Alpha</a> and <a href="#RGB">Color RGB</a>, one drawing color |
+| <a href="#SkPaint_setColor">setColor</a> | sets <a href="#Alpha">Color Alpha</a> and <a href="#RGB">Color RGB</a>, one drawing color |
 
-The bit positions of <a href="#Alpha">Color Alpha</a> and <a href="#RGB">Color RGB</a> are independent of the bit positions
-on the output device, which may have more or fewer bits, and may have a different arrangement.
+<a href="undocumented#Color">Color</a> specifies the <a href="#RGB_Red">Color RGB Red</a>, <a href="#RGB_Blue">Color RGB Blue</a>, <a href="#RGB_Green">Color RGB Green</a>, and <a href="#Alpha">Color Alpha</a>
+values used to draw a filled or stroked shape in a 32-bit value. Each component
+occupies 8-bits, ranging from zero: no contribution; to 255: full intensity.
+All values in any combination are valid.
+
+<a href="undocumented#Color">Color</a> is not <a href="#Premultiply">Premultiplied</a>; <a href="#Alpha">Color Alpha</a> sets the transparency independent of
+<a href="#RGB">Color RGB</a>: <a href="#RGB_Red">Color RGB Red</a>, <a href="#RGB_Blue">Color RGB Blue</a>, and <a href="#RGB_Green">Color RGB Green</a>.
+
+The bit positions of <a href="#Alpha">Color Alpha</a> and <a href="#RGB">Color RGB</a> are independent of the bit
+positions on the output device, which may have more or fewer bits, and may have
+a different arrangement.
 
 | bit positions | <a href="#Alpha">Color Alpha</a> | <a href="#RGB_Red">Color RGB Red</a> | <a href="#RGB_Blue">Color RGB Blue</a> | <a href="#RGB_Green">Color RGB Green</a> |
 | --- | --- | --- | --- | ---  |
@@ -1877,7 +1884,7 @@ on the output device, which may have more or fewer bits, and may have a differen
 SkColor getColor() const
 </pre>
 
-Retrieves <a href="#Alpha">Alpha</a> and <a href="#RGB">Color RGB</a>, <a href="#Unpremultiply">Unpremultiplied</a>, packed into 32 bits.
+returns <a href="#Alpha">Color Alpha</a> and <a href="#RGB">Color RGB</a>, one drawing colorRetrieves <a href="#Alpha">Alpha</a> and <a href="#RGB">Color RGB</a>, <a href="#Unpremultiply">Unpremultiplied</a>, packed into 32 bits.
 Use helpers <a href="undocumented#SkColorGetA">SkColorGetA</a>, <a href="undocumented#SkColorGetR">SkColorGetR</a>, <a href="undocumented#SkColorGetG">SkColorGetG</a>, and <a href="undocumented#SkColorGetB">SkColorGetB</a> to extract
 a color component.
 
@@ -1910,7 +1917,7 @@ Yellow is 100% red, 100% green, and 0% blue.
 void setColor(SkColor color)
 </pre>
 
-Sets <a href="#Alpha">Alpha</a> and <a href="#RGB">Color RGB</a> used when stroking and filling. The <a href="#SkPaint_setColor_color">color</a> is a 32-bit value,
+sets <a href="#Alpha">Color Alpha</a> and <a href="#RGB">Color RGB</a>, one drawing <a href="#SkPaint_setColor_color">color</a>Sets <a href="#Alpha">Alpha</a> and <a href="#RGB">Color RGB</a> used when stroking and filling. The <a href="#SkPaint_setColor_color">color</a> is a 32-bit value,
 <a href="#Unpremultiply">Unpremultiplied</a>, packing 8-bit components for <a href="#Alpha">Alpha</a>, <a href="#Red">Red</a>, <a href="#Blue">Blue</a>, and <a href="#Green">Green</a>.
 
 ### Parameters
@@ -1949,7 +1956,7 @@ green1 == green2
 uint8_t getAlpha() const
 </pre>
 
-Retrieves <a href="#Alpha">Alpha</a> from the <a href="undocumented#Color">Color</a> used when stroking and filling.
+returns <a href="#Alpha">Color Alpha</a>, color opacityRetrieves <a href="#Alpha">Alpha</a> from the <a href="undocumented#Color">Color</a> used when stroking and filling.
 
 ### Return Value
 
@@ -1976,7 +1983,7 @@ Retrieves <a href="#Alpha">Alpha</a> from the <a href="undocumented#Color">Color
 void setAlpha(U8CPU a)
 </pre>
 
-Replaces <a href="#Alpha">Alpha</a>, leaving <a href="#RGB">Color RGB</a>
+sets <a href="#Alpha">Color Alpha</a>, color opacityReplaces <a href="#Alpha">Alpha</a>, leaving <a href="#RGB">Color RGB</a>
 unchanged. An out of range value triggers an assert in the debug
 build. <a href="#SkPaint_setAlpha_a">a</a> is <a href="#SkPaint_setAlpha_a">a</a> value from zero to 255.
 <a href="#SkPaint_setAlpha_a">a</a> set to zero makes <a href="undocumented#Color">Color</a> fully transparent; <a href="#SkPaint_setAlpha_a">a</a> set to 255 makes <a href="undocumented#Color">Color</a>
@@ -2010,7 +2017,7 @@ fully opaque.
 void setARGB(U8CPU a, U8CPU r, U8CPU g, U8CPU b)
 </pre>
 
-Sets <a href="undocumented#Color">Color</a> used when drawing solid fills. The color components range from 0 to 255.
+sets color by componentSets <a href="undocumented#Color">Color</a> used when drawing solid fills. The color components range from 0 to 255.
 The color is <a href="#Unpremultiply">Unpremultiplied</a>; <a href="#Alpha">Alpha</a> sets the transparency independent of <a href="#RGB">Color RGB</a>.
 
 ### Parameters
@@ -2149,7 +2156,7 @@ May be used to verify that <a href="#SkPaint_Style">Style</a> is a legal value.<
 Style getStyle() const
 </pre>
 
-Whether the geometry is filled, stroked, or filled and stroked.
+returns <a href="#SkPaint_Style">Style</a>: stroke, fill, or bothWhether the geometry is filled, stroked, or filled and stroked.
 
 ### Return Value
 
@@ -2180,7 +2187,7 @@ SkPaint::kFill_Style == paint.getStyle()
 void setStyle(Style style)
 </pre>
 
-Sets whether the geometry is filled, stroked, or filled and stroked.
+sets <a href="#SkPaint_Style">Style</a>: stroke, fill, or bothSets whether the geometry is filled, stroked, or filled and stroked.
 Has no effect if <a href="#SkPaint_setStyle_style">style</a> is not a legal <a href="#SkPaint_Style">Style</a> value.
 
 ### Parameters
@@ -2230,7 +2237,7 @@ line and the platform implementation.</div></fiddle-embed></div>
 SkScalar getStrokeWidth() const
 </pre>
 
-Returns the thickness of the pen used by <a href="#Paint">Paint</a> to
+returns thickness of the strokeReturns the thickness of the pen used by <a href="#Paint">Paint</a> to
 outline the shape.
 
 ### Return Value
@@ -2258,7 +2265,7 @@ zero for <a href="#Hairline">Hairline</a>, greater than zero for pen thickness
 void setStrokeWidth(SkScalar width)
 </pre>
 
-Sets the thickness of the pen used by the paint to
+sets thickness of the strokeSets the thickness of the pen used by the paint to
 outline the shape.
 Has no effect if <a href="#SkPaint_setStrokeWidth_width">width</a> is less than zero.
 
@@ -2328,7 +2335,7 @@ by a bevel join.</div></fiddle-embed></div>
 SkScalar getStrokeMiter() const
 </pre>
 
-The limit at which a sharp corner is drawn beveled.
+returns <a href="#Miter_Limit">Miter Limit</a>, angles with sharp cornersThe limit at which a sharp corner is drawn beveled.
 
 ### Return Value
 
@@ -2359,7 +2366,7 @@ default miter limit == 4
 void setStrokeMiter(SkScalar miter)
 </pre>
 
-The limit at which a sharp corner is drawn beveled.
+sets <a href="#Miter_Limit">Miter Limit</a>, angles with sharp cornersThe limit at which a sharp corner is drawn beveled.
 Valid values are zero and greater.
 Has no effect if <a href="#SkPaint_setStrokeMiter_miter">miter</a> is less than zero.
 
@@ -2462,7 +2469,7 @@ at the contour point.
 Cap getStrokeCap() const
 </pre>
 
-The geometry drawn at the beginning and end of strokes.
+returns <a href="#SkPaint_Cap">Cap</a>, the area drawn at path endsThe geometry drawn at the beginning and end of strokes.
 
 ### Return Value
 
@@ -2493,7 +2500,7 @@ kButt_Cap == default stroke cap
 void setStrokeCap(Cap cap)
 </pre>
 
-The geometry drawn at the beginning and end of strokes.
+sets <a href="#SkPaint_Cap">Cap</a>, the area drawn at path endsThe geometry drawn at the beginning and end of strokes.
 
 ### Parameters
 
@@ -2604,7 +2611,7 @@ May be used to verify that <a href="#Stroke_Join">Stroke Join</a> is a legal val
 Join getStrokeJoin() const
 </pre>
 
-The geometry drawn at the corners of strokes.
+returns <a href="#SkPaint_Join">Join</a>, geometry on path cornersThe geometry drawn at the corners of strokes.
 
 ### Return Value
 
@@ -2635,7 +2642,7 @@ kMiter_Join == default stroke join
 void setStrokeJoin(Join join)
 </pre>
 
-The geometry drawn at the corners of strokes.
+sets <a href="#SkPaint_Join">Join</a>, geometry on path cornersThe geometry drawn at the corners of strokes.
 
 ### Parameters
 
@@ -2693,7 +2700,7 @@ returns false since <a href="#Hairline">Hairline</a> has no filled equivalent.
 bool getFillPath(const SkPath& src, SkPath* dst, const SkRect* cullRect, SkScalar resScale = 1) const
 </pre>
 
-The filled equivalent of the stroked path.
+returns fill path equivalent to strokeThe filled equivalent of the stroked path.
 
 ### Parameters
 
@@ -2783,7 +2790,7 @@ If <a href="undocumented#Shader">Shader</a> generates only <a href="#Alpha">Colo
 SkShader* getShader() const
 </pre>
 
-Optional colors used when filling a path, such as a gradient.
+returns <a href="undocumented#Shader">Shader</a>, multiple drawing colors; gradientsOptional colors used when filling a path, such as a gradient.
 
 Does not alter <a href="undocumented#Shader">Shader</a> <a href="undocumented#Reference_Count">Reference Count</a>.
 
@@ -2813,7 +2820,7 @@ nullptr != shader
 sk_sp&lt;SkShader&gt; refShader() const
 </pre>
 
-Optional colors used when filling a path, such as a gradient.
+references <a href="undocumented#Shader">Shader</a>, multiple drawing colors; gradientsOptional colors used when filling a path, such as a gradient.
 
 Increases <a href="undocumented#Shader">Shader</a> <a href="undocumented#Reference_Count">Reference Count</a> by one.
 
@@ -2843,7 +2850,7 @@ shader unique: false
 void setShader(sk_sp&lt;SkShader&gt; shader)
 </pre>
 
-Optional colors used when filling a path, such as a gradient.
+sets <a href="undocumented#Shader">Shader</a>, multiple drawing colors; gradientsOptional colors used when filling a path, such as a gradient.
 
 Sets <a href="undocumented#Shader">Shader</a> to <a href="#SkPaint_setShader_shader">shader</a>, decreasing <a href="undocumented#Reference_Count">Reference Count</a> of the previous <a href="undocumented#Shader">Shader</a>.
 Increments <a href="#SkPaint_setShader_shader">shader</a> <a href="undocumented#Reference_Count">Reference Count</a> by one.
@@ -2879,7 +2886,7 @@ The drawn transparency can be modified without altering <a href="undocumented#Co
 SkColorFilter* getColorFilter() const
 </pre>
 
-Returns <a href="undocumented#Color_Filter">Color Filter</a> if set, or nullptr.
+returns <a href="undocumented#Color_Filter">Color Filter</a>, how colors are alteredReturns <a href="undocumented#Color_Filter">Color Filter</a> if set, or nullptr.
 Does not alter <a href="undocumented#Color_Filter">Color Filter</a> <a href="undocumented#Reference_Count">Reference Count</a>.
 
 ### Return Value
@@ -2908,7 +2915,7 @@ nullptr != color filter
 sk_sp&lt;SkColorFilter&gt; refColorFilter() const
 </pre>
 
-Returns <a href="undocumented#Color_Filter">Color Filter</a> if set, or nullptr.
+references <a href="undocumented#Color_Filter">Color Filter</a>, how colors are alteredReturns <a href="undocumented#Color_Filter">Color Filter</a> if set, or nullptr.
 Increases <a href="undocumented#Color_Filter">Color Filter</a> <a href="undocumented#Reference_Count">Reference Count</a> by one.
 
 ### Return Value
@@ -2937,7 +2944,7 @@ color filter unique: false
 void setColorFilter(sk_sp&lt;SkColorFilter&gt; colorFilter)
 </pre>
 
-Sets <a href="undocumented#Color_Filter">Color Filter</a> to filter, decreasing <a href="undocumented#Reference_Count">Reference Count</a> of the previous
+sets <a href="undocumented#Color_Filter">Color Filter</a>, alters colorSets <a href="undocumented#Color_Filter">Color Filter</a> to filter, decreasing <a href="undocumented#Reference_Count">Reference Count</a> of the previous
 <a href="undocumented#Color_Filter">Color Filter</a>. Pass nullptr to clear <a href="undocumented#Color_Filter">Color Filter</a>.
 
 Increments filter <a href="undocumented#Reference_Count">Reference Count</a> by one.
@@ -2975,7 +2982,7 @@ over the destination color.
 SkBlendMode getBlendMode() const
 </pre>
 
-Returns <a href="undocumented#Blend_Mode">Blend Mode</a>.
+returns <a href="undocumented#Blend_Mode">Blend Mode</a>, how colors combine with <a href="undocumented#Device">Device</a>Returns <a href="undocumented#Blend_Mode">Blend Mode</a>.
 By default, returns <a href="#SkBlendMode_kSrcOver">SkBlendMode::kSrcOver</a>.
 
 ### Return Value
@@ -3004,7 +3011,7 @@ kSrcOver != getBlendMode
 bool isSrcOver() const
 </pre>
 
-Returns true if <a href="undocumented#Blend_Mode">Blend Mode</a> is <a href="#SkBlendMode_kSrcOver">SkBlendMode::kSrcOver</a>, the default.
+returns true if <a href="undocumented#Blend_Mode">Blend Mode</a> is <a href="#SkBlendMode_kSrcOver">SkBlendMode::kSrcOver</a>Returns true if <a href="undocumented#Blend_Mode">Blend Mode</a> is <a href="#SkBlendMode_kSrcOver">SkBlendMode::kSrcOver</a>, the default.
 
 ### Return Value
 
@@ -3032,7 +3039,7 @@ isSrcOver != true
 void setBlendMode(SkBlendMode mode)
 </pre>
 
-Sets <a href="undocumented#Blend_Mode">Blend Mode</a> to <a href="#SkPaint_setBlendMode_mode">mode</a>.
+sets <a href="undocumented#Blend_Mode">Blend Mode</a>, how colors combine with destinationSets <a href="undocumented#Blend_Mode">Blend Mode</a> to <a href="#SkPaint_setBlendMode_mode">mode</a>.
 Does not check for valid input.
 
 ### Parameters
@@ -3077,7 +3084,7 @@ If <a href="#Paint">Paint</a> has no <a href="undocumented#Path_Effect">Path Eff
 SkPathEffect* getPathEffect() const
 </pre>
 
-Returns <a href="undocumented#Path_Effect">Path Effect</a> if set, or nullptr.
+returns <a href="undocumented#Path_Effect">Path Effect</a>, modifications to path geometry; dashingReturns <a href="undocumented#Path_Effect">Path Effect</a> if set, or nullptr.
 Does not alter <a href="undocumented#Path_Effect">Path Effect</a> <a href="undocumented#Reference_Count">Reference Count</a>.
 
 ### Return Value
@@ -3106,7 +3113,7 @@ nullptr != path effect
 sk_sp&lt;SkPathEffect&gt; refPathEffect() const
 </pre>
 
-Returns <a href="undocumented#Path_Effect">Path Effect</a> if set, or nullptr.
+references <a href="undocumented#Path_Effect">Path Effect</a>, modifications to path geometry; dashingReturns <a href="undocumented#Path_Effect">Path Effect</a> if set, or nullptr.
 Increases <a href="undocumented#Path_Effect">Path Effect</a> <a href="undocumented#Reference_Count">Reference Count</a> by one.
 
 ### Return Value
@@ -3135,7 +3142,7 @@ path effect unique: false
 void setPathEffect(sk_sp&lt;SkPathEffect&gt; pathEffect)
 </pre>
 
-Sets <a href="undocumented#Path_Effect">Path Effect</a> to <a href="#SkPaint_setPathEffect_pathEffect">pathEffect</a>, decreasing <a href="undocumented#Reference_Count">Reference Count</a> of the previous
+sets <a href="undocumented#Path_Effect">Path Effect</a>, modifications to path geometry; dashingSets <a href="undocumented#Path_Effect">Path Effect</a> to <a href="#SkPaint_setPathEffect_pathEffect">pathEffect</a>, decreasing <a href="undocumented#Reference_Count">Reference Count</a> of the previous
 <a href="undocumented#Path_Effect">Path Effect</a>. Pass nullptr to leave the path geometry unaltered.
 
 Increments <a href="#SkPaint_setPathEffect_pathEffect">pathEffect</a> <a href="undocumented#Reference_Count">Reference Count</a> by one.
@@ -3172,7 +3179,7 @@ modifying the draw.
 SkMaskFilter* getMaskFilter() const
 </pre>
 
-Returns <a href="undocumented#Mask_Filter">Mask Filter</a> if set, or nullptr.
+returns <a href="undocumented#Mask_Filter">Mask Filter</a>, alterations to <a href="undocumented#Mask_Alpha">Mask Alpha</a>Returns <a href="undocumented#Mask_Filter">Mask Filter</a> if set, or nullptr.
 Does not alter <a href="undocumented#Mask_Filter">Mask Filter</a> <a href="undocumented#Reference_Count">Reference Count</a>.
 
 ### Return Value
@@ -3201,7 +3208,7 @@ nullptr != mask filter
 sk_sp&lt;SkMaskFilter&gt; refMaskFilter() const
 </pre>
 
-Returns <a href="undocumented#Mask_Filter">Mask Filter</a> if set, or nullptr.
+references <a href="undocumented#Mask_Filter">Mask Filter</a>, alterations to <a href="undocumented#Mask_Alpha">Mask Alpha</a>Returns <a href="undocumented#Mask_Filter">Mask Filter</a> if set, or nullptr.
 
 Increases <a href="undocumented#Mask_Filter">Mask Filter</a> <a href="undocumented#Reference_Count">Reference Count</a> by one.
 
@@ -3231,7 +3238,7 @@ mask filter unique: false
 void setMaskFilter(sk_sp&lt;SkMaskFilter&gt; maskFilter)
 </pre>
 
-Sets <a href="undocumented#Mask_Filter">Mask Filter</a> to <a href="#SkPaint_setMaskFilter_maskFilter">maskFilter</a>, decreasing <a href="undocumented#Reference_Count">Reference Count</a> of the previous
+sets <a href="undocumented#Mask_Filter">Mask Filter</a>, alterations to <a href="undocumented#Mask_Alpha">Mask Alpha</a>Sets <a href="undocumented#Mask_Filter">Mask Filter</a> to <a href="#SkPaint_setMaskFilter_maskFilter">maskFilter</a>, decreasing <a href="undocumented#Reference_Count">Reference Count</a> of the previous
 <a href="undocumented#Mask_Filter">Mask Filter</a>. Pass nullptr to clear <a href="undocumented#Mask_Filter">Mask Filter</a> and leave <a href="undocumented#Mask_Filter">Mask Filter</a> effect on
 <a href="undocumented#Mask_Alpha">Mask Alpha</a> unaltered.
 
@@ -3267,7 +3274,7 @@ implementation.
 SkTypeface* getTypeface() const
 </pre>
 
-Returns <a href="undocumented#Typeface">Typeface</a> if set, or nullptr.
+returns <a href="undocumented#Typeface">Typeface</a>, font descriptionReturns <a href="undocumented#Typeface">Typeface</a> if set, or nullptr.
 Increments <a href="undocumented#Typeface">Typeface</a> <a href="undocumented#Reference_Count">Reference Count</a> by one.
 
 ### Return Value
@@ -3296,7 +3303,7 @@ nullptr != typeface
 sk_sp&lt;SkTypeface&gt; refTypeface() const
 </pre>
 
-Increases <a href="undocumented#Typeface">Typeface</a> <a href="undocumented#Reference_Count">Reference Count</a> by one.
+references <a href="undocumented#Typeface">Typeface</a>, font descriptionIncreases <a href="undocumented#Typeface">Typeface</a> <a href="undocumented#Reference_Count">Reference Count</a> by one.
 
 ### Return Value
 
@@ -3324,7 +3331,7 @@ typeface1 == typeface2
 void setTypeface(sk_sp&lt;SkTypeface&gt; typeface)
 </pre>
 
-Sets <a href="undocumented#Typeface">Typeface</a> to <a href="#SkPaint_setTypeface_typeface">typeface</a>, decreasing <a href="undocumented#Reference_Count">Reference Count</a> of the previous <a href="undocumented#Typeface">Typeface</a>.
+sets <a href="undocumented#Typeface">Typeface</a>, font descriptionSets <a href="undocumented#Typeface">Typeface</a> to <a href="#SkPaint_setTypeface_typeface">typeface</a>, decreasing <a href="undocumented#Reference_Count">Reference Count</a> of the previous <a href="undocumented#Typeface">Typeface</a>.
 Pass nullptr to clear <a href="undocumented#Typeface">Typeface</a> and use the default <a href="#SkPaint_setTypeface_typeface">typeface</a>. Increments
 <a href="#SkPaint_setTypeface_typeface">typeface</a> <a href="undocumented#Reference_Count">Reference Count</a> by one.
 
@@ -3362,7 +3369,7 @@ can operate on all channels of <a href="undocumented#Color">Color</a>, while <a 
 SkImageFilter* getImageFilter() const
 </pre>
 
-Returns <a href="undocumented#Image_Filter">Image Filter</a> if set, or nullptr.
+returns <a href="undocumented#Image_Filter">Image Filter</a>, alter pixels; blurReturns <a href="undocumented#Image_Filter">Image Filter</a> if set, or nullptr.
 Does not alter <a href="undocumented#Image_Filter">Image Filter</a> <a href="undocumented#Reference_Count">Reference Count</a>.
 
 ### Return Value
@@ -3391,7 +3398,7 @@ nullptr != image filter
 sk_sp&lt;SkImageFilter&gt; refImageFilter() const
 </pre>
 
-Returns <a href="undocumented#Image_Filter">Image Filter</a> if set, or nullptr.
+references <a href="undocumented#Image_Filter">Image Filter</a>, alter pixels; blurReturns <a href="undocumented#Image_Filter">Image Filter</a> if set, or nullptr.
 Increases <a href="undocumented#Image_Filter">Image Filter</a> <a href="undocumented#Reference_Count">Reference Count</a> by one.
 
 ### Return Value
@@ -3420,7 +3427,7 @@ image filter unique: false
 void setImageFilter(sk_sp&lt;SkImageFilter&gt; imageFilter)
 </pre>
 
-Sets <a href="undocumented#Image_Filter">Image Filter</a> to <a href="#SkPaint_setImageFilter_imageFilter">imageFilter</a>, decreasing <a href="undocumented#Reference_Count">Reference Count</a> of the previous
+sets <a href="undocumented#Image_Filter">Image Filter</a>, alter pixels; blurSets <a href="undocumented#Image_Filter">Image Filter</a> to <a href="#SkPaint_setImageFilter_imageFilter">imageFilter</a>, decreasing <a href="undocumented#Reference_Count">Reference Count</a> of the previous
 <a href="undocumented#Image_Filter">Image Filter</a>. Pass nullptr to clear <a href="undocumented#Image_Filter">Image Filter</a>, and remove <a href="undocumented#Image_Filter">Image Filter</a> effect
 on drawing.
 
@@ -3458,7 +3465,7 @@ Set <a href="undocumented#Draw_Looper">Draw Looper</a> to nullptr to prevent <a 
 SkDrawLooper* getDrawLooper() const
 </pre>
 
-Returns <a href="undocumented#Draw_Looper">Draw Looper</a> if set, or nullptr.
+returns <a href="undocumented#Draw_Looper">Draw Looper</a>, multiple layersReturns <a href="undocumented#Draw_Looper">Draw Looper</a> if set, or nullptr.
 Does not alter <a href="undocumented#Draw_Looper">Draw Looper</a> <a href="undocumented#Reference_Count">Reference Count</a>.
 
 ### Return Value
@@ -3487,7 +3494,7 @@ nullptr != draw looper
 sk_sp&lt;SkDrawLooper&gt; refDrawLooper() const
 </pre>
 
-Returns <a href="undocumented#Draw_Looper">Draw Looper</a> if set, or nullptr.
+references <a href="undocumented#Draw_Looper">Draw Looper</a>, multiple layersReturns <a href="undocumented#Draw_Looper">Draw Looper</a> if set, or nullptr.
 Increases <a href="undocumented#Draw_Looper">Draw Looper</a> <a href="undocumented#Reference_Count">Reference Count</a> by one.
 
 ### Return Value
@@ -3533,7 +3540,7 @@ Deprecated.
 void setDrawLooper(sk_sp&lt;SkDrawLooper&gt; drawLooper)
 </pre>
 
-Sets <a href="undocumented#Draw_Looper">Draw Looper</a> to <a href="#SkPaint_setDrawLooper_drawLooper">drawLooper</a>, decreasing <a href="undocumented#Reference_Count">Reference Count</a> of the previous
+sets <a href="undocumented#Draw_Looper">Draw Looper</a>, multiple layersSets <a href="undocumented#Draw_Looper">Draw Looper</a> to <a href="#SkPaint_setDrawLooper_drawLooper">drawLooper</a>, decreasing <a href="undocumented#Reference_Count">Reference Count</a> of the previous
 <a href="#SkPaint_setDrawLooper_drawLooper">drawLooper</a>.  Pass nullptr to clear <a href="undocumented#Draw_Looper">Draw Looper</a> and leave <a href="undocumented#Draw_Looper">Draw Looper</a> effect on
 drawing unaltered.
 
@@ -3649,7 +3656,7 @@ enum {
 Align getTextAlign() const
 </pre>
 
-Returns <a href="#Text_Align">Text Align</a>.
+returns <a href="#SkPaint_Align">Align</a>: left, center, or rightReturns <a href="#Text_Align">Text Align</a>.
 Returns <a href="#SkPaint_kLeft_Align">kLeft Align</a> if <a href="#Text_Align">Text Align</a> has not been set.
 
 ### Return Value
@@ -3677,7 +3684,7 @@ kLeft_Align == default
 void    setTextAlign(Align align)
 </pre>
 
-Sets <a href="#Text_Align">Text Align</a> to <a href="#SkPaint_setTextAlign_align">align</a>.
+sets <a href="#SkPaint_Align">Align</a>: left, center, or rightSets <a href="#Text_Align">Text Align</a> to <a href="#SkPaint_setTextAlign_align">align</a>.
 Has no effect if <a href="#SkPaint_setTextAlign_align">align</a> is an invalid value.
 
 ### Parameters
@@ -3711,7 +3718,7 @@ Set <a href="undocumented#SkPaintDefaults_TextSize">SkPaintDefaults TextSize</a>
 SkScalar getTextSize() const
 </pre>
 
-Returns <a href="#Text_Size">Text Size</a> in points.
+returns text size in pointsReturns <a href="#Text_Size">Text Size</a> in points.
 
 ### Return Value
 
@@ -3730,7 +3737,7 @@ typographic height of text
 void setTextSize(SkScalar textSize)
 </pre>
 
-Sets <a href="#Text_Size">Text Size</a> in points.
+sets text size in pointsSets <a href="#Text_Size">Text Size</a> in points.
 Has no effect if <a href="#SkPaint_setTextSize_textSize">textSize</a> is not greater than or equal to zero.
 
 ### Parameters
@@ -3764,7 +3771,7 @@ is not available.
 SkScalar getTextScaleX() const
 </pre>
 
-Returns <a href="#Text_Scale_X">Text Scale X</a>.
+returns the text horizontal scale; condensed textReturns <a href="#Text_Scale_X">Text Scale X</a>.
 Default value is 1.
 
 ### Return Value
@@ -3784,7 +3791,7 @@ text horizontal scale
 void setTextScaleX(SkScalar scaleX)
 </pre>
 
-Sets <a href="#Text_Scale_X">Text Scale X</a>.
+sets the text horizontal scale; condensed textSets <a href="#Text_Scale_X">Text Scale X</a>.
 Default value is 1.
 
 ### Parameters
@@ -3818,7 +3825,7 @@ is not available.
 SkScalar getTextSkewX() const
 </pre>
 
-Returns <a href="#Text_Skew_X">Text Skew X</a>.
+returns the text horizontal skew; oblique textReturns <a href="#Text_Skew_X">Text Skew X</a>.
 Default value is zero.
 
 ### Return Value
@@ -3838,7 +3845,7 @@ additional shear in x-axis relative to y-axis
 void setTextSkewX(SkScalar skewX)
 </pre>
 
-Sets <a href="#Text_Skew_X">Text Skew X</a>.
+sets the text horizontal skew; oblique textSets <a href="#Text_Skew_X">Text Skew X</a>.
 Default value is zero.
 
 ### Parameters
@@ -3916,7 +3923,7 @@ Fourth line has 16 bit glyph indices.</div></fiddle-embed></div>
 TextEncoding getTextEncoding() const
 </pre>
 
-Returns <a href="#Text_Encoding">Text Encoding</a>.
+returns character or glyph encoded sizeReturns <a href="#Text_Encoding">Text Encoding</a>.
 <a href="#Text_Encoding">Text Encoding</a> determines how character code points are mapped to font glyph indices.
 
 ### Return Value
@@ -3946,7 +3953,7 @@ kGlyphID_TextEncoding == text encoding
 void setTextEncoding(TextEncoding encoding)
 </pre>
 
-Sets <a href="#Text_Encoding">Text Encoding</a> to <a href="#SkPaint_setTextEncoding_encoding">encoding</a>.
+sets character or glyph encoded sizeSets <a href="#Text_Encoding">Text Encoding</a> to <a href="#SkPaint_setTextEncoding_encoding">encoding</a>.
 <a href="#Text_Encoding">Text Encoding</a> determines how character code points are mapped to font glyph indices.
 Invalid values for <a href="#SkPaint_setTextEncoding_encoding">encoding</a> are ignored.
 
@@ -4259,7 +4266,7 @@ true if font specifies strikeout <a href="#SkPaint_FontMetrics_hasStrikeoutPosit
 SkScalar getFontMetrics(FontMetrics* metrics, SkScalar scale = 0) const
 </pre>
 
-Returns <a href="#Font_Metrics">Font Metrics</a> associated with <a href="undocumented#Typeface">Typeface</a>.
+returns <a href="undocumented#Typeface">Typeface</a> <a href="#SkPaint_getFontMetrics_metrics">metrics</a> scaled by text sizeReturns <a href="#Font_Metrics">Font Metrics</a> associated with <a href="undocumented#Typeface">Typeface</a>.
 The return value is the recommended spacing between lines: the sum of <a href="#SkPaint_getFontMetrics_metrics">metrics</a>
 descent, ascent, and leading.
 If <a href="#SkPaint_getFontMetrics_metrics">metrics</a> is not nullptr, <a href="#Font_Metrics">Font Metrics</a> is copied to <a href="#SkPaint_getFontMetrics_metrics">metrics</a>.
@@ -4299,7 +4306,7 @@ recommended spacing between lines
 SkScalar getFontSpacing() const
 </pre>
 
-Returns the recommended spacing between lines: the sum of metrics
+returns recommended spacing between linesReturns the recommended spacing between lines: the sum of metrics
 descent, ascent, and leading.
 Result is scaled by <a href="#Text_Size">Text Size</a> but does not take into account
 dimensions required by stroking and <a href="undocumented#Path_Effect">Path Effect</a>.
@@ -4333,7 +4340,7 @@ textSize: 32 fontSpacing: 37.25
 SkRect getFontBounds() const
 </pre>
 
-Returns the union of bounds of all <a href="#Glyph">Glyphs</a>.
+returns union all glyph boundsReturns the union of bounds of all <a href="#Glyph">Glyphs</a>.
 Returned dimensions are computed by <a href="undocumented#Font_Manager">Font Manager</a> from font data,
 ignoring <a href="#SkPaint_Hinting">Hinting</a>. Includes <a href="#Text_Size">Text Size</a>, <a href="#Text_Scale_X">Text Scale X</a>,
 and <a href="#Text_Skew_X">Text Skew X</a>, but not <a href="#Fake_Bold">Fake Bold</a> or <a href="undocumented#Path_Effect">Path Effect</a>.
@@ -4368,7 +4375,7 @@ font bounds    = { -12.2461, -14.7891, 21.5215, 5.55469 }
 int textToGlyphs(const void* text, size_t byteLength, SkGlyphID glyphs[]) const
 </pre>
 
-Converts <a href="#SkPaint_textToGlyphs_text">text</a> into glyph indices.
+converts <a href="#SkPaint_textToGlyphs_text">text</a> into glyph indicesConverts <a href="#SkPaint_textToGlyphs_text">text</a> into glyph indices.
 Returns the number of glyph indices represented by <a href="#SkPaint_textToGlyphs_text">text</a>.
 <a href="#Text_Encoding">Text Encoding</a> specifies how <a href="#SkPaint_textToGlyphs_text">text</a> represents characters or <a href="#SkPaint_textToGlyphs_glyphs">glyphs</a>.
 <a href="#SkPaint_textToGlyphs_glyphs">glyphs</a> may be nullptr, to compute the glyph count.
@@ -4409,7 +4416,7 @@ number of <a href="#SkPaint_textToGlyphs_glyphs">glyphs</a> represented by <a hr
 int countText(const void* text, size_t byteLength) const
 </pre>
 
-Returns the number of <a href="#Glyph">Glyphs</a> in <a href="#SkPaint_countText_text">text</a>.
+returns number of <a href="#Glyph">Glyphs</a> in <a href="#SkPaint_countText_text">text</a>Returns the number of <a href="#Glyph">Glyphs</a> in <a href="#SkPaint_countText_text">text</a>.
 Uses <a href="#Text_Encoding">Text Encoding</a> to count the <a href="#Glyph">Glyphs</a>.
 Returns the same result as <a href="#SkPaint_textToGlyphs">textToGlyphs</a>.
 
@@ -4447,7 +4454,7 @@ count = 5
 bool containsText(const void* text, size_t byteLength) const
 </pre>
 
-Returns true if all <a href="#SkPaint_containsText_text">text</a> corresponds to a non-zero glyph index.
+returns if all <a href="#SkPaint_containsText_text">text</a> corresponds to <a href="#Glyph">Glyphs</a>Returns true if all <a href="#SkPaint_containsText_text">text</a> corresponds to a non-zero glyph index.
 Returns false if any characters in <a href="#SkPaint_containsText_text">text</a> are not supported in
 <a href="undocumented#Typeface">Typeface</a>.
 
@@ -4512,7 +4519,7 @@ that it corresponds to an entry in <a href="undocumented#Typeface">Typeface</a>.
 void glyphsToUnichars(const SkGlyphID glyphs[], int count, SkUnichar text[]) const
 </pre>
 
-Converts <a href="#SkPaint_glyphsToUnichars_glyphs">glyphs</a> into <a href="#SkPaint_glyphsToUnichars_text">text</a> if possible.
+converts <a href="#Glyph">Glyphs</a> into <a href="#SkPaint_glyphsToUnichars_text">text</a>Converts <a href="#SkPaint_glyphsToUnichars_glyphs">glyphs</a> into <a href="#SkPaint_glyphsToUnichars_text">text</a> if possible.
 <a href="undocumented#Glyph">Glyph</a> values without direct Unicode equivalents are mapped to zero.
 Uses the <a href="undocumented#Typeface">Typeface</a>, but is unaffected
 by <a href="#Text_Encoding">Text Encoding</a>; the <a href="#SkPaint_glyphsToUnichars_text">text</a> values returned are equivalent to <a href="#SkPaint_kUTF32_TextEncoding">kUTF32 TextEncoding</a>.
@@ -4545,7 +4552,7 @@ storage for character codes, one per glyph</td>
 SkScalar measureText(const void* text, size_t length, SkRect* bounds) const
 </pre>
 
-Returns the advance width of <a href="#SkPaint_measureText_text">text</a> if <a href="#SkPaint_kVerticalText_Flag">kVerticalText Flag</a> is clear,
+returns advance width and <a href="#SkPaint_measureText_bounds">bounds</a> of <a href="#SkPaint_measureText_text">text</a>Returns the advance width of <a href="#SkPaint_measureText_text">text</a> if <a href="#SkPaint_kVerticalText_Flag">kVerticalText Flag</a> is clear,
 and the height of <a href="#SkPaint_measureText_text">text</a> if <a href="#SkPaint_kVerticalText_Flag">kVerticalText Flag</a> is set.
 The advance is the normal distance to move before drawing additional <a href="#SkPaint_measureText_text">text</a>.
 Uses <a href="#Text_Encoding">Text Encoding</a> to decode <a href="#SkPaint_measureText_text">text</a>, <a href="undocumented#Typeface">Typeface</a> to get the font metrics,
@@ -4624,7 +4631,7 @@ size_t breakText(const void* text, size_t length, SkScalar maxWidth,
                  SkScalar* measuredWidth = nullptr) const
 </pre>
 
-Returns the bytes of <a href="#SkPaint_breakText_text">text</a> that fit within <a href="#SkPaint_breakText_maxWidth">maxWidth</a>.
+returns <a href="#SkPaint_breakText_text">text</a> that fits in a widthReturns the bytes of <a href="#SkPaint_breakText_text">text</a> that fit within <a href="#SkPaint_breakText_maxWidth">maxWidth</a>.
 If <a href="#SkPaint_kVerticalText_Flag">kVerticalText Flag</a> is clear, the <a href="#SkPaint_breakText_text">text</a> fragment fits if its advance width is less than or
 equal to <a href="#SkPaint_breakText_maxWidth">maxWidth</a>.
 If <a href="#SkPaint_kVerticalText_Flag">kVerticalText Flag</a> is set, the <a href="#SkPaint_breakText_text">text</a> fragment fits if its advance height is less than or
@@ -4666,7 +4673,7 @@ bytes of <a href="#SkPaint_breakText_text">text</a> that fit, always less than o
 int getTextWidths(const void* text, size_t byteLength, SkScalar widths[], SkRect bounds[] = nullptr) const
 </pre>
 
-Retrieves the advance and <a href="#SkPaint_getTextWidths_bounds">bounds</a> for each glyph in <a href="#SkPaint_getTextWidths_text">text</a>, and returns
+returns advance and <a href="#SkPaint_getTextWidths_bounds">bounds</a> for each glyph in <a href="#SkPaint_getTextWidths_text">text</a>Retrieves the advance and <a href="#SkPaint_getTextWidths_bounds">bounds</a> for each glyph in <a href="#SkPaint_getTextWidths_text">text</a>, and returns
 the glyph count in <a href="#SkPaint_getTextWidths_text">text</a>.
 Both <a href="#SkPaint_getTextWidths_widths">widths</a> and <a href="#SkPaint_getTextWidths_bounds">bounds</a> may be nullptr.
 If <a href="#SkPaint_getTextWidths_widths">widths</a> is not nullptr, <a href="#SkPaint_getTextWidths_widths">widths</a> must be an array of glyph count entries.
@@ -4712,7 +4719,7 @@ The underlines show the <a href="#SkPaint_getTextWidths_text">text</a> advance, 
 void getTextPath(const void* text, size_t length, SkScalar x, SkScalar y, SkPath* path) const
 </pre>
 
-Returns the geometry as <a href="SkPath_Reference#Path">Path</a> equivalent to the drawn <a href="#SkPaint_getTextPath_text">text</a>.
+returns <a href="SkPath_Reference#Path">Path</a> equivalent to <a href="#SkPaint_getTextPath_text">text</a>Returns the geometry as <a href="SkPath_Reference#Path">Path</a> equivalent to the drawn <a href="#SkPaint_getTextPath_text">text</a>.
 Uses <a href="#Text_Encoding">Text Encoding</a> to decode <a href="#SkPaint_getTextPath_text">text</a>, <a href="undocumented#Typeface">Typeface</a> to get the glyph paths,
 and <a href="#Text_Size">Text Size</a>, <a href="#Fake_Bold">Fake Bold</a>, and <a href="undocumented#Path_Effect">Path Effect</a> to scale and modify the glyph paths.
 All of the glyph paths are stored in <a href="#SkPaint_getTextPath_path">path</a>.
@@ -4747,7 +4754,7 @@ the offset location. The result is rendered with one draw call.</div></fiddle-em
 void getPosTextPath(const void* text, size_t length, const SkPoint pos[], SkPath* path) const
 </pre>
 
-Returns the geometry as <a href="SkPath_Reference#Path">Path</a> equivalent to the drawn <a href="#SkPaint_getPosTextPath_text">text</a>.
+returns <a href="SkPath_Reference#Path">Path</a> equivalent to positioned <a href="#SkPaint_getPosTextPath_text">text</a>Returns the geometry as <a href="SkPath_Reference#Path">Path</a> equivalent to the drawn <a href="#SkPaint_getPosTextPath_text">text</a>.
 Uses <a href="#Text_Encoding">Text Encoding</a> to decode <a href="#SkPaint_getPosTextPath_text">text</a>, <a href="undocumented#Typeface">Typeface</a> to get the glyph paths,
 and <a href="#Text_Size">Text Size</a>, <a href="#Fake_Bold">Fake Bold</a>, and <a href="undocumented#Path_Effect">Path Effect</a> to scale and modify the glyph paths.
 All of the glyph paths are stored in <a href="#SkPaint_getPosTextPath_path">path</a>.
@@ -4786,7 +4793,7 @@ int getTextIntercepts(const void* text, size_t length, SkScalar x, SkScalar y,
                       const SkScalar bounds[2], SkScalar* intervals) const
 </pre>
 
-Returns the number of <a href="#SkPaint_getTextIntercepts_intervals">intervals</a> that intersect <a href="#SkPaint_getTextIntercepts_bounds">bounds</a>.
+returns where lines intersect <a href="#SkPaint_getTextIntercepts_text">text</a>; underlinesReturns the number of <a href="#SkPaint_getTextIntercepts_intervals">intervals</a> that intersect <a href="#SkPaint_getTextIntercepts_bounds">bounds</a>.
 <a href="#SkPaint_getTextIntercepts_bounds">bounds</a> describes a pair of lines parallel to the <a href="#SkPaint_getTextIntercepts_text">text</a> advance.
 The return count is zero or a multiple of two, and is at most twice the number of <a href="#Glyph">Glyphs</a> in
 the string.
@@ -4831,7 +4838,7 @@ int getPosTextIntercepts(const void* text, size_t length, const SkPoint pos[],
                          const SkScalar bounds[2], SkScalar* intervals) const
 </pre>
 
-Returns the number of <a href="#SkPaint_getPosTextIntercepts_intervals">intervals</a> that intersect <a href="#SkPaint_getPosTextIntercepts_bounds">bounds</a>.
+returns where lines intersect positioned <a href="#SkPaint_getPosTextIntercepts_text">text</a>; underlinesReturns the number of <a href="#SkPaint_getPosTextIntercepts_intervals">intervals</a> that intersect <a href="#SkPaint_getPosTextIntercepts_bounds">bounds</a>.
 <a href="#SkPaint_getPosTextIntercepts_bounds">bounds</a> describes a pair of lines parallel to the <a href="#SkPaint_getPosTextIntercepts_text">text</a> advance.
 The return count is zero or a multiple of two, and is at most twice the number of <a href="#Glyph">Glyphs</a> in
 the string.
@@ -4874,7 +4881,7 @@ int getPosTextHIntercepts(const void* text, size_t length, const SkScalar xpos[]
                           const SkScalar bounds[2], SkScalar* intervals) const
 </pre>
 
-Returns the number of <a href="#SkPaint_getPosTextHIntercepts_intervals">intervals</a> that intersect <a href="#SkPaint_getPosTextHIntercepts_bounds">bounds</a>.
+returns where lines intersect horizontally positioned <a href="#SkPaint_getPosTextHIntercepts_text">text</a>; underlinesReturns the number of <a href="#SkPaint_getPosTextHIntercepts_intervals">intervals</a> that intersect <a href="#SkPaint_getPosTextHIntercepts_bounds">bounds</a>.
 <a href="#SkPaint_getPosTextHIntercepts_bounds">bounds</a> describes a pair of lines parallel to the <a href="#SkPaint_getPosTextHIntercepts_text">text</a> advance.
 The return count is zero or a multiple of two, and is at most twice the number of <a href="#Glyph">Glyphs</a> in
 the string.
@@ -4918,7 +4925,7 @@ number of intersections; may be zero
 int getTextBlobIntercepts(const SkTextBlob* blob, const SkScalar bounds[2], SkScalar* intervals) const
 </pre>
 
-Returns the number of <a href="#SkPaint_getTextBlobIntercepts_intervals">intervals</a> that intersect <a href="#SkPaint_getTextBlobIntercepts_bounds">bounds</a>.
+returns where lines intersect <a href="undocumented#Text_Blob">Text Blob</a>; underlinesReturns the number of <a href="#SkPaint_getTextBlobIntercepts_intervals">intervals</a> that intersect <a href="#SkPaint_getTextBlobIntercepts_bounds">bounds</a>.
 <a href="#SkPaint_getTextBlobIntercepts_bounds">bounds</a> describes a pair of lines parallel to the text advance.
 The return count is zero or a multiple of two, and is at most twice the number of <a href="#Glyph">Glyphs</a> in
 the string.
@@ -4958,7 +4965,7 @@ number of intersections; may be zero
 bool nothingToDraw() const
 </pre>
 
-Returns true if <a href="#Paint">Paint</a> prevents all drawing;
+returns true if <a href="#Paint">Paint</a> prevents all drawingReturns true if <a href="#Paint">Paint</a> prevents all drawing;
 otherwise, the <a href="#Paint">Paint</a> may or may not allow drawing.
 
 Returns true if, for example, <a href="undocumented#Blend_Mode">Blend Mode</a> combined with <a href="#Alpha">Color Alpha</a> computes a
@@ -4996,7 +5003,7 @@ alpha 0 nothing to draw: true
 bool canComputeFastBounds() const
 </pre>
 
-Returns true if <a href="#Paint">Paint</a> does not include elements requiring extensive computation
+returns true if settings allow for fast bounds computationReturns true if <a href="#Paint">Paint</a> does not include elements requiring extensive computation
 to compute <a href="undocumented#Device">Device</a> bounds of drawn geometry. For instance, <a href="#Paint">Paint</a> with <a href="undocumented#Path_Effect">Path Effect</a>
 always returns false.
 
@@ -5013,7 +5020,7 @@ true if <a href="#Paint">Paint</a> allows for fast computation of bounds
 const SkRect& computeFastBounds(const SkRect& orig, SkRect* storage) const
 </pre>
 
-Only call this if <a href="#SkPaint_canComputeFastBounds">canComputeFastBounds</a> returned true. This takes a
+returns fill bounds for quick reject testsOnly call this if <a href="#SkPaint_canComputeFastBounds">canComputeFastBounds</a> returned true. This takes a
 raw rectangle (the raw bounds of a shape), and adjusts it for stylistic
 effects in the paint (e.g. stroking). If needed, it uses the <a href="#SkPaint_computeFastBounds_storage">storage</a>
 parameter. It returns the adjusted bounds that can then be used
@@ -5046,6 +5053,8 @@ fast computed bounds
 const SkRect& computeFastStrokeBounds(const SkRect& orig, SkRect* storage) const
 </pre>
 
+returns stroke bounds for quick reject tests
+
 ### Parameters
 
 <table>  <tr>    <td><a name="SkPaint_computeFastStrokeBounds_orig"> <code><strong>orig </strong></code> </a></td> <td>
@@ -5068,7 +5077,7 @@ fast computed bounds
 const SkRect& doComputeFastBounds(const SkRect& orig, SkRect* storage, Style style) const
 </pre>
 
-Computes the bounds, overriding the <a href="#Paint">Paint</a> <a href="#SkPaint_Style">Style</a>. This can be used to
+returns bounds for quick reject testsComputes the bounds, overriding the <a href="#Paint">Paint</a> <a href="#SkPaint_Style">Style</a>. This can be used to
 account for additional width required by stroking <a href="#SkPaint_doComputeFastBounds_orig">orig</a>, without
 altering <a href="#SkPaint_Style">Style</a> set to fill.
 
@@ -5096,7 +5105,7 @@ fast computed bounds
 void toString(SkString* str) const
 </pre>
 
-Creates string representation of <a href="#Paint">Paint</a>. The representation is read by
+converts <a href="#Paint">Paint</a> to machine readable formCreates string representation of <a href="#Paint">Paint</a>. The representation is read by
 internal debugging tools. The interface and implementation may be
 suppressed by defining SK_IGNORE_TO_STRING.
 

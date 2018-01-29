@@ -45,7 +45,7 @@ y-axis value used by <a href="#IPoint16">IPoint16</a>
 static constexpr SkIPoint16 Make(int x, int y)
 </pre>
 
-Sets <a href="#SkIPoint16_fX">fX</a> to x, <a href="#SkIPoint16_fY">fY</a> to y. If SK_DEBUG is defined, asserts
+constructs from integer inputsSets <a href="#SkIPoint16_fX">fX</a> to x, <a href="#SkIPoint16_fY">fY</a> to y. If SK_DEBUG is defined, asserts
 if x or y does not fit in 16 bits.
 
 ### Parameters
@@ -87,7 +87,7 @@ pt1.fY == pt2.fY
 int16_t x() const
 </pre>
 
-Returns x-axis value of <a href="#IPoint16">IPoint16</a>.
+returns <a href="#SkIPoint16_fX">fX</a>Returns x-axis value of <a href="#IPoint16">IPoint16</a>.
 
 ### Return Value
 
@@ -118,7 +118,7 @@ pt1.fX == pt1.x()
 int16_t y() const
 </pre>
 
-Returns y-axis value of <a href="SkIPoint_Reference#IPoint">IPoint</a>.
+returns <a href="#SkIPoint16_fY">fY</a>Returns y-axis value of <a href="SkIPoint_Reference#IPoint">IPoint</a>.
 
 ### Return Value
 
@@ -149,7 +149,7 @@ pt1.fY == pt1.y()
 void set(int x, int y)
 </pre>
 
-Sets <a href="#SkIPoint16_fX">fX</a> to x and <a href="#SkIPoint16_fY">fY</a> to y.
+sets to integer inputSets <a href="#SkIPoint16_fX">fX</a> to x and <a href="#SkIPoint16_fY">fY</a> to y.
 
 ### Parameters
 

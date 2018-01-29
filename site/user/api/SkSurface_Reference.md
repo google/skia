@@ -76,7 +76,7 @@ static sk_sp&lt;SkSurface&gt; MakeRasterDirect(const SkImageInfo& imageInfo, voi
                                          const SkSurfaceProps* surfaceProps = nullptr)
 </pre>
 
-Allocates raster <a href="#Surface">Surface</a>. <a href="SkCanvas_Reference#Canvas">Canvas</a> returned by <a href="#Surface">Surface</a> draws directly into <a href="#SkSurface_MakeRasterDirect_pixels">pixels</a>.
+creates <a href="#Surface">Surface</a> from <a href="SkImageInfo_Reference#SkImageInfo">SkImageInfo</a> and <a href="#Storage">Pixel Storage</a>Allocates raster <a href="#Surface">Surface</a>. <a href="SkCanvas_Reference#Canvas">Canvas</a> returned by <a href="#Surface">Surface</a> draws directly into <a href="#SkSurface_MakeRasterDirect_pixels">pixels</a>.
 
 <a href="#Surface">Surface</a> is returned if all parameters are valid.
 Valid parameters include:
@@ -138,7 +138,7 @@ static sk_sp&lt;SkSurface&gt; MakeRasterDirectReleaseProc(const SkImageInfo& ima
                                            const SkSurfaceProps* surfaceProps = nullptr)
 </pre>
 
-Allocates raster <a href="#Surface">Surface</a>. <a href="SkCanvas_Reference#Canvas">Canvas</a> returned by <a href="#Surface">Surface</a> draws directly into <a href="#SkSurface_MakeRasterDirectReleaseProc_pixels">pixels</a>.
+creates <a href="#Surface">Surface</a> from <a href="SkImageInfo_Reference#SkImageInfo">SkImageInfo</a> and <a href="#Storage">Pixel Storage</a>Allocates raster <a href="#Surface">Surface</a>. <a href="SkCanvas_Reference#Canvas">Canvas</a> returned by <a href="#Surface">Surface</a> draws directly into <a href="#SkSurface_MakeRasterDirectReleaseProc_pixels">pixels</a>.
 <a href="#SkSurface_MakeRasterDirectReleaseProc_releaseProc">releaseProc</a> is called with <a href="#SkSurface_MakeRasterDirectReleaseProc_pixels">pixels</a> and <a href="#SkSurface_MakeRasterDirectReleaseProc_context">context</a> when <a href="#Surface">Surface</a> is deleted.
 
 <a href="#Surface">Surface</a> is returned if all parameters are valid.
@@ -204,7 +204,7 @@ static sk_sp&lt;SkSurface&gt; MakeRaster(const SkImageInfo& imageInfo, size_t ro
                                    const SkSurfaceProps* surfaceProps)
 </pre>
 
-Allocates raster <a href="#Surface">Surface</a>. <a href="SkCanvas_Reference#Canvas">Canvas</a> returned by <a href="#Surface">Surface</a> draws directly into pixels.
+creates <a href="#Surface">Surface</a> from <a href="SkImageInfo_Reference#SkImageInfo">SkImageInfo</a>Allocates raster <a href="#Surface">Surface</a>. <a href="SkCanvas_Reference#Canvas">Canvas</a> returned by <a href="#Surface">Surface</a> draws directly into pixels.
 Allocates and zeroes pixel memory. <a href="undocumented#Pixel">Pixel</a> memory size is <a href="#SkSurface_MakeRaster_imageInfo">imageInfo</a>.<a href="#SkSurface_height">height</a> times
 <a href="#SkSurface_MakeRaster_rowBytes">rowBytes</a>, or times <a href="#SkSurface_MakeRaster_imageInfo">imageInfo</a>.minRowBytes() if <a href="#SkSurface_MakeRaster_rowBytes">rowBytes</a> is zero.
 <a href="undocumented#Pixel">Pixel</a> memory is deleted when <a href="#Surface">Surface</a> is deleted.
@@ -305,7 +305,7 @@ static sk_sp&lt;SkSurface&gt; MakeRasterN32Premul(int width, int height,
                                             const SkSurfaceProps* surfaceProps = nullptr)
 </pre>
 
-Allocates raster <a href="#Surface">Surface</a>. <a href="SkCanvas_Reference#Canvas">Canvas</a> returned by <a href="#Surface">Surface</a> draws directly into pixels.
+creates <a href="#Surface">Surface</a> from width, height matching outputAllocates raster <a href="#Surface">Surface</a>. <a href="SkCanvas_Reference#Canvas">Canvas</a> returned by <a href="#Surface">Surface</a> draws directly into pixels.
 Allocates and zeroes pixel memory. <a href="undocumented#Pixel">Pixel</a> memory size is height times width times
 four. <a href="undocumented#Pixel">Pixel</a> memory is deleted when <a href="#Surface">Surface</a> is deleted.
 
@@ -364,7 +364,7 @@ static sk_sp&lt;SkSurface&gt; MakeFromBackendTexture(GrContext* context,
                                                const SkSurfaceProps* surfaceProps)
 </pre>
 
-Wraps a GPU-backed texture into <a href="#Surface">Surface</a>. Caller must ensure the texture is
+creates <a href="#Surface">Surface</a> from GPU-backed textureWraps a GPU-backed texture into <a href="#Surface">Surface</a>. Caller must ensure the texture is
 valid for the lifetime of returned <a href="#Surface">Surface</a>. If <a href="#SkSurface_MakeFromBackendTexture_sampleCnt">sampleCnt</a> greater than zero,
 creates an intermediate MSAA <a href="#Surface">Surface</a> which is used for drawing <a href="#SkSurface_MakeFromBackendTexture_backendTexture">backendTexture</a>.
 
@@ -516,7 +516,7 @@ static sk_sp&lt;SkSurface&gt; MakeFromBackendRenderTarget(GrContext* context,
                                                    const SkSurfaceProps* surfaceProps)
 </pre>
 
-Wraps a GPU-backed buffer into <a href="#Surface">Surface</a>. Caller must ensure render target is
+creates <a href="#Surface">Surface</a> from GPU memory bufferWraps a GPU-backed buffer into <a href="#Surface">Surface</a>. Caller must ensure render target is
 valid for the lifetime of returned <a href="#Surface">Surface</a>.
 
 <a href="#Surface">Surface</a> is returned if all parameters are valid. <a href="#SkSurface_MakeFromBackendRenderTarget_backendRenderTarget">backendRenderTarget</a> is valid if
@@ -661,7 +661,7 @@ static sk_sp&lt;SkSurface&gt; MakeFromBackendTextureAsRenderTarget(GrContext* co
                                             const SkSurfaceProps* surfaceProps)
 </pre>
 
-Used to wrap a GPU-backed texture as a <a href="#SkSurface">SkSurface</a>. Skia will treat the texture as
+creates <a href="#Surface">Surface</a> from GPU-backed textureUsed to wrap a GPU-backed texture as a <a href="#SkSurface">SkSurface</a>. Skia will treat the texture as
 a rendering target only, but unlike NewFromBackendRenderTarget, Skia will manage and own
 the associated render target objects (but not the provided texture). Skia will not assume
 ownership of the texture and the client must ensure the texture is valid for the lifetime
@@ -801,7 +801,7 @@ static sk_sp&lt;SkSurface&gt; MakeRenderTarget(GrContext* context, SkBudgeted bu
                                          bool shouldCreateWithMips = false)
 </pre>
 
-Returns offscreen <a href="#Surface">Surface</a> on GPU indicated by <a href="#SkSurface_MakeRenderTarget_context">context</a>. Allocates memory for
+creates <a href="#Surface">Surface</a> pointing to new GPU memory bufferReturns offscreen <a href="#Surface">Surface</a> on GPU indicated by <a href="#SkSurface_MakeRenderTarget_context">context</a>. Allocates memory for
 pixels, based on the width, height, and <a href="SkImageInfo_Reference#Color_Type">Color Type</a> in ImageInfo.  <a href="#SkSurface_MakeRenderTarget_budgeted">budgeted</a>
 selects whether allocation for offscreen pixels is tracked by <a href="#SkSurface_MakeRenderTarget_context">context</a>. <a href="#SkSurface_MakeRenderTarget_imageInfo">imageInfo</a>
 describes the pixel format in <a href="SkImageInfo_Reference#Color_Type">Color Type</a>, and transparency in
@@ -956,7 +956,7 @@ of <a href="undocumented#Raster_Surface">Raster Surface</a>; width, or height, o
 static sk_sp&lt;SkSurface&gt; MakeNull(int width, int height)
 </pre>
 
-Returns <a href="#Surface">Surface</a> without backing pixels. Drawing to <a href="SkCanvas_Reference#Canvas">Canvas</a> returned from <a href="#Surface">Surface</a>
+creates <a href="#Surface">Surface</a> without backing pixelsReturns <a href="#Surface">Surface</a> without backing pixels. Drawing to <a href="SkCanvas_Reference#Canvas">Canvas</a> returned from <a href="#Surface">Surface</a>
 has no effect. Calling <a href="#SkSurface_makeImageSnapshot">makeImageSnapshot</a> on returned <a href="#Surface">Surface</a> returns nullptr.
 
 ### Parameters
@@ -998,7 +998,7 @@ surf->makeImageSnapshot() == nullptr
 int width() const
 </pre>
 
-Returns pixel count in each row; may be zero or greater.
+returns pixel column countReturns pixel count in each row; may be zero or greater.
 
 ### Return Value
 
@@ -1029,7 +1029,7 @@ surface width=37  canvas width=37
 int height() const
 </pre>
 
-Returns pixel row count; may be zero or greater.
+returns pixel row countReturns pixel row count; may be zero or greater.
 
 ### Return Value
 
@@ -1060,7 +1060,7 @@ surface height=1000  canvas height=1000
 uint32_t generationID()
 </pre>
 
-Returns unique value identifying the content of <a href="#Surface">Surface</a>. Returned value changes
+returns unique IDReturns unique value identifying the content of <a href="#Surface">Surface</a>. Returned value changes
 each time the content changes. Content is changed by drawing, or by calling
 <a href="#SkSurface_notifyContentWillChange">notifyContentWillChange</a>.
 
@@ -1122,7 +1122,7 @@ enum <a href="#SkSurface_ContentChangeMode">ContentChangeMode</a> {
 void notifyContentWillChange(ContentChangeMode mode)
 </pre>
 
-Notifies that <a href="#Surface">Surface</a> contents will be changed by code outside of Skia.
+notifies that contents will be changed outside of SkiaNotifies that <a href="#Surface">Surface</a> contents will be changed by code outside of Skia.
 Subsequent calls to <a href="#SkSurface_generationID">generationID</a> return a different value.
 
 <a href="#SkSurface_notifyContentWillChange_mode">mode</a> is normally passed as <a href="#SkSurface_kRetain_ContentChangeMode">kRetain ContentChangeMode</a>.
@@ -1203,7 +1203,7 @@ static const <a href="#SkSurface_BackendHandleAccess">BackendHandleAccess</a> <a
 GrBackendObject getTextureHandle(BackendHandleAccess backendHandleAccess)
 </pre>
 
-Returns the GPU back-end reference of the texture used by <a href="#Surface">Surface</a>, or zero
+returns the GPU reference to textureReturns the GPU back-end reference of the texture used by <a href="#Surface">Surface</a>, or zero
 if <a href="#Surface">Surface</a> is not backed by a GPU texture.
 
 The returned texture handle is only valid until the next draw into <a href="#Surface">Surface</a>,
@@ -1238,7 +1238,7 @@ GPU texture reference
 bool getRenderTargetHandle(GrBackendObject* backendObject, BackendHandleAccess backendHandleAccess)
 </pre>
 
-Returns true and stores the GPU back-end reference of the render target used
+returns the GPU reference to render targetReturns true and stores the GPU back-end reference of the render target used
 by <a href="#Surface">Surface</a> in <a href="#SkSurface_getRenderTargetHandle_backendObject">backendObject</a>.
 
 Return false if <a href="#Surface">Surface</a> is not backed by a GPU render target, and leaves
@@ -1280,7 +1280,7 @@ true if <a href="#Surface">Surface</a> is backed by GPU texture
 SkCanvas* getCanvas()
 </pre>
 
-Returns <a href="SkCanvas_Reference#Canvas">Canvas</a> that draws into <a href="#Surface">Surface</a>. Subsequent calls return the same <a href="SkCanvas_Reference#Canvas">Canvas</a>.
+returns <a href="SkCanvas_Reference#Canvas">Canvas</a> that draws into <a href="#Surface">Surface</a>Returns <a href="SkCanvas_Reference#Canvas">Canvas</a> that draws into <a href="#Surface">Surface</a>. Subsequent calls return the same <a href="SkCanvas_Reference#Canvas">Canvas</a>.
 <a href="SkCanvas_Reference#Canvas">Canvas</a> returned is managed and owned by <a href="#Surface">Surface</a>, and is deleted when <a href="#Surface">Surface</a>
 is deleted.
 
@@ -1305,7 +1305,7 @@ drawing <a href="SkCanvas_Reference#Canvas">Canvas</a> for <a href="#Surface">Su
 sk_sp&lt;SkSurface&gt; makeSurface(const SkImageInfo& imageInfo)
 </pre>
 
-Returns a compatible <a href="#Surface">Surface</a>, or nullptr. Returned <a href="#Surface">Surface</a> contains
+creates a compatible <a href="#Surface">Surface</a>Returns a compatible <a href="#Surface">Surface</a>, or nullptr. Returned <a href="#Surface">Surface</a> contains
 the same raster, GPU, or null properties as the original. Returned <a href="#Surface">Surface</a>
 does not share the same pixels.
 
@@ -1341,7 +1341,7 @@ compatible <a href="#Surface">Surface</a> or nullptr
 sk_sp&lt;SkImage&gt; makeImageSnapshot()
 </pre>
 
-Returns <a href="SkImage_Reference#Image">Image</a> capturing <a href="#Surface">Surface</a> contents. Subsequent drawing to <a href="#Surface">Surface</a> contents
+creates <a href="SkImage_Reference#Image">Image</a> capturing <a href="#Surface">Surface</a> contentsReturns <a href="SkImage_Reference#Image">Image</a> capturing <a href="#Surface">Surface</a> contents. Subsequent drawing to <a href="#Surface">Surface</a> contents
 are not captured. <a href="SkImage_Reference#Image">Image</a> allocation is accounted for if <a href="#Surface">Surface</a> was created with
 <a href="#SkBudgeted_kYes">SkBudgeted::kYes</a>.
 
@@ -1366,7 +1366,7 @@ are not captured. <a href="SkImage_Reference#Image">Image</a> allocation is acco
 void draw(SkCanvas* canvas, SkScalar x, SkScalar y, const SkPaint* paint)
 </pre>
 
-Draws <a href="#Surface">Surface</a> contents to <a href="#SkSurface_draw_canvas">canvas</a>, with its top-left corner at (<a href="#SkSurface_draw_x">x</a>, <a href="#SkSurface_draw_y">y</a>).
+draws <a href="#Surface">Surface</a> contents to <a href="#SkSurface_draw_canvas">canvas</a>Draws <a href="#Surface">Surface</a> contents to <a href="#SkSurface_draw_canvas">canvas</a>, with its top-left corner at (<a href="#SkSurface_draw_x">x</a>, <a href="#SkSurface_draw_y">y</a>).
 
 If <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkSurface_draw_paint">paint</a> is not nullptr, apply <a href="undocumented#Color_Filter">Color Filter</a>, <a href="#Alpha">Color Alpha</a>, <a href="undocumented#Image_Filter">Image Filter</a>,
 <a href="undocumented#Blend_Mode">Blend Mode</a>, and <a href="undocumented#Draw_Looper">Draw Looper</a>.
@@ -1402,7 +1402,7 @@ and so on; or nullptr</td>
 bool peekPixels(SkPixmap* pixmap)
 </pre>
 
-Copies <a href="#Surface">Surface</a> pixel address, row bytes, and <a href="SkImageInfo_Reference#Image_Info">Image Info</a> to <a href="SkPixmap_Reference#Pixmap">Pixmap</a>, if address
+copies <a href="#Surface">Surface</a> parameters to <a href="SkPixmap_Reference#Pixmap">Pixmap</a>Copies <a href="#Surface">Surface</a> pixel address, row bytes, and <a href="SkImageInfo_Reference#Image_Info">Image Info</a> to <a href="SkPixmap_Reference#Pixmap">Pixmap</a>, if address
 is available, and returns true. If pixel address is not available, return
 false and leave <a href="SkPixmap_Reference#Pixmap">Pixmap</a> unchanged.
 
@@ -1436,7 +1436,7 @@ true if <a href="#Surface">Surface</a> has direct access to pixels
 bool readPixels(const SkPixmap& dst, int srcX, int srcY)
 </pre>
 
-Copies <a href="SkRect_Reference#Rect">Rect</a> of pixels to <a href="#SkSurface_readPixels_dst">dst</a>.
+copies <a href="SkRect_Reference#Rect">Rect</a> of pixelsCopies <a href="SkRect_Reference#Rect">Rect</a> of pixels to <a href="#SkSurface_readPixels_dst">dst</a>.
 
 Source <a href="SkRect_Reference#Rect">Rect</a> corners are (<a href="#SkSurface_readPixels_srcX">srcX</a>, <a href="#SkSurface_readPixels_srcY">srcY</a>) and <a href="#Surface">Surface</a> (<a href="#SkSurface_width">width</a>, <a href="#SkSurface_height">height</a>).
 Destination <a href="SkRect_Reference#Rect">Rect</a> corners are (0, 0) and (<a href="#SkSurface_readPixels_dst">dst</a>.<a href="#SkSurface_width">width</a>, <a href="#SkSurface_readPixels_dst">dst</a>.<a href="#SkSurface_height">height</a>).
@@ -1612,7 +1612,7 @@ true if pixels were copied
 const SkSurfaceProps& props() const
 </pre>
 
-Returns <a href="#Properties">Surface Properties</a> for surface.
+returns <a href="#Properties">Surface Properties</a>Returns <a href="#Properties">Surface Properties</a> for surface.
 
 ### Return Value
 
@@ -1643,7 +1643,7 @@ surf.props(): kRGB_H_SkPixelGeometry
 void prepareForExternalIO()
 </pre>
 
-To be deprecated.
+to be deprecatedTo be deprecated.
 
 ---
 
@@ -1654,7 +1654,7 @@ To be deprecated.
 void flush()
 </pre>
 
-Issues pending <a href="#Surface">Surface</a> commands to the GPU-backed API and resolves any <a href="#Surface">Surface</a> MSAA.
+resolve pending I/OIssues pending <a href="#Surface">Surface</a> commands to the GPU-backed API and resolves any <a href="#Surface">Surface</a> MSAA.
 
 Skia flushes as needed, so it is not necessary to call this if Skia manages
 drawing and object lifetime. Call when interleaving Skia calls with native
@@ -1674,7 +1674,7 @@ GrSemaphoresSubmitted flushAndSignalSemaphores(int numSemaphores,
                                                GrBackendSemaphore signalSemaphores[])
 </pre>
 
-Issues pending <a href="#Surface">Surface</a> commands to the GPU-backed API and resolves any <a href="#Surface">Surface</a> MSAA.
+resolve pending I/O, and signalIssues pending <a href="#Surface">Surface</a> commands to the GPU-backed API and resolves any <a href="#Surface">Surface</a> MSAA.
 After issuing all commands, <a href="#SkSurface_flushAndSignalSemaphores_signalSemaphores">signalSemaphores</a> of count <a href="#SkSurface_flushAndSignalSemaphores_numSemaphores">numSemaphores</a> semaphores
 are signaled by the GPU.
 
@@ -1723,7 +1723,7 @@ one of: <a href="#kYes">GrSemaphoresSubmitted::kYes</a>, <a href="#kNo">GrSemaph
 bool wait(int numSemaphores, const GrBackendSemaphore* waitSemaphores)
 </pre>
 
-Inserts a list of GPU semaphores that the current GPU-backed API must wait on before
+rause commands until signaledInserts a list of GPU semaphores that the current GPU-backed API must wait on before
 executing any more commands on the GPU for this surface. Skia will take ownership of the
 underlying semaphores and delete them once they have been signaled and waited on.
 If this call returns false, then the GPU back-end will not wait on any passed in semaphores,
@@ -1759,7 +1759,7 @@ true if GPU is waiting on semaphores
 bool characterize(SkSurfaceCharacterization* characterization) const
 </pre>
 
-Initializes <a href="#Characterization">Surface Characterization</a> that can be used to perform GPU back-end
+sets <a href="#Characterization">Surface Characterization</a> for threaded pre-processingInitializes <a href="#Characterization">Surface Characterization</a> that can be used to perform GPU back-end
 pre-processing in a separate thread. Typically this is used to divide drawing
 into multiple tiles. DeferredDisplayListRecorder records the drawing commands
 for each tile.
