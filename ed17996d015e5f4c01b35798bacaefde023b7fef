@@ -16,6 +16,24 @@
       "revId": "ed17996d015e5f4c01b35798bacaefde023b7fef",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "17e18271_5f2b8d02",
+        "filename": "tools/skqp/jni/org_skia_skqp_SkQPRunner.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-01-29T19:33:21Z",
+      "side": 1,
+      "message": "Fixed.",
+      "parentUuid": "1ce0a5f3_5461c25f",
+      "revId": "ed17996d015e5f4c01b35798bacaefde023b7fef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
