@@ -170,4 +170,98 @@ private:
 //////////////////////////////////////////////////////////////////////////////
 
 DEF_GM(return new TextBlobTransforms;)
+
+class TextBlobTransforms2 : public GM {
+public:
+    // This gm tests that textblobs translation with a clip
+    TextBlobTransforms2() {}
+
+protected:
+    void onOnceBeforeDraw() override {
+        SkTextBlobBuilder builder;
+
+        // make textblob.  To stress distance fields, we choose sizes appropriately
+        SkPaint paint;
+        paint.setTextSize(162);
+        const char* text = "A";
+        sk_tool_utils::set_portable_typeface(&paint);
+
+        SkRect bounds;
+        paint.measureText(text, strlen(text), &bounds);
+        sk_tool_utils::add_to_text_blob(&builder, text, paint, 0, 0);
+
+        // Medium
+        SkScalar xOffset = bounds.width() + 5;
+        paint.setTextSize(72);
+        text = "B";
+        sk_tool_utils::add_to_text_blob(&builder, text, paint, xOffset, 0);
+
+        paint.measureText(text, strlen(text), &bounds);
+        SkScalar yOffset = bounds.height();
+
+        // Small
+        paint.setTextSize(32);
+        text = "C";
+        sk_tool_utils::add_to_text_blob(&builder, text, paint, xOffset, -yOffset - 10);
+
+        // build
+        fBlob = builder.make();
+    }
+
+    SkString onShortName() override {
+        return SkString("textblobtransforms2");
+    }
+
+    SkISize onISize() override {
+        return SkISize::Make(kWidth, kHeight);
+    }
+
+    void onDraw(SkCanvas* canvas) override {
+        SkDebugf("Test started");
+
+        canvas->drawColor(sk_tool_utils::color_to_565(SK_ColorGRAY));
+
+        SkPaint paint;
+        paint.setAntiAlias(true);
+
+        SkRect bounds = fBlob->bounds();
+        SkScalar xOffset = SkScalarCeilToScalar(bounds.width());
+        SkScalar yOffset = SkScalarCeilToScalar(bounds.height());
+        SkRect clip = SkRect::MakeXYWH(0, 0, kWidth, kHeight/1.5f);
+
+        for (int i = 0; i < 250; i++) {
+            canvas->drawColor(sk_tool_utils::color_to_565(SK_ColorGRAY));
+            canvas->save();
+            canvas->clipRect(clip, false);
+            // translate up and down several times
+            canvas->translate(0, 70 - (i % 141));
+
+            for (int x = 0; x < kWidth/xOffset; x++) {
+                for (int y = 0; y < kHeight/yOffset; y++) {
+                    canvas->save();
+                    canvas->translate(x * xOffset,  (1 + y) * yOffset);
+                    canvas->drawTextBlob(fBlob, 0, 0, paint);
+                    canvas->restore();
+                }
+            }
+
+            canvas->restore();
+            canvas->flush();
+        }
+
+    }
+
+private:
+    sk_sp<SkTextBlob> fBlob;
+
+    static constexpr int kWidth = 1000;
+    static constexpr int kHeight = 1200;
+
+    typedef GM INHERITED;
+};
+
+//////////////////////////////////////////////////////////////////////////////
+
+DEF_GM(return new TextBlobTransforms2;)
+
 }
