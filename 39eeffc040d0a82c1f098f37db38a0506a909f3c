@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1f1b626b_602f0530",
+        "filename": "include/core/SkImageFilter.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-01-29T21:40:27Z",
+      "side": 1,
+      "message": "// Maybe a comment here about why ?",
+      "revId": "39eeffc040d0a82c1f098f37db38a0506a909f3c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
