@@ -46,8 +46,6 @@ GrVkCaps::GrVkCaps(const GrContextOptions& contextOptions, const GrVkInterface* 
 
     fMaxRenderTargetSize = 4096; // minimum required by spec
     fMaxTextureSize = 4096; // minimum required by spec
-    fMaxColorSampleCount = 4; // minimum required by spec
-    fMaxStencilSampleCount = 4; // minimum required by spec
 
     fShaderCaps.reset(new GrShaderCaps(contextOptions));
 
@@ -148,17 +146,6 @@ int get_max_sample_count(VkSampleCountFlags flags) {
     return 64;
 }
 
-void GrVkCaps::initSampleCount(const VkPhysicalDeviceProperties& properties) {
-    VkSampleCountFlags colorSamples = properties.limits.framebufferColorSampleCounts;
-    VkSampleCountFlags stencilSamples = properties.limits.framebufferStencilSampleCounts;
-
-    fMaxColorSampleCount = get_max_sample_count(colorSamples);
-    if (kImagination_VkVendor == properties.vendorID) {
-        fMaxColorSampleCount = 0;
-    }
-    fMaxStencilSampleCount = get_max_sample_count(stencilSamples);
-}
-
 void GrVkCaps::initGrCaps(const VkPhysicalDeviceProperties& properties,
                           const VkPhysicalDeviceMemoryProperties& memoryProperties,
                           uint32_t featureFlags) {
@@ -177,8 +164,6 @@ void GrVkCaps::initGrCaps(const VkPhysicalDeviceProperties& properties,
     // give the minimum max size across all configs. So for simplicity we will use that for now.
     fMaxRenderTargetSize = SkTMin(properties.limits.maxImageDimension2D, (uint32_t)INT_MAX);
     fMaxTextureSize = SkTMin(properties.limits.maxImageDimension2D, (uint32_t)INT_MAX);
-
-    this->initSampleCount(properties);
 
     // Assuming since we will always map in the end to upload the data we might as well just map
     // from the get go. There is no hard data to suggest this is faster or slower.

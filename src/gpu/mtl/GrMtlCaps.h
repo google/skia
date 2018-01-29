@@ -70,7 +70,6 @@ private:
 
     void initGrCaps(const id<MTLDevice> device);
     void initShaderCaps();
-    void initSampleCount();
     void initConfigTable();
 
     struct ConfigInfo {
