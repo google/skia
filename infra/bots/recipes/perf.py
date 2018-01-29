@@ -275,6 +275,7 @@ def perf_steps(api):
       '~blendmode_mask_',
       '~desk_carsvg.skp',
       '~^path_text_clipped', # Bot times out; skia:7190
+      '~shapes_rrect_inner_rrect_50_500x500', # skia:7551
     ])
 
   if api.vars.upload_perf_results:
