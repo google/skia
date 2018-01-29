@@ -570,8 +570,8 @@ static void test_crop_rects(skiatest::Reporter* reporter,
         SkImageFilter::OutputProperties noColorSpace(nullptr);
         SkImageFilter::Context ctx(SkMatrix::I(), SkIRect::MakeWH(100, 100), nullptr, noColorSpace);
         sk_sp<SkSpecialImage> resultImg(filter->filterImage(srcImg.get(), ctx, &offset));
-        REPORTER_ASSERT_MESSAGE(reporter, resultImg, filters.getName(i));
-        REPORTER_ASSERT_MESSAGE(reporter, offset.fX == 20 && offset.fY == 30, filters.getName(i));
+        REPORTER_ASSERT(reporter, resultImg, filters.getName(i));
+        REPORTER_ASSERT(reporter, offset.fX == 20 && offset.fY == 30, filters.getName(i));
     }
 }
 
@@ -776,7 +776,7 @@ DEF_TEST(ImageFilterDrawTiled, reporter) {
             untiledCanvas.flush();
             tiledCanvas.flush();
             if (!sk_tool_utils::equal_pixels(untiledResult, tiledResult, 1)) {
-                REPORTER_ASSERT_MESSAGE(reporter, false, filters.getName(i));
+                REPORTER_ASSERT(reporter, false, filters.getName(i));
                 break;
             }
         }

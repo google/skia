@@ -1033,17 +1033,17 @@ static void test_reduced_clip_stack(skiatest::Reporter* reporter) {
         queryBounds.outset(kBounds.width() / 2, kBounds.height() / 2);
         const GrReducedClip* reduced = new (storage.get()) GrReducedClip(stack, queryBounds, caps);
 
-        REPORTER_ASSERT_MESSAGE(reporter,
-                                reduced->maskElements().isEmpty() ||
+        REPORTER_ASSERT(reporter,
+                        reduced->maskElements().isEmpty() ||
                                 SkClipStack::kInvalidGenID != reduced->maskGenID(),
-                                testCase.c_str());
+                        testCase.c_str());
 
         if (!reduced->maskElements().isEmpty()) {
-            REPORTER_ASSERT_MESSAGE(reporter, reduced->hasScissor(), testCase.c_str());
+            REPORTER_ASSERT(reporter, reduced->hasScissor(), testCase.c_str());
             SkRect stackBounds;
             SkClipStack::BoundsType stackBoundsType;
             stack.getBounds(&stackBounds, &stackBoundsType);
-            REPORTER_ASSERT_MESSAGE(reporter, reduced->maskRequiresAA() == doAA, testCase.c_str());
+            REPORTER_ASSERT(reporter, reduced->maskRequiresAA() == doAA, testCase.c_str());
         }
 
         // Build a new clip stack based on the reduced clip elements
@@ -1069,7 +1069,7 @@ static void test_reduced_clip_stack(skiatest::Reporter* reporter) {
         SkRegion reducedRegion;
         set_region_to_stack(reducedStack, scissor, &reducedRegion);
 
-        REPORTER_ASSERT_MESSAGE(reporter, region == reducedRegion, testCase.c_str());
+        REPORTER_ASSERT(reporter, region == reducedRegion, testCase.c_str());
 
         reduced->~GrReducedClip();
     }
@@ -1240,35 +1240,33 @@ static void test_aa_query(skiatest::Reporter* reporter, const SkString& testName
     switch (expectedMethod) {
         case ClipMethod::kSkipDraw:
             SkASSERT(0 == numExpectedElems);
-            REPORTER_ASSERT_MESSAGE(reporter,
-                                    reduced.maskElements().isEmpty(), testName.c_str());
-            REPORTER_ASSERT_MESSAGE(reporter,
-                                    GrReducedClip::InitialState::kAllOut == reduced.initialState(),
-                                    testName.c_str());
+            REPORTER_ASSERT(reporter, reduced.maskElements().isEmpty(), testName.c_str());
+            REPORTER_ASSERT(reporter,
+                            GrReducedClip::InitialState::kAllOut == reduced.initialState(),
+                            testName.c_str());
             return;
         case ClipMethod::kIgnoreClip:
             SkASSERT(0 == numExpectedElems);
-            REPORTER_ASSERT_MESSAGE(reporter,
-                                    !reduced.hasScissor() ||
-                                    GrClip::IsInsideClip(reduced.scissor(), queryBounds),
-                                    testName.c_str());
-            REPORTER_ASSERT_MESSAGE(reporter, reduced.maskElements().isEmpty(), testName.c_str());
-            REPORTER_ASSERT_MESSAGE(reporter,
-                                    GrReducedClip::InitialState::kAllIn == reduced.initialState(),
-                                    testName.c_str());
+            REPORTER_ASSERT(
+                    reporter,
+                    !reduced.hasScissor() || GrClip::IsInsideClip(reduced.scissor(), queryBounds),
+                    testName.c_str());
+            REPORTER_ASSERT(reporter, reduced.maskElements().isEmpty(), testName.c_str());
+            REPORTER_ASSERT(reporter,
+                            GrReducedClip::InitialState::kAllIn == reduced.initialState(),
+                            testName.c_str());
             return;
         case ClipMethod::kScissor: {
             SkASSERT(SkClipStack::kNormal_BoundsType == stackBoundsType);
             SkASSERT(0 == numExpectedElems);
             SkIRect expectedScissor;
             stackBounds.round(&expectedScissor);
-            REPORTER_ASSERT_MESSAGE(reporter, reduced.maskElements().isEmpty(), testName.c_str());
-            REPORTER_ASSERT_MESSAGE(reporter, reduced.hasScissor(), testName.c_str());
-            REPORTER_ASSERT_MESSAGE(reporter, expectedScissor == reduced.scissor(),
-                                    testName.c_str());
-            REPORTER_ASSERT_MESSAGE(reporter,
-                                    GrReducedClip::InitialState::kAllIn == reduced.initialState(),
-                                    testName.c_str());
+            REPORTER_ASSERT(reporter, reduced.maskElements().isEmpty(), testName.c_str());
+            REPORTER_ASSERT(reporter, reduced.hasScissor(), testName.c_str());
+            REPORTER_ASSERT(reporter, expectedScissor == reduced.scissor(), testName.c_str());
+            REPORTER_ASSERT(reporter,
+                            GrReducedClip::InitialState::kAllIn == reduced.initialState(),
+                            testName.c_str());
             return;
         }
         case ClipMethod::kAAElements: {
@@ -1276,14 +1274,13 @@ static void test_aa_query(skiatest::Reporter* reporter, const SkString& testName
             if (SkClipStack::kNormal_BoundsType == stackBoundsType) {
                 SkAssertResult(expectedClipIBounds.intersect(GrClip::GetPixelIBounds(stackBounds)));
             }
-            REPORTER_ASSERT_MESSAGE(reporter, numExpectedElems == reduced.maskElements().count(),
-                                    testName.c_str());
-            REPORTER_ASSERT_MESSAGE(reporter, reduced.hasScissor(), testName.c_str());
-            REPORTER_ASSERT_MESSAGE(reporter, expectedClipIBounds == reduced.scissor(),
-                                    testName.c_str());
-            REPORTER_ASSERT_MESSAGE(reporter,
-                                    reduced.maskElements().isEmpty() || reduced.maskRequiresAA(),
-                                    testName.c_str());
+            REPORTER_ASSERT(reporter, numExpectedElems == reduced.maskElements().count(),
+                            testName.c_str());
+            REPORTER_ASSERT(reporter, reduced.hasScissor(), testName.c_str());
+            REPORTER_ASSERT(reporter, expectedClipIBounds == reduced.scissor(), testName.c_str());
+            REPORTER_ASSERT(reporter,
+                            reduced.maskElements().isEmpty() || reduced.maskRequiresAA(),
+                            testName.c_str());
             break;
         }
     }

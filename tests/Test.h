@@ -123,7 +123,7 @@ typedef sk_tools::Registry<Test> TestRegistry;
         ...
         REPORTER_ASSERT(reporter, x == 15);
         ...
-        REPORTER_ASSERT_MESSAGE(reporter, x == 15, "x should be 15");
+        REPORTER_ASSERT(reporter, x == 15, "x should be 15");
         ...
         if (x != 15) {
             ERRORF(reporter, "x should be 15, but is %d", x);
@@ -171,18 +171,11 @@ private:
 
 }  // namespace skiatest
 
-#define REPORTER_ASSERT(r, cond)                  \
-    do {                                          \
-        if (!(cond)) {                            \
-            REPORT_FAILURE(r, #cond, SkString()); \
-        }                                         \
-    } while (0)
-
-#define REPORTER_ASSERT_MESSAGE(r, cond, message)        \
-    do {                                                 \
-        if (!(cond)) {                                   \
-            REPORT_FAILURE(r, #cond, SkString(message)); \
-        }                                                \
+#define REPORTER_ASSERT(r, cond, ...)                              \
+    do {                                                           \
+        if (!(cond)) {                                             \
+            REPORT_FAILURE(r, #cond, SkStringPrintf(__VA_ARGS__)); \
+        }                                                          \
     } while (0)
 
 #define ERRORF(r, ...)                                      \
