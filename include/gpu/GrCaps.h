@@ -134,10 +134,6 @@ public:
 
     int maxRasterSamples() const { return fMaxRasterSamples; }
 
-    // Find a sample count greater than or equal to the requested count which is supported for a
-    // color buffer of the given config. If MSAA is not support for the config we will return 0.
-    virtual int getSampleCount(int requestedCount, GrPixelConfig config) const = 0;
-
     int maxWindowRectangles() const { return fMaxWindowRectangles; }
 
     // A tuned, platform-specific value for the maximum number of analytic fragment processors we
@@ -146,6 +142,14 @@ public:
 
     virtual bool isConfigTexturable(GrPixelConfig) const = 0;
     virtual bool isConfigRenderable(GrPixelConfig config, bool withMSAA) const = 0;
+
+    // Find a sample count greater than or equal to the requested count which is supported for a
+    // color buffer of the given config. If MSAA is not support for the config we will return 0.
+    virtual int getSampleCount(int requestedCount, GrPixelConfig config) const = 0;
+    int maxSampleCount(GrPixelConfig config) const {
+        return this->getSampleCount(SK_MaxS32, config);
+    }
+
     // Returns whether a texture of the given config can be copied to a texture of the same config.
     virtual bool isConfigCopyable(GrPixelConfig config) const = 0;
 
