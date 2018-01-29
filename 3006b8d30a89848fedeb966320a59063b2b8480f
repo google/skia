@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f0bce6fd_a49e2fb0",
+        "filename": "gm/textblobtransforms.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-01-29T22:37:02Z",
+      "side": 1,
+      "message": "Nit: place above the class? Also translation-\u003etranslate?",
+      "range": {
+        "startLine": 176,
+        "startChar": 4,
+        "endLine": 176,
+        "endChar": 59
+      },
+      "revId": "3006b8d30a89848fedeb966320a59063b2b8480f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
