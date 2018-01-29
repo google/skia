@@ -272,6 +272,9 @@ private:
 
 /// Creates a new string and writes into it using a printf()-style format.
 SkString SkStringPrintf(const char* format, ...);
+/// This makes it easier to write a caller as a VAR_ARGS function where the format string is
+/// optional.
+static inline SkString SkStringPrintf() { return SkString(); }
 
 // Specialized to take advantage of SkString's fast swap path. The unspecialized function is
 // declared in SkTypes.h and called by SkTSort.

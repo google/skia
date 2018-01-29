@@ -84,7 +84,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, ctxInfo) {
 
             // upload the texture (do per-rowbytes iteration because we may overwrite below).
             bool result = sContext->writePixels(ii, alphaData, 0, 0, 0);
-            REPORTER_ASSERT_MESSAGE(reporter, result, "Initial A8 writePixels failed");
+            REPORTER_ASSERT(reporter, result, "Initial A8 writePixels failed");
 
             size_t nonZeroRowBytes = rowBytes ? rowBytes : X_SIZE;
             std::unique_ptr<uint8_t[]> readback(new uint8_t[nonZeroRowBytes * Y_SIZE]);
@@ -93,7 +93,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, ctxInfo) {
 
             // read the texture back
             result = sContext->readPixels(ii, readback.get(), rowBytes, 0, 0);
-            REPORTER_ASSERT_MESSAGE(reporter, result, "Initial A8 readPixels failed");
+            REPORTER_ASSERT(reporter, result, "Initial A8 readPixels failed");
 
             // make sure the original & read back versions match
             SkString msg;
@@ -115,7 +115,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, ctxInfo) {
 
                 memset(readback.get(), kClearValue, nonZeroRowBytes * Y_SIZE);
                 result = surf->readPixels(ii, readback.get(), nonZeroRowBytes, 0, 0);
-                REPORTER_ASSERT_MESSAGE(reporter, result, "A8 readPixels after clear failed");
+                REPORTER_ASSERT(reporter, result, "A8 readPixels after clear failed");
 
                 match = true;
                 for (int y = 0; y < Y_SIZE && match; ++y) {
@@ -190,7 +190,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, ctxInfo) {
 
                 // read the texture back
                 bool result = sContext->readPixels(dstInfo, readback.get(), rowBytes, 0, 0);
-                REPORTER_ASSERT_MESSAGE(reporter, result, "8888 readPixels failed");
+                REPORTER_ASSERT(reporter, result, "8888 readPixels failed");
 
                 // make sure the original & read back versions match
                 SkString msg;

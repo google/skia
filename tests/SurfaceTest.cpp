@@ -856,14 +856,14 @@ static void test_surface_creation_and_snapshot_with_color_space(
                           (f16Support || kRGBA_F16_SkColorType != testConfig.fColorType);
 
         auto surface(surfaceMaker(info));
-        REPORTER_ASSERT_MESSAGE(reporter, SkToBool(surface) == shouldWork, fullTestName.c_str());
+        REPORTER_ASSERT(reporter, SkToBool(surface) == shouldWork, fullTestName.c_str());
 
         if (shouldWork && surface) {
             sk_sp<SkImage> image(surface->makeImageSnapshot());
-            REPORTER_ASSERT_MESSAGE(reporter, image, testConfig.fDescription);
+            REPORTER_ASSERT(reporter, image, testConfig.fDescription);
             SkColorSpace* imageColorSpace = as_IB(image)->onImageInfo().colorSpace();
-            REPORTER_ASSERT_MESSAGE(reporter, imageColorSpace == testConfig.fColorSpace.get(),
-                                    fullTestName.c_str());
+            REPORTER_ASSERT(reporter, imageColorSpace == testConfig.fColorSpace.get(),
+                            fullTestName.c_str());
         }
     }
 }

@@ -24,7 +24,7 @@
  *          {
  *              canvas->someCanvasAPImethod();
  *              (...)
- *              REPORTER_ASSERT_MESSAGE(reporter, (...), \
+ *              REPORTER_ASSERT(reporter, (...), \
  *                  testStep->assertMessage());
  *          }
  *
@@ -355,14 +355,12 @@ static void NAME##TestStep(SkCanvas* canvas, const TestData& d,  \
 }                                                                       \
 TEST_STEP(NAME, NAME##TestStep )
 
-#define SIMPLE_TEST_STEP_WITH_ASSERT(NAME, CALL)                           \
-static void NAME##TestStep(SkCanvas* canvas, const TestData& d,     \
-    skiatest::Reporter*, CanvasTestStep* testStep) {                       \
-    REPORTER_ASSERT_MESSAGE(reporter, canvas-> CALL ,                      \
-        testStep->assertMessage());                                        \
-}                                                                          \
-TEST_STEP(NAME, NAME##TestStep )
-
+#define SIMPLE_TEST_STEP_WITH_ASSERT(NAME, CALL)                                         \
+    static void NAME##TestStep(SkCanvas* canvas, const TestData& d, skiatest::Reporter*, \
+                               CanvasTestStep* testStep) {                               \
+        REPORTER_ASSERT(reporter, canvas->CALL, testStep->assertMessage());              \
+    }                                                                                    \
+    TEST_STEP(NAME, NAME##TestStep)
 
 ///////////////////////////////////////////////////////////////////////////////
 // Basic test steps for most virtual methods in SkCanvas that draw or affect
@@ -389,11 +387,10 @@ static void SaveMatrixClipStep(SkCanvas* canvas, const TestData& d,
     canvas->translate(SkIntToScalar(1), SkIntToScalar(2));
     canvas->clipRegion(d.fRegion);
     canvas->restore();
-    REPORTER_ASSERT_MESSAGE(reporter, canvas->getSaveCount() == saveCount,
-        testStep->assertMessage());
-    REPORTER_ASSERT_MESSAGE(reporter, canvas->getTotalMatrix().isIdentity(),
-        testStep->assertMessage());
-//    REPORTER_ASSERT_MESSAGE(reporter, canvas->getTotalClip() != kTestRegion, testStep->assertMessage());
+    REPORTER_ASSERT(reporter, canvas->getSaveCount() == saveCount, testStep->assertMessage());
+    REPORTER_ASSERT(reporter, canvas->getTotalMatrix().isIdentity(), testStep->assertMessage());
+    //    REPORTER_ASSERT(reporter, canvas->getTotalClip() != kTestRegion,
+    //                    testStep->assertMessage());
 }
 TEST_STEP(SaveMatrixClip, SaveMatrixClipStep);
 
@@ -402,8 +399,7 @@ static void SaveLayerStep(SkCanvas* canvas, const TestData& d,
     int saveCount = canvas->getSaveCount();
     canvas->saveLayer(nullptr, nullptr);
     canvas->restore();
-    REPORTER_ASSERT_MESSAGE(reporter, canvas->getSaveCount() == saveCount,
-        testStep->assertMessage());
+    REPORTER_ASSERT(reporter, canvas->getSaveCount() == saveCount, testStep->assertMessage());
 }
 TEST_STEP(SaveLayer, SaveLayerStep);
 
@@ -412,8 +408,7 @@ static void BoundedSaveLayerStep(SkCanvas* canvas, const TestData& d,
     int saveCount = canvas->getSaveCount();
     canvas->saveLayer(&d.fRect, nullptr);
     canvas->restore();
-    REPORTER_ASSERT_MESSAGE(reporter, canvas->getSaveCount() == saveCount,
-        testStep->assertMessage());
+    REPORTER_ASSERT(reporter, canvas->getSaveCount() == saveCount, testStep->assertMessage());
 }
 TEST_STEP(BoundedSaveLayer, BoundedSaveLayerStep);
 
@@ -422,8 +417,7 @@ static void PaintSaveLayerStep(SkCanvas* canvas, const TestData& d,
     int saveCount = canvas->getSaveCount();
     canvas->saveLayer(nullptr, &d.fPaint);
     canvas->restore();
-    REPORTER_ASSERT_MESSAGE(reporter, canvas->getSaveCount() == saveCount,
-        testStep->assertMessage());
+    REPORTER_ASSERT(reporter, canvas->getSaveCount() == saveCount, testStep->assertMessage());
 }
 TEST_STEP(PaintSaveLayer, PaintSaveLayerStep);
 
@@ -484,21 +478,20 @@ static void SaveRestoreTestStep(SkCanvas* canvas, const TestData& d,
                                 skiatest::Reporter* reporter, CanvasTestStep* testStep) {
     int baseSaveCount = canvas->getSaveCount();
     int n = canvas->save();
-    REPORTER_ASSERT_MESSAGE(reporter, baseSaveCount == n, testStep->assertMessage());
-    REPORTER_ASSERT_MESSAGE(reporter, baseSaveCount + 1 == canvas->getSaveCount(),
-        testStep->assertMessage());
+    REPORTER_ASSERT(reporter, baseSaveCount == n, testStep->assertMessage());
+    REPORTER_ASSERT(reporter, baseSaveCount + 1 == canvas->getSaveCount(),
+                    testStep->assertMessage());
     canvas->save();
     canvas->save();
-    REPORTER_ASSERT_MESSAGE(reporter, baseSaveCount + 3 == canvas->getSaveCount(),
-        testStep->assertMessage());
+    REPORTER_ASSERT(reporter, baseSaveCount + 3 == canvas->getSaveCount(),
+                    testStep->assertMessage());
     canvas->restoreToCount(baseSaveCount + 1);
-    REPORTER_ASSERT_MESSAGE(reporter, baseSaveCount + 1 == canvas->getSaveCount(),
-        testStep->assertMessage());
+    REPORTER_ASSERT(reporter, baseSaveCount + 1 == canvas->getSaveCount(),
+                    testStep->assertMessage());
 
     // should this pin to 1, or be a no-op, or crash?
     canvas->restoreToCount(0);
-    REPORTER_ASSERT_MESSAGE(reporter, 1 == canvas->getSaveCount(),
-        testStep->assertMessage());
+    REPORTER_ASSERT(reporter, 1 == canvas->getSaveCount(), testStep->assertMessage());
 }
 TEST_STEP(SaveRestore, SaveRestoreTestStep);
 
