@@ -197,6 +197,9 @@ void SkImageFilter::flatten(SkWriteBuffer& buffer) const {
 sk_sp<SkSpecialImage> SkImageFilter::filterImage(SkSpecialImage* src, const Context& context,
                                                  SkIPoint* offset) const {
     SkASSERT(src && offset);
+    if (!context.isValid()) {
+        return nullptr;
+    }
 
     uint32_t srcGenID = fUsesSrcInput ? src->uniqueID() : 0;
     const SkIRect srcSubset = fUsesSrcInput ? src->subset() : SkIRect::MakeWH(0, 0);
