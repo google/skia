@@ -20,7 +20,7 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
         args=[
           '--chrome-dir', self.m.vars.checkout_root,
           '--output-dir', self.m.vars.skia_out.join(self.m.vars.configuration),
-          '--no-sync', '--make-output-dir'])
+          '--no-sync', '--no-hooks', '--make-output-dir'])
 
   def _get_goma_json(self):
     json_key = 'jwt_service_account_goma-client'
