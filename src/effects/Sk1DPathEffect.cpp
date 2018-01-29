@@ -135,7 +135,7 @@ static void morphpath(SkPath* dst, const SkPath& src, SkPathMeasure& meas,
                 dst->close();
                 break;
             default:
-                SkDEBUGFAIL("unknown verb");
+     //           SkDEBUGFAIL("unknown verb");
                 break;
         }
     }
