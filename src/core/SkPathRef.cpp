@@ -201,6 +201,7 @@ void SkPathRef::CreateTransformedCopy(sk_sp<SkPathRef>* dst,
 
 // Given the verb array, deduce the required number of pts and conics,
 // or if an invalid verb is encountered, return false.
+// Also returns false if the verbs form an invalid sequence.
 static bool deduce_pts_conics(const uint8_t verbs[], int vCount, int* ptCountPtr,
                               int* conicCountPtr) {
     // When there is at least one verb, the first is required to be kMove_Verb.
@@ -211,28 +212,36 @@ static bool deduce_pts_conics(const uint8_t verbs[], int vCount, int* ptCountPtr
     SkSafeMath safe;
     int ptCount = 0;
     int conicCount = 0;
+    bool needsMoveTo = true;            // set to true before each contour
+    bool invalidSequence = false;       // tracks that each contour begins with moveTo(s)
+
     for (int i = 0; i < vCount; ++i) {
         switch (verbs[i]) {
             case SkPath::kMove_Verb:
+                needsMoveTo = false;   // fall-through
             case SkPath::kLine_Verb:
+                invalidSequence |= needsMoveTo;
                 ptCount = safe.addInt(ptCount, 1);
                 break;
             case SkPath::kConic_Verb:
                 conicCount += 1;
                 // fall-through
             case SkPath::kQuad_Verb:
+                invalidSequence |= needsMoveTo;
                 ptCount = safe.addInt(ptCount, 2);
                 break;
             case SkPath::kCubic_Verb:
+                invalidSequence |= needsMoveTo;
                 ptCount = safe.addInt(ptCount, 3);
                 break;
             case SkPath::kClose_Verb:
+                needsMoveTo = true;  // now we need another moveTo before a line/quad/etc.
                 break;
             default:
                 return false;
         }
     }
-    if (!safe) {
+    if (!safe || invalidSequence) {
         return false;
     }
     *ptCountPtr = ptCount;
