@@ -23,18 +23,18 @@ static void test_monotonic(skiatest::Reporter* reporter,
         SkScalar m;
         const size_t n = paint.breakText(text, length, w, &m);
 
-        REPORTER_ASSERT_MESSAGE(reporter, n <= length, msg);
-        REPORTER_ASSERT_MESSAGE(reporter, m <= width, msg);
+        REPORTER_ASSERT(reporter, n <= length, msg);
+        REPORTER_ASSERT(reporter, m <= width, msg);
 
         if (n == 0) {
-            REPORTER_ASSERT_MESSAGE(reporter, m == 0, msg);
+            REPORTER_ASSERT(reporter, m == 0, msg);
         } else {
             // now assert that we're monotonic
             if (n == nn) {
-                REPORTER_ASSERT_MESSAGE(reporter, m == mm, msg);
+                REPORTER_ASSERT(reporter, m == mm, msg);
             } else {
-                REPORTER_ASSERT_MESSAGE(reporter, n > nn, msg);
-                REPORTER_ASSERT_MESSAGE(reporter, m > mm, msg);
+                REPORTER_ASSERT(reporter, n > nn, msg);
+                REPORTER_ASSERT(reporter, m > mm, msg);
             }
         }
         nn = n;
@@ -52,8 +52,8 @@ static void test_eq_measure_text(skiatest::Reporter* reporter,
 
     SkScalar mm;
     const size_t length2 = paint.breakText(text, length, width, &mm);
-    REPORTER_ASSERT_MESSAGE(reporter, length2 == length, msg);
-    REPORTER_ASSERT_MESSAGE(reporter, mm == width, msg);
+    REPORTER_ASSERT(reporter, length2 == length, msg);
+    REPORTER_ASSERT(reporter, mm == width, msg);
 }
 
 static void test_long_text(skiatest::Reporter* reporter,
@@ -68,8 +68,8 @@ static void test_long_text(skiatest::Reporter* reporter,
 
     SkScalar mm;
     const size_t length = paint.breakText(text, kSize, width, &mm);
-    REPORTER_ASSERT_MESSAGE(reporter, length == kSize, msg);
-    REPORTER_ASSERT_MESSAGE(reporter, mm == width, msg);
+    REPORTER_ASSERT(reporter, length == kSize, msg);
+    REPORTER_ASSERT(reporter, mm == width, msg);
 }
 
 DEF_TEST(PaintBreakText, reporter) {
