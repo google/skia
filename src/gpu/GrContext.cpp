@@ -930,7 +930,7 @@ sk_sp<GrRenderTargetContext> GrContext::makeDeferredRenderTargetContextWithFallb
                                                                  GrSurfaceOrigin origin,
                                                                  const SkSurfaceProps* surfaceProps,
                                                                  SkBudgeted budgeted) {
-    if (!this->caps()->isConfigRenderable(config, sampleCnt > 0)) {
+    if (!this->caps()->isConfigRenderable(config, sampleCnt > 1)) {
         config = GrPixelConfigFallback(config);
     }
 
