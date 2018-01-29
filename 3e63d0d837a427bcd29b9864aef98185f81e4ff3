@@ -1,0 +1,186 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "74dd32fb_03a3b9a8",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-29T21:19:38Z",
+      "side": 1,
+      "message": "probably best to trim this dependency before we move this into Skia.",
+      "revId": "3e63d0d837a427bcd29b9864aef98185f81e4ff3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "609844f5_0fca2420",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-29T21:19:38Z",
+      "side": 1,
+      "message": "SkThreadID?  Or really, process ID?  Something abstracter? Shouldn\u0027t decisions about how this works be in the user\u0027s hands?",
+      "revId": "3e63d0d837a427bcd29b9864aef98185f81e4ff3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a2573f65_9907d81f",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-29T21:19:38Z",
+      "side": 1,
+      "message": "I thought we explicitly don\u0027t want that?",
+      "revId": "3e63d0d837a427bcd29b9864aef98185f81e4ff3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b8e48879_7b765016",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-29T21:19:38Z",
+      "side": 1,
+      "message": "How come SkTypefaceProxy needs to know style and is_fixed?",
+      "range": {
+        "startLine": 82,
+        "startChar": 38,
+        "endLine": 82,
+        "endChar": 53
+      },
+      "revId": "3e63d0d837a427bcd29b9864aef98185f81e4ff3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "865abced_99da8336",
+        "filename": "src/core/SkRemoteGlyphCache.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-29T21:19:38Z",
+      "side": 1,
+      "message": "Can we do anything like SkASSERT(desc-\u003egetLength() \u003d\u003d sizeof(*this)) here as a double-check that we made exactly enough space below?",
+      "revId": "3e63d0d837a427bcd29b9864aef98185f81e4ff3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "857c139f_d2e6e3b1",
+        "filename": "src/core/SkRemoteGlyphCache.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-29T21:19:38Z",
+      "side": 1,
+      "message": "Are all bits in this type initialized?  Can we just use desc().getChecksum()?",
+      "revId": "3e63d0d837a427bcd29b9864aef98185f81e4ff3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e91446c3_67940bda",
+        "filename": "src/core/SkRemoteGlyphCache.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-29T21:19:38Z",
+      "side": 1,
+      "message": "Let\u0027s maybe friend or make those constructors Skia-public?  As is this feels a bit awkward, and I think it\u0027s in our control to  just make it normal.",
+      "range": {
+        "startLine": 46,
+        "startChar": 19,
+        "endLine": 46,
+        "endChar": 91
+      },
+      "revId": "3e63d0d837a427bcd29b9864aef98185f81e4ff3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0ad5dfaf_841eddf5",
+        "filename": "src/core/SkRemoteGlyphCache.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-29T21:19:38Z",
+      "side": 1,
+      "message": "As an alternative to all this static layout stuff, can we just do something simple like this?\n\nclass SkScalerContextRecDescriptor {\npublic:\n    SkScalerContextRectDescriptor(const SkScalerContextRec\u0026 rec) {\n        fDesc \u003d SkDescriptor::Alloc(... something.. );\n        fDesc-\u003eaddEntry(kRec_SkDescriptorTag, sizeof(rec), \u0026rec);\n    }\n\n    const SkDescriptor\u0026 desc() const { return *fDesc; }\n    // Hash, Equal, operator\u003d\u003d, whatever.\n\nprivate:\n    std::unique_ptr\u003cSkDescriptor\u003e fDesc;\n};",
+      "revId": "3e63d0d837a427bcd29b9864aef98185f81e4ff3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5bb5d1dd_92fbeb6f",
+        "filename": "src/core/SkRemoteGlyphCache.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-29T21:19:38Z",
+      "side": 1,
+      "message": "Now that we\u0027re pulling these maps into Skia, we might want to switch to SkTHashMaps?",
+      "revId": "3e63d0d837a427bcd29b9864aef98185f81e4ff3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c6546543_3dda2935",
+        "filename": "src/core/SkRemoteGlyphCache.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-29T21:19:38Z",
+      "side": 1,
+      "message": "Think we could get away with doing this lookup just by SkDescriptor::getChecksum()?  That might make things a lot simpler.",
+      "revId": "3e63d0d837a427bcd29b9864aef98185f81e4ff3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
