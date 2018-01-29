@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4ab94aa6_9d129ce9",
+        "filename": "include/gpu/GrContext.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 234,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-01-29T17:00:58Z",
+      "side": 1,
+      "message": "I\u0027m tempted to remove withMSAA from colorTypeSupportedAsSurface since that is equivalent to maxSurfaceSamplesForColorType(ct) !\u003d 0.\n\nWDYT?",
+      "range": {
+        "startLine": 224,
+        "startChar": 0,
+        "endLine": 234,
+        "endChar": 57
+      },
+      "revId": "ce9077d9602e87313ba6b9898454b1378ef942c7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
