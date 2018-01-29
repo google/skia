@@ -126,6 +126,11 @@ static void morphpath(SkPath* dst, const SkPath& src, SkPathMeasure& meas,
                     dst->quadTo(dstP[0], dstP[1]);
                 }
                 break;
+            case SkPath::kConic_Verb:
+                if (morphpoints(dstP, &srcP[1], 2, meas, dist)) {
+                    dst->conicTo(dstP[0], dstP[1], iter.conicWeight());
+                }
+                break;
             case SkPath::kCubic_Verb:
                 if (morphpoints(dstP, &srcP[1], 3, meas, dist)) {
                     dst->cubicTo(dstP[0], dstP[1], dstP[2]);
