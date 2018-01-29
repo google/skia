@@ -50,7 +50,12 @@ namespace skottie {
 
 namespace {
 
-using AssetMap = SkTHashMap<SkString, const Json::Value*>;
+struct AssetRec {
+    const Json::Value*      fJson;
+    sk_sp<sksg::RenderNode> fNode;
+};
+
+using AssetMap = SkTHashMap<SkString, AssetRec>;
 
 struct AttachContext {
     const ResourceProvider&    fResources;
@@ -682,23 +687,33 @@ sk_sp<sksg::RenderNode> AttachShape(const Json::Value& jshape, AttachShapeContex
     return draws.empty() ? nullptr : shape_wrapper;
 }
 
-sk_sp<sksg::RenderNode> AttachCompLayer(const Json::Value& layer, AttachContext* ctx) {
-    SkASSERT(layer.isObject());
+sk_sp<sksg::RenderNode> AttachAsset(const Json::Value& jobject, AttachContext* ctx,
+                                    sk_sp<sksg::RenderNode>(proc)(const Json::Value&,
+                                                                  AttachContext*)) {
+    SkASSERT(jobject.isObject());
 
     SkString refId;
-    if (!Parse(layer["refId"], &refId) || refId.isEmpty()) {
-        LOG("!! Comp layer missing refId\n");
+    if (!Parse(jobject["refId"], &refId) || refId.isEmpty()) {
+        LOG("!! Missing asset refId\n");
         return nullptr;
     }
 
-    const auto* comp = ctx->fAssets.find(refId);
-    if (!comp) {
-        LOG("!! Pre-comp not found: '%s'\n", refId.c_str());
+    auto* rec = ctx->fAssets.find(refId);
+    if (!rec) {
+        LOG("!! Asset not found: '%s'\n", refId.c_str());
         return nullptr;
     }
 
-    // TODO: cycle detection
-    return AttachComposition(**comp, ctx);
+    if (!rec->fNode) {
+        // TODO: cycle detection
+        rec->fNode = proc(*rec->fJson, ctx);
+    }
+
+    return rec->fNode;
+}
+
+sk_sp<sksg::RenderNode> AttachCompLayer(const Json::Value& jlayer, AttachContext* ctx) {
+    return AttachAsset(jlayer, ctx, AttachComposition);
 }
 
 sk_sp<sksg::RenderNode> AttachSolidLayer(const Json::Value& jlayer, AttachContext*) {
@@ -742,22 +757,8 @@ sk_sp<sksg::RenderNode> AttachImageAsset(const Json::Value& jimage, AttachContex
         SkImage::MakeFromEncoded(SkData::MakeFromStream(resStream.get(), resStream->getLength())));
 }
 
-sk_sp<sksg::RenderNode> AttachImageLayer(const Json::Value& layer, AttachContext* ctx) {
-    SkASSERT(layer.isObject());
-
-    SkString refId;
-    if (!Parse(layer["refId"], &refId) || refId.isEmpty()) {
-        LOG("!! Image layer missing refId\n");
-        return nullptr;
-    }
-
-    const auto* jimage = ctx->fAssets.find(refId);
-    if (!jimage) {
-        LOG("!! Image asset not found: '%s'\n", refId.c_str());
-        return nullptr;
-    }
-
-    return AttachImageAsset(**jimage, ctx);
+sk_sp<sksg::RenderNode> AttachImageLayer(const Json::Value& jlayer, AttachContext* ctx) {
+    return AttachAsset(jlayer, ctx, AttachImageAsset);
 }
 
 sk_sp<sksg::RenderNode> AttachNullLayer(const Json::Value& layer, AttachContext*) {
@@ -1094,7 +1095,7 @@ Animation::Animation(const ResourceProvider& resources,
             continue;
         }
 
-        assets.set(ParseDefault(asset["id"], SkString()), &asset);
+        assets.set(ParseDefault(asset["id"], SkString()), {&asset, nullptr});
     }
 
     sksg::Scene::AnimatorList animators;
