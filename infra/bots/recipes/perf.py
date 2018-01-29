@@ -171,6 +171,7 @@ def nanobench_flags(api, bot):
     # skia:6863
     match.append('~desk_skbug6850overlay2')
     match.append('~desk_googlespreadsheet')
+    match.append('~desk_carsvg')
   if ('Intel' in bot and api.vars.is_linux and not 'Vulkan' in bot):
     # TODO(dogben): Track down what's causing bots to die.
     verbose = True
