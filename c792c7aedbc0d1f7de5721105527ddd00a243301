@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9d909b02_bc1ce6f5",
+        "filename": "tests/Test.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 184,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-29T14:38:06Z",
+      "side": 1,
+      "message": "If we also add\n\n  SkString SkStringPrintf() { return SkString(); }\n\nwouldn\u0027t that mean we could unify REPORTER_ASSERT and REPORTER_ASSERT_MESSAGE?  That might be nice.",
+      "range": {
+        "startLine": 184,
+        "startChar": 37,
+        "endLine": 184,
+        "endChar": 64
+      },
+      "revId": "c792c7aedbc0d1f7de5721105527ddd00a243301",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
