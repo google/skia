@@ -178,11 +178,11 @@ private:
         }                                         \
     } while (0)
 
-#define REPORTER_ASSERT_MESSAGE(r, cond, message)        \
-    do {                                                 \
-        if (!(cond)) {                                   \
-            REPORT_FAILURE(r, #cond, SkString(message)); \
-        }                                                \
+#define REPORTER_ASSERT_MESSAGE(r, cond, ...)                      \
+    do {                                                           \
+        if (!(cond)) {                                             \
+            REPORT_FAILURE(r, #cond, SkStringPrintf(__VA_ARGS__)); \
+        }                                                          \
     } while (0)
 
 #define ERRORF(r, ...)                                      \
