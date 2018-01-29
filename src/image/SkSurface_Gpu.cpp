@@ -313,10 +313,6 @@ bool validate_backend_texture(GrContext* ctx, const GrBackendTexture& tex, GrPix
         return false;
     }
 
-    if (ctx->caps()->getSampleCount(sampleCnt, *config) != sampleCnt) {
-        return false;
-    }
-
     if (texturable && !ctx->caps()->isConfigTexturable(*config)) {
         return false;
     }
