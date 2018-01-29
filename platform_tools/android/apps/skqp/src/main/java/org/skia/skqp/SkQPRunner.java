@@ -78,12 +78,16 @@ public class SkQPRunner extends Runner {
 
     @Override
     public void run(RunNotifier notifier) {
+        int numberOfTests = this.testCount();
+        int testNumber = 1;
         Annotation annots[] = new Annotation[0];
         for (int backend = 0; backend < impl.mBackends.length; backend++) {
             String classname = SkQP.kSkiaGM + impl.mBackends[backend];
             for (int gm = 0; gm < impl.mGMs.length; gm++) {
                 String gmName = String.format("%s/%s", impl.mBackends[backend], impl.mGMs[gm]);
-                Log.v(TAG, String.format("Rendering Test %s started", gmName));
+                Log.v(TAG, String.format("Rendering Test %s started (%d/%d).",
+                                         gmName, testNumber, numberOfTests));
+                testNumber++;
                 Description desc =
                         Description.createTestDescription(classname, impl.mGMs[gm], annots);
                 notifier.fireTestStarted(desc);
@@ -109,7 +113,9 @@ public class SkQPRunner extends Runner {
         }
         for (int unitTest = 0; unitTest < impl.mUnitTests.length; unitTest++) {
             String utName = impl.mUnitTests[unitTest];
-            Log.v(TAG, String.format("Test %s started.", utName));
+            Log.v(TAG, String.format("Test %s started (%d/%d).",
+                                     utName, testNumber, numberOfTests));
+            testNumber++;
             Description desc = Description.createTestDescription(
                           SkQP.kSkiaUnitTests, utName, annots);
             notifier.fireTestStarted(desc);
