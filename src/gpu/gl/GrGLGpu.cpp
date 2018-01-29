@@ -4343,38 +4343,6 @@ bool GrGLGpu::generateMipmap(GrGLTexture* texture, GrSurfaceOrigin textureOrigin
     return true;
 }
 
-void GrGLGpu::onQueryMultisampleSpecs(GrRenderTarget* rt, GrSurfaceOrigin rtOrigin,
-                                      const GrStencilSettings& stencil,
-                                      int* effectiveSampleCnt, SamplePattern* samplePattern) {
-    SkASSERT(GrFSAAType::kMixedSamples != rt->fsaaType() ||
-             rt->renderTargetPriv().getStencilAttachment() || stencil.isDisabled());
-
-    this->flushStencil(stencil);
-    this->flushHWAAState(rt, true, !stencil.isDisabled());
-    this->flushRenderTarget(static_cast<GrGLRenderTarget*>(rt), &SkIRect::EmptyIRect());
-
-    if (0 != this->caps()->maxRasterSamples()) {
-        GR_GL_GetIntegerv(this->glInterface(), GR_GL_EFFECTIVE_RASTER_SAMPLES, effectiveSampleCnt);
-    } else {
-        GR_GL_GetIntegerv(this->glInterface(), GR_GL_SAMPLES, effectiveSampleCnt);
-    }
-
-    SkASSERT(*effectiveSampleCnt >= rt->numStencilSamples());
-
-    if (this->caps()->sampleLocationsSupport()) {
-        samplePattern->reset(*effectiveSampleCnt);
-        for (int i = 0; i < *effectiveSampleCnt; ++i) {
-            GrGLfloat pos[2];
-            GL_CALL(GetMultisamplefv(GR_GL_SAMPLE_POSITION, i, pos));
-            if (kTopLeft_GrSurfaceOrigin == rtOrigin) {
-                (*samplePattern)[i].set(pos[0], pos[1]);
-            } else {
-                (*samplePattern)[i].set(pos[0], 1 - pos[1]);
-            }
-        }
-    }
-}
-
 void GrGLGpu::xferBarrier(GrRenderTarget* rt, GrXferBarrierType type) {
     SkASSERT(type);
     switch (type) {

@@ -41,7 +41,7 @@ protected:
 
 class GrCCCubicHullShader : public GrCCCubicShader {
     void onEmitVaryings(GrGLSLVaryingHandler*, GrGLSLVarying::Scope, SkString* code) override;
-    void onEmitFragmentCode(GrGLSLPPFragmentBuilder*, const char* outputCoverage) const override;
+    void onEmitFragmentCode(GrGLSLFragmentBuilder*, const char* outputCoverage) const override;
 
     GrGLSLVarying fGradMatrix;
 };
@@ -50,7 +50,7 @@ class GrCCCubicCornerShader : public GrCCCubicShader {
     void onEmitSetupCode(GrGLSLVertexGeoBuilder*, const char* pts, const char* repetitionID,
                          GeometryVars*) const override;
     void onEmitVaryings(GrGLSLVaryingHandler*, GrGLSLVarying::Scope, SkString* code) override;
-    void onEmitFragmentCode(GrGLSLPPFragmentBuilder*, const char* outputCoverage) const override;
+    void onEmitFragmentCode(GrGLSLFragmentBuilder*, const char* outputCoverage) const override;
 
     GrGLSLVarying fdKLMDdx;
     GrGLSLVarying fdKLMDdy;

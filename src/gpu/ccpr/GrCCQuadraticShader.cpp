@@ -79,7 +79,7 @@ void GrCCQuadraticHullShader::onEmitVaryings(GrGLSLVaryingHandler* varyingHandle
                   OutName(fGrad), OutName(fXYD), fCanonicalMatrix.c_str());
 }
 
-void GrCCQuadraticHullShader::onEmitFragmentCode(GrGLSLPPFragmentBuilder* f,
+void GrCCQuadraticHullShader::onEmitFragmentCode(GrGLSLFragmentBuilder* f,
                                                  const char* outputCoverage) const {
     f->codeAppendf("float d = (%s.x * %s.x - %s.y) * inversesqrt(dot(%s, %s));",
                    fXYD.fsIn(), fXYD.fsIn(), fXYD.fsIn(), fGrad.fsIn(), fGrad.fsIn());
@@ -109,7 +109,7 @@ void GrCCQuadraticCornerShader::onEmitVaryings(GrGLSLVaryingHandler* varyingHand
                   fEdgeDistanceEquation.c_str());
 }
 
-void GrCCQuadraticCornerShader::onEmitFragmentCode(GrGLSLPPFragmentBuilder* f,
+void GrCCQuadraticCornerShader::onEmitFragmentCode(GrGLSLFragmentBuilder* f,
                                                    const char* outputCoverage) const {
     f->codeAppendf("float x = %s.x, y = %s.y, d = %s.z;",
                    fXYD.fsIn(), fXYD.fsIn(), fXYD.fsIn());
