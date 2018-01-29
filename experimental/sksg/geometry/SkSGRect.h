@@ -32,6 +32,7 @@ public:
     SG_ATTRIBUTE(B, SkScalar, fRect.fBottom)
 
 protected:
+    void onClip(SkCanvas*, bool antiAlias) const override;
     void onDraw(SkCanvas*, const SkPaint&) const override;
 
     SkRect onRevalidate(InvalidationController*, const SkMatrix&) override;
@@ -54,6 +55,7 @@ public:
     SG_ATTRIBUTE(RRect, SkRRect, fRRect)
 
 protected:
+    void onClip(SkCanvas*, bool antiAlias) const override;
     void onDraw(SkCanvas*, const SkPaint&) const override;
 
     SkRect onRevalidate(InvalidationController*, const SkMatrix&) override;

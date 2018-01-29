@@ -28,6 +28,7 @@ public:
     SG_ATTRIBUTE(Path, SkPath, fPath)
 
 protected:
+    void onClip(SkCanvas*, bool antiAlias) const override;
     void onDraw(SkCanvas*, const SkPaint&) const override;
 
     SkRect onRevalidate(InvalidationController*, const SkMatrix&) override;
