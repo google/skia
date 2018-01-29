@@ -194,14 +194,16 @@ DEF_GPUTEST(LazyProxyTest, reporter, /* options */) {
     }
 }
 
+static const int kSize = 16;
+
 DEF_GPUTEST(LazyProxyReleaseTest, reporter, /* options */) {
     GrMockOptions mockOptions;
     sk_sp<GrContext> ctx = GrContext::MakeMock(&mockOptions, GrContextOptions());
     auto proxyProvider = ctx->contextPriv().proxyProvider();
 
     GrSurfaceDesc desc;
-    desc.fWidth = 16;
-    desc.fHeight = 16;
+    desc.fWidth = kSize;
+    desc.fHeight = kSize;
     desc.fConfig = kRGBA_8888_GrPixelConfig;
 
     for (bool doInstantiate : {true, false}) {
@@ -229,6 +231,91 @@ DEF_GPUTEST(LazyProxyReleaseTest, reporter, /* options */) {
             REPORTER_ASSERT(reporter, -1 == testCount);
         }
     }
+}
+
+class LazyFailedInstantiationTestOp : public GrDrawOp {
+public:
+    DEFINE_OP_CLASS_ID
+
+    LazyFailedInstantiationTestOp(GrProxyProvider* proxyProvider, int* testExecuteValue,
+                                  bool shouldFailInstantiation)
+            : INHERITED(ClassID())
+            , fTestExecuteValue(testExecuteValue) {
+        GrSurfaceDesc desc;
+        desc.fWidth = kSize;
+        desc.fHeight = kSize;
+        desc.fConfig = kRGBA_8888_GrPixelConfig;
+
+        fLazyProxy = proxyProvider->createLazyProxy(
+                [testExecuteValue, shouldFailInstantiation, desc] (
+                        GrResourceProvider* rp, GrSurfaceOrigin* /*origin*/) {
+                    *testExecuteValue = 1;
+                    if (shouldFailInstantiation || !rp) {
+                        return sk_sp<GrTexture>();
+                    }
+                    return rp->createTexture(desc, SkBudgeted::kNo);
+                }, desc, GrMipMapped::kNo, SkBackingFit::kExact, SkBudgeted::kNo);
+
+        this->setBounds(SkRect::MakeIWH(kSize, kSize),
+                        HasAABloat::kNo, IsZeroArea::kNo);
+    }
+
+    void visitProxies(const VisitProxyFunc& func) const override {
+        func(fLazyProxy.get());
+    }
+
+private:
+    const char* name() const override { return "LazyFailedInstantiationTestOp"; }
+    FixedFunctionFlags fixedFunctionFlags() const override { return FixedFunctionFlags::kNone; }
+    RequiresDstTexture finalize(const GrCaps&, const GrAppliedClip*,
+                                GrPixelConfigIsClamped) override {
+        return RequiresDstTexture::kNo;
+    }
+    bool onCombineIfPossible(GrOp* other, const GrCaps& caps) override { return false; }
+    void onPrepare(GrOpFlushState*) override {}
+    void onExecute(GrOpFlushState* state) override {
+        *fTestExecuteValue = 2;
+    }
+
+    int* fTestExecuteValue;
+    sk_sp<GrSurfaceProxy> fLazyProxy;
+
+    typedef GrDrawOp INHERITED;
+};
+
+// Test that when a lazy proxy fails to instantiate during flush that we drop the Op that it was
+// associated with.
+DEF_GPUTEST(LazyProxyFailedInstantiationTest, reporter, /* options */) {
+    GrMockOptions mockOptions;
+    sk_sp<GrContext> ctx = GrContext::MakeMock(&mockOptions, GrContextOptions());
+    GrProxyProvider* proxyProvider = ctx->contextPriv().proxyProvider();
+    for (bool failInstantiation : {false, true}) {
+        sk_sp<GrRenderTargetContext> rtc =
+                ctx->makeDeferredRenderTargetContext(SkBackingFit::kExact, 100, 100,
+                                                     kRGBA_8888_GrPixelConfig, nullptr);
+        REPORTER_ASSERT(reporter, rtc);
+
+        rtc->clear(nullptr, 0xbaaaaaad, GrRenderTargetContext::CanClearFullscreen::kYes);
+
+        int executeTestValue = 0;
+        rtc->priv().testingOnly_addDrawOp(
+                skstd::make_unique<LazyFailedInstantiationTestOp>(proxyProvider, &executeTestValue,
+                                                                  failInstantiation));
+        ctx->flush();
+
+        if (failInstantiation) {
+#ifdef SK_DISABLE_EXPLICIT_GPU_RESOURCE_ALLOCATION
+            // When we disable explicit gpu resource allocation we don't throw away ops that have
+            // uninstantiated proxies.
+            REPORTER_ASSERT(reporter, 2 == executeTestValue);
+#else
+            REPORTER_ASSERT(reporter, 1 == executeTestValue);
+#endif
+        } else {
+            REPORTER_ASSERT(reporter, 2 == executeTestValue);
+        }
+    }
+
 }
 
 #endif

@@ -195,7 +195,10 @@ void GrResourceAllocator::expire(unsigned int curIndex) {
     }
 }
 
-bool GrResourceAllocator::assign(int* startIndex, int* stopIndex) {
+bool GrResourceAllocator::assign(int* startIndex, int* stopIndex, AssignError* outError) {
+    SkASSERT(outError);
+    *outError = AssignError::kNoError;
+
     fIntvlHash.reset(); // we don't need the interval hash anymore
     if (fIntvlList.empty()) {
         return false;          // nothing to render
@@ -237,7 +240,9 @@ bool GrResourceAllocator::assign(int* startIndex, int* stopIndex) {
         }
 
         if (GrSurfaceProxy::LazyState::kNot != cur->proxy()->lazyInstantiationState()) {
-            cur->proxy()->priv().doLazyInstantiation(fResourceProvider);
+            if (!cur->proxy()->priv().doLazyInstantiation(fResourceProvider)) {
+                *outError = AssignError::kFailedProxyInstantiation;
+            }
         } else if (sk_sp<GrSurface> surface = this->findSurfaceFor(cur->proxy(), needsStencil)) {
             // TODO: make getUniqueKey virtual on GrSurfaceProxy
             GrTextureProxy* tex = cur->proxy()->asTextureProxy();
@@ -247,9 +252,11 @@ bool GrResourceAllocator::assign(int* startIndex, int* stopIndex) {
             }
 
             cur->assign(std::move(surface));
+        } else {
+            SkASSERT(!cur->proxy()->priv().isInstantiated());
+            *outError = AssignError::kFailedProxyInstantiation;
         }
 
-        // TODO: handle resource allocation failure upstack
         fActiveIntvls.insertByIncreasingEnd(cur);
 
         if (fResourceProvider->overBudget()) {
