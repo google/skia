@@ -1198,8 +1198,57 @@ SpvId SPIRVCodeGenerator::writeVectorConstructor(const Constructor& c, OutputStr
     // go ahead and write the arguments so we don't try to write new instructions in the middle of
     // an instruction
     std::vector<SpvId> arguments;
-    for (size_t i = 0; i < c.fArguments.size(); i++) {
-        arguments.push_back(this->writeExpression(*c.fArguments[i], out));
+    if (c.fArguments.size() == 1 && c.fArguments[0]->fType.kind() == Type::kVector_Kind) {
+        // we're constructing a vector from another vector, like uint2(int2). SPIR-V doesn't support
+        // this directly, so we need to turn it into uint2(uint(int2.x), uint(int2.y)).
+        ASSERT( c.fArguments[0]->fType.columns() == c.fType.columns());
+        SpvId vec = this->writeExpression(*c.fArguments[0], out);
+        SpvOp_ op = SpvOpUndef;
+        const Type& src = c.fArguments[0]->fType.componentType();
+        const Type& dst = c.fType.componentType();
+        if (dst == *fContext.fFloat_Type || dst == *fContext.fHalf_Type) {
+            if (src == *fContext.fFloat_Type || src == *fContext.fHalf_Type) {
+                return vec;
+            } else if (src == *fContext.fInt_Type || src == *fContext.fShort_Type) {
+                op = SpvOpConvertSToF;
+            } else if (src == *fContext.fUInt_Type || src == *fContext.fUShort_Type) {
+                op = SpvOpConvertUToF;
+            } else {
+                ASSERT(false);
+            }
+        } else if (dst == *fContext.fInt_Type || dst == *fContext.fShort_Type) {
+            if (src == *fContext.fFloat_Type || src == *fContext.fHalf_Type) {
+                op = SpvOpConvertFToS;
+            } else if (src == *fContext.fInt_Type || src == *fContext.fShort_Type) {
+                return vec;
+            } else if (src == *fContext.fUInt_Type || src == *fContext.fUShort_Type) {
+                op = SpvOpBitcast;
+            } else {
+                ASSERT(false);
+            }
+        } else if (dst == *fContext.fUInt_Type || dst == *fContext.fUShort_Type) {
+            if (src == *fContext.fFloat_Type || src == *fContext.fHalf_Type) {
+                op = SpvOpConvertFToS;
+            } else if (src == *fContext.fInt_Type || src == *fContext.fShort_Type) {
+                op = SpvOpBitcast;
+            } else if (src == *fContext.fUInt_Type || src == *fContext.fUShort_Type) {
+                return vec;
+            } else {
+                ASSERT(false);
+            }
+        }
+        for (int i = 0; i < c.fArguments[0]->fType.columns(); i++) {
+            SpvId swizzle = this->nextId();
+            this->writeInstruction(SpvOpCompositeExtract, this->getType(src), swizzle, vec, i,
+                                   out);
+            SpvId cast = this->nextId();
+            this->writeInstruction(op, this->getType(dst), cast, swizzle, out);
+            arguments.push_back(cast);
+        }
+    } else {
+        for (size_t i = 0; i < c.fArguments.size(); i++) {
+            arguments.push_back(this->writeExpression(*c.fArguments[i], out));
+        }
     }
     SpvId result = this->nextId();
     if (arguments.size() == 1 && c.fArguments[0]->fType.kind() == Type::kScalar_Kind) {
@@ -1210,7 +1259,8 @@ SpvId SPIRVCodeGenerator::writeVectorConstructor(const Constructor& c, OutputStr
             this->writeWord(arguments[0], out);
         }
     } else {
-        this->writeOpCode(SpvOpCompositeConstruct, 3 + (int32_t) c.fArguments.size(), out);
+        ASSERT(arguments.size() > 1);
+        this->writeOpCode(SpvOpCompositeConstruct, 3 + (int32_t) arguments.size(), out);
         this->writeWord(this->getType(c.fType), out);
         this->writeWord(result, out);
         for (SpvId id : arguments) {
