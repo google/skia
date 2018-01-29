@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "930c45fc_47953eb9",
+        "filename": "tools/Resources.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-01-29T19:48:54Z",
+      "side": 1,
+      "message": "this won\u0027t get linked if SK_EMBED_RESOURCES is not defined.  I would move it outside of the ifdef",
+      "revId": "afcb6b9095438842c42689efba56896573642c53",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
