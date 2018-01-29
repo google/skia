@@ -1879,13 +1879,6 @@ bool GrVkGpu::onCopySurface(GrSurface* dst, GrSurfaceOrigin dstOrigin,
     return false;
 }
 
-void GrVkGpu::onQueryMultisampleSpecs(GrRenderTarget* rt, GrSurfaceOrigin, const GrStencilSettings&,
-                                      int* effectiveSampleCnt, SamplePattern*) {
-    // TODO: stub.
-    SkASSERT(!this->caps()->sampleLocationsSupport());
-    *effectiveSampleCnt = rt->numStencilSamples();
-}
-
 bool GrVkGpu::onGetReadPixelsInfo(GrSurface* srcSurface, GrSurfaceOrigin srcOrigin,
                                   int width, int height, size_t rowBytes,
                                   GrPixelConfig readConfig, DrawPreference* drawPreference,

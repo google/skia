@@ -328,33 +328,6 @@ public:
                      const SkIRect& srcRect,
                      const SkIPoint& dstPoint);
 
-    struct MultisampleSpecs {
-        MultisampleSpecs(uint8_t uniqueID, int effectiveSampleCnt, const SkPoint* locations)
-            : fUniqueID(uniqueID),
-              fEffectiveSampleCnt(effectiveSampleCnt),
-              fSampleLocations(locations) {}
-
-        // Nonzero ID that uniquely identifies these multisample specs.
-        uint8_t          fUniqueID;
-        // The actual number of samples the GPU will run. NOTE: this value can be greater than the
-        // the render target's sample count.
-        int              fEffectiveSampleCnt;
-        // If sample locations are supported, points to the subpixel locations at which the GPU will
-        // sample. Pixel center is at (.5, .5), and (0, 0) indicates the top left corner.
-        const SkPoint*   fSampleLocations;
-    };
-
-    // Finds a render target's multisample specs. The pipeline is only needed in case we need to
-    // flush the draw state prior to querying multisample info. The pipeline is not expected to
-    // affect the multisample information itself.
-    const MultisampleSpecs& queryMultisampleSpecs(const GrPipeline&);
-
-    // Finds the multisample specs with a given unique id.
-    const MultisampleSpecs& getMultisampleSpecs(uint8_t uniqueID) {
-        SkASSERT(uniqueID > 0 && uniqueID < fMultisampleSpecs.count());
-        return fMultisampleSpecs[uniqueID];
-    }
-
     // Creates a GrGpuRTCommandBuffer which GrOpLists send draw commands to instead of directly
     // to the Gpu object.
     virtual GrGpuRTCommandBuffer* createCommandBuffer(
@@ -599,11 +572,6 @@ private:
                                GrSurface* src, GrSurfaceOrigin srcOrigin,
                                const SkIRect& srcRect, const SkIPoint& dstPoint) = 0;
 
-    // overridden by backend specific derived class to perform the multisample queries
-    virtual void onQueryMultisampleSpecs(GrRenderTarget*, GrSurfaceOrigin rtOrigin,
-                                         const GrStencilSettings&,
-                                         int* effectiveSampleCnt, SamplePattern*) = 0;
-
     virtual void onFinishFlush(bool insertedSemaphores) = 0;
 
     virtual void onDumpJSON(SkJSONWriter*) const {}
@@ -618,12 +586,8 @@ private:
         bool operator()(const SamplePattern&, const SamplePattern&) const;
     };
 
-    typedef std::map<SamplePattern, uint8_t, SamplePatternComparator> MultisampleSpecsIdMap;
-
     ResetTimestamp                         fResetTimestamp;
     uint32_t                               fResetBits;
-    MultisampleSpecsIdMap                  fMultisampleSpecsIdMap;
-    SkSTArray<1, MultisampleSpecs, true>   fMultisampleSpecs;
     // The context owns us, not vice-versa, so this ptr is not ref'ed by Gpu.
     GrContext*                             fContext;
 

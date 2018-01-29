@@ -83,7 +83,7 @@ GrGLProgram* GrGLGpu::ProgramCache::refProgram(const GrGLGpu* gpu,
     if (!entry) {
         // Didn't find an origin-independent version, check with the specific origin
         GrSurfaceOrigin origin = pipeline.proxy()->origin();
-        desc.setSurfaceOriginKey(GrGLSLFragmentShaderBuilder::KeyForSurfaceOrigin(origin));
+        desc.setSurfaceOriginKey(origin);
         desc.finalize();
         entry = fMap.find(desc);
     }

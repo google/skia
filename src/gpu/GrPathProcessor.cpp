@@ -24,7 +24,7 @@ public:
     }
 
     void emitCode(EmitArgs& args) override {
-        GrGLSLPPFragmentBuilder* fragBuilder = args.fFragBuilder;
+        GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
         const GrPathProcessor& pathProc = args.fGP.cast<GrPathProcessor>();
 
         if (!pathProc.viewMatrix().hasPerspective()) {
