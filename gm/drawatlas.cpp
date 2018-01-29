@@ -150,7 +150,7 @@ static void draw_text_on_path(SkCanvas* canvas, const void* text, size_t length,
     }
 }
 
-static void drawTextPath(SkCanvas* canvas, bool useRSX) {
+static void drawTextPath(SkCanvas* canvas, bool useRSX, bool doStroke) {
     const char text0[] = "ABCDFGHJKLMNOPQRSTUVWXYZ";
     const int N = sizeof(text0) - 1;
     SkPoint pos[N];
@@ -158,6 +158,11 @@ static void drawTextPath(SkCanvas* canvas, bool useRSX) {
     SkPaint paint;
     paint.setAntiAlias(true);
     paint.setTextSize(100);
+    if (doStroke) {
+        paint.setStyle(SkPaint::kStroke_Style);
+        paint.setStrokeWidth(2.25f);
+        paint.setStrokeJoin(SkPaint::kRound_Join);
+    }
 
     SkScalar x = 0;
     for (int i = 0; i < N; ++i) {
@@ -177,15 +182,22 @@ static void drawTextPath(SkCanvas* canvas, bool useRSX) {
         draw_text_on_path(canvas, text0, N, pos, path, paint, baseline_offset, useRSX);
     }
 
+    paint.reset();
     paint.setStyle(SkPaint::kStroke_Style);
     canvas->drawPath(path, paint);
 }
 
-DEF_SIMPLE_GM(drawTextRSXform, canvas, 860, 430) {
+DEF_SIMPLE_GM(drawTextRSXform, canvas, 860, 860) {
     canvas->scale(0.5f, 0.5f);
-    drawTextPath(canvas, false);
-    canvas->translate(860, 0);
-    drawTextPath(canvas, true);
+    const bool doStroke[] = { false, true };
+    for (auto st : doStroke) {
+        canvas->save();
+        drawTextPath(canvas, false, st);
+        canvas->translate(860, 0);
+        drawTextPath(canvas, true, st);
+        canvas->restore();
+        canvas->translate(0, 860);
+    }
 }
 
 #include "Resources.h"
