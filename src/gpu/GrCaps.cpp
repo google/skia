@@ -50,7 +50,6 @@ GrCaps::GrCaps(const GrContextOptions& options) {
     fGpuTracingSupport = false;
     fOversizedStencilSupport = false;
     fTextureBarrierSupport = false;
-    fSampleLocationsSupport = false;
     fMultisampleDisableSupport = false;
     fInstanceAttribSupport = false;
     fUsesMixedSamples = false;
@@ -155,7 +154,6 @@ void GrCaps::dumpJSON(SkJSONWriter* writer) const {
     writer->appendBool("Gpu Tracing Support", fGpuTracingSupport);
     writer->appendBool("Oversized Stencil Support", fOversizedStencilSupport);
     writer->appendBool("Texture Barrier Support", fTextureBarrierSupport);
-    writer->appendBool("Sample Locations Support", fSampleLocationsSupport);
     writer->appendBool("Multisample disable support", fMultisampleDisableSupport);
     writer->appendBool("Instance Attrib Support", fInstanceAttribSupport);
     writer->appendBool("Uses Mixed Samples", fUsesMixedSamples);

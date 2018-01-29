@@ -169,7 +169,6 @@ bool GrProgramDesc::Build(GrProgramDesc* desc,
         desc->key().reset();
         return false;
     }
-    GrProcessor::RequiredFeatures requiredFeatures = primProc.requiredFeatures();
 
     for (int i = 0; i < pipeline.numFragmentProcessors(); ++i) {
         const GrFragmentProcessor& fp = pipeline.getFragmentProcessor(i);
@@ -177,7 +176,6 @@ bool GrProgramDesc::Build(GrProgramDesc* desc,
             desc->key().reset();
             return false;
         }
-        requiredFeatures |= fp.requiredFeatures();
     }
 
     const GrXferProcessor& xp = pipeline.getXferProcessor();
@@ -192,7 +190,6 @@ bool GrProgramDesc::Build(GrProgramDesc* desc,
         desc->key().reset();
         return false;
     }
-    requiredFeatures |= xp.requiredFeatures();
 
     // --------DO NOT MOVE HEADER ABOVE THIS LINE--------------------------------------------------
     // Because header is a pointer into the dynamic array, we can't push any new data into the key
@@ -203,16 +200,6 @@ bool GrProgramDesc::Build(GrProgramDesc* desc,
     memset(header, 0, kHeaderSize);
 
     GrRenderTargetProxy* proxy = pipeline.proxy();
-
-    if (requiredFeatures & GrProcessor::kSampleLocations_RequiredFeature) {
-        SkASSERT(pipeline.isHWAntialiasState());
-
-        GrRenderTarget* rt = pipeline.renderTarget();
-        header->fSamplePatternKey =
-            rt->renderTargetPriv().getMultisampleSpecs(pipeline).fUniqueID;
-    } else {
-        header->fSamplePatternKey = 0;
-    }
 
     header->fOutputSwizzle = shaderCaps.configOutputSwizzle(proxy->config()).asKey();
 

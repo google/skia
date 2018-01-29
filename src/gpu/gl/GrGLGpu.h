@@ -267,9 +267,6 @@ private:
                        GrSurface* src, GrSurfaceOrigin srcOrigin,
                        const SkIRect& srcRect, const SkIPoint& dstPoint) override;
 
-    void onQueryMultisampleSpecs(GrRenderTarget*, GrSurfaceOrigin, const GrStencilSettings&,
-                                 int* effectiveSampleCnt, SamplePattern*) override;
-
     // binds texture unit in GL
     void setTextureUnit(int unitIdx);
 

@@ -150,7 +150,6 @@ void GrMtlCaps::initGrCaps(const id<MTLDevice> device) {
 
     fTextureBarrierSupport = false; // Need to figure out if we can do this
 
-    fSampleLocationsSupport = false;
     fMultisampleDisableSupport = false;
 
     if (this->isMac() || 3 == fFamilyGroup) {

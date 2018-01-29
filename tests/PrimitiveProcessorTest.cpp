@@ -73,7 +73,7 @@ private:
                         const GP& gp = args.fGP.cast<GP>();
                         args.fVaryingHandler->emitAttributes(gp);
                         this->writeOutputPosition(args.fVertBuilder, gpArgs, gp.getAttrib(0).fName);
-                        GrGLSLPPFragmentBuilder* fragBuilder = args.fFragBuilder;
+                        GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
                         fragBuilder->codeAppendf("%s = half4(1);", args.fOutputColor);
                         fragBuilder->codeAppendf("%s = half4(1);", args.fOutputCoverage);
                     }
