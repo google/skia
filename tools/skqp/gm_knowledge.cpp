@@ -179,7 +179,7 @@ float Check(const uint32_t* pixels,
         uint32_t* errors = (uint32_t*)errorBitmap.getPixels();
         for (size_t i = 0; i < N; ++i) {
             int error = get_error(pixels[i], max_pixels[i], min_pixels[i]);
-            errors[i] = error > 0 ? 0xFF000000 + (unsigned)error : 0x00000000;
+            errors[i] = error > 0 ? 0xFF000000 + (unsigned)error : 0xFFFFFFFF;
         }
         error_path = SkOSPath::Join(report_subdirectory.c_str(), PATH_ERR_PNG);
         SkAssertResult(WritePixmapToFile(errorBitmap.pixmap(), error_path.c_str()));
@@ -207,8 +207,8 @@ static constexpr char kDocHead[] =
     "<meta charset=\"UTF-8\">\n"
     "<title>SkQP Report</title>\n"
     "<style>\n"
-    "img { max-width:48%; border:1px green solid; }\n"
-    "img.i { background-image:url('data:image/png;base64,iVBORw0KGgoA"
+    "img { max-width:48%; border:1px green solid;\n"
+    "      background-image:url('data:image/png;base64,iVBORw0KGgoA"
     "AAANSUhEUgAAABAAAAAQCAAAAAA6mKC9AAAAAXNSR0IArs4c6QAAAAJiS0dEAP+H"
     "j8y/AAAACXBIWXMAAA7DAAAOwwHHb6hkAAAAB3RJTUUH3gUBEi4DGRAQYgAAAB1J"
     "REFUGNNjfMoAAVJQmokBDdBHgPE/lPFsYN0BABdaAwN6tehMAAAAAElFTkSuQmCC"
@@ -237,13 +237,13 @@ static constexpr char kDocHead[] =
     "  var i = ce(\"img\");\n"
     "  i.src = t + \"/image.png\";\n"
     "  i.alt = \"img\";\n"
-    "  i.classList.add(\"i\");\n"
     "  ac(b, ma(i.src, i));\n"
     "  i = ce(\"img\");\n"
     "  i.src = t + \"/errors.png\";\n"
     "  i.alt = \"img\";\n"
     "  ac(b, ma(i.src, i));\n"
     "  br(b);\n"
+    "  ac(b, ct(\"Expectation: \"));\n"
     "  ac(b, ma(t + \"/max.png\", ct(\"max\")));\n"
     "  ac(b, ct(\" | \"));\n"
     "  ac(b, ma(t + \"/min.png\", ct(\"min\")));\n"
@@ -258,6 +258,8 @@ static constexpr char kDocTail[] =
     "</head>\n"
     "<body onload=\"main()\">\n"
     "<h1>SkQP Report</h1>\n"
+    "<p>Left image: test result<br>\n"
+    "Right image: errors (white = no error, black = smallest error, red = biggest error)</p>\n"
     "<hr>\n"
     "</body>\n"
     "</html>\n";
