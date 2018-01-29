@@ -1,0 +1,191 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e55b40db_378eb44e",
+        "filename": "include/private/GrTypesPriv.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 1051,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-01-29T19:17:18Z",
+      "side": 1,
+      "message": "for -\u003e from ?",
+      "revId": "b8cddacb67d41651e66d8f64f3ec58f3758e359d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b822628d_3d763ffc",
+        "filename": "include/private/GrTypesPriv.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 1052,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-01-29T19:17:18Z",
+      "side": 1,
+      "message": "Should these move into the GrReleaseProcHelper class ?",
+      "revId": "b8cddacb67d41651e66d8f64f3ec58f3758e359d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "34fe30d4_e6576311",
+        "filename": "include/private/GrTypesPriv.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 1067,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-01-29T19:17:18Z",
+      "side": 1,
+      "message": "extra line ?",
+      "revId": "b8cddacb67d41651e66d8f64f3ec58f3758e359d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a64f3b86_dbfb6248",
+        "filename": "src/gpu/GrBackendTextureImageGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-01-29T19:17:18Z",
+      "side": 1,
+      "message": "overlength ?",
+      "revId": "b8cddacb67d41651e66d8f64f3ec58f3758e359d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "692c3214_9f514b66",
+        "filename": "src/gpu/gl/GrGLTexture.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-01-29T19:17:18Z",
+      "side": 1,
+      "message": "Hmm, add a comment that this might not actually invoke the helper depending on the ref counts?",
+      "revId": "b8cddacb67d41651e66d8f64f3ec58f3758e359d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f7056f68_3365fa9d",
+        "filename": "src/gpu/gl/GrGLTexture.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-01-29T19:17:18Z",
+      "side": 1,
+      "message": "line up with others ?",
+      "revId": "b8cddacb67d41651e66d8f64f3ec58f3758e359d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "21dfeb94_d1131651",
+        "filename": "src/gpu/mock/GrMockTexture.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-01-29T19:17:18Z",
+      "side": 1,
+      "message": "line these guys up ?",
+      "revId": "b8cddacb67d41651e66d8f64f3ec58f3758e359d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "26b7ae1e_9fd8f173",
+        "filename": "src/gpu/vk/GrVkImage.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-01-29T19:17:18Z",
+      "side": 1,
+      "message": "std::move ?",
+      "revId": "b8cddacb67d41651e66d8f64f3ec58f3758e359d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5aac8cab_31ddd076",
+        "filename": "src/gpu/vk/GrVkImage.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-01-29T19:17:18Z",
+      "side": 1,
+      "message": "Why is this const ?",
+      "revId": "b8cddacb67d41651e66d8f64f3ec58f3758e359d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "233ecc71_4f245523",
+        "filename": "src/gpu/vk/GrVkImage.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-01-29T19:17:18Z",
+      "side": 1,
+      "message": "// comment ?",
+      "revId": "b8cddacb67d41651e66d8f64f3ec58f3758e359d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "16fbfe73_a2648070",
+        "filename": "src/gpu/vk/GrVkTexture.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-01-29T19:17:18Z",
+      "side": 1,
+      "message": "std::move ?",
+      "revId": "b8cddacb67d41651e66d8f64f3ec58f3758e359d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
