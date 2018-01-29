@@ -13,10 +13,12 @@
 #include <jni.h>
 #include <sys/stat.h>
 
-#include "gm_runner.h"
-#include "gm_knowledge.h"
-#include "skqp_asset_manager.h"
+#include "ResourceFactory.h"
+#include "SkOSPath.h"
 #include "SkStream.h"
+#include "gm_knowledge.h"
+#include "gm_runner.h"
+#include "skqp_asset_manager.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 extern "C" {
@@ -108,6 +110,25 @@ static jclass gStringClass = nullptr;
 
 ////////////////////////////////////////////////////////////////////////////////
 
+sk_sp<SkData> get_resource(const char* resource) {
+    AAssetManager* mgr = gAssetManager.fMgr;
+    if (!mgr) {
+        return nullptr;
+    }
+    SkString path = SkOSPath::Join("resources", resource);
+    AAsset* asset = AAssetManager_open(mgr, path.c_str(), AASSET_MODE_STREAMING);
+    if (!asset) {
+        return nullptr;
+    }
+    size_t size = SkToSizeT(AAsset_getLength(asset));
+    sk_sp<SkData> data = SkData::MakeUninitialized(size);
+    (void)AAsset_read(asset, data->writable_data(), size);
+    AAsset_close(asset);
+    return data;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 template <typename T, typename F>
 jobjectArray to_java_string_array(JNIEnv* env,
                                   const std::vector<T>& array,
@@ -131,6 +152,7 @@ void Java_org_skia_skqp_SkQP_nInit(JNIEnv* env, jobject object, jobject assetMan
     gm_runner::InitSkia(experimentalMode ? gm_runner::Mode::kExperimentalMode
                                          : gm_runner::Mode::kCompatibilityTestMode,
                         &gAssetManager);
+    gResourceFactory = &get_resource;
 
     const char* dataDirString = env->GetStringUTFChars(dataDir, nullptr);
     jassert(env, dataDirString && dataDirString[0]);
