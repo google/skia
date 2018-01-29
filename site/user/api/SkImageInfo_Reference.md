@@ -212,8 +212,8 @@ Used for both src images and render-targets (surfaces).
 
 | name | description |
 | --- | ---  |
-| bool <a href="#SkImageInfo_notequal1_operator">operator!=(const SkImageInfo& other) const</a> |  |
-| bool <a href="#SkImageInfo_equal1_operator">operator==(const SkImageInfo& other) const</a> |  |
+| <a href="#SkImageInfo_notequal1_operator">operator!=(const SkImageInfo& other) const</a> |  |
+| <a href="#SkImageInfo_equal1_operator">operator==(const SkImageInfo& other) const</a> |  |
 
 ## <a name="Member_Functions"></a> Member Functions
 
@@ -277,6 +277,8 @@ Used for both src images and render-targets (surfaces).
 SkImageInfo()
 </pre>
 
+creates with zero dimensions, <a href="SkImageInfo_Reference#SkColorType">kUnknown SkColorType</a>, <a href="SkImageInfo_Reference#SkAlphaType">kUnknown SkAlphaType</a>
+
 ### Return Value
 
 incomplete
@@ -298,6 +300,8 @@ incomplete
 static SkImageInfo Make(int width, int height, SkColorType ct, SkAlphaType at,
                         sk_sp&lt;SkColorSpace&gt; cs = nullptr)
 </pre>
+
+creates <a href="SkImageInfo_Reference#Image_Info">Image Info</a> from dimensions, <a href="SkImageInfo_Reference#Color_Type">Color Type</a>, <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a>, <a href="undocumented#Color_Space">Color Space</a>
 
 ### Parameters
 
@@ -335,7 +339,7 @@ incomplete
 static SkImageInfo MakeN32(int width, int height, SkAlphaType at, sk_sp&lt;SkColorSpace&gt; cs = nullptr)
 </pre>
 
-Sets colortype to <a href="SkImageInfo_Reference#SkColorType">kN32 SkColorType</a>.
+creates <a href="SkImageInfo_Reference#Image_Info">Image Info</a> with <a href="SkImageInfo_Reference#Native_Color_Type">Native Color Type</a>Sets colortype to <a href="SkImageInfo_Reference#SkColorType">kN32 SkColorType</a>.
 
 ### Parameters
 
@@ -371,7 +375,7 @@ incomplete
 static SkImageInfo MakeS32(int width, int height, SkAlphaType at)
 </pre>
 
-Creates <a href="SkImageInfo_Reference#Image_Info">Image Info</a> marked as sRGB with <a href="SkImageInfo_Reference#SkColorType">kN32 SkColorType</a> swizzle.
+creates <a href="SkImageInfo_Reference#Image_Info">Image Info</a> with <a href="SkImageInfo_Reference#Native_Color_Type">Native Color Type</a>, sRGB <a href="undocumented#Color_Space">Color Space</a>Creates <a href="SkImageInfo_Reference#Image_Info">Image Info</a> marked as sRGB with <a href="SkImageInfo_Reference#SkColorType">kN32 SkColorType</a> swizzle.
 
 ### Parameters
 
@@ -405,7 +409,7 @@ incomplete
 static SkImageInfo MakeN32Premul(int width, int height, sk_sp&lt;SkColorSpace&gt; cs = nullptr)
 </pre>
 
-Sets colortype to <a href="SkImageInfo_Reference#SkColorType">kN32 SkColorType</a>, and the alphatype to premul.
+creates <a href="SkImageInfo_Reference#Image_Info">Image Info</a> with <a href="SkImageInfo_Reference#Native_Color_Type">Native Color Type</a>, <a href="SkImageInfo_Reference#SkAlphaType">kPremul SkAlphaType</a>Sets colortype to <a href="SkImageInfo_Reference#SkColorType">kN32 SkColorType</a>, and the alphatype to premul.
 
 ### Parameters
 
@@ -466,6 +470,8 @@ incomplete
 static SkImageInfo MakeA8(int width, int height)
 </pre>
 
+creates <a href="SkImageInfo_Reference#Image_Info">Image Info</a> with <a href="SkImageInfo_Reference#SkColorType">kAlpha 8 SkColorType</a>, <a href="SkImageInfo_Reference#SkAlphaType">kPremul SkAlphaType</a>
+
 ### Parameters
 
 <table>  <tr>    <td><a name="SkImageInfo_MakeA8_width"> <code><strong>width </strong></code> </a></td> <td>
@@ -495,6 +501,8 @@ incomplete
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 static SkImageInfo MakeUnknown(int width, int height)
 </pre>
+
+creates <a href="SkImageInfo_Reference#Image_Info">Image Info</a> with <a href="SkImageInfo_Reference#SkColorType">kUnknown SkColorType</a>, <a href="SkImageInfo_Reference#SkAlphaType">kUnknown SkAlphaType</a>
 
 ### Parameters
 
@@ -546,6 +554,8 @@ incomplete
 int width() const
 </pre>
 
+incomplete
+
 ### Return Value
 
 incomplete
@@ -566,6 +576,8 @@ incomplete
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 int height() const
 </pre>
+
+incomplete
 
 ### Return Value
 
@@ -588,6 +600,8 @@ incomplete
 SkColorType colorType() const
 </pre>
 
+incomplete
+
 ### Return Value
 
 incomplete
@@ -608,6 +622,8 @@ incomplete
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 SkAlphaType alphaType() const
 </pre>
+
+incomplete
 
 ### Return Value
 
@@ -630,6 +646,8 @@ incomplete
 SkColorSpace* colorSpace() const
 </pre>
 
+incomplete
+
 ### Return Value
 
 incomplete
@@ -650,6 +668,8 @@ incomplete
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 sk_sp&lt;SkColorSpace&gt; refColorSpace() const
 </pre>
+
+incomplete
 
 ### Return Value
 
@@ -672,6 +692,8 @@ incomplete
 bool isEmpty() const
 </pre>
 
+incomplete
+
 ### Return Value
 
 incomplete
@@ -692,6 +714,8 @@ incomplete
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 bool isOpaque() const
 </pre>
+
+incomplete
 
 ### Return Value
 
@@ -714,6 +738,8 @@ incomplete
 SkISize dimensions() const
 </pre>
 
+incomplete
+
 ### Return Value
 
 incomplete
@@ -734,6 +760,8 @@ incomplete
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 SkIRect bounds() const
 </pre>
+
+incomplete
 
 ### Return Value
 
@@ -756,6 +784,8 @@ incomplete
 bool gammaCloseToSRGB() const
 </pre>
 
+incomplete
+
 ### Return Value
 
 incomplete
@@ -777,7 +807,7 @@ incomplete
 SkImageInfo makeWH(int newWidth, int newHeight) const
 </pre>
 
-Creates <a href="SkImageInfo_Reference#Image_Info">Image Info</a> with the same colortype and alphatype as this info,
+creates <a href="SkImageInfo_Reference#Image_Info">Image Info</a> with changed dimensionsCreates <a href="SkImageInfo_Reference#Image_Info">Image Info</a> with the same colortype and alphatype as this info,
 but with the specified width and height.
 
 ### Parameters
@@ -810,6 +840,8 @@ incomplete
 SkImageInfo makeAlphaType(SkAlphaType newAlphaType) const
 </pre>
 
+creates <a href="SkImageInfo_Reference#Image_Info">Image Info</a> with changed <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a>
+
 ### Parameters
 
 <table>  <tr>    <td><a name="SkImageInfo_makeAlphaType_newAlphaType"> <code><strong>newAlphaType </strong></code> </a></td> <td>
@@ -837,6 +869,8 @@ incomplete
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 SkImageInfo makeColorType(SkColorType newColorType) const
 </pre>
+
+creates <a href="SkImageInfo_Reference#Image_Info">Image Info</a> with changed <a href="SkImageInfo_Reference#Color_Type">Color Type</a>
 
 ### Parameters
 
@@ -866,6 +900,8 @@ incomplete
 SkImageInfo makeColorSpace(sk_sp&lt;SkColorSpace&gt; cs) const
 </pre>
 
+creates <a href="SkImageInfo_Reference#Image_Info">Image Info</a> with changed <a href="undocumented#Color_Space">Color Space</a>
+
 ### Parameters
 
 <table>  <tr>    <td><a name="SkImageInfo_makeColorSpace_cs"> <code><strong>cs </strong></code> </a></td> <td>
@@ -894,6 +930,8 @@ incomplete
 int bytesPerPixel() const
 </pre>
 
+incomplete
+
 ### Return Value
 
 incomplete
@@ -914,6 +952,8 @@ incomplete
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 int shiftPerPixel() const
 </pre>
+
+incomplete
 
 ### Return Value
 
@@ -936,6 +976,8 @@ incomplete
 uint64_t minRowBytes64() const
 </pre>
 
+incomplete
+
 ### Return Value
 
 incomplete
@@ -957,6 +999,8 @@ incomplete
 size_t minRowBytes() const
 </pre>
 
+incomplete
+
 ### Return Value
 
 incomplete
@@ -977,6 +1021,8 @@ incomplete
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 size_t computeOffset(int x, int y, size_t rowBytes) const
 </pre>
+
+incomplete
 
 ### Parameters
 
@@ -1010,6 +1056,8 @@ incomplete
 bool operator==(const SkImageInfo& other) _const
 </pre>
 
+incomplete
+
 ### Parameters
 
 <table>  <tr>    <td><a name="SkImageInfo_equal1_operator_other"> <code><strong>other </strong></code> </a></td> <td>
@@ -1037,6 +1085,8 @@ incomplete
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 bool operator!=(const SkImageInfo& other) _const
 </pre>
+
+incomplete
 
 ### Parameters
 
@@ -1066,6 +1116,8 @@ incomplete
 void unflatten(SkReadBuffer& buffer)
 </pre>
 
+incomplete
+
 ### Parameters
 
 <table>  <tr>    <td><a name="SkImageInfo_unflatten_buffer"> <code><strong>buffer </strong></code> </a></td> <td>
@@ -1089,6 +1141,8 @@ incomplete
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 void flatten(SkWriteBuffer& buffer) const
 </pre>
+
+incomplete
 
 ### Parameters
 
@@ -1114,7 +1168,7 @@ incomplete
 size_t computeByteSize(size_t rowBytes) const
 </pre>
 
-Returns the size (in bytes) of the image buffer that this info needs, given the specified
+incompleteReturns the size (in bytes) of the image buffer that this info needs, given the specified
 <a href="#SkImageInfo_computeByteSize_rowBytes">rowBytes</a>. The <a href="#SkImageInfo_computeByteSize_rowBytes">rowBytes</a> must be >= this-><a href="#SkImageInfo_minRowBytes">minRowBytes</a>.
 if (height == 0) {
 return 0;
@@ -1151,7 +1205,7 @@ incomplete
 size_t computeMinByteSize() const
 </pre>
 
-Returns the minimum size (in bytes) of the image buffer that this info needs.
+incompleteReturns the minimum size (in bytes) of the image buffer that this info needs.
 If the calculation overflows, or if the height is 0, this returns 0.
 
 ### Return Value
@@ -1175,7 +1229,7 @@ incomplete
 static bool ByteSizeOverflowed(size_t byteSize)
 </pre>
 
-Returns true if the result of <a href="#SkImageInfo_computeByteSize">computeByteSize</a> (or <a href="#SkImageInfo_computeMinByteSize">computeMinByteSize</a>) overflowed
+incompleteReturns true if the result of <a href="#SkImageInfo_computeByteSize">computeByteSize</a> (or <a href="#SkImageInfo_computeMinByteSize">computeMinByteSize</a>) overflowed
 
 ### Parameters
 
@@ -1205,6 +1259,8 @@ incomplete
 bool validRowBytes(size_t rowBytes) const
 </pre>
 
+incomplete
+
 ### Parameters
 
 <table>  <tr>    <td><a name="SkImageInfo_validRowBytes_rowBytes"> <code><strong>rowBytes </strong></code> </a></td> <td>
@@ -1233,6 +1289,8 @@ incomplete
 void reset()
 </pre>
 
+incomplete
+
 ### Example
 
 <div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
@@ -1249,6 +1307,8 @@ incomplete
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 void validate() const
 </pre>
+
+incomplete
 
 ### Example
 

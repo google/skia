@@ -19,14 +19,14 @@ Stack helper class calls
 
 | name | description |
 | --- | ---  |
-| <a href="#SkAutoCanvasRestore_SkCanvas_star">SkAutoCanvasRestore(SkCanvas* canvas, bool doSave)</a> | Preserves <a href="SkCanvas_Reference#Canvas">Canvas</a> save count. |
-|  | Restores <a href="SkCanvas_Reference#Canvas">Canvas</a> to saved state. |
+| <a href="#SkAutoCanvasRestore_SkCanvas_star">SkAutoCanvasRestore(SkCanvas* canvas, bool doSave)</a> | preserves <a href="SkCanvas_Reference#Canvas">Canvas</a> save count |
+|  | restores <a href="SkCanvas_Reference#Canvas">Canvas</a> to saved state |
 
 ## <a name="Member_Functions"></a> Member Functions
 
 | name | description |
 | --- | ---  |
-| <a href="#SkAutoCanvasRestore_restore">restore</a> | Restores <a href="SkCanvas_Reference#Canvas">Canvas</a> to saved state. |
+| <a href="#SkAutoCanvasRestore_restore">restore</a> | restores <a href="SkCanvas_Reference#Canvas">Canvas</a> to saved state |
 
 <a name="SkAutoCanvasRestore_SkCanvas_star"></a>
 ## SkAutoCanvasRestore
@@ -35,7 +35,7 @@ Stack helper class calls
 SkAutoCanvasRestore(SkCanvas* canvas, bool doSave)
 </pre>
 
-Preserves <a href="SkCanvas_Reference#Canvas">Canvas</a> save count. Optionally saves <a href="#Clip">Canvas Clip</a> and <a href="#Matrix">Canvas Matrix</a>.
+preserves <a href="SkCanvas_Reference#Canvas">Canvas</a> save countPreserves <a href="SkCanvas_Reference#Canvas">Canvas</a> save count. Optionally saves <a href="#Clip">Canvas Clip</a> and <a href="#Matrix">Canvas Matrix</a>.
 
 ### Parameters
 
@@ -67,7 +67,7 @@ utility to restore <a href="SkCanvas_Reference#Canvas">Canvas</a> state on destr
 ~SkAutoCanvasRestore()
 </pre>
 
-Restores <a href="SkCanvas_Reference#Canvas">Canvas</a> to saved state. Destructor is called when container goes out of
+restores <a href="SkCanvas_Reference#Canvas">Canvas</a> to saved stateRestores <a href="SkCanvas_Reference#Canvas">Canvas</a> to saved state. Destructor is called when container goes out of
 scope.
 
 ### See Also
@@ -83,7 +83,7 @@ scope.
 void restore()
 </pre>
 
-Restores <a href="SkCanvas_Reference#Canvas">Canvas</a> to saved state immediately. Subsequent calls and
+restores <a href="SkCanvas_Reference#Canvas">Canvas</a> to saved stateRestores <a href="SkCanvas_Reference#Canvas">Canvas</a> to saved state immediately. Subsequent calls and
 
 ### Example
 

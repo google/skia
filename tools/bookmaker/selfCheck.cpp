@@ -54,6 +54,9 @@ public:
             if (!this->checkCreators()) {
                 return false;
             }
+			if (!this->checkRelatedFunctions()) {
+				return false;
+			}
         }
         return true;
     }
@@ -131,14 +134,7 @@ protected:
     // Check that summary contains all methods
     bool checkMethodSummary() {
         // look for struct or class in fChildren
-		Definition* cs = nullptr;
-		for (auto& rootChild : fRoot->fChildren) {
-			if (!this->isStructOrClass(rootChild)) {
-				continue;
-			}
-			cs = rootChild;
-			// expect Overview as Topic in every main class or struct or its parent
-		}
+		const Definition* cs = this->classOrStruct();
 		if (!cs) {
 			return true;  // topics may not have included classes or structs
 		}
@@ -179,91 +175,152 @@ protected:
 
     // Check that all operators are in a table of contents
     bool checkOperatorsSummary() {
-        for (auto& rootChild : fRoot->fChildren) {
-            if (!this->isStructOrClass(rootChild)) {
+		const Definition* cs = this->classOrStruct();
+		if (!cs) {
+			return true;  // topics may not have included classes or structs
+		}
+        const Definition* operators = this->findTopic("Operators", Optional::kYes);
+        if (operators && MarkType::kSubtopic != operators->fMarkType) {
+            return operators->reportError<bool>("expected #Subtopic Operators");
+        }
+        vector<string> operatorEntries;
+        if (operators) {
+            if (!this->collectEntries(operators, &operatorEntries)) {
+                return false;
+            }
+        }
+        for (auto& csChild : cs->fChildren) {
+            if (Definition::MethodType::kOperator != csChild->fMethodType) {
                 continue;
             }
-            auto& cs = rootChild;
-            const Definition* operators = this->findTopic("Operators", Optional::kYes);
-            if (operators && MarkType::kSubtopic != operators->fMarkType) {
-                return operators->reportError<bool>("expected #Subtopic Operators");
+            string name;
+            if (!this->childName(csChild, &name)) {
+                return false;
             }
-            vector<string> operatorEntries;
-            if (operators) {
-                if (!this->collectEntries(operators, &operatorEntries)) {
-                    return false;
+            bool found = false;
+            for (auto str : operatorEntries) {
+                if (string::npos != str.find(name)) {
+                    found = true;
+                    break;
                 }
             }
-            for (auto& csChild : cs->fChildren) {
-                if (Definition::MethodType::kOperator != csChild->fMethodType) {
-                    continue;
-                }
-                string name;
-                if (!this->childName(csChild, &name)) {
-                    return false;
-                }
-                bool found = false;
-                for (auto str : operatorEntries) {
-                    if (string::npos != str.find(name)) {
-                        found = true;
-                        break;
-                    }
-                }
-                if (!found) {
-                    return csChild->reportError<bool>("missing operator in Operators");
-                }
+            if (!found) {
+                return csChild->reportError<bool>("missing operator in Operators");
             }
         }
         return true;
     }
+
+	bool checkRelatedFunctions() {
+		auto related = this->findTopic("Related_Functions", Optional::kYes);
+		if (!related) {
+			return true;
+		}
+		vector<string> relatedEntries;
+		if (!this->collectEntries(related, &relatedEntries)) {
+			return false;
+		}
+		const Definition* cs = this->classOrStruct();
+		vector<string> methodNames;
+		if (cs) {
+			string prefix = cs->fName + "::";
+			for (auto& csChild : cs->fChildren) {
+				if (MarkType::kMethod != csChild->fMarkType) {
+					// only check methods for now
+					continue;
+				}
+				if (Definition::MethodType::kConstructor == csChild->fMethodType) {
+					continue;
+				}
+				if (Definition::MethodType::kDestructor == csChild->fMethodType) {
+					continue;
+				}
+				if (Definition::MethodType::kOperator == csChild->fMethodType) {
+					continue;
+				}
+				if (csChild->fClone) {
+					// FIXME: check to see if all cloned methods are in table
+					// since format of clones is in flux, defer this check for now
+					continue;
+				}
+
+				SkASSERT(string::npos != csChild->fName.find(prefix));
+				string name = csChild->fName.substr(csChild->fName.find(prefix));
+				methodNames.push_back(name);
+			}
+		}
+		vector<string> trim = methodNames;
+		for (auto entryName : relatedEntries) {
+			auto entryDef = this->findTopic(entryName, Optional::kNo);
+			if (!entryDef) {
+
+			}
+			vector<string> entries;
+			this->collectEntries(entryDef, &entries);
+			for (auto entry : entries) {
+				auto it = std::find(methodNames.begin(), methodNames.end(), entry);
+				if (it == methodNames.end()) {
+					return cs->reportError<bool>("missing method");
+				}
+				it = std::find(trim.begin(), trim.end(), entry);
+				if (it != trim.end()) {
+					using std::swap;
+					swap(*it, trim.back());
+					trim.pop_back();
+				}
+			}
+		}
+		if (trim.size() > 0) {
+			return cs->reportError<bool>("extra method");
+		}
+		return true;
+	}
 
     bool checkSeeAlso() {
         return true;
     }
 
     bool checkSubtopicSummary() {
-        for (auto& rootChild : fRoot->fChildren) {
-            if (!this->isStructOrClass(rootChild)) {
+        const auto& cs = this->classOrStruct();
+		if (!cs) {
+			return true;
+		}
+        auto overview = this->findOverview(cs);
+        if (!overview) {
+            return false;
+        }
+        const Definition* subtopics = this->findTopic("Subtopics", Optional::kNo);
+        if (MarkType::kSubtopic != subtopics->fMarkType) {
+            return subtopics->reportError<bool>("expected #Subtopic Subtopics");
+        }
+		const Definition* relatedFunctions = this->findTopic("Related_Functions", Optional::kYes);
+		if (relatedFunctions && MarkType::kSubtopic != relatedFunctions->fMarkType) {
+            return relatedFunctions->reportError<bool>("expected #Subtopic Related_Functions");
+        }
+        vector<string> subtopicEntries;
+        if (!this->collectEntries(subtopics, &subtopicEntries)) {
+            return false;
+        }
+        if (relatedFunctions && !this->collectEntries(relatedFunctions, &subtopicEntries)) {
+            return false;
+        }
+        for (auto& csChild : cs->fChildren) {
+            if (MarkType::kSubtopic != csChild->fMarkType) {
                 continue;
             }
-            auto& cs = rootChild;
-            auto overview = this->findOverview(cs);
-            if (!overview) {
+            string name;
+            if (!this->childName(csChild, &name)) {
                 return false;
             }
-            const Definition* subtopics = this->findTopic("Subtopics", Optional::kNo);
-            if (MarkType::kSubtopic != subtopics->fMarkType) {
-                return subtopics->reportError<bool>("expected #Subtopic Subtopics");
-            }
-			const Definition* relatedFunctions = this->findTopic("Related_Functions", Optional::kYes);
-			if (relatedFunctions && MarkType::kSubtopic != relatedFunctions->fMarkType) {
-                return relatedFunctions->reportError<bool>("expected #Subtopic Related_Functions");
-            }
-            vector<string> subtopicEntries;
-            if (!this->collectEntries(subtopics, &subtopicEntries)) {
-                return false;
-            }
-            if (relatedFunctions && !this->collectEntries(relatedFunctions, &subtopicEntries)) {
-                return false;
-            }
-            for (auto& csChild : cs->fChildren) {
-                if (MarkType::kSubtopic != csChild->fMarkType) {
-                    continue;
+            bool found = false;
+            for (auto str : subtopicEntries) {
+                if (string::npos != str.find(name)) {
+                    found = true;
+                    break;
                 }
-                string name;
-                if (!this->childName(csChild, &name)) {
-                    return false;
-                }
-                bool found = false;
-                for (auto str : subtopicEntries) {
-                    if (string::npos != str.find(name)) {
-                        found = true;
-                        break;
-                    }
-                }
-                if (!found) {
-                    return csChild->reportError<bool>("missing SubTopic in SubTopics");
-                }
+            }
+            if (!found) {
+                return csChild->reportError<bool>("missing SubTopic in SubTopics");
             }
         }
         return true;
@@ -298,6 +355,15 @@ protected:
         return true;
     }
 
+	const Definition* classOrStruct() {
+		for (auto& rootChild : fRoot->fChildren) {
+			if (this->isStructOrClass(rootChild)) {
+				return rootChild;
+			}
+		}
+		return nullptr;
+	}
+
 	static const Definition* overview_def(const Definition* parent) {
 		Definition* overview = nullptr;
 		if (parent) {
@@ -316,7 +382,7 @@ protected:
     const Definition* findOverview(const Definition* parent) {
         // expect Overview as Topic in every main class or struct
         const Definition* overview = overview_def(parent);
-		const Definition* parentOverview = overview_def(parent->fParent);
+		const Definition* parentOverview = parent ? overview_def(parent->fParent) : nullptr;
 		if (overview && parentOverview) {
 			return overview->reportError<const Definition*>("expected only one Overview 2");
 		}
@@ -333,11 +399,13 @@ protected:
 	};
 
 	const Definition* findTopic(string name, Optional optional) {
-		string topicKey = fRoot->fName + '_' + name;
+		string undashed = name;
+		std::replace(undashed.begin(), undashed.end(), '-', '_');
+		string topicKey = fRoot->fName + '_' + undashed;
 		auto topicKeyIter = fBmhParser.fTopicMap.find(topicKey);
 		if (fBmhParser.fTopicMap.end() == topicKeyIter) {
 			// TODO: remove this and require member functions outside of overview
-			topicKey = fRoot->fName + "_Overview_" + name;  // legacy form for now
+			topicKey = fRoot->fName + "_Overview_" + undashed;  // legacy form for now
 			topicKeyIter = fBmhParser.fTopicMap.find(topicKey);
 			if (fBmhParser.fTopicMap.end() == topicKeyIter) {
 				if (Optional::kNo == optional) {
@@ -392,7 +460,7 @@ protected:
         return true;
     }
 
-    bool isStructOrClass(const Definition* definition) {
+    bool isStructOrClass(const Definition* definition) const {
         if (MarkType::kStruct != definition->fMarkType &&
                 MarkType::kClass != definition->fMarkType) {
             return false;

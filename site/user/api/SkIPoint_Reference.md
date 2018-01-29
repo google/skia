@@ -26,13 +26,13 @@ SkIPoint Reference
 
 | name | description |
 | --- | ---  |
-| <a href="#SkIPoint">SkIPoint</a> <a href="#SkIPoint_add_operator">operator+(const SkIPoint& a, const SkIVector& b)</a> | returns <a href="#IPoint">IPoint</a> offset by <a href="SkIPoint_Reference#IVector">IVector</a> |
-| <a href="#SkIPoint">SkIPoint</a> <a href="#SkIPoint_minus_operator">operator-() const</a> | reverses sign of <a href="#IPoint">IPoint</a> |
-| <a href="SkIPoint_Reference#SkIVector">SkIVector</a> <a href="#SkIPoint_subtract_operator">operator-(const SkIPoint& a, const SkIPoint& b)</a> | returns <a href="SkIPoint_Reference#IVector">IVector</a> between <a href="#IPoint">IPoints</a> |
-| bool <a href="#SkIPoint_notequal_operator">operator!=(const SkIPoint& a, const SkIPoint& b)</a> | returns true if <a href="#IPoint">IPoints</a> are unequal |
-| bool <a href="#SkIPoint_equal_operator">operator==(const SkIPoint& a, const SkIPoint& b)</a> | returns true if <a href="#IPoint">IPoints</a> are equal |
-| void <a href="#SkIPoint_addto_operator">operator+=(const SkIVector& v)</a> | adds <a href="SkIPoint_Reference#IVector">IVector</a> to <a href="#IPoint">IPoint</a> |
-| void <a href="#SkIPoint_subtractfrom_operator">operator-=(const SkIVector& v)</a> | subtracts <a href="SkIPoint_Reference#IVector">IVector</a> from <a href="#IPoint">IPoint</a> |
+| <a href="#SkIPoint_add_operator">operator+(const SkIPoint& a, const SkIVector& b)</a> | returns <a href="#IPoint">IPoint</a> offset by <a href="SkIPoint_Reference#IVector">IVector</a> |
+| <a href="#SkIPoint_minus_operator">operator-() const</a> | reverses sign of <a href="#IPoint">IPoint</a> |
+| <a href="#SkIPoint_subtract_operator">operator-(const SkIPoint& a, const SkIPoint& b)</a> | returns <a href="SkIPoint_Reference#IVector">IVector</a> between <a href="#IPoint">IPoints</a> |
+| <a href="#SkIPoint_notequal_operator">operator!=(const SkIPoint& a, const SkIPoint& b)</a> | returns true if <a href="#IPoint">IPoints</a> are unequal |
+| <a href="#SkIPoint_equal_operator">operator==(const SkIPoint& a, const SkIPoint& b)</a> | returns true if <a href="#IPoint">IPoints</a> are equal |
+| <a href="#SkIPoint_addto_operator">operator+=(const SkIVector& v)</a> | adds <a href="SkIPoint_Reference#IVector">IVector</a> to <a href="#IPoint">IPoint</a> |
+| <a href="#SkIPoint_subtractfrom_operator">operator-=(const SkIVector& v)</a> | subtracts <a href="SkIPoint_Reference#IVector">IVector</a> from <a href="#IPoint">IPoint</a> |
 
 ## <a name="Member_Functions"></a> Member Functions
 
@@ -60,7 +60,7 @@ y-axis value used by <a href="#IPoint">IPoint</a>.
 static constexpr SkIPoint Make(int32_t x, int32_t y)
 </pre>
 
-Sets <a href="#SkIPoint_fX">fX</a> to x, <a href="#SkIPoint_fY">fY</a> to y.
+constructs from integer inputsSets <a href="#SkIPoint_fX">fX</a> to x, <a href="#SkIPoint_fY">fY</a> to y.
 
 ### Parameters
 
@@ -100,7 +100,7 @@ pt1 == pt2
 int32_t x() const
 </pre>
 
-Returns x-axis value of <a href="#IPoint">IPoint</a>.
+returns <a href="#SkIPoint_fX">fX</a>Returns x-axis value of <a href="#IPoint">IPoint</a>.
 
 ### Return Value
 
@@ -131,7 +131,7 @@ pt1.fX == pt1.x()
 int32_t y() const
 </pre>
 
-Returns y-axis value of <a href="#IPoint">IPoint</a>.
+returns <a href="#SkIPoint_fY">fY</a>Returns y-axis value of <a href="#IPoint">IPoint</a>.
 
 ### Return Value
 
@@ -162,7 +162,7 @@ pt1.fY == pt1.y()
 bool isZero() const
 </pre>
 
-Returns true if <a href="#SkIPoint_fX">fX</a> and <a href="#SkIPoint_fY">fY</a> are both zero.
+returns true if both members equal zeroReturns true if <a href="#SkIPoint_fX">fX</a> and <a href="#SkIPoint_fY">fY</a> are both zero.
 
 ### Return Value
 
@@ -193,7 +193,7 @@ pt.isZero() == true
 void set(int32_t x, int32_t y)
 </pre>
 
-Sets <a href="#SkIPoint_fX">fX</a> to x and <a href="#SkIPoint_fY">fY</a> to y.
+sets to integer inputSets <a href="#SkIPoint_fX">fX</a> to x and <a href="#SkIPoint_fY">fY</a> to y.
 
 ### Parameters
 
@@ -229,7 +229,7 @@ pt1 == pt2
 SkIPoint operator-() _const
 </pre>
 
-Returns <a href="#IPoint">IPoint</a> changing the signs of <a href="#SkIPoint_fX">fX</a> and <a href="#SkIPoint_fY">fY</a>.
+reverses sign of <a href="#IPoint">IPoint</a>Returns <a href="#IPoint">IPoint</a> changing the signs of <a href="#SkIPoint_fX">fX</a> and <a href="#SkIPoint_fY">fY</a>.
 
 ### Return Value
 
@@ -263,7 +263,7 @@ pt: -2147483648, -2147483648  negate: -2147483648, -2147483648
 void operator+=(const SkIVector& v)
 </pre>
 
-Offsets <a href="#IPoint">IPoint</a> by <a href="SkIPoint_Reference#IVector">IVector</a> <a href="#SkIPoint_addto_operator_v">v</a>. Sets <a href="#IPoint">IPoint</a> to(<a href="#SkIPoint_fX">fX</a> + <a href="#SkIPoint_addto_operator_v">v</a>.<a href="#SkIPoint_fX">fX</a>, <a href="#SkIPoint_fY">fY</a> + <a href="#SkIPoint_addto_operator_v">v</a>.<a href="#SkIPoint_fY">fY</a>).
+adds <a href="SkIPoint_Reference#IVector">IVector</a> to <a href="#IPoint">IPoint</a>Offsets <a href="#IPoint">IPoint</a> by <a href="SkIPoint_Reference#IVector">IVector</a> <a href="#SkIPoint_addto_operator_v">v</a>. Sets <a href="#IPoint">IPoint</a> to(<a href="#SkIPoint_fX">fX</a> + <a href="#SkIPoint_addto_operator_v">v</a>.<a href="#SkIPoint_fX">fX</a>, <a href="#SkIPoint_fY">fY</a> + <a href="#SkIPoint_addto_operator_v">v</a>.<a href="#SkIPoint_fY">fY</a>).
 
 ### Parameters
 
@@ -289,7 +289,7 @@ Offsets <a href="#IPoint">IPoint</a> by <a href="SkIPoint_Reference#IVector">IVe
 void operator-=(const SkIVector& v)
 </pre>
 
-Subtracts <a href="SkIPoint_Reference#IVector">IVector</a> <a href="#SkIPoint_subtractfrom_operator_v">v</a> from <a href="#IPoint">IPoint</a>. Sets <a href="#IPoint">IPoint</a> to:
+subtracts <a href="SkIPoint_Reference#IVector">IVector</a> from <a href="#IPoint">IPoint</a>Subtracts <a href="SkIPoint_Reference#IVector">IVector</a> <a href="#SkIPoint_subtractfrom_operator_v">v</a> from <a href="#IPoint">IPoint</a>. Sets <a href="#IPoint">IPoint</a> to:
 (<a href="#SkIPoint_fX">fX</a> - <a href="#SkIPoint_subtractfrom_operator_v">v</a>.<a href="#SkIPoint_fX">fX</a>, <a href="#SkIPoint_fY">fY</a> - <a href="#SkIPoint_subtractfrom_operator_v">v</a>.<a href="#SkIPoint_fY">fY</a>).
 
 ### Parameters
@@ -316,7 +316,7 @@ Subtracts <a href="SkIPoint_Reference#IVector">IVector</a> <a href="#SkIPoint_su
 bool equals(int32_t x, int32_t y) const
 </pre>
 
-Returns true if <a href="#IPoint">IPoint</a> is equivalent to <a href="#IPoint">IPoint</a> constructed from (x, y).
+returns true if members are equalReturns true if <a href="#IPoint">IPoint</a> is equivalent to <a href="#IPoint">IPoint</a> constructed from (x, y).
 
 ### Parameters
 
@@ -359,7 +359,7 @@ pt: -2147483648, -1  == pt
 bool operator==(const SkIPoint& a, const SkIPoint& b)
 </pre>
 
-Returns true if <a href="#SkIPoint_equal_operator_a">a</a> is equivalent to <a href="#SkIPoint_equal_operator_b">b</a>.
+returns true if <a href="#IPoint">IPoints</a> are equalReturns true if <a href="#SkIPoint_equal_operator_a">a</a> is equivalent to <a href="#SkIPoint_equal_operator_b">b</a>.
 
 ### Parameters
 
@@ -402,7 +402,7 @@ pt: -2147483648, -1  == pt
 bool operator!=(const SkIPoint& a, const SkIPoint& b)
 </pre>
 
-Returns true if <a href="#SkIPoint_notequal_operator_a">a</a> is not equivalent to <a href="#SkIPoint_notequal_operator_b">b</a>.
+returns true if <a href="#IPoint">IPoints</a> are unequalReturns true if <a href="#SkIPoint_notequal_operator_a">a</a> is not equivalent to <a href="#SkIPoint_notequal_operator_b">b</a>.
 
 ### Parameters
 
@@ -445,7 +445,7 @@ pt: -2147483648, -1  == pt
 SkIVector operator-(const SkIPoint& a, const SkIPoint& b)
 </pre>
 
-Returns <a href="SkIPoint_Reference#IVector">IVector</a> from <a href="#SkIPoint_subtract_operator_b">b</a> to <a href="#SkIPoint_subtract_operator_a">a</a>; computed as(<a href="#SkIPoint_subtract_operator_a">a</a>.<a href="#SkIPoint_fX">fX</a> - <a href="#SkIPoint_subtract_operator_b">b</a>.<a href="#SkIPoint_fX">fX</a>, <a href="#SkIPoint_subtract_operator_a">a</a>.<a href="#SkIPoint_fY">fY</a> - <a href="#SkIPoint_subtract_operator_b">b</a>.<a href="#SkIPoint_fY">fY</a>).
+returns <a href="SkIPoint_Reference#IVector">IVector</a> between <a href="#IPoint">IPoints</a>Returns <a href="SkIPoint_Reference#IVector">IVector</a> from <a href="#SkIPoint_subtract_operator_b">b</a> to <a href="#SkIPoint_subtract_operator_a">a</a>; computed as(<a href="#SkIPoint_subtract_operator_a">a</a>.<a href="#SkIPoint_fX">fX</a> - <a href="#SkIPoint_subtract_operator_b">b</a>.<a href="#SkIPoint_fX">fX</a>, <a href="#SkIPoint_subtract_operator_a">a</a>.<a href="#SkIPoint_fY">fY</a> - <a href="#SkIPoint_subtract_operator_b">b</a>.<a href="#SkIPoint_fY">fY</a>).
 
 Can also be used to subtract <a href="SkIPoint_Reference#IVector">IVector</a> from <a href="SkIPoint_Reference#IVector">IVector</a>, returning <a href="SkIPoint_Reference#IVector">IVector</a>.
 
@@ -479,7 +479,7 @@ Can also be used to subtract <a href="SkIPoint_Reference#IVector">IVector</a> fr
 SkIPoint operator+(const SkIPoint& a, const SkIVector& b)
 </pre>
 
-Returns <a href="#IPoint">IPoint</a> resulting from <a href="#IPoint">IPoint</a> <a href="#SkIPoint_add_operator_a">a</a> offset by <a href="SkIPoint_Reference#IVector">IVector</a> <a href="#SkIPoint_add_operator_b">b</a>, computed as:
+returns <a href="#IPoint">IPoint</a> offset by <a href="SkIPoint_Reference#IVector">IVector</a>Returns <a href="#IPoint">IPoint</a> resulting from <a href="#IPoint">IPoint</a> <a href="#SkIPoint_add_operator_a">a</a> offset by <a href="SkIPoint_Reference#IVector">IVector</a> <a href="#SkIPoint_add_operator_b">b</a>, computed as:
 (<a href="#SkIPoint_add_operator_a">a</a>.<a href="#SkIPoint_fX">fX</a> + <a href="#SkIPoint_add_operator_b">b</a>.<a href="#SkIPoint_fX">fX</a>, <a href="#SkIPoint_add_operator_a">a</a>.<a href="#SkIPoint_fY">fY</a> + <a href="#SkIPoint_add_operator_b">b</a>.<a href="#SkIPoint_fY">fY</a>).
 
 Can also be used to offset <a href="#IPoint">IPoint</a> <a href="#SkIPoint_add_operator_b">b</a> by <a href="SkIPoint_Reference#IVector">IVector</a> <a href="#SkIPoint_add_operator_a">a</a>, returning <a href="#IPoint">IPoint</a>.
