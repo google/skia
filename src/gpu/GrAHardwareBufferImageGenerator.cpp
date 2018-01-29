@@ -229,7 +229,10 @@ sk_sp<GrTextureProxy> GrAHardwareBufferImageGenerator::makeProxy(GrContext* cont
         eglDestroyImageKHR(display, image);
         return nullptr;
     }
-    tex->setRelease(deleteImageTexture, new BufferCleanupHelper(image, display));
+    sk_sp<GrReleaseProcHelper> releaseHelper(
+            new GrReleaseProcHelper(deleteImageTexture, new BufferCleanupHelper(image, display)));
+
+    tex->setRelease(std::move(releaseHelper));
 
     // We fail this assert, if the context has changed. This will be fully handled after
     // skbug.com/6812 is ready.

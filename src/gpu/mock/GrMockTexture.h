@@ -20,11 +20,8 @@ public:
             : GrMockTexture(gpu, desc, mipMapsStatus, info) {
         this->registerWithCache(budgeted);
     }
-    ~GrMockTexture() override {
-        if (fReleaseProc) {
-            fReleaseProc(fReleaseCtx);
-        }
-    }
+    ~GrMockTexture() override {}
+
     GrBackendObject getTextureHandle() const override {
         return reinterpret_cast<GrBackendObject>(&fInfo);
     }
@@ -34,9 +31,8 @@ public:
     }
 
     void textureParamsModified() override {}
-    void setRelease(ReleaseProc proc, ReleaseCtx ctx) override {
-        fReleaseProc = proc;
-        fReleaseCtx = ctx;
+    void setRelease(sk_sp<GrReleaseProcHelper> releaseHelper) override {
+        fReleaseHelper = releaseHelper;
     }
 
 protected:
@@ -46,9 +42,7 @@ protected:
             : GrSurface(gpu, desc)
             , INHERITED(gpu, desc, kITexture2DSampler_GrSLType, GrSamplerState::Filter::kMipMap,
                         mipMapsStatus)
-            , fInfo(info)
-            , fReleaseProc(nullptr)
-            , fReleaseCtx(nullptr) {}
+            , fInfo(info) {}
 
     bool onStealBackendTexture(GrBackendTexture*, SkImage::BackendTextureReleaseProc*) override {
         return false;
@@ -56,8 +50,7 @@ protected:
 
 private:
     GrMockTextureInfo fInfo;
-    ReleaseProc fReleaseProc;
-    ReleaseCtx fReleaseCtx;
+    sk_sp<GrReleaseProcHelper>        fReleaseHelper;
 
     typedef GrTexture INHERITED;
 };

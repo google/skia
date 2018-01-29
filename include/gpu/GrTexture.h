@@ -59,7 +59,7 @@ public:
     typedef void* ReleaseCtx;
     typedef void (*ReleaseProc)(ReleaseCtx);
 
-    virtual void setRelease(ReleaseProc proc, ReleaseCtx ctx) = 0;
+    virtual void setRelease(sk_sp<GrReleaseProcHelper> releaseHelper) = 0;
 
     /** Access methods that are only to be used within Skia code. */
     inline GrTexturePriv texturePriv();
