@@ -22,6 +22,53 @@
       "revId": "ce9077d9602e87313ba6b9898454b1378ef942c7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c549738b_9f799e43",
+        "filename": "include/gpu/GrContext.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 234,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-01-29T18:34:37Z",
+      "side": 1,
+      "message": "That seems like the right thing to do. Are the places where we would be checking colorTypeSupportedAsSurface with msaa already querying the sample count?",
+      "parentUuid": "4ab94aa6_9d129ce9",
+      "range": {
+        "startLine": 224,
+        "startChar": 0,
+        "endLine": 234,
+        "endChar": 57
+      },
+      "revId": "ce9077d9602e87313ba6b9898454b1378ef942c7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dd625f28_afe15b00",
+        "filename": "tests/SurfaceTest.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-01-29T18:34:37Z",
+      "side": 1,
+      "message": "just for the flow of calls, lets move this up to where we made the surface.",
+      "range": {
+        "startLine": 149,
+        "startChar": 8,
+        "endLine": 151,
+        "endChar": 35
+      },
+      "revId": "ce9077d9602e87313ba6b9898454b1378ef942c7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
