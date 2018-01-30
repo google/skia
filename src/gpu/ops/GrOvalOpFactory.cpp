@@ -113,7 +113,7 @@ private:
             GrGLSLVertexBuilder* vertBuilder = args.fVertBuilder;
             GrGLSLVaryingHandler* varyingHandler = args.fVaryingHandler;
             GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
-            GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
+            GrGLSLPPFragmentBuilder* fragBuilder = args.fFragBuilder;
 
             // emit attributes
             varyingHandler->emitAttributes(cgp);
@@ -281,7 +281,7 @@ private:
             varyingHandler->addVarying("EllipseRadii", &ellipseRadii);
             vertBuilder->codeAppendf("%s = %s;", ellipseRadii.vsOut(), egp.fInEllipseRadii->fName);
 
-            GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
+            GrGLSLPPFragmentBuilder* fragBuilder = args.fFragBuilder;
             // setup pass through color
             varyingHandler->addPassThroughAttribute(egp.fInColor, args.fOutputColor);
 
@@ -420,7 +420,7 @@ private:
             varyingHandler->addVarying("EllipseOffsets1", &offsets1);
             vertBuilder->codeAppendf("%s = %s;", offsets1.vsOut(), diegp.fInEllipseOffsets1->fName);
 
-            GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
+            GrGLSLPPFragmentBuilder* fragBuilder = args.fFragBuilder;
             varyingHandler->addPassThroughAttribute(diegp.fInColor, args.fOutputColor);
 
             // Setup position

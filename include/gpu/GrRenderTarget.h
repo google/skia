@@ -134,6 +134,7 @@ private:
 
     int                  fSampleCnt;
     GrStencilAttachment* fStencilAttachment;
+    uint8_t              fMultisampleSpecsID;
     GrRenderTargetFlags  fFlags;
 
     SkIRect              fResolveRect;

@@ -14,7 +14,7 @@
 #include "glsl/GrGLSLUniformHandler.h"
 
 class GrPrimitiveProcessor;
-class GrGLSLFragmentBuilder;
+class GrGLSLPPFragmentBuilder;
 class GrGLSLGeometryBuilder;
 class GrGLSLGPBuilder;
 class GrGLSLVaryingHandler;
@@ -67,7 +67,7 @@ public:
     struct EmitArgs {
         EmitArgs(GrGLSLVertexBuilder* vertBuilder,
                  GrGLSLGeometryBuilder* geomBuilder,
-                 GrGLSLFragmentBuilder* fragBuilder,
+                 GrGLSLPPFragmentBuilder* fragBuilder,
                  GrGLSLVaryingHandler* varyingHandler,
                  GrGLSLUniformHandler* uniformHandler,
                  const GrShaderCaps* caps,
@@ -93,7 +93,7 @@ public:
             , fFPCoordTransformHandler(transformHandler) {}
         GrGLSLVertexBuilder* fVertBuilder;
         GrGLSLGeometryBuilder* fGeomBuilder;
-        GrGLSLFragmentBuilder* fFragBuilder;
+        GrGLSLPPFragmentBuilder* fFragBuilder;
         GrGLSLVaryingHandler* fVaryingHandler;
         GrGLSLUniformHandler* fUniformHandler;
         const GrShaderCaps* fShaderCaps;
@@ -129,7 +129,7 @@ public:
     static SkMatrix GetTransformMatrix(const SkMatrix& localMatrix, const GrCoordTransform&);
 
 protected:
-    void setupUniformColor(GrGLSLFragmentBuilder* fragBuilder,
+    void setupUniformColor(GrGLSLPPFragmentBuilder* fragBuilder,
                            GrGLSLUniformHandler* uniformHandler,
                            const char* outputName,
                            UniformHandle* colorUniform);

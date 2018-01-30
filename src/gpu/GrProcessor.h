@@ -166,6 +166,18 @@ public:
         return str;
     }
 
+    /**
+     * Platform specific built-in features that a processor can request for the fragment shader.
+     */
+    enum RequiredFeatures {
+        kNone_RequiredFeatures             = 0,
+        kSampleLocations_RequiredFeature   = 1 << 0
+    };
+
+    GR_DECL_BITFIELD_OPS_FRIENDS(RequiredFeatures);
+
+    RequiredFeatures requiredFeatures() const { return fRequiredFeatures; }
+
     void* operator new(size_t size);
     void operator delete(void* target);
 
@@ -183,14 +195,29 @@ public:
 
 protected:
     GrProcessor(ClassID classID)
-    : fClassID(classID) {}
+    : fClassID(classID)
+    , fRequiredFeatures(kNone_RequiredFeatures) {}
+
+    /**
+     * If the prcoessor will generate code that uses platform specific built-in features, then it
+     * must call these methods from its constructor. Otherwise, requests to use these features will
+     * be denied.
+     */
+    void setWillUseSampleLocations() { fRequiredFeatures |= kSampleLocations_RequiredFeature; }
+
+    void combineRequiredFeatures(const GrProcessor& other) {
+        fRequiredFeatures |= other.fRequiredFeatures;
+    }
 
 private:
     GrProcessor(const GrProcessor&) = delete;
     GrProcessor& operator=(const GrProcessor&) = delete;
 
-    ClassID fClassID;
+    ClassID          fClassID;
+    RequiredFeatures fRequiredFeatures;
 };
+
+GR_MAKE_BITFIELD_OPS(GrProcessor::RequiredFeatures);
 
 /** A GrProcessor with the ability to access textures, buffers, and image storages. */
 class GrResourceIOProcessor : public GrProcessor {

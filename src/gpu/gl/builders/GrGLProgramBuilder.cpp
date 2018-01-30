@@ -98,7 +98,8 @@ bool GrGLProgramBuilder::compileAndAttachShaders(const char* glsl,
     *shaderIds->append() = shaderId;
     if (inputs.fFlipY) {
         GrProgramDesc* d = this->desc();
-        d->setSurfaceOriginKey(this->pipeline().proxy()->origin());
+        d->setSurfaceOriginKey(GrGLSLFragmentShaderBuilder::KeyForSurfaceOrigin(
+                                                     this->pipeline().proxy()->origin()));
         d->finalize();
     }
 

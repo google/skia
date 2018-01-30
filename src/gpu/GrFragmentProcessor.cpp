@@ -78,6 +78,8 @@ void GrFragmentProcessor::markPendingExecution() const {
 }
 
 int GrFragmentProcessor::registerChildProcessor(std::unique_ptr<GrFragmentProcessor> child) {
+    this->combineRequiredFeatures(*child);
+
     if (child->usesLocalCoords()) {
         fFlags |= kUsesLocalCoords_Flag;
     }

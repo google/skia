@@ -81,7 +81,7 @@ void GrGLConicEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     varyingHandler->addVarying("ConicCoeffs", &v);
     vertBuilder->codeAppendf("%s = %s;", v.vsOut(), gp.inConicCoeffs()->fName);
 
-    GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
+    GrGLSLPPFragmentBuilder* fragBuilder = args.fFragBuilder;
     // Setup pass through color
     this->setupUniformColor(fragBuilder, uniformHandler, args.fOutputColor, &fColorUniform);
 
@@ -333,7 +333,7 @@ void GrGLQuadEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     varyingHandler->addVarying("HairQuadEdge", &v);
     vertBuilder->codeAppendf("%s = %s;", v.vsOut(), gp.inHairQuadEdge()->fName);
 
-    GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
+    GrGLSLPPFragmentBuilder* fragBuilder = args.fFragBuilder;
     // Setup pass through color
     this->setupUniformColor(fragBuilder, uniformHandler, args.fOutputColor, &fColorUniform);
 
@@ -534,7 +534,7 @@ void GrGLCubicEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     // emit attributes
     varyingHandler->emitAttributes(gp);
 
-    GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
+    GrGLSLPPFragmentBuilder* fragBuilder = args.fFragBuilder;
     // Setup pass through color
     if (!gp.colorIgnored()) {
         this->setupUniformColor(fragBuilder, uniformHandler, args.fOutputColor, &fColorUniform);

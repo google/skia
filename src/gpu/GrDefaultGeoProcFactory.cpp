@@ -73,7 +73,7 @@ public:
         void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override {
             const DefaultGeoProc& gp = args.fGP.cast<DefaultGeoProc>();
             GrGLSLVertexBuilder* vertBuilder = args.fVertBuilder;
-            GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
+            GrGLSLPPFragmentBuilder* fragBuilder = args.fFragBuilder;
             GrGLSLVaryingHandler* varyingHandler = args.fVaryingHandler;
             GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
 

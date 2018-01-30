@@ -27,7 +27,7 @@ public:
     void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override{
         const GrDistanceFieldA8TextGeoProc& dfTexEffect =
                 args.fGP.cast<GrDistanceFieldA8TextGeoProc>();
-        GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
+        GrGLSLPPFragmentBuilder* fragBuilder = args.fFragBuilder;
 
         GrGLSLVertexBuilder* vertBuilder = args.fVertBuilder;
         GrGLSLVaryingHandler* varyingHandler = args.fVaryingHandler;
@@ -309,7 +309,7 @@ public:
         const GrDistanceFieldPathGeoProc& dfPathEffect =
                 args.fGP.cast<GrDistanceFieldPathGeoProc>();
 
-        GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
+        GrGLSLPPFragmentBuilder* fragBuilder = args.fFragBuilder;
 
         GrGLSLVertexBuilder* vertBuilder = args.fVertBuilder;
         GrGLSLVaryingHandler* varyingHandler = args.fVaryingHandler;
@@ -592,7 +592,7 @@ public:
                                                           "AtlasSizeInv",
                                                           &atlasSizeInvName);
 
-        GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
+        GrGLSLPPFragmentBuilder* fragBuilder = args.fFragBuilder;
 
         // setup pass through color
         varyingHandler->addPassThroughAttribute(dfTexEffect.inColor(), args.fOutputColor);

@@ -20,7 +20,7 @@ class GrCCTriangleShader : public GrCCCoverageProcessor::Shader {
     WindHandling onEmitVaryings(GrGLSLVaryingHandler*, GrGLSLVarying::Scope, SkString* code,
                                 const char* position, const char* coverage,
                                 const char* wind) override;
-    void onEmitFragmentCode(GrGLSLFragmentBuilder*, const char* outputCoverage) const override;
+    void onEmitFragmentCode(GrGLSLPPFragmentBuilder*, const char* outputCoverage) const override;
 
     GrGLSLVarying fCoverageTimesWind;
 };
@@ -36,7 +36,7 @@ class GrCCTriangleCornerShader : public GrCCCoverageProcessor::Shader {
     WindHandling onEmitVaryings(GrGLSLVaryingHandler*, GrGLSLVarying::Scope, SkString* code,
                                 const char* position, const char* coverage,
                                 const char* wind) override;
-    void onEmitFragmentCode(GrGLSLFragmentBuilder* f, const char* outputCoverage) const override;
+    void onEmitFragmentCode(GrGLSLPPFragmentBuilder* f, const char* outputCoverage) const override;
 
     GrShaderVar fAABoxMatrices{"aa_box_matrices", kFloat2x2_GrSLType, 2};
     GrShaderVar fAABoxTranslates{"aa_box_translates", kFloat2_GrSLType, 2};

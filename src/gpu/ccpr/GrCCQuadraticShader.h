@@ -48,7 +48,7 @@ class GrCCQuadraticHullShader : public GrCCQuadraticShader {
     void onEmitSetupCode(GrGLSLVertexGeoBuilder*, const char* pts, const char* repetitionID,
                          GeometryVars*) const override;
     void onEmitVaryings(GrGLSLVaryingHandler*, GrGLSLVarying::Scope, SkString* code) override;
-    void onEmitFragmentCode(GrGLSLFragmentBuilder*, const char* outputCoverage) const override;
+    void onEmitFragmentCode(GrGLSLPPFragmentBuilder*, const char* outputCoverage) const override;
 
     GrGLSLVarying fGrad;
 };
@@ -60,7 +60,7 @@ class GrCCQuadraticCornerShader : public GrCCQuadraticShader {
     void onEmitSetupCode(GrGLSLVertexGeoBuilder*, const char* pts, const char* repetitionID,
                          GeometryVars*) const override;
     void onEmitVaryings(GrGLSLVaryingHandler*, GrGLSLVarying::Scope, SkString* code) override;
-    void onEmitFragmentCode(GrGLSLFragmentBuilder*, const char* outputCoverage) const override;
+    void onEmitFragmentCode(GrGLSLPPFragmentBuilder*, const char* outputCoverage) const override;
 
     GrGLSLVarying fdXYDdx;
     GrGLSLVarying fdXYDdy;

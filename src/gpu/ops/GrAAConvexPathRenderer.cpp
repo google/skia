@@ -573,7 +573,7 @@ public:
             // Setup pass through color
             varyingHandler->addPassThroughAttribute(qe.fInColor, args.fOutputColor);
 
-            GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
+            GrGLSLPPFragmentBuilder* fragBuilder = args.fFragBuilder;
 
             // Setup position
             this->writeOutputPosition(vertBuilder, gpArgs, qe.fInPosition->fName);

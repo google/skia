@@ -39,6 +39,11 @@ public:
                        GrSurface* src, GrSurfaceOrigin srcOrigin,
                        const SkIRect& srcRect, const SkIPoint& dstPoint) override { return true; }
 
+    void onQueryMultisampleSpecs(GrRenderTarget* rt, GrSurfaceOrigin, const GrStencilSettings&,
+                                 int* effectiveSampleCnt, SamplePattern*) override {
+        *effectiveSampleCnt = rt->numStencilSamples();
+    }
+
     GrGpuRTCommandBuffer* createCommandBuffer(
                                     GrRenderTarget*, GrSurfaceOrigin,
                                     const GrGpuRTCommandBuffer::LoadAndStoreInfo&,
