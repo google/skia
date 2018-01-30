@@ -759,9 +759,19 @@ void SkScan::FillTriangle(const SkPoint pts[], const SkRasterClip& clip,
     }
 
     SkRect  r;
-    SkIRect ir;
     r.set(pts, 3);
-    r.round(&ir);
+    // If r is too large (larger than can easily fit in SkFixed) then we need perform geometric
+    // clipping. This is a bit of work, so we just call the general FillPath() to handle it.
+    // Use FixedMax/2 as the limit so we can subtract two edges and still store that in Fixed.
+    const SkScalar limit = SK_MaxS16 >> 1;
+    if (!SkRect::MakeLTRB(-limit, -limit, limit, limit).contains(r)) {
+        SkPath path;
+        path.addPoly(pts, 3, false);
+        FillPath(path, clip, blitter);
+        return;
+    }
+
+    SkIRect ir = r.round();
     if (ir.isEmpty() || !SkIRect::Intersects(ir, clip.getBounds())) {
         return;
     }
