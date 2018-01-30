@@ -318,7 +318,7 @@ static bool check_inverse_on_empty_return(SkRegion* dst, const SkPath& path, con
 bool SkRegion::setPath(const SkPath& path, const SkRegion& clip) {
     SkDEBUGCODE(this->validate();)
 
-    if (clip.isEmpty()) {
+    if (clip.isEmpty() || !path.isFinite()) {
         return this->setEmpty();
     }
 
