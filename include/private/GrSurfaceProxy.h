@@ -189,7 +189,7 @@ public:
     };
 
     LazyState lazyInstantiationState() const {
-        if (!SkToBool(fLazyInstantiateCallback)) {
+        if (fTarget || !SkToBool(fLazyInstantiateCallback)) {
             return LazyState::kNot;
         } else {
             if (fWidth <= 0) {

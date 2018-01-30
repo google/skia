@@ -142,10 +142,6 @@ sk_sp<GrTextureProxy> GrBackendTextureImageGenerator::onGenerateTexture(
                     // previously created.
                     tex = sk_ref_sp(refHelper->fBorrowedTexture);
                     SkASSERT(tex);
-                    // The texture is holding onto a ref to the refHelper so since we have a ref to
-                    // the texture we don't need to hold a ref to the refHelper. This unref's the
-                    // ref we grabbed on refHelper in the lambda capture for this proxy.
-                    refHelper->unref();
                 } else {
                     // We just gained access to the texture. If we're on the original context, we
                     // could use the original texture, but we'd have no way of detecting that it's
@@ -157,7 +153,6 @@ sk_sp<GrTextureProxy> GrBackendTextureImageGenerator::onGenerateTexture(
                                                                kBorrow_GrWrapOwnership);
                     if (!tex) {
                         refHelper->fBorrowingContextID = SK_InvalidGenID;
-                        refHelper->unref();
                         return sk_sp<GrTexture>();
                     }
                     refHelper->fBorrowedTexture = tex.get();
@@ -165,11 +160,9 @@ sk_sp<GrTextureProxy> GrBackendTextureImageGenerator::onGenerateTexture(
                     sk_sp<GrReleaseProcHelper> releaseHelper(
                            new GrReleaseProcHelper(ReleaseRefHelper_TextureReleaseProc, refHelper));
 
-                    // By setting this release proc on the texture we are passing our ref on the
-                    // refHelper to the texture.
-                    // DDL TODO: Once we are start reusing Lazy Proxies, we need to add a ref to the
-                    // refHelper here, we'll still move the releaseHelper though since the texture
-                    // will be the only one ever calling that release proc.
+                    // We need to add a ref to the refHelper helper so that the textures release
+                    // callback and the cleanup of the this lambda can unref it.
+                    refHelper->ref();
                     tex->setRelease(std::move(releaseHelper));
                 }
 

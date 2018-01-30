@@ -59,6 +59,9 @@ public:
                     : GrDrawOp(ClassID()), fTest(test) {
             fProxy = proxyProvider->createFullyLazyProxy([this, nullTexture](
                                         GrResourceProvider* rp, GrSurfaceOrigin* origin) {
+                if (!rp) {
+                    return sk_sp<GrTexture>();
+                }
                 REPORTER_ASSERT(fTest->fReporter, !fTest->fHasOpTexture);
                 fTest->fHasOpTexture = true;
                 *origin = kTopLeft_GrSurfaceOrigin;
@@ -111,6 +114,9 @@ public:
                 , fAtlas(atlas) {
             fLazyProxy = proxyProvider->createFullyLazyProxy([this](GrResourceProvider* rp,
                                                                     GrSurfaceOrigin* origin) {
+                if (!rp) {
+                    return sk_sp<GrTexture>();
+                }
                 REPORTER_ASSERT(fTest->fReporter, !fTest->fHasClipTexture);
                 fTest->fHasClipTexture = true;
                 *origin = kBottomLeft_GrSurfaceOrigin;
@@ -225,7 +231,7 @@ DEF_GPUTEST(LazyProxyReleaseTest, reporter, /* options */) {
             proxy->priv().doLazyInstantiation(ctx->contextPriv().resourceProvider());
             REPORTER_ASSERT(reporter, 1 == testCount);
             proxy.reset();
-            REPORTER_ASSERT(reporter, 1 == testCount);
+            REPORTER_ASSERT(reporter, -1 == testCount);
         } else {
             proxy.reset();
             REPORTER_ASSERT(reporter, -1 == testCount);
@@ -249,8 +255,11 @@ public:
         fLazyProxy = proxyProvider->createLazyProxy(
                 [testExecuteValue, shouldFailInstantiation, desc] (
                         GrResourceProvider* rp, GrSurfaceOrigin* /*origin*/) {
-                    *testExecuteValue = 1;
-                    if (shouldFailInstantiation || !rp) {
+                    if (!rp) {
+                        return sk_sp<GrTexture>();
+                    }
+                    if (shouldFailInstantiation) {
+                        *testExecuteValue = 1;
                         return sk_sp<GrTexture>();
                     }
                     return rp->createTexture(desc, SkBudgeted::kNo);
