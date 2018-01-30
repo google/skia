@@ -66,6 +66,16 @@ public:
         SkImageFilterCache* cache() const { return fCache; }
         const OutputProperties& outputProperties() const { return fOutputProperties; }
 
+        /**
+         *  Since a context can be build directly, its constructor has no chance to
+         *  "return null" if it's given invalid or unsupported inputs. Call this to
+         *  know of the the context can be used.
+         *
+         *  The SkImageFilterCache Key, for example, requires a finite ctm (no infinities
+         *  or NaN), so that test is part of isValid.
+         */
+        bool isValid() const { return fCTM.isFinite(); }
+
     private:
         SkMatrix               fCTM;
         SkIRect                fClipBounds;
