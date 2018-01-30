@@ -4984,3 +4984,32 @@ DEF_TEST(HugeGeometry, reporter) {
 
 }
 
+// Treat nonfinite paths as "empty" or "full", depending on inverse-filltype
+DEF_TEST(ClipPath_nonfinite, reporter) {
+    auto surf = SkSurface::MakeRasterN32Premul(10, 10);
+    SkCanvas* canvas = surf->getCanvas();
+
+    REPORTER_ASSERT(reporter, !canvas->isClipEmpty());
+    for (bool aa : {false, true}) {
+        for (SkPath::FillType ft : {SkPath::kWinding_FillType, SkPath::kInverseWinding_FillType}) {
+            for (SkScalar bad : {SK_ScalarInfinity, SK_ScalarNaN}) {
+                for (int bits = 1; bits <= 3; ++bits) {
+                    SkPoint pt = { 0, 0 };
+                    if (bits & 1) pt.fX = bad;
+                    if (bits & 2) pt.fY = bad;
+
+                    SkPath path;
+                    path.moveTo(pt);
+                    path.lineTo(0, 0);
+                    path.setFillType(ft);
+                    canvas->save();
+                    canvas->clipPath(path, aa);
+                    REPORTER_ASSERT(reporter, canvas->isClipEmpty() == !path.isInverseFillType());
+                    canvas->restore();
+                }
+            }
+        }
+    }
+    REPORTER_ASSERT(reporter, !canvas->isClipEmpty());
+}
+
