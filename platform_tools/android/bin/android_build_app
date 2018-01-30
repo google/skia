@@ -28,7 +28,7 @@ if args.output_dir == None:
 args_gn_path = os.path.join(args.output_dir, "args.gn")
 if os.path.exists(args_gn_path):
   for line in open(args_gn_path):
-    m = re.match('target_cpu ?= ?"(.*)"', line.strip())
+    m = re.match('target_cpu *= *"(.*)"', line.strip())
     if m:
       target_cpu = m.group(1)
 

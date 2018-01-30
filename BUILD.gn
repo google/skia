@@ -37,6 +37,7 @@ declare_args() {
   skia_enable_discrete_gpu = true
   skia_enable_effects = true
   skia_enable_flutter_defines = false
+  skia_enable_fontmgr_empty = false
   skia_enable_gpu = true
   skia_enable_pdf = true
   skia_enable_spirv_validation = is_skia_dev_build && is_debug
@@ -388,6 +389,13 @@ optional("fontmgr_custom") {
     "src/ports/SkFontMgr_custom_directory_factory.cpp",
     "src/ports/SkFontMgr_custom_embedded.cpp",
     "src/ports/SkFontMgr_custom_empty.cpp",
+  ]
+}
+
+optional("fontmgr_empty") {
+  enabled = skia_enable_fontmgr_empty
+  sources = [
+    "src/ports/SkFontMgr_empty_factory.cpp",
   ]
 }
 
@@ -755,6 +763,7 @@ component("skia") {
     ":effects",
     ":fontmgr_android",
     ":fontmgr_custom",
+    ":fontmgr_empty",
     ":fontmgr_fontconfig",
     ":fontmgr_fuchsia",
     ":gpu",
@@ -1309,13 +1318,15 @@ if (skia_enable_tools) {
     }
     deps = [
       ":experimental_sksg",
-      ":experimental_svg_model",
       ":flags",
       ":skia",
       ":tool_utils",
       "//third_party/libpng",
       "//third_party/zlib",
     ]
+    if (skia_use_expat) {
+      deps += [ ":experimental_svg_model" ]
+    }
     public_deps = [
       ":gpu_tool_utils",  # Test.h #includes headers from this target.
     ]
