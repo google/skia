@@ -36,7 +36,7 @@ public:
 
     ~GrGLTexture() override {
         // check that invokeReleaseProc has been called (if needed)
-        SkASSERT(!fReleaseProc);
+        SkASSERT(!fReleaseHelper);
     }
 
     GrBackendObject getTextureHandle() const override;
@@ -44,9 +44,8 @@ public:
 
     void textureParamsModified() override { fTexParams.invalidate(); }
 
-    void setRelease(ReleaseProc proc, ReleaseCtx ctx) override {
-        fReleaseProc = proc;
-        fReleaseCtx = ctx;
+    void setRelease(sk_sp<GrReleaseProcHelper> releaseHelper) override {
+        fReleaseHelper = std::move(releaseHelper);
     }
 
     // These functions are used to track the texture parameters associated with the texture.
@@ -90,9 +89,10 @@ protected:
 
 private:
     void invokeReleaseProc() {
-        if (fReleaseProc) {
-            fReleaseProc(fReleaseCtx);
-            fReleaseProc = nullptr;
+        if (fReleaseHelper) {
+            // Depending on the ref count of fReleaseHelper this may or may not actually trigger the
+            // ReleaseProc to be called.
+            fReleaseHelper.reset();
         }
     }
 
@@ -104,8 +104,7 @@ private:
     GrBackendObjectOwnership        fTextureIDOwnership;
     bool                            fBaseLevelHasBeenBoundToFBO = false;
 
-    ReleaseProc                     fReleaseProc = nullptr;
-    ReleaseCtx                      fReleaseCtx = nullptr;
+    sk_sp<GrReleaseProcHelper>      fReleaseHelper;
 
     typedef GrTexture INHERITED;
 };

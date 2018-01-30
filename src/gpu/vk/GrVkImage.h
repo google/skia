@@ -83,7 +83,7 @@ public:
     typedef void* ReleaseCtx;
     typedef void (*ReleaseProc)(ReleaseCtx);
 
-    void setResourceRelease(ReleaseProc proc, ReleaseCtx ctx);
+    void setResourceRelease(sk_sp<GrReleaseProcHelper> releaseHelper);
 
 protected:
     void releaseImage(const GrVkGpu* gpu);
@@ -98,23 +98,18 @@ private:
     class Resource : public GrVkResource {
     public:
         Resource()
-            : INHERITED()
-            , fReleaseProc(nullptr)
-            , fReleaseCtx(nullptr)
-            , fImage(VK_NULL_HANDLE) {
+                : fImage(VK_NULL_HANDLE) {
             fAlloc.fMemory = VK_NULL_HANDLE;
             fAlloc.fOffset = 0;
         }
 
         Resource(VkImage image, const GrVkAlloc& alloc, VkImageTiling tiling)
-            : fReleaseProc(nullptr)
-            , fReleaseCtx(nullptr)
-            , fImage(image)
+            : fImage(image)
             , fAlloc(alloc)
             , fImageTiling(tiling) {}
 
         ~Resource() override {
-            SkASSERT(!fReleaseProc);
+            SkASSERT(!fReleaseHelper);
         }
 
 #ifdef SK_TRACE_VK_RESOURCES
@@ -122,18 +117,16 @@ private:
             SkDebugf("GrVkImage: %d (%d refs)\n", fImage, this->getRefCnt());
         }
 #endif
-        void setRelease(ReleaseProc proc, ReleaseCtx ctx) const {
-            fReleaseProc = proc;
-            fReleaseCtx = ctx;
+        void setRelease(sk_sp<GrReleaseProcHelper> releaseHelper) {
+            fReleaseHelper = std::move(releaseHelper);
         }
     protected:
-        mutable ReleaseProc fReleaseProc;
-        mutable ReleaseCtx  fReleaseCtx;
+        mutable sk_sp<GrReleaseProcHelper> fReleaseHelper;
 
     private:
         void freeGPUData(const GrVkGpu* gpu) const override;
         void abandonGPUData() const override {
-            SkASSERT(!fReleaseProc);
+            SkASSERT(!fReleaseHelper);
         }
 
         VkImage        fImage;
@@ -151,9 +144,10 @@ private:
         }
     private:
         void invokeReleaseProc() const {
-            if (fReleaseProc) {
-                fReleaseProc(fReleaseCtx);
-                fReleaseProc = nullptr;
+            if (fReleaseHelper) {
+                // Depending on the ref count of fReleaseHelper this may or may not actually trigger
+                // the ReleaseProc to be called.
+                fReleaseHelper.reset();
             }
         }
 
@@ -161,7 +155,7 @@ private:
         void abandonGPUData() const override;
     };
 
-    const Resource* fResource;
+    Resource* fResource;
 
     friend class GrVkRenderTarget;
 };
