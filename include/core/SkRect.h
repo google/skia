@@ -10,7 +10,7 @@
 
 #include "SkPoint.h"
 #include "SkSize.h"
-#include "../private/SkPedanticMath.h"
+#include "../private/SkSafe32.h"
 #include "../private/SkTFitsIn.h"
 
 struct SkRect;
@@ -160,14 +160,14 @@ struct SK_API SkIRect {
 
         @return  fRight minus fLeft
     */
-    int32_t width() const { return SkSub32(fRight, fLeft); }
+    int32_t width() const { return Sk32_can_overflow_sub(fRight, fLeft); }
 
     /** Returns span on the y-axis. This does not check if SkIRect is sorted, or if
         result fits in 32-bit signed integer; result may be negative.
 
         @return  fBottom minus fTop
     */
-    int32_t height() const { return SkSub32(fBottom, fTop); }
+    int32_t height() const { return Sk32_can_overflow_sub(fBottom, fTop); }
 
     /** Returns spans on the x-axis and y-axis. This does not check if SkIRect is sorted,
         or if result fits in 32-bit signed integer; result may be negative.
@@ -312,7 +312,10 @@ struct SK_API SkIRect {
         @return    SkRect offset in x or y, with original width and height
     */
     SkIRect makeOffset(int32_t dx, int32_t dy) const {
-        return MakeLTRB(fLeft + dx, fTop + dy, fRight + dx, fBottom + dy);
+        return {
+            Sk32_sat_add(fLeft,  dx), Sk32_sat_add(fTop,    dy),
+            Sk32_sat_add(fRight, dx), Sk32_sat_add(fBottom, dy),
+        };
     }
 
     /** Returns SkIRect, inset by (dx, dy).
@@ -327,7 +330,10 @@ struct SK_API SkIRect {
         @return    SkRect inset symmetrically left and right, top and bottom
     */
     SkIRect makeInset(int32_t dx, int32_t dy) const {
-        return MakeLTRB(fLeft + dx, fTop + dy, fRight - dx, fBottom - dy);
+        return {
+            Sk32_sat_add(fLeft,  dx), Sk32_sat_add(fTop,    dy),
+            Sk32_sat_sub(fRight, dx), Sk32_sat_sub(fBottom, dy),
+        };
     }
 
     /** Returns SkIRect, outset by (dx, dy).
@@ -342,7 +348,10 @@ struct SK_API SkIRect {
         @return    SkRect outset symmetrically left and right, top and bottom
     */
     SkIRect makeOutset(int32_t dx, int32_t dy) const {
-        return MakeLTRB(fLeft - dx, fTop - dy, fRight + dx, fBottom + dy);
+        return {
+            Sk32_sat_sub(fLeft,  dx), Sk32_sat_sub(fTop,    dy),
+            Sk32_sat_add(fRight, dx), Sk32_sat_add(fBottom, dy),
+        };
     }
 
     /** Offsets SkIRect by adding dx to fLeft, fRight; and by adding dy to fTop, fBottom.
@@ -356,10 +365,10 @@ struct SK_API SkIRect {
         @param dy  offset added to fTop and fBottom
     */
     void offset(int32_t dx, int32_t dy) {
-        fLeft   += dx;
-        fTop    += dy;
-        fRight  += dx;
-        fBottom += dy;
+        fLeft   = Sk32_sat_add(fLeft,   dx);
+        fTop    = Sk32_sat_add(fTop,    dy);
+        fRight  = Sk32_sat_add(fRight,  dx);
+        fBottom = Sk32_sat_add(fBottom, dy);
     }
 
     /** Offsets SkIRect by adding delta.fX to fLeft, fRight; and by adding delta.fY to
@@ -383,10 +392,10 @@ struct SK_API SkIRect {
         @param newY  stored in fTop, preserving height()
     */
     void offsetTo(int32_t newX, int32_t newY) {
-        fRight += newX - fLeft;
-        fBottom += newY - fTop;
-        fLeft = newX;
-        fTop = newY;
+        fRight  = Sk64_pin_to_s32((int64_t)fRight + newX - fLeft);
+        fBottom = Sk64_pin_to_s32((int64_t)fBottom + newY - fTop);
+        fLeft   = newX;
+        fTop    = newY;
     }
 
     /** Insets SkIRect by (dx,dy).
@@ -400,10 +409,10 @@ struct SK_API SkIRect {
         @param dy  offset added to fTop and subtracted from fBottom
     */
     void inset(int32_t dx, int32_t dy) {
-        fLeft   += dx;
-        fTop    += dy;
-        fRight  -= dx;
-        fBottom -= dy;
+        fLeft   = Sk32_sat_add(fLeft,   dx);
+        fTop    = Sk32_sat_add(fTop,    dy);
+        fRight  = Sk32_sat_sub(fRight,  dx);
+        fBottom = Sk32_sat_sub(fBottom, dy);
     }
 
     /** Outsets SkIRect by (dx, dy).
