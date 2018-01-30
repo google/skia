@@ -16,6 +16,24 @@
       "revId": "87b5927287c89a7982df1754e04635dd7de13b85",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b344056b_145a0486",
+        "filename": "src/effects/SkDisplacementMapEffect.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-01-30T21:04:57Z",
+      "side": 1,
+      "message": "It gets caught earlier, at least by the fuzzers, so I\u0027m gonna leave unchanged for now.",
+      "parentUuid": "2bf63f1b_a1561908",
+      "revId": "87b5927287c89a7982df1754e04635dd7de13b85",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
