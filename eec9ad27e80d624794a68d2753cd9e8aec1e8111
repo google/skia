@@ -16,6 +16,24 @@
       "revId": "eec9ad27e80d624794a68d2753cd9e8aec1e8111",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6d1dd61d_f92d0548",
+        "filename": "src/core/SkRectPriv.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-01-30T20:01:06Z",
+      "side": 1,
+      "message": "Not sure, that\u0027s why for now I\u0027m just adding a private safe version. I don\u0027t know (yet) if anyone relies on the current unsaturating behavior, and/or the speed difference.\n\nDo you think we should figure all of that out now, or in a follow-on CL?",
+      "parentUuid": "4734918e_3eb27652",
+      "revId": "eec9ad27e80d624794a68d2753cd9e8aec1e8111",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
