@@ -308,7 +308,7 @@ bool validate_backend_texture(GrContext* ctx, const GrBackendTexture& tex, GrPix
         return false;
     }
 
-    if (!ctx->caps()->isConfigRenderable(*config, sampleCnt > 0)) {
+    if (!ctx->caps()->isConfigRenderable(*config, sampleCnt > 1)) {
         return false;
     }
 

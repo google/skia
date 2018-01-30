@@ -33,7 +33,7 @@ DEF_GPUTEST_FOR_NULLGL_CONTEXT(GrSurface, reporter, ctxInfo) {
     desc.fWidth = 256;
     desc.fHeight = 256;
     desc.fConfig = kRGBA_8888_GrPixelConfig;
-    desc.fSampleCnt = 0;
+    desc.fSampleCnt = 1;
     sk_sp<GrSurface> texRT1 = resourceProvider->createTexture(desc, SkBudgeted::kNo);
 
     REPORTER_ASSERT(reporter, texRT1.get() == texRT1->asRenderTarget());
@@ -120,7 +120,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
             desc.fFlags = kNone_GrSurfaceFlags;
             desc.fOrigin = origin;
             desc.fConfig = config;
-            desc.fSampleCnt = 0;
+            desc.fSampleCnt = 1;
 
             sk_sp<GrSurface> tex = resourceProvider->createTexture(desc, SkBudgeted::kNo);
             bool ict = caps->isConfigTexturable(desc.fConfig);

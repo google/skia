@@ -158,7 +158,7 @@ DEF_GPUTEST_FOR_CONTEXTS(ResourceCacheStencilBuffers, &is_rendering_and_not_angl
     }
 
     int smallSampleCount = context->caps()->getSampleCount(4, kRGBA_8888_GrPixelConfig);
-    if (smallSampleCount > 0) {
+    if (smallSampleCount > 1) {
         // An RT with a different sample count should not share.
         sk_sp<GrRenderTarget> smallMSAART0 = create_RT_with_SB(resourceProvider, 4,
                                                                smallSampleCount, SkBudgeted::kNo);

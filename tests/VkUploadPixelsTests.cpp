@@ -69,7 +69,7 @@ void basic_texture_test(skiatest::Reporter* reporter, GrContext* context, GrPixe
     surfDesc.fWidth = kWidth;
     surfDesc.fHeight = kHeight;
     surfDesc.fConfig = config;
-    surfDesc.fSampleCnt = 0;
+    surfDesc.fSampleCnt = 1;
 
     SkColorType ct;
     SkAssertResult(GrPixelConfigToColorType(config, &ct));

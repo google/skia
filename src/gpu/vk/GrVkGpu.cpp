@@ -352,7 +352,7 @@ bool GrVkGpu::onGetWritePixelsInfo(GrSurface* dstSurface, GrSurfaceOrigin dstOri
     tempDrawInfo->fTempSurfaceDesc.fConfig = srcConfig;
     tempDrawInfo->fTempSurfaceDesc.fWidth = width;
     tempDrawInfo->fTempSurfaceDesc.fHeight = height;
-    tempDrawInfo->fTempSurfaceDesc.fSampleCnt = 0;
+    tempDrawInfo->fTempSurfaceDesc.fSampleCnt = 1;
     tempDrawInfo->fTempSurfaceDesc.fOrigin = kTopLeft_GrSurfaceOrigin;
 
     if (dstSurface->config() == srcConfig) {
@@ -914,7 +914,7 @@ sk_sp<GrTexture> GrVkGpu::onWrapBackendTexture(const GrBackendTexture& backendTe
     surfDesc.fWidth = backendTex.width();
     surfDesc.fHeight = backendTex.height();
     surfDesc.fConfig = backendTex.config();
-    surfDesc.fSampleCnt = 0;
+    surfDesc.fSampleCnt = 1;
 
     return GrVkTexture::MakeWrappedTexture(this, surfDesc, ownership, backendTex.getVkImageInfo());
 }

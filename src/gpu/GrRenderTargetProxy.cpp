@@ -26,7 +26,7 @@ GrRenderTargetProxy::GrRenderTargetProxy(const GrCaps& caps, const GrSurfaceDesc
         , fRenderTargetFlags(GrRenderTargetFlags::kNone) {
     // Since we know the newly created render target will be internal, we are able to precompute
     // what the flags will ultimately end up being.
-    if (caps.usesMixedSamples() && fSampleCnt > 0) {
+    if (caps.usesMixedSamples() && fSampleCnt > 1) {
         fRenderTargetFlags |= GrRenderTargetFlags::kMixedSampled;
     }
     if (caps.maxWindowRectangles() > 0) {

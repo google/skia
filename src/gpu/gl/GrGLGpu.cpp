@@ -545,7 +545,7 @@ sk_sp<GrTexture> GrGLGpu::onWrapBackendTexture(const GrBackendTexture& backendTe
     surfDesc.fWidth = backendTex.width();
     surfDesc.fHeight = backendTex.height();
     surfDesc.fConfig = backendTex.config();
-    surfDesc.fSampleCnt = 0;
+    surfDesc.fSampleCnt = 1;
 
     GrMipMapsStatus mipMapsStatus = backendTex.hasMipMaps() ? GrMipMapsStatus::kValid
                                                             : GrMipMapsStatus::kNotAllocated;
@@ -704,7 +704,7 @@ bool GrGLGpu::onGetWritePixelsInfo(GrSurface* dstSurface, GrSurfaceOrigin dstOri
     tempDrawInfo->fTempSurfaceDesc.fConfig = srcConfig;
     tempDrawInfo->fTempSurfaceDesc.fWidth = width;
     tempDrawInfo->fTempSurfaceDesc.fHeight = height;
-    tempDrawInfo->fTempSurfaceDesc.fSampleCnt = 0;
+    tempDrawInfo->fTempSurfaceDesc.fSampleCnt = 1;
     tempDrawInfo->fTempSurfaceDesc.fOrigin = kTopLeft_GrSurfaceOrigin; // no CPU y-flip for TL.
 
     bool configsAreRBSwaps = GrPixelConfigSwapRAndB(srcConfig) == dstSurface->config();
@@ -1277,13 +1277,13 @@ bool GrGLGpu::createRenderTargetObjects(const GrSurfaceDesc& desc,
     idDesc->fTexFBOID = 0;
     SkASSERT((GrGLCaps::kMixedSamples_MSFBOType == this->glCaps().msFBOType()) ==
              this->caps()->usesMixedSamples());
-    idDesc->fIsMixedSampled = desc.fSampleCnt > 0 && this->caps()->usesMixedSamples();
+    idDesc->fIsMixedSampled = desc.fSampleCnt > 1 && this->caps()->usesMixedSamples();
 
     GrGLenum status;
 
     GrGLenum colorRenderbufferFormat = 0; // suppress warning
 
-    if (desc.fSampleCnt > 0 && GrGLCaps::kNone_MSFBOType == this->glCaps().msFBOType()) {
+    if (desc.fSampleCnt > 1 && GrGLCaps::kNone_MSFBOType == this->glCaps().msFBOType()) {
         goto FAILED;
     }
 
@@ -1296,7 +1296,7 @@ bool GrGLGpu::createRenderTargetObjects(const GrSurfaceDesc& desc,
     // the texture bound to the other. The exception is the IMG multisample extension. With this
     // extension the texture is multisampled when rendered to and then auto-resolves it when it is
     // rendered from.
-    if (desc.fSampleCnt > 0 && this->glCaps().usesMSAARenderBuffers()) {
+    if (desc.fSampleCnt > 1 && this->glCaps().usesMSAARenderBuffers()) {
         GL_CALL(GenFramebuffers(1, &idDesc->fRTFBOID));
         GL_CALL(GenRenderbuffers(1, &idDesc->fMSColorRenderbufferID));
         if (!idDesc->fRTFBOID ||
@@ -1313,7 +1313,7 @@ bool GrGLGpu::createRenderTargetObjects(const GrSurfaceDesc& desc,
     // below here we may bind the FBO
     fHWBoundRenderTargetUniqueID.makeInvalid();
     if (idDesc->fRTFBOID != idDesc->fTexFBOID) {
-        SkASSERT(desc.fSampleCnt > 0);
+        SkASSERT(desc.fSampleCnt > 1);
         GL_CALL(BindRenderbuffer(GR_GL_RENDERBUFFER, idDesc->fMSColorRenderbufferID));
         if (!renderbuffer_storage_msaa(*fGLContext,
                                        desc.fSampleCnt,
@@ -1338,7 +1338,7 @@ bool GrGLGpu::createRenderTargetObjects(const GrSurfaceDesc& desc,
     fStats.incRenderTargetBinds();
     GL_CALL(BindFramebuffer(GR_GL_FRAMEBUFFER, idDesc->fTexFBOID));
 
-    if (this->glCaps().usesImplicitMSAAResolve() && desc.fSampleCnt > 0) {
+    if (this->glCaps().usesImplicitMSAAResolve() && desc.fSampleCnt > 1) {
         GL_CALL(FramebufferTexture2DMultisample(GR_GL_FRAMEBUFFER,
                                                 GR_GL_COLOR_ATTACHMENT0,
                                                 texInfo.fTarget,
@@ -2194,7 +2194,7 @@ bool GrGLGpu::onGetReadPixelsInfo(GrSurface* srcSurface, GrSurfaceOrigin srcOrig
     tempDrawInfo->fTempSurfaceDesc.fFlags = kRenderTarget_GrSurfaceFlag;
     tempDrawInfo->fTempSurfaceDesc.fWidth = width;
     tempDrawInfo->fTempSurfaceDesc.fHeight = height;
-    tempDrawInfo->fTempSurfaceDesc.fSampleCnt = 0;
+    tempDrawInfo->fTempSurfaceDesc.fSampleCnt = 1;
     tempDrawInfo->fTempSurfaceDesc.fOrigin = kTopLeft_GrSurfaceOrigin; // no CPU y-flip for TL.
     tempDrawInfo->fTempSurfaceFit = this->glCaps().partialFBOReadIsSlow() ? SkBackingFit::kExact
                                                                           : SkBackingFit::kApprox;

@@ -251,7 +251,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
                     } else {
                         // Internal offscreen texture
                         SkASSERT(kNone_GrSurfaceFlags == desc.fFlags );
-                        desc.fSampleCnt = 0;
+                        desc.fSampleCnt = 1;
 
                         sk_sp<GrSurfaceProxy> sProxy = proxyProvider->createInstantiatedProxy(
                                                           desc, SkBackingFit::kExact, budgeted);
@@ -287,7 +287,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ZeroSizedProxyTest, reporter, ctxInfo) {
                     desc.fWidth = width;
                     desc.fHeight = height;
                     desc.fConfig = kRGBA_8888_GrPixelConfig;
-                    desc.fSampleCnt = 0;
+                    desc.fSampleCnt = 1;
 
                     sk_sp<GrTextureProxy> proxy = provider->createProxy(desc, fit, SkBudgeted::kNo);
                     REPORTER_ASSERT(reporter, !proxy);
