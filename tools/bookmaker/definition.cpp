@@ -1052,6 +1052,16 @@ bool Definition::hasMatch(const string& name) const {
     return false;
 }
 
+bool Definition::isStructOrClass() const {
+    if (MarkType::kStruct != fMarkType && MarkType::kClass != fMarkType) {
+        return false;
+    }
+    if (string::npos != fFileName.find("undocumented.bmh")) {
+        return false;
+    }
+    return true;
+}
+
 bool Definition::methodHasReturn(const string& name, TextParser* methodParser) const {
     if (methodParser->skipExact("static")) {
         methodParser->skipWhiteSpace();
