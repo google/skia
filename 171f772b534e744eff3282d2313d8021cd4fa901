@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bd5b37df_67033d8b",
+        "filename": "include/core/SkRect.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 395,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-30T20:39:03Z",
+      "side": 1,
+      "message": "Doesn\u0027t this do (int64_t)fRight + (newX - fLeft)?",
+      "range": {
+        "startLine": 395,
+        "startChar": 34,
+        "endLine": 395,
+        "endChar": 64
+      },
+      "revId": "171f772b534e744eff3282d2313d8021cd4fa901",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

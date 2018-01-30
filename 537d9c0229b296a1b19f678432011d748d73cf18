@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "86adba0e_19f240f2",
+        "filename": "include/core/SkRect.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-30T20:39:03Z",
+      "side": 0,
+      "message": "Was no one relying on this?  I think you can make all your new functions constexpr too.",
+      "range": {
+        "startLine": 112,
+        "startChar": 11,
+        "endLine": 112,
+        "endChar": 20
+      },
+      "revId": "537d9c0229b296a1b19f678432011d748d73cf18",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
