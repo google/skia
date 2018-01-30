@@ -11,6 +11,7 @@
 #include "SkColorSpaceXformer.h"
 #include "SkImageFilterPriv.h"
 #include "SkReadBuffer.h"
+#include "SkRectPriv.h"
 #include "SkSpecialImage.h"
 #include "SkWriteBuffer.h"
 #include "SkUnPreMultiply.h"
@@ -88,8 +89,8 @@ void computeDisplacement(Extractor ex, const SkVector& scale, SkBitmap* dst,
             SkScalar displX = scaleForColor.fX * ex.getX(c) + scaleAdj.fX;
             SkScalar displY = scaleForColor.fY * ex.getY(c) + scaleAdj.fY;
             // Truncate the displacement values
-            const int srcX = x + SkScalarTruncToInt(displX);
-            const int srcY = y + SkScalarTruncToInt(displY);
+            const int srcX = SkScalarTruncToInt(x + displX);
+            const int srcY = SkScalarTruncToInt(y + displY);
             *dstPtr++ = ((srcX < 0) || (srcX >= srcW) || (srcY < 0) || (srcY >= srcH)) ?
                       0 : *(src.getAddr32(srcX, srcY));
         }
@@ -386,8 +387,9 @@ SkIRect SkDisplacementMapEffect::onFilterNodeBounds(const SkIRect& src, const Sk
                                                     MapDirection) const {
     SkVector scale = SkVector::Make(fScale, fScale);
     ctm.mapVectors(&scale, 1);
-    return src.makeOutset(SkScalarCeilToInt(SkScalarAbs(scale.fX) * SK_ScalarHalf),
-                          SkScalarCeilToInt(SkScalarAbs(scale.fY) * SK_ScalarHalf));
+    return SkRectPriv::SafeMakeOutset(src,
+                                      SkScalarCeilToInt(SkScalarAbs(scale.fX) * SK_ScalarHalf),
+                                      SkScalarCeilToInt(SkScalarAbs(scale.fY) * SK_ScalarHalf));
 }
 
 SkIRect SkDisplacementMapEffect::onFilterBounds(const SkIRect& src, const SkMatrix& ctm,

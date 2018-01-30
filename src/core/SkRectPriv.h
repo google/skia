@@ -10,6 +10,7 @@
 
 #include "SkRect.h"
 #include "SkMathPriv.h"
+#include "SkSafeMath.h"
 
 class SkRectPriv {
 public:
@@ -51,6 +52,22 @@ public:
     static bool FitsInFixed(const SkRect& r) {
         return SkFitsInFixed(r.fLeft) && SkFitsInFixed(r.fTop) &&
                SkFitsInFixed(r.fRight) && SkFitsInFixed(r.fBottom);
+    }
+
+    // Saturates to max/min int32_t on overflow/underflow
+    static SkIRect SafeMakeOffset(const SkIRect& r, int32_t dx, int32_t dy) {
+        return {
+            Sk32_sat_add(r.fLeft,  dx), Sk32_sat_add(r.fTop,    dy),
+            Sk32_sat_add(r.fRight, dx), Sk32_sat_add(r.fBottom, dy),
+        };
+    }
+
+    // Saturates to max/min int32_t on overflow/underflow
+    static SkIRect SafeMakeOutset(const SkIRect& r, int32_t dx, int32_t dy) {
+        return {
+            Sk32_sat_sub(r.fLeft,  dx), Sk32_sat_sub(r.fTop,    dy),
+            Sk32_sat_add(r.fRight, dx), Sk32_sat_add(r.fBottom, dy),
+        };
     }
 };
 

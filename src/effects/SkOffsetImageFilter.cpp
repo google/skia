@@ -13,6 +13,7 @@
 #include "SkPaint.h"
 #include "SkPointPriv.h"
 #include "SkReadBuffer.h"
+#include "SkRectPriv.h"
 #include "SkSpecialImage.h"
 #include "SkSpecialSurface.h"
 #include "SkWriteBuffer.h"
@@ -103,7 +104,7 @@ SkIRect SkOffsetImageFilter::onFilterNodeBounds(const SkIRect& src, const SkMatr
         SkPointPriv::Negate(vec);
     }
 
-    return src.makeOffset(vec.fX, vec.fY);
+    return SkRectPriv::SafeMakeOffset(src, vec.fX, vec.fY);
 }
 
 sk_sp<SkFlattenable> SkOffsetImageFilter::CreateProc(SkReadBuffer& buffer) {

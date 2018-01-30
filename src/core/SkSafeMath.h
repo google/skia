@@ -94,4 +94,15 @@ private:
     bool fOK = true;
 };
 
+static inline int32_t Sk64_pin_to_s32(int64_t x) {
+    return x < SK_MinS32 ? SK_MinS32 : (x > SK_MaxS32 ? SK_MaxS32 : x);
+}
+
+static inline int32_t Sk32_sat_add(int32_t a, int32_t b) {
+    return Sk64_pin_to_s32((int64_t)a + (int64_t)b);
+}
+static inline int32_t Sk32_sat_sub(int32_t a, int32_t b) {
+    return Sk64_pin_to_s32((int64_t)a - (int64_t)b);
+}
+
 #endif//SkSafeMath_DEFINED
