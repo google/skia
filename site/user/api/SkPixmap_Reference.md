@@ -100,7 +100,7 @@ empty <a href="#Pixmap">Pixmap</a>
 
 ### Example
 
-<div><fiddle-embed name="7befb4876e17f4bfc89ae8c54aef8660">
+<div><fiddle-embed name="9547e74a9d37553a667b913ffd1312dd">
 
 #### Example Output
 
@@ -187,7 +187,7 @@ memory if desired.
 
 ### Example
 
-<div><fiddle-embed name="759feda9c22260f96567b9e2ccc1a118">
+<div><fiddle-embed name="d9eb583c39f4f0baea79896b89245c98">
 
 #### Example Output
 
@@ -375,7 +375,7 @@ reference to ImageInfo
 
 ### Example
 
-<div><fiddle-embed name="7294fbffeb15bf062b6ce989719b783f">
+<div><fiddle-embed name="6e0f558bf7fabc655041116288559134">
 
 #### Example Output
 
@@ -536,7 +536,8 @@ SkColorType colorType() const
 
 Returns <a href="SkImageInfo_Reference#Color_Type">Color Type</a>, one of: <a href="SkImageInfo_Reference#SkColorType">kUnknown SkColorType</a>, <a href="SkImageInfo_Reference#SkColorType">kAlpha 8 SkColorType</a>,
 <a href="SkImageInfo_Reference#SkColorType">kRGB 565 SkColorType</a>, <a href="SkImageInfo_Reference#SkColorType">kARGB 4444 SkColorType</a>, <a href="SkImageInfo_Reference#SkColorType">kRGBA 8888 SkColorType</a>,
-<a href="SkImageInfo_Reference#SkColorType">kBGRA 8888 SkColorType</a>, <a href="SkImageInfo_Reference#SkColorType">kGray 8 SkColorType</a>, <a href="SkImageInfo_Reference#SkColorType">kRGBA F16 SkColorType</a>.
+<a href="SkImageInfo_Reference#SkColorType">kRGB 888x SkColorType</a>, <a href="SkImageInfo_Reference#SkColorType">kBGRA 8888 SkColorType</a>, <a href="SkImageInfo_Reference#SkColorType">kRGBA 1010102 SkColorType</a>,
+<a href="SkImageInfo_Reference#SkColorType">kRGB 101010x SkColorType</a>, <a href="SkImageInfo_Reference#SkColorType">kGray 8 SkColorType</a>, <a href="SkImageInfo_Reference#SkColorType">kRGBA F16 SkColorType</a>.
 
 ### Return Value
 
@@ -544,12 +545,12 @@ Returns <a href="SkImageInfo_Reference#Color_Type">Color Type</a>, one of: <a hr
 
 ### Example
 
-<div><fiddle-embed name="57cebd9fc88c4dfe04b20d0ff34f77fd">
+<div><fiddle-embed name="0ab5c7af272685f2ce177cc79e6b9457">
 
 #### Example Output
 
 ~~~~
-color type: kAlpha_SkColorType
+color type: kAlpha_8_SkColorType
 ~~~~
 
 </fiddle-embed></div>
@@ -748,13 +749,13 @@ one of: 0, 1, 2, 3; left shift to convert pixels to bytes
 
 ### Example
 
-<div><fiddle-embed name="d91065811bb118dd686a2b94abe3360a">
+<div><fiddle-embed name="2e778ffd6edea51af4b07f5d322ceb6a">
 
 #### Example Output
 
 ~~~~
 color: kUnknown_SkColorType   bytesPerPixel: 0 shiftPerPixel: 0
-color: kAlpha_SkColorType     bytesPerPixel: 1 shiftPerPixel: 0
+color: kAlpha_8_SkColorType   bytesPerPixel: 1 shiftPerPixel: 0
 color: kRGB_565_SkColorType   bytesPerPixel: 2 shiftPerPixel: 1
 color: kARGB_4444_SkColorType bytesPerPixel: 2 shiftPerPixel: 1
 color: kRGBA_8888_SkColorType bytesPerPixel: 4 shiftPerPixel: 2
