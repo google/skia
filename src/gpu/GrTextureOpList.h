@@ -60,6 +60,8 @@ public:
 
     SkDEBUGCODE(int numOps() const override { return fRecordedOps.count(); })
 
+    void visitProxies(const VisitProxyFunc& func) const override;
+
 private:
     void purgeOpsWithUninstantiatedProxies() override;
 

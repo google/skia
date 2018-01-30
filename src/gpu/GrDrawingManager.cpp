@@ -24,6 +24,8 @@
 #include "GrTextureOpList.h"
 #include "GrTextureProxy.h"
 #include "GrTextureProxyPriv.h"
+
+#include "SkDeferredDisplayList.h"
 #include "SkSurface_Gpu.h"
 #include "SkTTopoSort.h"
 
@@ -149,7 +151,7 @@ GrSemaphoresSubmitted GrDrawingManager::internalFlush(GrSurfaceProxy*,
 #ifdef SK_DEBUG
                 // OnFlush callbacks are already invoked during flush, and are therefore expected to
                 // handle resource allocation & usage on their own. (No deferred or lazy proxies!)
-                onFlushOpList->visitProxies_debugOnly([](GrSurfaceProxy* p) {
+                onFlushOpList->visitProxies([](GrSurfaceProxy* p) {
                     SkASSERT(!p->asTextureProxy() || !p->asTextureProxy()->texPriv().isDeferred());
                     SkASSERT(GrSurfaceProxy::LazyState::kNot == p->lazyInstantiationState());
                 });
@@ -318,6 +320,17 @@ GrSemaphoresSubmitted GrDrawingManager::prepareSurfaceForExternalIO(
 
 void GrDrawingManager::addOnFlushCallbackObject(GrOnFlushCallbackObject* onFlushCBObject) {
     fOnFlushCBObjects.push_back(onFlushCBObject);
+}
+
+void GrDrawingManager::moveOpListsToDDL(SkDeferredDisplayList* ddl) {
+    ddl->fOpLists = std::move(fOpLists);
+}
+
+void GrDrawingManager::copyOpListsFromDDL(const SkDeferredDisplayList* ddl, GrRenderTargetProxy* newDest) {
+    // Here we jam the proxy that backs the current replay SkSurface into the LazyProxyData.
+    // The lazy proxy that references it (in the copied opLists) will steal its GrTexture.
+    ddl->fLazyProxyData->fReplayDest = newDest;
+    fOpLists.push_back_n(ddl->fOpLists.count(), ddl->fOpLists.begin());
 }
 
 sk_sp<GrRenderTargetOpList> GrDrawingManager::newRTOpList(GrRenderTargetProxy* rtp,

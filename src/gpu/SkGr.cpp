@@ -177,7 +177,7 @@ sk_sp<GrTextureProxy> GrCopyBaseMipMapToTextureProxy(GrContext* ctx, GrTexturePr
     }
 
     // Copy the base layer to our proxy
-    sk_sp<GrSurfaceContext> sContext = ctx->contextPriv().makeWrappedSurfaceContext(proxy, nullptr);
+    sk_sp<GrSurfaceContext> sContext = ctx->contextPriv().makeWrappedSurfaceContext(proxy);
     SkASSERT(sContext);
     SkAssertResult(sContext->copy(baseProxy));
 

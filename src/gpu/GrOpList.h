@@ -15,9 +15,9 @@
 
 
 // Turn on/off the explicit distribution of GPU resources at flush time
-#ifndef SK_DISABLE_EXPLICIT_GPU_RESOURCE_ALLOCATION
-   #define SK_DISABLE_EXPLICIT_GPU_RESOURCE_ALLOCATION
-#endif
+//#ifndef SK_DISABLE_EXPLICIT_GPU_RESOURCE_ALLOCATION
+//   #define SK_DISABLE_EXPLICIT_GPU_RESOURCE_ALLOCATION
+//#endif
 
 // Turn on/off the sorting of opLists at flush time
 #ifndef SK_DISABLE_RENDER_TARGET_SORTING
@@ -109,6 +109,10 @@ public:
 
     // TODO: it would be nice for this to be hidden
     void setStencilLoadOp(GrLoadOp loadOp) { fStencilLoadOp = loadOp; }
+
+    typedef std::function<void(GrSurfaceProxy*)> VisitProxyFunc;
+
+    virtual void visitProxies(const VisitProxyFunc& func) const = 0;
 
 protected:
     SkDEBUGCODE(bool isInstantiated() const;)

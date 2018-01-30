@@ -50,6 +50,14 @@ void GrTextureOpList::dump() const {
 
 #endif
 
+void GrTextureOpList::visitProxies(const GrOp::VisitProxyFunc& func) const {
+    for (int i = 0; i < fRecordedOps.count(); ++i) {
+        const GrOp* op = fRecordedOps[i].get();
+
+        op->visitProxies(func);
+    }
+}
+
 void GrTextureOpList::onPrepare(GrOpFlushState* flushState) {
     SkASSERT(this->isClosed());
 
