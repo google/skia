@@ -162,9 +162,15 @@ sk_sp<GrTextureProxy> GrBackendTextureImageGenerator::onGenerateTexture(
                     }
                     refHelper->fBorrowedTexture = tex.get();
 
+                    sk_sp<GrReleaseProcHelper> releaseHelper(
+                           new GrReleaseProcHelper(ReleaseRefHelper_TextureReleaseProc, refHelper));
+
                     // By setting this release proc on the texture we are passing our ref on the
                     // refHelper to the texture.
-                    tex->setRelease(ReleaseRefHelper_TextureReleaseProc, refHelper);
+                    // DDL TODO: Once we are start reusing Lazy Proxies, we need to add a ref to the
+                    // refHelper here, we'll still move the releaseHelper though since the texture
+                    // will be the only one ever calling that release proc.
+                    tex->setRelease(std::move(releaseHelper));
                 }
 
                 return tex;

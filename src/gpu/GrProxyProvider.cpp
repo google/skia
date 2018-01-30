@@ -383,15 +383,18 @@ sk_sp<GrTextureProxy> GrProxyProvider::createWrappedTextureProxy(
     desc.fConfig = backendTex.config();
     GrMipMapped mipMapped = backendTex.hasMipMaps() ? GrMipMapped::kYes : GrMipMapped::kNo;
 
+    sk_sp<GrReleaseProcHelper> releaseHelper;
+    if (releaseProc) {
+        releaseHelper.reset(new GrReleaseProcHelper(releaseProc, releaseCtx));
+    }
+
     sk_sp<GrTextureProxy> proxy = this->createLazyProxy(
-            [backendTex, ownership, releaseProc, releaseCtx]
+            [backendTex, ownership, releaseHelper]
             (GrResourceProvider* resourceProvider, GrSurfaceOrigin* /*outOrigin*/) {
                 if (!resourceProvider) {
-                    // This lazy proxy was never initialized. If it has a releaseProc we must call
-                    // it now so that the client knows they can free the underlying backend object.
-                    if (releaseProc) {
-                        releaseProc(releaseCtx);
-                    }
+                    // This lazy proxy was never initialized. If this had a releaseHelper it will
+                    // get unrefed when we delete this lambda and will call the release proc so that
+                    // the client knows they can free the underlying backend object.
                     return sk_sp<GrTexture>();
                 }
 
@@ -400,8 +403,10 @@ sk_sp<GrTextureProxy> GrProxyProvider::createWrappedTextureProxy(
                 if (!tex) {
                     return sk_sp<GrTexture>();
                 }
-                if (releaseProc) {
-                    tex->setRelease(releaseProc, releaseCtx);
+                if (releaseHelper) {
+                    // DDL TODO: once we are reusing lazy proxies, remove this move and hold onto to
+                    // the ref till the lambda goes away.
+                    tex->setRelease(std::move(releaseHelper));
                 }
                 SkASSERT(!tex->asRenderTarget());   // Strictly a GrTexture
                 // Make sure we match how we created the proxy with SkBudgeted::kNo

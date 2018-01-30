@@ -33,12 +33,11 @@ public:
 
     bool reallocForMipmap(GrMtlGpu* gpu, uint32_t mipLevels);
 
-    void setRelease(GrTexture::ReleaseProc proc, GrTexture::ReleaseCtx ctx) override {
+    void setRelease(sk_sp<GrReleaseProcHelper> releaseHelper) override {
         // Since all MTLResources are inherently ref counted, we can call the Release proc when we
         // delete the GrMtlTexture without worry of the MTLTexture getting deleted before it is done
         // on the GPU.
-        fReleaseProc = proc;
-        fReleaseCtx = ctx;
+        fReleaseHelper = std::move(releaseHelper);
     }
 
 protected:
@@ -64,8 +63,7 @@ private:
 
     id<MTLTexture> fTexture;
 
-    ReleaseProc fReleaseProc = nullptr;
-    ReleaseCtx fReleaseCtx = nullptr;
+    sk_sp<GrReleaseProcHelper>        fReleaseHelper;
 
     typedef GrTexture INHERITED;
 };
