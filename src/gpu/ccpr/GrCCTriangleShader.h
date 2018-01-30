@@ -17,9 +17,8 @@
  *              implement these steps in either one or two actual render passes.
  */
 class GrCCTriangleShader : public GrCCCoverageProcessor::Shader {
-    WindHandling onEmitVaryings(GrGLSLVaryingHandler*, GrGLSLVarying::Scope, SkString* code,
-                                const char* position, const char* coverage,
-                                const char* wind) override;
+    void onEmitVaryings(GrGLSLVaryingHandler*, GrGLSLVarying::Scope, SkString* code,
+                        const char* position, const char* inputCoverage, const char* wind) override;
     void onEmitFragmentCode(GrGLSLPPFragmentBuilder*, const char* outputCoverage) const override;
 
     GrGLSLVarying fCoverageTimesWind;
@@ -33,9 +32,8 @@ class GrCCTriangleShader : public GrCCCoverageProcessor::Shader {
 class GrCCTriangleCornerShader : public GrCCCoverageProcessor::Shader {
     void emitSetupCode(GrGLSLVertexGeoBuilder*, const char* pts, const char* repetitionID,
                        const char* wind, GeometryVars*) const override;
-    WindHandling onEmitVaryings(GrGLSLVaryingHandler*, GrGLSLVarying::Scope, SkString* code,
-                                const char* position, const char* coverage,
-                                const char* wind) override;
+    void onEmitVaryings(GrGLSLVaryingHandler*, GrGLSLVarying::Scope, SkString* code,
+                        const char* position, const char* inputCoverage, const char* wind) override;
     void onEmitFragmentCode(GrGLSLPPFragmentBuilder* f, const char* outputCoverage) const override;
 
     GrShaderVar fAABoxMatrices{"aa_box_matrices", kFloat2x2_GrSLType, 2};
@@ -43,6 +41,7 @@ class GrCCTriangleCornerShader : public GrCCCoverageProcessor::Shader {
     GrShaderVar fGeoShaderBisects{"bisects", kFloat2_GrSLType, 2};
     GrGLSLVarying fCornerLocationInAABoxes;
     GrGLSLVarying fBisectInAABoxes;
+    GrGLSLVarying fWindTimesHalf;
 };
 
 #endif
