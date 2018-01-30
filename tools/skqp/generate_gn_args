@@ -13,6 +13,11 @@ target_cpu = "{arch}"
 skia_embed_resources = true
 is_debug = false
 skia_enable_pdf = false
+skia_enable_fontmgr_empty = true
+skia_use_expat = false
+skia_use_icu = false
+skia_use_lua = false
+skia_use_libheif = false
 '''
 
 def make_args_gn(out_dir, ndk, arch):
