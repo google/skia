@@ -37,7 +37,7 @@ static int g_NumFreedShapes = 0;
 
 // mip levels
 static const SkScalar kIdealMinMIP = 12;
-static const SkScalar kMaxMIP = 166;
+static const SkScalar kMaxMIP = 162;
 
 static const SkScalar kMaxDim = 73;
 static const SkScalar kMinSize = SK_ScalarHalf;
