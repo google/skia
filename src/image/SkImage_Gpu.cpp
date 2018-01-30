@@ -442,7 +442,7 @@ static sk_sp<SkImage> make_from_yuv_textures_copy(GrContext* ctx, SkYUVColorSpac
                                                                          width, height,
                                                                          kRGBA_8888_GrPixelConfig,
                                                                          std::move(imageColorSpace),
-                                                                         0,
+                                                                         1,
                                                                          GrMipMapped::kNo,
                                                                          origin));
     if (!renderTargetContext) {

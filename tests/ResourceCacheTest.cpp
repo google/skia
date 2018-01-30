@@ -129,12 +129,12 @@ DEF_GPUTEST_FOR_CONTEXTS(ResourceCacheStencilBuffers, &is_rendering_and_not_angl
 
     GrResourceProvider* resourceProvider = context->contextPriv().resourceProvider();
 
-    sk_sp<GrRenderTarget> smallRT0 = create_RT_with_SB(resourceProvider, 4, 0, SkBudgeted::kYes);
+    sk_sp<GrRenderTarget> smallRT0 = create_RT_with_SB(resourceProvider, 4, 1, SkBudgeted::kYes);
     REPORTER_ASSERT(reporter, smallRT0);
 
     {
        // Two budgeted RTs with the same desc should share a stencil buffer.
-        sk_sp<GrRenderTarget> smallRT1 = create_RT_with_SB(resourceProvider, 4, 0,
+        sk_sp<GrRenderTarget> smallRT1 = create_RT_with_SB(resourceProvider, 4, 1,
                                                            SkBudgeted::kYes);
         REPORTER_ASSERT(reporter, smallRT1);
 
@@ -143,7 +143,7 @@ DEF_GPUTEST_FOR_CONTEXTS(ResourceCacheStencilBuffers, &is_rendering_and_not_angl
 
     {
         // An unbudgeted RT with the same desc should also share.
-        sk_sp<GrRenderTarget> smallRT2 = create_RT_with_SB(resourceProvider, 4, 0, SkBudgeted::kNo);
+        sk_sp<GrRenderTarget> smallRT2 = create_RT_with_SB(resourceProvider, 4, 1, SkBudgeted::kNo);
         REPORTER_ASSERT(reporter, smallRT2);
 
         REPORTER_ASSERT(reporter, get_SB(smallRT0.get()) == get_SB(smallRT2.get()));
@@ -151,14 +151,14 @@ DEF_GPUTEST_FOR_CONTEXTS(ResourceCacheStencilBuffers, &is_rendering_and_not_angl
 
     {
         // An RT with a much larger size should not share.
-        sk_sp<GrRenderTarget> bigRT = create_RT_with_SB(resourceProvider, 400, 0, SkBudgeted::kNo);
+        sk_sp<GrRenderTarget> bigRT = create_RT_with_SB(resourceProvider, 400, 1, SkBudgeted::kNo);
         REPORTER_ASSERT(reporter, bigRT);
 
         REPORTER_ASSERT(reporter, get_SB(smallRT0.get()) != get_SB(bigRT.get()));
     }
 
     int smallSampleCount = context->caps()->getSampleCount(4, kRGBA_8888_GrPixelConfig);
-    if (smallSampleCount > 0) {
+    if (smallSampleCount > 1) {
         // An RT with a different sample count should not share.
         sk_sp<GrRenderTarget> smallMSAART0 = create_RT_with_SB(resourceProvider, 4,
                                                                smallSampleCount, SkBudgeted::kNo);
@@ -1707,7 +1707,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GPUMemorySize, reporter, ctxInfo) {
     {
         sk_sp<GrTexture> tex;
 
-        tex = make_normal_texture(resourceProvider, kRenderTarget_GrSurfaceFlag, kSize, kSize, 0);
+        tex = make_normal_texture(resourceProvider, kRenderTarget_GrSurfaceFlag, kSize, kSize, 1);
         size_t size = tex->gpuMemorySize();
         REPORTER_ASSERT(reporter, kSize*kSize*4 == size);
 
@@ -1722,7 +1722,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GPUMemorySize, reporter, ctxInfo) {
                             kSize*kSize*4*(sampleCount+1) == size);   // explicit resolve buffer
         }
 
-        tex = make_normal_texture(resourceProvider, kNone_GrSurfaceFlags, kSize, kSize, 0);
+        tex = make_normal_texture(resourceProvider, kNone_GrSurfaceFlags, kSize, kSize, 1);
         size = tex->gpuMemorySize();
         REPORTER_ASSERT(reporter, kSize*kSize*4 == size);
     }
@@ -1732,7 +1732,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GPUMemorySize, reporter, ctxInfo) {
     if (context->caps()->mipMapSupport()) {
         sk_sp<GrTextureProxy> proxy;
 
-        proxy = make_mipmap_proxy(proxyProvider, kRenderTarget_GrSurfaceFlag, kSize, kSize, 0);
+        proxy = make_mipmap_proxy(proxyProvider, kRenderTarget_GrSurfaceFlag, kSize, kSize, 1);
         size_t size = proxy->gpuMemorySize();
         REPORTER_ASSERT(reporter, kSize*kSize*4+(kSize*kSize*4)/3 == size);
 
@@ -1747,7 +1747,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GPUMemorySize, reporter, ctxInfo) {
                kSize*kSize*4*(sampleCount+1)+(kSize*kSize*4)/3 == size);  // explicit resolve buffer
         }
 
-        proxy = make_mipmap_proxy(proxyProvider, kNone_GrSurfaceFlags, kSize, kSize, 0);
+        proxy = make_mipmap_proxy(proxyProvider, kNone_GrSurfaceFlags, kSize, kSize, 1);
         size = proxy->gpuMemorySize();
         REPORTER_ASSERT(reporter, kSize*kSize*4+(kSize*kSize*4)/3 == size);
     }

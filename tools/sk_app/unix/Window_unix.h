@@ -26,7 +26,7 @@ public:
                   , fGC(nullptr)
                   , fFBConfig(nullptr)
                   , fVisualInfo(nullptr)
-                  , fMSAASampleCount(0) {}
+                  , fMSAASampleCount(1) {}
     ~Window_unix() override { this->closeWindow(); }
 
     bool initWindow(Display* display);

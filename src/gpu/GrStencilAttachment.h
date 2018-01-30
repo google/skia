@@ -24,7 +24,7 @@ public:
     int width() const { return fWidth; }
     int height() const { return fHeight; }
     int bits() const { return fBits; }
-    int numSamples() const { return fSampleCnt; }
+    int numSamples() const { SkASSERT(fSampleCnt >=1); return fSampleCnt; }
     bool isDirty() const { return fIsDirty; }
 
     void cleared() { fIsDirty = false; }

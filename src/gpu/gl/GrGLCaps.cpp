@@ -1970,10 +1970,14 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
                     int* temp = new int[count];
                     GR_GL_GetInternalformativ(gli, GR_GL_RENDERBUFFER, format, GR_GL_SAMPLES, count,
                                               temp);
+                    // GL has a concept of MSAA rasterization with a single sample but we do not.
+                    while (count && temp[count - 1] == 1) {
+                        --count;
+                    }
                     fConfigTable[i].fColorSampleCounts.setCount(count+1);
-                    // We initialize our supported values with 0 (no msaa) and reverse the order
+                    // We initialize our supported values with 1 (no msaa) and reverse the order
                     // returned by GL so that the array is ascending.
-                    fConfigTable[i].fColorSampleCounts[0] = 0;
+                    fConfigTable[i].fColorSampleCounts[0] = 1;
                     for (int j = 0; j < count; ++j) {
                         fConfigTable[i].fColorSampleCounts[j+1] = temp[count - j - 1];
                     }
@@ -1982,14 +1986,14 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
             } else {
                 // Fake out the table using some semi-standard counts up to the max allowed sample
                 // count.
-                int maxSampleCnt = 0;
+                int maxSampleCnt = 1;
                 if (GrGLCaps::kES_IMG_MsToTexture_MSFBOType == fMSFBOType) {
                     GR_GL_GetIntegerv(gli, GR_GL_MAX_SAMPLES_IMG, &maxSampleCnt);
                 } else if (GrGLCaps::kNone_MSFBOType != fMSFBOType) {
                     GR_GL_GetIntegerv(gli, GR_GL_MAX_SAMPLES, &maxSampleCnt);
                 }
 
-                static constexpr int kDefaultSamples[] = {0, 1, 2, 4, 8};
+                static constexpr int kDefaultSamples[] = {1, 2, 4, 8};
                 int count = SK_ARRAY_COUNT(kDefaultSamples);
                 for (; count > 0; --count) {
                     if (kDefaultSamples[count - 1] <= maxSampleCnt) {
@@ -2000,6 +2004,9 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
                     fConfigTable[i].fColorSampleCounts.append(count, kDefaultSamples);
                 }
             }
+        } else if (ConfigInfo::kRenderable_Flag & fConfigTable[i].fFlags) {
+            fConfigTable[i].fColorSampleCounts.setCount(1);
+            fConfigTable[i].fColorSampleCounts[0] = 1;
         }
     }
 
@@ -2457,9 +2464,14 @@ void GrGLCaps::onApplyOptionsOverrides(const GrContextOptions& options) {
 }
 
 int GrGLCaps::getSampleCount(int requestedCount, GrPixelConfig config) const {
+    requestedCount = SkTMax(1, requestedCount);
     int count = fConfigTable[config].fColorSampleCounts.count();
-    if (!count || !this->isConfigRenderable(config, true)) {
+    if (!count || !this->isConfigRenderable(config, requestedCount > 1)) {
         return 0;
+    }
+
+    if (1 == requestedCount) {
+        return fConfigTable[config].fColorSampleCounts[0] == 1 ? 1 : 0;
     }
 
     for (int i = 0; i < count; ++i) {
@@ -2467,7 +2479,7 @@ int GrGLCaps::getSampleCount(int requestedCount, GrPixelConfig config) const {
             return fConfigTable[config].fColorSampleCounts[i];
         }
     }
-    return fConfigTable[config].fColorSampleCounts[count-1];
+    return 0;
 }
 
 bool validate_sized_format(GrGLenum format, SkColorType ct, GrPixelConfig* config,
