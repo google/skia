@@ -22,6 +22,30 @@
       "revId": "9711b8decf35c1ebe0cc7e21ca138227f2c40829",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "34b4ff36_771eefa4",
+        "filename": "dm/DM.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 906,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-30T13:32:28Z",
+      "side": 1,
+      "message": "Yes, those tests ought to fail if you run them.\n\nThe gray change sounds good to me.",
+      "parentUuid": "3d4ef102_0477ee1e",
+      "range": {
+        "startLine": 904,
+        "startChar": 8,
+        "endLine": 906,
+        "endChar": 62
+      },
+      "revId": "9711b8decf35c1ebe0cc7e21ca138227f2c40829",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
