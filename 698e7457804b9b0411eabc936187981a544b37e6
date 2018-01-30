@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e2144007_3a5b53ed",
+        "filename": "src/core/SkRegion_path.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 321,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2018-01-30T16:00:05Z",
+      "side": 1,
+      "message": "does SK_ScalarInfinity cause a problem if it is fRight? Is it because width() needs to be finite also, or does something else fall apart? If fLeft is -SK_ScalarMax and fRight is SK_ScalarMax (and therefore width() is presumably SK_ScalarInfinity) does that cause a problem?",
+      "revId": "698e7457804b9b0411eabc936187981a544b37e6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
