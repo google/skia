@@ -16,6 +16,24 @@
       "revId": "c40b31bc9fea92048ca263e7bfba508595e865fc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "52454569_92db6ecc",
+        "filename": "tools/skqp/generate_gn_args",
+        "patchSetId": 1
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-01-30T18:34:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b874d3a3_8ad089cd",
+      "revId": "c40b31bc9fea92048ca263e7bfba508595e865fc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
