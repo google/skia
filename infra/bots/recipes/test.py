@@ -709,6 +709,10 @@ def dm_flags(api, bot):
   if 'PowerVRGX6250' in bot:
     match.append('~gradients_view_perspective_nodither') #skia:6972
 
+  if '-arm-' in bot and 'ASAN' in bot:
+    # TODO: can we run with env allocator_may_return_null=1 instead?
+    match.append('~BadImage')
+
   if blacklisted:
     args.append('--blacklist')
     args.extend(blacklisted)
@@ -912,8 +916,8 @@ TEST_BUILDERS = [
   'Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-All-Android',
   'Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-All-Android_CCPR',
   'Test-Android-Clang-Nexus5-GPU-Adreno330-arm-Release-All-Android',
-  ('Test-Android-Clang-Nexus5x-GPU-Adreno418-arm64-Debug-All'
-   '-Android_ASAN'),
+  'Test-Android-Clang-Nexus5x-GPU-Adreno418-arm-Debug-All-Android_ASAN',
+  'Test-Android-Clang-Nexus5x-GPU-Adreno418-arm64-Debug-All-Android_ASAN',
   ('Test-Android-Clang-Nexus5x-GPU-Adreno418-arm64-Debug-All'
    '-Android_NoGPUThreads'),
   'Test-Android-Clang-Nexus7-CPU-Tegra3-arm-Release-All-Android',
