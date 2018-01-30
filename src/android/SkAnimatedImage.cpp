@@ -58,9 +58,6 @@ sk_sp<SkAnimatedImage> SkAnimatedImage::Make(std::unique_ptr<SkAndroidCodec> cod
     return image;
 }
 
-// Sentinel value for starting at the beginning.
-static constexpr double kInit = -1.0;
-
 SkAnimatedImage::SkAnimatedImage(std::unique_ptr<SkAndroidCodec> codec, SkISize scaledSize,
         SkImageInfo decodeInfo, SkIRect cropRect, sk_sp<SkPicture> postProcess)
     : fCodec(std::move(codec))
@@ -72,9 +69,6 @@ SkAnimatedImage::SkAnimatedImage(std::unique_ptr<SkAndroidCodec> codec, SkISize 
     , fSimple(fScaledSize == fDecodeInfo.dimensions() && !fPostProcess
               && fCropRect == fDecodeInfo.bounds())
     , fFinished(false)
-    , fRunning(false)
-    , fNowMS(kInit)
-    , fRemainingMS(kInit)
     , fRepetitionCount(fCodec->codec()->getRepetitionCount())
     , fRepetitionsCompleted(0)
 {
@@ -88,7 +82,7 @@ SkAnimatedImage::SkAnimatedImage(std::unique_ptr<SkAndroidCodec> codec, SkISize 
         float scaleY = (float) fScaledSize.height() / fDecodeInfo.height();
         fMatrix.preConcat(SkMatrix::MakeScale(scaleX, scaleY));
     }
-    this->update(kInit);
+    this->decodeNextFrame();
 }
 
 SkAnimatedImage::~SkAnimatedImage() { }
@@ -114,21 +108,22 @@ bool SkAnimatedImage::Frame::copyTo(Frame* dst) const {
     return true;
 }
 
-void SkAnimatedImage::start() {
-    fRunning = true;
-    if (fFinished) {
-        this->reset();
-    }
-}
-
-void SkAnimatedImage::stop() {
-    fRunning = false;
-}
-
 void SkAnimatedImage::reset() {
     fFinished = false;
     fRepetitionsCompleted = 0;
-    this->update(kInit);
+    if (fActiveFrame.fIndex == 0) {
+        // Already showing the first frame.
+        return;
+    }
+
+    if (fRestoreFrame.fIndex == 0) {
+        SkTSwap(fActiveFrame, fRestoreFrame);
+        // Now we're showing the first frame.
+        return;
+    }
+
+    fActiveFrame.fIndex = SkCodec::kNone;
+    this->decodeNextFrame();
 }
 
 static bool is_restore_previous(SkCodecAnimation::DisposalMethod dispose) {
@@ -155,40 +150,17 @@ int SkAnimatedImage::computeNextFrame(int current, bool* animationEnded) {
 
 double SkAnimatedImage::finish() {
     fFinished = true;
-    fRunning = false;
-    return kNotRunning;
+    fCurrentFrameDuration = kFinished;
+    return kFinished;
 }
 
-double SkAnimatedImage::update(double msecs) {
+int SkAnimatedImage::decodeNextFrame() {
     if (fFinished) {
-        return kNotRunning;
+        return kFinished;
     }
-
-    const double lastUpdateMS = fNowMS;
-    fNowMS = msecs;
-    const double msSinceLastUpdate = fNowMS - lastUpdateMS;
 
     bool animationEnded = false;
-    int frameToDecode = SkCodec::kNone;
-    if (kInit == msecs) {
-        frameToDecode = 0;
-        fNowMS = lastUpdateMS;
-    } else {
-        if (!fRunning) {
-            return kNotRunning;
-        }
-
-        if (lastUpdateMS == kInit) {
-            return fRemainingMS + fNowMS;
-        }
-
-        if (msSinceLastUpdate < fRemainingMS) {
-            fRemainingMS -= msSinceLastUpdate;
-            return fRemainingMS + fNowMS;
-        } else {
-            frameToDecode = this->computeNextFrame(fActiveFrame.fIndex, &animationEnded);
-        }
-    }
+    int frameToDecode = this->computeNextFrame(fActiveFrame.fIndex, &animationEnded);
 
     SkCodec::FrameInfo frameInfo;
     if (fCodec->codec()->getFrameInfo(frameToDecode, &frameInfo)) {
@@ -197,28 +169,7 @@ double SkAnimatedImage::update(double msecs) {
             return this->finish();
         }
 
-        if (kInit == msecs) {
-            fRemainingMS = frameInfo.fDuration;
-        } else {
-            // Check to see whether we should skip this frame.
-            double pastUpdate = msSinceLastUpdate - fRemainingMS;
-            while (pastUpdate >= frameInfo.fDuration) {
-                SkCodecPrintf("Skipping frame %i\n", frameToDecode);
-                pastUpdate -= frameInfo.fDuration;
-                frameToDecode = computeNextFrame(frameToDecode, &animationEnded);
-                if (!fCodec->codec()->getFrameInfo(frameToDecode, &frameInfo)) {
-                    SkCodecPrintf("Could not getFrameInfo for frame %i",
-                                  frameToDecode);
-                    // Prior call to getFrameInfo succeeded, so use that one.
-                    frameToDecode--;
-                    animationEnded = true;
-                    if (frameToDecode < 0) {
-                        return this->finish();
-                    }
-                }
-            }
-            fRemainingMS = frameInfo.fDuration - pastUpdate;
-        }
+        fCurrentFrameDuration = frameInfo.fDuration;
     } else {
         animationEnded = true;
         if (0 == frameToDecode) {
@@ -228,6 +179,7 @@ double SkAnimatedImage::update(double msecs) {
             // These fields won't be read.
             frameInfo.fDuration = INT_MAX;
             frameInfo.fFullyReceived = true;
+            fCurrentFrameDuration = kFinished;
         } else {
             SkCodecPrintf("Error getting frameInfo for frame %i\n",
                           frameToDecode);
@@ -239,7 +191,7 @@ double SkAnimatedImage::update(double msecs) {
         if (animationEnded) {
             return this->finish();
         }
-        return fRemainingMS + fNowMS;
+        return fCurrentFrameDuration;
     }
 
     if (frameToDecode == fRestoreFrame.fIndex) {
@@ -247,7 +199,7 @@ double SkAnimatedImage::update(double msecs) {
         if (animationEnded) {
             return this->finish();
         }
-        return fRemainingMS + fNowMS;
+        return fCurrentFrameDuration;
     }
 
     // The following code makes an effort to avoid overwriting a frame that will
@@ -319,7 +271,7 @@ double SkAnimatedImage::update(double msecs) {
     if (animationEnded) {
         return this->finish();
     }
-    return fRemainingMS + fNowMS;
+    return fCurrentFrameDuration;
 }
 
 void SkAnimatedImage::onDraw(SkCanvas* canvas) {
