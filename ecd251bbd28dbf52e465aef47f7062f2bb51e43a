@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a942d20_aee7c64c",
+        "filename": "infra/bots/recipe_modules/flavor/gn_android_flavor.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 379,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-01-30T13:19:12Z",
+      "side": 1,
+      "message": "Add a comment \"ARM ASAN is not supported below ndk 21\"",
+      "revId": "ecd251bbd28dbf52e465aef47f7062f2bb51e43a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
