@@ -52,6 +52,24 @@
       "revId": "eec9ad27e80d624794a68d2753cd9e8aec1e8111",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "20482636_296fcb5f",
+        "filename": "src/core/SkRectPriv.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-01-30T20:32:55Z",
+      "side": 1,
+      "message": "here goes nothing",
+      "parentUuid": "aa0d37c5_f0ded765",
+      "revId": "eec9ad27e80d624794a68d2753cd9e8aec1e8111",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
