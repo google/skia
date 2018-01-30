@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3777d6dc_17db82e8",
+        "filename": "src/sksl/ir/SkSLLayout.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-01-30T03:42:10Z",
+      "side": 0,
+      "message": "I actually need rg16f -  do we want to be comprehensive about this list? Or only add them as needed?",
+      "revId": "8d45a38abb388b6fff4eb4bd63889a3127998a00",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
