@@ -43,7 +43,7 @@ public:
         append_index_uv_varyings(args, btgp.inTextureCoords()->fName, atlasSizeInvName,
                                  &uv, &texIdx, nullptr);
 
-        GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
+        GrGLSLPPFragmentBuilder* fragBuilder = args.fFragBuilder;
         // Setup pass through color
         if (btgp.hasVertexColor()) {
             varyingHandler->addPassThroughAttribute(btgp.inColor(), args.fOutputColor);

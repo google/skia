@@ -36,7 +36,7 @@ SkMatrix GrGLSLPrimitiveProcessor::GetTransformMatrix(const SkMatrix& localMatri
     return combined;
 }
 
-void GrGLSLPrimitiveProcessor::setupUniformColor(GrGLSLFragmentBuilder* fragBuilder,
+void GrGLSLPrimitiveProcessor::setupUniformColor(GrGLSLPPFragmentBuilder* fragBuilder,
                                                  GrGLSLUniformHandler* uniformHandler,
                                                  const char* outputName,
                                                  UniformHandle* colorUniform) {

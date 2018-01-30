@@ -360,13 +360,16 @@ bool GrGLSLProgramBuilder::checkSamplerCounts() {
 
 #ifdef SK_DEBUG
 void GrGLSLProgramBuilder::verify(const GrPrimitiveProcessor& gp) {
+    SkASSERT(fFS.usedProcessorFeatures() == gp.requiredFeatures());
 }
 
 void GrGLSLProgramBuilder::verify(const GrXferProcessor& xp) {
+    SkASSERT(fFS.usedProcessorFeatures() == xp.requiredFeatures());
     SkASSERT(fFS.hasReadDstColor() == xp.willReadDstColor());
 }
 
 void GrGLSLProgramBuilder::verify(const GrFragmentProcessor& fp) {
+    SkASSERT(fFS.usedProcessorFeatures() == fp.requiredFeatures());
 }
 #endif
 
