@@ -149,6 +149,7 @@ improve performance. Matrix is not thread safe unless getType is called first.
 
 #Method static SkMatrix SK_WARN_UNUSED_RESULT MakeScale(SkScalar sx, SkScalar sy)
 
+#Line # Constructs from scale in x and y. ##
 Sets Matrix to scale by (sx, sy). Returned matrix is:
 
 #Code
@@ -204,6 +205,7 @@ canvas->drawBitmap(source, 0, 0);
 
 #Method static SkMatrix SK_WARN_UNUSED_RESULT MakeTrans(SkScalar dx, SkScalar dy)
 
+#Line # Constructs from translate in x and y. ##
 Sets Matrix to translate by (dx, dy). Returned matrix is:
 
 #Code
@@ -236,6 +238,7 @@ for (int i = 0; i < 4; ++i) {
 #Method static SkMatrix SK_WARN_UNUSED_RESULT MakeAll(SkScalar scaleX, SkScalar skewX,  SkScalar transX,
                                                       SkScalar skewY,  SkScalar scaleY, SkScalar transY,
                                                       SkScalar pers0, SkScalar pers1, SkScalar pers2)
+#Line # Constructs all nine values. ##
 
 
 Sets Matrix to:
@@ -350,6 +353,7 @@ after setPolyToPoly: kTranslate_Mask kScale_Mask kAffine_Mask kPerspective_Mask
 
 #Method TypeMask getType() const
 
+#Line # Returns transform complexity. ##
 Returns a bit field describing the transformations the matrix may
 perform. The bit field is computed conservatively, so it may include
 false positives. For example, when kPerspective_Mask is set, all
@@ -379,6 +383,7 @@ set all  flags hex: f decimal: 15
 
 #Method bool isIdentity() const
 
+#Line # Returns if matrix equals the identity Matrix . ##
 Returns true if Matrix is identity.  Identity matrix is:
 
 #Code
@@ -410,6 +415,7 @@ is identity: false
 
 #Method bool isScaleTranslate() const
 
+#Line # Returns if transform is limited to scale and translate. ##
 Returns true if Matrix at most scales and translates. Matrix may be identity,
 contain only scale elements, only translate elements, or both. Matrix form is:
 
@@ -446,6 +452,7 @@ is scale-translate: true
 
 #Method bool isTranslate() const
 
+#Line # Returns if transform is limited to translate. ##
 Returns true if Matrix is identity, or translates. Matrix form is:
 
 #Code
@@ -481,6 +488,7 @@ is translate: false
 
 #Method bool rectStaysRect() const
 
+#Line # Returns if mapped Rect can be represented by another Rect. ##
 Returns true Matrix maps Rect to another Rect. If true, Matrix is identity,
 or scales, or rotates a multiple of 90 degrees, or mirrors in x or y. In all
 cases, Matrix may also have translation. Matrix form is either:
@@ -530,6 +538,7 @@ rectStaysRect: true
 
 #Method bool preservesAxisAlignment() const
 
+#Line # Returns if mapping restricts to 90 degree multiples and mirroring. ##
 
 Returns true Matrix maps Rect to another Rect. If true, Matrix is identity,
 or scales, or rotates a multiple of 90 degrees, or mirrors in x or y. In all
@@ -580,6 +589,7 @@ preservesAxisAlignment: true
 
 #Method bool hasPerspective() const
 
+#Line # Returns if transform includes perspective. ##
 Returns true if the matrix contains perspective elements. Matrix form is:
 
 #Code
@@ -618,6 +628,7 @@ canvas->drawString(string, 0, source.bounds().height() + 48, paint);
 
 #Method bool isSimilarity(SkScalar tol = SK_ScalarNearlyZero) const
 
+#Line # Returns if transform is limited to square scale and rotation. ##
 Returns true if Matrix contains only translation, rotation, reflection, and
 uniform scale.
 Returns false if Matrix contains different scales, skewing, perspective, or
@@ -669,6 +680,7 @@ with isSimilarity false reveals the pair not visible through the matrix.
 
 #Method bool preservesRightAngles(SkScalar tol = SK_ScalarNearlyZero) const
 
+#Line # Returns if mapped 90 angle remains 90 degrees. ##
 Returns true if Matrix contains only translation, rotation, reflection, and
 scale. Scale may differ along rotated axes.
 Returns false if Matrix skewing, perspective, or degenerate forms that collapse 
@@ -834,6 +846,7 @@ vertical translation
 
 #Method SkScalar operator[](int index)_const
 
+#Line # Returns Matrix value. ##
 Returns one matrix value. Asserts if index is out of range and SK_DEBUG is
 defined.
 
@@ -862,6 +875,7 @@ matrix[SkMatrix::kMScaleY] == 24
 
 #Method SkScalar get(int index) const
 
+#Line # Returns one of nine Matrix values. ##
 Returns one matrix value. Asserts if index is out of range and SK_DEBUG is
 defined.
 
@@ -892,6 +906,7 @@ matrix.get(SkMatrix::kMSkewY) == 24
 
 #Method SkScalar getScaleX() const
 
+#Line # Returns horizontal scale factor. ##
 Returns scale factor multiplied by x input, contributing to x output.
 With mapPoints, scales Points along the x-axis.
 
@@ -914,6 +929,7 @@ matrix.getScaleX() == 42
 
 #Method SkScalar getScaleY() const
 
+#Line # Returns vertical scale factor. ##
 Returns scale factor multiplied by y input, contributing to y output.
 With mapPoints, scales Points along the y-axis.
 
@@ -936,6 +952,7 @@ matrix.getScaleY() == 24
 
 #Method SkScalar getSkewY() const
 
+#Line # Returns vertical skew factor. ##
 Returns scale factor multiplied by x input, contributing to y output.
 With mapPoints, skews Points along the y-axis.
 Skew x and y together can rotate Points.
@@ -959,6 +976,7 @@ matrix.getSkewY() == 24
 
 #Method SkScalar getSkewX() const
 
+#Line # Returns horizontal skew factor. ##
 Returns scale factor multiplied by y input, contributing to x output.
 With mapPoints, skews Points along the x-axis.
 Skew x and y together can rotate Points.
@@ -982,6 +1000,7 @@ matrix.getSkewX() == 42
 
 #Method SkScalar getTranslateX() const
 
+#Line # Returns horizontal translation. ##
 Returns translation contributing to x output.
 With mapPoints, moves Points along the x-axis.
 
@@ -1004,6 +1023,7 @@ matrix.getTranslateX() == 42
 
 #Method SkScalar getTranslateY() const
 
+#Line # Returns vertical translation. ##
 Returns translation contributing to y output.
 With mapPoints, moves Points along the y-axis.
 
@@ -1026,6 +1046,7 @@ matrix.getTranslateY() == 24
 
 #Method SkScalar getPerspX() const
 
+#Line # Returns input x perspective factor. ##
 Returns factor scaling input x relative to input y. 
 
 #Return  input x perspective factor ##
@@ -1056,6 +1077,7 @@ Returns factor scaling input x relative to input y.
 
 #Method SkScalar getPerspY() const
 
+#Line # Returns input y perspective factor. ##
 
 Returns factor scaling input y relative to input x. 
 
@@ -1087,6 +1109,7 @@ Returns factor scaling input y relative to input x.
 
 #Method SkScalar& operator[](int index)
 
+#Line # Returns writable reference to Matrix value. ##
 Returns writable Matrix value. Asserts if index is out of range and SK_DEBUG is
 defined. Clears internal cache anticipating that caller will change Matrix value.
 
@@ -1126,6 +1149,7 @@ after dirty cache:    x = 66
 
 #Method void set(int index, SkScalar value)
 
+#Line # Sets one value. ##
 Sets Matrix value. Asserts if index is out of range and SK_DEBUG is
 defined. Safer than operator[]; internal cache is always maintained.
 
@@ -1157,6 +1181,7 @@ after 2nd skew x mod: x = 66
 
 #Method void setScaleX(SkScalar v)
 
+#Line # Sets horizontal scale factor. ##
 Sets horizontal scale factor. 
 
 #Param v  horizontal scale factor to store ##
@@ -1182,6 +1207,7 @@ canvas->drawString("x scale", 0, 48, paint);
 
 #Method void setScaleY(SkScalar v)
 
+#Line # Sets vertical scale factor ##
 Sets vertical scale factor. 
 
 #Param v  vertical scale factor to store ##
@@ -1207,6 +1233,7 @@ canvas->drawString("y scale", 12, 48, paint);
 
 #Method void setSkewY(SkScalar v)
 
+#Line # Sets vertical skew factor. ##
 Sets vertical skew factor. 
 
 #Param v  vertical skew factor to store ##
@@ -1232,6 +1259,7 @@ canvas->drawString("y skew", 12, 48, paint);
 
 #Method void setSkewX(SkScalar v)
 
+#Line # Sets horizontal skew factor. ##
 Sets horizontal skew factor. 
 
 #Param v  horizontal skew factor to store ##
@@ -1257,6 +1285,7 @@ canvas->drawString("x skew", 36, 48, paint);
 
 #Method void setTranslateX(SkScalar v)
 
+#Line # Sets horizontal translation. ##
 Sets horizontal translation.
 
 #Param v  horizontal translation to store ##
@@ -1282,6 +1311,7 @@ canvas->drawString("x translate", 8, 24, paint);
 
 #Method void setTranslateY(SkScalar v)
 
+#Line # Sets vertical translation. ##
 Sets vertical translation.
 
 #Param v  vertical translation to store ##
@@ -1307,6 +1337,7 @@ canvas->drawString("y translate", 8, 24, paint);
 
 #Method void setPerspX(SkScalar v)
 
+#Line # Sets input x perspective factor. ##
 Sets input x perspective factor, which causes mapXY to vary input x inversely
 proportional to input y.
 
@@ -1334,6 +1365,7 @@ for (SkScalar perspX : { -.003f, 0.f, .003f, .012f } ) {
 
 #Method void setPerspY(SkScalar v)
 
+#Line # Sets input y perspective factor. ##
 Sets input y perspective factor, which causes mapXY to vary input y inversely
 proportional to input x.
 
@@ -1362,6 +1394,7 @@ for (SkScalar perspX : { -.003f, 0.f, .003f, .012f } ) {
 #Method void setAll(SkScalar scaleX, SkScalar skewX,  SkScalar transX,
                 SkScalar skewY,  SkScalar scaleY, SkScalar transY,
                 SkScalar persp0, SkScalar persp1, SkScalar persp2)
+#Line # Sets all values from parameters. ##
 
 Sets all values from parameters. Sets matrix to:
 
@@ -1406,6 +1439,7 @@ Sets all values from parameters. Sets matrix to:
 
 #Method void get9(SkScalar buffer[9]) const
 
+#Line # Returns all nine Matrix values. ##
 Copies nine Scalar values contained by Matrix into buffer, in member value
 ascending order: kMScaleX, kMSkewX, kMTransX, kMSkewY, kMScaleY, kMTransY,
 kMPersp0, kMPersp1, kMPersp2.
@@ -1434,6 +1468,7 @@ SkDebugf("{%g, %g, %g},\n{%g, %g, %g},\n{%g, %g, %g}\n", b[0], b[1], b[2],
 
 #Method void set9(const SkScalar buffer[9])
 
+#Line # Sets all values from Scalar array. ##
 Sets Matrix to nine Scalar values in buffer, in member value ascending order:
 kMScaleX, kMSkewX, kMTransX, kMSkewY, kMScaleY, kMTransY, kMPersp0, kMPersp1,
 kMPersp2.
@@ -1470,6 +1505,7 @@ canvas->drawBitmap(source, 0, 0);
 
 #Method void reset()
 
+#Line # Sets Matrix to identity. ##
 Sets Matrix to identity; which has no effect on mapped Points. Sets Matrix to:
 
 #Code
@@ -1499,6 +1535,7 @@ m.isIdentity(): true
 
 #Method void setIdentity()
 
+#Line # Sets Matrix to identity. ##
 Sets Matrix to identity; which has no effect on mapped Points. Sets Matrix to:
 
 #Code
@@ -1528,6 +1565,7 @@ m.isIdentity(): true
 
 #Method void setTranslate(SkScalar dx, SkScalar dy)
 
+#Line # Sets to translate in x and y. ##
 Sets Matrix to translate by (dx, dy).
 
 #Param dx  horizontal translation ##
@@ -1577,6 +1615,7 @@ canvas->drawString("translate", 8, 24, paint);
 
 #Method void setScale(SkScalar sx, SkScalar sy, SkScalar px, SkScalar py)
 
+#Line # Sets to scale about a point. ##
 Sets Matrix to scale by sx and sy, about a pivot point at (px, py).
 The pivot point is unchanged when mapped with Matrix.
 
@@ -1639,6 +1678,7 @@ Sets Matrix to scale by sx and sy about at pivot point at (0, 0).
 
 #Method void setRotate(SkScalar degrees, SkScalar px, SkScalar py)
 
+#Line # Sets to rotate about a point. ##
 Sets Matrix to rotate by degrees about a pivot point at (px, py).
 The pivot point is unchanged when mapped with Matrix.
 
@@ -1699,6 +1739,7 @@ Positive degrees rotates clockwise.
 
 #Method void setSinCos(SkScalar sinValue, SkScalar cosValue,
                    SkScalar px, SkScalar py)
+#Line # Sets to rotate and scale about a point. ##
 
 Sets Matrix to rotate by sinValue and cosValue, about a pivot point at (px, py). 
 The pivot point is unchanged when mapped with Matrix.
@@ -1768,6 +1809,7 @@ Canvas needs offset after applying Matrix to pivot about Rect center.
 
 #Method SkMatrix& setRSXform(const SkRSXform& rsxForm)
 
+#Line # Sets to rotate, scale, and translate. ##
 Sets Matrix to rotate, scale, and translate using a compressed matrix form.
 
 Vector (rsxForm.fSSin, rsxForm.fSCos) describes the angle of rotation relative
@@ -1804,6 +1846,7 @@ Canvas needs offset after applying Matrix to pivot about Rect center.
 
 #Method void setSkew(SkScalar kx, SkScalar ky, SkScalar px, SkScalar py)
 
+#Line # Sets to skew about a point. ##
 Sets Matrix to skew by kx and ky, about a pivot point at (px, py).
 The pivot point is unchanged when mapped with Matrix.
 
@@ -1864,6 +1907,7 @@ Sets Matrix to skew by kx and ky, about a pivot point at (0, 0).
 
 #Method void setConcat(const SkMatrix& a, const SkMatrix& b)
 
+#Line # Sets to Matrix parameter multiplied by Matrix parameter. ##
 Sets Matrix to Matrix a multiplied by Matrix b. Either a or b may be this.
 
 Given:
@@ -1911,6 +1955,7 @@ canvas->drawBitmap(source, 0, 0);
 
 #Method void preTranslate(SkScalar dx, SkScalar dy)
 
+#Line # Pre-multiplies Matrix by translation. ##
 Sets Matrix to Matrix multiplied by Matrix constructed from translation (dx, dy).
 This can be thought of as moving the point to be mapped before applying Matrix.
 
@@ -1967,6 +2012,7 @@ Matrix * T(dx, dy) = | D E F | | 0 1 dy | = | D E D*dx+E*dy+F |
 
 #Method void preScale(SkScalar sx, SkScalar sy, SkScalar px, SkScalar py)
 
+#Line # Pre-multiplies Matrix by scale. ##
 Sets Matrix to Matrix multiplied by Matrix constructed from scaling by (sx, sy)
 about pivot point (px, py).
 This can be thought of as scaling about a pivot point before applying Matrix.
@@ -2065,6 +2111,7 @@ canvas->drawBitmap(source, 0, 0);
 
 #Method void preRotate(SkScalar degrees, SkScalar px, SkScalar py)
 
+#Line # Pre-multiplies Matrix by rotation. ##
 Sets Matrix to Matrix multiplied by Matrix constructed from rotating by degrees
 about pivot point (px, py).
 This can be thought of as rotating about a pivot point before applying Matrix.
@@ -2175,6 +2222,7 @@ canvas->drawBitmap(source, 0, 0);
 
 #Method void preSkew(SkScalar kx, SkScalar ky, SkScalar px, SkScalar py)
 
+#Line # Pre-multiplies Matrix by skew. ##
 Sets Matrix to Matrix multiplied by Matrix constructed from skewing by (kx, ky)
 about pivot point (px, py).
 This can be thought of as skewing about a pivot point before applying Matrix.
@@ -2273,6 +2321,7 @@ canvas->drawBitmap(source, 0, 0);
 
 #Method void preConcat(const SkMatrix& other)
 
+#Line # Pre-multiplies Matrix by Matrix parameter. ##
 Sets Matrix to Matrix multiplied by Matrix other.
 This can be thought of mapping by other before applying Matrix.
 
@@ -2320,6 +2369,7 @@ canvas->drawBitmap(source, 0, 0);
 
 #Method void postTranslate(SkScalar dx, SkScalar dy)
 
+#Line # Post-multiplies Matrix by translation. ##
 Sets Matrix to Matrix constructed from translation (dx, dy) multiplied by Matrix.
 This can be thought of as moving the point to be mapped after applying Matrix.
 
@@ -2379,6 +2429,7 @@ Compare with preTranslate example.
 
 #Method void postScale(SkScalar sx, SkScalar sy, SkScalar px, SkScalar py)
 
+#Line # Post-multiplies Matrix by scale. ##
 Sets Matrix to Matrix constructed from scaling by (sx, sy) about pivot point
 (px, py), multiplied by Matrix.
 This can be thought of as scaling about a pivot point after applying Matrix.
@@ -2477,6 +2528,7 @@ canvas->drawBitmap(source, 0, 0);
 
 #Method bool postIDiv(int divx, int divy)
 
+#Line # Post-multiplies Matrix by inverse scale. ##
 Sets Matrix to Matrix constructed from scaling by
 #Formula
 (1/divx, 1/divy)
@@ -2535,6 +2587,7 @@ canvas->drawBitmap(source, 0, 0);
 
 #Method void postRotate(SkScalar degrees, SkScalar px, SkScalar py)
 
+#Line # Post-multiplies Matrix by rotation. ##
 Sets Matrix to Matrix constructed from rotating by degrees about pivot point
 (px, py), multiplied by Matrix.
 This can be thought of as rotating about a pivot point after applying Matrix.
@@ -2645,6 +2698,7 @@ canvas->drawBitmap(source, 0, 0);
 
 #Method void postSkew(SkScalar kx, SkScalar ky, SkScalar px, SkScalar py)
 
+#Line # Post-multiplies Matrix by skew. ##
 Sets Matrix to Matrix constructed from skewing by (kx, ky) about pivot point
 (px, py), multiplied by Matrix.
 This can be thought of as skewing about a pivot point after applying Matrix.
@@ -2743,6 +2797,7 @@ canvas->drawBitmap(source, 0, 0);
 
 #Method void postConcat(const SkMatrix& other)
 
+#Line # Post-multiplies Matrix by Matrix parameter. ##
 Sets Matrix to Matrix other multiplied by Matrix.
 This can be thought of mapping by other after applying Matrix.
 
@@ -2853,6 +2908,7 @@ how Matrix maps to the side or center of the destination Rect.
 
 #Method bool setRectToRect(const SkRect& src, const SkRect& dst, ScaleToFit stf)
 
+#Line # Sets to map one Rect to another. ##
 Sets Matrix to scale and translate src Rect to dst Rect. stf selects whether
 mapping completely fills dst or preserves the aspect ratio, and how to align
 src within dst. Returns false if src is empty, and sets Matrix to identity.
@@ -2907,6 +2963,7 @@ src: 1, 2, 3, 4  dst: 5, 6, 8, 9  success: true
 
 #Method static SkMatrix MakeRectToRect(const SkRect& src, const SkRect& dst, ScaleToFit stf)
 
+#Line # Constructs from source Rect to destination Rect. ##
 Returns Matrix set to scale and translate src Rect to dst Rect. stf selects
 whether mapping completely fills dst or preserves the aspect ratio, and how to
 align src within dst. Returns the identity Matrix if src is empty. If dst is
@@ -2959,6 +3016,7 @@ src: 1, 2, 3, 4  dst: 5, 6, 8, 9
 
 #Method bool setPolyToPoly(const SkPoint src[], const SkPoint dst[], int count)
 
+#Line # Sets to map one to four points to an equal array of points. ##
 Sets Matrix to map src to dst. count must be zero or greater, and four or less.
 
 If count is zero, sets Matrix to identity and returns true.
@@ -3009,6 +3067,7 @@ perspective.
 
 #Method bool SK_WARN_UNUSED_RESULT invert(SkMatrix* inverse) const
 
+#Line # Returns inverse, if possible. ##
 Sets inverse to reciprocal matrix, returning true if Matrix can be inverted.
 Geometrically, if Matrix maps from source to destination, inverse Matrix
 maps from destination to source. If Matrix can not be inverted, inverse is
@@ -3045,6 +3104,7 @@ unchanged.
 
 #Method static void SetAffineIdentity(SkScalar affine[6])
 
+#Line # Sets 3x2 array to identity. ##
 Fills affine with identity values in column major order.
 Sets affine to:
 
@@ -3079,6 +3139,7 @@ ScaleX: 1 SkewY: 0 SkewX: 0 ScaleY: 1 TransX: 0 TransY: 0
 
 #Method bool SK_WARN_UNUSED_RESULT asAffine(SkScalar affine[6]) const
 
+#Line # Copies to 3x2 array. ##
 Fills affine in column major order. Sets affine to:
 
 #Code
@@ -3116,6 +3177,7 @@ ScaleX: 2 SkewY: 5 SkewX: 3 ScaleY: 6 TransX: 4 TransY: 7
 
 #Method void setAffine(const SkScalar affine[6])
 
+#Line # Sets left two columns. ##
 Sets Matrix to affine values, passed in column major order. Given affine,
 column, then row, as:
 
@@ -3163,6 +3225,7 @@ ScaleX: 2 SkewY: 5 SkewX: 3 ScaleY: 6 TransX: 4 TransY: 7
 
 #Method void mapPoints(SkPoint dst[], const SkPoint src[], int count) const
 
+#Line # Maps Point array. ##
 Maps src Point array of length count to dst Point array of equal or greater
 length. Points are mapped by multiplying each Point by Matrix. Given:
 
@@ -3276,6 +3339,7 @@ Matrix * pt = |D E F| |y| = |Ax+By+C Dx+Ey+F Gx+Hy+I| = ------- , -------
 
 #Method void mapHomogeneousPoints(SkPoint3 dst[], const SkPoint3 src[], int count) const
 
+#Line # Maps Point3 array. ##
 Maps src Point3 array of length count to dst Point3 array, which must of length count or
 greater. Point3 array is mapped by multiplying each Point3 by Matrix. Given:
 
@@ -3333,6 +3397,7 @@ Matrix * src = |D E F| |y| = |Ax+By+Cz Dx+Ey+Fz Gx+Hy+Iz|
 
 #Method void mapXY(SkScalar x, SkScalar y, SkPoint* result) const
 
+#Line # Maps Point. ##
 Maps Point (x, y) to result. Point is mapped by multiplying by Matrix. Given:
 
 #Code
@@ -3427,6 +3492,7 @@ canvas->drawBitmap(source, 0, 0);
 
 #Method void mapVectors(SkVector dst[], const SkVector src[], int count) const
 
+#Line # Maps Vector array. ##
 Maps src Vector array of length count to Vector Point array of equal or greater
 length. Vectors are mapped by multiplying each Vector by Matrix, treating
 Matrix translation as zero. Given:
@@ -3545,6 +3611,7 @@ Matrix * vec = |D E 0| |y| = |Ax+By Dx+Ey Gx+Hy+I| = ------- , -------
 
 #Method void mapVector(SkScalar dx, SkScalar dy, SkVector* result) const
 
+#Line # Maps Vector. ##
 Maps Vector (x, y) to result. Vector is mapped by multiplying by Matrix,
 treating Matrix translation as zero. Given:
 
@@ -3644,6 +3711,7 @@ Matrix * vec = |D E 0| |dy| = |A*dx+B*dy D*dx+E*dy G*dx+H*dy+I| = ----------- , 
 
 #Method bool mapRect(SkRect* dst, const SkRect& src) const
 
+#Line # Returns bounds of mapped Rect. ##
 Sets dst to bounds of src corners mapped by Matrix.
 Returns true if mapped corners are dst corners.
 
@@ -3707,6 +3775,7 @@ Returned value is the same as calling rectStaysRect.
 
 #Method void mapRectToQuad(SkPoint dst[4], const SkRect& rect) const
 
+#Line # Maps Rect to Point array. ##
 Maps four corners of rect to dst. Points are mapped by multiplying each
 rect corner by Matrix. rect corner is processed in this order:
 (rect.fLeft, rect.fTop), (rect.fRight, rect.fTop), (rect.fRight, rect.fBottom),
@@ -3763,6 +3832,7 @@ Matrix * pt = |D E F| |y| = |Ax+By+C Dx+Ey+F Gx+Hy+I| = ------- , -------
 
 #Method void mapRectScaleTranslate(SkRect* dst, const SkRect& src) const
 
+#Line # Returns bounds of mapped Rect. ##
 Sets dst to bounds of src corners mapped by Matrix. If matrix contains
 elements other than scale or translate: asserts if SK_DEBUG is defined;
 otherwise, results are undefined.
@@ -3791,6 +3861,7 @@ otherwise, results are undefined.
 
 #Method SkScalar mapRadius(SkScalar radius) const
 
+#Line # Returns mean radius of mapped Circle. ##
 Returns geometric mean radius of ellipse formed by constructing Circle of
 size radius, and mapping constructed Circle with Matrix. The result squared is
 equal to the major axis length times the minor axis length.
@@ -3846,6 +3917,7 @@ the area enclosed by the ellipse major and minor axes.
 
 #Method bool isFixedStepInX() const
 
+#Line # Returns if transformation supports fixed step in x. ##
 Returns true if a unit step in x at some y mapped through Matrix can be
 represented by a constant Vector. Returns true if getType returns kIdentity_Mask,
 or combinations of: kTranslate_Mask, kScale_Mask, and kAffine_Mask.
@@ -3894,6 +3966,7 @@ isFixedStepInX: false
 
 #Method SkVector fixedStepInX(SkScalar y) const
 
+#Line # Returns step in x for a position in y. ##
 Returns Vector representing a unit step in x at y mapped through Matrix.
 If isFixedStepInX is false, returned value is undefined.
 
@@ -3933,6 +4006,7 @@ If isFixedStepInX is false, returned value is undefined.
 
 #Method bool cheapEqualTo(const SkMatrix& m) const
 
+#Line # Compares Matrix pair using memcmp(). ##
 Returns true if Matrix equals m, using an efficient comparison.
 
 Returns false when the sign of zero values is the different; when one
@@ -3978,6 +4052,7 @@ both NaN: a != b a.cheapEqualTo(b): true
 
 #Method bool operator==(const SkMatrix& a, const SkMatrix& b)
 
+#Line # Returns true if members are equal. ##
 Compares a and b; returns true if a and b are numerically equal. Returns true
 even if sign of zero values are different. Returns false if either Matrix
 contains NaN, even if the other Matrix also contains NaN.
@@ -4010,6 +4085,7 @@ identity: a == b a.cheapEqualTo(b): true
 
 #Method bool operator!=(const SkMatrix& a, const SkMatrix& b)
 
+#Line # Returns true if members are unequal. ##
 Compares a and b; returns true if a and b are not numerically equal. Returns false
 even if sign of zero values are different. Returns true if either Matrix
 contains NaN, even if the other Matrix also contains NaN.
@@ -4038,6 +4114,7 @@ contains NaN, even if the other Matrix also contains NaN.
 
 #Method void dump() const
 
+#Line # Sends text representation using floats to standard output. ##
 Writes text representation of Matrix to standard output. Floating point values
 are written with limited precision; it may not be possible to reconstruct
 original Matrix from output.
@@ -4065,6 +4142,7 @@ matrix != nearlyEqual
 
 #Method void toString(SkString* str) const
 
+#Line # Converts Matrix to machine readable form. ##
 Creates string representation of Matrix. Floating point values
 are written with limited precision; it may not be possible to reconstruct
 original Matrix from output.
@@ -4097,6 +4175,7 @@ matrix != nearlyEqual
 
 #Method SkScalar getMinScale() const
 
+#Line # Returns minimum scaling, if possible. ##
 Returns the minimum scaling factor of Matrix by decomposing the scaling and
 skewing elements.
 Returns -1 if scale factor overflows or Matrix contains perspective.
@@ -4121,6 +4200,7 @@ matrix.getMinScale() 24
 
 #Method SkScalar getMaxScale() const
 
+#Line # Returns maximum scaling, if possible. ##
 Returns the maximum scaling factor of Matrix by decomposing the scaling and
 skewing elements.
 Returns -1 if scale factor overflows or Matrix contains perspective.
@@ -4145,6 +4225,7 @@ matrix.getMaxScale() 42
 
 #Method bool SK_WARN_UNUSED_RESULT getMinMaxScales(SkScalar scaleFactors[2]) const
 
+#Line # Returns minimum and maximum scaling, if possible. ##
 Sets scaleFactors[0] to the minimum scaling factor, and scaleFactors[1] to the 
 maximum scaling factor. Scaling factors are computed by decomposing
 the Matrix scaling and skewing elements.
@@ -4176,6 +4257,7 @@ matrix.getMinMaxScales() false 2 2
 
 #Method bool decomposeScale(SkSize* scale, SkMatrix* remaining = nullptr) const
 
+#Line # Separates scale if possible. ##
 Decomposes Matrix into scale components and whatever remains. Returns false if
 Matrix could not be decomposed.
 
@@ -4229,6 +4311,7 @@ success: true  scale: 0.5, 0.25
 
 #Method static const SkMatrix& I()
 
+#Line # Returns a reference to a const identity Matrix. ##
 Returns reference to const identity Matrix. Returned Matrix is set to:
 
 #Code
@@ -4261,6 +4344,7 @@ m2 == m3
 
 #Method static const SkMatrix& InvalidMatrix()
 
+#Line # Returns a reference to a const invalid Matrix. ##
 Returns reference to a const Matrix with invalid values. Returned Matrix is set
 to:
 
@@ -4288,6 +4372,7 @@ scaleX 3.40282e+38
 
 #Method static SkMatrix Concat(const SkMatrix& a, const SkMatrix& b)
 
+#Line # Returns the concatenation of Matrix pair. ##
 Returns Matrix a multiplied by Matrix b.
 
 Given:
@@ -4338,6 +4423,7 @@ canvas->drawBitmap(source, 0, 0);
 
 #Method void dirtyMatrixTypeCache()
 
+#Line # Sets internal cache to unknown state. ##
 Sets internal cache to unknown state. Use to force update after repeated 
 modifications to Matrix element reference returned by operator[](int index).
 
@@ -4368,6 +4454,7 @@ after dirty cache:    x = 66
 
 #Method void setScaleTranslate(SkScalar sx, SkScalar sy, SkScalar tx, SkScalar ty)
 
+#Line # Sets to scale and translate. ##
 Initializes Matrix with scale and translate elements.
 
 #Code
@@ -4399,6 +4486,7 @@ matrix.dump();
 
 #Method bool isFinite() const
 
+#Line # Returns if all Matrix values are not infinity, NaN. ##
 Returns true if all elements of the matrix are finite. Returns false if any
 element is infinity, or NaN.
 

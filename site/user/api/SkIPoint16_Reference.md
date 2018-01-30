@@ -4,7 +4,7 @@ SkIPoint16 Reference
 # <a name="IPoint16"></a> IPoint16
 
 # <a name="SkIPoint16"></a> Struct SkIPoint16
-<a href="SkIPoint_Reference#SkIPoint">SkIPoint</a> holds two 16 bit integer coordinates.
+<a href="#SkIPoint16">SkIPoint16</a> holds two 16 bit integer coordinates.
 
 # <a name="Overview"></a> Overview
 

@@ -1851,16 +1851,23 @@ kHigh_SkFilterQuality == paint.getFilterQuality()
 ---
 
 # <a name="Color_Methods"></a> Color Methods
-<a href="undocumented#Color">Color</a> specifies the <a href="#RGB_Red">Color RGB Red</a>, <a href="#RGB_Blue">Color RGB Blue</a>, <a href="#RGB_Green">Color RGB Green</a>, and <a href="#Alpha">Color Alpha</a> values used to draw a filled
-or stroked shape in a
-32-bit value. Each component occupies 8-bits, ranging from zero: no contribution;
-to 255: full intensity. All values in any combination are valid.
 
-<a href="undocumented#Color">Color</a> is not <a href="#Premultiply">Premultiplied</a>;
-<a href="#Alpha">Color Alpha</a> sets the transparency independent of <a href="#RGB">Color RGB</a>: <a href="#RGB_Red">Color RGB Red</a>, <a href="#RGB_Blue">Color RGB Blue</a>, and <a href="#RGB_Green">Color RGB Green</a>.
+| name | description |
+| --- | ---  |
+| <a href="#SkPaint_getColor">getColor</a> | returns <a href="#Alpha">Color Alpha</a> and <a href="#RGB">Color RGB</a>, one drawing color |
+| <a href="#SkPaint_setColor">setColor</a> | sets <a href="#Alpha">Color Alpha</a> and <a href="#RGB">Color RGB</a>, one drawing color |
 
-The bit positions of <a href="#Alpha">Color Alpha</a> and <a href="#RGB">Color RGB</a> are independent of the bit positions
-on the output device, which may have more or fewer bits, and may have a different arrangement.
+<a href="undocumented#Color">Color</a> specifies the <a href="#RGB_Red">Color RGB Red</a>, <a href="#RGB_Blue">Color RGB Blue</a>, <a href="#RGB_Green">Color RGB Green</a>, and <a href="#Alpha">Color Alpha</a>
+values used to draw a filled or stroked shape in a 32-bit value. Each component
+occupies 8-bits, ranging from zero: no contribution; to 255: full intensity.
+All values in any combination are valid.
+
+<a href="undocumented#Color">Color</a> is not <a href="#Premultiply">Premultiplied</a>; <a href="#Alpha">Color Alpha</a> sets the transparency independent of
+<a href="#RGB">Color RGB</a>: <a href="#RGB_Red">Color RGB Red</a>, <a href="#RGB_Blue">Color RGB Blue</a>, and <a href="#RGB_Green">Color RGB Green</a>.
+
+The bit positions of <a href="#Alpha">Color Alpha</a> and <a href="#RGB">Color RGB</a> are independent of the bit
+positions on the output device, which may have more or fewer bits, and may have
+a different arrangement.
 
 | bit positions | <a href="#Alpha">Color Alpha</a> | <a href="#RGB_Red">Color RGB Red</a> | <a href="#RGB_Blue">Color RGB Blue</a> | <a href="#RGB_Green">Color RGB Green</a> |
 | --- | --- | --- | --- | ---  |

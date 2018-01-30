@@ -108,7 +108,9 @@ enum class MarkType {
     kFunction,
     kHeight,
     kImage,
+	kIn,
     kLegend,
+	kLine,
     kLink,
     kList,
     kLiteral,  // don't lookup hyperlinks, do substitution, etc
@@ -832,6 +834,7 @@ public:
     bool hasMatch(const string& name) const;
     const Definition* hasParam(const string& ref) const;
     bool isClone() const { return fClone; }
+    bool isStructOrClass() const;
 
     Definition* iRootParent() {
         Definition* test = fParent;
@@ -871,6 +874,7 @@ public:
     }
 
     virtual RootDefinition* rootParent() { SkASSERT(0); return nullptr; }
+    virtual const RootDefinition* rootParent() const { SkASSERT(0); return nullptr; }
     void setCanonicalFiddle();
 
     void setParentIndex() {
@@ -942,6 +946,7 @@ public:
     const Definition* find(const string& ref, AllowParens ) const;
     bool isRoot() const override { return true; }
     RootDefinition* rootParent() override { return fRootParent; }
+    const RootDefinition* rootParent() const override { return fRootParent; }
     void setRootParent(RootDefinition* rootParent) { fRootParent = rootParent; }
 
     unordered_map<string, RootDefinition*> fBranches;
@@ -1229,7 +1234,11 @@ public:
 , { "Function",    nullptr,      MarkType::kFunction,     R_O, E_N, M(Example) | M(NoExample) }
 , { "Height",      nullptr,      MarkType::kHeight,       R_N, E_N, M(Example) | M(NoExample) }
 , { "Image",       nullptr,      MarkType::kImage,        R_N, E_N, M(Example) | M(NoExample) }
+, { "In",          nullptr,      MarkType::kIn,           R_N, E_N,
+                                                             M_CSST | M_E | M(Method) | M(Typedef) }
 , { "Legend",      nullptr,      MarkType::kLegend,       R_Y, E_N, M(Table) }
+, { "Line",        nullptr,      MarkType::kLine,         R_N, E_N,
+                                                             M_CSST | M_E | M(Method) | M(Typedef) }
 , { "",            nullptr,      MarkType::kLink,         R_N, E_N, M(Anchor) }
 , { "List",        nullptr,      MarkType::kList,         R_Y, E_N, M(Method) | M_CSST | M_E | M_D }
 , { "Literal",     nullptr,      MarkType::kLiteral,      R_N, E_N, M(Code) }
@@ -1253,7 +1262,7 @@ public:
 , { "Subtopic",    nullptr,      MarkType::kSubtopic,     R_Y, E_Y, M_CSST }
 , { "Table",       nullptr,      MarkType::kTable,        R_Y, E_N, M(Method) | M_CSST | M_E }
 , { "Template",    nullptr,      MarkType::kTemplate,     R_Y, E_N, 0 }
-, { "",            nullptr,      MarkType::kText,         R_Y, E_N, 0 }
+, { "",            nullptr,      MarkType::kText,         R_N, E_N, 0 }
 , { "Time",        nullptr,      MarkType::kTime,         R_Y, E_N, M(Track) }
 , { "ToDo",        nullptr,      MarkType::kToDo,         R_N, E_N, 0 }
 , { "Topic",       nullptr,      MarkType::kTopic,        R_Y, E_Y, M_CS | M(Root) | M(Topic) }
@@ -1291,7 +1300,7 @@ public:
     int endHashCount() const;
     bool endTableColumn(const char* end, const char* terminator);
 
-    RootDefinition* findBmhObject(MarkType markType, const string& typeName) {
+    RootDefinition* findBmhObject(MarkType markType, const string& typeName) const {
         auto map = fMaps[(int) markType].fBmh;
         if (!map) {
             return nullptr;
@@ -1334,6 +1343,7 @@ public:
 
     bool skipNoName();
     bool skipToDefinitionEnd(MarkType markType);
+	bool skipToString();
     void spellCheck(const char* match, SkCommandLineFlags::StringArray report) const;
     void spellStatus(const char* match, SkCommandLineFlags::StringArray report) const;
     vector<string> topicName();
@@ -1420,9 +1430,11 @@ public:
         , { nullptr,        MarkType::kFormula }
         , { nullptr,        MarkType::kFunction }
         , { nullptr,        MarkType::kHeight }
-        , { nullptr,        MarkType::kImage }
-        , { nullptr,        MarkType::kLegend }
-        , { nullptr,        MarkType::kLink }
+		, { nullptr,        MarkType::kImage }
+		, { nullptr,        MarkType::kIn }
+		, { nullptr,        MarkType::kLegend }
+		, { nullptr,        MarkType::kLine }
+		, { nullptr,        MarkType::kLink }
         , { nullptr,        MarkType::kList }
         , { nullptr,        MarkType::kLiteral }
         , { nullptr,        MarkType::kMarkChar }
@@ -1962,7 +1974,9 @@ private:
 
 class HackParser : public ParserCommon {
 public:
-    HackParser() : ParserCommon() {
+    HackParser(const BmhParser& bmhParser)
+        : ParserCommon()
+        , fBmhParser(bmhParser) {
         this->reset();
     }
 
@@ -1977,7 +1991,15 @@ public:
         INHERITED::resetCommon();
     }
 
+    string searchTable(const Definition* tableHolder, const Definition* match);
+
+    void topicIter(const Definition* );
+
 private:
+    const BmhParser& fBmhParser;
+    const Definition* fConstructors;
+    const Definition* fOperators;
+    const Definition* fMemberFunctions;
     bool hackFiles();
 
     typedef ParserCommon INHERITED;
@@ -2011,6 +2033,7 @@ private:
     void markTypeOut(Definition* );
     void mdHeaderOut(int depth) { mdHeaderOutLF(depth, 2); }
     void mdHeaderOutLF(int depth, int lf);
+    void overviewOut();
     bool parseFromFile(const char* path) override {
         return true;
     }
@@ -2045,6 +2068,7 @@ private:
     }
 
     void resolveOut(const char* start, const char* end, BmhParser::Resolvable );
+    void subtopicOut(const Definition* subtopic, vector<Definition*>& data);
 
     const BmhParser& fBmhParser;
     const Definition* fEnumClass;

@@ -84,6 +84,7 @@ of the requested dimensions are zero, then nullptr will be returned.
 #Method static sk_sp<SkSurface> MakeRasterDirect(const SkImageInfo& imageInfo, void* pixels,
                                              size_t rowBytes,
                                              const SkSurfaceProps* surfaceProps = nullptr)
+#Line # creates Surface from SkImageInfo and Pixel_Storage ##
 
 Allocates raster Surface. Canvas returned by Surface draws directly into pixels.
 
@@ -146,6 +147,7 @@ void draw(SkCanvas* ) {
                                     size_t rowBytes,
                                     void (*releaseProc)(void* pixels, void* context),
                                     void* context, const SkSurfaceProps* surfaceProps = nullptr)
+#Line # creates Surface from SkImageInfo and Pixel_Storage ##
 
 Allocates raster Surface. Canvas returned by Surface draws directly into pixels.
 releaseProc is called with pixels and context when Surface is deleted.
@@ -220,6 +222,7 @@ expected release context
 
 #Method static sk_sp<SkSurface> MakeRaster(const SkImageInfo& imageInfo, size_t rowBytes,
                                        const SkSurfaceProps* surfaceProps)
+#Line # creates Surface from SkImageInfo ##
 
 Allocates raster Surface. Canvas returned by Surface draws directly into pixels.
 Allocates and zeroes pixel memory. Pixel memory size is imageInfo.height() times
@@ -335,6 +338,7 @@ void draw(SkCanvas* ) {
 
 #Method static sk_sp<SkSurface> MakeRasterN32Premul(int width, int height,
                                                 const SkSurfaceProps* surfaceProps = nullptr)
+#Line # creates Surface from width, height matching output ##
 
 Allocates raster Surface. Canvas returned by Surface draws directly into pixels.
 Allocates and zeroes pixel memory. Pixel memory size is height times width times
@@ -395,6 +399,7 @@ void draw(SkCanvas* ) {
                                                    GrSurfaceOrigin origin, int sampleCnt,
                                                    sk_sp<SkColorSpace> colorSpace,
                                                    const SkSurfaceProps* surfaceProps)
+#Line # creates Surface from GPU-backed texture ##
 
 Wraps a GPU-backed texture into Surface. Caller must ensure the texture is
 valid for the lifetime of returned Surface. If sampleCnt greater than zero,
@@ -512,6 +517,7 @@ If SK_SUPPORT_GPU is defined as zero, has no effect and returns nullptr.
                                                 GrSurfaceOrigin origin,
                                                 sk_sp<SkColorSpace> colorSpace,
                                                 const SkSurfaceProps* surfaceProps)
+#Line # creates Surface from GPU memory buffer ##
 
 Wraps a GPU-backed buffer into Surface. Caller must ensure render target is
 valid for the lifetime of returned Surface.
@@ -626,6 +632,7 @@ If SK_SUPPORT_GPU is defined as zero, has no effect and returns nullptr.
                                                             int sampleCnt,
                                                             sk_sp<SkColorSpace> colorSpace,
                                                             const SkSurfaceProps* surfaceProps)
+#Line # creates Surface from GPU-backed texture ##
 
 Used to wrap a GPU-backed texture as a SkSurface. Skia will treat the texture as
 a rendering target only, but unlike NewFromBackendRenderTarget, Skia will manage and own
@@ -733,6 +740,7 @@ If SK_SUPPORT_GPU is defined as zero, has no effect and returns nullptr.
                                              int sampleCount, GrSurfaceOrigin surfaceOrigin,
                                              const SkSurfaceProps* surfaceProps,
                                              bool shouldCreateWithMips = false)
+#Line # creates Surface pointing to new GPU memory buffer ##
 
 Returns offscreen Surface on GPU indicated by context. Allocates memory for
 pixels, based on the width, height, and Color_Type in ImageInfo.  budgeted
@@ -913,6 +921,7 @@ Surface bottom-left corner is pinned to the origin.
 
 #Method static sk_sp<SkSurface> MakeNull(int width, int height)
 
+#Line # creates Surface without backing pixels ##
 Returns Surface without backing pixels. Drawing to Canvas returned from Surface
 has no effect. Calling makeImageSnapshot() on returned Surface returns nullptr.
 
@@ -945,6 +954,7 @@ surf->makeImageSnapshot() == nullptr
 
 #Method int width() const
 
+#Line # returns pixel column count ##
 Returns pixel count in each row; may be zero or greater.
 
 #Return number of pixel columns ##
@@ -969,6 +979,7 @@ surface width=37  canvas width=37
 
 #Method int height() const
 
+#Line # returns pixel row count ##
 Returns pixel row count; may be zero or greater.
 
 #Return number of pixel rows ##
@@ -993,6 +1004,7 @@ surface height=1000  canvas height=1000
 
 #Method uint32_t generationID()
 
+#Line # returns unique ID ##
 Returns unique value identifying the content of Surface. Returned value changes
 each time the content changes. Content is changed by drawing, or by calling
 notifyContentWillChange.
@@ -1050,6 +1062,7 @@ If a snapshot has been generated, this copies the Surface contents.
 
 #Method void notifyContentWillChange(ContentChangeMode mode)
 
+#Line # notifies that contents will be changed outside of Skia ##
 Notifies that Surface contents will be changed by code outside of Skia.
 Subsequent calls to generationID return a different value.
 
@@ -1159,6 +1172,7 @@ Deprecated.
 
 #Method GrBackendObject getTextureHandle(BackendHandleAccess backendHandleAccess)
 
+#Line # returns the GPU reference to texture ##
 Returns the GPU back-end reference of the texture used by Surface, or zero
 if Surface is not backed by a GPU texture.
 
@@ -1201,6 +1215,7 @@ or when Surface is deleted.
 
 #Method bool getRenderTargetHandle(GrBackendObject* backendObject,
                                BackendHandleAccess backendHandleAccess)
+#Line # returns the GPU reference to render target ##
 
 Returns true and stores the GPU back-end reference of the render target used
 by Surface in backendObject.
@@ -1250,6 +1265,7 @@ In OpenGL this returns the frame buffer object ID.
 
 #Method SkCanvas* getCanvas()
 
+#Line # returns Canvas that draws into Surface ##
 Returns Canvas that draws into Surface. Subsequent calls return the same Canvas.
 Canvas returned is managed and owned by Surface, and is deleted when Surface
 is deleted.
@@ -1275,6 +1291,7 @@ is deleted.
 
 #Method sk_sp<SkSurface> makeSurface(const SkImageInfo& imageInfo)
 
+#Line # creates a compatible Surface ##
 Returns a compatible Surface, or nullptr. Returned Surface contains
 the same raster, GPU, or null properties as the original. Returned Surface
 does not share the same pixels.
@@ -1315,6 +1332,7 @@ is incompatible with Surface.
 
 #Method sk_sp<SkImage> makeImageSnapshot()
 
+#Line # creates Image capturing Surface contents ##
 Returns Image capturing Surface contents. Subsequent drawing to Surface contents
 are not captured. Image allocation is accounted for if Surface was created with
 SkBudgeted::kYes.
@@ -1342,6 +1360,7 @@ SkBudgeted::kYes.
 
 #Method void draw(SkCanvas* canvas, SkScalar x, SkScalar y, const SkPaint* paint)
 
+#Line # draws Surface contents to canvas ##
 Draws Surface contents to canvas, with its top-left corner at (x, y).
 
 If Paint paint is not nullptr, apply Color_Filter, Color_Alpha, Image_Filter,
@@ -1377,6 +1396,7 @@ Blend_Mode, and Draw_Looper.
 
 #Method bool peekPixels(SkPixmap* pixmap)
 
+#Line # copies Surface parameters to Pixmap ##
 Copies Surface pixel address, row bytes, and Image_Info to Pixmap, if address
 is available, and returns true. If pixel address is not available, return
 false and leave Pixmap unchanged.
@@ -1411,6 +1431,7 @@ pixmap contents become invalid on any future change to Surface.
 
 #Method bool readPixels(const SkPixmap& dst, int srcX, int srcY)
 
+#Line # copies Rect of pixels ##
 Copies Rect of pixels to dst.
 
 Source Rect corners are (srcX, srcY) and Surface (width(), height()).
@@ -1593,6 +1614,7 @@ Does not copy, and returns false if:
 
 #Method const SkSurfaceProps& props() const
 
+#Line # returns Surface_Properties ##
 Returns Surface_Properties for surface.
 
 #Return LCD striping orientation and setting for device independent fonts ##
@@ -1614,6 +1636,7 @@ surf.props(): kRGB_H_SkPixelGeometry
 
 #Method void prepareForExternalIO()
 
+#Line # to be deprecated ##
 To be deprecated.
 
 #NoExample
@@ -1625,6 +1648,7 @@ To be deprecated.
 
 #Method void flush()
 
+#Line # resolve pending I/O ##
 Issues pending Surface commands to the GPU-backed API and resolves any Surface MSAA.
 
 Skia flushes as needed, so it is not necessary to call this if Skia manages
@@ -1642,6 +1666,7 @@ GPU calls.
 
 #Method GrSemaphoresSubmitted flushAndSignalSemaphores(int numSemaphores,
                                                    GrBackendSemaphore signalSemaphores[])
+#Line # resolve pending I/O, and signal ##
 
 Issues pending Surface commands to the GPU-backed API and resolves any Surface MSAA.
 After issuing all commands, signalSemaphores of count numSemaphores semaphores
@@ -1682,6 +1707,7 @@ Pending surface commands are flushed regardless of the return result.
 
 #Method bool wait(int numSemaphores, const GrBackendSemaphore* waitSemaphores)
 
+#Line # rause commands until signaled ##
 Inserts a list of GPU semaphores that the current GPU-backed API must wait on before
 executing any more commands on the GPU for this surface. Skia will take ownership of the
 underlying semaphores and delete them once they have been signaled and waited on.
@@ -1736,6 +1762,7 @@ and the client will still own the semaphores.
 
 #Method bool characterize(SkSurfaceCharacterization* characterization) const
 
+#Line # sets Surface_Characterization for threaded pre-processing ##
 Initializes Surface_Characterization that can be used to perform GPU back-end
 pre-processing in a separate thread. Typically this is used to divide drawing
 into multiple tiles. DeferredDisplayListRecorder records the drawing commands

@@ -19,14 +19,14 @@ Stack helper class calls
 
 | name | description |
 | --- | ---  |
-| <a href="#SkAutoCanvasRestore_SkCanvas_star">SkAutoCanvasRestore(SkCanvas* canvas, bool doSave)</a> | Preserves <a href="SkCanvas_Reference#Canvas">Canvas</a> save count. |
-|  | Restores <a href="SkCanvas_Reference#Canvas">Canvas</a> to saved state. |
+| <a href="#SkAutoCanvasRestore_SkCanvas_star">SkAutoCanvasRestore(SkCanvas* canvas, bool doSave)</a> | preserves <a href="SkCanvas_Reference#Canvas">Canvas</a> save count |
+|  | restores <a href="SkCanvas_Reference#Canvas">Canvas</a> to saved state |
 
 ## <a name="Member_Functions"></a> Member Functions
 
 | name | description |
 | --- | ---  |
-| <a href="#SkAutoCanvasRestore_restore">restore</a> | Restores <a href="SkCanvas_Reference#Canvas">Canvas</a> to saved state. |
+| <a href="#SkAutoCanvasRestore_restore">restore</a> | restores <a href="SkCanvas_Reference#Canvas">Canvas</a> to saved state |
 
 <a name="SkAutoCanvasRestore_SkCanvas_star"></a>
 ## SkAutoCanvasRestore

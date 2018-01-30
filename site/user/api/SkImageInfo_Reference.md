@@ -114,14 +114,28 @@ for 32 bit pixels.
     <td><a name="kRGBA_8888_SkColorType"> <code><strong>kRGBA_8888_SkColorType </strong></code> </a></td><td>4</td><td></td>
   </tr>
   <tr>
-    <td><a name="kBGRA_8888_SkColorType"> <code><strong>kBGRA_8888_SkColorType </strong></code> </a></td><td>5</td><td></td>
+    <td><a name="kRGB_888x_SkColorType"> <code><strong>kRGB_888x_SkColorType </strong></code> </a></td><td>5</td><td></td>
   </tr>
   <tr>
-    <td><a name="kGray_8_SkColorType"> <code><strong>kGray_8_SkColorType </strong></code> </a></td><td>6</td><td></td>
+    <td><a name="kBGRA_8888_SkColorType"> <code><strong>kBGRA_8888_SkColorType </strong></code> </a></td><td>6</td><td></td>
   </tr>
   <tr>
-    <td><a name="kRGBA_F16_SkColorType"> <code><strong>kRGBA_F16_SkColorType </strong></code> </a></td><td>7</td><td></td>
+    <td><a name="kRGBA_1010102_SkColorType"> <code><strong>kRGBA_1010102_SkColorType </strong></code> </a></td><td>7</td><td></td>
   </tr>
+  <tr>
+    <td><a name="kRGB_101010x_SkColorType"> <code><strong>kRGB_101010x_SkColorType </strong></code> </a></td><td>8</td><td></td>
+  </tr>
+  <tr>
+    <td><a name="kGray_8_SkColorType"> <code><strong>kGray_8_SkColorType </strong></code> </a></td><td>9</td><td></td>
+  </tr>
+  <tr>
+    <td><a name="kRGBA_F16_SkColorType"> <code><strong>kRGBA_F16_SkColorType </strong></code> </a></td><td>10</td><td></td>
+  </tr>
+</table>
+
+### Constants
+
+<table>
   <tr>
     <td><a name="kN32_SkColorType"> <code><strong>kN32_SkColorType </strong></code> </a></td><td>4</td><td></td>
   </tr>
@@ -212,8 +226,8 @@ Used for both src images and render-targets (surfaces).
 
 | name | description |
 | --- | ---  |
-| bool <a href="#SkImageInfo_notequal1_operator">operator!=(const SkImageInfo& other) const</a> |  |
-| bool <a href="#SkImageInfo_equal1_operator">operator==(const SkImageInfo& other) const</a> |  |
+| <a href="#SkImageInfo_notequal1_operator">operator!=(const SkImageInfo& other) const</a> |  |
+| <a href="#SkImageInfo_equal1_operator">operator==(const SkImageInfo& other) const</a> |  |
 
 ## <a name="Member_Functions"></a> Member Functions
 
