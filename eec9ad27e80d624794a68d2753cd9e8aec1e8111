@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4734918e_3eb27652",
+        "filename": "src/core/SkRectPriv.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-30T19:52:17Z",
+      "side": 1,
+      "message": "We don\u0027t just want to make makeOffset() and makeOutset() safe?  Or are you planning we just convert them over one by one as fuzzers point them out?  Seems like if we\u0027re gonna keep makeO??set() as they are, we might want to rename them to unsafeMakeO??set() and make these safe ones the ones with the shorter, less scary name?",
+      "revId": "eec9ad27e80d624794a68d2753cd9e8aec1e8111",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
