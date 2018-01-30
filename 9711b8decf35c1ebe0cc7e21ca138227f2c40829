@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3d4ef102_0477ee1e",
+        "filename": "dm/DM.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 906,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-01-30T13:26:15Z",
+      "side": 1,
+      "message": "Won\u0027t this result in testing our codecs to these formats? And I think they\u0027ll fail because I don\u0027t see code to handle it (unless I\u0027m missing something in jumper?). Maybe not though; if these would have failed, g8 probably would have failed, too. (On a related note, now that we have a g8 sink, maybe we can get rid of CodecSrc::kGrayscale_Always_DstColorType and just decode gray images to that sink.)",
+      "range": {
+        "startLine": 904,
+        "startChar": 8,
+        "endLine": 906,
+        "endChar": 62
+      },
+      "revId": "9711b8decf35c1ebe0cc7e21ca138227f2c40829",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
