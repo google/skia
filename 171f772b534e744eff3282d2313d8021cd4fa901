@@ -70,6 +70,30 @@
       "revId": "171f772b534e744eff3282d2313d8021cd4fa901",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "52bf2783_43f87324",
+        "filename": "include/core/SkRect.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 395,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-01-30T21:03:03Z",
+      "side": 1,
+      "message": "The mul certainly happens first (before the add)",
+      "parentUuid": "f8b81dd7_22d91fa7",
+      "range": {
+        "startLine": 395,
+        "startChar": 34,
+        "endLine": 395,
+        "endChar": 64
+      },
+      "revId": "171f772b534e744eff3282d2313d8021cd4fa901",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
