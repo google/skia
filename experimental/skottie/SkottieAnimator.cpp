@@ -62,7 +62,7 @@ ShapeValue lerp(const ShapeValue& v0, const ShapeValue& v1, float t) {
     return v;
 }
 
-class KeyframeAnimatorBase : public sksg::Animator {
+class KeyframeAnimatorBase : public skan::Animator {
 public:
     int count() const { return fRecs.count(); }
 
@@ -208,7 +208,7 @@ private:
     SkTArray<SkCubicMap>  fCubicMaps;
     const KeyframeRec*    fCachedRec = nullptr;
 
-    using INHERITED = sksg::Animator;
+    using INHERITED = skan::Animator;
 };
 
 template <typename T>
@@ -275,7 +275,7 @@ private:
 
 template <typename T>
 static inline bool BindPropertyImpl(const Json::Value& jprop,
-                                    sksg::AnimatorList* animators,
+                                    skan::AnimatorList* animators,
                                     std::function<void(const T&)>&& apply,
                                     const T* noop) {
     if (!jprop.isObject())
@@ -318,7 +318,7 @@ static inline bool BindPropertyImpl(const Json::Value& jprop,
 
 template <>
 bool BindProperty(const Json::Value& jprop,
-                  sksg::AnimatorList* animators,
+                  skan::AnimatorList* animators,
                   std::function<void(const ScalarValue&)>&& apply,
                   const ScalarValue* noop) {
     return BindPropertyImpl(jprop, animators, std::move(apply), noop);
@@ -326,7 +326,7 @@ bool BindProperty(const Json::Value& jprop,
 
 template <>
 bool BindProperty(const Json::Value& jprop,
-                  sksg::AnimatorList* animators,
+                  skan::AnimatorList* animators,
                   std::function<void(const VectorValue&)>&& apply,
                   const VectorValue* noop) {
     return BindPropertyImpl(jprop, animators, std::move(apply), noop);
@@ -334,7 +334,7 @@ bool BindProperty(const Json::Value& jprop,
 
 template <>
 bool BindProperty(const Json::Value& jprop,
-                  sksg::AnimatorList* animators,
+                  skan::AnimatorList* animators,
                   std::function<void(const ShapeValue&)>&& apply,
                   const ShapeValue* noop) {
     return BindPropertyImpl(jprop, animators, std::move(apply), noop);

@@ -19,22 +19,22 @@
 #include "SkPaint.h"
 #include "SkParse.h"
 #include "SkPoint.h"
-#include "SkSGClipEffect.h"
-#include "SkSGColor.h"
-#include "SkSGDraw.h"
-#include "SkSGGeometryTransform.h"
-#include "SkSGGradient.h"
-#include "SkSGGroup.h"
-#include "SkSGImage.h"
-#include "SkSGInvalidationController.h"
-#include "SkSGMaskEffect.h"
-#include "SkSGMerge.h"
-#include "SkSGOpacityEffect.h"
-#include "SkSGPath.h"
-#include "SkSGRect.h"
-#include "SkSGScene.h"
-#include "SkSGTransform.h"
-#include "SkSGTrimEffect.h"
+#include "SkanClipEffect.h"
+#include "SkanColor.h"
+#include "SkanDraw.h"
+#include "SkanGeometryTransform.h"
+#include "SkanGradient.h"
+#include "SkanGroup.h"
+#include "SkanImage.h"
+#include "SkanInvalidationController.h"
+#include "SkanMaskEffect.h"
+#include "SkanMerge.h"
+#include "SkanOpacityEffect.h"
+#include "SkanPath.h"
+#include "SkanRect.h"
+#include "SkanScene.h"
+#include "SkanTransform.h"
+#include "SkanTrimEffect.h"
 #include "SkStream.h"
 #include "SkTArray.h"
 #include "SkTHash.h"
@@ -55,7 +55,7 @@ using AssetMap = SkTHashMap<SkString, const Json::Value*>;
 struct AttachContext {
     const ResourceProvider& fResources;
     const AssetMap&         fAssets;
-    sksg::AnimatorList&     fAnimators;
+    skan::AnimatorList&     fAnimators;
 };
 
 bool LogFail(const Json::Value& json, const char* msg) {
@@ -64,12 +64,12 @@ bool LogFail(const Json::Value& json, const char* msg) {
     return false;
 }
 
-sk_sp<sksg::Matrix> AttachMatrix(const Json::Value& t, AttachContext* ctx,
-                                        sk_sp<sksg::Matrix> parentMatrix) {
+sk_sp<skan::Matrix> AttachMatrix(const Json::Value& t, AttachContext* ctx,
+                                        sk_sp<skan::Matrix> parentMatrix) {
     if (!t.isObject())
         return nullptr;
 
-    auto matrix = sksg::Matrix::Make(SkMatrix::I(), std::move(parentMatrix));
+    auto matrix = skan::Matrix::Make(SkMatrix::I(), std::move(parentMatrix));
     auto composite = sk_make_sp<CompositeTransform>(matrix);
     auto anchor_attached = BindProperty<VectorValue>(t["a"], &ctx->fAnimators,
             [composite](const VectorValue& a) {
@@ -116,8 +116,8 @@ sk_sp<sksg::Matrix> AttachMatrix(const Json::Value& t, AttachContext* ctx,
     return matrix;
 }
 
-sk_sp<sksg::RenderNode> AttachOpacity(const Json::Value& jtransform, AttachContext* ctx,
-                                      sk_sp<sksg::RenderNode> childNode) {
+sk_sp<skan::RenderNode> AttachOpacity(const Json::Value& jtransform, AttachContext* ctx,
+                                      sk_sp<skan::RenderNode> childNode) {
     if (!jtransform.isObject() || !childNode)
         return childNode;
 
@@ -131,7 +131,7 @@ sk_sp<sksg::RenderNode> AttachOpacity(const Json::Value& jtransform, AttachConte
         return childNode;
     }
 
-    auto opacityNode = sksg::OpacityEffect::Make(childNode);
+    auto opacityNode = skan::OpacityEffect::Make(childNode);
     BindProperty<ScalarValue>(opacity, &ctx->fAnimators,
         [opacityNode](const ScalarValue& o) {
             // BM opacity is [0..100]
@@ -141,26 +141,26 @@ sk_sp<sksg::RenderNode> AttachOpacity(const Json::Value& jtransform, AttachConte
     return opacityNode;
 }
 
-sk_sp<sksg::RenderNode> AttachComposition(const Json::Value&, AttachContext* ctx);
+sk_sp<skan::RenderNode> AttachComposition(const Json::Value&, AttachContext* ctx);
 
-sk_sp<sksg::Path> AttachPath(const Json::Value& jpath, AttachContext* ctx) {
-    auto path_node = sksg::Path::Make();
+sk_sp<skan::Path> AttachPath(const Json::Value& jpath, AttachContext* ctx) {
+    auto path_node = skan::Path::Make();
     return BindProperty<ShapeValue>(jpath, &ctx->fAnimators,
             [path_node](const ShapeValue& p) { path_node->setPath(p); })
         ? path_node
         : nullptr;
 }
 
-sk_sp<sksg::GeometryNode> AttachPathGeometry(const Json::Value& jpath, AttachContext* ctx) {
+sk_sp<skan::GeometryNode> AttachPathGeometry(const Json::Value& jpath, AttachContext* ctx) {
     SkASSERT(jpath.isObject());
 
     return AttachPath(jpath["ks"], ctx);
 }
 
-sk_sp<sksg::GeometryNode> AttachRRectGeometry(const Json::Value& jrect, AttachContext* ctx) {
+sk_sp<skan::GeometryNode> AttachRRectGeometry(const Json::Value& jrect, AttachContext* ctx) {
     SkASSERT(jrect.isObject());
 
-    auto rect_node = sksg::RRect::Make();
+    auto rect_node = skan::RRect::Make();
     auto composite = sk_make_sp<CompositeRRect>(rect_node);
 
     auto p_attached = BindProperty<VectorValue>(jrect["p"], &ctx->fAnimators,
@@ -183,10 +183,10 @@ sk_sp<sksg::GeometryNode> AttachRRectGeometry(const Json::Value& jrect, AttachCo
     return rect_node;
 }
 
-sk_sp<sksg::GeometryNode> AttachEllipseGeometry(const Json::Value& jellipse, AttachContext* ctx) {
+sk_sp<skan::GeometryNode> AttachEllipseGeometry(const Json::Value& jellipse, AttachContext* ctx) {
     SkASSERT(jellipse.isObject());
 
-    auto rect_node = sksg::RRect::Make();
+    auto rect_node = skan::RRect::Make();
     auto composite = sk_make_sp<CompositeRRect>(rect_node);
 
     auto p_attached = BindProperty<VectorValue>(jellipse["p"], &ctx->fAnimators,
@@ -207,7 +207,7 @@ sk_sp<sksg::GeometryNode> AttachEllipseGeometry(const Json::Value& jellipse, Att
     return rect_node;
 }
 
-sk_sp<sksg::GeometryNode> AttachPolystarGeometry(const Json::Value& jstar, AttachContext* ctx) {
+sk_sp<skan::GeometryNode> AttachPolystarGeometry(const Json::Value& jstar, AttachContext* ctx) {
     SkASSERT(jstar.isObject());
 
     static constexpr CompositePolyStar::Type gTypes[] = {
@@ -221,7 +221,7 @@ sk_sp<sksg::GeometryNode> AttachPolystarGeometry(const Json::Value& jstar, Attac
         return nullptr;
     }
 
-    auto path_node = sksg::Path::Make();
+    auto path_node = skan::Path::Make();
     auto composite = sk_make_sp<CompositePolyStar>(path_node, gTypes[type]);
 
     BindProperty<VectorValue>(jstar["p"], &ctx->fAnimators,
@@ -256,10 +256,10 @@ sk_sp<sksg::GeometryNode> AttachPolystarGeometry(const Json::Value& jstar, Attac
     return path_node;
 }
 
-sk_sp<sksg::Color> AttachColor(const Json::Value& obj, AttachContext* ctx) {
+sk_sp<skan::Color> AttachColor(const Json::Value& obj, AttachContext* ctx) {
     SkASSERT(obj.isObject());
 
-    auto color_node = sksg::Color::Make(SK_ColorBLACK);
+    auto color_node = skan::Color::Make(SK_ColorBLACK);
     auto color_attached = BindProperty<VectorValue>(obj["c"], &ctx->fAnimators,
         [color_node](const VectorValue& c) {
             color_node->setColor(ValueTraits<VectorValue>::As<SkColor>(c));
@@ -268,7 +268,7 @@ sk_sp<sksg::Color> AttachColor(const Json::Value& obj, AttachContext* ctx) {
     return color_attached ? color_node : nullptr;
 }
 
-sk_sp<sksg::Gradient> AttachGradient(const Json::Value& obj, AttachContext* ctx) {
+sk_sp<skan::Gradient> AttachGradient(const Json::Value& obj, AttachContext* ctx) {
     SkASSERT(obj.isObject());
 
     const auto& stops = obj["g"];
@@ -279,15 +279,15 @@ sk_sp<sksg::Gradient> AttachGradient(const Json::Value& obj, AttachContext* ctx)
     if (stopCount < 0)
         return nullptr;
 
-    sk_sp<sksg::Gradient> gradient_node;
+    sk_sp<skan::Gradient> gradient_node;
     sk_sp<CompositeGradient> composite;
 
     if (ParseDefault(obj["t"], 1) == 1) {
-        auto linear_node = sksg::LinearGradient::Make();
+        auto linear_node = skan::LinearGradient::Make();
         composite = sk_make_sp<CompositeLinearGradient>(linear_node, stopCount);
         gradient_node = std::move(linear_node);
     } else {
-        auto radial_node = sksg::RadialGradient::Make();
+        auto radial_node = skan::RadialGradient::Make();
         composite = sk_make_sp<CompositeRadialGradient>(radial_node, stopCount);
 
         // TODO: highlight, angle
@@ -310,8 +310,8 @@ sk_sp<sksg::Gradient> AttachGradient(const Json::Value& obj, AttachContext* ctx)
     return gradient_node;
 }
 
-sk_sp<sksg::PaintNode> AttachPaint(const Json::Value& jpaint, AttachContext* ctx,
-                                   sk_sp<sksg::PaintNode> paint_node) {
+sk_sp<skan::PaintNode> AttachPaint(const Json::Value& jpaint, AttachContext* ctx,
+                                   sk_sp<skan::PaintNode> paint_node) {
     if (paint_node) {
         paint_node->setAntiAlias(true);
 
@@ -325,8 +325,8 @@ sk_sp<sksg::PaintNode> AttachPaint(const Json::Value& jpaint, AttachContext* ctx
     return paint_node;
 }
 
-sk_sp<sksg::PaintNode> AttachStroke(const Json::Value& jstroke, AttachContext* ctx,
-                                    sk_sp<sksg::PaintNode> stroke_node) {
+sk_sp<skan::PaintNode> AttachStroke(const Json::Value& jstroke, AttachContext* ctx,
+                                    sk_sp<skan::PaintNode> stroke_node) {
     SkASSERT(jstroke.isObject());
 
     if (!stroke_node)
@@ -362,51 +362,51 @@ sk_sp<sksg::PaintNode> AttachStroke(const Json::Value& jstroke, AttachContext* c
     return stroke_node;
 }
 
-sk_sp<sksg::PaintNode> AttachColorFill(const Json::Value& jfill, AttachContext* ctx) {
+sk_sp<skan::PaintNode> AttachColorFill(const Json::Value& jfill, AttachContext* ctx) {
     SkASSERT(jfill.isObject());
 
     return AttachPaint(jfill, ctx, AttachColor(jfill, ctx));
 }
 
-sk_sp<sksg::PaintNode> AttachGradientFill(const Json::Value& jfill, AttachContext* ctx) {
+sk_sp<skan::PaintNode> AttachGradientFill(const Json::Value& jfill, AttachContext* ctx) {
     SkASSERT(jfill.isObject());
 
     return AttachPaint(jfill, ctx, AttachGradient(jfill, ctx));
 }
 
-sk_sp<sksg::PaintNode> AttachColorStroke(const Json::Value& jstroke, AttachContext* ctx) {
+sk_sp<skan::PaintNode> AttachColorStroke(const Json::Value& jstroke, AttachContext* ctx) {
     SkASSERT(jstroke.isObject());
 
     return AttachStroke(jstroke, ctx, AttachPaint(jstroke, ctx, AttachColor(jstroke, ctx)));
 }
 
-sk_sp<sksg::PaintNode> AttachGradientStroke(const Json::Value& jstroke, AttachContext* ctx) {
+sk_sp<skan::PaintNode> AttachGradientStroke(const Json::Value& jstroke, AttachContext* ctx) {
     SkASSERT(jstroke.isObject());
 
     return AttachStroke(jstroke, ctx, AttachPaint(jstroke, ctx, AttachGradient(jstroke, ctx)));
 }
 
-std::vector<sk_sp<sksg::GeometryNode>> AttachMergeGeometryEffect(
-    const Json::Value& jmerge, AttachContext* ctx, std::vector<sk_sp<sksg::GeometryNode>>&& geos) {
-    std::vector<sk_sp<sksg::GeometryNode>> merged;
+std::vector<sk_sp<skan::GeometryNode>> AttachMergeGeometryEffect(
+    const Json::Value& jmerge, AttachContext* ctx, std::vector<sk_sp<skan::GeometryNode>>&& geos) {
+    std::vector<sk_sp<skan::GeometryNode>> merged;
 
-    static constexpr sksg::Merge::Mode gModes[] = {
-        sksg::Merge::Mode::kMerge,      // "mm": 1
-        sksg::Merge::Mode::kUnion,      // "mm": 2
-        sksg::Merge::Mode::kDifference, // "mm": 3
-        sksg::Merge::Mode::kIntersect,  // "mm": 4
-        sksg::Merge::Mode::kXOR      ,  // "mm": 5
+    static constexpr skan::Merge::Mode gModes[] = {
+        skan::Merge::Mode::kMerge,      // "mm": 1
+        skan::Merge::Mode::kUnion,      // "mm": 2
+        skan::Merge::Mode::kDifference, // "mm": 3
+        skan::Merge::Mode::kIntersect,  // "mm": 4
+        skan::Merge::Mode::kXOR      ,  // "mm": 5
     };
 
     const auto mode = gModes[SkTPin<int>(ParseDefault(jmerge["mm"], 1) - 1,
                                          0, SK_ARRAY_COUNT(gModes) - 1)];
-    merged.push_back(sksg::Merge::Make(std::move(geos), mode));
+    merged.push_back(skan::Merge::Make(std::move(geos), mode));
 
     return merged;
 }
 
-std::vector<sk_sp<sksg::GeometryNode>> AttachTrimGeometryEffect(
-    const Json::Value& jtrim, AttachContext* ctx, std::vector<sk_sp<sksg::GeometryNode>>&& geos) {
+std::vector<sk_sp<skan::GeometryNode>> AttachTrimGeometryEffect(
+    const Json::Value& jtrim, AttachContext* ctx, std::vector<sk_sp<skan::GeometryNode>>&& geos) {
 
     enum class Mode {
         kMerged,   // "m": 1
@@ -416,17 +416,17 @@ std::vector<sk_sp<sksg::GeometryNode>> AttachTrimGeometryEffect(
     const auto mode = gModes[SkTPin<int>(ParseDefault(jtrim["m"], 1) - 1,
                                          0, SK_ARRAY_COUNT(gModes) - 1)];
 
-    std::vector<sk_sp<sksg::GeometryNode>> inputs;
+    std::vector<sk_sp<skan::GeometryNode>> inputs;
     if (mode == Mode::kMerged) {
-        inputs.push_back(sksg::Merge::Make(std::move(geos), sksg::Merge::Mode::kMerge));
+        inputs.push_back(skan::Merge::Make(std::move(geos), skan::Merge::Mode::kMerge));
     } else {
         inputs = std::move(geos);
     }
 
-    std::vector<sk_sp<sksg::GeometryNode>> trimmed;
+    std::vector<sk_sp<skan::GeometryNode>> trimmed;
     trimmed.reserve(inputs.size());
     for (const auto& i : inputs) {
-        const auto trim = sksg::TrimEffect::Make(i);
+        const auto trim = skan::TrimEffect::Make(i);
         trimmed.push_back(trim);
         BindProperty<ScalarValue>(jtrim["s"], &ctx->fAnimators,
             [trim](const ScalarValue& s) {
@@ -445,7 +445,7 @@ std::vector<sk_sp<sksg::GeometryNode>> AttachTrimGeometryEffect(
     return trimmed;
 }
 
-using GeometryAttacherT = sk_sp<sksg::GeometryNode> (*)(const Json::Value&, AttachContext*);
+using GeometryAttacherT = sk_sp<skan::GeometryNode> (*)(const Json::Value&, AttachContext*);
 static constexpr GeometryAttacherT gGeometryAttachers[] = {
     AttachPathGeometry,
     AttachRRectGeometry,
@@ -453,7 +453,7 @@ static constexpr GeometryAttacherT gGeometryAttachers[] = {
     AttachPolystarGeometry,
 };
 
-using PaintAttacherT = sk_sp<sksg::PaintNode> (*)(const Json::Value&, AttachContext*);
+using PaintAttacherT = sk_sp<skan::PaintNode> (*)(const Json::Value&, AttachContext*);
 static constexpr PaintAttacherT gPaintAttachers[] = {
     AttachColorFill,
     AttachColorStroke,
@@ -462,9 +462,9 @@ static constexpr PaintAttacherT gPaintAttachers[] = {
 };
 
 using GeometryEffectAttacherT =
-    std::vector<sk_sp<sksg::GeometryNode>> (*)(const Json::Value&,
+    std::vector<sk_sp<skan::GeometryNode>> (*)(const Json::Value&,
                                                AttachContext*,
-                                               std::vector<sk_sp<sksg::GeometryNode>>&&);
+                                               std::vector<sk_sp<skan::GeometryNode>>&&);
 static constexpr GeometryEffectAttacherT gGeometryEffectAttachers[] = {
     AttachMergeGeometryEffect,
     AttachTrimGeometryEffect,
@@ -526,7 +526,7 @@ struct GeometryEffectRec {
 
 struct AttachShapeContext {
     AttachShapeContext(AttachContext* ctx,
-                       std::vector<sk_sp<sksg::GeometryNode>>* geos,
+                       std::vector<sk_sp<skan::GeometryNode>>* geos,
                        std::vector<GeometryEffectRec>* effects,
                        size_t committedAnimators)
         : fCtx(ctx)
@@ -535,20 +535,20 @@ struct AttachShapeContext {
         , fCommittedAnimators(committedAnimators) {}
 
     AttachContext*                          fCtx;
-    std::vector<sk_sp<sksg::GeometryNode>>* fGeometryStack;
+    std::vector<sk_sp<skan::GeometryNode>>* fGeometryStack;
     std::vector<GeometryEffectRec>*         fGeometryEffectStack;
     size_t                                  fCommittedAnimators;
 };
 
-sk_sp<sksg::RenderNode> AttachShape(const Json::Value& jshape, AttachShapeContext* shapeCtx) {
+sk_sp<skan::RenderNode> AttachShape(const Json::Value& jshape, AttachShapeContext* shapeCtx) {
     if (!jshape.isArray())
         return nullptr;
 
     SkDEBUGCODE(const auto initialGeometryEffects = shapeCtx->fGeometryEffectStack->size();)
 
-    sk_sp<sksg::Group> shape_group = sksg::Group::Make();
-    sk_sp<sksg::RenderNode> shape_wrapper = shape_group;
-    sk_sp<sksg::Matrix> shape_matrix;
+    sk_sp<skan::Group> shape_group = skan::Group::Make();
+    sk_sp<skan::RenderNode> shape_wrapper = shape_group;
+    sk_sp<skan::Matrix> shape_matrix;
 
     struct ShapeRec {
         const Json::Value& fJson;
@@ -575,7 +575,7 @@ sk_sp<sksg::RenderNode> AttachShape(const Json::Value& jshape, AttachShapeContex
         switch (info->fShapeType) {
         case ShapeType::kTransform:
             if ((shape_matrix = AttachMatrix(s, shapeCtx->fCtx, nullptr))) {
-                shape_wrapper = sksg::Transform::Make(std::move(shape_wrapper), shape_matrix);
+                shape_wrapper = skan::Transform::Make(std::move(shape_wrapper), shape_matrix);
             }
             shape_wrapper = AttachOpacity(s, shapeCtx->fCtx, std::move(shape_wrapper));
             break;
@@ -594,8 +594,8 @@ sk_sp<sksg::RenderNode> AttachShape(const Json::Value& jshape, AttachShapeContex
     //   * track local geometry
     //   * emit local paints
     //
-    std::vector<sk_sp<sksg::GeometryNode>> geos;
-    std::vector<sk_sp<sksg::RenderNode  >> draws;
+    std::vector<sk_sp<skan::GeometryNode>> geos;
+    std::vector<sk_sp<skan::RenderNode  >> draws;
     for (auto rec = recs.rbegin(); rec != recs.rend(); ++rec) {
         switch (rec->fInfo.fShapeType) {
         case ShapeType::kGeometry: {
@@ -646,11 +646,11 @@ sk_sp<sksg::RenderNode> AttachShape(const Json::Value& jshape, AttachShapeContex
 
             // If we still have multiple geos, reduce using 'merge'.
             auto geo = drawGeos.size() > 1
-                ? sksg::Merge::Make(std::move(drawGeos), sksg::Merge::Mode::kMerge)
+                ? skan::Merge::Make(std::move(drawGeos), skan::Merge::Mode::kMerge)
                 : drawGeos[0];
 
             SkASSERT(geo);
-            draws.push_back(sksg::Draw::Make(std::move(geo), std::move(paint)));
+            draws.push_back(skan::Draw::Make(std::move(geo), std::move(paint)));
             shapeCtx->fCommittedAnimators = shapeCtx->fCtx->fAnimators.size();
         } break;
         default:
@@ -664,7 +664,7 @@ sk_sp<sksg::RenderNode> AttachShape(const Json::Value& jshape, AttachShapeContex
     // Push transformed local geometries to parent list, for subsequent paints.
     for (const auto& geo : geos) {
         shapeCtx->fGeometryStack->push_back(shape_matrix
-            ? sksg::GeometryTransform::Make(std::move(geo), shape_matrix)
+            ? skan::GeometryTransform::Make(std::move(geo), shape_matrix)
             : std::move(geo));
     }
 
@@ -676,7 +676,7 @@ sk_sp<sksg::RenderNode> AttachShape(const Json::Value& jshape, AttachShapeContex
     return draws.empty() ? nullptr : shape_wrapper;
 }
 
-sk_sp<sksg::RenderNode> AttachCompLayer(const Json::Value& jlayer, AttachContext* ctx,
+sk_sp<skan::RenderNode> AttachCompLayer(const Json::Value& jlayer, AttachContext* ctx,
                                         float* time_bias, float* time_scale) {
     SkASSERT(jlayer.isObject());
 
@@ -705,7 +705,7 @@ sk_sp<sksg::RenderNode> AttachCompLayer(const Json::Value& jlayer, AttachContext
     return AttachComposition(**comp, ctx);
 }
 
-sk_sp<sksg::RenderNode> AttachSolidLayer(const Json::Value& jlayer, AttachContext*,
+sk_sp<skan::RenderNode> AttachSolidLayer(const Json::Value& jlayer, AttachContext*,
                                          float*, float*) {
     SkASSERT(jlayer.isObject());
 
@@ -722,11 +722,11 @@ sk_sp<sksg::RenderNode> AttachSolidLayer(const Json::Value& jlayer, AttachContex
 
     const SkColor color = 0xff000000 | c;
 
-    return sksg::Draw::Make(sksg::Rect::Make(SkRect::MakeSize(size)),
-                            sksg::Color::Make(color));
+    return skan::Draw::Make(skan::Rect::Make(SkRect::MakeSize(size)),
+                            skan::Color::Make(color));
 }
 
-sk_sp<sksg::RenderNode> AttachImageAsset(const Json::Value& jimage, AttachContext* ctx) {
+sk_sp<skan::RenderNode> AttachImageAsset(const Json::Value& jimage, AttachContext* ctx) {
     SkASSERT(jimage.isObject());
 
     const auto name = ParseDefault(jimage["p"], SkString()),
@@ -743,11 +743,11 @@ sk_sp<sksg::RenderNode> AttachImageAsset(const Json::Value& jimage, AttachContex
     }
 
     // TODO: non-intrisic image sizing
-    return sksg::Image::Make(
+    return skan::Image::Make(
         SkImage::MakeFromEncoded(SkData::MakeFromStream(resStream.get(), resStream->getLength())));
 }
 
-sk_sp<sksg::RenderNode> AttachImageLayer(const Json::Value& layer, AttachContext* ctx,
+sk_sp<skan::RenderNode> AttachImageLayer(const Json::Value& layer, AttachContext* ctx,
                                          float*, float*) {
     SkASSERT(layer.isObject());
 
@@ -766,19 +766,19 @@ sk_sp<sksg::RenderNode> AttachImageLayer(const Json::Value& layer, AttachContext
     return AttachImageAsset(**jimage, ctx);
 }
 
-sk_sp<sksg::RenderNode> AttachNullLayer(const Json::Value& layer, AttachContext*, float*, float*) {
+sk_sp<skan::RenderNode> AttachNullLayer(const Json::Value& layer, AttachContext*, float*, float*) {
     SkASSERT(layer.isObject());
 
     // Null layers are used solely to drive dependent transforms,
-    // but we use free-floating sksg::Matrices for that purpose.
+    // but we use free-floating skan::Matrices for that purpose.
     return nullptr;
 }
 
-sk_sp<sksg::RenderNode> AttachShapeLayer(const Json::Value& layer, AttachContext* ctx,
+sk_sp<skan::RenderNode> AttachShapeLayer(const Json::Value& layer, AttachContext* ctx,
                                          float*, float*) {
     SkASSERT(layer.isObject());
 
-    std::vector<sk_sp<sksg::GeometryNode>> geometryStack;
+    std::vector<sk_sp<skan::GeometryNode>> geometryStack;
     std::vector<GeometryEffectRec> geometryEffectStack;
     AttachShapeContext shapeCtx(ctx, &geometryStack, &geometryEffectStack, ctx->fAnimators.size());
     auto shapeNode = AttachShape(layer["shapes"], &shapeCtx);
@@ -793,7 +793,7 @@ sk_sp<sksg::RenderNode> AttachShapeLayer(const Json::Value& layer, AttachContext
     return shapeNode;
 }
 
-sk_sp<sksg::RenderNode> AttachTextLayer(const Json::Value& layer, AttachContext*, float*, float*) {
+sk_sp<skan::RenderNode> AttachTextLayer(const Json::Value& layer, AttachContext*, float*, float*) {
     SkASSERT(layer.isObject());
 
     LOG("?? Text layer stub\n");
@@ -806,10 +806,10 @@ struct AttachLayerContext {
 
     const Json::Value&                   fLayerList;
     AttachContext*                       fCtx;
-    SkTHashMap<int, sk_sp<sksg::Matrix>> fLayerMatrixMap;
-    sk_sp<sksg::RenderNode>              fCurrentMatte;
+    SkTHashMap<int, sk_sp<skan::Matrix>> fLayerMatrixMap;
+    sk_sp<skan::RenderNode>              fCurrentMatte;
 
-    sk_sp<sksg::Matrix> AttachParentLayerMatrix(const Json::Value& jlayer) {
+    sk_sp<skan::Matrix> AttachParentLayerMatrix(const Json::Value& jlayer) {
         SkASSERT(jlayer.isObject());
         SkASSERT(fLayerList.isArray());
 
@@ -833,7 +833,7 @@ struct AttachLayerContext {
         return nullptr;
     }
 
-    sk_sp<sksg::Matrix> AttachLayerMatrix(const Json::Value& jlayer) {
+    sk_sp<skan::Matrix> AttachLayerMatrix(const Json::Value& jlayer) {
         SkASSERT(jlayer.isObject());
 
         const auto layer_index = ParseDefault(jlayer["ind"], -1);
@@ -869,13 +869,13 @@ SkBlendMode MaskBlendMode(char mode) {
     return SkBlendMode::kSrcOver;
 }
 
-sk_sp<sksg::RenderNode> AttachMask(const Json::Value& jmask,
+sk_sp<skan::RenderNode> AttachMask(const Json::Value& jmask,
                                    AttachContext* ctx,
-                                   sk_sp<sksg::RenderNode> childNode) {
+                                   sk_sp<skan::RenderNode> childNode) {
     if (!jmask.isArray())
         return childNode;
 
-    auto mask_group = sksg::Group::Make();
+    auto mask_group = skan::Group::Make();
 
     for (const auto& m : jmask) {
         if (!m.isObject())
@@ -901,26 +901,26 @@ sk_sp<sksg::RenderNode> AttachMask(const Json::Value& jmask,
             continue;
         }
 
-        auto mask_paint = sksg::Color::Make(SK_ColorBLACK);
+        auto mask_paint = skan::Color::Make(SK_ColorBLACK);
         mask_paint->setAntiAlias(true);
         mask_paint->setBlendMode(MaskBlendMode(mode.c_str()[0]));
         BindProperty<ScalarValue>(m["o"], &ctx->fAnimators,
             [mask_paint](const ScalarValue& o) { mask_paint->setOpacity(o * 0.01f); });
 
-        mask_group->addChild(sksg::Draw::Make(std::move(mask_path), std::move(mask_paint)));
+        mask_group->addChild(skan::Draw::Make(std::move(mask_path), std::move(mask_paint)));
     }
 
     return mask_group->empty()
         ? childNode
-        : sksg::MaskEffect::Make(std::move(childNode), std::move(mask_group));
+        : skan::MaskEffect::Make(std::move(childNode), std::move(mask_group));
 }
 
-sk_sp<sksg::RenderNode> AttachLayer(const Json::Value& jlayer,
+sk_sp<skan::RenderNode> AttachLayer(const Json::Value& jlayer,
                                     AttachLayerContext* layerCtx) {
     if (!jlayer.isObject())
         return nullptr;
 
-    using LayerAttacher = sk_sp<sksg::RenderNode> (*)(const Json::Value&, AttachContext*,
+    using LayerAttacher = sk_sp<skan::RenderNode> (*)(const Json::Value&, AttachContext*,
                                                       float* time_bias, float* time_scale);
     static constexpr LayerAttacher gLayerAttachers[] = {
         AttachCompLayer,  // 'ty': 0
@@ -936,7 +936,7 @@ sk_sp<sksg::RenderNode> AttachLayer(const Json::Value& jlayer,
         return nullptr;
     }
 
-    sksg::AnimatorList layer_animators;
+    skan::AnimatorList layer_animators;
     AttachContext local_ctx =
         { layerCtx->fCtx->fResources, layerCtx->fCtx->fAssets, layer_animators};
 
@@ -950,8 +950,8 @@ sk_sp<sksg::RenderNode> AttachLayer(const Json::Value& jlayer,
     // Clip layers with explicit dimensions.
     float w, h;
     if (Parse(jlayer["w"], &w) && Parse(jlayer["h"], &h)) {
-        layer = sksg::ClipEffect::Make(std::move(layer),
-                                       sksg::Rect::Make(SkRect::MakeWH(w, h)),
+        layer = skan::ClipEffect::Make(std::move(layer),
+                                       skan::Rect::Make(SkRect::MakeWH(w, h)),
                                        true);
     }
 
@@ -960,16 +960,16 @@ sk_sp<sksg::RenderNode> AttachLayer(const Json::Value& jlayer,
 
     // Optional layer transform.
     if (auto layerMatrix = layerCtx->AttachLayerMatrix(jlayer)) {
-        layer = sksg::Transform::Make(std::move(layer), std::move(layerMatrix));
+        layer = skan::Transform::Make(std::move(layer), std::move(layerMatrix));
     }
 
     // Optional layer opacity.
     layer = AttachOpacity(jlayer["ks"], &local_ctx, std::move(layer));
 
-    class LayerController final : public sksg::GroupAnimator {
+    class LayerController final : public skan::GroupAnimator {
     public:
-        LayerController(sksg::AnimatorList&& layer_animators,
-                        sk_sp<sksg::OpacityEffect> controlNode,
+        LayerController(skan::AnimatorList&& layer_animators,
+                        sk_sp<skan::OpacityEffect> controlNode,
                         float in, float out,
                         float time_bias, float time_scale)
             : INHERITED(std::move(layer_animators))
@@ -992,16 +992,16 @@ sk_sp<sksg::RenderNode> AttachLayer(const Json::Value& jlayer,
         }
 
     private:
-        const sk_sp<sksg::OpacityEffect> fControlNode;
+        const sk_sp<skan::OpacityEffect> fControlNode;
         const float                      fIn,
                                          fOut,
                                          fTimeBias,
                                          fTimeScale;
 
-        using INHERITED = sksg::GroupAnimator;
+        using INHERITED = skan::GroupAnimator;
     };
 
-    auto controller_node = sksg::OpacityEffect::Make(std::move(layer));
+    auto controller_node = skan::OpacityEffect::Make(std::move(layer));
     const auto        in = ParseDefault(jlayer["ip"], 0.0f),
                      out = ParseDefault(jlayer["op"], in);
 
@@ -1028,14 +1028,14 @@ sk_sp<sksg::RenderNode> AttachLayer(const Json::Value& jlayer,
 
     if (layerCtx->fCurrentMatte) {
         // There is a pending matte. Apply and reset.
-        return sksg::MaskEffect::Make(std::move(controller_node),
+        return skan::MaskEffect::Make(std::move(controller_node),
                                       std::move(layerCtx->fCurrentMatte));
     }
 
     return controller_node;
 }
 
-sk_sp<sksg::RenderNode> AttachComposition(const Json::Value& comp, AttachContext* ctx) {
+sk_sp<skan::RenderNode> AttachComposition(const Json::Value& comp, AttachContext* ctx) {
     if (!comp.isObject())
         return nullptr;
 
@@ -1043,7 +1043,7 @@ sk_sp<sksg::RenderNode> AttachComposition(const Json::Value& comp, AttachContext
     if (!jlayers.isArray())
         return nullptr;
 
-    SkSTArray<16, sk_sp<sksg::RenderNode>, true> layers;
+    SkSTArray<16, sk_sp<skan::RenderNode>, true> layers;
     AttachLayerContext                           layerCtx(jlayers, ctx);
 
     for (const auto& l : jlayers) {
@@ -1057,7 +1057,7 @@ sk_sp<sksg::RenderNode> AttachComposition(const Json::Value& comp, AttachContext
     }
 
     // Layers are painted in bottom->top order.
-    auto comp_group = sksg::Group::Make();
+    auto comp_group = skan::Group::Make();
     for (int i = layers.count() - 1; i >= 0; --i) {
         comp_group->addChild(std::move(layers[i]));
     }
@@ -1151,13 +1151,13 @@ Animation::Animation(const ResourceProvider& resources,
         assets.set(ParseDefault(asset["id"], SkString()), &asset);
     }
 
-    sksg::AnimatorList animators;
+    skan::AnimatorList animators;
     AttachContext ctx = { resources, assets, animators };
     auto root = AttachComposition(json, &ctx);
 
     LOG("** Attached %d animators\n", animators.size());
 
-    fScene = sksg::Scene::Make(std::move(root), std::move(animators));
+    fScene = skan::Scene::Make(std::move(root), std::move(animators));
 
     // In case the client calls render before the first tick.
     this->animationTick(0);

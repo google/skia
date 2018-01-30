@@ -23,7 +23,7 @@ class SkStream;
 
 namespace Json { class Value; }
 
-namespace sksg { class Scene;  }
+namespace skan { class Scene;  }
 
 namespace skottie {
 
@@ -65,7 +65,7 @@ private:
                                  fInPoint,
                                  fOutPoint;
 
-    std::unique_ptr<sksg::Scene> fScene;
+    std::unique_ptr<skan::Scene> fScene;
 
     typedef SkNoncopyable INHERITED;
 };

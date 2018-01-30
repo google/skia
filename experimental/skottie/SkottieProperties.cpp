@@ -10,11 +10,11 @@
 #include "SkColor.h"
 #include "SkJSONCPP.h"
 #include "SkPath.h"
-#include "SkSGColor.h"
-#include "SkSGGradient.h"
-#include "SkSGPath.h"
-#include "SkSGRect.h"
-#include "SkSGTransform.h"
+#include "SkanColor.h"
+#include "SkanGradient.h"
+#include "SkanPath.h"
+#include "SkanRect.h"
+#include "SkanTransform.h"
 
 #include <cmath>
 
@@ -86,7 +86,7 @@ SkPath ValueTraits<ShapeValue>::As<SkPath>(const ShapeValue& path) {
     return path;
 }
 
-CompositeRRect::CompositeRRect(sk_sp<sksg::RRect> wrapped_node)
+CompositeRRect::CompositeRRect(sk_sp<skan::RRect> wrapped_node)
     : fRRectNode(std::move(wrapped_node)) {}
 
 void CompositeRRect::apply() {
@@ -99,7 +99,7 @@ void CompositeRRect::apply() {
    fRRectNode->setRRect(rr);
 }
 
-CompositeTransform::CompositeTransform(sk_sp<sksg::Matrix> matrix)
+CompositeTransform::CompositeTransform(sk_sp<skan::Matrix> matrix)
     : fMatrixNode(std::move(matrix)) {}
 
 void CompositeTransform::apply() {
@@ -113,7 +113,7 @@ void CompositeTransform::apply() {
     fMatrixNode->setMatrix(t);
 }
 
-CompositePolyStar::CompositePolyStar(sk_sp<sksg::Path> wrapped_node, Type t)
+CompositePolyStar::CompositePolyStar(sk_sp<skan::Path> wrapped_node, Type t)
     : fPathNode(std::move(wrapped_node))
     , fType(t) {}
 
@@ -145,7 +145,7 @@ void CompositePolyStar::apply() {
     fPathNode->setPath(poly);
 }
 
-CompositeGradient::CompositeGradient(sk_sp<sksg::Gradient> grad, size_t stopCount)
+CompositeGradient::CompositeGradient(sk_sp<skan::Gradient> grad, size_t stopCount)
     : fGradient(std::move(grad))
     , fStopCount(stopCount) {}
 
@@ -159,7 +159,7 @@ void CompositeGradient::apply() {
         return;
     }
 
-    std::vector<sksg::Gradient::ColorStop> stops;
+    std::vector<skan::Gradient::ColorStop> stops;
 
     // TODO: merge/lerp opacity stops
     const auto csEnd = fColorStops.cbegin() + fStopCount * 4;
@@ -170,20 +170,20 @@ void CompositeGradient::apply() {
     fGradient->setColorStops(std::move(stops));
 }
 
-CompositeLinearGradient::CompositeLinearGradient(sk_sp<sksg::LinearGradient> grad, size_t stopCount)
+CompositeLinearGradient::CompositeLinearGradient(sk_sp<skan::LinearGradient> grad, size_t stopCount)
     : INHERITED(std::move(grad), stopCount) {}
 
 void CompositeLinearGradient::onApply() {
-    auto* grad = static_cast<sksg::LinearGradient*>(fGradient.get());
+    auto* grad = static_cast<skan::LinearGradient*>(fGradient.get());
     grad->setStartPoint(this->startPoint());
     grad->setEndPoint(this->endPoint());
 }
 
-CompositeRadialGradient::CompositeRadialGradient(sk_sp<sksg::RadialGradient> grad, size_t stopCount)
+CompositeRadialGradient::CompositeRadialGradient(sk_sp<skan::RadialGradient> grad, size_t stopCount)
     : INHERITED(std::move(grad), stopCount) {}
 
 void CompositeRadialGradient::onApply() {
-    auto* grad = static_cast<sksg::RadialGradient*>(fGradient.get());
+    auto* grad = static_cast<skan::RadialGradient*>(fGradient.get());
     grad->setStartCenter(this->startPoint());
     grad->setEndCenter(this->startPoint());
     grad->setStartRadius(0);

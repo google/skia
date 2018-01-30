@@ -8,7 +8,7 @@
 #ifndef SkottieAnimator_DEFINED
 #define SkottieAnimator_DEFINED
 
-#include "SkSGScene.h"
+#include "SkanScene.h"
 
 #include <functional>
 
@@ -20,7 +20,7 @@ namespace skottie {
 // it will either apply immediately or instantiate and attach a keyframe animator.
 template <typename T>
 bool BindProperty(const Json::Value&,
-                  sksg::AnimatorList*,
+                  skan::AnimatorList*,
                   std::function<void(const T&)>&&,
                   const T* noop = nullptr);
 
