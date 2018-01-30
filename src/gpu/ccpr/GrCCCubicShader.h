@@ -25,14 +25,15 @@ class GrCCCubicShader : public GrCCCoverageProcessor::Shader {
 protected:
     void emitSetupCode(GrGLSLVertexGeoBuilder*, const char* pts, const char* repetitionID,
                        const char* wind, GeometryVars*) const final;
-
     virtual void onEmitSetupCode(GrGLSLVertexGeoBuilder*, const char* pts, const char* repetitionID,
                                  GeometryVars*) const {}
 
-    WindHandling onEmitVaryings(GrGLSLVaryingHandler*, GrGLSLVarying::Scope, SkString* code,
-                                const char* position, const char* coverage, const char* wind) final;
-
+    void onEmitVaryings(GrGLSLVaryingHandler*, GrGLSLVarying::Scope, SkString* code,
+                        const char* position, const char* inputCoverage, const char* wind) final;
     virtual void onEmitVaryings(GrGLSLVaryingHandler*, GrGLSLVarying::Scope, SkString* code) = 0;
+
+    void onEmitFragmentCode(GrGLSLPPFragmentBuilder*, const char* outputCoverage) const final;
+    virtual void emitCoverage(GrGLSLPPFragmentBuilder*, const char* outputCoverage) const = 0;
 
     GrShaderVar fKLMMatrix{"klm_matrix", kFloat3x3_GrSLType};
     GrShaderVar fEdgeDistanceEquation{"edge_distance_equation", kFloat3_GrSLType};
@@ -41,7 +42,7 @@ protected:
 
 class GrCCCubicHullShader : public GrCCCubicShader {
     void onEmitVaryings(GrGLSLVaryingHandler*, GrGLSLVarying::Scope, SkString* code) override;
-    void onEmitFragmentCode(GrGLSLPPFragmentBuilder*, const char* outputCoverage) const override;
+    void emitCoverage(GrGLSLPPFragmentBuilder*, const char* outputCoverage) const override;
 
     GrGLSLVarying fGradMatrix;
 };
@@ -50,7 +51,7 @@ class GrCCCubicCornerShader : public GrCCCubicShader {
     void onEmitSetupCode(GrGLSLVertexGeoBuilder*, const char* pts, const char* repetitionID,
                          GeometryVars*) const override;
     void onEmitVaryings(GrGLSLVaryingHandler*, GrGLSLVarying::Scope, SkString* code) override;
-    void onEmitFragmentCode(GrGLSLPPFragmentBuilder*, const char* outputCoverage) const override;
+    void emitCoverage(GrGLSLPPFragmentBuilder*, const char* outputCoverage) const override;
 
     GrGLSLVarying fdKLMDdx;
     GrGLSLVarying fdKLMDdy;
