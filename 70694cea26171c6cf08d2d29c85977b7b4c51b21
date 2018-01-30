@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a54f3d6_7bb96994",
+        "filename": "infra/bots/recipes/test.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 900,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-01-30T13:41:37Z",
+      "side": 1,
+      "message": "if \u0027-arm-\u0027 in bot and \u0027ASAN\u0027 in bot:\n  env[\u0027ASAN_OPTIONS\u0027] \u003d \u0027allocator_may_return_null\u003d1\u0027",
+      "revId": "70694cea26171c6cf08d2d29c85977b7b4c51b21",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
