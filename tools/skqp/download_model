@@ -9,6 +9,7 @@ import os
 import shutil
 import sys
 import threading
+import tempfile
 import urllib2
 
 def checksum(path):
@@ -36,16 +37,22 @@ def download(md5, path):
         with open(path, 'wb') as o:
             shutil.copyfileobj(urllib2.urlopen(url), o)
 
+def tmp(prefix):
+    fd, path = tempfile.mkstemp(prefix=prefix)
+    os.close(fd)
+    return path
+
 def main():
     os.chdir(os.path.join(os.path.dirname(__file__), os.pardir, os.pardir,
                          'platform_tools', 'android', 'apps', 'skqp', 'src',
                          'main', 'assets'))
     sys.stderr.write('\n    0 / ????   ')
+    file_list_file = tmp('files_')
     with open('files.checksum', 'r') as f:
         md5 = f.read().strip()
         assert(len(md5) == 32)
-        download(md5, 'files.txt')
-    with open('files.txt', 'r') as f:
+        download(md5, file_list_file)
+    with open(file_list_file, 'r') as f:
         records = []
         for line in f:
             md5, path = line.strip().split(';', 1)
