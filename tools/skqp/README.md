@@ -35,10 +35,10 @@ How to run the SkQP tests
     test another architecture, replace `arm` with `x86`, `x64`, or `arm64`.)
 
         python tools/skqp/download_model
+        python tools/skqp/setup_resources
         python tools/git-sync-deps
         python tools/skqp/generate_gn_args out/skqp-arm "$ANDROID_NDK" arm
         bin/gn gen out/skqp-arm
-        python tools/skqp/setup_resources . out/skqp-arm
 
 6.  Build, install, and run.
 
@@ -69,7 +69,6 @@ Run as a non-APK executable
 
 2.  Build the SkQP program, load files on the device, and run skqp:
 
-        rm -f out/skqp-arm/gen/binary_resources.cpp
         ninja -C out/skqp-arm skqp
         python tools/skqp/run_skqp_exe out/skqp-arm
 
