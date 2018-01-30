@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "288adf1e_0aa31d9c",
+        "filename": "tests/PathRendererCacheTests.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-01-30T20:45:07Z",
+      "side": 1,
+      "message": "indeed",
+      "range": {
+        "startLine": 78,
+        "startChar": 4,
+        "endLine": 78,
+        "endChar": 99
+      },
+      "revId": "180544a7564cf302aa0ffa5babd0160b3465a2c2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
