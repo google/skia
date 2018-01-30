@@ -46,6 +46,30 @@
       "revId": "171f772b534e744eff3282d2313d8021cd4fa901",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f8b81dd7_22d91fa7",
+        "filename": "include/core/SkRect.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 395,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-01-30T21:01:48Z",
+      "side": 1,
+      "message": "Ah, I may be confused.  I thought that was what was causing my issues back in the raster pipeline sprite blitter?  Maybe it was  x + a*b + c*d and a*b or c*d was overflowing itself..",
+      "parentUuid": "7f57bc8f_faf6d800",
+      "range": {
+        "startLine": 395,
+        "startChar": 34,
+        "endLine": 395,
+        "endChar": 64
+      },
+      "revId": "171f772b534e744eff3282d2313d8021cd4fa901",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
