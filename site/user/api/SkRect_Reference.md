@@ -952,8 +952,8 @@ left: 2e+38 right: 3e+38 centerX: inf safe mid x: 2.5e+38
 
 | name | description |
 | --- | ---  |
-| bool <a href="#SkRect_notequal_operator">operator!=(const SkRect& a, const SkRect& b)</a> | returns true if members are unequal |
-| bool <a href="#SkRect_equal_operator">operator==(const SkRect& a, const SkRect& b)</a> | returns true if members are equal |
+| <a href="#SkRect_notequal_operator">operator!=(const SkRect& a, const SkRect& b)</a> | returns true if members are unequal |
+| <a href="#SkRect_equal_operator">operator==(const SkRect& a, const SkRect& b)</a> | returns true if members are equal |
 
 <a name="SkRect_equal_operator"></a>
 ## operator==

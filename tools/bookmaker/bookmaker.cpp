@@ -194,9 +194,6 @@ bool BmhParser::addDefinition(const char* defStart, bool hasEnd, MarkType markTy
                 }
                 definition->fFiddle = parent ? parent->fFiddle + '_' : "";
                 definition->fFiddle += Definition::NormalizedName(typeNameBuilder[0]);
-                if (string::npos != typeNameBuilder[0].find("Member_Functions")) {
-                    SkDebugf("");
-                }
                 this->setAsParent(definition);
             }
             {
@@ -350,7 +347,9 @@ bool BmhParser::addDefinition(const char* defStart, bool hasEnd, MarkType markTy
         case MarkType::kFile:
         case MarkType::kHeight:
         case MarkType::kImage:
-        case MarkType::kLiteral:
+		case MarkType::kIn:
+		case MarkType::kLine:
+		case MarkType::kLiteral:
         case MarkType::kOutdent:
         case MarkType::kPlatform:
         case MarkType::kSeeAlso:
@@ -359,7 +358,7 @@ bool BmhParser::addDefinition(const char* defStart, bool hasEnd, MarkType markTy
         case MarkType::kTime:
         case MarkType::kVolatile:
         case MarkType::kWidth:
-            if (hasEnd && MarkType::kAnchor != markType) {
+            if (hasEnd && MarkType::kAnchor != markType && MarkType::kLine != markType) {
                 return this->reportError<bool>("one liners omit end element");
             } else if (!hasEnd && MarkType::kAnchor == markType) {
                 return this->reportError<bool>("anchor line must have end element last");
@@ -396,7 +395,24 @@ bool BmhParser::addDefinition(const char* defStart, bool hasEnd, MarkType markTy
                     return this->reportError<bool>("duplicate alias");
                 }
                 fAliasMap[alias] = definition;
-            }
+			}
+			else if (MarkType::kLine == markType) {
+				const char* nextLF = this->strnchr('\n', this->fEnd);
+				const char* start = fChar;
+				const char* end = this->trimmedBracketEnd(fMC);
+				this->skipToEndBracket(fMC, nextLF);
+				if (fMC != this->next() || fMC != this->next()) {
+					return this->reportError<bool>("expected ## to delineate line");
+				}
+				fMarkup.emplace_front(MarkType::kText, start, fLineCount, definition);
+				Definition* text = &fMarkup.front();
+				text->fContentStart = start;
+				text->fContentEnd = end;
+				text->fTerminator = fChar;
+				definition->fContentEnd = text->fContentEnd;
+				definition->fTerminator = fChar;
+				definition->fChildren.emplace_back(text);
+			}
             break;
         case MarkType::kExternal:
             (void) this->collectExternals();  // FIXME: detect errors in external defs?
@@ -735,7 +751,8 @@ bool BmhParser::findDefinitions() {
             } else if (this->peek() == ' ') {
                 if (!fParent || (MarkType::kTable != fParent->fMarkType
                         && MarkType::kLegend != fParent->fMarkType
-                        && MarkType::kList != fParent->fMarkType)) {
+                        && MarkType::kList != fParent->fMarkType
+						&& MarkType::kLine != fParent->fMarkType)) {
                     int endHashes = this->endHashCount();
                     if (endHashes <= 1) {
                         if (fParent) {
@@ -825,6 +842,9 @@ fail:
     return MarkType::kNone;
 }
 
+    // write #In to show containing #Topic
+	// write #Line with one liner from Member_Functions, Constructors, Operators if method,
+	//    from Constants if enum, otherwise from #Subtopic containing match
 bool HackParser::hackFiles() {
     string filename(fFileName);
     size_t len = filename.length() - 1;
@@ -832,43 +852,155 @@ bool HackParser::hackFiles() {
         --len;
     }
     filename = filename.substr(len + 1);
-    // remove trailing period from #Param and #Return
-    FILE* out = fopen(filename.c_str(), "wb");
-    if (!out) {
+    if (filename.substr(0, 2) != "Sk") {
+        return true;
+    }
+    size_t under = filename.find('_');
+    SkASSERT(under);
+    string className = filename.substr(0, under);
+    fOut = fopen(filename.c_str(), "wb");
+    if (!fOut) {
         SkDebugf("could not open output file %s\n", filename.c_str());
         return false;
     }
-    const char* start = fStart;
-    do {
-        const char* match = this->strnchr('#', fEnd);
-        if (!match) {
-            break;
-        }
-        this->skipTo(match);
-        this->next();
-        if (!this->startsWith("Param") && !this->startsWith("Return")) {
-            continue;
-        }
-        const char* end = this->strnstr("##", fEnd);
-        while (true) {
-            TextParser::Save lastPeriod(this);
-            this->next();
-            if (!this->skipToEndBracket('.', end)) {
-                lastPeriod.restore();
-                break;
-            }
-        }
-        if ('.' == this->peek()) {
-            fprintf(out, "%.*s", (int) (fChar - start), start);
-            this->next();
-            start = fChar;
-        }
-    } while (!this->eof());
-    fprintf(out, "%.*s", (int) (fEnd - start), start);
-    fclose(out);
+    auto mapEntry = fBmhParser.fClassMap.find(className);
+    SkASSERT(fBmhParser.fClassMap.end() != mapEntry);
+    const Definition* classMarkup = &mapEntry->second;
+    const Definition* root = classMarkup->fParent;
+    SkASSERT(root);
+    SkASSERT(root->fTerminator);
+    SkASSERT('\n' == root->fTerminator[0]);
+    SkASSERT(!root->fParent);
+    fStart = root->fStart;
+    fChar = fStart;
+    fConstructors = nullptr;
+    fOperators = nullptr;
+    fMemberFunctions = nullptr;
+    this->topicIter(root);
+    fprintf(fOut, "%.*s\n", (int) (root->fTerminator - fChar), fChar);
+    fclose(fOut);
     SkDebugf("wrote %s\n", filename.c_str());
     return true;
 }
+
+string HackParser::searchTable(const Definition* tableHolder, const Definition* match) {
+    if (!tableHolder) {
+        return "";
+    }
+    string bestMatch;
+    string result;
+    for (auto table : tableHolder->fChildren) {
+        if (MarkType::kTable == table->fMarkType) {
+            for (auto row : table->fChildren) {
+                if (MarkType::kRow == row->fMarkType) {
+                    const Definition* col0 = row->fChildren[0];
+                    size_t len = col0->fContentEnd - col0->fContentStart;
+                    string method = string(col0->fContentStart, len);
+                    if (len - 2 == method.find("()") && islower(method[0])) {
+                        method = method.substr(0, len - 2);
+                    }
+                    if (string::npos == match->fName.find(method)) {
+                        continue;
+                    }
+                    if (bestMatch.length() < method.length()) {
+                        bestMatch = method;
+                        const Definition * col1 = row->fChildren[1];
+                        if (col1->fContentEnd <= col1->fContentStart) {
+                            SkASSERT(string::npos != col1->fFileName.find("SkImageInfo"));
+                            result = "incomplete";
+                        } else {
+                            result = string(col1->fContentStart, col1->fContentEnd -
+                                    col1->fContentStart);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return result;
+}
+
+// returns true if topic has method
+void HackParser::topicIter(const Definition* topic) {
+    if (string::npos != topic->fName.find("Member_Functions")) {
+        SkASSERT(!fMemberFunctions);
+        fMemberFunctions = topic;
+    }
+    if (string::npos != topic->fName.find("Constructors")) {
+        SkASSERT(!fConstructors);
+        fConstructors = topic;
+    }
+    if (string::npos != topic->fName.find("Operators")) {
+        SkASSERT(!fOperators);
+        fOperators = topic;
+    }
+    for (auto child : topic->fChildren) {
+        if (MarkType::kMethod == child->fMarkType) {
+            bool hasIn = MarkType::kTopic != topic->fMarkType &&
+                    MarkType::kSubtopic != topic->fMarkType;  // don't write #In if parent is class
+            bool hasLine = child->fClone;
+            for (auto part : child->fChildren) {
+                hasIn |= MarkType::kIn == part->fMarkType;
+                hasLine |= MarkType::kLine == part->fMarkType;
+            }
+            string oneLiner;
+            if (!hasLine) {
+                // find member_functions, add entry 2nd column text to #Line
+                for (auto tableHolder : { fMemberFunctions, fConstructors, fOperators }) {
+                    if (!tableHolder) {
+                        continue;
+                    }
+                    if (Definition::MethodType::kConstructor == child->fMethodType
+                            && fConstructors != tableHolder) {
+                        continue;
+                    }
+                    if (Definition::MethodType::kOperator == child->fMethodType
+                            && fOperators != tableHolder) {
+                        continue;
+                    }
+                    string temp = this->searchTable(tableHolder, child);
+                    if ("" != temp) {
+                        SkASSERT("" == oneLiner || temp == oneLiner);
+                        oneLiner = temp;
+                    }
+                }
+                if ("" == oneLiner) {
+#ifdef SK_DEBUG
+                    const Definition* rootParent = topic;
+                    while (rootParent->fParent && MarkType::kClass != rootParent->fMarkType
+                             && MarkType::kStruct != rootParent->fMarkType) {
+                        rootParent = rootParent->fParent;
+                    }
+#endif
+                    SkASSERT(rootParent);
+                    SkASSERT(MarkType::kClass == rootParent->fMarkType
+                            || MarkType::kStruct == rootParent->fMarkType);
+                    hasLine = true;
+                }
+            }
+
+            if (hasIn && hasLine) {
+                continue;
+            }
+            const char* start = fChar;
+            const char* end = child->fContentStart;
+            fprintf(fOut, "%.*s", (int) (end - start), start);
+            fChar = end;
+            // write to method markup header end
+            if (!hasIn) {
+                fprintf(fOut, "\n#In %s", topic->fName.c_str());
+            }
+            if (!hasLine) {
+                fprintf(fOut, "\n#Line # %s ##", oneLiner.c_str());
+            }
+        }
+        if (MarkType::kTopic == child->fMarkType || MarkType::kSubtopic == child->fMarkType ||
+                MarkType::kStruct == child->fMarkType || MarkType::kClass == child->fMarkType) {
+            this->topicIter(child);
+        }
+    }
+}
+
 
 bool BmhParser::hasEndToken() const {
     const char* last = fLine + this->lineLength();
@@ -1206,6 +1338,18 @@ bool BmhParser::skipToDefinitionEnd(MarkType markType) {
     return this->reportError<bool>("unbalanced stack");
 }
 
+bool BmhParser::skipToString() {
+	this->skipSpace();
+	if (fMC != this->peek()) {
+		return this->reportError<bool>("expected end mark");
+	}
+	this->next();
+	this->skipSpace();
+	// body is text from here to double fMC
+		// no single fMC allowed, no linefeed allowed
+	return true;
+}
+
 vector<string> BmhParser::topicName() {
     vector<string> result;
     this->skipWhiteSpace();
@@ -1271,6 +1415,9 @@ vector<string> BmhParser::typeName(MarkType markType, bool* checkEnd) {
         case MarkType::kTrack:
             this->skipNoName();
             break;
+		case MarkType::kLine:
+			this->skipToString();
+			break;
         case MarkType::kAlias:
         case MarkType::kAnchor:
         case MarkType::kBug:  // fixme: expect number
@@ -1281,6 +1428,7 @@ vector<string> BmhParser::typeName(MarkType markType, bool* checkEnd) {
         case MarkType::kFile:
         case MarkType::kHeight:
         case MarkType::kImage:
+		case MarkType::kIn:
         case MarkType::kLiteral:
         case MarkType::kOutdent:
         case MarkType::kPlatform:
@@ -1570,19 +1718,6 @@ int main(int argc, char** const argv) {
         SkCommandLineFlags::PrintUsage();
         return 1;
     }
-    if (FLAGS_hack) {
-        if (FLAGS_bmh.isEmpty()) {
-            SkDebugf("-k or --hack requires -b\n");
-            SkCommandLineFlags::PrintUsage();
-            return 1;
-        }
-        HackParser hacker;
-        if (!hacker.parseFile(FLAGS_bmh[0], ".bmh")) {
-            SkDebugf("hack failed\n");
-            return -1;
-        }
-        return 0;
-    }
     if ((FLAGS_include.isEmpty() || FLAGS_bmh.isEmpty()) && FLAGS_status.isEmpty() &&
             FLAGS_populate) {
         SkDebugf("-p requires -b -i or -a\n");
@@ -1622,6 +1757,19 @@ int main(int argc, char** const argv) {
         if (!bmhParser.parseStatus(FLAGS_status[0], ".bmh", StatusFilter::kInProgress)) {
             return -1;
         }
+    }
+    if (FLAGS_hack) {
+        if (FLAGS_bmh.isEmpty()) {
+            SkDebugf("-k or --hack requires -b\n");
+            SkCommandLineFlags::PrintUsage();
+            return 1;
+        }
+        HackParser hacker(bmhParser);
+        if (!hacker.parseFile(FLAGS_bmh[0], ".bmh")) {
+            SkDebugf("hack failed\n");
+            return -1;
+        }
+        return 0;
     }
     if (FLAGS_selfcheck && !SelfCheck(bmhParser)) {
         return -1;
