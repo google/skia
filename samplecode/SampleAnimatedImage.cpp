@@ -62,7 +62,19 @@ protected:
             return false;
         }
 
-        fImage->update(animTimer.msec());
+        const double lastWallTime = fLastWallTime;
+        fLastWallTime = animTimer.msec();
+
+        if (fRunning) {
+            fCurrentTime += fLastWallTime - lastWallTime;
+            if (fCurrentTime > fTimeToShowNextFrame) {
+                fTimeToShowNextFrame += fImage->decodeNextFrame();
+                if (fImage->isFinished()) {
+                    fRunning = false;
+                }
+            }
+        }
+
         return true;
     }
 
@@ -78,6 +90,7 @@ protected:
             return;
         }
 
+        fTimeToShowNextFrame = fImage->currentFrameDuration();
         SkPictureRecorder recorder;
         auto canvas = recorder.beginRecording(fImage->getBounds());
         canvas->drawDrawable(fImage.get());
@@ -94,14 +107,16 @@ protected:
         if (fImage && SampleCode::CharQ(*evt, &uni)) {
             switch (uni) {
                 case kPauseKey:
-                    if (fImage->isRunning()) {
-                        fImage->stop();
+                    fRunning = !fRunning;
+                    if (fImage->isFinished()) {
+                        // fall through
                     } else {
-                        fImage->start();
+                        return true;
                     }
-                    return true;
                 case kResetKey:
                     fImage->reset();
+                    fCurrentTime = fLastWallTime;
+                    fTimeToShowNextFrame = fCurrentTime + fImage->currentFrameDuration();
                     return true;
                 default:
                     break;
@@ -114,6 +129,10 @@ private:
     sk_sp<SkAnimatedImage>  fImage;
     sk_sp<SkDrawable>       fDrawable;
     SkScalar                fYOffset;
+    bool                    fRunning = false;
+    double                  fCurrentTime = 0.0;
+    double                  fLastWallTime = 0.0;
+    double                  fTimeToShowNextFrame = 0.0;
     typedef SampleView INHERITED;
 };
 

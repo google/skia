@@ -113,38 +113,25 @@ DEF_TEST(AnimatedImage, r) {
             return true;
         };
 
-        REPORTER_ASSERT(r, !animatedImage->isRunning());
+        REPORTER_ASSERT(r, animatedImage->currentFrameDuration() == frameInfos[0].fDuration);
+
         if (!testDraw(animatedImage, 0)) {
             ERRORF(r, "Did not start with frame 0");
             continue;
         }
 
-        animatedImage->start();
-        REPORTER_ASSERT(r, animatedImage->isRunning());
-        if (!testDraw(animatedImage, 0)) {
-            ERRORF(r, "After starting, still not on frame 0");
-            continue;
-        }
-
         // Start at an arbitrary time.
-        double currentTime = 100000;
         bool failed = false;
-        for (size_t i = 0; i < frameInfos.size(); ++i) {
-            double next = animatedImage->update(currentTime);
+        for (size_t i = 1; i < frameInfos.size(); ++i) {
+            const int frameTime = animatedImage->decodeNextFrame();
+            REPORTER_ASSERT(r, frameTime == animatedImage->currentFrameDuration());
+
             if (i == frameInfos.size() - 1 && defaultRepetitionCount == 0) {
-                REPORTER_ASSERT(r, next == SkAnimatedImage::kNotRunning);
-                REPORTER_ASSERT(r, !animatedImage->isRunning());
+                REPORTER_ASSERT(r, frameTime == SkAnimatedImage::kFinished);
                 REPORTER_ASSERT(r, animatedImage->isFinished());
             } else {
-                REPORTER_ASSERT(r, animatedImage->isRunning());
+                REPORTER_ASSERT(r, frameTime == frameInfos[i].fDuration);
                 REPORTER_ASSERT(r, !animatedImage->isFinished());
-                double expectedNext = currentTime + frameInfos[i].fDuration;
-                if (next != expectedNext) {
-                    ERRORF(r, "Time did not match for frame %i: next: %g expected: %g",
-                            i, next, expectedNext);
-                    failed = true;
-                    break;
-                }
             }
 
             if (!testDraw(animatedImage, i)) {
@@ -152,89 +139,79 @@ DEF_TEST(AnimatedImage, r) {
                 failed = true;
                 break;
             }
-
-            // Update, but not to the next frame.
-            REPORTER_ASSERT(r, animatedImage->update((next - currentTime) / 2) == next);
-            if (!testDraw(animatedImage, i)) {
-                ERRORF(r, "Should still be on frame %i", i);
-                failed = true;
-                break;
-            }
-
-            currentTime = next;
         }
 
         if (failed) {
             continue;
         }
 
-        // Create a new animated image and test stop.
-        animatedImage = SkAnimatedImage::Make(SkAndroidCodec::MakeFromCodec(
-                    SkCodec::MakeFromData(data)));
+        animatedImage->reset();
+        REPORTER_ASSERT(r, !animatedImage->isFinished());
+        if (!testDraw(animatedImage, 0)) {
+            ERRORF(r, "reset failed");
+            continue;
+        }
 
-        animatedImage->start();
-        currentTime = 100000;
-        // Do not go to the last frame, so it should still be running after.
-        for (size_t i = 0; i < frameInfos.size() - 1; ++i) {
-            double next = animatedImage->update(currentTime);
-            if (!testDraw(animatedImage, i)) {
-                ERRORF(r, "Error during stop tests.");
-                failed = true;
+        // Test reset from all the frames.
+        // j is the frame to call reset on.
+        for (int j = 0; j < (int) frameInfos.size(); ++j) {
+            if (failed) {
                 break;
             }
 
-            double interval = next - currentTime;
-            animatedImage->stop();
-            REPORTER_ASSERT(r, !animatedImage->isRunning());
-            REPORTER_ASSERT(r, !animatedImage->isFinished());
-
-            currentTime = next;
-            double stoppedNext = animatedImage->update(currentTime);
-            REPORTER_ASSERT(r, stoppedNext == SkAnimatedImage::kNotRunning);
-            if (!testDraw(animatedImage, i)) {
-                ERRORF(r, "Advanced the frame while stopped?");
-                failed = true;
-                break;
+            // i is the frame to decode.
+            for (int i = 0; i <= j; ++i) {
+                if (i == j) {
+                    animatedImage->reset();
+                    if (!testDraw(animatedImage, 0)) {
+                        ERRORF(r, "reset failed for image %s from frame %i",
+                                file, i);
+                        failed = true;
+                        break;
+                    }
+                } else if (i != 0) {
+                    animatedImage->decodeNextFrame();
+                    if (!testDraw(animatedImage, i)) {
+                        ERRORF(r, "failed to match frame %i in %s on iteration %i",
+                                i, file, j);
+                        failed = true;
+                        break;
+                    }
+                }
             }
-
-            animatedImage->start();
-            currentTime += interval;
         }
 
         if (failed) {
-            return;
-        }
-
-        REPORTER_ASSERT(r, animatedImage->isRunning());
-        REPORTER_ASSERT(r, !animatedImage->isFinished());
-        animatedImage->reset();
-        if (!testDraw(animatedImage, 0)) {
-            ERRORF(r, "reset failed");
             continue;
         }
 
         for (int loopCount : { 0, 1, 2, 5 }) {
             animatedImage = SkAnimatedImage::Make(SkAndroidCodec::MakeFromCodec(
                         SkCodec::MakeFromData(data)));
-            animatedImage->start();
             animatedImage->setRepetitionCount(loopCount);
             REPORTER_ASSERT(r, animatedImage->getRepetitionCount() == loopCount);
 
             for (int loops = 0; loops <= loopCount; loops++) {
-                REPORTER_ASSERT(r, animatedImage->isRunning());
+                if (failed) {
+                    break;
+                }
                 REPORTER_ASSERT(r, !animatedImage->isFinished());
-                for (size_t i = 0; i < frameInfos.size(); ++i) {
-                    double next = animatedImage->update(currentTime);
-                    if (animatedImage->isRunning()) {
-                        currentTime = next;
-                    } else {
-                        REPORTER_ASSERT(r, next == SkAnimatedImage::kNotRunning);
+                for (size_t i = 1; i <= frameInfos.size(); ++i) {
+                    const int frameTime = animatedImage->decodeNextFrame();
+                    if (frameTime == SkAnimatedImage::kFinished) {
+                        if (loops != loopCount) {
+                            ERRORF(r, "%s animation stopped early: loops: %i\tloopCount: %i",
+                                    file, loops, loopCount);
+                            failed = true;
+                        }
+                        if (i != frameInfos.size() - 1) {
+                            ERRORF(r, "%s animation stopped early: i: %i\tsize: %i",
+                                    file, i, frameInfos.size());
+                            failed = true;
+                        }
+                        break;
                     }
                 }
-            }
-
-            if (animatedImage->isRunning()) {
-                ERRORF(r, "%s animation still running after %i loops", file, loopCount);
             }
 
             if (!animatedImage->isFinished()) {
