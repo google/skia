@@ -902,6 +902,7 @@ sk_sp<sksg::RenderNode> AttachMask(const Json::Value& jmask,
         }
 
         auto mask_paint = sksg::Color::Make(SK_ColorBLACK);
+        mask_paint->setAntiAlias(true);
         mask_paint->setBlendMode(MaskBlendMode(mode.c_str()[0]));
         BindProperty<ScalarValue>(m["o"], &ctx->fAnimators,
             [mask_paint](const ScalarValue& o) { mask_paint->setOpacity(o * 0.01f); });
