@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2bf63f1b_a1561908",
+        "filename": "src/effects/SkDisplacementMapEffect.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-01-30T21:02:23Z",
+      "side": 1,
+      "message": "Do we no longer need to do this bit?",
+      "revId": "87b5927287c89a7982df1754e04635dd7de13b85",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
