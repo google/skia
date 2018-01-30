@@ -21,6 +21,7 @@
 #pragma clang diagnostic pop
 #endif
 
+#include "Resources.h"
 #include "SkStream.h"
 #include "SkString.h"
 
@@ -134,6 +135,7 @@ int main(int argc, char** argv) {
                   << " [GTEST_ARGUMENTS] GMKB_DIRECTORY_PATH GMKB_REPORT_PATH\n\n";
         return 1;
     }
+    SetResourcePath((std::string(argv[1]) + "/resources").c_str());
     gAssetMgr.reset(new StdAssetManager(argv[1]));
     if (argc > 2) {
         gReportDirectoryPath = argv[2];
