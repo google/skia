@@ -34,6 +34,24 @@
       "revId": "70694cea26171c6cf08d2d29c85977b7b4c51b21",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4461543b_f62bbc54",
+        "filename": "infra/bots/recipes/test.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 900,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-30T13:45:25Z",
+      "side": 1,
+      "message": "That affects the device too?  Not just the host?",
+      "parentUuid": "513c1b82_10fd9a33",
+      "revId": "70694cea26171c6cf08d2d29c85977b7b4c51b21",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
