@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "112d3979_7f5f2c73",
+        "filename": "src/images/SkImageEncoderFns.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 282,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-01-30T13:05:50Z",
+      "side": 1,
+      "message": "I think this should be 101010x?",
+      "range": {
+        "startLine": 282,
+        "startChar": 3,
+        "endLine": 282,
+        "endChar": 7
+      },
+      "revId": "a935d2fd7aaae080d230af051ab8e7a231de6ac3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
