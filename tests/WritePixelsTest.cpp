@@ -412,11 +412,11 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WritePixels_Gpu, reporter, ctxInfo) {
     const SkImageInfo ii = SkImageInfo::MakeN32Premul(DEV_W, DEV_H);
 
     for (auto& origin : { kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin }) {
-        for (int sampleCnt : {0, 4}) {
+        for (int sampleCnt : {1, 4}) {
             sk_sp<SkSurface> surface(SkSurface::MakeRenderTarget(ctxInfo.grContext(),
                                                                  SkBudgeted::kNo, ii, sampleCnt,
                                                                  origin, nullptr));
-            if (!surface && sampleCnt > 0) {
+            if (!surface && sampleCnt > 1) {
                 // Some platforms don't support MSAA
                 continue;
             }
@@ -430,7 +430,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WritePixelsNonTexture_Gpu, reporter, ctxInfo)
     GrGpu* gpu = context->contextPriv().getGpu();
 
     for (auto& origin : { kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin }) {
-        for (int sampleCnt : {0, 4}) {
+        for (int sampleCnt : {1, 4}) {
             GrBackendTexture backendTex = gpu->createTestingOnlyBackendTexture(
                     nullptr, DEV_W, DEV_H, kSkia8888_GrPixelConfig, true, GrMipMapped::kNo);
             SkColorType colorType;

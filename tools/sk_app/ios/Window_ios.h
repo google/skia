@@ -22,7 +22,7 @@ public:
         : INHERITED()
         , fWindow(nullptr)
         , fWindowID(0)
-        , fMSAASampleCount(0) {}
+        , fMSAASampleCount(1) {}
     ~Window_ios() override { this->closeWindow(); }
 
     bool initWindow();

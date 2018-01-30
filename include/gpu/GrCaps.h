@@ -136,6 +136,7 @@ public:
 
     // Find a sample count greater than or equal to the requested count which is supported for a
     // color buffer of the given config. If MSAA is not support for the config we will return 0.
+    // Also returns 0 if the largest supported sample count is smaller than requestedCount.
     virtual int getSampleCount(int requestedCount, GrPixelConfig config) const = 0;
 
     int maxWindowRectangles() const { return fMaxWindowRectangles; }

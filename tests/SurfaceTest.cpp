@@ -791,11 +791,11 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SurfaceAttachStencil_Gpu, reporter, ctxInf
 
     for (auto& surfaceFunc : {&create_gpu_surface_backend_texture,
                               &create_gpu_surface_backend_texture_as_render_target}) {
-        for (int sampleCnt : {0, 4, 8}) {
+        for (int sampleCnt : {1, 4, 8}) {
             GrBackendTexture backendTex;
             auto surface = surfaceFunc(ctxInfo.grContext(), sampleCnt, kOrigColor, &backendTex);
 
-            if (!surface && sampleCnt > 0) {
+            if (!surface && sampleCnt > 1) {
                 // Certain platforms don't support MSAA, skip these.
                 continue;
             }

@@ -24,7 +24,7 @@ public:
         : fContext(nullptr)
         , fDisplayParams(params)
         , fSurfaceProps(SkSurfaceProps::kLegacyFontHost_InitType)
-        , fSampleCount(0)
+        , fSampleCount(1)
         , fStencilBits(0) {}
 
     virtual ~WindowContext() {}

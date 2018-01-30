@@ -237,11 +237,10 @@ void GrVkRenderTarget::createFramebuffer(GrVkGpu* gpu) {
 void GrVkRenderTarget::getAttachmentsDescriptor(
                                            GrVkRenderPass::AttachmentsDescriptor* desc,
                                            GrVkRenderPass::AttachmentFlags* attachmentFlags) const {
-    int colorSamples = this->numColorSamples();
     VkFormat colorFormat;
     GrPixelConfigToVkFormat(this->config(), &colorFormat);
     desc->fColor.fFormat = colorFormat;
-    desc->fColor.fSamples = colorSamples ? colorSamples : 1;
+    desc->fColor.fSamples = this->numColorSamples();
     *attachmentFlags = GrVkRenderPass::kColor_AttachmentFlag;
     uint32_t attachmentCount = 1;
 
@@ -249,7 +248,7 @@ void GrVkRenderTarget::getAttachmentsDescriptor(
     if (stencil) {
         const GrVkStencilAttachment* vkStencil = static_cast<const GrVkStencilAttachment*>(stencil);
         desc->fStencil.fFormat = vkStencil->vkFormat();
-        desc->fStencil.fSamples = vkStencil->numSamples() ? vkStencil->numSamples() : 1;
+        desc->fStencil.fSamples = vkStencil->numSamples();
         // Currently in vulkan stencil and color attachments must all have same number of samples
         SkASSERT(desc->fColor.fSamples == desc->fStencil.fSamples);
         *attachmentFlags |= GrVkRenderPass::kStencil_AttachmentFlag;
