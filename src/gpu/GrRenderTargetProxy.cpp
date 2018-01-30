@@ -61,6 +61,9 @@ int GrRenderTargetProxy::maxWindowRectangles(const GrCaps& caps) const {
 }
 
 bool GrRenderTargetProxy::instantiate(GrResourceProvider* resourceProvider) {
+    if (LazyState::kNot != this->lazyInstantiationState()) {
+        return false;
+    }
     static constexpr GrSurfaceFlags kFlags = kRenderTarget_GrSurfaceFlag;
 
     if (!this->instantiateImpl(resourceProvider, fSampleCnt, fNeedsStencil, kFlags,
