@@ -184,6 +184,7 @@ def dm_flags(api, bot):
       blacklist('gltestthreading gm _ savelayer_with_backdrop')
       blacklist('gltestthreading gm _ persp_shaders_bw')
       blacklist('gltestthreading gm _ dftext_blob_persp')
+      blacklist('gltestthreading gm _ dftext')
 
     # The following devices do not support glessrgb.
     if 'glessrgb' in configs:
