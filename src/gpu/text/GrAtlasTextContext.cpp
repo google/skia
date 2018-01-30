@@ -23,9 +23,9 @@
 // which we switch over to drawing as paths as controlled by Options.
 static const int kSmallDFFontSize = 32;
 static const int kSmallDFFontLimit = 32;
-static const int kMediumDFFontSize = 72;
-static const int kMediumDFFontLimit = 72;
-static const int kLargeDFFontSize = 162;
+static const int kMediumDFFontSize = 74;
+static const int kMediumDFFontLimit = 74;
+static const int kLargeDFFontSize = 166;
 
 static const int kDefaultMinDistanceFieldFontSize = 18;
 #ifdef SK_BUILD_FOR_ANDROID
