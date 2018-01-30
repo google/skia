@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b874d3a3_8ad089cd",
+        "filename": "tools/skqp/generate_gn_args",
+        "patchSetId": 1
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-01-30T16:44:02Z",
+      "side": 1,
+      "message": "for the android build we do the following...\n\n  \u0027is_official_build\u0027:    \u0027true\u0027,\n  \u0027skia_enable_tools\u0027:    \u0027true\u0027,\n  \u0027skia_embed_resources\u0027: \u0027false\u0027,\n  \u0027skia_use_vulkan\u0027:      \u0027true\u0027,\n  \u0027skia_use_expat\u0027:       \u0027false\u0027,\n  \u0027skia_enable_pdf\u0027:      \u0027false\u0027,\n  \u0027skia_use_piex\u0027:        \u0027false\u0027,\n  \u0027skia_use_libheif\u0027:     \u0027false\u0027,\n  \u0027skia_use_dng_sdk\u0027:     \u0027false\u0027,\n  \u0027skia_use_icu\u0027:         \u0027false\u0027,\n  \u0027skia_use_lua\u0027:         \u0027false\u0027,",
+      "revId": "c40b31bc9fea92048ca263e7bfba508595e865fc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
