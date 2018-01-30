@@ -26,6 +26,10 @@ Merge::~Merge() {
     }
 }
 
+void Merge::onClip(SkCanvas* canvas, bool antiAlias) const {
+    canvas->clipPath(fMerged, SkClipOp::kIntersect, antiAlias);
+}
+
 void Merge::onDraw(SkCanvas* canvas, const SkPaint& paint) const {
     canvas->drawPath(fMerged, paint);
 }

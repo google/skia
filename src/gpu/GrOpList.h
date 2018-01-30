@@ -126,6 +126,9 @@ protected:
 private:
     friend class GrDrawingManager; // for resetFlag, TopoSortTraits & gatherProxyIntervals
 
+    // Remove all Ops which reference proxies that have not been instantiated.
+    virtual void purgeOpsWithUninstantiatedProxies() = 0;
+
     // Feed proxy usage intervals to the GrResourceAllocator class
     virtual void gatherProxyIntervals(GrResourceAllocator*) const = 0;
 

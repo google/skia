@@ -31,12 +31,12 @@ declare_args() {
   skia_use_metal = false
   skia_use_libheif = is_skia_dev_build
   skia_use_skcms = is_skia_dev_build
-  skia_embed_resources = false
 
   skia_android_serial = ""
   skia_enable_discrete_gpu = true
   skia_enable_effects = true
   skia_enable_flutter_defines = false
+  skia_enable_fontmgr_empty = false
   skia_enable_gpu = true
   skia_enable_pdf = true
   skia_enable_spirv_validation = is_skia_dev_build && is_debug
@@ -388,6 +388,13 @@ optional("fontmgr_custom") {
     "src/ports/SkFontMgr_custom_directory_factory.cpp",
     "src/ports/SkFontMgr_custom_embedded.cpp",
     "src/ports/SkFontMgr_custom_empty.cpp",
+  ]
+}
+
+optional("fontmgr_empty") {
+  enabled = skia_enable_fontmgr_empty
+  sources = [
+    "src/ports/SkFontMgr_empty_factory.cpp",
   ]
 }
 
@@ -755,6 +762,7 @@ component("skia") {
     ":effects",
     ":fontmgr_android",
     ":fontmgr_custom",
+    ":fontmgr_empty",
     ":fontmgr_fontconfig",
     ":fontmgr_fuchsia",
     ":gpu",
@@ -928,20 +936,6 @@ if (skia_enable_tools) {
     outputs = [
       skia_h,
     ]
-  }
-
-  if (skia_embed_resources) {
-    action("binary_resources.cpp") {
-      script = "gn/generate_binary_asset.py"
-      args = [
-        rebase_path("resources"),
-        "gResources",
-        rebase_path("$target_gen_dir/binary_resources.cpp", root_build_dir),
-      ]
-      outputs = [
-        "$target_gen_dir/binary_resources.cpp",
-      ]
-    }
   }
 
   if (skia_enable_gpu && target_cpu == "x64") {
@@ -1280,11 +1274,6 @@ if (skia_enable_tools) {
     public_deps = [
       "//third_party/jsoncpp",
     ]
-    if (skia_embed_resources) {
-      defines = [ "SK_EMBED_RESOURCES" ]
-      sources += [ "$target_gen_dir/binary_resources.cpp" ]
-      deps += [ ":binary_resources.cpp" ]
-    }
   }
 
   import("gn/gm.gni")
@@ -1309,13 +1298,15 @@ if (skia_enable_tools) {
     }
     deps = [
       ":experimental_sksg",
-      ":experimental_svg_model",
       ":flags",
       ":skia",
       ":tool_utils",
       "//third_party/libpng",
       "//third_party/zlib",
     ]
+    if (skia_use_expat) {
+      deps += [ ":experimental_svg_model" ]
+    }
     public_deps = [
       ":gpu_tool_utils",  # Test.h #includes headers from this target.
     ]
@@ -1400,6 +1391,7 @@ if (skia_enable_tools) {
       "experimental/sksg/SkSGPaintNode.cpp",
       "experimental/sksg/SkSGRenderNode.cpp",
       "experimental/sksg/SkSGScene.cpp",
+      "experimental/sksg/effects/SkSGClipEffect.cpp",
       "experimental/sksg/effects/SkSGMaskEffect.cpp",
       "experimental/sksg/effects/SkSGOpacityEffect.cpp",
       "experimental/sksg/effects/SkSGTransform.cpp",
@@ -1819,6 +1811,7 @@ if (skia_enable_tools) {
       deps = [
         ":skia",
         ":skqp_lib",
+        ":tool_utils",
         "//third_party/googletest",
       ]
     }
@@ -1832,6 +1825,7 @@ if (skia_enable_tools) {
       deps = [
         ":skia",
         ":skqp_lib",
+        ":tool_utils",
       ]
       libs = [ "android" ]
     }

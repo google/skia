@@ -403,6 +403,10 @@ static void morphpath(SkPath* dst, const SkPath& src, SkPathMeasure& meas,
                 morphpoints(dstP, &srcP[1], 2, meas, matrix);
                 dst->quadTo(dstP[0], dstP[1]);
                 break;
+            case SkPath::kConic_Verb:
+                morphpoints(dstP, &srcP[1], 2, meas, matrix);
+                dst->conicTo(dstP[0], dstP[1], iter.conicWeight());
+                break;
             case SkPath::kCubic_Verb:
                 morphpoints(dstP, &srcP[1], 3, meas, matrix);
                 dst->cubicTo(dstP[0], dstP[1], dstP[2]);

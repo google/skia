@@ -39,9 +39,9 @@ public:
 
     // In Vulkan we call the release proc after we are finished with the underlying
     // GrVkImage::Resource object (which occurs after the GPU has finsihed all work on it).
-    void setRelease(GrTexture::ReleaseProc proc, GrTexture::ReleaseCtx ctx) override {
+    void setRelease(sk_sp<GrReleaseProcHelper> releaseHelper) override {
         // Forward the release proc on to GrVkImage
-        this->setResourceRelease(proc, ctx);
+        this->setResourceRelease(std::move(releaseHelper));
     }
 
 protected:

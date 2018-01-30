@@ -1012,19 +1012,10 @@ void GrGLCaps::initFSAASupport(const GrContextOptions& contextOptions, const GrG
         fMSFBOType = kNone_MSFBOType;
     }
 
-    if (GrGLCaps::kES_IMG_MsToTexture_MSFBOType == fMSFBOType) {
-        GR_GL_GetIntegerv(gli, GR_GL_MAX_SAMPLES_IMG, &fMaxStencilSampleCount);
-    } else if (GrGLCaps::kNone_MSFBOType != fMSFBOType) {
-        GR_GL_GetIntegerv(gli, GR_GL_MAX_SAMPLES, &fMaxStencilSampleCount);
-    }
     // We only have a use for raster multisample if there is coverage modulation from mixed samples.
     if (fUsesMixedSamples && ctxInfo.hasExtension("GL_EXT_raster_multisample")) {
         GR_GL_GetIntegerv(gli, GR_GL_MAX_RASTER_SAMPLES, &fMaxRasterSamples);
-        // This is to guard against platforms that may not support as many samples for
-        // glRasterSamples as they do for framebuffers.
-        fMaxStencilSampleCount = SkTMin(fMaxStencilSampleCount, fMaxRasterSamples);
     }
-    fMaxColorSampleCount = fMaxStencilSampleCount;
 }
 
 void GrGLCaps::initBlendEqationSupport(const GrGLContextInfo& ctxInfo) {
@@ -1989,10 +1980,19 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
                     delete[] temp;
                 }
             } else {
-                static const int kDefaultSamples[] = {0,1,2,4,8};
+                // Fake out the table using some semi-standard counts up to the max allowed sample
+                // count.
+                int maxSampleCnt = 0;
+                if (GrGLCaps::kES_IMG_MsToTexture_MSFBOType == fMSFBOType) {
+                    GR_GL_GetIntegerv(gli, GR_GL_MAX_SAMPLES_IMG, &maxSampleCnt);
+                } else if (GrGLCaps::kNone_MSFBOType != fMSFBOType) {
+                    GR_GL_GetIntegerv(gli, GR_GL_MAX_SAMPLES, &maxSampleCnt);
+                }
+
+                static constexpr int kDefaultSamples[] = {0, 1, 2, 4, 8};
                 int count = SK_ARRAY_COUNT(kDefaultSamples);
                 for (; count > 0; --count) {
-                    if (kDefaultSamples[count-1] <= fMaxColorSampleCount) {
+                    if (kDefaultSamples[count - 1] <= maxSampleCnt) {
                         break;
                     }
                 }
@@ -2501,6 +2501,8 @@ bool validate_sized_format(GrGLenum format, SkColorType ct, GrPixelConfig* confi
                 *config = kSRGBA_8888_GrPixelConfig;
             }
             break;
+        case kRGB_888x_SkColorType:
+            return false;
         case kBGRA_8888_SkColorType:
             if (GR_GL_RGBA8 == format) {
                 if (kGL_GrGLStandard == standard) {
@@ -2514,6 +2516,10 @@ bool validate_sized_format(GrGLenum format, SkColorType ct, GrPixelConfig* confi
                 *config = kSBGRA_8888_GrPixelConfig;
             }
             break;
+        case kRGBA_1010102_SkColorType:
+            return false;
+        case kRGB_101010x_SkColorType:
+            return false;
         case kGray_8_SkColorType:
             if (GR_GL_LUMINANCE8 == format) {
                 *config = kGray_8_as_Lum_GrPixelConfig;

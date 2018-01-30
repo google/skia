@@ -57,11 +57,18 @@ public:
         this->addInterval(proxy, fNumOps, fNumOps SkDEBUGCODE(, isDirectDstRead));
     }
 
+    enum class AssignError {
+        kNoError,
+        kFailedProxyInstantiation
+    };
+
     // Returns true when the opLists from 'startIndex' to 'stopIndex' should be executed;
     // false when nothing remains to be executed.
+    // If any proxy fails to instantiate, the AssignError will be set to kFailedProxyInstantiation.
+    // If this happens, the caller should remove all ops which reference an uninstantiated proxy.
     // This is used to execute a portion of the queued opLists in order to reduce the total
     // amount of GPU resources required.
-    bool assign(int* startIndex, int* stopIndex);
+    bool assign(int* startIndex, int* stopIndex, AssignError* outError);
 
     void markEndOfOpList(int opListIndex);
 

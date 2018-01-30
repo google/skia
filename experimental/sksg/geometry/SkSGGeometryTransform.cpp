@@ -23,6 +23,14 @@ GeometryTransform::~GeometryTransform() {
     this->unobserveInval(fMatrix);
 }
 
+void GeometryTransform::onClip(SkCanvas* canvas, bool antiAlias) const {
+    canvas->clipPath(fTransformed, SkClipOp::kIntersect, antiAlias);
+}
+
+void GeometryTransform::onDraw(SkCanvas* canvas, const SkPaint& paint) const {
+    canvas->drawPath(fTransformed, paint);
+}
+
 SkRect GeometryTransform::onRevalidate(InvalidationController* ic, const SkMatrix& ctm) {
     SkASSERT(this->hasInval());
 
@@ -40,10 +48,6 @@ SkRect GeometryTransform::onRevalidate(InvalidationController* ic, const SkMatri
 
 SkPath GeometryTransform::onAsPath() const {
     return fTransformed;
-}
-
-void GeometryTransform::onDraw(SkCanvas* canvas, const SkPaint& paint) const {
-    canvas->drawPath(fTransformed, paint);
 }
 
 } // namespace sksg

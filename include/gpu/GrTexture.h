@@ -41,7 +41,7 @@ public:
     /**
      * This function steals the backend texture from a uniquely owned GrTexture with no pending
      * IO, passing it out to the caller. The GrTexture is deleted in the process.
-     * 
+     *
      * Note that if the GrTexture is not uniquely owned (no other refs), or has pending IO, this
      * function will fail.
      */
@@ -55,11 +55,16 @@ public:
     }
 #endif
 
-    // These match the definitions in SkImage, for whence they came
+    virtual void setRelease(sk_sp<GrReleaseProcHelper> releaseHelper) = 0;
+
+    // These match the definitions in SkImage, from whence they came.
+    // TODO: Either move Chrome over to new api or remove their need to call this on GrTexture
     typedef void* ReleaseCtx;
     typedef void (*ReleaseProc)(ReleaseCtx);
-
-    virtual void setRelease(ReleaseProc proc, ReleaseCtx ctx) = 0;
+    void setRelease(ReleaseProc proc, ReleaseCtx ctx) {
+        sk_sp<GrReleaseProcHelper> helper(new GrReleaseProcHelper(proc, ctx));
+        this->setRelease(std::move(helper));
+    }
 
     /** Access methods that are only to be used within Skia code. */
     inline GrTexturePriv texturePriv();

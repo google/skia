@@ -26,7 +26,7 @@ public:
      *  Create an SkAnimatedImage from the SkAndroidCodec.
      *
      *  Returns null on failure to allocate pixels. On success, this will
-     *  decode the first frame. It will not animate until start() is called.
+     *  decode the first frame.
      *
      *  @param scaledSize Size to draw the image, possibly requiring scaling.
      *  @param cropRect Rectangle to crop to after scaling.
@@ -43,28 +43,9 @@ public:
     ~SkAnimatedImage() override;
 
     /**
-     *  Start or resume the animation. update() must be called to advance the
-     *  time.
-     */
-    void start();
-
-    /**
-     *  Stop the animation. update() has no effect while the animation is
-     *  stopped.
-     */
-    void stop();
-
-    /**
      *  Reset the animation to the beginning.
      */
     void reset();
-
-    /**
-     *  Whether the animation is active.
-     *
-     *  If true, update() can be called to animate.
-     */
-    bool isRunning() const { return fRunning && !fFinished; }
 
     /**
      *  Whether the animation completed.
@@ -75,18 +56,28 @@ public:
     bool isFinished() const { return fFinished; }
 
     /**
-     * Returned by update if the animation is not running.
+     * Returned by decodeNextFrame and currentFrameDuration if the animation
+     * is not running.
      */
-    static constexpr double kNotRunning = -2.0;
+    static constexpr int kFinished = -1;
 
     /**
-     *  Update the current time. If the image is animating, this may decode
-     *  a new frame.
+     *  Decode the next frame.
      *
-     *  @return the time to show the next frame, or kNotRunning if the animation
-     *      is not running.
+     *  If the animation is on the last frame or has hit an error, returns
+     *  kFinished.
      */
-    double update(double msecs);
+    int decodeNextFrame();
+
+    /**
+     *  How long to display the current frame.
+     *
+     *  Useful for the first frame, for which decodeNextFrame is called
+     *  internally.
+     */
+    int currentFrameDuration() {
+        return fCurrentFrameDuration;
+    }
 
     /**
      *  Change the repetition count.
@@ -130,9 +121,7 @@ private:
     SkMatrix                        fMatrix;     // used only if !fSimple
 
     bool                            fFinished;
-    bool                            fRunning;
-    double                          fNowMS;
-    double                          fRemainingMS;
+    int                             fCurrentFrameDuration;
     Frame                           fActiveFrame;
     Frame                           fRestoreFrame;
     int                             fRepetitionCount;

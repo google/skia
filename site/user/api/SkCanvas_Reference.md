@@ -73,10 +73,11 @@ when no <a href="SkSurface_Reference#Surface">Surface</a> is required, and some 
 
 | name | description |
 | --- | ---  |
-| <a href="#SkCanvas_MakeRasterDirect">MakeRasterDirect</a> | creates <a href="#Canvas">Canvas</a> from <a href="SkImageInfo_Reference#SkImageInfo">SkImageInfo</a> and pixel data |
-| <a href="#SkCanvas_MakeRasterDirectN32">MakeRasterDirectN32</a> | creates <a href="#Canvas">Canvas</a> from image specifications and pixel data |
+| <a href="#SkCanvas_MakeRasterDirect">MakeRasterDirect</a> | creates from <a href="SkImageInfo_Reference#SkImageInfo">SkImageInfo</a> and <a href="#Storage">Pixel Storage</a> |
+| <a href="#SkCanvas_MakeRasterDirectN32">MakeRasterDirectN32</a> | creates from image data and <a href="#Storage">Pixel Storage</a> |
 | <a href="#SkCanvas_accessTopLayerPixels">accessTopLayerPixels</a> | returns writable pixel access if available |
 | <a href="#SkCanvas_accessTopRasterHandle">accessTopRasterHandle</a> | returns context that tracks <a href="#Clip">Clip</a> and <a href="#Matrix">Matrix</a> |
+| <a href="#SkCanvas_androidFramework_setDeviceClipRestriction">androidFramework setDeviceClipRestriction</a> | for use by Android framework |
 | <a href="#SkCanvas_clear">clear</a> | fills <a href="#Clip">Clip</a> with <a href="undocumented#Color">Color</a> |
 | <a href="#SkCanvas_clipPath">clipPath</a> | combines <a href="#Clip">Clip</a> with <a href="SkPath_Reference#Path">Path</a> |
 | <a href="#SkCanvas_clipRRect">clipRRect</a> | combines <a href="#Clip">Clip</a> with <a href="undocumented#Round_Rect">Round Rect</a> |
@@ -150,7 +151,8 @@ when no <a href="SkSurface_Reference#Surface">Surface</a> is required, and some 
 | <a href="#SkCanvas_setAllowSimplifyClip">setAllowSimplifyClip</a> | experimental |
 | <a href="#SkCanvas_setDrawFilter">setDrawFilter</a> | legacy; to be deprecated |
 | <a href="#SkCanvas_setMatrix">setMatrix</a> | sets <a href="#Matrix">Matrix</a> |
-| <a href="#SkCanvas_skew">skew</a> | skews <a href="#Matrix">Matrix</a>. | <a href="#SkCanvas_translate">translate</a> | translates <a href="#Matrix">Matrix</a> |
+| <a href="#SkCanvas_skew">skew</a> | skews <a href="#Matrix">Matrix</a> |
+| <a href="#SkCanvas_translate">translate</a> | translates <a href="#Matrix">Matrix</a> |
 | <a href="#SkCanvas_writePixels">writePixels</a> | copies and converts rectangle of pixels to <a href="#Canvas">Canvas</a> |
 
 <a name="SkCanvas_MakeRasterDirect"></a>

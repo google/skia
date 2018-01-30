@@ -88,7 +88,7 @@ public:
     ~SkAutoPathBoundsUpdate() {
         fPath->setConvexity(fDegenerate ? SkPath::kConvex_Convexity
                                         : SkPath::kUnknown_Convexity);
-        if (fEmpty || fHasValidBounds) {
+        if ((fEmpty || fHasValidBounds) && fRect.isFinite()) {
             fPath->setBounds(fRect);
         }
     }

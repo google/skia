@@ -145,7 +145,7 @@ protected:
                                      SkRect::MakeIWH(this->width(), this->height()),
                                      SkMatrix::kFill_ScaleToFit));
         auto root = sksg::Transform::Make(std::move(group), fContentMatrix);
-        fScene = sksg::Scene::Make(std::move(root), sksg::Scene::AnimatorList());
+        fScene = sksg::Scene::Make(std::move(root), sksg::AnimatorList());
 
         // Off we go.
         this->updatePaddleStrategy();

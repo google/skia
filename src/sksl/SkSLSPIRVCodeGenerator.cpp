@@ -1199,7 +1199,68 @@ SpvId SPIRVCodeGenerator::writeVectorConstructor(const Constructor& c, OutputStr
     // an instruction
     std::vector<SpvId> arguments;
     for (size_t i = 0; i < c.fArguments.size(); i++) {
-        arguments.push_back(this->writeExpression(*c.fArguments[i], out));
+        if (c.fArguments[i]->fType.kind() == Type::kVector_Kind) {
+            // SPIR-V doesn't support vector(vector-of-different-type) directly, so we need to
+            // extract the components and convert them in that case manually. On top of that,
+            // as of this writing there's a bug in the Intel Vulkan driver where OpCreateComposite
+            // doesn't handle vector arguments at all, so we always extract vector components and
+            // pass them into OpCreateComposite individually.
+            SpvId vec = this->writeExpression(*c.fArguments[i], out);
+            SpvOp_ op = SpvOpUndef;
+            const Type& src = c.fArguments[i]->fType.componentType();
+            const Type& dst = c.fType.componentType();
+            if (dst == *fContext.fFloat_Type || dst == *fContext.fHalf_Type) {
+                if (src == *fContext.fFloat_Type || src == *fContext.fHalf_Type) {
+                    if (c.fArguments.size() == 1) {
+                        return vec;
+                    }
+                } else if (src == *fContext.fInt_Type || src == *fContext.fShort_Type) {
+                    op = SpvOpConvertSToF;
+                } else if (src == *fContext.fUInt_Type || src == *fContext.fUShort_Type) {
+                    op = SpvOpConvertUToF;
+                } else {
+                    ASSERT(false);
+                }
+            } else if (dst == *fContext.fInt_Type || dst == *fContext.fShort_Type) {
+                if (src == *fContext.fFloat_Type || src == *fContext.fHalf_Type) {
+                    op = SpvOpConvertFToS;
+                } else if (src == *fContext.fInt_Type || src == *fContext.fShort_Type) {
+                    if (c.fArguments.size() == 1) {
+                        return vec;
+                    }
+                } else if (src == *fContext.fUInt_Type || src == *fContext.fUShort_Type) {
+                    op = SpvOpBitcast;
+                } else {
+                    ASSERT(false);
+                }
+            } else if (dst == *fContext.fUInt_Type || dst == *fContext.fUShort_Type) {
+                if (src == *fContext.fFloat_Type || src == *fContext.fHalf_Type) {
+                    op = SpvOpConvertFToS;
+                } else if (src == *fContext.fInt_Type || src == *fContext.fShort_Type) {
+                    op = SpvOpBitcast;
+                } else if (src == *fContext.fUInt_Type || src == *fContext.fUShort_Type) {
+                    if (c.fArguments.size() == 1) {
+                        return vec;
+                    }
+                } else {
+                    ASSERT(false);
+                }
+            }
+            for (int j = 0; j < c.fArguments[i]->fType.columns(); j++) {
+                SpvId swizzle = this->nextId();
+                this->writeInstruction(SpvOpCompositeExtract, this->getType(src), swizzle, vec, j,
+                                       out);
+                if (op != SpvOpUndef) {
+                    SpvId cast = this->nextId();
+                    this->writeInstruction(op, this->getType(dst), cast, swizzle, out);
+                    arguments.push_back(cast);
+                } else {
+                    arguments.push_back(swizzle);
+                }
+            }
+        } else {
+            arguments.push_back(this->writeExpression(*c.fArguments[i], out));
+        }
     }
     SpvId result = this->nextId();
     if (arguments.size() == 1 && c.fArguments[0]->fType.kind() == Type::kScalar_Kind) {
@@ -1210,7 +1271,8 @@ SpvId SPIRVCodeGenerator::writeVectorConstructor(const Constructor& c, OutputStr
             this->writeWord(arguments[0], out);
         }
     } else {
-        this->writeOpCode(SpvOpCompositeConstruct, 3 + (int32_t) c.fArguments.size(), out);
+        ASSERT(arguments.size() > 1);
+        this->writeOpCode(SpvOpCompositeConstruct, 3 + (int32_t) arguments.size(), out);
         this->writeWord(this->getType(c.fType), out);
         this->writeWord(result, out);
         for (SpvId id : arguments) {

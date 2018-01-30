@@ -132,11 +132,11 @@ $ ninja -C out/dir bookmaker
 Complete rebuilding of all bookmaker output looks like:
 
 #Code
-$ ./out/skia/bookmaker.exe -a docs/status.json -e fiddle.json
-$ ~/go/bin/fiddlecli.exe --input fiddle.json --output fiddleout.json
-$ ./out/skia/bookmaker.exe -a docs/status.json -f fiddleout.json -r site/user/api -c
-$ ./out/skia/bookmaker.exe -a docs/status.json -x
-$ ./out/skia/bookmaker.exe -a docs/status.json -p
+$ ./out/skia/bookmaker -a docs/status.json -e fiddle.json
+$ ~/go/bin/fiddlecli --input fiddle.json --output fiddleout.json
+$ ./out/skia/bookmaker -a docs/status.json -f fiddleout.json -r site/user/api -c
+$ ./out/skia/bookmaker -a docs/status.json -x
+$ ./out/skia/bookmaker -a docs/status.json -p
 ##
 
 #Subtopic Regenerate ##

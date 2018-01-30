@@ -1048,4 +1048,20 @@ static inline GrPixelConfigIsClamped GrGetPixelConfigIsClamped(GrPixelConfig con
                                                 : GrPixelConfigIsClamped::kYes;
 }
 
+class GrReleaseProcHelper : public SkRefCnt {
+public:
+    // These match the definitions in SkImage, from whence they came
+    typedef void* ReleaseCtx;
+    typedef void (*ReleaseProc)(ReleaseCtx);
+
+    GrReleaseProcHelper(ReleaseProc proc, ReleaseCtx ctx) : fReleaseProc(proc), fReleaseCtx(ctx) {}
+    ~GrReleaseProcHelper() override {
+        fReleaseProc(fReleaseCtx);
+    }
+
+private:
+    ReleaseProc fReleaseProc;
+    ReleaseCtx  fReleaseCtx;
+};
+
 #endif

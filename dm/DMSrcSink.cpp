@@ -1344,28 +1344,32 @@ Error SkottieSrc::draw(SkCanvas* canvas) const {
     SkPaint paint, clockPaint;
     paint.setColor(0xffa0a0a0);
     paint.setStyle(SkPaint::kStroke_Style);
-    paint.setStrokeWidth(0);
+    paint.setStrokeWidth(1);
+    paint.setAntiAlias(true);
 
     clockPaint.setTextSize(12);
+    clockPaint.setAntiAlias(true);
 
     const auto ip = fAnimation->inPoint() * 1000 / fAnimation->frameRate(),
                op = fAnimation->outPoint() * 1000 / fAnimation->frameRate(),
                fr = (op - ip) / (kTileCount * kTileCount - 1);
 
+    // Shuffled order to exercise non-linear frame progression.
+    static constexpr int frames[] = { 4, 0, 3, 1, 2 };
+    static_assert(SK_ARRAY_COUNT(frames) == kTileCount, "");
+
     const auto canvas_size = this->size();
     for (int i = 0; i < kTileCount; ++i) {
-        const SkScalar y = i * (fTileSize.height() + 1);
-        canvas->drawLine(0, .5f + y, canvas_size.width(), .5f + y, paint);
+        const SkScalar y = frames[i] * (fTileSize.height() + 1);
 
         for (int j = 0; j < kTileCount; ++j) {
-            const SkScalar x = j * (fTileSize.width() + 1);
-            canvas->drawLine(x + .5f, 0, x + .5f, canvas_size.height(), paint);
+            const SkScalar x = frames[j] * (fTileSize.width() + 1);
             SkRect dest = SkRect::MakeXYWH(x, y, fTileSize.width(), fTileSize.height());
 
-            const auto t = fr * (i * kTileCount + j);
+            const auto t = fr * (frames[i] * kTileCount + frames[j]);
             {
                 SkAutoCanvasRestore acr(canvas, true);
-                canvas->clipRect(dest);
+                canvas->clipRect(dest, true);
                 canvas->concat(SkMatrix::MakeRectToRect(SkRect::MakeSize(fAnimation->size()),
                                                         dest,
                                                         SkMatrix::kFill_ScaleToFit));
@@ -1374,10 +1378,15 @@ Error SkottieSrc::draw(SkCanvas* canvas) const {
                 fAnimation->render(canvas);
             }
 
+            canvas->drawLine(x + fTileSize.width() + .5f, 0,
+                             x + fTileSize.width() + .5f, canvas_size.height(), paint);
             const auto label = SkStringPrintf("%.3f", t);
             canvas->drawText(label.c_str(), label.size(), dest.x(),
                              dest.bottom(), clockPaint);
         }
+
+        canvas->drawLine(0                  , y + fTileSize.height() + .5f,
+                         canvas_size.width(), y + fTileSize.height() + .5f, paint);
     }
 
     return "";
