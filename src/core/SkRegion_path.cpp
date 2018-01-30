@@ -274,6 +274,7 @@ static int count_path_runtype_values(const SkPath& path, int* itop, int* ibot) {
     SkPath::Verb    verb;
 
     int maxEdges = 0;
+    // begin with top & bot inverted, so we can detect if we have no edges
     SkScalar    top = SkIntToScalar(SK_MaxS16);
     SkScalar    bot = SkIntToScalar(SK_MinS16);
 
@@ -297,11 +298,11 @@ static int count_path_runtype_values(const SkPath& path, int* itop, int* ibot) {
             }
         }
     }
-    if (0 == maxEdges) {
-        return 0;   // we have only moves+closes
+    if (top > bot) {
+        return 0;   // we have no real edges (even if maxEdges is > 0)
     }
 
-    SkASSERT(top <= bot);
+    SkASSERT(maxEdges > 0);
     *itop = SkScalarRoundToInt(top);
     *ibot = SkScalarRoundToInt(bot);
     return maxEdges;
