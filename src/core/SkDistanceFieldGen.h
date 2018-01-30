@@ -12,10 +12,11 @@
 // the max magnitude for the distance field
 // distance values are limited to the range (-SK_DistanceFieldMagnitude, SK_DistanceFieldMagnitude]
 #define SK_DistanceFieldMagnitude   4
-// we need to pad around the original glyph to allow for bilerp sampling
-#define SK_DistanceFieldPad         1
-// the rect we render with is inset from the SDF size
-#define SK_DistanceFieldInset       1
+// we need to pad around the original glyph to allow our maximum distance of
+// SK_DistanceFieldMagnitude texels away from any edge
+#define SK_DistanceFieldPad         4
+// the rect we render with is inset from the distance field glyph size to allow for bilerp
+#define SK_DistanceFieldInset       2
 
 // For the fragment shader:
 //   The distance field is constructed as unsigned char values,
