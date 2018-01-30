@@ -16,6 +16,24 @@
       "revId": "698e7457804b9b0411eabc936187981a544b37e6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ac30a7e3_0168ab42",
+        "filename": "src/core/SkRegion_path.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 321,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-01-30T16:29:49Z",
+      "side": 1,
+      "message": "extended test",
+      "parentUuid": "e2144007_3a5b53ed",
+      "revId": "698e7457804b9b0411eabc936187981a544b37e6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
