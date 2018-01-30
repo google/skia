@@ -22,6 +22,30 @@
       "revId": "a92731f7d2038772fffcf70064fc225fcc4684e3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "90755c51_385659a7",
+        "filename": "tools/skqp/gm_knowledge.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-01-30T19:09:59Z",
+      "side": 1,
+      "message": "Only this:\n    extra_cflags \u003d [ \"-DSK_SKQP_ERROR_NO_SHIFT\" ]",
+      "parentUuid": "9c00f42f_563032d4",
+      "range": {
+        "startLine": 52,
+        "startChar": 8,
+        "endLine": 52,
+        "endChar": 30
+      },
+      "revId": "a92731f7d2038772fffcf70064fc225fcc4684e3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
