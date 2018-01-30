@@ -19,7 +19,7 @@
 #include <memory>
 #include <vector>
 
-namespace sksg {
+namespace skan {
 class Color;
 class Gradient;
 class LinearGradient;
@@ -60,7 +60,7 @@ using ShapeValue  = SkPath;
 
 class CompositeRRect final : public SkRefCnt {
 public:
-    explicit CompositeRRect(sk_sp<sksg::RRect>);
+    explicit CompositeRRect(sk_sp<skan::RRect>);
 
     COMPOSITE_PROPERTY(Position, SkPoint , SkPoint::Make(0, 0))
     COMPOSITE_PROPERTY(Size    , SkSize  , SkSize::Make(0, 0))
@@ -69,7 +69,7 @@ public:
 private:
     void apply();
 
-    sk_sp<sksg::RRect> fRRectNode;
+    sk_sp<skan::RRect> fRRectNode;
 
     using INHERITED = SkRefCnt;
 };
@@ -80,7 +80,7 @@ public:
         kStar, kPoly,
     };
 
-    CompositePolyStar(sk_sp<sksg::Path>, Type);
+    CompositePolyStar(sk_sp<skan::Path>, Type);
 
     COMPOSITE_PROPERTY(Position      , SkPoint , SkPoint::Make(0, 0))
     COMPOSITE_PROPERTY(PointCount    , SkScalar, 0)
@@ -93,7 +93,7 @@ public:
 private:
     void apply();
 
-    sk_sp<sksg::Path> fPathNode;
+    sk_sp<skan::Path> fPathNode;
     Type              fType;
 
     using INHERITED = SkRefCnt;
@@ -101,7 +101,7 @@ private:
 
 class CompositeTransform final : public SkRefCnt {
 public:
-    explicit CompositeTransform(sk_sp<sksg::Matrix>);
+    explicit CompositeTransform(sk_sp<skan::Matrix>);
 
     COMPOSITE_PROPERTY(AnchorPoint, SkPoint , SkPoint::Make(0, 0))
     COMPOSITE_PROPERTY(Position   , SkPoint , SkPoint::Make(0, 0))
@@ -113,7 +113,7 @@ public:
 private:
     void apply();
 
-    sk_sp<sksg::Matrix> fMatrixNode;
+    sk_sp<skan::Matrix> fMatrixNode;
 
     using INHERITED = SkRefCnt;
 };
@@ -125,12 +125,12 @@ public:
     COMPOSITE_PROPERTY(ColorStops, std::vector<SkScalar>, std::vector<SkScalar>())
 
 protected:
-    CompositeGradient(sk_sp<sksg::Gradient>, size_t stopCount);
+    CompositeGradient(sk_sp<skan::Gradient>, size_t stopCount);
 
     const SkPoint& startPoint() const { return fStartPoint; }
     const SkPoint& endPoint()   const { return fEndPoint;   }
 
-    sk_sp<sksg::Gradient> fGradient;
+    sk_sp<skan::Gradient> fGradient;
     size_t                fStopCount;
 
     virtual void onApply() = 0;
@@ -143,7 +143,7 @@ private:
 
 class CompositeLinearGradient final : public CompositeGradient {
 public:
-    CompositeLinearGradient(sk_sp<sksg::LinearGradient>, size_t stopCount);
+    CompositeLinearGradient(sk_sp<skan::LinearGradient>, size_t stopCount);
 
 private:
     void onApply() override;
@@ -153,7 +153,7 @@ private:
 
 class CompositeRadialGradient final : public CompositeGradient {
 public:
-    CompositeRadialGradient(sk_sp<sksg::RadialGradient>, size_t stopCount);
+    CompositeRadialGradient(sk_sp<skan::RadialGradient>, size_t stopCount);
 
 private:
     void onApply() override;
