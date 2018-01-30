@@ -694,7 +694,7 @@ string MdOut::linkRef(const string& leadingSpaces, const Definition* def,
 
 		}
 		if (!found) {
-			SkDebugf("");
+			SkDebugf("");  // convenient place to set a breakpoint
 		}
 	}
 	return result;
@@ -851,7 +851,11 @@ void MdOut::markTypeOut(Definition* def) {
             break;
         case MarkType::kImage:
             break;
+        case MarkType::kIn:
+            break;
         case MarkType::kLegend:
+            break;
+        case MarkType::kLine:
             break;
         case MarkType::kLink:
             break;
@@ -1141,6 +1145,34 @@ void MdOut::mdHeaderOutLF(int depth, int lf) {
         FPRINTF("#");
     }
     FPRINTF(" ");
+}
+
+void MdOut::overviewOut() {
+#if 0  // under development
+    // substitute $1 with def (e.g. Subtopics); substitute $2 with ref (e.g. SkRect)
+    const char header[] =
+            "## $1\n"
+            "\n"
+            "| name | description |\n"
+            "| --- | ---  |\n";
+    const char* topics[] = {
+            "Classes_and_Structs", "embedded struct and class members",
+            "Constants",           "enum and enum class, const values",
+            "Constructors",        "functions that construct $2",
+            "Member_Function",     "static functions and member methods",
+            "Members",             "member values",
+            "Operator",            "operator overloading methods",
+            "Related_Functions",  "similar methods grouped together",
+    };
+    int found = 0;
+    vector<Definition*> classesAndStructs;
+    vector<Definition*> constants;
+    vector<Definition*> constructors;
+    vector<Definition*> memberFunctions;
+    vector<Definition*> members;
+    vector<Definition*> operators;
+    vector<Definition*> relatedFunctions;
+#endif
 }
 
 void MdOut::resolveOut(const char* start, const char* end, BmhParser::Resolvable resolvable) {

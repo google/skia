@@ -62,8 +62,8 @@ is useful to position one or more <a href="#Bitmap">Bitmaps</a> within a shared 
 
 | name | description |
 | --- | ---  |
-| <a href="#SkBitmap">SkBitmap</a>& <a href="#SkBitmap_move_operator">operator=(SkBitmap&& src)</a> | takes ownership of pixels |
-| <a href="#SkBitmap">SkBitmap</a>& <a href="#SkBitmap_copy_operator">operator=(const SkBitmap& src)</a> | shares ownership of pixels |
+| <a href="#SkBitmap_move_operator">operator=(SkBitmap&& src)</a> | takes ownership of pixels |
+| <a href="#SkBitmap_copy_operator">operator=(const SkBitmap& src)</a> | shares ownership of pixels |
 
 ## <a name="Member_Functions"></a> Member Functions
 
@@ -247,7 +247,7 @@ empty <a href="#Bitmap">Bitmap</a>
 
 ### Example
 
-<div><fiddle-embed name="8bf225da00df80970271722cd3d1ced4">
+<div><fiddle-embed name="6739d14ec0d6a373f2fcadc6b3077fd4">
 
 #### Example Output
 
@@ -461,7 +461,7 @@ Swaps the fields of the two bitmaps.
 
 ### Example
 
-<div><fiddle-embed name="aaf9157531f4969b4ec048e9edcdb069">
+<div><fiddle-embed name="274d02e5f33866b1a9a78423c5569e22">
 
 #### Example Output
 
@@ -537,7 +537,7 @@ reference to <a href="SkImageInfo_Reference#Image_Info">Image Info</a>
 
 ### Example
 
-<div><fiddle-embed name="2932fccfb074cf52b17cec238f70d888">
+<div><fiddle-embed name="ec47c4dc23e2925ad565eaba55a91553">
 
 #### Example Output
 
@@ -640,12 +640,12 @@ Returns <a href="SkImageInfo_Reference#Color_Type">Color Type</a>, one of: <a hr
 
 ### Example
 
-<div><fiddle-embed name="8aa2ab0565091082a874c23886ddb0c5">
+<div><fiddle-embed name="ceb77fab7326b57822a147b04aa0960e">
 
 #### Example Output
 
 ~~~~
-color type: kAlpha_SkColorType
+color type: kAlpha_8_SkColorType
 ~~~~
 
 </fiddle-embed></div>
@@ -773,19 +773,19 @@ bytes in pixel
 
 ### Example
 
-<div><fiddle-embed name="f09e181f3210d427e4b3d2ae6667ae6a">
+<div><fiddle-embed name="4bfe28ea3f70f3bfd73d956e913c1a20">
 
 #### Example Output
 
 ~~~~
-color: kUnknown_SkColorType   bytesPerPixel: 0
-color: kAlpha_SkColorType     bytesPerPixel: 1
-color: kRGB_565_SkColorType   bytesPerPixel: 2
-color: kARGB_4444_SkColorType bytesPerPixel: 2
-color: kRGBA_8888_SkColorType bytesPerPixel: 4
-color: kBGRA_8888_SkColorType bytesPerPixel: 4
-color: kGray_8_SkColorType    bytesPerPixel: 1
-color: kRGBA_F16_SkColorType  bytesPerPixel: 8
+color: kUnknown_SkColorType      bytesPerPixel: 0
+color: kAlpha_8_SkColorType      bytesPerPixel: 1
+color: kRGB_565_SkColorType      bytesPerPixel: 2
+color: kARGB_4444_SkColorType    bytesPerPixel: 2
+color: kRGBA_8888_SkColorType    bytesPerPixel: 4
+color: kBGRA_8888_SkColorType    bytesPerPixel: 4
+color: kGray_8_SkColorType       bytesPerPixel: 1
+color: kRGBA_F16_SkColorType     bytesPerPixel: 8
 ~~~~
 
 </fiddle-embed></div>
@@ -848,13 +848,13 @@ one of: 0, 1, 2, 3; left shift to convert pixels to bytes
 
 ### Example
 
-<div><fiddle-embed name="8fa214f2b9a655d7b492181d2143538c">
+<div><fiddle-embed name="2c77d92f20b950154b9444d3b639b36c">
 
 #### Example Output
 
 ~~~~
 color: kUnknown_SkColorType   shiftPerPixel: 0
-color: kAlpha_SkColorType     shiftPerPixel: 0
+color: kAlpha_8_SkColorType   shiftPerPixel: 0
 color: kRGB_565_SkColorType   shiftPerPixel: 1
 color: kARGB_4444_SkColorType shiftPerPixel: 1
 color: kRGBA_8888_SkColorType shiftPerPixel: 2
@@ -1059,7 +1059,7 @@ true if <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a> is set
 
 ### Example
 
-<div><fiddle-embed name="786005ff582d0369c83e7d686d94138d"></fiddle-embed></div>
+<div><fiddle-embed name="9394975fa8a13204a5cc2e94f86737e5"></fiddle-embed></div>
 
 ### See Also
 

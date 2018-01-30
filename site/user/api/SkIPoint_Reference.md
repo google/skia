@@ -26,13 +26,13 @@ SkIPoint Reference
 
 | name | description |
 | --- | ---  |
-| <a href="#SkIPoint">SkIPoint</a> <a href="#SkIPoint_add_operator">operator+(const SkIPoint& a, const SkIVector& b)</a> | returns <a href="#IPoint">IPoint</a> offset by <a href="SkIPoint_Reference#IVector">IVector</a> |
-| <a href="#SkIPoint">SkIPoint</a> <a href="#SkIPoint_minus_operator">operator-() const</a> | reverses sign of <a href="#IPoint">IPoint</a> |
-| <a href="SkIPoint_Reference#SkIVector">SkIVector</a> <a href="#SkIPoint_subtract_operator">operator-(const SkIPoint& a, const SkIPoint& b)</a> | returns <a href="SkIPoint_Reference#IVector">IVector</a> between <a href="#IPoint">IPoints</a> |
-| bool <a href="#SkIPoint_notequal_operator">operator!=(const SkIPoint& a, const SkIPoint& b)</a> | returns true if <a href="#IPoint">IPoints</a> are unequal |
-| bool <a href="#SkIPoint_equal_operator">operator==(const SkIPoint& a, const SkIPoint& b)</a> | returns true if <a href="#IPoint">IPoints</a> are equal |
-| void <a href="#SkIPoint_addto_operator">operator+=(const SkIVector& v)</a> | adds <a href="SkIPoint_Reference#IVector">IVector</a> to <a href="#IPoint">IPoint</a> |
-| void <a href="#SkIPoint_subtractfrom_operator">operator-=(const SkIVector& v)</a> | subtracts <a href="SkIPoint_Reference#IVector">IVector</a> from <a href="#IPoint">IPoint</a> |
+| <a href="#SkIPoint_add_operator">operator+(const SkIPoint& a, const SkIVector& b)</a> | returns <a href="#IPoint">IPoint</a> offset by <a href="SkIPoint_Reference#IVector">IVector</a> |
+| <a href="#SkIPoint_minus_operator">operator-() const</a> | reverses sign of <a href="#IPoint">IPoint</a> |
+| <a href="#SkIPoint_subtract_operator">operator-(const SkIPoint& a, const SkIPoint& b)</a> | returns <a href="SkIPoint_Reference#IVector">IVector</a> between <a href="#IPoint">IPoints</a> |
+| <a href="#SkIPoint_notequal_operator">operator!=(const SkIPoint& a, const SkIPoint& b)</a> | returns true if <a href="#IPoint">IPoints</a> are unequal |
+| <a href="#SkIPoint_equal_operator">operator==(const SkIPoint& a, const SkIPoint& b)</a> | returns true if <a href="#IPoint">IPoints</a> are equal |
+| <a href="#SkIPoint_addto_operator">operator+=(const SkIVector& v)</a> | adds <a href="SkIPoint_Reference#IVector">IVector</a> to <a href="#IPoint">IPoint</a> |
+| <a href="#SkIPoint_subtractfrom_operator">operator-=(const SkIVector& v)</a> | subtracts <a href="SkIPoint_Reference#IVector">IVector</a> from <a href="#IPoint">IPoint</a> |
 
 ## <a name="Member_Functions"></a> Member Functions
 

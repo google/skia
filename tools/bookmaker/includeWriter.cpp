@@ -114,6 +114,8 @@ void IncludeWriter::descriptionOut(const Definition* def) {
                     }
                 }
                 } break;
+            case MarkType::kIn:
+            case MarkType::kLine:
             case MarkType::kToDo:
                 commentLen = (int) (prop->fStart - commentStart);
                 if (commentLen > 0) {
