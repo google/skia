@@ -34,6 +34,24 @@
       "revId": "eec9ad27e80d624794a68d2753cd9e8aec1e8111",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "aa0d37c5_f0ded765",
+        "filename": "src/core/SkRectPriv.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-30T20:06:37Z",
+      "side": 1,
+      "message": "I kind of think we should just try shoving these _sat_add() and _sat_sub() into makeOffset() and makeOutset() and see what happens.  I\u0027m having a hard time believing anyone could be relying on overflow or underflow here.\n\nThe _sat_add and _sat_sub you\u0027ve got here look fine.  On some platforms we can do saturated +, -, or * in one instruction, but you\u0027ve got the best general purpose versions I think.  And none of the single instructions will saturate to SK_MinS32, of course.",
+      "parentUuid": "6d1dd61d_f92d0548",
+      "revId": "eec9ad27e80d624794a68d2753cd9e8aec1e8111",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
