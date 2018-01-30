@@ -9,16 +9,7 @@ import shutil
 import sys
 
 if __name__ == '__main__':
-    if len(sys.argv) != 3 or not os.path.isdir(sys.argv[1]) or not os.path.isdir(sys.argv[2]):
-        sys.stderr.write('Usage\n  %s SKIA_DIR BUILD_DIR\n\n' % sys.argv[0])
-        sys.exit(1)
-    skia = sys.argv[1]
-    gen = os.path.join(sys.argv[2], 'gen')
-    if not os.path.isdir(gen):
-        os.mkdir(gen)
-    with open(os.path.join(gen, 'binary_resources.cpp'), 'w') as o:
-        o.write('#include "BinaryAsset.h"\n'
-                'BinaryAsset gResources[] = { {nullptr, nullptr, 0} };\n')
+    skia = os.path.join(os.path.dirname(__file__), os.path.pardir, os.path.pardir)
     dst = os.path.join(skia, 'platform_tools', 'android', 'apps', 'skqp',
                        'src', 'main', 'assets', 'resources')
     if os.path.isdir(dst) and not os.path.islink(dst):

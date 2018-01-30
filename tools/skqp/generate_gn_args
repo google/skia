@@ -12,7 +12,6 @@ target_cpu                = "{arch}"
 is_debug                  = false
 ndk                       = "{ndk}"
 ndk_api                   = 26
-skia_embed_resources      = true
 skia_enable_fontmgr_empty = true
 skia_enable_pdf           = false
 skia_use_dng_sdk          = false
