@@ -321,7 +321,7 @@ rect: 5, 25, 15, 35  isEmpty: false
 
 # ------------------------------------------------------------------------------
 
-#Method static constexpr SkRect SK_WARN_UNUSED_RESULT MakeXYWH(SkScalar x, SkScalar y, SkScalar w, SkScalar h)
+#Method static SkRect SK_WARN_UNUSED_RESULT MakeXYWH(SkScalar x, SkScalar y, SkScalar w, SkScalar h)
 
 #In Constructors
 #Line # constructs from SkScalar input returning (x, y, width, height) ##
