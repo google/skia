@@ -1970,6 +1970,7 @@ if (skia_enable_tools) {
       include_dirs = []
       deps = [
         ":experimental_skottie",
+        ":experimental_sksg",
         ":flags",
         ":gm",
         ":gpu_tool_utils",
