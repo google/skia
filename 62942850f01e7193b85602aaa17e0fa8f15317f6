@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "88420790_39cc34a9",
+        "filename": "include/private/GrSurfaceProxy.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 186,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-01-31T13:25:24Z",
+      "side": 1,
+      "message": "update the comment for kNot. Maybe \"Is either already instantiated or doesn\u0027t have a lazy callback\" ?",
+      "revId": "62942850f01e7193b85602aaa17e0fa8f15317f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "930a0fd5_3fe635ef",
+        "filename": "src/gpu/GrBackendTextureImageGenerator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-01-31T13:25:24Z",
+      "side": 1,
+      "message": "Can the refHelper and fRefHelper be managed via an sk_sp?",
+      "revId": "62942850f01e7193b85602aaa17e0fa8f15317f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "182dfc8f_a7f90173",
+        "filename": "src/gpu/GrProxyProvider.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 409,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-01-31T13:25:24Z",
+      "side": 1,
+      "message": "// This will give the texture a ref on the releaseHelper ?",
+      "revId": "62942850f01e7193b85602aaa17e0fa8f15317f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6af1fe7f_c58b342e",
+        "filename": "src/gpu/GrRenderTargetProxy.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-01-31T13:25:24Z",
+      "side": 1,
+      "message": "Is this correct ?",
+      "revId": "62942850f01e7193b85602aaa17e0fa8f15317f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
