@@ -141,7 +141,9 @@ static GrContextOptions context_options(skiagm::GM* gm = nullptr) {
     GrContextOptions grContextOptions;
     grContextOptions.fAllowPathMaskCaching = true;
     grContextOptions.fSuppressPathRendering = true;
+    #ifndef SK_SKQP_ENABLE_DRIVER_CORRECTNESS_WORKAROUNDS
     grContextOptions.fDisableDriverCorrectnessWorkarounds = true;
+    #endif
     if (gm) {
         gm->modifyGrContextOptions(&grContextOptions);
     }
