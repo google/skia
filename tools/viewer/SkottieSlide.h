@@ -50,13 +50,13 @@ public:
     void draw(SkCanvas*) override;
     bool animate(const SkAnimTimer&) override;
     bool onMouse(SkScalar x, SkScalar y, sk_app::Window::InputState, uint32_t modifiers) override;
+
 private:
     class AnimationWrapper;
 
     struct Rec {
         sk_sp<AnimationWrapper>             fWrapper;
         SkMSec                              fTimeBase = 0;
-        SkString                            fName;
         bool                                fShowAnimationInval = false;
 
         explicit Rec(sk_sp<AnimationWrapper>);

@@ -50,7 +50,7 @@ private:
     const sk_sp<Matrix>       fMatrix;
     SkPath                    fTransformed;
 
-    typedef GeometryNode INHERITED;
+    using INHERITED = GeometryNode;
 };
 
 }

@@ -12,11 +12,17 @@
 #include "Skottie.h"
 #include "SkOSFile.h"
 #include "SkOSPath.h"
+#include "SkSGColor.h"
+#include "SkSGDraw.h"
 #include "SkSGGroup.h"
 #include "SkSGRenderNode.h"
 #include "SkSGScene.h"
+#include "SkSGText.h"
 #include "SkSGTransform.h"
 #include "SkStream.h"
+#include "SkTypeface.h"
+
+#include <cmath>
 
 static constexpr int CELL_WIDTH  = 240;
 static constexpr int CELL_HEIGHT = 160;
@@ -65,38 +71,64 @@ SkottieSlide2::SkottieSlide2(const SkString& path)
     fName.set("skottie-dir");
 }
 
+// Build a global scene using tranformed animation fragments:
+//
+// [Group(root)]
+//     [Transform]
+//         [Group]
+//             [AnimationWrapper]
+//             [Draw]
+//                 [Text]
+//                 [Color]
+//     [Transform]
+//         [Group]
+//             [AnimationWrapper]
+//             [Draw]
+//                 [Text]
+//                 [Color]
+//     ...
+//
+// Note: for now animation wrappers are also tracked externally in fAnims, for tick dispatching.
+
+static sk_sp<sksg::RenderNode> MakeLabel(const SkString& txt,
+                                         const SkRect& src,
+                                         const SkMatrix& dstXform) {
+    auto text = sksg::Text::Make(nullptr, txt);
+    text->setFlags(SkPaint::kAntiAlias_Flag);
+    text->setSize(12 / std::sqrt(dstXform.getScaleX() * dstXform.getScaleY()));
+    text->setAlign(SkPaint::kCenter_Align);
+    text->setPosition(SkPoint::Make(src.width() / 2, src.height() + text->getSize()));
+
+    return sksg::Draw::Make(std::move(text), sksg::Color::Make(SK_ColorBLACK));
+}
+
 void SkottieSlide2::load(SkScalar, SkScalar) {
     SkString name;
     SkOSFile::Iter iter(fPath.c_str(), "json");
 
     int x = 0, y = 0;
 
-    // Build a global scene using tranformed animation fragments:
-    //
-    // [Group]
-    //     [Transform]
-    //         [AnimationWrapper]
-    //     [Transform]
-    //         [AnimationWrapper]
-    //     ...
-    //
-    // Note: for now animation wrappers are also tracked externally in fAnims, for tick dispatching.
     auto scene_root = sksg::Group::Make();
 
     while (iter.next(&name)) {
         SkString path = SkOSPath::Join(fPath.c_str(), name.c_str());
         if (auto anim  = skottie::Animation::MakeFromFile(path.c_str())) {
-            const SkRect src = SkRect::MakeSize(anim->size()),
-                         dst = SkRect::MakeXYWH(MARGIN + x * (CELL_WIDTH + SPACER_X),
-                                                MARGIN + y * (CELL_HEIGHT + SPACER_Y),
-                                                CELL_WIDTH, CELL_HEIGHT);
+            const auto src = SkRect::MakeSize(anim->size()),
+                       dst = SkRect::MakeXYWH(MARGIN + x * (CELL_WIDTH + SPACER_X),
+                                              MARGIN + y * (CELL_HEIGHT + SPACER_Y),
+                                              CELL_WIDTH, CELL_HEIGHT);
+            const auto   m = SkMatrix::MakeRectToRect(src, dst, SkMatrix::kCenter_ScaleToFit);
+
             auto wrapper = sk_make_sp<AnimationWrapper>(std::move(anim));
-            auto matrix  = sksg::Matrix::Make(
-                SkMatrix::MakeRectToRect(src, dst, SkMatrix::kCenter_ScaleToFit));
-            auto xform   = sksg::Transform::Make(wrapper, std::move(matrix));
+
+            auto group   = sksg::Group::Make();
+            group->addChild(wrapper);
+            group->addChild(MakeLabel(name, src, m));
+
+            auto xform   = sksg::Transform::Make(std::move(group), m);
 
             scene_root->addChild(xform);
-            fAnims.emplace_back(std::move(wrapper)).fName = name;
+            fAnims.emplace_back(std::move(wrapper));
 
             if (++x == COL_COUNT) {
                 x = 0;
@@ -123,27 +155,6 @@ SkISize SkottieSlide2::getDimensions() const {
 
 void SkottieSlide2::draw(SkCanvas* canvas) {
     fScene->render(canvas);
-
-    // TODO: this is all only to draw labels; replace with sksg::Text nodes, when available.
-    SkPaint paint;
-    paint.setTextSize(12);
-    paint.setAntiAlias(true);
-    paint.setTextAlign(SkPaint::kCenter_Align);
-
-    const SkRect dst = SkRect::MakeIWH(CELL_WIDTH, CELL_HEIGHT);
-    int x = 0, y = 0;
-
-    canvas->translate(MARGIN, MARGIN);
-    for (const auto& rec : fAnims) {
-        SkAutoCanvasRestore acr(canvas, true);
-        canvas->translate(x * (CELL_WIDTH + SPACER_X), y * (CELL_HEIGHT + SPACER_Y));
-        canvas->drawText(rec.fName.c_str(), rec.fName.size(),
-                         dst.centerX(), dst.bottom() + paint.getTextSize(), paint);
-        if (++x == COL_COUNT) {
-            x = 0;
-            y += 1;
-        }
-    }
 }
 
 bool SkottieSlide2::animate(const SkAnimTimer& timer) {
