@@ -122,6 +122,7 @@ DEF_SIMPLE_GM(blur2rectsnonninepatch, canvas, 700, 500) {
 
 DEF_SIMPLE_GM(BlurDrawImage, canvas, 256, 256) {
     SkPaint paint;
+    paint.setFilterQuality(kLow_SkFilterQuality);
     paint.setMaskFilter(SkBlurMaskFilter::Make(kNormal_SkBlurStyle, 10, 0));
     canvas->clear(0xFF88FF88);
     if (auto image = GetResourceAsImage("images/mandrill_512_q075.jpg")) {
