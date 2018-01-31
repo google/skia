@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "8504d02e_4f0b786a",
+        "filename": "gn/gn_to_bp.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 229,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-01-31T22:29:12Z",
+      "side": 1,
+      "message": "So pretty!  🤩",
+      "revId": "549fec7a35cfc2f851758627a26e566e765cb27f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "3ea5e06d_adde9d6c",
         "filename": "gn/gn_to_bp_utils.py",
         "patchSetId": 1
@@ -225,6 +242,30 @@
       "side": 1,
       "message": "GrabDependentValues requires a dictionary and this is a param on line 164.",
       "parentUuid": "6890afad_0d7ab0e6",
+      "range": {
+        "startLine": 159,
+        "startChar": 15,
+        "endLine": 160,
+        "endChar": 0
+      },
+      "revId": "549fec7a35cfc2f851758627a26e566e765cb27f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "eab672ba_9f17b1e6",
+        "filename": "tools/skqp/gn_to_bp.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-01-31T22:29:12Z",
+      "side": 1,
+      "message": "This and the return value from strip_slashes() are both sets, right?",
+      "parentUuid": "a3eafb55_f44a730f",
       "range": {
         "startLine": 159,
         "startChar": 15,
