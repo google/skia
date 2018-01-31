@@ -42,6 +42,23 @@
     },
     {
       "key": {
+        "uuid": "ac676257_1c910743",
+        "filename": "src/gpu/GrBackendTextureImageGenerator.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-01-31T21:00:46Z",
+      "side": 1,
+      "message": "// In practice, this capability is used by clients to create backend-specific texture resources in one thread (with, say, GrContext-A) and then ship them over to another GrContext (say, GrContext-B) which will then use the texture as a source for draws. GrContext-A uses the semaphore to notify GrContext-B when the shared texture is ready to use.\n\n? Don\u0027t know if this adds anything.",
+      "revId": "5e996135ffa5dd6cd7750eac96cc72221784ba33",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "4f9de179_5671acd3",
         "filename": "src/gpu/GrBackendTextureImageGenerator.h",
         "patchSetId": 2
@@ -76,6 +93,24 @@
       "writtenOn": "2018-01-31T20:54:27Z",
       "side": 1,
       "message": "Maybe more descriptive name of a comment?",
+      "revId": "5e996135ffa5dd6cd7750eac96cc72221784ba33",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8e03e4e1_fc1f89ab",
+        "filename": "src/gpu/GrBackendTextureImageGenerator.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-01-31T21:00:46Z",
+      "side": 1,
+      "message": "_or_ a comment.\n\n// This mutex is used to guard creation of the releaseProcHelper. It is needed in the case where both the generating a consuming threads ...\n\n?",
+      "parentUuid": "207c9352_de858f44",
       "revId": "5e996135ffa5dd6cd7750eac96cc72221784ba33",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
