@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f542e524_90c629e0",
+        "filename": "src/gpu/GrBackendTextureImageGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 170,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-01-31T20:45:42Z",
+      "side": 1,
+      "message": "Per conversation early, even if we don\u0027t want to support un/reinstantiating these type of LazyProxies, we still the ref counted releaseProcHelper for knowing when we can release the lock on the consuming GrContext. Thus we will end up getting the un/reinstantiating ability for free here.\n\nAnother option would be if we do decide that we don\u0027t need to restrict use of this to one consuming context at a time and no un/reinstantiating of the proxy. In that world we can remove all the mutexes from above and there will not be a required need for a ref counted releaseProc. Instead we will will create a new GrTexture every time we call this, ref the refHelper, and set the normal releaseProc on the texture. We\u0027d have to make sure in GL at least having multiple GrTextures wrapping the same object doesn\u0027t mess up TexParams. Optionally we could store a map of GrContext-\u003eGrTexture to reduce total number of GrTextures, or something like that.",
+      "range": {
+        "startLine": 170,
+        "startChar": 36,
+        "endLine": 170,
+        "endChar": 53
+      },
+      "revId": "5e996135ffa5dd6cd7750eac96cc72221784ba33",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4f9de179_5671acd3",
+        "filename": "src/gpu/GrBackendTextureImageGenerator.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-01-31T20:45:42Z",
+      "side": 1,
+      "message": "Side note (based on comment from other CL): I looked to see if it made sense to make this guy an sk_sp, but the way we add refs to it and pass it as a ptr to a callback to get unref\u0027d, making it an sk_sp got ugly and didn\u0027t seem to win us anything",
+      "range": {
+        "startLine": 78,
+        "startChar": 25,
+        "endLine": 78,
+        "endChar": 36
+      },
+      "revId": "5e996135ffa5dd6cd7750eac96cc72221784ba33",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
