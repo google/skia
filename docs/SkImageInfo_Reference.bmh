@@ -140,6 +140,7 @@ for 32 bit pixels.
 
 # ------------------------------------------------------------------------------
 #Enum SkYUVColorSpace
+#Line # incomplete ##
 
 #Code
     enum SkYUVColorSpace {
@@ -174,6 +175,7 @@ range. See http://en.wikipedia.org/wiki/Rec._709 for details.
 
 # ------------------------------------------------------------------------------
 #EnumClass SkDestinationSurfaceColorMode
+#Line # incomplete ##
 
 #Code
     enum class SkDestinationSurfaceColorMode {

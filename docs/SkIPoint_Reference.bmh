@@ -2,71 +2,42 @@
 #Alias IPoints
 #Alias IPoint_Reference
 
+#Subtopic Overview
+    #Subtopic Subtopics
+    #Populate
+    ##
+##
+
 #Struct SkIPoint
 
 SkIPoint holds two 32 bit integer coordinates.
 
-#Topic Overview
-
-#Subtopic Subtopics
-#ToDo manually add subtopics ##
-#Table
-#Legend
-# name             # description                          ##
-#Legend ##
-# Constructors     # functions that construct SkIPoint16  ##
-# Member_Functions # static functions and member methods  ##
-# Operators        # operator overloading methods         ##
-#Table ##
-#Subtopic ##
-
 #Subtopic Constructors
-#Table
-#Legend
-# name  # description                    ##
-#Legend ##
-# Make  # constructs from integer inputs ##
-#Table ##
-#Subtopic ##
+#Populate
+##
 
 #Subtopic Operators
-#Table
-#Legend
-# name                                             # description                         ##
-#Legend ##
-# operator+(const SkIPoint& a, const SkIVector& b) # returns IPoint offset by IVector    ##
-# operator-()_const                                # reverses sign of IPoint             ##
-# operator-(const SkIPoint& a, const SkIPoint& b)  # returns IVector between IPoints     ##
-# operator!=(const SkIPoint& a, const SkIPoint& b) # returns true if IPoints are unequal ##
-# operator==(const SkIPoint& a, const SkIPoint& b) # returns true if IPoints are equal   ##
-# operator+=(const SkIVector& v)                   # adds IVector to IPoint              ##
-# operator-=(const SkIVector& v)                   # subtracts IVector from IPoint       ##
-#Table ##
-#Subtopic ##
+#Populate
+##
 
 #Subtopic Member_Functions
-#Table
-#Legend
-# name         # description                             ##
-#Legend ##
-# Make         # constructs from integer inputs          ##
-# equals()     # returns true if members are equal       ##
-# isZero       # returns true if both members equal zero ##
-# set()        # sets to integer input                   ##
-# x()          # returns fX                              ##
-# y()          # returns fY                              ##
-#Table ##
-#Subtopic ##
+#Populate
+##
 
-#Topic Overview ##
+#Subtopic Members
+#Populate
 
 #Member int32_t  fX
+#Line # x-axis value ##
 x-axis value used by IPoint.
 ##
 
 #Member int32_t  fY
+#Line # y-axis value ##
 y-axis value used by IPoint.
 ##
+
+#Subtopic Members ##
 
 # ------------------------------------------------------------------------------
 

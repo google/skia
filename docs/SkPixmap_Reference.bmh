@@ -94,6 +94,7 @@ to manage pixel memory; Pixel_Ref is safe across threads.
 #Topic Overview ##
 
 #Subtopic Initialization
+#Line # sets fields for use ##
 
 # ------------------------------------------------------------------------------
 
@@ -377,6 +378,7 @@ void draw(SkCanvas* canvas) {
 #Subtopic Initialization ##
 
 #Subtopic Image_Info_Access
+#Line # returns all or part of Image_Info ##
 
 # ------------------------------------------------------------------------------
 
@@ -803,6 +805,7 @@ width: 1000000 height: 1000000 computeByteSize: 4999999000000
 #Subtopic Image_Info_Access ##
 
 #Subtopic Reader
+#Line # examine pixel value ##
 
 # ------------------------------------------------------------------------------
 
@@ -919,6 +922,7 @@ Unpremultiplied:
 #Subtopic Reader ##
 
 #Subtopic Readable_Address
+#Line # returns read only pixels ##
 
 # ------------------------------------------------------------------------------
 
@@ -1294,6 +1298,7 @@ pixmap.addrF16(1, 2) == &storage[1 * wordsPerPixel + 2 * rowWords]
 #Subtopic Readable_Address ##
 
 #Subtopic Writable_Address
+#Line # returns writable pixels ##
 
 # ------------------------------------------------------------------------------
 
@@ -1587,6 +1592,7 @@ is drawn after overwriting bottom half float color with top half float color.
 #Subtopic Writable_Address ##
 
 #Subtopic Writer
+#Line # copy to pixel values ##
 
 # ------------------------------------------------------------------------------
 

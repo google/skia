@@ -150,6 +150,7 @@ Multiple colors are drawn either by using multiple paints or with objects like
 | <a href="#SkPaint_getHash">getHash</a> | returns a shallow hash for equality checks |
 | <a href="#SkPaint_getHinting">getHinting</a> | returns <a href="#SkPaint_Hinting">Hinting</a>, glyph outline adjustment level |
 | <a href="#SkPaint_getImageFilter">getImageFilter</a> | returns <a href="undocumented#Image_Filter">Image Filter</a>, alter pixels; blur |
+| <a href="#SkPaint_getLooper">getLooper</a> | deprecated |
 | <a href="#SkPaint_getMaskFilter">getMaskFilter</a> | returns <a href="undocumented#Mask_Filter">Mask Filter</a>, alterations to <a href="undocumented#Mask_Alpha">Mask Alpha</a> |
 | <a href="#SkPaint_getPathEffect">getPathEffect</a> | returns <a href="undocumented#Path_Effect">Path Effect</a>, modifications to path geometry; dashing |
 | <a href="#SkPaint_getPosTextHIntercepts">getPosTextHIntercepts</a> | returns where lines intersect horizontally positioned text; underlines |
@@ -179,6 +180,7 @@ Multiple colors are drawn either by using multiple paints or with objects like
 | <a href="#SkPaint_isEmbeddedBitmapText">isEmbeddedBitmapText</a> | returns true if <a href="SkPaint_Reference#Font_Embedded_Bitmaps">Font Embedded Bitmaps</a> is set |
 | <a href="#SkPaint_isFakeBoldText">isFakeBoldText</a> | returns true if <a href="#Fake_Bold">Fake Bold</a> is set |
 | <a href="#SkPaint_isLCDRenderText">isLCDRenderText</a> | returns true if <a href="SkPaint_Reference#LCD_Text">LCD Text</a> is set |
+| <a href="#SkPaint_isLinearText">isLinearText</a> | returns true if text is converted to <a href="SkPath_Reference#Path">Path</a> |
 | <a href="#SkPaint_isSrcOver">isSrcOver</a> | returns true if <a href="undocumented#Blend_Mode">Blend Mode</a> is <a href="#SkBlendMode_kSrcOver">SkBlendMode::kSrcOver</a> |
 | <a href="#SkPaint_isSubpixelText">isSubpixelText</a> | returns true if <a href="SkPaint_Reference#Subpixel_Text">Subpixel Text</a> is set |
 | <a href="#SkPaint_isVerticalText">isVerticalText</a> | returns true if <a href="#Vertical_Text">Vertical Text</a> is set |
@@ -209,6 +211,8 @@ Multiple colors are drawn either by using multiple paints or with objects like
 | <a href="#SkPaint_setHinting">setHinting</a> | sets <a href="#SkPaint_Hinting">Hinting</a>, glyph outline adjustment level |
 | <a href="#SkPaint_setImageFilter">setImageFilter</a> | sets <a href="undocumented#Image_Filter">Image Filter</a>, alter pixels; blur |
 | <a href="#SkPaint_setLCDRenderText">setLCDRenderText</a> | sets or clears <a href="SkPaint_Reference#LCD_Text">LCD Text</a> |
+| <a href="#SkPaint_setLinearText">setLinearText</a> | converts to <a href="SkPath_Reference#Path">Path</a> before draw or measure |
+| <a href="#SkPaint_setLooper">setLooper</a> | deprecated |
 | <a href="#SkPaint_setMaskFilter">setMaskFilter</a> | sets <a href="undocumented#Mask_Filter">Mask Filter</a>, alterations to <a href="undocumented#Mask_Alpha">Mask Alpha</a> |
 | <a href="#SkPaint_setPathEffect">setPathEffect</a> | sets <a href="undocumented#Path_Effect">Path Effect</a>, modifications to path geometry; dashing |
 | <a href="#SkPaint_setShader">setShader</a> | sets <a href="undocumented#Shader">Shader</a>, multiple drawing colors; gradients |

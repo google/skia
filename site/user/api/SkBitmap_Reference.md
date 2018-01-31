@@ -46,8 +46,8 @@ is useful to position one or more <a href="#Bitmap">Bitmaps</a> within a shared 
 
 | name | description |
 | --- | ---  |
-| <a href="#SkBitmap_Allocator">Allocator</a> |  |
-| <a href="#SkBitmap_HeapAllocator">HeapAllocator</a> |  |
+| <a href="#SkBitmap_Allocator">Allocator</a> | abstract subclass of <a href="#SkBitmap_HeapAllocator">HeapAllocator</a> |
+| <a href="#SkBitmap_HeapAllocator">HeapAllocator</a> | allocates pixel memory from the heap |
 
 ## <a name="Constructors"></a> Constructors
 
