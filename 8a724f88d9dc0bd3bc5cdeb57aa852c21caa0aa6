@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c31926f7_39aeb112",
+        "filename": "include/core/SkTypes.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 215,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-01-31T19:27:56Z",
+      "side": 1,
+      "message": "nit: convert all constants to static constexpr for consistency?",
+      "range": {
+        "startLine": 215,
+        "startChar": 0,
+        "endLine": 215,
+        "endChar": 16
+      },
+      "revId": "8a724f88d9dc0bd3bc5cdeb57aa852c21caa0aa6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1639437a_e748eb1e",
+        "filename": "include/core/SkTypes.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 215,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-01-31T19:27:56Z",
+      "side": 1,
+      "message": "u-nit: 0x7FFFFFFFFFFFFFFFLL",
+      "range": {
+        "startLine": 215,
+        "startChar": 37,
+        "endLine": 215,
+        "endChar": 55
+      },
+      "revId": "8a724f88d9dc0bd3bc5cdeb57aa852c21caa0aa6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0e264e68_d385abd7",
+        "filename": "include/private/SkFixed.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-01-31T19:27:56Z",
+      "side": 1,
+      "message": "SK_MaxS64?",
+      "range": {
+        "startLine": 127,
+        "startChar": 34,
+        "endLine": 127,
+        "endChar": 56
+      },
+      "revId": "8a724f88d9dc0bd3bc5cdeb57aa852c21caa0aa6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c8b2beb5_24a0b9fc",
+        "filename": "include/private/SkFloatingPoint.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-01-31T19:27:56Z",
+      "side": 1,
+      "message": "nit: SkTPin\u003cfloat\u003e(x, SK_MinS64FitsInFloat, SK_MaxS64FitsInFloat);",
+      "range": {
+        "startLine": 109,
+        "startChar": 0,
+        "endLine": 110,
+        "endChar": 47
+      },
+      "revId": "8a724f88d9dc0bd3bc5cdeb57aa852c21caa0aa6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
