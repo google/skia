@@ -95,9 +95,11 @@ protected:
         SkASSERT(!rec.isConstant());
         SkASSERT(t > rec.t0 && t < rec.t1);
 
-        auto lt = (t -rec.t0) / (rec.t1 - rec.t0);
+        auto lt = (t - rec.t0) / (rec.t1 - rec.t0);
 
-        return rec.cmidx < 0 ? lt : fCubicMaps[rec.cmidx].computeYFromX(lt);
+        return rec.cmidx < 0
+            ? lt
+            : SkTPin(fCubicMaps[rec.cmidx].computeYFromX(lt), 0.0f, 1.0f);
     }
 
     virtual int parseValue(const Json::Value&) = 0;
