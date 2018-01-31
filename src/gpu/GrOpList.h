@@ -110,6 +110,10 @@ public:
     // TODO: it would be nice for this to be hidden
     void setStencilLoadOp(GrLoadOp loadOp) { fStencilLoadOp = loadOp; }
 
+    typedef std::function<void(GrSurfaceProxy*)> VisitProxyFunc;
+
+    virtual void visitProxies(const VisitProxyFunc& func) const = 0;
+
 protected:
     SkDEBUGCODE(bool isInstantiated() const;)
 

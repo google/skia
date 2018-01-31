@@ -100,7 +100,7 @@ DEF_SIMPLE_GM_BG(texdata, canvas, 2 * S, 2 * S, SK_ColorBLACK) {
         }
 
         sk_sp<GrSurfaceContext> tContext = context->contextPriv().makeWrappedSurfaceContext(
-                std::move(proxy), nullptr);
+                                                                                  std::move(proxy));
 
         if (!tContext) {
             return;

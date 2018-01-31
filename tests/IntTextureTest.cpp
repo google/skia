@@ -86,7 +86,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(IntTexture, reporter, ctxInfo) {
             return;
         }
 
-        sContext = context->contextPriv().makeWrappedSurfaceContext(std::move(proxy), nullptr);
+        sContext = context->contextPriv().makeWrappedSurfaceContext(std::move(proxy));
         if (!sContext) {
             return;
         }

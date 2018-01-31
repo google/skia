@@ -100,6 +100,7 @@ skia_core_sources = [
   "$_src/core/SkData.cpp",
   "$_src/core/SkDataTable.cpp",
   "$_src/core/SkDebug.cpp",
+  "$_src/core/SkDeferredDisplayList.cpp",
   "$_src/core/SkDeferredDisplayListRecorder.cpp",
   "$_src/core/SkDeque.cpp",
   "$_src/core/SkDescriptor.h",
