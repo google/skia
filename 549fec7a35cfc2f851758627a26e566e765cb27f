@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "488f68d3_eb8ceb9c",
+        "filename": "gn/gn_to_bp_utils.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-01-31T18:51:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3ea5e06d_adde9d6c",
+      "range": {
+        "startLine": 3,
+        "startChar": 12,
+        "endLine": 3,
+        "endChar": 16
+      },
+      "revId": "549fec7a35cfc2f851758627a26e566e765cb27f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1e7c8b4e_578bf5ca",
         "filename": "gn/gn_to_bp_utils.py",
         "patchSetId": 1
@@ -36,6 +60,30 @@
       "writtenOn": "2018-01-31T18:43:07Z",
       "side": 1,
       "message": "Is this the code that used to be in \"scrub\"?",
+      "range": {
+        "startLine": 88,
+        "startChar": 2,
+        "endLine": 88,
+        "endChar": 18
+      },
+      "revId": "549fec7a35cfc2f851758627a26e566e765cb27f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2610b6df_7bff66c7",
+        "filename": "gn/gn_to_bp_utils.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-01-31T18:51:18Z",
+      "side": 1,
+      "message": "yes, but I also simplified it.",
+      "parentUuid": "1e7c8b4e_578bf5ca",
       "range": {
         "startLine": 88,
         "startChar": 2,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "ef0bfd44_0e29367f",
+        "filename": "tools/skqp/gn_to_bp.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-01-31T18:51:18Z",
+      "side": 1,
+      "message": "Here are a few differences...\n\nshared lib not static\nneeds sdk_version \u0026 stl\nthe list of shared and static libs is different\n\nThe opts.gni and the resulting sources are very similar so we could probably fold that into the util.",
+      "parentUuid": "675ebb8d_4e9e4d52",
+      "range": {
+        "startLine": 30,
+        "startChar": 0,
+        "endLine": 30,
+        "endChar": 17
+      },
+      "revId": "549fec7a35cfc2f851758627a26e566e765cb27f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "bcf46fb1_b37fbaa4",
         "filename": "tools/skqp/gn_to_bp.py",
         "patchSetId": 1
@@ -94,6 +166,30 @@
     },
     {
       "key": {
+        "uuid": "c479e0ab_d861f7d1",
+        "filename": "tools/skqp/gn_to_bp.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-01-31T18:51:18Z",
+      "side": 1,
+      "message": "I tried sharing but this one doesn\u0027t need export_includes and when I tried to pull it into the util I think it just make the code more difficult to read.",
+      "parentUuid": "bcf46fb1_b37fbaa4",
+      "range": {
+        "startLine": 155,
+        "startChar": 0,
+        "endLine": 155,
+        "endChar": 75
+      },
+      "revId": "549fec7a35cfc2f851758627a26e566e765cb27f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "6890afad_0d7ab0e6",
         "filename": "tools/skqp/gn_to_bp.py",
         "patchSetId": 1
@@ -105,6 +201,30 @@
       "writtenOn": "2018-01-31T18:43:07Z",
       "side": 1,
       "message": "I think the other one did this as a list, and this one is a dictionary. Why the difference?",
+      "range": {
+        "startLine": 159,
+        "startChar": 15,
+        "endLine": 160,
+        "endChar": 0
+      },
+      "revId": "549fec7a35cfc2f851758627a26e566e765cb27f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a3eafb55_f44a730f",
+        "filename": "tools/skqp/gn_to_bp.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-01-31T18:51:18Z",
+      "side": 1,
+      "message": "GrabDependentValues requires a dictionary and this is a param on line 164.",
+      "parentUuid": "6890afad_0d7ab0e6",
       "range": {
         "startLine": 159,
         "startChar": 15,
