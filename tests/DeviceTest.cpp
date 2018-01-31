@@ -81,7 +81,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialImage_GPUDevice, reporter, ctxInfo) {
     SkImageInfo ii = SkImageInfo::MakeN32Premul(2*kWidth, 2*kHeight);
 
     sk_sp<SkBaseDevice> gpuDev(SkGpuDevice::Make(context, SkBudgeted::kNo, ii,
-                                                 0, kBottomLeft_GrSurfaceOrigin, nullptr,
+                                                 1, kBottomLeft_GrSurfaceOrigin, nullptr,
                                                  GrMipMapped::kNo,
                                                  SkGpuDevice::kClear_InitContents));
 
