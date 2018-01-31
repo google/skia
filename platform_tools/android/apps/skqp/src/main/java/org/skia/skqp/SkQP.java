@@ -23,8 +23,8 @@ public class SkQP {
     protected String[] mBackends;
     protected String[] mUnitTests;
 
-    protected static final String kSkiaGM = "SkiaGM_";
-    protected static final String kSkiaUnitTests = "Skia_UnitTests";
+    protected static final String kSkiaGM = "skqp_";
+    protected static final String kSkiaUnitTests = "skqp_unitTest";
     protected static final String LOG_PREFIX = "org.skia.skqp";
 
     static {

@@ -310,16 +310,24 @@ static constexpr char kDocHead[] =
     "  ac(b, ct(\" | \"));\n"
     "  ac(b, ma(t + \"/min.png\", ct(\"min\")));\n"
     "  ac(b, ce(\"hr\"));\n"
+    "  b.id = backend + \":\" + gm;\n"
     "  ac(document.body, b);\n"
+    "  l = ce(\"li\");\n"
+    "  ac(l, ma(\"#\" + backend +\":\"+ gm , ct(t)));\n"
+    "  ac(document.getElementById(\"toc\"), l);\n"
     "}\n"
     "function main() {\n";
 
-static constexpr char kDocTail[] =
+static constexpr char kDocMiddle[] =
     "}\n"
     "</script>\n"
     "</head>\n"
     "<body onload=\"main()\">\n"
-    "<h1>SkQP Report</h1>\n"
+    "<h1>SkQP Report</h1>\n";
+
+static constexpr char kDocTail[] =
+    "<ul id=\"toc\"></ul>\n"
+    "<hr>\n"
     "<p>Left image: test result<br>\n"
     "Right image: errors (white = no error, black = smallest error, red = biggest error)</p>\n"
     "<hr>\n"
@@ -330,7 +338,25 @@ static void write(SkWStream* wStream, const SkString& text) {
     wStream->write(text.c_str(), text.size());
 }
 
+enum class Backend {
+    kUnknown,
+    kGLES,
+    kVulkan,
+};
+
+static Backend get_backend(const SkString& s) {
+    if (s.equals("gles")) {
+        return Backend::kGLES;
+    } else if (s.equals("vk")) {
+        return Backend::kVulkan;
+    }
+    return Backend::kUnknown;
+}
+
+
 bool MakeReport(const char* report_directory_path) {
+    int glesErrorCount = 0, vkErrorCount = 0, gles = 0, vk = 0;
+
     SkASSERT_RELEASE(sk_isdir(report_directory_path));
     std::lock_guard<std::mutex> lock(gMutex);
     SkFILEWStream csvOut(SkOSPath::Join(report_directory_path, PATH_CSV).c_str());
@@ -341,6 +367,12 @@ bool MakeReport(const char* report_directory_path) {
     }
     htmOut.writeText(kDocHead);
     for (const Run& run : gErrors) {
+        auto backend = get_backend(run.fBackend);
+        switch (backend) {
+            case Backend::kGLES: ++gles; break;
+            case Backend::kVulkan: ++vk; break;
+            default: break;
+        }
         write(&csvOut, SkStringPrintf("\"%s\",\"%s\",%d,%d\n",
                                       run.fBackend.c_str(), run.fGM.c_str(),
                                       run.fMaxerror, run.fBadpixels));
@@ -350,7 +382,16 @@ bool MakeReport(const char* report_directory_path) {
         write(&htmOut, SkStringPrintf("  f(\"%s\", \"%s\", %d, %d);\n",
                                       run.fBackend.c_str(), run.fGM.c_str(),
                                       run.fMaxerror, run.fBadpixels));
+        switch (backend) {
+            case Backend::kGLES: ++glesErrorCount; break;
+            case Backend::kVulkan: ++vkErrorCount; break;
+            default: break;
+        }
     }
+    htmOut.writeText(kDocMiddle);
+    write(&htmOut, SkStringPrintf("<p>gles errors: %d (of %d)</br>\n"
+                                  "vk errors: %d (of %d)</p>\n",
+                                  glesErrorCount, gles, vkErrorCount, vk));
     htmOut.writeText(kDocTail);
     return true;
 }
