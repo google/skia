@@ -44,9 +44,6 @@ public:
 
     static std::unique_ptr<GrAtlasTextContext> Make(const Options& options);
 
-    bool canDraw(const GrAtlasGlyphCache* fontCache, const SkPaint&, const SkMatrix& viewMatrix,
-                 const SkSurfaceProps&, const GrShaderCaps&);
-
     void drawText(GrContext*, GrTextUtils::Target*, const GrClip&, const SkPaint&,
                   const SkMatrix& viewMatrix, const SkSurfaceProps&, const char text[],
                   size_t byteLength, SkScalar x, SkScalar y, const SkIRect& regionClipBounds);
