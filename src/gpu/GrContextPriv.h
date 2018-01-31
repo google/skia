@@ -17,6 +17,8 @@ class GrSemaphore;
 class GrSurfaceProxy;
 class GrTextureContext;
 
+class SkDeferredDisplayList;
+
 /** Class that adds methods to GrContext that are only intended for use internal to Skia.
     This class is purely a privileged window into GrContext. It should never have additional
     data members or virtual methods. */
@@ -29,7 +31,9 @@ public:
 
     GrDrawingManager* drawingManager() { return fContext->fDrawingManager.get(); }
 
-    sk_sp<GrSurfaceContext> makeWrappedSurfaceContext(sk_sp<GrSurfaceProxy>, sk_sp<SkColorSpace>);
+    sk_sp<GrSurfaceContext> makeWrappedSurfaceContext(sk_sp<GrSurfaceProxy>,
+                                                      sk_sp<SkColorSpace> = nullptr,
+                                                      const SkSurfaceProps* = nullptr);
 
     sk_sp<GrSurfaceContext> makeDeferredSurfaceContext(const GrSurfaceDesc&,
                                                        GrMipMapped,
@@ -180,6 +184,9 @@ public:
 
     GrAtlasGlyphCache* getAtlasGlyphCache() { return fContext->fAtlasGlyphCache; }
     GrTextBlobCache* getTextBlobCache() { return fContext->fTextBlobCache.get(); }
+
+    void moveOpListsToDDL(SkDeferredDisplayList*);
+    void copyOpListsFromDDL(const SkDeferredDisplayList*, GrRenderTargetProxy* newDest);
 
 private:
     explicit GrContextPriv(GrContext* context) : fContext(context) {}

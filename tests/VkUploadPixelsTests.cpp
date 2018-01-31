@@ -78,8 +78,7 @@ void basic_texture_test(skiatest::Reporter* reporter, GrContext* context, GrPixe
                                                                     srcBuffer, 0);
     REPORTER_ASSERT(reporter, proxy);
     if (proxy) {
-        sk_sp<GrSurfaceContext> sContext = context->contextPriv().makeWrappedSurfaceContext(
-                                                                                proxy, nullptr);
+        sk_sp<GrSurfaceContext> sContext = context->contextPriv().makeWrappedSurfaceContext(proxy);
 
         SkImageInfo dstInfo = SkImageInfo::Make(kWidth, kHeight, ct, kOpaque_SkAlphaType);
 
@@ -110,8 +109,7 @@ void basic_texture_test(skiatest::Reporter* reporter, GrContext* context, GrPixe
     proxy = proxyProvider->createTextureProxy(surfDesc, SkBudgeted::kNo, srcBuffer, 0);
     REPORTER_ASSERT(reporter, proxy);
     if (proxy) {
-        sk_sp<GrSurfaceContext> sContext = context->contextPriv().makeWrappedSurfaceContext(
-                                                                                proxy, nullptr);
+        sk_sp<GrSurfaceContext> sContext = context->contextPriv().makeWrappedSurfaceContext(proxy);
 
         SkImageInfo dstInfo = SkImageInfo::Make(kWidth, kHeight, ct, kOpaque_SkAlphaType);
 
