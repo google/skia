@@ -140,8 +140,8 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc,
                                                                              SkBackingFit::kExact,
                                                                              budgeted);
         if (proxy) {
-            sk_sp<GrSurfaceContext> sContext =
-                       context->contextPriv().makeWrappedSurfaceContext(std::move(proxy), nullptr);
+            sk_sp<GrSurfaceContext> sContext = context->contextPriv().makeWrappedSurfaceContext(
+                                                                                std::move(proxy));
             if (sContext) {
                 if (sContext->writePixels(srcInfo, mipLevel.fPixels, mipLevel.fRowBytes, 0, 0)) {
                     return sk_ref_sp(sContext->asTextureProxy()->priv().peekTexture());
