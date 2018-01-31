@@ -34,6 +34,10 @@ SkFontStyleSet* SkFontStyleSet::CreateEmpty() { return new SkEmptyFontStyleSet; 
 ///////////////////////////////////////////////////////////////////////////////
 
 class SkEmptyFontMgr : public SkFontMgr {
+public:
+    bool IsEmptyFontMgr() const override {
+        return true;
+    }
 protected:
     int onCountFamilies() const override {
         return 0;
@@ -89,6 +93,10 @@ static SkFontStyleSet* emptyOnNull(SkFontStyleSet* fsset) {
         fsset = SkFontStyleSet::CreateEmpty();
     }
     return fsset;
+}
+
+bool SkFontMgr::IsEmptyFontMgr() const {
+    return false;
 }
 
 int SkFontMgr::countFamilies() const {

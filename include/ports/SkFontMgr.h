@@ -127,6 +127,14 @@ public:
     /** Return the default fontmgr. */
     static sk_sp<SkFontMgr> RefDefault();
 
+    /**
+     *  Returns true for EmptyFontMgr.
+     *  This is to assert RefDefault() is not an EmptyFontMgr when clients
+     *  assume it's a real SkFontMgr.
+     *  Clients should not use this function to change the behavior.
+     */
+    virtual bool IsEmptyFontMgr() const;
+
 protected:
     virtual int onCountFamilies() const = 0;
     virtual void onGetFamilyName(int index, SkString* familyName) const = 0;
