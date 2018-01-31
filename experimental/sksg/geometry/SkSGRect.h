@@ -42,6 +42,8 @@ private:
     explicit Rect(const SkRect&);
 
     SkRect fRect;
+
+    using INHERITED = GeometryNode;
 };
 
 /**
@@ -65,6 +67,8 @@ private:
     explicit RRect(const SkRRect&);
 
     SkRRect fRRect;
+
+    using INHERITED = GeometryNode;
 };
 
 } // namespace sksg
