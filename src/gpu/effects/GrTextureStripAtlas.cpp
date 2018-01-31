@@ -231,8 +231,7 @@ void GrTextureStripAtlas::lockTexture() {
         fKeyTable.rewind();
     }
     SkASSERT(proxy);
-    fTexContext = fDesc.fContext->contextPriv().makeWrappedSurfaceContext(std::move(proxy),
-                                                                          nullptr);
+    fTexContext = fDesc.fContext->contextPriv().makeWrappedSurfaceContext(std::move(proxy));
 }
 
 void GrTextureStripAtlas::unlockTexture() {
