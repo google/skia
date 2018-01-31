@@ -35,9 +35,7 @@ public:
         return SkToBool(ConfigInfo::kTextureable_Flag & fConfigTable[config].fOptimalFlags);
     }
 
-    bool isConfigRenderable(GrPixelConfig config, bool withMSAA) const override {
-        return SkToBool(ConfigInfo::kRenderable_Flag & fConfigTable[config].fOptimalFlags);
-    }
+    bool isConfigRenderable(GrPixelConfig config, bool withMSAA) const override;
 
     bool isConfigCopyable(GrPixelConfig config) const override {
         return true;

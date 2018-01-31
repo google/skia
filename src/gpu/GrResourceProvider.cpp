@@ -47,6 +47,10 @@ GrResourceProvider::GrResourceProvider(GrGpu* gpu, GrResourceCache* cache, GrSin
 }
 
 bool validate_desc(const GrSurfaceDesc& desc, const GrCaps& caps, int levelCount = 0) {
+    if (desc.fSampleCnt < 1) {
+        return false;
+    }
+
     if (desc.fWidth <= 0 || desc.fHeight <= 0) {
         return false;
     }
@@ -54,11 +58,11 @@ bool validate_desc(const GrSurfaceDesc& desc, const GrCaps& caps, int levelCount
         return false;
     }
     if (desc.fFlags & kRenderTarget_GrSurfaceFlag) {
-        if (!caps.isConfigRenderable(desc.fConfig, desc.fSampleCnt > 0)) {
+        if (!caps.isConfigRenderable(desc.fConfig, desc.fSampleCnt > 1)) {
             return false;
         }
     } else {
-        if (desc.fSampleCnt) {
+        if (desc.fSampleCnt > 1) {
             return false;
         }
     }
@@ -156,7 +160,6 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc,
 sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
                                                    uint32_t flags) {
     ASSERT_SINGLE_OWNER
-
     if (this->isAbandoned()) {
         return nullptr;
     }
