@@ -56,7 +56,6 @@ private:
 
     struct Rec {
         sk_sp<AnimationWrapper>             fWrapper;
-        SkMSec                              fTimeBase = 0;
         bool                                fShowAnimationInval = false;
 
         explicit Rec(sk_sp<AnimationWrapper>);
@@ -69,7 +68,8 @@ private:
     SkTArray<Rec>                fAnims;
     std::unique_ptr<sksg::Scene> fScene;
 
-    int fTrackingCell = -1;
+    SkMSec                       fTimeBase = 0;
+    int                          fTrackingCell = -1;
 
     typedef Slide INHERITED;
 };

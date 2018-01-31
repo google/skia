@@ -9,6 +9,7 @@
 
 #include "SkAnimTimer.h"
 #include "SkCanvas.h"
+#include "SkMakeUnique.h"
 #include "Skottie.h"
 #include "SkOSFile.h"
 #include "SkOSPath.h"
@@ -44,6 +45,22 @@ public:
     }
 
     void setShowInval(bool show) { fAnimation->setShowInval(show); }
+
+    // Trivial sksg::Animator -> skottie::Animation tick adapter
+    class ForwardingAnimator final : public sksg::Animator {
+    public:
+        ForwardingAnimator(sk_sp<AnimationWrapper> wrapper) : fWrapper(std::move(wrapper)) {}
+
+    protected:
+        void onTick(float t) override {
+            fWrapper->tick(SkScalarRoundToInt(t));
+        }
+
+    private:
+        sk_sp<AnimationWrapper> fWrapper;
+
+        using INHERITED = sksg::Animator;
+    };
 
 protected:
     SkRect onRevalidate(sksg::InvalidationController* ic, const SkMatrix& ctm) override {
@@ -109,6 +126,7 @@ void SkottieSlide2::load(SkScalar, SkScalar) {
     int x = 0, y = 0;
 
     auto scene_root = sksg::Group::Make();
+    sksg::AnimatorList scene_animators;
 
     while (iter.next(&name)) {
         SkString path = SkOSPath::Join(fPath.c_str(), name.c_str());
@@ -117,16 +135,17 @@ void SkottieSlide2::load(SkScalar, SkScalar) {
                        dst = SkRect::MakeXYWH(MARGIN + x * (CELL_WIDTH + SPACER_X),
                                               MARGIN + y * (CELL_HEIGHT + SPACER_Y),
                                               CELL_WIDTH, CELL_HEIGHT);
-            const auto   m = SkMatrix::MakeRectToRect(src, dst, SkMatrix::kCenter_ScaleToFit);
+            const auto m   = SkMatrix::MakeRectToRect(src, dst, SkMatrix::kCenter_ScaleToFit);
+            auto wrapper   = sk_make_sp<AnimationWrapper>(std::move(anim));
+            auto group     = sksg::Group::Make();
 
-            auto wrapper = sk_make_sp<AnimationWrapper>(std::move(anim));
-
-            auto group   = sksg::Group::Make();
             group->addChild(wrapper);
             group->addChild(MakeLabel(name, src, m));
 
-            auto xform   = sksg::Transform::Make(std::move(group), m);
+            auto xform     = sksg::Transform::Make(std::move(group), m);
 
+            scene_animators.push_back(
+                skstd::make_unique<AnimationWrapper::ForwardingAnimator>(wrapper));
             scene_root->addChild(xform);
             fAnims.emplace_back(std::move(wrapper));
 
@@ -137,12 +156,13 @@ void SkottieSlide2::load(SkScalar, SkScalar) {
         }
     }
 
-    fScene = sksg::Scene::Make(std::move(scene_root), sksg::AnimatorList());
+    fScene = sksg::Scene::Make(std::move(scene_root), std::move(scene_animators));
 }
 
 void SkottieSlide2::unload() {
     fAnims.reset();
     fScene.reset();
+    fTimeBase = 0;
 }
 
 SkISize SkottieSlide2::getDimensions() const {
@@ -158,13 +178,12 @@ void SkottieSlide2::draw(SkCanvas* canvas) {
 }
 
 bool SkottieSlide2::animate(const SkAnimTimer& timer) {
-    for (auto& rec : fAnims) {
-        if (rec.fTimeBase == 0) {
-            // Reset the animation time.
-            rec.fTimeBase = timer.msec();
-        }
-        rec.fWrapper->tick(timer.msec() - rec.fTimeBase);
+    if (fTimeBase == 0) {
+        // Reset the animation time.
+        fTimeBase = timer.msec();
     }
+    fScene->animate(timer.msec() - fTimeBase);
+
     return true;
 }
 
