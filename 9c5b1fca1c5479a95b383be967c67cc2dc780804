@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c4eb9bc3_e8b5a6c6",
+        "filename": "include/private/SkDeferredDisplayList.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-01-31T21:27:11Z",
+      "side": 1,
+      "message": "is this comment needed anymore since we do have an array of fOplists in non raster now? Or if there is more work to actually copy them, then I guess this comment should be with fOpLists below instead.",
+      "range": {
+        "startLine": 71,
+        "startChar": 4,
+        "endLine": 71,
+        "endChar": 47
+      },
+      "revId": "9c5b1fca1c5479a95b383be967c67cc2dc780804",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "177788e8_bca6d0ad",
+        "filename": "src/core/SkDeferredDisplayListRecorder.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-01-31T21:27:11Z",
+      "side": 1,
+      "message": "Should we assert this?",
+      "range": {
+        "startLine": 89,
+        "startChar": 12,
+        "endLine": 90,
+        "endChar": 80
+      },
+      "revId": "9c5b1fca1c5479a95b383be967c67cc2dc780804",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a2a9e05e_e166c0be",
+        "filename": "src/core/SkDeferredDisplayListRecorder.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-01-31T21:27:11Z",
+      "side": 1,
+      "message": "I guess we should update this to return a GrSurface instead? I\u0027m not sure if that actually breaks anything if we do. Looking at the code for doLazyInstantiation, it seems like we are just getting the width and height off the texture and then calling assign which takes a GrSurface.",
+      "range": {
+        "startLine": 91,
+        "startChar": 15,
+        "endLine": 92,
+        "endChar": 32
+      },
+      "revId": "9c5b1fca1c5479a95b383be967c67cc2dc780804",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8f7a9fa2_fc27e462",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 337,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-01-31T21:27:11Z",
+      "side": 1,
+      "message": "is this copy safe for the underlying Ops stores in a GrRenderTargetOpList? Looks that has an array of RecordOps which has a unique_ptr to an op. So is there worry of the op getting deleted when we flush and thus being invalid in the ddl?",
+      "range": {
+        "startLine": 337,
+        "startChar": 4,
+        "endLine": 337,
+        "endChar": 71
+      },
+      "revId": "9c5b1fca1c5479a95b383be967c67cc2dc780804",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
