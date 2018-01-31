@@ -3,6 +3,17 @@ SkImage Reference
 
 # <a name="Image"></a> Image
 
+## <a name="Overview"></a> Overview
+
+## <a name="Subtopics"></a> Subtopics
+
+| name | description |
+| --- | --- |
+| <a href="#Classes_and_Structs">Classes and Structs</a> | embedded struct and class members |
+| Constants | enum and enum class, const values |
+| <a href="#Member_Functions">Member Functions</a> | static functions and member methods |
+| <a href="#Related_Functions">Related Functions</a> | similar methods grouped together |
+
 # <a name="SkImage"></a> Class SkImage
 <a href="#Image">Image</a> describes a two dimensional array of pixels to draw. The pixels may be
 unencoded in a <a href="undocumented#Raster_Bitmap">Raster Bitmap</a>, encoded in a <a href="undocumented#Picture">Picture</a> or compressed data stream,
@@ -19,61 +30,48 @@ or height returns <a href="#Image">Image</a> equal to nullptr.
 include BMP, GIF, HEIF, ICO, JPEG, PNG, WBMP, WebP. Supported encodings details
 vary with platform.
 
-# <a name="Raster_Image"></a> Raster Image
+## <a name="Raster_Image"></a> Raster Image
+
 <a href="SkImage_Reference#Raster_Image">Raster Image</a> pixels are unencoded in a <a href="undocumented#Raster_Bitmap">Raster Bitmap</a>. These pixels may be read
 directly and in most cases written to, although edited pixels may not be drawn
 if <a href="#Image">Image</a> has been copied internally.
 
-# <a name="Texture_Image"></a> Texture Image
+## <a name="Texture_Image"></a> Texture Image
+
 <a href="#Texture_Image">Texture Image</a> are located on GPU and pixels are not accessible. <a href="#Texture_Image">Texture Image</a>
 are allocated optimally for best performance. <a href="SkImage_Reference#Raster_Image">Raster Image</a> may
 be drawn to <a href="undocumented#GPU_Surface">GPU Surface</a>, but pixels are uploaded from CPU to GPU downgrading
 performance.
 
-# <a name="Lazy_Image"></a> Lazy Image
+## <a name="Lazy_Image"></a> Lazy Image
+
 <a href="#Lazy_Image">Lazy Image</a> defer allocating buffer for <a href="#Image">Image</a> pixels and decoding stream until
 <a href="#Image">Image</a> is drawn. <a href="#Lazy_Image">Lazy Image</a> caches result if possible to speed up repeated
 drawing.
 
-# <a name="Overview"></a> Overview
+## <a name="Related_Functions"></a> Related Functions
 
-## <a name="Subtopics"></a> Subtopics
+| name | description |
+| --- | --- |
+| <a href="#Lazy_Image">Lazy Image</a> | deferred pixel buffer |
+| <a href="SkImage_Reference#Raster_Image">Raster Image</a> | pixels unencoded in <a href="undocumented#Raster_Bitmap">Raster Bitmap</a> |
+| <a href="#Texture_Image">Texture Image</a> | pixels located on GPU |
 
-| topics | description |
-| --- | ---  |
+## <a name="Classes_and_Structs"></a> Classes and Structs
+
+| name | description |
+| --- | --- |
+| <a href="#SkImage_DeferredTextureImageUsageParams">DeferredTextureImageUsageParams</a> | to be deprecated |
 
 ## <a name="Constructors"></a> Constructors
 
 | name | description |
-| --- | ---  |
-| <a href="#SkImage_MakeBackendTextureFromSkImage">MakeBackendTextureFromSkImage</a> | Creates <a href="undocumented#GPU_Texture">GPU Texture</a> from <a href="#Image">Image</a>. |
-| <a href="#SkImage_MakeCrossContextFromEncoded">MakeCrossContextFromEncoded</a> | Creates <a href="#Image">Image</a> from encoded data, and uploads to GPU. |
-| <a href="#SkImage_MakeCrossContextFromPixmap">MakeCrossContextFromPixmap</a> | Creates <a href="#Image">Image</a> from <a href="SkPixmap_Reference#Pixmap">Pixmap</a>, and uploads to GPU. |
-| <a href="#SkImage_MakeFromAHardwareBuffer">MakeFromAHardwareBuffer</a> | Creates <a href="#Image">Image</a> from Android hardware buffer. |
-| <a href="#SkImage_MakeFromAdoptedTexture">MakeFromAdoptedTexture</a> | Creates <a href="#Image">Image</a> from <a href="undocumented#GPU_Texture">GPU Texture</a>, managed internally. |
-| <a href="#SkImage_MakeFromBitmap">MakeFromBitmap</a> | Creates <a href="#Image">Image</a> from <a href="SkBitmap_Reference#Bitmap">Bitmap</a>, sharing or copying pixels. |
-| <a href="#SkImage_MakeFromDeferredTextureImageData">MakeFromDeferredTextureImageData</a> | To be deprecated. |
-| <a href="#SkImage_MakeFromEncoded">MakeFromEncoded</a> | Creates <a href="#Image">Image</a> from encoded data. |
-| <a href="#SkImage_MakeFromGenerator">MakeFromGenerator</a> | Creates <a href="#Image">Image</a> from a stream of data. |
-| <a href="#SkImage_MakeFromNV12TexturesCopy">MakeFromNV12TexturesCopy</a> | Creates <a href="#Image">Image</a> from <a href="undocumented#YUV_ColorSpace">YUV ColorSpace</a> data in two planes. |
-| <a href="#SkImage_MakeFromPicture">MakeFromPicture</a> | Creates <a href="#Image">Image</a> from <a href="undocumented#Picture">Picture</a>. |
-| <a href="#SkImage_MakeFromRaster">MakeFromRaster</a> | Creates <a href="#Image">Image</a> from <a href="SkPixmap_Reference#Pixmap">Pixmap</a>, with release. |
-| <a href="#SkImage_MakeFromTexture">MakeFromTexture</a> | Creates <a href="#Image">Image</a> from <a href="undocumented#GPU_Texture">GPU Texture</a>, managed externally. |
-| <a href="#SkImage_MakeFromYUVTexturesCopy">MakeFromYUVTexturesCopy</a> | Creates <a href="#Image">Image</a> from <a href="undocumented#YUV_ColorSpace">YUV ColorSpace</a> data in three planes. |
-| <a href="#SkImage_MakeRasterCopy">MakeRasterCopy</a> | Creates <a href="#Image">Image</a> from <a href="SkPixmap_Reference#Pixmap">Pixmap</a> and copied pixels. |
-| <a href="#SkImage_MakeRasterData">MakeRasterData</a> | Creates <a href="#Image">Image</a> from <a href="#Info">Image Info</a> and shared pixels. |
-| <a href="#SkSurface_makeImageSnapshot">SkSurface::makeImageSnapshot</a> | Creates <a href="#Image">Image</a> capturing <a href="SkSurface_Reference#Surface">Surface</a> contents. |
-| <a href="#SkImage_makeColorSpace">makeColorSpace</a> | Creates <a href="#Image">Image</a> matching <a href="undocumented#Color_Space">Color Space</a> if possible. |
-| <a href="#SkImage_makeNonTextureImage">makeNonTextureImage</a> | Creates <a href="#Image">Image</a> without dependency on <a href="undocumented#GPU_Texture">GPU Texture</a>. |
-| <a href="#SkImage_makeRasterImage">makeRasterImage</a> | Creates <a href="#Image">Image</a> compatible with <a href="undocumented#Raster_Surface">Raster Surface</a> if possible. |
-| <a href="#SkImage_makeSubset">makeSubset</a> | Creates <a href="#Image">Image</a> containing part of original. |
-| <a href="#SkImage_makeTextureImage">makeTextureImage</a> | Creates <a href="#Image">Image</a> matching <a href="undocumented#Color_Space">Color Space</a> if possible. |
-| <a href="#SkImage_makeWithFilter">makeWithFilter</a> | Creates filtered, clipped <a href="#Image">Image</a>. |
+| --- | --- |
 
 ## <a name="Member_Functions"></a> Member Functions
 
-| description | function |
-| --- | ---  |
+| name | description |
+| --- | --- |
 | <a href="#SkImage_MakeBackendTextureFromSkImage">MakeBackendTextureFromSkImage</a> | Creates <a href="undocumented#GPU_Texture">GPU Texture</a> from <a href="#Image">Image</a>. |
 | <a href="#SkImage_MakeCrossContextFromEncoded">MakeCrossContextFromEncoded</a> | Creates <a href="#Image">Image</a> from encoded data, and uploads to GPU. |
 | <a href="#SkImage_MakeCrossContextFromPixmap">MakeCrossContextFromPixmap</a> | Creates <a href="#Image">Image</a> from <a href="SkPixmap_Reference#Pixmap">Pixmap</a>, and uploads to GPU. |
