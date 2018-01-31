@@ -142,10 +142,6 @@ public:
         subRun.setHasWCoord(hasWCoord);
     }
 
-    void setRunTooBigForAtlas(int runIndex) {
-        fRuns[runIndex].fTooBigForAtlas = true;
-    }
-
     void setMinAndMaxScale(SkScalar scaledMax, SkScalar scaledMin) {
         // we init fMaxMinScale and fMinMaxScale in the constructor
         fMaxMinScale = SkMaxScalar(scaledMax, fMaxMinScale);
@@ -193,19 +189,11 @@ public:
     bool mustRegenerate(const GrTextUtils::Paint&, const SkMaskFilterBase::BlurRec& blurRec,
                         const SkMatrix& viewMatrix, SkScalar x, SkScalar y);
 
-    // flush a GrAtlasTextBlob associated with a SkTextBlob
-    void flushCached(GrAtlasGlyphCache*, GrTextUtils::Target*, const SkTextBlob* blob,
-                     const SkSurfaceProps& props,
-                     const GrDistanceFieldAdjustTable* distanceAdjustTable,
-                     const GrTextUtils::Paint&, SkDrawFilter* drawFilter, const GrClip& clip,
-                     const SkMatrix& viewMatrix, const SkIRect& clipBounds, SkScalar x, SkScalar y);
-
-    // flush a throwaway GrAtlasTextBlob *not* associated with an SkTextBlob
-    void flushThrowaway(GrAtlasGlyphCache*, GrTextUtils::Target*, const SkSurfaceProps& props,
-                        const GrDistanceFieldAdjustTable* distanceAdjustTable,
-                        const GrTextUtils::Paint& paint, const GrClip& clip,
-                        const SkMatrix& viewMatrix, const SkIRect& clipBounds, SkScalar x,
-                        SkScalar y);
+    void flush(GrAtlasGlyphCache*, GrTextUtils::Target*, const SkSurfaceProps& props,
+               const GrDistanceFieldAdjustTable* distanceAdjustTable,
+               const GrTextUtils::Paint& paint, const GrClip& clip,
+               const SkMatrix& viewMatrix, const SkIRect& clipBounds, SkScalar x,
+               SkScalar y);
 
     void computeSubRunBounds(SkRect* outBounds, int runIndex, int subRunIndex,
                              const SkMatrix& viewMatrix, SkScalar x, SkScalar y) {
@@ -298,12 +286,6 @@ private:
                         const SkPaint& paint, const SkMatrix& viewMatrix, SkScalar x, SkScalar y,
                         const SkIRect& clipBounds);
 
-    void flushBigRun(GrTextUtils::Target*, const SkSurfaceProps& props,
-                     const SkTextBlobRunIterator& it, const GrClip& clip,
-                     const GrTextUtils::Paint& paint, SkDrawFilter* drawFilter,
-                     const SkMatrix& viewMatrix, const SkIRect& clipBounds, SkScalar x,
-                     SkScalar y);
-
     // This function will only be called when we are generating a blob from scratch. We record the
     // initial view matrix and initial offsets(x,y), because we record vertex bounds relative to
     // these numbers.  When blobs are reused with new matrices, we need to return to model space so
@@ -348,8 +330,7 @@ private:
      */
     struct Run {
         Run()
-            : fInitialized(false)
-            , fTooBigForAtlas(false) {
+            : fInitialized(false) {
             // To ensure we always have one subrun, we push back a fresh run here
             fSubRunInfo.push_back();
         }
@@ -496,7 +477,6 @@ private:
         // will be used in place of the run's descriptor to regen texture coords
         std::unique_ptr<SkAutoDescriptor> fOverrideDescriptor; // df properties
         bool fInitialized;
-        bool fTooBigForAtlas;
     };  // Run
 
     inline std::unique_ptr<GrAtlasTextOp> makeOp(
