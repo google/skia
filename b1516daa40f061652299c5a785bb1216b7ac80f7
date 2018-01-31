@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "accf994f_8d04a8f1",
+        "filename": "infra/bots/android_compile/trigger_wait_ac_task.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-01-31T18:47:49Z",
+      "side": 1,
+      "message": "Is this much different / better than obtaining an OAuth2 token from metadata and authenticating using that?  It seems better since we wouldn\u0027t need to add more auth-related stuff to metadata.",
+      "range": {
+        "startLine": 53,
+        "startChar": 0,
+        "endLine": 62,
+        "endChar": 37
+      },
+      "revId": "b1516daa40f061652299c5a785bb1216b7ac80f7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ad65369f_c2ff9abc",
+        "filename": "infra/bots/android_compile/trigger_wait_ac_task.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-01-31T18:47:49Z",
+      "side": 1,
+      "message": "Nit: this stuff leaks into the global scope. It\u0027s nicer to add a main() function and just call that inside this block.",
+      "range": {
+        "startLine": 151,
+        "startChar": 0,
+        "endLine": 165,
+        "endChar": 51
+      },
+      "revId": "b1516daa40f061652299c5a785bb1216b7ac80f7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
