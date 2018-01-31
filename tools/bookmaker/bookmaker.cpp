@@ -352,6 +352,7 @@ bool BmhParser::addDefinition(const char* defStart, bool hasEnd, MarkType markTy
 		case MarkType::kLiteral:
         case MarkType::kOutdent:
         case MarkType::kPlatform:
+        case MarkType::kPopulate:
         case MarkType::kSeeAlso:
         case MarkType::kSet:
         case MarkType::kSubstitute:
@@ -873,13 +874,21 @@ bool HackParser::hackFiles() {
     SkASSERT(!root->fParent);
     fStart = root->fStart;
     fChar = fStart;
+    fClassesAndStructs = nullptr;
+    fConstants = nullptr;
     fConstructors = nullptr;
-    fOperators = nullptr;
     fMemberFunctions = nullptr;
+    fMembers = nullptr;
+    fOperators = nullptr;
+    fRelatedFunctions = nullptr;
     this->topicIter(root);
-    fprintf(fOut, "%.*s\n", (int) (root->fTerminator - fChar), fChar);
+    fprintf(fOut, "%.*s", (int) (fEnd - fChar), fChar);
     fclose(fOut);
-    SkDebugf("wrote %s\n", filename.c_str());
+    if (this->writtenFileDiffers(filename, root->fFileName)) {
+        SkDebugf("wrote %s\n", filename.c_str());
+    } else {
+        remove(filename.c_str());
+    }
     return true;
 }
 
@@ -922,85 +931,141 @@ string HackParser::searchTable(const Definition* tableHolder, const Definition* 
 
 // returns true if topic has method
 void HackParser::topicIter(const Definition* topic) {
-    if (string::npos != topic->fName.find("Member_Functions")) {
-        SkASSERT(!fMemberFunctions);
-        fMemberFunctions = topic;
+    if (string::npos != topic->fName.find("Classes_And_Structs")) {
+        SkASSERT(!fClassesAndStructs);
+        fClassesAndStructs = topic;
+    }
+    if (string::npos != topic->fName.find("Constants")) {
+        SkASSERT(!fConstants);
+        fConstants = topic;
     }
     if (string::npos != topic->fName.find("Constructors")) {
         SkASSERT(!fConstructors);
         fConstructors = topic;
     }
+    if (string::npos != topic->fName.find("Member_Functions")) {
+        SkASSERT(!fMemberFunctions);
+        fMemberFunctions = topic;
+    }
+    if (string::npos != topic->fName.find("Members")) {
+        SkASSERT(!fMembers);
+        fMembers = topic;
+    }
     if (string::npos != topic->fName.find("Operators")) {
         SkASSERT(!fOperators);
         fOperators = topic;
     }
+    if (string::npos != topic->fName.find("Related_Functions")) {
+        SkASSERT(!fRelatedFunctions);
+        fRelatedFunctions = topic;
+    }
     for (auto child : topic->fChildren) {
-        if (MarkType::kMethod == child->fMarkType) {
-            bool hasIn = MarkType::kTopic != topic->fMarkType &&
-                    MarkType::kSubtopic != topic->fMarkType;  // don't write #In if parent is class
-            bool hasLine = child->fClone;
-            for (auto part : child->fChildren) {
-                hasIn |= MarkType::kIn == part->fMarkType;
-                hasLine |= MarkType::kLine == part->fMarkType;
-            }
-            string oneLiner;
-            if (!hasLine) {
-                // find member_functions, add entry 2nd column text to #Line
-                for (auto tableHolder : { fMemberFunctions, fConstructors, fOperators }) {
-                    if (!tableHolder) {
-                        continue;
-                    }
-                    if (Definition::MethodType::kConstructor == child->fMethodType
-                            && fConstructors != tableHolder) {
-                        continue;
-                    }
-                    if (Definition::MethodType::kOperator == child->fMethodType
-                            && fOperators != tableHolder) {
-                        continue;
-                    }
-                    string temp = this->searchTable(tableHolder, child);
-                    if ("" != temp) {
-                        SkASSERT("" == oneLiner || temp == oneLiner);
-                        oneLiner = temp;
-                    }
-                }
-                if ("" == oneLiner) {
-#ifdef SK_DEBUG
-                    const Definition* rootParent = topic;
-                    while (rootParent->fParent && MarkType::kClass != rootParent->fMarkType
-                             && MarkType::kStruct != rootParent->fMarkType) {
-                        rootParent = rootParent->fParent;
-                    }
-#endif
-                    SkASSERT(rootParent);
-                    SkASSERT(MarkType::kClass == rootParent->fMarkType
-                            || MarkType::kStruct == rootParent->fMarkType);
-                    hasLine = true;
-                }
-            }
-
-            if (hasIn && hasLine) {
-                continue;
-            }
-            const char* start = fChar;
-            const char* end = child->fContentStart;
-            fprintf(fOut, "%.*s", (int) (end - start), start);
-            fChar = end;
-            // write to method markup header end
-            if (!hasIn) {
-                fprintf(fOut, "\n#In %s", topic->fName.c_str());
-            }
-            if (!hasLine) {
-                fprintf(fOut, "\n#Line # %s ##", oneLiner.c_str());
-            }
+        string oneLiner;
+        bool hasIn = false;
+        bool hasLine = false;
+        for (auto part : child->fChildren) {
+            hasIn |= MarkType::kIn == part->fMarkType;
+            hasLine |= MarkType::kLine == part->fMarkType;
         }
-        if (MarkType::kTopic == child->fMarkType || MarkType::kSubtopic == child->fMarkType ||
-                MarkType::kStruct == child->fMarkType || MarkType::kClass == child->fMarkType) {
-            this->topicIter(child);
+        switch (child->fMarkType) {
+            case MarkType::kMethod: {
+                hasIn |= MarkType::kTopic != topic->fMarkType &&
+                        MarkType::kSubtopic != topic->fMarkType;  // don't write #In if parent is class
+                hasLine |= child->fClone;
+                if (!hasLine) {
+                    // find member_functions, add entry 2nd column text to #Line
+                    for (auto tableHolder : { fMemberFunctions, fConstructors, fOperators }) {
+                        if (!tableHolder) {
+                            continue;
+                        }
+                        if (Definition::MethodType::kConstructor == child->fMethodType
+                                && fConstructors != tableHolder) {
+                            continue;
+                        }
+                        if (Definition::MethodType::kOperator == child->fMethodType
+                                && fOperators != tableHolder) {
+                            continue;
+                        }
+                        string temp = this->searchTable(tableHolder, child);
+                        if ("" != temp) {
+                            SkASSERT("" == oneLiner || temp == oneLiner);
+                            oneLiner = temp;
+                        }
+                    }
+                    if ("" == oneLiner) {
+    #ifdef SK_DEBUG
+                        const Definition* rootParent = topic;
+                        while (rootParent->fParent && MarkType::kClass != rootParent->fMarkType
+                                 && MarkType::kStruct != rootParent->fMarkType) {
+                            rootParent = rootParent->fParent;
+                        }
+    #endif
+                        SkASSERT(rootParent);
+                        SkASSERT(MarkType::kClass == rootParent->fMarkType
+                                || MarkType::kStruct == rootParent->fMarkType);
+                        hasLine = true;
+                    }
+                }
+
+                if (hasIn && hasLine) {
+                    continue;
+                }
+                const char* start = fChar;
+                const char* end = child->fContentStart;
+                fprintf(fOut, "%.*s", (int) (end - start), start);
+                fChar = end;
+                // write to method markup header end
+                if (!hasIn) {
+                    fprintf(fOut, "\n#In %s", topic->fName.c_str());
+                }
+                if (!hasLine) {
+                    fprintf(fOut, "\n#Line # %s ##", oneLiner.c_str());
+                }
+                } break;
+            case MarkType::kTopic:
+            case MarkType::kSubtopic:
+                this->addOneLiner(fRelatedFunctions, child, hasLine, true);
+                this->topicIter(child);
+                break;
+            case MarkType::kStruct:
+            case MarkType::kClass:
+                this->addOneLiner(fClassesAndStructs, child, hasLine, false);
+                this->topicIter(child);
+                break;
+            case MarkType::kEnum:
+            case MarkType::kEnumClass:
+                this->addOneLiner(fConstants, child, hasLine, true);
+                break;
+            case MarkType::kMember:
+                this->addOneLiner(fMembers, child, hasLine, false);
+                break;
+            default:
+                ;
         }
     }
 }
 
+void HackParser::addOneLiner(const Definition* defTable, const Definition* child, bool hasLine,
+        bool lfAfter) {
+    if (hasLine) {
+        return;
+    }
+    string oneLiner = this->searchTable(defTable, child);
+    if ("" == oneLiner) {
+        return;
+    }
+    const char* start = fChar;
+    const char* end = child->fContentStart;
+    fprintf(fOut, "%.*s", (int) (end - start), start);
+    fChar = end;
+    if (!lfAfter) {
+        fprintf(fOut, "\n");
+    }
+    fprintf(fOut, "#Line # %s ##", oneLiner.c_str());
+    if (lfAfter) {
+        fprintf(fOut, "\n");
+    }
+}
 
 bool BmhParser::hasEndToken() const {
     const char* last = fLine + this->lineLength();
@@ -1432,6 +1497,7 @@ vector<string> BmhParser::typeName(MarkType markType, bool* checkEnd) {
         case MarkType::kLiteral:
         case MarkType::kOutdent:
         case MarkType::kPlatform:
+        case MarkType::kPopulate:
         case MarkType::kReturn:
         case MarkType::kSeeAlso:
         case MarkType::kSet:

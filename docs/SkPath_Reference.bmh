@@ -357,6 +357,7 @@ SkPath::updateBoundsCache to make Path thread safe.
 #Alias Verbs
 
 #Enum Verb
+#Line # controls how Path Points are interpreted ##
 
 #Code
     enum Verb {
@@ -449,9 +450,11 @@ verbs: kMove_Verb kLine_Verb kQuad_Verb kClose_Verb kMove_Verb kCubic_Verb kConi
 
 # ------------------------------------------------------------------------------
 #Subtopic Direction
+#Line # Path contour orientation ##
 #Alias Directions
 
 #Enum Direction
+#Line # sets Contour clockwise or counterclockwise ##
 
 #Code
     enum Direction {
@@ -827,8 +830,10 @@ To be deprecated; only valid for Android framework.
 
 # ------------------------------------------------------------------------------
 #Subtopic Fill_Type
+#Line # Path fill rule, normal and inverted ##
 
 #Enum FillType
+#Line # sets winding rule and inverse fill ##
 
 #Code
     enum FillType {
@@ -1055,8 +1060,10 @@ canvas->drawPath(path, paint);
 # ------------------------------------------------------------------------------
 
 #Subtopic Convexity
+#Line # if Path is concave or convex ##
 
 #Enum Convexity
+#Line # returns if Path is convex or concave ##
 
 #Code
     enum Convexity : uint8_t {
@@ -1816,6 +1823,7 @@ second move is not line
 # ------------------------------------------------------------------------------
 
 #Subtopic Point_Array
+#Line # end points and control points for lines and curves ##
 #Substitute SkPoint array
 
 Point_Array contains Points satisfying the allocated Points for
@@ -1943,6 +1951,7 @@ point 1: (10,10)
 
 # ------------------------------------------------------------------------------
 #Subtopic Verb_Array
+#Line # line and curve type for points ##
 
 Verb_Array always starts with kMove_Verb.
 If kClose_Verb is not the last entry, it is always followed by kMove_Verb;
@@ -2649,6 +2658,7 @@ void draw(SkCanvas* canvas) {
 # ------------------------------------------------------------------------------
 
 #Topic Conic
+#Line # conic section defined by three points and a weight ##
 #Alias Conics
 
 Conic describes a conical section: a piece of an ellipse, or a piece of a
@@ -3548,6 +3558,7 @@ line (156,20),(200,20)
 # ------------------------------------------------------------------------------
 
 #Enum ArcSize
+#Line # used by arcTo variation ##
 
 #Code
     enum ArcSize {
@@ -4626,6 +4637,7 @@ void draw(SkCanvas* canvas) {
 # ------------------------------------------------------------------------------
 
 #Enum AddPathMode
+#Line # sets addPath options ##
 
 #Code
     enum AddPathMode {
@@ -4944,6 +4956,7 @@ Path is replaced by transformed data.
 # ------------------------------------------------------------------------------
 
 #Subtopic Last_Point
+#Line # final Point in Contour ##
 
 Path is defined cumulatively, often by adding a segment to the end of last
 Contour. Last_Point of Contour is shared as first Point of added Line or Curve.
@@ -5036,6 +5049,7 @@ Last_Point can be read and written directly with getLastPt and setLastPt.
 # ------------------------------------------------------------------------------
 
 #Enum SegmentMask
+#Line # returns Verb types in Path ##
 
 #Code
     enum SegmentMask {

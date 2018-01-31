@@ -433,6 +433,7 @@ than fBottom.
 #Subtopic Constructors ##
 
 #Subtopic Properties
+#Line # side values, center, validity ##
 
 #Table
 #Legend
@@ -904,6 +905,7 @@ test with NaN is not equal to itself
 #Subtopic Operators ##
 
 #Subtopic As_Points
+#Line # conversion to and from Points ##
 
 #Table
 #Legend
@@ -1037,6 +1039,7 @@ added: nan, 8 count: 4 rect: 0, 0, 0, 0 success: false
 #Subtopic As_Points ##
 
 #Subtopic Set
+#Line # replaces all values ##
 
 #Table
 #Legend
@@ -1309,6 +1312,7 @@ rect: -15, 0, 0, 25  isEmpty: false
 #Subtopic Set ##
 
 #Subtopic From_Integers
+#Line # set Scalar values from integer input ##
 
 #Table
 #Legend
@@ -1382,6 +1386,7 @@ rect2: {0, 0, 1, 2}
 #Subtopic From_Integers ##
 
 #Subtopic Inset_Outset_Offset
+#Line # moves sides ##
 
 #Table
 #Legend
@@ -1646,6 +1651,7 @@ rect: 5, 1, 55, 86
 #Subtopic Inset_Outset_Offset ##
 
 #Subtopic Intersection
+#Line # set to shared bounds ##
 
 Rects intersect when they enclose a common area. To intersect, each of the pair 
 must describe area; fLeft is less than fRight, and fTop is less than fBottom;
@@ -1932,6 +1938,7 @@ Returns false if either a or b is empty, or do not intersect.
 #Subtopic Intersection ##
 
 #Subtopic Join
+#Line # set to union of bounds ##
 
 #Table
 #Legend
@@ -2073,6 +2080,7 @@ sorted: 10, 0, 55, 100
 #Subtopic Join ##
 
 #Subtopic Rounding
+#Line # adjust to integer bounds ##
 
 #Table
 #Legend
@@ -2265,6 +2273,7 @@ round: 30, 50, 41, 61
 #Subtopic Rounding ##
 
 #Subtopic Sorting
+#Line # orders sides ##
 
 #Table
 #Legend

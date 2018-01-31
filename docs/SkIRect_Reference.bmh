@@ -922,6 +922,7 @@ rect: -10, 35, 5, 60  isEmpty: false
 ##
 
 #Subtopic Inset_Outset_Offset
+#Line # moves sides ##
 
 #Table
 #Legend
@@ -1186,6 +1187,7 @@ rect: 5, 1, 55, 86
 #Subtopic Inset_Outset_Offset ##
 
 #Subtopic Intersection
+#Line # set to shared bounds ##
 
 IRects intersect when they enclose a common area. To intersect, each of the pair 
 must describe area; fLeft is less than fRight, and fTop is less than fBottom;
