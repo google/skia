@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "bd013122_7d84ef6b",
+        "filename": "infra/bots/android_compile/trigger_wait_ac_task.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-01-31T19:11:42Z",
+      "side": 1,
+      "message": "SGTM!",
+      "parentUuid": "c34ec72a_345cc4c7",
+      "range": {
+        "startLine": 53,
+        "startChar": 0,
+        "endLine": 62,
+        "endChar": 37
+      },
+      "revId": "b1516daa40f061652299c5a785bb1216b7ac80f7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ad65369f_c2ff9abc",
         "filename": "infra/bots/android_compile/trigger_wait_ac_task.py",
         "patchSetId": 1
