@@ -12,24 +12,52 @@
 #include "Skottie.h"
 #include "SkOSFile.h"
 #include "SkOSPath.h"
+#include "SkSGGroup.h"
+#include "SkSGRenderNode.h"
+#include "SkSGScene.h"
+#include "SkSGTransform.h"
 #include "SkStream.h"
 
-const int CELL_WIDTH  = 240;
-const int CELL_HEIGHT = 160;
-const int COL_COUNT   = 4;
-const int SPACER_X    = 12;
-const int SPACER_Y    = 24;
-const int MARGIN      = 8;
+static constexpr int CELL_WIDTH  = 240;
+static constexpr int CELL_HEIGHT = 160;
+static constexpr int COL_COUNT   = 4;
+static constexpr int SPACER_X    = 12;
+static constexpr int SPACER_Y    = 24;
+static constexpr int MARGIN      = 8;
 
-SkottieSlide2::Rec::Rec(std::unique_ptr<skottie::Animation> anim) : fAnimation(std::move(anim))
-{}
+class SkottieSlide2::AnimationWrapper final : public sksg::RenderNode {
+public:
+    explicit AnimationWrapper(std::unique_ptr<skottie::Animation> anim)
+        : fAnimation(std::move(anim)) {
+        SkASSERT(fAnimation);
+    }
 
-SkottieSlide2::Rec::Rec(Rec&& o)
-    : fAnimation(std::move(o.fAnimation))
-    , fTimeBase(o.fTimeBase)
-    , fName(o.fName)
-    , fShowAnimationInval(o.fShowAnimationInval)
-{}
+    void tick(SkMSec t) {
+        fAnimation->animationTick(t);
+        this->invalidate();
+    }
+
+    void setShowInval(bool show) { fAnimation->setShowInval(show); }
+
+protected:
+    SkRect onRevalidate(sksg::InvalidationController* ic, const SkMatrix& ctm) override {
+        return SkRect::MakeSize(fAnimation->size());
+    }
+
+    void onRender(SkCanvas* canvas) const override {
+        fAnimation->render(canvas);
+    }
+
+private:
+    const std::unique_ptr<skottie::Animation> fAnimation;
+
+    using INHERITED = sksg::RenderNode;
+};
+
+SkottieSlide2::Rec::Rec(sk_sp<AnimationWrapper> wrapper)
+    : fWrapper(std::move(wrapper)) {}
+
+SkottieSlide2::Rec::Rec(Rec&& o) = default;
 
 SkottieSlide2::SkottieSlide2(const SkString& path)
     : fPath(path)
@@ -40,16 +68,49 @@ SkottieSlide2::SkottieSlide2(const SkString& path)
 void SkottieSlide2::load(SkScalar, SkScalar) {
     SkString name;
     SkOSFile::Iter iter(fPath.c_str(), "json");
+
+    int x = 0, y = 0;
+
+    // Build a global scene using tranformed animation fragments:
+    //
+    // [Group]
+    //     [Transform]
+    //         [AnimationWrapper]
+    //     [Transform]
+    //         [AnimationWrapper]
+    //     ...
+    //
+    // Note: for now animation wrappers are also tracked externally in fAnims, for tick dispatching.
+    auto scene_root = sksg::Group::Make();
+
     while (iter.next(&name)) {
         SkString path = SkOSPath::Join(fPath.c_str(), name.c_str());
         if (auto anim  = skottie::Animation::MakeFromFile(path.c_str())) {
-            fAnims.push_back(Rec(std::move(anim))).fName = name;
+            const SkRect src = SkRect::MakeSize(anim->size()),
+                         dst = SkRect::MakeXYWH(MARGIN + x * (CELL_WIDTH + SPACER_X),
+                                                MARGIN + y * (CELL_HEIGHT + SPACER_Y),
+                                                CELL_WIDTH, CELL_HEIGHT);
+            auto wrapper = sk_make_sp<AnimationWrapper>(std::move(anim));
+            auto matrix  = sksg::Matrix::Make(
+                SkMatrix::MakeRectToRect(src, dst, SkMatrix::kCenter_ScaleToFit));
+            auto xform   = sksg::Transform::Make(wrapper, std::move(matrix));
+
+            scene_root->addChild(xform);
+            fAnims.emplace_back(std::move(wrapper)).fName = name;
+
+            if (++x == COL_COUNT) {
+                x = 0;
+                y += 1;
+            }
         }
     }
+
+    fScene = sksg::Scene::Make(std::move(scene_root), sksg::AnimatorList());
 }
 
 void SkottieSlide2::unload() {
     fAnims.reset();
+    fScene.reset();
 }
 
 SkISize SkottieSlide2::getDimensions() const {
@@ -61,6 +122,9 @@ SkISize SkottieSlide2::getDimensions() const {
 }
 
 void SkottieSlide2::draw(SkCanvas* canvas) {
+    fScene->render(canvas);
+
+    // TODO: this is all only to draw labels; replace with sksg::Text nodes, when available.
     SkPaint paint;
     paint.setTextSize(12);
     paint.setAntiAlias(true);
@@ -75,7 +139,6 @@ void SkottieSlide2::draw(SkCanvas* canvas) {
         canvas->translate(x * (CELL_WIDTH + SPACER_X), y * (CELL_HEIGHT + SPACER_Y));
         canvas->drawText(rec.fName.c_str(), rec.fName.size(),
                          dst.centerX(), dst.bottom() + paint.getTextSize(), paint);
-        rec.fAnimation->render(canvas, &dst);
         if (++x == COL_COUNT) {
             x = 0;
             y += 1;
@@ -89,7 +152,7 @@ bool SkottieSlide2::animate(const SkAnimTimer& timer) {
             // Reset the animation time.
             rec.fTimeBase = timer.msec();
         }
-        rec.fAnimation->animationTick(timer.msec() - rec.fTimeBase);
+        rec.fWrapper->tick(timer.msec() - rec.fTimeBase);
     }
     return true;
 }
@@ -103,7 +166,7 @@ bool SkottieSlide2::onMouse(SkScalar x, SkScalar y, sk_app::Window::InputState s
         int index = this->findCell(x, y);
         if (fTrackingCell == index) {
             fAnims[index].fShowAnimationInval = !fAnims[index].fShowAnimationInval;
-            fAnims[index].fAnimation->setShowInval(fAnims[index].fShowAnimationInval);
+            fAnims[index].fWrapper->setShowInval(fAnims[index].fShowAnimationInval);
         }
         fTrackingCell = -1;
     }
