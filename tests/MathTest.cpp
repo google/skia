@@ -672,7 +672,7 @@ DEF_TEST(GrNextSizePow2, reporter) {
     test_nextsizepow2(reporter, SIZE_MAX, SIZE_MAX);
 }
 
-DEF_TEST(FloatSaturate, reporter) {
+DEF_TEST(FloatSaturate32, reporter) {
     const struct {
         float   fFloat;
         int     fExpectedInt;
@@ -694,7 +694,29 @@ DEF_TEST(FloatSaturate, reporter) {
     }
 }
 
-DEF_TEST(DoubleSaturate, reporter) {
+DEF_TEST(FloatSaturate64, reporter) {
+    const struct {
+        float   fFloat;
+        int64_t fExpected64;
+    } recs[] = {
+        { 0, 0 },
+        { 100.5f, 100 },
+        { (float)SK_MaxS64, SK_MaxS64FitsInFloat },
+        { (float)SK_MinS64, SK_MinS64FitsInFloat },
+        { SK_MaxS64 * 100.0f, SK_MaxS64FitsInFloat },
+        { SK_MinS64 * 100.0f, SK_MinS64FitsInFloat },
+        { SK_ScalarInfinity, SK_MaxS64FitsInFloat },
+        { SK_ScalarNegativeInfinity, SK_MinS64FitsInFloat },
+        { SK_ScalarNaN, SK_MaxS64FitsInFloat },
+    };
+
+    for (auto r : recs) {
+        int64_t i = sk_float_saturate2int64(r.fFloat);
+        REPORTER_ASSERT(reporter, r.fExpected64 == i);
+    }
+}
+
+DEF_TEST(DoubleSaturate32, reporter) {
     const struct {
         double  fDouble;
         int     fExpectedInt;
