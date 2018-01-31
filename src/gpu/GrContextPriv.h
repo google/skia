@@ -29,7 +29,9 @@ public:
 
     GrDrawingManager* drawingManager() { return fContext->fDrawingManager.get(); }
 
-    sk_sp<GrSurfaceContext> makeWrappedSurfaceContext(sk_sp<GrSurfaceProxy>, sk_sp<SkColorSpace>);
+    sk_sp<GrSurfaceContext> makeWrappedSurfaceContext(sk_sp<GrSurfaceProxy>,
+                                                      sk_sp<SkColorSpace> = nullptr,
+                                                      const SkSurfaceProps* = nullptr);
 
     sk_sp<GrSurfaceContext> makeDeferredSurfaceContext(const GrSurfaceDesc&,
                                                        GrMipMapped,

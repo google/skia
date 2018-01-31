@@ -411,7 +411,7 @@ public:
         }
 
         sk_sp<GrSurfaceContext> sContext = fContext->contextPriv().makeWrappedSurfaceContext(
-                                                                          fTextureProxy, nullptr);
+                                                                                fTextureProxy);
         if (!sContext) {
             return false;
         }

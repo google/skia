@@ -195,14 +195,14 @@ bool SkSurface_Gpu::isCompatible(const SkSurfaceCharacterization& data) const {
            data.surfaceProps() == rtc->surfaceProps();
 }
 
-bool SkSurface_Gpu::onDraw(SkDeferredDisplayList* dl) {
-    if (!this->isCompatible(dl->characterization())) {
+bool SkSurface_Gpu::onDraw(const SkDeferredDisplayList* ddl) {
+    if (!this->isCompatible(ddl->characterization())) {
         return false;
     }
 
     // Ultimately need to pass opLists from the DeferredDisplayList on to the
     // SkGpuDevice's renderTargetContext.
-    return dl->draw(this);
+    return ddl->draw(this);
 }
 
 
@@ -263,6 +263,23 @@ sk_sp<SkSurface> SkSurface::MakeRenderTarget(GrContext* ctx, SkBudgeted budgeted
     }
     return sk_make_sp<SkSurface_Gpu>(std::move(device));
 }
+
+sk_sp<SkSurface> SkSurface_Gpu::MakeWrappedRenderTarget(GrContext* context,
+                                                        sk_sp<GrRenderTargetContext> rtc) {
+    if (!context) {
+        return nullptr;
+    }
+
+    sk_sp<SkGpuDevice> device(SkGpuDevice::Make(context, std::move(rtc),
+                                                rtc->width(), rtc->height(),
+                                                SkGpuDevice::kUninit_InitContents));
+    if (!device) {
+        return nullptr;
+    }
+
+    return sk_make_sp<SkSurface_Gpu>(std::move(device));
+}
+
 
 sk_sp<SkSurface> SkSurface::MakeFromBackendTexture(GrContext* context, const GrBackendTexture& tex,
                                                    GrSurfaceOrigin origin, int sampleCnt,

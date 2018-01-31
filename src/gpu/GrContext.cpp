@@ -25,7 +25,9 @@
 #include "GrTexture.h"
 #include "GrTextureContext.h"
 #include "GrTracing.h"
+
 #include "SkConvertPixels.h"
+#include "SkDeferredDisplayList.h"
 #include "SkGr.h"
 #include "SkJSONWriter.h"
 #include "SkMakeUnique.h"
@@ -260,6 +262,13 @@ bool GrContext::init(const GrContextOptions& options) {
     prcOptions.fGpuPathRenderers = options.fGpuPathRenderers;
 #endif
     if (options.fDisableDistanceFieldPaths) {
+        prcOptions.fGpuPathRenderers &= ~GpuPathRenderers::kSmall;
+    }
+
+    if (!fResourceCache) {
+        // DDL TODO: remove this crippling of the path renderer chain
+        // Disable the small path renderer bc of the proxies in the atlas. They need to be
+        // unified when the opLists are added back to the destination drawing manager.
         prcOptions.fGpuPathRenderers &= ~GpuPathRenderers::kSmall;
     }
 
@@ -800,14 +809,16 @@ void GrContextPriv::flushSurfaceIO(GrSurfaceProxy* proxy) {
 ////////////////////////////////////////////////////////////////////////////////
 
 sk_sp<GrSurfaceContext> GrContextPriv::makeWrappedSurfaceContext(sk_sp<GrSurfaceProxy> proxy,
-                                                                 sk_sp<SkColorSpace> colorSpace) {
+                                                                 sk_sp<SkColorSpace> colorSpace,
+                                                                 const SkSurfaceProps* props) {
     ASSERT_SINGLE_OWNER_PRIV
 
     if (proxy->asRenderTargetProxy()) {
         return this->drawingManager()->makeRenderTargetContext(std::move(proxy),
-                                                               std::move(colorSpace), nullptr);
+                                                               std::move(colorSpace), props);
     } else {
         SkASSERT(proxy->asTextureProxy());
+        SkASSERT(!props);
         return this->drawingManager()->makeTextureContext(std::move(proxy), std::move(colorSpace));
     }
 }
@@ -828,7 +839,7 @@ sk_sp<GrSurfaceContext> GrContextPriv::makeDeferredSurfaceContext(const GrSurfac
         return nullptr;
     }
 
-    return this->makeWrappedSurfaceContext(std::move(proxy), nullptr);
+    return this->makeWrappedSurfaceContext(std::move(proxy));
 }
 
 sk_sp<GrTextureContext> GrContextPriv::makeBackendTextureContext(const GrBackendTexture& tex,
@@ -902,7 +913,6 @@ sk_sp<GrRenderTargetContext> GrContextPriv::makeBackendTextureAsRenderTargetRend
 void GrContextPriv::addOnFlushCallbackObject(GrOnFlushCallbackObject* onFlushCBObject) {
     fContext->fDrawingManager->addOnFlushCallbackObject(onFlushCBObject);
 }
-
 
 static inline GrPixelConfig GrPixelConfigFallback(GrPixelConfig config) {
     switch (config) {

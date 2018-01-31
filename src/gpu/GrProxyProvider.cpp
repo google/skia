@@ -54,7 +54,7 @@ bool GrProxyProvider::assignUniqueKeyToProxy(const GrUniqueKey& key, GrTexturePr
     // If there is already a GrResource with this key then the caller has violated the normal
     // usage pattern of uniquely keyed resources (e.g., they have created one w/o first seeing
     // if it already existed in the cache).
-    SkASSERT(!fResourceCache->findAndRefUniqueResource(key));
+    SkASSERT(!fResourceCache || !fResourceCache->findAndRefUniqueResource(key));
 
     // Uncached resources can never have a unique key, unless they're wrapped resources. Wrapped
     // resources are a special case: the unique keys give us a weak ref so that we can reuse the
@@ -131,6 +131,10 @@ sk_sp<GrTextureProxy> GrProxyProvider::findOrCreateProxyByUniqueKey(const GrUniq
     sk_sp<GrTextureProxy> result = this->findProxyByUniqueKey(key, origin);
     if (result) {
         return result;
+    }
+
+    if (!fResourceCache) {
+        return nullptr;
     }
 
     GrGpuResource* resource = fResourceCache->findAndRefUniqueResource(key);

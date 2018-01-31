@@ -79,7 +79,7 @@ std::unique_ptr<SkDeferredDisplayList> SkDeferredDisplayListRecorder::detach() {
 
 // Placeholder. Ultimately, the SkSurface_Gpu will pass the wrapped opLists to its
 // renderTargetContext.
-bool SkDeferredDisplayList::draw(SkSurface* surface) {
+bool SkDeferredDisplayList::draw(SkSurface* surface) const {
     surface->getCanvas()->drawImage(fImage.get(), 0, 0);
     return true;
 }

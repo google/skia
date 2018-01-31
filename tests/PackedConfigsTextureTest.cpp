@@ -125,7 +125,7 @@ static void run_test(skiatest::Reporter* reporter, GrContext* context,
         SkASSERT(proxy);
 
         sk_sp<GrSurfaceContext> sContext = context->contextPriv().makeWrappedSurfaceContext(
-                                                                        std::move(proxy), nullptr);
+                                                                        std::move(proxy));
 
         SkAssertResult(sContext->readPixels(dstInfo, readBuffer.begin(), 0, 0, 0));
 

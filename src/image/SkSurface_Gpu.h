@@ -19,6 +19,9 @@ public:
     SkSurface_Gpu(sk_sp<SkGpuDevice>);
     ~SkSurface_Gpu() override;
 
+    // This is an internal-only factory
+    static sk_sp<SkSurface> MakeWrappedRenderTarget(GrContext*, sk_sp<GrRenderTargetContext>);
+
     GrBackendObject onGetTextureHandle(BackendHandleAccess) override;
     bool onGetRenderTargetHandle(GrBackendObject*, BackendHandleAccess) override;
     SkCanvas* onNewCanvas() override;
@@ -31,7 +34,7 @@ public:
     bool onWait(int numSemaphores, const GrBackendSemaphore* waitSemaphores) override;
     bool onCharacterize(SkSurfaceCharacterization*) const override;
     bool isCompatible(const SkSurfaceCharacterization&) const;
-    bool onDraw(SkDeferredDisplayList*) override;
+    bool onDraw(const SkDeferredDisplayList*) override;
 
     SkGpuDevice* getDevice() { return fDevice.get(); }
 
