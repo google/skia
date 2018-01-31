@@ -48,6 +48,30 @@
     },
     {
       "key": {
+        "uuid": "0332609d_c03aa522",
+        "filename": "include/core/SkTypes.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 215,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-01-31T20:55:54Z",
+      "side": 1,
+      "message": "I think this is well defined as is.",
+      "parentUuid": "1639437a_e748eb1e",
+      "range": {
+        "startLine": 215,
+        "startChar": 37,
+        "endLine": 215,
+        "endChar": 55
+      },
+      "revId": "8a724f88d9dc0bd3bc5cdeb57aa852c21caa0aa6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "0e264e68_d385abd7",
         "filename": "include/private/SkFixed.h",
         "patchSetId": 2
@@ -71,6 +95,30 @@
     },
     {
       "key": {
+        "uuid": "86062143_5294b723",
+        "filename": "include/private/SkFixed.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-01-31T20:55:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0e264e68_d385abd7",
+      "range": {
+        "startLine": 127,
+        "startChar": 34,
+        "endLine": 127,
+        "endChar": 56
+      },
+      "revId": "8a724f88d9dc0bd3bc5cdeb57aa852c21caa0aa6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c8b2beb5_24a0b9fc",
         "filename": "include/private/SkFloatingPoint.h",
         "patchSetId": 2
@@ -82,6 +130,30 @@
       "writtenOn": "2018-01-31T19:27:56Z",
       "side": 1,
       "message": "nit: SkTPin\u003cfloat\u003e(x, SK_MinS64FitsInFloat, SK_MaxS64FitsInFloat);",
+      "range": {
+        "startLine": 109,
+        "startChar": 0,
+        "endLine": 110,
+        "endChar": 47
+      },
+      "revId": "8a724f88d9dc0bd3bc5cdeb57aa852c21caa0aa6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "87b7f221_2001e351",
+        "filename": "include/private/SkFloatingPoint.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-01-31T20:55:54Z",
+      "side": 1,
+      "message": "Its important that inf and nan land on pos-max. Not sure pin is required to behave that way, but the current pattern is.",
+      "parentUuid": "c8b2beb5_24a0b9fc",
       "range": {
         "startLine": 109,
         "startChar": 0,
