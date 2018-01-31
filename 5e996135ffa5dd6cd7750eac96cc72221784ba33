@@ -45,6 +45,23 @@
       "revId": "5e996135ffa5dd6cd7750eac96cc72221784ba33",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d8421614_c572dea2",
+        "filename": "tests/ImageTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 897,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-01-31T20:51:42Z",
+      "side": 1,
+      "message": "Rephrase this ?",
+      "revId": "5e996135ffa5dd6cd7750eac96cc72221784ba33",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
