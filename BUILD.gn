@@ -51,6 +51,8 @@ declare_args() {
   skia_jumper_clang = ""
   skia_jumper_objdump = ""
   skia_jumper_ccache = ""
+
+  skia_skqp_enable_driver_correctness_workarounds = false
 }
 declare_args() {
   skia_use_dng_sdk = !is_fuchsia && skia_use_libjpeg_turbo && skia_use_zlib
@@ -1790,6 +1792,10 @@ if (skia_enable_tools) {
   if (!is_win && skia_enable_gpu) {
     test_lib("skqp_lib") {
       public_include_dirs = [ "tools/skqp" ]
+      defines = []
+      if (skia_skqp_enable_driver_correctness_workarounds) {
+        defines += [ "SK_SKQP_ENABLE_DRIVER_CORRECTNESS_WORKAROUNDS" ]
+      }
       sources = [
         "dm/DMFontMgr.cpp",
         "dm/DMGpuTestProcs.cpp",
