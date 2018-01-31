@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "c34ec72a_345cc4c7",
+        "filename": "infra/bots/android_compile/trigger_wait_ac_task.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2018-01-31T19:05:56Z",
+      "side": 1,
+      "message": "I think it\u0027s better because:\n1. Ben\u0027s go/webhooks library that makes it very simple to use in servers. All I have to do is webhook.AuthenticateRequest(r).\n2. The documentation in go/webhooks makes it easy to test with using curl commands from command line.\n3. IIRC, it was the recommended way to communicate across network boundaries. Looks like google3 and task_scheduler also uses webhooks.",
+      "parentUuid": "accf994f_8d04a8f1",
+      "range": {
+        "startLine": 53,
+        "startChar": 0,
+        "endLine": 62,
+        "endChar": 37
+      },
+      "revId": "b1516daa40f061652299c5a785bb1216b7ac80f7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ad65369f_c2ff9abc",
         "filename": "infra/bots/android_compile/trigger_wait_ac_task.py",
         "patchSetId": 1
@@ -45,6 +69,30 @@
       "revId": "b1516daa40f061652299c5a785bb1216b7ac80f7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "449c30f1_91ddbf19",
+        "filename": "infra/bots/android_compile/trigger_wait_ac_task.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2018-01-31T19:05:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ad65369f_c2ff9abc",
+      "range": {
+        "startLine": 151,
+        "startChar": 0,
+        "endLine": 165,
+        "endChar": 51
+      },
+      "revId": "b1516daa40f061652299c5a785bb1216b7ac80f7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
