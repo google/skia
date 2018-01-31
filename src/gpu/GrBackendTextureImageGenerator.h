@@ -10,7 +10,7 @@
 #include "SkImageGenerator.h"
 
 #include "GrBackendSurface.h"
-#include "SkAtomics.h"
+#include "SkMutex.h"
 
 class GrSemaphore;
 
@@ -54,27 +54,35 @@ private:
             : fOriginalTexture(texture)
             , fOwningContextID(owningContextID)
             , fBorrowedTexture(nullptr)
+            , fBorrowingContextReleaseProc(nullptr)
             , fBorrowingContextID(SK_InvalidGenID) {}
 
         ~RefHelper();
 
-        GrTexture* fOriginalTexture;
-        uint32_t fOwningContextID;
+        GrTexture*          fOriginalTexture;
+        uint32_t            fOwningContextID;
 
         // There is never a ref associated with this pointer. We rely on our atomic bookkeeping
         // with the context ID to know when this pointer is valid and safe to use. This lets us
         // avoid releasing a ref from another thread, or get into races during context shutdown.
-        GrTexture* fBorrowedTexture;
-        SkAtomic<uint32_t> fBorrowingContextID;
+        GrTexture*           fBorrowedTexture;
+        // For the same reason as the fBorrowedTexture, there is no ref associated with this
+        // pointer. The fBorrowingContextReleaseProc is used to make sure all uses of the wrapped
+        // texture are finished on the borrowing context before we open this back up to other
+        // contexts. In general a ref to this release proc is owned by all proxies and gpu uses of
+        // the backend texture.
+        GrReleaseProcHelper* fBorrowingContextReleaseProc;
+        uint32_t             fBorrowingContextID;
     };
 
-    RefHelper* fRefHelper;
+    RefHelper*           fRefHelper;
+    SkMutex              fMutex;
 
-    sk_sp<GrSemaphore> fSemaphore;
+    sk_sp<GrSemaphore>   fSemaphore;
 
-    GrBackendTexture fBackendTexture;
-    GrPixelConfig fConfig;
-    GrSurfaceOrigin fSurfaceOrigin;
+    GrBackendTexture     fBackendTexture;
+    GrPixelConfig        fConfig;
+    GrSurfaceOrigin      fSurfaceOrigin;
 
     typedef SkImageGenerator INHERITED;
 };
