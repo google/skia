@@ -270,6 +270,7 @@ static constexpr char kDocHead[] =
     "<title>SkQP Report</title>\n"
     "<style>\n"
     "img { max-width:48%; border:1px green solid;\n"
+    "      image-rendering: pixelated;\n"
     "      background-image:url('data:image/png;base64,iVBORw0KGgoA"
     "AAANSUhEUgAAABAAAAAQCAAAAAA6mKC9AAAAAXNSR0IArs4c6QAAAAJiS0dEAP+H"
     "j8y/AAAACXBIWXMAAA7DAAAOwwHHb6hkAAAAB3RJTUUH3gUBEi4DGRAQYgAAAB1J"
