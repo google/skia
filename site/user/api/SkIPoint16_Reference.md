@@ -3,32 +3,40 @@ SkIPoint16 Reference
 
 # <a name="IPoint16"></a> IPoint16
 
-# <a name="SkIPoint16"></a> Struct SkIPoint16
-<a href="#SkIPoint16">SkIPoint16</a> holds two 16 bit integer coordinates.
-
-# <a name="Overview"></a> Overview
+## <a name="Overview"></a> Overview
 
 ## <a name="Subtopics"></a> Subtopics
 
 | name | description |
-| --- | ---  |
-| <a href="#Overview_Constructors">Constructors</a> | functions that construct <a href="#SkIPoint16">SkIPoint16</a> |
-| <a href="#Overview_Member_Functions">Member Functions</a> | static functions and member methods |
+| --- | --- |
+| <a href="#Constructors">Constructors</a> | functions that construct <a href="SkIPoint16_Reference#SkIPoint16">SkIPoint16</a> |
+| <a href="#Member_Functions">Member Functions</a> | static functions and member methods |
+| <a href="#Members">Members</a> | member values |
+
+# <a name="SkIPoint16"></a> Struct SkIPoint16
+<a href="#SkIPoint16">SkIPoint16</a> holds two 16 bit integer coordinates.
 
 ## <a name="Constructors"></a> Constructors
 
 | name | description |
-| --- | ---  |
+| --- | --- |
 | <a href="#SkIPoint16_Make">Make</a> | constructs from integer inputs |
 
 ## <a name="Member_Functions"></a> Member Functions
 
 | name | description |
-| --- | ---  |
+| --- | --- |
 | <a href="#SkIPoint16_Make">Make</a> | constructs from integer inputs |
 | <a href="#SkIPoint16_set">set</a> | sets to integer input |
 | <a href="#SkIPoint16_x">x</a> | returns <a href="#SkIPoint16_fX">fX</a> |
 | <a href="#SkIPoint16_y">y</a> | returns <a href="#SkIPoint16_fY">fY</a> |
+
+## <a name="Members"></a> Members
+
+| name | description |
+| --- | --- |
+| <a href="#SkIPoint16_fX">fX</a> | x-axis value |
+| <a href="#SkIPoint16_fY">fY</a> | y-axis value |
 
 <a name="SkIPoint16_fX"> <code><strong>int16_t  fX</strong></code> </a>
 

@@ -3,6 +3,16 @@ SkPixmap Reference
 
 # <a name="Pixmap"></a> Pixmap
 
+## <a name="Overview"></a> Overview
+
+## <a name="Subtopics"></a> Subtopics
+
+| name | description |
+| --- | --- |
+| <a href="#Constructors">Constructors</a> | functions that construct <a href="SkPixmap_Reference#SkPixmap">SkPixmap</a> |
+| <a href="#Member_Functions">Member Functions</a> | static functions and member methods |
+| <a href="#Related_Functions">Related Functions</a> | similar methods grouped together |
+
 # <a name="SkPixmap"></a> Class SkPixmap
 <a href="#Pixmap">Pixmap</a> provides a utility to pair <a href="SkImageInfo_Reference#SkImageInfo">SkImageInfo</a> with pixels and row bytes.
 <a href="#Pixmap">Pixmap</a> is a low level class which provides convenience functions to access
@@ -15,20 +25,10 @@ pixels referenced by <a href="#Pixmap">Pixmap</a>.
 <a href="#Pixmap">Pixmap</a> does not try to manage the lifetime of the pixel memory. Use <a href="undocumented#Pixel_Ref">Pixel Ref</a>
 to manage pixel memory; <a href="undocumented#Pixel_Ref">Pixel Ref</a> is safe across threads.
 
-# <a name="Overview"></a> Overview
-
-## <a name="Subtopics"></a> Subtopics
-
-| name | description |
-| --- | ---  |
-| <a href="#Overview_Constructors">Constructors</a> | list of functions that construct <a href="SkPath_Reference#SkPath">SkPath</a> |
-| <a href="#Overview_Member_Functions">Member Functions</a> | list of static functions and member methods |
-| <a href="#Overview_Related_Functions">Related Functions</a> | similar methods grouped together |
-
 ## <a name="Related_Functions"></a> Related Functions
 
 | name | description |
-| --- | ---  |
+| --- | --- |
 | <a href="#Image_Info_Access">Image Info Access</a> | returns all or part of <a href="SkImageInfo_Reference#Image_Info">Image Info</a> |
 | <a href="#Initialization">Initialization</a> | sets fields for use |
 | <a href="#Readable_Address">Readable Address</a> | returns read only pixels |
@@ -38,15 +38,15 @@ to manage pixel memory; <a href="undocumented#Pixel_Ref">Pixel Ref</a> is safe a
 
 ## <a name="Constructors"></a> Constructors
 
-|  | description |
-| --- | ---  |
+| name | description |
+| --- | --- |
 | <a href="#SkPixmap_empty_constructor">SkPixmap()</a> | constructs with default values |
 | <a href="#SkPixmap_const_SkImageInfo_const_star">SkPixmap(const SkImageInfo& info, const void* addr, size t rowBytes)</a> | constructs from <a href="SkImageInfo_Reference#Image_Info">Image Info</a>, pixels |
 
 ## <a name="Member_Functions"></a> Member Functions
 
 | name | description |
-| --- | ---  |
+| --- | --- |
 | <a href="#SkPixmap_addr">addr</a> | returns readable pixel address as void pointer |
 | <a href="#SkPixmap_addr16">addr16</a> | returns readable pixel address as 16-bit pointer |
 | <a href="#SkPixmap_addr32">addr32</a> | returns readable pixel address as 32-bit pointer |

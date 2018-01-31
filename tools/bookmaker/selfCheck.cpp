@@ -66,7 +66,7 @@ protected:
     //          should be 'creators' instead of constructors?
     bool checkConstructorsSummary() {
         for (auto& rootChild : fRoot->fChildren) {
-            if (!this->isStructOrClass(rootChild)) {
+            if (!rootChild->isStructOrClass()) {
                 continue;
             }
             auto& cs = rootChild;
@@ -357,7 +357,7 @@ protected:
 
 	const Definition* classOrStruct() {
 		for (auto& rootChild : fRoot->fChildren) {
-			if (this->isStructOrClass(rootChild)) {
+			if (rootChild->isStructOrClass()) {
 				return rootChild;
 			}
 		}
@@ -456,17 +456,6 @@ protected:
             // todo: error if name is all lower case and doesn't end in ()
             strings->push_back(name);
             prior = name;
-        }
-        return true;
-    }
-
-    bool isStructOrClass(const Definition* definition) const {
-        if (MarkType::kStruct != definition->fMarkType &&
-                MarkType::kClass != definition->fMarkType) {
-            return false;
-        }
-        if (string::npos != definition->fFileName.find("undocumented.bmh")) {
-            return false;
         }
         return true;
     }

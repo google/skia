@@ -1,39 +1,23 @@
 #Topic Image_Info
 #Alias Image_Info_Reference
 
-#Topic Overview
-
-#Subtopic Subtopics
-#Table
-#Legend
-# name             # description                         ##
-#Legend ##
-# Constants        # enum and enum class, const values   ##
-# Constructors     # functions that construct ImageInfo  ##
-# Member_Functions # static functions and member methods ##
-# Operators        # operator overloading methods        ##
-#Table ##
+#Subtopic Overview
+    #Subtopic Subtopics
+    #Populate
+    ##
 ##
 
 #Subtopic Constants
-#Table
-#Legend
-# name                          # description ##
-#Legend ##
-# Alpha_Type                    # encoding for pixel transparency ##
-# Color_Type                    # encoding for pixel color components ##
-# SkDestinationSurfaceColorMode # ##
-# SkYUVColorSpace               # ##
-#Table ##
-#Subtopic ##
-
-#Topic ##
+#Populate
+##
 
 # ------------------------------------------------------------------------------
-#Topic Alpha_Type
+#Subtopic Alpha_Type
+#Line # incomplete ##
 #Alias Alpha_Type
 #Alias Alpha_Types
 #Enum SkAlphaType
+#Line # incomplete ##
 
 #Code
     enum SkAlphaType {
@@ -70,17 +54,17 @@ generate this on output.
 #SeeAlso incomplete
 
 #Enum SkAlphaType ##
-#Topic ##
+#Subtopic Alpha_Type ##
 
 # ------------------------------------------------------------------------------
-#Topic Color_Type
-#Subtopic Native_Color_Type
+#Subtopic Color_Type
+#Line # incomplete ##
 #Alias Native_Color_Type
 #Substitute native SkColorType
-##
 #Alias Color_Type
 #Alias Color_Types
 #Enum SkColorType
+#Line # incomplete ##
 
 #Code
     enum SkColorType {
@@ -136,10 +120,11 @@ for 32 bit pixels.
 #SeeAlso incomplete
 
 #Enum SkColorType ##
-#Topic ##
+#Subtopic Color_Type ##
 
 # ------------------------------------------------------------------------------
 #Enum SkYUVColorSpace
+#Line # incomplete ##
 
 #Code
     enum SkYUVColorSpace {
@@ -174,6 +159,7 @@ range. See http://en.wikipedia.org/wiki/Rec._709 for details.
 
 # ------------------------------------------------------------------------------
 #EnumClass SkDestinationSurfaceColorMode
+#Line # incomplete ##
 
 #Code
     enum class SkDestinationSurfaceColorMode {
@@ -203,75 +189,16 @@ Describe an image's dimensions and pixel type.
 Used for both src images and render-targets (surfaces).
 
 #Subtopic Operators
-#Table
-#Legend
-# name                                            # description ##
-#Legend ##
-# operator!=(const SkImageInfo& other)_const # ##
-# operator==(const SkImageInfo& other)_const # ##
-#Table ##
-#Subtopic ##
+#Populate
+##
 
 #Subtopic Member_Functions
-#Table
-#Legend
-# name               # description ##
-#Legend ##
-# ByteSizeOverflowed # ##
-# Make               # creates Image_Info from dimensions, Color_Type, Alpha_Type, Color_Space ##
-# MakeA8             # creates Image_Info with kAlpha_8_SkColorType, kPremul_SkAlphaType       ##
-# MakeN32            # creates Image_Info with Native_Color_Type                               ##
-# MakeN32Premul      # creates Image_Info with Native_Color_Type, kPremul_SkAlphaType          ##
-# MakeS32            # creates Image_Info with Native_Color_Type, sRGB Color_Space             ##
-# MakeUnknown        # creates Image_Info with kUnknown_SkColorType, kUnknown_SkAlphaType      ##
-# alphaType          # ##
-# bounds()           # ##
-# bytesPerPixel      # ##
-# colorSpace         # ##
-# colorType          # ##
-# computeByteSize    # ##
-# computeMinByteSize # ##
-# computeOffset      # ##
-# dimensions()       # ##
-# flatten()          # ##
-# gammaCloseToSRGB   # ##
-# height()           # ##
-# isEmpty            # ##
-# isOpaque           # ##
-# makeAlphaType      # creates Image_Info with changed Alpha_Type                              ##
-# makeColorSpace     # creates Image_Info with changed Color_Space                             ##
-# makeColorType      # creates Image_Info with changed Color_Type                              ##
-# makeWH             # creates Image_Info with changed dimensions                              ##
-# minRowBytes        # ##
-# minRowBytes64      # ##
-# refColorSpace      # ##
-# reset()            # ##
-# shiftPerPixel      # ##
-# unflatten()        # ##
-# validRowBytes      # ##
-# validate()         # ##
-# width()            # ##
-#Table ##
-#Subtopic ##
+#Populate
+##
 
 #Subtopic Constructors
-#Table
-#Legend
-# name           # description                                                              ##
-#Legend ##
-# Make           # creates Image_Info from dimensions, Color_Type, Alpha_Type, Color_Space  ##
-# MakeA8         # creates Image_Info with kAlpha_8_SkColorType, kPremul_SkAlphaType        ##
-# MakeN32        # creates Image_Info with Native_Color_Type                                ##
-# MakeN32Premul  # creates Image_Info with Native_Color_Type, kPremul_SkAlphaType           ##
-# MakeS32        # creates Image_Info with Native_Color_Type, sRGB Color_Space              ##
-# MakeUnknown    # creates Image_Info with kUnknown_SkColorType, kUnknown_SkAlphaType       ##
-# SkImageInfo()  # creates with zero dimensions, kUnknown_SkColorType, kUnknown_SkAlphaType ##
-# makeAlphaType  # creates Image_Info with changed Alpha_Type                               ##
-# makeColorSpace # creates Image_Info with changed Color_Space                              ##
-# makeColorType  # creates Image_Info with changed Color_Type                               ##
-# makeWH         # creates Image_Info with changed dimensions                               ##
-
-#Table ##
+#Populate
+##
 
 # ------------------------------------------------------------------------------
 
@@ -449,8 +376,6 @@ Sets colortype to kN32_SkColorType, and the alphatype to premul.
 #SeeAlso incomplete
 
 #Method ##
-
-#Subtopic Constructors ##
 
 
 # ------------------------------------------------------------------------------
@@ -941,4 +866,4 @@ Returns true if the result of computeByteSize (or computeMinByteSize) overflowed
 
 #Struct SkImageInfo ##
 
-#Topic ImageInfo ##
+#Topic Image_Info ##
