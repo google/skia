@@ -3,13 +3,12 @@ SkIRect Reference
 
 # <a name="IRect"></a> IRect
 
-# <a name="Overview"></a> Overview
+## <a name="Overview"></a> Overview
 
 ## <a name="Subtopics"></a> Subtopics
 
 | name | description |
-| --- | ---  |
-| <a href="#Constructors">Constructors</a> | functions that construct <a href="SkIRect_Reference#SkIRect">SkIRect</a> |
+| --- | --- |
 | <a href="#Member_Functions">Member Functions</a> | static functions and member methods |
 | <a href="#Members">Members</a> | member values |
 | <a href="#Operators">Operators</a> | operator overloading methods |
@@ -37,53 +36,60 @@ its top, it is considered empty.
 ## <a name="Member_Functions"></a> Member Functions
 
 | name | description |
-| --- | ---  |
-| <a href="#SkIRect_EmptyIRect">EmptyIRect</a> | returns immutable bounds of (0, 0, 0, 0) |
-| <a href="#SkIRect_Intersects">Intersects</a> | returns true if areas overlap |
-| <a href="#SkIRect_IntersectsNoEmptyCheck">IntersectsNoEmptyCheck</a> | returns true if areas overlap skips empty check |
-| <a href="#SkIRect_MakeEmpty">MakeEmpty</a> | returns bounds of (0, 0, 0, 0) |
-| <a href="#SkIRect_MakeLTRB">MakeLTRB</a> | constructs from int left, top, right, bottom |
-| <a href="#SkIRect_MakeLargest">MakeLargest</a> | deprecated |
-| <a href="#SkIRect_MakeSize">MakeSize</a> | constructs from <a href="undocumented#ISize">ISize</a> returning (0, 0, width, height) |
-| <a href="#SkIRect_MakeWH">MakeWH</a> | constructs from int input returning (0, 0, width, height) |
-| <a href="#SkIRect_MakeXYWH">MakeXYWH</a> | constructs from int input returning (x, y, width, height) |
-| <a href="#SkIRect_bottom">bottom</a> | returns larger bounds in y, if sorted |
-| <a href="#SkIRect_centerX">centerX</a> | returns midpoint in x |
-| <a href="#SkIRect_centerY">centerY</a> | returns midpoint in y |
-| <a href="#SkIRect_contains">contains</a> | returns true if points are equal or inside |
-| <a href="#SkIRect_containsNoEmptyCheck">containsNoEmptyCheck</a> | returns true if points are equal or inside skips empty check |
-| <a href="#SkIRect_height">height</a> | returns span in y |
-| <a href="#SkIRect_height64">height64</a> | returns span in y as int64_t |
-| <a href="#SkIRect_inset">inset</a> | moves the sides symmetrically about the center |
-| <a href="#SkIRect_intersect">intersect</a> | sets to shared area; returns true if not empty |
-| <a href="#SkIRect_intersectNoEmptyCheck">intersectNoEmptyCheck</a> | sets to shared area; returns true if not empty skips empty check |
-| <a href="#SkIRect_is16Bit">is16Bit</a> | returns true if members fit in 16-bit word |
-| <a href="#SkIRect_isEmpty">isEmpty</a> | returns true if width or height are zero or negative or they exceed int32_t |
-| <a href="#SkIRect_isEmpty64">isEmpty64</a> | returns true if width or height are zero or negative |
-| <a href="#SkIRect_join">join</a> | sets to union of bounds |
-| <a href="#SkIRect_left">left</a> | returns smaller bounds in x, if sorted |
-| <a href="#SkIRect_makeInset">makeInset</a> | constructs from sides moved symmetrically about the center |
-| <a href="#SkIRect_makeOffset">makeOffset</a> | constructs from translated sides |
-| <a href="#SkIRect_makeOutset">makeOutset</a> | constructs from sides moved symmetrically about the center |
-| <a href="#SkIRect_makeSorted">makeSorted</a> | constructs, ordering sides from smaller to larger |
-| <a href="#SkIRect_offset">offset</a> | translates sides without changing width and height |
-| <a href="#SkIRect_offsetTo">offsetTo</a> | translates to (x, y) without changing width and height |
-| <a href="#SkIRect_outset">outset</a> | moves the sides symmetrically about the center |
-| <a href="#SkIRect_quickReject">quickReject</a> | returns true if rectangles do not intersect |
-| <a href="#SkIRect_right">right</a> | returns larger bounds in x, if sorted |
-| <a href="#SkIRect_set">set</a> | sets to (left, top, right, bottom) |
-| <a href="#SkIRect_setEmpty">setEmpty</a> | sets to (0, 0, 0, 0) |
-| <a href="#SkIRect_setLTRB">setLTRB</a> | sets to <a href="undocumented#SkScalar">SkScalar</a> input (left, top, right, bottom) |
-| <a href="#SkIRect_setXYWH">setXYWH</a> | sets to (x, y, width, height) |
-| <a href="#SkIRect_size">size</a> | returns <a href="undocumented#ISize">ISize</a> (width, height) |
-| <a href="#SkIRect_sort">sort</a> | orders sides from smaller to larger |
-| <a href="#SkIRect_top">top</a> | returns smaller bounds in y, if sorted |
-| <a href="#SkIRect_width">width</a> | returns span in x |
-| <a href="#SkIRect_width64">width64</a> | returns span in y as int64_t |
-| <a href="#SkIRect_x">x</a> | returns bounds left |
-| <a href="#SkIRect_y">y</a> | returns bounds top |
+| --- | --- |
+| <a href="#SkIRect_EmptyIRect">SkIRect::EmptyIRect</a> | returns immutable bounds of (0, 0, 0, 0) |
+| <a href="#SkIRect_Intersects">SkIRect::Intersects</a> | returns true if areas overlap |
+| <a href="#SkIRect_IntersectsNoEmptyCheck">SkIRect::IntersectsNoEmptyCheck</a> | returns true if areas overlap skips empty check |
+| <a href="#SkIRect_MakeEmpty">SkIRect::MakeEmpty</a> | returns bounds of (0, 0, 0, 0) |
+| <a href="#SkIRect_MakeLTRB">SkIRect::MakeLTRB</a> | constructs from int left, top, right, bottom |
+| <a href="#SkIRect_MakeLargest">SkIRect::MakeLargest</a> | deprecated |
+| <a href="#SkIRect_MakeSize">SkIRect::MakeSize</a> | constructs from <a href="undocumented#ISize">ISize</a> returning (0, 0, width, height) |
+| <a href="#SkIRect_MakeWH">SkIRect::MakeWH</a> | constructs from int input returning (0, 0, width, height) |
+| <a href="#SkIRect_MakeXYWH">SkIRect::MakeXYWH</a> | constructs from int input returning (x, y, width, height) |
+| <a href="#SkIRect_bottom">SkIRect::bottom()</a> | returns larger bounds in y, if sorted |
+| <a href="#SkIRect_centerX">SkIRect::centerX</a> | returns midpoint in x |
+| <a href="#SkIRect_centerY">SkIRect::centerY</a> | returns midpoint in y |
+| <a href="#SkIRect_contains">SkIRect::contains()</a> | returns true if points are equal or inside |
+| <a href="#SkIRect_containsNoEmptyCheck">SkIRect::containsNoEmptyCheck</a> | returns true if points are equal or inside skips empty check |
+| <a href="#SkIRect_height">SkIRect::height()</a> | returns span in y |
+| <a href="#SkIRect_height64">SkIRect::height64</a> | returns span in y as int64_t |
+| <a href="#SkIRect_inset">SkIRect::inset()</a> | moves the sides symmetrically about the center |
+| <a href="#SkIRect_intersect">SkIRect::intersect()</a> | sets to shared area; returns true if not empty |
+| <a href="#SkIRect_intersectNoEmptyCheck">SkIRect::intersectNoEmptyCheck</a> | sets to shared area; returns true if not empty skips empty check |
+| <a href="#SkIRect_is16Bit">SkIRect::is16Bit</a> | returns true if members fit in 16-bit word |
+| <a href="#SkIRect_isEmpty">SkIRect::isEmpty</a> | returns true if width or height are zero or negative or they exceed int32_t |
+| <a href="#SkIRect_isEmpty64">SkIRect::isEmpty64</a> | returns true if width or height are zero or negative |
+| <a href="#SkIRect_join">SkIRect::join()</a> | sets to union of bounds |
+| <a href="#SkIRect_left">SkIRect::left()</a> | returns smaller bounds in x, if sorted |
+| <a href="#SkIRect_makeInset">SkIRect::makeInset</a> | constructs from sides moved symmetrically about the center |
+| <a href="#SkIRect_makeOffset">SkIRect::makeOffset</a> | constructs from translated sides |
+| <a href="#SkIRect_makeOutset">SkIRect::makeOutset</a> | constructs from sides moved symmetrically about the center |
+| <a href="#SkIRect_makeSorted">SkIRect::makeSorted</a> | constructs, ordering sides from smaller to larger |
+| <a href="#SkIRect_offset">SkIRect::offset()</a> | translates sides without changing width and height |
+| <a href="#SkIRect_offsetTo">SkIRect::offsetTo</a> | translates to (x, y) without changing width and height |
+| <a href="#SkIRect_outset">SkIRect::outset()</a> | moves the sides symmetrically about the center |
+| <a href="#SkIRect_quickReject">SkIRect::quickReject</a> | returns true if rectangles do not intersect |
+| <a href="#SkIRect_right">SkIRect::right()</a> | returns larger bounds in x, if sorted |
+| <a href="#SkIRect_set">SkIRect::set()</a> | sets to (left, top, right, bottom) |
+| <a href="#SkIRect_setEmpty">SkIRect::setEmpty</a> | sets to (0, 0, 0, 0) |
+| <a href="#SkIRect_setLTRB">SkIRect::setLTRB</a> | sets to <a href="undocumented#SkScalar">SkScalar</a> input (left, top, right, bottom) |
+| <a href="#SkIRect_setXYWH">SkIRect::setXYWH</a> | sets to (x, y, width, height) |
+| <a href="#SkIRect_size">SkIRect::size()</a> | returns <a href="undocumented#ISize">ISize</a> (width, height) |
+| <a href="#SkIRect_sort">SkIRect::sort()</a> | orders sides from smaller to larger |
+| <a href="#SkIRect_top">SkIRect::top()</a> | returns smaller bounds in y, if sorted |
+| <a href="#SkIRect_width">SkIRect::width()</a> | returns span in x |
+| <a href="#SkIRect_width64">SkIRect::width64</a> | returns span in y as int64_t |
+| <a href="#SkIRect_x">SkIRect::x()</a> | returns bounds left |
+| <a href="#SkIRect_y">SkIRect::y()</a> | returns bounds top |
 
 ## <a name="Members"></a> Members
+
+| name | description |
+| --- | --- |
+| <a href="#SkIRect_fBottom">SkIRect::fBottom</a> | larger y-axis bounds |
+| <a href="#SkIRect_fLeft">SkIRect::fLeft</a> | smaller x-axis bounds |
+| <a href="#SkIRect_fRight">SkIRect::fRight</a> | larger x-axis bounds |
+| <a href="#SkIRect_fTop">SkIRect::fTop</a> | smaller y-axis bounds |
 
 <a name="SkIRect_fLeft"> <code><strong>int32_t  fLeft</strong></code> </a>
 
@@ -108,17 +114,7 @@ When equal to or less than <a href="#SkIRect_fTop">fTop</a>, <a href="#IRect">IR
 ## <a name="Constructors"></a> Constructors
 
 | name | description |
-| --- | ---  |
-| <a href="#SkIRect_MakeEmpty">MakeEmpty</a> | returns bounds of (0, 0, 0, 0) |
-| <a href="#SkIRect_MakeLTRB">MakeLTRB</a> | constructs from int left, top, right, bottom |
-| <a href="#SkIRect_MakeLargest">MakeLargest</a> | deprecated |
-| <a href="#SkIRect_MakeSize">MakeSize</a> | constructs from <a href="undocumented#ISize">ISize</a> returning (0, 0, width, height) |
-| <a href="#SkIRect_MakeWH">MakeWH</a> | constructs from int input returning (0, 0, width, height) |
-| <a href="#SkIRect_MakeXYWH">MakeXYWH</a> | constructs from int input returning (x, y, width, height) |
-| <a href="#SkIRect_makeInset">makeInset</a> | constructs from sides moved symmetrically about the center |
-| <a href="#SkIRect_makeOffset">makeOffset</a> | constructs from translated sides |
-| <a href="#SkIRect_makeOutset">makeOutset</a> | constructs from sides moved symmetrically about the center |
-| <a href="#SkIRect_makeSorted">makeSorted</a> | constructs, ordering sides from smaller to larger |
+| --- | --- |
 
 <a name="SkIRect_MakeEmpty"></a>
 ## MakeEmpty
@@ -828,9 +824,9 @@ sorted: {20, 40, 20, 50} is empty
 ## <a name="Operators"></a> Operators
 
 | name | description |
-| --- | ---  |
-| <a href="#SkIRect_notequal_operator">operator!=(const SkIRect& a, const SkIRect& b)</a> | returns true if members are unequal |
-| <a href="#SkIRect_equal_operator">operator==(const SkIRect& a, const SkIRect& b)</a> | returns true if members are equal |
+| --- | --- |
+| <a href="#SkIRect_notequal_operator">SkIRect::operator!=(const SkIRect& a, const SkIRect& b)</a> | returns true if members are unequal |
+| <a href="#SkIRect_equal_operator">SkIRect::operator==(const SkIRect& a, const SkIRect& b)</a> | returns true if members are equal |
 
 <a name="SkIRect_equal_operator"></a>
 ## operator==

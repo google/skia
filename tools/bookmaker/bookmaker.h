@@ -121,6 +121,7 @@ enum class MarkType {
     kOutdent,
     kParam,
     kPlatform,
+    kPopulate,
     kPrivate,
     kReturn,
     kRoot,
@@ -826,6 +827,18 @@ public:
     bool crossCheck2(const Definition& includeToken) const;
     bool crossCheck(const Definition& includeToken) const;
     bool crossCheckInside(const char* start, const char* end, const Definition& includeToken) const;
+
+    const Definition* csParent() const {
+        Definition* test = fParent;
+        while (test) {
+            if (MarkType::kStruct == test->fMarkType || MarkType::kClass == test->fMarkType) {
+                return test;
+            }
+            test = test->fParent;
+        }
+        return nullptr;
+    }
+
     bool exampleToScript(string* result, ExampleOptions ) const;
     string extractText(TrimExtract trimExtract) const;
     string fiddleName() const;
@@ -834,7 +847,6 @@ public:
     bool hasMatch(const string& name) const;
     const Definition* hasParam(const string& ref) const;
     bool isClone() const { return fClone; }
-    bool isStructOrClass() const;
 
     Definition* iRootParent() {
         Definition* test = fParent;
@@ -848,6 +860,7 @@ public:
     }
 
     virtual bool isRoot() const { return false; }
+    bool isStructOrClass() const;
 
     int length() const {
         return (int) (fContentEnd - fContentStart);
@@ -1249,6 +1262,7 @@ public:
 , { "Outdent",     nullptr,      MarkType::kOutdent,      R_N, E_N, M(Code) }
 , { "Param",       nullptr,      MarkType::kParam,        R_Y, E_N, M(Method) }
 , { "Platform",    nullptr,      MarkType::kPlatform,     R_N, E_N, M(Example) | M(NoExample) }
+, { "Populate",    nullptr,      MarkType::kPopulate,     R_N, E_N, M(Subtopic) }
 , { "Private",     nullptr,      MarkType::kPrivate,      R_N, E_N, 0 }
 , { "Return",      nullptr,      MarkType::kReturn,       R_Y, E_N, M(Method) }
 , { "",            nullptr,      MarkType::kRoot,         R_Y, E_N, 0 }
@@ -1444,6 +1458,7 @@ public:
         , { nullptr,        MarkType::kOutdent }
         , { nullptr,        MarkType::kParam }
         , { nullptr,        MarkType::kPlatform }
+        , { nullptr,        MarkType::kPopulate }
         , { nullptr,        MarkType::kPrivate }
         , { nullptr,        MarkType::kReturn }
         , { nullptr,        MarkType::kRoot }
@@ -1980,6 +1995,9 @@ public:
         this->reset();
     }
 
+    void addOneLiner(const Definition* defTable, const Definition* child, bool hasLine,
+            bool lfAfter);
+
     bool parseFromFile(const char* path) override {
         if (!INHERITED::parseSetup(path)) {
             return false;
@@ -1997,9 +2015,13 @@ public:
 
 private:
     const BmhParser& fBmhParser;
+    const Definition* fClassesAndStructs;
+    const Definition* fConstants;
     const Definition* fConstructors;
-    const Definition* fOperators;
     const Definition* fMemberFunctions;
+    const Definition* fMembers;
+    const Definition* fOperators;
+    const Definition* fRelatedFunctions;
     bool hackFiles();
 
     typedef ParserCommon INHERITED;
@@ -2014,6 +2036,17 @@ public:
 
     bool buildReferences(const char* docDir, const char* mdOutDirOrFile);
     bool buildStatus(const char* docDir, const char* mdOutDir);
+
+    static constexpr const char* kClassesAndStructs = "Classes_and_Structs";
+    static constexpr const char* kConstants = "Constants";
+    static constexpr const char* kConstructors = "Constructors";
+    static constexpr const char* kMemberFunctions = "Member_Functions";
+    static constexpr const char* kMembers = "Members";
+    static constexpr const char* kOperators = "Operators";
+    static constexpr const char* kOverview = "Overview";
+    static constexpr const char* kRelatedFunctions = "Related_Functions";
+    static constexpr const char* kSubtopics = "Subtopics";
+
 private:
     enum class TableState {
         kNone,
@@ -2034,8 +2067,11 @@ private:
     void mdHeaderOut(int depth) { mdHeaderOutLF(depth, 2); }
     void mdHeaderOutLF(int depth, int lf);
     void overviewOut();
-    bool parseFromFile(const char* path) override {
-        return true;
+    bool parseFromFile(const char* path) override { return true; }
+    void populateTables(const Definition* def);
+
+    vector<const Definition*>& populator(const char* key) {
+        return fPopulators.find(key)->second.fMembers;
     }
 
     void reset() override {
@@ -2068,7 +2104,17 @@ private:
     }
 
     void resolveOut(const char* start, const char* end, BmhParser::Resolvable );
-    void subtopicOut(const Definition* subtopic, vector<Definition*>& data);
+    void rowOut(const char * name, const string& description);
+    void subtopicOut(vector<const Definition*>& data);
+    void subtopicsOut();
+
+    struct TableContents {
+        string fDescription;
+        vector<const Definition*> fMembers;
+    };
+
+    unordered_map<string, TableContents> fPopulators;
+    vector<const Definition*> fClassStack;
 
     const BmhParser& fBmhParser;
     const Definition* fEnumClass;

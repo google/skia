@@ -2,22 +2,11 @@
 #Alias IRects
 #Alias IRect_Reference
 
-#Topic Overview
-
-#Subtopic Subtopics
-#Table
-#Legend
-# name              # description                         ##
-#Legend ##
-# Constructors      # functions that construct SkIRect    ##
-# Member_Functions  # static functions and member methods ##
-# Members           # member values                       ##
-# Operators         # operator overloading methods        ##
-# Related_Functions # similar methods grouped together    ##
-#Table ##
+#Subtopic Overview
+    #Subtopic Subtopics
+    #Populate
+    ##
 ##
-
-#Topic Overview ##
 
 #Struct SkIRect
 
@@ -43,75 +32,32 @@ its top, it is considered empty.
 #Subtopic ##
 
 #Subtopic Member_Functions
-#Table
-#Legend
-# name                   # description ##
-#Legend ##
-# EmptyIRect             # returns immutable bounds of (0, 0, 0, 0) ##
-# Intersects             # returns true if areas overlap ##
-# IntersectsNoEmptyCheck # returns true if areas overlap skips empty check ##
-# MakeEmpty              # returns bounds of (0, 0, 0, 0) ##
-# MakeLTRB               # constructs from int left, top, right, bottom ##
-# MakeLargest            # deprecated ##
-# MakeSize               # constructs from ISize returning (0, 0, width, height) ##
-# MakeWH                 # constructs from int input returning (0, 0, width, height) ##
-# MakeXYWH               # constructs from int input returning (x, y, width, height) ##
-# bottom()               # returns larger bounds in y, if sorted ##
-# centerX                # returns midpoint in x ##
-# centerY                # returns midpoint in y ##
-# contains()             # returns true if points are equal or inside ##
-# containsNoEmptyCheck   # returns true if points are equal or inside skips empty check ##
-# height()               # returns span in y ##
-# height64               # returns span in y as int64_t ##
-# inset()                # moves the sides symmetrically about the center ##
-# intersect()            # sets to shared area; returns true if not empty ##
-# intersectNoEmptyCheck  # sets to shared area; returns true if not empty skips empty check ##
-# is16Bit                # returns true if members fit in 16-bit word ##
-# isEmpty                # returns true if width or height are zero or negative or they exceed int32_t ##
-# isEmpty64              # returns true if width or height are zero or negative ##
-# join()                 # sets to union of bounds ##
-# left()                 # returns smaller bounds in x, if sorted ##
-# makeInset              # constructs from sides moved symmetrically about the center ##
-# makeOffset             # constructs from translated sides ##
-# makeOutset             # constructs from sides moved symmetrically about the center ##
-# makeSorted             # constructs, ordering sides from smaller to larger ##
-# offset()               # translates sides without changing width and height ##
-# offsetTo               # translates to (x, y) without changing width and height ##
-# outset()               # moves the sides symmetrically about the center ##
-# quickReject            # returns true if rectangles do not intersect ##
-# right()                # returns larger bounds in x, if sorted ##
-# set()                  # sets to (left, top, right, bottom) ##
-# setEmpty               # sets to (0, 0, 0, 0) ##
-# setLTRB                # sets to SkScalar input (left, top, right, bottom) ##
-# setXYWH                # sets to (x, y, width, height) ##
-# size()                 # returns ISize (width, height) ##
-# sort()                 # orders sides from smaller to larger ##
-# top()                  # returns smaller bounds in y, if sorted ##
-# width()                # returns span in x ##
-# width64                # returns span in y as int64_t ##
-# x()                    # returns bounds left ##
-# y()                    # returns bounds top ##
-#Table ##
+#Populate
 #Subtopic ##
 
 #Subtopic Members
+#Populate
 
 #Member int32_t  fLeft
+#Line # smaller x-axis bounds ##
 May contain any value. The smaller of the horizontal values when sorted.
 When equal to or greater than fRight, IRect is empty.
 ##
 
 #Member int32_t  fTop
+#Line # smaller y-axis bounds ##
 May contain any value. The smaller of the horizontal values when sorted.
 When equal to or greater than fBottom, IRect is empty.
 ##
 
 #Member int32_t  fRight
+#Line # larger x-axis bounds ##
 May contain any value. The larger of the vertical values when sorted.
 When equal to or less than fLeft, IRect is empty.
 ##
 
 #Member int32_t  fBottom
+#Line # larger y-axis bounds ##
 May contain any value. The larger of the vertical values when sorted.
 When equal to or less than fTop, IRect is empty.
 ##
@@ -119,21 +65,7 @@ When equal to or less than fTop, IRect is empty.
 #Subtopic Members ##
 
 #Subtopic Constructors
-#Table
-#Legend
-# name                   # description                      ##
-#Legend ##
-# MakeEmpty              # returns bounds of (0, 0, 0, 0) ##
-# MakeLTRB               # constructs from int left, top, right, bottom ##
-# MakeLargest            # deprecated ##
-# MakeSize               # constructs from ISize returning (0, 0, width, height) ##
-# MakeWH                 # constructs from int input returning (0, 0, width, height) ##
-# MakeXYWH               # constructs from int input returning (x, y, width, height) ##
-# makeInset              # constructs from sides moved symmetrically about the center ##
-# makeOffset             # constructs from translated sides ##
-# makeOutset             # constructs from sides moved symmetrically about the center ##
-# makeSorted             # constructs, ordering sides from smaller to larger ##
-#Table ##
+#Populate
 
 # ------------------------------------------------------------------------------
 
@@ -708,13 +640,7 @@ sorted: {20, 40, 20, 50} is empty
 ##
 
 #Subtopic Operators
-#Table
-#Legend
-# name                                           # description                         ##
-#Legend ##
-# operator!=(const SkIRect& a, const SkIRect& b) # returns true if members are unequal ##
-# operator==(const SkIRect& a, const SkIRect& b) # returns true if members are equal   ##
-#Table ##
+#Populate
 
 # ------------------------------------------------------------------------------
 
@@ -770,7 +696,7 @@ test != sorted
 
 ##
 
-#Subtopic ##
+#Subtopic Operators ##
 
 # ------------------------------------------------------------------------------
 
@@ -922,6 +848,7 @@ rect: -10, 35, 5, 60  isEmpty: false
 ##
 
 #Subtopic Inset_Outset_Offset
+#Line # moves sides ##
 
 #Table
 #Legend
@@ -1186,6 +1113,7 @@ rect: 5, 1, 55, 86
 #Subtopic Inset_Outset_Offset ##
 
 #Subtopic Intersection
+#Line # set to shared bounds ##
 
 IRects intersect when they enclose a common area. To intersect, each of the pair 
 must describe area; fLeft is less than fRight, and fTop is less than fBottom;

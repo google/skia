@@ -52,8 +52,8 @@ is useful to position one or more Bitmaps within a shared pixel array.
 #Legend
 # name          # description ##
 #Legend ##
-# Allocator     # ##
-# HeapAllocator # ##
+# Allocator     # abstract subclass of HeapAllocator ##
+# HeapAllocator # allocates pixel memory from the heap ##
 #Table ##
 #Subtopic ##
 
@@ -236,7 +236,7 @@ pixel address = 0x560ddd0ac670
 
 ##
 
-#class HeapAllocator ##
+#Class HeapAllocator ##
 
 # ------------------------------------------------------------------------------
 

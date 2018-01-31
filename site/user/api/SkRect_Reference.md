@@ -3,12 +3,12 @@ SkRect Reference
 
 # <a name="Rect"></a> Rect
 
-# <a name="Overview"></a> Overview
+## <a name="Overview"></a> Overview
 
 ## <a name="Subtopics"></a> Subtopics
 
 | name | description |
-| --- | ---  |
+| --- | --- |
 | <a href="#Constructors">Constructors</a> | functions that construct <a href="SkRect_Reference#SkRect">SkRect</a> |
 | <a href="#Member_Functions">Member Functions</a> | static functions and member methods |
 | <a href="#Members">Members</a> | member values |
@@ -28,7 +28,7 @@ integer input cannot convert to <a href="undocumented#SkScalar">SkScalar</a> wit
 ## <a name="Related_Functions"></a> Related Functions
 
 | name | description |
-| --- | ---  |
+| --- | --- |
 | <a href="#As_Points">As Points</a> | conversion to and from <a href="#Point">Points</a> |
 | <a href="#From_Integers">From Integers</a> | set <a href="#Scalar">Scalar</a> values from integer input |
 | <a href="#Inset_Outset_Offset">Inset Outset Offset</a> | moves sides |
@@ -41,64 +41,71 @@ integer input cannot convert to <a href="undocumented#SkScalar">SkScalar</a> wit
 
 ## <a name="Member_Functions"></a> Member Functions
 
-| description | function |
-| --- | ---  |
-| <a href="#SkRect_Intersects">Intersects</a> | returns true if areas overlap |
-| <a href="#SkRect_Make">Make</a> | constructs from <a href="undocumented#ISize">ISize</a> returning (0, 0, width, height) |
-| <a href="#SkRect_MakeEmpty">MakeEmpty</a> | constructs from bounds of (0, 0, 0, 0) |
-| <a href="#SkRect_MakeFromIRect">MakeFromIRect</a> | deprecated |
-| <a href="#SkRect_MakeIWH">MakeIWH</a> | constructs from int input returning (0, 0, width, height) |
-| <a href="#SkRect_MakeLTRB">MakeLTRB</a> | constructs from <a href="undocumented#SkScalar">SkScalar</a> left, top, right, bottom |
-| <a href="#SkRect_MakeLargest">MakeLargest</a> | deprecated |
-| <a href="#SkRect_MakeSize">MakeSize</a> | constructs from <a href="undocumented#Size">Size</a> returning (0, 0, width, height) |
-| <a href="#SkRect_MakeWH">MakeWH</a> | constructs from <a href="undocumented#SkScalar">SkScalar</a> input returning (0, 0, width, height) |
-| <a href="#SkRect_MakeXYWH">MakeXYWH</a> | constructs from <a href="undocumented#SkScalar">SkScalar</a> input returning (x, y, width, height) |
-| <a href="#SkRect_asScalars">asScalars</a> | returns pointer to members as array |
-| <a href="#SkRect_bottom">bottom</a> | returns larger bounds in y, if sorted |
-| <a href="#SkRect_centerX">centerX</a> | returns midpoint in x |
-| <a href="#SkRect_centerY">centerY</a> | returns midpoint in y |
-| <a href="#SkRect_contains">contains</a> | returns true if points are equal or inside |
-| <a href="#SkRect_dump_2">dump</a> | sends text representation to standard output using floats |
-| <a href="#SkRect_dumpHex">dumpHex</a> | sends text representation to standard output using hexadecimal |
-| <a href="#SkRect_height">height</a> | returns span in y |
-| <a href="#SkRect_inset">inset</a> | moves the sides symmetrically about the center |
-| <a href="#SkRect_intersect">intersect</a> | sets to shared area; returns true if not empty |
-| <a href="#SkRect_intersects">intersects</a> | returns true if areas overlap |
-| <a href="#SkRect_isEmpty">isEmpty</a> | returns true if width or height are zero or negative |
-| <a href="#SkRect_isFinite">isFinite</a> | returns true if no member is infinite or NaN |
-| <a href="#SkRect_isSorted">isSorted</a> | returns true if width or height are zero or positive |
-| <a href="#SkRect_iset">iset</a> | sets to int input (left, top, right, bottom) |
-| <a href="#SkRect_isetWH">isetWH</a> | sets to int input (0, 0, width, height) |
-| <a href="#SkRect_join">join</a> | sets to union of bounds |
-| <a href="#SkRect_joinNonEmptyArg">joinNonEmptyArg</a> | sets to union of bounds, asserting that argument is not empty |
-| <a href="#SkRect_joinPossiblyEmptyRect">joinPossiblyEmptyRect</a> | sets to union of bounds. Skips empty check for both |
-| <a href="#SkRect_left">left</a> | returns smaller bounds in x, if sorted |
-| <a href="#SkRect_makeInset">makeInset</a> | constructs from sides moved symmetrically about the center |
-| <a href="#SkRect_makeOffset">makeOffset</a> | constructs from translated sides |
-| <a href="#SkRect_makeOutset">makeOutset</a> | constructs from sides moved symmetrically about the center |
-| <a href="#SkRect_makeSorted">makeSorted</a> | constructs, ordering sides from smaller to larger |
-| <a href="#SkRect_offset">offset</a> | translates sides without changing width and height |
-| <a href="#SkRect_offsetTo">offsetTo</a> | translates to (x, y) without changing width and height |
-| <a href="#SkRect_outset">outset</a> | moves the sides symmetrically about the center |
-| <a href="#SkRect_right">right</a> | returns larger bounds in x, if sorted |
-| <a href="#SkRect_round_2">round</a> | sets members to nearest integer value |
-| <a href="#SkRect_roundIn">roundIn</a> | sets members to nearest integer value towards opposite |
-| <a href="#SkRect_roundOut">roundOut</a> | sets members to nearest integer value away from opposite |
-| <a href="#SkRect_set">set</a> | sets to <a href="undocumented#SkScalar">SkScalar</a> input (left, top, right, bottom) and others |
-| <a href="#SkRect_setBounds">setBounds</a> | sets to upper and lower limits of <a href="SkPoint_Reference#Point">Point</a> array |
-| <a href="#SkRect_setBoundsCheck">setBoundsCheck</a> | sets to upper and lower limits of <a href="SkPoint_Reference#Point">Point</a> array |
-| <a href="#SkRect_setEmpty">setEmpty</a> | sets to (0, 0, 0, 0) |
-| <a href="#SkRect_setLTRB">setLTRB</a> | sets to <a href="undocumented#SkScalar">SkScalar</a> input (left, top, right, bottom) |
-| <a href="#SkRect_setWH">setWH</a> | sets to <a href="undocumented#SkScalar">SkScalar</a> input (0, 0, width, height) |
-| <a href="#SkRect_setXYWH">setXYWH</a> | sets to <a href="undocumented#SkScalar">SkScalar</a> input (x, y, width, height) |
-| <a href="#SkRect_sort">sort</a> | orders sides from smaller to larger |
-| <a href="#SkRect_toQuad">toQuad</a> | returns four corners as <a href="SkPoint_Reference#Point">Point</a> |
-| <a href="#SkRect_top">top</a> | returns smaller bounds in y, if sorted |
-| <a href="#SkRect_width">width</a> | returns span in x |
-| <a href="#SkRect_x">x</a> | returns bounds left |
-| <a href="#SkRect_y">y</a> | returns bounds top |
+| name | description |
+| --- | --- |
+| <a href="#SkRect_Intersects">SkRect::Intersects</a> | returns true if areas overlap |
+| <a href="#SkRect_Make">SkRect::Make</a> | constructs from <a href="undocumented#ISize">ISize</a> returning (0, 0, width, height) |
+| <a href="#SkRect_MakeEmpty">SkRect::MakeEmpty</a> | constructs from bounds of (0, 0, 0, 0) |
+| <a href="#SkRect_MakeFromIRect">SkRect::MakeFromIRect</a> | deprecated |
+| <a href="#SkRect_MakeIWH">SkRect::MakeIWH</a> | constructs from int input returning (0, 0, width, height) |
+| <a href="#SkRect_MakeLTRB">SkRect::MakeLTRB</a> | constructs from <a href="undocumented#SkScalar">SkScalar</a> left, top, right, bottom |
+| <a href="#SkRect_MakeLargest">SkRect::MakeLargest</a> | deprecated |
+| <a href="#SkRect_MakeSize">SkRect::MakeSize</a> | constructs from <a href="undocumented#Size">Size</a> returning (0, 0, width, height) |
+| <a href="#SkRect_MakeWH">SkRect::MakeWH</a> | constructs from <a href="undocumented#SkScalar">SkScalar</a> input returning (0, 0, width, height) |
+| <a href="#SkRect_MakeXYWH">SkRect::MakeXYWH</a> | constructs from <a href="undocumented#SkScalar">SkScalar</a> input returning (x, y, width, height) |
+| <a href="#SkRect_asScalars">SkRect::asScalars</a> | returns pointer to members as array |
+| <a href="#SkRect_bottom">SkRect::bottom()</a> | returns larger bounds in y, if sorted |
+| <a href="#SkRect_centerX">SkRect::centerX</a> | returns midpoint in x |
+| <a href="#SkRect_centerY">SkRect::centerY</a> | returns midpoint in y |
+| <a href="#SkRect_contains">SkRect::contains()</a> | returns true if points are equal or inside |
+| <a href="#SkRect_dump">SkRect::dump()</a> | sends text representation to standard output using floats |
+| <a href="#SkRect_dumpHex">SkRect::dumpHex</a> | sends text representation to standard output using hexadecimal |
+| <a href="#SkRect_height">SkRect::height()</a> | returns span in y |
+| <a href="#SkRect_inset">SkRect::inset()</a> | moves the sides symmetrically about the center |
+| <a href="#SkRect_intersect">SkRect::intersect()</a> | sets to shared area; returns true if not empty |
+| <a href="#SkRect_intersects">SkRect::intersects()</a> | returns true if areas overlap |
+| <a href="#SkRect_isEmpty">SkRect::isEmpty</a> | returns true if width or height are zero or negative |
+| <a href="#SkRect_isFinite">SkRect::isFinite</a> | returns true if no member is infinite or NaN |
+| <a href="#SkRect_isSorted">SkRect::isSorted</a> | returns true if width or height are zero or positive |
+| <a href="#SkRect_iset">SkRect::iset()</a> | sets to int input (left, top, right, bottom) |
+| <a href="#SkRect_isetWH">SkRect::isetWH</a> | sets to int input (0, 0, width, height) |
+| <a href="#SkRect_join">SkRect::join()</a> | sets to union of bounds |
+| <a href="#SkRect_joinNonEmptyArg">SkRect::joinNonEmptyArg</a> | sets to union of bounds, asserting that argument is not empty |
+| <a href="#SkRect_joinPossiblyEmptyRect">SkRect::joinPossiblyEmptyRect</a> | sets to union of bounds. Skips empty check for both |
+| <a href="#SkRect_left">SkRect::left()</a> | returns smaller bounds in x, if sorted |
+| <a href="#SkRect_makeInset">SkRect::makeInset</a> | constructs from sides moved symmetrically about the center |
+| <a href="#SkRect_makeOffset">SkRect::makeOffset</a> | constructs from translated sides |
+| <a href="#SkRect_makeOutset">SkRect::makeOutset</a> | constructs from sides moved symmetrically about the center |
+| <a href="#SkRect_makeSorted">SkRect::makeSorted</a> | constructs, ordering sides from smaller to larger |
+| <a href="#SkRect_offset">SkRect::offset()</a> | translates sides without changing width and height |
+| <a href="#SkRect_offsetTo">SkRect::offsetTo</a> | translates to (x, y) without changing width and height |
+| <a href="#SkRect_outset">SkRect::outset()</a> | moves the sides symmetrically about the center |
+| <a href="#SkRect_right">SkRect::right()</a> | returns larger bounds in x, if sorted |
+| <a href="#SkRect_round">SkRect::round()</a> | sets members to nearest integer value |
+| <a href="#SkRect_roundIn">SkRect::roundIn</a> | sets members to nearest integer value towards opposite |
+| <a href="#SkRect_roundOut">SkRect::roundOut</a> | sets members to nearest integer value away from opposite |
+| <a href="#SkRect_set">SkRect::set()</a> | sets to <a href="undocumented#SkScalar">SkScalar</a> input (left, top, right, bottom) and others |
+| <a href="#SkRect_setBounds">SkRect::setBounds</a> | sets to upper and lower limits of <a href="SkPoint_Reference#Point">Point</a> array |
+| <a href="#SkRect_setBoundsCheck">SkRect::setBoundsCheck</a> | sets to upper and lower limits of <a href="SkPoint_Reference#Point">Point</a> array |
+| <a href="#SkRect_setEmpty">SkRect::setEmpty</a> | sets to (0, 0, 0, 0) |
+| <a href="#SkRect_setLTRB">SkRect::setLTRB</a> | sets to <a href="undocumented#SkScalar">SkScalar</a> input (left, top, right, bottom) |
+| <a href="#SkRect_setWH">SkRect::setWH</a> | sets to <a href="undocumented#SkScalar">SkScalar</a> input (0, 0, width, height) |
+| <a href="#SkRect_setXYWH">SkRect::setXYWH</a> | sets to <a href="undocumented#SkScalar">SkScalar</a> input (x, y, width, height) |
+| <a href="#SkRect_sort">SkRect::sort()</a> | orders sides from smaller to larger |
+| <a href="#SkRect_toQuad">SkRect::toQuad</a> | returns four corners as <a href="SkPoint_Reference#Point">Point</a> |
+| <a href="#SkRect_top">SkRect::top()</a> | returns smaller bounds in y, if sorted |
+| <a href="#SkRect_width">SkRect::width()</a> | returns span in x |
+| <a href="#SkRect_x">SkRect::x()</a> | returns bounds left |
+| <a href="#SkRect_y">SkRect::y()</a> | returns bounds top |
 
 ## <a name="Members"></a> Members
+
+| name | description |
+| --- | --- |
+| <a href="#SkRect_fBottom">SkRect::fBottom</a> | larger y-axis bounds |
+| <a href="#SkRect_fLeft">SkRect::fLeft</a> | smaller x-axis bounds |
+| <a href="#SkRect_fRight">SkRect::fRight</a> | larger x-axis bounds |
+| <a href="#SkRect_fTop">SkRect::fTop</a> | smaller y-axis bounds |
 
 <a name="SkRect_fLeft"> <code><strong>SkScalar  fLeft</strong></code> </a>
 
