@@ -309,10 +309,6 @@ bool validate_backend_texture(GrContext* ctx, const GrBackendTexture& tex, GrPix
         return false;
     }
 
-    if (!ctx->caps()->isConfigRenderable(*config, sampleCnt > 1)) {
-        return false;
-    }
-
     if (ctx->caps()->getSampleCount(sampleCnt, *config) != sampleCnt) {
         return false;
     }
@@ -386,7 +382,7 @@ bool validate_backend_render_target(GrContext* ctx, const GrBackendRenderTarget&
         return false;
     }
 
-    if (!ctx->caps()->isConfigRenderable(*config, false)) {
+    if (!ctx->caps()->getSampleCount(rt.sampleCnt(), *config)) {
         return false;
     }
 

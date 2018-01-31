@@ -776,6 +776,7 @@ sk_sp<GrTexture> GrVkGpu::onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted 
                                           const GrMipLevel texels[], int mipLevelCount) {
     bool renderTarget = SkToBool(desc.fFlags & kRenderTarget_GrSurfaceFlag);
 
+#if 0
     VkFormat pixelFormat;
     if (!GrPixelConfigToVkFormat(desc.fConfig, &pixelFormat)) {
         return nullptr;
@@ -788,7 +789,10 @@ sk_sp<GrTexture> GrVkGpu::onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted 
     if (renderTarget && !fVkCaps->isConfigRenderable(desc.fConfig, false)) {
         return nullptr;
     }
-
+#else
+    VkFormat pixelFormat;
+    SkAssertResult(GrPixelConfigToVkFormat(desc.fConfig, &pixelFormat));
+#endif
     VkImageUsageFlags usageFlags = VK_IMAGE_USAGE_SAMPLED_BIT;
     if (renderTarget) {
         usageFlags |= VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
@@ -1191,7 +1195,7 @@ GrBackendTexture GrVkGpu::createTestingOnlyBackendTexture(void* srcData, int w, 
         return GrBackendTexture(); // invalid
     }
 
-    if (isRenderTarget && !fVkCaps->isConfigRenderable(config, false)) {
+    if (isRenderTarget && !fVkCaps->maxSampleCount(config)) {
         return GrBackendTexture(); // invalid
     }
 

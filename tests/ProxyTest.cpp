@@ -207,8 +207,6 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
                 for (auto numSamples : {1, 4}) {
                     int supportedNumSamples = caps.getSampleCount(numSamples, config);
 
-                    bool renderable = caps.isConfigRenderable(config, numSamples > 1);
-
                     GrSurfaceDesc desc;
                     desc.fOrigin = origin;
                     desc.fWidth = kWidthHeight;
@@ -217,7 +215,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
                     desc.fSampleCnt = supportedNumSamples;
 
                     // External on-screen render target.
-                    if (renderable && kOpenGL_GrBackend == ctxInfo.backend()) {
+                    if (supportedNumSamples && kOpenGL_GrBackend == ctxInfo.backend()) {
                         GrGLFramebufferInfo fboInfo;
                         fboInfo.fFBOID = 0;
                         GrBackendRenderTarget backendRT(kWidthHeight, kWidthHeight, numSamples, 8,
@@ -232,7 +230,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
                                            supportedNumSamples, SkBackingFit::kExact, 0, true);
                     }
 
-                    if (renderable) {
+                    if (supportedNumSamples) {
                         // Internal offscreen render target.
                         desc.fFlags = kRenderTarget_GrSurfaceFlag;
 

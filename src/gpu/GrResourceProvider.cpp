@@ -47,29 +47,8 @@ GrResourceProvider::GrResourceProvider(GrGpu* gpu, GrResourceCache* cache, GrSin
 }
 
 bool validate_desc(const GrSurfaceDesc& desc, const GrCaps& caps, int levelCount = 0) {
-    if (desc.fSampleCnt < 1) {
-        return false;
-    }
-
-    if (desc.fWidth <= 0 || desc.fHeight <= 0) {
-        return false;
-    }
-    if (!caps.isConfigTexturable(desc.fConfig)) {
-        return false;
-    }
-    if (desc.fFlags & kRenderTarget_GrSurfaceFlag) {
-        if (!caps.isConfigRenderable(desc.fConfig, desc.fSampleCnt > 1)) {
-            return false;
-        }
-    } else {
-        if (desc.fSampleCnt > 1) {
-            return false;
-        }
-    }
-    if (levelCount > 1 && (GrPixelConfigIsSint(desc.fConfig) || !caps.mipMapSupport())) {
-        return false;
-    }
-    return true;
+    GrMipMapped mipMapped = levelCount > 1 ? GrMipMapped::kYes : GrMipMapped::kNo;
+    return caps.validateTextureDesc(desc, mipMapped);
 }
 
 sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,

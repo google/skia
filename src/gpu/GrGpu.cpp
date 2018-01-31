@@ -85,41 +85,8 @@ bool GrGpu::isACopyNeededForTextureParams(int width, int height,
 static bool check_texture_creation_params(const GrCaps& caps, const GrSurfaceDesc& desc,
                                           bool* isRT,
                                           const GrMipLevel texels[], int mipLevelCount) {
-    if (!caps.isConfigTexturable(desc.fConfig)) {
-        return false;
-    }
-
-    if (GrPixelConfigIsSint(desc.fConfig) && mipLevelCount > 1) {
-        return false;
-    }
-
-    *isRT = SkToBool(desc.fFlags & kRenderTarget_GrSurfaceFlag);
-    if (*isRT && !caps.isConfigRenderable(desc.fConfig, desc.fSampleCnt > 1)) {
-        return false;
-    }
-
-    if (desc.fSampleCnt < 1) {
-        return false;
-    }
-
-    // We currently do not support multisampled textures
-    if (!*isRT && desc.fSampleCnt > 1) {
-        return false;
-    }
-
-    if (*isRT) {
-        int maxRTSize = caps.maxRenderTargetSize();
-        if (desc.fWidth > maxRTSize || desc.fHeight > maxRTSize) {
-            return false;
-        }
-    } else {
-        int maxSize = caps.maxTextureSize();
-        if (desc.fWidth > maxSize || desc.fHeight > maxSize) {
-            return false;
-        }
-    }
-
-    return true;
+    GrMipMapped mipMapped = mipLevelCount > 1 ? GrMipMapped::kYes : GrMipMapped::kNo;
+    return caps.validateTextureDesc(desc, mipMapped);
 }
 
 sk_sp<GrTexture> GrGpu::createTexture(const GrSurfaceDesc& origDesc, SkBudgeted budgeted,
@@ -137,9 +104,6 @@ sk_sp<GrTexture> GrGpu::createTexture(const GrSurfaceDesc& origDesc, SkBudgeted 
 
     if (isRT) {
         desc.fSampleCnt = caps->getSampleCount(desc.fSampleCnt, desc.fConfig);
-        if (!desc.fSampleCnt) {
-            return nullptr;
-        }
     }
     // Attempt to catch un- or wrongly initialized sample counts.
     SkASSERT(desc.fSampleCnt <= 64);
@@ -192,7 +156,7 @@ sk_sp<GrTexture> GrGpu::wrapRenderableBackendTexture(const GrBackendTexture& bac
         return nullptr;
     }
     if (!this->caps()->isConfigTexturable(backendTex.config()) ||
-        !this->caps()->isConfigRenderable(backendTex.config(), sampleCnt > 1)) {
+        !this->caps()->getSampleCount(sampleCnt, backendTex.config())) {
         return nullptr;
     }
 
@@ -209,7 +173,7 @@ sk_sp<GrTexture> GrGpu::wrapRenderableBackendTexture(const GrBackendTexture& bac
 }
 
 sk_sp<GrRenderTarget> GrGpu::wrapBackendRenderTarget(const GrBackendRenderTarget& backendRT) {
-    if (!this->caps()->isConfigRenderable(backendRT.config(), backendRT.sampleCnt() > 1)) {
+    if (0 == this->caps()->getSampleCount(backendRT.sampleCnt(), backendRT.config())) {
         return nullptr;
     }
     this->handleDirtyContext();
@@ -218,14 +182,14 @@ sk_sp<GrRenderTarget> GrGpu::wrapBackendRenderTarget(const GrBackendRenderTarget
 
 sk_sp<GrRenderTarget> GrGpu::wrapBackendTextureAsRenderTarget(const GrBackendTexture& tex,
                                                               int sampleCnt) {
-    this->handleDirtyContext();
-    if (!this->caps()->isConfigRenderable(tex.config(), sampleCnt > 1)) {
+    if (0 == this->caps()->getSampleCount(sampleCnt, tex.config())) {
         return nullptr;
     }
     int maxSize = this->caps()->maxTextureSize();
     if (tex.width() > maxSize || tex.height() > maxSize) {
         return nullptr;
     }
+    this->handleDirtyContext();
     return this->onWrapBackendTextureAsRenderTarget(tex, sampleCnt);
 }
 
@@ -274,7 +238,7 @@ bool GrGpu::getReadPixelsInfo(GrSurface* srcSurface, GrSurfaceOrigin srcOrigin,
 
     // Check to see if we're going to request that the caller draw when drawing is not possible.
     if (!srcSurface->asTexture() ||
-        !this->caps()->isConfigRenderable(tempDrawInfo->fTempSurfaceDesc.fConfig, false)) {
+        !this->caps()->maxSampleCount(tempDrawInfo->fTempSurfaceDesc.fConfig)) {
         // If we don't have a fallback to a straight read then fail.
         if (kRequireDraw_DrawPreference == *drawPreference) {
             return false;

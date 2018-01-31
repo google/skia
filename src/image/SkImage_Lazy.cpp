@@ -269,7 +269,7 @@ struct CacheCaps {
     bool supportsHalfFloat() const {
         return !fCaps ||
             (fCaps->isConfigTexturable(kRGBA_half_GrPixelConfig) &&
-             fCaps->isConfigRenderable(kRGBA_half_GrPixelConfig, false));
+             fCaps->maxSampleCount(kRGBA_half_GrPixelConfig));
     }
 
     bool supportsSRGB() const {
