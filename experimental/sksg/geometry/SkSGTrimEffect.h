@@ -47,6 +47,8 @@ private:
     SkScalar                  fStart  = 0, // starting t
                               fEnd    = 1, // ending t
                               fOffset = 0; // t offset
+
+    using INHERITED = GeometryNode;
 };
 
 } // namespace sksg

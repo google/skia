@@ -55,6 +55,8 @@ private:
     std::vector<sk_sp<GeometryNode>> fGeos;
     SkPath                           fMerged;
     Mode                             fMode;
+
+    using INHERITED = GeometryNode;
 };
 
 } // namespace sksg
