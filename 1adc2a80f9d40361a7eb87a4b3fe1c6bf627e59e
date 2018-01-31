@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "f9f25c24_8b3e5e1b",
+        "filename": "site/skqp.md",
+        "patchSetId": 3
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2018-01-31T14:41:31Z",
+      "side": 1,
+      "message": "Could we put this into a shell script and just check in the beginnin that the right env variables are set ? \nThat way we can try it out very easy. Seeing this, I will end up putting it into a shell script anyway.\n\nWe could then describe the high level here and maybe take extra care to document the shell script so people understand what\u0027s going on.",
+      "range": {
+        "startLine": 4,
+        "startChar": 0,
+        "endLine": 4,
+        "endChar": 16
+      },
+      "revId": "1adc2a80f9d40361a7eb87a4b3fe1c6bf627e59e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9fa91474_dbe1836c",
         "filename": "site/skqp.md",
         "patchSetId": 3
