@@ -7,6 +7,7 @@
 
 #include "SkSLHCodeGenerator.h"
 
+#include "SkSLParser.h"
 #include "SkSLUtil.h"
 #include "ir/SkSLEnum.h"
 #include "ir/SkSLFunctionDeclaration.h"
@@ -252,7 +253,24 @@ void HCodeGenerator::writeFields() {
     }
 }
 
+String HCodeGenerator::GetHeader(const Program& program, ErrorReporter& errors) {
+    SymbolTable types(&errors);
+    Parser parser(program.fSource->c_str(), program.fSource->length(), types, errors);
+    for (;;) {
+        Token header = parser.nextRawToken();
+        switch (header.fKind) {
+            case Token::WHITESPACE:
+                break;
+            case Token::BLOCK_COMMENT:
+                return String(program.fSource->c_str() + header.fOffset, header.fLength);
+            default:
+                return "";
+        }
+    }
+}
+
 bool HCodeGenerator::generateCode() {
+    this->writef("%s\n", GetHeader(fProgram, fErrors).c_str());
     this->writef(kFragmentProcessorHeader, fFullName.c_str());
     this->writef("#ifndef %s_DEFINED\n"
                  "#define %s_DEFINED\n",

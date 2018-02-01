@@ -1,3 +1,10 @@
+/*
+ * Copyright 2018 Google Inc.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
 in uniform sampler2D src;
 layout(ctype=SkIRect) in int4 bounds;
 uniform float4 boundsUniform;

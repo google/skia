@@ -1,3 +1,10 @@
+/*
+ * Copyright 2018 Google Inc.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
 layout(key) in GrClipEdgeType edgeType;
 layout(ctype=SkRect) in float4 rect;
 layout(ctype=SkRect) float4 prevRect = float4(-1);
