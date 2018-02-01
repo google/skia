@@ -914,6 +914,15 @@ void GrContextPriv::addOnFlushCallbackObject(GrOnFlushCallbackObject* onFlushCBO
     fContext->fDrawingManager->addOnFlushCallbackObject(onFlushCBObject);
 }
 
+void GrContextPriv::moveOpListsToDDL(SkDeferredDisplayList* ddl) {
+    fContext->fDrawingManager->moveOpListsToDDL(ddl);
+}
+
+void GrContextPriv::copyOpListsFromDDL(const SkDeferredDisplayList* ddl,
+                                       GrRenderTargetProxy* newDest) {
+    fContext->fDrawingManager->copyOpListsFromDDL(ddl, newDest);
+}
+
 static inline GrPixelConfig GrPixelConfigFallback(GrPixelConfig config) {
     switch (config) {
         case kAlpha_8_GrPixelConfig:
