@@ -231,7 +231,7 @@ void CCPR::ClipPath::init(GrProxyProvider* proxyProvider,
     fAtlasLazyProxy = proxyProvider->createFullyLazyProxy(
             [this](GrResourceProvider* resourceProvider, GrSurfaceOrigin* outOrigin) {
                 if (!resourceProvider) {
-                    return sk_sp<GrTexture>();
+                    return sk_sp<GrSurface>();
                 }
                 SkASSERT(fHasAtlas);
                 SkASSERT(!fHasAtlasTransform);
@@ -240,7 +240,7 @@ void CCPR::ClipPath::init(GrProxyProvider* proxyProvider,
                 if (!textureProxy || !textureProxy->instantiate(resourceProvider)) {
                     fAtlasScale = fAtlasTranslate = {0, 0};
                     SkDEBUGCODE(fHasAtlasTransform = true);
-                    return sk_sp<GrTexture>();
+                    return sk_sp<GrSurface>();
                 }
 
                 fAtlasScale = {1.f / textureProxy->width(), 1.f / textureProxy->height()};
@@ -253,7 +253,7 @@ void CCPR::ClipPath::init(GrProxyProvider* proxyProvider,
                 SkDEBUGCODE(fHasAtlasTransform = true);
 
                 *outOrigin = textureProxy->origin();
-                return sk_ref_sp(textureProxy->priv().peekTexture());
+                return sk_ref_sp(textureProxy->priv().peekSurface());
             },
             GrProxyProvider::Renderable::kYes, kAlpha_half_GrPixelConfig);
 

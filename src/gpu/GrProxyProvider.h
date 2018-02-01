@@ -149,6 +149,10 @@ public:
     using LazyInstantiateCallback = std::function<sk_sp<GrTexture>(GrResourceProvider*,
                                                                    GrSurfaceOrigin* outOrigin)>;
 
+    using LazyInstantiateRenderTargetCallback = std::function<sk_sp<GrRenderTarget>(
+                                              GrResourceProvider*, GrSurfaceOrigin* outOrigin)>;
+
+
     enum class Renderable : bool {
         kNo = false,
         kYes = true
@@ -169,6 +173,10 @@ public:
 
     sk_sp<GrTextureProxy> createFullyLazyProxy(LazyInstantiateCallback&&,
                                                Renderable, GrPixelConfig);
+
+    sk_sp<GrRenderTargetProxy> createLazyRenderTargetProxy(LazyInstantiateRenderTargetCallback&&,
+                                                           const GrSurfaceDesc&,
+                                                           GrMipMapped, SkBackingFit, SkBudgeted);
 
     // 'proxy' is about to be used as a texture src or drawn to. This query can be used to
     // determine if it is going to need a texture domain or a full clear.
