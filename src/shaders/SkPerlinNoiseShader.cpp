@@ -1434,7 +1434,7 @@ std::unique_ptr<GrFragmentProcessor> SkPerlinNoiseShaderImpl::asFragmentProcesso
             auto inner =
                     GrConstColorProcessor::Make(GrColor4f::FromGrColor(0x80404040),
                                                 GrConstColorProcessor::InputMode::kModulateRGBA);
-            return GrFragmentProcessor::MulOutputByInputAlpha(std::move(inner));
+            return GrFragmentProcessor::MulChildByInputAlpha(std::move(inner));
         }
         // Emit zero.
         return GrConstColorProcessor::Make(GrColor4f::TransparentBlack(),
@@ -1456,7 +1456,7 @@ std::unique_ptr<GrFragmentProcessor> SkPerlinNoiseShaderImpl::asFragmentProcesso
                                                 std::move(permutationsProxy),
                                                 std::move(noiseProxy),
                                                 m);
-        return GrFragmentProcessor::MulOutputByInputAlpha(std::move(inner));
+        return GrFragmentProcessor::MulChildByInputAlpha(std::move(inner));
     }
     return nullptr;
 }
