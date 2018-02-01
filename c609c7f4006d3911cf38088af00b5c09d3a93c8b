@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d3a90600_1486f08d",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-02-01T20:54:52Z",
+      "side": 1,
+      "message": "Given that we know isScaleTranslate() is true for m, is it ever possible for this to return false?  inv should be also, and that\u0027ll keep rects rects?",
+      "range": {
+        "startLine": 79,
+        "startChar": 8,
+        "endLine": 79,
+        "endChar": 19
+      },
+      "revId": "c609c7f4006d3911cf38088af00b5c09d3a93c8b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
