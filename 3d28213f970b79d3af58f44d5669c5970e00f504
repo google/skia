@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "12216796_c1fff405",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 7
+      },
+      "lineNbr": 753,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2018-02-01T18:38:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8369cbf2_24967dfb",
+      "range": {
+        "startLine": 753,
+        "startChar": 3,
+        "endLine": 753,
+        "endChar": 17
+      },
+      "revId": "3d28213f970b79d3af58f44d5669c5970e00f504",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e657f3ab_b8e680b0",
         "filename": "infra/bots/jobs.json",
         "patchSetId": 7
@@ -36,6 +60,30 @@
       "writtenOn": "2018-02-01T18:28:40Z",
       "side": 1,
       "message": "No idea if this will upset some code somewhere which expects either \"Debug\" or \"Release\".  Probably not, but if so, this is likely close to \"Debug\".",
+      "range": {
+        "startLine": 17,
+        "startChar": 37,
+        "endLine": 17,
+        "endChar": 40
+      },
+      "revId": "3d28213f970b79d3af58f44d5669c5970e00f504",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "902e4070_3a954202",
+        "filename": "infra/bots/jobs.json",
+        "patchSetId": 7
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2018-02-01T18:38:52Z",
+      "side": 1,
+      "message": "I think this works because I could successfully trigger a trybot run @PS5:\nhttps://task-scheduler.skia.org/job/20180201T175605.141411430Z_00000000002e4ff9",
+      "parentUuid": "e657f3ab_b8e680b0",
       "range": {
         "startLine": 17,
         "startChar": 37,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "10f89b93_3bae343f",
+        "filename": "infra/bots/recipes/android_compile.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2018-02-01T18:38:52Z",
+      "side": 1,
+      "message": "Right, I am going to look into this soonish. android-compile.skia.org does not currently do this for non-trybot runs.",
+      "parentUuid": "abd50a02_c38ba5d7",
+      "range": {
+        "startLine": 23,
+        "startChar": 6,
+        "endLine": 23,
+        "endChar": 50
+      },
+      "revId": "3d28213f970b79d3af58f44d5669c5970e00f504",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "daa0c8e7_52f7ce30",
         "filename": "infra/bots/recipes/android_compile.py",
         "patchSetId": 7
@@ -91,6 +163,30 @@
       "revId": "3d28213f970b79d3af58f44d5669c5970e00f504",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2957b021_df5d5b6d",
+        "filename": "infra/bots/recipes/android_compile.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2018-02-01T18:38:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "daa0c8e7_52f7ce30",
+      "range": {
+        "startLine": 25,
+        "startChar": 75,
+        "endLine": 25,
+        "endChar": 77
+      },
+      "revId": "3d28213f970b79d3af58f44d5669c5970e00f504",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
