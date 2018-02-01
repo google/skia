@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "66557582_b3f83ab4",
+        "filename": "src/gpu/effects/GrWrapFPForMaskFilter.fp",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-02-01T15:38:31Z",
+      "side": 1,
+      "message": "This could be useful in other scenarios. In keeping with other similar helpers maybe we could:\n\nname this something like GrMulChildByInputAlpha\n\nand have it made by a static GrFragmentProcessor fn where other simple helpers are collected.",
+      "revId": "437848f5f7e8e90b2aa7d4d146ff4c700309779c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
