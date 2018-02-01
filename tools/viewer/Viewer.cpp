@@ -866,9 +866,15 @@ bool Viewer::onMouse(int x, int y, Window::InputState state, uint32_t modifiers)
         return false;
     }
 
-    if (fSlides[fCurrentSlide]->onMouse(x, y, state, modifiers)) {
-        fWindow->inval();
-        return true;
+    const auto slideMatrix = this->computeMatrix();
+    SkMatrix slideInvMatrix;
+    if (slideMatrix.invert(&slideInvMatrix)) {
+        SkPoint slideMouse = SkPoint::Make(x, y);
+        slideInvMatrix.mapPoints(&slideMouse, 1);
+        if (fSlides[fCurrentSlide]->onMouse(slideMouse.x(), slideMouse.y(), state, modifiers)) {
+            fWindow->inval();
+            return true;
+        }
     }
 
     switch (state) {
