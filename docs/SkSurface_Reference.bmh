@@ -1,6 +1,12 @@
 #Topic Surface
 #Alias Surface_Reference
 
+#Subtopic Overview
+    #Subtopic Subtopics
+    #Populate
+    ##
+##
+
 #Class SkSurface
 
 SkSurface is responsible for managing the pixels that a canvas draws into. The pixels can be
@@ -10,74 +16,13 @@ surface->getCanvas() to use that canvas (but don't delete it, it is owned by the
 SkSurface always has non-zero dimensions. If there is a request for a new surface, and either
 of the requested dimensions are zero, then nullptr will be returned.
 
-#Topic Overview
-
-#Subtopic Subtopics
-#ToDo manually add subtopics ##
-#Table
-#Legend
-# topics # description ##
-#Legend ##
-# Constructors     # functions that construct SkIPoint16  ##
-# Member_Functions # static functions and member methods  ##
-#Table ##
+#Subtopic Constructors
+#Populate
 ##
 
-#Subtopic Constructors
-#Table
-#Legend
-# name                                 # description                     ##
-#Legend ##
-# MakeFromBackendRenderTarget          # creates Surface from GPU memory buffer ##
-# MakeFromBackendTexture               # creates Surface from GPU-backed texture ##
-# MakeFromBackendTextureAsRenderTarget # creates Surface from GPU-backed texture ##
-# MakeNull                             # creates Surface without backing pixels ##
-# MakeRaster                           # creates Surface from SkImageInfo ##
-# MakeRasterDirect                     # creates Surface from SkImageInfo and Pixel_Storage ##
-# MakeRasterDirectReleaseProc          # creates Surface from SkImageInfo and Pixel_Storage ##
-# MakeRasterN32Premul                  # creates Surface from width, height matching output ##
-# MakeRenderTarget                     # creates Surface pointing to new GPU memory buffer ##
-# SkCanvas::makeSurface                # creates Surface matching Canvas Image_Info, Surface_Properties ##
-# makeSurface                          # creates a compatible Surface ##
-#Table ##
-#Subtopic ##
-
 #Subtopic Member_Functions
-#Table
-#Legend
-# description                          # function ##
-#Legend ##
-# MakeFromBackendRenderTarget          # creates Surface from GPU memory buffer ##
-# MakeFromBackendTexture               # creates Surface from GPU-backed texture ##
-# MakeFromBackendTextureAsRenderTarget # creates Surface from GPU-backed texture ##
-# MakeNull                             # creates Surface without backing pixels ##
-# MakeRaster                           # creates Surface from SkImageInfo ##
-# MakeRasterDirect                     # creates Surface from SkImageInfo and Pixel_Storage ##
-# MakeRasterDirectReleaseProc          # creates Surface from SkImageInfo and Pixel_Storage ##
-# MakeRasterN32Premul                  # creates Surface from width, height matching output ##
-# MakeRenderTarget                     # creates Surface pointing to new GPU memory buffer ##
-# characterize()                       # sets Surface_Characterization for threaded pre-processing ##
-# draw()                               # draws Surface contents to canvas ##
-# flush()                              # resolve pending I/O ##
-# flushAndSignalSemaphores             # resolve pending I/O, and signal ##
-# generationID                         # returns unique ID ##
-# getCanvas                            # returns Canvas that draws into Surface ##
-# getRenderTargetHandle                # returns the GPU reference to render target ##
-# getTextureHandle                     # returns the GPU reference to texture ##
-# height()                             # returns pixel row count ##
-# makeImageSnapshot                    # creates Image capturing Surface contents ##
-# makeSurface                          # creates a compatible Surface ##
-# notifyContentWillChange              # notifies that contents will be changed outside of Skia ##
-# peekPixels                           # copies Surface parameters to Pixmap ##
-# prepareForExternalIO                 # to be deprecated ##
-# props()                              # returns Surface_Properties ##
-# readPixels                           # copies Rect of pixels ##
-# wait()                               # rause commands until signaled ##
-# width()                              # returns pixel column count ##
-#Table ##
-#Subtopic ##
-
-#Topic ##
+#Populate
+##
 
 # ------------------------------------------------------------------------------
 

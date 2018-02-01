@@ -3,64 +3,75 @@ SkPoint Reference
 
 # <a name="Point"></a> Point
 
-# <a name="SkPoint"></a> Struct SkPoint
-
-# <a name="Overview"></a> Overview
+## <a name="Overview"></a> Overview
 
 ## <a name="Subtopics"></a> Subtopics
 
-| topics | description |
-| --- | ---  |
+| name | description |
+| --- | --- |
+| <a href="#Constructors">Constructors</a> | functions that construct <a href="SkPoint_Reference#SkPoint">SkPoint</a> |
+| <a href="#Member_Functions">Member Functions</a> | static functions and member methods |
+| <a href="#Members">Members</a> | member values |
+| <a href="#Operators">Operators</a> | operator overloading methods |
+
+# <a name="SkPoint"></a> Struct SkPoint
 
 ## <a name="Constructors"></a> Constructors
 
 | name | description |
-| --- | ---  |
-| <a href="#SkPoint_Make">Make</a> | Constructs from <a href="undocumented#SkScalar">SkScalar</a> inputs. |
+| --- | --- |
+| <a href="#SkPoint_Make">Make</a> | constructs from <a href="undocumented#SkScalar">SkScalar</a> inputs |
 
 ## <a name="Operators"></a> Operators
 
 | name | description |
-| --- | ---  |
-| <a href="#SkPoint">SkPoint</a> <a href="#SkPoint_multiply_operator">operator*(SkScalar scale) const</a> | Returns <a href="#Point">Point</a> multiplied by scale. |
-| <a href="#SkPoint">SkPoint</a> <a href="#SkPoint_add_operator">operator+(const SkPoint& a, const SkVector& b)</a> | Returns <a href="#Point">Point</a> offset by <a href="SkPoint_Reference#Vector">Vector</a>. |
-| <a href="#SkPoint">SkPoint</a> <a href="#SkPoint_minus_operator">operator-() const</a> | Reverses sign of <a href="#Point">Point</a>. |
-| <a href="#SkPoint">SkPoint</a>& <a href="#SkPoint_multiplyby_operator">operator*=(SkScalar scale)</a> | Multiplies <a href="#Point">Point</a> by scale factor. |
-| <a href="SkPoint_Reference#SkVector">SkVector</a> <a href="#SkPoint_subtract_operator">operator-(const SkPoint& a, const SkPoint& b)</a> | Returns <a href="SkPoint_Reference#Vector">Vector</a> between <a href="#Point">Points</a>. |
-| bool <a href="#SkPoint_notequal_operator">operator!=(const SkPoint& a, const SkPoint& b)</a> | Returns true if <a href="#Point">Point</a> are unequal. |
-| bool <a href="#SkPoint_equal_operator">operator==(const SkPoint& a, const SkPoint& b)</a> | Returns true if <a href="#Point">Point</a> are equal. |
-| void <a href="#SkPoint_addto_operator">operator+=(const SkVector& v)</a> | Adds <a href="SkPoint_Reference#Vector">Vector</a> to <a href="#Point">Point</a>. |
-| void <a href="#SkPoint_subtractfrom_operator">operator-=(const SkVector& v)</a> | Subtracts <a href="SkPoint_Reference#Vector">Vector</a> from <a href="#Point">Point</a>. |
+| --- | --- |
+| <a href="#SkPoint_notequal_operator">operator!=(const SkPoint& a, const SkPoint& b)</a> | returns true if <a href="#Point">Point</a> are unequal |
+| <a href="#SkPoint_multiply_operator">operator*(SkScalar scale) const</a> | returns <a href="#Point">Point</a> multiplied by scale |
+| <a href="#SkPoint_multiplyby_operator">operator*=(SkScalar scale)</a> | multiplies <a href="#Point">Point</a> by scale factor |
+| <a href="#SkPoint_add_operator">operator+(const SkPoint& a, const SkVector& b)</a> | returns <a href="#Point">Point</a> offset by <a href="SkPoint_Reference#Vector">Vector</a> |
+| <a href="#SkPoint_addto_operator">operator+=(const SkVector& v)</a> | adds <a href="SkPoint_Reference#Vector">Vector</a> to <a href="#Point">Point</a> |
+| <a href="#SkPoint_minus_operator">operator-() const</a> | reverses sign of <a href="#Point">Point</a> |
+| <a href="#SkPoint_subtract_operator">operator-(const SkPoint& a, const SkPoint& b)</a> | returns <a href="SkPoint_Reference#Vector">Vector</a> between <a href="#Point">Points</a> |
+| <a href="#SkPoint_subtractfrom_operator">operator-=(const SkVector& v)</a> | subtracts <a href="SkPoint_Reference#Vector">Vector</a> from <a href="#Point">Point</a> |
+| <a href="#SkPoint_equal_operator">operator==(const SkPoint& a, const SkPoint& b)</a> | returns true if <a href="#Point">Point</a> are equal |
 
 ## <a name="Member_Functions"></a> Member Functions
 
 | name | description |
-| --- | ---  |
-| <a href="#SkPoint_CrossProduct">CrossProduct</a> | Returns cross product. |
-| <a href="#SkPoint_Distance">Distance</a> | Returns straight-line distance between points. |
-| <a href="#SkPoint_DotProduct">DotProduct</a> | Returns dot product. |
-| <a href="#SkPoint_Length">Length</a> | Returns straight-line distance to origin. |
-| <a href="#SkPoint_Make">Make</a> | Constructs from <a href="undocumented#SkScalar">SkScalar</a> inputs. |
-| <a href="#SkPoint_Normalize">Normalize</a> | Sets length to one, and returns prior length. |
-| <a href="#SkPoint_Offset">Offset</a> | Translates <a href="#Point">Point</a> array. |
-| <a href="#SkPoint_cross">cross</a> | Returns cross product. |
-| <a href="#SkPoint_distanceToOrigin">distanceToOrigin</a> | Returns straight-line distance to origin. |
-| <a href="#SkPoint_dot">dot</a> | Returns dot product. |
-| <a href="#SkPoint_equals">equals</a> | Returns true if <a href="#Point">Points</a> are equal. |
-| <a href="#SkPoint_isFinite">isFinite</a> | Returns true if no member is infinite or NaN. |
-| <a href="#SkPoint_isZero">isZero</a> | Returns true if both members equal zero. |
-| <a href="#SkPoint_iset">iset</a> | Sets to integer input. |
-| <a href="#SkPoint_length">length</a> | Returns straight-line distance to origin. |
-| <a href="#SkPoint_negate">negate</a> | Reverses the sign of both members. |
-| <a href="#SkPoint_normalize">normalize</a> | Sets length to one, preserving direction. |
-| <a href="#SkPoint_offset">offset</a> | Translates <a href="#Point">Point</a>. |
-| <a href="#SkPoint_scale">scale</a> | Multiplies <a href="#Point">Point</a> by scale factor. |
-| <a href="#SkPoint_set">set</a> | Sets to <a href="undocumented#SkScalar">SkScalar</a> input. |
-| <a href="#SkPoint_setAbs">setAbs</a> | Sets sign of both members to positive. |
-| <a href="#SkPoint_setLength">setLength</a> | Sets straight-line distance to origin. |
-| <a href="#SkPoint_setNormalize">setNormalize</a> | Sets length to one, in direction of (x, y). |
-| <a href="#SkPoint_x">x</a> | Returns <a href="#SkPoint_fX">fX</a>. |
-| <a href="#SkPoint_y">y</a> | Returns <a href="#SkPoint_fY">fY</a>. |
+| --- | --- |
+| <a href="#SkPoint_CrossProduct">CrossProduct</a> | returns cross product |
+| <a href="#SkPoint_Distance">Distance</a> | returns straight-line distance between points |
+| <a href="#SkPoint_DotProduct">DotProduct</a> | returns dot product |
+| <a href="#SkPoint_Length">Length</a> | returns straight-line distance to origin |
+| <a href="#SkPoint_Make">Make</a> | constructs from <a href="undocumented#SkScalar">SkScalar</a> inputs |
+| <a href="#SkPoint_Normalize">Normalize</a> | sets length to one, and returns prior length |
+| <a href="#SkPoint_Offset">Offset</a> | translates <a href="#Point">Point</a> array |
+| <a href="#SkPoint_cross">cross</a> | returns cross product |
+| <a href="#SkPoint_distanceToOrigin">distanceToOrigin</a> | returns straight-line distance to origin |
+| <a href="#SkPoint_dot">dot</a> | returns dot product |
+| <a href="#SkPoint_equals">equals</a> | returns true if <a href="#Point">Points</a> are equal |
+| <a href="#SkPoint_isFinite">isFinite</a> | returns true if no member is infinite or NaN |
+| <a href="#SkPoint_isZero">isZero</a> | returns true if both members equal zero |
+| <a href="#SkPoint_iset">iset</a> | sets to integer input |
+| <a href="#SkPoint_length">length</a> | returns straight-line distance to origin |
+| <a href="#SkPoint_negate">negate</a> | reverses the sign of both members |
+| <a href="#SkPoint_normalize">normalize</a> | sets length to one, preserving direction |
+| <a href="#SkPoint_offset">offset</a> | translates <a href="#Point">Point</a> |
+| <a href="#SkPoint_scale">scale</a> | multiplies <a href="#Point">Point</a> by scale factor |
+| <a href="#SkPoint_set">set</a> | sets to <a href="undocumented#SkScalar">SkScalar</a> input |
+| <a href="#SkPoint_setAbs">setAbs</a> | sets sign of both members to positive |
+| <a href="#SkPoint_setLength">setLength</a> | sets straight-line distance to origin |
+| <a href="#SkPoint_setNormalize">setNormalize</a> | sets length to one, in direction of (x, y) |
+| <a href="#SkPoint_x">x</a> | returns <a href="#SkPoint_fX">fX</a> |
+| <a href="#SkPoint_y">y</a> | returns <a href="#SkPoint_fY">fY</a> |
+
+## <a name="Members"></a> Members
+
+| name | description |
+| --- | --- |
+| <a href="#SkPoint_fX">fX</a> | x-axis value |
+| <a href="#SkPoint_fY">fY</a> | y-axis value |
 
 <a name="SkPoint_fX"> <code><strong>SkScalar  fX</strong></code> </a>
 

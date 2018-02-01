@@ -1,6 +1,12 @@
 #Topic Pixmap
 #Alias Pixmap_Reference
 
+#Subtopic Overview
+    #Subtopic Subtopics
+    #Populate
+    ##
+##
+
 #Class SkPixmap
 
 Pixmap provides a utility to pair SkImageInfo with pixels and row bytes. 
@@ -14,86 +20,20 @@ pixels referenced by Pixmap.
 Pixmap does not try to manage the lifetime of the pixel memory. Use Pixel_Ref
 to manage pixel memory; Pixel_Ref is safe across threads.
 
-#Topic Overview
-
-#Subtopic Subtopics
-#Table
-#Legend
-# name                   # description                                 ##
-#Legend ##
-# Constructors           # list of functions that construct SkPath     ##
-# Member_Functions       # list of static functions and member methods ##
-# Related_Functions      # similar methods grouped together            ##
-#Table ##
+#Subtopic Related_Functions
+#Populate
 ##
 
-#Subtopic Related_Functions
-#Table
-#Legend
-# name                   # description                                  ##
-#Legend ##
-# Image_Info_Access      # returns all or part of Image_Info           ##
-# Initialization         # sets fields for use                         ##
-# Readable_Address       # returns read only pixels                    ##
-# Reader                 # examine pixel value                         ##
-# Writable_Address       # returns writable pixels                     ##
-# Writer                 # copy to pixel values                        ##
-#Table ##
-#Subtopic ##
-
 #Subtopic Constructors
-#Table
-#Legend
-#                                                                      # description                         ##
-#Legend ##
-# SkPixmap()                                                           # constructs with default values     ##
-# SkPixmap(const SkImageInfo& info, const void* addr, size_t rowBytes) # constructs from Image_Info, pixels ##
-#Table ##
-#Subtopic ##
+#Populate
+##
 
 #Subtopic Member_Functions
-#Table
-#Legend
-# name             # description   ##
-#Legend ##
-# addr()           # returns readable pixel address as void pointer ##
-# addr16           # returns readable pixel address as 16-bit pointer ##
-# addr32           # returns readable pixel address as 32-bit pointer ##
-# addr64           # returns readable pixel address as 64-bit pointer ##
-# addr8            # returns readable pixel address as 8-bit pointer ##
-# addrF16          # returns readable pixel component address as 16-bit pointer ##
-# alphaType        # returns Image_Info Alpha_Type ##
-# bounds()         # returns width and height as Rectangle ##
-# colorSpace       # returns Image_Info Color_Space ##
-# colorType        # returns Image_Info Color_Type ##
-# computeByteSize  # returns size required for pixels ##
-# computeIsOpaque  # returns true if all pixels are opaque ##
-# erase()          # writes Color to pixels ##
-# extractSubset    # sets pointer to portion of original ##
-# getColor         # returns one pixel as Unpremultiplied Color ##
-# height()         # returns pixel row count ##
-# info()           # returns Image_Info ##
-# isOpaque         # returns true if Image_Info describes opaque pixels ##
-# readPixels       # copies and converts pixels ##
-# reset()          # reuses existing Pixmap with replacement values ##
-# rowBytes         # returns interval between rows in bytes ##
-# rowBytesAsPixels # returns interval between rows in pixels ##
-# scalePixels      # scales and converts pixels ##
-# setColorSpace    # sets Image_Info Color_Space ##
-# shiftPerPixel    # returns bit shift from pixels to bytes ##
-# width()          # returns pixel column count ##
-# writable_addr    # returns writable pixel address as void pointer ##
-# writable_addr16  # returns writable pixel address as 16-bit pointer ##
-# writable_addr32  # returns writable pixel address as 32-bit pointer ##
-# writable_addr64  # returns writable pixel address as 64-bit pointer ##
-# writable_addr8   # returns writable pixel address as 8-bit pointer ##
-# writable_addrF16 # returns writable pixel component address as 16-bit pointer ##
-#Table ##
-#Subtopic ##
-
-#Topic Overview ##
+#Populate
+##
 
 #Subtopic Initialization
+#Line # sets fields for use ##
 
 # ------------------------------------------------------------------------------
 
@@ -377,6 +317,7 @@ void draw(SkCanvas* canvas) {
 #Subtopic Initialization ##
 
 #Subtopic Image_Info_Access
+#Line # returns all or part of Image_Info ##
 
 # ------------------------------------------------------------------------------
 
@@ -803,6 +744,7 @@ width: 1000000 height: 1000000 computeByteSize: 4999999000000
 #Subtopic Image_Info_Access ##
 
 #Subtopic Reader
+#Line # examine pixel value ##
 
 # ------------------------------------------------------------------------------
 
@@ -919,6 +861,7 @@ Unpremultiplied:
 #Subtopic Reader ##
 
 #Subtopic Readable_Address
+#Line # returns read only pixels ##
 
 # ------------------------------------------------------------------------------
 
@@ -1294,6 +1237,7 @@ pixmap.addrF16(1, 2) == &storage[1 * wordsPerPixel + 2 * rowWords]
 #Subtopic Readable_Address ##
 
 #Subtopic Writable_Address
+#Line # returns writable pixels ##
 
 # ------------------------------------------------------------------------------
 
@@ -1587,6 +1531,7 @@ is drawn after overwriting bottom half float color with top half float color.
 #Subtopic Writable_Address ##
 
 #Subtopic Writer
+#Line # copy to pixel values ##
 
 # ------------------------------------------------------------------------------
 

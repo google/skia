@@ -533,9 +533,6 @@ bool Definition::exampleToScript(string* result, ExampleOptions exampleOptions) 
             case MarkType::kDuration:
                 durationStr = string(iter->fContentStart, iter->fContentEnd - iter->fContentStart);
                 break;
-            case MarkType::kError:
-                result->clear();
-                return true;
             case MarkType::kHeight:
                 heightStr = string(iter->fContentStart, iter->fContentEnd - iter->fContentStart);
                 break;

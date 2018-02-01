@@ -2,6 +2,12 @@
 #Alias Path_Reference
 #Alias Paths
 
+#Subtopic Overview
+    #Subtopic Subtopics
+    #Populate
+    ##
+##
+
 Path contains Lines and Curves which can be stroked or filled. Contour is 
 composed of a series of connected Lines and Curves. Path may contain zero, 
 one, or more Contours.
@@ -77,6 +83,8 @@ its contents until it is edited, to reduce memory use and improve performance.
 
 #Subtopic Contour
 #Alias Contours
+#Line # loop of lines and curves ##
+
 Contour contains one or more Verbs, and as many Points as
 are required to satisfy Verb_Array. First Verb in Path is always
 SkPath::kMove_Verb; each SkPath::kMove_Verb that follows starts a new Contour.
@@ -134,6 +142,7 @@ void draw(SkCanvas* canvas) {
 
 #Subtopic Zero_Length
 #Alias Zero_Length_Contour
+#Line # consideration when contour has no length ##
 Contour length is distance traveled from first Point to Last_Point,
 plus, if Contour is closed, distance from Last_Point to first Point.
 Even if Contour length is zero, stroked Lines are drawn if Paint_Stroke_Cap
@@ -182,181 +191,35 @@ overlapping contours.
 Internally, Path lazily computes metrics likes bounds and convexity. Call
 SkPath::updateBoundsCache to make Path thread safe. 
 
-#Topic Overview
-
-#Subtopic Subtopics
-#Table
-#Legend
-# name                  # description                                        ##
-#Legend ##
-# Classes_and_Structs   # embedded struct and class members                  ##
-# Constants             # enum and enum class, const values                  ##
-# Constructors          # functions that construct SkPath                    ##
-# Member_Functions      # static functions and member methods                ##
-# Operators             # operator overloading methods                       ##
-# Related_Functions     # similar methods grouped together                   ##
-#Table ##
-#Subtopic ##
-
-
 #Subtopic Related_Functions
-#Table
-#Legend
-# name                  # description                                        ##
-#Legend ##
-# Conic                 # conic section defined by three points and a weight ##
-# Conic_Weight          # strength of control Point in Conic                 ##
-# Contour               # loop of lines and curves                           ##
-# Convexity             # if Path is concave or convex                       ##
-# Cubic_Bezier          # third order curve defined by four points           ##
-# Direction             # Path contour orientation                           ##
-# Fill_Type             # Path fill rule, normal and inverted                ##
-# Last_Point            # final Point in Contour                             ##
-# Point_Array           # end points and control points for lines and curves ##
-# Quadratic_Bezier      # parabolic section defined by three points          ##
-# Verb_Array            # line and curve type for points                     ##
-# Verbs                 # Path line and curve type                           ##
-# Zero_Length_Contour   # consideration when contour has no length           ##
-#Table ##
-#Subtopic ##
+#Populate
+##
 
 #Subtopic Constants
-#Table
-#Legend
-# name         # description                                 ##
-#Legend ##
-# AddPathMode  # sets addPath options                        ##
-# ArcSize      # used by arcTo variation                     ##
-# Convexity    # returns if Path is convex or concave        ##
-# Direction    # sets Contour clockwise or counterclockwise  ##
-# FillType     # sets winding rule and inverse fill          ##
-# SegmentMask  # returns Verb types in Path                  ##  
-# Verb         # controls how Path Points are interpreted    ##
-#Table ##
-#Subtopic ##
+#Populate
+##
 
 #Subtopic Classes_and_Structs
-#Table
-#Legend
-# name         # description                                              ##
-#Legend ##
-# Iter         # iterates through lines and curves, skipping degenerates  ##
-# RawIter      # iterates through lines and curves, including degenerates ##
-#Table ##
-#Subtopic ##
+#Populate
+##
 
 #Subtopic Constructors
-#Table
-#Legend
-# name                           # description                                ##
-#Legend ##
-# SkPath()                       # constructs with default values             ##
-# SkPath(const SkPath& path)     # makes a shallow copy                       ##
-# ~SkPath()                      # decreases Reference_Count of owned objects ##
-#Table ##
-#Subtopic ##
+#Populate
+##
 
 #Subtopic Operators
-#Table
-#Legend
-# name                                         # description                    ##
-#Legend ##
-# operator!=(const SkPath& a, const SkPath& b) # compares paths for inequality  ##
-# operator=(const SkPath& path)                # makes a shallow copy           ##
-# operator==(const SkPath& a, const SkPath& b) # compares paths for equality    ##
-#Table ##
-#Subtopic ##
+#Populate
+##
 
 #Subtopic Member_Functions
-#Table
-#Legend
-# name                        # description                                                     ##
-#Legend ##
-# ConvertConicToQuads         # approximates Conic with Quad array                              ##
-# ConvertToNonInverseFillType # returns Fill_Type representing inside geometry                  ##
-# IsCubicDegenerate           # returns if Cubic is very small                                  ##
-# IsInverseFillType           # returns if Fill_Type represents outside geometry                ##
-# IsLineDegenerate            # returns if Line is very small                                   ##
-# IsQuadDegenerate            # returns if Quad is very small                                   ##
-# addArc                      # adds one Contour containing Arc                                 ##
-# addCircle                   # adds one Contour containing Circle                              ##
-# addOval                     # adds one Contour containing Oval                                ##
-# addPath                     # adds contents of Path                                           ##
-# addPoly                     # adds one Contour containing connected lines                     ##
-# addRRect                    # adds one Contour containing Round_Rect                          ##
-# addRect                     # adds one Contour containing Rect                                ##
-# addRoundRect                # adds one Contour containing Round_Rect with common corner radii ##
-# arcTo                       # appends Arc                                                     ##
-# close()                     # makes last Contour a loop                                       ##
-# computeTightBounds          # returns extent of geometry                                      ##
-# conicTo                     # appends Conic                                                   ##
-# conservativelyContainsRect  # returns true if Rect may be inside                              ##
-# contains()                  # returns if Point is in fill area                                ##
-# countPoints                 # returns Point_Array length                                      ##
-# countVerbs                  # returns Verb_Array length                                       ##
-# cubicTo                     # appends Cubic                                                   ##
-# dump()                      # sends text representation using floats to standard output       ##
-# dumpHex                     # sends text representation using hexadecimal to standard output  ##
-# getBounds                   # returns maximum and minimum of Point_Array                      ##
-# getConvexity                # returns geometry convexity, computing if necessary              ##
-# getConvexityOrUnknown       # returns geometry convexity if known                             ##
-# getFillType                 # returns Fill_Type: winding, even-odd, inverse                   ##
-# getGenerationID             # returns unique ID                                               ##
-# getLastPt                   # returns Last_Point                                              ##
-# getPoint                    # returns entry from Point_Array                                  ##
-# getPoints                   # returns Point_Array                                             ##
-# getSegmentMasks             # returns types in Verb_Array                                     ##
-# getVerbs                    # returns Verb_Array                                              ##
-# incReserve                  # reserves space for additional data                              ##
-# interpolate()               # interpolates between Path pair                                  ##
-# isConvex                    # returns if geometry is convex                                   ##
-# isEmpty                     # returns if verb count is zero                                   ##
-# isFinite                    # returns if all Point values are finite                          ##
-# isInterpolatable            # returns if pair contains equal counts of Verb_Array and Weights ##
-# isInverseFillType           # returns if Fill_Type fills outside geometry                     ##
-# isLastContourClosed         # returns if final Contour forms a loop                           ##
-# isLine                      # returns if describes Line                                       ##
-# isNestedFillRects           # returns if describes Rect pair, one inside the other            ##
-# isOval                      # returns if describes Oval                                       ##
-# isRRect                     # returns if describes Round_Rect                                 ##
-# isRect                      # returns if describes Rect                                       ##
-# isValid                     # returns if data is internally consistent                        ##
-# isVolatile                  # returns if Device should not cache                              ##
-# lineTo                      # appends Line                                                    ##
-# moveTo                      # starts Contour                                                  ##
-# offset()                    # translates Point_Array                                          ##
-# pathRefIsValid              # to be deprecated                                                ##
-# quadTo                      # appends Quad                                                    ##
-# rArcTo                      # appends Arc relative to Last_Point                              ##
-# rConicTo                    # appends Conic relative to Last_Point                            ##
-# rCubicTo                    # appends Cubic relative to Last_Point                            ##
-# rLineTo                     # appends Line relative to Last_Point                             ##
-# rMoveTo                     # starts Contour relative to Last_Point                           ##
-# rQuadTo                     # appends Quad relative to Last_Point                             ##
-# readFromMemory              # Initializes from buffer                                         ##
-# reset()                     # removes Verb_Array, Point_Array, and Weights; frees memory      ##
-# reverseAddPath              # adds contents of Path back to front                             ##
-# rewind()                    # removes Verb_Array, Point_Array, and Weights, keeping memory    ##
-# serialize()                 # copies data to buffer                                           ##
-# setConvexity                # sets if geometry is convex to avoid future computation          ##
-# setFillType                 # sets Fill_Type: winding, even-odd, inverse                      ##
-# setIsConvex                 # deprecated                                                      ##
-# setIsVolatile               # sets if Device should not cache                                 ##
-# setLastPt                   # replaces Last_Point                                             ##
-# swap()                      # exchanges Path pair                                             ##
-# toggleInverseFillType       # toggles Fill_Type between inside and outside geometry           ##
-# transform()                 # applies Matrix to Point_Array and Weights                       ##
-# unique()                    # returns if data has single owner                                ##
-# updateBoundsCache           # refreshes result of getBounds                                   ##
-# writeToMemory               # copies data to buffer                                           ##
-#Table ##
-#Subtopic Path_Member_Functions ##
-#Topic Overview ##
+#Populate
+##
 
 #Subtopic Verb
 #Alias Verbs
-
+#Line # line and curve type ##
 #Enum Verb
+#Line # controls how Path Points are interpreted ##
 
 #Code
     enum Verb {
@@ -449,9 +312,11 @@ verbs: kMove_Verb kLine_Verb kQuad_Verb kClose_Verb kMove_Verb kCubic_Verb kConi
 
 # ------------------------------------------------------------------------------
 #Subtopic Direction
+#Line # Path contour orientation ##
 #Alias Directions
 
 #Enum Direction
+#Line # sets Contour clockwise or counterclockwise ##
 
 #Code
     enum Direction {
@@ -827,8 +692,10 @@ To be deprecated; only valid for Android framework.
 
 # ------------------------------------------------------------------------------
 #Subtopic Fill_Type
+#Line # Path fill rule, normal and inverted ##
 
 #Enum FillType
+#Line # sets winding rule and inverse fill ##
 
 #Code
     enum FillType {
@@ -1055,8 +922,10 @@ canvas->drawPath(path, paint);
 # ------------------------------------------------------------------------------
 
 #Subtopic Convexity
+#Line # if Path is concave or convex ##
 
 #Enum Convexity
+#Line # returns if Path is convex or concave ##
 
 #Code
     enum Convexity : uint8_t {
@@ -1816,6 +1685,7 @@ second move is not line
 # ------------------------------------------------------------------------------
 
 #Subtopic Point_Array
+#Line # end points and control points for lines and curves ##
 #Substitute SkPoint array
 
 Point_Array contains Points satisfying the allocated Points for
@@ -1943,6 +1813,7 @@ point 1: (10,10)
 
 # ------------------------------------------------------------------------------
 #Subtopic Verb_Array
+#Line # line and curve type for points ##
 
 Verb_Array always starts with kMove_Verb.
 If kClose_Verb is not the last entry, it is always followed by kMove_Verb;
@@ -2480,6 +2351,7 @@ void draw(SkCanvas* canvas) {
 #Alias Quads
 #Alias Quadratic_Bezier
 #Alias Quadratic_Beziers
+#Line # Bezier_Curve described by second-order polynomial ##
 
 Quad describes a quadratic Bezier, a second-order curve identical to a section
 of a parabola. Quad begins at a start Point, curves towards a control Point,
@@ -2649,6 +2521,7 @@ void draw(SkCanvas* canvas) {
 # ------------------------------------------------------------------------------
 
 #Topic Conic
+#Line # conic section defined by three points and a weight ##
 #Alias Conics
 
 Conic describes a conical section: a piece of an ellipse, or a piece of a
@@ -2662,6 +2535,7 @@ may be inspected with Iter, or with RawIter.
 #Subtopic Weight
 #Alias Conic_Weights
 #Alias Weights
+#Line # strength of Conic control Point ##
 
 Weight determines both the strength of the control Point and the type of Conic.
 If Weight is exactly one, then Conic is identical to Quad; it is always a
@@ -2944,6 +2818,7 @@ void draw(SkCanvas* canvas) {
 #Alias Cubics
 #Alias Cubic_Bezier
 #Alias Cubic_Beziers
+#Line # Bezier_Curve described by third-order polynomial ##
 
 Cubic describes a Bezier_Curve segment described by a third-order polynomial. 
 Cubic begins at a start Point, curving towards the first control Point;
@@ -3101,8 +2976,8 @@ to Point_Array.
 
 # ------------------------------------------------------------------------------
 
-#Topic Arc
-
+#Subtopic Arc
+#Line # part of Oval or Circle ##
 Arc can be constructed in a number of ways. Arc may be described by part of Oval and angles,
 by start point and end point, and by radius and tangent lines. Each construction has advantages,
 and some constructions correspond to Arc drawing in graphics standards.
@@ -3548,6 +3423,7 @@ line (156,20),(200,20)
 # ------------------------------------------------------------------------------
 
 #Enum ArcSize
+#Line # used by arcTo variation ##
 
 #Code
     enum ArcSize {
@@ -4626,6 +4502,7 @@ void draw(SkCanvas* canvas) {
 # ------------------------------------------------------------------------------
 
 #Enum AddPathMode
+#Line # sets addPath options ##
 
 #Code
     enum AddPathMode {
@@ -4944,6 +4821,7 @@ Path is replaced by transformed data.
 # ------------------------------------------------------------------------------
 
 #Subtopic Last_Point
+#Line # final Point in Contour ##
 
 Path is defined cumulatively, often by adding a segment to the end of last
 Contour. Last_Point of Contour is shared as first Point of added Line or Curve.
@@ -5036,6 +4914,7 @@ Last_Point can be read and written directly with getLastPt and setLastPt.
 # ------------------------------------------------------------------------------
 
 #Enum SegmentMask
+#Line # returns Verb types in Path ##
 
 #Code
     enum SegmentMask {
@@ -5391,7 +5270,7 @@ length = 68; returned by readFromMemory = 64
 # ------------------------------------------------------------------------------
 #Topic Generation_ID
 #Alias Generation_IDs
-
+#Line # value reflecting contents change ##
 Generation_ID provides a quick way to check if Verb_Array, Point_Array, or
 Conic_Weight has changed. Generation_ID is not a hash; identical Paths will
 not necessarily have matching Generation_IDs.
@@ -5472,6 +5351,7 @@ empty genID = 1
 # ------------------------------------------------------------------------------
 
 #Class Iter
+#Line # Path data iterator ##
 
 Iterates through Verb_Array, and associated Point_Array and Conic_Weight.
 Provides options to treat open Contours as closed, and to ignore
@@ -5865,6 +5745,7 @@ with close(),    forceClose is true : isClosedContour returns true
 #Class Iter ##
 
 #Class RawIter
+#Line # Path raw data iterator ##
 
 Iterates through Verb_Array, and associated Point_Array and Conic_Weight.
 Verb_Array, Point_Array, and Conic_Weight are returned unaltered. 
