@@ -22,6 +22,30 @@
       "revId": "4445d11e4fb86f03375007a42d46929ccb189c9f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "092f25d6_aa61a306",
+        "filename": "src/core/SkVertices.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 224,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-02-01T15:41:27Z",
+      "side": 1,
+      "message": "it is implicitly verified in Sizes, but I will add an explicit check.",
+      "parentUuid": "dd3e5ac9_40718c62",
+      "range": {
+        "startLine": 224,
+        "startChar": 8,
+        "endLine": 224,
+        "endChar": 18
+      },
+      "revId": "4445d11e4fb86f03375007a42d46929ccb189c9f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
