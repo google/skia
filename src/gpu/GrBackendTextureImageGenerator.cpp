@@ -80,6 +80,7 @@ void GrBackendTextureImageGenerator::ReleaseRefHelper_TextureReleaseProc(void* c
     SkASSERT(refHelper);
 
     refHelper->fBorrowedTexture = nullptr;
+    refHelper->fBorrowingContextReleaseProc = nullptr;
     refHelper->fBorrowingContextID = SK_InvalidGenID;
     refHelper->unref();
 }
@@ -95,13 +96,28 @@ sk_sp<GrTextureProxy> GrBackendTextureImageGenerator::onGenerateTexture(
 
     auto proxyProvider = context->contextPriv().proxyProvider();
 
-    uint32_t expectedID = SK_InvalidGenID;
-    if (!fRefHelper->fBorrowingContextID.compare_exchange(&expectedID, context->uniqueID())) {
+    fBorrowingMutex.acquire();
+    sk_sp<GrReleaseProcHelper> releaseProcHelper;
+    if (SK_InvalidGenID != fRefHelper->fBorrowingContextID) {
         if (fRefHelper->fBorrowingContextID != context->uniqueID()) {
-            // Some other context is currently borrowing the texture. We aren't allowed to use it.
+            fBorrowingMutex.release();
             return nullptr;
+        } else {
+            SkASSERT(fRefHelper->fBorrowingContextReleaseProc);
+            // Ref the release proc to be held by the proxy we make below
+            releaseProcHelper = sk_ref_sp(fRefHelper->fBorrowingContextReleaseProc);
         }
+    } else {
+        SkASSERT(!fRefHelper->fBorrowingContextReleaseProc);
+        // The ref we add to fRefHelper here will be passed into and owned by the
+        // GrReleaseProcHelper.
+        fRefHelper->ref();
+        releaseProcHelper.reset(new GrReleaseProcHelper(ReleaseRefHelper_TextureReleaseProc,
+                                                        fRefHelper));
+        fRefHelper->fBorrowingContextReleaseProc = releaseProcHelper.get();
     }
+    fRefHelper->fBorrowingContextID = context->uniqueID();
+    fBorrowingMutex.release();
 
     SkASSERT(fRefHelper->fBorrowingContextID == context->uniqueID());
 
@@ -117,16 +133,11 @@ sk_sp<GrTextureProxy> GrBackendTextureImageGenerator::onGenerateTexture(
     sk_sp<GrSemaphore> semaphore = fSemaphore;
     GrBackendTexture backendTexture = fBackendTexture;
     RefHelper* refHelper = fRefHelper;
-    refHelper->ref();
 
     sk_sp<GrTextureProxy> proxy = proxyProvider->createLazyProxy(
-            [refHelper, semaphore, backendTexture]
+            [refHelper, releaseProcHelper, semaphore, backendTexture]
             (GrResourceProvider* resourceProvider, GrSurfaceOrigin* /*outOrigin*/) {
                 if (!resourceProvider) {
-                    // If we get here then we never created a texture to pass the refHelper ref off
-                    // to. Thus we must unref it ourselves.
-                    refHelper->fBorrowingContextID = SK_InvalidGenID;
-                    refHelper->unref();
                     return sk_sp<GrTexture>();
                 }
 
@@ -142,10 +153,6 @@ sk_sp<GrTextureProxy> GrBackendTextureImageGenerator::onGenerateTexture(
                     // previously created.
                     tex = sk_ref_sp(refHelper->fBorrowedTexture);
                     SkASSERT(tex);
-                    // The texture is holding onto a ref to the refHelper so since we have a ref to
-                    // the texture we don't need to hold a ref to the refHelper. This unref's the
-                    // ref we grabbed on refHelper in the lambda capture for this proxy.
-                    refHelper->unref();
                 } else {
                     // We just gained access to the texture. If we're on the original context, we
                     // could use the original texture, but we'd have no way of detecting that it's
@@ -156,21 +163,11 @@ sk_sp<GrTextureProxy> GrBackendTextureImageGenerator::onGenerateTexture(
                     tex = resourceProvider->wrapBackendTexture(backendTexture,
                                                                kBorrow_GrWrapOwnership);
                     if (!tex) {
-                        refHelper->fBorrowingContextID = SK_InvalidGenID;
-                        refHelper->unref();
                         return sk_sp<GrTexture>();
                     }
                     refHelper->fBorrowedTexture = tex.get();
 
-                    sk_sp<GrReleaseProcHelper> releaseHelper(
-                           new GrReleaseProcHelper(ReleaseRefHelper_TextureReleaseProc, refHelper));
-
-                    // By setting this release proc on the texture we are passing our ref on the
-                    // refHelper to the texture.
-                    // DDL TODO: Once we are start reusing Lazy Proxies, we need to add a ref to the
-                    // refHelper here, we'll still move the releaseHelper though since the texture
-                    // will be the only one ever calling that release proc.
-                    tex->setRelease(std::move(releaseHelper));
+                    tex->setRelease(releaseProcHelper);
                 }
 
                 return tex;
