@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e12fe413_7e5c1faf",
+        "filename": "src/sksl/README",
+        "patchSetId": 1
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-02-01T14:58:49Z",
+      "side": 1,
+      "message": "Think it makes sense to default half4 \u003c-\u003e GrColor4f?  Kind of a bad idea to use half-precision geometry, right?  (No idea what I\u0027d suggest mapping half2 to though...)",
+      "range": {
+        "startLine": 110,
+        "startChar": 13,
+        "endLine": 110,
+        "endChar": 34
+      },
+      "revId": "fa7770ed01e7e244e9ad99127a2aae0dc05a280f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
