@@ -47,7 +47,7 @@ def _GetWebhookSaltFromMetadata():
       raise AndroidCompileException(
           'Return code from %s was %s' % (GCE_WEBHOOK_SALT_METADATA_URI,
                                           resp.status_code))
-  return resp.text
+  return base64.standard_b64decode(resp.text)
 
 
 def _GetAuthHeaders(data, options):
