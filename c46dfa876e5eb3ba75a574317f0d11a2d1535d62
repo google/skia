@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fc43f4e4_14f8439d",
+        "filename": "src/gpu/effects/GrAtlasedShaderHelpers.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-02-01T17:09:50Z",
+      "side": 1,
+      "message": "Does kCanBeFlat look right?",
+      "range": {
+        "startLine": 48,
+        "startChar": 76,
+        "endLine": 48,
+        "endChar": 86
+      },
+      "revId": "c46dfa876e5eb3ba75a574317f0d11a2d1535d62",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
