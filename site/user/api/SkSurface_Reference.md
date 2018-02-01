@@ -50,7 +50,7 @@ of the requested dimensions are zero, then nullptr will be returned.
 | <a href="#SkSurface_MakeRasterDirectReleaseProc">MakeRasterDirectReleaseProc</a> | creates <a href="#Surface">Surface</a> from <a href="SkImageInfo_Reference#SkImageInfo">SkImageInfo</a> and <a href="#Storage">Pixel Storage</a> |
 | <a href="#SkSurface_MakeRasterN32Premul">MakeRasterN32Premul</a> | creates <a href="#Surface">Surface</a> from width, height matching output |
 | <a href="#SkSurface_MakeRenderTarget">MakeRenderTarget</a> | creates <a href="#Surface">Surface</a> pointing to new GPU memory buffer |
-| <a href="#SkSurface_characterize">characterize</a> | sets <a href="#Characterization">Surface Characterization</a> for threaded pre-processing |
+| <a href="#SkSurface_characterize">characterize</a> | sets <a href="#Characterization">Surface Characterization</a> for threaded GPU processing |
 | <a href="#SkSurface_draw">draw</a> | draws <a href="#Surface">Surface</a> contents to canvas |
 | <a href="#SkSurface_flush">flush</a> | resolve pending I/O |
 | <a href="#SkSurface_flushAndSignalSemaphores">flushAndSignalSemaphores</a> | resolve pending I/O, and signal |
@@ -802,9 +802,9 @@ static sk_sp&lt;SkSurface&gt; MakeRenderTarget(GrContext* context, SkBudgeted bu
                                          bool shouldCreateWithMips = false)
 </pre>
 
-Returns offscreen <a href="#Surface">Surface</a> on GPU indicated by <a href="#SkSurface_MakeRenderTarget_context">context</a>. Allocates memory for
+Returns <a href="#Surface">Surface</a> on GPU indicated by <a href="#SkSurface_MakeRenderTarget_context">context</a>. Allocates memory for
 pixels, based on the width, height, and <a href="SkImageInfo_Reference#Color_Type">Color Type</a> in ImageInfo.  <a href="#SkSurface_MakeRenderTarget_budgeted">budgeted</a>
-selects whether allocation for offscreen pixels is tracked by <a href="#SkSurface_MakeRenderTarget_context">context</a>. <a href="#SkSurface_MakeRenderTarget_imageInfo">imageInfo</a>
+selects whether allocation for pixels is tracked by <a href="#SkSurface_MakeRenderTarget_context">context</a>. <a href="#SkSurface_MakeRenderTarget_imageInfo">imageInfo</a>
 describes the pixel format in <a href="SkImageInfo_Reference#Color_Type">Color Type</a>, and transparency in
 <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a>, and color matching in <a href="undocumented#Color_Space">Color Space</a>.
 
@@ -815,7 +815,7 @@ maximum supported count.
 
 <a href="#SkSurface_MakeRenderTarget_surfaceOrigin">surfaceOrigin</a> pins either the top-left or the bottom-left corner to the origin.
 
-<a href="#SkSurface_MakeRenderTarget_shouldCreateWithMips">shouldCreateWithMips</a> hints that <a href="SkImage_Reference#Image">Image</a> returned by <a href="#SkSurface_makeImageSnapshot">makeImageSnapshot</a> is <a href="undocumented#Mip_Map">Mip Map</a>.
+<a href="#SkSurface_MakeRenderTarget_shouldCreateWithMips">shouldCreateWithMips</a> hints that <a href="SkImage_Reference#Image">Image</a> returned by <a href="#SkSurface_makeImageSnapshot">makeImageSnapshot</a> is Mip_Map.
 
 If SK_SUPPORT_GPU is defined as zero, has no effect and returns nullptr.
 
@@ -836,7 +836,7 @@ one of: <a href="undocumented#GrSurfaceOrigin">kBottomLeft GrSurfaceOrigin</a>, 
 LCD striping orientation and setting for device independent
 fonts; may be nullptr</td>
   </tr>  <tr>    <td><a name="SkSurface_MakeRenderTarget_shouldCreateWithMips"> <code><strong>shouldCreateWithMips </strong></code> </a></td> <td>
-hint that <a href="#Surface">Surface</a> will host <a href="undocumented#Mip_Map">Mip Map</a> images</td>
+hint that <a href="#Surface">Surface</a> will host Mip_Map images</td>
   </tr>
 </table>
 
@@ -862,9 +862,9 @@ static sk_sp&lt;SkSurface&gt; MakeRenderTarget(GrContext* context, SkBudgeted bu
                                          const SkSurfaceProps* props)
 </pre>
 
-Returns offscreen <a href="#Surface">Surface</a> on GPU indicated by <a href="#SkSurface_MakeRenderTarget_2_context">context</a>. Allocates memory for
+Returns <a href="#Surface">Surface</a> on GPU indicated by <a href="#SkSurface_MakeRenderTarget_2_context">context</a>. Allocates memory for
 pixels, based on the width, height, and <a href="SkImageInfo_Reference#Color_Type">Color Type</a> in ImageInfo.  <a href="#SkSurface_MakeRenderTarget_2_budgeted">budgeted</a>
-selects whether allocation for offscreen pixels is tracked by <a href="#SkSurface_MakeRenderTarget_2_context">context</a>. <a href="#SkSurface_MakeRenderTarget_2_imageInfo">imageInfo</a>
+selects whether allocation for pixels is tracked by <a href="#SkSurface_MakeRenderTarget_2_context">context</a>. <a href="#SkSurface_MakeRenderTarget_2_imageInfo">imageInfo</a>
 describes the pixel format in <a href="SkImageInfo_Reference#Color_Type">Color Type</a>, and transparency in
 <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a>, and color matching in <a href="undocumented#Color_Space">Color Space</a>.
 
@@ -899,7 +899,7 @@ fonts; may be nullptr</td>
 ### Example
 
 <div><fiddle-embed name="640321e8ecfb3f9329f3bc6e1f02485f" gpu="true" cpu="true"><div>LCD text takes advantage of raster striping to improve resolution. Only one of
-the four combinations is correct, depending on whether the monitor's LCD is
+the four combinations is correct, depending on whether monitor LCD striping is
 horizontal or vertical, and whether the order of the stripes is red blue green
 or red green blue.</div></fiddle-embed></div>
 
@@ -916,9 +916,9 @@ static sk_sp&lt;SkSurface&gt; MakeRenderTarget(GrContext* context, SkBudgeted bu
                                          const SkImageInfo& imageInfo)
 </pre>
 
-Returns offscreen <a href="#Surface">Surface</a> on GPU indicated by <a href="#SkSurface_MakeRenderTarget_3_context">context</a>. Allocates memory for
+Returns <a href="#Surface">Surface</a> on GPU indicated by <a href="#SkSurface_MakeRenderTarget_3_context">context</a>. Allocates memory for
 pixels, based on the width, height, and <a href="SkImageInfo_Reference#Color_Type">Color Type</a> in ImageInfo.  <a href="#SkSurface_MakeRenderTarget_3_budgeted">budgeted</a>
-selects whether allocation for offscreen pixels is tracked by <a href="#SkSurface_MakeRenderTarget_3_context">context</a>. <a href="#SkSurface_MakeRenderTarget_3_imageInfo">imageInfo</a>
+selects whether allocation for pixels is tracked by <a href="#SkSurface_MakeRenderTarget_3_context">context</a>. <a href="#SkSurface_MakeRenderTarget_3_imageInfo">imageInfo</a>
 describes the pixel format in <a href="SkImageInfo_Reference#Color_Type">Color Type</a>, and transparency in
 <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a>, and color matching in <a href="undocumented#Color_Space">Color Space</a>.
 
@@ -1761,7 +1761,7 @@ bool characterize(SkSurfaceCharacterization* characterization) const
 </pre>
 
 Initializes <a href="#Characterization">Surface Characterization</a> that can be used to perform GPU back-end
-pre-processing in a separate thread. Typically this is used to divide drawing
+processing in a separate thread. Typically this is used to divide drawing
 into multiple tiles. DeferredDisplayListRecorder records the drawing commands
 for each tile.
 

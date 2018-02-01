@@ -10,7 +10,7 @@
 #Class SkImage
 
 Image describes a two dimensional array of pixels to draw. The pixels may be
-unencoded in a Raster_Bitmap, encoded in a Picture or compressed data stream,
+decoded in a Raster_Bitmap, encoded in a Picture or compressed data stream,
 or located in GPU memory as a GPU_Texture.
 
 Image cannot be modified after it is created. Image may allocate additional
@@ -21,13 +21,13 @@ or height returns Image equal to nullptr.
 
 Image may be created from Bitmap, Pixmap, Surface, Picture, encoded streams,
 GPU_Texture, YUV_ColorSpace data, or hardware buffer. Encoded streams supported
-include BMP, GIF, HEIF, ICO, JPEG, PNG, WBMP, WebP. Supported encodings details
+include BMP, GIF, HEIF, ICO, JPEG, PNG, WBMP, WebP. Supported encoding details
 vary with platform.
 
 #Subtopic Raster_Image
 #Alias Raster_Image
-#Line # pixels unencoded in Raster_Bitmap ##
-Raster_Image pixels are unencoded in a Raster_Bitmap. These pixels may be read
+#Line # pixels decoded in Raster_Bitmap ##
+Raster_Image pixels are decoded in a Raster_Bitmap. These pixels may be read
 directly and in most cases written to, although edited pixels may not be drawn
 if Image has been copied internally.
 ##
@@ -322,7 +322,7 @@ subset allows selecting a portion of the full image. Pass nullptr to select the 
 otherwise, subset must be contained by image bounds.
 
 Image is returned if format of the encoded data is recognized and supported.
-Recognized formats vary by platfrom.
+Recognized formats vary by platform.
 
 #Param encoded  data of Image to decode ##
 #Param subset  bounds of returned Image; may be nullptr ##
@@ -708,7 +708,7 @@ Recognized formats vary by GPU back-end.
 
 Creates Image from copy of yuvTextureHandles, an array of textures on GPU.
 yuvTextureHandles contain pixels for YUV planes of Image.
-yuvSizes conain dimensions for each pixel plane. Dimensions must be greater than
+yuvSizes contain dimensions for each pixel plane. Dimensions must be greater than
 zero but may differ from plane to plane. Returned Image has the dimensions
 yuvSizes[0]. yuvColorSpace describes how YUV colors convert to RGB colors. 
 
@@ -745,7 +745,7 @@ should this be moved to chrome only?
 
 Creates Image from copy of yuvTextureHandles, an array of textures on GPU.
 yuvTextureHandles contain pixels for YUV planes of Image.
-yuvSizes conain dimensions for each pixel plane. Dimensions must be greater than
+yuvSizes contain dimensions for each pixel plane. Dimensions must be greater than
 zero but may differ from plane to plane. Returned Image has the dimensions
 yuvSizes[0]. yuvColorSpace describes how YUV colors convert to RGB colors. 
 
@@ -786,7 +786,7 @@ Creates Image from copy of nv12TextureHandles, an array of textures on GPU.
 nv12TextureHandles[0] contains pixels for YUV_Component_Y plane.
 nv12TextureHandles[1] contains pixels for YUV_Component_U plane,
 followed by pixels for YUV_Component_V plane.
-nv12Sizes conain dimensions for each pixel plane. Dimensions must be greater than
+nv12Sizes contain dimensions for each pixel plane. Dimensions must be greater than
 zero but may differ from plane to plane. Returned Image has the dimensions
 nv12Sizes[0]. yuvColorSpace describes how YUV colors convert to RGB colors.
 
@@ -826,7 +826,7 @@ Creates Image from copy of nv12TextureHandles, an array of textures on GPU.
 nv12TextureHandles[0] contains pixels for YUV_Component_Y plane.
 nv12TextureHandles[1] contains pixels for YUV_Component_U plane,
 followed by pixels for YUV_Component_V plane.
-nv12Sizes conain dimensions for each pixel plane. Dimensions must be greater than
+nv12Sizes contain dimensions for each pixel plane. Dimensions must be greater than
 zero but may differ from plane to plane. Returned Image has the dimensions
 nv12Sizes[0]. yuvColorSpace describes how YUV colors convert to RGB colors.
 
@@ -2004,7 +2004,7 @@ GrContext.
 
 #Line # Creates Image without dependency on GPU_Texture. ##
 Returns Raster_Image or Lazy_Image. Copies Image backed by GPU_Texture into
-CPU memory if needed. Returns original Image if unencoded in Raster_Bitmap,
+CPU memory if needed. Returns original Image if decoded in Raster_Bitmap,
 or if encoded in a stream.
 
 Returns nullptr if backed by GPU_Texture and copy fails.
@@ -2045,7 +2045,7 @@ Returns nullptr if backed by GPU_Texture and copy fails.
 
 #Line # Creates Image compatible with Raster_Surface if possible. ##
 Returns Raster_Image. Copies Image backed by GPU_Texture into CPU memory,
-or decodes Image from Lazy_Image. Returns original Image if unencoded in
+or decodes Image from Lazy_Image. Returns original Image if decoded in
 Raster_Bitmap.
 
 Returns nullptr if copy, decode, or pixel read fails.
@@ -2214,9 +2214,9 @@ GrContext whence the proxy came. Clients allocate and manage the storage of the 
 texture data and control its lifetime. No cleanup is required, thus it is safe to simply free
 the memory out from under the data.
 
-The same method is used both for getting the size necessary for pre-uploaded texture data
-and for retrieving the data. The params array represents the set of draws over which to
-optimize the pre-upload data.
+The same method is used both for getting the size necessary for uploaded texture data
+and for retrieving the data. deferredTextureImageUsageParams represents the set of draws over
+which to optimize the uploaded data.
 
 When called with a null buffer this returns the size that the client must allocate in order
 to create deferred texture data for this image (or zero if this is an inappropriate
@@ -2227,7 +2227,7 @@ provided buffer (assuming this is an appropriate candidate image and the buffer 
 appropriately aligned). Upon success the size written is returned, otherwise 0.
 
 dstColorSpace is the Color_Space of the surface where this texture will ultimately be used.
-If the method determines that mip-maps are needed, this helps determine the correct strategy
+If the method determines that Mip_Map is needed, this helps determine the correct strategy
 for building them (gamma-correct or not).
 
 dstColorType is the color type of the surface where this texture will ultimately be used.
@@ -2319,8 +2319,8 @@ If image is both texture backed and singly referenced; that is, its only
 reference was transferred using std::move(): image is returned in backendTexture
 without conversion or making a copy. 
 
-If the SkImage is not texture backed, this function will generate a texture with the image's
-contents and return that.
+If Image is not texture backed, this function returns texture with Image
+contents.
 
 #Param context  GPU_Context ##
 #Param image  incomplete ##
