@@ -313,41 +313,14 @@ sk_sp<GrTextureProxy> GrProxyProvider::createProxy(const GrSurfaceDesc& desc,
                                                    uint32_t flags) {
     SkASSERT(0 == flags || GrResourceProvider::kNoPendingIO_Flag == flags);
 
-    const GrCaps* caps = this->caps();
-
-    // TODO: move this logic into GrResourceProvider!
-    // TODO: share this testing code with check_texture_creation_params
-    if (!caps->isConfigTexturable(desc.fConfig)) {
+    if (!this->caps()->validateSurfaceDesc(desc, GrMipMapped::kNo)) {
         return nullptr;
     }
-
-    bool willBeRT = SkToBool(desc.fFlags & kRenderTarget_GrSurfaceFlag);
-    if (willBeRT && !caps->isConfigRenderable(desc.fConfig, desc.fSampleCnt > 1)) {
-        return nullptr;
-    }
-
-    // We currently do not support multisampled textures
-    if (!willBeRT && desc.fSampleCnt > 1) {
-        return nullptr;
-    }
-
-    if (willBeRT && !caps->getSampleCount(desc.fSampleCnt, desc.fConfig)) {
-        return nullptr;
-    }
-
-    int maxSize;
-    if (willBeRT) {
-        maxSize = caps->maxRenderTargetSize();
-    } else {
-        maxSize = caps->maxTextureSize();
-    }
-
-    if (desc.fWidth > maxSize || desc.fHeight > maxSize || desc.fWidth <= 0 || desc.fHeight <= 0) {
-        return nullptr;
-    }
-
     GrSurfaceDesc copyDesc = desc;
-    copyDesc.fSampleCnt = caps->getSampleCount(desc.fSampleCnt, desc.fConfig);
+    if (desc.fFlags & kRenderTarget_GrSurfaceFlag) {
+        copyDesc.fSampleCnt =
+                this->caps()->getRenderTargetSampleCount(desc.fSampleCnt, desc.fConfig);
+    }
 
 #ifdef SK_DISABLE_DEFERRED_PROXIES
     // Temporarily force instantiation for crbug.com/769760 and crbug.com/769898
@@ -365,11 +338,11 @@ sk_sp<GrTextureProxy> GrProxyProvider::createProxy(const GrSurfaceDesc& desc,
 
     return GrSurfaceProxy::MakeWrapped(std::move(tex), copyDesc.fOrigin);
 #else
-    if (willBeRT) {
+    if (copyDesc.fFlags & kRenderTarget_GrSurfaceFlag) {
         // We know anything we instantiate later from this deferred path will be
         // both texturable and renderable
-        return sk_sp<GrTextureProxy>(new GrTextureRenderTargetProxy(*caps, copyDesc, fit,
-                                                                    budgeted, flags));
+        return sk_sp<GrTextureProxy>(
+                new GrTextureRenderTargetProxy(*this->caps(), copyDesc, fit, budgeted, flags));
     }
 
     return sk_sp<GrTextureProxy>(new GrTextureProxy(copyDesc, fit, budgeted, nullptr, 0, flags));

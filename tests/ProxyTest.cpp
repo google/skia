@@ -149,7 +149,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredProxyTest, reporter, ctxInfo) {
 
                                     check_surface(reporter, proxy.get(), origin,
                                                   widthHeight, widthHeight, config, budgeted);
-                                    int supportedSamples = caps.getSampleCount(numSamples, config);
+                                    int supportedSamples =
+                                            caps.getRenderTargetSampleCount(numSamples, config);
                                     check_rendertarget(reporter, caps, resourceProvider,
                                                        proxy->asRenderTargetProxy(),
                                                        supportedSamples,
@@ -205,9 +206,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
         for (auto config : { kAlpha_8_GrPixelConfig, kRGBA_8888_GrPixelConfig }) {
             for (auto budgeted : { SkBudgeted::kYes, SkBudgeted::kNo }) {
                 for (auto numSamples : {1, 4}) {
-                    int supportedNumSamples = caps.getSampleCount(numSamples, config);
-
-                    bool renderable = caps.isConfigRenderable(config, numSamples > 1);
+                    int supportedNumSamples = caps.getRenderTargetSampleCount(numSamples, config);
 
                     GrSurfaceDesc desc;
                     desc.fOrigin = origin;
@@ -217,7 +216,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
                     desc.fSampleCnt = supportedNumSamples;
 
                     // External on-screen render target.
-                    if (renderable && kOpenGL_GrBackend == ctxInfo.backend()) {
+                    if (supportedNumSamples && kOpenGL_GrBackend == ctxInfo.backend()) {
                         GrGLFramebufferInfo fboInfo;
                         fboInfo.fFBOID = 0;
                         GrBackendRenderTarget backendRT(kWidthHeight, kWidthHeight, numSamples, 8,
@@ -232,7 +231,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
                                            supportedNumSamples, SkBackingFit::kExact, 0, true);
                     }
 
-                    if (renderable) {
+                    if (supportedNumSamples) {
                         // Internal offscreen render target.
                         desc.fFlags = kRenderTarget_GrSurfaceFlag;
 

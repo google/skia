@@ -880,7 +880,7 @@ DEF_TEST(SurfaceCreationWithColorSpace, reporter) {
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceCreationWithColorSpace_Gpu, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
 
-    bool f16Support = context->caps()->isConfigRenderable(kRGBA_half_GrPixelConfig, false);
+    bool f16Support = context->caps()->isConfigRenderable(kRGBA_half_GrPixelConfig);
     auto surfaceMaker = [context](const SkImageInfo& info) {
         return SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, info);
     };

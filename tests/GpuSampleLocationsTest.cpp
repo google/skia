@@ -113,7 +113,7 @@ static int pick_random_sample_count(int testPatternSize, SkRandom* rand, const G
     GrAlwaysAssert(testPatternSize > 1 && SkIsPow2(testPatternSize));
     int randSampCnt = rand->nextRangeU(1 + testPatternSize / 2, testPatternSize);
     do {
-        int cnt = caps->getSampleCount(randSampCnt, kRGBA_8888_GrPixelConfig);
+        int cnt = caps->getRenderTargetSampleCount(randSampCnt, kRGBA_8888_GrPixelConfig);
         if (cnt) {
             return cnt;
         }
@@ -203,7 +203,7 @@ DEF_GPUTEST(GLSampleLocations, reporter, /* options */) {
     sk_sp<GrContext> ctx(GrContext::MakeGL(testInterface));
 
     // This test relies on at least 2 samples.
-    int supportedSample = ctx->caps()->getSampleCount(2, kRGBA_8888_GrPixelConfig);
+    int supportedSample = ctx->caps()->getRenderTargetSampleCount(2, kRGBA_8888_GrPixelConfig);
     if (supportedSample < 2) {
         return;
     }
