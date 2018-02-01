@@ -22,6 +22,30 @@
       "revId": "fa7770ed01e7e244e9ad99127a2aae0dc05a280f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "aaf8555f_7a600a34",
+        "filename": "src/sksl/README",
+        "patchSetId": 1
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2018-02-01T15:07:38Z",
+      "side": 1,
+      "message": "You are absolutely correct. That decision was made before was done before SkSL supported half precision or ctypes, and needs to be revisited. I am actually thinking of removing this default mapping altogether and forcing the use of ctype. In this CL I\u0027m just trying to describe the current behavior accurately, even where it doesn\u0027t necessarily make sense.",
+      "parentUuid": "e12fe413_7e5c1faf",
+      "range": {
+        "startLine": 110,
+        "startChar": 13,
+        "endLine": 110,
+        "endChar": 34
+      },
+      "revId": "fa7770ed01e7e244e9ad99127a2aae0dc05a280f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
