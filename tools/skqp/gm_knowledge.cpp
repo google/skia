@@ -33,6 +33,10 @@
 #define PATH_REPORT  "report.html"
 #define PATH_CSV      "out.csv"
 
+#ifndef SK_SKQP_GLOBAL_ERROR_TOLERANCE
+#define SK_SKQP_GLOBAL_ERROR_TOLERANCE 0
+#endif
+
 ////////////////////////////////////////////////////////////////////////////////
 
 static int get_error(uint32_t value, uint32_t value_max, uint32_t value_min) {
@@ -47,7 +51,7 @@ static int get_error(uint32_t value, uint32_t value_max, uint32_t value_min) {
             error = std::max(vmin - v, error);
         }
     }
-    return error;
+    return std::max(0, error - SK_SKQP_GLOBAL_ERROR_TOLERANCE);
 }
 
 static int get_error_with_nearby(int x, int y, const SkPixmap& pm,

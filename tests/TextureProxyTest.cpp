@@ -34,7 +34,7 @@ static GrSurfaceDesc make_desc(GrSurfaceFlags flags) {
     desc.fWidth = 64;
     desc.fHeight = 64;
     desc.fConfig = kRGBA_8888_GrPixelConfig;
-    desc.fSampleCnt = 0;
+    desc.fSampleCnt = 1;
 
     return desc;
 }

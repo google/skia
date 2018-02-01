@@ -1,3 +1,10 @@
+/*
+ * Copyright 2018 Google Inc.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
 layout(ctype=SkPMColor) in half4 color0;
 layout(ctype=SkPMColor) in half4 color1;
 layout(ctype=SkPMColor) in half4 color2;

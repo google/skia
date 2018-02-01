@@ -117,7 +117,7 @@ void Window::setRequestedDisplayParams(const DisplayParams& params, bool /* allo
 
 int Window::sampleCount() const {
     if (!fWindowContext) {
-        return -1;
+        return 0;
     }
     return fWindowContext->sampleCount();
 }

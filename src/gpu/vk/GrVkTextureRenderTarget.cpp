@@ -106,7 +106,7 @@ sk_sp<GrVkTextureRenderTarget> GrVkTextureRenderTarget::Make(GrVkGpu* gpu,
     // create msaa surface if necessary
     GrVkImageInfo msInfo;
     const GrVkImageView* resolveAttachmentView = nullptr;
-    if (desc.fSampleCnt) {
+    if (desc.fSampleCnt > 1) {
         GrVkImage::ImageDesc msImageDesc;
         msImageDesc.fImageType = VK_IMAGE_TYPE_2D;
         msImageDesc.fFormat = pixelFormat;
@@ -145,7 +145,7 @@ sk_sp<GrVkTextureRenderTarget> GrVkTextureRenderTarget::Make(GrVkGpu* gpu,
     const GrVkImageView* colorAttachmentView = GrVkImageView::Create(gpu, colorImage, pixelFormat,
                                                                      GrVkImageView::kColor_Type, 1);
     if (!colorAttachmentView) {
-        if (desc.fSampleCnt) {
+        if (desc.fSampleCnt > 1) {
             resolveAttachmentView->unref(gpu);
             GrVkImage::DestroyImageInfo(gpu, &msInfo);
         }
@@ -154,7 +154,7 @@ sk_sp<GrVkTextureRenderTarget> GrVkTextureRenderTarget::Make(GrVkGpu* gpu,
     }
 
     sk_sp<GrVkTextureRenderTarget> texRT;
-    if (desc.fSampleCnt) {
+    if (desc.fSampleCnt > 1) {
         if (!isWrapped) {
             texRT = sk_sp<GrVkTextureRenderTarget>(new GrVkTextureRenderTarget(
                                                       gpu, budgeted, desc,
@@ -232,7 +232,7 @@ GrVkTextureRenderTarget::MakeWrappedTextureRenderTarget(GrVkGpu* gpu,
 bool GrVkTextureRenderTarget::updateForMipmap(GrVkGpu* gpu, const GrVkImageInfo& newInfo) {
     VkFormat pixelFormat;
     GrPixelConfigToVkFormat(this->config(), &pixelFormat);
-    if (this->numStencilSamples()) {
+    if (this->numStencilSamples() > 1) {
         const GrVkImageView* resolveAttachmentView =
                 GrVkImageView::Create(gpu,
                                       newInfo.fImage,
@@ -262,8 +262,11 @@ bool GrVkTextureRenderTarget::updateForMipmap(GrVkGpu* gpu, const GrVkImageInfo&
 }
 
 size_t GrVkTextureRenderTarget::onGpuMemorySize() const {
-    // The plus 1 is to account for the resolve texture.
-    int numColorSamples = this->numColorSamples() + 1;
+    int numColorSamples = this->numColorSamples();
+    if (numColorSamples > 1) {
+        // Add one to account for the resolve VkImage.
+        ++numColorSamples;
+    }
     return GrSurface::ComputeSize(this->config(), this->width(), this->height(),
                                   numColorSamples,  // TODO: this still correct?
                                   this->texturePriv().mipMapped());

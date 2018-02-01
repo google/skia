@@ -90,7 +90,7 @@ public:
     /**
      *  Used to wrap a pre-existing backend 3D API texture as a SkSurface. Skia will not assume
      *  ownership of the texture and the client must ensure the texture is valid for the lifetime
-     *  of the SkSurface. If sampleCnt > 0, then we will create an intermediate mssa surface which
+     *  of the SkSurface. If sampleCnt > 1, then we will create an intermediate mssa surface which
      *  we will use for rendering. We then resolve into the passed in texture.
      */
     static sk_sp<SkSurface> MakeFromBackendTexture(GrContext* context,
@@ -102,13 +102,13 @@ public:
     /**
      *  Used to wrap a pre-existing backend 3D API texture as a SkSurface. Skia will not assume
      *  ownership of the texture and the client must ensure the texture is valid for the lifetime
-     *  of the SkSurface. If sampleCnt > 0, then we will create an intermediate mssa surface which
+     *  of the SkSurface. If sampleCnt > 1, then we will create an intermediate mssa surface which
      *  we will use for rendering. We then resolve into the passed in texture.
      *
      *  The GrBackendTexture must have a valid backend format supplied (GrGLTextureInfo::fFormat,
      *  GrVkImageInfo::fFormat, etc.) in it. The passed in SkColorType informs skia how it should
      *  interpret the backend format supplied by the GrBackendTexture. If the format in the
-     *  GrBackendTexture is not compitable with the sampleCnt, SkColorType, and SkColorSpace we
+     *  GrBackendTexture is not compatible with the sampleCnt, SkColorType, and SkColorSpace we
      *  will return nullptr.
      */
     static sk_sp<SkSurface> MakeFromBackendTexture(GrContext* context,
@@ -128,7 +128,7 @@ public:
      *  The GrBackendRenderTarget must have a valid backend format set (GrGLTextureInfo::fFormat,
      *  GrVkImageInfo::fFormat, etc.) in it. The passed in SkColorType informs skia how it should
      *  interpret the backend format supplied by the GrBackendRenderTarget. If the format in the
-     *  GrBackendRenderTarget is not compitable with the sampleCnt, SkColorType, and SkColorSpace
+     *  GrBackendRenderTarget is not compatible with the sampleCnt, SkColorType, and SkColorSpace
      *  we will return nullptr.
      */
     static sk_sp<SkSurface> MakeFromBackendRenderTarget(GrContext* context,
@@ -162,7 +162,7 @@ public:
      *  The GrBackendTexture must have a valid backend format supplied (GrGLTextureInfo::fFormat,
      *  GrVkImageInfo::fFormat, etc.) in it. The passed in SkColorType informs skia how it should
      *  interpret the backend format supplied by the GrBackendTexture. If the format in the
-     *  GrBackendTexture is not compitable with the sampleCnt, SkColorType, and SkColorSpace we
+     *  GrBackendTexture is not compatible with the sampleCnt, SkColorType, and SkColorSpace we
      *  will return nullptr.
      */
     static sk_sp<SkSurface> MakeFromBackendTextureAsRenderTarget(GrContext* context,

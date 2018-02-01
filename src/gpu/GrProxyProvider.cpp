@@ -217,6 +217,8 @@ sk_sp<GrTextureProxy> GrProxyProvider::createTextureProxy(sk_sp<SkImage> srcImag
             [desc, budgeted, srcImage]
             (GrResourceProvider* resourceProvider, GrSurfaceOrigin* /*outOrigin*/) {
                 if (!resourceProvider) {
+                    // Nothing to clean up here. Once the proxy (and thus lambda) is deleted the ref
+                    // on srcImage will be released.
                     return sk_sp<GrTexture>();
                 }
                 SkPixmap pixMap;
@@ -320,12 +322,16 @@ sk_sp<GrTextureProxy> GrProxyProvider::createProxy(const GrSurfaceDesc& desc,
     }
 
     bool willBeRT = SkToBool(desc.fFlags & kRenderTarget_GrSurfaceFlag);
-    if (willBeRT && !caps->isConfigRenderable(desc.fConfig, desc.fSampleCnt > 0)) {
+    if (willBeRT && !caps->isConfigRenderable(desc.fConfig, desc.fSampleCnt > 1)) {
         return nullptr;
     }
 
     // We currently do not support multisampled textures
-    if (!willBeRT && desc.fSampleCnt > 0) {
+    if (!willBeRT && desc.fSampleCnt > 1) {
+        return nullptr;
+    }
+
+    if (willBeRT && !caps->getSampleCount(desc.fSampleCnt, desc.fConfig)) {
         return nullptr;
     }
 
@@ -396,9 +402,9 @@ sk_sp<GrTextureProxy> GrProxyProvider::createWrappedTextureProxy(
             [backendTex, ownership, releaseHelper]
             (GrResourceProvider* resourceProvider, GrSurfaceOrigin* /*outOrigin*/) {
                 if (!resourceProvider) {
-                    // This lazy proxy was never initialized. If this had a releaseHelper it will
-                    // get unrefed when we delete this lambda and will call the release proc so that
-                    // the client knows they can free the underlying backend object.
+                    // If this had a releaseHelper it will get unrefed when we delete this lambda
+                    // and will call the release proc so that the client knows they can free the
+                    // underlying backend object.
                     return sk_sp<GrTexture>();
                 }
 
@@ -408,9 +414,8 @@ sk_sp<GrTextureProxy> GrProxyProvider::createWrappedTextureProxy(
                     return sk_sp<GrTexture>();
                 }
                 if (releaseHelper) {
-                    // DDL TODO: once we are reusing lazy proxies, remove this move and hold onto to
-                    // the ref till the lambda goes away.
-                    tex->setRelease(std::move(releaseHelper));
+                    // This gives the texture a ref on the releaseHelper
+                    tex->setRelease(releaseHelper);
                 }
                 SkASSERT(!tex->asRenderTarget());   // Strictly a GrTexture
                 // Make sure we match how we created the proxy with SkBudgeted::kNo
@@ -491,7 +496,6 @@ sk_sp<GrTextureProxy> GrProxyProvider::createLazyProxy(LazyInstantiateCallback&&
                                                                 mipMapped, fit, budgeted, flags) :
                                  new GrTextureProxy(std::move(callback), desc, mipMapped, fit,
                                                     budgeted, flags));
-
 }
 
 sk_sp<GrTextureProxy> GrProxyProvider::createFullyLazyProxy(LazyInstantiateCallback&& callback,
@@ -505,7 +509,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::createFullyLazyProxy(LazyInstantiateCallb
     desc.fWidth = -1;
     desc.fHeight = -1;
     desc.fConfig = config;
-    desc.fSampleCnt = 0;
+    desc.fSampleCnt = 1;
 
     return this->createLazyProxy(std::move(callback), desc, GrMipMapped::kNo,
                                  SkBackingFit::kApprox, SkBudgeted::kYes);

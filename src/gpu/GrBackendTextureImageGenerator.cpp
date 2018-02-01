@@ -186,8 +186,8 @@ sk_sp<GrTextureProxy> GrBackendTextureImageGenerator::onGenerateTexture(
         GrMipMapped mipMapped = willNeedMipMaps ? GrMipMapped::kYes : GrMipMapped::kNo;
 
         sk_sp<GrRenderTargetContext> rtContext(context->makeDeferredRenderTargetContext(
-                SkBackingFit::kExact, info.width(), info.height(), proxy->config(), nullptr,
-                0, mipMapped, proxy->origin(), nullptr, SkBudgeted::kYes));
+                SkBackingFit::kExact, info.width(), info.height(), proxy->config(), nullptr, 1,
+                mipMapped, proxy->origin(), nullptr, SkBudgeted::kYes));
 
         if (!rtContext) {
             return nullptr;

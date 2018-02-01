@@ -88,7 +88,7 @@ public:
                                         GrWrapOwnership = kBorrow_GrWrapOwnership);
 
     /**
-     * This makes the backend texture be renderable. If sampleCnt is > 0 and the underlying API
+     * This makes the backend texture be renderable. If sampleCnt is > 1 and the underlying API
      * uses separate MSAA render buffers then a MSAA render buffer is created that resolves
      * to the texture.
      */

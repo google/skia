@@ -1094,7 +1094,7 @@ void SkGpuDevice::drawSpecial(SkSpecialImage* special1, int left, int top, const
     if (GrPixelConfigIsAlphaOnly(config)) {
         fp = GrFragmentProcessor::MakeInputPremulAndMulByOutput(std::move(fp));
     } else {
-        fp = GrFragmentProcessor::MulOutputByInputAlpha(std::move(fp));
+        fp = GrFragmentProcessor::MulChildByInputAlpha(std::move(fp));
     }
 
     GrPaint grPaint;

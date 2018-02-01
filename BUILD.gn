@@ -53,6 +53,7 @@ declare_args() {
   skia_jumper_ccache = ""
 
   skia_skqp_enable_driver_correctness_workarounds = false
+  skia_skqp_global_error_tolerance = 0
 }
 declare_args() {
   skia_use_dng_sdk = !is_fuchsia && skia_use_libjpeg_turbo && skia_use_zlib
@@ -1793,7 +1794,9 @@ if (skia_enable_tools) {
   if (!is_win && skia_enable_gpu) {
     test_lib("skqp_lib") {
       public_include_dirs = [ "tools/skqp" ]
-      defines = []
+      defines = [
+        "SK_SKQP_GLOBAL_ERROR_TOLERANCE=$skia_skqp_global_error_tolerance"
+      ]
       if (skia_skqp_enable_driver_correctness_workarounds) {
         defines += [ "SK_SKQP_ENABLE_DRIVER_CORRECTNESS_WORKAROUNDS" ]
       }

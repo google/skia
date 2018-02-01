@@ -279,7 +279,7 @@ template <typename T>
 static inline bool BindPropertyImpl(const Json::Value& jprop,
                                     sksg::AnimatorList* animators,
                                     std::function<void(const T&)>&& apply,
-                                    const T* noop) {
+                                    const T* noop = nullptr) {
     if (!jprop.isObject())
         return false;
 
@@ -316,6 +316,74 @@ static inline bool BindPropertyImpl(const Json::Value& jprop,
     return true;
 }
 
+class SplitPointAnimator final : public sksg::Animator {
+public:
+    static std::unique_ptr<SplitPointAnimator> Make(const Json::Value& jprop,
+                                                    std::function<void(const VectorValue&)>&& apply,
+                                                    const VectorValue*) {
+        if (!jprop.isObject())
+            return nullptr;
+
+        std::unique_ptr<SplitPointAnimator> split_animator(
+            new SplitPointAnimator(std::move(apply)));
+
+        // This raw pointer is captured in lambdas below. But the lambdas are owned by
+        // the object itself, so the scope is bound to the life time of the object.
+        auto* split_animator_ptr = split_animator.get();
+
+        if (!BindPropertyImpl<ScalarValue>(jprop["x"], &split_animator->fAnimators,
+                [split_animator_ptr](const ScalarValue& x) { split_animator_ptr->setX(x); }) ||
+            !BindPropertyImpl<ScalarValue>(jprop["y"], &split_animator->fAnimators,
+                [split_animator_ptr](const ScalarValue& y) { split_animator_ptr->setY(y); })) {
+            LogFail(jprop, "Could not parse split property");
+            return nullptr;
+        }
+
+        if (split_animator->fAnimators.empty()) {
+            // Static split property, no need to hold on to the split animator.
+            return nullptr;
+        }
+
+        return split_animator;
+    }
+
+    void onTick(float t) override {
+        for (const auto& animator : fAnimators) {
+            animator->tick(t);
+        }
+
+        const VectorValue vec = { fX, fY };
+        fApplyFunc(vec);
+    }
+
+    void setX(const ScalarValue& x) { fX = x; }
+    void setY(const ScalarValue& y) { fY = y; }
+
+private:
+    explicit SplitPointAnimator(std::function<void(const VectorValue&)>&& apply)
+        : fApplyFunc(std::move(apply)) {}
+
+    const std::function<void(const VectorValue&)> fApplyFunc;
+    sksg::AnimatorList                            fAnimators;
+
+    ScalarValue                                   fX = 0,
+                                                  fY = 0;
+
+    using INHERITED = sksg::Animator;
+};
+
+bool BindSplitPositionProperty(const Json::Value& jprop,
+                               sksg::AnimatorList* animators,
+                               std::function<void(const VectorValue&)>&& apply,
+                               const VectorValue* noop) {
+    if (auto split_animator = SplitPointAnimator::Make(jprop, std::move(apply), noop)) {
+        animators->push_back(std::unique_ptr<sksg::Animator>(split_animator.release()));
+        return true;
+    }
+
+    return false;
+}
+
 } // namespace
 
 template <>
@@ -331,7 +399,9 @@ bool BindProperty(const Json::Value& jprop,
                   sksg::AnimatorList* animators,
                   std::function<void(const VectorValue&)>&& apply,
                   const VectorValue* noop) {
-    return BindPropertyImpl(jprop, animators, std::move(apply), noop);
+    return ParseDefault(jprop["s"], false)
+        ? BindSplitPositionProperty(jprop, animators, std::move(apply), noop)
+        : BindPropertyImpl(jprop, animators, std::move(apply), noop);
 }
 
 template <>

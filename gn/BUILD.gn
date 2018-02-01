@@ -247,6 +247,9 @@ config("default") {
       "-fno-sanitize-recover=$sanitizers",
       "-fsanitize-blacklist=" + rebase_path("../tools/xsan.blacklist"),
     ]
+    if (!is_win) {
+      cflags += [ "-fno-omit-frame-pointer" ]
+    }
     ldflags += [ "-fsanitize=$sanitizers" ]
     if (sanitizers == "memory") {
       cflags += [ "-fsanitize-memory-track-origins" ]

@@ -53,7 +53,11 @@ GrTextureRenderTargetProxy::GrTextureRenderTargetProxy(sk_sp<GrSurface> surf,
 }
 
 size_t GrTextureRenderTargetProxy::onUninstantiatedGpuMemorySize() const {
-    int colorSamplesPerPixel = this->numColorSamples() + 1;
+    int colorSamplesPerPixel = this->numColorSamples();
+    if (colorSamplesPerPixel > 1) {
+        // Add one to account for the resolve buffer.
+        ++colorSamplesPerPixel += 1;
+    }
 
     // TODO: do we have enough information to improve this worst case estimate?
     return GrSurface::ComputeSize(this->config(), this->width(), this->height(),
@@ -61,6 +65,9 @@ size_t GrTextureRenderTargetProxy::onUninstantiatedGpuMemorySize() const {
 }
 
 bool GrTextureRenderTargetProxy::instantiate(GrResourceProvider* resourceProvider) {
+    if (LazyState::kNot != this->lazyInstantiationState()) {
+        return false;
+    }
     static constexpr GrSurfaceFlags kFlags = kRenderTarget_GrSurfaceFlag;
 
     const GrUniqueKey& key = this->getUniqueKey();

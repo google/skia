@@ -31,9 +31,8 @@ public:
             , fOrigin(kTopLeft_GrSurfaceOrigin)
             , fColorType(kRGBA_8888_SkColorType)
             , fColorSpace(SkColorSpace::MakeSRGB())
-            , fSampleCount(0)
-            , fSurfaceProps(0x0, kUnknown_SkPixelGeometry) {
-    }
+            , fSampleCount(1)
+            , fSurfaceProps(0x0, kUnknown_SkPixelGeometry) {}
 
     int sampleCount() const { return fSampleCount; }
 
@@ -92,6 +91,12 @@ private:
 DEF_GPUTEST_FOR_ALL_CONTEXTS(SkSurfaceCharacterization, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
 
+    // Create a bitmap that we can readback into
+    SkImageInfo imageInfo = SkImageInfo::Make(64, 64, kRGBA_8888_SkColorType,
+                                              kPremul_SkAlphaType);
+    SkBitmap bitmap;
+    bitmap.allocPixels(imageInfo);
+
     std::unique_ptr<SkDeferredDisplayList> ddl;
 
     // First, create a DDL using the stock SkSurface parameters
@@ -116,6 +121,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(SkSurfaceCharacterization, reporter, ctxInfo) {
         ddl = r.detach();
 
         REPORTER_ASSERT(reporter, s->draw(ddl.get()));
+        s->readPixels(imageInfo, bitmap.getPixels(), bitmap.rowBytes(), 0, 0);
     }
 
     // Then, alter each parameter in turn and check that the DDL & surface are incompatible
@@ -134,7 +140,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(SkSurfaceCharacterization, reporter, ctxInfo) {
             int supportedSampleCount = context->caps()->getSampleCount(
                 params.sampleCount(),
                 gpuSurf->getDevice()->accessRenderTargetContext()->asRenderTargetProxy()->config());
-            if (0 == supportedSampleCount) {
+            if (1 == supportedSampleCount) {
                 // If changing the sample count won't result in a different
                 // surface characterization, skip this step
                 continue;
@@ -159,15 +165,22 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(SkSurfaceCharacterization, reporter, ctxInfo) {
         context->setResourceCacheLimits(maxResourceCount, maxResourceBytes/2);
         REPORTER_ASSERT(reporter, !s->draw(ddl.get()));
 
+        // DDL TODO: once proxies/ops can be de-instantiated we can re-enable these tests.
+        // For now, DDLs are drawn once.
+#if 0
         // resource limits >= those at characterization time are accepted
         context->setResourceCacheLimits(2*maxResourceCount, maxResourceBytes);
         REPORTER_ASSERT(reporter, s->draw(ddl.get()));
+        s->readPixels(imageInfo, bitmap.getPixels(), bitmap.rowBytes(), 0, 0);
 
         context->setResourceCacheLimits(maxResourceCount, 2*maxResourceBytes);
         REPORTER_ASSERT(reporter, s->draw(ddl.get()));
+        s->readPixels(imageInfo, bitmap.getPixels(), bitmap.rowBytes(), 0, 0);
 
         context->setResourceCacheLimits(maxResourceCount, maxResourceBytes);
         REPORTER_ASSERT(reporter, s->draw(ddl.get()));
+        s->readPixels(imageInfo, bitmap.getPixels(), bitmap.rowBytes(), 0, 0);
+#endif
     }
 
     // Make sure non-GPU-backed surfaces fail characterization
@@ -288,10 +301,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLWrapBackendTest, reporter, ctxInfo) {
             if (DDLStage::kDetach == lastStage) {
                 REPORTER_ASSERT(reporter, 0 == releaseChecker.fReleaseCount);
                 recorder.reset();
-                // DDL TODO: Once copies of OpLists from the recorder to DDL are implemented we can
-                // uncomment this check. Currently the texture is getting reset when the recorder
-                // goes away (assuming we did an earlyImageReset).
-                // REPORTER_ASSERT(reporter, 0 == releaseChecker.fReleaseCount);
+#ifndef SK_RASTER_RECORDER_IMPLEMENTATION
+                REPORTER_ASSERT(reporter, 0 == releaseChecker.fReleaseCount);
+#endif
                 ddl.reset();
                 if (earlyImageReset) {
                     REPORTER_ASSERT(reporter, 1 == releaseChecker.fReleaseCount);
@@ -308,19 +320,20 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLWrapBackendTest, reporter, ctxInfo) {
 
             REPORTER_ASSERT(reporter, 0 == releaseChecker.fReleaseCount);
             recorder.reset();
-            // DDL TODO: Once copies of OpLists from the recorder to DDL are implemented we can
-            // uncomment these checks. Currently the texture is getting released when the recorder
-            // goes away (assuming we did an earlyImageReset).
-            // REPORTER_ASSERT(reporter, 0 == releaseChecker.fReleaseCount);
+#ifndef SK_RASTER_RECORDER_IMPLEMENTATION
+            REPORTER_ASSERT(reporter, 0 == releaseChecker.fReleaseCount);
+#endif
             ddl.reset();
-            // REPORTER_ASSERT(reporter, 0 == releaseChecker.fReleaseCount);
+#ifndef SK_RASTER_RECORDER_IMPLEMENTATION
+            REPORTER_ASSERT(reporter, 0 == releaseChecker.fReleaseCount);
+#endif
 
             // Force all draws to flush and sync by calling a read pixels
             SkImageInfo imageInfo = SkImageInfo::Make(kSize, kSize, kRGBA_8888_SkColorType,
                                                       kPremul_SkAlphaType);
             SkBitmap bitmap;
             bitmap.allocPixels(imageInfo);
-            s->readPixels(imageInfo, bitmap.getPixels(), 0, 0, 0);
+            s->readPixels(imageInfo, bitmap.getPixels(), bitmap.rowBytes(), 0, 0);
 
             if (earlyImageReset) {
                 REPORTER_ASSERT(reporter, 1 == releaseChecker.fReleaseCount);

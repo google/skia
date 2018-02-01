@@ -242,6 +242,7 @@ private:
     ErrorReporter& fErrors;
 
     friend class AutoDepth;
+    friend class HCodeGenerator;
 };
 
 } // namespace

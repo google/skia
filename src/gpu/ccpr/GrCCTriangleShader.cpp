@@ -12,19 +12,18 @@
 
 using Shader = GrCCCoverageProcessor::Shader;
 
-Shader::WindHandling GrCCTriangleShader::onEmitVaryings(GrGLSLVaryingHandler* varyingHandler,
-                                                        GrGLSLVarying::Scope scope,
-                                                        SkString* code, const char* /*position*/,
-                                                        const char* coverage, const char* wind) {
+void GrCCTriangleShader::onEmitVaryings(GrGLSLVaryingHandler* varyingHandler,
+                                        GrGLSLVarying::Scope scope, SkString* code,
+                                        const char* /*position*/, const char* inputCoverage,
+                                        const char* wind) {
     fCoverageTimesWind.reset(kHalf_GrSLType, scope);
-    if (!coverage) {
+    if (!inputCoverage) {
         varyingHandler->addFlatVarying("wind", &fCoverageTimesWind);
         code->appendf("%s = %s;", OutName(fCoverageTimesWind), wind);
     } else {
         varyingHandler->addVarying("coverage_times_wind", &fCoverageTimesWind);
-        code->appendf("%s = %s * %s;", OutName(fCoverageTimesWind), coverage, wind);
+        code->appendf("%s = %s * %s;", OutName(fCoverageTimesWind), inputCoverage, wind);
     }
-    return WindHandling::kHandled;
 }
 
 void GrCCTriangleShader::onEmitFragmentCode(GrGLSLPPFragmentBuilder* f,
@@ -86,12 +85,11 @@ void GrCCTriangleCornerShader::emitSetupCode(GrGLSLVertexGeoBuilder* s, const ch
     s->codeAppend ("}");
 }
 
-Shader::WindHandling
-GrCCTriangleCornerShader::onEmitVaryings(GrGLSLVaryingHandler* varyingHandler,
-                                         GrGLSLVarying::Scope scope, SkString* code,
-                                         const char* position, const char* coverage,
-                                         const char* /*wind*/) {
-    SkASSERT(!coverage);
+void GrCCTriangleCornerShader::onEmitVaryings(GrGLSLVaryingHandler* varyingHandler,
+                                              GrGLSLVarying::Scope scope, SkString* code,
+                                              const char* position, const char* inputCoverage,
+                                              const char* wind) {
+    SkASSERT(!inputCoverage);
 
     fCornerLocationInAABoxes.reset(kFloat2x2_GrSLType, scope);
     varyingHandler->addVarying("corner_location_in_aa_boxes", &fCornerLocationInAABoxes);
@@ -106,7 +104,9 @@ GrCCTriangleCornerShader::onEmitVaryings(GrGLSLVaryingHandler* varyingHandler,
     code->appendf(    "%s[i] = %s[i];", OutName(fBisectInAABoxes), fGeoShaderBisects.c_str());
     code->appendf("}");
 
-    return WindHandling::kNotHandled;
+    fWindTimesHalf.reset(kHalf_GrSLType, scope);
+    varyingHandler->addFlatVarying("wind_times_half", &fWindTimesHalf);
+    code->appendf("%s = %s * .5;", OutName(fWindTimesHalf), wind);
 }
 
 void GrCCTriangleCornerShader::onEmitFragmentCode(GrGLSLPPFragmentBuilder* f,
@@ -148,5 +148,5 @@ void GrCCTriangleCornerShader::onEmitFragmentCode(GrGLSLPPFragmentBuilder* f,
     f->codeAppendf(    "%s += (corner.x - 1) * exit.y;", outputCoverage);
     f->codeAppendf("}");
 
-    f->codeAppendf("%s *= .5;", outputCoverage);
+    f->codeAppendf("%s *= %s;", outputCoverage, fWindTimesHalf.fsIn());
 }

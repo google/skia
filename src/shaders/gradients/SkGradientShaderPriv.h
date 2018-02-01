@@ -280,7 +280,7 @@ protected:
         } else {
             fp = std::move(gradientFP);
         }
-        return GrFragmentProcessor::MulOutputByInputAlpha(std::move(fp));
+        return GrFragmentProcessor::MulChildByInputAlpha(std::move(fp));
     }
 
 #if GR_TEST_UTILS
