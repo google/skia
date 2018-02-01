@@ -581,7 +581,7 @@ sk_sp<GrTexture> GrGLGpu::onWrapRenderableBackendTexture(const GrBackendTexture&
     surfDesc.fWidth = backendTex.width();
     surfDesc.fHeight = backendTex.height();
     surfDesc.fConfig = backendTex.config();
-    surfDesc.fSampleCnt = this->caps()->getSampleCount(sampleCnt, backendTex.config());
+    surfDesc.fSampleCnt = this->caps()->getRenderTargetSampleCount(sampleCnt, backendTex.config());
     if (surfDesc.fSampleCnt < 1) {
         return nullptr;
     }
@@ -619,7 +619,8 @@ sk_sp<GrRenderTarget> GrGLGpu::onWrapBackendRenderTarget(const GrBackendRenderTa
     desc.fWidth = backendRT.width();
     desc.fHeight = backendRT.height();
     desc.fConfig = backendRT.config();
-    desc.fSampleCnt = this->caps()->getSampleCount(backendRT.sampleCnt(), backendRT.config());
+    desc.fSampleCnt =
+            this->caps()->getRenderTargetSampleCount(backendRT.sampleCnt(), backendRT.config());
 
     return GrGLRenderTarget::MakeWrapped(this, desc, idDesc, backendRT.stencilBits());
 }
@@ -648,7 +649,7 @@ sk_sp<GrRenderTarget> GrGLGpu::onWrapBackendTextureAsRenderTarget(const GrBacken
     surfDesc.fWidth = tex.width();
     surfDesc.fHeight = tex.height();
     surfDesc.fConfig = tex.config();
-    surfDesc.fSampleCnt = this->caps()->getSampleCount(sampleCnt, tex.config());
+    surfDesc.fSampleCnt = this->caps()->getRenderTargetSampleCount(sampleCnt, tex.config());
 
     GrGLRenderTarget::IDDesc rtIDDesc;
     if (!this->createRenderTargetObjects(surfDesc, texInfo, &rtIDDesc)) {
@@ -1527,7 +1528,7 @@ void inline get_stencil_rb_sizes(const GrGLInterface* gl,
 
 int GrGLGpu::getCompatibleStencilIndex(GrPixelConfig config) {
     static const int kSize = 16;
-    SkASSERT(this->caps()->isConfigRenderable(config, false));
+    SkASSERT(this->caps()->isConfigRenderable(config));
     if (!this->glCaps().hasStencilFormatBeenDeterminedForConfig(config)) {
         // Default to unsupported, set this if we find a stencil format that works.
         int firstWorkingStencilFormatIndex = -1;
@@ -2136,7 +2137,7 @@ bool GrGLGpu::readPixelsSupported(GrPixelConfig rtConfig, GrPixelConfig readConf
         GrSurfaceDesc desc;
         desc.fConfig = rtConfig;
         desc.fWidth = desc.fHeight = 16;
-        if (this->glCaps().isConfigRenderable(rtConfig, false)) {
+        if (this->glCaps().isConfigRenderable(rtConfig)) {
             desc.fFlags = kRenderTarget_GrSurfaceFlag;
             desc.fOrigin = kBottomLeft_GrSurfaceOrigin;
             temp = this->createTexture(desc, SkBudgeted::kNo);
