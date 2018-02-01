@@ -33,17 +33,37 @@ public:
 
         this->applyOptionsOverrides(contextOptions);
     }
-    int getSampleCount(int requestCount, GrPixelConfig /*config*/) const override {
-        return (requestCount > 0 && requestCount <= 16) ? GrNextPow2(requestCount) : 0;
-    }
     bool isConfigTexturable(GrPixelConfig config) const override {
         return fOptions.fConfigOptions[config].fTexturable;
     }
-    bool isConfigRenderable(GrPixelConfig config, bool withMSAA) const override {
-        return fOptions.fConfigOptions[config].fRenderable[withMSAA];
-    }
+
     bool isConfigCopyable(GrPixelConfig config) const override {
         return false;
+    }
+
+    int getRenderTargetSampleCount(int requestCount, GrPixelConfig config) const override {
+        requestCount = SkTMax(requestCount, 1);
+        switch (fOptions.fConfigOptions[config].fRenderability) {
+            case GrMockOptions::ConfigOptions::Renderability::kNo:
+                return 0;
+            case GrMockOptions::ConfigOptions::Renderability::kNonMSAA:
+                return requestCount > 1 ? 0 : 1;
+            case GrMockOptions::ConfigOptions::Renderability::kMSAA:
+                return requestCount > kMaxSampleCnt ? 0 : GrNextPow2(requestCount);
+        }
+        return 0;
+    }
+
+    int maxRenderTargetSampleCount(GrPixelConfig config) const override {
+        switch (fOptions.fConfigOptions[config].fRenderability) {
+            case GrMockOptions::ConfigOptions::Renderability::kNo:
+                return 0;
+            case GrMockOptions::ConfigOptions::Renderability::kNonMSAA:
+                return 1;
+            case GrMockOptions::ConfigOptions::Renderability::kMSAA:
+                return kMaxSampleCnt;
+        }
+        return 0;
     }
 
     bool initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc* desc,
@@ -62,6 +82,8 @@ public:
     }
 
 private:
+    static const int kMaxSampleCnt = 16;
+
     GrMockOptions fOptions;
     typedef GrCaps INHERITED;
 };
