@@ -322,12 +322,16 @@ sk_sp<GrTextureProxy> GrProxyProvider::createProxy(const GrSurfaceDesc& desc,
     }
 
     bool willBeRT = SkToBool(desc.fFlags & kRenderTarget_GrSurfaceFlag);
-    if (willBeRT && !caps->isConfigRenderable(desc.fConfig, desc.fSampleCnt > 0)) {
+    if (willBeRT && !caps->isConfigRenderable(desc.fConfig, desc.fSampleCnt > 1)) {
         return nullptr;
     }
 
     // We currently do not support multisampled textures
-    if (!willBeRT && desc.fSampleCnt > 0) {
+    if (!willBeRT && desc.fSampleCnt > 1) {
+        return nullptr;
+    }
+
+    if (willBeRT && !caps->getSampleCount(desc.fSampleCnt, desc.fConfig)) {
         return nullptr;
     }
 
@@ -505,7 +509,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::createFullyLazyProxy(LazyInstantiateCallb
     desc.fWidth = -1;
     desc.fHeight = -1;
     desc.fConfig = config;
-    desc.fSampleCnt = 0;
+    desc.fSampleCnt = 1;
 
     return this->createLazyProxy(std::move(callback), desc, GrMipMapped::kNo,
                                  SkBackingFit::kApprox, SkBudgeted::kYes);
