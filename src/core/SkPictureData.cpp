@@ -611,16 +611,22 @@ bool SkPictureData::parseStream(SkStream* stream,
 }
 
 bool SkPictureData::parseBuffer(SkReadBuffer& buffer) {
-    for (;;) {
+    while (buffer.isValid()) {
         uint32_t tag = buffer.readUInt();
         if (SK_PICT_EOF_TAG == tag) {
             break;
         }
-
-        uint32_t size = buffer.readUInt();
-        if (!this->parseBufferTag(buffer, tag, size)) {
-            return false; // we're invalid
+        if (!this->parseBufferTag(buffer, tag, buffer.readUInt())) {
+            SkASSERT(!buffer.isValid());
+            break;
         }
+    }
+
+    // Check that we encountered required tags
+    if (!buffer.validate(this->opData())) {
+        // If we didn't build any opData, we are invalid. Even an EmptyPicture allocates the
+        // SkData for the ops (though its length may be zero).
+        return false;
     }
     return true;
 }
