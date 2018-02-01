@@ -684,8 +684,6 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
             break;
         case ROTATE: {
             auto deg = reader->readScalar();
-            BREAK_ON_READ_ERROR(reader);
-
             canvas->rotate(deg);
         } break;
         case SAVE:
@@ -734,34 +732,27 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
         case SCALE: {
             SkScalar sx = reader->readScalar();
             SkScalar sy = reader->readScalar();
-            BREAK_ON_READ_ERROR(reader);
-
             canvas->scale(sx, sy);
         } break;
         case SET_MATRIX: {
             SkMatrix matrix;
             reader->readMatrix(&matrix);
-            BREAK_ON_READ_ERROR(reader);
-
             matrix.postConcat(initialMatrix);
             canvas->setMatrix(matrix);
         } break;
         case SKEW: {
             SkScalar sx = reader->readScalar();
             SkScalar sy = reader->readScalar();
-            BREAK_ON_READ_ERROR(reader);
-
             canvas->skew(sx, sy);
         } break;
         case TRANSLATE: {
             SkScalar dx = reader->readScalar();
             SkScalar dy = reader->readScalar();
-            BREAK_ON_READ_ERROR(reader);
-
             canvas->translate(dx, dy);
         } break;
         default:
-            SkASSERTF(false, "Unknown draw type: %d", op);
+            reader->validate(false);    // unknown op
+            break;
     }
 
 #undef BREAK_ON_READ_ERROR
