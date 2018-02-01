@@ -52,5 +52,11 @@ if (skia_use_system_lua) {
       "../externals/lua/lvm.c",
       "../externals/lua/lzio.c",
     ]
+
+    if (!is_win) {
+      # Prefer mkstemp() over tmpnam().  This isn't super important,
+      # but it does stifle an annoying GNU linker warning.
+      defines = [ "LUA_USE_POSIX=1" ]
+    }
   }
 }
