@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "28dfea1d_4ed3871c",
+        "filename": "include/gpu/GrContext.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 226,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-02-01T19:16:30Z",
+      "side": 1,
+      "message": "This seems strange to say it depends on multisampled but not have a way for them to specify it in this call. Maybe update the comment on this to explicitly say this is for non-msaa renderablity and if they client wants to do MSAA they should query maxSurfaceSampleCountForColorType to see what msaa is supported.",
+      "range": {
+        "startLine": 225,
+        "startChar": 61,
+        "endLine": 226,
+        "endChar": 42
+      },
+      "revId": "1ba6e959bac0dd85152aaf9968197756016945df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cc6939a9_4486a8a6",
+        "filename": "include/gpu/GrContext.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 234,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-02-01T19:16:30Z",
+      "side": 1,
+      "message": "This is no longer true right?",
+      "range": {
+        "startLine": 233,
+        "startChar": 65,
+        "endLine": 234,
+        "endChar": 33
+      },
+      "revId": "1ba6e959bac0dd85152aaf9968197756016945df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
