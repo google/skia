@@ -1209,7 +1209,11 @@ static SkPoint* subdivide(const SkConic& src, SkPoint pts[], int level) {
         SkConic dst[2];
         src.chop(dst);
         const SkScalar startY = src.fPts[0].fY;
-        const SkScalar endY = src.fPts[2].fY;
+        SkScalar endY = src.fPts[2].fY;
+        if (!SkScalarIsFinite(dst[0].fPts[2].fY) || !SkScalarIsFinite(endY)) {
+                // if chop sent midpoint Y to infinity, force Y back to a safe value
+                dst[0].fPts[2].fY = dst[1].fPts[0].fY = endY = startY;
+        }
         if (between(startY, src.fPts[1].fY, endY)) {
             // If the input is monotonic and the output is not, the scan converter hangs.
             // Ensure that the chopped conics maintain their y-order.
@@ -1233,6 +1237,7 @@ static SkPoint* subdivide(const SkConic& src, SkPoint pts[], int level) {
             SkASSERT(between(startY, dst[0].fPts[1].fY, dst[0].fPts[2].fY));
             SkASSERT(between(dst[0].fPts[1].fY, dst[0].fPts[2].fY, dst[1].fPts[1].fY));
             SkASSERT(between(dst[0].fPts[2].fY, dst[1].fPts[1].fY, endY));
+            SkDebugf("");
         }
         --level;
         pts = subdivide(dst[0], pts, level);
