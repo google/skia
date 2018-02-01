@@ -777,17 +777,7 @@ sk_sp<GrTexture> GrVkGpu::onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted 
     bool renderTarget = SkToBool(desc.fFlags & kRenderTarget_GrSurfaceFlag);
 
     VkFormat pixelFormat;
-    if (!GrPixelConfigToVkFormat(desc.fConfig, &pixelFormat)) {
-        return nullptr;
-    }
-
-    if (!fVkCaps->isConfigTexturable(desc.fConfig)) {
-        return nullptr;
-    }
-
-    if (renderTarget && !fVkCaps->isConfigRenderable(desc.fConfig, false)) {
-        return nullptr;
-    }
+    SkAssertResult(GrPixelConfigToVkFormat(desc.fConfig, &pixelFormat));
 
     VkImageUsageFlags usageFlags = VK_IMAGE_USAGE_SAMPLED_BIT;
     if (renderTarget) {
@@ -932,7 +922,7 @@ sk_sp<GrTexture> GrVkGpu::onWrapRenderableBackendTexture(const GrBackendTexture&
     surfDesc.fWidth = backendTex.width();
     surfDesc.fHeight = backendTex.height();
     surfDesc.fConfig = backendTex.config();
-    surfDesc.fSampleCnt = this->caps()->getSampleCount(sampleCnt, backendTex.config());
+    surfDesc.fSampleCnt = this->caps()->getRenderTargetSampleCount(sampleCnt, backendTex.config());
 
     return GrVkTextureRenderTarget::MakeWrappedTextureRenderTarget(this, surfDesc, ownership,
                                                                    backendTex.getVkImageInfo());
@@ -989,7 +979,7 @@ sk_sp<GrRenderTarget> GrVkGpu::onWrapBackendTextureAsRenderTarget(const GrBacken
     desc.fWidth = tex.width();
     desc.fHeight = tex.height();
     desc.fConfig = tex.config();
-    desc.fSampleCnt = this->caps()->getSampleCount(sampleCnt, tex.config());
+    desc.fSampleCnt = this->caps()->getRenderTargetSampleCount(sampleCnt, tex.config());
     if (!desc.fSampleCnt) {
         return nullptr;
     }
@@ -1191,7 +1181,7 @@ GrBackendTexture GrVkGpu::createTestingOnlyBackendTexture(void* srcData, int w, 
         return GrBackendTexture(); // invalid
     }
 
-    if (isRenderTarget && !fVkCaps->isConfigRenderable(config, false)) {
+    if (isRenderTarget && !fVkCaps->isConfigRenderable(config)) {
         return GrBackendTexture(); // invalid
     }
 

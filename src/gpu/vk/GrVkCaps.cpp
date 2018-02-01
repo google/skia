@@ -386,24 +386,11 @@ void GrVkCaps::ConfigInfo::init(const GrVkInterface* interface,
     }
 }
 
-bool GrVkCaps::isConfigRenderable(GrPixelConfig config, bool withMSAA) const {
-    if (!SkToBool(ConfigInfo::kRenderable_Flag & fConfigTable[config].fOptimalFlags)) {
-        return false;
-    }
-    if (withMSAA && fConfigTable[config].fColorSampleCounts.count() < 2) {
-        // We expect any renderable config to support non-MSAA rendering.
-        SkASSERT(1 == fConfigTable[config].fColorSampleCounts.count());
-        SkASSERT(1 == fConfigTable[config].fColorSampleCounts[0]);
-        return false;
-    }
-    return true;
-}
-
-int GrVkCaps::getSampleCount(int requestedCount, GrPixelConfig config) const {
+int GrVkCaps::getRenderTargetSampleCount(int requestedCount, GrPixelConfig config) const {
     requestedCount = SkTMax(1, requestedCount);
     int count = fConfigTable[config].fColorSampleCounts.count();
 
-    if (!count || !this->isConfigRenderable(config, requestedCount > 1)) {
+    if (!count) {
         return 0;
     }
 
@@ -419,6 +406,14 @@ int GrVkCaps::getSampleCount(int requestedCount, GrPixelConfig config) const {
         }
     }
     return 0;
+}
+
+int GrVkCaps::maxRenderTargetSampleCount(GrPixelConfig config) const {
+    const auto& table = fConfigTable[config].fColorSampleCounts;
+    if (!table.count()) {
+        return 0;
+    }
+    return table[table.count() - 1];
 }
 
 bool validate_image_info(const GrVkImageInfo* imageInfo, SkColorType ct, GrPixelConfig* config) {
