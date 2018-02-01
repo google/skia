@@ -591,6 +591,7 @@ void SkGradientShaderBase::getGradientTableBitmap(SkBitmap* bitmap,
 
         bitmap->allocPixels(info);
         this->initLinearBitmap(bitmap, bitmapType);
+        bitmap->setImmutable();
         gCache->add(storage.get(), size, *bitmap);
     }
 }
@@ -1275,7 +1276,7 @@ GrGradientEffect::GrGradientEffect(ClassID classID, const CreateArgs& args, bool
         GrTextureStripAtlas::Desc desc;
         desc.fWidth  = bitmap.width();
         desc.fHeight = 32;
-        desc.fRowHeight = bitmap.height();
+        desc.fRowHeight = bitmap.height(); // always 1 here
         desc.fContext = args.fContext;
         desc.fConfig = SkImageInfo2GrPixelConfig(bitmap.info(), *args.fContext->caps());
         fAtlas = GrTextureStripAtlas::GetAtlas(desc);
@@ -1297,11 +1298,18 @@ GrGradientEffect::GrGradientEffect(ClassID classID, const CreateArgs& args, bool
             // and the proxy is:
             //   exact fit, power of two in both dimensions
             // Only the x-tileMode is unknown. However, given all the other knowns we know
-            // that GrMakeCachedBitmapProxy is sufficient (i.e., it won't need to be
+            // that GrMakeCachedImageProxy is sufficient (i.e., it won't need to be
             // extracted to a subset or mipmapped).
-            sk_sp<GrTextureProxy> proxy = GrMakeCachedBitmapProxy(
+
+            SkASSERT(bitmap.isImmutable());
+            sk_sp<SkImage> srcImage = SkImage::MakeFromBitmap(bitmap);
+            if (!srcImage) {
+                return;
+            }
+
+            sk_sp<GrTextureProxy> proxy = GrMakeCachedImageProxy(
                                                      args.fContext->contextPriv().proxyProvider(),
-                                                     bitmap);
+                                                     std::move(srcImage));
             if (!proxy) {
                 SkDebugf("Gradient won't draw. Could not create texture.");
                 return;
