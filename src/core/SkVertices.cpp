@@ -199,15 +199,17 @@ sk_sp<SkVertices> SkVertices::Decode(const void* data, size_t length) {
     SkSafeRange safe;
 
     const uint32_t packed = reader.readInt();
-    const int vertexCount = reader.readInt();
-    const int indexCount = reader.readInt();
-
+    const int vertexCount = safe.checkGE(reader.readInt(), 0);
+    const int indexCount = safe.checkGE(reader.readInt(), 0);
     const VertexMode mode = safe.checkLE<VertexMode>(packed & kMode_Mask,
                                                      SkVertices::kLast_VertexMode);
+    if (!safe) {
+        return nullptr;
+    }
     const bool hasTexs = SkToBool(packed & kHasTexs_Mask);
     const bool hasColors = SkToBool(packed & kHasColors_Mask);
     Sizes sizes(vertexCount, indexCount, hasTexs, hasColors);
-    if (!sizes.isValid() || !safe) {
+    if (!sizes.isValid()) {
         return nullptr;
     }
     // logically we can be only 2-byte aligned, but our buffer is always 4-byte aligned
@@ -221,6 +223,15 @@ sk_sp<SkVertices> SkVertices::Decode(const void* data, size_t length) {
     reader.read(builder.texCoords(), sizes.fTSize);
     reader.read(builder.colors(), sizes.fCSize);
     reader.read(builder.indices(), sizes.fISize);
-
+    if (indexCount > 0) {
+        // validate that the indicies are in range
+        SkASSERT(indexCount == builder.indexCount());
+        const uint16_t* indices = builder.indices();
+        for (int i = 0; i < indexCount; ++i) {
+            if (indices[i] >= (unsigned)vertexCount) {
+                return nullptr;
+            }
+        }
+    }
     return builder.detach();
 }

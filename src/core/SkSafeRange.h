@@ -30,6 +30,14 @@ public:
         return static_cast<T>(value);
     }
 
+    int checkGE(int value, int min) {
+        if (value < min) {
+            fOK = false;
+            value = min;
+        }
+        return value;
+    }
+
 private:
     bool fOK = true;
 };
