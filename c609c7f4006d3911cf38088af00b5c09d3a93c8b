@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "9f8a0ba6_28b1a671",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-02-01T21:34:27Z",
+      "side": 1,
+      "message": "it can be scaling by zero, which is valid, but not invertible.",
+      "parentUuid": "4f7302a0_d6f8b0f8",
+      "range": {
+        "startLine": 72,
+        "startChar": 8,
+        "endLine": 72,
+        "endChar": 21
+      },
+      "revId": "c609c7f4006d3911cf38088af00b5c09d3a93c8b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d3a90600_1486f08d",
         "filename": "src/shaders/SkImageShader.cpp",
         "patchSetId": 3
@@ -36,6 +60,30 @@
       "writtenOn": "2018-02-01T20:54:52Z",
       "side": 1,
       "message": "Given that we know isScaleTranslate() is true for m, is it ever possible for this to return false?  inv should be also, and that\u0027ll keep rects rects?",
+      "range": {
+        "startLine": 79,
+        "startChar": 8,
+        "endLine": 79,
+        "endChar": 19
+      },
+      "revId": "c609c7f4006d3911cf38088af00b5c09d3a93c8b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9dd2898e_586c395a",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-02-01T21:34:27Z",
+      "side": 1,
+      "message": "agreed, mapRect must succeed.",
+      "parentUuid": "d3a90600_1486f08d",
       "range": {
         "startLine": 79,
         "startChar": 8,
@@ -68,6 +116,30 @@
       "revId": "c609c7f4006d3911cf38088af00b5c09d3a93c8b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "62e93026_df7a1173",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-02-01T21:34:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2ac297ae_0473f5b7",
+      "range": {
+        "startLine": 80,
+        "startChar": 8,
+        "endLine": 80,
+        "endChar": 21
+      },
+      "revId": "c609c7f4006d3911cf38088af00b5c09d3a93c8b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
