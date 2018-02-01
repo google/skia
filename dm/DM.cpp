@@ -1256,6 +1256,9 @@ static void gather_tests() {
         if (SkCommandLineFlags::ShouldSkip(FLAGS_match, test.name)) {
             continue;
         }
+        if (strcmp(test.name, "GrContext_colorTypeSupportedAsSurface")) {
+            continue;
+        }
         if (test.needsGpu && gpu_supported()) {
             (FLAGS_gpu_threading ? gParallelTests : gSerialTests).push(test);
         } else if (!test.needsGpu && FLAGS_cpu) {
@@ -1305,6 +1308,9 @@ extern sk_sp<SkTypeface> (*gCreateTypefaceDelegate)(const char [], SkFontStyle )
 int main(int argc, char** argv) {
     SkCommandLineFlags::Parse(argc, argv);
 
+    for (int i = 0; i < FLAGS_src.count(); ++i) {
+        FLAGS_src.set(i, "tests");
+    }
     if (!FLAGS_nativeFonts) {
         gSkFontMgr_DefaultFactory = &DM::MakeFontMgr;
     }

@@ -327,14 +327,17 @@ bool validate_backend_texture(GrContext* ctx, const GrBackendTexture& tex, GrPix
     SkImageInfo info = SkImageInfo::Make(1, 1, ct, kPremul_SkAlphaType, cs);
 
     if (!SkSurface_Gpu::Valid(info)) {
+        SkDebugf("!SkSurface_Gpu::Valid(info)\n");
         return false;
     }
 
     if (!ctx->caps()->validateBackendTexture(tex, ct, config)) {
+        SkDebugf("!ctx->caps()->validateBackendTexture(tex, ct, config)\n");
         return false;
     }
 
-    if (ctx->caps()->getRenderTargetSampleCount(sampleCnt, *config) != sampleCnt) {
+    if (0 == ctx->caps()->getRenderTargetSampleCount(sampleCnt, *config)) {
+        SkDebugf("!ctx->caps()->getRenderTargetSampleCount(sampleCnt, *config)\n");
         return false;
     }
 
@@ -356,6 +359,7 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendTexture(GrContext* context, const GrB
     GrBackendTexture texCopy = tex;
     if (!validate_backend_texture(context, texCopy, &texCopy.fConfig,
                                   sampleCnt, colorType, colorSpace, true)) {
+        SkDebugf("backend text not valid!\n");
         return nullptr;
     }
 
