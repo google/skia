@@ -140,7 +140,7 @@ private:
     // Does not affect ownership of SkStream.
     bool parseStreamTag(SkStream*, uint32_t tag, uint32_t size,
                         const SkDeserialProcs&, SkTypefacePlayback*);
-    bool parseBufferTag(SkReadBuffer&, uint32_t tag, uint32_t size);
+    void parseBufferTag(SkReadBuffer&, uint32_t tag, uint32_t size);
     void flattenToBuffer(SkWriteBuffer&) const;
 
     SkTArray<SkPaint>  fPaints;
