@@ -324,6 +324,11 @@ void GrDrawingManager::addOnFlushCallbackObject(GrOnFlushCallbackObject* onFlush
 
 void GrDrawingManager::moveOpListsToDDL(SkDeferredDisplayList* ddl) {
 #ifndef SK_RASTER_RECORDER_IMPLEMENTATION
+    for (int i = 0; i < fOpLists.count(); ++i) {
+        // no opList should receive a new command after this
+        fOpLists[i]->makeClosed(*fContext->caps());
+    }
+
     ddl->fOpLists = std::move(fOpLists);
 #endif
 }

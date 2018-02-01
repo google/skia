@@ -288,10 +288,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLWrapBackendTest, reporter, ctxInfo) {
             if (DDLStage::kDetach == lastStage) {
                 REPORTER_ASSERT(reporter, 0 == releaseChecker.fReleaseCount);
                 recorder.reset();
-                // DDL TODO: Once copies of OpLists from the recorder to DDL are implemented we can
-                // uncomment this check. Currently the texture is getting reset when the recorder
-                // goes away (assuming we did an earlyImageReset).
-                // REPORTER_ASSERT(reporter, 0 == releaseChecker.fReleaseCount);
+#ifndef SK_RASTER_RECORDER_IMPLEMENTATION
+                REPORTER_ASSERT(reporter, 0 == releaseChecker.fReleaseCount);
+#endif
                 ddl.reset();
                 if (earlyImageReset) {
                     REPORTER_ASSERT(reporter, 1 == releaseChecker.fReleaseCount);
@@ -308,19 +307,20 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLWrapBackendTest, reporter, ctxInfo) {
 
             REPORTER_ASSERT(reporter, 0 == releaseChecker.fReleaseCount);
             recorder.reset();
-            // DDL TODO: Once copies of OpLists from the recorder to DDL are implemented we can
-            // uncomment these checks. Currently the texture is getting released when the recorder
-            // goes away (assuming we did an earlyImageReset).
-            // REPORTER_ASSERT(reporter, 0 == releaseChecker.fReleaseCount);
+#ifndef SK_RASTER_RECORDER_IMPLEMENTATION
+            REPORTER_ASSERT(reporter, 0 == releaseChecker.fReleaseCount);
+#endif
             ddl.reset();
-            // REPORTER_ASSERT(reporter, 0 == releaseChecker.fReleaseCount);
+#ifndef SK_RASTER_RECORDER_IMPLEMENTATION
+            REPORTER_ASSERT(reporter, 0 == releaseChecker.fReleaseCount);
+#endif
 
             // Force all draws to flush and sync by calling a read pixels
             SkImageInfo imageInfo = SkImageInfo::Make(kSize, kSize, kRGBA_8888_SkColorType,
                                                       kPremul_SkAlphaType);
             SkBitmap bitmap;
             bitmap.allocPixels(imageInfo);
-            s->readPixels(imageInfo, bitmap.getPixels(), 0, 0, 0);
+            s->readPixels(imageInfo, bitmap.getPixels(), bitmap.rowBytes(), 0, 0);
 
             if (earlyImageReset) {
                 REPORTER_ASSERT(reporter, 1 == releaseChecker.fReleaseCount);
