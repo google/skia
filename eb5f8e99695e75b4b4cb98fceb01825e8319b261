@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5cf31e4f_73dc7bde",
+        "filename": "src/core/SkPictureData.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 622,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-02-01T17:43:49Z",
+      "side": 1,
+      "message": "Can we assert buffer\u0027s invalid here?",
+      "revId": "eb5f8e99695e75b4b4cb98fceb01825e8319b261",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
