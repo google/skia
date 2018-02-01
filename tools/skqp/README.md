@@ -10,7 +10,7 @@ How to run the SkQP tests
 
 1.  Get the dependencies:
 
-    -   You will need `git` and `python`.
+    -   You will need Java JDK 8, `git`, and `python`.
 
     -   Install Chromium's [depot\_tools](http://commondatastorage.googleapis.com/chrome-infra-docs/flat/depot_tools/docs/html/depot_tools_tutorial.html).  Add it to your `PATH`.
 
