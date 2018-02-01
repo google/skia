@@ -23,6 +23,7 @@
 #include "SkColorFilter.h"
 #include "SkConvertPixels.h"
 #include "SkData.h"
+#include "SkImage_Base.h"
 #include "SkImageInfoPriv.h"
 #include "SkMaskFilterBase.h"
 #include "SkMessageBus.h"
@@ -233,6 +234,43 @@ sk_sp<GrTextureProxy> GrMakeCachedBitmapProxy(GrProxyProvider* proxyProvider,
             SkASSERT(proxy->origin() == kTopLeft_GrSurfaceOrigin);
             proxyProvider->assignUniqueKeyToProxy(originalKey, proxy.get());
             GrInstallBitmapUniqueKeyInvalidator(originalKey, bitmap.pixelRef());
+        }
+    }
+
+    return proxy;
+}
+
+static void create_unique_key_for_image(const SkImage* image, GrUniqueKey* result) {
+    if (!image) {
+        result->reset(); // will be invalid
+        return;
+    }
+
+    if (const SkBitmap* bm = as_IB(image)->onPeekBitmap()) {
+        SkIPoint origin = bm->pixelRefOrigin();
+        SkIRect subset = SkIRect::MakeXYWH(origin.fX, origin.fY, bm->width(), bm->height());
+        GrMakeKeyFromImageID(result, bm->getGenerationID(), subset);
+        return;
+    }
+
+    GrMakeKeyFromImageID(result, image->uniqueID(), image->bounds());
+}
+
+sk_sp<GrTextureProxy> GrMakeCachedImageProxy(GrProxyProvider* proxyProvider,
+                                             sk_sp<SkImage> srcImage) {
+    sk_sp<GrTextureProxy> proxy;
+    GrUniqueKey originalKey;
+
+    create_unique_key_for_image(srcImage.get(), &originalKey);
+
+    if (originalKey.isValid()) {
+        proxy = proxyProvider->findOrCreateProxyByUniqueKey(originalKey, kTopLeft_GrSurfaceOrigin);
+    }
+    if (!proxy) {
+        proxy = proxyProvider->createTextureProxy(std::move(srcImage), kNone_GrSurfaceFlags,
+                                                  kTopLeft_GrSurfaceOrigin, 0, SkBudgeted::kYes);
+        if (proxy && originalKey.isValid()) {
+            proxyProvider->assignUniqueKeyToProxy(originalKey, proxy.get());
         }
     }
 

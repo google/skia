@@ -444,17 +444,24 @@ std::unique_ptr<GrFragmentProcessor> ColorTableEffect::Make(GrContext* context,
     desc.fWidth  = bitmap.width();
     desc.fHeight = 128;
     desc.fRowHeight = bitmap.height();
-
     // TODO: this seems a bit heavy handed (passing a GrContext as part of the desc)
     desc.fContext = context;
     desc.fConfig = SkImageInfo2GrPixelConfig(bitmap.info(), *context->caps());
+
     GrTextureStripAtlas* atlas = GrTextureStripAtlas::GetAtlas(desc);
     int row = atlas->lockRow(bitmap);
     sk_sp<GrTextureProxy> proxy;
     if (-1 == row) {
         atlas = nullptr;
 
-        proxy = GrMakeCachedBitmapProxy(context->contextPriv().proxyProvider(), bitmap);
+        SkASSERT(bitmap.isImmutable());
+
+        sk_sp<SkImage> srcImage = SkImage::MakeFromBitmap(bitmap);
+        if (!srcImage) {
+            return nullptr;
+        }
+
+        proxy = GrMakeCachedImageProxy(context->contextPriv().proxyProvider(), std::move(srcImage));
     } else {
         proxy = atlas->asTextureProxyRef();
     }
