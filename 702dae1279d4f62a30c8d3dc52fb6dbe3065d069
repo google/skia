@@ -22,6 +22,30 @@
       "revId": "702dae1279d4f62a30c8d3dc52fb6dbe3065d069",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d74fcb11_377c8a7f",
+        "filename": "tests/GLProgramsTest.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 154,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-02-01T17:52:06Z",
+      "side": 1,
+      "message": "caps-\u003egetSampleCount(2, kRGBA_8888_GrPixelConfig) returns 0 if MSAA is not supported. It may have returned 1 if 1 was passed.",
+      "parentUuid": "47bd9d42_04b64fe1",
+      "range": {
+        "startLine": 154,
+        "startChar": 24,
+        "endLine": 154,
+        "endChar": 47
+      },
+      "revId": "702dae1279d4f62a30c8d3dc52fb6dbe3065d069",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
