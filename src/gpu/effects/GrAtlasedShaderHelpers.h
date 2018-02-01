@@ -20,6 +20,8 @@ static void append_index_uv_varyings(GrGLSLPrimitiveProcessor::EmitArgs& args,
                                      GrGLSLVarying *uv,
                                      GrGLSLVarying *texIdx,
                                      GrGLSLVarying *st) {
+    using Interpolation = GrGLSLVaryingHandler::Interpolation;
+
     // This extracts the texture index and texel coordinates from the same variable
     // Packing structure: texel coordinates are multiplied by 2 (or shifted left 1)
     //                    texture index is stored as lower bits of both x and y
@@ -41,9 +43,9 @@ static void append_index_uv_varyings(GrGLSLPrimitiveProcessor::EmitArgs& args,
     args.fVertBuilder->codeAppendf("%s = unormTexCoords * %s;", uv->vsOut(), atlasSizeInvName);
 
     if (args.fShaderCaps->integerSupport()) {
-        args.fVaryingHandler->addFlatVarying("TexIndex", texIdx);
+        args.fVaryingHandler->addVarying("TexIndex", texIdx, Interpolation::kMustBeFlat);
     } else {
-        args.fVaryingHandler->addVarying("TexIndex", texIdx);
+        args.fVaryingHandler->addVarying("TexIndex", texIdx, Interpolation::kCanBeFlat);
     }
     args.fVertBuilder->codeAppendf("%s = texIdx;", texIdx->vsOut());
 
