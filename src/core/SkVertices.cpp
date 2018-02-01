@@ -221,6 +221,15 @@ sk_sp<SkVertices> SkVertices::Decode(const void* data, size_t length) {
     reader.read(builder.texCoords(), sizes.fTSize);
     reader.read(builder.colors(), sizes.fCSize);
     reader.read(builder.indices(), sizes.fISize);
-
+    if (indexCount > 0) {
+        // validate that the indicies are in range
+        SkASSERT(indexCount == builder.indexCount());
+        uint16_t* indices = builder.indices();
+        for (int i = 0; i < indexCount; ++i) {
+            if (indices[i] >= (unsigned)vertexCount) {
+                return nullptr;
+            }
+        }
+    }
     return builder.detach();
 }
