@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "3bda8d27_a69975b0",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 795,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-02-01T18:59:14Z",
+      "side": 1,
+      "message": "Yesh... meant to remove. Done.",
+      "parentUuid": "d46cad80_d3410739",
+      "range": {
+        "startLine": 779,
+        "startChar": 1,
+        "endLine": 795,
+        "endChar": 6
+      },
+      "revId": "f0bd30d934e287be24fa9521b8864839caa7059c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "3dde3ce8_a73d5013",
         "filename": "src/image/SkSurface_Gpu.cpp",
         "patchSetId": 8
@@ -36,6 +60,30 @@
       "writtenOn": "2018-02-01T18:30:19Z",
       "side": 1,
       "message": "where we wrong before always passing false for MSAA?",
+      "range": {
+        "startLine": 410,
+        "startChar": 49,
+        "endLine": 410,
+        "endChar": 64
+      },
+      "revId": "f0bd30d934e287be24fa9521b8864839caa7059c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b3d1d557_9fd8f33e",
+        "filename": "src/image/SkSurface_Gpu.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 410,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-02-01T18:59:14Z",
+      "side": 1,
+      "message": "I don\u0027t know... it\u0027s the question of whether we should allow a client to give us a sample count larger than we expect to be allowed. Maybe the compromise is to make this check whether MSAA is allowed at all and if so just accept the passed sample count. Updated to do that.",
+      "parentUuid": "3dde3ce8_a73d5013",
       "range": {
         "startLine": 410,
         "startChar": 49,
