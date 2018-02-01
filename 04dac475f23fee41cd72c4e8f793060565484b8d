@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1526b677_527b1f3c",
+        "filename": "src/core/SkPictureData.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 507,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-02-01T18:58:12Z",
+      "side": 1,
+      "message": "I think this is guaranteed already by buffer.validate(SkTFitsIn\u003cint\u003e(size))?",
+      "range": {
+        "startLine": 505,
+        "startChar": 9,
+        "endLine": 507,
+        "endChar": 13
+      },
+      "revId": "04dac475f23fee41cd72c4e8f793060565484b8d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
