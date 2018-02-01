@@ -92,6 +92,12 @@ private:
 DEF_GPUTEST_FOR_ALL_CONTEXTS(SkSurfaceCharacterization, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
 
+    // Create a bitmap that we can readback into
+    SkImageInfo imageInfo = SkImageInfo::Make(64, 64, kRGBA_8888_SkColorType,
+                                              kPremul_SkAlphaType);
+    SkBitmap bitmap;
+    bitmap.allocPixels(imageInfo);
+
     std::unique_ptr<SkDeferredDisplayList> ddl;
 
     // First, create a DDL using the stock SkSurface parameters
@@ -116,6 +122,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(SkSurfaceCharacterization, reporter, ctxInfo) {
         ddl = r.detach();
 
         REPORTER_ASSERT(reporter, s->draw(ddl.get()));
+        s->readPixels(imageInfo, bitmap.getPixels(), bitmap.rowBytes(), 0, 0);
     }
 
     // Then, alter each parameter in turn and check that the DDL & surface are incompatible
@@ -159,15 +166,22 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(SkSurfaceCharacterization, reporter, ctxInfo) {
         context->setResourceCacheLimits(maxResourceCount, maxResourceBytes/2);
         REPORTER_ASSERT(reporter, !s->draw(ddl.get()));
 
+        // DDL TODO: once proxies/ops can be de-instantiated we can re-enable these tests.
+        // For now, DDLs are drawn once.
+#if 0
         // resource limits >= those at characterization time are accepted
         context->setResourceCacheLimits(2*maxResourceCount, maxResourceBytes);
         REPORTER_ASSERT(reporter, s->draw(ddl.get()));
+        s->readPixels(imageInfo, bitmap.getPixels(), bitmap.rowBytes(), 0, 0);
 
         context->setResourceCacheLimits(maxResourceCount, 2*maxResourceBytes);
         REPORTER_ASSERT(reporter, s->draw(ddl.get()));
+        s->readPixels(imageInfo, bitmap.getPixels(), bitmap.rowBytes(), 0, 0);
 
         context->setResourceCacheLimits(maxResourceCount, maxResourceBytes);
         REPORTER_ASSERT(reporter, s->draw(ddl.get()));
+        s->readPixels(imageInfo, bitmap.getPixels(), bitmap.rowBytes(), 0, 0);
+#endif
     }
 
     // Make sure non-GPU-backed surfaces fail characterization
