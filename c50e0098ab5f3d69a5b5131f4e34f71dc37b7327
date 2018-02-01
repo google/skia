@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f9807e45_7e69d26d",
+        "filename": "src/gpu/effects/GrXfermodeFragmentProcessor.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 219,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-02-01T18:24:35Z",
+      "side": 1,
+      "message": "We can kill this, right?",
+      "range": {
+        "startLine": 215,
+        "startChar": 0,
+        "endLine": 219,
+        "endChar": 5
+      },
+      "revId": "c50e0098ab5f3d69a5b5131f4e34f71dc37b7327",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
