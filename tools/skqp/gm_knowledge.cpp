@@ -26,12 +26,13 @@
 
 #include "skqp_asset_manager.h"
 
+#define IMAGES_DIRECTORY_PATH "images"
 #define PATH_MAX_PNG "max.png"
 #define PATH_MIN_PNG "min.png"
 #define PATH_IMG_PNG "image.png"
 #define PATH_ERR_PNG "errors.png"
 #define PATH_REPORT  "report.html"
-#define PATH_CSV      "out.csv"
+#define PATH_CSV     "out.csv"
 
 #ifndef SK_SKQP_GLOBAL_ERROR_TOLERANCE
 #define SK_SKQP_GLOBAL_ERROR_TOLERANCE 0
@@ -168,6 +169,15 @@ struct Run {
 static std::vector<Run> gErrors;
 static std::mutex gMutex;
 
+static SkString make_path(const SkString& images_directory,
+                          const char* backend,
+                          const char* gm_name,
+                          const char* thing) {
+    auto path = SkStringPrintf("%s_%s_%s", backend, gm_name, thing);
+    return SkOSPath::Join(images_directory.c_str(), path.c_str());
+}
+
+
 namespace gmkb {
 float Check(const uint32_t* pixels,
             int width,
@@ -229,16 +239,19 @@ float Check(const uint32_t* pixels,
         if (!backend) {
             backend = "skia";
         }
-        SkString report_directory = SkOSPath::Join(report_directory_path, backend);
-        sk_mkdir(report_directory.c_str());
-        SkString report_subdirectory = SkOSPath::Join(report_directory.c_str(), name);
-        sk_mkdir(report_subdirectory.c_str());
-        SkString error_path = SkOSPath::Join(report_subdirectory.c_str(), PATH_IMG_PNG);
+        SkString images_directory = SkOSPath::Join(report_directory_path, IMAGES_DIRECTORY_PATH);
+        sk_mkdir(images_directory.c_str());
+
+        SkString image_path   = make_path(images_directory, backend, name, PATH_IMG_PNG);
+        SkString error_path   = make_path(images_directory, backend, name, PATH_ERR_PNG);
+        SkString max_path_out = make_path(images_directory, backend, name, PATH_MAX_PNG);
+        SkString min_path_out = make_path(images_directory, backend, name, PATH_MIN_PNG);
+
         SkAssertResult(WritePixmapToFile(rgba8888_to_pixmap(pixels, width, height),
-                                         error_path.c_str()));
+                                         image_path.c_str()));
+
         SkBitmap errorBitmap;
         errorBitmap.allocPixels(SkImageInfo::Make(width, height, kColorType, kAlphaType));
-
         for (int y = 0; y < pm.height(); ++y) {
             for (int x = 0; x < pm.width(); ++x) {
                 int error = get_error_with_nearby(x, y, pm, pm_max, pm_min);
@@ -246,14 +259,8 @@ float Check(const uint32_t* pixels,
                          error > 0 ? 0xFF000000 + (unsigned)error : 0xFFFFFFFF;
             }
         }
-
-        error_path = SkOSPath::Join(report_subdirectory.c_str(), PATH_ERR_PNG);
         SkAssertResult(WritePixmapToFile(errorBitmap.pixmap(), error_path.c_str()));
 
-        SkString report_path = SkOSPath::Join(report_subdirectory.c_str(), PATH_REPORT);
-
-        SkString max_path_out = SkOSPath::Join(report_subdirectory.c_str(), PATH_MAX_PNG);
-        SkString min_path_out = SkOSPath::Join(report_subdirectory.c_str(), PATH_MIN_PNG);
         (void)copy(assetManager, max_path.c_str(), max_path_out.c_str());
         (void)copy(assetManager, min_path.c_str(), min_path_out.c_str());
 
@@ -301,23 +308,25 @@ static constexpr char kDocHead[] =
     "  br(b);\n"
     "  ac(b, ct(\"bad pixel counts: \" + e2));\n"
     "  br(b);\n"
+    "  var q = \"" IMAGES_DIRECTORY_PATH "/\" + backend + \"_\" + gm + \"_\";\n"
     "  var i = ce(\"img\");\n"
-    "  i.src = t + \"/image.png\";\n"
+    "  i.src = q + \"" PATH_IMG_PNG "\";\n"
     "  i.alt = \"img\";\n"
     "  ac(b, ma(i.src, i));\n"
     "  i = ce(\"img\");\n"
-    "  i.src = t + \"/errors.png\";\n"
-    "  i.alt = \"img\";\n"
+    "  i.src = q + \"" PATH_ERR_PNG "\";\n"
+    "  i.alt = \"err\";\n"
     "  ac(b, ma(i.src, i));\n"
     "  br(b);\n"
     "  ac(b, ct(\"Expectation: \"));\n"
-    "  ac(b, ma(t + \"/max.png\", ct(\"max\")));\n"
+    "  ac(b, ma(q + \"" PATH_MAX_PNG "\", ct(\"max\")));\n"
     "  ac(b, ct(\" | \"));\n"
-    "  ac(b, ma(t + \"/min.png\", ct(\"min\")));\n"
+    "  ac(b, ma(q + \"" PATH_MIN_PNG "\", ct(\"min\")));\n"
     "  ac(b, ce(\"hr\"));\n"
     "  b.id = backend + \":\" + gm;\n"
     "  ac(document.body, b);\n"
     "  l = ce(\"li\");\n"
+    "  ac(l, ct(\"[\" + e1 + \"] \"));\n"
     "  ac(l, ma(\"#\" + backend +\":\"+ gm , ct(t)));\n"
     "  ac(document.getElementById(\"toc\"), l);\n"
     "}\n"
