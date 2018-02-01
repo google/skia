@@ -96,6 +96,30 @@
     },
     {
       "key": {
+        "uuid": "de3ccb37_e268e222",
+        "filename": "infra/bots/jobs.json",
+        "patchSetId": 7
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-02-01T18:42:51Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "902e4070_3a954202",
+      "range": {
+        "startLine": 17,
+        "startChar": 37,
+        "endLine": 17,
+        "endChar": 40
+      },
+      "revId": "3d28213f970b79d3af58f44d5669c5970e00f504",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "abd50a02_c38ba5d7",
         "filename": "infra/bots/recipes/android_compile.py",
         "patchSetId": 7
@@ -131,6 +155,30 @@
       "side": 1,
       "message": "Right, I am going to look into this soonish. android-compile.skia.org does not currently do this for non-trybot runs.",
       "parentUuid": "abd50a02_c38ba5d7",
+      "range": {
+        "startLine": 23,
+        "startChar": 6,
+        "endLine": 23,
+        "endChar": 50
+      },
+      "revId": "3d28213f970b79d3af58f44d5669c5970e00f504",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0baa6ba1_c30c30ba",
+        "filename": "infra/bots/recipes/android_compile.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-02-01T18:42:51Z",
+      "side": 1,
+      "message": "SGTM",
+      "parentUuid": "10f89b93_3bae343f",
       "range": {
         "startLine": 23,
         "startChar": 6,
