@@ -390,6 +390,7 @@ public:
     }
 
     void reportError(const char* errorStr) const;
+    static string ReportFilename(string file);
     void reportWarning(const char* errorStr) const;
 
     template <typename T> T reportError(const char* errorStr) const {

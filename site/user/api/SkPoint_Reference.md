@@ -1243,9 +1243,9 @@ static SkScalar CrossProduct(const SkVector& a, const SkVector& b)
 
 Returns the cross product of <a href="SkPoint_Reference#Vector">Vector</a> <a href="#SkPoint_CrossProduct_a">a</a> and <a href="SkPoint_Reference#Vector">Vector</a> <a href="#SkPoint_CrossProduct_b">b</a>.
 
-<a href="#SkPoint_CrossProduct_a">a</a> and <a href="#SkPoint_CrossProduct_b">b</a> form three-dimensional vectors with z equal to zero. The cross product
-is <a href="#SkPoint_CrossProduct_a">a</a> three-dimensional vector with x and y equal to zero. The cross product z
-term equals the returned value.
+<a href="#SkPoint_CrossProduct_a">a</a> and <a href="#SkPoint_CrossProduct_b">b</a> form three-dimensional vectors with z-axis value equal to zero. The
+cross product is <a href="#SkPoint_CrossProduct_a">a</a> three-dimensional vector with x-axis and y-axis values equal
+to zero. The cross product z-axis component is returned.
 
 ### Parameters
 
@@ -1279,9 +1279,9 @@ SkScalar cross(const SkVector& vec) const
 
 Returns the cross product of <a href="SkPoint_Reference#Vector">Vector</a> and <a href="#SkPoint_cross_vec">vec</a>.
 
-<a href="SkPoint_Reference#Vector">Vector</a> and <a href="#SkPoint_cross_vec">vec</a> form three-dimensional vectors with z equal to zero. The
-cross product is a three-dimensional vector with x and y equal to zero.
-The cross product z term equals the returned value.
+<a href="SkPoint_Reference#Vector">Vector</a> and <a href="#SkPoint_cross_vec">vec</a> form three-dimensional vectors with z-axis value equal to zero.
+The cross product is a three-dimensional vector with x-axis and y-axis values
+equal to zero. The cross product z-axis component is returned.
 
 ### Parameters
 

@@ -107,7 +107,7 @@ is useful to position one or more <a href="#Bitmap">Bitmaps</a> within a shared 
 | <a href="#SkBitmap_getGenerationID">getGenerationID</a> | returns unique ID |
 | <a href="#SkBitmap_getPixels">getPixels</a> | returns address of pixels |
 | <a href="#SkBitmap_getSubset">getSubset</a> | returns bounds offset by origin |
-| <a href="#SkBitmap_hasHardwareMipMap">hasHardwareMipMap</a> | returns <a href="undocumented#Mip_Map">Mip Map</a> support present; Android only |
+| <a href="#SkBitmap_hasHardwareMipMap">hasHardwareMipMap</a> | returns Mip_Map support present; Android only |
 | <a href="#SkBitmap_height">height</a> | returns pixel row count |
 | <a href="#SkBitmap_info">info</a> | returns <a href="SkImageInfo_Reference#Image_Info">Image Info</a> |
 | <a href="#SkBitmap_installMaskPixels">installMaskPixels</a> | creates <a href="undocumented#Pixel_Ref">Pixel Ref</a> from <a href="undocumented#Mask">Mask</a> |
@@ -128,7 +128,7 @@ is useful to position one or more <a href="#Bitmap">Bitmaps</a> within a shared 
 | <a href="#SkBitmap_rowBytes">rowBytes</a> | returns interval between rows in bytes |
 | <a href="#SkBitmap_rowBytesAsPixels">rowBytesAsPixels</a> | returns interval between rows in pixels |
 | <a href="#SkBitmap_setAlphaType">setAlphaType</a> | sets <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a> of shared pixels |
-| <a href="#SkBitmap_setHasHardwareMipMap">setHasHardwareMipMap</a> | sets <a href="undocumented#Mip_Map">Mip Map</a> support present; Android only |
+| <a href="#SkBitmap_setHasHardwareMipMap">setHasHardwareMipMap</a> | sets Mip_Map support present; Android only |
 | <a href="#SkBitmap_setImmutable">setImmutable</a> | marks that pixels will not change |
 | <a href="#SkBitmap_setInfo">setInfo</a> | sets height, width, <a href="SkImageInfo_Reference#Color_Type">Color Type</a>, and so on, releasing pixels |
 | <a href="#SkBitmap_setIsVolatile">setIsVolatile</a> | marks if pixels should not be cached |

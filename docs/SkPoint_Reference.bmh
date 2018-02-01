@@ -1131,9 +1131,9 @@ Returns the dot product of Vector a and Vector b.
 #Line # returns cross product ##
 Returns the cross product of Vector a and Vector b.
 
-a and b form three-dimensional vectors with z equal to zero. The cross product
-is a three-dimensional vector with x and y equal to zero. The cross product z
-term equals the returned value.
+a and b form three-dimensional vectors with z-axis value equal to zero. The
+cross product is a three-dimensional vector with x-axis and y-axis values equal
+to zero. The cross product z-axis component is returned.
 
 #Param a  left side of cross product ##
 #Param b  right side of cross product ##
@@ -1171,9 +1171,9 @@ term equals the returned value.
 #Line # returns cross product ##
 Returns the cross product of Vector and vec.
 
-Vector and vec form three-dimensional vectors with z equal to zero. The
-cross product is a three-dimensional vector with x and y equal to zero.
-The cross product z term equals the returned value.
+Vector and vec form three-dimensional vectors with z-axis value equal to zero.
+The cross product is a three-dimensional vector with x-axis and y-axis values
+equal to zero. The cross product z-axis component is returned.
 
 #Param vec  right side of cross product ##
 
