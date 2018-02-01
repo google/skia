@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7d438dd6_4c8375ec",
+        "filename": "src/core/SkPictureData.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 498,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-02-01T19:14:35Z",
+      "side": 1,
+      "message": "As written I think we\u0027ll hit this if \"uint32_t tag \u003d buffer.readUInt();\" fails in the loop below.  I do kind of like assert here, so maybe we want to add a second explicit check after the readUInt()?",
+      "revId": "21b42eaa6e385232277fbaa8210e9ba0f58766b7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
