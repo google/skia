@@ -234,7 +234,7 @@ std::unique_ptr<GrFragmentProcessor> SkImageShader::asFragmentProcessor(
     if (isAlphaOnly) {
         return inner;
     }
-    return GrFragmentProcessor::MulOutputByInputAlpha(std::move(inner));
+    return GrFragmentProcessor::MulChildByInputAlpha(std::move(inner));
 }
 
 #endif

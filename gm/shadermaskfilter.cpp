@@ -22,6 +22,7 @@ static void draw_masked_image(SkCanvas* canvas, const SkImage* image, SkScalar x
         mf = SkMaskFilter::MakeCompose(outer, mf);
     }
     paint.setMaskFilter(mf);
+    paint.setAntiAlias(true);
     canvas->drawImage(image, x, y, &paint);
 }
 
@@ -45,6 +46,7 @@ DEF_SIMPLE_GM(shadermaskfilter_gradient, canvas, 512, 512) {
     SkPaint paint;
     paint.setMaskFilter(mf);
     paint.setColor(SK_ColorRED);
+    paint.setAntiAlias(true);
     canvas->drawOval(r, paint);
 }
 

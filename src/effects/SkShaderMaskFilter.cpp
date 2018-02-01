@@ -9,7 +9,7 @@
 #include "SkMaskFilterBase.h"
 #include "SkReadBuffer.h"
 #include "SkShaderMaskFilter.h"
-#include "SkShader.h"
+#include "SkShaderBase.h"
 #include "SkString.h"
 
 class SkShaderMF : public SkMaskFilterBase {
@@ -29,6 +29,12 @@ public:
 
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkShaderMF)
+
+protected:
+#if SK_SUPPORT_GPU
+    std::unique_ptr<GrFragmentProcessor> onAsFragmentProcessor(const GrFPArgs&) const override;
+    bool onHasFragmentProcessor() const override;
+#endif
 
 private:
     sk_sp<SkShader> fShader;
@@ -107,6 +113,19 @@ bool SkShaderMF::filterMask(SkMask* dst, const SkMask& src, const SkMatrix& ctm,
     return true;
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+#if SK_SUPPORT_GPU
+#include "GrFragmentProcessor.h"
+
+std::unique_ptr<GrFragmentProcessor> SkShaderMF::onAsFragmentProcessor(const GrFPArgs& args) const {
+    return GrFragmentProcessor::MulInputByChildAlpha(as_SB(fShader)->asFragmentProcessor(args));
+}
+
+bool SkShaderMF::onHasFragmentProcessor() const {
+    return true;
+}
+
+#endif
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 sk_sp<SkMaskFilter> SkShaderMaskFilter::Make(sk_sp<SkShader> shader) {
