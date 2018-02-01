@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8369cbf2_24967dfb",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 7
+      },
+      "lineNbr": 753,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-02-01T18:28:40Z",
+      "side": 1,
+      "message": "Nit: \"androidFrameworkCompile\" to distinguish from the other tasks which compile Skia for Android.",
+      "range": {
+        "startLine": 753,
+        "startChar": 3,
+        "endLine": 753,
+        "endChar": 17
+      },
+      "revId": "3d28213f970b79d3af58f44d5669c5970e00f504",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e657f3ab_b8e680b0",
+        "filename": "infra/bots/jobs.json",
+        "patchSetId": 7
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-02-01T18:28:40Z",
+      "side": 1,
+      "message": "No idea if this will upset some code somewhere which expects either \"Debug\" or \"Release\".  Probably not, but if so, this is likely close to \"Debug\".",
+      "range": {
+        "startLine": 17,
+        "startChar": 37,
+        "endLine": 17,
+        "endChar": 40
+      },
+      "revId": "3d28213f970b79d3af58f44d5669c5970e00f504",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "abd50a02_c38ba5d7",
+        "filename": "infra/bots/recipes/android_compile.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-02-01T18:28:40Z",
+      "side": 1,
+      "message": "As written, this bot is going to get triggered at every commit.  Is this expected to be fixed soon?  It could use a similar procedure as the try jobs: attempt to build at the given Skia hash and if that fails try to build at the Skia hash currently used by Android.",
+      "range": {
+        "startLine": 23,
+        "startChar": 6,
+        "endLine": 23,
+        "endChar": 50
+      },
+      "revId": "3d28213f970b79d3af58f44d5669c5970e00f504",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "daa0c8e7_52f7ce30",
+        "filename": "infra/bots/recipes/android_compile.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-02-01T18:28:40Z",
+      "side": 1,
+      "message": "Should this be \"do not\"?",
+      "range": {
+        "startLine": 25,
+        "startChar": 75,
+        "endLine": 25,
+        "endChar": 77
+      },
+      "revId": "3d28213f970b79d3af58f44d5669c5970e00f504",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
