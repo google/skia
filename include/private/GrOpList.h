@@ -9,15 +9,16 @@
 #define GrOpList_DEFINED
 
 #include "GrColor.h"
-#include "GrGpuResourceRef.h"
+#include "GrSurfaceProxyRef.h"
+#include "GrTextureProxy.h"
 #include "SkRefCnt.h"
 #include "SkTDArray.h"
 
 
 // Turn on/off the explicit distribution of GPU resources at flush time
-#ifndef SK_DISABLE_EXPLICIT_GPU_RESOURCE_ALLOCATION
-   #define SK_DISABLE_EXPLICIT_GPU_RESOURCE_ALLOCATION
-#endif
+//#ifndef SK_DISABLE_EXPLICIT_GPU_RESOURCE_ALLOCATION
+//   #define SK_DISABLE_EXPLICIT_GPU_RESOURCE_ALLOCATION
+//#endif
 
 // Turn on/off the sorting of opLists at flush time
 #ifndef SK_DISABLE_RENDER_TARGET_SORTING
@@ -31,7 +32,6 @@ class GrRenderTargetOpList;
 class GrResourceAllocator;
 class GrResourceProvider;
 class GrSurfaceProxy;
-class GrTextureProxy;
 class GrTextureOpList;
 
 struct SkIPoint;
