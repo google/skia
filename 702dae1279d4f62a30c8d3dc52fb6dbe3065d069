@@ -46,6 +46,30 @@
       "revId": "702dae1279d4f62a30c8d3dc52fb6dbe3065d069",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7c1b3f2e_ed18c117",
+        "filename": "tests/GLProgramsTest.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 154,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-02-01T17:56:30Z",
+      "side": 1,
+      "message": "oh right",
+      "parentUuid": "d74fcb11_377c8a7f",
+      "range": {
+        "startLine": 154,
+        "startChar": 24,
+        "endLine": 154,
+        "endChar": 47
+      },
+      "revId": "702dae1279d4f62a30c8d3dc52fb6dbe3065d069",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
