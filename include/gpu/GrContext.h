@@ -216,6 +216,26 @@ public:
     /** Access the context capabilities */
     const GrCaps* caps() const { return fCaps.get(); }
 
+    /**
+     * Can a SkImage be created with the given color type.
+     */
+    bool colorTypeSupportedAsImage(SkColorType) const;
+
+    /**
+     * Can a SkSurface be created with the given color type. To check whether MSAA is supported
+     * use maxSurfaceSampleCountForColorType().
+     */
+    bool colorTypeSupportedAsSurface(SkColorType colorType) const {
+        return this->maxSurfaceSampleCountForColorType(colorType) > 0;
+    }
+
+    /**
+     * Gets the maximum supported sample count for a color type. 1 is returned if only non-MSAA
+     * rendering is supported for the color type. 0 is returned if rendering to this color type
+     * is not supported at all.
+     */
+    int maxSurfaceSampleCountForColorType(SkColorType) const;
+
     /*
      * Create a new render target context backed by a deferred-style
      * GrRenderTargetProxy. We guarantee that "asTextureProxy" will succeed for

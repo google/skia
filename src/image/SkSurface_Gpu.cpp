@@ -334,7 +334,9 @@ bool validate_backend_texture(GrContext* ctx, const GrBackendTexture& tex, GrPix
         return false;
     }
 
-    if (ctx->caps()->getRenderTargetSampleCount(sampleCnt, *config) != sampleCnt) {
+    // We don't require that the client gave us an exact valid sample cnt. However, it must be
+    // less than the max supported sample count and 1 if MSAA is unsupported for the color type.
+    if (!ctx->caps()->getRenderTargetSampleCount(sampleCnt, *config)) {
         return false;
     }
 
