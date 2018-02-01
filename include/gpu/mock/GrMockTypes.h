@@ -22,8 +22,9 @@ struct GrMockTextureInfo {
  */
 struct GrMockOptions {
     GrMockOptions() {
+        using Renderability = ConfigOptions::Renderability;
         // By default RGBA_8888 is textureable and renderable and A8 and RGB565 are texturable.
-        fConfigOptions[kRGBA_8888_GrPixelConfig].fRenderable[0] = true;
+        fConfigOptions[kRGBA_8888_GrPixelConfig].fRenderability = Renderability::kNonMSAA;
         fConfigOptions[kRGBA_8888_GrPixelConfig].fTexturable = true;
         fConfigOptions[kAlpha_8_GrPixelConfig].fTexturable = true;
         fConfigOptions[kAlpha_8_as_Alpha_GrPixelConfig].fTexturable = true;
@@ -32,8 +33,8 @@ struct GrMockOptions {
     }
 
     struct ConfigOptions {
-        /** The first value is for non-MSAA rendering, the second for MSAA. */
-        bool fRenderable[2] = {false, false};
+        enum Renderability { kNo, kNonMSAA, kMSAA };
+        Renderability fRenderability;
         bool fTexturable = false;
     };
 

@@ -119,7 +119,8 @@ public:
         GrMockOptions mockOptions;
         mockOptions.fInstanceAttribSupport = true;
         mockOptions.fMapBufferFlags = GrCaps::kCanMap_MapFlag;
-        mockOptions.fConfigOptions[kAlpha_half_GrPixelConfig].fRenderable[0] = true;
+        mockOptions.fConfigOptions[kAlpha_half_GrPixelConfig].fRenderability =
+                GrMockOptions::ConfigOptions::Renderability::kNonMSAA;
         mockOptions.fConfigOptions[kAlpha_half_GrPixelConfig].fTexturable = true;
         mockOptions.fGeometryShaderSupport = true;
         mockOptions.fIntegerSupport = true;
