@@ -61,6 +61,9 @@ size_t GrTextureRenderTargetProxy::onUninstantiatedGpuMemorySize() const {
 }
 
 bool GrTextureRenderTargetProxy::instantiate(GrResourceProvider* resourceProvider) {
+    if (LazyState::kNot != this->lazyInstantiationState()) {
+        return false;
+    }
     static constexpr GrSurfaceFlags kFlags = kRenderTarget_GrSurfaceFlag;
 
     const GrUniqueKey& key = this->getUniqueKey();

@@ -84,8 +84,8 @@ GrSurfaceProxy::GrSurfaceProxy(sk_sp<GrSurface> surface, GrSurfaceOrigin origin,
 
 GrSurfaceProxy::~GrSurfaceProxy() {
     if (fLazyInstantiateCallback) {
-        // We have an uninstantiated lazy proxy. Call fLazyInstantiateCallback with a nullptr for
-        // the GrResourceProvider to signal the callback should clean itself up.
+        // We call the callback with a null GrResourceProvider to signal that the lambda should
+        // clean itself up if it is holding onto any captured objects.
         this->fLazyInstantiateCallback(nullptr, nullptr);
     }
     // For this to be deleted the opList that held a ref on it (if there was one) must have been
@@ -148,7 +148,6 @@ sk_sp<GrSurface> GrSurfaceProxy::createSurfaceImpl(
 }
 
 void GrSurfaceProxy::assign(sk_sp<GrSurface> surface) {
-    SkASSERT(LazyState::kNot == this->lazyInstantiationState());
     SkASSERT(!fTarget && surface);
     fTarget = surface.release();
     this->INHERITED::transferRefs();
@@ -348,8 +347,7 @@ void GrSurfaceProxyPriv::exactify() {
 }
 
 bool GrSurfaceProxyPriv::doLazyInstantiation(GrResourceProvider* resourceProvider) {
-    SkASSERT(fProxy->fLazyInstantiateCallback);
-    SkASSERT(!fProxy->fTarget);
+    SkASSERT(GrSurfaceProxy::LazyState::kNot != fProxy->lazyInstantiationState());
 
     GrSurfaceOrigin* outOrigin;
     if (GrSurfaceProxy::LazyState::kPartially == fProxy->lazyInstantiationState()) {
@@ -363,10 +361,6 @@ bool GrSurfaceProxyPriv::doLazyInstantiation(GrResourceProvider* resourceProvide
     }
 
     sk_sp<GrTexture> texture = fProxy->fLazyInstantiateCallback(resourceProvider, outOrigin);
-
-
-    // Indicate we are no longer pending lazy instantiation.
-    fProxy->fLazyInstantiateCallback = nullptr;
 
     if (!texture) {
         fProxy->fWidth = 0;

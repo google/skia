@@ -61,6 +61,9 @@ GrTextureProxy::~GrTextureProxy() {
 }
 
 bool GrTextureProxy::instantiate(GrResourceProvider* resourceProvider) {
+    if (LazyState::kNot != this->lazyInstantiationState()) {
+        return false;
+    }
     if (!this->instantiateImpl(resourceProvider, 0, /* needsStencil = */ false,
                                kNone_GrSurfaceFlags, fMipMapped, fMipColorMode,
                                fUniqueKey.isValid() ? &fUniqueKey : nullptr)) {
