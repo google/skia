@@ -245,6 +245,7 @@ config("default") {
     cflags += [
       "-fsanitize=$sanitizers",
       "-fno-sanitize-recover=$sanitizers",
+      "-fno-omit-frame-pointer",
       "-fsanitize-blacklist=" + rebase_path("../tools/xsan.blacklist"),
     ]
     ldflags += [ "-fsanitize=$sanitizers" ]
