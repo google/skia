@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d46cad80_d3410739",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 795,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-02-01T18:30:19Z",
+      "side": 1,
+      "message": "is the assumption that texturabela dn renderable are checked before we hit this? If so remove the dead code",
+      "range": {
+        "startLine": 779,
+        "startChar": 1,
+        "endLine": 795,
+        "endChar": 6
+      },
+      "revId": "f0bd30d934e287be24fa9521b8864839caa7059c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3dde3ce8_a73d5013",
+        "filename": "src/image/SkSurface_Gpu.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 410,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-02-01T18:30:19Z",
+      "side": 1,
+      "message": "where we wrong before always passing false for MSAA?",
+      "range": {
+        "startLine": 410,
+        "startChar": 49,
+        "endLine": 410,
+        "endChar": 64
+      },
+      "revId": "f0bd30d934e287be24fa9521b8864839caa7059c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
