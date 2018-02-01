@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "74620461_75e80d23",
+        "filename": "src/core/SkGeometry.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1213,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-02-01T22:00:58Z",
+      "side": 1,
+      "message": "should this sort of check be in the chop() method itself, or here at the caller?",
+      "range": {
+        "startLine": 1213,
+        "startChar": 13,
+        "endLine": 1213,
+        "endChar": 29
+      },
+      "revId": "a705b1c9cf0185a4656be43e3d22ff0c8d7c02d6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
