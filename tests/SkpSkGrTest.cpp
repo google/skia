@@ -442,7 +442,7 @@ void TestResult::testOne() {
         desc.fFlags = kRenderTarget_GrTextureFlagBit;
         desc.fWidth = dim.fX;
         desc.fHeight = dim.fY;
-        desc.fSampleCnt = 0;
+        desc.fSampleCnt = 1;
         sk_sp<GrTexture> texture(context->createUncachedTexture(desc, nullptr, 0));
         if (!texture) {
             SkDebugf("unable to allocate texture for %s (w=%d h=%d)\n", fFilename,
