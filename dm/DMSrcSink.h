@@ -350,7 +350,7 @@ public:
     bool serial() const override { return !fThreaded; }
     const char* fileExtension() const override { return "png"; }
     SinkFlags flags() const override {
-        SinkFlags::Multisampled ms = fSampleCount > 0 ? SinkFlags::kMultisampled
+        SinkFlags::Multisampled ms = fSampleCount > 1 ? SinkFlags::kMultisampled
                                                       : SinkFlags::kNotMultisampled;
         return SinkFlags{ SinkFlags::kGPU, SinkFlags::kDirect, ms };
     }

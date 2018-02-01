@@ -33,8 +33,8 @@ public:
 
         this->applyOptionsOverrides(contextOptions);
     }
-    int getSampleCount(int /*requestCount*/, GrPixelConfig /*config*/) const override {
-        return 0;
+    int getSampleCount(int requestCount, GrPixelConfig /*config*/) const override {
+        return (requestCount > 0 && requestCount <= 16) ? GrNextPow2(requestCount) : 0;
     }
     bool isConfigTexturable(GrPixelConfig config) const override {
         return fOptions.fConfigOptions[config].fTexturable;
