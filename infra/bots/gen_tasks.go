@@ -498,7 +498,10 @@ func compile(b *specs.TasksCfgBuilder, name string, parts map[string]string) str
 
 	// Android bots require a toolchain.
 	if strings.Contains(name, "Android") {
-		if strings.Contains(name, "Mac") {
+		if parts["extra_config"] == "Android_Framework" {
+			// Do not need a toolchain when building the
+			// Android Framework.
+		} else if strings.Contains(name, "Mac") {
 			pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("android_ndk_darwin"))
 		} else if strings.Contains(name, "Win") {
 			pkg := b.MustGetCipdPackageFromAsset("android_ndk_windows")
@@ -743,6 +746,29 @@ func bookmaker(b *specs.TasksCfgBuilder, name, compileTaskName string) string {
 		Priority:         0.8,
 		ExecutionTimeout: 2 * time.Hour,
 		IoTimeout:        2 * time.Hour,
+	})
+	return name
+}
+
+// androidFrameworkCompile generates an Android Framework Compile task. Returns
+// the name of the last task in the generated chain of tasks, which the Job
+// should add as a dependency.
+func androidFrameworkCompile(b *specs.TasksCfgBuilder, name string) string {
+	b.MustAddTask(name, &specs.TaskSpec{
+		Dimensions: linuxGceDimensions(),
+		ExtraArgs: []string{
+			"--workdir", "../../..", "android_compile",
+			fmt.Sprintf("repository=%s", specs.PLACEHOLDER_REPO),
+			fmt.Sprintf("buildername=%s", name),
+			fmt.Sprintf("swarm_out_dir=%s", specs.PLACEHOLDER_ISOLATED_OUTDIR),
+			fmt.Sprintf("revision=%s", specs.PLACEHOLDER_REVISION),
+			fmt.Sprintf("patch_repo=%s", specs.PLACEHOLDER_PATCH_REPO),
+			fmt.Sprintf("patch_storage=%s", specs.PLACEHOLDER_PATCH_STORAGE),
+			fmt.Sprintf("patch_issue=%s", specs.PLACEHOLDER_ISSUE),
+			fmt.Sprintf("patch_set=%s", specs.PLACEHOLDER_PATCHSET),
+		},
+		Isolate:  relpath("compile_skia.isolate"),
+		Priority: 0.8,
 	})
 	return name
 }
@@ -1155,7 +1181,12 @@ func process(b *specs.TasksCfgBuilder, name string) {
 
 	// Compile bots.
 	if parts["role"] == "Build" {
-		deps = append(deps, compile(b, name, parts))
+		if parts["extra_config"] == "Android_Framework" {
+			// Android Framework compile tasks use a different recipe.
+			deps = append(deps, androidFrameworkCompile(b, name))
+		} else {
+			deps = append(deps, compile(b, name, parts))
+		}
 	}
 
 	// Most remaining bots need a compile task.
@@ -1175,6 +1206,7 @@ func process(b *specs.TasksCfgBuilder, name string) {
 		name != "Housekeeper-PerCommit-BundleRecipes" &&
 		name != "Housekeeper-PerCommit-InfraTests" &&
 		name != "Housekeeper-PerCommit-CheckGeneratedFiles" &&
+		!strings.Contains(name, "Android_Framework") &&
 		!strings.Contains(name, "RecreateSKPs") &&
 		!strings.Contains(name, "UpdateMetaConfig") &&
 		!strings.Contains(name, "-CT_") &&
