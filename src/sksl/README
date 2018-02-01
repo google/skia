@@ -46,15 +46,15 @@ Differences from GLSL
 * the fragment coordinate is sk_FragCoord, and is always relative to the upper
   left.
 * you do not need to include ".0" to make a number a float (meaning that
-  "float2x, y) * 4" is perfectly legal in SkSL, unlike GLSL where it would often
-  have to be expressed "float2x, y) * 4.0". There is no performance penalty for
-  this, as the number is converted to a float at compile time)
+  "float2(x, y) * 4" is perfectly legal in SkSL, unlike GLSL where it would
+  often have to be expressed "float2(x, y) * 4.0". There is no performance
+  penalty for this, as the number is converted to a float at compile time)
 * type suffixes on numbers (1.0f, 0xFFu) are both unnecessary and unsupported
-* creating a smaller vector from a larger vector (e.g. float2float31))) is
+* creating a smaller vector from a larger vector (e.g. float2(float3(1))) is
   intentionally disallowed, as it is just a wordier way of performing a swizzle.
   Use swizzles instead.
-* Use texture() instead of textureProj(), e.g. texture(sampler2D, float3 is
-  equivalent to GLSL's textureProj(sampler2D, float3
+* Use texture() instead of textureProj(), e.g. texture(sampler2D, float3) is
+  equivalent to GLSL's textureProj(sampler2D, float3)
 * some built-in functions and one or two rarely-used language features are not
   yet supported (sorry!)
 
@@ -64,6 +64,12 @@ over time.
 
 SkSL Fragment Processors
 ========================
+
+********************************************************************************
+*** IMPORTANT: You must set gn arg "skia_compile_processors = true" to cause ***
+*** .fp files to be recompiled! In order for compilation to succeed, you     ***
+*** must run bin/fetch-clang-format (once) to install our blessed version.   ***
+********************************************************************************
 
 An extension of SkSL allows for the creation of fragment processors in pure
 SkSL. The program defines its inputs similarly to a normal SkSL program (with
@@ -100,13 +106,21 @@ Within an '.fp' fragment processor file:
                        (the sampler params to attach to the named sampler2D)
 * global 'in' variables represent data passed to the fragment processor at
   construction time. These variables become constructor parameters and are
-  stored in fragment processor fields. float2 map to SkPoints, and float4 map to
-  SkRects (in x, y, width, height) order.
+  stored in fragment processor fields. By default float2/half2 maps to SkPoints,
+  and float4/half4 maps to SkRects (in x, y, width, height) order. Use ctype
+  (below) to override this default mapping.
+* global variables support an additional 'ctype' layout key, providing the type
+  they should be represented as from within the C++ code. For instance, you can
+  use 'layout(ctype=GrColor4f) in half4 color;' to create a variable that looks
+  like a half4 on the SkSL side of things, and a GrColor4f on the C++ side of
+  things.
 * 'uniform' variables become, as one would expect, top-level uniforms. By
   default they do not have any data provided to them; you will need to provide
   them with data via the @setData section.
 * 'in uniform' variables are uniforms that are automatically wired up to
-  fragment processor constructor parameters
+  fragment processor constructor parameters. The fragment processor will accept
+  a parameter representing the uniform's value, and automatically plumb it
+  through to the uniform's value in its generated setData() function.
 * the 'sk_TransformedCoords2D' array provides access to 2D transformed
   coordinates. sk_TransformedCoords2D[0] is equivalent to calling
   fragBuilder->ensureCoords2D(args.fTransformedCoords[0]) (and the result is
@@ -119,6 +133,20 @@ Within an '.fp' fragment processor file:
   the program's key. Matrix variables additionally support 'key=identity',
   which causes the key to consider only whether or not the matrix is an
   identity matrix.
-* 'float4' / 'half4' variables support an additional 'ctype' layout key,
-  providing the type they should be represented as from within the C++ code.
-  Currently the only two supported ctypes are 'SkRect' and 'SkPMColor'.
+
+
+Creating a new .fp file
+=======================
+
+1. Ensure that you have set gn arg "skia_compile_processors = true"
+2. Create your new .fp file, generally under src/gpu/effects.
+3. Add the .fp file to sksl.gni.
+4. Build Skia. This will cause the .fp file to be compiled, resulting in a new
+   .cpp and .h file for the fragment processor.
+5. Add the .cpp and .h files to gpu.gni.
+6. Add the new processor's ClassID (k<ProcessorName>_ClassID) to
+   GrProcessor::ClassID.
+7. At this point you can reference the new fragment processor from within Skia.
+
+Once you have done this initial setup, simply re-build Skia to pick up any
+changes to the .fp file.
