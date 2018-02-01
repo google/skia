@@ -346,7 +346,7 @@ void GrVkCaps::ConfigInfo::initSampleCounts(const GrVkInterface* interface,
                                                                  &properties));
     VkSampleCountFlags flags = properties.sampleCounts;
     if (flags & VK_SAMPLE_COUNT_1_BIT) {
-        fColorSampleCounts.push(1);
+        fColorSampleCounts.push(0);
     }
     if (kImagination_VkVendor == physProps.vendorID) {
         // MSAA does not work on imagination
@@ -386,31 +386,10 @@ void GrVkCaps::ConfigInfo::init(const GrVkInterface* interface,
     }
 }
 
-bool GrVkCaps::isConfigRenderable(GrPixelConfig config, bool withMSAA) const {
-    if (!SkToBool(ConfigInfo::kRenderable_Flag & fConfigTable[config].fOptimalFlags)) {
-        return false;
-    }
-    if (withMSAA && fConfigTable[config].fColorSampleCounts.count() < 2) {
-        // We expect any renderable config to support non-MSAA rendering.
-        SkASSERT(1 == fConfigTable[config].fColorSampleCounts.count());
-        SkASSERT(1 == fConfigTable[config].fColorSampleCounts[0]);
-        return false;
-    }
-    return true;
-}
-
 int GrVkCaps::getSampleCount(int requestedCount, GrPixelConfig config) const {
-    requestedCount = SkTMax(1, requestedCount);
     int count = fConfigTable[config].fColorSampleCounts.count();
-
-    if (!count || !this->isConfigRenderable(config, requestedCount > 1)) {
+    if (!count || !this->isConfigRenderable(config, true)) {
         return 0;
-    }
-
-    if (1 == requestedCount) {
-        SkASSERT(fConfigTable[config].fColorSampleCounts.count() &&
-                 fConfigTable[config].fColorSampleCounts[0] == 1);
-        return 1;
     }
 
     for (int i = 0; i < count; ++i) {
@@ -418,7 +397,7 @@ int GrVkCaps::getSampleCount(int requestedCount, GrPixelConfig config) const {
             return fConfigTable[config].fColorSampleCounts[i];
         }
     }
-    return 0;
+    return fConfigTable[config].fColorSampleCounts[count-1];
 }
 
 bool validate_image_info(const GrVkImageInfo* imageInfo, SkColorType ct, GrPixelConfig* config) {

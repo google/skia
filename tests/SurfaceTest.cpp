@@ -704,7 +704,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SurfaceClear_Gpu, reporter, ctxInfo) {
         for (auto& surfaceFunc : {&create_gpu_surface_backend_texture,
                                   &create_gpu_surface_backend_texture_as_render_target}) {
             GrBackendTexture backendTex;
-            auto surface = surfaceFunc(context, 1, kOrigColor, &backendTex);
+            auto surface = surfaceFunc(context, 0, kOrigColor, &backendTex);
             test_surface_clear(reporter, surface, grSurfaceGetter, kOrigColor);
             surface.reset();
             gpu->deleteTestingOnlyBackendTexture(&backendTex);
@@ -767,7 +767,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfacePartialDraw_Gpu, reporter, ctxInfo) {
         // preserved in pixels that aren't rendered to via the surface.
         // This works only for non-multisampled case.
         GrBackendTexture backendTex;
-        auto surface = surfaceFunc(ctxInfo.grContext(), 1, kOrigColor, &backendTex);
+        auto surface = surfaceFunc(ctxInfo.grContext(), 0, kOrigColor, &backendTex);
         if (surface) {
             test_surface_draw_partially(reporter, surface, kOrigColor);
             surface.reset();
@@ -791,11 +791,11 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SurfaceAttachStencil_Gpu, reporter, ctxInf
 
     for (auto& surfaceFunc : {&create_gpu_surface_backend_texture,
                               &create_gpu_surface_backend_texture_as_render_target}) {
-        for (int sampleCnt : {1, 4, 8}) {
+        for (int sampleCnt : {0, 4, 8}) {
             GrBackendTexture backendTex;
             auto surface = surfaceFunc(ctxInfo.grContext(), sampleCnt, kOrigColor, &backendTex);
 
-            if (!surface && sampleCnt > 1) {
+            if (!surface && sampleCnt > 0) {
                 // Certain platforms don't support MSAA, skip these.
                 continue;
             }

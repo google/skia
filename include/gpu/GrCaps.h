@@ -135,9 +135,7 @@ public:
     int maxRasterSamples() const { return fMaxRasterSamples; }
 
     // Find a sample count greater than or equal to the requested count which is supported for a
-    // color buffer of the given config or 0 if no such sample count is supported. If the requested
-    // sample count is 1 then 1 will be returned if non-MSAA rendering is supported, otherwise 0.
-    // For historical reasons requestedCount==0 is handled identically to requestedCount==1.
+    // color buffer of the given config. If MSAA is not support for the config we will return 0.
     virtual int getSampleCount(int requestedCount, GrPixelConfig config) const = 0;
 
     int maxWindowRectangles() const { return fMaxWindowRectangles; }
