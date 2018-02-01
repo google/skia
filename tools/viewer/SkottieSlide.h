@@ -11,6 +11,7 @@
 #include "Slide.h"
 
 namespace skottie { class Animation; }
+namespace sksg    { class Scene;     }
 
 class SkottieSlide : public Slide {
 public:
@@ -49,23 +50,26 @@ public:
     void draw(SkCanvas*) override;
     bool animate(const SkAnimTimer&) override;
     bool onMouse(SkScalar x, SkScalar y, sk_app::Window::InputState, uint32_t modifiers) override;
+
 private:
+    class AnimationWrapper;
+
     struct Rec {
-        std::unique_ptr<skottie::Animation> fAnimation;
-        SkMSec                              fTimeBase = 0;
-        SkString                            fName;
+        sk_sp<AnimationWrapper>             fWrapper;
         bool                                fShowAnimationInval = false;
 
-        Rec(std::unique_ptr<skottie::Animation> anim);
+        explicit Rec(sk_sp<AnimationWrapper>);
         Rec(Rec&& o);
     };
 
     int findCell(float x, float y) const;
 
-    SkString        fPath;
-    SkTArray<Rec>   fAnims;
+    SkString                     fPath;
+    SkTArray<Rec>                fAnims;
+    std::unique_ptr<sksg::Scene> fScene;
 
-    int fTrackingCell = -1;
+    SkMSec                       fTimeBase = 0;
+    int                          fTrackingCell = -1;
 
     typedef Slide INHERITED;
 };

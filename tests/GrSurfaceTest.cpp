@@ -196,7 +196,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(InitialTextureClear, reporter, context_info) 
                         }
 
                         auto texCtx = context->contextPriv().makeWrappedSurfaceContext(
-                                std::move(proxy), nullptr);
+                                                                                std::move(proxy));
                         SkImageInfo info = SkImageInfo::Make(
                                 kSize, kSize, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
                         memset(data.get(), 0xAB, kSize * kSize * sizeof(uint32_t));

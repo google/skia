@@ -143,7 +143,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(RectangleTexture, reporter, ctxInfo) {
                                false, "RectangleTexture-copy-from");
 
         sk_sp<GrSurfaceContext> rectContext = context->contextPriv().makeWrappedSurfaceContext(
-                                                                    std::move(rectProxy), nullptr);
+                                                                            std::move(rectProxy));
         SkASSERT(rectContext);
 
         test_read_pixels(reporter, rectContext.get(), refPixels, "RectangleTexture-read");

@@ -44,8 +44,8 @@ sk_sp<SkSpecialImage> SkOffsetImageFilter::onFilterImage(SkSpecialImage* source,
     SkIPoint vec = map_offset_vector(ctx.ctm(), fOffset);
 
     if (!this->cropRectIsSet()) {
-        offset->fX = srcOffset.fX + vec.fX;
-        offset->fY = srcOffset.fY + vec.fY;
+        offset->fX = Sk32_sat_add(srcOffset.fX, vec.fX);
+        offset->fY = Sk32_sat_add(srcOffset.fY, vec.fY);
         return input;
     } else {
         SkIRect bounds;

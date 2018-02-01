@@ -139,13 +139,16 @@ bool SkColorTypeValidateAlphaType(SkColorType colorType, SkAlphaType alphaType,
         case kARGB_4444_SkColorType:
         case kRGBA_8888_SkColorType:
         case kBGRA_8888_SkColorType:
+        case kRGBA_1010102_SkColorType:
         case kRGBA_F16_SkColorType:
             if (kUnknown_SkAlphaType == alphaType) {
                 return false;
             }
             break;
-        case kRGB_565_SkColorType:
         case kGray_8_SkColorType:
+        case kRGB_565_SkColorType:
+        case kRGB_888x_SkColorType:
+        case kRGB_101010x_SkColorType:
             alphaType = kOpaque_SkAlphaType;
             break;
         default:

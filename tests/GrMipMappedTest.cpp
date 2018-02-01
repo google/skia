@@ -204,7 +204,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrBackendTextureImageMipMappedTest, reporter,
             // queued up copy) before we delete the backend texture. Thus we use readPixels here
             // just to force the synchronization.
             sk_sp<GrSurfaceContext> surfContext =
-                    context->contextPriv().makeWrappedSurfaceContext(genProxy, nullptr);
+                    context->contextPriv().makeWrappedSurfaceContext(genProxy);
 
             SkBitmap bitmap;
             bitmap.allocPixels(imageInfo);

@@ -124,14 +124,14 @@ static inline SkFixed SkFixedMul(SkFixed a, SkFixed b) {
 
 typedef int64_t SkFixed3232;   // 32.32
 
-#define SkFixed3232Max            (0x7FFFFFFFFFFFFFFFLL)
+#define SkFixed3232Max            SK_MaxS64
 #define SkFixed3232Min            (-SkFixed3232Max)
 
 #define SkIntToFixed3232(x)       (SkLeftShift((SkFixed3232)(x), 32))
 #define SkFixed3232ToInt(x)       ((int)((x) >> 32))
 #define SkFixedToFixed3232(x)     (SkLeftShift((SkFixed3232)(x), 16))
 #define SkFixed3232ToFixed(x)     ((SkFixed)((x) >> 16))
-#define SkFloatToFixed3232(x)     ((SkFixed3232)((x) * (65536.0f * 65536.0f)))
+#define SkFloatToFixed3232(x)     sk_float_saturate2int64((x) * (65536.0f * 65536.0f))
 #define SkFixed3232ToFloat(x)     (x * (1 / (65536.0f * 65536.0f)))
 
 #define SkScalarToFixed3232(x)    SkFloatToFixed3232(x)

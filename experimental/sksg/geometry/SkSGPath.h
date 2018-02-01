@@ -38,6 +38,8 @@ private:
     explicit Path(const SkPath&);
 
     SkPath fPath;
+
+    using INHERITED = GeometryNode;
 };
 
 } // namespace sksg

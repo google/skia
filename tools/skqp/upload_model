@@ -6,19 +6,25 @@
 
 set -e
 
+BASE_DIR='platform_tools/android/apps/skqp/src/main/assets'
+PATH_LIST='gmkb skqp'
+BUCKET=skia-skqp-assets
+
 EXTANT="$(mktemp "${TMPDIR:-/tmp}/extant.XXXXXXXXXX")"
-gsutil ls gs://skia-skqp-assets/ | sed 's|^gs://skia-skqp-assets/||'  > "$EXTANT"
+gsutil ls gs://$BUCKET/ | sed "s|^gs://$BUCKET/||"  > "$EXTANT"
 
 upload() {
     MD5=$(md5sum < "$1" | head -c 32)
     if ! grep -q "$MD5" "$EXTANT"; then
-        URL="gs://skia-skqp-assets/$MD5"
+        URL="gs://${BUCKET}/$MD5"
         gsutil cp "$1" "$URL" > /dev/null 2>&1 &
     fi
     echo $MD5
 }
 
-cd "$(dirname "$0")/../../platform_tools/android/apps/skqp/src/main/assets"
+size() { gsutil du -s gs://$BUCKET | awk '{print $1}'; }
+
+cd "$(dirname "$0")/../../$BASE_DIR"
 
 rm -f files.checksum
 
@@ -26,11 +32,12 @@ FILES="$(mktemp "${TMPDIR:-/tmp}/files.XXXXXXXXXX")"
 
 : > "$FILES"
 
-COUNT=$(find * -type f | wc -l)
+COUNT=$(find $PATH_LIST -type f | wc -l)
 INDEX=1
 SHARD_COUNT=32
 
-find * -type f | sort | while IFS= read -r FILENAME; do
+SIZE=$(size)
+find $PATH_LIST -type f | sort | while IFS= read -r FILENAME; do
     printf '\r %d / %d   ' "$INDEX" "$COUNT"
     if ! [ -f "$FILENAME" ]; then
         echo error [${FILENAME}] >&2;
@@ -49,4 +56,7 @@ printf '\rdone          \n'
 upload "$FILES" > files.checksum
 wait
 
-rm "$FILES" "$EXTANT"
+D=$(( $(size) - $SIZE ))
+printf 'Added %d bytes to %s, %d%%\n' $D $BUCKET $(( $D * 100 / $SIZE ))
+
+rm "$EXTANT"

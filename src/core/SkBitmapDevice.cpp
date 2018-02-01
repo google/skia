@@ -43,18 +43,17 @@ static bool valid_for_bitmap_device(const SkImageInfo& info,
 
     switch (info.colorType()) {
         case kAlpha_8_SkColorType:
+        case kARGB_4444_SkColorType:
+        case kRGBA_8888_SkColorType:
+        case kBGRA_8888_SkColorType:
+        case kRGBA_1010102_SkColorType:
+        case kRGBA_F16_SkColorType:
             break;
         case kGray_8_SkColorType:
-            canonicalAlphaType = kOpaque_SkAlphaType;
-            break;
         case kRGB_565_SkColorType:
+        case kRGB_888x_SkColorType:
+        case kRGB_101010x_SkColorType:
             canonicalAlphaType = kOpaque_SkAlphaType;
-            break;
-        case kARGB_4444_SkColorType:
-            break;
-        case kN32_SkColorType:
-            break;
-        case kRGBA_F16_SkColorType:
             break;
         default:
             return false;

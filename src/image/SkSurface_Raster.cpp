@@ -42,43 +42,30 @@ bool SkSurfaceValidateRasterInfo(const SkImageInfo& info, size_t rowBytes) {
 
     static const size_t kMaxTotalSize = SK_MaxS32;
 
-    int shift = 0;
+    // TODO(mtklein,brianosman): revisit all these color space decisions
     switch (info.colorType()) {
         case kAlpha_8_SkColorType:
-            if (info.colorSpace()) {
-                return false;
-            }
-            shift = 0;
-            break;
         case kGray_8_SkColorType:
-            if (info.colorSpace()) {
-                return false;
-            }
-            shift = 0;
-            break;
         case kRGB_565_SkColorType:
-            if (info.colorSpace()) {
-                return false;
-            }
-            shift = 1;
-            break;
         case kARGB_4444_SkColorType:
+        case kRGB_888x_SkColorType:
+        case kRGBA_1010102_SkColorType:
+        case kRGB_101010x_SkColorType:
             if (info.colorSpace()) {
                 return false;
             }
-            shift = 1;
             break;
-        case kN32_SkColorType:
+
+        case kRGBA_8888_SkColorType:
+        case kBGRA_8888_SkColorType:
             if (info.colorSpace() && !info.colorSpace()->gammaCloseToSRGB()) {
                 return false;
             }
-            shift = 2;
             break;
         case kRGBA_F16_SkColorType:
             if (info.colorSpace() && (!info.colorSpace()->gammaIsLinear())) {
                 return false;
             }
-            shift = 3;
             break;
         default:
             return false;
@@ -87,6 +74,8 @@ bool SkSurfaceValidateRasterInfo(const SkImageInfo& info, size_t rowBytes) {
     if (kIgnoreRowBytesValue == rowBytes) {
         return true;
     }
+
+    int shift = SkColorTypeShiftPerPixel(info.colorType());
 
     uint64_t minRB = (uint64_t)info.width() << shift;
     if (minRB > rowBytes) {

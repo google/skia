@@ -61,7 +61,7 @@ void runFPTest(skiatest::Reporter* reporter, GrContext* context,
         }
 
         sk_sp<GrSurfaceContext> sContext = context->contextPriv().makeWrappedSurfaceContext(
-                                                    std::move(fpProxy), nullptr);
+                                                                            std::move(fpProxy));
         REPORTER_ASSERT(reporter, sContext);
 
         bool result = context->contextPriv().readSurfacePixels(sContext.get(),

@@ -86,8 +86,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(CopySurface, reporter, ctxInfo) {
                             }
 
                             sk_sp<GrSurfaceContext> dstContext =
-                                   context->contextPriv().makeWrappedSurfaceContext(std::move(dst),
-                                                                                    nullptr);
+                                   context->contextPriv().makeWrappedSurfaceContext(std::move(dst));
 
                             bool result = dstContext->copy(src.get(), srcRect, dstPoint);
 
