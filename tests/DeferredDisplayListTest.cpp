@@ -31,8 +31,9 @@ public:
             , fOrigin(kTopLeft_GrSurfaceOrigin)
             , fColorType(kRGBA_8888_SkColorType)
             , fColorSpace(SkColorSpace::MakeSRGB())
-            , fSampleCount(1)
-            , fSurfaceProps(0x0, kUnknown_SkPixelGeometry) {}
+            , fSampleCount(0)
+            , fSurfaceProps(0x0, kUnknown_SkPixelGeometry) {
+    }
 
     int sampleCount() const { return fSampleCount; }
 
@@ -133,7 +134,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(SkSurfaceCharacterization, reporter, ctxInfo) {
             int supportedSampleCount = context->caps()->getSampleCount(
                 params.sampleCount(),
                 gpuSurf->getDevice()->accessRenderTargetContext()->asRenderTargetProxy()->config());
-            if (1 == supportedSampleCount) {
+            if (0 == supportedSampleCount) {
                 // If changing the sample count won't result in a different
                 // surface characterization, skip this step
                 continue;

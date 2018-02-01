@@ -140,7 +140,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ES2BlendWithNoTexture, reporter, ctxInfo) 
     std::vector<TestCase> testCases;
 
     for (auto origin : { kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin}) {
-        for (int sampleCnt : {1, 4}) {
+        for (int sampleCnt : {0, 4}) {
             for (auto rectAndPoints : allRectsAndPoints) {
                 for (auto clip : {SkRect::MakeXYWH(0, 0, 10, 10), SkRect::MakeXYWH(1, 1, 8, 8)}) {
                     testCases.push_back({rectAndPoints, clip, sampleCnt, origin});
@@ -162,7 +162,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ES2BlendWithNoTexture, reporter, ctxInfo) 
         sk_sp<SkSurface> surface = create_gpu_surface_backend_texture_as_render_target(
                 context, sampleCnt, kWidth, kHeight, kColorType, kConfig, origin, &backingSurface);
 
-        if (!surface && sampleCnt > 1) {
+        if (!surface && sampleCnt > 0) {
             // Some platforms don't support MSAA.
             continue;
         }

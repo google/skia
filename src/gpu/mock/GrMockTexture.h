@@ -90,11 +90,8 @@ private:
     }
 
     size_t onGpuMemorySize() const override {
-        int numColorSamples = this->numColorSamples();
-        if (numColorSamples > 1) {
-            // Add one to account for the resolve buffer.
-            ++numColorSamples;
-        }
+        // The plus 1 is to account for the resolve texture.
+        int numColorSamples = this->numColorSamples() + 1;
         return GrSurface::ComputeSize(this->config(), this->width(), this->height(),
                                       numColorSamples,
                                       this->texturePriv().mipMapped());
