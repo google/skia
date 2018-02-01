@@ -216,6 +216,25 @@ public:
     /** Access the context capabilities */
     const GrCaps* caps() const { return fCaps.get(); }
 
+    /**
+     * Can a SkImage be created with the given color type.
+     */
+    bool colorTypeSupportedAsImage(SkColorType) const;
+
+    /**
+     * Can a SkSurface be created with the given color type. The answer depends upon whether the
+     * surface will be multisampled or not.
+     */
+    bool colorTypeSupportedAsSurface(SkColorType colorType) const {
+        return this->maxSurfaceSamplesForColorType(colorType) > 0;
+    }
+
+    /**
+     * Gets the maximum supported sample count for a color type. Larger sample count requests get
+     * rounded down to this value. Zero is returned if MSAA is not supported for this color type.
+     */
+    int maxSurfaceSampleCountForColorType(SkColorType) const;
+
     /*
      * Create a new render target context backed by a deferred-style
      * GrRenderTargetProxy. We guarantee that "asTextureProxy" will succeed for
