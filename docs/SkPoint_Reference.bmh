@@ -2,95 +2,48 @@
 #Alias Points
 #Alias Point_Reference
 
-#Struct SkPoint
-
-#Topic Overview
-
-#Subtopic Subtopics
-#ToDo manually add subtopics ##
-#Table
-#Legend
-# topics # description ##
-#Legend ##
-#Table ##
+#Subtopic Overview
+    #Subtopic Subtopics
+    #Populate
+    ##
 ##
 
+#Struct SkPoint
+
 #Subtopic Constructors
-#Table
-#Legend
-# name  # description                      ##
-#Legend ##
-# Make  # Constructs from SkScalar inputs. ##
-#Table ##
-#Subtopic ##
+#Populate
+##
 
 #Subtopic Operators
-#Table
-#Legend
-# name                                                    # description                        ##
-#Legend ##
-# SkPoint operator*(SkScalar scale)_const                 # Returns Point multiplied by scale. ##
-# SkPoint operator+(const SkPoint& a, const SkVector& b)  # Returns Point offset by Vector.    ##
-# SkPoint operator-()_const                               # Reverses sign of Point.            ##
-# SkPoint& operator*=(SkScalar scale)                     # Multiplies Point by scale factor.  ##
-# SkVector operator-(const SkPoint& a, const SkPoint& b)  # Returns Vector between Points.     ##
-# bool operator!=(const SkPoint& a, const SkPoint& b)     # Returns true if Point are unequal. ##
-# bool operator==(const SkPoint& a, const SkPoint& b)     # Returns true if Point are equal.   ##
-# void operator+=(const SkVector& v)                      # Adds Vector to Point.              ##
-# void operator-=(const SkVector& v)                      # Subtracts Vector from Point.       ##
-#Table ##
-#Subtopic ##
+#Populate
+##
 
 #Subtopic Member_Functions
-#Table
-#Legend
-# name             # description                                    ##
-#Legend ##
-# CrossProduct     # Returns cross product.                         ##
-# Distance         # Returns straight-line distance between points. ##
-# DotProduct       # Returns dot product.                           ##
-# Length           # Returns straight-line distance to origin.      ##
-# Make             # Constructs from SkScalar inputs.               ##
-# Normalize        # Sets length to one, and returns prior length.  ##
-# Offset           # Translates Point array.                        ##
-# cross()          # Returns cross product.                         ##
-# distanceToOrigin # Returns straight-line distance to origin.      ##
-# dot()            # Returns dot product.                           ##
-# equals()         # Returns true if Points are equal.              ##
-# isFinite         # Returns true if no member is infinite or NaN.  ##
-# isZero           # Returns true if both members equal zero.       ##
-# iset()           # Sets to integer input.                         ##
-# length()         # Returns straight-line distance to origin.      ##
-# negate()         # Reverses the sign of both members.             ##
-# normalize()      # Sets length to one, preserving direction.      ##
-# offset()         # Translates Point.                              ##
-# scale()          # Multiplies Point by scale factor.              ##
-# set()            # Sets to SkScalar input.                        ##
-# setAbs           # Sets sign of both members to positive.         ##
-# setLength        # Sets straight-line distance to origin.         ##
-# setNormalize     # Sets length to one, in direction of (x, y).    ##
-# x()              # Returns fX.                                    ##
-# y()              # Returns fY.                                    ##
-#Table ##
-#Subtopic ##
+#Populate
+##
 
-#Topic ##
+#Subtopic Members
+#Populate
 
 #Member SkScalar  fX
+#Line # x-axis value ##
 x-axis value used by both Point and Vector. May contain any value, including
 infinities and NaN.
 ##
 
 #Member SkScalar  fY
+#Line # y-axis value ##
 y-axis value used by both Point and Vector. May contain any value, including
 infinities and NaN.
 ##
+
+#Subtopic Members ##
 
 # ------------------------------------------------------------------------------
 
 #Method static constexpr SkPoint Make(SkScalar x, SkScalar y)
 
-#Line # Constructs from SkScalar inputs. ##
+#Line # constructs from SkScalar inputs ##
 Sets fX to x, fY to y. Used both to set Point and Vector.
 
 #Param x  SkScalar x-axis value of constructed Point or Vector ##
@@ -117,7 +70,7 @@ all equal
 
 #Method SkScalar x() const
 
-#Line # Returns fX. ##
+#Line # returns fX ##
 Returns x-axis value of Point or Vector.
 
 #Return fX ##
@@ -138,7 +91,7 @@ pt1.fX == pt1.x()
 
 #Method SkScalar y() const
 
-#Line # Returns fY. ##
+#Line # returns fY ##
 Returns y-axis value of Point or Vector.
 
 #Return fY ##
@@ -159,7 +112,7 @@ pt1.fY == pt1.y()
 
 #Method bool isZero() const
 
-#Line # Returns true if both members equal zero. ##
+#Line # returns true if both members equal zero ##
 Returns true if fX and fY are both zero.
 
 #Return true if fX is zero and fY is zero ##
@@ -183,7 +136,7 @@ pt.isZero() == true
 
 #Method void set(SkScalar x, SkScalar y)
 
-#Line # Sets to SkScalar input. ##
+#Line # sets to SkScalar input ##
 Sets fX to x and fY to y.
 
 #Param x  new value for fX ##
@@ -206,7 +159,7 @@ pt1 == pt2
 
 #Method void iset(int32_t x, int32_t y)
 
-#Line # Sets to integer input. ##
+#Line # sets to integer input ##
 Sets fX to x and fY to y, promoting integers to SkScalar values.
 
 Assigning a large integer value directly to fX or fY may cause a compiler 
@@ -258,7 +211,7 @@ fPt: -2.14748e+09, 2.14748e+09
 
 #Method void setAbs(const SkPoint& pt)
 
-#Line # Sets sign of both members to positive. ##
+#Line # sets sign of both members to positive ##
 Sets fX to absolute value of pt.fX; and fY to absolute value of pt.fY.
 
 #Param pt  members providing magnitude for fX and fY ##
@@ -288,7 +241,7 @@ pt: nan, -nan  abs: nan, nan
 
 #Method static void Offset(SkPoint points[], int count, const SkVector& offset)
 
-#Line # Translates Point array. ##
+#Line # translates Point array ##
 Adds offset to each Point in points array with count entries.
 
 #Param points  Point array ##
@@ -346,7 +299,7 @@ Adds offset (dx, dy) to each Point in points array of length count.
 
 #Method void offset(SkScalar dx, SkScalar dy)
 
-#Line # Translates Point. ##
+#Line # translates Point ##
 Adds offset (dx, dy) to Point.
 
 #Param dx  added to fX ##
@@ -376,7 +329,7 @@ Adds offset (dx, dy) to Point.
 
 #Method SkScalar length() const
 
-#Line # Returns straight-line distance to origin. ##
+#Line # returns straight-line distance to origin ##
 Returns the Euclidean_Distance from origin, computed as:
 #Code
 #Literal
@@ -411,7 +364,7 @@ sqrt(fX * fX + fY * fY)
 
 #Method SkScalar distanceToOrigin() const
 
-#Line # Returns straight-line distance to origin. ##
+#Line # returns straight-line distance to origin ##
 Returns the Euclidean_Distance from origin, computed as:
 #Code
 #Literal
@@ -447,7 +400,7 @@ sqrt(fX * fX + fY * fY)
 
 #Method bool normalize()
 
-#Line # Sets length to one, preserving direction. ##
+#Line # sets length to one, preserving direction ##
 Scales (fX, fY) so that length() returns one, while preserving ratio of fX to fY,
 if possible. If prior length is nearly zero, sets Vector to (0, 0) and returns
 false; otherwise returns true.
@@ -479,7 +432,7 @@ false; otherwise returns true.
 
 #Method bool setNormalize(SkScalar x, SkScalar y)
 
-#Line # Sets length to one, in direction of (x, y). ##
+#Line # sets length to one, in direction of (x, y) ##
 Sets Vector to (x, y) scaled so length() returns one, and so that
 (fX, fY) is proportional to (x, y).  If (x, y) length is nearly zero,
 sets Vector to (0, 0) and returns false; otherwise returns true.
@@ -516,7 +469,7 @@ sets Vector to (0, 0) and returns false; otherwise returns true.
 
 #Method bool setLength(SkScalar length)
 
-#Line # Sets straight-line distance to origin. ##
+#Line # sets straight-line distance to origin ##
 Scales Vector so that distanceToOrigin returns length, if possible. If former
 length is nearly zero, sets Vector to (0, 0) and return false; otherwise returns
 true.
@@ -589,7 +542,7 @@ true.
 
 #Method void scale(SkScalar scale, SkPoint* dst) const
 
-#Line # Multiplies Point by scale factor. ##
+#Line # multiplies Point by scale factor ##
 Sets dst to Point times scale. dst may be Point to modify Point in place.
 
 #Param scale  factor to multiply Point by ##
@@ -641,7 +594,7 @@ Scales Point in place by scale.
 
 #Method void negate()
 
-#Line # Reverses the sign of both members. ##
+#Line # reverses the sign of both members ##
 Changes the sign of fX and fY.
 
 #Example
@@ -669,6 +622,7 @@ pt: nan, -nan  negate: -nan, nan
 
 #Method SkPoint operator-()_const
 
+#Line # reverses sign of Point ##
 Returns Point changing the signs of fX and fY.
 
 #Return Point as (-fX, -fY) ##
@@ -697,6 +651,7 @@ pt: nan, -nan  negate: -nan, nan
 
 #Method void operator+=(const SkVector& v)
 
+#Line # adds Vector to Point ##
 Adds Vector v to Point. Sets Point to:
 #Formula
 (fX + v.fX, fY + v.fY)
@@ -730,6 +685,7 @@ Adds Vector v to Point. Sets Point to:
 
 #Method void operator-=(const SkVector& v)
 
+#Line # subtracts Vector from Point ##
 Subtracts Vector v from Point. Sets Point to:
 #Formula
 (fX - v.fX, fY - v.fY)
@@ -763,6 +719,7 @@ Subtracts Vector v from Point. Sets Point to:
 
 #Method SkPoint operator*(SkScalar scale)_const
 
+#Line # returns Point multiplied by scale ##
 Returns Point multiplied by scale.
 
 #Param scale  Scalar to multiply by ##
@@ -795,6 +752,7 @@ Returns Point multiplied by scale.
 
 #Method SkPoint& operator*=(SkScalar scale)
 
+#Line # multiplies Point by scale factor ##
 Multiplies Point by scale. Sets Point to:
 #Formula
 (fX * scale, fY * scale)
@@ -830,7 +788,7 @@ Multiplies Point by scale. Sets Point to:
 
 #Method bool isFinite() const
 
-#Line # Returns true if no member is infinite or NaN. ##
+#Line # returns true if no member is infinite or NaN ##
 Returns true if both fX and fY are measurable values.
 
 #Return true for values other than infinities and NaN ##
@@ -856,7 +814,7 @@ pt: nan, -1  finite: false
 
 #Method bool equals(SkScalar x, SkScalar y) const
 
-#Line # Returns true if Points are equal. ##
+#Line # returns true if Points are equal ##
 Returns true if Point is equivalent to Point constructed from (x, y).
 
 #Param x  value compared with fX ##
@@ -885,6 +843,7 @@ pt: nan, -1  != pt
 
 #Method bool operator==(const SkPoint& a, const SkPoint& b)
 
+#Line # returns true if Point are equal ##
 Returns true if a is equivalent to b.
 
 #Param a  Point to compare ##
@@ -913,6 +872,7 @@ pt: nan, -1  != pt
 
 #Method bool operator!=(const SkPoint& a, const SkPoint& b)
 
+#Line # returns true if Point are unequal ##
 Returns true if a is not equivalent to b.
 
 #Param a  Point to compare ##
@@ -941,6 +901,7 @@ pt: nan, -1  != pt
 
 #Method SkVector operator-(const SkPoint& a, const SkPoint& b)
 
+#Line # returns Vector between Points ##
 Returns Vector from b to a, computed as
 #Formula
 (a.fX - b.fX, a.fY - b.fY)
@@ -979,6 +940,7 @@ Can also be used to subtract Vector from Vector, returning Vector.
 
 #Method SkPoint operator+(const SkPoint& a, const SkVector& b)
 
+#Line # returns Point offset by Vector ##
 Returns Point resulting from Point a offset by Vector b, computed as:
 #Formula
 (a.fX + b.fX, a.fY + b.fY)
@@ -1021,7 +983,7 @@ Can also be used to add Vector to Vector, returning Vector.
 
 #Method static SkScalar Length(SkScalar x, SkScalar y)
 
-#Line # Returns straight-line distance to origin. ##
+#Line # returns straight-line distance to origin ##
 Returns the Euclidean_Distance from origin, computed as:
 #Code
 #Literal
@@ -1059,7 +1021,7 @@ sqrt(x * x + y * y)
 
 #Method static SkScalar Normalize(SkVector* vec)
 
-#Line # Sets length to one, and returns prior length. ##
+#Line # sets length to one, and returns prior length ##
 Scales (vec->fX, vec->fY) so that length() returns one, while preserving ratio of vec->fX to vec->fY,
 if possible. If original length is nearly zero, sets vec to (0, 0) and returns zero;
 otherwise, returns length of vec before vec is scaled.
@@ -1099,7 +1061,7 @@ Note that normalize() is faster if prior length is not required.
 
 #Method static SkScalar Distance(const SkPoint& a, const SkPoint& b)
 
-#Line # Returns straight-line distance between points. ##
+#Line # returns straight-line distance between points ##
 Returns the Euclidean_Distance between a and b.
 
 #Param a  line end point ##
@@ -1134,7 +1096,7 @@ Returns the Euclidean_Distance between a and b.
 
 #Method static SkScalar DotProduct(const SkVector& a, const SkVector& b)
 
-#Line # Returns dot product. ##
+#Line # returns dot product ##
 Returns the dot product of Vector a and Vector b.
 
 #Param a  left side of dot product ##
@@ -1166,7 +1128,7 @@ Returns the dot product of Vector a and Vector b.
 
 #Method static SkScalar CrossProduct(const SkVector& a, const SkVector& b)
 
-#Line # Returns cross product. ##
+#Line # returns cross product ##
 Returns the cross product of Vector a and Vector b.
 
 a and b form three-dimensional vectors with z equal to zero. The cross product
@@ -1206,7 +1168,7 @@ term equals the returned value.
 
 #Method SkScalar cross(const SkVector& vec) const
 
-#Line # Returns cross product. ##
+#Line # returns cross product ##
 Returns the cross product of Vector and vec.
 
 Vector and vec form three-dimensional vectors with z equal to zero. The
@@ -1245,7 +1207,7 @@ The cross product z term equals the returned value.
 
 #Method SkScalar dot(const SkVector& vec) const
 
-#Line # Returns dot product. ##
+#Line # returns dot product ##
 Returns the dot product of Vector and Vector vec.
 
 #Param vec  right side of dot product ##

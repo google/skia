@@ -3,6 +3,18 @@ SkCanvas Reference
 
 # <a name="Canvas"></a> Canvas
 
+## <a name="Overview"></a> Overview
+
+## <a name="Subtopics"></a> Subtopics
+
+| name | description |
+| --- | --- |
+| <a href="#Classes_and_Structs">Classes and Structs</a> | embedded struct and class members |
+| <a href="#Constants">Constants</a> | enum and enum class, const values |
+| <a href="#Constructors">Constructors</a> | functions that construct <a href="SkCanvas_Reference#SkCanvas">SkCanvas</a> |
+| <a href="#Member_Functions">Member Functions</a> | static functions and member methods |
+| <a href="#Related_Functions">Related Functions</a> | similar methods grouped together |
+
 # <a name="SkCanvas"></a> Class SkCanvas
 <a href="#Canvas">Canvas</a> provides an interface for drawing, and how the drawing is clipped and transformed.
 <a href="#Canvas">Canvas</a> contains a stack of <a href="#Matrix">Matrix</a> and <a href="#Clip">Clip</a> values.
@@ -25,40 +37,39 @@ destination.
 <a href="#Canvas">Canvas</a> can be constructed to draw to <a href="SkBitmap_Reference#Bitmap">Bitmap</a> without first creating <a href="undocumented#Raster_Surface">Raster Surface</a>.
 This approach may be deprecated in the future.
 
-# <a name="Overview"></a> Overview
-
-## <a name="Subtopics"></a> Subtopics
+## <a name="Related_Functions"></a> Related Functions
 
 | name | description |
-| --- | ---  |
-| <a href="#Overview_Classes_and_Structs">Classes and Structs</a> | embedded struct and class members |
-| <a href="#Overview_Constants">Constants</a> | enum and enum class, const values |
-| <a href="#Overview_Constructors">Constructors</a> | functions that construct <a href="SkPath_Reference#SkPath">SkPath</a> |
-| <a href="#Overview_Member_Functions">Member Functions</a> | static functions and member methods |
+| --- | --- |
+| <a href="#Clip">Clip</a> | stack of clipping <a href="#Path">Paths</a> |
+| <a href="#Draw_Image">Draw Image</a> | draws <a href="SkImage_Reference#Image">Image</a> to <a href="#Canvas">Canvas</a> |
+| <a href="#Layer">Layer</a> | temporary <a href="SkBitmap_Reference#Bitmap">Bitmap</a> to draw into |
+| <a href="#Matrix">Matrix</a> | coordinate transformation |
+| <a href="#State_Stack">State Stack</a> | stack of state for hierarchical drawing |
 
 ## <a name="Constants"></a> Constants
 
 | name | description |
-| --- | ---  |
-| Lattice::Flags | controls <a href="#SkCanvas_Lattice">Lattice</a> transparency |
+| --- | --- |
+| <a href="#SkCanvas_ColorBehavior">ColorBehavior</a> | Android framework only |
 | <a href="#SkCanvas_PointMode">PointMode</a> | sets <a href="#SkCanvas_drawPoints">drawPoints</a> options |
-| <a href="#SkCanvas_SaveLayerFlags">SaveLayerFlags</a> | sets <a href="#SkCanvas_SaveLayerRec">SaveLayerRec</a> options |
 | <a href="#SkCanvas_SrcRectConstraint">SrcRectConstraint</a> | sets <a href="#SkCanvas_drawImageRect">drawImageRect</a> options |
+| _anonymous | sets <a href="#SkCanvas_SaveLayerRec">SaveLayerRec</a> options |
 
 ## <a name="Classes_and_Structs"></a> Classes and Structs
 
 | name | description |
-| --- | ---  |
-| <a href="#SkCanvas_Lattice">Lattice</a> | divides <a href="SkBitmap_Reference#Bitmap">Bitmap</a>, <a href="SkImage_Reference#Image">Image</a> into a rectangular grid |
-| <a href="#SkCanvas_SaveLayerRec">SaveLayerRec</a> | contains state to create <a href="#Layer">Layer</a> |
+| --- | --- |
+| <a href="#SkCanvas_Lattice">Lattice</a> | divides <a href="SkBitmap_Reference#Bitmap">Bitmap</a> or <a href="SkImage_Reference#Image">Image</a> into a rectangular grid |
+| <a href="#SkCanvas_SaveLayerRec">SaveLayerRec</a> | contains the state used to create the <a href="#Layer">Layer</a> |
 
 ## <a name="Constructors"></a> Constructors
 
-Create the desired type of <a href="SkSurface_Reference#Surface">Surface</a> to obtain its <a href="#Canvas">Canvas</a> when possible. <a href="#Overview_Constructors">Constructors</a> are useful
+Create the desired type of <a href="SkSurface_Reference#Surface">Surface</a> to obtain its <a href="#Canvas">Canvas</a> when possible. <a href="#Constructors">Constructors</a> are useful
 when no <a href="SkSurface_Reference#Surface">Surface</a> is required, and some helpers implicitly create <a href="undocumented#Raster_Surface">Raster Surface</a>.
 
 | name | description |
-| --- | ---  |
+| --- | --- |
 | <a href="#SkCanvas_MakeRasterDirect">MakeRasterDirect</a> | creates from <a href="SkImageInfo_Reference#SkImageInfo">SkImageInfo</a> and <a href="#Storage">Pixel Storage</a> |
 | <a href="#SkCanvas_MakeRasterDirectN32">MakeRasterDirectN32</a> | creates from image data and <a href="#Storage">Pixel Storage</a> |
 | <a href="#SkCanvas_empty_constructor">SkCanvas()</a> | creates with no <a href="SkSurface_Reference#Surface">Surface</a>, no dimensions |
@@ -67,12 +78,13 @@ when no <a href="SkSurface_Reference#Surface">Surface</a> is required, and some 
 | <a href="#SkCanvas_const_SkBitmap">SkCanvas(const SkBitmap& bitmap, ColorBehavior behavior)</a> | Android framework only |
 | <a href="#SkCanvas_const_SkBitmap_const_SkSurfaceProps">SkCanvas(const SkBitmap& bitmap, const SkSurfaceProps& props)</a> | uses existing <a href="SkBitmap_Reference#Bitmap">Bitmap</a> and <a href="undocumented#Surface_Properties">Surface Properties</a> |
 | <a href="#SkCanvas_int_int_const_SkSurfaceProps_star">SkCanvas(int width, int height, const SkSurfaceProps* props = nullptr)</a> | no <a href="SkSurface_Reference#Surface">Surface</a>, set dimensions, <a href="undocumented#Surface_Properties">Surface Properties</a> |
-|  | draws saved <a href="#Layer">Layers</a>, frees resources |
+| <a href="#SkCanvas_makeSurface">makeSurface</a> | creates <a href="SkSurface_Reference#Surface">Surface</a> matching <a href="SkImageInfo_Reference#SkImageInfo">SkImageInfo</a> and <a href="undocumented#SkSurfaceProps">SkSurfaceProps</a> |
+| <a href="#SkCanvas_destructor">~SkCanvas()</a> | draws saved <a href="#Layer">Layers</a>, frees resources |
 
 ## <a name="Member_Functions"></a> Member Functions
 
 | name | description |
-| --- | ---  |
+| --- | --- |
 | <a href="#SkCanvas_MakeRasterDirect">MakeRasterDirect</a> | creates from <a href="SkImageInfo_Reference#SkImageInfo">SkImageInfo</a> and <a href="#Storage">Pixel Storage</a> |
 | <a href="#SkCanvas_MakeRasterDirectN32">MakeRasterDirectN32</a> | creates from image data and <a href="#Storage">Pixel Storage</a> |
 | <a href="#SkCanvas_accessTopLayerPixels">accessTopLayerPixels</a> | returns writable pixel access if available |
@@ -391,11 +403,6 @@ specifies a <a href="#SkCanvas_copy_SkBaseDevice_star_device">device</a> for the
 
 <a href="#Canvas">Canvas</a> that can be used to draw into <a href="#SkCanvas_copy_SkBaseDevice_star_device">device</a>
 
-### Example
-
-<pre style="padding: 1em 1em 1em 1em; font-size: 13px width: 62.5em; background-color: #f0f0f0">
-void draw(SkCanvas* canvas) {</fiddle-embed></div>
-
 ### See Also
 
 <a href="#SkCanvas_MakeRasterDirect">MakeRasterDirect</a> <a href="#SkRasterHandleAllocator_MakeCanvas">SkRasterHandleAllocator::MakeCanvas</a> <a href="#SkSurface_getCanvas">SkSurface::getCanvas</a> <a href="undocumented#SkCreateColorSpaceXformCanvas">SkCreateColorSpaceXformCanvas</a>
@@ -692,11 +699,6 @@ Triggers the immediate execution of all pending draw operations.
 If <a href="#Canvas">Canvas</a> is associated with <a href="undocumented#GPU_Surface">GPU Surface</a>, resolves all pending GPU operations.
 If <a href="#Canvas">Canvas</a> is associated with <a href="undocumented#Raster_Surface">Raster Surface</a>, has no effect; raster draw
 operations are never deferred.
-
-### Example
-
-<pre style="padding: 1em 1em 1em 1em; font-size: 13px width: 62.5em; background-color: #f0f0f0">
-void draw(SkCanvas* canvas) {</fiddle-embed></div>
 
 ### See Also
 
@@ -1295,7 +1297,8 @@ true if pixels were written to <a href="#Canvas">Canvas</a>
 
 ---
 
-# <a name="State_Stack"></a> State Stack
+## <a name="State_Stack"></a> State Stack
+
 <a href="#Canvas">Canvas</a> maintains a stack of state that allows hierarchical drawing, commonly used
 to implement windows and views. The initial state has an identity matrix and and
 an infinite clip. Even with a wide-open clip, drawing is constrained by the
@@ -1459,7 +1462,8 @@ depth = 1
 
 ---
 
-# <a name="Layer"></a> Layer
+## <a name="Layer"></a> Layer
+
 <a href="#Layer">Layer</a> allocates a temporary <a href="SkBitmap_Reference#Bitmap">Bitmap</a> to draw into. When the drawing is
 complete, the <a href="SkBitmap_Reference#Bitmap">Bitmap</a> is drawn into the <a href="#Canvas">Canvas</a>.
 
@@ -1968,7 +1972,7 @@ Outside of the circle the mandrill is brightened.</div></fiddle-embed></div>
 
 ---
 
-# <a name="Matrix"></a> Matrix
+## <a name="Matrix"></a> Matrix
 
 <a name="SkCanvas_translate"></a>
 ## translate
@@ -2261,7 +2265,8 @@ isIdentity true
 
 ---
 
-# <a name="Clip"></a> Clip
+## <a name="Clip"></a> Clip
+
 <a href="#Clip">Clip</a> is built from a stack of clipping paths. Each <a href="SkPath_Reference#Path">Path</a> in the
 stack can be constructed from one or more <a href="#Contour">Path Contour</a> elements. The
 <a href="#Contour">Path Contour</a> may be composed of any number of <a href="#Verb">Path Verb</a> segments. Each
@@ -3654,7 +3659,8 @@ Third bottom column shows inverse winding fills area outside both contours.</div
 
 ---
 
-# <a name="Draw_Image"></a> Draw Image
+## <a name="Draw_Image"></a> Draw Image
+
 <a href="#SkCanvas_drawImage">drawImage</a>, <a href="#SkCanvas_drawImageRect">drawImageRect</a>, and <a href="#SkCanvas_drawImageNine">drawImageNine</a> can be called with a bare pointer or
 a smart pointer as a convenience. The pairs of calls are otherwise identical.
 

@@ -3,27 +3,22 @@ SkImageInfo Reference
 
 # <a name="Image_Info"></a> Image Info
 
-# <a name="Overview"></a> Overview
+## <a name="Overview"></a> Overview
 
 ## <a name="Subtopics"></a> Subtopics
 
 | name | description |
-| --- | ---  |
-| <a href="SkImageInfo_Reference#Image_Info_Overview_Constants">Constants</a> | enum and enum class, const values |
-| <a href="SkImageInfo_Reference#Image_Info_Constructors">Constructors</a> | functions that construct ImageInfo |
+| --- | --- |
+| <a href="SkImageInfo_Reference#Image_Info_Constructors">Constructors</a> | functions that construct <a href="SkImageInfo_Reference#SkImageInfo">SkImageInfo</a> |
 | <a href="SkImageInfo_Reference#Image_Info_Member_Functions">Member Functions</a> | static functions and member methods |
 | <a href="SkImageInfo_Reference#Image_Info_Operators">Operators</a> | operator overloading methods |
 
 ## <a name="Constants"></a> Constants
 
 | name | description |
-| --- | ---  |
-| <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a> | encoding for pixel transparency |
-| <a href="SkImageInfo_Reference#Color_Type">Color Type</a> | encoding for pixel color components |
-| <a href="SkImageInfo_Reference#SkDestinationSurfaceColorMode">SkDestinationSurfaceColorMode</a> |  |
-| <a href="SkImageInfo_Reference#SkYUVColorSpace">SkYUVColorSpace</a> |  |
+| --- | --- |
 
-# <a name="Alpha_Type"></a> Alpha Type
+## <a name="Alpha_Type"></a> Alpha Type
 
 ## <a name="SkAlphaType"></a> Enum SkAlphaType
 
@@ -69,9 +64,7 @@ incomplete
 
 
 
-# <a name="Color_Type"></a> Color Type
-
-## <a name="Native_Color_Type"></a> Native Color Type
+## <a name="Color_Type"></a> Color Type
 
 ## <a name="SkColorType"></a> Enum SkColorType
 
@@ -225,58 +218,58 @@ Used for both src images and render-targets (surfaces).
 ## <a name="Operators"></a> Operators
 
 | name | description |
-| --- | ---  |
-| <a href="#SkImageInfo_notequal1_operator">operator!=(const SkImageInfo& other) const</a> |  |
-| <a href="#SkImageInfo_equal1_operator">operator==(const SkImageInfo& other) const</a> |  |
+| --- | --- |
+| <a href="#SkImageInfo_notequal1_operator">operator!=(const SkImageInfo& other) const</a> | incomplete |
+| <a href="#SkImageInfo_equal1_operator">operator==(const SkImageInfo& other) const</a> | incomplete |
 
 ## <a name="Member_Functions"></a> Member Functions
 
 | name | description |
-| --- | ---  |
-| <a href="#SkImageInfo_ByteSizeOverflowed">ByteSizeOverflowed</a> |  |
+| --- | --- |
+| <a href="#SkImageInfo_ByteSizeOverflowed">ByteSizeOverflowed</a> | incomplete |
 | <a href="#SkImageInfo_Make">Make</a> | creates <a href="SkImageInfo_Reference#Image_Info">Image Info</a> from dimensions, <a href="SkImageInfo_Reference#Color_Type">Color Type</a>, <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a>, <a href="undocumented#Color_Space">Color Space</a> |
 | <a href="#SkImageInfo_MakeA8">MakeA8</a> | creates <a href="SkImageInfo_Reference#Image_Info">Image Info</a> with <a href="SkImageInfo_Reference#SkColorType">kAlpha 8 SkColorType</a>, <a href="SkImageInfo_Reference#SkAlphaType">kPremul SkAlphaType</a> |
-| <a href="#SkImageInfo_MakeN32">MakeN32</a> | creates <a href="SkImageInfo_Reference#Image_Info">Image Info</a> with <a href="SkImageInfo_Reference#Native_Color_Type">Native Color Type</a> |
-| <a href="#SkImageInfo_MakeN32Premul">MakeN32Premul</a> | creates <a href="SkImageInfo_Reference#Image_Info">Image Info</a> with <a href="SkImageInfo_Reference#Native_Color_Type">Native Color Type</a>, <a href="SkImageInfo_Reference#SkAlphaType">kPremul SkAlphaType</a> |
-| <a href="#SkImageInfo_MakeS32">MakeS32</a> | creates <a href="SkImageInfo_Reference#Image_Info">Image Info</a> with <a href="SkImageInfo_Reference#Native_Color_Type">Native Color Type</a>, sRGB <a href="undocumented#Color_Space">Color Space</a> |
+| <a href="#SkImageInfo_MakeN32">MakeN32</a> | creates <a href="SkImageInfo_Reference#Image_Info">Image Info</a> with <a href="SkImageInfo_Reference#Color_Type">Native Color Type</a> |
+| <a href="#SkImageInfo_MakeN32Premul">MakeN32Premul</a> | creates <a href="SkImageInfo_Reference#Image_Info">Image Info</a> with <a href="SkImageInfo_Reference#Color_Type">Native Color Type</a>, <a href="SkImageInfo_Reference#SkAlphaType">kPremul SkAlphaType</a> |
+| <a href="#SkImageInfo_MakeS32">MakeS32</a> | creates <a href="SkImageInfo_Reference#Image_Info">Image Info</a> with <a href="SkImageInfo_Reference#Color_Type">Native Color Type</a>, sRGB <a href="undocumented#Color_Space">Color Space</a> |
 | <a href="#SkImageInfo_MakeUnknown">MakeUnknown</a> | creates <a href="SkImageInfo_Reference#Image_Info">Image Info</a> with <a href="SkImageInfo_Reference#SkColorType">kUnknown SkColorType</a>, <a href="SkImageInfo_Reference#SkAlphaType">kUnknown SkAlphaType</a> |
-| <a href="#SkImageInfo_alphaType">alphaType</a> |  |
-| <a href="#SkImageInfo_bounds">bounds</a> |  |
-| <a href="#SkImageInfo_bytesPerPixel">bytesPerPixel</a> |  |
-| <a href="#SkImageInfo_colorSpace">colorSpace</a> |  |
-| <a href="#SkImageInfo_colorType">colorType</a> |  |
-| <a href="#SkImageInfo_computeByteSize">computeByteSize</a> |  |
-| <a href="#SkImageInfo_computeMinByteSize">computeMinByteSize</a> |  |
-| <a href="#SkImageInfo_computeOffset">computeOffset</a> |  |
-| <a href="#SkImageInfo_dimensions">dimensions</a> |  |
-| <a href="#SkImageInfo_flatten">flatten</a> |  |
-| <a href="#SkImageInfo_gammaCloseToSRGB">gammaCloseToSRGB</a> |  |
-| <a href="#SkImageInfo_height">height</a> |  |
-| <a href="#SkImageInfo_isEmpty">isEmpty</a> |  |
-| <a href="#SkImageInfo_isOpaque">isOpaque</a> |  |
+| <a href="#SkImageInfo_alphaType">alphaType</a> | incomplete |
+| <a href="#SkImageInfo_bounds">bounds</a> | incomplete |
+| <a href="#SkImageInfo_bytesPerPixel">bytesPerPixel</a> | incomplete |
+| <a href="#SkImageInfo_colorSpace">colorSpace</a> | incomplete |
+| <a href="#SkImageInfo_colorType">colorType</a> | incomplete |
+| <a href="#SkImageInfo_computeByteSize">computeByteSize</a> | incomplete |
+| <a href="#SkImageInfo_computeMinByteSize">computeMinByteSize</a> | incomplete |
+| <a href="#SkImageInfo_computeOffset">computeOffset</a> | incomplete |
+| <a href="#SkImageInfo_dimensions">dimensions</a> | incomplete |
+| <a href="#SkImageInfo_flatten">flatten</a> | incomplete |
+| <a href="#SkImageInfo_gammaCloseToSRGB">gammaCloseToSRGB</a> | incomplete |
+| <a href="#SkImageInfo_height">height</a> | incomplete |
+| <a href="#SkImageInfo_isEmpty">isEmpty</a> | incomplete |
+| <a href="#SkImageInfo_isOpaque">isOpaque</a> | incomplete |
 | <a href="#SkImageInfo_makeAlphaType">makeAlphaType</a> | creates <a href="SkImageInfo_Reference#Image_Info">Image Info</a> with changed <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a> |
 | <a href="#SkImageInfo_makeColorSpace">makeColorSpace</a> | creates <a href="SkImageInfo_Reference#Image_Info">Image Info</a> with changed <a href="undocumented#Color_Space">Color Space</a> |
 | <a href="#SkImageInfo_makeColorType">makeColorType</a> | creates <a href="SkImageInfo_Reference#Image_Info">Image Info</a> with changed <a href="SkImageInfo_Reference#Color_Type">Color Type</a> |
 | <a href="#SkImageInfo_makeWH">makeWH</a> | creates <a href="SkImageInfo_Reference#Image_Info">Image Info</a> with changed dimensions |
-| <a href="#SkImageInfo_minRowBytes">minRowBytes</a> |  |
-| <a href="#SkImageInfo_minRowBytes64">minRowBytes64</a> |  |
-| <a href="#SkImageInfo_refColorSpace">refColorSpace</a> |  |
-| <a href="#SkImageInfo_reset">reset</a> |  |
-| <a href="#SkImageInfo_shiftPerPixel">shiftPerPixel</a> |  |
-| <a href="#SkImageInfo_unflatten">unflatten</a> |  |
-| <a href="#SkImageInfo_validRowBytes">validRowBytes</a> |  |
-| <a href="#SkImageInfo_validate">validate</a> |  |
-| <a href="#SkImageInfo_width">width</a> |  |
+| <a href="#SkImageInfo_minRowBytes">minRowBytes</a> | incomplete |
+| <a href="#SkImageInfo_minRowBytes64">minRowBytes64</a> | incomplete |
+| <a href="#SkImageInfo_refColorSpace">refColorSpace</a> | incomplete |
+| <a href="#SkImageInfo_reset">reset</a> | incomplete |
+| <a href="#SkImageInfo_shiftPerPixel">shiftPerPixel</a> | incomplete |
+| <a href="#SkImageInfo_unflatten">unflatten</a> | incomplete |
+| <a href="#SkImageInfo_validRowBytes">validRowBytes</a> | incomplete |
+| <a href="#SkImageInfo_validate">validate</a> | incomplete |
+| <a href="#SkImageInfo_width">width</a> | incomplete |
 
 ## <a name="Constructors"></a> Constructors
 
 | name | description |
-| --- | ---  |
+| --- | --- |
 | <a href="#SkImageInfo_Make">Make</a> | creates <a href="SkImageInfo_Reference#Image_Info">Image Info</a> from dimensions, <a href="SkImageInfo_Reference#Color_Type">Color Type</a>, <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a>, <a href="undocumented#Color_Space">Color Space</a> |
 | <a href="#SkImageInfo_MakeA8">MakeA8</a> | creates <a href="SkImageInfo_Reference#Image_Info">Image Info</a> with <a href="SkImageInfo_Reference#SkColorType">kAlpha 8 SkColorType</a>, <a href="SkImageInfo_Reference#SkAlphaType">kPremul SkAlphaType</a> |
-| <a href="#SkImageInfo_MakeN32">MakeN32</a> | creates <a href="SkImageInfo_Reference#Image_Info">Image Info</a> with <a href="SkImageInfo_Reference#Native_Color_Type">Native Color Type</a> |
-| <a href="#SkImageInfo_MakeN32Premul">MakeN32Premul</a> | creates <a href="SkImageInfo_Reference#Image_Info">Image Info</a> with <a href="SkImageInfo_Reference#Native_Color_Type">Native Color Type</a>, <a href="SkImageInfo_Reference#SkAlphaType">kPremul SkAlphaType</a> |
-| <a href="#SkImageInfo_MakeS32">MakeS32</a> | creates <a href="SkImageInfo_Reference#Image_Info">Image Info</a> with <a href="SkImageInfo_Reference#Native_Color_Type">Native Color Type</a>, sRGB <a href="undocumented#Color_Space">Color Space</a> |
+| <a href="#SkImageInfo_MakeN32">MakeN32</a> | creates <a href="SkImageInfo_Reference#Image_Info">Image Info</a> with <a href="SkImageInfo_Reference#Color_Type">Native Color Type</a> |
+| <a href="#SkImageInfo_MakeN32Premul">MakeN32Premul</a> | creates <a href="SkImageInfo_Reference#Image_Info">Image Info</a> with <a href="SkImageInfo_Reference#Color_Type">Native Color Type</a>, <a href="SkImageInfo_Reference#SkAlphaType">kPremul SkAlphaType</a> |
+| <a href="#SkImageInfo_MakeS32">MakeS32</a> | creates <a href="SkImageInfo_Reference#Image_Info">Image Info</a> with <a href="SkImageInfo_Reference#Color_Type">Native Color Type</a>, sRGB <a href="undocumented#Color_Space">Color Space</a> |
 | <a href="#SkImageInfo_MakeUnknown">MakeUnknown</a> | creates <a href="SkImageInfo_Reference#Image_Info">Image Info</a> with <a href="SkImageInfo_Reference#SkColorType">kUnknown SkColorType</a>, <a href="SkImageInfo_Reference#SkAlphaType">kUnknown SkAlphaType</a> |
 | <a href="#SkImageInfo_empty_constructor">SkImageInfo()</a> | creates with zero dimensions, <a href="SkImageInfo_Reference#SkColorType">kUnknown SkColorType</a>, <a href="SkImageInfo_Reference#SkAlphaType">kUnknown SkAlphaType</a> |
 | <a href="#SkImageInfo_makeAlphaType">makeAlphaType</a> | creates <a href="SkImageInfo_Reference#Image_Info">Image Info</a> with changed <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a> |

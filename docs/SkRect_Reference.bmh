@@ -2,22 +2,11 @@
 #Alias Rects
 #Alias Rect_Reference
 
-#Topic Overview
-
-#Subtopic Subtopics
-#Table
-#Legend
-# name              # description                         ##
-#Legend ##
-# Constructors      # functions that construct SkRect     ##
-# Member_Functions  # static functions and member methods ##
-# Members           # member values                       ##
-# Operators         # operator overloading methods        ##
-# Related_Functions # similar methods grouped together    ##
-#Table ##
+#Subtopic Overview
+    #Subtopic Subtopics
+    #Populate
+    ##
 ##
-
-#Topic Overview ##
 
 #Struct SkRect
 
@@ -32,102 +21,36 @@ SkRect can be constructed from int values to avoid compiler warnings that
 integer input cannot convert to SkScalar without loss of precision.
 
 #Subtopic Related_Functions
-#Table
-#Legend
-# name                   # description                                ##
-#Legend ##
-# As_Points              # conversion to and from Points              ##
-# From_Integers          # set Scalar values from integer input       ##
-# Inset_Outset_Offset    # moves sides                                ##
-# Intersection           # set to shared bounds                       ##
-# Join                   # set to union of bounds                     ##
-# Properties             # side values, center, validity              ##
-# Rounding               # adjust to integer bounds                   ##
-# Set                    # replaces all values                        ##
-# Sorting                # orders sides                               ##
-#Table ##
+#Populate
 #Subtopic ##
 
 #Subtopic Member_Functions
-#Table
-#Legend
-# description           # function ##
-#Legend ##
-# Intersects            # returns true if areas overlap ##
-# Make                  # constructs from ISize returning (0, 0, width, height) ##
-# MakeEmpty             # constructs from bounds of (0, 0, 0, 0) ##
-# MakeFromIRect         # deprecated ##
-# MakeIWH               # constructs from int input returning (0, 0, width, height) ##
-# MakeLTRB              # constructs from SkScalar left, top, right, bottom ##
-# MakeLargest           # deprecated ##
-# MakeSize              # constructs from Size returning (0, 0, width, height) ##
-# MakeWH                # constructs from SkScalar input returning (0, 0, width, height) ##
-# MakeXYWH              # constructs from SkScalar input returning (x, y, width, height) ##
-# asScalars             # returns pointer to members as array ##
-# bottom()              # returns larger bounds in y, if sorted ##
-# centerX               # returns midpoint in x ##
-# centerY               # returns midpoint in y ##
-# contains()            # returns true if points are equal or inside ##
-# dump()                # sends text representation to standard output using floats ##
-# dumpHex               # sends text representation to standard output using hexadecimal ##
-# height()              # returns span in y ##
-# inset()               # moves the sides symmetrically about the center ##
-# intersect()           # sets to shared area; returns true if not empty ##
-# intersects()          # returns true if areas overlap ##
-# isEmpty               # returns true if width or height are zero or negative ##
-# isFinite              # returns true if no member is infinite or NaN ##
-# isSorted              # returns true if width or height are zero or positive ##
-# iset()                # sets to int input (left, top, right, bottom) ##
-# isetWH                # sets to int input (0, 0, width, height) ##
-# join()                # sets to union of bounds ##
-# joinNonEmptyArg       # sets to union of bounds, asserting that argument is not empty ##
-# joinPossiblyEmptyRect # sets to union of bounds. Skips empty check for both ##
-# left()                # returns smaller bounds in x, if sorted ##
-# makeInset             # constructs from sides moved symmetrically about the center ##
-# makeOffset            # constructs from translated sides ##
-# makeOutset            # constructs from sides moved symmetrically about the center ##
-# makeSorted            # constructs, ordering sides from smaller to larger ##
-# offset()              # translates sides without changing width and height ##
-# offsetTo              # translates to (x, y) without changing width and height ##
-# outset()              # moves the sides symmetrically about the center ##
-# right()               # returns larger bounds in x, if sorted ##
-# round()               # sets members to nearest integer value ##
-# roundIn               # sets members to nearest integer value towards opposite ##
-# roundOut              # sets members to nearest integer value away from opposite ##
-# set()                 # sets to SkScalar input (left, top, right, bottom) and others ##
-# setBounds             # sets to upper and lower limits of Point array ##
-# setBoundsCheck        # sets to upper and lower limits of Point array ##
-# setEmpty              # sets to (0, 0, 0, 0) ##
-# setLTRB               # sets to SkScalar input (left, top, right, bottom) ##
-# setWH                 # sets to SkScalar input (0, 0, width, height) ##
-# setXYWH               # sets to SkScalar input (x, y, width, height) ##
-# sort()                # orders sides from smaller to larger ##
-# toQuad                # returns four corners as Point ##
-# top()                 # returns smaller bounds in y, if sorted ##
-# width()               # returns span in x ##
-# x()                   # returns bounds left ##
-# y()                   # returns bounds top ##
-#Table ##
-#Subtopic ##
+#Populate
+##
 
 #Subtopic Members
+#Populate
 
 #Member SkScalar  fLeft
+#Line # smaller x-axis bounds ##
 May contain any value, including infinities and NaN. The smaller of the
 horizontal values when sorted. When equal to or greater than fRight, Rect is empty.
 ##
 
 #Member SkScalar  fTop
+#Line # smaller y-axis bounds ##
 May contain any value, including infinities and NaN. The smaller of the
 vertical values when sorted. When equal to or greater than fBottom, Rect is empty.
 ##
 
 #Member SkScalar  fRight
+#Line # larger x-axis bounds ##
 May contain any value, including infinities and NaN. The larger of the
 horizontal values when sorted. When equal to or less than fLeft, Rect is empty.
 ##
 
 #Member SkScalar  fBottom
+#Line # larger y-axis bounds ##
 May contain any value, including infinities and NaN. The larger of the
 vertical values when sorted. When equal to or less than fTop, Rect is empty.
 ##
@@ -433,6 +356,7 @@ than fBottom.
 #Subtopic Constructors ##
 
 #Subtopic Properties
+#Line # side values, center, validity ##
 
 #Table
 #Legend
@@ -904,6 +828,7 @@ test with NaN is not equal to itself
 #Subtopic Operators ##
 
 #Subtopic As_Points
+#Line # conversion to and from Points ##
 
 #Table
 #Legend
@@ -1037,6 +962,7 @@ added: nan, 8 count: 4 rect: 0, 0, 0, 0 success: false
 #Subtopic As_Points ##
 
 #Subtopic Set
+#Line # replaces all values ##
 
 #Table
 #Legend
@@ -1309,6 +1235,7 @@ rect: -15, 0, 0, 25  isEmpty: false
 #Subtopic Set ##
 
 #Subtopic From_Integers
+#Line # set Scalar values from integer input ##
 
 #Table
 #Legend
@@ -1382,6 +1309,7 @@ rect2: {0, 0, 1, 2}
 #Subtopic From_Integers ##
 
 #Subtopic Inset_Outset_Offset
+#Line # moves sides ##
 
 #Table
 #Legend
@@ -1646,6 +1574,7 @@ rect: 5, 1, 55, 86
 #Subtopic Inset_Outset_Offset ##
 
 #Subtopic Intersection
+#Line # set to shared bounds ##
 
 Rects intersect when they enclose a common area. To intersect, each of the pair 
 must describe area; fLeft is less than fRight, and fTop is less than fBottom;
@@ -1932,6 +1861,7 @@ Returns false if either a or b is empty, or do not intersect.
 #Subtopic Intersection ##
 
 #Subtopic Join
+#Line # set to union of bounds ##
 
 #Table
 #Legend
@@ -2073,6 +2003,7 @@ sorted: 10, 0, 55, 100
 #Subtopic Join ##
 
 #Subtopic Rounding
+#Line # adjust to integer bounds ##
 
 #Table
 #Legend
@@ -2265,6 +2196,7 @@ round: 30, 50, 41, 61
 #Subtopic Rounding ##
 
 #Subtopic Sorting
+#Line # orders sides ##
 
 #Table
 #Legend

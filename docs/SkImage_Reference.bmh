@@ -1,6 +1,12 @@
 #Topic Image
 #Alias Image_Reference
 
+#Subtopic Overview
+    #Subtopic Subtopics
+    #Populate
+    ##
+##
+
 #Class SkImage
 
 Image describes a two dimensional array of pixels to draw. The pixels may be
@@ -18,123 +24,44 @@ GPU_Texture, YUV_ColorSpace data, or hardware buffer. Encoded streams supported
 include BMP, GIF, HEIF, ICO, JPEG, PNG, WBMP, WebP. Supported encodings details
 vary with platform.
 
-#Topic Raster_Image
+#Subtopic Raster_Image
 #Alias Raster_Image
+#Line # pixels unencoded in Raster_Bitmap ##
 Raster_Image pixels are unencoded in a Raster_Bitmap. These pixels may be read
 directly and in most cases written to, although edited pixels may not be drawn
 if Image has been copied internally.
 ##
 
-#Topic Texture_Image
+#Subtopic Texture_Image
+#Line # pixels located on GPU ##
 Texture_Image are located on GPU and pixels are not accessible. Texture_Image
 are allocated optimally for best performance. Raster_Image may
 be drawn to GPU_Surface, but pixels are uploaded from CPU to GPU downgrading
 performance.
 ##
 
-#Topic Lazy_Image
+#Subtopic Lazy_Image
+#Line # deferred pixel buffer ##
 Lazy_Image defer allocating buffer for Image pixels and decoding stream until
 Image is drawn. Lazy_Image caches result if possible to speed up repeated
 drawing.
 ##
 
-#Topic Overview
+#Subtopic Related_Functions
+#Populate
+##
 
-#Subtopic Subtopics
-#ToDo manually add subtopics ##
-#Table
-#Legend
-# topics # description ##
-#Legend ##
-#Table ##
+#Subtopic Classes_and_Structs
+#Populate
 ##
 
 #Subtopic Constructors
-#Table
-#Legend
-# name                                 # description                     ##
-#Legend ##
-# MakeBackendTextureFromSkImage    # Creates GPU_Texture from Image. ##
-# MakeCrossContextFromEncoded      # Creates Image from encoded data, and uploads to GPU. ##
-# MakeCrossContextFromPixmap       # Creates Image from Pixmap, and uploads to GPU. ##
-# MakeFromAHardwareBuffer          # Creates Image from Android hardware buffer. ##
-# MakeFromAdoptedTexture           # Creates Image from GPU_Texture, managed internally. ##
-# MakeFromBitmap                   # Creates Image from Bitmap, sharing or copying pixels. ##
-# MakeFromDeferredTextureImageData # To be deprecated. ##
-# MakeFromEncoded                  # Creates Image from encoded data. ##
-# MakeFromGenerator                # Creates Image from a stream of data. ##
-# MakeFromNV12TexturesCopy         # Creates Image from YUV_ColorSpace data in two planes. ##
-# MakeFromPicture                  # Creates Image from Picture. ##
-# MakeFromRaster                   # Creates Image from Pixmap, with release. ##
-# MakeFromTexture                  # Creates Image from GPU_Texture, managed externally. ##
-# MakeFromYUVTexturesCopy          # Creates Image from YUV_ColorSpace data in three planes. ##
-# MakeRasterCopy                   # Creates Image from Pixmap and copied pixels. ##
-# MakeRasterData                   # Creates Image from Image_Info and shared pixels. ##
-# SkSurface::makeImageSnapshot     # Creates Image capturing Surface contents. ##
-# makeColorSpace                   # Creates Image matching Color_Space if possible. ##
-# makeNonTextureImage              # Creates Image without dependency on GPU_Texture. ##
-# makeRasterImage                  # Creates Image compatible with Raster_Surface if possible. ##
-# makeSubset                       # Creates Image containing part of original. ##
-# makeTextureImage                 # Creates Image matching Color_Space if possible. ##
-# makeWithFilter                   # Creates filtered, clipped Image. ##
-#Table ##
-#Subtopic ##
+#Populate
+##
 
 #Subtopic Member_Functions
-#Table
-#Legend
-# description                      # function ##
-#Legend ##
-# MakeBackendTextureFromSkImage    # Creates GPU_Texture from Image. ##
-# MakeCrossContextFromEncoded      # Creates Image from encoded data, and uploads to GPU. ##
-# MakeCrossContextFromPixmap       # Creates Image from Pixmap, and uploads to GPU. ##
-# MakeFromAHardwareBuffer          # Creates Image from Android hardware buffer. ##
-# MakeFromAdoptedTexture           # Creates Image from GPU_Texture, managed internally. ##
-# MakeFromBitmap                   # Creates Image from Bitmap, sharing or copying pixels. ##
-# MakeFromDeferredTextureImageData # To be deprecated. ##
-# MakeFromEncoded                  # Creates Image from encoded data. ##
-# MakeFromGenerator                # Creates Image from a stream of data. ##
-# MakeFromNV12TexturesCopy         # Creates Image from YUV_ColorSpace data in two planes. ##
-# MakeFromPicture                  # Creates Image from Picture. ##
-# MakeFromRaster                   # Creates Image from Pixmap, with release. ##
-# MakeFromTexture                  # Creates Image from GPU_Texture, managed externally. ##
-# MakeFromYUVTexturesCopy          # Creates Image from YUV_ColorSpace data in three planes. ##
-# MakeRasterCopy                   # Creates Image from Pixmap and copied pixels. ##
-# MakeRasterData                   # Creates Image from Image_Info and shared pixels. ##
-# alphaType                        # Returns Alpha_Type. ##
-# asLegacyBitmap                   # Returns as Raster_Bitmap. ##
-# bounds()                         # Returns width() and height() as Rectangle. ##
-# colorSpace                       # Returns Color_Space. ##
-# dimensions()                     # Returns width() and height(). ##
-# encodeToData                     # Returns encoded Image as SkData. ##
-# getDeferredTextureImageData      # To be deprecated. ##
-# getTexture                       # Deprecated. ##
-# getTextureHandle                 # Returns GPU reference to Image as texture. ##
-# height()                         # Returns pixel row count. ##
-# isAlphaOnly                      # Returns if pixels represent a transparency mask. ##
-# isLazyGenerated                  # Returns if Image is created as needed. ##
-# isOpaque                         # Returns if Alpha_Type is kOpaque_SkAlphaType. ##
-# isTextureBacked                  # Returns if Image was created from GPU_Texture. ##
-# isValid                          # Returns if Image can draw to Raster_Surface or GPU_Context. ##
-# makeColorSpace                   # Creates Image matching Color_Space if possible. ##
-# makeNonTextureImage              # Creates Image without dependency on GPU_Texture. ##
-# makeRasterImage                  # Creates Image compatible with Raster_Surface if possible. ##
-# makeShader                       # Creates Shader, Paint element that can tile Image. ##
-# makeSubset                       # Creates Image containing part of original. ##
-# makeTextureImage                 # Creates Image matching Color_Space if possible. ##
-# makeWithFilter                   # Creates filtered, clipped Image. ##
-# peekPixels                       # Returns Pixmap if possible. ##
-# readPixels                       # Copies and converts pixels. ##
-# refColorSpace                    # Returns Image_Info Color_Space. ##
-# refEncodedData                   # Returns Image encoded in SkData if present. ##
-# scalePixels                      # Scales and converts one Image to another. ##
-# toString                         # Converts Image to machine readable form. ##
-# uniqueID                         # Identifier for Image. ##
-# width()                          # Returns pixel column count. ##
-#Table ##
-#Subtopic ##
-
-#Topic ##
+#Populate
+##
 
 #Typedef SkImageInfo Info
 
@@ -2222,6 +2149,7 @@ By translating canvas by returned offset, Image appears stationary.
 # ------------------------------------------------------------------------------
 
 #Struct DeferredTextureImageUsageParams
+#Line # to be deprecated ##
 
 Used only by Chrome; to be deprecated.
 

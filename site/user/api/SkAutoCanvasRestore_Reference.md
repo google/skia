@@ -3,29 +3,29 @@ SkAutoCanvasRestore Reference
 
 # <a name="Automatic_Canvas_Restore"></a> Automatic Canvas Restore
 
-# <a name="SkAutoCanvasRestore"></a> Class SkAutoCanvasRestore
-Stack helper class calls
-
-# <a name="Overview"></a> Overview
+## <a name="Overview"></a> Overview
 
 ## <a name="Subtopics"></a> Subtopics
 
 | name | description |
-| --- | ---  |
-| <a href="SkAutoCanvasRestore_Reference#Automatic_Canvas_Restore_Overview_Constructors">Constructors</a> | functions that construct <a href="#SkAutoCanvasRestore">SkAutoCanvasRestore</a> |
-| <a href="SkAutoCanvasRestore_Reference#Automatic_Canvas_Restore_Overview_Member_Functions">Member Functions</a> | static functions and member methods |
+| --- | --- |
+| <a href="SkAutoCanvasRestore_Reference#Automatic_Canvas_Restore_Constructors">Constructors</a> | functions that construct <a href="SkAutoCanvasRestore_Reference#SkAutoCanvasRestore">SkAutoCanvasRestore</a> |
+| <a href="SkAutoCanvasRestore_Reference#Automatic_Canvas_Restore_Member_Functions">Member Functions</a> | static functions and member methods |
+
+# <a name="SkAutoCanvasRestore"></a> Class SkAutoCanvasRestore
+Stack helper class calls
 
 ## <a name="Constructors"></a> Constructors
 
 | name | description |
-| --- | ---  |
+| --- | --- |
 | <a href="#SkAutoCanvasRestore_SkCanvas_star">SkAutoCanvasRestore(SkCanvas* canvas, bool doSave)</a> | preserves <a href="SkCanvas_Reference#Canvas">Canvas</a> save count |
-|  | restores <a href="SkCanvas_Reference#Canvas">Canvas</a> to saved state |
+| <a href="#SkAutoCanvasRestore_destructor">~SkAutoCanvasRestore()</a> | restores <a href="SkCanvas_Reference#Canvas">Canvas</a> to saved state |
 
 ## <a name="Member_Functions"></a> Member Functions
 
 | name | description |
-| --- | ---  |
+| --- | --- |
 | <a href="#SkAutoCanvasRestore_restore">restore</a> | restores <a href="SkCanvas_Reference#Canvas">Canvas</a> to saved state |
 
 <a name="SkAutoCanvasRestore_SkCanvas_star"></a>
@@ -84,6 +84,7 @@ void restore()
 </pre>
 
 Restores <a href="SkCanvas_Reference#Canvas">Canvas</a> to saved state immediately. Subsequent calls and
+<a href="#SkAutoCanvasRestore_destructor">~SkAutoCanvasRestore</a> have no effect.
 
 ### Example
 

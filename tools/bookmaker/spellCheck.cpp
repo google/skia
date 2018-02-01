@@ -187,8 +187,6 @@ bool SpellCheck::check(Definition* def) {
         case MarkType::kEnumClass:
             this->wordCheck(def->fName);
             break;
-        case MarkType::kError:
-            break;
         case MarkType::kExample:
             break;
         case MarkType::kExperimental:

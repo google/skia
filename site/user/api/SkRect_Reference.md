@@ -3,12 +3,12 @@ SkRect Reference
 
 # <a name="Rect"></a> Rect
 
-# <a name="Overview"></a> Overview
+## <a name="Overview"></a> Overview
 
 ## <a name="Subtopics"></a> Subtopics
 
 | name | description |
-| --- | ---  |
+| --- | --- |
 | <a href="#Constructors">Constructors</a> | functions that construct <a href="SkRect_Reference#SkRect">SkRect</a> |
 | <a href="#Member_Functions">Member Functions</a> | static functions and member methods |
 | <a href="#Members">Members</a> | member values |
@@ -28,7 +28,7 @@ integer input cannot convert to <a href="undocumented#SkScalar">SkScalar</a> wit
 ## <a name="Related_Functions"></a> Related Functions
 
 | name | description |
-| --- | ---  |
+| --- | --- |
 | <a href="#As_Points">As Points</a> | conversion to and from <a href="#Point">Points</a> |
 | <a href="#From_Integers">From Integers</a> | set <a href="#Scalar">Scalar</a> values from integer input |
 | <a href="#Inset_Outset_Offset">Inset Outset Offset</a> | moves sides |
@@ -41,8 +41,8 @@ integer input cannot convert to <a href="undocumented#SkScalar">SkScalar</a> wit
 
 ## <a name="Member_Functions"></a> Member Functions
 
-| description | function |
-| --- | ---  |
+| name | description |
+| --- | --- |
 | <a href="#SkRect_Intersects">Intersects</a> | returns true if areas overlap |
 | <a href="#SkRect_Make">Make</a> | constructs from <a href="undocumented#ISize">ISize</a> returning (0, 0, width, height) |
 | <a href="#SkRect_MakeEmpty">MakeEmpty</a> | constructs from bounds of (0, 0, 0, 0) |
@@ -99,6 +99,13 @@ integer input cannot convert to <a href="undocumented#SkScalar">SkScalar</a> wit
 | <a href="#SkRect_y">y</a> | returns bounds top |
 
 ## <a name="Members"></a> Members
+
+| name | description |
+| --- | --- |
+| <a href="#SkRect_fBottom">fBottom</a> | larger y-axis bounds |
+| <a href="#SkRect_fLeft">fLeft</a> | smaller x-axis bounds |
+| <a href="#SkRect_fRight">fRight</a> | larger x-axis bounds |
+| <a href="#SkRect_fTop">fTop</a> | smaller y-axis bounds |
 
 <a name="SkRect_fLeft"> <code><strong>SkScalar  fLeft</strong></code> </a>
 
