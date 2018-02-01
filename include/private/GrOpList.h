@@ -9,7 +9,8 @@
 #define GrOpList_DEFINED
 
 #include "GrColor.h"
-#include "GrGpuResourceRef.h"
+#include "GrSurfaceProxyRef.h"
+#include "GrTextureProxy.h"
 #include "SkRefCnt.h"
 #include "SkTDArray.h"
 
@@ -31,7 +32,6 @@ class GrRenderTargetOpList;
 class GrResourceAllocator;
 class GrResourceProvider;
 class GrSurfaceProxy;
-class GrTextureProxy;
 class GrTextureOpList;
 
 struct SkIPoint;
