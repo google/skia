@@ -8,19 +8,20 @@ import os
 import sys
 
 fmt = '''
-target_cpu                = "{arch}"
-is_debug                  = false
-ndk                       = "{ndk}"
-ndk_api                   = 26
-skia_enable_fontmgr_empty = true
-skia_enable_pdf           = false
-skia_use_dng_sdk          = false
-skia_use_expat            = false
-skia_use_icu              = false
-skia_use_libheif          = false
-skia_use_lua              = false
-skia_use_piex             = false
-skia_use_skcms            = false
+target_cpu                       = "{arch}"
+is_debug                         = false
+ndk                              = "{ndk}"
+ndk_api                          = 26
+skia_enable_fontmgr_empty        = true
+skia_enable_pdf                  = false
+skia_skqp_global_error_tolerance = 4
+skia_use_dng_sdk                 = false
+skia_use_expat                   = false
+skia_use_icu                     = false
+skia_use_libheif                 = false
+skia_use_lua                     = false
+skia_use_piex                    = false
+skia_use_skcms                   = false
 '''
 
 def make_args_gn(out_dir, ndk, arch):
