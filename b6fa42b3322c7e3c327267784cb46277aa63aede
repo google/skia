@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fd634e92_0b98ce2c",
+        "filename": "src/gpu/GrGpu.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-02-01T17:29:47Z",
+      "side": 1,
+      "message": "do we care to try and catch the negatives which technically caught before?",
+      "range": {
+        "startLine": 145,
+        "startChar": 13,
+        "endLine": 145,
+        "endChar": 34
+      },
+      "revId": "b6fa42b3322c7e3c327267784cb46277aa63aede",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2feb367c_894c7e9d",
+        "filename": "src/gpu/GrTextureRenderTargetProxy.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-02-01T17:29:47Z",
+      "side": 1,
+      "message": "make this non vulkan specific",
+      "range": {
+        "startLine": 58,
+        "startChar": 46,
+        "endLine": 58,
+        "endChar": 53
+      },
+      "revId": "b6fa42b3322c7e3c327267784cb46277aa63aede",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9115118f_07a44a94",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 1961,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-02-01T17:29:47Z",
+      "side": 1,
+      "message": "This comment took a bit of work to parse in my head without looking at the code. Maybe this sounds clearer\n\n// We assume that MSAA rendering is supported only if we support non-MSAA rendering",
+      "range": {
+        "startLine": 1961,
+        "startChar": 12,
+        "endLine": 1961,
+        "endChar": 74
+      },
+      "revId": "b6fa42b3322c7e3c327267784cb46277aa63aede",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8e7124ef_286ef34b",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 1976,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-02-01T17:29:47Z",
+      "side": 1,
+      "message": "Is there a defined ordering of the sample counts returned by GL? Assuming GL doesn\u0027t return repeated values this check only will do anything if the last item in the array is 1. If that\u0027s the case is there a need for a while loop or can we just make it an if",
+      "range": {
+        "startLine": 1976,
+        "startChar": 27,
+        "endLine": 1976,
+        "endChar": 56
+      },
+      "revId": "b6fa42b3322c7e3c327267784cb46277aa63aede",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "756f7e1e_80014391",
+        "filename": "src/gpu/vk/GrVkCaps.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 411,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-02-01T17:29:47Z",
+      "side": 1,
+      "message": "given the assert in isConfigRenderable do we ever expect fColorSampleCounts[0] !\u003d 1?",
+      "range": {
+        "startLine": 411,
+        "startChar": 8,
+        "endLine": 411,
+        "endChar": 71
+      },
+      "revId": "b6fa42b3322c7e3c327267784cb46277aa63aede",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
