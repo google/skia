@@ -1,0 +1,7 @@
+[
+  {
+    "name": "$result",
+    "reason": "Uncaught Exception: Exception('Build-Debian9-Clang-gce_x86_phone-eng-Android_Framework can only be run as a trybot.',)",
+    "status_code": -1
+  }
+]

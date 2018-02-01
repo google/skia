@@ -747,6 +747,29 @@ func bookmaker(b *specs.TasksCfgBuilder, name, compileTaskName string) string {
 	return name
 }
 
+// androidCompile generates a Android Compile task. Returns the name of the last
+// task in the generated chain of tasks, which the Job should add as a
+// dependency.
+func androidCompile(b *specs.TasksCfgBuilder, name string) string {
+	b.MustAddTask(name, &specs.TaskSpec{
+		Dimensions: linuxGceDimensions(),
+		ExtraArgs: []string{
+			"--workdir", "../../..", "android_compile",
+			fmt.Sprintf("repository=%s", specs.PLACEHOLDER_REPO),
+			fmt.Sprintf("buildername=%s", name),
+			fmt.Sprintf("swarm_out_dir=%s", specs.PLACEHOLDER_ISOLATED_OUTDIR),
+			fmt.Sprintf("revision=%s", specs.PLACEHOLDER_REVISION),
+			fmt.Sprintf("patch_repo=%s", specs.PLACEHOLDER_PATCH_REPO),
+			fmt.Sprintf("patch_storage=%s", specs.PLACEHOLDER_PATCH_STORAGE),
+			fmt.Sprintf("patch_issue=%s", specs.PLACEHOLDER_ISSUE),
+			fmt.Sprintf("patch_set=%s", specs.PLACEHOLDER_PATCHSET),
+		},
+		Isolate:  relpath("compile_skia.isolate"),
+		Priority: 0.8,
+	})
+	return name
+}
+
 // infra generates an infra_tests task. Returns the name of the last task in the
 // generated chain of tasks, which the Job should add as a dependency.
 func infra(b *specs.TasksCfgBuilder, name string) string {
@@ -1155,7 +1178,16 @@ func process(b *specs.TasksCfgBuilder, name string) {
 
 	// Compile bots.
 	if parts["role"] == "Build" {
-		deps = append(deps, compile(b, name, parts))
+		extraConfig := ""
+		if val := parts["extra_config"]; val != "" {
+			extraConfig = val
+		}
+		if parts["os"] == "Android" && extraConfig == "Framework" {
+			// Android_Framework compile tasks use a different recipe.
+			deps = append(deps, androidCompile(b, name))
+		} else {
+			deps = append(deps, compile(b, name, parts))
+		}
 	}
 
 	// Most remaining bots need a compile task.
