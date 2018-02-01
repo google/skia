@@ -2,6 +2,19 @@ SkPath Reference
 ===
 
 # <a name="Path"></a> Path
+
+## <a name="Overview"></a> Overview
+
+## <a name="Subtopics"></a> Subtopics
+
+| name | description |
+| --- | --- |
+| <a href="#Classes_and_Structs">Classes and Structs</a> | embedded struct and class members |
+| <a href="#Constants">Constants</a> | enum and enum class, const values |
+| <a href="#Constructors">Constructors</a> | functions that construct <a href="SkPath_Reference#SkPath">SkPath</a> |
+| <a href="#Member_Functions">Member Functions</a> | static functions and member methods |
+| <a href="#Operators">Operators</a> | operator overloading methods |
+| <a href="#Related_Functions">Related Functions</a> | similar methods grouped together |
 <a href="#Path">Path</a> contains <a href="#Line">Lines</a> and <a href="#Curve">Curves</a> which can be stroked or filled. <a href="#Contour">Contour</a> is
 composed of a series of connected <a href="#Line">Lines</a> and <a href="#Curve">Curves</a>. <a href="#Path">Path</a> may contain zero,
 one, or more <a href="#Contour">Contours</a>.
@@ -90,41 +103,28 @@ overlapping contours.
 Internally, <a href="#Path">Path</a> lazily computes metrics likes bounds and convexity. Call
 <a href="#SkPath_updateBoundsCache">SkPath::updateBoundsCache</a> to make <a href="#Path">Path</a> thread safe.
 
-# <a name="Overview"></a> Overview
-
-## <a name="Subtopics"></a> Subtopics
-
-| name | description |
-| --- | ---  |
-| <a href="#Overview_Classes_and_Structs">Classes and Structs</a> | embedded struct and class members |
-| <a href="#Overview_Constants">Constants</a> | enum and enum class, const values |
-| <a href="#Overview_Constructors">Constructors</a> | functions that construct <a href="#SkPath">SkPath</a> |
-| <a href="#Overview_Member_Functions">Member Functions</a> | static functions and member methods |
-| <a href="#Overview_Operators">Operators</a> | operator overloading methods |
-| <a href="#Overview_Related_Functions">Related Functions</a> | similar methods grouped together |
-
 ## <a name="Related_Functions"></a> Related Functions
 
 | name | description |
-| --- | ---  |
+| --- | --- |
+| <a href="#Arc">Arc</a> | part of <a href="undocumented#Oval">Oval</a> or <a href="undocumented#Circle">Circle</a> |
 | <a href="#Conic">Conic</a> | conic section defined by three points and a weight |
-| <a href="#Conic_Weight">Conic Weight</a> | strength of control <a href="SkPoint_Reference#Point">Point</a> in <a href="#Conic">Conic</a> |
-| <a href="#Contour">Contour</a> | loop of lines and curves |
 | <a href="#SkPath_Convexity">Convexity</a> | if <a href="#Path">Path</a> is concave or convex |
-| <a href="#Cubic">Cubic Bezier</a> | third order curve defined by four points |
+| <a href="#Cubic">Cubic</a> | Bezier_Curve described by third-order polynomial |
 | <a href="#SkPath_Direction">Direction</a> | <a href="#Path">Path</a> contour orientation |
 | <a href="#Fill_Type">Fill Type</a> | <a href="#Path">Path</a> fill rule, normal and inverted |
+| <a href="#Generation_ID">Generation ID</a> | value reflecting contents change |
 | <a href="#Last_Point">Last Point</a> | final <a href="SkPoint_Reference#Point">Point</a> in <a href="#Contour">Contour</a> |
 | <a href="#Point_Array">Point Array</a> | end points and control points for lines and curves |
-| <a href="#Quad">Quadratic Bezier</a> | parabolic section defined by three points |
+| <a href="#Quad">Quad</a> | Bezier_Curve described by second-order polynomial |
+| <a href="#SkPath_Verb">Verb</a> | line and curve type |
 | <a href="#Verb_Array">Verb Array</a> | line and curve type for points |
-| <a href="#Verb">Verbs</a> | <a href="#Path">Path</a> line and curve type |
-| <a href="SkPath_Reference#Zero_Length">Zero Length Contour</a> | consideration when contour has no length |
+| Weight | strength of <a href="#Conic">Conic</a> control <a href="SkPoint_Reference#Point">Point</a> |
 
 ## <a name="Constants"></a> Constants
 
 | name | description |
-| --- | ---  |
+| --- | --- |
 | <a href="#SkPath_AddPathMode">AddPathMode</a> | sets <a href="#SkPath_addPath">addPath</a> options |
 | <a href="#SkPath_ArcSize">ArcSize</a> | used by <a href="#SkPath_arcTo">arcTo</a> variation |
 | <a href="#SkPath_Convexity">Convexity</a> | returns if <a href="#Path">Path</a> is convex or concave |
@@ -136,22 +136,22 @@ Internally, <a href="#Path">Path</a> lazily computes metrics likes bounds and co
 ## <a name="Classes_and_Structs"></a> Classes and Structs
 
 | name | description |
-| --- | ---  |
-| <a href="#SkPath_Iter">Iter</a> | iterates through lines and curves, skipping degenerates |
-| <a href="#SkPath_RawIter">RawIter</a> | iterates through lines and curves, including degenerates |
+| --- | --- |
+| <a href="#SkPath_Iter">Iter</a> | <a href="#Path">Path</a> data iterator |
+| <a href="#SkPath_RawIter">RawIter</a> | <a href="#Path">Path</a> raw data iterator |
 
 ## <a name="Constructors"></a> Constructors
 
 | name | description |
-| --- | ---  |
+| --- | --- |
 | <a href="#SkPath_empty_constructor">SkPath()</a> | constructs with default values |
 | <a href="#SkPath_copy_const_SkPath">SkPath(const SkPath& path)</a> | makes a shallow copy |
-|  | decreases <a href="undocumented#Reference_Count">Reference Count</a> of owned objects |
+| <a href="#SkPath_destructor">~SkPath()</a> | decreases <a href="undocumented#Reference_Count">Reference Count</a> of owned objects |
 
 ## <a name="Operators"></a> Operators
 
 | name | description |
-| --- | ---  |
+| --- | --- |
 | <a href="#SkPath_notequal_operator">operator!=(const SkPath& a, const SkPath& b)</a> | compares paths for inequality |
 | <a href="#SkPath_copy_operator">operator=(const SkPath& path)</a> | makes a shallow copy |
 | <a href="#SkPath_equal_operator">operator==(const SkPath& a, const SkPath& b)</a> | compares paths for equality |
@@ -159,7 +159,7 @@ Internally, <a href="#Path">Path</a> lazily computes metrics likes bounds and co
 ## <a name="Member_Functions"></a> Member Functions
 
 | name | description |
-| --- | ---  |
+| --- | --- |
 | <a href="#SkPath_ConvertConicToQuads">ConvertConicToQuads</a> | approximates <a href="#Conic">Conic</a> with <a href="#Quad">Quad</a> array |
 | <a href="#SkPath_ConvertToNonInverseFillType">ConvertToNonInverseFillType</a> | returns <a href="#Fill_Type">Fill Type</a> representing inside geometry |
 | <a href="#SkPath_IsCubicDegenerate">IsCubicDegenerate</a> | returns if <a href="#Cubic">Cubic</a> is very small |
@@ -2633,7 +2633,8 @@ offset from <a href="#Last_Point">Last Point</a> x to <a href="#Cubic">Cubic</a>
 
 ---
 
-# <a name="Arc"></a> Arc
+## <a name="Arc"></a> Arc
+
 <a href="#Arc">Arc</a> can be constructed in a number of ways. <a href="#Arc">Arc</a> may be described by part of <a href="undocumented#Oval">Oval</a> and angles,
 by start point and end point, and by radius and tangent lines. Each construction has advantages,
 and some constructions correspond to <a href="#Arc">Arc</a> drawing in graphics standards.
