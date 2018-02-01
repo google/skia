@@ -126,6 +126,7 @@ int SkWGLExtensions::selectFormat(const int formats[],
                                   int formatCount,
                                   HDC dc,
                                   int desiredSampleCount) const {
+    SkASSERT(desiredSampleCount >= 1);
     if (formatCount <= 0) {
         return -1;
     }
@@ -146,7 +147,7 @@ int SkWGLExtensions::selectFormat(const int formats[],
                                      &kQueryAttr,
                                      &numSamples);
         rankedFormats[i].fFormat =  formats[i];
-        rankedFormats[i].fSampleCnt = numSamples;
+        rankedFormats[i].fSampleCnt = SkTMax(1, numSamples);
         rankedFormats[i].fChoosePixelFormatRank = i;
     }
     SkTQSort(rankedFormats.begin(),
@@ -158,6 +159,10 @@ int SkWGLExtensions::selectFormat(const int formats[],
                                               sizeof(PixelFormat));
     if (idx < 0) {
         idx = ~idx;
+    }
+    // If the caller asked for non-MSAA fail if the closest format has MSAA.
+    if (desiredSampleCount == 1 && rankedFormats[idx].fSampleCnt != 1) {
+        return -1;
     }
     return rankedFormats[idx].fFormat;
 }

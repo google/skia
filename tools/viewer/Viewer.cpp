@@ -78,7 +78,7 @@ static DEFINE_string(jsons, "jsons", "Directory to read (Bodymovin) jsons from."
 
 static DEFINE_string2(backend, b, "sw", "Backend to use. Allowed values are " BACKENDS_STR ".");
 
-static DEFINE_int32(msaa, 0, "Number of subpixel samples. 0 for no HW antialiasing.");
+static DEFINE_int32(msaa, 1, "Number of subpixel samples. 0 for no HW antialiasing.");
 
 DECLARE_int32(threads)
 
@@ -501,7 +501,7 @@ void Viewer::updateTitle() {
     if (!fWindow) {
         return;
     }
-    if (fWindow->sampleCount() < 0) {
+    if (fWindow->sampleCount() < 1) {
         return; // Surface hasn't been created yet.
     }
 
@@ -561,7 +561,8 @@ void Viewer::updateTitle() {
 
     title.append(" [");
     title.append(kBackendTypeStrings[fBackendType]);
-    if (int msaa = fWindow->sampleCount()) {
+    int msaa = fWindow->sampleCount();
+    if (msaa > 1) {
         title.appendf(" MSAA: %i", msaa);
     }
     title.append("]");
@@ -994,7 +995,7 @@ void Viewer::drawImGui() {
                 if (ctx) {
                     int sampleCount = fWindow->sampleCount();
                     ImGui::Text("MSAA: "); ImGui::SameLine();
-                    ImGui::RadioButton("0", &sampleCount, 0); ImGui::SameLine();
+                    ImGui::RadioButton("1", &sampleCount, 1); ImGui::SameLine();
                     ImGui::RadioButton("4", &sampleCount, 4); ImGui::SameLine();
                     ImGui::RadioButton("8", &sampleCount, 8); ImGui::SameLine();
                     ImGui::RadioButton("16", &sampleCount, 16);
@@ -1018,7 +1019,7 @@ void Viewer::drawImGui() {
 
                     if (!ctx) {
                         ImGui::RadioButton("Software", true);
-                    } else if (fWindow->sampleCount()) {
+                    } else if (fWindow->sampleCount() > 1) {
                         prButton(GpuPathRenderers::kDefault);
                         prButton(GpuPathRenderers::kAll);
                         if (ctx->caps()->shaderCaps()->pathRenderingSupport()) {
@@ -1198,7 +1199,7 @@ void Viewer::updateUIState() {
     if (!fWindow) {
         return;
     }
-    if (fWindow->sampleCount() < 0) {
+    if (fWindow->sampleCount() < 1) {
         return; // Surface hasn't been created yet.
     }
 
@@ -1244,7 +1245,7 @@ void Viewer::updateUIState() {
     const GrContext* ctx = fWindow->getGrContext();
     if (!ctx) {
         prState[kOptions].append("Software");
-    } else if (fWindow->sampleCount()) {
+    } else if (fWindow->sampleCount() > 1) {
         prState[kOptions].append(gPathRendererNames[GpuPathRenderers::kDefault]);
         prState[kOptions].append(gPathRendererNames[GpuPathRenderers::kAll]);
         if (ctx->caps()->shaderCaps()->pathRenderingSupport()) {
