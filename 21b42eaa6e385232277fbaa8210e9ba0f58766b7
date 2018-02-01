@@ -16,6 +16,24 @@
       "revId": "21b42eaa6e385232277fbaa8210e9ba0f58766b7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "52cacb7b_1c83ca1b",
+        "filename": "src/core/SkPictureData.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 498,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-02-01T19:46:00Z",
+      "side": 1,
+      "message": "Looking at it again, I don\u0027t think it is proper. This function should be able to survive a bad buffer, and I\u0027d like it to not know who/how it is being called per-se. I think I will remove it.",
+      "parentUuid": "7d438dd6_4c8375ec",
+      "revId": "21b42eaa6e385232277fbaa8210e9ba0f58766b7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
