@@ -491,18 +491,22 @@ bool new_array_from_buffer(SkReadBuffer& buffer, uint32_t inCount,
         delete[] * array;
         *array = nullptr;
         *outCount = 0;
-        return false;
+        return buffer.validate(false);
     }
     return true;
 }
 
 bool SkPictureData::parseBufferTag(SkReadBuffer& buffer, uint32_t tag, uint32_t size) {
+    SkASSERT(buffer.isValid());
     switch (tag) {
         case SK_PICT_PAINT_BUFFER_TAG: {
             if (!buffer.validate(SkTFitsIn<int>(size))) {
                 return false;
             }
             const int count = SkToInt(size);
+            if (!buffer.validate(count >= 0)) {
+                return false;
+            }
             fPaints.reset(count);
             for (int i = 0; i < count; ++i) {
                 if (!buffer.readPaint(&fPaints[i])) {
@@ -513,12 +517,15 @@ bool SkPictureData::parseBufferTag(SkReadBuffer& buffer, uint32_t tag, uint32_t 
         case SK_PICT_PATH_BUFFER_TAG:
             if (size > 0) {
                 const int count = buffer.readInt();
-                if (count < 0) {
+                if (!buffer.validate(count >= 0)) {
                     return false;
                 }
                 fPaths.reset(count);
                 for (int i = 0; i < count; i++) {
                     buffer.readPath(&fPaths[i]);
+                }
+                if (!buffer.isValid()) {
+                    return false;
                 }
             } break;
         case SK_PICT_TEXTBLOB_BUFFER_TAG:
@@ -562,8 +569,9 @@ bool SkPictureData::parseBufferTag(SkReadBuffer& buffer, uint32_t tag, uint32_t 
             break;
         default:
             // The tag was invalid.
-            return false;
+            return buffer.validate(false);
     }
+    SkASSERT(buffer.isValid());
     return true;    // success
 }
 
@@ -611,16 +619,22 @@ bool SkPictureData::parseStream(SkStream* stream,
 }
 
 bool SkPictureData::parseBuffer(SkReadBuffer& buffer) {
-    for (;;) {
+    while (buffer.isValid()) {
         uint32_t tag = buffer.readUInt();
         if (SK_PICT_EOF_TAG == tag) {
             break;
         }
-
-        uint32_t size = buffer.readUInt();
-        if (!this->parseBufferTag(buffer, tag, size)) {
-            return false; // we're invalid
+        if (!this->parseBufferTag(buffer, tag, buffer.readUInt())) {
+            SkASSERT(!buffer.isValid());
+            break;
         }
+    }
+
+    // Check that we encountered required tags
+    if (!buffer.validate(this->opData())) {
+        // If we didn't build any opData, we are invalid. Even an EmptyPicture allocates the
+        // SkData for the ops (though its length may be zero).
+        return false;
     }
     return true;
 }
