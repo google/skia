@@ -137,7 +137,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(SkSurfaceCharacterization, reporter, ctxInfo) {
         if (SurfaceParameters::kSampleCount == i) {
             SkSurface_Gpu* gpuSurf = static_cast<SkSurface_Gpu*>(s.get());
 
-            int supportedSampleCount = context->caps()->getSampleCount(
+            int supportedSampleCount = context->caps()->getRenderTargetSampleCount(
                 params.sampleCount(),
                 gpuSurf->getDevice()->accessRenderTargetContext()->asRenderTargetProxy()->config());
             if (1 == supportedSampleCount) {
