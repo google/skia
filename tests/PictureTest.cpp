@@ -853,3 +853,17 @@ DEF_TEST(Placeholder, r) {
     sk_sp<SkPicture> pic = recorder.finishRecordingAsPicture();
     REPORTER_ASSERT(r, pic->approximateOpCount() == 2);
 }
+
+DEF_TEST(Picture_empty_serial, reporter) {
+    SkPictureRecorder rec;
+    (void)rec.beginRecording(10, 10);
+    auto pic = rec.finishRecordingAsPicture();
+    REPORTER_ASSERT(reporter, pic);
+
+    auto data = pic->serialize();
+    REPORTER_ASSERT(reporter, data);
+
+    auto pic2 = SkPicture::MakeFromData(data->data(), data->size());
+    REPORTER_ASSERT(reporter, pic2);
+}
+

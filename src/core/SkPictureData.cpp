@@ -622,5 +622,10 @@ bool SkPictureData::parseBuffer(SkReadBuffer& buffer) {
             return false; // we're invalid
         }
     }
+    if (!buffer.validate(this->opData())) {
+        // If we didn't build any opData, we are invalid. Even an EmptyPicture allocates the
+        // SkData for the ops (though its length may be zero).
+        return false;
+    }
     return true;
 }
