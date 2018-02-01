@@ -250,10 +250,25 @@
     SI F   max(F a, F b)        { return _mm256_max_ps(a,b);    }
     SI F   abs_  (F v)          { return _mm256_and_ps(v, 0-v); }
     SI F   floor_(F v)          { return _mm256_floor_ps(v);    }
-    SI F   rcp   (F v)          { return _mm256_rcp_ps  (v);    }
-    SI F   rsqrt (F v)          { return _mm256_rsqrt_ps(v);    }
     SI F    sqrt_(F v)          { return _mm256_sqrt_ps (v);    }
     SI U32 round (F v, F scale) { return _mm256_cvtps_epi32(v*scale); }
+
+    SI F rsqrt(F v) {
+        // If we just return _mm256_rsqrt_ps(v), that'd use vrsqrtps when targeting AVX or AVX2,
+        // but vrsqrt14ps when targeting AVX-512.  It's kind of annoying to generate instructions
+        // with different precisions.  So we manually use vrsqrtps here.
+        // Note that this won't work if we move AVX-512 to 512-bit vectors...
+        // they only support vrsqrt14ps.
+        __m256 r;
+        asm("vrsqrtps %1, %0\n" : "=x"(r) : "x"(v));
+        return r;
+    }
+    SI F rcp(F v) {
+        // Same deal as rsqrt() above.
+        __m256 r;
+        asm("vrcpps %1, %0\n" : "=x"(r) : "x"(v));
+        return r;
+    }
 
     SI U16 pack(U32 v) {
         return _mm_packus_epi32(_mm256_extractf128_si256(v, 0),
@@ -1320,11 +1335,8 @@ STAGE(from_srgb_dst, Ctx::None) {
 STAGE(to_srgb, Ctx::None) {
     auto fn = [&](F l) {
         // We tweak c and d for each instruction set to make sure fn(1) is exactly 1.
-    #if defined(JUMPER_IS_AVX512)
-        const float c = 1.130026340485f,
-                    d = 0.141387879848f;
-    #elif defined(JUMPER_IS_SSE2) || defined(JUMPER_IS_SSE41) || \
-          defined(JUMPER_IS_AVX ) || defined(JUMPER_IS_HSW )
+    #if defined(JUMPER_IS_SSE2) || defined(JUMPER_IS_SSE41) || \
+        defined(JUMPER_IS_AVX ) || defined(JUMPER_IS_HSW )  || defined(JUMPER_IS_AVX512)
         const float c = 1.130048394203f,
                     d = 0.141357362270f;
     #elif defined(JUMPER_IS_NEON)
