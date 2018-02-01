@@ -135,6 +135,7 @@ public:
         kGrSweepGradient_ClassID,
         kGrTextureDomainEffect_ClassID,
         kGrUnpremulInputFragmentProcessor_ClassID,
+        kGrWrapFPForMaskFilter_ClassID,
         kGrYUVtoRGBEffect_ClassID,
         kHighContrastFilterEffect_ClassID,
         kInstanceProcessor_ClassID,
