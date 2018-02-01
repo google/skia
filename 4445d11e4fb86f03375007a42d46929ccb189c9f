@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dd3e5ac9_40718c62",
+        "filename": "src/core/SkVertices.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 224,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-02-01T14:51:19Z",
+      "side": 1,
+      "message": "can indexCount be negative?  If so, should you return nullptr?",
+      "range": {
+        "startLine": 224,
+        "startChar": 8,
+        "endLine": 224,
+        "endChar": 18
+      },
+      "revId": "4445d11e4fb86f03375007a42d46929ccb189c9f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
