@@ -14,6 +14,7 @@
   "Build-Debian9-Clang-arm64-Release-Android_ASAN",
   "Build-Debian9-Clang-arm64-Release-Android_ASAN_Vulkan",
   "Build-Debian9-Clang-arm64-Release-Android_Vulkan",
+  "Build-Debian9-Clang-gce_x86_phone-eng-Android_Framework",
   "Build-Debian9-Clang-x64-Debug-Android",
   "Build-Debian9-Clang-x64-Release-Android",
   "Build-Debian9-Clang-x86-Debug",
