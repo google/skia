@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "e155a597_667e1ff3",
+        "filename": "include/private/GrSurfaceProxy.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 186,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-02-01T15:54:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "88420790_39cc34a9",
+      "revId": "62942850f01e7193b85602aaa17e0fa8f15317f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "930a0fd5_3fe635ef",
         "filename": "src/gpu/GrBackendTextureImageGenerator.cpp",
         "patchSetId": 3
@@ -33,6 +51,24 @@
       "revId": "62942850f01e7193b85602aaa17e0fa8f15317f6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1b28a197_e7174fd6",
+        "filename": "src/gpu/GrBackendTextureImageGenerator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-02-01T15:54:10Z",
+      "side": 1,
+      "message": "As mentioned in CL landed before this, they way we use refHelper it is simpler to leave it as a pointer and manually control the refs and release procs",
+      "parentUuid": "930a0fd5_3fe635ef",
+      "revId": "62942850f01e7193b85602aaa17e0fa8f15317f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "0df24627_d5c56008",
+        "filename": "src/gpu/GrProxyProvider.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 409,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-02-01T15:54:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "182dfc8f_a7f90173",
+      "revId": "62942850f01e7193b85602aaa17e0fa8f15317f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6af1fe7f_c58b342e",
         "filename": "src/gpu/GrRenderTargetProxy.cpp",
         "patchSetId": 3
@@ -64,6 +118,24 @@
       "writtenOn": "2018-01-31T13:25:24Z",
       "side": 1,
       "message": "Is this correct ?",
+      "revId": "62942850f01e7193b85602aaa17e0fa8f15317f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "24123fd2_e310fe03",
+        "filename": "src/gpu/GrRenderTargetProxy.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-02-01T15:54:10Z",
+      "side": 1,
+      "message": "Yes. Our current model is set up so that this instantiate call is only for Non lazy proxies. If it makes sense we can look into updating this call to call the lazy instantiation in here as well.",
+      "parentUuid": "6af1fe7f_c58b342e",
       "revId": "62942850f01e7193b85602aaa17e0fa8f15317f6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
