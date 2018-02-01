@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "4f7302a0_d6f8b0f8",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-02-01T20:55:56Z",
+      "side": 1,
+      "message": "Can invert ever fail when isScaleTranslate() \u003d\u003d true?",
+      "range": {
+        "startLine": 72,
+        "startChar": 8,
+        "endLine": 72,
+        "endChar": 21
+      },
+      "revId": "c609c7f4006d3911cf38088af00b5c09d3a93c8b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d3a90600_1486f08d",
         "filename": "src/shaders/SkImageShader.cpp",
         "patchSetId": 3
@@ -18,6 +41,29 @@
         "startChar": 8,
         "endLine": 79,
         "endChar": 19
+      },
+      "revId": "c609c7f4006d3911cf38088af00b5c09d3a93c8b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2ac297ae_0473f5b7",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-02-01T20:55:56Z",
+      "side": 1,
+      "message": "We should never reach this: m.isScaleTranslate() \u003d\u003e inv.isScaleTranslate() \u003d\u003e inv.rectStaysRect(), no?\n\nMaybe replace with SkAssertResult?",
+      "range": {
+        "startLine": 80,
+        "startChar": 8,
+        "endLine": 80,
+        "endChar": 21
       },
       "revId": "c609c7f4006d3911cf38088af00b5c09d3a93c8b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
