@@ -16,6 +16,24 @@
       "revId": "437848f5f7e8e90b2aa7d4d146ff4c700309779c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f03acdd2_24a51db1",
+        "filename": "src/gpu/effects/GrWrapFPForMaskFilter.fp",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-02-01T16:25:17Z",
+      "side": 1,
+      "message": "Replacing this with MulInputByChildAlpha",
+      "parentUuid": "66557582_b3f83ab4",
+      "revId": "437848f5f7e8e90b2aa7d4d146ff4c700309779c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
