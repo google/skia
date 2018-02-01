@@ -61,6 +61,34 @@ bool SkImageShader::isOpaque() const {
     return fImage->isOpaque();
 }
 
+static bool legacy_shader_can_handle(const SkMatrix& a, const SkMatrix& b) {
+    SkMatrix m = SkMatrix::Concat(a, b);
+    if (!m.isScaleTranslate()) {
+        return false;
+    }
+
+    SkMatrix inv;
+    if (!m.invert(&inv)) {
+        return false;
+    }
+
+    // legacy code uses SkFixed 32.32, so ensure the inverse doesn't map device coordinates
+    // out of range.
+    const SkScalar max_dev_coord = 32767.0f;
+    SkRect src;
+    SkAssertResult(inv.mapRect(&src, SkRect::MakeWH(max_dev_coord, max_dev_coord)));
+
+    // take 1/2 of max signed 32bits so we have room to subtract coordinates
+    const SkScalar max_fixed32dot32 = SK_MaxS32 * 0.5f;
+    if (!SkRect::MakeLTRB(-max_fixed32dot32, -max_fixed32dot32,
+                           max_fixed32dot32, max_fixed32dot32).contains(src)) {
+        return false;
+    }
+
+    // legacy shader impl should be able to handle these matrices
+    return true;
+}
+
 bool SkImageShader::IsRasterPipelineOnly(const SkMatrix& ctm, SkColorType ct, SkAlphaType at,
                                          SkShader::TileMode tx, SkShader::TileMode ty,
                                          const SkMatrix& localM) {
@@ -75,10 +103,7 @@ bool SkImageShader::IsRasterPipelineOnly(const SkMatrix& ctm, SkColorType ct, Sk
         return true;
     }
 #endif
-    if (!ctm.isScaleTranslate()) {
-        return true;
-    }
-    if (!localM.isScaleTranslate()) {
+    if (!legacy_shader_can_handle(ctm, localM)) {
         return true;
     }
     return false;
