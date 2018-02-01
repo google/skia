@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "9ab285d6_a1fce5e3",
+        "filename": "include/private/SkDeferredDisplayList.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-02-01T13:42:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c4eb9bc3_e8b5a6c6",
+      "range": {
+        "startLine": 71,
+        "startChar": 4,
+        "endLine": 71,
+        "endChar": 47
+      },
+      "revId": "9c5b1fca1c5479a95b383be967c67cc2dc780804",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "177788e8_bca6d0ad",
         "filename": "src/core/SkDeferredDisplayListRecorder.cpp",
         "patchSetId": 2
@@ -45,6 +69,30 @@
       "revId": "9c5b1fca1c5479a95b383be967c67cc2dc780804",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f71feb62_a0226ac7",
+        "filename": "src/core/SkDeferredDisplayListRecorder.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-02-01T13:42:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "177788e8_bca6d0ad",
+      "range": {
+        "startLine": 89,
+        "startChar": 12,
+        "endLine": 90,
+        "endChar": 80
+      },
+      "revId": "9c5b1fca1c5479a95b383be967c67cc2dc780804",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "142006d5_68ac2272",
+        "filename": "src/core/SkDeferredDisplayListRecorder.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-02-01T13:42:48Z",
+      "side": 1,
+      "message": "Right, I was going to leave that for another CL though.",
+      "parentUuid": "a2a9e05e_e166c0be",
+      "range": {
+        "startLine": 91,
+        "startChar": 15,
+        "endLine": 92,
+        "endChar": 32
+      },
+      "revId": "9c5b1fca1c5479a95b383be967c67cc2dc780804",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "8f7a9fa2_fc27e462",
         "filename": "src/gpu/GrDrawingManager.cpp",
         "patchSetId": 2
@@ -82,6 +154,30 @@
       "writtenOn": "2018-01-31T21:27:11Z",
       "side": 1,
       "message": "is this copy safe for the underlying Ops stores in a GrRenderTargetOpList? Looks that has an array of RecordOps which has a unique_ptr to an op. So is there worry of the op getting deleted when we flush and thus being invalid in the ddl?",
+      "range": {
+        "startLine": 337,
+        "startChar": 4,
+        "endLine": 337,
+        "endChar": 71
+      },
+      "revId": "9c5b1fca1c5479a95b383be967c67cc2dc780804",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "54ff7ab6_0c219f7a",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 337,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-02-01T13:42:48Z",
+      "side": 1,
+      "message": "It should be although I haven\u0027t tried replaying a DDL more than once yet. After a flush the opLists should be cleared out of the GrDrawingManager\u0027s fOpLists array simply by resetting the pointer. We shouldn\u0027t ever be reaching inside an opList to nuke individual ops.",
+      "parentUuid": "8f7a9fa2_fc27e462",
       "range": {
         "startLine": 337,
         "startChar": 4,
