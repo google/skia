@@ -183,13 +183,13 @@ private:
 class GrSurfaceProxy : public GrIORefProxy {
 public:
     enum class LazyState {
-        kNot,       // The proxy has no lazy callback that must be made.
+        kNot,       // The proxy is instantiated or does not have a lazy callback
         kPartially, // The proxy has a lazy callback but knows basic information about itself.
         kFully,     // The proxy has a lazy callback and also doesn't know its width, height, etc.
     };
 
     LazyState lazyInstantiationState() const {
-        if (!SkToBool(fLazyInstantiateCallback)) {
+        if (fTarget || !SkToBool(fLazyInstantiateCallback)) {
             return LazyState::kNot;
         } else {
             if (fWidth <= 0) {
