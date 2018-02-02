@@ -306,7 +306,7 @@ static void draw_pair(SkCanvas* canvas, sk_sp<SkShader> src, sk_sp<SkShader> dst
 
     const SkScalar gap = 4;
     SkRect r = SkRect::MakeWH(2 * gCellSize + gap, 2 * gCellSize + gap);
-    r.outset(gap + 2, gap + 2);
+    r.outset(gap + 1.5f, gap + 1.5f);
     SkPaint p;
     p.setStyle(SkPaint::kStroke_Style);
     canvas->drawRect(r, p); // border
@@ -328,7 +328,7 @@ DEF_SIMPLE_GM(composeshader_grid, canvas, 882, 882) {
     auto src = make_src_shader(gCellSize);
     auto dst = make_dst_shader(gCellSize);
 
-    const SkScalar margin = 16;
+    const SkScalar margin = 15;
     const SkScalar dx = 2*gCellSize + margin;
     const SkScalar dy = 2*gCellSize + margin;
 
