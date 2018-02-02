@@ -222,10 +222,6 @@ private:
                            const GrMipLevel texels[], int mipLevelCount,
                            GrMipMapsStatus* mipMapsStatus);
 
-    bool onIsACopyNeededForTextureParams(GrTextureProxy*, const GrSamplerState&,
-                                         GrTextureProducer::CopyParams*,
-                                         SkScalar scaleAdjust[2]) const override;
-
     // Checks whether glReadPixels can be called to get pixel values in readConfig from the
     // render target.
     bool readPixelsSupported(GrRenderTarget* target, GrPixelConfig readConfig);

@@ -96,6 +96,12 @@ private:
     int fHeight;        //<! height in pixels
     GrPixelConfig fConfig;
     GrMipMapped fMipMapped;
+
+    // can't be repeated - GR_GL_TEXTURE_RECTANGLE and GR_GL_TEXTURE_EXTERNAL
+    // highest filter mode is bilerp - GR_GL_TEXTURE_RECTANGLE and GR_GL_TEXTURE_EXTERNAL
+    // can't render to GR_GL_TEXTURE_EXTERNAL
+    // can't writePixels to GR_GL_TEXTURE_EXTERNAL
+
     GrBackend fBackend;
 
     union {

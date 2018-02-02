@@ -182,7 +182,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::createTextureProxy(const GrSurfaceDesc& d
     if (srcData) {
         GrMipLevel mipLevel = { srcData, rowBytes };
 
-        sk_sp<GrTexture> tex = fResourceProvider->createTexture(desc, budgeted, mipLevel);
+        sk_sp<GrTexture> tex = fResourceProvider->createTexture1(desc, budgeted, mipLevel);
         if (!tex) {
             return nullptr;
         }
@@ -225,7 +225,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::createTextureProxy(sk_sp<SkImage> srcImag
                 SkAssertResult(srcImage->peekPixels(&pixMap));
                 GrMipLevel mipLevel = { pixMap.addr(), pixMap.rowBytes() };
 
-                return resourceProvider->createTexture(desc, budgeted, mipLevel);
+                return resourceProvider->createTexture1(desc, budgeted, mipLevel);
             }, desc, GrMipMapped::kNo, SkBackingFit::kExact, budgeted);
 
     if (fResourceProvider) {

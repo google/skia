@@ -111,7 +111,7 @@ static bool make_info(int w, int h, GrPixelConfig config, SkImageInfo* ii) {
     return true;
 }
 
-sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc,
+sk_sp<GrTexture> GrResourceProvider::createTexture1(const GrSurfaceDesc& desc,
                                                    SkBudgeted budgeted,
                                                    const GrMipLevel& mipLevel) {
     ASSERT_SINGLE_OWNER

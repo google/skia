@@ -71,7 +71,7 @@ public:
                                    SkDestinationSurfaceColorMode mipColorMode);
 
     // Create a potentially loose fit texture with the provided data
-    sk_sp<GrTexture> createTexture(const GrSurfaceDesc&, SkBudgeted, const GrMipLevel&);
+    sk_sp<GrTexture> createTexture1(const GrSurfaceDesc&, SkBudgeted, const GrMipLevel&);
 
     ///////////////////////////////////////////////////////////////////////////
     // Wrapped Backend Surfaces

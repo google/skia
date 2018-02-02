@@ -45,11 +45,11 @@ void GrGpu::disconnect(DisconnectType) {}
 
 ////////////////////////////////////////////////////////////////////////////////
 
-bool GrGpu::isACopyNeededForTextureParams(int width, int height,
+bool GrGpu::IsACopyNeededForTextureParams1(const GrCaps& caps,
+                                          int width, int height,
                                           const GrSamplerState& textureParams,
                                           GrTextureProducer::CopyParams* copyParams,
-                                          SkScalar scaleAdjust[2]) const {
-    const GrCaps& caps = *this->caps();
+                                          SkScalar scaleAdjust[2]) {
     if (textureParams.isRepeated() && !caps.npotTextureTileSupport() &&
         (!SkIsPow2(width) || !SkIsPow2(height))) {
         SkASSERT(scaleAdjust);
@@ -69,6 +69,39 @@ bool GrGpu::isACopyNeededForTextureParams(int width, int height,
         }
         return true;
     }
+
+    return false;
+}
+
+bool GrGpu::IsACopyNeededForTextureParams(const GrCaps& caps, GrTextureProxy* proxy,
+                                          const GrSamplerState& params,
+                                          GrTextureProducer::CopyParams* copyParams,
+                                          SkScalar scaleAdjust[2]) {
+    if (IsACopyNeededForTextureParams1(caps, proxy->width(), proxy->height(), params,
+                                      copyParams, scaleAdjust)) {
+        return true;
+    }
+
+    const GrTexture* texture = proxy->priv().peekTexture();
+    if (!texture) {
+        // The only way to get and EXTERNAL or RECTANGLE texture in Ganesh is to wrap them.
+        // In that case the proxy should already be instantiated.
+        return false;
+    }
+
+#if 0
+    if (textureParams.isRepeated() || GrSamplerState::Filter::kMipMap == textureParams.filter()) {
+        const GrGLTexture* glTexture = static_cast<const GrGLTexture*>(texture);
+        if (GR_GL_TEXTURE_EXTERNAL == glTexture->target() ||
+            GR_GL_TEXTURE_RECTANGLE == glTexture->target()) {
+            copyParams->fFilter = GrSamplerState::Filter::kNearest;
+            copyParams->fWidth = texture->width();
+            copyParams->fHeight = texture->height();
+            return true;
+        }
+    }
+#endif
+
     return false;
 }
 
