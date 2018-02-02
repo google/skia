@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ac5f7cf8_7835684e",
+        "filename": "tools/skqp/generate_gn_args",
+        "patchSetId": 6
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-02-02T18:56:38Z",
+      "side": 1,
+      "message": "you need to update the documentation now as well.",
+      "revId": "c30015b5601b385ce10b5bf8935455f1c0317298",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
