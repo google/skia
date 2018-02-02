@@ -33,10 +33,11 @@ public:
     const GrRenderTarget* asRenderTarget() const  override { return this; }
 
     // GrRenderTarget
-    bool isStencilBufferMultisampled() const { return fSampleCnt > 0; }
+    bool isStencilBufferMultisampled() const { return fSampleCnt > 1; }
 
     GrFSAAType fsaaType() const {
-        if (!fSampleCnt) {
+        SkASSERT(fSampleCnt >= 1);
+        if (fSampleCnt <= 1) {
             SkASSERT(!(fFlags & GrRenderTargetFlags::kMixedSampled));
             return GrFSAAType::kNone;
         }
@@ -45,15 +46,15 @@ public:
     }
 
     /**
-     * Returns the number of samples/pixel in the stencil buffer (Zero if non-MSAA).
+     * Returns the number of samples/pixel in the stencil buffer (One if non-MSAA).
      */
     int numStencilSamples() const { return fSampleCnt; }
 
     /**
-     * Returns the number of samples/pixel in the color buffer (Zero if non-MSAA or mixed sampled).
+     * Returns the number of samples/pixel in the color buffer (One if non-MSAA or mixed sampled).
      */
     int numColorSamples() const {
-        return GrFSAAType::kMixedSamples == this->fsaaType() ? 0 : fSampleCnt;
+        return GrFSAAType::kMixedSamples == this->fsaaType() ? 1 : fSampleCnt;
     }
 
     /**

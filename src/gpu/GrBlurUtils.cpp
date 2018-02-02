@@ -110,7 +110,7 @@ static sk_sp<GrTextureProxy> create_mask_GPU(GrContext* context,
                                              int sampleCnt) {
     if (GrAA::kNo == aa) {
         // Don't need MSAA if mask isn't AA
-        sampleCnt = 0;
+        sampleCnt = 1;
     }
 
     sk_sp<GrRenderTargetContext> rtContext(context->makeDeferredRenderTargetContextWithFallback(

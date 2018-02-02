@@ -38,6 +38,7 @@
 #include "GrResourceCache.h"
 #include "GrTest.h"
 #include "GrTexture.h"
+#include "SkGr.h"
 #endif
 
 using namespace sk_gpu_test;
@@ -484,6 +485,29 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkImage_drawAbandonedGpuImage, reporter, c
     auto surface(SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, info));
     image->getTexture()->abandon();
     surface->getCanvas()->drawImage(image, 0, 0);
+}
+
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrContext_colorTypeSupportedAsImage, reporter, ctxInfo) {
+    for (int ct = 0; ct < kLastEnum_SkColorType; ++ct) {
+        static constexpr int kSize = 10;
+        SkColorType colorType = static_cast<SkColorType>(ct);
+        bool can = ctxInfo.grContext()->colorTypeSupportedAsImage(colorType);
+        auto* gpu = ctxInfo.grContext()->contextPriv().getGpu();
+        GrBackendTexture backendTex = gpu->createTestingOnlyBackendTexture(
+                nullptr, kSize, kSize, colorType, false, GrMipMapped::kNo);
+        auto img =
+                SkImage::MakeFromTexture(ctxInfo.grContext(), backendTex, kTopLeft_GrSurfaceOrigin,
+                                         colorType, kOpaque_SkAlphaType, nullptr);
+        REPORTER_ASSERT(reporter, can == SkToBool(img),
+                        "%d, colorTypeSupportedAsImage:%d, actual:%d, ct:%d", can, SkToBool(img),
+                        colorType);
+
+        img.reset();
+        ctxInfo.grContext()->flush();
+        if (backendTex.isValid()) {
+            gpu->deleteTestingOnlyBackendTexture(&backendTex);
+        }
+    }
 }
 
 #endif

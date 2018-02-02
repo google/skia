@@ -346,7 +346,7 @@ void GrVkCaps::ConfigInfo::initSampleCounts(const GrVkInterface* interface,
                                                                  &properties));
     VkSampleCountFlags flags = properties.sampleCounts;
     if (flags & VK_SAMPLE_COUNT_1_BIT) {
-        fColorSampleCounts.push(0);
+        fColorSampleCounts.push(1);
     }
     if (kImagination_VkVendor == physProps.vendorID) {
         // MSAA does not work on imagination
@@ -386,10 +386,18 @@ void GrVkCaps::ConfigInfo::init(const GrVkInterface* interface,
     }
 }
 
-int GrVkCaps::getSampleCount(int requestedCount, GrPixelConfig config) const {
+int GrVkCaps::getRenderTargetSampleCount(int requestedCount, GrPixelConfig config) const {
+    requestedCount = SkTMax(1, requestedCount);
     int count = fConfigTable[config].fColorSampleCounts.count();
-    if (!count || !this->isConfigRenderable(config, true)) {
+
+    if (!count) {
         return 0;
+    }
+
+    if (1 == requestedCount) {
+        SkASSERT(fConfigTable[config].fColorSampleCounts.count() &&
+                 fConfigTable[config].fColorSampleCounts[0] == 1);
+        return 1;
     }
 
     for (int i = 0; i < count; ++i) {
@@ -397,7 +405,15 @@ int GrVkCaps::getSampleCount(int requestedCount, GrPixelConfig config) const {
             return fConfigTable[config].fColorSampleCounts[i];
         }
     }
-    return fConfigTable[config].fColorSampleCounts[count-1];
+    return 0;
+}
+
+int GrVkCaps::maxRenderTargetSampleCount(GrPixelConfig config) const {
+    const auto& table = fConfigTable[config].fColorSampleCounts;
+    if (!table.count()) {
+        return 0;
+    }
+    return table[table.count() - 1];
 }
 
 bool validate_image_info(const GrVkImageInfo* imageInfo, SkColorType ct, GrPixelConfig* config) {

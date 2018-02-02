@@ -96,8 +96,9 @@ sk_sp<const GrGLInterface> GLWindowContext_win::onInitializeContext() {
                                               1,
                                               &kSampleCountAttr,
                                               &fSampleCount);
+            fSampleCount = SkTMax(fSampleCount, 1);
         } else {
-            fSampleCount = 0;
+            fSampleCount = 1;
         }
 
         RECT rect;
