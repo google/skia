@@ -15,12 +15,13 @@
 #include "SkRandom.h"
 #include "SkRegion.h"
 #include "SkShader.h"
+#include "SkTextBlob.h"
 #include "SkUtils.h"
 #include "SkColorPriv.h"
 #include "SkColorFilter.h"
 #include "SkTime.h"
 #include "SkTypeface.h"
-#include "SkTextBox.h"
+#include "../tools/shape/SkShaper.h"
 #include "SkOSFile.h"
 #include "SkStream.h"
 
@@ -57,7 +58,7 @@ public:
 
 protected:
     // overrides from SkEventSink
-    virtual bool onQuery(SkEvent* evt)  {
+    bool onQuery(SkEvent* evt) override {
         if (SampleCode::TitleQ(*evt)) {
             SampleCode::TitleR(evt, "TextBox");
             return true;
@@ -70,27 +71,28 @@ protected:
 
         canvas->clipRect(SkRect::MakeWH(w, h));
         canvas->drawColor(bg);
+
+        SkShaper shaper(nullptr);
+
         SkScalar margin = 20;
-        SkTextBox tbox;
-        tbox.setMode(SkTextBox::kLineBreak_Mode);
-        tbox.setBox(margin, margin,
-                    w - margin, h - margin);
-        tbox.setSpacing(SkIntToScalar(3)/3, 0);
 
         SkPaint paint;
         paint.setAntiAlias(true);
         paint.setLCDRenderText(true);
         paint.setColor(fg);
-        tbox.setText(gText, strlen(gText), paint);
 
         for (int i = 9; i < 24; i += 2) {
+            SkTextBlobBuilder builder;
             paint.setTextSize(SkIntToScalar(i));
-            tbox.draw(canvas);
-            canvas->translate(0, tbox.getTextHeight() + paint.getFontSpacing());
+            SkPoint end = shaper.shape(&builder, paint, gText, strlen(gText), true,
+                                       { margin, margin }, w - margin);
+            canvas->drawTextBlob(builder.make(), 0, 0, paint);
+
+            canvas->translate(0, end.y());
         }
     }
 
-    virtual void onDrawContent(SkCanvas* canvas) {
+    void onDrawContent(SkCanvas* canvas) override {
         SkScalar width = this->width() / 3;
         drawTest(canvas, width, this->height(), SK_ColorBLACK, SK_ColorWHITE);
         canvas->translate(width, 0);
