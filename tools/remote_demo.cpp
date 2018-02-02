@@ -129,7 +129,7 @@ private:
     }
 
     const int fReadFd,
-        fWriteFd;
+              fWriteFd;
     uint8_t   fBuffer[1024 * kPageSize];
 };
 
@@ -146,12 +146,12 @@ static void final_draw(std::string outFilename,
     auto s = SkSurface::MakeRasterN32Premul(r.width(), r.height());
     auto c = s->getCanvas();
 
-    auto picUnderTest = SkPicture::MakeFromData(picData, picSize, procs);
     auto start = std::chrono::high_resolution_clock::now();
 
-    for (int i = 0; i < 40; i++) {
-
+    for (int i = 0; i < 20; i++) {
+        auto picUnderTest = SkPicture::MakeFromData(picData, picSize, procs);
         c->drawPicture(picUnderTest);
+        SkRemoteGlyphCacheGPU::ChangeSalt();
     }
 
     auto end = std::chrono::high_resolution_clock::now();
@@ -184,7 +184,7 @@ static void gpu(int readFd, int writeFd) {
         readSoFar += readSize;
     }
 
-    SkRemoteGlyphCacheGPU rc{
+    SkRemoteGlyphCacheGPU rc {
         skstd::make_unique<RemoteScalerContextFIFO>(readFd, writeFd)
     };
 
@@ -206,7 +206,7 @@ static int renderer(
     auto skp = SkData::MakeFromFileName(fileName.c_str());
     auto pic = SkPicture::MakeFromData(skp.get());
 
-    bool toGpu = true;
+    bool toGpu = false;
 
     SkRemoteGlyphCacheRenderer rc;
     SkSerialProcs procs;
@@ -339,7 +339,7 @@ int main(int argc, char** argv) {
         return 1;
     }
 
-    bool useProcess = false;
+    bool useProcess = true;
 
     if (useProcess) {
         pid_t child = fork();

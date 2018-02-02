@@ -68,6 +68,8 @@ void SkRemoteGlyphCacheGPU::prepareDeserializeProcs(SkDeserialProcs* procs) {
     procs->fTypefaceCtx = this;
 }
 
+uint32_t SkRemoteGlyphCacheGPU::fSalt;
+
 sk_sp<SkTypeface> SkRemoteGlyphCacheGPU::decodeTypeface(const void* buf, size_t len) {
     WireTypeface wire;
     if (len < sizeof(wire)) {
@@ -75,7 +77,14 @@ sk_sp<SkTypeface> SkRemoteGlyphCacheGPU::decodeTypeface(const void* buf, size_t 
         return nullptr;
     }
     memcpy(&wire, buf, sizeof(wire));
-    auto typeFace = fMapIdToTypeface.find(wire.typeface_id);
+
+    // We want to run a picture several times to get accurate timing. If this was done naively,
+    // then only the first rendering of the picture would cause the split cache overhead. Allow
+    // a salt to be changed for every run to keep the split cache overhead.
+
+    SkFontID saltedFontId = fSalt ^ wire.typeface_id;
+
+    auto typeFace = fMapIdToTypeface.find(saltedFontId);
     if (typeFace == nullptr) {
 
         auto newTypeface = sk_make_sp<SkTypefaceProxy>(
@@ -84,7 +93,7 @@ sk_sp<SkTypeface> SkRemoteGlyphCacheGPU::decodeTypeface(const void* buf, size_t 
             wire.is_fixed,
             fRemoteScalerContext.get());
 
-        typeFace = fMapIdToTypeface.set(wire.typeface_id, newTypeface);
+        typeFace = fMapIdToTypeface.set(saltedFontId, newTypeface);
     }
     return *typeFace;
 }
