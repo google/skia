@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "73fbb589_98c6a37f",
+        "filename": "tools/skqp/generate_gn_args",
+        "patchSetId": 3
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-02-02T16:15:52Z",
+      "side": 1,
+      "message": "can this be an option that defaults to 26?",
+      "revId": "5d1587e1fa2b764bd12d42ac6d21fc9efef139c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c93b5cea_5cdbf169",
+        "filename": "tools/skqp/generate_gn_args",
+        "patchSetId": 3
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-02-02T16:15:52Z",
+      "side": 1,
+      "message": "can this be an option that defaults to false?",
+      "revId": "5d1587e1fa2b764bd12d42ac6d21fc9efef139c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6409c3bb_979c97eb",
+        "filename": "tools/skqp/generate_gn_args",
+        "patchSetId": 3
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-02-02T16:15:52Z",
+      "side": 1,
+      "message": "don\u0027t require these but make them optional args.\n\n--api-level\n--disable-workarounds",
+      "revId": "5d1587e1fa2b764bd12d42ac6d21fc9efef139c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
