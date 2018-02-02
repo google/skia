@@ -68,6 +68,7 @@ void SkRemoteGlyphCacheGPU::prepareDeserializeProcs(SkDeserialProcs* procs) {
     procs->fTypefaceCtx = this;
 }
 
+
 sk_sp<SkTypeface> SkRemoteGlyphCacheGPU::decodeTypeface(const void* buf, size_t len) {
     WireTypeface wire;
     if (len < sizeof(wire)) {
@@ -75,6 +76,7 @@ sk_sp<SkTypeface> SkRemoteGlyphCacheGPU::decodeTypeface(const void* buf, size_t 
         return nullptr;
     }
     memcpy(&wire, buf, sizeof(wire));
+
     auto typeFace = fMapIdToTypeface.find(wire.typeface_id);
     if (typeFace == nullptr) {
 

@@ -37,6 +37,10 @@
 
 static const size_t kPageSize = 4096;
 
+static bool gUseGpu = true;
+static bool gPurgeFontCaches = true;
+static bool gUseProcess = true;
+
 class Op {
 public:
     explicit Op(const SkScalerContextRec& rec) : descriptor{rec} {}
@@ -115,7 +119,7 @@ private:
     }
 
     const int fReadFd,
-        fWriteFd;
+              fWriteFd;
     uint8_t   fBuffer[1024 * kPageSize];
 };
 
@@ -131,20 +135,26 @@ static void final_draw(std::string outFilename,
 
     auto s = SkSurface::MakeRasterN32Premul(r.width(), r.height());
     auto c = s->getCanvas();
-
     auto picUnderTest = SkPicture::MakeFromData(picData, picSize, procs);
-    auto start = std::chrono::high_resolution_clock::now();
 
-    for (int i = 0; i < 40; i++) {
 
+    std::chrono::duration<double> total_seconds{0.0};
+    for (int i = 0; i < 20; i++) {
+        if (gPurgeFontCaches) {
+            SkGraphics::PurgeFontCache();
+        }
+        auto start = std::chrono::high_resolution_clock::now();
         c->drawPicture(picUnderTest);
+        auto end = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double> elapsed_seconds = end-start;
+        total_seconds += elapsed_seconds;
+
     }
 
-    auto end = std::chrono::high_resolution_clock::now();
-
-    std::chrono::duration<double> elapsed_seconds = end-start;
-
-    std::cout << "elapsed time: " << elapsed_seconds.count() << "s\n";
+    std::cout << "useProcess: " << gUseProcess
+              << " useGPU: " << gUseGpu
+              << " purgeCache: " << gPurgeFontCaches << std::endl;
+    std::cerr << "elapsed time: " << total_seconds.count() << "s\n";
 
     auto i = s->makeImageSnapshot();
     auto data = i->encodeToData();
@@ -155,29 +165,32 @@ static void final_draw(std::string outFilename,
 static void gpu(int readFd, int writeFd) {
 
     size_t picSize = 0;
-    read(readFd, &picSize, sizeof(picSize));
+    ssize_t r = read(readFd, &picSize, sizeof(picSize));
+    if (r > 0) {
 
-    static constexpr size_t kBufferSize = 10 * 1024 * kPageSize;
-    std::unique_ptr<uint8_t[]> picBuffer{new uint8_t[kBufferSize]};
+        static constexpr size_t kBufferSize = 10 * 1024 * kPageSize;
+        std::unique_ptr<uint8_t[]> picBuffer{new uint8_t[kBufferSize]};
 
-    size_t readSoFar = 0;
-    while (readSoFar < picSize) {
-        ssize_t readSize;
-        if((readSize = read(readFd, &picBuffer[readSoFar], kBufferSize - readSoFar)) <= 0) {
-            if (readSize == 0) return;
-            err(1, "gpu pic read error %d", errno);
+        size_t readSoFar = 0;
+        while (readSoFar < picSize) {
+            ssize_t readSize;
+            if ((readSize = read(readFd, &picBuffer[readSoFar], kBufferSize - readSoFar)) <= 0) {
+                if (readSize == 0) return;
+                err(1, "gpu pic read error %d", errno);
+            }
+            readSoFar += readSize;
         }
-        readSoFar += readSize;
+
+        SkRemoteGlyphCacheGPU rc{
+            skstd::make_unique<RemoteScalerContextFIFO>(readFd, writeFd)
+        };
+
+        SkDeserialProcs procs;
+        rc.prepareDeserializeProcs(&procs);
+
+        final_draw("test.png", &procs, picBuffer.get(), picSize);
+
     }
-
-    SkRemoteGlyphCacheGPU rc{
-        skstd::make_unique<RemoteScalerContextFIFO>(readFd, writeFd)
-    };
-
-    SkDeserialProcs procs;
-    rc.prepareDeserializeProcs(&procs);
-
-    final_draw("test.png", &procs, picBuffer.get(), picSize);
 
     close(writeFd);
     close(readFd);
@@ -190,24 +203,25 @@ static int renderer(
     std::string fileName{prefix + skpName + ".skp"};
 
     auto skp = SkData::MakeFromFileName(fileName.c_str());
-    auto pic = SkPicture::MakeFromData(skp.get());
-
-    bool toGpu = true;
+    std::cout << "skp stream is " << skp->size() << " bytes long " << std::endl;
 
     SkRemoteGlyphCacheRenderer rc;
     SkSerialProcs procs;
-    if (toGpu) {
+    sk_sp<SkData> stream;
+    if (gUseGpu) {
+        auto pic = SkPicture::MakeFromData(skp.get());
         rc.prepareSerializeProcs(&procs);
+        stream = pic->serialize(&procs);
+    } else {
+        stream = skp;
     }
 
-    auto stream = pic->serialize(&procs);
-
-    std::cerr << "stream is " << stream->size() << " bytes long" << std::endl;
+    std::cout << "stream is " << stream->size() << " bytes long" << std::endl;
 
     size_t picSize = stream->size();
     uint8_t* picBuffer = (uint8_t*) stream->data();
 
-    if (!toGpu) {
+    if (!gUseGpu) {
         final_draw("test-direct.png", nullptr, picBuffer, picSize);
         close(writeFd);
         close(readFd);
@@ -221,7 +235,7 @@ static int renderer(
         ssize_t writeSize = write(writeFd, &picBuffer[writeSoFar], picSize - writeSoFar);
         if (writeSize <= 0) {
             if (writeSize == 0) {
-                std::cerr << "Exit" << std::endl;
+                std::cout << "Exit" << std::endl;
                 return 1;
             }
             perror("Can't write picture from render to GPU ");
@@ -229,7 +243,7 @@ static int renderer(
         }
         writeSoFar += writeSize;
     }
-    std::cerr << "Waiting for scaler context ops." << std::endl;
+    std::cout << "Waiting for scaler context ops." << std::endl;
 
     static constexpr size_t kBufferSize = 1024 * kPageSize;
     std::unique_ptr<uint8_t[]> glyphBuffer{new uint8_t[kBufferSize]};
@@ -237,7 +251,7 @@ static int renderer(
     Op* op = (Op*)glyphBuffer.get();
     while (true) {
         ssize_t size = read(readFd, glyphBuffer.get(), sizeof(*op));
-        if (size <= 0) { std::cerr << "Exit op loop" << std::endl; break;}
+        if (size <= 0) { std::cout << "Exit op loop" << std::endl; break;}
         size_t writeSize = sizeof(*op);
 
             auto sc = rc.generateScalerContext(op->descriptor, op->typeface_id);
@@ -274,7 +288,7 @@ static int renderer(
     close(readFd);
     close(writeFd);
 
-    std::cerr << "Returning from render" << std::endl;
+    std::cout << "Returning from render" << std::endl;
 
     return 0;
 }
@@ -297,38 +311,47 @@ static void start_render(std::string& skpName, int render_to_gpu[2], int gpu_to_
 
 int main(int argc, char** argv) {
     std::string skpName = argc > 1 ? std::string{argv[1]} : std::string{"desk_nytimes"};
+    int mode = argc > 2 ? atoi(argv[2]) : -1;
     printf("skp: %s\n", skpName.c_str());
 
     int render_to_gpu[2],
         gpu_to_render[2];
 
-    int r = pipe(render_to_gpu);
-    if (r < 0) {
-        perror("Can't write picture from render to GPU ");
-        return 1;
-    }
-    r = pipe(gpu_to_render);
-    if (r < 0) {
-        perror("Can't write picture from render to GPU ");
-        return 1;
-    }
-
-    bool useProcess = true;
-
-    if (useProcess) {
-        pid_t child = fork();
-        SkGraphics::Init();
-
-        if (child == 0) {
-            start_gpu(render_to_gpu, gpu_to_render);
-        } else {
-            start_render(skpName, render_to_gpu, gpu_to_render);
-            waitpid(child, nullptr, 0);
+    for (int m = 0; m < 8; m++) {
+        int r = pipe(render_to_gpu);
+        if (r < 0) {
+            perror("Can't write picture from render to GPU ");
+            return 1;
         }
-    } else {
-        SkGraphics::Init();
-        std::thread(gpu, render_to_gpu[kRead], gpu_to_render[kWrite]).detach();
-        renderer(skpName, gpu_to_render[kRead], render_to_gpu[kWrite]);
+        r = pipe(gpu_to_render);
+        if (r < 0) {
+            perror("Can't write picture from render to GPU ");
+            return 1;
+        }
+
+        gPurgeFontCaches = (m & 4) == 4;
+        gUseGpu = (m & 2) == 2;
+        gUseProcess = (m & 1) == 1;
+
+        if (mode >= 0 && mode < 8 && mode != m) {
+            continue;
+        }
+
+        if (gUseProcess) {
+            pid_t child = fork();
+            SkGraphics::Init();
+
+            if (child == 0) {
+                start_gpu(render_to_gpu, gpu_to_render);
+            } else {
+                start_render(skpName, render_to_gpu, gpu_to_render);
+                waitpid(child, nullptr, 0);
+            }
+        } else {
+            SkGraphics::Init();
+            std::thread(gpu, render_to_gpu[kRead], gpu_to_render[kWrite]).detach();
+            renderer(skpName, gpu_to_render[kRead], render_to_gpu[kWrite]);
+        }
     }
 
     return 0;

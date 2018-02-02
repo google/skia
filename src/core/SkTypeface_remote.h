@@ -78,6 +78,7 @@ public:
             , fFontId{fontId}
             , fRsc{rsc} { }
     SkFontID fontID() const {return fFontId;}
+
 protected:
     int onGetUPEM() const override { SK_ABORT("Should never be called."); return 0; }
     SkStreamAsset* onOpenStream(int* ttcIndex) const override {
