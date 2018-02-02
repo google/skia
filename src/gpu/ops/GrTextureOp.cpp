@@ -116,6 +116,7 @@ public:
 
         private:
             void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override {
+                using Interpolation = GrGLSLVaryingHandler::Interpolation;
                 const auto& textureGP = args.fGP.cast<TextureGeometryProcessor>();
                 fColorSpaceXformHelper.emitCode(
                         args.fUniformHandler, textureGP.fColorSpaceXform.get());
@@ -127,26 +128,19 @@ public:
                                      args.fUniformHandler,
                                      textureGP.fTextureCoords.asShaderVar(),
                                      args.fFPCoordTransformHandler);
-                if (args.fShaderCaps->preferFlatInterpolation()) {
-                    args.fVaryingHandler->addFlatPassThroughAttribute(&textureGP.fColors,
-                                                                      args.fOutputColor);
-                } else {
-                    args.fVaryingHandler->addPassThroughAttribute(&textureGP.fColors,
-                                                                  args.fOutputColor);
-                }
+                args.fVaryingHandler->addPassThroughAttribute(&textureGP.fColors,
+                                                              args.fOutputColor,
+                                                              Interpolation::kCanBeFlat);
                 args.fFragBuilder->codeAppend("float2 texCoord;");
                 args.fVaryingHandler->addPassThroughAttribute(&textureGP.fTextureCoords,
                                                               "texCoord");
                 if (textureGP.numTextureSamplers() > 1) {
+                    // If this changes to float, reconsider Interpolation::kMustBeFlat.
+                    SkASSERT(kInt_GrVertexAttribType == textureGP.fTextureIdx.fType);
                     SkASSERT(args.fShaderCaps->integerSupport());
                     args.fFragBuilder->codeAppend("int texIdx;");
-                    if (args.fShaderCaps->flatInterpolationSupport()) {
-                        args.fVaryingHandler->addFlatPassThroughAttribute(&textureGP.fTextureIdx,
-                                                                          "texIdx");
-                    } else {
-                        args.fVaryingHandler->addPassThroughAttribute(&textureGP.fTextureIdx,
-                                                                      "texIdx");
-                    }
+                    args.fVaryingHandler->addPassThroughAttribute(&textureGP.fTextureIdx, "texIdx",
+                                                                  Interpolation::kMustBeFlat);
                     args.fFragBuilder->codeAppend("switch (texIdx) {");
                     for (int i = 0; i < textureGP.numTextureSamplers(); ++i) {
                         args.fFragBuilder->codeAppendf("case %d: %s = ", i, args.fOutputColor);

@@ -133,14 +133,16 @@ void GrCCCubicCornerShader::onEmitSetupCode(GrGLSLVertexGeoBuilder* s, const cha
 
 void GrCCCubicCornerShader::onEmitVaryings(GrGLSLVaryingHandler* varyingHandler,
                                            GrGLSLVarying::Scope scope, SkString* code) {
+    using Interpolation = GrGLSLVaryingHandler::Interpolation;
+
     fdKLMDdx.reset(kFloat4_GrSLType, scope);
-    varyingHandler->addFlatVarying("dklmddx", &fdKLMDdx);
+    varyingHandler->addVarying("dklmddx", &fdKLMDdx, Interpolation::kCanBeFlat);
     code->appendf("%s = float4(%s[0].x, %s[1].x, %s[2].x, %s.x);",
                   OutName(fdKLMDdx), fKLMMatrix.c_str(), fKLMMatrix.c_str(),
                   fKLMMatrix.c_str(), fEdgeDistanceEquation.c_str());
 
     fdKLMDdy.reset(kFloat4_GrSLType, scope);
-    varyingHandler->addFlatVarying("dklmddy", &fdKLMDdy);
+    varyingHandler->addVarying("dklmddy", &fdKLMDdy, Interpolation::kCanBeFlat);
     code->appendf("%s = float4(%s[0].y, %s[1].y, %s[2].y, %s.y);",
                   OutName(fdKLMDdy), fKLMMatrix.c_str(), fKLMMatrix.c_str(),
                   fKLMMatrix.c_str(), fEdgeDistanceEquation.c_str());

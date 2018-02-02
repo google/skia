@@ -18,7 +18,8 @@ void GrCCTriangleShader::onEmitVaryings(GrGLSLVaryingHandler* varyingHandler,
                                         const char* wind) {
     fCoverageTimesWind.reset(kHalf_GrSLType, scope);
     if (!inputCoverage) {
-        varyingHandler->addFlatVarying("wind", &fCoverageTimesWind);
+        varyingHandler->addVarying("wind", &fCoverageTimesWind,
+                                   GrGLSLVaryingHandler::Interpolation::kCanBeFlat);
         code->appendf("%s = %s;", OutName(fCoverageTimesWind), wind);
     } else {
         varyingHandler->addVarying("coverage_times_wind", &fCoverageTimesWind);
@@ -89,13 +90,14 @@ void GrCCTriangleCornerShader::onEmitVaryings(GrGLSLVaryingHandler* varyingHandl
                                               GrGLSLVarying::Scope scope, SkString* code,
                                               const char* position, const char* inputCoverage,
                                               const char* wind) {
+    using Interpolation = GrGLSLVaryingHandler::Interpolation;
     SkASSERT(!inputCoverage);
 
     fCornerLocationInAABoxes.reset(kFloat2x2_GrSLType, scope);
     varyingHandler->addVarying("corner_location_in_aa_boxes", &fCornerLocationInAABoxes);
 
     fBisectInAABoxes.reset(kFloat2x2_GrSLType, scope);
-    varyingHandler->addFlatVarying("bisect_in_aa_boxes", &fBisectInAABoxes);
+    varyingHandler->addVarying("bisect_in_aa_boxes", &fBisectInAABoxes, Interpolation::kCanBeFlat);
 
     code->appendf("for (int i = 0; i < 2; ++i) {");
     code->appendf(    "%s[i] = %s * %s[i] + %s[i];",
@@ -105,7 +107,7 @@ void GrCCTriangleCornerShader::onEmitVaryings(GrGLSLVaryingHandler* varyingHandl
     code->appendf("}");
 
     fWindTimesHalf.reset(kHalf_GrSLType, scope);
-    varyingHandler->addFlatVarying("wind_times_half", &fWindTimesHalf);
+    varyingHandler->addVarying("wind_times_half", &fWindTimesHalf, Interpolation::kCanBeFlat);
     code->appendf("%s = %s * .5;", OutName(fWindTimesHalf), wind);
 }
 
