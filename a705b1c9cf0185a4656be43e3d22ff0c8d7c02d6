@@ -22,6 +22,30 @@
       "revId": "a705b1c9cf0185a4656be43e3d22ff0c8d7c02d6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dc630ab1_9e54801e",
+        "filename": "src/core/SkGeometry.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1213,
+      "author": {
+        "id": 6190
+      },
+      "writtenOn": "2018-02-02T13:01:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "74620461_75e80d23",
+      "range": {
+        "startLine": 1213,
+        "startChar": 13,
+        "endLine": 1213,
+        "endChar": 29
+      },
+      "revId": "a705b1c9cf0185a4656be43e3d22ff0c8d7c02d6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
