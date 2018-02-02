@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d7f32291_eceb67c3",
+        "filename": "tools/skqp/README.md",
+        "patchSetId": 7
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-02-02T19:31:50Z",
+      "side": 1,
+      "message": "our documentation page should promote the latest version 26.",
+      "range": {
+        "startLine": 53,
+        "startChar": 27,
+        "endLine": 53,
+        "endChar": 29
+      },
+      "revId": "00115a28959dc9992bf089ceb2da470d7d26caee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a554291d_0a5fba5a",
+        "filename": "tools/skqp/README.md",
+        "patchSetId": 7
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-02-02T19:31:50Z",
+      "side": 1,
+      "message": "I wouldn\u0027t document workarounds here. It make it appear we are recommending it as a default.",
+      "revId": "00115a28959dc9992bf089ceb2da470d7d26caee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
