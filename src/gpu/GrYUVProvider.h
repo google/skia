@@ -66,6 +66,9 @@ public:
      *  @param planes     Memory for each of the Y, U, and V planes.
      */
     virtual bool onGetYUV8Planes(const SkYUVSizeInfo& sizeInfo, void* planes[3]) = 0;
+
+private:
+    static void YUVGen_DataReleaseProc(const void*, void* data);
 };
 
 #endif

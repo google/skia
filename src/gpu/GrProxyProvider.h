@@ -84,7 +84,8 @@ public:
                                              GrSurfaceFlags flags,
                                              GrSurfaceOrigin origin,
                                              int sampleCnt,
-                                             SkBudgeted budgeted);
+                                             SkBudgeted budgeted,
+                                             SkBackingFit fit);
 
     /*
      * Create a mipmapped texture proxy with data.

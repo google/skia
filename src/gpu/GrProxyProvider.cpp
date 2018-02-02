@@ -197,7 +197,8 @@ sk_sp<GrTextureProxy> GrProxyProvider::createTextureProxy(sk_sp<SkImage> srcImag
                                                           GrSurfaceFlags flags,
                                                           GrSurfaceOrigin origin,
                                                           int sampleCnt,
-                                                          SkBudgeted budgeted) {
+                                                          SkBudgeted budgeted,
+                                                          SkBackingFit fit) {
     ASSERT_SINGLE_OWNER
     SkASSERT(srcImage);
 
@@ -214,7 +215,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::createTextureProxy(sk_sp<SkImage> srcImag
     desc.fConfig = SkImageInfo2GrPixelConfig(as_IB(srcImage)->onImageInfo(), *this->caps());
 
     sk_sp<GrTextureProxy> proxy = this->createLazyProxy(
-            [desc, budgeted, srcImage]
+            [desc, budgeted, srcImage, fit]
             (GrResourceProvider* resourceProvider, GrSurfaceOrigin* /*outOrigin*/) {
                 if (!resourceProvider) {
                     // Nothing to clean up here. Once the proxy (and thus lambda) is deleted the ref
@@ -226,7 +227,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::createTextureProxy(sk_sp<SkImage> srcImag
                 GrMipLevel mipLevel = { pixMap.addr(), pixMap.rowBytes() };
 
                 return resourceProvider->createTexture(desc, budgeted, mipLevel);
-            }, desc, GrMipMapped::kNo, SkBackingFit::kExact, budgeted);
+            }, desc, GrMipMapped::kNo, fit, budgeted);
 
     if (fResourceProvider) {
         // In order to reuse code we always create a lazy proxy. When we aren't in DDL mode however
