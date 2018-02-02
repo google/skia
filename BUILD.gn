@@ -1610,7 +1610,7 @@ if (skia_enable_tools) {
   }
 
   # We can't yet build ICU on iOS or Windows.
-  if (!is_ios && !is_win && target_cpu != "wasm") {
+  if (!is_ios && target_cpu != "wasm") {
     test_app("sktexttopdf-hb") {
       sources = [
         "tools/shape/SkShaper_harfbuzz.cpp",
