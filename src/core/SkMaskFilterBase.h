@@ -224,7 +224,7 @@ private:
      This method is not exported to java.
      */
     bool filterPath(const SkPath& devPath, const SkMatrix& ctm, const SkRasterClip&, SkBlitter*,
-                    SkStrokeRec::InitStyle) const;
+                    SkStrokeRec::InitStyle, bool doAA) const;
 
     /** Helper method that, given a roundRect in device space, will rasterize it into a kA8_Format
      mask and then call filterMask(). If this returns true, the specified blitter will be called

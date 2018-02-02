@@ -93,7 +93,7 @@ public:
     static bool DrawToMask(const SkPath& devPath, const SkIRect* clipBounds,
                            const SkMaskFilter*, const SkMatrix* filterMatrix,
                            SkMask* mask, SkMask::CreateMode mode,
-                           SkStrokeRec::InitStyle style);
+                           SkStrokeRec::InitStyle style, bool doAA);
 
     void drawDevMask(const SkMask& mask, const SkPaint&) const;
 

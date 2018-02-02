@@ -57,10 +57,12 @@ static bool sw_draw_with_mask_filter(GrContext* context,
                                      const SkMaskFilter* filter,
                                      const SkIRect& clipBounds,
                                      GrPaint&& paint,
-                                     SkStrokeRec::InitStyle fillOrHairline) {
+                                     SkStrokeRec::InitStyle fillOrHairline,
+                                     bool doAA) {
     SkMask  srcM, dstM;
     if (!SkDraw::DrawToMask(devPath, &clipBounds, filter, &viewMatrix, &srcM,
-                            SkMask::kComputeBoundsAndRenderImage_CreateMode, fillOrHairline)) {
+                            SkMask::kComputeBoundsAndRenderImage_CreateMode, fillOrHairline,
+                            doAA)) {
         return false;
     }
     SkAutoMaskFreeImage autoSrc(srcM.fImage);

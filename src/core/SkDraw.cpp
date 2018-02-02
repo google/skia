@@ -1685,7 +1685,7 @@ static bool compute_bounds(const SkPath& devPath, const SkIRect* clipBounds,
 }
 
 static void draw_into_mask(const SkMask& mask, const SkPath& devPath,
-                           SkStrokeRec::InitStyle style) {
+                           SkStrokeRec::InitStyle style, bool doAA) {
     SkDraw draw;
     if (!draw.fDst.reset(mask)) {
         return;
@@ -1701,7 +1701,7 @@ static void draw_into_mask(const SkMask& mask, const SkPath& devPath,
 
     draw.fRC        = &clip;
     draw.fMatrix    = &matrix;
-    paint.setAntiAlias(true);
+    paint.setAntiAlias(doAA);
     switch (style) {
         case SkStrokeRec::kHairline_InitStyle:
             SkASSERT(!paint.getStrokeWidth());
@@ -1718,7 +1718,7 @@ static void draw_into_mask(const SkMask& mask, const SkPath& devPath,
 bool SkDraw::DrawToMask(const SkPath& devPath, const SkIRect* clipBounds,
                         const SkMaskFilter* filter, const SkMatrix* filterMatrix,
                         SkMask* mask, SkMask::CreateMode mode,
-                        SkStrokeRec::InitStyle style) {
+                        SkStrokeRec::InitStyle style, bool doAA) {
     if (SkMask::kJustRenderImage_CreateMode != mode) {
         if (!compute_bounds(devPath, clipBounds, filter, filterMatrix, &mask->fBounds))
             return false;
@@ -1736,7 +1736,7 @@ bool SkDraw::DrawToMask(const SkPath& devPath, const SkIRect* clipBounds,
     }
 
     if (SkMask::kJustComputeBounds_CreateMode != mode) {
-        draw_into_mask(*mask, devPath, style);
+        draw_into_mask(*mask, devPath, style, doAA);
     }
 
     return true;
