@@ -713,6 +713,10 @@ def dm_flags(api, bot):
     # TODO: can we run with env allocator_may_return_null=1 instead?
     match.append('~BadImage')
 
+  if 'Mac' in bot and 'IntelHD6000' in bot:
+    match.append('~^ProcessorCloneTest$')
+    match.append('~^GrMeshTest$')
+
   if blacklisted:
     args.append('--blacklist')
     args.extend(blacklisted)
@@ -941,6 +945,7 @@ TEST_BUILDERS = [
   'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-TSAN',
   'Test-Debian9-GCC-GCE-CPU-AVX2-x86-Debug-All',
   'Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug-All',
+  'Test-Mac-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Debug-All',
   'Test-Mac-Clang-MacMini7.1-CPU-AVX-x86_64-Release-All',
   'Test-Mac-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Debug-All-CommandBuffer',
   'Test-Ubuntu16-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Debug-All',
