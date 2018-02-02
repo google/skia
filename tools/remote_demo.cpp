@@ -93,6 +93,20 @@ public:
         op->~Op();
     }
 
+    void generateMetricsAndImage(const SkTypefaceProxy& tf,
+                                 const SkScalerContextRec& rec,
+                                 SkArenaAlloc* alloc,
+                                 SkGlyph* glyph) override {
+        Op* op = this->createOp(4, tf, rec);
+        memcpy(&op->glyph, glyph, sizeof(op->glyph));
+        write(fWriteFd, fBuffer, sizeof(*op));
+        read(fReadFd, fBuffer, sizeof(fBuffer));
+        memcpy(glyph, &op->glyph, sizeof(*glyph));
+        glyph->allocImage(alloc);
+        memcpy(glyph->fImage, fBuffer + sizeof(Op), glyph->rowBytes() * glyph->fHeight);
+        op->~Op();
+    }
+
     void generatePath(const SkTypefaceProxy& tf,
                       const SkScalerContextRec& rec,
                       SkGlyphID glyph, SkPath* path) override {
@@ -265,6 +279,18 @@ static int renderer(
                     writeSize += op->pathSize;
                     break;
                 }
+                case 4: {
+                    // TODO: check for buffer overflow.
+                    sc->getMetrics(&op->glyph);
+                    if (op->glyph.fWidth <= 0 || op->glyph.fWidth >= kMaxGlyphWidth) {
+                        op->glyph.fImage = nullptr;
+                        break;
+                    }
+                    op->glyph.fImage = &glyphBuffer[sizeof(Op)];
+                    sc->getImage(op->glyph);
+                    writeSize += op->glyph.rowBytes() * op->glyph.fHeight;
+                    break;
+                }
                 default:
                     SkASSERT("Bad op");
             }
@@ -313,7 +339,7 @@ int main(int argc, char** argv) {
         return 1;
     }
 
-    bool useProcess = true;
+    bool useProcess = false;
 
     if (useProcess) {
         pid_t child = fork();

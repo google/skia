@@ -35,6 +35,11 @@ public:
             const SkTypefaceProxy& tf,
             const SkScalerContextRec& rec,
             const SkGlyph& glyph)  = 0;
+    virtual void generateMetricsAndImage(
+            const SkTypefaceProxy& tf,
+            const SkScalerContextRec& rec,
+            SkArenaAlloc* alloc,
+            SkGlyph* glyph)  = 0;
     virtual void generatePath(
             const SkTypefaceProxy& tf,
             const SkScalerContextRec& rec,
@@ -62,6 +67,8 @@ protected:
     void generateFontMetrics(SkPaint::FontMetrics* metrics) override;
 
 private:
+    SkArenaAlloc  fAlloc{8*8*16};
+
     SkTypefaceProxy* typefaceProxy();
     SkRemoteScalerContext* const fRemote;
     typedef SkScalerContext INHERITED;
