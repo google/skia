@@ -1958,6 +1958,7 @@ if (skia_enable_tools) {
         bundle_ios_data = true
       }
       sources = [
+        "tools/shape/SkShaper_harfbuzz.cpp",
         "tools/viewer/GMSlide.cpp",
         "tools/viewer/ImGuiLayer.cpp",
         "tools/viewer/ImageSlide.cpp",
@@ -1982,6 +1983,8 @@ if (skia_enable_tools) {
         ":skia",
         ":tool_utils",
         ":views",
+        "//third_party/harfbuzz",
+        "//third_party/icu",
         "//third_party/imgui",
         "//third_party/jsoncpp",
       ]
