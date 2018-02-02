@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6a3e2f9d_49e4db4c",
+        "filename": "src/gpu/SkGr.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 272,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-02-02T20:50:12Z",
+      "side": 1,
+      "message": "Do we want this to be exact here or would we be fine with approx as well?",
+      "range": {
+        "startLine": 272,
+        "startChar": 50,
+        "endLine": 272,
+        "endChar": 70
+      },
+      "revId": "6b9657639a8a7d96ad17905f2376ab5f59448c5c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
