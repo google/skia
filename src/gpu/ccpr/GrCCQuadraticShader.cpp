@@ -101,14 +101,16 @@ void GrCCQuadraticCornerShader::onEmitSetupCode(GrGLSLVertexGeoBuilder* s, const
 
 void GrCCQuadraticCornerShader::onEmitVaryings(GrGLSLVaryingHandler* varyingHandler,
                                                GrGLSLVarying::Scope scope, SkString* code) {
+    using Interpolation = GrGLSLVaryingHandler::Interpolation;
+
     fdXYDdx.reset(kFloat3_GrSLType, scope);
-    varyingHandler->addFlatVarying("dXYDdx", &fdXYDdx);
+    varyingHandler->addVarying("dXYDdx", &fdXYDdx, Interpolation::kCanBeFlat);
     code->appendf("%s = float3(%s[0].x, %s[0].y, %s.x);",
                   OutName(fdXYDdx), fCanonicalMatrix.c_str(), fCanonicalMatrix.c_str(),
                   fEdgeDistanceEquation.c_str());
 
     fdXYDdy.reset(kFloat3_GrSLType, scope);
-    varyingHandler->addFlatVarying("dXYDdy", &fdXYDdy);
+    varyingHandler->addVarying("dXYDdy", &fdXYDdy, Interpolation::kCanBeFlat);
     code->appendf("%s = float3(%s[1].x, %s[1].y, %s.y);",
                   OutName(fdXYDdy), fCanonicalMatrix.c_str(), fCanonicalMatrix.c_str(),
                   fEdgeDistanceEquation.c_str());
