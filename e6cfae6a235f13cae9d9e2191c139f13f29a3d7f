@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d907df08_c9009d83",
+        "filename": "tools/skqp/generate_gn_args",
+        "patchSetId": 2
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-02-02T16:02:57Z",
+      "side": 1,
+      "message": "let\u0027s alphabetize this list.",
+      "revId": "e6cfae6a235f13cae9d9e2191c139f13f29a3d7f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "46c41961_b011edf8",
+        "filename": "tools/skqp/generate_gn_args",
+        "patchSetId": 2
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-02-02T16:02:57Z",
+      "side": 1,
+      "message": "Let\u0027s make some of these arguments optional:\n\nimport argparse\nif __name__ \u003d\u003d \u0027__main__\u0027:\n    parser \u003d argparse.ArgumentParser(description\u003d\u0027Generate args.gn file.\u0027)\n    parser.add_argument(\u0027target_build_dir\u0027)\n    parser.add_argument(\u0027android_ndk_dir\u0027 )\n    parser.add_argument(\u0027--arch\u0027,  metavar\u003d\u0027architecture\u0027, default\u003d\u0027arm\u0027,\n        help\u003d\u0027defaults to \"arm\", can be \"arm\" \"arm64\" \"x86\" or \"x64\"\u0027)\n    parser.add_argument(\u0027--api\u0027, type\u003dint, metavar\u003d\u0027api_version\u0027, default\u003d26, help\u003d\u0027defaults to 26\u0027)\n    parser.add_argument(\u0027--use_workarounds\u0027, default\u003dFalse, action\u003d\u0027store_true\u0027)\n    a \u003d parser.parse_args()\n    a.use_workarounds \u003d \u0027true\u0027 if a.use_workarounds else \u0027false\u0027 \n    make_args_gn(a.target_build_dir,\n                 a.android_ndk_dir,\n                 a.arch,\n                 a.api,\n                 a.use_workarounds)\n\nAnd then update the README.",
+      "revId": "e6cfae6a235f13cae9d9e2191c139f13f29a3d7f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
