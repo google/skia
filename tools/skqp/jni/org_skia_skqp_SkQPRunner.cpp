@@ -169,6 +169,7 @@ void Java_org_skia_skqp_SkQP_nInit(JNIEnv* env, jobject object, jobject assetMan
     gUnitTests = gm_runner::GetUnitTests();
     jassert(env, gUnitTests.size() > 0);
     gStringClass = env->FindClass("java/lang/String");
+    jassert(env, gStringClass);
 
     constexpr char stringArrayType[] = "[Ljava/lang/String;";
     env->SetObjectField(object, env->GetFieldID(clazz, "mBackends", stringArrayType),
@@ -218,7 +219,9 @@ jobjectArray Java_org_skia_skqp_SkQP_nExecuteUnitTest(JNIEnv* env,
     if (errors.size() == 0) {
         return nullptr;
     }
-    jobjectArray array = env->NewObjectArray(errors.size(), gStringClass, nullptr);
+    jclass stringClass = env->FindClass("java/lang/String");
+    jassert(env, stringClass);
+    jobjectArray array = env->NewObjectArray(errors.size(), stringClass, nullptr);
     for (unsigned i = 0; i < errors.size(); ++i) {
         set_string_array_element(env, array, errors[i].c_str(), i);
     }
