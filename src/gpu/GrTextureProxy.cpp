@@ -151,8 +151,9 @@ void GrTextureProxy::clearUniqueKey() {
 }
 
 #ifdef SK_DEBUG
-void GrTextureProxy::validateLazyTexture(const GrTexture* texture) {
-    SkASSERT(!texture->asRenderTarget());
+void GrTextureProxy::validateLazySurface(const GrSurface* surface) {
+    SkASSERT(surface->asTexture());
+    SkASSERT(!surface->asRenderTarget());
 }
 #endif
 

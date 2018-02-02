@@ -134,7 +134,7 @@ sk_sp<GrTextureProxy> GrBackendTextureImageGenerator::onGenerateTexture(
     GrBackendTexture backendTexture = fBackendTexture;
     RefHelper* refHelper = fRefHelper;
 
-    sk_sp<GrTextureProxy> proxy = proxyProvider->createLazyProxy(
+    sk_sp<GrSurfaceProxy> proxy = proxyProvider->createLazyProxy(
             [refHelper, releaseProcHelper, semaphore, backendTexture]
             (GrResourceProvider* resourceProvider, GrSurfaceOrigin* /*outOrigin*/) {
                 if (!resourceProvider) {
@@ -174,11 +174,11 @@ sk_sp<GrTextureProxy> GrBackendTextureImageGenerator::onGenerateTexture(
 
             }, desc, mipMapped, SkBackingFit::kExact, SkBudgeted::kNo);
 
-    if (0 == origin.fX && 0 == origin.fY &&
+    if (proxy->asTextureProxy() && 0 == origin.fX && 0 == origin.fY &&
         info.width() == fBackendTexture.width() && info.height() == fBackendTexture.height() &&
-        (!willNeedMipMaps || GrMipMapped::kYes == proxy->mipMapped())) {
+        (!willNeedMipMaps || GrMipMapped::kYes == proxy->asTextureProxy()->mipMapped())) {
         // If the caller wants the entire texture and we have the correct mip support, we're done
-        return proxy;
+        return sk_ref_sp(proxy->asTextureProxy());
     } else {
         // Otherwise, make a copy of the requested subset. Make sure our temporary is renderable,
         // because Vulkan will want to do the copy as a draw. All other copies would require a
