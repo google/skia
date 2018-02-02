@@ -102,6 +102,12 @@ public:
         this->setTexture(texture);
     }
 
+    GrGLboolean isTexture(GrGLuint textureID) override {
+        GrTextureObj *texture = FIND(textureID, GrTextureObj, kTexture_ObjTypes);
+
+        return texture ? GR_GL_TRUE : GR_GL_FALSE;
+    }
+
     ////////////////////////////////////////////////////////////////////////////////
     GrGLvoid bufferData(GrGLenum target, GrGLsizeiptr size, const GrGLvoid* data,
                         GrGLenum usage) override {
