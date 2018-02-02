@@ -26,7 +26,7 @@ public:
     bool instantiate(GrResourceProvider*) override;
 
     GrFSAAType fsaaType() const {
-        if (!fSampleCnt) {
+        if (fSampleCnt <= 1) {
             SkASSERT(!(fRenderTargetFlags & GrRenderTargetFlags::kMixedSampled));
             return GrFSAAType::kNone;
         }
@@ -42,15 +42,15 @@ public:
     bool needsStencil() const { return fNeedsStencil; }
 
     /**
-     * Returns the number of samples/pixel in the stencil buffer (Zero if non-MSAA).
+     * Returns the number of samples/pixel in the stencil buffer (One if non-MSAA).
      */
     int numStencilSamples() const { return fSampleCnt; }
 
     /**
-     * Returns the number of samples/pixel in the color buffer (Zero if non-MSAA or mixed sampled).
+     * Returns the number of samples/pixel in the color buffer (One if non-MSAA or mixed sampled).
      */
     int numColorSamples() const {
-        return GrFSAAType::kMixedSamples == this->fsaaType() ? 0 : fSampleCnt;
+        return GrFSAAType::kMixedSamples == this->fsaaType() ? 1 : fSampleCnt;
     }
 
     int maxWindowRectangles(const GrCaps& caps) const;
