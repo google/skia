@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b32619db_601cc430",
+        "filename": "tools/skqp/jni/org_skia_skqp_SkQPRunner.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 213,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-02-02T18:27:10Z",
+      "side": 1,
+      "message": "move this to right above where it is used so we don\u0027t execute the code in the case that there are no errors.",
+      "revId": "466b4bfed1f59d0c7a69cd310f9f113ddf801d6d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
