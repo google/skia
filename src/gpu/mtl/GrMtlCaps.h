@@ -24,20 +24,12 @@ public:
     GrMtlCaps(const GrContextOptions& contextOptions, id<MTLDevice> device,
               MTLFeatureSet featureSet);
 
-    int getSampleCount(int requestedCount, GrPixelConfig config) const override;
-
     bool isConfigTexturable(GrPixelConfig config) const override {
         return SkToBool(fConfigTable[config].fFlags & ConfigInfo::kTextureable_Flag);
     }
 
-    bool isConfigRenderable(GrPixelConfig config, bool withMSAA) const override {
-        if (withMSAA) {
-            return SkToBool(fConfigTable[config].fFlags & ConfigInfo::kRenderable_Flag) &&
-                   SkToBool(fConfigTable[config].fFlags & ConfigInfo::kMSAA_Flag);
-        } else {
-            return SkToBool(fConfigTable[config].fFlags & ConfigInfo::kRenderable_Flag);
-        }
-    }
+    int getRenderTargetSampleCount(int requestedCount, GrPixelConfig) const override;
+    int maxRenderTargetSampleCount(GrPixelConfig) const override;
 
     bool isConfigCopyable(GrPixelConfig config) const override {
         return true;

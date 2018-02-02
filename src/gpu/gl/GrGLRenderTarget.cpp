@@ -224,7 +224,7 @@ int GrGLRenderTarget::msaaSamples() const {
     if (fTexFBOID == kUnresolvableFBOID || fTexFBOID != fRTFBOID) {
         // If the render target's FBO is external (fTexFBOID == kUnresolvableFBOID), or if we own
         // the render target's FBO (fTexFBOID == fRTFBOID) then we use the provided sample count.
-        return SkTMax(1, this->numStencilSamples());
+        return this->numStencilSamples();
     }
 
     // When fTexFBOID == fRTFBOID, we either are not using MSAA, or MSAA is auto resolving, so use

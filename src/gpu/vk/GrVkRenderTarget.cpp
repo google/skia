@@ -39,7 +39,7 @@ GrVkRenderTarget::GrVkRenderTarget(GrVkGpu* gpu,
     , fResolveAttachmentView(resolveAttachmentView)
     , fFramebuffer(nullptr)
     , fCachedSimpleRenderPass(nullptr) {
-    SkASSERT(desc.fSampleCnt);
+    SkASSERT(desc.fSampleCnt > 1);
     this->createFramebuffer(gpu);
     this->registerWithCache(budgeted);
 }
@@ -62,7 +62,7 @@ GrVkRenderTarget::GrVkRenderTarget(GrVkGpu* gpu,
     , fResolveAttachmentView(resolveAttachmentView)
     , fFramebuffer(nullptr)
     , fCachedSimpleRenderPass(nullptr) {
-    SkASSERT(desc.fSampleCnt);
+    SkASSERT(desc.fSampleCnt > 1);
     this->createFramebuffer(gpu);
 }
 
@@ -82,7 +82,7 @@ GrVkRenderTarget::GrVkRenderTarget(GrVkGpu* gpu,
     , fResolveAttachmentView(nullptr)
     , fFramebuffer(nullptr)
     , fCachedSimpleRenderPass(nullptr) {
-    SkASSERT(!desc.fSampleCnt);
+    SkASSERT(1 == desc.fSampleCnt);
     this->createFramebuffer(gpu);
     this->registerWithCache(budgeted);
 }
@@ -102,7 +102,7 @@ GrVkRenderTarget::GrVkRenderTarget(GrVkGpu* gpu,
     , fResolveAttachmentView(nullptr)
     , fFramebuffer(nullptr)
     , fCachedSimpleRenderPass(nullptr) {
-    SkASSERT(!desc.fSampleCnt);
+    SkASSERT(1 == desc.fSampleCnt);
     this->createFramebuffer(gpu);
 }
 
@@ -121,7 +121,7 @@ GrVkRenderTarget::Create(GrVkGpu* gpu,
     // create msaa surface if necessary
     GrVkImageInfo msInfo;
     const GrVkImageView* resolveAttachmentView = nullptr;
-    if (desc.fSampleCnt) {
+    if (desc.fSampleCnt > 1) {
         GrVkImage::ImageDesc msImageDesc;
         msImageDesc.fImageType = VK_IMAGE_TYPE_2D;
         msImageDesc.fFormat = pixelFormat;
@@ -158,7 +158,7 @@ GrVkRenderTarget::Create(GrVkGpu* gpu,
     const GrVkImageView* colorAttachmentView = GrVkImageView::Create(gpu, colorImage, pixelFormat,
                                                                      GrVkImageView::kColor_Type, 1);
     if (!colorAttachmentView) {
-        if (desc.fSampleCnt) {
+        if (desc.fSampleCnt > 1) {
             resolveAttachmentView->unref(gpu);
             GrVkImage::DestroyImageInfo(gpu, &msInfo);
         }
@@ -166,7 +166,7 @@ GrVkRenderTarget::Create(GrVkGpu* gpu,
     }
 
     GrVkRenderTarget* texRT;
-    if (desc.fSampleCnt) {
+    if (desc.fSampleCnt > 1) {
         texRT = new GrVkRenderTarget(gpu, budgeted, desc, info, msInfo,
                                      colorAttachmentView, resolveAttachmentView, ownership);
     } else {
@@ -237,11 +237,10 @@ void GrVkRenderTarget::createFramebuffer(GrVkGpu* gpu) {
 void GrVkRenderTarget::getAttachmentsDescriptor(
                                            GrVkRenderPass::AttachmentsDescriptor* desc,
                                            GrVkRenderPass::AttachmentFlags* attachmentFlags) const {
-    int colorSamples = this->numColorSamples();
     VkFormat colorFormat;
     GrPixelConfigToVkFormat(this->config(), &colorFormat);
     desc->fColor.fFormat = colorFormat;
-    desc->fColor.fSamples = colorSamples ? colorSamples : 1;
+    desc->fColor.fSamples = this->numColorSamples();
     *attachmentFlags = GrVkRenderPass::kColor_AttachmentFlag;
     uint32_t attachmentCount = 1;
 
@@ -249,7 +248,7 @@ void GrVkRenderTarget::getAttachmentsDescriptor(
     if (stencil) {
         const GrVkStencilAttachment* vkStencil = static_cast<const GrVkStencilAttachment*>(stencil);
         desc->fStencil.fFormat = vkStencil->vkFormat();
-        desc->fStencil.fSamples = vkStencil->numSamples() ? vkStencil->numSamples() : 1;
+        desc->fStencil.fSamples = vkStencil->numSamples();
         // Currently in vulkan stencil and color attachments must all have same number of samples
         SkASSERT(desc->fColor.fSamples == desc->fStencil.fSamples);
         *attachmentFlags |= GrVkRenderPass::kStencil_AttachmentFlag;
