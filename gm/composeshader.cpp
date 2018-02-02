@@ -63,6 +63,7 @@ protected:
 private:
     typedef GM INHERITED ;
 };
+DEF_GM( return new ComposeShaderGM; )
 
 class ComposeShaderAlphaGM : public skiagm::GM {
 public:
@@ -109,7 +110,7 @@ protected:
 private:
     typedef GM INHERITED ;
 };
-
+DEF_GM( return new ComposeShaderAlphaGM; )
 
 // creates a square bitmap with red background and a green circle in the center
 static void draw_color_bm(SkBitmap* bm, int length) {
@@ -220,6 +221,7 @@ private:
 
     typedef GM INHERITED;
 };
+DEF_GM( return new ComposeShaderBitmapGM; )
 
 DEF_SIMPLE_GM(composeshader_bitmap2, canvas, 200, 200) {
     int width = 255;
@@ -255,8 +257,93 @@ DEF_SIMPLE_GM(composeshader_bitmap2, canvas, 200, 200) {
     canvas->drawRect(r, paint);
 }
 
-//////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
 
-DEF_GM( return new ComposeShaderGM; )
-DEF_GM( return new ComposeShaderAlphaGM; )
-DEF_GM( return new ComposeShaderBitmapGM; )
+static sk_sp<SkShader> make_src_shader(SkScalar size) {
+    const SkPoint pts[] = { { 0, 0 }, { 0, size } };
+    const SkColor colors[] = { 0xFF0000FF, 0x000000FF };
+    return SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkShader::kClamp_TileMode);
+}
+
+static sk_sp<SkShader> make_dst_shader(SkScalar size) {
+    const SkPoint pts[] = { { 0, 0 }, { size, 0 } };
+    const SkColor colors[] = { SK_ColorRED, 0x00FF0000 };
+    return SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkShader::kClamp_TileMode);
+}
+
+const SkScalar gCellSize = 100;
+
+static void draw_cell(SkCanvas* canvas, sk_sp<SkShader> src, sk_sp<SkShader> dst,
+                      SkBlendMode mode, SkAlpha alpha) {
+    const SkRect r = SkRect::MakeWH(gCellSize, gCellSize);
+    SkPaint p;
+    p.setAlpha(alpha);
+
+    SkAutoCanvasRestore acr(canvas, false);
+    canvas->saveLayer(&r, &p);
+    p.setAlpha(0xFF);
+
+    p.setShader(dst);
+    p.setBlendMode(SkBlendMode::kSrc);
+    canvas->drawRect(r, p);
+
+    p.setShader(src);
+    p.setBlendMode(mode);
+    canvas->drawRect(r, p);
+}
+
+static void draw_composed(SkCanvas* canvas, sk_sp<SkShader> src, sk_sp<SkShader> dst,
+                          SkBlendMode mode, SkAlpha alpha) {
+    SkPaint p;
+    p.setAlpha(alpha);
+    p.setShader(SkShader::MakeCompose(dst, src, mode));
+    canvas->drawRect(SkRect::MakeWH(gCellSize, gCellSize), p);
+}
+
+static void draw_pair(SkCanvas* canvas, sk_sp<SkShader> src, sk_sp<SkShader> dst,
+                      SkBlendMode mode) {
+    SkAutoCanvasRestore acr(canvas, true);
+
+    const SkScalar gap = 4;
+    SkRect r = SkRect::MakeWH(2 * gCellSize + gap, 2 * gCellSize + gap);
+    r.outset(gap + 2, gap + 2);
+    SkPaint p;
+    p.setStyle(SkPaint::kStroke_Style);
+    canvas->drawRect(r, p); // border
+
+    SkAlpha alpha = 0xFF;
+    for (int y = 0; y < 2; ++y) {
+        draw_cell(canvas, src, dst, mode, alpha);
+        canvas->save();
+        canvas->translate(gCellSize + gap, 0);
+        draw_composed(canvas, src, dst, mode, alpha);
+        canvas->restore();
+
+        canvas->translate(0, gCellSize + gap);
+        alpha = 0x80;
+    }
+}
+
+DEF_SIMPLE_GM(composeshader_grid, canvas, 882, 882) {
+    auto src = make_src_shader(gCellSize);
+    auto dst = make_dst_shader(gCellSize);
+
+    const SkScalar margin = 16;
+    const SkScalar dx = 2*gCellSize + margin;
+    const SkScalar dy = 2*gCellSize + margin;
+
+    canvas->translate(margin, margin);
+    canvas->save();
+    for (int m = 0; m < 16; ++m) {
+        SkBlendMode mode = static_cast<SkBlendMode>(m);
+        draw_pair(canvas, src, dst, mode);
+        if ((m % 4) == 3) {
+            canvas->restore();
+            canvas->translate(0, dy);
+            canvas->save();
+        } else {
+            canvas->translate(dx, 0);
+        }
+    }
+    canvas->restore();
+}
