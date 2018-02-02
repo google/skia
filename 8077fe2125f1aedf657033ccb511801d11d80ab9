@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1f43052c_6d736d7d",
+        "filename": "src/gpu/GrYUVProvider.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-02-02T16:59:13Z",
+      "side": 1,
+      "message": "componentWidth, channelWidth\n\n- since the components can have deferent sizes?\n\n+Height too?",
+      "revId": "8077fe2125f1aedf657033ccb511801d11d80ab9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "63675f9c_112388ea",
+        "filename": "src/gpu/GrYUVProvider.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-02-02T16:59:13Z",
+      "side": 1,
+      "message": "// If the sizes of the channels are not all the same we choose to create exact-match textures for the smaller ones rather than add a texture domain to the draw\n// TODO: revisit this decision to improve texture reused?\n\n?",
+      "revId": "8077fe2125f1aedf657033ccb511801d11d80ab9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9a2ca4e2_8c55eb06",
+        "filename": "src/gpu/GrYUVProvider.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-02-02T16:59:13Z",
+      "side": 1,
+      "message": "// This is used ... \n\n?",
+      "revId": "8077fe2125f1aedf657033ccb511801d11d80ab9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
