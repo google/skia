@@ -352,7 +352,7 @@ bool GrVkGpu::onGetWritePixelsInfo(GrSurface* dstSurface, GrSurfaceOrigin dstOri
     tempDrawInfo->fTempSurfaceDesc.fConfig = srcConfig;
     tempDrawInfo->fTempSurfaceDesc.fWidth = width;
     tempDrawInfo->fTempSurfaceDesc.fHeight = height;
-    tempDrawInfo->fTempSurfaceDesc.fSampleCnt = 0;
+    tempDrawInfo->fTempSurfaceDesc.fSampleCnt = 1;
     tempDrawInfo->fTempSurfaceDesc.fOrigin = kTopLeft_GrSurfaceOrigin;
 
     if (dstSurface->config() == srcConfig) {
@@ -777,17 +777,7 @@ sk_sp<GrTexture> GrVkGpu::onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted 
     bool renderTarget = SkToBool(desc.fFlags & kRenderTarget_GrSurfaceFlag);
 
     VkFormat pixelFormat;
-    if (!GrPixelConfigToVkFormat(desc.fConfig, &pixelFormat)) {
-        return nullptr;
-    }
-
-    if (!fVkCaps->isConfigTexturable(desc.fConfig)) {
-        return nullptr;
-    }
-
-    if (renderTarget && !fVkCaps->isConfigRenderable(desc.fConfig, false)) {
-        return nullptr;
-    }
+    SkAssertResult(GrPixelConfigToVkFormat(desc.fConfig, &pixelFormat));
 
     VkImageUsageFlags usageFlags = VK_IMAGE_USAGE_SAMPLED_BIT;
     if (renderTarget) {
@@ -914,7 +904,7 @@ sk_sp<GrTexture> GrVkGpu::onWrapBackendTexture(const GrBackendTexture& backendTe
     surfDesc.fWidth = backendTex.width();
     surfDesc.fHeight = backendTex.height();
     surfDesc.fConfig = backendTex.config();
-    surfDesc.fSampleCnt = 0;
+    surfDesc.fSampleCnt = 1;
 
     return GrVkTexture::MakeWrappedTexture(this, surfDesc, ownership, backendTex.getVkImageInfo());
 }
@@ -932,7 +922,7 @@ sk_sp<GrTexture> GrVkGpu::onWrapRenderableBackendTexture(const GrBackendTexture&
     surfDesc.fWidth = backendTex.width();
     surfDesc.fHeight = backendTex.height();
     surfDesc.fConfig = backendTex.config();
-    surfDesc.fSampleCnt = this->caps()->getSampleCount(sampleCnt, backendTex.config());
+    surfDesc.fSampleCnt = this->caps()->getRenderTargetSampleCount(sampleCnt, backendTex.config());
 
     return GrVkTextureRenderTarget::MakeWrappedTextureRenderTarget(this, surfDesc, ownership,
                                                                    backendTex.getVkImageInfo());
@@ -943,7 +933,7 @@ sk_sp<GrRenderTarget> GrVkGpu::onWrapBackendRenderTarget(const GrBackendRenderTa
     // general this is not an issue since swapchain images in vulkan are never multisampled. Thus if
     // you want a multisampled RT it is best to wrap the swapchain images and then let Skia handle
     // creating and owning the MSAA images.
-    if (backendRT.sampleCnt()) {
+    if (backendRT.sampleCnt() > 1) {
         return nullptr;
     }
 
@@ -961,7 +951,7 @@ sk_sp<GrRenderTarget> GrVkGpu::onWrapBackendRenderTarget(const GrBackendRenderTa
     desc.fWidth = backendRT.width();
     desc.fHeight = backendRT.height();
     desc.fConfig = backendRT.config();
-    desc.fSampleCnt = 0;
+    desc.fSampleCnt = 1;
 
     sk_sp<GrVkRenderTarget> tgt = GrVkRenderTarget::MakeWrappedRenderTarget(this, desc, info);
     if (tgt && backendRT.stencilBits()) {
@@ -989,7 +979,10 @@ sk_sp<GrRenderTarget> GrVkGpu::onWrapBackendTextureAsRenderTarget(const GrBacken
     desc.fWidth = tex.width();
     desc.fHeight = tex.height();
     desc.fConfig = tex.config();
-    desc.fSampleCnt = this->caps()->getSampleCount(sampleCnt, tex.config());
+    desc.fSampleCnt = this->caps()->getRenderTargetSampleCount(sampleCnt, tex.config());
+    if (!desc.fSampleCnt) {
+        return nullptr;
+    }
 
     sk_sp<GrVkRenderTarget> tgt = GrVkRenderTarget::MakeWrappedRenderTarget(this, desc, info);
     return tgt;
@@ -1188,7 +1181,7 @@ GrBackendTexture GrVkGpu::createTestingOnlyBackendTexture(void* srcData, int w, 
         return GrBackendTexture(); // invalid
     }
 
-    if (isRenderTarget && !fVkCaps->isConfigRenderable(config, false)) {
+    if (isRenderTarget && !fVkCaps->isConfigRenderable(config)) {
         return GrBackendTexture(); // invalid
     }
 
@@ -1796,7 +1789,7 @@ inline bool can_copy_as_resolve(const GrSurface* dst, GrSurfaceOrigin dstOrigin,
                                 const GrSurface* src, GrSurfaceOrigin srcOrigin,
                                 const GrVkGpu* gpu) {
     // Our src must be a multisampled render target
-    if (!src->asRenderTarget() || src->asRenderTarget()->numColorSamples() <= 1) {
+    if (!src->asRenderTarget() || 1 == src->asRenderTarget()->numColorSamples()) {
         return false;
     }
 
@@ -1894,7 +1887,7 @@ bool GrVkGpu::onGetReadPixelsInfo(GrSurface* srcSurface, GrSurfaceOrigin srcOrig
     tempDrawInfo->fTempSurfaceDesc.fFlags = kRenderTarget_GrSurfaceFlag;
     tempDrawInfo->fTempSurfaceDesc.fWidth = width;
     tempDrawInfo->fTempSurfaceDesc.fHeight = height;
-    tempDrawInfo->fTempSurfaceDesc.fSampleCnt = 0;
+    tempDrawInfo->fTempSurfaceDesc.fSampleCnt = 1;
     tempDrawInfo->fTempSurfaceDesc.fOrigin = kTopLeft_GrSurfaceOrigin; // no CPU y-flip for TL.
     tempDrawInfo->fTempSurfaceFit = SkBackingFit::kApprox;
 
