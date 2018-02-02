@@ -66,6 +66,12 @@ public:
      *  @param planes     Memory for each of the Y, U, and V planes.
      */
     virtual bool onGetYUV8Planes(const SkYUVSizeInfo& sizeInfo, void* planes[3]) = 0;
+
+private:
+    // This is used as release callback for the YUV data that we capture in an SkImage when
+    // uploading to a gpu. When the upload is complete and we release the SkImage this callback will
+    // release the underlying data.
+    static void YUVGen_DataReleaseProc(const void*, void* data);
 };
 
 #endif
