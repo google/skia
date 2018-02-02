@@ -9,6 +9,7 @@
 #include "GrClip.h"
 #include "GrContext.h"
 #include "GrContextPriv.h"
+#include "GrProxyProvider.h"
 #include "GrRenderTargetContext.h"
 #include "GrTextureProxy.h"
 #include "SkAutoMalloc.h"
@@ -60,6 +61,12 @@ sk_sp<SkCachedData> init_provider(GrYUVProvider* provider, SkYUVPlanesCache::Inf
     return data;
 }
 
+void GrYUVProvider::YUVGen_DataReleaseProc(const void*, void* data) {
+    SkCachedData* cachedData = static_cast<SkCachedData*>(data);
+    SkASSERT(cachedData);
+    cachedData->unref();
+}
+
 sk_sp<GrTextureProxy> GrYUVProvider::refAsTextureProxy(GrContext* ctx, const GrSurfaceDesc& desc,
                                                        const SkColorSpace* srcColorSpace,
                                                        const SkColorSpace* dstColorSpace) {
@@ -71,32 +78,29 @@ sk_sp<GrTextureProxy> GrYUVProvider::refAsTextureProxy(GrContext* ctx, const GrS
         return nullptr;
     }
 
-    GrSurfaceDesc yuvDesc;
-    yuvDesc.fOrigin = kTopLeft_GrSurfaceOrigin;
-    yuvDesc.fConfig = kAlpha_8_GrPixelConfig;
-    sk_sp<GrSurfaceContext> yuvTextureContexts[3];
+    sk_sp<GrTextureProxy> yuvTextureProxies[3];
     for (int i = 0; i < 3; i++) {
-        yuvDesc.fWidth  = yuvInfo.fSizeInfo.fSizes[i].fWidth;
-        yuvDesc.fHeight = yuvInfo.fSizeInfo.fSizes[i].fHeight;
+        int yuvWidth  = yuvInfo.fSizeInfo.fSizes[i].fWidth;
+        int yuvHeight = yuvInfo.fSizeInfo.fSizes[i].fHeight;
         // TODO: why do we need this check?
         SkBackingFit fit =
-                (yuvDesc.fWidth  != yuvInfo.fSizeInfo.fSizes[SkYUVSizeInfo::kY].fWidth) ||
-                (yuvDesc.fHeight != yuvInfo.fSizeInfo.fSizes[SkYUVSizeInfo::kY].fHeight)
+                (yuvWidth  != yuvInfo.fSizeInfo.fSizes[SkYUVSizeInfo::kY].fWidth) ||
+                (yuvHeight != yuvInfo.fSizeInfo.fSizes[SkYUVSizeInfo::kY].fHeight)
                     ? SkBackingFit::kExact : SkBackingFit::kApprox;
 
-        yuvTextureContexts[i] = ctx->contextPriv().makeDeferredSurfaceContext(yuvDesc,
-                                                                              GrMipMapped::kNo,
-                                                                              fit,
-                                                                              SkBudgeted::kYes);
-        if (!yuvTextureContexts[i]) {
-            return nullptr;
-        }
+        SkImageInfo imageInfo = SkImageInfo::MakeA8(yuvWidth, yuvHeight);
+        SkPixmap pixmap(imageInfo, planes[i], yuvInfo.fSizeInfo.fWidthBytes[i]);
+        SkCachedData* dataStoragePtr = dataStorage.get();
+        // We grab a ref to cached yuv data. When the SkImage we create below goes away it will call
+        // a callball which will release our ref.
+        dataStoragePtr->ref();
+        sk_sp<SkImage> yuvImage = SkImage::MakeFromRaster(pixmap, YUVGen_DataReleaseProc,
+                                                          dataStoragePtr);
 
-        const SkImageInfo ii = SkImageInfo::MakeA8(yuvDesc.fWidth, yuvDesc.fHeight);
-        if (!yuvTextureContexts[i]->writePixels(ii, planes[i],
-                                                yuvInfo.fSizeInfo.fWidthBytes[i], 0, 0)) {
-            return nullptr;
-        }
+        auto proxyProvider = ctx->contextPriv().proxyProvider();
+        yuvTextureProxies[i] = proxyProvider->createTextureProxy(yuvImage, kNone_GrSurfaceFlags,
+                                                                 kTopLeft_GrSurfaceOrigin,
+                                                                 0, SkBudgeted::kYes, fit);
     }
 
     // We never want to perform color-space conversion during the decode
@@ -114,9 +118,9 @@ sk_sp<GrTextureProxy> GrYUVProvider::refAsTextureProxy(GrContext* ctx, const GrS
 
     GrPaint paint;
     auto yuvToRgbProcessor =
-            GrYUVtoRGBEffect::Make(yuvTextureContexts[0]->asTextureProxyRef(),
-                                   yuvTextureContexts[1]->asTextureProxyRef(),
-                                   yuvTextureContexts[2]->asTextureProxyRef(),
+            GrYUVtoRGBEffect::Make(std::move(yuvTextureProxies[0]),
+                                   std::move(yuvTextureProxies[1]),
+                                   std::move(yuvTextureProxies[2]),
                                    yuvInfo.fSizeInfo.fSizes, yuvInfo.fColorSpace, false);
     paint.addColorFragmentProcessor(std::move(yuvToRgbProcessor));
 

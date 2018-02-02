@@ -113,6 +113,7 @@ static bool make_info(int w, int h, GrPixelConfig config, SkImageInfo* ii) {
 
 sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc,
                                                    SkBudgeted budgeted,
+                                                   SkBackingFit fit,
                                                    const GrMipLevel& mipLevel) {
     ASSERT_SINGLE_OWNER
 
@@ -137,7 +138,7 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc,
         // DDL TODO: remove this use of createInstantiatedProxy and convert it to a testing-only
         // method.
         sk_sp<GrTextureProxy> proxy = proxyProvider->createInstantiatedProxy(desc,
-                                                                             SkBackingFit::kExact,
+                                                                             fit,
                                                                              budgeted);
         if (proxy) {
             sk_sp<GrSurfaceContext> sContext = context->contextPriv().makeWrappedSurfaceContext(
