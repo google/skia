@@ -256,7 +256,7 @@ sk_sp<SkSurface> SkSurface::MakeRenderTarget(GrContext* ctx, SkBudgeted budgeted
     if (!SkSurface_Gpu::Valid(info)) {
         return nullptr;
     }
-
+    sampleCount = SkTMax(1, sampleCount);
     GrMipMapped mipMapped = shouldCreateWithMips ? GrMipMapped::kYes : GrMipMapped::kNo;
 
     if (!ctx->caps()->mipMapSupport()) {
@@ -299,6 +299,7 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendTexture(GrContext* context, const GrB
     if (!SkSurface_Gpu::Valid(context, tex.config(), colorSpace.get())) {
         return nullptr;
     }
+    sampleCnt = SkTMax(1, sampleCnt);
 
     sk_sp<GrRenderTargetContext> rtc(context->contextPriv().makeBackendTextureRenderTargetContext(
                                                                     tex,
@@ -333,11 +334,9 @@ bool validate_backend_texture(GrContext* ctx, const GrBackendTexture& tex, GrPix
         return false;
     }
 
-    if (!ctx->caps()->isConfigRenderable(*config, sampleCnt > 0)) {
-        return false;
-    }
-
-    if (ctx->caps()->getSampleCount(sampleCnt, *config) != sampleCnt) {
+    // We don't require that the client gave us an exact valid sample cnt. However, it must be
+    // less than the max supported sample count and 1 if MSAA is unsupported for the color type.
+    if (!ctx->caps()->getRenderTargetSampleCount(sampleCnt, *config)) {
         return false;
     }
 
@@ -355,6 +354,7 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendTexture(GrContext* context, const GrB
     if (!context) {
         return nullptr;
     }
+    sampleCnt = SkTMax(1, sampleCnt);
     GrBackendTexture texCopy = tex;
     if (!validate_backend_texture(context, texCopy, &texCopy.fConfig,
                                   sampleCnt, colorType, colorSpace, true)) {
@@ -409,7 +409,11 @@ bool validate_backend_render_target(GrContext* ctx, const GrBackendRenderTarget&
         return false;
     }
 
-    if (!ctx->caps()->isConfigRenderable(*config, false)) {
+    if (rt.sampleCnt() > 1) {
+        if (ctx->caps()->maxRenderTargetSampleCount(*config) <= 1) {
+            return false;
+        }
+    } else if (!ctx->caps()->isConfigRenderable(*config)) {
         return false;
     }
 
@@ -445,6 +449,7 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendTextureAsRenderTarget(GrContext* cont
     if (!SkSurface_Gpu::Valid(context, tex.config(), colorSpace.get())) {
         return nullptr;
     }
+    sampleCnt = SkTMax(1, sampleCnt);
 
     sk_sp<GrRenderTargetContext> rtc(
         context->contextPriv().makeBackendTextureAsRenderTargetRenderTargetContext(
@@ -475,6 +480,7 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendTextureAsRenderTarget(GrContext* cont
     if (!context) {
         return nullptr;
     }
+    sampleCnt = SkTMax(1, sampleCnt);
     GrBackendTexture texCopy = tex;
     if (!validate_backend_texture(context, texCopy, &texCopy.fConfig,
                                   sampleCnt, colorType, colorSpace, false)) {
