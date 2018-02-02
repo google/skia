@@ -16,6 +16,24 @@
       "revId": "2785c1d1e8b3c41234e6166b5b7751faf562f80e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e62dc4a9_6bf51094",
+        "filename": "tests/PathOpsCubicIntersectionTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 6190
+      },
+      "writtenOn": "2018-02-02T20:39:00Z",
+      "side": 1,
+      "message": "I added a test and removed it because the added test still causes pathops to hang -- but that data should never make it to this internal function -- and I mistakenly left the linefeed",
+      "parentUuid": "5b1f681b_76029853",
+      "revId": "2785c1d1e8b3c41234e6166b5b7751faf562f80e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
