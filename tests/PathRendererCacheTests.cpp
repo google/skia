@@ -80,8 +80,8 @@ static void test_path(skiatest::Reporter* reporter,
     GrResourceCache* cache = ctx->contextPriv().getResourceCache();
 
     sk_sp<GrRenderTargetContext> rtc(ctx->makeDeferredRenderTargetContext(
-            SkBackingFit::kApprox, 800, 800, kRGBA_8888_GrPixelConfig, nullptr, 1, GrMipMapped::kNo,
-            kTopLeft_GrSurfaceOrigin));
+            SkBackingFit::kApprox, 800, 800, kRGBA_8888_GrPixelConfig, nullptr, 0,
+            GrMipMapped::kNo, kTopLeft_GrSurfaceOrigin));
     if (!rtc) {
         return;
     }
