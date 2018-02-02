@@ -33,6 +33,7 @@
 #define PATH_ERR_PNG "errors.png"
 #define PATH_REPORT  "report.html"
 #define PATH_CSV     "out.csv"
+#define SKQP_CLASS_PREFIX "skqp_"
 
 #ifndef SK_SKQP_GLOBAL_ERROR_TOLERANCE
 #define SK_SKQP_GLOBAL_ERROR_TOLERANCE 0
@@ -297,7 +298,7 @@ static constexpr char kDocHead[] =
     "function f(backend, gm, e1, e2) {\n"
     "  var b = ce(\"div\");\n"
     "  var x = ce(\"h2\");\n"
-    "  var t = backend + \"/\" + gm;\n"
+    "  var t = '" SKQP_CLASS_PREFIX "' + backend + \"#\" + gm;\n"
     "  ac(x, ct(t));\n"
     "  ac(b, x);\n"
     "  ac(b, ct(\"backend: \" + backend));\n"
