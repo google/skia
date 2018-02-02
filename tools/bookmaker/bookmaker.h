@@ -390,6 +390,7 @@ public:
     }
 
     void reportError(const char* errorStr) const;
+    static string ReportFilename(string file);
     void reportWarning(const char* errorStr) const;
 
     template <typename T> T reportError(const char* errorStr) const {
@@ -2051,6 +2052,16 @@ private:
         kColumn,
     };
 
+    struct TableContents {
+        TableContents() 
+            : fShowClones(false) {
+        }
+
+        string fDescription;
+        vector<const Definition*> fMembers;
+        bool fShowClones;
+    };
+
     string addReferences(const char* start, const char* end, BmhParser::Resolvable );
     bool buildRefFromFile(const char* fileName, const char* outDir);
     bool checkParamReturnBody(const Definition* def) const;
@@ -2068,8 +2079,8 @@ private:
     bool parseFromFile(const char* path) override { return true; }
     void populateTables(const Definition* def);
 
-    vector<const Definition*>& populator(const char* key) {
-        return fPopulators.find(key)->second.fMembers;
+    TableContents& populator(const char* key) {
+        return fPopulators.find(key)->second;
     }
 
     void reset() override {
@@ -2103,13 +2114,8 @@ private:
 
     void resolveOut(const char* start, const char* end, BmhParser::Resolvable );
     void rowOut(const char * name, const string& description);
-    void subtopicOut(vector<const Definition*>& data);
+    void subtopicOut(const TableContents& tableContents);
     void subtopicsOut();
-
-    struct TableContents {
-        string fDescription;
-        vector<const Definition*> fMembers;
-    };
 
     unordered_map<string, TableContents> fPopulators;
     vector<const Definition*> fClassStack;

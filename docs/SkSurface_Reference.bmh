@@ -687,9 +687,9 @@ If SK_SUPPORT_GPU is defined as zero, has no effect and returns nullptr.
                                              bool shouldCreateWithMips = false)
 #Line # creates Surface pointing to new GPU memory buffer ##
 
-Returns offscreen Surface on GPU indicated by context. Allocates memory for
+Returns Surface on GPU indicated by context. Allocates memory for
 pixels, based on the width, height, and Color_Type in ImageInfo.  budgeted
-selects whether allocation for offscreen pixels is tracked by context. imageInfo
+selects whether allocation for pixels is tracked by context. imageInfo
 describes the pixel format in Color_Type, and transparency in
 Alpha_Type, and color matching in Color_Space.
 
@@ -752,9 +752,9 @@ If SK_SUPPORT_GPU is defined as zero, has no effect and returns nullptr.
                                              const SkImageInfo& imageInfo, int sampleCount,
                                              const SkSurfaceProps* props)
 
-Returns offscreen Surface on GPU indicated by context. Allocates memory for
+Returns Surface on GPU indicated by context. Allocates memory for
 pixels, based on the width, height, and Color_Type in ImageInfo.  budgeted
-selects whether allocation for offscreen pixels is tracked by context. imageInfo
+selects whether allocation for pixels is tracked by context. imageInfo
 describes the pixel format in Color_Type, and transparency in
 Alpha_Type, and color matching in Color_Space.
 
@@ -781,7 +781,7 @@ Surface bottom-left corner is pinned to the origin.
 #Platform cpu gpu
 #Description
 LCD text takes advantage of raster striping to improve resolution. Only one of
-the four combinations is correct, depending on whether the monitor's LCD is
+the four combinations is correct, depending on whether monitor LCD striping is
 horizontal or vertical, and whether the order of the stripes is red blue green
 or red green blue.
 ##
@@ -824,9 +824,9 @@ void draw(SkCanvas* canvas) {
 #Method static sk_sp<SkSurface> MakeRenderTarget(GrContext* context, SkBudgeted budgeted,
                                              const SkImageInfo& imageInfo)
 
-Returns offscreen Surface on GPU indicated by context. Allocates memory for
+Returns Surface on GPU indicated by context. Allocates memory for
 pixels, based on the width, height, and Color_Type in ImageInfo.  budgeted
-selects whether allocation for offscreen pixels is tracked by context. imageInfo
+selects whether allocation for pixels is tracked by context. imageInfo
 describes the pixel format in Color_Type, and transparency in
 Alpha_Type, and color matching in Color_Space.
 
@@ -1707,9 +1707,9 @@ and the client will still own the semaphores.
 
 #Method bool characterize(SkSurfaceCharacterization* characterization) const
 
-#Line # sets Surface_Characterization for threaded pre-processing ##
+#Line # sets Surface_Characterization for threaded GPU processing ##
 Initializes Surface_Characterization that can be used to perform GPU back-end
-pre-processing in a separate thread. Typically this is used to divide drawing
+processing in a separate thread. Typically this is used to divide drawing
 into multiple tiles. DeferredDisplayListRecorder records the drawing commands
 for each tile.
 

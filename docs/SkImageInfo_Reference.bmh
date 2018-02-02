@@ -83,9 +83,11 @@ generate this on output.
 ##
 
 Describes how to interpret the components of a pixel.
-kN32_SkColorType is an alias for whichever 32 bit Color_ARGB format is the "native"
-form for skia's blitters. Use this if you don't have a swizzle preference
-for 32 bit pixels.
+
+kN32_SkColorType selects the native 32-bit Color_ARGB format. On Little_Endian
+processors, pixels containing 8-bit Color_ARGB components pack into 32-bit
+kBGRA_8888_SkColorType. On Big_Endian processors, pixels pack into 32-bit
+kRGBA_8888_SkColorType.
 
 #Const kUnknown_SkColorType 0
 ##
@@ -185,8 +187,8 @@ range. See http://en.wikipedia.org/wiki/Rec._709 for details.
 
 #Struct SkImageInfo
 
-Describe an image's dimensions and pixel type.
-Used for both src images and render-targets (surfaces).
+Describes Image dimensions and pixel type.
+Used for both source images and render-targets (surfaces).
 
 #Subtopic Operators
 #Populate
@@ -246,7 +248,7 @@ Used for both src images and render-targets (surfaces).
 #In Constructors
 #Line # creates Image_Info with Native_Color_Type ##
 
-Sets colortype to kN32_SkColorType.
+Sets Color_Type to kN32_SkColorType.
 
 #Param width  incomplete ##
 #Param height  incomplete ##
@@ -291,7 +293,7 @@ Creates Image_Info marked as sRGB with kN32_SkColorType swizzle.
 
 #In Constructors
 #Line # creates Image_Info with Native_Color_Type, kPremul_SkAlphaType ##
-Sets colortype to kN32_SkColorType, and the alphatype to premul.
+Sets Color_Type to kN32_SkColorType, and the Alpha_Type to kPremul_SkAlphaType.
 
 #Param width  incomplete ##
 #Param height  incomplete ##
@@ -548,7 +550,7 @@ Sets colortype to kN32_SkColorType, and the alphatype to premul.
 #Method SkImageInfo makeWH(int newWidth, int newHeight) const
 
 #Line # creates Image_Info with changed dimensions ##
-Creates Image_Info with the same colortype and alphatype as this info,
+Creates Image_Info with the same Color_Type and Alpha_Type as this info,
 but with the specified width and height.
 
 #Param newWidth  incomplete ##

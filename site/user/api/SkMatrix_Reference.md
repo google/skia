@@ -3954,7 +3954,7 @@ contains NaN, even if the other <a href="#Matrix">Matrix</a> also contains NaN.
 
 ### Return Value
 
-true if m and <a href="#Matrix">Matrix</a> are numerically equal
+true if <a href="#Matrix">Matrix</a> <a href="#SkMatrix_equal_operator_a">a</a> and <a href="#Matrix">Matrix</a> <a href="#SkMatrix_equal_operator_b">b</a> are numerically equal
 
 ### Example
 
@@ -3996,7 +3996,7 @@ contains NaN, even if the other <a href="#Matrix">Matrix</a> also contains NaN.
 
 ### Return Value
 
-true if m and <a href="#Matrix">Matrix</a> are numerically not equal
+true if <a href="#Matrix">Matrix</a> <a href="#SkMatrix_notequal_operator_a">a</a> and <a href="#Matrix">Matrix</a> <a href="#SkMatrix_notequal_operator_b">b</a> are numerically not equal
 
 ### Example
 

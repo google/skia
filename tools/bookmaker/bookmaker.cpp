@@ -1250,6 +1250,20 @@ TextParser::TextParser(const Definition* definition) :
         definition->fLineCount) {
 }
 
+string TextParser::ReportFilename(string file) {
+	string fullName;
+#ifdef SK_BUILD_FOR_WIN
+	TCHAR pathChars[MAX_PATH];
+	DWORD pathLen = GetCurrentDirectory(MAX_PATH, pathChars);
+	for (DWORD index = 0; index < pathLen; ++index) {
+		fullName += pathChars[index] == (char)pathChars[index] ? (char)pathChars[index] : '?';
+	}
+	fullName += '\\';
+#endif
+	fullName += file;
+    return fullName;
+}
+
 void TextParser::reportError(const char* errorStr) const {
     this->reportWarning(errorStr);
     SkDebugf("");  // convenient place to set a breakpoint
@@ -1265,17 +1279,8 @@ void TextParser::reportWarning(const char* errorStr) const {
         spaces -= lineLen;
         lineLen = err.lineLength();
     }
-	string fileName;
-#ifdef SK_BUILD_FOR_WIN
-	TCHAR pathChars[MAX_PATH];
-	DWORD pathLen = GetCurrentDirectory(MAX_PATH, pathChars);
-	for (DWORD index = 0; index < pathLen; ++index) {
-		fileName += pathChars[index] == (char)pathChars[index] ? (char)pathChars[index] : '?';
-	}
-	fileName += '\\';
-#endif
-	fileName += fFileName;
-    SkDebugf("\n%s(%zd): error: %s\n", fileName.c_str(), err.fLineCount, errorStr);
+	string fullName = this->ReportFilename(fFileName);
+    SkDebugf("\n%s(%zd): error: %s\n", fullName.c_str(), err.fLineCount, errorStr);
     if (0 == lineLen) {
         SkDebugf("[blank line]\n");
     } else {

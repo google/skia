@@ -25,14 +25,9 @@ its top, it is considered empty.
 ## <a name="Related_Functions"></a> Related Functions
 
 | name | description |
-| --- | ---  |
+| --- | --- |
 | <a href="#Inset_Outset_Offset">Inset Outset Offset</a> | moves sides |
 | <a href="#Intersection">Intersection</a> | set to shared bounds |
-| Join | set to union of bounds |
-| Properties | side values, center, validity |
-| Rounding | adjust to integer bounds |
-| Set | replaces all values |
-| Sorting | orders sides |
 
 ## <a name="Member_Functions"></a> Member Functions
 

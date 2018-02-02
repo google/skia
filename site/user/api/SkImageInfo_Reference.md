@@ -84,9 +84,11 @@ kLastEnum_SkColorType = <a href="SkImageInfo_Reference#kRGBA_F16_SkColorType">kR
 };</pre>
 
 Describes how to interpret the components of a pixel.
-<a href="SkImageInfo_Reference#kN32_SkColorType">kN32 SkColorType</a> is an alias for whichever 32 bit <a href="#ARGB">Color ARGB</a> format is the ""
-form for skia's blitters. Use this if you don't have a swizzle preference
-for 32 bit pixels.
+
+<a href="SkImageInfo_Reference#kN32_SkColorType">kN32 SkColorType</a> selects the native 32-bit <a href="#ARGB">Color ARGB</a> format. On Little_Endian
+processors, pixels containing 8-bit <a href="#ARGB">Color ARGB</a> components pack into 32-bit
+<a href="SkImageInfo_Reference#kBGRA_8888_SkColorType">kBGRA 8888 SkColorType</a>. On Big_Endian processors, pixels pack into 32-bit
+<a href="SkImageInfo_Reference#kRGBA_8888_SkColorType">kRGBA 8888 SkColorType</a>.
 
 ### Constants
 
@@ -212,8 +214,8 @@ incomplete
 
 
 # <a name="SkImageInfo"></a> Struct SkImageInfo
-Describe an image's dimensions and pixel type.
-Used for both src images and render-targets (surfaces).
+Describes <a href="SkImage_Reference#Image">Image</a> dimensions and pixel type.
+Used for both source images and render-targets (surfaces).
 
 ## <a name="Operators"></a> Operators
 
@@ -342,7 +344,7 @@ incomplete
 static SkImageInfo MakeN32(int width, int height, SkAlphaType at, sk_sp&lt;SkColorSpace&gt; cs = nullptr)
 </pre>
 
-Sets colortype to <a href="SkImageInfo_Reference#SkColorType">kN32 SkColorType</a>.
+Sets <a href="SkImageInfo_Reference#Color_Type">Color Type</a> to <a href="SkImageInfo_Reference#SkColorType">kN32 SkColorType</a>.
 
 ### Parameters
 
@@ -412,7 +414,7 @@ incomplete
 static SkImageInfo MakeN32Premul(int width, int height, sk_sp&lt;SkColorSpace&gt; cs = nullptr)
 </pre>
 
-Sets colortype to <a href="SkImageInfo_Reference#SkColorType">kN32 SkColorType</a>, and the alphatype to premul.
+Sets <a href="SkImageInfo_Reference#Color_Type">Color Type</a> to <a href="SkImageInfo_Reference#SkColorType">kN32 SkColorType</a>, and the <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a> to <a href="SkImageInfo_Reference#SkAlphaType">kPremul SkAlphaType</a>.
 
 ### Parameters
 
@@ -784,7 +786,7 @@ incomplete
 SkImageInfo makeWH(int newWidth, int newHeight) const
 </pre>
 
-Creates <a href="SkImageInfo_Reference#Image_Info">Image Info</a> with the same colortype and alphatype as this info,
+Creates <a href="SkImageInfo_Reference#Image_Info">Image Info</a> with the same <a href="SkImageInfo_Reference#Color_Type">Color Type</a> and <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a> as this info,
 but with the specified width and height.
 
 ### Parameters

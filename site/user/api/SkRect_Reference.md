@@ -31,8 +31,6 @@ integer input cannot convert to <a href="undocumented#SkScalar">SkScalar</a> wit
 | --- | --- |
 | <a href="#As_Points">As Points</a> | conversion to and from <a href="#Point">Points</a> |
 | <a href="#From_Integers">From Integers</a> | set <a href="#Scalar">Scalar</a> values from integer input |
-| <a href="#Inset_Outset_Offset">Inset Outset Offset</a> | moves sides |
-| <a href="#Intersection">Intersection</a> | set to shared bounds |
 | <a href="#Join">Join</a> | set to union of bounds |
 | <a href="#Properties">Properties</a> | side values, center, validity |
 | <a href="#Rounding">Rounding</a> | adjust to integer bounds |
@@ -130,7 +128,7 @@ vertical values when sorted. When equal to or less than <a href="#SkRect_fTop">f
 ## <a name="Constructors"></a> Constructors
 
 | name | description |
-| --- | ---  |
+| --- | --- |
 | <a href="#SkRect_Make">Make</a> | constructs from <a href="undocumented#ISize">ISize</a> returning (0, 0, width, height) |
 | <a href="#SkRect_MakeEmpty">MakeEmpty</a> | constructs from bounds of (0, 0, 0, 0) |
 | <a href="#SkRect_MakeFromIRect">MakeFromIRect</a> | deprecated |
@@ -503,10 +501,14 @@ integer unsorted bounds</td>
 ## <a name="Properties"></a> Properties
 
 | name | description |
-| --- | ---  |
+| --- | --- |
+| <a href="#SkRect_asScalars">asScalars</a> | returns pointer to members as array |
 | <a href="#SkRect_bottom">bottom</a> | returns larger bounds in y, if sorted |
 | <a href="#SkRect_centerX">centerX</a> | returns midpoint in x |
 | <a href="#SkRect_centerY">centerY</a> | returns midpoint in y |
+| <a href="#SkRect_dump_2">dump</a> | sends text representation to standard output using floats |
+|  | dump |
+| <a href="#SkRect_dumpHex">dumpHex</a> | sends text representation to standard output using hexadecimal |
 | <a href="#SkRect_height">height</a> | returns span in y |
 | <a href="#SkRect_isEmpty">isEmpty</a> | returns true if width or height are zero or negative |
 | <a href="#SkRect_isFinite">isFinite</a> | returns true if no member is infinite or NaN |
@@ -958,7 +960,7 @@ left: 2e+38 right: 3e+38 centerX: inf safe mid x: 2.5e+38
 ## <a name="Operators"></a> Operators
 
 | name | description |
-| --- | ---  |
+| --- | --- |
 | <a href="#SkRect_notequal_operator">operator!=(const SkRect& a, const SkRect& b)</a> | returns true if members are unequal |
 | <a href="#SkRect_equal_operator">operator==(const SkRect& a, const SkRect& b)</a> | returns true if members are equal |
 
@@ -1056,7 +1058,7 @@ test with NaN is not equal to itself
 ## <a name="As_Points"></a> As Points
 
 | name | description |
-| --- | ---  |
+| --- | --- |
 | <a href="#SkRect_setBounds">setBounds</a> | sets to upper and lower limits of <a href="SkPoint_Reference#Point">Point</a> array |
 | <a href="#SkRect_setBoundsCheck">setBoundsCheck</a> | sets to upper and lower limits of <a href="SkPoint_Reference#Point">Point</a> array |
 | <a href="#SkRect_toQuad">toQuad</a> | returns four corners as <a href="SkPoint_Reference#Point">Point</a> |
@@ -1193,14 +1195,8 @@ added: nan, 8 count: 4 rect: 0, 0, 0, 0 success: false
 ## <a name="Set"></a> Set
 
 | name | description |
-| --- | ---  |
-| <a href="#SkRect_iset">iset</a> | sets to int input (left, top, right, bottom) |
-| <a href="#SkRect_isetWH">isetWH</a> | sets to int input (0, 0, width, height) |
+| --- | --- |
 | <a href="#SkRect_set">set</a> | sets to <a href="undocumented#SkScalar">SkScalar</a> input (left, top, right, bottom) and others |
-|  | void <a href="#SkRect_set">set(const SkIRect& src)</a> |
-|  | void <a href="#SkRect_set_2">set(SkScalar left, SkScalar top, SkScalar right, SkScalar bottom)</a> |
-|  | void <a href="#SkRect_set_3">set(const SkPoint pts[], int count)</a> |
-|  | void <a href="#SkRect_set_4">set(const SkPoint& p0, const SkPoint& p1)</a> |
 | <a href="#SkRect_setEmpty">setEmpty</a> | sets to (0, 0, 0, 0) |
 | <a href="#SkRect_setLTRB">setLTRB</a> | sets to <a href="undocumented#SkScalar">SkScalar</a> input (left, top, right, bottom) |
 | <a href="#SkRect_setWH">setWH</a> | sets to <a href="undocumented#SkScalar">SkScalar</a> input (0, 0, width, height) |
@@ -1514,7 +1510,7 @@ rect: -15, 0, 0, 25  isEmpty: false
 ## <a name="From_Integers"></a> From Integers
 
 | name | description |
-| --- | ---  |
+| --- | --- |
 | <a href="#SkRect_iset">iset</a> | sets to int input (left, top, right, bottom) |
 | <a href="#SkRect_isetWH">isetWH</a> | sets to int input (0, 0, width, height) |
 
@@ -1604,14 +1600,9 @@ rect2: {0, 0, 1, 2}
 ## <a name="Inset_Outset_Offset"></a> Inset Outset Offset
 
 | name | description |
-| --- | ---  |
+| --- | --- |
 | <a href="#SkRect_inset">inset</a> | moves the sides symmetrically about the center |
-| <a href="#SkRect_makeInset">makeInset</a> | constructs from sides moved symmetrically about the center |
-| <a href="#SkRect_makeOffset">makeOffset</a> | constructs from translated sides |
-| <a href="#SkRect_makeOutset">makeOutset</a> | constructs from sides moved symmetrically about the center |
 | <a href="#SkRect_offset">offset</a> | translates sides without changing width and height |
-|  | void <a href="#SkRect_offset">offset(SkScalar dx, SkScalar dy)</a> |
-|  | void <a href="#SkRect_offset_2">offset(const SkPoint& delta)</a> |
 | <a href="#SkRect_offsetTo">offsetTo</a> | translates to (x, y) without changing width and height |
 | <a href="#SkRect_outset">outset</a> | moves the sides symmetrically about the center |
 
@@ -1965,18 +1956,11 @@ The intersection is only meaningful if the resulting <a href="#Rect">Rect</a> is
 describes an area: <a href="#SkRect_fLeft">fLeft</a> is less than <a href="#SkRect_fRight">fRight</a>, and <a href="#SkRect_fTop">fTop</a> is less than <a href="#SkRect_fBottom">fBottom</a>.
 
 | name | description |
-| --- | ---  |
+| --- | --- |
 | <a href="#SkRect_Intersects">Intersects</a> | returns true if areas overlap |
 | <a href="#SkRect_contains">contains</a> | returns true if points are equal or inside |
-|  | bool <a href="#SkRect_contains">contains(const SkRect& r)</a> const |
-|  | bool <a href="#SkRect_contains_2">contains(const SkIRect& r)</a> const |
 | <a href="#SkRect_intersect">intersect</a> | sets to shared area; returns true if not empty |
-|  | bool <a href="#SkRect_intersect_2">intersect(SkScalar left, SkScalar top, SkScalar right, SkScalar bottom)</a> |
-|  | bool <a href="#SkRect_intersect">intersect(const SkRect& r)</a> |
-|  | bool <a href="#SkRect_intersect_3">intersect(const SkRect& a, const SkRect& b)</a> |
 | <a href="#SkRect_intersects">intersects</a> | returns true if areas overlap |
-|  | bool <a href="#SkRect_intersects">intersects(SkScalar left, SkScalar top, SkScalar right, SkScalar bottom)</a> const |
-|  | bool <a href="#SkRect_intersects_2">intersects(const SkRect& r)</a> const |
 
 <a name="SkRect_contains"></a>
 ## contains
@@ -2329,10 +2313,8 @@ intersection
 ## <a name="Join"></a> Join
 
 | name | description |
-| --- | ---  |
+| --- | --- |
 | <a href="#SkRect_join">join</a> | sets to union of bounds |
-|  | void <a href="#SkRect_join">join(SkScalar left, SkScalar top, SkScalar right, SkScalar bottom)</a> |
-|  | void <a href="#SkRect_join_2">join(const SkRect& r)</a> |
 | <a href="#SkRect_joinNonEmptyArg">joinNonEmptyArg</a> | sets to union of bounds, asserting that argument is not empty |
 | <a href="#SkRect_joinPossiblyEmptyRect">joinPossiblyEmptyRect</a> | sets to union of bounds. Skips empty check for both |
 
@@ -2498,15 +2480,10 @@ sorted: 10, 0, 55, 100
 ## <a name="Rounding"></a> Rounding
 
 | name | description |
-| --- | ---  |
+| --- | --- |
 | <a href="#SkRect_round_2">round</a> | sets members to nearest integer value |
-|  | void <a href="#SkRect_round">round(SkIRect* dst)</a> const |
-|  | <a href="SkIRect_Reference#SkIRect">SkIRect</a> <a href="#SkRect_round_2">round</a> const |
 | <a href="#SkRect_roundIn">roundIn</a> | sets members to nearest integer value towards opposite |
 | <a href="#SkRect_roundOut">roundOut</a> | sets members to nearest integer value away from opposite |
-|  | void <a href="#SkRect_roundOut">roundOut(SkIRect* dst)</a> const |
-|  | void <a href="#SkRect_roundOut_2">roundOut(SkRect* dst)</a> const |
-|  | <a href="SkIRect_Reference#SkIRect">SkIRect</a> <a href="#SkRect_roundOut_3">roundOut</a> const |
 
 <a name="SkRect_round"></a>
 ## round
@@ -2712,8 +2689,7 @@ round: 30, 50, 41, 61
 ## <a name="Sorting"></a> Sorting
 
 | name | description |
-| --- | ---  |
-| <a href="#SkRect_makeSorted">makeSorted</a> | constructs, ordering sides from smaller to larger |
+| --- | --- |
 | <a href="#SkRect_sort">sort</a> | orders sides from smaller to larger |
 
 <a name="SkRect_sort"></a>

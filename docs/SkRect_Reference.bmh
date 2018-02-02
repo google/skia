@@ -58,24 +58,7 @@ vertical values when sorted. When equal to or less than fTop, Rect is empty.
 #Subtopic Members ##
 
 #Subtopic Constructors
-#Table
-#Legend
-# name          # description                                                    ##
-#Legend ##
-# Make          # constructs from ISize returning (0, 0, width, height)          ##
-# MakeEmpty     # constructs from bounds of (0, 0, 0, 0)                         ##
-# MakeFromIRect # deprecated                                                     ##
-# MakeIWH       # constructs from int input returning (0, 0, width, height)      ##
-# MakeLTRB      # constructs from SkScalar left, top, right, bottom              ##
-# MakeLargest   # deprecated                                                     ##
-# MakeSize      # constructs from Size returning (0, 0, width, height)           ##
-# MakeWH        # constructs from SkScalar input returning (0, 0, width, height) ##
-# MakeXYWH      # constructs from SkScalar input returning (x, y, width, height) ##
-# makeInset     # constructs from sides moved symmetrically about the center     ##
-# makeOffset    # constructs from translated sides                               ##
-# makeOutset    # constructs from sides moved symmetrically about the center     ##
-# makeSorted    # constructs, ordering sides from smaller to larger              ##
-#Table ##
+#Populate
 
 # ------------------------------------------------------------------------------
 
@@ -358,24 +341,7 @@ than fBottom.
 #Subtopic Properties
 #Line # side values, center, validity ##
 
-#Table
-#Legend
-# name                  # description                                          ##
-#Legend ##
-# bottom()              # returns larger bounds in y, if sorted                ##
-# centerX               # returns midpoint in x                                ##
-# centerY               # returns midpoint in y                                ##
-# height()              # returns span in y                                    ##
-# isEmpty               # returns true if width or height are zero or negative ##
-# isFinite              # returns true if no member is infinite or NaN         ##
-# isSorted              # returns true if width or height are zero or positive ##
-# left()                # returns smaller bounds in x, if sorted               ##
-# right()               # returns larger bounds in x, if sorted                ##
-# top()                 # returns smaller bounds in y, if sorted               ##
-# width()               # returns span in x                                    ##
-# x()                   # returns bounds left                                  ##
-# y()                   # returns bounds top                                   ##
-#Table ##
+#Populate
 
 # ------------------------------------------------------------------------------
 
@@ -743,13 +709,7 @@ left: 2e+38 right: 3e+38 centerX: inf safe mid x: 2.5e+38
 
 #Subtopic Operators
 
-#Table
-#Legend
-# name                                         # description                         ##
-#Legend ##
-# operator!=(const SkRect& a, const SkRect& b) # returns true if members are unequal ##
-# operator==(const SkRect& a, const SkRect& b) # returns true if members are equal   ##
-#Table ##
+#Populate
 
 # ------------------------------------------------------------------------------
 
@@ -830,14 +790,7 @@ test with NaN is not equal to itself
 #Subtopic As_Points
 #Line # conversion to and from Points ##
 
-#Table
-#Legend
-# name                  # description                                   ##
-#Legend ##
-# setBounds             # sets to upper and lower limits of Point array ##
-# setBoundsCheck        # sets to upper and lower limits of Point array ##
-# toQuad                # returns four corners as Point                 ##
-#Table ##
+#Populate
 
 # ------------------------------------------------------------------------------
 
@@ -964,22 +917,7 @@ added: nan, 8 count: 4 rect: 0, 0, 0, 0 success: false
 #Subtopic Set
 #Line # replaces all values ##
 
-#Table
-#Legend
-# name     # description                                                            ##
-#Legend ##
-# iset()   # sets to int input (left, top, right, bottom)                           ##
-# isetWH   # sets to int input (0, 0, width, height)                                ##
-# set()    # sets to SkScalar input (left, top, right, bottom) and others           ##
-#          # void set(const SkIRect& src)                                           ##
-#          # void set(SkScalar left, SkScalar top, SkScalar right, SkScalar bottom) ##
-#          # void set(const SkPoint pts[], int count)                               ##
-#          # void set(const SkPoint& p0, const SkPoint& p1)                         ##
-# setEmpty # sets to (0, 0, 0, 0)                                                   ##
-# setLTRB  # sets to SkScalar input (left, top, right, bottom)                      ##
-# setWH    # sets to SkScalar input (0, 0, width, height)                           ##
-# setXYWH  # sets to SkScalar input (x, y, width, height)                           ##
-#Table ##
+#Populate
 
 # ------------------------------------------------------------------------------
 
@@ -1237,13 +1175,7 @@ rect: -15, 0, 0, 25  isEmpty: false
 #Subtopic From_Integers
 #Line # set Scalar values from integer input ##
 
-#Table
-#Legend
-# name     # description                                                            ##
-#Legend ##
-# iset()   # sets to int input (left, top, right, bottom)                           ##
-# isetWH   # sets to int input (0, 0, width, height)                                ##
-#Table ##
+#Populate
 
 # ------------------------------------------------------------------------------
 
@@ -1311,20 +1243,7 @@ rect2: {0, 0, 1, 2}
 #Subtopic Inset_Outset_Offset
 #Line # moves sides ##
 
-#Table
-#Legend
-# name                  # description                                                ##
-#Legend ##
-# inset()               # moves the sides symmetrically about the center             ##
-# makeInset             # constructs from sides moved symmetrically about the center ##
-# makeOffset            # constructs from translated sides                           ##
-# makeOutset            # constructs from sides moved symmetrically about the center ##
-# offset()              # translates sides without changing width and height         ##
-#                       # void offset(SkScalar dx, SkScalar dy)                      ##
-#                       # void offset(const SkPoint& delta)                          ##
-# offsetTo              # translates to (x, y) without changing width and height     ##
-# outset()              # moves the sides symmetrically about the center             ##
-#Table ##
+#Populate
 
 # ------------------------------------------------------------------------------
 
@@ -1589,22 +1508,7 @@ empty() returns false. The intersection of Rect pair can be described by:
 The intersection is only meaningful if the resulting Rect is not empty and
 describes an area: fLeft is less than fRight, and fTop is less than fBottom.
 
-#Table
-#Legend
-# name         # description                                                                  ##
-#Legend ##
-# Intersects   # returns true if areas overlap                                                ##
-# contains()   # returns true if points are equal or inside                                   ##
-#              # bool contains(const SkRect& r) const                                         ##
-#              # bool contains(const SkIRect& r) const                                        ##
-# intersect()  # sets to shared area; returns true if not empty                               ##
-#              # bool intersect(SkScalar left, SkScalar top, SkScalar right, SkScalar bottom) ##
-#              # bool intersect(const SkRect& r)                                              ##
-#              # bool intersect(const SkRect& a, const SkRect& b)                             ##
-# intersects() # returns true if areas overlap                                                ##
-#              # bool intersects(SkScalar left, SkScalar top, SkScalar right, SkScalar bottom) const ##
-#              # bool intersects(const SkRect& r) const                                       ##
-#Table ##
+#Populate
 
 # ------------------------------------------------------------------------------
 
@@ -1863,16 +1767,7 @@ Returns false if either a or b is empty, or do not intersect.
 #Subtopic Join
 #Line # set to union of bounds ##
 
-#Table
-#Legend
-# name                  # description                                                             ##
-#Legend ##
-# join()                # sets to union of bounds                                                 ##
-#                       # void join(SkScalar left, SkScalar top, SkScalar right, SkScalar bottom) ##
-#                       # void join(const SkRect& r)                                              ##
-# joinNonEmptyArg       # sets to union of bounds, asserting that argument is not empty           ##
-# joinPossiblyEmptyRect # sets to union of bounds. Skips empty check for both                     ##
-#Table ##
+#Populate
 
 # ------------------------------------------------------------------------------
 
@@ -2005,19 +1900,7 @@ sorted: 10, 0, 55, 100
 #Subtopic Rounding
 #Line # adjust to integer bounds ##
 
-#Table
-#Legend
-# name                  # description                                                             ##
-#Legend ##
-# round()               # sets members to nearest integer value                                   ##
-#                       # void round(SkIRect* dst) const                                          ##
-#                       # SkIRect round() const                                                   ##
-# roundIn               # sets members to nearest integer value towards opposite                  ##
-# roundOut              # sets members to nearest integer value away from opposite                ##
-#                       # void roundOut(SkIRect* dst) const                                       ##
-#                       # void roundOut(SkRect* dst) const                                        ##
-#                       # SkIRect roundOut() const                                                ##
-#Table ##
+#Populate
 
 #Method    void round(SkIRect* dst) const
 
@@ -2198,13 +2081,7 @@ round: 30, 50, 41, 61
 #Subtopic Sorting
 #Line # orders sides ##
 
-#Table
-#Legend
-# name                  # description                                       ##
-#Legend ##
-# makeSorted            # constructs, ordering sides from smaller to larger ##
-# sort()                # orders sides from smaller to larger               ##
-#Table ##
+#Populate
 
 # ------------------------------------------------------------------------------
 
@@ -2263,7 +2140,7 @@ sorted: 20.5, 10.5, 30.5, 50.5
 # ------------------------------------------------------------------------------
 
 #Method    const SkScalar* asScalars() const
-
+#In Properties
 #Line # returns pointer to members as array ##
 Returns pointer to first Scalar in Rect, to treat it as an array with four
 entries.
@@ -2285,7 +2162,7 @@ rect.asScalars() == &rect.fLeft
 # ------------------------------------------------------------------------------
 
 #Method    void dump(bool asHex) const
-
+#In Properties
 #Line # sends text representation to standard output using floats ##
 Writes text representation of Rect to standard output. Set asHex to true to 
 generate exact binary representations of floating point numbers.
@@ -2339,7 +2216,7 @@ rect is not equal to copy
 # ------------------------------------------------------------------------------
 
 #Method    void dumpHex() const
-
+#In Properties
 #Line # sends text representation to standard output using hexadecimal ##
 Writes text representation of Rect to standard output. The representation may be
 directly compiled as C++ code. Floating point values are written
@@ -2372,7 +2249,7 @@ rect is equal to copy
 ##
 
 #Method static SkRect SK_WARN_UNUSED_RESULT MakeLargest()
-
+#In Constructors
 #Line # deprecated ##
 #Deprecated
 ##

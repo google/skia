@@ -8,12 +8,12 @@
  Unicode Unicode5 UTF-8 UTF-16 UTF-32 ASCII Unichar
  API
  BMP GIF HEIF ICO JPEG PNG WBMP WebP
- CPU
+ CPU Little_Endian Big_Endian
  GPU GPU-backed OpenGL Vulkan I/O MSAA UV_Mapping Multi_Sample_Anti_Aliasing GPU_Share_Group
  PDF XPS
  RFC
  NaN NaNs
- Bezier_Curve Coons_Patch Cartesian_Coordinate Euclidean_Distance Euclidean_Space
+ Bezier_Curve Coons_Patch Cartesian_Coordinate Euclidean_Distance Euclidean_Space Mip_Map
  C C++ Destructor Subclasses
  SkUserConfig  # not external, but still thinking about how markup refers to this
  SkXXX.h        # ditto

@@ -17,18 +17,7 @@ is less than or equal to its left, or if its bottom is less than or equal to
 its top, it is considered empty. 
 
 #Subtopic Related_Functions
-#Table
-#Legend
-# name                   # description                                ##
-#Legend ##
-# Inset_Outset_Offset    # moves sides                                ##
-# Intersection           # set to shared bounds                       ##
-# Join                   # set to union of bounds                     ##
-# Properties             # side values, center, validity              ##
-# Rounding               # adjust to integer bounds                   ##
-# Set                    # replaces all values                        ##
-# Sorting                # orders sides                               ##
-#Table ##
+#Populate
 #Subtopic ##
 
 #Subtopic Member_Functions
