@@ -22,6 +22,30 @@
       "revId": "04bab9326bd68243cc73451b3d893b863aeab801",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b8ab6838_8b7f0979",
+        "filename": "include/private/SkSurfaceCharacterization.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-02-02T19:31:02Z",
+      "side": 1,
+      "message": "ack",
+      "parentUuid": "bf2ac808_008c844d",
+      "range": {
+        "startLine": 48,
+        "startChar": 27,
+        "endLine": 48,
+        "endChar": 42
+      },
+      "revId": "04bab9326bd68243cc73451b3d893b863aeab801",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
