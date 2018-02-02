@@ -170,6 +170,7 @@ bool SkSurface_Gpu::onCharacterize(SkSurfaceCharacterization* data) const {
     data->set(ctx->threadSafeProxy(), maxResourceCount, maxResourceBytes,
               rtc->origin(), rtc->width(), rtc->height(),
               rtc->colorSpaceInfo().config(), rtc->fsaaType(), rtc->numStencilSamples(),
+              SkSurfaceCharacterization::Textureable(SkToBool(rtc->asTextureProxy())),
               rtc->colorSpaceInfo().refColorSpace(), this->props());
 
     return true;
@@ -184,6 +185,13 @@ bool SkSurface_Gpu::isCompatible(const SkSurfaceCharacterization& data) const {
     int maxResourceCount;
     size_t maxResourceBytes;
     ctx->getResourceCacheLimits(&maxResourceCount, &maxResourceBytes);
+
+    if (data.isTextureable() && !rtc->asTextureProxy()) {
+        // If the characterization was textureable we require the replay dest to also be
+        // textureable. If the characterized surface wasn't textureable we allow the replay
+        // dest to be textureable.
+        return false;
+    }
 
     return data.contextInfo() && data.contextInfo()->matches(ctx) &&
            data.cacheMaxResourceCount() <= maxResourceCount &&

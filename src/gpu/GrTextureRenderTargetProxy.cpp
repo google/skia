@@ -104,9 +104,10 @@ sk_sp<GrSurface> GrTextureRenderTargetProxy::createSurface(
 }
 
 #ifdef SK_DEBUG
-void GrTextureRenderTargetProxy::validateLazyTexture(const GrTexture* texture) {
-    SkASSERT(texture->asRenderTarget());
-    SkASSERT(texture->asRenderTarget()->numStencilSamples() == this->numStencilSamples());
+void GrTextureRenderTargetProxy::validateLazySurface(const GrSurface* surface) {
+    SkASSERT(surface->asTexture());
+    SkASSERT(surface->asRenderTarget());
+    SkASSERT(surface->asRenderTarget()->numStencilSamples() == this->numStencilSamples());
     SkASSERT(GrMipMapped::kNo == this->mipMapped());
 }
 #endif

@@ -32,6 +32,11 @@ class SkColorSpace;
 */
 class SkSurfaceCharacterization {
 public:
+    enum class Textureable : bool {
+        kNo = false,
+        kYes = true
+    };
+
     SkSurfaceCharacterization()
             : fCacheMaxResourceCount(0)
             , fCacheMaxResourceBytes(0)
@@ -41,6 +46,7 @@ public:
             , fConfig(kUnknown_GrPixelConfig)
             , fFSAAType(GrFSAAType::kNone)
             , fStencilCnt(0)
+            , fIsTextureable(Textureable::kYes)
             , fSurfaceProps(0, kUnknown_SkPixelGeometry) {
     }
 
@@ -60,6 +66,7 @@ public:
     GrPixelConfig config() const { return fConfig; }
     GrFSAAType fsaaType() const { return fFSAAType; }
     int stencilCount() const { return fStencilCnt; }
+    bool isTextureable() const { return Textureable::kYes == fIsTextureable; }
     SkColorSpace* colorSpace() const { return fColorSpace.get(); }
     sk_sp<SkColorSpace> refColorSpace() const { return fColorSpace; }
     const SkSurfaceProps& surfaceProps()const { return fSurfaceProps; }
@@ -75,6 +82,7 @@ private:
              GrPixelConfig config,
              GrFSAAType fsaaType,
              int stencilCnt,
+             Textureable isTextureable,
              sk_sp<SkColorSpace> colorSpace,
              const SkSurfaceProps& surfaceProps) {
         fContextInfo = contextInfo;
@@ -87,6 +95,7 @@ private:
         fConfig = config;
         fFSAAType = fsaaType;
         fStencilCnt = stencilCnt;
+        fIsTextureable = isTextureable;
         fColorSpace = std::move(colorSpace);
         fSurfaceProps = surfaceProps;
     }
@@ -101,6 +110,7 @@ private:
     GrPixelConfig                   fConfig;
     GrFSAAType                      fFSAAType;
     int                             fStencilCnt;
+    Textureable                     fIsTextureable;
     sk_sp<SkColorSpace>             fColorSpace;
     SkSurfaceProps                  fSurfaceProps;
 };

@@ -115,3 +115,11 @@ bool GrRenderTargetProxy::refsWrappedObjects() const {
 
     return fTarget->resourcePriv().refsWrappedObjects();
 }
+
+#ifdef SK_DEBUG
+void GrRenderTargetProxy::validateLazySurface(const GrSurface* surface) {
+    SkASSERT(!surface->asTexture());
+    SkASSERT(surface->asRenderTarget());
+    SkASSERT(surface->asRenderTarget()->numStencilSamples() == this->numStencilSamples());
+}
+#endif
