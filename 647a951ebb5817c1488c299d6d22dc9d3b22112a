@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "42ccf874_8d7b301b",
+        "filename": "infra/branch-config/cq.cfg",
+        "patchSetId": 2
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-02-02T03:28:09Z",
+      "side": 1,
+      "message": "Let\u0027s add as experimental first.",
+      "revId": "647a951ebb5817c1488c299d6d22dc9d3b22112a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
