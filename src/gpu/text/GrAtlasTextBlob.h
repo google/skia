@@ -142,10 +142,6 @@ public:
         subRun.setHasWCoord(hasWCoord);
     }
 
-    void setRunTooBigForAtlas(int runIndex) {
-        fRuns[runIndex].fTooBigForAtlas = true;
-    }
-
     void setMinAndMaxScale(SkScalar scaledMax, SkScalar scaledMin) {
         // we init fMaxMinScale and fMinMaxScale in the constructor
         fMaxMinScale = SkMaxScalar(scaledMax, fMaxMinScale);
@@ -193,19 +189,11 @@ public:
     bool mustRegenerate(const GrTextUtils::Paint&, const SkMaskFilterBase::BlurRec& blurRec,
                         const SkMatrix& viewMatrix, SkScalar x, SkScalar y);
 
-    // flush a GrAtlasTextBlob associated with a SkTextBlob
-    void flushCached(GrAtlasGlyphCache*, GrTextUtils::Target*, const SkTextBlob* blob,
-                     const SkSurfaceProps& props,
-                     const GrDistanceFieldAdjustTable* distanceAdjustTable,
-                     const GrTextUtils::Paint&, SkDrawFilter* drawFilter, const GrClip& clip,
-                     const SkMatrix& viewMatrix, const SkIRect& clipBounds, SkScalar x, SkScalar y);
-
-    // flush a throwaway GrAtlasTextBlob *not* associated with an SkTextBlob
-    void flushThrowaway(GrAtlasGlyphCache*, GrTextUtils::Target*, const SkSurfaceProps& props,
-                        const GrDistanceFieldAdjustTable* distanceAdjustTable,
-                        const GrTextUtils::Paint& paint, const GrClip& clip,
-                        const SkMatrix& viewMatrix, const SkIRect& clipBounds, SkScalar x,
-                        SkScalar y);
+    void flush(GrAtlasGlyphCache*, GrTextUtils::Target*, const SkSurfaceProps& props,
+               const GrDistanceFieldAdjustTable* distanceAdjustTable,
+               const GrTextUtils::Paint& paint, const GrClip& clip,
+               const SkMatrix& viewMatrix, const SkIRect& clipBounds, SkScalar x,
+               SkScalar y);
 
     void computeSubRunBounds(SkRect* outBounds, int runIndex, int subRunIndex,
                              const SkMatrix& viewMatrix, SkScalar x, SkScalar y) {
@@ -285,24 +273,8 @@ private:
         , fMinMaxScale(SK_ScalarMax)
         , fTextType(0) {}
 
-    void appendBigGlyph(GrGlyph* glyph, SkGlyphCache* cache, const SkGlyph& skGlyph,
-                        SkScalar x, SkScalar y, SkScalar scale, bool treatAsBMP);
-
-    inline void flushRun(GrTextUtils::Target*, const GrClip&, int run, const SkMatrix& viewMatrix,
-                         SkScalar x, SkScalar y, const GrTextUtils::Paint& paint,
-                         const SkSurfaceProps& props,
-                         const GrDistanceFieldAdjustTable* distanceAdjustTable,
-                         GrAtlasGlyphCache* cache);
-
-    void flushBigGlyphs(GrTextUtils::Target*, const GrClip& clip,
-                        const SkPaint& paint, const SkMatrix& viewMatrix, SkScalar x, SkScalar y,
-                        const SkIRect& clipBounds);
-
-    void flushBigRun(GrTextUtils::Target*, const SkSurfaceProps& props,
-                     const SkTextBlobRunIterator& it, const GrClip& clip,
-                     const GrTextUtils::Paint& paint, SkDrawFilter* drawFilter,
-                     const SkMatrix& viewMatrix, const SkIRect& clipBounds, SkScalar x,
-                     SkScalar y);
+    void appendPathGlyph(int runIndex, GrGlyph* glyph, SkGlyphCache* cache, const SkGlyph& skGlyph,
+                         SkScalar x, SkScalar y, SkScalar scale, bool treatAsBMP);
 
     // This function will only be called when we are generating a blob from scratch. We record the
     // initial view matrix and initial offsets(x,y), because we record vertex bounds relative to
@@ -348,8 +320,7 @@ private:
      */
     struct Run {
         Run()
-            : fInitialized(false)
-            , fTooBigForAtlas(false) {
+            : fInitialized(false) {
             // To ensure we always have one subrun, we push back a fresh run here
             fSubRunInfo.push_back();
         }
@@ -495,8 +466,26 @@ private:
         // will have different descriptors.  If fOverrideDescriptor is non-nullptr, then it
         // will be used in place of the run's descriptor to regen texture coords
         std::unique_ptr<SkAutoDescriptor> fOverrideDescriptor; // df properties
+
+        // Any glyphs that can't be rendered with the base or override descriptor
+        // are rendered as paths
+        struct PathGlyph {
+            PathGlyph(const SkPath& path, SkScalar x, SkScalar y, SkScalar scale, bool treatAsBMP)
+                : fPath(path)
+                , fScale(scale)
+                , fX(x)
+                , fY(y)
+                , fTreatAsBMP(treatAsBMP) {}
+            SkPath fPath;
+            SkScalar fScale;
+            SkScalar fX;
+            SkScalar fY;
+            bool fTreatAsBMP;
+        };
+
+        SkTArray<PathGlyph> fPathGlyphs;
+
         bool fInitialized;
-        bool fTooBigForAtlas;
     };  // Run
 
     inline std::unique_ptr<GrAtlasTextOp> makeOp(
@@ -505,20 +494,6 @@ private:
             const GrTextUtils::Paint& paint, const SkSurfaceProps& props,
             const GrDistanceFieldAdjustTable* distanceAdjustTable, GrAtlasGlyphCache* cache,
             GrTextUtils::Target*);
-
-    struct BigGlyph {
-        BigGlyph(const SkPath& path, SkScalar vx, SkScalar vy, SkScalar scale, bool treatAsBMP)
-            : fPath(path)
-            , fScale(scale)
-            , fX(vx)
-            , fY(vy)
-            , fTreatAsBMP(treatAsBMP) {}
-        SkPath fPath;
-        SkScalar fScale;
-        SkScalar fX;
-        SkScalar fY;
-        bool fTreatAsBMP;
-    };
 
     struct StrokeInfo {
         SkScalar fFrameWidth;
@@ -538,7 +513,6 @@ private:
     GrMemoryPool* fPool;
     SkMaskFilterBase::BlurRec fBlurRec;
     StrokeInfo fStrokeInfo;
-    SkTArray<BigGlyph> fBigGlyphs;
     Key fKey;
     SkMatrix fInitialViewMatrix;
     SkMatrix fInitialViewMatrixInverse;
