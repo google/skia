@@ -7679,11 +7679,26 @@ static void joel_16x(skiatest::Reporter* reporter, const char* filename) {
 testSimplify(reporter, path, filename);
 }
 
+static void coincubics(skiatest::Reporter* reporter, const char* filename) {
+    SkPath path;
+    path.moveTo(SkDoubleToScalar(0.00000000000000000), SkDoubleToScalar(0.00000000000000000));
+    path.cubicTo(SkDoubleToScalar(0.00022939755581319332), SkDoubleToScalar(0.00022927834652364254),
+        SkDoubleToScalar(0.00022930106206331402), SkDoubleToScalar(0.00022929999977350235),
+        SkDoubleToScalar(0.00022930069826543331), SkDoubleToScalar(0.00022913678549230099));
+    path.lineTo(SkDoubleToScalar(0.00022930069826543331), SkDoubleToScalar(0.00022930069826543331));
+    path.cubicTo(SkDoubleToScalar(0.00011465034913271666), SkDoubleToScalar(0.00011465034913271666),
+            SkDoubleToScalar(0.00011465061106719077), SkDoubleToScalar(0.00011460937093943357),
+            SkDoubleToScalar(0.00014331332931760699), SkDoubleToScalar(0.00014325146912597120));
+testSimplify(reporter, path, filename);
+}
+
+
 static void (*skipTest)(skiatest::Reporter* , const char* filename) = nullptr;
 static void (*firstTest)(skiatest::Reporter* , const char* filename) = nullptr;
 static void (*stopTest)(skiatest::Reporter* , const char* filename) = nullptr;
 
 static TestDesc tests[] = {
+    TEST(coincubics),
     TEST(joel_16x),
     TEST(joel_16),
     TEST(joel_15x),

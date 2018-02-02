@@ -307,6 +307,7 @@ bool SkOpEdgeBuilder::walk() {
                         }
                         if (prior < index) {
                             split->fT[0] = splits[prior].fT[0];
+                            split->fPts[0] = splits[prior].fPts[0];
                         }
                         int next = index;
                         int breakLimit = SkTMin(breaks, (int) SK_ARRAY_COUNT(splits) - 1);
@@ -315,17 +316,9 @@ bool SkOpEdgeBuilder::walk() {
                         }
                         if (next > index) {
                             split->fT[1] = splits[next].fT[1];
+                            split->fPts[3] = splits[next].fPts[3];
                         }
                         if (prior < index || next > index) {
-                            if (0 == split->fT[0] && 1 == split->fT[1]) {
-                                fContourBuilder.addCubic(pointsPtr);
-                                break;
-                            }
-                            SkDCubic part = SkDCubic::SubDivide(pointsPtr, split->fT[0],
-                                    split->fT[1]);
-                            if (!part.toFloatPoints(split->fPts)) {
-                                return false;
-                            }
                             split->fVerb = SkReduceOrder::Cubic(split->fPts, split->fReduced);
                         }
                         SkPoint* curve = SkPath::kCubic_Verb == split->fVerb
