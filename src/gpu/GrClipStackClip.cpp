@@ -198,7 +198,7 @@ bool GrClipStackClip::apply(GrContext* context, GrRenderTargetContext* renderTar
         // With mixed samples (non-msaa color buffer), any coverage info is lost from color once it
         // hits the color buffer anyway, so we may as well use coverage AA if nothing else in the
         // pipe is multisampled.
-        if (renderTargetContext->numColorSamples() > 0 || useHWAA || hasUserStencilSettings) {
+        if (renderTargetContext->numColorSamples() > 1 || useHWAA || hasUserStencilSettings) {
             maxAnalyticFPs = 0;
         }
         SkASSERT(!context->caps()->avoidStencilBuffers()); // We disable MSAA when avoiding stencil.

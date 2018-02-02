@@ -72,7 +72,7 @@ size_t GrVkStencilAttachment::onGpuMemorySize() const {
     uint64_t size = this->width();
     size *= this->height();
     size *= fFormat.fTotalBits;
-    size *= SkTMax(1,this->numSamples());
+    size *= this->numSamples();
     return static_cast<size_t>(size / 8);
 }
 

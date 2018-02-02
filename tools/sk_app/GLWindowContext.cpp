@@ -24,9 +24,7 @@ GLWindowContext::GLWindowContext(const DisplayParams& params)
     : WindowContext(params)
     , fBackendContext(nullptr)
     , fSurface(nullptr) {
-    fDisplayParams.fMSAASampleCount = fDisplayParams.fMSAASampleCount ?
-                                      GrNextPow2(fDisplayParams.fMSAASampleCount) :
-                                      0;
+    fDisplayParams.fMSAASampleCount = GrNextPow2(fDisplayParams.fMSAASampleCount);
 }
 
 void GLWindowContext::initializeContext() {
@@ -34,7 +32,7 @@ void GLWindowContext::initializeContext() {
 
     fBackendContext = this->onInitializeContext();
     fContext = GrContext::MakeGL(fBackendContext, fDisplayParams.fGrContextOptions);
-    if (!fContext && fDisplayParams.fMSAASampleCount) {
+    if (!fContext && fDisplayParams.fMSAASampleCount > 1) {
         fDisplayParams.fMSAASampleCount /= 2;
         this->initializeContext();
         return;

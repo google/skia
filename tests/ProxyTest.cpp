@@ -118,7 +118,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredProxyTest, reporter, ctxInfo) {
                                  kRGBA_8888_GrPixelConfig }) {
                 for (auto fit : { SkBackingFit::kExact, SkBackingFit::kApprox }) {
                     for (auto budgeted : { SkBudgeted::kYes, SkBudgeted::kNo }) {
-                        for (auto numSamples : { 0, 4, 16, 128 }) {
+                        for (auto numSamples : {1, 4, 16, 128}) {
                             GrSurfaceDesc desc;
                             desc.fFlags = kRenderTarget_GrSurfaceFlag;
                             desc.fOrigin = origin;
@@ -149,7 +149,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredProxyTest, reporter, ctxInfo) {
 
                                     check_surface(reporter, proxy.get(), origin,
                                                   widthHeight, widthHeight, config, budgeted);
-                                    int supportedSamples = caps.getSampleCount(numSamples, config);
+                                    int supportedSamples =
+                                            caps.getRenderTargetSampleCount(numSamples, config);
                                     check_rendertarget(reporter, caps, resourceProvider,
                                                        proxy->asRenderTargetProxy(),
                                                        supportedSamples,
@@ -204,10 +205,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
     for (auto origin : { kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin }) {
         for (auto config : { kAlpha_8_GrPixelConfig, kRGBA_8888_GrPixelConfig }) {
             for (auto budgeted : { SkBudgeted::kYes, SkBudgeted::kNo }) {
-                for (auto numSamples: { 0, 4}) {
-                    int supportedNumSamples = caps.getSampleCount(numSamples, config);
-
-                    bool renderable = caps.isConfigRenderable(config, numSamples > 0);
+                for (auto numSamples : {1, 4}) {
+                    int supportedNumSamples = caps.getRenderTargetSampleCount(numSamples, config);
 
                     GrSurfaceDesc desc;
                     desc.fOrigin = origin;
@@ -217,7 +216,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
                     desc.fSampleCnt = supportedNumSamples;
 
                     // External on-screen render target.
-                    if (renderable && kOpenGL_GrBackend == ctxInfo.backend()) {
+                    if (supportedNumSamples && kOpenGL_GrBackend == ctxInfo.backend()) {
                         GrGLFramebufferInfo fboInfo;
                         fboInfo.fFBOID = 0;
                         GrBackendRenderTarget backendRT(kWidthHeight, kWidthHeight, numSamples, 8,
@@ -232,7 +231,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
                                            supportedNumSamples, SkBackingFit::kExact, 0, true);
                     }
 
-                    if (renderable) {
+                    if (supportedNumSamples) {
                         // Internal offscreen render target.
                         desc.fFlags = kRenderTarget_GrSurfaceFlag;
 
@@ -251,7 +250,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
                     } else {
                         // Internal offscreen texture
                         SkASSERT(kNone_GrSurfaceFlags == desc.fFlags );
-                        desc.fSampleCnt = 0;
+                        desc.fSampleCnt = 1;
 
                         sk_sp<GrSurfaceProxy> sProxy = proxyProvider->createInstantiatedProxy(
                                                           desc, SkBackingFit::kExact, budgeted);
@@ -287,7 +286,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ZeroSizedProxyTest, reporter, ctxInfo) {
                     desc.fWidth = width;
                     desc.fHeight = height;
                     desc.fConfig = kRGBA_8888_GrPixelConfig;
-                    desc.fSampleCnt = 0;
+                    desc.fSampleCnt = 1;
 
                     sk_sp<GrTextureProxy> proxy = provider->createProxy(desc, fit, SkBudgeted::kNo);
                     REPORTER_ASSERT(reporter, !proxy);
