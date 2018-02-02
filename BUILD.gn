@@ -1609,8 +1609,8 @@ if (skia_enable_tools) {
     }
   }
 
-  # We can't yet build ICU on iOS or Windows.
-  if (!is_ios && !is_win && target_cpu != "wasm") {
+  # TODO(halcanary): Build ICU on iOS.
+  if (!is_ios && target_cpu != "wasm") {
     test_app("sktexttopdf-hb") {
       sources = [
         "tools/shape/SkShaper_harfbuzz.cpp",
@@ -1794,9 +1794,8 @@ if (skia_enable_tools) {
   if (!is_win && skia_enable_gpu) {
     test_lib("skqp_lib") {
       public_include_dirs = [ "tools/skqp" ]
-      defines = [
-        "SK_SKQP_GLOBAL_ERROR_TOLERANCE=$skia_skqp_global_error_tolerance"
-      ]
+      defines =
+          [ "SK_SKQP_GLOBAL_ERROR_TOLERANCE=$skia_skqp_global_error_tolerance" ]
       if (skia_skqp_enable_driver_correctness_workarounds) {
         defines += [ "SK_SKQP_ENABLE_DRIVER_CORRECTNESS_WORKAROUNDS" ]
       }
