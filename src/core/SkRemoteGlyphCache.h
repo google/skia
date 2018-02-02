@@ -66,7 +66,6 @@ public:
         const SkScalerContextRecDescriptor& desc, SkFontID typefaceId);
 
 private:
-
     sk_sp<SkData> encodeTypeface(SkTypeface* tf);
 
     SkTHashMap<SkFontID, sk_sp<SkTypeface>> fTypefaceMap;
@@ -92,8 +91,6 @@ private:
     std::unique_ptr<SkRemoteScalerContext> fRemoteScalerContext;
     // TODO: Figure out how to manage the entries for the following maps.
     SkTHashMap<SkFontID, sk_sp<SkTypefaceProxy>> fMapIdToTypeface;
-
 };
-
 
 #endif  // SkRemoteGlyphCache_DEFINED
