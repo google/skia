@@ -19,9 +19,6 @@ if (skia_use_system_icu) {
     public_include_dirs = [ "../externals/icu/source/common" ]
     public_defines = [ "U_USING_ICU_NAMESPACE=0" ]
     configs -= [ "//gn:no_rtti" ]
-    if (!is_win) {
-      libs = [ "dl" ]
-    }
     defines = [
       # http://userguide.icu-project.org/howtouseicu
       "U_COMMON_IMPLEMENTATION",
@@ -209,6 +206,28 @@ if (skia_use_system_icu) {
       "../externals/icu/source/common/uvectr64.cpp",
       "../externals/icu/source/common/wintz.c",
     ]
-    sources += [ "../externals/icu/$current_os/icudtl_dat.S" ]
+    if (is_win) {
+      deps = [
+        ":icudata",
+      ]
+      public_defines += [ "U_NOEXCEPT=" ]
+      libs = [ "Advapi32.lib" ]
+      sources += [ "../externals/icu/source/stubdata/stubdata.c" ]
+      defines += [ "U_ICUDATAENTRY_IN_COMMON" ]
+    } else {
+      sources += [ "../externals/icu/$current_os/icudtl_dat.S" ]
+      libs = [ "dl" ]
+    }
+  }
+  if (is_win) {
+    copy("icudata") {
+      sources = [
+        "../externals/icu/windows/icudt.dll",
+      ]
+      outputs = [
+        "$root_out_dir/windows",
+      ]
+      data = outputs
+    }
   }
 }
