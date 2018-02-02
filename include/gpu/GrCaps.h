@@ -134,6 +134,10 @@ public:
 
     int maxRasterSamples() const { return fMaxRasterSamples; }
 
+    // Find a sample count greater than or equal to the requested count which is supported for a
+    // color buffer of the given config. If MSAA is not support for the config we will return 0.
+    virtual int getSampleCount(int requestedCount, GrPixelConfig config) const = 0;
+
     int maxWindowRectangles() const { return fMaxWindowRectangles; }
 
     // A tuned, platform-specific value for the maximum number of analytic fragment processors we
@@ -141,32 +145,9 @@ public:
     int maxClipAnalyticFPs() const { return fMaxClipAnalyticFPs; }
 
     virtual bool isConfigTexturable(GrPixelConfig) const = 0;
-
+    virtual bool isConfigRenderable(GrPixelConfig config, bool withMSAA) const = 0;
     // Returns whether a texture of the given config can be copied to a texture of the same config.
-    virtual bool isConfigCopyable(GrPixelConfig) const = 0;
-
-    // Returns the maximum supported sample count for a config. 0 means the config is not renderable
-    // 1 means the config is renderable but doesn't support MSAA.
-    virtual int maxRenderTargetSampleCount(GrPixelConfig) const = 0;
-
-    bool isConfigRenderable(GrPixelConfig config) const {
-        return this->maxRenderTargetSampleCount(config) > 0;
-    }
-
-    // TODO: Remove this after Flutter updated to no longer use it.
-    bool isConfigRenderable(GrPixelConfig config, bool withMSAA) const {
-        return this->maxRenderTargetSampleCount(config) > (withMSAA ? 1 : 0);
-    }
-
-    // Find a sample count greater than or equal to the requested count which is supported for a
-    // color buffer of the given config or 0 if no such sample count is supported. If the requested
-    // sample count is 1 then 1 will be returned if non-MSAA rendering is supported, otherwise 0.
-    // For historical reasons requestedCount==0 is handled identically to requestedCount==1.
-    virtual int getRenderTargetSampleCount(int requestedCount, GrPixelConfig) const = 0;
-    // TODO: Remove. Legacy name used by Chrome.
-    int getSampleCount(int requestedCount, GrPixelConfig config) const {
-        return this->getRenderTargetSampleCount(requestedCount, config);
-    }
+    virtual bool isConfigCopyable(GrPixelConfig config) const = 0;
 
     bool suppressPrints() const { return fSuppressPrints; }
 
@@ -196,8 +177,6 @@ public:
      */
     virtual bool initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc* desc,
                                     bool* rectsMustMatch, bool* disallowSubrect) const = 0;
-
-    bool validateSurfaceDesc(const GrSurfaceDesc&, GrMipMapped) const;
 
     /**
      * Returns true if the GrBackendTexutre can we used with the supplied SkColorType. If it is

@@ -18,7 +18,11 @@ namespace sk_app {
 
 class Window_mac : public Window {
 public:
-    Window_mac() : INHERITED(), fWindow(nullptr), fWindowID(0), fMSAASampleCount(1) {}
+    Window_mac()
+        : INHERITED()
+        , fWindow(nullptr)
+        , fWindowID(0)
+        , fMSAASampleCount(0) {}
     ~Window_mac() override { this->closeWindow(); }
 
     bool initWindow();
