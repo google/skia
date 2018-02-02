@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4cc1f69b_949c9b49",
+        "filename": "src/core/SkSpecialImage.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-02-02T15:19:28Z",
+      "side": 1,
+      "message": "why not use the Image version here?",
+      "range": {
+        "startLine": 106,
+        "startChar": 34,
+        "endLine": 106,
+        "endChar": 78
+      },
+      "revId": "40a77cf10f2cc89b74270e3aebefc4fc890ac368",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4d910fa3_6348be7a",
+        "filename": "src/gpu/SkGr.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 236,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-02-02T15:19:28Z",
+      "side": 1,
+      "message": "Just to confirm for myself, so in the new function is the fact that we are storing a ref the SkImage itself means we don\u0027t need this Invalidator right?",
+      "range": {
+        "startLine": 236,
+        "startChar": 12,
+        "endLine": 236,
+        "endChar": 80
+      },
+      "revId": "40a77cf10f2cc89b74270e3aebefc4fc890ac368",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
