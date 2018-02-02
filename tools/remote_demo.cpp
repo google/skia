@@ -41,11 +41,23 @@ static bool gUseGpu = true;
 static bool gPurgeFontCaches = true;
 static bool gUseProcess = true;
 
+enum class OpCode : int32_t {
+    kFontMetrics          = 0,
+    kGlyphMetrics         = 1,
+    kGlyphImage           = 2,
+    kGlyphPath            = 3,
+    kGlyphMetricsAndImage = 4,
+};
+
 class Op {
 public:
-    explicit Op(const SkScalerContextRec& rec) : descriptor{rec} {}
-    int32_t op;
-    SkFontID typeface_id;
+    Op(OpCode opCode, SkFontID typefaceId, const SkScalerContextRec& rec)
+        : opCode{opCode}
+        , typefaceId{typefaceId}
+        , descriptor{rec} { }
+    const OpCode opCode;
+    const SkFontID typefaceId;
+    const SkScalerContextRecDescriptor descriptor;
     union {
         // op 0
         SkPaint::FontMetrics fontMetrics;
@@ -57,7 +69,6 @@ public:
             size_t pathSize;
         };
     };
-    SkScalerContextRecDescriptor descriptor;
 };
 
 class RemoteScalerContextFIFO : public SkRemoteScalerContext {
@@ -68,7 +79,7 @@ public:
     void generateFontMetrics(const SkTypefaceProxy& tf,
                              const SkScalerContextRec& rec,
                              SkPaint::FontMetrics* metrics) override {
-        Op* op = this->createOp(0, tf, rec);
+        Op* op = this->createOp(OpCode::kFontMetrics, tf, rec);
         write(fWriteFd, fBuffer, sizeof(*op));
         read(fReadFd, fBuffer, sizeof(fBuffer));
         memcpy(metrics, &op->fontMetrics, sizeof(op->fontMetrics));
@@ -78,7 +89,7 @@ public:
     void generateMetrics(const SkTypefaceProxy& tf,
                          const SkScalerContextRec& rec,
                          SkGlyph* glyph) override {
-        Op* op = this->createOp(1, tf, rec);
+        Op* op = this->createOp(OpCode::kGlyphMetrics, tf, rec);
         memcpy(&op->glyph, glyph, sizeof(*glyph));
         write(fWriteFd, fBuffer, sizeof(*op));
         read(fReadFd, fBuffer, sizeof(fBuffer));
@@ -89,7 +100,8 @@ public:
     void generateImage(const SkTypefaceProxy& tf,
                        const SkScalerContextRec& rec,
                        const SkGlyph& glyph) override {
-        Op* op = this->createOp(2, tf, rec);
+        SK_ABORT("generateImage should not be called.");
+        Op* op = this->createOp(OpCode::kGlyphImage, tf, rec);
         memcpy(&op->glyph, &glyph, sizeof(glyph));
         write(fWriteFd, fBuffer, sizeof(*op));
         read(fReadFd, fBuffer, sizeof(fBuffer));
@@ -97,10 +109,24 @@ public:
         op->~Op();
     }
 
+    void generateMetricsAndImage(const SkTypefaceProxy& tf,
+                                 const SkScalerContextRec& rec,
+                                 SkArenaAlloc* alloc,
+                                 SkGlyph* glyph) override {
+        Op* op = this->createOp(OpCode::kGlyphMetricsAndImage, tf, rec);
+        memcpy(&op->glyph, glyph, sizeof(op->glyph));
+        write(fWriteFd, fBuffer, sizeof(*op));
+        read(fReadFd, fBuffer, sizeof(fBuffer));
+        memcpy(glyph, &op->glyph, sizeof(*glyph));
+        glyph->allocImage(alloc);
+        memcpy(glyph->fImage, fBuffer + sizeof(Op), glyph->rowBytes() * glyph->fHeight);
+        op->~Op();
+    }
+
     void generatePath(const SkTypefaceProxy& tf,
                       const SkScalerContextRec& rec,
                       SkGlyphID glyph, SkPath* path) override {
-        Op* op = this->createOp(3, tf, rec);
+        Op* op = this->createOp(OpCode::kGlyphPath, tf, rec);
         op->glyphId = glyph;
         write(fWriteFd, fBuffer, sizeof(*op));
         read(fReadFd, fBuffer, sizeof(fBuffer));
@@ -109,11 +135,9 @@ public:
     }
 
 private:
-    Op* createOp(uint32_t opID, const SkTypefaceProxy& tf,
+    Op* createOp(OpCode opCode, const SkTypefaceProxy& tf,
                  const SkScalerContextRec& rec) {
-        Op* op = new (fBuffer) Op(rec);
-        op->op = opID;
-        op->typeface_id = tf.fontID();
+        Op* op = new (fBuffer) Op(opCode, tf.fontID(), rec);
 
         return op;
     }
@@ -254,24 +278,24 @@ static int renderer(
         if (size <= 0) { std::cout << "Exit op loop" << std::endl; break;}
         size_t writeSize = sizeof(*op);
 
-            auto sc = rc.generateScalerContext(op->descriptor, op->typeface_id);
-            switch (op->op) {
-                case 0: {
+            auto sc = rc.generateScalerContext(op->descriptor, op->typefaceId);
+            switch (op->opCode) {
+                case OpCode::kFontMetrics : {
                     sc->getFontMetrics(&op->fontMetrics);
                     break;
                 }
-                case 1: {
+                case OpCode::kGlyphMetrics : {
                     sc->getMetrics(&op->glyph);
                     break;
                 }
-                case 2: {
+                case OpCode::kGlyphImage : {
                     // TODO: check for buffer overflow.
                     op->glyph.fImage = &glyphBuffer[sizeof(Op)];
                     sc->getImage(op->glyph);
                     writeSize += op->glyph.rowBytes() * op->glyph.fHeight;
                     break;
                 }
-                case 3: {
+                case OpCode::kGlyphPath : {
                     // TODO: check for buffer overflow.
                     SkPath path;
                     sc->getPath(op->glyphId, &path);
@@ -279,9 +303,22 @@ static int renderer(
                     writeSize += op->pathSize;
                     break;
                 }
+                case OpCode::kGlyphMetricsAndImage : {
+                    // TODO: check for buffer overflow.
+                    sc->getMetrics(&op->glyph);
+                    if (op->glyph.fWidth <= 0 || op->glyph.fWidth >= kMaxGlyphWidth) {
+                        op->glyph.fImage = nullptr;
+                        break;
+                    }
+                    op->glyph.fImage = &glyphBuffer[sizeof(Op)];
+                    sc->getImage(op->glyph);
+                    writeSize += op->glyph.rowBytes() * op->glyph.fHeight;
+                    break;
+                }
                 default:
-                    SkASSERT("Bad op");
+                    SK_ABORT("Bad op");
             }
+
         write(writeFd, glyphBuffer.get(), writeSize);
     }
 
