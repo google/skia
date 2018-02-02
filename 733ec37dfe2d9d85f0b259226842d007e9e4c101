@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "864e2aa6_22ded368",
+        "filename": "src/core/SkGeometry.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 1129,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-02-02T15:03:50Z",
+      "side": 1,
+      "message": "nit: if(!mPt.isFinite())?",
+      "revId": "733ec37dfe2d9d85f0b259226842d007e9e4c101",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
