@@ -20,7 +20,7 @@ SkScalerContextProxy::SkScalerContextProxy(
     , fRemote{rsc} {}
 
 void SkScalerContextProxy::generateMetrics(SkGlyph* glyph) {
-    fRemote->generateMetrics(*this->typefaceProxy(), this->getRec(), glyph);
+    fRemote->generateMetricsAndImage(*this->typefaceProxy(), this->getRec(), &fAlloc, glyph);
 }
 
 void SkScalerContextProxy::generateImage(const SkGlyph& glyph) {
