@@ -176,7 +176,7 @@ sk_sp<GrTextureProxy> GrBackendTextureImageGenerator::onGenerateTexture(
 
     if (0 == origin.fX && 0 == origin.fY &&
         info.width() == fBackendTexture.width() && info.height() == fBackendTexture.height() &&
-        (!willNeedMipMaps || GrMipMapped::kYes == proxy->mipMapped())) {
+        (!willNeedMipMaps || GrMipMapped::kYes == proxy->asTextureProxy()->mipMapped())) {
         // If the caller wants the entire texture and we have the correct mip support, we're done
         return proxy;
     } else {

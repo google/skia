@@ -77,6 +77,36 @@ public:
                                            fOrigin, &fSurfaceProps);
     }
 
+    // Create a surface w/ the current parameters but make it non-textureable
+    sk_sp<SkSurface> makeNonTextureable(GrContext* context, GrBackendTexture* backend) const {
+        GrGpu* gpu = context->contextPriv().getGpu();
+
+        GrPixelConfig config = SkImageInfo2GrPixelConfig(fColorType, nullptr, *context->caps());
+
+        *backend = gpu->createTestingOnlyBackendTexture(nullptr, fWidth, fHeight,
+                                                        config, true, GrMipMapped::kNo);
+
+        if (!backend->isValid() || !gpu->isTestingOnlyBackendTexture(*backend)) {
+            return nullptr;
+        }
+
+        sk_sp<SkSurface> surface = SkSurface::MakeFromBackendTextureAsRenderTarget(
+            context, *backend, fOrigin, fSampleCount, fColorType, nullptr, nullptr);
+
+        if (!surface) {
+            gpu->deleteTestingOnlyBackendTexture(backend);
+            return nullptr;
+        }
+
+        return surface;
+    }
+
+    void cleanUpBackEnd(GrContext* context, GrBackendTexture* backend) const {
+        GrGpu* gpu = context->contextPriv().getGpu();
+
+        gpu->deleteTestingOnlyBackendTexture(backend);
+    }
+
 private:
     int                 fWidth;
     int                 fHeight;
@@ -88,7 +118,7 @@ private:
 };
 
 // This tests SkSurfaceCharacterization/SkSurface compatibility
-DEF_GPUTEST_FOR_ALL_CONTEXTS(SkSurfaceCharacterization, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_ALL_CONTEXTS(DDLSurfaceCharacterizationTest, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
 
     // Create a bitmap that we can readback into
@@ -181,6 +211,19 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(SkSurfaceCharacterization, reporter, ctxInfo) {
         REPORTER_ASSERT(reporter, s->draw(ddl.get()));
         s->readPixels(imageInfo, bitmap.getPixels(), bitmap.rowBytes(), 0, 0);
 #endif
+    }
+
+    // Test that the textureability of the DDL characterization can block a DDL draw
+    {
+        GrBackendTexture backend;
+        const SurfaceParameters params;
+        sk_sp<SkSurface> s = params.makeNonTextureable(context, &backend);
+        if (s) {
+            REPORTER_ASSERT(reporter, !s->draw(ddl.get()));
+
+            s = nullptr;
+            params.cleanUpBackEnd(context, &backend);
+        }
     }
 
     // Make sure non-GPU-backed surfaces fail characterization

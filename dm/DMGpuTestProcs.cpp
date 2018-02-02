@@ -55,6 +55,7 @@ void RunWithGPUTestContexts(GrContextTestFn* test, GrContextTypeFilterFn* contex
                 continue;
             }
         }
+
         // We destroy the factory and its associated contexts after each test. This is due to the
         // fact that the command buffer sits on top of the native GL windowing (cgl, wgl, ...) but
         // also tracks which of its contexts is current above that API and gets tripped up if the
