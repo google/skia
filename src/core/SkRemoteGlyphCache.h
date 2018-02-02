@@ -86,7 +86,11 @@ public:
 
     void prepareDeserializeProcs(SkDeserialProcs* procs);
 
+    static void ChangeSalt() {fSalt = SkGoodHash()(fSalt + 11);}
+
 private:
+    static uint32_t fSalt;  // inited to zero
+
     sk_sp<SkTypeface> decodeTypeface(const void* buf, size_t len);
 
     std::unique_ptr<SkRemoteScalerContext> fRemoteScalerContext;
