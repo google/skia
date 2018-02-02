@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bf2ac808_008c844d",
+        "filename": "include/private/SkSurfaceCharacterization.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-02-02T19:25:36Z",
+      "side": 1,
+      "message": "I would think that we\u0027d have the default be not mipped, not that it really matters since you still have to call set",
+      "range": {
+        "startLine": 48,
+        "startChar": 27,
+        "endLine": 48,
+        "endChar": 42
+      },
+      "revId": "04bab9326bd68243cc73451b3d893b863aeab801",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
