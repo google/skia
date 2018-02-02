@@ -16,6 +16,7 @@ import (
 	"os"
 	"os/exec"
 	"sort"
+	"strconv"
 	"strings"
 	"syscall"
 	"time"
@@ -51,19 +52,19 @@ var (
 		"hammerhead": {"23"},
 		"harpia":     {"23"},
 		"hero2lte":   {"23"},
-		"herolte":    {"24v"},
+		"herolte":    {"24"},
 		"j1acevelte": {"22"},
 		"j5lte":      {"23"},
 		"j7xelte":    {"23"},
 		"lucye":      {"24"},
 		// "mako":        {"22"},   deprecated
 		"osprey_umts": {"22"},
-		"p1":          {"22"},
-		"sailfish":    {"26"},
-		"shamu":       {"23"},
-		"trelte":      {"22"},
-		"zeroflte":    {"22"},
-		"zerolte":     {"22"},
+		// "p1":          {"22"},   deprecated
+		"sailfish": {"26"},
+		"shamu":    {"23"},
+		"trelte":   {"22"},
+		"zeroflte": {"22"},
+		"zerolte":  {"22"},
 	}
 )
 
@@ -75,6 +76,8 @@ const (
 var (
 	serviceAccountFile = flag.String("service_account_file", "", "Credentials file for service account.")
 	dryRun             = flag.Bool("dryrun", false, "Print out the command and quit without triggering tests.")
+	minAPIVersion      = flag.Int("min_api", 22, "Minimum API version required by device.")
+	maxAPIVersion      = flag.Int("max_api", 23, "Maximum API version required by device.")
 )
 
 const (
@@ -108,7 +111,7 @@ func main() {
 	}
 
 	// Get list of all available devices.
-	devices, ignoredDevices, err := getAvailableDevices(WHITELIST_DEV_IDS)
+	devices, ignoredDevices, err := getAvailableDevices(WHITELIST_DEV_IDS, *minAPIVersion, *maxAPIVersion)
 	if err != nil {
 		sklog.Fatalf("Unable to retrieve available devices: %s", err)
 	}
@@ -124,7 +127,7 @@ func main() {
 // getAvailableDevices is given a whitelist. It queries Firebase Testlab for all
 // available devices and then returns a list of devices to be tested and the list
 // of ignored devices.
-func getAvailableDevices(whiteList map[string][]string) ([]*tsuite.DeviceVersions, []*tsuite.DeviceVersions, error) {
+func getAvailableDevices(whiteList map[string][]string, minAPIVersion, maxAPIVersion int) ([]*tsuite.DeviceVersions, []*tsuite.DeviceVersions, error) {
 	// Get the list of all devices in JSON format from Firebase testlab.
 	var buf bytes.Buffer
 	cmd := parseCommand(CMD_AVAILABE_DEVICES)
@@ -151,7 +154,7 @@ func getAvailableDevices(whiteList map[string][]string) ([]*tsuite.DeviceVersion
 			// Only include devices that are on the whitelist and have versions defined.
 			if foundVersions, ok := whiteList[dev.ID]; ok && (len(foundVersions) > 0) {
 				versionSet := util.NewStringSet(dev.VersionIDs)
-				reqVersions := util.NewStringSet(foundVersions)
+				reqVersions := util.NewStringSet(filterVersions(foundVersions, minAPIVersion, maxAPIVersion))
 				whiteListVersions := versionSet.Intersect(reqVersions).Keys()
 				ignoredVersions := versionSet.Complement(reqVersions).Keys()
 				sort.Strings(whiteListVersions)
@@ -169,6 +172,21 @@ func getAvailableDevices(whiteList map[string][]string) ([]*tsuite.DeviceVersion
 	logDevices(allDevices)
 
 	return ret, ignored, nil
+}
+
+// filterVersions returns the elements in versionIDs where minVersion <= element <= maxVersion.
+func filterVersions(versionIDs []string, minVersion, maxVersion int) []string {
+	ret := make([]string, 0, len(versionIDs))
+	for _, versionID := range versionIDs {
+		id, err := strconv.Atoi(versionID)
+		if err != nil {
+			sklog.Fatalf("Error parsing version id '%s': %s", versionID, err)
+		}
+		if (id >= minVersion) && (id <= maxVersion) {
+			ret = append(ret, versionID)
+		}
+	}
+	return ret
 }
 
 // runTests runs the given apk on the given list of devices.
