@@ -428,7 +428,8 @@ static void create_config(const SkCommandLineConfig* config, SkTArray<Config>* c
         if (const GrContext* ctx = factory.get(ctxType, ctxOverrides)) {
             GrPixelConfig grPixConfig = SkImageInfo2GrPixelConfig(colorType, colorSpace,
                                                                   *ctx->caps());
-            int supportedSampleCount = ctx->caps()->getSampleCount(sampleCount, grPixConfig);
+            int supportedSampleCount =
+                    ctx->caps()->getRenderTargetSampleCount(sampleCount, grPixConfig);
             if (sampleCount != supportedSampleCount) {
                 SkDebugf("Configuration '%s' sample count %d is not a supported sample count.\n",
                          config->getTag().c_str(), sampleCount);
@@ -662,7 +663,6 @@ public:
         if (SkCommandLineFlags::ShouldSkip(FLAGS_match, SkOSPath::Basename(path).c_str())) {
             return nullptr;
         }
-
         std::unique_ptr<SkStream> stream = SkStream::MakeFromFile(path);
         if (!stream) {
             SkDebugf("Could not read %s.\n", path);
@@ -1235,7 +1235,9 @@ int main(int argc, char** argv) {
         if (SkCommandLineFlags::ShouldSkip(FLAGS_match, bench->getUniqueName())) {
             continue;
         }
-
+        if (!strstr(bench->getUniqueName(), "top25desk_answers_yahoo_com")) {
+            continue;
+        }
         if (!configs.empty()) {
             log->bench(bench->getUniqueName(), bench->getSize().fX, bench->getSize().fY);
             bench->delayedSetup();

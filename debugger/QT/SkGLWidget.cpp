@@ -20,7 +20,7 @@ SkGLWidget::~SkGLWidget() {
 
 void SkGLWidget::setSampleCount(int sampleCount) {
     QGLFormat currentFormat = format();
-    currentFormat.setSampleBuffers(sampleCount > 0);
+    currentFormat.setSampleBuffers(sampleCount > 1);
     currentFormat.setSamples(sampleCount);
     setFormat(currentFormat);
 }
@@ -89,6 +89,7 @@ GrBackendRenderTarget SkGLWidget::getBackendRenderTarget() {
     int sampleCnt;
     GR_GL_GetIntegerv(fCurIntf.get(), GR_GL_FRAMEBUFFER_BINDING, &info.fFBOID);
     GR_GL_GetIntegerv(fCurIntf.get(), GR_GL_SAMPLES, &sampleCnt);
+    sampleCnt = SkTMax(sampleCnt, 1);
     GR_GL_GetIntegerv(fCurIntf.get(), GR_GL_STENCIL_BITS, &stencilBits);
     // We are on desktop so we assume the internal config is RGBA
     info.fFormat = GR_GL_RGBA8;
