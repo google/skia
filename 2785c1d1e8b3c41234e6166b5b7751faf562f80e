@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5b1f681b_76029853",
+        "filename": "tests/PathOpsCubicIntersectionTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-02-02T20:33:14Z",
+      "side": 1,
+      "message": "Was there supposed to be something here?",
+      "revId": "2785c1d1e8b3c41234e6166b5b7751faf562f80e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
