@@ -9,6 +9,7 @@
 
 #include "GrCaps.h"
 #include "GrTexture.h"
+#include "GrTexturePriv.h"
 #include "GrRenderTarget.h"
 #include "GrSurfaceProxyPriv.h"
 
@@ -104,10 +105,14 @@ sk_sp<GrSurface> GrTextureRenderTargetProxy::createSurface(
 }
 
 #ifdef SK_DEBUG
-void GrTextureRenderTargetProxy::validateLazyTexture(const GrTexture* texture) {
-    SkASSERT(texture->asRenderTarget());
-    SkASSERT(texture->asRenderTarget()->numStencilSamples() == this->numStencilSamples());
-    SkASSERT(GrMipMapped::kNo == this->mipMapped());
+void GrTextureRenderTargetProxy::validateLazySurface(const GrSurface* surface) {
+    // Anything checked here should also be checking the GrTextureProxy version
+    SkASSERT(surface->asTexture());
+    SkASSERT(surface->asTexture()->texturePriv().mipMapped() == this->mipMapped());
+
+    // Anything checked here should also be checking the GrRenderTargetProxy version
+    SkASSERT(surface->asRenderTarget());
+    SkASSERT(surface->asRenderTarget()->numStencilSamples() == this->numStencilSamples());
 }
 #endif
 

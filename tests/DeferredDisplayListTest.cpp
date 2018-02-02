@@ -22,8 +22,9 @@
 
 class SurfaceParameters {
 public:
-    static const int kNumParams = 8;
+    static const int kNumParams = 9;
     static const int kSampleCount = 5;
+    static const int kMipMipCount = 8;
 
     SurfaceParameters()
             : fWidth(64)
@@ -32,7 +33,9 @@ public:
             , fColorType(kRGBA_8888_SkColorType)
             , fColorSpace(SkColorSpace::MakeSRGB())
             , fSampleCount(1)
-            , fSurfaceProps(0x0, kUnknown_SkPixelGeometry) {}
+            , fSurfaceProps(0x0, kUnknown_SkPixelGeometry)
+            , fShouldCreateMipMaps(true) {
+    }
 
     int sampleCount() const { return fSampleCount; }
 
@@ -64,7 +67,30 @@ public:
             fSurfaceProps = SkSurfaceProps(SkSurfaceProps::kUseDeviceIndependentFonts_Flag,
                                            kUnknown_SkPixelGeometry);
             break;
+        case 8:
+            fShouldCreateMipMaps = false;
+            break;
         }
+    }
+
+    // Create a DDL whose characterization captures the current settings
+    std::unique_ptr<SkDeferredDisplayList> createDDL(GrContext* context) const {
+        sk_sp<SkSurface> s = this->make(context);
+        if (!s) {
+            return nullptr;
+        }
+
+        SkSurfaceCharacterization c;
+        SkAssertResult(s->characterize(&c));
+
+        SkDeferredDisplayListRecorder r(c);
+        SkCanvas* canvas = r.getCanvas();
+        if (!canvas) {
+            return nullptr;
+        }
+
+        canvas->drawRect(SkRect::MakeXYWH(10, 10, 10, 10), SkPaint());
+        return r.detach();
     }
 
     // Create the surface with the current set of parameters
@@ -74,7 +100,37 @@ public:
                                            kPremul_SkAlphaType, fColorSpace);
 
         return SkSurface::MakeRenderTarget(context, SkBudgeted::kYes, ii, fSampleCount,
-                                           fOrigin, &fSurfaceProps);
+                                           fOrigin, &fSurfaceProps, fShouldCreateMipMaps);
+    }
+
+    // Create a surface w/ the current parameters but make it non-textureable
+    sk_sp<SkSurface> makeNonTextureable(GrContext* context, GrBackendTexture* backend) const {
+        GrGpu* gpu = context->contextPriv().getGpu();
+
+        GrPixelConfig config = SkImageInfo2GrPixelConfig(fColorType, nullptr, *context->caps());
+
+        *backend = gpu->createTestingOnlyBackendTexture(nullptr, fWidth, fHeight,
+                                                        config, true, GrMipMapped::kNo);
+
+        if (!backend->isValid() || !gpu->isTestingOnlyBackendTexture(*backend)) {
+            return nullptr;
+        }
+
+        sk_sp<SkSurface> surface = SkSurface::MakeFromBackendTextureAsRenderTarget(
+            context, *backend, fOrigin, fSampleCount, fColorType, nullptr, nullptr);
+
+        if (!surface) {
+            gpu->deleteTestingOnlyBackendTexture(backend);
+            return nullptr;
+        }
+
+        return surface;
+    }
+
+    void cleanUpBackEnd(GrContext* context, GrBackendTexture* backend) const {
+        GrGpu* gpu = context->contextPriv().getGpu();
+
+        gpu->deleteTestingOnlyBackendTexture(backend);
     }
 
 private:
@@ -85,10 +141,11 @@ private:
     sk_sp<SkColorSpace> fColorSpace;
     int                 fSampleCount;
     SkSurfaceProps      fSurfaceProps;
+    bool                fShouldCreateMipMaps;
 };
 
 // This tests SkSurfaceCharacterization/SkSurface compatibility
-DEF_GPUTEST_FOR_ALL_CONTEXTS(SkSurfaceCharacterization, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_ALL_CONTEXTS(DDLSurfaceCharacterizationTest, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
 
     // Create a bitmap that we can readback into
@@ -103,22 +160,13 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(SkSurfaceCharacterization, reporter, ctxInfo) {
     {
         SurfaceParameters params;
 
+        ddl = params.createDDL(context);
+
+        // The DDL should draw into an SkSurface created with the same parameters
         sk_sp<SkSurface> s = params.make(context);
         if (!s) {
             return;
         }
-
-        SkSurfaceCharacterization c;
-        SkAssertResult(s->characterize(&c));
-
-        SkDeferredDisplayListRecorder r(c);
-        SkCanvas* canvas = r.getCanvas();
-        if (!canvas) {
-            return;
-        }
-
-        canvas->drawRect(SkRect::MakeXYWH(10, 10, 10, 10), SkPaint());
-        ddl = r.detach();
 
         REPORTER_ASSERT(reporter, s->draw(ddl.get()));
         s->readPixels(imageInfo, bitmap.getPixels(), bitmap.rowBytes(), 0, 0);
@@ -147,7 +195,12 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(SkSurfaceCharacterization, reporter, ctxInfo) {
             }
         }
 
-        REPORTER_ASSERT(reporter, !s->draw(ddl.get()));
+        if (SurfaceParameters::kMipMipCount == i && !context->caps()->mipMapSupport()) {
+            continue;
+        }
+
+        REPORTER_ASSERT(reporter, !s->draw(ddl.get()),
+                        "DDLSurfaceCharacterizationTest failed on parameter: %d\n", i);
     }
 
     // Next test the compatibility of resource cache parameters
@@ -181,6 +234,19 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(SkSurfaceCharacterization, reporter, ctxInfo) {
         REPORTER_ASSERT(reporter, s->draw(ddl.get()));
         s->readPixels(imageInfo, bitmap.getPixels(), bitmap.rowBytes(), 0, 0);
 #endif
+    }
+
+    // Test that the textureability of the DDL characterization can block a DDL draw
+    {
+        GrBackendTexture backend;
+        const SurfaceParameters params;
+        sk_sp<SkSurface> s = params.makeNonTextureable(context, &backend);
+        if (s) {
+            REPORTER_ASSERT(reporter, !s->draw(ddl.get()));
+
+            s = nullptr;
+            params.cleanUpBackEnd(context, &backend);
+        }
     }
 
     // Make sure non-GPU-backed surfaces fail characterization
