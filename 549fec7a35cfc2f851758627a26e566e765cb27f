@@ -275,6 +275,30 @@
       "revId": "549fec7a35cfc2f851758627a26e566e765cb27f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "54f9223a_03e41fc5",
+        "filename": "tools/skqp/gn_to_bp.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-02-02T14:51:07Z",
+      "side": 1,
+      "message": "Yeah, it is a set not a dictionary.",
+      "parentUuid": "eab672ba_9f17b1e6",
+      "range": {
+        "startLine": 159,
+        "startChar": 15,
+        "endLine": 160,
+        "endChar": 0
+      },
+      "revId": "549fec7a35cfc2f851758627a26e566e765cb27f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
