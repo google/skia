@@ -1125,10 +1125,17 @@ void SkConic::chop(SkConic * SK_RESTRICT dst) const {
 
     Sk2s wp1 = ww * p1;
     Sk2s m = (p0 + times_2(wp1) + p2) * scale * Sk2s(0.5f);
-
+    SkPoint mPt = to_point(m);
+    if (!mPt.isFinite()) {
+        double w_d = fW;
+        double w_2 = w_d * 2;
+        double scale_half = 1 / (1 + w_d) * 0.5;
+        mPt.fX = SkDoubleToScalar((fPts[0].fX + w_2 * fPts[1].fX + fPts[2].fX) * scale_half);
+        mPt.fY = SkDoubleToScalar((fPts[0].fY + w_2 * fPts[1].fY + fPts[2].fY) * scale_half);
+    }
     dst[0].fPts[0] = fPts[0];
     dst[0].fPts[1] = to_point((p0 + wp1) * scale);
-    dst[0].fPts[2] = dst[1].fPts[0] = to_point(m);
+    dst[0].fPts[2] = dst[1].fPts[0] = mPt;
     dst[1].fPts[1] = to_point((wp1 + p2) * scale);
     dst[1].fPts[2] = fPts[2];
 
@@ -1209,7 +1216,7 @@ static SkPoint* subdivide(const SkConic& src, SkPoint pts[], int level) {
         SkConic dst[2];
         src.chop(dst);
         const SkScalar startY = src.fPts[0].fY;
-        const SkScalar endY = src.fPts[2].fY;
+        SkScalar endY = src.fPts[2].fY;
         if (between(startY, src.fPts[1].fY, endY)) {
             // If the input is monotonic and the output is not, the scan converter hangs.
             // Ensure that the chopped conics maintain their y-order.
