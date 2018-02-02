@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "a1b2f568_26634e5d",
+        "filename": "src/core/SkSpecialImage.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-02-02T18:10:19Z",
+      "side": 1,
+      "message": "sgtm",
+      "parentUuid": "64cfd252_8e32c507",
+      "range": {
+        "startLine": 106,
+        "startChar": 34,
+        "endLine": 106,
+        "endChar": 78
+      },
+      "revId": "40a77cf10f2cc89b74270e3aebefc4fc890ac368",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "4d910fa3_6348be7a",
         "filename": "src/gpu/SkGr.cpp",
         "patchSetId": 5
@@ -84,6 +108,30 @@
       "side": 1,
       "message": "tl;dr - yep. \n\nIn the bitmap version, mutable bitmaps can be edited so the invalidator kicks in to invalidate such orphaned GrTextures. With SkImage semantics the backing pixels cannot be edited so that behavior goes away.\n\nThe other case the invalidator handles is when the bitmap is deleted. In the image case the image can\u0027t get deleted until the proxy is deleted at which point the cache is cleared up in the destructor anyway. If we do add a remove-the-lazy-data mode to DDL replay then the SkImage could go away earlier but that shouldn\u0027t trigger removing the proxy from the cache - since it will naturally happen on the proxy\u0027s destruction.",
       "parentUuid": "4d910fa3_6348be7a",
+      "range": {
+        "startLine": 236,
+        "startChar": 12,
+        "endLine": 236,
+        "endChar": 80
+      },
+      "revId": "40a77cf10f2cc89b74270e3aebefc4fc890ac368",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "aa228c61_4be7088f",
+        "filename": "src/gpu/SkGr.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 236,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-02-02T18:10:19Z",
+      "side": 1,
+      "message": "Okay that was my belief just wanted to confirm",
+      "parentUuid": "f34fc1fd_d45a23d6",
       "range": {
         "startLine": 236,
         "startChar": 12,
