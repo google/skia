@@ -16,6 +16,24 @@
       "revId": "733ec37dfe2d9d85f0b259226842d007e9e4c101",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a01ef9dd_f86522f9",
+        "filename": "src/core/SkGeometry.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 1129,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2018-02-02T16:05:05Z",
+      "side": 1,
+      "message": "I thought about this, and even though I recently documented it, I couldn\u0027t convince my brain that the routine existed. (Done)",
+      "parentUuid": "864e2aa6_22ded368",
+      "revId": "733ec37dfe2d9d85f0b259226842d007e9e4c101",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
