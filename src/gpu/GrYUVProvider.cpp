@@ -106,7 +106,7 @@ sk_sp<GrTextureProxy> GrYUVProvider::refAsTextureProxy(GrContext* ctx, const GrS
         auto proxyProvider = ctx->contextPriv().proxyProvider();
         yuvTextureProxies[i] = proxyProvider->createTextureProxy(yuvImage, kNone_GrSurfaceFlags,
                                                                  kTopLeft_GrSurfaceOrigin,
-                                                                 0, SkBudgeted::kYes, fit);
+                                                                 1, SkBudgeted::kYes, fit);
     }
 
     // We never want to perform color-space conversion during the decode
