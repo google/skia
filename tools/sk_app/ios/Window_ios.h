@@ -18,7 +18,11 @@ namespace sk_app {
 
 class Window_ios : public Window {
 public:
-    Window_ios() : INHERITED(), fWindow(nullptr), fWindowID(0), fMSAASampleCount(1) {}
+    Window_ios()
+        : INHERITED()
+        , fWindow(nullptr)
+        , fWindowID(0)
+        , fMSAASampleCount(0) {}
     ~Window_ios() override { this->closeWindow(); }
 
     bool initWindow();

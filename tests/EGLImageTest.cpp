@@ -163,7 +163,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(EGLImageTest, reporter, ctxInfo) {
     {
         sk_sp<GrRenderTargetContext> temp =
                 context0->contextPriv().makeBackendTextureRenderTargetContext(
-                        backendTex, kBottomLeft_GrSurfaceOrigin, 1, nullptr);
+                        backendTex, kBottomLeft_GrSurfaceOrigin, 0, nullptr);
         if (temp) {
             ERRORF(reporter, "Should not be able to wrap an EXTERNAL texture as a RT.");
         }

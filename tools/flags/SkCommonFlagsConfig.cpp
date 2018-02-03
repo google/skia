@@ -391,7 +391,7 @@ SkCommandLineConfigGpu* parse_command_line_config_gpu(const SkString& tag,
     bool seenUseDIText =false;
     bool useDIText = false;
     bool seenSamples = false;
-    int samples = 1;
+    int samples = 0;
     bool seenColor = false;
     SkColorType colorType = kRGBA_8888_SkColorType;
     SkAlphaType alphaType = kPremul_SkAlphaType;

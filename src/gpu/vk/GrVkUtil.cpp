@@ -263,8 +263,8 @@ bool GrVkFormatIsSRGB(VkFormat format, VkFormat* linearFormat) {
 }
 
 bool GrSampleCountToVkSampleCount(uint32_t samples, VkSampleCountFlagBits* vkSamples) {
-    SkASSERT(samples >= 1);
     switch (samples) {
+        case 0: // fall through
         case 1:
             *vkSamples = VK_SAMPLE_COUNT_1_BIT;
             return true;

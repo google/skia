@@ -267,8 +267,9 @@ struct CacheCaps {
 
 #if SK_SUPPORT_GPU
     bool supportsHalfFloat() const {
-        return !fCaps || (fCaps->isConfigTexturable(kRGBA_half_GrPixelConfig) &&
-                          fCaps->isConfigRenderable(kRGBA_half_GrPixelConfig));
+        return !fCaps ||
+            (fCaps->isConfigTexturable(kRGBA_half_GrPixelConfig) &&
+             fCaps->isConfigRenderable(kRGBA_half_GrPixelConfig, false));
     }
 
     bool supportsSRGB() const {

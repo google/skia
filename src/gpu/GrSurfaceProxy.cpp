@@ -26,7 +26,7 @@ static bool is_valid_fully_lazy(const GrSurfaceDesc& desc, SkBackingFit fit) {
     return desc.fWidth <= 0 &&
            desc.fHeight <= 0 &&
            desc.fConfig != kUnknown_GrPixelConfig &&
-           desc.fSampleCnt == 1 &&
+           desc.fSampleCnt == 0 &&
            SkBackingFit::kApprox == fit;
 }
 
@@ -190,7 +190,7 @@ bool GrSurfaceProxy::instantiateImpl(GrResourceProvider* resourceProvider, int s
 void GrSurfaceProxy::computeScratchKey(GrScratchKey* key) const {
     SkASSERT(LazyState::kFully != this->lazyInstantiationState());
     const GrRenderTargetProxy* rtp = this->asRenderTargetProxy();
-    int sampleCount = 1;
+    int sampleCount = 0;
     if (rtp) {
         sampleCount = rtp->numStencilSamples();
     }

@@ -99,7 +99,6 @@ sk_sp<const GrGLInterface> GLWindowContext_xlib::onInitializeContext() {
 
     glXGetConfig(fDisplay, fVisualInfo, GLX_STENCIL_SIZE, &fStencilBits);
     glXGetConfig(fDisplay, fVisualInfo, GLX_SAMPLES_ARB, &fSampleCount);
-    fSampleCount = SkTMax(fSampleCount, 1);
 
     XWindow root;
     int x, y;

@@ -133,7 +133,7 @@ static bool setup_backend_objects(GrContext* context,
     backingDesc.fHeight = bm.height();
     // This config must match the SkColorType used in draw.cpp in the SkImage and Surface factories
     backingDesc.fConfig = kRGBA_8888_GrPixelConfig;
-    backingDesc.fSampleCnt = 1;
+    backingDesc.fSampleCnt = 0;
 
     if (!bm.empty()) {
         SkPixmap originalPixmap;

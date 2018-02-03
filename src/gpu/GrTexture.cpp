@@ -78,7 +78,7 @@ bool GrTexture::StealBackendTexture(sk_sp<GrTexture>&& texture,
 
 void GrTexture::computeScratchKey(GrScratchKey* key) const {
     const GrRenderTarget* rt = this->asRenderTarget();
-    int sampleCount = 1;
+    int sampleCount = 0;
     if (rt) {
         sampleCount = rt->numStencilSamples();
     }
@@ -92,10 +92,8 @@ void GrTexturePriv::ComputeScratchKey(GrPixelConfig config, int width, int heigh
                                       GrMipMapped mipMapped, GrScratchKey* key) {
     static const GrScratchKey::ResourceType kType = GrScratchKey::GenerateResourceType();
     uint32_t flags = isRenderTarget;
-    SkASSERT(width > 0);
-    SkASSERT(height > 0);
-    SkASSERT(sampleCnt > 0);
-    SkASSERT(1 == sampleCnt || isRenderTarget);
+
+    SkASSERT(0 == sampleCnt || isRenderTarget);
 
     // make sure desc.fConfig fits in 5 bits
     SkASSERT(sk_float_log2(kLast_GrPixelConfig) <= 5);
