@@ -303,9 +303,6 @@ SkImageCacherator::CachedFormat SkImage_Lazy::chooseCacheFormat(SkColorSpace* ds
         case kAlpha_8_SkColorType:
         case kRGB_565_SkColorType:
         case kARGB_4444_SkColorType:
-        case kRGB_888x_SkColorType:
-        case kRGBA_1010102_SkColorType:
-        case kRGB_101010x_SkColorType:
             // We don't support color space on these formats, so always decode in legacy mode:
             // TODO: Ask the codec to decode these to something else (at least sRGB 8888)?
             return kLegacy_CachedFormat;

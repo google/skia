@@ -285,15 +285,9 @@ GrPixelConfig SkImageInfo2GrPixelConfig(const SkColorType type, SkColorSpace* cs
                    ? kSRGBA_8888_GrPixelConfig : kRGBA_8888_GrPixelConfig;
         // TODO: We're checking for srgbSupport, but we can then end up picking sBGRA as our pixel
         // config (which may not be supported). We need a better test here.
-        case kRGB_888x_SkColorType:
-            return kUnknown_GrPixelConfig;
         case kBGRA_8888_SkColorType:
             return (caps.srgbSupport() && cs && cs->gammaCloseToSRGB())
                    ? kSBGRA_8888_GrPixelConfig : kBGRA_8888_GrPixelConfig;
-        case kRGBA_1010102_SkColorType:
-            return kUnknown_GrPixelConfig;
-        case kRGB_101010x_SkColorType:
-            return kUnknown_GrPixelConfig;
         case kGray_8_SkColorType:
             return kGray_8_GrPixelConfig;
         case kRGBA_F16_SkColorType:

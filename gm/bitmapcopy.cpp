@@ -9,22 +9,15 @@
 
 namespace skiagm {
 
-static const char* color_type_name(SkColorType colorType) {
-    switch (colorType) {
-        case kUnknown_SkColorType:      return "unknown";
-        case kAlpha_8_SkColorType:      return "A8";
-        case kRGB_565_SkColorType:      return "565";
-        case kARGB_4444_SkColorType:    return "4444";
-        case kRGBA_8888_SkColorType:    return "8888";
-        case kRGB_888x_SkColorType:     return "888x";
-        case kBGRA_8888_SkColorType:    return "8888";
-        case kRGBA_1010102_SkColorType: return "1010102";
-        case kRGB_101010x_SkColorType:  return "101010x";
-        case kGray_8_SkColorType:       return "G8";
-        case kRGBA_F16_SkColorType:     return "F16";
-    }
-    return "";
-}
+static const char* gColorTypeNames[] = {
+    "unknown",
+    "A8",
+    "565",
+    "4444",
+    "8888",
+    "8888",
+    "Index8",
+};
 
 constexpr SkColorType gColorTypes[] = {
     kRGB_565_SkColorType,
@@ -91,7 +84,7 @@ protected:
             height = paint.getFontSpacing();
         }
         for (unsigned i = 0; i < NUM_CONFIGS; i++) {
-            const char* name = color_type_name(src.colorType());
+            const char* name = gColorTypeNames[src.colorType()];
             SkScalar textWidth = paint.measureText(name, strlen(name));
             if (textWidth > width) {
                 width = textWidth;
@@ -104,7 +97,7 @@ protected:
         for (unsigned i = 0; i < NUM_CONFIGS; i++) {
             canvas->save();
             // Draw destination config name
-            const char* name = color_type_name(fDst[i].colorType());
+            const char* name = gColorTypeNames[fDst[i].colorType()];
             SkScalar textWidth = paint.measureText(name, strlen(name));
             SkScalar x = (width - textWidth) / SkScalar(2);
             SkScalar y = paint.getFontSpacing() / SkScalar(2);
