@@ -48,7 +48,7 @@ GrSurfaceDesc GrImageInfoToSurfaceDesc(const SkImageInfo& info, const GrCaps& ca
     desc.fWidth = info.width();
     desc.fHeight = info.height();
     desc.fConfig = SkImageInfo2GrPixelConfig(info, caps);
-    desc.fSampleCnt = 0;
+    desc.fSampleCnt = 1;
     return desc;
 }
 
@@ -170,7 +170,7 @@ sk_sp<GrTextureProxy> GrCopyBaseMipMapToTextureProxy(GrContext* ctx, GrTexturePr
     desc.fWidth = baseProxy->width();
     desc.fHeight = baseProxy->height();
     desc.fConfig = baseProxy->config();
-    desc.fSampleCnt = 0;
+    desc.fSampleCnt = 1;
 
     sk_sp<GrTextureProxy> proxy = proxyProvider->createMipMapProxy(desc, SkBudgeted::kYes);
     if (!proxy) {
@@ -268,7 +268,7 @@ sk_sp<GrTextureProxy> GrMakeCachedImageProxy(GrProxyProvider* proxyProvider,
     }
     if (!proxy) {
         proxy = proxyProvider->createTextureProxy(std::move(srcImage), kNone_GrSurfaceFlags,
-                                                  kTopLeft_GrSurfaceOrigin, 0, SkBudgeted::kYes,
+                                                  kTopLeft_GrSurfaceOrigin, 1, SkBudgeted::kYes,
                                                   SkBackingFit::kExact);
         if (proxy && originalKey.isValid()) {
             proxyProvider->assignUniqueKeyToProxy(originalKey, proxy.get());

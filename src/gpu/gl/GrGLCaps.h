@@ -112,19 +112,12 @@ public:
     GrGLCaps(const GrContextOptions& contextOptions, const GrGLContextInfo& ctxInfo,
              const GrGLInterface* glInterface);
 
-    int getSampleCount(int requestedCount, GrPixelConfig config) const override;
-
     bool isConfigTexturable(GrPixelConfig config) const override {
         return SkToBool(fConfigTable[config].fFlags & ConfigInfo::kTextureable_Flag);
     }
 
-    bool isConfigRenderable(GrPixelConfig config, bool withMSAA) const override {
-        if (withMSAA) {
-            return SkToBool(fConfigTable[config].fFlags & ConfigInfo::kRenderableWithMSAA_Flag);
-        } else {
-            return SkToBool(fConfigTable[config].fFlags & ConfigInfo::kRenderable_Flag);
-        }
-    }
+    int getRenderTargetSampleCount(int requestedCount, GrPixelConfig config) const override;
+    int maxRenderTargetSampleCount(GrPixelConfig config) const override;
 
     bool isConfigCopyable(GrPixelConfig config) const override {
         // In GL we have three ways to be able to copy. CopyTexImage, blit, and draw. CopyTexImage
