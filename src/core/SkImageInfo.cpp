@@ -22,44 +22,51 @@ enum Stored_SkColorType {
     kIndex_8_Stored_SkColorType_DEPRECATED  = 6,
     kGray_8_Stored_SkColorType              = 7,
     kRGBA_F16_Stored_SkColorType            = 8,
-    kRGB_888x_Stored_SkColorType            = 9,
-    kRGBA_1010102_Stored_SkColorType        = 10,
-    kRGB_101010x_Stored_SkColorType         = 11,
+
+    kLast_Stored_SkColorType                = kRGBA_F16_Stored_SkColorType,
+};
+
+// Index with Stored_SkColorType
+const SkColorType gStoredToLive[] = {
+    kUnknown_SkColorType,
+    kAlpha_8_SkColorType,
+    kRGB_565_SkColorType,
+    kARGB_4444_SkColorType,
+    kRGBA_8888_SkColorType,
+    kBGRA_8888_SkColorType,
+    kUnknown_SkColorType,       // was kIndex_8
+    kGray_8_SkColorType,
+    kRGBA_F16_SkColorType,
+};
+
+// Index with SkColorType
+const Stored_SkColorType gLiveToStored[] = {
+    kUnknown_Stored_SkColorType,
+    kAlpha_8_Stored_SkColorType,
+    kRGB_565_Stored_SkColorType,
+    kARGB_4444_Stored_SkColorType,
+    kRGBA_8888_Stored_SkColorType,
+    kBGRA_8888_Stored_SkColorType,
+    kGray_8_Stored_SkColorType,
+    kRGBA_F16_Stored_SkColorType,
 };
 
 static uint8_t live_to_stored(unsigned ct) {
-    switch (ct) {
-        case kUnknown_SkColorType:      return kUnknown_Stored_SkColorType;
-        case kAlpha_8_SkColorType:      return kAlpha_8_Stored_SkColorType;
-        case kRGB_565_SkColorType:      return kRGB_565_Stored_SkColorType;
-        case kARGB_4444_SkColorType:    return kARGB_4444_Stored_SkColorType;
-        case kRGBA_8888_SkColorType:    return kRGBA_8888_Stored_SkColorType;
-        case kRGB_888x_SkColorType:     return kRGB_888x_Stored_SkColorType;
-        case kBGRA_8888_SkColorType:    return kBGRA_8888_Stored_SkColorType;
-        case kRGBA_1010102_SkColorType: return kRGBA_1010102_Stored_SkColorType;
-        case kRGB_101010x_SkColorType:  return kRGB_101010x_Stored_SkColorType;
-        case kGray_8_SkColorType:       return kGray_8_Stored_SkColorType;
-        case kRGBA_F16_SkColorType:     return kRGBA_F16_Stored_SkColorType;
+    static_assert(SK_ARRAY_COUNT(gLiveToStored) == (kLastEnum_SkColorType + 1), "");
+
+    if (ct >= SK_ARRAY_COUNT(gLiveToStored)) {
+        ct = kUnknown_SkColorType;
     }
-    return kUnknown_Stored_SkColorType;
+    return gLiveToStored[ct];
 }
 
 static SkColorType stored_to_live(unsigned stored) {
-    switch (stored) {
-        case kUnknown_Stored_SkColorType:            return kUnknown_SkColorType;
-        case kAlpha_8_Stored_SkColorType:            return kAlpha_8_SkColorType;
-        case kRGB_565_Stored_SkColorType:            return kRGB_565_SkColorType;
-        case kARGB_4444_Stored_SkColorType:          return kARGB_4444_SkColorType;
-        case kRGBA_8888_Stored_SkColorType:          return kRGBA_8888_SkColorType;
-        case kRGB_888x_Stored_SkColorType:           return kRGB_888x_SkColorType;
-        case kBGRA_8888_Stored_SkColorType:          return kBGRA_8888_SkColorType;
-        case kRGBA_1010102_Stored_SkColorType:       return kRGBA_1010102_SkColorType;
-        case kRGB_101010x_Stored_SkColorType:        return kRGB_101010x_SkColorType;
-        case kIndex_8_Stored_SkColorType_DEPRECATED: return kUnknown_SkColorType;
-        case kGray_8_Stored_SkColorType:             return kGray_8_SkColorType;
-        case kRGBA_F16_Stored_SkColorType:           return kRGBA_F16_SkColorType;
+    static_assert(SK_ARRAY_COUNT(gStoredToLive) == (kLast_Stored_SkColorType + 1), "");
+
+    if (stored >= SK_ARRAY_COUNT(gStoredToLive)) {
+        stored = kUnknown_Stored_SkColorType;
     }
-    return kUnknown_SkColorType;
+    return gStoredToLive[stored];
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

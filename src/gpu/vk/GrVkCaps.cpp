@@ -447,8 +447,6 @@ bool validate_image_info(const GrVkImageInfo* imageInfo, SkColorType ct, GrPixel
                 *config = kSRGBA_8888_GrPixelConfig;
             }
             break;
-        case kRGB_888x_SkColorType:
-            return false;
         case kBGRA_8888_SkColorType:
             if (VK_FORMAT_B8G8R8A8_UNORM == format) {
                 *config = kBGRA_8888_GrPixelConfig;
@@ -456,10 +454,6 @@ bool validate_image_info(const GrVkImageInfo* imageInfo, SkColorType ct, GrPixel
                 *config = kSBGRA_8888_GrPixelConfig;
             }
             break;
-        case kRGBA_1010102_SkColorType:
-            return false;
-        case kRGB_101010x_SkColorType:
-            return false;
         case kGray_8_SkColorType:
             if (VK_FORMAT_R8_UNORM == format) {
                 *config = kGray_8_as_Red_GrPixelConfig;
