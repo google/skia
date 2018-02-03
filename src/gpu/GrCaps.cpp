@@ -196,7 +196,8 @@ void GrCaps::dumpJSON(SkJSONWriter* writer) const {
                          kBlendEquationSupportNames[fBlendEquationSupport]);
     writer->appendString("Map Buffer Support", map_flags_to_string(fMapBufferFlags).c_str());
 
-    SkASSERT(!this->isConfigRenderable(kUnknown_GrPixelConfig));
+    SkASSERT(!this->isConfigRenderable(kUnknown_GrPixelConfig, false));
+    SkASSERT(!this->isConfigRenderable(kUnknown_GrPixelConfig, true));
     SkASSERT(!this->isConfigTexturable(kUnknown_GrPixelConfig));
 
     writer->beginArray("configs");
@@ -205,7 +206,8 @@ void GrCaps::dumpJSON(SkJSONWriter* writer) const {
         GrPixelConfig config = static_cast<GrPixelConfig>(i);
         writer->beginObject(nullptr, false);
         writer->appendString("name", pixel_config_name(config));
-        writer->appendS32("max sample count", this->maxRenderTargetSampleCount(config));
+        writer->appendBool("renderable", this->isConfigRenderable(config, false));
+        writer->appendBool("renderableMSAA", this->isConfigRenderable(config, true));
         writer->appendBool("texturable", this->isConfigTexturable(config));
         writer->endObject();
     }
@@ -220,39 +222,3 @@ void GrCaps::dumpJSON(SkJSONWriter* writer) const {
     writer->endObject();
 }
 
-bool GrCaps::validateSurfaceDesc(const GrSurfaceDesc& desc, GrMipMapped mipped) const {
-    if (!this->isConfigTexturable(desc.fConfig)) {
-        return false;
-    }
-
-    if (GrMipMapped::kYes == mipped) {
-        if (GrPixelConfigIsSint(desc.fConfig) || !this->mipMapSupport()) {
-            return false;
-        }
-    }
-
-    if (desc.fWidth < 1 || desc.fHeight < 1) {
-        return false;
-    }
-
-    if (SkToBool(desc.fFlags & kRenderTarget_GrSurfaceFlag)) {
-        if (0 == this->getRenderTargetSampleCount(desc.fSampleCnt, desc.fConfig)) {
-            return false;
-        }
-        int maxRTSize = this->maxRenderTargetSize();
-        if (desc.fWidth > maxRTSize || desc.fHeight > maxRTSize) {
-            return false;
-        }
-    } else {
-        // We currently do not support multisampled textures
-        if (desc.fSampleCnt > 1) {
-            return false;
-        }
-        int maxSize = this->maxTextureSize();
-        if (desc.fWidth > maxSize || desc.fHeight > maxSize) {
-            return false;
-        }
-    }
-
-    return true;
-}

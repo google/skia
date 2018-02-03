@@ -109,36 +109,22 @@ void assert_equal(skiatest::Reporter* reporter, const SamplePattern& pattern,
     }
 }
 
-static int pick_random_sample_count(int testPatternSize, SkRandom* rand, const GrCaps* caps) {
-    GrAlwaysAssert(testPatternSize > 1 && SkIsPow2(testPatternSize));
-    int randSampCnt = rand->nextRangeU(1 + testPatternSize / 2, testPatternSize);
-    do {
-        int cnt = caps->getRenderTargetSampleCount(randSampCnt, kRGBA_8888_GrPixelConfig);
-        if (cnt) {
-            return cnt;
-        }
-        --randSampCnt;
-    } while (randSampCnt);
-    // This test assumes an MSAA kRGBA_8888 RTC can be created.
-    GrAlwaysAssert(false);
-    return 0;
-}
-
 void test_sampleLocations(skiatest::Reporter* reporter, TestSampleLocationsInterface* testInterface,
                           GrContext* ctx) {
     SkRandom rand;
     sk_sp<GrRenderTargetContext> bottomUps[numTestPatterns];
     sk_sp<GrRenderTargetContext> topDowns[numTestPatterns];
     for (int i = 0; i < numTestPatterns; ++i) {
-        int patternSize = (int)kTestPatterns[i].size();
-        int randNumSamples = pick_random_sample_count(patternSize, &rand, ctx->caps());
+        int numSamples = (int)kTestPatterns[i].size();
+        GrAlwaysAssert(numSamples > 1 && SkIsPow2(numSamples));
         bottomUps[i] = ctx->makeDeferredRenderTargetContext(
-                SkBackingFit::kExact, 100, 100, kRGBA_8888_GrPixelConfig, nullptr, randNumSamples,
-                GrMipMapped::kNo, kBottomLeft_GrSurfaceOrigin);
-        randNumSamples = pick_random_sample_count(patternSize, &rand, ctx->caps());
+                           SkBackingFit::kExact, 100, 100, kRGBA_8888_GrPixelConfig, nullptr,
+                           rand.nextRangeU(1 + numSamples / 2, numSamples), GrMipMapped::kNo,
+                           kBottomLeft_GrSurfaceOrigin);
         topDowns[i] = ctx->makeDeferredRenderTargetContext(
-                SkBackingFit::kExact, 100, 100, kRGBA_8888_GrPixelConfig, nullptr, randNumSamples,
-                GrMipMapped::kNo, kTopLeft_GrSurfaceOrigin);
+                          SkBackingFit::kExact, 100, 100, kRGBA_8888_GrPixelConfig, nullptr,
+                          rand.nextRangeU(1 + numSamples / 2, numSamples), GrMipMapped::kNo,
+                          kTopLeft_GrSurfaceOrigin);
     }
 
     // Ensure all sample locations get queried and/or cached properly.
@@ -203,7 +189,7 @@ DEF_GPUTEST(GLSampleLocations, reporter, /* options */) {
     sk_sp<GrContext> ctx(GrContext::MakeGL(testInterface));
 
     // This test relies on at least 2 samples.
-    int supportedSample = ctx->caps()->getRenderTargetSampleCount(2, kRGBA_8888_GrPixelConfig);
+    int supportedSample = ctx->caps()->getSampleCount(2, kRGBA_8888_GrPixelConfig);
     if (supportedSample < 2) {
         return;
     }

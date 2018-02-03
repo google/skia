@@ -45,7 +45,7 @@ DEF_TEST(ParseConfigs_Gpu, reporter) {
                     == GrContextFactory::kGL_ContextType);
     REPORTER_ASSERT(reporter, configs[0]->asConfigGpu()->getUseNVPR() == false);
     REPORTER_ASSERT(reporter, configs[0]->asConfigGpu()->getUseDIText() == false);
-    REPORTER_ASSERT(reporter, configs[0]->asConfigGpu()->getSamples() == 1);
+    REPORTER_ASSERT(reporter, configs[0]->asConfigGpu()->getSamples() == 0);
     REPORTER_ASSERT(reporter, configs[0]->asConfigGpu()->getColorType() == kRGBA_8888_SkColorType);
     REPORTER_ASSERT(reporter, configs[0]->asConfigGpu()->getColorSpace() == nullptr);
 #endif
@@ -240,7 +240,7 @@ DEF_TEST(ParseConfigs_ExtendedGpuConfigsCorrect, reporter) {
                     GrContextFactory::kGL_ContextType);
     REPORTER_ASSERT(reporter, configs[0]->asConfigGpu()->getUseNVPR());
     REPORTER_ASSERT(reporter, !configs[0]->asConfigGpu()->getUseDIText());
-    REPORTER_ASSERT(reporter, configs[0]->asConfigGpu()->getSamples() == 1);
+    REPORTER_ASSERT(reporter, configs[0]->asConfigGpu()->getSamples() == 0);
     REPORTER_ASSERT(reporter, configs[1]->asConfigGpu()->getContextType() ==
                     GrContextFactory::kANGLE_D3D9_ES2_ContextType);
     REPORTER_ASSERT(reporter, configs[1]->asConfigGpu());
@@ -254,18 +254,18 @@ DEF_TEST(ParseConfigs_ExtendedGpuConfigsCorrect, reporter) {
                     GrContextFactory::kGLES_ContextType);
     REPORTER_ASSERT(reporter, !configs[5]->asConfigGpu()->getUseNVPR());
     REPORTER_ASSERT(reporter, !configs[5]->asConfigGpu()->getUseDIText());
-    REPORTER_ASSERT(reporter, configs[5]->asConfigGpu()->getSamples() == 1);
+    REPORTER_ASSERT(reporter, configs[5]->asConfigGpu()->getSamples() == 0);
     REPORTER_ASSERT(reporter, configs[6]->asConfigGpu()->getContextType() ==
                               GrContextFactory::kGL_ContextType);
     REPORTER_ASSERT(reporter, !configs[6]->asConfigGpu()->getUseNVPR());
     REPORTER_ASSERT(reporter, !configs[6]->asConfigGpu()->getUseDIText());
-    REPORTER_ASSERT(reporter, configs[6]->asConfigGpu()->getSamples() == 1);
+    REPORTER_ASSERT(reporter, configs[6]->asConfigGpu()->getSamples() == 0);
 #ifdef SK_VULKAN
     REPORTER_ASSERT(reporter, configs[7]->asConfigGpu()->getContextType() ==
                               GrContextFactory::kVulkan_ContextType);
     REPORTER_ASSERT(reporter, !configs[7]->asConfigGpu()->getUseNVPR());
     REPORTER_ASSERT(reporter, !configs[7]->asConfigGpu()->getUseDIText());
-    REPORTER_ASSERT(reporter, configs[7]->asConfigGpu()->getSamples() == 1);
+    REPORTER_ASSERT(reporter, configs[7]->asConfigGpu()->getSamples() == 0);
 #endif
 #ifdef SK_METAL
     REPORTER_ASSERT(reporter, configs[8]->asConfigGpu()->getContextType() ==
