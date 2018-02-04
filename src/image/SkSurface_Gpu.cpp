@@ -167,9 +167,14 @@ bool SkSurface_Gpu::onCharacterize(SkSurfaceCharacterization* data) const {
     size_t maxResourceBytes;
     ctx->getResourceCacheLimits(&maxResourceCount, &maxResourceBytes);
 
+    bool mipmapped = rtc->asTextureProxy() ? GrMipMapped::kYes == rtc->asTextureProxy()->mipMapped()
+                                           : false;
+
     data->set(ctx->threadSafeProxy(), maxResourceCount, maxResourceBytes,
               rtc->origin(), rtc->width(), rtc->height(),
               rtc->colorSpaceInfo().config(), rtc->fsaaType(), rtc->numStencilSamples(),
+              SkSurfaceCharacterization::Textureable(SkToBool(rtc->asTextureProxy())),
+              SkSurfaceCharacterization::MipMapped(mipmapped),
               rtc->colorSpaceInfo().refColorSpace(), this->props());
 
     return true;
@@ -184,6 +189,21 @@ bool SkSurface_Gpu::isCompatible(const SkSurfaceCharacterization& data) const {
     int maxResourceCount;
     size_t maxResourceBytes;
     ctx->getResourceCacheLimits(&maxResourceCount, &maxResourceBytes);
+
+    if (data.isTextureable()) {
+        if (!rtc->asTextureProxy()) {
+            // If the characterization was textureable we require the replay dest to also be
+            // textureable. If the characterized surface wasn't textureable we allow the replay
+            // dest to be textureable.
+            return false;
+        }
+
+        if (data.isMipMapped() && GrMipMapped::kNo == rtc->asTextureProxy()->mipMapped()) {
+            // Fail if the DDL's surface was mipmapped but the replay surface is not.
+            // Allow drawing to proceed if the DDL was not mipmapped but the replay surface is.
+            return false;
+        }
+    }
 
     return data.contextInfo() && data.contextInfo()->matches(ctx) &&
            data.cacheMaxResourceCount() <= maxResourceCount &&

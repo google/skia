@@ -4469,6 +4469,9 @@ GrBackendTexture GrGLGpu::createTestingOnlyBackendTexture(void* pixels, int w, i
         height = SkTMax(1, height / 2);
     }
 
+    // unbind the texture from the texture unit to avoid asserts
+    GL_CALL(BindTexture(info.fTarget, 0));
+
     return GrBackendTexture(w, h, mipMapped, info);
 }
 

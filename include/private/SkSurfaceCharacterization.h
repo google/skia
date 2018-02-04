@@ -32,6 +32,9 @@ class SkColorSpace;
 */
 class SkSurfaceCharacterization {
 public:
+    enum class Textureable : bool { kNo = false, kYes = true };
+    enum class MipMapped : bool { kNo = false, kYes = true };
+
     SkSurfaceCharacterization()
             : fCacheMaxResourceCount(0)
             , fCacheMaxResourceBytes(0)
@@ -41,6 +44,8 @@ public:
             , fConfig(kUnknown_GrPixelConfig)
             , fFSAAType(GrFSAAType::kNone)
             , fStencilCnt(0)
+            , fIsTextureable(Textureable::kYes)
+            , fIsMipMapped(MipMapped::kYes)
             , fSurfaceProps(0, kUnknown_SkPixelGeometry) {
     }
 
@@ -60,6 +65,8 @@ public:
     GrPixelConfig config() const { return fConfig; }
     GrFSAAType fsaaType() const { return fFSAAType; }
     int stencilCount() const { return fStencilCnt; }
+    bool isTextureable() const { return Textureable::kYes == fIsTextureable; }
+    bool isMipMapped() const { return MipMapped::kYes == fIsMipMapped; }
     SkColorSpace* colorSpace() const { return fColorSpace.get(); }
     sk_sp<SkColorSpace> refColorSpace() const { return fColorSpace; }
     const SkSurfaceProps& surfaceProps()const { return fSurfaceProps; }
@@ -75,8 +82,12 @@ private:
              GrPixelConfig config,
              GrFSAAType fsaaType,
              int stencilCnt,
+             Textureable isTextureable,
+             MipMapped isMipMapped,
              sk_sp<SkColorSpace> colorSpace,
              const SkSurfaceProps& surfaceProps) {
+        SkASSERT(MipMapped::kNo == isMipMapped || Textureable::kYes == isTextureable);
+
         fContextInfo = contextInfo;
         fCacheMaxResourceCount = cacheMaxResourceCount;
         fCacheMaxResourceBytes = cacheMaxResourceBytes;
@@ -87,6 +98,8 @@ private:
         fConfig = config;
         fFSAAType = fsaaType;
         fStencilCnt = stencilCnt;
+        fIsTextureable = isTextureable;
+        fIsMipMapped = isMipMapped;
         fColorSpace = std::move(colorSpace);
         fSurfaceProps = surfaceProps;
     }
@@ -101,6 +114,8 @@ private:
     GrPixelConfig                   fConfig;
     GrFSAAType                      fFSAAType;
     int                             fStencilCnt;
+    Textureable                     fIsTextureable;
+    MipMapped                       fIsMipMapped;
     sk_sp<SkColorSpace>             fColorSpace;
     SkSurfaceProps                  fSurfaceProps;
 };

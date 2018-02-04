@@ -355,7 +355,7 @@ protected:
         // Note: this ctor pulls a new uniqueID from the same pool at the GrGpuResources
     }
 
-    using LazyInstantiateCallback = std::function<sk_sp<GrTexture>(GrResourceProvider*,
+    using LazyInstantiateCallback = std::function<sk_sp<GrSurface>(GrResourceProvider*,
                                                                    GrSurfaceOrigin* outOrigin)>;
 
     // Lazy-callback version
@@ -408,7 +408,7 @@ private:
     const UniqueID       fUniqueID; // set from the backing resource for wrapped resources
 
     LazyInstantiateCallback fLazyInstantiateCallback;
-    SkDEBUGCODE(virtual void validateLazyTexture(const GrTexture*) = 0;)
+    SkDEBUGCODE(virtual void validateLazySurface(const GrSurface*) = 0;)
 
     static const size_t kInvalidGpuMemorySize = ~static_cast<size_t>(0);
     SkDEBUGCODE(size_t getRawGpuMemorySize_debugOnly() const { return fGpuMemorySize; })

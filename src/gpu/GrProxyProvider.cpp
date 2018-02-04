@@ -473,6 +473,25 @@ sk_sp<GrTextureProxy> GrProxyProvider::createLazyProxy(LazyInstantiateCallback&&
                                                     budgeted, flags));
 }
 
+sk_sp<GrRenderTargetProxy> GrProxyProvider::createLazyRenderTargetProxy(
+                                                LazyInstantiateCallback&& callback,
+                                                const GrSurfaceDesc& desc,
+                                                Textureable textureable,
+                                                GrMipMapped mipMapped,
+                                                SkBackingFit fit, SkBudgeted budgeted) {
+    SkASSERT((desc.fWidth <= 0 && desc.fHeight <= 0) ||
+             (desc.fWidth > 0 && desc.fHeight > 0));
+    uint32_t flags = GrResourceProvider::kNoPendingIO_Flag;
+    if (Textureable::kYes == textureable) {
+        return sk_sp<GrRenderTargetProxy>(new GrTextureRenderTargetProxy(std::move(callback), desc,
+                                                                         mipMapped, fit, budgeted,
+                                                                         flags));
+    }
+
+    return sk_sp<GrRenderTargetProxy>(new GrRenderTargetProxy(std::move(callback), desc,
+                                                              fit, budgeted, flags));
+}
+
 sk_sp<GrTextureProxy> GrProxyProvider::createFullyLazyProxy(LazyInstantiateCallback&& callback,
                                                             Renderable renderable,
                                                             GrPixelConfig config) {
