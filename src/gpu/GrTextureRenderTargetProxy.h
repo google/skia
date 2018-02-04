@@ -43,7 +43,7 @@ private:
 
     size_t onUninstantiatedGpuMemorySize() const override;
 
-    SkDEBUGCODE(void validateLazyTexture(const GrTexture*) override;)
+    SkDEBUGCODE(void validateLazySurface(const GrSurface*) override;)
 };
 
 #ifdef SK_BUILD_FOR_WIN

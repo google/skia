@@ -76,22 +76,21 @@ bool SkDeferredDisplayListRecorder::init() {
     sk_sp<SkDeferredDisplayList::LazyProxyData> lazyProxyData = fLazyProxyData;
 
     // What we're doing here is we're creating a lazy proxy to back the SkSurface. The lazy
-    // proxy, when instantiated, will use the GrTexture that backs the SkSurface that the
+    // proxy, when instantiated, will use the GrRenderTarget that backs the SkSurface that the
     // DDL is being replayed into.
 
-    sk_sp<GrSurfaceProxy> proxy = proxyProvider->createLazyProxy(
+    sk_sp<GrRenderTargetProxy> proxy = proxyProvider->createLazyRenderTargetProxy(
         [ lazyProxyData ] (GrResourceProvider* resourceProvider, GrSurfaceOrigin* /* outOrigin */) {
             if (!resourceProvider) {
-                return sk_sp<GrTexture>();
+                return sk_sp<GrSurface>();
             }
 
             // The proxy backing the destination surface had better have been instantiated
-            // prior to the proxy backing the DLL's surface. Steal its GrTexture.
-            // DDL TODO: What do we do in the case where the Surface we're replaying into
-            // isn't texturable?
-            SkASSERT(lazyProxyData->fReplayDest->priv().peekTexture());
-            return sk_ref_sp<GrTexture>(lazyProxyData->fReplayDest->priv().peekTexture());
-        }, desc, GrMipMapped::kNo, SkBackingFit::kExact, SkBudgeted::kYes);
+            // prior to the proxy backing the DLL's surface. Steal its GrRenderTarget.
+            SkASSERT(lazyProxyData->fReplayDest->priv().peekSurface());
+            return sk_ref_sp<GrSurface>(lazyProxyData->fReplayDest->priv().peekSurface());
+        }, desc, GrProxyProvider::Textureable(fCharacterization.isTextureable()),
+           GrMipMapped::kNo, SkBackingFit::kExact, SkBudgeted::kYes);
 
     sk_sp<GrSurfaceContext> c = fContext->contextPriv().makeWrappedSurfaceContext(
                                                                  std::move(proxy),

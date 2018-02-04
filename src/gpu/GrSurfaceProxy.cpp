@@ -360,21 +360,20 @@ bool GrSurfaceProxyPriv::doLazyInstantiation(GrResourceProvider* resourceProvide
         outOrigin = &fProxy->fOrigin;
     }
 
-    sk_sp<GrTexture> texture = fProxy->fLazyInstantiateCallback(resourceProvider, outOrigin);
-
-    if (!texture) {
+    sk_sp<GrSurface> surface = fProxy->fLazyInstantiateCallback(resourceProvider, outOrigin);
+    if (!surface) {
         fProxy->fWidth = 0;
         fProxy->fHeight = 0;
         fProxy->fOrigin = kTopLeft_GrSurfaceOrigin;
         return false;
     }
 
-    fProxy->fWidth = texture->width();
-    fProxy->fHeight = texture->height();
+    fProxy->fWidth = surface->width();
+    fProxy->fHeight = surface->height();
 
-    SkASSERT(texture->config() == fProxy->fConfig);
-    SkDEBUGCODE(fProxy->validateLazyTexture(texture.get());)
-    this->assign(std::move(texture));
+    SkASSERT(surface->config() == fProxy->fConfig);
+    SkDEBUGCODE(fProxy->validateLazySurface(surface.get());)
+    this->assign(std::move(surface));
     return true;
 }
 
