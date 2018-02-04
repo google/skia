@@ -117,6 +117,8 @@ public:
 
     static GrSwizzle CreateRandom(SkRandom* random) {
         switch (random->nextU() % 4) {
+            case 0:
+                return RGBA();
             case 1:
                 return BGRA();
             case 2:
@@ -124,6 +126,7 @@ public:
             case 3:
                 return AAAA();
             default:
+                SkFAIL("Mod is broken?!?");
                 return RGBA();
         }
     }
