@@ -31,6 +31,7 @@ declare_args() {
   skia_use_metal = false
   skia_use_libheif = is_skia_dev_build
   skia_use_skcms = is_skia_dev_build
+  skia_use_swiftshader = false
 
   skia_android_serial = ""
   skia_enable_discrete_gpu = true
@@ -91,6 +92,8 @@ if (defined(skia_settings)) {
 
 # Our tools require static linking (they use non-exported symbols).
 skia_enable_tools = skia_enable_tools && !is_component_build
+
+skia_use_egl = skia_use_egl || skia_use_swiftshader
 
 fontmgr_android_enabled = skia_use_expat && skia_use_freetype
 
@@ -1211,6 +1214,9 @@ if (skia_enable_tools) {
       if (skia_use_metal) {
         sources += [ "tools/gpu/mtl/MtlTestContext.mm" ]
       }
+      if (skia_use_swiftshader) {
+        deps += [ "//third_party/swiftshader" ]
+      }
     }
   }
 
@@ -1794,9 +1800,8 @@ if (skia_enable_tools) {
   if (!is_win && skia_enable_gpu) {
     test_lib("skqp_lib") {
       public_include_dirs = [ "tools/skqp" ]
-      defines = [
-        "SK_SKQP_GLOBAL_ERROR_TOLERANCE=$skia_skqp_global_error_tolerance"
-      ]
+      defines =
+          [ "SK_SKQP_GLOBAL_ERROR_TOLERANCE=$skia_skqp_global_error_tolerance" ]
       if (skia_skqp_enable_driver_correctness_workarounds) {
         defines += [ "SK_SKQP_ENABLE_DRIVER_CORRECTNESS_WORKAROUNDS" ]
       }

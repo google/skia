@@ -1,0 +1,145 @@
+# Copyright 2018 Google Inc.
+#
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+import("../third_party.gni")
+
+third_party("swiftshader") {
+  public_include_dirs = []
+  deps = [
+    ":libEGL",
+    ":libGLESv2",
+  ]
+}
+
+_root = "../externals/swiftshader"
+
+config("common") {
+  if (is_win) {
+    cflags = [ "/w" ]
+    defines = [ "NO_SANITIZE_FUNCTION=" ]
+  } else {
+    cflags = [ "-w" ]
+    defines =
+        [ "NO_SANITIZE_FUNCTION=__attribute__((no_sanitize(\"function\")))" ]
+  }
+  include_dirs = [
+    "$_root/include",
+    "$_root/src/",
+    "$_root/src/OpenGL",
+  ]
+}
+
+shared_library("libGLESv2") {
+  configs += [ ":common" ]
+  configs -= [ "//gn:warnings" ]
+
+  defines = [
+    "ALLOW_DUMP=0",
+    "ALLOW_LLVM_CL=0",
+    "ALLOW_LLVM_IR=0",
+    "ALLOW_LLVM_IR_AS_INPUT=0",
+    "ALLOW_MINIMAL_BUILD=0",
+    "ALLOW_TIMERS=0",
+    "ALLOW_WASM=0",
+    "GL_GLEXT_PROTOTYPES",
+    "ICE_THREAD_LOCAL_HACK=0",
+  ]
+
+  if (target_cpu == "x64") {
+    defines += [
+      "SZTARGET=X8664",
+      "SUBZERO_TARGET=X8664",
+    ]
+  }
+
+  include_dirs = [
+    "$_root/third_party/subzero",
+    "$_root/third_party/subzero/pnacl-llvm/include",
+    "$_root/third_party/llvm-subzero/",
+  ]
+  if (is_mac) {
+    include_dirs += [ "../../third_party/llvm-subzero/build/MacOS/include" ]
+  }
+
+  sources = [
+    "$_root/src/OpenGL/compiler/AnalyzeCallDepth.cpp",
+    "$_root/src/OpenGL/compiler/Compiler.cpp",
+    "$_root/src/OpenGL/compiler/Diagnostics.cpp",
+    "$_root/src/OpenGL/compiler/DirectiveHandler.cpp",
+    "$_root/src/OpenGL/compiler/InfoSink.cpp",
+    "$_root/src/OpenGL/compiler/Initialize.cpp",
+    "$_root/src/OpenGL/compiler/InitializeParseContext.cpp",
+    "$_root/src/OpenGL/compiler/IntermTraverse.cpp",
+    "$_root/src/OpenGL/compiler/Intermediate.cpp",
+    "$_root/src/OpenGL/compiler/OutputASM.cpp",
+    "$_root/src/OpenGL/compiler/ParseHelper.cpp",
+    "$_root/src/OpenGL/compiler/PoolAlloc.cpp",
+    "$_root/src/OpenGL/compiler/SymbolTable.cpp",
+    "$_root/src/OpenGL/compiler/TranslatorASM.cpp",
+    "$_root/src/OpenGL/compiler/ValidateLimitations.cpp",
+    "$_root/src/OpenGL/compiler/ValidateSwitch.cpp",
+    "$_root/src/OpenGL/compiler/debug.cpp",
+    "$_root/src/OpenGL/compiler/glslang_lex.cpp",
+    "$_root/src/OpenGL/compiler/glslang_tab.cpp",
+    "$_root/src/OpenGL/compiler/intermOut.cpp",
+    "$_root/src/OpenGL/compiler/parseConst.cpp",
+    "$_root/src/OpenGL/compiler/preprocessor/DiagnosticsBase.cpp",
+    "$_root/src/OpenGL/compiler/preprocessor/DirectiveHandlerBase.cpp",
+    "$_root/src/OpenGL/compiler/preprocessor/DirectiveParser.cpp",
+    "$_root/src/OpenGL/compiler/preprocessor/Input.cpp",
+    "$_root/src/OpenGL/compiler/preprocessor/Lexer.cpp",
+    "$_root/src/OpenGL/compiler/preprocessor/Macro.cpp",
+    "$_root/src/OpenGL/compiler/preprocessor/MacroExpander.cpp",
+    "$_root/src/OpenGL/compiler/preprocessor/Preprocessor.cpp",
+    "$_root/src/OpenGL/compiler/preprocessor/Token.cpp",
+    "$_root/src/OpenGL/compiler/preprocessor/Tokenizer.cpp",
+    "$_root/src/OpenGL/compiler/util.cpp",
+    "$_root/src/OpenGL/libGLESv2/Buffer.cpp",
+    "$_root/src/OpenGL/libGLESv2/Context.cpp",
+    "$_root/src/OpenGL/libGLESv2/Device.cpp",
+    "$_root/src/OpenGL/libGLESv2/Fence.cpp",
+    "$_root/src/OpenGL/libGLESv2/IndexDataManager.cpp",
+    "$_root/src/OpenGL/libGLESv2/Program.cpp",
+    "$_root/src/OpenGL/libGLESv2/Query.cpp",
+    "$_root/src/OpenGL/libGLESv2/Renderbuffer.cpp",
+    "$_root/src/OpenGL/libGLESv2/ResourceManager.cpp",
+    "$_root/src/OpenGL/libGLESv2/Shader.cpp",
+    "$_root/src/OpenGL/libGLESv2/Texture.cpp",
+    "$_root/src/OpenGL/libGLESv2/TransformFeedback.cpp",
+    "$_root/src/OpenGL/libGLESv2/VertexArray.cpp",
+    "$_root/src/OpenGL/libGLESv2/VertexDataManager.cpp",
+    "$_root/src/OpenGL/libGLESv2/entry_points.cpp",
+    "$_root/src/OpenGL/libGLESv2/libGLESv2.cpp",
+    "$_root/src/OpenGL/libGLESv2/libGLESv3.cpp",
+    "$_root/src/OpenGL/libGLESv2/main.cpp",
+    "$_root/src/OpenGL/libGLESv2/utilities.cpp",
+    "$_root/src/Reactor/Optimizer.cpp",
+    "$_root/src/Reactor/SubzeroReactor.cpp",
+  ]
+}
+
+shared_library("libEGL") {
+  configs += [ ":common" ]
+  configs -= [ "//gn:warnings" ]
+
+  defines = [ "EGL_EGLEXT_PROTOTYPES" ]
+
+  sources = [
+    "$_root/src/OpenGL/common/Debug.cpp",
+    "$_root/src/OpenGL/common/Object.cpp",
+    "$_root/src/OpenGL/libEGL/Config.cpp",
+    "$_root/src/OpenGL/libEGL/Display.cpp",
+    "$_root/src/OpenGL/libEGL/Surface.cpp",
+    "$_root/src/OpenGL/libEGL/libEGL.cpp",
+    "$_root/src/OpenGL/libEGL/main.cpp",
+  ]
+  if (is_mac) {
+    sources += [ "$_root/src/OpenGL/libEGL/OSXUtils.mm" ]
+    libs = [
+      "Quartz.framework",
+      "Cocoa.framework",
+    ]
+  }
+}
