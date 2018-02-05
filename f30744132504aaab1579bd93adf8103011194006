@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f94ce169_47fcef52",
+        "filename": "src/core/SkRemoteGlyphCache.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-02-05T09:07:43Z",
+      "side": 1,
+      "message": "Seems like a good place to use an SkRandom?",
+      "revId": "f30744132504aaab1579bd93adf8103011194006",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
