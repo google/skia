@@ -3,6 +3,13 @@ MSAN, ASAN, & TSAN
 
 *Testing Skia with memory, address, and thread santizers.*
 
+Compiling Skia with ASAN or TSAN can be done with any version of Clang newer than 3.8.
+**XSAN works best with Linux.  YMMV on other platforms**
+
+To compile and run with MSAN, an MSAN-instrumented version of libc++ is needed.
+It's generally easiest to run one of the following 2 steps to build/download a recent version
+of clang and the instrumented libc++.
+
 Downloading Clang Binaries (Googlers Only)
 ------------------------------------------
 
