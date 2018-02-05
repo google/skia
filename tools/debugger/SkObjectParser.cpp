@@ -27,15 +27,22 @@ SkString* SkObjectParser::BitmapToString(const SkBitmap& bitmap) {
     mBitmap->append(" H: ");
     mBitmap->appendS32(bitmap.height());
 
-    const char* gColorTypeStrings[] = {
-        "None", "A8", "565", "4444", "RGBA", "BGRA",
-        "G8", "RGBAf16"
-    };
-    static_assert(kLastEnum_SkColorType + 1 == SK_ARRAY_COUNT(gColorTypeStrings),
-                  "colortype names do not match colortype enum");
-
+    const char* ctString = "<unknown>";
+    switch (bitmap.colorType()) {
+        case kUnknown_SkColorType:      ctString = "None";    break;
+        case kAlpha_8_SkColorType:      ctString = "A8";      break;
+        case kRGB_565_SkColorType:      ctString = "565";     break;
+        case kARGB_4444_SkColorType:    ctString = "4444";    break;
+        case kRGBA_8888_SkColorType:    ctString = "RGBA";    break;
+        case kRGB_888x_SkColorType:     ctString = "RGB";     break;
+        case kBGRA_8888_SkColorType:    ctString = "BGRA";    break;
+        case kRGBA_1010102_SkColorType: ctString = "1010102"; break;
+        case kRGB_101010x_SkColorType:  ctString = "101010x"; break;
+        case kGray_8_SkColorType:       ctString = "G8";      break;
+        case kRGBA_F16_SkColorType:     ctString = "RGBAf16"; break;
+    }
     mBitmap->append(" ColorType: ");
-    mBitmap->append(gColorTypeStrings[bitmap.colorType()]);
+    mBitmap->append(ctString);
 
     if (bitmap.isOpaque()) {
         mBitmap->append(" opaque");
