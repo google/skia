@@ -5,16 +5,16 @@ SkBitmap Reference
 
 ## <a name="Overview"></a> Overview
 
-## <a name="Subtopics"></a> Subtopics
+## <a name="Subtopic"></a> Subtopic
 
 | name | description |
 | --- | --- |
-| <a href="#Classes_and_Structs">Classes and Structs</a> | embedded struct and class members |
-| Constants | enum and enum class, const values |
-| <a href="#Constructors">Constructors</a> | functions that construct <a href="SkBitmap_Reference#SkBitmap">SkBitmap</a> |
-| <a href="#Member_Functions">Member Functions</a> | static functions and member methods |
-| <a href="#Operators">Operators</a> | operator overloading methods |
-| <a href="#Related_Functions">Related Functions</a> | similar methods grouped together |
+| <a href="#Class_or_Struct">Class or Struct</a> | embedded struct and class members |
+| <a href="#Constant">Constant</a> | enum and enum class, const values |
+| <a href="#Constructor">Constructor</a> | functions that construct <a href="SkBitmap_Reference#SkBitmap">SkBitmap</a> |
+| <a href="#Member_Function">Member Function</a> | static functions and member methods |
+| <a href="#Operator">Operator</a> | operator overloading methods |
+| <a href="#Related_Function">Related Function</a> | similar methods grouped together |
 
 # <a name="SkBitmap"></a> Class SkBitmap
 <a href="#Bitmap">Bitmap</a> describes a two-dimensional raster pixel array. <a href="#Bitmap">Bitmap</a> is built on
@@ -45,20 +45,26 @@ sometimes passing zero will compute the <a href="#Row_Bytes">Row Bytes</a> from 
 number of bytes in a pixel. <a href="#Row_Bytes">Row Bytes</a> may be larger than the row requires. This
 is useful to position one or more <a href="#Bitmap">Bitmaps</a> within a shared pixel array.
 
-## <a name="Related_Functions"></a> Related Functions
+## <a name="Related_Function"></a> Related Function
 
 | name | description |
 | --- | --- |
 | <a href="#Row_Bytes">Row Bytes</a> | interval from one row to the next |
 
-## <a name="Classes_and_Structs"></a> Classes and Structs
+## <a name="Constant"></a> Constant
+
+| name | description |
+| --- | --- |
+| <a href="#SkBitmap_AllocFlags">AllocFlags</a> | zero pixel memory |
+
+## <a name="Class_or_Struct"></a> Class or Struct
 
 | name | description |
 | --- | --- |
 | <a href="#SkBitmap_Allocator">Allocator</a> | abstract subclass of <a href="#SkBitmap_HeapAllocator">HeapAllocator</a> |
 | <a href="#SkBitmap_HeapAllocator">HeapAllocator</a> | allocates pixel memory from heap |
 
-## <a name="Constructors"></a> Constructors
+## <a name="Constructor"></a> Constructor
 
 | name | description |
 | --- | --- |
@@ -67,14 +73,14 @@ is useful to position one or more <a href="#Bitmap">Bitmaps</a> within a shared 
 | <a href="#SkBitmap_copy_const_SkBitmap">SkBitmap(const SkBitmap& src)</a> | shares ownership of pixels |
 | <a href="#SkBitmap_destructor">~SkBitmap()</a> | releases ownership of pixels |
 
-## <a name="Operators"></a> Operators
+## <a name="Operator"></a> Operator
 
 | name | description |
 | --- | --- |
 | <a href="#SkBitmap_move_operator">operator=(SkBitmap&& src)</a> | takes ownership of pixels |
 | <a href="#SkBitmap_copy_operator">operator=(const SkBitmap& src)</a> | shares ownership of pixels |
 
-## <a name="Member_Functions"></a> Member Functions
+## <a name="Member_Function"></a> Member Function
 
 | name | description |
 | --- | --- |
@@ -93,7 +99,6 @@ is useful to position one or more <a href="#Bitmap">Bitmaps</a> within a shared 
 | <a href="#SkBitmap_empty">empty</a> | returns true if <a href="SkImageInfo_Reference#Image_Info">Image Info</a> has zero <a href="#SkBitmap_width">width</a> or <a href="#SkBitmap_height">height</a> |
 | <a href="#SkBitmap_erase">erase</a> | writes <a href="undocumented#Color">Color</a> to rectangle of pixels |
 | <a href="#SkBitmap_eraseARGB">eraseARGB</a> | writes <a href="undocumented#Color">Color</a> to pixels |
-| <a href="#SkBitmap_eraseArea">eraseArea</a> | deprecated |
 | <a href="#SkBitmap_eraseColor">eraseColor</a> | writes <a href="undocumented#Color">Color</a> to pixels |
 | <a href="#SkBitmap_eraseRGB">eraseRGB</a> | deprecated |
 | <a href="#SkBitmap_extractAlpha">extractAlpha</a> | creates <a href="#Bitmap">Bitmap</a> containing <a href="#Alpha">Alpha</a> of pixels |
@@ -107,7 +112,7 @@ is useful to position one or more <a href="#Bitmap">Bitmaps</a> within a shared 
 | <a href="#SkBitmap_getGenerationID">getGenerationID</a> | returns unique ID |
 | <a href="#SkBitmap_getPixels">getPixels</a> | returns address of pixels |
 | <a href="#SkBitmap_getSubset">getSubset</a> | returns bounds offset by origin |
-| <a href="#SkBitmap_hasHardwareMipMap">hasHardwareMipMap</a> | returns <a href="undocumented#Mip_Map">Mip Map</a> support present; Android only |
+| <a href="#SkBitmap_hasHardwareMipMap">hasHardwareMipMap</a> | returns Mip_Map support present; Android only |
 | <a href="#SkBitmap_height">height</a> | returns pixel row count |
 | <a href="#SkBitmap_info">info</a> | returns <a href="SkImageInfo_Reference#Image_Info">Image Info</a> |
 | <a href="#SkBitmap_installMaskPixels">installMaskPixels</a> | creates <a href="undocumented#Pixel_Ref">Pixel Ref</a> from <a href="undocumented#Mask">Mask</a> |
@@ -128,7 +133,7 @@ is useful to position one or more <a href="#Bitmap">Bitmaps</a> within a shared 
 | <a href="#SkBitmap_rowBytes">rowBytes</a> | returns interval between rows in bytes |
 | <a href="#SkBitmap_rowBytesAsPixels">rowBytesAsPixels</a> | returns interval between rows in pixels |
 | <a href="#SkBitmap_setAlphaType">setAlphaType</a> | sets <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a> of shared pixels |
-| <a href="#SkBitmap_setHasHardwareMipMap">setHasHardwareMipMap</a> | sets <a href="undocumented#Mip_Map">Mip Map</a> support present; Android only |
+| <a href="#SkBitmap_setHasHardwareMipMap">setHasHardwareMipMap</a> | sets Mip_Map support present; Android only |
 | <a href="#SkBitmap_setImmutable">setImmutable</a> | marks that pixels will not change |
 | <a href="#SkBitmap_setInfo">setInfo</a> | sets height, width, <a href="SkImageInfo_Reference#Color_Type">Color Type</a>, and so on, releasing pixels |
 | <a href="#SkBitmap_setIsVolatile">setIsVolatile</a> | marks if pixels should not be cached |
@@ -2580,8 +2585,6 @@ rectangle to fill</td>
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 void eraseArea(const SkIRect& area, SkColor c) const
 </pre>
-
-Legacy call to be deprecated.
 
 ---
 

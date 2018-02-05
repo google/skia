@@ -5,16 +5,16 @@ SkPath Reference
 
 ## <a name="Overview"></a> Overview
 
-## <a name="Subtopics"></a> Subtopics
+## <a name="Subtopic"></a> Subtopic
 
 | name | description |
 | --- | --- |
-| <a href="#Classes_and_Structs">Classes and Structs</a> | embedded struct and class members |
-| <a href="#Constants">Constants</a> | enum and enum class, const values |
-| <a href="#Constructors">Constructors</a> | functions that construct <a href="SkPath_Reference#SkPath">SkPath</a> |
-| <a href="#Member_Functions">Member Functions</a> | static functions and member methods |
-| <a href="#Operators">Operators</a> | operator overloading methods |
-| <a href="#Related_Functions">Related Functions</a> | similar methods grouped together |
+| <a href="#Class_or_Struct">Class or Struct</a> | embedded struct and class members |
+| <a href="#Constant">Constant</a> | enum and enum class, const values |
+| <a href="#Constructor">Constructor</a> | functions that construct <a href="SkPath_Reference#SkPath">SkPath</a> |
+| <a href="#Member_Function">Member Function</a> | static functions and member methods |
+| <a href="#Operator">Operator</a> | operator overloading methods |
+| <a href="#Related_Function">Related Function</a> | similar methods grouped together |
 <a href="#Path">Path</a> contains <a href="#Line">Lines</a> and <a href="#Curve">Curves</a> which can be stroked or filled. <a href="#Contour">Contour</a> is
 composed of a series of connected <a href="#Line">Lines</a> and <a href="#Curve">Curves</a>. <a href="#Path">Path</a> may contain zero,
 one, or more <a href="#Contour">Contours</a>.
@@ -103,25 +103,29 @@ overlapping contours.
 Internally, <a href="#Path">Path</a> lazily computes metrics likes bounds and convexity. Call
 <a href="#SkPath_updateBoundsCache">SkPath::updateBoundsCache</a> to make <a href="#Path">Path</a> thread safe.
 
-## <a name="Related_Functions"></a> Related Functions
+## <a name="Related_Function"></a> Related Function
 
 | name | description |
 | --- | --- |
 | <a href="#Arc">Arc</a> | part of <a href="undocumented#Oval">Oval</a> or <a href="undocumented#Circle">Circle</a> |
+| <a href="#Build">Build</a> | adds points and verbs to path |
 | <a href="#Conic">Conic</a> | conic section defined by three points and a weight |
 | <a href="#SkPath_Convexity">Convexity</a> | if <a href="#Path">Path</a> is concave or convex |
 | <a href="#Cubic">Cubic</a> | Bezier_Curve described by third-order polynomial |
 | <a href="#SkPath_Direction">Direction</a> | <a href="#Path">Path</a> contour orientation |
 | <a href="#Fill_Type">Fill Type</a> | <a href="#Path">Path</a> fill rule, normal and inverted |
 | <a href="#Generation_ID">Generation ID</a> | value reflecting contents change |
+| <a href="#Interpolate">Interpolate</a> | weighted average of <a href="#Path">Path</a> pair |
 | <a href="#Last_Point">Last Point</a> | final <a href="SkPoint_Reference#Point">Point</a> in <a href="#Contour">Contour</a> |
 | <a href="#Point_Array">Point Array</a> | end points and control points for lines and curves |
 | <a href="#Quad">Quad</a> | Bezier_Curve described by second-order polynomial |
+| <a href="#Utility">Utility</a> | rarely called management functions |
 | <a href="#SkPath_Verb">Verb</a> | line and curve type |
 | <a href="#Verb_Array">Verb Array</a> | line and curve type for points |
+| <a href="#Volatile">Volatile</a> | caching attribute |
 | Weight | strength of <a href="#Conic">Conic</a> control <a href="SkPoint_Reference#Point">Point</a> |
 
-## <a name="Constants"></a> Constants
+## <a name="Constant"></a> Constant
 
 | name | description |
 | --- | --- |
@@ -133,30 +137,33 @@ Internally, <a href="#Path">Path</a> lazily computes metrics likes bounds and co
 | <a href="#SkPath_SegmentMask">SegmentMask</a> | returns <a href="#SkPath_Verb">Verb</a> types in <a href="#Path">Path</a> |
 | <a href="#SkPath_Verb">Verb</a> | controls how <a href="#Path">Path</a> <a href="#Point">Points</a> are interpreted |
 
-## <a name="Classes_and_Structs"></a> Classes and Structs
+## <a name="Class_or_Struct"></a> Class or Struct
 
 | name | description |
 | --- | --- |
 | <a href="#SkPath_Iter">Iter</a> | <a href="#Path">Path</a> data iterator |
 | <a href="#SkPath_RawIter">RawIter</a> | <a href="#Path">Path</a> raw data iterator |
 
-## <a name="Constructors"></a> Constructors
+## <a name="Constructor"></a> Constructor
 
 | name | description |
 | --- | --- |
 | <a href="#SkPath_empty_constructor">SkPath()</a> | constructs with default values |
 | <a href="#SkPath_copy_const_SkPath">SkPath(const SkPath& path)</a> | makes a shallow copy |
+| <a href="#SkPath_reset">reset</a> | removes <a href="#Verb_Array">Verb Array</a>, <a href="#Point_Array">Point Array</a>, and <a href="#Weight">Weights</a>; frees memory |
+| <a href="#SkPath_rewind">rewind</a> | removes <a href="#Verb_Array">Verb Array</a>, <a href="#Point_Array">Point Array</a>, and <a href="#Weight">Weights</a>, keeping memory |
 | <a href="#SkPath_destructor">~SkPath()</a> | decreases <a href="undocumented#Reference_Count">Reference Count</a> of owned objects |
 
-## <a name="Operators"></a> Operators
+## <a name="Operator"></a> Operator
 
 | name | description |
 | --- | --- |
 | <a href="#SkPath_notequal_operator">operator!=(const SkPath& a, const SkPath& b)</a> | compares paths for inequality |
 | <a href="#SkPath_copy_operator">operator=(const SkPath& path)</a> | makes a shallow copy |
 | <a href="#SkPath_equal_operator">operator==(const SkPath& a, const SkPath& b)</a> | compares paths for equality |
+| <a href="#SkPath_swap">swap</a> | exchanges <a href="#Path">Path</a> pair |
 
-## <a name="Member_Functions"></a> Member Functions
+## <a name="Member_Function"></a> Member Function
 
 | name | description |
 | --- | --- |
@@ -213,7 +220,6 @@ Internally, <a href="#Path">Path</a> lazily computes metrics likes bounds and co
 | <a href="#SkPath_lineTo">lineTo</a> | appends <a href="undocumented#Line">Line</a> |
 | <a href="#SkPath_moveTo">moveTo</a> | starts <a href="#Contour">Contour</a> |
 | <a href="#SkPath_offset">offset</a> | translates <a href="#Point_Array">Point Array</a> |
-| <a href="#SkPath_pathRefIsValid">pathRefIsValid</a> | to be deprecated |
 | <a href="#SkPath_quadTo">quadTo</a> | appends <a href="#Quad">Quad</a> |
 | <a href="#SkPath_rArcTo">rArcTo</a> | appends <a href="#Arc">Arc</a> relative to <a href="#Last_Point">Last Point</a> |
 | <a href="#SkPath_rConicTo">rConicTo</a> | appends <a href="#Conic">Conic</a> relative to <a href="#Last_Point">Last Point</a> |
@@ -228,13 +234,11 @@ Internally, <a href="#Path">Path</a> lazily computes metrics likes bounds and co
 | <a href="#SkPath_serialize">serialize</a> | copies data to buffer |
 | <a href="#SkPath_setConvexity">setConvexity</a> | sets if geometry is convex to avoid future computation |
 | <a href="#SkPath_setFillType">setFillType</a> | sets <a href="#Fill_Type">Fill Type</a>: winding, even-odd, inverse |
-| <a href="#SkPath_setIsConvex">setIsConvex</a> | deprecated |
 | <a href="#SkPath_setIsVolatile">setIsVolatile</a> | sets if <a href="undocumented#Device">Device</a> should not cache |
 | <a href="#SkPath_setLastPt">setLastPt</a> | replaces <a href="#Last_Point">Last Point</a> |
 | <a href="#SkPath_swap">swap</a> | exchanges <a href="#Path">Path</a> pair |
 | <a href="#SkPath_toggleInverseFillType">toggleInverseFillType</a> | toggles <a href="#Fill_Type">Fill Type</a> between inside and outside geometry |
 | <a href="#SkPath_transform">transform</a> | applies <a href="SkMatrix_Reference#Matrix">Matrix</a> to <a href="#Point_Array">Point Array</a> and <a href="#Weight">Weights</a> |
-| <a href="#SkPath_unique">unique</a> | returns if data has single owner |
 | <a href="#SkPath_updateBoundsCache">updateBoundsCache</a> | refreshes result of <a href="#SkPath_getBounds">getBounds</a> |
 | <a href="#SkPath_writeToMemory">writeToMemory</a> | copies data to buffer |
 
@@ -589,6 +593,31 @@ convexity !=
 
 ---
 
+## <a name="Property"></a> Property
+
+| name | description |
+| --- | --- |
+| <a href="#SkPath_IsCubicDegenerate">IsCubicDegenerate</a> | returns if <a href="#Cubic">Cubic</a> is very small |
+| <a href="#SkPath_IsInverseFillType">IsInverseFillType</a> | returns if <a href="#Fill_Type">Fill Type</a> represents outside geometry |
+| <a href="#SkPath_IsLineDegenerate">IsLineDegenerate</a> | returns if <a href="undocumented#Line">Line</a> is very small |
+| <a href="#SkPath_IsQuadDegenerate">IsQuadDegenerate</a> | returns if <a href="#Quad">Quad</a> is very small |
+| <a href="#SkPath_computeTightBounds">computeTightBounds</a> | returns extent of geometry |
+| <a href="#SkPath_conservativelyContainsRect">conservativelyContainsRect</a> | returns true if <a href="SkRect_Reference#Rect">Rect</a> may be inside |
+| <a href="#SkPath_contains">contains</a> | returns if <a href="SkPoint_Reference#Point">Point</a> is in fill area |
+| <a href="#SkPath_getBounds">getBounds</a> | returns maximum and minimum of <a href="#Point_Array">Point Array</a> |
+| <a href="#SkPath_getLastPt">getLastPt</a> | returns <a href="#Last_Point">Last Point</a> |
+| <a href="#SkPath_isEmpty">isEmpty</a> | returns if verb count is zero |
+| <a href="#SkPath_isFinite">isFinite</a> | returns if all <a href="SkPoint_Reference#Point">Point</a> values are finite |
+| <a href="#SkPath_isInterpolatable">isInterpolatable</a> | returns if pair contains equal counts of <a href="#Verb_Array">Verb Array</a> and <a href="#Weight">Weights</a> |
+| <a href="#SkPath_isLastContourClosed">isLastContourClosed</a> | returns if final <a href="#Contour">Contour</a> forms a loop |
+| <a href="#SkPath_isLine">isLine</a> | returns if describes <a href="undocumented#Line">Line</a> |
+| <a href="#SkPath_isNestedFillRects">isNestedFillRects</a> | returns if describes <a href="SkRect_Reference#Rect">Rect</a> pair, one inside the other |
+| <a href="#SkPath_isOval">isOval</a> | returns if describes <a href="undocumented#Oval">Oval</a> |
+| <a href="#SkPath_isRRect">isRRect</a> | returns if describes <a href="undocumented#Round_Rect">Round Rect</a> |
+| <a href="#SkPath_isRect">isRect</a> | returns if describes <a href="SkRect_Reference#Rect">Rect</a> |
+| <a href="#SkPath_isValid">isValid</a> | returns if data is internally consistent |
+| <a href="#SkPath_isVolatile">isVolatile</a> | returns if <a href="undocumented#Device">Device</a> should not cache |
+
 <a name="SkPath_isInterpolatable"></a>
 ## isInterpolatable
 
@@ -632,6 +661,12 @@ paths are interpolatable
 
 ---
 
+## <a name="Interpolate"></a> Interpolate
+
+| name | description |
+| --- | --- |
+| <a href="#SkPath_interpolate">interpolate</a> | interpolates between <a href="#Path">Path</a> pair |
+
 <a name="SkPath_interpolate"></a>
 ## interpolate
 
@@ -639,7 +674,7 @@ paths are interpolatable
 bool interpolate(const SkPath& ending, SkScalar weight, SkPath* out) const
 </pre>
 
-Interpolate between <a href="#Path">Paths</a> with <a href="#Point_Array">Point Array</a> of equal size.
+<a href="#Interpolate">Interpolate</a> between <a href="#Path">Paths</a> with <a href="#Point_Array">Point Array</a> of equal size.
 Copy <a href="#Verb_Array">Verb Array</a> and <a href="#Weight">Weights</a> to <a href="#SkPath_interpolate_out">out</a>, and set <a href="#SkPath_interpolate_out">out</a> <a href="#Point_Array">Point Array</a> to a weighted
 average of this <a href="#Point_Array">Point Array</a> and <a href="#SkPath_interpolate_ending">ending</a> <a href="#Point_Array">Point Array</a>, using the formula:
 (<a href="#Path">Path</a> <a href="SkPoint_Reference#Point">Point</a> * <a href="#SkPath_interpolate_weight">weight</a>) + <a href="#SkPath_interpolate_ending">ending</a> <a href="SkPoint_Reference#Point">Point</a> * (1 - <a href="#SkPath_interpolate_weight">weight</a>).
@@ -685,9 +720,7 @@ true if <a href="#Path">Paths</a> contain same number of <a href="#Point">Points
 bool unique() const
 </pre>
 
-### Return Value
-
-true if <a href="#Path">Path</a> has one owner
+soonOnly valid for Android framework.
 
 ---
 
@@ -1029,11 +1062,7 @@ true if <a href="#Convexity">Convexity</a> stored or computed is <a href="#SkPat
 void setIsConvex(bool isConvex)
 </pre>
 
-Deprecated. Use <a href="#SkPath_setConvexity">setConvexity</a>.
-
-### See Also
-
-<a href="#Convexity">Convexity</a> <a href="#SkPath_setConvexity">setConvexity</a> <a href="#SkPath_getConvexity">getConvexity</a>
+Use <a href="#SkPath_setConvexity">setConvexity</a>.
 
 ---
 
@@ -1314,6 +1343,12 @@ volatile by default is false
 <a href="#SkPath_setIsVolatile">setIsVolatile</a>
 
 ---
+
+## <a name="Volatile"></a> Volatile
+
+| name | description |
+| --- | --- |
+| <a href="#SkPath_setIsVolatile">setIsVolatile</a> | sets if <a href="undocumented#Device">Device</a> should not cache |
 
 <a name="SkPath_setIsVolatile"></a>
 ## setIsVolatile
@@ -1843,6 +1878,23 @@ rotated circle bounds = 14.6447, 9.64466, 85.3553, 80.3553
 
 ---
 
+## <a name="Utility"></a> Utility
+
+| name | description |
+| --- | --- |
+| <a href="#SkPath_ConvertConicToQuads">ConvertConicToQuads</a> | approximates <a href="#Conic">Conic</a> with <a href="#Quad">Quad</a> array |
+| <a href="#SkPath_ConvertToNonInverseFillType">ConvertToNonInverseFillType</a> | returns <a href="#Fill_Type">Fill Type</a> representing inside geometry |
+| <a href="#SkPath_dump_2">dump</a> | sends text representation using floats to standard output |
+|  | dump |
+| <a href="#SkPath_dumpHex">dumpHex</a> | sends text representation using hexadecimal to standard output |
+| <a href="#SkPath_getSegmentMasks">getSegmentMasks</a> | returns types in <a href="#Verb_Array">Verb Array</a> |
+| <a href="#SkPath_incReserve">incReserve</a> | reserves space for additional data |
+| <a href="#SkPath_readFromMemory">readFromMemory</a> | Initializes from buffer |
+| <a href="#SkPath_serialize">serialize</a> | copies data to buffer |
+| <a href="#SkPath_setLastPt">setLastPt</a> | replaces <a href="#Last_Point">Last Point</a> |
+| <a href="#SkPath_updateBoundsCache">updateBoundsCache</a> | refreshes result of <a href="#SkPath_getBounds">getBounds</a> |
+| <a href="#SkPath_writeToMemory">writeToMemory</a> | copies data to buffer |
+
 <a name="SkPath_updateBoundsCache"></a>
 ## updateBoundsCache
 
@@ -1985,6 +2037,40 @@ number of additional <a href="#Point">Points</a> to allocate</td>
 <a href="#Point_Array">Point Array</a>
 
 ---
+
+## <a name="Build"></a> Build
+
+| name | description |
+| --- | --- |
+| <a href="#SkPath_addArc">addArc</a> | adds one <a href="#Contour">Contour</a> containing <a href="#Arc">Arc</a> |
+| <a href="#SkPath_addCircle">addCircle</a> | adds one <a href="#Contour">Contour</a> containing <a href="undocumented#Circle">Circle</a> |
+| <a href="#SkPath_addOval">addOval</a> | adds one <a href="#Contour">Contour</a> containing <a href="undocumented#Oval">Oval</a> |
+|  | <a href="#SkPath_addOval">addOval</a> |
+| <a href="#SkPath_addPath">addPath</a> | adds contents of <a href="#Path">Path</a> |
+|  | <a href="#SkPath_addPath">addPath</a> |
+|  | <a href="#SkPath_addPath">addPath</a> |
+| <a href="#SkPath_addPoly">addPoly</a> | adds one <a href="#Contour">Contour</a> containing connected lines |
+| <a href="#SkPath_addRRect">addRRect</a> | adds one <a href="#Contour">Contour</a> containing <a href="undocumented#Round_Rect">Round Rect</a> |
+|  | <a href="#SkPath_addRRect">addRRect</a> |
+| <a href="#SkPath_addRect">addRect</a> | adds one <a href="#Contour">Contour</a> containing <a href="SkRect_Reference#Rect">Rect</a> |
+|  | <a href="#SkPath_addRect">addRect</a> |
+|  | <a href="#SkPath_addRect">addRect</a> |
+| <a href="#SkPath_addRoundRect">addRoundRect</a> | adds one <a href="#Contour">Contour</a> containing <a href="undocumented#Round_Rect">Round Rect</a> with common corner radii |
+|  | <a href="#SkPath_addRoundRect">addRoundRect</a> |
+| <a href="#SkPath_arcTo">arcTo</a> | appends <a href="#Arc">Arc</a> |
+| <a href="#SkPath_close">close</a> | makes last <a href="#Contour">Contour</a> a loop |
+| <a href="#SkPath_cubicTo">cubicTo</a> | appends <a href="#Cubic">Cubic</a> |
+| <a href="#SkPath_lineTo">lineTo</a> | appends <a href="undocumented#Line">Line</a> |
+|  | <a href="#SkPath_lineTo">lineTo</a> |
+| <a href="#SkPath_moveTo">moveTo</a> | starts <a href="#Contour">Contour</a> |
+|  | <a href="#SkPath_moveTo">moveTo</a> |
+| <a href="#SkPath_rArcTo">rArcTo</a> | appends <a href="#Arc">Arc</a> relative to <a href="#Last_Point">Last Point</a> |
+| <a href="#SkPath_rConicTo">rConicTo</a> | appends <a href="#Conic">Conic</a> relative to <a href="#Last_Point">Last Point</a> |
+| <a href="#SkPath_rCubicTo">rCubicTo</a> | appends <a href="#Cubic">Cubic</a> relative to <a href="#Last_Point">Last Point</a> |
+| <a href="#SkPath_rLineTo">rLineTo</a> | appends <a href="undocumented#Line">Line</a> relative to <a href="#Last_Point">Last Point</a> |
+| <a href="#SkPath_rMoveTo">rMoveTo</a> | starts <a href="#Contour">Contour</a> relative to <a href="#Last_Point">Last Point</a> |
+| <a href="#SkPath_rQuadTo">rQuadTo</a> | appends <a href="#Quad">Quad</a> relative to <a href="#Last_Point">Last Point</a> |
+| <a href="#SkPath_reverseAddPath">reverseAddPath</a> | adds contents of <a href="#Path">Path</a> back to front |
 
 <a name="SkPath_moveTo"></a>
 ## moveTo
@@ -3973,6 +4059,15 @@ overwritten, translated copy of <a href="#Path">Path</a>; may be nullptr</td>
 
 ---
 
+## <a name="Transform"></a> Transform
+
+| name | description |
+| --- | --- |
+| <a href="#SkPath_offset">offset</a> | translates <a href="#Point_Array">Point Array</a> |
+|  | offset |
+| <a href="#SkPath_transform">transform</a> | applies <a href="SkMatrix_Reference#Matrix">Matrix</a> to <a href="#Point_Array">Point Array</a> and <a href="#Weight">Weights</a> |
+|  | transform |
+
 <a name="SkPath_offset_2"></a>
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
@@ -4007,7 +4102,7 @@ offset added to <a href="#Point_Array">Point Array</a> y coordinates</td>
 void transform(const SkMatrix& matrix, SkPath* dst) const
 </pre>
 
-Transform <a href="#Verb_Array">Verb Array</a>, <a href="#Point_Array">Point Array</a>, and weight by <a href="#SkPath_transform_matrix">matrix</a>.
+<a href="#Transform">Transform</a> <a href="#Verb_Array">Verb Array</a>, <a href="#Point_Array">Point Array</a>, and weight by <a href="#SkPath_transform_matrix">matrix</a>.
 transform may change <a href="#Verb">Verbs</a> and increase their number.
 Transformed <a href="#Path">Path</a> replaces <a href="#SkPath_transform_dst">dst</a>; if <a href="#SkPath_transform_dst">dst</a> is nullptr, original data
 is replaced.
@@ -4037,7 +4132,7 @@ overwritten, transformed copy of <a href="#Path">Path</a>; may be nullptr</td>
 void transform(const SkMatrix& matrix)
 </pre>
 
-Transform <a href="#Verb_Array">Verb Array</a>, <a href="#Point_Array">Point Array</a>, and weight by <a href="#SkPath_transform_2_matrix">matrix</a>.
+<a href="#Transform">Transform</a> <a href="#Verb_Array">Verb Array</a>, <a href="#Point_Array">Point Array</a>, and weight by <a href="#SkPath_transform_2_matrix">matrix</a>.
 transform may change <a href="#Verb">Verbs</a> and increase their number.
 <a href="#Path">Path</a> is replaced by transformed data.
 
@@ -4555,6 +4650,8 @@ Setting <a href="#Fill_Type">Fill Type</a> does not change <a href="#Generation_
 
 Each time the path is modified, a different <a href="#Generation_ID">Generation ID</a> will be returned.
 
+<a href="#Fill_Type">Fill Type</a> does affect <a href="#Generation_ID">Generation ID</a> on Android framework.
+
 ### Return Value
 
 non-zero, globally unique value
@@ -4604,13 +4701,7 @@ true if <a href="#Path">Path</a> data is consistent
 bool pathRefIsValid() const
 </pre>
 
-Returns if <a href="#Path">Path</a> data is consistent.
-
-To be deprecated soon.
-
-### Return Value
-
-true if <a href="#Path">Path</a> data is consistent
+soon
 
 ---
 
@@ -5109,6 +5200,11 @@ peek Done == verb Done
 ~~~~
 
 </fiddle-embed></div>
+
+StdOut isn't really volatile, it just produces the wrong result.
+A simple fix changes the output of hairlines and needs to be
+investigated to see if the change is correct or not.
+https://skia-review.googlesource.com/c/21340/
 
 ### See Also
 

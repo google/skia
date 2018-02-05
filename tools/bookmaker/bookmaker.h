@@ -390,6 +390,7 @@ public:
     }
 
     void reportError(const char* errorStr) const;
+    static string ReportFilename(string file);
     void reportWarning(const char* errorStr) const;
 
     template <typename T> T reportError(const char* errorStr) const {
@@ -841,6 +842,7 @@ public:
     bool exampleToScript(string* result, ExampleOptions ) const;
     string extractText(TrimExtract trimExtract) const;
     string fiddleName() const;
+    const Definition* findClone(string match) const;
     string formatFunction() const;
     const Definition* hasChild(MarkType markType) const;
     bool hasMatch(const string& name) const;
@@ -919,9 +921,11 @@ public:
     Type fType = Type::kNone;
     bool fClone = false;
     bool fCloned = false;
+    bool fDeprecated = false;
     bool fOperatorConst = false;
     bool fPrivate = false;
     bool fShort = false;
+    bool fToBeDeprecated = false;
     bool fMemberStart = false;
     bool fAnonymous = false;
     mutable bool fVisited = false;
@@ -2034,21 +2038,31 @@ public:
     bool buildReferences(const char* docDir, const char* mdOutDirOrFile);
     bool buildStatus(const char* docDir, const char* mdOutDir);
 
-    static constexpr const char* kClassesAndStructs = "Classes_and_Structs";
-    static constexpr const char* kConstants = "Constants";
-    static constexpr const char* kConstructors = "Constructors";
-    static constexpr const char* kMemberFunctions = "Member_Functions";
-    static constexpr const char* kMembers = "Members";
-    static constexpr const char* kOperators = "Operators";
+    static constexpr const char* kClassesAndStructs = "Class_or_Struct";
+    static constexpr const char* kConstants = "Constant";
+    static constexpr const char* kConstructors = "Constructor";
+    static constexpr const char* kMemberFunctions = "Member_Function";
+    static constexpr const char* kMembers = "Member";
+    static constexpr const char* kOperators = "Operator";
     static constexpr const char* kOverview = "Overview";
-    static constexpr const char* kRelatedFunctions = "Related_Functions";
-    static constexpr const char* kSubtopics = "Subtopics";
+    static constexpr const char* kRelatedFunctions = "Related_Function";
+    static constexpr const char* kSubtopics = "Subtopic";
 
 private:
     enum class TableState {
         kNone,
         kRow,
         kColumn,
+    };
+
+    struct TableContents {
+        TableContents()
+            : fShowClones(false) {
+        }
+
+        string fDescription;
+        vector<const Definition*> fMembers;
+        bool fShowClones;
     };
 
     string addReferences(const char* start, const char* end, BmhParser::Resolvable );
@@ -2068,8 +2082,11 @@ private:
     bool parseFromFile(const char* path) override { return true; }
     void populateTables(const Definition* def);
 
-    vector<const Definition*>& populator(const char* key) {
-        return fPopulators.find(key)->second.fMembers;
+    TableContents& populator(const char* key) {
+        auto entry = fPopulators.find(key);
+        // FIXME: this should have been detected earlier
+        SkASSERT(fPopulators.end() != entry);
+        return entry->second;
     }
 
     void reset() override {
@@ -2103,13 +2120,8 @@ private:
 
     void resolveOut(const char* start, const char* end, BmhParser::Resolvable );
     void rowOut(const char * name, const string& description);
-    void subtopicOut(vector<const Definition*>& data);
+    void subtopicOut(const TableContents& tableContents);
     void subtopicsOut();
-
-    struct TableContents {
-        string fDescription;
-        vector<const Definition*> fMembers;
-    };
 
     unordered_map<string, TableContents> fPopulators;
     vector<const Definition*> fClassStack;
