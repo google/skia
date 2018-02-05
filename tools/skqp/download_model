@@ -8,9 +8,12 @@ import hashlib
 import os
 import shutil
 import sys
-import threading
+import multiprocessing
 import tempfile
+import time
 import urllib2
+
+N_PROCESSES = 20
 
 def checksum(path):
     if not os.path.exists(path):
@@ -37,6 +40,13 @@ def download(md5, path):
         with open(path, 'wb') as o:
             shutil.copyfileobj(urllib2.urlopen(url), o)
 
+def process_worker(q, n_records):
+    while True:
+      rec = q.get()
+      download(*rec)
+      q.task_done()
+      sys.stderr.write('\r %4d / %d   ' % (n_records - q.qsize(), n_records))
+
 def tmp(prefix):
     fd, path = tempfile.mkstemp(prefix=prefix)
     os.close(fd)
@@ -57,18 +67,23 @@ def main():
         for line in f:
             md5, path = line.strip().split(';', 1)
             records.append((md5, path))
-    threads = set()
+
+    # set up a queue and workers.
+    q = multiprocessing.JoinableQueue(maxsize=0)
+    for i in range(N_PROCESSES):
+      worker = multiprocessing.Process(target=process_worker, args=(q,len(records)))
+      worker.daemon = True
+      worker.start()
+
+    # Move the files to the queue and wait until it's processed.
     sys.stderr.write('\r    0 / %d   ' % len(records))
-    for i, record in enumerate(records):
-        t = threading.Thread(target=download, args=record)
-        t.start()
-        threads.add(t)
-    left = -1
-    while left != 0:
-        count = sum(1 for t in threading.enumerate() if t in threads)
-        if left != count:
-            left = count
-            sys.stderr.write('\r %4d / %d   ' % (len(records) - left, len(records)))
+    for rec in records:
+      q.put(rec)
+    q.join()
+
+    # while q.qsize() > 0:
+    #     sys.stderr.write('\r %4d / %d   ' % (len(records) - q.qsize(), len(records)))
+    #     time.sleep(.5)
     sys.stderr.write('\n')
 
 if __name__ == '__main__':
