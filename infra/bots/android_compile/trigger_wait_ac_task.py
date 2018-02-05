@@ -122,22 +122,25 @@ def TriggerAndWait(options):
 
     if ret["done"]:
       print
+      print
       if ret["withpatch_success"]:
         print 'Your run was successfully completed.'
+        print
         print 'With patch logs are here: %s' % ret["withpatch_log"]
         print
         return 0
       elif ret["nopatch_success"]:
         raise AndroidCompileException('The build with the patch failed and the '
                'build without the patch succeeded. This means that the patch '
-               'causes Android to fail compilation.\n'
-               'With patch logs are here: %s\n'
-               'No patch logs are here: %s' % (
+               'causes Android to fail compilation.\n\n'
+               'With patch logs are here: %s\n\n'
+               'No patch logs are here: %s\n\n' % (
                    ret["withpatch_log"], ret["nopatch_log"]))
       else:
         print ('Both with patch and no patch builds failed. This means that the'
                ' Android tree is currently broken. Marking this bot as '
                'successful')
+        print
         print 'With patch logs are here: %s' % ret["WithPatchLog"]
         print 'No patch logs are here: %s' % ret["NoPatchLog"]
         return 0
