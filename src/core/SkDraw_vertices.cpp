@@ -271,7 +271,9 @@ void SkDraw::drawVertices(SkVertices::VertexMode vmode, int count,
                 SkMatrix tmpCtm;
                 if (textures) {
                     SkMatrix localM;
-                    texture_to_matrix(state, vertices, textures, &localM);
+                    if (!texture_to_matrix(state, vertices, textures, &localM)) {
+                        continue;
+                    }
                     tmpCtm = SkMatrix::Concat(*fMatrix, localM);
                     ctm = &tmpCtm;
                 }
