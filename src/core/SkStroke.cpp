@@ -299,8 +299,9 @@ void SkPathStroker::finishContour(bool close, bool currIsLine) {
             fOuter.close();
 
             if (fCanIgnoreCenter) {
-                if (!fOuter.getBounds().contains(fInner.getBounds())) {
-                    SkASSERT(fInner.getBounds().contains(fOuter.getBounds()));
+                // If we can ignore the center just make sure the larger of the two paths
+                // is preserved and don't add the smaller one.
+                if (fInner.getBounds().contains(fOuter.getBounds())) {
                     fInner.swap(fOuter);
                 }
             } else {
