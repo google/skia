@@ -3670,7 +3670,7 @@
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
       ],
-      "isolate": "compile_skia.isolate",
+      "isolate": "android_framework_compile.isolate",
       "priority": 0.8
     },
     "Build-Debian9-Clang-x64-Debug-Android": {
