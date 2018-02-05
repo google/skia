@@ -92,7 +92,6 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
         kBGRA_8888_GrPixelConfig,
         kSRGBA_8888_GrPixelConfig,
         kSBGRA_8888_GrPixelConfig,
-        kRGBA_8888_sint_GrPixelConfig,
         kRGBA_float_GrPixelConfig,
         kRG_float_GrPixelConfig,
         kAlpha_half_GrPixelConfig,
@@ -138,8 +137,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
                                                             texels.get(), levelCount);
             REPORTER_ASSERT(reporter, SkToBool(proxy.get()) ==
                             (caps->isConfigTexturable(desc.fConfig) &&
-                             caps->mipMapSupport() &&
-                             !GrPixelConfigIsSint(desc.fConfig)));
+                             caps->mipMapSupport()));
 
             desc.fFlags = kRenderTarget_GrSurfaceFlag;
             tex = resourceProvider->createTexture(desc, SkBudgeted::kNo);

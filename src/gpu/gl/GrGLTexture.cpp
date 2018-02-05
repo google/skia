@@ -19,14 +19,10 @@ static inline GrSLType sampler_type(const GrGLTexture::IDDesc& idDesc, GrPixelCo
                                     const GrGLGpu* gpu) {
     if (idDesc.fInfo.fTarget == GR_GL_TEXTURE_EXTERNAL) {
         SkASSERT(gpu->caps()->shaderCaps()->externalTextureSupport());
-        SkASSERT(!GrPixelConfigIsSint(config));
         return kTextureExternalSampler_GrSLType;
     } else if (idDesc.fInfo.fTarget == GR_GL_TEXTURE_RECTANGLE) {
         SkASSERT(gpu->glCaps().rectangleTextureSupport());
-        SkASSERT(!GrPixelConfigIsSint(config));
         return kTexture2DRectSampler_GrSLType;
-    } else if (GrPixelConfigIsSint(config)) {
-        return kITexture2DSampler_GrSLType;
     } else {
         SkASSERT(idDesc.fInfo.fTarget == GR_GL_TEXTURE_2D);
         return kTexture2DSampler_GrSLType;
@@ -36,11 +32,6 @@ static inline GrSLType sampler_type(const GrGLTexture::IDDesc& idDesc, GrPixelCo
 // This method parallels GrTextureProxy::highestFilterMode
 static inline GrSamplerState::Filter highest_filter_mode(const GrGLTexture::IDDesc& idDesc,
                                                          GrPixelConfig config) {
-    if (GrPixelConfigIsSint(config)) {
-        // Integer textures in GL can use GL_NEAREST_MIPMAP_NEAREST. This is a mode we don't support
-        // and don't currently have a use for.
-        return GrSamplerState::Filter::kNearest;
-    }
     if (idDesc.fInfo.fTarget == GR_GL_TEXTURE_RECTANGLE ||
         idDesc.fInfo.fTarget == GR_GL_TEXTURE_EXTERNAL) {
         return GrSamplerState::Filter::kBilerp;

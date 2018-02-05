@@ -39,7 +39,6 @@ public:
             case kUnknown_GrPixelConfig:
             case kAlpha_half_GrPixelConfig:
             case kAlpha_half_as_Red_GrPixelConfig:
-            case kRGBA_8888_sint_GrPixelConfig:
             case kRGBA_float_GrPixelConfig:
             case kRG_float_GrPixelConfig:
             case kRGBA_half_GrPixelConfig:

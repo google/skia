@@ -289,10 +289,6 @@ void GrMtlCaps::initConfigTable() {
     info = &fConfigTable[kSBGRA_8888_GrPixelConfig];
     info->fFlags = ConfigInfo::kAllFlags;
 
-    // RGBA_8888_sint uses RGBA8Sint
-    info = &fConfigTable[kRGBA_8888_sint_GrPixelConfig];
-    info->fFlags = ConfigInfo::kMSAA_Flag;
-
     // RGBA_float uses RGBA32Float
     info = &fConfigTable[kRGBA_float_GrPixelConfig];
     if (this->isMac()) {

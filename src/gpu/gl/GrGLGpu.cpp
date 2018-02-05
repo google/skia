@@ -801,7 +801,6 @@ static inline GrGLint config_alignment(GrPixelConfig config) {
         case kBGRA_8888_GrPixelConfig:
         case kSRGBA_8888_GrPixelConfig:
         case kSBGRA_8888_GrPixelConfig:
-        case kRGBA_8888_sint_GrPixelConfig:
         case kRGBA_float_GrPixelConfig:
         case kRG_float_GrPixelConfig:
             return 4;
@@ -917,8 +916,8 @@ static bool allocate_and_populate_texture(GrPixelConfig config,
     // This means if we may later want to add mipmaps, we cannot use TexStorage.
     // Right now, we cannot know if we will later add mipmaps or not.
     // The only time we can use TexStorage is when we already have the
-    // mipmaps or are using a format incompatible with MIP maps.
-    useTexStorage &= mipLevelCount > 1 || GrPixelConfigIsSint(config);
+    // mipmaps.
+    useTexStorage &= mipLevelCount > 1;
 
     if (useTexStorage) {
         // We never resize or change formats of textures.
@@ -1428,12 +1427,8 @@ sk_sp<GrTexture> GrGLGpu::onCreateTexture(const GrSurfaceDesc& desc,
 
     GrMipLevel zeroLevel;
     std::unique_ptr<uint8_t[]> zeros;
-    // TODO: remove the GrPixelConfigIsSint test. This is here because we have yet to add support
-    // for glClearBuffer* which must be used instead of glClearColor/glClear for integer FBO
-    // attachments.
     if (performClear && !this->glCaps().clearTextureSupport() &&
-        (!this->glCaps().canConfigBeFBOColorAttachment(desc.fConfig) ||
-         GrPixelConfigIsSint(desc.fConfig))) {
+        !this->glCaps().canConfigBeFBOColorAttachment(desc.fConfig)) {
         size_t rowSize = GrBytesPerPixel(desc.fConfig) * desc.fWidth;
         size_t size = rowSize * desc.fHeight;
         zeros.reset(new uint8_t[size]);
@@ -1479,11 +1474,9 @@ sk_sp<GrTexture> GrGLGpu::onCreateTexture(const GrSurfaceDesc& desc,
 #endif
     if (tex && performClear) {
         if (this->glCaps().clearTextureSupport()) {
-            GrGLenum format = GrPixelConfigIsSint(tex->config()) ? GR_GL_RGBA_INTEGER : GR_GL_RGBA;
             static constexpr uint32_t kZero = 0;
-            GL_CALL(ClearTexImage(tex->textureID(), 0, format, GR_GL_UNSIGNED_BYTE, &kZero));
+            GL_CALL(ClearTexImage(tex->textureID(), 0, GR_GL_RGBA, GR_GL_UNSIGNED_BYTE, &kZero));
         } else {
-            SkASSERT(!GrPixelConfigIsSint(desc.fConfig));
             GrGLIRect viewport;
             this->bindSurfaceFBOForPixelOps(tex.get(), GR_GL_FRAMEBUFFER, &viewport,
                                             kDst_TempFBOTarget);
@@ -3319,7 +3312,6 @@ static inline bool can_blit_framebuffer_for_copy_surface(
     }
     // Blits are not allowed between int color buffers and float/fixed color buffers. GrGpu should
     // have filtered such cases out.
-    SkASSERT(GrPixelConfigIsSint(dst->config()) == GrPixelConfigIsSint(src->config()));
     const GrGLTexture* dstTex = static_cast<const GrGLTexture*>(dst->asTexture());
     const GrGLTexture* srcTex = static_cast<const GrGLTexture*>(src->asTexture());
     const GrRenderTarget* dstRT = dst->asRenderTarget();
@@ -4205,7 +4197,6 @@ bool GrGLGpu::copySurfaceAsBlitFramebuffer(GrSurface* dst, GrSurfaceOrigin dstOr
 // If this returns false, then the calling code falls back to using glGenerateMipmap.
 bool GrGLGpu::generateMipmap(GrGLTexture* texture, GrSurfaceOrigin textureOrigin,
                              bool gammaCorrect) {
-    SkASSERT(!GrPixelConfigIsSint(texture->config()));
     // Our iterative downsample requires the ability to limit which level we're sampling:
     if (!this->glCaps().doManualMipmapping()) {
         return false;
@@ -4637,12 +4628,10 @@ int GrGLGpu::TextureToCopyProgramIdx(GrTexture* texture) {
     switch (texture->texturePriv().samplerType()) {
         case kTexture2DSampler_GrSLType:
             return 0;
-        case kITexture2DSampler_GrSLType:
-            return 1;
         case kTexture2DRectSampler_GrSLType:
-            return 2;
+            return 1;
         case kTextureExternalSampler_GrSLType:
-            return 3;
+            return 2;
         default:
             SK_ABORT("Unexpected samper type");
             return 0;

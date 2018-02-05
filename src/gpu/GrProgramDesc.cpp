@@ -25,17 +25,14 @@ static inline uint16_t image_storage_or_sampler_uniform_type_key(GrSLType type )
         case kTexture2DSampler_GrSLType:
             value = 0;
             break;
-        case kITexture2DSampler_GrSLType:
+        case kTextureExternalSampler_GrSLType:
             value = 1;
             break;
-        case kTextureExternalSampler_GrSLType:
+        case kTexture2DRectSampler_GrSLType:
             value = 2;
             break;
-        case kTexture2DRectSampler_GrSLType:
-            value = 3;
-            break;
         case kBufferSampler_GrSLType:
-            value = 4;
+            value = 3;
             break;
 
         default:
