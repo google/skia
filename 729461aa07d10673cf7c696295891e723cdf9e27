@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9c9ad063_08151693",
+        "filename": "src/svg/SkSVGDevice.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 638,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-02-05T22:19:48Z",
+      "side": 1,
+      "message": "I wonder if we could defer most of this to the clip stack - something along these lines:\n\n  this-\u003ecs().save();\n  this-\u003ecs().clipRect(rect, this-\u003ectm(), kIntersect_SkClipOp, true);\n  SkRect transformedRect \u003d this-\u003ecs().bounds(this-\u003egetGlobalBounds());\n  this-\u003ecs().restore();",
+      "range": {
+        "startLine": 632,
+        "startChar": 0,
+        "endLine": 638,
+        "endChar": 50
+      },
+      "revId": "729461aa07d10673cf7c696295891e723cdf9e27",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "428b47af_0bde561d",
+        "filename": "src/svg/SkSVGDevice.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 643,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-02-05T22:19:48Z",
+      "side": 1,
+      "message": "Is value.data() null-terminated?  If so, can we pass directly to addAttribute() below and skip the SkString?",
+      "range": {
+        "startLine": 643,
+        "startChar": 62,
+        "endLine": 643,
+        "endChar": 79
+      },
+      "revId": "729461aa07d10673cf7c696295891e723cdf9e27",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "85f95758_4b6141e9",
+        "filename": "src/svg/SkSVGDevice.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 648,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-02-05T22:19:48Z",
+      "side": 1,
+      "message": "I presume we cannot use fill: \"none\" because that won\u0027t capture the click event, right?",
+      "range": {
+        "startLine": 648,
+        "startChar": 27,
+        "endLine": 648,
+        "endChar": 48
+      },
+      "revId": "729461aa07d10673cf7c696295891e723cdf9e27",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
