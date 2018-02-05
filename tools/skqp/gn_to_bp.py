@@ -121,10 +121,13 @@ cc_library_shared {
 
 # We'll run GN to get the main source lists and include directories for Skia.
 gn_args = {
-  'is_debug':   'false',
   'target_cpu': '"none"',
   'target_os':  '"android"',
+
+  # setup skqp
+  'is_debug':   'false',
   'ndk_api':    '26',
+  'skia_skqp_global_error_tolerance': '4',
 
   # setup vulkan
   'skia_use_vulkan':    'true',
