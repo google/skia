@@ -5,12 +5,15 @@
 # found in the LICENSE file.
 
 import hashlib
-import multiprocessing
 import os
 import shutil
 import sys
+import multiprocessing
 import tempfile
+import time
 import urllib2
+
+N_PROCESSES = 20
 
 def checksum(path):
     if not os.path.exists(path):
@@ -37,6 +40,13 @@ def download(md5, path):
         with open(path, 'wb') as o:
             shutil.copyfileobj(urllib2.urlopen(url), o)
 
+def process_worker(q, n_records):
+    while True:
+      rec = q.get()
+      download(*rec)
+      q.task_done()
+      sys.stderr.write('\r %4d / %d   ' % (n_records - q.qsize(), n_records))
+
 def tmp(prefix):
     fd, path = tempfile.mkstemp(prefix=prefix)
     os.close(fd)
@@ -46,6 +56,7 @@ def main():
     os.chdir(os.path.join(os.path.dirname(__file__), os.pardir, os.pardir,
                          'platform_tools', 'android', 'apps', 'skqp', 'src',
                          'main', 'assets'))
+    sys.stderr.write('\n    0 / ????   ')
     file_list_file = tmp('files_')
     with open('files.checksum', 'r') as f:
         md5 = f.read().strip()
@@ -56,12 +67,19 @@ def main():
         for line in f:
             md5, path = line.strip().split(';', 1)
             records.append((md5, path))
-    sys.stderr.write('Downloading %d files.\n' % len(records))
-    pool = multiprocessing.Pool(processes=multiprocessing.cpu_count() * 2)
-    for record in records:
-        pool.apply_async(download, record, callback=lambda x: sys.stderr.write('.'))
-    pool.close()
-    pool.join()
+
+    # set up a queue and workers.
+    q = multiprocessing.JoinableQueue(maxsize=0)
+    for i in range(N_PROCESSES):
+      worker = multiprocessing.Process(target=process_worker, args=(q,len(records)))
+      worker.daemon = True
+      worker.start()
+
+    # Move the files to the queue and wait until it's processed.
+    sys.stderr.write('\r    0 / %d   ' % len(records))
+    for rec in records:
+      q.put(rec)
+    q.join()
     sys.stderr.write('\n')
 
 if __name__ == '__main__':
