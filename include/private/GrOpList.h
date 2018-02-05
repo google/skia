@@ -16,9 +16,9 @@
 
 
 // Turn on/off the explicit distribution of GPU resources at flush time
-#ifndef SK_DISABLE_EXPLICIT_GPU_RESOURCE_ALLOCATION
-   #define SK_DISABLE_EXPLICIT_GPU_RESOURCE_ALLOCATION
-#endif
+//#ifndef SK_DISABLE_EXPLICIT_GPU_RESOURCE_ALLOCATION
+//   #define SK_DISABLE_EXPLICIT_GPU_RESOURCE_ALLOCATION
+//a#endif
 
 // Turn on/off the sorting of opLists at flush time
 #ifndef SK_DISABLE_RENDER_TARGET_SORTING
