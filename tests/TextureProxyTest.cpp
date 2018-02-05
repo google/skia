@@ -237,7 +237,6 @@ static void invalidation_test(GrContext* context, skiatest::Reporter* reporter) 
     REPORTER_ASSERT(reporter, 0 == cache->getResourceCount());
 }
 
-#ifndef SK_DISABLE_DEFERRED_PROXIES
 // Test if invalidating unique ids prior to instantiating operates as expected
 static void invalidation_and_instantiation_test(GrContext* context, skiatest::Reporter* reporter) {
     GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
@@ -276,7 +275,6 @@ static void invalidation_and_instantiation_test(GrContext* context, skiatest::Re
     REPORTER_ASSERT(reporter, 0 == proxyProvider->numUniqueKeyProxies_TestOnly());
     REPORTER_ASSERT(reporter, 0 == cache->getResourceCount());
 }
-#endif
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TextureProxyTest, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
@@ -302,9 +300,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TextureProxyTest, reporter, ctxInfo) {
     }
 
     invalidation_test(context, reporter);
-#ifndef SK_DISABLE_DEFERRED_PROXIES
     invalidation_and_instantiation_test(context, reporter);
-#endif
 }
 
 #endif
