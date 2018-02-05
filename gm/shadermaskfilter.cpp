@@ -7,6 +7,7 @@
 
 #include "gm.h"
 #include "sk_tool_utils.h"
+#include "SkBlendModePriv.h"
 #include "SkBlurMaskFilter.h"
 #include "SkCanvas.h"
 #include "SkImage.h"
@@ -90,7 +91,7 @@ const char* gCoverageName[] = {
     "union", "sect", "diff", "rev-diff", "xor"
 };
 
-DEF_SIMPLE_GM(combinemaskfilter, canvas, 565, 250) {
+DEF_SIMPLE_GM(combinemaskfilter, canvas, 560, 510) {
     const SkRect r = { 0, 0, 100, 100 };
 
     SkPaint paint;
@@ -102,8 +103,8 @@ DEF_SIMPLE_GM(combinemaskfilter, canvas, 565, 250) {
     labelP.setTextAlign(SkPaint::kCenter_Align);
 
     const SkRect r2 = r.makeOutset(1.5f, 1.5f);
-    SkPaint paint2;
-    paint2.setStyle(SkPaint::kStroke_Style);
+    SkPaint strokePaint;
+    strokePaint.setStyle(SkPaint::kStroke_Style);
 
     auto proc0 = [](const SkRect& r, SkPath* pathA, SkPath* pathB) {
         pathA->moveTo(r.fLeft, r.fBottom);
@@ -132,13 +133,23 @@ DEF_SIMPLE_GM(combinemaskfilter, canvas, 565, 250) {
     for (int i = 0; i < 5; ++i) {
         canvas->drawText(gCoverageName[i], strlen(gCoverageName[i]), r.width()*0.5f, -10, labelP);
 
-        SkCoverageMode mode = static_cast<SkCoverageMode>(i);
+        SkCoverageMode cmode = static_cast<SkCoverageMode>(i);
         canvas->save();
-        for (int j = 0; j < 2; ++j) {
-            paint.setMaskFilter(SkMaskFilter::MakeCombine(mfA[j], mfB[j], mode));
-            canvas->drawRect(r2, paint2);
-            canvas->drawRect(r, paint);
-            canvas->translate(0, r.height() + 10);
+        // esp. on gpu side, its valuable to exercise modes that do and do-not convolve coverage
+        // with alpha. SrcOver and SrcIn have these properties, but also happen to "look" the same
+        // for this test.
+        const SkBlendMode bmodes[] = { SkBlendMode::kSrcOver, SkBlendMode::kSrcIn };
+        SkASSERT( SkBlendMode_SupportsCoverageAsAlpha(bmodes[0]));  // test as-alpha
+        SkASSERT(!SkBlendMode_SupportsCoverageAsAlpha(bmodes[1]));  // test not-as-alpha
+        for (auto bmode : bmodes) {
+            paint.setBlendMode(bmode);
+            for (int j = 0; j < 2; ++j) {
+                paint.setMaskFilter(SkMaskFilter::MakeCombine(mfA[j], mfB[j], cmode));
+                canvas->drawRect(r2, strokePaint);
+                canvas->drawRect(r, paint);
+                canvas->translate(0, r.height() + 10);
+            }
+            canvas->translate(0, 40);
         }
         canvas->restore();
         canvas->translate(r.width() + 10, 0);
