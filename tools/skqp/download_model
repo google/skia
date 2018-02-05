@@ -8,7 +8,6 @@ import hashlib
 import os
 import shutil
 import sys
-import threading
 import tempfile
 import urllib2
 
@@ -57,18 +56,10 @@ def main():
         for line in f:
             md5, path = line.strip().split(';', 1)
             records.append((md5, path))
-    threads = set()
     sys.stderr.write('\r    0 / %d   ' % len(records))
-    for i, record in enumerate(records):
-        t = threading.Thread(target=download, args=record)
-        t.start()
-        threads.add(t)
-    left = -1
-    while left != 0:
-        count = sum(1 for t in threading.enumerate() if t in threads)
-        if left != count:
-            left = count
-            sys.stderr.write('\r %4d / %d   ' % (len(records) - left, len(records)))
+    for i, rec in enumerate(records):
+        download(*rec)
+        sys.stderr.write('\r %4d / %d   ' % (i+1, len(records)))
     sys.stderr.write('\n')
 
 if __name__ == '__main__':
