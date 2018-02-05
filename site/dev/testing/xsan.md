@@ -3,6 +3,17 @@ MSAN, ASAN, & TSAN
 
 *Testing Skia with memory, address, and thread santizers.*
 
+Compiling Skia with ASAN, UBSAN, or TSAN can be done with any version of Clang newer than 3.8.
+
+- UBSAN works on Linux, Mac, Android, and Windows, though some checks are platform-specific.
+- ASAN works on Linux, Mac, Android.
+- TSAN works on Linux and Mac.
+- MSAN works on Linux[1].
+
+[1]To compile and run with MSAN, an MSAN-instrumented version of libc++ is needed.
+It's generally easiest to run one of the following 2 steps to build/download a recent version
+of clang and the instrumented libc++.
+
 Downloading Clang Binaries (Googlers Only)
 ------------------------------------------
 
