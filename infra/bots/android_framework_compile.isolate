@@ -1,0 +1,7 @@
+{
+  'variables': {
+    'files': [
+      'android_compile/trigger_wait_ac_task.py',
+    ],
+  },
+}

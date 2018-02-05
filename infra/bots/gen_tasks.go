@@ -771,7 +771,7 @@ func androidFrameworkCompile(b *specs.TasksCfgBuilder, name string) string {
 			fmt.Sprintf("patch_issue=%s", specs.PLACEHOLDER_ISSUE),
 			fmt.Sprintf("patch_set=%s", specs.PLACEHOLDER_PATCHSET),
 		},
-		Isolate:  relpath("compile_skia.isolate"),
+		Isolate:  relpath("android_framework_compile.isolate"),
 		Priority: 0.8,
 	})
 	return name
