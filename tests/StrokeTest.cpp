@@ -160,8 +160,28 @@ static void test_strokerec_equality(skiatest::Reporter* reporter) {
     }
 }
 
+// From skbug.com/6491. The large stroke width can cause numerical instabilities.
+static void test_big_stroke(skiatest::Reporter* reporter) {
+    SkPaint paint;
+    paint.setStyle(SkPaint::kStrokeAndFill_Style);
+    paint.setStrokeWidth(1.49679073e+10f);
+
+    SkPath path;
+    path.setFillType(SkPath::kWinding_FillType);
+    path.moveTo(SkBits2Float(0x46380000), SkBits2Float(0xc6380000));  // 11776, -11776
+    path.lineTo(SkBits2Float(0x46a00000), SkBits2Float(0xc6a00000));  // 20480, -20480
+    path.lineTo(SkBits2Float(0x468c0000), SkBits2Float(0xc68c0000));  // 17920, -17920
+    path.lineTo(SkBits2Float(0x46100000), SkBits2Float(0xc6100000));  // 9216, -9216
+    path.lineTo(SkBits2Float(0x46380000), SkBits2Float(0xc6380000));  // 11776, -11776
+    path.close();
+
+    SkPath strokeAndFillPath;
+    paint.getFillPath(path, &strokeAndFillPath);
+}
+
 DEF_TEST(Stroke, reporter) {
     test_strokecubic(reporter);
     test_strokerect(reporter);
     test_strokerec_equality(reporter);
+    test_big_stroke(reporter);
 }
