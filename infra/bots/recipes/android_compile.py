@@ -7,15 +7,13 @@ import math
 
 
 DEPS = [
+  'recipe_engine/path',
   'recipe_engine/properties',
   'recipe_engine/step',
-  'vars',
 ]
 
 
 def RunSteps(api):
-  api.vars.setup()
-
   buildername = api.properties['buildername']
   issue = api.properties.get('patch_issue')
   patchset = api.properties.get('patch_set')
@@ -26,7 +24,7 @@ def RunSteps(api):
     # not currently have a way to do the same for non-trybot runs.
     raise Exception('%s can only be run as a trybot.' % buildername)
 
-  infrabots_dir = api.vars.skia_dir.join('infra', 'bots')
+  infrabots_dir = api.path['start_dir'].join('skia', 'infra', 'bots')
   trigger_wait_ac_script = infrabots_dir.join('android_compile',
                                               'trigger_wait_ac_task.py')
 
