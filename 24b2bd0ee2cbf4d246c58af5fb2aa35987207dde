@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d1011cdc_9cb30d0a",
+        "filename": "site/dev/testing/xsan.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-02-05T17:38:24Z",
+      "side": 1,
+      "message": "I think we can probably be less scary here.\n\n  UBSAN works on Linux, Mac, Android, and Windows, though some checks are platform-specific.\n  ASAN works on Linux, Mac, Android.  [1]\n  TSAN works on Linux and Mac.        [2]\n  MSAN works on Linux.                [3]\n\n[1] I think we can get ASAN working on 32-bit Windows.  We have a bug open about this.\n[2] I suspect TSAN might be possible on 64-bit Android too.\n[3] I suspect MSAN might be possible on 64-bit Android too.",
+      "range": {
+        "startLine": 7,
+        "startChar": 0,
+        "endLine": 7,
+        "endChar": 56
+      },
+      "revId": "24b2bd0ee2cbf4d246c58af5fb2aa35987207dde",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
