@@ -55,8 +55,9 @@ static SkScan::HairRCProc ChooseHairProc(bool doAntiAlias) {
     return doAntiAlias ? SkScan::AntiHairLine : SkScan::HairLine;
 }
 
-static bool texture_to_matrix(const VertState& state, const SkPoint verts[],
-                              const SkPoint texs[], SkMatrix* matrix) {
+static bool SK_WARN_UNUSED_RESULT
+texture_to_matrix(const VertState& state, const SkPoint verts[], const SkPoint texs[],
+                  SkMatrix* matrix) {
     SkPoint src[3], dst[3];
 
     src[0] = texs[state.f0];
@@ -108,9 +109,9 @@ void SkTriColorShader::toString(SkString* str) const {
 }
 #endif
 
-static bool update_tricolor_matrix(const SkMatrix& ctmInv,
-                                   const SkPoint pts[], const SkPM4f colors[],
-                                   int index0, int index1, int index2, Matrix43* result) {
+static bool SK_WARN_UNUSED_RESULT
+update_tricolor_matrix(const SkMatrix& ctmInv, const SkPoint pts[], const SkPM4f colors[],
+                       int index0, int index1, int index2, Matrix43* result) {
     SkMatrix m, im;
     m.reset();
     m.set(0, pts[index1].fX - pts[index0].fX);
@@ -271,7 +272,9 @@ void SkDraw::drawVertices(SkVertices::VertexMode vmode, int count,
                 SkMatrix tmpCtm;
                 if (textures) {
                     SkMatrix localM;
-                    texture_to_matrix(state, vertices, textures, &localM);
+                    if (!texture_to_matrix(state, vertices, textures, &localM)) {
+                        continue;
+                    }
                     tmpCtm = SkMatrix::Concat(*fMatrix, localM);
                     ctm = &tmpCtm;
                 }
