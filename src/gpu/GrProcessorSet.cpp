@@ -181,9 +181,6 @@ GrProcessorSet::Analysis GrProcessorSet::finalize(const GrProcessorAnalysisColor
     for (int i = 0; i < n; ++i) {
         if (!fps[i]->compatibleWithCoverageAsAlpha()) {
             analysis.fCompatibleWithCoverageAsAlpha = false;
-            // Other than tests that exercise atypical behavior we expect all coverage FPs to be
-            // compatible with the coverage-as-alpha optimization.
-            GrCapsDebugf(&caps, "Coverage FP is not compatible with coverage as alpha.\n");
         }
         coverageUsesLocalCoords |= fps[i]->usesLocalCoords();
     }

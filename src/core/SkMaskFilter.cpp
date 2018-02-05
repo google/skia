@@ -21,6 +21,7 @@
 #if SK_SUPPORT_GPU
 #include "GrTextureProxy.h"
 #include "GrFragmentProcessor.h"
+#include "effects/GrXfermodeFragmentProcessor.h"
 #endif
 
 SkMaskFilterBase::NinePatch::~NinePatch() {
@@ -411,6 +412,24 @@ public:
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkComposeMF)
 
+protected:
+#if SK_SUPPORT_GPU
+    std::unique_ptr<GrFragmentProcessor> onAsFragmentProcessor(const GrFPArgs& args) const override{
+        std::unique_ptr<GrFragmentProcessor> array[2] = {
+            as_MFB(fInner)->asFragmentProcessor(args),
+            as_MFB(fOuter)->asFragmentProcessor(args),
+        };
+        if (!array[0] || !array[1]) {
+            return nullptr;
+        }
+        return GrFragmentProcessor::RunInSeries(array, 2);
+    }
+
+    bool onHasFragmentProcessor() const override {
+        return as_MFB(fInner)->hasFragmentProcessor() && as_MFB(fOuter)->hasFragmentProcessor();
+    }
+#endif
+
 private:
     sk_sp<SkMaskFilter> fOuter;
     sk_sp<SkMaskFilter> fInner;
@@ -487,6 +506,23 @@ public:
 
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkCombineMF)
+
+protected:
+#if SK_SUPPORT_GPU
+    std::unique_ptr<GrFragmentProcessor> onAsFragmentProcessor(const GrFPArgs& args) const override{
+        auto src = as_MFB(fSrc)->asFragmentProcessor(args);
+        auto dst = as_MFB(fDst)->asFragmentProcessor(args);
+        if (!src || !dst) {
+            return nullptr;
+        }
+        return GrXfermodeFragmentProcessor::MakeFromTwoProcessors(std::move(src), std::move(dst),
+                                                      SkUncorrelatedCoverageModeToBlendMode(fMode));
+    }
+
+    bool onHasFragmentProcessor() const override {
+        return as_MFB(fSrc)->hasFragmentProcessor() && as_MFB(fDst)->hasFragmentProcessor();
+    }
+#endif
 
 private:
     sk_sp<SkMaskFilter> fDst;
@@ -570,7 +606,7 @@ bool SkCombineMF::filterMask(SkMask* dst, const SkMask& src, const SkMatrix& ctm
     p.setBlendMode(SkBlendMode::kSrc);
     dstM.fBounds.offset(-dst->fBounds.fLeft, -dst->fBounds.fTop);
     md.drawAsBitmap(dstM, p);
-    p.setBlendMode(gUncorrelatedCoverageToBlend[static_cast<int>(fMode)]);
+    p.setBlendMode(SkUncorrelatedCoverageModeToBlendMode(fMode));
     srcM.fBounds.offset(-dst->fBounds.fLeft, -dst->fBounds.fTop);
     md.drawAsBitmap(srcM, p);
 
