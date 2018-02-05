@@ -189,7 +189,8 @@ public:
                         for (int i = 0; i < 4; ++i) {
                             SkString name;
                             name.printf("aaEdge%d", i);
-                            args.fVaryingHandler->addVarying(name.c_str(), &aaEdgeVarying[i]);
+                            args.fVaryingHandler->addVarying(name.c_str(), &aaEdgeVarying[i],
+                                                             Interpolation::kCanBeFlat);
                             args.fVertBuilder->codeAppendf(
                                     "%s = aaEdge%d;", aaEdgeVarying[i].vsOut(), i);
                         }
