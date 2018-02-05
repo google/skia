@@ -2,7 +2,7 @@
 #Alias Pixmap_Reference
 
 #Subtopic Overview
-    #Subtopic Subtopics
+    #Subtopic Subtopic
     #Populate
     ##
 ##
@@ -20,15 +20,15 @@ pixels referenced by Pixmap.
 Pixmap does not try to manage the lifetime of the pixel memory. Use Pixel_Ref
 to manage pixel memory; Pixel_Ref is safe across threads.
 
-#Subtopic Related_Functions
+#Subtopic Related_Function
 #Populate
 ##
 
-#Subtopic Constructors
+#Subtopic Constructor
 #Populate
 ##
 
-#Subtopic Member_Functions
+#Subtopic Member_Function
 #Populate
 ##
 

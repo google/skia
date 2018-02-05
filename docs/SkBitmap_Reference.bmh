@@ -3,7 +3,7 @@
 #Alias Bitmap_Reference
 
 #Subtopic Overview
-    #Subtopic Subtopics
+    #Subtopic Subtopic
     #Populate
     ##
 ##
@@ -39,23 +39,23 @@ number of bytes in a pixel. Row_Bytes may be larger than the row requires. This
 is useful to position one or more Bitmaps within a shared pixel array.
 ##
 
-#Subtopic Related_Functions
+#Subtopic Related_Function
 #Populate
 ##
 
-#Subtopic Classes_and_Structs
+#Subtopic Class_or_Struct
 #Populate
 ##
 
-#Subtopic Constructors
+#Subtopic Constructor
 #Populate
 ##
 
-#Subtopic Operators
+#Subtopic Operator
 #Populate
 ##
 
-#Subtopic Member_Functions
+#Subtopic Member_Function
 #Populate
 ##
 
@@ -1843,8 +1843,8 @@ Caller must ensure that pixels are valid for the lifetime of Bitmap and Pixel_Re
 #Return  true if Image_Info is set to info ##
 
 #Example
+#Bug 7079
 #Description
-#Bug 7079 ##
 GPU does not support kUnpremul_SkAlphaType, does not assert that it does not.
 ##
 void draw(SkCanvas* canvas) {
@@ -2468,13 +2468,7 @@ then Color_RGB is ignored.
 # ------------------------------------------------------------------------------
 
 #Method void eraseArea(const SkIRect& area, SkColor c) const
-
-#Line # deprecated ##
-Legacy call to be deprecated.
-
 #Deprecated 
-##
-
 ##
 
 # ------------------------------------------------------------------------------
@@ -3305,7 +3299,7 @@ Pixel_Ref. Sets offset to top-left position for dst for alignment with Bitmap;
 
 #Return  true if Alpha layer was constructed in dst Pixel_Ref ##
 
-#Bug 7103 ##
+#Bug 7103
 #Example
 #Height 160
     SkBitmap alpha, bitmap;
@@ -3354,7 +3348,7 @@ mask.
 
 #Return  true if Alpha layer was constructed in dst Pixel_Ref ##
 
-#Bug 7104 ##
+#Bug 7104
 #Example
 #Height 128
     SkBitmap alpha, bitmap;
@@ -3490,3 +3484,4 @@ suppressed by defining SK_IGNORE_TO_STRING.
 #Class SkBitmap ##
 
 #Topic Bitmap ##
+

@@ -3,7 +3,7 @@
 #Alias Matrix_Reference
 
 #Subtopic Overview
-    #Subtopic Subtopics
+    #Subtopic Subtopic
     #Populate
     ##
 ##
@@ -22,15 +22,15 @@ initializes all Matrix elements with the corresponding mapping.
 Matrix includes a hidden variable that classifies the type of matrix to 
 improve performance. Matrix is not thread safe unless getType is called first.
 
-#Subtopic Constructors
+#Subtopic Constructor
 #Populate
 ##
 
-#Subtopic Operators
+#Subtopic Operator
 #Populate
 ##
 
-#Subtopic Member_Functions
+#Subtopic Member_Function
 #Populate
 ##
 
@@ -3949,7 +3949,7 @@ contains NaN, even if the other Matrix also contains NaN.
 #Param a  Matrix to compare ##
 #Param b  Matrix to compare ##
 
-#Return  true if m and Matrix are numerically equal ##
+#Return  true if Matrix a and Matrix b are numerically equal ##
 
 #Example
     auto debugster = [](const char* prefix, const SkMatrix& a, const SkMatrix& b) -> void {
@@ -3982,7 +3982,7 @@ contains NaN, even if the other Matrix also contains NaN.
 #Param a  Matrix to compare ##
 #Param b  Matrix to compare ##
 
-#Return  true if m and Matrix are numerically not equal ##
+#Return  true if Matrix a and Matrix b are numerically not equal ##
 
 #Example
     auto debugster = [](const char* prefix, const SkMatrix& a, const SkMatrix& b) -> void {
@@ -4400,3 +4400,4 @@ matrix != matrix
 #Class SkMatrix ##
 
 #Topic Matrix ##
+
