@@ -16,5 +16,6 @@ Device backends for Skia currently include:
   * OpenGL
   * PDF
   * XPS
+  * SVG
   * Picture (for recording and then playing back into another Canvas)
 
