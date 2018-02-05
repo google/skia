@@ -2,7 +2,7 @@
   {
     "cmd": [
       "python",
-      "[CUSTOM_/_B_WORK]/skia/infra/bots/android_compile/trigger_wait_ac_task.py",
+      "[START_DIR]/skia/infra/bots/android_compile/trigger_wait_ac_task.py",
       "--issue",
       "1234",
       "--patchset",
