@@ -35,7 +35,7 @@ enum GrVkFeatureFlags {
 // The QueueFamilyIndex must match the family of the given queue. It is needed for CommandPool
 // creation, and any GrBackendObjects handed to us (e.g., for wrapped textures) need to be created
 // in or transitioned to that family.
-struct GrVkBackendContext : public SkRefCnt {
+struct SK_API GrVkBackendContext : public SkRefCnt {
     VkInstance                 fInstance;
     VkPhysicalDevice           fPhysicalDevice;
     VkDevice                   fDevice;
