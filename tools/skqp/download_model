@@ -5,10 +5,10 @@
 # found in the LICENSE file.
 
 import hashlib
+import multiprocessing
 import os
 import shutil
 import sys
-import threading
 import tempfile
 import urllib2
 
@@ -46,7 +46,6 @@ def main():
     os.chdir(os.path.join(os.path.dirname(__file__), os.pardir, os.pardir,
                          'platform_tools', 'android', 'apps', 'skqp', 'src',
                          'main', 'assets'))
-    sys.stderr.write('\n    0 / ????   ')
     file_list_file = tmp('files_')
     with open('files.checksum', 'r') as f:
         md5 = f.read().strip()
@@ -57,18 +56,12 @@ def main():
         for line in f:
             md5, path = line.strip().split(';', 1)
             records.append((md5, path))
-    threads = set()
-    sys.stderr.write('\r    0 / %d   ' % len(records))
-    for i, record in enumerate(records):
-        t = threading.Thread(target=download, args=record)
-        t.start()
-        threads.add(t)
-    left = -1
-    while left != 0:
-        count = sum(1 for t in threading.enumerate() if t in threads)
-        if left != count:
-            left = count
-            sys.stderr.write('\r %4d / %d   ' % (len(records) - left, len(records)))
+    sys.stderr.write('Downloading %d files.\n' % len(records))
+    pool = multiprocessing.Pool(processes=multiprocessing.cpu_count() * 2)
+    for record in records:
+        pool.apply_async(download, record, callback=lambda x: sys.stderr.write('.'))
+    pool.close()
+    pool.join()
     sys.stderr.write('\n')
 
 if __name__ == '__main__':
