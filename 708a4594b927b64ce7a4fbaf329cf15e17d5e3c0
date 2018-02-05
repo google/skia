@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a9b5fd8_3081c200",
+        "filename": "src/core/SkTypeface_remote.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-02-05T18:58:20Z",
+      "side": 1,
+      "message": "Might be nice to assert we don\u0027t call this, at least while sync?",
+      "revId": "708a4594b927b64ce7a4fbaf329cf15e17d5e3c0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3eea5118_1e598b6a",
+        "filename": "src/core/SkTypeface_remote.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-02-05T18:58:20Z",
+      "side": 1,
+      "message": "Give us a hint about these numbers?  (And a small novel about what memory goes where?)",
+      "revId": "708a4594b927b64ce7a4fbaf329cf15e17d5e3c0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5c2fb3ba_d15a9529",
+        "filename": "tools/remote_demo.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-02-05T18:58:20Z",
+      "side": 1,
+      "message": "good time for an enum?",
+      "range": {
+        "startLine": 100,
+        "startChar": 32,
+        "endLine": 100,
+        "endChar": 33
+      },
+      "revId": "708a4594b927b64ce7a4fbaf329cf15e17d5e3c0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
