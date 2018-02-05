@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "15de4e5a_e05a53ef",
+        "filename": "BUILD.gn",
+        "patchSetId": 13
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-02-05T21:26:19Z",
+      "side": 1,
+      "message": "Do we need to update this yet, or is just going to be used by the tools?",
+      "range": {
+        "startLine": 24,
+        "startChar": 40,
+        "endLine": 24,
+        "endChar": 67
+      },
+      "revId": "7890bd4af4ba6ee2f74cf347f7a17dc89fc317d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "61520fe1_3b9831dc",
+        "filename": "third_party/icu/BUILD.gn",
+        "patchSetId": 13
+      },
+      "lineNbr": 226,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-02-05T21:26:19Z",
+      "side": 1,
+      "message": "I think you can make this one unconditional, given that the dependency is conditional.\n\nAlternatively, might be nice to get the .S files under the :icudata target?",
+      "range": {
+        "startLine": 225,
+        "startChar": 1,
+        "endLine": 226,
+        "endChar": 20
+      },
+      "revId": "7890bd4af4ba6ee2f74cf347f7a17dc89fc317d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
