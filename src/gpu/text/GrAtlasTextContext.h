@@ -44,9 +44,6 @@ public:
 
     static std::unique_ptr<GrAtlasTextContext> Make(const Options& options);
 
-    bool canDraw(const GrAtlasGlyphCache* fontCache, const SkPaint&, const SkMatrix& viewMatrix,
-                 const SkSurfaceProps&, const GrShaderCaps&);
-
     void drawText(GrContext*, GrTextUtils::Target*, const GrClip&, const SkPaint&,
                   const SkMatrix& viewMatrix, const SkSurfaceProps&, const char text[],
                   size_t byteLength, SkScalar x, SkScalar y, const SkIRect& regionClipBounds);
@@ -110,6 +107,16 @@ private:
                                int scalarsPerPosition, const SkPoint& offset,
                                SkScalar textRatio);
 
+    static void DrawBmpTextAsPaths(GrAtlasTextBlob* blob, int runIndex,
+                                   const GrTextUtils::Paint& paint, const char text[],
+                                   size_t byteLength, SkScalar x, SkScalar y);
+
+    static void DrawBmpPosTextAsPaths(GrAtlasTextBlob*, int runIndex,
+                                      const SkSurfaceProps& props, const GrTextUtils::Paint& paint,
+                                      const char text[], size_t byteLength,
+                                      const SkScalar pos[], int scalarsPerPosition,
+                                      const SkPoint& offset, SkScalar textRatio);
+
     // functions for appending distance field text
     bool canDrawAsDistanceFields(const SkPaint& skPaint, const SkMatrix& viewMatrix,
                                  const SkSurfaceProps& props, const GrShaderCaps& caps) const;
@@ -133,7 +140,7 @@ private:
 
     static void BmpAppendGlyph(GrAtlasTextBlob*, int runIndex, GrAtlasGlyphCache*,
                                GrAtlasTextStrike**, const SkGlyph&, SkScalar sx, SkScalar sy,
-                               GrColor color, SkGlyphCache*, SkScalar textRatio);
+                               GrColor color, SkGlyphCache*, SkScalar textRatio, bool asPath);
 
     static void DfAppendGlyph(GrAtlasTextBlob*, int runIndex, GrAtlasGlyphCache*,
                               GrAtlasTextStrike**, const SkGlyph&, SkScalar sx, SkScalar sy,
