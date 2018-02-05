@@ -114,11 +114,6 @@ GrSamplerState::Filter GrTextureProxy::highestFilterMode() const {
         return fTarget->asTexture()->texturePriv().highestFilterMode();
     }
 
-    if (GrPixelConfigIsSint(this->config())) {
-        // We only ever want to nearest-neighbor sample signed int textures.
-        return GrSamplerState::Filter::kNearest;
-    }
-
     // In OpenGL, GR_GL_TEXTURE_RECTANGLE and GR_GL_TEXTURE_EXTERNAL (which have a highest filter
     // mode of bilerp) can only be created via wrapping.
 

@@ -19,10 +19,6 @@
 
 // This method parallels GrTextureProxy::highestFilterMode
 static inline GrSamplerState::Filter highest_filter_mode(GrPixelConfig config) {
-    if (GrPixelConfigIsSint(config)) {
-        // We only ever want to nearest-neighbor sample signed int textures.
-        return GrSamplerState::Filter::kNearest;
-    }
     return GrSamplerState::Filter::kMipMap;
 }
 

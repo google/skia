@@ -68,8 +68,6 @@ const char* GrGLSLTypeString(const GrShaderCaps* shaderCaps, GrSLType t) {
             return "half4x4";
         case kTexture2DSampler_GrSLType:
             return "sampler2D";
-        case kITexture2DSampler_GrSLType:
-            return "isampler2D";
         case kTextureExternalSampler_GrSLType:
             return "samplerExternalOES";
         case kTexture2DRectSampler_GrSLType:

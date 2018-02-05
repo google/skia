@@ -491,11 +491,6 @@ static bool valid_premul_config(GrPixelConfig config) {
 
 static bool valid_pixel_conversion(GrPixelConfig srcConfig, GrPixelConfig dstConfig,
                                    bool premulConversion) {
-    // We don't allow conversion between integer configs and float/fixed configs.
-    if (GrPixelConfigIsSint(srcConfig) != GrPixelConfigIsSint(dstConfig)) {
-        return false;
-    }
-
     // We only allow premul <-> unpremul conversions for some formats
     if (premulConversion && (!valid_premul_config(srcConfig) || !valid_premul_config(dstConfig))) {
         return false;

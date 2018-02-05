@@ -190,10 +190,6 @@ bool GrGpu::copySurface(GrSurface* dst, GrSurfaceOrigin dstOrigin,
     GR_CREATE_TRACE_MARKER_CONTEXT("GrGpu", "copySurface", fContext);
     SkASSERT(dst && src);
     this->handleDirtyContext();
-    // We don't allow conversion between integer configs and float/fixed configs.
-    if (GrPixelConfigIsSint(dst->config()) != GrPixelConfigIsSint(src->config())) {
-        return false;
-    }
     return this->onCopySurface(dst, dstOrigin, src, srcOrigin, srcRect, dstPoint);
 }
 
@@ -262,11 +258,6 @@ bool GrGpu::readPixels(GrSurface* surface, GrSurfaceOrigin origin,
                        size_t rowBytes) {
     SkASSERT(surface);
 
-    // We don't allow conversion between integer configs and float/fixed configs.
-    if (GrPixelConfigIsSint(surface->config()) != GrPixelConfigIsSint(config)) {
-        return false;
-    }
-
     size_t bpp = GrBytesPerPixel(config);
     if (!GrSurfacePriv::AdjustReadPixelParams(surface->width(), surface->height(), bpp,
                                               &left, &top, &width, &height,
@@ -305,11 +296,6 @@ bool GrGpu::writePixels(GrSurface* surface, GrSurfaceOrigin origin,
         }
     }
 
-    // We don't allow conversion between integer configs and float/fixed configs.
-    if (GrPixelConfigIsSint(surface->config()) != GrPixelConfigIsSint(config)) {
-        return false;
-    }
-
     this->handleDirtyContext();
     if (this->onWritePixels(surface, origin, left, top, width, height, config,
                             texels, mipLevelCount)) {
@@ -335,11 +321,6 @@ bool GrGpu::transferPixels(GrTexture* texture,
                            GrPixelConfig config, GrBuffer* transferBuffer,
                            size_t offset, size_t rowBytes) {
     SkASSERT(transferBuffer);
-
-    // We don't allow conversion between integer configs and float/fixed configs.
-    if (GrPixelConfigIsSint(texture->config()) != GrPixelConfigIsSint(config)) {
-        return false;
-    }
 
     // We require that the write region is contained in the texture
     SkIRect subRect = SkIRect::MakeXYWH(left, top, width, height);

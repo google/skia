@@ -123,7 +123,6 @@ tests_sources = [
   "$_tests/InfRectTest.cpp",
   "$_tests/InsetConvexPolyTest.cpp",
   "$_tests/InterpolatorTest.cpp",
-  "$_tests/IntTextureTest.cpp",
   "$_tests/InvalidIndexedPngTest.cpp",
   "$_tests/IsClosedSingleContourTest.cpp",
   "$_tests/LayerDrawLooperTest.cpp",
