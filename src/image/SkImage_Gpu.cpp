@@ -149,6 +149,7 @@ static void apply_premul(const SkImageInfo& info, void* pixels, size_t rowBytes)
         for (int x = 0; x < info.width(); ++x) {
             row[x] = SkPreMultiplyColor(row[x]);
         }
+        row = (SkColor*)((char*)(row) + rowBytes);
     }
 }
 
