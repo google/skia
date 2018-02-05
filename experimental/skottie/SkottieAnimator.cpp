@@ -33,7 +33,7 @@ static inline T lerp(const T&, const T&, float);
 template <>
 ScalarValue lerp(const ScalarValue& v0, const ScalarValue& v1, float t) {
     SkASSERT(t >= 0 && t <= 1);
-    return v0 * (1 - t) + v1 * t;
+    return v0 + (v1 - v0) * t;
 }
 
 template <>
