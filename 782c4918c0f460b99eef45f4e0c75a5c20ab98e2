@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4e7784d6_43943199",
+        "filename": "site/dev/testing/xsan.md",
+        "patchSetId": 4
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-02-05T19:22:06Z",
+      "side": 1,
+      "message": "I don\u0027t know if we actually support this far back.  Probably better to suggest people use the latest stable release of Clang.  That tends to be what we test with.",
+      "revId": "782c4918c0f460b99eef45f4e0c75a5c20ab98e2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
