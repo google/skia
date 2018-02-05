@@ -148,3 +148,19 @@ SkPM4f SkBlendMode_Apply(SkBlendMode mode, const SkPM4f& src, const SkPM4f& dst)
     p.run(0,0, 1,1);
     return res_storage;
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+const SkBlendMode gUncorrelatedCoverageToBlend[] = {
+    SkBlendMode::kSrcOver,  // or DstOver
+    SkBlendMode::kSrcIn,    // or kDstIn
+    SkBlendMode::kSrcOut,
+    SkBlendMode::kDstOut,
+    SkBlendMode::kXor,
+};
+
+SkBlendMode SkUncorrelatedCoverageModeToBlendMode(SkCoverageMode cm) {
+    unsigned index = static_cast<unsigned>(cm);
+    SkASSERT(index < SK_ARRAY_COUNT(gUncorrelatedCoverageToBlend));
+    return gUncorrelatedCoverageToBlend[index];
+}
