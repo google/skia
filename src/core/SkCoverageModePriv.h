@@ -11,13 +11,7 @@
 #include "SkBlendMode.h"
 #include "SkCoverageMode.h"
 
-const SkBlendMode gUncorrelatedCoverageToBlend[] = {
-    SkBlendMode::kSrcOver,  // or DstOver
-    SkBlendMode::kSrcIn,    // or kDstIn
-    SkBlendMode::kSrcOut,
-    SkBlendMode::kDstOut,
-    SkBlendMode::kXor,
-};
+SkBlendMode SkUncorrelatedCoverageModeToBlendMode(SkCoverageMode);
 
 #if 0
 // Experimental idea to extend to overlap types
