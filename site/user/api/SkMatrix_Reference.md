@@ -79,6 +79,7 @@ improve performance. <a href="#Matrix">Matrix</a> is not thread safe unless <a h
 | <a href="#SkMatrix_MakeAll">MakeAll</a> | constructs all nine values |
 | <a href="#SkMatrix_MakeRectToRect">MakeRectToRect</a> | constructs from source <a href="SkRect_Reference#Rect">Rect</a> to destination <a href="SkRect_Reference#Rect">Rect</a> |
 | <a href="#SkMatrix_MakeScale">MakeScale</a> | constructs from scale in x and y |
+|  | <a href="#SkMatrix_MakeScale">MakeScale</a> |
 | <a href="#SkMatrix_MakeTrans">MakeTrans</a> | constructs from translate in x and y |
 | <a href="#SkMatrix_SetAffineIdentity">SetAffineIdentity</a> | sets 3x2 array to identity |
 | <a href="#SkMatrix_asAffine">asAffine</a> | copies to 3x2 array |
@@ -111,23 +112,34 @@ improve performance. <a href="#Matrix">Matrix</a> is not thread safe unless <a h
 | <a href="#SkMatrix_isTranslate">isTranslate</a> | returns if transform is limited to translate |
 | <a href="#SkMatrix_mapHomogeneousPoints">mapHomogeneousPoints</a> | maps <a href="undocumented#Point3">Point3</a> array |
 | <a href="#SkMatrix_mapPoints">mapPoints</a> | maps <a href="SkPoint_Reference#Point">Point</a> array |
+|  | <a href="#SkMatrix_mapPoints">mapPoints</a> |
 | <a href="#SkMatrix_mapRadius">mapRadius</a> | returns mean radius of mapped <a href="undocumented#Circle">Circle</a> |
 | <a href="#SkMatrix_mapRect">mapRect</a> | returns bounds of mapped <a href="SkRect_Reference#Rect">Rect</a> |
+|  | <a href="#SkMatrix_mapRect">mapRect</a> |
 | <a href="#SkMatrix_mapRectScaleTranslate">mapRectScaleTranslate</a> | returns bounds of mapped <a href="SkRect_Reference#Rect">Rect</a> |
 | <a href="#SkMatrix_mapRectToQuad">mapRectToQuad</a> | maps <a href="SkRect_Reference#Rect">Rect</a> to <a href="SkPoint_Reference#Point">Point</a> array |
 | <a href="#SkMatrix_mapVector">mapVector</a> | maps <a href="SkPoint_Reference#Vector">Vector</a> |
+|  | <a href="#SkMatrix_mapVector">mapVector</a> |
 | <a href="#SkMatrix_mapVectors">mapVectors</a> | maps <a href="SkPoint_Reference#Vector">Vector</a> array |
+|  | <a href="#SkMatrix_mapVectors">mapVectors</a> |
 | <a href="#SkMatrix_mapXY">mapXY</a> | maps <a href="SkPoint_Reference#Point">Point</a> |
+|  | <a href="#SkMatrix_mapXY">mapXY</a> |
 | <a href="#SkMatrix_postConcat">postConcat</a> | post-multiplies <a href="#Matrix">Matrix</a> by <a href="#Matrix">Matrix</a> parameter |
 | <a href="#SkMatrix_postIDiv">postIDiv</a> | post-multiplies <a href="#Matrix">Matrix</a> by inverse scale |
 | <a href="#SkMatrix_postRotate">postRotate</a> | post-multiplies <a href="#Matrix">Matrix</a> by rotation |
+|  | <a href="#SkMatrix_postRotate">postRotate</a> |
 | <a href="#SkMatrix_postScale">postScale</a> | post-multiplies <a href="#Matrix">Matrix</a> by scale |
+|  | <a href="#SkMatrix_postScale">postScale</a> |
 | <a href="#SkMatrix_postSkew">postSkew</a> | post-multiplies <a href="#Matrix">Matrix</a> by skew |
+|  | <a href="#SkMatrix_postSkew">postSkew</a> |
 | <a href="#SkMatrix_postTranslate">postTranslate</a> | post-multiplies <a href="#Matrix">Matrix</a> by translation |
 | <a href="#SkMatrix_preConcat">preConcat</a> | pre-multiplies <a href="#Matrix">Matrix</a> by <a href="#Matrix">Matrix</a> parameter |
 | <a href="#SkMatrix_preRotate">preRotate</a> | pre-multiplies <a href="#Matrix">Matrix</a> by rotation |
+|  | <a href="#SkMatrix_preRotate">preRotate</a> |
 | <a href="#SkMatrix_preScale">preScale</a> | pre-multiplies <a href="#Matrix">Matrix</a> by scale |
+|  | <a href="#SkMatrix_preScale">preScale</a> |
 | <a href="#SkMatrix_preSkew">preSkew</a> | pre-multiplies <a href="#Matrix">Matrix</a> by skew |
+|  | <a href="#SkMatrix_preSkew">preSkew</a> |
 | <a href="#SkMatrix_preTranslate">preTranslate</a> | pre-multiplies <a href="#Matrix">Matrix</a> by translation |
 | <a href="#SkMatrix_preservesAxisAlignment">preservesAxisAlignment</a> | returns if mapping restricts to 90 degree multiples and mirroring |
 | <a href="#SkMatrix_preservesRightAngles">preservesRightAngles</a> | returns if mapped 90 angle remains 90 degrees |
@@ -145,15 +157,20 @@ improve performance. <a href="#Matrix">Matrix</a> is not thread safe unless <a h
 | <a href="#SkMatrix_setRSXform">setRSXform</a> | sets to rotate, scale, and translate |
 | <a href="#SkMatrix_setRectToRect">setRectToRect</a> | sets to map one <a href="SkRect_Reference#Rect">Rect</a> to another |
 | <a href="#SkMatrix_setRotate">setRotate</a> | sets to rotate about a point |
+|  | <a href="#SkMatrix_setRotate">setRotate</a> |
 | <a href="#SkMatrix_setScale">setScale</a> | sets to scale about a point |
+|  | <a href="#SkMatrix_setScale">setScale</a> |
 | <a href="#SkMatrix_setScaleTranslate">setScaleTranslate</a> | sets to scale and translate |
 | <a href="#SkMatrix_setScaleX">setScaleX</a> | sets horizontal scale factor |
 | <a href="#SkMatrix_setScaleY">setScaleY</a> | sets vertical scale factor |
 | <a href="#SkMatrix_setSinCos">setSinCos</a> | sets to rotate and scale about a point |
+|  | <a href="#SkMatrix_setSinCos">setSinCos</a> |
 | <a href="#SkMatrix_setSkew">setSkew</a> | sets to skew about a point |
+|  | <a href="#SkMatrix_setSkew">setSkew</a> |
 | <a href="#SkMatrix_setSkewX">setSkewX</a> | sets horizontal skew factor |
 | <a href="#SkMatrix_setSkewY">setSkewY</a> | sets vertical skew factor |
 | <a href="#SkMatrix_setTranslate">setTranslate</a> | sets to translate in x and y |
+|  | <a href="#SkMatrix_setTranslate">setTranslate</a> |
 | <a href="#SkMatrix_setTranslateX">setTranslateX</a> | sets horizontal translation |
 | <a href="#SkMatrix_setTranslateY">setTranslateY</a> | sets vertical translation |
 | <a href="#SkMatrix_toString">toString</a> | converts <a href="#Matrix">Matrix</a> to machine readable form |

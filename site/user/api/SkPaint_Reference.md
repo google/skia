@@ -5109,6 +5109,17 @@ fast computed bounds
 
 ---
 
+## <a name="Utility"></a> Utility
+
+| name | description |
+| --- | --- |
+| <a href="#SkPaint_containsText">containsText</a> | returns if all text corresponds to <a href="#Glyph">Glyphs</a> |
+| <a href="#SkPaint_countText">countText</a> | returns number of <a href="#Glyph">Glyphs</a> in text |
+| <a href="#SkPaint_glyphsToUnichars">glyphsToUnichars</a> | converts <a href="#Glyph">Glyphs</a> into text |
+| <a href="#SkPaint_nothingToDraw">nothingToDraw</a> | returns true if <a href="#Paint">Paint</a> prevents all drawing |
+| <a href="#SkPaint_textToGlyphs">textToGlyphs</a> | converts text into glyph indices |
+| <a href="#SkPaint_toString">toString</a> | converts <a href="#Paint">Paint</a> to machine readable form |
+
 <a name="SkPaint_toString"></a>
 ## toString
 

@@ -51,6 +51,7 @@ integer input cannot convert to <a href="undocumented#SkScalar">SkScalar</a> wit
 | <a href="#SkRect_centerY">centerY</a> | returns midpoint in y |
 | <a href="#SkRect_contains">contains</a> | returns true if points are equal or inside |
 | <a href="#SkRect_dump_2">dump</a> | sends text representation to standard output using floats |
+|  | dump |
 | <a href="#SkRect_dumpHex">dumpHex</a> | sends text representation to standard output using hexadecimal |
 | <a href="#SkRect_height">height</a> | returns span in y |
 | <a href="#SkRect_inset">inset</a> | moves the sides symmetrically about the center |

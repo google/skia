@@ -119,7 +119,6 @@ Internally, <a href="#Path">Path</a> lazily computes metrics likes bounds and co
 | <a href="#Last_Point">Last Point</a> | final <a href="SkPoint_Reference#Point">Point</a> in <a href="#Contour">Contour</a> |
 | <a href="#Point_Array">Point Array</a> | end points and control points for lines and curves |
 | <a href="#Quad">Quad</a> | Bezier_Curve described by second-order polynomial |
-| <a href="#Utility">Utility</a> | rarely called management functions |
 | <a href="#SkPath_Verb">Verb</a> | line and curve type |
 | <a href="#Verb_Array">Verb Array</a> | line and curve type for points |
 | <a href="#Volatile">Volatile</a> | caching attribute |
@@ -176,11 +175,18 @@ Internally, <a href="#Path">Path</a> lazily computes metrics likes bounds and co
 | <a href="#SkPath_addArc">addArc</a> | adds one <a href="#Contour">Contour</a> containing <a href="#Arc">Arc</a> |
 | <a href="#SkPath_addCircle">addCircle</a> | adds one <a href="#Contour">Contour</a> containing <a href="undocumented#Circle">Circle</a> |
 | <a href="#SkPath_addOval">addOval</a> | adds one <a href="#Contour">Contour</a> containing <a href="undocumented#Oval">Oval</a> |
+|  | <a href="#SkPath_addOval">addOval</a> |
 | <a href="#SkPath_addPath">addPath</a> | adds contents of <a href="#Path">Path</a> |
+|  | <a href="#SkPath_addPath">addPath</a> |
+|  | <a href="#SkPath_addPath">addPath</a> |
 | <a href="#SkPath_addPoly">addPoly</a> | adds one <a href="#Contour">Contour</a> containing connected lines |
 | <a href="#SkPath_addRRect">addRRect</a> | adds one <a href="#Contour">Contour</a> containing <a href="undocumented#Round_Rect">Round Rect</a> |
+|  | <a href="#SkPath_addRRect">addRRect</a> |
 | <a href="#SkPath_addRect">addRect</a> | adds one <a href="#Contour">Contour</a> containing <a href="SkRect_Reference#Rect">Rect</a> |
+|  | <a href="#SkPath_addRect">addRect</a> |
+|  | <a href="#SkPath_addRect">addRect</a> |
 | <a href="#SkPath_addRoundRect">addRoundRect</a> | adds one <a href="#Contour">Contour</a> containing <a href="undocumented#Round_Rect">Round Rect</a> with common corner radii |
+|  | <a href="#SkPath_addRoundRect">addRoundRect</a> |
 | <a href="#SkPath_arcTo">arcTo</a> | appends <a href="#Arc">Arc</a> |
 | <a href="#SkPath_close">close</a> | makes last <a href="#Contour">Contour</a> a loop |
 | <a href="#SkPath_computeTightBounds">computeTightBounds</a> | returns extent of geometry |
@@ -191,6 +197,7 @@ Internally, <a href="#Path">Path</a> lazily computes metrics likes bounds and co
 | <a href="#SkPath_countVerbs">countVerbs</a> | returns <a href="#Verb_Array">Verb Array</a> length |
 | <a href="#SkPath_cubicTo">cubicTo</a> | appends <a href="#Cubic">Cubic</a> |
 | <a href="#SkPath_dump_2">dump</a> | sends text representation using floats to standard output |
+|  | dump |
 | <a href="#SkPath_dumpHex">dumpHex</a> | sends text representation using hexadecimal to standard output |
 | <a href="#SkPath_getBounds">getBounds</a> | returns maximum and minimum of <a href="#Point_Array">Point Array</a> |
 | <a href="#SkPath_getConvexity">getConvexity</a> | returns geometry convexity, computing if necessary |
@@ -218,8 +225,11 @@ Internally, <a href="#Path">Path</a> lazily computes metrics likes bounds and co
 | <a href="#SkPath_isValid">isValid</a> | returns if data is internally consistent |
 | <a href="#SkPath_isVolatile">isVolatile</a> | returns if <a href="undocumented#Device">Device</a> should not cache |
 | <a href="#SkPath_lineTo">lineTo</a> | appends <a href="undocumented#Line">Line</a> |
+|  | <a href="#SkPath_lineTo">lineTo</a> |
 | <a href="#SkPath_moveTo">moveTo</a> | starts <a href="#Contour">Contour</a> |
+|  | <a href="#SkPath_moveTo">moveTo</a> |
 | <a href="#SkPath_offset">offset</a> | translates <a href="#Point_Array">Point Array</a> |
+|  | offset |
 | <a href="#SkPath_quadTo">quadTo</a> | appends <a href="#Quad">Quad</a> |
 | <a href="#SkPath_rArcTo">rArcTo</a> | appends <a href="#Arc">Arc</a> relative to <a href="#Last_Point">Last Point</a> |
 | <a href="#SkPath_rConicTo">rConicTo</a> | appends <a href="#Conic">Conic</a> relative to <a href="#Last_Point">Last Point</a> |
@@ -239,6 +249,7 @@ Internally, <a href="#Path">Path</a> lazily computes metrics likes bounds and co
 | <a href="#SkPath_swap">swap</a> | exchanges <a href="#Path">Path</a> pair |
 | <a href="#SkPath_toggleInverseFillType">toggleInverseFillType</a> | toggles <a href="#Fill_Type">Fill Type</a> between inside and outside geometry |
 | <a href="#SkPath_transform">transform</a> | applies <a href="SkMatrix_Reference#Matrix">Matrix</a> to <a href="#Point_Array">Point Array</a> and <a href="#Weight">Weights</a> |
+|  | transform |
 | <a href="#SkPath_updateBoundsCache">updateBoundsCache</a> | refreshes result of <a href="#SkPath_getBounds">getBounds</a> |
 | <a href="#SkPath_writeToMemory">writeToMemory</a> | copies data to buffer |
 
@@ -2251,7 +2262,8 @@ offset from <a href="#Last_Point">Last Point</a> y to <a href="undocumented#Line
 
 ---
 
-# <a name="Quad"></a> Quad
+## <a name="Quad"></a> Quad
+
 <a href="#Quad">Quad</a> describes a quadratic Bezier, a second-order curve identical to a section
 of a parabola. <a href="#Quad">Quad</a> begins at a start <a href="SkPoint_Reference#Point">Point</a>, curves towards a control <a href="SkPoint_Reference#Point">Point</a>,
 and then curves to an end <a href="SkPoint_Reference#Point">Point</a>.
@@ -2382,7 +2394,8 @@ offset from <a href="#Last_Point">Last Point</a> x to <a href="#Quad">Quad</a> e
 
 ---
 
-# <a name="Conic"></a> Conic
+## <a name="Conic"></a> Conic
+
 <a href="#Conic">Conic</a> describes a conical section: a piece of an ellipse, or a piece of a
 parabola, or a piece of a hyperbola. <a href="#Conic">Conic</a> begins at a start <a href="SkPoint_Reference#Point">Point</a>,
 curves towards a control <a href="SkPoint_Reference#Point">Point</a>, and then curves to an end <a href="SkPoint_Reference#Point">Point</a>. The influence
@@ -2587,7 +2600,8 @@ weight of added <a href="#Conic">Conic</a></td>
 
 ---
 
-# <a name="Cubic"></a> Cubic
+## <a name="Cubic"></a> Cubic
+
 <a href="#Cubic">Cubic</a> describes a Bezier_Curve segment described by a third-order polynomial.
 <a href="#Cubic">Cubic</a> begins at a start <a href="SkPoint_Reference#Point">Point</a>, curving towards the first control <a href="SkPoint_Reference#Point">Point</a>;
 and curves from the end <a href="SkPoint_Reference#Point">Point</a> towards the second control <a href="SkPoint_Reference#Point">Point</a>.
@@ -4629,7 +4643,8 @@ length = 68; returned by readFromMemory = 64
 
 ---
 
-# <a name="Generation_ID"></a> Generation ID
+## <a name="Generation_ID"></a> Generation ID
+
 <a href="#Generation_ID">Generation ID</a> provides a quick way to check if <a href="#Verb_Array">Verb Array</a>, <a href="#Point_Array">Point Array</a>, or
 <a href="#Conic_Weight">Conic Weight</a> has changed. <a href="#Generation_ID">Generation ID</a> is not a hash; identical <a href="#Path">Paths</a> will
 not necessarily have matching <a href="SkPath_Reference#Generation_ID">Generation IDs</a>.
