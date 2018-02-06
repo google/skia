@@ -7,6 +7,7 @@
 #include "gm.h"
 #include "sk_tool_utils.h"
 #include "SkCanvas.h"
+#include "SkColorPriv.h"
 #include "SkData.h"
 #include "SkImage.h"
 #include "SkImageEncoder.h"

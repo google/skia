@@ -9,7 +9,7 @@
 #ifndef GrBlend_DEFINED
 #define GrBlend_DEFINED
 
-#include "GrColor.h"
+#include "GrTypes.h"
 #include "../private/SkTLogic.h"
 
 /**
