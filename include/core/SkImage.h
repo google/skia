@@ -8,6 +8,7 @@
 #ifndef SkImage_DEFINED
 #define SkImage_DEFINED
 
+#include "GrTypes.h"
 #include "SkFilterQuality.h"
 #include "SkImageInfo.h"
 #include "SkImageEncoder.h"
