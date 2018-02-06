@@ -357,6 +357,7 @@ bool MdOut::buildRefFromFile(const char* name, const char* outDir) {
             this->lfAlways(1);
             FPRINTF("===");
         }
+        fPopulators.clear();
         fPopulators[kClassesAndStructs].fDescription = "embedded struct and class members";
         fPopulators[kConstants].fDescription = "enum and enum class, const values";
         fPopulators[kConstructors].fDescription = "functions that construct";
@@ -907,7 +908,7 @@ void MdOut::markTypeOut(Definition* def) {
             } break;
         case MarkType::kMethod: {
             string method_name = def->methodName();
-            string formattedStr = def->formatFunction();
+            string formattedStr = def->formatFunction(Definition::Format::kIncludeReturn);
 
 			this->lfAlways(2);
 			FPRINTF("<a name=\"%s\"></a>", def->fFiddle.c_str());
@@ -972,6 +973,9 @@ void MdOut::markTypeOut(Definition* def) {
         case MarkType::kPopulate: {
             SkASSERT(MarkType::kSubtopic == def->fParent->fMarkType);
             string name = def->fParent->fName;
+            if ("Bitmap_Related_Function" == def->fParent->fFiddle) {
+                SkDebugf("");
+            }
             if (kSubtopics == name) {
                 this->subtopicsOut();
             } else {
@@ -1183,13 +1187,20 @@ void MdOut::mdHeaderOutLF(int depth, int lf) {
 
 void MdOut::populateTables(const Definition* def) {
     const Definition* csParent = this->csParent();
+    if (!csParent) {
+        return;
+    }
     for (auto child : def->fChildren) {
-        if (string::npos != child->fName.find("Rect_Set")) {
+        if (string::npos != child->fFiddle.find("Bitmap_Set")) {
             SkDebugf("");
         }
         if (MarkType::kTopic == child->fMarkType || MarkType::kSubtopic == child->fMarkType) {
-            bool legacyTopic = fPopulators.end() != fPopulators.find(child->fName);
-            if (!legacyTopic && child->fName != kOverview) {
+            string name = child->fName;
+            bool builtInTopic = name == kClassesAndStructs || name == kConstants
+                    || name == kConstructors || name == kMemberFunctions || name == kMembers
+                    || name == kOperators || name == kOverview || name == kRelatedFunctions
+                    || name == kSubtopics;
+            if (!builtInTopic && child->fName != kOverview) {
                 this->populator(kRelatedFunctions).fMembers.push_back(child);
             }
             this->populateTables(child);
@@ -1370,6 +1381,9 @@ void MdOut::subtopicOut(const TableContents& tableContents) {
         items[name] = entry;
     }
     for (auto entry : items) {
+        if (string::npos != entry.second->fName.find("SkRect::set")) {
+            SkDebugf("");
+        }
         if (entry.second->fDeprecated) {
             continue;
         }
@@ -1380,15 +1394,9 @@ void MdOut::subtopicOut(const TableContents& tableContents) {
                 break;
             }
         }
-        if (!oneLiner) {
-            SkDebugf("");
-        }
         SkASSERT(oneLiner);
         this->rowOut(entry.first.c_str(), string(oneLiner->fContentStart,
             oneLiner->fContentEnd - oneLiner->fContentStart));
-        if (string::npos != entry.second->fName.find("SkRect::set")) {
-            SkDebugf("");
-        }
         if (tableContents.fShowClones && entry.second->fCloned) {
             int cloneNo = 2;
             string builder = entry.second->fName;
@@ -1396,13 +1404,15 @@ void MdOut::subtopicOut(const TableContents& tableContents) {
                 builder = builder.substr(0, builder.length() - 2);
             }
             builder += '_';
+            this->rowOut("",
+                    preformat(entry.second->formatFunction(Definition::Format::kOmitReturn)));
             do {
                 string match = builder + to_string(cloneNo);
                 auto child = csParent->findClone(match);
                 if (!child) {
                     break;
                 }
-                this->rowOut("", child->methodName());
+                this->rowOut("", preformat(child->formatFunction(Definition::Format::kOmitReturn)));
             } while (++cloneNo);
         }
     }

@@ -42,10 +42,15 @@ This approach may be deprecated in the future.
 | name | description |
 | --- | --- |
 | <a href="#Clip">Clip</a> | stack of clipping <a href="#Path">Paths</a> |
+| <a href="#Draw">Draw</a> | draws into <a href="#Canvas">Canvas</a> |
 | <a href="#Draw_Image">Draw Image</a> | draws <a href="SkImage_Reference#Image">Image</a> to <a href="#Canvas">Canvas</a> |
+| <a href="#Draw_Text">Draw Text</a> | draws text into <a href="#Canvas">Canvas</a> |
 | <a href="#Layer">Layer</a> | temporary <a href="SkBitmap_Reference#Bitmap">Bitmap</a> to draw into |
 | <a href="#Matrix">Matrix</a> | coordinate transformation |
+| <a href="#Pixels">Pixels</a> | read and write pixel values |
+| <a href="#Property">Property</a> | metrics and attributes |
 | <a href="#State_Stack">State Stack</a> | stack of state for hierarchical drawing |
+| <a href="#Utility">Utility</a> | rarely called management functions |
 
 ## <a name="Constant"></a> Constant
 
@@ -187,7 +192,7 @@ If <a href="#SkCanvas_MakeRasterDirect_rowBytes">rowBytes</a> is greater than ze
 <a href="#SkCanvas_MakeRasterDirect_info">info</a> width times bytes required for <a href="SkImageInfo_Reference#Color_Type">Color Type</a>.
 
 <a href="undocumented#Pixel">Pixel</a> buffer size should be <a href="#SkCanvas_MakeRasterDirect_info">info</a> height times computed <a href="#SkCanvas_MakeRasterDirect_rowBytes">rowBytes</a>.
-Pixels are not initialized.
+<a href="#Pixels">Pixels</a> are not initialized.
 To access <a href="#SkCanvas_MakeRasterDirect_pixels">pixels</a> after drawing, call <a href="#SkCanvas_flush">flush</a> or <a href="#SkCanvas_peekPixels">peekPixels</a>.
 
 ### Parameters
@@ -562,6 +567,18 @@ transparent letters.</div></fiddle-embed></div>
 
 ---
 
+## <a name="Property"></a> Property
+
+| name | description |
+| --- | --- |
+| <a href="#SkCanvas_getBaseLayerSize">getBaseLayerSize</a> | returns size of base <a href="#Layer">Layer</a> in global coordinates |
+| <a href="#SkCanvas_getGrContext">getGrContext</a> | returns <a href="undocumented#GPU_Context">GPU Context</a> of the <a href="undocumented#GPU_Surface">GPU Surface</a> |
+| <a href="#SkCanvas_getMetaData">getMetaData</a> | associates additional data with the canvas |
+| <a href="#SkCanvas_getProps">getProps</a> | copies <a href="undocumented#Surface_Properties">Surface Properties</a> if available |
+| <a href="#SkCanvas_imageInfo">imageInfo</a> | returns <a href="SkImageInfo_Reference#Image_Info">Image Info</a> for <a href="#Canvas">Canvas</a> |
+| <a href="#SkCanvas_isClipEmpty">isClipEmpty</a> | returns if <a href="#Clip">Clip</a> is empty |
+| <a href="#SkCanvas_isClipRect">isClipRect</a> | returns if <a href="#Clip">Clip</a> is <a href="SkRect_Reference#Rect">Rect</a> and not empty |
+
 <a name="SkCanvas_getMetaData"></a>
 ## getMetaData
 
@@ -668,6 +685,15 @@ isRGB:1
 <a href="undocumented#SkSurfaceProps">SkSurfaceProps</a> <a href="#SkCanvas_makeSurface">makeSurface</a>
 
 ---
+
+## <a name="Utility"></a> Utility
+
+| name | description |
+| --- | --- |
+| <a href="#SkCanvas_accessTopLayerPixels">accessTopLayerPixels</a> | returns writable pixel access if available |
+| <a href="#SkCanvas_accessTopRasterHandle">accessTopRasterHandle</a> | returns context that tracks <a href="#Clip">Clip</a> and <a href="#Matrix">Matrix</a> |
+| <a href="#SkCanvas_discard">discard</a> | makes <a href="#Canvas">Canvas</a> contents undefined |
+| <a href="#SkCanvas_flush">flush</a> | triggers execution of all pending draw operations |
 
 <a name="SkCanvas_flush"></a>
 ## flush
@@ -874,6 +900,19 @@ context = skia
 
 ---
 
+## <a name="Pixels"></a> Pixels
+
+| name | description |
+| --- | --- |
+| <a href="#SkCanvas_peekPixels">peekPixels</a> | returns if <a href="#Canvas">Canvas</a> has direct access to its pixels |
+| <a href="#SkCanvas_readPixels">readPixels</a> | copies and converts rectangle of pixels from <a href="#Canvas">Canvas</a> |
+|  | <a href="#SkCanvas_readPixels">readPixels(const SkImageInfo& dstInfo, void* dstPixels, size t dstRowBytes, int srcX, int srcY)</a> |
+|  | <a href="#SkCanvas_readPixels_2">readPixels(const SkPixmap& pixmap, int srcX, int srcY)</a> |
+|  | <a href="#SkCanvas_readPixels_3">readPixels(const SkBitmap& bitmap, int srcX, int srcY)</a> |
+| <a href="#SkCanvas_writePixels">writePixels</a> | copies and converts rectangle of pixels to <a href="#Canvas">Canvas</a> |
+|  | <a href="#SkCanvas_writePixels">writePixels(const SkImageInfo& info, const void* pixels, size t rowBytes, int x, int y)</a> |
+|  | <a href="#SkCanvas_writePixels_2">writePixels(const SkBitmap& bitmap, int x, int y)</a> |
+
 <a name="SkCanvas_peekPixels"></a>
 ## peekPixels
 
@@ -883,7 +922,7 @@ bool peekPixels(SkPixmap* pixmap)
 
 Returns true if <a href="#Canvas">Canvas</a> has direct access to its pixels.
 
-Pixels are readable when <a href="undocumented#Device">Device</a> is raster. Pixels are not readable when <a href="#Canvas">Canvas</a>
+<a href="#Pixels">Pixels</a> are readable when <a href="undocumented#Device">Device</a> is raster. <a href="#Pixels">Pixels</a> are not readable when <a href="#Canvas">Canvas</a>
 is returned from <a href="undocumented#GPU_Surface">GPU Surface</a>, returned by <a href="#SkDocument_beginPage">SkDocument::beginPage</a>, returned by
 <a href="#SkPictureRecorder_beginRecording">SkPictureRecorder::beginRecording</a>, or <a href="#Canvas">Canvas</a> is the base of a utility class
 like <a href="undocumented#SkDumpCanvas">SkDumpCanvas</a>.
@@ -935,8 +974,8 @@ Destination <a href="SkRect_Reference#Rect">Rect</a> corners are (0, 0) and (<a 
 Copies each readable pixel intersecting both rectangles, without scaling,
 converting to <a href="#SkCanvas_readPixels_dstInfo">dstInfo</a>.colorType() and <a href="#SkCanvas_readPixels_dstInfo">dstInfo</a>.alphaType() if required.
 
-Pixels are readable when <a href="undocumented#Device">Device</a> is raster, or backed by a GPU.
-Pixels are not readable when <a href="#SkCanvas">SkCanvas</a> is returned by <a href="#SkDocument_beginPage">SkDocument::beginPage</a>,
+<a href="#Pixels">Pixels</a> are readable when <a href="undocumented#Device">Device</a> is raster, or backed by a GPU.
+<a href="#Pixels">Pixels</a> are not readable when <a href="#SkCanvas">SkCanvas</a> is returned by <a href="#SkDocument_beginPage">SkDocument::beginPage</a>,
 returned by <a href="#SkPictureRecorder_beginRecording">SkPictureRecorder::beginRecording</a>, or <a href="#Canvas">Canvas</a> is the base of a utility
 class like <a href="undocumented#SkDumpCanvas">SkDumpCanvas</a>.
 
@@ -1019,8 +1058,8 @@ Destination <a href="SkRect_Reference#Rect">Rect</a> corners are (0, 0) and (<a 
 Copies each readable pixel intersecting both rectangles, without scaling,
 converting to <a href="#SkCanvas_readPixels_2_pixmap">pixmap</a>.colorType() and <a href="#SkCanvas_readPixels_2_pixmap">pixmap</a>.alphaType() if required.
 
-Pixels are readable when <a href="undocumented#Device">Device</a> is raster, or backed by a GPU.
-Pixels are not readable when <a href="#SkCanvas">SkCanvas</a> is returned by <a href="#SkDocument_beginPage">SkDocument::beginPage</a>,
+<a href="#Pixels">Pixels</a> are readable when <a href="undocumented#Device">Device</a> is raster, or backed by a GPU.
+<a href="#Pixels">Pixels</a> are not readable when <a href="#SkCanvas">SkCanvas</a> is returned by <a href="#SkDocument_beginPage">SkDocument::beginPage</a>,
 returned by <a href="#SkPictureRecorder_beginRecording">SkPictureRecorder::beginRecording</a>, or <a href="#Canvas">Canvas</a> is the base of a utility
 class like <a href="undocumented#SkDumpCanvas">SkDumpCanvas</a>.
 
@@ -1091,8 +1130,8 @@ Destination <a href="SkRect_Reference#Rect">Rect</a> corners are (0, 0) and (<a 
 Copies each readable pixel intersecting both rectangles, without scaling,
 converting to <a href="#SkCanvas_readPixels_3_bitmap">bitmap</a>.colorType() and <a href="#SkCanvas_readPixels_3_bitmap">bitmap</a>.alphaType() if required.
 
-Pixels are readable when <a href="undocumented#Device">Device</a> is raster, or backed by a GPU.
-Pixels are not readable when <a href="#SkCanvas">SkCanvas</a> is returned by <a href="#SkDocument_beginPage">SkDocument::beginPage</a>,
+<a href="#Pixels">Pixels</a> are readable when <a href="undocumented#Device">Device</a> is raster, or backed by a GPU.
+<a href="#Pixels">Pixels</a> are not readable when <a href="#SkCanvas">SkCanvas</a> is returned by <a href="#SkDocument_beginPage">SkDocument::beginPage</a>,
 returned by <a href="#SkPictureRecorder_beginRecording">SkPictureRecorder::beginRecording</a>, or <a href="#Canvas">Canvas</a> is the base of a utility
 class like <a href="undocumented#SkDumpCanvas">SkDumpCanvas</a>.
 
@@ -1164,8 +1203,8 @@ Destination <a href="SkRect_Reference#Rect">Rect</a> corners are (<a href="#SkCa
 Copies each readable pixel intersecting both rectangles, without scaling,
 converting to <a href="#SkCanvas_imageInfo">imageInfo</a>.colorType() and <a href="#SkCanvas_imageInfo">imageInfo</a>.alphaType() if required.
 
-Pixels are writable when <a href="undocumented#Device">Device</a> is raster, or backed by a GPU.
-Pixels are not writable when <a href="#SkCanvas">SkCanvas</a> is returned by <a href="#SkDocument_beginPage">SkDocument::beginPage</a>,
+<a href="#Pixels">Pixels</a> are writable when <a href="undocumented#Device">Device</a> is raster, or backed by a GPU.
+<a href="#Pixels">Pixels</a> are not writable when <a href="#SkCanvas">SkCanvas</a> is returned by <a href="#SkDocument_beginPage">SkDocument::beginPage</a>,
 returned by <a href="#SkPictureRecorder_beginRecording">SkPictureRecorder::beginRecording</a>, or <a href="#Canvas">Canvas</a> is the base of a utility
 class like <a href="undocumented#SkDumpCanvas">SkDumpCanvas</a>.
 
@@ -1230,8 +1269,8 @@ Destination <a href="SkRect_Reference#Rect">Rect</a> corners are (<a href="#SkCa
 Copies each readable pixel intersecting both rectangles, without scaling,
 converting to <a href="#SkCanvas_imageInfo">imageInfo</a>.colorType() and <a href="#SkCanvas_imageInfo">imageInfo</a>.alphaType() if required.
 
-Pixels are writable when <a href="undocumented#Device">Device</a> is raster, or backed by a GPU.
-Pixels are not writable when <a href="#SkCanvas">SkCanvas</a> is returned by <a href="#SkDocument_beginPage">SkDocument::beginPage</a>,
+<a href="#Pixels">Pixels</a> are writable when <a href="undocumented#Device">Device</a> is raster, or backed by a GPU.
+<a href="#Pixels">Pixels</a> are not writable when <a href="#SkCanvas">SkCanvas</a> is returned by <a href="#SkDocument_beginPage">SkDocument::beginPage</a>,
 returned by <a href="#SkPictureRecorder_beginRecording">SkPictureRecorder::beginRecording</a>, or <a href="#Canvas">Canvas</a> is the base of a utility
 class like <a href="undocumented#SkDumpCanvas">SkDumpCanvas</a>.
 
@@ -1297,7 +1336,7 @@ save state and return the depth of the stack.
 
 ### Example
 
-<div><fiddle-embed name="a4548baa133302e933b4d3442c06f5b3"><div>Draw to ever smaller clips; then restore drawing to full canvas.
+<div><fiddle-embed name="a4548baa133302e933b4d3442c06f5b3"><div><a href="#Draw">Draw</a> to ever smaller clips; then restore drawing to full canvas.
 Note that the second <a href="#SkCanvas_clipRect">clipRect</a> is not permitted to enlarge <a href="#Clip">Clip</a>.</div></fiddle-embed></div>
 
 Each <a href="#Clip">Clip</a> uses the current <a href="#Matrix">Matrix</a> for its coordinates.
@@ -1576,7 +1615,7 @@ Optional <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_saveLaye
 
 Call <a href="#SkCanvas_restoreToCount">restoreToCount</a> with returned value to restore this and subsequent saves.
 
-Draw text on an opaque background so that <a href="SkPaint_Reference#LCD_Text">LCD Text</a> blends correctly with the
+<a href="#Draw">Draw</a> text on an opaque background so that <a href="SkPaint_Reference#LCD_Text">LCD Text</a> blends correctly with the
 prior <a href="#Layer">Layer</a>. <a href="SkPaint_Reference#LCD_Text">LCD Text</a> drawn on a background with transparency may result in
 incorrect blending.
 
@@ -2052,7 +2091,7 @@ amount to rotate, in <a href="#SkCanvas_rotate_degrees">degrees</a></td>
 
 ### Example
 
-<div><fiddle-embed name="caafb205771b714948e00dcd58ccaf1f"><div>Draw clock hands at time 5:10. The hour hand and minute hand point up and
+<div><fiddle-embed name="caafb205771b714948e00dcd58ccaf1f"><div><a href="#Draw">Draw</a> clock hands at time 5:10. The hour hand and minute hand point up and
 are rotated clockwise.</div></fiddle-embed></div>
 
 ### See Also
@@ -2276,7 +2315,7 @@ and is unaffected by <a href="#Matrix">Matrix</a>.
 
 ### Example
 
-<div><fiddle-embed name="d2e60e5171f26ff9ddefae48387f889b"><div>Draw a red circle with an <a href="#Alias">Aliased</a> clip and an Anti-aliased clip.
+<div><fiddle-embed name="d2e60e5171f26ff9ddefae48387f889b"><div><a href="#Draw">Draw</a> a red circle with an <a href="#Alias">Aliased</a> clip and an Anti-aliased clip.
 Use an image filter to zoom into the pixels drawn.
 The edge of the <a href="#Alias">Aliased</a> clip fully draws pixels in the red circle.
 The edge of the Anti-aliased clip partially draws pixels in the red circle.</div></fiddle-embed></div>
@@ -2883,6 +2922,55 @@ device bounds empty = true
 
 ---
 
+## <a name="Draw"></a> Draw
+
+| name | description |
+| --- | --- |
+| <a href="#SkCanvas_clear">clear</a> | fills <a href="#Clip">Clip</a> with <a href="undocumented#Color">Color</a> |
+| <a href="#SkCanvas_drawAnnotation">drawAnnotation</a> | associates a <a href="SkRect_Reference#Rect">Rect</a> with a key-value pair |
+|  | <a href="#SkCanvas_drawAnnotation">drawAnnotation(const SkRect& rect, const char key[], SkData* value)</a> |
+|  | <a href="#SkCanvas_drawAnnotation_2">drawAnnotation(const SkRect& rect, const char key[], const sk sp&lt;SkData&gt;& value)</a> |
+| <a href="#SkCanvas_drawArc">drawArc</a> | draws <a href="undocumented#Arc">Arc</a> using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and <a href="SkPaint_Reference#Paint">Paint</a> |
+| <a href="#SkCanvas_drawAtlas">drawAtlas</a> | draws sprites using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and <a href="SkPaint_Reference#Paint">Paint</a> |
+|  | <a href="#SkCanvas_drawAtlas">drawAtlas(const SkImage* atlas, const SkRSXform xform[], const SkRect tex[], const SkColor colors[], int count, SkBlendMode mode, const SkRect* cullRect, const SkPaint* paint)</a> |
+|  | <a href="#SkCanvas_drawAtlas_2">drawAtlas(const sk sp&lt;SkImage&gt;& atlas, const SkRSXform xform[], const SkRect tex[], const SkColor colors[], int count, SkBlendMode mode, const SkRect* cullRect, const SkPaint* paint)</a> |
+|  | <a href="#SkCanvas_drawAtlas_3">drawAtlas(const SkImage* atlas, const SkRSXform xform[], const SkRect tex[], int count, const SkRect* cullRect, const SkPaint* paint)</a> |
+|  | <a href="#SkCanvas_drawAtlas_4">drawAtlas(const sk sp&lt;SkImage&gt;& atlas, const SkRSXform xform[], const SkRect tex[], int count, const SkRect* cullRect, const SkPaint* paint)</a> |
+| <a href="#SkCanvas_drawCircle">drawCircle</a> | draws <a href="undocumented#Circle">Circle</a> using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and <a href="SkPaint_Reference#Paint">Paint</a> |
+|  | <a href="#SkCanvas_drawCircle">drawCircle(SkScalar cx, SkScalar cy, SkScalar radius, const SkPaint& paint)</a> |
+|  | <a href="#SkCanvas_drawCircle_2">drawCircle(SkPoint center, SkScalar radius, const SkPaint& paint)</a> |
+| <a href="#SkCanvas_drawColor">drawColor</a> | fills <a href="#Clip">Clip</a> with <a href="undocumented#Color">Color</a> and <a href="undocumented#Blend_Mode">Blend Mode</a> |
+| <a href="#SkCanvas_drawDRRect">drawDRRect</a> | draws double <a href="undocumented#Round_Rect">Round Rect</a> stroked or filled |
+| <a href="#SkCanvas_drawDrawable">drawDrawable</a> | draws <a href="undocumented#Drawable">Drawable</a>, encapsulated drawing commands |
+|  | <a href="#SkCanvas_drawDrawable">drawDrawable(SkDrawable* drawable, const SkMatrix* matrix = nullptr)</a> |
+|  | <a href="#SkCanvas_drawDrawable_2">drawDrawable(SkDrawable* drawable, SkScalar x, SkScalar y)</a> |
+| <a href="#SkCanvas_drawIRect">drawIRect</a> | draws <a href="SkIRect_Reference#IRect">IRect</a> using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and <a href="SkPaint_Reference#Paint">Paint</a> |
+| <a href="#SkCanvas_drawLine">drawLine</a> | draws line segment between two points |
+|  | <a href="#SkCanvas_drawLine">drawLine(SkScalar x0, SkScalar y0, SkScalar x1, SkScalar y1, const SkPaint& paint)</a> |
+|  | <a href="#SkCanvas_drawLine_2">drawLine(SkPoint p0, SkPoint p1, const SkPaint& paint)</a> |
+| <a href="#SkCanvas_drawOval">drawOval</a> | draws <a href="undocumented#Oval">Oval</a> using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and <a href="SkPaint_Reference#Paint">Paint</a> |
+| <a href="#SkCanvas_drawPaint">drawPaint</a> | fills <a href="#Clip">Clip</a> with <a href="SkPaint_Reference#Paint">Paint</a> |
+| <a href="#SkCanvas_drawPatch">drawPatch</a> | draws Coons_Patch |
+|  | <a href="#SkCanvas_drawPatch">drawPatch(const SkPoint cubics[12], const SkColor colors[4], const SkPoint texCoords[4], SkBlendMode mode, const SkPaint& paint)</a> |
+|  | <a href="#SkCanvas_drawPatch_2">drawPatch(const SkPoint cubics[12], const SkColor colors[4], const SkPoint texCoords[4], const SkPaint& paint)</a> |
+| <a href="#SkCanvas_drawPath">drawPath</a> | draws <a href="SkPath_Reference#Path">Path</a> using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and <a href="SkPaint_Reference#Paint">Paint</a> |
+| <a href="#SkCanvas_drawPicture">drawPicture</a> | draws <a href="undocumented#Picture">Picture</a> using <a href="#Clip">Clip</a> and <a href="#Matrix">Matrix</a> |
+|  | <a href="#SkCanvas_drawPicture">drawPicture(const SkPicture* picture)</a> |
+|  | <a href="#SkCanvas_drawPicture_2">drawPicture(const sk sp&lt;SkPicture&gt;& picture)</a> |
+|  | <a href="#SkCanvas_drawPicture_3">drawPicture(const SkPicture* picture, const SkMatrix* matrix, const SkPaint* paint)</a> |
+|  | <a href="#SkCanvas_drawPicture_4">drawPicture(const sk sp&lt;SkPicture&gt;& picture, const SkMatrix* matrix, const SkPaint* paint)</a> |
+| <a href="#SkCanvas_drawPoint">drawPoint</a> | draws point at (x, y) position |
+|  | <a href="#SkCanvas_drawPoint">drawPoint(SkScalar x, SkScalar y, const SkPaint& paint)</a> |
+|  | <a href="#SkCanvas_drawPoint_2">drawPoint(SkPoint p, const SkPaint& paint)</a> |
+| <a href="#SkCanvas_drawPoints">drawPoints</a> | draws array as points, lines, polygon |
+| <a href="#SkCanvas_drawRRect">drawRRect</a> | draws <a href="undocumented#Round_Rect">Round Rect</a> using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and <a href="SkPaint_Reference#Paint">Paint</a> |
+| <a href="#SkCanvas_drawRect">drawRect</a> | draws <a href="SkRect_Reference#Rect">Rect</a> using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and <a href="SkPaint_Reference#Paint">Paint</a> |
+| <a href="#SkCanvas_drawRegion">drawRegion</a> | draws <a href="undocumented#Region">Region</a> using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and <a href="SkPaint_Reference#Paint">Paint</a> |
+| <a href="#SkCanvas_drawRoundRect">drawRoundRect</a> | draws <a href="undocumented#Round_Rect">Round Rect</a> using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and <a href="SkPaint_Reference#Paint">Paint</a> |
+| <a href="#SkCanvas_drawVertices">drawVertices</a> | draws <a href="undocumented#Vertices">Vertices</a>, a triangle mesh |
+|  | <a href="#SkCanvas_drawVertices">drawVertices(const SkVertices* vertices, SkBlendMode mode, const SkPaint& paint)</a> |
+|  | <a href="#SkCanvas_drawVertices_2">drawVertices(const sk sp&lt;SkVertices&gt;& vertices, SkBlendMode mode, const SkPaint& paint)</a> |
+
 <a name="SkCanvas_drawColor"></a>
 ## drawColor
 
@@ -3008,13 +3096,13 @@ an open polygon.
 
 <table>
   <tr>
-    <td><a name="SkCanvas_kPoints_PointMode"> <code><strong>SkCanvas::kPoints_PointMode </strong></code> </a></td><td>0</td><td>Draw each point separately.</td>
+    <td><a name="SkCanvas_kPoints_PointMode"> <code><strong>SkCanvas::kPoints_PointMode </strong></code> </a></td><td>0</td><td><a href="#Draw">Draw</a> each point separately.</td>
   </tr>
   <tr>
-    <td><a name="SkCanvas_kLines_PointMode"> <code><strong>SkCanvas::kLines_PointMode </strong></code> </a></td><td>1</td><td>Draw each pair of points as a line segment.</td>
+    <td><a name="SkCanvas_kLines_PointMode"> <code><strong>SkCanvas::kLines_PointMode </strong></code> </a></td><td>1</td><td><a href="#Draw">Draw</a> each pair of points as a line segment.</td>
   </tr>
   <tr>
-    <td><a name="SkCanvas_kPolygon_PointMode"> <code><strong>SkCanvas::kPolygon_PointMode </strong></code> </a></td><td>2</td><td>Draw the array of points as a open polygon.</td>
+    <td><a name="SkCanvas_kPolygon_PointMode"> <code><strong>SkCanvas::kPolygon_PointMode </strong></code> </a></td><td>2</td><td><a href="#Draw">Draw</a> the array of points as a open polygon.</td>
   </tr>
 </table>
 
@@ -3038,7 +3126,7 @@ The lower left corner shows two lines with a miter when path contains polygon.</
 void drawPoints(PointMode mode, size_t count, const SkPoint pts[], const SkPaint& paint)
 </pre>
 
-Draw <a href="#SkCanvas_drawPoints_pts">pts</a> using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a> and <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawPoints_paint">paint</a>.
+<a href="#Draw">Draw</a> <a href="#SkCanvas_drawPoints_pts">pts</a> using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a> and <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawPoints_paint">paint</a>.
 <a href="#SkCanvas_drawPoints_count">count</a> is the number of points; if <a href="#SkCanvas_drawPoints_count">count</a> is less than one, has no effect.
 <a href="#SkCanvas_drawPoints_mode">mode</a> may be one of: <a href="#SkCanvas_kPoints_PointMode">kPoints PointMode</a>, <a href="#SkCanvas_kLines_PointMode">kLines PointMode</a>, or <a href="#SkCanvas_kPolygon_PointMode">kPolygon PointMode</a>.
 
@@ -3105,7 +3193,7 @@ the path is drawn all at once.</div></fiddle-embed></div>
 void drawPoint(SkScalar x, SkScalar y, const SkPaint& paint)
 </pre>
 
-Draw point at (<a href="#SkCanvas_drawPoint_x">x</a>, <a href="#SkCanvas_drawPoint_y">y</a>) using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a> and <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawPoint_paint">paint</a>.
+<a href="#Draw">Draw</a> point at (<a href="#SkCanvas_drawPoint_x">x</a>, <a href="#SkCanvas_drawPoint_y">y</a>) using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a> and <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawPoint_paint">paint</a>.
 
 The shape of point drawn depends on <a href="#SkCanvas_drawPoint_paint">paint</a> <a href="#Stroke_Cap">Paint Stroke Cap</a>.
 If <a href="#SkCanvas_drawPoint_paint">paint</a> is set to <a href="#SkPaint_kRound_Cap">SkPaint::kRound Cap</a>, draw a circle of diameter
@@ -3140,7 +3228,7 @@ stroke, blend, color, and so on, used to draw</td>
 void drawPoint(SkPoint p, const SkPaint& paint)
 </pre>
 
-Draw point <a href="#SkCanvas_drawPoint_2_p">p</a> using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a> and <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawPoint_2_paint">paint</a>.
+<a href="#Draw">Draw</a> point <a href="#SkCanvas_drawPoint_2_p">p</a> using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a> and <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawPoint_2_paint">paint</a>.
 
 The shape of point drawn depends on <a href="#SkCanvas_drawPoint_2_paint">paint</a> <a href="#Stroke_Cap">Paint Stroke Cap</a>.
 If <a href="#SkCanvas_drawPoint_2_paint">paint</a> is set to <a href="#SkPaint_kRound_Cap">SkPaint::kRound Cap</a>, draw a circle of diameter
@@ -3243,7 +3331,7 @@ stroke, blend, color, and so on, used to draw</td>
 void drawRect(const SkRect& rect, const SkPaint& paint)
 </pre>
 
-Draw <a href="SkRect_Reference#Rect">Rect</a> <a href="#SkCanvas_drawRect_rect">rect</a> using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawRect_paint">paint</a>.
+<a href="#Draw">Draw</a> <a href="SkRect_Reference#Rect">Rect</a> <a href="#SkCanvas_drawRect_rect">rect</a> using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawRect_paint">paint</a>.
 In <a href="#SkCanvas_drawRect_paint">paint</a>: <a href="#Style">Paint Style</a> determines if rectangle is stroked or filled;
 if stroked, <a href="#Stroke_Width">Paint Stroke Width</a> describes the line thickness, and
 <a href="#Stroke_Join">Paint Stroke Join</a> draws the corners rounded or square.
@@ -3274,7 +3362,7 @@ stroke or fill, blend, color, and so on, used to draw</td>
 void drawIRect(const SkIRect& rect, const SkPaint& paint)
 </pre>
 
-Draw <a href="SkIRect_Reference#IRect">IRect</a> <a href="#SkCanvas_drawIRect_rect">rect</a> using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawIRect_paint">paint</a>.
+<a href="#Draw">Draw</a> <a href="SkIRect_Reference#IRect">IRect</a> <a href="#SkCanvas_drawIRect_rect">rect</a> using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawIRect_paint">paint</a>.
 In <a href="#SkCanvas_drawIRect_paint">paint</a>: <a href="#Style">Paint Style</a> determines if rectangle is stroked or filled;
 if stroked, <a href="#Stroke_Width">Paint Stroke Width</a> describes the line thickness, and
 <a href="#Stroke_Join">Paint Stroke Join</a> draws the corners rounded or square.
@@ -3305,7 +3393,7 @@ stroke or fill, blend, color, and so on, used to draw</td>
 void drawRegion(const SkRegion& region, const SkPaint& paint)
 </pre>
 
-Draw <a href="undocumented#Region">Region</a> <a href="#SkCanvas_drawRegion_region">region</a> using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawRegion_paint">paint</a>.
+<a href="#Draw">Draw</a> <a href="undocumented#Region">Region</a> <a href="#SkCanvas_drawRegion_region">region</a> using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawRegion_paint">paint</a>.
 In <a href="#SkCanvas_drawRegion_paint">paint</a>: <a href="#Style">Paint Style</a> determines if rectangle is stroked or filled;
 if stroked, <a href="#Stroke_Width">Paint Stroke Width</a> describes the line thickness, and
 <a href="#Stroke_Join">Paint Stroke Join</a> draws the corners rounded or square.
@@ -3336,7 +3424,7 @@ if stroked, <a href="#Stroke_Width">Paint Stroke Width</a> describes the line th
 void drawOval(const SkRect& oval, const SkPaint& paint)
 </pre>
 
-Draw <a href="undocumented#Oval">Oval</a> <a href="#SkCanvas_drawOval_oval">oval</a> using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and <a href="SkPaint_Reference#Paint">Paint</a>.
+<a href="#Draw">Draw</a> <a href="undocumented#Oval">Oval</a> <a href="#SkCanvas_drawOval_oval">oval</a> using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and <a href="SkPaint_Reference#Paint">Paint</a>.
 In <a href="#SkCanvas_drawOval_paint">paint</a>: <a href="#Style">Paint Style</a> determines if <a href="undocumented#Oval">Oval</a> is stroked or filled;
 if stroked, <a href="#Stroke_Width">Paint Stroke Width</a> describes the line thickness.
 
@@ -3366,7 +3454,7 @@ if stroked, <a href="#Stroke_Width">Paint Stroke Width</a> describes the line th
 void drawRRect(const SkRRect& rrect, const SkPaint& paint)
 </pre>
 
-Draw <a href="undocumented#Round_Rect">Round Rect</a> <a href="#SkCanvas_drawRRect_rrect">rrect</a> using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawRRect_paint">paint</a>.
+<a href="#Draw">Draw</a> <a href="undocumented#Round_Rect">Round Rect</a> <a href="#SkCanvas_drawRRect_rrect">rrect</a> using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawRRect_paint">paint</a>.
 In <a href="#SkCanvas_drawRRect_paint">paint</a>: <a href="#Style">Paint Style</a> determines if <a href="#SkCanvas_drawRRect_rrect">rrect</a> is stroked or filled;
 if stroked, <a href="#Stroke_Width">Paint Stroke Width</a> describes the line thickness.
 
@@ -3399,7 +3487,7 @@ may have any combination of positive non-square radii for the four corners.
 void drawDRRect(const SkRRect& outer, const SkRRect& inner, const SkPaint& paint)
 </pre>
 
-Draw <a href="undocumented#Round_Rect">Round Rect</a> <a href="#SkCanvas_drawDRRect_outer">outer</a> and <a href="#SkCanvas_drawDRRect_inner">inner</a>
+<a href="#Draw">Draw</a> <a href="undocumented#Round_Rect">Round Rect</a> <a href="#SkCanvas_drawDRRect_outer">outer</a> and <a href="#SkCanvas_drawDRRect_inner">inner</a>
 using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawDRRect_paint">paint</a>.
 <a href="#SkCanvas_drawDRRect_outer">outer</a> must contain <a href="#SkCanvas_drawDRRect_inner">inner</a> or the drawing is undefined.
 In <a href="#SkCanvas_drawDRRect_paint">paint</a>: <a href="#Style">Paint Style</a> determines if <a href="undocumented#Round_Rect">Round Rect</a> is stroked or filled;
@@ -3445,7 +3533,7 @@ Stroke join does not affect <a href="#SkCanvas_drawDRRect_inner">inner</a> <a hr
 void drawCircle(SkScalar cx, SkScalar cy, SkScalar radius, const SkPaint& paint)
 </pre>
 
-Draw <a href="undocumented#Circle">Circle</a> at (<a href="#SkCanvas_drawCircle_cx">cx</a>, <a href="#SkCanvas_drawCircle_cy">cy</a>) with <a href="#SkCanvas_drawCircle_radius">radius</a> using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawCircle_paint">paint</a>.
+<a href="#Draw">Draw</a> <a href="undocumented#Circle">Circle</a> at (<a href="#SkCanvas_drawCircle_cx">cx</a>, <a href="#SkCanvas_drawCircle_cy">cy</a>) with <a href="#SkCanvas_drawCircle_radius">radius</a> using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawCircle_paint">paint</a>.
 If <a href="#SkCanvas_drawCircle_radius">radius</a> is zero or less, nothing is drawn.
 In <a href="#SkCanvas_drawCircle_paint">paint</a>: <a href="#Style">Paint Style</a> determines if <a href="undocumented#Circle">Circle</a> is stroked or filled;
 if stroked, <a href="#Stroke_Width">Paint Stroke Width</a> describes the line thickness.
@@ -3479,7 +3567,7 @@ half the diameter of <a href="undocumented#Circle">Circle</a></td>
 void drawCircle(SkPoint center, SkScalar radius, const SkPaint& paint)
 </pre>
 
-Draw <a href="undocumented#Circle">Circle</a> at <a href="#SkCanvas_drawCircle_2_center">center</a> with <a href="#SkCanvas_drawCircle_2_radius">radius</a> using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawCircle_2_paint">paint</a>.
+<a href="#Draw">Draw</a> <a href="undocumented#Circle">Circle</a> at <a href="#SkCanvas_drawCircle_2_center">center</a> with <a href="#SkCanvas_drawCircle_2_radius">radius</a> using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawCircle_2_paint">paint</a>.
 If <a href="#SkCanvas_drawCircle_2_radius">radius</a> is zero or less, nothing is drawn.
 In <a href="#SkCanvas_drawCircle_2_paint">paint</a>: <a href="#Style">Paint Style</a> determines if <a href="undocumented#Circle">Circle</a> is stroked or filled;
 if stroked, <a href="#Stroke_Width">Paint Stroke Width</a> describes the line thickness.
@@ -3513,7 +3601,7 @@ void drawArc(const SkRect& oval, SkScalar startAngle, SkScalar sweepAngle, bool 
              const SkPaint& paint)
 </pre>
 
-Draw <a href="undocumented#Arc">Arc</a> using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawArc_paint">paint</a>.
+<a href="#Draw">Draw</a> <a href="undocumented#Arc">Arc</a> using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawArc_paint">paint</a>.
 
 <a href="undocumented#Arc">Arc</a> is part of <a href="undocumented#Oval">Oval</a> bounded by <a href="#SkCanvas_drawArc_oval">oval</a>, sweeping from <a href="#SkCanvas_drawArc_startAngle">startAngle</a> to <a href="#SkCanvas_drawArc_startAngle">startAngle</a> plus
 <a href="#SkCanvas_drawArc_sweepAngle">sweepAngle</a>. <a href="#SkCanvas_drawArc_startAngle">startAngle</a> and <a href="#SkCanvas_drawArc_sweepAngle">sweepAngle</a> are in degrees.
@@ -3563,7 +3651,7 @@ if true, include the center of the <a href="#SkCanvas_drawArc_oval">oval</a></td
 void drawRoundRect(const SkRect& rect, SkScalar rx, SkScalar ry, const SkPaint& paint)
 </pre>
 
-Draw <a href="undocumented#Round_Rect">Round Rect</a> bounded by <a href="SkRect_Reference#Rect">Rect</a> <a href="#SkCanvas_drawRoundRect_rect">rect</a>, with corner radii (<a href="#SkCanvas_drawRoundRect_rx">rx</a>, <a href="#SkCanvas_drawRoundRect_ry">ry</a>) using <a href="#Clip">Clip</a>,
+<a href="#Draw">Draw</a> <a href="undocumented#Round_Rect">Round Rect</a> bounded by <a href="SkRect_Reference#Rect">Rect</a> <a href="#SkCanvas_drawRoundRect_rect">rect</a>, with corner radii (<a href="#SkCanvas_drawRoundRect_rx">rx</a>, <a href="#SkCanvas_drawRoundRect_ry">ry</a>) using <a href="#Clip">Clip</a>,
 <a href="#Matrix">Matrix</a>, and <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawRoundRect_paint">paint</a>.
 
 In <a href="#SkCanvas_drawRoundRect_paint">paint</a>: <a href="#Style">Paint Style</a> determines if <a href="undocumented#Round_Rect">Round Rect</a> is stroked or filled;
@@ -3606,7 +3694,7 @@ DrawRRect <a href="#SkCanvas_drawRect">drawRect</a> <a href="#SkCanvas_drawDRRec
 void drawPath(const SkPath& path, const SkPaint& paint)
 </pre>
 
-Draw <a href="SkPath_Reference#Path">Path</a> <a href="#SkCanvas_drawPath_path">path</a> using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawPath_paint">paint</a>.
+<a href="#Draw">Draw</a> <a href="SkPath_Reference#Path">Path</a> <a href="#SkCanvas_drawPath_path">path</a> using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawPath_paint">paint</a>.
 <a href="SkPath_Reference#Path">Path</a> contains an array of <a href="#Contour">Path Contour</a>, each of which may be open or closed.
 
 In <a href="#SkCanvas_drawPath_paint">paint</a>: <a href="#Style">Paint Style</a> determines if <a href="undocumented#Round_Rect">Round Rect</a> is stroked or filled:
@@ -3651,7 +3739,7 @@ a smart pointer as a convenience. The pairs of calls are otherwise identical.
 void drawImage(const SkImage* image, SkScalar left, SkScalar top, const SkPaint* paint = nullptr)
 </pre>
 
-Draw <a href="SkImage_Reference#Image">Image</a> <a href="#SkCanvas_drawImage_image">image</a>, with its <a href="#SkCanvas_drawImage_top">top</a>-<a href="#SkCanvas_drawImage_left">left</a> corner at (<a href="#SkCanvas_drawImage_left">left</a>, <a href="#SkCanvas_drawImage_top">top</a>),
+<a href="#Draw">Draw</a> <a href="SkImage_Reference#Image">Image</a> <a href="#SkCanvas_drawImage_image">image</a>, with its <a href="#SkCanvas_drawImage_top">top</a>-<a href="#SkCanvas_drawImage_left">left</a> corner at (<a href="#SkCanvas_drawImage_left">left</a>, <a href="#SkCanvas_drawImage_top">top</a>),
 using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and optional <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawImage_paint">paint</a>.
 
 If <a href="#SkCanvas_drawImage_paint">paint</a> is supplied, apply <a href="undocumented#Color_Filter">Color Filter</a>, <a href="#Alpha">Color Alpha</a>, <a href="undocumented#Image_Filter">Image Filter</a>, <a href="undocumented#Blend_Mode">Blend Mode</a>,
@@ -3692,7 +3780,7 @@ void drawImage(const sk_sp&lt;SkImage&gt;& image, SkScalar left, SkScalar top,
                const SkPaint* paint = nullptr)
 </pre>
 
-Draw <a href="SkImage_Reference#Image">Image</a> <a href="#SkCanvas_drawImage_2_image">image</a>, with its <a href="#SkCanvas_drawImage_2_top">top</a>-<a href="#SkCanvas_drawImage_2_left">left</a> corner at (<a href="#SkCanvas_drawImage_2_left">left</a>, <a href="#SkCanvas_drawImage_2_top">top</a>),
+<a href="#Draw">Draw</a> <a href="SkImage_Reference#Image">Image</a> <a href="#SkCanvas_drawImage_2_image">image</a>, with its <a href="#SkCanvas_drawImage_2_top">top</a>-<a href="#SkCanvas_drawImage_2_left">left</a> corner at (<a href="#SkCanvas_drawImage_2_left">left</a>, <a href="#SkCanvas_drawImage_2_top">top</a>),
 using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and optional <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawImage_2_paint">paint</a>.
 
 If <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawImage_2_paint">paint</a> is supplied, apply <a href="undocumented#Color_Filter">Color Filter</a>, <a href="#Alpha">Color Alpha</a>, <a href="undocumented#Image_Filter">Image Filter</a>,
@@ -3777,7 +3865,7 @@ void drawImageRect(const SkImage* image, const SkRect& src, const SkRect& dst, c
                    SrcRectConstraint constraint = kStrict_SrcRectConstraint)
 </pre>
 
-Draw <a href="SkRect_Reference#Rect">Rect</a> <a href="#SkCanvas_drawImageRect_src">src</a> of <a href="SkImage_Reference#Image">Image</a> <a href="#SkCanvas_drawImageRect_image">image</a>, scaled and translated to fill <a href="SkRect_Reference#Rect">Rect</a> <a href="#SkCanvas_drawImageRect_dst">dst</a>.
+<a href="#Draw">Draw</a> <a href="SkRect_Reference#Rect">Rect</a> <a href="#SkCanvas_drawImageRect_src">src</a> of <a href="SkImage_Reference#Image">Image</a> <a href="#SkCanvas_drawImageRect_image">image</a>, scaled and translated to fill <a href="SkRect_Reference#Rect">Rect</a> <a href="#SkCanvas_drawImageRect_dst">dst</a>.
 Additionally transform draw using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and optional <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawImageRect_paint">paint</a>.
 
 If <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawImageRect_paint">paint</a> is supplied, apply <a href="undocumented#Color_Filter">Color Filter</a>, <a href="#Alpha">Color Alpha</a>, <a href="undocumented#Image_Filter">Image Filter</a>,
@@ -3829,7 +3917,7 @@ void drawImageRect(const SkImage* image, const SkIRect& isrc, const SkRect& dst,
                    SrcRectConstraint constraint = kStrict_SrcRectConstraint)
 </pre>
 
-Draw <a href="SkIRect_Reference#IRect">IRect</a> <a href="#SkCanvas_drawImageRect_2_isrc">isrc</a> of <a href="SkImage_Reference#Image">Image</a> <a href="#SkCanvas_drawImageRect_2_image">image</a>, scaled and translated to fill <a href="SkRect_Reference#Rect">Rect</a> <a href="#SkCanvas_drawImageRect_2_dst">dst</a>.
+<a href="#Draw">Draw</a> <a href="SkIRect_Reference#IRect">IRect</a> <a href="#SkCanvas_drawImageRect_2_isrc">isrc</a> of <a href="SkImage_Reference#Image">Image</a> <a href="#SkCanvas_drawImageRect_2_image">image</a>, scaled and translated to fill <a href="SkRect_Reference#Rect">Rect</a> <a href="#SkCanvas_drawImageRect_2_dst">dst</a>.
 Note that <a href="#SkCanvas_drawImageRect_2_isrc">isrc</a> is on integer pixel boundaries; <a href="#SkCanvas_drawImageRect_2_dst">dst</a> may include fractional
 boundaries. Additionally transform draw using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and optional <a href="SkPaint_Reference#Paint">Paint</a>
 <a href="#SkCanvas_drawImageRect_2_paint">paint</a>.
@@ -3879,7 +3967,7 @@ void drawImageRect(const SkImage* image, const SkRect& dst, const SkPaint* paint
                    SrcRectConstraint constraint = kStrict_SrcRectConstraint)
 </pre>
 
-Draw <a href="SkImage_Reference#Image">Image</a> <a href="#SkCanvas_drawImageRect_3_image">image</a>, scaled and translated to fill <a href="SkRect_Reference#Rect">Rect</a> <a href="#SkCanvas_drawImageRect_3_dst">dst</a>, using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>,
+<a href="#Draw">Draw</a> <a href="SkImage_Reference#Image">Image</a> <a href="#SkCanvas_drawImageRect_3_image">image</a>, scaled and translated to fill <a href="SkRect_Reference#Rect">Rect</a> <a href="#SkCanvas_drawImageRect_3_dst">dst</a>, using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>,
 and optional <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawImageRect_3_paint">paint</a>.
 
 If <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawImageRect_3_paint">paint</a> is supplied, apply <a href="undocumented#Color_Filter">Color Filter</a>, <a href="#Alpha">Color Alpha</a>, <a href="undocumented#Image_Filter">Image Filter</a>,
@@ -3925,7 +4013,7 @@ void drawImageRect(const sk_sp&lt;SkImage&gt;& image, const SkRect& src, const S
                    const SkPaint* paint, SrcRectConstraint constraint = kStrict_SrcRectConstraint)
 </pre>
 
-Draw <a href="SkRect_Reference#Rect">Rect</a> <a href="#SkCanvas_drawImageRect_4_src">src</a> of <a href="SkImage_Reference#Image">Image</a> <a href="#SkCanvas_drawImageRect_4_image">image</a>, scaled and translated to fill <a href="SkRect_Reference#Rect">Rect</a> <a href="#SkCanvas_drawImageRect_4_dst">dst</a>.
+<a href="#Draw">Draw</a> <a href="SkRect_Reference#Rect">Rect</a> <a href="#SkCanvas_drawImageRect_4_src">src</a> of <a href="SkImage_Reference#Image">Image</a> <a href="#SkCanvas_drawImageRect_4_image">image</a>, scaled and translated to fill <a href="SkRect_Reference#Rect">Rect</a> <a href="#SkCanvas_drawImageRect_4_dst">dst</a>.
 Additionally transform draw using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and optional <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawImageRect_4_paint">paint</a>.
 
 If <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawImageRect_4_paint">paint</a> is supplied, apply <a href="undocumented#Color_Filter">Color Filter</a>, <a href="#Alpha">Color Alpha</a>, <a href="undocumented#Image_Filter">Image Filter</a>,
@@ -3974,7 +4062,7 @@ void drawImageRect(const sk_sp&lt;SkImage&gt;& image, const SkIRect& isrc, const
                    const SkPaint* paint, SrcRectConstraint constraint = kStrict_SrcRectConstraint)
 </pre>
 
-Draw <a href="SkIRect_Reference#IRect">IRect</a> <a href="#SkCanvas_drawImageRect_5_isrc">isrc</a> of <a href="SkImage_Reference#Image">Image</a> <a href="#SkCanvas_drawImageRect_5_image">image</a>, scaled and translated to fill <a href="SkRect_Reference#Rect">Rect</a> <a href="#SkCanvas_drawImageRect_5_dst">dst</a>.
+<a href="#Draw">Draw</a> <a href="SkIRect_Reference#IRect">IRect</a> <a href="#SkCanvas_drawImageRect_5_isrc">isrc</a> of <a href="SkImage_Reference#Image">Image</a> <a href="#SkCanvas_drawImageRect_5_image">image</a>, scaled and translated to fill <a href="SkRect_Reference#Rect">Rect</a> <a href="#SkCanvas_drawImageRect_5_dst">dst</a>.
 <a href="#SkCanvas_drawImageRect_5_isrc">isrc</a> is on integer pixel boundaries; <a href="#SkCanvas_drawImageRect_5_dst">dst</a> may include fractional boundaries.
 Additionally transform draw using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and optional <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawImageRect_5_paint">paint</a>.
 
@@ -4023,7 +4111,7 @@ void drawImageRect(const sk_sp&lt;SkImage&gt;& image, const SkRect& dst, const S
                    SrcRectConstraint constraint = kStrict_SrcRectConstraint)
 </pre>
 
-Draw <a href="SkImage_Reference#Image">Image</a> <a href="#SkCanvas_drawImageRect_6_image">image</a>, scaled and translated to fill <a href="SkRect_Reference#Rect">Rect</a> <a href="#SkCanvas_drawImageRect_6_dst">dst</a>,
+<a href="#Draw">Draw</a> <a href="SkImage_Reference#Image">Image</a> <a href="#SkCanvas_drawImageRect_6_image">image</a>, scaled and translated to fill <a href="SkRect_Reference#Rect">Rect</a> <a href="#SkCanvas_drawImageRect_6_dst">dst</a>,
 using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and optional <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawImageRect_6_paint">paint</a>.
 
 If <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawImageRect_6_paint">paint</a> is supplied, apply <a href="undocumented#Color_Filter">Color Filter</a>, <a href="#Alpha">Color Alpha</a>, <a href="undocumented#Image_Filter">Image Filter</a>,
@@ -4070,7 +4158,7 @@ void drawImageNine(const SkImage* image, const SkIRect& center, const SkRect& ds
                    const SkPaint* paint = nullptr)
 </pre>
 
-Draw <a href="SkImage_Reference#Image">Image</a> <a href="#SkCanvas_drawImageNine_image">image</a> stretched proportionally to fit into <a href="SkRect_Reference#Rect">Rect</a> <a href="#SkCanvas_drawImageNine_dst">dst</a>.
+<a href="#Draw">Draw</a> <a href="SkImage_Reference#Image">Image</a> <a href="#SkCanvas_drawImageNine_image">image</a> stretched proportionally to fit into <a href="SkRect_Reference#Rect">Rect</a> <a href="#SkCanvas_drawImageNine_dst">dst</a>.
 <a href="SkIRect_Reference#IRect">IRect</a> <a href="#SkCanvas_drawImageNine_center">center</a> divides the <a href="#SkCanvas_drawImageNine_image">image</a> into nine sections: four sides, four corners, and
 the <a href="#SkCanvas_drawImageNine_center">center</a>. Corners are unmodified or scaled down proportionately if their sides
 are larger than <a href="#SkCanvas_drawImageNine_dst">dst</a>; <a href="#SkCanvas_drawImageNine_center">center</a> and four sides are scaled to fit remaining space, if any.
@@ -4119,7 +4207,7 @@ void drawImageNine(const sk_sp&lt;SkImage&gt;& image, const SkIRect& center, con
                    const SkPaint* paint = nullptr)
 </pre>
 
-Draw <a href="SkImage_Reference#Image">Image</a> <a href="#SkCanvas_drawImageNine_2_image">image</a> stretched proportionally to fit into <a href="SkRect_Reference#Rect">Rect</a> <a href="#SkCanvas_drawImageNine_2_dst">dst</a>.
+<a href="#Draw">Draw</a> <a href="SkImage_Reference#Image">Image</a> <a href="#SkCanvas_drawImageNine_2_image">image</a> stretched proportionally to fit into <a href="SkRect_Reference#Rect">Rect</a> <a href="#SkCanvas_drawImageNine_2_dst">dst</a>.
 <a href="SkIRect_Reference#IRect">IRect</a> <a href="#SkCanvas_drawImageNine_2_center">center</a> divides the <a href="#SkCanvas_drawImageNine_2_image">image</a> into nine sections: four sides, four corners, and
 the <a href="#SkCanvas_drawImageNine_2_center">center</a>. Corners are not scaled, or scaled down proportionately if their sides
 are larger than <a href="#SkCanvas_drawImageNine_2_dst">dst</a>; <a href="#SkCanvas_drawImageNine_2_center">center</a> and four sides are scaled to fit remaining space, if any.
@@ -4170,7 +4258,7 @@ and below <a href="#SkCanvas_drawImageNine_2_center">center</a> to fill the rema
 void drawBitmap(const SkBitmap& bitmap, SkScalar left, SkScalar top, const SkPaint* paint = nullptr)
 </pre>
 
-Draw <a href="SkBitmap_Reference#Bitmap">Bitmap</a> <a href="#SkCanvas_drawBitmap_bitmap">bitmap</a>, with its <a href="#SkCanvas_drawBitmap_top">top</a>-<a href="#SkCanvas_drawBitmap_left">left</a> corner at (<a href="#SkCanvas_drawBitmap_left">left</a>, <a href="#SkCanvas_drawBitmap_top">top</a>),
+<a href="#Draw">Draw</a> <a href="SkBitmap_Reference#Bitmap">Bitmap</a> <a href="#SkCanvas_drawBitmap_bitmap">bitmap</a>, with its <a href="#SkCanvas_drawBitmap_top">top</a>-<a href="#SkCanvas_drawBitmap_left">left</a> corner at (<a href="#SkCanvas_drawBitmap_left">left</a>, <a href="#SkCanvas_drawBitmap_top">top</a>),
 using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and optional <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawBitmap_paint">paint</a>.
 
 If <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawBitmap_paint">paint</a> is not nullptr, apply <a href="undocumented#Color_Filter">Color Filter</a>, <a href="#Alpha">Color Alpha</a>, <a href="undocumented#Image_Filter">Image Filter</a>,
@@ -4214,7 +4302,7 @@ void drawBitmapRect(const SkBitmap& bitmap, const SkRect& src, const SkRect& dst
                     const SkPaint* paint, SrcRectConstraint constraint = kStrict_SrcRectConstraint)
 </pre>
 
-Draw <a href="SkRect_Reference#Rect">Rect</a> <a href="#SkCanvas_drawBitmapRect_src">src</a> of <a href="SkBitmap_Reference#Bitmap">Bitmap</a> <a href="#SkCanvas_drawBitmapRect_bitmap">bitmap</a>, scaled and translated to fill <a href="SkRect_Reference#Rect">Rect</a> <a href="#SkCanvas_drawBitmapRect_dst">dst</a>.
+<a href="#Draw">Draw</a> <a href="SkRect_Reference#Rect">Rect</a> <a href="#SkCanvas_drawBitmapRect_src">src</a> of <a href="SkBitmap_Reference#Bitmap">Bitmap</a> <a href="#SkCanvas_drawBitmapRect_bitmap">bitmap</a>, scaled and translated to fill <a href="SkRect_Reference#Rect">Rect</a> <a href="#SkCanvas_drawBitmapRect_dst">dst</a>.
 Additionally transform draw using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and optional <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawBitmapRect_paint">paint</a>.
 
 If <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawBitmapRect_paint">paint</a> is supplied, apply <a href="undocumented#Color_Filter">Color Filter</a>, <a href="#Alpha">Color Alpha</a>, <a href="undocumented#Image_Filter">Image Filter</a>,
@@ -4263,7 +4351,7 @@ void drawBitmapRect(const SkBitmap& bitmap, const SkIRect& isrc, const SkRect& d
                     const SkPaint* paint, SrcRectConstraint constraint = kStrict_SrcRectConstraint)
 </pre>
 
-Draw <a href="SkIRect_Reference#IRect">IRect</a> <a href="#SkCanvas_drawBitmapRect_2_isrc">isrc</a> of <a href="SkBitmap_Reference#Bitmap">Bitmap</a> <a href="#SkCanvas_drawBitmapRect_2_bitmap">bitmap</a>, scaled and translated to fill <a href="SkRect_Reference#Rect">Rect</a> <a href="#SkCanvas_drawBitmapRect_2_dst">dst</a>.
+<a href="#Draw">Draw</a> <a href="SkIRect_Reference#IRect">IRect</a> <a href="#SkCanvas_drawBitmapRect_2_isrc">isrc</a> of <a href="SkBitmap_Reference#Bitmap">Bitmap</a> <a href="#SkCanvas_drawBitmapRect_2_bitmap">bitmap</a>, scaled and translated to fill <a href="SkRect_Reference#Rect">Rect</a> <a href="#SkCanvas_drawBitmapRect_2_dst">dst</a>.
 <a href="#SkCanvas_drawBitmapRect_2_isrc">isrc</a> is on integer pixel boundaries; <a href="#SkCanvas_drawBitmapRect_2_dst">dst</a> may include fractional boundaries.
 Additionally transform draw using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and optional <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawBitmapRect_2_paint">paint</a>.
 
@@ -4313,7 +4401,7 @@ void drawBitmapRect(const SkBitmap& bitmap, const SkRect& dst, const SkPaint* pa
                     SrcRectConstraint constraint = kStrict_SrcRectConstraint)
 </pre>
 
-Draw <a href="SkBitmap_Reference#Bitmap">Bitmap</a> <a href="#SkCanvas_drawBitmapRect_3_bitmap">bitmap</a>, scaled and translated to fill <a href="SkRect_Reference#Rect">Rect</a> <a href="#SkCanvas_drawBitmapRect_3_dst">dst</a>.
+<a href="#Draw">Draw</a> <a href="SkBitmap_Reference#Bitmap">Bitmap</a> <a href="#SkCanvas_drawBitmapRect_3_bitmap">bitmap</a>, scaled and translated to fill <a href="SkRect_Reference#Rect">Rect</a> <a href="#SkCanvas_drawBitmapRect_3_dst">dst</a>.
 <a href="#SkCanvas_drawBitmapRect_3_bitmap">bitmap</a> bounds is on integer pixel boundaries; <a href="#SkCanvas_drawBitmapRect_3_dst">dst</a> may include fractional boundaries.
 Additionally transform draw using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and optional <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawBitmapRect_3_paint">paint</a>.
 
@@ -4362,7 +4450,7 @@ void drawBitmapNine(const SkBitmap& bitmap, const SkIRect& center, const SkRect&
                     const SkPaint* paint = nullptr)
 </pre>
 
-Draw <a href="SkBitmap_Reference#Bitmap">Bitmap</a> <a href="#SkCanvas_drawBitmapNine_bitmap">bitmap</a> stretched proportionally to fit into <a href="SkRect_Reference#Rect">Rect</a> <a href="#SkCanvas_drawBitmapNine_dst">dst</a>.
+<a href="#Draw">Draw</a> <a href="SkBitmap_Reference#Bitmap">Bitmap</a> <a href="#SkCanvas_drawBitmapNine_bitmap">bitmap</a> stretched proportionally to fit into <a href="SkRect_Reference#Rect">Rect</a> <a href="#SkCanvas_drawBitmapNine_dst">dst</a>.
 <a href="SkIRect_Reference#IRect">IRect</a> <a href="#SkCanvas_drawBitmapNine_center">center</a> divides the <a href="#SkCanvas_drawBitmapNine_bitmap">bitmap</a> into nine sections: four sides, four corners,
 and the <a href="#SkCanvas_drawBitmapNine_center">center</a>. Corners are not scaled, or scaled down proportionately if their
 sides are larger than <a href="#SkCanvas_drawBitmapNine_dst">dst</a>; <a href="#SkCanvas_drawBitmapNine_center">center</a> and four sides are scaled to fit remaining
@@ -4515,7 +4603,7 @@ void drawBitmapLattice(const SkBitmap& bitmap, const Lattice& lattice, const SkR
                        const SkPaint* paint = nullptr)
 </pre>
 
-Draw <a href="SkBitmap_Reference#Bitmap">Bitmap</a> <a href="#SkCanvas_drawBitmapLattice_bitmap">bitmap</a> stretched proportionally to fit into <a href="SkRect_Reference#Rect">Rect</a> <a href="#SkCanvas_drawBitmapLattice_dst">dst</a>.
+<a href="#Draw">Draw</a> <a href="SkBitmap_Reference#Bitmap">Bitmap</a> <a href="#SkCanvas_drawBitmapLattice_bitmap">bitmap</a> stretched proportionally to fit into <a href="SkRect_Reference#Rect">Rect</a> <a href="#SkCanvas_drawBitmapLattice_dst">dst</a>.
 
 <a href="#SkCanvas_Lattice">Lattice</a> <a href="#SkCanvas_drawBitmapLattice_lattice">lattice</a> divides <a href="#SkCanvas_drawBitmapLattice_bitmap">bitmap</a> into a rectangular grid.
 Each intersection of an even-numbered row and column is fixed; like the corners
@@ -4571,7 +4659,7 @@ void drawImageLattice(const SkImage* image, const Lattice& lattice, const SkRect
                       const SkPaint* paint = nullptr)
 </pre>
 
-Draw <a href="SkImage_Reference#Image">Image</a> <a href="#SkCanvas_drawImageLattice_image">image</a> stretched proportionally to fit into <a href="SkRect_Reference#Rect">Rect</a> <a href="#SkCanvas_drawImageLattice_dst">dst</a>.
+<a href="#Draw">Draw</a> <a href="SkImage_Reference#Image">Image</a> <a href="#SkCanvas_drawImageLattice_image">image</a> stretched proportionally to fit into <a href="SkRect_Reference#Rect">Rect</a> <a href="#SkCanvas_drawImageLattice_dst">dst</a>.
 
 <a href="#SkCanvas_Lattice">Lattice</a> <a href="#SkCanvas_drawImageLattice_lattice">lattice</a> divides <a href="#SkCanvas_drawImageLattice_image">image</a> into a rectangular grid.
 Each intersection of an even-numbered row and column is fixed; like the corners
@@ -4617,6 +4705,23 @@ are scaled if needed to take up the remaining space; the center is transparent.<
 
 ---
 
+## <a name="Draw_Text"></a> Draw Text
+
+| name | description |
+| --- | --- |
+| <a href="#SkCanvas_drawPosText">drawPosText</a> | draws text at array of (x, y) positions |
+| <a href="#SkCanvas_drawPosTextH">drawPosTextH</a> | draws text at x positions with common baseline |
+| <a href="#SkCanvas_drawString">drawString</a> | draws null terminated string at (x, y) using font advance |
+|  | <a href="#SkCanvas_drawString">drawString(const char* string, SkScalar x, SkScalar y, const SkPaint& paint)</a> |
+|  | <a href="#SkCanvas_drawString_2">drawString(const SkString& string, SkScalar x, SkScalar y, const SkPaint& paint)</a> |
+| <a href="#SkCanvas_drawText">drawText</a> | draws text at (x, y), using font advance |
+| <a href="#SkCanvas_drawTextBlob">drawTextBlob</a> | draws text with arrays of positions and <a href="SkPaint_Reference#Paint">Paint</a> |
+|  | <a href="#SkCanvas_drawTextBlob">drawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y, const SkPaint& paint)</a> |
+|  | <a href="#SkCanvas_drawTextBlob_2">drawTextBlob(const sk sp&lt;SkTextBlob&gt;& blob, SkScalar x, SkScalar y, const SkPaint& paint)</a> |
+| <a href="#SkCanvas_drawTextOnPath">drawTextOnPath</a> | draws text following <a href="SkPath_Reference#Path">Path</a> contour |
+| <a href="#SkCanvas_drawTextOnPathHV">drawTextOnPathHV</a> | draws text following <a href="SkPath_Reference#Path">Path</a> with offsets |
+| <a href="#SkCanvas_drawTextRSXform">drawTextRSXform</a> | draws text with array of <a href="undocumented#RSXform">RSXform</a> |
+
 <a name="SkCanvas_drawText"></a>
 ## drawText
 
@@ -4624,7 +4729,7 @@ are scaled if needed to take up the remaining space; the center is transparent.<
 void drawText(const void* text, size_t byteLength, SkScalar x, SkScalar y, const SkPaint& paint)
 </pre>
 
-Draw <a href="#SkCanvas_drawText_text">text</a>, with origin at (<a href="#SkCanvas_drawText_x">x</a>, <a href="#SkCanvas_drawText_y">y</a>), using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawText_paint">paint</a>.
+<a href="#Draw">Draw</a> <a href="#SkCanvas_drawText_text">text</a>, with origin at (<a href="#SkCanvas_drawText_x">x</a>, <a href="#SkCanvas_drawText_y">y</a>), using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawText_paint">paint</a>.
 
 <a href="#SkCanvas_drawText_text">text</a> meaning depends on <a href="#Text_Encoding">Paint Text Encoding</a>; by default, <a href="#SkCanvas_drawText_text">text</a> is encoded as
 UTF-8.
@@ -4670,7 +4775,7 @@ start of <a href="#SkCanvas_drawText_text">text</a> on <a href="#SkCanvas_drawTe
 void drawString(const char* string, SkScalar x, SkScalar y, const SkPaint& paint)
 </pre>
 
-Draw null terminated <a href="#SkCanvas_drawString_string">string</a>, with origin at (<a href="#SkCanvas_drawString_x">x</a>, <a href="#SkCanvas_drawString_y">y</a>), using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and
+<a href="#Draw">Draw</a> null terminated <a href="#SkCanvas_drawString_string">string</a>, with origin at (<a href="#SkCanvas_drawString_x">x</a>, <a href="#SkCanvas_drawString_y">y</a>), using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and
 <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawString_paint">paint</a>.
 
 <a href="#SkCanvas_drawString_string">string</a> meaning depends on <a href="#Text_Encoding">Paint Text Encoding</a>; by default, strings are encoded
@@ -4715,7 +4820,7 @@ text size, blend, color, and so on, used to draw</td>
 void drawString(const SkString& string, SkScalar x, SkScalar y, const SkPaint& paint)
 </pre>
 
-Draw null terminated <a href="#SkCanvas_drawString_2_string">string</a>, with origin at (<a href="#SkCanvas_drawString_2_x">x</a>, <a href="#SkCanvas_drawString_2_y">y</a>), using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and
+<a href="#Draw">Draw</a> null terminated <a href="#SkCanvas_drawString_2_string">string</a>, with origin at (<a href="#SkCanvas_drawString_2_x">x</a>, <a href="#SkCanvas_drawString_2_y">y</a>), using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and
 <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawString_2_paint">paint</a>.
 
 <a href="#SkCanvas_drawString_2_string">string</a> meaning depends on <a href="#Text_Encoding">Paint Text Encoding</a>; by default, strings are encoded
@@ -4761,7 +4866,7 @@ text size, blend, color, and so on, used to draw</td>
 void drawPosText(const void* text, size_t byteLength, const SkPoint pos[], const SkPaint& paint)
 </pre>
 
-Draw each glyph in <a href="#SkCanvas_drawPosText_text">text</a> with the origin in <a href="#SkCanvas_drawPosText_pos">pos</a> array, using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and
+<a href="#Draw">Draw</a> each glyph in <a href="#SkCanvas_drawPosText_text">text</a> with the origin in <a href="#SkCanvas_drawPosText_pos">pos</a> array, using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and
 <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawPosText_paint">paint</a>. The number of entries in <a href="#SkCanvas_drawPosText_pos">pos</a> array must match the number of <a href="#Glyph">Glyphs</a>
 described by <a href="#SkCanvas_drawPosText_byteLength">byteLength</a> of <a href="#SkCanvas_drawPosText_text">text</a>.
 
@@ -4809,7 +4914,7 @@ void drawPosTextH(const void* text, size_t byteLength, const SkScalar xpos[], Sk
                   const SkPaint& paint)
 </pre>
 
-Draw each glyph in <a href="#SkCanvas_drawPosTextH_text">text</a> with its (x, y) origin composed from <a href="#SkCanvas_drawPosTextH_xpos">xpos</a> array and
+<a href="#Draw">Draw</a> each glyph in <a href="#SkCanvas_drawPosTextH_text">text</a> with its (x, y) origin composed from <a href="#SkCanvas_drawPosTextH_xpos">xpos</a> array and
 <a href="#SkCanvas_drawPosTextH_constY">constY</a>, using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawPosTextH_paint">paint</a>. The number of entries in <a href="#SkCanvas_drawPosTextH_xpos">xpos</a> array
 must match the number of <a href="#Glyph">Glyphs</a> described by <a href="#SkCanvas_drawPosTextH_byteLength">byteLength</a> of <a href="#SkCanvas_drawPosTextH_text">text</a>.
 
@@ -4860,7 +4965,7 @@ void drawTextOnPathHV(const void* text, size_t byteLength, const SkPath& path, S
                       SkScalar vOffset, const SkPaint& paint)
 </pre>
 
-Draw <a href="#SkCanvas_drawTextOnPathHV_text">text</a> on <a href="SkPath_Reference#Path">Path</a> <a href="#SkCanvas_drawTextOnPathHV_path">path</a>, using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawTextOnPathHV_paint">paint</a>.
+<a href="#Draw">Draw</a> <a href="#SkCanvas_drawTextOnPathHV_text">text</a> on <a href="SkPath_Reference#Path">Path</a> <a href="#SkCanvas_drawTextOnPathHV_path">path</a>, using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawTextOnPathHV_paint">paint</a>.
 
 Origin of <a href="#SkCanvas_drawTextOnPathHV_text">text</a> is at distance <a href="#SkCanvas_drawTextOnPathHV_hOffset">hOffset</a> along the <a href="#SkCanvas_drawTextOnPathHV_path">path</a>, offset by a perpendicular
 vector of length <a href="#SkCanvas_drawTextOnPathHV_vOffset">vOffset</a>. If the <a href="#SkCanvas_drawTextOnPathHV_path">path</a> section corresponding the glyph advance is
@@ -4912,7 +5017,7 @@ void drawTextOnPath(const void* text, size_t byteLength, const SkPath& path, con
                     const SkPaint& paint)
 </pre>
 
-Draw <a href="#SkCanvas_drawTextOnPath_text">text</a> on <a href="SkPath_Reference#Path">Path</a> <a href="#SkCanvas_drawTextOnPath_path">path</a>, using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawTextOnPath_paint">paint</a>.
+<a href="#Draw">Draw</a> <a href="#SkCanvas_drawTextOnPath_text">text</a> on <a href="SkPath_Reference#Path">Path</a> <a href="#SkCanvas_drawTextOnPath_path">path</a>, using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawTextOnPath_paint">paint</a>.
 
 Origin of <a href="#SkCanvas_drawTextOnPath_text">text</a> is at beginning of <a href="#SkCanvas_drawTextOnPath_path">path</a> offset by <a href="#SkCanvas_drawTextOnPath_matrix">matrix</a>, if provided, before it
 is mapped to <a href="#SkCanvas_drawTextOnPath_path">path</a>. If the <a href="#SkCanvas_drawTextOnPath_path">path</a> section corresponding the glyph advance is
@@ -4963,7 +5068,7 @@ void drawTextRSXform(const void* text, size_t byteLength, const SkRSXform xform[
                      const SkRect* cullRect, const SkPaint& paint)
 </pre>
 
-Draw <a href="#SkCanvas_drawTextRSXform_text">text</a>, transforming each glyph by the corresponding <a href="undocumented#SkRSXform">SkRSXform</a>,
+<a href="#Draw">Draw</a> <a href="#SkCanvas_drawTextRSXform_text">text</a>, transforming each glyph by the corresponding <a href="undocumented#SkRSXform">SkRSXform</a>,
 using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawTextRSXform_paint">paint</a>.
 
 <a href="undocumented#RSXform">RSXform</a> array specifies a separate square scale, rotation, and translation for
@@ -5008,7 +5113,7 @@ byte length of <a href="#SkCanvas_drawTextRSXform_text">text</a> array</td>
 void drawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y, const SkPaint& paint)
 </pre>
 
-Draw <a href="undocumented#Text_Blob">Text Blob</a> <a href="#SkCanvas_drawTextBlob_blob">blob</a> at (<a href="#SkCanvas_drawTextBlob_x">x</a>, <a href="#SkCanvas_drawTextBlob_y">y</a>), using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawTextBlob_paint">paint</a>.
+<a href="#Draw">Draw</a> <a href="undocumented#Text_Blob">Text Blob</a> <a href="#SkCanvas_drawTextBlob_blob">blob</a> at (<a href="#SkCanvas_drawTextBlob_x">x</a>, <a href="#SkCanvas_drawTextBlob_y">y</a>), using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawTextBlob_paint">paint</a>.
 
 <a href="#SkCanvas_drawTextBlob_blob">blob</a> contains <a href="#Glyph">Glyphs</a>, their positions, and <a href="#SkCanvas_drawTextBlob_paint">paint</a> attributes specific to text:
 <a href="undocumented#Typeface">Typeface</a>, <a href="#Text_Size">Paint Text Size</a>, <a href="#Text_Scale_X">Paint Text Scale X</a>, <a href="#Text_Skew_X">Paint Text Skew X</a>,
@@ -5050,7 +5155,7 @@ blend, color, stroking, and so on, used to draw</td>
 void drawTextBlob(const sk_sp&lt;SkTextBlob&gt;& blob, SkScalar x, SkScalar y, const SkPaint& paint)
 </pre>
 
-Draw <a href="undocumented#Text_Blob">Text Blob</a> <a href="#SkCanvas_drawTextBlob_2_blob">blob</a> at (<a href="#SkCanvas_drawTextBlob_2_x">x</a>, <a href="#SkCanvas_drawTextBlob_2_y">y</a>), using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawTextBlob_2_paint">paint</a>.
+<a href="#Draw">Draw</a> <a href="undocumented#Text_Blob">Text Blob</a> <a href="#SkCanvas_drawTextBlob_2_blob">blob</a> at (<a href="#SkCanvas_drawTextBlob_2_x">x</a>, <a href="#SkCanvas_drawTextBlob_2_y">y</a>), using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawTextBlob_2_paint">paint</a>.
 
 <a href="#SkCanvas_drawTextBlob_2_blob">blob</a> contains <a href="#Glyph">Glyphs</a>, their positions, and <a href="#SkCanvas_drawTextBlob_2_paint">paint</a> attributes specific to text:
 <a href="undocumented#Typeface">Typeface</a>, <a href="#Text_Size">Paint Text Size</a>, <a href="#Text_Scale_X">Paint Text Scale X</a>, <a href="#Text_Skew_X">Paint Text Skew X</a>,
@@ -5094,7 +5199,7 @@ blend, color, stroking, and so on, used to draw</td>
 void drawPicture(const SkPicture* picture)
 </pre>
 
-Draw <a href="undocumented#Picture">Picture</a> <a href="#SkCanvas_drawPicture_picture">picture</a>, using <a href="#Clip">Clip</a> and <a href="#Matrix">Matrix</a>.
+<a href="#Draw">Draw</a> <a href="undocumented#Picture">Picture</a> <a href="#SkCanvas_drawPicture_picture">picture</a>, using <a href="#Clip">Clip</a> and <a href="#Matrix">Matrix</a>.
 <a href="#Clip">Clip</a> and <a href="#Matrix">Matrix</a> are unchanged by <a href="#SkCanvas_drawPicture_picture">picture</a> contents, as if
 <a href="#SkCanvas_save">save</a> was called before and <a href="#SkCanvas_restore">restore</a> was called after <a href="#SkCanvas_drawPicture">drawPicture</a>.
 
@@ -5123,7 +5228,7 @@ recorded drawing commands to play</td>
 void drawPicture(const sk_sp&lt;SkPicture&gt;& picture)
 </pre>
 
-Draw <a href="undocumented#Picture">Picture</a> <a href="#SkCanvas_drawPicture_2_picture">picture</a>, using <a href="#Clip">Clip</a> and <a href="#Matrix">Matrix</a>.
+<a href="#Draw">Draw</a> <a href="undocumented#Picture">Picture</a> <a href="#SkCanvas_drawPicture_2_picture">picture</a>, using <a href="#Clip">Clip</a> and <a href="#Matrix">Matrix</a>.
 <a href="#Clip">Clip</a> and <a href="#Matrix">Matrix</a> are unchanged by <a href="#SkCanvas_drawPicture_2_picture">picture</a> contents, as if
 <a href="#SkCanvas_save">save</a> was called before and <a href="#SkCanvas_restore">restore</a> was called after <a href="#SkCanvas_drawPicture">drawPicture</a>.
 
@@ -5152,7 +5257,7 @@ recorded drawing commands to play</td>
 void drawPicture(const SkPicture* picture, const SkMatrix* matrix, const SkPaint* paint)
 </pre>
 
-Draw <a href="undocumented#Picture">Picture</a> <a href="#SkCanvas_drawPicture_3_picture">picture</a>, using <a href="#Clip">Clip</a> and <a href="#Matrix">Matrix</a>; transforming <a href="#SkCanvas_drawPicture_3_picture">picture</a> with
+<a href="#Draw">Draw</a> <a href="undocumented#Picture">Picture</a> <a href="#SkCanvas_drawPicture_3_picture">picture</a>, using <a href="#Clip">Clip</a> and <a href="#Matrix">Matrix</a>; transforming <a href="#SkCanvas_drawPicture_3_picture">picture</a> with
 <a href="#Matrix">Matrix</a> <a href="#SkCanvas_drawPicture_3_matrix">matrix</a>, if provided; and use <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawPicture_3_paint">paint</a> <a href="#Alpha">Color Alpha</a>, <a href="undocumented#Color_Filter">Color Filter</a>,
 <a href="undocumented#Image_Filter">Image Filter</a>, and <a href="undocumented#Blend_Mode">Blend Mode</a>, if provided.
 
@@ -5186,7 +5291,7 @@ recorded drawing commands to play</td>
 void drawPicture(const sk_sp&lt;SkPicture&gt;& picture, const SkMatrix* matrix, const SkPaint* paint)
 </pre>
 
-Draw <a href="undocumented#Picture">Picture</a> <a href="#SkCanvas_drawPicture_4_picture">picture</a>, using <a href="#Clip">Clip</a> and <a href="#Matrix">Matrix</a>; transforming <a href="#SkCanvas_drawPicture_4_picture">picture</a> with
+<a href="#Draw">Draw</a> <a href="undocumented#Picture">Picture</a> <a href="#SkCanvas_drawPicture_4_picture">picture</a>, using <a href="#Clip">Clip</a> and <a href="#Matrix">Matrix</a>; transforming <a href="#SkCanvas_drawPicture_4_picture">picture</a> with
 <a href="#Matrix">Matrix</a> <a href="#SkCanvas_drawPicture_4_matrix">matrix</a>, if provided; and use <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawPicture_4_paint">paint</a> <a href="#Alpha">Color Alpha</a>, <a href="undocumented#Color_Filter">Color Filter</a>,
 <a href="undocumented#Image_Filter">Image Filter</a>, and <a href="undocumented#Blend_Mode">Blend Mode</a>, if provided.
 
@@ -5221,7 +5326,7 @@ recorded drawing commands to play</td>
 void drawVertices(const SkVertices* vertices, SkBlendMode mode, const SkPaint& paint)
 </pre>
 
-Draw <a href="undocumented#Vertices">Vertices</a> <a href="#SkCanvas_drawVertices_vertices">vertices</a>, a triangle mesh, using <a href="#Clip">Clip</a> and <a href="#Matrix">Matrix</a>.
+<a href="#Draw">Draw</a> <a href="undocumented#Vertices">Vertices</a> <a href="#SkCanvas_drawVertices_vertices">vertices</a>, a triangle mesh, using <a href="#Clip">Clip</a> and <a href="#Matrix">Matrix</a>.
 If <a href="#Texs">Vertices Texs</a> and <a href="#Colors">Vertices Colors</a> are defined in <a href="#SkCanvas_drawVertices_vertices">vertices</a>, and <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawVertices_paint">paint</a>
 contains <a href="undocumented#Shader">Shader</a>, <a href="undocumented#Blend_Mode">Blend Mode</a> <a href="#SkCanvas_drawVertices_mode">mode</a> combines <a href="#Colors">Vertices Colors</a> with <a href="undocumented#Shader">Shader</a>.
 
@@ -5252,7 +5357,7 @@ specifies the <a href="undocumented#Shader">Shader</a>, used as <a href="undocum
 void drawVertices(const sk_sp&lt;SkVertices&gt;& vertices, SkBlendMode mode, const SkPaint& paint)
 </pre>
 
-Draw <a href="undocumented#Vertices">Vertices</a> <a href="#SkCanvas_drawVertices_2_vertices">vertices</a>, a triangle mesh, using <a href="#Clip">Clip</a> and <a href="#Matrix">Matrix</a>.
+<a href="#Draw">Draw</a> <a href="undocumented#Vertices">Vertices</a> <a href="#SkCanvas_drawVertices_2_vertices">vertices</a>, a triangle mesh, using <a href="#Clip">Clip</a> and <a href="#Matrix">Matrix</a>.
 If <a href="#Texs">Vertices Texs</a> and <a href="#Colors">Vertices Colors</a> are defined in <a href="#SkCanvas_drawVertices_2_vertices">vertices</a>, and <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawVertices_2_paint">paint</a>
 contains <a href="undocumented#Shader">Shader</a>, <a href="undocumented#Blend_Mode">Blend Mode</a> <a href="#SkCanvas_drawVertices_2_mode">mode</a> combines <a href="#Colors">Vertices Colors</a> with <a href="undocumented#Shader">Shader</a>.
 
@@ -5393,7 +5498,7 @@ void drawAtlas(const SkImage* atlas, const SkRSXform xform[], const SkRect tex[]
                const SkPaint* paint)
 </pre>
 
-Draw a set of sprites from <a href="#SkCanvas_drawAtlas_atlas">atlas</a>, using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and optional <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawAtlas_paint">paint</a>.
+<a href="#Draw">Draw</a> a set of sprites from <a href="#SkCanvas_drawAtlas_atlas">atlas</a>, using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and optional <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawAtlas_paint">paint</a>.
 <a href="#SkCanvas_drawAtlas_paint">paint</a> uses Anti-alias, <a href="#Alpha">Color Alpha</a>, <a href="undocumented#Color_Filter">Color Filter</a>, <a href="undocumented#Image_Filter">Image Filter</a>, and <a href="undocumented#Blend_Mode">Blend Mode</a>
 to draw, if present. For each entry in the array, <a href="SkRect_Reference#Rect">Rect</a> <a href="#SkCanvas_drawAtlas_tex">tex</a> locates sprite in
 <a href="#SkCanvas_drawAtlas_atlas">atlas</a>, and <a href="undocumented#RSXform">RSXform</a> <a href="#SkCanvas_drawAtlas_xform">xform</a> transforms it into destination space.
@@ -5442,7 +5547,7 @@ void drawAtlas(const sk_sp&lt;SkImage&gt;& atlas, const SkRSXform xform[], const
                const SkPaint* paint)
 </pre>
 
-Draw a set of sprites from <a href="#SkCanvas_drawAtlas_2_atlas">atlas</a>, using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and optional <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawAtlas_2_paint">paint</a>.
+<a href="#Draw">Draw</a> a set of sprites from <a href="#SkCanvas_drawAtlas_2_atlas">atlas</a>, using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and optional <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawAtlas_2_paint">paint</a>.
 <a href="#SkCanvas_drawAtlas_2_paint">paint</a> uses Anti-alias, <a href="#Alpha">Color Alpha</a>, <a href="undocumented#Color_Filter">Color Filter</a>, <a href="undocumented#Image_Filter">Image Filter</a>, and <a href="undocumented#Blend_Mode">Blend Mode</a>
 to draw, if present. For each entry in the array, <a href="SkRect_Reference#Rect">Rect</a> <a href="#SkCanvas_drawAtlas_2_tex">tex</a> locates sprite in
 <a href="#SkCanvas_drawAtlas_2_atlas">atlas</a>, and <a href="undocumented#RSXform">RSXform</a> <a href="#SkCanvas_drawAtlas_2_xform">xform</a> transforms it into destination space.
@@ -5490,7 +5595,7 @@ void drawAtlas(const SkImage* atlas, const SkRSXform xform[], const SkRect tex[]
                const SkRect* cullRect, const SkPaint* paint)
 </pre>
 
-Draw a set of sprites from <a href="#SkCanvas_drawAtlas_3_atlas">atlas</a>, using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and optional <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawAtlas_3_paint">paint</a>.
+<a href="#Draw">Draw</a> a set of sprites from <a href="#SkCanvas_drawAtlas_3_atlas">atlas</a>, using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and optional <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawAtlas_3_paint">paint</a>.
 <a href="#SkCanvas_drawAtlas_3_paint">paint</a> uses Anti-alias, <a href="#Alpha">Color Alpha</a>, <a href="undocumented#Color_Filter">Color Filter</a>, <a href="undocumented#Image_Filter">Image Filter</a>, and <a href="undocumented#Blend_Mode">Blend Mode</a>
 to draw, if present. For each entry in the array, <a href="SkRect_Reference#Rect">Rect</a> <a href="#SkCanvas_drawAtlas_3_tex">tex</a> locates sprite in
 <a href="#SkCanvas_drawAtlas_3_atlas">atlas</a>, and <a href="undocumented#RSXform">RSXform</a> <a href="#SkCanvas_drawAtlas_3_xform">xform</a> transforms it into destination space.
@@ -5533,7 +5638,7 @@ void drawAtlas(const sk_sp&lt;SkImage&gt;& atlas, const SkRSXform xform[], const
                const SkRect* cullRect, const SkPaint* paint)
 </pre>
 
-Draw a set of sprites from <a href="#SkCanvas_drawAtlas_4_atlas">atlas</a>, using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and optional <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawAtlas_4_paint">paint</a>.
+<a href="#Draw">Draw</a> a set of sprites from <a href="#SkCanvas_drawAtlas_4_atlas">atlas</a>, using <a href="#Clip">Clip</a>, <a href="#Matrix">Matrix</a>, and optional <a href="SkPaint_Reference#Paint">Paint</a> <a href="#SkCanvas_drawAtlas_4_paint">paint</a>.
 <a href="#SkCanvas_drawAtlas_4_paint">paint</a> uses Anti-alias, <a href="#Alpha">Color Alpha</a>, <a href="undocumented#Color_Filter">Color Filter</a>, <a href="undocumented#Image_Filter">Image Filter</a>, and <a href="undocumented#Blend_Mode">Blend Mode</a>
 to draw, if present. For each entry in the array, <a href="SkRect_Reference#Rect">Rect</a> <a href="#SkCanvas_drawAtlas_4_tex">tex</a> locates sprite in
 <a href="#SkCanvas_drawAtlas_4_atlas">atlas</a>, and <a href="undocumented#RSXform">RSXform</a> <a href="#SkCanvas_drawAtlas_4_xform">xform</a> transforms it into destination space.
@@ -5576,7 +5681,7 @@ bounds of transformed sprites for efficient clipping; may be nullptr</td>
 void drawDrawable(SkDrawable* drawable, const SkMatrix* matrix = nullptr)
 </pre>
 
-Draw <a href="undocumented#Drawable">Drawable</a> <a href="#SkCanvas_drawDrawable_drawable">drawable</a> using <a href="#Clip">Clip</a> and <a href="#Matrix">Matrix</a>, concatenated with
+<a href="#Draw">Draw</a> <a href="undocumented#Drawable">Drawable</a> <a href="#SkCanvas_drawDrawable_drawable">drawable</a> using <a href="#Clip">Clip</a> and <a href="#Matrix">Matrix</a>, concatenated with
 optional <a href="#SkCanvas_drawDrawable_matrix">matrix</a>.
 
 If <a href="#Canvas">Canvas</a> has an asynchronous implementation, as is the case
@@ -5609,7 +5714,7 @@ transformation applied to drawing; may be nullptr</td>
 void drawDrawable(SkDrawable* drawable, SkScalar x, SkScalar y)
 </pre>
 
-Draw <a href="undocumented#Drawable">Drawable</a> <a href="#SkCanvas_drawDrawable_2_drawable">drawable</a> using <a href="#Clip">Clip</a> and <a href="#Matrix">Matrix</a>, offset by (<a href="#SkCanvas_drawDrawable_2_x">x</a>, <a href="#SkCanvas_drawDrawable_2_y">y</a>).
+<a href="#Draw">Draw</a> <a href="undocumented#Drawable">Drawable</a> <a href="#SkCanvas_drawDrawable_2_drawable">drawable</a> using <a href="#Clip">Clip</a> and <a href="#Matrix">Matrix</a>, offset by (<a href="#SkCanvas_drawDrawable_2_x">x</a>, <a href="#SkCanvas_drawDrawable_2_y">y</a>).
 
 If <a href="#Canvas">Canvas</a> has an asynchronous implementation, as is the case
 when it is recording into <a href="undocumented#Picture">Picture</a>, then <a href="#SkCanvas_drawDrawable_2_drawable">drawable</a> will be referenced,
@@ -5644,7 +5749,7 @@ offset into <a href="#Canvas">Canvas</a> writable pixels in <a href="#SkCanvas_d
 void drawAnnotation(const SkRect& rect, const char key[], SkData* value)
 </pre>
 
-Associate <a href="SkRect_Reference#Rect">Rect</a> on <a href="#Canvas">Canvas</a> when an annotation; a <a href="#SkCanvas_drawAnnotation_key">key</a>-<a href="#SkCanvas_drawAnnotation_value">value</a> pair, where the <a href="#SkCanvas_drawAnnotation_key">key</a> is
+Associate <a href="SkRect_Reference#Rect">Rect</a> on <a href="#Canvas">Canvas</a> with an annotation; a <a href="#SkCanvas_drawAnnotation_key">key</a>-<a href="#SkCanvas_drawAnnotation_value">value</a> pair, where the <a href="#SkCanvas_drawAnnotation_key">key</a> is
 a null-terminated utf8 string, and optional <a href="#SkCanvas_drawAnnotation_value">value</a> is stored as <a href="undocumented#Data">Data</a>.
 
 Only some canvas implementations, such as recording to <a href="undocumented#Picture">Picture</a>, or drawing to

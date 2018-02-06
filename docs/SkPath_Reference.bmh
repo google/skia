@@ -2357,7 +2357,7 @@ void draw(SkCanvas* canvas) {
 ##
 
 # ------------------------------------------------------------------------------
-#Topic Quad
+#Subtopic Quad
 #Alias Quad
 #Alias Quads
 #Alias Quadratic_Bezier
@@ -2527,11 +2527,11 @@ void draw(SkCanvas* canvas) {
 
 ##
 
-#Topic Quad ##
+#Subtopic Quad ##
 
 # ------------------------------------------------------------------------------
 
-#Topic Conic
+#Subtopic Conic
 #Line # conic section defined by three points and a weight ##
 #Alias Conics
 
@@ -2823,10 +2823,10 @@ void draw(SkCanvas* canvas) {
 
 ##
 
-#Topic Conic ##
+#Subtopic Conic ##
 
 # ------------------------------------------------------------------------------
-#Topic Cubic
+#Subtopic Cubic
 #Alias Cubic
 #Alias Cubics
 #Alias Cubic_Bezier
@@ -2988,7 +2988,7 @@ to Point_Array.
 
 ##
 
-#Topic Cubic ##
+#Subtopic Cubic ##
 
 # ------------------------------------------------------------------------------
 
@@ -3643,7 +3643,7 @@ void draw(SkCanvas* canvas) {
 
 ##
 
-#Topic Arc ##
+#Subtopic Arc ##
 
 # ------------------------------------------------------------------------------
 
@@ -5295,7 +5295,7 @@ length = 68; returned by readFromMemory = 64
 ##
 
 # ------------------------------------------------------------------------------
-#Topic Generation_ID
+#Subtopic Generation_ID
 #Alias Generation_IDs
 #Line # value reflecting contents change ##
 Generation_ID provides a quick way to check if Verb_Array, Point_Array, or
@@ -5341,7 +5341,7 @@ empty genID = 1
 
 ##
 
-#Topic ##
+#Subtopic ##
 
 # ------------------------------------------------------------------------------
 
