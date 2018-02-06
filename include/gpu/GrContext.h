@@ -9,7 +9,6 @@
 #define GrContext_DEFINED
 
 #include "GrCaps.h"
-#include "GrColor.h"
 #include "SkMatrix.h"
 #include "SkPathEffect.h"
 #include "SkTypes.h"

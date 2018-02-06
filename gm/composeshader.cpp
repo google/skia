@@ -7,6 +7,7 @@
 
 #include "gm.h"
 
+#include "SkColorPriv.h"
 #include "SkCanvas.h"
 #include "SkGradientShader.h"
 #include "SkGraphics.h"

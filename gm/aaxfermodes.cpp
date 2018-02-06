@@ -6,8 +6,9 @@
  */
 
 #include "gm.h"
+#include "GrColor.h"
 #include "sk_tool_utils.h"
-#include "SkBlendModePriv.h"
+#include "SkColorPriv.h"
 #include "SkPath.h"
 #include "SkShader.h"
 
