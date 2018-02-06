@@ -7,7 +7,6 @@
 
 
 #include "SkBlurMask.h"
-#include "SkColorPriv.h"
 #include "SkMaskBlurFilter.h"
 #include "SkMath.h"
 #include "SkTemplates.h"

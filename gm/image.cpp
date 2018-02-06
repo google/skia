@@ -9,7 +9,6 @@
 #include "gm.h"
 #include "sk_tool_utils.h"
 #include "SkAutoPixmapStorage.h"
-#include "SkColorPriv.h"
 #include "SkData.h"
 #include "SkCanvas.h"
 #include "SkRandom.h"

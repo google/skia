@@ -9,7 +9,6 @@
 #define SkUnPreMultiplyPriv_DEFINED
 
 #include "SkColor.h"
-#include "SkUnPreMultiply.h"
 
 template <bool kSwapRB>
 void SkUnpremultiplyRow(uint32_t* dst, const uint32_t* src, int count) {
