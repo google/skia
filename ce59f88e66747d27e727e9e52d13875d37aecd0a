@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7b2f7095_89892c51",
+        "filename": "src/svg/SkSVGDevice.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-02-06T22:48:43Z",
+      "side": 1,
+      "message": "nit: no longer needed?",
+      "revId": "ce59f88e66747d27e727e9e52d13875d37aecd0a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fb0ccb89_a50802ec",
+        "filename": "src/svg/SkSVGDevice.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-02-06T22:48:43Z",
+      "side": 1,
+      "message": "nit: can we move this to the .cpp file?\n\n(and forward-declare SkData if needed)",
+      "revId": "ce59f88e66747d27e727e9e52d13875d37aecd0a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
