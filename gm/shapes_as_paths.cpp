@@ -8,6 +8,7 @@
 #include "gm.h"
 
 #include "SkAutoPixmapStorage.h"
+#include "SkColorPriv.h"
 #include "SkImage.h"
 #include "SkPath.h"
 #include "SkSurface.h"

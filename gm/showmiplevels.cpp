@@ -9,6 +9,7 @@
 #include "sk_tool_utils.h"
 
 #include "Resources.h"
+#include "SkColorPriv.h"
 #include "SkGradientShader.h"
 #include "SkTypeface.h"
 #include "SkStream.h"
