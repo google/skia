@@ -11,6 +11,7 @@
 #include "SkCoverageMode.h"
 #include "SkFlattenable.h"
 
+class SkMatrix;
 class SkString;
 
 /** \class SkMaskFilter
@@ -31,6 +32,8 @@ public:
      */
     static sk_sp<SkMaskFilter> MakeCombine(sk_sp<SkMaskFilter> filterA, sk_sp<SkMaskFilter> filterB,
                                            SkCoverageMode mode);
+
+    sk_sp<SkMaskFilter> makeWithLocalMatrix(const SkMatrix&) const;
 
     SK_TO_STRING_PUREVIRT()
     SK_DEFINE_FLATTENABLE_TYPE(SkMaskFilter)

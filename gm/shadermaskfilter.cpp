@@ -163,3 +163,29 @@ DEF_SIMPLE_GM(combinemaskfilter, canvas, 560, 510) {
     }
     canvas->restore();
 }
+
+DEF_SIMPLE_GM(savelayer_maskfilter, canvas, 220, 220) {
+    SkRect r = SkRect::MakeWH(200, 200);
+
+    SkPath path;
+    path.addCircle(50, 50, 50);
+    SkPaint paint;
+    paint.setMaskFilter(make_path_mf(path, 0xFF));
+
+    // test that the maskfilter sees these changes to the ctm, so we expect the visible circle
+    // to be 200x200 offset by 10, even though the path is 100x100.
+    {
+        SkAutoCanvasRestore acr(canvas, true);
+        canvas->translate(10, 10);
+        canvas->scale(2, 2);
+        canvas->saveLayer(&r, &paint);
+        canvas->drawColor(SK_ColorRED);
+        canvas->restore();
+    }
+    // now draw the expected circle to blend on top of the red one
+    paint.reset();
+    paint.setAntiAlias(true);
+    paint.setColor(0x800000FF);
+    canvas->drawOval(r.makeOffset(10, 10), paint);
+}
+

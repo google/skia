@@ -1301,6 +1301,14 @@ void SkCanvas::internalDrawDevice(SkBaseDevice* srcDev, int x, int y, const SkPa
         paint = &tmp;
     }
 
+    SkTLazy<SkPaint> lazyP;
+    if (paint->getMaskFilter()) {
+        SkMatrix lm = this->getTotalMatrix();
+        lazyP.set(*paint);
+        lazyP.get()->setMaskFilter(paint->getMaskFilter()->makeWithLocalMatrix(lm));
+        paint = lazyP.get();
+    }
+
     LOOPER_BEGIN_DRAWDEVICE(*paint, SkDrawFilter::kBitmap_Type)
 
     while (iter.next()) {
