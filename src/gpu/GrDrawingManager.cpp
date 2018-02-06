@@ -237,7 +237,11 @@ bool GrDrawingManager::executeOpLists(int startIndex, int stopIndex, GrOpFlushSt
             continue;
         }
 #else
-        SkASSERT(fOpLists[i]->isInstantiated());
+        if (!fOpLists[i]->isInstantiated()) {
+            // If the backing surface wasn't allocated drop the draw of the entire opList.
+            fOpLists[i] = nullptr;
+            continue;
+        }
 #endif
 
         // TODO: handle this instantiation via lazy surface proxies?
