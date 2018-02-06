@@ -18,6 +18,7 @@ class GrCaps;
 class GrResourceProvider;
 class GrSingleOwner;
 class GrBackendRenderTarget;
+class SkBitmap;
 class SkImage;
 
 /*
@@ -108,6 +109,9 @@ public:
      * based on the width and height in the GrSurfaceDesc.
      */
     sk_sp<GrTextureProxy> createMipMapProxy(const GrSurfaceDesc&, SkBudgeted);
+
+    sk_sp<GrTextureProxy> createMipMapProxyFromBitmap(const SkBitmap& bitmap,
+                                                      SkColorSpace* dstColorSpace);
 
     /*
      * Create a GrSurfaceProxy without any data.
