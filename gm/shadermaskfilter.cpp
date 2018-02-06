@@ -163,3 +163,20 @@ DEF_SIMPLE_GM(combinemaskfilter, canvas, 560, 510) {
     }
     canvas->restore();
 }
+
+DEF_SIMPLE_GM(savelayer_maskfilter, canvas, 560, 510) {
+    SkRect r = SkRect::MakeWH(200, 200);
+
+    SkPath path;
+    path.addCircle(50, 50, 49);
+    SkPaint paint;
+    paint.setFilterQuality(kLow_SkFilterQuality);
+    paint.setMaskFilter(make_path_mf(path, 0xFF));
+
+    canvas->translate(50, 50);
+    canvas->scale(2, 2);
+    canvas->saveLayer(&r, &paint);
+    canvas->drawImage(GetResourceAsImage("images/mandrill_128.png"), 0, 0, nullptr);
+    canvas->restore();
+}
+
