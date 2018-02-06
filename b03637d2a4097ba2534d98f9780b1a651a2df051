@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "be6023e9_d6a91d8d",
+        "filename": "src/gpu/text/GrAtlasTextBlob.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 467,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-02-06T16:23:42Z",
+      "side": 1,
+      "message": "Do we really need all these to be release asserts? Maybe at some point in the past we decided to be extra careful but it\u0027s pretty unusual.",
+      "range": {
+        "startLine": 450,
+        "startChar": 10,
+        "endLine": 467,
+        "endChar": 5
+      },
+      "revId": "b03637d2a4097ba2534d98f9780b1a651a2df051",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
