@@ -27,23 +27,29 @@ of the requested dimensions are zero, then nullptr will be returned.
 | name | description |
 | --- | --- |
 | <a href="#Miscellaneous">Miscellaneous</a> | other functions |
-| <a href="#Pixels">Pixels</a> | functions with pixel access |
 
 ## <a name="Member_Function"></a> Member Function
 
 | name | description |
 | --- | --- |
 | <a href="#SkSurface_MakeFromBackendRenderTarget">MakeFromBackendRenderTarget</a> | creates <a href="#Surface">Surface</a> from GPU memory buffer |
+|  | <a href="#SkSurface_MakeFromBackendRenderTarget">MakeFromBackendRenderTarget</a> |
 | <a href="#SkSurface_MakeFromBackendTexture">MakeFromBackendTexture</a> | creates <a href="#Surface">Surface</a> from GPU-backed texture |
+|  | <a href="#SkSurface_MakeFromBackendTexture">MakeFromBackendTexture</a> |
 | <a href="#SkSurface_MakeFromBackendTextureAsRenderTarget">MakeFromBackendTextureAsRenderTarget</a> | creates <a href="#Surface">Surface</a> from GPU-backed texture |
+|  | <a href="#SkSurface_MakeFromBackendTextureAsRenderTarget">MakeFromBackendTextureAsRenderTarget</a> |
 | <a href="#SkSurface_MakeNull">MakeNull</a> | creates <a href="#Surface">Surface</a> without backing pixels |
 | <a href="#SkSurface_MakeRaster">MakeRaster</a> | creates <a href="#Surface">Surface</a> from <a href="SkImageInfo_Reference#SkImageInfo">SkImageInfo</a> |
+|  | <a href="#SkSurface_MakeRaster">MakeRaster</a> |
 | <a href="#SkSurface_MakeRasterDirect">MakeRasterDirect</a> | creates <a href="#Surface">Surface</a> from <a href="SkImageInfo_Reference#SkImageInfo">SkImageInfo</a> and <a href="#Storage">Pixel Storage</a> |
 | <a href="#SkSurface_MakeRasterDirectReleaseProc">MakeRasterDirectReleaseProc</a> | creates <a href="#Surface">Surface</a> from <a href="SkImageInfo_Reference#SkImageInfo">SkImageInfo</a> and <a href="#Storage">Pixel Storage</a> |
 | <a href="#SkSurface_MakeRasterN32Premul">MakeRasterN32Premul</a> | creates <a href="#Surface">Surface</a> from width, height matching output |
 | <a href="#SkSurface_MakeRenderTarget">MakeRenderTarget</a> | creates <a href="#Surface">Surface</a> pointing to new GPU memory buffer |
+|  | <a href="#SkSurface_MakeRenderTarget">MakeRenderTarget</a> |
+|  | <a href="#SkSurface_MakeRenderTarget">MakeRenderTarget</a> |
 | <a href="#SkSurface_characterize">characterize</a> | sets <a href="#Characterization">Surface Characterization</a> for threaded GPU processing |
 | <a href="#SkSurface_draw">draw</a> | draws <a href="#Surface">Surface</a> contents to canvas |
+|  | draw |
 | <a href="#SkSurface_flush">flush</a> | resolve pending I/O |
 | <a href="#SkSurface_flushAndSignalSemaphores">flushAndSignalSemaphores</a> | resolve pending I/O, and signal |
 | <a href="#SkSurface_generationID">generationID</a> | returns unique ID |
@@ -57,6 +63,8 @@ of the requested dimensions are zero, then nullptr will be returned.
 | <a href="#SkSurface_peekPixels">peekPixels</a> | copies <a href="#Surface">Surface</a> parameters to <a href="SkPixmap_Reference#Pixmap">Pixmap</a> |
 | <a href="#SkSurface_props">props</a> | returns <a href="#Properties">Surface Properties</a> |
 | <a href="#SkSurface_readPixels">readPixels</a> | copies <a href="SkRect_Reference#Rect">Rect</a> of pixels |
+|  | <a href="#SkSurface_readPixels">readPixels</a> |
+|  | <a href="#SkSurface_readPixels">readPixels</a> |
 | <a href="#SkSurface_wait">wait</a> | rause commands until signaled |
 | <a href="#SkSurface_width">width</a> | returns pixel column count |
 

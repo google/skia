@@ -236,8 +236,10 @@ Used for both source images and render-targets (surfaces).
 | <a href="#SkImageInfo_MakeA8">MakeA8</a> | creates <a href="SkImageInfo_Reference#Image_Info">Image Info</a> with <a href="SkImageInfo_Reference#SkColorType">kAlpha 8 SkColorType</a>, <a href="SkImageInfo_Reference#SkAlphaType">kPremul SkAlphaType</a> |
 | <a href="#SkImageInfo_MakeN32">MakeN32</a> | creates <a href="SkImageInfo_Reference#Image_Info">Image Info</a> with <a href="SkImageInfo_Reference#Color_Type">Native Color Type</a> |
 | <a href="#SkImageInfo_MakeN32Premul">MakeN32Premul</a> | creates <a href="SkImageInfo_Reference#Image_Info">Image Info</a> with <a href="SkImageInfo_Reference#Color_Type">Native Color Type</a>, <a href="SkImageInfo_Reference#SkAlphaType">kPremul SkAlphaType</a> |
+|  | <a href="#SkImageInfo_MakeN32Premul">MakeN32Premul</a> |
 | <a href="#SkImageInfo_MakeS32">MakeS32</a> | creates <a href="SkImageInfo_Reference#Image_Info">Image Info</a> with <a href="SkImageInfo_Reference#Color_Type">Native Color Type</a>, sRGB <a href="undocumented#Color_Space">Color Space</a> |
 | <a href="#SkImageInfo_MakeUnknown">MakeUnknown</a> | creates <a href="SkImageInfo_Reference#Image_Info">Image Info</a> with <a href="SkImageInfo_Reference#SkColorType">kUnknown SkColorType</a>, <a href="SkImageInfo_Reference#SkAlphaType">kUnknown SkAlphaType</a> |
+|  | <a href="#SkImageInfo_MakeUnknown">MakeUnknown</a> |
 | <a href="#SkImageInfo_alphaType">alphaType</a> | incomplete |
 | <a href="#SkImageInfo_bounds">bounds</a> | incomplete |
 | <a href="#SkImageInfo_bytesPerPixel">bytesPerPixel</a> | incomplete |
@@ -283,6 +285,7 @@ Used for both source images and render-targets (surfaces).
 | <a href="#SkImageInfo_makeColorSpace">makeColorSpace</a> | creates <a href="SkImageInfo_Reference#Image_Info">Image Info</a> with changed <a href="undocumented#Color_Space">Color Space</a> |
 | <a href="#SkImageInfo_makeColorType">makeColorType</a> | creates <a href="SkImageInfo_Reference#Image_Info">Image Info</a> with changed <a href="SkImageInfo_Reference#Color_Type">Color Type</a> |
 | <a href="#SkImageInfo_makeWH">makeWH</a> | creates <a href="SkImageInfo_Reference#Image_Info">Image Info</a> with changed dimensions |
+| <a href="#SkImageInfo_reset">reset</a> | incomplete |
 
 <a name="SkImageInfo_empty_constructor"></a>
 ## SkImageInfo
@@ -552,6 +555,26 @@ incomplete
 incomplete
 
 ---
+
+## <a name="Property"></a> Property
+
+| name | description |
+| --- | --- |
+| <a href="#SkImageInfo_alphaType">alphaType</a> | incomplete |
+| <a href="#SkImageInfo_bounds">bounds</a> | incomplete |
+| <a href="#SkImageInfo_bytesPerPixel">bytesPerPixel</a> | incomplete |
+| <a href="#SkImageInfo_colorSpace">colorSpace</a> | incomplete |
+| <a href="#SkImageInfo_colorType">colorType</a> | incomplete |
+| <a href="#SkImageInfo_dimensions">dimensions</a> | incomplete |
+| <a href="#SkImageInfo_gammaCloseToSRGB">gammaCloseToSRGB</a> | incomplete |
+| <a href="#SkImageInfo_height">height</a> | incomplete |
+| <a href="#SkImageInfo_isEmpty">isEmpty</a> | incomplete |
+| <a href="#SkImageInfo_isOpaque">isOpaque</a> | incomplete |
+| <a href="#SkImageInfo_minRowBytes">minRowBytes</a> | incomplete |
+| <a href="#SkImageInfo_minRowBytes64">minRowBytes64</a> | incomplete |
+| <a href="#SkImageInfo_refColorSpace">refColorSpace</a> | incomplete |
+| <a href="#SkImageInfo_shiftPerPixel">shiftPerPixel</a> | incomplete |
+| <a href="#SkImageInfo_width">width</a> | incomplete |
 
 <a name="SkImageInfo_width"></a>
 ## width
@@ -1256,6 +1279,19 @@ void reset()
 incomplete
 
 ---
+
+## <a name="Utility"></a> Utility
+
+| name | description |
+| --- | --- |
+| <a href="#SkImageInfo_ByteSizeOverflowed">ByteSizeOverflowed</a> | incomplete |
+| <a href="#SkImageInfo_computeByteSize">computeByteSize</a> | incomplete |
+| <a href="#SkImageInfo_computeMinByteSize">computeMinByteSize</a> | incomplete |
+| <a href="#SkImageInfo_computeOffset">computeOffset</a> | incomplete |
+| <a href="#SkImageInfo_flatten">flatten</a> | incomplete |
+| <a href="#SkImageInfo_unflatten">unflatten</a> | incomplete |
+| <a href="#SkImageInfo_validRowBytes">validRowBytes</a> | incomplete |
+| <a href="#SkImageInfo_validate">validate</a> | incomplete |
 
 <a name="SkImageInfo_validate"></a>
 ## validate

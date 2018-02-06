@@ -21,7 +21,6 @@ SkIPoint16 Reference
 
 | name | description |
 | --- | --- |
-| <a href="#Property">Property</a> | member values |
 | <a href="#Set">Set</a> | replaces all values |
 
 ## <a name="Member_Function"></a> Member Function

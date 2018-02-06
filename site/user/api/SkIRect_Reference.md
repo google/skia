@@ -57,6 +57,7 @@ its top, it is considered empty.
 | <a href="#SkIRect_isEmpty">isEmpty</a> | returns true if width or height are zero or negative or they exceed int32_t |
 | <a href="#SkIRect_isEmpty64">isEmpty64</a> | returns true if width or height are zero or negative |
 | <a href="#SkIRect_join">join</a> | sets to union of bounds |
+|  | join |
 | <a href="#SkIRect_left">left</a> | returns smaller bounds in x, if sorted |
 | <a href="#SkIRect_makeInset">makeInset</a> | constructs from sides moved symmetrically about the center |
 | <a href="#SkIRect_makeOffset">makeOffset</a> | constructs from translated sides |
@@ -970,6 +971,15 @@ true if members fit in 16-bit word
 <a href="undocumented#SkTFitsIn">SkTFitsIn</a>
 
 ---
+
+## <a name="Set"></a> Set
+
+| name | description |
+| --- | --- |
+| <a href="#SkIRect_set">set</a> | sets to (left, top, right, bottom) |
+| <a href="#SkIRect_setEmpty">setEmpty</a> | sets to (0, 0, 0, 0) |
+| <a href="#SkIRect_setLTRB">setLTRB</a> | sets to <a href="undocumented#SkScalar">SkScalar</a> input (left, top, right, bottom) |
+| <a href="#SkIRect_setXYWH">setXYWH</a> | sets to (x, y, width, height) |
 
 <a name="SkIRect_setEmpty"></a>
 ## setEmpty
