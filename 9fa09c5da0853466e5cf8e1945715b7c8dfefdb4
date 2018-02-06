@@ -22,6 +22,30 @@
       "revId": "9fa09c5da0853466e5cf8e1945715b7c8dfefdb4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c80a9152_36d9b3c1",
+        "filename": "src/gpu/SkGpuDevice.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1280,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-02-06T21:15:33Z",
+      "side": 1,
+      "message": "The new gm has a scale/translate CTM in-play before saveLayer is called.",
+      "parentUuid": "f78ae0a2_2c512582",
+      "range": {
+        "startLine": 1280,
+        "startChar": 8,
+        "endLine": 1280,
+        "endChar": 35
+      },
+      "revId": "9fa09c5da0853466e5cf8e1945715b7c8dfefdb4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
