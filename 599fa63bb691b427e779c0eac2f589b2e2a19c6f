@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "df7692fa_c99260ff",
+        "filename": "src/gpu/text/GrAtlasTextBlob.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 280,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-02-06T15:24:48Z",
+      "side": 1,
+      "message": "tab over ?",
+      "revId": "599fa63bb691b427e779c0eac2f589b2e2a19c6f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e69fe1b9_812c7d17",
+        "filename": "src/gpu/text/GrAtlasTextBlob.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 345,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-02-06T15:24:48Z",
+      "side": 1,
+      "message": "overlength ?",
+      "revId": "599fa63bb691b427e779c0eac2f589b2e2a19c6f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c2137eb3_5889f646",
+        "filename": "src/gpu/text/GrAtlasTextBlob.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 178,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-02-06T15:24:48Z",
+      "side": 1,
+      "message": "Why treatAsBMP?",
+      "revId": "599fa63bb691b427e779c0eac2f589b2e2a19c6f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a36e05b8_b1f5057d",
+        "filename": "src/gpu/text/GrAtlasTextBlob.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 325,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-02-06T15:24:48Z",
+      "side": 1,
+      "message": "make 1 line ?",
+      "revId": "599fa63bb691b427e779c0eac2f589b2e2a19c6f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fdd6dcaa_b4d7495b",
+        "filename": "src/gpu/text/GrAtlasTextBlob.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 482,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-02-06T15:24:48Z",
+      "side": 1,
+      "message": "micro nit: have parameter order reflected in member order ?",
+      "revId": "599fa63bb691b427e779c0eac2f589b2e2a19c6f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
