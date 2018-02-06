@@ -2534,7 +2534,7 @@ bool validate_sized_format(GrGLenum format, SkColorType ct, GrPixelConfig* confi
                     *config = kBGRA_8888_GrPixelConfig;
                 }
             } else if (GR_GL_BGRA8 == format) {
-                if (kGLES_GrGLStandard == standard) {
+                if (kGL_GrGLStandard == standard) {
                     *config = kBGRA_8888_GrPixelConfig;
                 }
             } else if (GR_GL_SRGB8_ALPHA8 == format) {
