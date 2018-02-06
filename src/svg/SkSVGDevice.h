@@ -19,6 +19,7 @@ public:
 
 protected:
     void drawPaint(const SkPaint& paint) override;
+    void drawAnnotation(const SkRect& rect, const char key[], SkData* value) override;
     void drawPoints(SkCanvas::PointMode mode, size_t count,
                     const SkPoint[], const SkPaint& paint) override;
     void drawRect(const SkRect& r, const SkPaint& paint) override;

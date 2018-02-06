@@ -7,9 +7,11 @@
 
 #include "SkSVGDevice.h"
 
+#include "SkAnnotationKeys.h"
 #include "SkBase64.h"
 #include "SkBitmap.h"
 #include "SkChecksum.h"
+#include "SkClipOpPriv.h"
 #include "SkClipStack.h"
 #include "SkData.h"
 #include "SkDraw.h"
@@ -22,7 +24,6 @@
 #include "SkTypeface.h"
 #include "SkUtils.h"
 #include "SkXMLWriter.h"
-#include "SkClipOpPriv.h"
 
 namespace {
 
@@ -619,6 +620,32 @@ void SkSVGDevice::drawPaint(const SkPaint& paint) {
     AutoElement rect("rect", fWriter, fResourceBucket.get(), MxCp(this), paint);
     rect.addRectAttributes(SkRect::MakeWH(SkIntToScalar(this->width()),
                                           SkIntToScalar(this->height())));
+}
+
+void SkSVGDevice::drawAnnotation(const SkRect& rect, const char key[], SkData* value) {
+    if (!value) {
+        return;
+    }
+
+    if (!strcmp(SkAnnotationKeys::URL_Key(), key) ||
+        !strcmp(SkAnnotationKeys::Link_Named_Dest_Key(), key)) {
+        this->cs().save();
+        this->cs().clipRect(rect, this->ctm(), kIntersect_SkClipOp, true);
+        SkRect transformedRect = this->cs().bounds(this->getGlobalBounds());
+        this->cs().restore();
+        if (transformedRect.isEmpty()) {
+            return;
+        }
+
+        SkString url(static_cast<const char*>(value->data()), value->size() - 1);
+        AutoElement a("a", fWriter);
+        a.addAttribute("xlink:href", url.c_str());
+        {
+            AutoElement r("rect", fWriter);
+            r.addAttribute("fill-opacity", "0.0");
+            r.addRectAttributes(transformedRect);
+        }
+    }
 }
 
 void SkSVGDevice::drawPoints(SkCanvas::PointMode mode, size_t count,
