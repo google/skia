@@ -13,6 +13,7 @@ SkMatrix Reference
 | <a href="#Constructor">Constructor</a> | functions that construct <a href="SkMatrix_Reference#SkMatrix">SkMatrix</a> |
 | <a href="#Member_Function">Member Function</a> | static functions and member methods |
 | <a href="#Operator">Operator</a> | operator overloading methods |
+| <a href="#Related_Function">Related Function</a> | similar methods grouped together |
 
 # <a name="SkMatrix"></a> Class SkMatrix
 <a href="#Matrix">Matrix</a> holds a 3x3 matrix for transforming coordinates. This allows mapping
@@ -26,48 +27,6 @@ initializes all <a href="#Matrix">Matrix</a> elements with the corresponding map
 
 <a href="#Matrix">Matrix</a> includes a hidden variable that classifies the type of matrix to
 improve performance. <a href="#Matrix">Matrix</a> is not thread safe unless <a href="#SkMatrix_getType">getType</a> is called first.
-
-## <a name="Constructor"></a> Constructor
-
-| name | description |
-| --- | --- |
-| I | returns a reference to a const identity <a href="#Matrix">Matrix</a> |
-| <a href="#SkMatrix_InvalidMatrix">InvalidMatrix</a> | returns a reference to a const invalid <a href="#Matrix">Matrix</a> |
-| <a href="#SkMatrix_MakeAll">MakeAll</a> | constructs all nine values |
-| <a href="#SkMatrix_MakeRectToRect">MakeRectToRect</a> | constructs from source <a href="SkRect_Reference#Rect">Rect</a> to destination <a href="SkRect_Reference#Rect">Rect</a> |
-| <a href="#SkMatrix_MakeScale">MakeScale</a> | constructs from scale in x and y |
-|  | <a href="#SkMatrix_MakeScale">MakeScale</a> |
-| <a href="#SkMatrix_MakeTrans">MakeTrans</a> | constructs from translate in x and y |
-| <a href="#SkMatrix_SetAffineIdentity">SetAffineIdentity</a> | sets 3x2 array to identity |
-| <a href="#SkMatrix_asAffine">asAffine</a> | copies to 3x2 array |
-| <a href="#SkMatrix_reset">reset</a> | sets <a href="#Matrix">Matrix</a> to identity |
-| <a href="#SkMatrix_setAffine">setAffine</a> | sets left two columns |
-| <a href="#SkMatrix_setConcat">setConcat</a> | sets to <a href="#Matrix">Matrix</a> parameter multiplied by <a href="#Matrix">Matrix</a> parameter |
-| <a href="#SkMatrix_setIdentity">setIdentity</a> | sets <a href="#Matrix">Matrix</a> to identity |
-| <a href="#SkMatrix_setRSXform">setRSXform</a> | sets to rotate, scale, and translate |
-| <a href="#SkMatrix_setRotate">setRotate</a> | sets to rotate about a point |
-|  | <a href="#SkMatrix_setRotate">setRotate</a> |
-| <a href="#SkMatrix_setScale">setScale</a> | sets to scale about a point |
-|  | <a href="#SkMatrix_setScale">setScale</a> |
-| <a href="#SkMatrix_setScaleTranslate">setScaleTranslate</a> | sets to scale and translate |
-| <a href="#SkMatrix_setSinCos">setSinCos</a> | sets to rotate and scale about a point |
-|  | <a href="#SkMatrix_setSinCos">setSinCos</a> |
-| <a href="#SkMatrix_setSkew">setSkew</a> | sets to skew about a point |
-|  | <a href="#SkMatrix_setSkew">setSkew</a> |
-| <a href="#SkMatrix_setTranslate">setTranslate</a> | sets to translate in x and y |
-|  | <a href="#SkMatrix_setTranslate">setTranslate</a> |
-
-## <a name="Operator"></a> Operator
-
-| name | description |
-| --- | --- |
-| <a href="#SkMatrix_Concat">Concat</a> | returns the concatenation of <a href="#Matrix">Matrix</a> pair |
-| <a href="#SkMatrix_cheapEqualTo">cheapEqualTo</a> | compares <a href="#Matrix">Matrix</a> pair using memcmp() |
-| <a href="#SkMatrix_invert">invert</a> | returns inverse, if possible |
-| <a href="#SkMatrix_notequal_operator">operator!=(const SkMatrix& a, const SkMatrix& b)</a> | returns true if members are unequal |
-| <a href="#SkMatrix_equal_operator">operator==(const SkMatrix& a, const SkMatrix& b)</a> | returns true if members are equal |
-| <a href="#SkMatrix_array1_operator">operator[](int index)</a> | returns writable reference to <a href="#Matrix">Matrix</a> value |
-| <a href="#SkMatrix_array_operator">operator[](int index) const</a> | returns <a href="#Matrix">Matrix</a> value |
 
 ## <a name="Member_Function"></a> Member Function
 
@@ -157,6 +116,45 @@ improve performance. <a href="#Matrix">Matrix</a> is not thread safe unless <a h
 | <a href="#SkMatrix_setTranslateX">setTranslateX</a> | sets horizontal translation |
 | <a href="#SkMatrix_setTranslateY">setTranslateY</a> | sets vertical translation |
 | <a href="#SkMatrix_toString">toString</a> | converts <a href="#Matrix">Matrix</a> to machine readable form |
+
+## <a name="Related_Function"></a> Related Function
+
+| name | description |
+| --- | --- |
+| <a href="#Property">Property</a> | values and attributes |
+| <a href="#Set">Set</a> | set one or more matrix values |
+| <a href="#Transform">Transform</a> | map points with <a href="#Matrix">Matrix</a> |
+| <a href="#Utility">Utility</a> | rarely called management functions |
+
+## <a name="Constructor"></a> Constructor
+
+| name | description |
+| --- | --- |
+| I | returns a reference to a const identity <a href="#Matrix">Matrix</a> |
+| <a href="#SkMatrix_InvalidMatrix">InvalidMatrix</a> | returns a reference to a const invalid <a href="#Matrix">Matrix</a> |
+| <a href="#SkMatrix_MakeAll">MakeAll</a> | constructs all nine values |
+| <a href="#SkMatrix_MakeRectToRect">MakeRectToRect</a> | constructs from source <a href="SkRect_Reference#Rect">Rect</a> to destination <a href="SkRect_Reference#Rect">Rect</a> |
+| <a href="#SkMatrix_MakeScale">MakeScale</a> | constructs from scale in x and y |
+|  | <a href="#SkMatrix_MakeScale">MakeScale</a> |
+| <a href="#SkMatrix_MakeTrans">MakeTrans</a> | constructs from translate in x and y |
+| <a href="#SkMatrix_SetAffineIdentity">SetAffineIdentity</a> | sets 3x2 array to identity |
+| <a href="#SkMatrix_asAffine">asAffine</a> | copies to 3x2 array |
+| <a href="#SkMatrix_reset">reset</a> | sets <a href="#Matrix">Matrix</a> to identity |
+| <a href="#SkMatrix_setAffine">setAffine</a> | sets left two columns |
+| <a href="#SkMatrix_setConcat">setConcat</a> | sets to <a href="#Matrix">Matrix</a> parameter multiplied by <a href="#Matrix">Matrix</a> parameter |
+| <a href="#SkMatrix_setIdentity">setIdentity</a> | sets <a href="#Matrix">Matrix</a> to identity |
+| <a href="#SkMatrix_setRSXform">setRSXform</a> | sets to rotate, scale, and translate |
+| <a href="#SkMatrix_setRotate">setRotate</a> | sets to rotate about a point |
+|  | <a href="#SkMatrix_setRotate">setRotate</a> |
+| <a href="#SkMatrix_setScale">setScale</a> | sets to scale about a point |
+|  | <a href="#SkMatrix_setScale">setScale</a> |
+| <a href="#SkMatrix_setScaleTranslate">setScaleTranslate</a> | sets to scale and translate |
+| <a href="#SkMatrix_setSinCos">setSinCos</a> | sets to rotate and scale about a point |
+|  | <a href="#SkMatrix_setSinCos">setSinCos</a> |
+| <a href="#SkMatrix_setSkew">setSkew</a> | sets to skew about a point |
+|  | <a href="#SkMatrix_setSkew">setSkew</a> |
+| <a href="#SkMatrix_setTranslate">setTranslate</a> | sets to translate in x and y |
+|  | <a href="#SkMatrix_setTranslate">setTranslate</a> |
 
 <a name="SkMatrix_MakeScale"></a>
 ## MakeScale
@@ -876,6 +874,18 @@ PDF and XPS.
 <a href="#SkMatrix_SetAffineIdentity">SetAffineIdentity</a> <a href="#SkMatrix_asAffine">asAffine</a> <a href="#SkMatrix_setAffine">setAffine</a>
 
 
+
+## <a name="Operator"></a> Operator
+
+| name | description |
+| --- | --- |
+| <a href="#SkMatrix_Concat">Concat</a> | returns the concatenation of <a href="#Matrix">Matrix</a> pair |
+| <a href="#SkMatrix_cheapEqualTo">cheapEqualTo</a> | compares <a href="#Matrix">Matrix</a> pair using memcmp() |
+| <a href="#SkMatrix_invert">invert</a> | returns inverse, if possible |
+| <a href="#SkMatrix_notequal_operator">operator!=(const SkMatrix& a, const SkMatrix& b)</a> | returns true if members are unequal |
+| <a href="#SkMatrix_equal_operator">operator==(const SkMatrix& a, const SkMatrix& b)</a> | returns true if members are equal |
+| <a href="#SkMatrix_array1_operator">operator[](int index)</a> | returns writable reference to <a href="#Matrix">Matrix</a> value |
+| <a href="#SkMatrix_array_operator">operator[](int index) const</a> | returns <a href="#Matrix">Matrix</a> value |
 
 <a name="SkMatrix_array_operator"></a>
 ## operator[]

@@ -91,6 +91,7 @@ Multiple colors are drawn either by using multiple paints or with objects like
 | <a href="#Text_Size">Text Size</a> | overall height in points |
 | <a href="#Text_Skew_X">Text Skew X</a> | text horizontal slant |
 | <a href="#Typeface_Methods">Typeface Methods</a> | get and set <a href="undocumented#Typeface">Typeface</a> |
+| <a href="#Utility">Utility</a> | rarely called management functions |
 | <a href="#Vertical_Text">Vertical Text</a> | orient text from top to bottom |
 
 ## <a name="Constant"></a> Constant
@@ -5108,6 +5109,17 @@ overrides <a href="#SkPaint_Style">Style</a></td>
 fast computed bounds
 
 ---
+
+## <a name="Utility"></a> Utility
+
+| name | description |
+| --- | --- |
+| <a href="#SkPaint_containsText">containsText</a> | returns if all text corresponds to <a href="#Glyph">Glyphs</a> |
+| <a href="#SkPaint_countText">countText</a> | returns number of <a href="#Glyph">Glyphs</a> in text |
+| <a href="#SkPaint_glyphsToUnichars">glyphsToUnichars</a> | converts <a href="#Glyph">Glyphs</a> into text |
+| <a href="#SkPaint_nothingToDraw">nothingToDraw</a> | returns true if <a href="#Paint">Paint</a> prevents all drawing |
+| <a href="#SkPaint_textToGlyphs">textToGlyphs</a> | converts text into glyph indices |
+| <a href="#SkPaint_toString">toString</a> | converts <a href="#Paint">Paint</a> to machine readable form |
 
 <a name="SkPaint_toString"></a>
 ## toString

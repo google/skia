@@ -29,6 +29,8 @@ its top, it is considered empty.
 | <a href="#Inset_Outset_Offset">Inset Outset Offset</a> | moves sides |
 | <a href="#Intersection">Intersection</a> | set to shared bounds |
 | <a href="#Join">Join</a> | set to union of bounds |
+| <a href="#Property">Property</a> | member values, center, validity |
+| <a href="#Set">Set</a> | replaces all values |
 | <a href="#Sorting">Sorting</a> | orders sides |
 
 ## <a name="Member_Function"></a> Member Function
@@ -970,6 +972,15 @@ true if members fit in 16-bit word
 <a href="undocumented#SkTFitsIn">SkTFitsIn</a>
 
 ---
+
+## <a name="Set"></a> Set
+
+| name | description |
+| --- | --- |
+| <a href="#SkIRect_set">set</a> | sets to (left, top, right, bottom) |
+| <a href="#SkIRect_setEmpty">setEmpty</a> | sets to (0, 0, 0, 0) |
+| <a href="#SkIRect_setLTRB">setLTRB</a> | sets to <a href="undocumented#SkScalar">SkScalar</a> input (left, top, right, bottom) |
+| <a href="#SkIRect_setXYWH">setXYWH</a> | sets to (x, y, width, height) |
 
 <a name="SkIRect_setEmpty"></a>
 ## setEmpty

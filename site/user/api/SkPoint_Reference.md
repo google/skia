@@ -23,6 +23,8 @@ SkPoint Reference
 | name | description |
 | --- | --- |
 | <a href="#SkPoint_Offset">Offset</a> | moves sides |
+| <a href="#Property">Property</a> | member values |
+| <a href="#Set">Set</a> | replaces all values |
 
 ## <a name="Member_Function"></a> Member Function
 

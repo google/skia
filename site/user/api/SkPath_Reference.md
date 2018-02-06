@@ -118,7 +118,9 @@ Internally, <a href="#Path">Path</a> lazily computes metrics likes bounds and co
 | <a href="#Interpolate">Interpolate</a> | weighted average of <a href="#Path">Path</a> pair |
 | <a href="#Last_Point">Last Point</a> | final <a href="SkPoint_Reference#Point">Point</a> in <a href="#Contour">Contour</a> |
 | <a href="#Point_Array">Point Array</a> | end points and control points for lines and curves |
+| <a href="#Property">Property</a> | metrics and attributes |
 | <a href="#Quad">Quad</a> | Bezier_Curve described by second-order polynomial |
+| <a href="#Transform">Transform</a> | modify all points |
 | <a href="#Utility">Utility</a> | rarely called management functions |
 | <a href="#SkPath_Verb">Verb</a> | line and curve type |
 | <a href="#Verb_Array">Verb Array</a> | line and curve type for points |
@@ -2251,7 +2253,8 @@ offset from <a href="#Last_Point">Last Point</a> y to <a href="undocumented#Line
 
 ---
 
-# <a name="Quad"></a> Quad
+## <a name="Quad"></a> Quad
+
 <a href="#Quad">Quad</a> describes a quadratic Bezier, a second-order curve identical to a section
 of a parabola. <a href="#Quad">Quad</a> begins at a start <a href="SkPoint_Reference#Point">Point</a>, curves towards a control <a href="SkPoint_Reference#Point">Point</a>,
 and then curves to an end <a href="SkPoint_Reference#Point">Point</a>.
@@ -2382,7 +2385,8 @@ offset from <a href="#Last_Point">Last Point</a> x to <a href="#Quad">Quad</a> e
 
 ---
 
-# <a name="Conic"></a> Conic
+## <a name="Conic"></a> Conic
+
 <a href="#Conic">Conic</a> describes a conical section: a piece of an ellipse, or a piece of a
 parabola, or a piece of a hyperbola. <a href="#Conic">Conic</a> begins at a start <a href="SkPoint_Reference#Point">Point</a>,
 curves towards a control <a href="SkPoint_Reference#Point">Point</a>, and then curves to an end <a href="SkPoint_Reference#Point">Point</a>. The influence
@@ -2587,7 +2591,8 @@ weight of added <a href="#Conic">Conic</a></td>
 
 ---
 
-# <a name="Cubic"></a> Cubic
+## <a name="Cubic"></a> Cubic
+
 <a href="#Cubic">Cubic</a> describes a Bezier_Curve segment described by a third-order polynomial.
 <a href="#Cubic">Cubic</a> begins at a start <a href="SkPoint_Reference#Point">Point</a>, curving towards the first control <a href="SkPoint_Reference#Point">Point</a>;
 and curves from the end <a href="SkPoint_Reference#Point">Point</a> towards the second control <a href="SkPoint_Reference#Point">Point</a>.
@@ -4629,7 +4634,8 @@ length = 68; returned by readFromMemory = 64
 
 ---
 
-# <a name="Generation_ID"></a> Generation ID
+## <a name="Generation_ID"></a> Generation ID
+
 <a href="#Generation_ID">Generation ID</a> provides a quick way to check if <a href="#Verb_Array">Verb Array</a>, <a href="#Point_Array">Point Array</a>, or
 <a href="#Conic_Weight">Conic Weight</a> has changed. <a href="#Generation_ID">Generation ID</a> is not a hash; identical <a href="#Path">Paths</a> will
 not necessarily have matching <a href="SkPath_Reference#Generation_ID">Generation IDs</a>.

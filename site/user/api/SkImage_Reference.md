@@ -55,8 +55,11 @@ drawing.
 | name | description |
 | --- | --- |
 | <a href="#Lazy_Image">Lazy Image</a> | deferred pixel buffer |
+| <a href="#Pixels">Pixels</a> | read and write pixel values |
+| <a href="#Property">Property</a> | values and attributes |
 | <a href="SkImage_Reference#Raster_Image">Raster Image</a> | pixels decoded in <a href="undocumented#Raster_Bitmap">Raster Bitmap</a> |
 | <a href="#Texture_Image">Texture Image</a> | pixels located on GPU |
+| <a href="#Utility">Utility</a> | rarely called management functions |
 
 ## <a name="Class_or_Struct"></a> Class or Struct
 
@@ -240,7 +243,7 @@ static sk_sp&lt;SkImage&gt; MakeFromRaster(const SkPixmap& pixmap, RasterRelease
                                      ReleaseContext releaseContext)
 </pre>
 
-Creates <a href="#Image">Image</a> from <a href="#SkImage_MakeFromRaster_pixmap">pixmap</a>, sharing <a href="SkPixmap_Reference#Pixmap">Pixmap</a> pixels. Pixels must remain valid and
+Creates <a href="#Image">Image</a> from <a href="#SkImage_MakeFromRaster_pixmap">pixmap</a>, sharing <a href="SkPixmap_Reference#Pixmap">Pixmap</a> pixels. <a href="#Pixels">Pixels</a> must remain valid and
 unchanged until <a href="#SkImage_MakeFromRaster_rasterReleaseProc">rasterReleaseProc</a> is called. <a href="#SkImage_MakeFromRaster_rasterReleaseProc">rasterReleaseProc</a> is passed
 <a href="#SkImage_MakeFromRaster_releaseContext">releaseContext</a> when <a href="#Image">Image</a> is deleted or no longer refers to <a href="#SkImage_MakeFromRaster_pixmap">pixmap</a> pixels.
 
@@ -1005,6 +1008,7 @@ created <a href="#Image">Image</a>, or nullptr
 | <a href="#SkImage_bounds">bounds</a> | returns <a href="#SkImage_width">width</a> and <a href="#SkImage_height">height</a> as Rectangle |
 | <a href="#SkImage_colorSpace">colorSpace</a> | returns <a href="undocumented#Color_Space">Color Space</a> |
 | <a href="#SkImage_dimensions">dimensions</a> | returns <a href="#SkImage_width">width</a> and <a href="#SkImage_height">height</a> |
+| <a href="#SkImage_getTextureHandle">getTextureHandle</a> | returns GPU reference to <a href="#Image">Image</a> as texture |
 | <a href="#SkImage_height">height</a> | returns pixel row count |
 | <a href="#SkImage_isAlphaOnly">isAlphaOnly</a> | returns if pixels represent a transparency mask |
 | <a href="#SkImage_isLazyGenerated">isLazyGenerated</a> | returns if <a href="#Image">Image</a> is created as needed |
@@ -1353,6 +1357,15 @@ transforming <a href="#Image">Image</a> before <a href="#Matrix">Canvas Matrix</
 
 ---
 
+## <a name="Pixels"></a> Pixels
+
+| name | description |
+| --- | --- |
+| <a href="#SkImage_peekPixels">peekPixels</a> | returns <a href="SkPixmap_Reference#Pixmap">Pixmap</a> if possible |
+| <a href="#SkImage_readPixels">readPixels</a> | copies and converts pixels |
+|  | <a href="#SkImage_readPixels">readPixels</a> |
+| <a href="#SkImage_scalePixels">scalePixels</a> | scales and converts one <a href="#Image">Image</a> to another |
+
 <a name="SkImage_peekPixels"></a>
 ## peekPixels
 
@@ -1569,7 +1582,7 @@ Returns true if pixels are copied. Returns false if:
     <td><a href="undocumented#Pixel_Ref">Pixel Ref</a> is nullptr</td>  </tr>
 </table>
 
-Pixels are copied only if pixel conversion is possible. If <a href="#Image">Image</a> <a href="SkImageInfo_Reference#Color_Type">Color Type</a> is
+<a href="#Pixels">Pixels</a> are copied only if pixel conversion is possible. If <a href="#Image">Image</a> <a href="SkImageInfo_Reference#Color_Type">Color Type</a> is
 <a href="SkImageInfo_Reference#SkColorType">kGray 8 SkColorType</a>, or <a href="SkImageInfo_Reference#SkColorType">kAlpha 8 SkColorType</a>; <a href="#SkImage_readPixels_dstInfo">dstInfo</a>.<a href="SkImageInfo_Reference#SkImageInfo">colorType</a> must match.
 If <a href="#Image">Image</a> <a href="SkImageInfo_Reference#Color_Type">Color Type</a> is <a href="SkImageInfo_Reference#SkColorType">kGray 8 SkColorType</a>, <a href="#SkImage_readPixels_dstInfo">dstInfo</a>.<a href="#SkImage_colorSpace">colorSpace</a> must match.
 If <a href="#Image">Image</a> <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a> is <a href="SkImageInfo_Reference#SkAlphaType">kOpaque SkAlphaType</a>, <a href="#SkImage_readPixels_dstInfo">dstInfo</a>.<a href="#SkImage_alphaType">alphaType</a> must
@@ -1634,7 +1647,7 @@ row to the next. Returns true if pixels are copied. Returns false if:
     <td><a href="undocumented#Pixel_Ref">Pixel Ref</a> is nullptr</td>  </tr>
 </table>
 
-Pixels are copied only if pixel conversion is possible. If <a href="#Image">Image</a> <a href="SkImageInfo_Reference#Color_Type">Color Type</a> is
+<a href="#Pixels">Pixels</a> are copied only if pixel conversion is possible. If <a href="#Image">Image</a> <a href="SkImageInfo_Reference#Color_Type">Color Type</a> is
 <a href="SkImageInfo_Reference#SkColorType">kGray 8 SkColorType</a>, or <a href="SkImageInfo_Reference#SkColorType">kAlpha 8 SkColorType</a>; <a href="#SkImage_readPixels_2_dst">dst</a>.<a href="SkPixmap_Reference#SkPixmap">colorType</a> must match.
 If <a href="#Image">Image</a> <a href="SkImageInfo_Reference#Color_Type">Color Type</a> is <a href="SkImageInfo_Reference#SkColorType">kGray 8 SkColorType</a>, <a href="#SkImage_readPixels_2_dst">dst</a>.<a href="#SkImage_colorSpace">colorSpace</a> must match.
 If <a href="#Image">Image</a> <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a> is <a href="SkImageInfo_Reference#SkAlphaType">kOpaque SkAlphaType</a>, <a href="#SkImage_readPixels_2_dst">dst</a>.<a href="#SkImage_alphaType">alphaType</a> must
@@ -1688,7 +1701,7 @@ converting pixels to match <a href="#SkImage_scalePixels_dst">dst</a>.<a href="S
 pixels are copied. Returns false if <a href="#SkImage_scalePixels_dst">dst</a>.addr() is nullptr, or <a href="#SkImage_scalePixels_dst">dst</a>.<a href="SkPixmap_Reference#SkPixmap">rowBytes</a> is
 less than <a href="#SkImage_scalePixels_dst">dst</a> <a href="#SkImageInfo_minRowBytes">SkImageInfo::minRowBytes</a>.
 
-Pixels are copied only if pixel conversion is possible. If <a href="#Image">Image</a> <a href="SkImageInfo_Reference#Color_Type">Color Type</a> is
+<a href="#Pixels">Pixels</a> are copied only if pixel conversion is possible. If <a href="#Image">Image</a> <a href="SkImageInfo_Reference#Color_Type">Color Type</a> is
 <a href="SkImageInfo_Reference#SkColorType">kGray 8 SkColorType</a>, or <a href="SkImageInfo_Reference#SkColorType">kAlpha 8 SkColorType</a>; <a href="#SkImage_scalePixels_dst">dst</a>.<a href="SkPixmap_Reference#SkPixmap">colorType</a> must match.
 If <a href="#Image">Image</a> <a href="SkImageInfo_Reference#Color_Type">Color Type</a> is <a href="SkImageInfo_Reference#SkColorType">kGray 8 SkColorType</a>, <a href="#SkImage_scalePixels_dst">dst</a>.<a href="#SkImage_colorSpace">colorSpace</a> must match.
 If <a href="#Image">Image</a> <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a> is <a href="SkImageInfo_Reference#SkAlphaType">kOpaque SkAlphaType</a>, <a href="#SkImage_scalePixels_dst">dst</a>.<a href="#SkImage_alphaType">alphaType</a> must
@@ -1836,6 +1849,9 @@ encoded <a href="#Image">Image</a>, or nullptr
 
 | name | description |
 | --- | --- |
+| <a href="#SkImage_encodeToData">encodeToData</a> | returns encoded <a href="#Image">Image</a> as <a href="undocumented#SkData">SkData</a> |
+|  | <a href="#SkImage_encodeToData">encodeToData</a> |
+| <a href="#SkImage_refEncodedData">refEncodedData</a> | returns <a href="#Image">Image</a> encoded in <a href="undocumented#SkData">SkData</a> if present |
 | <a href="#SkImage_toString">toString</a> | converts <a href="#Image">Image</a> to machine readable form |
 
 <a name="SkImage_toString"></a>
