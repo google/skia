@@ -349,9 +349,6 @@ SkString* SkObjectParser::RegionToString(const SkRegion& region) {
 
 SkString* SkObjectParser::SaveLayerFlagsToString(SkCanvas::SaveLayerFlags saveLayerFlags) {
     SkString* mFlags = new SkString("SkCanvas::SaveFlags: ");
-    if (saveLayerFlags & SkCanvas::kIsOpaque_SaveLayerFlag) {
-        mFlags->append("kIsOpaque_SaveLayerFlag ");
-    }
     if (saveLayerFlags & SkCanvas::kPreserveLCDText_SaveLayerFlag) {
         mFlags->append("kPreserveLCDText_SaveLayerFlag ");
     }
