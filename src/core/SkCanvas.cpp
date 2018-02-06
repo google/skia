@@ -1036,20 +1036,18 @@ void SkCanvas::DrawDeviceWithFilter(SkBaseDevice* src, const SkImageFilter* filt
     }
 }
 
-static SkImageInfo make_layer_info(const SkImageInfo& prev, int w, int h, bool isOpaque,
-                                   const SkPaint* paint) {
+static SkImageInfo make_layer_info(const SkImageInfo& prev, int w, int h, const SkPaint* paint) {
     // need to force L32 for now if we have an image filter. Once filters support other colortypes
     // e.g. sRGB or F16, we can remove this check
     // SRGBTODO: Can we remove this check now?
     const bool hasImageFilter = paint && paint->getImageFilter();
 
-    SkAlphaType alphaType = isOpaque ? kOpaque_SkAlphaType : kPremul_SkAlphaType;
     if ((prev.bytesPerPixel() < 4) || hasImageFilter) {
         // force to L32
-        return SkImageInfo::MakeN32(w, h, alphaType);
+        return SkImageInfo::MakeN32Premul(w, h);
     } else {
         // keep the same characteristics as the prev
-        return SkImageInfo::Make(w, h, prev.colorType(), alphaType, prev.refColorSpace());
+        return SkImageInfo::Make(w, h, prev.colorType(), kPremul_SkAlphaType, prev.refColorSpace());
     }
 }
 
@@ -1107,12 +1105,10 @@ void SkCanvas::internalSaveLayer(const SaveLayerRec& rec, SaveLayerStrategy stra
         return;
     }
 
-    bool isOpaque = SkToBool(saveLayerFlags & kIsOpaque_SaveLayerFlag);
     SkPixelGeometry geo = fProps.pixelGeometry();
     if (paint) {
         // TODO: perhaps add a query to filters so we might preserve opaqueness...
         if (paint->getImageFilter() || paint->getColorFilter()) {
-            isOpaque = false;
             geo = kUnknown_SkPixelGeometry;
         }
     }
@@ -1123,8 +1119,7 @@ void SkCanvas::internalSaveLayer(const SaveLayerRec& rec, SaveLayerStrategy stra
         return;
     }
 
-    SkImageInfo info = make_layer_info(priorDevice->imageInfo(), ir.width(), ir.height(), isOpaque,
-                                       paint);
+    SkImageInfo info = make_layer_info(priorDevice->imageInfo(), ir.width(), ir.height(), paint);
 
     sk_sp<SkBaseDevice> newDevice;
     {
