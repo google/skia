@@ -2,7 +2,7 @@
 #Alias IPoint16_Reference
 
 #Subtopic Overview
-    #Subtopic Subtopics
+    #Subtopic Subtopic
     #Populate
     ##
 ##
@@ -11,15 +11,15 @@
 
 SkIPoint16 holds two 16 bit integer coordinates.
 
-#Subtopic Constructors
+#Subtopic Related_Function
 #Populate
 ##
 
-#Subtopic Member_Functions
+#Subtopic Member_Function
 #Populate
 ##
 
-#Subtopic Members
+#Subtopic Member
 #Populate
 
 #Member int16_t  fX
@@ -32,12 +32,17 @@ x-axis value used by IPoint16
 y-axis value used by IPoint16
 ##
 
-#Subtopic Members ##
+#Subtopic Member ##
 
 # ------------------------------------------------------------------------------
 
+#Subtopic Constructor
+#Populate
+##
+
 #Method static constexpr SkIPoint16 Make(int x, int y)
 
+#In Constructor
 #Line # constructs from integer inputs ##
 Sets fX to x, fY to y. If SK_DEBUG is defined, asserts
 if x or y does not fit in 16 bits.
@@ -64,8 +69,14 @@ pt1.fY == pt2.fY
 
 # ------------------------------------------------------------------------------
 
+#Subtopic Property
+#Line # member values ##
+#Populate
+##
+
 #Method int16_t x() const
 
+#In Property
 #Line # returns fX ##
 Returns x-axis value of IPoint16.
 
@@ -86,7 +97,7 @@ pt1.fX == pt1.x()
 # ------------------------------------------------------------------------------
 
 #Method int16_t y() const
-
+#In Property
 #Line # returns fY ##
 Returns y-axis value of IPoint.
 
@@ -106,8 +117,13 @@ pt1.fY == pt1.y()
 
 # ------------------------------------------------------------------------------
 
-#Method void set(int x, int y)
+#Subtopic Set
+#Populate
+#Line # replaces all values ##
+##
 
+#Method void set(int x, int y)
+#In Set
 #Line # sets to integer input ##
 Sets fX to x and fY to y.
 

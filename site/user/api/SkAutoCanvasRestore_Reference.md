@@ -5,24 +5,24 @@ SkAutoCanvasRestore Reference
 
 ## <a name="Overview"></a> Overview
 
-## <a name="Subtopics"></a> Subtopics
+## <a name="Subtopic"></a> Subtopic
 
 | name | description |
 | --- | --- |
-| <a href="SkAutoCanvasRestore_Reference#Automatic_Canvas_Restore_Constructors">Constructors</a> | functions that construct <a href="SkAutoCanvasRestore_Reference#SkAutoCanvasRestore">SkAutoCanvasRestore</a> |
-| <a href="SkAutoCanvasRestore_Reference#Automatic_Canvas_Restore_Member_Functions">Member Functions</a> | static functions and member methods |
+| <a href="SkAutoCanvasRestore_Reference#Automatic_Canvas_Restore_Constructor">Constructor</a> | functions that construct <a href="SkAutoCanvasRestore_Reference#SkAutoCanvasRestore">SkAutoCanvasRestore</a> |
+| <a href="SkAutoCanvasRestore_Reference#Automatic_Canvas_Restore_Member_Function">Member Function</a> | static functions and member methods |
 
 # <a name="SkAutoCanvasRestore"></a> Class SkAutoCanvasRestore
 Stack helper class calls
 
-## <a name="Constructors"></a> Constructors
+## <a name="Constructor"></a> Constructor
 
 | name | description |
 | --- | --- |
 | <a href="#SkAutoCanvasRestore_SkCanvas_star">SkAutoCanvasRestore(SkCanvas* canvas, bool doSave)</a> | preserves <a href="SkCanvas_Reference#Canvas">Canvas</a> save count |
 | <a href="#SkAutoCanvasRestore_destructor">~SkAutoCanvasRestore()</a> | restores <a href="SkCanvas_Reference#Canvas">Canvas</a> to saved state |
 
-## <a name="Member_Functions"></a> Member Functions
+## <a name="Member_Function"></a> Member Function
 
 | name | description |
 | --- | --- |

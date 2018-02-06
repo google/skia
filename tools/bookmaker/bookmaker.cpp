@@ -248,7 +248,6 @@ bool BmhParser::addDefinition(const char* defStart, bool hasEnd, MarkType markTy
         case MarkType::kDescription:
         case MarkType::kStdOut:
         // may be one-liner
-        case MarkType::kBug:
         case MarkType::kNoExample:
         case MarkType::kParam:
         case MarkType::kReturn:
@@ -285,7 +284,6 @@ bool BmhParser::addDefinition(const char* defStart, bool hasEnd, MarkType markTy
             }
         // not one-liners
         case MarkType::kCode:
-        case MarkType::kDeprecated:
         case MarkType::kExample:
         case MarkType::kExperimental:
         case MarkType::kFormula:
@@ -344,7 +342,9 @@ bool BmhParser::addDefinition(const char* defStart, bool hasEnd, MarkType markTy
             // always treated as one-liners (can't detect misuse easily)
         case MarkType::kAlias:
         case MarkType::kAnchor:
+        case MarkType::kBug:
         case MarkType::kDefine:
+        case MarkType::kDeprecated:
         case MarkType::kDuration:
         case MarkType::kFile:
         case MarkType::kHeight:
@@ -361,6 +361,7 @@ bool BmhParser::addDefinition(const char* defStart, bool hasEnd, MarkType markTy
         case MarkType::kTime:
         case MarkType::kVolatile:
         case MarkType::kWidth:
+            // todo : add check disallowing children?
             if (hasEnd && MarkType::kAnchor != markType && MarkType::kLine != markType) {
                 return this->reportError<bool>("one liners omit end element");
             } else if (!hasEnd && MarkType::kAnchor == markType) {
@@ -415,7 +416,15 @@ bool BmhParser::addDefinition(const char* defStart, bool hasEnd, MarkType markTy
 				definition->fContentEnd = text->fContentEnd;
 				definition->fTerminator = fChar;
 				definition->fChildren.emplace_back(text);
-			}
+			} else if (MarkType::kDeprecated == markType) {
+                 this->skipSpace();
+                 fParent->fDeprecated = true;
+                 fParent->fToBeDeprecated = this->skipExact("soon");
+                 this->skipSpace();
+                 if ('\n' != this->peek()) {
+                     return this->reportError<bool>("unexpected text after #Deprecated");
+                 }
+            }
             break;
         case MarkType::kExternal:
             (void) this->collectExternals();  // FIXME: detect errors in external defs?
@@ -1250,6 +1259,20 @@ TextParser::TextParser(const Definition* definition) :
         definition->fLineCount) {
 }
 
+string TextParser::ReportFilename(string file) {
+	string fullName;
+#ifdef SK_BUILD_FOR_WIN
+	TCHAR pathChars[MAX_PATH];
+	DWORD pathLen = GetCurrentDirectory(MAX_PATH, pathChars);
+	for (DWORD index = 0; index < pathLen; ++index) {
+		fullName += pathChars[index] == (char)pathChars[index] ? (char)pathChars[index] : '?';
+	}
+	fullName += '\\';
+#endif
+	fullName += file;
+    return fullName;
+}
+
 void TextParser::reportError(const char* errorStr) const {
     this->reportWarning(errorStr);
     SkDebugf("");  // convenient place to set a breakpoint
@@ -1265,17 +1288,8 @@ void TextParser::reportWarning(const char* errorStr) const {
         spaces -= lineLen;
         lineLen = err.lineLength();
     }
-	string fileName;
-#ifdef SK_BUILD_FOR_WIN
-	TCHAR pathChars[MAX_PATH];
-	DWORD pathLen = GetCurrentDirectory(MAX_PATH, pathChars);
-	for (DWORD index = 0; index < pathLen; ++index) {
-		fileName += pathChars[index] == (char)pathChars[index] ? (char)pathChars[index] : '?';
-	}
-	fileName += '\\';
-#endif
-	fileName += fFileName;
-    SkDebugf("\n%s(%zd): error: %s\n", fileName.c_str(), err.fLineCount, errorStr);
+	string fullName = this->ReportFilename(fFileName);
+    SkDebugf("\n%s(%zd): error: %s\n", fullName.c_str(), err.fLineCount, errorStr);
     if (0 == lineLen) {
         SkDebugf("[blank line]\n");
     } else {
@@ -1476,7 +1490,6 @@ vector<string> BmhParser::typeName(MarkType markType, bool* checkEnd) {
             this->skipNoName();
             break;
         case MarkType::kCode:
-        case MarkType::kDeprecated:
         case MarkType::kDescription:
         case MarkType::kDoxygen:
         case MarkType::kExperimental:
@@ -1498,6 +1511,7 @@ vector<string> BmhParser::typeName(MarkType markType, bool* checkEnd) {
         case MarkType::kBug:  // fixme: expect number
         case MarkType::kDefine:
         case MarkType::kDefinedBy:
+        case MarkType::kDeprecated:
         case MarkType::kDuration:
         case MarkType::kFile:
         case MarkType::kHeight:

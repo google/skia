@@ -53,6 +53,13 @@ void IncludeWriter::descriptionOut(const Definition* def) {
                 commentStart = prop->fTerminator;
                 break;
             case MarkType::kDeprecated:
+                SkASSERT(def->fDeprecated);
+                if (def->fToBeDeprecated) {
+                    this->writeString("To be deprecated soon.");
+                } else {
+                    this->writeString("Deprecated.");
+                }
+                this->lfcr();
             case MarkType::kPrivate:
                 commentLen = (int) (prop->fStart - commentStart);
                 if (commentLen > 0) {
@@ -62,6 +69,9 @@ void IncludeWriter::descriptionOut(const Definition* def) {
                     }
                 }
                 commentStart = prop->fContentStart;
+                if (def->fToBeDeprecated) {
+                    commentStart += 4; // skip over "soon" // FIXME: this is awkward
+                }
                 commentLen = (int) (prop->fContentEnd - commentStart);
                 if (commentLen > 0) {
                     this->writeBlockIndent(commentLen, commentStart);
@@ -159,7 +169,7 @@ void IncludeWriter::descriptionOut(const Definition* def) {
             break;
         }
     }
-    SkASSERT(wroteCode || (commentLen > 0 && commentLen < 1500));
+    SkASSERT(wroteCode || (commentLen > 0 && commentLen < 1500) || def->fDeprecated);
     if (commentLen > 0) {
         this->rewriteBlock(commentLen, commentStart, Phrase::kNo);
     }
@@ -440,23 +450,35 @@ void IncludeWriter::enumMembersOut(const RootDefinition* root, Definition& child
             commentEnd = currentEnumItem->fContentEnd;
         }
         TextParser enumComment(fFileName, commentStart, commentEnd, currentEnumItem->fLineCount);
+        bool isDeprecated = false;
         if (enumComment.skipToLineStart()) {  // skip const value
             commentStart = enumComment.fChar;
             commentLen = (int) (commentEnd - commentStart);
         } else {
-            const Definition* privateDef = currentEnumItem->fChildren[0];
-            SkASSERT(MarkType::kPrivate == privateDef->fMarkType);
-            commentStart = privateDef->fContentStart;
-            commentLen = (int) (privateDef->fContentEnd - privateDef->fContentStart);
+            const Definition* childDef = currentEnumItem->fChildren[0];
+            isDeprecated = MarkType::kDeprecated == childDef->fMarkType;
+            if (MarkType::kPrivate == childDef->fMarkType || isDeprecated) {
+                commentStart = childDef->fContentStart;
+                if (currentEnumItem->fToBeDeprecated) {
+                    SkASSERT(isDeprecated);
+                    commentStart += 4; // skip over "soon" // FIXME: this is awkward
+                }
+                commentLen = (int) (childDef->fContentEnd - commentStart);
+            }
         }
         // FIXME: may assert here if there's no const value
         // should have detected and errored on that earlier when enum fContentStart was set
-        SkASSERT(commentLen > 0 && commentLen < 1000);
+        SkASSERT((commentLen > 0 && commentLen < 1000) || isDeprecated);
         if (!currentEnumItem->fShort) {
             this->writeCommentHeader();
             fIndent += 4;
-            bool wroteLineFeed = Wrote::kLF ==
-                    this->rewriteBlock(commentLen, commentStart, Phrase::kNo);
+            bool wroteLineFeed = false;
+            if (isDeprecated) {
+                this->writeString(currentEnumItem->fToBeDeprecated
+                        ? "To be deprecated soon." : "Deprecated.");
+            }
+            wroteLineFeed  = Wrote::kLF ==
+                this->rewriteBlock(commentLen, commentStart, Phrase::kNo);
             fIndent -= 4;
             if (wroteLineFeed || fColumn > 100 - 3 /* space * / */ ) {
                 this->lfcr();

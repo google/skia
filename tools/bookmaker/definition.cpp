@@ -560,6 +560,7 @@ bool Definition::exampleToScript(string* result, ExampleOptions exampleOptions) 
                 break;
             case MarkType::kToDo:
                 break;
+            case MarkType::kBug:
             case MarkType::kMarkChar:
             case MarkType::kPlatform:
                 // ignore for now
@@ -1012,6 +1013,22 @@ string Definition::fiddleName() const {
     }
     size_t end = fFiddle.find_first_of('(', start);
     return fFiddle.substr(start, end - start);
+}
+
+const Definition* Definition::findClone(string match) const {
+    for (auto child : fChildren) {
+        if (!child->fClone) {
+            continue;
+        }
+        if (match == child->fName) {
+            return child;
+        }
+        auto inner = child->findClone(match);
+        if (inner) {
+            return inner;
+        }
+    }
+    return nullptr;
 }
 
 const Definition* Definition::hasChild(MarkType markType) const {

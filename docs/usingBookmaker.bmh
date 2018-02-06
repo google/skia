@@ -32,13 +32,19 @@ documentation to be deprecated as well.
 #Code
 ###$
 #Method void someMethodThatIsNowDeprecated()
-
 #Deprecated
 ##
+$$
 
-##
+Use
+
+$Code
+##Deprecated soon
+$$
+
+if the change is soon to be deprecated.
+
 $$$#
-##
 
 To regenerate the documentation, follow the Installing and Regenerate steps below.
 

@@ -2464,13 +2464,6 @@
     "name": "SkPixmap::reset()",
         "stdout": "width: 25  height: 35  color: kRGBA_8888_SkColorType  alpha: kOpaque_SkAlphaType\\nwidth:  0  height:  0  color: kUnknown_SkColorType  alpha: kUnknown_SkAlphaType\\n"
     },
-        "SkPixmap_reset_3": {
-    "code": "void draw(SkCanvas* canvas) {\n    const int width = 2;\n    const int height = 2;\n    uint8_t bytes[] = { 0, 1, 2, 3, 4, 5, 6, 7 };\n    SkMask mask;\n    mask.fFormat = SkMask::kA8_Format;\n    mask.fBounds = {0, 0, width, height};\n    mask.fImage = bytes;\n    mask.fRowBytes = (width + 7) >> 3;\n    SkPixmap pixmap;\n    bool success = pixmap.reset(mask);\n    SkDebugf(\"success: %s width: %d height: %d\\n\", success ? \"true \" : \"false\",\n                pixmap.width(), pixmap.height()); \n    mask.fFormat = SkMask::kBW_Format;\n    success = pixmap.reset(mask);\n    SkDebugf(\"success: %s width: %d height: %d\\n\", success ? \"true \" : \"false\",\n                pixmap.width(), pixmap.height());\n}",
-    "hash": "379761a97bd7a116638a34eb3e80bf0d",
-    "file": "SkPixmap_Reference",
-    "name": "SkPixmap::reset_3",
-        "stdout": "success: true  width: 2 height: 2\\nsuccess: false width: 0 height: 0\\n"
-    },
         "SkPixmap_rowBytes": {
     "code": "void draw(SkCanvas* canvas) {\n    SkPixmap badPixmap = {SkImageInfo::MakeA8(4, 4), nullptr, 2};\n    SkPixmap okPixmap = {SkImageInfo::MakeA8(4, 4), nullptr, 8};\n    for (auto& pixmap : { badPixmap, okPixmap } ) {\n        SkDebugf(\"rowBytes: %d minRowBytes: %d\\n\", pixmap.rowBytes(), \n           pixmap.info().minRowBytes());\n    }\n}",
     "hash": "da5e1f7f49891d3805a5a6103a000eff",
@@ -3636,14 +3629,6 @@
     "hash": "0c45da35172bc0a529b2faecddae62a2",
     "file": "SkBitmap_Reference",
     "name": "SkBitmap::getBounds_2"
-},
-    "SkBitmap_installMaskPixels": {
-    "code": "void draw(SkCanvas* canvas) {\n    uint8_t storage[][5] = {{ 0xCA, 0xDA, 0xCA, 0xC9, 0xA3 },\n                            { 0xAC, 0xA8, 0x89, 0x47, 0x87 },\n                            { 0x4B, 0x25, 0x25, 0x25, 0x46 },\n                            { 0x90, 0x81, 0x25, 0x41, 0x33 },\n                            { 0x75, 0x55, 0x44, 0x20, 0x00 }};\n    SkMask mask;\n    mask.fImage = storage[0];\n    mask.fBounds = SkIRect::MakeWH(5, 5);\n    mask.fRowBytes = 5;\n    mask.fFormat = SkMask::kA8_Format;\n    SkBitmap bitmap;\n    bitmap.installMaskPixels(mask);\n    canvas->scale(10, 10);\n    canvas->drawBitmap(bitmap, 0, 0);\n    storage[2][2] = 0xFF;\n    bitmap.installMaskPixels(mask);\n    canvas->drawBitmap(bitmap, 10, 0);\n}",
-    "width": 256,
-    "height": 64,
-    "hash": "b0456fc063ca467ccecf2105160a3d1d",
-    "file": "SkBitmap_Reference",
-    "name": "SkBitmap::installMaskPixels"
 },
     "SkBitmap_installPixels_2": {
     "code": "void draw(SkCanvas* canvas) {\n   SkRandom random;\n   SkBitmap bitmap;\n   const int width = 8;\n   const int height = 8;\n   uint32_t pixels[width * height];\n   for (unsigned x = 0; x < width * height; ++x) {\n       pixels[x] = random.nextU();\n   }\n   SkImageInfo info = SkImageInfo::MakeN32(width, height, kUnpremul_SkAlphaType);\n   if (bitmap.installPixels(info, pixels, info.minRowBytes())) {\n       canvas->scale(32, 32);\n       canvas->drawBitmap(bitmap, 0, 0);\n   }\n}\n",
@@ -4965,22 +4950,6 @@
     "file": "SkImageInfo_Reference",
     "name": "SkImageInfo::width()"
 },
-    "SkImage_DeferredTextureImageUsageParams": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
-    "width": 256,
-    "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
-    "file": "SkImage_Reference",
-    "name": "SkImage::DeferredTextureImageUsageParams"
-},
-    "SkImage_DeferredTextureImageUsageParams_DeferredTextureImageUsageParams": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
-    "width": 256,
-    "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
-    "file": "SkImage_Reference",
-    "name": "SkImage::DeferredTextureImageUsageParams::DeferredTextureImageUsageParams"
-},
     "SkImage_LegacyBitmapMode": {
     "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
     "width": 256,
@@ -5028,14 +4997,6 @@
     "hash": "cf2cf53321e4e6a77c2841bfbc0ef707",
     "file": "SkImage_Reference",
     "name": "SkImage::MakeFromBitmap"
-},
-    "SkImage_MakeFromDeferredTextureImageData": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
-    "width": 256,
-    "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
-    "file": "SkImage_Reference",
-    "name": "SkImage::MakeFromDeferredTextureImageData"
 },
     "SkImage_MakeFromEncoded": {
     "code": "void draw(SkCanvas* canvas) {\n    int x = 0;\n    for (int quality : { 100, 50, 10, 1} ) {\n        sk_sp<SkData> encodedData = image->encodeToData(SkEncodedImageFormat::kJPEG, quality);\n        sk_sp<SkImage> image = SkImage::MakeFromEncoded(encodedData);\n        canvas->drawImage(image, x, 0);\n        x += 64;\n    }\n}",
@@ -5140,14 +5101,6 @@
     "hash": "30cee813f6aa476b0a9c8a24283e53a3",
     "file": "SkImage_Reference",
     "name": "SkImage::encodeToData_2"
-},
-    "SkImage_getDeferredTextureImageData": {
-    "code": "void draw(SkCanvas* canvas) {\n    GrContext* context = canvas->getGrContext();\n    if (!context) {\n        return;\n    }\n    sk_sp<GrContextThreadSafeProxy> proxy(context->threadSafeProxy());\n    auto params = SkImage::DeferredTextureImageUsageParams(SkMatrix::MakeScale(2, 2),\n                                                           kNone_SkFilterQuality, 0);\n    SkColorSpace* colorSpace = canvas->imageInfo().colorSpace();\n    size_t requiredMemoryInBytes = image->getDeferredTextureImageData(\n            *proxy, &params, 1, nullptr, colorSpace);\n    std::vector<uint8_t> memory;\n    memory.resize(requiredMemoryInBytes);\n    image->getDeferredTextureImageData(*proxy, &params, 1, memory.data(), colorSpace);\n    sk_sp<SkImage> uploadedEncodedImage = SkImage::MakeFromDeferredTextureImageData(\n            context, memory.data(), SkBudgeted::kNo);\n    canvas->scale(2, 2);\n    canvas->drawImage(uploadedEncodedImage, 10, 10);\n}",
-    "width": 256,
-    "height": 256,
-    "hash": "31d224ac4d22ba60221c565f9a12ad50",
-    "file": "SkImage_Reference",
-    "name": "SkImage::getDeferredTextureImageData"
 },
     "SkImage_getTextureHandle": {
     "code": "void draw(SkCanvas* canvas) {\n    GrContext* context = canvas->getGrContext();\n    if (!context) {\n       return;\n    }\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    SkString str;\n    int y = -10;\n    for (auto origin : { kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin } ) {\n        sk_sp<SkImage> srcImage(SkImage::MakeFromTexture(context,\n                backEndTexture, origin, kPremul_SkAlphaType, nullptr));\n        GrSurfaceOrigin readBackOrigin;\n        GrBackendObject readBackHandle = srcImage->getTextureHandle(false, &readBackOrigin);\n        str.printf(\"readBackHandle: 0x%x\", readBackHandle);\n        canvas->drawString(str, 5, y += 30, paint);\n        canvas->drawImage(srcImage, 80, y += 10);\n        str.printf(\"origin: k%s_GrSurfaceOrigin\", readBackOrigin ? \"BottomLeft\" : \"TopLeft\");\n        canvas->drawString(str, 5, y += srcImage->height() + 10, paint);\n    }\n}",

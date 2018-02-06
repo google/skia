@@ -2,7 +2,7 @@
 #Alias Paint_Reference
 
 #Subtopic Overview
-    #Subtopic Subtopics
+    #Subtopic Subtopic
     #Populate
     ##
 ##
@@ -35,27 +35,27 @@ Paint describes a single color, a single font, a single image quality, and so on
 Multiple colors are drawn either by using multiple paints or with objects like
 Shader attached to Paint.
 
-#Subtopic Related_Functions
+#Subtopic Related_Function
 #Populate
 ##
 
-#Subtopic Constants
+#Subtopic Constant
 #Populate
 ##
 
-#Subtopic Classes_and_Structs
+#Subtopic Class_or_Struct
 #Populate
 ##
 
-#Subtopic Constructors
+#Subtopic Constructor
 #Populate
 ##
 
-#Subtopic Operators
+#Subtopic Operator
 #Populate
 ##
 
-#Subtopic Member_Functions
+#Subtopic Member_Function
 #Populate
 ##
 
@@ -405,7 +405,7 @@ can reconstitute the paint at a later time.
 #Param buffer  Write_Buffer receiving the flattened Paint data ##
 
 # why is flatten() public? 
-#Bug 6172 ##
+#Bug 6172
 
 #NoExample
 ##
@@ -429,7 +429,7 @@ by the client.
 #Return false if the buffer contains invalid data ##
 
 # why is unflatten() public? 
-#Bug 6172 ##
+#Bug 6172
 
 #NoExample 
 ##
@@ -494,7 +494,7 @@ as the Font_Engine.
 #Track
 #File SkFontHost_mac.cpp:1777,1806
 #Time 2013-03-03 07:16:29 +0000
-#Bug 915 ##
+#Bug 915
 On OS_X and iOS, hinting controls whether Core_Graphics dilates the font outlines
 to account for LCD text. No hinting uses Core_Text gray scale output.
 Normal hinting uses Core_Text LCD output. If kLCDRenderText_Flag is clear,
@@ -640,11 +640,9 @@ Flags default to all flags clear, disabling the associated feature.
 #Enum ##
 
 #Enum ReserveFlags
-#Line # values described by bits and masks ##
+#Deprecated soon
 
-#Private 
-To be deprecated; only valid for Android framework.
-##
+Only valid for Android framework.
 
 #Code
     enum ReserveFlags {
@@ -653,16 +651,13 @@ To be deprecated; only valid for Android framework.
     };
 ##
 
-    #Const kUnderlineText_ReserveFlag   0x0008
-        mask for underline text
-    ##
-    #Const kStrikeThruText_ReserveFlag  0x0010
-        mask for strike-thru text
-    ##
-
-#SeeAlso Flags getFlags
-
-#Enum ##
+#Const kUnderlineText_ReserveFlag   0x0008
+#Deprecated soon
+##
+#Const kStrikeThruText_ReserveFlag  0x0010
+#Deprecated soon
+##
+##
 
 #Method uint32_t getFlags() const
 
@@ -713,7 +708,7 @@ All Flags members may be cleared, or one or more may be set.
 # ------------------------------------------------------------------------------
 #Subtopic Anti-alias
 #Alias Anti-alias  # permit hyphen in topic name, should probably not substitute hyphen with _
-#In Related_Functions
+#In Related_Function
 #Line # approximating coverage with transparency ##
 
 Anti-alias drawing approximates partial pixel coverage with transparency.
@@ -3498,20 +3493,11 @@ Set Draw_Looper to nullptr to prevent Draw_Looper from modifying the draw.
 ##
 
 #Method SkDrawLooper* getLooper() const
-
-#Line # deprecated ##
-#In Draw_Looper_Methods
-Deprecated.
-
+#Bug 6259
 #Deprecated
-(see bug.skia.org/6259)
-#Deprecated ##
-
-#Return  Draw_Looper if previously set, nullptr otherwise ##
 ##
 
 #Method void setDrawLooper(sk_sp<SkDrawLooper> drawLooper)
-
 #In Draw_Looper_Methods
 #Line # sets Draw_Looper, multiple layers ##
 Sets Draw_Looper to drawLooper, decreasing Reference_Count of the previous
@@ -3538,20 +3524,12 @@ Increments drawLooper Reference_Count by one.
 ##
 
 #Method void setLooper(sk_sp<SkDrawLooper> drawLooper)
-
-#Line # deprecated ##
-#In Draw_Looper_Methods
-Deprecated.
-
+#Bug 6259
 #Deprecated
-(see bug.skia.org/6259)
-#Deprecated ##
-
-#Param drawLooper  sets Draw_Looper to drawLooper ##
-
 ##
 
 #Subtopic Draw_Looper_Methods ##
+
 # ------------------------------------------------------------------------------
 #Subtopic Text_Align
 #Line # text placement relative to position ##
@@ -5242,3 +5220,4 @@ suppressed by defining SK_IGNORE_TO_STRING.
 #Class SkPaint ##
 
 #Topic Paint ##
+

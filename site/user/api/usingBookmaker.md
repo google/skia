@@ -20,12 +20,15 @@ documentation to be deprecated as well.
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 # void someMethodThatIsNowDeprecated()
-
 #Deprecated
-##
+##</pre>
 
-##
-</pre>
+Use
+
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
+## soon</pre>
+
+if the change is soon to be deprecated.
 
 To regenerate the documentation, follow the <a href="#Installing">Installing</a> and <a href="#Regenerate">Regenerate</a> steps below.
 

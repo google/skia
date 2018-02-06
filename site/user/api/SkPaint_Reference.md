@@ -5,16 +5,16 @@ SkPaint Reference
 
 ## <a name="Overview"></a> Overview
 
-## <a name="Subtopics"></a> Subtopics
+## <a name="Subtopic"></a> Subtopic
 
 | name | description |
 | --- | --- |
-| <a href="#Classes_and_Structs">Classes and Structs</a> | embedded struct and class members |
-| <a href="#Constants">Constants</a> | enum and enum class, const values |
-| <a href="#Constructors">Constructors</a> | functions that construct <a href="SkPaint_Reference#SkPaint">SkPaint</a> |
-| <a href="#Member_Functions">Member Functions</a> | static functions and member methods |
-| <a href="#Operators">Operators</a> | operator overloading methods |
-| <a href="#Related_Functions">Related Functions</a> | similar methods grouped together |
+| <a href="#Class_or_Struct">Class or Struct</a> | embedded struct and class members |
+| <a href="#Constant">Constant</a> | enum and enum class, const values |
+| <a href="#Constructor">Constructor</a> | functions that construct <a href="SkPaint_Reference#SkPaint">SkPaint</a> |
+| <a href="#Member_Function">Member Function</a> | static functions and member methods |
+| <a href="#Operator">Operator</a> | operator overloading methods |
+| <a href="#Related_Function">Related Function</a> | similar methods grouped together |
 
 # <a name="SkPaint"></a> Class SkPaint
 <a href="#Paint">Paint</a> controls options applied when drawing and measuring. <a href="#Paint">Paint</a> collects all
@@ -43,7 +43,7 @@ is set in <a href="#Paint">Paint</a>.
 Multiple colors are drawn either by using multiple paints or with objects like
 <a href="undocumented#Shader">Shader</a> attached to <a href="#Paint">Paint</a>.
 
-## <a name="Related_Functions"></a> Related Functions
+## <a name="Related_Function"></a> Related Function
 
 | name | description |
 | --- | --- |
@@ -93,7 +93,7 @@ Multiple colors are drawn either by using multiple paints or with objects like
 | <a href="#Typeface_Methods">Typeface Methods</a> | get and set <a href="undocumented#Typeface">Typeface</a> |
 | <a href="#Vertical_Text">Vertical Text</a> | orient text from top to bottom |
 
-## <a name="Constants"></a> Constants
+## <a name="Constant"></a> Constant
 
 | name | description |
 | --- | --- |
@@ -102,19 +102,18 @@ Multiple colors are drawn either by using multiple paints or with objects like
 | <a href="#SkPaint_Flags">Flags</a> | values described by bits and masks |
 | <a href="#SkPaint_Hinting">Hinting</a> | level of glyph outline adjustment |
 | <a href="#SkPaint_Join">Join</a> | corner geometry on stroked shapes |
-| <a href="#SkPaint_ReserveFlags">ReserveFlags</a> | values described by bits and masks |
 | <a href="#SkPaint_Style">Style</a> | stroke, fill, or both |
 | <a href="#SkPaint_TextEncoding">TextEncoding</a> | character or glyph encoded size |
 | _anonymous | number of <a href="#SkPaint_Style">Style</a> defines |
 | _anonymous_2 | number of <a href="#Text_Align">Text Align</a> values |
 
-## <a name="Classes_and_Structs"></a> Classes and Structs
+## <a name="Class_or_Struct"></a> Class or Struct
 
 | name | description |
 | --- | --- |
 | <a href="#SkPaint_FontMetrics">FontMetrics</a> | values computed by <a href="undocumented#Font_Manager">Font Manager</a> using <a href="undocumented#Typeface">Typeface</a> |
 
-## <a name="Constructors"></a> Constructors
+## <a name="Constructor"></a> Constructor
 
 | name | description |
 | --- | --- |
@@ -123,7 +122,7 @@ Multiple colors are drawn either by using multiple paints or with objects like
 | <a href="#SkPaint_copy_const_SkPaint">SkPaint(const SkPaint& paint)</a> | makes a shallow copy |
 | <a href="#SkPaint_destructor">~SkPaint()</a> | decreases <a href="undocumented#Reference_Count">Reference Count</a> of owned objects |
 
-## <a name="Operators"></a> Operators
+## <a name="Operator"></a> Operator
 
 | name | description |
 | --- | --- |
@@ -132,7 +131,7 @@ Multiple colors are drawn either by using multiple paints or with objects like
 | <a href="#SkPaint_copy_operator">operator=(const SkPaint& paint)</a> | makes a shallow copy |
 | <a href="#SkPaint_equal_operator">operator==(const SkPaint& a, const SkPaint& b)</a> | compares paints for equality |
 
-## <a name="Member_Functions"></a> Member Functions
+## <a name="Member_Function"></a> Member Function
 
 | name | description |
 | --- | --- |
@@ -158,7 +157,6 @@ Multiple colors are drawn either by using multiple paints or with objects like
 | <a href="#SkPaint_getHash">getHash</a> | returns a shallow hash for equality checks |
 | <a href="#SkPaint_getHinting">getHinting</a> | returns <a href="#SkPaint_Hinting">Hinting</a>, glyph outline adjustment level |
 | <a href="#SkPaint_getImageFilter">getImageFilter</a> | returns <a href="undocumented#Image_Filter">Image Filter</a>, alter pixels; blur |
-| <a href="#SkPaint_getLooper">getLooper</a> | deprecated |
 | <a href="#SkPaint_getMaskFilter">getMaskFilter</a> | returns <a href="undocumented#Mask_Filter">Mask Filter</a>, alterations to <a href="undocumented#Mask_Alpha">Mask Alpha</a> |
 | <a href="#SkPaint_getPathEffect">getPathEffect</a> | returns <a href="undocumented#Path_Effect">Path Effect</a>, modifications to path geometry; dashing |
 | <a href="#SkPaint_getPosTextHIntercepts">getPosTextHIntercepts</a> | returns where lines intersect horizontally positioned text; underlines |
@@ -220,7 +218,6 @@ Multiple colors are drawn either by using multiple paints or with objects like
 | <a href="#SkPaint_setImageFilter">setImageFilter</a> | sets <a href="undocumented#Image_Filter">Image Filter</a>, alter pixels; blur |
 | <a href="#SkPaint_setLCDRenderText">setLCDRenderText</a> | sets or clears <a href="SkPaint_Reference#LCD_Text">LCD Text</a> |
 | <a href="#SkPaint_setLinearText">setLinearText</a> | converts to <a href="SkPath_Reference#Path">Path</a> before draw or measure |
-| <a href="#SkPaint_setLooper">setLooper</a> | deprecated |
 | <a href="#SkPaint_setMaskFilter">setMaskFilter</a> | sets <a href="undocumented#Mask_Filter">Mask Filter</a>, alterations to <a href="undocumented#Mask_Alpha">Mask Alpha</a> |
 | <a href="#SkPaint_setPathEffect">setPathEffect</a> | sets <a href="undocumented#Path_Effect">Path Effect</a>, modifications to path geometry; dashing |
 | <a href="#SkPaint_setShader">setShader</a> | sets <a href="undocumented#Shader">Shader</a>, multiple drawing colors; gradients |
@@ -857,6 +854,8 @@ multiple settings at once.
 
 ## <a name="SkPaint_ReserveFlags"></a> Enum SkPaint::ReserveFlags
 
+soonOnly valid for Android framework.
+
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 enum <a href="#SkPaint_ReserveFlags">ReserveFlags</a> {
 <a href="#SkPaint_kUnderlineText_ReserveFlag">kUnderlineText ReserveFlag</a>   = 0x08,
@@ -867,18 +866,13 @@ enum <a href="#SkPaint_ReserveFlags">ReserveFlags</a> {
 
 <table>
   <tr>
-    <td><a name="SkPaint_kUnderlineText_ReserveFlag"> <code><strong>SkPaint::kUnderlineText_ReserveFlag </strong></code> </a></td><td>0x0008</td><td>mask for underline text</td>
+    <td><a name="SkPaint_kUnderlineText_ReserveFlag"> <code><strong>SkPaint::kUnderlineText_ReserveFlag </strong></code> </a></td><td>0x0008</td><td>soon</td>
   </tr>
   <tr>
-    <td><a name="SkPaint_kStrikeThruText_ReserveFlag"> <code><strong>SkPaint::kStrikeThruText_ReserveFlag </strong></code> </a></td><td>0x0010</td><td>mask for strike-thru text</td>
+    <td><a name="SkPaint_kStrikeThruText_ReserveFlag"> <code><strong>SkPaint::kStrikeThruText_ReserveFlag </strong></code> </a></td><td>0x0010</td><td>soon</td>
   </tr>
+
 </table>
-
-### See Also
-
-<a href="#Flags">Flags</a> <a href="#SkPaint_getFlags">getFlags</a>
-
-
 
 <a name="SkPaint_getFlags"></a>
 ## getFlags
@@ -3555,14 +3549,6 @@ draw looper unique: false
 SkDrawLooper* getLooper() const
 </pre>
 
-Deprecated.
-
-(see bug.skia.org/6259)
-
-### Return Value
-
-<a href="undocumented#Draw_Looper">Draw Looper</a> if previously set, nullptr otherwise
-
 ---
 
 <a name="SkPaint_setDrawLooper"></a>
@@ -3598,19 +3584,7 @@ iterates through drawing one or more time, altering <a href="#Paint">Paint</a></
 void setLooper(sk_sp&lt;SkDrawLooper&gt; drawLooper)
 </pre>
 
-Deprecated.
-
-(see bug.skia.org/6259)
-
-### Parameters
-
-<table>  <tr>    <td><a name="SkPaint_setLooper_drawLooper"> <code><strong>drawLooper </strong></code> </a></td> <td>
-sets <a href="undocumented#Draw_Looper">Draw Looper</a> to <a href="#SkPaint_setLooper_drawLooper">drawLooper</a></td>
-  </tr>
-
 ---
-
-</table>
 
 ## <a name="Text_Align"></a> Text Align
 

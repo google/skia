@@ -5,13 +5,14 @@ SkSurface Reference
 
 ## <a name="Overview"></a> Overview
 
-## <a name="Subtopics"></a> Subtopics
+## <a name="Subtopic"></a> Subtopic
 
 | name | description |
 | --- | --- |
-| Constants | enum and enum class, const values |
-| <a href="#Constructors">Constructors</a> | functions that construct <a href="SkSurface_Reference#SkSurface">SkSurface</a> |
-| <a href="#Member_Functions">Member Functions</a> | static functions and member methods |
+| Constant | enum and enum class, const values |
+| <a href="#Constructor">Constructor</a> | functions that construct <a href="SkSurface_Reference#SkSurface">SkSurface</a> |
+| <a href="#Member_Function">Member Function</a> | static functions and member methods |
+| <a href="#Related_Function">Related Function</a> | similar methods grouped together |
 
 # <a name="SkSurface"></a> Class SkSurface
 <a href="#SkSurface">SkSurface</a> is responsible for managing the pixels that a canvas draws into. The pixels can be
@@ -21,7 +22,14 @@ surface-><a href="#SkSurface_getCanvas">getCanvas</a> to use that canvas (but do
 <a href="#SkSurface">SkSurface</a> always has non-zero dimensions. If there is a request for a new surface, and either
 of the requested dimensions are zero, then nullptr will be returned.
 
-## <a name="Constructors"></a> Constructors
+## <a name="Related_Function"></a> Related Function
+
+| name | description |
+| --- | --- |
+| <a href="#Miscellaneous">Miscellaneous</a> | other functions |
+| <a href="#Pixels">Pixels</a> | functions with pixel access |
+
+## <a name="Member_Function"></a> Member Function
 
 | name | description |
 | --- | --- |
@@ -34,23 +42,7 @@ of the requested dimensions are zero, then nullptr will be returned.
 | <a href="#SkSurface_MakeRasterDirectReleaseProc">MakeRasterDirectReleaseProc</a> | creates <a href="#Surface">Surface</a> from <a href="SkImageInfo_Reference#SkImageInfo">SkImageInfo</a> and <a href="#Storage">Pixel Storage</a> |
 | <a href="#SkSurface_MakeRasterN32Premul">MakeRasterN32Premul</a> | creates <a href="#Surface">Surface</a> from width, height matching output |
 | <a href="#SkSurface_MakeRenderTarget">MakeRenderTarget</a> | creates <a href="#Surface">Surface</a> pointing to new GPU memory buffer |
-| <a href="#SkSurface_makeImageSnapshot">makeImageSnapshot</a> | creates <a href="SkImage_Reference#Image">Image</a> capturing <a href="#Surface">Surface</a> contents |
-| <a href="#SkSurface_makeSurface">makeSurface</a> | creates a compatible <a href="#Surface">Surface</a> |
-
-## <a name="Member_Functions"></a> Member Functions
-
-| name | description |
-| --- | --- |
-| <a href="#SkSurface_MakeFromBackendRenderTarget">MakeFromBackendRenderTarget</a> | creates <a href="#Surface">Surface</a> from GPU memory buffer |
-| <a href="#SkSurface_MakeFromBackendTexture">MakeFromBackendTexture</a> | creates <a href="#Surface">Surface</a> from GPU-backed texture |
-| <a href="#SkSurface_MakeFromBackendTextureAsRenderTarget">MakeFromBackendTextureAsRenderTarget</a> | creates <a href="#Surface">Surface</a> from GPU-backed texture |
-| <a href="#SkSurface_MakeNull">MakeNull</a> | creates <a href="#Surface">Surface</a> without backing pixels |
-| <a href="#SkSurface_MakeRaster">MakeRaster</a> | creates <a href="#Surface">Surface</a> from <a href="SkImageInfo_Reference#SkImageInfo">SkImageInfo</a> |
-| <a href="#SkSurface_MakeRasterDirect">MakeRasterDirect</a> | creates <a href="#Surface">Surface</a> from <a href="SkImageInfo_Reference#SkImageInfo">SkImageInfo</a> and <a href="#Storage">Pixel Storage</a> |
-| <a href="#SkSurface_MakeRasterDirectReleaseProc">MakeRasterDirectReleaseProc</a> | creates <a href="#Surface">Surface</a> from <a href="SkImageInfo_Reference#SkImageInfo">SkImageInfo</a> and <a href="#Storage">Pixel Storage</a> |
-| <a href="#SkSurface_MakeRasterN32Premul">MakeRasterN32Premul</a> | creates <a href="#Surface">Surface</a> from width, height matching output |
-| <a href="#SkSurface_MakeRenderTarget">MakeRenderTarget</a> | creates <a href="#Surface">Surface</a> pointing to new GPU memory buffer |
-| <a href="#SkSurface_characterize">characterize</a> | sets <a href="#Characterization">Surface Characterization</a> for threaded pre-processing |
+| <a href="#SkSurface_characterize">characterize</a> | sets <a href="#Characterization">Surface Characterization</a> for threaded GPU processing |
 | <a href="#SkSurface_draw">draw</a> | draws <a href="#Surface">Surface</a> contents to canvas |
 | <a href="#SkSurface_flush">flush</a> | resolve pending I/O |
 | <a href="#SkSurface_flushAndSignalSemaphores">flushAndSignalSemaphores</a> | resolve pending I/O, and signal |
@@ -63,11 +55,32 @@ of the requested dimensions are zero, then nullptr will be returned.
 | <a href="#SkSurface_makeSurface">makeSurface</a> | creates a compatible <a href="#Surface">Surface</a> |
 | <a href="#SkSurface_notifyContentWillChange">notifyContentWillChange</a> | notifies that contents will be changed outside of Skia |
 | <a href="#SkSurface_peekPixels">peekPixels</a> | copies <a href="#Surface">Surface</a> parameters to <a href="SkPixmap_Reference#Pixmap">Pixmap</a> |
-| <a href="#SkSurface_prepareForExternalIO">prepareForExternalIO</a> | to be deprecated |
 | <a href="#SkSurface_props">props</a> | returns <a href="#Properties">Surface Properties</a> |
 | <a href="#SkSurface_readPixels">readPixels</a> | copies <a href="SkRect_Reference#Rect">Rect</a> of pixels |
 | <a href="#SkSurface_wait">wait</a> | rause commands until signaled |
 | <a href="#SkSurface_width">width</a> | returns pixel column count |
+
+## <a name="Constructor"></a> Constructor
+
+| name | description |
+| --- | --- |
+| <a href="#SkSurface_MakeFromBackendRenderTarget">MakeFromBackendRenderTarget</a> | creates <a href="#Surface">Surface</a> from GPU memory buffer |
+|  | <a href="#SkSurface_MakeFromBackendRenderTarget">MakeFromBackendRenderTarget</a> |
+| <a href="#SkSurface_MakeFromBackendTexture">MakeFromBackendTexture</a> | creates <a href="#Surface">Surface</a> from GPU-backed texture |
+|  | <a href="#SkSurface_MakeFromBackendTexture">MakeFromBackendTexture</a> |
+| <a href="#SkSurface_MakeFromBackendTextureAsRenderTarget">MakeFromBackendTextureAsRenderTarget</a> | creates <a href="#Surface">Surface</a> from GPU-backed texture |
+|  | <a href="#SkSurface_MakeFromBackendTextureAsRenderTarget">MakeFromBackendTextureAsRenderTarget</a> |
+| <a href="#SkSurface_MakeNull">MakeNull</a> | creates <a href="#Surface">Surface</a> without backing pixels |
+| <a href="#SkSurface_MakeRaster">MakeRaster</a> | creates <a href="#Surface">Surface</a> from <a href="SkImageInfo_Reference#SkImageInfo">SkImageInfo</a> |
+|  | <a href="#SkSurface_MakeRaster">MakeRaster</a> |
+| <a href="#SkSurface_MakeRasterDirect">MakeRasterDirect</a> | creates <a href="#Surface">Surface</a> from <a href="SkImageInfo_Reference#SkImageInfo">SkImageInfo</a> and <a href="#Storage">Pixel Storage</a> |
+| <a href="#SkSurface_MakeRasterDirectReleaseProc">MakeRasterDirectReleaseProc</a> | creates <a href="#Surface">Surface</a> from <a href="SkImageInfo_Reference#SkImageInfo">SkImageInfo</a> and <a href="#Storage">Pixel Storage</a> |
+| <a href="#SkSurface_MakeRasterN32Premul">MakeRasterN32Premul</a> | creates <a href="#Surface">Surface</a> from width, height matching output |
+| <a href="#SkSurface_MakeRenderTarget">MakeRenderTarget</a> | creates <a href="#Surface">Surface</a> pointing to new GPU memory buffer |
+|  | <a href="#SkSurface_MakeRenderTarget">MakeRenderTarget</a> |
+|  | <a href="#SkSurface_MakeRenderTarget">MakeRenderTarget</a> |
+| <a href="#SkSurface_makeImageSnapshot">makeImageSnapshot</a> | creates <a href="SkImage_Reference#Image">Image</a> capturing <a href="#Surface">Surface</a> contents |
+| <a href="#SkSurface_makeSurface">makeSurface</a> | creates a compatible <a href="#Surface">Surface</a> |
 
 <a name="SkSurface_MakeRasterDirect"></a>
 ## MakeRasterDirect
@@ -87,7 +100,7 @@ info contains <a href="SkImageInfo_Reference#Color_Type">Color Type</a> and <a h
 <a href="#SkSurface_MakeRasterDirect_rowBytes">rowBytes</a> is large enough to contain info width <a href="#SkSurface_MakeRasterDirect_pixels">pixels</a> of <a href="SkImageInfo_Reference#Color_Type">Color Type</a>.
 
 <a href="undocumented#Pixel">Pixel</a> buffer size should be info height times computed <a href="#SkSurface_MakeRasterDirect_rowBytes">rowBytes</a>.
-Pixels are not initialized.
+<a href="#Pixels">Pixels</a> are not initialized.
 To access <a href="#SkSurface_MakeRasterDirect_pixels">pixels</a> after drawing, call <a href="#SkSurface_flush">flush</a> or <a href="#SkSurface_peekPixels">peekPixels</a>.
 
 ### Parameters
@@ -150,7 +163,7 @@ info contains <a href="SkImageInfo_Reference#Color_Type">Color Type</a> and <a h
 <a href="#SkSurface_MakeRasterDirectReleaseProc_rowBytes">rowBytes</a> is large enough to contain info width <a href="#SkSurface_MakeRasterDirectReleaseProc_pixels">pixels</a> of <a href="SkImageInfo_Reference#Color_Type">Color Type</a>.
 
 <a href="undocumented#Pixel">Pixel</a> buffer size should be info height times computed <a href="#SkSurface_MakeRasterDirectReleaseProc_rowBytes">rowBytes</a>.
-Pixels are not initialized.
+<a href="#Pixels">Pixels</a> are not initialized.
 To access <a href="#SkSurface_MakeRasterDirectReleaseProc_pixels">pixels</a> after drawing, call <a href="#SkSurface_flush">flush</a> or <a href="#SkSurface_peekPixels">peekPixels</a>.
 
 ### Parameters
@@ -802,9 +815,9 @@ static sk_sp&lt;SkSurface&gt; MakeRenderTarget(GrContext* context, SkBudgeted bu
                                          bool shouldCreateWithMips = false)
 </pre>
 
-Returns offscreen <a href="#Surface">Surface</a> on GPU indicated by <a href="#SkSurface_MakeRenderTarget_context">context</a>. Allocates memory for
+Returns <a href="#Surface">Surface</a> on GPU indicated by <a href="#SkSurface_MakeRenderTarget_context">context</a>. Allocates memory for
 pixels, based on the width, height, and <a href="SkImageInfo_Reference#Color_Type">Color Type</a> in ImageInfo.  <a href="#SkSurface_MakeRenderTarget_budgeted">budgeted</a>
-selects whether allocation for offscreen pixels is tracked by <a href="#SkSurface_MakeRenderTarget_context">context</a>. <a href="#SkSurface_MakeRenderTarget_imageInfo">imageInfo</a>
+selects whether allocation for pixels is tracked by <a href="#SkSurface_MakeRenderTarget_context">context</a>. <a href="#SkSurface_MakeRenderTarget_imageInfo">imageInfo</a>
 describes the pixel format in <a href="SkImageInfo_Reference#Color_Type">Color Type</a>, and transparency in
 <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a>, and color matching in <a href="undocumented#Color_Space">Color Space</a>.
 
@@ -815,7 +828,7 @@ maximum supported count.
 
 <a href="#SkSurface_MakeRenderTarget_surfaceOrigin">surfaceOrigin</a> pins either the top-left or the bottom-left corner to the origin.
 
-<a href="#SkSurface_MakeRenderTarget_shouldCreateWithMips">shouldCreateWithMips</a> hints that <a href="SkImage_Reference#Image">Image</a> returned by <a href="#SkSurface_makeImageSnapshot">makeImageSnapshot</a> is <a href="undocumented#Mip_Map">Mip Map</a>.
+<a href="#SkSurface_MakeRenderTarget_shouldCreateWithMips">shouldCreateWithMips</a> hints that <a href="SkImage_Reference#Image">Image</a> returned by <a href="#SkSurface_makeImageSnapshot">makeImageSnapshot</a> is Mip_Map.
 
 If SK_SUPPORT_GPU is defined as zero, has no effect and returns nullptr.
 
@@ -836,7 +849,7 @@ one of: <a href="undocumented#GrSurfaceOrigin">kBottomLeft GrSurfaceOrigin</a>, 
 LCD striping orientation and setting for device independent
 fonts; may be nullptr</td>
   </tr>  <tr>    <td><a name="SkSurface_MakeRenderTarget_shouldCreateWithMips"> <code><strong>shouldCreateWithMips </strong></code> </a></td> <td>
-hint that <a href="#Surface">Surface</a> will host <a href="undocumented#Mip_Map">Mip Map</a> images</td>
+hint that <a href="#Surface">Surface</a> will host Mip_Map images</td>
   </tr>
 </table>
 
@@ -862,9 +875,9 @@ static sk_sp&lt;SkSurface&gt; MakeRenderTarget(GrContext* context, SkBudgeted bu
                                          const SkSurfaceProps* props)
 </pre>
 
-Returns offscreen <a href="#Surface">Surface</a> on GPU indicated by <a href="#SkSurface_MakeRenderTarget_2_context">context</a>. Allocates memory for
+Returns <a href="#Surface">Surface</a> on GPU indicated by <a href="#SkSurface_MakeRenderTarget_2_context">context</a>. Allocates memory for
 pixels, based on the width, height, and <a href="SkImageInfo_Reference#Color_Type">Color Type</a> in ImageInfo.  <a href="#SkSurface_MakeRenderTarget_2_budgeted">budgeted</a>
-selects whether allocation for offscreen pixels is tracked by <a href="#SkSurface_MakeRenderTarget_2_context">context</a>. <a href="#SkSurface_MakeRenderTarget_2_imageInfo">imageInfo</a>
+selects whether allocation for pixels is tracked by <a href="#SkSurface_MakeRenderTarget_2_context">context</a>. <a href="#SkSurface_MakeRenderTarget_2_imageInfo">imageInfo</a>
 describes the pixel format in <a href="SkImageInfo_Reference#Color_Type">Color Type</a>, and transparency in
 <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a>, and color matching in <a href="undocumented#Color_Space">Color Space</a>.
 
@@ -899,7 +912,7 @@ fonts; may be nullptr</td>
 ### Example
 
 <div><fiddle-embed name="640321e8ecfb3f9329f3bc6e1f02485f" gpu="true" cpu="true"><div>LCD text takes advantage of raster striping to improve resolution. Only one of
-the four combinations is correct, depending on whether the monitor's LCD is
+the four combinations is correct, depending on whether monitor LCD striping is
 horizontal or vertical, and whether the order of the stripes is red blue green
 or red green blue.</div></fiddle-embed></div>
 
@@ -916,9 +929,9 @@ static sk_sp&lt;SkSurface&gt; MakeRenderTarget(GrContext* context, SkBudgeted bu
                                          const SkImageInfo& imageInfo)
 </pre>
 
-Returns offscreen <a href="#Surface">Surface</a> on GPU indicated by <a href="#SkSurface_MakeRenderTarget_3_context">context</a>. Allocates memory for
+Returns <a href="#Surface">Surface</a> on GPU indicated by <a href="#SkSurface_MakeRenderTarget_3_context">context</a>. Allocates memory for
 pixels, based on the width, height, and <a href="SkImageInfo_Reference#Color_Type">Color Type</a> in ImageInfo.  <a href="#SkSurface_MakeRenderTarget_3_budgeted">budgeted</a>
-selects whether allocation for offscreen pixels is tracked by <a href="#SkSurface_MakeRenderTarget_3_context">context</a>. <a href="#SkSurface_MakeRenderTarget_3_imageInfo">imageInfo</a>
+selects whether allocation for pixels is tracked by <a href="#SkSurface_MakeRenderTarget_3_context">context</a>. <a href="#SkSurface_MakeRenderTarget_3_imageInfo">imageInfo</a>
 describes the pixel format in <a href="SkImageInfo_Reference#Color_Type">Color Type</a>, and transparency in
 <a href="SkImageInfo_Reference#Alpha_Type">Alpha Type</a>, and color matching in <a href="undocumented#Color_Space">Color Space</a>.
 
@@ -991,6 +1004,18 @@ surf->makeImageSnapshot() == nullptr
 <a href="#SkSurface_MakeRaster">MakeRaster</a><sup><a href="#SkSurface_MakeRaster_2">[2]</a></sup> <a href="#SkSurface_MakeRenderTarget">MakeRenderTarget</a><sup><a href="#SkSurface_MakeRenderTarget_2">[2]</a></sup><sup><a href="#SkSurface_MakeRenderTarget_3">[3]</a></sup>
 
 ---
+
+## <a name="Property"></a> Property
+
+| name | description |
+| --- | --- |
+| <a href="#SkSurface_generationID">generationID</a> | returns unique ID |
+| <a href="#SkSurface_getCanvas">getCanvas</a> | returns <a href="SkCanvas_Reference#Canvas">Canvas</a> that draws into <a href="#Surface">Surface</a> |
+| <a href="#SkSurface_getRenderTargetHandle">getRenderTargetHandle</a> | returns the GPU reference to render target |
+| <a href="#SkSurface_getTextureHandle">getTextureHandle</a> | returns the GPU reference to texture |
+| <a href="#SkSurface_height">height</a> | returns pixel row count |
+| <a href="#SkSurface_props">props</a> | returns <a href="#Properties">Surface Properties</a> |
+| <a href="#SkSurface_width">width</a> | returns pixel column count |
 
 <a name="SkSurface_width"></a>
 ## width
@@ -1116,6 +1141,12 @@ enum <a href="#SkSurface_ContentChangeMode">ContentChangeMode</a> {
 
 
 
+## <a name="Miscellaneous"></a> Miscellaneous
+
+| name | description |
+| --- | --- |
+| <a href="#SkSurface_notifyContentWillChange">notifyContentWillChange</a> | notifies that contents will be changed outside of Skia |
+
 <a name="SkSurface_notifyContentWillChange"></a>
 ## notifyContentWillChange
 
@@ -1174,16 +1205,13 @@ static const <a href="#SkSurface_BackendHandleAccess">BackendHandleAccess</a> <a
     <td><a name="SkSurface_kDiscardWrite_BackendHandleAccess"> <code><strong>SkSurface::kDiscardWrite_BackendHandleAccess </strong></code> </a></td><td>2</td><td>Caller must overwrite the entire back-end object.</td>
   </tr>
   <tr>
-    <td><a name="SkSurface_kFlushRead_TextureHandleAccess"> <code><strong>SkSurface::kFlushRead_TextureHandleAccess </strong></code> </a></td><td>0</td><td>Deprecated.
-</td>
+    <td><a name="SkSurface_kFlushRead_TextureHandleAccess"> <code><strong>SkSurface::kFlushRead_TextureHandleAccess </strong></code> </a></td><td>0</td><td></td>
   </tr>
   <tr>
-    <td><a name="SkSurface_kFlushWrite_TextureHandleAccess"> <code><strong>SkSurface::kFlushWrite_TextureHandleAccess </strong></code> </a></td><td>1</td><td>Deprecated.
-</td>
+    <td><a name="SkSurface_kFlushWrite_TextureHandleAccess"> <code><strong>SkSurface::kFlushWrite_TextureHandleAccess </strong></code> </a></td><td>1</td><td></td>
   </tr>
   <tr>
-    <td><a name="SkSurface_kDiscardWrite_TextureHandleAccess"> <code><strong>SkSurface::kDiscardWrite_TextureHandleAccess </strong></code> </a></td><td>2</td><td>Deprecated.
-</td>
+    <td><a name="SkSurface_kDiscardWrite_TextureHandleAccess"> <code><strong>SkSurface::kDiscardWrite_TextureHandleAccess </strong></code> </a></td><td>2</td><td></td>
   </tr>
 </table>
 
@@ -1360,6 +1388,17 @@ are not captured. <a href="SkImage_Reference#Image">Image</a> allocation is acco
 
 ---
 
+## <a name="Pixels"></a> Pixels
+
+| name | description |
+| --- | --- |
+| <a href="#SkSurface_draw">draw</a> | draws <a href="#Surface">Surface</a> contents to canvas |
+|  | draw |
+| <a href="#SkSurface_peekPixels">peekPixels</a> | copies <a href="#Surface">Surface</a> parameters to <a href="SkPixmap_Reference#Pixmap">Pixmap</a> |
+| <a href="#SkSurface_readPixels">readPixels</a> | copies <a href="SkRect_Reference#Rect">Rect</a> of pixels |
+|  | <a href="#SkSurface_readPixels">readPixels</a> |
+|  | <a href="#SkSurface_readPixels">readPixels</a> |
+
 <a name="SkSurface_draw"></a>
 ## draw
 
@@ -1444,7 +1483,7 @@ Destination <a href="SkRect_Reference#Rect">Rect</a> corners are (0, 0) and (<a 
 Copies each readable pixel intersecting both rectangles, without scaling,
 converting to <a href="#SkSurface_readPixels_dst">dst</a>.colorType() and <a href="#SkSurface_readPixels_dst">dst</a>.alphaType() if required.
 
-Pixels are readable when <a href="#Surface">Surface</a> is raster, or backed by a GPU.
+<a href="#Pixels">Pixels</a> are readable when <a href="#Surface">Surface</a> is raster, or backed by a GPU.
 
 The destination pixel storage must be allocated by the caller.
 
@@ -1500,7 +1539,7 @@ Destination <a href="SkRect_Reference#Rect">Rect</a> corners are (0, 0) and (<a 
 Copies each readable pixel intersecting both rectangles, without scaling,
 converting to <a href="#SkSurface_readPixels_2_dstInfo">dstInfo</a>.colorType() and <a href="#SkSurface_readPixels_2_dstInfo">dstInfo</a>.alphaType() if required.
 
-Pixels are readable when <a href="#Surface">Surface</a> is raster, or backed by a GPU.
+<a href="#Pixels">Pixels</a> are readable when <a href="#Surface">Surface</a> is raster, or backed by a GPU.
 
 The destination pixel storage must be allocated by the caller.
 
@@ -1562,7 +1601,7 @@ Destination <a href="SkRect_Reference#Rect">Rect</a> corners are (0, 0) and (bit
 Copies each readable pixel intersecting both rectangles, without scaling,
 converting to bitmap.colorType() and bitmap.alphaType() if required.
 
-Pixels are readable when <a href="#Surface">Surface</a> is raster, or backed by a GPU.
+<a href="#Pixels">Pixels</a> are readable when <a href="#Surface">Surface</a> is raster, or backed by a GPU.
 
 The destination pixel storage must be allocated by the caller.
 
@@ -1644,9 +1683,18 @@ surf.props(): kRGB_H_SkPixelGeometry
 void prepareForExternalIO()
 </pre>
 
-To be deprecated.
+soon
 
 ---
+
+## <a name="Utility"></a> Utility
+
+| name | description |
+| --- | --- |
+| <a href="#SkSurface_characterize">characterize</a> | sets <a href="#Characterization">Surface Characterization</a> for threaded GPU processing |
+| <a href="#SkSurface_flush">flush</a> | resolve pending I/O |
+| <a href="#SkSurface_flushAndSignalSemaphores">flushAndSignalSemaphores</a> | resolve pending I/O, and signal |
+| <a href="#SkSurface_wait">wait</a> | rause commands until signaled |
 
 <a name="SkSurface_flush"></a>
 ## flush
@@ -1761,7 +1809,7 @@ bool characterize(SkSurfaceCharacterization* characterization) const
 </pre>
 
 Initializes <a href="#Characterization">Surface Characterization</a> that can be used to perform GPU back-end
-pre-processing in a separate thread. Typically this is used to divide drawing
+processing in a separate thread. Typically this is used to divide drawing
 into multiple tiles. DeferredDisplayListRecorder records the drawing commands
 for each tile.
 

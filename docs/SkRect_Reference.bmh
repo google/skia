@@ -3,7 +3,7 @@
 #Alias Rect_Reference
 
 #Subtopic Overview
-    #Subtopic Subtopics
+    #Subtopic Subtopic
     #Populate
     ##
 ##
@@ -20,15 +20,15 @@ its top, it is considered empty.
 SkRect can be constructed from int values to avoid compiler warnings that
 integer input cannot convert to SkScalar without loss of precision.
 
-#Subtopic Related_Functions
+#Subtopic Related_Function
 #Populate
 #Subtopic ##
 
-#Subtopic Member_Functions
+#Subtopic Member_Function
 #Populate
 ##
 
-#Subtopic Members
+#Subtopic Member
 #Populate
 
 #Member SkScalar  fLeft
@@ -55,33 +55,16 @@ May contain any value, including infinities and NaN. The larger of the
 vertical values when sorted. When equal to or less than fTop, Rect is empty.
 ##
 
-#Subtopic Members ##
+#Subtopic Member ##
 
-#Subtopic Constructors
-#Table
-#Legend
-# name          # description                                                    ##
-#Legend ##
-# Make          # constructs from ISize returning (0, 0, width, height)          ##
-# MakeEmpty     # constructs from bounds of (0, 0, 0, 0)                         ##
-# MakeFromIRect # deprecated                                                     ##
-# MakeIWH       # constructs from int input returning (0, 0, width, height)      ##
-# MakeLTRB      # constructs from SkScalar left, top, right, bottom              ##
-# MakeLargest   # deprecated                                                     ##
-# MakeSize      # constructs from Size returning (0, 0, width, height)           ##
-# MakeWH        # constructs from SkScalar input returning (0, 0, width, height) ##
-# MakeXYWH      # constructs from SkScalar input returning (x, y, width, height) ##
-# makeInset     # constructs from sides moved symmetrically about the center     ##
-# makeOffset    # constructs from translated sides                               ##
-# makeOutset    # constructs from sides moved symmetrically about the center     ##
-# makeSorted    # constructs, ordering sides from smaller to larger              ##
-#Table ##
+#Subtopic Constructor
+#Populate
 
 # ------------------------------------------------------------------------------
 
 #Method static constexpr SkRect SK_WARN_UNUSED_RESULT MakeEmpty()
 
-#In Constructors
+#In Constructor
 #Line # constructs from bounds of (0, 0, 0, 0) ##
 Returns constructed Rect set to (0, 0, 0, 0).
 Many other rectangles are empty; if left is equal to or greater than right,
@@ -115,7 +98,7 @@ outset rect isEmpty: false
 
 #Method static constexpr SkRect SK_WARN_UNUSED_RESULT MakeWH(SkScalar w, SkScalar h)
 
-#In Constructors
+#In Constructor
 #Line # constructs from SkScalar input returning (0, 0, width, height) ##
 Returns constructed Rect set to SkScalar values (0, 0, w, h). Does not
 validate input; w or h may be negative.
@@ -148,7 +131,7 @@ all equal
 
 #Method static SkRect SK_WARN_UNUSED_RESULT MakeIWH(int w, int h)
 
-#In Constructors
+#In Constructor
 #Line # constructs from int input returning (0, 0, width, height) ##
 Returns constructed Rect set to integer values (0, 0, w, h). Does not validate
 input; w or h may be negative.
@@ -182,7 +165,7 @@ i_rect width: 125000111 f_rect width:125000112
 
 #Method static constexpr SkRect SK_WARN_UNUSED_RESULT MakeSize(const SkSize& size)
 
-#In Constructors
+#In Constructor
 #Line # constructs from Size returning (0, 0, width, height) ##
 Returns constructed Rect set to (0, 0, size.width(), size.height()). Does not
 validate input; size.width() or size.height() may be negative.
@@ -212,7 +195,7 @@ floor width: 25  height: 35
 
 #Method static constexpr SkRect SK_WARN_UNUSED_RESULT MakeLTRB(SkScalar l, SkScalar t, SkScalar r,
                                                            SkScalar b)
-#In Constructors
+#In Constructor
 #Line # constructs from SkScalar left, top, right, bottom ##
 
 Returns constructed Rect set to (l, t, r, b). Does not sort input; Rect may
@@ -246,7 +229,7 @@ rect: 5, 25, 15, 35  isEmpty: false
 
 #Method static constexpr SkRect SK_WARN_UNUSED_RESULT MakeXYWH(SkScalar x, SkScalar y, SkScalar w, SkScalar h)
 
-#In Constructors
+#In Constructor
 #Line # constructs from SkScalar input returning (x, y, width, height) ##
 Returns constructed Rect set to
 #Formula
@@ -282,30 +265,14 @@ rect: -10, 35, 5, 60  isEmpty: false
 # ------------------------------------------------------------------------------
 
 #Method static SkRect SK_WARN_UNUSED_RESULT MakeFromIRect(const SkIRect& irect)
-
-#In Constructors
-#Line # deprecated ##
-Deprecated.
-
 #Deprecated
-##
-
-#Param irect  integer rect ##
-
-#Return irect as SkRect ##
-
-#NoExample
-##
-
-#SeeAlso Make
-
 ##
 
 # ------------------------------------------------------------------------------
 
 #Method static SkRect Make(const SkISize& size)
 
-#In Constructors
+#In Constructor
 #Line # constructs from ISize returning (0, 0, width, height) ##
 Returns constructed IRect set to (0, 0, size.width(), size.height()). 
 Does not validate input; size.width() or size.height() may be negative.
@@ -331,7 +298,7 @@ rect1 == rect2
 
 #Method static SkRect SK_WARN_UNUSED_RESULT Make(const SkIRect& irect)
 
-#In Constructors
+#In Constructor
 Returns constructed IRect set to irect, promoting integers to Scalar.
 Does not validate input; fLeft may be greater than fRight, fTop may be greater
 than fBottom.
@@ -353,35 +320,17 @@ than fBottom.
 
 ##
 
-#Subtopic Constructors ##
+#Subtopic Constructor ##
 
-#Subtopic Properties
-#Line # side values, center, validity ##
-
-#Table
-#Legend
-# name                  # description                                          ##
-#Legend ##
-# bottom()              # returns larger bounds in y, if sorted                ##
-# centerX               # returns midpoint in x                                ##
-# centerY               # returns midpoint in y                                ##
-# height()              # returns span in y                                    ##
-# isEmpty               # returns true if width or height are zero or negative ##
-# isFinite              # returns true if no member is infinite or NaN         ##
-# isSorted              # returns true if width or height are zero or positive ##
-# left()                # returns smaller bounds in x, if sorted               ##
-# right()               # returns larger bounds in x, if sorted                ##
-# top()                 # returns smaller bounds in y, if sorted               ##
-# width()               # returns span in x                                    ##
-# x()                   # returns bounds left                                  ##
-# y()                   # returns bounds top                                   ##
-#Table ##
+#Subtopic Property
+#Line # member values, center, validity ##
+#Populate
 
 # ------------------------------------------------------------------------------
 
 #Method bool isEmpty() const
 
-#In Properties
+#In Property
 #Line # returns true if width or height are zero or negative ##
 Returns true if fLeft is equal to or greater than fRight, or if fTop is equal
 to or greater than fBottom. Call sort() to reverse rectangles with negative
@@ -414,7 +363,7 @@ sorted: {20, 40, 20, 50} is empty
 
 #Method bool isSorted() const
 
-#In Properties
+#In Property
 #Line # returns true if width or height are zero or positive ##
 Returns true if fLeft is equal to or less than fRight, or if fTop is equal
 to or less than fBottom. Call sort() to reverse rectangles with negative
@@ -447,7 +396,7 @@ sorted: {20, 40, 20, 50} is sorted
 
 #Method bool isFinite() const
 
-#In Properties
+#In Property
 #Line # returns true if no member is infinite or NaN ##
 Returns true if all values in the rectangle are finite: SK_ScalarMin or larger,
 and SK_ScalarMax or smaller. 
@@ -475,7 +424,7 @@ widest is finite: false
 
 #Method SkScalar    x() const
 
-#In Properties
+#In Property
 #Line # returns bounds left ##
 Returns left edge of Rect, if sorted. Call isSorted to see if Rect is valid.
 Call sort() to reverse fLeft and fRight if needed.
@@ -501,7 +450,7 @@ sorted.fLeft: 10 sorted.x(): 10
 
 #Method SkScalar    y() const
 
-#In Properties
+#In Property
 #Line # returns bounds top ##
 Returns top edge of Rect, if sorted. Call isEmpty to see if Rect may be invalid,
 and sort() to reverse fTop and fBottom if needed.
@@ -527,7 +476,7 @@ sorted.fTop: 5 sorted.y(): 5
 
 #Method SkScalar    left() const
 
-#In Properties
+#In Property
 #Line # returns smaller bounds in x, if sorted ##
 Returns left edge of Rect, if sorted. Call isSorted to see if Rect is valid.
 Call sort() to reverse fLeft and fRight if needed.
@@ -553,7 +502,7 @@ sorted.fLeft: 10 sorted.left(): 10
 
 #Method SkScalar    top() const
 
-#In Properties
+#In Property
 #Line # returns smaller bounds in y, if sorted ##
 Returns top edge of Rect, if sorted. Call isEmpty to see if Rect may be invalid,
 and sort() to reverse fTop and fBottom if needed.
@@ -579,7 +528,7 @@ sorted.fTop: 5 sorted.top(): 5
 
 #Method SkScalar    right() const
 
-#In Properties
+#In Property
 #Line # returns larger bounds in x, if sorted ##
 Returns right edge of Rect, if sorted. Call isSorted to see if Rect is valid.
 Call sort() to reverse fLeft and fRight if needed.
@@ -605,7 +554,7 @@ sorted.fRight: 15 sorted.right(): 15
 
 #Method SkScalar    bottom() const
 
-#In Properties
+#In Property
 #Line # returns larger bounds in y, if sorted ##
 Returns bottom edge of Rect, if sorted. Call isEmpty to see if Rect may be invalid,
 and sort() to reverse fTop and fBottom if needed.
@@ -631,7 +580,7 @@ sorted.fBottom: 25 sorted.bottom(): 25
 
 #Method SkScalar    width() const
 
-#In Properties
+#In Property
 #Line # returns span in x ##
 Returns span on the x-axis. This does not check if Rect is sorted, or if
 result fits in 32-bit float; result may be negative or infinity.
@@ -660,7 +609,7 @@ large width: 4294967296
 
 #Method SkScalar    height() const
 
-#In Properties
+#In Property
 #Line # returns span in y ##
 Returns span on the y-axis. This does not check if IRect is sorted, or if
 result fits in 32-bit float; result may be negative or infinity.
@@ -689,7 +638,7 @@ large height: 4294967296
 
 #Method SkScalar    centerX() const
 
-#In Properties
+#In Property
 #Line # returns midpoint in x ##
 Returns average of left edge and right edge. Result does not change if Rect
 is sorted. Result may overflow to infinity if Rect is far from the origin.
@@ -719,7 +668,7 @@ left: -41 right: -20 centerX: -30.5
 
 #Method SkScalar    centerY() const
 
-#In Properties
+#In Property
 #Line # returns midpoint in y ##
 Returns average of top edge and bottom edge. Result does not change if Rect
 is sorted. Result may overflow to infinity if Rect is far from the origin.
@@ -739,23 +688,17 @@ left: 2e+38 right: 3e+38 centerX: inf safe mid x: 2.5e+38
 
 ##
 
-#Subtopic Properties ##
+#Subtopic Property ##
 
-#Subtopic Operators
+#Subtopic Operator
 
-#Table
-#Legend
-# name                                         # description                         ##
-#Legend ##
-# operator!=(const SkRect& a, const SkRect& b) # returns true if members are unequal ##
-# operator==(const SkRect& a, const SkRect& b) # returns true if members are equal   ##
-#Table ##
+#Populate
 
 # ------------------------------------------------------------------------------
 
 #Method bool operator==(const SkRect& a, const SkRect& b)
 
-#In Operators
+#In Operator
 #Line # returns true if members are equal ##
 Returns true if all members in a: fLeft, fTop, fRight, and fBottom; are  
 equal to the corresponding members in b.
@@ -800,7 +743,7 @@ tests are equal
 
 #Method bool operator!=(const SkRect& a, const SkRect& b)
 
-#In Operators
+#In Operator
 #Line # returns true if members are unequal ##
 Returns true if any in a: fLeft, fTop, fRight, and fBottom; does not   
 equal the corresponding members in b.
@@ -825,19 +768,12 @@ test with NaN is not equal to itself
 
 ##
 
-#Subtopic Operators ##
+#Subtopic Operator ##
 
 #Subtopic As_Points
 #Line # conversion to and from Points ##
 
-#Table
-#Legend
-# name                  # description                                   ##
-#Legend ##
-# setBounds             # sets to upper and lower limits of Point array ##
-# setBoundsCheck        # sets to upper and lower limits of Point array ##
-# toQuad                # returns four corners as Point                 ##
-#Table ##
+#Populate
 
 # ------------------------------------------------------------------------------
 
@@ -964,22 +900,7 @@ added: nan, 8 count: 4 rect: 0, 0, 0, 0 success: false
 #Subtopic Set
 #Line # replaces all values ##
 
-#Table
-#Legend
-# name     # description                                                            ##
-#Legend ##
-# iset()   # sets to int input (left, top, right, bottom)                           ##
-# isetWH   # sets to int input (0, 0, width, height)                                ##
-# set()    # sets to SkScalar input (left, top, right, bottom) and others           ##
-#          # void set(const SkIRect& src)                                           ##
-#          # void set(SkScalar left, SkScalar top, SkScalar right, SkScalar bottom) ##
-#          # void set(const SkPoint pts[], int count)                               ##
-#          # void set(const SkPoint& p0, const SkPoint& p1)                         ##
-# setEmpty # sets to (0, 0, 0, 0)                                                   ##
-# setLTRB  # sets to SkScalar input (left, top, right, bottom)                      ##
-# setWH    # sets to SkScalar input (0, 0, width, height)                           ##
-# setXYWH  # sets to SkScalar input (x, y, width, height)                           ##
-#Table ##
+#Populate
 
 # ------------------------------------------------------------------------------
 
@@ -1237,13 +1158,7 @@ rect: -15, 0, 0, 25  isEmpty: false
 #Subtopic From_Integers
 #Line # set Scalar values from integer input ##
 
-#Table
-#Legend
-# name     # description                                                            ##
-#Legend ##
-# iset()   # sets to int input (left, top, right, bottom)                           ##
-# isetWH   # sets to int input (0, 0, width, height)                                ##
-#Table ##
+#Populate
 
 # ------------------------------------------------------------------------------
 
@@ -1311,20 +1226,7 @@ rect2: {0, 0, 1, 2}
 #Subtopic Inset_Outset_Offset
 #Line # moves sides ##
 
-#Table
-#Legend
-# name                  # description                                                ##
-#Legend ##
-# inset()               # moves the sides symmetrically about the center             ##
-# makeInset             # constructs from sides moved symmetrically about the center ##
-# makeOffset            # constructs from translated sides                           ##
-# makeOutset            # constructs from sides moved symmetrically about the center ##
-# offset()              # translates sides without changing width and height         ##
-#                       # void offset(SkScalar dx, SkScalar dy)                      ##
-#                       # void offset(const SkPoint& delta)                          ##
-# offsetTo              # translates to (x, y) without changing width and height     ##
-# outset()              # moves the sides symmetrically about the center             ##
-#Table ##
+#Populate
 
 # ------------------------------------------------------------------------------
 
@@ -1589,22 +1491,7 @@ empty() returns false. The intersection of Rect pair can be described by:
 The intersection is only meaningful if the resulting Rect is not empty and
 describes an area: fLeft is less than fRight, and fTop is less than fBottom.
 
-#Table
-#Legend
-# name         # description                                                                  ##
-#Legend ##
-# Intersects   # returns true if areas overlap                                                ##
-# contains()   # returns true if points are equal or inside                                   ##
-#              # bool contains(const SkRect& r) const                                         ##
-#              # bool contains(const SkIRect& r) const                                        ##
-# intersect()  # sets to shared area; returns true if not empty                               ##
-#              # bool intersect(SkScalar left, SkScalar top, SkScalar right, SkScalar bottom) ##
-#              # bool intersect(const SkRect& r)                                              ##
-#              # bool intersect(const SkRect& a, const SkRect& b)                             ##
-# intersects() # returns true if areas overlap                                                ##
-#              # bool intersects(SkScalar left, SkScalar top, SkScalar right, SkScalar bottom) const ##
-#              # bool intersects(const SkRect& r) const                                       ##
-#Table ##
+#Populate
 
 # ------------------------------------------------------------------------------
 
@@ -1863,16 +1750,7 @@ Returns false if either a or b is empty, or do not intersect.
 #Subtopic Join
 #Line # set to union of bounds ##
 
-#Table
-#Legend
-# name                  # description                                                             ##
-#Legend ##
-# join()                # sets to union of bounds                                                 ##
-#                       # void join(SkScalar left, SkScalar top, SkScalar right, SkScalar bottom) ##
-#                       # void join(const SkRect& r)                                              ##
-# joinNonEmptyArg       # sets to union of bounds, asserting that argument is not empty           ##
-# joinPossiblyEmptyRect # sets to union of bounds. Skips empty check for both                     ##
-#Table ##
+#Populate
 
 # ------------------------------------------------------------------------------
 
@@ -2005,19 +1883,7 @@ sorted: 10, 0, 55, 100
 #Subtopic Rounding
 #Line # adjust to integer bounds ##
 
-#Table
-#Legend
-# name                  # description                                                             ##
-#Legend ##
-# round()               # sets members to nearest integer value                                   ##
-#                       # void round(SkIRect* dst) const                                          ##
-#                       # SkIRect round() const                                                   ##
-# roundIn               # sets members to nearest integer value towards opposite                  ##
-# roundOut              # sets members to nearest integer value away from opposite                ##
-#                       # void roundOut(SkIRect* dst) const                                       ##
-#                       # void roundOut(SkRect* dst) const                                        ##
-#                       # SkIRect roundOut() const                                                ##
-#Table ##
+#Populate
 
 #Method    void round(SkIRect* dst) const
 
@@ -2198,13 +2064,7 @@ round: 30, 50, 41, 61
 #Subtopic Sorting
 #Line # orders sides ##
 
-#Table
-#Legend
-# name                  # description                                       ##
-#Legend ##
-# makeSorted            # constructs, ordering sides from smaller to larger ##
-# sort()                # orders sides from smaller to larger               ##
-#Table ##
+#Populate
 
 # ------------------------------------------------------------------------------
 
@@ -2236,6 +2096,7 @@ sorted: 20.5, 10.5, 30.5, 50.5
 #Method    SkRect makeSorted() const
 
 #In Sorting
+#In Constructor
 #Line # constructs, ordering sides from smaller to larger ##
 Returns Rect with fLeft and fRight swapped if fLeft is greater than fRight; and
 with fTop and fBottom swapped if fTop is greater than fBottom. Result may be empty;
@@ -2263,7 +2124,7 @@ sorted: 20.5, 10.5, 30.5, 50.5
 # ------------------------------------------------------------------------------
 
 #Method    const SkScalar* asScalars() const
-
+#In Property
 #Line # returns pointer to members as array ##
 Returns pointer to first Scalar in Rect, to treat it as an array with four
 entries.
@@ -2285,7 +2146,7 @@ rect.asScalars() == &rect.fLeft
 # ------------------------------------------------------------------------------
 
 #Method    void dump(bool asHex) const
-
+#In Property
 #Line # sends text representation to standard output using floats ##
 Writes text representation of Rect to standard output. Set asHex to true to 
 generate exact binary representations of floating point numbers.
@@ -2339,7 +2200,7 @@ rect is not equal to copy
 # ------------------------------------------------------------------------------
 
 #Method    void dumpHex() const
-
+#In Property
 #Line # sends text representation to standard output using hexadecimal ##
 Writes text representation of Rect to standard output. The representation may be
 directly compiled as C++ code. Floating point values are written
@@ -2372,16 +2233,7 @@ rect is equal to copy
 ##
 
 #Method static SkRect SK_WARN_UNUSED_RESULT MakeLargest()
-
-#Line # deprecated ##
 #Deprecated
-##
-
-Returns constructed SkRect setting left and top to most negative finite value, and
-setting right and bottom to most positive finite value.
-
-#Return  bounds (SK_ScalarMin, SK_ScalarMin, SK_ScalarMax, SK_ScalarMax) ##
-
 ##
 
 #Struct SkRect ##
