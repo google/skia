@@ -1493,14 +1493,16 @@ is drawn after overwriting bottom half float color with top half float color.
 
 #Subtopic Writable_Address ##
 
-#Subtopic Writer
-#Line # copy to pixel values ##
+#Subtopic Pixels
+#Populate
+#Line # read and write pixel values ##
+##
 
 # ------------------------------------------------------------------------------
 
 #Method bool readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
                     int srcX, int srcY, SkTransferFunctionBehavior behavior) const
-#In Writer
+#In Pixels
 #Line # copies and converts pixels ##
 
 Copies a Rect of pixels to dstPixels. Copy starts at (srcX, srcY), and does not
@@ -1581,7 +1583,7 @@ void draw(SkCanvas* canvas) {
 
 #Method bool readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes) const 
 
-#In Writer
+#In Pixels
 Copies a Rect of pixels to dstPixels. Copy starts at (0, 0), and does not
 exceed Pixmap (width(), height()).
 
@@ -1644,7 +1646,6 @@ creates visible banding.
 
 #Method bool readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes, int srcX,
                     int srcY) const 
-#In Writer
 
 Copies a Rect of pixels to dstPixels. Copy starts at (srcX, srcY), and does not
 exceed Pixmap (width(), height()).
@@ -1711,7 +1712,6 @@ void draw(SkCanvas* canvas) {
 
 #Method bool readPixels(const SkPixmap& dst, int srcX, int srcY) const 
 
-#In Writer
 Copies a Rect of pixels to dst. Copy starts at (srcX, srcY), and does not
 exceed Pixmap (width(), height()). dst specifies width, height, Color_Type,
 Alpha_Type, and Color_Space of destination.  Returns true if pixels are copied.
@@ -1773,7 +1773,6 @@ void draw(SkCanvas* canvas) {
 
 #Method bool readPixels(const SkPixmap& dst) const 
 
-#In Writer
 Copies pixels inside bounds() to dst. dst specifies width, height, Color_Type,
 Alpha_Type, and Color_Space of destination.  Returns true if pixels are copied.
 Returns false if dst.addr() equals nullptr, or dst.rowBytes is less than
@@ -1822,7 +1821,7 @@ void draw(SkCanvas* canvas) {
 
 #Method bool scalePixels(const SkPixmap& dst, SkFilterQuality filterQuality) const
 
-#In Writer
+#In Pixels
 #Line # scales and converts pixels ##
 Copies Bitmap to dst, scaling pixels to fit dst.width() and dst.height(), and
 converting pixels to match dst.colorType and dst.alphaType. Returns true if
@@ -1884,7 +1883,7 @@ void draw(SkCanvas* canvas) {
 
 #Method bool erase(SkColor color, const SkIRect& subset) const
 
-#In Writer
+#In Pixels
 #Line # writes Color to pixels ##
 Writes color to pixels bounded by subset; returns true on success.
 Returns false if colorType is kUnknown_SkColorType, or if subset does
@@ -1916,7 +1915,6 @@ not intersect bounds().
 
 #Method bool erase(SkColor color) const 
 
-#In Writer
 Writes color to pixels inside bounds(); returns true on success.
 Returns false if colorType is kUnknown_SkColorType, or if bounds()
 is empty.
@@ -1945,7 +1943,6 @@ is empty.
 
 #Method bool erase(const SkColor4f& color, const SkIRect* subset = nullptr) const
 
-#In Writer
 Writes color to pixels bounded by subset; returns true on success.
 if subset is nullptr, writes colors pixels inside bounds(). Returns false if
 colorType is kUnknown_SkColorType, if subset is not nullptr and does
@@ -1974,9 +1971,6 @@ not intersect bounds(), or if subset is nullptr and bounds() is empty.
 #SeeAlso SkBitmap::erase SkCanvas::clear SkCanvas::drawColor
 
 ##
-
-
-#Subtopic Writer ##
 
 #Class SkPixmap ##
 

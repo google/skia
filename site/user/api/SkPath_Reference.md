@@ -9,12 +9,12 @@ SkPath Reference
 
 | name | description |
 | --- | --- |
-| <a href="#Class_or_Struct">Class or Struct</a> | embedded struct and class members |
-| <a href="#Constant">Constant</a> | enum and enum class, const values |
-| <a href="#Constructor">Constructor</a> | functions that construct <a href="SkPath_Reference#SkPath">SkPath</a> |
-| <a href="#Member_Function">Member Function</a> | static functions and member methods |
-| <a href="#Operator">Operator</a> | operator overloading methods |
-| <a href="#Related_Function">Related Function</a> | similar methods grouped together |
+| &lt;a href="#Class_or_Struct"&gt;Class or Struct&lt;/a&gt; | embedded struct and class members |
+| &lt;a href="#Constant"&gt;Constant&lt;/a&gt; | enum and enum class, const values |
+| &lt;a href="#Constructor"&gt;Constructor&lt;/a&gt; | functions that construct &lt;a href="SkPath_Reference#SkPath"&gt;SkPath&lt;/a&gt; |
+| &lt;a href="#Member_Function"&gt;Member Function&lt;/a&gt; | static functions and member methods |
+| &lt;a href="#Operator"&gt;Operator&lt;/a&gt; | operator overloading methods |
+| &lt;a href="#Related_Function"&gt;Related Function&lt;/a&gt; | similar methods grouped together |
 <a href="#Path">Path</a> contains <a href="#Line">Lines</a> and <a href="#Curve">Curves</a> which can be stroked or filled. <a href="#Contour">Contour</a> is
 composed of a series of connected <a href="#Line">Lines</a> and <a href="#Curve">Curves</a>. <a href="#Path">Path</a> may contain zero,
 one, or more <a href="#Contour">Contours</a>.
@@ -107,140 +107,142 @@ Internally, <a href="#Path">Path</a> lazily computes metrics likes bounds and co
 
 | name | description |
 | --- | --- |
-| <a href="#Arc">Arc</a> | part of <a href="undocumented#Oval">Oval</a> or <a href="undocumented#Circle">Circle</a> |
-| <a href="#Build">Build</a> | adds points and verbs to path |
-| <a href="#Conic">Conic</a> | conic section defined by three points and a weight |
-| <a href="#SkPath_Convexity">Convexity</a> | if <a href="#Path">Path</a> is concave or convex |
-| <a href="#Cubic">Cubic</a> | Bezier_Curve described by third-order polynomial |
-| <a href="#SkPath_Direction">Direction</a> | <a href="#Path">Path</a> contour orientation |
-| <a href="#Fill_Type">Fill Type</a> | <a href="#Path">Path</a> fill rule, normal and inverted |
-| <a href="#Generation_ID">Generation ID</a> | value reflecting contents change |
-| <a href="#Interpolate">Interpolate</a> | weighted average of <a href="#Path">Path</a> pair |
-| <a href="#Last_Point">Last Point</a> | final <a href="SkPoint_Reference#Point">Point</a> in <a href="#Contour">Contour</a> |
-| <a href="#Point_Array">Point Array</a> | end points and control points for lines and curves |
-| <a href="#Quad">Quad</a> | Bezier_Curve described by second-order polynomial |
-| <a href="#Utility">Utility</a> | rarely called management functions |
-| <a href="#SkPath_Verb">Verb</a> | line and curve type |
-| <a href="#Verb_Array">Verb Array</a> | line and curve type for points |
-| <a href="#Volatile">Volatile</a> | caching attribute |
-| Weight | strength of <a href="#Conic">Conic</a> control <a href="SkPoint_Reference#Point">Point</a> |
+| &lt;a href="#Arc"&gt;Arc&lt;/a&gt; | part of &lt;a href="undocumented#Oval"&gt;Oval&lt;/a&gt; or &lt;a href="undocumented#Circle"&gt;Circle&lt;/a&gt; |
+| &lt;a href="#Build"&gt;Build&lt;/a&gt; | adds points and verbs to path |
+| &lt;a href="#Conic"&gt;Conic&lt;/a&gt; | conic section defined by three points and a weight |
+| &lt;a href="#SkPath_Convexity"&gt;Convexity&lt;/a&gt; | if &lt;a href="#Path"&gt;Path&lt;/a&gt; is concave or convex |
+| &lt;a href="#Cubic"&gt;Cubic&lt;/a&gt; | Bezier_Curve described by third-order polynomial |
+| &lt;a href="#SkPath_Direction"&gt;Direction&lt;/a&gt; | &lt;a href="#Path"&gt;Path&lt;/a&gt; contour orientation |
+| &lt;a href="#Fill_Type"&gt;Fill Type&lt;/a&gt; | &lt;a href="#Path"&gt;Path&lt;/a&gt; fill rule, normal and inverted |
+| &lt;a href="#Generation_ID"&gt;Generation ID&lt;/a&gt; | value reflecting contents change |
+| &lt;a href="#Interpolate"&gt;Interpolate&lt;/a&gt; | weighted average of &lt;a href="#Path"&gt;Path&lt;/a&gt; pair |
+| &lt;a href="#Last_Point"&gt;Last Point&lt;/a&gt; | final &lt;a href="SkPoint_Reference#Point"&gt;Point&lt;/a&gt; in &lt;a href="#Contour"&gt;Contour&lt;/a&gt; |
+| &lt;a href="#Point_Array"&gt;Point Array&lt;/a&gt; | end points and control points for lines and curves |
+| &lt;a href="#Property"&gt;Property&lt;/a&gt; | metrics and attributes |
+| &lt;a href="#Quad"&gt;Quad&lt;/a&gt; | Bezier_Curve described by second-order polynomial |
+| &lt;a href="#Transform"&gt;Transform&lt;/a&gt; | modify all points |
+| &lt;a href="#Utility"&gt;Utility&lt;/a&gt; | rarely called management functions |
+| &lt;a href="#SkPath_Verb"&gt;Verb&lt;/a&gt; | line and curve type |
+| &lt;a href="#Verb_Array"&gt;Verb Array&lt;/a&gt; | line and curve type for points |
+| &lt;a href="#Volatile"&gt;Volatile&lt;/a&gt; | caching attribute |
+| Weight | strength of &lt;a href="#Conic"&gt;Conic&lt;/a&gt; control &lt;a href="SkPoint_Reference#Point"&gt;Point&lt;/a&gt; |
 
 ## <a name="Constant"></a> Constant
 
 | name | description |
 | --- | --- |
-| <a href="#SkPath_AddPathMode">AddPathMode</a> | sets <a href="#SkPath_addPath">addPath</a> options |
-| <a href="#SkPath_ArcSize">ArcSize</a> | used by <a href="#SkPath_arcTo">arcTo</a> variation |
-| <a href="#SkPath_Convexity">Convexity</a> | returns if <a href="#Path">Path</a> is convex or concave |
-| <a href="#SkPath_Direction">Direction</a> | sets <a href="#Contour">Contour</a> clockwise or counterclockwise |
-| <a href="#SkPath_FillType">FillType</a> | sets winding rule and inverse fill |
-| <a href="#SkPath_SegmentMask">SegmentMask</a> | returns <a href="#SkPath_Verb">Verb</a> types in <a href="#Path">Path</a> |
-| <a href="#SkPath_Verb">Verb</a> | controls how <a href="#Path">Path</a> <a href="#Point">Points</a> are interpreted |
+| &lt;a href="#SkPath_AddPathMode"&gt;AddPathMode&lt;/a&gt; | sets &lt;a href="#SkPath_addPath"&gt;addPath&lt;/a&gt; options |
+| &lt;a href="#SkPath_ArcSize"&gt;ArcSize&lt;/a&gt; | used by &lt;a href="#SkPath_arcTo"&gt;arcTo&lt;/a&gt; variation |
+| &lt;a href="#SkPath_Convexity"&gt;Convexity&lt;/a&gt; | returns if &lt;a href="#Path"&gt;Path&lt;/a&gt; is convex or concave |
+| &lt;a href="#SkPath_Direction"&gt;Direction&lt;/a&gt; | sets &lt;a href="#Contour"&gt;Contour&lt;/a&gt; clockwise or counterclockwise |
+| &lt;a href="#SkPath_FillType"&gt;FillType&lt;/a&gt; | sets winding rule and inverse fill |
+| &lt;a href="#SkPath_SegmentMask"&gt;SegmentMask&lt;/a&gt; | returns &lt;a href="#SkPath_Verb"&gt;Verb&lt;/a&gt; types in &lt;a href="#Path"&gt;Path&lt;/a&gt; |
+| &lt;a href="#SkPath_Verb"&gt;Verb&lt;/a&gt; | controls how &lt;a href="#Path"&gt;Path&lt;/a&gt; &lt;a href="#Point"&gt;Points&lt;/a&gt; are interpreted |
 
 ## <a name="Class_or_Struct"></a> Class or Struct
 
 | name | description |
 | --- | --- |
-| <a href="#SkPath_Iter">Iter</a> | <a href="#Path">Path</a> data iterator |
-| <a href="#SkPath_RawIter">RawIter</a> | <a href="#Path">Path</a> raw data iterator |
+| &lt;a href="#SkPath_Iter"&gt;Iter&lt;/a&gt; | &lt;a href="#Path"&gt;Path&lt;/a&gt; data iterator |
+| &lt;a href="#SkPath_RawIter"&gt;RawIter&lt;/a&gt; | &lt;a href="#Path"&gt;Path&lt;/a&gt; raw data iterator |
 
 ## <a name="Constructor"></a> Constructor
 
 | name | description |
 | --- | --- |
-| <a href="#SkPath_empty_constructor">SkPath()</a> | constructs with default values |
-| <a href="#SkPath_copy_const_SkPath">SkPath(const SkPath& path)</a> | makes a shallow copy |
-| <a href="#SkPath_reset">reset</a> | removes <a href="#Verb_Array">Verb Array</a>, <a href="#Point_Array">Point Array</a>, and <a href="#Weight">Weights</a>; frees memory |
-| <a href="#SkPath_rewind">rewind</a> | removes <a href="#Verb_Array">Verb Array</a>, <a href="#Point_Array">Point Array</a>, and <a href="#Weight">Weights</a>, keeping memory |
-| <a href="#SkPath_destructor">~SkPath()</a> | decreases <a href="undocumented#Reference_Count">Reference Count</a> of owned objects |
+| &lt;a href="#SkPath_empty_constructor"&gt;SkPath()&lt;/a&gt; | constructs with default values |
+| &lt;a href="#SkPath_copy_const_SkPath"&gt;SkPath(const SkPath& path)&lt;/a&gt; | makes a shallow copy |
+| &lt;a href="#SkPath_reset"&gt;reset&lt;/a&gt; | removes &lt;a href="#Verb_Array"&gt;Verb Array&lt;/a&gt;, &lt;a href="#Point_Array"&gt;Point Array&lt;/a&gt;, and &lt;a href="#Weight"&gt;Weights&lt;/a&gt;; frees memory |
+| &lt;a href="#SkPath_rewind"&gt;rewind&lt;/a&gt; | removes &lt;a href="#Verb_Array"&gt;Verb Array&lt;/a&gt;, &lt;a href="#Point_Array"&gt;Point Array&lt;/a&gt;, and &lt;a href="#Weight"&gt;Weights&lt;/a&gt;, keeping memory |
+| &lt;a href="#SkPath_destructor"&gt;~SkPath()&lt;/a&gt; | decreases &lt;a href="undocumented#Reference_Count"&gt;Reference Count&lt;/a&gt; of owned objects |
 
 ## <a name="Operator"></a> Operator
 
 | name | description |
 | --- | --- |
-| <a href="#SkPath_notequal_operator">operator!=(const SkPath& a, const SkPath& b)</a> | compares paths for inequality |
-| <a href="#SkPath_copy_operator">operator=(const SkPath& path)</a> | makes a shallow copy |
-| <a href="#SkPath_equal_operator">operator==(const SkPath& a, const SkPath& b)</a> | compares paths for equality |
-| <a href="#SkPath_swap">swap</a> | exchanges <a href="#Path">Path</a> pair |
+| &lt;a href="#SkPath_notequal_operator"&gt;operator!=(const SkPath& a, const SkPath& b)&lt;/a&gt; | compares paths for inequality |
+| &lt;a href="#SkPath_copy_operator"&gt;operator=(const SkPath& path)&lt;/a&gt; | makes a shallow copy |
+| &lt;a href="#SkPath_equal_operator"&gt;operator==(const SkPath& a, const SkPath& b)&lt;/a&gt; | compares paths for equality |
+| &lt;a href="#SkPath_swap"&gt;swap&lt;/a&gt; | exchanges &lt;a href="#Path"&gt;Path&lt;/a&gt; pair |
 
 ## <a name="Member_Function"></a> Member Function
 
 | name | description |
 | --- | --- |
-| <a href="#SkPath_ConvertConicToQuads">ConvertConicToQuads</a> | approximates <a href="#Conic">Conic</a> with <a href="#Quad">Quad</a> array |
-| <a href="#SkPath_ConvertToNonInverseFillType">ConvertToNonInverseFillType</a> | returns <a href="#Fill_Type">Fill Type</a> representing inside geometry |
-| <a href="#SkPath_IsCubicDegenerate">IsCubicDegenerate</a> | returns if <a href="#Cubic">Cubic</a> is very small |
-| <a href="#SkPath_IsInverseFillType">IsInverseFillType</a> | returns if <a href="#Fill_Type">Fill Type</a> represents outside geometry |
-| <a href="#SkPath_IsLineDegenerate">IsLineDegenerate</a> | returns if <a href="undocumented#Line">Line</a> is very small |
-| <a href="#SkPath_IsQuadDegenerate">IsQuadDegenerate</a> | returns if <a href="#Quad">Quad</a> is very small |
-| <a href="#SkPath_addArc">addArc</a> | adds one <a href="#Contour">Contour</a> containing <a href="#Arc">Arc</a> |
-| <a href="#SkPath_addCircle">addCircle</a> | adds one <a href="#Contour">Contour</a> containing <a href="undocumented#Circle">Circle</a> |
-| <a href="#SkPath_addOval">addOval</a> | adds one <a href="#Contour">Contour</a> containing <a href="undocumented#Oval">Oval</a> |
-| <a href="#SkPath_addPath">addPath</a> | adds contents of <a href="#Path">Path</a> |
-| <a href="#SkPath_addPoly">addPoly</a> | adds one <a href="#Contour">Contour</a> containing connected lines |
-| <a href="#SkPath_addRRect">addRRect</a> | adds one <a href="#Contour">Contour</a> containing <a href="undocumented#Round_Rect">Round Rect</a> |
-| <a href="#SkPath_addRect">addRect</a> | adds one <a href="#Contour">Contour</a> containing <a href="SkRect_Reference#Rect">Rect</a> |
-| <a href="#SkPath_addRoundRect">addRoundRect</a> | adds one <a href="#Contour">Contour</a> containing <a href="undocumented#Round_Rect">Round Rect</a> with common corner radii |
-| <a href="#SkPath_arcTo">arcTo</a> | appends <a href="#Arc">Arc</a> |
-| <a href="#SkPath_close">close</a> | makes last <a href="#Contour">Contour</a> a loop |
-| <a href="#SkPath_computeTightBounds">computeTightBounds</a> | returns extent of geometry |
-| <a href="#SkPath_conicTo">conicTo</a> | appends <a href="#Conic">Conic</a> |
-| <a href="#SkPath_conservativelyContainsRect">conservativelyContainsRect</a> | returns true if <a href="SkRect_Reference#Rect">Rect</a> may be inside |
-| <a href="#SkPath_contains">contains</a> | returns if <a href="SkPoint_Reference#Point">Point</a> is in fill area |
-| <a href="#SkPath_countPoints">countPoints</a> | returns <a href="#Point_Array">Point Array</a> length |
-| <a href="#SkPath_countVerbs">countVerbs</a> | returns <a href="#Verb_Array">Verb Array</a> length |
-| <a href="#SkPath_cubicTo">cubicTo</a> | appends <a href="#Cubic">Cubic</a> |
-| <a href="#SkPath_dump_2">dump</a> | sends text representation using floats to standard output |
-| <a href="#SkPath_dumpHex">dumpHex</a> | sends text representation using hexadecimal to standard output |
-| <a href="#SkPath_getBounds">getBounds</a> | returns maximum and minimum of <a href="#Point_Array">Point Array</a> |
-| <a href="#SkPath_getConvexity">getConvexity</a> | returns geometry convexity, computing if necessary |
-| <a href="#SkPath_getConvexityOrUnknown">getConvexityOrUnknown</a> | returns geometry convexity if known |
-| <a href="#SkPath_getFillType">getFillType</a> | returns <a href="#Fill_Type">Fill Type</a>: winding, even-odd, inverse |
-| <a href="#SkPath_getGenerationID">getGenerationID</a> | returns unique ID |
-| <a href="#SkPath_getLastPt">getLastPt</a> | returns <a href="#Last_Point">Last Point</a> |
-| <a href="#SkPath_getPoint">getPoint</a> | returns entry from <a href="#Point_Array">Point Array</a> |
-| <a href="#SkPath_getPoints">getPoints</a> | returns <a href="#Point_Array">Point Array</a> |
-| <a href="#SkPath_getSegmentMasks">getSegmentMasks</a> | returns types in <a href="#Verb_Array">Verb Array</a> |
-| <a href="#SkPath_getVerbs">getVerbs</a> | returns <a href="#Verb_Array">Verb Array</a> |
-| <a href="#SkPath_incReserve">incReserve</a> | reserves space for additional data |
-| <a href="#SkPath_interpolate">interpolate</a> | interpolates between <a href="#Path">Path</a> pair |
-| <a href="#SkPath_isConvex">isConvex</a> | returns if geometry is convex |
-| <a href="#SkPath_isEmpty">isEmpty</a> | returns if verb count is zero |
-| <a href="#SkPath_isFinite">isFinite</a> | returns if all <a href="SkPoint_Reference#Point">Point</a> values are finite |
-| <a href="#SkPath_isInterpolatable">isInterpolatable</a> | returns if pair contains equal counts of <a href="#Verb_Array">Verb Array</a> and <a href="#Weight">Weights</a> |
-| <a href="#SkPath_isInverseFillType">isInverseFillType</a> | returns if <a href="#Fill_Type">Fill Type</a> fills outside geometry |
-| <a href="#SkPath_isLastContourClosed">isLastContourClosed</a> | returns if final <a href="#Contour">Contour</a> forms a loop |
-| <a href="#SkPath_isLine">isLine</a> | returns if describes <a href="undocumented#Line">Line</a> |
-| <a href="#SkPath_isNestedFillRects">isNestedFillRects</a> | returns if describes <a href="SkRect_Reference#Rect">Rect</a> pair, one inside the other |
-| <a href="#SkPath_isOval">isOval</a> | returns if describes <a href="undocumented#Oval">Oval</a> |
-| <a href="#SkPath_isRRect">isRRect</a> | returns if describes <a href="undocumented#Round_Rect">Round Rect</a> |
-| <a href="#SkPath_isRect">isRect</a> | returns if describes <a href="SkRect_Reference#Rect">Rect</a> |
-| <a href="#SkPath_isValid">isValid</a> | returns if data is internally consistent |
-| <a href="#SkPath_isVolatile">isVolatile</a> | returns if <a href="undocumented#Device">Device</a> should not cache |
-| <a href="#SkPath_lineTo">lineTo</a> | appends <a href="undocumented#Line">Line</a> |
-| <a href="#SkPath_moveTo">moveTo</a> | starts <a href="#Contour">Contour</a> |
-| <a href="#SkPath_offset">offset</a> | translates <a href="#Point_Array">Point Array</a> |
-| <a href="#SkPath_quadTo">quadTo</a> | appends <a href="#Quad">Quad</a> |
-| <a href="#SkPath_rArcTo">rArcTo</a> | appends <a href="#Arc">Arc</a> relative to <a href="#Last_Point">Last Point</a> |
-| <a href="#SkPath_rConicTo">rConicTo</a> | appends <a href="#Conic">Conic</a> relative to <a href="#Last_Point">Last Point</a> |
-| <a href="#SkPath_rCubicTo">rCubicTo</a> | appends <a href="#Cubic">Cubic</a> relative to <a href="#Last_Point">Last Point</a> |
-| <a href="#SkPath_rLineTo">rLineTo</a> | appends <a href="undocumented#Line">Line</a> relative to <a href="#Last_Point">Last Point</a> |
-| <a href="#SkPath_rMoveTo">rMoveTo</a> | starts <a href="#Contour">Contour</a> relative to <a href="#Last_Point">Last Point</a> |
-| <a href="#SkPath_rQuadTo">rQuadTo</a> | appends <a href="#Quad">Quad</a> relative to <a href="#Last_Point">Last Point</a> |
-| <a href="#SkPath_readFromMemory">readFromMemory</a> | Initializes from buffer |
-| <a href="#SkPath_reset">reset</a> | removes <a href="#Verb_Array">Verb Array</a>, <a href="#Point_Array">Point Array</a>, and <a href="#Weight">Weights</a>; frees memory |
-| <a href="#SkPath_reverseAddPath">reverseAddPath</a> | adds contents of <a href="#Path">Path</a> back to front |
-| <a href="#SkPath_rewind">rewind</a> | removes <a href="#Verb_Array">Verb Array</a>, <a href="#Point_Array">Point Array</a>, and <a href="#Weight">Weights</a>, keeping memory |
-| <a href="#SkPath_serialize">serialize</a> | copies data to buffer |
-| <a href="#SkPath_setConvexity">setConvexity</a> | sets if geometry is convex to avoid future computation |
-| <a href="#SkPath_setFillType">setFillType</a> | sets <a href="#Fill_Type">Fill Type</a>: winding, even-odd, inverse |
-| <a href="#SkPath_setIsVolatile">setIsVolatile</a> | sets if <a href="undocumented#Device">Device</a> should not cache |
-| <a href="#SkPath_setLastPt">setLastPt</a> | replaces <a href="#Last_Point">Last Point</a> |
-| <a href="#SkPath_swap">swap</a> | exchanges <a href="#Path">Path</a> pair |
-| <a href="#SkPath_toggleInverseFillType">toggleInverseFillType</a> | toggles <a href="#Fill_Type">Fill Type</a> between inside and outside geometry |
-| <a href="#SkPath_transform">transform</a> | applies <a href="SkMatrix_Reference#Matrix">Matrix</a> to <a href="#Point_Array">Point Array</a> and <a href="#Weight">Weights</a> |
-| <a href="#SkPath_updateBoundsCache">updateBoundsCache</a> | refreshes result of <a href="#SkPath_getBounds">getBounds</a> |
-| <a href="#SkPath_writeToMemory">writeToMemory</a> | copies data to buffer |
+| &lt;a href="#SkPath_ConvertConicToQuads"&gt;ConvertConicToQuads&lt;/a&gt; | approximates &lt;a href="#Conic"&gt;Conic&lt;/a&gt; with &lt;a href="#Quad"&gt;Quad&lt;/a&gt; array |
+| &lt;a href="#SkPath_ConvertToNonInverseFillType"&gt;ConvertToNonInverseFillType&lt;/a&gt; | returns &lt;a href="#Fill_Type"&gt;Fill Type&lt;/a&gt; representing inside geometry |
+| &lt;a href="#SkPath_IsCubicDegenerate"&gt;IsCubicDegenerate&lt;/a&gt; | returns if &lt;a href="#Cubic"&gt;Cubic&lt;/a&gt; is very small |
+| &lt;a href="#SkPath_IsInverseFillType"&gt;IsInverseFillType&lt;/a&gt; | returns if &lt;a href="#Fill_Type"&gt;Fill Type&lt;/a&gt; represents outside geometry |
+| &lt;a href="#SkPath_IsLineDegenerate"&gt;IsLineDegenerate&lt;/a&gt; | returns if &lt;a href="undocumented#Line"&gt;Line&lt;/a&gt; is very small |
+| &lt;a href="#SkPath_IsQuadDegenerate"&gt;IsQuadDegenerate&lt;/a&gt; | returns if &lt;a href="#Quad"&gt;Quad&lt;/a&gt; is very small |
+| &lt;a href="#SkPath_addArc"&gt;addArc&lt;/a&gt; | adds one &lt;a href="#Contour"&gt;Contour&lt;/a&gt; containing &lt;a href="#Arc"&gt;Arc&lt;/a&gt; |
+| &lt;a href="#SkPath_addCircle"&gt;addCircle&lt;/a&gt; | adds one &lt;a href="#Contour"&gt;Contour&lt;/a&gt; containing &lt;a href="undocumented#Circle"&gt;Circle&lt;/a&gt; |
+| &lt;a href="#SkPath_addOval"&gt;addOval&lt;/a&gt; | adds one &lt;a href="#Contour"&gt;Contour&lt;/a&gt; containing &lt;a href="undocumented#Oval"&gt;Oval&lt;/a&gt; |
+| &lt;a href="#SkPath_addPath"&gt;addPath&lt;/a&gt; | adds contents of &lt;a href="#Path"&gt;Path&lt;/a&gt; |
+| &lt;a href="#SkPath_addPoly"&gt;addPoly&lt;/a&gt; | adds one &lt;a href="#Contour"&gt;Contour&lt;/a&gt; containing connected lines |
+| &lt;a href="#SkPath_addRRect"&gt;addRRect&lt;/a&gt; | adds one &lt;a href="#Contour"&gt;Contour&lt;/a&gt; containing &lt;a href="undocumented#Round_Rect"&gt;Round Rect&lt;/a&gt; |
+| &lt;a href="#SkPath_addRect"&gt;addRect&lt;/a&gt; | adds one &lt;a href="#Contour"&gt;Contour&lt;/a&gt; containing &lt;a href="SkRect_Reference#Rect"&gt;Rect&lt;/a&gt; |
+| &lt;a href="#SkPath_addRoundRect"&gt;addRoundRect&lt;/a&gt; | adds one &lt;a href="#Contour"&gt;Contour&lt;/a&gt; containing &lt;a href="undocumented#Round_Rect"&gt;Round Rect&lt;/a&gt; with common corner radii |
+| &lt;a href="#SkPath_arcTo"&gt;arcTo&lt;/a&gt; | appends &lt;a href="#Arc"&gt;Arc&lt;/a&gt; |
+| &lt;a href="#SkPath_close"&gt;close&lt;/a&gt; | makes last &lt;a href="#Contour"&gt;Contour&lt;/a&gt; a loop |
+| &lt;a href="#SkPath_computeTightBounds"&gt;computeTightBounds&lt;/a&gt; | returns extent of geometry |
+| &lt;a href="#SkPath_conicTo"&gt;conicTo&lt;/a&gt; | appends &lt;a href="#Conic"&gt;Conic&lt;/a&gt; |
+| &lt;a href="#SkPath_conservativelyContainsRect"&gt;conservativelyContainsRect&lt;/a&gt; | returns true if &lt;a href="SkRect_Reference#Rect"&gt;Rect&lt;/a&gt; may be inside |
+| &lt;a href="#SkPath_contains"&gt;contains&lt;/a&gt; | returns if &lt;a href="SkPoint_Reference#Point"&gt;Point&lt;/a&gt; is in fill area |
+| &lt;a href="#SkPath_countPoints"&gt;countPoints&lt;/a&gt; | returns &lt;a href="#Point_Array"&gt;Point Array&lt;/a&gt; length |
+| &lt;a href="#SkPath_countVerbs"&gt;countVerbs&lt;/a&gt; | returns &lt;a href="#Verb_Array"&gt;Verb Array&lt;/a&gt; length |
+| &lt;a href="#SkPath_cubicTo"&gt;cubicTo&lt;/a&gt; | appends &lt;a href="#Cubic"&gt;Cubic&lt;/a&gt; |
+| &lt;a href="#SkPath_dump_2"&gt;dump&lt;/a&gt; | sends text representation using floats to standard output |
+| &lt;a href="#SkPath_dumpHex"&gt;dumpHex&lt;/a&gt; | sends text representation using hexadecimal to standard output |
+| &lt;a href="#SkPath_getBounds"&gt;getBounds&lt;/a&gt; | returns maximum and minimum of &lt;a href="#Point_Array"&gt;Point Array&lt;/a&gt; |
+| &lt;a href="#SkPath_getConvexity"&gt;getConvexity&lt;/a&gt; | returns geometry convexity, computing if necessary |
+| &lt;a href="#SkPath_getConvexityOrUnknown"&gt;getConvexityOrUnknown&lt;/a&gt; | returns geometry convexity if known |
+| &lt;a href="#SkPath_getFillType"&gt;getFillType&lt;/a&gt; | returns &lt;a href="#Fill_Type"&gt;Fill Type&lt;/a&gt;: winding, even-odd, inverse |
+| &lt;a href="#SkPath_getGenerationID"&gt;getGenerationID&lt;/a&gt; | returns unique ID |
+| &lt;a href="#SkPath_getLastPt"&gt;getLastPt&lt;/a&gt; | returns &lt;a href="#Last_Point"&gt;Last Point&lt;/a&gt; |
+| &lt;a href="#SkPath_getPoint"&gt;getPoint&lt;/a&gt; | returns entry from &lt;a href="#Point_Array"&gt;Point Array&lt;/a&gt; |
+| &lt;a href="#SkPath_getPoints"&gt;getPoints&lt;/a&gt; | returns &lt;a href="#Point_Array"&gt;Point Array&lt;/a&gt; |
+| &lt;a href="#SkPath_getSegmentMasks"&gt;getSegmentMasks&lt;/a&gt; | returns types in &lt;a href="#Verb_Array"&gt;Verb Array&lt;/a&gt; |
+| &lt;a href="#SkPath_getVerbs"&gt;getVerbs&lt;/a&gt; | returns &lt;a href="#Verb_Array"&gt;Verb Array&lt;/a&gt; |
+| &lt;a href="#SkPath_incReserve"&gt;incReserve&lt;/a&gt; | reserves space for additional data |
+| &lt;a href="#SkPath_interpolate"&gt;interpolate&lt;/a&gt; | interpolates between &lt;a href="#Path"&gt;Path&lt;/a&gt; pair |
+| &lt;a href="#SkPath_isConvex"&gt;isConvex&lt;/a&gt; | returns if geometry is convex |
+| &lt;a href="#SkPath_isEmpty"&gt;isEmpty&lt;/a&gt; | returns if verb count is zero |
+| &lt;a href="#SkPath_isFinite"&gt;isFinite&lt;/a&gt; | returns if all &lt;a href="SkPoint_Reference#Point"&gt;Point&lt;/a&gt; values are finite |
+| &lt;a href="#SkPath_isInterpolatable"&gt;isInterpolatable&lt;/a&gt; | returns if pair contains equal counts of &lt;a href="#Verb_Array"&gt;Verb Array&lt;/a&gt; and &lt;a href="#Weight"&gt;Weights&lt;/a&gt; |
+| &lt;a href="#SkPath_isInverseFillType"&gt;isInverseFillType&lt;/a&gt; | returns if &lt;a href="#Fill_Type"&gt;Fill Type&lt;/a&gt; fills outside geometry |
+| &lt;a href="#SkPath_isLastContourClosed"&gt;isLastContourClosed&lt;/a&gt; | returns if final &lt;a href="#Contour"&gt;Contour&lt;/a&gt; forms a loop |
+| &lt;a href="#SkPath_isLine"&gt;isLine&lt;/a&gt; | returns if describes &lt;a href="undocumented#Line"&gt;Line&lt;/a&gt; |
+| &lt;a href="#SkPath_isNestedFillRects"&gt;isNestedFillRects&lt;/a&gt; | returns if describes &lt;a href="SkRect_Reference#Rect"&gt;Rect&lt;/a&gt; pair, one inside the other |
+| &lt;a href="#SkPath_isOval"&gt;isOval&lt;/a&gt; | returns if describes &lt;a href="undocumented#Oval"&gt;Oval&lt;/a&gt; |
+| &lt;a href="#SkPath_isRRect"&gt;isRRect&lt;/a&gt; | returns if describes &lt;a href="undocumented#Round_Rect"&gt;Round Rect&lt;/a&gt; |
+| &lt;a href="#SkPath_isRect"&gt;isRect&lt;/a&gt; | returns if describes &lt;a href="SkRect_Reference#Rect"&gt;Rect&lt;/a&gt; |
+| &lt;a href="#SkPath_isValid"&gt;isValid&lt;/a&gt; | returns if data is internally consistent |
+| &lt;a href="#SkPath_isVolatile"&gt;isVolatile&lt;/a&gt; | returns if &lt;a href="undocumented#Device"&gt;Device&lt;/a&gt; should not cache |
+| &lt;a href="#SkPath_lineTo"&gt;lineTo&lt;/a&gt; | appends &lt;a href="undocumented#Line"&gt;Line&lt;/a&gt; |
+| &lt;a href="#SkPath_moveTo"&gt;moveTo&lt;/a&gt; | starts &lt;a href="#Contour"&gt;Contour&lt;/a&gt; |
+| &lt;a href="#SkPath_offset"&gt;offset&lt;/a&gt; | translates &lt;a href="#Point_Array"&gt;Point Array&lt;/a&gt; |
+| &lt;a href="#SkPath_quadTo"&gt;quadTo&lt;/a&gt; | appends &lt;a href="#Quad"&gt;Quad&lt;/a&gt; |
+| &lt;a href="#SkPath_rArcTo"&gt;rArcTo&lt;/a&gt; | appends &lt;a href="#Arc"&gt;Arc&lt;/a&gt; relative to &lt;a href="#Last_Point"&gt;Last Point&lt;/a&gt; |
+| &lt;a href="#SkPath_rConicTo"&gt;rConicTo&lt;/a&gt; | appends &lt;a href="#Conic"&gt;Conic&lt;/a&gt; relative to &lt;a href="#Last_Point"&gt;Last Point&lt;/a&gt; |
+| &lt;a href="#SkPath_rCubicTo"&gt;rCubicTo&lt;/a&gt; | appends &lt;a href="#Cubic"&gt;Cubic&lt;/a&gt; relative to &lt;a href="#Last_Point"&gt;Last Point&lt;/a&gt; |
+| &lt;a href="#SkPath_rLineTo"&gt;rLineTo&lt;/a&gt; | appends &lt;a href="undocumented#Line"&gt;Line&lt;/a&gt; relative to &lt;a href="#Last_Point"&gt;Last Point&lt;/a&gt; |
+| &lt;a href="#SkPath_rMoveTo"&gt;rMoveTo&lt;/a&gt; | starts &lt;a href="#Contour"&gt;Contour&lt;/a&gt; relative to &lt;a href="#Last_Point"&gt;Last Point&lt;/a&gt; |
+| &lt;a href="#SkPath_rQuadTo"&gt;rQuadTo&lt;/a&gt; | appends &lt;a href="#Quad"&gt;Quad&lt;/a&gt; relative to &lt;a href="#Last_Point"&gt;Last Point&lt;/a&gt; |
+| &lt;a href="#SkPath_readFromMemory"&gt;readFromMemory&lt;/a&gt; | Initializes from buffer |
+| &lt;a href="#SkPath_reset"&gt;reset&lt;/a&gt; | removes &lt;a href="#Verb_Array"&gt;Verb Array&lt;/a&gt;, &lt;a href="#Point_Array"&gt;Point Array&lt;/a&gt;, and &lt;a href="#Weight"&gt;Weights&lt;/a&gt;; frees memory |
+| &lt;a href="#SkPath_reverseAddPath"&gt;reverseAddPath&lt;/a&gt; | adds contents of &lt;a href="#Path"&gt;Path&lt;/a&gt; back to front |
+| &lt;a href="#SkPath_rewind"&gt;rewind&lt;/a&gt; | removes &lt;a href="#Verb_Array"&gt;Verb Array&lt;/a&gt;, &lt;a href="#Point_Array"&gt;Point Array&lt;/a&gt;, and &lt;a href="#Weight"&gt;Weights&lt;/a&gt;, keeping memory |
+| &lt;a href="#SkPath_serialize"&gt;serialize&lt;/a&gt; | copies data to buffer |
+| &lt;a href="#SkPath_setConvexity"&gt;setConvexity&lt;/a&gt; | sets if geometry is convex to avoid future computation |
+| &lt;a href="#SkPath_setFillType"&gt;setFillType&lt;/a&gt; | sets &lt;a href="#Fill_Type"&gt;Fill Type&lt;/a&gt;: winding, even-odd, inverse |
+| &lt;a href="#SkPath_setIsVolatile"&gt;setIsVolatile&lt;/a&gt; | sets if &lt;a href="undocumented#Device"&gt;Device&lt;/a&gt; should not cache |
+| &lt;a href="#SkPath_setLastPt"&gt;setLastPt&lt;/a&gt; | replaces &lt;a href="#Last_Point"&gt;Last Point&lt;/a&gt; |
+| &lt;a href="#SkPath_swap"&gt;swap&lt;/a&gt; | exchanges &lt;a href="#Path"&gt;Path&lt;/a&gt; pair |
+| &lt;a href="#SkPath_toggleInverseFillType"&gt;toggleInverseFillType&lt;/a&gt; | toggles &lt;a href="#Fill_Type"&gt;Fill Type&lt;/a&gt; between inside and outside geometry |
+| &lt;a href="#SkPath_transform"&gt;transform&lt;/a&gt; | applies &lt;a href="SkMatrix_Reference#Matrix"&gt;Matrix&lt;/a&gt; to &lt;a href="#Point_Array"&gt;Point Array&lt;/a&gt; and &lt;a href="#Weight"&gt;Weights&lt;/a&gt; |
+| &lt;a href="#SkPath_updateBoundsCache"&gt;updateBoundsCache&lt;/a&gt; | refreshes result of &lt;a href="#SkPath_getBounds"&gt;getBounds&lt;/a&gt; |
+| &lt;a href="#SkPath_writeToMemory"&gt;writeToMemory&lt;/a&gt; | copies data to buffer |
 
 ## <a name="Verb"></a> Verb
 
@@ -597,26 +599,26 @@ convexity !=
 
 | name | description |
 | --- | --- |
-| <a href="#SkPath_IsCubicDegenerate">IsCubicDegenerate</a> | returns if <a href="#Cubic">Cubic</a> is very small |
-| <a href="#SkPath_IsInverseFillType">IsInverseFillType</a> | returns if <a href="#Fill_Type">Fill Type</a> represents outside geometry |
-| <a href="#SkPath_IsLineDegenerate">IsLineDegenerate</a> | returns if <a href="undocumented#Line">Line</a> is very small |
-| <a href="#SkPath_IsQuadDegenerate">IsQuadDegenerate</a> | returns if <a href="#Quad">Quad</a> is very small |
-| <a href="#SkPath_computeTightBounds">computeTightBounds</a> | returns extent of geometry |
-| <a href="#SkPath_conservativelyContainsRect">conservativelyContainsRect</a> | returns true if <a href="SkRect_Reference#Rect">Rect</a> may be inside |
-| <a href="#SkPath_contains">contains</a> | returns if <a href="SkPoint_Reference#Point">Point</a> is in fill area |
-| <a href="#SkPath_getBounds">getBounds</a> | returns maximum and minimum of <a href="#Point_Array">Point Array</a> |
-| <a href="#SkPath_getLastPt">getLastPt</a> | returns <a href="#Last_Point">Last Point</a> |
-| <a href="#SkPath_isEmpty">isEmpty</a> | returns if verb count is zero |
-| <a href="#SkPath_isFinite">isFinite</a> | returns if all <a href="SkPoint_Reference#Point">Point</a> values are finite |
-| <a href="#SkPath_isInterpolatable">isInterpolatable</a> | returns if pair contains equal counts of <a href="#Verb_Array">Verb Array</a> and <a href="#Weight">Weights</a> |
-| <a href="#SkPath_isLastContourClosed">isLastContourClosed</a> | returns if final <a href="#Contour">Contour</a> forms a loop |
-| <a href="#SkPath_isLine">isLine</a> | returns if describes <a href="undocumented#Line">Line</a> |
-| <a href="#SkPath_isNestedFillRects">isNestedFillRects</a> | returns if describes <a href="SkRect_Reference#Rect">Rect</a> pair, one inside the other |
-| <a href="#SkPath_isOval">isOval</a> | returns if describes <a href="undocumented#Oval">Oval</a> |
-| <a href="#SkPath_isRRect">isRRect</a> | returns if describes <a href="undocumented#Round_Rect">Round Rect</a> |
-| <a href="#SkPath_isRect">isRect</a> | returns if describes <a href="SkRect_Reference#Rect">Rect</a> |
-| <a href="#SkPath_isValid">isValid</a> | returns if data is internally consistent |
-| <a href="#SkPath_isVolatile">isVolatile</a> | returns if <a href="undocumented#Device">Device</a> should not cache |
+| &lt;a href="#SkPath_IsCubicDegenerate"&gt;IsCubicDegenerate&lt;/a&gt; | returns if &lt;a href="#Cubic"&gt;Cubic&lt;/a&gt; is very small |
+| &lt;a href="#SkPath_IsInverseFillType"&gt;IsInverseFillType&lt;/a&gt; | returns if &lt;a href="#Fill_Type"&gt;Fill Type&lt;/a&gt; represents outside geometry |
+| &lt;a href="#SkPath_IsLineDegenerate"&gt;IsLineDegenerate&lt;/a&gt; | returns if &lt;a href="undocumented#Line"&gt;Line&lt;/a&gt; is very small |
+| &lt;a href="#SkPath_IsQuadDegenerate"&gt;IsQuadDegenerate&lt;/a&gt; | returns if &lt;a href="#Quad"&gt;Quad&lt;/a&gt; is very small |
+| &lt;a href="#SkPath_computeTightBounds"&gt;computeTightBounds&lt;/a&gt; | returns extent of geometry |
+| &lt;a href="#SkPath_conservativelyContainsRect"&gt;conservativelyContainsRect&lt;/a&gt; | returns true if &lt;a href="SkRect_Reference#Rect"&gt;Rect&lt;/a&gt; may be inside |
+| &lt;a href="#SkPath_contains"&gt;contains&lt;/a&gt; | returns if &lt;a href="SkPoint_Reference#Point"&gt;Point&lt;/a&gt; is in fill area |
+| &lt;a href="#SkPath_getBounds"&gt;getBounds&lt;/a&gt; | returns maximum and minimum of &lt;a href="#Point_Array"&gt;Point Array&lt;/a&gt; |
+| &lt;a href="#SkPath_getLastPt"&gt;getLastPt&lt;/a&gt; | returns &lt;a href="#Last_Point"&gt;Last Point&lt;/a&gt; |
+| &lt;a href="#SkPath_isEmpty"&gt;isEmpty&lt;/a&gt; | returns if verb count is zero |
+| &lt;a href="#SkPath_isFinite"&gt;isFinite&lt;/a&gt; | returns if all &lt;a href="SkPoint_Reference#Point"&gt;Point&lt;/a&gt; values are finite |
+| &lt;a href="#SkPath_isInterpolatable"&gt;isInterpolatable&lt;/a&gt; | returns if pair contains equal counts of &lt;a href="#Verb_Array"&gt;Verb Array&lt;/a&gt; and &lt;a href="#Weight"&gt;Weights&lt;/a&gt; |
+| &lt;a href="#SkPath_isLastContourClosed"&gt;isLastContourClosed&lt;/a&gt; | returns if final &lt;a href="#Contour"&gt;Contour&lt;/a&gt; forms a loop |
+| &lt;a href="#SkPath_isLine"&gt;isLine&lt;/a&gt; | returns if describes &lt;a href="undocumented#Line"&gt;Line&lt;/a&gt; |
+| &lt;a href="#SkPath_isNestedFillRects"&gt;isNestedFillRects&lt;/a&gt; | returns if describes &lt;a href="SkRect_Reference#Rect"&gt;Rect&lt;/a&gt; pair, one inside the other |
+| &lt;a href="#SkPath_isOval"&gt;isOval&lt;/a&gt; | returns if describes &lt;a href="undocumented#Oval"&gt;Oval&lt;/a&gt; |
+| &lt;a href="#SkPath_isRRect"&gt;isRRect&lt;/a&gt; | returns if describes &lt;a href="undocumented#Round_Rect"&gt;Round Rect&lt;/a&gt; |
+| &lt;a href="#SkPath_isRect"&gt;isRect&lt;/a&gt; | returns if describes &lt;a href="SkRect_Reference#Rect"&gt;Rect&lt;/a&gt; |
+| &lt;a href="#SkPath_isValid"&gt;isValid&lt;/a&gt; | returns if data is internally consistent |
+| &lt;a href="#SkPath_isVolatile"&gt;isVolatile&lt;/a&gt; | returns if &lt;a href="undocumented#Device"&gt;Device&lt;/a&gt; should not cache |
 
 <a name="SkPath_isInterpolatable"></a>
 ## isInterpolatable
@@ -665,7 +667,7 @@ paths are interpolatable
 
 | name | description |
 | --- | --- |
-| <a href="#SkPath_interpolate">interpolate</a> | interpolates between <a href="#Path">Path</a> pair |
+| &lt;a href="#SkPath_interpolate"&gt;interpolate&lt;/a&gt; | interpolates between &lt;a href="#Path"&gt;Path&lt;/a&gt; pair |
 
 <a name="SkPath_interpolate"></a>
 ## interpolate
@@ -1348,7 +1350,7 @@ volatile by default is false
 
 | name | description |
 | --- | --- |
-| <a href="#SkPath_setIsVolatile">setIsVolatile</a> | sets if <a href="undocumented#Device">Device</a> should not cache |
+| &lt;a href="#SkPath_setIsVolatile"&gt;setIsVolatile&lt;/a&gt; | sets if &lt;a href="undocumented#Device"&gt;Device&lt;/a&gt; should not cache |
 
 <a name="SkPath_setIsVolatile"></a>
 ## setIsVolatile
@@ -1882,18 +1884,20 @@ rotated circle bounds = 14.6447, 9.64466, 85.3553, 80.3553
 
 | name | description |
 | --- | --- |
-| <a href="#SkPath_ConvertConicToQuads">ConvertConicToQuads</a> | approximates <a href="#Conic">Conic</a> with <a href="#Quad">Quad</a> array |
-| <a href="#SkPath_ConvertToNonInverseFillType">ConvertToNonInverseFillType</a> | returns <a href="#Fill_Type">Fill Type</a> representing inside geometry |
-| <a href="#SkPath_dump_2">dump</a> | sends text representation using floats to standard output |
-|  | dump |
-| <a href="#SkPath_dumpHex">dumpHex</a> | sends text representation using hexadecimal to standard output |
-| <a href="#SkPath_getSegmentMasks">getSegmentMasks</a> | returns types in <a href="#Verb_Array">Verb Array</a> |
-| <a href="#SkPath_incReserve">incReserve</a> | reserves space for additional data |
-| <a href="#SkPath_readFromMemory">readFromMemory</a> | Initializes from buffer |
-| <a href="#SkPath_serialize">serialize</a> | copies data to buffer |
-| <a href="#SkPath_setLastPt">setLastPt</a> | replaces <a href="#Last_Point">Last Point</a> |
-| <a href="#SkPath_updateBoundsCache">updateBoundsCache</a> | refreshes result of <a href="#SkPath_getBounds">getBounds</a> |
-| <a href="#SkPath_writeToMemory">writeToMemory</a> | copies data to buffer |
+| &lt;a href="#SkPath_ConvertConicToQuads"&gt;ConvertConicToQuads&lt;/a&gt; | approximates &lt;a href="#Conic"&gt;Conic&lt;/a&gt; with &lt;a href="#Quad"&gt;Quad&lt;/a&gt; array |
+| &lt;a href="#SkPath_ConvertToNonInverseFillType"&gt;ConvertToNonInverseFillType&lt;/a&gt; | returns &lt;a href="#Fill_Type"&gt;Fill Type&lt;/a&gt; representing inside geometry |
+| &lt;a href="#SkPath_dump_2"&gt;dump&lt;/a&gt; | sends text representation using floats to standard output |
+|  | &lt;a href="#SkPath_dump"&gt;dump(SkWStream* stream, bool forceClose, bool dumpAsHex)&lt;/a&gt; const |
+|  | &lt;a href="#SkPath_dump_2"&gt;dump&lt;/a&gt; const |
+| &lt;a href="#SkPath_dumpHex"&gt;dumpHex&lt;/a&gt; | sends text representation using hexadecimal to standard output |
+| &lt;a href="#SkPath_getSegmentMasks"&gt;getSegmentMasks&lt;/a&gt; | returns types in &lt;a href="#Verb_Array"&gt;Verb Array&lt;/a&gt; |
+| &lt;a href="#SkPath_incReserve"&gt;incReserve&lt;/a&gt; | reserves space for additional data |
+| &lt;a href="#SkPath_readFromMemory"&gt;readFromMemory&lt;/a&gt; | Initializes from buffer |
+| &lt;a href="#SkPath_serialize"&gt;serialize&lt;/a&gt; | copies data to buffer |
+| &lt;a href="#SkPath_setLastPt"&gt;setLastPt&lt;/a&gt; | replaces &lt;a href="#Last_Point"&gt;Last Point&lt;/a&gt; |
+|  | &lt;a href="#SkPath_setLastPt"&gt;setLastPt(SkScalar x, SkScalar y)&lt;/a&gt; |
+| &lt;a href="#SkPath_updateBoundsCache"&gt;updateBoundsCache&lt;/a&gt; | refreshes result of &lt;a href="#SkPath_getBounds"&gt;getBounds&lt;/a&gt; |
+| &lt;a href="#SkPath_writeToMemory"&gt;writeToMemory&lt;/a&gt; | copies data to buffer |
 
 <a name="SkPath_updateBoundsCache"></a>
 ## updateBoundsCache
@@ -2042,35 +2046,44 @@ number of additional <a href="#Point">Points</a> to allocate</td>
 
 | name | description |
 | --- | --- |
-| <a href="#SkPath_addArc">addArc</a> | adds one <a href="#Contour">Contour</a> containing <a href="#Arc">Arc</a> |
-| <a href="#SkPath_addCircle">addCircle</a> | adds one <a href="#Contour">Contour</a> containing <a href="undocumented#Circle">Circle</a> |
-| <a href="#SkPath_addOval">addOval</a> | adds one <a href="#Contour">Contour</a> containing <a href="undocumented#Oval">Oval</a> |
-|  | <a href="#SkPath_addOval">addOval</a> |
-| <a href="#SkPath_addPath">addPath</a> | adds contents of <a href="#Path">Path</a> |
-|  | <a href="#SkPath_addPath">addPath</a> |
-|  | <a href="#SkPath_addPath">addPath</a> |
-| <a href="#SkPath_addPoly">addPoly</a> | adds one <a href="#Contour">Contour</a> containing connected lines |
-| <a href="#SkPath_addRRect">addRRect</a> | adds one <a href="#Contour">Contour</a> containing <a href="undocumented#Round_Rect">Round Rect</a> |
-|  | <a href="#SkPath_addRRect">addRRect</a> |
-| <a href="#SkPath_addRect">addRect</a> | adds one <a href="#Contour">Contour</a> containing <a href="SkRect_Reference#Rect">Rect</a> |
-|  | <a href="#SkPath_addRect">addRect</a> |
-|  | <a href="#SkPath_addRect">addRect</a> |
-| <a href="#SkPath_addRoundRect">addRoundRect</a> | adds one <a href="#Contour">Contour</a> containing <a href="undocumented#Round_Rect">Round Rect</a> with common corner radii |
-|  | <a href="#SkPath_addRoundRect">addRoundRect</a> |
-| <a href="#SkPath_arcTo">arcTo</a> | appends <a href="#Arc">Arc</a> |
-| <a href="#SkPath_close">close</a> | makes last <a href="#Contour">Contour</a> a loop |
-| <a href="#SkPath_cubicTo">cubicTo</a> | appends <a href="#Cubic">Cubic</a> |
-| <a href="#SkPath_lineTo">lineTo</a> | appends <a href="undocumented#Line">Line</a> |
-|  | <a href="#SkPath_lineTo">lineTo</a> |
-| <a href="#SkPath_moveTo">moveTo</a> | starts <a href="#Contour">Contour</a> |
-|  | <a href="#SkPath_moveTo">moveTo</a> |
-| <a href="#SkPath_rArcTo">rArcTo</a> | appends <a href="#Arc">Arc</a> relative to <a href="#Last_Point">Last Point</a> |
-| <a href="#SkPath_rConicTo">rConicTo</a> | appends <a href="#Conic">Conic</a> relative to <a href="#Last_Point">Last Point</a> |
-| <a href="#SkPath_rCubicTo">rCubicTo</a> | appends <a href="#Cubic">Cubic</a> relative to <a href="#Last_Point">Last Point</a> |
-| <a href="#SkPath_rLineTo">rLineTo</a> | appends <a href="undocumented#Line">Line</a> relative to <a href="#Last_Point">Last Point</a> |
-| <a href="#SkPath_rMoveTo">rMoveTo</a> | starts <a href="#Contour">Contour</a> relative to <a href="#Last_Point">Last Point</a> |
-| <a href="#SkPath_rQuadTo">rQuadTo</a> | appends <a href="#Quad">Quad</a> relative to <a href="#Last_Point">Last Point</a> |
-| <a href="#SkPath_reverseAddPath">reverseAddPath</a> | adds contents of <a href="#Path">Path</a> back to front |
+| &lt;a href="#SkPath_addArc"&gt;addArc&lt;/a&gt; | adds one &lt;a href="#Contour"&gt;Contour&lt;/a&gt; containing &lt;a href="#Arc"&gt;Arc&lt;/a&gt; |
+| &lt;a href="#SkPath_addCircle"&gt;addCircle&lt;/a&gt; | adds one &lt;a href="#Contour"&gt;Contour&lt;/a&gt; containing &lt;a href="undocumented#Circle"&gt;Circle&lt;/a&gt; |
+| &lt;a href="#SkPath_addOval"&gt;addOval&lt;/a&gt; | adds one &lt;a href="#Contour"&gt;Contour&lt;/a&gt; containing &lt;a href="undocumented#Oval"&gt;Oval&lt;/a&gt; |
+|  | &lt;a href="#SkPath_addOval"&gt;addOval(const SkRect& oval, Direction dir = kCW Direction)&lt;/a&gt; |
+|  | &lt;a href="#SkPath_addOval_2"&gt;addOval(const SkRect& oval, Direction dir, unsigned start)&lt;/a&gt; |
+| &lt;a href="#SkPath_addPath"&gt;addPath&lt;/a&gt; | adds contents of &lt;a href="#Path"&gt;Path&lt;/a&gt; |
+|  | &lt;a href="#SkPath_addPath"&gt;addPath(const SkPath& src, SkScalar dx, SkScalar dy, AddPathMode mode = kAppend AddPathMode)&lt;/a&gt; |
+|  | &lt;a href="#SkPath_addPath_2"&gt;addPath(const SkPath& src, AddPathMode mode = kAppend AddPathMode)&lt;/a&gt; |
+|  | &lt;a href="#SkPath_addPath_3"&gt;addPath(const SkPath& src, const SkMatrix& matrix, AddPathMode mode = kAppend AddPathMode)&lt;/a&gt; |
+| &lt;a href="#SkPath_addPoly"&gt;addPoly&lt;/a&gt; | adds one &lt;a href="#Contour"&gt;Contour&lt;/a&gt; containing connected lines |
+| &lt;a href="#SkPath_addRRect"&gt;addRRect&lt;/a&gt; | adds one &lt;a href="#Contour"&gt;Contour&lt;/a&gt; containing &lt;a href="undocumented#Round_Rect"&gt;Round Rect&lt;/a&gt; |
+|  | &lt;a href="#SkPath_addRRect"&gt;addRRect(const SkRRect& rrect, Direction dir = kCW Direction)&lt;/a&gt; |
+|  | &lt;a href="#SkPath_addRRect_2"&gt;addRRect(const SkRRect& rrect, Direction dir, unsigned start)&lt;/a&gt; |
+| &lt;a href="#SkPath_addRect"&gt;addRect&lt;/a&gt; | adds one &lt;a href="#Contour"&gt;Contour&lt;/a&gt; containing &lt;a href="SkRect_Reference#Rect"&gt;Rect&lt;/a&gt; |
+|  | &lt;a href="#SkPath_addRect"&gt;addRect(const SkRect& rect, Direction dir = kCW Direction)&lt;/a&gt; |
+|  | &lt;a href="#SkPath_addRect_2"&gt;addRect(const SkRect& rect, Direction dir, unsigned start)&lt;/a&gt; |
+|  | &lt;a href="#SkPath_addRect_3"&gt;addRect(SkScalar left, SkScalar top, SkScalar right, SkScalar bottom, Direction dir = kCW Direction)&lt;/a&gt; |
+| &lt;a href="#SkPath_addRoundRect"&gt;addRoundRect&lt;/a&gt; | adds one &lt;a href="#Contour"&gt;Contour&lt;/a&gt; containing &lt;a href="undocumented#Round_Rect"&gt;Round Rect&lt;/a&gt; with common corner radii |
+|  | &lt;a href="#SkPath_addRoundRect"&gt;addRoundRect(const SkRect& rect, SkScalar rx, SkScalar ry, Direction dir = kCW Direction)&lt;/a&gt; |
+|  | &lt;a href="#SkPath_addRoundRect_2"&gt;addRoundRect(const SkRect& rect, const SkScalar radii[], Direction dir = kCW Direction)&lt;/a&gt; |
+| &lt;a href="#SkPath_arcTo"&gt;arcTo&lt;/a&gt; | appends &lt;a href="#Arc"&gt;Arc&lt;/a&gt; |
+|  | &lt;a href="#SkPath_arcTo"&gt;arcTo(const SkRect& oval, SkScalar startAngle, SkScalar sweepAngle, bool forceMoveTo)&lt;/a&gt; |
+| &lt;a href="#SkPath_close"&gt;close&lt;/a&gt; | makes last &lt;a href="#Contour"&gt;Contour&lt;/a&gt; a loop |
+| &lt;a href="#SkPath_cubicTo"&gt;cubicTo&lt;/a&gt; | appends &lt;a href="#Cubic"&gt;Cubic&lt;/a&gt; |
+|  | &lt;a href="#SkPath_cubicTo"&gt;cubicTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2, SkScalar x3, SkScalar y3)&lt;/a&gt; |
+| &lt;a href="#SkPath_lineTo"&gt;lineTo&lt;/a&gt; | appends &lt;a href="undocumented#Line"&gt;Line&lt;/a&gt; |
+|  | &lt;a href="#SkPath_lineTo"&gt;lineTo(SkScalar x, SkScalar y)&lt;/a&gt; |
+|  | &lt;a href="#SkPath_lineTo_2"&gt;lineTo(const SkPoint& p)&lt;/a&gt; |
+| &lt;a href="#SkPath_moveTo"&gt;moveTo&lt;/a&gt; | starts &lt;a href="#Contour"&gt;Contour&lt;/a&gt; |
+|  | &lt;a href="#SkPath_moveTo"&gt;moveTo(SkScalar x, SkScalar y)&lt;/a&gt; |
+|  | &lt;a href="#SkPath_moveTo_2"&gt;moveTo(const SkPoint& p)&lt;/a&gt; |
+| &lt;a href="#SkPath_rArcTo"&gt;rArcTo&lt;/a&gt; | appends &lt;a href="#Arc"&gt;Arc&lt;/a&gt; relative to &lt;a href="#Last_Point"&gt;Last Point&lt;/a&gt; |
+| &lt;a href="#SkPath_rConicTo"&gt;rConicTo&lt;/a&gt; | appends &lt;a href="#Conic"&gt;Conic&lt;/a&gt; relative to &lt;a href="#Last_Point"&gt;Last Point&lt;/a&gt; |
+| &lt;a href="#SkPath_rCubicTo"&gt;rCubicTo&lt;/a&gt; | appends &lt;a href="#Cubic"&gt;Cubic&lt;/a&gt; relative to &lt;a href="#Last_Point"&gt;Last Point&lt;/a&gt; |
+| &lt;a href="#SkPath_rLineTo"&gt;rLineTo&lt;/a&gt; | appends &lt;a href="undocumented#Line"&gt;Line&lt;/a&gt; relative to &lt;a href="#Last_Point"&gt;Last Point&lt;/a&gt; |
+| &lt;a href="#SkPath_rMoveTo"&gt;rMoveTo&lt;/a&gt; | starts &lt;a href="#Contour"&gt;Contour&lt;/a&gt; relative to &lt;a href="#Last_Point"&gt;Last Point&lt;/a&gt; |
+| &lt;a href="#SkPath_rQuadTo"&gt;rQuadTo&lt;/a&gt; | appends &lt;a href="#Quad"&gt;Quad&lt;/a&gt; relative to &lt;a href="#Last_Point"&gt;Last Point&lt;/a&gt; |
+| &lt;a href="#SkPath_reverseAddPath"&gt;reverseAddPath&lt;/a&gt; | adds contents of &lt;a href="#Path"&gt;Path&lt;/a&gt; back to front |
 
 <a name="SkPath_moveTo"></a>
 ## moveTo
@@ -2251,7 +2264,8 @@ offset from <a href="#Last_Point">Last Point</a> y to <a href="undocumented#Line
 
 ---
 
-# <a name="Quad"></a> Quad
+## <a name="Quad"></a> Quad
+
 <a href="#Quad">Quad</a> describes a quadratic Bezier, a second-order curve identical to a section
 of a parabola. <a href="#Quad">Quad</a> begins at a start <a href="SkPoint_Reference#Point">Point</a>, curves towards a control <a href="SkPoint_Reference#Point">Point</a>,
 and then curves to an end <a href="SkPoint_Reference#Point">Point</a>.
@@ -2382,7 +2396,8 @@ offset from <a href="#Last_Point">Last Point</a> x to <a href="#Quad">Quad</a> e
 
 ---
 
-# <a name="Conic"></a> Conic
+## <a name="Conic"></a> Conic
+
 <a href="#Conic">Conic</a> describes a conical section: a piece of an ellipse, or a piece of a
 parabola, or a piece of a hyperbola. <a href="#Conic">Conic</a> begins at a start <a href="SkPoint_Reference#Point">Point</a>,
 curves towards a control <a href="SkPoint_Reference#Point">Point</a>, and then curves to an end <a href="SkPoint_Reference#Point">Point</a>. The influence
@@ -2587,7 +2602,8 @@ weight of added <a href="#Conic">Conic</a></td>
 
 ---
 
-# <a name="Cubic"></a> Cubic
+## <a name="Cubic"></a> Cubic
+
 <a href="#Cubic">Cubic</a> describes a Bezier_Curve segment described by a third-order polynomial.
 <a href="#Cubic">Cubic</a> begins at a start <a href="SkPoint_Reference#Point">Point</a>, curving towards the first control <a href="SkPoint_Reference#Point">Point</a>;
 and curves from the end <a href="SkPoint_Reference#Point">Point</a> towards the second control <a href="SkPoint_Reference#Point">Point</a>.
@@ -4063,10 +4079,12 @@ overwritten, translated copy of <a href="#Path">Path</a>; may be nullptr</td>
 
 | name | description |
 | --- | --- |
-| <a href="#SkPath_offset">offset</a> | translates <a href="#Point_Array">Point Array</a> |
-|  | offset |
-| <a href="#SkPath_transform">transform</a> | applies <a href="SkMatrix_Reference#Matrix">Matrix</a> to <a href="#Point_Array">Point Array</a> and <a href="#Weight">Weights</a> |
-|  | transform |
+| &lt;a href="#SkPath_offset"&gt;offset&lt;/a&gt; | translates &lt;a href="#Point_Array"&gt;Point Array&lt;/a&gt; |
+|  | &lt;a href="#SkPath_offset"&gt;offset(SkScalar dx, SkScalar dy, SkPath* dst)&lt;/a&gt; const |
+|  | &lt;a href="#SkPath_offset_2"&gt;offset(SkScalar dx, SkScalar dy)&lt;/a&gt; |
+| &lt;a href="#SkPath_transform"&gt;transform&lt;/a&gt; | applies &lt;a href="SkMatrix_Reference#Matrix"&gt;Matrix&lt;/a&gt; to &lt;a href="#Point_Array"&gt;Point Array&lt;/a&gt; and &lt;a href="#Weight"&gt;Weights&lt;/a&gt; |
+|  | &lt;a href="#SkPath_transform"&gt;transform(const SkMatrix& matrix, SkPath* dst)&lt;/a&gt; const |
+|  | &lt;a href="#SkPath_transform_2"&gt;transform(const SkMatrix& matrix)&lt;/a&gt; |
 
 <a name="SkPath_offset_2"></a>
 
@@ -4629,7 +4647,8 @@ length = 68; returned by readFromMemory = 64
 
 ---
 
-# <a name="Generation_ID"></a> Generation ID
+## <a name="Generation_ID"></a> Generation ID
+
 <a href="#Generation_ID">Generation ID</a> provides a quick way to check if <a href="#Verb_Array">Verb Array</a>, <a href="#Point_Array">Point Array</a>, or
 <a href="#Conic_Weight">Conic Weight</a> has changed. <a href="#Generation_ID">Generation ID</a> is not a hash; identical <a href="#Path">Paths</a> will
 not necessarily have matching <a href="SkPath_Reference#Generation_ID">Generation IDs</a>.

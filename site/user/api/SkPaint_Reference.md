@@ -9,12 +9,12 @@ SkPaint Reference
 
 | name | description |
 | --- | --- |
-| <a href="#Class_or_Struct">Class or Struct</a> | embedded struct and class members |
-| <a href="#Constant">Constant</a> | enum and enum class, const values |
-| <a href="#Constructor">Constructor</a> | functions that construct <a href="SkPaint_Reference#SkPaint">SkPaint</a> |
-| <a href="#Member_Function">Member Function</a> | static functions and member methods |
-| <a href="#Operator">Operator</a> | operator overloading methods |
-| <a href="#Related_Function">Related Function</a> | similar methods grouped together |
+| &lt;a href="#Class_or_Struct"&gt;Class or Struct&lt;/a&gt; | embedded struct and class members |
+| &lt;a href="#Constant"&gt;Constant&lt;/a&gt; | enum and enum class, const values |
+| &lt;a href="#Constructor"&gt;Constructor&lt;/a&gt; | functions that construct &lt;a href="SkPaint_Reference#SkPaint"&gt;SkPaint&lt;/a&gt; |
+| &lt;a href="#Member_Function"&gt;Member Function&lt;/a&gt; | static functions and member methods |
+| &lt;a href="#Operator"&gt;Operator&lt;/a&gt; | operator overloading methods |
+| &lt;a href="#Related_Function"&gt;Related Function&lt;/a&gt; | similar methods grouped together |
 
 # <a name="SkPaint"></a> Class SkPaint
 <a href="#Paint">Paint</a> controls options applied when drawing and measuring. <a href="#Paint">Paint</a> collects all
@@ -47,196 +47,197 @@ Multiple colors are drawn either by using multiple paints or with objects like
 
 | name | description |
 | --- | --- |
-| <a href="#Alpha_Methods">Alpha Methods</a> | get and set <a href="#Alpha">Alpha</a> |
+| &lt;a href="#Alpha_Methods"&gt;Alpha Methods&lt;/a&gt; | get and set &lt;a href="#Alpha"&gt;Alpha&lt;/a&gt; |
 | Anti-alias | approximating coverage with transparency |
-| <a href="#Automatic_Hinting">Automatic Hinting</a> | always adjust glyph paths |
-| <a href="#Blend_Mode_Methods">Blend Mode Methods</a> | get and set <a href="undocumented#Blend_Mode">Blend Mode</a> |
-| <a href="#Color_Filter_Methods">Color Filter Methods</a> | get and set <a href="undocumented#Color_Filter">Color Filter</a> |
-| <a href="#Color_Methods">Color Methods</a> | get and set <a href="undocumented#Color">Color</a> |
-| <a href="#Device_Text">Device Text</a> | increase precision of glyph position |
-| <a href="#Dither">Dither</a> | distributing color error |
-| <a href="#Draw_Looper_Methods">Draw Looper Methods</a> | get and set <a href="undocumented#Draw_Looper">Draw Looper</a> |
-| <a href="#Fake_Bold">Fake Bold</a> | approximate font styles |
-| <a href="#Fast_Bounds">Fast Bounds</a> | approximate area required by <a href="#Paint">Paint</a> |
+| &lt;a href="#Automatic_Hinting"&gt;Automatic Hinting&lt;/a&gt; | always adjust glyph paths |
+| &lt;a href="#Blend_Mode_Methods"&gt;Blend Mode Methods&lt;/a&gt; | get and set &lt;a href="undocumented#Blend_Mode"&gt;Blend Mode&lt;/a&gt; |
+| &lt;a href="#Color_Filter_Methods"&gt;Color Filter Methods&lt;/a&gt; | get and set &lt;a href="undocumented#Color_Filter"&gt;Color Filter&lt;/a&gt; |
+| &lt;a href="#Color_Methods"&gt;Color Methods&lt;/a&gt; | get and set &lt;a href="undocumented#Color"&gt;Color&lt;/a&gt; |
+| &lt;a href="#Device_Text"&gt;Device Text&lt;/a&gt; | increase precision of glyph position |
+| &lt;a href="#Dither"&gt;Dither&lt;/a&gt; | distributing color error |
+| &lt;a href="#Draw_Looper_Methods"&gt;Draw Looper Methods&lt;/a&gt; | get and set &lt;a href="undocumented#Draw_Looper"&gt;Draw Looper&lt;/a&gt; |
+| &lt;a href="#Fake_Bold"&gt;Fake Bold&lt;/a&gt; | approximate font styles |
+| &lt;a href="#Fast_Bounds"&gt;Fast Bounds&lt;/a&gt; | approximate area required by &lt;a href="#Paint"&gt;Paint&lt;/a&gt; |
 | Fill | fill and stroke |
-| <a href="#Fill_Path">Fill Path</a> | make <a href="SkPath_Reference#Path">Path</a> from <a href="undocumented#Path_Effect">Path Effect</a>, stroking |
-| <a href="#Filter_Quality_Methods">Filter Quality Methods</a> | get and set <a href="undocumented#Filter_Quality">Filter Quality</a> |
-| <a href="#SkPaint_Flags">Flags</a> | attributes represented by single bits |
-| <a href="SkPaint_Reference#Font_Embedded_Bitmaps">Font Embedded Bitmaps</a> | custom sized bitmap <a href="#Glyph">Glyphs</a> |
-| <a href="#Font_Metrics">Font Metrics</a> | common glyph dimensions |
-| <a href="SkPaint_Reference#Full_Hinting_Spacing">Full Hinting Spacing</a> | glyph spacing affected by hinting |
-| <a href="#Hairline">Hairline</a> | lines and curves with minimal width |
-| <a href="#SkPaint_Hinting">Hinting</a> | glyph outline adjustment |
-| <a href="#Image_Filter_Methods">Image Filter Methods</a> | get and set <a href="undocumented#Image_Filter">Image Filter</a> |
-| <a href="#Initializers">Initializers</a> | constructors and initialization |
-| <a href="SkPaint_Reference#LCD_Text">LCD Text</a> | text relying on the order of <a href="#RGB">Color RGB</a> stripes |
-| <a href="SkPaint_Reference#Linear_Text">Linear Text</a> | selects text rendering as <a href="undocumented#Glyph">Glyph</a> or <a href="SkPath_Reference#Path">Path</a> |
-| <a href="#Management">Management</a> | paint copying, moving, comparing |
-| <a href="#Mask_Filter_Methods">Mask Filter Methods</a> | get and set <a href="undocumented#Mask_Filter">Mask Filter</a> |
-| <a href="#Measure_Text">Measure Text</a> | width, height, bounds of text |
-| <a href="#Miter_Limit">Miter Limit</a> | maximum length of stroked corners |
-| <a href="#Path_Effect_Methods">Path Effect Methods</a> | get and set <a href="undocumented#Path_Effect">Path Effect</a> |
-| <a href="#Shader_Methods">Shader Methods</a> | get and set <a href="undocumented#Shader">Shader</a> |
+| &lt;a href="#Fill_Path"&gt;Fill Path&lt;/a&gt; | make &lt;a href="SkPath_Reference#Path"&gt;Path&lt;/a&gt; from &lt;a href="undocumented#Path_Effect"&gt;Path Effect&lt;/a&gt;, stroking |
+| &lt;a href="#Filter_Quality_Methods"&gt;Filter Quality Methods&lt;/a&gt; | get and set &lt;a href="undocumented#Filter_Quality"&gt;Filter Quality&lt;/a&gt; |
+| &lt;a href="#SkPaint_Flags"&gt;Flags&lt;/a&gt; | attributes represented by single bits |
+| &lt;a href="SkPaint_Reference#Font_Embedded_Bitmaps"&gt;Font Embedded Bitmaps&lt;/a&gt; | custom sized bitmap &lt;a href="#Glyph"&gt;Glyphs&lt;/a&gt; |
+| &lt;a href="#Font_Metrics"&gt;Font Metrics&lt;/a&gt; | common glyph dimensions |
+| &lt;a href="SkPaint_Reference#Full_Hinting_Spacing"&gt;Full Hinting Spacing&lt;/a&gt; | glyph spacing affected by hinting |
+| &lt;a href="#Hairline"&gt;Hairline&lt;/a&gt; | lines and curves with minimal width |
+| &lt;a href="#SkPaint_Hinting"&gt;Hinting&lt;/a&gt; | glyph outline adjustment |
+| &lt;a href="#Image_Filter_Methods"&gt;Image Filter Methods&lt;/a&gt; | get and set &lt;a href="undocumented#Image_Filter"&gt;Image Filter&lt;/a&gt; |
+| &lt;a href="#Initializers"&gt;Initializers&lt;/a&gt; | constructors and initialization |
+| &lt;a href="SkPaint_Reference#LCD_Text"&gt;LCD Text&lt;/a&gt; | text relying on the order of &lt;a href="#RGB"&gt;Color RGB&lt;/a&gt; stripes |
+| &lt;a href="SkPaint_Reference#Linear_Text"&gt;Linear Text&lt;/a&gt; | selects text rendering as &lt;a href="undocumented#Glyph"&gt;Glyph&lt;/a&gt; or &lt;a href="SkPath_Reference#Path"&gt;Path&lt;/a&gt; |
+| &lt;a href="#Management"&gt;Management&lt;/a&gt; | paint copying, moving, comparing |
+| &lt;a href="#Mask_Filter_Methods"&gt;Mask Filter Methods&lt;/a&gt; | get and set &lt;a href="undocumented#Mask_Filter"&gt;Mask Filter&lt;/a&gt; |
+| &lt;a href="#Measure_Text"&gt;Measure Text&lt;/a&gt; | width, height, bounds of text |
+| &lt;a href="#Miter_Limit"&gt;Miter Limit&lt;/a&gt; | maximum length of stroked corners |
+| &lt;a href="#Path_Effect_Methods"&gt;Path Effect Methods&lt;/a&gt; | get and set &lt;a href="undocumented#Path_Effect"&gt;Path Effect&lt;/a&gt; |
+| &lt;a href="#Shader_Methods"&gt;Shader Methods&lt;/a&gt; | get and set &lt;a href="undocumented#Shader"&gt;Shader&lt;/a&gt; |
 | Stroke | lines and curves with width |
-| <a href="#Stroke_Cap">Stroke Cap</a> | decorations at ends of open strokes |
-| <a href="#Stroke_Join">Stroke Join</a> | decoration at corners of strokes |
-| <a href="#Stroke_Width">Stroke Width</a> | thickness perpendicular to geometry |
-| <a href="#SkPaint_Style">Style</a> | geometry filling, stroking |
-| <a href="SkPaint_Reference#Subpixel_Text">Subpixel Text</a> | uses pixel transparency to represent fractional offset |
-| <a href="#Text_Align">Text Align</a> | text placement relative to position |
-| <a href="#Text_Encoding">Text Encoding</a> | text encoded as characters or <a href="#Glyph">Glyphs</a> |
-| <a href="#Text_Intercepts">Text Intercepts</a> | advanced underline, strike through |
-| <a href="#Text_Path">Text Path</a> | geometry of <a href="#Glyph">Glyphs</a> |
-| <a href="#Text_Scale_X">Text Scale X</a> | text horizontal scale |
-| <a href="#Text_Size">Text Size</a> | overall height in points |
-| <a href="#Text_Skew_X">Text Skew X</a> | text horizontal slant |
-| <a href="#Typeface_Methods">Typeface Methods</a> | get and set <a href="undocumented#Typeface">Typeface</a> |
-| <a href="#Vertical_Text">Vertical Text</a> | orient text from top to bottom |
+| &lt;a href="#Stroke_Cap"&gt;Stroke Cap&lt;/a&gt; | decorations at ends of open strokes |
+| &lt;a href="#Stroke_Join"&gt;Stroke Join&lt;/a&gt; | decoration at corners of strokes |
+| &lt;a href="#Stroke_Width"&gt;Stroke Width&lt;/a&gt; | thickness perpendicular to geometry |
+| &lt;a href="#SkPaint_Style"&gt;Style&lt;/a&gt; | geometry filling, stroking |
+| &lt;a href="SkPaint_Reference#Subpixel_Text"&gt;Subpixel Text&lt;/a&gt; | uses pixel transparency to represent fractional offset |
+| &lt;a href="#Text_Align"&gt;Text Align&lt;/a&gt; | text placement relative to position |
+| &lt;a href="#Text_Encoding"&gt;Text Encoding&lt;/a&gt; | text encoded as characters or &lt;a href="#Glyph"&gt;Glyphs&lt;/a&gt; |
+| &lt;a href="#Text_Intercepts"&gt;Text Intercepts&lt;/a&gt; | advanced underline, strike through |
+| &lt;a href="#Text_Path"&gt;Text Path&lt;/a&gt; | geometry of &lt;a href="#Glyph"&gt;Glyphs&lt;/a&gt; |
+| &lt;a href="#Text_Scale_X"&gt;Text Scale X&lt;/a&gt; | text horizontal scale |
+| &lt;a href="#Text_Size"&gt;Text Size&lt;/a&gt; | overall height in points |
+| &lt;a href="#Text_Skew_X"&gt;Text Skew X&lt;/a&gt; | text horizontal slant |
+| &lt;a href="#Typeface_Methods"&gt;Typeface Methods&lt;/a&gt; | get and set &lt;a href="undocumented#Typeface"&gt;Typeface&lt;/a&gt; |
+| &lt;a href="#Utility"&gt;Utility&lt;/a&gt; | rarely called management functions |
+| &lt;a href="#Vertical_Text"&gt;Vertical Text&lt;/a&gt; | orient text from top to bottom |
 
 ## <a name="Constant"></a> Constant
 
 | name | description |
 | --- | --- |
-| <a href="#SkPaint_Align">Align</a> | glyph locations relative to text position |
-| <a href="#SkPaint_Cap">Cap</a> | start and end geometry on stroked shapes |
-| <a href="#SkPaint_Flags">Flags</a> | values described by bits and masks |
-| <a href="#SkPaint_Hinting">Hinting</a> | level of glyph outline adjustment |
-| <a href="#SkPaint_Join">Join</a> | corner geometry on stroked shapes |
-| <a href="#SkPaint_Style">Style</a> | stroke, fill, or both |
-| <a href="#SkPaint_TextEncoding">TextEncoding</a> | character or glyph encoded size |
-| _anonymous | number of <a href="#SkPaint_Style">Style</a> defines |
-| _anonymous_2 | number of <a href="#Text_Align">Text Align</a> values |
+| &lt;a href="#SkPaint_Align"&gt;Align&lt;/a&gt; | glyph locations relative to text position |
+| &lt;a href="#SkPaint_Cap"&gt;Cap&lt;/a&gt; | start and end geometry on stroked shapes |
+| &lt;a href="#SkPaint_Flags"&gt;Flags&lt;/a&gt; | values described by bits and masks |
+| &lt;a href="#SkPaint_Hinting"&gt;Hinting&lt;/a&gt; | level of glyph outline adjustment |
+| &lt;a href="#SkPaint_Join"&gt;Join&lt;/a&gt; | corner geometry on stroked shapes |
+| &lt;a href="#SkPaint_Style"&gt;Style&lt;/a&gt; | stroke, fill, or both |
+| &lt;a href="#SkPaint_TextEncoding"&gt;TextEncoding&lt;/a&gt; | character or glyph encoded size |
+| _anonymous | number of &lt;a href="#SkPaint_Style"&gt;Style&lt;/a&gt; defines |
+| _anonymous_2 | number of &lt;a href="#Text_Align"&gt;Text Align&lt;/a&gt; values |
 
 ## <a name="Class_or_Struct"></a> Class or Struct
 
 | name | description |
 | --- | --- |
-| <a href="#SkPaint_FontMetrics">FontMetrics</a> | values computed by <a href="undocumented#Font_Manager">Font Manager</a> using <a href="undocumented#Typeface">Typeface</a> |
+| &lt;a href="#SkPaint_FontMetrics"&gt;FontMetrics&lt;/a&gt; | values computed by &lt;a href="undocumented#Font_Manager"&gt;Font Manager&lt;/a&gt; using &lt;a href="undocumented#Typeface"&gt;Typeface&lt;/a&gt; |
 
 ## <a name="Constructor"></a> Constructor
 
 | name | description |
 | --- | --- |
-| <a href="#SkPaint_empty_constructor">SkPaint()</a> | constructs with default values |
-| <a href="#SkPaint_move_SkPaint">SkPaint(SkPaint&& paint)</a> | moves paint without copying it |
-| <a href="#SkPaint_copy_const_SkPaint">SkPaint(const SkPaint& paint)</a> | makes a shallow copy |
-| <a href="#SkPaint_destructor">~SkPaint()</a> | decreases <a href="undocumented#Reference_Count">Reference Count</a> of owned objects |
+| &lt;a href="#SkPaint_empty_constructor"&gt;SkPaint()&lt;/a&gt; | constructs with default values |
+| &lt;a href="#SkPaint_move_SkPaint"&gt;SkPaint(SkPaint&& paint)&lt;/a&gt; | moves paint without copying it |
+| &lt;a href="#SkPaint_copy_const_SkPaint"&gt;SkPaint(const SkPaint& paint)&lt;/a&gt; | makes a shallow copy |
+| &lt;a href="#SkPaint_destructor"&gt;~SkPaint()&lt;/a&gt; | decreases &lt;a href="undocumented#Reference_Count"&gt;Reference Count&lt;/a&gt; of owned objects |
 
 ## <a name="Operator"></a> Operator
 
 | name | description |
 | --- | --- |
-| <a href="#SkPaint_notequal_operator">operator!=(const SkPaint& a, const SkPaint& b)</a> | compares paints for inequality |
-| <a href="#SkPaint_move_operator">operator=(SkPaint&& paint)</a> | moves paint without copying it |
-| <a href="#SkPaint_copy_operator">operator=(const SkPaint& paint)</a> | makes a shallow copy |
-| <a href="#SkPaint_equal_operator">operator==(const SkPaint& a, const SkPaint& b)</a> | compares paints for equality |
+| &lt;a href="#SkPaint_notequal_operator"&gt;operator!=(const SkPaint& a, const SkPaint& b)&lt;/a&gt; | compares paints for inequality |
+| &lt;a href="#SkPaint_move_operator"&gt;operator=(SkPaint&& paint)&lt;/a&gt; | moves paint without copying it |
+| &lt;a href="#SkPaint_copy_operator"&gt;operator=(const SkPaint& paint)&lt;/a&gt; | makes a shallow copy |
+| &lt;a href="#SkPaint_equal_operator"&gt;operator==(const SkPaint& a, const SkPaint& b)&lt;/a&gt; | compares paints for equality |
 
 ## <a name="Member_Function"></a> Member Function
 
 | name | description |
 | --- | --- |
-| <a href="#SkPaint_breakText">breakText</a> | returns text that fits in a width |
-| <a href="#SkPaint_canComputeFastBounds">canComputeFastBounds</a> | returns true if settings allow for fast bounds computation |
-| <a href="#SkPaint_computeFastBounds">computeFastBounds</a> | returns fill bounds for quick reject tests |
-| <a href="#SkPaint_computeFastStrokeBounds">computeFastStrokeBounds</a> | returns stroke bounds for quick reject tests |
-| <a href="#SkPaint_containsText">containsText</a> | returns if all text corresponds to <a href="#Glyph">Glyphs</a> |
-| <a href="#SkPaint_countText">countText</a> | returns number of <a href="#Glyph">Glyphs</a> in text |
-| <a href="#SkPaint_doComputeFastBounds">doComputeFastBounds</a> | returns bounds for quick reject tests |
-| <a href="#SkPaint_flatten">flatten</a> | serializes into a buffer |
-| <a href="#SkPaint_getAlpha">getAlpha</a> | returns <a href="#Alpha">Color Alpha</a>, color opacity |
-| <a href="#SkPaint_getBlendMode">getBlendMode</a> | returns <a href="undocumented#Blend_Mode">Blend Mode</a>, how colors combine with <a href="undocumented#Device">Device</a> |
-| <a href="#SkPaint_getColor">getColor</a> | returns <a href="#Alpha">Color Alpha</a> and <a href="#RGB">Color RGB</a>, one drawing color |
-| <a href="#SkPaint_getColorFilter">getColorFilter</a> | returns <a href="undocumented#Color_Filter">Color Filter</a>, how colors are altered |
-| <a href="#SkPaint_getDrawLooper">getDrawLooper</a> | returns <a href="undocumented#Draw_Looper">Draw Looper</a>, multiple layers |
-| <a href="#SkPaint_getFillPath">getFillPath</a> | returns fill path equivalent to stroke |
-| <a href="#SkPaint_getFilterQuality">getFilterQuality</a> | returns <a href="undocumented#Filter_Quality">Filter Quality</a>, image filtering level |
-| <a href="#SkPaint_getFlags">getFlags</a> | returns <a href="#SkPaint_Flags">Flags</a> stored in a bit field |
-| <a href="#SkPaint_getFontBounds">getFontBounds</a> | returns union all glyph bounds |
-| <a href="#SkPaint_getFontMetrics">getFontMetrics</a> | returns <a href="undocumented#Typeface">Typeface</a> metrics scaled by text size |
-| <a href="#SkPaint_getFontSpacing">getFontSpacing</a> | returns recommended spacing between lines |
-| <a href="#SkPaint_getHash">getHash</a> | returns a shallow hash for equality checks |
-| <a href="#SkPaint_getHinting">getHinting</a> | returns <a href="#SkPaint_Hinting">Hinting</a>, glyph outline adjustment level |
-| <a href="#SkPaint_getImageFilter">getImageFilter</a> | returns <a href="undocumented#Image_Filter">Image Filter</a>, alter pixels; blur |
-| <a href="#SkPaint_getMaskFilter">getMaskFilter</a> | returns <a href="undocumented#Mask_Filter">Mask Filter</a>, alterations to <a href="undocumented#Mask_Alpha">Mask Alpha</a> |
-| <a href="#SkPaint_getPathEffect">getPathEffect</a> | returns <a href="undocumented#Path_Effect">Path Effect</a>, modifications to path geometry; dashing |
-| <a href="#SkPaint_getPosTextHIntercepts">getPosTextHIntercepts</a> | returns where lines intersect horizontally positioned text; underlines |
-| <a href="#SkPaint_getPosTextIntercepts">getPosTextIntercepts</a> | returns where lines intersect positioned text; underlines |
-| <a href="#SkPaint_getPosTextPath">getPosTextPath</a> | returns <a href="SkPath_Reference#Path">Path</a> equivalent to positioned text |
-| <a href="#SkPaint_getShader">getShader</a> | returns <a href="undocumented#Shader">Shader</a>, multiple drawing colors; gradients |
-| <a href="#SkPaint_getStrokeCap">getStrokeCap</a> | returns <a href="#SkPaint_Cap">Cap</a>, the area drawn at path ends |
-| <a href="#SkPaint_getStrokeJoin">getStrokeJoin</a> | returns <a href="#SkPaint_Join">Join</a>, geometry on path corners |
-| <a href="#SkPaint_getStrokeMiter">getStrokeMiter</a> | returns <a href="#Miter_Limit">Miter Limit</a>, angles with sharp corners |
-| <a href="#SkPaint_getStrokeWidth">getStrokeWidth</a> | returns thickness of the stroke |
-| <a href="#SkPaint_getStyle">getStyle</a> | returns <a href="#SkPaint_Style">Style</a>: stroke, fill, or both |
-| <a href="#SkPaint_getTextAlign">getTextAlign</a> | returns <a href="#SkPaint_Align">Align</a>: left, center, or right |
-| <a href="#SkPaint_getTextBlobIntercepts">getTextBlobIntercepts</a> | returns where lines intersect <a href="undocumented#Text_Blob">Text Blob</a>; underlines |
-| <a href="#SkPaint_getTextEncoding">getTextEncoding</a> | returns character or glyph encoded size |
-| <a href="#SkPaint_getTextIntercepts">getTextIntercepts</a> | returns where lines intersect text; underlines |
-| <a href="#SkPaint_getTextPath">getTextPath</a> | returns <a href="SkPath_Reference#Path">Path</a> equivalent to text |
-| <a href="#SkPaint_getTextScaleX">getTextScaleX</a> | returns the text horizontal scale; condensed text |
-| <a href="#SkPaint_getTextSize">getTextSize</a> | returns text size in points |
-| <a href="#SkPaint_getTextSkewX">getTextSkewX</a> | returns the text horizontal skew; oblique text |
-| <a href="#SkPaint_getTextWidths">getTextWidths</a> | returns advance and bounds for each glyph in text |
-| <a href="#SkPaint_getTypeface">getTypeface</a> | returns <a href="undocumented#Typeface">Typeface</a>, font description |
-| <a href="#SkPaint_glyphsToUnichars">glyphsToUnichars</a> | converts <a href="#Glyph">Glyphs</a> into text |
-| <a href="#SkPaint_isAntiAlias">isAntiAlias</a> | returns true if Anti-alias is set |
-| <a href="#SkPaint_isAutohinted">isAutohinted</a> | returns true if <a href="#Glyph">Glyphs</a> are always hinted |
-| <a href="#SkPaint_isDevKernText">isDevKernText</a> | returns true if <a href="SkPaint_Reference#Full_Hinting_Spacing">Full Hinting Spacing</a> is set |
-| <a href="#SkPaint_isDither">isDither</a> | returns true if <a href="#Dither">Dither</a> is set |
-| <a href="#SkPaint_isEmbeddedBitmapText">isEmbeddedBitmapText</a> | returns true if <a href="SkPaint_Reference#Font_Embedded_Bitmaps">Font Embedded Bitmaps</a> is set |
-| <a href="#SkPaint_isFakeBoldText">isFakeBoldText</a> | returns true if <a href="#Fake_Bold">Fake Bold</a> is set |
-| <a href="#SkPaint_isLCDRenderText">isLCDRenderText</a> | returns true if <a href="SkPaint_Reference#LCD_Text">LCD Text</a> is set |
-| <a href="#SkPaint_isLinearText">isLinearText</a> | returns true if text is converted to <a href="SkPath_Reference#Path">Path</a> |
-| <a href="#SkPaint_isSrcOver">isSrcOver</a> | returns true if <a href="undocumented#Blend_Mode">Blend Mode</a> is <a href="#SkBlendMode_kSrcOver">SkBlendMode::kSrcOver</a> |
-| <a href="#SkPaint_isSubpixelText">isSubpixelText</a> | returns true if <a href="SkPaint_Reference#Subpixel_Text">Subpixel Text</a> is set |
-| <a href="#SkPaint_isVerticalText">isVerticalText</a> | returns true if <a href="#Vertical_Text">Vertical Text</a> is set |
-| <a href="#SkPaint_measureText">measureText</a> | returns advance width and bounds of text |
-| <a href="#SkPaint_nothingToDraw">nothingToDraw</a> | returns true if <a href="#Paint">Paint</a> prevents all drawing |
-| <a href="#SkPaint_refColorFilter">refColorFilter</a> | references <a href="undocumented#Color_Filter">Color Filter</a>, how colors are altered |
-| <a href="#SkPaint_refDrawLooper">refDrawLooper</a> | references <a href="undocumented#Draw_Looper">Draw Looper</a>, multiple layers |
-| <a href="#SkPaint_refImageFilter">refImageFilter</a> | references <a href="undocumented#Image_Filter">Image Filter</a>, alter pixels; blur |
-| <a href="#SkPaint_refMaskFilter">refMaskFilter</a> | references <a href="undocumented#Mask_Filter">Mask Filter</a>, alterations to <a href="undocumented#Mask_Alpha">Mask Alpha</a> |
-| <a href="#SkPaint_refPathEffect">refPathEffect</a> | references <a href="undocumented#Path_Effect">Path Effect</a>, modifications to path geometry; dashing |
-| <a href="#SkPaint_refShader">refShader</a> | references <a href="undocumented#Shader">Shader</a>, multiple drawing colors; gradients |
-| <a href="#SkPaint_refTypeface">refTypeface</a> | references <a href="undocumented#Typeface">Typeface</a>, font description |
-| <a href="#SkPaint_reset">reset</a> | sets to default values |
-| <a href="#SkPaint_setARGB">setARGB</a> | sets color by component |
-| <a href="#SkPaint_setAlpha">setAlpha</a> | sets <a href="#Alpha">Color Alpha</a>, color opacity |
-| <a href="#SkPaint_setAntiAlias">setAntiAlias</a> | sets or clears Anti-alias |
-| <a href="#SkPaint_setAutohinted">setAutohinted</a> | sets <a href="#Glyph">Glyphs</a> to always be hinted |
-| <a href="#SkPaint_setBlendMode">setBlendMode</a> | sets <a href="undocumented#Blend_Mode">Blend Mode</a>, how colors combine with destination |
-| <a href="#SkPaint_setColor">setColor</a> | sets <a href="#Alpha">Color Alpha</a> and <a href="#RGB">Color RGB</a>, one drawing color |
-| <a href="#SkPaint_setColorFilter">setColorFilter</a> | sets <a href="undocumented#Color_Filter">Color Filter</a>, alters color |
-| <a href="#SkPaint_setDevKernText">setDevKernText</a> | sets or clears <a href="SkPaint_Reference#Full_Hinting_Spacing">Full Hinting Spacing</a> |
-| <a href="#SkPaint_setDither">setDither</a> | sets or clears <a href="#Dither">Dither</a> |
-| <a href="#SkPaint_setDrawLooper">setDrawLooper</a> | sets <a href="undocumented#Draw_Looper">Draw Looper</a>, multiple layers |
-| <a href="#SkPaint_setEmbeddedBitmapText">setEmbeddedBitmapText</a> | sets or clears <a href="SkPaint_Reference#Font_Embedded_Bitmaps">Font Embedded Bitmaps</a> |
-| <a href="#SkPaint_setFakeBoldText">setFakeBoldText</a> | sets or clears <a href="#Fake_Bold">Fake Bold</a> |
-| <a href="#SkPaint_setFilterQuality">setFilterQuality</a> | sets <a href="undocumented#Filter_Quality">Filter Quality</a>, the image filtering level |
-| <a href="#SkPaint_setFlags">setFlags</a> | sets multiple <a href="#SkPaint_Flags">Flags</a> in a bit field |
-| <a href="#SkPaint_setHinting">setHinting</a> | sets <a href="#SkPaint_Hinting">Hinting</a>, glyph outline adjustment level |
-| <a href="#SkPaint_setImageFilter">setImageFilter</a> | sets <a href="undocumented#Image_Filter">Image Filter</a>, alter pixels; blur |
-| <a href="#SkPaint_setLCDRenderText">setLCDRenderText</a> | sets or clears <a href="SkPaint_Reference#LCD_Text">LCD Text</a> |
-| <a href="#SkPaint_setLinearText">setLinearText</a> | converts to <a href="SkPath_Reference#Path">Path</a> before draw or measure |
-| <a href="#SkPaint_setMaskFilter">setMaskFilter</a> | sets <a href="undocumented#Mask_Filter">Mask Filter</a>, alterations to <a href="undocumented#Mask_Alpha">Mask Alpha</a> |
-| <a href="#SkPaint_setPathEffect">setPathEffect</a> | sets <a href="undocumented#Path_Effect">Path Effect</a>, modifications to path geometry; dashing |
-| <a href="#SkPaint_setShader">setShader</a> | sets <a href="undocumented#Shader">Shader</a>, multiple drawing colors; gradients |
-| <a href="#SkPaint_setStrokeCap">setStrokeCap</a> | sets <a href="#SkPaint_Cap">Cap</a>, the area drawn at path ends |
-| <a href="#SkPaint_setStrokeJoin">setStrokeJoin</a> | sets <a href="#SkPaint_Join">Join</a>, geometry on path corners |
-| <a href="#SkPaint_setStrokeMiter">setStrokeMiter</a> | sets <a href="#Miter_Limit">Miter Limit</a>, angles with sharp corners |
-| <a href="#SkPaint_setStrokeWidth">setStrokeWidth</a> | sets thickness of the stroke |
-| <a href="#SkPaint_setStyle">setStyle</a> | sets <a href="#SkPaint_Style">Style</a>: stroke, fill, or both |
-| <a href="#SkPaint_setSubpixelText">setSubpixelText</a> | sets or clears <a href="SkPaint_Reference#Subpixel_Text">Subpixel Text</a> |
-| <a href="#SkPaint_setTextAlign">setTextAlign</a> | sets <a href="#SkPaint_Align">Align</a>: left, center, or right |
-| <a href="#SkPaint_setTextEncoding">setTextEncoding</a> | sets character or glyph encoded size |
-| <a href="#SkPaint_setTextScaleX">setTextScaleX</a> | sets the text horizontal scale; condensed text |
-| <a href="#SkPaint_setTextSize">setTextSize</a> | sets text size in points |
-| <a href="#SkPaint_setTextSkewX">setTextSkewX</a> | sets the text horizontal skew; oblique text |
-| <a href="#SkPaint_setTypeface">setTypeface</a> | sets <a href="undocumented#Typeface">Typeface</a>, font description |
-| <a href="#SkPaint_setVerticalText">setVerticalText</a> | sets or clears <a href="#Vertical_Text">Vertical Text</a> |
-| <a href="#SkPaint_textToGlyphs">textToGlyphs</a> | converts text into glyph indices |
-| <a href="#SkPaint_toString">toString</a> | converts <a href="#Paint">Paint</a> to machine readable form |
-| <a href="#SkPaint_unflatten">unflatten</a> | populates from a serialized stream |
+| &lt;a href="#SkPaint_breakText"&gt;breakText&lt;/a&gt; | returns text that fits in a width |
+| &lt;a href="#SkPaint_canComputeFastBounds"&gt;canComputeFastBounds&lt;/a&gt; | returns true if settings allow for fast bounds computation |
+| &lt;a href="#SkPaint_computeFastBounds"&gt;computeFastBounds&lt;/a&gt; | returns fill bounds for quick reject tests |
+| &lt;a href="#SkPaint_computeFastStrokeBounds"&gt;computeFastStrokeBounds&lt;/a&gt; | returns stroke bounds for quick reject tests |
+| &lt;a href="#SkPaint_containsText"&gt;containsText&lt;/a&gt; | returns if all text corresponds to &lt;a href="#Glyph"&gt;Glyphs&lt;/a&gt; |
+| &lt;a href="#SkPaint_countText"&gt;countText&lt;/a&gt; | returns number of &lt;a href="#Glyph"&gt;Glyphs&lt;/a&gt; in text |
+| &lt;a href="#SkPaint_doComputeFastBounds"&gt;doComputeFastBounds&lt;/a&gt; | returns bounds for quick reject tests |
+| &lt;a href="#SkPaint_flatten"&gt;flatten&lt;/a&gt; | serializes into a buffer |
+| &lt;a href="#SkPaint_getAlpha"&gt;getAlpha&lt;/a&gt; | returns &lt;a href="#Alpha"&gt;Color Alpha&lt;/a&gt;, color opacity |
+| &lt;a href="#SkPaint_getBlendMode"&gt;getBlendMode&lt;/a&gt; | returns &lt;a href="undocumented#Blend_Mode"&gt;Blend Mode&lt;/a&gt;, how colors combine with &lt;a href="undocumented#Device"&gt;Device&lt;/a&gt; |
+| &lt;a href="#SkPaint_getColor"&gt;getColor&lt;/a&gt; | returns &lt;a href="#Alpha"&gt;Color Alpha&lt;/a&gt; and &lt;a href="#RGB"&gt;Color RGB&lt;/a&gt;, one drawing color |
+| &lt;a href="#SkPaint_getColorFilter"&gt;getColorFilter&lt;/a&gt; | returns &lt;a href="undocumented#Color_Filter"&gt;Color Filter&lt;/a&gt;, how colors are altered |
+| &lt;a href="#SkPaint_getDrawLooper"&gt;getDrawLooper&lt;/a&gt; | returns &lt;a href="undocumented#Draw_Looper"&gt;Draw Looper&lt;/a&gt;, multiple layers |
+| &lt;a href="#SkPaint_getFillPath"&gt;getFillPath&lt;/a&gt; | returns fill path equivalent to stroke |
+| &lt;a href="#SkPaint_getFilterQuality"&gt;getFilterQuality&lt;/a&gt; | returns &lt;a href="undocumented#Filter_Quality"&gt;Filter Quality&lt;/a&gt;, image filtering level |
+| &lt;a href="#SkPaint_getFlags"&gt;getFlags&lt;/a&gt; | returns &lt;a href="#SkPaint_Flags"&gt;Flags&lt;/a&gt; stored in a bit field |
+| &lt;a href="#SkPaint_getFontBounds"&gt;getFontBounds&lt;/a&gt; | returns union all glyph bounds |
+| &lt;a href="#SkPaint_getFontMetrics"&gt;getFontMetrics&lt;/a&gt; | returns &lt;a href="undocumented#Typeface"&gt;Typeface&lt;/a&gt; metrics scaled by text size |
+| &lt;a href="#SkPaint_getFontSpacing"&gt;getFontSpacing&lt;/a&gt; | returns recommended spacing between lines |
+| &lt;a href="#SkPaint_getHash"&gt;getHash&lt;/a&gt; | returns a shallow hash for equality checks |
+| &lt;a href="#SkPaint_getHinting"&gt;getHinting&lt;/a&gt; | returns &lt;a href="#SkPaint_Hinting"&gt;Hinting&lt;/a&gt;, glyph outline adjustment level |
+| &lt;a href="#SkPaint_getImageFilter"&gt;getImageFilter&lt;/a&gt; | returns &lt;a href="undocumented#Image_Filter"&gt;Image Filter&lt;/a&gt;, alter pixels; blur |
+| &lt;a href="#SkPaint_getMaskFilter"&gt;getMaskFilter&lt;/a&gt; | returns &lt;a href="undocumented#Mask_Filter"&gt;Mask Filter&lt;/a&gt;, alterations to &lt;a href="undocumented#Mask_Alpha"&gt;Mask Alpha&lt;/a&gt; |
+| &lt;a href="#SkPaint_getPathEffect"&gt;getPathEffect&lt;/a&gt; | returns &lt;a href="undocumented#Path_Effect"&gt;Path Effect&lt;/a&gt;, modifications to path geometry; dashing |
+| &lt;a href="#SkPaint_getPosTextHIntercepts"&gt;getPosTextHIntercepts&lt;/a&gt; | returns where lines intersect horizontally positioned text; underlines |
+| &lt;a href="#SkPaint_getPosTextIntercepts"&gt;getPosTextIntercepts&lt;/a&gt; | returns where lines intersect positioned text; underlines |
+| &lt;a href="#SkPaint_getPosTextPath"&gt;getPosTextPath&lt;/a&gt; | returns &lt;a href="SkPath_Reference#Path"&gt;Path&lt;/a&gt; equivalent to positioned text |
+| &lt;a href="#SkPaint_getShader"&gt;getShader&lt;/a&gt; | returns &lt;a href="undocumented#Shader"&gt;Shader&lt;/a&gt;, multiple drawing colors; gradients |
+| &lt;a href="#SkPaint_getStrokeCap"&gt;getStrokeCap&lt;/a&gt; | returns &lt;a href="#SkPaint_Cap"&gt;Cap&lt;/a&gt;, the area drawn at path ends |
+| &lt;a href="#SkPaint_getStrokeJoin"&gt;getStrokeJoin&lt;/a&gt; | returns &lt;a href="#SkPaint_Join"&gt;Join&lt;/a&gt;, geometry on path corners |
+| &lt;a href="#SkPaint_getStrokeMiter"&gt;getStrokeMiter&lt;/a&gt; | returns &lt;a href="#Miter_Limit"&gt;Miter Limit&lt;/a&gt;, angles with sharp corners |
+| &lt;a href="#SkPaint_getStrokeWidth"&gt;getStrokeWidth&lt;/a&gt; | returns thickness of the stroke |
+| &lt;a href="#SkPaint_getStyle"&gt;getStyle&lt;/a&gt; | returns &lt;a href="#SkPaint_Style"&gt;Style&lt;/a&gt;: stroke, fill, or both |
+| &lt;a href="#SkPaint_getTextAlign"&gt;getTextAlign&lt;/a&gt; | returns &lt;a href="#SkPaint_Align"&gt;Align&lt;/a&gt;: left, center, or right |
+| &lt;a href="#SkPaint_getTextBlobIntercepts"&gt;getTextBlobIntercepts&lt;/a&gt; | returns where lines intersect &lt;a href="undocumented#Text_Blob"&gt;Text Blob&lt;/a&gt;; underlines |
+| &lt;a href="#SkPaint_getTextEncoding"&gt;getTextEncoding&lt;/a&gt; | returns character or glyph encoded size |
+| &lt;a href="#SkPaint_getTextIntercepts"&gt;getTextIntercepts&lt;/a&gt; | returns where lines intersect text; underlines |
+| &lt;a href="#SkPaint_getTextPath"&gt;getTextPath&lt;/a&gt; | returns &lt;a href="SkPath_Reference#Path"&gt;Path&lt;/a&gt; equivalent to text |
+| &lt;a href="#SkPaint_getTextScaleX"&gt;getTextScaleX&lt;/a&gt; | returns the text horizontal scale; condensed text |
+| &lt;a href="#SkPaint_getTextSize"&gt;getTextSize&lt;/a&gt; | returns text size in points |
+| &lt;a href="#SkPaint_getTextSkewX"&gt;getTextSkewX&lt;/a&gt; | returns the text horizontal skew; oblique text |
+| &lt;a href="#SkPaint_getTextWidths"&gt;getTextWidths&lt;/a&gt; | returns advance and bounds for each glyph in text |
+| &lt;a href="#SkPaint_getTypeface"&gt;getTypeface&lt;/a&gt; | returns &lt;a href="undocumented#Typeface"&gt;Typeface&lt;/a&gt;, font description |
+| &lt;a href="#SkPaint_glyphsToUnichars"&gt;glyphsToUnichars&lt;/a&gt; | converts &lt;a href="#Glyph"&gt;Glyphs&lt;/a&gt; into text |
+| &lt;a href="#SkPaint_isAntiAlias"&gt;isAntiAlias&lt;/a&gt; | returns true if Anti-alias is set |
+| &lt;a href="#SkPaint_isAutohinted"&gt;isAutohinted&lt;/a&gt; | returns true if &lt;a href="#Glyph"&gt;Glyphs&lt;/a&gt; are always hinted |
+| &lt;a href="#SkPaint_isDevKernText"&gt;isDevKernText&lt;/a&gt; | returns true if &lt;a href="SkPaint_Reference#Full_Hinting_Spacing"&gt;Full Hinting Spacing&lt;/a&gt; is set |
+| &lt;a href="#SkPaint_isDither"&gt;isDither&lt;/a&gt; | returns true if &lt;a href="#Dither"&gt;Dither&lt;/a&gt; is set |
+| &lt;a href="#SkPaint_isEmbeddedBitmapText"&gt;isEmbeddedBitmapText&lt;/a&gt; | returns true if &lt;a href="SkPaint_Reference#Font_Embedded_Bitmaps"&gt;Font Embedded Bitmaps&lt;/a&gt; is set |
+| &lt;a href="#SkPaint_isFakeBoldText"&gt;isFakeBoldText&lt;/a&gt; | returns true if &lt;a href="#Fake_Bold"&gt;Fake Bold&lt;/a&gt; is set |
+| &lt;a href="#SkPaint_isLCDRenderText"&gt;isLCDRenderText&lt;/a&gt; | returns true if &lt;a href="SkPaint_Reference#LCD_Text"&gt;LCD Text&lt;/a&gt; is set |
+| &lt;a href="#SkPaint_isLinearText"&gt;isLinearText&lt;/a&gt; | returns true if text is converted to &lt;a href="SkPath_Reference#Path"&gt;Path&lt;/a&gt; |
+| &lt;a href="#SkPaint_isSrcOver"&gt;isSrcOver&lt;/a&gt; | returns true if &lt;a href="undocumented#Blend_Mode"&gt;Blend Mode&lt;/a&gt; is &lt;a href="#SkBlendMode_kSrcOver"&gt;SkBlendMode::kSrcOver&lt;/a&gt; |
+| &lt;a href="#SkPaint_isSubpixelText"&gt;isSubpixelText&lt;/a&gt; | returns true if &lt;a href="SkPaint_Reference#Subpixel_Text"&gt;Subpixel Text&lt;/a&gt; is set |
+| &lt;a href="#SkPaint_isVerticalText"&gt;isVerticalText&lt;/a&gt; | returns true if &lt;a href="#Vertical_Text"&gt;Vertical Text&lt;/a&gt; is set |
+| &lt;a href="#SkPaint_measureText"&gt;measureText&lt;/a&gt; | returns advance width and bounds of text |
+| &lt;a href="#SkPaint_nothingToDraw"&gt;nothingToDraw&lt;/a&gt; | returns true if &lt;a href="#Paint"&gt;Paint&lt;/a&gt; prevents all drawing |
+| &lt;a href="#SkPaint_refColorFilter"&gt;refColorFilter&lt;/a&gt; | references &lt;a href="undocumented#Color_Filter"&gt;Color Filter&lt;/a&gt;, how colors are altered |
+| &lt;a href="#SkPaint_refDrawLooper"&gt;refDrawLooper&lt;/a&gt; | references &lt;a href="undocumented#Draw_Looper"&gt;Draw Looper&lt;/a&gt;, multiple layers |
+| &lt;a href="#SkPaint_refImageFilter"&gt;refImageFilter&lt;/a&gt; | references &lt;a href="undocumented#Image_Filter"&gt;Image Filter&lt;/a&gt;, alter pixels; blur |
+| &lt;a href="#SkPaint_refMaskFilter"&gt;refMaskFilter&lt;/a&gt; | references &lt;a href="undocumented#Mask_Filter"&gt;Mask Filter&lt;/a&gt;, alterations to &lt;a href="undocumented#Mask_Alpha"&gt;Mask Alpha&lt;/a&gt; |
+| &lt;a href="#SkPaint_refPathEffect"&gt;refPathEffect&lt;/a&gt; | references &lt;a href="undocumented#Path_Effect"&gt;Path Effect&lt;/a&gt;, modifications to path geometry; dashing |
+| &lt;a href="#SkPaint_refShader"&gt;refShader&lt;/a&gt; | references &lt;a href="undocumented#Shader"&gt;Shader&lt;/a&gt;, multiple drawing colors; gradients |
+| &lt;a href="#SkPaint_refTypeface"&gt;refTypeface&lt;/a&gt; | references &lt;a href="undocumented#Typeface"&gt;Typeface&lt;/a&gt;, font description |
+| &lt;a href="#SkPaint_reset"&gt;reset&lt;/a&gt; | sets to default values |
+| &lt;a href="#SkPaint_setARGB"&gt;setARGB&lt;/a&gt; | sets color by component |
+| &lt;a href="#SkPaint_setAlpha"&gt;setAlpha&lt;/a&gt; | sets &lt;a href="#Alpha"&gt;Color Alpha&lt;/a&gt;, color opacity |
+| &lt;a href="#SkPaint_setAntiAlias"&gt;setAntiAlias&lt;/a&gt; | sets or clears Anti-alias |
+| &lt;a href="#SkPaint_setAutohinted"&gt;setAutohinted&lt;/a&gt; | sets &lt;a href="#Glyph"&gt;Glyphs&lt;/a&gt; to always be hinted |
+| &lt;a href="#SkPaint_setBlendMode"&gt;setBlendMode&lt;/a&gt; | sets &lt;a href="undocumented#Blend_Mode"&gt;Blend Mode&lt;/a&gt;, how colors combine with destination |
+| &lt;a href="#SkPaint_setColor"&gt;setColor&lt;/a&gt; | sets &lt;a href="#Alpha"&gt;Color Alpha&lt;/a&gt; and &lt;a href="#RGB"&gt;Color RGB&lt;/a&gt;, one drawing color |
+| &lt;a href="#SkPaint_setColorFilter"&gt;setColorFilter&lt;/a&gt; | sets &lt;a href="undocumented#Color_Filter"&gt;Color Filter&lt;/a&gt;, alters color |
+| &lt;a href="#SkPaint_setDevKernText"&gt;setDevKernText&lt;/a&gt; | sets or clears &lt;a href="SkPaint_Reference#Full_Hinting_Spacing"&gt;Full Hinting Spacing&lt;/a&gt; |
+| &lt;a href="#SkPaint_setDither"&gt;setDither&lt;/a&gt; | sets or clears &lt;a href="#Dither"&gt;Dither&lt;/a&gt; |
+| &lt;a href="#SkPaint_setDrawLooper"&gt;setDrawLooper&lt;/a&gt; | sets &lt;a href="undocumented#Draw_Looper"&gt;Draw Looper&lt;/a&gt;, multiple layers |
+| &lt;a href="#SkPaint_setEmbeddedBitmapText"&gt;setEmbeddedBitmapText&lt;/a&gt; | sets or clears &lt;a href="SkPaint_Reference#Font_Embedded_Bitmaps"&gt;Font Embedded Bitmaps&lt;/a&gt; |
+| &lt;a href="#SkPaint_setFakeBoldText"&gt;setFakeBoldText&lt;/a&gt; | sets or clears &lt;a href="#Fake_Bold"&gt;Fake Bold&lt;/a&gt; |
+| &lt;a href="#SkPaint_setFilterQuality"&gt;setFilterQuality&lt;/a&gt; | sets &lt;a href="undocumented#Filter_Quality"&gt;Filter Quality&lt;/a&gt;, the image filtering level |
+| &lt;a href="#SkPaint_setFlags"&gt;setFlags&lt;/a&gt; | sets multiple &lt;a href="#SkPaint_Flags"&gt;Flags&lt;/a&gt; in a bit field |
+| &lt;a href="#SkPaint_setHinting"&gt;setHinting&lt;/a&gt; | sets &lt;a href="#SkPaint_Hinting"&gt;Hinting&lt;/a&gt;, glyph outline adjustment level |
+| &lt;a href="#SkPaint_setImageFilter"&gt;setImageFilter&lt;/a&gt; | sets &lt;a href="undocumented#Image_Filter"&gt;Image Filter&lt;/a&gt;, alter pixels; blur |
+| &lt;a href="#SkPaint_setLCDRenderText"&gt;setLCDRenderText&lt;/a&gt; | sets or clears &lt;a href="SkPaint_Reference#LCD_Text"&gt;LCD Text&lt;/a&gt; |
+| &lt;a href="#SkPaint_setLinearText"&gt;setLinearText&lt;/a&gt; | converts to &lt;a href="SkPath_Reference#Path"&gt;Path&lt;/a&gt; before draw or measure |
+| &lt;a href="#SkPaint_setMaskFilter"&gt;setMaskFilter&lt;/a&gt; | sets &lt;a href="undocumented#Mask_Filter"&gt;Mask Filter&lt;/a&gt;, alterations to &lt;a href="undocumented#Mask_Alpha"&gt;Mask Alpha&lt;/a&gt; |
+| &lt;a href="#SkPaint_setPathEffect"&gt;setPathEffect&lt;/a&gt; | sets &lt;a href="undocumented#Path_Effect"&gt;Path Effect&lt;/a&gt;, modifications to path geometry; dashing |
+| &lt;a href="#SkPaint_setShader"&gt;setShader&lt;/a&gt; | sets &lt;a href="undocumented#Shader"&gt;Shader&lt;/a&gt;, multiple drawing colors; gradients |
+| &lt;a href="#SkPaint_setStrokeCap"&gt;setStrokeCap&lt;/a&gt; | sets &lt;a href="#SkPaint_Cap"&gt;Cap&lt;/a&gt;, the area drawn at path ends |
+| &lt;a href="#SkPaint_setStrokeJoin"&gt;setStrokeJoin&lt;/a&gt; | sets &lt;a href="#SkPaint_Join"&gt;Join&lt;/a&gt;, geometry on path corners |
+| &lt;a href="#SkPaint_setStrokeMiter"&gt;setStrokeMiter&lt;/a&gt; | sets &lt;a href="#Miter_Limit"&gt;Miter Limit&lt;/a&gt;, angles with sharp corners |
+| &lt;a href="#SkPaint_setStrokeWidth"&gt;setStrokeWidth&lt;/a&gt; | sets thickness of the stroke |
+| &lt;a href="#SkPaint_setStyle"&gt;setStyle&lt;/a&gt; | sets &lt;a href="#SkPaint_Style"&gt;Style&lt;/a&gt;: stroke, fill, or both |
+| &lt;a href="#SkPaint_setSubpixelText"&gt;setSubpixelText&lt;/a&gt; | sets or clears &lt;a href="SkPaint_Reference#Subpixel_Text"&gt;Subpixel Text&lt;/a&gt; |
+| &lt;a href="#SkPaint_setTextAlign"&gt;setTextAlign&lt;/a&gt; | sets &lt;a href="#SkPaint_Align"&gt;Align&lt;/a&gt;: left, center, or right |
+| &lt;a href="#SkPaint_setTextEncoding"&gt;setTextEncoding&lt;/a&gt; | sets character or glyph encoded size |
+| &lt;a href="#SkPaint_setTextScaleX"&gt;setTextScaleX&lt;/a&gt; | sets the text horizontal scale; condensed text |
+| &lt;a href="#SkPaint_setTextSize"&gt;setTextSize&lt;/a&gt; | sets text size in points |
+| &lt;a href="#SkPaint_setTextSkewX"&gt;setTextSkewX&lt;/a&gt; | sets the text horizontal skew; oblique text |
+| &lt;a href="#SkPaint_setTypeface"&gt;setTypeface&lt;/a&gt; | sets &lt;a href="undocumented#Typeface"&gt;Typeface&lt;/a&gt;, font description |
+| &lt;a href="#SkPaint_setVerticalText"&gt;setVerticalText&lt;/a&gt; | sets or clears &lt;a href="#Vertical_Text"&gt;Vertical Text&lt;/a&gt; |
+| &lt;a href="#SkPaint_textToGlyphs"&gt;textToGlyphs&lt;/a&gt; | converts text into glyph indices |
+| &lt;a href="#SkPaint_toString"&gt;toString&lt;/a&gt; | converts &lt;a href="#Paint"&gt;Paint&lt;/a&gt; to machine readable form |
+| &lt;a href="#SkPaint_unflatten"&gt;unflatten&lt;/a&gt; | populates from a serialized stream |
 
 ## <a name="Initializers"></a> Initializers
 
@@ -5108,6 +5109,17 @@ overrides <a href="#SkPaint_Style">Style</a></td>
 fast computed bounds
 
 ---
+
+## <a name="Utility"></a> Utility
+
+| name | description |
+| --- | --- |
+| &lt;a href="#SkPaint_containsText"&gt;containsText&lt;/a&gt; | returns if all text corresponds to &lt;a href="#Glyph"&gt;Glyphs&lt;/a&gt; |
+| &lt;a href="#SkPaint_countText"&gt;countText&lt;/a&gt; | returns number of &lt;a href="#Glyph"&gt;Glyphs&lt;/a&gt; in text |
+| &lt;a href="#SkPaint_glyphsToUnichars"&gt;glyphsToUnichars&lt;/a&gt; | converts &lt;a href="#Glyph"&gt;Glyphs&lt;/a&gt; into text |
+| &lt;a href="#SkPaint_nothingToDraw"&gt;nothingToDraw&lt;/a&gt; | returns true if &lt;a href="#Paint"&gt;Paint&lt;/a&gt; prevents all drawing |
+| &lt;a href="#SkPaint_textToGlyphs"&gt;textToGlyphs&lt;/a&gt; | converts text into glyph indices |
+| &lt;a href="#SkPaint_toString"&gt;toString&lt;/a&gt; | converts &lt;a href="#Paint"&gt;Paint&lt;/a&gt; to machine readable form |
 
 <a name="SkPaint_toString"></a>
 ## toString

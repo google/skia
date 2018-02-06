@@ -9,8 +9,8 @@ SkAutoCanvasRestore Reference
 
 | name | description |
 | --- | --- |
-| <a href="SkAutoCanvasRestore_Reference#Automatic_Canvas_Restore_Constructor">Constructor</a> | functions that construct <a href="SkAutoCanvasRestore_Reference#SkAutoCanvasRestore">SkAutoCanvasRestore</a> |
-| <a href="SkAutoCanvasRestore_Reference#Automatic_Canvas_Restore_Member_Function">Member Function</a> | static functions and member methods |
+| &lt;a href="SkAutoCanvasRestore_Reference#Automatic_Canvas_Restore_Constructor"&gt;Constructor&lt;/a&gt; | functions that construct &lt;a href="SkAutoCanvasRestore_Reference#SkAutoCanvasRestore"&gt;SkAutoCanvasRestore&lt;/a&gt; |
+| &lt;a href="SkAutoCanvasRestore_Reference#Automatic_Canvas_Restore_Member_Function"&gt;Member Function&lt;/a&gt; | static functions and member methods |
 
 # <a name="SkAutoCanvasRestore"></a> Class SkAutoCanvasRestore
 Stack helper class calls
@@ -19,14 +19,14 @@ Stack helper class calls
 
 | name | description |
 | --- | --- |
-| <a href="#SkAutoCanvasRestore_SkCanvas_star">SkAutoCanvasRestore(SkCanvas* canvas, bool doSave)</a> | preserves <a href="SkCanvas_Reference#Canvas">Canvas</a> save count |
-| <a href="#SkAutoCanvasRestore_destructor">~SkAutoCanvasRestore()</a> | restores <a href="SkCanvas_Reference#Canvas">Canvas</a> to saved state |
+| &lt;a href="#SkAutoCanvasRestore_SkCanvas_star"&gt;SkAutoCanvasRestore(SkCanvas* canvas, bool doSave)&lt;/a&gt; | preserves &lt;a href="SkCanvas_Reference#Canvas"&gt;Canvas&lt;/a&gt; save count |
+| &lt;a href="#SkAutoCanvasRestore_destructor"&gt;~SkAutoCanvasRestore()&lt;/a&gt; | restores &lt;a href="SkCanvas_Reference#Canvas"&gt;Canvas&lt;/a&gt; to saved state |
 
 ## <a name="Member_Function"></a> Member Function
 
 | name | description |
 | --- | --- |
-| <a href="#SkAutoCanvasRestore_restore">restore</a> | restores <a href="SkCanvas_Reference#Canvas">Canvas</a> to saved state |
+| &lt;a href="#SkAutoCanvasRestore_restore"&gt;restore&lt;/a&gt; | restores &lt;a href="SkCanvas_Reference#Canvas"&gt;Canvas&lt;/a&gt; to saved state |
 
 <a name="SkAutoCanvasRestore_SkCanvas_star"></a>
 ## SkAutoCanvasRestore

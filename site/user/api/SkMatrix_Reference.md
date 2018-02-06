@@ -10,9 +10,10 @@ SkMatrix Reference
 | name | description |
 | --- | --- |
 | Constant | enum and enum class, const values |
-| <a href="#Constructor">Constructor</a> | functions that construct <a href="SkMatrix_Reference#SkMatrix">SkMatrix</a> |
-| <a href="#Member_Function">Member Function</a> | static functions and member methods |
-| <a href="#Operator">Operator</a> | operator overloading methods |
+| &lt;a href="#Constructor"&gt;Constructor&lt;/a&gt; | functions that construct &lt;a href="SkMatrix_Reference#SkMatrix"&gt;SkMatrix&lt;/a&gt; |
+| &lt;a href="#Member_Function"&gt;Member Function&lt;/a&gt; | static functions and member methods |
+| &lt;a href="#Operator"&gt;Operator&lt;/a&gt; | operator overloading methods |
+| &lt;a href="#Related_Function"&gt;Related Function&lt;/a&gt; | similar methods grouped together |
 
 # <a name="SkMatrix"></a> Class SkMatrix
 <a href="#Matrix">Matrix</a> holds a 3x3 matrix for transforming coordinates. This allows mapping
@@ -27,136 +28,139 @@ initializes all <a href="#Matrix">Matrix</a> elements with the corresponding map
 <a href="#Matrix">Matrix</a> includes a hidden variable that classifies the type of matrix to
 improve performance. <a href="#Matrix">Matrix</a> is not thread safe unless <a href="#SkMatrix_getType">getType</a> is called first.
 
-## <a name="Constructor"></a> Constructor
-
-| name | description |
-| --- | --- |
-| I | returns a reference to a const identity <a href="#Matrix">Matrix</a> |
-| <a href="#SkMatrix_InvalidMatrix">InvalidMatrix</a> | returns a reference to a const invalid <a href="#Matrix">Matrix</a> |
-| <a href="#SkMatrix_MakeAll">MakeAll</a> | constructs all nine values |
-| <a href="#SkMatrix_MakeRectToRect">MakeRectToRect</a> | constructs from source <a href="SkRect_Reference#Rect">Rect</a> to destination <a href="SkRect_Reference#Rect">Rect</a> |
-| <a href="#SkMatrix_MakeScale">MakeScale</a> | constructs from scale in x and y |
-|  | <a href="#SkMatrix_MakeScale">MakeScale</a> |
-| <a href="#SkMatrix_MakeTrans">MakeTrans</a> | constructs from translate in x and y |
-| <a href="#SkMatrix_SetAffineIdentity">SetAffineIdentity</a> | sets 3x2 array to identity |
-| <a href="#SkMatrix_asAffine">asAffine</a> | copies to 3x2 array |
-| <a href="#SkMatrix_reset">reset</a> | sets <a href="#Matrix">Matrix</a> to identity |
-| <a href="#SkMatrix_setAffine">setAffine</a> | sets left two columns |
-| <a href="#SkMatrix_setConcat">setConcat</a> | sets to <a href="#Matrix">Matrix</a> parameter multiplied by <a href="#Matrix">Matrix</a> parameter |
-| <a href="#SkMatrix_setIdentity">setIdentity</a> | sets <a href="#Matrix">Matrix</a> to identity |
-| <a href="#SkMatrix_setRSXform">setRSXform</a> | sets to rotate, scale, and translate |
-| <a href="#SkMatrix_setRotate">setRotate</a> | sets to rotate about a point |
-|  | <a href="#SkMatrix_setRotate">setRotate</a> |
-| <a href="#SkMatrix_setScale">setScale</a> | sets to scale about a point |
-|  | <a href="#SkMatrix_setScale">setScale</a> |
-| <a href="#SkMatrix_setScaleTranslate">setScaleTranslate</a> | sets to scale and translate |
-| <a href="#SkMatrix_setSinCos">setSinCos</a> | sets to rotate and scale about a point |
-|  | <a href="#SkMatrix_setSinCos">setSinCos</a> |
-| <a href="#SkMatrix_setSkew">setSkew</a> | sets to skew about a point |
-|  | <a href="#SkMatrix_setSkew">setSkew</a> |
-| <a href="#SkMatrix_setTranslate">setTranslate</a> | sets to translate in x and y |
-|  | <a href="#SkMatrix_setTranslate">setTranslate</a> |
-
-## <a name="Operator"></a> Operator
-
-| name | description |
-| --- | --- |
-| <a href="#SkMatrix_Concat">Concat</a> | returns the concatenation of <a href="#Matrix">Matrix</a> pair |
-| <a href="#SkMatrix_cheapEqualTo">cheapEqualTo</a> | compares <a href="#Matrix">Matrix</a> pair using memcmp() |
-| <a href="#SkMatrix_invert">invert</a> | returns inverse, if possible |
-| <a href="#SkMatrix_notequal_operator">operator!=(const SkMatrix& a, const SkMatrix& b)</a> | returns true if members are unequal |
-| <a href="#SkMatrix_equal_operator">operator==(const SkMatrix& a, const SkMatrix& b)</a> | returns true if members are equal |
-| <a href="#SkMatrix_array1_operator">operator[](int index)</a> | returns writable reference to <a href="#Matrix">Matrix</a> value |
-| <a href="#SkMatrix_array_operator">operator[](int index) const</a> | returns <a href="#Matrix">Matrix</a> value |
-
 ## <a name="Member_Function"></a> Member Function
 
 | name | description |
 | --- | --- |
-| <a href="#SkMatrix_Concat">Concat</a> | returns the concatenation of <a href="#Matrix">Matrix</a> pair |
-| I | returns a reference to a const identity <a href="#Matrix">Matrix</a> |
-| <a href="#SkMatrix_InvalidMatrix">InvalidMatrix</a> | returns a reference to a const invalid <a href="#Matrix">Matrix</a> |
-| <a href="#SkMatrix_MakeAll">MakeAll</a> | constructs all nine values |
-| <a href="#SkMatrix_MakeRectToRect">MakeRectToRect</a> | constructs from source <a href="SkRect_Reference#Rect">Rect</a> to destination <a href="SkRect_Reference#Rect">Rect</a> |
-| <a href="#SkMatrix_MakeScale">MakeScale</a> | constructs from scale in x and y |
-| <a href="#SkMatrix_MakeTrans">MakeTrans</a> | constructs from translate in x and y |
-| <a href="#SkMatrix_SetAffineIdentity">SetAffineIdentity</a> | sets 3x2 array to identity |
-| <a href="#SkMatrix_asAffine">asAffine</a> | copies to 3x2 array |
-| <a href="#SkMatrix_cheapEqualTo">cheapEqualTo</a> | compares <a href="#Matrix">Matrix</a> pair using memcmp() |
-| <a href="#SkMatrix_decomposeScale">decomposeScale</a> | separates scale if possible |
-| <a href="#SkMatrix_dirtyMatrixTypeCache">dirtyMatrixTypeCache</a> | sets internal cache to unknown state |
-| <a href="#SkMatrix_dump">dump</a> | sends text representation using floats to standard output |
-| <a href="#SkMatrix_fixedStepInX">fixedStepInX</a> | returns step in x for a position in y |
-| <a href="#SkMatrix_get">get</a> | returns one of nine <a href="#Matrix">Matrix</a> values |
-| <a href="#SkMatrix_get9">get9</a> | returns all nine <a href="#Matrix">Matrix</a> values |
-| <a href="#SkMatrix_getMaxScale">getMaxScale</a> | returns maximum scaling, if possible |
-| <a href="#SkMatrix_getMinMaxScales">getMinMaxScales</a> | returns minimum and maximum scaling, if possible |
-| <a href="#SkMatrix_getMinScale">getMinScale</a> | returns minimum scaling, if possible |
-| <a href="#SkMatrix_getPerspX">getPerspX</a> | returns input x perspective factor |
-| <a href="#SkMatrix_getPerspY">getPerspY</a> | returns input y perspective factor |
-| <a href="#SkMatrix_getScaleX">getScaleX</a> | returns horizontal scale factor |
-| <a href="#SkMatrix_getScaleY">getScaleY</a> | returns vertical scale factor |
-| <a href="#SkMatrix_getSkewX">getSkewX</a> | returns horizontal skew factor |
-| <a href="#SkMatrix_getSkewY">getSkewY</a> | returns vertical skew factor |
-| <a href="#SkMatrix_getTranslateX">getTranslateX</a> | returns horizontal translation |
-| <a href="#SkMatrix_getTranslateY">getTranslateY</a> | returns vertical translation |
-| <a href="#SkMatrix_getType">getType</a> | returns transform complexity |
-| <a href="#SkMatrix_hasPerspective">hasPerspective</a> | returns if transform includes perspective |
-| <a href="#SkMatrix_invert">invert</a> | returns inverse, if possible |
-| <a href="#SkMatrix_isFinite">isFinite</a> | returns if all <a href="#Matrix">Matrix</a> values are not infinity, NaN |
-| <a href="#SkMatrix_isFixedStepInX">isFixedStepInX</a> | returns if transformation supports fixed step in x |
-| <a href="#SkMatrix_isIdentity">isIdentity</a> | returns if matrix equals the identity <a href="#Matrix">Matrix</a> |
-| <a href="#SkMatrix_isScaleTranslate">isScaleTranslate</a> | returns if transform is limited to scale and translate |
-| <a href="#SkMatrix_isSimilarity">isSimilarity</a> | returns if transform is limited to square scale and rotation |
-| <a href="#SkMatrix_isTranslate">isTranslate</a> | returns if transform is limited to translate |
-| <a href="#SkMatrix_mapHomogeneousPoints">mapHomogeneousPoints</a> | maps <a href="undocumented#Point3">Point3</a> array |
-| <a href="#SkMatrix_mapPoints">mapPoints</a> | maps <a href="SkPoint_Reference#Point">Point</a> array |
-| <a href="#SkMatrix_mapRadius">mapRadius</a> | returns mean radius of mapped <a href="undocumented#Circle">Circle</a> |
-| <a href="#SkMatrix_mapRect">mapRect</a> | returns bounds of mapped <a href="SkRect_Reference#Rect">Rect</a> |
-| <a href="#SkMatrix_mapRectScaleTranslate">mapRectScaleTranslate</a> | returns bounds of mapped <a href="SkRect_Reference#Rect">Rect</a> |
-| <a href="#SkMatrix_mapRectToQuad">mapRectToQuad</a> | maps <a href="SkRect_Reference#Rect">Rect</a> to <a href="SkPoint_Reference#Point">Point</a> array |
-| <a href="#SkMatrix_mapVector">mapVector</a> | maps <a href="SkPoint_Reference#Vector">Vector</a> |
-| <a href="#SkMatrix_mapVectors">mapVectors</a> | maps <a href="SkPoint_Reference#Vector">Vector</a> array |
-| <a href="#SkMatrix_mapXY">mapXY</a> | maps <a href="SkPoint_Reference#Point">Point</a> |
-| <a href="#SkMatrix_postConcat">postConcat</a> | post-multiplies <a href="#Matrix">Matrix</a> by <a href="#Matrix">Matrix</a> parameter |
-| <a href="#SkMatrix_postIDiv">postIDiv</a> | post-multiplies <a href="#Matrix">Matrix</a> by inverse scale |
-| <a href="#SkMatrix_postRotate">postRotate</a> | post-multiplies <a href="#Matrix">Matrix</a> by rotation |
-| <a href="#SkMatrix_postScale">postScale</a> | post-multiplies <a href="#Matrix">Matrix</a> by scale |
-| <a href="#SkMatrix_postSkew">postSkew</a> | post-multiplies <a href="#Matrix">Matrix</a> by skew |
-| <a href="#SkMatrix_postTranslate">postTranslate</a> | post-multiplies <a href="#Matrix">Matrix</a> by translation |
-| <a href="#SkMatrix_preConcat">preConcat</a> | pre-multiplies <a href="#Matrix">Matrix</a> by <a href="#Matrix">Matrix</a> parameter |
-| <a href="#SkMatrix_preRotate">preRotate</a> | pre-multiplies <a href="#Matrix">Matrix</a> by rotation |
-| <a href="#SkMatrix_preScale">preScale</a> | pre-multiplies <a href="#Matrix">Matrix</a> by scale |
-| <a href="#SkMatrix_preSkew">preSkew</a> | pre-multiplies <a href="#Matrix">Matrix</a> by skew |
-| <a href="#SkMatrix_preTranslate">preTranslate</a> | pre-multiplies <a href="#Matrix">Matrix</a> by translation |
-| <a href="#SkMatrix_preservesAxisAlignment">preservesAxisAlignment</a> | returns if mapping restricts to 90 degree multiples and mirroring |
-| <a href="#SkMatrix_preservesRightAngles">preservesRightAngles</a> | returns if mapped 90 angle remains 90 degrees |
-| <a href="#SkMatrix_rectStaysRect">rectStaysRect</a> | returns if mapped <a href="SkRect_Reference#Rect">Rect</a> can be represented by another <a href="SkRect_Reference#Rect">Rect</a> |
-| <a href="#SkMatrix_reset">reset</a> | sets <a href="#Matrix">Matrix</a> to identity |
-| <a href="#SkMatrix_set">set</a> | sets one value |
-| <a href="#SkMatrix_set9">set9</a> | sets all values from <a href="#Scalar">Scalar</a> array |
-| <a href="#SkMatrix_setAffine">setAffine</a> | sets left two columns |
-| <a href="#SkMatrix_setAll">setAll</a> | sets all values from parameters |
-| <a href="#SkMatrix_setConcat">setConcat</a> | sets to <a href="#Matrix">Matrix</a> parameter multiplied by <a href="#Matrix">Matrix</a> parameter |
-| <a href="#SkMatrix_setIdentity">setIdentity</a> | sets <a href="#Matrix">Matrix</a> to identity |
-| <a href="#SkMatrix_setPerspX">setPerspX</a> | sets input x perspective factor |
-| <a href="#SkMatrix_setPerspY">setPerspY</a> | sets input y perspective factor |
-| <a href="#SkMatrix_setPolyToPoly">setPolyToPoly</a> | sets to map one to four points to an equal array of points |
-| <a href="#SkMatrix_setRSXform">setRSXform</a> | sets to rotate, scale, and translate |
-| <a href="#SkMatrix_setRectToRect">setRectToRect</a> | sets to map one <a href="SkRect_Reference#Rect">Rect</a> to another |
-| <a href="#SkMatrix_setRotate">setRotate</a> | sets to rotate about a point |
-| <a href="#SkMatrix_setScale">setScale</a> | sets to scale about a point |
-| <a href="#SkMatrix_setScaleTranslate">setScaleTranslate</a> | sets to scale and translate |
-| <a href="#SkMatrix_setScaleX">setScaleX</a> | sets horizontal scale factor |
-| <a href="#SkMatrix_setScaleY">setScaleY</a> | sets vertical scale factor |
-| <a href="#SkMatrix_setSinCos">setSinCos</a> | sets to rotate and scale about a point |
-| <a href="#SkMatrix_setSkew">setSkew</a> | sets to skew about a point |
-| <a href="#SkMatrix_setSkewX">setSkewX</a> | sets horizontal skew factor |
-| <a href="#SkMatrix_setSkewY">setSkewY</a> | sets vertical skew factor |
-| <a href="#SkMatrix_setTranslate">setTranslate</a> | sets to translate in x and y |
-| <a href="#SkMatrix_setTranslateX">setTranslateX</a> | sets horizontal translation |
-| <a href="#SkMatrix_setTranslateY">setTranslateY</a> | sets vertical translation |
-| <a href="#SkMatrix_toString">toString</a> | converts <a href="#Matrix">Matrix</a> to machine readable form |
+| &lt;a href="#SkMatrix_Concat"&gt;Concat&lt;/a&gt; | returns the concatenation of &lt;a href="#Matrix"&gt;Matrix&lt;/a&gt; pair |
+| I | returns a reference to a const identity &lt;a href="#Matrix"&gt;Matrix&lt;/a&gt; |
+| &lt;a href="#SkMatrix_InvalidMatrix"&gt;InvalidMatrix&lt;/a&gt; | returns a reference to a const invalid &lt;a href="#Matrix"&gt;Matrix&lt;/a&gt; |
+| &lt;a href="#SkMatrix_MakeAll"&gt;MakeAll&lt;/a&gt; | constructs all nine values |
+| &lt;a href="#SkMatrix_MakeRectToRect"&gt;MakeRectToRect&lt;/a&gt; | constructs from source &lt;a href="SkRect_Reference#Rect"&gt;Rect&lt;/a&gt; to destination &lt;a href="SkRect_Reference#Rect"&gt;Rect&lt;/a&gt; |
+| &lt;a href="#SkMatrix_MakeScale"&gt;MakeScale&lt;/a&gt; | constructs from scale in x and y |
+| &lt;a href="#SkMatrix_MakeTrans"&gt;MakeTrans&lt;/a&gt; | constructs from translate in x and y |
+| &lt;a href="#SkMatrix_SetAffineIdentity"&gt;SetAffineIdentity&lt;/a&gt; | sets 3x2 array to identity |
+| &lt;a href="#SkMatrix_asAffine"&gt;asAffine&lt;/a&gt; | copies to 3x2 array |
+| &lt;a href="#SkMatrix_cheapEqualTo"&gt;cheapEqualTo&lt;/a&gt; | compares &lt;a href="#Matrix"&gt;Matrix&lt;/a&gt; pair using memcmp() |
+| &lt;a href="#SkMatrix_decomposeScale"&gt;decomposeScale&lt;/a&gt; | separates scale if possible |
+| &lt;a href="#SkMatrix_dirtyMatrixTypeCache"&gt;dirtyMatrixTypeCache&lt;/a&gt; | sets internal cache to unknown state |
+| &lt;a href="#SkMatrix_dump"&gt;dump&lt;/a&gt; | sends text representation using floats to standard output |
+| &lt;a href="#SkMatrix_fixedStepInX"&gt;fixedStepInX&lt;/a&gt; | returns step in x for a position in y |
+| &lt;a href="#SkMatrix_get"&gt;get&lt;/a&gt; | returns one of nine &lt;a href="#Matrix"&gt;Matrix&lt;/a&gt; values |
+| &lt;a href="#SkMatrix_get9"&gt;get9&lt;/a&gt; | returns all nine &lt;a href="#Matrix"&gt;Matrix&lt;/a&gt; values |
+| &lt;a href="#SkMatrix_getMaxScale"&gt;getMaxScale&lt;/a&gt; | returns maximum scaling, if possible |
+| &lt;a href="#SkMatrix_getMinMaxScales"&gt;getMinMaxScales&lt;/a&gt; | returns minimum and maximum scaling, if possible |
+| &lt;a href="#SkMatrix_getMinScale"&gt;getMinScale&lt;/a&gt; | returns minimum scaling, if possible |
+| &lt;a href="#SkMatrix_getPerspX"&gt;getPerspX&lt;/a&gt; | returns input x perspective factor |
+| &lt;a href="#SkMatrix_getPerspY"&gt;getPerspY&lt;/a&gt; | returns input y perspective factor |
+| &lt;a href="#SkMatrix_getScaleX"&gt;getScaleX&lt;/a&gt; | returns horizontal scale factor |
+| &lt;a href="#SkMatrix_getScaleY"&gt;getScaleY&lt;/a&gt; | returns vertical scale factor |
+| &lt;a href="#SkMatrix_getSkewX"&gt;getSkewX&lt;/a&gt; | returns horizontal skew factor |
+| &lt;a href="#SkMatrix_getSkewY"&gt;getSkewY&lt;/a&gt; | returns vertical skew factor |
+| &lt;a href="#SkMatrix_getTranslateX"&gt;getTranslateX&lt;/a&gt; | returns horizontal translation |
+| &lt;a href="#SkMatrix_getTranslateY"&gt;getTranslateY&lt;/a&gt; | returns vertical translation |
+| &lt;a href="#SkMatrix_getType"&gt;getType&lt;/a&gt; | returns transform complexity |
+| &lt;a href="#SkMatrix_hasPerspective"&gt;hasPerspective&lt;/a&gt; | returns if transform includes perspective |
+| &lt;a href="#SkMatrix_invert"&gt;invert&lt;/a&gt; | returns inverse, if possible |
+| &lt;a href="#SkMatrix_isFinite"&gt;isFinite&lt;/a&gt; | returns if all &lt;a href="#Matrix"&gt;Matrix&lt;/a&gt; values are not infinity, NaN |
+| &lt;a href="#SkMatrix_isFixedStepInX"&gt;isFixedStepInX&lt;/a&gt; | returns if transformation supports fixed step in x |
+| &lt;a href="#SkMatrix_isIdentity"&gt;isIdentity&lt;/a&gt; | returns if matrix equals the identity &lt;a href="#Matrix"&gt;Matrix&lt;/a&gt; |
+| &lt;a href="#SkMatrix_isScaleTranslate"&gt;isScaleTranslate&lt;/a&gt; | returns if transform is limited to scale and translate |
+| &lt;a href="#SkMatrix_isSimilarity"&gt;isSimilarity&lt;/a&gt; | returns if transform is limited to square scale and rotation |
+| &lt;a href="#SkMatrix_isTranslate"&gt;isTranslate&lt;/a&gt; | returns if transform is limited to translate |
+| &lt;a href="#SkMatrix_mapHomogeneousPoints"&gt;mapHomogeneousPoints&lt;/a&gt; | maps &lt;a href="undocumented#Point3"&gt;Point3&lt;/a&gt; array |
+| &lt;a href="#SkMatrix_mapPoints"&gt;mapPoints&lt;/a&gt; | maps &lt;a href="SkPoint_Reference#Point"&gt;Point&lt;/a&gt; array |
+| &lt;a href="#SkMatrix_mapRadius"&gt;mapRadius&lt;/a&gt; | returns mean radius of mapped &lt;a href="undocumented#Circle"&gt;Circle&lt;/a&gt; |
+| &lt;a href="#SkMatrix_mapRect"&gt;mapRect&lt;/a&gt; | returns bounds of mapped &lt;a href="SkRect_Reference#Rect"&gt;Rect&lt;/a&gt; |
+| &lt;a href="#SkMatrix_mapRectScaleTranslate"&gt;mapRectScaleTranslate&lt;/a&gt; | returns bounds of mapped &lt;a href="SkRect_Reference#Rect"&gt;Rect&lt;/a&gt; |
+| &lt;a href="#SkMatrix_mapRectToQuad"&gt;mapRectToQuad&lt;/a&gt; | maps &lt;a href="SkRect_Reference#Rect"&gt;Rect&lt;/a&gt; to &lt;a href="SkPoint_Reference#Point"&gt;Point&lt;/a&gt; array |
+| &lt;a href="#SkMatrix_mapVector"&gt;mapVector&lt;/a&gt; | maps &lt;a href="SkPoint_Reference#Vector"&gt;Vector&lt;/a&gt; |
+| &lt;a href="#SkMatrix_mapVectors"&gt;mapVectors&lt;/a&gt; | maps &lt;a href="SkPoint_Reference#Vector"&gt;Vector&lt;/a&gt; array |
+| &lt;a href="#SkMatrix_mapXY"&gt;mapXY&lt;/a&gt; | maps &lt;a href="SkPoint_Reference#Point"&gt;Point&lt;/a&gt; |
+| &lt;a href="#SkMatrix_postConcat"&gt;postConcat&lt;/a&gt; | post-multiplies &lt;a href="#Matrix"&gt;Matrix&lt;/a&gt; by &lt;a href="#Matrix"&gt;Matrix&lt;/a&gt; parameter |
+| &lt;a href="#SkMatrix_postIDiv"&gt;postIDiv&lt;/a&gt; | post-multiplies &lt;a href="#Matrix"&gt;Matrix&lt;/a&gt; by inverse scale |
+| &lt;a href="#SkMatrix_postRotate"&gt;postRotate&lt;/a&gt; | post-multiplies &lt;a href="#Matrix"&gt;Matrix&lt;/a&gt; by rotation |
+| &lt;a href="#SkMatrix_postScale"&gt;postScale&lt;/a&gt; | post-multiplies &lt;a href="#Matrix"&gt;Matrix&lt;/a&gt; by scale |
+| &lt;a href="#SkMatrix_postSkew"&gt;postSkew&lt;/a&gt; | post-multiplies &lt;a href="#Matrix"&gt;Matrix&lt;/a&gt; by skew |
+| &lt;a href="#SkMatrix_postTranslate"&gt;postTranslate&lt;/a&gt; | post-multiplies &lt;a href="#Matrix"&gt;Matrix&lt;/a&gt; by translation |
+| &lt;a href="#SkMatrix_preConcat"&gt;preConcat&lt;/a&gt; | pre-multiplies &lt;a href="#Matrix"&gt;Matrix&lt;/a&gt; by &lt;a href="#Matrix"&gt;Matrix&lt;/a&gt; parameter |
+| &lt;a href="#SkMatrix_preRotate"&gt;preRotate&lt;/a&gt; | pre-multiplies &lt;a href="#Matrix"&gt;Matrix&lt;/a&gt; by rotation |
+| &lt;a href="#SkMatrix_preScale"&gt;preScale&lt;/a&gt; | pre-multiplies &lt;a href="#Matrix"&gt;Matrix&lt;/a&gt; by scale |
+| &lt;a href="#SkMatrix_preSkew"&gt;preSkew&lt;/a&gt; | pre-multiplies &lt;a href="#Matrix"&gt;Matrix&lt;/a&gt; by skew |
+| &lt;a href="#SkMatrix_preTranslate"&gt;preTranslate&lt;/a&gt; | pre-multiplies &lt;a href="#Matrix"&gt;Matrix&lt;/a&gt; by translation |
+| &lt;a href="#SkMatrix_preservesAxisAlignment"&gt;preservesAxisAlignment&lt;/a&gt; | returns if mapping restricts to 90 degree multiples and mirroring |
+| &lt;a href="#SkMatrix_preservesRightAngles"&gt;preservesRightAngles&lt;/a&gt; | returns if mapped 90 angle remains 90 degrees |
+| &lt;a href="#SkMatrix_rectStaysRect"&gt;rectStaysRect&lt;/a&gt; | returns if mapped &lt;a href="SkRect_Reference#Rect"&gt;Rect&lt;/a&gt; can be represented by another &lt;a href="SkRect_Reference#Rect"&gt;Rect&lt;/a&gt; |
+| &lt;a href="#SkMatrix_reset"&gt;reset&lt;/a&gt; | sets &lt;a href="#Matrix"&gt;Matrix&lt;/a&gt; to identity |
+| &lt;a href="#SkMatrix_set"&gt;set&lt;/a&gt; | sets one value |
+| &lt;a href="#SkMatrix_set9"&gt;set9&lt;/a&gt; | sets all values from &lt;a href="#Scalar"&gt;Scalar&lt;/a&gt; array |
+| &lt;a href="#SkMatrix_setAffine"&gt;setAffine&lt;/a&gt; | sets left two columns |
+| &lt;a href="#SkMatrix_setAll"&gt;setAll&lt;/a&gt; | sets all values from parameters |
+| &lt;a href="#SkMatrix_setConcat"&gt;setConcat&lt;/a&gt; | sets to &lt;a href="#Matrix"&gt;Matrix&lt;/a&gt; parameter multiplied by &lt;a href="#Matrix"&gt;Matrix&lt;/a&gt; parameter |
+| &lt;a href="#SkMatrix_setIdentity"&gt;setIdentity&lt;/a&gt; | sets &lt;a href="#Matrix"&gt;Matrix&lt;/a&gt; to identity |
+| &lt;a href="#SkMatrix_setPerspX"&gt;setPerspX&lt;/a&gt; | sets input x perspective factor |
+| &lt;a href="#SkMatrix_setPerspY"&gt;setPerspY&lt;/a&gt; | sets input y perspective factor |
+| &lt;a href="#SkMatrix_setPolyToPoly"&gt;setPolyToPoly&lt;/a&gt; | sets to map one to four points to an equal array of points |
+| &lt;a href="#SkMatrix_setRSXform"&gt;setRSXform&lt;/a&gt; | sets to rotate, scale, and translate |
+| &lt;a href="#SkMatrix_setRectToRect"&gt;setRectToRect&lt;/a&gt; | sets to map one &lt;a href="SkRect_Reference#Rect"&gt;Rect&lt;/a&gt; to another |
+| &lt;a href="#SkMatrix_setRotate"&gt;setRotate&lt;/a&gt; | sets to rotate about a point |
+| &lt;a href="#SkMatrix_setScale"&gt;setScale&lt;/a&gt; | sets to scale about a point |
+| &lt;a href="#SkMatrix_setScaleTranslate"&gt;setScaleTranslate&lt;/a&gt; | sets to scale and translate |
+| &lt;a href="#SkMatrix_setScaleX"&gt;setScaleX&lt;/a&gt; | sets horizontal scale factor |
+| &lt;a href="#SkMatrix_setScaleY"&gt;setScaleY&lt;/a&gt; | sets vertical scale factor |
+| &lt;a href="#SkMatrix_setSinCos"&gt;setSinCos&lt;/a&gt; | sets to rotate and scale about a point |
+| &lt;a href="#SkMatrix_setSkew"&gt;setSkew&lt;/a&gt; | sets to skew about a point |
+| &lt;a href="#SkMatrix_setSkewX"&gt;setSkewX&lt;/a&gt; | sets horizontal skew factor |
+| &lt;a href="#SkMatrix_setSkewY"&gt;setSkewY&lt;/a&gt; | sets vertical skew factor |
+| &lt;a href="#SkMatrix_setTranslate"&gt;setTranslate&lt;/a&gt; | sets to translate in x and y |
+| &lt;a href="#SkMatrix_setTranslateX"&gt;setTranslateX&lt;/a&gt; | sets horizontal translation |
+| &lt;a href="#SkMatrix_setTranslateY"&gt;setTranslateY&lt;/a&gt; | sets vertical translation |
+| &lt;a href="#SkMatrix_toString"&gt;toString&lt;/a&gt; | converts &lt;a href="#Matrix"&gt;Matrix&lt;/a&gt; to machine readable form |
+
+## <a name="Related_Function"></a> Related Function
+
+| name | description |
+| --- | --- |
+| &lt;a href="#Property"&gt;Property&lt;/a&gt; | values and attributes |
+| &lt;a href="#Set"&gt;Set&lt;/a&gt; | set one or more matrix values |
+| &lt;a href="#Transform"&gt;Transform&lt;/a&gt; | map points with &lt;a href="#Matrix"&gt;Matrix&lt;/a&gt; |
+| &lt;a href="#Utility"&gt;Utility&lt;/a&gt; | rarely called management functions |
+
+## <a name="Constructor"></a> Constructor
+
+| name | description |
+| --- | --- |
+| I | returns a reference to a const identity &lt;a href="#Matrix"&gt;Matrix&lt;/a&gt; |
+| &lt;a href="#SkMatrix_InvalidMatrix"&gt;InvalidMatrix&lt;/a&gt; | returns a reference to a const invalid &lt;a href="#Matrix"&gt;Matrix&lt;/a&gt; |
+| &lt;a href="#SkMatrix_MakeAll"&gt;MakeAll&lt;/a&gt; | constructs all nine values |
+| &lt;a href="#SkMatrix_MakeRectToRect"&gt;MakeRectToRect&lt;/a&gt; | constructs from source &lt;a href="SkRect_Reference#Rect"&gt;Rect&lt;/a&gt; to destination &lt;a href="SkRect_Reference#Rect"&gt;Rect&lt;/a&gt; |
+| &lt;a href="#SkMatrix_MakeScale"&gt;MakeScale&lt;/a&gt; | constructs from scale in x and y |
+|  | &lt;a href="#SkMatrix_MakeScale"&gt;MakeScale(SkScalar sx, SkScalar sy)&lt;/a&gt; |
+|  | &lt;a href="#SkMatrix_MakeScale_2"&gt;MakeScale(SkScalar scale)&lt;/a&gt; |
+| &lt;a href="#SkMatrix_MakeTrans"&gt;MakeTrans&lt;/a&gt; | constructs from translate in x and y |
+| &lt;a href="#SkMatrix_SetAffineIdentity"&gt;SetAffineIdentity&lt;/a&gt; | sets 3x2 array to identity |
+| &lt;a href="#SkMatrix_asAffine"&gt;asAffine&lt;/a&gt; | copies to 3x2 array |
+| &lt;a href="#SkMatrix_reset"&gt;reset&lt;/a&gt; | sets &lt;a href="#Matrix"&gt;Matrix&lt;/a&gt; to identity |
+| &lt;a href="#SkMatrix_setAffine"&gt;setAffine&lt;/a&gt; | sets left two columns |
+| &lt;a href="#SkMatrix_setConcat"&gt;setConcat&lt;/a&gt; | sets to &lt;a href="#Matrix"&gt;Matrix&lt;/a&gt; parameter multiplied by &lt;a href="#Matrix"&gt;Matrix&lt;/a&gt; parameter |
+| &lt;a href="#SkMatrix_setIdentity"&gt;setIdentity&lt;/a&gt; | sets &lt;a href="#Matrix"&gt;Matrix&lt;/a&gt; to identity |
+| &lt;a href="#SkMatrix_setRSXform"&gt;setRSXform&lt;/a&gt; | sets to rotate, scale, and translate |
+| &lt;a href="#SkMatrix_setRotate"&gt;setRotate&lt;/a&gt; | sets to rotate about a point |
+|  | &lt;a href="#SkMatrix_setRotate"&gt;setRotate(SkScalar degrees, SkScalar px, SkScalar py)&lt;/a&gt; |
+|  | &lt;a href="#SkMatrix_setRotate_2"&gt;setRotate(SkScalar degrees)&lt;/a&gt; |
+| &lt;a href="#SkMatrix_setScale"&gt;setScale&lt;/a&gt; | sets to scale about a point |
+|  | &lt;a href="#SkMatrix_setScale"&gt;setScale(SkScalar sx, SkScalar sy, SkScalar px, SkScalar py)&lt;/a&gt; |
+|  | &lt;a href="#SkMatrix_setScale_2"&gt;setScale(SkScalar sx, SkScalar sy)&lt;/a&gt; |
+| &lt;a href="#SkMatrix_setScaleTranslate"&gt;setScaleTranslate&lt;/a&gt; | sets to scale and translate |
+| &lt;a href="#SkMatrix_setSinCos"&gt;setSinCos&lt;/a&gt; | sets to rotate and scale about a point |
+|  | &lt;a href="#SkMatrix_setSinCos"&gt;setSinCos(SkScalar sinValue, SkScalar cosValue, SkScalar px, SkScalar py)&lt;/a&gt; |
+|  | &lt;a href="#SkMatrix_setSinCos_2"&gt;setSinCos(SkScalar sinValue, SkScalar cosValue)&lt;/a&gt; |
+| &lt;a href="#SkMatrix_setSkew"&gt;setSkew&lt;/a&gt; | sets to skew about a point |
+|  | &lt;a href="#SkMatrix_setSkew"&gt;setSkew(SkScalar kx, SkScalar ky, SkScalar px, SkScalar py)&lt;/a&gt; |
+|  | &lt;a href="#SkMatrix_setSkew_2"&gt;setSkew(SkScalar kx, SkScalar ky)&lt;/a&gt; |
+| &lt;a href="#SkMatrix_setTranslate"&gt;setTranslate&lt;/a&gt; | sets to translate in x and y |
+|  | &lt;a href="#SkMatrix_setTranslate"&gt;setTranslate(SkScalar dx, SkScalar dy)&lt;/a&gt; |
+|  | &lt;a href="#SkMatrix_setTranslate_2"&gt;setTranslate(const SkVector& v)&lt;/a&gt; |
 
 <a name="SkMatrix_MakeScale"></a>
 ## MakeScale
@@ -379,32 +383,32 @@ after setPolyToPoly: kTranslate_Mask kScale_Mask kAffine_Mask kPerspective_Mask
 
 | name | description |
 | --- | --- |
-| <a href="#SkMatrix_decomposeScale">decomposeScale</a> | separates scale if possible |
-| <a href="#SkMatrix_fixedStepInX">fixedStepInX</a> | returns step in x for a position in y |
-| <a href="#SkMatrix_get">get</a> | returns one of nine <a href="#Matrix">Matrix</a> values |
-| <a href="#SkMatrix_get9">get9</a> | returns all nine <a href="#Matrix">Matrix</a> values |
-| <a href="#SkMatrix_getMaxScale">getMaxScale</a> | returns maximum scaling, if possible |
-| <a href="#SkMatrix_getMinMaxScales">getMinMaxScales</a> | returns minimum and maximum scaling, if possible |
-| <a href="#SkMatrix_getMinScale">getMinScale</a> | returns minimum scaling, if possible |
-| <a href="#SkMatrix_getPerspX">getPerspX</a> | returns input x perspective factor |
-| <a href="#SkMatrix_getPerspY">getPerspY</a> | returns input y perspective factor |
-| <a href="#SkMatrix_getScaleX">getScaleX</a> | returns horizontal scale factor |
-| <a href="#SkMatrix_getScaleY">getScaleY</a> | returns vertical scale factor |
-| <a href="#SkMatrix_getSkewX">getSkewX</a> | returns horizontal skew factor |
-| <a href="#SkMatrix_getSkewY">getSkewY</a> | returns vertical skew factor |
-| <a href="#SkMatrix_getTranslateX">getTranslateX</a> | returns horizontal translation |
-| <a href="#SkMatrix_getTranslateY">getTranslateY</a> | returns vertical translation |
-| <a href="#SkMatrix_getType">getType</a> | returns transform complexity |
-| <a href="#SkMatrix_hasPerspective">hasPerspective</a> | returns if transform includes perspective |
-| <a href="#SkMatrix_isFinite">isFinite</a> | returns if all <a href="#Matrix">Matrix</a> values are not infinity, NaN |
-| <a href="#SkMatrix_isFixedStepInX">isFixedStepInX</a> | returns if transformation supports fixed step in x |
-| <a href="#SkMatrix_isIdentity">isIdentity</a> | returns if matrix equals the identity <a href="#Matrix">Matrix</a> |
-| <a href="#SkMatrix_isScaleTranslate">isScaleTranslate</a> | returns if transform is limited to scale and translate |
-| <a href="#SkMatrix_isSimilarity">isSimilarity</a> | returns if transform is limited to square scale and rotation |
-| <a href="#SkMatrix_isTranslate">isTranslate</a> | returns if transform is limited to translate |
-| <a href="#SkMatrix_preservesAxisAlignment">preservesAxisAlignment</a> | returns if mapping restricts to 90 degree multiples and mirroring |
-| <a href="#SkMatrix_preservesRightAngles">preservesRightAngles</a> | returns if mapped 90 angle remains 90 degrees |
-| <a href="#SkMatrix_rectStaysRect">rectStaysRect</a> | returns if mapped <a href="SkRect_Reference#Rect">Rect</a> can be represented by another <a href="SkRect_Reference#Rect">Rect</a> |
+| &lt;a href="#SkMatrix_decomposeScale"&gt;decomposeScale&lt;/a&gt; | separates scale if possible |
+| &lt;a href="#SkMatrix_fixedStepInX"&gt;fixedStepInX&lt;/a&gt; | returns step in x for a position in y |
+| &lt;a href="#SkMatrix_get"&gt;get&lt;/a&gt; | returns one of nine &lt;a href="#Matrix"&gt;Matrix&lt;/a&gt; values |
+| &lt;a href="#SkMatrix_get9"&gt;get9&lt;/a&gt; | returns all nine &lt;a href="#Matrix"&gt;Matrix&lt;/a&gt; values |
+| &lt;a href="#SkMatrix_getMaxScale"&gt;getMaxScale&lt;/a&gt; | returns maximum scaling, if possible |
+| &lt;a href="#SkMatrix_getMinMaxScales"&gt;getMinMaxScales&lt;/a&gt; | returns minimum and maximum scaling, if possible |
+| &lt;a href="#SkMatrix_getMinScale"&gt;getMinScale&lt;/a&gt; | returns minimum scaling, if possible |
+| &lt;a href="#SkMatrix_getPerspX"&gt;getPerspX&lt;/a&gt; | returns input x perspective factor |
+| &lt;a href="#SkMatrix_getPerspY"&gt;getPerspY&lt;/a&gt; | returns input y perspective factor |
+| &lt;a href="#SkMatrix_getScaleX"&gt;getScaleX&lt;/a&gt; | returns horizontal scale factor |
+| &lt;a href="#SkMatrix_getScaleY"&gt;getScaleY&lt;/a&gt; | returns vertical scale factor |
+| &lt;a href="#SkMatrix_getSkewX"&gt;getSkewX&lt;/a&gt; | returns horizontal skew factor |
+| &lt;a href="#SkMatrix_getSkewY"&gt;getSkewY&lt;/a&gt; | returns vertical skew factor |
+| &lt;a href="#SkMatrix_getTranslateX"&gt;getTranslateX&lt;/a&gt; | returns horizontal translation |
+| &lt;a href="#SkMatrix_getTranslateY"&gt;getTranslateY&lt;/a&gt; | returns vertical translation |
+| &lt;a href="#SkMatrix_getType"&gt;getType&lt;/a&gt; | returns transform complexity |
+| &lt;a href="#SkMatrix_hasPerspective"&gt;hasPerspective&lt;/a&gt; | returns if transform includes perspective |
+| &lt;a href="#SkMatrix_isFinite"&gt;isFinite&lt;/a&gt; | returns if all &lt;a href="#Matrix"&gt;Matrix&lt;/a&gt; values are not infinity, NaN |
+| &lt;a href="#SkMatrix_isFixedStepInX"&gt;isFixedStepInX&lt;/a&gt; | returns if transformation supports fixed step in x |
+| &lt;a href="#SkMatrix_isIdentity"&gt;isIdentity&lt;/a&gt; | returns if matrix equals the identity &lt;a href="#Matrix"&gt;Matrix&lt;/a&gt; |
+| &lt;a href="#SkMatrix_isScaleTranslate"&gt;isScaleTranslate&lt;/a&gt; | returns if transform is limited to scale and translate |
+| &lt;a href="#SkMatrix_isSimilarity"&gt;isSimilarity&lt;/a&gt; | returns if transform is limited to square scale and rotation |
+| &lt;a href="#SkMatrix_isTranslate"&gt;isTranslate&lt;/a&gt; | returns if transform is limited to translate |
+| &lt;a href="#SkMatrix_preservesAxisAlignment"&gt;preservesAxisAlignment&lt;/a&gt; | returns if mapping restricts to 90 degree multiples and mirroring |
+| &lt;a href="#SkMatrix_preservesRightAngles"&gt;preservesRightAngles&lt;/a&gt; | returns if mapped 90 angle remains 90 degrees |
+| &lt;a href="#SkMatrix_rectStaysRect"&gt;rectStaysRect&lt;/a&gt; | returns if mapped &lt;a href="SkRect_Reference#Rect"&gt;Rect&lt;/a&gt; can be represented by another &lt;a href="SkRect_Reference#Rect"&gt;Rect&lt;/a&gt; |
 
 <a name="SkMatrix_getType"></a>
 ## getType
@@ -877,6 +881,18 @@ PDF and XPS.
 
 
 
+## <a name="Operator"></a> Operator
+
+| name | description |
+| --- | --- |
+| &lt;a href="#SkMatrix_Concat"&gt;Concat&lt;/a&gt; | returns the concatenation of &lt;a href="#Matrix"&gt;Matrix&lt;/a&gt; pair |
+| &lt;a href="#SkMatrix_cheapEqualTo"&gt;cheapEqualTo&lt;/a&gt; | compares &lt;a href="#Matrix"&gt;Matrix&lt;/a&gt; pair using memcmp() |
+| &lt;a href="#SkMatrix_invert"&gt;invert&lt;/a&gt; | returns inverse, if possible |
+| &lt;a href="#SkMatrix_notequal_operator"&gt;operator!=(const SkMatrix& a, const SkMatrix& b)&lt;/a&gt; | returns true if members are unequal |
+| &lt;a href="#SkMatrix_equal_operator"&gt;operator==(const SkMatrix& a, const SkMatrix& b)&lt;/a&gt; | returns true if members are equal |
+| &lt;a href="#SkMatrix_array1_operator"&gt;operator[](int index)&lt;/a&gt; | returns writable reference to &lt;a href="#Matrix"&gt;Matrix&lt;/a&gt; value |
+| &lt;a href="#SkMatrix_array_operator"&gt;operator[](int index) const&lt;/a&gt; | returns &lt;a href="#Matrix"&gt;Matrix&lt;/a&gt; value |
+
 <a name="SkMatrix_array_operator"></a>
 ## operator[]
 
@@ -1249,36 +1265,42 @@ after dirty cache:    x = 66
 
 | name | description |
 | --- | --- |
-| <a href="#SkMatrix_postConcat">postConcat</a> | post-multiplies <a href="#Matrix">Matrix</a> by <a href="#Matrix">Matrix</a> parameter |
-| <a href="#SkMatrix_postIDiv">postIDiv</a> | post-multiplies <a href="#Matrix">Matrix</a> by inverse scale |
-| <a href="#SkMatrix_postRotate">postRotate</a> | post-multiplies <a href="#Matrix">Matrix</a> by rotation |
-|  | <a href="#SkMatrix_postRotate">postRotate</a> |
-| <a href="#SkMatrix_postScale">postScale</a> | post-multiplies <a href="#Matrix">Matrix</a> by scale |
-|  | <a href="#SkMatrix_postScale">postScale</a> |
-| <a href="#SkMatrix_postSkew">postSkew</a> | post-multiplies <a href="#Matrix">Matrix</a> by skew |
-|  | <a href="#SkMatrix_postSkew">postSkew</a> |
-| <a href="#SkMatrix_postTranslate">postTranslate</a> | post-multiplies <a href="#Matrix">Matrix</a> by translation |
-| <a href="#SkMatrix_preConcat">preConcat</a> | pre-multiplies <a href="#Matrix">Matrix</a> by <a href="#Matrix">Matrix</a> parameter |
-| <a href="#SkMatrix_preRotate">preRotate</a> | pre-multiplies <a href="#Matrix">Matrix</a> by rotation |
-|  | <a href="#SkMatrix_preRotate">preRotate</a> |
-| <a href="#SkMatrix_preScale">preScale</a> | pre-multiplies <a href="#Matrix">Matrix</a> by scale |
-|  | <a href="#SkMatrix_preScale">preScale</a> |
-| <a href="#SkMatrix_preSkew">preSkew</a> | pre-multiplies <a href="#Matrix">Matrix</a> by skew |
-|  | <a href="#SkMatrix_preSkew">preSkew</a> |
-| <a href="#SkMatrix_preTranslate">preTranslate</a> | pre-multiplies <a href="#Matrix">Matrix</a> by translation |
-| <a href="#SkMatrix_set">set</a> | sets one value |
-| <a href="#SkMatrix_set9">set9</a> | sets all values from <a href="#Scalar">Scalar</a> array |
-| <a href="#SkMatrix_setAll">setAll</a> | sets all values from parameters |
-| <a href="#SkMatrix_setPerspX">setPerspX</a> | sets input x perspective factor |
-| <a href="#SkMatrix_setPerspY">setPerspY</a> | sets input y perspective factor |
-| <a href="#SkMatrix_setPolyToPoly">setPolyToPoly</a> | sets to map one to four points to an equal array of points |
-| <a href="#SkMatrix_setRectToRect">setRectToRect</a> | sets to map one <a href="SkRect_Reference#Rect">Rect</a> to another |
-| <a href="#SkMatrix_setScaleX">setScaleX</a> | sets horizontal scale factor |
-| <a href="#SkMatrix_setScaleY">setScaleY</a> | sets vertical scale factor |
-| <a href="#SkMatrix_setSkewX">setSkewX</a> | sets horizontal skew factor |
-| <a href="#SkMatrix_setSkewY">setSkewY</a> | sets vertical skew factor |
-| <a href="#SkMatrix_setTranslateX">setTranslateX</a> | sets horizontal translation |
-| <a href="#SkMatrix_setTranslateY">setTranslateY</a> | sets vertical translation |
+| &lt;a href="#SkMatrix_postConcat"&gt;postConcat&lt;/a&gt; | post-multiplies &lt;a href="#Matrix"&gt;Matrix&lt;/a&gt; by &lt;a href="#Matrix"&gt;Matrix&lt;/a&gt; parameter |
+| &lt;a href="#SkMatrix_postIDiv"&gt;postIDiv&lt;/a&gt; | post-multiplies &lt;a href="#Matrix"&gt;Matrix&lt;/a&gt; by inverse scale |
+| &lt;a href="#SkMatrix_postRotate"&gt;postRotate&lt;/a&gt; | post-multiplies &lt;a href="#Matrix"&gt;Matrix&lt;/a&gt; by rotation |
+|  | &lt;a href="#SkMatrix_postRotate"&gt;postRotate(SkScalar degrees, SkScalar px, SkScalar py)&lt;/a&gt; |
+|  | &lt;a href="#SkMatrix_postRotate_2"&gt;postRotate(SkScalar degrees)&lt;/a&gt; |
+| &lt;a href="#SkMatrix_postScale"&gt;postScale&lt;/a&gt; | post-multiplies &lt;a href="#Matrix"&gt;Matrix&lt;/a&gt; by scale |
+|  | &lt;a href="#SkMatrix_postScale"&gt;postScale(SkScalar sx, SkScalar sy, SkScalar px, SkScalar py)&lt;/a&gt; |
+|  | &lt;a href="#SkMatrix_postScale_2"&gt;postScale(SkScalar sx, SkScalar sy)&lt;/a&gt; |
+| &lt;a href="#SkMatrix_postSkew"&gt;postSkew&lt;/a&gt; | post-multiplies &lt;a href="#Matrix"&gt;Matrix&lt;/a&gt; by skew |
+|  | &lt;a href="#SkMatrix_postSkew"&gt;postSkew(SkScalar kx, SkScalar ky, SkScalar px, SkScalar py)&lt;/a&gt; |
+|  | &lt;a href="#SkMatrix_postSkew_2"&gt;postSkew(SkScalar kx, SkScalar ky)&lt;/a&gt; |
+| &lt;a href="#SkMatrix_postTranslate"&gt;postTranslate&lt;/a&gt; | post-multiplies &lt;a href="#Matrix"&gt;Matrix&lt;/a&gt; by translation |
+| &lt;a href="#SkMatrix_preConcat"&gt;preConcat&lt;/a&gt; | pre-multiplies &lt;a href="#Matrix"&gt;Matrix&lt;/a&gt; by &lt;a href="#Matrix"&gt;Matrix&lt;/a&gt; parameter |
+| &lt;a href="#SkMatrix_preRotate"&gt;preRotate&lt;/a&gt; | pre-multiplies &lt;a href="#Matrix"&gt;Matrix&lt;/a&gt; by rotation |
+|  | &lt;a href="#SkMatrix_preRotate"&gt;preRotate(SkScalar degrees, SkScalar px, SkScalar py)&lt;/a&gt; |
+|  | &lt;a href="#SkMatrix_preRotate_2"&gt;preRotate(SkScalar degrees)&lt;/a&gt; |
+| &lt;a href="#SkMatrix_preScale"&gt;preScale&lt;/a&gt; | pre-multiplies &lt;a href="#Matrix"&gt;Matrix&lt;/a&gt; by scale |
+|  | &lt;a href="#SkMatrix_preScale"&gt;preScale(SkScalar sx, SkScalar sy, SkScalar px, SkScalar py)&lt;/a&gt; |
+|  | &lt;a href="#SkMatrix_preScale_2"&gt;preScale(SkScalar sx, SkScalar sy)&lt;/a&gt; |
+| &lt;a href="#SkMatrix_preSkew"&gt;preSkew&lt;/a&gt; | pre-multiplies &lt;a href="#Matrix"&gt;Matrix&lt;/a&gt; by skew |
+|  | &lt;a href="#SkMatrix_preSkew"&gt;preSkew(SkScalar kx, SkScalar ky, SkScalar px, SkScalar py)&lt;/a&gt; |
+|  | &lt;a href="#SkMatrix_preSkew_2"&gt;preSkew(SkScalar kx, SkScalar ky)&lt;/a&gt; |
+| &lt;a href="#SkMatrix_preTranslate"&gt;preTranslate&lt;/a&gt; | pre-multiplies &lt;a href="#Matrix"&gt;Matrix&lt;/a&gt; by translation |
+| &lt;a href="#SkMatrix_set"&gt;set&lt;/a&gt; | sets one value |
+| &lt;a href="#SkMatrix_set9"&gt;set9&lt;/a&gt; | sets all values from &lt;a href="#Scalar"&gt;Scalar&lt;/a&gt; array |
+| &lt;a href="#SkMatrix_setAll"&gt;setAll&lt;/a&gt; | sets all values from parameters |
+| &lt;a href="#SkMatrix_setPerspX"&gt;setPerspX&lt;/a&gt; | sets input x perspective factor |
+| &lt;a href="#SkMatrix_setPerspY"&gt;setPerspY&lt;/a&gt; | sets input y perspective factor |
+| &lt;a href="#SkMatrix_setPolyToPoly"&gt;setPolyToPoly&lt;/a&gt; | sets to map one to four points to an equal array of points |
+| &lt;a href="#SkMatrix_setRectToRect"&gt;setRectToRect&lt;/a&gt; | sets to map one &lt;a href="SkRect_Reference#Rect"&gt;Rect&lt;/a&gt; to another |
+| &lt;a href="#SkMatrix_setScaleX"&gt;setScaleX&lt;/a&gt; | sets horizontal scale factor |
+| &lt;a href="#SkMatrix_setScaleY"&gt;setScaleY&lt;/a&gt; | sets vertical scale factor |
+| &lt;a href="#SkMatrix_setSkewX"&gt;setSkewX&lt;/a&gt; | sets horizontal skew factor |
+| &lt;a href="#SkMatrix_setSkewY"&gt;setSkewY&lt;/a&gt; | sets vertical skew factor |
+| &lt;a href="#SkMatrix_setTranslateX"&gt;setTranslateX&lt;/a&gt; | sets horizontal translation |
+| &lt;a href="#SkMatrix_setTranslateY"&gt;setTranslateY&lt;/a&gt; | sets vertical translation |
 
 <a name="SkMatrix_set"></a>
 ## set
@@ -3296,20 +3318,25 @@ ScaleX: 2 SkewY: 5 SkewX: 3 ScaleY: 6 TransX: 4 TransY: 7
 
 | name | description |
 | --- | --- |
-| <a href="#SkMatrix_mapHomogeneousPoints">mapHomogeneousPoints</a> | maps <a href="undocumented#Point3">Point3</a> array |
-| <a href="#SkMatrix_mapPoints">mapPoints</a> | maps <a href="SkPoint_Reference#Point">Point</a> array |
-|  | <a href="#SkMatrix_mapPoints">mapPoints</a> |
-| <a href="#SkMatrix_mapRadius">mapRadius</a> | returns mean radius of mapped <a href="undocumented#Circle">Circle</a> |
-| <a href="#SkMatrix_mapRect">mapRect</a> | returns bounds of mapped <a href="SkRect_Reference#Rect">Rect</a> |
-|  | <a href="#SkMatrix_mapRect">mapRect</a> |
-| <a href="#SkMatrix_mapRectScaleTranslate">mapRectScaleTranslate</a> | returns bounds of mapped <a href="SkRect_Reference#Rect">Rect</a> |
-| <a href="#SkMatrix_mapRectToQuad">mapRectToQuad</a> | maps <a href="SkRect_Reference#Rect">Rect</a> to <a href="SkPoint_Reference#Point">Point</a> array |
-| <a href="#SkMatrix_mapVector">mapVector</a> | maps <a href="SkPoint_Reference#Vector">Vector</a> |
-|  | <a href="#SkMatrix_mapVector">mapVector</a> |
-| <a href="#SkMatrix_mapVectors">mapVectors</a> | maps <a href="SkPoint_Reference#Vector">Vector</a> array |
-|  | <a href="#SkMatrix_mapVectors">mapVectors</a> |
-| <a href="#SkMatrix_mapXY">mapXY</a> | maps <a href="SkPoint_Reference#Point">Point</a> |
-|  | <a href="#SkMatrix_mapXY">mapXY</a> |
+| &lt;a href="#SkMatrix_mapHomogeneousPoints"&gt;mapHomogeneousPoints&lt;/a&gt; | maps &lt;a href="undocumented#Point3"&gt;Point3&lt;/a&gt; array |
+| &lt;a href="#SkMatrix_mapPoints"&gt;mapPoints&lt;/a&gt; | maps &lt;a href="SkPoint_Reference#Point"&gt;Point&lt;/a&gt; array |
+|  | &lt;a href="#SkMatrix_mapPoints"&gt;mapPoints(SkPoint dst[], const SkPoint src[], int count)&lt;/a&gt; const |
+|  | &lt;a href="#SkMatrix_mapPoints_2"&gt;mapPoints(SkPoint pts[], int count)&lt;/a&gt; const |
+| &lt;a href="#SkMatrix_mapRadius"&gt;mapRadius&lt;/a&gt; | returns mean radius of mapped &lt;a href="undocumented#Circle"&gt;Circle&lt;/a&gt; |
+| &lt;a href="#SkMatrix_mapRect"&gt;mapRect&lt;/a&gt; | returns bounds of mapped &lt;a href="SkRect_Reference#Rect"&gt;Rect&lt;/a&gt; |
+|  | &lt;a href="#SkMatrix_mapRect"&gt;mapRect(SkRect* dst, const SkRect& src)&lt;/a&gt; const |
+|  | &lt;a href="#SkMatrix_mapRect_2"&gt;mapRect(SkRect* rect)&lt;/a&gt; const |
+| &lt;a href="#SkMatrix_mapRectScaleTranslate"&gt;mapRectScaleTranslate&lt;/a&gt; | returns bounds of mapped &lt;a href="SkRect_Reference#Rect"&gt;Rect&lt;/a&gt; |
+| &lt;a href="#SkMatrix_mapRectToQuad"&gt;mapRectToQuad&lt;/a&gt; | maps &lt;a href="SkRect_Reference#Rect"&gt;Rect&lt;/a&gt; to &lt;a href="SkPoint_Reference#Point"&gt;Point&lt;/a&gt; array |
+| &lt;a href="#SkMatrix_mapVector"&gt;mapVector&lt;/a&gt; | maps &lt;a href="SkPoint_Reference#Vector"&gt;Vector&lt;/a&gt; |
+|  | &lt;a href="#SkMatrix_mapVector"&gt;mapVector(SkScalar dx, SkScalar dy, SkVector* result)&lt;/a&gt; const |
+|  | &lt;a href="#SkMatrix_mapVector_2"&gt;mapVector(SkScalar dx, SkScalar dy)&lt;/a&gt; const |
+| &lt;a href="#SkMatrix_mapVectors"&gt;mapVectors&lt;/a&gt; | maps &lt;a href="SkPoint_Reference#Vector"&gt;Vector&lt;/a&gt; array |
+|  | &lt;a href="#SkMatrix_mapVectors"&gt;mapVectors(SkVector dst[], const SkVector src[], int count)&lt;/a&gt; const |
+|  | &lt;a href="#SkMatrix_mapVectors_2"&gt;mapVectors(SkVector vecs[], int count)&lt;/a&gt; const |
+| &lt;a href="#SkMatrix_mapXY"&gt;mapXY&lt;/a&gt; | maps &lt;a href="SkPoint_Reference#Point"&gt;Point&lt;/a&gt; |
+|  | &lt;a href="#SkMatrix_mapXY"&gt;mapXY(SkScalar x, SkScalar y, SkPoint* result)&lt;/a&gt; const |
+|  | &lt;a href="#SkMatrix_mapXY_2"&gt;mapXY(SkScalar x, SkScalar y)&lt;/a&gt; const |
 
 <a name="SkMatrix_mapPoints"></a>
 ## mapPoints
@@ -4121,9 +4148,9 @@ true if <a href="#Matrix">Matrix</a> <a href="#SkMatrix_notequal_operator_a">a</
 
 | name | description |
 | --- | --- |
-| <a href="#SkMatrix_dirtyMatrixTypeCache">dirtyMatrixTypeCache</a> | sets internal cache to unknown state |
-| <a href="#SkMatrix_dump">dump</a> | sends text representation using floats to standard output |
-| <a href="#SkMatrix_toString">toString</a> | converts <a href="#Matrix">Matrix</a> to machine readable form |
+| &lt;a href="#SkMatrix_dirtyMatrixTypeCache"&gt;dirtyMatrixTypeCache&lt;/a&gt; | sets internal cache to unknown state |
+| &lt;a href="#SkMatrix_dump"&gt;dump&lt;/a&gt; | sends text representation using floats to standard output |
+| &lt;a href="#SkMatrix_toString"&gt;toString&lt;/a&gt; | converts &lt;a href="#Matrix"&gt;Matrix&lt;/a&gt; to machine readable form |
 
 <a name="SkMatrix_dump"></a>
 ## dump
