@@ -26,7 +26,7 @@ static void drawTestCase(SkCanvas* canvas,
 static void draw_gm(SkCanvas* canvas,
                     SkScalar strokeWidth,
                     SkPaint::Style strokeStyle) {
-    // There's a black pixel at 40, 40 for reference.
+        // There's a black pixel at 40, 40 for reference.
     canvas->drawPoint(40, 40, SkPaint());
 
     // Two reference images.
