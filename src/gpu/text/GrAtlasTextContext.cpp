@@ -11,15 +11,11 @@
 #include "SkDistanceFieldGen.h"
 #include "SkDraw.h"
 #include "SkDrawFilter.h"
-#include "SkDrawProcs.h"
 #include "SkFindAndPlaceGlyph.h"
 #include "SkGr.h"
 #include "SkGraphics.h"
 #include "SkMakeUnique.h"
 #include "SkMaskFilterBase.h"
-#include "SkTextMapStateProc.h"
-#include "SkTextToPathIter.h"
-
 #include "ops/GrMeshDrawOp.h"
 
 // DF sizes and thresholds for usage of the small and medium sizes. For example, above
@@ -51,6 +47,15 @@ GrAtlasTextContext::GrAtlasTextContext(const Options& options)
 
 std::unique_ptr<GrAtlasTextContext> GrAtlasTextContext::Make(const Options& options) {
     return std::unique_ptr<GrAtlasTextContext>(new GrAtlasTextContext(options));
+}
+
+bool GrAtlasTextContext::canDraw(const GrAtlasGlyphCache* fontCache,
+                                 const SkPaint& skPaint,
+                                 const SkMatrix& viewMatrix,
+                                 const SkSurfaceProps& props,
+                                 const GrShaderCaps& shaderCaps) {
+    return this->canDrawAsDistanceFields(skPaint, viewMatrix, props, shaderCaps) ||
+           !SkDraw::ShouldDrawTextAsPaths(skPaint, viewMatrix, fontCache->getGlyphSizeLimit());
 }
 
 SkColor GrAtlasTextContext::ComputeCanonicalColor(const SkPaint& paint, bool lcd) {
@@ -181,8 +186,8 @@ void GrAtlasTextContext::drawTextBlob(GrContext* context, GrTextUtils::Target* t
                                  viewMatrix, props, blob, x, y, drawFilter);
     }
 
-    cacheBlob->flush(atlasGlyphCache, target, props, fDistanceAdjustTable.get(), paint,
-                     clip, viewMatrix, clipBounds, x, y);
+    cacheBlob->flushCached(atlasGlyphCache, target, blob, props, fDistanceAdjustTable.get(), paint,
+                           drawFilter, clip, viewMatrix, clipBounds, x, y);
 }
 
 void GrAtlasTextContext::regenerateTextBlob(GrAtlasTextBlob* cacheBlob,
@@ -230,6 +235,8 @@ void GrAtlasTextContext::regenerateTextBlob(GrAtlasTextBlob* cacheBlob,
                     break;
                 }
             }
+        } else if (SkDraw::ShouldDrawTextAsPaths(runPaint, viewMatrix)) {
+            cacheBlob->setRunTooBigForAtlas(run);
         } else {
             switch (it.positioning()) {
                 case SkTextBlob::kDefault_Positioning:
@@ -321,15 +328,23 @@ void GrAtlasTextContext::drawText(GrContext* context, GrTextUtils::Target* targe
     auto textBlobCache = context->contextPriv().getTextBlobCache();
 
     GrTextUtils::Paint paint(&skPaint, &target->colorSpaceInfo());
-    sk_sp<GrAtlasTextBlob> blob(
-            this->makeDrawTextBlob(textBlobCache, atlasGlyphCache,
-                                    *context->caps()->shaderCaps(), paint,
-                                    ComputeScalerContextFlags(target->colorSpaceInfo()),
-                                    viewMatrix, props, text, byteLength, x, y));
-    if (blob) {
-        blob->flush(atlasGlyphCache, target, props, fDistanceAdjustTable.get(), paint,
-                    clip, viewMatrix, regionClipBounds, x, y);
+    if (this->canDraw(atlasGlyphCache, skPaint, viewMatrix, props,
+                      *context->caps()->shaderCaps())) {
+        sk_sp<GrAtlasTextBlob> blob(
+                this->makeDrawTextBlob(textBlobCache, atlasGlyphCache,
+                                       *context->caps()->shaderCaps(), paint,
+                                       ComputeScalerContextFlags(target->colorSpaceInfo()),
+                                       viewMatrix, props, text, byteLength, x, y));
+        if (blob) {
+            blob->flushThrowaway(atlasGlyphCache, target, props, fDistanceAdjustTable.get(), paint,
+                                 clip, viewMatrix, regionClipBounds, x, y);
+        }
+        return;
     }
+
+    // fall back to drawing as a path or scaled glyph
+    GrTextUtils::DrawBigText(target, clip, paint, viewMatrix, text, byteLength, x, y,
+                             regionClipBounds);
 }
 
 void GrAtlasTextContext::drawPosText(GrContext* context, GrTextUtils::Target* target,
@@ -346,15 +361,23 @@ void GrAtlasTextContext::drawPosText(GrContext* context, GrTextUtils::Target* ta
     auto atlasGlyphCache = context->contextPriv().getAtlasGlyphCache();
     auto textBlobCache = context->contextPriv().getTextBlobCache();
 
-    sk_sp<GrAtlasTextBlob> blob(this->makeDrawPosTextBlob(
-            textBlobCache, atlasGlyphCache,
-            *context->caps()->shaderCaps(), paint,
-            ComputeScalerContextFlags(target->colorSpaceInfo()), viewMatrix, props, text,
-            byteLength, pos, scalarsPerPosition, offset));
-    if (blob) {
-        blob->flush(atlasGlyphCache, target, props, fDistanceAdjustTable.get(), paint,
-                    clip, viewMatrix, regionClipBounds, offset.fX, offset.fY);
+    if (this->canDraw(atlasGlyphCache, skPaint, viewMatrix, props,
+                      *context->caps()->shaderCaps())) {
+        sk_sp<GrAtlasTextBlob> blob(this->makeDrawPosTextBlob(
+                textBlobCache, atlasGlyphCache,
+                *context->caps()->shaderCaps(), paint,
+                ComputeScalerContextFlags(target->colorSpaceInfo()), viewMatrix, props, text,
+                byteLength, pos, scalarsPerPosition, offset));
+        if (blob) {
+            blob->flushThrowaway(atlasGlyphCache, target, props, fDistanceAdjustTable.get(), paint,
+                                 clip, viewMatrix, regionClipBounds, offset.fX, offset.fY);
+        }
+        return;
     }
+
+    // fall back to drawing as a path or scaled glyph
+    GrTextUtils::DrawBigPosText(target, props, clip, paint, viewMatrix, text,
+                                byteLength, pos, scalarsPerPosition, offset, regionClipBounds);
 }
 
 void GrAtlasTextContext::DrawBmpText(GrAtlasTextBlob* blob, int runIndex,
@@ -373,11 +396,8 @@ void GrAtlasTextContext::DrawBmpText(GrAtlasTextBlob* blob, int runIndex,
     // Ensure the blob is set for bitmaptext
     blob->setHasBitmap();
 
-    if (SkDraw::ShouldDrawTextAsPaths(paint, viewMatrix)) {
-        DrawBmpTextAsPaths(blob, runIndex, paint, text, byteLength, x, y);
-        return;
-    }
     GrAtlasTextStrike* currStrike = nullptr;
+
     SkGlyphCache* cache = blob->setupCache(runIndex, props, scalerContextFlags, paint, &viewMatrix);
     SkFindAndPlaceGlyph::ProcessText(paint.skPaint().getTextEncoding(), text, byteLength, {x, y},
                                      viewMatrix, paint.skPaint().getTextAlign(), cache,
@@ -412,15 +432,10 @@ void GrAtlasTextContext::DrawBmpPosText(GrAtlasTextBlob* blob, int runIndex,
     // Ensure the blob is set for bitmaptext
     blob->setHasBitmap();
 
-    if (SkDraw::ShouldDrawTextAsPaths(paint, viewMatrix)) {
-        DrawBmpPosTextAsPaths(blob, runIndex, props, paint, text, byteLength,
-                              pos, scalarsPerPosition, offset, textRatio);
-        return;
-    }
-
     GrAtlasTextStrike* currStrike = nullptr;
 
     SkGlyphCache* cache = blob->setupCache(runIndex, props, scalerContextFlags, paint, &viewMatrix);
+
     SkFindAndPlaceGlyph::ProcessPosText(
             paint.skPaint().getTextEncoding(), text, byteLength, offset, viewMatrix, pos,
             scalarsPerPosition, paint.skPaint().getTextAlign(), cache,
@@ -433,77 +448,6 @@ void GrAtlasTextContext::DrawBmpPosText(GrAtlasTextBlob* blob, int runIndex,
             });
 
     SkGlyphCache::AttachCache(cache);
-}
-
-void GrAtlasTextContext::DrawBmpTextAsPaths(GrAtlasTextBlob* blob, int runIndex,
-                                            const GrTextUtils::Paint& origPaint, const char text[],
-                                            size_t byteLength, SkScalar x, SkScalar y) {
-    // nothing to draw
-    if (text == nullptr || byteLength == 0) {
-        return;
-    }
-
-    // Temporarily jam in kFill, so we only ever ask for the raw outline from the cache.
-    SkPaint paint(origPaint);
-    paint.setStyle(SkPaint::kFill_Style);
-    paint.setPathEffect(nullptr);
-
-    SkTextToPathIter iter(text, byteLength, paint, true);
-    const SkPath* iterPath;
-    SkScalar xpos = 0;
-    while (iter.next(&iterPath, &xpos)) {
-        if (iterPath) {
-            blob->appendPathGlyph(runIndex, *iterPath, xpos + x, y, iter.getPathScale(), false);
-        }
-    }
-}
-
-void GrAtlasTextContext::DrawBmpPosTextAsPaths(GrAtlasTextBlob* blob, int runIndex,
-                                               const SkSurfaceProps& props,
-                                               const GrTextUtils::Paint& origPaint,
-                                               const char text[], size_t byteLength,
-                                               const SkScalar pos[], int scalarsPerPosition,
-                                               const SkPoint& offset, SkScalar textRatio) {
-    SkASSERT(1 == scalarsPerPosition || 2 == scalarsPerPosition);
-
-    // nothing to draw
-    if (text == nullptr || byteLength == 0) {
-        return;
-    }
-
-    // setup our std paint, in hopes of getting hits in the cache
-    SkPaint paint(origPaint);
-    SkScalar matrixScale = paint.setupForAsPaths();
-    matrixScale *= textRatio;
-
-    // Temporarily jam in kFill, so we only ever ask for the raw outline from the cache.
-    paint.setStyle(SkPaint::kFill_Style);
-    paint.setPathEffect(nullptr);
-
-    SkPaint::GlyphCacheProc    glyphCacheProc = SkPaint::GetGlyphCacheProc(paint.getTextEncoding(),
-                                                                           paint.isDevKernText(),
-                                                                           true);
-    SkAutoGlyphCache           autoCache(paint, &props, nullptr);
-    SkGlyphCache*              cache = autoCache.getCache();
-
-    const char*        stop = text + byteLength;
-    SkTextAlignProc    alignProc(paint.getTextAlign());
-    SkTextMapStateProc tmsProc(SkMatrix::I(), offset, scalarsPerPosition);
-
-    while (text < stop) {
-        const SkGlyph& glyph = glyphCacheProc(cache, &text);
-        if (glyph.fWidth) {
-            const SkPath* path = cache->findPath(glyph);
-            if (path) {
-                SkPoint tmsLoc;
-                tmsProc(pos, &tmsLoc);
-                SkPoint loc;
-                alignProc(tmsLoc, glyph, &loc);
-                blob->appendPathGlyph(runIndex, *path, loc.fX, loc.fY, matrixScale, false);
-            }
-        }
-        pos += scalarsPerPosition;
-    }
 }
 
 void GrAtlasTextContext::BmpAppendGlyph(GrAtlasTextBlob* blob, int runIndex,
@@ -523,7 +467,6 @@ void GrAtlasTextContext::BmpAppendGlyph(GrAtlasTextBlob* blob, int runIndex,
     if (!glyph) {
         return;
     }
-    glyph->fTooLargeForAtlas = glyph->fTooLargeForAtlas;
 
     SkASSERT(skGlyph.fWidth == glyph->width());
     SkASSERT(skGlyph.fHeight == glyph->height());
@@ -732,10 +675,11 @@ void GrAtlasTextContext::drawDFPosText(GrAtlasTextBlob* blob, int runIndex,
     SkTDArray<char> fallbackTxt;
     SkTDArray<SkScalar> fallbackPos;
 
-    bool useScaledFallback = false;
+    SkTDArray<char> bigFallbackTxt;
+    SkTDArray<SkScalar> bigFallbackPos;
     SkScalar textSize = paint.skPaint().getTextSize();
     SkScalar maxTextSize = fontCache->getGlyphSizeLimit();
-    SkScalar scaledFallbackTextSize = maxTextSize;
+    SkScalar bigFallbackTextSize = maxTextSize;
     SkScalar maxScale = viewMatrix.getMaxScale();
 
     bool hasWCoord = viewMatrix.hasPerspective() || fDistanceFieldVerticesAlwaysHaveW;
@@ -779,30 +723,19 @@ void GrAtlasTextContext::drawDFPosText(GrAtlasTextBlob* blob, int runIndex,
                               y - advanceY, paint.filteredPremulColor(), cache, textRatio);
             } else {
                 // can't append color glyph to SDF batch, send to fallback
-
-                // all fallback glyphs need to use the same descriptor, so once
-                // we have to scale one, we have to scale all of them
                 SkScalar maxDim = SkTMax(glyph.fWidth, glyph.fHeight)*textRatio;
-                if (!useScaledFallback) {
-                    SkScalar scaledGlyphSize = maxDim * maxScale;
-                    if (!viewMatrix.hasPerspective() && scaledGlyphSize > maxTextSize) {
-                        useScaledFallback = true;
-                        // rescale previous glyph positions to match text scale
-                        for (int i = 0; i < fallbackPos.count(); ++i) {
-                            fallbackPos[i] *= maxScale;
-                        }
-                    }
-                }
+                SkScalar scaledGlyphSize = maxDim*maxScale;
 
-                fallbackTxt.append(SkToInt(text - lastText), lastText);
-                if (useScaledFallback) {
-                    *fallbackPos.append() = maxScale*pos[0];
+                if (!viewMatrix.hasPerspective() && scaledGlyphSize > maxTextSize) {
+                    bigFallbackTxt.append(SkToInt(text - lastText), lastText);
+                    *bigFallbackPos.append() = maxScale*pos[0];
                     if (2 == scalarsPerPosition) {
-                        *fallbackPos.append() = maxScale*pos[1];
+                        *bigFallbackPos.append() = maxScale*pos[1];
                     }
                     SkScalar glyphTextSize = SkScalarFloorToScalar(maxTextSize*textSize/maxDim);
-                    scaledFallbackTextSize = SkTMin(glyphTextSize, scaledFallbackTextSize);
+                    bigFallbackTextSize = SkTMin(glyphTextSize, bigFallbackTextSize);
                 } else {
+                    fallbackTxt.append(SkToInt(text - lastText), lastText);
                     *fallbackPos.append() = pos[0];
                     if (2 == scalarsPerPosition) {
                         *fallbackPos.append() = pos[1];
@@ -814,35 +747,33 @@ void GrAtlasTextContext::drawDFPosText(GrAtlasTextBlob* blob, int runIndex,
     }
 
     SkGlyphCache::AttachCache(cache);
-
     if (fallbackTxt.count()) {
         blob->initOverride(runIndex);
-        if (useScaledFallback) {
-            // Set up paint and matrix to scale glyphs
-            SkPaint scaledPaint(paint);
-            scaledPaint.setTextSize(scaledFallbackTextSize);
-            // remove maxScale from viewMatrix and move it into textRatio
-            // this keeps the base glyph size consistent regardless of matrix scale
-            SkMatrix modMatrix(viewMatrix);
-            SkScalar invScale = SkScalarInvert(maxScale);
-            modMatrix.preScale(invScale, invScale);
-            SkScalar scaledFallbackTextRatio = textSize * maxScale / scaledFallbackTextSize;
-            SkPoint modOffset(offset);
-            modOffset *= maxScale;
-            GrTextUtils::Paint textPaint(&scaledPaint, paint.dstColorSpaceInfo());
-            GrAtlasTextContext::DrawBmpPosText(blob, runIndex, fontCache, props, textPaint,
-                                               scalerContextFlags, modMatrix, fallbackTxt.begin(),
-                                               fallbackTxt.count(), fallbackPos.begin(),
-                                               scalarsPerPosition, modOffset,
-                                               scaledFallbackTextRatio);
-        } else {
-            GrAtlasTextContext::DrawBmpPosText(blob, runIndex, fontCache, props, paint,
-                                               scalerContextFlags, viewMatrix, fallbackTxt.begin(),
-                                               fallbackTxt.count(), fallbackPos.begin(),
-                                               scalarsPerPosition, offset, SK_Scalar1);
-        }
+        GrAtlasTextContext::DrawBmpPosText(blob, runIndex, fontCache, props, paint,
+                                           scalerContextFlags, viewMatrix, fallbackTxt.begin(),
+                                           fallbackTxt.count(), fallbackPos.begin(),
+                                           scalarsPerPosition, offset, SK_Scalar1);
     }
 
+    if (bigFallbackTxt.count()) {
+        // Set up paint and matrix to scale glyphs
+        blob->initOverride(runIndex);
+        SkPaint largePaint(paint);
+        largePaint.setTextSize(bigFallbackTextSize);
+        // remove maxScale from viewMatrix and move it into textRatio
+        // this keeps the base glyph size consistent regardless of matrix scale
+        SkMatrix modMatrix(viewMatrix);
+        SkScalar invScale = SkScalarInvert(maxScale);
+        modMatrix.preScale(invScale, invScale);
+        SkScalar bigFallbackTextRatio = textSize*maxScale/bigFallbackTextSize;
+        SkPoint modOffset(offset);
+        modOffset *= maxScale;
+        GrTextUtils::Paint textPaint(&largePaint, paint.dstColorSpaceInfo());
+        GrAtlasTextContext::DrawBmpPosText(blob, runIndex, fontCache, props, textPaint,
+                                           scalerContextFlags, modMatrix, bigFallbackTxt.begin(),
+                                           bigFallbackTxt.count(), bigFallbackPos.begin(),
+                                           scalarsPerPosition, modOffset, bigFallbackTextRatio);
+    }
 }
 
 // TODO: merge with BmpAppendGlyph
