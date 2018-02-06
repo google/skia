@@ -8,13 +8,10 @@
 #include "GrTextUtils.h"
 #include "GrContext.h"
 #include "SkDrawFilter.h"
-#include "SkDrawProcs.h"
 #include "SkGlyphCache.h"
 #include "SkGr.h"
 #include "SkPaint.h"
 #include "SkTextBlobRunIterator.h"
-#include "SkTextMapStateProc.h"
-#include "SkTextToPathIter.h"
 
 void GrTextUtils::Paint::initFilteredColor() {
     // This mirrors the logic in skpaint_to_grpaint_impl for handling paint colors
@@ -76,83 +73,4 @@ uint32_t GrTextUtils::FilterTextFlags(const SkSurfaceProps& surfaceProps, const 
 bool GrTextUtils::ShouldDisableLCD(const SkPaint& paint) {
     return paint.getMaskFilter() || paint.getPathEffect() ||
            paint.isFakeBoldText() || paint.getStyle() != SkPaint::kFill_Style;
-}
-
-void GrTextUtils::DrawBigText(GrTextUtils::Target* target,
-                              const GrClip& clip, const SkPaint& paint,
-                              const SkMatrix& viewMatrix, const char text[], size_t byteLength,
-                              SkScalar x, SkScalar y, const SkIRect& clipBounds) {
-    if (!paint.countText(text, byteLength)) {
-        return;
-    }
-    SkTextToPathIter iter(text, byteLength, paint, true);
-
-    SkMatrix    matrix;
-    matrix.setScale(iter.getPathScale(), iter.getPathScale());
-    matrix.postTranslate(x, y);
-
-    const SkPath* iterPath;
-    SkScalar xpos, prevXPos = 0;
-
-    while (iter.next(&iterPath, &xpos)) {
-        matrix.postTranslate(xpos - prevXPos, 0);
-        if (iterPath) {
-            const SkPaint& pnt = iter.getPaint();
-            target->drawPath(clip, *iterPath, pnt, viewMatrix, &matrix, clipBounds);
-        }
-        prevXPos = xpos;
-    }
-}
-
-void GrTextUtils::DrawBigPosText(GrTextUtils::Target* target,
-                                 const SkSurfaceProps& props, const GrClip& clip,
-                                 const SkPaint& origPaint, const SkMatrix& viewMatrix,
-                                 const char text[], size_t byteLength, const SkScalar pos[],
-                                 int scalarsPerPosition, const SkPoint& offset,
-                                 const SkIRect& clipBounds) {
-    if (!origPaint.countText(text, byteLength)) {
-        return;
-    }
-    // setup our std paint, in hopes of getting hits in the cache
-    SkPaint paint(origPaint);
-    SkScalar matrixScale = paint.setupForAsPaths();
-
-    SkMatrix matrix;
-    matrix.setScale(matrixScale, matrixScale);
-
-    // Temporarily jam in kFill, so we only ever ask for the raw outline from the cache.
-    paint.setStyle(SkPaint::kFill_Style);
-    paint.setPathEffect(nullptr);
-
-    SkPaint::GlyphCacheProc    glyphCacheProc = SkPaint::GetGlyphCacheProc(paint.getTextEncoding(),
-                                                                           paint.isDevKernText(),
-                                                                           true);
-    SkAutoGlyphCache           autoCache(paint, &props, nullptr);
-    SkGlyphCache*              cache = autoCache.getCache();
-
-    const char*        stop = text + byteLength;
-    SkTextAlignProc    alignProc(paint.getTextAlign());
-    SkTextMapStateProc tmsProc(SkMatrix::I(), offset, scalarsPerPosition);
-
-    // Now restore the original settings, so we "draw" with whatever style/stroking.
-    paint.setStyle(origPaint.getStyle());
-    paint.setPathEffect(origPaint.refPathEffect());
-
-    while (text < stop) {
-        const SkGlyph& glyph = glyphCacheProc(cache, &text);
-        if (glyph.fWidth) {
-            const SkPath* path = cache->findPath(glyph);
-            if (path) {
-                SkPoint tmsLoc;
-                tmsProc(pos, &tmsLoc);
-                SkPoint loc;
-                alignProc(tmsLoc, glyph, &loc);
-
-                matrix[SkMatrix::kMTransX] = loc.fX;
-                matrix[SkMatrix::kMTransY] = loc.fY;
-                target->drawPath(clip, *path, paint, viewMatrix, &matrix, clipBounds);
-            }
-        }
-        pos += scalarsPerPosition;
-    }
 }
