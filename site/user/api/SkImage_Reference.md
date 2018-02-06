@@ -730,8 +730,8 @@ zero but may differ from plane to plane. Returned <a href="#Image">Image</a> has
 <table>  <tr>    <td><a name="SkImage_MakeFromYUVTexturesCopy_context"> <code><strong>context </strong></code> </a></td> <td>
 <a href="undocumented#GPU_Context">GPU Context</a></td>
   </tr>  <tr>    <td><a name="SkImage_MakeFromYUVTexturesCopy_yuvColorSpace"> <code><strong>yuvColorSpace </strong></code> </a></td> <td>
-one of: <a href="SkImageInfo_Reference#SkYUVColorSpace">kJPEG SkYUVColorSpace</a>, <a href="SkImageInfo_Reference#SkYUVColorSpace">kRec601 SkYUVColorSpace</a>,
-<a href="SkImageInfo_Reference#SkYUVColorSpace">kRec709 SkYUVColorSpace</a></td>
+one of: <a href="undocumented#YUV_ColorSpace">kJPEG SkYUVColorSpace</a>, <a href="undocumented#YUV_ColorSpace">kRec601 SkYUVColorSpace</a>,
+<a href="undocumented#YUV_ColorSpace">kRec709 SkYUVColorSpace</a></td>
   </tr>  <tr>    <td><a name="SkImage_MakeFromYUVTexturesCopy_yuvTextureHandles"> <code><strong>yuvTextureHandles </strong></code> </a></td> <td>
 array of YUV textures on GPU</td>
   </tr>  <tr>    <td><a name="SkImage_MakeFromYUVTexturesCopy_yuvSizes"> <code><strong>yuvSizes </strong></code> </a></td> <td>
@@ -774,8 +774,8 @@ zero but may differ from plane to plane. Returned <a href="#Image">Image</a> has
 <table>  <tr>    <td><a name="SkImage_MakeFromYUVTexturesCopy_2_context"> <code><strong>context </strong></code> </a></td> <td>
 <a href="undocumented#GPU_Context">GPU Context</a></td>
   </tr>  <tr>    <td><a name="SkImage_MakeFromYUVTexturesCopy_2_yuvColorSpace"> <code><strong>yuvColorSpace </strong></code> </a></td> <td>
-one of: <a href="SkImageInfo_Reference#SkYUVColorSpace">kJPEG SkYUVColorSpace</a>, <a href="SkImageInfo_Reference#SkYUVColorSpace">kRec601 SkYUVColorSpace</a>,
-<a href="SkImageInfo_Reference#SkYUVColorSpace">kRec709 SkYUVColorSpace</a></td>
+one of: <a href="undocumented#YUV_ColorSpace">kJPEG SkYUVColorSpace</a>, <a href="undocumented#YUV_ColorSpace">kRec601 SkYUVColorSpace</a>,
+<a href="undocumented#YUV_ColorSpace">kRec709 SkYUVColorSpace</a></td>
   </tr>  <tr>    <td><a name="SkImage_MakeFromYUVTexturesCopy_2_yuvTextureHandles"> <code><strong>yuvTextureHandles </strong></code> </a></td> <td>
 array of YUV textures on GPU</td>
   </tr>  <tr>    <td><a name="SkImage_MakeFromYUVTexturesCopy_2_yuvSizes"> <code><strong>yuvSizes </strong></code> </a></td> <td>
@@ -821,8 +821,8 @@ zero but may differ from plane to plane. Returned <a href="#Image">Image</a> has
 <table>  <tr>    <td><a name="SkImage_MakeFromNV12TexturesCopy_context"> <code><strong>context </strong></code> </a></td> <td>
 <a href="undocumented#GPU_Context">GPU Context</a></td>
   </tr>  <tr>    <td><a name="SkImage_MakeFromNV12TexturesCopy_yuvColorSpace"> <code><strong>yuvColorSpace </strong></code> </a></td> <td>
-one of: <a href="SkImageInfo_Reference#SkYUVColorSpace">kJPEG SkYUVColorSpace</a>, <a href="SkImageInfo_Reference#SkYUVColorSpace">kRec601 SkYUVColorSpace</a>,
-<a href="SkImageInfo_Reference#SkYUVColorSpace">kRec709 SkYUVColorSpace</a></td>
+one of: <a href="undocumented#YUV_ColorSpace">kJPEG SkYUVColorSpace</a>, <a href="undocumented#YUV_ColorSpace">kRec601 SkYUVColorSpace</a>,
+<a href="undocumented#YUV_ColorSpace">kRec709 SkYUVColorSpace</a></td>
   </tr>  <tr>    <td><a name="SkImage_MakeFromNV12TexturesCopy_nv12TextureHandles"> <code><strong>nv12TextureHandles </strong></code> </a></td> <td>
 array of YUV textures on GPU</td>
   </tr>  <tr>    <td><a name="SkImage_MakeFromNV12TexturesCopy_nv12Sizes"> <code><strong>nv12Sizes </strong></code> </a></td> <td>
@@ -867,8 +867,8 @@ zero but may differ from plane to plane. Returned <a href="#Image">Image</a> has
 <table>  <tr>    <td><a name="SkImage_MakeFromNV12TexturesCopy_2_context"> <code><strong>context </strong></code> </a></td> <td>
 <a href="undocumented#GPU_Context">GPU Context</a></td>
   </tr>  <tr>    <td><a name="SkImage_MakeFromNV12TexturesCopy_2_yuvColorSpace"> <code><strong>yuvColorSpace </strong></code> </a></td> <td>
-one of: <a href="SkImageInfo_Reference#SkYUVColorSpace">kJPEG SkYUVColorSpace</a>, <a href="SkImageInfo_Reference#SkYUVColorSpace">kRec601 SkYUVColorSpace</a>,
-<a href="SkImageInfo_Reference#SkYUVColorSpace">kRec709 SkYUVColorSpace</a></td>
+one of: <a href="undocumented#YUV_ColorSpace">kJPEG SkYUVColorSpace</a>, <a href="undocumented#YUV_ColorSpace">kRec601 SkYUVColorSpace</a>,
+<a href="undocumented#YUV_ColorSpace">kRec709 SkYUVColorSpace</a></td>
   </tr>  <tr>    <td><a name="SkImage_MakeFromNV12TexturesCopy_2_nv12TextureHandles"> <code><strong>nv12TextureHandles </strong></code> </a></td> <td>
 array of YUV textures on GPU</td>
   </tr>  <tr>    <td><a name="SkImage_MakeFromNV12TexturesCopy_2_nv12Sizes"> <code><strong>nv12Sizes </strong></code> </a></td> <td>

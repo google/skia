@@ -29,6 +29,7 @@ its top, it is considered empty.
 | <a href="#Inset_Outset_Offset">Inset Outset Offset</a> | moves sides |
 | <a href="#Intersection">Intersection</a> | set to shared bounds |
 | <a href="#Join">Join</a> | set to union of bounds |
+| <a href="#Property">Property</a> | member values, center, validity |
 | <a href="#Sorting">Sorting</a> | orders sides |
 
 ## <a name="Member_Function"></a> Member Function
