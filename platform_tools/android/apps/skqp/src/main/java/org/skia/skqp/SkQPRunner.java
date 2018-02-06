@@ -15,14 +15,31 @@ import android.util.Log;
 import java.io.File;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
+import java.util.HashSet;
 import org.junit.runner.Description;
 import org.junit.runner.RunWith;
 import org.junit.runner.Runner;
+import org.junit.runner.manipulation.Filter;
+import org.junit.runner.manipulation.Filterable;
+import org.junit.runner.manipulation.NoTestsRemainException;
 import org.junit.runner.notification.Failure;
 import org.junit.runner.notification.RunNotifier;
 
 @RunWith(SkQPRunner.class)
-public class SkQPRunner extends Runner {
+public class SkQPRunner extends Runner implements Filterable {
+    private class SkQPTest {
+        public SkQPTest(int b, int i) { backend = b; index = i; }
+        public int backend;
+        public int index;
+        @Override
+        public boolean equals(Object o) {
+            return o instanceof SkQPTest &&
+                   backend == ((SkQPTest)o).backend && index == ((SkQPTest)o).index;
+        }
+        @Override
+        public int hashCode() { return index | (backend << 16); }
+    }
+    private HashSet<SkQPTest> mFilteredTests;
     private Description mDescription;
     private SkQP impl;
     private static final String TAG = SkQP.LOG_PREFIX;
@@ -54,18 +71,18 @@ public class SkQPRunner extends Runner {
         impl.nInit(mAssetManager, filesDir.getAbsolutePath(), false);
 
         mDescription = Description.createSuiteDescription(testClass);
-        Annotation annots[] = new Annotation[0];
         for (int backend = 0; backend < impl.mBackends.length; backend++) {
             String classname = SkQP.kSkiaGM + impl.mBackends[backend];
             for (int gm = 0; gm < impl.mGMs.length; gm++) {
                 mDescription.addChild(
-                        Description.createTestDescription(classname, impl.mGMs[gm], annots));
+                        Description.createTestDescription(classname, impl.mGMs[gm]));
             }
         }
         for (int unitTest = 0; unitTest < impl.mUnitTests.length; unitTest++) {
             mDescription.addChild(Description.createTestDescription(SkQP.kSkiaUnitTests,
-                        impl.mUnitTests[unitTest], annots));
+                        impl.mUnitTests[unitTest]));
         }
+        mFilteredTests = new HashSet<SkQPTest>();
     }
 
     @Override
@@ -84,6 +101,9 @@ public class SkQPRunner extends Runner {
         for (int backend = 0; backend < impl.mBackends.length; backend++) {
             String classname = SkQP.kSkiaGM + impl.mBackends[backend];
             for (int gm = 0; gm < impl.mGMs.length; gm++) {
+                if (mFilteredTests.contains(new SkQPTest(backend, gm))) {
+                    continue;
+                }
                 String gmName = String.format("%s/%s", impl.mBackends[backend], impl.mGMs[gm]);
                 Log.v(TAG, String.format("Rendering Test %s started (%d/%d).",
                                          gmName, testNumber, numberOfTests));
@@ -112,6 +132,9 @@ public class SkQPRunner extends Runner {
             }
         }
         for (int unitTest = 0; unitTest < impl.mUnitTests.length; unitTest++) {
+            if (mFilteredTests.contains(new SkQPTest(-1, unitTest))) {
+                continue;
+            }
             String utName = impl.mUnitTests[unitTest];
             Log.v(TAG, String.format("Test %s started (%d/%d).",
                                      utName, testNumber, numberOfTests));
@@ -134,4 +157,29 @@ public class SkQPRunner extends Runner {
         impl.nMakeReport();
         Log.i(TAG, String.format("output written to \"%s\"", GetOutputDir().getAbsolutePath()));
     }
+
+    @Override
+    public void filter(Filter filter) throws NoTestsRemainException {
+        mFilteredTests.clear();
+        for (int backend = 0; backend < impl.mBackends.length; backend++) {
+            String classname = SkQP.kSkiaGM + impl.mBackends[backend];
+            for (int gm = 0; gm < impl.mGMs.length; gm++) {
+                if (!filter.shouldRun(
+                            Description.createTestDescription(classname, impl.mGMs[gm]))) {
+                    mFilteredTests.add(new SkQPTest(backend, gm));
+                }
+            }
+        }
+        for (int unitTest = 0; unitTest < impl.mUnitTests.length; unitTest++) {
+            if (!filter.shouldRun(
+                    Description.createTestDescription(SkQP.kSkiaUnitTests,
+                                                      impl.mUnitTests[unitTest]))) {
+                mFilteredTests.add(new SkQPTest(-1, unitTest));
+            }
+        }
+        if (mFilteredTests.size() == testCount()) {
+            throw new NoTestsRemainException();
+        }
+    }
 }
+
