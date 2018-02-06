@@ -767,6 +767,11 @@ public:
         kSubtractFrom,
     };
 
+    enum class Format {
+        kIncludeReturn,
+        kOmitReturn,
+    };
+
     Definition() {}
 
     Definition(const char* start, const char* end, int line, Definition* parent)
@@ -843,7 +848,7 @@ public:
     string extractText(TrimExtract trimExtract) const;
     string fiddleName() const;
     const Definition* findClone(string match) const;
-    string formatFunction() const;
+    string formatFunction(Format format) const;
     const Definition* hasChild(MarkType markType) const;
     bool hasMatch(const string& name) const;
     const Definition* hasParam(const string& ref) const;

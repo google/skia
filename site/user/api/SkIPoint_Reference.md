@@ -13,6 +13,7 @@ SkIPoint Reference
 | <a href="#Member_Function">Member Function</a> | static functions and member methods |
 | <a href="#Member">Member</a> | member values |
 | <a href="#Operator">Operator</a> | operator overloading methods |
+| <a href="#Related_Function">Related Function</a> | similar methods grouped together |
 
 # <a name="SkIPoint"></a> Struct SkIPoint
 <a href="#SkIPoint">SkIPoint</a> holds two 32 bit integer coordinates.
@@ -21,6 +22,8 @@ SkIPoint Reference
 
 | name | description |
 | --- | --- |
+| <a href="#Property">Property</a> | member values |
+| <a href="#Set">Set</a> | replaces all values |
 
 ## <a name="Member_Function"></a> Member Function
 
