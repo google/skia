@@ -163,3 +163,36 @@ DEF_SIMPLE_GM(combinemaskfilter, canvas, 560, 510) {
     }
     canvas->restore();
 }
+
+#include "SkSurface.h"
+static sk_sp<SkImage> make_circle_image(SkCanvas* canvas, SkScalar radius, int margin) {
+    const int n = SkScalarCeilToInt(radius) * 2 + margin * 2;
+    auto surf = sk_tool_utils::makeSurface(canvas, SkImageInfo::MakeN32Premul(n, n));
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    surf->getCanvas()->drawCircle(n * 0.5f, n * 0.5f, radius, paint);
+    return surf->makeImageSnapshot();
+}
+
+DEF_SIMPLE_GM(savelayer_maskfilter, canvas, 220, 220) {
+    auto image = make_circle_image(canvas, 50, 1);
+    SkRect r = SkRect::MakeWH(102, 102);
+
+    SkPaint paint;
+    paint.setMaskFilter(SkShaderMaskFilter::Make(image->makeShader()));
+
+    // test that the maskfilter sees these changes to the ctm
+    canvas->translate(10, 10);
+    canvas->scale(2, 2);
+
+    canvas->saveLayer(&r, &paint);
+    canvas->drawColor(SK_ColorRED);
+    canvas->restore();
+
+    // now draw the expected circle to blend on top of the red one
+    paint.reset();
+    paint.setAntiAlias(true);
+    paint.setColor(0x800000FF);
+    canvas->drawRect(r, paint);
+}
+
