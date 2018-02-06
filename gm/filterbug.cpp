@@ -6,7 +6,6 @@
  */
 
 #include "gm.h"
-#include "SkColorPriv.h"
 #include "SkImageShader.h"
 
 static const sk_sp<SkImage> make_image(int firstBlackRow, int lastBlackRow) {

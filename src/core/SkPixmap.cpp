@@ -19,7 +19,6 @@
 #include "SkReadPixelsRec.h"
 #include "SkSurface.h"
 #include "SkTemplates.h"
-#include "SkUnPreMultiply.h"
 #include "SkUtils.h"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////

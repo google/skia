@@ -8,7 +8,6 @@
 #include "SkEmbossMaskFilter.h"
 #include "SkBlurMaskFilter.h"
 #include "SkBlurMask.h"
-#include "SkColorPriv.h"
 #include "SkEmbossMask.h"
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"

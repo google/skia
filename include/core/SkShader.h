@@ -9,11 +9,11 @@
 #define SkShader_DEFINED
 
 #include "SkBlendMode.h"
-#include "SkColor.h"
 #include "SkFilterQuality.h"
 #include "SkFlattenable.h"
 #include "SkImageInfo.h"
 #include "SkMatrix.h"
+#include "../gpu/GrColor.h"
 
 class SkArenaAlloc;
 class SkBitmap;

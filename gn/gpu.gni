@@ -12,6 +12,7 @@ skia_gpu_sources = [
   "$_include/gpu/GrBackendSurface.h",
   "$_include/gpu/GrBlend.h",
   "$_include/gpu/GrCaps.h",
+  "$_include/gpu/GrColor.h",
   "$_include/gpu/GrConfig.h",
   "$_include/gpu/GrContextOptions.h",
   "$_include/gpu/GrContext.h",
@@ -33,7 +34,6 @@ skia_gpu_sources = [
 
   # Private includes
   "$_include/private/GrAuditTrail.h",
-  "$_include/private/GrColor.h",
   "$_include/private/GrGLSL.h",
   "$_include/private/GrOpList.h",
   "$_include/private/GrSingleOwner.h",

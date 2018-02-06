@@ -9,7 +9,6 @@
 #include "Test.h"
 
 #include "SkBitmap.h"
-#include "SkColorPriv.h"
 #include "SkEncodedImageFormat.h"
 #include "SkImage.h"
 #include "SkJpegEncoder.h"

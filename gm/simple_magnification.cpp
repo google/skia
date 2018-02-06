@@ -7,7 +7,6 @@
 
 #include "gm.h"
 #include "sk_tool_utils.h"
-#include "SkColorPriv.h"
 #include "SkImageSource.h"
 #include "SkMagnifierImageFilter.h"
 #include "SkSurface.h"
