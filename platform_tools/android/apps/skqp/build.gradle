@@ -7,7 +7,6 @@
 apply plugin: 'com.android.application'
 
 dependencies {
-    compile 'com.android.support.constraint:constraint-layout:1.0.2'
     compile 'com.android.support:design:26.+'
     compile 'com.android.support.test:runner:0.5'
 }
