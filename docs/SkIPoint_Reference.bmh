@@ -3,7 +3,7 @@
 #Alias IPoint_Reference
 
 #Subtopic Overview
-    #Subtopic Subtopics
+    #Subtopic Subtopic
     #Populate
     ##
 ##
@@ -12,19 +12,15 @@
 
 SkIPoint holds two 32 bit integer coordinates.
 
-#Subtopic Constructors
+#Subtopic Related_Function
 #Populate
 ##
 
-#Subtopic Operators
+#Subtopic Member_Function
 #Populate
 ##
 
-#Subtopic Member_Functions
-#Populate
-##
-
-#Subtopic Members
+#Subtopic Member
 #Populate
 
 #Member int32_t  fX
@@ -37,12 +33,17 @@ x-axis value used by IPoint.
 y-axis value used by IPoint.
 ##
 
-#Subtopic Members ##
+#Subtopic Member ##
 
 # ------------------------------------------------------------------------------
 
+#Subtopic Constructor
+#Populate
+##
+
 #Method static constexpr SkIPoint Make(int32_t x, int32_t y)
 
+#In Constructor
 #Line # constructs from integer inputs ##
 Sets fX to x, fY to y.
 
@@ -66,8 +67,13 @@ pt1 == pt2
 
 # ------------------------------------------------------------------------------
 
-#Method int32_t x() const
+#Subtopic Property
+#Line # member values ##
+#Populate
+##
 
+#Method int32_t x() const
+#In Property
 #Line # returns fX ##
 Returns x-axis value of IPoint.
 
@@ -88,7 +94,7 @@ pt1.fX == pt1.x()
 # ------------------------------------------------------------------------------
 
 #Method int32_t y() const
-
+#In Property
 #Line # returns fY ##
 Returns y-axis value of IPoint.
 
@@ -109,7 +115,7 @@ pt1.fY == pt1.y()
 # ------------------------------------------------------------------------------
 
 #Method bool isZero() const
-
+#In Property
 #Line # returns true if both members equal zero ##
 Returns true if fX and fY are both zero.
 
@@ -129,8 +135,13 @@ pt.isZero() == true
 
 # ------------------------------------------------------------------------------
 
-#Method void set(int32_t x, int32_t y)
+#Subtopic Set
+#Populate
+#Line # replaces all values ##
+##
 
+#Method void set(int32_t x, int32_t y)
+#In Set
 #Line # sets to integer input ##
 Sets fX to x and fY to y.
 
@@ -151,6 +162,9 @@ pt1 == pt2
 #Method ##
 
 # ------------------------------------------------------------------------------
+#Subtopic Operator
+#Populate
+##
 
 #Method SkIPoint operator-()_const
 
@@ -260,7 +274,7 @@ Subtracts IVector v from IPoint. Sets IPoint to:
 # ------------------------------------------------------------------------------
 
 #Method bool equals(int32_t x, int32_t y) const
-
+#In Operator
 #Line # returns true if members are equal ##
 Returns true if IPoint is equivalent to IPoint constructed from (x, y).
 
