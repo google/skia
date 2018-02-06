@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dd52d488_e86bf726",
+        "filename": "platform_tools/android/apps/skqp/src/main/java/org/skia/skqp/SkQPRunner.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-02-06T21:20:50Z",
+      "side": 1,
+      "message": "populate mFilteredTests here with all of the tests. \n\nAlso store the description in SkQPTest in addition to adding it as a child of mDescription",
+      "revId": "62378051c87836b18193a9e96e871d87ddd65c18",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "71b5bc15_96466b2f",
+        "filename": "platform_tools/android/apps/skqp/src/main/java/org/skia/skqp/SkQPRunner.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-02-06T21:20:50Z",
+      "side": 1,
+      "message": "populate mFilteredTests with these tests as well.",
+      "revId": "62378051c87836b18193a9e96e871d87ddd65c18",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f31d81b0_e9f6aa5c",
+        "filename": "platform_tools/android/apps/skqp/src/main/java/org/skia/skqp/SkQPRunner.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-02-06T21:20:50Z",
+      "side": 1,
+      "message": "just loop through mFilteredTests extract the description and run the test.  No need to regenerate what you already have.",
+      "revId": "62378051c87836b18193a9e96e871d87ddd65c18",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "aa978774_7f711a69",
+        "filename": "platform_tools/android/apps/skqp/src/main/java/org/skia/skqp/SkQPRunner.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 180,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-02-06T21:20:50Z",
+      "side": 1,
+      "message": "if (mFilteredTests.size() \u003d\u003d 0)",
+      "revId": "62378051c87836b18193a9e96e871d87ddd65c18",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
