@@ -3,7 +3,7 @@
 #Alias Bitmap_Reference
 
 #Subtopic Overview
-    #Subtopic Subtopics
+    #Subtopic Subtopic
     #Populate
     ##
 ##
@@ -39,23 +39,27 @@ number of bytes in a pixel. Row_Bytes may be larger than the row requires. This
 is useful to position one or more Bitmaps within a shared pixel array.
 ##
 
-#Subtopic Related_Functions
+#Subtopic Related_Function
 #Populate
 ##
 
-#Subtopic Classes_and_Structs
+#Subtopic Constant
 #Populate
 ##
 
-#Subtopic Constructors
+#Subtopic Class_or_Struct
 #Populate
 ##
 
-#Subtopic Operators
+#Subtopic Constructor
 #Populate
 ##
 
-#Subtopic Member_Functions
+#Subtopic Operator
+#Populate
+##
+
+#Subtopic Member_Function
 #Populate
 ##
 
@@ -1412,7 +1416,7 @@ canvas->drawBitmap(bitmap, 0, 0);
 # ------------------------------------------------------------------------------
 
 #Enum AllocFlags
-
+#Line # zero pixel memory ##
 #Code
     enum AllocFlags {
         kZeroPixels_AllocFlag = 1 << 0,
@@ -1843,8 +1847,8 @@ Caller must ensure that pixels are valid for the lifetime of Bitmap and Pixel_Re
 #Return  true if Image_Info is set to info ##
 
 #Example
+#Bug 7079
 #Description
-#Bug 7079 ##
 GPU does not support kUnpremul_SkAlphaType, does not assert that it does not.
 ##
 void draw(SkCanvas* canvas) {
@@ -1914,47 +1918,7 @@ Draw a five by five bitmap, and draw it again with a center white pixel.
 # ------------------------------------------------------------------------------
 
 #Method bool installMaskPixels(const SkMask& mask)
-
-#Line # creates Pixel_Ref from Mask ##
-Sets Image_Info to mask width, mask height, kAlpha_8_SkColorType, and
-kPremul_SkAlphaType. Sets Pixel_Ref to mask image and mask rowBytes.
-
-Returns false and calls reset() if mask format is not SkMask::kA8_Format,
-or if mask width or mask height is negative, or if mask rowBytes is less
-than mask width.
-
-Caller must ensure that mask is valid for the lifetime of Bitmap and Pixel_Ref.
-
-#Param mask  Alpha 8-bit bitmap ##
-
-#Return true if Image_Info and Pixel_Ref refer to mask ##
-
-#Example
-#Description
-Draw a five by five bitmap, and draw it again with a center white pixel.
-##
-#Height 64
-    uint8_t storage[][5] = {{ 0xCA, 0xDA, 0xCA, 0xC9, 0xA3 },
-                            { 0xAC, 0xA8, 0x89, 0x47, 0x87 },
-                            { 0x4B, 0x25, 0x25, 0x25, 0x46 },
-                            { 0x90, 0x81, 0x25, 0x41, 0x33 },
-                            { 0x75, 0x55, 0x44, 0x20, 0x00 }};
-    SkMask mask;
-    mask.fImage = storage[0];
-    mask.fBounds = SkIRect::MakeWH(5, 5);
-    mask.fRowBytes = 5;
-    mask.fFormat = SkMask::kA8_Format;
-    SkBitmap bitmap;
-    bitmap.installMaskPixels(mask);
-    canvas->scale(10, 10);
-    canvas->drawBitmap(bitmap, 0, 0);
-    storage[2][2] = 0xFF;
-    bitmap.installMaskPixels(mask);
-    canvas->drawBitmap(bitmap, 10, 0);
-##
-
-#SeeAlso installPixels allocPixels
-
+#Deprecated soon
 ##
 
 # ------------------------------------------------------------------------------
@@ -2468,13 +2432,7 @@ then Color_RGB is ignored.
 # ------------------------------------------------------------------------------
 
 #Method void eraseArea(const SkIRect& area, SkColor c) const
-
-#Line # deprecated ##
-Legacy call to be deprecated.
-
 #Deprecated 
-##
-
 ##
 
 # ------------------------------------------------------------------------------
@@ -3305,7 +3263,7 @@ Pixel_Ref. Sets offset to top-left position for dst for alignment with Bitmap;
 
 #Return  true if Alpha layer was constructed in dst Pixel_Ref ##
 
-#Bug 7103 ##
+#Bug 7103
 #Example
 #Height 160
     SkBitmap alpha, bitmap;
@@ -3354,7 +3312,7 @@ mask.
 
 #Return  true if Alpha layer was constructed in dst Pixel_Ref ##
 
-#Bug 7104 ##
+#Bug 7104
 #Example
 #Height 128
     SkBitmap alpha, bitmap;
@@ -3490,3 +3448,4 @@ suppressed by defining SK_IGNORE_TO_STRING.
 #Class SkBitmap ##
 
 #Topic Bitmap ##
+

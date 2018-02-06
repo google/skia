@@ -2,7 +2,7 @@
 #Alias Pixmap_Reference
 
 #Subtopic Overview
-    #Subtopic Subtopics
+    #Subtopic Subtopic
     #Populate
     ##
 ##
@@ -20,15 +20,15 @@ pixels referenced by Pixmap.
 Pixmap does not try to manage the lifetime of the pixel memory. Use Pixel_Ref
 to manage pixel memory; Pixel_Ref is safe across threads.
 
-#Subtopic Related_Functions
+#Subtopic Related_Function
 #Populate
 ##
 
-#Subtopic Constructors
+#Subtopic Constructor
 #Populate
 ##
 
-#Subtopic Member_Functions
+#Subtopic Member_Function
 #Populate
 ##
 
@@ -235,44 +235,7 @@ is not unique
 # ------------------------------------------------------------------------------
 
 #Method bool SK_WARN_UNUSED_RESULT reset(const SkMask& mask)
-
-#In Initialization
-Sets width, height, pixel address, and row bytes to Mask properties, if Mask
-format is SkMask::kA8_Format; and returns true. Otherwise sets width, height,
-row bytes to zero; pixel address to nullptr; SkColorType to kUnknown_SkColorType;
-and SkAlphaType to kUnknown_SkAlphaType; and returns false.
-
-Failing to read the return value generates a compile time warning.
-
-#Param mask  Mask containing pixels and dimensions ##
-
-#Return  true if set to Mask properties ##
-
-#Example
-    const int width = 2;
-    const int height = 2;
-    uint8_t bytes[] = { 0, 1, 2, 3, 4, 5, 6, 7 };
-    SkMask mask;
-    mask.fFormat = SkMask::kA8_Format;
-    mask.fBounds = {0, 0, width, height};
-    mask.fImage = bytes;
-    mask.fRowBytes = (width + 7) >> 3;
-    SkPixmap pixmap;
-    bool success = pixmap.reset(mask);
-    SkDebugf("success: %s width: %d height: %d\n", success ? "true " : "false",
-                pixmap.width(), pixmap.height()); 
-    mask.fFormat = SkMask::kBW_Format;
-    success = pixmap.reset(mask);
-    SkDebugf("success: %s width: %d height: %d\n", success ? "true " : "false",
-                pixmap.width(), pixmap.height());
-#StdOut
-success: true  width: 2 height: 2
-success: false width: 0 height: 0
-##
-##
-
-#SeeAlso Mask reset()
-
+#Deprecated soon
 ##
 
 # ------------------------------------------------------------------------------

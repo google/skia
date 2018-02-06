@@ -2,7 +2,7 @@
 #Alias Canvas_Reference
 
 #Subtopic Overview
-    #Subtopic Subtopics
+    #Subtopic Subtopic
     #Populate
     ##
 ##
@@ -30,27 +30,27 @@ destination.
 Canvas can be constructed to draw to Bitmap without first creating Raster_Surface.
 This approach may be deprecated in the future.  
 
-#Subtopic Related_Functions
+#Subtopic Related_Function
 #Populate
 ##
 
-#Subtopic Constants
+#Subtopic Constant
 #Populate
 ##
 
-#Subtopic Classes_and_Structs
+#Subtopic Class_or_Struct
 #Populate
 ##
 
-#Subtopic Constructors
+#Subtopic Constructor
 
-Create the desired type of Surface to obtain its Canvas when possible. Constructors are useful
+Create the desired type of Surface to obtain its Canvas when possible. Useful
 when no Surface is required, and some helpers implicitly create Raster_Surface.
 
 #Populate
 ##
 
-#Subtopic Member_Functions
+#Subtopic Member_Function
 #Populate
 ##
 
@@ -295,25 +295,7 @@ different characteristics, it is best not to rely on this legacy behavior.
 # ------------------------------------------------------------------------------
 
 #Method explicit SkCanvas(SkBaseDevice* device)
-
-#Line # to be deprecated ##
-Construct a canvas that draws into device.
-Used by child classes of SkCanvas.
-
-#ToDo  Since SkBaseDevice is private, shouldn't this be private also? ##
-
-#Param device   specifies a device for the canvas to draw into ##
-
-#Return         Canvas that can be used to draw into device ##
-
-#ToDo  unsure how to create a meaningful example ##
-#NoExample
-##
-
-#ToDo either remove doc or figure out a way to fiddle it ##
-
-#SeeAlso MakeRasterDirect SkRasterHandleAllocator::MakeCanvas SkSurface::getCanvas SkCreateColorSpaceXformCanvas
-
+#Deprecated soon
 ##
 
 # ------------------------------------------------------------------------------
@@ -675,7 +657,7 @@ smaller (due to clipping or saveLayer).
 # ------------------------------------------------------------------------------
 
 #Method sk_sp<SkSurface> makeSurface(const SkImageInfo& info, const SkSurfaceProps* props = nullptr)
-
+#In Constructor
 #Line # creates Surface matching SkImageInfo and SkSurfaceProps ##
 Creates Surface matching info and props, and associates it with Canvas.
 Returns nullptr if no match found.
@@ -1707,11 +1689,7 @@ defining how Layer allocated by saveLayer operates.
 ##
 
 #Const kDontClipToLayer_Legacy_SaveLayerFlag 0x80000000
-#Private
-  to be deprecated: bug.skia.org/2440
-##
-  Only present on Android.
-  Skips setting a clip to the Layer bounds. 
+#Deprecated soon
 ##
 
 #Example
@@ -2864,7 +2842,7 @@ is Anti-aliased.
 ##
 
 # local canvas in example works around bug in fiddle ##
-#Bug 6524  ##
+#Bug 6524
 #SeeAlso getDeviceClipBounds getBaseLayerSize quickReject
 
 ##
@@ -2901,7 +2879,7 @@ is Anti-aliased.
 ##
 
 # local canvas in example works around bug in fiddle ##
-#Bug 6524  ##
+#Bug 6524
 #SeeAlso getDeviceClipBounds getBaseLayerSize quickReject
 
 ##
@@ -2955,7 +2933,7 @@ void draw(SkCanvas* canvas) {
 #SeeAlso getLocalClipBounds getBaseLayerSize quickReject
 
 # device canvas in example works around bug in fiddle ##
-#Bug 6524  ##
+#Bug 6524
 
 ##
 
@@ -6127,23 +6105,11 @@ Document_PDF, use annotations.
 ##
 
 #Method SkDrawFilter* getDrawFilter() const
-
-#Line # legacy; to be deprecated ##
-Legacy call to be deprecated.
-
-#Deprecated 
-##
-
+#Deprecated soon
 ##
 
 #Method virtual SkDrawFilter* setDrawFilter(SkDrawFilter* filter)
-
-#Line # legacy; to be deprecated ##
-Legacy call to be deprecated.
-
-#Deprecated 
-##
-
+#Deprecated soon
 ##
 
 # ------------------------------------------------------------------------------
