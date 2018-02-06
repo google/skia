@@ -897,7 +897,7 @@ bool Definition::crossCheckInside(const char* start, const char* end,
     return false;
 }
 
-string Definition::formatFunction() const {
+string Definition::formatFunction(Format format) const {
     const char* end = fContentStart;
     while (end > fStart && ' ' >= end[-1]) {
         --end;
@@ -913,6 +913,9 @@ string Definition::formatFunction() const {
     const char* nameInParser = methodParser.strnstr(name.c_str(), methodParser.fEnd);
     methodParser.skipTo(nameInParser);
     const char* lastEnd = methodParser.fChar;
+    if (Format::kOmitReturn == format) {
+        lastStart = lastEnd;
+    }
     const char* paren = methodParser.strnchr('(', methodParser.fEnd);
     size_t indent;
     if (paren) {

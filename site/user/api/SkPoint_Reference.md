@@ -23,6 +23,8 @@ SkPoint Reference
 | name | description |
 | --- | --- |
 | <a href="#SkPoint_Offset">Offset</a> | moves sides |
+| <a href="#Property">Property</a> | member values |
+| <a href="#Set">Set</a> | replaces all values |
 
 ## <a name="Member_Function"></a> Member Function
 
@@ -229,12 +231,14 @@ pt.isZero() == true
 | name | description |
 | --- | --- |
 | <a href="#SkPoint_iset">iset</a> | sets to integer input |
-|  | iset |
+|  | <a href="#SkPoint_iset">iset(int32 t x, int32 t y)</a> |
+|  | <a href="#SkPoint_iset_2">iset(const SkIPoint& p)</a> |
 | <a href="#SkPoint_normalize">normalize</a> | sets length to one, preserving direction |
 | <a href="#SkPoint_set">set</a> | sets to <a href="undocumented#SkScalar">SkScalar</a> input |
 | <a href="#SkPoint_setAbs">setAbs</a> | sets sign of both members to positive |
 | <a href="#SkPoint_setLength">setLength</a> | sets straight-line distance to origin |
-|  | <a href="#SkPoint_setLength">setLength</a> |
+|  | <a href="#SkPoint_setLength">setLength(SkScalar length)</a> |
+|  | <a href="#SkPoint_setLength_2">setLength(SkScalar x, SkScalar y, SkScalar length)</a> |
 | <a href="#SkPoint_setNormalize">setNormalize</a> | sets length to one, in direction of (x, y) |
 
 <a name="SkPoint_set"></a>
@@ -386,10 +390,12 @@ pt: nan, -nan  abs: nan, nan
 | --- | --- |
 | <a href="#SkPoint_Normalize">Normalize</a> | sets length to one, and returns prior length |
 | <a href="#SkPoint_Offset">Offset</a> | translates <a href="#Point">Point</a> array |
-|  | <a href="#SkPoint_Offset">Offset</a> |
+|  | <a href="#SkPoint_Offset">Offset(SkPoint points[], int count, const SkVector& offset)</a> |
+|  | <a href="#SkPoint_Offset_2">Offset(SkPoint points[], int count, SkScalar dx, SkScalar dy)</a> |
 | <a href="#SkPoint_offset">offset</a> | translates <a href="#Point">Point</a> |
 | <a href="#SkPoint_scale">scale</a> | multiplies <a href="#Point">Point</a> by scale factor |
-|  | scale |
+|  | <a href="#SkPoint_scale">scale(SkScalar scale, SkPoint* dst)</a> const |
+|  | <a href="#SkPoint_scale_2">scale(SkScalar value)</a> |
 
 <a name="SkPoint_Offset"></a>
 ## Offset
