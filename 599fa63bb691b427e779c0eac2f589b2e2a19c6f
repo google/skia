@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "ed5fcece_a44493a7",
+        "filename": "src/gpu/text/GrAtlasTextBlob.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 280,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-02-06T16:14:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "df7692fa_c99260ff",
+      "revId": "599fa63bb691b427e779c0eac2f589b2e2a19c6f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e69fe1b9_812c7d17",
         "filename": "src/gpu/text/GrAtlasTextBlob.cpp",
         "patchSetId": 12
@@ -33,6 +51,24 @@
       "revId": "599fa63bb691b427e779c0eac2f589b2e2a19c6f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9bae35c9_90fb0b6b",
+        "filename": "src/gpu/text/GrAtlasTextBlob.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 345,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-02-06T16:14:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e69fe1b9_812c7d17",
+      "revId": "599fa63bb691b427e779c0eac2f589b2e2a19c6f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "1225d800_58aeb3e2",
+        "filename": "src/gpu/text/GrAtlasTextBlob.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 178,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-02-06T16:14:52Z",
+      "side": 1,
+      "message": "Changed to \"preTransformed\"",
+      "parentUuid": "c2137eb3_5889f646",
+      "revId": "599fa63bb691b427e779c0eac2f589b2e2a19c6f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a36e05b8_b1f5057d",
         "filename": "src/gpu/text/GrAtlasTextBlob.h",
         "patchSetId": 12
@@ -70,6 +124,24 @@
     },
     {
       "key": {
+        "uuid": "7010dc57_eedf0c96",
+        "filename": "src/gpu/text/GrAtlasTextBlob.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 325,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-02-06T16:14:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a36e05b8_b1f5057d",
+      "revId": "599fa63bb691b427e779c0eac2f589b2e2a19c6f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fdd6dcaa_b4d7495b",
         "filename": "src/gpu/text/GrAtlasTextBlob.h",
         "patchSetId": 12
@@ -84,6 +156,24 @@
       "revId": "599fa63bb691b427e779c0eac2f589b2e2a19c6f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5e38b9c5_a6bb8f7a",
+        "filename": "src/gpu/text/GrAtlasTextBlob.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 482,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-02-06T16:14:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fdd6dcaa_b4d7495b",
+      "revId": "599fa63bb691b427e779c0eac2f589b2e2a19c6f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
