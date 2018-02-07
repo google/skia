@@ -12,6 +12,7 @@
 #include "SkDescriptor.h"
 #include "SkFontDescriptor.h"
 #include "SkFontStyle.h"
+#include "SkPaint.h"
 #include "SkScalerContext.h"
 #include "SkTypeface.h"
 
@@ -54,6 +55,11 @@ public:
             const SkDescriptor* desc,
             SkRemoteScalerContext* rsc);
 
+    void setFontMetrics(const SkPaint::FontMetrics& fontMetrics) {
+        fFontMetrics = fontMetrics;
+        fHaveFontMetrics = true;
+    }
+
 protected:
     unsigned generateGlyphCount(void) override { SK_ABORT("Should never be called."); return 0;}
     uint16_t generateCharToGlyph(SkUnichar uni) override {
@@ -66,16 +72,21 @@ protected:
     void generatePath(SkGlyphID glyphID, SkPath* path) override;
     void generateFontMetrics(SkPaint::FontMetrics* metrics) override;
 
+
+
 private:
     // Copied from SkGlyphCache
     // so we don't grow our arrays a lot
     static constexpr size_t kMinGlyphCount = 8;
     static constexpr size_t kMinGlyphImageSize = 16 /* height */ * 8 /* width */;
     static constexpr size_t kMinAllocAmount = kMinGlyphImageSize * kMinGlyphCount;
-    SkArenaAlloc  fAlloc{kMinAllocAmount};
 
     SkTypefaceProxy* typefaceProxy();
+
+    SkArenaAlloc  fAlloc{kMinAllocAmount};
     SkRemoteScalerContext* const fRemote;
+    bool fHaveFontMetrics{false};
+    SkPaint::FontMetrics fFontMetrics;
     typedef SkScalerContext INHERITED;
 };
 
@@ -90,6 +101,10 @@ public:
             , fFontId{fontId}
             , fRsc{rsc} { }
     SkFontID fontID() const {return fFontId;}
+    static SkTypefaceProxy* DownCast(SkTypeface* typeface) {
+        // TODO: how to check the safty of the down cast.
+        return (SkTypefaceProxy*) typeface;
+    }
 
 protected:
     int onGetUPEM() const override { SK_ABORT("Should never be called."); return 0; }

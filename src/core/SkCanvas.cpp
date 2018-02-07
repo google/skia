@@ -2535,14 +2535,17 @@ void SkCanvas::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
     SkDrawFilter* drawFilter = fMCRec->fFilter;
     fMCRec->fFilter = nullptr;
 
-    LOOPER_BEGIN(paint, SkDrawFilter::kText_Type, bounds)
+    this->predrawNotify();
+    AutoDrawLooper  looper(this, paint, false, bounds);
+    while (looper.next(SkDrawFilter::kText_Type)) {
+        SkDrawIter iter(this);
 
-    while (iter.next()) {
-        SkDeviceFilteredPaint dfp(iter.fDevice, looper.paint());
-        iter.fDevice->drawTextBlob(blob, x, y, dfp.paint(), drawFilter);
+        while (iter.next()) {
+            SkDeviceFilteredPaint dfp(iter.fDevice, looper.paint());
+            iter.fDevice->drawTextBlob(blob, x, y, dfp.paint(), drawFilter);
+        }
+
     }
-
-    LOOPER_END
 
     fMCRec->fFilter = drawFilter;
 }
