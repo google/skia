@@ -2001,7 +2001,7 @@ Returns nullptr if backed by GPU_Texture and copy fails.
     drawImage(textureImage, "backEndTexture");
 ##
 
-#SeeAlso incomplete
+#SeeAlso makeTextureImage makeRasterImage MakeBackendTextureFromSkImage
 
 #Method ##
 
@@ -2064,19 +2064,17 @@ required storage for translation of returned Image.
 Returns nullptr if Image could not be created. If nullptr is returned, outSubset
 and offset are undefined.
 
-makeWithFilter is optimized to support Image backed by GPU_Texture drawn in an
-animation with SkImageFilter that vary in size from one frame to the next. The
-created Image is drawn at an increased size so that GPU_Texture can be reused
-with different sized effects. outSubset describes the valid bounds of GPU_Texture
-returned. The returned Image may be much larger than required for the filter.
-offset translates the returned Image to keep subsequent animation frames
-aligned with respect to each other.
+Useful for animation of SkImageFilter that varies size from frame to frame.
+Returned Image is created larger than required by filter so that GPU_Texture
+can be reused with different sized effects. outSubset describes the valid bounds
+of GPU_Texture returned. offset translates the returned Image to keep subsequent
+animation frames aligned with respect to each other.
 
 #Param filter  how Image is sampled when transformed ##
-#Param subset  incomplete ##
-#Param clipBounds  incomplete ##
-#Param outSubset  incomplete ##
-#Param offset  incomplete ##
+#Param subset  bounds of Image processed by filter ##
+#Param clipBounds  expected bounds of filtered Image ##
+#Param outSubset  storage for returned Image bounds ##
+#Param offset  storage for returned Image translation ##
 
 #Return filtered Image, or nullptr ##
 
@@ -2109,7 +2107,7 @@ By translating canvas by returned offset, Image appears stationary.
     canvas->drawRect(SkRect::MakeFromIRect(outSubset), paint);
 ##
 
-#SeeAlso SkPaint::setImageFilter
+#SeeAlso makeShader SkPaint::setImageFilter
 
 #Method ##
 
@@ -2170,11 +2168,11 @@ If Image is not texture backed, this function returns texture with Image
 contents.
 
 #Param context  GPU_Context ##
-#Param image  incomplete ##
-#Param backendTexture  incomplete ##
-#Param backendTextureReleaseProc  incomplete ##
+#Param image  Image used for texture ##
+#Param backendTexture  storage for backend texture ##
+#Param backendTextureReleaseProc  storage for clean up function ##
 
-#Return incomplete ##
+#Return true if backend texture was created ##
 
 #Example
 // incomplete
