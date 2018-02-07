@@ -1070,6 +1070,9 @@ bool IncludeWriter::populate(Definition* def, ParentPair* prevPair, RootDefiniti
                 methodName += string(fContinuation, continueEnd - fContinuation);
                 method = root->find(methodName, RootDefinition::AllowParens::kNo);
                 if (!method) {
+                    if (fBmhStructDef && fBmhStructDef->fDeprecated) {
+                        continue;
+                    }
                     fLineCount = child.fLineCount;
                     return this->reportError<bool>("method not found");
                 }
@@ -1094,6 +1097,8 @@ bool IncludeWriter::populate(Definition* def, ParentPair* prevPair, RootDefiniti
                     continue;
                 }
                 this->methodOut(method, child);
+                continue;
+            } else if (fBmhStructDef && fBmhStructDef->fDeprecated) {
                 continue;
             }
             fLineCount = child.fLineCount;
@@ -1270,9 +1275,17 @@ bool IncludeWriter::populate(Definition* def, ParentPair* prevPair, RootDefiniti
                                 }
                             }
                             // FIXME: trigger error earlier if inner #Struct or #Class is missing #Code
-                            SkASSERT(nextBlock);  // FIXME: check enum for correct order earlier
-                            const char* commentStart = codeBlock->fTerminator;
-                            const char* commentEnd = nextBlock->fStart;
+                            const char* commentStart;
+                            const char* commentEnd;
+                            if (fBmhStructDef->fDeprecated) {
+                                commentStart = fBmhStructDef->fTerminator;
+                                commentEnd = fBmhStructDef->fTerminator;
+                            } else {
+                                SkASSERT(codeBlock);
+                                SkASSERT(nextBlock);  // FIXME: check enum for correct order earlier
+                                commentStart = codeBlock->fTerminator;
+                                commentEnd = nextBlock->fStart;
+                            }
                             if (fIndentNext) {
 //                                fIndent += 4;
                             }
@@ -1301,6 +1314,7 @@ bool IncludeWriter::populate(Definition* def, ParentPair* prevPair, RootDefiniti
                 case KeyWord::kSize_t:
                 case KeyWord::kFloat:
                 case KeyWord::kBool:
+                case KeyWord::kChar:
                 case KeyWord::kVoid:
                     if (!memberStart) {
                         memberStart = &child;
