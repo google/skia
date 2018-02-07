@@ -137,6 +137,10 @@ public:
         return array;
     }
 
+    void* makeBytesAlignedTo(size_t size, size_t align) {
+        return this->allocObject(SkTo<uint32_t>(size), SkTo<uint32_t>(align));
+    }
+
     // Destroy all allocated objects, free any heap allocations.
     void reset();
 
