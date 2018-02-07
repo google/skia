@@ -6,18 +6,22 @@
  */
 
 #include "SkCanvas.h"
+#include "SkGlyph.h"
 #include "SkPathEffect.h"
 #include "SkMaskFilter.h"
 #include "SkData.h"
 #include "SkDescriptor.h"
 #include "SkGraphics.h"
-#include "SkSemaphore.h"
+#include "SkNoDrawCanvas.h"
 #include "SkPictureRecorder.h"
 #include "SkSerialProcs.h"
 #include "SkSurface.h"
 #include "SkTypeface.h"
 #include "SkWriteBuffer.h"
+#include "SkTextBlobRunIterator.h"
+#include "SkGlyphCache.h"
 
+#include <type_traits>
 #include <chrono>
 #include <ctype.h>
 #include <err.h>
@@ -31,6 +35,7 @@
 #include <sys/wait.h>
 #include <unistd.h>
 #include <sys/mman.h>
+#include <SkFindAndPlaceGlyph.h>
 #include "SkTypeface_remote.h"
 #include "SkRemoteGlyphCache.h"
 #include "SkMakeUnique.h"
@@ -147,6 +152,296 @@ private:
     uint8_t   fBuffer[1024 * kPageSize];
 };
 
+class TextBlobFilterCanvas : public SkNoDrawCanvas {
+public:
+    TextBlobFilterCanvas(int width, int height,
+                         const SkMatrix& deviceMatrix,
+                         const SkSurfaceProps& props,
+                         SkScalerContextFlags flags)
+        : SkNoDrawCanvas(width, height)
+        , fDeviceMatrix{deviceMatrix}
+        , fSurfaceProps{props}
+        , fScalerContextFlags{flags} { }
+
+    size_t prepareForBufferFill()  {
+        size_t wireSize = sizeof(Header);
+        for (auto& i : fDescMap) {
+            size_t strikeSize = sizeof(Strike);
+            auto accum = &i.second;
+            auto strike = &accum->strike;
+            auto glyphCount = accum->glyphIDs->count();
+            strikeSize += glyphCount * sizeof(SkPackedGlyphID);
+            strike->glyphCount = glyphCount;
+            auto descLength = accum->desc->getLength();
+            strikeSize += descLength;
+            strike->descLength = descLength;
+            strike->size = strikeSize;
+            wireSize += strikeSize;
+        }
+        fHeader.size = wireSize;
+        fHeader.strikeCount = fDescMap.size();
+        return wireSize;
+    }
+
+    void fillInBuffer(uint8_t* buffer, size_t size) {
+        SkASSERT(fHeader.size > 0);
+        SkASSERT(fHeader.size <= size);
+        auto cursor = buffer;
+        cursor = write(fHeader, cursor);
+        for (auto& i : fDescMap) {
+            auto accum = &i.second;
+            auto strike = &accum->strike;
+            cursor = write(*strike, cursor);
+            cursor = write(*accum->desc, cursor);
+            accum->glyphIDs->foreach([&](SkPackedGlyphID id) {
+                cursor = write(id, cursor);
+            });
+            //cursor = write(accum->glyphIDs, cursor);
+        }
+    }
+
+protected:
+    void onDrawTextBlob(
+        const SkTextBlob* blob, SkScalar x, SkScalar y, const SkPaint& paint) override
+    {
+        SkMatrix blobMatrix{fDeviceMatrix};
+        blobMatrix.preConcat(this->getTotalMatrix());
+        if (blobMatrix.hasPerspective()) {return;}
+        blobMatrix.preTranslate(x, y);
+
+        SkTextBlobRunIterator it(blob);
+        for (;!it.done(); it.next()) {
+            this->processGlyphRun(blobMatrix, paint, it);
+        }
+    }
+
+private:
+    using PosFn = SkPoint(*)(int index, const SkScalar* pos);
+    using MapFn = SkPoint(*)(const SkMatrix& m, SkPoint pt);
+
+    struct Strike {
+        size_t size;
+        SkFontID typefaceID;
+        uint32_t descLength;
+        int glyphCount;
+        /* desc */
+        /* glyphs */
+    };
+
+    struct Header {
+        size_t size;
+        int strikeCount;
+    };
+
+    struct CacheAccum {
+        Strike strike;
+        SkDescriptor* desc;
+        //std::vector<SkPackedGlyphID> glyphIDs;
+        std::unique_ptr<SkTHashSet<SkPackedGlyphID>> glyphIDs;
+    };
+
+    template <typename T>
+    uint8_t* write(const std::vector<T>& v, uint8_t* cursor) {
+        size_t sizeBytes = v.size() * sizeof(T);
+        memcpy(cursor, v.data(), sizeBytes);
+        return cursor + sizeBytes;
+    }
+
+    uint8_t* write(const SkDescriptor& desc, uint8_t* cursor) {
+        memcpy(cursor, &desc, desc.getLength());
+        return cursor + desc.getLength();
+    }
+
+    template <typename T>
+    uint8_t* write(const T& data, uint8_t* cursor) {
+        // TODO: guard against bad T.
+        memcpy(cursor, &data, sizeof(data));
+        return cursor + sizeof(data);
+    }
+
+    size_t strikeSize(const CacheAccum& accum) const {
+        size_t wireSize = sizeof(Strike);
+        wireSize += accum.desc->getLength();
+        wireSize += accum.glyphIDs->count() * sizeof(SkPackedGlyphID);
+        return wireSize;
+    }
+
+    void processGlyphRun(
+        const SkMatrix& blobMatrix,
+        const SkPaint& paint,
+        const SkTextBlobRunIterator& it) {
+
+        // applyFontToPaint() always overwrites the exact same attributes,
+        // so it is safe to not re-seed the paint for this reason.
+        SkPaint runPaint{paint};
+        it.applyFontToPaint(&runPaint);
+
+        // All other alignment modes need the glyph advances. Use the slow drawing mode.
+        if (runPaint.getTextAlign() != SkPaint::kLeft_Align) {
+            return;
+        }
+
+        SkMatrix runMatrix{blobMatrix};
+        runMatrix.preTranslate(it.offset().x(), it.offset().y());
+
+        SkAutoDescriptor ad;
+        SkScalerContextRec rec;
+        SkScalerContextEffects effects;
+
+        SkScalerContext::MakeRecAndEffects(runPaint, &fSurfaceProps, &runMatrix,
+                                           fScalerContextFlags, &rec, &effects);
+
+        auto desc = SkScalerContext::AutoDescriptorGivenRecAndEffects(rec, effects, &ad);
+
+        auto cache = SkGlyphCache::DetatchCacheOrNull(*desc);
+
+        PosFn posFn;
+        SkAxisAlignment axisAlignment = SkAxisAlignment::kNone_SkAxisAlignment;
+        switch (it.positioning()) {
+            case SkTextBlob::kDefault_Positioning:
+                // Default positioning needs advances. Can't do that.
+                return;
+
+            case SkTextBlob::kHorizontal_Positioning:
+                posFn = [](int index, const SkScalar* pos) {
+                    return SkPoint{pos[index], 0};
+                };
+                axisAlignment = SkScalerContext::ComputeAxisAlignmentForHText(rec);
+                break;
+
+            case SkTextBlob::kFull_Positioning:
+                posFn = [](int index, const SkScalar* pos) {
+                    return SkPoint{pos[2*index], pos[2*index + 1]};
+                };
+                break;
+
+            default:
+                posFn = nullptr;
+                SK_ABORT("unhandled positioning mode");
+        }
+
+        MapFn mapFn;
+        switch ((int)runMatrix.getType()) {
+            case SkMatrix::kIdentity_Mask:
+            case SkMatrix::kTranslate_Mask:
+                mapFn = [](const SkMatrix& m, SkPoint pt) {
+                    pt.offset(m.getTranslateX(), m.getTranslateY());
+                    return pt;
+                };
+                break;
+            case SkMatrix::kScale_Mask:
+            case SkMatrix::kScale_Mask|SkMatrix::kTranslate_Mask:
+                mapFn = [](const SkMatrix& m, SkPoint pt) {
+                    return SkPoint{pt.x() * m.getScaleX() + m.getTranslateX(),
+                                   pt.y() * m.getScaleY() + m.getTranslateY()};
+                };
+                break;
+            case SkMatrix::kAffine_Mask|SkMatrix::kScale_Mask:
+            case SkMatrix::kAffine_Mask|SkMatrix::kScale_Mask|SkMatrix::kTranslate_Mask:
+                mapFn = [](const SkMatrix& m, SkPoint pt) {
+                    return SkPoint{
+                        pt.x() * m.getScaleX() + pt.y() * m.getSkewX()  + m.getTranslateX(),
+                        pt.x() * m.getSkewY()  + pt.y() * m.getScaleY() + m.getTranslateY()};
+                };
+                break;
+            default:
+                mapFn = nullptr;
+                SK_ABORT("Bad matrix.");
+        }
+
+        auto iter = fDescMap.find(desc);
+        if (iter == fDescMap.end()) {
+            auto newDesc = desc->copy();
+            auto newDescPtr = newDesc.get();
+            fUniqueDescriptors.emplace_back(std::move(newDesc));
+            CacheAccum newAccum;
+            newAccum.desc = newDescPtr;
+            newAccum.strike.typefaceID =
+                SkTypefaceProxy::DownCast(runPaint.getTypeface())->fontID();
+            newAccum.glyphIDs = skstd::make_unique<SkTHashSet<SkPackedGlyphID>>();
+            iter = fDescMap.emplace_hint(iter, newDescPtr, std::move(newAccum));
+        }
+
+        auto accum = &iter->second;
+
+        auto pos = it.pos();
+        const uint16_t* glyphs = it.glyphs();
+        for (uint32_t index = 0; index < it.glyphCount(); index++) {
+            SkIPoint subPixelPos{0, 0};
+            if (runPaint.isAntiAlias()) {
+                SkPoint glyphPos = mapFn(runMatrix, posFn(index, pos));
+                subPixelPos = SkFindAndPlaceGlyph::SubpixelAlignment(axisAlignment, glyphPos);
+            }
+
+            if (cache && cache->isGlyphIdCached(glyphs[index], subPixelPos.x(), subPixelPos.y())) {
+                continue;
+            }
+
+            SkPackedGlyphID glyphID{glyphs[index], subPixelPos.x(), subPixelPos.y()};
+            accum->glyphIDs->add(glyphID);
+        }
+
+#if 0
+        auto begin = std::begin(runGlyphs);
+        auto end = std::end(runGlyphs);
+        std::sort(begin, end);
+        end = std::unique(begin, end);
+        auto allBegin = std::begin(accum->glyphIDs);
+        auto allEnd = std::end(accum->glyphIDs);
+        std::set_union(begin, end, allBegin, allEnd,  std::back_inserter(fTempGlyphs));
+        std::swap(accum->glyphIDs, fTempGlyphs);
+        fTempGlyphs.clear();
+#endif
+
+#if 0
+            auto begin = std::begin(accum->glyphIDs);
+            auto end = std::end(accum->glyphIDs);
+
+#if 1
+            auto biter = std::find(begin, end, glyphID);
+            if (biter == end) {
+                accum->glyphIDs.push_back(glyphID);
+            }
+#else
+            auto biter = std::lower_bound(begin, end, glyphID);
+            if (biter == end || *biter != glyphID) {
+                accum->glyphIDs.insert(biter, glyphID);
+            }
+#endif
+
+        }
+#endif
+
+        if (cache) {
+            SkGlyphCache::AttachCache(cache);
+        }
+    }
+
+    const SkMatrix fDeviceMatrix;
+    const SkSurfaceProps fSurfaceProps;
+    const SkScalerContextFlags fScalerContextFlags;
+
+    struct DescHash {
+        size_t operator()(const SkDescriptor* key) const {
+            return key->getChecksum();
+        }
+    };
+
+    struct DescEq {
+        bool operator()(const SkDescriptor* lhs, const SkDescriptor* rhs) const {
+            return lhs->getChecksum() == rhs->getChecksum();
+        }
+    };
+
+    using DescMap = std::unordered_map<SkDescriptor*, CacheAccum, DescHash, DescEq>;
+    DescMap fDescMap{16, DescHash(), DescEq()};
+    std::vector<std::unique_ptr<SkDescriptor>> fUniqueDescriptors;
+
+    Header fHeader{0, -1};
+    std::vector<SkPackedGlyphID> fTempGlyphs;
+    std::vector<SkPackedGlyphID> runGlyphs;
+};
+
 static void final_draw(std::string outFilename,
                        SkDeserialProcs* procs,
                        uint8_t* picData,
@@ -161,9 +456,28 @@ static void final_draw(std::string outFilename,
     auto c = s->getCanvas();
     auto picUnderTest = SkPicture::MakeFromData(picData, picSize, procs);
 
+    SkMatrix deviceMatrix = SkMatrix::I();
+    TextBlobFilterCanvas filter(
+        r.width(), r.height(), deviceMatrix, s->props(), SkScalerContextFlags::kNone);
+
+    for (int i = 0; i < 1; i++)
+    {
+        auto start = std::chrono::high_resolution_clock::now();
+        filter.drawPicture(picUnderTest);
+        filter.prepareForBufferFill();
+        size_t size = filter.prepareForBufferFill();
+        (void)size;
+        auto end = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double> elapsed_seconds = end-start;
+        (void)elapsed_seconds;
+        if (i == 0) {
+            std::cout << "filter time: " << elapsed_seconds.count() * 1e6
+                      << " size: " << size << std::endl;
+        }
+    }
 
     std::chrono::duration<double> total_seconds{0.0};
-    for (int i = 0; i < 20; i++) {
+    for (int i = 0; i < 0; i++) {
         if (gPurgeFontCaches) {
             SkGraphics::PurgeFontCache();
         }
