@@ -34,6 +34,9 @@ class SkGlyphCache_Globals;
 */
 class SkGlyphCache {
 public:
+    // Return true if glyph is cached.
+    bool isGlyphIdCached(SkGlyphID glyphID, SkFixed x, SkFixed y) const;
+
     /** Returns a glyph with valid fAdvance and fDevKern fields. The remaining fields may be
         valid, but that is not guaranteed. If you require those, call getUnicharMetrics or
         getGlyphIDMetrics instead.
@@ -119,6 +122,8 @@ public:
     static SkGlyphCache* VisitCache(SkTypeface*, const SkScalerContextEffects&, const SkDescriptor*,
                                     bool (*proc)(const SkGlyphCache*, void*),
                                     void* context);
+
+    static SkGlyphCache* DetatchCacheOrNull(const SkDescriptor&);
 
     /** Given a strike that was returned by either VisitCache() or DetachCache() add it back into
         the global cache list (after which the caller should not reference it anymore.
