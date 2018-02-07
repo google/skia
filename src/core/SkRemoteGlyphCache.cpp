@@ -25,6 +25,7 @@ void SkRemoteGlyphCacheRenderer::prepareSerializeProcs(SkSerialProcs* procs) {
 SkScalerContext* SkRemoteGlyphCacheRenderer::generateScalerContext(
     const SkScalerContextRecDescriptor& desc, SkFontID typefaceId)
 {
+
     auto scaler = fScalerContextMap.find(desc);
     if (scaler == nullptr) {
         auto typefaceIter = fTypefaceMap.find(typefaceId);
@@ -35,6 +36,7 @@ SkScalerContext* SkRemoteGlyphCacheRenderer::generateScalerContext(
             return nullptr;
         }
         auto tf = typefaceIter->get();
+        // TODO: make effects really work.
         SkScalerContextEffects effects;
         auto mapSc = tf->createScalerContext(effects, &desc.desc(), false);
         scaler = fScalerContextMap.set(desc, std::move(mapSc));

@@ -310,6 +310,8 @@ public:
     */
     SkAxisAlignment computeAxisAlignmentForHText();
 
+    static SkAxisAlignment ComputeAxisAlignmentForHText(const SkScalerContextRec& rec);
+
     static SkDescriptor* CreateDescriptorAndEffectsUsingPaint(
         const SkPaint& paint, const SkSurfaceProps* surfaceProps,
         SkScalerContextFlags scalerContextFlags,
