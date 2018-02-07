@@ -864,6 +864,17 @@ static SkPaint::Hinting computeHinting(const SkPaint& paint) {
 
 // The only reason this is not file static is because it needs the context of SkScalerContext to
 // access SkPaint::computeLuminanceColor.
+//
+// ScalerContextFlags:
+//
+// * kNone -
+// * kFakeGamma - calls ignoreGamma. LuminanceColor set to transparent, paintGamma and deviceGamma
+//   set to one.
+// * kBoostContrast - calls setContrast(0).
+// * kFakeGammaAndBoostContrast - short hand for kFakeGamma & kBoostContrast
+//
+// Variable affected:
+//
 void SkScalerContext::MakeRecAndEffects(const SkPaint& paint,
                                         const SkSurfaceProps* surfaceProps,
                                         const SkMatrix* deviceMatrix,
