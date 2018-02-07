@@ -14,7 +14,6 @@
 #include "GrOnFlushResourceProvider.h"
 #include "GrOpList.h"
 #include "GrRenderTargetContext.h"
-#include "GrPathRenderingRenderTargetContext.h"
 #include "GrRenderTargetProxy.h"
 #include "GrResourceAllocator.h"
 #include "GrResourceProvider.h"
@@ -31,7 +30,6 @@
 
 #include "GrTracing.h"
 #include "text/GrAtlasTextContext.h"
-#include "text/GrStencilAndCoverTextContext.h"
 
 void GrDrawingManager::cleanup() {
     for (int i = 0; i < fOpLists.count(); ++i) {
@@ -453,20 +451,6 @@ sk_sp<GrRenderTargetContext> GrDrawingManager::makeRenderTargetContext(
 
     sk_sp<GrRenderTargetProxy> rtp(sk_ref_sp(sProxy->asRenderTargetProxy()));
 
-    bool useDIF = false;
-    if (surfaceProps) {
-        useDIF = surfaceProps->isUseDeviceIndependentFonts();
-    }
-
-    if (useDIF && fContext->caps()->shaderCaps()->pathRenderingSupport() &&
-        GrFSAAType::kNone != rtp->fsaaType()) {
-
-        return sk_sp<GrRenderTargetContext>(new GrPathRenderingRenderTargetContext(
-                                                    fContext, this, std::move(rtp),
-                                                    std::move(colorSpace), surfaceProps,
-                                                    fContext->getAuditTrail(), fSingleOwner));
-    }
-
     return sk_sp<GrRenderTargetContext>(new GrRenderTargetContext(fContext, this, std::move(rtp),
                                                                   std::move(colorSpace),
                                                                   surfaceProps,
@@ -488,7 +472,7 @@ sk_sp<GrTextureContext> GrDrawingManager::makeTextureContext(sk_sp<GrSurfaceProx
         return nullptr;
     }
 
-    // GrTextureRenderTargets should always be using GrRenderTargetContext
+    // GrTextureRenderTargets should always be using a GrRenderTargetContext
     SkASSERT(!sProxy->asRenderTargetProxy());
 
     sk_sp<GrTextureProxy> textureProxy(sk_ref_sp(sProxy->asTextureProxy()));
