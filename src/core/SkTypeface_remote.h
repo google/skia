@@ -90,6 +90,10 @@ public:
             , fFontId{fontId}
             , fRsc{rsc} { }
     SkFontID fontID() const {return fFontId;}
+    static SkTypefaceProxy* DownCast(SkTypeface* typeface) {
+        // TODO: how to check the safty of the down cast.
+        return (SkTypefaceProxy*) typeface;
+    }
 
 protected:
     int onGetUPEM() const override { SK_ABORT("Should never be called."); return 0; }

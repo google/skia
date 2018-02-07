@@ -9,6 +9,7 @@
 #define SkRemoteGlyphCache_DEFINED
 
 #include <memory>
+#include <vector>
 #include "SkData.h"
 #include "SkDescriptor.h"
 #include "SkSerialProcs.h"
@@ -62,21 +63,19 @@ class SkRemoteGlyphCacheRenderer {
 public:
     void prepareSerializeProcs(SkSerialProcs* procs);
 
-    SkScalerContext* generateScalerContext(
-        const SkScalerContextRecDescriptor& desc, SkFontID typefaceId);
+    SkScalerContext* generateScalerContext(const SkDescriptor& desc, SkFontID typefaceId);
 
 private:
     sk_sp<SkData> encodeTypeface(SkTypeface* tf);
 
     SkTHashMap<SkFontID, sk_sp<SkTypeface>> fTypefaceMap;
 
-    using DescriptorToContextMap =
-    SkTHashMap<
-    SkScalerContextRecDescriptor,
-    std::unique_ptr<SkScalerContext>,
-    SkScalerContextRecDescriptor::Hash>;
+    using DescriptorToContextMap = SkTHashMap<const SkDescriptor*,
+                                              std::unique_ptr<SkScalerContext>,
+                                              SkDescriptor::Hash>;
 
     DescriptorToContextMap fScalerContextMap;
+    std::vector<std::unique_ptr<SkDescriptor>>;
 };
 
 class SkRemoteGlyphCacheGPU {

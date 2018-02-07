@@ -22,10 +22,28 @@ void SkRemoteGlyphCacheRenderer::prepareSerializeProcs(SkSerialProcs* procs) {
     procs->fTypefaceCtx = this;
 }
 
+static SkScalerContextEffects get_effects(const SkDescriptor& desc){
+    SkScalerContextEffects effects;
+    kMaskFilter_SkDescriptorTag
+        kPathEffect_SkDescriptorTag
+    uint32_t size;
+    auto maskFilterData = desc.findEntry(kMaskFilter_SkDescriptorTag, &size);
+    if (size > 0) {
+        effects.fMaskFilter = SkMaskFilter::Deserialize(maskFilterData, size);
+    }
+
+    auto pathEffectsData = desc.findEntry(kPathEffect_SkDescriptorTag, &size);
+    if (size > 0) {
+        effects.fPathEffect = SkMaskFilter::Deserialize(pathEffectsData, size);
+    }
+
+    return effects;
+}
+
 SkScalerContext* SkRemoteGlyphCacheRenderer::generateScalerContext(
-    const SkScalerContextRecDescriptor& desc, SkFontID typefaceId)
+    const SkDescriptor& desc, SkFontID typefaceId)
 {
-    auto scaler = fScalerContextMap.find(desc);
+    auto scaler = fScalerContextMap.find(&desc);
     if (scaler == nullptr) {
         auto typefaceIter = fTypefaceMap.find(typefaceId);
         if (typefaceIter == nullptr) {
@@ -35,8 +53,8 @@ SkScalerContext* SkRemoteGlyphCacheRenderer::generateScalerContext(
             return nullptr;
         }
         auto tf = typefaceIter->get();
-        SkScalerContextEffects effects;
-        auto mapSc = tf->createScalerContext(effects, &desc.desc(), false);
+        SkScalerContextEffects effects = get_effects(desc);
+        auto mapSc = tf->createScalerContext(effects, &desc, false);
         scaler = fScalerContextMap.set(desc, std::move(mapSc));
     }
     return scaler->get();

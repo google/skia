@@ -15,6 +15,16 @@
 
 class SkDescriptor : SkNoncopyable {
 public:
+    struct Hash {
+        uint32_t operator()(const SkDescriptor & s) const {
+            return s.getChecksum();
+        }
+    };
+
+    friend bool operator==(const SkDescriptor* lhs, const SkDescriptor* rhs ) {
+        return *lhs == *rhs;
+    }
+
     static size_t ComputeOverhead(int entryCount) {
         SkASSERT(entryCount >= 0);
         return sizeof(SkDescriptor) + entryCount * sizeof(Entry);
