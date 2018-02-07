@@ -14,17 +14,6 @@
 #include "SkRefCnt.h"
 #include "SkTDArray.h"
 
-
-// Turn on/off the explicit distribution of GPU resources at flush time
-#ifndef SK_DISABLE_EXPLICIT_GPU_RESOURCE_ALLOCATION
-   #define SK_DISABLE_EXPLICIT_GPU_RESOURCE_ALLOCATION
-#endif
-
-// Turn on/off the sorting of opLists at flush time
-#ifndef SK_DISABLE_RENDER_TARGET_SORTING
-   #define SK_DISABLE_RENDER_TARGET_SORTING
-#endif
-
 class GrAuditTrail;
 class GrCaps;
 class GrOpFlushState;
@@ -111,7 +100,7 @@ public:
     void setStencilLoadOp(GrLoadOp loadOp) { fStencilLoadOp = loadOp; }
 
 protected:
-    SkDEBUGCODE(bool isInstantiated() const;)
+    bool isInstantiated() const;
 
     GrSurfaceProxyRef fTarget;
     GrAuditTrail*     fAuditTrail;
@@ -154,26 +143,26 @@ private:
     }
 
     struct TopoSortTraits {
-        static void Output(GrOpList* dt, int /* index */) {
-            dt->setFlag(GrOpList::kWasOutput_Flag);
+        static void Output(GrOpList* opList, int /* index */) {
+            opList->setFlag(GrOpList::kWasOutput_Flag);
         }
-        static bool WasOutput(const GrOpList* dt) {
-            return dt->isSetFlag(GrOpList::kWasOutput_Flag);
+        static bool WasOutput(const GrOpList* opList) {
+            return opList->isSetFlag(GrOpList::kWasOutput_Flag);
         }
-        static void SetTempMark(GrOpList* dt) {
-            dt->setFlag(GrOpList::kTempMark_Flag);
+        static void SetTempMark(GrOpList* opList) {
+            opList->setFlag(GrOpList::kTempMark_Flag);
         }
-        static void ResetTempMark(GrOpList* dt) {
-            dt->resetFlag(GrOpList::kTempMark_Flag);
+        static void ResetTempMark(GrOpList* opList) {
+            opList->resetFlag(GrOpList::kTempMark_Flag);
         }
-        static bool IsTempMarked(const GrOpList* dt) {
-            return dt->isSetFlag(GrOpList::kTempMark_Flag);
+        static bool IsTempMarked(const GrOpList* opList) {
+            return opList->isSetFlag(GrOpList::kTempMark_Flag);
         }
-        static int NumDependencies(const GrOpList* dt) {
-            return dt->fDependencies.count();
+        static int NumDependencies(const GrOpList* opList) {
+            return opList->fDependencies.count();
         }
-        static GrOpList* Dependency(GrOpList* dt, int index) {
-            return dt->fDependencies[index];
+        static GrOpList* Dependency(GrOpList* opList, int index) {
+            return opList->fDependencies[index];
         }
     };
 
