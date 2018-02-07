@@ -975,7 +975,12 @@ static inline bool isSmoothEnough(SkAnalyticEdge* leftE, SkAnalyticEdge* riteE,
     if (nextCurrE->fUpperY >= stop_y << 16) { // Check if we're at the end
         return false;
     }
+    // Ensure that currE is the next left edge and nextCurrE is the next right edge. Swap if not.
+#ifdef SK_SUPPORT_LEGACY_AAA_SMOOTH
     if (*nextCurrE < *currE) {
+#else
+    if (nextCurrE->fUpperX < currE->fUpperX) {
+#endif
         SkTSwap(currE, nextCurrE);
     }
     return isSmoothEnough(leftE, currE, stop_y) && isSmoothEnough(riteE, nextCurrE, stop_y);
