@@ -70,11 +70,9 @@ private:
 
     SkTHashMap<SkFontID, sk_sp<SkTypeface>> fTypefaceMap;
 
-    using DescriptorToContextMap =
-    SkTHashMap<
-    SkScalerContextRecDescriptor,
-    std::unique_ptr<SkScalerContext>,
-    SkScalerContextRecDescriptor::Hash>;
+    using DescriptorToContextMap = SkTHashMap<SkScalerContextRecDescriptor,
+                                              std::unique_ptr<SkScalerContext>,
+                                              SkScalerContextRecDescriptor::Hash>;
 
     DescriptorToContextMap fScalerContextMap;
 };
