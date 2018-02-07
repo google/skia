@@ -729,7 +729,6 @@ static void test_legacy_bitmap(skiatest::Reporter* reporter, const SkImage* imag
 DEF_TEST(ImageLegacyBitmap, reporter) {
     const SkImage::LegacyBitmapMode modes[] = {
         SkImage::kRO_LegacyBitmapMode,
-        SkImage::kRW_LegacyBitmapMode,
     };
     for (auto& mode : modes) {
         sk_sp<SkImage> image(create_image());
@@ -752,7 +751,6 @@ DEF_TEST(ImageLegacyBitmap, reporter) {
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageLegacyBitmap_Gpu, reporter, ctxInfo) {
     const SkImage::LegacyBitmapMode modes[] = {
         SkImage::kRO_LegacyBitmapMode,
-        SkImage::kRW_LegacyBitmapMode,
     };
     for (auto& mode : modes) {
         sk_sp<SkImage> image(create_gpu_image(ctxInfo.grContext()));
