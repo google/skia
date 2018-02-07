@@ -11,7 +11,7 @@
 
 #include "sk_tool_utils.h"
 
-typedef void (*CreateGraphPF)(SkTDArray<sk_tool_utils::TopoTestNode*>* graph);
+typedef void (*CreateGraphPF)(SkTArray<sk_sp<sk_tool_utils::TopoTestNode>>* graph);
 
 /* Simple diamond
  *       3
@@ -20,13 +20,13 @@ typedef void (*CreateGraphPF)(SkTDArray<sk_tool_utils::TopoTestNode*>* graph);
  *     \   /
  *       0
  */
-static void create_graph0(SkTDArray<sk_tool_utils::TopoTestNode*>* graph) {
+static void create_graph0(SkTArray<sk_sp<sk_tool_utils::TopoTestNode>>* graph) {
     sk_tool_utils::TopoTestNode::AllocNodes(graph, 4);
 
-    (*graph)[0]->dependsOn((*graph)[1]);
-    (*graph)[0]->dependsOn((*graph)[2]);
-    (*graph)[1]->dependsOn((*graph)[3]);
-    (*graph)[2]->dependsOn((*graph)[3]);
+    (*graph)[0]->dependsOn((*graph)[1].get());
+    (*graph)[0]->dependsOn((*graph)[2].get());
+    (*graph)[1]->dependsOn((*graph)[3].get());
+    (*graph)[2]->dependsOn((*graph)[3].get());
 }
 
 /* Simple chain
@@ -38,12 +38,12 @@ static void create_graph0(SkTDArray<sk_tool_utils::TopoTestNode*>* graph) {
  *     |
  *     0
  */
-static void create_graph1(SkTDArray<sk_tool_utils::TopoTestNode*>* graph) {
+static void create_graph1(SkTArray<sk_sp<sk_tool_utils::TopoTestNode>>* graph) {
     sk_tool_utils::TopoTestNode::AllocNodes(graph, 4);
 
-    (*graph)[0]->dependsOn((*graph)[1]);
-    (*graph)[1]->dependsOn((*graph)[2]);
-    (*graph)[2]->dependsOn((*graph)[3]);
+    (*graph)[0]->dependsOn((*graph)[1].get());
+    (*graph)[1]->dependsOn((*graph)[2].get());
+    (*graph)[2]->dependsOn((*graph)[3].get());
 }
 
 /* Loop
@@ -51,12 +51,12 @@ static void create_graph1(SkTDArray<sk_tool_utils::TopoTestNode*>* graph) {
  *     /   \
  *    0 --- 1
  */
-static void create_graph2(SkTDArray<sk_tool_utils::TopoTestNode*>* graph) {
+static void create_graph2(SkTArray<sk_sp<sk_tool_utils::TopoTestNode>>* graph) {
     sk_tool_utils::TopoTestNode::AllocNodes(graph, 3);
 
-    (*graph)[0]->dependsOn((*graph)[1]);
-    (*graph)[1]->dependsOn((*graph)[2]);
-    (*graph)[2]->dependsOn((*graph)[0]);
+    (*graph)[0]->dependsOn((*graph)[1].get());
+    (*graph)[1]->dependsOn((*graph)[2].get());
+    (*graph)[2]->dependsOn((*graph)[0].get());
 }
 
 /* Double diamond
@@ -70,18 +70,18 @@ static void create_graph2(SkTDArray<sk_tool_utils::TopoTestNode*>* graph) {
  *     \   /
  *       0
  */
-static void create_graph3(SkTDArray<sk_tool_utils::TopoTestNode*>* graph) {
+static void create_graph3(SkTArray<sk_sp<sk_tool_utils::TopoTestNode>>* graph) {
     sk_tool_utils::TopoTestNode::AllocNodes(graph, 7);
 
-    (*graph)[0]->dependsOn((*graph)[1]);
-    (*graph)[0]->dependsOn((*graph)[2]);
-    (*graph)[1]->dependsOn((*graph)[3]);
-    (*graph)[2]->dependsOn((*graph)[3]);
+    (*graph)[0]->dependsOn((*graph)[1].get());
+    (*graph)[0]->dependsOn((*graph)[2].get());
+    (*graph)[1]->dependsOn((*graph)[3].get());
+    (*graph)[2]->dependsOn((*graph)[3].get());
 
-    (*graph)[3]->dependsOn((*graph)[4]);
-    (*graph)[3]->dependsOn((*graph)[5]);
-    (*graph)[4]->dependsOn((*graph)[6]);
-    (*graph)[5]->dependsOn((*graph)[6]);
+    (*graph)[3]->dependsOn((*graph)[4].get());
+    (*graph)[3]->dependsOn((*graph)[5].get());
+    (*graph)[4]->dependsOn((*graph)[6].get());
+    (*graph)[5]->dependsOn((*graph)[6].get());
 }
 
 /* Two independent diamonds
@@ -91,18 +91,18 @@ static void create_graph3(SkTDArray<sk_tool_utils::TopoTestNode*>* graph) {
  *     \   /       \   /
  *       0           4
  */
-static void create_graph4(SkTDArray<sk_tool_utils::TopoTestNode*>* graph) {
+static void create_graph4(SkTArray<sk_sp<sk_tool_utils::TopoTestNode>>* graph) {
     sk_tool_utils::TopoTestNode::AllocNodes(graph, 8);
 
-    (*graph)[0]->dependsOn((*graph)[1]);
-    (*graph)[0]->dependsOn((*graph)[2]);
-    (*graph)[1]->dependsOn((*graph)[3]);
-    (*graph)[2]->dependsOn((*graph)[3]);
+    (*graph)[0]->dependsOn((*graph)[1].get());
+    (*graph)[0]->dependsOn((*graph)[2].get());
+    (*graph)[1]->dependsOn((*graph)[3].get());
+    (*graph)[2]->dependsOn((*graph)[3].get());
 
-    (*graph)[4]->dependsOn((*graph)[5]);
-    (*graph)[4]->dependsOn((*graph)[6]);
-    (*graph)[5]->dependsOn((*graph)[7]);
-    (*graph)[6]->dependsOn((*graph)[7]);
+    (*graph)[4]->dependsOn((*graph)[5].get());
+    (*graph)[4]->dependsOn((*graph)[6].get());
+    (*graph)[5]->dependsOn((*graph)[7].get());
+    (*graph)[6]->dependsOn((*graph)[7].get());
 }
 
 DEF_TEST(TopoSort, reporter) {
@@ -120,7 +120,7 @@ DEF_TEST(TopoSort, reporter) {
     };
 
     for (size_t i = 0; i < SK_ARRAY_COUNT(tests); ++i) {
-        SkTDArray<sk_tool_utils::TopoTestNode*> graph;
+        SkTArray<sk_sp<sk_tool_utils::TopoTestNode>> graph;
 
         (tests[i].fCreate)(&graph);
 
@@ -136,6 +136,5 @@ DEF_TEST(TopoSort, reporter) {
         }
 
         //SkDEBUGCODE(print(graph);)
-        sk_tool_utils::TopoTestNode::DeallocNodes(&graph);
     }
 }

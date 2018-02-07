@@ -103,9 +103,17 @@ static void non_overlap_test(skiatest::Reporter* reporter, GrResourceProvider* r
     REPORTER_ASSERT(reporter, expectedResult == doTheBackingStoresMatch);
 }
 
+bool GrResourceProvider::testingOnly_setExplicitlyAllocateGPUResources(bool newValue) {
+    bool oldValue = fExplicitlyAllocateGPUResources;
+    fExplicitlyAllocateGPUResources = newValue;
+    return oldValue;
+}
+
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceAllocatorTest, reporter, ctxInfo) {
     GrProxyProvider* proxyProvider = ctxInfo.grContext()->contextPriv().proxyProvider();
     GrResourceProvider* resourceProvider = ctxInfo.grContext()->contextPriv().resourceProvider();
+
+    bool orig = resourceProvider->testingOnly_setExplicitlyAllocateGPUResources(true);
 
     struct TestCase {
         ProxyParams   fP1;
@@ -202,6 +210,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceAllocatorTest, reporter, ctxInfo) {
                          std::move(p1), std::move(p2), t[0].fExpectation);
         cleanup_backend(ctxInfo.grContext(), &backEndTex);
     }
+
+    resourceProvider->testingOnly_setExplicitlyAllocateGPUResources(orig);
 }
 
 #endif
