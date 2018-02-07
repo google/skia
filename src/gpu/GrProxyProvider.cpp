@@ -17,10 +17,14 @@
 #include "GrTextureProxyCacheAccess.h"
 #include "GrTextureRenderTargetProxy.h"
 #include "../private/GrSingleOwner.h"
+#include "SkBitmap.h"
 #include "SkGr.h"
 #include "SkImage.h"
 #include "SkImage_Base.h"
+#include "SkImageInfoPriv.h"
+#include "SkImagePriv.h"
 #include "SkMipMap.h"
+#include "SkTraceEvent.h"
 
 #define ASSERT_SINGLE_OWNER \
     SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(fSingleOwner);)
@@ -307,6 +311,90 @@ sk_sp<GrTextureProxy> GrProxyProvider::createMipMapProxy(const GrSurfaceDesc& de
 
     return this->createMipMapProxy(desc, budgeted, texels.get(), mipCount,
                                    SkDestinationSurfaceColorMode::kLegacy);
+}
+
+sk_sp<GrTextureProxy> GrProxyProvider::createMipMapProxyFromBitmap(const SkBitmap& bitmap,
+                                                                   SkColorSpace* dstColorSpace) {
+    SkDestinationSurfaceColorMode mipColorMode = dstColorSpace
+        ? SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware
+        : SkDestinationSurfaceColorMode::kLegacy;
+
+    if (!SkImageInfoIsValid(bitmap.info(), mipColorMode)) {
+        return nullptr;
+    }
+
+    SkPixmap pixmap;
+    if (!bitmap.peekPixels(&pixmap)) {
+        return nullptr;
+    }
+
+    ATRACE_ANDROID_FRAMEWORK("Upload MipMap Texture [%ux%u]", pixmap.width(), pixmap.height());
+    sk_sp<SkMipMap> mipmaps(SkMipMap::Build(pixmap, mipColorMode, nullptr));
+    if (!mipmaps) {
+        return nullptr;
+    }
+
+    if (mipmaps->countLevels() < 0) {
+        return nullptr;
+    }
+
+    // In non-ddl we will always instantiate right away. Thus we never want to copy the SkBitmap
+    // even if its mutable. In ddl, if the bitmap is mutable then we must make a copy since the
+    // upload of the data to the gpu can happen at anytime and the bitmap may change by then.
+    SkCopyPixelsMode copyMode = fResourceProvider ? kNever_SkCopyPixelsMode
+                                                  : kIfMutable_SkCopyPixelsMode;
+    sk_sp<SkImage> baseLevel = SkMakeImageFromRasterBitmap(bitmap, copyMode);
+
+    if (!baseLevel) {
+        return nullptr;
+    }
+
+    GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(pixmap.info(), *this->caps());
+
+    if (0 == mipmaps->countLevels()) {
+        return this->createTextureProxy(baseLevel, kNone_GrSurfaceFlags, kTopLeft_GrSurfaceOrigin,
+                                        1, SkBudgeted::kYes, SkBackingFit::kExact);
+
+    }
+
+    sk_sp<GrTextureProxy> proxy = this->createLazyProxy(
+            [desc, baseLevel, mipmaps, mipColorMode]
+            (GrResourceProvider* resourceProvider, GrSurfaceOrigin* /*outOrigin*/) {
+                if (!resourceProvider) {
+                    return sk_sp<GrTexture>();
+                }
+
+                const int mipLevelCount = mipmaps->countLevels() + 1;
+                std::unique_ptr<GrMipLevel[]> texels(new GrMipLevel[mipLevelCount]);
+
+                SkPixmap pixmap;
+                SkAssertResult(baseLevel->peekPixels(&pixmap));
+
+                // DDL TODO: Instead of copying all this info into GrMipLevels we should just plumb
+                // the use of SkMipMap down through Ganesh.
+                texels[0].fPixels = pixmap.addr();
+                texels[0].fRowBytes = pixmap.rowBytes();
+
+                for (int i = 1; i < mipLevelCount; ++i) {
+                    SkMipMap::Level generatedMipLevel;
+                    mipmaps->getLevel(i - 1, &generatedMipLevel);
+                    texels[i].fPixels = generatedMipLevel.fPixmap.addr();
+                    texels[i].fRowBytes = generatedMipLevel.fPixmap.rowBytes();
+                    SkASSERT(texels[i].fPixels);
+                }
+
+                return resourceProvider->createTexture(desc, SkBudgeted::kYes, texels.get(),
+                                                       mipLevelCount, mipColorMode);
+            }, desc, GrMipMapped::kYes, SkBackingFit::kExact, SkBudgeted::kYes);
+
+    if (fResourceProvider) {
+        // In order to reuse code we always create a lazy proxy. When we aren't in DDL mode however
+        // we're better off instantiating the proxy immediately here.
+        if (!proxy->priv().doLazyInstantiation(fResourceProvider)) {
+            return nullptr;
+        }
+    }
+    return proxy;
 }
 
 sk_sp<GrTextureProxy> GrProxyProvider::createProxy(const GrSurfaceDesc& desc,
