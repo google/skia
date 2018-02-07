@@ -33,13 +33,13 @@ const uint32_t GrResourceProvider::kMinScratchTextureSize = 16;
 #define ASSERT_SINGLE_OWNER \
     SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(fSingleOwner);)
 
-GrResourceProvider::GrResourceProvider(GrGpu* gpu, GrResourceCache* cache, GrSingleOwner* owner)
+GrResourceProvider::GrResourceProvider(GrGpu* gpu, GrResourceCache* cache, GrSingleOwner* owner, bool explicitlyAllocate)
         : fCache(cache)
         , fGpu(gpu)
 #ifdef SK_DEBUG
         , fSingleOwner(owner)
 #endif
-        {
+        , fExplicitlyAllocate(explicitlyAllocate) {
     fCaps = sk_ref_sp(fGpu->caps());
 
     GR_DEFINE_STATIC_UNIQUE_KEY(gQuadIndexBufferKey);

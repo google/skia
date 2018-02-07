@@ -117,11 +117,11 @@ GrSemaphoresSubmitted GrDrawingManager::internalFlush(GrSurfaceProxy*,
     }
 #endif
 
-#ifndef SK_DISABLE_RENDER_TARGET_SORTING
-    SkDEBUGCODE(bool result =)
-                        SkTTopoSort<GrOpList, GrOpList::TopoSortTraits>(&fOpLists);
-    SkASSERT(result);
-#endif
+    if (fDoSort) {
+        SkDEBUGCODE(bool result =)
+                       SkTTopoSort<GrOpList, GrOpList::TopoSortTraits>(&fOpLists);
+        SkASSERT(result);
+    }
 
     GrGpu* gpu = fContext->contextPriv().getGpu();
 
@@ -181,21 +181,15 @@ GrSemaphoresSubmitted GrDrawingManager::internalFlush(GrSurfaceProxy*,
             alloc.markEndOfOpList(i);
         }
 
-#ifdef SK_DISABLE_EXPLICIT_GPU_RESOURCE_ALLOCATION
-        startIndex = 0;
-        stopIndex = fOpLists.count();
-#else
         GrResourceAllocator::AssignError error = GrResourceAllocator::AssignError::kNoError;
         while (alloc.assign(&startIndex, &stopIndex, &error))
-#endif
         {
-#ifndef SK_DISABLE_EXPLICIT_GPU_RESOURCE_ALLOCATION
             if (GrResourceAllocator::AssignError::kFailedProxyInstantiation == error) {
                 for (int i = startIndex; i < stopIndex; ++i) {
                     fOpLists[i]->purgeOpsWithUninstantiatedProxies();
                 }
             }
-#endif
+
             if (this->executeOpLists(startIndex, stopIndex, &flushState)) {
                 flushed = true;
             }
@@ -223,6 +217,7 @@ GrSemaphoresSubmitted GrDrawingManager::internalFlush(GrSurfaceProxy*,
 bool GrDrawingManager::executeOpLists(int startIndex, int stopIndex, GrOpFlushState* flushState) {
     SkASSERT(startIndex <= stopIndex && stopIndex <= fOpLists.count());
 
+    GrResourceProvider* resourceProvider = fContext->contextPriv().resourceProvider();
     bool anyOpListsExecuted = false;
 
     for (int i = startIndex; i < stopIndex; ++i) {
@@ -230,15 +225,15 @@ bool GrDrawingManager::executeOpLists(int startIndex, int stopIndex, GrOpFlushSt
              continue;
         }
 
-#ifdef SK_DISABLE_EXPLICIT_GPU_RESOURCE_ALLOCATION
-        if (!fOpLists[i]->instantiate(fContext->contextPriv().resourceProvider())) {
-            SkDebugf("OpList failed to instantiate.\n");
-            fOpLists[i] = nullptr;
-            continue;
+        if (resourceProvider->explicitlyAllocate()) {
+            SkASSERT(fOpLists[i]->isInstantiated());
+        } else {
+            if (!fOpLists[i]->instantiate(resourceProvider)) {
+                SkDebugf("OpList failed to instantiate.\n");
+                fOpLists[i] = nullptr;
+                continue;
+            }
         }
-#else
-        SkASSERT(fOpLists[i]->isInstantiated());
-#endif
 
         // TODO: handle this instantiation via lazy surface proxies?
         // Instantiate all deferred proxies (being built on worker threads) so we can upload them

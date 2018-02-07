@@ -239,7 +239,7 @@ bool GrContext::init(const GrContextOptions& options) {
     if (fGpu) {
         fCaps = fGpu->refCaps();
         fResourceCache = new GrResourceCache(fCaps.get(), fUniqueID);
-        fResourceProvider = new GrResourceProvider(fGpu.get(), fResourceCache, &fSingleOwner);
+        fResourceProvider = new GrResourceProvider(fGpu.get(), fResourceCache, &fSingleOwner, options.fExplicitlyAllocateGPUResources);
     }
 
     fProxyProvider = new GrProxyProvider(fResourceProvider, fResourceCache, fCaps, &fSingleOwner);
@@ -283,7 +283,7 @@ bool GrContext::init(const GrContextOptions& options) {
 #endif
 
     fDrawingManager.reset(
-            new GrDrawingManager(this, prcOptions, atlasTextContextOptions, &fSingleOwner));
+            new GrDrawingManager(this, prcOptions, atlasTextContextOptions, &fSingleOwner, options.fSortRenderTargets));
 
     GrDrawOpAtlas::AllowMultitexturing allowMultitexturing;
     if (GrContextOptions::Enable::kNo == options.fAllowMultipleGlyphCacheTextures ||
