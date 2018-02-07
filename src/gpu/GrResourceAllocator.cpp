@@ -207,6 +207,10 @@ bool GrResourceAllocator::assign(int* startIndex, int* stopIndex, AssignError* o
     *startIndex = fCurOpListIndex;
     *stopIndex = fEndOfOpListOpIndices.count();
 
+    if (!fResourceProvider->explicitlyAllocate()) {
+        return true;
+    }
+
     SkDEBUGCODE(fAssigned = true;)
 
     while (Interval* cur = fIntvlList.popHead()) {

@@ -239,7 +239,7 @@ bool GrContext::init(const GrContextOptions& options) {
     if (fGpu) {
         fCaps = fGpu->refCaps();
         fResourceCache = new GrResourceCache(fCaps.get(), fUniqueID);
-        fResourceProvider = new GrResourceProvider(fGpu.get(), fResourceCache, &fSingleOwner);
+        fResourceProvider = new GrResourceProvider(fGpu.get(), fResourceCache, &fSingleOwner, options.fExplicitlyAllocateGPUResources);
     }
 
     fProxyProvider = new GrProxyProvider(fResourceProvider, fResourceCache, fCaps, &fSingleOwner);
