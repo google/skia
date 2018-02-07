@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9f0a3697_39c1c662",
+        "filename": "tools/debugger/SkDrawCommand.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 925,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-02-07T18:33:56Z",
+      "side": 0,
+      "message": "Do we actually need the bitmap to be writable, or can we just switch this to kRO_LegacyBitmapMode instead?\n\nAFAICT callers just draw the bitmap, so I\u0027m guessing RO should work.",
+      "range": {
+        "startLine": 925,
+        "startChar": 49,
+        "endLine": 925,
+        "endChar": 78
+      },
+      "revId": "eba1ab54651ec75e6a0bcfc5fec1841c8613b0e0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
