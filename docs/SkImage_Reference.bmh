@@ -1273,9 +1273,13 @@ canvas->drawPaint(paint);
 #Method ##
 
 # ------------------------------------------------------------------------------
+#Subtopic Pixels
+#Populate
+#Line # read and write pixel values ##
+##
 
 #Method bool peekPixels(SkPixmap* pixmap) const
-
+#In Pixels
 #Line # returns Pixmap if possible ##
 Copies Image pixel address, row bytes, and Image_Info to pixmap, if address
 is available, and returns true. If pixel address is not available, return
@@ -1422,6 +1426,7 @@ drawImage(textureImage, "backEndTexture");
 
 #Method GrBackendObject getTextureHandle(bool flushPendingGrContextIO,
                                      GrSurfaceOrigin* origin = nullptr) const
+#In Property
 #Line # returns GPU reference to Image as texture ##
 
 Retrieves the back-end API handle of texture. If flushPendingGrContextIO is true,
@@ -1528,6 +1533,7 @@ Disallows Skia from internally caching decoded and copied pixels.
 
 #Method bool readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
                     int srcX, int srcY, CachingHint cachingHint = kAllow_CachingHint) const
+#In Pixels
 #Line # copies and converts pixels ##
 
 Copies Rect of pixels from Image to dstPixels. Copy starts at offset (srcX, srcY),
@@ -1675,6 +1681,7 @@ If cachingHint is kDisallow_CachingHint, pixels are not added to the local cache
 
 #Method bool scalePixels(const SkPixmap& dst, SkFilterQuality filterQuality,
                      CachingHint cachingHint = kAllow_CachingHint) const
+#In Pixels
 #Line # scales and converts one Image to another ##
 
 Copies Image to dst, scaling pixels to fit dst.width() and dst.height(), and
@@ -1734,7 +1741,7 @@ If cachingHint is kDisallow_CachingHint, pixels are not added to the local cache
 # ------------------------------------------------------------------------------
 
 #Method sk_sp<SkData> encodeToData(SkEncodedImageFormat encodedImageFormat, int quality) const
-
+#In Utility
 #Line # returns encoded Image as SkData ##
 Encodes Image pixels, returning result as SkData. 
 
@@ -1805,7 +1812,7 @@ encoding fails.
 # ------------------------------------------------------------------------------
 
 #Method sk_sp<SkData> refEncodedData() const
-
+#In Utility
 #Line # returns Image encoded in SkData if present ##
 Returns encoded Image pixels as SkData, if Image was created from supported
 encoded stream format. Platform support for formats vary and may require building

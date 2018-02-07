@@ -22,19 +22,18 @@ initializes all Matrix elements with the corresponding mapping.
 Matrix includes a hidden variable that classifies the type of matrix to 
 improve performance. Matrix is not thread safe unless getType is called first.
 
-#Subtopic Constructor
-#Populate
-##
-
-#Subtopic Operator
-#Populate
-##
-
 #Subtopic Member_Function
 #Populate
 ##
 
+#Subtopic Related_Function
+#Populate
+##
+
 # ------------------------------------------------------------------------------
+#Subtopic Constructor
+#Populate
+##
 
 #Method static SkMatrix SK_WARN_UNUSED_RESULT MakeScale(SkScalar sx, SkScalar sy)
 #In Constructor
@@ -737,6 +736,9 @@ vertical translation
 ##
 
 # ------------------------------------------------------------------------------
+#Subtopic Operator
+#Populate
+##
 
 #Method SkScalar operator[](int index)_const
 

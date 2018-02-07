@@ -34,7 +34,9 @@ integer input cannot convert to <a href="undocumented#SkScalar">SkScalar</a> wit
 | <a href="#Inset_Outset_Offset">Inset Outset Offset</a> | moves sides |
 | <a href="#Intersection">Intersection</a> | set to shared bounds |
 | <a href="#Join">Join</a> | set to union of bounds |
+| <a href="#Property">Property</a> | member values, center, validity |
 | <a href="#Rounding">Rounding</a> | adjust to integer bounds |
+| <a href="#Set">Set</a> | replaces all values |
 | <a href="#Sorting">Sorting</a> | orders sides |
 
 ## <a name="Member_Function"></a> Member Function
@@ -486,7 +488,8 @@ integer unsorted bounds</td>
 | <a href="#SkRect_centerX">centerX</a> | returns midpoint in x |
 | <a href="#SkRect_centerY">centerY</a> | returns midpoint in y |
 | <a href="#SkRect_dump_2">dump</a> | sends text representation to standard output using floats |
-|  | dump |
+|  | <a href="#SkRect_dump">dump(bool asHex)</a> const |
+|  | <a href="#SkRect_dump_2">dump</a> const |
 | <a href="#SkRect_dumpHex">dumpHex</a> | sends text representation to standard output using hexadecimal |
 | <a href="#SkRect_height">height</a> | returns span in y |
 | <a href="#SkRect_isEmpty">isEmpty</a> | returns true if width or height are zero or negative |
@@ -1176,6 +1179,7 @@ added: nan, 8 count: 4 rect: 0, 0, 0, 0 success: false
 | name | description |
 | --- | --- |
 | <a href="#SkRect_set">set</a> | sets to <a href="undocumented#SkScalar">SkScalar</a> input (left, top, right, bottom) and others |
+|  | <a href="#SkRect_set">set(const SkIRect& src)</a> |
 | <a href="#SkRect_setEmpty">setEmpty</a> | sets to (0, 0, 0, 0) |
 | <a href="#SkRect_setLTRB">setLTRB</a> | sets to <a href="undocumented#SkScalar">SkScalar</a> input (left, top, right, bottom) |
 | <a href="#SkRect_setWH">setWH</a> | sets to <a href="undocumented#SkScalar">SkScalar</a> input (0, 0, width, height) |
@@ -1582,6 +1586,7 @@ rect2: {0, 0, 1, 2}
 | --- | --- |
 | <a href="#SkRect_inset">inset</a> | moves the sides symmetrically about the center |
 | <a href="#SkRect_offset">offset</a> | translates sides without changing width and height |
+|  | <a href="#SkRect_offset">offset(SkScalar dx, SkScalar dy)</a> |
 | <a href="#SkRect_offsetTo">offsetTo</a> | translates to (x, y) without changing width and height |
 | <a href="#SkRect_outset">outset</a> | moves the sides symmetrically about the center |
 
@@ -1938,8 +1943,11 @@ describes an area: <a href="#SkRect_fLeft">fLeft</a> is less than <a href="#SkRe
 | --- | --- |
 | <a href="#SkRect_Intersects">Intersects</a> | returns true if areas overlap |
 | <a href="#SkRect_contains">contains</a> | returns true if points are equal or inside |
+|  | <a href="#SkRect_contains">contains(const SkRect& r)</a> const |
 | <a href="#SkRect_intersect">intersect</a> | sets to shared area; returns true if not empty |
+|  | <a href="#SkRect_intersect">intersect(const SkRect& r)</a> |
 | <a href="#SkRect_intersects">intersects</a> | returns true if areas overlap |
+|  | <a href="#SkRect_intersects">intersects(SkScalar left, SkScalar top, SkScalar right, SkScalar bottom)</a> const |
 
 <a name="SkRect_contains"></a>
 ## contains
@@ -2294,6 +2302,7 @@ intersection
 | name | description |
 | --- | --- |
 | <a href="#SkRect_join">join</a> | sets to union of bounds |
+|  | <a href="#SkRect_join">join(SkScalar left, SkScalar top, SkScalar right, SkScalar bottom)</a> |
 | <a href="#SkRect_joinNonEmptyArg">joinNonEmptyArg</a> | sets to union of bounds, asserting that argument is not empty |
 | <a href="#SkRect_joinPossiblyEmptyRect">joinPossiblyEmptyRect</a> | sets to union of bounds. Skips empty check for both |
 
@@ -2461,8 +2470,10 @@ sorted: 10, 0, 55, 100
 | name | description |
 | --- | --- |
 | <a href="#SkRect_round_2">round</a> | sets members to nearest integer value |
+|  | <a href="#SkRect_round">round(SkIRect* dst)</a> const |
 | <a href="#SkRect_roundIn">roundIn</a> | sets members to nearest integer value towards opposite |
 | <a href="#SkRect_roundOut">roundOut</a> | sets members to nearest integer value away from opposite |
+|  | <a href="#SkRect_roundOut">roundOut(SkIRect* dst)</a> const |
 
 <a name="SkRect_round"></a>
 ## round

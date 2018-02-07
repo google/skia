@@ -765,7 +765,7 @@ at compile time.
 ##
 
 #Method bool isAntiAlias() const
-#In Anti-alias
+#In Anti_alias
 #Line # returns true if Anti-alias is set ##
 
     If true, pixels on the active edges of Path may be drawn with partial transparency.
@@ -791,7 +791,7 @@ at compile time.
 
 #Method void setAntiAlias(bool aa)
 
-#In Anti-alias
+#In Anti_alias
 #Line # sets or clears Anti-alias ##
     Requests, but does not require, that Path edge pixels draw opaque or with
     partial transparency.
@@ -4376,6 +4376,7 @@ FontMetrics::fTop, FontMetrics::fXMax, FontMetrics::fBottom }.
 
 #Method int textToGlyphs(const void* text, size_t byteLength,
                      SkGlyphID glyphs[]) const
+#In Utility
 #Line # converts text into glyph indices ##
 
 Converts text into glyph indices.
@@ -4415,7 +4416,7 @@ text contains an invalid UTF-8 sequence, zero is returned.
 ##
 
 #Method int countText(const void* text, size_t byteLength) const
-
+#In Utility
 #Line # returns number of Glyphs in text ##
     Returns the number of Glyphs in text.
     Uses Text_Encoding to count the Glyphs.
@@ -4440,7 +4441,7 @@ text contains an invalid UTF-8 sequence, zero is returned.
 # ------------------------------------------------------------------------------
 
 #Method bool containsText(const void* text, size_t byteLength) const
-
+#In Utility
 #Line # returns if all text corresponds to Glyphs ##
     Returns true if all text corresponds to a non-zero glyph index. 
     Returns false if any characters in text are not supported in
@@ -4509,6 +4510,7 @@ text contains an invalid UTF-8 sequence, zero is returned.
 
 #Method void glyphsToUnichars(const SkGlyphID glyphs[],
                               int count, SkUnichar text[]) const
+#In Utility
 #Line # converts Glyphs into text ##
 
     Converts glyphs into text if possible. 
@@ -5047,7 +5049,7 @@ void draw(SkCanvas* canvas) {
 # ------------------------------------------------------------------------------
 
 #Method bool nothingToDraw() const
-
+#In Utility
 #Line # returns true if Paint prevents all drawing ##
     Returns true if Paint prevents all drawing;
     otherwise, the Paint may or may not allow drawing.
@@ -5179,8 +5181,13 @@ Paint may draw to.
 #Subtopic Fast_Bounds Fast_Bounds ##
 
 # ------------------------------------------------------------------------------
-#Method void toString(SkString* str) const
+#Subtopic Utility
+#Populate
+#Line # rarely called management functions ##
+##
 
+#Method void toString(SkString* str) const
+#In Utility
 #Line # converts Paint to machine readable form ##
 #DefinedBy SK_TO_STRING_NONVIRT() ##
 

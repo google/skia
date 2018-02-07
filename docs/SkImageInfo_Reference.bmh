@@ -193,19 +193,19 @@ range. See http://en.wikipedia.org/wiki/Rec._709 for details.
 Describes Image dimensions and pixel type.
 Used for both source images and render-targets (surfaces).
 
-#Subtopic Operator
-#Populate
-##
-
 #Subtopic Member_Function
 #Populate
 ##
 
-#Subtopic Constructor
+#Subtopic Related_Function
 #Populate
 ##
 
 # ------------------------------------------------------------------------------
+#Subtopic Constructor
+#Populate
+##
+
 
 #Method SkImageInfo()
 
@@ -384,9 +384,13 @@ Sets Color_Type to kN32_SkColorType, and the Alpha_Type to kPremul_SkAlphaType.
 
 
 # ------------------------------------------------------------------------------
+#Subtopic Property
+#Populate
+#Line # metrics and attributes ##
+##
 
 #Method int width() const
-
+#In Property
 #Line # incomplete ##
 #Return incomplete ##
 
@@ -401,7 +405,7 @@ Sets Color_Type to kN32_SkColorType, and the Alpha_Type to kPremul_SkAlphaType.
 # ------------------------------------------------------------------------------
 
 #Method int height() const
-
+#In Property
 #Line # incomplete ##
 #Return incomplete ##
 
@@ -416,7 +420,7 @@ Sets Color_Type to kN32_SkColorType, and the Alpha_Type to kPremul_SkAlphaType.
 # ------------------------------------------------------------------------------
 
 #Method SkColorType colorType() const
-
+#In Property
 #Line # incomplete ##
 #Return incomplete ##
 
@@ -431,7 +435,7 @@ Sets Color_Type to kN32_SkColorType, and the Alpha_Type to kPremul_SkAlphaType.
 # ------------------------------------------------------------------------------
 
 #Method SkAlphaType alphaType() const
-
+#In Property
 #Line # incomplete ##
 #Return incomplete ##
 
@@ -446,7 +450,7 @@ Sets Color_Type to kN32_SkColorType, and the Alpha_Type to kPremul_SkAlphaType.
 # ------------------------------------------------------------------------------
 
 #Method SkColorSpace* colorSpace() const
-
+#In Property
 #Line # incomplete ##
 #Return incomplete ##
 
@@ -461,7 +465,7 @@ Sets Color_Type to kN32_SkColorType, and the Alpha_Type to kPremul_SkAlphaType.
 # ------------------------------------------------------------------------------
 
 #Method sk_sp<SkColorSpace> refColorSpace() const
-
+#In Property
 #Line # incomplete ##
 #Return incomplete ##
 
@@ -476,7 +480,7 @@ Sets Color_Type to kN32_SkColorType, and the Alpha_Type to kPremul_SkAlphaType.
 # ------------------------------------------------------------------------------
 
 #Method bool isEmpty() const
-
+#In Property
 #Line # incomplete ##
 #Return incomplete ##
 
@@ -491,7 +495,7 @@ Sets Color_Type to kN32_SkColorType, and the Alpha_Type to kPremul_SkAlphaType.
 # ------------------------------------------------------------------------------
 
 #Method bool isOpaque() const
-
+#In Property
 #Line # incomplete ##
 #Return incomplete ##
 
@@ -506,7 +510,7 @@ Sets Color_Type to kN32_SkColorType, and the Alpha_Type to kPremul_SkAlphaType.
 # ------------------------------------------------------------------------------
 
 #Method SkISize dimensions() const
-
+#In Property
 #Line # incomplete ##
 #Return incomplete ##
 
@@ -521,7 +525,7 @@ Sets Color_Type to kN32_SkColorType, and the Alpha_Type to kPremul_SkAlphaType.
 # ------------------------------------------------------------------------------
 
 #Method SkIRect bounds() const
-
+#In Property
 #Line # incomplete ##
 #Return incomplete ##
 
@@ -536,7 +540,7 @@ Sets Color_Type to kN32_SkColorType, and the Alpha_Type to kPremul_SkAlphaType.
 # ------------------------------------------------------------------------------
 
 #Method bool gammaCloseToSRGB() const
-
+#In Property
 #Line # incomplete ##
 #Return incomplete ##
 
@@ -551,7 +555,7 @@ Sets Color_Type to kN32_SkColorType, and the Alpha_Type to kPremul_SkAlphaType.
 # ------------------------------------------------------------------------------
 
 #Method SkImageInfo makeWH(int newWidth, int newHeight) const
-
+#In Constructor
 #Line # creates Image_Info with changed dimensions ##
 Creates Image_Info with the same Color_Type and Alpha_Type as this info,
 but with the specified width and height.
@@ -572,7 +576,7 @@ but with the specified width and height.
 # ------------------------------------------------------------------------------
 
 #Method SkImageInfo makeAlphaType(SkAlphaType newAlphaType) const
-
+#In Constructor
 #Line # creates Image_Info with changed Alpha_Type ##
 #Param newAlphaType  incomplete ##
 
@@ -589,7 +593,7 @@ but with the specified width and height.
 # ------------------------------------------------------------------------------
 
 #Method SkImageInfo makeColorType(SkColorType newColorType) const
-
+#In Constructor
 #Line # creates Image_Info with changed Color_Type ##
 #Param newColorType  incomplete ##
 
@@ -606,7 +610,7 @@ but with the specified width and height.
 # ------------------------------------------------------------------------------
 
 #Method SkImageInfo makeColorSpace(sk_sp<SkColorSpace> cs) const
-
+#In Constructor
 #Line # creates Image_Info with changed Color_Space ##
 #Param cs  incomplete ##
 
@@ -623,7 +627,7 @@ but with the specified width and height.
 # ------------------------------------------------------------------------------
 
 #Method int bytesPerPixel() const
-
+#In Property
 #Line # incomplete ##
 #Return incomplete ##
 
@@ -638,7 +642,7 @@ but with the specified width and height.
 # ------------------------------------------------------------------------------
 
 #Method int shiftPerPixel() const
-
+#In Property
 #Line # incomplete ##
 #Return incomplete ##
 
@@ -653,7 +657,7 @@ but with the specified width and height.
 # ------------------------------------------------------------------------------
 
 #Method uint64_t minRowBytes64() const
-
+#In Property
 #Line # incomplete ##
 #Return incomplete ##
 
@@ -668,7 +672,7 @@ but with the specified width and height.
 # ------------------------------------------------------------------------------
 
 #Method size_t minRowBytes() const
-
+#In Property
 #Line # incomplete ##
 #Return incomplete ##
 
@@ -683,7 +687,7 @@ but with the specified width and height.
 # ------------------------------------------------------------------------------
 
 #Method size_t computeOffset(int x, int y, size_t rowBytes) const
-
+#In Utility
 #Line # incomplete ##
 #Param x  incomplete ##
 #Param y  incomplete ##
@@ -700,6 +704,9 @@ but with the specified width and height.
 #Method ##
 
 # ------------------------------------------------------------------------------
+#Subtopic Operator
+#Populate
+##
 
 #Method bool operator==(const SkImageInfo& other)_const
 
@@ -736,7 +743,7 @@ but with the specified width and height.
 # ------------------------------------------------------------------------------
 
 #Method void unflatten(SkReadBuffer& buffer)
-
+#In Utility
 #Line # incomplete ##
 #Param buffer  incomplete ##
 
@@ -751,7 +758,7 @@ but with the specified width and height.
 # ------------------------------------------------------------------------------
 
 #Method void flatten(SkWriteBuffer& buffer) const
-
+#In Utility
 #Line # incomplete ##
 #Param buffer  incomplete ##
 
@@ -766,7 +773,7 @@ but with the specified width and height.
 # ------------------------------------------------------------------------------
 
 #Method size_t computeByteSize(size_t rowBytes) const
-
+#In Utility
 #Line # incomplete ##
 Returns the size (in bytes) of the image buffer that this info needs, given the specified
 rowBytes. The rowBytes must be >= this->minRowBytes().
@@ -792,7 +799,7 @@ If the calculation overflows this returns SK_MaxSizeT.
 # ------------------------------------------------------------------------------
 
 #Method size_t computeMinByteSize() const
-
+#In Utility
 #Line # incomplete ##
 Returns the minimum size (in bytes) of the image buffer that this info needs.
 If the calculation overflows, or if the height is 0, this returns 0.
@@ -810,7 +817,7 @@ If the calculation overflows, or if the height is 0, this returns 0.
 # ------------------------------------------------------------------------------
 
 #Method static bool ByteSizeOverflowed(size_t byteSize)
-
+#In Utility
 #Line # incomplete ##
 Returns true if the result of computeByteSize (or computeMinByteSize) overflowed
 
@@ -829,7 +836,7 @@ Returns true if the result of computeByteSize (or computeMinByteSize) overflowed
 # ------------------------------------------------------------------------------
 
 #Method bool validRowBytes(size_t rowBytes) const
-
+#In Utility
 #Line # incomplete ##
 #Param rowBytes  incomplete ##
 
@@ -846,7 +853,7 @@ Returns true if the result of computeByteSize (or computeMinByteSize) overflowed
 # ------------------------------------------------------------------------------
 
 #Method void reset()
-
+#In Constructor
 #Line # incomplete ##
 #Example
 // incomplete
@@ -857,9 +864,13 @@ Returns true if the result of computeByteSize (or computeMinByteSize) overflowed
 #Method ##
 
 # ------------------------------------------------------------------------------
+#Subtopic Utility
+#Populate
+#Line # rarely called management functions ##
+##
 
 #Method void validate() const
-
+#In Utility
 #Line # incomplete ##
 #Example
 // incomplete

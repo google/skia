@@ -214,7 +214,6 @@ bool SpellCheck::check(Definition* def) {
             if (all_lower(method_name)) {
                 method_name += "()";
             }
-            string formattedStr = def->formatFunction();
             if (!def->isClone() && Definition::MethodType::kOperator != def->fMethodType) {
                 this->wordCheck(method_name);
             }

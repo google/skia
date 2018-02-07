@@ -63,7 +63,7 @@ scope.
 ##
 
 #Method void restore()
-
+#In Member_Function
 #Line # restores Canvas to saved state ##
 Restores Canvas to saved state immediately. Subsequent calls and
 ~SkAutoCanvasRestore have no effect.

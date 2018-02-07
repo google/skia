@@ -13,6 +13,7 @@ SkIRect Reference
 | <a href="#Member_Function">Member Function</a> | static functions and member methods |
 | <a href="#Member">Member</a> | member values |
 | <a href="#Operator">Operator</a> | operator overloading methods |
+| <a href="#Related_Function">Related Function</a> | similar methods grouped together |
 
 # <a name="SkIRect"></a> Struct SkIRect
 <a href="#SkIRect">SkIRect</a> holds four 32 bit integer coordinates describing the upper and
@@ -25,6 +26,12 @@ its top, it is considered empty.
 
 | name | description |
 | --- | --- |
+| <a href="#Inset_Outset_Offset">Inset Outset Offset</a> | moves sides |
+| <a href="#Intersection">Intersection</a> | set to shared bounds |
+| <a href="#Join">Join</a> | set to union of bounds |
+| <a href="#Property">Property</a> | member values, center, validity |
+| <a href="#Set">Set</a> | replaces all values |
+| <a href="#Sorting">Sorting</a> | orders sides |
 
 ## <a name="Member_Function"></a> Member Function
 
@@ -966,6 +973,15 @@ true if members fit in 16-bit word
 
 ---
 
+## <a name="Set"></a> Set
+
+| name | description |
+| --- | --- |
+| <a href="#SkIRect_set">set</a> | sets to (left, top, right, bottom) |
+| <a href="#SkIRect_setEmpty">setEmpty</a> | sets to (0, 0, 0, 0) |
+| <a href="#SkIRect_setLTRB">setLTRB</a> | sets to <a href="undocumented#SkScalar">SkScalar</a> input (left, top, right, bottom) |
+| <a href="#SkIRect_setXYWH">setXYWH</a> | sets to (x, y, width, height) |
+
 <a name="SkIRect_setEmpty"></a>
 ## setEmpty
 
@@ -1134,6 +1150,7 @@ rect: -10, 35, 5, 60  isEmpty: false
 | --- | --- |
 | <a href="#SkIRect_inset">inset</a> | moves the sides symmetrically about the center |
 | <a href="#SkIRect_offset">offset</a> | translates sides without changing width and height |
+|  | <a href="#SkIRect_offset">offset(int32 t dx, int32 t dy)</a> |
 | <a href="#SkIRect_offsetTo">offsetTo</a> | translates to (x, y) without changing width and height |
 | <a href="#SkIRect_outset">outset</a> | moves the sides symmetrically about the center |
 
@@ -1491,8 +1508,11 @@ describes an area: <a href="#SkIRect_fLeft">fLeft</a> is less than <a href="#SkI
 | <a href="#SkIRect_Intersects">Intersects</a> | returns true if areas overlap |
 | <a href="#SkIRect_IntersectsNoEmptyCheck">IntersectsNoEmptyCheck</a> | returns true if areas overlap skips empty check |
 | <a href="#SkIRect_contains">contains</a> | returns true if points are equal or inside |
+|  | <a href="#SkIRect_contains">contains(int32 t x, int32 t y)</a> const |
 | <a href="#SkIRect_containsNoEmptyCheck">containsNoEmptyCheck</a> | returns true if points are equal or inside skips empty check |
+|  | <a href="#SkIRect_containsNoEmptyCheck">containsNoEmptyCheck(int32 t left, int32 t top, int32 t right, int32 t bottom)</a> const |
 | <a href="#SkIRect_intersect">intersect</a> | sets to shared area; returns true if not empty |
+|  | <a href="#SkIRect_intersect">intersect(const SkIRect& r)</a> |
 | <a href="#SkIRect_intersectNoEmptyCheck">intersectNoEmptyCheck</a> | sets to shared area; returns true if not empty skips empty check |
 | <a href="#SkIRect_quickReject">quickReject</a> | returns true if rectangles do not intersect |
 
@@ -2088,7 +2108,8 @@ intersection
 | name | description |
 | --- | --- |
 | <a href="#SkIRect_join">join</a> | sets to union of bounds |
-|  | join |
+|  | <a href="#SkIRect_join">join(int32 t left, int32 t top, int32 t right, int32 t bottom)</a> |
+|  | <a href="#SkIRect_join_2">join(const SkIRect& r)</a> |
 
 <a name="SkIRect_join"></a>
 ## join

@@ -767,6 +767,11 @@ public:
         kSubtractFrom,
     };
 
+    enum class Format {
+        kIncludeReturn,
+        kOmitReturn,
+    };
+
     Definition() {}
 
     Definition(const char* start, const char* end, int line, Definition* parent)
@@ -843,7 +848,7 @@ public:
     string extractText(TrimExtract trimExtract) const;
     string fiddleName() const;
     const Definition* findClone(string match) const;
-    string formatFunction() const;
+    string formatFunction(Format format) const;
     const Definition* hasChild(MarkType markType) const;
     bool hasMatch(const string& name) const;
     const Definition* hasParam(const string& ref) const;
@@ -1181,11 +1186,11 @@ public:
     };
 
     enum class Resolvable {
-        kNo,    // neither resolved nor output
-        kYes,   // resolved, output
-        kOut,   // not resolved, but output
+        kNo,      // neither resolved nor output
+        kYes,     // resolved, output
+        kOut,     // not resolved, but output
         kLiteral, // output untouched (FIXME: is this really different from kOut?)
-		kClone, // resolved, output, with references to clones as well
+		kClone,   // resolved, output, with references to clones as well
     };
 
     enum class Exemplary {
