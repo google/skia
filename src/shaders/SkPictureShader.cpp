@@ -34,21 +34,13 @@ struct BitmapShaderKey : public SkResourceCache::Key {
 public:
     BitmapShaderKey(sk_sp<SkColorSpace> colorSpace,
                     uint32_t shaderID,
-                    const SkRect& tile,
-                    SkShader::TileMode tmx,
-                    SkShader::TileMode tmy,
                     const SkSize& scale,
                     SkTransferFunctionBehavior blendBehavior)
         : fColorSpace(std::move(colorSpace))
-        , fTile(tile)
-        , fTmx(tmx)
-        , fTmy(tmy)
         , fScale(scale)
         , fBlendBehavior(blendBehavior) {
 
         static const size_t keySize = sizeof(fColorSpace) +
-                                      sizeof(fTile) +
-                                      sizeof(fTmx) + sizeof(fTmy) +
                                       sizeof(fScale) +
                                       sizeof(fBlendBehavior);
         // This better be packed.
@@ -70,8 +62,6 @@ private:
     // Ideally we'd be using unique IDs or some other weak ref + purge mechanism
     // when the CS is deleted.
     sk_sp<SkColorSpace>        fColorSpace;
-    SkRect                     fTile;
-    SkShader::TileMode         fTmx, fTmy;
     SkSize                     fScale;
     SkTransferFunctionBehavior fBlendBehavior;
 
@@ -247,9 +237,6 @@ sk_sp<SkShader> SkPictureShader::refBitmapShader(const SkMatrix& viewMatrix,
     sk_sp<SkShader> tileShader;
     BitmapShaderKey key(std::move(keyCS),
                         fUniqueID,
-                        fTile,
-                        fTmx,
-                        fTmy,
                         tileScale,
                         blendBehavior);
 
