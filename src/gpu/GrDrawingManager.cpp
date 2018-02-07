@@ -31,7 +31,6 @@
 
 #include "GrTracing.h"
 #include "text/GrAtlasTextContext.h"
-#include "text/GrStencilAndCoverTextContext.h"
 
 void GrDrawingManager::cleanup() {
     for (int i = 0; i < fOpLists.count(); ++i) {
