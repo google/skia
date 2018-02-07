@@ -628,7 +628,7 @@ sk_sp<SkImage> SkImage::MakeCrossContextFromPixmap(GrContext* context, const SkP
     if (buildMips) {
         SkBitmap bmp;
         bmp.installPixels(pixmap);
-        proxy = GrGenerateMipMapsAndUploadToTextureProxy(proxyProvider, bmp, dstColorSpace);
+        proxy = proxyProvider->createMipMapProxyFromBitmap(bmp, dstColorSpace);
     } else {
         proxy = GrUploadPixmapToTextureProxy(proxyProvider, pixmap, SkBudgeted::kYes,
                                              dstColorSpace);
