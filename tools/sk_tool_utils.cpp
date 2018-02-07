@@ -93,19 +93,33 @@ const char* platform_font_manager() {
 }
 
 
+const char* alphatype_name(SkAlphaType at) {
+    switch (at) {
+        case kUnknown_SkAlphaType:  return "Unknown";
+        case kOpaque_SkAlphaType:   return "Opaque";
+        case kPremul_SkAlphaType:   return "Premul";
+        case kUnpremul_SkAlphaType: return "Unpremul";
+    }
+    SkASSERT(false);
+    return "unexpected alphatype";
+}
+
 const char* colortype_name(SkColorType ct) {
     switch (ct) {
         case kUnknown_SkColorType:      return "Unknown";
         case kAlpha_8_SkColorType:      return "Alpha_8";
-        case kARGB_4444_SkColorType:    return "ARGB_4444";
         case kRGB_565_SkColorType:      return "RGB_565";
+        case kARGB_4444_SkColorType:    return "ARGB_4444";
         case kRGBA_8888_SkColorType:    return "RGBA_8888";
+        case kRGB_888x_SkColorType:     return "RGB_888x";
         case kBGRA_8888_SkColorType:    return "BGRA_8888";
+        case kRGBA_1010102_SkColorType: return "RGBA_1010102";
+        case kRGB_101010x_SkColorType:  return "RGB_101010x";
+        case kGray_8_SkColorType:       return "Gray_8";
         case kRGBA_F16_SkColorType:     return "RGBA_F16";
-        default:
-            SkASSERT(false);
-            return "unexpected colortype";
     }
+    SkASSERT(false);
+    return "unexpected colortype";
 }
 
 SkColor color_to_565(SkColor color) {
