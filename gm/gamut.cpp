@@ -43,6 +43,7 @@ struct BitmapCellRenderer : public CellRenderer {
         int scaledSize = sk_float_round2int(scale * gRectSize);
         fBitmap.allocPixels(SkImageInfo::MakeS32(scaledSize, scaledSize, kPremul_SkAlphaType));
         fBitmap.eraseColor(color);
+        fBitmap.setImmutable();
         const char* qualityNames[] = { "None", "Low", "Medium", "High" };
         fLabel = SkStringPrintf("Bitmap (%s)", qualityNames[quality]);
     }
