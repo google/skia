@@ -778,6 +778,10 @@ bool SkScalerContextRec::computeMatrices(PreMatrixScale preMatrixScale, SkVector
 }
 
 SkAxisAlignment SkScalerContext::computeAxisAlignmentForHText() {
+    return ComputeAxisAlignmentForHText(fRec);
+}
+
+SkAxisAlignment SkScalerContext::ComputeAxisAlignmentForHText(const SkScalerContextRec& rec) {
     // Why fPost2x2 can be used here.
     // getSingleMatrix multiplies in getLocalMatrix, which consists of
     // * fTextSize (a scale, which has no effect)
@@ -786,11 +790,11 @@ SkAxisAlignment SkScalerContext::computeAxisAlignmentForHText() {
     // In other words, making the text bigger, stretching it along the
     // horizontal axis, or fake italicizing it does not move the baseline.
 
-    if (0 == fRec.fPost2x2[1][0]) {
+    if (0 == rec.fPost2x2[1][0]) {
         // The x axis is mapped onto the x axis.
         return kX_SkAxisAlignment;
     }
-    if (0 == fRec.fPost2x2[0][0]) {
+    if (0 == rec.fPost2x2[0][0]) {
         // The x axis is mapped onto the y axis.
         return kY_SkAxisAlignment;
     }
