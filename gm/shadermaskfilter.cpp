@@ -165,6 +165,8 @@ DEF_SIMPLE_GM(combinemaskfilter, canvas, 560, 510) {
 }
 
 #include "SkSurface.h"
+#include "SkBlurImageFilter.h"
+#include "SkBlurMaskFilter.h"
 static sk_sp<SkImage> make_circle_image(SkCanvas* canvas, SkScalar radius, int margin) {
     const int n = SkScalarCeilToInt(radius) * 2 + margin * 2;
     auto surf = sk_tool_utils::makeSurface(canvas, SkImageInfo::MakeN32Premul(n, n));
@@ -174,25 +176,47 @@ static sk_sp<SkImage> make_circle_image(SkCanvas* canvas, SkScalar radius, int m
     return surf->makeImageSnapshot();
 }
 
-DEF_SIMPLE_GM(savelayer_maskfilter, canvas, 220, 220) {
-    auto image = make_circle_image(canvas, 50, 1);
+DEF_SIMPLE_GM(savelayer_maskfilter, canvas, 450, 675) {
+    auto layerImage = GetResourceAsImage("images/mandrill_128.png");
+    auto maskImage = make_circle_image(canvas, 50, 1);
     SkRect r = SkRect::MakeWH(102, 102);
 
-    SkPaint paint;
-    paint.setMaskFilter(SkShaderMaskFilter::Make(image->makeShader()));
+    SkPaint overlayPaint;
+    overlayPaint.setStyle(SkPaint::kStroke_Style);
 
     // test that the maskfilter sees these changes to the ctm
     canvas->translate(10, 10);
     canvas->scale(2, 2);
 
-    canvas->saveLayer(&r, &paint);
-    canvas->drawColor(SK_ColorRED);
-    canvas->restore();
+    sk_sp<SkMaskFilter> mfs[] = {
+        SkShaderMaskFilter::Make(maskImage->makeShader()),
+        SkBlurMaskFilter::Make(kNormal_SkBlurStyle, 3.5f),
+        nullptr,
+    };
+    mfs[2] = SkMaskFilter::MakeCompose(mfs[1], mfs[0]);
 
-    // now draw the expected circle to blend on top of the red one
-    paint.reset();
-    paint.setAntiAlias(true);
-    paint.setColor(0x800000FF);
-    canvas->drawRect(r, paint);
+    // Important that we test with and without an imagefilter attached to the layer,
+    // as cpu and gpu backends treat these differently (w/ or w/o a SkSpecialImage)
+    const sk_sp<SkImageFilter> imfs[] = {nullptr, SkBlurImageFilter::Make(3.5f, 3.5f, nullptr)};
+
+    for (auto mf : mfs) {
+        SkPaint layerPaint;
+        layerPaint.setMaskFilter(mf);
+        canvas->save();
+        for (auto imf : imfs) {
+            layerPaint.setImageFilter(imf);
+
+            canvas->saveLayer(&r, &layerPaint);
+            canvas->drawImage(layerImage, 0, 0, nullptr);
+            canvas->restore();
+
+            // now draw the (approximage) expected bounds of the mask
+            canvas->drawRect(r.makeOutset(1, 1), overlayPaint);
+
+            canvas->translate(r.width() + 10, 0);
+        }
+        canvas->restore();
+        canvas->translate(0, r.height() + 10);
+    }
 }
 
