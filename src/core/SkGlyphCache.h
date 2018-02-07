@@ -34,6 +34,13 @@ class SkGlyphCache_Globals;
 */
 class SkGlyphCache {
 public:
+    // Return true if glyph is cached.
+    bool isGlyphIdCached(SkGlyphID glyphID, SkFixed x, SkFixed y) const;
+
+    SkGlyph* getRawGlyphByID(SkPackedGlyphID);
+
+    SkArenaAlloc* getAlloc() {return &fAlloc;}
+
     /** Returns a glyph with valid fAdvance and fDevKern fields. The remaining fields may be
         valid, but that is not guaranteed. If you require those, call getUnicharMetrics or
         getGlyphIDMetrics instead.
@@ -120,6 +127,8 @@ public:
                                     bool (*proc)(const SkGlyphCache*, void*),
                                     void* context);
 
+    static SkGlyphCache* DetatchCacheOrNull(const SkDescriptor&);
+
     /** Given a strike that was returned by either VisitCache() or DetachCache() add it back into
         the global cache list (after which the caller should not reference it anymore.
     */
@@ -182,6 +191,7 @@ private:
     friend class SkGlyphCache_Globals;
 
     enum MetricsType {
+        kNothing_MetricsType,
         kJustAdvance_MetricsType,
         kFull_MetricsType
     };

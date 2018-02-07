@@ -19,6 +19,8 @@
 #include "SkTypeface.h"
 #include "SkWriteBuffer.h"
 
+#include <cstdio>
+
 class SkAutoDescriptor;
 class SkDescriptor;
 class SkMaskFilter;
@@ -54,6 +56,10 @@ enum SkAxisAlignment {
  *  than a nested struct inside SkScalerContext (where it started).
  */
 struct SkScalerContextRec {
+    void dumpFields() const {
+        printf("lb: %x dg: %xhh pg: %xhh ct: %xhh mf: %xhh\n",
+               fLumBits, fDeviceGamma, fPaintGamma, fContrast, fMaskFormat);
+    }
     uint32_t    fFontID;
     SkScalar    fTextSize, fPreScaleX, fPreSkewX;
     SkScalar    fPost2x2[2][2];
@@ -309,6 +315,8 @@ public:
     *  As an example, the identity matrix will return kX_SkAxisAlignment
     */
     SkAxisAlignment computeAxisAlignmentForHText();
+
+    static SkAxisAlignment ComputeAxisAlignmentForHText(const SkScalerContextRec& rec);
 
     static SkDescriptor* CreateDescriptorAndEffectsUsingPaint(
         const SkPaint& paint, const SkSurfaceProps* surfaceProps,
