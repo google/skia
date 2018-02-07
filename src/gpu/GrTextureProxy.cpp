@@ -95,8 +95,10 @@ void GrTextureProxyPriv::setDeferredUploader(std::unique_ptr<GrDeferredProxyUplo
 }
 
 void GrTextureProxyPriv::scheduleUpload(GrOpFlushState* flushState) {
-    // The texture proxy's contents may already have been uploaded or instantiation may have failed
-    if (fTextureProxy->fDeferredUploader && fTextureProxy->fTarget) {
+    SkASSERT(fTextureProxy->fDeferredUploader);
+
+    // Instantiate might have failed
+    if (fTextureProxy->fTarget) {
         fTextureProxy->fDeferredUploader->scheduleUpload(flushState, fTextureProxy);
     }
 }
