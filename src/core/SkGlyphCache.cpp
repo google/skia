@@ -102,6 +102,11 @@ int SkGlyphCache::countCachedGlyphs() const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+bool SkGlyphCache::isGlyphIdCached(SkGlyphID glyphID, SkFixed x, SkFixed y) const {
+    SkPackedGlyphID packedGlyphID{glyphID, x, y};
+    return fGlyphMap.find(packedGlyphID) != nullptr;
+}
+
 const SkGlyph& SkGlyphCache::getUnicharAdvance(SkUnichar charCode) {
     VALIDATE();
     return *this->lookupByChar(charCode, kJustAdvance_MetricsType);
@@ -541,6 +546,21 @@ SkGlyphCache* SkGlyphCache::VisitCache(SkTypeface* typeface,
         cache = nullptr;
     }
     return cache;
+}
+
+SkGlyphCache* SkGlyphCache::DetatchCacheOrNull(const SkDescriptor& desc) {
+    SkGlyphCache_Globals& globals = get_globals();
+    SkGlyphCache*         cache;
+    SkAutoExclusive       ac(globals.fLock);
+
+    for (cache = globals.internalGetHead(); cache != nullptr; cache = cache->fNext) {
+        if (*cache->fDesc == desc) {
+            globals.internalDetachCache(cache);
+            return cache;
+        }
+    }
+
+    return nullptr;
 }
 
 void SkGlyphCache::AttachCache(SkGlyphCache* cache) {

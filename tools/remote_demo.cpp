@@ -6,17 +6,20 @@
  */
 
 #include "SkCanvas.h"
+#include "SkGlyph.h"
 #include "SkPathEffect.h"
 #include "SkMaskFilter.h"
 #include "SkData.h"
 #include "SkDescriptor.h"
 #include "SkGraphics.h"
-#include "SkSemaphore.h"
+#include "SkNoDrawCanvas.h"
 #include "SkPictureRecorder.h"
 #include "SkSerialProcs.h"
 #include "SkSurface.h"
 #include "SkTypeface.h"
 #include "SkWriteBuffer.h"
+#include "SkTextBlobRunIterator.h"
+#include "SkGlyphCache.h"
 
 #include <chrono>
 #include <ctype.h>
@@ -31,6 +34,7 @@
 #include <sys/wait.h>
 #include <unistd.h>
 #include <sys/mman.h>
+#include <SkFindAndPlaceGlyph.h>
 #include "SkTypeface_remote.h"
 #include "SkRemoteGlyphCache.h"
 #include "SkMakeUnique.h"
@@ -145,6 +149,147 @@ private:
     const int fReadFd,
               fWriteFd;
     uint8_t   fBuffer[1024 * kPageSize];
+};
+
+struct NeededGlyph {
+    SkFontID typefaceId;
+    SkScalerContextRecDescriptor rec;
+    SkPackedGlyphID packedId;
+};
+
+class TextBlobFilterCanvas : public SkNoDrawCanvas {
+public:
+    TextBlobFilterCanvas(int width, int height) : SkNoDrawCanvas(width, height) { }
+
+protected:
+    void onDrawTextBlob(
+        const SkTextBlob* blob, SkScalar x, SkScalar y, const SkPaint& paint) override
+    {
+        SkMatrix blobMatrix{fDeviceMatrix};
+        blobMatrix.preConcat(this->getTotalMatrix());
+        if (blobMatrix.hasPerspective()) {return;}
+        blobMatrix.preTranslate(x, y);
+
+        SkTextBlobRunIterator it(blob);
+        for (;!it.done(); it.next()) {
+            this->processGlyphRun(blobMatrix, paint, it);
+        }
+    }
+
+private:
+    using PosFn = SkPoint(*)(int index, const SkScalar* pos);
+    using MapFn = SkPoint(*)(const SkMatrix& m, SkPoint pt);
+    struct CacheAccum {
+        bool cacheNeedsToBeBuilt;
+        SkFontID typefaceID;
+        std::unique_ptr<SkDescriptor> desc;
+        std::vector<SkPackedGlyphID> glyphIDs;
+    };
+
+    void processGlyphRun(
+        const SkMatrix& blobMatrix,
+        const SkPaint& paint,
+        const SkTextBlobRunIterator& it) {
+
+        // applyFontToPaint() always overwrites the exact same attributes,
+        // so it is safe to not re-seed the paint for this reason.
+        SkPaint runPaint{paint};
+        it.applyFontToPaint(&runPaint);
+
+        // All other alignment modes need the glyph advances. Use the slow drawing mode.
+        if (runPaint.getTextAlign() != SkPaint::kLeft_Align) {
+            return;
+        }
+
+        SkMatrix runMatrix{blobMatrix};
+        runMatrix.preTranslate(it.offset().x(), it.offset().y());
+
+        SkAutoDescriptor ad;
+        SkScalerContextRec rec;
+        SkScalerContextEffects effects;
+
+        SkScalerContext::MakeRecAndEffects(paint, &fSurfaceProps, &runMatrix,
+                                          fScalerContextFlags, &rec, &effects);
+
+        auto desc = SkScalerContext::AutoDescriptorGivenRecAndEffects(rec, effects, &ad);
+
+        auto cache = SkGlyphCache::DetatchCacheOrNull(*desc);
+
+        PosFn posFn;
+        SkAxisAlignment axisAlignment = SkAxisAlignment::kNone_SkAxisAlignment;
+        switch (it.positioning()) {
+            case SkTextBlob::kDefault_Positioning:
+                // Default positioning needs advances. Can't do that.
+                return;
+
+            case SkTextBlob::kHorizontal_Positioning:
+                posFn = [](int index, const SkScalar* pos) {
+                    return SkPoint{pos[index], 0};
+                };
+                axisAlignment = SkScalerContext::ComputeAxisAlignmentForHText(rec);
+                break;
+
+            case SkTextBlob::kFull_Positioning:
+                posFn = [](int index, const SkScalar* pos) {
+                    return SkPoint{pos[2*index], pos[2*index + 1]};
+                };
+                break;
+
+            default:
+                posFn = nullptr;
+                SK_ABORT("unhandled positioning mode");
+        }
+
+        MapFn mapFn;
+        switch (runMatrix.getType()) {
+            case SkMatrix::kIdentity_Mask:
+            case SkMatrix::kTranslate_Mask:
+                mapFn = [](const SkMatrix& m, SkPoint pt) {
+                    pt.offset(m.getTranslateX(), m.getTranslateY());
+                    return pt;
+                };
+                break;
+            case SkMatrix::kScale_Mask:
+            case SkMatrix::kScale_Mask|SkMatrix::kTranslate_Mask:
+                mapFn = [](const SkMatrix& m, SkPoint pt) {
+                    return SkPoint{pt.x() * m.getScaleX() + m.getTranslateX(),
+                                   pt.y() * m.getScaleY() + m.getTranslateY()};
+                };
+                break;
+            case SkMatrix::kAffine_Mask|SkMatrix::kScale_Mask:
+            case SkMatrix::kAffine_Mask|SkMatrix::kScale_Mask|SkMatrix::kTranslate_Mask:
+                mapFn = [](const SkMatrix& m, SkPoint pt) {
+                    return SkPoint{
+                        pt.x() * m.getScaleX() + pt.y() * m.getSkewX()  + m.getTranslateX(),
+                        pt.x() * m.getSkewY()  + pt.y() * m.getScaleY() + m.getTranslateY()};
+                };
+                break;
+            default:
+                mapFn = nullptr;
+                SK_ABORT("Bad matrix.");
+        }
+
+        auto pos = it.pos();
+        const uint16_t* glyphs = it.glyphs();
+        for (int index = 0; index < it.glyphCount(); index++) {
+            SkIPoint subPixelPos{0, 0};
+            if (runPaint.isAntiAlias()) {
+                SkPoint glyphPos = mapFn(runMatrix, posFn(index, pos));
+                subPixelPos = SkFindAndPlaceGlyph::SubpixelAlignment(axisAlignment, glyphPos);
+            }
+            if (!cache->isGlyphIdCached(glyphs[index], subPixelPos.x(), subPixelPos.y())) {
+                NeededGlyph needed{runPaint.};
+            }
+        }
+    }
+
+
+
+    const SkMatrix fDeviceMatrix;
+    const SkSurfaceProps fSurfaceProps;
+    const SkScalerContextFlags fScalerContextFlags;
+    using CacheMap = std::unordered_map<SkDescriptor*, CacheAccum>;
+    std::vector<std::unique_ptr<SkDescriptor>> fUniqueDescriptors;
 };
 
 static void final_draw(std::string outFilename,
