@@ -47,6 +47,15 @@ private:
     SkPictureShader(sk_sp<SkPicture>, TileMode, TileMode, const SkMatrix*, const SkRect*,
                     sk_sp<SkColorSpace>);
 
+    struct LockedTile {
+        sk_sp<SkImage> fTile;
+        SkMatrix       fLocalMatrix;
+    };
+
+    LockedTile lockBitmapTile(const SkMatrix& ctm,
+                              const SkMatrix* outerLocalMatrix,
+                              SkColorSpace* dstCS) const;
+
     sk_sp<SkShader> refBitmapShader(const SkMatrix&, const SkMatrix* localMatrix,
                                     SkColorSpace* dstColorSpace,
                                     SkMatrix* compositeLocalMatrix,

@@ -10,6 +10,7 @@
 #include "SkArenaAlloc.h"
 #include "SkBitmap.h"
 #include "SkBitmapProcShader.h"
+#include "SkCachedData.h"
 #include "SkCanvas.h"
 #include "SkColorSpaceXformCanvas.h"
 #include "SkImage.h"
@@ -116,6 +117,125 @@ uint32_t next_id() {
     return static_cast<uint32_t>(id);
 }
 
+SkISize ComputeTileSize(const SkRect& pictureTile, const SkMatrix& ctm, const SkMatrix& lm,
+                        int maxTileSize = std::numeric_limits<int>::max()) {
+    const SkMatrix m = SkMatrix::Concat(ctm, lm);
+
+    // Use a rotation-invariant scale
+    SkPoint scale;
+    //
+    // TODO: replace this with decomposeScale() -- but beware LayoutTest rebaselines!
+    //
+    if (!SkDecomposeUpper2x2(m, nullptr, &scale, nullptr)) {
+        // Decomposition failed, use an approximation.
+        scale.set(SkScalarSqrt(m.getScaleX() * m.getScaleX() + m.getSkewX() * m.getSkewX()),
+                  SkScalarSqrt(m.getScaleY() * m.getScaleY() + m.getSkewY() * m.getSkewY()));
+    }
+    SkSize scaledSize = SkSize::Make(SkScalarAbs(scale.x() * pictureTile.width()),
+                                     SkScalarAbs(scale.y() * pictureTile.height()));
+
+    // Clamp the tile size to about 4M pixels
+    static const SkScalar kMaxTileArea = 2048 * 2048;
+    SkScalar tileArea = scaledSize.width() * scaledSize.height();
+    if (tileArea > kMaxTileArea) {
+        SkScalar clampScale = SkScalarSqrt(kMaxTileArea / tileArea);
+        scaledSize.set(scaledSize.width() * clampScale,
+                       scaledSize.height() * clampScale);
+    }
+
+    if (scaledSize.width() > maxTileSize || scaledSize.height() > maxTileSize) {
+        SkScalar downScale = maxTileSize / SkMaxScalar(scaledSize.width(), scaledSize.height());
+        scaledSize.set(SkScalarFloorToScalar(scaledSize.width() * downScale),
+                       SkScalarFloorToScalar(scaledSize.height() * downScale));
+    }
+
+    return scaledSize.toCeil();
+}
+
+static unsigned gBitmapTileKeyNamespaceLabel;
+
+struct BitmapTileKey : public SkResourceCache::Key {
+public:
+    BitmapTileKey(sk_sp<SkColorSpace> colorSpace,
+                  uint32_t pictureID,
+                  const SkRect& tile,
+                  const SkISize& tileSize,
+                  SkTransferFunctionBehavior blendBehavior)
+        : fColorSpace(std::move(colorSpace))
+        , fTile(tile)
+        , fTileSize(tileSize)
+        , fBlendBehavior(blendBehavior) {
+
+        static const size_t keySize = sizeof(fColorSpace) +
+                                      sizeof(fTile) +
+                                      sizeof(fTileSize) +
+                                      sizeof(fBlendBehavior);
+        // This better be packed.
+        SkASSERT(sizeof(uint32_t) * (&fEndOfStruct - (uint32_t*)&fColorSpace) == keySize);
+        this->init(&gBitmapTileKeyNamespaceLabel, MakeSharedID(pictureID), keySize);
+    }
+
+    static uint64_t MakeSharedID(uint32_t shaderID) {
+        uint64_t sharedID = SkSetFourByteTag('p', 's', 'd', 'r');
+        return (sharedID << 32) | shaderID;
+    }
+
+private:
+    // TODO: there are some fishy things about using CS sk_sps in the key:
+    //   - false negatives: keys are memcmp'ed, so we don't detect equivalent CSs
+    //     (SkColorspace::Equals)
+    //   - we're keeping the CS alive, even when the client releases it
+    //
+    // Ideally we'd be using unique IDs or some other weak ref + purge mechanism
+    // when the CS is deleted.
+    sk_sp<SkColorSpace>        fColorSpace;
+    SkRect                     fTile;
+    SkISize                    fTileSize;
+    SkTransferFunctionBehavior fBlendBehavior;
+
+    SkDEBUGCODE(uint32_t fEndOfStruct;)
+};
+
+struct BitmapTileRec : public SkResourceCache::Rec {
+    BitmapTileRec(const BitmapTileKey& key, SkCachedData* cachedData)
+        : fKey(key)
+        , fCachedData(cachedData) {
+        fCachedData->attachToCacheAndRef();
+    }
+
+    ~BitmapTileRec() override {
+        fCachedData->detachFromCacheAndUnref();
+    }
+
+    BitmapTileKey fKey;
+    SkCachedData* fCachedData;
+
+    const Key& getKey() const override { return fKey; }
+
+    size_t bytesUsed() const override {
+        return sizeof(*this) + fCachedData->size();
+    }
+
+    const char* getCategory() const override { return "picture-shader"; }
+
+    SkDiscardableMemory* diagnostic_only_getDiscardable() const override {
+        return fCachedData->diagnostic_only_getDiscardable();
+    }
+
+    static bool Visitor(const SkResourceCache::Rec& baseRec, void* ctx) {
+        const BitmapTileRec& rec = static_cast<const BitmapTileRec&>(baseRec);
+
+        auto dataRef = sk_ref_sp(rec.fCachedData);
+        if (!dataRef->data()) {
+            return false;
+        }
+
+        *static_cast<SkCachedData**>(ctx) = dataRef.release();
+
+        return true;
+    }
+};
+
 } // namespace
 
 SkPictureShader::SkPictureShader(sk_sp<SkPicture> picture, TileMode tmx, TileMode tmy,
@@ -170,6 +290,79 @@ void SkPictureShader::flatten(SkWriteBuffer& buffer) const {
 
     buffer.writeBool(true);
     fPicture->flatten(buffer);
+}
+
+SkPictureShader::LockedTile SkPictureShader::lockBitmapTile(const SkMatrix& ctm,
+                                                            const SkMatrix* outerLocalMatrix,
+                                                            SkColorSpace* dstCS) const {
+    SkMatrix totalLocalMatrix = this->getLocalMatrix();
+    if (outerLocalMatrix) {
+        totalLocalMatrix.preConcat(*outerLocalMatrix);
+    }
+
+    const auto tileSize = ComputeTileSize(fTile, ctm, totalLocalMatrix);
+
+    totalLocalMatrix.preScale(fTile.width() / tileSize.width(), fTile.height() / tileSize.height());
+
+    LockedTile locked = { nullptr, totalLocalMatrix };
+
+    // |fColorSpace| will only be set when using an SkColorSpaceXformCanvas to do pre-draw xforms.
+    // This canvas is strictly for legacy mode.  A non-null |dstColorSpace| indicates that we
+    // should perform color correct rendering and xform at draw time.
+    SkASSERT(!fColorSpace || !dstCS);
+    sk_sp<SkColorSpace> keyCS = dstCS ? sk_ref_sp(dstCS) : fColorSpace;
+    SkTransferFunctionBehavior blendBehavior = dstCS? SkTransferFunctionBehavior::kRespect
+                                                    : SkTransferFunctionBehavior::kIgnore;
+
+    const auto info = SkImageInfo::MakeN32Premul(tileSize.width(),
+                                                 tileSize.height(),
+                                                 sk_ref_sp(dstCS));
+
+    const BitmapTileKey key(keyCS,
+                            fUniqueID, // TODO: use the picture unique ID for caching purposes
+                            fTile, tileSize, blendBehavior);
+    SkCachedData* data;
+
+    if (!SkResourceCache::Find(key, BitmapTileRec::Visitor, &data)) {
+        data = SkResourceCache::NewCachedData(info.computeMinByteSize());
+
+        if (!data || !data->data()) {
+            return locked;
+        }
+
+        const SkSurfaceProps props(0, kUnknown_SkPixelGeometry);
+        auto canvas = SkCanvas::MakeRasterDirect(info,
+                                                 data->writable_data(),
+                                                 info.minRowBytes(),
+                                                 &props);
+        if (!canvas) {
+            return locked;
+        }
+
+        canvas->clear(SK_ColorTRANSPARENT);
+        canvas->concat(SkMatrix::MakeRectToRect(fTile,
+                                                SkRect::MakeIWH(tileSize.width(),
+                                                                tileSize.height()),
+                                                SkMatrix::kFill_ScaleToFit));
+        canvas->drawPicture(fPicture);
+
+        SkResourceCache::Add(new BitmapTileRec(key, data));
+        fAddedToCache.store(true);
+    }
+
+    SkASSERT(data->data());
+
+    SkPixmap pm(info, data->data(), info.minRowBytes());
+    locked.fTile = SkImage::MakeFromRaster(pm, [](const void*, void* ctx) {
+        static_cast<SkCachedData*>(ctx)->unref();
+    }, data);
+
+    if (!locked.fTile) {
+        // The cached data is normally unreffed in the SkImage destructor.
+        data->unref();
+    }
+
+    return locked;
 }
 
 // This helper returns two artifacts:
@@ -286,37 +479,47 @@ bool SkPictureShader::onIsRasterPipelineOnly(const SkMatrix& ctm) const {
 }
 
 bool SkPictureShader::onAppendStages(const StageRec& rec) const {
+    const auto lockedTile = this->lockBitmapTile(rec.fCTM, rec.fLocalM, rec.fDstCS);
+    if (!lockedTile.fTile) {
+        return false;
+    }
+
     // Keep bitmapShader alive by using alloc instead of stack memory
-    auto& bitmapShader = *rec.fAlloc->make<sk_sp<SkShader>>();
-    SkMatrix compositeLocalMatrix;
-    bitmapShader = this->refBitmapShader(rec.fCTM, rec.fLocalM, rec.fDstCS, &compositeLocalMatrix);
+    auto& tileShader = *rec.fAlloc->make<sk_sp<SkShader>>(lockedTile.fTile->makeShader(fTmx, fTmy));
+    if (!tileShader) {
+        return false;
+    }
 
     StageRec localRec = rec;
-    localRec.fLocalM = compositeLocalMatrix.isIdentity() ? nullptr : &compositeLocalMatrix;
+    localRec.fLocalM = lockedTile.fLocalMatrix.isIdentity() ? nullptr : &lockedTile.fLocalMatrix;
 
-    return bitmapShader && as_SB(bitmapShader)->appendStages(localRec);
+    return as_SB(tileShader)->appendStages(localRec);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-SkShaderBase::Context* SkPictureShader::onMakeContext(const ContextRec& rec, SkArenaAlloc* alloc)
-const {
-    SkMatrix compositeLocalMatrix;
-    sk_sp<SkShader> bitmapShader = this->refBitmapShader(*rec.fMatrix,
-                                                         rec.fLocalMatrix,
-                                                         rec.fDstColorSpace,
-                                                         &compositeLocalMatrix);
-    if (!bitmapShader) {
+SkShaderBase::Context* SkPictureShader::onMakeContext(const ContextRec& rec,
+                                                      SkArenaAlloc* alloc) const {
+    const auto lockedTile = this->lockBitmapTile(*rec.fMatrix,
+                                                 rec.fLocalMatrix,
+                                                 rec.fDstColorSpace);
+    if (!lockedTile.fTile) {
         return nullptr;
     }
 
     ContextRec localRec = rec;
-    localRec.fLocalMatrix = compositeLocalMatrix.isIdentity() ? nullptr : &compositeLocalMatrix;
+    localRec.fLocalMatrix = lockedTile.fLocalMatrix.isIdentity()
+        ? nullptr
+        : &lockedTile.fLocalMatrix;
 
     PictureShaderContext* ctx =
-        alloc->make<PictureShaderContext>(*this, localRec, std::move(bitmapShader), alloc);
+        alloc->make<PictureShaderContext>(*this,
+                                          localRec,
+                                          lockedTile.fTile->makeShader(fTmx, fTmy),
+                                          alloc);
     if (nullptr == ctx->fBitmapShaderContext) {
         ctx = nullptr;
     }
+
     return ctx;
 }
 
