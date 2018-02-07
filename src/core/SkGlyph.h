@@ -62,9 +62,16 @@ struct SkPackedID {
     bool operator!=(const SkPackedID& that) const {
         return !(*this == that);
     }
+    bool operator<(SkPackedID that) const {
+        return this->fID < that.fID;
+    }
 
     uint32_t code() const {
         return fID & kCodeMask;
+    }
+
+    uint32_t raw() const {
+        return fID;
     }
 
     SkFixed getSubXFixed() const {
@@ -163,72 +170,25 @@ public:
         fForceBW        = 0;
     }
 
-    static size_t BitsToBytes(size_t bits) {
-        return (bits + 7) >> 3;
-    }
-
-    /**
-     *  Compute the rowbytes for the specified width and mask-format.
-     */
-    static unsigned ComputeRowBytes(unsigned width, SkMask::Format format) {
-        unsigned rb = width;
-        switch (format) {
-        case SkMask::kBW_Format:
-            rb = BitsToBytes(rb);
-            break;
-        case SkMask::kA8_Format:
-            rb = SkAlign4(rb);
-            break;
-        case SkMask::k3D_Format:
-            rb = SkAlign4(rb);
-            break;
-        case SkMask::kARGB32_Format:
-            rb <<= 2;
-            break;
-        case SkMask::kLCD16_Format:
-            rb = SkAlign4(rb << 1);
-            break;
-        default:
-            SK_ABORT("Unknown mask format.");
-            break;
+    size_t computeImageSize() const {
+        if(fWidth == 0 || fWidth >= kMaxGlyphWidth) {
+            return 0;
         }
-        return rb;
+        return SkMask::ComputeImageSize(static_cast<SkMask::Format>(fMaskFormat), fWidth, fHeight);
     }
 
     size_t allocImage(SkArenaAlloc* alloc) {
-        size_t allocSize;
-        switch (static_cast<SkMask::Format>(fMaskFormat)) {
-        case SkMask::kBW_Format:
-            allocSize = BitsToBytes(fWidth) * fHeight;
-            fImage = alloc->makeArrayDefault<char>(allocSize);
-            break;
-        case SkMask::kA8_Format:
-            allocSize = SkAlign4(fWidth) * fHeight;
-            fImage = alloc->makeArrayDefault<char>(allocSize);
-            break;
-        case SkMask::k3D_Format:
-            allocSize = SkAlign4(fWidth) * fHeight * 3;
-            fImage = alloc->makeArrayDefault<char>(allocSize);
-            break;
-        case SkMask::kARGB32_Format:
-            allocSize = fWidth * fHeight;
-            fImage = alloc->makeArrayDefault<uint32_t>(fWidth * fHeight);
-            allocSize *= sizeof(uint32_t);
-            break;
-        case SkMask::kLCD16_Format:
-            allocSize = SkAlign2(fWidth) * fHeight;
-            fImage = alloc->makeArrayDefault<uint16_t>(allocSize);
-            allocSize *= sizeof(uint16_t);
-            break;
-        default:
-            SK_ABORT("Unknown mask format.");
-            break;
-        }
-        return allocSize;
+        auto format = static_cast<SkMask::Format>(fMaskFormat);
+        auto size = this->computeImageSize();
+        fImage = alloc->makeBytesAlignedTo(size, SkMask::AlignmentForMask(format));
+        return size;
     }
 
-    unsigned rowBytes() const {
-        return ComputeRowBytes(fWidth, (SkMask::Format)fMaskFormat);
+    size_t rowBytes() const {
+        if(fWidth == 0 || fWidth >= kMaxGlyphWidth) {
+            return 0;
+        }
+        return SkMask::ComputeRowBytes((SkMask::Format)fMaskFormat, fWidth);
     }
 
     bool isJustAdvance() const {
@@ -254,8 +214,6 @@ public:
     SkFixed getSubYFixed() const {
         return fID.getSubYFixed();
     }
-
-    size_t computeImageSize() const;
 
     /** Call this to set all of the metrics fields to 0 (e.g. if the scaler
         encounters an error measuring a glyph). Note: this does not alter the
