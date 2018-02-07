@@ -52,10 +52,6 @@ static inline bool SkAlphaTypeIsOpaque(SkAlphaType at) {
     return kOpaque_SkAlphaType == at;
 }
 
-static inline bool SkAlphaTypeIsValid(unsigned value) {
-    return value <= kLastEnum_SkAlphaType;
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 
 /** Temporary macro that allows us to add new color types without breaking Chrome compile. */
@@ -91,64 +87,6 @@ enum SkColorType {
     #error "SK_*32_SHIFT values must correspond to BGRA or RGBA byte order"
 #endif
 };
-
-static int SkColorTypeBytesPerPixel(SkColorType ct) {
-    switch (ct) {
-        case kUnknown_SkColorType:      return 0;
-        case kAlpha_8_SkColorType:      return 1;
-        case kRGB_565_SkColorType:      return 2;
-        case kARGB_4444_SkColorType:    return 2;
-        case kRGBA_8888_SkColorType:    return 4;
-        case kBGRA_8888_SkColorType:    return 4;
-        case kRGB_888x_SkColorType:     return 4;
-        case kRGBA_1010102_SkColorType: return 4;
-        case kRGB_101010x_SkColorType:  return 4;
-        case kGray_8_SkColorType:       return 1;
-        case kRGBA_F16_SkColorType:     return 8;
-    }
-    return 0;
-}
-
-static int SkColorTypeShiftPerPixel(SkColorType ct) {
-    switch (ct) {
-        case kUnknown_SkColorType:      return 0;
-        case kAlpha_8_SkColorType:      return 0;
-        case kRGB_565_SkColorType:      return 1;
-        case kARGB_4444_SkColorType:    return 1;
-        case kRGBA_8888_SkColorType:    return 2;
-        case kRGB_888x_SkColorType:     return 2;
-        case kBGRA_8888_SkColorType:    return 2;
-        case kRGBA_1010102_SkColorType: return 2;
-        case kRGB_101010x_SkColorType:  return 2;
-        case kGray_8_SkColorType:       return 0;
-        case kRGBA_F16_SkColorType:     return 3;
-    }
-    return 0;
-}
-
-static inline size_t SkColorTypeMinRowBytes(SkColorType ct, int width) {
-    return width * SkColorTypeBytesPerPixel(ct);
-}
-
-static inline bool SkColorTypeIsValid(unsigned value) {
-    return value <= kLastEnum_SkColorType;
-}
-
-static inline size_t SkColorTypeComputeOffset(SkColorType ct, int x, int y, size_t rowBytes) {
-    if (kUnknown_SkColorType == ct) {
-        return 0;
-    }
-    return y * rowBytes + (x << SkColorTypeShiftPerPixel(ct));
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
-/**
- *  Return true if alphaType is supported by colorType. If there is a canonical
- *  alphaType for this colorType, return it in canonical.
- */
-bool SkColorTypeValidateAlphaType(SkColorType colorType, SkAlphaType alphaType,
-                                  SkAlphaType* canonical = nullptr);
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -270,9 +208,8 @@ public:
         return Make(fWidth, fHeight, fColorType, fAlphaType, std::move(cs));
     }
 
-    int bytesPerPixel() const { return SkColorTypeBytesPerPixel(fColorType); }
-
-    int shiftPerPixel() const { return SkColorTypeShiftPerPixel(fColorType); }
+    int bytesPerPixel() const;
+    int shiftPerPixel() const;
 
     uint64_t minRowBytes64() const {
         return sk_64_mul(fWidth, this->bytesPerPixel());
@@ -286,11 +223,7 @@ public:
         return sk_64_asS32(minRowBytes);
     }
 
-    size_t computeOffset(int x, int y, size_t rowBytes) const {
-        SkASSERT((unsigned)x < (unsigned)fWidth);
-        SkASSERT((unsigned)y < (unsigned)fHeight);
-        return SkColorTypeComputeOffset(fColorType, x, y, rowBytes);
-    }
+    size_t computeOffset(int x, int y, size_t rowBytes) const;
 
     bool operator==(const SkImageInfo& other) const {
         return fWidth == other.fWidth && fHeight == other.fHeight &&

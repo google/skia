@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkImageInfo.h"
+#include "SkImageInfoPriv.h"
 #include "SkSafeMath.h"
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"
@@ -63,6 +63,16 @@ static SkColorType stored_to_live(unsigned stored) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+
+int SkImageInfo::bytesPerPixel() const { return SkColorTypeBytesPerPixel(fColorType); }
+
+int SkImageInfo::shiftPerPixel() const { return SkColorTypeShiftPerPixel(fColorType); }
+
+size_t SkImageInfo::computeOffset(int x, int y, size_t rowBytes) const {
+    SkASSERT((unsigned)x < (unsigned)fWidth);
+    SkASSERT((unsigned)y < (unsigned)fHeight);
+    return SkColorTypeComputeOffset(fColorType, x, y, rowBytes);
+}
 
 size_t SkImageInfo::computeByteSize(size_t rowBytes) const {
     if (0 == fHeight) {
