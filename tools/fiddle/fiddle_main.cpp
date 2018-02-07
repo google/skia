@@ -265,7 +265,7 @@ int main(int argc, char** argv) {
                 perror("Unable to decode the source image.");
                 return 1;
             }
-            SkAssertResult(image->asLegacyBitmap(&source, SkImage::kRO_LegacyBitmapMode));
+            SkAssertResult(image->asLegacyBitmap(&source));
         }
     }
     sk_sp<SkData> rasterData, gpuData, pdfData, skpData;

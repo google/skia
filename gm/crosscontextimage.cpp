@@ -30,7 +30,7 @@ DEF_SIMPLE_GM(cross_context_image, canvas, 512 * 3 + 60, 512 + 128 + 30) {
 
     SkBitmap bmp;
     SkPixmap pixmap;
-    SkAssertResult(encodedImage->asLegacyBitmap(&bmp, SkImage::kRO_LegacyBitmapMode) &&
+    SkAssertResult(encodedImage->asLegacyBitmap(&bmp) &&
                    bmp.peekPixels(&pixmap));
 
     sk_sp<SkImage> crossContextRaster = SkImage::MakeCrossContextFromPixmap(

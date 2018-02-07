@@ -689,14 +689,12 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageReadPixels_Gpu, reporter, ctxInfo) {
 #endif
 
 static void check_legacy_bitmap(skiatest::Reporter* reporter, const SkImage* image,
-                                const SkBitmap& bitmap, SkImage::LegacyBitmapMode mode) {
+                                const SkBitmap& bitmap) {
     REPORTER_ASSERT(reporter, image->width() == bitmap.width());
     REPORTER_ASSERT(reporter, image->height() == bitmap.height());
     REPORTER_ASSERT(reporter, image->alphaType() == bitmap.alphaType());
 
-    if (SkImage::kRO_LegacyBitmapMode == mode) {
-        REPORTER_ASSERT(reporter, bitmap.isImmutable());
-    }
+    REPORTER_ASSERT(reporter, bitmap.isImmutable());
 
     REPORTER_ASSERT(reporter, bitmap.getPixels());
 
@@ -706,14 +704,14 @@ static void check_legacy_bitmap(skiatest::Reporter* reporter, const SkImage* ima
     REPORTER_ASSERT(reporter, imageColor == *bitmap.getAddr32(0, 0));
 }
 
-static void test_legacy_bitmap(skiatest::Reporter* reporter, const SkImage* image, SkImage::LegacyBitmapMode mode) {
+static void test_legacy_bitmap(skiatest::Reporter* reporter, const SkImage* image) {
     if (!image) {
         ERRORF(reporter, "Failed to create image.");
         return;
     }
     SkBitmap bitmap;
-    REPORTER_ASSERT(reporter, image->asLegacyBitmap(&bitmap, mode));
-    check_legacy_bitmap(reporter, image, bitmap, mode);
+    REPORTER_ASSERT(reporter, image->asLegacyBitmap(&bitmap));
+    check_legacy_bitmap(reporter, image, bitmap);
 
     // Test subsetting to exercise the rowBytes logic.
     SkBitmap tmp;
@@ -723,41 +721,29 @@ static void test_legacy_bitmap(skiatest::Reporter* reporter, const SkImage* imag
     REPORTER_ASSERT(reporter, subsetImage.get());
 
     SkBitmap subsetBitmap;
-    REPORTER_ASSERT(reporter, subsetImage->asLegacyBitmap(&subsetBitmap, mode));
-    check_legacy_bitmap(reporter, subsetImage.get(), subsetBitmap, mode);
+    REPORTER_ASSERT(reporter, subsetImage->asLegacyBitmap(&subsetBitmap));
+    check_legacy_bitmap(reporter, subsetImage.get(), subsetBitmap);
 }
 DEF_TEST(ImageLegacyBitmap, reporter) {
-    const SkImage::LegacyBitmapMode modes[] = {
-        SkImage::kRO_LegacyBitmapMode,
-        SkImage::kRW_LegacyBitmapMode,
-    };
-    for (auto& mode : modes) {
-        sk_sp<SkImage> image(create_image());
-        test_legacy_bitmap(reporter, image.get(), mode);
+    sk_sp<SkImage> image(create_image());
+    test_legacy_bitmap(reporter, image.get());
 
-        image = create_data_image();
-        test_legacy_bitmap(reporter, image.get(), mode);
+    image = create_data_image();
+    test_legacy_bitmap(reporter, image.get());
 
-        RasterDataHolder dataHolder;
-        image = create_rasterproc_image(&dataHolder);
-        test_legacy_bitmap(reporter, image.get(), mode);
-        image.reset();
-        REPORTER_ASSERT(reporter, 1 == dataHolder.fReleaseCount);
+    RasterDataHolder dataHolder;
+    image = create_rasterproc_image(&dataHolder);
+    test_legacy_bitmap(reporter, image.get());
+    image.reset();
+    REPORTER_ASSERT(reporter, 1 == dataHolder.fReleaseCount);
 
-        image = create_codec_image();
-        test_legacy_bitmap(reporter, image.get(), mode);
-    }
+    image = create_codec_image();
+    test_legacy_bitmap(reporter, image.get());
 }
 #if SK_SUPPORT_GPU
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageLegacyBitmap_Gpu, reporter, ctxInfo) {
-    const SkImage::LegacyBitmapMode modes[] = {
-        SkImage::kRO_LegacyBitmapMode,
-        SkImage::kRW_LegacyBitmapMode,
-    };
-    for (auto& mode : modes) {
-        sk_sp<SkImage> image(create_gpu_image(ctxInfo.grContext()));
-        test_legacy_bitmap(reporter, image.get(), mode);
-    }
+    sk_sp<SkImage> image(create_gpu_image(ctxInfo.grContext()));
+    test_legacy_bitmap(reporter, image.get());
 }
 #endif
 
@@ -1352,7 +1338,7 @@ DEF_TEST(Image_makeColorSpace, r) {
     sk_sp<SkImage> srgbImage = SkImage::MakeFromBitmap(srgbBitmap);
     sk_sp<SkImage> p3Image = srgbImage->makeColorSpace(p3, SkTransferFunctionBehavior::kIgnore);
     SkBitmap p3Bitmap;
-    bool success = p3Image->asLegacyBitmap(&p3Bitmap, SkImage::kRO_LegacyBitmapMode);
+    bool success = p3Image->asLegacyBitmap(&p3Bitmap);
     REPORTER_ASSERT(r, success);
     REPORTER_ASSERT(r, almost_equal(0x28, SkGetPackedR32(*p3Bitmap.getAddr32(0, 0))));
     REPORTER_ASSERT(r, almost_equal(0x40, SkGetPackedG32(*p3Bitmap.getAddr32(0, 0))));
@@ -1361,7 +1347,7 @@ DEF_TEST(Image_makeColorSpace, r) {
     sk_sp<SkImage> adobeImage = srgbImage->makeColorSpace(adobeGamut,
                                                           SkTransferFunctionBehavior::kIgnore);
     SkBitmap adobeBitmap;
-    success = adobeImage->asLegacyBitmap(&adobeBitmap, SkImage::kRO_LegacyBitmapMode);
+    success = adobeImage->asLegacyBitmap(&adobeBitmap);
     REPORTER_ASSERT(r, success);
     REPORTER_ASSERT(r, almost_equal(0x21, SkGetPackedR32(*adobeBitmap.getAddr32(0, 0))));
     REPORTER_ASSERT(r, almost_equal(0x31, SkGetPackedG32(*adobeBitmap.getAddr32(0, 0))));
@@ -1369,7 +1355,7 @@ DEF_TEST(Image_makeColorSpace, r) {
 
     srgbImage = GetResourceAsImage("images/1x1.png");
     p3Image = srgbImage->makeColorSpace(p3, SkTransferFunctionBehavior::kIgnore);
-    success = p3Image->asLegacyBitmap(&p3Bitmap, SkImage::kRO_LegacyBitmapMode);
+    success = p3Image->asLegacyBitmap(&p3Bitmap);
     REPORTER_ASSERT(r, success);
     REPORTER_ASSERT(r, almost_equal(0x8B, SkGetPackedR32(*p3Bitmap.getAddr32(0, 0))));
     REPORTER_ASSERT(r, almost_equal(0x82, SkGetPackedG32(*p3Bitmap.getAddr32(0, 0))));

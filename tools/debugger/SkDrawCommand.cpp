@@ -922,7 +922,7 @@ static SkBitmap* load_bitmap(const Json::Value& jsonBitmap, UrlDataManager& urlD
 
     std::unique_ptr<SkBitmap> bitmap(new SkBitmap());
     if (nullptr != image) {
-        if (!image->asLegacyBitmap(bitmap.get(), SkImage::kRW_LegacyBitmapMode)) {
+        if (!image->asLegacyBitmap(bitmap.get())) {
             SkDebugf("image decode failed\n");
             return nullptr;
         }

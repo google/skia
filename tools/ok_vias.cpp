@@ -138,7 +138,7 @@ struct Png : Dst {
         }
 
         SkBitmap bm;
-        if (!target->image()->asLegacyBitmap(&bm, SkImage::kRO_LegacyBitmapMode)) {
+        if (!target->image()->asLegacyBitmap(&bm)) {
             return Status::Failed;
         }
 

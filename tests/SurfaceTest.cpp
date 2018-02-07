@@ -1042,7 +1042,7 @@ static void test_overdraw_surface(skiatest::Reporter* r, SkSurface* surface) {
     sk_sp<SkImage> image = surface->makeImageSnapshot();
 
     SkBitmap bitmap;
-    image->asLegacyBitmap(&bitmap, SkImage::kRO_LegacyBitmapMode);
+    image->asLegacyBitmap(&bitmap);
     for (int y = 0; y < 10; y++) {
         for (int x = 0; x < 10; x++) {
             REPORTER_ASSERT(r, 1 == SkGetPackedA32(*bitmap.getAddr32(x, y)));
