@@ -43,6 +43,16 @@ public:
         vst3_f32((float*) dst, abc);
     }
 
+    AI static void Store4(void* dst, const SkNx& a, const SkNx& b, const SkNx& c, const SkNx& d) {
+        float32x2x4_t abcd = {{
+            a.fVec,
+            b.fVec,
+            c.fVec,
+            d.fVec,
+        }};
+        vst4_f32((float*) dst, abcd);
+    }
+
     AI SkNx invert() const {
         float32x2_t est0 = vrecpe_f32(fVec),
                     est1 = vmul_f32(vrecps_f32(est0, fVec), est0);

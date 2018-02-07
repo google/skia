@@ -437,3 +437,20 @@ DEF_TEST(Sk2f_Store3, r) {
     REPORTER_ASSERT(r, dst[4] == 4);
     REPORTER_ASSERT(r, dst[5] == 5);
 }
+
+DEF_TEST(Sk2f_Store4, r) {
+    Sk2f p0{0, 4};
+    Sk2f p1{1, 5};
+    Sk2f p2{2, 6};
+    Sk2f p3{3, 7};
+    float dst[8];
+    Sk2f::Store4(dst, p0, p1, p2, p3);
+    REPORTER_ASSERT(r, dst[0] == 0);
+    REPORTER_ASSERT(r, dst[1] == 1);
+    REPORTER_ASSERT(r, dst[2] == 2);
+    REPORTER_ASSERT(r, dst[3] == 3);
+    REPORTER_ASSERT(r, dst[4] == 4);
+    REPORTER_ASSERT(r, dst[5] == 5);
+    REPORTER_ASSERT(r, dst[6] == 6);
+    REPORTER_ASSERT(r, dst[7] == 7);
+}

@@ -36,6 +36,13 @@ public:
         _mm_storel_pi(((__m64*)dst) + 2, hi);
     }
 
+    AI static void Store4(void* dst, const SkNx& a, const SkNx& b, const SkNx& c, const SkNx& d) {
+        auto lo = _mm_setr_ps(a[0], b[0], c[0], d[0]),
+             hi = _mm_setr_ps(a[1], b[1], c[1], d[1]);
+        _mm_storeu_ps((float*)dst, lo);
+        _mm_storeu_ps(((float*)dst) + 4, hi);
+    }
+
     AI SkNx operator - () const { return _mm_xor_ps(_mm_set1_ps(-0.0f), fVec); }
 
     AI SkNx operator + (const SkNx& o) const { return _mm_add_ps(fVec, o.fVec); }
