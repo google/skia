@@ -29,7 +29,7 @@ sk_sp<GrMtlTexture> GrMtlTexture::CreateNewTexture(GrMtlGpu* gpu, SkBudgeted bud
     descriptor.arrayLength = 1;
     // descriptor.resourceOptions This looks to be set by setting cpuCacheMode and storageModes
     descriptor.cpuCacheMode = MTLCPUCacheModeWriteCombined;
-    // Shared is not available on MacOS. Is there a reason to want managed to allow mapping?
+    // Make all textures have private gpu only access. We can use transfer buffers to copy to them.
     descriptor.storageMode = MTLStorageModePrivate;
 
     MTLTextureUsage texUsage = MTLTextureUsageShaderRead;

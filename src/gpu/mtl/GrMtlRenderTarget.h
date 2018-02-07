@@ -64,6 +64,8 @@ protected:
     // This accounts for the texture's memory and any MSAA renderbuffer's memory.
     size_t onGpuMemorySize() const override {
         int numColorSamples = this->numColorSamples();
+        // TODO: When used as render targets certain formats may actually have a larger size than
+        // the base format size. Check to make sure we are reporting the correct value here.
         // The plus 1 is to account for the resolve texture or if not using msaa the RT itself
         if (numColorSamples > 1) {
             ++numColorSamples;
