@@ -19,6 +19,8 @@
 #include "SkTypeface.h"
 #include "SkWriteBuffer.h"
 
+#include <cstdio>
+
 class SkAutoDescriptor;
 class SkDescriptor;
 class SkMaskFilter;
@@ -342,6 +344,8 @@ public:
     *  As an example, the identity matrix will return kX_SkAxisAlignment
     */
     SkAxisAlignment computeAxisAlignmentForHText() const;
+
+    static SkAxisAlignment ComputeAxisAlignmentForHText(const SkScalerContextRec& rec);
 
     static SkDescriptor* CreateDescriptorAndEffectsUsingPaint(
         const SkPaint& paint, const SkSurfaceProps* surfaceProps,
