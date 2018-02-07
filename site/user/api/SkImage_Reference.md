@@ -1984,7 +1984,7 @@ Returns nullptr if backed by <a href="undocumented#GPU_Texture">GPU Texture</a> 
 
 ### See Also
 
-incomplete
+<a href="#SkImage_makeTextureImage">makeTextureImage</a> <a href="#SkImage_makeRasterImage">makeRasterImage</a> <a href="#SkImage_MakeBackendTextureFromSkImage">MakeBackendTextureFromSkImage</a>
 
 ---
 
@@ -2032,26 +2032,24 @@ required storage for translation of returned <a href="#Image">Image</a>.
 Returns nullptr if <a href="#Image">Image</a> could not be created. If nullptr is returned, <a href="#SkImage_makeWithFilter_outSubset">outSubset</a>
 and <a href="#SkImage_makeWithFilter_offset">offset</a> are undefined.
 
-<a href="#SkImage_makeWithFilter">makeWithFilter</a> is optimized to support <a href="#Image">Image</a> backed by <a href="undocumented#GPU_Texture">GPU Texture</a> drawn in an
-animation with <a href="undocumented#SkImageFilter">SkImageFilter</a> that vary in size from one frame to the next. The
-created <a href="#Image">Image</a> is drawn at an increased size so that <a href="undocumented#GPU_Texture">GPU Texture</a> can be reused
-with different sized effects. <a href="#SkImage_makeWithFilter_outSubset">outSubset</a> describes the valid bounds of <a href="undocumented#GPU_Texture">GPU Texture</a>
-returned. The returned <a href="#Image">Image</a> may be much larger than required for the <a href="#SkImage_makeWithFilter_filter">filter</a>.
-<a href="#SkImage_makeWithFilter_offset">offset</a> translates the returned <a href="#Image">Image</a> to keep subsequent animation frames
-aligned with respect to each other.
+Useful for animation of <a href="undocumented#SkImageFilter">SkImageFilter</a> that varies size from frame to frame.
+Returned <a href="#Image">Image</a> is created larger than required by <a href="#SkImage_makeWithFilter_filter">filter</a> so that <a href="undocumented#GPU_Texture">GPU Texture</a>
+can be reused with different sized effects. <a href="#SkImage_makeWithFilter_outSubset">outSubset</a> describes the valid bounds
+of <a href="undocumented#GPU_Texture">GPU Texture</a> returned. <a href="#SkImage_makeWithFilter_offset">offset</a> translates the returned <a href="#Image">Image</a> to keep subsequent
+animation frames aligned with respect to each other.
 
 ### Parameters
 
 <table>  <tr>    <td><a name="SkImage_makeWithFilter_filter"> <code><strong>filter </strong></code> </a></td> <td>
 how <a href="#Image">Image</a> is sampled when transformed</td>
   </tr>  <tr>    <td><a name="SkImage_makeWithFilter_subset"> <code><strong>subset </strong></code> </a></td> <td>
-incomplete</td>
+bounds of <a href="#Image">Image</a> processed by <a href="#SkImage_makeWithFilter_filter">filter</a></td>
   </tr>  <tr>    <td><a name="SkImage_makeWithFilter_clipBounds"> <code><strong>clipBounds </strong></code> </a></td> <td>
-incomplete</td>
+expected bounds of filtered <a href="#Image">Image</a></td>
   </tr>  <tr>    <td><a name="SkImage_makeWithFilter_outSubset"> <code><strong>outSubset </strong></code> </a></td> <td>
-incomplete</td>
+storage for returned <a href="#Image">Image</a> bounds</td>
   </tr>  <tr>    <td><a name="SkImage_makeWithFilter_offset"> <code><strong>offset </strong></code> </a></td> <td>
-incomplete</td>
+storage for returned <a href="#Image">Image</a> translation</td>
   </tr>
 </table>
 
@@ -2066,7 +2064,7 @@ By translating canvas by returned <a href="#SkImage_makeWithFilter_offset">offse
 
 ### See Also
 
-<a href="#SkPaint_setImageFilter">SkPaint::setImageFilter</a>
+<a href="#SkImage_makeShader">makeShader</a><sup><a href="#SkImage_makeShader_2">[2]</a></sup> <a href="#SkPaint_setImageFilter">SkPaint::setImageFilter</a>
 
 ---
 
@@ -2129,17 +2127,17 @@ contents.
 <table>  <tr>    <td><a name="SkImage_MakeBackendTextureFromSkImage_context"> <code><strong>context </strong></code> </a></td> <td>
 <a href="undocumented#GPU_Context">GPU Context</a></td>
   </tr>  <tr>    <td><a name="SkImage_MakeBackendTextureFromSkImage_image"> <code><strong>image </strong></code> </a></td> <td>
-incomplete</td>
+<a href="#Image">Image</a> used for texture</td>
   </tr>  <tr>    <td><a name="SkImage_MakeBackendTextureFromSkImage_backendTexture"> <code><strong>backendTexture </strong></code> </a></td> <td>
-incomplete</td>
+storage for backend texture</td>
   </tr>  <tr>    <td><a name="SkImage_MakeBackendTextureFromSkImage_backendTextureReleaseProc"> <code><strong>backendTextureReleaseProc </strong></code> </a></td> <td>
-incomplete</td>
+storage for clean up function</td>
   </tr>
 </table>
 
 ### Return Value
 
-incomplete
+true if backend texture was created
 
 ### Example
 
