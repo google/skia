@@ -298,6 +298,7 @@ private:
 DEF_GPUTEST(LazyProxyFailedInstantiationTest, reporter, /* options */) {
     GrMockOptions mockOptions;
     sk_sp<GrContext> ctx = GrContext::MakeMock(&mockOptions, GrContextOptions());
+    GrResourceProvider* resourceProvider = ctx->contextPriv().resourceProvider();
     GrProxyProvider* proxyProvider = ctx->contextPriv().proxyProvider();
     for (bool failInstantiation : {false, true}) {
         sk_sp<GrRenderTargetContext> rtc =
@@ -314,13 +315,13 @@ DEF_GPUTEST(LazyProxyFailedInstantiationTest, reporter, /* options */) {
         ctx->flush();
 
         if (failInstantiation) {
-#ifdef SK_DISABLE_EXPLICIT_GPU_RESOURCE_ALLOCATION
-            // When we disable explicit gpu resource allocation we don't throw away ops that have
-            // uninstantiated proxies.
-            REPORTER_ASSERT(reporter, 2 == executeTestValue);
-#else
-            REPORTER_ASSERT(reporter, 1 == executeTestValue);
-#endif
+            if (resourceProvider->explicitlyAllocateGPUResources()) {
+                REPORTER_ASSERT(reporter, 1 == executeTestValue);
+            } else {
+                // When we disable explicit gpu resource allocation we don't throw away ops that
+                // have uninstantiated proxies.
+                REPORTER_ASSERT(reporter, 2 == executeTestValue);
+            }
         } else {
             REPORTER_ASSERT(reporter, 2 == executeTestValue);
         }
