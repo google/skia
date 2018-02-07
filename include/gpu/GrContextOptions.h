@@ -141,6 +141,19 @@ struct GrContextOptions {
     Enable fUseDrawInsteadOfGLClear = Enable::kDefault;
 
     /**
+     * Allow Ganesh to explicitly allocate resources at flush time rather than incrementally while
+     * drawing. This will eventually just be the way it is but, for now, it is optional.
+     */
+    bool fExplicitlyAllocateGPUResources = false;
+
+    /**
+     * Allow Ganesh to sort the opLists prior to allocating resources. This is an optional
+     * behavior that is only relevant when 'fExplicitlyAllocateGPUResources' is enabled.
+     * Eventually this will just be what is done and will not be optional.
+     */
+    bool fSortRenderTargets = false;
+
+    /**
      * Disables correctness workarounds that are enabled for particular GPUs, OSes, or drivers.
      * This does not affect code path choices that are made for perfomance reasons nor does it
      * override other GrContextOption settings.

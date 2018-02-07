@@ -166,6 +166,7 @@ private:
         Interval* popHead();
         void insertByIncreasingStart(Interval*);
         void insertByIncreasingEnd(Interval*);
+        Interval* detachAll();
 
     private:
         Interval* fHead = nullptr;

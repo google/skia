@@ -39,7 +39,7 @@ class SkTypeface;
  */
 class GrResourceProvider {
 public:
-    GrResourceProvider(GrGpu* gpu, GrResourceCache* cache, GrSingleOwner* owner);
+    GrResourceProvider(GrGpu*, GrResourceCache*, GrSingleOwner*, bool explicitlyAllocate);
 
     /**
      * Finds a resource in the cache, based on the specified key. Prior to calling this, the caller
@@ -258,6 +258,10 @@ public:
     inline GrResourceProviderPriv priv();
     inline const GrResourceProviderPriv priv() const;
 
+    bool explicitlyAllocateGPUResources() const { return fExplicitlyAllocateGPUResources; }
+
+    bool testingOnly_setExplicitlyAllocateGPUResources(bool newValue);
+
 private:
     sk_sp<GrGpuResource> findResourceByUniqueKey(const GrUniqueKey&);
 
@@ -297,6 +301,7 @@ private:
     GrGpu*              fGpu;
     sk_sp<const GrCaps> fCaps;
     GrUniqueKey         fQuadIndexBufferKey;
+    bool                fExplicitlyAllocateGPUResources;
 
     // In debug builds we guard against improper thread handling
     SkDEBUGCODE(mutable GrSingleOwner* fSingleOwner;)

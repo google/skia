@@ -12,6 +12,7 @@
 #include "SkImageEncoder.h"
 #include "SkImageInfo.h"
 #include "SkRandom.h"
+#include "SkRefCnt.h"
 #include "SkStream.h"
 #include "SkTDArray.h"
 #include "SkTypeface.h"
@@ -147,7 +148,7 @@ namespace sk_tool_utils {
     SkRect compute_tallest_occluder(const SkRRect& rr);
 
     // A helper object to test the topological sorting code (TopoSortBench.cpp & TopoSortTest.cpp)
-    class TopoTestNode {
+    class TopoTestNode : public SkRefCnt {
     public:
         TopoTestNode(int id) : fID(id), fOutputPos(-1), fTempMark(false) { }
 
@@ -194,37 +195,29 @@ namespace sk_tool_utils {
         }
 
         // Helper functions for TopoSortBench & TopoSortTest
-        static void AllocNodes(SkTDArray<TopoTestNode*>* graph, int num) {
-            graph->setReserve(num);
+        static void AllocNodes(SkTArray<sk_sp<sk_tool_utils::TopoTestNode>>* graph, int num) {
+            graph->reserve(num);
 
             for (int i = 0; i < num; ++i) {
-                *graph->append() = new TopoTestNode(i);
+                graph->push_back(sk_sp<TopoTestNode>(new TopoTestNode(i)));
             }
         }
 
-        static void DeallocNodes(SkTDArray<TopoTestNode*>* graph) {
-            for (int i = 0; i < graph->count(); ++i) {
-                delete (*graph)[i];
-            }
-        }
-
-        #ifdef SK_DEBUG
-        static void Print(const SkTDArray<TopoTestNode*>& graph) {
+#ifdef SK_DEBUG
+        static void Print(const SkTArray<TopoTestNode*>& graph) {
             for (int i = 0; i < graph.count(); ++i) {
                 SkDebugf("%d, ", graph[i]->id());
             }
             SkDebugf("\n");
         }
-        #endif
+#endif
 
         // randomize the array
-        static void Shuffle(SkTDArray<TopoTestNode*>* graph, SkRandom* rand) {
+        static void Shuffle(SkTArray<sk_sp<TopoTestNode>>* graph, SkRandom* rand) {
             for (int i = graph->count()-1; i > 0; --i) {
                 int swap = rand->nextU() % (i+1);
 
-                TopoTestNode* tmp = (*graph)[i];
-                (*graph)[i] = (*graph)[swap];
-                (*graph)[swap] = tmp;
+                (*graph)[i].swap((*graph)[swap]);
             }
         }
 

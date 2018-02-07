@@ -32,15 +32,16 @@ GrOpList::GrOpList(GrResourceProvider* resourceProvider,
     fTarget.setProxy(sk_ref_sp(surfaceProxy), kWrite_GrIOType);
     fTarget.get()->setLastOpList(this);
 
-#ifdef SK_DISABLE_EXPLICIT_GPU_RESOURCE_ALLOCATION
-    // MDB TODO: remove this! We are currently moving to having all the ops that target
-    // the RT as a dest (e.g., clear, etc.) rely on the opList's 'fTarget' pointer
-    // for the IO Ref. This works well but until they are all swapped over (and none
-    // are pre-emptively instantiating proxies themselves) we need to instantiate
-    // here so that the GrSurfaces are created in an order that preserves the GrSurface
-    // re-use assumptions.
-    fTarget.get()->instantiate(resourceProvider);
-#endif
+    if (resourceProvider && !resourceProvider->explicitlyAllocateGPUResources()) {
+        // MDB TODO: remove this! We are currently moving to having all the ops that target
+        // the RT as a dest (e.g., clear, etc.) rely on the opList's 'fTarget' pointer
+        // for the IO Ref. This works well but until they are all swapped over (and none
+        // are pre-emptively instantiating proxies themselves) we need to instantiate
+        // here so that the GrSurfaces are created in an order that preserves the GrSurface
+        // re-use assumptions.
+        fTarget.get()->instantiate(resourceProvider);
+    }
+
     fTarget.markPendingIO();
 }
 
@@ -67,11 +68,11 @@ void GrOpList::endFlush() {
 
 void GrOpList::instantiateDeferredProxies(GrResourceProvider* resourceProvider) {
     for (int i = 0; i < fDeferredProxies.count(); ++i) {
-#ifdef SK_DISABLE_EXPLICIT_GPU_RESOURCE_ALLOCATION
-        fDeferredProxies[i]->instantiate(resourceProvider);
-#else
-        SkASSERT(fDeferredProxies[i]->priv().isInstantiated());
-#endif
+        if (resourceProvider->explicitlyAllocateGPUResources()) {
+            SkASSERT(fDeferredProxies[i]->priv().isInstantiated());
+        } else {
+            fDeferredProxies[i]->instantiate(resourceProvider);
+        }
     }
 }
 
@@ -118,11 +119,11 @@ void GrOpList::addDependency(GrSurfaceProxy* dependedOn, const GrCaps& caps) {
     }
 }
 
-#ifdef SK_DEBUG
 bool GrOpList::isInstantiated() const {
     return fTarget.get()->priv().isInstantiated();
 }
 
+#ifdef SK_DEBUG
 void GrOpList::dump() const {
     SkDebugf("--------------------------------------------------------------\n");
     SkDebugf("node: %d -> RT: %d\n", fUniqueID, fTarget.get() ? fTarget.get()->uniqueID().asUInt()

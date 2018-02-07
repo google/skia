@@ -86,7 +86,8 @@ private:
     GrDrawingManager(GrContext* context,
                      const GrPathRendererChain::Options& optionsForPathRendererChain,
                      const GrAtlasTextContext::Options& optionsForAtlasTextContext,
-                     GrSingleOwner* singleOwner)
+                     GrSingleOwner* singleOwner,
+                     bool sortRenderTargets)
             : fContext(context)
             , fOptionsForPathRendererChain(optionsForPathRendererChain)
             , fOptionsForAtlasTextContext(optionsForAtlasTextContext)
@@ -95,7 +96,9 @@ private:
             , fAtlasTextContext(nullptr)
             , fPathRendererChain(nullptr)
             , fSoftwarePathRenderer(nullptr)
-            , fFlushing(false) {}
+            , fFlushing(false)
+            , fSortRenderTargets(sortRenderTargets) {
+    }
 
     void abandon();
     void cleanup();
@@ -142,6 +145,7 @@ private:
 
     GrTokenTracker                    fTokenTracker;
     bool                              fFlushing;
+    bool                              fSortRenderTargets;
 
     SkTArray<GrOnFlushCallbackObject*> fOnFlushCBObjects;
 };
