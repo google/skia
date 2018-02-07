@@ -70,6 +70,9 @@ def getVariantOutDir(project, variant) {
     } else if (variant.name.startsWith("x86_64")) {
         variantPrefix = "x64"
         androidLibDir = "x86_64"
+    } else if (variant.name.startsWith("x64")) {
+        variantPrefix = "x64"
+        androidLibDir = "x86_64"
     } else if (variant.name.startsWith("x86")) {
         variantPrefix = "x86"
         androidLibDir = "x86"

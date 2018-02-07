@@ -39,7 +39,7 @@ elif target_cpu == "arm64":
 elif target_cpu == "x86":
   android_variant = "x86"
 elif target_cpu == "x64":
-  android_variant = "x86_64"
+  android_variant = "x64"
 else:
   sys.exit("unknown target_cpu")
 
