@@ -118,11 +118,11 @@ void GrOpList::addDependency(GrSurfaceProxy* dependedOn, const GrCaps& caps) {
     }
 }
 
+#ifdef SK_DEBUG
 bool GrOpList::isInstantiated() const {
     return fTarget.get()->priv().isInstantiated();
 }
 
-#ifdef SK_DEBUG
 void GrOpList::dump() const {
     SkDebugf("--------------------------------------------------------------\n");
     SkDebugf("node: %d -> RT: %d\n", fUniqueID, fTarget.get() ? fTarget.get()->uniqueID().asUInt()

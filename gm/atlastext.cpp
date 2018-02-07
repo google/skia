@@ -69,9 +69,6 @@ protected:
         }
         fContext = SkAtlasTextContext::Make(fRenderer);
         auto targetHandle = fRenderer->makeTargetHandle(kSize, kSize);
-        if (!targetHandle) {
-            return;
-        }
         fTarget = SkAtlasTextTarget::Make(fContext, kSize, kSize, targetHandle);
 
         fTypefaces[0] = sk_tool_utils::create_portable_typeface("serif", SkFontStyle::Italic());
@@ -85,7 +82,7 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-        if (!fRenderer || !fTarget || !fTarget->handle()) {
+        if (!fRenderer) {
             canvas->clear(SK_ColorRED);
             return;
         }
