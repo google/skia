@@ -1486,6 +1486,7 @@ MSKPSrc::MSKPSrc(Path path) : fPath(path) {
 }
 
 int MSKPSrc::pageCount() const { return fPages.count(); }
+bool MSKPSrc::multiPage() const { return true; }
 
 SkISize MSKPSrc::size() const { return this->size(0); }
 SkISize MSKPSrc::size(int i) const {
@@ -1836,14 +1837,22 @@ Error DebugSink::draw(const Src& src, SkBitmap*, SkWStream* dst, SkString*) cons
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-SVGSink::SVGSink() {}
+SVGSink::SVGSink(int pageNumber) : fPageNumber(pageNumber) {}
 
 Error SVGSink::draw(const Src& src, SkBitmap*, SkWStream* dst, SkString*) const {
 #if defined(SK_XML)
+    int pageIndex = 0;
+    if (src.multiPage()) {
+        int pageCount = src.pageCount();
+        if (fPageNumber > pageCount) {
+            return Error(SkStringPrintf("Page number %d too high for document with only %d pages.", fPageNumber, pageCount));
+        }
+        pageIndex = fPageNumber - 1;
+    }
     std::unique_ptr<SkXMLWriter> xmlWriter(new SkXMLStreamWriter(dst));
-    return src.draw(SkSVGCanvas::Make(SkRect::MakeWH(SkIntToScalar(src.size().width()),
-                                                     SkIntToScalar(src.size().height())),
-                                      xmlWriter.get()).get());
+    return src.draw(pageIndex, SkSVGCanvas::Make(SkRect::MakeWH(SkIntToScalar(src.size().width()),
+                                                 SkIntToScalar(src.size().height())),
+                                                 xmlWriter.get()).get());
 #else
     return Error("SVG sink is disabled.");
 #endif // SK_XML

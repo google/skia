@@ -75,6 +75,7 @@ struct Src {
     virtual bool veto(SinkFlags) const { return false; }
 
     virtual int pageCount() const { return 1; }
+    virtual bool multiPage() const { return false; }
     virtual Error SK_WARN_UNUSED_RESULT draw(int, SkCanvas* canvas) const {
         return this->draw(canvas);
     }
@@ -313,6 +314,7 @@ public:
     explicit MSKPSrc(Path path);
 
     int pageCount() const override;
+    bool multiPage() const override;
     Error draw(SkCanvas* c) const override;
     Error draw(int, SkCanvas*) const override;
     SkISize size() const override;
@@ -350,7 +352,7 @@ public:
     bool serial() const override { return !fThreaded; }
     const char* fileExtension() const override { return "png"; }
     SinkFlags flags() const override {
-        SinkFlags::Multisampled ms = fSampleCount > 1 ? SinkFlags::kMultisampled
+        SinkFlags::Multisampled ms = fSampleCount > 0 ? SinkFlags::kMultisampled
                                                       : SinkFlags::kNotMultisampled;
         return SinkFlags{ SinkFlags::kGPU, SinkFlags::kDirect, ms };
     }
@@ -447,11 +449,13 @@ public:
 
 class SVGSink : public Sink {
 public:
-    SVGSink();
+    SVGSink(int pageNumber=1);
 
     Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
     const char* fileExtension() const override { return "svg"; }
     SinkFlags flags() const override { return SinkFlags{ SinkFlags::kVector, SinkFlags::kDirect }; }
+private:
+    int fPageNumber;
 };
 
 
