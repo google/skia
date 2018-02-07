@@ -1086,6 +1086,12 @@ void SkGpuDevice::drawSpecial(SkSpecialImage* special1, int left, int top, const
     const GrPixelConfig config = proxy->config();
 
     SkPaint tmpUnfiltered(paint);
+    if (tmpUnfiltered.getMaskFilter()) {
+        SkMatrix ctm = this->ctm();
+        ctm.postTranslate(-SkIntToScalar(left + offset.fX), -SkIntToScalar(top + offset.fY));
+        tmpUnfiltered.setMaskFilter(tmpUnfiltered.getMaskFilter()->makeWithLocalMatrix(ctm));
+    }
+
     tmpUnfiltered.setImageFilter(nullptr);
 
     auto fp = GrSimpleTextureEffect::Make(std::move(proxy), SkMatrix::I());
@@ -1108,7 +1114,7 @@ void SkGpuDevice::drawSpecial(SkSpecialImage* special1, int left, int top, const
     fRenderTargetContext->fillRectToRect(
             this->clip(),
             std::move(grPaint),
-            GrAA(paint.isAntiAlias()),
+            GrAA(tmpUnfiltered.isAntiAlias()),
             SkMatrix::I(),
             SkRect::Make(SkIRect::MakeXYWH(left + offset.fX, top + offset.fY, subset.width(),
                                            subset.height())),
@@ -1259,8 +1265,8 @@ sk_sp<SkSpecialImage> SkGpuDevice::snapSpecial() {
 }
 
 void SkGpuDevice::drawDevice(SkBaseDevice* device,
-                             int left, int top, const SkPaint& origPaint) {
-    SkASSERT(!origPaint.getImageFilter());
+                             int left, int top, const SkPaint& paint) {
+    SkASSERT(!paint.getImageFilter());
 
     ASSERT_SINGLE_OWNER
     // clear of the source device must occur before CHECK_SHOULD_DRAW
@@ -1273,18 +1279,7 @@ void SkGpuDevice::drawDevice(SkBaseDevice* device,
         return;
     }
 
-    // todo: can we unify with similar adjustment in SkBitmapDevice?
-    const SkPaint* paint = &origPaint;
-    SkTLazy<SkPaint> lazyP;
-    if (origPaint.getMaskFilter()) {
-        SkMatrix ctm = this->ctm();
-        ctm.postTranslate(-SkIntToScalar(left), -SkIntToScalar(top));
-        lazyP.set(origPaint);
-        lazyP.get()->setMaskFilter(origPaint.getMaskFilter()->makeWithLocalMatrix(ctm));
-        paint = lazyP.get();
-    }
-
-    this->drawSpecial(srcImg.get(), left, top, *paint, nullptr, SkMatrix::I());
+    this->drawSpecial(srcImg.get(), left, top, paint, nullptr, SkMatrix::I());
 }
 
 void SkGpuDevice::drawImage(const SkImage* image, SkScalar x, SkScalar y, const SkPaint& paint) {
