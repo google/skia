@@ -102,6 +102,15 @@ int SkGlyphCache::countCachedGlyphs() const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+bool SkGlyphCache::isGlyphIdCached(SkGlyphID glyphID, SkFixed x, SkFixed y) const {
+    SkPackedGlyphID packedGlyphID{glyphID, x, y};
+    return fGlyphMap.find(packedGlyphID) != nullptr;
+}
+
+SkGlyph* SkGlyphCache::getRawGlyphByID(SkPackedGlyphID id) {
+    return lookupByPackedGlyphID(id, kNothing_MetricsType);
+}
+
 const SkGlyph& SkGlyphCache::getUnicharAdvance(SkUnichar charCode) {
     VALIDATE();
     return *this->lookupByChar(charCode, kJustAdvance_MetricsType);
@@ -170,7 +179,9 @@ SkGlyph* SkGlyphCache::allocateNewGlyph(SkPackedGlyphID packedGlyphID, MetricsTy
         glyphPtr = fGlyphMap.set(glyph);
     }
 
-    if (kJustAdvance_MetricsType == mtype) {
+    if (kNothing_MetricsType == mtype) {
+        return glyphPtr;
+    } else if (kJustAdvance_MetricsType == mtype) {
         fScalerContext->getAdvance(glyphPtr);
     } else {
         SkASSERT(kFull_MetricsType == mtype);
@@ -543,8 +554,25 @@ SkGlyphCache* SkGlyphCache::VisitCache(SkTypeface* typeface,
     return cache;
 }
 
+SkGlyphCache* SkGlyphCache::DetatchCacheOrNull(const SkDescriptor& desc) {
+    SkGlyphCache_Globals& globals = get_globals();
+    SkGlyphCache*         cache;
+    SkAutoExclusive       ac(globals.fLock);
+
+    for (cache = globals.internalGetHead(); cache != nullptr; cache = cache->fNext) {
+        if (*cache->fDesc == desc) {
+            globals.internalDetachCache(cache);
+            return cache;
+        }
+    }
+
+    return nullptr;
+}
+
 void SkGlyphCache::AttachCache(SkGlyphCache* cache) {
-    SkASSERT(cache);
+    if (cache == nullptr) {
+        return;
+    }
     SkASSERT(cache->fNext == nullptr);
 
     get_globals().attachCacheToHead(cache);
