@@ -48,7 +48,6 @@
 #include "ops/GrStencilPathOp.h"
 #include "ops/GrTextureOp.h"
 #include "text/GrAtlasTextContext.h"
-#include "text/GrStencilAndCoverTextContext.h"
 #include "text/GrTextUtils.h"
 
 class GrRenderTargetContext::TextTarget : public GrTextUtils::Target {

@@ -1716,7 +1716,6 @@ private:
     friend class GrAtlasTextContext;
     friend class GrGLPathRendering;
     friend class GrPathRendering;
-    friend class GrStencilAndCoverTextContext;
     friend class GrTextUtils;
     friend class SkAutoGlyphCache;
     friend class SkAutoGlyphCacheNoGamma;
