@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f8695d5d_59ec80ae",
+        "filename": "src/gpu/SkGr.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-02-07T21:18:29Z",
+      "side": 1,
+      "message": "What is this #endif from ?",
+      "revId": "cb9857d83b349ca010dd7e8c0e1554b3cf127e98",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5df01d2c_dcf2b1ba",
+        "filename": "src/gpu/SkGr.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 233,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-02-07T21:18:29Z",
+      "side": 1,
+      "message": "Chaced ?",
+      "revId": "cb9857d83b349ca010dd7e8c0e1554b3cf127e98",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0276aae4_54c2df5b",
+        "filename": "src/shaders/SkPerlinNoiseShader.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1423,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-02-07T21:18:29Z",
+      "side": 1,
+      "message": "so that a copy isn\u0027t needed ?",
+      "revId": "cb9857d83b349ca010dd7e8c0e1554b3cf127e98",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
