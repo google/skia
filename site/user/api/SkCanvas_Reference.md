@@ -1654,6 +1654,7 @@ depth of saved stack
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 enum {
+<a href="#SkCanvas_kIsOpaque_SaveLayerFlag">kIsOpaque SaveLayerFlag</a> = 1 << 0,
 <a href="#SkCanvas_kPreserveLCDText_SaveLayerFlag">kPreserveLCDText SaveLayerFlag</a> = 1 << 1,
 <a href="#SkCanvas_kInitWithPrevious_SaveLayerFlag">kInitWithPrevious SaveLayerFlag</a> = 1 << 2,
 <a href="#SkCanvas_kDontClipToLayer_Legacy_SaveLayerFlag">kDontClipToLayer Legacy SaveLayerFlag</a> = kDontClipToLayer_PrivateSaveLayerFlag,
@@ -1665,6 +1666,10 @@ defining how <a href="#Layer">Layer</a> allocated by <a href="#SkCanvas_saveLaye
 ### Constants
 
 <table>
+  <tr>
+    <td><a name="SkCanvas_kIsOpaque_SaveLayerFlag"> <code><strong>SkCanvas::kIsOpaque_SaveLayerFlag </strong></code> </a></td><td>1</td><td>Creates <a href="#Layer">Layer</a> without transparency. Flag is ignored if <a href="#Layer">Layer</a> <a href="SkPaint_Reference#Paint">Paint</a> contains
+<a href="undocumented#Image_Filter">Image Filter</a> or <a href="undocumented#Color_Filter">Color Filter</a>.</td>
+  </tr>
   <tr>
     <td><a name="SkCanvas_kPreserveLCDText_SaveLayerFlag"> <code><strong>SkCanvas::kPreserveLCDText_SaveLayerFlag </strong></code> </a></td><td>2</td><td>Creates <a href="#Layer">Layer</a> for LCD text. Flag is ignored if <a href="#Layer">Layer</a> <a href="SkPaint_Reference#Paint">Paint</a> contains
 <a href="undocumented#Image_Filter">Image Filter</a> or <a href="undocumented#Color_Filter">Color Filter</a>.</td>

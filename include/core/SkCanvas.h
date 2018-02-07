@@ -605,6 +605,11 @@ public:
         defining how layer allocated by saveLayer() operates.
     */
     enum {
+        /** Creates layer without transparency. Flag is ignored if layer SkPaint contains
+            SkImageFilter or SkColorFilter.
+        */
+        kIsOpaque_SaveLayerFlag               = 1 << 0,
+
         /** Creates layer for LCD text. Flag is ignored if layer SkPaint contains
             SkImageFilter or SkColorFilter.
         */

@@ -22,6 +22,7 @@
 
 // matches old SkCanvas::SaveFlags
 enum LegacySaveFlags {
+    kHasAlphaLayer_LegacySaveFlags    = 0x04,
     kClipToLayer_LegacySaveFlags      = 0x10,
 };
 
@@ -30,6 +31,9 @@ SkCanvas::SaveLayerFlags SkCanvas::LegacySaveFlagsToSaveLayerFlags(uint32_t flag
 
     if (0 == (flags & kClipToLayer_LegacySaveFlags)) {
         layerFlags |= SkCanvas::kDontClipToLayer_PrivateSaveLayerFlag;
+    }
+    if (0 == (flags & kHasAlphaLayer_LegacySaveFlags)) {
+        layerFlags |= kIsOpaque_SaveLayerFlag;
     }
     return layerFlags;
 }
