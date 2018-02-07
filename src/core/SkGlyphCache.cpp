@@ -34,7 +34,10 @@ static SkGlyphCache_Globals& get_globals() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkGlyphCache::SkGlyphCache(const SkDescriptor* desc, std::unique_ptr<SkScalerContext> ctx)
+SkGlyphCache::SkGlyphCache(
+    const SkDescriptor* desc,
+    std::unique_ptr<SkScalerContext> ctx,
+    SkPaint::FontMetrics* fontMetrics)
     : fDesc(desc->copy())
     , fScalerContext(std::move(ctx)) {
     SkASSERT(desc);
@@ -42,7 +45,11 @@ SkGlyphCache::SkGlyphCache(const SkDescriptor* desc, std::unique_ptr<SkScalerCon
 
     fPrev = fNext = nullptr;
 
-    fScalerContext->getFontMetrics(&fFontMetrics);
+    if (fontMetrics == nullptr) {
+        fScalerContext->getFontMetrics(&fFontMetrics);
+    } else {
+        fFontMetrics = *fontMetrics;
+    }
 
     fMemoryUsed = sizeof(*this);
 }
@@ -101,6 +108,15 @@ int SkGlyphCache::countCachedGlyphs() const {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+
+bool SkGlyphCache::isGlyphIdCached(SkGlyphID glyphID, SkFixed x, SkFixed y) const {
+    SkPackedGlyphID packedGlyphID{glyphID, x, y};
+    return fGlyphMap.find(packedGlyphID) != nullptr;
+}
+
+SkGlyph* SkGlyphCache::getRawGlyphByID(SkPackedGlyphID id) {
+    return lookupByPackedGlyphID(id, kNothing_MetricsType);
+}
 
 const SkGlyph& SkGlyphCache::getUnicharAdvance(SkUnichar charCode) {
     VALIDATE();
@@ -170,7 +186,9 @@ SkGlyph* SkGlyphCache::allocateNewGlyph(SkPackedGlyphID packedGlyphID, MetricsTy
         glyphPtr = fGlyphMap.set(glyph);
     }
 
-    if (kJustAdvance_MetricsType == mtype) {
+    if (kNothing_MetricsType == mtype) {
+        return glyphPtr;
+    } else if (kJustAdvance_MetricsType == mtype) {
         fScalerContext->getAdvance(glyphPtr);
     } else {
         SkASSERT(kFull_MetricsType == mtype);
@@ -479,11 +497,13 @@ void SkGlyphCache_Globals::purgeAll() {
     - try to acquire the mutext again
     - call a fontscaler (which might call into the cache)
 */
+#include <iostream>
 SkGlyphCache* SkGlyphCache::VisitCache(SkTypeface* typeface,
                                        const SkScalerContextEffects& effects,
                                        const SkDescriptor* desc,
                                        bool (*proc)(const SkGlyphCache*, void*),
-                                       void* context) {
+                                       void* context,
+                                       SkPaint::FontMetrics* fontMetrics) {
     if (!typeface) {
         typeface = SkTypeface::GetDefaultTypeface();
     }
@@ -531,8 +551,18 @@ SkGlyphCache* SkGlyphCache::VisitCache(SkTypeface* typeface,
             ctx = typeface->createScalerContext(effects, desc, false);
             SkASSERT(ctx);
         }
-        cache = new SkGlyphCache(desc, std::move(ctx));
+        cache = new SkGlyphCache(desc, std::move(ctx), fontMetrics);
     }
+
+#if 0
+    uint32_t size;
+    SkScalerContextRec* rec2 = (SkScalerContextRec*)desc->findEntry(kRec_SkDescriptorTag, &size);
+    std::cout << std::hex << "new cache " << (intptr_t)cache
+              << " desc: " << desc->getChecksum()
+              << " desc tf: " << rec2->fFontID
+              << " typeface id :" << typeface->uniqueID() << std::endl;
+    rec2->dumpFields();
+#endif
 
     AutoValidate av(cache);
 
@@ -543,8 +573,25 @@ SkGlyphCache* SkGlyphCache::VisitCache(SkTypeface* typeface,
     return cache;
 }
 
+SkGlyphCache* SkGlyphCache::DetatchCacheOrNull(const SkDescriptor& desc) {
+    SkGlyphCache_Globals& globals = get_globals();
+    SkGlyphCache*         cache;
+    SkAutoExclusive       ac(globals.fLock);
+
+    for (cache = globals.internalGetHead(); cache != nullptr; cache = cache->fNext) {
+        if (*cache->fDesc == desc) {
+            globals.internalDetachCache(cache);
+            return cache;
+        }
+    }
+
+    return nullptr;
+}
+
 void SkGlyphCache::AttachCache(SkGlyphCache* cache) {
-    SkASSERT(cache);
+    if (cache == nullptr) {
+        return;
+    }
     SkASSERT(cache->fNext == nullptr);
 
     get_globals().attachCacheToHead(cache);

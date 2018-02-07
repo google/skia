@@ -36,6 +36,5 @@ void SkScalerContextProxy::generateFontMetrics(SkPaint::FontMetrics* metrics) {
 }
 
 SkTypefaceProxy* SkScalerContextProxy::typefaceProxy() {
-    auto up = this->getTypeface();
-    return (SkTypefaceProxy *)up;
+    return SkTypefaceProxy::DownCast(this->getTypeface());
 }
