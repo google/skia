@@ -62,6 +62,9 @@ struct SkPackedID {
     bool operator!=(const SkPackedID& that) const {
         return !(*this == that);
     }
+    bool operator<(SkPackedID that) const {
+        return this->fID < that.fID;
+    }
 
     uint32_t code() const {
         return fID & kCodeMask;
