@@ -9,6 +9,7 @@
 #define SkRemoteGlyphCache_DEFINED
 
 #include <memory>
+#include <vector>
 #include "SkData.h"
 #include "SkDescriptor.h"
 #include "SkSerialProcs.h"
@@ -25,6 +26,9 @@ public:
         desc->addEntry(kRec_SkDescriptorTag, sizeof(rec), &rec);
         SkASSERT(sizeof(fDescriptor) == desc->getLength());
     }
+
+    explicit SkScalerContextRecDescriptor(const SkDescriptor& desc)
+        : SkScalerContextRecDescriptor(extractRec(desc)) { }
 
     SkScalerContextRecDescriptor& operator=(const SkScalerContextRecDescriptor& rhs) {
         std::memcpy(&fDescriptor, &rhs.fDescriptor, rhs.desc().getLength());
@@ -47,6 +51,14 @@ public:
     }
 
 private:
+    static SkScalerContextRec extractRec(const SkDescriptor& desc) {
+        uint32_t size;
+        auto recPtr = desc.findEntry(kRec_SkDescriptorTag, &size);
+
+        SkScalerContextRec result;
+        std::memcpy(&result, recPtr, size);
+        return result;
+    }
     // The system only passes descriptors without effects. That is why it uses a fixed size
     // descriptor. storageFor is needed because some of the constructors below are private.
     template <typename T>
@@ -70,11 +82,9 @@ private:
 
     SkTHashMap<SkFontID, sk_sp<SkTypeface>> fTypefaceMap;
 
-    using DescriptorToContextMap =
-    SkTHashMap<
-    SkScalerContextRecDescriptor,
-    std::unique_ptr<SkScalerContext>,
-    SkScalerContextRecDescriptor::Hash>;
+    using DescriptorToContextMap = SkTHashMap<SkScalerContextRecDescriptor,
+                                              std::unique_ptr<SkScalerContext>,
+                                              SkScalerContextRecDescriptor::Hash>;
 
     DescriptorToContextMap fScalerContextMap;
 };
