@@ -31,6 +31,7 @@ class SkTextBlobBuilder;
 
 namespace sk_tool_utils {
 
+    const char* alphatype_name(SkAlphaType);
     const char* colortype_name(SkColorType);
 
     /**

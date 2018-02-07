@@ -6,6 +6,7 @@
  */
 
 #include "SkSurface_Base.h"
+#include "SkImageInfoPriv.h"
 #include "SkImagePriv.h"
 #include "SkCanvas.h"
 #include "SkDevice.h"
@@ -36,6 +37,9 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 
 bool SkSurfaceValidateRasterInfo(const SkImageInfo& info, size_t rowBytes) {
+    if (!SkImageInfoIsValidCommon(info)) {
+        return false;
+    }
     if (info.isEmpty()) {
         return false;
     }
