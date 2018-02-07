@@ -228,6 +228,12 @@ public:
 
     void removeAllUniqueKeys();
 
+    /**
+     * Helper function for callers who are wrapping a bitmap into an SkImage so they know whether or
+     * not that bitmap should be copied or not.
+     */
+    bool mutableBitmapsNeedCopy() const { return !SkToBool(fResourceProvider); }
+
 private:
     friend class GrAHardwareBufferImageGenerator; // for createWrapped
 
