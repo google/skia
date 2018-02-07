@@ -31,7 +31,11 @@ integer input cannot convert to <a href="undocumented#SkScalar">SkScalar</a> wit
 | --- | --- |
 | <a href="#As_Points">As Points</a> | conversion to and from <a href="#Point">Points</a> |
 | <a href="#From_Integers">From Integers</a> | set <a href="#Scalar">Scalar</a> values from integer input |
+| <a href="#Inset_Outset_Offset">Inset Outset Offset</a> | moves sides |
+| <a href="#Intersection">Intersection</a> | set to shared bounds |
+| <a href="#Join">Join</a> | set to union of bounds |
 | <a href="#Rounding">Rounding</a> | adjust to integer bounds |
+| <a href="#Sorting">Sorting</a> | orders sides |
 
 ## <a name="Member_Function"></a> Member Function
 

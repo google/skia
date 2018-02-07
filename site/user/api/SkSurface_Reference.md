@@ -28,6 +28,8 @@ of the requested dimensions are zero, then nullptr will be returned.
 | --- | --- |
 | <a href="#Miscellaneous">Miscellaneous</a> | other functions |
 | <a href="#Pixels">Pixels</a> | functions with pixel access |
+| <a href="#Property">Property</a> | member values |
+| <a href="#Utility">Utility</a> | rarely called management functions |
 
 ## <a name="Member_Function"></a> Member Function
 
@@ -65,20 +67,14 @@ of the requested dimensions are zero, then nullptr will be returned.
 | name | description |
 | --- | --- |
 | <a href="#SkSurface_MakeFromBackendRenderTarget">MakeFromBackendRenderTarget</a> | creates <a href="#Surface">Surface</a> from GPU memory buffer |
-|  | <a href="#SkSurface_MakeFromBackendRenderTarget">MakeFromBackendRenderTarget</a> |
 | <a href="#SkSurface_MakeFromBackendTexture">MakeFromBackendTexture</a> | creates <a href="#Surface">Surface</a> from GPU-backed texture |
-|  | <a href="#SkSurface_MakeFromBackendTexture">MakeFromBackendTexture</a> |
 | <a href="#SkSurface_MakeFromBackendTextureAsRenderTarget">MakeFromBackendTextureAsRenderTarget</a> | creates <a href="#Surface">Surface</a> from GPU-backed texture |
-|  | <a href="#SkSurface_MakeFromBackendTextureAsRenderTarget">MakeFromBackendTextureAsRenderTarget</a> |
 | <a href="#SkSurface_MakeNull">MakeNull</a> | creates <a href="#Surface">Surface</a> without backing pixels |
 | <a href="#SkSurface_MakeRaster">MakeRaster</a> | creates <a href="#Surface">Surface</a> from <a href="SkImageInfo_Reference#SkImageInfo">SkImageInfo</a> |
-|  | <a href="#SkSurface_MakeRaster">MakeRaster</a> |
 | <a href="#SkSurface_MakeRasterDirect">MakeRasterDirect</a> | creates <a href="#Surface">Surface</a> from <a href="SkImageInfo_Reference#SkImageInfo">SkImageInfo</a> and <a href="#Storage">Pixel Storage</a> |
 | <a href="#SkSurface_MakeRasterDirectReleaseProc">MakeRasterDirectReleaseProc</a> | creates <a href="#Surface">Surface</a> from <a href="SkImageInfo_Reference#SkImageInfo">SkImageInfo</a> and <a href="#Storage">Pixel Storage</a> |
 | <a href="#SkSurface_MakeRasterN32Premul">MakeRasterN32Premul</a> | creates <a href="#Surface">Surface</a> from width, height matching output |
 | <a href="#SkSurface_MakeRenderTarget">MakeRenderTarget</a> | creates <a href="#Surface">Surface</a> pointing to new GPU memory buffer |
-|  | <a href="#SkSurface_MakeRenderTarget">MakeRenderTarget</a> |
-|  | <a href="#SkSurface_MakeRenderTarget">MakeRenderTarget</a> |
 | <a href="#SkSurface_makeImageSnapshot">makeImageSnapshot</a> | creates <a href="SkImage_Reference#Image">Image</a> capturing <a href="#Surface">Surface</a> contents |
 | <a href="#SkSurface_makeSurface">makeSurface</a> | creates a compatible <a href="#Surface">Surface</a> |
 

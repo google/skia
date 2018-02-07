@@ -13,7 +13,6 @@ SkIRect Reference
 | <a href="#Member_Function">Member Function</a> | static functions and member methods |
 | <a href="#Member">Member</a> | member values |
 | <a href="#Operator">Operator</a> | operator overloading methods |
-| <a href="#Related_Function">Related Function</a> | similar methods grouped together |
 
 # <a name="SkIRect"></a> Struct SkIRect
 <a href="#SkIRect">SkIRect</a> holds four 32 bit integer coordinates describing the upper and
@@ -26,11 +25,6 @@ its top, it is considered empty.
 
 | name | description |
 | --- | --- |
-| <a href="#Inset_Outset_Offset">Inset Outset Offset</a> | moves sides |
-| <a href="#Intersection">Intersection</a> | set to shared bounds |
-| <a href="#Join">Join</a> | set to union of bounds |
-| <a href="#Property">Property</a> | member values, center, validity |
-| <a href="#Sorting">Sorting</a> | orders sides |
 
 ## <a name="Member_Function"></a> Member Function
 

@@ -12,6 +12,7 @@ SkIPoint16 Reference
 | <a href="#Constructor">Constructor</a> | functions that construct <a href="SkIPoint16_Reference#SkIPoint16">SkIPoint16</a> |
 | <a href="#Member_Function">Member Function</a> | static functions and member methods |
 | <a href="#Member">Member</a> | member values |
+| <a href="#Related_Function">Related Function</a> | similar methods grouped together |
 
 # <a name="SkIPoint16"></a> Struct SkIPoint16
 <a href="#SkIPoint16">SkIPoint16</a> holds two 16 bit integer coordinates.
@@ -20,6 +21,7 @@ SkIPoint16 Reference
 
 | name | description |
 | --- | --- |
+| <a href="#Set">Set</a> | replaces all values |
 
 ## <a name="Member_Function"></a> Member Function
 
