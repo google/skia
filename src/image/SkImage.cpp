@@ -215,11 +215,11 @@ sk_sp<SkImage> SkImage::MakeFromBitmap(const SkBitmap& bm) {
     return SkMakeImageFromRasterBitmap(bm, kIfMutable_SkCopyPixelsMode);
 }
 
-bool SkImage::asLegacyBitmap(SkBitmap* bitmap, LegacyBitmapMode mode) const {
-    return as_IB(this)->onAsLegacyBitmap(bitmap, mode);
+bool SkImage::asLegacyBitmap(SkBitmap* bitmap, LegacyBitmapMode ) const {
+    return as_IB(this)->onAsLegacyBitmap(bitmap);
 }
 
-bool SkImage_Base::onAsLegacyBitmap(SkBitmap* bitmap, LegacyBitmapMode mode) const {
+bool SkImage_Base::onAsLegacyBitmap(SkBitmap* bitmap) const {
     // As the base-class, all we can do is make a copy (regardless of mode).
     // Subclasses that want to be more optimal should override.
     SkImageInfo info = this->onImageInfo().makeColorType(kN32_SkColorType).makeColorSpace(nullptr);
@@ -231,9 +231,7 @@ bool SkImage_Base::onAsLegacyBitmap(SkBitmap* bitmap, LegacyBitmapMode mode) con
         return false;
     }
 
-    if (kRO_LegacyBitmapMode == mode) {
-        bitmap->setImmutable();
-    }
+    bitmap->setImmutable();
     return true;
 }
 

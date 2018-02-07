@@ -71,7 +71,7 @@ public:
 
     virtual SkData* onRefEncoded() const { return nullptr; }
 
-    virtual bool onAsLegacyBitmap(SkBitmap*, LegacyBitmapMode) const;
+    virtual bool onAsLegacyBitmap(SkBitmap*) const;
 
     // True for picture-backed and codec-backed
     virtual bool onIsLazyGenerated() const { return false; }

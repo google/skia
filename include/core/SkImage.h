@@ -583,22 +583,22 @@ public:
 
 
     // Helper functions to convert to SkBitmap
-
+    // TODO: enum LegacyBitmapMode to be deprecated; keeping enum until callers are revised to omit
+    // parameter
     enum LegacyBitmapMode {
         kRO_LegacyBitmapMode,
-        kRW_LegacyBitmapMode,
     };
 
     /**
      *  Attempt to create a bitmap with the same pixels as the image. The result will always be
      *  a raster-backed bitmap (texture-backed bitmaps are DEPRECATED, and not supported here).
      *
-     *  If the mode is kRO (read-only), the resulting bitmap will be marked as immutable.
+     *  The resulting bitmap will be marked as immutable.
      *
      *  On succcess, returns true. On failure, returns false and the bitmap parameter will be reset
      *  to empty.
      */
-    bool asLegacyBitmap(SkBitmap* bitmap, LegacyBitmapMode legacyBitmapMode) const;
+    bool asLegacyBitmap(SkBitmap* bitmap, LegacyBitmapMode legacyBitmapMode = kRO_LegacyBitmapMode) const;
 
     /**
      *  Returns true if the image is backed by an image-generator or other src that creates
