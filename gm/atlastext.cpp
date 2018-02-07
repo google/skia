@@ -82,7 +82,7 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-        if (!fRenderer) {
+        if (!fRenderer || !fTarget) {
             canvas->clear(SK_ColorRED);
             return;
         }
