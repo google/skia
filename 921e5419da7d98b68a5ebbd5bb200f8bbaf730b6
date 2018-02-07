@@ -22,6 +22,30 @@
       "revId": "921e5419da7d98b68a5ebbd5bb200f8bbaf730b6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b69239a4_2b92b7b2",
+        "filename": "include/gpu/GrContextOptions.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 147,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-02-07T21:28:07Z",
+      "side": 1,
+      "message": "I guess I was thinking that the existing allocation scheme is implicit and interleaved with the rendering process. The new one, on the other hand, explicitly considers the usage ranges.\n\nI thought about using the Enable enum but figured that, since these are going away, it wasn\u0027t worth it.",
+      "parentUuid": "0805cc3f_78e18fa3",
+      "range": {
+        "startLine": 147,
+        "startChar": 9,
+        "endLine": 147,
+        "endChar": 40
+      },
+      "revId": "921e5419da7d98b68a5ebbd5bb200f8bbaf730b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
