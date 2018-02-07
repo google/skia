@@ -54,7 +54,7 @@ public:
 struct SkGoodHash {
     template <typename K>
     SK_WHEN(sizeof(K) == 4, uint32_t) operator()(const K& k) const {
-        return SkChecksum::Mix(*(const uint32_t*)&k);
+        return SkChecksum::CheapMix(*(const uint32_t*)&k);
     }
 
     template <typename K>
