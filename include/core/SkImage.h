@@ -586,7 +586,6 @@ public:
 
     enum LegacyBitmapMode {
         kRO_LegacyBitmapMode,
-        kRW_LegacyBitmapMode,
     };
 
     /**

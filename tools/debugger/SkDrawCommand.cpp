@@ -922,11 +922,16 @@ static SkBitmap* load_bitmap(const Json::Value& jsonBitmap, UrlDataManager& urlD
 
     std::unique_ptr<SkBitmap> bitmap(new SkBitmap());
     if (nullptr != image) {
-        if (!image->asLegacyBitmap(bitmap.get(), SkImage::kRW_LegacyBitmapMode)) {
-            SkDebugf("image decode failed\n");
+        SkImageInfo info = SkImageInfo::MakeN32Premul(image->width(), image->height());
+        if (!bitmap->tryAllocPixels(info)) {
+            SkDebugf("image allocate failed\n");
             return nullptr;
         }
-
+        if (!image->readPixels(bitmap->info(), bitmap->getPixels(), bitmap->rowBytes(), 0, 0)) {
+            SkDebugf("image decode failed\n");
+            bitmap->reset();
+            return nullptr;
+        }
         if (jsonBitmap.isMember(SKDEBUGCANVAS_ATTRIBUTE_COLOR)) {
             const char* ctName = jsonBitmap[SKDEBUGCANVAS_ATTRIBUTE_COLOR].asCString();
             SkColorType ct = colortype_from_name(ctName);
