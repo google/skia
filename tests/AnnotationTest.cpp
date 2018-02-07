@@ -8,9 +8,7 @@
 #include "SkCanvas.h"
 #include "SkData.h"
 #include "SkDocument.h"
-#include "SkSVGCanvas.h"
 #include "SkStream.h"
-#include "SkXMLWriter.h"
 #include "Test.h"
 
 /** Returns true if data (may contain null characters) contains needle (null
@@ -78,41 +76,46 @@ DEF_TEST(Annotation_PdfDefineNamedDestination, reporter) {
         ContainsString(rawOutput, out->size(), "/example "));
 }
 
-DEF_TEST(Annotation_SvgLink, reporter) {
-    SkDynamicMemoryWStream outStream;
-    std::unique_ptr<SkXMLWriter> xmlWriter(new SkXMLStreamWriter(&outStream));
-    SkRect bounds = SkRect::MakeIWH(400, 400);
-    std::unique_ptr<SkCanvas> canvas = SkSVGCanvas::Make(bounds, xmlWriter.get());
+#if defined(SK_XML)
+    #include "SkSVGCanvas.h"
+    #include "SkXMLWriter.h"
 
-    SkRect r = SkRect::MakeXYWH(SkIntToScalar(72), SkIntToScalar(72), SkIntToScalar(288),
-                                SkIntToScalar(72));
-    sk_sp<SkData> data(SkData::MakeWithCString("http://www.gooogle.com"));
-    SkAnnotateRectWithURL(canvas.get(), r, data.get());
+    DEF_TEST(Annotation_SvgLink, reporter) {
+        SkDynamicMemoryWStream outStream;
+        std::unique_ptr<SkXMLWriter> xmlWriter(new SkXMLStreamWriter(&outStream));
+        SkRect bounds = SkRect::MakeIWH(400, 400);
+        std::unique_ptr<SkCanvas> canvas = SkSVGCanvas::Make(bounds, xmlWriter.get());
 
-    canvas->flush();
-    sk_sp<SkData> out = outStream.detachAsData();
-    const char* rawOutput = (const char*)out->data();
+        SkRect r = SkRect::MakeXYWH(SkIntToScalar(72), SkIntToScalar(72), SkIntToScalar(288),
+                                    SkIntToScalar(72));
+        sk_sp<SkData> data(SkData::MakeWithCString("http://www.gooogle.com"));
+        SkAnnotateRectWithURL(canvas.get(), r, data.get());
 
-    REPORTER_ASSERT(reporter,
-        ContainsString(rawOutput, out->size(), "a xlink:href=\"http://www.gooogle.com\""));
-}
+        canvas->flush();
+        sk_sp<SkData> out = outStream.detachAsData();
+        const char* rawOutput = (const char*)out->data();
 
-DEF_TEST(Annotation_SvgLinkNamedDestination, reporter) {
-    SkDynamicMemoryWStream outStream;
-    std::unique_ptr<SkXMLWriter> xmlWriter(new SkXMLStreamWriter(&outStream));
-    SkRect bounds = SkRect::MakeIWH(400, 400);
-    std::unique_ptr<SkCanvas> canvas = SkSVGCanvas::Make(bounds, xmlWriter.get());
+        REPORTER_ASSERT(reporter,
+            ContainsString(rawOutput, out->size(), "a xlink:href=\"http://www.gooogle.com\""));
+    }
 
-    SkRect r = SkRect::MakeXYWH(SkIntToScalar(72), SkIntToScalar(72), SkIntToScalar(288),
-                                SkIntToScalar(72));
-    sk_sp<SkData> data(SkData::MakeWithCString("http://www.gooogle.com/#NamedDestination"));
-    SkAnnotateLinkToDestination(canvas.get(), r, data.get());
+    DEF_TEST(Annotation_SvgLinkNamedDestination, reporter) {
+        SkDynamicMemoryWStream outStream;
+        std::unique_ptr<SkXMLWriter> xmlWriter(new SkXMLStreamWriter(&outStream));
+        SkRect bounds = SkRect::MakeIWH(400, 400);
+        std::unique_ptr<SkCanvas> canvas = SkSVGCanvas::Make(bounds, xmlWriter.get());
 
-    canvas->flush();
-    sk_sp<SkData> out = outStream.detachAsData();
-    const char* rawOutput = (const char*)out->data();
+        SkRect r = SkRect::MakeXYWH(SkIntToScalar(72), SkIntToScalar(72), SkIntToScalar(288),
+                                    SkIntToScalar(72));
+        sk_sp<SkData> data(SkData::MakeWithCString("http://www.gooogle.com/#NamedDestination"));
+        SkAnnotateLinkToDestination(canvas.get(), r, data.get());
 
-    REPORTER_ASSERT(reporter,
-                    ContainsString(rawOutput, out->size(),
-                                   "a xlink:href=\"http://www.gooogle.com/#NamedDestination\""));
-}
+        canvas->flush();
+        sk_sp<SkData> out = outStream.detachAsData();
+        const char* rawOutput = (const char*)out->data();
+
+        REPORTER_ASSERT(reporter,
+            ContainsString(rawOutput, out->size(),
+                           "a xlink:href=\"http://www.gooogle.com/#NamedDestination\""));
+    }
+#endif
