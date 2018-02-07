@@ -24,7 +24,6 @@ void SkScalerContextProxy::generateMetrics(SkGlyph* glyph) {
 }
 
 void SkScalerContextProxy::generateImage(const SkGlyph& glyph) {
-    fRemote->generateImage(*this->typefaceProxy(), this->getRec(), glyph);
 }
 
 void SkScalerContextProxy::generatePath(SkGlyphID glyphID, SkPath* path) {
@@ -32,10 +31,13 @@ void SkScalerContextProxy::generatePath(SkGlyphID glyphID, SkPath* path) {
 }
 
 void SkScalerContextProxy::generateFontMetrics(SkPaint::FontMetrics* metrics) {
-    fRemote->generateFontMetrics(*this->typefaceProxy(), this->getRec(), metrics);
+    if (!fHaveFontMetrics) {
+        fRemote->generateFontMetrics(*this->typefaceProxy(), this->getRec(), &fFontMetrics);
+    }
+    fHaveFontMetrics = true;
+    *metrics = fFontMetrics;
 }
 
 SkTypefaceProxy* SkScalerContextProxy::typefaceProxy() {
-    auto up = this->getTypeface();
-    return (SkTypefaceProxy *)up;
+    return SkTypefaceProxy::DownCast(this->getTypeface());
 }
