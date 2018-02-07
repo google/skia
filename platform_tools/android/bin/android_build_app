@@ -19,7 +19,6 @@ parser.add_argument('app_name')
 args = parser.parse_args()
 
 target_cpu = "arm64"
-android_variant = ""
 android_buildtype = "debug"
 
 if args.output_dir == None:
@@ -32,21 +31,10 @@ if os.path.exists(args_gn_path):
     if m:
       target_cpu = m.group(1)
 
-if target_cpu == "arm":
-  android_variant = "arm"
-elif target_cpu == "arm64":
-  android_variant = "arm64"
-elif target_cpu == "x86":
-  android_variant = "x86"
-elif target_cpu == "x64":
-  android_variant = "x86_64"
-else:
-  sys.exit("unknown target_cpu")
-
 # build the apk using gradle
 try:
     subprocess.check_call(['./apps/gradlew',
-      ':' + args.app_name + ':assemble' + android_variant + android_buildtype,
+      ':' + args.app_name + ':assemble' + target_cpu + android_buildtype,
       '-papps/' + args.app_name,
       '-P' + target_cpu + '.out.dir=' + os.path.abspath(args.output_dir),
       '--daemon'], cwd=os.path.join(os.path.dirname(__file__), ".."))
@@ -57,6 +45,6 @@ except subprocess.CalledProcessError as error:
 # copy apk back into the main out directory
 current_dir = os.path.dirname(__file__)
 apk_src = os.path.join(current_dir, "..", "apps", args.app_name, "build", "outputs", "apk",
-                       args.app_name + "-"  + android_variant + "-"  + android_buildtype + ".apk")
+                       args.app_name + "-"  + target_cpu + "-"  + android_buildtype + ".apk")
 apk_dst = os.path.join(args.output_dir, args.app_name + ".apk")
 shutil.copyfile(apk_src, apk_dst)

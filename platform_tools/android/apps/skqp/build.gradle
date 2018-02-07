@@ -24,6 +24,6 @@ android {
     }
     sourceSets.main.jni.srcDirs = []
     sourceSets.main.jniLibs.srcDir "src/main/libs"
-    productFlavors { arm {}; arm64 {}; x86 {}; x64 {}; arm64vulkan{}; }
+    productFlavors { universal{}; arm {}; arm64 {}; x86 {}; x64 {}; arm64vulkan{}; }
     setupSkiaLibraryBuild(project, applicationVariants, "libskqp_app")
 }
