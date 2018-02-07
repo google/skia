@@ -481,6 +481,7 @@ void SkGlyphCache_Globals::purgeAll() {
     SkAutoExclusive ac(fLock);
     this->internalPurge(fTotalMemoryUsed);
 }
+#include <iostream>
 
 SkExclusiveStrikePtr SkGlyphCache::FindStrikeExclusive(const SkDescriptor& desc) {
     SkGlyphCache_Globals& globals = get_globals();
