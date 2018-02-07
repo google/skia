@@ -282,12 +282,8 @@ bool SkImageShader::onAppendStages(const StageRec& rec) const {
     SkRasterPipeline* p = rec.fPipeline;
     SkArenaAlloc* alloc = rec.fAlloc;
 
-    auto matrix = SkMatrix::Concat(rec.fCTM, this->getLocalMatrix());
-    if (rec.fLocalM) {
-        matrix.preConcat(*rec.fLocalM);
-    }
-
-    if (!matrix.invert(&matrix)) {
+    SkMatrix matrix;
+    if (!this->computeTotalInverse(rec.fCTM, rec.fLocalM, &matrix)) {
         return false;
     }
     auto quality = rec.fPaint.getFilterQuality();
