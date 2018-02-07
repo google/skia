@@ -17,7 +17,6 @@ public:
     TopoSortBench() { }
 
     ~TopoSortBench() override {
-        sk_tool_utils::TopoTestNode::DeallocNodes(&fGraph);
     }
 
     bool isSuitableFor(Backend backend) override {
@@ -39,7 +38,7 @@ protected:
             for (int j = 0; j < numEdges; ++j) {
                 int dep = fRand.nextU() % i;
 
-                fGraph[i]->dependsOn(fGraph[dep]);
+                fGraph[i]->dependsOn(fGraph[dep].get());
             }
         }
     }
@@ -67,7 +66,7 @@ private:
     static const int kNumElements = 1000;
     static const int kMaxEdges = 5;
 
-    SkTDArray<sk_tool_utils::TopoTestNode*> fGraph;
+    SkTArray<sk_sp<sk_tool_utils::TopoTestNode>> fGraph;
     SkRandom fRand;
 
     typedef Benchmark INHERITED;
