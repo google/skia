@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0805cc3f_78e18fa3",
+        "filename": "include/gpu/GrContextOptions.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 147,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-02-07T21:19:41Z",
+      "side": 1,
+      "message": "I never really understood why this is called explicit rather than something like \"at flush\", \"late\", \"deferred\", etc.\n\nShould we use the Enable enum?",
+      "range": {
+        "startLine": 147,
+        "startChar": 9,
+        "endLine": 147,
+        "endChar": 40
+      },
+      "revId": "921e5419da7d98b68a5ebbd5bb200f8bbaf730b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
