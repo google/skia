@@ -1389,11 +1389,13 @@ are not captured. <a href="SkImage_Reference#Image">Image</a> allocation is acco
 | name | description |
 | --- | --- |
 | <a href="#SkSurface_draw">draw</a> | draws <a href="#Surface">Surface</a> contents to canvas |
-|  | draw |
+|  | <a href="#SkSurface_draw">draw(SkCanvas* canvas, SkScalar x, SkScalar y, const SkPaint* paint)</a> |
+|  | <a href="#SkSurface_draw_2">draw(SkDeferredDisplayList* deferredDisplayList)</a> |
 | <a href="#SkSurface_peekPixels">peekPixels</a> | copies <a href="#Surface">Surface</a> parameters to <a href="SkPixmap_Reference#Pixmap">Pixmap</a> |
 | <a href="#SkSurface_readPixels">readPixels</a> | copies <a href="SkRect_Reference#Rect">Rect</a> of pixels |
-|  | <a href="#SkSurface_readPixels">readPixels</a> |
-|  | <a href="#SkSurface_readPixels">readPixels</a> |
+|  | <a href="#SkSurface_readPixels">readPixels(const SkPixmap& dst, int srcX, int srcY)</a> |
+|  | <a href="#SkSurface_readPixels_2">readPixels(const SkImageInfo& dstInfo, void* dstPixels, size t dstRowBytes, int srcX, int srcY)</a> |
+|  | <a href="#SkSurface_readPixels_3">readPixels(const SkBitmap& dst, int srcX, int srcY)</a> |
 
 <a name="SkSurface_draw"></a>
 ## draw

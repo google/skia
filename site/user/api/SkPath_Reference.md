@@ -118,7 +118,10 @@ Internally, <a href="#Path">Path</a> lazily computes metrics likes bounds and co
 | <a href="#Interpolate">Interpolate</a> | weighted average of <a href="#Path">Path</a> pair |
 | <a href="#Last_Point">Last Point</a> | final <a href="SkPoint_Reference#Point">Point</a> in <a href="#Contour">Contour</a> |
 | <a href="#Point_Array">Point Array</a> | end points and control points for lines and curves |
+| <a href="#Property">Property</a> | metrics and attributes |
 | <a href="#Quad">Quad</a> | Bezier_Curve described by second-order polynomial |
+| <a href="#Transform">Transform</a> | modify all points |
+| <a href="#Utility">Utility</a> | rarely called management functions |
 | <a href="#SkPath_Verb">Verb</a> | line and curve type |
 | <a href="#Verb_Array">Verb Array</a> | line and curve type for points |
 | <a href="#Volatile">Volatile</a> | caching attribute |
@@ -1884,13 +1887,15 @@ rotated circle bounds = 14.6447, 9.64466, 85.3553, 80.3553
 | <a href="#SkPath_ConvertConicToQuads">ConvertConicToQuads</a> | approximates <a href="#Conic">Conic</a> with <a href="#Quad">Quad</a> array |
 | <a href="#SkPath_ConvertToNonInverseFillType">ConvertToNonInverseFillType</a> | returns <a href="#Fill_Type">Fill Type</a> representing inside geometry |
 | <a href="#SkPath_dump_2">dump</a> | sends text representation using floats to standard output |
-|  | dump |
+|  | <a href="#SkPath_dump">dump(SkWStream* stream, bool forceClose, bool dumpAsHex)</a> const |
+|  | <a href="#SkPath_dump_2">dump</a> const |
 | <a href="#SkPath_dumpHex">dumpHex</a> | sends text representation using hexadecimal to standard output |
 | <a href="#SkPath_getSegmentMasks">getSegmentMasks</a> | returns types in <a href="#Verb_Array">Verb Array</a> |
 | <a href="#SkPath_incReserve">incReserve</a> | reserves space for additional data |
 | <a href="#SkPath_readFromMemory">readFromMemory</a> | Initializes from buffer |
 | <a href="#SkPath_serialize">serialize</a> | copies data to buffer |
 | <a href="#SkPath_setLastPt">setLastPt</a> | replaces <a href="#Last_Point">Last Point</a> |
+|  | <a href="#SkPath_setLastPt">setLastPt(SkScalar x, SkScalar y)</a> |
 | <a href="#SkPath_updateBoundsCache">updateBoundsCache</a> | refreshes result of <a href="#SkPath_getBounds">getBounds</a> |
 | <a href="#SkPath_writeToMemory">writeToMemory</a> | copies data to buffer |
 
@@ -2044,25 +2049,34 @@ number of additional <a href="#Point">Points</a> to allocate</td>
 | <a href="#SkPath_addArc">addArc</a> | adds one <a href="#Contour">Contour</a> containing <a href="#Arc">Arc</a> |
 | <a href="#SkPath_addCircle">addCircle</a> | adds one <a href="#Contour">Contour</a> containing <a href="undocumented#Circle">Circle</a> |
 | <a href="#SkPath_addOval">addOval</a> | adds one <a href="#Contour">Contour</a> containing <a href="undocumented#Oval">Oval</a> |
-|  | <a href="#SkPath_addOval">addOval</a> |
+|  | <a href="#SkPath_addOval">addOval(const SkRect& oval, Direction dir = kCW Direction)</a> |
+|  | <a href="#SkPath_addOval_2">addOval(const SkRect& oval, Direction dir, unsigned start)</a> |
 | <a href="#SkPath_addPath">addPath</a> | adds contents of <a href="#Path">Path</a> |
-|  | <a href="#SkPath_addPath">addPath</a> |
-|  | <a href="#SkPath_addPath">addPath</a> |
+|  | <a href="#SkPath_addPath">addPath(const SkPath& src, SkScalar dx, SkScalar dy, AddPathMode mode = kAppend AddPathMode)</a> |
+|  | <a href="#SkPath_addPath_2">addPath(const SkPath& src, AddPathMode mode = kAppend AddPathMode)</a> |
+|  | <a href="#SkPath_addPath_3">addPath(const SkPath& src, const SkMatrix& matrix, AddPathMode mode = kAppend AddPathMode)</a> |
 | <a href="#SkPath_addPoly">addPoly</a> | adds one <a href="#Contour">Contour</a> containing connected lines |
 | <a href="#SkPath_addRRect">addRRect</a> | adds one <a href="#Contour">Contour</a> containing <a href="undocumented#Round_Rect">Round Rect</a> |
-|  | <a href="#SkPath_addRRect">addRRect</a> |
+|  | <a href="#SkPath_addRRect">addRRect(const SkRRect& rrect, Direction dir = kCW Direction)</a> |
+|  | <a href="#SkPath_addRRect_2">addRRect(const SkRRect& rrect, Direction dir, unsigned start)</a> |
 | <a href="#SkPath_addRect">addRect</a> | adds one <a href="#Contour">Contour</a> containing <a href="SkRect_Reference#Rect">Rect</a> |
-|  | <a href="#SkPath_addRect">addRect</a> |
-|  | <a href="#SkPath_addRect">addRect</a> |
+|  | <a href="#SkPath_addRect">addRect(const SkRect& rect, Direction dir = kCW Direction)</a> |
+|  | <a href="#SkPath_addRect_2">addRect(const SkRect& rect, Direction dir, unsigned start)</a> |
+|  | <a href="#SkPath_addRect_3">addRect(SkScalar left, SkScalar top, SkScalar right, SkScalar bottom, Direction dir = kCW Direction)</a> |
 | <a href="#SkPath_addRoundRect">addRoundRect</a> | adds one <a href="#Contour">Contour</a> containing <a href="undocumented#Round_Rect">Round Rect</a> with common corner radii |
-|  | <a href="#SkPath_addRoundRect">addRoundRect</a> |
+|  | <a href="#SkPath_addRoundRect">addRoundRect(const SkRect& rect, SkScalar rx, SkScalar ry, Direction dir = kCW Direction)</a> |
+|  | <a href="#SkPath_addRoundRect_2">addRoundRect(const SkRect& rect, const SkScalar radii[], Direction dir = kCW Direction)</a> |
 | <a href="#SkPath_arcTo">arcTo</a> | appends <a href="#Arc">Arc</a> |
+|  | <a href="#SkPath_arcTo">arcTo(const SkRect& oval, SkScalar startAngle, SkScalar sweepAngle, bool forceMoveTo)</a> |
 | <a href="#SkPath_close">close</a> | makes last <a href="#Contour">Contour</a> a loop |
 | <a href="#SkPath_cubicTo">cubicTo</a> | appends <a href="#Cubic">Cubic</a> |
+|  | <a href="#SkPath_cubicTo">cubicTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2, SkScalar x3, SkScalar y3)</a> |
 | <a href="#SkPath_lineTo">lineTo</a> | appends <a href="undocumented#Line">Line</a> |
-|  | <a href="#SkPath_lineTo">lineTo</a> |
+|  | <a href="#SkPath_lineTo">lineTo(SkScalar x, SkScalar y)</a> |
+|  | <a href="#SkPath_lineTo_2">lineTo(const SkPoint& p)</a> |
 | <a href="#SkPath_moveTo">moveTo</a> | starts <a href="#Contour">Contour</a> |
-|  | <a href="#SkPath_moveTo">moveTo</a> |
+|  | <a href="#SkPath_moveTo">moveTo(SkScalar x, SkScalar y)</a> |
+|  | <a href="#SkPath_moveTo_2">moveTo(const SkPoint& p)</a> |
 | <a href="#SkPath_rArcTo">rArcTo</a> | appends <a href="#Arc">Arc</a> relative to <a href="#Last_Point">Last Point</a> |
 | <a href="#SkPath_rConicTo">rConicTo</a> | appends <a href="#Conic">Conic</a> relative to <a href="#Last_Point">Last Point</a> |
 | <a href="#SkPath_rCubicTo">rCubicTo</a> | appends <a href="#Cubic">Cubic</a> relative to <a href="#Last_Point">Last Point</a> |
@@ -2250,7 +2264,8 @@ offset from <a href="#Last_Point">Last Point</a> y to <a href="undocumented#Line
 
 ---
 
-# <a name="Quad"></a> Quad
+## <a name="Quad"></a> Quad
+
 <a href="#Quad">Quad</a> describes a quadratic Bezier, a second-order curve identical to a section
 of a parabola. <a href="#Quad">Quad</a> begins at a start <a href="SkPoint_Reference#Point">Point</a>, curves towards a control <a href="SkPoint_Reference#Point">Point</a>,
 and then curves to an end <a href="SkPoint_Reference#Point">Point</a>.
@@ -2381,7 +2396,8 @@ offset from <a href="#Last_Point">Last Point</a> x to <a href="#Quad">Quad</a> e
 
 ---
 
-# <a name="Conic"></a> Conic
+## <a name="Conic"></a> Conic
+
 <a href="#Conic">Conic</a> describes a conical section: a piece of an ellipse, or a piece of a
 parabola, or a piece of a hyperbola. <a href="#Conic">Conic</a> begins at a start <a href="SkPoint_Reference#Point">Point</a>,
 curves towards a control <a href="SkPoint_Reference#Point">Point</a>, and then curves to an end <a href="SkPoint_Reference#Point">Point</a>. The influence
@@ -2586,7 +2602,8 @@ weight of added <a href="#Conic">Conic</a></td>
 
 ---
 
-# <a name="Cubic"></a> Cubic
+## <a name="Cubic"></a> Cubic
+
 <a href="#Cubic">Cubic</a> describes a Bezier_Curve segment described by a third-order polynomial.
 <a href="#Cubic">Cubic</a> begins at a start <a href="SkPoint_Reference#Point">Point</a>, curving towards the first control <a href="SkPoint_Reference#Point">Point</a>;
 and curves from the end <a href="SkPoint_Reference#Point">Point</a> towards the second control <a href="SkPoint_Reference#Point">Point</a>.
@@ -4063,9 +4080,11 @@ overwritten, translated copy of <a href="#Path">Path</a>; may be nullptr</td>
 | name | description |
 | --- | --- |
 | <a href="#SkPath_offset">offset</a> | translates <a href="#Point_Array">Point Array</a> |
-|  | offset |
+|  | <a href="#SkPath_offset">offset(SkScalar dx, SkScalar dy, SkPath* dst)</a> const |
+|  | <a href="#SkPath_offset_2">offset(SkScalar dx, SkScalar dy)</a> |
 | <a href="#SkPath_transform">transform</a> | applies <a href="SkMatrix_Reference#Matrix">Matrix</a> to <a href="#Point_Array">Point Array</a> and <a href="#Weight">Weights</a> |
-|  | transform |
+|  | <a href="#SkPath_transform">transform(const SkMatrix& matrix, SkPath* dst)</a> const |
+|  | <a href="#SkPath_transform_2">transform(const SkMatrix& matrix)</a> |
 
 <a name="SkPath_offset_2"></a>
 
@@ -4628,7 +4647,8 @@ length = 68; returned by readFromMemory = 64
 
 ---
 
-# <a name="Generation_ID"></a> Generation ID
+## <a name="Generation_ID"></a> Generation ID
+
 <a href="#Generation_ID">Generation ID</a> provides a quick way to check if <a href="#Verb_Array">Verb Array</a>, <a href="#Point_Array">Point Array</a>, or
 <a href="#Conic_Weight">Conic Weight</a> has changed. <a href="#Generation_ID">Generation ID</a> is not a hash; identical <a href="#Path">Paths</a> will
 not necessarily have matching <a href="SkPath_Reference#Generation_ID">Generation IDs</a>.
