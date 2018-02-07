@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a57da107_bd97fbeb",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 588,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-02-07T18:35:15Z",
+      "side": 1,
+      "message": "We should be able to also drop this enum value, after updating all clients.  Maybe add a TODO?",
+      "revId": "45bcc9b011a078c8a68c1bead4431482cf74873d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
