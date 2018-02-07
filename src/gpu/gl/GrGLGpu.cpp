@@ -662,7 +662,7 @@ sk_sp<GrRenderTarget> GrGLGpu::onWrapBackendTextureAsRenderTarget(const GrBacken
 
 bool GrGLGpu::onGetWritePixelsInfo(GrSurface* dstSurface, GrSurfaceOrigin dstOrigin,
                                    int width, int height,
-                                   GrPixelConfig srcConfig,
+                                   GrColorType srcColorType,
                                    DrawPreference* drawPreference,
                                    WritePixelTempDrawInfo* tempDrawInfo) {
     if (SkToBool(dstSurface->asRenderTarget())) {
@@ -700,12 +700,12 @@ bool GrGLGpu::onGetWritePixelsInfo(GrSurface* dstSurface, GrSurfaceOrigin dstOri
 
     // Start off assuming no swizzling
     tempDrawInfo->fSwizzle = GrSwizzle::RGBA();
-    tempDrawInfo->fWriteConfig = srcConfig;
+    tempDrawInfo->fWriteConfig = srcColorType;
 
     // These settings we will always want if a temp draw is performed. Initially set the config
     // to srcConfig, though that may be modified if we decide to do a R/G swap.
     tempDrawInfo->fTempSurfaceDesc.fFlags = kNone_GrSurfaceFlags;
-    tempDrawInfo->fTempSurfaceDesc.fConfig = srcConfig;
+    tempDrawInfo->fTempSurfaceDesc.fConfig = srcColorType;
     tempDrawInfo->fTempSurfaceDesc.fWidth = width;
     tempDrawInfo->fTempSurfaceDesc.fHeight = height;
     tempDrawInfo->fTempSurfaceDesc.fSampleCnt = 1;
@@ -2183,7 +2183,7 @@ static bool requires_srgb_conversion(GrPixelConfig a, GrPixelConfig b) {
 
 bool GrGLGpu::onGetReadPixelsInfo(GrSurface* srcSurface, GrSurfaceOrigin srcOrigin,
                                   int width, int height, size_t rowBytes,
-                                  GrPixelConfig readConfig, DrawPreference* drawPreference,
+                                  GrColorType readColorType, DrawPreference* drawPreference,
                                   ReadPixelTempDrawInfo* tempDrawInfo) {
     GrPixelConfig srcConfig = srcSurface->config();
 
@@ -2302,7 +2302,7 @@ bool GrGLGpu::onGetReadPixelsInfo(GrSurface* srcSurface, GrSurfaceOrigin srcOrig
 bool GrGLGpu::onReadPixels(GrSurface* surface, GrSurfaceOrigin origin,
                            int left, int top,
                            int width, int height,
-                           GrPixelConfig config,
+                           GrColorType colorType,
                            void* buffer,
                            size_t rowBytes) {
     SkASSERT(surface);

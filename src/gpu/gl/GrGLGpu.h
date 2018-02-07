@@ -65,12 +65,12 @@ public:
 
     bool onGetReadPixelsInfo(GrSurface* srcSurface, GrSurfaceOrigin srcOrigin,
                              int readWidth, int readHeight, size_t rowBytes,
-                             GrPixelConfig readConfig, DrawPreference*,
+                             GrColorType readColorType, DrawPreference*,
                              ReadPixelTempDrawInfo*) override;
 
     bool onGetWritePixelsInfo(GrSurface* dstSurface, GrSurfaceOrigin dstOrigin,
                               int width, int height,
-                              GrPixelConfig srcConfig, DrawPreference*,
+                              GrColorType srcColorType, DrawPreference*,
                               WritePixelTempDrawInfo*) override;
 
     // These functions should be used to bind GL objects. They track the GL state and skip redundant
@@ -243,18 +243,18 @@ private:
     bool onReadPixels(GrSurface*, GrSurfaceOrigin,
                       int left, int top,
                       int width, int height,
-                      GrPixelConfig,
+                      GrColorType,
                       void* buffer,
                       size_t rowBytes) override;
 
     bool onWritePixels(GrSurface*, GrSurfaceOrigin,
                        int left, int top, int width, int height,
-                       GrPixelConfig config,
+                       GrColorType,
                        const GrMipLevel texels[], int mipLevelCount) override;
 
     bool onTransferPixels(GrTexture*,
                           int left, int top, int width, int height,
-                          GrPixelConfig config, GrBuffer* transferBuffer,
+                          GrColorType, GrBuffer* transferBuffer,
                           size_t offset, size_t rowBytes) override;
 
     // Before calling any variation of TexImage, TexSubImage, etc..., call this to ensure that the

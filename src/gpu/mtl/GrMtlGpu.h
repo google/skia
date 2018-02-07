@@ -33,12 +33,12 @@ public:
 
     bool onGetReadPixelsInfo(GrSurface* srcSurface, GrSurfaceOrigin origin,
                              int readWidth, int readHeight, size_t rowBytes,
-                             GrPixelConfig readConfig, DrawPreference*,
+                             GrColorType readConfig, DrawPreference*,
                              ReadPixelTempDrawInfo*) override { return false; }
 
     bool onGetWritePixelsInfo(GrSurface* dstSurface, GrSurfaceOrigin dstOrigin,
                               int width, int height,
-                              GrPixelConfig srcConfig, DrawPreference*,
+                              GrColorType srcColorType, DrawPreference*,
                               WritePixelTempDrawInfo*) override { return false; }
 
     bool onCopySurface(GrSurface* dst, GrSurfaceOrigin dstOrigin,
@@ -110,7 +110,7 @@ private:
 
     bool onReadPixels(GrSurface* surface, GrSurfaceOrigin,
                       int left, int top, int width, int height,
-                      GrPixelConfig,
+                      GrColorType,
                       void* buffer,
                       size_t rowBytes) override {
         return false;
@@ -118,7 +118,7 @@ private:
 
     bool onWritePixels(GrSurface* surface, GrSurfaceOrigin,
                        int left, int top, int width, int height,
-                       GrPixelConfig config,
+                       GrColorType,
                        const GrMipLevel texels[], int mipLevelCount) override {
         return false;
     }

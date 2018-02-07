@@ -22,7 +22,7 @@ public:
 
     bool onGetReadPixelsInfo(GrSurface* srcSurface, GrSurfaceOrigin srcOrigin,
                              int readWidth, int readHeight, size_t rowBytes,
-                             GrPixelConfig readConfig, DrawPreference*,
+                             GrColorType readColorType, DrawPreference*,
                              ReadPixelTempDrawInfo*) override {
         SkASSERT(0);
         return true;
@@ -30,7 +30,7 @@ public:
 
     bool onGetWritePixelsInfo(GrSurface* dstSurface, GrSurfaceOrigin dstOrigin,
                               int width, int height,
-                              GrPixelConfig srcConfig, DrawPreference*,
+                              GrColorType srcColorType, DrawPreference*,
                               WritePixelTempDrawInfo*) override {
         SkASSERT(0);
         return true;
@@ -129,7 +129,7 @@ private:
 
     bool onReadPixels(GrSurface* surface, GrSurfaceOrigin,
                       int left, int top, int width, int height,
-                      GrPixelConfig,
+                      GrColorType,
                       void* buffer,
                       size_t rowBytes) override {
         SkASSERT(0);
@@ -138,7 +138,7 @@ private:
 
     bool onWritePixels(GrSurface* surface, GrSurfaceOrigin,
                        int left, int top, int width, int height,
-                       GrPixelConfig config,
+                       GrColorType,
                        const GrMipLevel texels[], int mipLevelCount) override {
         SkASSERT(0);
         return true;
@@ -146,7 +146,7 @@ private:
 
     bool onTransferPixels(GrTexture* texture,
                           int left, int top, int width, int height,
-                          GrPixelConfig config, GrBuffer* transferBuffer,
+                          GrColorType config, GrBuffer* transferBuffer,
                           size_t offset, size_t rowBytes) override {
         SkASSERT(0);
         return true;

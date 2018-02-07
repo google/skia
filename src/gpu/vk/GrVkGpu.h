@@ -66,12 +66,12 @@ public:
 
     bool onGetReadPixelsInfo(GrSurface* srcSurface, GrSurfaceOrigin srcOrigin,
                              int readWidth, int readHeight, size_t rowBytes,
-                             GrPixelConfig readConfig, DrawPreference*,
+                             GrColorType readColorType, DrawPreference*,
                              ReadPixelTempDrawInfo*) override;
 
     bool onGetWritePixelsInfo(GrSurface* dstSurface, GrSurfaceOrigin dstOrigin,
                               int width, int height,
-                              GrPixelConfig srcConfig, DrawPreference*,
+                              GrColorType srcColorType, DrawPreference*,
                               WritePixelTempDrawInfo*) override;
 
     bool onCopySurface(GrSurface* dst, GrSurfaceOrigin dstOrigin,
@@ -195,17 +195,17 @@ private:
 
     bool onReadPixels(GrSurface* surface, GrSurfaceOrigin,
                       int left, int top, int width, int height,
-                      GrPixelConfig,
+                      GrColorType,
                       void* buffer,
                       size_t rowBytes) override;
 
     bool onWritePixels(GrSurface* surface, GrSurfaceOrigin,
                        int left, int top, int width, int height,
-                       GrPixelConfig config, const GrMipLevel texels[], int mipLevelCount) override;
+                       GrColorType, const GrMipLevel texels[], int mipLevelCount) override;
 
     bool onTransferPixels(GrTexture*,
                           int left, int top, int width, int height,
-                          GrPixelConfig config, GrBuffer* transferBuffer,
+                          GrColorType, GrBuffer* transferBuffer,
                           size_t offset, size_t rowBytes) override;
 
     void onFinishFlush(bool insertedSemaphores) override;

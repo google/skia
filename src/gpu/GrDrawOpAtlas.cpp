@@ -120,8 +120,11 @@ void GrDrawOpAtlas::Plot::uploadToTexture(GrDeferredTextureUploadWritePixelsFn& 
     const unsigned char* dataPtr = fData;
     dataPtr += rowBytes * fDirtyRect.fTop;
     dataPtr += fBytesPerPixel * fDirtyRect.fLeft;
+    // TODO: Make GrDrawOpAtlas store a GrColorType rather than GrPixelConfig.
+    GrSRGBEncoded srgb;
+    auto colorType = GrPixelConfigToColorTypeAndGamma(fConfig, &srgb);
     writePixels(proxy, fOffset.fX + fDirtyRect.fLeft, fOffset.fY + fDirtyRect.fTop,
-                fDirtyRect.width(), fDirtyRect.height(), fConfig, dataPtr, rowBytes);
+                fDirtyRect.width(), fDirtyRect.height(), colorType, srgb, dataPtr, rowBytes);
     fDirtyRect.setEmpty();
     SkDEBUGCODE(fDirty = false;)
 }

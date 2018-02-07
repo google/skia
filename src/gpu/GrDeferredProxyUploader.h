@@ -55,11 +55,15 @@ public:
 
         auto uploadMask = [this, proxy](GrDeferredTextureUploadWritePixelsFn& writePixelsFn) {
             this->wait();
+            GrColorType pixelColorType = SkColorTypeToGrColorType(this->fPixels.info().colorType());
+            GrSRGBEncoded pixelSRGBEncoded = this->fPixels.colorSpace() &&
+                                             this->fPixels.colorSpace()->isSRGB() ? GrSRGBEncoded ::kYes : GrSRGBEncoded ::kNo;
             // If the worker thread was unable to allocate pixels, this check will fail, and we'll
             // end up drawing with an uninitialized mask texture, but at least we won't crash.
             if (this->fPixels.addr()) {
                 writePixelsFn(proxy, 0, 0, this->fPixels.width(), this->fPixels.height(),
-                              proxy->config(), this->fPixels.addr(), this->fPixels.rowBytes());
+                              pixelColorType, pixelSRGBEncoded, this->fPixels.addr(),
+                              this->fPixels.rowBytes());
             }
             // Upload has finished, so tell the proxy to release this GrDeferredProxyUploader
             proxy->texPriv().resetDeferredUploader();
