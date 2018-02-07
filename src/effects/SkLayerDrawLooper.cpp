@@ -172,19 +172,27 @@ bool SkLayerDrawLooper::asABlurShadow(BlurShadowRec* bsRec) const {
     const Rec* rec = fRecs;
 
     // bottom layer needs to be just blur(maskfilter)
-    if ((rec->fInfo.fPaintBits & ~kMaskFilter_Bit)) {
+    if ((rec->fInfo.fPaintBits & ~(kMaskFilter_Bit | kColorFilter_Bit))) {
         return false;
     }
     if (SkBlendMode::kSrc != (SkBlendMode)rec->fInfo.fColorMode) {
         return false;
     }
-    const SkMaskFilter* mf = rec->fPaint.getMaskFilter();
-    if (nullptr == mf) {
-        return false;
-    }
+
     SkMaskFilterBase::BlurRec maskBlur;
-    if (!as_MFB(mf)->asABlur(&maskBlur)) {
-        return false;
+    if (const SkMaskFilter* mf = rec->fPaint.getMaskFilter()) {
+        if (!as_MFB(mf)->asABlur(&maskBlur)) {
+            return false;
+        }
+    } else {
+        maskBlur.fSigma   = 0;
+        maskBlur.fQuality = (SkBlurQuality)0;
+        maskBlur.fStyle   = (SkBlurStyle)0;
+    }
+
+    SkColor bottom_color = fRecs->fPaint.getColor();
+    if (auto cf = fRecs->fPaint.getColorFilter()) {
+        bottom_color = cf->filterColor(bottom_color);
     }
 
     rec = rec->fNext;
@@ -202,7 +210,7 @@ bool SkLayerDrawLooper::asABlurShadow(BlurShadowRec* bsRec) const {
     if (bsRec) {
         bsRec->fSigma = maskBlur.fSigma;
         bsRec->fOffset = fRecs->fInfo.fOffset;
-        bsRec->fColor = fRecs->fPaint.getColor();
+        bsRec->fColor = bottom_color;
         bsRec->fStyle = maskBlur.fStyle;
         bsRec->fQuality = maskBlur.fQuality;
     }
