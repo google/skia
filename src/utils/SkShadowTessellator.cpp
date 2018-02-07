@@ -384,7 +384,9 @@ SkAmbientShadowTessellator::SkAmbientShadowTessellator(const SkPath& path,
     // make sure we're not below the canvas plane
     this->setZOffset(path.getBounds(), ctm.hasPerspective());
 
-    this->setTransformedHeightFunc(ctm);
+    if (!this->setTransformedHeightFunc(ctm)) {
+        return;
+    }
 
     // Outer ring: 3*numPts
     // Middle ring: numPts
@@ -828,7 +830,9 @@ SkSpotShadowTessellator::SkSpotShadowTessellator(const SkPath& path, const SkMat
     SkMatrix fullTransform = SkMatrix::Concat(shadowTransform, ctm);
 
     // Set up our reverse mapping
-    this->setTransformedHeightFunc(fullTransform);
+    if (!this->setTransformedHeightFunc(fullTransform)) {
+        return;
+    }
 
     // TODO: calculate these reserves better
     // Penumbra ring: 3*numPts
