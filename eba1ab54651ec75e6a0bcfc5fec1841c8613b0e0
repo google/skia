@@ -22,6 +22,30 @@
       "revId": "eba1ab54651ec75e6a0bcfc5fec1841c8613b0e0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1f2ef9c3_1b2769b1",
+        "filename": "tools/debugger/SkDrawCommand.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 925,
+      "author": {
+        "id": 6190
+      },
+      "writtenOn": "2018-02-07T20:54:42Z",
+      "side": 0,
+      "message": "I agree. I misread the code below and thought that the bitmap was modified afterwards.",
+      "parentUuid": "9f0a3697_39c1c662",
+      "range": {
+        "startLine": 925,
+        "startChar": 49,
+        "endLine": 925,
+        "endChar": 78
+      },
+      "revId": "eba1ab54651ec75e6a0bcfc5fec1841c8613b0e0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }

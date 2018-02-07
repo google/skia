@@ -16,6 +16,24 @@
       "revId": "45bcc9b011a078c8a68c1bead4431482cf74873d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b426b039_dad9bf59",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 588,
+      "author": {
+        "id": 6190
+      },
+      "writtenOn": "2018-02-07T20:54:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a57da107_bd97fbeb",
+      "revId": "45bcc9b011a078c8a68c1bead4431482cf74873d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
