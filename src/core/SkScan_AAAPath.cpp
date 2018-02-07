@@ -975,7 +975,8 @@ static inline bool isSmoothEnough(SkAnalyticEdge* leftE, SkAnalyticEdge* riteE,
     if (nextCurrE->fUpperY >= stop_y << 16) { // Check if we're at the end
         return false;
     }
-    if (*nextCurrE < *currE) {
+    // Ensure that currE is the next left edge and nextCurrE is the next right edge. Swap if not.
+    if (nextCurrE->fUpperX < currE->fUpperX) {
         SkTSwap(currE, nextCurrE);
     }
     return isSmoothEnough(leftE, currE, stop_y) && isSmoothEnough(riteE, nextCurrE, stop_y);
