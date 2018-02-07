@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "6b71545b_6f58d534",
+        "filename": "src/gpu/GrProxyProvider.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-02-07T15:23:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6f58f959_b92fbed8",
+      "revId": "f351f284c8ec59485e3be40ba8d37c5fb3cd6370",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2667cd77_084fbd4f",
         "filename": "src/gpu/GrProxyProvider.cpp",
         "patchSetId": 2
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "fce4b095_a38dd4c2",
+        "filename": "src/gpu/GrProxyProvider.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 355,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-02-07T15:23:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2667cd77_084fbd4f",
+      "revId": "f351f284c8ec59485e3be40ba8d37c5fb3cd6370",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f9c69139_abb22bba",
         "filename": "src/gpu/GrProxyProvider.cpp",
         "patchSetId": 2
@@ -47,6 +83,24 @@
       "writtenOn": "2018-02-07T14:31:07Z",
       "side": 1,
       "message": "In the spirit of pulling cpu-side work forward to record time for DDLs we should probably have a TODO to do this work in the body of createMipMapProxyFromBitmap rather than at instantiation time.",
+      "revId": "f351f284c8ec59485e3be40ba8d37c5fb3cd6370",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f695b73f_17be368a",
+        "filename": "src/gpu/GrProxyProvider.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 376,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-02-07T15:23:47Z",
+      "side": 1,
+      "message": "The actual mip generation is don\u0027t outside the instantiation callback above. Here we are just moving points to the data from Sk types to Gr types. I\u0027ve added a todo to just use the SkMipMaps throughout Ganesh so this conversion isn\u0027t needed.",
+      "parentUuid": "f9c69139_abb22bba",
       "revId": "f351f284c8ec59485e3be40ba8d37c5fb3cd6370",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -70,6 +124,24 @@
     },
     {
       "key": {
+        "uuid": "f5220d21_c8e68046",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 631,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-02-07T15:23:47Z",
+      "side": 1,
+      "message": "Yes looks like you\u0027re right given we do the MakeRasterCopy above. Removed immutable",
+      "parentUuid": "39e22732_9abf3aaa",
+      "revId": "f351f284c8ec59485e3be40ba8d37c5fb3cd6370",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "62637813_66587f5e",
         "filename": "src/image/SkImage_Lazy.cpp",
         "patchSetId": 2
@@ -81,6 +153,24 @@
       "writtenOn": "2018-02-07T14:31:07Z",
       "side": 1,
       "message": "I think this would have to be done in the lockAsBitmap method\u003e",
+      "revId": "f351f284c8ec59485e3be40ba8d37c5fb3cd6370",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cd17dc4a_8b3f882d",
+        "filename": "src/image/SkImage_Lazy.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 833,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-02-07T15:23:47Z",
+      "side": 1,
+      "message": "Remvoed assert",
+      "parentUuid": "62637813_66587f5e",
       "revId": "f351f284c8ec59485e3be40ba8d37c5fb3cd6370",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
