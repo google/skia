@@ -75,9 +75,6 @@ sk_sp<SkSpecialImage> SkTileImageFilter::onFilterImage(SkSpecialImage* source,
     sk_sp<SkImage> subset;
     if (inputBounds.contains(srcIRect)) {
         subset = input->asImage(&srcIRect);
-        if (!subset) {
-            return nullptr;
-        }
     } else {
         sk_sp<SkSurface> surf(input->makeTightSurface(ctx.outputProperties(), srcIRect.size()));
         if (!surf) {
@@ -95,6 +92,9 @@ sk_sp<SkSpecialImage> SkTileImageFilter::onFilterImage(SkSpecialImage* source,
                     &paint);
 
         subset = surf->makeImageSnapshot();
+    }
+    if (!subset) {
+        return nullptr;
     }
     SkASSERT(subset->width() == srcIRect.width());
     SkASSERT(subset->height() == srcIRect.height());
