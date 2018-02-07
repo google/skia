@@ -66,8 +66,11 @@ int GrCCCoverageProcessor::Shader::DefineSoftSampleLocations(GrGLSLPPFragmentBui
 
 void GrCCCoverageProcessor::getGLSLProcessorKey(const GrShaderCaps&,
                                                 GrProcessorKeyBuilder* b) const {
-    int key = (int)fRenderPass << 1;
-    if (Impl::kGeometryShader == fImpl) {
+    int key = (int)fRenderPass << 2;
+    if (WindMethod::kInstanceData == fWindMethod) {
+        key |= 2;
+    }
+    if (Impl::kVertexShader == fImpl) {
         key |= 1;
     }
 #ifdef SK_DEBUG
