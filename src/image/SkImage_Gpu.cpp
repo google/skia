@@ -622,6 +622,13 @@ sk_sp<SkImage> SkImage::MakeCrossContextFromPixmap(GrContext* context, const SkP
         return SkImage::MakeRasterCopy(pixmap);
     }
 
+    // If we don't have access to the resource provider and gpu (i.e. in a DDL context) we will not
+    // be able to make everything needed for a GPU CrossContext image. Thus return a raster copy
+    // instead.
+    if (!context->contextPriv().resourceProvider()) {
+        return SkImage::MakeRasterCopy(pixmap);
+    }
+
     GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
     // Turn the pixmap into a GrTextureProxy
     sk_sp<GrTextureProxy> proxy;
