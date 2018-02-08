@@ -149,7 +149,8 @@ void GrTextureProxy::validateLazySurface(const GrSurface* surface) {
 
     // Anything that is checked here should be duplicated in GrTextureRenderTargetProxy's version
     SkASSERT(surface->asTexture());
-    SkASSERT(surface->asTexture()->texturePriv().mipMapped() == this->mipMapped());
+    SkASSERT(GrMipMapped::kNo == this->mipMapped() ||
+             GrMipMapped::kYes == surface->asTexture()->texturePriv().mipMapped());
 }
 #endif
 
