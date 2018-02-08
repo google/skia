@@ -36,10 +36,11 @@ GrRenderTargetProxy::GrRenderTargetProxy(const GrCaps& caps, const GrSurfaceDesc
 
 // Lazy-callback version
 GrRenderTargetProxy::GrRenderTargetProxy(LazyInstantiateCallback&& callback,
+                                         LazyInstantiationType lazyType,
                                          const GrSurfaceDesc& desc,
                                          SkBackingFit fit, SkBudgeted budgeted,
                                          uint32_t flags)
-        : INHERITED(std::move(callback), desc, fit, budgeted, flags)
+        : INHERITED(std::move(callback), lazyType, desc, fit, budgeted, flags)
         , fSampleCnt(desc.fSampleCnt)
         , fNeedsStencil(false)
         , fRenderTargetFlags(GrRenderTargetFlags::kNone) {
