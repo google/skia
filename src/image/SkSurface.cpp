@@ -184,6 +184,17 @@ bool SkSurface::readPixels(const SkBitmap& bitmap, int srcX, int srcY) {
     return bitmap.peekPixels(&pm) && this->readPixels(pm, srcX, srcY);
 }
 
+void SkSurface::writePixels(const SkPixmap& src, int x, int y) {
+    asSB(this)->onWritePixels(src, x, y);
+}
+
+void SkSurface::writePixels(const SkBitmap& src, int x, int y) {
+    SkPixmap pm;
+    if (src.peekPixels(&pm)) {
+        this->writePixels(pm, x, y);
+    }
+}
+
 GrBackendObject SkSurface::getTextureHandle(BackendHandleAccess access) {
     return asSB(this)->onGetTextureHandle(access);
 }
@@ -232,6 +243,7 @@ protected:
         return MakeNull(info.width(), info.height());
     }
     sk_sp<SkImage> onNewImageSnapshot() override { return nullptr; }
+    void onWritePixels(const SkPixmap&, int x, int y) override {}
     void onDraw(SkCanvas*, SkScalar x, SkScalar y, const SkPaint*) override {}
     void onCopyOnWrite(ContentChangeMode) override {}
 };
