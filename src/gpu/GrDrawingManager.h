@@ -83,22 +83,9 @@ public:
     void copyOpListsFromDDL(const SkDeferredDisplayList*, GrRenderTargetProxy* newDest);
 
 private:
-    GrDrawingManager(GrContext* context,
-                     const GrPathRendererChain::Options& optionsForPathRendererChain,
-                     const GrAtlasTextContext::Options& optionsForAtlasTextContext,
-                     GrSingleOwner* singleOwner,
-                     bool sortRenderTargets)
-            : fContext(context)
-            , fOptionsForPathRendererChain(optionsForPathRendererChain)
-            , fOptionsForAtlasTextContext(optionsForAtlasTextContext)
-            , fSingleOwner(singleOwner)
-            , fAbandoned(false)
-            , fAtlasTextContext(nullptr)
-            , fPathRendererChain(nullptr)
-            , fSoftwarePathRenderer(nullptr)
-            , fFlushing(false)
-            , fSortRenderTargets(sortRenderTargets) {
-    }
+    GrDrawingManager(GrContext*, const GrPathRendererChain::Options&,
+                     const GrAtlasTextContext::Options&, GrSingleOwner*,
+                     GrContextOptions::Enable sortRenderTargets);
 
     void abandon();
     void cleanup();

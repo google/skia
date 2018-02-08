@@ -9,6 +9,7 @@
 #define GrResourceProvider_DEFINED
 
 #include "GrBuffer.h"
+#include "GrContextOptions.h"
 #include "GrPathRange.h"
 #include "GrResourceCache.h"
 #include "SkImageInfo.h"
@@ -39,7 +40,8 @@ class SkTypeface;
  */
 class GrResourceProvider {
 public:
-    GrResourceProvider(GrGpu*, GrResourceCache*, GrSingleOwner*, bool explicitlyAllocate);
+    GrResourceProvider(GrGpu*, GrResourceCache*, GrSingleOwner*,
+                       GrContextOptions::Enable explicitlyAllocateGPUResources);
 
     /**
      * Finds a resource in the cache, based on the specified key. Prior to calling this, the caller
