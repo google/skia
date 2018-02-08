@@ -73,7 +73,6 @@ namespace sk_tool_utils {
      *  Call writePixels() by using the pixels from bitmap, but with an info that claims
      *  the pixels are colorType + alphaType
      */
-    void write_pixels(SkCanvas*, const SkBitmap&, int x, int y, SkColorType, SkAlphaType);
     void write_pixels(SkSurface*, const SkBitmap&, int x, int y, SkColorType, SkAlphaType);
 
     /**

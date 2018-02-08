@@ -10,21 +10,6 @@
 #include "SkCanvas.h"
 #include "SkDashPathEffect.h"
 
-static void test_nulldev(SkCanvas* canvas) {
-    SkBitmap bm;
-    bm.setInfo(SkImageInfo::MakeN32Premul(30, 30));
-    // notice: no pixels mom! be sure we don't crash
-    // https://code.google.com/p/chromium/issues/detail?id=352616
-    SkCanvas c(bm);
-
-    SkBitmap src;
-    src.allocN32Pixels(10, 10);
-    src.eraseColor(SK_ColorRED);
-
-    // ensure we don't crash
-    c.writePixels(src, 0, 0);
-}
-
 static void draw_text_stroked(SkCanvas* canvas, const SkPaint& paint, SkScalar strokeWidth) {
     SkPaint p(paint);
     SkPoint loc = { 20, 435 };
@@ -68,7 +53,6 @@ namespace {
 }
 
 DEF_SIMPLE_GM(stroketext, canvas, 1200, 480) {
-        if (true) { test_nulldev(canvas); }
         SkPaint paint;
         paint.setAntiAlias(true);
         sk_tool_utils::set_portable_typeface(&paint);
