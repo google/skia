@@ -110,6 +110,10 @@ bool sk_image_is_texture_backed(const sk_image_t* image) {
     return AsImage(image)->isTextureBacked();
 }
 
+bool sk_image_is_lazy_generated(const sk_image_t* image) {
+    return AsImage(image)->isLazyGenerated();
+}
+
 bool sk_image_read_pixels(const sk_image_t* image, const sk_imageinfo_t* dstInfo, void* dstPixels, size_t dstRowBytes, int srcX, int srcY, sk_image_caching_hint_t cachingHint) {
     SkImageInfo info;
     from_c(*dstInfo, &info);
