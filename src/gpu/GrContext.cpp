@@ -29,6 +29,7 @@
 #include "SkConvertPixels.h"
 #include "SkDeferredDisplayList.h"
 #include "SkGr.h"
+#include "SkImageInfoPriv.h"
 #include "SkJSONWriter.h"
 #include "SkMakeUnique.h"
 #include "SkTaskGroup.h"

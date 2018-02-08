@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "SkImageInfoPriv.h"
 #include "SkSwizzle.h"
 #include "SkSwizzler.h"
 #include "Test.h"
