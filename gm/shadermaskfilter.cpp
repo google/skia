@@ -199,11 +199,11 @@ DEF_SIMPLE_GM(savelayer_maskfilter, canvas, 450, 675) {
     // as cpu and gpu backends treat these differently (w/ or w/o a SkSpecialImage)
     const sk_sp<SkImageFilter> imfs[] = {nullptr, SkBlurImageFilter::Make(3.5f, 3.5f, nullptr)};
 
-    for (auto mf : mfs) {
+    for (auto& mf : mfs) {
         SkPaint layerPaint;
         layerPaint.setMaskFilter(mf);
         canvas->save();
-        for (auto imf : imfs) {
+        for (auto& imf : imfs) {
             layerPaint.setImageFilter(imf);
 
             canvas->saveLayer(&r, &layerPaint);
