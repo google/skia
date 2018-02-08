@@ -80,8 +80,8 @@ protected:
     //
     // The minimal knowledge version is used for CCPR where we are generating an atlas but we do not
     // know the final size until flush time.
-    GrTextureProxy(LazyInstantiateCallback&&, const GrSurfaceDesc& desc, GrMipMapped,
-                   SkBackingFit fit, SkBudgeted budgeted, uint32_t flags);
+    GrTextureProxy(LazyInstantiateCallback&&, LazyInstantiationType, const GrSurfaceDesc& desc,
+                   GrMipMapped, SkBackingFit fit, SkBudgeted budgeted, uint32_t flags);
 
     // Wrapped version
     GrTextureProxy(sk_sp<GrSurface>, GrSurfaceOrigin);
