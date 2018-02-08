@@ -13,6 +13,7 @@
 
 class SkArenaAlloc;
 class SkBitmap;
+class SkImageGenerator;
 class SkPicture;
 
 /*
@@ -47,10 +48,19 @@ private:
     SkPictureShader(sk_sp<SkPicture>, TileMode, TileMode, const SkMatrix*, const SkRect*,
                     sk_sp<SkColorSpace>);
 
-    sk_sp<SkShader> refBitmapShader(const SkMatrix&, const SkMatrix* localMatrix,
-                                    SkColorSpace* dstColorSpace,
-                                    SkMatrix* compositeLocalMatrix,
-                                    const int maxTextureSize = 0) const;
+
+    std::unique_ptr<SkImageGenerator> makeTileGenerator(const SkISize&, SkColorSpace*) const;
+
+    struct LockedTile {
+        sk_sp<SkShader> fTileShader;
+        SkMatrix        fTileMatrix;
+    };
+    LockedTile lockBitmapTile(const SkMatrix& ctm,
+                              const SkMatrix* outerLocalMatrix,
+                              SkColorSpace* dstCS) const;
+#if SK_SUPPORT_GPU
+    LockedTile lockTextureTile(const GrFPArgs&) const;
+#endif
 
     class PictureShaderContext : public Context {
     public:

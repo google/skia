@@ -51,6 +51,16 @@ void SkResourceCache::Key::init(void* nameSpace, uint64_t sharedID, size_t dataS
                          (fCount32 - kUnhashedLocal32s) << 2);
 }
 
+#if SK_SUPPORT_GPU
+void SkResourceCache::Key::toGrUniqueKey(GrUniqueKey::Domain domain, GrUniqueKey* key) const {
+    GrUniqueKey::Builder builder(key, domain, fCount32);
+    const auto* data = this->as32();
+    for (int i = 0; i < fCount32; ++i) {
+        builder[i] = data[i];
+    }
+}
+#endif
+
 #include "SkTHash.h"
 
 namespace {
