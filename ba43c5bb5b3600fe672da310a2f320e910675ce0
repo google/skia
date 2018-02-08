@@ -22,6 +22,30 @@
       "revId": "ba43c5bb5b3600fe672da310a2f320e910675ce0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3e17422d_deefba93",
+        "filename": "infra/bots/recipes/bookmaker.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2018-02-08T21:11:52Z",
+      "side": 1,
+      "message": "Looks like it\u0027s always present: https://luci-milo.appspot.com/swarming/task/3b8289f6d11ddf10/steps/Read_fiddleout.json/0/stdout",
+      "parentUuid": "fb0e6e09_e3c0f2fe",
+      "range": {
+        "startLine": 111,
+        "startChar": 25,
+        "endLine": 111,
+        "endChar": 42
+      },
+      "revId": "ba43c5bb5b3600fe672da310a2f320e910675ce0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
