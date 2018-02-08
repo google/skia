@@ -70,14 +70,28 @@ void GrMakeKeyFromImageID(GrUniqueKey* key, uint32_t imageID, const SkIRect& ima
 sk_sp<GrTextureProxy> GrUploadBitmapToTextureProxy(GrProxyProvider* proxyProvider,
                                                    const SkBitmap& bitmap,
                                                    SkColorSpace* dstColorSpace) {
-    if (!bitmap.readyToDraw()) {
+    if (!bitmap.peekPixels(nullptr)) {
         return nullptr;
     }
-    SkPixmap pixmap;
-    if (!bitmap.peekPixels(&pixmap)) {
+
+    SkDestinationSurfaceColorMode colorMode = dstColorSpace
+        ? SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware
+        : SkDestinationSurfaceColorMode::kLegacy;
+
+    if (!SkImageInfoIsValid(bitmap.info(), colorMode)) {
         return nullptr;
     }
-    return GrUploadPixmapToTextureProxy(proxyProvider, pixmap, SkBudgeted::kYes, dstColorSpace);
+
+    // In non-ddl we will always instantiate right away. Thus we never want to copy the SkBitmap
+    // even if it's mutable. In ddl, if the bitmap is mutable then we must make a copy since the
+    // upload of the data to the gpu can happen at anytime and the bitmap may change by then.
+    SkCopyPixelsMode cpyMode = proxyProvider->mutableBitmapsNeedCopy() ? kIfMutable_SkCopyPixelsMode
+                                                                       : kNever_SkCopyPixelsMode;
+    sk_sp<SkImage> image = SkMakeImageFromRasterBitmap(bitmap, cpyMode);
+
+    return proxyProvider->createTextureProxy(std::move(image), kNone_GrSurfaceFlags,
+                                             kTopLeft_GrSurfaceOrigin, 1, SkBudgeted::kYes,
+                                             SkBackingFit::kExact);
 }
 
 sk_sp<GrTextureProxy> GrUploadPixmapToTextureProxy(GrProxyProvider* proxyProvider,
