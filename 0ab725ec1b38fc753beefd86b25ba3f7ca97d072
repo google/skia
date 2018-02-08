@@ -22,6 +22,30 @@
       "revId": "0ab725ec1b38fc753beefd86b25ba3f7ca97d072",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "73964eb5_4c0ec30a",
+        "filename": "third_party/icu/SkLoadICU.h",
+        "patchSetId": 19
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-02-08T19:12:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "99070942_ec58371b",
+      "range": {
+        "startLine": 25,
+        "startChar": 0,
+        "endLine": 25,
+        "endChar": 1
+      },
+      "revId": "0ab725ec1b38fc753beefd86b25ba3f7ca97d072",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
