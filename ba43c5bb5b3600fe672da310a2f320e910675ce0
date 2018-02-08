@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fb0e6e09_e3c0f2fe",
+        "filename": "infra/bots/recipes/bookmaker.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-02-08T20:02:17Z",
+      "side": 1,
+      "message": "Is props[\u0027runtime_error\u0027] guaranteed to be present?  If not, this should be props.get(\u0027runtime_error\u0027, \u0027\u0027)",
+      "range": {
+        "startLine": 111,
+        "startChar": 25,
+        "endLine": 111,
+        "endChar": 42
+      },
+      "revId": "ba43c5bb5b3600fe672da310a2f320e910675ce0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
