@@ -230,7 +230,6 @@
       "gldft",
       "glsrgb",
       "glmsaa8",
-      "glnvprdit8",
       "--src",
       "tests",
       "gm",
