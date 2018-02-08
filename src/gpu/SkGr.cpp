@@ -25,6 +25,7 @@
 #include "SkData.h"
 #include "SkImage_Base.h"
 #include "SkImageInfoPriv.h"
+#include "SkImagePriv.h"
 #include "SkMaskFilterBase.h"
 #include "SkMessageBus.h"
 #include "SkMipMap.h"
@@ -167,33 +168,24 @@ sk_sp<GrTextureProxy> GrRefCachedBitmapTextureProxy(GrContext* ctx,
 }
 
 sk_sp<GrTextureProxy> GrMakeCachedBitmapProxy(GrProxyProvider* proxyProvider,
-                                              const SkBitmap& bitmap) {
-    GrUniqueKey originalKey;
-
-    if (!bitmap.isVolatile()) {
-        SkIPoint origin = bitmap.pixelRefOrigin();
-        SkIRect subset = SkIRect::MakeXYWH(origin.fX, origin.fY, bitmap.width(), bitmap.height());
-        GrMakeKeyFromImageID(&originalKey, bitmap.pixelRef()->getGenerationID(), subset);
+                                              const SkBitmap& bitmap,
+                                              SkBackingFit fit) {
+    if (!bitmap.peekPixels(nullptr)) {
+        return nullptr;
     }
 
-    sk_sp<GrTextureProxy> proxy;
+    // In non-ddl we will always instantiate right away. Thus we never want to copy the SkBitmap
+    // even if its mutable. In ddl, if the bitmap is mutable then we must make a copy since the
+    // upload of the data to the gpu can happen at anytime and the bitmap may change by then.
+    SkCopyPixelsMode cpyMode = proxyProvider->mutableBitmapsNeedCopy() ? kIfMutable_SkCopyPixelsMode
+                                                                       : kNever_SkCopyPixelsMode;
+    sk_sp<SkImage> image = SkMakeImageFromRasterBitmap(bitmap, cpyMode);
 
-    if (originalKey.isValid()) {
-        proxy = proxyProvider->findOrCreateProxyByUniqueKey(originalKey, kTopLeft_GrSurfaceOrigin);
-    }
-    if (!proxy) {
-        // Pass nullptr for |dstColorSpace|.  This is lenient - we allow a wider range of
-        // color spaces in legacy mode.  Unfortunately, we have to be lenient here, since
-        // we can't necessarily know the |dstColorSpace| at this time.
-        proxy = GrUploadBitmapToTextureProxy(proxyProvider, bitmap, nullptr);
-        if (proxy && originalKey.isValid()) {
-            SkASSERT(proxy->origin() == kTopLeft_GrSurfaceOrigin);
-            proxyProvider->assignUniqueKeyToProxy(originalKey, proxy.get());
-            GrInstallBitmapUniqueKeyInvalidator(originalKey, bitmap.pixelRef());
-        }
+    if (!image) {
+        return nullptr;
     }
 
-    return proxy;
+    return GrMakeCachedImageProxy(proxyProvider, std::move(image), fit);
 }
 
 static void create_unique_key_for_image(const SkImage* image, GrUniqueKey* result) {
