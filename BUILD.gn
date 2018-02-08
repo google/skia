@@ -1502,6 +1502,7 @@ if (skia_enable_tools) {
         ":experimental_svg_model",
         ":flags",
         ":gm",
+        ":skshaper",
         ":tool_utils",
         ":views",
         ":xml",
