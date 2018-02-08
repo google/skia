@@ -52,7 +52,7 @@ GrSurfaceProxy::GrSurfaceProxy(LazyInstantiateCallback&& callback, const GrSurfa
         , fOrigin(desc.fOrigin)
         , fFit(fit)
         , fBudgeted(budgeted)
-        , fFlags(flags)
+        , fFlags1(flags)
         , fLazyInstantiateCallback(std::move(callback))
         , fNeedsClear(SkToBool(desc.fFlags & kPerformInitialClear_GrSurfaceFlag))
         , fGpuMemorySize(kInvalidGpuMemorySize)
@@ -75,11 +75,12 @@ GrSurfaceProxy::GrSurfaceProxy(sk_sp<GrSurface> surface, GrSurfaceOrigin origin,
         , fOrigin(origin)
         , fFit(fit)
         , fBudgeted(fTarget->resourcePriv().isBudgeted())
-        , fFlags(0)
+        , fFlags1(0)
         , fUniqueID(fTarget->uniqueID())  // Note: converting from unique resource ID to a proxy ID!
         , fNeedsClear(false)
         , fGpuMemorySize(kInvalidGpuMemorySize)
         , fLastOpList(nullptr) {
+    fIsOkayToBeInstantiated = true; // it's wrapped after all
 }
 
 GrSurfaceProxy::~GrSurfaceProxy() {
@@ -130,9 +131,9 @@ sk_sp<GrSurface> GrSurfaceProxy::createSurfaceImpl(
 
     sk_sp<GrSurface> surface;
     if (SkBackingFit::kApprox == fFit) {
-        surface.reset(resourceProvider->createApproxTexture(desc, fFlags).release());
+        surface.reset(resourceProvider->createApproxTexture(desc, fFlags1).release());
     } else {
-        surface.reset(resourceProvider->createTexture(desc, fBudgeted, fFlags).release());
+        surface.reset(resourceProvider->createTexture(desc, fBudgeted, fFlags1).release());
     }
     if (!surface) {
         return nullptr;
@@ -148,6 +149,8 @@ sk_sp<GrSurface> GrSurfaceProxy::createSurfaceImpl(
 }
 
 void GrSurfaceProxy::assign(sk_sp<GrSurface> surface) {
+    SkDebugf("Assigning surface %d to proxy %d\n", surface->uniqueID().asUInt(), fUniqueID.asUInt());
+
     SkASSERT(!fTarget && surface);
     fTarget = surface.release();
     this->INHERITED::transferRefs();
@@ -182,6 +185,15 @@ bool GrSurfaceProxy::instantiateImpl(GrResourceProvider* resourceProvider, int s
     if (uniqueKey && uniqueKey->isValid()) {
         resourceProvider->assignUniqueKeyToResource(*uniqueKey, surface.get());
     }
+
+#if 0
+    SkDebugf("assign: %d -> %d -- pRef:%d rRef:%d R:%d W:%d\n",
+             this->uniqueID().asUInt(), this->underlyingUniqueID().asUInt(),
+             this->getProxyRefCnt_TestOnly(),
+             this->getBackingRefCnt_TestOnly(),
+             this->getPendingReadCnt_TestOnly(),
+             this->getPendingWriteCnt_TestOnly());
+#endif
 
     this->assign(std::move(surface));
     return true;

@@ -183,7 +183,7 @@ GrSemaphoresSubmitted GrDrawingManager::internalFlush(GrSurfaceProxy*,
 #ifdef SK_DEBUG
                 // OnFlush callbacks are already invoked during flush, and are therefore expected to
                 // handle resource allocation & usage on their own. (No deferred or lazy proxies!)
-                onFlushOpList->visitProxies_debugOnly([](GrSurfaceProxy* p) {
+                onFlushOpList->visitProxies_debugOnly([](GrSurfaceProxy* p, bool isDstRead) {
                     SkASSERT(!p->asTextureProxy() || !p->asTextureProxy()->texPriv().isDeferred());
                     SkASSERT(GrSurfaceProxy::LazyState::kNot == p->lazyInstantiationState());
                 });
@@ -206,6 +206,7 @@ GrSemaphoresSubmitted GrDrawingManager::internalFlush(GrSurfaceProxy*,
     int startIndex, stopIndex;
     bool flushed = false;
 
+    SkDebugf("Begin Resource Assignment ------------------------------------\n");
     {
         GrResourceAllocator alloc(fContext->contextPriv().resourceProvider());
         for (int i = 0; i < fOpLists.count(); ++i) {

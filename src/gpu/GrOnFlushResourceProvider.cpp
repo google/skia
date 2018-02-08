@@ -48,7 +48,7 @@ sk_sp<GrRenderTargetContext> GrOnFlushResourceProvider::makeRenderTargetContext(
         return nullptr;
     }
 
-    renderTargetContext->discard();
+    //renderTargetContext->discard();
 
     return renderTargetContext;
 }
@@ -77,7 +77,7 @@ sk_sp<GrRenderTargetContext> GrOnFlushResourceProvider::makeRenderTargetContext(
         return nullptr;
     }
 
-    renderTargetContext->discard();
+//    renderTargetContext->discard();
 
     return renderTargetContext;
 }

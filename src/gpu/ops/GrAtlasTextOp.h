@@ -98,7 +98,7 @@ public:
         const sk_sp<GrTextureProxy>* proxies = fFontCache->getProxies(this->maskFormat());
         for (int i = 0; i < kMaxTextures; ++i) {
             if (proxies[i]) {
-                func(proxies[i].get());
+                func(proxies[i].get(), false);
             }
         }
     }

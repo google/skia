@@ -59,7 +59,12 @@ public:
     void assign(sk_sp<GrSurface> surface) { fProxy->assign(std::move(surface)); }
 
     bool requiresNoPendingIO() const {
-        return fProxy->fFlags & GrResourceProvider::kNoPendingIO_Flag;
+        return fProxy->fFlags1 & GrResourceProvider::kNoPendingIO_Flag;
+    }
+
+    void setIsMagical() {
+        static const int kMagical = 0x1111;
+        fProxy->fFlags1 |= kMagical;
     }
 
     // Don't abuse this call!!!!!!!

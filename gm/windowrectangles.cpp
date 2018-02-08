@@ -203,6 +203,7 @@ void WindowRectanglesMaskGM::visualizeAlphaMask(GrContext* ctx, GrRenderTargetCo
                                                          kCoverRect.width() + padRight,
                                                          kCoverRect.height() + padBottom,
                                                          kAlpha_8_GrPixelConfig, nullptr));
+    maskRTC->asSurfaceProxy()->fIsOkayToBeInstantiated = true;
     if (!maskRTC) {
         return;
     }

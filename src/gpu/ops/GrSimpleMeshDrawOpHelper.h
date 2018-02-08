@@ -99,7 +99,7 @@ public:
         friend class GrSimpleMeshDrawOpHelper;
     };
 
-    void visitProxies(const std::function<void(GrSurfaceProxy*)>& func) const {
+    void visitProxies(const std::function<void(GrSurfaceProxy*, bool isDstRead)>& func) const {
         if (fProcessors) {
             fProcessors->visitProxies(func);
         }

@@ -75,10 +75,40 @@ public:
 #endif
     }
 
+    int32_t GrIORefProxy::getProxyRefCnt_TestOnly() const {
+        return fRefCnt;
+    }
+
+    int32_t GrIORefProxy::getBackingRefCnt_TestOnly() const {
+        if (fTarget) {
+            return fTarget->fRefCnt;
+        }
+
+        return fRefCnt;
+    }
+
+    int32_t GrIORefProxy::getPendingReadCnt_TestOnly() const {
+        if (fTarget) {
+            return fTarget->fPendingReads;
+        }
+
+        return fPendingReads;
+    }
+
+    int32_t GrIORefProxy::getPendingWriteCnt_TestOnly() const {
+        if (fTarget) {
+            return fTarget->fPendingWrites;
+        }
+
+        return fPendingWrites;
+    }
+
+#if 0
     int32_t getProxyRefCnt_TestOnly() const;
     int32_t getBackingRefCnt_TestOnly() const;
     int32_t getPendingReadCnt_TestOnly() const;
     int32_t getPendingWriteCnt_TestOnly() const;
+#endif
 
     void addPendingRead() const {
         this->validate();
@@ -182,6 +212,8 @@ private:
 
 class GrSurfaceProxy : public GrIORefProxy {
 public:
+    bool fIsOkayToBeInstantiated = false;
+
     enum class LazyState {
         kNot,       // The proxy is instantiated or does not have a lazy callback
         kPartially, // The proxy has a lazy callback but knows basic information about itself.
@@ -403,7 +435,7 @@ private:
     mutable SkBudgeted   fBudgeted; // always kYes for lazy-callback resources
                                     // set from the backing resource for wrapped resources
                                     // mutable bc of SkSurface/SkImage wishy-washiness
-    const uint32_t       fFlags;
+    uint32_t             fFlags1;
 
     const UniqueID       fUniqueID; // set from the backing resource for wrapped resources
 

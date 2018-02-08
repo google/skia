@@ -19,6 +19,7 @@
 #include "GrTexture.h"
 #include "GrTextureProxy.h"
 
+#if 0
 int32_t GrIORefProxy::getProxyRefCnt_TestOnly() const {
     return fRefCnt;
 }
@@ -46,6 +47,7 @@ int32_t GrIORefProxy::getPendingWriteCnt_TestOnly() const {
 
     return fPendingWrites;
 }
+#endif
 
 static const int kWidthHeight = 128;
 

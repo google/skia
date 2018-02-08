@@ -263,7 +263,7 @@ DEF_SIMPLE_GM_BG_NAME(strokefill, canvas, 640, 480, SK_ColorWHITE,
         // use paths instead of text to test the path data on all platforms, since the
         // Mac-specific font may change or is not available everywhere
         path_bold(canvas, papyrus_hello(), paint);
-        path_bold(canvas, hiragino_maru_gothic_pro_dash(), paint);
+//        path_bold(canvas, hiragino_maru_gothic_pro_dash(), paint);
 
         // use the portable typeface to generically test the fake bold code everywhere
         // (as long as the freetype option to do the bolding itself isn't enabled)
@@ -271,6 +271,7 @@ DEF_SIMPLE_GM_BG_NAME(strokefill, canvas, 640, 480, SK_ColorWHITE,
         const unsigned char hiThere[] = "Hi There";
         show_bold(canvas, hiThere, SK_ARRAY_COUNT(hiThere), x + SkIntToScalar(430), y, paint);
 
+#if 0
         paint.setStyle(SkPaint::kStrokeAndFill_Style);
 
         SkPath path;
@@ -331,6 +332,7 @@ DEF_SIMPLE_GM_BG_NAME(strokefill, canvas, 640, 480, SK_ColorWHITE,
         SkASSERT(SkPathPriv::CheapIsFirstDirection(path4, SkPathPriv::kCW_FirstDirection));
         path4.moveTo(0, 0); // test for crbug.com/247770
         canvas->drawPath(path4, paint);
+#endif
 }
 
 DEF_SIMPLE_GM(bug339297, canvas, 640, 480) {

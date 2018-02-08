@@ -183,7 +183,7 @@ public:
         const sk_sp<GrTextureProxy>* proxies = fAtlas->getProxies();
         for (uint32_t i = 0; i < fAtlas->pageCount(); ++i) {
             SkASSERT(proxies[i]);
-            func(proxies[i].get());
+            func(proxies[i].get(), false);
         }
     }
 

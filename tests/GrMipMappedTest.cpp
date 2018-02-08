@@ -268,6 +268,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrImageSnapshotMipMappedTest, reporter, ctxIn
             REPORTER_ASSERT(reporter, mipMapped == texProxy->mipMapped());
 
             texProxy->instantiate(resourceProvider);
+            texProxy->fIsOkayToBeInstantiated = true;
             texture = texProxy->priv().peekTexture();
             REPORTER_ASSERT(reporter, mipMapped == texture->texturePriv().mipMapped());
 

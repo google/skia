@@ -248,11 +248,15 @@ std::unique_ptr<GrFragmentProcessor> GrXfermodeFragmentProcessor::MakeFromTwoPro
         SkBlendMode mode) {
     switch (mode) {
         case SkBlendMode::kClear:
+            src->markAsHandled();
+            dst->markAsHandled();
             return GrConstColorProcessor::Make(GrColor4f::TransparentBlack(),
                                                GrConstColorProcessor::InputMode::kIgnore);
         case SkBlendMode::kSrc:
+            dst->markAsHandled();
             return src;
         case SkBlendMode::kDst:
+            src->markAsHandled();
             return dst;
         default:
             return ComposeTwoFragmentProcessor::Make(std::move(src), std::move(dst), mode);
@@ -515,9 +519,11 @@ std::unique_ptr<GrFragmentProcessor> GrXfermodeFragmentProcessor::MakeFromDstPro
         std::unique_ptr<GrFragmentProcessor> dst, SkBlendMode mode) {
     switch (mode) {
         case SkBlendMode::kClear:
+            dst->markAsHandled();
             return GrConstColorProcessor::Make(GrColor4f::TransparentBlack(),
                                                GrConstColorProcessor::InputMode::kIgnore);
         case SkBlendMode::kSrc:
+            dst->markAsHandled();
             return nullptr;
         default:
             return ComposeOneFragmentProcessor::Make(std::move(dst), mode,
@@ -529,9 +535,11 @@ std::unique_ptr<GrFragmentProcessor> GrXfermodeFragmentProcessor::MakeFromSrcPro
         std::unique_ptr<GrFragmentProcessor> src, SkBlendMode mode) {
     switch (mode) {
         case SkBlendMode::kClear:
+            src->markAsHandled();
             return GrConstColorProcessor::Make(GrColor4f::TransparentBlack(),
                                                GrConstColorProcessor::InputMode::kIgnore);
         case SkBlendMode::kDst:
+            src->markAsHandled();
             return nullptr;
         default:
             return ComposeOneFragmentProcessor::Make(std::move(src), mode,
