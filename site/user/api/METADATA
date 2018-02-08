@@ -1,16 +1,23 @@
 {
   "fileOrder": [
+    "SkAutoCanvasRestore_Reference",
     "SkBitmap_Reference",
     "SkCanvas_Reference",
+    "skcanvas_overivew",
+    "skcanvas_creation",
+    "SkImage_Reference',
+    "SkImageInfo_Reference',
+    "SkIPoint_Reference',
+    "SkIPoint16_Reference',
     "SkIRect_Reference",
     "SkMatrix_Reference",
     "SkPaint_Reference",
+    "skpaint_overview",
     "SkPath_Reference",
     "SkPixmap_Reference",
+    "SkPoint_Reference',
     "SkRect_Reference",
-    "skcanvas_overivew",
-    "creating_skcanvas", 
-    "skpaint_overview",
+    "SkSurface_Reference',
     "usingBookmaker",
     "undocumented"
   ]
