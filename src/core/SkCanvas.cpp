@@ -830,6 +830,7 @@ bool SkCanvas::readPixels(const SkBitmap& bm, int x, int y) {
     return bm.peekPixels(&pm) && this->readPixels(pm, x, y);
 }
 
+#ifdef SK_SUPPORT_LEGACY_CANVAS_WRITEPIXELS
 bool SkCanvas::writePixels(const SkBitmap& bitmap, int x, int y) {
     SkPixmap pm;
     if (bitmap.peekPixels(&pm)) {
@@ -863,6 +864,7 @@ bool SkCanvas::writePixels(const SkImageInfo& srcInfo, const void* pixels, size_
     // are also necessary at the bitmap/pixmap entry points.
     return device->writePixels({srcInfo, pixels, rowBytes}, x, y);
 }
+#endif
 
 //////////////////////////////////////////////////////////////////////////////
 

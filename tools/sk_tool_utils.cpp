@@ -136,14 +136,6 @@ void set_portable_typeface(SkPaint* paint, const char* name, SkFontStyle style) 
     paint->setTypeface(create_font(name, style));
 }
 
-void write_pixels(SkCanvas* canvas, const SkBitmap& bitmap, int x, int y,
-                  SkColorType colorType, SkAlphaType alphaType) {
-    SkBitmap tmp(bitmap);
-    const SkImageInfo info = SkImageInfo::Make(tmp.width(), tmp.height(), colorType, alphaType);
-
-    canvas->writePixels(info, tmp.getPixels(), tmp.rowBytes(), x, y);
-}
-
 void write_pixels(SkSurface* surface, const SkBitmap& src, int x, int y,
                   SkColorType colorType, SkAlphaType alphaType) {
     const SkImageInfo info = SkImageInfo::Make(src.width(), src.height(), colorType, alphaType);

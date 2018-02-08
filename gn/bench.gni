@@ -86,7 +86,6 @@ bench_sources = [
   "$_bench/PictureNestingBench.cpp",
   "$_bench/PictureOverheadBench.cpp",
   "$_bench/PicturePlaybackBench.cpp",
-  "$_bench/PremulAndUnpremulAlphaOpsBench.cpp",
   "$_bench/QuickRejectBench.cpp",
   "$_bench/ReadPixBench.cpp",
   "$_bench/RecordingBench.cpp",
@@ -119,6 +118,5 @@ bench_sources = [
   "$_bench/TileImageFilterBench.cpp",
   "$_bench/TopoSortBench.cpp",
   "$_bench/VertBench.cpp",
-  "$_bench/WritePixelsBench.cpp",
   "$_bench/WriterBench.cpp",
 ]
