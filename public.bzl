@@ -472,7 +472,6 @@ DM_SRCS_ALL = struct(
     exclude = [
         "tests/FontMgrAndroidParserTest.cpp",  # Android-only.
         "tests/skia_test.cpp",  # Old main.
-        "tests/SkpSkGrTest.cpp",  # Alternate main.
         "tests/SVGDeviceTest.cpp",
         "tools/gpu/atlastext/*",
         "tools/gpu/gl/angle/*",
