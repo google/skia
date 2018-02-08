@@ -501,10 +501,6 @@ skia_gpu_sources = [
   "$_src/gpu/mock/GrMockStencilAttachment.h",
   "$_src/gpu/mock/GrMockTexture.h",
 
-  # DDL
-  "$_src/gpu/ddl/GrDDLGpu.cpp",
-  "$_src/gpu/ddl/GrDDLGpu.h",
-
   # Sk files
   "$_src/gpu/SkGpuDevice.cpp",
   "$_src/gpu/SkGpuDevice.h",
