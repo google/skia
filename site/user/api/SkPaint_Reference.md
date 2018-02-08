@@ -2134,7 +2134,7 @@ and to create an unfilled hole inside the shape.
   <tr>
     <td><a name="SkPaint_kStroke_Style"> <code><strong>SkPaint::kStroke_Style </strong></code> </a></td><td>1</td><td>Set to stroke geometry.
 Applies to <a href="SkRect_Reference#Rect">Rect</a>, <a href="undocumented#Region">Region</a>, <a href="undocumented#Round_Rect">Round Rect</a>, <a href="#Arc">Arcs</a>, <a href="#Circle">Circles</a>, <a href="#Oval">Ovals</a>, <a href="SkPath_Reference#Path">Path</a>, and <a href="undocumented#Text">Text</a>.
-<a href="#Arc">Arcs</a>, <a href="#Line">Lines</a>, and <a href="#Point">Points</a>, are always drawn as if <a href="#SkPaint_kStroke_Style">kStroke Style</a> is set,
+<a href="#Arc">Arcs</a>, <a href="#Line">Lines</a>, and points, are always drawn as if <a href="#SkPaint_kStroke_Style">kStroke Style</a> is set,
 and ignore the set <a href="#SkPaint_Style">Style</a>.
 The stroke construction is unaffected by the <a href="#Fill_Type">Path Fill Type</a>.</td>
   </tr>
