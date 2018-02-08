@@ -35,7 +35,6 @@ GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
     fAlpha8IsRenderable = false;
     fImagingSupport = false;
     fVertexArrayObjectSupport = false;
-    fDirectStateAccessSupport = false;
     fDebugSupport = false;
     fES2CompatibilitySupport = false;
     fDrawIndirectSupport = false;
@@ -161,12 +160,6 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     } else {
         fVertexArrayObjectSupport = version >= GR_GL_VER(3, 0) ||
                                     ctxInfo.hasExtension("GL_OES_vertex_array_object");
-    }
-
-    if (kGL_GrGLStandard == standard) {
-        fDirectStateAccessSupport = ctxInfo.hasExtension("GL_EXT_direct_state_access");
-    } else {
-        fDirectStateAccessSupport = false;
     }
 
     if (kGL_GrGLStandard == standard && version >= GR_GL_VER(4,3)) {
@@ -1166,7 +1159,6 @@ void GrGLCaps::onDumpJSON(SkJSONWriter* writer) const {
     writer->appendBool("Alpha8 is renderable", fAlpha8IsRenderable);
     writer->appendBool("GL_ARB_imaging support", fImagingSupport);
     writer->appendBool("Vertex array object support", fVertexArrayObjectSupport);
-    writer->appendBool("Direct state access support", fDirectStateAccessSupport);
     writer->appendBool("Debug support", fDebugSupport);
     writer->appendBool("Draw indirect support", fDrawIndirectSupport);
     writer->appendBool("Multi draw indirect support", fMultiDrawIndirectSupport);
