@@ -14,6 +14,8 @@
 #include "GrContext.h"
 #endif
 
+#ifdef SK_SUPPORT_LEGACY_CANVAS_WRITEPIXELS
+
 static uint32_t pack_unpremul_rgba(SkColor c) {
     uint32_t packed;
     uint8_t* byte = reinterpret_cast<uint8_t*>(&packed);
@@ -112,3 +114,6 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PremulAlphaRoundTrip_Gpu, reporter, ctxInfo) 
     test_premul_alpha_roundtrip(reporter, surf.get());
 }
 #endif
+
+#endif
+

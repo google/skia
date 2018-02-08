@@ -412,6 +412,7 @@ public:
     */
     bool readPixels(const SkBitmap& bitmap, int srcX, int srcY);
 
+#ifdef SK_SUPPORT_LEGACY_CANVAS_WRITEPIXELS
     /** Copies SkRect from pixels to SkCanvas. SkMatrix and clip are ignored.
         Source SkRect corners are (0, 0) and (info.width(), info.height()).
         Destination SkRect corners are (x, y) and
@@ -483,6 +484,7 @@ public:
         @return        true if pixels were written to SkCanvas
     */
     bool writePixels(const SkBitmap& bitmap, int x, int y);
+#endif
 
     /** Saves SkMatrix, clip, and SkDrawFilter (Draw_Filter deprecated on most platforms).
         Calling restore() discards changes to SkMatrix, clip, and SkDrawFilter,

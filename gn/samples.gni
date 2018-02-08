@@ -100,7 +100,6 @@ samples_sources = [
   "$_samplecode/SampleTiling.cpp",
   "$_samplecode/SampleUnpremul.cpp",
   "$_samplecode/SampleVertices.cpp",
-  "$_samplecode/SampleWritePixels.cpp",
   "$_samplecode/SampleXfer.cpp",
   "$_samplecode/SampleXfermodesBlur.cpp",
   "$_samplecode/vertexdump.cpp",
