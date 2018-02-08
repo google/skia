@@ -44,7 +44,7 @@ const struct {
     { kBGRA_8888_SkColorType, pack_unpremul_bgra },
 };
 
-static void fill_canvas(SkCanvas* canvas, SkColorType colorType, PackUnpremulProc proc) {
+static void fill_surface(SkSurface* surf, SkColorType colorType, PackUnpremulProc proc) {
     // Don't strictly need a bitmap, but its a handy way to allocate the pixels
     SkBitmap bmp;
     bmp.allocN32Pixels(256, 256);
@@ -58,13 +58,12 @@ static void fill_canvas(SkCanvas* canvas, SkColorType colorType, PackUnpremulPro
 
     const SkImageInfo info = SkImageInfo::Make(bmp.width(), bmp.height(),
                                                colorType, kUnpremul_SkAlphaType);
-    canvas->writePixels(info, bmp.getPixels(), bmp.rowBytes(), 0, 0);
+    surf->writePixels({info, bmp.getPixels(), bmp.rowBytes()}, 0, 0);
 }
 
 static void test_premul_alpha_roundtrip(skiatest::Reporter* reporter, SkSurface* surf) {
-    SkCanvas* canvas = surf->getCanvas();
     for (size_t upmaIdx = 0; upmaIdx < SK_ARRAY_COUNT(gUnpremul); ++upmaIdx) {
-        fill_canvas(canvas, gUnpremul[upmaIdx].fColorType, gUnpremul[upmaIdx].fPackProc);
+        fill_surface(surf, gUnpremul[upmaIdx].fColorType, gUnpremul[upmaIdx].fPackProc);
 
         const SkImageInfo info = SkImageInfo::Make(256, 256, gUnpremul[upmaIdx].fColorType,
                                                    kUnpremul_SkAlphaType);
@@ -77,7 +76,7 @@ static void test_premul_alpha_roundtrip(skiatest::Reporter* reporter, SkSurface*
         readBmp2.eraseColor(0);
 
         surf->readPixels(readBmp1, 0, 0);
-        sk_tool_utils::write_pixels(canvas, readBmp1, 0, 0, gUnpremul[upmaIdx].fColorType,
+        sk_tool_utils::write_pixels(surf, readBmp1, 0, 0, gUnpremul[upmaIdx].fColorType,
                                     kUnpremul_SkAlphaType);
         surf->readPixels(readBmp2, 0, 0);
 
