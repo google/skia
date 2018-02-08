@@ -1,4 +1,4 @@
-Creating SkCanvas Objects
+SkCanvas Creation
 =========================
 
 First, read about [the SkCanvas API](skcanvas).
