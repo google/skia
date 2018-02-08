@@ -1822,6 +1822,11 @@ public:
         kExternal,
     };
 
+	enum class SkipFirstLine {
+		kNo,
+		kYes,
+	};
+
     enum class Wrote {
         kNone,
         kLF,
@@ -1859,7 +1864,9 @@ public:
         return 0 == size;
     }
 
-    void descriptionOut(const Definition* def);
+	void constOut(const Definition* memberStart, const Definition& child,
+		const Definition* bmhConst);
+    void descriptionOut(const Definition* def, SkipFirstLine );
     void enumHeaderOut(const RootDefinition* root, const Definition& child);
     void enumMembersOut(const RootDefinition* root, Definition& child);
     void enumSizeItems(const Definition& child);
