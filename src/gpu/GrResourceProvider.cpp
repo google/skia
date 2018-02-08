@@ -30,18 +30,36 @@ GR_DECLARE_STATIC_UNIQUE_KEY(gQuadIndexBufferKey);
 
 const uint32_t GrResourceProvider::kMinScratchTextureSize = 16;
 
+// Turn on/off the explicit distribution of GPU resources at flush time
+#ifndef SK_DISABLE_EXPLICIT_GPU_RESOURCE_ALLOCATION
+   #define SK_DISABLE_EXPLICIT_GPU_RESOURCE_ALLOCATION
+#endif
+
+#ifdef SK_DISABLE_EXPLICIT_GPU_RESOURCE_ALLOCATION
+static const bool kDefaultExplicitlyAllocateGPUResources = false;
+#else
+static const bool kDefaultExplicitlyAllocateGPUResources = true;
+#endif
+
 #define ASSERT_SINGLE_OWNER \
     SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(fSingleOwner);)
 
 GrResourceProvider::GrResourceProvider(GrGpu* gpu, GrResourceCache* cache, GrSingleOwner* owner,
-                                       bool explicitlyAllocateGPUResources)
+                                       GrContextOptions::Enable explicitlyAllocateGPUResources)
         : fCache(cache)
         , fGpu(gpu)
-        , fExplicitlyAllocateGPUResources(explicitlyAllocateGPUResources)
 #ifdef SK_DEBUG
         , fSingleOwner(owner)
 #endif
 {
+    if (GrContextOptions::Enable::kNo == explicitlyAllocateGPUResources) {
+        fExplicitlyAllocateGPUResources = false;
+    } else if (GrContextOptions::Enable::kYes == explicitlyAllocateGPUResources) {
+        fExplicitlyAllocateGPUResources = true;
+    } else {
+        fExplicitlyAllocateGPUResources = kDefaultExplicitlyAllocateGPUResources;
+    }
+
     fCaps = sk_ref_sp(fGpu->caps());
 
     GR_DEFINE_STATIC_UNIQUE_KEY(gQuadIndexBufferKey);

@@ -31,6 +31,41 @@
 #include "GrTracing.h"
 #include "text/GrAtlasTextContext.h"
 
+// Turn on/off the sorting of opLists at flush time
+#ifndef SK_DISABLE_RENDER_TARGET_SORTING
+   #define SK_DISABLE_RENDER_TARGET_SORTING
+#endif
+
+#ifdef SK_DISABLE_RENDER_TARGET_SORTING
+static const bool kDefaultSortRenderTargets = false;
+#else
+static const bool kDefaultSortRenderTargets = true;
+#endif
+
+GrDrawingManager::GrDrawingManager(GrContext* context,
+                                   const GrPathRendererChain::Options& optionsForPathRendererChain,
+                                   const GrAtlasTextContext::Options& optionsForAtlasTextContext,
+                                   GrSingleOwner* singleOwner,
+                                   GrContextOptions::Enable sortRenderTargets)
+        : fContext(context)
+        , fOptionsForPathRendererChain(optionsForPathRendererChain)
+        , fOptionsForAtlasTextContext(optionsForAtlasTextContext)
+        , fSingleOwner(singleOwner)
+        , fAbandoned(false)
+        , fAtlasTextContext(nullptr)
+        , fPathRendererChain(nullptr)
+        , fSoftwarePathRenderer(nullptr)
+        , fFlushing(false) {
+
+    if (GrContextOptions::Enable::kNo == sortRenderTargets) {
+        fSortRenderTargets = false;
+    } else if (GrContextOptions::Enable::kYes == sortRenderTargets) {
+        fSortRenderTargets = true;
+    } else {
+        fSortRenderTargets = kDefaultSortRenderTargets;
+    }
+}
+
 void GrDrawingManager::cleanup() {
     for (int i = 0; i < fOpLists.count(); ++i) {
         // no opList should receive a new command after this
