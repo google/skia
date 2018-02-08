@@ -55,6 +55,11 @@
 #endif
 
 #if defined(JUMPER_IS_SCALAR)
+
+    #ifndef SK_JUMPER_ALLOW_SCALAR_CODE
+        #error "We're generating scalar (slow!) code for SkJumper.  This is not usually desirable.  If you really want this (for an unusual architecture, an unusual build configuration), please define SK_JUMPER_ALLOW_SCALAR_CODE while compiling SkJumper_stages.cpp."
+    #endif
+
     // This path should lead to portable scalar code.
     #include <math.h>
 
