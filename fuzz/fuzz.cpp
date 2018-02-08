@@ -12,7 +12,6 @@
 #include "SkData.h"
 #include "SkImage.h"
 #include "SkImageEncoder.h"
-#include "SkImageFilter.h"
 #include "SkMallocPixelRef.h"
 #include "SkOSFile.h"
 #include "SkOSPath.h"
@@ -21,7 +20,6 @@
 #include "SkPicture.h"
 #include "SkPipe.h"
 #include "SkReadBuffer.h"
-#include "SkRegion.h"
 #include "SkStream.h"
 #include "SkSurface.h"
 #include "SkTextBlob.h"
@@ -513,18 +511,12 @@ static void fuzz_color_deserialize(sk_sp<SkData> bytes) {
     SkDebugf("[terminated] Success! deserialized Colorspace.\n");
 }
 
-static void fuzz_path_deserialize(sk_sp<SkData> bytes) {
-    SkPath path;
-    SkReadBuffer buf(bytes->data(), bytes->size());
-    buf.readPath(&path);
-    if (!buf.isValid()) {
-        SkDebugf("[terminated] Couldn't deserialize SkPath.\n");
-        return;
-    }
+void FuzzPathDeserialize(SkReadBuffer& buf);
 
-    auto s = SkSurface::MakeRasterN32Premul(1024, 1024);
-    s->getCanvas()->drawPath(path, SkPaint());
-    SkDebugf("[terminated] Success! Initialized SkPath.\n");
+static void fuzz_path_deserialize(sk_sp<SkData> bytes) {
+    SkReadBuffer buf(bytes->data(), bytes->size());
+    FuzzPathDeserialize(buf);
+    SkDebugf("[terminated] path_deserialize didn't crash!\n");
 }
 
 bool FuzzRegionDeserialize(sk_sp<SkData> bytes);
@@ -537,17 +529,12 @@ static void fuzz_region_deserialize(sk_sp<SkData> bytes) {
     SkDebugf("[terminated] Success! Initialized SkRegion.\n");
 }
 
+void FuzzTextBlobDeserialize(SkReadBuffer& buf);
+
 static void fuzz_textblob_deserialize(sk_sp<SkData> bytes) {
     SkReadBuffer buf(bytes->data(), bytes->size());
-    auto tb = SkTextBlob::MakeFromBuffer(buf);
-    if (!buf.isValid()) {
-        SkDebugf("[terminated] Couldn't deserialize SkTextBlob.\n");
-        return;
-    }
-
-    auto s = SkSurface::MakeRasterN32Premul(512, 512);
-    s->getCanvas()->drawTextBlob(tb, 200, 200, SkPaint());
-    SkDebugf("[terminated] Success! Initialized SkTextBlob.\n");
+    FuzzTextBlobDeserialize(buf);
+    SkDebugf("[terminated] textblob didn't crash!\n");
 }
 
 void FuzzRegionSetPath(Fuzz* fuzz);
@@ -558,36 +545,11 @@ static void fuzz_region_set_path(sk_sp<SkData> bytes) {
     SkDebugf("[terminated] region_set_path didn't crash!\n");
 }
 
+void FuzzImageFilterDeserialize(sk_sp<SkData> bytes);
+
 static void fuzz_filter_fuzz(sk_sp<SkData> bytes) {
-    const int BitmapSize = 24;
-    SkBitmap bitmap;
-    bitmap.allocN32Pixels(BitmapSize, BitmapSize);
-    SkCanvas canvas(bitmap);
-    canvas.clear(0x00000000);
-
-    auto flattenable = SkImageFilter::Deserialize(bytes->data(), bytes->size());
-
-    // Adding some info, but the test passed if we got here without any trouble
-    if (flattenable != nullptr) {
-        SkDebugf("Valid stream detected.\n");
-        // Let's see if using the filters can cause any trouble...
-        SkPaint paint;
-        paint.setImageFilter(flattenable);
-        canvas.save();
-        canvas.clipRect(SkRect::MakeXYWH(
-            0, 0, SkIntToScalar(BitmapSize), SkIntToScalar(BitmapSize)));
-
-        // This call shouldn't crash or cause ASAN to flag any memory issues
-        // If nothing bad happens within this call, everything is fine
-        canvas.drawBitmap(bitmap, 0, 0, &paint);
-
-        SkDebugf("Filter DAG rendered successfully\n");
-        canvas.restore();
-    } else {
-        SkDebugf("Invalid stream detected.\n");
-    }
-
-    SkDebugf("[terminated] Done\n");
+    FuzzImageFilterDeserialize(bytes);
+    SkDebugf("[terminated] filter_fuzz didn't crash!\n");
 }
 
 #if SK_SUPPORT_GPU
