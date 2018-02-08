@@ -116,6 +116,7 @@ GrCCPathProcessor::GrCCPathProcessor(GrResourceProvider* resourceProvider,
     if (resourceProvider->caps()->usePrimitiveRestart()) {
         this->setWillUsePrimitiveRestart();
     }
+    fAtlasAccess.fHandled = true;
 }
 
 void GrCCPathProcessor::getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const {

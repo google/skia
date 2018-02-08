@@ -467,6 +467,7 @@ bool GrDrawOpAtlas::createNewPage() {
     SkASSERT(SkIsPow2(fTextureWidth) && SkIsPow2(fTextureHeight));
     fProxies[fNumPages] = proxyProvider->createProxy(desc, SkBackingFit::kExact, SkBudgeted::kYes,
                                                      GrResourceProvider::kNoPendingIO_Flag);
+//  fProxies[fNumPages]->fIsOkayToBeInstantiated = true;
     if (!fProxies[fNumPages]) {
         return false;
     }

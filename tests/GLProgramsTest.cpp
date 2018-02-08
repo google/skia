@@ -190,6 +190,8 @@ static std::unique_ptr<GrFragmentProcessor> create_random_proc_tree(GrProcessorT
                 SkASSERT(fp);
                 if (0 == fp->numChildProcessors()) {
                     break;
+                } else {
+                    fp->markAsHandled();
                 }
             }
             return fp;

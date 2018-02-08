@@ -109,6 +109,7 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     fTextureUsageSupport = (kGLES_GrGLStandard == standard) &&
                             ctxInfo.hasExtension("GL_ANGLE_texture_usage");
 
+#if 0
     if (kGL_GrGLStandard == standard) {
         fTextureBarrierSupport = version >= GR_GL_VER(4,5) ||
                                  ctxInfo.hasExtension("GL_ARB_texture_barrier") ||
@@ -116,6 +117,7 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     } else {
         fTextureBarrierSupport = ctxInfo.hasExtension("GL_NV_texture_barrier");
     }
+#endif
 
     if (kGL_GrGLStandard == standard) {
         fSampleLocationsSupport = version >= GR_GL_VER(3,2) ||
@@ -292,9 +294,9 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
 
     // Enable supported shader-related caps
     if (kGL_GrGLStandard == standard) {
-        shaderCaps->fDualSourceBlendingSupport = (ctxInfo.version() >= GR_GL_VER(3, 3) ||
-            ctxInfo.hasExtension("GL_ARB_blend_func_extended")) &&
-            GrGLSLSupportsNamedFragmentShaderOutputs(ctxInfo.glslGeneration());
+        shaderCaps->fDualSourceBlendingSupport = false; //(ctxInfo.version() >= GR_GL_VER(3, 3) ||
+//            ctxInfo.hasExtension("GL_ARB_blend_func_extended")) &&
+//            GrGLSLSupportsNamedFragmentShaderOutputs(ctxInfo.glslGeneration());
 
         shaderCaps->fShaderDerivativeSupport = true;
 
@@ -313,7 +315,7 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         shaderCaps->fIntegerSupport = ctxInfo.version() >= GR_GL_VER(3, 0) &&
             ctxInfo.glslGeneration() >= k130_GrGLSLGeneration;
     } else {
-        shaderCaps->fDualSourceBlendingSupport = ctxInfo.hasExtension("GL_EXT_blend_func_extended");
+        shaderCaps->fDualSourceBlendingSupport = false; // ctxInfo.hasExtension("GL_EXT_blend_func_extended");
 
         shaderCaps->fShaderDerivativeSupport = ctxInfo.version() >= GR_GL_VER(3, 0) ||
             ctxInfo.hasExtension("GL_OES_standard_derivatives");

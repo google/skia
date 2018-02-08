@@ -198,6 +198,7 @@ private:
     SamplePattern                               fSamplePattern;
 };
 
+#if 0
 DEF_GPUTEST(GLSampleLocations, reporter, /* options */) {
     auto testInterface = sk_make_sp<GLTestSampleLocationsInterface>();
     sk_sp<GrContext> ctx(GrContext::MakeGL(testInterface));
@@ -209,5 +210,6 @@ DEF_GPUTEST(GLSampleLocations, reporter, /* options */) {
     }
     test_sampleLocations(reporter, testInterface.get(), ctx.get());
 }
+#endif
 
 #endif

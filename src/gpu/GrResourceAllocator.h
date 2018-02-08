@@ -47,14 +47,14 @@ public:
 
     // Add a usage interval from 'start' to 'end' inclusive. This is usually used for renderTargets.
     // If an existing interval already exists it will be expanded to include the new range.
-    void addInterval(GrSurfaceProxy*, unsigned int start, unsigned int end
+    void addInterval(GrSurfaceProxy*, unsigned int start, unsigned int end, int tabs
                      SkDEBUGCODE(, bool isDirectDstRead = false));
 
     // Add an interval that spans just the current op. Usually this is for texture uses.
     // If an existing interval already exists it will be expanded to include the new operation.
-    void addInterval(GrSurfaceProxy* proxy
+    void addInterval(GrSurfaceProxy* proxy, int tabs
                      SkDEBUGCODE(, bool isDirectDstRead = false)) {
-        this->addInterval(proxy, fNumOps, fNumOps SkDEBUGCODE(, isDirectDstRead));
+        this->addInterval(proxy, fNumOps, fNumOps, tabs SkDEBUGCODE(, isDirectDstRead));
     }
 
     enum class AssignError {
@@ -71,6 +71,8 @@ public:
     bool assign(int* startIndex, int* stopIndex, AssignError* outError);
 
     void markEndOfOpList(int opListIndex);
+    SkDEBUGCODE(void dumpBeforeAssign();)
+    SkDEBUGCODE(void dumpAfterAssign();)
 
 private:
     class Interval;
@@ -103,6 +105,8 @@ private:
             , fEnd(end)
             , fNext(nullptr) {
             SkASSERT(proxy);
+            SkDEBUGCODE(fUniqueID = CreateUniqueID();)
+            SkDebugf("New intvl %d: proxyID: %d [ %d, %d ]\n", fUniqueID, proxy->uniqueID().asUInt(), start, end);
         }
 
         void resetTo(GrSurfaceProxy* proxy, unsigned int start, unsigned int end) {
@@ -113,6 +117,8 @@ private:
             fStart = start;
             fEnd = end;
             fNext = nullptr;
+            SkDEBUGCODE(fUniqueID = CreateUniqueID();)
+            SkDebugf("New intvl %d: proxyID: %d [ %d, %d ]\n", fUniqueID, proxy->uniqueID().asUInt(), start, end);
         }
 
         ~Interval() {
@@ -132,6 +138,10 @@ private:
             if (newEnd > fEnd) {
                 fEnd = newEnd;
             }
+
+            SkDebugf("intvl %d: extending from %d to %d\n", fUniqueID, fEnd, newEnd);
+            SkASSERT(newEnd >= fEnd);
+            fEnd = newEnd;
         }
 
         void assign(sk_sp<GrSurface>);
@@ -151,6 +161,11 @@ private:
         unsigned int     fStart;
         unsigned int     fEnd;
         Interval*        fNext;
+#ifdef SK_DEBUG
+        uint32_t        fUniqueID;
+
+        uint32_t CreateUniqueID();
+#endif
     };
 
     class IntervalList {
