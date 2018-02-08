@@ -418,7 +418,7 @@ canvas->scale(.25f, .25f);
 int x = 0;
 for (auto origin : { kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin } ) {
     sk_sp<SkImage> image = SkImage::MakeFromTexture(context, backEndTexture,
-           origin, kOpaque_SkAlphaType, nullptr);
+           origin, kN32_SkColorType, kOpaque_SkAlphaType, nullptr);
     canvas->drawImage(image, x, 0);
 x += 512;
 }
@@ -817,7 +817,7 @@ should this be moved to chrome only?
 # currently uncalled by any test or client ##
 #Bug 7424
 
-#Enum BitDepth
+#EnumClass BitDepth
 
 #Code
     enum class BitDepth {
@@ -838,7 +838,7 @@ Use 16 bits per Color_ARGB component using half-precision floating point format.
 
 #SeeAlso MakeFromPicture
 
-#Enum ##
+#EnumClass ##
 
 # ------------------------------------------------------------------------------
 
@@ -2001,7 +2001,7 @@ Returns nullptr if backed by GPU_Texture and copy fails.
     drawImage(textureImage, "backEndTexture");
 ##
 
-#SeeAlso incomplete
+#SeeAlso makeTextureImage makeRasterImage MakeBackendTextureFromSkImage
 
 #Method ##
 
@@ -2064,19 +2064,17 @@ required storage for translation of returned Image.
 Returns nullptr if Image could not be created. If nullptr is returned, outSubset
 and offset are undefined.
 
-makeWithFilter is optimized to support Image backed by GPU_Texture drawn in an
-animation with SkImageFilter that vary in size from one frame to the next. The
-created Image is drawn at an increased size so that GPU_Texture can be reused
-with different sized effects. outSubset describes the valid bounds of GPU_Texture
-returned. The returned Image may be much larger than required for the filter.
-offset translates the returned Image to keep subsequent animation frames
-aligned with respect to each other.
+Useful for animation of SkImageFilter that varies size from frame to frame.
+Returned Image is created larger than required by filter so that GPU_Texture
+can be reused with different sized effects. outSubset describes the valid bounds
+of GPU_Texture returned. offset translates the returned Image to keep subsequent
+animation frames aligned with respect to each other.
 
 #Param filter  how Image is sampled when transformed ##
-#Param subset  incomplete ##
-#Param clipBounds  incomplete ##
-#Param outSubset  incomplete ##
-#Param offset  incomplete ##
+#Param subset  bounds of Image processed by filter ##
+#Param clipBounds  expected bounds of filtered Image ##
+#Param outSubset  storage for returned Image bounds ##
+#Param offset  storage for returned Image translation ##
 
 #Return filtered Image, or nullptr ##
 
@@ -2109,7 +2107,7 @@ By translating canvas by returned offset, Image appears stationary.
     canvas->drawRect(SkRect::MakeFromIRect(outSubset), paint);
 ##
 
-#SeeAlso SkPaint::setImageFilter
+#SeeAlso makeShader SkPaint::setImageFilter
 
 #Method ##
 
@@ -2155,64 +2153,86 @@ Used only by Chrome.
 #In Constructor
 #Line # creates GPU_Texture from Image ##
 
-Creates a GrBackendTexture from the provided SkImage. Returns true on success. The
-GrBackendTexture and BackendTextureReleaseProc are populated on success. It is the callers
-responsibility to call the BackendTextureReleaseProc once they have deleted the texture.
-Note that the BackendTextureReleaseProc allows Skia to clean up auxiliary data related
-to the GrBackendTexture, and is not a substitute for the client deleting the GrBackendTexture
-themselves.
+Creates a GrBackendTexture from the provided SkImage. Returns true and
+stores result in backendTexture and backendTextureReleaseProc if
+texture is created; otherwise, returns false and leaves
+backendTexture and backendTextureReleaseProc unmodified.
 
-If image is both texture backed and singly referenced; that is, its only
-reference was transferred using std::move(): image is returned in backendTexture
-without conversion or making a copy. 
+Call backendTextureReleaseProc after deleting backendTexture.
+backendTextureReleaseProc cleans up auxiliary data related to returned
+backendTexture. The caller must delete returned backendTexture after use.
 
-If Image is not texture backed, this function returns texture with Image
-contents.
+If Image is both texture backed and singly referenced, image is returned in
+backendTexture without conversion or making a copy. Image is singly referenced
+if its was transferred solely using std::move().
+
+If Image is not texture backed, returns texture with Image contents.
 
 #Param context  GPU_Context ##
-#Param image  incomplete ##
-#Param backendTexture  incomplete ##
-#Param backendTextureReleaseProc  incomplete ##
+#Param image  Image used for texture ##
+#Param backendTexture  storage for backend texture ##
+#Param backendTextureReleaseProc  storage for clean up function ##
 
-#Return incomplete ##
+#Return true if backend texture was created ##
 
 #Example
-// incomplete
+#Platform gpu
+#Height 64
+#Function
+static sk_sp<SkImage> create_gpu_image(GrContext* grContext) {
+    const SkImageInfo info = SkImageInfo::MakeN32(20, 20, kOpaque_SkAlphaType);
+    auto surface(SkSurface::MakeRenderTarget(grContext, SkBudgeted::kNo, info));
+    SkCanvas* canvas = surface->getCanvas();
+    canvas->clear(SK_ColorWHITE);
+    SkPaint paint;
+    paint.setColor(SK_ColorBLACK);
+    canvas->drawRect(SkRect::MakeXYWH(5, 5, 10, 10), paint);
+    return surface->makeImageSnapshot();
+}
 ##
 
-#SeeAlso incomplete
+void draw(SkCanvas* canvas) {    
+    GrContext* grContext = canvas->getGrContext();
+    if (!grContext) {
+        return;
+    }
+    sk_sp<SkImage> backEndImage = create_gpu_image(grContext);
+    canvas->drawImage(backEndImage, 0, 0);
+    GrBackendTexture texture;
+    SkImage::BackendTextureReleaseProc proc;
+    if (!SkImage::MakeBackendTextureFromSkImage(grContext, std::move(backEndImage),
+            &texture, &proc)) {
+        return;
+    }
+    sk_sp<SkImage> i2 = SkImage::MakeFromTexture(grContext, texture, kTopLeft_GrSurfaceOrigin,
+            kN32_SkColorType, kOpaque_SkAlphaType, nullptr);
+    canvas->drawImage(i2, 30, 30);
+}
+##
+
+#SeeAlso MakeFromTexture makeTextureImage
 
 #Method ##
 
 # ------------------------------------------------------------------------------
 
 #Enum LegacyBitmapMode
-
+#Deprecated soon
 #Code
     enum LegacyBitmapMode {
         kRO_LegacyBitmapMode,
-        kRW_LegacyBitmapMode,
     };
 ##
 
-Helper functions to convert to SkBitmap
-
 #Const kRO_LegacyBitmapMode 0
+Returned bitmap is read-only and immutable.
 ##
-#Const kRW_LegacyBitmapMode 1
-##
-
-#Example
-// incomplete
-##
-
-#SeeAlso incomplete
 
 #Enum ##
 
 # ------------------------------------------------------------------------------
 
-#Method bool asLegacyBitmap(SkBitmap* bitmap, LegacyBitmapMode legacyBitmapMode) const
+#Method bool asLegacyBitmap(SkBitmap* bitmap, LegacyBitmapMode legacyBitmapMode = kRO_LegacyBitmapMode) const
 #In Constructor
 #Line # returns as Raster_Bitmap ##
 Creates raster Bitmap with same pixels as Image. If legacyBitmapMode is
@@ -2221,15 +2241,30 @@ Returns true if Bitmap is stored in bitmap. Returns false and resets bitmap if
 Bitmap write did not succeed.
 
 #Param bitmap  storage for legacy Bitmap ##
-#Param legacyBitmapMode  one of: kRO_LegacyBitmapMode, kRW_LegacyBitmapMode ##
+#Param legacyBitmapMode  to be deprecated ##
 
 #Return true if Bitmap was created ##
 
 #Example
-// incomplete
+#Image 4
+#Platform gpu
+    SkBitmap bitImage;
+    if (image->asLegacyBitmap(&bitImage, SkImage::kRO_LegacyBitmapMode)) {
+        canvas->drawBitmap(bitImage, 0, 0);
+    }
+    GrContext* grContext = canvas->getGrContext();
+    if (!grContext) {
+        return;
+    }
+    sk_sp<SkImage> textureImage(SkImage::MakeFromTexture(grContext, backEndTexture,
+                                kTopLeft_GrSurfaceOrigin, kOpaque_SkAlphaType, nullptr));
+    canvas->drawImage(textureImage, 45, 45);
+    if (textureImage->asLegacyBitmap(&bitImage, SkImage::kRO_LegacyBitmapMode)) {
+        canvas->drawBitmap(bitImage, 90, 90);
+    }
 ##
 
-#SeeAlso incomplete
+#SeeAlso MakeRasterData makeRasterImage makeNonTextureImage
 
 #Method ##
 
