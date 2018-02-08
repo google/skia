@@ -1613,8 +1613,7 @@ if (skia_enable_tools) {
       ":skia",
     ]
 
-    # TODO(halcanary): Build ICU on iOS.
-    if (is_ios || target_cpu == "wasm") {
+    if (target_cpu == "wasm") {
       sources = [
         "tools/shape/SkShaper_primitive.cpp",
       ]
