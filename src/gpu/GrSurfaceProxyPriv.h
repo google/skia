@@ -70,6 +70,14 @@ public:
 
     bool doLazyInstantiation(GrResourceProvider*);
 
+    GrSurfaceProxy::LazyInstantiationType lazyInstantiationType() const {
+        return fProxy->fLazyInstantiationType;
+    }
+
+    void testingOnly_setLazyInstantiationType(GrSurfaceProxy::LazyInstantiationType lazyType) {
+        fProxy->fLazyInstantiationType = lazyType;
+    }
+
     static bool AttachStencilIfNeeded(GrResourceProvider*, GrSurface*, bool needsStencil);
 
 private:

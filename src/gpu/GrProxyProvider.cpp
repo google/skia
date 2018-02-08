@@ -537,11 +537,17 @@ sk_sp<GrTextureProxy> GrProxyProvider::createLazyProxy(LazyInstantiateCallback&&
     SkASSERT((desc.fWidth <= 0 && desc.fHeight <= 0) ||
              (desc.fWidth > 0 && desc.fHeight > 0));
     uint32_t flags = GrResourceProvider::kNoPendingIO_Flag;
+
+    using LazyInstantiationType = GrSurfaceProxy::LazyInstantiationType;
+    // For non-ddl draws always make lazy proxy's single use.
+    LazyInstantiationType lazyType = fResourceProvider ? LazyInstantiationType::kSingleUse
+                                                       : LazyInstantiationType::kMultipleUse;
+
     return sk_sp<GrTextureProxy>(SkToBool(kRenderTarget_GrSurfaceFlag & desc.fFlags) ?
-                                 new GrTextureRenderTargetProxy(std::move(callback), desc,
+                                 new GrTextureRenderTargetProxy(std::move(callback), lazyType, desc,
                                                                 mipMapped, fit, budgeted, flags) :
-                                 new GrTextureProxy(std::move(callback), desc, mipMapped, fit,
-                                                    budgeted, flags));
+                                 new GrTextureProxy(std::move(callback), lazyType, desc, mipMapped,
+                                                    fit, budgeted, flags));
 }
 
 sk_sp<GrRenderTargetProxy> GrProxyProvider::createLazyRenderTargetProxy(
@@ -553,13 +559,19 @@ sk_sp<GrRenderTargetProxy> GrProxyProvider::createLazyRenderTargetProxy(
     SkASSERT((desc.fWidth <= 0 && desc.fHeight <= 0) ||
              (desc.fWidth > 0 && desc.fHeight > 0));
     uint32_t flags = GrResourceProvider::kNoPendingIO_Flag;
+
+    using LazyInstantiationType = GrSurfaceProxy::LazyInstantiationType;
+    // For non-ddl draws always make lazy proxy's single use.
+    LazyInstantiationType lazyType = fResourceProvider ? LazyInstantiationType::kSingleUse
+                                                       : LazyInstantiationType::kMultipleUse;
+
     if (Textureable::kYes == textureable) {
-        return sk_sp<GrRenderTargetProxy>(new GrTextureRenderTargetProxy(std::move(callback), desc,
-                                                                         mipMapped, fit, budgeted,
-                                                                         flags));
+        return sk_sp<GrRenderTargetProxy>(new GrTextureRenderTargetProxy(std::move(callback),
+                                                                         lazyType, desc, mipMapped,
+                                                                         fit, budgeted, flags));
     }
 
-    return sk_sp<GrRenderTargetProxy>(new GrRenderTargetProxy(std::move(callback), desc,
+    return sk_sp<GrRenderTargetProxy>(new GrRenderTargetProxy(std::move(callback), lazyType, desc,
                                                               fit, budgeted, flags));
 }
 

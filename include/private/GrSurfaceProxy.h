@@ -182,6 +182,11 @@ private:
 
 class GrSurfaceProxy : public GrIORefProxy {
 public:
+    enum class LazyInstantiationType {
+        kSingleUse,    // Instantiation callback is allowed to be called only once
+        kMultipleUse,  // Instantiation callback can be called multiple times.
+    };
+
     enum class LazyState {
         kNot,       // The proxy is instantiated or does not have a lazy callback
         kPartially, // The proxy has a lazy callback but knows basic information about itself.
@@ -351,7 +356,8 @@ public:
 protected:
     // Deferred version
     GrSurfaceProxy(const GrSurfaceDesc& desc, SkBackingFit fit, SkBudgeted budgeted, uint32_t flags)
-            : GrSurfaceProxy(nullptr, desc, fit, budgeted, flags) {
+            : GrSurfaceProxy(nullptr, LazyInstantiationType::kSingleUse,
+                             desc, fit, budgeted, flags) {
         // Note: this ctor pulls a new uniqueID from the same pool at the GrGpuResources
     }
 
@@ -359,8 +365,9 @@ protected:
                                                                    GrSurfaceOrigin* outOrigin)>;
 
     // Lazy-callback version
-    GrSurfaceProxy(LazyInstantiateCallback&& callback, const GrSurfaceDesc& desc,
-                   SkBackingFit fit, SkBudgeted budgeted, uint32_t flags);
+    GrSurfaceProxy(LazyInstantiateCallback&& callback, LazyInstantiationType lazyType,
+                   const GrSurfaceDesc& desc, SkBackingFit fit, SkBudgeted budgeted,
+                   uint32_t flags);
 
     // Wrapped version
     GrSurfaceProxy(sk_sp<GrSurface> surface, GrSurfaceOrigin origin, SkBackingFit fit);
@@ -408,6 +415,12 @@ private:
     const UniqueID       fUniqueID; // set from the backing resource for wrapped resources
 
     LazyInstantiateCallback fLazyInstantiateCallback;
+    // If this is set to kSingleuse, then after one call to fLazyInstantiateCallback we will cleanup
+    // the lazy callback and then delete it. This will allow for any refs and resources being held
+    // by the standard function to be released. This is specifically useful in non-dll cases where
+    // we make lazy proxies and instantiate them immediately.
+    // Note: This is ignored if fLazyInstantiateCallback is null.
+    LazyInstantiationType fLazyInstantiationType;
     SkDEBUGCODE(virtual void validateLazySurface(const GrSurface*) = 0;)
 
     static const size_t kInvalidGpuMemorySize = ~static_cast<size_t>(0);
