@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9aa56add_c528ace6",
+        "filename": "site/user/build.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-02-08T12:24:15Z",
+      "side": 1,
+      "message": "It\u0027d be nice to keep this list in one place.  How about we point people to tools/install_dependencies.sh (and make sure that is up to date)?",
+      "revId": "41495b5ff8ab58c288e3bce8a3152e2095944489",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
