@@ -228,18 +228,12 @@ sk_sp<GrTextureProxy> GrUploadMipMapToTextureProxy(GrProxyProvider*, const SkIma
                                                    int mipLevelCount,
                                                    SkDestinationSurfaceColorMode colorMode);
 
-// This is intended to replace:
-//    SkAutoLockPixels alp(bitmap, true);
-//    if (!bitmap.readyToDraw()) {
-//        return nullptr;
-//    }
-//    sk_sp<GrTexture> texture = GrMakeCachedBitmapTexture(fContext.get(), bitmap,
-//                                                         GrSamplerState::ClampNearest(),
-//                                                         nullptr);
-//    if (!texture) {
-//        return nullptr;
-//    }
-sk_sp<GrTextureProxy> GrMakeCachedBitmapProxy(GrProxyProvider*, const SkBitmap& bitmap);
+/*
+ * Create a texture proxy from the provided bitmap by wrapping it in an image and calling
+ * GrMakeCachedImageProxy.
+ */
+sk_sp<GrTextureProxy> GrMakeCachedBitmapProxy(GrProxyProvider*, const SkBitmap& bitmap,
+                                              SkBackingFit fit = SkBackingFit::kExact);
 
 /*
  * Create a texture proxy from the provided 'srcImage' and add it to the texture cache
