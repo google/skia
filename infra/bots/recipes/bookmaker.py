@@ -103,16 +103,26 @@ def RunSteps(api):
         print 'Dump of %s:' % fiddlecli_output
         print json.dumps(out, indent=4)
 
-        failing_fiddles = []
+        failing_fiddles_to_errors = {}
         for fiddle_name in out:
           props = out[fiddle_name]
           if props['compile_errors'] or props['runtime_error']:
-            failing_fiddles.append(props['fiddleHash'])
-        if failing_fiddles:
+            # Construct the error.
+            error = props['runtime_error']
+            if props['compile_errors']:
+              for e in props['compile_errors']:
+                error += '%s\n' % e['text']
+            failing_fiddles_to_errors[props['fiddleHash']] = error
+
+        if failing_fiddles_to_errors:
           # create an eror message and fail the bot!
-          failure_msg = 'The following fiddles failed:\n\n'
-          for fiddle_hash in failing_fiddles:
-            failure_msg += 'https://fiddle.skia.org/c/%s\n' % fiddle_hash
+          failure_msg = 'Failed fiddles with their errors:\n\n\n'
+          counter = 0
+          for fiddle_hash, error in failing_fiddles_to_errors.iteritems():
+            counter += 1
+            failure_msg += '%d. https://fiddle.skia.org/c/%s\n\n' % (
+                counter, fiddle_hash)
+            failure_msg += '%s\n\n' % error
           raise api.step.StepFailure(failure_msg)
 
       # Step 4: Update docs in site/user/api/ with the output of fiddlecli.
@@ -138,8 +148,114 @@ def GenTests(api):
 """
   fiddleout_with_errors_test_data = """
 {"fiddle1": {"fiddleHash": "abc",
-             "compile_errors": [],
-             "runtime_error": "runtime error"}}
+             "compile_errors": [
+            {
+                "text": "ninja: Entering directory `out/Release'",
+                "line": 0,
+                "col": 0
+            },
+            {
+                "text": "[1/7] ACTION //:skia.h(//gn/toolchain:gcc_like)",
+                "line": 0,
+                "col": 0
+            },
+            {
+                "text": "[2/7] stamp obj/skia.h.stamp",
+                "line": 0,
+                "col": 0
+            },
+            {
+                "text": "[3/7] compile ../../tools/fiddle/draw.cpp",
+                "line": 0,
+                "col": 0
+            },
+            {
+                "text": "FAILED: obj/tools/fiddle/fiddle.draw.o ",
+                "line": 0,
+                "col": 0
+            },
+            {
+                "text": "c++ -MMD -MF obj/tools/fiddle/fiddle.draw.o.d -DNDEBUG -DSK_HAS_HEIF_LIBRARY -DSK_HAS_JPEG_LIBRARY -DSK_SUPPORT_PDF -DSK_PDF_USE_SFNTLY -DSK_HAS_PNG_LIBRARY -DSK_CODEC_DECODES_RAW -DSK_HAS_WEBP_LIBRARY -DSK_XML -DSK_GAMMA_APPLY_TO_A8 -DSK_ENABLE_DISCRETE_GPU -DGR_TEST_UTILS=1 -DSK_SAMPLES_FOR_X -DSK_SUPPORT_ATLAS_TEXT=1 -I../../tools/flags -I../../include/private -I../../src/c -I../../src/codec -I../../src/core -I../../src/effects -I../../src/fonts -I../../src/image -I../../src/images -I../../src/lazy -I../../src/opts -I../../src/pathops -I../../src/pdf -I../../src/ports -I../../src/sfnt -I../../src/shaders -I../../src/shaders/gradients -I../../src/sksl -I../../src/utils -I../../src/utils/win -I../../src/xml -I../../third_party/gif -I../../src/gpu -I../../tools/gpu -I../../include/android -I../../include/c -I../../include/codec -I../../include/config -I../../include/core -I../../include/effects -I../../include/encode -I../../include/gpu -I../../include/gpu/gl -I../../include/atlastext -I../../include/pathops -I../../include/ports -I../../include/svg -I../../include/utils -I../../include/utils/mac -I../../include/atlastext -Igen -fstrict-aliasing -fPIC -Werror -Wall -Wextra -Winit-self -Wpointer-arith -Wsign-compare -Wvla -Wno-deprecated-declarations -Wno-maybe-uninitialized -Wno-unused-parameter -O3 -fdata-sections -ffunction-sections -g -std=c++11 -fno-exceptions -fno-rtti -Wnon-virtual-dtor -Wno-error -c ../../tools/fiddle/draw.cpp -o obj/tools/fiddle/fiddle.draw.o",
+                "line": 0,
+                "col": 0
+            },
+            {
+                "text": "../../tools/fiddle/draw.cpp: In function 'void draw(SkCanvas*)':",
+                "line": 0,
+                "col": 0
+            },
+            {
+                "text": "draw.cpp:5:12: error: aggregate 'SkMask mask' has incomplete type and cannot be defined",
+                "line": 5,
+                "col": 12
+            },
+            {
+                "text": " }",
+                "line": 0,
+                "col": 0
+            },
+            {
+                "text": "            ^   ",
+                "line": 0,
+                "col": 0
+            },
+            {
+                "text": "draw.cpp:6:28: error: incomplete type 'SkMask' used in nested name specifier",
+                "line": 6,
+                "col": 28
+            },
+            {
+                "text": " ",
+                "line": 0,
+                "col": 0
+            },
+            {
+                "text": "                            ^         ",
+                "line": 0,
+                "col": 0
+            },
+            {
+                "text": "draw.cpp:14:28: error: incomplete type 'SkMask' used in nested name specifier",
+                "line": 14,
+                "col": 28
+            },
+            {
+                "text": "     uint8_t bytes[] = { 0, 1, 2, 3, 4, 5, 6, 7 };",
+                "line": 0,
+                "col": 0
+            },
+            {
+                "text": "                            ^~~~~~~~~~",
+                "line": 0,
+                "col": 0
+            },
+            {
+                "text": "[4/7] compile ../../tools/fiddle/egl_context.cpp",
+                "line": 0,
+                "col": 0
+            },
+            {
+                "text": "[5/7] compile ../../tools/fiddle/fiddle_main.cpp",
+                "line": 0,
+                "col": 0
+            },
+            {
+                "text": "[6/7] link libskia.a",
+                "line": 0,
+                "col": 0
+            },
+            {
+                "text": "ninja: build stopped: subcommand failed.",
+                "line": 0,
+                "col": 0
+            },
+            {
+                "text": "",
+                "line": 0,
+                "col": 0
+            }
+        ],
+             "runtime_error": ""}}
 """
   yield (
       api.test('percommit_bookmaker') +
