@@ -70,11 +70,10 @@ namespace sk_tool_utils {
     void release_portable_typefaces();
 
     /**
-     *  Call writePixels() by using the pixels from bitmap, but with an info that claims
+     *  Call canvas->writePixels() by using the pixels from bitmap, but with an info that claims
      *  the pixels are colorType + alphaType
      */
     void write_pixels(SkCanvas*, const SkBitmap&, int x, int y, SkColorType, SkAlphaType);
-    void write_pixels(SkSurface*, const SkBitmap&, int x, int y, SkColorType, SkAlphaType);
 
     /**
      *  Returns true iff all of the pixels between the two images differ by <= the maxDiff value
