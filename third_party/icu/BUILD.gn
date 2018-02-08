@@ -221,7 +221,11 @@ if (skia_use_system_icu) {
       libs = [ "Advapi32.lib" ]
       sources += [ "../externals/icu/source/stubdata/stubdata.c" ]
     } else {
-      sources += [ "../externals/icu/$current_os/icudtl_dat.S" ]
+      if (is_ios) {
+        sources += [ "../externals/icu/mac/icudtl_dat.S" ]
+      } else {
+        sources += [ "../externals/icu/$current_os/icudtl_dat.S" ]
+      }
       libs = [ "dl" ]
     }
   }

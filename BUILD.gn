@@ -1609,8 +1609,7 @@ if (skia_enable_tools) {
     }
   }
 
-  # TODO(halcanary): Build ICU on iOS.
-  if (!is_ios && target_cpu != "wasm") {
+  if (target_cpu != "wasm") {
     test_app("sktexttopdf-hb") {
       sources = [
         "tools/shape/SkShaper_harfbuzz.cpp",
