@@ -81,8 +81,7 @@ def nanobench_flags(api, bot):
           'Quadro' in bot or
           'GTX' in bot or
           ('GT610' in bot and 'Ubuntu17' not in bot)):
-        configs.extend([gl_prefix + 'nvpr' + sample_count,
-                        gl_prefix + 'nvprdit' + sample_count])
+        configs.extend([gl_prefix + 'nvpr' + sample_count])
 
     # We want to test both the OpenGL config and the GLES config on Linux Intel:
     # GL is used by Chrome, GLES is used by ChromeOS.

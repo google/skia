@@ -157,15 +157,6 @@ def dm_flags(api, bot):
     if 'NexusPlayer' in bot:
       configs = [x for x in configs if 'dft' not in x]
 
-    if '-TSAN' not in bot and sample_count is not '':
-      if ('TegraK1'    in bot or
-          'TegraX1'    in bot or
-          'GTX550Ti'   in bot or
-          'GTX660'     in bot or
-          'QuadroP400' in bot or
-          ('GT610' in bot and 'Ubuntu17' not in bot)):
-        configs.append(gl_prefix + 'nvprdit' + sample_count)
-
     # We want to test both the OpenGL config and the GLES config on Linux Intel:
     # GL is used by Chrome, GLES is used by ChromeOS.
     # Also do the Ganesh threading verification test (render with and without
