@@ -66,13 +66,13 @@ public:
 
     bool onGetReadPixelsInfo(GrSurface* srcSurface, GrSurfaceOrigin srcOrigin,
                              int readWidth, int readHeight, size_t rowBytes,
-                             GrPixelConfig readConfig, DrawPreference*,
-                             ReadPixelTempDrawInfo*) override;
+                             GrColorType dstColorType, GrSRGBEncoded dstSRGBEncoded,
+                             DrawPreference*, ReadPixelTempDrawInfo*) override;
 
     bool onGetWritePixelsInfo(GrSurface* dstSurface, GrSurfaceOrigin dstOrigin,
                               int width, int height,
-                              GrPixelConfig srcConfig, DrawPreference*,
-                              WritePixelTempDrawInfo*) override;
+                              GrColorType srcColorType, GrSRGBEncoded srcSRGBEncoded,
+                              DrawPreference*, WritePixelTempDrawInfo*) override;
 
     bool onCopySurface(GrSurface* dst, GrSurfaceOrigin dstOrigin,
                        GrSurface* src, GrSurfaceOrigin srcOrigin,
@@ -195,17 +195,17 @@ private:
 
     bool onReadPixels(GrSurface* surface, GrSurfaceOrigin,
                       int left, int top, int width, int height,
-                      GrPixelConfig,
+                      GrColorType, GrSRGBEncoded,
                       void* buffer,
                       size_t rowBytes) override;
 
     bool onWritePixels(GrSurface* surface, GrSurfaceOrigin,
                        int left, int top, int width, int height,
-                       GrPixelConfig config, const GrMipLevel texels[], int mipLevelCount) override;
+                       GrColorType, GrSRGBEncoded, const GrMipLevel texels[], int mipLevelCount) override;
 
     bool onTransferPixels(GrTexture*,
                           int left, int top, int width, int height,
-                          GrPixelConfig config, GrBuffer* transferBuffer,
+                          GrColorType, GrSRGBEncoded, GrBuffer* transferBuffer,
                           size_t offset, size_t rowBytes) override;
 
     void onFinishFlush(bool insertedSemaphores) override;

@@ -195,8 +195,8 @@ bool GrGpu::copySurface(GrSurface* dst, GrSurfaceOrigin dstOrigin,
 
 bool GrGpu::getReadPixelsInfo(GrSurface* srcSurface, GrSurfaceOrigin srcOrigin,
                               int width, int height, size_t rowBytes,
-                              GrPixelConfig readConfig, DrawPreference* drawPreference,
-                              ReadPixelTempDrawInfo* tempDrawInfo) {
+                              GrColorType dstColorType, GrSRGBEncoded dstSRGBEncoded,
+                              DrawPreference* drawPreference, ReadPixelTempDrawInfo* tempDrawInfo) {
     SkASSERT(drawPreference);
     SkASSERT(tempDrawInfo);
     SkASSERT(srcSurface);
@@ -204,12 +204,12 @@ bool GrGpu::getReadPixelsInfo(GrSurface* srcSurface, GrSurfaceOrigin srcOrigin,
 
     // We currently do not support reading into the packed formats 565 or 4444 as they are not
     // required to have read back support on all devices and backends.
-    if (kRGB_565_GrPixelConfig == readConfig || kRGBA_4444_GrPixelConfig == readConfig) {
+    if (GrColorType::kRGB_565 == dstColorType || GrColorType::kABGR_4444 == dstColorType) {
         return false;
     }
 
-   if (!this->onGetReadPixelsInfo(srcSurface, srcOrigin, width, height, rowBytes, readConfig,
-                                  drawPreference, tempDrawInfo)) {
+   if (!this->onGetReadPixelsInfo(srcSurface, srcOrigin, width, height, rowBytes, dstColorType,
+                                  dstSRGBEncoded, drawPreference, tempDrawInfo)) {
         return false;
     }
 
@@ -225,17 +225,19 @@ bool GrGpu::getReadPixelsInfo(GrSurface* srcSurface, GrSurfaceOrigin srcOrigin,
 
     return true;
 }
+
 bool GrGpu::getWritePixelsInfo(GrSurface* dstSurface, GrSurfaceOrigin dstOrigin,
                                int width, int height,
-                               GrPixelConfig srcConfig, DrawPreference* drawPreference,
+                               GrColorType srcColorType, GrSRGBEncoded srcSRGBEncoded,
+                               DrawPreference* drawPreference,
                                WritePixelTempDrawInfo* tempDrawInfo) {
     SkASSERT(drawPreference);
     SkASSERT(tempDrawInfo);
     SkASSERT(dstSurface);
     SkASSERT(kGpuPrefersDraw_DrawPreference != *drawPreference);
 
-    if (!this->onGetWritePixelsInfo(dstSurface, dstOrigin, width, height, srcConfig, drawPreference,
-                                    tempDrawInfo)) {
+    if (!this->onGetWritePixelsInfo(dstSurface, dstOrigin, width, height, srcColorType,
+                                    srcSRGBEncoded, drawPreference, tempDrawInfo)) {
         return false;
     }
 
@@ -243,8 +245,8 @@ bool GrGpu::getWritePixelsInfo(GrSurface* dstSurface, GrSurfaceOrigin dstOrigin,
     if (!dstSurface->asRenderTarget() ||
         !this->caps()->isConfigTexturable(tempDrawInfo->fTempSurfaceDesc.fConfig)) {
         // If we don't have a fallback to a straight upload then fail.
-        if (kRequireDraw_DrawPreference == *drawPreference ||
-            !this->caps()->isConfigTexturable(srcConfig)) {
+        if (kRequireDraw_DrawPreference == *drawPreference /*TODO ||
+            !this->caps()->isConfigTexturable(srcConfig)*/) {
             return false;
         }
         *drawPreference = kNoDraw_DrawPreference;
@@ -254,11 +256,11 @@ bool GrGpu::getWritePixelsInfo(GrSurface* dstSurface, GrSurfaceOrigin dstOrigin,
 
 bool GrGpu::readPixels(GrSurface* surface, GrSurfaceOrigin origin,
                        int left, int top, int width, int height,
-                       GrPixelConfig config, void* buffer,
+                       GrColorType dstColorType, GrSRGBEncoded dstSRGBEncoded, void* buffer,
                        size_t rowBytes) {
     SkASSERT(surface);
 
-    size_t bpp = GrBytesPerPixel(config);
+    int bpp = GrColorTypeBytesPerPixel(dstColorType);
     if (!GrSurfacePriv::AdjustReadPixelParams(surface->width(), surface->height(), bpp,
                                               &left, &top, &width, &height,
                                               &buffer,
@@ -270,13 +272,14 @@ bool GrGpu::readPixels(GrSurface* surface, GrSurfaceOrigin origin,
 
     return this->onReadPixels(surface, origin,
                               left, top, width, height,
-                              config, buffer,
+                              dstColorType, dstSRGBEncoded, buffer,
                               rowBytes);
 }
 
 bool GrGpu::writePixels(GrSurface* surface, GrSurfaceOrigin origin,
                         int left, int top, int width, int height,
-                        GrPixelConfig config, const GrMipLevel texels[], int mipLevelCount) {
+                        GrColorType srcColorType, GrSRGBEncoded srcSRGBEncoded,
+                        const GrMipLevel texels[], int mipLevelCount) {
     SkASSERT(surface);
     if (1 == mipLevelCount) {
         // We require that if we are not mipped, then the write region is contained in the surface
@@ -297,7 +300,7 @@ bool GrGpu::writePixels(GrSurface* surface, GrSurfaceOrigin origin,
     }
 
     this->handleDirtyContext();
-    if (this->onWritePixels(surface, origin, left, top, width, height, config,
+    if (this->onWritePixels(surface, origin, left, top, width, height, srcColorType, srcSRGBEncoded,
                             texels, mipLevelCount)) {
         SkIRect rect = SkIRect::MakeXYWH(left, top, width, height);
         this->didWriteToSurface(surface, &rect, mipLevelCount);
@@ -309,16 +312,18 @@ bool GrGpu::writePixels(GrSurface* surface, GrSurfaceOrigin origin,
 
 bool GrGpu::writePixels(GrSurface* surface, GrSurfaceOrigin origin,
                         int left, int top, int width, int height,
-                        GrPixelConfig config, const void* buffer,
+                        GrColorType srcColorType, GrSRGBEncoded srcSRGBEncoded, const void* buffer,
                         size_t rowBytes) {
     GrMipLevel mipLevel = { buffer, rowBytes };
 
-    return this->writePixels(surface, origin, left, top, width, height, config, &mipLevel, 1);
+    return this->writePixels(surface, origin, left, top, width, height, srcColorType,
+                             srcSRGBEncoded, &mipLevel, 1);
 }
 
 bool GrGpu::transferPixels(GrTexture* texture,
                            int left, int top, int width, int height,
-                           GrPixelConfig config, GrBuffer* transferBuffer,
+                           GrColorType bufferColorType, GrSRGBEncoded bufferSRGBEncoded,
+                           GrBuffer* transferBuffer,
                            size_t offset, size_t rowBytes) {
     SkASSERT(transferBuffer);
 
@@ -330,8 +335,8 @@ bool GrGpu::transferPixels(GrTexture* texture,
     }
 
     this->handleDirtyContext();
-    if (this->onTransferPixels(texture, left, top, width, height, config,
-                               transferBuffer, offset, rowBytes)) {
+    if (this->onTransferPixels(texture, left, top, width, height, bufferColorType,
+                               bufferSRGBEncoded, transferBuffer, offset, rowBytes)) {
         SkIRect rect = SkIRect::MakeXYWH(left, top, width, height);
         this->didWriteToSurface(texture, &rect);
         fStats.incTransfersToTexture();

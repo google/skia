@@ -141,7 +141,7 @@ public:
      */
     bool readSurfacePixels(GrSurfaceContext* src,
                            int left, int top, int width, int height,
-                           GrPixelConfig dstConfig, SkColorSpace* dstColorSpace, void* buffer,
+                           GrColorType dstColorType, SkColorSpace* dstColorSpace, void* buffer,
                            size_t rowBytes = 0,
                            uint32_t pixelOpsFlags = 0);
 
@@ -163,7 +163,7 @@ public:
      */
     bool writeSurfacePixels(GrSurfaceContext* dst,
                             int left, int top, int width, int height,
-                            GrPixelConfig srcConfig, SkColorSpace* srcColorSpace, const void* buffer,
+                            GrColorType srcColorType, SkColorSpace* srcColorSpace, const void* buffer,
                             size_t rowBytes,
                             uint32_t pixelOpsFlags = 0);
 

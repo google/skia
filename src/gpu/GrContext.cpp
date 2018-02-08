@@ -467,12 +467,10 @@ void GrContextPriv::flush(GrSurfaceProxy* proxy) {
     fContext->fDrawingManager->flush(proxy);
 }
 
-bool sw_convert_to_premul(GrPixelConfig srcConfig, int width, int height, size_t inRowBytes,
+bool sw_convert_to_premul(GrColorType srcColorType, int width, int height, size_t inRowBytes,
                           const void* inPixels, size_t outRowBytes, void* outPixels) {
-    SkColorType colorType;
-    if (!GrPixelConfigToColorType(srcConfig, &colorType) ||
-        4 != SkColorTypeBytesPerPixel(colorType))
-    {
+    SkColorType colorType = GrColorTypeToSkColorType(srcColorType);
+    if (kUnknown_SkColorType == colorType || 4 != SkColorTypeBytesPerPixel(colorType)) {
         return false;
     }
 
@@ -485,28 +483,51 @@ bool sw_convert_to_premul(GrPixelConfig srcConfig, int width, int height, size_t
     return true;
 }
 
-static bool valid_premul_config(GrPixelConfig config) {
-    return GrPixelConfigIs8888Unorm(config) || kRGBA_half_GrPixelConfig == config;
+static bool valid_premul_color_type(GrColorType ct) {
+    switch (ct) {
+        case GrColorType::kUnknown: return false;
+        case GrColorType::kAlpha_8: return false;
+        case GrColorType::kRGB_565: return false;
+        case GrColorType::kABGR_4444: return false;
+        case GrColorType::kRGBA_8888: return true;
+        case GrColorType::kBGRA_8888: return true;
+        case GrColorType::kGray_8: return false;
+        case GrColorType::kAlpha_F16:  return true;
+        case GrColorType::kRGBA_F16:  return true;
+        case GrColorType::kRG_F32:  return false;
+        case GrColorType::kRGBA_F32: return false;
+    }
+    SK_ABORT("Invalid GrColorType");
+    return false;
 }
 
-static bool valid_pixel_conversion(GrPixelConfig srcConfig, GrPixelConfig dstConfig,
+static bool valid_pixel_conversion(GrColorType srcColorType, GrColorType dstColorType,
                                    bool premulConversion) {
     // We only allow premul <-> unpremul conversions for some formats
-    if (premulConversion && (!valid_premul_config(srcConfig) || !valid_premul_config(dstConfig))) {
+    if (premulConversion && (!valid_premul_color_type(srcColorType) || !valid_premul_color_type(
+        dstColorType))) {
         return false;
     }
 
     return true;
 }
 
-static bool pm_upm_must_round_trip(GrPixelConfig config, SkColorSpace* colorSpace) {
-    return !colorSpace &&
-           (kRGBA_8888_GrPixelConfig == config || kBGRA_8888_GrPixelConfig == config);
+// TODO: This will be removed when GrSurfaceContext's are aware of their color types
+// (skbug.com/6718)
+static bool pm_upm_must_round_trip(GrPixelConfig surfaceConfig,
+                                   const SkColorSpace* surfaceColorSpace) {
+    return !surfaceColorSpace &&
+           (kRGBA_8888_GrPixelConfig == surfaceConfig || kBGRA_8888_GrPixelConfig == surfaceConfig);
+}
+
+static bool pm_upm_must_round_trip(GrColorType cpuColorType, const SkColorSpace* cpuColorSpace) {
+    return !cpuColorSpace &&
+           (GrColorType::kRGBA_8888 == cpuColorType || GrColorType::kBGRA_8888 == cpuColorType);
 }
 
 bool GrContextPriv::writeSurfacePixels(GrSurfaceContext* dst,
                                        int left, int top, int width, int height,
-                                       GrPixelConfig srcConfig, SkColorSpace* srcColorSpace,
+                                       GrColorType srcColorType, SkColorSpace* srcColorSpace,
                                        const void* buffer, size_t rowBytes,
                                        uint32_t pixelOpsFlags) {
     // TODO: Color space conversion
@@ -526,14 +547,18 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceContext* dst,
 
     // The src is unpremul but the dst is premul -> premul the src before or as part of the write
     const bool premul = SkToBool(kUnpremul_PixelOpsFlag & pixelOpsFlags);
-    if (!valid_pixel_conversion(srcConfig, dstProxy->config(), premul)) {
+    GrSRGBEncoded dstGamma;
+
+    /// TODO: NEED THIS?
+    GrColorType dstColorType = GrPixelConfigToColorTypeAndGamma(dstProxy->config(), &dstGamma);
+    if (!valid_pixel_conversion(srcColorType, dstColorType, premul)) {
         return false;
     }
 
     // We need to guarantee round-trip conversion if we are reading and writing 8888 non-sRGB data,
     // without any color spaces attached, and the caller wants us to premul.
     bool useConfigConversionEffect =
-            premul && pm_upm_must_round_trip(srcConfig, srcColorSpace) &&
+            premul && pm_upm_must_round_trip(srcColorType, srcColorSpace) &&
             pm_upm_must_round_trip(dstProxy->config(), dst->colorSpaceInfo().colorSpace());
 
     // Are we going to try to premul as part of a draw? For the non-legacy case, we always allow
@@ -541,11 +566,13 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceContext* dst,
     bool premulOnGpu = premul &&
                        (!useConfigConversionEffect || fContext->validPMUPMConversionExists());
 
+    GrSRGBEncoded srcSRGBEncoded = srcColorSpace && srcColorSpace->isSRGB() ? GrSRGBEncoded::kYes
+                                                                            : GrSRGBEncoded::kNo;
     // Trim the params here so that if we wind up making a temporary surface it can be as small as
     // necessary and because GrGpu::getWritePixelsInfo requires it.
     if (!GrSurfacePriv::AdjustWritePixelParams(dstSurface->width(), dstSurface->height(),
-                                               GrBytesPerPixel(srcConfig), &left, &top, &width,
-                                               &height, &buffer, &rowBytes)) {
+                                               GrColorTypeBytesPerPixel(srcColorType), &left, &top,
+                                               &width, &height, &buffer, &rowBytes)) {
         return false;
     }
 
@@ -553,7 +580,8 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceContext* dst,
                                                        : GrGpu::kNoDraw_DrawPreference;
     GrGpu::WritePixelTempDrawInfo tempDrawInfo;
     if (!fContext->fGpu->getWritePixelsInfo(dstSurface, dstProxy->origin(), width, height,
-                                            srcConfig, &drawPreference, &tempDrawInfo)) {
+                                            srcColorType, srcSRGBEncoded, &drawPreference,
+                                            &tempDrawInfo)) {
         return false;
     }
 
@@ -578,7 +606,7 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceContext* dst,
     if (premul && (!tempProxy || !premulOnGpu)) {
         size_t tmpRowBytes = 4 * width;
         tmpPixels.reset(width * height);
-        if (!sw_convert_to_premul(srcConfig, width, height, rowBytes, buffer, tmpRowBytes,
+        if (!sw_convert_to_premul(srcColorType, width, height, rowBytes, buffer, tmpRowBytes,
                                   tmpPixels.get())) {
             return false;
         }
@@ -606,7 +634,8 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceContext* dst,
         }
 
         if (!fContext->fGpu->writePixels(texture, tempProxy->origin(), 0, 0, width, height,
-                                         tempDrawInfo.fWriteConfig, buffer, rowBytes)) {
+                                         tempDrawInfo.fWriteColorType, srcSRGBEncoded, buffer,
+                                         rowBytes)) {
             return false;
         }
         tempProxy = nullptr;
@@ -631,14 +660,14 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceContext* dst,
         }
     } else {
         return fContext->fGpu->writePixels(dstSurface, dstProxy->origin(), left, top, width,
-                                           height, srcConfig, buffer, rowBytes);
+                                           height, srcColorType, srcSRGBEncoded, buffer, rowBytes);
     }
     return true;
 }
 
 bool GrContextPriv::readSurfacePixels(GrSurfaceContext* src,
                                       int left, int top, int width, int height,
-                                      GrPixelConfig dstConfig, SkColorSpace* dstColorSpace,
+                                      GrColorType dstColorType, SkColorSpace* dstColorSpace,
                                       void* buffer, size_t rowBytes, uint32_t flags) {
     // TODO: Color space conversion
 
@@ -658,7 +687,12 @@ bool GrContextPriv::readSurfacePixels(GrSurfaceContext* src,
 
     // The src is premul but the dst is unpremul -> unpremul the src after or as part of the read
     bool unpremul = SkToBool(kUnpremul_PixelOpsFlag & flags);
-    if (!valid_pixel_conversion(srcProxy->config(), dstConfig, unpremul)) {
+
+    // TODO: NEED THIS?
+    GrSRGBEncoded srcSRGBEncoded;
+    GrColorType srcColorType = GrPixelConfigToColorTypeAndGamma(srcProxy->config(),
+                                                                &srcSRGBEncoded);
+    if (!valid_pixel_conversion(srcColorType, dstColorType, unpremul)) {
         return false;
     }
 
@@ -667,7 +701,7 @@ bool GrContextPriv::readSurfacePixels(GrSurfaceContext* src,
     bool useConfigConversionEffect =
             unpremul &&
             pm_upm_must_round_trip(srcProxy->config(), src->colorSpaceInfo().colorSpace()) &&
-            pm_upm_must_round_trip(dstConfig, dstColorSpace);
+            pm_upm_must_round_trip(dstColorType, dstColorSpace);
 
     // Are we going to try to unpremul as part of a draw? For the non-legacy case, we always allow
     // this. GrConfigConversionEffect fails on some GPUs, so only allow this if it works perfectly.
@@ -677,7 +711,7 @@ bool GrContextPriv::readSurfacePixels(GrSurfaceContext* src,
     // Adjust the params so that if we wind up using an intermediate surface we've already done
     // all the trimming and the temporary can be the min size required.
     if (!GrSurfacePriv::AdjustReadPixelParams(srcSurface->width(), srcSurface->height(),
-                                              GrBytesPerPixel(dstConfig), &left,
+                                              GrColorTypeBytesPerPixel(dstColorType), &left,
                                               &top, &width, &height, &buffer, &rowBytes)) {
         return false;
     }
@@ -685,8 +719,11 @@ bool GrContextPriv::readSurfacePixels(GrSurfaceContext* src,
     GrGpu::DrawPreference drawPreference = unpremulOnGpu ? GrGpu::kCallerPrefersDraw_DrawPreference
                                                          : GrGpu::kNoDraw_DrawPreference;
     GrGpu::ReadPixelTempDrawInfo tempDrawInfo;
+    GrSRGBEncoded dstSRGBEncoded = dstColorSpace && dstColorSpace->isSRGB() ? GrSRGBEncoded::kYes
+                                                                            : GrSRGBEncoded::kNo;
     if (!fContext->fGpu->getReadPixelsInfo(srcSurface, srcProxy->origin(), width, height, rowBytes,
-                                           dstConfig, &drawPreference, &tempDrawInfo)) {
+                                           dstColorType, dstSRGBEncoded, &drawPreference,
+                                           &tempDrawInfo)) {
         return false;
     }
 
@@ -751,10 +788,10 @@ bool GrContextPriv::readSurfacePixels(GrSurfaceContext* src,
     if (GrGpu::kRequireDraw_DrawPreference == drawPreference && !didTempDraw) {
         return false;
     }
-    GrPixelConfig configToRead = dstConfig;
+    GrColorType colorTypeToRead = dstColorType;
     if (didTempDraw) {
         this->flushSurfaceWrites(proxyToRead.get());
-        configToRead = tempDrawInfo.fReadConfig;
+        colorTypeToRead = tempDrawInfo.fReadColorType;
     }
 
     if (!proxyToRead->instantiate(this->resourceProvider())) {
@@ -764,15 +801,14 @@ bool GrContextPriv::readSurfacePixels(GrSurfaceContext* src,
     GrSurface* surfaceToRead = proxyToRead->priv().peekSurface();
 
     if (!fContext->fGpu->readPixels(surfaceToRead, proxyToRead->origin(),
-                                    left, top, width, height, configToRead, buffer, rowBytes)) {
+                                    left, top, width, height, colorTypeToRead, buffer, rowBytes)) {
         return false;
     }
 
     // Perform umpremul conversion if we weren't able to perform it as a draw.
     if (unpremul) {
-        SkColorType colorType;
-        if (!GrPixelConfigToColorType(dstConfig, &colorType) ||
-            4 != SkColorTypeBytesPerPixel(colorType))
+        SkColorType colorType = GrColorTypeToSkColorType(dstColorType);
+        if (kUnknown_SkColorType == colorType || 4 != SkColorTypeBytesPerPixel(colorType))
         {
             return false;
         }

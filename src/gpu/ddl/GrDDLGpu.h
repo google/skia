@@ -22,16 +22,16 @@ public:
 
     bool onGetReadPixelsInfo(GrSurface* srcSurface, GrSurfaceOrigin srcOrigin,
                              int readWidth, int readHeight, size_t rowBytes,
-                             GrPixelConfig readConfig, DrawPreference*,
-                             ReadPixelTempDrawInfo*) override {
+                             GrColorType dstColorType, GrSRGBEncoded dstSRGBEncoded,
+                             DrawPreference*, ReadPixelTempDrawInfo*) override {
         SkASSERT(0);
         return true;
     }
 
     bool onGetWritePixelsInfo(GrSurface* dstSurface, GrSurfaceOrigin dstOrigin,
                               int width, int height,
-                              GrPixelConfig srcConfig, DrawPreference*,
-                              WritePixelTempDrawInfo*) override {
+                              GrColorType srcColorType, GrSRGBEncoded srcSRGBEncoded,
+                              DrawPreference*, WritePixelTempDrawInfo*) override {
         SkASSERT(0);
         return true;
     }
@@ -129,7 +129,7 @@ private:
 
     bool onReadPixels(GrSurface* surface, GrSurfaceOrigin,
                       int left, int top, int width, int height,
-                      GrPixelConfig,
+                      GrColorType, GrSRGBEncoded,
                       void* buffer,
                       size_t rowBytes) override {
         SkASSERT(0);
@@ -138,7 +138,7 @@ private:
 
     bool onWritePixels(GrSurface* surface, GrSurfaceOrigin,
                        int left, int top, int width, int height,
-                       GrPixelConfig config,
+                       GrColorType, GrSRGBEncoded,
                        const GrMipLevel texels[], int mipLevelCount) override {
         SkASSERT(0);
         return true;
@@ -146,7 +146,7 @@ private:
 
     bool onTransferPixels(GrTexture* texture,
                           int left, int top, int width, int height,
-                          GrPixelConfig config, GrBuffer* transferBuffer,
+                          GrColorType config, GrSRGBEncoded, GrBuffer* transferBuffer,
                           size_t offset, size_t rowBytes) override {
         SkASSERT(0);
         return true;

@@ -27,13 +27,13 @@ public:
 
     bool onGetReadPixelsInfo(GrSurface* srcSurface, GrSurfaceOrigin srcOrigin,
                              int readWidth, int readHeight, size_t rowBytes,
-                             GrPixelConfig readConfig, DrawPreference*,
+                             GrColorType dstColorType, GrSRGBEncoded dstSRGBEncoded, DrawPreference*,
                              ReadPixelTempDrawInfo*) override { return true; }
 
     bool onGetWritePixelsInfo(GrSurface* dstSurface, GrSurfaceOrigin dstOrigin,
                               int width, int height,
-                              GrPixelConfig srcConfig, DrawPreference*,
-                              WritePixelTempDrawInfo*) override { return true; }
+                              GrColorType srcColorType, GrSRGBEncoded srcSRGBEncoded,
+                              DrawPreference*, WritePixelTempDrawInfo*) override { return true; }
 
     bool onCopySurface(GrSurface* dst, GrSurfaceOrigin dstOrigin,
                        GrSurface* src, GrSurfaceOrigin srcOrigin,
@@ -101,7 +101,7 @@ private:
 
     bool onReadPixels(GrSurface* surface, GrSurfaceOrigin,
                       int left, int top, int width, int height,
-                      GrPixelConfig,
+                      GrColorType, GrSRGBEncoded,
                       void* buffer,
                       size_t rowBytes) override {
         return true;
@@ -109,14 +109,14 @@ private:
 
     bool onWritePixels(GrSurface* surface, GrSurfaceOrigin,
                        int left, int top, int width, int height,
-                       GrPixelConfig config,
+                       GrColorType, GrSRGBEncoded,
                        const GrMipLevel texels[], int mipLevelCount) override {
         return true;
     }
 
     bool onTransferPixels(GrTexture* texture,
                           int left, int top, int width, int height,
-                          GrPixelConfig config, GrBuffer* transferBuffer,
+                          GrColorType, GrSRGBEncoded, GrBuffer* transferBuffer,
                           size_t offset, size_t rowBytes) override {
         return true;
     }

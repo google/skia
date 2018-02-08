@@ -338,24 +338,25 @@ GrBuffer* GrVkGpu::onCreateBuffer(size_t size, GrBufferType type, GrAccessPatter
 ////////////////////////////////////////////////////////////////////////////////
 bool GrVkGpu::onGetWritePixelsInfo(GrSurface* dstSurface, GrSurfaceOrigin dstOrigin,
                                    int width, int height,
-                                   GrPixelConfig srcConfig, DrawPreference* drawPreference,
+                                   GrColorType srcColorType, DrawPreference* drawPreference,
                                    WritePixelTempDrawInfo* tempDrawInfo) {
     GrRenderTarget* renderTarget = dstSurface->asRenderTarget();
 
     // Start off assuming no swizzling
     tempDrawInfo->fSwizzle = GrSwizzle::RGBA();
-    tempDrawInfo->fWriteConfig = srcConfig;
+    tempDrawInfo->fWriteColorType = srcColorType;
 
+    auto srcAsConfig = GrColorTypeToPixelConfig(srcColorType);
     // These settings we will always want if a temp draw is performed. Initially set the config
     // to srcConfig, though that may be modified if we decide to do a R/B swap
     tempDrawInfo->fTempSurfaceDesc.fFlags = kNone_GrSurfaceFlags;
-    tempDrawInfo->fTempSurfaceDesc.fConfig = srcConfig;
+    tempDrawInfo->fTempSurfaceDesc.fConfig = srcAsConfig;
     tempDrawInfo->fTempSurfaceDesc.fWidth = width;
     tempDrawInfo->fTempSurfaceDesc.fHeight = height;
     tempDrawInfo->fTempSurfaceDesc.fSampleCnt = 1;
     tempDrawInfo->fTempSurfaceDesc.fOrigin = kTopLeft_GrSurfaceOrigin;
 
-    if (dstSurface->config() == srcConfig) {
+    if (dstSurface->config() == srcAsConfig) {
         // We only support writing pixels to textures. Forcing a draw lets us write to pure RTs.
         if (!dstSurface->asTexture()) {
             ElevateDrawPreference(drawPreference, kRequireDraw_DrawPreference);
@@ -370,12 +371,12 @@ bool GrVkGpu::onGetWritePixelsInfo(GrSurface* dstSurface, GrSurfaceOrigin dstOri
     // Any config change requires a draw
     ElevateDrawPreference(drawPreference, kRequireDraw_DrawPreference);
 
-    bool configsAreRBSwaps = GrPixelConfigSwapRAndB(srcConfig) == dstSurface->config();
+    bool configsAreRBSwaps = GrPixelConfigSwapRAndB(srcAsConfig) == dstSurface->config();
 
-    if (!this->vkCaps().isConfigTexturable(srcConfig) && configsAreRBSwaps) {
+    if (!this->vkCaps().isConfigTexturable(srcAsConfig) && configsAreRBSwaps) {
         tempDrawInfo->fTempSurfaceDesc.fConfig = dstSurface->config();
         tempDrawInfo->fSwizzle = GrSwizzle::BGRA();
-        tempDrawInfo->fWriteConfig = dstSurface->config();
+        tempDrawInfo->fWriteColorType = GrPixelConfigToColorType(dstSurface->config());
     }
     return true;
 }
@@ -1881,7 +1882,7 @@ void GrVkGpu::onQueryMultisampleSpecs(GrRenderTarget* rt, GrSurfaceOrigin, const
 
 bool GrVkGpu::onGetReadPixelsInfo(GrSurface* srcSurface, GrSurfaceOrigin srcOrigin,
                                   int width, int height, size_t rowBytes,
-                                  GrPixelConfig readConfig, DrawPreference* drawPreference,
+                                  GrColorType readColorType, DrawPreference* drawPreference,
                                   ReadPixelTempDrawInfo* tempDrawInfo) {
     // These settings we will always want if a temp draw is performed.
     tempDrawInfo->fTempSurfaceDesc.fFlags = kRenderTarget_GrSurfaceFlag;
@@ -1915,7 +1916,7 @@ bool GrVkGpu::onGetReadPixelsInfo(GrSurface* srcSurface, GrSurfaceOrigin srcOrig
 
 bool GrVkGpu::onReadPixels(GrSurface* surface, GrSurfaceOrigin origin,
                            int left, int top, int width, int height,
-                           GrPixelConfig config,
+                           GrColorType colorType,
                            void* buffer,
                            size_t rowBytes) {
     VkFormat pixelFormat;
