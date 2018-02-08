@@ -44,8 +44,9 @@ static bool is_valid_non_lazy(const GrSurfaceDesc& desc) {
 #endif
 
 // Lazy-callback version
-GrSurfaceProxy::GrSurfaceProxy(LazyInstantiateCallback&& callback, const GrSurfaceDesc& desc,
-                               SkBackingFit fit, SkBudgeted budgeted, uint32_t flags)
+GrSurfaceProxy::GrSurfaceProxy(LazyInstantiateCallback&& callback, LazyInstantiationType lazyType,
+                               const GrSurfaceDesc& desc, SkBackingFit fit, SkBudgeted budgeted,
+                               uint32_t flags)
         : fConfig(desc.fConfig)
         , fWidth(desc.fWidth)
         , fHeight(desc.fHeight)
@@ -54,6 +55,7 @@ GrSurfaceProxy::GrSurfaceProxy(LazyInstantiateCallback&& callback, const GrSurfa
         , fBudgeted(budgeted)
         , fFlags(flags)
         , fLazyInstantiateCallback(std::move(callback))
+        , fLazyInstantiationType(lazyType)
         , fNeedsClear(SkToBool(desc.fFlags & kPerformInitialClear_GrSurfaceFlag))
         , fGpuMemorySize(kInvalidGpuMemorySize)
         , fLastOpList(nullptr) {
@@ -63,7 +65,6 @@ GrSurfaceProxy::GrSurfaceProxy(LazyInstantiateCallback&& callback, const GrSurfa
     } else {
         SkASSERT(is_valid_non_lazy(desc));
     }
-
 }
 
 // Wrapped version
@@ -361,6 +362,10 @@ bool GrSurfaceProxyPriv::doLazyInstantiation(GrResourceProvider* resourceProvide
     }
 
     sk_sp<GrSurface> surface = fProxy->fLazyInstantiateCallback(resourceProvider, outOrigin);
+    if (GrSurfaceProxy::LazyInstantiationType::kSingleUse == fProxy->fLazyInstantiationType) {
+        fProxy->fLazyInstantiateCallback(nullptr, nullptr);
+        fProxy->fLazyInstantiateCallback = nullptr;
+    }
     if (!surface) {
         fProxy->fWidth = 0;
         fProxy->fHeight = 0;

@@ -156,6 +156,7 @@ public:
 
     using LazyInstantiateCallback = std::function<sk_sp<GrSurface>(GrResourceProvider*,
                                                                    GrSurfaceOrigin* outOrigin)>;
+    using LazyInstantiationType = GrSurfaceProxy::LazyInstantiationType;
 
     enum class Textureable : bool {
         kNo = false,
