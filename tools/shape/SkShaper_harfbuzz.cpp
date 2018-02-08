@@ -15,6 +15,8 @@
 #include <unicode/uscript.h>
 
 #include "SkFontMgr.h"
+#include "SkLoadICU.h"
+#include "SkOnce.h"
 #include "SkShaper.h"
 #include "SkStream.h"
 #include "SkTDPQueue.h"
@@ -448,6 +450,9 @@ struct SkShaper::Impl {
 };
 
 SkShaper::SkShaper(sk_sp<SkTypeface> tf) : fImpl(new Impl) {
+    SkOnce once;
+    once([] { SkLoadICU(); });
+
     fImpl->fTypeface = tf ? std::move(tf) : SkTypeface::MakeDefault();
     fImpl->fHarfBuzzFont = create_hb_font(fImpl->fTypeface.get());
     SkASSERT(fImpl->fHarfBuzzFont);
