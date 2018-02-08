@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8823561e_8c3a2ef1",
+        "filename": "platform_tools/android/apps/skqp/build.gradle",
+        "patchSetId": 3
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-02-08T20:34:07Z",
+      "side": 1,
+      "message": "universal is a commonly used name in gradle to signify your intent.  I would replace \"fat\" with \"universal\"",
+      "range": {
+        "startLine": 27,
+        "startChar": 21,
+        "endLine": 27,
+        "endChar": 24
+      },
+      "revId": "f20fdb8999f653dde7cf9ec9fb1d0eba9cab493e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
