@@ -184,6 +184,30 @@ bool SkSurface::readPixels(const SkBitmap& bitmap, int srcX, int srcY) {
     return bitmap.peekPixels(&pm) && this->readPixels(pm, srcX, srcY);
 }
 
+void SkSurface::writePixels(const SkPixmap& pmap, int x, int y) {
+    if (pmap.addr() == nullptr || pmap.width() <= 0 || pmap.height() <= 0) {
+        return;
+    }
+
+    const SkIRect srcR = SkIRect::MakeXYWH(x, y, pmap.width(), pmap.height());
+    const SkIRect dstR = SkIRect::MakeWH(this->width(), this->height());
+    if (SkIRect::Intersects(srcR, dstR)) {
+        ContentChangeMode mode = kRetain_ContentChangeMode;
+        if (srcR.contains(dstR)) {
+            mode = kDiscard_ContentChangeMode;
+        }
+        asSB(this)->aboutToDraw(mode);
+        asSB(this)->onWritePixels(pmap, x, y);
+    }
+}
+
+void SkSurface::writePixels(const SkBitmap& src, int x, int y) {
+    SkPixmap pm;
+    if (src.peekPixels(&pm)) {
+        this->writePixels(pm, x, y);
+    }
+}
+
 GrBackendObject SkSurface::getTextureHandle(BackendHandleAccess access) {
     return asSB(this)->onGetTextureHandle(access);
 }
@@ -232,6 +256,7 @@ protected:
         return MakeNull(info.width(), info.height());
     }
     sk_sp<SkImage> onNewImageSnapshot() override { return nullptr; }
+    void onWritePixels(const SkPixmap&, int x, int y) override {}
     void onDraw(SkCanvas*, SkScalar x, SkScalar y, const SkPaint*) override {}
     void onCopyOnWrite(ContentChangeMode) override {}
 };

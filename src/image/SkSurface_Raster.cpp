@@ -22,6 +22,7 @@ public:
     SkCanvas* onNewCanvas() override;
     sk_sp<SkSurface> onNewSurface(const SkImageInfo&) override;
     sk_sp<SkImage> onNewImageSnapshot() override;
+    void onWritePixels(const SkPixmap&, int x, int y) override;
     void onDraw(SkCanvas*, SkScalar x, SkScalar y, const SkPaint*) override;
     void onCopyOnWrite(ContentChangeMode) override;
     void onRestoreBackingMutability() override;
@@ -145,6 +146,10 @@ sk_sp<SkImage> SkSurface_Raster::onNewImageSnapshot() {
     // Our pixels are in memory, so read access on the snapshot SkImage could be cheap.
     // Lock the shared pixel ref to ensure peekPixels() is usable.
     return SkMakeImageFromRasterBitmap(fBitmap, cpm);
+}
+
+void SkSurface_Raster::onWritePixels(const SkPixmap& src, int x, int y) {
+    fBitmap.writePixels(src, x, y);
 }
 
 void SkSurface_Raster::onRestoreBackingMutability() {

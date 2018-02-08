@@ -125,6 +125,10 @@ sk_sp<SkImage> SkSurface_Gpu::onNewImageSnapshot() {
     return image;
 }
 
+void SkSurface_Gpu::onWritePixels(const SkPixmap& src, int x, int y) {
+    fDevice->writePixels(src, x, y);
+}
+
 // Create a new render target and, if necessary, copy the contents of the old
 // render target into it. Note that this flushes the SkGpuDevice but
 // doesn't force an OpenGL flush.

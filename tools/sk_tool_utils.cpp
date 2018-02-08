@@ -144,6 +144,12 @@ void write_pixels(SkCanvas* canvas, const SkBitmap& bitmap, int x, int y,
     canvas->writePixels(info, tmp.getPixels(), tmp.rowBytes(), x, y);
 }
 
+void write_pixels(SkSurface* surface, const SkBitmap& src, int x, int y,
+                  SkColorType colorType, SkAlphaType alphaType) {
+    const SkImageInfo info = SkImageInfo::Make(src.width(), src.height(), colorType, alphaType);
+    surface->writePixels({info, src.getPixels(), src.rowBytes()}, x, y);
+}
+
 sk_sp<SkShader> create_checkerboard_shader(SkColor c1, SkColor c2, int size) {
     SkBitmap bm;
     bm.allocPixels(SkImageInfo::MakeS32(2 * size, 2 * size, kPremul_SkAlphaType));

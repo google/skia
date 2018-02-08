@@ -354,6 +354,19 @@ public:
                     int srcX, int srcY);
     bool readPixels(const SkBitmap& dst, int srcX, int srcY);
 
+    /**
+     *  Special version of drawing a pixmap to the surface (without going through the canvas).
+     *  - the implied blendmode is kSrc (overwrite the surface pixel values)
+     *  - any settings on the surface's canvas are ignored: matrix, clipping, etc.
+     */
+    void writePixels(const SkPixmap& src, int dstX, int dstY);
+
+    /**
+     *  Helper that extracts the pixmap from the bitmap (if possible), and then calls writePixels
+     *  with that pixmap.
+     */
+    void writePixels(const SkBitmap& src, int dstX, int dstY);
+
     const SkSurfaceProps& props() const { return fProps; }
 
     /**

@@ -1392,7 +1392,7 @@ pixmap contents become invalid on any future change to Surface.
     }
 ##
 
-#SeeAlso readPixels
+#SeeAlso readPixels writePixels
 
 #Method ##
 
@@ -1451,7 +1451,7 @@ Does not copy, and returns false if:
     }
 ##
 
-#SeeAlso peekPixels
+#SeeAlso peekPixels writePixels
 
 #Method ##
 
@@ -1517,7 +1517,7 @@ Does not copy, and returns false if:
     canvas->drawImage(image, 0, 0);
 ##
 
-#SeeAlso peekPixels
+#SeeAlso peekPixels writePixels
 
 #Method ##
 
@@ -1575,7 +1575,53 @@ Does not copy, and returns false if:
     canvas->drawBitmap(bitmap, 0, 0);
 ##
 
-#SeeAlso peekPixels
+#SeeAlso peekPixels writePixels
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method void writePixels(const SkPixmap& src, int dstX, int dstY)
+
+Copies Rect of pixels from the src Pixmap to the Surface.
+
+Source Rect corners are (0, 0) and (src.width(), src.height()).
+Destination Rect corners are (dstX, dstY) and (dstX + Surface width(), dstY + Surface height()).
+Copies each readable pixel intersecting both rectangles, without scaling,
+converting to Surface colorType() and Surface alphaType() if required.
+
+#Param src  storage for pixels to copy to Surface ##
+#Param dstX x position relative to Surface to begin copy; may be negative ##
+#Param dstY x position relative to Surface to begin copy; may be negative ##
+
+#Example
+    // todo
+##
+
+#SeeAlso readPixels peekPixels
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method void writePixels(const SkBitmap& src, int dstX, int dstY)
+
+Copies Rect of pixels from the src Bitmap to the Surface.
+
+Source Rect corners are (0, 0) and (src.width(), src.height()).
+Destination Rect corners are (dstX, dstY) and (dstX + Surface width(), dstY + Surface height()).
+Copies each readable pixel intersecting both rectangles, without scaling,
+converting to Surface colorType() and Surface alphaType() if required.
+
+#Param src  storage for pixels to copy to Surface ##
+#Param dstX x position relative to Surface to begin copy; may be negative ##
+#Param dstY x position relative to Surface to begin copy; may be negative ##
+
+#Example
+    // todo
+##
+
+#SeeAlso readPixels peekPixels
 
 #Method ##
 
