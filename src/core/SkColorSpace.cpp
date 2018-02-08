@@ -574,7 +574,7 @@ SkColorSpaceTransferFn SkColorSpaceTransferFn::invert() const {
     // find inverse for the other segment (if possible)
     if (transfer_fn_almost_equal(0.f, fA) || transfer_fn_almost_equal(0.f, fG)) {
         // otherwise assume it should be 1 as it is the top segment
-        // as you can't invert the constant functions y = b^g + c, or y = 1 + c
+        // as you can't invert the constant functions y = b^g + e, or y = 1 + e
         inv.fG = 1.f;
         inv.fE = 1.f;
     } else {
