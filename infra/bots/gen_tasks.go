@@ -330,6 +330,7 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 			} else if strings.Contains(parts["os"], "Mac") {
 				gpu, ok := map[string]string{
 					"IntelHD6000":   "8086:1626",
+					"IntelHD615":    "8086:591e",
 					"IntelIris5100": "8086:0a2e",
 				}[parts["cpu_or_gpu_value"]]
 				if !ok {
@@ -339,6 +340,7 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 				// TODO(benjaminwagner): Mac GPU bots haven't been upgraded.
 				d["os"] = map[string]string{
 					"IntelHD6000":   "Mac-10.13.3",
+					"IntelHD615":    "Mac-10.13.3",
 					"IntelIris5100": "Mac-10.13.1",
 				}[parts["cpu_or_gpu_value"]]
 			} else if strings.Contains(parts["os"], "ChromeOS") {
