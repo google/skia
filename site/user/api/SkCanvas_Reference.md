@@ -1797,7 +1797,7 @@ empty <a href="#SkCanvas_SaveLayerRec_SaveLayerRec">SaveLayerRec</a>
 
 ### Example
 
-<div><fiddle-embed name="ac7c834dce2eac6ef49c15e820e94003">
+<div><fiddle-embed name="b5cea1eed80a0eb04ddbab3f36dff73f">
 
 #### Example Output
 
