@@ -67,6 +67,10 @@ Having generated your build files, run Ninja to compile and link Skia.
     ninja -C out/Cached
     ninja -C out/RTTI
 
+If some header files are missing, you may need to install them. For example:
+
+    sudo apt-get install libfontconfig1-dev libgl1-mesa-dev libglu1-mesa-dev
+
 Android
 -------
 
