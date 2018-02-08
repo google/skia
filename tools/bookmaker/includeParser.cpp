@@ -342,8 +342,10 @@ bool IncludeParser::crossCheck(BmhParser& bmhParser) {
                         def = root->find(withParens, RootDefinition::AllowParens::kNo);
                     }
                     if (!def) {
-                        SkDebugf("method missing from bmh: %s\n", fullName.c_str());
-                        fFailed = true;
+                        if (!root->fDeprecated) {
+                            SkDebugf("method missing from bmh: %s\n", fullName.c_str());
+                            fFailed = true;
+                        }
                         break;
                     }
                     if (def->crossCheck2(token)) {
@@ -389,8 +391,10 @@ bool IncludeParser::crossCheck(BmhParser& bmhParser) {
                             def = root->find(anonName, RootDefinition::AllowParens::kYes);
                         }
                         if (!def) {
-                            SkDebugf("enum missing from bmh: %s\n", fullName.c_str());
-                            fFailed = true;
+                            if (!root->fDeprecated) {
+                                SkDebugf("enum missing from bmh: %s\n", fullName.c_str());
+                                fFailed = true;
+                            }
                             break;
                         }
                     }
@@ -402,8 +406,10 @@ bool IncludeParser::crossCheck(BmhParser& bmhParser) {
                         }
                     }
                     if (MarkType::kCode != def->fMarkType) {
-                        SkDebugf("enum code missing from bmh: %s\n", fullName.c_str());
-                        fFailed = true;
+                        if (!root->fDeprecated) {
+                            SkDebugf("enum code missing from bmh: %s\n", fullName.c_str());
+                            fFailed = true;
+                        }
                         break;
                     }
                     if (def->crossCheck(token)) {
@@ -423,8 +429,10 @@ bool IncludeParser::crossCheck(BmhParser& bmhParser) {
                         }
                         if (!def) {
                             if (string::npos == child->fName.find("Legacy_")) {
-                                SkDebugf("const missing from bmh: %s\n", constName.c_str());
-                                fFailed = true;
+                                if (!root->fDeprecated) {
+                                    SkDebugf("const missing from bmh: %s\n", constName.c_str());
+                                    fFailed = true;
+                                }
                             }
                         } else {
                             def->fVisited = true;
@@ -434,7 +442,7 @@ bool IncludeParser::crossCheck(BmhParser& bmhParser) {
                 case MarkType::kMember:
                     if (def) {
                         def->fVisited = true;
-                    } else {
+                    } else if (!root->fDeprecated) {
                         SkDebugf("member missing from bmh: %s\n", fullName.c_str());
                         fFailed = true;
                     }
@@ -442,7 +450,7 @@ bool IncludeParser::crossCheck(BmhParser& bmhParser) {
                 case MarkType::kTypedef:
                     if (def) {
                         def->fVisited = true;
-                    } else {
+                    } else if (!root->fDeprecated) {
                         SkDebugf("typedef missing from bmh: %s\n", fullName.c_str());
                         fFailed = true;
                     }
@@ -475,7 +483,7 @@ bool IncludeParser::crossCheck(BmhParser& bmhParser) {
     }
     if (crossChecks) {
         if (1 == crossChecks) {
-            SkDebugf("%s", firstCheck.c_str());
+            SkDebugf(" %s", firstCheck.c_str());
         }
         SkDebugf("\n");
     }

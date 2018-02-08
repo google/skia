@@ -373,7 +373,7 @@
     },
         "SkCanvas_SaveLayerRec_SaveLayerRec": {
     "code": "void draw(SkCanvas* canvas) {\n    SkCanvas::SaveLayerRec rec1;\n    rec1.fSaveLayerFlags = SkCanvas::kPreserveLCDText_SaveLayerFlag;\n    SkCanvas::SaveLayerRec rec2(nullptr, nullptr, SkCanvas::kPreserveLCDText_SaveLayerFlag);\n    SkDebugf(\"rec1 %c= rec2\\n\", rec1.fBounds == rec2.fBounds\n            && rec1.fPaint == rec2.fPaint\n            && rec1.fBackdrop == rec2.fBackdrop\n            && rec1.fSaveLayerFlags == rec2.fSaveLayerFlags ? '=' : '!');\n}",
-    "hash": "ac7c834dce2eac6ef49c15e820e94003",
+    "hash": "b5cea1eed80a0eb04ddbab3f36dff73f",
     "file": "SkCanvas_Reference",
     "name": "SkCanvas::SaveLayerRec::SaveLayerRec",
         "stdout": "rec1 == rec2\\n"
@@ -4950,19 +4950,11 @@
     "file": "SkImageInfo_Reference",
     "name": "SkImageInfo::width()"
 },
-    "SkImage_LegacyBitmapMode": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
-    "width": 256,
-    "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
-    "file": "SkImage_Reference",
-    "name": "SkImage::LegacyBitmapMode"
-},
     "SkImage_MakeBackendTextureFromSkImage": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "code": "static sk_sp<SkImage> create_gpu_image(GrContext* grContext) {\n    const SkImageInfo info = SkImageInfo::MakeN32(20, 20, kOpaque_SkAlphaType);\n    auto surface(SkSurface::MakeRenderTarget(grContext, SkBudgeted::kNo, info));\n    SkCanvas* canvas = surface->getCanvas();\n    canvas->clear(SK_ColorWHITE);\n    SkPaint paint;\n    paint.setColor(SK_ColorBLACK);\n    canvas->drawRect(SkRect::MakeXYWH(5, 5, 10, 10), paint);\n    return surface->makeImageSnapshot();\n}\n\nvoid draw(SkCanvas* canvas) {    \n    GrContext* grContext = canvas->getGrContext();\n    if (!grContext) {\n        return;\n    }\n    sk_sp<SkImage> backEndImage = create_gpu_image(grContext);\n    canvas->drawImage(backEndImage, 0, 0);\n    GrBackendTexture texture;\n    SkImage::BackendTextureReleaseProc proc;\n    if (!SkImage::MakeBackendTextureFromSkImage(grContext, std::move(backEndImage),\n            &texture, &proc)) {\n        return;\n    }\n    sk_sp<SkImage> i2 = SkImage::MakeFromTexture(grContext, texture, kTopLeft_GrSurfaceOrigin,\n            kN32_SkColorType, kOpaque_SkAlphaType, nullptr);\n    canvas->drawImage(i2, 30, 30);\n}\n",
     "width": 256,
-    "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
+    "height": 64,
+    "hash": "98e70337c2964abd2624239d28bbecd7",
     "file": "SkImage_Reference",
     "name": "SkImage::MakeBackendTextureFromSkImage"
 },
@@ -5023,10 +5015,10 @@
     "name": "SkImage::MakeFromPicture"
 },
     "SkImage_MakeFromTexture_3": {
-    "code": "void draw(SkCanvas* canvas) {\n    GrContext* context = canvas->getGrContext();\n    if (!context) {\n       return;\n    }\n    canvas->scale(.25f, .25f);\n    int x = 0;\n    for (auto origin : { kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin } ) {\n        sk_sp<SkImage> image = SkImage::MakeFromTexture(context, backEndTexture,\n               origin, kOpaque_SkAlphaType, nullptr);\n        canvas->drawImage(image, x, 0);\n    x += 512;\n    }\n}",
+    "code": "void draw(SkCanvas* canvas) {\n    GrContext* context = canvas->getGrContext();\n    if (!context) {\n       return;\n    }\n    canvas->scale(.25f, .25f);\n    int x = 0;\n    for (auto origin : { kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin } ) {\n        sk_sp<SkImage> image = SkImage::MakeFromTexture(context, backEndTexture,\n               origin, kN32_SkColorType, kOpaque_SkAlphaType, nullptr);\n        canvas->drawImage(image, x, 0);\n    x += 512;\n    }\n}",
     "width": 256,
     "height": 128,
-    "hash": "d5e43961a54548f445eece91d517381c",
+    "hash": "fdc498de45b53569743ec13012bf476c",
     "file": "SkImage_Reference",
     "name": "SkImage::MakeFromTexture_3"
 },
@@ -5063,10 +5055,10 @@
     "name": "SkImage::alphaType"
 },
     "SkImage_asLegacyBitmap": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "code": "void draw(SkCanvas* canvas) {\n    SkBitmap bitImage;\n    if (image->asLegacyBitmap(&bitImage, SkImage::kRO_LegacyBitmapMode)) {\n        canvas->drawBitmap(bitImage, 0, 0);\n    }\n    GrContext* grContext = canvas->getGrContext();\n    if (!grContext) {\n        return;\n    }\n    sk_sp<SkImage> textureImage(SkImage::MakeFromTexture(grContext, backEndTexture,\n                                kTopLeft_GrSurfaceOrigin, kOpaque_SkAlphaType, nullptr));\n    canvas->drawImage(textureImage, 45, 45);\n    if (textureImage->asLegacyBitmap(&bitImage, SkImage::kRO_LegacyBitmapMode)) {\n        canvas->drawBitmap(bitImage, 90, 90);\n    }\n}",
     "width": 256,
     "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
+    "hash": "eddfe9735342052ce2f8869ee5eb737a",
     "file": "SkImage_Reference",
     "name": "SkImage::asLegacyBitmap"
 },
@@ -7006,6 +6998,22 @@
     "file": "SkSurface_Reference",
     "name": "SkSurface::wait()"
 },
+    "SkSurface_writePixels": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkSurface_Reference",
+    "name": "SkSurface::writePixels"
+},
+    "SkSurface_writePixels_2": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkSurface_Reference",
+    "name": "SkSurface::writePixels_2"
+},
     "SkYUVColorSpace": {
     "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
     "width": 256,
@@ -7231,4 +7239,4 @@ onclick="handleMouseClick()"
 ></canvas >
 </body>
 </html>
-
+    

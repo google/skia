@@ -480,7 +480,7 @@ created <a href="#Image">Image</a>, or nullptr
 
 ### Example
 
-<div><fiddle-embed name="d5e43961a54548f445eece91d517381c" gpu="true"><div>A back-end texture has been created and uploaded to the GPU outside of this example.</div></fiddle-embed></div>
+<div><fiddle-embed name="fdc498de45b53569743ec13012bf476c" gpu="true"><div>A back-end texture has been created and uploaded to the GPU outside of this example.</div></fiddle-embed></div>
 
 ### See Also
 
@@ -736,8 +736,8 @@ zero but may differ from plane to plane. Returned <a href="#Image">Image</a> has
 <table>  <tr>    <td><a name="SkImage_MakeFromYUVTexturesCopy_context"> <code><strong>context </strong></code> </a></td> <td>
 <a href="undocumented#GPU_Context">GPU Context</a></td>
   </tr>  <tr>    <td><a name="SkImage_MakeFromYUVTexturesCopy_yuvColorSpace"> <code><strong>yuvColorSpace </strong></code> </a></td> <td>
-one of: <a href="undocumented#YUV_ColorSpace">kJPEG SkYUVColorSpace</a>, <a href="undocumented#YUV_ColorSpace">kRec601 SkYUVColorSpace</a>,
-<a href="undocumented#YUV_ColorSpace">kRec709 SkYUVColorSpace</a></td>
+one of: <a href="SkImageInfo_Reference#SkYUVColorSpace">kJPEG SkYUVColorSpace</a>, <a href="SkImageInfo_Reference#SkYUVColorSpace">kRec601 SkYUVColorSpace</a>,
+<a href="SkImageInfo_Reference#SkYUVColorSpace">kRec709 SkYUVColorSpace</a></td>
   </tr>  <tr>    <td><a name="SkImage_MakeFromYUVTexturesCopy_yuvTextureHandles"> <code><strong>yuvTextureHandles </strong></code> </a></td> <td>
 array of YUV textures on GPU</td>
   </tr>  <tr>    <td><a name="SkImage_MakeFromYUVTexturesCopy_yuvSizes"> <code><strong>yuvSizes </strong></code> </a></td> <td>
@@ -780,8 +780,8 @@ zero but may differ from plane to plane. Returned <a href="#Image">Image</a> has
 <table>  <tr>    <td><a name="SkImage_MakeFromYUVTexturesCopy_2_context"> <code><strong>context </strong></code> </a></td> <td>
 <a href="undocumented#GPU_Context">GPU Context</a></td>
   </tr>  <tr>    <td><a name="SkImage_MakeFromYUVTexturesCopy_2_yuvColorSpace"> <code><strong>yuvColorSpace </strong></code> </a></td> <td>
-one of: <a href="undocumented#YUV_ColorSpace">kJPEG SkYUVColorSpace</a>, <a href="undocumented#YUV_ColorSpace">kRec601 SkYUVColorSpace</a>,
-<a href="undocumented#YUV_ColorSpace">kRec709 SkYUVColorSpace</a></td>
+one of: <a href="SkImageInfo_Reference#SkYUVColorSpace">kJPEG SkYUVColorSpace</a>, <a href="SkImageInfo_Reference#SkYUVColorSpace">kRec601 SkYUVColorSpace</a>,
+<a href="SkImageInfo_Reference#SkYUVColorSpace">kRec709 SkYUVColorSpace</a></td>
   </tr>  <tr>    <td><a name="SkImage_MakeFromYUVTexturesCopy_2_yuvTextureHandles"> <code><strong>yuvTextureHandles </strong></code> </a></td> <td>
 array of YUV textures on GPU</td>
   </tr>  <tr>    <td><a name="SkImage_MakeFromYUVTexturesCopy_2_yuvSizes"> <code><strong>yuvSizes </strong></code> </a></td> <td>
@@ -827,8 +827,8 @@ zero but may differ from plane to plane. Returned <a href="#Image">Image</a> has
 <table>  <tr>    <td><a name="SkImage_MakeFromNV12TexturesCopy_context"> <code><strong>context </strong></code> </a></td> <td>
 <a href="undocumented#GPU_Context">GPU Context</a></td>
   </tr>  <tr>    <td><a name="SkImage_MakeFromNV12TexturesCopy_yuvColorSpace"> <code><strong>yuvColorSpace </strong></code> </a></td> <td>
-one of: <a href="undocumented#YUV_ColorSpace">kJPEG SkYUVColorSpace</a>, <a href="undocumented#YUV_ColorSpace">kRec601 SkYUVColorSpace</a>,
-<a href="undocumented#YUV_ColorSpace">kRec709 SkYUVColorSpace</a></td>
+one of: <a href="SkImageInfo_Reference#SkYUVColorSpace">kJPEG SkYUVColorSpace</a>, <a href="SkImageInfo_Reference#SkYUVColorSpace">kRec601 SkYUVColorSpace</a>,
+<a href="SkImageInfo_Reference#SkYUVColorSpace">kRec709 SkYUVColorSpace</a></td>
   </tr>  <tr>    <td><a name="SkImage_MakeFromNV12TexturesCopy_nv12TextureHandles"> <code><strong>nv12TextureHandles </strong></code> </a></td> <td>
 array of YUV textures on GPU</td>
   </tr>  <tr>    <td><a name="SkImage_MakeFromNV12TexturesCopy_nv12Sizes"> <code><strong>nv12Sizes </strong></code> </a></td> <td>
@@ -873,8 +873,8 @@ zero but may differ from plane to plane. Returned <a href="#Image">Image</a> has
 <table>  <tr>    <td><a name="SkImage_MakeFromNV12TexturesCopy_2_context"> <code><strong>context </strong></code> </a></td> <td>
 <a href="undocumented#GPU_Context">GPU Context</a></td>
   </tr>  <tr>    <td><a name="SkImage_MakeFromNV12TexturesCopy_2_yuvColorSpace"> <code><strong>yuvColorSpace </strong></code> </a></td> <td>
-one of: <a href="undocumented#YUV_ColorSpace">kJPEG SkYUVColorSpace</a>, <a href="undocumented#YUV_ColorSpace">kRec601 SkYUVColorSpace</a>,
-<a href="undocumented#YUV_ColorSpace">kRec709 SkYUVColorSpace</a></td>
+one of: <a href="SkImageInfo_Reference#SkYUVColorSpace">kJPEG SkYUVColorSpace</a>, <a href="SkImageInfo_Reference#SkYUVColorSpace">kRec601 SkYUVColorSpace</a>,
+<a href="SkImageInfo_Reference#SkYUVColorSpace">kRec709 SkYUVColorSpace</a></td>
   </tr>  <tr>    <td><a name="SkImage_MakeFromNV12TexturesCopy_2_nv12TextureHandles"> <code><strong>nv12TextureHandles </strong></code> </a></td> <td>
 array of YUV textures on GPU</td>
   </tr>  <tr>    <td><a name="SkImage_MakeFromNV12TexturesCopy_2_nv12Sizes"> <code><strong>nv12Sizes </strong></code> </a></td> <td>
@@ -900,18 +900,18 @@ created <a href="#Image">Image</a>, or nullptr
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 enum class <a href="#SkImage_BitDepth">BitDepth</a> {
-<a href="#SkImage_kU8">kU8</a>,
-<a href="#SkImage_kF16">kF16</a>,
+<a href="#SkImage_BitDepth_kU8">kU8</a>,
+<a href="#SkImage_BitDepth_kF16">kF16</a>,
 };</pre>
 
 ### Constants
 
 <table>
   <tr>
-    <td><a name="SkImage_kU8"> <code><strong>SkImage::kU8 </strong></code> </a></td><td>0</td><td>Use 8 bits per <a href="#ARGB">Color ARGB</a> component using unsigned integer format.</td>
+    <td><a name="SkImage_BitDepth_kU8"> <code><strong>SkImage::BitDepth::kU8 </strong></code> </a></td><td>0</td><td>Use 8 bits per <a href="#ARGB">Color ARGB</a> component using unsigned integer format.</td>
   </tr>
   <tr>
-    <td><a name="SkImage_kF16"> <code><strong>SkImage::kF16 </strong></code> </a></td><td>1</td><td>Use 16 bits per <a href="#ARGB">Color ARGB</a> component using half-precision floating point format.</td>
+    <td><a name="SkImage_BitDepth_kF16"> <code><strong>SkImage::BitDepth::kF16 </strong></code> </a></td><td>1</td><td>Use 16 bits per <a href="#ARGB">Color ARGB</a> component using half-precision floating point format.</td>
   </tr>
 </table>
 
@@ -1984,7 +1984,7 @@ Returns nullptr if backed by <a href="undocumented#GPU_Texture">GPU Texture</a> 
 
 ### See Also
 
-incomplete
+<a href="#SkImage_makeTextureImage">makeTextureImage</a> <a href="#SkImage_makeRasterImage">makeRasterImage</a> <a href="#SkImage_MakeBackendTextureFromSkImage">MakeBackendTextureFromSkImage</a>
 
 ---
 
@@ -2032,26 +2032,24 @@ required storage for translation of returned <a href="#Image">Image</a>.
 Returns nullptr if <a href="#Image">Image</a> could not be created. If nullptr is returned, <a href="#SkImage_makeWithFilter_outSubset">outSubset</a>
 and <a href="#SkImage_makeWithFilter_offset">offset</a> are undefined.
 
-<a href="#SkImage_makeWithFilter">makeWithFilter</a> is optimized to support <a href="#Image">Image</a> backed by <a href="undocumented#GPU_Texture">GPU Texture</a> drawn in an
-animation with <a href="undocumented#SkImageFilter">SkImageFilter</a> that vary in size from one frame to the next. The
-created <a href="#Image">Image</a> is drawn at an increased size so that <a href="undocumented#GPU_Texture">GPU Texture</a> can be reused
-with different sized effects. <a href="#SkImage_makeWithFilter_outSubset">outSubset</a> describes the valid bounds of <a href="undocumented#GPU_Texture">GPU Texture</a>
-returned. The returned <a href="#Image">Image</a> may be much larger than required for the <a href="#SkImage_makeWithFilter_filter">filter</a>.
-<a href="#SkImage_makeWithFilter_offset">offset</a> translates the returned <a href="#Image">Image</a> to keep subsequent animation frames
-aligned with respect to each other.
+Useful for animation of <a href="undocumented#SkImageFilter">SkImageFilter</a> that varies size from frame to frame.
+Returned <a href="#Image">Image</a> is created larger than required by <a href="#SkImage_makeWithFilter_filter">filter</a> so that <a href="undocumented#GPU_Texture">GPU Texture</a>
+can be reused with different sized effects. <a href="#SkImage_makeWithFilter_outSubset">outSubset</a> describes the valid bounds
+of <a href="undocumented#GPU_Texture">GPU Texture</a> returned. <a href="#SkImage_makeWithFilter_offset">offset</a> translates the returned <a href="#Image">Image</a> to keep subsequent
+animation frames aligned with respect to each other.
 
 ### Parameters
 
 <table>  <tr>    <td><a name="SkImage_makeWithFilter_filter"> <code><strong>filter </strong></code> </a></td> <td>
 how <a href="#Image">Image</a> is sampled when transformed</td>
   </tr>  <tr>    <td><a name="SkImage_makeWithFilter_subset"> <code><strong>subset </strong></code> </a></td> <td>
-incomplete</td>
+bounds of <a href="#Image">Image</a> processed by <a href="#SkImage_makeWithFilter_filter">filter</a></td>
   </tr>  <tr>    <td><a name="SkImage_makeWithFilter_clipBounds"> <code><strong>clipBounds </strong></code> </a></td> <td>
-incomplete</td>
+expected bounds of filtered <a href="#Image">Image</a></td>
   </tr>  <tr>    <td><a name="SkImage_makeWithFilter_outSubset"> <code><strong>outSubset </strong></code> </a></td> <td>
-incomplete</td>
+storage for returned <a href="#Image">Image</a> bounds</td>
   </tr>  <tr>    <td><a name="SkImage_makeWithFilter_offset"> <code><strong>offset </strong></code> </a></td> <td>
-incomplete</td>
+storage for returned <a href="#Image">Image</a> translation</td>
   </tr>
 </table>
 
@@ -2066,7 +2064,7 @@ By translating canvas by returned <a href="#SkImage_makeWithFilter_offset">offse
 
 ### See Also
 
-<a href="#SkPaint_setImageFilter">SkPaint::setImageFilter</a>
+<a href="#SkImage_makeShader">makeShader</a><sup><a href="#SkImage_makeShader_2">[2]</a></sup> <a href="#SkPaint_setImageFilter">SkPaint::setImageFilter</a>
 
 ---
 
@@ -2110,83 +2108,71 @@ static bool MakeBackendTextureFromSkImage(GrContext* context, sk_sp&lt;SkImage&g
                                           BackendTextureReleaseProc* backendTextureReleaseProc)
 </pre>
 
-Creates a <a href="undocumented#GrBackendTexture">GrBackendTexture</a> from the provided <a href="#SkImage">SkImage</a>. Returns true on success. The
-<a href="undocumented#GrBackendTexture">GrBackendTexture</a> and <a href="#SkImage_BackendTextureReleaseProc">BackendTextureReleaseProc</a> are populated on success. It is the callers
-responsibility to call the <a href="#SkImage_BackendTextureReleaseProc">BackendTextureReleaseProc</a> once they have deleted the texture.
-Note that the <a href="#SkImage_BackendTextureReleaseProc">BackendTextureReleaseProc</a> allows Skia to clean up auxiliary data related
-to the <a href="undocumented#GrBackendTexture">GrBackendTexture</a>, and is not a substitute for the client deleting the <a href="undocumented#GrBackendTexture">GrBackendTexture</a>
-themselves.
+Creates a <a href="undocumented#GrBackendTexture">GrBackendTexture</a> from the provided <a href="#SkImage">SkImage</a>. Returns true and
+stores result in <a href="#SkImage_MakeBackendTextureFromSkImage_backendTexture">backendTexture</a> and <a href="#SkImage_MakeBackendTextureFromSkImage_backendTextureReleaseProc">backendTextureReleaseProc</a> if
+texture is created; otherwise, returns false and leaves
+<a href="#SkImage_MakeBackendTextureFromSkImage_backendTexture">backendTexture</a> and <a href="#SkImage_MakeBackendTextureFromSkImage_backendTextureReleaseProc">backendTextureReleaseProc</a> unmodified.
 
-If <a href="#SkImage_MakeBackendTextureFromSkImage_image">image</a> is both texture backed and singly referenced; that is, its only
-reference was transferred using std::move(): <a href="#SkImage_MakeBackendTextureFromSkImage_image">image</a> is returned in <a href="#SkImage_MakeBackendTextureFromSkImage_backendTexture">backendTexture</a>
-without conversion or making a copy.
+Call <a href="#SkImage_MakeBackendTextureFromSkImage_backendTextureReleaseProc">backendTextureReleaseProc</a> after deleting <a href="#SkImage_MakeBackendTextureFromSkImage_backendTexture">backendTexture</a>.
+<a href="#SkImage_MakeBackendTextureFromSkImage_backendTextureReleaseProc">backendTextureReleaseProc</a> cleans up auxiliary data related to returned
+<a href="#SkImage_MakeBackendTextureFromSkImage_backendTexture">backendTexture</a>. The caller must delete returned <a href="#SkImage_MakeBackendTextureFromSkImage_backendTexture">backendTexture</a> after use.
 
-If <a href="#Image">Image</a> is not texture backed, this function returns texture with <a href="#Image">Image</a>
-contents.
+If <a href="#Image">Image</a> is both texture backed and singly referenced, <a href="#SkImage_MakeBackendTextureFromSkImage_image">image</a> is returned in
+<a href="#SkImage_MakeBackendTextureFromSkImage_backendTexture">backendTexture</a> without conversion or making a copy. <a href="#Image">Image</a> is singly referenced
+if its was transferred solely using std::move().
+
+If <a href="#Image">Image</a> is not texture backed, returns texture with <a href="#Image">Image</a> contents.
 
 ### Parameters
 
 <table>  <tr>    <td><a name="SkImage_MakeBackendTextureFromSkImage_context"> <code><strong>context </strong></code> </a></td> <td>
 <a href="undocumented#GPU_Context">GPU Context</a></td>
   </tr>  <tr>    <td><a name="SkImage_MakeBackendTextureFromSkImage_image"> <code><strong>image </strong></code> </a></td> <td>
-incomplete</td>
+<a href="#Image">Image</a> used for texture</td>
   </tr>  <tr>    <td><a name="SkImage_MakeBackendTextureFromSkImage_backendTexture"> <code><strong>backendTexture </strong></code> </a></td> <td>
-incomplete</td>
+storage for backend texture</td>
   </tr>  <tr>    <td><a name="SkImage_MakeBackendTextureFromSkImage_backendTextureReleaseProc"> <code><strong>backendTextureReleaseProc </strong></code> </a></td> <td>
-incomplete</td>
+storage for clean up function</td>
   </tr>
 </table>
 
 ### Return Value
 
-incomplete
+true if backend texture was created
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name="98e70337c2964abd2624239d28bbecd7" gpu="true"></fiddle-embed></div>
 
 ### See Also
 
-incomplete
+<a href="#SkImage_MakeFromTexture">MakeFromTexture</a><sup><a href="#SkImage_MakeFromTexture_2">[2]</a></sup><sup><a href="#SkImage_MakeFromTexture_3">[3]</a></sup><sup><a href="#SkImage_MakeFromTexture_4">[4]</a></sup> <a href="#SkImage_makeTextureImage">makeTextureImage</a>
 
 ---
 
 ## <a name="SkImage_LegacyBitmapMode"></a> Enum SkImage::LegacyBitmapMode
 
+soon
+
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 enum <a href="#SkImage_LegacyBitmapMode">LegacyBitmapMode</a> {
 <a href="#SkImage_kRO_LegacyBitmapMode">kRO LegacyBitmapMode</a>,
-<a href="#SkImage_kRW_LegacyBitmapMode">kRW LegacyBitmapMode</a>,
 };</pre>
-
-Helper functions to convert to <a href="SkBitmap_Reference#SkBitmap">SkBitmap</a>
 
 ### Constants
 
 <table>
   <tr>
-    <td><a name="SkImage_kRO_LegacyBitmapMode"> <code><strong>SkImage::kRO_LegacyBitmapMode </strong></code> </a></td><td>0</td><td></td>
+    <td><a name="SkImage_kRO_LegacyBitmapMode"> <code><strong>SkImage::kRO_LegacyBitmapMode </strong></code> </a></td><td>0</td><td>Returned bitmap is read-only and immutable.</td>
   </tr>
-  <tr>
-    <td><a name="SkImage_kRW_LegacyBitmapMode"> <code><strong>SkImage::kRW_LegacyBitmapMode </strong></code> </a></td><td>1</td><td></td>
-  </tr>
+
 </table>
-
-### Example
-
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
-
-### See Also
-
-incomplete
-
-
 
 <a name="SkImage_asLegacyBitmap"></a>
 ## asLegacyBitmap
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-bool asLegacyBitmap(SkBitmap* bitmap, LegacyBitmapMode legacyBitmapMode) const
+bool asLegacyBitmap(SkBitmap* bitmap, LegacyBitmapMode legacyBitmapMode = kRO_LegacyBitmapMode) const
 </pre>
 
 Creates raster <a href="SkBitmap_Reference#Bitmap">Bitmap</a> with same pixels as <a href="#Image">Image</a>. If <a href="#SkImage_asLegacyBitmap_legacyBitmapMode">legacyBitmapMode</a> is
@@ -2199,7 +2185,7 @@ Returns true if <a href="SkBitmap_Reference#Bitmap">Bitmap</a> is stored in <a h
 <table>  <tr>    <td><a name="SkImage_asLegacyBitmap_bitmap"> <code><strong>bitmap </strong></code> </a></td> <td>
 storage for legacy <a href="SkBitmap_Reference#Bitmap">Bitmap</a></td>
   </tr>  <tr>    <td><a name="SkImage_asLegacyBitmap_legacyBitmapMode"> <code><strong>legacyBitmapMode </strong></code> </a></td> <td>
-one of: <a href="#SkImage_kRO_LegacyBitmapMode">kRO LegacyBitmapMode</a>, <a href="#SkImage_kRW_LegacyBitmapMode">kRW LegacyBitmapMode</a></td>
+to be deprecated</td>
   </tr>
 </table>
 
@@ -2209,11 +2195,11 @@ true if <a href="SkBitmap_Reference#Bitmap">Bitmap</a> was created
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name="eddfe9735342052ce2f8869ee5eb737a" gpu="true"></fiddle-embed></div>
 
 ### See Also
 
-incomplete
+<a href="#SkImage_MakeRasterData">MakeRasterData</a> <a href="#SkImage_makeRasterImage">makeRasterImage</a> <a href="#SkImage_makeNonTextureImage">makeNonTextureImage</a>
 
 ---
 

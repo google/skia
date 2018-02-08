@@ -61,6 +61,7 @@ of the requested dimensions are zero, then nullptr will be returned.
 | <a href="#SkSurface_readPixels">readPixels</a> | copies <a href="SkRect_Reference#Rect">Rect</a> of pixels |
 | <a href="#SkSurface_wait">wait</a> | rause commands until signaled |
 | <a href="#SkSurface_width">width</a> | returns pixel column count |
+| <a href="#SkSurface_writePixels">writePixels</a> | copies <a href="SkRect_Reference#Rect">Rect</a> of pixels |
 
 ## <a name="Constructor"></a> Constructor
 
@@ -1396,6 +1397,9 @@ are not captured. <a href="SkImage_Reference#Image">Image</a> allocation is acco
 |  | <a href="#SkSurface_readPixels">readPixels(const SkPixmap& dst, int srcX, int srcY)</a> |
 |  | <a href="#SkSurface_readPixels_2">readPixels(const SkImageInfo& dstInfo, void* dstPixels, size t dstRowBytes, int srcX, int srcY)</a> |
 |  | <a href="#SkSurface_readPixels_3">readPixels(const SkBitmap& dst, int srcX, int srcY)</a> |
+| <a href="#SkSurface_writePixels">writePixels</a> | copies <a href="SkRect_Reference#Rect">Rect</a> of pixels |
+|  | <a href="#SkSurface_writePixels">writePixels(const SkPixmap& src, int dstX, int dstY)</a> |
+|  | <a href="#SkSurface_writePixels_2">writePixels(const SkBitmap& src, int dstX, int dstY)</a> |
 
 <a name="SkSurface_draw"></a>
 ## draw
@@ -1463,7 +1467,7 @@ true if <a href="#Surface">Surface</a> has direct access to pixels
 
 ### See Also
 
-<a href="#SkSurface_readPixels">readPixels</a><sup><a href="#SkSurface_readPixels_2">[2]</a></sup><sup><a href="#SkSurface_readPixels_3">[3]</a></sup>
+<a href="#SkSurface_readPixels">readPixels</a><sup><a href="#SkSurface_readPixels_2">[2]</a></sup><sup><a href="#SkSurface_readPixels_3">[3]</a></sup> <a href="#SkSurface_writePixels">writePixels</a><sup><a href="#SkSurface_writePixels_2">[2]</a></sup>
 
 ---
 
@@ -1520,7 +1524,7 @@ true if pixels were copied
 
 ### See Also
 
-<a href="#SkSurface_peekPixels">peekPixels</a>
+<a href="#SkSurface_peekPixels">peekPixels</a> <a href="#SkSurface_writePixels">writePixels</a><sup><a href="#SkSurface_writePixels_2">[2]</a></sup>
 
 ---
 
@@ -1582,7 +1586,7 @@ The copied quarter ovals overdraw the original oval.</div></fiddle-embed></div>
 
 ### See Also
 
-<a href="#SkSurface_peekPixels">peekPixels</a>
+<a href="#SkSurface_peekPixels">peekPixels</a> <a href="#SkSurface_writePixels">writePixels</a><sup><a href="#SkSurface_writePixels_2">[2]</a></sup>
 
 ---
 
@@ -1639,7 +1643,78 @@ true if pixels were copied
 
 ### See Also
 
-<a href="#SkSurface_peekPixels">peekPixels</a>
+<a href="#SkSurface_peekPixels">peekPixels</a> <a href="#SkSurface_writePixels">writePixels</a><sup><a href="#SkSurface_writePixels_2">[2]</a></sup>
+
+---
+
+<a name="SkSurface_writePixels"></a>
+## writePixels
+
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
+void writePixels(const SkPixmap& src, int dstX, int dstY)
+</pre>
+
+Copies <a href="SkRect_Reference#Rect">Rect</a> of pixels from the <a href="#SkSurface_writePixels_src">src</a> <a href="SkPixmap_Reference#Pixmap">Pixmap</a> to the <a href="#Surface">Surface</a>.
+
+Source <a href="SkRect_Reference#Rect">Rect</a> corners are (0, 0) and (<a href="#SkSurface_writePixels_src">src</a>.<a href="#SkSurface_width">width</a>, <a href="#SkSurface_writePixels_src">src</a>.<a href="#SkSurface_height">height</a>).
+Destination <a href="SkRect_Reference#Rect">Rect</a> corners are (<a href="#SkSurface_writePixels_dstX">dstX</a>, <a href="#SkSurface_writePixels_dstY">dstY</a>) and(<a href="#SkSurface_writePixels_dstX">dstX</a> + <a href="#Surface">Surface</a> <a href="#SkSurface_width">width</a>, <a href="#SkSurface_writePixels_dstY">dstY</a> + <a href="#Surface">Surface</a> <a href="#SkSurface_height">height</a>).
+
+Copies each readable pixel intersecting both rectangles, without scaling,
+converting to <a href="#Surface">Surface</a> colorType() and <a href="#Surface">Surface</a> alphaType() if required.
+
+### Parameters
+
+<table>  <tr>    <td><a name="SkSurface_writePixels_src"> <code><strong>src </strong></code> </a></td> <td>
+storage for pixels to copy to <a href="#Surface">Surface</a></td>
+  </tr>  <tr>    <td><a name="SkSurface_writePixels_dstX"> <code><strong>dstX </strong></code> </a></td> <td>
+x position relative to <a href="#Surface">Surface</a> to begin copy; may be negative</td>
+  </tr>  <tr>    <td><a name="SkSurface_writePixels_dstY"> <code><strong>dstY </strong></code> </a></td> <td>
+x position relative to <a href="#Surface">Surface</a> to begin copy; may be negative</td>
+  </tr>
+</table>
+
+### Example
+
+<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+
+### See Also
+
+<a href="#SkSurface_readPixels">readPixels</a><sup><a href="#SkSurface_readPixels_2">[2]</a></sup><sup><a href="#SkSurface_readPixels_3">[3]</a></sup> <a href="#SkSurface_peekPixels">peekPixels</a>
+
+---
+
+<a name="SkSurface_writePixels_2"></a>
+
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
+void writePixels(const SkBitmap& src, int dstX, int dstY)
+</pre>
+
+Copies <a href="SkRect_Reference#Rect">Rect</a> of pixels from the <a href="#SkSurface_writePixels_2_src">src</a> <a href="SkBitmap_Reference#Bitmap">Bitmap</a> to the <a href="#Surface">Surface</a>.
+
+Source <a href="SkRect_Reference#Rect">Rect</a> corners are (0, 0) and (<a href="#SkSurface_writePixels_2_src">src</a>.<a href="#SkSurface_width">width</a>, <a href="#SkSurface_writePixels_2_src">src</a>.<a href="#SkSurface_height">height</a>).
+Destination <a href="SkRect_Reference#Rect">Rect</a> corners are (<a href="#SkSurface_writePixels_2_dstX">dstX</a>, <a href="#SkSurface_writePixels_2_dstY">dstY</a>) and(<a href="#SkSurface_writePixels_2_dstX">dstX</a> + <a href="#Surface">Surface</a> <a href="#SkSurface_width">width</a>, <a href="#SkSurface_writePixels_2_dstY">dstY</a> + <a href="#Surface">Surface</a> <a href="#SkSurface_height">height</a>).
+
+Copies each readable pixel intersecting both rectangles, without scaling,
+converting to <a href="#Surface">Surface</a> colorType() and <a href="#Surface">Surface</a> alphaType() if required.
+
+### Parameters
+
+<table>  <tr>    <td><a name="SkSurface_writePixels_2_src"> <code><strong>src </strong></code> </a></td> <td>
+storage for pixels to copy to <a href="#Surface">Surface</a></td>
+  </tr>  <tr>    <td><a name="SkSurface_writePixels_2_dstX"> <code><strong>dstX </strong></code> </a></td> <td>
+x position relative to <a href="#Surface">Surface</a> to begin copy; may be negative</td>
+  </tr>  <tr>    <td><a name="SkSurface_writePixels_2_dstY"> <code><strong>dstY </strong></code> </a></td> <td>
+x position relative to <a href="#Surface">Surface</a> to begin copy; may be negative</td>
+  </tr>
+</table>
+
+### Example
+
+<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+
+### See Also
+
+<a href="#SkSurface_readPixels">readPixels</a><sup><a href="#SkSurface_readPixels_2">[2]</a></sup><sup><a href="#SkSurface_readPixels_3">[3]</a></sup> <a href="#SkSurface_peekPixels">peekPixels</a>
 
 ---
 

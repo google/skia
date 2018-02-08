@@ -1968,7 +1968,7 @@ a fill draw.
 #Const kStroke_Style 1
     Set to stroke geometry.
     Applies to Rect, Region, Round_Rect, Arcs, Circles, Ovals, Path, and Text. 
-    Arcs, Lines, and Points, are always drawn as if kStroke_Style is set,
+    Arcs, Lines, and points, are always drawn as if kStroke_Style is set,
     and ignore the set Style.
     The stroke construction is unaffected by the Path_Fill_Type.
 ##

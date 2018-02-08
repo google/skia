@@ -1582,11 +1582,16 @@ Does not copy, and returns false if:
 # ------------------------------------------------------------------------------
 
 #Method void writePixels(const SkPixmap& src, int dstX, int dstY)
-
+#In Pixels
+#Line # copies Rect of pixels ##
 Copies Rect of pixels from the src Pixmap to the Surface.
 
 Source Rect corners are (0, 0) and (src.width(), src.height()).
-Destination Rect corners are (dstX, dstY) and (dstX + Surface width(), dstY + Surface height()).
+Destination Rect corners are (dstX, dstY) and 
+#Formula
+(dstX + Surface width(), dstY + Surface height())
+##
+.
 Copies each readable pixel intersecting both rectangles, without scaling,
 converting to Surface colorType() and Surface alphaType() if required.
 
@@ -1595,7 +1600,7 @@ converting to Surface colorType() and Surface alphaType() if required.
 #Param dstY x position relative to Surface to begin copy; may be negative ##
 
 #Example
-    // todo
+    // incomplete
 ##
 
 #SeeAlso readPixels peekPixels
@@ -1609,7 +1614,11 @@ converting to Surface colorType() and Surface alphaType() if required.
 Copies Rect of pixels from the src Bitmap to the Surface.
 
 Source Rect corners are (0, 0) and (src.width(), src.height()).
-Destination Rect corners are (dstX, dstY) and (dstX + Surface width(), dstY + Surface height()).
+Destination Rect corners are (dstX, dstY) and
+#Formula
+(dstX + Surface width(), dstY + Surface height())
+##
+.
 Copies each readable pixel intersecting both rectangles, without scaling,
 converting to Surface colorType() and Surface alphaType() if required.
 
@@ -1618,7 +1627,7 @@ converting to Surface colorType() and Surface alphaType() if required.
 #Param dstY x position relative to Surface to begin copy; may be negative ##
 
 #Example
-    // todo
+    // incomplete
 ##
 
 #SeeAlso readPixels peekPixels
