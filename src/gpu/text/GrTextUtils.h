@@ -115,7 +115,7 @@ public:
             fFilteredPremulColor = fOriginalPaint->filteredPremulColor();
         }
 
-        bool modifyForRun(const SkTextBlobRunIterator&);
+        bool modifyForRun(std::function<void(SkPaint*)> paintModFunc);
 
     private:
         SkTLazy<SkPaint> fModifiedPaint;
@@ -127,19 +127,6 @@ public:
     static uint32_t FilterTextFlags(const SkSurfaceProps& surfaceProps, const SkPaint& paint);
 
     static bool ShouldDisableLCD(const SkPaint& paint);
-
-    // Functions for drawing large text either as paths or (for color emoji) as scaled glyphs
-    static void DrawBigText(GrTextUtils::Target*, const GrClip& clip,
-                            const SkPaint& paint, const SkMatrix& viewMatrix, const char text[],
-                            size_t byteLength, SkScalar x, SkScalar y,
-                            const SkIRect& clipBounds);
-
-    static void DrawBigPosText(GrTextUtils::Target*,
-                               const SkSurfaceProps& props, const GrClip& clip,
-                               const SkPaint& paint, const SkMatrix& viewMatrix,
-                               const char text[], size_t byteLength, const SkScalar pos[],
-                               int scalarsPerPosition, const SkPoint& offset,
-                               const SkIRect& clipBounds);
 };
 
 #endif
