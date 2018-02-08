@@ -41,7 +41,6 @@
 #ifdef SK_METAL
 #include "mtl/GrMtlTrampoline.h"
 #endif
-#include "ddl/GrDDLGpu.h"
 #ifdef SK_VULKAN
 #include "vk/GrVkGpu.h"
 #endif
