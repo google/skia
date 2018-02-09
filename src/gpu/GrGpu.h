@@ -149,7 +149,7 @@ public:
     /**
      * Resolves MSAA.
      */
-    void resolveRenderTarget(GrRenderTarget*, GrSurfaceOrigin);
+    void resolveRenderTarget(GrRenderTarget*);
 
     /** Info struct returned by getReadPixelsInfo about performing intermediate draws before
         reading pixels for performance or correctness. */
@@ -525,8 +525,9 @@ protected:
         *preference = SkTMax(*preference, elevation);
     }
 
-    // Handles cases where a surface will be updated without a call to flushRenderTarget
-    void didWriteToSurface(GrSurface* surface, const SkIRect* bounds, uint32_t mipLevels = 1) const;
+    // Handles cases where a surface will be updated without a call to flushRenderTarget.
+    void didWriteToSurface(GrSurface* surface, GrSurfaceOrigin origin, const SkIRect* bounds,
+                           uint32_t mipLevels = 1) const;
 
     Stats                            fStats;
     std::unique_ptr<GrPathRendering> fPathRendering;
@@ -596,7 +597,7 @@ private:
                                   size_t offset, size_t rowBytes) = 0;
 
     // overridden by backend-specific derived class to perform the resolve
-    virtual void onResolveRenderTarget(GrRenderTarget* target, GrSurfaceOrigin) = 0;
+    virtual void onResolveRenderTarget(GrRenderTarget* target) = 0;
 
     // overridden by backend specific derived class to perform the copy surface
     virtual bool onCopySurface(GrSurface* dst, GrSurfaceOrigin dstOrigin,

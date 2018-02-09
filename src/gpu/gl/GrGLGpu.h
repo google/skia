@@ -261,7 +261,7 @@ private:
     // PIXEL_UNPACK_BUFFER is unbound.
     void unbindCpuToGpuXferBuffer();
 
-    void onResolveRenderTarget(GrRenderTarget* target, GrSurfaceOrigin) override;
+    void onResolveRenderTarget(GrRenderTarget* target) override;
 
     bool onCopySurface(GrSurface* dst, GrSurfaceOrigin dstOrigin,
                        GrSurface* src, GrSurfaceOrigin srcOrigin,
@@ -362,9 +362,14 @@ private:
     // ensures that such operations don't negatively interact with tracking bound textures.
     void setScratchTextureUnit();
 
-    // bounds is region that may be modified.
-    // nullptr means whole target. Can be an empty rect.
-    void flushRenderTarget(GrGLRenderTarget*, const SkIRect* bounds, bool disableSRGB = false);
+    // The passed bounds contains the render target's color values that will subsequently be
+    // written.
+    void flushRenderTarget(GrGLRenderTarget*, GrSurfaceOrigin, const SkIRect& bounds,
+                           bool disableSRGB = false);
+    // This version has an implicit bounds of the entire render target.
+    void flushRenderTarget(GrGLRenderTarget*, bool disableSRGB = false);
+    // This version can be used when the render target's colors will not be written.
+    void flushRenderTargetNoColorWrites(GrGLRenderTarget*, bool disableSRGB = false);
 
     // Need not be called if flushRenderTarget is used.
     void flushViewport(const GrGLIRect&);

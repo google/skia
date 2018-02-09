@@ -300,7 +300,7 @@ bool GrGpu::writePixels(GrSurface* surface, GrSurfaceOrigin origin,
     if (this->onWritePixels(surface, origin, left, top, width, height, config,
                             texels, mipLevelCount)) {
         SkIRect rect = SkIRect::MakeXYWH(left, top, width, height);
-        this->didWriteToSurface(surface, &rect, mipLevelCount);
+        this->didWriteToSurface(surface, origin, &rect, mipLevelCount);
         fStats.incTextureUploads();
         return true;
     }
@@ -333,7 +333,7 @@ bool GrGpu::transferPixels(GrTexture* texture,
     if (this->onTransferPixels(texture, left, top, width, height, config,
                                transferBuffer, offset, rowBytes)) {
         SkIRect rect = SkIRect::MakeXYWH(left, top, width, height);
-        this->didWriteToSurface(texture, &rect);
+        this->didWriteToSurface(texture, kTopLeft_GrSurfaceOrigin, &rect);
         fStats.incTransfersToTexture();
 
         return true;
@@ -341,17 +341,24 @@ bool GrGpu::transferPixels(GrTexture* texture,
     return false;
 }
 
-void GrGpu::resolveRenderTarget(GrRenderTarget* target, GrSurfaceOrigin origin) {
+void GrGpu::resolveRenderTarget(GrRenderTarget* target) {
     SkASSERT(target);
     this->handleDirtyContext();
-    this->onResolveRenderTarget(target, origin);
+    this->onResolveRenderTarget(target);
 }
 
-void GrGpu::didWriteToSurface(GrSurface* surface, const SkIRect* bounds, uint32_t mipLevels) const {
+void GrGpu::didWriteToSurface(GrSurface* surface, GrSurfaceOrigin origin, const SkIRect* bounds,
+                              uint32_t mipLevels) const {
     SkASSERT(surface);
     // Mark any MIP chain and resolve buffer as dirty if and only if there is a non-empty bounds.
     if (nullptr == bounds || !bounds->isEmpty()) {
         if (GrRenderTarget* target = surface->asRenderTarget()) {
+            SkIRect flippedBounds;
+            if (kBottomLeft_GrSurfaceOrigin == origin && bounds) {
+                flippedBounds = {bounds->fLeft, surface->height() - bounds->fBottom,
+                                 bounds->fRight, surface->height() - bounds->fTop};
+                bounds = &flippedBounds;
+            }
             target->flagAsNeedingResolve(bounds);
         }
         GrTexture* texture = surface->asTexture();

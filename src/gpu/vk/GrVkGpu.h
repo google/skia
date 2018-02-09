@@ -120,8 +120,8 @@ public:
         return fCompiler;
     }
 
-    void onResolveRenderTarget(GrRenderTarget* target, GrSurfaceOrigin origin) override {
-        this->internalResolveRenderTarget(target, origin, true);
+    void onResolveRenderTarget(GrRenderTarget* target) override {
+        this->internalResolveRenderTarget(target, true);
     }
 
     void submitSecondaryCommandBuffer(const SkTArray<GrVkSecondaryCommandBuffer*>&,
@@ -218,7 +218,7 @@ private:
     // wait semaphores to the submission of this command buffer.
     void submitCommandBuffer(SyncQueue sync);
 
-    void internalResolveRenderTarget(GrRenderTarget*, GrSurfaceOrigin origin, bool requiresSubmit);
+    void internalResolveRenderTarget(GrRenderTarget*, bool requiresSubmit);
 
     void copySurfaceAsCopyImage(GrSurface* dst, GrSurfaceOrigin dstOrigin,
                                 GrSurface* src, GrSurfaceOrigin srcOrigin,
@@ -248,9 +248,8 @@ private:
                               GrPixelConfig dataConfig,
                               const GrMipLevel texels[], int mipLevelCount);
 
-    void resolveImage(GrSurface* dst, GrSurfaceOrigin dstOrigin,
-                      GrVkRenderTarget* src, GrSurfaceOrigin srcOrigin,
-                      const SkIRect& srcRect, const SkIPoint& dstPoint);
+    void resolveImage(GrSurface* dst, GrVkRenderTarget* src, const SkIRect& srcRect,
+                      const SkIPoint& dstPoint);
 
     sk_sp<const GrVkBackendContext> fBackendContext;
     sk_sp<GrVkCaps>                 fVkCaps;
