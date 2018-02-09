@@ -40,7 +40,7 @@ const (
 
 	DEFAULT_OS_DEBIAN    = "Debian-9.1"
 	DEFAULT_OS_LINUX_GCE = "Debian-9.2"
-	DEFAULT_OS_MAC       = "Mac-10.13.2"
+	DEFAULT_OS_MAC       = "Mac-10.13.3"
 	DEFAULT_OS_UBUNTU    = "Ubuntu-14.04"
 	DEFAULT_OS_WIN       = "Windows-2016Server-14393"
 
@@ -337,12 +337,6 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 					glog.Fatalf("Entry %q not found in Mac GPU mapping.", parts["cpu_or_gpu_value"])
 				}
 				d["gpu"] = gpu
-				// TODO(benjaminwagner): Mac GPU bots haven't been upgraded.
-				d["os"] = map[string]string{
-					"IntelHD6000":   "Mac-10.13.3",
-					"IntelHD615":    "Mac-10.13.3",
-					"IntelIris5100": "Mac-10.13.1",
-				}[parts["cpu_or_gpu_value"]]
 				// Yuck. We have two different types of MacMini7,1 with the same GPU but different CPUs.
 				if parts["cpu_or_gpu_value"] == "IntelIris5100" {
 					// Run all tasks on Golo machines for now.
