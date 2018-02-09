@@ -355,26 +355,6 @@ sk_sp<SkImage> SkImage::MakeFromTexture(GrContext* ctx,
     return nullptr;
 }
 
-size_t SkImage::getDeferredTextureImageData(const GrContextThreadSafeProxy&,
-                                            const DeferredTextureImageUsageParams[],
-                                            int paramCnt, void* buffer,
-                                            SkColorSpace* dstColorSpace,
-                                            SkColorType dstColorType) const {
-    return 0;
-}
-
-sk_sp<SkImage> SkImage::MakeFromDeferredTextureImageData(GrContext* context, const void*,
-                                                         SkBudgeted) {
-    return nullptr;
-}
-
-sk_sp<SkImage> SkImage::MakeFromTexture(GrContext* ctx,
-                                        const GrBackendTexture& tex, GrSurfaceOrigin origin,
-                                        SkColorType ct, SkAlphaType at, sk_sp<SkColorSpace> cs,
-                                        TextureReleaseProc releaseP, ReleaseContext releaseC) {
-    return nullptr;
-}
-
 bool SkImage::MakeBackendTextureFromSkImage(GrContext*,
                                             sk_sp<SkImage>,
                                             GrBackendTexture*,

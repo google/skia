@@ -2113,33 +2113,6 @@ By translating canvas by returned offset, Image appears stationary.
 
 # ------------------------------------------------------------------------------
 
-#Struct DeferredTextureImageUsageParams
-#Deprecated soon
-
-Used only by Chrome.
-
-##
-
-#Method size_t getDeferredTextureImageData(const GrContextThreadSafeProxy& contextThreadSafeProxy,
-                            const DeferredTextureImageUsageParams deferredTextureImageUsageParams[],
-                            int paramCnt,
-                            void* buffer,
-                            SkColorSpace* dstColorSpace = nullptr,
-                            SkColorType dstColorType = kN32_SkColorType) const
-#Deprecated soon
-
-Used only by Chrome.
-##
-
-#Method static sk_sp<SkImage> MakeFromDeferredTextureImageData(GrContext* context, const void* data,
-                                                           SkBudgeted budgeted)
-#Deprecated soon
-
-Used only by Chrome.
-##
-
-# ------------------------------------------------------------------------------
-
 #Typedef std::function<void(GrBackendTexture)> BackendTextureReleaseProc
 
 ##
