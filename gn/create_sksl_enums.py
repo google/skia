@@ -10,7 +10,7 @@ import subprocess
 import sys
 
 src = open(sys.argv[1], 'r')
-dst = open(sys.argv[2], 'w')
+dst = open(sys.argv[2], 'wb')
 dst.write('R"(')
 for line in src.readlines():
     if not line.startswith("#"):
