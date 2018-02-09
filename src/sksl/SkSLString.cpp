@@ -8,6 +8,7 @@
 #include "SkSLString.h"
 
 #include "SkSLUtil.h"
+#include <algorithm>
 #include <errno.h>
 #include <limits.h>
 #include <locale>
