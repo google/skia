@@ -20,7 +20,7 @@ Image width and height are greater than zero. Creating an Image with zero width
 or height returns Image equal to nullptr.
 
 Image may be created from Bitmap, Pixmap, Surface, Picture, encoded streams,
-GPU_Texture, YUV_ColorSpace data, or hardware buffer. Encoded streams supported
+GPU_Texture, YUV_Color_Space data, or hardware buffer. Encoded streams supported
 include BMP, GIF, HEIF, ICO, JPEG, PNG, WBMP, WebP. Supported encoding details
 vary with platform.
 
@@ -662,7 +662,7 @@ Recognized formats vary by GPU back-end.
                                                   GrSurfaceOrigin surfaceOrigin,
                                                   sk_sp<SkColorSpace> colorSpace = nullptr)
 #In Constructor
-#Line # creates Image from YUV_ColorSpace data in three planes ##
+#Line # creates Image from YUV_Color_Space data in three planes ##
 
 Creates Image from copy of yuvTextureHandles, an array of textures on GPU.
 yuvTextureHandles contain pixels for YUV planes of Image.
@@ -739,7 +739,7 @@ should this be moved to chrome only?
                                                    GrSurfaceOrigin surfaceOrigin,
                                                    sk_sp<SkColorSpace> colorSpace = nullptr)
 #In Constructor
-#Line # creates Image from YUV_ColorSpace data in two planes ##
+#Line # creates Image from YUV_Color_Space data in two planes ##
 
 Creates Image from copy of nv12TextureHandles, an array of textures on GPU.
 nv12TextureHandles[0] contains pixels for YUV_Component_Y plane.

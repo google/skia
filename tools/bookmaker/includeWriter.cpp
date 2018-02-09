@@ -640,6 +640,9 @@ void IncludeWriter::enumSizeItems(const Definition& child) {
 
 // walk children and output complete method doxygen description
 void IncludeWriter::methodOut(const Definition* method, const Definition& child) {
+    if (string::npos != method->fName.find("scalePixels")) {
+        SkDebugf("");
+    }
     if (fPendingMethod) {
         fIndent -= 4;
         fPendingMethod = false;
@@ -705,6 +708,7 @@ void IncludeWriter::methodOut(const Definition* method, const Definition& child)
     this->writeCommentTrailer();
     fBmhMethod = nullptr;
     fMethodDef = nullptr;
+    fEnumDef = nullptr;
     fWroteMethod = true;
 }
 
@@ -1488,9 +1492,7 @@ bool IncludeWriter::populate(Definition* def, ParentPair* prevPair, RootDefiniti
                     }
                 }
 				SkASSERT(fBmhStructDef);
-				if (fBmhStructDef->fDeprecated) {
-					SkDebugf("");
-				} else {
+				if (!fBmhStructDef->fDeprecated) {
 					memberEnd = this->structMemberOut(memberStart, child);
 					startDef = &child;
 					fStart = child.fContentEnd + 1;
@@ -1667,6 +1669,9 @@ string IncludeWriter::resolveRef(const char* start, const char* end, bool first,
         RefType* refType) {
         // look up Xxx_Xxx
     string undername(start, end - start);
+    if ("Image_Info" == undername) {
+        SkDebugf("");
+    }
     for (const auto& external : fBmhParser->fExternals) {
         if (external.fName == undername) {
             *refType = RefType::kExternal;
@@ -1713,7 +1718,29 @@ string IncludeWriter::resolveRef(const char* start, const char* end, bool first,
             }
         }
         if (!substitute.length()) {
+            string match = rootDef->fName;
+            size_t index;
+            while (string::npos != (index = match.find('_'))) {
+                match.erase(index, 1);
+            }
+            string skmatch = "Sk" + match;
             for (auto child : rootDef->fChildren) {
+                // there may be more than one
+                // prefer the one mostly closely matching in text
+                if ((MarkType::kClass == child->fMarkType ||
+                    MarkType::kStruct == child->fMarkType ||
+                    (MarkType::kEnum == child->fMarkType && !child->fAnonymous) ||
+                    MarkType::kEnumClass == child->fMarkType) && (match == child->fName ||
+                    skmatch == child->fName)) {
+                    substitute = child->fName;
+                    break;
+                }
+            }
+        }
+        if (!substitute.length()) {
+            for (auto child : rootDef->fChildren) {
+                // there may be more than one
+                // prefer the one mostly closely matching in text
                 if (MarkType::kClass == child->fMarkType ||
                         MarkType::kStruct == child->fMarkType ||
                         (MarkType::kEnum == child->fMarkType && !child->fAnonymous) ||

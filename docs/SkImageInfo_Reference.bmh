@@ -59,10 +59,18 @@ generate this on output.
 # ------------------------------------------------------------------------------
 #Subtopic Color_Type
 #Line # incomplete ##
-#Alias Native_Color_Type
-#Substitute native SkColorType
 #Alias Color_Type
 #Alias Color_Types
+
+#Subtopic Native_Color_Type
+#Alias Native_Color_Type
+#Substitute native color type
+#Line # incomplete ##
+#ToDo native color type description goes here
+##
+
+##
+
 #Enum SkColorType
 #Line # incomplete ##
 
@@ -128,6 +136,8 @@ kRGBA_8888_SkColorType.
 #Subtopic Color_Type ##
 
 # ------------------------------------------------------------------------------
+#Subtopic YUV_Color_Space
+#Alias YUV_Color_Space
 #Enum SkYUVColorSpace
 #Line # incomplete ##
 
@@ -161,6 +171,7 @@ range. See http://en.wikipedia.org/wiki/Rec._709 for details.
 #SeeAlso incomplete
 
 #Enum SkYUVColorSpace ##
+#Subtopic YUV_Color_Space ##
 
 # ------------------------------------------------------------------------------
 #EnumClass SkDestinationSurfaceColorMode
