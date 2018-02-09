@@ -398,15 +398,6 @@ sk_sp<const GrGLInterface> GrGLMakeAssembledGLInterface(void *ctx, GrGLGetProc g
         GET_PROC(DeleteSync);
     }
 
-    if (glVer >= GR_GL_VER(4, 2) || extensions.has("GL_ARB_shader_image_load_store")) {
-        GET_PROC(BindImageTexture);
-        GET_PROC(MemoryBarrier);
-    }
-    if (glVer >= GR_GL_VER(4, 5) || extensions.has("GL_ARB_ES3_1_compatibility")) {
-        GET_PROC(MemoryBarrierByRegion);
-    }
-
-
     if (glVer >= GR_GL_VER(4,2) || extensions.has("GL_ARB_internalformat_query")) {
         GET_PROC(GetInternalformativ);
     }
@@ -831,12 +822,6 @@ sk_sp<const GrGLInterface> GrGLMakeAssembledGLESInterface(void *ctx, GrGLGetProc
         GET_PROC_SUFFIX(ClientWaitSync, APPLE);
         GET_PROC_SUFFIX(WaitSync, APPLE);
         GET_PROC_SUFFIX(DeleteSync, APPLE);
-    }
-
-    if (version >= GR_GL_VER(3, 1)) {
-        GET_PROC(BindImageTexture);
-        GET_PROC(MemoryBarrier);
-        GET_PROC(MemoryBarrierByRegion);
     }
 
     if (version >= GR_GL_VER(3,0)) {

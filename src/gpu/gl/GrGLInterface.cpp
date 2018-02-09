@@ -628,26 +628,6 @@ bool GrGLInterface::validate() const {
         }
     }
 
-    if (kGL_GrGLStandard == fStandard) {
-        if (glVer >= GR_GL_VER(4,2) || fExtensions.has("GL_ARB_shader_image_load_store")) {
-            if (!fFunctions.fBindImageTexture ||
-                !fFunctions.fMemoryBarrier) {
-                RETURN_FALSE_INTERFACE;
-            }
-        }
-        if (glVer >= GR_GL_VER(4,5) || fExtensions.has("GL_ARB_ES3_1_compatibility")) {
-            if (!fFunctions.fMemoryBarrierByRegion) {
-                RETURN_FALSE_INTERFACE;
-            }
-        }
-    } else if (kGLES_GrGLStandard == fStandard && glVer >= GR_GL_VER(3,1)) {
-        if (!fFunctions.fBindImageTexture ||
-            !fFunctions.fMemoryBarrier ||
-            !fFunctions.fMemoryBarrierByRegion) {
-            RETURN_FALSE_INTERFACE;
-        }
-    }
-
     // getInternalformativ was added in GL 4.2, ES 3.0, and with extension ARB_internalformat_query
     if ((kGL_GrGLStandard == fStandard &&
          (glVer >= GR_GL_VER(4,2) || fExtensions.has("GL_ARB_internalformat_query"))) ||
