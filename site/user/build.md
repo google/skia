@@ -36,7 +36,8 @@ needed.
 Quickstart
 ----------
 
-Run GN to generate your build files.
+Run GN to generate your build files. (On Windows, substitute `bin\gn` for
+`bin/gn` and replace `--args='cc="clang'` with `--args="cc=^"clang^""`.)
 
     bin/gn gen out/Static --args='is_official_build=true'
     bin/gn gen out/Shared --args='is_official_build=true is_component_build=true'
