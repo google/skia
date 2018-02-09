@@ -973,9 +973,6 @@ void MdOut::markTypeOut(Definition* def) {
         case MarkType::kPopulate: {
             SkASSERT(MarkType::kSubtopic == def->fParent->fMarkType);
             string name = def->fParent->fName;
-            if ("Bitmap_Related_Function" == def->fParent->fFiddle) {
-                SkDebugf("");
-            }
             if (kSubtopics == name) {
                 this->subtopicsOut();
             } else {
@@ -1191,9 +1188,6 @@ void MdOut::populateTables(const Definition* def) {
         return;
     }
     for (auto child : def->fChildren) {
-        if (string::npos != child->fFiddle.find("Bitmap_Set")) {
-            SkDebugf("");
-        }
         if (MarkType::kTopic == child->fMarkType || MarkType::kSubtopic == child->fMarkType) {
             string name = child->fName;
             bool builtInTopic = name == kClassesAndStructs || name == kConstants
@@ -1381,9 +1375,6 @@ void MdOut::subtopicOut(const TableContents& tableContents) {
         items[name] = entry;
     }
     for (auto entry : items) {
-        if (string::npos != entry.second->fName.find("SkRect::set")) {
-            SkDebugf("");
-        }
         if (entry.second->fDeprecated) {
             continue;
         }
