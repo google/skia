@@ -121,7 +121,7 @@ private:
         return true;
     }
 
-    void onResolveRenderTarget(GrRenderTarget* target, GrSurfaceOrigin) override { return; }
+    void onResolveRenderTarget(GrRenderTarget* target) override { return; }
 
     void onFinishFlush(bool insertedSemaphores) override {}
 

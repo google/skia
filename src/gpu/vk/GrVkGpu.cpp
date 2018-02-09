@@ -492,9 +492,8 @@ bool GrVkGpu::onTransferPixels(GrTexture* texture,
     return true;
 }
 
-void GrVkGpu::resolveImage(GrSurface* dst, GrSurfaceOrigin dstOrigin,
-                           GrVkRenderTarget* src, GrSurfaceOrigin srcOrigin,
-                           const SkIRect& srcRect, const SkIPoint& dstPoint) {
+void GrVkGpu::resolveImage(GrSurface* dst, GrVkRenderTarget* src, const SkIRect& srcRect,
+                           const SkIPoint& dstPoint) {
     SkASSERT(dst);
     SkASSERT(src && src->numColorSamples() > 1 && src->msaaImage());
 
@@ -502,23 +501,12 @@ void GrVkGpu::resolveImage(GrSurface* dst, GrSurfaceOrigin dstOrigin,
         this->submitCommandBuffer(GrVkGpu::kSkip_SyncQueue);
     }
 
-    // Flip rect if necessary
-    SkIRect srcVkRect = srcRect;
-    int32_t dstY = dstPoint.fY;
-
-    if (kBottomLeft_GrSurfaceOrigin == srcOrigin) {
-        SkASSERT(kBottomLeft_GrSurfaceOrigin == dstOrigin);
-        srcVkRect.fTop = src->height() - srcRect.fBottom;
-        srcVkRect.fBottom = src->height() - srcRect.fTop;
-        dstY = dst->height() - dstPoint.fY - srcVkRect.height();
-    }
-
     VkImageResolve resolveInfo;
-    resolveInfo.srcSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
-    resolveInfo.srcOffset = { srcVkRect.fLeft, srcVkRect.fTop, 0 };
-    resolveInfo.dstSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
-    resolveInfo.dstOffset = { dstPoint.fX, dstY, 0 };
-    resolveInfo.extent = { (uint32_t)srcVkRect.width(), (uint32_t)srcVkRect.height(), 1 };
+    resolveInfo.srcSubresource = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1};
+    resolveInfo.srcOffset = {srcRect.fLeft, srcRect.fTop, 0};
+    resolveInfo.dstSubresource = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1};
+    resolveInfo.dstOffset = {dstPoint.fX, dstPoint.fY, 0};
+    resolveInfo.extent = {(uint32_t)srcRect.width(), (uint32_t)srcRect.height(), 1};
 
     GrVkImage* dstImage;
     GrRenderTarget* dstRT = dst->asRenderTarget();
@@ -544,8 +532,7 @@ void GrVkGpu::resolveImage(GrSurface* dst, GrSurfaceOrigin dstOrigin,
     fCurrentCmdBuffer->resolveImage(this, *src->msaaImage(), *dstImage, 1, &resolveInfo);
 }
 
-void GrVkGpu::internalResolveRenderTarget(GrRenderTarget* target, GrSurfaceOrigin origin,
-                                          bool requiresSubmit) {
+void GrVkGpu::internalResolveRenderTarget(GrRenderTarget* target, bool requiresSubmit) {
     if (target->needsResolve()) {
         SkASSERT(target->numColorSamples() > 1);
         GrVkRenderTarget* rt = static_cast<GrVkRenderTarget*>(target);
@@ -553,8 +540,7 @@ void GrVkGpu::internalResolveRenderTarget(GrRenderTarget* target, GrSurfaceOrigi
 
         const SkIRect& srcRect = rt->getResolveRect();
 
-        this->resolveImage(target, origin, rt, origin, srcRect,
-                           SkIPoint::Make(srcRect.fLeft, srcRect.fTop));
+        this->resolveImage(target, rt, srcRect, SkIPoint::Make(srcRect.fLeft, srcRect.fTop));
 
         rt->flagAsResolved();
 
@@ -1010,7 +996,7 @@ void GrVkGpu::generateMipmap(GrVkTexture* tex, GrSurfaceOrigin texOrigin) {
     // We may need to resolve the texture first if it is also a render target
     GrVkRenderTarget* texRT = static_cast<GrVkRenderTarget*>(tex->asRenderTarget());
     if (texRT) {
-        this->internalResolveRenderTarget(texRT, texOrigin, false);
+        this->internalResolveRenderTarget(texRT, false);
     }
 
     int width = tex->width();
@@ -1691,7 +1677,7 @@ void GrVkGpu::copySurfaceAsCopyImage(GrSurface* dst, GrSurfaceOrigin dstOrigin,
 
     SkIRect dstRect = SkIRect::MakeXYWH(dstPoint.fX, dstPoint.fY,
                                         srcRect.width(), srcRect.height());
-    this->didWriteToSurface(dst, &dstRect);
+    this->didWriteToSurface(dst, dstOrigin, &dstRect);
 }
 
 inline bool can_copy_as_blit(const GrSurface* dst,
@@ -1782,7 +1768,7 @@ void GrVkGpu::copySurfaceAsBlit(GrSurface* dst, GrSurfaceOrigin dstOrigin,
                                  &blitRegion,
                                  VK_FILTER_NEAREST); // We never scale so any filter works here
 
-    this->didWriteToSurface(dst, &dstRect);
+    this->didWriteToSurface(dst, dstOrigin, &dstRect);
 }
 
 inline bool can_copy_as_resolve(const GrSurface* dst, GrSurfaceOrigin dstOrigin,
@@ -1808,12 +1794,19 @@ inline bool can_copy_as_resolve(const GrSurface* dst, GrSurfaceOrigin dstOrigin,
     return true;
 }
 
-void GrVkGpu::copySurfaceAsResolve(GrSurface* dst, GrSurfaceOrigin dstOrigin,
-                                   GrSurface* src, GrSurfaceOrigin srcOrigin,
-                                   const SkIRect& srcRect,
-                                   const SkIPoint& dstPoint) {
+void GrVkGpu::copySurfaceAsResolve(GrSurface* dst, GrSurfaceOrigin dstOrigin, GrSurface* src,
+                                   GrSurfaceOrigin srcOrigin, const SkIRect& origSrcRect,
+                                   const SkIPoint& origDstPoint) {
     GrVkRenderTarget* srcRT = static_cast<GrVkRenderTarget*>(src->asRenderTarget());
-    this->resolveImage(dst, dstOrigin, srcRT, srcOrigin, srcRect, dstPoint);
+    SkIRect srcRect = origSrcRect;
+    SkIPoint dstPoint = origDstPoint;
+    if (kBottomLeft_GrSurfaceOrigin == srcOrigin) {
+        SkASSERT(kBottomLeft_GrSurfaceOrigin == dstOrigin);
+        srcRect = {origSrcRect.fLeft, src->height() - origSrcRect.fBottom,
+                   origSrcRect.fRight, src->height() - origSrcRect.fTop};
+        dstPoint.fY = dst->height() - dstPoint.fY - srcRect.height();
+    }
+    this->resolveImage(dst, srcRT, srcRect, dstPoint);
 }
 
 bool GrVkGpu::onCopySurface(GrSurface* dst, GrSurfaceOrigin dstOrigin,
@@ -1933,7 +1926,7 @@ bool GrVkGpu::onReadPixels(GrSurface* surface, GrSurfaceOrigin origin,
             case GrVkRenderTarget::kAutoResolves_ResolveType:
                 break;
             case GrVkRenderTarget::kCanResolve_ResolveType:
-                this->internalResolveRenderTarget(rt, origin, false);
+                this->internalResolveRenderTarget(rt, false);
                 break;
             default:
                 SK_ABORT("Unknown resolve type");
@@ -2122,7 +2115,7 @@ void GrVkGpu::submitSecondaryCommandBuffer(const SkTArray<GrVkSecondaryCommandBu
     }
     fCurrentCmdBuffer->endRenderPass(this);
 
-    this->didWriteToSurface(target, &bounds);
+    this->didWriteToSurface(target, origin, &bounds);
 }
 
 GrFence SK_WARN_UNUSED_RESULT GrVkGpu::insertFence() {
