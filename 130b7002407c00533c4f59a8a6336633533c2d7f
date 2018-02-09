@@ -22,6 +22,30 @@
       "revId": "130b7002407c00533c4f59a8a6336633533c2d7f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "64cf6a82_baf27910",
+        "filename": "tools/skqp/make_universal_apk",
+        "patchSetId": 5
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-02-09T20:36:06Z",
+      "side": 1,
+      "message": "fixed",
+      "parentUuid": "fa313322_a4fdd147",
+      "range": {
+        "startLine": 17,
+        "startChar": 0,
+        "endLine": 17,
+        "endChar": 31
+      },
+      "revId": "130b7002407c00533c4f59a8a6336633533c2d7f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
