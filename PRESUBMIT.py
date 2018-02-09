@@ -109,6 +109,29 @@ def _PythonChecks(input_api, output_api):
       white_list=affected_python_files)
 
 
+def _JsonChecks(input_api, output_api):
+  """Run checks on any modified json files."""
+  failing_files = []
+  for affected_file in input_api.AffectedFiles(None):
+    affected_file_path = affected_file.LocalPath()
+    is_json = affected_file_path.endswith('.json')
+    is_metadata = (affected_file_path.startswith('site/') and
+                   affected_file_path.endswith('/METADATA'))
+    if is_json or is_metadata:
+      try:
+        input_api.json.load(open(affected_file_path, 'r'))
+      except ValueError:
+        failing_files.append(affected_file_path)
+
+  results = []
+  if failing_files:
+    results.append(
+        output_api.PresubmitError(
+            'The following files contain invalid json:\n%s\n\n' %
+                '\n'.join(failing_files)))
+  return results
+
+
 def _IfDefChecks(input_api, output_api):
   """Ensures if/ifdef are not before includes. See skbug/3362 for details."""
   comment_block_start_pattern = re.compile('^\s*\/\*.*$')
@@ -236,6 +259,7 @@ def _CommonChecks(input_api, output_api):
       input_api.canned_checks.CheckChangeHasNoStrayWhitespace(
           input_api, output_api, source_file_filter=sources))
   results.extend(_PythonChecks(input_api, output_api))
+  results.extend(_JsonChecks(input_api, output_api))
   results.extend(_IfDefChecks(input_api, output_api))
   results.extend(_CopyrightChecks(input_api, output_api,
                                   source_file_filter=sources))
