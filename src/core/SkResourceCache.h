@@ -12,6 +12,10 @@
 #include "SkMessageBus.h"
 #include "SkTDArray.h"
 
+#if SK_SUPPORT_GPU
+#include "GrResourceKey.h"
+#endif
+
 class SkCachedData;
 class SkDiscardableMemory;
 class SkTraceMemoryDump;
@@ -58,6 +62,10 @@ public:
             }
             return true;
         }
+
+#if SK_SUPPORT_GPU
+        void toGrUniqueKey(GrUniqueKey::Domain domain, GrUniqueKey*) const;
+#endif
 
     private:
         int32_t  fCount32;   // local + user contents count32
