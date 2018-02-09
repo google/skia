@@ -220,4 +220,14 @@ template <typename T> static inline bool SkFitsInFixed(T x) {
     return SkTAbs(x) <= 32767.0f;
 }
 
+static inline float sk_safe_float_divide(float numer, float denom) {
+    return numer / denom;
+}
+
+static inline double sk_safe_double_divide(double numer, double denom) {
+    return numer / denom;
+}
+
+#define SkScalarDivide(numer, denom)    sk_safe_float_divide(numer, denom)
+
 #endif
