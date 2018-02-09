@@ -16,6 +16,24 @@
       "revId": "41495b5ff8ab58c288e3bce8a3152e2095944489",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1b9b47c9_d53a24af",
+        "filename": "site/user/build.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2018-02-09T02:55:22Z",
+      "side": 1,
+      "message": "Good point. My life would be much easier if I knew that file.",
+      "parentUuid": "9aa56add_c528ace6",
+      "revId": "41495b5ff8ab58c288e3bce8a3152e2095944489",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
