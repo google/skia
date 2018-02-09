@@ -206,8 +206,8 @@ public:
 bool <a href="#SkBitmap_HeapAllocator_allocPixelRef">allocPixelRef(SkBitmap* bitmap)</a> override;
 };</pre>
 
-Subclass of <a href="#SkBitmap_Allocator">Allocator</a> that returns a <a href="undocumented#Pixel_Ref">Pixel Ref</a> that allocates its pixel
-memory from the heap. This is the default <a href="#SkBitmap_Allocator">Allocator</a> invoked by
+Subclass of <a href="#SkBitmap_Allocator">SkBitmap::Allocator</a> that returns a <a href="undocumented#Pixel_Ref">Pixel Ref</a> that allocates its pixel
+memory from the heap. This is the default <a href="#SkBitmap_Allocator">SkBitmap::Allocator</a> invoked by
 <a href="#SkBitmap_allocPixels">allocPixels</a>.
 
 <a name="SkBitmap_HeapAllocator_allocPixelRef"></a>
@@ -248,7 +248,7 @@ pixel address = 0x560ddd0ac670
 
 ### See Also
 
-<a href="#SkBitmap_Allocator">Allocator</a> <a href="#SkBitmap_tryAllocPixels">tryAllocPixels</a><sup><a href="#SkBitmap_tryAllocPixels_2">[2]</a></sup><sup><a href="#SkBitmap_tryAllocPixels_3">[3]</a></sup><sup><a href="#SkBitmap_tryAllocPixels_4">[4]</a></sup>
+<a href="#SkBitmap_Allocator">SkBitmap::Allocator</a> <a href="#SkBitmap_tryAllocPixels">tryAllocPixels</a><sup><a href="#SkBitmap_tryAllocPixels_2">[2]</a></sup><sup><a href="#SkBitmap_tryAllocPixels_3">[3]</a></sup><sup><a href="#SkBitmap_tryAllocPixels_4">[4]</a></sup>
 
 ---
 
